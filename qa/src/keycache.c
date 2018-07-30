@@ -6,7 +6,6 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/pmda.h>
-#include <arpa/inet.h>
 
 static int histo[128];
 static int vflag = 0;

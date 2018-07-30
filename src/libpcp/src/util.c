@@ -1604,11 +1604,21 @@ pmfstate(int state)
 		if (!xconfirm)
 		    fprintf(stderr, "%s: using stderr - no PCP_XCONFIRM_PROG\n",
 			    pmGetProgname());
-		else if (access(__pmNativePath(xconfirm), X_OK) < 0)
-		    fprintf(stderr, "%s: using stderr - cannot access %s: %s\n",
+		else {
+		    char *path = strdup(xconfirm);
+		    if (path == NULL) {
+			pmNoMem("pmfstate", strlen(xconfirm)+1, PM_FATAL_ERR);
+			/* NOTREACHED */
+		    }
+		    /* THREADSAFE - no locks acquired in __pmNativePath() */
+		    path = __pmNativePath(path);
+		    if (access(path, X_OK) < 0)
+			fprintf(stderr, "%s: using stderr - cannot access %s: %s\n",
 			    pmGetProgname(), xconfirm, osstrerror_r(errmsg, sizeof(errmsg)));
-		else
-		    errtype = PM_USEDIALOG;
+		    else
+			errtype = PM_USEDIALOG;
+		    free(path);
+		}
 	    }
 	    else if (strcmp(filename, "") != 0)
 		errtype = PM_USEFILE;
@@ -1694,6 +1704,7 @@ pmflush(void)
     FILE	*eptr = NULL;
     __pmExecCtl_t	*argp = NULL;
     char	errmsg[PM_MAXERRMSGLEN];
+    char	*path = NULL;
 
     /* see thread-safe notes above */
     if (!xconfirm_init) {
@@ -1721,7 +1732,14 @@ pmflush(void)
 		sts = PM_ERR_GENERIC;
 		break;
 	    }
-	    if ((sts = __pmProcessAddArg(&argp, __pmNativePath(xconfirm))) < 0)
+	    path = strdup(xconfirm);
+	    if (path == NULL) {
+		pmNoMem("pmflush", strlen(xconfirm)+1, PM_FATAL_ERR);
+		/* NOTREACHED */
+	    }
+	    /* THREADSAFE - no locks acquired in __pmNativePath() */
+	    path = __pmNativePath(path);
+	    if ((sts = __pmProcessAddArg(&argp, path)) < 0)
 		break;
 	    if ((sts = __pmProcessAddArg(&argp, "-t")) < 0)
 		break;
@@ -1748,7 +1766,7 @@ pmflush(void)
 	    /* no thread-safe issue here ... we're executing xconfirm */
 	    if ((sts = __pmProcessExec(&argp, PM_EXEC_TOSS_ALL, PM_EXEC_WAIT)) < 0) {
 		fprintf(stderr, "%s: __pmProcessExec(%s, ...) failed: %s\n",
-		    pmGetProgname(), __pmNativePath(xconfirm),
+		    pmGetProgname(), path,
 		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 	    /*
@@ -1767,6 +1785,10 @@ pmflush(void)
     }
 
     PM_UNLOCK(util_lock);
+
+    if (path != NULL)
+	free(path);
+
     return sts;
 }
 
@@ -2561,8 +2583,16 @@ __pmProcessRunTimes(double *usr, double *sys)
 #endif
 
 #if !defined(IS_MINGW)
+/*
+ * fromChild - pipe used for reading from the caller, connected to the
+ * standard output of the created process
+ * toChild - pipe used for writing from the caller, connected to the
+ * std input of the created process
+ * If either is NULL, no pipe is created and created process inherits
+ * stdio streams from the parent.
+ */
 pid_t
-__pmProcessCreate(char **argv, int *infd, int *outfd)
+__pmProcessCreate(char **argv, int *fromChild, int *toChild)
 {
     int		in[2];
     int		out[2];
@@ -2581,8 +2611,8 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	/* parent */
 	close(in[0]);
 	close(out[1]);
-	*infd = out[0];
-	*outfd = in[1];
+	*fromChild = out[0];
+	*toChild = in[1];
     }
     else {
 	/* child */
@@ -2617,6 +2647,8 @@ void
 pmSetProgname(const char *program)
 {
     char	*p;
+
+    __pmInitLocks();	/* not used here, just get in early */
 
     if (program == NULL) {
 	/* Restore the default application name */

@@ -24,14 +24,15 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 _filter()
 {
     tee -a $here/$seq.full \
-    | grep -i attribute | \
-    sed \
+    | grep -i attribute \
+    | sed \
 	-e "s/processid=[0-9][0-9]*/processid=PID/" \
 	-e "s/groupid=$gid/groupid=GID/" \
 	-e "s/userid=$uid/userid=UID/" \
 	-e '/ctx=[0-9][0-9]*/s//ctx=N/' \
 	-e '/pmdasample([0-9][0-9]*)/s//pmdasample(PID)/' \
-	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATETIME]/'
+	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATETIME]/' \
+    | LC_COLLATE=POSIX sort -u
 }
 
 # real QA test starts here

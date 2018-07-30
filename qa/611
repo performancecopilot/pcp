@@ -82,10 +82,31 @@ End-of-File
 
 # real QA test starts here
 ( pmlogger -s 40 -c $tmp.config -l $tmp.log $tmp; touch $tmp.done ) &
+pid=$!
 
+i=1
+last_nrec=0
 while [ ! -f $tmp.done ]
 do
-    src/spawn 10000
+    echo >>$here/$seq.full
+    echo "=== spawn iter $i ===" >>$here/$seq.full
+    ( time src/spawn 10000 ) >>$here/$seq.full 2>&1
+    nrec=`pmdumplog $tmp | grep '^[0-9]' | wc -l | sed -e 's/ //g'`
+    ls -l $tmp.0 >>$here/$seq.full
+    echo "$nrec archive records" >>$here/$seq.full
+    if [ $nrec -eq $last_nrec ]
+    then
+	# dead hand timer ... no progress
+	#
+	echo "Arrgh: pmlogger not making progress ... $nrec archive records unchanged after spawn iteration #$i"
+	echo "See $seq.full for details."
+	kill -TERM $pid
+	wait
+	pmdumplog -a $tmp >>$here/$seq.full
+	exit
+    fi
+    last_nrec=$nrec
+    i=`expr $i + 1`
 done
 
 cat $tmp.log >>$here/$seq.full
@@ -97,6 +118,6 @@ pmdumplog -i $tmp \
 | tee -a $here/$seq.full \
 | _filter
 
-# success, all done
 status=0
+
 exit

@@ -966,9 +966,28 @@ main(int argc, char *argv[])
     __pmServerSetServiceSpec(PM_SERVER_SERVICE_SPEC);
 
     if (run_daemon) {
+#ifdef IS_MINGW
+	/*
+	 * no exec() here, so __pmServerStart() is going to launch
+	 * me again, so need -f added to argv to prevent infinite
+	 * loop.
+	 */
+	char	**nargv = (char **)malloc((argc+1)*sizeof(char *));
+	int	nargc;
+	if (nargv == NULL) {
+	    pmNoMem("__pmServerStart setup", (int)((argc+1)*sizeof(char *)), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	for (nargc = 0; nargc < argc; nargc++)
+	    nargv[nargc] = argv[nargc];
+	nargv[nargc] = "-f";
+	__pmServerStart(nargc+1, nargv, 1);
+	exit(0);
+#else
 	__pmServerStart(argc, argv, 1);
-	pmcd_pid = getpid();
+#endif
     }
+    pmcd_pid = getpid();
 
 #ifdef HAVE_SA_SIGINFO
     act.sa_sigaction = SigIntProc;

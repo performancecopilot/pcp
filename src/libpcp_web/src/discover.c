@@ -140,8 +140,8 @@ pmDiscoverArchives(char *dir)
     uv_stat_t *s;
     pmDiscover *a;
     int sep = pmPathSeparator();
-    char path[MAXNAMLEN];
-    char basepath[MAXNAMLEN];
+    char path[MAXNAMELEN];
+    char basepath[MAXNAMELEN];
 
     if ((sts = uv_fs_scandir(NULL, &req, dir, 0, NULL)) < 0)
     	return sts; /* err */
@@ -192,7 +192,7 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
 {
     int sts;
     uv_fs_t sreq;
-    char path[MAXNAMLEN];
+    char path[MAXNAMELEN];
     size_t size = sizeof(path)-1;
     pmDiscover *p;
     int path_changed = 0;

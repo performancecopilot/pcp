@@ -13,12 +13,6 @@
 #
 """ PCP BCC PMDA USDT hits module """
 
-# Configuration options
-# Name - type - default
-#
-# process - string - unset : list of names/pids or regex of processes to monitor
-# usdts   - string - unset : file or comma-separated list of usdts
-
 # pylint: disable=invalid-name
 
 from ctypes import c_int

@@ -7,7 +7,9 @@
 
 #include <pcp/pmapi.h>
 #include <sys/time.h>
+#ifdef HAVE_SYS_TIMES_H
 #include <sys/times.h>
+#endif
 #include <unistd.h>
 
 static char	**namelist;

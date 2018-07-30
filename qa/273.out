@@ -1840,15 +1840,15 @@ pmExtractValue:  ??? [HIGHRES_EVENT] -> Error: Impossible value or scale convers
 pmExtractValue:  ??? [HIGHRES_EVENT] -> Error: Impossible value or scale conversion [EVENT]
 pmExtractValue:  ??? [HIGHRES_EVENT] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
 
-Value: 1073741823 0x000000003fffffff
+Value: 1073741823 0x3fffffff
 --- units.c case 33 ---
 
-Value: 2147483647 0x000000007fffffff
+Value: 2147483647 0x7fffffff
 (float) 2.147484e+09 => (long) : Truncation in value conversion
 (double) 2.147484e+09 => (long) : Truncation in value conversion
 --- units.c case 34 ---
 
-Value: 4294967295 0x00000000ffffffff
+Value: 4294967295 0xffffffff
 (long) -1 => (ulong) : Negative value in conversion to unsigned
 (long) -1 => (ulonglong) : Negative value in conversion to unsigned
 (ulong) 4294967295 => (long) : Truncation in value conversion
@@ -1935,8 +1935,8 @@ old FLOAT: 18446744073709551616.0 -> U64: Truncation in value conversion
 old FLOAT:        -123.456 -> U64: Negative value in conversion to unsigned
 old FLOAT:       123.45678 -> DOUBLE:       123.45678
 old FLOAT:       123.45678 -> STRING: Impossible value or scale conversion
-bad 64:        12345 -> 64: Impossible value or scale conversion
-bad U64:        12345 -> U64: Impossible value or scale conversion
+bad 64: 12345 -> 64: Impossible value or scale conversion
+bad U64: 12345 -> U64: Impossible value or scale conversion
 bad FLOAT:         123.456 -> FLOAT: Impossible value or scale conversion
 bad DOUBLE:         123.456 -> DOUBLE: Impossible value or scale conversion
 bad STRING: not me -> STRING: Impossible value or scale conversion

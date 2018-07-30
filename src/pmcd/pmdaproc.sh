@@ -165,7 +165,7 @@ __sighup_pmcd()
     __sts=1
     for __delay in 0.01 0.05 0.1 0.15 0.25 0.5 1 2
     do
-	pmsleep $__delay
+	$PCP_BINADM_DIR/pmsleep $__delay
 	__sighups=-1
 	eval `pmprobe -v pmcd.sighups 2>/dev/null \
 	      | $PCP_AWK_PROG '{ printf "__sighups=%d\n", $3 }'`
@@ -178,7 +178,7 @@ __sighup_pmcd()
     # now configurable delay for $signal_delay while pmcd actually
     # does post-SIGHUP work
     #
-    pmsleep $signal_delay
+    $PCP_BINADM_DIR/pmsleep $signal_delay
     return $__sts
 }
 
@@ -259,7 +259,7 @@ END					{ exit status }'
 	then
 	    pmsignal -s $__sig $__pids >/dev/null 2>&1
 	    # allow signal processing to be done
-	    pmsleep $signal_delay
+	    $PCP_BINADM_DIR/pmsleep $signal_delay
 	else
 	    break
 	fi
@@ -1197,7 +1197,7 @@ _install()
 	if pminfo $__ns_opt $__n >/dev/null 2>&1
 	then
             cd $PMNSDIR
-	    if pmnsdel -n $PMNSROOT $__n >$tmp/base 2>&1
+	    if  $PCP_BINADM_DIR/pmnsdel -n $PMNSROOT $__n >$tmp/base 2>&1
 	    then
 		pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	    else
@@ -1276,11 +1276,9 @@ _install()
     echo "Updating the PMCD control file, and notifying PMCD ..."
     if [ -n "$args" ]
     then
-	__xargs="$__xargs $args"
-    else
-	__xargs="$__args"
+	__args="$__args $args"
     fi
-    __pmda_add "$iam	$domain	$type $__xargs"
+    __pmda_add "$iam	$domain	$type $__args"
 
     # Check that the agent is running OK
     #
@@ -1288,7 +1286,7 @@ _install()
     then
 	__delay_int=`echo $check_delay | sed -e 's/\..*//g'`
 	[ "$__delay_int" -gt 5 ] && echo "Wait $check_delay seconds for the $iam agent to initialize ..."
-	pmsleep $check_delay
+	$PCP_BINADM_DIR/pmsleep $check_delay
 	for __n in $pmns_name
 	do
 	    $PCP_ECHO_PROG $PCP_ECHO_N "Check $__n metrics have appeared ... ""$PCP_ECHO_C"
@@ -1316,7 +1314,7 @@ _remove()
     for __n in $pmns_name
     do
 	$PCP_ECHO_PROG $PCP_ECHO_N "$__n ... ""$PCP_ECHO_C"
-	if pmnsdel -n $PMNSROOT $__n >$tmp/base 2>&1
+	if $PCP_BINADM_DIR/pmnsdel -n $PMNSROOT $__n >$tmp/base 2>&1
 	then
 	    rm -f $PMNSDIR/$__n
 	    __sighup_pmcd
@@ -1511,6 +1509,25 @@ pmda_interface=3
 #	Full pathname to directory where PMDA is to be found ...
 #	exectable and/or DSO, domain.h, pmns, control files, etc.
 pmda_dir="`pwd`"
+
+if [ "$PCP_PLATFORM" = mingw ]
+then
+    # Special hack for mingw ...
+    # $pmda_dir needs to be an absolute pathname, but if we have a
+    # half-baked mingw chroot, then / is not the root of the Windows
+    # filesystem.  For example $PCP_DIR is something like
+    # C:\git-sdk-64\mingw64 and if pwd returns something like
+    # /mingw64/... then we want pmda_dir to be
+    # C:/git-sdk-64/mingw64/...
+    #
+    pmda_dir_1=`echo $pmda_dir | sed -e 's@^/\([^/][^/]*\)/.*@\1@'`
+    PCP_DIR_N=`echo $PCP_DIR | sed -e 's@\\\\@/@g' -e 's@.*/\([^/][^/]*\)/*$@\1@'`
+    if [ "$pmda_dir_1" = "$PCP_DIR_N" ]
+    then
+	pmda_dir=`echo $pmda_dir | sed -e 's@^/[^/][^/]*\(/.*\)@\1@'`
+	pmda_dir="`echo $PCP_DIR | sed -e 's@\\\\@/@g'`$pmda_dir"
+    fi
+fi
 
 # Other variables and constants
 #

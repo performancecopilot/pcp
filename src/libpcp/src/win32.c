@@ -40,6 +40,9 @@
 #include <winbase.h>
 #include <psapi.h>
 
+static int	pcp_dir_init = 1;
+static char	*pcp_dir;
+
 #define FILETIME_1970		116444736000000000ull	/* 1/1/1601-1/1/1970 */
 #define HECTONANOSEC_PER_SEC	10000000ull
 #define MILLISEC_PER_SEC	1000
@@ -200,40 +203,78 @@ __pmServerStart(int argc, char **argv, int flags)
     PROCESS_INFORMATION piProcInfo;
     STARTUPINFO siStartInfo;
     LPTSTR cmdline = NULL;
-    int i, sz, total = 3; /* -f\0 */
+    char *command;
+    int i, sz = 0;
+    int	sts;
 
     (void)flags;
     fflush(stdout);
     fflush(stderr);
 
-    for (i = 0; i < argc; i++)
-	total += strlen(argv[i]) + 1;
-    if ((cmdline = malloc(total)) == NULL) {
-	pmNotifyErr(LOG_ERR, "__pmServerStart: out-of-memory");
-	exit(1);
+    if (pcp_dir_init) {
+	/* one-trip initialize to get possible $PCP_DIR */
+	pcp_dir = getenv("PCP_DIR");
+	pcp_dir_init = 0;
     }
-    for (sz = i = 0; i < argc; i++)
-	sz += pmsprintf(cmdline + sz, total - sz, "%s ", argv[i]);
-    pmsprintf(cmdline + sz, total - sz, "-f");
+
+    /* Flatten the argv array for the Windows CreateProcess API */
+    if (pcp_dir != NULL) {
+	if (argv[0][0] == '/') {
+	    /*
+	     * if argv[0] starts with a / no $PATH searching happens,
+	     * so we need to prefix argv[0] with $PCP_DIR
+	     */
+	    cmdline = strdup(pcp_dir);
+	    sz = strlen(cmdline);
+	    /* append argv[0] (with leading slash) at cmdline[sz] */
+	}
+    }
+ 
+    for (command = argv[0], i = 0; command && *command; command = argv[++i]) {
+	int length = strlen(command);
+	/* add 1space or 1null */
+	if ((cmdline = realloc(cmdline, sz + length + 1)) == NULL) {
+	    pmNoMem("__pmServerStart", sz + length + 1, PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
+	strcpy(&cmdline[sz], command);
+	cmdline[sz + length] = ' ';
+	sz += length + 1;
+    }
+    cmdline[sz - 1] = '\0';
+    if (pmDebugOptions.exec)
+	fprintf(stderr, "__pmServerStart: cmdline=%s\n", cmdline);
 
     ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
     ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
     siStartInfo.cb = sizeof(STARTUPINFO);
+    siStartInfo.hStdInput = (HANDLE)_get_osfhandle(fileno(stdin));
+    siStartInfo.hStdOutput = (HANDLE)_get_osfhandle(fileno(stdout));
+    siStartInfo.hStdError = (HANDLE)_get_osfhandle(fileno(stderr));
+    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
-    if (0 == CreateProcess(
-		NULL, cmdline,
-		NULL, NULL,	/* process and thread attributes */
-		FALSE,		/* inherit handles */
-		CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW | DETACHED_PROCESS,
-		NULL,		/* environment (from parent) */
-		NULL,		/* current directory */
-		&siStartInfo,	/* STARTUPINFO pointer */
-		&piProcInfo)) {	/* receives PROCESS_INFORMATION */
-	pmNotifyErr(LOG_ERR, "__pmServerStart: CreateProcess");
+    if ((sts = CreateProcess( NULL,
+		    cmdline,
+		    NULL,          /* process security attributes */
+		    NULL,          /* primary thread security attributes */
+		    TRUE,          /* inherit handles */
+		    CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW | DETACHED_PROCESS,	/* creation flags */
+		    NULL,          /* environment (from parent) */
+		    NULL,          /* current directory */
+		    &siStartInfo,  /* STARTUPINFO pointer */
+				   /* receives PROCESS_INFORMATION */
+		    &piProcInfo)) == 0) {
+	/* failed */
+	DWORD	lasterror;
+	char	errmsg[PM_MAXERRMSGLEN];
+	lasterror = GetLastError();
+	fprintf(stderr, "__pmServerStart: CreateProcess(NULL, \"%s\", ...) failed, lasterror=%ld %s\n", cmdline, lasterror, osstrerror_r(errmsg, sizeof(errmsg)));
 	/* but keep going */
     }
     else {
 	/* parent, let her exit, but avoid ugly "Log finished" messages */
+	if (pmDebugOptions.exec)
+	    fprintf(stderr, "__pmServerStart: background PID=%" FMT_PID "\n", (pid_t)piProcInfo.dwProcessId);
 	fclose(stderr);
 	exit(0);
     }
@@ -287,13 +328,15 @@ __pmProcessTerminate(pid_t pid, int force)
 }
 
 /*
- * infd - pipe used for input _to_ the created process
- * outfd - pipe used for output _from_ the created process
+ * fromChild - pipe used for reading from the caller, connected to the
+ * standard output of the created process
+ * toChild - pipe used for writing from the caller, connected to the
+ * std input of the created process
  * If either is NULL, no pipe is created and created process
  * inherits stdio streams from the parent
  */
 pid_t
-__pmProcessCreate(char **argv, int *infd, int *outfd)
+__pmProcessCreate(char **argv, int *fromChild, int *toChild)
 {
     HANDLE hChildStdinRd, hChildStdinWr, hChildStdoutRd, hChildStdoutWr;
     PROCESS_INFORMATION piProcInfo; 
@@ -303,18 +346,23 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     char *command;
     int i, sz = 0;
     int	sts;
+
+    if (pcp_dir_init) {
+	/* one-trip initialize to get possible $PCP_DIR */
+	pcp_dir = getenv("PCP_DIR");
+	pcp_dir_init = 0;
+    }
  
     ZeroMemory(&saAttr, sizeof(SECURITY_ATTRIBUTES));
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES); 
     saAttr.bInheritHandle = TRUE;	/* pipe handles are inherited. */
     saAttr.lpSecurityDescriptor = NULL; 
 
-    if (infd != NULL && outfd != NULL) {
-	*infd = *outfd = -1;		/* in case of errors */
+    if (fromChild != NULL && toChild != NULL) {
+	*fromChild = *toChild = -1;		/* in case of errors */
 	/*
-	 * Create a pipe for communication with the child process.
-	 * Ensure that the read handle to the child process's pipe for
-	 * STDOUT is not inherited.
+	 * Create a pipe for stdout of the child process.
+	 * Ensure that the read handle for the pipe is not inherited.
 	 */
 	if ((sts = CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0)) != 1) {
 	    if (pmDebugOptions.exec)
@@ -330,9 +378,8 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	}
 
 	/*
-	 * Create a pipe for the child process's STDIN.
-	 * Ensure that the write handle to the child process's pipe for
-	 * STDIN is not inherited.
+	 * Create a pipe for stdin of the child process.
+	 * Ensure that the write handle to the pipe is not inherited.
 	 */
 	if ((sts = CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0)) != 1) {
 	    if (pmDebugOptions.exec)
@@ -355,13 +402,26 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
     ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
     siStartInfo.cb = sizeof(STARTUPINFO); 
-    if (infd != NULL && outfd != NULL) {
+    if (fromChild != NULL && toChild != NULL) {
+	siStartInfo.hStdError = (HANDLE)_get_osfhandle(fileno(stderr));
 	siStartInfo.hStdOutput = hChildStdoutWr;
 	siStartInfo.hStdInput = hChildStdinRd;
 	siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
     }
 
     /* Flatten the argv array for the Windows CreateProcess API */
+    if (pcp_dir != NULL) {
+	if (argv[0][0] == '/') {
+	    /*
+	     * if argv[0] starts with a / no $PATH searching happens,
+	     * so we need to prefix argv[0] with $PCP_DIR
+	     */
+	    cmdline = strdup(pcp_dir);
+	    sz = strlen(cmdline);
+	    /* append argv[0] (with leading slash) at cmdline[sz] */
+	}
+    }
+
  
     for (command = argv[0], i = 0; command && *command; command = argv[++i]) {
 	int length = strlen(command);
@@ -391,28 +451,10 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 		    &piProcInfo)) == 0) {
 	/* failed */
 	DWORD	lasterror;
-	char	*errmsg;
+	char	errmsg[PM_MAXERRMSGLEN];
 	lasterror = GetLastError();
-	fprintf(stderr, "__pmProcessCreate: CreateProcess(%s, ...) failed, lasterror=%ld (", argv[0], lasterror);
-	sts = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		    NULL,		/* lpSource not used */
-		    lasterror,
-		    0,			/* default dwLanguageId */
-		    (LPTSTR)&errmsg,	/* message here, please */
-		    0,			/* nSize not used */
-		    NULL);		/* no Arguments */
-	if (sts == 0)
-	    fprintf(stderr, "unknown error)\n");
-	else {
-	    /* errmsg has gratuitous \n at the end */
-	    char *p;
-	    for (p = errmsg; *p && *p != '\n' && *p != '\r'; p++)
-		;
-	    *p = '\0';
-	    fprintf(stderr, "%s)\n", errmsg);
-	    LocalFree(errmsg);
-	}
-	if (infd != NULL && outfd != NULL) {
+	fprintf(stderr, "__pmProcessCreate: CreateProcess(NULL, \"%s\", ...) failed, lasterror=%ld %s\n", cmdline, lasterror, osstrerror_r(errmsg, sizeof(errmsg)));
+	if (fromChild != NULL && toChild != NULL) {
 	    CloseHandle(hChildStdinRd);
 	    CloseHandle(hChildStdinWr);
 	    CloseHandle(hChildStdoutRd);
@@ -431,11 +473,13 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	}
     }
 
-    if (infd != NULL && outfd != NULL) {
-	CloseHandle(hChildStdinRd);
-	*infd = _open_osfhandle((intptr_t)hChildStdinWr, _O_WRONLY);
-	*outfd = _open_osfhandle((intptr_t)hChildStdoutRd, _O_RDONLY);
+    if (fromChild != NULL && toChild != NULL) {
+	*fromChild = _open_osfhandle((intptr_t)hChildStdoutRd, _O_RDONLY);
 	CloseHandle(hChildStdoutWr);
+	CloseHandle(hChildStdinRd);
+	*toChild = _open_osfhandle((intptr_t)hChildStdinWr, _O_WRONLY);
+	if (pmDebugOptions.exec && pmDebugOptions.desperate)
+	    fprintf(stderr, "__pmProcessCreate: fromChild=%d toChild=%d\n", *fromChild, *toChild);
     }
 
     return piProcInfo.dwProcessId;

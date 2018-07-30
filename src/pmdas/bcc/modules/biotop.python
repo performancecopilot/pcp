@@ -1,6 +1,8 @@
 #
 # Copyright (C) 2017-2018 Marko Myllynen <myllynen@redhat.com>
 # Copyright (C) 2018 Andreas Gerstmayr <andreas@gerstmayr.me>
+# Based on the biotop BCC tool by Brendan Gregg:
+# https://github.com/iovisor/bcc/blob/master/tools/biotop.py
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,14 +15,6 @@
 # GNU General Public License for more details.
 #
 """ PCP BCC PMDA biotop module """
-
-# Configuration options
-# Name - type - default
-#
-# interval      - int    - 1      : interval for calculating summaries
-# process_count - int    - 20     : number of processes to show
-# sort          - string - -bytes : sort key: bytes/io/duration/rw
-#                                   sort order can be reversed by prepending '-'
 
 # pylint: disable=invalid-name, line-too-long
 

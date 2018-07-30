@@ -1511,7 +1511,8 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 int
 __pmSocketClosed(void)
 {
-    switch (oserror()) {
+    int		sts;
+    switch ((sts = oserror())) {
 	/*
 	 * Treat this like end of file on input.
 	 *
@@ -1539,8 +1540,19 @@ __pmSocketClosed(void)
 	case EHOSTDOWN:
 	case EHOSTUNREACH:
 	case ECONNREFUSED:
+#ifdef IS_MINGW
+	case WSAECONNRESET:
+	case WSAETIMEDOUT:
+	case WSAENETDOWN:
+	case WSAENETUNREACH:
+	/* case WSAEHOSTDOWN: same as EHOSTDOWN above */
+	case WSAEHOSTUNREACH:
+	case WSAECONNREFUSED:
+#endif
 	    return 1;
     }
+    if (pmDebugOptions.pdu && pmDebugOptions.desperate)
+	fprintf(stderr, "__pmSocketClosed: unmatched error=%d\n", sts);
     return 0;
 }
 

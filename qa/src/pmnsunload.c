@@ -133,7 +133,7 @@ main(int argc, char **argv)
 
     (void)pmDestroyContext(pmWhichContext());
 
-#if PCP_VER >= 3611
+#if PCP_VER >= 3611 && !defined(IS_MINGW)
     __pmShutdown();
 #endif
 

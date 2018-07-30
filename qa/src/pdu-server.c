@@ -516,8 +516,8 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		foo.tv_sec = lsp->ls_timenow.tv_sec;
 		foo.tv_usec = lsp->ls_timenow.tv_usec;
 		pmPrintStamp(stderr, &foo);
-		fprintf(stderr, "\nstate=%d vol=%d size=%lld host=%s tz=\"%s\" tzlogger=\"%s\"\n",
-		    lsp->ls_state, lsp->ls_vol, (long long)lsp->ls_size,
+		fprintf(stderr, "\nstate=%d vol=%d size=%" FMT_INT64 " host=%s tz=\"%s\" tzlogger=\"%s\"\n",
+		    lsp->ls_state, lsp->ls_vol, (__int64_t)lsp->ls_size,
 		    lsp->ls_hostname, lsp->ls_tz, lsp->ls_tzlogger);
 	    }
 	    e = __pmSendLogStatus(fd, lsp);

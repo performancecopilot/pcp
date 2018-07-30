@@ -7324,9 +7324,8 @@ _ACEOF
 
 else
 
-		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
-		    echo Cannot proceed with the Python $PY_MAJOR installation found.
-		    enable_python2=false
+		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
+		    echo Proceeding with the Python $PY_MAJOR installation found, regardless.
 
 fi
 
@@ -7377,9 +7376,8 @@ _ACEOF
 
 else
 
-		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
-		    echo Cannot proceed with the Python $PY_MAJOR installation found.
-		    enable_python3=false
+		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
+		    echo Proceeding with the Python $PY_MAJOR installation found, regardless.
 
 fi
 
@@ -9936,6 +9934,18 @@ do :
 if test "x$ac_cv_header_ncurses_curses_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_NCURSES_CURSES_H 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in linux/perf_event.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "linux/perf_event.h" "ac_cv_header_linux_perf_event_h" "$ac_includes_default"
+if test "x$ac_cv_header_linux_perf_event_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LINUX_PERF_EVENT_H 1
 _ACEOF
 
 fi

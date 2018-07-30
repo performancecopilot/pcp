@@ -363,11 +363,13 @@ main(int argc, char **argv)
 
     while (samples == -1 || samples-- > 0) {
 	if (lines % 15 == 0) {
+	    time_t	time;
 	    if (opts.context == PM_CONTEXT_ARCHIVE)
 		printf("Archive: %s, ", opts.archives[0]);
+	    time = info.timestamp.tv_sec;
 	    printf("Host: %s, %d cpu(s), %s",
 		    host, ncpu,
-		    pmCtime((const time_t *)&info.timestamp.tv_sec, timebuf));
+		    pmCtime(&time, timebuf));
 /* - report format
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min

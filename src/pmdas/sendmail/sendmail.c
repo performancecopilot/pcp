@@ -207,6 +207,7 @@ map_stats(void)
 	    	pmNotifyErr(LOG_WARNING, "%s: map_stats: cannot find magic number in file %s; assuming version 1 format",
 			pmGetProgname(), statsfile);
 		if (pmDebugOptions.appl0) {
+		    time_t	time;
 		    fprintf(stderr, "%s: map_stats: smstat_s contents:\n", pmGetProgname());
 		    fprintf(stderr, "%s: map_stats:   Version 2 format:\n", pmGetProgname());
 		    fprintf(stderr, "%s: map_stats:     Check: stat_magic =   0x%x\n", pmGetProgname(), smstat->stat_magic);
@@ -216,7 +217,8 @@ map_stats(void)
 		    
 		    /* We're being difficult here... using smstat_s the wrong way! */
 		    fprintf(stderr, "%s: map_stats:   Version 1 format:\n", pmGetProgname());
-		    fprintf(stderr, "%s: map_stats:     Check: stat_itime =   %s", pmGetProgname(), ctime((time_t *)&(smstat->stat_magic)));
+		    time = smstat->stat_magic;
+		    fprintf(stderr, "%s: map_stats:     Check: stat_itime =   %s", pmGetProgname(), ctime(&time));
 		    fprintf(stderr, "%s: map_stats:     Check: stat_size =    %d\n", pmGetProgname(), *((short *)&(smstat->stat_version)));
 		}
 		notified |= MAPSTATS_NOTV2STRUCT;

@@ -1,0 +1,7 @@
+/*
+ * fake "root" for validating the local PMNS subtree
+ */
+
+#include <stdpmid>
+#include "root_kvm"
+

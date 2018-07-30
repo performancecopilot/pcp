@@ -15,8 +15,6 @@ echo "QA output created by $seq"
 
 [ -d $PCP_PMDAS_DIR/kvm ] || _notrun "KVM PMDA not installed"
 [ $PCP_PLATFORM = linux ] || _notrun "KVM only exists on Linux"
-perl -e "use PCP::PMDA" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 kvm_stats_path=/sys/kernel/debug/kvm
 $sudo [ -d $kvm_stats_path ] || _notrun "KVM sysfs interface not available"
 count=`$sudo ls $kvm_stats_path | wc -l`
@@ -76,7 +74,6 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
 # start from a known starting point
 $sudo ./Remove >/dev/null 2>&1
-$sudo rm -f pmns domain.h
 
 echo
 echo "=== $iam agent installation ==="
@@ -84,8 +81,8 @@ $sudo ./Install </dev/null >$tmp.out 2>&1
 # Check kvm metrics have appeared ... X metrics and Y values
 _filter_pmda_install <$tmp.out \
 | $PCP_AWK_PROG '
-/Check kvm metrics have appeared/	{ if ($7 >= 30 && $7 <= 40) $7 = "X"
-					  if ($10 >= 30 && $10 <= 40) $10 = "Y"
+/Check kvm metrics have appeared/	{ if ($7 >= 30) $7 = "X"
+					  if ($10 >= 30) $10 = "Y"
 					}
 					{ print }'
 

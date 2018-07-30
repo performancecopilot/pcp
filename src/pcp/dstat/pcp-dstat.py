@@ -154,7 +154,7 @@ class DstatTerminal:
         return False
 
     @staticmethod
-    def set_title(arguments):
+    def set_title(arguments, context):
         """ Write terminal title, if terminal (and shell?) is capable """
         if not sys.stdout.isatty():
             return
@@ -171,9 +171,9 @@ class DstatTerminal:
             return
         import getpass
         user = getpass.getuser()
-        host = os.uname()[1]    # TODO: hostname via PMAPI context
+        host = context.pmGetContextHostName()
         host = host.split('.')[0]
-        path = os.path.basename(sys.argv[0])    # TODO: pmProgname
+        path = context.pmProgname()
         args = path + ' ' + ' '.join(arguments)
         sys.stdout.write('\033]0;(%s@%s) %s\007' % (user, host, args))
 
@@ -677,6 +677,7 @@ class DstatTool(object):
         global op
         op = self
 
+        self.inittime = time.time()
         self.context = None
         self.opts = self.options()
         self.arguments = arguments
@@ -704,14 +705,13 @@ class DstatTool(object):
         self.samples = -1 # forever
         self.interval = pmapi.timeval(1)      # 1 sec
         self.opts.pmSetOptionInterval(str(1)) # 1 sec
-        self.missed = 0
         self.delay = 1.0
         self.type = 0
         self.type_prefer = self.type
         self.ignore_incompat = 0
         self.precision = 5 # .5f
         self.timefmt = self.TIMEFMT
-        self.interpol = 0
+        self.interpol = 1
         self.leaf_only = True
 
         # Internal
@@ -769,17 +769,21 @@ class DstatTool(object):
         configs = self.prepare_plugins()
         self.create_time_plugins()
 
-        ### Complete command line processing and terminal/file setup
+        ### Complete command line processing
         self.pmconfig.read_cmd_line()
         self.prepare_metrics(configs)
         if self.verify:
             sys.exit(0)
+
+        ### Setup PMAPI context, console and optionally file
+        self.connect()
+        self.validate()
         self.prepare_output()
 
     def prepare_output(self):
         """ Complete all initialisation and get ready to begin sampling """
         self.pmconfig.set_signal_handler()
-        self.term.set_title(self.arguments)
+        self.term.set_title(self.arguments, self.context)
         self.term.set_theme(self.blackonwhite)
         if self.color == None:
             self.color = self.term.get_color()
@@ -935,7 +939,8 @@ class DstatTool(object):
             operands = []
         if len(operands) > 0:
             try:
-                self.delay = float(operands[0])
+                self.interval = pmapi.timeval.fromInterval(operands[0])
+                self.delay = float(self.interval)
             except Exception as e:
                 sys.stderr.write("Invalid sample delay '%s'\n" % operands[0])
                 sys.exit(1)
@@ -949,8 +954,6 @@ class DstatTool(object):
             sys.stderr.write("Incorrect argument list, try --help\n")
             sys.exit(1)
 
-        if not self.update:
-            self.interval = pmapi.timeval(self.delay)
         if not self.samples:
             self.samples = -1
 
@@ -1043,14 +1046,14 @@ class DstatTool(object):
             self.plugins.append('cpu')
         elif opt in ['C']:
             insts = arg.split(',')
-            self.cpulist = sorted({'cpu' + str(x) for x in insts if x != 'total'})
+            self.cpulist = sorted(['cpu' + str(x) for x in insts if x != 'total'])
             if 'total' in insts:
                 self.cpulist.append('total')
         elif opt in ['d']:
             self.plugins.append('disk')
         elif opt in ['D']:
             insts = arg.split(',')
-            self.disklist = sorted({x for x in insts if x != 'total'})
+            self.disklist = sorted([x for x in insts if x != 'total'])
             if 'total' in insts:
                 self.disklist.append('total')
         elif opt in ['--filesystem']:
@@ -1061,7 +1064,7 @@ class DstatTool(object):
             self.plugins.append('int')
         elif opt in ['I']:
             insts = arg.split(',')
-            self.intlist = sorted({'line' + str(x) for x in insts if x != 'total'})
+            self.intlist = sorted(['line' + str(x) for x in insts if x != 'total'])
             if 'total' in insts:
                 self.intlist.append('total')
         elif opt in ['l']:
@@ -1072,7 +1075,7 @@ class DstatTool(object):
             self.plugins.append('net')
         elif opt in ['N']:
             insts = arg.split(',')
-            self.netlist = sorted({x for x in insts if x != 'total'})
+            self.netlist = sorted([x for x in insts if x != 'total'])
             if 'total' in insts:
                 self.netlist.append('total')
         elif opt in ['p']:
@@ -1082,7 +1085,7 @@ class DstatTool(object):
         elif opt in ['s']:
             self.plugins.append('swap')
         elif opt in ['S']:
-            self.swaplist = list({'/dev/' + str(x) for x in arg.split(',')})
+            self.swaplist = list(['/dev/' + str(x) for x in arg.split(',')])
         elif opt in ['t']:
             self.plugins.append('time')
         elif opt in ['T']:
@@ -1205,12 +1208,18 @@ class DstatTool(object):
 
     def show_version(self):
         self.connect()
-        print('pcp-dstat %s' % pmapi.pmContext.pmGetConfig('PCP_VERSION'))
+        platform = self.pmfg.extend_item('kernel.uname.sysname')
+        kernel = self.pmfg.extend_item('kernel.uname.release')
+        hertz = self.pmfg.extend_item('kernel.all.hz')
+        cpucount = self.pmfg.extend_item('hinv.ncpu')
+        pagesize = self.pmfg.extend_item('hinv.pagesize')
+        self.pmfg.fetch()
+        print('pcp-dstat %s' % self.context.pmGetConfig('PCP_VERSION'))
         print('Written by the PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>')
         print('Homepages at https://pcp.io/ and http://dag.wieers.com/home-made/dstat/')
         print()
-        print('Platform %s/%s' % (os.name, sys.platform)) # kernel.uname.sysname
-        print('Kernel %s' % os.uname()[2])  # kernel.uname.release
+        print('Platform %s' % platform())
+        print('Kernel %s' % kernel())
         print('Python %s' % sys.version)
         print()
         color = ""
@@ -1220,19 +1229,26 @@ class DstatTool(object):
         rows, cols = self.term.get_size()
         print('Terminal size: %d lines, %d columns' % (rows, cols))
         print()
-#       print('Processors: %d' % hinv.ncpu)    - TODO
-#       print('Pagesize: %d' % hinv.pagesize)
-#       print('Clock ticks per secs: %d' % kernel.all.hz)
-#       print()
+        print('Processors: %d' % cpucount())
+        print('Pagesize: %d' % pagesize())
+        print('Clock ticks per second: %d' % hertz())
+        print()
+        self.pmfg.clear()
 
     def connect(self):
-        """ Establish a PMAPI context """
+        """ Establish a PMAPI context, default is 'local:' with a fallback
+            to using local context mode if pmcd(1) is not running locally.
+        """
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
+        if context == PM_CONTEXT_ARCHIVE:
+            self.update = False
         if context == PM_CONTEXT_HOST:
             try:
                 self.pmfg = pmapi.fetchgroup(context, self.source)
             except pmapi.pmErr:
+                if self.source != 'local:':
+                    raise
                 context = PM_CONTEXT_LOCAL
         if self.pmfg == None:
             self.pmfg = pmapi.fetchgroup(context, self.source)
@@ -1281,25 +1297,32 @@ class DstatTool(object):
             sys.stdout.write("Config file keywords: " + str(self.keys) + "\n")
             sys.stdout.write("Metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 
-        # Set delay mode, interpolation
+        # Set delay mode for live sampling
         if self.context.type != PM_CONTEXT_ARCHIVE:
-            self.interpol = 1
+            scheduler = sched.scheduler(time.time, time.sleep)
+            self.inittime = time.time()
 
         # Common preparations
         self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
-        scheduler = sched.scheduler(time.time, time.sleep)
-        inittime = time.time()
+
         try:
             self.pmfg.fetch()    # prime initial values (TODO: fix, somehow)
         except:
             pass
 
         update = 0.0
-        while update <= self.delay * (self.samples-1) or self.samples == -1:
-            scheduler.enterabs(inittime + update, 1, perform, (update,))
-            scheduler.run()
+        interval = 1.0
+        if not self.update:
+            interval = op.delay
+
+        while update <= self.delay * (self.samples - 1) or self.samples == -1:
+            if self.context.type != PM_CONTEXT_ARCHIVE:
+                scheduler.enterabs(self.inittime + update, 1, perform, (update,))
+                scheduler.run()
+            else:
+                self.perform(update)
             sys.stdout.flush()
-            update = update + float(self.interval)
+            update = update + interval
 
 
     @staticmethod
@@ -1312,15 +1335,6 @@ class DstatTool(object):
         sys.stdout.flush()
         if op.pidfile:
             os.remove(op.pidfile)
-
-    def ticks(self):
-        "Return the number of 'ticks' since bootup"
-        # TODO: extract kernel.all.uptime and inject into fetchgroup fetches
-        for line in open('/proc/uptime', 'r').readlines():
-            l = line.split()
-            if len(l) < 2: continue
-            return float(l[0])
-        return 0
 
     def show_header(self, vislist):
         "Return the header for a set of module counters"
@@ -1345,7 +1359,7 @@ class DstatTool(object):
     def perform(self, update):
         "Inner loop that calculates counters and constructs output"
         global oldvislist, vislist, showheader, rows, cols
-        global elapsed, totaltime, starttime
+        global totaltime, starttime
         global loop, step
 
         starttime = time.time()
@@ -1361,19 +1375,16 @@ class DstatTool(object):
             curwidth = 8
 
         # If it takes longer than 500ms, then warn!
-        if loop != 0 and starttime - inittime - update > 1:
+        if loop != 0 and starttime - self.inittime - update > 1:
             self.missed = self.missed + 1
             return 0
 
         # Initialise certain variables
         if loop == 0:
-            elapsed = self.ticks()
             rows, cols = 0, 0
             vislist = []
             oldvislist = []
             showheader = True
-        else:
-            elapsed = step
 
         if sys.stdout.isatty():
             oldcols = cols
@@ -1489,13 +1500,9 @@ def perform(update):
 
 
 if __name__ == '__main__':
-    global outputfile
-    global inittime, update, missed
+    global update
     try:
-        inittime = time.time()
         dstat = DstatTool(sys.argv[1:])
-        dstat.connect()
-        dstat.validate()
         dstat.execute()
 
     except pmapi.pmErr as error:

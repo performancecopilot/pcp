@@ -292,9 +292,12 @@ main(int argc, char **argv)
     }
     if (pmDebugOptions.appl0) {
 	char	buf[26];
-	pmCtime((const time_t *)&winstart_tval.tv_sec, buf);
+	time_t	time;
+	time = winstart_tval.tv_sec;
+	pmCtime(&time, buf);
 	fprintf(stderr, "Start time: %s", buf);
-	pmCtime((const time_t *)&winend_tval.tv_sec, buf);
+	time = winend_tval.tv_sec;
+	pmCtime(&time, buf);
 	fprintf(stderr, "End time: %s", buf);
     }
 

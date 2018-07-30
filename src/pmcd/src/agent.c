@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013,2015-2017 Red Hat.
+ * Copyright (c) 2012-2013,2015-2018 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -213,7 +213,8 @@ HarvestAgentByParent(unsigned int *total, int root)
 		continue;
 	    found = 1;
 	    if (pid <= (pid_t)0) {
-		if (total && (*total = (*total - 1))) {
+		if (total && *total > 0) {
+		    *total -= 1;
 		    short_delay(10);
 		    break;
 		} else {

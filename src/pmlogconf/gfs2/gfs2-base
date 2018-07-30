@@ -1,0 +1,10 @@
+#pmlogconf-setup 2.0
+ident	base GFS2 filesystem information [Linux]
+probe	gfs2.glocks.total values ? include : exclude
+	gfs2.glocks
+	gfs2.holders
+	gfs2.sbstats
+	gfs2.glstats
+	gfs2.tracepoints.promote
+	gfs2.tracepoints.demote_rq
+	gfs2.tracepoints.log_flush

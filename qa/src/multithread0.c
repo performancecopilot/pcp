@@ -21,7 +21,7 @@ func(void *arg)
 	printf("func: is multithreaded\n");
     else
 	printf("func: is NOT multithreaded\n");
-    pthread_exit(NULL);
+    return(NULL);	/* pthread done */
 }
 
 int
