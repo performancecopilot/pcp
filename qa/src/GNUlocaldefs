@@ -34,7 +34,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	matchInstanceName.c torture_pmns.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
 	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c \
-	mmv3_simple.c mmv3_indoms.c \
+	mmv3_simple.c mmv3_labels.c \
 	record.c record-setarg.c clientid.c grind_ctx.c \
 	pmdacache.c check_import.c unpack.c hrunpack.c aggrstore.c atomstr.c \
 	semstr.c grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \

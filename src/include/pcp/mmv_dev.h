@@ -67,8 +67,6 @@ typedef struct mmv_disk_label {
     __uint32_t        flags;      /* PM_LABEL_[TYPE|OPTIONAL] */
     __uint32_t        identity;   /* Indom, Cluster or item ID */
     __int32_t         internal;   /* Instance ID or PM_IN_NULL */
-    __uint32_t        name;       /* Length of the label name */
-    __uint32_t        value;      /* Length of the label value*/
     char              payload[MMV_LABELMAX];
 } mmv_disk_label_t;
 

@@ -125,7 +125,7 @@ mmv2_genstats
 mmv2_instances
 mmv2_nostats
 mmv2_simple
-mmv3_indoms
+mmv3_labels
 mmv3_simple
 multictx
 multifetch

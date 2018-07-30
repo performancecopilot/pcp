@@ -558,7 +558,6 @@ dump_labels(void *addr, size_t size, int idx, long base, __uint64_t offset, __in
 		lb[i].flags, lb[i].identity);
 	printf("        internal=0x%x\n",
 		lb[i].internal);
-	printf("        name=%d, value=%d\n", lb[i].name, lb[i].value);		
     }
     
     return 0;
