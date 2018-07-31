@@ -3,6 +3,7 @@ QA output created by 1111
 === 1. pcp2influxdb one-shot noauth ===
 Found POST URL in noauth output
 Found proper metric body in noauth output
+Found correct zero value in noauth output
 === 2. pcp2influxdb noauth with tags ===
 Found POST URL in noauth output
 Found proper metric body in noauth output
