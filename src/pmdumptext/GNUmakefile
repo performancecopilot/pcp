@@ -19,7 +19,6 @@ build-me:
 
 install: default
 ifeq ($(WINDOW),mac)
-	$(call INSTALL_QT_FRAMEWORKS,$(BINARY))
 	$(INSTALL) -m 755 $(BINARY) $(PCP_BIN_DIR)/$(COMMAND)
 	rm $(BINARY)
 else
