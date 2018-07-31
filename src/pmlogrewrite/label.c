@@ -224,6 +224,7 @@ do_labelset(void)
 		else if ((lp->old_type & PM_LABEL_INSTANCES))
 		    fprintf(stderr, " the instances of indom %s\n", pmInDomStr(lp->old_id));
 	    }
+	    free(labellist);
 	    return;
 	}
 
@@ -261,7 +262,7 @@ do_labelset(void)
 
     /*
      * libpcp, via __pmLogPutLabel(), assumes control of the storage pointed
-     * to by labellist and inamelist.
+     * to by labellist.
      */
     if ((sts = __pmLogPutLabel(&outarch.archctl, type, ident, nsets, labellist, &stamp)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
