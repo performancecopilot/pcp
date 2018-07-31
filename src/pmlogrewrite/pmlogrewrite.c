@@ -405,6 +405,7 @@ SemStr(int sem)
     return buf;
 }
 
+#if 0 /* not used (yet) */
 static const char *
 labelTypeStr(int type)
 {
@@ -422,6 +423,7 @@ labelTypeStr(int type)
 	return "Instance";
     return "Unknown";
 }
+#endif
 
 static const char *
 labelIDStr(int type, int id, char *buf, size_t buflen)
@@ -645,10 +647,6 @@ reportconfig(void)
 	    printf("\nLabel: %s\n",
 		   __pmLabelIdentString(lp->old_id, lp->old_type, buf, sizeof(buf)));
 	}
-	if (lp->flags & LABEL_CHANGE_TYPE) {
-	    printf("Type:\t\t%s -> %s\n",
-		   labelTypeStr(lp->old_type), labelTypeStr(lp->new_type));
-	}
 	if (lp->flags & LABEL_CHANGE_ID) {
 	    printf("ID:\t\t%s -> ", 
 		   labelIDStr(lp->old_type, lp->old_id, buf, sizeof(buf)));
@@ -657,6 +655,8 @@ reportconfig(void)
 	}
 	if (lp->flags & LABEL_CHANGE_LABEL)
 	    printf("Label:\t\t\"%s\" -> \"%s\n", lp->old_label, lp->new_label); 
+	if (lp->flags & LABEL_CHANGE_VALUE)
+	    printf("Label:\t\t\"value\" -> \"%s\n", lp->new_value); 
 	if (lp->flags & LABEL_DELETE)
 	    printf("DELETE\n");
     }
@@ -898,7 +898,7 @@ link_entries(void)
 		    continue;
 
 		/* Found one. */
-		lp = start_label(type, (int)(node2->key));
+		lp = start_label(type, (int)(node2->key), NULL);
 		assert(lp->old_id == ip->old_indom);
 		if (change)
 		    lp->ip = ip;
@@ -957,7 +957,7 @@ link_entries(void)
 		    continue;
 
 		/* Found one. */
-		lp = start_label(type, old_id);
+		lp = start_label(type, old_id, NULL);
 		assert(lp->old_id == old_id);
 		if (old_id != new_id) {
 		    if (lp->flags & LABEL_CHANGE_ID) {
