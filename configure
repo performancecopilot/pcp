@@ -846,6 +846,7 @@ have_python_jsonpointer
 have_python_Elasticsearch
 have_python_OrderedDict
 have_python_BPF
+enable_dstat
 pcp_python_prog
 have_python
 enable_python3
@@ -993,6 +994,7 @@ with_qt3d
 with_perl
 with_python
 with_python3
+with_dstat_symlink
 with_books
 with_books_brand
 with_papi
@@ -1713,6 +1715,8 @@ Optional Packages:
                           is on)
   --with-python3          enable support for tools requiring Python3 (default
                           is on)
+  --with-dstat-symlink    enable support for /usr/bin/dstat symlink (default
+                          is off)
   --with-books            enable building of the PCP books (default is off)
   --with-books-brand=BRAND
                           choose the docbook brand when building the PCP books
@@ -2942,6 +2946,15 @@ if test "${with_python3+set}" = set; then :
   withval=$with_python3; do_python3=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python3=$withval"
 else
   do_python3=check
+fi
+
+
+
+# Check whether --with-dstat-symlink was given.
+if test "${with_dstat_symlink+set}" = set; then :
+  withval=$with_dstat_symlink; do_dstat_symlink=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-dstat-symlink=$withval"
+else
+  do_dstat_symlink=no
 fi
 
 
@@ -7421,6 +7434,22 @@ else
     pcp_python_prog=""
 fi
 
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for dstat symlink" >&5
+$as_echo_n "checking for dstat symlink... " >&6; }
+enable_dstat=false
+if test "$do_dstat_symlink" = "check" -o "$do_dstat_symlink" = "yes"
+then
+    enable_dstat=true
+    if test "$have_python" = "false"
+    then
+	as_fn_error $? "cannot enable dstat symlink - no python found" "$LINENO" 5
+    fi
+fi
+
+if $enable_dstat; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
 
 
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module BPF" >&5

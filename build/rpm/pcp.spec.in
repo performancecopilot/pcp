@@ -795,6 +795,11 @@ Requires: python3-pcp = @package_version@
 %else
 Requires: %{__python2}-pcp = @package_version@
 %endif
+Requires: pcp-libs = @package_version@
+%if "@enable_dstat@" == "true"
+Obsoletes: dstat
+Provides: /usr/bin/dstat
+%endif
 
 %description system-tools
 This PCP module contains additional system monitoring tools written

@@ -244,6 +244,7 @@ ENABLE_SHARED = @enable_shared@
 ENABLE_SECURE = @enable_secure@
 ENABLE_PROBES = @enable_probes@
 ENABLE_AVAHI = @enable_avahi@
+ENABLE_DSTAT = @enable_dstat@
 ENABLE_QT = @enable_qt@
 ENABLE_QT3D = @enable_qt3d@
 ENABLE_PERL = @enable_perl@
