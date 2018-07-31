@@ -53,7 +53,7 @@ lex.o:	gram.h
 
 ifeq ($(WINDOW),mac)
 MACBUILD = $(COMMAND).app/Contents
-PKG_MAC_DIR = /Applications/$(COMMAND).app/Contents
+PKG_MAC_DIR = /usr/local/Cellar/pcp/$(COMMAND).app/Contents
 wrappers: $(WRAPPER)
 else
 wrappers:
@@ -79,7 +79,7 @@ ifeq ($(WINDOW),x11)
 endif
 ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 755 $(WRAPPER) $(PCP_BIN_DIR)/$(COMMAND)
-	$(call INSTALL_DIRECTORY_HIERARCHY,$(PKG_MAC_DIR),/Applications)
+	$(call INSTALL,$(PKG_MAC_DIR),/Applications)
 	$(INSTALL) -m 644 $(MACBUILD)/PkgInfo $(PKG_MAC_DIR)/PkgInfo
 	$(INSTALL) -m 644 $(XMLFILE) $(PKG_MAC_DIR)/Info.plist
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/MacOS
