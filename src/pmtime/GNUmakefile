@@ -26,7 +26,7 @@ build-me: images wrappers
 	$(LNMAKE)
 
 ifeq ($(WINDOW),mac)
-PKG_MAC_DIR = /usr/local/Cellar/pcp/$(COMMAND).app/Contents
+PKG_MAC_DIR = /usr/local/Cellar/pcp/$(PACKAGE_VERSION)/$(COMMAND).app/Contents
 wrappers: $(WRAPPER) $(XMLFILE)
 else
 wrappers:
