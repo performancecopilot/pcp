@@ -243,8 +243,8 @@ Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
 %endif
-%if 0%{?fedora} < 27
-# F27 re-introduced split-out debuginfo packages
+%if 0%{?fedora} < 27 && 0%{?rhel} < 8
+# F27 and RHEL8 re-introduced split-out debuginfo packages
 Obsoletes: pcp-gui-debuginfo
 %endif
 Obsoletes: pcp-pmda-nvidia
