@@ -224,7 +224,7 @@ BuildRequires: perl-generators
 BuildRequires: perl-devel perl(strict)
 BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
 BuildRequires: perl(LWP::UserAgent) perl(Time::HiRes) perl(Digest::MD5)
-BuildRequires: initscripts man
+BuildRequires: man
 %if !%{disable_systemd}
 BuildRequires: systemd-devel
 %endif
@@ -238,7 +238,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash gawk sed grep findutils initscripts which
+Requires: bash gawk sed grep findutils which
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
