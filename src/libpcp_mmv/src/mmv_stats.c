@@ -803,9 +803,7 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
                      int serial, const char *shorthelp, const char *longhelp)
 {
     mmv_metric2_t * metric;
-    //mmv_metric2_t * aux;
     size_t bytes;
-    //int version;
 
     if (registry == NULL) {
 	setoserror(EFAULT);
@@ -830,13 +828,8 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
     metric[registry->nmetrics].indom = serial;
     
     metric[registry->nmetrics].shorttext = (char *)shorthelp;
-    metric[registry->nmetrics].helptext = (char *)longhelp;
+    metric[registry->nmetrics].helptext = (char *)
 
-    //aux = &(metric[registry->nmetrics]);
-    //if ((version = mmv_check2(aux, 1, registry, 0)) < 0) 
-    //	return -1;
-    //if (registry->version != MMV_VERSION3)
-    //	registry->version = version;
     registry->nmetrics++;
     return 0;
 }
@@ -846,9 +839,7 @@ mmv_stats_add_indom(mmv_registry_t *registry, int serial,
                     const char *shorthelp, const char *longhelp) 
 {
     mmv_indom2_t * indom;
-    //mmv_indom2_t * aux;
     size_t bytes;
-    //int version;
 
     if (registry == NULL) {
         setoserror(EFAULT);
@@ -870,12 +861,6 @@ mmv_stats_add_indom(mmv_registry_t *registry, int serial,
     indom[registry->nindoms].shorttext = (char *)shorthelp;
     indom[registry->nindoms].helptext = (char *)longhelp;
 
-    /*aux = &(indom[registry->nindoms]);
-    if ((version = mmv_check2(NULL, 0, aux, 1)) < 0)
-	return -1;
-    if (registry->version != MMV_VERSION3)
-        registry->version = version;*/
-
     registry->nindoms++;
     return 0;
 }
@@ -886,10 +871,8 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
 {
     mmv_instances2_t * instance;
     mmv_instances2_t * inst_aux;
-    //mmv_indom2_t * aux;
     size_t bytes;
-    //int version = MMV_VERSION1;
-    int i;//, sts;
+    int i;
 
     if (registry == NULL) {
 	setoserror(EFAULT);
@@ -923,19 +906,13 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
 
 	registry->indoms[i].count++;
 
-	/*aux = &(registry->indoms[i]);
-	if ((sts = mmv_check2(NULL, 0, aux, 1)) < 0)
-	    return -1;
-	if (sts > version)
-	    version = sts;*/
     }
     if (i == registry->nindoms) {
 	/* indom with that serial number was not found */
 	setoserror(EINVAL);
 	return -1;
     }
-    /*if (registry->version != MMV_VERSION3)
-	registry->version = version;*/
+    
     registry->ninstances++;
     return 0;
 }
