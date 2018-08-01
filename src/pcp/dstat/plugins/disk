@@ -34,7 +34,7 @@ width = 4
 grouptype = 1
 printtype = f
 colorstep = 1
-svctm = (delta(disk.dev.read_rawactive) + delta(disk.dev.write_rawactive)) / (delta(disk.dev.read) + delta(disk.dev.write))
+svctm = (delta(disk.dev.avactive) / 1000 / 2) / (delta(disk.dev.read) + delta(disk.dev.write))
 
 [disk-tps]
 label = dsk/%I

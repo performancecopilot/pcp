@@ -224,7 +224,7 @@ BuildRequires: perl-generators
 BuildRequires: perl-devel perl(strict)
 BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
 BuildRequires: perl(LWP::UserAgent) perl(Time::HiRes) perl(Digest::MD5)
-BuildRequires: initscripts man
+BuildRequires: man
 %if !%{disable_systemd}
 BuildRequires: systemd-devel
 %endif
@@ -238,15 +238,20 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash gawk sed grep findutils initscripts which
+Requires: bash gawk sed grep findutils which
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
 %endif
-%if 0%{?fedora} < 27 && 0%{?rhel} < 8
-# F27 and RHEL8 re-introduced split-out debuginfo packages
+
+# Some older releases did not update or replace pcp-gui-debuginfo properly
+%if 0%{?fedora} < 27
 Obsoletes: pcp-gui-debuginfo
 %endif
+%if 0%{?rhel} <= 7
+Obsoletes: pcp-gui-debuginfo
+%endif
+
 Obsoletes: pcp-pmda-nvidia
 
 # Obsoletes for distros that already have single install pmda's with compat package

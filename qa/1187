@@ -59,12 +59,16 @@ filter_info()
 
 # real QA test starts here
 export TERM=ansi
-dstat "CPU" --cpu -C 1,2,total --cpu-use
+dstat "Per CPU" --cpu -C 1,2,total --cpu-use
+dstat "CPU" --cpu-adv
+dstat "Per Disk" --disk -D sda,total --disk-wait
+dstat "Disk" --io
 dstat "Kernel" --ipc --sys --utmp
 dstat "Memory" --mem-adv --swap
-dstat "Network" --net -N enp0s25,wlp3s0,tun0 --socket --tcp
+dstat "Per Interface" --net -N enp0s25,wlp3s0,tun0
+dstat "Network" --socket --tcp
 dstat "Processes" --proc
-dstat "Filesystem" --aio --fs --locks
+dstat "Filesystem" --aio --fs --lock
 
 dstat "Version" --version | filter_info
 dstat "Plugins" --list | filter_info

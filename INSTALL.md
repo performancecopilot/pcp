@@ -224,6 +224,7 @@ You will need to start the PCP Collection Daemon (PMCD), as root:
 
 Linux:
 ```
+# systemctl start pmcd  (or...)
 # service pmcd start  (or...)
 # /etc/init.d/pmcd start  (or...)
 # /etc/rc.d/init.d/pmcd start

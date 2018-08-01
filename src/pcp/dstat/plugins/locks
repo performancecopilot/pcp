@@ -2,7 +2,7 @@
 # pcp-dstat(1) configuration file - see pcp-dstat(5)
 #
 
-[locks]
+[lock]
 label = file locks
 width = 3
 colorstep = 10

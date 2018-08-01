@@ -495,19 +495,19 @@ to relate disk\-throughput with network\-usage (eth0), total CPU\-usage and syst
 .RS 4
 .\}
 .nf
-pcp-dstat \-dnyc \-N eth0 \-C total \-f 5
+pcp dstat \-dnyc \-N eth0 \-C total \-f 5
 .fi
 .if n \{\
 .RE
 .\}
 .sp
-Using the time plugin together with cpu, net, disk, system, load, proc and top_cpu plugins:
+Using the time plugin together with cpu, net, disk, system, load and proc plugins:
 .sp
 .if n \{\
 .RS 4
 .\}
 .nf
-pcp-dstat \-tcndylp \-\-top\-cpu
+pcp dstat \-tcndylp
 .fi
 .if n \{\
 .RE
@@ -519,19 +519,21 @@ this is identical to
 .RS 4
 .\}
 .nf
-pcp-dstat \-\-time \-\-cpu \-\-net \-\-disk \-\-sys \-\-load \-\-proc \-\-top\-cpu
+pcp dstat \-\-time \-\-cpu \-\-net \-\-disk \-\-sys \-\-load \-\-proc
 .fi
 .if n \{\
 .RE
 .\}
 .sp
-Using pcp-dstat to relate advanced cpu stats with interrupts per device:
+Using
+.B pcp-dstat
+to report 10 samples from metrics recorded in a PCP archive from 2:30am:
 .sp
 .if n \{\
 .RS 4
 .\}
 .nf
-pcp-dstat \-t \-\-cpu\-adv \-yif
+pcp \-\-origin '@02:30'  \-\-archive 20180729 dstat \-\-time \-\-cpu\-adv \-\-sys 1 10
 .fi
 .if n \{\
 .RE
