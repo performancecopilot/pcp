@@ -91,6 +91,19 @@ void *__wrap_malloc(size_t size)
     return __real_malloc(size);
 }
 
+void *__real_calloc (size_t nmemb, size_t size);
+
+void *__wrap_calloc(size_t nmemb, size_t size)
+{
+    /* both calloc and malloc are controlled by the wrap_malloc_fail setting */
+    if(wrap_malloc_fail) {
+        /* could be dicy if calloc continues to fail. Therefore reset it */
+        wrap_malloc_fail = 0;
+        return NULL;
+    }
+    return __real_calloc(nmemb, size);
+}
+
 ssize_t __real_read(int fd, void *buf, size_t count);
 
 ssize_t __wrap_read(int fd, void *buf, size_t count)
