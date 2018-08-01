@@ -2,7 +2,7 @@
 
 - Packages
   1. Linux Installation (rpm, deb)
-  2. Mac OS X Installation (dmg)
+  2. Mac OS X Installation (brew)
   3. AIX Installation
   4. Solaris Installation
   5. Windows Installation
@@ -52,8 +52,20 @@ root filesystem.
 
 ### 2. Mac OS X Installation
 
-Installing PCP from the DMG file is as simple as clicking on the icon
-in a Finder window, and following the prompts from the installer.
+Installing pcp on MacOS consists of simple terminal commands. 
+Open you terminal and type the commands in the respective order.
+
+$ brew install qt
+$ brew link qt --force
+$ brew install pcp
+$ brew link pcp
+
+This will install pcp on your system. To test it, use:
+
+$ pcp
+
+This should show all the details of pcp like services, platform, etc.
+
 
 ### 3. AIX Installation
 
