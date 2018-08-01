@@ -1016,7 +1016,7 @@ class DstatTool(object):
         opts.pmSetLongOption('nocolor', 0, '', '', 'disable colors')
         opts.pmSetLongOption('noheaders', 0, '', '', 'disable repetitive headers')
         opts.pmSetLongOption('noupdate', 0, '', '', 'disable intermediate headers')
-        opts.pmSetLongOption('output', 0, '', 'file', 'write CSV output to file')
+        opts.pmSetLongOption('output', 1, 'o', 'file', 'write CSV output to file')
         opts.pmSetLongOption('profile', 0, '', '', 'show profiling statistics when exiting dstat')
         opts.pmSetLongOption('version', 0, 'V', '', '')
         opts.pmSetLongOption('debug', 1, None, '', '')
