@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2014-2017 Red Hat
+# Copyright (C) 2014-2018 Red Hat
 # Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -76,7 +76,7 @@ class Metric(object):
 
     def add_field(self, key="value", value=None):
         """ Add field """
-        if value:
+        if value is not None:
             self.fields[key] = value
 
     def set_tag_string(self, tag_str):

@@ -33,6 +33,9 @@ build-me:: $(TARGET).py $(MAN_PAGES)
 install: default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 $(TARGET).py $(PCP_BINADM_DIR)/$(TARGET)
+ifeq "$(ENABLE_DSTAT)" "true"
+	$(INSTALL) -S $(PCP_BINADM_DIR)/pcp-dstat $(PCP_BIN_DIR)/dstat
+endif
 	@$(INSTALL_MAN)
 else
 build-me:

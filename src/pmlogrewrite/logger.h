@@ -140,14 +140,17 @@ typedef struct labelspec {
     int			new_id;
     char		*old_label;
     char		*new_label;
+    char		*new_value;
     indomspec_t		*ip;		/* for instance id changes */
 } labelspec_t;
 
 /* values for labelspec_t flags[] */
-#define LABEL_CHANGE_ID		1
-#define LABEL_CHANGE_TYPE	2
+#define LABEL_ACTIVE            1
+#define LABEL_CHANGE_ID		2
 #define LABEL_CHANGE_LABEL	4
-#define LABEL_DELETE		8
+#define LABEL_CHANGE_VALUE	8
+#define LABEL_DELETE		16
+#define LABEL_CHANGE_ANY       0x1e 
 
 extern labelspec_t	*label_root;
 
@@ -211,7 +214,7 @@ extern pmUnits	ntoh_pmUnits(pmUnits);
 extern metricspec_t	*start_metric(pmID);
 extern indomspec_t	*start_indom(pmInDom);
 extern textspec_t	*start_text(int, int);
-extern labelspec_t	*start_label(int, int);
+extern labelspec_t	*start_label(int, int, char *);
 extern int		change_inst_by_inst(pmInDom, int, int);
 extern int		change_inst_by_name(pmInDom, char *, char *);
 extern int		inst_name_eq(const char *, const char *);

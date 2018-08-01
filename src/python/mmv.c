@@ -69,6 +69,7 @@ MOD_INIT(cmmv)
     dict = PyModule_GetDict(module);
 
     dict_add(dict, "MMV_NAMEMAX", MMV_NAMEMAX);
+    dict_add(dict, "MMV_LABELMAX", MMV_LABELMAX);
     dict_add(dict, "MMV_STRINGMAX", MMV_STRINGMAX);
 
     dict_add(dict, "MMV_TYPE_NOSUPPORT", MMV_TYPE_NOSUPPORT);
@@ -87,6 +88,14 @@ MOD_INIT(cmmv)
 
     dict_add(dict, "MMV_FLAG_NOPREFIX", MMV_FLAG_NOPREFIX);
     dict_add(dict, "MMV_FLAG_PROCESS", MMV_FLAG_PROCESS);
+    dict_add(dict, "MMV_FLAG_SENTINEL", MMV_FLAG_SENTINEL);
+
+    dict_add(dict, "MMV_STRING_TYPE", MMV_STRING_TYPE);
+    dict_add(dict, "MMV_NUMBER_TYPE", MMV_NUMBER_TYPE);
+    dict_add(dict, "MMV_BOOLEAN_TYPE", MMV_BOOLEAN_TYPE);
+    dict_add(dict, "MMV_NULL_TYPE", MMV_NULL_TYPE);
+    dict_add(dict, "MMV_ARRAY_TYPE", MMV_ARRAY_TYPE);
+    dict_add(dict, "MMV_MAP_TYPE", MMV_MAP_TYPE);
 
     return MOD_SUCCESS_VAL(module);
 }

@@ -177,9 +177,9 @@ do_text(void)
 		fprintf(stderr, "Delete: %s help text for ",
 			(tp->old_type & PM_TEXT_ONELINE) ? "one line" : "full");
 		if ((tp->old_type & PM_TEXT_PMID))
-		    fprintf(stderr, " metric %s", pmIDStr(tp->old_id));
+		    fprintf(stderr, " metric %s\n", pmIDStr(tp->old_id));
 		else
-		    fprintf(stderr, " indom %s", pmInDomStr(tp->old_id));
+		    fprintf(stderr, " indom %s\n", pmInDomStr(tp->old_id));
 	    }
 	    return;
 	}

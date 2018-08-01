@@ -27,6 +27,8 @@
 #
 # blank lines before the @ line are ignored
 #
+@ 95.0 set of all processors running KVM trace metrics
+
 @ kvm.efer_reload Number of Extended Feature Enable Register (EFER) reloads.
 @ kvm.exits Number of guest exits from I/O port accesses. 
 @ kvm.fpu_reload Number of reload fpu(Float Point Unit).

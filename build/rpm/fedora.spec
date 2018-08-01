@@ -243,8 +243,8 @@ Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
 %endif
-%if 0%{?fedora} < 27
-# F27 re-introduced split-out debuginfo packages
+%if 0%{?fedora} < 27 && 0%{?rhel} < 8
+# F27 and RHEL8 re-introduced split-out debuginfo packages
 Obsoletes: pcp-gui-debuginfo
 %endif
 Obsoletes: pcp-pmda-nvidia
@@ -270,6 +270,13 @@ Requires: pcp-libs = %{version}-%{release}
 
 %if 0%{?fedora} >= 20 || 0%{?rhel} >= 8
 %global _with_doc --with-docdir=%{_docdir}/%{name}
+%endif
+
+%if 0%{?fedora} >= 29 || 0%{?rhel} >= 8
+%global _with_dstat --with-dstat-symlink=yes
+%global disable_dstat 0
+%else
+%global disable_dstat 1
 %endif
 
 %if !%{disable_systemd}
@@ -2093,6 +2100,10 @@ Requires: python3-pcp = %{version}-%{release}
 Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 Requires: pcp-libs = %{version}-%{release}
+%if !%{disable_dstat}
+Obsoletes: dstat
+Provides: /usr/bin/dstat
+%endif
 
 %description system-tools
 This PCP module contains additional system monitoring tools written
@@ -2181,7 +2192,7 @@ updated policy package.
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps}
+%configure %{?_with_initd} %{?_with_doc} %{_with_dstat} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps}
 make %{?_smp_mflags} default_pcp
 
 %install

@@ -182,8 +182,8 @@ Requires: pcp-libs = @package_version@
 Requires: pcp-selinux = @package_version@
 %endif
 Obsoletes: pcp-compat
-%if 0%{?fedora} < 27
-# F27 re-introduced split-out debuginfo packages
+%if 0%{?fedora} < 27 && 0%{?rhel} < 8
+# F27 and RHEL8 re-introduced split-out debuginfo packages
 Obsoletes: pcp-gui-debuginfo
 %endif
 
@@ -794,6 +794,11 @@ URL: https://pcp.io
 Requires: python3-pcp = @package_version@
 %else
 Requires: %{__python2}-pcp = @package_version@
+%endif
+Requires: pcp-libs = @package_version@
+%if "@enable_dstat@" == "true"
+Obsoletes: dstat
+Provides: /usr/bin/dstat
 %endif
 
 %description system-tools

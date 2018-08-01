@@ -29,7 +29,7 @@ from collections import OrderedDict
 
 from pcp.pmapi import pmContext as PCP
 from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
-from cpmapi import PM_INDOM_NULL, PM_ERR_VALUE, PM_LABEL_CLUSTER
+from cpmapi import PM_INDOM_NULL, PM_ERR_VALUE, PM_ERR_PMID, PM_LABEL_CLUSTER
 
 # Module references
 CONFIG = 1
@@ -46,6 +46,7 @@ INDOM = 11
 INSTS = 12
 LABEL_CLUSTER = 13
 LABEL_INSTANCE = 14
+STORE = 15
 
 class BCCPMDA(PMDA):
     """ PCP BCC PMDA """
@@ -74,6 +75,7 @@ class BCCPMDA(PMDA):
         self.set_fetch_callback(self.bcc_fetch_callback)
         self.set_label(self.bcc_label)
         self.set_label_callback(self.bcc_label_callback)
+        self.set_store_callback(self.bcc_store_callback)
 
         self.pmda_ready()
         if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
@@ -188,6 +190,7 @@ class BCCPMDA(PMDA):
             self.modules[module][CLEANUP] = obj.cleanup
             self.modules[module][LABEL_CLUSTER] = obj.label_cluster
             self.modules[module][LABEL_INSTANCE] = obj.label_instance
+            self.modules[module][STORE] = obj.store
         self.log("Modules initialized.")
 
     def register_metrics(self):
@@ -269,6 +272,16 @@ class BCCPMDA(PMDA):
         """ Instance labels """
         module = self.indoms[indom]
         return self.modules[module][LABEL_INSTANCE](inst)
+
+    def bcc_store_callback(self, cluster, item, inst, val):
+        """ Store callback """
+        module = self.clusters[cluster]
+        try:
+            return self.modules[module][STORE](item, inst, val)
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            self.err(traceback.format_exc())
+            return PM_ERR_PMID
 
 if __name__ == '__main__':
     BCCPMDA('bcc', 149).run()

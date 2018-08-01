@@ -1108,6 +1108,17 @@ _check_display()
 	    _notrun "Failed sanity check on DISPLAY $PCPQA_CLOSE_X_SERVER"
     fi
     export DISPLAY=$PCPQA_CLOSE_X_SERVER
+
+    # hackery for warning:
+    # QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/...'
+    mkdir -p "$tmp/xdg-runtime"
+    chmod 0700 "$tmp/xdg-runtime"
+    export XDG_RUNTIME_DIR="$tmp/xdg-runtime"
+}
+
+_clean_display()
+{
+    test -d "$tmp/xdg-runtime" && rm -fr "$tmp/xdg-runtime"
 }
 
 _check_containers()

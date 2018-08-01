@@ -1513,6 +1513,7 @@ BAD
 1167 pmdumplog labels archive local pmrep python
 1169 pmrep python local
 1170 pmda.bcc local python
+1171 pmda.bcc local python
 1174 threads valgrind local
 1177 pmns derive libpcp pmlogger local
 1180 logutil local pmrep python BAD @vm34
@@ -1570,6 +1571,7 @@ BAD
 1342 pmda.prometheus local python
 1343 pmmgr local pmlogrewrite
 1344 pmmgr local
+1350 pmda.proc local
 1351 pmcd pmda.mmv libpcp libpcp_pmda local
 1354 pmval archive local
 1359 libpcp local
@@ -1584,6 +1586,7 @@ BAD
 1396 pcp python pidstat local BAD @vm34
 1397 pmda.smart local valgrind
 1398 pidstat local
+1407 pmchart derive local
 1422 pmda.mmv local
 1423 pcp2spark python pcp2xxx local
 4751 libpcp threads valgrind local pcp python

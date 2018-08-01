@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013,2016 Red Hat.
+ * Copyright (C) 2013,2016,2018 Red Hat.
  * Copyright (C) 2009 Aconex.  All Rights Reserved.
  * Copyright (C) 2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -21,6 +21,7 @@ extern "C" {
 #endif
 
 #define MMV_NAMEMAX	64
+#define MMV_LABELMAX    244
 #define MMV_STRINGMAX	256
 
 typedef enum mmv_metric_type {
@@ -48,7 +49,7 @@ typedef struct mmv_instances {
 
 typedef struct mmv_instances2 {
     __int32_t		internal;	/* Internal instance ID */
-    char *		external;	/* External instance ID */
+    const char *	external;	/* External instance ID */
 } mmv_instances2_t;
 
 typedef struct mmv_indom {
@@ -89,25 +90,57 @@ typedef struct mmv_metric2 {
     char *		helptext;	/* Long help text string */
 } mmv_metric2_t;
 
+typedef struct mmv_label {
+    __uint32_t		flags;		/* PM_LABEL_TYPE, flag optional */
+    __uint32_t		identity;	/* Indom, Cluster or item ID */
+    __int32_t		internal;	/* Instance ID or PM_IN_NULL */
+    char		payload[MMV_LABELMAX];
+} mmv_label_t;
+
+typedef enum mmv_stats_flags { 
+    MMV_FLAG_NOPREFIX  = 0x1,  /* Don't prefix metric names by filename */ 
+    MMV_FLAG_PROCESS   = 0x2,  /* Indicates process check on PID needed */ 
+    MMV_FLAG_SENTINEL  = 0x4,  /* Sentinel values == no-value-available */ 
+} mmv_stats_flags_t;
+
+typedef enum mmv_value_type {
+    MMV_STRING_TYPE 	= 0x1,	
+    MMV_NUMBER_TYPE   	= 0x2,	
+    MMV_BOOLEAN_TYPE	= 0x3,
+    MMV_NULL_TYPE   	= 0x4,
+    MMV_ARRAY_TYPE   	= 0x5,
+    MMV_MAP_TYPE   	= 0x6,	
+} mmv_value_type_t;
+
 #ifdef HAVE_BITFIELDS_LTOR
 #define MMV_UNITS(a,b,c,d,e,f)	{a,b,c,d,e,f,0}
 #else
 #define MMV_UNITS(a,b,c,d,e,f)	{0,f,e,d,c,b,a}
 #endif
 
-typedef enum mmv_stats_flags {
-    MMV_FLAG_NOPREFIX	= 0x1,	/* Don't prefix metric names by filename */
-    MMV_FLAG_PROCESS	= 0x2,	/* Indicates process check on PID needed */
-    MMV_FLAG_SENTINEL	= 0x4,	/* Sentinel values == no-value-available */
-} mmv_stats_flags_t;
+struct mmv_registry;
+typedef struct mmv_registry mmv_registry_t;
 
-extern void * mmv_stats_init(const char *, int, mmv_stats_flags_t,
-				const mmv_metric_t *, int,
-				const mmv_indom_t *, int);
-extern void * mmv_stats2_init(const char *, int, mmv_stats_flags_t,
-				const mmv_metric2_t *, int,
-				const mmv_indom2_t *, int);
-extern void mmv_stats_stop(const char *, void *);
+extern mmv_registry_t * mmv_stats_registry(const char *, int,
+		mmv_stats_flags_t);
+extern int mmv_stats_add_indom(mmv_registry_t *, int, const char *,
+		const char *);
+extern int mmv_stats_add_metric(mmv_registry_t *, const char *, int,
+		mmv_metric_type_t, mmv_metric_sem_t, pmUnits,
+		int, const char *, const char *);
+extern int mmv_stats_add_instance(mmv_registry_t *, int, int, const char *);
+
+extern int mmv_stats_add_registry_label(mmv_registry_t *,
+		const char *, const char *, mmv_value_type_t, int);
+extern int mmv_stats_add_indom_label(mmv_registry_t *,
+		int, const char *, const char *, mmv_value_type_t, int);
+extern int mmv_stats_add_metric_label(mmv_registry_t *,
+		int, const char *, const char *, mmv_value_type_t, int);
+extern int mmv_stats_add_instance_label(mmv_registry_t *,
+		int, int, const char *, const char *, mmv_value_type_t, int);
+
+extern void * mmv_stats_start(const char *, mmv_registry_t *);
+extern void mmv_stats_free(const char *, mmv_registry_t *);
 
 extern pmAtomValue * mmv_lookup_value_desc(void *, const char *, const char *);
 extern void mmv_inc_value(void *, pmAtomValue *, double);
@@ -128,6 +161,15 @@ extern void mmv_stats_set_string(void *, const char *,
 				const char *, const char *);
 extern void mmv_stats_set_strlen(void *, const char *,
 				const char *, const char *, size_t);
+
+/* Deprecated init and stop routines - use a registry instead */
+extern void * mmv_stats_init(const char *, int, mmv_stats_flags_t,
+				const mmv_metric_t *, int,
+				const mmv_indom_t *, int);
+extern void * mmv_stats2_init(const char *, int, mmv_stats_flags_t,
+				const mmv_metric2_t *, int,
+				const mmv_indom2_t *, int);
+extern void mmv_stats_stop(const char *, void *);
 
 #ifdef __cplusplus
 }

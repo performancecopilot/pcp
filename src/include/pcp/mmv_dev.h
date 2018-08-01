@@ -18,7 +18,8 @@
 
 #define MMV_VERSION1	1	/* original on-disk format */
 #define MMV_VERSION2	2	/* + mmv_disk_{metric2,instance2}_t */
-#define MMV_VERSION	1	/* default, upgrading to v2 only if needed */
+#define MMV_VERSION3	3	/* + labels support */
+#define MMV_VERSION     1	/* default, upgrading to v3 only if needed */
 
 typedef enum mmv_toc_type {
     MMV_TOC_INDOMS	= 1,	/* mmv_disk_indom_t */
@@ -26,6 +27,7 @@ typedef enum mmv_toc_type {
     MMV_TOC_METRICS	= 3,	/* mmv_disk_{metric,metric2}_t */
     MMV_TOC_VALUES	= 4,	/* mmv_disk_value_t */
     MMV_TOC_STRINGS	= 5,	/* mmv_disk_string_t */
+    MMV_TOC_LABELS	= 6,	/* mmv_disk_label_t */
 } mmv_toc_type_t;
 
 /* The way the Table Of Contents is written into the file */
@@ -60,6 +62,13 @@ typedef struct mmv_disk_instance2 {
 typedef struct mmv_disk_string {
     char		payload[MMV_STRINGMAX];	/* NULL terminated string */
 } mmv_disk_string_t;
+
+typedef struct mmv_disk_label {
+    __uint32_t        flags;      /* PM_LABEL_[TYPE|OPTIONAL] */
+    __uint32_t        identity;   /* Indom, Cluster or item ID */
+    __int32_t         internal;   /* Instance ID or PM_IN_NULL */
+    char              payload[MMV_LABELMAX];
+} mmv_disk_label_t;
 
 typedef struct mmv_disk_metric {
     char		name[MMV_NAMEMAX];

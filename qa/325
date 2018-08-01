@@ -27,6 +27,7 @@ _cleanup()
     pid=`ps $PCP_PS_ALL_FLAGS | egrep '[p]mquery' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
     echo "[p]mquery pid: $pid" >>$seq.full >/dev/null 2>&1
     [ -n "$pid" ] && $signal -s KILL $pid
+    _clean_display
     rm -f $tmp.*
 }
 

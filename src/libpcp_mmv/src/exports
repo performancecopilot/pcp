@@ -29,3 +29,17 @@ PCP_MMV_1.1 {
   global:
     mmv_stats2_init;
 } PCP_MMV_1.0;
+
+PCP_MMV_1.2 {
+  global:
+    mmv_stats_registry;
+    mmv_stats_start;
+    mmv_stats_add_metric;
+    mmv_stats_add_indom;
+    mmv_stats_add_instance;
+    mmv_stats_add_registry_label;
+    mmv_stats_add_metric_label;
+    mmv_stats_add_indom_label;
+    mmv_stats_add_instance_label;
+    mmv_stats_free;
+} PCP_MMV_1.1;
