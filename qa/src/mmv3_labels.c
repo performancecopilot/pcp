@@ -32,8 +32,10 @@ static mmv_instances2_t cpus[] = {
 };
 
 static mmv_instances2_t disk[] = {
-    {  0, "sda" },
-    {  1, "sdb" },
+    {  .internal = 0,
+       .external = "sda" },
+    {  .internal = 1,
+       .external = "sdb" },
 };
 
 static mmv_indom2_t indoms[] = {
@@ -68,13 +70,23 @@ main(int argc, char **argv)
     for (i = 0; i < sizeof(metrics) / sizeof(mmv_metric2_t); i++)
 	mmv_stats_add_metric(registry,
 			 metrics[i].name, metrics[i].item, metrics[i].type,
-			 metrics[i].semantics, metrics[i].dimension, 0,
+			 metrics[i].semantics, metrics[i].dimension, metrics[i].indom,
 			 metrics[i].shorttext, metrics[i].helptext);
    
     for (i = 0; i < sizeof(indoms) / sizeof(mmv_indom2_t); i++)
 	mmv_stats_add_indom(registry,
 			indoms[i].serial,
 			indoms[i].shorttext, indoms[i].helptext);
+
+    for (i = 0; i < sizeof(disk) / sizeof(mmv_instances2_t); i++)
+	mmv_stats_add_instance(registry,
+			indoms[1].serial,
+			disk[i].internal, disk[i].external);
+
+    for (i = 0; i < sizeof(cpus) / sizeof(mmv_instances2_t); i++)
+	mmv_stats_add_instance(registry,
+			indoms[0].serial,
+			cpus[i].internal, cpus[i].external);
 
     mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"string\"", MMV_STRING_TYPE, 0);
