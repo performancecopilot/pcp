@@ -89,8 +89,8 @@ last_nrec=0
 while [ ! -f $tmp.done ]
 do
     echo >>$here/$seq.full
-    echo "=== spawn iter $i ===" >>$here/$seq.full
-    ( time src/spawn 10000 ) >>$here/$seq.full 2>&1
+    echo "=== spawn iter $i `date` ===" >>$here/$seq.full
+    src/spawn 10000 >>$here/$seq.full 2>&1
     nrec=`pmdumplog $tmp | grep '^[0-9]' | wc -l | sed -e 's/ //g'`
     ls -l $tmp.0 >>$here/$seq.full
     echo "$nrec archive records" >>$here/$seq.full
