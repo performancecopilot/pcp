@@ -494,7 +494,7 @@ def gshow(plugin, results):
             return False
         if plugin.instances and inst in plugin.instances:
             return True
-        return False
+        return (plugin.grouptype == 1)
 
     for inst in plugin.igroup:      # e.g. [cpu0, cpu1, total]
         for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]

@@ -1,10 +1,40 @@
 QA output created by 1187
-CPU
+Per CPU
 === std out
 ----system---- -----cpu1-usage---- -----cpu2-usage---- ----total-usage---- ---------per-cpu-usage---------
      time     |usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl| 0   1   2   3   4   5   6   7 
 25-07 16:08:20|  3   2  96   0   0:  3   1  96   0   0:  6   1  93   0   0|  5   4   4  14  20   1   5   1
 25-07 16:08:21| 17   3  79   0   0:  7   2  92   0   0: 11   1  88   0   0|  8  21   8   5   6   6  38   6
+
+=== std err
+=== done
+
+CPU
+=== std out
+----system---- ------total-cpu-usage------
+     time     |usr sys idl wai hiq siq stl
+25-07 16:08:20|  5   1  93   0   0   0   0
+25-07 16:08:21| 10   2  88   0   0   0   0
+
+=== std err
+=== done
+
+Per Disk
+=== std out
+----system---- --dsk/sda-- -dsk/total- ---sda---
+     time     | read  writ: read  writ|rawa wawa
+25-07 16:08:20|   0     0 :   0     0 |   0    0
+25-07 16:08:21|   0     0 :   0     0 |   0    0
+
+=== std err
+=== done
+
+Disk
+=== std out
+----system---- --io/total-
+     time     | read  writ
+25-07 16:08:20|   0     0 
+25-07 16:08:21|   0     0 
 
 === std err
 === done
@@ -29,12 +59,22 @@ Memory
 === std err
 === done
 
+Per Interface
+=== std out
+----system---- net/enp0s25 --net/tun0- -net/wlp3s0
+     time     | recv  send: recv  send: recv  send
+25-07 16:08:20|1028   439 :  16   112 :   0     0 
+25-07 16:08:21|  12k 1009 : 228     0 :   0     0 
+
+=== std err
+=== done
+
 Network
 === std out
-----system---- net/enp0s25 --net/tun0- -net/wlp3s0 --------sockets--------- ------tcp-sockets-------
-     time     | recv  send: recv  send: recv  send|tot  tcp  udp  raw  frg |lis  act  syn  tim  clo 
-25-07 16:08:20|1028   439 :  16   112 :   0     0 |  2k  21   15    0    0 |  7   14    0    0    0 
-25-07 16:08:21|  12k 1009 : 228     0 :   0     0 |  2k  21   14    0    0 |  7   14    0    1    0 
+----system---- --------sockets--------- ------tcp-sockets-------
+     time     |tot  tcp  udp  raw  frg |lis  act  syn  tim  clo 
+25-07 16:08:20|  2k  21   15    0    0 |  7   14    0    0    0 
+25-07 16:08:21|  2k  21   14    0    0 |  7   14    0    1    0 
 
 === std err
 === done
