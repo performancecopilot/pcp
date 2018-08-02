@@ -52,7 +52,7 @@ root filesystem.
 
 ### 2. Mac OS X Installation
 
-Installing PCP on MacOSX is done via https://brew.sh/ commands. 
+Installing PCP on MacOSX is done via https://brew.sh/ commands.
 From a Terminal run:
 ```
 $ brew install qt
@@ -112,10 +112,18 @@ Use 'svcs' command to check the state of the services, e.g.:
 
 ### 5. Windows Installation
 
-Download the native Windows version of PCP from bintray.com/pcp
-which provides a .msi - the system-wide %PATH setting must be
-manually setup to point to the installation location (C:\Glider
-by default).
+There 2 ways to get PCP working on Windows:
+
+1) Download the native Windows version of PCP from bintray.com/pcp
+2) Set up PCP build environment manually. For that you can:
+
+- download Git for Windows SDK (https://github.com/git-for-windows/build-extra/releases)
+- install pcp package via pacman. (pacman -S mingw-w64-x86_64-pcp-4.1.1-any.pkg.tar)
+- set PCP_DIR to C:\git-sdk-64\mingw64
+- start pmcd
+```
+$PCP_DIR\libexec\pcp\bin\pmcd.exe
+```
 
 ## Building from source
 
@@ -352,7 +360,7 @@ pcp "user" as described in section B.2 above), then
 ```
 $ ./configure --prefix=/some/path
 ```
-This will populate /some/path with a full PCP installation.  To use this 
+This will populate /some/path with a full PCP installation.  To use this
 ensure the following are set in the environment:
 ```
 $ export PCP_DIR=/some/path
