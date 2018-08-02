@@ -53,6 +53,7 @@ require {
 	@PCP_MOCK_VAR_LIB@
 	type ldconfig_exec_t;
 	type httpd_t;
+	type redis_port_t;
 	type zabbix_port_t;
 	type sysfs_t; #RHBZ1545245
 	type hugetlbfs_t;
@@ -390,3 +391,8 @@ allow pcp_pmmgr_t zabbix_port_t:tcp_socket name_connect;
 allow pcp_pmcd_t fsadm_exec_t:file { execute execute_no_trans getattr open read };
 @PCP_FSADM_EXEC_MAP_RULE@
 allow pcp_pmcd_t self:capability sys_rawio;
+
+#============= pmda-redis ==============
+#type=AVC msg=audit(1533183330.416:362367): avc:  denied  { name_connect } for  pid=15299 comm="pmdaredis" dest=6379 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:redis_port_t:s0 tclass=tcp_socket permissive=0
+allow pcp_pmcd_t redis_port_t:tcp_socket name_connect;
+

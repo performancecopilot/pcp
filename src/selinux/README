@@ -102,14 +102,16 @@ In general usage, the only portion we care about is the Context (ie pcp_var_lib_
 
 SELinux manages a list of 'contexts' and how contexts are allowed to interact with each other.
 
-For example, it makes sense that the 'pcp_pmlogger_t' context to be
-able to read and write to pcp log files with a 'pcp_log_t' context.
-However, it doesn't make sense for 'pcp_pmlogger_t' to write to apache
+For example, it makes sense for the 'pcp_pmlogger_t' context to be
+able to read and write to PCP log files with a 'pcp_log_t' context.
+However, it doesn't make sense for 'pcp_pmlogger_t' to write to Apache
 log files, which have a 'httpd_log_t' context.
 
-Where this can be of focus for PCP is various pmda's gathering metrics from domains.  And, using the example
-with apache earlier, many of these files have different contexts.  We need to document these accesses and
-why they're required, building our own policy package for inclusion in the running policy.
+Where this can be of focus for PCP is various PMDA's gathering metrics
+from domains.  And, using the example with Apache earlier, many of these
+files have different contexts.  We need to document these accesses and
+why they're required, building our own policy package for inclusion in
+the running policy.
 
 == Testing ==
 
