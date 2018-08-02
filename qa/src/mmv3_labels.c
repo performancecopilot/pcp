@@ -94,11 +94,11 @@ main(int argc, char **argv)
 		    "metric_label", "null", MMV_NULL_TYPE, 1);
     mmv_stats_add_indom_label(registry, 1,
 		    "indom_label", "42.001", MMV_NUMBER_TYPE, 0);
-    mmv_stats_add_instance_label(registry, 1, 1,
+    mmv_stats_add_instance_label(registry, 1, 0,
 		    "item_label1", "true", MMV_BOOLEAN_TYPE, 1);
-    mmv_stats_add_instance_label(registry, 1, 2,
+    mmv_stats_add_instance_label(registry, 1, 1,
 		    "item_label2", "[1,2,3,4,5]", MMV_ARRAY_TYPE, 0);
-    mmv_stats_add_instance_label(registry, 1, 3,
+    mmv_stats_add_instance_label(registry, 1, 2,
 		    "item_label3", "{\"a\":1,\"b\":2}", MMV_MAP_TYPE, 1);
 
     map = mmv_stats_start(registry);

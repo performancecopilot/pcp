@@ -1245,14 +1245,20 @@ mmv_children(const char *name, int traverse, char ***kids, int **sts, pmdaExt *p
 static int
 mmv_label_lookup(int ident, int type, pmLabelSet **lp)
 {
-    int i, j;
+    int i, j, id;
     mmv_disk_label_t lb;
+    stats_t *s;
 
     /* search for labels with requested identifier for given type */
     for (i = 0; i < scnt; i++) {
-	for (j = 0; j < slist[i].lcnt; j++) {
-	    lb = slist[i].labels[j];
-	    if ((lb.flags & type) && lb.identity == ident)
+	s = &slist[i];
+	for (j = 0; j < s->lcnt; j++) {
+	    lb = s->labels[j];
+	    if (type & PM_LABEL_INDOM)
+		id = ((s->cluster << 11) | lb.identity);
+	    else
+		id = lb.identity;
+	    if ((lb.flags & type) && id == ident)
 		pmdaAddLabels(lp, lb.payload, lb.flags);
 	}
     }
@@ -1287,18 +1293,22 @@ mmv_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
     int i, j, count = 0;
     mmv_disk_label_t lb;
+    stats_t *s;
 
     /* search for labels with requested indom and instance identifier */
     for (i = 0; i < scnt; i++) {
-	for (j = 0; j < slist[i].lcnt; j++) {
-	    lb = slist[i].labels[j];
-	    if ((lb.flags & PM_LABEL_INSTANCES) &&
-		(lb.identity == pmInDom_serial(indom)) &&
-		(lb.internal == inst)) {
-		if (pmdaAddLabels(lp, lb.payload, lb.flags) < 0)
-		    continue;
-		count++;
-	    }
+	s = &slist[i];
+	for (j = 0; j < s->lcnt; j++) {
+	    lb = s->labels[j];
+	    if (!(lb.flags & PM_LABEL_INSTANCES))
+		continue;
+	    if (lb.internal != inst)
+		continue;
+	    if (((s->cluster << 11) | lb.identity) != pmInDom_serial(indom))
+		continue;
+	    if (pmdaAddLabels(lp, lb.payload, lb.flags) < 0)
+		continue;
+	    count++;
 	}
     }
     return count;
