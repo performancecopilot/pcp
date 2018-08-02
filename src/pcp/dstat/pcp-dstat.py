@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 #
 # Copyright (C) 2018 Red Hat.
-# Copyright 2004-2016 Dag Wieers <dag@wieers.com>
+# Copyright (C) 2004-2016 Dag Wieers <dag@wieers.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -31,6 +31,16 @@ from cpmapi import PM_ERR_EOL, PM_IN_NULL, pmUsageMessage
 
 if sys.version >= '3':
     long = int
+
+def py3round(number, ndigits = None):
+    if sys.version >= '3':
+        if ndigits is not None:
+            return round(number, ndigits)
+        return round(number)
+    ndigits = ndigits if ndigits is not None else 0
+    if abs(round(number) - number) == 0.5:
+        return 2.0 * round(number / 2.0, ndigits);
+    return round(number, ndigits)
 
 NOUNITS = pmapi.pmUnits()
 
@@ -393,8 +403,9 @@ class DstatPlugin(object):
 def dchg(var, width, base):
     "Convert decimal to string given base and length"
     c = 0
+    var = float(var) # avoid loss of precision below
     while True:
-        ret = str(long(round(var)))
+        ret = str(long(py3round(var)))
         if len(ret) <= width:
             break
         var = var / base
@@ -410,16 +421,16 @@ def fchg(var, width, base):
         if var == 0:
             ret = str('0')
             break
-        ret = str(long(round(var, width)))
+        ret = str(long(py3round(var, width)))
         if len(ret) <= width:
             i = width - len(ret) - 1
             while i > 0:
                 ret = ('%%.%df' % i) % var
-                if len(ret) <= width and ret != str(long(round(var, width))):
+                if len(ret) <= width and ret != str(long(py3round(var, width))):
                     break
                 i = i - 1
             else:
-                ret = str(long(round(var)))
+                ret = str(long(py3round(var)))
             break
         var = var / base
         c = c + 1
@@ -613,7 +624,7 @@ def cprint(value, units, printtype, pmtype, width, colorstep):
     ### Set the metrics color
     if ret == '0':
         color = cunit
-    elif printtype in ('p') and round(value) >= 100.0:
+    elif printtype in ('p') and py3round(value) >= 100.0:
         color = cdone
     elif colorstep != None:
         color = colors[int(value/colorstep) % len(colors)]
@@ -630,7 +641,7 @@ def cprint(value, units, printtype, pmtype, width, colorstep):
 
     ### Add unit to output
     if showunit:
-        if c != -1 and round(value) != 0:
+        if c != -1 and py3round(value) != 0:
             ret += cunit + units[c]
         else:
             ret += CHAR['space']
@@ -1217,22 +1228,22 @@ class DstatTool(object):
         print('pcp-dstat %s' % self.context.pmGetConfig('PCP_VERSION'))
         print('Written by the PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>')
         print('Homepages at https://pcp.io/ and http://dag.wieers.com/home-made/dstat/')
-        print()
+        print('')
         print('Platform %s' % platform())
         print('Kernel %s' % kernel())
         print('Python %s' % sys.version)
-        print()
+        print('')
         color = ""
         if not self.term.get_color():
             color = "no "
         print('Terminal type: %s (%scolor support)' % (os.getenv('TERM'), color))
         rows, cols = self.term.get_size()
         print('Terminal size: %d lines, %d columns' % (rows, cols))
-        print()
+        print('')
         print('Processors: %d' % cpucount())
         print('Pagesize: %d' % pagesize())
         print('Clock ticks per second: %d' % hertz())
-        print()
+        print('')
         self.pmfg.clear()
 
     def connect(self):
