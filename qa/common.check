@@ -1118,7 +1118,7 @@ _check_display()
 
 _clean_display()
 {
-    test -d "$tmp/xdg-runtime" && rm -fr "$tmp/xdg-runtime"
+    test -d "$tmp/xdg-runtime" && $sudo rm -fr "$tmp/xdg-runtime"
 }
 
 _check_containers()
