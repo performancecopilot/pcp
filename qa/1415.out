@@ -66,28 +66,30 @@ TOC[0]: toc offset 40, metrics offset 104 (2 entries)
        units=count
        (no indom)
        shorttext=metric shortext1
-       (no helptext)
+       helptext=metric helptext1
   [2/152] simple3.u64.instant
        type=64-bit unsigned int (0x3), sem=instant (0x3), pad=0x0
        units=
        (no indom)
        shorttext=metric shorttext2
-       (no helptext)
+       helptext=metric helptext2
 
 TOC[1]: offset 56, values offset 200 (2 entries)
   [1/200] simple3.u32.counter = 42
   [2/232] simple3.u64.instant = 0
 
-TOC[2]: offset 72, string offset 264 (4 entries)
+TOC[2]: offset 72, string offset 264 (6 entries)
   [1/264] simple3.u32.counter
   [2/520] simple3.u64.instant
   [3/776] metric shortext1
-  [4/1032] metric shorttext2
+  [4/1032] metric helptext1
+  [5/1288] metric shorttext2
+  [6/1544] metric helptext2
 
-TOC[3]: offset 88, labels offset 1288 (2 entries)
-  [1/1288] {"registry_label":"string"}
+TOC[3]: offset 88, labels offset 1800 (2 entries)
+  [1/1800] {"registry_label":"string"}
         flags=0x8, identity=0x141
         internal=0xffffffff
-  [2/1544] {"metric_label":321}
+  [2/2056] {"metric_label":321}
         flags=0x10, identity=0x1
         internal=0xffffffff
