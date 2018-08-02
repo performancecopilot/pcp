@@ -198,9 +198,6 @@ for f in $tmp.dir/$hostname/*.meta; do
     pmloglabel -L $f >>$seq.full
 done
 
-_service pmcd start >>$seq.full 2>&1
-_wait_for_pmcd
-
 date >>$seq.full
 echo "=== 9. how about some granular/reduced mode with some extra monitoring ===" | tee -a $seq.full
 echo 20sec >$tmp.dir/pmlogmerge
@@ -214,6 +211,7 @@ echo '192.0.2.2' >>$tmp.dir/target-host
 echo 50sec >$tmp.dir/pmlogmerge-retain
 echo '-t 10' >$tmp.dir/pmlogreduce  # compare to -t 2 for in /pmlogger
 echo 30sec >$tmp.dir/pmlogreduce-retain
+
 echo 'pcp summary' > $tmp.dir/monitor # short-lived; will be restarted periodically
 echo 'pmstat' >> $tmp.dir/monitor # long-lived
 # Note: pmmgr automatically appends "-h somehost" to the end of each monitor command line
@@ -222,6 +220,9 @@ echo 'pmstat' >> $tmp.dir/monitor # long-lived
 # upstream 0d4227aa8e4 via BZ#1289912
 echo 'pmrep :vmstat' >> $tmp.dir/monitor # long-lived
 echo 'pminfo xfs' >> $tmp.dir/monitor # short-lived
+
+_service pmcd start >>$seq.full 2>&1
+_wait_for_pmcd
 
 date >>$seq.full
 echo "=== 10. wait a bit ===" | tee -a $seq.full
@@ -253,11 +254,18 @@ fi
 # (the patch was only ever in pmfuntools anyway - it never shipped).
 for m in monitor; do
   for n in 0 1 2 3; do
-    if [ -s $tmp.dir/$hostname/$m-$n.out -a -f $tmp.dir/$hostname/$m-$n.err ]; then
+        # we test only for .out file existence, not non-emptiness, because
+        # pmmgr may have tried restarting a short-lived monitor task just as
+        # this test case is shutting down pmcd, thus causing errors
+    if [ -f $tmp.dir/$hostname/$m-$n.out -a -f $tmp.dir/$hostname/$m-$n.err ]; then
         echo "$m-$n output good"
     else
         echo "$m-$n output bad"
     fi
+    echo /$hostname/$m-$n.out >> $seq.full
+    cat $tmp.dir/$hostname/$m-$n.out  >> $seq.full
+    echo /$hostname/$m-$n.err  >> $seq.full
+    cat $tmp.dir/$hostname/$m-$n.err  >> $seq.full
   done
 done
 
