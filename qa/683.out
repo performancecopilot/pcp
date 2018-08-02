@@ -14,8 +14,8 @@ mmv.labels3.labels3.u64.instant PMID: 70.322.2 = 293931010 = 0x11850802
     Semantics: instant  Units: none
     inst [0 or "sda"] value 0
     inst [1 or "sdb"] value 0
-    inst [0 or "sda"] labels {"agent":"mmv","domainname":"localdomain","hostname":"hostname","machineid":"machineid","registry_label":"string"}
-    inst [1 or "sdb"] labels {"agent":"mmv","domainname":"localdomain","hostname":"hostname","machineid":"machineid","registry_label":"string"}
+    inst [0 or "sda"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","registry_label":"string"}
+    inst [1 or "sdb"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","registry_label":"string"}
 
 mmv.labels3.labels3.u32.counter PMID: 70.322.1 = 293931009 = 0x11850801
     Data Type: 32-bit unsigned int  InDom: 70.659457 0x118a1001
@@ -23,9 +23,9 @@ mmv.labels3.labels3.u32.counter PMID: 70.322.1 = 293931009 = 0x11850801
     inst [0 or "cpu0"] value 42
     inst [1 or "cpu1"] value 0
     inst [2 or "cpu3"] value 0
-    inst [0 or "cpu0"] labels {"agent":"mmv","domainname":"localdomain","hostname":"hostname","indom_label":42.001,"item_label1":true,"machineid":"machineid","metric_label":null,"registry_label":"string"}
-    inst [1 or "cpu1"] labels {"agent":"mmv","domainname":"localdomain","hostname":"hostname","indom_label":42.001,"item_label2":[1,2,3,4,5],"machineid":"machineid","metric_label":null,"registry_label":"string"}
-    inst [2 or "cpu3"] labels {"agent":"mmv","domainname":"localdomain","hostname":"hostname","indom_label":42.001,"item_label2":{"a":1,"b":2},"machineid":"machineid","metric_label":null,"registry_label":"string"}
+    inst [0 or "cpu0"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","metric_label":null,"registry_label":"string"}
+    inst [1 or "cpu1"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","metric_label":null,"registry_label":"string"}
+    inst [2 or "cpu3"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","metric_label":null,"registry_label":"string"}
 
 === remove mmv agent ===
 Culling the Performance Metrics Name Space ...

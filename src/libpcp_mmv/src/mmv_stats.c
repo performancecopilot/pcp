@@ -1120,18 +1120,14 @@ mmv_stats_add_instance_label(mmv_registry_t *registry, int serial, int instid,
 void *
 mmv_stats_start(const char *file, mmv_registry_t *registry) 
 {
-    //mmv_indom2_t * aux_indom;
-    //mmv_metric2_t * aux_metric;
-    int version = MMV_VERSION1;
+    int version;
 
-   // aux_metric = &(registry->metrics);
-    //aux_indom = &(registry->indoms);
     if ((version = mmv_check2(registry->metrics, registry->nmetrics,
-    			      registry->indoms, registry->nindoms)) < 0)
-    	return NULL;
+				registry->indoms, registry->nindoms)) < 0)
+	return NULL;
 
     if (registry->version != MMV_VERSION3)
-    	registry->version = version;
+	registry->version = version;
 
     registry->addr = mmv_init(file, registry->version, registry->cluster,
 				registry->flags, NULL, 0, NULL, 0, 

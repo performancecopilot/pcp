@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1415
-# [what am I here for?]
+# Exercising all versions of MMV ondisk form using mmvdump.
 #
-# Copyright (c) 2018 [who are you?].  All Rights Reserved.
+# Copyright (c) 2018 Red Hat.
 #
 
 seq=`basename $0`
@@ -44,7 +44,7 @@ _filter_mmvdump()
     sed \
 	-e "s,simple-$$,simple-PID,g" \
 	-e "s,simple2-$$,simple2-PID,g" \
-    -e "s,simple3-$$,simple3-PID,g" \
+	-e "s,simple3-$$,simple3-PID,g" \
 	-e "s,^Process.*= $pid1,Process    = PID,g" \
 	-e "s,^Process.*= $pid2,Process    = PID,g" \
 	-e "s,^Process.*= $pid3,Process    = PID,g" \
@@ -52,12 +52,10 @@ _filter_mmvdump()
 	-e 's/interval = [0-9][0-9]*/interval = TIME/' \
 	-e 's/eggs"] = [0-9][0-9]* (value=[0-9][0-9]*/eggs"] = N (value=N/' \
 	-e "s,^MMV file.*= $PCP_TMP_DIR,MMV file   = \$PCP_TMP_DIR,g" \
-
+    #end
 }
 
 echo $$ > $seq.full
-
-
 
 src/mmv_simple simple-$$ &
 pid1=$!
