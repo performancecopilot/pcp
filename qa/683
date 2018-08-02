@@ -1,0 +1,85 @@
+#!/bin/sh
+# PCP QA Test No. 683
+# [what am I here for?]
+#
+# Copyright (c) 2018 [who are you?].  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1
+username=`id -u -n`
+MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
+
+# for QA the default install for mmv PMDA is as a dso, not a daemon
+( echo b && echo dso ) >$tmp.input
+
+_cleanup()
+{
+    [ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
+    # note: _restore_auto_restart pmcd done in _cleanup_pmda()
+    _cleanup_pmda mmv $tmp.input
+}
+
+_prepare_pmda mmv
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmcd
+
+# real QA test starts here
+home="$PCP_PMDAS_DIR"
+iam=mmv
+cd "$home/$iam"
+unset ROOT MAKEFLAGS
+
+# move the MMV directory to restore contents later.
+[ -d $MMV_STATS_DIR ] && _save_config $MMV_STATS_DIR
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+# create a directory we can write and pcp group can read
+$sudo rm -rf "$MMV_STATS_DIR"
+$sudo mkdir -m 755 "$MMV_STATS_DIR"
+$sudo chown $username "$MMV_STATS_DIR"
+$sudo chgrp pcp "$MMV_STATS_DIR"
+
+echo
+echo "=== $iam agent installation ==="
+$sudo ./Install </dev/null >$tmp.out 2>&1
+_filter_pmda_install <$tmp.out
+
+$here/src/mmv3_labels
+
+_filter_pminfo()
+{
+    sed \
+	-e 's,.hostname":"[^"]*,"hostname":"hostname,g' \
+	-e 's,.machineid":"[^"]*,"machineid":"machineid,g' \
+
+}
+
+
+echo
+echo "=== validate values ==="
+if pminfo $iam | LC_COLLATE=POSIX sort >$tmp.names
+then
+   	pminfo -L -Kclear -Kadd,70,/var/lib/pcp/pmdas/mmv/pmda_mmv,mmv_init -d  mmv.labels3 -l -M -f | _filter_pminfo
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== remove $iam agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
+
+status=0
+exit

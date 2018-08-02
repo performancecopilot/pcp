@@ -13,27 +13,68 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
+status=0	# success is the default!
+files1="$PCP_TMP_DIR/mmv/simple-$$"
+files2="$PCP_TMP_DIR/mmv/simple2-$$"
+files3="$PCP_TMP_DIR/mmv/simple3-$$"
+culldir=false
 
 _cleanup()
 {
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
+    $culldir && _restore_config "$PCP_TMP_DIR/mmv"
+    $sudo rm -f $files1 $files2 $files3
+    rm -f $tmp.*
 }
 
-status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
+$sudo rm -rf $tmp.* $seq.full $files1 $files2 $files3
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# real QA test starts here
+# is a pre-existing mmv directory in place?  if so, write access needed
+if [ -d "$PCP_TMP_DIR/mmv" ]
+then
+    _save_config "$PCP_TMP_DIR/mmv"
+    $sudo rm -rf $PCP_TMP_DIR/mmv
+fi
+culldir=true
+$sudo mkdir -p -m 1777 "$PCP_TMP_DIR/mmv"
+$sudo chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/mmv"
 
-# if error
-exit
+_filter_mmvdump()
+{
+    sed \
+	-e "s,simple-$$,simple-PID,g" \
+	-e "s,simple2-$$,simple2-PID,g" \
+    -e "s,simple3-$$,simple3-PID,g" \
+	-e "s,^Process.*= $pid1,Process    = PID,g" \
+	-e "s,^Process.*= $pid2,Process    = PID,g" \
+	-e "s,^Process.*= $pid3,Process    = PID,g" \
+	-e "s,^Generated.*= [0-9][0-9]*,Generated  = TIMESTAMP,g" \
+	-e 's/interval = [0-9][0-9]*/interval = TIME/' \
+	-e 's/eggs"] = [0-9][0-9]* (value=[0-9][0-9]*/eggs"] = N (value=N/' \
+	-e "s,^MMV file.*= $PCP_TMP_DIR,MMV file   = \$PCP_TMP_DIR,g" \
 
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+}
 
-# success, all done
+echo $$ > $seq.full
+
+
+
+src/mmv_simple simple-$$ &
+pid1=$!
+src/mmv2_simple simple2-$$ &
+pid2=$!
+src/mmv3_simple simple3-$$ &
+pid3=$!
+wait
+
+echo && echo == Version 1 interfaces
+$PCP_PMDAS_DIR/mmv/mmvdump $PCP_TMP_DIR/mmv/simple-$$ | _filter_mmvdump
+
+echo && echo == Version 2 interfaces
+$PCP_PMDAS_DIR/mmv/mmvdump $PCP_TMP_DIR/mmv/simple2-$$ | _filter_mmvdump
+
+echo && echo == Version 3 interfaces
+$PCP_PMDAS_DIR/mmv/mmvdump $PCP_TMP_DIR/mmv/simple3-$$ | _filter_mmvdump
+
 status=0
 exit

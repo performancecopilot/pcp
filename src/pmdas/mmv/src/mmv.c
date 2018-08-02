@@ -1269,7 +1269,7 @@ mmv_label(int ident, int type, pmLabelSet **lp, pmdaExt *pmda)
 	    sts = mmv_label_lookup(pmID_cluster(ident), type, lp);
 	    break;
 	case PM_LABEL_INDOM:
-	    sts = mmv_label_lookup(ident, type, lp);
+	    sts = mmv_label_lookup(pmInDom_serial(ident), type, lp);
 	    break;
 	case PM_LABEL_ITEM:
 	    sts = mmv_label_lookup(pmID_item(ident), type, lp);
@@ -1293,7 +1293,7 @@ mmv_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 	for (j = 0; j < slist[i].lcnt; j++) {
 	    lb = slist[i].labels[j];
 	    if ((lb.flags & PM_LABEL_INSTANCES) &&
-		(lb.identity == indom) &&
+		(lb.identity == pmInDom_serial(indom)) &&
 		(lb.internal == inst)) {
 		if (pmdaAddLabels(lp, lb.payload, lb.flags) < 0)
 		    continue;
