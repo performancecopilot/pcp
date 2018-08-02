@@ -245,10 +245,7 @@ Requires: pcp-selinux = %{version}-%{release}
 %endif
 
 # Some older releases did not update or replace pcp-gui-debuginfo properly
-%if 0%{?fedora} < 27
-Obsoletes: pcp-gui-debuginfo
-%endif
-%if 0%{?rhel} <= 7
+%if 0%{?fedora} < 27 && 0%{?rhel} <= 7 && "%{_vendor}" == "redhat"
 Obsoletes: pcp-gui-debuginfo
 %endif
 
