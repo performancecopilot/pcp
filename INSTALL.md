@@ -52,20 +52,14 @@ root filesystem.
 
 ### 2. Mac OS X Installation
 
-Installing pcp on MacOS consists of simple terminal commands. 
-Open you terminal and type the commands in the respective order.
-
+Installing PCP on MacOSX is done via https://brew.sh/ commands. 
+From a Terminal run:
+```
 $ brew install qt
 $ brew link qt --force
 $ brew install pcp
 $ brew link pcp
-
-This will install pcp on your system. To test it, use:
-
-$ pcp
-
-This should show all the details of pcp like services, platform, etc.
-
+```
 
 ### 3. AIX Installation
 
