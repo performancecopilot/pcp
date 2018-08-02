@@ -112,7 +112,7 @@ Use 'svcs' command to check the state of the services, e.g.:
 
 ### 5. Windows Installation
 
-There 2 ways to get PCP working on Windows:
+There are 2 ways to get PCP working on Windows:
 
 1) Download the native Windows version of PCP from bintray.com/pcp
 2) Set up PCP build environment manually. For that you can:
