@@ -101,10 +101,14 @@ main(int argc, char **argv)
     mmv_stats_add_instance_label(registry, 1, 3,
 		    "item_label3", "{\"a\":1,\"b\":2}", MMV_MAP_TYPE, 1);
 
-    map = mmv_stats_start(file, registry);
+    map = mmv_stats_start(registry);
+    if (!map) {
+	fprintf(stderr, "mmv_stats_start: %s - %s\n", file, strerror(errno));
+	return 1;
+    }
+
     value = mmv_lookup_value_desc(map, "labels3.u32.counter", "cpu0");
     mmv_inc_value(map, value, 42);
-    mmv_stats_free(file, registry);
-
+    mmv_stats_free(registry);
     return 0;
 }

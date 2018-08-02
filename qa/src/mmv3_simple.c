@@ -48,10 +48,14 @@ main(int argc, char **argv)
     mmv_stats_add_metric_label(registry, 1,
 		    "metric_label", "321", MMV_NUMBER_TYPE, 0);
 
-    map = mmv_stats_start(file, registry);
+    map = mmv_stats_start(registry);
+    if (!map) {
+	fprintf(stderr, "mmv_stats_start: %s - %s\n", file, strerror(errno));
+	return 1;
+    }
+
     value = mmv_lookup_value_desc(map, metrics[0].name, NULL);
     mmv_inc_value(map, value, 42);
-    mmv_stats_free(file, registry);
-
+    mmv_stats_free(registry);
     return 0;
 }

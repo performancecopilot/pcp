@@ -828,7 +828,7 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
     metric[registry->nmetrics].indom = serial;
     
     metric[registry->nmetrics].shorttext = (char *)shorthelp;
-    metric[registry->nmetrics].helptext = (char *)
+    metric[registry->nmetrics].helptext = (char *)longhelp;
 
     registry->nmetrics++;
     return 0;
@@ -1118,7 +1118,7 @@ mmv_stats_add_instance_label(mmv_registry_t *registry, int serial, int instid,
 }
 
 void *
-mmv_stats_start(const char *file, mmv_registry_t *registry) 
+mmv_stats_start(mmv_registry_t *registry) 
 {
     int version;
 
@@ -1129,7 +1129,8 @@ mmv_stats_start(const char *file, mmv_registry_t *registry)
     if (registry->version != MMV_VERSION3)
 	registry->version = version;
 
-    registry->addr = mmv_init(file, registry->version, registry->cluster,
+    registry->addr = mmv_init(registry->file,
+				registry->version, registry->cluster,
 				registry->flags, NULL, 0, NULL, 0, 
 				registry->metrics, registry->nmetrics, 
 				registry->indoms, registry->nindoms,
@@ -1154,17 +1155,19 @@ mmv_stats_stop(const char *fname, void *addr)
 	sbuf.st_size = 1;
     else if (fstat(fd, &sbuf) < 0)
 	sbuf.st_size = 1;
-    else if (hdr->flags & MMV_FLAG_PROCESS)
+    else if (hdr && hdr->flags & MMV_FLAG_PROCESS)
 	unlink(path);
     if (fd >= 0)
 	close(fd);
-    __pmMemoryUnmap(addr, sbuf.st_size);
+    if (addr)
+	__pmMemoryUnmap(addr, sbuf.st_size);
 }
 
 void
-mmv_stats_free(const char *fname, mmv_registry_t *registry)
+mmv_stats_free(mmv_registry_t *registry)
 {
-    mmv_stats_stop(fname, registry->addr);
+    mmv_stats_stop(registry->file, registry->addr);
+    memset(registry, 0, sizeof(mmv_registry_t));
     free(registry);
 }
 
