@@ -1263,8 +1263,13 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 		    ep->environ_buf[ep->environ_buflen-1] = '\0';
 		}
 	    }
-	    else
-		ep->environ_buflen = 0;
+	    else {
+		/* if no environ, make environ_buf a zero length string */
+		ep->environ_buflen = 1;
+		if ((ep->environ_buf = (char *)malloc(1)) != NULL)
+		    ep->environ_buf[0] = '\0';
+		*sts = 0; /* clear -ENODATA */
+	    }
 	    close(fd);
 	}
 	ep->flags |= PROC_PID_FLAG_ENVIRON_FETCHED;
