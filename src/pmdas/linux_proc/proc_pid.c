@@ -1109,6 +1109,8 @@ proc_open(const char *base, proc_pid_entry_t *ep)
     if (procpids.threads) {
 	pmsprintf(buf, sizeof(buf), "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
 	if ((fd = open(buf, O_RDONLY)) >= 0) {
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+		fprintf(stderr, "proc_open: thread: %s -> fd=%d\n", buf, fd);
 	    return fd;
 	}
 	else {
@@ -1127,6 +1129,8 @@ proc_open(const char *base, proc_pid_entry_t *ep)
 	    fprintf(stderr, "proc_open: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	}
     }
+    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+	fprintf(stderr, "proc_open: %s -> fd=%d\n", buf, fd);
     return fd;
 }
 
@@ -1202,8 +1206,11 @@ read_proc_entry(int fd, int *lenp, char **bufp)
 	/* invalid read */
 	if (n < 0)
 	    sts = maperr();
-    	else if (n == 0)
+    	else if (n == 0) {
 	    sts = -ENODATA;
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
+		fprintf(stderr, "read_proc_entry: fd=%d: no data\n", fd);
+	}
     }
 
     return sts;
@@ -1264,13 +1271,22 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 		}
 	    }
 	    else {
-		/* if no environ, make environ_buf a zero length string */
-		ep->environ_buflen = 1;
-		if ((ep->environ_buf = (char *)malloc(1)) != NULL)
-		    ep->environ_buf[0] = '\0';
+		/*
+		 * probably EOF on first read, especially for
+		 * /proc/<N>/environ ...
+		 */
+		ep->environ_buflen = 0;
 		*sts = 0; /* clear -ENODATA */
 	    }
 	    close(fd);
+	}
+	else {
+	    /*
+	     * have seen Permission denied errors from open(),
+	     * especially for /proc/<N>/environ ...
+	     */
+	    ep->environ_buflen = 0;
+	    *sts = 0; /* clear -ENODATA */
 	}
 	ep->flags |= PROC_PID_FLAG_ENVIRON_FETCHED;
     }
