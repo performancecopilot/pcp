@@ -1036,7 +1036,11 @@ rewriting rule modifies a label record and has the form:
 \&...
 .KW }
 .PP
-where \fIlabelid\fP identifies the metric domain, metric cluster, metric item, instance domain, or instance domain instances with which the label is currently associated, and is either
+where \fIlabelid\fP refers to the global context or identifies the metric domain, metric cluster,
+metric item, instance domain, or instance domain instances with which the label is currently
+associated, and is either
+.KW CONTEXT
+or
 .KW DOMAIN
 \fIdomainid\fP
 or
