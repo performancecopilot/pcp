@@ -22,7 +22,7 @@
 .SH "C SYNOPSIS"
 .sp
 .ft 3
-(This functions have been deprecated by mmv3. Check mmv_stats_resgistry(3))
+(This functions have been deprecated by mmv3, check mmv_stats_resgistry(3))
 .sp
 .br
 #include <pcp/pmapi.h>
@@ -100,7 +100,7 @@ on name length (previously MMV_NAMEMAX, which is 64 bytes).
             __uint32_t indom;           /* Instance domain identifier */
             char *shorttext;            /* Optional, one-line help */
             char *helptext;             /* Optional, full help text */
-        } mmv_metric_t;
+        } mmv_metric2_t;
 .fi
 .P
 If \f3indom\f1 is not zero and not PM_INDOM_NULL, then the metric has
