@@ -3373,7 +3373,15 @@ cd
 
 %changelog
 * Fri Aug 03 2018 Dave Brolley <brolley@redhat.com> - 4.1.1-1
-- Work-in-progress, see https://pcp.io/roadmap
+- SELinux is preventing pmdalinux from 'unix_read' accesses on the shared memory Unknown
+  (BZ 1592901)
+- SELinux is preventing pmdalinux from getattr, associate access on the shared memory Unknown
+  (BZ 1594991)
+- PCP BCC PMDA AVCs (BZ 1597978)
+- PCP BCC PMDA packaging issue (BZ 1597979)
+- pmdaproc only reads the first 1024 bytes of the /proc/*/status file resulting in lost metric
+  values(BZ 1600262)
+- Update to latest PCP sources.
 
 * Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-1
 - Rapid compression of PCP log data and metadata (BZ 1293471)
