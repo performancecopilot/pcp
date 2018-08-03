@@ -20,7 +20,10 @@
 \f3mmv_stats_init\f1,
 \f3mmv_stats2_init\f1 - create and initialize Memory Mapped Value file
 .SH "C SYNOPSIS"
+.sp
 .ft 3
+.sp
+.br
 #include <pcp/pmapi.h>
 .br
 #include <pcp/mmv_stats.h>
@@ -40,6 +43,8 @@ void *mmv_stats2_init(const char *\fIname\fP, int \fIcluster\fP, mmv_stats_flags
 cc ... \-lpcp_mmv \-lpcp
 .ft 1
 .SH DESCRIPTION
+.P
+.B Note: these functions are deprecated \- see mmv_stats_resgistry(3).
 .P
 \f3mmv_stats_init\f1 creates and initializes the content of the 
 \f2MMV\f1(5) file, returning a handle that is used in subsequent
@@ -96,7 +101,7 @@ on name length (previously MMV_NAMEMAX, which is 64 bytes).
             __uint32_t indom;           /* Instance domain identifier */
             char *shorttext;            /* Optional, one-line help */
             char *helptext;             /* Optional, full help text */
-        } mmv_metric_t;
+        } mmv_metric2_t;
 .fi
 .P
 If \f3indom\f1 is not zero and not PM_INDOM_NULL, then the metric has
