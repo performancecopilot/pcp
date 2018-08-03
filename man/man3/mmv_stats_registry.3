@@ -59,8 +59,8 @@ handle returned by an earlier initialization call and also deletes
 the internal struct.
 .P
 The combination of \f3mmv_stats_registry\f1 and \f3mmv_stats_start\f1 
-do the same as the deprecated calls \f3mmv_stats(2)_init\f1. However, now
-it is called first \f3mmv_stats_registry\f1 and then the MMV API calls 
+do the same as the deprecated calls \f3mmv_stats(2)_init\f1. However, now,
+first it is called \f3mmv_stats_registry\f1 and then the MMV API calls 
 that add instances, indoms, metrics and labels. In this way, there is
 no more hassle to know in advance which version of MMV(1|2|3) will be
 used as it is updated automatically when you add longer strings or labels.
@@ -80,7 +80,7 @@ are only exported when the instrumented application is running \-
 this is verified on each request for new values.
 .P
 The next sections explain how to add metrics, indoms, instances
-and labels
+and labels.
 .P
 .SH ADD METRICS
 .ft 3
