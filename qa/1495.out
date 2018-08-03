@@ -1,0 +1,12 @@
+QA output created by 1495
+Running pmlogrewrite -c TMP.config archives/20180416.10.00 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180416.10.00
+Running pmdumplog -iteh TMP.pmlogrewrite
+Running diff TMP.original.txt TMP.rewritten.txt
+3065c3065
+<     Domain 3 labels (16 bytes): {"agent":"proc"}
+---
+>     Domain 4 labels (16 bytes): {"agent":"proc"}
+3067,3068d3066
+<     Domain 60 labels (17 bytes): {"agent":"linux"}
+<         [0] name(2,5) : value(9,7) [domain]
