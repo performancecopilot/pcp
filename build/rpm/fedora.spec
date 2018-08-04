@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.1.1
+Version: 4.1.2
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -2194,7 +2194,7 @@ updated policy package.
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{_with_dstat} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -3372,8 +3372,19 @@ cd
 %endif
 
 %changelog
+* Fri Aug 03 2018 Dave Brolley <brolley@redhat.com> - 4.1.1-2
+- pcp.spec: Fix the _with_dstat reference in the %configure command
+
 * Fri Aug 03 2018 Dave Brolley <brolley@redhat.com> - 4.1.1-1
-- Work-in-progress, see https://pcp.io/roadmap
+- SELinux is preventing pmdalinux from 'unix_read' accesses on the shared memory Unknown
+  (BZ 1592901)
+- SELinux is preventing pmdalinux from getattr, associate access on the shared memory Unknown
+  (BZ 1594991)
+- PCP BCC PMDA AVCs (BZ 1597978)
+- PCP BCC PMDA packaging issue (BZ 1597979)
+- pmdaproc only reads the first 1024 bytes of the /proc/*/status file resulting in lost metric
+  values(BZ 1600262)
+- Update to latest PCP sources.
 
 * Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-1
 - Rapid compression of PCP log data and metadata (BZ 1293471)
