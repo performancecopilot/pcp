@@ -1,0 +1,131 @@
+#!/bin/sh
+#
+# Given a remote host on the command line ...
+# - fetch the metadata for all metrics
+# - fetch the metadata for all metrics from the localhost
+# - compare the two for all cases where the metric name is the same
+#   and report if the metadata is different
+#
+# Helps make sure any derived metric expression for metrics that are
+# common across platforms will be OK.
+#
+# The localhost is usually running Linux, the remote host is usually
+# running something else.
+#
+
+tmp=/var/tmp/check-metadata-$$
+tmp=tmp
+sts=1
+# trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+_usage()
+{
+    echo "Usage: check-metadata [-s] remotehost"
+    exit
+}
+
+export PCP_DERIVED_CONFIG=
+# export LC_COLLATE=C
+
+# default is to not report 32-bit vs 64-bit differences
+ignore_size=true
+while getopts 's?' p
+do
+    case "$p"
+    in
+	s)	ignore_size=false
+		;;
+	?)	_usage
+		# NOTREACHED
+		;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -ne 1 ]
+then
+    _usage
+    # NOTREACHED
+fi
+
+# Turn
+# disk.dev.await
+#    Data Type: double  InDom: 60.1 0xf000001
+#    Semantics: instant  Units: millisec / count
+# into
+# disk.dev.await|double|60.1|instant|millisec / count
+#
+_canonical()
+{
+    awk <$1 '
+/^[a-z]/	{ printf "%s",$1 }
+/Data Type:/	{ printf "|" $3
+		  for (i = 4; i < NF; i++) {
+		    if ($i == "InDom:")
+			break;
+		    printf " " $i
+		  }
+		  i++
+		  printf "|" $i
+		}
+/Semantics:/	{ printf "|" $2 "|" $4
+		  for (i = 5; i <= NF; i++)
+		    printf " " $i
+		  print ""
+		}' \
+    | if $ignore_size
+      then
+	    sed -e 's/32-bit //' -e 's/64-bit //'
+      else
+	    cat
+      fi \
+    | sort -t '|' -k 1b,1 >$tmp.tmp
+    mv $tmp.tmp $1
+}
+
+pminfo -d >$tmp.local 2>$tmp.err
+cat $tmp.err
+if [ ! -s $tmp.local ]
+then
+    echo "Error: failed to get metadata from localhost"
+    exit
+fi
+_canonical $tmp.local
+
+pminfo -d -h $1 >$tmp.remote 2>$tmp.err
+cat $tmp.err
+if [ ! -s $tmp.remote ]
+then
+    echo "Error: failed to get metadata from $1"
+    exit
+fi
+_canonical $tmp.remote
+
+# after join we have ...
+# disk.dev.read_bytes|32-bit unsigned int|60.1|counter|Kbyte|64-bit unsigned int|85.2|counter|byte
+# $1 - metric name
+# $2 - local type
+# $3 - local indom
+# $4 - local semantics
+# $5 - local units
+# $6 - remote type
+# $7 - remote indom
+# $8 - remote semantics
+# $9 - remote units
+#
+join -t '|' -1 1 -2 1 $tmp.local $tmp.remote \
+| awk -F '|' '
+    { if ($2 != $6)
+	print $1 ": type mismatch: " $2 " (local) " $6 " ('$1')"
+      if ($3 != $7) {
+	if ($3 !~ /^[0-9]*\.[0-9]$/ || $7 !~ /^[0-9]*\.[0-9]$/)
+	    print $1 ": indom mismatch: " $3 " (local) " $7 " ('$1')"
+      }
+      if ($4 != $8)
+	print $1 ": semantics mismatch: " $4 " (local) " $8 " ('$1')"
+      if ($5 != $9)
+	print $1 ": units mismatch: " $5 " (local) " $9 " ('$1')"
+    }'
+
+sts=0
+exit
