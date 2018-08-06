@@ -21,6 +21,8 @@
 iam=trivial
 pmda_interface=2
 
+perl_opt=true
+
 pmdaSetup
 pmdaInstall
 exit
