@@ -35,7 +35,7 @@ include $(BUILDRULES)
 
 install install_pcp:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove pmdatrivial.perl $(PMDADIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(CFILES) $(PMDADIR)
 
