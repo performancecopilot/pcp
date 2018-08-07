@@ -972,6 +972,70 @@ void test_only_dynamic_events()
     printf("%d allowed events\n", count);
 }
 
+void test_cpu_max_smt()
+{
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    setenv("SYSFS_MOUNT_POINT", "./fakefs/syscpu1", 1);
+
+    const char *configfile = "config/test_cpu.txt";
+
+    perfhandle_t *h = perf_event_create(configfile);
+    assert( h != NULL );
+
+    perf_counter *data = NULL;
+    int size = 0;
+    perf_derived_counter *pdata = NULL;
+    int derivedsize = 0;
+
+    int count = perf_get(h, &data, &size, &pdata, &derivedsize);
+    assert(count > 0 );
+    assert(size == 2);
+    assert(data != NULL);
+
+    int i,j;
+    for (i = 0; i < 2; i++)
+	    for (j= 0 ; j < 16 ; j ++)
+		    assert(data[i].data[j].id == j);
+
+    perf_event_destroy(h);
+    perf_counter_destroy(data, size, pdata, derivedsize);
+}
+
+void test_cpu_smt()
+{
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    setenv("SYSFS_MOUNT_POINT", "./fakefs/syscpu2", 1);
+
+    const char *configfile = "config/test_cpu.txt";
+
+    perfhandle_t *h = perf_event_create(configfile);
+    assert( h != NULL );
+
+    perf_counter *data = NULL;
+    int size = 0;
+    perf_derived_counter *pdata = NULL;
+    int derivedsize = 0;
+
+    int count = perf_get(h, &data, &size, &pdata, &derivedsize);
+    assert(count > 0);
+    assert(size == 2);
+    assert(data != NULL);
+
+    int i,j;
+    for (i = 0; i < 2; i++)
+	    for (j = 0; j < 4; j++)
+	    {
+		    assert(data[i].data[j].id == j);
+		    assert(data[i].data[j+4].id == (j+8));
+	    }
+
+
+    perf_event_destroy(h);
+    perf_counter_destroy(data, size, pdata, derivedsize);
+}
+
 int runtest(int n)
 {
     init_mock();
@@ -1069,6 +1133,12 @@ int runtest(int n)
         case 29:
             test_only_dynamic_events();
             break;
+	case 30:
+	    test_cpu_max_smt();
+	    break;
+	case 31:
+	    test_cpu_smt();
+	    break;
         default:
             ret = -1;
     }
