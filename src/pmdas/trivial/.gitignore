@@ -1,2 +1,5 @@
 domain.h
 pmdatrivial
+pmda_trivial.so
+pmda_trivial.dll
+pmda_trivial.dylib

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012,2018 Red Hat.
 # Copyright (c) 2008,2012 Aconex.  All Rights Reserved.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -18,11 +18,9 @@
 use strict;
 use warnings;
 use PCP::PMDA;
-
 use vars qw( $pmda );
-my ( $now_indom ) = ( 1 );
 
-sub simple_fetch_callback	# must return array of value,status
+sub trivial_fetch_callback	# must return array of value,status
 {
 	my ($cluster, $item, $inst) = @_;
 
@@ -30,16 +28,16 @@ sub simple_fetch_callback	# must return array of value,status
 	return (PM_ERR_PMID, 0);
 }
 
-
-$pmda = PCP::PMDA->new('trivial', 250);
+$pmda = PCP::PMDA->new('trivial', 250);	# domain name and number
 $pmda->connect_pmcd;
 
-$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'trivial.time', '', '');
+$pmda->add_metric(pmda_pmid(0,0),	# metric ID (PMID)
+		PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, # type, instances,
+		pmda_units(0, 1, 0, 0, PM_TIME_SEC, 0),     # semantics, units
+		'trivial.time',		# metric name
+		'time in seconds since 1 Jan 1970',	# short and long help
+		'The time in seconds since the epoch (1st of January, 1970).');
 
-$now_indom = $pmda->add_indom($now_indom, {}, '', ''); # initialized on-the-fly
-$pmda->set_fetch_callback( \&simple_fetch_callback );
-
+$pmda->set_fetch_callback( \&trivial_fetch_callback );
 $pmda->set_user('pcp');
 $pmda->run;
