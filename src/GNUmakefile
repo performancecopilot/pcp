@@ -87,7 +87,6 @@ OTHER_SUBDIRS = \
 	pmproxy \
 	pmquery \
 	pmrep \
-	pmseries \
 	pmstat \
 	pmstore \
 	pmsocks \
