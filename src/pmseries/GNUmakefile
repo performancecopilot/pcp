@@ -23,10 +23,17 @@ ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lws2_32
 endif
 
-default:	$(CMDTARGET)
+default:	build-me
+
+ifeq "$(HAVE_LIBUV)" "true"
+build-me:	$(CMDTARGET)
 
 install:	default
 	#$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
+else
+build-me:
+install:
+endif
 
 include $(BUILDRULES)
 
