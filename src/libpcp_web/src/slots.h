@@ -21,7 +21,7 @@
 
 typedef struct redisSlotServer {
     sds			hostspec;	/* hostname:port or unix socket file */
-    redisContext	*redis;
+    redisAsyncContext	*redis;
 } redisSlotServer;
 
 typedef struct redisSlotRange {
@@ -33,17 +33,41 @@ typedef struct redisSlotRange {
     redisSlotServer	*slaves;
 } redisSlotRange;
 
+typedef void (*redisInfoCallBack)(pmloglevel, sds, void *);
+typedef void (*redisDoneCallBack)(void *);
+
 typedef struct redisSlots {
-    redisContext	*control;	/* initial Redis context connection */
+    redisAsyncContext	*control;	/* initial Redis context connection */
     sds			hostspec;	/* control socket host specification */
-    struct timeval	timeout;	/* system wide Redis timeout setting */
-    unsigned int	readonly;	/* expect no load requests (writing) */
     redisSlotRange	*slots;		/* all instances; e.g. CLUSTER SLOTS */
+    void		*events;
+
+    redisInfoCallBack	info;		/* TODO: remove - use baton */
+    void		*userdata;	/* TODO: remove - use baton */
 } redisSlots;
 
-extern redisSlots *redisSlotsInit(sds, struct timeval *);
+typedef void (*redisPhase)(redisSlots *, void *);	/* phased operations */
+
+extern redisSlots *redisSlotsInit(sds, redisInfoCallBack, void *, void *);
 extern int redisSlotRangeInsert(struct redisSlots *, struct redisSlotRange *);
-extern redisContext *redisGet(struct redisSlots *, const char *, sds);
+extern redisAsyncContext *redisSlotsConnect(redisSlots *, const char *);
+extern redisAsyncContext *redisGet(struct redisSlots *, const char *, sds);
 extern void redisFreeSlots(struct redisSlots *);
+
+extern int redisSlotsRequest(redisSlots *, const char *, sds, sds, redisAsyncCallBack *, void *);
+
+typedef struct {
+    unsigned int	magic;
+    int			version;
+    redisSlots		*redis;
+    redisInfoCallBack	info;
+    redisDoneCallBack	done;
+    void		*userdata;
+    void		*arg;
+} redisSlotsBaton;
+
+extern void initRedisSlotsBaton(redisSlotsBaton *, int,
+		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
+extern void doneRedisSlotsBaton(redisSlotsBaton *);
 
 #endif	/* SLOTS_H */
