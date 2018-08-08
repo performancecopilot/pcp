@@ -28,7 +28,7 @@ _cleanup()
     echo "[p]mquery pid: $pid" >>$seq.full >/dev/null 2>&1
     [ -n "$pid" ] && $signal -s KILL $pid
     _clean_display
-    rm -f $tmp.*
+    rm -rf $tmp $tmp.*
 }
 
 # Used to count pmconfirm, but this was a mistake ... it works because
