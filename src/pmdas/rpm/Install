@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=rpm
-pmda_interface=5
 check_delay=3
 
 dso_opt=true

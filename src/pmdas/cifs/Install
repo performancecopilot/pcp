@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=cifs
-pmda_interface=4
 dso_opt=true
 daemon_opt=true
 pipe_opt=true

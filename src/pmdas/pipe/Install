@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=pipe
-pmda_interface=5
 
 pmdaSetup
 pmdaInstall
