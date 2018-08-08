@@ -306,7 +306,7 @@ class PCP2Zabbix(object):
         elif opt == 'g':
             self.zabbix_server = optarg
         elif opt == 'p':
-            self.zabbix_port = optarg
+            self.zabbix_port = int(optarg)
         elif opt == 'X':
             self.zabbix_host = optarg
         elif opt == 'E':
@@ -486,13 +486,11 @@ class PCP2Zabbix(object):
             if self.context.pmDebug(PM_DEBUG_APPL0):
                 print('Got response from Zabbix: %s' % resp)
             if resp.get('response') != 'success':
-                sys.stderr.write('Error response from Zabbix: %s' % resp)
-                sys.stderr.flush()
+                sys.stderr.write('Error response from Zabbix: %s\n' % str(resp))
                 return False
             return True
         except socket.timeout as err:
-            sys.stderr.write("Zabbix connection timed out: " + str(err))
-            sys.stderr.flush()
+            sys.stderr.write("Zabbix connection timed out: %s\n" % str(err))
             return False
         finally:
             zabbix.close()
@@ -535,7 +533,7 @@ class PCP2Zabbix(object):
                     key += "[" + name + "]"
                 value = format(value, fmt) if isinstance(value, float) else str(value)
                 self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, value, ts))
-                
+
             # Construct extra LLD pseudo-metric if needed
             if self.zabbix_lld and send_lld:
                 # https://www.zabbix.com/documentation/3.4/manual/discovery/low_level_discovery
@@ -552,7 +550,7 @@ class PCP2Zabbix(object):
                 value += ",".join(values)
                 value += "] }"
                 self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, value, ts))
-                
+
         # Send when needed
         if self.context.type == PM_CONTEXT_ARCHIVE:
             if len(self.zabbix_metrics) >= self.zabbix_interval:
