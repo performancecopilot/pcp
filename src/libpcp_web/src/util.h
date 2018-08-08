@@ -55,4 +55,32 @@ extern int pmwebapi_source_hash(unsigned char *, const char *, int);
 extern sds pmwebapi_hash_sds(const unsigned char *);
 extern char *pmwebapi_hash_str(const unsigned char *);
 
+/*
+ * General asynchronous response helper routines
+ */
+typedef void (*seriesBatonCallBack)(void *);
+
+typedef struct seriesBatonPhase {
+    unsigned int		refcount;
+    seriesBatonCallBack		func;
+    struct seriesBatonPhase	*next;
+} seriesBatonPhase;
+
+extern void seriesBatonPhases(seriesBatonPhase *, unsigned int, void *);
+extern void seriesPassBaton(seriesBatonPhase **, unsigned int *, void *);
+
+enum {
+    MAGIC_BASE = 0xff00ff00,
+    MAGIC_SLOTS,
+    MAGIC_MAPPING,
+    MAGIC_CONTEXT,
+    MAGIC_LOAD,
+    MAGIC_STREAM,
+    MAGIC_LOOKUP,
+    MAGIC_QUERY,
+    MAGIC_SID,
+    MAGIC_VALUE,
+    MAGIC_LABELMAP,
+};
+
 #endif	/* SERIES_UTIL_H */

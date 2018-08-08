@@ -89,17 +89,12 @@ redis_param_raw(sds cmd, sds param)
     return sdscatfmt(cmd, "%S\r\n", param);
 }
 
-typedef void (*redis_callback)(redisSlots *, redisReply *, void *);
-extern int redis_submitcb(redisSlots *, const char *, sds, sds,
-			redis_callback, void *);
-extern int redis_submit(redisSlots *, const char *, sds, sds);
 
-extern redisSlots *redis_init(sds);
-extern redisContext *redis_connect(char *, struct timeval *);
-extern void redis_stop(redisContext *);
+extern void redis_init(redisSlots **, sds, int,
+		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
 
-extern void redis_series_source(redisSlots *, context_t *);
-extern void redis_series_metric(redisSlots *, context_t *, metric_t *);
-extern void redis_series_mark(redisSlots *, context_t *, sds);
-extern void redis_series_stream(redisSlots *, sds, metric_t *);
+extern void redis_series_source(redisSlots *, context_t *, void *);
+extern void redis_series_mark(redisSlots *, context_t *, sds, int, void *);
+extern void redis_series_metric(redisSlots *, metric_t *, sds, int, int, void *);
+
 #endif	/* SERIES_SCHEMA_H */
