@@ -187,9 +187,12 @@ fi
 
 # After argument checking, everything must be logged to ensure no mail is
 # accidentally sent from cron.  Close stdout and stderr, then open stdout
-# as our logfile and redirect stderr there too.
+# as our logfile and redirect stderr there too.  Create the log file with
+# correct ownership first.
 #
 [ -f "$PROGLOG" ] && mv "$PROGLOG" "$PROGLOG.prev"
+touch "$PROGLOG"
+chown $PCP_USER:$PCP_GROUP "$PROGLOG" >/dev/null 2>&1
 exec 1>"$PROGLOG" 2>&1
 
 # Default hostname is the name of the local host

@@ -20,7 +20,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=systemd
-pmda_interface=6
 pipe_opt=true
 daemon_opt=true
 

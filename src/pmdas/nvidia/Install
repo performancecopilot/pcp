@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=nvidia
-pmda_interface=2
 dso_opt=true
 
 pmdaSetup

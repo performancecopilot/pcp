@@ -44,6 +44,7 @@ endif
 ifeq "$(PCP_SELINUX_CAP_USERNS_PTRACE)" "true"
 PCP_CAPUSERNS_PTRACE="class cap_userns sys_ptrace\; \#pmdaproc"
 PCP_CAPUSERNS_PTRACE_RULE="allow pcp_pmcd_t self:cap_userns sys_ptrace\;"
+PCP_CAPUSERNS_PTRACE_RULE_PMIE="allow pcp_pmie_t self:cap_userns sys_ptrace\;"
 endif
 
 ifeq "$(PCP_SELINUX_UNRESERVED_PORT)" "true"

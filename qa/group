@@ -1059,6 +1059,8 @@ BAD
 683 mmv labels local
 684 pmstat archive multi-archive decompress-xz local pmlogextract
 689 pmclient archive multi-archive decompress-xz local sanity pmlogextract python
+695 pmda.trivial perl local
+696 pmda.trivial python local
 701 pmlogcheck local
 702 python libpcp local sanity
 703 pmda.weblog local

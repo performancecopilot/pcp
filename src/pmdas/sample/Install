@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=sample
-pmda_interface=2
 pmns_dupok=true		# we have duplicate names in our PMNS
 
 # Do it for sample

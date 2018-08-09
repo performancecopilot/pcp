@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=papi
-pmda_interface=6
 
 pmdaSetup
 # NB: Some number of warnings from the "pmprobe -i papi" embedded

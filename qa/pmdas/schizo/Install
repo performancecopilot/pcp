@@ -11,7 +11,6 @@ PCP_PMDAS_DIR=${PCP_VAR_DIR}/testsuite/pmdas
 
 iam=schizo
 dso_opt=false
-pmda_interface=4
 
 pmdaSetup
 

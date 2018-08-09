@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=sendmail
-pmda_interface=3
 
 pmdaSetup
 pmdaInstall

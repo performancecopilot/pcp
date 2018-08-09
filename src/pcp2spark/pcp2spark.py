@@ -34,7 +34,7 @@ import json
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL0, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_MSEC
 
 if sys.version_info[0] >= 3:
@@ -45,13 +45,10 @@ DEFAULT_CONFIG = ["./pcp2spark.conf", "$HOME/.pcp2spark.conf", "$HOME/.pcp/pcp2s
 
 # Defaults
 CONFVER = 1
-INDENT = 2
-
-# Spark server
 SPARK_SERVER = "127.0.0.1"
-SPARK_PORT = "44325"
+SPARK_PORT = 44325
 
-class PCP2SPARK(object):
+class PCP2Spark(object):
     """ PCP to Spark """
     def __init__(self):
         """ Construct object, prepare for command line handling """
@@ -113,9 +110,8 @@ class PCP2SPARK(object):
 
         # Internal
         self.runtime = -1
-        self.spark_socket = None
+
         self.client_conn = None
-        self.address = None
 
         # Performance metrics store
         # key - metric name
@@ -184,8 +180,8 @@ class PCP2SPARK(object):
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
-        opts.pmSetLongOption("spark_server", 1, "g", "SERVER", "IP address for local server for metrics (default: " + str(SPARK_SERVER) + ")")
-        opts.pmSetLongOption("spark_port", 1, "p", "PORT", "Port for local server for metrics (default: " + str(SPARK_PORT) + ")")
+        opts.pmSetLongOption("spark-server", 1, "g", "SERVER", "Spark server (default: " + SPARK_SERVER + ")")
+        opts.pmSetLongOption("spark-port", 1, "p", "PORT", "Spark port (default: " + str(SPARK_PORT) + ")")
 
         return opts
 
@@ -196,7 +192,7 @@ class PCP2SPARK(object):
         return 0
 
     def option(self, opt, optarg, index):
-        """ Perform setup for an individual command line option """
+        """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
         elif opt == 'K':
@@ -258,12 +254,12 @@ class PCP2SPARK(object):
         elif opt == 'g':
             self.spark_server = optarg
         elif opt == 'p':
-            self.spark_port = optarg
+            self.spark_port = int(optarg)
         else:
             raise pmapi.pmUsageErr()
 
     def connect(self):
-        """ Establish a PMAPI context """
+        """ Establish PMAPI context """
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
         self.pmfg = pmapi.fetchgroup(context, self.source)
@@ -299,14 +295,14 @@ class PCP2SPARK(object):
         self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
 
         # Setup a socket to send data to Spark
-        self.spark_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.spark_socket.bind((self.spark_server, int(self.spark_port)))
-        self.spark_socket.listen(0) # Don't handle listen backlog, only allow single connection
+        spark_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        spark_socket.bind((self.spark_server, self.spark_port))
+        spark_socket.listen(0) # Don't handle listen backlog, only allow single connection
 
-        # At this point we wait for a connection from the spark worker job
-        # and when we see it accept the connection.
+        # Wait for a connection from the Spark worker
+        # job and when we see it accept the connection
         sys.stdout.write("Awaiting connection...\n")
-        self.client_conn, self.address = self.spark_socket.accept()
+        self.client_conn, _ = spark_socket.accept()
 
         # Headers
         if self.header == 1:
@@ -328,7 +324,6 @@ class PCP2SPARK(object):
 
         # Main loop
         while self.samples != 0:
-
             # Fetch values
             try:
                 self.pmfg.fetch()
@@ -353,7 +348,7 @@ class PCP2SPARK(object):
         self.report(None)
 
     def report(self, tstamp):
-        """ Report the metric values """
+        """ Report metric values """
         if tstamp != None:
             tstamp = tstamp.strftime(self.timefmt)
 
@@ -362,10 +357,10 @@ class PCP2SPARK(object):
     def write_header(self):
         """ Write info header """
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            sys.stdout.write("Broadcasting %d archived metrics to Spark from %s:%s...\n(Ctrl-C to stop)\n" % (len(self.metrics), self.spark_server, self.spark_port))
+            sys.stdout.write("Sending %d archived metrics to Spark %s:%d...\n(Ctrl-C to stop)\n" % (len(self.metrics), self.spark_server, self.spark_port))
             return
 
-        sys.stdout.write("Broadcasting %d metrics to Spark from %s:%s every %d sec" % (len(self.metrics), self.spark_server, self.spark_port, self.interval))
+        sys.stdout.write("Sending %d metrics to Spark %s:%d every %d sec" % (len(self.metrics), self.spark_server, self.spark_port, self.interval))
         if self.runtime != -1:
             sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), self.runtime))
         elif self.samples:
@@ -374,9 +369,9 @@ class PCP2SPARK(object):
         else:
             sys.stdout.write("...\n\n(Ctrl-C to stop)\n")
 
-    def write_spark(self, tstamp):
-        """ Write (send) metrics to socket for Spark sever to pickup """
-        if tstamp is None:
+    def write_spark(self, timestamp):
+        """ Write (send) metrics to socket for Spark server to pick up """
+        if timestamp is None:
             # Silent goodbye, close in finalize()
             return
 
@@ -432,24 +427,21 @@ class PCP2SPARK(object):
                              ensure_ascii=False,
                              separators=(',', ': '))
 
+        if self.context.pmDebug(PM_DEBUG_APPL0):
+            print(message)
+
         try:
             self.client_conn.sendall(message.encode('utf-8'))
             self.client_conn.sendall("\n".encode('utf-8'))
-
         except socket.timeout as err:
-            sys.stderr.write("Connection to Spark timed out: " + str(err) + "\n")
+            sys.stderr.write("Spark connection timed out: %s\n" % str(err))
             sys.exit(1)
         except socket.error as err:
-            sys.stderr.write("Socket error: " + str(err) + "\n")
+            sys.stderr.write("Socket error: %s\n" % str(err))
             sys.exit(1)
-
-        # Test write output to console in debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
-            sys.stdout.write(message + "\n")
 
     def finalize(self):
         """ Finalize and clean up """
-        # Try and cleanly close socket
         if self.client_conn:
             try:
                 self.client_conn.close()
@@ -460,14 +452,14 @@ class PCP2SPARK(object):
 
 if __name__ == '__main__':
     try:
-        P = PCP2SPARK()
+        P = PCP2Spark()
         P.connect()
         P.validate_config()
         P.execute()
         P.finalize()
 
     except pmapi.pmErr as error:
-        sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
+        sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
         sys.exit(1)
     except pmapi.pmUsageErr as usage:
         usage.message()

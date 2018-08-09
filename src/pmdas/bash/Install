@@ -22,7 +22,6 @@
 iam=bash
 dso_opt=false
 socket_opt=false
-pmda_interface=5
 
 if [ ! -e "$PCP_TMP_DIR/bash" ]
 then

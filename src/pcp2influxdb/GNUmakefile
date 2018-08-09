@@ -1,11 +1,11 @@
 #
-# Copyright (c) 2014-2015 Red Hat, Inc.  All Rights Reserved.
-# 
+# Copyright (c) 2014-2016 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -27,7 +27,7 @@ default:
 include $(BUILDRULES)
 
 install: default
-ifeq "$(HAVE_PYTHON)" "true"
+ifeq "$(HAVE_PYTHON_INFLUXDB)" "true"
 	$(INSTALL) -m 755 $(TARGET).py $(PCP_BIN_DIR)/$(TARGET)
 	@$(INSTALL_MAN)
 endif

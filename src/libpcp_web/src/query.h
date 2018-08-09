@@ -90,6 +90,8 @@ typedef struct series_set {
 typedef struct node {
     enum nodetype	type;
     enum nodetype	subtype;
+    void		*baton;
+
     sds			key;
     sds 		value;
     struct node		*left;
@@ -132,10 +134,8 @@ typedef struct series {
     timing_t		time;
 } series_t;
 
-typedef pmSeriesSettings settings_t;
-
-extern int series_solve(settings_t *, node_t *, timing_t *, pmflags, void *);
-extern int series_source(settings_t *, node_t *, timing_t *, pmflags, void *);
+extern int series_solve(pmSeriesSettings *, node_t *, timing_t *, pmflags, void *);
+extern int series_load(pmSeriesSettings *, node_t *, timing_t *, pmflags, void *);
 
 extern const char *series_instance_name(sds);
 extern const char *series_context_name(sds);
