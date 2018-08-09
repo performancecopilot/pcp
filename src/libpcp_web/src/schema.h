@@ -23,6 +23,8 @@
 #define EVALSHA_LEN	(sizeof(EVALSHA)-1)
 #define CLUSTER		"CLUSTER"
 #define CLUSTER_LEN	(sizeof(CLUSTER)-1)
+#define GEOADD		"GEOADD"
+#define GEOADD_LEN	(sizeof(GEOADD)-1)
 #define GETS		"GET"
 #define GETS_LEN	(sizeof(GETS)-1)
 #define HGET		"HGET"

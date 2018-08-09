@@ -24,6 +24,7 @@ typedef struct context {
     unsigned char	hash[20];	/* context labels metadata SHA1 */
     unsigned int	type	: 7;
     unsigned int	cached	: 1;
+    double		location[2];	/* latitude and longitude */
     int			context;	/* PMAPI context */
     long long		hostid;		/* hostname source identifier */
     long long		mapid;		/* internal source identifier */
@@ -58,6 +59,7 @@ typedef struct labellist {
     long long		valueid;
     sds			name;
     sds			value;
+    unsigned int	flags;
     struct labellist	*next;
     struct dict		*valuemap;
     void		*arg;

@@ -98,11 +98,11 @@ reportReplyError(redisInfoCallBack info, void *userdata,
 {
     sds			msg = sdsnew("Error: ");
 
-    sdscatvprintf(msg, format, argp);
+    msg = sdscatvprintf(msg, format, argp);
     if (reply && reply->type == REDIS_REPLY_ERROR)
-	sdscatfmt(msg, "\nRedis: %s\n", reply->str);
+	msg = sdscatfmt(msg, "\nRedis: %s\n", reply->str);
     else
-	sdscat(msg, "\n");
+	msg = sdscat(msg, "\n");
     info(PMLOG_RESPONSE, msg, userdata);
     sdsfree(msg);
 }
@@ -367,6 +367,16 @@ redis_source_context_name(redisAsyncContext *c, redisReply *reply, void *arg)
 }
 
 static void
+redis_source_location(redisAsyncContext *c, redisReply *reply, void *arg)
+{
+    struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
+
+    checkIntegerReply(seriesLoadBatonInfo(baton), seriesLoadBatonUser(baton),
+		reply, "%s: %s", GEOADD, "mapping source location");
+    doneSeriesLoadBaton(baton);
+}
+
+static void
 redis_context_name_source(redisAsyncContext *c, redisReply *reply, void *arg)
 {
     struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
@@ -387,8 +397,9 @@ redis_series_source(redisSlots *slots, context_t *context, void *arg)
      * . SADD pcp:source:context.name:<mapid>
      * . SADD pcp:context.name:source:<hash>
      * . SADD pcp:source:context.name:<hostid>
+     * . GEOADD pcp:source:location <lat> <long> <hash>
      */
-    setSeriesLoadBatonRef(baton, 3);
+    setSeriesLoadBatonRef(baton, 4);
 
     key = sdscatfmt(sdsempty(), "pcp:source:context.name:%I", context->mapid);
     cmd = redis_command(3);
@@ -415,6 +426,19 @@ redis_series_source(redisSlots *slots, context_t *context, void *arg)
     sdsfree(val2);
     sdsfree(val);
     redisSlotsRequest(slots, SADD, key, cmd, redis_context_name_source, arg);
+
+    key = sdsnew("pcp:source:location");
+    val = sdscatprintf(sdsempty(), "%13.8f", context->location[0]);
+    val2 = sdscatprintf(sdsempty(), "%13.8f", context->location[1]);
+    cmd = redis_command(4);
+    cmd = redis_param_str(cmd, GEOADD, GEOADD_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_sds(cmd, val2);
+    cmd = redis_param_sds(cmd, val);
+    cmd = redis_param_sha(cmd, context->hash);
+    sdsfree(val2);
+    sdsfree(val);
+    redisSlotsRequest(slots, GEOADD, key, cmd, redis_source_location, arg);
 }
 
 static void
@@ -604,6 +628,7 @@ annotate_metric(const pmLabel *label, const char *json, void *arg)
     list->arg = arg;
     list->name = sdsnewlen(json + label->name, label->namelen);
     list->value = sdsnewlen(json + label->value, label->valuelen);
+    list->flags = label->flags;
 
     /* append map onto the list for this value or metric */
     head = baton->value ? baton->value->labellist : baton->metric->labellist;
@@ -624,12 +649,22 @@ annotate_metric(const pmLabel *label, const char *json, void *arg)
 }
 
 static void
-redis_series_label_hash_callback(redisAsyncContext *c, redisReply *reply, void *arg)
+redis_series_labelvalue_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
     struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
 
     checkStatusReplyOK(seriesLoadBatonInfo(baton), seriesLoadBatonUser(baton),
-			reply, "%s: %s", HMSET, "setting series labels");
+		reply, "%s: %s", HMSET, "setting series label value");
+    decSeriesLoadBatonRef(baton);
+}
+
+static void
+redis_series_labelflags_callback(redisAsyncContext *c, redisReply *reply, void *arg)
+{
+    struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
+
+    checkStatusReplyOK(seriesLoadBatonInfo(baton), seriesLoadBatonUser(baton),
+		reply, "%s: %s", HMSET, "setting series label flags");
     decSeriesLoadBatonRef(baton);
 }
 
@@ -639,7 +674,7 @@ redis_series_label_set_callback(redisAsyncContext *c, redisReply *reply, void *a
     struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
 
     checkIntegerReply(seriesLoadBatonInfo(baton), seriesLoadBatonUser(baton),
-			reply, "%s %s", "SADD", "pcp:series:label.X.value:Y");
+		reply, "%s %s", SADD, "pcp:series:label.X.value:Y");
     decSeriesLoadBatonRef(baton);
 }
 
@@ -663,18 +698,34 @@ redis_series_label(redisSlots *slots, metric_t *metric, value_t *value, void *ar
 	incSeriesLoadBatonRef(baton);
 	incSeriesLoadBatonRef(baton);
 
+	if (list->flags != PM_LABEL_CONTEXT) {
+	    incSeriesLoadBatonRef(baton);
+
+	    name = sdscatfmt(sdsempty(), "%I", list->nameid);
+	    val = sdscatfmt(sdsempty(), "%I", list->flags);
+	    key = sdscatfmt(sdsempty(), "pcp:labelflags:series:%s", hash);
+	    cmd = redis_command(4);
+	    cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
+	    cmd = redis_param_sds(cmd, key);
+	    cmd = redis_param_sds(cmd, name);
+	    cmd = redis_param_sds(cmd, val);
+	    sdsfree(name);
+	    sdsfree(val);
+	    redisSlotsRequest(slots, HMSET, key, cmd,
+				redis_series_labelflags_callback, arg);
+	}
+
 	name = sdscatfmt(sdsempty(), "%I", list->nameid);
 	val = sdscatfmt(sdsempty(), "%I", list->valueid);
-	key = sdscatfmt(sdsempty(), "pcp:labels:series:%s", hash);
+	key = sdscatfmt(sdsempty(), "pcp:labelvalue:series:%s", hash);
 	cmd = redis_command(4);
 	cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
 	cmd = redis_param_sds(cmd, key);
 	cmd = redis_param_sds(cmd, name);
 	cmd = redis_param_sds(cmd, val);
-	sdsfree(name);
 	sdsfree(val);
 	redisSlotsRequest(slots, HMSET, key, cmd,
-				redis_series_label_hash_callback, arg);
+				redis_series_labelvalue_callback, arg);
 
 	key = sdscatfmt(sdsempty(), "pcp:series:label.%I.value:%I",
 			list->nameid, list->valueid);
@@ -810,7 +861,7 @@ redis_series_metric(redisSlots *redis, metric_t *metric,
      * names, label names and values.  Then issue the metadata
      * and data simultaneously.
      */
-    if ((baton = calloc(1, sizeof(seriesGetValueBaton))) < 0) {
+    if ((baton = calloc(1, sizeof(seriesGetValueBaton))) == 0) {
 	return;		/* TODO: error handling */
     }
     initSeriesGetValueBaton(baton, metric, value, load);
@@ -837,7 +888,7 @@ redis_series_metric(redisSlots *redis, metric_t *metric,
 	series_label_mapping(baton);
     } else {
 	for (i = 0; i < metric->u.inst->listcount; i++) {
-	    if ((field = calloc(1, sizeof(seriesGetValueBaton))) < 0) {
+	    if ((field = calloc(1, sizeof(seriesGetValueBaton))) == NULL) {
 		continue;	/* TODO: error handling */
 	    }
 
@@ -1452,7 +1503,7 @@ redis_init(redisSlots **slotsp, sds server, int version_check,
     redisScriptsInit();
     redisMapsInit();
 
-    if ((baton = (redisSlotsBaton *)calloc(1, sizeof(redisSlotsBaton)))) {
+    if ((baton = (redisSlotsBaton *)calloc(1, sizeof(redisSlotsBaton))) != NULL) {
 	if ((slots = redisSlotsInit(server, info, events, userdata)) != NULL) {
 	    initRedisSlotsBaton(baton, version_check, info, done,
 				    userdata, events, arg);
