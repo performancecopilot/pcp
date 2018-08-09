@@ -287,7 +287,7 @@ class PCP2InfluxDB(object):
         opts.pmSetLongOption("db-name", 1, "x", "DATABASE", "metrics database name (default: " + DB + ")")
         opts.pmSetLongOption("db-user", 1, "U", "USERNAME", "username for database")
         opts.pmSetLongOption("db-pass", 1, "E", "PASSWORD", "password for database")
-        opts.pmSetLongOption("db-tags", 1, "X", "TAGS", "string of tags to add to the metrics")
+        opts.pmSetLongOption("db-tags", 1, "X", "TAGS", "string of tags to add to metrics")
 
         return opts
 
@@ -298,7 +298,7 @@ class PCP2InfluxDB(object):
         return 0
 
     def option(self, opt, optarg, index):
-        """ Perform setup for an individual command line option """
+        """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
         elif opt == 'K':
@@ -371,7 +371,7 @@ class PCP2InfluxDB(object):
             raise pmapi.pmUsageErr()
 
     def connect(self):
-        """ Establish a PMAPI context """
+        """ Establish PMAPI context """
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
         self.pmfg = pmapi.fetchgroup(context, self.source)
@@ -450,7 +450,7 @@ class PCP2InfluxDB(object):
         self.report(None)
 
     def report(self, tstamp):
-        """ Report the metric values """
+        """ Report metric values """
         if tstamp != None:
             tstamp = tstamp.strftime(self.timefmt)
 
@@ -479,7 +479,7 @@ class PCP2InfluxDB(object):
             return
 
         def sanitize_name_indom(string):
-            """ Sanitize the instance domain string for InfluxDB """
+            """ Sanitize instance domain string for InfluxDB """
             return "_" + re.sub('[^a-zA-Z_0-9-]', '_', string)
 
         results = self.pmconfig.get_sorted_results()
@@ -520,7 +520,7 @@ class PCP2InfluxDB(object):
                 if res.status_code == 200:
                     msg += "InfluxDB could not complete the request."
                 elif res.status_code == 404:
-                    msg += "Got an HTTP code 404. This most likely means "
+                    msg += "Got HTTP code 404. This most likely means "
                     msg += "that the requested database '"
                     msg += self.influx_db
                     msg += "' does not exist.\n"
@@ -536,7 +536,7 @@ class PCP2InfluxDB(object):
 
                 sys.stderr.write(msg)
         except ValueError:
-            sys.stderr.write("Can't send a request that has no metrics.\n")
+            sys.stderr.write("Can't send request that has no metrics.\n")
         except requests.exceptions.ConnectionError as error:
             sys.stderr.write("Can't connect to InfluxDB server %s: %s, continuing.\n" % (self.influx_server, str(error.args[0].reason)))
 
@@ -553,7 +553,7 @@ if __name__ == '__main__':
         P.finalize()
 
     except pmapi.pmErr as error:
-        sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
+        sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
         sys.exit(1)
     except pmapi.pmUsageErr as usage:
         usage.message()

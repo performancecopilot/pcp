@@ -198,7 +198,7 @@ class PCP2XML(object):
         return 0
 
     def option(self, opt, optarg, index):
-        """ Perform setup for an individual command line option """
+        """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
         elif opt == 'K':
@@ -272,7 +272,7 @@ class PCP2XML(object):
             raise pmapi.pmUsageErr()
 
     def connect(self):
-        """ Establish a PMAPI context """
+        """ Establish PMAPI context """
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
         self.pmfg = pmapi.fetchgroup(context, self.source)
@@ -355,7 +355,7 @@ class PCP2XML(object):
         self.report(None)
 
     def report(self, tstamp):
-        """ Report the metric values """
+        """ Report metric values """
         if tstamp != None:
             tstamp = tstamp.strftime(self.timefmt)
 
@@ -561,7 +561,7 @@ if __name__ == '__main__':
         P.finalize()
 
     except pmapi.pmErr as error:
-        sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
+        sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
         sys.exit(1)
     except pmapi.pmUsageErr as usage:
         usage.message()
