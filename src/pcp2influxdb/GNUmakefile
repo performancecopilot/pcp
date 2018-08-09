@@ -27,7 +27,7 @@ default:
 include $(BUILDRULES)
 
 install: default
-ifeq "$(HAVE_PYTHON)" "true"
+ifeq "$(HAVE_PYTHON_INFLUXDB)" "true"
 	$(INSTALL) -m 755 $(TARGET).py $(PCP_BIN_DIR)/$(TARGET)
 	@$(INSTALL_MAN)
 endif
