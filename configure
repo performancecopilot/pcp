@@ -837,6 +837,7 @@ pcp_perl_prog
 PERL
 PMDA_BCC
 PMDA_JSON
+have_python_influxdb
 have_python_six
 have_python_libvirt
 have_python_requests
@@ -7650,6 +7651,18 @@ $as_echo "no" >&6; }
     fi
 
 
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the python InfluxDB support should be included" >&5
+$as_echo_n "checking if the python InfluxDB support should be included... " >&6; }
+have_python_influxdb=false
+if test "$have_python" = true
+then
+    $have_python_requests && $have_python_OrderedDict && have_python_influxdb=true
+fi
+
+if $have_python_influxdb; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the json PMDA should be included" >&5
 $as_echo_n "checking if the json PMDA should be included... " >&6; }
