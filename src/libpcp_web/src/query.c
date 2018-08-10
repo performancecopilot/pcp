@@ -1454,7 +1454,7 @@ series_lookup_labels_callback(redisAsyncContext *c, redisReply *reply, void *arg
 
     if (reply->type != REDIS_REPLY_ARRAY) {
 	queryfmt(msg, "expected array from %s %s:%s (type=%s)",
-			HGETALL, "pcp:labels:series", sid->name,
+			HGETALL, "pcp:labelvalue:series", sid->name,
 			redis_reply(reply->type));
 	querymsg(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
@@ -1482,7 +1482,7 @@ series_lookup_labels(void *arg)
     for (i = 0; i < baton->u.lookup.nseries; i++) {
 	baton->refcount++;
 	sid = &baton->u.lookup.series[i];
-	key = sdscatfmt(sdsempty(), "pcp:labels:series:%S", sid->name);
+	key = sdscatfmt(sdsempty(), "pcp:labelvalue:series:%S", sid->name);
 	cmd = redis_command(2);
 	cmd = redis_param_str(cmd, HGETALL, HGETALL_LEN);
 	cmd = redis_param_sds(cmd, key);

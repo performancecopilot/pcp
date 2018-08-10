@@ -321,7 +321,7 @@ get_instance_metadata(seriesLoadBaton *baton, metric_t *metric)
     char		**namelist = NULL;
     int			*instlist = NULL;
     sds			msg;
-    int			sts;
+    int			sts = 0;
     int			ninst = 0;
     int			nsets = 0;
 
@@ -331,7 +331,8 @@ get_instance_metadata(seriesLoadBaton *baton, metric_t *metric)
 			pmInDomStr_r(indom, indommsg, sizeof(indommsg)),
 			pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
 	    seriesmsg(baton, PMLOG_ERROR, msg);
-	    return -1;
+	    sts = -1;
+	    goto done;
 	}
 	ninst = sts;
 	if ((sts = pmGetInstancesLabels(indom, &labelset)) < 0) {
@@ -346,11 +347,11 @@ get_instance_metadata(seriesLoadBaton *baton, metric_t *metric)
 	update_instance_metadata(baton, metric,
 				 ninst, instlist, namelist, nsets, labelset);
     }
-
+done:
     if (labelset) pmFreeLabelSets(labelset, nsets);
     if (namelist) free(namelist);
     if (instlist) free(instlist);
-    return 0;
+    return sts;
 }
 
 static domain_t *

@@ -67,7 +67,7 @@ The ouput for the last command will be something like
 pcp version 4.1.1
 ```
 
-Use the version numeber for creating symlinks (for version 4.1.1)
+Use the version number for creating symlinks (for version 4.1.1)
 ```
 $ export version="4.1.1"
 $ sudo ln -s /usr/local/Cellar/pcp/$version/etc/pcp.conf /etc/pcp.conf
@@ -125,18 +125,28 @@ Use 'svcs' command to check the state of the services, e.g.:
 
 ### 5. Windows Installation
 
-There are 2 ways to get PCP working on Windows:
+There are 3 ways to get PCP working on Windows:
 
-1) Download the native Windows version of PCP from bintray.com/pcp
+1) Download the native Windows version of PCP from bintray.com/pcp/windows
+
 2) Set up PCP build environment manually. For that you can:
 
 - download Git for Windows SDK (https://github.com/git-for-windows/build-extra/releases)
-- install pcp package via pacman. (pacman -S mingw-w64-x86_64-pcp-4.1.1-any.pkg.tar)
+- install pcp package via pacman. (pacman -S mingw-w64-x86_64-pcp-X.Y.Z-any.pkg.tar)
 - set PCP_DIR to C:\git-sdk-64\mingw64
 - start pmcd
 ```
 $PCP_DIR\libexec\pcp\bin\pmcd.exe
 ```
+
+3) Same as 2 except building the PCP pacman package from source
+
+- follow https://github.com/git-for-windows/git/wiki/Package-management
+  and get PKGBUILD from https://github.com/Andrii-hotfix/MINGW-packages
+- cd MINGW-packages/mingw-w64-pcp
+- makepkg-mingw -s
+- install pcp package via pacman as above.
+
 
 ## Building from source
 

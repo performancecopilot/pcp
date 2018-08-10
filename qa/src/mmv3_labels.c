@@ -104,6 +104,7 @@ main(int argc, char **argv)
     map = mmv_stats_start(registry);
     if (!map) {
 	fprintf(stderr, "mmv_stats_start: %s - %s\n", file, strerror(errno));
+	mmv_stats_free(registry);
 	return 1;
     }
 
