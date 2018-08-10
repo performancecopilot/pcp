@@ -134,6 +134,10 @@ There are 3 ways to get PCP working on Windows:
 - download Git for Windows SDK (https://github.com/git-for-windows/build-extra/releases)
 - install pcp package via pacman. (pacman -S mingw-w64-x86_64-pcp-X.Y.Z-any.pkg.tar)
 - set PCP_DIR to C:\git-sdk-64\mingw64
+- set path:
+..* "C:\git-sdk-64\mingw64\bin"
+..* "C:\git-sdk-64\mingw64\lib"
+..* "C:\git-sdk-64\mingw64\libexec\pcp\bin"
 - start pmcd
 ```
 $PCP_DIR\libexec\pcp\bin\pmcd.exe
