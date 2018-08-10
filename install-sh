@@ -34,7 +34,8 @@
 #       set           not set  |    no         yes
 #       set           set      |    yes        yes
 
-_usage() {
+_usage()
+{
     echo "Usage: $prog [-o owner] [-g group] [-m mode] -d directory"
     echo "or     $prog [-o owner] [-g group] [-m mode] file directory/file"
     echo "or     $prog [-o owner] [-g group] [-m mode] file file [file ...] directory"
@@ -46,7 +47,7 @@ _usage() {
     exit 1
 }
 
-_chown ()
+_chown()
 {
     _st=255
     if [ $# -eq 3 ] ; then
@@ -71,8 +72,17 @@ _chown ()
     return $_st
 }
 
+_ln()
+{
+    if uname -s | tr 'A-Z' 'a-z' | grep mingw >/dev/null
+    then
+	/bin/true
+    else
+	ln -s -f "$1" "$2"
+    fi
+}
 
-_manifest ()
+_manifest()
 { 
     echo $* | sed -e 's/\/\//\//g' >>${DIST_MANIFEST:-/dev/null}
 }
@@ -109,7 +119,7 @@ MANIFEST=:
 
 if $INSTALL
 then
-    RM=rm; CP=cp; LN=ln; MKDIR=mkdir; CHMOD=chmod; CHOWN=_chown
+    RM=rm; CP=cp; LN=_ln; MKDIR=mkdir; CHMOD=chmod; CHOWN=_chown
 else
     RM=true; CP=true; LN=true; MKDIR=true; CHMOD=true; CHOWN=true
 fi
@@ -180,7 +190,7 @@ then
     $RM -f "$target"
     dir=`dirname "$target" | sed -e 's;//*;/;g'`
     [ ! -d "$dir" ] && mkdir -p "$dir"
-    $LN -s -f "$symlink" "$target"
+    $LN "$symlink" "$target"
     status=$?
     $MANIFEST l "$symlink" `echo "$target" | sed -e "s;^$DIST_ROOT;;"`
 else
