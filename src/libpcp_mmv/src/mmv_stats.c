@@ -942,7 +942,7 @@ get_label(const char *name, const char *value, mmv_value_type_t type,
 	return -1;
     }
     pmFreeLabelSets(set, 1);
-    return len;
+    return len + 1;	/* include the null terminator */
 }
 
 /*
@@ -1166,6 +1166,20 @@ mmv_stats_stop(const char *fname, void *addr)
 void
 mmv_stats_free(mmv_registry_t *registry)
 {
+    int i;
+
+    for (i = 0; i < registry->nindoms; i++)
+	if (registry->indoms[i].instances)
+	    free(registry->indoms[i].instances);
+    if (registry->indoms)
+	free(registry->indoms);
+    if (registry->instances)
+	free(registry->instances);
+    if (registry->metrics)
+	free(registry->metrics);
+    if (registry->labels)
+	free(registry->labels);
+
     mmv_stats_stop(registry->file, registry->addr);
     memset(registry, 0, sizeof(mmv_registry_t));
     free(registry);
