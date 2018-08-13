@@ -52,6 +52,7 @@ void test_event_programming_fail()
 {
     printf( " ===== %s ==== \n", __FUNCTION__) ;
     // Simulate 6 CPU system
+    setenv("SYSFS_MOUNT_POINT", "./fakefs/sys2", 1);
     wrap_sysconf_override = 1;
     wrap_sysconf_retcode = 6;
 
@@ -135,6 +136,7 @@ void test_fail_init()
 
 void test_lots_of_counters()
 {
+    setenv("SYSFS_MOUNT_POINT", "./fakefs/sys3", 1);
     wrap_sysconf_override = 1;
     wrap_sysconf_retcode = 1;
 
