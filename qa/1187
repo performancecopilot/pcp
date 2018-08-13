@@ -23,6 +23,7 @@ _cleanup()
 }
 
 status=1	# failure is the default!
+username=`id -u -n`
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -53,7 +54,10 @@ filter_info()
 	-e "/^.GCC /d" \
 	-e "s/^Python .*/Python VERSION/g" \
 	-e "s,$PCP_SYSCONF_DIR,/etc/pcp,g" \
-	-e "s,^pcp-dstat $PCP_VERSION,pcp-dstat VERSION,g" \
+	-e "s,pcp-dstat $PCP_VERSION,pcp-dstat VERSION,g" \
+	-e "s/\"User:\",\"$username\"/\"User:\",\"USER\"/g" \
+	-e "s/\"Date:\",\".*\"/\"Date:\",\"DATE\"/g" \
+	-e "s,-o $tmp.csv,-o TMP.csv,g" \
     #end
 }
 
@@ -72,6 +76,11 @@ dstat "Filesystem" --aio --fs --lock
 
 dstat "Version" --version | filter_info
 dstat "Plugins" --list | filter_info
+
+dstat "CSV stdout" --io --tcp --aio -o $tmp.csv | filter_info
+echo "CSV contents" | tee -a $here/$seq.full
+cat $tmp.csv | tee -a $here/$seq.full | filter_info
+echo "CSV complete" | tee -a $here/$seq.full
 
 # success, all done
 status=0
