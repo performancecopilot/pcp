@@ -115,7 +115,6 @@ redisLibuvCleanup(void *privdata)
 static int
 redisLibuvAttach(redisAsyncContext *ac, uv_loop_t *loop)
 {
-    redisContext	*c = &(ac->c);
     redisLibuvEvents	*p;
 
     if (ac->ev.data != NULL)
@@ -130,7 +129,7 @@ redisLibuvAttach(redisAsyncContext *ac, uv_loop_t *loop)
     if ((p = (redisLibuvEvents *)calloc(1, sizeof(*p))) == NULL)
 	return REDIS_ERR;
 
-    if (uv_poll_init(loop, &p->handle, c->fd) != 0)
+    if (uv_poll_init(loop, &p->handle, ac->c.fd) != 0)
         return REDIS_ERR;
 
     ac->ev.data    = p;

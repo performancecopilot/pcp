@@ -85,14 +85,15 @@ typedef struct pmSeriesSettings {
     pmSeriesInfoCallBack	on_info;	/* diagnostics */
     pmSeriesDoneCallBack	on_done;	/* request completed */
     sds                         hostspec;       /* hostspec of redis instance */
+    void			*events;	/* opaque event lib pointer */
 } pmSeriesSettings;
 
-extern void pmSeriesDescs(pmSeriesSettings *, int, pmSID *, void *);
-extern void pmSeriesLabels(pmSeriesSettings *, int, pmSID *, void *);
-extern void pmSeriesInstances(pmSeriesSettings *, int, pmSID *, void *);
-extern void pmSeriesMetrics(pmSeriesSettings *, int, pmSID *, void *);
-extern void pmSeriesSources(pmSeriesSettings *, int, pmSID *, void *);
-extern void pmSeriesQuery(pmSeriesSettings *, sds, pmflags, void *);
-extern void pmSeriesLoad(pmSeriesSettings *, sds, pmflags, void *);
+extern int pmSeriesDescs(pmSeriesSettings *, int, pmSID *, void *);
+extern int pmSeriesLabels(pmSeriesSettings *, int, pmSID *, void *);
+extern int pmSeriesInstances(pmSeriesSettings *, int, pmSID *, void *);
+extern int pmSeriesMetrics(pmSeriesSettings *, int, pmSID *, void *);
+extern int pmSeriesSources(pmSeriesSettings *, int, pmSID *, void *);
+extern int pmSeriesQuery(pmSeriesSettings *, sds, pmflags, void *);
+extern int pmSeriesLoad(pmSeriesSettings *, sds, pmflags, void *);
 
 #endif /* PCP_SERIES_H */

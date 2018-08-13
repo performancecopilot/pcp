@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=docker
-pmda_interface=6
 dso_opt=true
 
 pmdaSetup

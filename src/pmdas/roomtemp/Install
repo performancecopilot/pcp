@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=roomtemp
-pmda_interface=2
 pmdaSetup
 
 if [ -c /dev/ttyf1 ]

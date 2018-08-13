@@ -3,7 +3,7 @@
 # Marko's pmdumplog -S bug.
 # https://github.com/performancecopilot/pcp/issues/418
 #
-# Copyright (c) 2018 Ken McDonell, Marko Myllen.  All Rights Reserved.
+# Copyright (c) 2018 Ken McDonell, Marko Myllynen.  All Rights Reserved.
 #
 
 seq=`basename $0`

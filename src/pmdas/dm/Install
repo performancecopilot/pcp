@@ -20,7 +20,6 @@
 
 iam=dm
 pmns_name="dmcache dmthin dmstats vdo"
-pmda_interface=4
 forced_restart=true	# for env vars
 
 which dmsetup >/dev/null 2>&1

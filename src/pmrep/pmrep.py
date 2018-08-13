@@ -247,7 +247,7 @@ class PMReporter(object):
         return 0
 
     def option(self, opt, optarg, index):
-        """ Perform setup for an individual command line option """
+        """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
         elif opt == 'K':
@@ -353,7 +353,7 @@ class PMReporter(object):
             raise pmapi.pmUsageErr()
 
     def connect(self):
-        """ Establish a PMAPI context """
+        """ Establish PMAPI context """
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
         self.pmfg = pmapi.fetchgroup(context, self.source)
@@ -505,7 +505,7 @@ class PMReporter(object):
         self.report(None)
 
     def report(self, tstamp):
-        """ Report the metric values """
+        """ Report metric values """
         if tstamp != None:
             tstamp = tstamp.strftime(self.timefmt)
 
@@ -665,7 +665,7 @@ class PMReporter(object):
         def secs_to_readable(seconds):
             """ Convert seconds to easily readable format """
             seconds = float(math.floor((seconds) + math.copysign(0.5, seconds)))
-            parts = str(timedelta(seconds=int(round(seconds)))).split(':')
+            parts = str(timedelta(seconds=int(round(seconds)))).split(":")
             if len(parts[0]) == 1:
                 parts[0] = "0" + parts[0]
             elif parts[0][-2] == " ":
@@ -703,7 +703,7 @@ class PMReporter(object):
         return zip(range(l), r)
 
     def get_instance_count(self, results):
-        """ Helper to get the number of instances of current results """
+        """ Helper to get number of instances of current results """
         if not self.dynamic_header:
             if self.colxrow is None:
                 c = len(str(sum([len(i[0]) for i in self.pmconfig.insts])))
@@ -856,7 +856,7 @@ class PMReporter(object):
             self.writer.write(self.format.format(*units) + "\n")
 
     def write_archive(self, timestamp):
-        """ Write an archive record """
+        """ Write archive record """
         if timestamp is None:
             # Complete and close
             self.pmi.pmiEnd()
@@ -1022,7 +1022,7 @@ class PMReporter(object):
         self.writer.write(line + "\n")
 
     def format_stdout_value(self, value, width, precision, fmt, k):
-        """ Format a value for stdout output """
+        """ Format value for stdout output """
         if isinstance(value, (int, long)):
             if len(str(value)) > width:
                 value = pmconfig.TRUNC
@@ -1057,14 +1057,14 @@ class PMReporter(object):
         return value
 
     def write_stdout(self, timestamp):
-        """ Write a line to stdout """
+        """ Write line to stdout """
         if self.colxrow is None:
             self.write_stdout_std(timestamp)
         else:
             self.write_stdout_colxrow(timestamp)
 
     def write_stdout_std(self, timestamp):
-        """ Write a line to standard formatted stdout """
+        """ Write line to standard formatted stdout """
         if timestamp is None:
             # Silent goodbye
             return
@@ -1116,7 +1116,7 @@ class PMReporter(object):
         self.writer.write(nfmt.format(*line) + "\n")
 
     def write_stdout_colxrow(self, timestamp):
-        """ Write a line to columns and rows swapped stdout """
+        """ Write line to columns and rows swapped stdout """
         if timestamp is None:
             # Silent goodbye
             return
@@ -1313,7 +1313,7 @@ if __name__ == '__main__':
         P.finalize()
 
     except pmapi.pmErr as error:
-        sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
+        sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
         sys.exit(1)
     except pmapi.pmUsageErr as usage:
         usage.message()

@@ -909,6 +909,285 @@ number.  If this is not the case, then the new domain number
 should not be randomly chosen; consult
 .B $PCP_VAR_DIR/pmns/stdpmid
 for domain numbers that are already assigned to PMDAs.
+.RE
+.PP
+A
+.B text
+rewriting rule modifies a help text record and has the form:
+.PP
+.KW TEXT
+\fItextid\fP [
+\fItexttype\fP
+]
+.KW {
+.I textspec
+\&...
+.KW }
+.PP
+where \fItextid\fP identifies the metric or instance domain with which the text is currently associated, and is either
+.KW METRIC
+\fImetricid\fP
+or
+.KW INDOM
+\fIdomain\fP\f(BI.\fP\fIserial\fP.
+.PP
+\fImetricid\fP has the same form and meaning as for a \f(BIMETRIC\fP rewriting rule (see above) and
+\fIdomain\fP\f(BI.\fP\fIserial\fP
+has the same form and meaning as for an \f(BIINDOM\fP rewriting rule (see above).
+.PP
+The optional \fItexttype\fP identifies the type of text and may be one of
+.KW ONELINE
+to select the one line help text,
+.KW HELP
+to select the full help text, or
+.KW ALL
+to select both types of help text. If \fItexttype\fP is not specified, then the default is
+.KW ONELINE .
+.PP
+If a designated help text record is not in
+.I inlog
+the rule has no effect.
+.PP
+The
+.I textspec
+is zero or more of the following clauses:
+.RS +4n
+.PP
+.KW DELETE
+.RS +4n
+.PP
+The selected text is completely removed from \fIoutlog\fP.
+.RE
+.PP
+.KW INDOM
+.KW ->
+\fInewdomain\fP\f(BI.\fP\fInewserial\fP
+.RS +4n
+.PP
+Reassociates the text with the specified instance domain.
+As a special case,
+.I newserial
+could be an asterisk ``*'' which means use
+.I serial
+from the 
+.B text
+rewriting rule, although this is most useful when
+.I serial
+is also an asterisk.
+So for example:
+.RS +4n
+.ft CW
+text indom 29.* all { indom -> 109.* }
+.ft P
+.RE
+will reassociate all text associated with instance domains from domain 29 to domain 109.
+.RE
+.PP
+.KW METRIC
+.KW ->
+\fInewdomain\fP\f(BI.\fP\fInewcluster\fP\f(BI.\fP\fInewitem\fP
+.RS +4n
+.PP
+Reassociates the text with the specified metric.
+As special cases,
+.I newcluster
+could be an asterisk ``*'' which means use
+.I cluster
+from the 
+.B text
+rewriting rule and/or
+.I item
+could be an asterisk which means use
+.I item
+from the 
+.B text
+rewriting rule.
+This is most useful when
+.I cluster
+and/or
+.I item
+is also an asterisk.
+So for example:
+.RS +4n
+.ft CW
+text metric 30.*.* all { metric -> 123.*.* }
+.ft P
+.RE
+will reassociate all text associated with metrics from domain 30 to domain 123.
+.RE
+.PP
+.KW TEXT
+.KW ->
+\f(BI"\fP\fInew-text\fP\f(BI"\fP
+.RS +4n
+.PP
+Replaces the content of the selected text with \fInew-text\fP.
+.RE
+.RE
+.PP
+A
+.B label
+rewriting rule modifies a label record and has the form:
+.PP
+.KW LABEL
+\fIlabelid\fP
+.KW {
+.I labelspec
+\&...
+.KW }
+.PP
+where \fIlabelid\fP refers to the global context or identifies the metric domain, metric cluster,
+metric item, instance domain, or instance domain instances with which the label is currently
+associated, and is either
+.KW CONTEXT
+or
+.KW DOMAIN
+\fIdomainid\fP
+or
+.KW CLUSTER
+\fIdomainid\fP\f(BI.\fP\fIclusterid\fP
+or
+.KW ITEM
+\fImetricid\fP
+or
+.KW INDOM
+\fIdomain\fP\f(BI.\fP\fIserial\fP
+or
+.KW INSTANCES
+\fIdomain\fP\f(BI.\fP\fIserial\fP.
+.PP
+\fImetricid\fP has the same form and meaning as for a \f(BIMETRIC\fP rewriting rule (see above).
+\fIclusterid\fP may be an asterisk ``*''
+which means the rule applies to every
+metric with a domain number of
+.I domainid
+in the same way as an asterisk may be used for the cluster within \fImetricid\fP.
+.PP
+\fIdomain\fP\f(BI.\fP\fIserial\fP
+has the same form and meaning as for an \f(BIINDOM\fP rewriting rule (see above).
+.PP
+If a designated label record is not in
+.I inlog
+the rule has no effect.
+.PP
+The
+.I labelspec
+is zero or more of the following clauses:
+.RS +4n
+.PP
+.KW DELETE
+.RS +4n
+.PP
+The selected label(s) are completely removed from \fIoutlog\fP.
+.RE
+.PP
+.KW DOMAIN
+.KW ->
+\fInewdomain\fP
+.RS +4n
+.PP
+Reassociates the selected label(s) with the specified metric domain.
+For example:
+.RS +4n
+.ft CW
+label domain 30 { domain -> 123 }
+.ft P
+.RE
+will reassociate all labels associated with domains from domain 30 to domain 123.
+.RE
+.PP
+.KW CLUSTER
+.KW ->
+\fInewdomain\fP\f(BI.\fP\fInewcluster\fP
+.RS +4n
+.PP
+Reassociates the selected label(s) with the specified metric cluster.
+As a special case,
+.I newcluster
+could be an asterisk ``*'' which means use
+.I cluster
+from the 
+.B label
+rewriting rule.
+This is most useful when
+.I cluster
+is also an asterisk.
+So for example:
+.RS +4n
+.ft CW
+label cluster 30.* { cluster -> 123.* }
+.ft P
+.RE
+will reassociate all labels associated with clusters from domain 30 to domain 123.
+.RE
+.PP
+.KW ITEM
+.KW ->
+\fInewdomain\fP\f(BI.\fP\fInewcluster\fP\f(BI.\fP\fInewitem\fP
+.RS +4n
+.PP
+Reassociates the selected label(s) with the specified metric item.
+As special cases,
+.I newcluster
+could be an asterisk ``*'' which means use
+.I cluster
+from the 
+.B label
+rewriting rule and/or
+.I item
+could be an asterisk which means use
+.I item
+from the 
+.B label
+rewriting rule.
+This is most useful when
+.I cluster
+and/or
+.I item
+is also an asterisk.
+So for example:
+.RS +4n
+.ft CW
+label item 30.*.* { item -> 123.*.* }
+.ft P
+.RE
+will reassociate all labels associated with metrics from domain 30 to domain 123.
+.RE
+.PP
+.KW INDOM
+.KW ->
+\fInewdomain\fP\f(BI.\fP\fInewserial\fP
+.RS +4n
+.PP
+Reassociates the selected label(s) with the specified instance domain.
+As a special case,
+.I newserial
+could be an asterisk ``*'' which means use
+.I serial
+from the 
+.B label
+rewriting rule, although this is most useful when
+.I serial
+is also an asterisk.
+So for example:
+.RS +4n
+.ft CW
+label indom 29.* { indom -> 109.* }
+.ft P
+.RE
+will reassociate all labels associated with instance domains from domain 29 to domain 109.
+.RE
+.PP
+.KW INSTANCES
+.KW ->
+\fInewdomain\fP\f(BI.\fP\fInewserial\fP
+.RS +4n
+.PP
+This is the same as
+.KW INDOM
+except that it reassociates the selected label(s) with the instances of the specified
+instance domain.
+.RE
 .SH EXAMPLES
 .PP
 To promote the values of the per-disk IOPS metrics to 64-bit to

@@ -1,0 +1,223 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013,2016 Red Hat.
+.\" Copyright (c) 2009 Max Matveev.
+.\" Copyright (c) 2009 Aconex.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH MMV_STATS_REGISTRY 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3mmv_stats_registry\f1 - Initialize the Memory Mapped Value file
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/mmv_stats.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+mmv_registry_t *mmv_stats_registry(const\ char\ *\fIfile\fP, int \fIcluster\fP, 
+                            mmv_stats_flags_t \fIflags\fP);
+.br
+.ti -8n
+.sp
+void *mmv_stats_start(mmv_registry_t *\fIregistry\fP);
+.br
+.ti -8n
+void  mmv_stats_stop(const\ char\ *\fIfname\fP, void *\fIaddr\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_mmv \-lpcp
+.ft 1
+.SH DESCRIPTION
+.P
+\f3mmv_stats_registry\f1 initializes an opaque structure that defines
+various aspects of a memory mapped file.
+This file is used for lightweight interprocess communication between
+an instrumented application and \f2pmdammv\f1(1).
+.P
+The \f3mmv_stats_registry\f1 interface is used to allocate a registry,
+and allows the \f2name\f1 of the \f2MMV\f1(5) file, the \f2cluster\f1
+identifier and the \f2flags\f1 (if any) to be set.
+It returns a handle that is used in subsequent MMV API calls when
+adding metrics, indoms, instances and labels to the registry \- before
+actually creating the file.
+.P
+\f3mmv_stats_start\f1 is the call that creates the \f2MMV\f1(5) file with 
+the handle that returns \f3mmv_stats_registry\f1.
+It returns the mapped memory handle used in subsequent MMV API calls,
+such as \f3mmv_inc_value\f1(3).
+.P
+\f3mmv_stats_stop\f1 performs an orderly shutdown of the mapping
+handle returned by an earlier initialization call and also frees
+the registry structure.
+.P
+The combination of \f3mmv_stats_registry\f1 and \f3mmv_stats_start\f1 
+do the same as the deprecated calls \f3mmv_stats(2)_init\f1.
+However, now, one should first call \f3mmv_stats_registry\f1 and then
+the API calls that add instances, indoms, metrics and labels.
+In this way, there is no need to know in advance which version of the
+MMV(1|2|3) mapping will be used as it is calculated automatically.
+.P
+The file is created in the \f2$PCP_TMP_DIR/mmv\f1 directory, the
+\f2name\f1 argument is expected to be a basename of the file, not
+the full path.
+The metadata content of the file does not change after the file has
+been created. 
+.P
+The old file is removed unconditionally unless there was an error.
+.P
+\f2cluster\f1 is the preferred MMV PMDA cluster ID to be used for
+the metrics the originates the call \f3mmv_stats_start\f1.
+The \f2flags\f1 provide additional control over the behaviour
+of the MMV PMDA \- e.g. use of MMV_FLAG_PROCESS will ensure values
+are only exported when the instrumented application is running \-
+this is verified on each request for new values.
+.P
+The next sections explain how to add metrics, indoms, instances
+and labels.
+.P
+.SH ADD METRICS
+.ft 3
+.br
+int mmv_stats_add_metric(mmv_registry_t *registry, const\ char\ *\fIname\fP, int \fIitem\fP,
+                        mmv_metric_type_t \fItype\fP, mmv_metric_sem_t \fIsem\fP, pmUnits \fIunits\fP,
+                        int \fIserial\fP, const\ char\ *\fIshorthelp\fP, const\ char\ *\fIlonghelp\fP);
+.P
+When adding a metric, internally it is being handled using the next struct.
+\f2sem\f1 match in the struct is semantics. \f2units\f1 match in the struct
+is dimension. \f2serial\f1 match in the struct is indom. 
+.P
+.nf
+        typedef struct {
+            char *name;                 /* Name of the metric */
+            __uint32_t item;            /* Item component of PMID */
+            mmv_metric_type_t type;     /* Type of the metric */
+            mmv_metric_sem_t semantics; /* Semantics of the metric */
+            pmUnits dimension;          /* Dimensions (TIME,SPACE,etc) */
+            __uint32_t indom;           /* Instance domain identifier */
+            char *shorttext;            /* Optional, one-line help */
+            char *helptext;             /* Optional, full help text */
+        } mmv_metric2_t;
+.fi
+.P
+.SH ADD INDOMS
+.ft 3
+.br
+int mmv_stats_add_indom(mmv_registry_t *\fIregistry\fP, int \fIserial\fP, 
+                        const\ char\ *\fIshorthelp\fP, const\ char\ *\fIlonghelp\fP);
+
+.P
+When adding an indom, internally it is being handled using the next struct.
+.P
+.nf
+        typedef struct {
+            __uint32_t serial;           /* Unique serial number */
+            __uint32_t count;            /* Number of instances */
+            mmv_instances2_t *instances; /* Internal/external IDs */
+            char *shorttext;             /* Short help text */
+            char *helptext;              /* Long help text */
+        } mmv_indom2_t;
+.fi
+
+.SH ADD INSTANCES
+.ft
+.br
+int mmv_stats_add_instance(mmv_registry_t *\fIregistry\fP, int \fIserial\fP,
+                           int \fIinstid\fP, const char *\fIinstname\fP);
+.P
+When adding an instance, internally it is being handled using the next struct.
+\f2instid\f1 match in the struct is internal while \f2instname\f1 is external.
+.P
+.P
+.nf
+        typedef struct {
+            __int32_t internal;
+            char *external;
+        } mmv_instances2_t;
+
+.fi
+.P
+It is worth mentioning that if the indom of the instance is not found it 
+returns an error.
+.P
+.SH ADD LABELS
+.ft 3
+.br
+int mmv_stats_add_registry_label(mmv_registry_t *\fIregistry\fP,
+                                 const char *\fIname\fP, const char *\fIvalue\fP,
+                                 mmv_value_type_t \fItype\fP, int \fIoptional\fP);
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int mmv_stats_add_indom_label(mmv_registry_t *\fIregistry\fP, int \fIserial\fP,
+                      const char *\fIname\fP, const char *\fIvalue\fP,
+                      mmv_value_type_t \fItype\fP, int \fIoptional\fP);
+.sp
+.ti -8n
+int mmv_stats_add_metric_label(mmv_registry_t *\fIregistry\fP, int \fIitem\fP,
+                       const char *\fIname\fP, const char *\fIvalue\fP,
+                       mmv_value_type_t \fItype\fP, int \fIoptional\fP);
+.sp
+.ti -8n
+int mmv_stats_add_instance_label(mmv_registry_t *\fIregistry\fP, int \fIserial\fP,
+                         int \fIinstid\fP, const char *\fIname\fP, const char *\fIvalue\fP,
+                         mmv_value_type_t \fItype\fP, int \fIoptional\fP);
+
+.sp
+.ti -8n
+\f2registry\f1 is the handle obtained from \f3mmv_stats_registry\f1. \f2name\f1
+and \f2value\f1 are the strings that will form the label.
+.P
+\f2type\f1 specifies the value type that can be: MMV_STRING_TYPE,
+MMV_NUMBER_TYPE, MMV_BOOLEAN_TYPE, MMV_NULL_TYPE, MMV_ARRAY_TYPE and MMV_MAP_TYPE. 
+.P
+At the moment there is a simple check of the correctness of the value.
+After adding a label, it is called a function to verify if it is correct. 
+.P
+Additionally, if \f2optional\f1 is set, it is added the flag PM_LABEL_OPTIONAL.
+.P
+\f2serial\f1 is the serial of the indom when adding an indom or instance label. 
+\f2item\f1 is the metric identifier when adding a metric label. Finally, when 
+adding a registry label it is not necessary to give the cluster id because 
+it will be taken from the internal registry struct already created. 
+.P
+\f3mmv_stats_add_registry_label\f1 adds a PM_LABEL_CLUSTER.
+.P
+\f3mmv_stats_add_indom_label\f1 adds a PM_LABEL_INDOM.
+.P
+\f3mmv_stats_add_metric_label\f1 adds a PM_LABEL_ITEM.
+.P
+\f3mmv_stats_add_instance_label\f1 adds a PM_LABEL_INSTANCES.
+.P
+      
+.P
+.SH RETURN VALUES
+ When adding metrics, indoms, instances and labels, if correct returns 0
+ and if not it returns an errno code. The other functions return the address
+ of the memory mapped region on success. On failure, NULL is returned and
+ \f2errno\f1 is set to a value suitable
+for decoding with
+.BR strerror (3).
+.SH SEE ALSO
+.BR mmv_inc_value (3),
+.BR mmv_lookup_value_desc (3),
+.BR strerror (3)
+and
+.BR mmv (5).

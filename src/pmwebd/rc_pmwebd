@@ -42,7 +42,7 @@ RUNDIR=$PCP_LOG_DIR/pmwebd
 pmprog=$PCP_RC_DIR/pmwebd
 prog=$PCP_RC_DIR/`basename $0`
 
-tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d $PCP_DIR/var/tmp/pcp.XXXXXXXXX` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 

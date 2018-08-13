@@ -1,0 +1,12 @@
+QA output created by 1383
+Running pmlogrewrite -c TMP.config archives/20180416.10.00 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180416.10.00
+Running pmdumplog -iteh TMP.pmlogrewrite
+Running diff TMP.original.txt TMP.rewritten.txt
+3095,3098c3095
+<     InDom 60.0 labels (44 bytes): {"device_type":"cpu","indom_name":"per cpu"}
+<         [0] name(2,11) : value(15,5) [indom]
+<         [1] name(22,10) : value(34,9) [indom]
+<     InDom 60.1 labels (47 bytes): {"device_type":"block","indom_name":"per disk"}
+---
+>     InDom 60.2 labels (47 bytes): {"device_type":"block","indom_name":"per disk"}

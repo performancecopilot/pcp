@@ -18,7 +18,7 @@ from os import kill
 from collections import OrderedDict
 from bcc.table import log2_index_max
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes, too-many-public-methods
 class PCPBCCBase(object):
     """ PCP BCC Base Class """
     def __init__(self, module, config, log, err):
@@ -264,22 +264,22 @@ class PCPBCCBase(object):
     def get_syscall_prefix(self):
         """
         Get syscall prefix
-        compat for bcc < 0.6.0
+        Compat: bcc < 0.6.0
         source: https://github.com/iovisor/bcc/blame/master/src/python/bcc/__init__.py
         """
-        # test bpf syscall kernel func name
+        # Test BPF syscall kernel function name
         if self.bpf.ksymname("sys_bpf") != -1:
             return "sys_"
         if self.bpf.ksymname("__x64_sys_bpf") != -1:
             return "__x64_sys_"
-        # none of them, just return "sys_", later API
-        # calls will return error
+        # None of them, just return "sys_",
+        # later API calls will return error
         return "sys_"
 
     def get_syscall_fnname(self, name):
         """
         Get syscall function name
-        compat for bcc < 0.6.0
+        Compat: bcc < 0.6.0
         source: https://github.com/iovisor/bcc/blame/master/src/python/bcc/__init__.py
         """
         return self.get_syscall_prefix() + name
@@ -288,7 +288,7 @@ class PCPBCCBase(object):
         """
         Get list of kprobe functions matching a regex
         event_re: regex pattern (bytes object)
-        compat wrapper: bcc 0.5.0 expects a string pattern, bcc 0.6.0+ a bytes pattern
+        Compat: bcc 0.5.0 expects a string pattern, bcc 0.6.0+ a bytes pattern
         """
         try:
             return self.bpf.get_kprobe_functions(event_re)

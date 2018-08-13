@@ -1,56 +1,66 @@
+pcp-4.1.2 (14 September 2018)
+    - Work in progress (https://pcp.io/roadmap)
+
 pcp-4.1.1 (3 August 2018)
-    - pcp2spark: export PCP metrics to Apache Spark
-    - pcp2influxdb: fix mishandling of zero-valued metrics
-    - libpcp_mmv: new APIs, registry-based setup, labels support
-    - pcp-dstat: support for PCP archive replay
-    - pcp-dstat: use context to get hostname for terminal title
-    - pcp-dstat: use more python-version portable set comprehensions
-    - pcp-dstat: recreate the original --version output using PCP metrics
-    - pcp-dstat: fixes to the disk plugin configurations
-    - pmcd: fix subtle bug in agent shutdown code (affecting pmdabcc)
-    - pmlogconf: add some GFS2 metrics for automated pmlogconf setups
-    - pmlogger: output write re-ordering to aid log tailing
-    - pmlogger_daily: add -R (and .NeedRewrite) support
-    - pmlogrewrite: initial support for rewriting label records
-    - python pmdas: improve scaling; release GIL while waiting for new PDUs
-    - pmdaproc: tweak proc.memory.maps to return empty string for kernel workers
-    - pmdakvm: new, configurable, perf_event-based kvm.trace metrics
-    - pmdakvm: switch from perl to C implementation, enable by default
-    - pmdammv: support for exporting metric labels (v3 format)
-    - pmdaproc: rework code to handle much larger /proc/pid/stat files
-    - pmdaproc: improve proc.psinfo.environ for processes with no environment
-    - pmdabcc: profile module
-    - pmdabcc: compat wrapper for get_kprobe_functions
-    - pmdabcc tcptop: log current number of connections
-    - pmdabcc: add pmStore support
-    - pmdabcc: add exectop module
-    - pmdabcc: use newer kprobe with ext4dist if available
-    - pmdabcc: tcpretrans module added
-    - pmdabcc: biotop tool - fetches block device I/O activity and sorts it
-    - pmdabcc: rename biotop to bioperpid
-    - pmdabcc: restore old tcplife module as tcpperpid
-    - pmdawindows: process.thread.process_id metric removed (since Windows10)
-    - pmdagfs2: additional Glock and Glock Holder metrics
-    - pmconfig.py: handle predicate metrics being filtered out
-    - libpcp: fork+exec and pipe+fork+exec changes for Windows
-    - libpcp_web: initial cluster support to Redis commands
-    - pcp-pidstat: add direct support for the timezone options
-    - mmvdump: support for the version 3 format (metric labels)
-    - dbpmda: various Windows-driven changes
-    - pmcpp: Windows fix for \r in the input text
-    - build: many changes for the Windows platform, towards a new installer
-    - derived metrics: avoid divide by zero exceptions in iostat.conf
-    - selinux: add gpsd context rules allowing shm access via associate, getattr
-    - selinux: add init_t shm rule for accessing via unix_read
-    - selinux: policy improvements for the GFS2 PMDA
-    - selinux: policy improvements for the Redis PMDA
-    - build: changes to support completely reproducible builds
-    - build: series of changes to support MacOSX brew package builds
-    - build: do not assume gcc is used for building Qt binaries
-    - docs: pmrep and pcp2xxx container option man page correction
-    - docs: updates to the pcp-dstat(1) man page for archives
-    - docs: updates to the MacOSX build and install instructions
-    - docs: updates to the Windows build and install instructions
+    - Log rotation, management scripts, compression and server-side utilities:
+	- pmlogconf: add some GFS2 metrics for automated pmlogconf setups
+	- pmlogger: output write re-ordering to aid log tailing
+	- pmlogger_daily: add -R (and .NeedRewrite) support
+	- pmlogrewrite: initial support for rewriting label records
+	- pmcd: fix subtle bug in agent shutdown code (affecting pmdabcc)
+    - Client tools and utilities:
+	- pcp2spark: export PCP metrics to Apache Spark
+	- pcp2influxdb: fix mishandling of zero-valued metrics
+	- pcp-dstat: support for PCP archive replay
+	- pcp-dstat: use context to get hostname for terminal title
+	- pcp-dstat: use more python-version portable set comprehensions
+	- pcp-dstat: recreate the original --version output using PCP metrics
+	- pcp-dstat: fixes to the disk plugin configurations
+	- pcp-pidstat: add direct support for the timezone options
+	- mmvdump: support for the version 3 format (metric labels)
+	- dbpmda: various Windows-driven changes
+	- pmcpp: Windows fix for \r in the input text
+    - PMDA additions, enhancements and bug fixes:
+	- pmdaproc: tweak proc.memory.maps to return empty string for kernel workers
+	- pmdakvm: new, configurable, perf_event-based kvm.trace metrics
+	- pmdakvm: switch from perl to C implementation, enable by default
+	- pmdammv: support for exporting metric labels (v3 format)
+	- pmdaproc: rework code to handle much larger /proc/pid/stat files
+	- pmdaproc: improve proc.psinfo.environ for processes with no environment
+	- pmdabcc: profile module
+	- pmdabcc: compat wrapper for get_kprobe_functions
+	- pmdabcc tcptop: log current number of connections
+	- pmdabcc: add pmStore support
+	- pmdabcc: add exectop module
+	- pmdabcc: use newer kprobe with ext4dist if available
+	- pmdabcc: tcpretrans module added
+	- pmdabcc: biotop tool - fetches block device I/O activity and sorts it
+	- pmdabcc: rename biotop to bioperpid
+	- pmdabcc: restore old tcplife module as tcpperpid
+	- pmdawindows: process.thread.process_id metric removed (since Windows10)
+	- pmdagfs2: additional Glock and Glock Holder metrics
+    - libpcp, libpcp_pmda, libpcp_web and other libraries
+	- libpcp_mmv: new APIs, registry-based setup, labels support
+	- python pmdas: improve scaling; release GIL while waiting for new PDUs
+	- pmconfig.py: handle predicate metrics being filtered out
+	- libpcp: fork+exec and pipe+fork+exec changes for Windows
+	- libpcp_web: initial cluster support to Redis commands
+	- derived metrics: avoid divide by zero exceptions in iostat.conf
+    - SElinux:
+	- selinux: add gpsd context rules allowing shm access via associate, getattr
+	- selinux: add init_t shm rule for accessing via unix_read
+	- selinux: policy improvements for the GFS2 PMDA
+	- selinux: policy improvements for the Redis PMDA
+    - Misc build, infrastructure and packaging updates:
+	- build: many changes for the Windows platform, towards a new installer
+	- build: changes to support completely reproducible builds
+	- build: series of changes to support MacOSX brew package builds
+	- build: do not assume gcc is used for building Qt binaries
+    - Documentation and QA infrastructure:
+	- docs: pmrep and pcp2xxx container option man page correction
+	- docs: updates to the pcp-dstat(1) man page for archives
+	- docs: updates to the MacOSX build and install instructions
+	- docs: updates to the Windows build and install instructions
 
 pcp-4.1.0 (15 June 2018)
     - Log rotation, management scripts, compression and utilities:

@@ -1,0 +1,12 @@
+QA output created by 1338
+Running pmlogrewrite -c TMP.config archives/20180416.10.00 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180416.10.00
+Running pmdumplog -iteh TMP.pmlogrewrite
+Running diff TMP.original.txt TMP.rewritten.txt
+3059,3064d3058
+<     Context labels (128 bytes): {"domainname":"localdomain","groupid":977,"hostname":"brolley-t530","machineid":"8bd383d07b1f44e5bbb8eb3b4b7dbb63","userid":977}
+<         [0] name(2,10) : value(14,13) [context]
+<         [1] name(29,7) : value(38,3) [context]
+<         [2] name(43,8) : value(53,14) [context]
+<         [3] name(69,9) : value(80,34) [context]
+<         [4] name(116,6) : value(124,3) [context]

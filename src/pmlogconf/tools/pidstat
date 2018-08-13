@@ -19,6 +19,7 @@ probe   proc.psinfo.rss values ? available : exclude
 	proc.memory.vmstack
 	proc.id.uid
 	proc.id.uid_nm
+	proc.psinfo.psargs
 
 	kernel.all.cpu.user
 	kernel.all.cpu.vuser

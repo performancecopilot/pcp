@@ -15,17 +15,19 @@
 #
 """ PCP BCC PMDA tcpperpid module """
 
-# pylint: disable=invalid-name,too-few-public-methods,too-many-instance-attributes
+# pylint: disable=invalid-name, too-few-public-methods, too-many-instance-attributes
 
 import ctypes as ct
 from threading import Lock, Thread
 from os import path
+
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
-from modules.pcpbcc import PCPBCCBase
 from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_SPACE_BYTE
 from cpmapi import PM_ERR_AGAIN
+
+from modules.pcpbcc import PCPBCCBase
 
 #
 # BPF program

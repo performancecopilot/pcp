@@ -12,7 +12,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=${iam-whacko}
-pmda_interface=2
 pmda_name=pmdawhacko
 
 pmdaSetup

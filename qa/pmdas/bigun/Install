@@ -14,7 +14,6 @@ fi
 make
 
 iam=bigun
-pmda_interface=4
 dso_opt=true
 dso_name=`pwd`/bigun.${dso_suffix}
 daemon_opt=false

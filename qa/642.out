@@ -1,6 +1,7 @@
 QA output created by 642
 
 === install #1 ===
+Install trivial as a daemon or python or perl or dso agent? [daemon] 
 Installing files ...
 [...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...

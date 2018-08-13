@@ -20,7 +20,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=mounts
-pmda_interface=2
 
 pmdaSetup
 pmdaInstall

@@ -15,13 +15,13 @@
 #
 """ PCP BCC PMDA execsnoop module """
 
-# pylint: disable=invalid-name,too-few-public-methods,too-many-instance-attributes
+# pylint: disable=invalid-name, too-few-public-methods, too-many-instance-attributes
 
 import ctypes as ct
 from collections import deque, defaultdict
 from threading import Lock, Thread
-import sys
 from os import path
+import sys
 import re
 
 from bcc import BPF
@@ -58,7 +58,7 @@ class Data(ct.Structure):
     ]
 
 class EventType(object):
-    """ eventtype """
+    """ Event type """
     EVENT_ARG = 0
     EVENT_RET = 1
 

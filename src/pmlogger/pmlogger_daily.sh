@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2016 Red Hat.
+# Copyright (c) 2013-2016,2018 Red Hat.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -411,10 +411,13 @@ else
     _save_prev_file "$PROGLOG"
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
-    # as our logfile and redirect stderr there too.
+    # as our logfile and redirect stderr there too.  Create the log file with
+    # correct ownership first.
     #
-    # Exception is for -N where we want to see the output
+    # Exception ($SHOWME, above) is for -N where we want to see the output.
     #
+    touch "$PROGLOG"
+    chown $PCP_USER:$PCP_GROUP "$PROGLOG" >/dev/null 2>&1
     exec 1>"$PROGLOG" 2>&1
 fi
 
@@ -645,7 +648,7 @@ then
 	    echo "*** rotated by $prog: `date`" >>"$NOTICES"
 	    mv -f "$NOTICES" "$NOTICES.old"
 	    echo "Started by $prog: `date`" >"$NOTICES"
-	    (id "$PCP_USER" && chown $PCP_USER:$PCP_GROUP "$NOTICES") >/dev/null 2>&1
+	    chown $PCP_USER:$PCP_GROUP "$NOTICES" >/dev/null 2>&1
 	fi
     fi
 fi
@@ -673,7 +676,7 @@ else
 	mkdir -p -m 775 "$PCP_RUN_DIR" 2>/dev/null
 	# might be running from cron as unprivileged user
 	[ $? -ne 0 -a "$PMLOGGER_CTL" = "off" ] && exit 0
-	chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
+	chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR" >/dev/null 2>&1
 	if which restorecon >/dev/null 2>&1
 	then
 	    restorecon -r "$PCP_RUN_DIR"
