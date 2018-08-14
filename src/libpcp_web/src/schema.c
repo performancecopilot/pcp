@@ -428,9 +428,9 @@ redis_series_source(redisSlots *slots, context_t *context, void *arg)
     redisSlotsRequest(slots, SADD, key, cmd, redis_context_name_source, arg);
 
     key = sdsnew("pcp:source:location");
-    val = sdscatprintf(sdsempty(), "%13.8f", context->location[0]);
-    val2 = sdscatprintf(sdsempty(), "%13.8f", context->location[1]);
-    cmd = redis_command(4);
+    val = sdscatprintf(sdsempty(), "%.8f", context->location[0]);
+    val2 = sdscatprintf(sdsempty(), "%.8f", context->location[1]);
+    cmd = redis_command(5);
     cmd = redis_param_str(cmd, GEOADD, GEOADD_LEN);
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sds(cmd, val2);
@@ -557,12 +557,12 @@ doneSeriesGetValueBaton(seriesGetValueBaton *baton)
 {
     assert(baton->magic == MAGIC_VALUE);
 
-    if (baton->refcount)
-	baton->refcount--;
-    if (baton->refcount == 0) {
-	if (baton->done)
-	    baton->done(baton->baton);
-	freeSeriesGetValueBaton(baton);
+    if (baton->refcount) {
+	if (--baton->refcount == 0) {
+	    if (baton->done)
+		baton->done(baton);
+	    freeSeriesGetValueBaton(baton);
+	}
     }
 }
 
@@ -576,11 +576,10 @@ incSeriesGetValueBatonRef(seriesGetValueBaton *baton)
 static void
 label_value_mapping_callback(void *arg)
 {
-    seriesGetValueBaton		*baton = (seriesGetValueBaton *)arg;
-    labellist_t			*list;
+    labellist_t			*list = (labellist_t *)arg;
+    seriesGetValueBaton		*baton = (seriesGetValueBaton *)list->arg;
 
     assert(baton->magic == MAGIC_VALUE);
-    list = baton->value ? baton->value->labellist : baton->metric->labellist;
     redisMapRelease(list->valuemap);
     doneSeriesGetValueBaton(baton);
 }
@@ -588,14 +587,13 @@ label_value_mapping_callback(void *arg)
 static void
 label_name_mapping_callback(void *arg)
 {
-    seriesGetValueBaton		*baton = (seriesGetValueBaton *)arg;
+    labellist_t			*list = (labellist_t *)arg;
+    seriesGetValueBaton		*baton = (seriesGetValueBaton *)list->arg;
     struct seriesLoadBaton	*load = (struct seriesLoadBaton *)baton->baton;
-    labellist_t			*list;
     sds				key;
 
     assert(baton->magic == MAGIC_VALUE);
 
-    list = baton->value ? baton->value->labellist : baton->metric->labellist;
     key = sdscatfmt(sdsempty(), "label.%I.value", list->nameid);
     list->valuemap = redisMapCreate(key);
 
@@ -603,7 +601,7 @@ label_name_mapping_callback(void *arg)
 		list->valuemap, list->value, &list->valueid,
 		label_value_mapping_callback,
 		seriesLoadBatonInfo(load), seriesLoadBatonUser(load),
-		(void *)baton);
+		(void *)list);
 }
 
 static int
@@ -611,9 +609,13 @@ annotate_metric(const pmLabel *label, const char *json, void *arg)
 {
     seriesGetValueBaton		*baton = (seriesGetValueBaton *)arg;
     struct seriesLoadBaton	*load = (struct seriesLoadBaton *)baton->baton;
-    labellist_t			*list, *head;
+    labellist_t			*list;
+    metric_t			*metric;
+    value_t			*value;
 
     assert(baton->magic == MAGIC_VALUE);
+    value = baton->value;
+    metric = baton->metric;
 
     if ((list = (labellist_t *)calloc(1, sizeof(labellist_t))) == NULL)
 	return -ENOMEM;
@@ -630,14 +632,25 @@ annotate_metric(const pmLabel *label, const char *json, void *arg)
     list->value = sdsnewlen(json + label->value, label->valuelen);
     list->flags = label->flags;
 
-    /* append map onto the list for this value or metric */
-    head = baton->value ? baton->value->labellist : baton->metric->labellist;
-    while (head && head->next)
-	head = head->next;
-    if (head == NULL)
-	head = list;
-    else
-	head->next = list;
+    if (pmDebugOptions.series) {
+	if (!value)
+	    fprintf(stderr, "Annotate metric %s label %s=%s\n",
+			    *metric->names, list->name, list->value);
+	else
+	    fprintf(stderr, "Annotate instance %s[%s] label %s=%s\n",
+			    *metric->names, value->name, list->name, list->value);
+    }
+
+    /* prepend map onto the list for this value or metric */
+    if (value) {
+	if (value->labellist)
+	    list->next = value->labellist;
+	value->labellist = list;
+    } else {
+	if (metric->labellist)
+	    list->next = metric->labellist;
+	metric->labellist = list;
+    }
 
     incSeriesGetValueBatonRef(baton);
     redisGetMap(seriesLoadBatonSlots(load),
@@ -810,20 +823,31 @@ series_value_mapping(seriesGetValueBaton *baton)
 static void
 series_value_mapped(void *arg)
 {
-    seriesGetValueBaton		*metric, *baton = (seriesGetValueBaton *)arg;
+    seriesGetValueBaton		*baton = (seriesGetValueBaton *)arg;
 
     assert(baton->magic == MAGIC_VALUE);
-    if (baton->refcount)
-	baton->refcount--;
-    if (baton->refcount == 0) {
-	metric = baton->arg;
-	freeSeriesGetValueBaton(baton);
-	doneSeriesGetValueBaton(metric);
+
+    if (baton->refcount) {
+	if (--baton->refcount == 0) {
+	    seriesGetValueBaton	*metric = baton->arg;
+
+	    freeSeriesGetValueBaton(baton);
+	    doneSeriesGetValueBaton(metric);
+	}
     }
 }
 
 static void redis_series_metadata(redisSlots *, context_t *, metric_t *, void *);
 static void redis_series_stream(redisSlots *, sds, metric_t *, void *); /*TODO*/
+
+static void
+series_stored_metric(void *arg)
+{
+    seriesGetValueBaton		*baton = (seriesGetValueBaton *)arg;
+    struct seriesLoadBaton	*load = (struct seriesLoadBaton *)baton->baton;
+
+    seriesLoadBatonFetch(load);
+}
 
 static void
 series_mapped_metric(void *arg)
@@ -835,6 +859,10 @@ series_mapped_metric(void *arg)
     sds				timestamp = baton->timestamp;
 
     assert(baton->magic == MAGIC_VALUE);
+    assert(baton->refcount == 0);
+
+    incSeriesGetValueBatonRef(baton);
+    baton->done = series_stored_metric;
 
     /* push the metric, instances and any label metadata into the cache */
     if (baton->meta)

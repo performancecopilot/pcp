@@ -975,10 +975,10 @@ series_query_end_phase(void *arg)
     if (baton->error == 0) {
 	seriesPassBaton(&baton->current, &baton->refcount, baton);
     } else {	/* fail after waiting on outstanding I/O */
-	if (baton->refcount != 0)
-	    baton->refcount--;
-	if (baton->refcount == 0)
-	    series_query_finished(baton);
+	if (baton->refcount) {
+	    if (--baton->refcount == 0)
+	        series_query_finished(baton);
+	}
     }
 }
 
@@ -1942,10 +1942,10 @@ series_lookup_end_phase(void *arg)
     if (baton->error == 0) {
 	seriesPassBaton(&baton->current, &baton->refcount, baton);
     } else {	/* fail after waiting on outstanding I/O */
-	if (baton->refcount != 0)
-	    baton->refcount--;
-	if (baton->refcount == 0)
-	    series_lookup_finished(baton);
+	if (baton->refcount) {
+	    if (--baton->refcount == 0)
+		series_lookup_finished(baton);
+	}
     }
 }
 

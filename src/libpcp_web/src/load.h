@@ -114,5 +114,6 @@ extern void *seriesLoadBatonSlots(struct seriesLoadBaton *);
 extern pmSeriesInfoCallBack seriesLoadBatonInfo(struct seriesLoadBaton *);
 extern context_t *seriesLoadBatonContext(struct seriesLoadBaton *);
 extern void *seriesLoadBatonUser(struct seriesLoadBaton *);
+extern void seriesLoadBatonFetch(struct seriesLoadBaton *);
 
 #endif	/* SERIES_LOAD_H */

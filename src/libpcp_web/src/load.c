@@ -32,14 +32,14 @@
 
 typedef struct seriesGetContext {
     unsigned int	magic;		/* MAGIC_CONTEXT */
-//    int			type;
-//    const char		*name;
     context_t		context;
     unsigned long long	count;		/* number of samples processed */
     pmResult		*result;	/* currently active sample data */
     int			error;		/* PMAPI error code from fetch */
 
     unsigned int	refcount;
+    redisDoneCallBack	done;
+
     void		*baton;
 } seriesGetContext;
 
@@ -93,6 +93,7 @@ static void
 server_cache_metric(seriesLoadBaton *baton,
 		metric_t *metric, sds timestamp, int meta, int data)
 {
+    baton->pmapi.refcount++;
     redis_series_metric(baton->slots, metric, timestamp, meta, data, baton);
 }
 
@@ -102,28 +103,34 @@ server_cache_mark(seriesLoadBaton *baton, sds timestamp, int data)
 {
     context_t		*context = seriesLoadBatonContext(baton);
 
+    baton->pmapi.refcount++;
     redis_series_mark(baton->slots, context, timestamp, data, baton);
 }
 
 static void
-pmiderr(seriesLoadBaton *baton, pmID pmid, const char *msg, ...)
+pmiderr(seriesLoadBaton *baton, pmID pmid, const char *fmt, ...)
 {
     va_list		arg;
-    int			numnames;
+    int			i, numnames;
     char		**names;
-
-    /* TODO: not on stderr */
+    sds			msg;
 
     if (__pmHashSearch(pmid, &baton->errorhash) == NULL) {
-	numnames = pmNameAll(pmid, &names);
-	fprintf(stderr, "%s: ", pmGetProgname());
-	__pmPrintMetricNames(stderr, numnames, names, " or ");
-	fprintf(stderr, "(%s) - ", pmIDStr(pmid));
-	va_start(arg, msg);
-	vfprintf(stderr, msg, arg);
+	if ((numnames = pmNameAll(pmid, &names)) < 1)
+	    msg = sdsnew("<no metric names>");
+	else {
+	    msg = sdsnew(names[0]);
+	    for (i = 1; i < numnames; i++)
+		msg = sdscatfmt(msg, " or %s", names[i]);
+	    free(names);
+	}
+	msg = sdscatfmt(msg, "(%s) - ", pmIDStr(pmid));
+	va_start(arg, fmt);
+	msg = sdscatvprintf(msg, fmt, arg);
 	va_end(arg);
+	seriesmsg(baton, PMLOG_WARNING, msg);
+
 	__pmHashAdd(pmid, NULL, &baton->errorhash);
-	if (numnames > 0) free(names);
     }
 }
 
@@ -723,39 +730,22 @@ server_cache_series(seriesLoadBaton *baton)
     return sts;
 }
 
-#if 0   /*TODO*/
 static void
 server_cache_update_done(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
     seriesGetContext	*context = &baton->pmapi;
 
-    assert(baton->magic == MAGIC_LOAD);
+    /* finish book-keeping for the current record */
     pmFreeResult(context->result);
     context->result = NULL;
     context->count++;
 
-    /* move onto the next fetch */
+    /* begin processing of the next record if any */
     server_cache_window(baton);
 }
-#endif
 
-static void
-doneSeriesGetContext(seriesLoadBaton *baton, seriesGetContext *context)
-{
-    char		pmmsg[PM_MAXERRMSGLEN];
-    sds			msg;
-
-    if (context->error == 0) {
-	seriesfmt(msg, "processed %llu archive records from %s",
-			context->count, context->context.name);
-	seriesmsg(baton, PMLOG_INFO, msg);
-    } else {
-	seriesfmt(msg, "fetch failed: %s",
-			pmErrStr_r(context->error, pmmsg, sizeof(pmmsg)));
-	seriesmsg(baton, PMLOG_ERROR, msg);
-    }
-}
+static void doneSeriesGetContext(seriesGetContext *); /* TODO */
 
 void
 server_cache_window(void *arg)
@@ -770,12 +760,18 @@ server_cache_window(void *arg)
     assert(context->result == NULL);
     assert(context->refcount == 0);
 
+    if (pmDebugOptions.series)
+	fprintf(stderr, "server_cache_window: fetching next result\n");
+
     if ((sts = pmFetchArchive(&result)) >= 0) {
 	context->result = result;
 	if (finish->tv_sec > result->timestamp.tv_sec ||
 	    (finish->tv_sec == result->timestamp.tv_sec &&
 	     finish->tv_usec >= result->timestamp.tv_usec)) {
-	    series_cache_update(baton /* TODO:, server_cache_update_done */);
+	    context->refcount++;
+	    context->done = server_cache_update_done;
+	    series_cache_update(baton);
+	    doneSeriesGetContext(context);
 	}
 	else {
 	    pmFreeResult(result);
@@ -787,7 +783,7 @@ server_cache_window(void *arg)
     if (sts < 0 && sts != PM_ERR_EOL)
 	baton->error = sts;
     if (sts < 0) {
-	doneSeriesGetContext(baton, context);
+	doneSeriesGetContext(context);
 	doneSeriesLoadBaton(baton);
     }
 }
@@ -1025,16 +1021,52 @@ freeSeriesGetContext(seriesGetContext *baton, int release)
 {
     context_t		*cp = &baton->context;
 
+    assert(baton->magic == MAGIC_CONTEXT);
+
     pmDestroyContext(cp->context);
     if (cp->name)
 	sdsfree(cp->name);
     if (cp->origin)
 	sdsfree(cp->origin);
-
     if (release) {
 	memset(baton, 0, sizeof(*baton));
 	free(baton);
     }
+}
+
+static void
+doneSeriesGetContext(seriesGetContext *context)
+{
+    seriesLoadBaton	*baton = (seriesLoadBaton *)context->baton;
+
+    assert(context->magic == MAGIC_CONTEXT);
+    assert(baton->magic == MAGIC_LOAD);
+
+    if (context->refcount) {
+	if (--context->refcount == 0 && context->error == 0)
+	    context->done(baton);
+    }
+
+    if (context->error) {
+	char		pmmsg[PM_MAXERRMSGLEN];
+	sds			msg;
+
+	if (context->error == PM_ERR_EOF) {
+	    seriesfmt(msg, "processed %llu archive records from %s",
+			context->count, context->context.name);
+	    seriesmsg(baton, PMLOG_INFO, msg);
+	} else {
+	    seriesfmt(msg, "fetch failed: %s",
+			pmErrStr_r(context->error, pmmsg, sizeof(pmmsg)));
+	    seriesmsg(baton, PMLOG_ERROR, msg);
+	}
+    }
+}
+
+void
+seriesLoadBatonFetch(seriesLoadBaton *baton)
+{
+    doneSeriesGetContext(&baton->pmapi);
 }
 
 static void
@@ -1075,10 +1107,10 @@ series_load_end_phase(void *arg)
     if (baton->error == 0) {
 	seriesPassBaton(&baton->current, &baton->refcount, baton);
     } else {	/* fail after waiting on outstanding I/O */
-	if (baton->refcount != 0)
-	    baton->refcount--;
-	if (baton->refcount == 0)
-	    series_load_finished(baton);
+	if (baton->refcount) {
+	    if (--baton->refcount == 0)
+		series_load_finished(baton);
+	}
     }
 }
 
