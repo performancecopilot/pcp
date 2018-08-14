@@ -67,7 +67,7 @@ class PCPBCCModule(PCPBCCBase):
                 self.conn_count = int(self.config.get(MODULE, opt))
 
         self.cache = {}
-        self.insts = {str(i) : ct.c_int(1) for i in range(0, self.conn_count)}
+        self.insts = {str(i) : ct.c_int(1) for i in range(self.conn_count)}
 
         self.lock = Lock()
         if self.interval > 0:
