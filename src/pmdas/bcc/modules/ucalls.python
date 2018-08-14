@@ -1,0 +1,171 @@
+#
+# Copyright (C) 2018 Marko Myllynen <myllynen@redhat.com>
+# Based on the ucalls BCC tool by Sasha Goldshtein:
+# https://github.com/iovisor/bcc/blob/master/tools/lib/ucalls.py
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA ucalls module """
+
+# pylint: disable=invalid-name, line-too-long
+
+from ctypes import c_int
+from os import path
+
+from bcc import BPF, USDT, utils
+
+from pcp.pmapi import pmUnits
+from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
+from cpmapi import PM_ERR_AGAIN
+
+from modules.pcpbcc import PCPBCCBase
+
+#
+# BPF program
+#
+bpf_src = "modules/ucalls.bpf"
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = 'ucalls'
+METRIC = 'proc.ucall.count'
+units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC ucalls module """
+    def __init__(self, config, log, err):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.cache = {}
+        self.pid = None
+        self.lang = None
+        self.usdt = None
+
+        self.langs = ["java", "perl", "php", "python", "ruby"]
+        self.methods = {
+            "java"   : ["bpf_usdt_readarg(2, ctx, &clazz);", "bpf_usdt_readarg(4, ctx, &method);"],
+            "perl"   : ["bpf_usdt_readarg(2, ctx, &clazz);", "bpf_usdt_readarg(1, ctx, &method);"],
+            "php"    : ["bpf_usdt_readarg(4, ctx, &clazz);", "bpf_usdt_readarg(1, ctx, &method);"],
+            "python" : ["bpf_usdt_readarg(1, ctx, &clazz);", "bpf_usdt_readarg(2, ctx, &method);"],
+            "ruby"   : ["bpf_usdt_readarg(1, ctx, &clazz);", "bpf_usdt_readarg(2, ctx, &method);"],
+        }
+
+        for opt in self.config.options(MODULE):
+            if opt == 'language':
+                self.lang = self.config.get(MODULE, opt)
+            if opt == 'process':
+                procs = self.get_proc_info(self.config.get(MODULE, opt))
+                if procs:
+                    if len(procs) > 1:
+                        self.log("Several PIDs found, using the first one.")
+                    self.log("Tracing PID %s: %s %s" % (str(procs[0][0]), procs[0][1], procs[0][2]))
+                    self.pid = procs[0][0]
+
+        if self.pid is None:
+            # https://github.com/iovisor/bcc/issues/1774
+            self.err("No process to attach found/set, will not activate!")
+
+        if not self.lang:
+            self.lang = utils.detect_language(self.langs, self.pid)
+            self.log("Language not set, detected: %s." % str(self.lang))
+        if self.lang not in self.langs:
+            raise RuntimeError("Language must be one of: %s." % str(self.langs))
+
+        self.log("Initialized.")
+
+    def metrics(self):
+        """ Get metric definitions """
+        name = METRIC
+        self.items.append(
+            # Name - reserved - type - semantics - units - help
+            (name, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'ucall count'),
+        )
+        return True, self.items
+
+    def compile(self):
+        """ Compile BPF """
+        try:
+            if self.pid is None:
+                # https://github.com/iovisor/bcc/issues/1774
+                raise RuntimeError("No PID found/set.")
+            with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                bpf_text = src.read()
+            bpf_text = self.apply_pid_filter(bpf_text, [self.pid], True)
+            bpf_text = bpf_text.replace("READ_CLASS", self.methods[self.lang][0])
+            bpf_text = bpf_text.replace("READ_METHOD", self.methods[self.lang][1])
+
+            if self.debug:
+                self.log("BPF to be compiled:")
+                self.log("\n" + bpf_text)
+
+            # Set the language specific tracepoint
+            if self.lang in ("java", "ruby"):
+                entry_method = "method__entry"
+            elif self.lang in ("perl",):
+                entry_method = "sub__entry"
+            else:
+                entry_method = "function__entry"
+            extra_method = None
+            if self.lang == "ruby":
+                extra_method = "cmethod__entry"
+
+            self.usdt = USDT(pid=self.pid)
+            self.usdt.enable_probe(entry_method, "trace_entry")
+            if extra_method:
+                self.usdt.enable_probe(extra_method, "trace_entry")
+            self.bpf = BPF(text=bpf_text, usdt_contexts=[self.usdt])
+            self.log("Compiled.")
+        except Exception as error: # pylint: disable=broad-except
+            self.bpf = None
+            self.err(str(error))
+            self.err("Module NOT active!")
+            raise
+
+    @staticmethod
+    def parse_inst_name(string):
+        """ Parse string into valid instance name """
+        name = ""
+        started = 0
+        ok_chars = ['.', '/', '<', '>', '[', ']', '_']
+        for c in string:
+            if not started and not c.isalnum():
+                continue
+            if not c.isalnum() and c not in ok_chars:
+                break
+            name += c
+            started = 1
+        return name.replace("/", ".").replace("[", "{").replace("]", "}")
+
+    def refresh(self):
+        """ Refresh BPF data """
+        if self.bpf is None:
+            return None
+
+        for k, v in self.bpf["counts"].items():
+            key = self.parse_inst_name(k.clazz.decode("ASCII", "replace") + "." + \
+                                       k.method.decode("ASCII", "replace"))
+            self.cache[key] = v.value
+            self.insts[key] = c_int(1)
+
+        return self.insts
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        try:
+            key = self.pmdaIndom.inst_name_lookup(inst)
+            return [self.cache[key], 1]
+        except Exception: # pylint: disable=broad-except
+            return [PM_ERR_AGAIN, 0]
