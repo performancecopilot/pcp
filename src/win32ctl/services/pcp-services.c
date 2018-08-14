@@ -97,8 +97,12 @@ pcpSetServiceState(PCPSERVICE s, DWORD state, DWORD code, DWORD waitHint)
 VOID
 pcpServiceMain(DWORD argc, LPTSTR *argv, PCPSERVICE s)
 {
-    char *default_basedirs[] = { "C:\\Glider", "C:\\MSYS" };
-    char *default_service = "pcp";
+    char *default_basedirs[] = {
+	    "C:\\git-sdk-64\\mingw64",
+	    "C:\\git-sdk-32\\mingw32",
+	    "C:\\Program\ Files\\PCP",
+    };
+    char *default_service = "pmcd";
     char *service = NULL, *basedir = NULL;
     int i;
 
