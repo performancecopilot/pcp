@@ -15,7 +15,6 @@
 
 import ctypes as ct
 from os import kill
-from time import sleep
 from collections import OrderedDict
 
 from bcc.table import log2_index_max
