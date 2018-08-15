@@ -81,13 +81,17 @@ typedef struct series_data {
 #define series_data_endtopic(dp) 	((dp)->flags &= ~PMSERIES_NEED_COMMA)
 #define series_data_endline(dp) 	((dp)->flags &= ~PMSERIES_NEED_EOL)
 
-static void
-series_data_init(series_data *dp, series_flags flags)
+static series_data *
+series_data_init(series_flags flags)
 {
-    memset(dp, 0, sizeof(series_data));
-    dp->series = sdsnewlen("", 40);
-    dp->source = sdsnewlen("", 40);
-    dp->flags = flags;
+    series_data		*dp = calloc(1, sizeof(series_data));
+
+    if (dp != NULL) {
+	dp->series = sdsnewlen("", 40);
+	dp->source = sdsnewlen("", 40);
+	dp->flags = flags;
+    }
+    return dp;
 }
 
 static void
@@ -250,11 +254,11 @@ series_type_phrase(const char *type_word)
 static void
 series_load(pmSeriesSettings *settings, sds query, series_flags flags)
 {
-    series_data		data;
+    series_data		*data;
     pmflags		meta = flags & PMSERIES_FAST? PMFLAG_METADATA : 0;
 
-    series_data_init(&data, flags);
-    pmSeriesLoad(settings, query, meta, (void *)&data);
+    data = series_data_init(flags);
+    pmSeriesLoad(settings, query, meta, (void *)data);
 }
 
 static int
@@ -306,10 +310,10 @@ on_series_value(pmSID sid, pmSeriesValue *value, void *arg)
 static void
 series_query(pmSeriesSettings *settings, sds query, series_flags flags)
 {
-    series_data		data;
+    series_data		*data;
     pmflags		meta = flags & PMSERIES_FAST? PMFLAG_METADATA : 0;
 
-    series_data_init(&data, flags);
+    data = series_data_init(flags);
     pmSeriesQuery(settings, query, meta, (void *)&data);
 }
 
@@ -618,13 +622,13 @@ series_source(pmSeriesSettings *settings, sds query, series_flags flags)
     int			nsources, sts;
     char		msg[PM_MAXERRMSGLEN];
     pmSID		*sources = NULL;
-    series_data		data;
+    series_data		*data;
 
     if ((nsources = sts = series_split(query, &sources)) < 0) {
 	fprintf(stderr, "%s: cannot find source identifiers in '%s': %s\n",
 		pmGetProgname(), query, pmErrStr_r(sts, msg, sizeof(msg)));
     } else {
-	series_data_init(&data, flags);
+	data = series_data_init(flags);
 	pmSeriesSources(settings, nsources, sources, (void *)&data);
 	series_free(nsources, sources);
     }
@@ -662,46 +666,46 @@ static void
 series_data_report(pmSeriesSettings *settings,
 		int nseries, pmSID series, series_flags flags)
 {
-    series_data		data;
+    series_data		*data;
 
     /* TODO: each of these may need to be under a separate uv_timer_t? */
 
-    series_data_init(&data, flags);
-    if (nseries && series_next(&data, series))
+    data = series_data_init(flags);
+    if (nseries && series_next(data, series))
 	printf("\n%s\n", series);
 
     if (flags & (PMSERIES_OPT_DESC|PMSERIES_NEED_DESCS)) {
-	pmSeriesDescs(settings, nseries, &series, (void *)&data);
-	series_data_endtopic(&data);
+	pmSeriesDescs(settings, nseries, &series, (void *)data);
+	series_data_endtopic(data);
     }
     if (flags & PMSERIES_OPT_SOURCE) {
-	pmSeriesSources(settings, 1, &data.source, (void *)&data);
-	series_data_endtopic(&data);
+	pmSeriesSources(settings, 1, &data->source, (void *)data);
+	series_data_endtopic(data);
     }
     if (flags & PMSERIES_OPT_METRIC) {
-	pmSeriesMetrics(settings, nseries, &series, (void *)&data);
-	series_data_endtopic(&data);
+	pmSeriesMetrics(settings, nseries, &series, (void *)data);
+	series_data_endtopic(data);
     }
     if (flags & PMSERIES_OPT_LABELS) {
-	pmSeriesLabels(settings, nseries, &series, (void *)&data);
-	series_metric_labels(&data);
-	series_data_endtopic(&data);
+	pmSeriesLabels(settings, nseries, &series, (void *)data);
+	series_metric_labels(data);
+	series_data_endtopic(data);
     }
     if (flags & (PMSERIES_OPT_INSTS|PMSERIES_NEED_INSTS)) {
-	pmSeriesInstances(settings, nseries, &series, (void *)&data);
-	series_instance_names(&data);
-	series_data_endtopic(&data);
+	pmSeriesInstances(settings, nseries, &series, (void *)data);
+	series_instance_names(data);
+	series_data_endtopic(data);
     }
     /* report per-instance label information */
     if ((flags & PMSERIES_OPT_LABELS) && nseries != 0) {
-	data.flags |= PMSERIES_INSTLABELS;
-	pmSeriesLabels(settings, data.ninsts, data.iseries, (void *)&data);
-	series_instance_labels(&data);
-	series_data_endtopic(&data);
+	data->flags |= PMSERIES_INSTLABELS;
+	pmSeriesLabels(settings, data->ninsts, data->iseries, (void *)data);
+	series_instance_labels(data);
+	series_data_endtopic(data);
     }
-    series_data_endline(&data);
+    series_data_endline(data);
 
-    series_data_free(&data);
+    series_data_free(data);
 }
 
 static void

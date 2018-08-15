@@ -37,6 +37,7 @@ typedef void (*redisInfoCallBack)(pmloglevel, sds, void *);
 typedef void (*redisDoneCallBack)(void *);
 
 typedef struct redisSlots {
+    unsigned int	magic;
     redisAsyncContext	*control;	/* initial Redis context connection */
     sds			hostspec;	/* control socket host specification */
     redisSlotRange	*slots;		/* all instances; e.g. CLUSTER SLOTS */
@@ -45,6 +46,11 @@ typedef struct redisSlots {
     redisInfoCallBack	info;		/* TODO: remove - use baton */
     void		*userdata;	/* TODO: remove - use baton */
 } redisSlots;
+
+#define slotsfmt(msg, fmt, ...)		\
+	((msg) = sdscatprintf(sdsempty(), fmt, ##__VA_ARGS__))
+#define slotsinfo(slots, level, msg)	\
+	((slots)->info((level), (msg), (slots)->userdata), sdsfree(msg))
 
 typedef void (*redisPhase)(redisSlots *, void *);	/* phased operations */
 
@@ -57,7 +63,8 @@ extern void redisFreeSlots(struct redisSlots *);
 extern int redisSlotsRequest(redisSlots *, const char *, sds, sds, redisAsyncCallBack *, void *);
 
 typedef struct {
-    unsigned int	magic;
+    unsigned int	magic;		/* MAGIC_SLOTS */
+    unsigned int	refcount;
     int			version;
     redisSlots		*redis;
     redisInfoCallBack	info;

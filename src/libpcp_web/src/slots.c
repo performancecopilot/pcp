@@ -12,18 +12,15 @@
  * for more details.
  */
 #include "schema.h"
-#include "libuv.h"
+#include "batons.h"
 #include "slots.h"
 #include "crc16.h"
+#include "libuv.h"
+#include "util.h"
 #include <search.h>
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
-
-#define slotsfmt(msg, fmt, ...)		\
-	((msg) = sdscatprintf(sdsempty(), fmt, ##__VA_ARGS__))
-#define slotsinfo(slots, level, msg)	\
-	((slots)->info((level), (msg), (slots)->userdata), sdsfree(msg))
 
 static char default_server[] = "localhost:6379";
 
@@ -62,10 +59,10 @@ redisSlotRangeInsert(redisSlots *redis, redisSlotRange *range)
     if (pmDebugOptions.series) {
 	int		i;
 
-	fprintf(stderr, "Slot range: %u-%u\n", range->start, range->end);
+	fprintf(stderr, "Slot range: %05u-%05u\n", range->start, range->end);
 	fprintf(stderr, "    Master: %s\n", range->master.hostspec);
 	for (i = 0; i < range->nslaves; i++)
-	    fprintf(stderr, "\tSlave%u: %s\n", i, range->slaves[i].hostspec);
+	    fprintf(stderr, "\tSlave%05u: %s\n", i, range->slaves[i].hostspec);
     }
 
     if (tsearch((const void *)range, (void **)&redis->slots, slotsCompare))
@@ -148,18 +145,18 @@ redis_connect_callback(const redisAsyncContext *redis, int status)
     sds			msg;
 
     if (status == REDIS_OK) {
-	slotsfmt(msg, "Connected to redis on %s:%d",
+	seriesfmt(msg, "Connected to redis on %s:%d",
 			redis->c.tcp.host, redis->c.tcp.port);
-	slotsinfo(slots, PMLOG_INFO, msg);
+	seriesmsg(slots, PMLOG_INFO, msg);
 	redisAsyncEnableKeepAlive((redisAsyncContext *)redis);
     } else {
 	if (redis->c.connection_type == REDIS_CONN_UNIX)
-	    slotsfmt(msg, "Connecting to %s failed - %s",
+	    seriesfmt(msg, "Connecting to %s failed - %s",
 			redis->c.unix_sock.path, redis->errstr);
 	else
-	    slotsfmt(msg, "Connecting to %s:%d failed - %s",
+	    seriesfmt(msg, "Connecting to %s:%d failed - %s",
 			redis->c.tcp.host, redis->c.tcp.port, redis->errstr);
-	slotsinfo(slots, PMLOG_ERROR, msg);
+	seriesmsg(slots, PMLOG_ERROR, msg);
     }
 }
 
@@ -171,16 +168,17 @@ redis_disconnect_callback(const redisAsyncContext *redis, int status)
 
     slots = (redisSlots *)redis->data;
     if (status == REDIS_OK) {
-	fprintf(stderr, "Disconnected from redis on %s:%d\n",
+	if (pmDebugOptions.series)
+	    fprintf(stderr, "Disconnected from redis on %s:%d\n",
 			redis->c.tcp.host, redis->c.tcp.port);
     } else {
 	if (redis->c.connection_type == REDIS_CONN_UNIX)
-	    slotsfmt(msg, "Disconnecting from %s failed - %s",
+	    seriesfmt(msg, "Disconnecting from %s failed - %s",
 			redis->c.unix_sock.path, redis->errstr);
 	else
-	    slotsfmt(msg, "Disconnecting from %s:%d failed - %s",
+	    seriesfmt(msg, "Disconnecting from %s:%d failed - %s",
 			redis->c.tcp.host, redis->c.tcp.port, redis->errstr);
-	slotsinfo(slots, PMLOG_ERROR, msg);
+	seriesmsg(slots, PMLOG_ERROR, msg);
     }
 }
 
@@ -236,7 +234,7 @@ redisGet(redisSlots *slots, const char *command, sds key)
 
     slot = keySlot(key, sdslen(key));
     if (UNLIKELY(pmDebugOptions.series))
-	fprintf(stderr, "redisGet[slot=%u] %s %s\n", slot, command, key);
+	fprintf(stderr, "Redis [slot=%05u] %s %s\n", slot, command, key);
     s.start = s.end = slot;
 
     p = tfind((const void *)&s, (void **)&slots->slots, slotsCompare);

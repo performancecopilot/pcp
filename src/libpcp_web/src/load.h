@@ -73,7 +73,7 @@ typedef struct value {
     unsigned int	updated : 1;	/* last sample modified value */
     unsigned int	padding : 30;	/* zero-fill structure padding */
     labellist_t		*labellist;	/* label name/value mapping set */
-    char		*name;		/* external instance name or "?" */
+    sds			name;		/* external instance name or "?" */
     pmLabelSet		*labels;	/* instance labels or NULL */
     pmAtomValue		atom;		/* most recent sampled value */
 } value_t;
@@ -90,9 +90,9 @@ typedef struct metric {
     indom_t		*indom;
     pmDesc		desc;
     pmLabelSet		*labels;	/* metric item labels or NULL */
-    long long		*mapids;	/* internal name(s) identifiers */
-    char		**names;	/* PMNS entries for this metric */
     labellist_t		*labellist;	/* label name/value mapping set */
+    long long		*mapids;	/* internal name(s) identifiers */
+    sds			*names;		/* PMNS entries for this metric */
     unsigned int	numnames : 16;	/* count of metric PMNS entries */
     unsigned int	padding : 14;	/* zero-fill structure padding */
     unsigned int	updated : 1;	/* last sample returned success */
@@ -106,9 +106,6 @@ typedef struct metric {
 
 struct seriesLoadBaton;
 extern void doneSeriesLoadBaton(struct seriesLoadBaton *);
-extern void setSeriesLoadBatonRef(struct seriesLoadBaton *, unsigned int);
-extern void incSeriesLoadBatonRef(struct seriesLoadBaton *);
-extern void decSeriesLoadBatonRef(struct seriesLoadBaton *);
 
 extern void *seriesLoadBatonSlots(struct seriesLoadBaton *);
 extern pmSeriesInfoCallBack seriesLoadBatonInfo(struct seriesLoadBaton *);
