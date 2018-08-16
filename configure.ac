@@ -941,6 +941,15 @@ AC_SUBST(have_python_libvirt)
 PCP_CHECK_PYTHON_MODULE(six)
 AC_SUBST(have_python_six)
 
+AC_MSG_CHECKING([if the python InfluxDB support should be included])
+have_python_influxdb=false
+if test "$have_python" = true
+then
+    $have_python_requests && $have_python_OrderedDict && have_python_influxdb=true
+fi
+AC_SUBST(have_python_influxdb)
+if $have_python_influxdb; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
 AC_MSG_CHECKING([if the json PMDA should be included])
 pmda_json=false
 AS_IF([test "x$do_pmdajson" = "xyes"], [pmda_json=true])

@@ -1,0 +1,18 @@
+// Copyright 2017, Sasha Goldshtein.
+// Licensed under the Apache License, Version 2.0 (the "License")
+
+BPF_ARRAY(stats, u64, NR_SYSCALLS);
+
+TRACEPOINT_PROBE(raw_syscalls, sys_exit) {
+    u32 pid = bpf_get_current_pid_tgid() >> 32;
+
+    //FILTER_PID
+    //FILTER_FAILED
+    //FILTER_ERRNO
+
+    u32 id = args->id;
+    u64 *leaf = stats.lookup(&id);
+    if (leaf) (*leaf)++;
+
+    return 0;
+}

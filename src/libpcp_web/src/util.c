@@ -116,23 +116,6 @@ tadd(struct timeval *a, struct timeval *b)
     return 0;
 }
 
-void
-fputstamp(struct timeval *stamp, int delimiter, FILE *out)
-{
-    static char	timebuf[32];
-    char	*ddmm, *yr;
-    time_t	time;
-
-    time = stamp->tv_sec;
-    ddmm = pmCtime(&time, timebuf);
-    ddmm[10] = ' ';
-    ddmm[11] = '\0';
-    yr = &ddmm[20];
-    fprintf(out, "%c'%s", delimiter, ddmm);
-    pmPrintStamp(out, stamp);
-    fprintf(out, " %4.4s\'", yr);
-}
-
 /* convert into <milliseconds>-<nanoseconds> format for series streaming */
 const char *
 timeval_str(struct timeval *stamp)

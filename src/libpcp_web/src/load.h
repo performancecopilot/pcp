@@ -22,8 +22,9 @@ typedef struct context {
     sds			host;		/* hostname from archive/host */
     sds			origin;		/* host where series loaded in */
     unsigned char	hash[20];	/* context labels metadata SHA1 */
-    int			type	: 7;
-    int			cached	: 1;
+    unsigned int	type	: 7;
+    unsigned int	cached	: 1;
+    double		location[2];	/* latitude and longitude */
     int			context;	/* PMAPI context */
     long long		hostid;		/* hostname source identifier */
     long long		mapid;		/* internal source identifier */
@@ -53,6 +54,17 @@ typedef struct cluster {
     pmLabelSet		*labels;
 } cluster_t;
 
+typedef struct labellist {
+    long long		nameid;
+    long long		valueid;
+    sds			name;
+    sds			value;
+    unsigned int	flags;
+    struct labellist	*next;
+    struct dict		*valuemap;
+    void		*arg;
+} labellist_t;
+
 typedef struct value {
     unsigned char	hash[20];	/* SHA1 of intrinsic metadata */
     int			inst;		/* internal instance identifier */
@@ -60,7 +72,8 @@ typedef struct value {
     unsigned int	cached : 1;	/* metadata is already cached */
     unsigned int	updated : 1;	/* last sample modified value */
     unsigned int	padding : 30;	/* zero-fill structure padding */
-    char		*name;		/* external instance name or "?" */
+    labellist_t		*labellist;	/* label name/value mapping set */
+    sds			name;		/* external instance name or "?" */
     pmLabelSet		*labels;	/* instance labels or NULL */
     pmAtomValue		atom;		/* most recent sampled value */
 } value_t;
@@ -77,10 +90,11 @@ typedef struct metric {
     indom_t		*indom;
     pmDesc		desc;
     pmLabelSet		*labels;	/* metric item labels or NULL */
+    labellist_t		*labellist;	/* label name/value mapping set */
     long long		*mapids;	/* internal name(s) identifiers */
-    char		**names;	/* PMNS entries for this metric */
+    sds			*names;		/* PMNS entries for this metric */
     unsigned int	numnames : 16;	/* count of metric PMNS entries */
-    unsigned int	padding : 13;	/* zero-fill structure padding */
+    unsigned int	padding : 14;	/* zero-fill structure padding */
     unsigned int	updated : 1;	/* last sample returned success */
     unsigned int	cached : 1;	/* metadata is already cached */
     int			error;		/* a PMAPI negative error code */
@@ -89,5 +103,14 @@ typedef struct metric {
 	struct instlist *inst;		/* instance values and metadata */
     } u;
 } metric_t;
+
+struct seriesLoadBaton;
+extern void doneSeriesLoadBaton(struct seriesLoadBaton *);
+
+extern void *seriesLoadBatonSlots(struct seriesLoadBaton *);
+extern pmSeriesInfoCallBack seriesLoadBatonInfo(struct seriesLoadBaton *);
+extern context_t *seriesLoadBatonContext(struct seriesLoadBaton *);
+extern void *seriesLoadBatonUser(struct seriesLoadBaton *);
+extern void seriesLoadBatonFetch(struct seriesLoadBaton *);
 
 #endif	/* SERIES_LOAD_H */

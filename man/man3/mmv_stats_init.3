@@ -22,7 +22,6 @@
 .SH "C SYNOPSIS"
 .sp
 .ft 3
-(This functions have been deprecated by mmv3, check mmv_stats_resgistry(3))
 .sp
 .br
 #include <pcp/pmapi.h>
@@ -44,6 +43,8 @@ void *mmv_stats2_init(const char *\fIname\fP, int \fIcluster\fP, mmv_stats_flags
 cc ... \-lpcp_mmv \-lpcp
 .ft 1
 .SH DESCRIPTION
+.P
+.B Note: these functions are deprecated \- see mmv_stats_resgistry(3).
 .P
 \f3mmv_stats_init\f1 creates and initializes the content of the 
 \f2MMV\f1(5) file, returning a handle that is used in subsequent

@@ -46,9 +46,34 @@ extern redisMapEntry *redisRMapLookup(redisMap *, const char *);
 extern sds redisRMapValue(redisMapEntry *);
 extern void redisRMapInsert(redisMap *, const char *, sds);
 
-/* Helper utilities applicable to all maps */
+/*
+ * Helper utilities applicable to all map caches
+ */
 extern void redisMapsInit(void);
 extern const char *redisMapName(redisMap *);
 extern void redisMapRelease(redisMap *);
 
-#endif
+/*
+ * Asynchronous mapping response helpers
+ */
+typedef struct redisMapBaton {
+    unsigned int	magic;
+    unsigned int	refcount;
+    int			newMapping;
+    redisMap		*mapping;
+    sds			mapKey;
+    long long		*mapID;
+    redisSlots		*slots;
+    int			loaded;
+    int			scriptID;
+    sds			scriptHash;
+    redisDoneCallBack	mapped;
+    redisInfoCallBack	info;
+    void		*userdata;
+    void		*arg;
+} redisMapBaton;
+
+extern void redisGetMap(redisSlots *, redisMap *, sds, long long *,
+		redisDoneCallBack, redisInfoCallBack, void *, void *);
+
+#endif	/* SERIES_MAPS_H */

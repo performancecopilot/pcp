@@ -15,9 +15,7 @@
 #include "series.h"
 #include "pmapi.h"
 #include "sds.h"
-
-unsigned int port = 6379;
-sds hostname = "localhost";
+#include <uv.h>
 
 typedef enum series_flags {
     PMSERIES_COLOUR	= (1<<0),	/* report in colour if possible */
@@ -42,6 +40,11 @@ typedef enum series_flags {
     PMSERIES_OPT_METRIC	= (1<<22),	/* -m, --metric option */
     PMSERIES_OPT_QUERY	= (1<<23),	/* -q, --query option (default) */
 } series_flags;
+
+static series_flags	flags;
+static sds		query;
+static int		active;
+static int		exitsts;
 
 #define PMSERIES_META_OPTS	(PMSERIES_OPT_DESC | PMSERIES_OPT_INSTS | \
 				 PMSERIES_OPT_LABELS | PMSERIES_OPT_METRIC)
@@ -78,13 +81,17 @@ typedef struct series_data {
 #define series_data_endtopic(dp) 	((dp)->flags &= ~PMSERIES_NEED_COMMA)
 #define series_data_endline(dp) 	((dp)->flags &= ~PMSERIES_NEED_EOL)
 
-static void
-series_data_init(series_data *dp, series_flags flags)
+static series_data *
+series_data_init(series_flags flags)
 {
-    memset(dp, 0, sizeof(series_data));
-    dp->series = sdsnewlen("", 40);
-    dp->source = sdsnewlen("", 40);
-    dp->flags = flags;
+    series_data		*dp = calloc(1, sizeof(series_data));
+
+    if (dp != NULL) {
+	dp->series = sdsnewlen("", 40);
+	dp->source = sdsnewlen("", 40);
+	dp->flags = flags;
+    }
+    return dp;
 }
 
 static void
@@ -244,15 +251,14 @@ series_type_phrase(const char *type_word)
     return "???";
 }
 
-static int
+static void
 series_load(pmSeriesSettings *settings, sds query, series_flags flags)
 {
-    series_data		data;
+    series_data		*data;
     pmflags		meta = flags & PMSERIES_FAST? PMFLAG_METADATA : 0;
 
-    series_data_init(&data, flags);
-    pmSeriesLoad(settings, query, meta, (void *)&data);
-    return data.status;
+    data = series_data_init(flags);
+    pmSeriesLoad(settings, query, meta, (void *)data);
 }
 
 static int
@@ -301,15 +307,14 @@ on_series_value(pmSID sid, pmSeriesValue *value, void *arg)
     return 0;
 }
 
-static int
+static void
 series_query(pmSeriesSettings *settings, sds query, series_flags flags)
 {
-    series_data		data;
+    series_data		*data;
     pmflags		meta = flags & PMSERIES_FAST? PMFLAG_METADATA : 0;
 
-    series_data_init(&data, flags);
+    data = series_data_init(flags);
     pmSeriesQuery(settings, query, meta, (void *)&data);
-    return data.status;
 }
 
 static int
@@ -611,34 +616,39 @@ on_series_context(pmSID source, sds name, void *arg)
     return 0;
 }
 
-static int
+static void
 series_source(pmSeriesSettings *settings, sds query, series_flags flags)
 {
     int			nsources, sts;
     char		msg[PM_MAXERRMSGLEN];
     pmSID		*sources = NULL;
-    series_data		data;
+    series_data		*data;
 
     if ((nsources = sts = series_split(query, &sources)) < 0) {
 	fprintf(stderr, "%s: cannot find source identifiers in '%s': %s\n",
 		pmGetProgname(), query, pmErrStr_r(sts, msg, sizeof(msg)));
-	return 2;
+    } else {
+	data = series_data_init(flags);
+	pmSeriesSources(settings, nsources, sources, (void *)&data);
+	series_free(nsources, sources);
     }
-    series_data_init(&data, flags);
-    pmSeriesSources(settings, nsources, sources, (void *)&data);
-    series_free(nsources, sources);
-    return data.status;
 }
 
 /*
  * Finishing up interacting with the library via callbacks
  */
 
-void
+static void
 on_series_done(int sts, void *arg)
 {
     series_data		*dp = (series_data *)arg;
     char		msg[PM_MAXERRMSGLEN];
+
+#if 0
+    extern void pmSeriesDone(void);
+    if (--active <= 0)
+	pmSeriesDone();
+#endif
 
     if (dp->flags & PMSERIES_NEED_EOL) {
 	dp->flags &= ~PMSERIES_NEED_EOL;
@@ -647,76 +657,116 @@ on_series_done(int sts, void *arg)
     if (sts < 0) {
 	fprintf(stderr, "%s: %s\n", pmGetProgname(),
 			pmErrStr_r(sts, msg, sizeof(msg)));
+	exitsts = 1;
     }
-    dp->status = (sts < 0) ? 1 : 0;
+
 }
 
-static int
+static void
 series_data_report(pmSeriesSettings *settings,
 		int nseries, pmSID series, series_flags flags)
 {
-    series_data		data;
-    int			sts;
+    series_data		*data;
 
-    series_data_init(&data, flags);
-    if (nseries && series_next(&data, series))
+    /* TODO: each of these may need to be under a separate uv_timer_t? */
+
+    data = series_data_init(flags);
+    if (nseries && series_next(data, series))
 	printf("\n%s\n", series);
 
     if (flags & (PMSERIES_OPT_DESC|PMSERIES_NEED_DESCS)) {
-	pmSeriesDescs(settings, nseries, &series, (void *)&data);
-	series_data_endtopic(&data);
+	pmSeriesDescs(settings, nseries, &series, (void *)data);
+	series_data_endtopic(data);
     }
     if (flags & PMSERIES_OPT_SOURCE) {
-	pmSeriesSources(settings, 1, &data.source, (void *)&data);
-	series_data_endtopic(&data);
+	pmSeriesSources(settings, 1, &data->source, (void *)data);
+	series_data_endtopic(data);
     }
     if (flags & PMSERIES_OPT_METRIC) {
-	pmSeriesMetrics(settings, nseries, &series, (void *)&data);
-	series_data_endtopic(&data);
+	pmSeriesMetrics(settings, nseries, &series, (void *)data);
+	series_data_endtopic(data);
     }
     if (flags & PMSERIES_OPT_LABELS) {
-	pmSeriesLabels(settings, nseries, &series, (void *)&data);
-	series_metric_labels(&data);
-	series_data_endtopic(&data);
+	pmSeriesLabels(settings, nseries, &series, (void *)data);
+	series_metric_labels(data);
+	series_data_endtopic(data);
     }
     if (flags & (PMSERIES_OPT_INSTS|PMSERIES_NEED_INSTS)) {
-	pmSeriesInstances(settings, nseries, &series, (void *)&data);
-	series_instance_names(&data);
-	series_data_endtopic(&data);
+	pmSeriesInstances(settings, nseries, &series, (void *)data);
+	series_instance_names(data);
+	series_data_endtopic(data);
     }
     /* report per-instance label information */
     if ((flags & PMSERIES_OPT_LABELS) && nseries != 0) {
-	data.flags |= PMSERIES_INSTLABELS;
-	pmSeriesLabels(settings, data.ninsts, data.iseries, (void *)&data);
-	series_instance_labels(&data);
-	series_data_endtopic(&data);
+	data->flags |= PMSERIES_INSTLABELS;
+	pmSeriesLabels(settings, data->ninsts, data->iseries, (void *)data);
+	series_instance_labels(data);
+	series_data_endtopic(data);
     }
-    series_data_endline(&data);
+    series_data_endline(data);
 
-    sts = data.status;
-    series_data_free(&data);
-    return sts;
+    series_data_free(data);
 }
 
-static int
+static void
 series_report(pmSeriesSettings *settings, sds query, series_flags flags)
 {
-    int			nseries, sts, rc, i;
+    int			nseries, sts, i;
     char		msg[PM_MAXERRMSGLEN];
     pmSID		*series = NULL;
 
     if ((nseries = sts = series_split(query, &series)) < 0) {
 	fprintf(stderr, "%s: no series identifiers in string '%s': %s\n",
 		pmGetProgname(), query, pmErrStr_r(sts, msg, sizeof(msg)));
-	return 2;
+    } else {
+	active = nseries ? nseries : 1;
+	for (i = 0; i < nseries; i++)
+	    series_data_report(settings, 1, series[i], flags);
+	if (nseries == 0)	/* report all names, instances, labels, ... */
+	    series_data_report(settings, 0, NULL, flags);
+	series_free(nseries, series);
     }
-    for (i = sts = 0; i < nseries; i++)
-	if ((rc = series_data_report(settings, 1, series[i], flags)) < 0)
-	    sts = rc;
-    if (nseries == 0)	/* report all names, instances, labels, ... */
-	sts = series_data_report(settings, 0, NULL, flags);
-    series_free(nseries, series);
-    return sts ? 1 : 0;
+}
+
+static pmSeriesSettings settings = {
+    .on_match		= on_series_match,
+    .on_desc		= on_series_desc,
+    .on_inst		= on_series_inst,
+    .on_labelmap	= on_series_labelmap,
+    .on_instance	= on_series_instance,
+    .on_context		= on_series_context,
+    .on_metric		= on_series_metric,
+    .on_value		= on_series_value,
+    .on_label		= on_series_label,
+    .on_info		= on_series_info,
+    .on_done		= on_series_done,
+};
+
+static void
+pmseries_request(uv_timer_t *arg)
+{
+    (void)arg;
+    if (flags & PMSERIES_OPT_LOAD)
+	series_load(&settings, query, flags);
+    else if (flags & PMSERIES_OPT_QUERY)
+	series_query(&settings, query, flags);
+    else if ((flags & PMSERIES_OPT_SOURCE) && !(flags & PMSERIES_META_OPTS))
+	series_source(&settings, query, flags);
+    else
+	series_report(&settings, query, flags);
+}
+
+static int
+pmseries_execute(void)
+{
+    uv_timer_t		request;
+    uv_loop_t		*loop = (uv_loop_t *)settings.events;
+
+    uv_timer_init(loop, &request);
+    uv_timer_start(&request, pmseries_request, 0, 0);
+    uv_run(loop, UV_RUN_DEFAULT);
+    fprintf(stderr, "Clean exit\n");
+    return exitsts;
 }
 
 static int
@@ -734,21 +784,6 @@ pmseries_overrides(int opt, pmOptions *opts)
     }
     return 0;
 }
-
-static pmSeriesSettings settings = {
-    .on_match		= on_series_match,
-    .on_desc		= on_series_desc,
-    .on_inst		= on_series_inst,
-    .on_labelmap	= on_series_labelmap,
-    .on_instance	= on_series_instance,
-    .on_context		= on_series_context,
-    .on_metric		= on_series_metric,
-    .on_value		= on_series_value,
-    .on_label		= on_series_label,
-    .on_info		= on_series_info,
-    .on_done		= on_series_done,
-    .hostspec           = "localhost:6379",
-};
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General Options"),
@@ -786,13 +821,11 @@ static pmOptions opts = {
 int
 main(int argc, char *argv[])
 {
-    sds			query;
     int			c, sts;
-    char		*hostname = "localhost";
     const char		*split = ",";
     const char		*space = " ";
+    char		*hostname = "localhost";
     unsigned int	port = 6379;
-    series_flags	flags = 0;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -916,22 +949,16 @@ main(int argc, char *argv[])
     if (pmLogLevelIsTTY())
 	flags |= PMSERIES_COLOUR;
 
-    settings.hostspec = sdscatprintf(sdsempty(), "%s:%u", hostname, port);
-
     if (opts.optind == argc)
 	query = sdsempty();
     else
 	query = sdsjoin(&argv[opts.optind], argc - opts.optind, (char *)split);
 
-    if (flags & PMSERIES_OPT_LOAD)
-	sts = series_load(&settings, query, flags);
-    else if (flags & PMSERIES_OPT_QUERY)
-	sts = series_query(&settings, query, flags);
-    else if ((flags & PMSERIES_OPT_SOURCE) && !(flags & PMSERIES_META_OPTS))
-	sts = series_source(&settings, query, flags);
-    else
-	sts = series_report(&settings, query, flags);
+    settings.hostspec = sdscatprintf(sdsempty(), "%s:%u", hostname, port);
+    settings.events = (void *)uv_default_loop();
+
+    pmseries_execute();
 
     sdsfree(query);
-    return sts;
+    return exitsts;
 }

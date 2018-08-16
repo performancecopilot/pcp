@@ -187,10 +187,10 @@ class PCP2Graphite(object):
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
-        opts.pmSetLongOption("graphite-host", 1, "g", "SERVER", "graphite server (default: " + SERVER + ")")
-        opts.pmSetLongOption("pickle-port", 1, "p", "PICKLE-PORT", "graphite pickle port (default: 2004)")
+        opts.pmSetLongOption("graphite-host", 1, "g", "SERVER", "Graphite server (default: " + SERVER + ")")
+        opts.pmSetLongOption("pickle-port", 1, "p", "PICKLE-PORT", "Graphite pickle port (default: 2004)")
         opts.pmSetLongOption("pickle-protocol", 1, "X", "PROTOCOL", "pickle protocol version (default: 0)")
-        opts.pmSetLongOption("text-port", 1, "E", "TEXT-PORT", "graphite plaintext port (usually: 2003)")
+        opts.pmSetLongOption("text-port", 1, "E", "TEXT-PORT", "Graphite plaintext port (usually: 2003)")
         opts.pmSetLongOption("prefix", 1, "x", "PREFIX", "prefix for metric names (default: " + PREFIX + ")")
 
         return opts
@@ -202,7 +202,7 @@ class PCP2Graphite(object):
         return 0
 
     def option(self, opt, optarg, index):
-        """ Perform setup for an individual command line option """
+        """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
         elif opt == 'K':
@@ -448,7 +448,7 @@ if __name__ == '__main__':
         P.finalize()
 
     except pmapi.pmErr as error:
-        sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
+        sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
         sys.exit(1)
     except pmapi.pmUsageErr as usage:
         usage.message()

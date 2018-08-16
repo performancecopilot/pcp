@@ -42,6 +42,16 @@ PIDSTAT_METRICS_B = ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.un
                     'proc.psinfo.maj_flt', 'proc.psinfo.vsize', 'proc.psinfo.rss', 'mem.physmem',
                     'proc.memory.vmstack','proc.psinfo.sname','proc.psinfo.start_time','proc.psinfo.wchan_s'] 
 
+PIDSTAT_METRICS_L = ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.uname.sysname',
+                    'kernel.uname.machine','hinv.ncpu','proc.psinfo.pid','proc.nprocs','proc.psinfo.utime',
+                    'proc.psinfo.stime','proc.psinfo.guest_time','proc.psinfo.processor',
+                    'proc.id.uid','proc.psinfo.cmd','kernel.all.cpu.user','kernel.all.cpu.vuser',
+                    'kernel.all.cpu.sys','kernel.all.cpu.guest','kernel.all.cpu.nice','kernel.all.cpu.idle',
+                    'proc.id.uid_nm', 'proc.psinfo.rt_priority', 'proc.psinfo.policy', 'proc.psinfo.minflt',
+                    'proc.psinfo.maj_flt', 'proc.psinfo.vsize', 'proc.psinfo.rss', 'mem.physmem',
+                    'proc.memory.vmstack','proc.psinfo.sname','proc.psinfo.start_time','proc.psinfo.wchan_s',
+                    'proc.psinfo.psargs']
+
 #We define a new metric array so that some missing metrics aren't flagged in existing archives using PIDSTAT_METRICS
 
 
@@ -159,6 +169,9 @@ class ProcessCpuUsage:
     def process_name(self):
         return self.__metric_repository.current_value('proc.psinfo.cmd', self.instance)
 
+    def process_name_with_args(self):
+        return self.__metric_repository.current_value('proc.psinfo.psargs', self.instance)
+
     def cpu_number(self):
         return self.__metric_repository.current_value('proc.psinfo.processor', self.instance)
 
@@ -193,6 +206,9 @@ class ProcessPriority:
 
     def process_name(self):
         return self.__metric_repository.current_value('proc.psinfo.cmd', self.instance)
+
+    def process_name_with_args(self):
+        return self.__metric_repository.current_value('proc.psinfo.psargs', self.instance)
 
     def priority(self):
         return self.__metric_repository.current_value('proc.psinfo.rt_priority', self.instance)
@@ -233,6 +249,9 @@ class ProcessMemoryUtil:
 
     def process_name(self):
         return self.__metric_repository.current_value('proc.psinfo.cmd', self.instance)
+
+    def process_name_with_args(self):
+        return self.__metric_repository.current_value('proc.psinfo.psargs', self.instance)
 
     def minflt(self):
         c_min_flt = self.__metric_repository.current_value('proc.psinfo.minflt', self.instance)
@@ -292,6 +311,9 @@ class ProcessStackUtil:
     def process_name(self):
         return self.__metric_repository.current_value('proc.psinfo.cmd', self.instance)
 
+    def process_name_with_args(self):
+        return self.__metric_repository.current_value('proc.psinfo.psargs', self.instance)
+
     def stack_size(self):
         return self.__metric_repository.current_value('proc.memory.vmstack', self.instance)
 
@@ -326,6 +348,9 @@ class ProcessState:
 
     def process_name(self):
         return self.__metric_repository.current_value('proc.psinfo.cmd', self.instance)
+
+    def process_name_with_args(self):
+        return self.__metric_repository.current_value('proc.psinfo.psargs', self.instance)
 
     def s_name(self):
         return self.__metric_repository.current_value('proc.psinfo.sname', self.instance)
@@ -432,11 +457,20 @@ class CpuProcessStateReporter:
                 else:
                     func = process.wchan_s() 
                 if (process.s_name() is not None and (len(process.wchan_s()) < 8 or func== "N/A")):
-                    self.printer("%s\t%s\t%s\t%s\t%s\t%.2f\t\t%s\t\t\t\t%s" % (timestamp,process.pid(),process.s_name(),process.utime(), process.stime(), process_state_info[key],func,process.process_name()))
+                    if self.pidstat_options.process_name_with_args:
+                        self.printer("%s\t%s\t%s\t%s\t%s\t%.2f\t\t%s\t\t\t\t%s" % (timestamp,process.pid(),process.s_name(),process.utime(), process.stime(), process_state_info[key],func,process.process_name_with_args()))
+                    else:
+                        self.printer("%s\t%s\t%s\t%s\t%s\t%.2f\t\t%s\t\t\t\t%s" % (timestamp,process.pid(),process.s_name(),process.utime(), process.stime(), process_state_info[key],func,process.process_name()))
                 elif ((process.s_name() is not None) and (len(process.wchan_s()) < 16 or func == "N/A")):
-                    self.printer("%s\t%s\t%s\t%s\t%s\t%.2f\t\t%s\t\t\t%s" % (timestamp,process.pid(),process.s_name(),process.utime(), process.stime(), process_state_info[key],func,process.process_name()))
+                    if self.pidstat_options.process_name_with_args:
+                       self.printer("%s\t%s\t%s\t%s\t%s\t%.2f\t\t%s\t\t\t%s" % (timestamp,process.pid(),process.s_name(),process.utime(), process.stime(), process_state_info[key],func,process.process_name_with_args()))
+                    else:
+                       self.printer("%s\t%s\t%s\t%s\t%s\t%.2f\t\t%s\t\t\t%s" % (timestamp,process.pid(),process.s_name(),process.utime(), process.stime(), process_state_info[key],func,process.process_name()))
                 elif (process.s_name() is not None and len(process.wchan_s()) < 24):
-                    self.printer("%s\t%s\t%s\t%s\t%s\t%.2f\t\t%s\t\t%s" % (timestamp,process.pid(),process.s_name(),process.utime(), process.stime(), process_state_info[key],func,process.process_name()))
+                    if self.pidstat_options.process_name_with_args:
+                        self.printer("%s\t%s\t%s\t%s\t%s\t%.2f\t\t%s\t\t%s" % (timestamp,process.pid(),process.s_name(),process.utime(), process.stime(), process_state_info[key],func,process.process_name_with_args()))
+                    else :
+                        self.printer("%s\t%s\t%s\t%s\t%s\t%.2f\t\t%s\t\t%s" % (timestamp,process.pid(),process.s_name(),process.utime(), process.stime(), process_state_info[key],func,process.process_name()))
                 else:
                     if (process.s_name() is not None):
                         self.printer("%s\t%s\t%s\t%s\t%s\t%.2f\t\t%s\t%s" % (timestamp,process.pid(),process.s_name(),process.utime(), process.stime(), process_state_info[key],func,process.process_name()))
@@ -466,7 +500,10 @@ class CpuProcessStateReporter:
                     T = process_state_info[key4]
                 if key5 in process_state_info:
                     D = process_state_info[key5]
-                self.printer ("%s\t%s\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%s" % (timestamp,process.pid(),R,S,Z,T,D,process.process_name()))
+                if self.pidstat_options.process_name_with_args:
+                   self.printer ("%s\t%s\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%s" % (timestamp,process.pid(),R,S,Z,T,D,process.process_name_with_args()))
+                else :
+                   self.printer ("%s\t%s\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%s" % (timestamp,process.pid(),R,S,Z,T,D,process.process_name()))
                 
 #==============================================================================================================================
 
@@ -542,9 +579,15 @@ class CpuUsageReporter:
                 total_percent = float("%.2f"%(total_percent/ncpu))
 
             if self.pidstat_options.show_process_user:
-                self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_name(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
+                if self.pidstat_options.process_name_with_args:
+                    self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_name(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name_with_args()))
+                else:
+                    self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_name(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
             else:
-                self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_id(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
+                if self.pidstat_options.process_name_with_args:
+                    self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_id(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name_with_args()))
+                else:
+                    self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_id(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
 
 class CpuProcessPrioritiesReporter:
     def __init__(self, process_priority, process_filter, printer, pidstat_options):
@@ -558,9 +601,15 @@ class CpuProcessPrioritiesReporter:
         processes = self.process_filter.filter_processes(self.process_priority.get_processes())
         for process in processes:
             if self.pidstat_options.show_process_user:
-                self.printer("%s%s%s\t%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_name(),process.pid(),process.priority(),process.policy(),process.process_name()))
+                if self.pidstat_options.process_name_with_args:
+                    self.printer("%s%s%s\t%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_name(),process.pid(),process.priority(),process.policy(),process.process_name_with_args()))
+                else:
+                    self.printer("%s%s%s\t%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_name(),process.pid(),process.priority(),process.policy(),process.process_name()))
             else:
-                self.printer("%s%s%s\t%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_id(),process.pid(),process.priority(),process.policy(),process.process_name()))
+                if self.pidstat_options.process_name_with_args:
+                    self.printer("%s%s%s\t%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_id(),process.pid(),process.priority(),process.policy(),process.process_name_with_args()))
+                else:
+                    self.printer("%s%s%s\t%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_id(),process.pid(),process.priority(),process.policy(),process.process_name()))
 
 class CpuProcessMemoryUtilReporter:
     def __init__(self, process_memory_util, process_filter, delta_time, printer, pidstat_options):
@@ -577,9 +626,15 @@ class CpuProcessMemoryUtilReporter:
             maj_flt = process.majflt()
             min_flt = process.minflt()
             if self.pidstat_options.show_process_user:
-                self.printer("%s%s%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp, value_indentation,process.user_name(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
+                if self.pidstat_options.process_name_with_args:
+                   self.printer("%s%s%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp, value_indentation,process.user_name(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name_with_args()))
+                else:
+                   self.printer("%s%s%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp, value_indentation,process.user_name(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
             else:
-                self.printer("%s%s%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp, value_indentation,process.user_id(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
+                if self.pidstat_options.process_name_with_args:
+                   self.printer("%s%s%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp, value_indentation,process.user_id(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name_with_args()))
+                else:
+                   self.printer("%s%s%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp, value_indentation,process.user_id(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
 
 class CpuProcessStackUtilReporter:
     def __init__(self, process_stack_util, process_filter, printer, pidstat_options):
@@ -593,9 +648,15 @@ class CpuProcessStackUtilReporter:
         processes = self.process_filter.filter_processes(self.process_stack_util.get_processes())
         for process in processes:
             if self.pidstat_options.show_process_user:
-                self.printer("%s%s%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_name(),process.pid(),process.stack_size(),process.process_name()))
+                if self.pidstat_options.process_name_with_args:
+                    self.printer("%s%s%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_name(),process.pid(),process.stack_size(),process.process_name_with_args()))
+                else :
+                    self.printer("%s%s%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_name(),process.pid(),process.stack_size(),process.process_name()))
             else:
-                self.printer("%s%s%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_id(),process.pid(),process.stack_size(),process.process_name()))
+                if self.pidstat_options.process_name_with_args:
+                    self.printer("%s%s%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_id(),process.pid(),process.stack_size(),process.process_name_with_args()))
+                else :
+                    self.printer("%s%s%s\t%s\t%s\t%s" % (timestamp,value_indentation,process.user_id(),process.pid(),process.stack_size(),process.process_name()))
 
 
 class NoneHandlingPrinterDecorator:
@@ -609,6 +670,8 @@ class NoneHandlingPrinterDecorator:
 
 class PidstatOptions(pmapi.pmOptions):
     process_name = None
+    process_name_with_args = False
+    ps_args_flag=False
     show_process_memory_util = False
     show_process_priority = False
     show_process_stack_util = False
@@ -638,6 +701,9 @@ class PidstatOptions(pmapi.pmOptions):
             return False
         elif(self.flag_error == True):
             print("Error: Incorrect usage of the B flag")
+            return False
+        elif(self.ps_args_flag == True):
+            print("Error: Incorrect usage of the -l flag")
             return False
         else:
             return True
@@ -696,6 +762,10 @@ class PidstatOptions(pmapi.pmOptions):
                     sys.exit(1)
         elif opt == 'f':
             PidstatOptions.timefmt = optarg
+        elif opt == 'l':
+            if PidstatOptions.process_name_with_args == True:
+                PidstatOptions.ps_args_flag=True
+            PidstatOptions.process_name_with_args = True
 
     def override(self, opt):
         """ Override standard PCP options to match pidstat(1) """
@@ -706,7 +776,7 @@ class PidstatOptions(pmapi.pmOptions):
     #After reading in the provided command line options
     #initalize them by passing them in
     def __init__(self):
-        pmapi.pmOptions.__init__(self,"a:s:t:G:IU::p:RrkVZ:z?:f:B:") 
+        pmapi.pmOptions.__init__(self,"a:s:t:G:IU::p:RrkVZ:z?:f:B:l") 
         self.pmSetOptionCallback(self.extraOptions)
         self.pmSetOverrideCallback(self.override)
         self.pmSetLongOptionHeader("General options")
@@ -726,6 +796,7 @@ class PidstatOptions(pmapi.pmOptions):
         self.pmSetLongOptionVersion()
         self.pmSetLongOptionTimeZone()
         self.pmSetLongOptionHostZone()
+        self.pmSetLongOption("",0,"l","","Display the process command name and all its arguments.")
         self.pmSetLongOptionHelp()
 
 
@@ -828,12 +899,16 @@ if __name__ == "__main__":
             raise pmapi.pmUsageErr
         if opts.show_process_state == True:
             missing = manager.checkMissingMetrics(PIDSTAT_METRICS_B)
+        elif opts.process_name_with_args == True:
+            missing = manager.checkMissingMetrics(PIDSTAT_METRICS_L)
         else:
             missing = manager.checkMissingMetrics(PIDSTAT_METRICS)
         if missing != None:
             sys.stderr.write('Error: not all required metrics are available\nMissing %s\n' % (missing))
             sys.exit(1)
-        if opts.show_process_state == True:
+        if opts.process_name_with_args == True:
+            manager['pidstat'] = PIDSTAT_METRICS_L
+        elif opts.show_process_state == True:
             manager['pidstat'] = PIDSTAT_METRICS_B
         else:
             manager['pidstat'] = PIDSTAT_METRICS

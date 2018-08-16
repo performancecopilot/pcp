@@ -897,7 +897,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     __pmHostEnt		*servInfo;
     int			fd;
     int			sts;
-    int			fdFlags[FD_SETSIZE];
+    int			fdFlags[sizeof(__pmFdSet)];
     __pmFdSet		allFds;
     __pmFdSet		readyFds;
     int			maxFd;

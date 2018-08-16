@@ -32,7 +32,6 @@ typedef struct PARSER {
     meta_t	yy_meta;
     node_t	*yy_np;
     series_t	yy_series;
-    settings_t	*yy_settings;
 } PARSER;
 
 typedef union {
@@ -1248,38 +1247,32 @@ series_dumpexpr(node_t *np, int level)
     series_dumpexpr(np->right, level+1);
 }
 
-void
+int
 pmSeriesQuery(pmSeriesSettings *settings, sds query, pmflags flags, void *arg)
 {
-    int		sts;
-    PARSER	yp = { .yy_settings = settings };
+    PARSER	yp = { .yy_input = (char *)query };
     series_t	*sp = &yp.yy_series;
 
-    yp.yy_input = (char *)query;
-    if (yyparse(&yp)) {
-	sts = yp.yy_error;
-    } else {
-	if (pmDebugOptions.series)
-	    series_dumpexpr(sp->expr, 0);
-	sts = series_solve(settings, sp->expr, &sp->time, flags, arg);
-    }
-    settings->on_done(sts, arg);
+    if (yyparse(&yp))
+	return yp.yy_error;
+
+    if (pmDebugOptions.series)
+	series_dumpexpr(sp->expr, 0);
+
+    return series_solve(settings, sp->expr, &sp->time, flags, arg);
 }
 
-void
+int
 pmSeriesLoad(pmSeriesSettings *settings, sds source, pmflags flags, void *arg)
 {
-    int		sts;
-    PARSER	yp = { .yy_settings = settings };
+    PARSER	yp = { .yy_input = (char *)source };
     series_t	*sp = &yp.yy_series;
 
-    yp.yy_input = (char *)source;
-    if (yyparse(&yp)) {
-	sts = yp.yy_error;
-    } else {
-	if (pmDebugOptions.series)
-	    series_dumpexpr(sp->expr, 0);
-	sts = series_source(settings, sp->expr, &sp->time, flags, arg);
-    }
-    settings->on_done(sts, arg);
+    if (yyparse(&yp))
+	return yp.yy_error;
+
+    if (pmDebugOptions.series)
+	series_dumpexpr(sp->expr, 0);
+
+    return series_load(settings, sp->expr, &sp->time, flags, arg);
 }

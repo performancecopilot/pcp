@@ -20,7 +20,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=simple
-pmda_interface=2
 
 dso_opt=true
 perl_opt=true

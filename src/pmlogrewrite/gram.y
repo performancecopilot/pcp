@@ -2438,7 +2438,7 @@ labelinstancesopt	: TOK_DELETE
 			    lp->flags |= LABEL_DELETE;
 			}
 		    }
-		| TOK_INDOM TOK_ASSIGN indom_int
+		| TOK_INSTANCES TOK_ASSIGN indom_int
 		    {
 			labelspec_t	*lp;
 			for (lp = walk_label(W_START, LABEL_CHANGE_ID, "id", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_ID, "id", 0)) {

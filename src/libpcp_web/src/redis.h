@@ -220,7 +220,6 @@ extern redisContext *redisConnectUnixNonBlock(const char *);
 extern int redisReconnect(redisContext *);
 
 extern int redisSetTimeout(redisContext *, const struct timeval);
-extern int redisEnableKeepAlive(redisContext *);
 extern void redisFree(redisContext *);
 extern int redisBufferRead(redisContext *);
 extern int redisBufferWrite(redisContext *, int *);
@@ -234,16 +233,13 @@ extern int redisBufferWrite(redisContext *, int *);
 extern int redisGetReply(redisContext *, void **);
 extern int redisGetReplyFromReader(redisContext *, void **);
 
-/* Write a formatted command to the output buffer. */
-extern int redisAppendFormattedCommand(redisContext *, const char *, size_t);
-
 struct redisAsyncContext;
 struct dict;
 
-typedef void (redisCallBackFunc)(struct redisAsyncContext *, void *, void *);
+typedef void (redisAsyncCallBack)(struct redisAsyncContext *, redisReply *, void *);
 typedef struct redisCallBack {
     struct redisCallBack	*next; /* simple singly linked list */
-    redisCallBackFunc		*func;
+    redisAsyncCallBack		*func;
     void			*privdata;
 } redisCallBack;
 
@@ -254,8 +250,8 @@ typedef struct redisCallBackList {
 } redisCallBackList;
 
 /* Connection callback prototypes */
-typedef void (redisDisconnectCallBack)(const struct redisAsyncContext*, int);
-typedef void (redisConnectCallBack)(const struct redisAsyncContext*, int);
+typedef void (redisDisconnectCallBack)(const struct redisAsyncContext *, int);
+typedef void (redisConnectCallBack)(const struct redisAsyncContext *, int);
 
 /* Context for an async connection to Redis */
 typedef struct redisAsyncContext {
@@ -302,6 +298,7 @@ extern redisAsyncContext *redisAsyncConnectBindWithReuse(const char *, int, cons
 extern redisAsyncContext *redisAsyncConnectUnix(const char *);
 extern int redisAsyncSetConnectCallBack(redisAsyncContext *, redisConnectCallBack *);
 extern int redisAsyncSetDisconnectCallBack(redisAsyncContext *, redisDisconnectCallBack *);
+extern int redisAsyncEnableKeepAlive(redisAsyncContext *);
 extern void redisAsyncDisconnect(redisAsyncContext *);
 extern void redisAsyncFree(redisAsyncContext *);
 
@@ -313,6 +310,6 @@ extern void redisAsyncHandleWrite(redisAsyncContext *);
  * Command function for an async context.
  * Write the command to the output buffer and register the provided callback.
  */
-extern int redisAsyncFormattedCommand(redisAsyncContext *, redisCallBackFunc *, void *, const char *, size_t);
+extern int redisAsyncFormattedCommand(redisAsyncContext *, redisAsyncCallBack *, void *, const char *, size_t);
 
 #endif /* SERIES_REDIS_H */

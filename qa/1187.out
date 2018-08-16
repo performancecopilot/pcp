@@ -130,3 +130,23 @@ internal:
 === std err
 === done
 
+CSV stdout
+=== std out
+----system---- --io/total- ------tcp-sockets------- async
+     time     | read  writ|lis  act  syn  tim  clo | #aio
+25-07 16:08:20|   0     0 |  7   14    0    0    0 |   0 
+25-07 16:08:21|   0     0 |  7   14    0    1    0 |   0 
+
+=== std err
+=== done
+
+CSV contents
+"pcp-dstat VERSION CSV Output"
+"Author:","PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>",,,,"URL:","https://pcp.io/ and http://dag.wieers.com/home-made/dstat/"
+"Host:","shard",,,,"User:","USER"
+"Cmdline:","pcp-dstat --time --io --tcp --aio -o TMP.csv 1 2",,,,"Date:","DATE"
+"system","io/total",,"tcp sockets",,,,,"async"
+"time","read","writ","lis","act","syn","tim","clo","#aio"
+25-07 16:08:20,0,0,7,14,0,0,0,0
+25-07 16:08:21,0,0,7,14,0,1,0,0
+CSV complete

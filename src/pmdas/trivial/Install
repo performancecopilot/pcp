@@ -19,7 +19,9 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=trivial
-pmda_interface=2
+dso_opt=true
+perl_opt=true
+python_opt=true
 
 pmdaSetup
 pmdaInstall

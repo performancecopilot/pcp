@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=trace
-pmda_interface=2
 
 numeric=0
 

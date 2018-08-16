@@ -342,63 +342,30 @@ class DstatPlugin(object):
             if i + 1 != len(ilist): ret = ret + THEME['frame'] + CHAR['colon']
         return ret
 
-#    def csvtitle(self):
-#        if isinstance(self.name, types.StringType):
-#            return '"' + self.name + '"' + CHAR['sep'] * (len(self.nick) - 1)
-#        else:
-#            ret = ''
-#            for i, name in enumerate(self.name):
-#                ret = ret + '"' + name + '"' + CHAR['sep'] * (len(self.nick) - 1)
-#                if i + 1 != len(self.name): ret = ret + CHAR['sep']
-#            return ret
-#
-#    def csvsubtitle(self):
-#        ret = ''
-#        if isinstance(self.name, types.StringType):
-#            for i, nick in enumerate(self.nick):
-#                ret = ret + '"' + nick + '"'
-#                if i + 1 != len(self.nick): ret = ret + CHAR['sep']
-#        elif len(self.name) == 1:
-#            for i, name in enumerate(self.name):
-#                for j, nick in enumerate(self.nick):
-#                    ret = ret + '"' + nick + '"'
-#                    if j + 1 != len(self.nick): ret = ret + CHAR['sep']
-#                if i + 1 != len(self.name): ret = ret + CHAR['sep']
-#        else:
-#            for i, name in enumerate(self.name):
-#                for j, nick in enumerate(self.nick):
-#                    ret = ret + '"' + name + ':' + nick + '"'
-#                    if j + 1 != len(self.nick): ret = ret + CHAR['sep']
-#                if i + 1 != len(self.name): ret = ret + CHAR['sep']
-#        return ret
-#
-#    def showcsv(self):
-#        def printcsv(var):
-#            if var != round(var):
-#                return '%.3f' % var
-#            return '%d' % long(round(var))
-#
-#        line = ''
-#        for i, name in enumerate(self.vars):
-#            if isinstance(self.val[name], types.ListType) or isinstance(self.val[name], types.TupleType):
-#                for j, val in enumerate(self.val[name]):
-#                    line = line + printcsv(val)
-#                    if j + 1 != len(self.val[name]):
-#                        line = line + CHAR['sep']
-#            elif isinstance(self.val[name], types.StringType):
-#                line = line + self.val[name]
-#            else:
-#                line = line + printcsv(self.val[name])
-#            if i + 1 != len(self.vars):
-#                line = line + CHAR['sep']
-#        return line
-#
-#    def showcsvend(self, totlist, vislist):
-#        if vislist and self is not vislist[-1]:
-#            return CHAR['sep']
-#        elif totlist and self is not totlist[-1]:
-#            return CHAR['sep']
-#        return ''
+    def csvtitle(self):
+        if self.grouptype == None:
+            label = '"' + self.label + '"'
+            return label
+        ret = ''
+        ilist = self.instlist()
+        for i, name in enumerate(ilist):
+            name = self.label.replace('%I', name)
+            ret = ret + name
+        return '"' + ret + '"'
+
+    def csvsubtitle(self):
+        ret = ''
+        if self.grouptype == None:
+            for i, nick in enumerate(self.names):
+                ret = ret + '"' + nick + '"'
+                if i + 1 != len(self.names): ret = ret + CHAR['sep']
+            return ret
+        ilist = self.instlist()
+        for i, name in enumerate(ilist):
+            for j, nick in enumerate(self.names):
+                ret = ret + '"' + nick + '"'
+                if j + 1 != len(self.names): ret = ret + CHAR['sep']
+        return ret
 
 def dchg(var, width, base):
     "Convert decimal to string given base and length"
@@ -486,6 +453,35 @@ def mshow(plugin, index, result):
     #sys.stderr.write("mshow result line:\n%s%s\n" % (line, THEME['default']))
     return line
 
+def roundcsv(var):
+    '''round value for CSV output'''
+    if var != round(var):
+        return '%.3f' % var
+    return '%d' % round(var)
+
+def mshowcsv(plugin, index, result):
+    "Return stat results for CSV file"
+    #sys.stderr.write("Result metric: %s\n" % metric)
+    metric = op.metrics[plugin.mgroup[index]]
+    label = metric[0]
+    insts = metric[1]
+    units = metric[2][1]
+    width = metric[4]
+    pmtype = metric[5].pmtype
+    printtype = metric[8]
+    colorstep = metric[9]
+
+    line = ''
+    count = 0
+    sep = CHAR['sep']
+    for inst, name, value in result:
+        if count > 0:
+            line = line + sep
+        line = line + roundcsv(value)
+        count += 1
+    #sys.stderr.write("mshow result line:\n%s%s\n" % (line, THEME['default']))
+    return line
+
 def gshow(plugin, results):
     "Display stat group results"
     metric = op.metrics[plugin.mgroup[0]]
@@ -549,6 +545,63 @@ def cprintlist(values, units, prtype, pmtype, width, colorstep):
         ret = ret + sep + cprint(value, units, prtype, pmtype, width, colorstep)
         sep = CHAR['space']
     return ret
+
+def gshowcsv(plugin, results):
+    "Return stat group results for CSV file"
+    metric = op.metrics[plugin.mgroup[0]]
+    units = metric[2][1]
+    width = metric[4]
+    pmtype = metric[5].pmtype
+    printtype = metric[8]
+    colorstep = metric[9]
+
+    line = ''
+    count = 0
+    totals = [0] * len(plugin.mgroup)
+    col = THEME['frame'] + CHAR['colon']
+
+    def instance_match(inst, plugin):
+        if plugin.cullinsts != None and re.match(plugin.cullinsts, inst):
+            return False
+        if plugin.instances and inst in plugin.instances:
+            return True
+        return (plugin.grouptype == 1)
+
+    for inst in plugin.igroup:      # e.g. [cpu0, cpu1, total]
+        for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
+            result = results[name]
+            value = None
+            for instid, instname, val in result:
+                if instname == inst:
+                    value = val
+            #sys.stderr.write("[%s] inst=%s name=%s value=%s\n" % (name, instid, instname, str(value)))
+            if not instance_match(inst, plugin):
+                continue
+            if plugin.grouptype == 2:   # total only
+                continue
+            if count > 0 and (count % len(plugin.mgroup)) == 0:
+                line = line + col
+            elif count > 0:
+                line = line + CHAR['space']
+            line = line + cprint(value, units, printtype, pmtype, width, colorstep)
+            count += 1
+
+    if plugin.grouptype > 1:   # report 'total' (sum) calculation
+        for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
+            values = 0
+            result = results[name]
+            for instid, instname, val in result:
+                totals[i] += val
+                values += 1
+        if values and plugin.printtype == 'p':
+            for i in range(0, len(plugin.mgroup)):
+                totals[i] /= values
+        for value in totals:
+            if line != '':
+                line = line + CHAR['sep']
+            line = line + roundcsv(value)
+    #sys.stderr.write("gshow result line:\n%s%s\n" % (line, THEME['default']))
+    return line
 
 def cprint(value, units, printtype, pmtype, width, colorstep):
     """Color print one column"""
@@ -648,22 +701,6 @@ def cprint(value, units, printtype, pmtype, width, colorstep):
 
     return ret
 
-#def csvheader(totlist):
-#    "Return the CVS header for a set of module counters"
-#    line = ''
-#    ### Process title
-#    for o in totlist:
-#        line = line + o.csvtitle()
-#        if o is not totlist[-1]:
-#            line = line + CHAR['sep']
-#    line += '\n'
-#    ### Process subtitle
-#    for o in totlist:
-#        line = line + o.csvsubtitle()
-#        if o is not totlist[-1]:
-#            line = line + CHAR['sep']
-#    return line + '\n'
-
 
 class DstatTimePlugin(DstatPlugin):
     def __init__(self, name, label, width):
@@ -742,7 +779,7 @@ class DstatTool(object):
         self.debug = False
         self.verify = False
         self.header = 1
-        self.output = True
+        self.output = False
         self.update = True
         self.pidfile = False
         self.float = False
@@ -1367,9 +1404,36 @@ class DstatTool(object):
                 line += THEME['title'] + CHAR['gt']
         return line + '\n'
 
+    def show_csvheader(self, vislist):
+        "Return the header for CSV file"
+        line = ''
+        ### CSV Header
+        if not os.path.exists(self.output):
+            line += '"pcp-dstat ' + self.context.pmGetConfig('PCP_VERSION') + ' CSV Output"\n'
+            line += '"Author:","PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>",,,,"URL:","https://pcp.io/ and http://dag.wieers.com/home-made/dstat/"\n'
+        import getpass
+        line += '"Host:","' + self.context.pmGetContextHostName() + '",,,,"User:","' + getpass.getuser() + '"\n'
+        line += '"Cmdline:","' + self.context.pmProgname() + ' ' + ' '.join(self.arguments) + '",,,,"Date:","' + time.strftime('%d %b %Y %H:%M:%S %Z') + '"\n'
+        ### Process title
+        for o in vislist:
+            line += o.csvtitle()
+            if o is not vislist[-1]:
+                line += CHAR['sep'] * len(o.names)
+            elif self.totlist != vislist:
+                pass #line += THEME['title'] + CHAR['gt']
+        line += '\n'
+        ### Process subtitle
+        for o in vislist:
+            line += o.csvsubtitle()
+            if o is not vislist[-1]:
+                line += CHAR['sep']
+            elif self.totlist != vislist:
+                pass #line += THEME['title'] + CHAR['gt']
+        return line + '\n'
+
     def perform(self, update):
         "Inner loop that calculates counters and constructs output"
-        global oldvislist, vislist, showheader, rows, cols
+        global oldvislist, vislist, showheader, showcsvheader, rows, cols
         global totaltime, starttime
         global loop, step
 
@@ -1396,6 +1460,7 @@ class DstatTool(object):
             vislist = []
             oldvislist = []
             showheader = True
+            showcsvheader = True
 
         if sys.stdout.isatty():
             oldcols = cols
@@ -1446,6 +1511,15 @@ class DstatTool(object):
             sys.stdout.write(newline)
             newline = self.show_header(vislist)
 
+        ### Display CSV header
+        newoline = ''
+        if op.output:
+            if showcsvheader:
+                showcsvheader = False
+                if os.path.exists(self.output):
+                    newoline += '\n\n'
+                newoline += self.show_csvheader(vislist)
+
         ### Fetch values
         try:
             self.pmfg.fetch()
@@ -1457,7 +1531,7 @@ class DstatTool(object):
         ### Calculate all objects (visible, invisible)
         i = 0
         line = newline
-        oline = ''
+        oline = newoline
         metric = None
 
         ### Walk the result dict reporting on visible plugins.
@@ -1486,24 +1560,47 @@ class DstatTool(object):
                 line = line + THEME['frame'] + CHAR['gt']
                 break
 
-#         for o in self.totlist:
-#            if o in vislist:
-#                line = line + o.show() + o.showend(self.totlist, vislist)
-#            if op.output and step == op.delay:
-#                oline = oline + o.showcsv() + o.showcsvend(self.totlist, vislist)
+        if self.output:
+            for i, plugin in enumerate(self.totlist):
+                if i == 0:
+                    sep = ''
+                else:
+                    sep = CHAR['sep']
+                if plugin in self.timelist:
+                    oline = oline + sep + tshow(plugin, self.pmfg_ts)
+                elif plugin.grouptype == None:
+                    for m, name in enumerate(plugin.mgroup):
+                        oline = oline + sep + mshowcsv(plugin, m, results[name])
+                        sep = CHAR['sep']
+                else:
+                    oline = oline + sep + gshowcsv(plugin, results)
+                if self.totlist == vislist:
+                    continue
+                if plugin in self.totlist and plugin not in vislist:
+                    oline = oline + THEME['frame'] + CHAR['gt']
+                    break
 
         # Print stats
         sys.stdout.write(line + THEME['input'])
-#        if op.output and step == op.delay:
-#            outputfile.write(oline + '\n')
+
+        if self.output and step == self.delay:
+            if not os.path.exists(self.output):
+                outputfile = open(self.output, 'wt')
+                outputfile.write(oline)
+            else:
+                outputfile = open(self.output, 'at')
+                outputfile.write(oline)
 
         if self.missed > 0:
             sys.stdout.write(' ' + THEME['error'] + 'missed ' + str(self.missed+1) + ' ticks' + THEME['input'])
+            if self.output and step == self.delay:
+                outputfile.write(',' + '"missed ' + str(self.missed+1) + ' ticks"')
             self.missed = 0
         # Finish the line
         if not op.update:
             sys.stdout.write('\n')
-
+        if self.output and step == self.delay:
+            outputfile.write('\n')
 
 def perform(update):
     """Helper function for interfacing to the scheduler"""

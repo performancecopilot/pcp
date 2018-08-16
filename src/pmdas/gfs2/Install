@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=gfs2
-pmda_interface=4
 
 pmdaSetup
 pmdaInstall
