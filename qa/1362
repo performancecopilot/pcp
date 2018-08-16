@@ -71,7 +71,7 @@ pminfo -f postgresql.recovery.is_in_recovery >/dev/null 2>&1 || exit
 echo OK
 
 echo === signaling pmdapostgresql to disconnect
-pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "perl $PCP_PMDAS_DIR.*pmdapostgresql" | fgrep -v grep | awk '{print $2}'`
+pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "python[2-3]* $PCP_PMDAS_DIR.*pmdapostgresql" | fgrep -v grep | awk '{print $2}'`
 # echo pid is $pid
 $sudo kill -USR1 $pid
 
