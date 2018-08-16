@@ -1361,9 +1361,13 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
 URL: https://pcp.io
-Requires: perl-PCP-PMDA = @package_version@
-Requires: perl(DBI)
-Requires: perl(DBD::Pg)
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+Requires: python3-psycopg2
+%else
+Requires: %{__python2}-psycopg2
+Requires: %{__python2}-pcp
+%endif
 
 %description pmda-postgresql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for

@@ -1,5 +1,6 @@
 #! /bin/sh
 #
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
 # Copyright (c) 2011 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -19,22 +20,8 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=postgresql
-perl_opt=true
+python_opt=true
 daemon_opt=false
-
-perl -e "use DBI" 2>/dev/null
-if test $? -ne 0; then
-    echo "Perl database interface (DBI) is not installed"
-    status=1
-    exit
-fi
-
-perl -e "use DBD::Pg" 2>/dev/null
-if test $? -ne 0; then
-    echo "Postgres database driver (DBD::Pg) is not installed"
-    status=1
-    exit
-fi
 
 pmdaSetup
 pmdaInstall
