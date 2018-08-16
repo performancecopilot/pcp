@@ -936,7 +936,50 @@ get_label(const char *name, const char *value, mmv_value_type_t type,
 	setoserror(E2BIG);
 	return -1;
     }
+
+    switch (type) {
+    	case MMV_NULL_TYPE:
+	    value = "null";
+	    break;
+    	case MMV_BOOLEAN_TYPE:
+	    if (value != "\"true\"" || value != "\"false\"") {
+		setoserror(EINVAL);
+		return -1;
+	    }
+	    break;
+    	case MMV_MAP_TYPE:
+	    if (value[1] != '{' ||  value[strlen(value)-2] != '}') {
+		setoserror(EINVAL);
+		return -1;
+	    }
+            break;
+	case MMV_ARRAY_TYPE:
+	    if (value[1] != '[' ||  value[strlen(value)-2] != ']') {
+		setoserror(EINVAL);
+		return -1;
+	    }
+            break;
+    	case MMV_STRING_TYPE:
+	    if (value[1] != '\"' ||  value[strlen(value)-2] != '\"') {
+		setoserror(EINVAL);
+		return -1;
+	    }
+	    break;
+ 	case MMV_NUMBER_TYPE:
+	    // TODO: check with automata
+	    /*if () {
+		setoserror(EINVAL);
+		return -1;
+	    }*/
+	break;
+    	default:
+	    setoserror(EINVAL);
+	    return -1; // error
+    }
+
+    
     len = pmsprintf(buffer, MMV_LABELMAX, "{\"%s\":%s}", name, value);
+    
     if ((sts = __pmParseLabelSet(buffer, len, flags, &set)) < 0) {
 	setoserror(sts);
 	return -1;
