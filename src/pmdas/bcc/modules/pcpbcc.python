@@ -16,7 +16,10 @@
 import ctypes as ct
 from os import kill
 from collections import OrderedDict
+
 from bcc.table import log2_index_max
+
+from cpmapi import PM_ERR_BADSTORE
 
 # pylint: disable=too-many-instance-attributes, too-many-public-methods
 class PCPBCCBase(object):
@@ -78,16 +81,16 @@ class PCPBCCBase(object):
         """ Instance labels """
         return '{}'
 
-    def store(self, item, inst, val):
+    def store(self, item, inst, val): # pylint: disable=no-self-use,unused-argument
         """ Store callback """
-        raise NotImplementedError
+        return PM_ERR_BADSTORE
 
     def cleanup(self):
         """ Clean up at exit """
         if self.bpf is not None:
             self.bpf.cleanup()
-        self.bpf = None
-        self.log("BPF detached.")
+            self.log("BPF detached.")
+            self.bpf = None
 
     #
     # Helpers for modules
@@ -185,6 +188,8 @@ class PCPBCCBase(object):
     @staticmethod
     def get_proc_info(process):
         """ Get process info for given PIDs or process name """
+        if not process:
+            return None
 
         def get_pids(procname):
             """ Get PIDs for a process """

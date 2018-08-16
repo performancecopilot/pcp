@@ -306,7 +306,7 @@ show process that will be killed by the out-of-memory (OOM) killer the first
 expand \fB\-C\fR, \fB\-D\fR, \fB\-I\fR, \fB\-N\fR and \fB\-S\fR discovery lists
 .TP
 \fB\-v\fR, \fB\-\-vmstat\fR
-equals \fB\-pmgdsc \-D total\fR
+equals \fB\-pmgdsc \-D\fR \fItotal\fR
 .TP
 \fB\-\-bits\fR
 force bits for values expressed in bytes
@@ -331,8 +331,8 @@ disable repetitive headers
 \fB\-\-noupdate\fR
 disable intermediate updates when \fIdelay\fR greater than 1.
 .TP
-\fB\-\-output file\fR
-write CSV output to file
+\fB\-o\fR \fIfile\fR, \fB\-\-output\fR \fIfile\fR
+write CSV (Comma-Separated Value) format output to a \fIfile\fR.
 .PP
 .SH OPTIONAL METRICS PLUGINS
 Some

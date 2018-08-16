@@ -57,7 +57,8 @@ extern void redisMapRelease(redisMap *);
  * Asynchronous mapping response helpers
  */
 typedef struct redisMapBaton {
-    int			magic;
+    unsigned int	magic;
+    unsigned int	refcount;
     int			newMapping;
     redisMap		*mapping;
     sds			mapKey;

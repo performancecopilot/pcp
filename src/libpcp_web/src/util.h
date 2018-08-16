@@ -19,14 +19,7 @@
 
 extern int tsub(struct timeval *, struct timeval *);
 extern int tadd(struct timeval *, struct timeval *);
-
-static inline double tv2real(struct timeval *tv)
-{
-    return pmtimevalToReal(tv);
-}
 extern const char *timeval_str(struct timeval *);
-
-extern void fputstamp(struct timeval *, int, FILE *);
 
 extern int context_labels(int, pmLabelSet **);
 extern int merge_labelsets(struct metric *, struct value *,
@@ -56,31 +49,13 @@ extern sds pmwebapi_hash_sds(const unsigned char *);
 extern char *pmwebapi_hash_str(const unsigned char *);
 
 /*
- * General asynchronous response helper routines
+ * Generally useful sds buffer formatting and diagnostics callback macros
  */
-typedef void (*seriesBatonCallBack)(void *);
-
-typedef struct seriesBatonPhase {
-    unsigned int		refcount;
-    seriesBatonCallBack		func;
-    struct seriesBatonPhase	*next;
-} seriesBatonPhase;
-
-extern void seriesBatonPhases(seriesBatonPhase *, unsigned int, void *);
-extern void seriesPassBaton(seriesBatonPhase **, unsigned int *, void *);
-
-enum {
-    MAGIC_BASE = 0xff00ff00,
-    MAGIC_SLOTS,
-    MAGIC_MAPPING,
-    MAGIC_CONTEXT,
-    MAGIC_LOAD,
-    MAGIC_STREAM,
-    MAGIC_LOOKUP,
-    MAGIC_QUERY,
-    MAGIC_SID,
-    MAGIC_VALUE,
-    MAGIC_LABELMAP,
-};
+#define seriesfmt(msg, fmt, ...)	\
+	((msg) = sdscatprintf(sdsempty(), fmt, ##__VA_ARGS__))
+#define seriesmsg(baton, level, msg)	\
+	((baton)->info((level), (msg), (baton)->userdata), sdsfree(msg))
+#define webapimsg(sp, level, msg)	\
+	((sp)->settings->on_info((level), (msg), (sp)->userdata), sdsfree(msg))
 
 #endif	/* SERIES_UTIL_H */

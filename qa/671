@@ -1,4 +1,4 @@
-#snort-disks!/bin/sh
+#!/bin/sh
 # PCP QA Test No. 671
 # test mkaf and pmafm with compressed archives
 #

@@ -25,30 +25,30 @@
 #include "maps.h"
 #include "util.h"
 #include "slots.h"
+#include "batons.h"
 
 #include "libpcp.h"
 
 #define LOAD_PHASES	5
 
 typedef struct seriesGetContext {
-    unsigned int	magic;		/* MAGIC_CONTEXT */
-//    int			type;
-//    const char		*name;
+    seriesBatonMagic	header;		/* MAGIC_CONTEXT */
+
     context_t		context;
     unsigned long long	count;		/* number of samples processed */
     pmResult		*result;	/* currently active sample data */
     int			error;		/* PMAPI error code from fetch */
 
-    unsigned int	refcount;
+    redisDoneCallBack	done;
+
     void		*baton;
 } seriesGetContext;
 
 typedef struct seriesLoadBaton {
-    unsigned int	magic;		/* MAGIC_LOAD */
+    seriesBatonMagic	header;		/* MAGIC_LOAD */
 
     seriesBatonPhase	*current;
     seriesBatonPhase	phases[LOAD_PHASES];
-    unsigned int	refcount;
 
     seriesGetContext	pmapi;		/* PMAPI context info */
     redisSlots		*slots;		/* Redis server slots */
@@ -76,11 +76,6 @@ void freeSeriesLoadBaton(seriesLoadBaton *);
 void initSeriesGetContext(seriesGetContext *, void *);
 void freeSeriesGetContext(seriesGetContext *, int);
 
-#define seriesfmt(msg, fmt, ...)		\
-	((msg) = sdscatprintf(sdsempty(), fmt, ##__VA_ARGS__))
-#define seriesmsg(sp, level, message)	\
-	((sp)->settings->on_info((level), (message), (sp)->userdata), sdsfree(msg))
-
 /* cache information about this metric source (host/archive) */
 static void
 server_cache_source(seriesLoadBaton *baton)
@@ -93,6 +88,7 @@ static void
 server_cache_metric(seriesLoadBaton *baton,
 		metric_t *metric, sds timestamp, int meta, int data)
 {
+    seriesBatonReference(&baton->pmapi, "server_cache_metric");
     redis_series_metric(baton->slots, metric, timestamp, meta, data, baton);
 }
 
@@ -102,28 +98,34 @@ server_cache_mark(seriesLoadBaton *baton, sds timestamp, int data)
 {
     context_t		*context = seriesLoadBatonContext(baton);
 
+    seriesBatonReference(&baton->pmapi, "server_cache_mark");
     redis_series_mark(baton->slots, context, timestamp, data, baton);
 }
 
 static void
-pmiderr(seriesLoadBaton *baton, pmID pmid, const char *msg, ...)
+pmiderr(seriesLoadBaton *baton, pmID pmid, const char *fmt, ...)
 {
     va_list		arg;
-    int			numnames;
+    int			i, numnames;
     char		**names;
-
-    /* TODO: not on stderr */
+    sds			msg;
 
     if (__pmHashSearch(pmid, &baton->errorhash) == NULL) {
-	numnames = pmNameAll(pmid, &names);
-	fprintf(stderr, "%s: ", pmGetProgname());
-	__pmPrintMetricNames(stderr, numnames, names, " or ");
-	fprintf(stderr, "(%s) - ", pmIDStr(pmid));
-	va_start(arg, msg);
-	vfprintf(stderr, msg, arg);
+	if ((numnames = pmNameAll(pmid, &names)) < 1)
+	    msg = sdsnew("<no metric names>");
+	else {
+	    msg = sdsnew(names[0]);
+	    for (i = 1; i < numnames; i++)
+		msg = sdscatfmt(msg, " or %s", names[i]);
+	    free(names);
+	}
+	msg = sdscatfmt(msg, "(%s) - ", pmIDStr(pmid));
+	va_start(arg, fmt);
+	msg = sdscatvprintf(msg, fmt, arg);
 	va_end(arg);
+	webapimsg(baton, PMLOG_WARNING, msg);
+
 	__pmHashAdd(pmid, NULL, &baton->errorhash);
-	if (numnames > 0) free(names);
     }
 }
 
@@ -140,11 +142,11 @@ load_prepare_metric(const char *name, void *arg)
     if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0) {
 	seriesfmt(msg, "failed to lookup metric name (pmid=%s): %s",
 		name, pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
-	seriesmsg(baton, PMLOG_WARNING, msg);
+	webapimsg(baton, PMLOG_WARNING, msg);
     } else if ((hname = strdup(name)) == NULL) {
 	seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
 		"cache metric name", (__int64_t)strlen(name)+1);
-	seriesmsg(baton, PMLOG_ERROR, msg);
+	webapimsg(baton, PMLOG_ERROR, msg);
     } else {
 	if (pmDebugOptions.series)
 	    fprintf(stderr, "load_prepare_metric: caching PMID=%s name=%s\n",
@@ -200,7 +202,7 @@ new_instance(seriesLoadBaton *baton, metric_t *metric, int inst, int index)
 	if ((instlist = calloc(1, size)) == NULL) {
 	    seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
 			"new instlist", (__int64_t)size);
-	    seriesmsg(baton, PMLOG_ERROR, msg);
+	    webapimsg(baton, PMLOG_ERROR, msg);
 	    return -ENOMEM;
 	}
 	instlist->listcount = instlist->listsize = 1;
@@ -219,7 +221,7 @@ new_instance(seriesLoadBaton *baton, metric_t *metric, int inst, int index)
 	if ((instlist = (instlist_t *)realloc(instlist, size)) == NULL) {
 	    seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
 			"grew instlist", (__int64_t)size);
-	    seriesmsg(baton, PMLOG_ERROR, msg);
+	    webapimsg(baton, PMLOG_ERROR, msg);
 	    return -ENOMEM;
 	}
 	instlist->listsize *= 2;
@@ -246,7 +248,6 @@ update_instance_metadata(seriesLoadBaton *baton, metric_t *metric, int ninst,
     pmLabelSet		*labels;
     value_t		*value;
     size_t		length;
-    char		*name;
     sds			msg, inst;
     int			i, j;
 
@@ -263,17 +264,14 @@ update_instance_metadata(seriesLoadBaton *baton, metric_t *metric, int ninst,
 	for (j = 0; j < ninst; j++) {
 	    if (value->inst != instlist[j])
 		continue;
-	    name = namelist[j];
-	    length = strlen(name) + 1;
-	    if ((name = strndup(name, length)) == NULL) {
-	        seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
-			"update_instance_metadata name", (__int64_t)length);
-		seriesmsg(baton, PMLOG_ERROR, msg);
-		continue;
-	    }
 	    if (value->name)
 		free(value->name);
-	    value->name = name;
+	    if ((value->name = sdsnew(namelist[j])) == NULL) {
+		length = strlen(namelist[j]);
+		seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+			"update_instance_metadata labels", (__int64_t)length);
+		webapimsg(baton, PMLOG_ERROR, msg);
+	    }
 	    break;
 	}
 
@@ -287,7 +285,7 @@ update_instance_metadata(seriesLoadBaton *baton, metric_t *metric, int ninst,
 	    if ((labels = labelsetdup(labels)) == NULL) {
 		seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
 			"update_instance_metadata labels", (__int64_t)length);
-		seriesmsg(baton, PMLOG_ERROR, msg);
+		webapimsg(baton, PMLOG_ERROR, msg);
 		continue;
 	    }
 	    if (value->labels)
@@ -330,7 +328,7 @@ get_instance_metadata(seriesLoadBaton *baton, metric_t *metric)
 	    seriesfmt(msg, "failed to get InDom %s instances: %s",
 			pmInDomStr_r(indom, indommsg, sizeof(indommsg)),
 			pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
-	    seriesmsg(baton, PMLOG_ERROR, msg);
+	    webapimsg(baton, PMLOG_ERROR, msg);
 	    sts = -1;
 	    goto done;
 	}
@@ -365,7 +363,7 @@ new_domain(seriesLoadBaton *baton, int domain, context_t *context)
     if ((domainp = calloc(1, sizeof(domain_t))) == NULL) {
 	seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
 		"new domain", (__int64_t)sizeof(domain_t));
-	seriesmsg(baton, PMLOG_ERROR, msg);
+	webapimsg(baton, PMLOG_ERROR, msg);
 	return NULL;
     }
     domainp->domain = domain;
@@ -379,7 +377,7 @@ new_domain(seriesLoadBaton *baton, int domain, context_t *context)
     if (__pmHashAdd(domain, (void *)domainp, &baton->domainhash) < 0) {
 	seriesfmt(msg, "failed to store domain labels (domain=%d): %s",
 		domain, pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
-	seriesmsg(baton, PMLOG_WARNING, msg);
+	webapimsg(baton, PMLOG_WARNING, msg);
     }
     return domainp;
 }
@@ -395,7 +393,7 @@ new_cluster(seriesLoadBaton *baton, int cluster, domain_t *domain)
     if ((clusterp = calloc(1, sizeof(cluster_t))) == NULL) {
 	seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
 		"new cluster", (__int64_t)sizeof(cluster_t));
-	seriesmsg(baton, PMLOG_ERROR, msg);
+	webapimsg(baton, PMLOG_ERROR, msg);
 	return NULL;
     }
     clusterp->cluster = cluster;
@@ -412,7 +410,7 @@ new_cluster(seriesLoadBaton *baton, int cluster, domain_t *domain)
 	seriesfmt(msg, "failed to store cluster labels (cluster=%u.%u): %s",
 		pmID_domain(cluster), pmID_cluster(cluster),
 		pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
-	seriesmsg(baton, PMLOG_WARNING, msg);
+	webapimsg(baton, PMLOG_WARNING, msg);
     }
     return clusterp;
 }
@@ -428,7 +426,7 @@ new_indom(seriesLoadBaton *baton, pmInDom indom, domain_t *domain)
     if ((indomp = calloc(1, sizeof(indom_t))) == NULL) {
 	seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
 		"new indom", (__int64_t)sizeof(indom_t));
-	seriesmsg(baton, PMLOG_ERROR, msg);
+	webapimsg(baton, PMLOG_ERROR, msg);
 	return NULL;
     }
     indomp->indom = indom;
@@ -443,9 +441,53 @@ new_indom(seriesLoadBaton *baton, pmInDom indom, domain_t *domain)
     if (__pmHashAdd(indom, (void *)indomp, &baton->indomhash) < 0) {
 	seriesfmt(msg, "failed to store indom (%s) labels: %s",
 		pmInDomStr(indom), pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
-	seriesmsg(baton, PMLOG_WARNING, msg);
+	webapimsg(baton, PMLOG_WARNING, msg);
     }
     return indomp;
+}
+
+static int
+new_metric_names(seriesLoadBaton *baton, int nnames, char **allnames,
+		long long **mapidsp, sds **namesp)
+{
+    long long		*mapids = NULL;
+    sds			msg, *names = NULL;
+    int			i;
+
+    if (nnames == 0)
+	return -ESRCH;
+
+    if ((names = calloc(nnames, sizeof(sds))) == NULL) {
+	seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " names)",
+		"mapIDs", (__int64_t)nnames * sizeof(__int64_t));
+	webapimsg(baton, PMLOG_ERROR, msg);
+	goto nomem;
+    }
+    if ((mapids = calloc(nnames, sizeof(__int64_t))) == NULL) {
+	seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " names)",
+		"mapIDs", (__int64_t)nnames * sizeof(__int64_t));
+	webapimsg(baton, PMLOG_ERROR, msg);
+	goto nomem;
+    }
+    for (i = 0; i < nnames; i++) {
+	if ((names[i] = sdsnew(allnames[i])) == NULL)
+	    goto nomem;
+    }
+    free(allnames);
+    *mapidsp = mapids;
+    *namesp = names;
+    return nnames;
+
+nomem:
+    if (mapids)
+	free(mapids);
+    if (names) {
+	for (i = 0; i < nnames; i++)
+	    if (names[i]) sdsfree(names[i]);
+	free(names);
+    }
+    free(allnames);
+    return -ENOMEM;
 }
 
 static metric_t *
@@ -460,34 +502,32 @@ new_metric(seriesLoadBaton *baton, pmValueSet *vsp)
     pmDesc		desc;
     pmID		pmid = vsp->pmid;
     char		pmmsg[PM_MAXERRMSGLEN];
-    char		**names = NULL;
+    char		**nameall;
+    sds			*names;
     sds			msg;
     int			cluster, domain, sts;
 
     if ((metric = (metric_t *)calloc(1, sizeof(metric_t))) == NULL) {
 	seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
 			"new metric", (__int64_t)sizeof(metric_t));
-	seriesmsg(baton, PMLOG_ERROR, msg);
+	webapimsg(baton, PMLOG_ERROR, msg);
 	return NULL;
     }
 
     if ((sts = pmLookupDesc(pmid, &desc)) < 0) {
 	seriesfmt(msg, "failed to lookup metric %s descriptor: %s",
 		pmIDStr(pmid), pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
-	seriesmsg(baton, PMLOG_WARNING, msg);
-    } else if ((sts = pmNameAll(pmid, &names)) < 0) {
+	webapimsg(baton, PMLOG_WARNING, msg);
+    } else if ((sts = pmNameAll(pmid, &nameall)) < 0) {
 	seriesfmt(msg, "failed to lookup metric %s names: %s",
 		pmIDStr(pmid), pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
-	seriesmsg(baton, PMLOG_WARNING, msg);
-    } else if ((mapids = calloc(sts, sizeof(__int64_t))) == NULL) {
-	seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
-		"mapids", (__int64_t)sts * sizeof(__int64_t));
-	seriesmsg(baton, PMLOG_ERROR, msg);
-	sts = -ENOMEM;
+	webapimsg(baton, PMLOG_WARNING, msg);
+    } else {
+	/* create space needed in metric_t for maps and sds names */
+	sts = new_metric_names(baton, sts, nameall, &mapids, &names);
     }
-    if (sts <= 0) {
-	if (names)
-	    free(names);
+
+    if (sts < 0) {
 	free(metric);
 	return NULL;
     }
@@ -715,7 +755,7 @@ server_cache_series(seriesLoadBaton *baton)
     if ((sts = pmSetMode(PM_MODE_FORW, &baton->timing.start, 0)) < 0) {
 	seriesfmt(msg, "pmSetMode failed: %s",
 		pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
-	seriesmsg(baton, PMLOG_ERROR, msg);
+	webapimsg(baton, PMLOG_ERROR, msg);
 	return sts;
     }
 
@@ -723,39 +763,22 @@ server_cache_series(seriesLoadBaton *baton)
     return sts;
 }
 
-#if 0   /*TODO*/
 static void
 server_cache_update_done(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
     seriesGetContext	*context = &baton->pmapi;
 
-    assert(baton->magic == MAGIC_LOAD);
+    /* finish book-keeping for the current record */
     pmFreeResult(context->result);
     context->result = NULL;
     context->count++;
 
-    /* move onto the next fetch */
+    /* begin processing of the next record if any */
     server_cache_window(baton);
 }
-#endif
 
-static void
-doneSeriesGetContext(seriesLoadBaton *baton, seriesGetContext *context)
-{
-    char		pmmsg[PM_MAXERRMSGLEN];
-    sds			msg;
-
-    if (context->error == 0) {
-	seriesfmt(msg, "processed %llu archive records from %s",
-			context->count, context->context.name);
-	seriesmsg(baton, PMLOG_INFO, msg);
-    } else {
-	seriesfmt(msg, "fetch failed: %s",
-			pmErrStr_r(context->error, pmmsg, sizeof(pmmsg)));
-	seriesmsg(baton, PMLOG_ERROR, msg);
-    }
-}
+static void doneSeriesGetContext(seriesGetContext *); /* TODO */
 
 void
 server_cache_window(void *arg)
@@ -766,16 +789,22 @@ server_cache_window(void *arg)
     pmResult		*result;
     int			sts;
 
-    assert(baton->magic == MAGIC_LOAD);
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "server_cache_window");
+    seriesBatonCheckCount(context, "server_cache_window");
     assert(context->result == NULL);
-    assert(context->refcount == 0);
+
+    if (pmDebugOptions.series)
+	fprintf(stderr, "server_cache_window: fetching next result\n");
 
     if ((sts = pmFetchArchive(&result)) >= 0) {
 	context->result = result;
 	if (finish->tv_sec > result->timestamp.tv_sec ||
 	    (finish->tv_sec == result->timestamp.tv_sec &&
 	     finish->tv_usec >= result->timestamp.tv_usec)) {
-	    series_cache_update(baton /* TODO:, server_cache_update_done */);
+	    seriesBatonReference(context, "server_cache_window");
+	    context->done = server_cache_update_done;
+	    series_cache_update(baton);
+	    doneSeriesGetContext(context);
 	}
 	else {
 	    pmFreeResult(result);
@@ -787,7 +816,7 @@ server_cache_window(void *arg)
     if (sts < 0 && sts != PM_ERR_EOL)
 	baton->error = sts;
     if (sts < 0) {
-	doneSeriesGetContext(baton, context);
+	doneSeriesGetContext(context);
 	doneSeriesLoadBaton(baton);
     }
 }
@@ -843,7 +872,7 @@ load_prepare_metrics(seriesLoadBaton *baton)
 	    continue;
 	seriesfmt(msg, "PMNS traversal failed for %s: %s",
 			metrics[i], pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
-	seriesmsg(baton, PMLOG_WARNING, msg);
+	webapimsg(baton, PMLOG_WARNING, msg);
     }
 }
 
@@ -947,7 +976,7 @@ new_pmapi_context(seriesLoadBaton *baton)
 	return /*success*/;
     }
 
-    seriesmsg(baton, PMLOG_ERROR, msg);
+    webapimsg(baton, PMLOG_ERROR, msg);
 }
 
 static void
@@ -977,8 +1006,8 @@ source_mapping_callback(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
 
-    assert(baton->magic == MAGIC_LOAD);
-    seriesPassBaton(&baton->current, &baton->refcount, baton);
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "source_mapping_callback");
+    seriesPassBaton(&baton->current, &baton->header.refcount, baton);
 }
 
 void
@@ -987,36 +1016,34 @@ series_source_mapping(void *arg)
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
     context_t		*context = &baton->pmapi.context;
 
-    assert(baton->magic == MAGIC_LOAD);
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_source_mapping");
 
     if (context->mapid > 0 && context->hostid > 0) {
 	/* fast path - string maps are already resolved */
-	seriesPassBaton(&baton->current, &baton->refcount, baton);
+	seriesPassBaton(&baton->current, &baton->header.refcount, baton);
     } else {
-	assert(baton->refcount == 0);
-	incSeriesLoadBatonRef(baton);
+	seriesBatonCheckCount(baton, "series_source_mapping");
+	seriesBatonReference(baton, "series_source_mapping");
 	if (context->mapid <= 0) {
-	    incSeriesLoadBatonRef(baton);
+	    seriesBatonReference(baton, "series_source_mapping mapid");
 	    redisGetMap(baton->slots, contextmap, context->name,
 			&context->mapid, source_mapping_callback,
 			baton->settings->on_info, baton->arg, (void *)baton);
 	}
 	if (context->hostid <= 0) {
-	    incSeriesLoadBatonRef(baton);
+	    seriesBatonReference(baton, "series_source_mapping hostid");
 	    redisGetMap(baton->slots, contextmap, context->host,
 			&context->hostid, source_mapping_callback,
 			baton->settings->on_info, baton->arg, (void *)baton);
 	}
-	decSeriesLoadBatonRef(baton);
+	seriesBatonDereference(baton, "series_source_mapping");
     }
 }
 
 void
-initSeriesGetContext(seriesGetContext *baton /*, int type, const char *name*/, void *arg)
+initSeriesGetContext(seriesGetContext *baton, void *arg)
 {
-    baton->magic = MAGIC_CONTEXT;
-    //baton->type = type;
-    //baton->name = name;
+    initSeriesBatonMagic(baton, MAGIC_CONTEXT);
     baton->baton = arg;
 }
 
@@ -1025,12 +1052,13 @@ freeSeriesGetContext(seriesGetContext *baton, int release)
 {
     context_t		*cp = &baton->context;
 
+    seriesBatonCheckMagic(baton, MAGIC_CONTEXT, "freeSeriesGetContext");
+
     pmDestroyContext(cp->context);
     if (cp->name)
 	sdsfree(cp->name);
     if (cp->origin)
 	sdsfree(cp->origin);
-
     if (release) {
 	memset(baton, 0, sizeof(*baton));
 	free(baton);
@@ -1038,11 +1066,44 @@ freeSeriesGetContext(seriesGetContext *baton, int release)
 }
 
 static void
+doneSeriesGetContext(seriesGetContext *context)
+{
+    seriesLoadBaton	*baton = (seriesLoadBaton *)context->baton;
+
+    seriesBatonCheckMagic(context, MAGIC_CONTEXT, "doneSeriesGetContext");
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "doneSeriesGetContext");
+
+    if (seriesBatonDereference(context, "doneSeriesGetContext"))
+	context->done(baton);
+
+    if (context->error) {
+	char		pmmsg[PM_MAXERRMSGLEN];
+	sds			msg;
+
+	if (context->error == PM_ERR_EOF) {
+	    seriesfmt(msg, "processed %llu archive records from %s",
+			context->count, context->context.name);
+	    webapimsg(baton, PMLOG_INFO, msg);
+	} else {
+	    seriesfmt(msg, "fetch failed: %s",
+			pmErrStr_r(context->error, pmmsg, sizeof(pmmsg)));
+	    webapimsg(baton, PMLOG_ERROR, msg);
+	}
+    }
+}
+
+void
+seriesLoadBatonFetch(seriesLoadBaton *baton)
+{
+    doneSeriesGetContext(&baton->pmapi);
+}
+
+static void
 series_cache_source(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
 
-    assert(baton->magic == MAGIC_LOAD);
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_cache_source");
     server_cache_source(baton);
 }
 
@@ -1052,7 +1113,7 @@ series_cache_metrics(void *arg)
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
     int			sts;
 
-    assert(baton->magic == MAGIC_LOAD);
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_cache_metrics");
     if ((sts = server_cache_series(baton)) < 0)
 	baton->error = sts;
 }
@@ -1070,14 +1131,12 @@ series_load_end_phase(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
 
-    assert(baton->magic == MAGIC_LOAD);
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_load_end_phase");
 
     if (baton->error == 0) {
-	seriesPassBaton(&baton->current, &baton->refcount, baton);
+	seriesPassBaton(&baton->current, &baton->header.refcount, baton);
     } else {	/* fail after waiting on outstanding I/O */
-	if (baton->refcount != 0)
-	    baton->refcount--;
-	if (baton->refcount == 0)
+	if (seriesBatonDereference(baton, "series_load_end_phase"))
 	    series_load_finished(baton);
     }
 }
@@ -1087,7 +1146,7 @@ connect_pmapi_source_service(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
 
-    assert(baton->magic == MAGIC_LOAD);
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_load_end_phase");
 
     new_pmapi_context(baton);
     if (baton->error == 0) {
@@ -1112,44 +1171,20 @@ static void
 setup_source_services(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
-    /*context_t		*cp; TODO */
 
-    assert(baton->magic == MAGIC_LOAD);
-    baton->refcount = 2;
-    /*cp = &baton->pmapi.context;*/
-    initSeriesGetContext(&baton->pmapi, /*cp->type, cp->name,*/ baton);
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "setup_source_services");
+    seriesBatonReferences(baton, 2, "setup_source_services");
+    initSeriesGetContext(&baton->pmapi, baton);
 
     connect_pmapi_source_service(baton);
     connect_redis_source_service(baton);
 }
 
 void
-setSeriesLoadBatonRef(seriesLoadBaton *baton, unsigned int refcount)
-{
-    assert(baton->magic == MAGIC_LOAD);
-    assert(baton->refcount == 0);
-    baton->refcount = refcount;
-}
-
-void
-incSeriesLoadBatonRef(seriesLoadBaton *baton)
-{
-    assert(baton->magic == MAGIC_LOAD);
-    baton->refcount++;
-}
-
-void
-decSeriesLoadBatonRef(seriesLoadBaton *baton)
-{
-    assert(baton->magic == MAGIC_LOAD);
-    baton->refcount--;
-}
-
-void
 initSeriesLoadBaton(seriesLoadBaton *baton,
 		pmSeriesSettings *settings, pmflags flags, void *userdata)
 {
-    baton->magic = MAGIC_LOAD;
+    initSeriesBatonMagic(baton, MAGIC_LOAD);
     baton->settings = settings;
     baton->userdata = userdata;
     baton->flags = flags;
@@ -1160,7 +1195,7 @@ freeSeriesLoadBaton(seriesLoadBaton *baton)
 {
     pmSeriesSettings	*settings;
 
-    assert(baton->magic == MAGIC_LOAD);
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "freeSeriesLoadBaton");
     freeSeriesGetContext(&baton->pmapi, 0);
     settings = baton->settings;
     if (settings->on_done)
@@ -1172,15 +1207,7 @@ freeSeriesLoadBaton(seriesLoadBaton *baton)
 void
 doneSeriesLoadBaton(seriesLoadBaton *baton)
 {
-    seriesPassBaton(&baton->current, &baton->refcount, baton);
-}
-
-void
-seriesLoadBatonRefcount(seriesLoadBaton *baton, int refcount)
-{
-    assert(baton->magic == MAGIC_LOAD);
-    assert(baton->refcount == 0);
-    baton->refcount = refcount;
+    seriesPassBaton(&baton->current, &baton->header.refcount, baton);
 }
 
 redisInfoCallBack
@@ -1226,7 +1253,7 @@ series_load(pmSeriesSettings *settings,
 	set_source_origin(&baton->pmapi.context);
     } else {
 	seriesfmt(msg, "found no context to load");
-	seriesmsg(baton, PMLOG_ERROR, msg);
+	webapimsg(baton, PMLOG_ERROR, msg);
 	freeSeriesLoadBaton(baton);
 	return -EINVAL;
     }

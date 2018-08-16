@@ -230,7 +230,7 @@ __pmServerStart(int argc, char **argv, int flags)
 	}
     }
  
-    for (command = argv[0], i = 0; command && *command; command = argv[++i]) {
+    for (command = argv[0], i = 0; i < argc && command && *command; command = argv[++i]) {
 	int length = strlen(command);
 	/* add 1space or 1null */
 	if ((cmdline = realloc(cmdline, sz + length + 1)) == NULL) {

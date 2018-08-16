@@ -2601,8 +2601,6 @@ main(int argc, char **argv)
 . ${PCP_SHARE_DIR}/lib/pmdaproc.sh
 
 iam=trivial
-pmda_interface=2
-
 pmdaSetup
 pmdainstall
 exit</programlisting>
@@ -2786,21 +2784,6 @@ exit</programlisting>
                 </entry>
                 <entry align="left" valign="top">
                   <para>&#xA0;</para>
-                </entry>
-              </row>
-              <row valign="top">
-                <entry align="left" valign="top">
-                  <para>
-                    <literal>$pmda_interface</literal>
-                  </para>
-                </entry>
-                <entry align="left" valign="top">
-                  <para>Version of the <filename>libpcp_pmda</filename> library required, used to determine the version for generating help text files.</para>
-                </entry>
-                <entry align="left" valign="top">
-                  <para>
-                    <literal>1</literal>
-                  </para>
                 </entry>
               </row>
               <row valign="top">

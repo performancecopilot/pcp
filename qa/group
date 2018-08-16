@@ -325,6 +325,9 @@ zbxpcp
 # pcp-atop and related commands
 atop
 
+# pcp-dstat
+dstat
+
 # pcp-pidstat
 pidstat
 
@@ -1518,13 +1521,15 @@ BAD
 1169 pmrep python local
 1170 pmda.bcc local python
 1171 pmda.bcc local python
+1172 pmda.bcc local python
+1173 pmda.bcc local python
 1174 threads valgrind local
 1177 pmns derive libpcp pmlogger local
 1180 logutil local pmrep python BAD @vm34
 1182 libpcp local
 1184 pminfo pmseries local
 1186 pmie local
-1187 python local
+1187 python pcp dstat local
 1188 pmda.dm local
 1191 pmda.prometheus local python
 1193 pmlogrewrite labels help pmdumplog local
@@ -1539,7 +1544,7 @@ BAD
 1220 pmda.proc local
 1221 labels pmda.prometheus local python
 1222 pmda.linux pmda.proc local
-1224 pcp python local
+1224 pcp dstat python local
 1225 pmwebd local pmrep python pcp
 1227 derive local
 1229 pmlogextract pmdumplog labels help local sanity
@@ -1582,7 +1587,6 @@ BAD
 1351 pmcd pmda.mmv libpcp libpcp_pmda local
 1354 pmval archive local
 1359 libpcp local
-1360:reserved pcp python dstat local
 1362 pmda.postgresql local
 1367 labels pmda.simple local python
 1368 labels help pmlogger pmdumplog local sanity

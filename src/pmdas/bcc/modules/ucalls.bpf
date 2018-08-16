@@ -1,0 +1,26 @@
+// Copyright 2016 Sasha Goldshtein
+// Licensed under the Apache License, Version 2.0 (the "License")
+
+#include <uapi/linux/ptrace.h>
+
+#define MAX_STRING_LENGTH 128
+
+struct method_t {
+    char clazz[MAX_STRING_LENGTH];
+    char method[MAX_STRING_LENGTH];
+};
+
+BPF_HASH(counts, struct method_t, u64);
+
+int trace_entry(struct pt_regs *ctx) {
+    //FILTER_PID
+    u64 clazz = 0, method = 0, *val, zero = 0;
+    struct method_t data = {0};
+    READ_CLASS
+    READ_METHOD
+    bpf_probe_read(&data.clazz, sizeof(data.clazz), (void *)clazz);
+    bpf_probe_read(&data.method, sizeof(data.method), (void *)method);
+    val = counts.lookup_or_init(&data, &zero);
+    ++(*val);
+    return 0;
+}

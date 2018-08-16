@@ -81,7 +81,7 @@ class PCPBCCModule(PCPBCCBase):
         self.sort_fn = self.sort_fns[sort_key]
 
         self.cache = {}
-        self.insts = {str(i) : ct.c_int(1) for i in range(0, self.process_count)}
+        self.insts = {str(i) : ct.c_int(1) for i in range(self.process_count)}
         self.disklookup = {}
 
         self.lock = Lock()
