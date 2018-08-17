@@ -930,6 +930,8 @@ get_label(const char *name, const char *value, mmv_value_type_t type,
 {
     pmLabelSet *set = NULL;
     int len, sts;
+    char *endnum;
+    double aux = 1.0;
 
     /* The +5 is for the characters we add next - {"":} */
     if (strlen(name) + strlen(value) + 5 > MMV_LABELMAX) {
@@ -942,36 +944,36 @@ get_label(const char *name, const char *value, mmv_value_type_t type,
 	    value = "null";
 	    break;
     	case MMV_BOOLEAN_TYPE:
-	    if (value != "\"true\"" || value != "\"false\"") {
+	    if (!strcmp(value,"true") && !strcmp(value,"false")) {
 		setoserror(EINVAL);
 		return -1;
 	    }
 	    break;
     	case MMV_MAP_TYPE:
-	    if (value[1] != '{' ||  value[strlen(value)-2] != '}') {
+	    if (value[0] != '{' ||  value[strlen(value)-1] != '}') {
 		setoserror(EINVAL);
 		return -1;
 	    }
             break;
 	case MMV_ARRAY_TYPE:
-	    if (value[1] != '[' ||  value[strlen(value)-2] != ']') {
+	    if (value[0] != '[' ||  value[strlen(value)-1] != ']') {
 		setoserror(EINVAL);
 		return -1;
 	    }
             break;
     	case MMV_STRING_TYPE:
-	    if (value[1] != '\"' ||  value[strlen(value)-2] != '\"') {
+	    if (value[0] != '\"' ||  value[strlen(value)-1] != '\"') {
 		setoserror(EINVAL);
 		return -1;
 	    }
 	    break;
  	case MMV_NUMBER_TYPE:
-	    // TODO: check with automata
-	    /*if () {
+	    aux = strtod(value, &endnum);
+            if (*endnum != '\0') {
 		setoserror(EINVAL);
 		return -1;
-	    }*/
-	break;
+            }
+	    break;
     	default:
 	    setoserror(EINVAL);
 	    return -1; // error
