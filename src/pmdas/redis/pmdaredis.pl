@@ -827,7 +827,7 @@ sub redis_fetch_callback {
         ($refh_redis_info,$refh_inst_keys) = get_redis_data($host,$port);
 
         unless (defined $refh_redis_info) {
-            $pmda->err("Reading from socket ($host:$port) timeouted after $cfg{recv_wait_sec} seconds");
+            $pmda->err("Reading from socket ($host:$port) timed out after $cfg{recv_wait_sec} seconds");
 
             return (PM_ERR_AGAIN, 0)
         }
@@ -878,7 +878,7 @@ sub redis_fetch_callback {
         # Return error if the atom value was not succesfully retrieved
         mydebug("Required metric '$searched_key' was not found in redis INFO or was undefined");
 
-        return (PM_ERR_AGAIN, 0)
+        return (PM_ERR_APPVERSION, 0)
     } else {
         # Success - return (<value>,<success code>)
         mydebug("Returning success");
