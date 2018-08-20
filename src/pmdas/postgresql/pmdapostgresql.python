@@ -28,675 +28,27 @@ import sys
 if sys.version >= '3':
     long = int  # python2 to python3 portability (no long() in python3)
 
-# pmdapostgres domain
-DOMAIN = 110
-
-def PM_ID(cluster,item):
-    return PMDA.pmid_build(DOMAIN,cluster,item)
-
-def INDOM_ID(serial):
-    return PMDA.indom_build(DOMAIN,serial)
-
-#
-# Indom dict
-# indomid : [pmdaIndom, table, inst_column, instname_column]
-INDOM_PMDAINDOM = 0
-INDOM_TABLE = 1
-INDOM_INSTID = 2
-INDOM_INSTNAME = 3
-indomtable = {
-    INDOM_ID(0) : [pmdaIndom(INDOM_ID(0), {}), 'pg_stat_all_tables', 'relid', 'relname'],
-    INDOM_ID(1) : [pmdaIndom(INDOM_ID(1), {}), 'pg_stat_sys_tables', 'relid', 'relname'],
-    INDOM_ID(2) : [pmdaIndom(INDOM_ID(2), {}), 'pg_stat_user_tables', 'relid', 'relname'],
-    # INDOM_ID(3) : [pmdaIndom(INDOM_ID(3), {}), 'pg_stat_activity', 'pid', 'application_name'],
-    INDOM_ID(3) : [pmdaIndom(INDOM_ID(3), {}), 'pg_stat_activity', 'pid', 'pid'],
-    INDOM_ID(4) : [pmdaIndom(INDOM_ID(4), {}), 'pg_stat_user_functions', 'funcid', 'funcname'],
-    INDOM_ID(5) : [pmdaIndom(INDOM_ID(5), {}), 'pg_stat_database_conflicts', 'datid', 'datname'],
-    INDOM_ID(6) : [pmdaIndom(INDOM_ID(6), {}), 'pg_stat_all_indexes', 'indexrelid', 'indexrelname'],
-    INDOM_ID(7) : [pmdaIndom(INDOM_ID(7), {}), 'pg_stat_sys_indexes', 'indexrelid', 'indexrelname'],
-    INDOM_ID(8) : [pmdaIndom(INDOM_ID(8), {}), 'pg_stat_user_indexes', 'indexrelid', 'indexrelname'],
-    INDOM_ID(9) : [pmdaIndom(INDOM_ID(9), {}), 'pg_statio_all_sequences', 'relid', 'relname'],
-    INDOM_ID(10) : [pmdaIndom(INDOM_ID(10), {}), 'pg_statio_sys_sequences', 'relid', 'relname'],
-    INDOM_ID(11) : [pmdaIndom(INDOM_ID(11), {}), 'pg_statio_user_sequences', 'relid', 'relname'],
-    INDOM_ID(12) : [pmdaIndom(INDOM_ID(12), {}), 'pg_stat_replication', 'pid', 'application_name']
-}
-
-# Metrics dict
-# pmid : [ pmns, table, column, pmdaMetric ]
-METRIC_NAME = 0
-METRIC_TABLE = 1
-METRIC_COLUMN = 2
-METRIC_PMDAMETRIC = 3
-metrictable = {
-    PM_ID(0,0) : ['postgresql.stat.activity.datid', 'pg_stat_activity', 'datid',
-        pmdaMetric( PM_ID(0,0), c_api.PM_TYPE_U32, INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(0,1) : ['postgresql.stat.activity.datname', 'pg_stat_activity', 'datname',
-        pmdaMetric( PM_ID(0,1), c_api.PM_TYPE_STRING, INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(0,10) : ['postgresql.stat.activity.xact_start', 'pg_stat_activity', 'xact_start',
-        pmdaMetric( PM_ID(0,10), c_api.PM_TYPE_STRING, INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(0,11) : ['postgresql.stat.activity.query_start', 'pg_stat_activity', 'query_start',
-        pmdaMetric( PM_ID(0,11), c_api.PM_TYPE_STRING, INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(0,12) : ['postgresql.stat.activity.waiting', 'pg_stat_activity', 'wait_event_type', # or 'waiting'
-        pmdaMetric( PM_ID(0,12), c_api.PM_TYPE_32, INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(0,13) : ['postgresql.stat.activity.current_query', 'pg_stat_activity', 'query',
-        pmdaMetric( PM_ID(0,13), c_api.PM_TYPE_STRING, INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(0,3) : ['postgresql.stat.activity.usesysid', 'pg_stat_activity', 'usesysid',
-        pmdaMetric( PM_ID(0,3), c_api.PM_TYPE_U32, INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(0,4) : ['postgresql.stat.activity.usename', 'pg_stat_activity', 'usename',
-        pmdaMetric( PM_ID(0,4), c_api.PM_TYPE_STRING, INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(0,5) : ['postgresql.stat.activity.application_name', 'pg_stat_activity', 'application_name',
-        pmdaMetric( PM_ID(0,5), c_api.PM_TYPE_STRING, INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(0,6) : ['postgresql.stat.activity.client_addr', 'pg_stat_activity', 'client_addr',
-        pmdaMetric( PM_ID(0,6), c_api.PM_TYPE_STRING, INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(0,7) : ['postgresql.stat.activity.client_hostname', 'pg_stat_activity', 'client_hostname',
-        pmdaMetric( PM_ID(0,7), c_api.PM_TYPE_STRING, INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(0,8) : ['postgresql.stat.activity.client_port', 'pg_stat_activity', 'client_port',
-        pmdaMetric( PM_ID(0,8), c_api.PM_TYPE_32, INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(0,9) : ['postgresql.stat.activity.backend_start', 'pg_stat_activity', 'backend_start',
-        pmdaMetric( PM_ID(0,9), c_api.PM_TYPE_STRING, INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(1,0) : ['postgresql.stat.bgwriter.checkpoints_timed', 'pg_stat_bgwriter', 'checkpoints_timed',
-        pmdaMetric( PM_ID(1,0), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(1,1) : ['postgresql.stat.bgwriter.checkpoints_req', 'pg_stat_bgwriter', 'checkpoints_req',
-        pmdaMetric( PM_ID(1,1), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(1,2) : ['postgresql.stat.bgwriter.buffers_checkpoints', 'pg_stat_bgwriter', 'buffers_checkpoint',
-        pmdaMetric( PM_ID(1,2), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(1,3) : ['postgresql.stat.bgwriter.buffers_clean', 'pg_stat_bgwriter', 'buffers_clean',
-        pmdaMetric( PM_ID(1,3), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(1,4) : ['postgresql.stat.bgwriter.maxwritten_clean', 'pg_stat_bgwriter', 'maxwritten_clean',
-        pmdaMetric( PM_ID(1,4), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(1,5) : ['postgresql.stat.bgwriter.buffers_backend', 'pg_stat_bgwriter', 'buffers_backend',
-        pmdaMetric( PM_ID(1,5), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(1,6) : ['postgresql.stat.bgwriter.buffers_alloc', 'pg_stat_bgwriter', 'buffers_alloc',
-        pmdaMetric( PM_ID(1,6), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(2,10) : ['postgresql.stat.database.tup_updated', 'pg_stat_database', 'tup_updated',
-        pmdaMetric( PM_ID(2,10), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(2,11) : ['postgresql.stat.database.tup_deleted', 'pg_stat_database', 'tup_deleted',
-        pmdaMetric( PM_ID(2,11), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(2,12) : ['postgresql.stat.database.conflicts', 'pg_stat_database', 'conflicts',
-        pmdaMetric( PM_ID(2,12), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(2,13) : ['postgresql.stat.database.stats_reset', 'pg_stat_database', 'stats_reset',
-        pmdaMetric( PM_ID(2,13), c_api.PM_TYPE_STRING, INDOM_ID(5), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(2,2) : ['postgresql.stat.database.numbackends', 'pg_stat_database', 'numbackends',
-        pmdaMetric( PM_ID(2,2), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(2,3) : ['postgresql.stat.database.xact_commit', 'pg_stat_database', 'xact_commit',
-        pmdaMetric( PM_ID(2,3), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(2,4) : ['postgresql.stat.database.xact_rollback', 'pg_stat_database', 'xact_rollback',
-        pmdaMetric( PM_ID(2,4), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(2,5) : ['postgresql.stat.database.blks_read', 'pg_stat_database', 'blks_read',
-        pmdaMetric( PM_ID(2,5), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(2,6) : ['postgresql.stat.database.blks_hit', 'pg_stat_database', 'blks_hit',
-        pmdaMetric( PM_ID(2,6), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(2,7) : ['postgresql.stat.database.tup_returned', 'pg_stat_database', 'tup_returned',
-        pmdaMetric( PM_ID(2,7), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(2,8) : ['postgresql.stat.database.tup_fetched', 'pg_stat_database', 'tup_fetched',
-        pmdaMetric( PM_ID(2,8), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(2,9) : ['postgresql.stat.database.tup_inserted', 'pg_stat_database', 'tup_inserted',
-        pmdaMetric( PM_ID(2,9), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(3,1) : ['postgresql.stat.user_functions.schemaname', 'pg_stat_user_functions', 'schemaname',
-        pmdaMetric( PM_ID(3,1), c_api.PM_TYPE_STRING, INDOM_ID(4), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(3,3) : ['postgresql.stat.user_functions.calls', 'pg_stat_user_functions', 'calls',
-        pmdaMetric( PM_ID(3,3), c_api.PM_TYPE_U64, INDOM_ID(4), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(3,4) : ['postgresql.stat.user_functions.total_time', 'pg_stat_user_functions', 'total_time',
-        pmdaMetric( PM_ID(3,4), c_api.PM_TYPE_U64, INDOM_ID(4), c_api.PM_SEM_COUNTER, pmUnits(0,1,0,0,2,0))],
-
-    PM_ID(3,5) : ['postgresql.stat.user_functions.self_time', 'pg_stat_user_functions', 'self_time',
-        pmdaMetric( PM_ID(3,5), c_api.PM_TYPE_U64, INDOM_ID(4), c_api.PM_SEM_COUNTER, pmUnits(0,1,0,0,2,0))],
-
-    PM_ID(4,1) : ['postgresql.stat.xact.user_functions.schemaname', 'pg_stat_xact_user_functions', 'schemaname',
-        pmdaMetric( PM_ID(4,1), c_api.PM_TYPE_STRING, INDOM_ID(4), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(4,3) : ['postgresql.stat.xact.user_functions.calls', 'pg_stat_xact_user_functions', 'calls',
-        pmdaMetric( PM_ID(4,3), c_api.PM_TYPE_U64, INDOM_ID(4), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(4,4) : ['postgresql.stat.xact.user_functions.total_time', 'pg_stat_xact_user_functions', 'total_time',
-        pmdaMetric( PM_ID(4,4), c_api.PM_TYPE_U64, INDOM_ID(4), c_api.PM_SEM_COUNTER, pmUnits(0,1,0,0,2,0))],
-
-    PM_ID(4,5) : ['postgresql.stat.xact.user_functions.self_time', 'pg_stat_xact_user_functions', 'self_time',
-        pmdaMetric( PM_ID(4,5), c_api.PM_TYPE_U64, INDOM_ID(4), c_api.PM_SEM_COUNTER, pmUnits(0,1,0,0,2,0))],
-
-    PM_ID(5,2) : ['postgresql.stat.database_conflicts.tablespace', 'pg_stat_database_conflicts', 'confl_tablespace',
-        pmdaMetric( PM_ID(5,2), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(5,3) : ['postgresql.stat.database_conflicts.lock', 'pg_stat_database_conflicts', 'confl_lock',
-        pmdaMetric( PM_ID(5,3), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(5,4) : ['postgresql.stat.database_conflicts.snapshot', 'pg_stat_database_conflicts', 'confl_snapshot',
-        pmdaMetric( PM_ID(5,4), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(5,5) : ['postgresql.stat.database_conflicts.bufferpin', 'pg_stat_database_conflicts', 'confl_bufferpin',
-        pmdaMetric( PM_ID(5,5), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(5,6) : ['postgresql.stat.database_conflicts.deadlock', 'pg_stat_database_conflicts', 'confl_deadlock',
-        pmdaMetric( PM_ID(5,6), c_api.PM_TYPE_U32, INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(6,1) : ['postgresql.stat.replication.usesysid', 'pg_stat_replication', 'usesysid',
-        pmdaMetric( PM_ID(6,1), c_api.PM_TYPE_U32, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(6,10) : ['postgresql.stat.replication.write_location', 'pg_stat_replication', 'write_location',
-        pmdaMetric( PM_ID(6,10), c_api.PM_TYPE_STRING, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(6,11) : ['postgresql.stat.replication.flush_location', 'pg_stat_replication', 'flush_location',
-        pmdaMetric( PM_ID(6,11), c_api.PM_TYPE_STRING, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(6,12) : ['postgresql.stat.replication.replay_location', 'pg_stat_replication', 'replay_location',
-        pmdaMetric( PM_ID(6,12), c_api.PM_TYPE_STRING, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(6,13) : ['postgresql.stat.replication.sync_priority', 'pg_stat_replication', 'sync_priority',
-        pmdaMetric( PM_ID(6,13), c_api.PM_TYPE_STRING, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(6,14) : ['postgresql.stat.replication.sync_state', 'pg_stat_replication', 'sync_state',
-        pmdaMetric( PM_ID(6,14), c_api.PM_TYPE_STRING, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(6,2) : ['postgresql.stat.replication.usename', 'pg_stat_replication', 'usename',
-        pmdaMetric( PM_ID(6,2), c_api.PM_TYPE_STRING, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(6,3) : ['postgresql.stat.replication.application_name', 'pg_stat_replication', 'application_name',
-        pmdaMetric( PM_ID(6,3), c_api.PM_TYPE_STRING, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(6,4) : ['postgresql.stat.replication.client_addr', 'pg_stat_replication', 'client_addr',
-        pmdaMetric( PM_ID(6,4), c_api.PM_TYPE_STRING, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(6,5) : ['postgresql.stat.replication.client_hostname', 'pg_stat_replication', 'client_hostname',
-        pmdaMetric( PM_ID(6,5), c_api.PM_TYPE_STRING, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(6,6) : ['postgresql.stat.replication.client_port', 'pg_stat_replication', 'client_port',
-        pmdaMetric( PM_ID(6,6), c_api.PM_TYPE_32, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(6,7) : ['postgresql.stat.replication.backend_start', 'pg_stat_replication', 'backend_start',
-        pmdaMetric( PM_ID(6,7), c_api.PM_TYPE_STRING, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(6,8) : ['postgresql.stat.replication.state', 'pg_stat_replication', 'state',
-        pmdaMetric( PM_ID(6,8), c_api.PM_TYPE_STRING, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(6,9) : ['postgresql.stat.replication.sent_location', 'pg_stat_replication', 'sent_location',
-        pmdaMetric( PM_ID(6,9), c_api.PM_TYPE_STRING, INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(7,0) : ['postgresql.active.is_in_recovery', 'pg_active', 'is_in_recovery',
-        pmdaMetric( PM_ID(7,0), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(7,1) : ['postgresql.active.xlog_current_location_log_id', 'pg_active', 'xlog_current_location_log_id',
-        pmdaMetric( PM_ID(7,1), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(7,2) : ['postgresql.active.xlog_current_location_offset', 'pg_active', 'xlog_current_location_offset',
-        pmdaMetric( PM_ID(7,2), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(8,0) : ['postgresql.recovery.is_in_recovery', 'pg_recovery', 'is_in_recovery',
-        pmdaMetric( PM_ID(8,0), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(8,1) : ['postgresql.recovery.xlog_receive_location_log_id', 'pg_recovery', 'xlog_receive_location_log_id',
-        pmdaMetric( PM_ID(8,1), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(8,2) : ['postgresql.recovery.xlog_receive_location_offset', 'pg_recovery', 'xlog_receive_location_offset',
-        pmdaMetric( PM_ID(8,2), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(8,3) : ['postgresql.recovery.xlog_replay_location_log_id', 'pg_recovery', 'xlog_replay_location_log_id',
-        pmdaMetric( PM_ID(8,3), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(8,4) : ['postgresql.recovery.xlog_replay_location_offset', 'pg_recovery', 'xlog_replay_location_offset',
-        pmdaMetric( PM_ID(8,4), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,10) : ['postgresql.stat.all_tables.n_tup_hot_upd', 'pg_stat_all_tables', 'n_tup_hot_upd',
-        pmdaMetric( PM_ID(10,10), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,1) : ['postgresql.stat.all_tables.schemaname', 'pg_stat_all_tables', 'schemaname',
-        pmdaMetric( PM_ID(10,1), c_api.PM_TYPE_STRING, INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,11) : ['postgresql.stat.all_tables.n_live_tup', 'pg_stat_all_tables', 'n_live_tup',
-        pmdaMetric( PM_ID(10,11), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,12) : ['postgresql.stat.all_tables.n_dead_tup', 'pg_stat_all_tables', 'n_dead_tup',
-        pmdaMetric( PM_ID(10,12), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,13) : ['postgresql.stat.all_tables.last_vacuum', 'pg_stat_all_tables', 'last_vacuum',
-        pmdaMetric( PM_ID(10,13), c_api.PM_TYPE_STRING, INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,14) : ['postgresql.stat.all_tables.last_autovacuum', 'pg_stat_all_tables', 'last_autovacuum',
-        pmdaMetric( PM_ID(10,14), c_api.PM_TYPE_STRING, INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,15) : ['postgresql.stat.all_tables.last_analyze', 'pg_stat_all_tables', 'last_analyze',
-        pmdaMetric( PM_ID(10,15), c_api.PM_TYPE_STRING, INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,16) : ['postgresql.stat.all_tables.last_autoanalyze', 'pg_stat_all_tables', 'last_autoanalyze',
-        pmdaMetric( PM_ID(10,16), c_api.PM_TYPE_STRING, INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,3) : ['postgresql.stat.all_tables.seq_scan', 'pg_stat_all_tables', 'seq_scan',
-        pmdaMetric( PM_ID(10,3), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,4) : ['postgresql.stat.all_tables.seq_tup_read', 'pg_stat_all_tables', 'seq_tup_read',
-        pmdaMetric( PM_ID(10,4), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,5) : ['postgresql.stat.all_tables.idx_scan', 'pg_stat_all_tables', 'idx_scan',
-        pmdaMetric( PM_ID(10,5), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,6) : ['postgresql.stat.all_tables.idx_tup_fetch', 'pg_stat_all_tables', 'idx_tup_fetch',
-        pmdaMetric( PM_ID(10,6), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,7) : ['postgresql.stat.all_tables.n_tup_ins', 'pg_stat_all_tables', 'n_tup_ins',
-        pmdaMetric( PM_ID(10,7), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,8) : ['postgresql.stat.all_tables.n_tup_upd', 'pg_stat_all_tables', 'n_tup_upd',
-        pmdaMetric( PM_ID(10,8), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(10,9) : ['postgresql.stat.all_tables.n_tup_del', 'pg_stat_all_tables', 'n_tup_del',
-        pmdaMetric( PM_ID(10,9), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,10) : ['postgresql.stat.sys_tables.n_tup_hot_upd', 'pg_stat_sys_tables', 'n_tup_hot_upd',
-        pmdaMetric( PM_ID(11,10), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,1) : ['postgresql.stat.sys_tables.schemaname', 'pg_stat_sys_tables', 'schemaname',
-        pmdaMetric( PM_ID(11,1), c_api.PM_TYPE_STRING, INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,11) : ['postgresql.stat.sys_tables.n_live_tup', 'pg_stat_sys_tables', 'n_live_tup',
-        pmdaMetric( PM_ID(11,11), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,12) : ['postgresql.stat.sys_tables.n_dead_tup', 'pg_stat_sys_tables', 'n_dead_tup',
-        pmdaMetric( PM_ID(11,12), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,13) : ['postgresql.stat.sys_tables.last_vacuum', 'pg_stat_sys_tables', 'last_vacuum',
-        pmdaMetric( PM_ID(11,13), c_api.PM_TYPE_STRING, INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,14) : ['postgresql.stat.sys_tables.last_autovacuum', 'pg_stat_sys_tables', 'last_autovacuum',
-        pmdaMetric( PM_ID(11,14), c_api.PM_TYPE_STRING, INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,15) : ['postgresql.stat.sys_tables.last_analyze', 'pg_stat_sys_tables', 'last_analyze',
-        pmdaMetric( PM_ID(11,15), c_api.PM_TYPE_STRING, INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,16) : ['postgresql.stat.sys_tables.last_autoanalyze', 'pg_stat_sys_tables', 'last_autoanalyze',
-        pmdaMetric( PM_ID(11,16), c_api.PM_TYPE_STRING, INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,3) : ['postgresql.stat.sys_tables.seq_scan', 'pg_stat_sys_tables', 'seq_scan',
-        pmdaMetric( PM_ID(11,3), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,4) : ['postgresql.stat.sys_tables.seq_tup_read', 'pg_stat_sys_tables', 'seq_tup_read',
-        pmdaMetric( PM_ID(11,4), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,5) : ['postgresql.stat.sys_tables.idx_scan', 'pg_stat_sys_tables', 'idx_scan',
-        pmdaMetric( PM_ID(11,5), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,6) : ['postgresql.stat.sys_tables.idx_tup_fetch', 'pg_stat_sys_tables', 'idx_tup_fetch',
-        pmdaMetric( PM_ID(11,6), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,7) : ['postgresql.stat.sys_tables.n_tup_ins', 'pg_stat_sys_tables', 'n_tup_ins',
-        pmdaMetric( PM_ID(11,7), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,8) : ['postgresql.stat.sys_tables.n_tup_upd', 'pg_stat_sys_tables', 'n_tup_upd',
-        pmdaMetric( PM_ID(11,8), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(11,9) : ['postgresql.stat.sys_tables.n_tup_del', 'pg_stat_sys_tables', 'n_tup_del',
-        pmdaMetric( PM_ID(11,9), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,10) : ['postgresql.stat.user_tables.n_tup_hot_upd', 'pg_stat_user_tables', 'n_tup_hot_upd',
-        pmdaMetric( PM_ID(12,10), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,1) : ['postgresql.stat.user_tables.schemaname', 'pg_stat_user_tables', 'schemaname',
-        pmdaMetric( PM_ID(12,1), c_api.PM_TYPE_STRING, INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,11) : ['postgresql.stat.user_tables.n_live_tup', 'pg_stat_user_tables', 'n_live_tup',
-        pmdaMetric( PM_ID(12,11), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,12) : ['postgresql.stat.user_tables.n_dead_tup', 'pg_stat_user_tables', 'n_dead_tup',
-        pmdaMetric( PM_ID(12,12), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,13) : ['postgresql.stat.user_tables.last_vacuum', 'pg_stat_user_tables', 'last_vacuum',
-        pmdaMetric( PM_ID(12,13), c_api.PM_TYPE_STRING, INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,14) : ['postgresql.stat.user_tables.last_autovacuum', 'pg_stat_user_tables', 'last_autovacuum',
-        pmdaMetric( PM_ID(12,14), c_api.PM_TYPE_STRING, INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,15) : ['postgresql.stat.user_tables.last_analyze', 'pg_stat_user_tables', 'last_analyze',
-        pmdaMetric( PM_ID(12,15), c_api.PM_TYPE_STRING, INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,16) : ['postgresql.stat.user_tables.last_autoanalyze', 'pg_stat_user_tables', 'last_autoanalyze',
-        pmdaMetric( PM_ID(12,16), c_api.PM_TYPE_STRING, INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,3) : ['postgresql.stat.user_tables.seq_scan', 'pg_stat_user_tables', 'seq_scan',
-        pmdaMetric( PM_ID(12,3), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,4) : ['postgresql.stat.user_tables.seq_tup_read', 'pg_stat_user_tables', 'seq_tup_read',
-        pmdaMetric( PM_ID(12,4), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,5) : ['postgresql.stat.user_tables.idx_scan', 'pg_stat_user_tables', 'idx_scan',
-        pmdaMetric( PM_ID(12,5), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,6) : ['postgresql.stat.user_tables.idx_tup_fetch', 'pg_stat_user_tables', 'idx_tup_fetch',
-        pmdaMetric( PM_ID(12,6), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,7) : ['postgresql.stat.user_tables.n_tup_ins', 'pg_stat_user_tables', 'n_tup_ins',
-        pmdaMetric( PM_ID(12,7), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,8) : ['postgresql.stat.user_tables.n_tup_upd', 'pg_stat_user_tables', 'n_tup_upd',
-        pmdaMetric( PM_ID(12,8), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(12,9) : ['postgresql.stat.user_tables.n_tup_del', 'pg_stat_user_tables', 'n_tup_del',
-        pmdaMetric( PM_ID(12,9), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(13,0) : ['postgresql.stat.all_indexes.relid', 'pg_stat_all_indexes', 'relid',
-        pmdaMetric( PM_ID(13,0), c_api.PM_TYPE_32, INDOM_ID(6), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(13,2) : ['postgresql.stat.all_indexes.schemaname', 'pg_stat_all_indexes', 'schemaname',
-        pmdaMetric( PM_ID(13,2), c_api.PM_TYPE_STRING, INDOM_ID(6), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(13,3) : ['postgresql.stat.all_indexes.relname', 'pg_stat_all_indexes', 'relname',
-        pmdaMetric( PM_ID(13,3), c_api.PM_TYPE_STRING, INDOM_ID(6), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(13,5) : ['postgresql.stat.all_indexes.idx_scan', 'pg_stat_all_indexes', 'idx_scan',
-        pmdaMetric( PM_ID(13,5), c_api.PM_TYPE_U32, INDOM_ID(6), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(13,6) : ['postgresql.stat.all_indexes.idx_tup_read', 'pg_stat_all_indexes', 'idx_tup_read',
-        pmdaMetric( PM_ID(13,6), c_api.PM_TYPE_U32, INDOM_ID(6), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(13,7) : ['postgresql.stat.all_indexes.idx_tup_fetch', 'pg_stat_all_indexes', 'idx_tup_fetch',
-        pmdaMetric( PM_ID(13,7), c_api.PM_TYPE_U32, INDOM_ID(6), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(14,0) : ['postgresql.stat.sys_indexes.relid', 'pg_stat_sys_indexes', 'relid',
-        pmdaMetric( PM_ID(14,0), c_api.PM_TYPE_32, INDOM_ID(7), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(14,2) : ['postgresql.stat.sys_indexes.schemaname', 'pg_stat_sys_indexes', 'schemaname',
-        pmdaMetric( PM_ID(14,2), c_api.PM_TYPE_STRING, INDOM_ID(7), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(14,3) : ['postgresql.stat.sys_indexes.relname', 'pg_stat_sys_indexes', 'relname',
-        pmdaMetric( PM_ID(14,3), c_api.PM_TYPE_STRING, INDOM_ID(7), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(14,5) : ['postgresql.stat.sys_indexes.idx_scan', 'pg_stat_sys_indexes', 'idx_scan',
-        pmdaMetric( PM_ID(14,5), c_api.PM_TYPE_U32, INDOM_ID(7), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(14,6) : ['postgresql.stat.sys_indexes.idx_tup_read', 'pg_stat_sys_indexes', 'idx_tup_read',
-        pmdaMetric( PM_ID(14,6), c_api.PM_TYPE_U32, INDOM_ID(7), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(14,7) : ['postgresql.stat.sys_indexes.idx_tup_fetch', 'pg_stat_sys_indexes', 'idx_tup_fetch',
-        pmdaMetric( PM_ID(14,7), c_api.PM_TYPE_U32, INDOM_ID(7), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(15,0) : ['postgresql.stat.user_indexes.relid', 'pg_stat_sys_indexes', 'relid',
-        pmdaMetric( PM_ID(15,0), c_api.PM_TYPE_32, INDOM_ID(8), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(15,2) : ['postgresql.stat.user_indexes.schemaname', 'pg_stat_user_indexes', 'schemaname',
-        pmdaMetric( PM_ID(15,2), c_api.PM_TYPE_STRING, INDOM_ID(8), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(15,3) : ['postgresql.stat.user_indexes.relname', 'pg_stat_user_indexes', 'relname',
-        pmdaMetric( PM_ID(15,3), c_api.PM_TYPE_STRING, INDOM_ID(8), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(15,5) : ['postgresql.stat.user_indexes.idx_scan', 'pg_stat_user_indexes', 'idx_scan',
-        pmdaMetric( PM_ID(15,5), c_api.PM_TYPE_U32, INDOM_ID(8), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(15,6) : ['postgresql.stat.user_indexes.idx_tup_read', 'pg_stat_user_indexes', 'idx_tup_read',
-        pmdaMetric( PM_ID(15,6), c_api.PM_TYPE_U32, INDOM_ID(8), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(15,7) : ['postgresql.stat.user_indexes.idx_tup_fetch', 'pg_stat_user_indexes', 'idx_tup_fetch',
-        pmdaMetric( PM_ID(15,7), c_api.PM_TYPE_U32, INDOM_ID(8), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(16,10) : ['postgresql.stat.xact.all_tables.n_tup_hot_upd', 'pg_stat_xact_all_tables', 'n_tup_hot_upd',
-        pmdaMetric( PM_ID(16,10), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(16,1) : ['postgresql.stat.xact.all_tables.schemaname', 'pg_stat_xact_all_tables', 'schemaname',
-        pmdaMetric( PM_ID(16,1), c_api.PM_TYPE_STRING, INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(16,3) : ['postgresql.stat.xact.all_tables.seq_scan', 'pg_stat_xact_all_tables', 'seq_scan',
-        pmdaMetric( PM_ID(16,3), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(16,4) : ['postgresql.stat.xact.all_tables.seq_tup_read', 'pg_stat_xact_all_tables', 'seq_tup_read',
-        pmdaMetric( PM_ID(16,4), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(16,5) : ['postgresql.stat.xact.all_tables.idx_scan', 'pg_stat_xact_all_tables', 'idx_scan',
-        pmdaMetric( PM_ID(16,5), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(16,6) : ['postgresql.stat.xact.all_tables.idx_tup_fetch', 'pg_stat_xact_all_tables', 'idx_tup_fetch',
-        pmdaMetric( PM_ID(16,6), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(16,7) : ['postgresql.stat.xact.all_tables.n_tup_ins', 'pg_stat_xact_all_tables', 'n_tup_ins',
-        pmdaMetric( PM_ID(16,7), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(16,8) : ['postgresql.stat.xact.all_tables.n_tup_upd', 'pg_stat_xact_all_tables', 'n_tup_upd',
-        pmdaMetric( PM_ID(16,8), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(16,9) : ['postgresql.stat.xact.all_tables.n_tup_del', 'pg_stat_xact_all_tables', 'n_tup_del',
-        pmdaMetric( PM_ID(16,9), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(17,10) : ['postgresql.stat.xact.sys_tables.n_tup_hot_upd', 'pg_stat_xact_sys_tables', 'n_tup_hot_upd',
-        pmdaMetric( PM_ID(17,10), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(17,1) : ['postgresql.stat.xact.sys_tables.schemaname', 'pg_stat_xact_sys_tables', 'schemaname',
-        pmdaMetric( PM_ID(17,1), c_api.PM_TYPE_STRING, INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(17,3) : ['postgresql.stat.xact.sys_tables.seq_scan', 'pg_stat_xact_sys_tables', 'seq_scan',
-        pmdaMetric( PM_ID(17,3), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(17,4) : ['postgresql.stat.xact.sys_tables.seq_tup_read', 'pg_stat_xact_sys_tables', 'seq_tup_read',
-        pmdaMetric( PM_ID(17,4), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(17,5) : ['postgresql.stat.xact.sys_tables.idx_scan', 'pg_stat_xact_sys_tables', 'idx_scan',
-        pmdaMetric( PM_ID(17,5), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(17,6) : ['postgresql.stat.xact.sys_tables.idx_tup_fetch', 'pg_stat_xact_sys_tables', 'idx_tup_fetch',
-        pmdaMetric( PM_ID(17,6), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(17,7) : ['postgresql.stat.xact.sys_tables.n_tup_ins', 'pg_stat_xact_sys_tables', 'n_tup_ins',
-        pmdaMetric( PM_ID(17,7), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(17,8) : ['postgresql.stat.xact.sys_tables.n_tup_upd', 'pg_stat_xact_sys_tables', 'n_tup_upd',
-        pmdaMetric( PM_ID(17,8), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(17,9) : ['postgresql.stat.xact.sys_tables.n_tup_del', 'pg_stat_xact_sys_tables', 'n_tup_del',
-        pmdaMetric( PM_ID(17,9), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(18,10) : ['postgresql.stat.xact.user_tables.n_tup_hot_upd', 'pg_stat_xact_user_tables', 'n_tup_hot_upd',
-        pmdaMetric( PM_ID(18,10), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(18,1) : ['postgresql.stat.xact.user_tables.schemaname', 'pg_stat_xact_user_tables', 'schemaname',
-        pmdaMetric( PM_ID(18,1), c_api.PM_TYPE_STRING, INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(18,3) : ['postgresql.stat.xact.user_tables.seq_scan', 'pg_stat_xact_user_tables', 'seq_scan',
-        pmdaMetric( PM_ID(18,3), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(18,4) : ['postgresql.stat.xact.user_tables.seq_tup_read', 'pg_stat_xact_user_tables', 'seq_tup_read',
-        pmdaMetric( PM_ID(18,4), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(18,5) : ['postgresql.stat.xact.user_tables.idx_scan', 'pg_stat_xact_user_tables', 'idx_scan',
-        pmdaMetric( PM_ID(18,5), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(18,6) : ['postgresql.stat.xact.user_tables.idx_tup_fetch', 'pg_stat_xact_user_tables', 'idx_tup_fetch',
-        pmdaMetric( PM_ID(18,6), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(18,7) : ['postgresql.stat.xact.user_tables.n_tup_ins', 'pg_stat_xact_user_tables', 'n_tup_ins',
-        pmdaMetric( PM_ID(18,7), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(18,8) : ['postgresql.stat.xact.user_tables.n_tup_upd', 'pg_stat_xact_user_tables', 'n_tup_upd',
-        pmdaMetric( PM_ID(18,8), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(18,9) : ['postgresql.stat.xact.user_tables.n_tup_del', 'pg_stat_xact_user_tables', 'n_tup_del',
-        pmdaMetric( PM_ID(18,9), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(30,1) : ['postgresql.statio.all_tables.schemaname', 'pg_statio_all_tables', 'schemaname',
-        pmdaMetric( PM_ID(30,1), c_api.PM_TYPE_STRING, INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(30,10) : ['postgresql.statio.all_tables.tidx_blks_hit', 'pg_statio_all_tables', 'tidx_blks_hit',
-        pmdaMetric( PM_ID(30,10), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(30,3) : ['postgresql.statio.all_tables.heap_blks_read', 'pg_statio_all_tables', 'heap_blks_read',
-        pmdaMetric( PM_ID(30,3), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(30,4) : ['postgresql.statio.all_tables.heap_blks_hit', 'pg_statio_all_tables', 'heap_blks_hit',
-        pmdaMetric( PM_ID(30,4), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(30,5) : ['postgresql.statio.all_tables.idx_blks_read', 'pg_statio_all_tables', 'idx_blks_read',
-        pmdaMetric( PM_ID(30,5), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(30,6) : ['postgresql.statio.all_tables.idx_blks_hit', 'pg_statio_all_tables', 'idx_blks_hit',
-        pmdaMetric( PM_ID(30,6), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(30,7) : ['postgresql.statio.all_tables.toast_blks_read', 'pg_statio_all_tables', 'toast_blks_read',
-        pmdaMetric( PM_ID(30,7), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(30,8) : ['postgresql.statio.all_tables.toast_blks_hit', 'pg_statio_all_tables', 'toast_blks_hit',
-        pmdaMetric( PM_ID(30,8), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(30,9) : ['postgresql.statio.all_tables.tidx_blks_read', 'pg_statio_all_tables', 'tidx_blks_read',
-        pmdaMetric( PM_ID(30,9), c_api.PM_TYPE_U32, INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(31,1) : ['postgresql.statio.sys_tables.schemaname', 'pg_statio_sys_tables', 'schemaname',
-        pmdaMetric( PM_ID(31,1), c_api.PM_TYPE_STRING, INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(31,10) : ['postgresql.statio.sys_tables.tidx_blks_hit', 'pg_statio_sys_tables', 'tidx_blks_hit',
-        pmdaMetric( PM_ID(31,10), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(31,3) : ['postgresql.statio.sys_tables.heap_blks_read', 'pg_statio_sys_tables', 'heap_blks_read',
-        pmdaMetric( PM_ID(31,3), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(31,4) : ['postgresql.statio.sys_tables.heap_blks_hit', 'pg_statio_sys_tables', 'heap_blks_hit',
-        pmdaMetric( PM_ID(31,4), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(31,5) : ['postgresql.statio.sys_tables.idx_blks_read', 'pg_statio_sys_tables', 'idx_blks_read',
-        pmdaMetric( PM_ID(31,5), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(31,6) : ['postgresql.statio.sys_tables.idx_blks_hit', 'pg_statio_sys_tables', 'idx_blks_hit',
-        pmdaMetric( PM_ID(31,6), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(31,7) : ['postgresql.statio.sys_tables.toast_blks_read', 'pg_statio_sys_tables', 'toast_blks_read',
-        pmdaMetric( PM_ID(31,7), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(31,8) : ['postgresql.statio.sys_tables.toast_blks_hit', 'pg_statio_sys_tables', 'toast_blks_hit',
-        pmdaMetric( PM_ID(31,8), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(31,9) : ['postgresql.statio.sys_tables.tidx_blks_read', 'pg_statio_sys_tables', 'tidx_blks_read',
-        pmdaMetric( PM_ID(31,9), c_api.PM_TYPE_U32, INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(32,1) : ['postgresql.statio.user_tables.schemaname', 'pg_statio_user_tables', 'schemaname',
-        pmdaMetric( PM_ID(32,1), c_api.PM_TYPE_STRING, INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(32,10) : ['postgresql.statio.user_tables.tidx_blks_hit', 'pg_statio_user_tables', 'tidx_blks_hit',
-        pmdaMetric( PM_ID(32,10), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(32,3) : ['postgresql.statio.user_tables.heap_blks_read', 'pg_statio_user_tables', 'heap_blks_read',
-        pmdaMetric( PM_ID(32,3), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(32,4) : ['postgresql.statio.user_tables.heap_blks_hit', 'pg_statio_user_tables', 'heap_blks_hit',
-        pmdaMetric( PM_ID(32,4), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(32,5) : ['postgresql.statio.user_tables.idx_blks_read', 'pg_statio_user_tables', 'idx_blks_read',
-        pmdaMetric( PM_ID(32,5), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(32,6) : ['postgresql.statio.user_tables.idx_blks_hit', 'pg_statio_user_tables', 'idx_blks_hit',
-        pmdaMetric( PM_ID(32,6), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(32,7) : ['postgresql.statio.user_tables.toast_blks_read', 'pg_statio_user_tables', 'toast_blks_read',
-        pmdaMetric( PM_ID(32,7), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(32,8) : ['postgresql.statio.user_tables.toast_blks_hit', 'pg_statio_user_tables', 'toast_blks_hit',
-        pmdaMetric( PM_ID(32,8), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(32,9) : ['postgresql.statio.user_tables.tidx_blks_read', 'pg_statio_user_tables', 'tidx_blks_read',
-        pmdaMetric( PM_ID(32,9), c_api.PM_TYPE_U32, INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(33,0) : ['postgresql.statio.all_indexes.relid', 'pg_statio_all_indexes', 'relid',
-        pmdaMetric( PM_ID(33,0), c_api.PM_TYPE_32, INDOM_ID(6), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(33,2) : ['postgresql.statio.all_indexes.schemaname', 'pg_statio_all_indexes', 'schemaname',
-        pmdaMetric( PM_ID(33,2), c_api.PM_TYPE_STRING, INDOM_ID(6), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(33,4) : ['postgresql.statio.all_indexes.relname', 'pg_statio_all_indexes', 'relname',
-        pmdaMetric( PM_ID(33,4), c_api.PM_TYPE_STRING, INDOM_ID(6), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(33,5) : ['postgresql.statio.all_indexes.idx_blks_read', 'pg_statio_all_indexes', 'idx_blks_read',
-        pmdaMetric( PM_ID(33,5), c_api.PM_TYPE_U32, INDOM_ID(6), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(33,6) : ['postgresql.statio.all_indexes.idx_blks_hit', 'pg_statio_all_indexes', 'idx_blks_hit',
-        pmdaMetric( PM_ID(33,6), c_api.PM_TYPE_U32, INDOM_ID(6), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(34,0) : ['postgresql.statio.sys_indexes.relid', 'pg_statio_sys_indexes', 'relid',
-        pmdaMetric( PM_ID(34,0), c_api.PM_TYPE_32, INDOM_ID(7), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(34,2) : ['postgresql.statio.sys_indexes.schemaname', 'pg_statio_sys_indexes', 'schemaname',
-        pmdaMetric( PM_ID(34,2), c_api.PM_TYPE_STRING, INDOM_ID(7), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(34,4) : ['postgresql.statio.sys_indexes.relname', 'pg_statio_sys_indexes', 'relname',
-        pmdaMetric( PM_ID(34,4), c_api.PM_TYPE_STRING, INDOM_ID(7), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(34,5) : ['postgresql.statio.sys_indexes.idx_blks_read', 'pg_statio_sys_indexes', 'idx_blks_read',
-        pmdaMetric( PM_ID(34,5), c_api.PM_TYPE_U32, INDOM_ID(7), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(34,6) : ['postgresql.statio.sys_indexes.idx_blks_hit', 'pg_statio_sys_indexes', 'idx_blks_hit',
-        pmdaMetric( PM_ID(34,6), c_api.PM_TYPE_U32, INDOM_ID(7), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(35,0) : ['postgresql.statio.user_indexes.relid', 'pg_statio_user_indexes', 'relid',
-        pmdaMetric( PM_ID(35,0), c_api.PM_TYPE_32, INDOM_ID(8), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(35,2) : ['postgresql.statio.user_indexes.schemaname', 'pg_statio_user_indexes', 'schemaname',
-        pmdaMetric( PM_ID(35,2), c_api.PM_TYPE_STRING, INDOM_ID(8), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(35,4) : ['postgresql.statio.user_indexes.relname', 'pg_statio_user_indexes', 'relname',
-        pmdaMetric( PM_ID(35,4), c_api.PM_TYPE_STRING, INDOM_ID(8), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(35,5) : ['postgresql.statio.user_indexes.idx_blks_read', 'pg_statio_user_indexes', 'idx_blks_read',
-        pmdaMetric( PM_ID(35,5), c_api.PM_TYPE_U32, INDOM_ID(8), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(35,6) : ['postgresql.statio.user_indexes.idx_blks_hit', 'pg_statio_user_indexes', 'idx_blks_hit',
-        pmdaMetric( PM_ID(35,6), c_api.PM_TYPE_U32, INDOM_ID(8), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(36,1) : ['postgresql.statio.all_sequences.schemaname', 'pg_statio_all_sequences', 'schemaname',
-        pmdaMetric( PM_ID(36,1), c_api.PM_TYPE_STRING, INDOM_ID(9), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(36,3) : ['postgresql.statio.all_sequences.blks_read', 'pg_statio_all_sequences', 'blks_read',
-        pmdaMetric( PM_ID(36,3), c_api.PM_TYPE_U32, INDOM_ID(9), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(36,4) : ['postgresql.statio.all_sequences.blks_hit', 'pg_statio_all_sequences', 'blks_hit',
-        pmdaMetric( PM_ID(36,4), c_api.PM_TYPE_U32, INDOM_ID(9), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(37,1) : ['postgresql.statio.sys_sequences.schemaname', 'pg_statio_sys_sequences', 'schemaname',
-        pmdaMetric( PM_ID(37,1), c_api.PM_TYPE_STRING, INDOM_ID(10), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(37,3) : ['postgresql.statio.sys_sequences.blks_read', 'pg_statio_sys_sequences', 'blks_read',
-        pmdaMetric( PM_ID(37,3), c_api.PM_TYPE_U32, INDOM_ID(10), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(37,4) : ['postgresql.statio.sys_sequences.blks_hit', 'pg_statio_sys_sequences', 'blks_hit',
-        pmdaMetric( PM_ID(37,4), c_api.PM_TYPE_U32, INDOM_ID(10), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(38,1) : ['postgresql.statio.user_sequences.schemaname', 'pg_statio_user_sequences', 'schemaname',
-        pmdaMetric( PM_ID(38,1), c_api.PM_TYPE_STRING, INDOM_ID(11), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
-
-    PM_ID(38,3) : ['postgresql.statio.user_sequences.blks_read', 'pg_statio_user_sequences', 'blks_read',
-        pmdaMetric( PM_ID(38,3), c_api.PM_TYPE_U32, INDOM_ID(11), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-
-    PM_ID(38,4) : ['postgresql.statio.user_sequences.blks_hit', 'pg_statio_user_sequences', 'blks_hit',
-        pmdaMetric( PM_ID(38,4), c_api.PM_TYPE_U32, INDOM_ID(11), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
-}
-
 class POSTGRESQLPMDA(PMDA):
     """
     PMDA class for postgresql performance metrics
     """
+
+    # list indicies for metrictable and indomtable
+    INDOM_PMDAINDOM = 0
+    INDOM_TABLE = 1
+    INDOM_INSTID = 2
+    INDOM_INSTNAME = 3
+    METRIC_NAME = 0
+    METRIC_TABLE = 1
+    METRIC_COLUMN = 2
+    METRIC_PMDAMETRIC = 3
+
+    def PM_ID(self,cluster,item):
+        return PMDA.pmid(cluster,item)
+
+    def INDOM_ID(self,serial):
+        return PMDA.indom(serial)
+
     def __init__(self, name, domain):
         """ constructor """
         PMDA.__init__(self, name, domain)
@@ -704,6 +56,654 @@ class POSTGRESQLPMDA(PMDA):
         if os.getenv("PCP_PYTHON_DEBUG") is not None:
             self.dbg = True
         self.debug("starting __init__")
+
+        #
+        # Indom dict
+        # indomid : [pmdaIndom, table, inst_column, instname_column]
+        self.indomtable = {
+            self.INDOM_ID(0) : [pmdaIndom(self.INDOM_ID(0), {}), 'pg_stat_all_tables', 'relid', 'relname'],
+            self.INDOM_ID(1) : [pmdaIndom(self.INDOM_ID(1), {}), 'pg_stat_sys_tables', 'relid', 'relname'],
+            self.INDOM_ID(2) : [pmdaIndom(self.INDOM_ID(2), {}), 'pg_stat_user_tables', 'relid', 'relname'],
+            # self.INDOM_ID(3) : [pmdaIndom(self.INDOM_ID(3), {}), 'pg_stat_activity', 'pid', 'application_name'],
+            self.INDOM_ID(3) : [pmdaIndom(self.INDOM_ID(3), {}), 'pg_stat_activity', 'pid', 'pid'],
+            self.INDOM_ID(4) : [pmdaIndom(self.INDOM_ID(4), {}), 'pg_stat_user_functions', 'funcid', 'funcname'],
+            self.INDOM_ID(5) : [pmdaIndom(self.INDOM_ID(5), {}), 'pg_stat_database_conflicts', 'datid', 'datname'],
+            self.INDOM_ID(6) : [pmdaIndom(self.INDOM_ID(6), {}), 'pg_stat_all_indexes', 'indexrelid', 'indexrelname'],
+            self.INDOM_ID(7) : [pmdaIndom(self.INDOM_ID(7), {}), 'pg_stat_sys_indexes', 'indexrelid', 'indexrelname'],
+            self.INDOM_ID(8) : [pmdaIndom(self.INDOM_ID(8), {}), 'pg_stat_user_indexes', 'indexrelid', 'indexrelname'],
+            self.INDOM_ID(9) : [pmdaIndom(self.INDOM_ID(9), {}), 'pg_statio_all_sequences', 'relid', 'relname'],
+            self.INDOM_ID(10) : [pmdaIndom(self.INDOM_ID(10), {}), 'pg_statio_sys_sequences', 'relid', 'relname'],
+            self.INDOM_ID(11) : [pmdaIndom(self.INDOM_ID(11), {}), 'pg_statio_user_sequences', 'relid', 'relname'],
+            self.INDOM_ID(12) : [pmdaIndom(self.INDOM_ID(12), {}), 'pg_stat_replication', 'pid', 'application_name']
+        }
+
+        # Metrics dict
+        # pmid : [ pmns, table, column, pmdaMetric ]
+        self.metrictable = {
+            self.PM_ID(0,0) : ['postgresql.stat.activity.datid', 'pg_stat_activity', 'datid',
+                pmdaMetric( self.PM_ID(0,0), c_api.PM_TYPE_U32, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(0,1) : ['postgresql.stat.activity.datname', 'pg_stat_activity', 'datname',
+                pmdaMetric( self.PM_ID(0,1), c_api.PM_TYPE_STRING, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(0,10) : ['postgresql.stat.activity.xact_start', 'pg_stat_activity', 'xact_start',
+                pmdaMetric( self.PM_ID(0,10), c_api.PM_TYPE_STRING, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(0,11) : ['postgresql.stat.activity.query_start', 'pg_stat_activity', 'query_start',
+                pmdaMetric( self.PM_ID(0,11), c_api.PM_TYPE_STRING, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(0,12) : ['postgresql.stat.activity.waiting', 'pg_stat_activity', 'wait_event_type', # or 'waiting'
+                pmdaMetric( self.PM_ID(0,12), c_api.PM_TYPE_32, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(0,13) : ['postgresql.stat.activity.current_query', 'pg_stat_activity', 'query',
+                pmdaMetric( self.PM_ID(0,13), c_api.PM_TYPE_STRING, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(0,3) : ['postgresql.stat.activity.usesysid', 'pg_stat_activity', 'usesysid',
+                pmdaMetric( self.PM_ID(0,3), c_api.PM_TYPE_U32, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(0,4) : ['postgresql.stat.activity.usename', 'pg_stat_activity', 'usename',
+                pmdaMetric( self.PM_ID(0,4), c_api.PM_TYPE_STRING, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(0,5) : ['postgresql.stat.activity.application_name', 'pg_stat_activity', 'application_name',
+                pmdaMetric( self.PM_ID(0,5), c_api.PM_TYPE_STRING, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(0,6) : ['postgresql.stat.activity.client_addr', 'pg_stat_activity', 'client_addr',
+                pmdaMetric( self.PM_ID(0,6), c_api.PM_TYPE_STRING, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(0,7) : ['postgresql.stat.activity.client_hostname', 'pg_stat_activity', 'client_hostname',
+                pmdaMetric( self.PM_ID(0,7), c_api.PM_TYPE_STRING, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(0,8) : ['postgresql.stat.activity.client_port', 'pg_stat_activity', 'client_port',
+                pmdaMetric( self.PM_ID(0,8), c_api.PM_TYPE_32, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(0,9) : ['postgresql.stat.activity.backend_start', 'pg_stat_activity', 'backend_start',
+                pmdaMetric( self.PM_ID(0,9), c_api.PM_TYPE_STRING, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(1,0) : ['postgresql.stat.bgwriter.checkpoints_timed', 'pg_stat_bgwriter', 'checkpoints_timed',
+                pmdaMetric( self.PM_ID(1,0), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(1,1) : ['postgresql.stat.bgwriter.checkpoints_req', 'pg_stat_bgwriter', 'checkpoints_req',
+                pmdaMetric( self.PM_ID(1,1), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(1,2) : ['postgresql.stat.bgwriter.buffers_checkpoints', 'pg_stat_bgwriter', 'buffers_checkpoint',
+                pmdaMetric( self.PM_ID(1,2), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(1,3) : ['postgresql.stat.bgwriter.buffers_clean', 'pg_stat_bgwriter', 'buffers_clean',
+                pmdaMetric( self.PM_ID(1,3), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(1,4) : ['postgresql.stat.bgwriter.maxwritten_clean', 'pg_stat_bgwriter', 'maxwritten_clean',
+                pmdaMetric( self.PM_ID(1,4), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(1,5) : ['postgresql.stat.bgwriter.buffers_backend', 'pg_stat_bgwriter', 'buffers_backend',
+                pmdaMetric( self.PM_ID(1,5), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(1,6) : ['postgresql.stat.bgwriter.buffers_alloc', 'pg_stat_bgwriter', 'buffers_alloc',
+                pmdaMetric( self.PM_ID(1,6), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(2,10) : ['postgresql.stat.database.tup_updated', 'pg_stat_database', 'tup_updated',
+                pmdaMetric( self.PM_ID(2,10), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(2,11) : ['postgresql.stat.database.tup_deleted', 'pg_stat_database', 'tup_deleted',
+                pmdaMetric( self.PM_ID(2,11), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(2,12) : ['postgresql.stat.database.conflicts', 'pg_stat_database', 'conflicts',
+                pmdaMetric( self.PM_ID(2,12), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(2,13) : ['postgresql.stat.database.stats_reset', 'pg_stat_database', 'stats_reset',
+                pmdaMetric( self.PM_ID(2,13), c_api.PM_TYPE_STRING, self.INDOM_ID(5), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(2,2) : ['postgresql.stat.database.numbackends', 'pg_stat_database', 'numbackends',
+                pmdaMetric( self.PM_ID(2,2), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(2,3) : ['postgresql.stat.database.xact_commit', 'pg_stat_database', 'xact_commit',
+                pmdaMetric( self.PM_ID(2,3), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(2,4) : ['postgresql.stat.database.xact_rollback', 'pg_stat_database', 'xact_rollback',
+                pmdaMetric( self.PM_ID(2,4), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(2,5) : ['postgresql.stat.database.blks_read', 'pg_stat_database', 'blks_read',
+                pmdaMetric( self.PM_ID(2,5), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(2,6) : ['postgresql.stat.database.blks_hit', 'pg_stat_database', 'blks_hit',
+                pmdaMetric( self.PM_ID(2,6), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(2,7) : ['postgresql.stat.database.tup_returned', 'pg_stat_database', 'tup_returned',
+                pmdaMetric( self.PM_ID(2,7), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(2,8) : ['postgresql.stat.database.tup_fetched', 'pg_stat_database', 'tup_fetched',
+                pmdaMetric( self.PM_ID(2,8), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(2,9) : ['postgresql.stat.database.tup_inserted', 'pg_stat_database', 'tup_inserted',
+                pmdaMetric( self.PM_ID(2,9), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(3,1) : ['postgresql.stat.user_functions.schemaname', 'pg_stat_user_functions', 'schemaname',
+                pmdaMetric( self.PM_ID(3,1), c_api.PM_TYPE_STRING, self.INDOM_ID(4), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(3,3) : ['postgresql.stat.user_functions.calls', 'pg_stat_user_functions', 'calls',
+                pmdaMetric( self.PM_ID(3,3), c_api.PM_TYPE_U64, self.INDOM_ID(4), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(3,4) : ['postgresql.stat.user_functions.total_time', 'pg_stat_user_functions', 'total_time',
+                pmdaMetric( self.PM_ID(3,4), c_api.PM_TYPE_U64, self.INDOM_ID(4), c_api.PM_SEM_COUNTER, pmUnits(0,1,0,0,2,0))],
+
+            self.PM_ID(3,5) : ['postgresql.stat.user_functions.self_time', 'pg_stat_user_functions', 'self_time',
+                pmdaMetric( self.PM_ID(3,5), c_api.PM_TYPE_U64, self.INDOM_ID(4), c_api.PM_SEM_COUNTER, pmUnits(0,1,0,0,2,0))],
+
+            self.PM_ID(4,1) : ['postgresql.stat.xact.user_functions.schemaname', 'pg_stat_xact_user_functions', 'schemaname',
+                pmdaMetric( self.PM_ID(4,1), c_api.PM_TYPE_STRING, self.INDOM_ID(4), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(4,3) : ['postgresql.stat.xact.user_functions.calls', 'pg_stat_xact_user_functions', 'calls',
+                pmdaMetric( self.PM_ID(4,3), c_api.PM_TYPE_U64, self.INDOM_ID(4), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(4,4) : ['postgresql.stat.xact.user_functions.total_time', 'pg_stat_xact_user_functions', 'total_time',
+                pmdaMetric( self.PM_ID(4,4), c_api.PM_TYPE_U64, self.INDOM_ID(4), c_api.PM_SEM_COUNTER, pmUnits(0,1,0,0,2,0))],
+
+            self.PM_ID(4,5) : ['postgresql.stat.xact.user_functions.self_time', 'pg_stat_xact_user_functions', 'self_time',
+                pmdaMetric( self.PM_ID(4,5), c_api.PM_TYPE_U64, self.INDOM_ID(4), c_api.PM_SEM_COUNTER, pmUnits(0,1,0,0,2,0))],
+
+            self.PM_ID(5,2) : ['postgresql.stat.database_conflicts.tablespace', 'pg_stat_database_conflicts', 'confl_tablespace',
+                pmdaMetric( self.PM_ID(5,2), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(5,3) : ['postgresql.stat.database_conflicts.lock', 'pg_stat_database_conflicts', 'confl_lock',
+                pmdaMetric( self.PM_ID(5,3), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(5,4) : ['postgresql.stat.database_conflicts.snapshot', 'pg_stat_database_conflicts', 'confl_snapshot',
+                pmdaMetric( self.PM_ID(5,4), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(5,5) : ['postgresql.stat.database_conflicts.bufferpin', 'pg_stat_database_conflicts', 'confl_bufferpin',
+                pmdaMetric( self.PM_ID(5,5), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(5,6) : ['postgresql.stat.database_conflicts.deadlock', 'pg_stat_database_conflicts', 'confl_deadlock',
+                pmdaMetric( self.PM_ID(5,6), c_api.PM_TYPE_U32, self.INDOM_ID(5), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(6,1) : ['postgresql.stat.replication.usesysid', 'pg_stat_replication', 'usesysid',
+                pmdaMetric( self.PM_ID(6,1), c_api.PM_TYPE_U32, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(6,10) : ['postgresql.stat.replication.write_location', 'pg_stat_replication', 'write_location',
+                pmdaMetric( self.PM_ID(6,10), c_api.PM_TYPE_STRING, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(6,11) : ['postgresql.stat.replication.flush_location', 'pg_stat_replication', 'flush_location',
+                pmdaMetric( self.PM_ID(6,11), c_api.PM_TYPE_STRING, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(6,12) : ['postgresql.stat.replication.replay_location', 'pg_stat_replication', 'replay_location',
+                pmdaMetric( self.PM_ID(6,12), c_api.PM_TYPE_STRING, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(6,13) : ['postgresql.stat.replication.sync_priority', 'pg_stat_replication', 'sync_priority',
+                pmdaMetric( self.PM_ID(6,13), c_api.PM_TYPE_STRING, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(6,14) : ['postgresql.stat.replication.sync_state', 'pg_stat_replication', 'sync_state',
+                pmdaMetric( self.PM_ID(6,14), c_api.PM_TYPE_STRING, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(6,2) : ['postgresql.stat.replication.usename', 'pg_stat_replication', 'usename',
+                pmdaMetric( self.PM_ID(6,2), c_api.PM_TYPE_STRING, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(6,3) : ['postgresql.stat.replication.application_name', 'pg_stat_replication', 'application_name',
+                pmdaMetric( self.PM_ID(6,3), c_api.PM_TYPE_STRING, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(6,4) : ['postgresql.stat.replication.client_addr', 'pg_stat_replication', 'client_addr',
+                pmdaMetric( self.PM_ID(6,4), c_api.PM_TYPE_STRING, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(6,5) : ['postgresql.stat.replication.client_hostname', 'pg_stat_replication', 'client_hostname',
+                pmdaMetric( self.PM_ID(6,5), c_api.PM_TYPE_STRING, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(6,6) : ['postgresql.stat.replication.client_port', 'pg_stat_replication', 'client_port',
+                pmdaMetric( self.PM_ID(6,6), c_api.PM_TYPE_32, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(6,7) : ['postgresql.stat.replication.backend_start', 'pg_stat_replication', 'backend_start',
+                pmdaMetric( self.PM_ID(6,7), c_api.PM_TYPE_STRING, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(6,8) : ['postgresql.stat.replication.state', 'pg_stat_replication', 'state',
+                pmdaMetric( self.PM_ID(6,8), c_api.PM_TYPE_STRING, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(6,9) : ['postgresql.stat.replication.sent_location', 'pg_stat_replication', 'sent_location',
+                pmdaMetric( self.PM_ID(6,9), c_api.PM_TYPE_STRING, self.INDOM_ID(12), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(7,0) : ['postgresql.active.is_in_recovery', 'pg_active', 'is_in_recovery',
+                pmdaMetric( self.PM_ID(7,0), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(7,1) : ['postgresql.active.xlog_current_location_log_id', 'pg_active', 'xlog_current_location_log_id',
+                pmdaMetric( self.PM_ID(7,1), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(7,2) : ['postgresql.active.xlog_current_location_offset', 'pg_active', 'xlog_current_location_offset',
+                pmdaMetric( self.PM_ID(7,2), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(8,0) : ['postgresql.recovery.is_in_recovery', 'pg_recovery', 'is_in_recovery',
+                pmdaMetric( self.PM_ID(8,0), c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(8,1) : ['postgresql.recovery.xlog_receive_location_log_id', 'pg_recovery', 'xlog_receive_location_log_id',
+                pmdaMetric( self.PM_ID(8,1), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(8,2) : ['postgresql.recovery.xlog_receive_location_offset', 'pg_recovery', 'xlog_receive_location_offset',
+                pmdaMetric( self.PM_ID(8,2), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(8,3) : ['postgresql.recovery.xlog_replay_location_log_id', 'pg_recovery', 'xlog_replay_location_log_id',
+                pmdaMetric( self.PM_ID(8,3), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(8,4) : ['postgresql.recovery.xlog_replay_location_offset', 'pg_recovery', 'xlog_replay_location_offset',
+                pmdaMetric( self.PM_ID(8,4), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,10) : ['postgresql.stat.all_tables.n_tup_hot_upd', 'pg_stat_all_tables', 'n_tup_hot_upd',
+                pmdaMetric( self.PM_ID(10,10), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,1) : ['postgresql.stat.all_tables.schemaname', 'pg_stat_all_tables', 'schemaname',
+                pmdaMetric( self.PM_ID(10,1), c_api.PM_TYPE_STRING, self.INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,11) : ['postgresql.stat.all_tables.n_live_tup', 'pg_stat_all_tables', 'n_live_tup',
+                pmdaMetric( self.PM_ID(10,11), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,12) : ['postgresql.stat.all_tables.n_dead_tup', 'pg_stat_all_tables', 'n_dead_tup',
+                pmdaMetric( self.PM_ID(10,12), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,13) : ['postgresql.stat.all_tables.last_vacuum', 'pg_stat_all_tables', 'last_vacuum',
+                pmdaMetric( self.PM_ID(10,13), c_api.PM_TYPE_STRING, self.INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,14) : ['postgresql.stat.all_tables.last_autovacuum', 'pg_stat_all_tables', 'last_autovacuum',
+                pmdaMetric( self.PM_ID(10,14), c_api.PM_TYPE_STRING, self.INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,15) : ['postgresql.stat.all_tables.last_analyze', 'pg_stat_all_tables', 'last_analyze',
+                pmdaMetric( self.PM_ID(10,15), c_api.PM_TYPE_STRING, self.INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,16) : ['postgresql.stat.all_tables.last_autoanalyze', 'pg_stat_all_tables', 'last_autoanalyze',
+                pmdaMetric( self.PM_ID(10,16), c_api.PM_TYPE_STRING, self.INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,3) : ['postgresql.stat.all_tables.seq_scan', 'pg_stat_all_tables', 'seq_scan',
+                pmdaMetric( self.PM_ID(10,3), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,4) : ['postgresql.stat.all_tables.seq_tup_read', 'pg_stat_all_tables', 'seq_tup_read',
+                pmdaMetric( self.PM_ID(10,4), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,5) : ['postgresql.stat.all_tables.idx_scan', 'pg_stat_all_tables', 'idx_scan',
+                pmdaMetric( self.PM_ID(10,5), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,6) : ['postgresql.stat.all_tables.idx_tup_fetch', 'pg_stat_all_tables', 'idx_tup_fetch',
+                pmdaMetric( self.PM_ID(10,6), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,7) : ['postgresql.stat.all_tables.n_tup_ins', 'pg_stat_all_tables', 'n_tup_ins',
+                pmdaMetric( self.PM_ID(10,7), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,8) : ['postgresql.stat.all_tables.n_tup_upd', 'pg_stat_all_tables', 'n_tup_upd',
+                pmdaMetric( self.PM_ID(10,8), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(10,9) : ['postgresql.stat.all_tables.n_tup_del', 'pg_stat_all_tables', 'n_tup_del',
+                pmdaMetric( self.PM_ID(10,9), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,10) : ['postgresql.stat.sys_tables.n_tup_hot_upd', 'pg_stat_sys_tables', 'n_tup_hot_upd',
+                pmdaMetric( self.PM_ID(11,10), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,1) : ['postgresql.stat.sys_tables.schemaname', 'pg_stat_sys_tables', 'schemaname',
+                pmdaMetric( self.PM_ID(11,1), c_api.PM_TYPE_STRING, self.INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,11) : ['postgresql.stat.sys_tables.n_live_tup', 'pg_stat_sys_tables', 'n_live_tup',
+                pmdaMetric( self.PM_ID(11,11), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,12) : ['postgresql.stat.sys_tables.n_dead_tup', 'pg_stat_sys_tables', 'n_dead_tup',
+                pmdaMetric( self.PM_ID(11,12), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,13) : ['postgresql.stat.sys_tables.last_vacuum', 'pg_stat_sys_tables', 'last_vacuum',
+                pmdaMetric( self.PM_ID(11,13), c_api.PM_TYPE_STRING, self.INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,14) : ['postgresql.stat.sys_tables.last_autovacuum', 'pg_stat_sys_tables', 'last_autovacuum',
+                pmdaMetric( self.PM_ID(11,14), c_api.PM_TYPE_STRING, self.INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,15) : ['postgresql.stat.sys_tables.last_analyze', 'pg_stat_sys_tables', 'last_analyze',
+                pmdaMetric( self.PM_ID(11,15), c_api.PM_TYPE_STRING, self.INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,16) : ['postgresql.stat.sys_tables.last_autoanalyze', 'pg_stat_sys_tables', 'last_autoanalyze',
+                pmdaMetric( self.PM_ID(11,16), c_api.PM_TYPE_STRING, self.INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,3) : ['postgresql.stat.sys_tables.seq_scan', 'pg_stat_sys_tables', 'seq_scan',
+                pmdaMetric( self.PM_ID(11,3), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,4) : ['postgresql.stat.sys_tables.seq_tup_read', 'pg_stat_sys_tables', 'seq_tup_read',
+                pmdaMetric( self.PM_ID(11,4), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,5) : ['postgresql.stat.sys_tables.idx_scan', 'pg_stat_sys_tables', 'idx_scan',
+                pmdaMetric( self.PM_ID(11,5), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,6) : ['postgresql.stat.sys_tables.idx_tup_fetch', 'pg_stat_sys_tables', 'idx_tup_fetch',
+                pmdaMetric( self.PM_ID(11,6), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,7) : ['postgresql.stat.sys_tables.n_tup_ins', 'pg_stat_sys_tables', 'n_tup_ins',
+                pmdaMetric( self.PM_ID(11,7), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,8) : ['postgresql.stat.sys_tables.n_tup_upd', 'pg_stat_sys_tables', 'n_tup_upd',
+                pmdaMetric( self.PM_ID(11,8), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(11,9) : ['postgresql.stat.sys_tables.n_tup_del', 'pg_stat_sys_tables', 'n_tup_del',
+                pmdaMetric( self.PM_ID(11,9), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,10) : ['postgresql.stat.user_tables.n_tup_hot_upd', 'pg_stat_user_tables', 'n_tup_hot_upd',
+                pmdaMetric( self.PM_ID(12,10), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,1) : ['postgresql.stat.user_tables.schemaname', 'pg_stat_user_tables', 'schemaname',
+                pmdaMetric( self.PM_ID(12,1), c_api.PM_TYPE_STRING, self.INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,11) : ['postgresql.stat.user_tables.n_live_tup', 'pg_stat_user_tables', 'n_live_tup',
+                pmdaMetric( self.PM_ID(12,11), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,12) : ['postgresql.stat.user_tables.n_dead_tup', 'pg_stat_user_tables', 'n_dead_tup',
+                pmdaMetric( self.PM_ID(12,12), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,13) : ['postgresql.stat.user_tables.last_vacuum', 'pg_stat_user_tables', 'last_vacuum',
+                pmdaMetric( self.PM_ID(12,13), c_api.PM_TYPE_STRING, self.INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,14) : ['postgresql.stat.user_tables.last_autovacuum', 'pg_stat_user_tables', 'last_autovacuum',
+                pmdaMetric( self.PM_ID(12,14), c_api.PM_TYPE_STRING, self.INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,15) : ['postgresql.stat.user_tables.last_analyze', 'pg_stat_user_tables', 'last_analyze',
+                pmdaMetric( self.PM_ID(12,15), c_api.PM_TYPE_STRING, self.INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,16) : ['postgresql.stat.user_tables.last_autoanalyze', 'pg_stat_user_tables', 'last_autoanalyze',
+                pmdaMetric( self.PM_ID(12,16), c_api.PM_TYPE_STRING, self.INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,3) : ['postgresql.stat.user_tables.seq_scan', 'pg_stat_user_tables', 'seq_scan',
+                pmdaMetric( self.PM_ID(12,3), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,4) : ['postgresql.stat.user_tables.seq_tup_read', 'pg_stat_user_tables', 'seq_tup_read',
+                pmdaMetric( self.PM_ID(12,4), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,5) : ['postgresql.stat.user_tables.idx_scan', 'pg_stat_user_tables', 'idx_scan',
+                pmdaMetric( self.PM_ID(12,5), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,6) : ['postgresql.stat.user_tables.idx_tup_fetch', 'pg_stat_user_tables', 'idx_tup_fetch',
+                pmdaMetric( self.PM_ID(12,6), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,7) : ['postgresql.stat.user_tables.n_tup_ins', 'pg_stat_user_tables', 'n_tup_ins',
+                pmdaMetric( self.PM_ID(12,7), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,8) : ['postgresql.stat.user_tables.n_tup_upd', 'pg_stat_user_tables', 'n_tup_upd',
+                pmdaMetric( self.PM_ID(12,8), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(12,9) : ['postgresql.stat.user_tables.n_tup_del', 'pg_stat_user_tables', 'n_tup_del',
+                pmdaMetric( self.PM_ID(12,9), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(13,0) : ['postgresql.stat.all_indexes.relid', 'pg_stat_all_indexes', 'relid',
+                pmdaMetric( self.PM_ID(13,0), c_api.PM_TYPE_32, self.INDOM_ID(6), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(13,2) : ['postgresql.stat.all_indexes.schemaname', 'pg_stat_all_indexes', 'schemaname',
+                pmdaMetric( self.PM_ID(13,2), c_api.PM_TYPE_STRING, self.INDOM_ID(6), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(13,3) : ['postgresql.stat.all_indexes.relname', 'pg_stat_all_indexes', 'relname',
+                pmdaMetric( self.PM_ID(13,3), c_api.PM_TYPE_STRING, self.INDOM_ID(6), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(13,5) : ['postgresql.stat.all_indexes.idx_scan', 'pg_stat_all_indexes', 'idx_scan',
+                pmdaMetric( self.PM_ID(13,5), c_api.PM_TYPE_U32, self.INDOM_ID(6), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(13,6) : ['postgresql.stat.all_indexes.idx_tup_read', 'pg_stat_all_indexes', 'idx_tup_read',
+                pmdaMetric( self.PM_ID(13,6), c_api.PM_TYPE_U32, self.INDOM_ID(6), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(13,7) : ['postgresql.stat.all_indexes.idx_tup_fetch', 'pg_stat_all_indexes', 'idx_tup_fetch',
+                pmdaMetric( self.PM_ID(13,7), c_api.PM_TYPE_U32, self.INDOM_ID(6), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(14,0) : ['postgresql.stat.sys_indexes.relid', 'pg_stat_sys_indexes', 'relid',
+                pmdaMetric( self.PM_ID(14,0), c_api.PM_TYPE_32, self.INDOM_ID(7), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(14,2) : ['postgresql.stat.sys_indexes.schemaname', 'pg_stat_sys_indexes', 'schemaname',
+                pmdaMetric( self.PM_ID(14,2), c_api.PM_TYPE_STRING, self.INDOM_ID(7), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(14,3) : ['postgresql.stat.sys_indexes.relname', 'pg_stat_sys_indexes', 'relname',
+                pmdaMetric( self.PM_ID(14,3), c_api.PM_TYPE_STRING, self.INDOM_ID(7), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(14,5) : ['postgresql.stat.sys_indexes.idx_scan', 'pg_stat_sys_indexes', 'idx_scan',
+                pmdaMetric( self.PM_ID(14,5), c_api.PM_TYPE_U32, self.INDOM_ID(7), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(14,6) : ['postgresql.stat.sys_indexes.idx_tup_read', 'pg_stat_sys_indexes', 'idx_tup_read',
+                pmdaMetric( self.PM_ID(14,6), c_api.PM_TYPE_U32, self.INDOM_ID(7), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(14,7) : ['postgresql.stat.sys_indexes.idx_tup_fetch', 'pg_stat_sys_indexes', 'idx_tup_fetch',
+                pmdaMetric( self.PM_ID(14,7), c_api.PM_TYPE_U32, self.INDOM_ID(7), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(15,0) : ['postgresql.stat.user_indexes.relid', 'pg_stat_sys_indexes', 'relid',
+                pmdaMetric( self.PM_ID(15,0), c_api.PM_TYPE_32, self.INDOM_ID(8), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(15,2) : ['postgresql.stat.user_indexes.schemaname', 'pg_stat_user_indexes', 'schemaname',
+                pmdaMetric( self.PM_ID(15,2), c_api.PM_TYPE_STRING, self.INDOM_ID(8), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(15,3) : ['postgresql.stat.user_indexes.relname', 'pg_stat_user_indexes', 'relname',
+                pmdaMetric( self.PM_ID(15,3), c_api.PM_TYPE_STRING, self.INDOM_ID(8), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(15,5) : ['postgresql.stat.user_indexes.idx_scan', 'pg_stat_user_indexes', 'idx_scan',
+                pmdaMetric( self.PM_ID(15,5), c_api.PM_TYPE_U32, self.INDOM_ID(8), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(15,6) : ['postgresql.stat.user_indexes.idx_tup_read', 'pg_stat_user_indexes', 'idx_tup_read',
+                pmdaMetric( self.PM_ID(15,6), c_api.PM_TYPE_U32, self.INDOM_ID(8), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(15,7) : ['postgresql.stat.user_indexes.idx_tup_fetch', 'pg_stat_user_indexes', 'idx_tup_fetch',
+                pmdaMetric( self.PM_ID(15,7), c_api.PM_TYPE_U32, self.INDOM_ID(8), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(16,10) : ['postgresql.stat.xact.all_tables.n_tup_hot_upd', 'pg_stat_xact_all_tables', 'n_tup_hot_upd',
+                pmdaMetric( self.PM_ID(16,10), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(16,1) : ['postgresql.stat.xact.all_tables.schemaname', 'pg_stat_xact_all_tables', 'schemaname',
+                pmdaMetric( self.PM_ID(16,1), c_api.PM_TYPE_STRING, self.INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(16,3) : ['postgresql.stat.xact.all_tables.seq_scan', 'pg_stat_xact_all_tables', 'seq_scan',
+                pmdaMetric( self.PM_ID(16,3), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(16,4) : ['postgresql.stat.xact.all_tables.seq_tup_read', 'pg_stat_xact_all_tables', 'seq_tup_read',
+                pmdaMetric( self.PM_ID(16,4), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(16,5) : ['postgresql.stat.xact.all_tables.idx_scan', 'pg_stat_xact_all_tables', 'idx_scan',
+                pmdaMetric( self.PM_ID(16,5), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(16,6) : ['postgresql.stat.xact.all_tables.idx_tup_fetch', 'pg_stat_xact_all_tables', 'idx_tup_fetch',
+                pmdaMetric( self.PM_ID(16,6), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(16,7) : ['postgresql.stat.xact.all_tables.n_tup_ins', 'pg_stat_xact_all_tables', 'n_tup_ins',
+                pmdaMetric( self.PM_ID(16,7), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(16,8) : ['postgresql.stat.xact.all_tables.n_tup_upd', 'pg_stat_xact_all_tables', 'n_tup_upd',
+                pmdaMetric( self.PM_ID(16,8), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(16,9) : ['postgresql.stat.xact.all_tables.n_tup_del', 'pg_stat_xact_all_tables', 'n_tup_del',
+                pmdaMetric( self.PM_ID(16,9), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(17,10) : ['postgresql.stat.xact.sys_tables.n_tup_hot_upd', 'pg_stat_xact_sys_tables', 'n_tup_hot_upd',
+                pmdaMetric( self.PM_ID(17,10), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(17,1) : ['postgresql.stat.xact.sys_tables.schemaname', 'pg_stat_xact_sys_tables', 'schemaname',
+                pmdaMetric( self.PM_ID(17,1), c_api.PM_TYPE_STRING, self.INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(17,3) : ['postgresql.stat.xact.sys_tables.seq_scan', 'pg_stat_xact_sys_tables', 'seq_scan',
+                pmdaMetric( self.PM_ID(17,3), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(17,4) : ['postgresql.stat.xact.sys_tables.seq_tup_read', 'pg_stat_xact_sys_tables', 'seq_tup_read',
+                pmdaMetric( self.PM_ID(17,4), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(17,5) : ['postgresql.stat.xact.sys_tables.idx_scan', 'pg_stat_xact_sys_tables', 'idx_scan',
+                pmdaMetric( self.PM_ID(17,5), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(17,6) : ['postgresql.stat.xact.sys_tables.idx_tup_fetch', 'pg_stat_xact_sys_tables', 'idx_tup_fetch',
+                pmdaMetric( self.PM_ID(17,6), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(17,7) : ['postgresql.stat.xact.sys_tables.n_tup_ins', 'pg_stat_xact_sys_tables', 'n_tup_ins',
+                pmdaMetric( self.PM_ID(17,7), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(17,8) : ['postgresql.stat.xact.sys_tables.n_tup_upd', 'pg_stat_xact_sys_tables', 'n_tup_upd',
+                pmdaMetric( self.PM_ID(17,8), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(17,9) : ['postgresql.stat.xact.sys_tables.n_tup_del', 'pg_stat_xact_sys_tables', 'n_tup_del',
+                pmdaMetric( self.PM_ID(17,9), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(18,10) : ['postgresql.stat.xact.user_tables.n_tup_hot_upd', 'pg_stat_xact_user_tables', 'n_tup_hot_upd',
+                pmdaMetric( self.PM_ID(18,10), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(18,1) : ['postgresql.stat.xact.user_tables.schemaname', 'pg_stat_xact_user_tables', 'schemaname',
+                pmdaMetric( self.PM_ID(18,1), c_api.PM_TYPE_STRING, self.INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(18,3) : ['postgresql.stat.xact.user_tables.seq_scan', 'pg_stat_xact_user_tables', 'seq_scan',
+                pmdaMetric( self.PM_ID(18,3), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(18,4) : ['postgresql.stat.xact.user_tables.seq_tup_read', 'pg_stat_xact_user_tables', 'seq_tup_read',
+                pmdaMetric( self.PM_ID(18,4), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(18,5) : ['postgresql.stat.xact.user_tables.idx_scan', 'pg_stat_xact_user_tables', 'idx_scan',
+                pmdaMetric( self.PM_ID(18,5), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(18,6) : ['postgresql.stat.xact.user_tables.idx_tup_fetch', 'pg_stat_xact_user_tables', 'idx_tup_fetch',
+                pmdaMetric( self.PM_ID(18,6), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(18,7) : ['postgresql.stat.xact.user_tables.n_tup_ins', 'pg_stat_xact_user_tables', 'n_tup_ins',
+                pmdaMetric( self.PM_ID(18,7), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(18,8) : ['postgresql.stat.xact.user_tables.n_tup_upd', 'pg_stat_xact_user_tables', 'n_tup_upd',
+                pmdaMetric( self.PM_ID(18,8), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(18,9) : ['postgresql.stat.xact.user_tables.n_tup_del', 'pg_stat_xact_user_tables', 'n_tup_del',
+                pmdaMetric( self.PM_ID(18,9), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(30,1) : ['postgresql.statio.all_tables.schemaname', 'pg_statio_all_tables', 'schemaname',
+                pmdaMetric( self.PM_ID(30,1), c_api.PM_TYPE_STRING, self.INDOM_ID(0), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(30,10) : ['postgresql.statio.all_tables.tidx_blks_hit', 'pg_statio_all_tables', 'tidx_blks_hit',
+                pmdaMetric( self.PM_ID(30,10), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(30,3) : ['postgresql.statio.all_tables.heap_blks_read', 'pg_statio_all_tables', 'heap_blks_read',
+                pmdaMetric( self.PM_ID(30,3), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(30,4) : ['postgresql.statio.all_tables.heap_blks_hit', 'pg_statio_all_tables', 'heap_blks_hit',
+                pmdaMetric( self.PM_ID(30,4), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(30,5) : ['postgresql.statio.all_tables.idx_blks_read', 'pg_statio_all_tables', 'idx_blks_read',
+                pmdaMetric( self.PM_ID(30,5), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(30,6) : ['postgresql.statio.all_tables.idx_blks_hit', 'pg_statio_all_tables', 'idx_blks_hit',
+                pmdaMetric( self.PM_ID(30,6), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(30,7) : ['postgresql.statio.all_tables.toast_blks_read', 'pg_statio_all_tables', 'toast_blks_read',
+                pmdaMetric( self.PM_ID(30,7), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(30,8) : ['postgresql.statio.all_tables.toast_blks_hit', 'pg_statio_all_tables', 'toast_blks_hit',
+                pmdaMetric( self.PM_ID(30,8), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(30,9) : ['postgresql.statio.all_tables.tidx_blks_read', 'pg_statio_all_tables', 'tidx_blks_read',
+                pmdaMetric( self.PM_ID(30,9), c_api.PM_TYPE_U32, self.INDOM_ID(0), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(31,1) : ['postgresql.statio.sys_tables.schemaname', 'pg_statio_sys_tables', 'schemaname',
+                pmdaMetric( self.PM_ID(31,1), c_api.PM_TYPE_STRING, self.INDOM_ID(1), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(31,10) : ['postgresql.statio.sys_tables.tidx_blks_hit', 'pg_statio_sys_tables', 'tidx_blks_hit',
+                pmdaMetric( self.PM_ID(31,10), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(31,3) : ['postgresql.statio.sys_tables.heap_blks_read', 'pg_statio_sys_tables', 'heap_blks_read',
+                pmdaMetric( self.PM_ID(31,3), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(31,4) : ['postgresql.statio.sys_tables.heap_blks_hit', 'pg_statio_sys_tables', 'heap_blks_hit',
+                pmdaMetric( self.PM_ID(31,4), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(31,5) : ['postgresql.statio.sys_tables.idx_blks_read', 'pg_statio_sys_tables', 'idx_blks_read',
+                pmdaMetric( self.PM_ID(31,5), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(31,6) : ['postgresql.statio.sys_tables.idx_blks_hit', 'pg_statio_sys_tables', 'idx_blks_hit',
+                pmdaMetric( self.PM_ID(31,6), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(31,7) : ['postgresql.statio.sys_tables.toast_blks_read', 'pg_statio_sys_tables', 'toast_blks_read',
+                pmdaMetric( self.PM_ID(31,7), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(31,8) : ['postgresql.statio.sys_tables.toast_blks_hit', 'pg_statio_sys_tables', 'toast_blks_hit',
+                pmdaMetric( self.PM_ID(31,8), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(31,9) : ['postgresql.statio.sys_tables.tidx_blks_read', 'pg_statio_sys_tables', 'tidx_blks_read',
+                pmdaMetric( self.PM_ID(31,9), c_api.PM_TYPE_U32, self.INDOM_ID(1), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(32,1) : ['postgresql.statio.user_tables.schemaname', 'pg_statio_user_tables', 'schemaname',
+                pmdaMetric( self.PM_ID(32,1), c_api.PM_TYPE_STRING, self.INDOM_ID(2), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(32,10) : ['postgresql.statio.user_tables.tidx_blks_hit', 'pg_statio_user_tables', 'tidx_blks_hit',
+                pmdaMetric( self.PM_ID(32,10), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(32,3) : ['postgresql.statio.user_tables.heap_blks_read', 'pg_statio_user_tables', 'heap_blks_read',
+                pmdaMetric( self.PM_ID(32,3), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(32,4) : ['postgresql.statio.user_tables.heap_blks_hit', 'pg_statio_user_tables', 'heap_blks_hit',
+                pmdaMetric( self.PM_ID(32,4), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(32,5) : ['postgresql.statio.user_tables.idx_blks_read', 'pg_statio_user_tables', 'idx_blks_read',
+                pmdaMetric( self.PM_ID(32,5), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(32,6) : ['postgresql.statio.user_tables.idx_blks_hit', 'pg_statio_user_tables', 'idx_blks_hit',
+                pmdaMetric( self.PM_ID(32,6), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(32,7) : ['postgresql.statio.user_tables.toast_blks_read', 'pg_statio_user_tables', 'toast_blks_read',
+                pmdaMetric( self.PM_ID(32,7), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(32,8) : ['postgresql.statio.user_tables.toast_blks_hit', 'pg_statio_user_tables', 'toast_blks_hit',
+                pmdaMetric( self.PM_ID(32,8), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(32,9) : ['postgresql.statio.user_tables.tidx_blks_read', 'pg_statio_user_tables', 'tidx_blks_read',
+                pmdaMetric( self.PM_ID(32,9), c_api.PM_TYPE_U32, self.INDOM_ID(2), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(33,0) : ['postgresql.statio.all_indexes.relid', 'pg_statio_all_indexes', 'relid',
+                pmdaMetric( self.PM_ID(33,0), c_api.PM_TYPE_32, self.INDOM_ID(6), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(33,2) : ['postgresql.statio.all_indexes.schemaname', 'pg_statio_all_indexes', 'schemaname',
+                pmdaMetric( self.PM_ID(33,2), c_api.PM_TYPE_STRING, self.INDOM_ID(6), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(33,4) : ['postgresql.statio.all_indexes.relname', 'pg_statio_all_indexes', 'relname',
+                pmdaMetric( self.PM_ID(33,4), c_api.PM_TYPE_STRING, self.INDOM_ID(6), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(33,5) : ['postgresql.statio.all_indexes.idx_blks_read', 'pg_statio_all_indexes', 'idx_blks_read',
+                pmdaMetric( self.PM_ID(33,5), c_api.PM_TYPE_U32, self.INDOM_ID(6), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(33,6) : ['postgresql.statio.all_indexes.idx_blks_hit', 'pg_statio_all_indexes', 'idx_blks_hit',
+                pmdaMetric( self.PM_ID(33,6), c_api.PM_TYPE_U32, self.INDOM_ID(6), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(34,0) : ['postgresql.statio.sys_indexes.relid', 'pg_statio_sys_indexes', 'relid',
+                pmdaMetric( self.PM_ID(34,0), c_api.PM_TYPE_32, self.INDOM_ID(7), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(34,2) : ['postgresql.statio.sys_indexes.schemaname', 'pg_statio_sys_indexes', 'schemaname',
+                pmdaMetric( self.PM_ID(34,2), c_api.PM_TYPE_STRING, self.INDOM_ID(7), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(34,4) : ['postgresql.statio.sys_indexes.relname', 'pg_statio_sys_indexes', 'relname',
+                pmdaMetric( self.PM_ID(34,4), c_api.PM_TYPE_STRING, self.INDOM_ID(7), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(34,5) : ['postgresql.statio.sys_indexes.idx_blks_read', 'pg_statio_sys_indexes', 'idx_blks_read',
+                pmdaMetric( self.PM_ID(34,5), c_api.PM_TYPE_U32, self.INDOM_ID(7), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(34,6) : ['postgresql.statio.sys_indexes.idx_blks_hit', 'pg_statio_sys_indexes', 'idx_blks_hit',
+                pmdaMetric( self.PM_ID(34,6), c_api.PM_TYPE_U32, self.INDOM_ID(7), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(35,0) : ['postgresql.statio.user_indexes.relid', 'pg_statio_user_indexes', 'relid',
+                pmdaMetric( self.PM_ID(35,0), c_api.PM_TYPE_32, self.INDOM_ID(8), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(35,2) : ['postgresql.statio.user_indexes.schemaname', 'pg_statio_user_indexes', 'schemaname',
+                pmdaMetric( self.PM_ID(35,2), c_api.PM_TYPE_STRING, self.INDOM_ID(8), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(35,4) : ['postgresql.statio.user_indexes.relname', 'pg_statio_user_indexes', 'relname',
+                pmdaMetric( self.PM_ID(35,4), c_api.PM_TYPE_STRING, self.INDOM_ID(8), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(35,5) : ['postgresql.statio.user_indexes.idx_blks_read', 'pg_statio_user_indexes', 'idx_blks_read',
+                pmdaMetric( self.PM_ID(35,5), c_api.PM_TYPE_U32, self.INDOM_ID(8), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(35,6) : ['postgresql.statio.user_indexes.idx_blks_hit', 'pg_statio_user_indexes', 'idx_blks_hit',
+                pmdaMetric( self.PM_ID(35,6), c_api.PM_TYPE_U32, self.INDOM_ID(8), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(36,1) : ['postgresql.statio.all_sequences.schemaname', 'pg_statio_all_sequences', 'schemaname',
+                pmdaMetric( self.PM_ID(36,1), c_api.PM_TYPE_STRING, self.INDOM_ID(9), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(36,3) : ['postgresql.statio.all_sequences.blks_read', 'pg_statio_all_sequences', 'blks_read',
+                pmdaMetric( self.PM_ID(36,3), c_api.PM_TYPE_U32, self.INDOM_ID(9), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(36,4) : ['postgresql.statio.all_sequences.blks_hit', 'pg_statio_all_sequences', 'blks_hit',
+                pmdaMetric( self.PM_ID(36,4), c_api.PM_TYPE_U32, self.INDOM_ID(9), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(37,1) : ['postgresql.statio.sys_sequences.schemaname', 'pg_statio_sys_sequences', 'schemaname',
+                pmdaMetric( self.PM_ID(37,1), c_api.PM_TYPE_STRING, self.INDOM_ID(10), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(37,3) : ['postgresql.statio.sys_sequences.blks_read', 'pg_statio_sys_sequences', 'blks_read',
+                pmdaMetric( self.PM_ID(37,3), c_api.PM_TYPE_U32, self.INDOM_ID(10), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(37,4) : ['postgresql.statio.sys_sequences.blks_hit', 'pg_statio_sys_sequences', 'blks_hit',
+                pmdaMetric( self.PM_ID(37,4), c_api.PM_TYPE_U32, self.INDOM_ID(10), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(38,1) : ['postgresql.statio.user_sequences.schemaname', 'pg_statio_user_sequences', 'schemaname',
+                pmdaMetric( self.PM_ID(38,1), c_api.PM_TYPE_STRING, self.INDOM_ID(11), c_api.PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0))],
+
+            self.PM_ID(38,3) : ['postgresql.statio.user_sequences.blks_read', 'pg_statio_user_sequences', 'blks_read',
+                pmdaMetric( self.PM_ID(38,3), c_api.PM_TYPE_U32, self.INDOM_ID(11), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+
+            self.PM_ID(38,4) : ['postgresql.statio.user_sequences.blks_hit', 'pg_statio_user_sequences', 'blks_hit',
+                pmdaMetric( self.PM_ID(38,4), c_api.PM_TYPE_U32, self.INDOM_ID(11), c_api.PM_SEM_COUNTER, pmUnits(0,0,1,0,0,0))],
+        }
 
         pmdadir = os.path.join(os.getenv('PCP_PMDAS_DIR'), name)
         conf_file = os.path.join(pmdadir, 'pmdapostgresql.conf')
@@ -716,10 +716,8 @@ class POSTGRESQLPMDA(PMDA):
         # add all the indoms
         self.setup_indoms()
 
-        # walk the metric table and add all the metrics
-        for pmid,metric in metrictable.items():
-            # self.debug("Adding pmid 0x%04x '%s'" % (pmid, metric[METRIC_NAME]))
-            self.add_metric(metric[METRIC_NAME], metric[METRIC_PMDAMETRIC])
+        # add all the metrics
+        self.setup_metrics()
 
         self.debug("Connecting to db '%s' as user '%s'" % (self.config["dbname"], self.config["user"]))
         self.set_user(self.config["user"])
@@ -736,9 +734,9 @@ class POSTGRESQLPMDA(PMDA):
 
         # set up the list of tables
         self.tablelist = []
-        for pmid,data in metrictable.items():
-            if data[METRIC_TABLE] not in self.tablelist:
-                self.tablelist.append(data[METRIC_TABLE])
+        for pmid,data in self.metrictable.items():
+            if data[self.METRIC_TABLE] not in self.tablelist:
+                self.tablelist.append(data[self.METRIC_TABLE])
         self.debug("monitoring %d tables" % len(self.tablelist))
 
         # Set up table:column mapping - this is done dynamically since
@@ -796,7 +794,7 @@ class POSTGRESQLPMDA(PMDA):
             try:
                 cur.execute('SELECT * from %s' % table)
             except (Exception, psycopg2.DatabaseError) as error:
-                # self.debug('WARNING: select on table %s failed: %s' % (table, error))
+                self.debug('WARNING: select on table %s failed: %s' % (table, error))
                 cur.execute('rollback;')
                 continue
 
@@ -812,16 +810,16 @@ class POSTGRESQLPMDA(PMDA):
 
         # refresh the instance domain tables
         try:
-            for indom,data in indomtable.items():
-                table = data[INDOM_TABLE]
+            for indom,data in self.indomtable.items():
+                table = data[self.INDOM_TABLE]
                 self.debug("pg_refresh: refreshing table %s" % table)
                 if table is None or table not in self.tables:
                     self.debug("pg_refresh_all: skipping empty indom for table %s" % table)
                     continue
 
                 # get the column name of the instance ID and name
-                colname_id = data[INDOM_INSTID]
-                colname_instname = data[INDOM_INSTNAME]
+                colname_id = data[self.INDOM_INSTID]
+                colname_instname = data[self.INDOM_INSTNAME]
                 # self.debug("pg_refresh_all indom 0x%04x table=%s colname_id=%s colname_instname=%s" % (indom,table,colname_id,colname_instname))
 
                 # get the column numbers of the instance ID and name
@@ -840,7 +838,7 @@ class POSTGRESQLPMDA(PMDA):
                         # inst name column is missing. fallback to inst id column
                         self.debug("pg_refresh_all: name is None for table %s, indom 0x%04x, rownum %d" %
                             (table, indom, rownum))
-                        name = "%s %d" % (indomtable[indom][INDOM_INSTID], id)
+                        name = "%s %d" % (self.indomtable[indom][self.INDOM_INSTID], id)
                     insts[name] = c_int(rownum) # TODO should be id?
                     rownum += 1
                     self.debug("pg_refresh_all indom 0x%04x table=%s inst=%d name=%s" % (indom,table,id,name))
@@ -848,12 +846,12 @@ class POSTGRESQLPMDA(PMDA):
                 # update the indom table for this indom
                 self.debug("pg_refresh_all: replace_indom(0x%04x) from table %s with %d instances" %
                     (indom,table,len(insts)))
-                indomtable[indom][INDOM_PMDAINDOM].set_instances(indom, insts)
-                self.replace_indom(indomtable[indom][INDOM_PMDAINDOM], insts)
+                self.indomtable[indom][self.INDOM_PMDAINDOM].set_instances(indom, insts)
+                self.replace_indom(self.indomtable[indom][self.INDOM_PMDAINDOM], insts)
 
         except Exception as error: # pylint: disable=broad-except
-            self.err("ERROR: pg_refresh_all failed in fetch phase: %s" % str(error))
-            self.err(traceback.format_exc())
+            self.debug("ERROR: pg_refresh_all failed in fetch phase: %s" % str(error))
+            self.debug(traceback.format_exc())
 
         # done
         self.debug("pg_refresh_all finish")
@@ -870,29 +868,29 @@ class POSTGRESQLPMDA(PMDA):
             self.debug("pg_fetch return")
             return 1
         except Exception as error: # pylint: disable=broad-except
-            self.err("ERROR: pg_fetch exception: %s" % str(error))
-            self.err(traceback.format_exc())
+            self.log("ERROR: pg_fetch exception: %s" % str(error))
+            self.log(traceback.format_exc())
 
     def pg_fetch_callback(self, cluster, item, inst):
         """ Called for each instance of each fetched metric """
-        pmid = PM_ID(cluster, item)
+        pmid = self.PM_ID(cluster, item)
         self.debug("pg_fetch_callback pmid 0x%04x: cluster %d, item %d, inst %d" % (pmid, cluster, item, inst))
 
-        if pmid not in metrictable:
+        if pmid not in self.metrictable:
             return [c_api.PM_ERR_PMID, 0] # unknown pmid
 
         try:
             # find the indom for this metric
-            indom = metrictable[pmid][METRIC_PMDAMETRIC].m_desc.indom
-            pmnsname = metrictable[pmid][METRIC_NAME]
+            indom = self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.indom
+            pmnsname = self.metrictable[pmid][self.METRIC_NAME]
 
             self.debug("pg_fetch_callback pmid=0x%04x '%s' indom=0x%04x" % (pmid,pmnsname,indom))
             if indom != c_api.PM_INDOM_NULL and self.inst_lookup(indom, inst) is None:
                 return [c_api.PM_ERR_INST, 0] # unknown instance for this pmid
 
             # find the table and column name for this pmid
-            table_name = metrictable[pmid][METRIC_TABLE]
-            col_name = metrictable[pmid][METRIC_COLUMN]
+            table_name = self.metrictable[pmid][self.METRIC_TABLE]
+            col_name = self.metrictable[pmid][self.METRIC_COLUMN]
 
             # find the column number for this column name
             col_num = self.tables[table_name]["by_name"][col_name]
@@ -916,22 +914,22 @@ class POSTGRESQLPMDA(PMDA):
                 # TODO: maybe this should return PM_ERR_VALUE.
                 # The table and column exist, but the data is None
                 self.debug("pg_fetch_callback: value is None")
-                if metrictable[pmid][METRIC_PMDAMETRIC].m_desc.type == c_api.PM_TYPE_STRING:
+                if self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.type == c_api.PM_TYPE_STRING:
                     value = ""
                 else:
                     value = 0
 
             self.debug("pg_fetch_callback: indom=0x%04x table=%s col_name=%s col_num=%d inst=%d row=%d value=%s" %
                     (indom, table_name, col_name, col_num, inst, instance_row, value))
-            if metrictable[pmid][METRIC_PMDAMETRIC].m_desc.type == c_api.PM_TYPE_STRING:
+            if self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.type == c_api.PM_TYPE_STRING:
                 return ["%s" % value, 1] # convert to str. some values are datetime etc
             else:
                 return [value, 1] # no conversion needed
 
         except Exception as error: # pylint: disable=broad-except
             self.debug("pg_fetch_callback failed for metric %s: %s" %
-                (metrictable[pmid][METRIC_NAME],str(error)))
-            # self.err(traceback.format_exc())
+                (self.metrictable[pmid][self.METRIC_NAME],str(error)))
+            # self.log(traceback.format_exc())
 
         # if we get to here, either the whole table is missing or just the column
         # e.g. the 'pg_active' table is missing on newer postgres versions
@@ -939,10 +937,16 @@ class POSTGRESQLPMDA(PMDA):
         return[c_api.PM_ERR_APPVERSION, 0]
 
     def setup_indoms(self):
-        for indom,data in indomtable.items():
-            self.add_indom(data[INDOM_PMDAINDOM]) # pmdaIndom
+        for indom,data in self.indomtable.items():
+            self.add_indom(data[self.INDOM_PMDAINDOM]) # pmdaIndom
             self.debug("setup_indoms: added indom 0x%04x for table %s, inst column %s, name column %s" %
-                (indom,data[INDOM_TABLE],data[INDOM_INSTID], data[INDOM_INSTNAME]))
+                (indom,data[self.INDOM_TABLE],data[self.INDOM_INSTID], data[self.INDOM_INSTNAME]))
+
+    def setup_metrics(self):
+        # walk the metric table and add all the metrics
+        for pmid,metric in self.metrictable.items():
+            # self.debug("Adding pmid 0x%04x '%s'" % (pmid, metric[self.METRIC_NAME]))
+            self.add_metric(metric[self.METRIC_NAME], metric[self.METRIC_PMDAMETRIC])
 
     def config(self, filename='pmdapostgresql.conf', section='authentication'):
         parser = ConfigParser()
@@ -964,5 +968,5 @@ class POSTGRESQLPMDA(PMDA):
             self.log("debug: " + msg)
 
 if __name__ == "__main__":
-    pmda = POSTGRESQLPMDA("postgresql", DOMAIN) # 110
+    pmda = POSTGRESQLPMDA("postgresql", 110)
     pmda.run()
