@@ -23,7 +23,7 @@
  * Find or create a new labelspec_t
  */
 labelspec_t *
-start_label(int type, int id, char *label)
+start_label(int type, int id, char *label, char *value)
 {
     labelspec_t	*lp;
     char	buf[64];
@@ -37,9 +37,10 @@ start_label(int type, int id, char *label)
     for (lp = label_root; lp != NULL; lp = lp->l_next) {
 	if (type == lp->old_type) {
 	    if (id == lp->old_id) {
-		if ((label == NULL && lp->old_label == NULL) ||
-		    (label != NULL && lp->old_label != NULL &&
-		     strcmp (label, lp->old_label) == 0)) {
+		if ((label == NULL ||
+		     (lp->old_label != NULL && strcmp (label, lp->old_label) == 0)) &&
+		    (value == NULL ||
+		     (lp->old_value != NULL && strcmp (value, lp->old_value) == 0))) {
 		    if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
 			fprintf(stderr, " -> %s",
 				__pmLabelIdentString(lp->new_id, lp->new_type,
@@ -65,8 +66,10 @@ start_label(int type, int id, char *label)
     lp->old_type = lp->new_type = type;
     lp->old_id = lp->new_id = id;
     lp->old_label = label;
+    lp->old_value = value;
     lp->new_label = NULL;
     lp->new_value = NULL;
+    lp->new_labels = NULL;
     lp->flags = 0;
     lp->ip = NULL;
 

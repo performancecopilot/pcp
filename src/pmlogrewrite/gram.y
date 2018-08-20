@@ -42,6 +42,9 @@ static char		*one_name;
 static textspec_t	*current_textspec;
 static int		do_walk_text;
 
+static int		current_label_id;
+static char *		current_label_name;
+static char *		current_label_value;
 static labelspec_t	*current_labelspec;
 static int		do_walk_label;
 
@@ -208,7 +211,7 @@ walk_label(int mode, int flag, char *which, int dupok)
 {
     static labelspec_t	*lp;
 
-    if (do_walk_label) {
+    if (do_walk_label > 1) {
 	if (mode == W_START)
 	    lp = label_root;
 	else
@@ -320,6 +323,29 @@ walk_label(int mode, int flag, char *which, int dupok)
     return lp;
 }
 
+void
+new_label(int flags)
+{
+    labelspec_t	*lp;
+    int		sts;
+
+    /* Add the new label to the identified label specs. */
+    for (lp = walk_label(W_START, LABEL_NEW, "new", 1); lp != NULL; lp = walk_label(W_NEXT, 0, "", 0)) {
+	char buf[PM_MAXLABELJSONLEN];
+	pmsprintf(buf, sizeof(buf), "{\"%s\":\"%s\"}",
+		  current_label_name, current_label_value);
+	if ((sts = __pmAddLabels(&lp->new_labels, buf, flags)) < 0) {
+	    pmsprintf(mess, sizeof(mess),
+		      "Unable to add new context label %s: %s",
+		      buf, pmErrStr(sts));
+	    yyerror(mess);
+	}
+	lp->flags |= LABEL_NEW;
+	lp->new_label = current_label_name;
+	lp->new_value = current_label_value;
+    }
+}
+
 %}
 
 %union {
@@ -367,6 +393,7 @@ walk_label(int mode, int flag, char *which, int dupok)
 	TOK_CLUSTER
 	TOK_ITEM
 	TOK_INSTANCES
+	TOK_NEW
 
 %token<str>	TOK_GNAME TOK_NUMBER TOK_STRING TOK_NL_STRING TOK_HNAME TOK_FLOAT
 %token<str>	TOK_INDOM_STAR TOK_PMID_INT TOK_PMID_STAR
@@ -378,7 +405,7 @@ walk_label(int mode, int flag, char *which, int dupok)
 %type<pmid>	pmid_int pmid_or_name
 %type<ival>	signnumber number rescaleopt duplicateopt texttype texttypes opttexttypes pmid_domain pmid_cluster
 %type<dval>	float
-%type<str>	textstring optlabelname
+%type<str>	textstring
 
 %%
 
@@ -1691,7 +1718,7 @@ labelcontextormetricorindomspec	: labelcontextspec
 				| labelinstancesspec
 				;
 
-labelcontextspec	: TOK_CONTEXT optlabelname
+labelcontextspec	: TOK_CONTEXT optlabeldetails
 		    {
 			__pmContext	*ctxp;
 			__pmHashCtl	*hcp1;
@@ -1733,24 +1760,35 @@ labelcontextspec	: TOK_CONTEXT optlabelname
 				 node2 != NULL;
 				 node2 = __pmHashWalk(hcp2, PM_HASH_WALK_NEXT)) {
 				/* We want all of the context labels. */
-				current_labelspec = start_label(this_type, (pmID)(node2->key), $2);
+				current_labelspec = start_label(this_type, (pmID)(node2->key), current_label_name, current_label_value);
 				if (current_labelspec) {
 				    current_labelspec->flags |= LABEL_ACTIVE;
 				    ++found;
 				}
 			    }
 			}
-			do_walk_label = (found > 1);
+			do_walk_label = found;
 		    }
 		  TOK_LBRACE optlabelcontextoptlist TOK_RBRACE
 		;
 
-optlabelname	: TOK_STRING
-		    { $$ = $1; }
-		| TOK_LABEL_STAR
-		    { $$ = NULL; }
+optlabeldetails	: TOK_STRING optlabelvalue
+		    { current_label_name = $1; }
+		| TOK_LABEL_STAR optlabelvalue
+		    { current_label_name = NULL; }
 		| /* nothing */
-		    { $$ = NULL; }
+		    {
+			current_label_name = NULL;
+			current_label_value = NULL;
+		    }
+		;
+
+optlabelvalue	: TOK_STRING
+		    { current_label_value = $1; }
+		| TOK_LABEL_STAR
+		    { current_label_value = NULL; }
+		| /* nothing */
+		    { current_label_value = NULL; }
 		;
 
 optlabelcontextoptlist	: labelcontextoptlist
@@ -1774,8 +1812,27 @@ labelcontextopt	: TOK_DELETE
 			    lp->flags |= LABEL_DELETE;
 			}
 		    }
+		| newlabelspec
+		    {
+			new_label (PM_LABEL_CONTEXT);
+		    }
+		
+newlabelspec	: TOK_NEW TOK_STRING TOK_STRING
+		    {
+			/* The current label name and value must both NOT be specified. */
+			if (current_label_name || current_label_value) {
+			    pmsprintf(mess, sizeof(mess), "The target label name and value must both not be specified for a NEW label and will be ignored");
+			    yywarn(mess);
+			    if (current_label_name)
+				free(current_label_name);
+			    if (current_label_value)
+				free(current_label_value);
+			}
+			current_label_name = $2;
+			current_label_value = $3;
+		    }
 
-labeldomainspec	: TOK_DOMAIN pmid_domain optlabelname
+labeldomainspec	: TOK_DOMAIN pmid_domain optlabeldetails
 		    {
 			__pmContext	*ctxp;
 			__pmHashCtl	*hcp1;
@@ -1795,6 +1852,7 @@ labeldomainspec	: TOK_DOMAIN pmid_domain optlabelname
 			
 			current_labelspec = NULL;
 			assert ($2 != PM_ID_NULL);
+			current_label_id = $2;
 			    
 			/* We're looking for domain labels. */
 			hcp1 = &ctxp->c_archctl->ac_log->l_hashlabels;
@@ -1820,7 +1878,7 @@ labeldomainspec	: TOK_DOMAIN pmid_domain optlabelname
 				 node2 = __pmHashWalk(hcp2, PM_HASH_WALK_NEXT)) {
 				/* Match the exact metric domain. */
 				if ((pmID)(node2->key) == $2) {
-				    current_labelspec = start_label(this_type, (pmID)(node2->key), $3);
+				    current_labelspec = start_label(this_type, (pmID)(node2->key), current_label_name, current_label_value);
 				    if (current_labelspec) {
 					current_labelspec->flags |= LABEL_ACTIVE;
 					++found;
@@ -1828,7 +1886,7 @@ labeldomainspec	: TOK_DOMAIN pmid_domain optlabelname
 				}
 			    }
 			}
-			do_walk_label = (found > 1);
+			do_walk_label = found;
 		    }
 		  TOK_LBRACE optlabeldomainoptlist TOK_RBRACE
 		;
@@ -1900,9 +1958,13 @@ labeldomainopt	: TOK_DELETE
 			    }
 			}
 		    }
+		| newlabelspec
+		    {
+			new_label (PM_LABEL_DOMAIN);
+		    }
 		;
 
-labelclusterspec	: TOK_CLUSTER pmid_cluster optlabelname
+labelclusterspec	: TOK_CLUSTER pmid_cluster optlabeldetails
 		    {
 			__pmContext	*ctxp;
 			__pmHashCtl	*hcp1;
@@ -1922,6 +1984,7 @@ labelclusterspec	: TOK_CLUSTER pmid_cluster optlabelname
 			
 			current_labelspec = NULL;
 			assert ($2 != PM_ID_NULL);
+			current_label_id = $2;
 			    
 			if (current_star_metric) {
 			    /* Set up for metrics specified using globbing. */
@@ -1954,7 +2017,7 @@ labelclusterspec	: TOK_CLUSTER pmid_cluster optlabelname
 				if (current_star_metric) {
 				    /* Match the globbed cluster spec and keep looking. */
 				    if (pmID_domain((pmID)(node2->key)) == star_domain) {
-					current_labelspec = start_label(this_type, (pmID)(node2->key), $3);
+					current_labelspec = start_label(this_type, (pmID)(node2->key), current_label_name, current_label_value);
 					if (current_labelspec) {
 					    current_labelspec->flags |= LABEL_ACTIVE;
 					    ++found;
@@ -1964,7 +2027,7 @@ labelclusterspec	: TOK_CLUSTER pmid_cluster optlabelname
 				else {
 				    /* Match the exact cluster spec. */
 				    if ((pmID)(node2->key) == $2) {
-					current_labelspec = start_label(this_type, (pmID)(node2->key), $3);
+					current_labelspec = start_label(this_type, (pmID)(node2->key), current_label_name, current_label_value);
 					if (current_labelspec) {
 					    current_labelspec->flags |= LABEL_ACTIVE;
 					    ++found;
@@ -1973,7 +2036,7 @@ labelclusterspec	: TOK_CLUSTER pmid_cluster optlabelname
 				}
 			    }
 			}
-			do_walk_label = (found > 1);
+			do_walk_label = found;
 		    }
 		  TOK_LBRACE optlabelclusteroptlist TOK_RBRACE
 		;
@@ -2068,9 +2131,13 @@ labelclusteropt	: TOK_DELETE
 			    }
 			}
 		    }
+		| newlabelspec
+		    {
+			new_label (PM_LABEL_CLUSTER);
+		    }
 		;
 
-labelitemspec	: TOK_ITEM pmid_or_name optlabelname
+labelitemspec	: TOK_ITEM pmid_or_name optlabeldetails
 		    {
 			__pmContext	*ctxp;
 			__pmHashCtl	*hcp1;
@@ -2088,6 +2155,7 @@ labelitemspec	: TOK_ITEM pmid_or_name optlabelname
 			PM_UNLOCK(ctxp->c_lock);
 			
 			current_labelspec = NULL;
+			current_label_id = $2;
 			if ($2 == PM_ID_NULL) {
 			    /* Metric referenced by name is not in the archive */
 			    do_walk_label = 0;
@@ -2131,7 +2199,7 @@ labelitemspec	: TOK_ITEM pmid_or_name optlabelname
 					if (pmID_domain((pmID)(node2->key)) == star_domain &&
 					    (star_cluster == PM_ID_NULL ||
 					     star_cluster == pmID_cluster((pmID)(node2->key)))) {
-					    current_labelspec = start_label(this_type, (pmID)(node2->key), $3);
+					    current_labelspec = start_label(this_type, (pmID)(node2->key), current_label_name, current_label_value);
 					    if (current_labelspec) {
 						current_labelspec->flags |= LABEL_ACTIVE;
 						++found;
@@ -2142,7 +2210,7 @@ labelitemspec	: TOK_ITEM pmid_or_name optlabelname
 				    else {
 					/* Match the exact metric PMID. */
 					if ((pmID)(node2->key) == $2) {
-					    current_labelspec = start_label(this_type, (pmID)(node2->key), $3);
+					    current_labelspec = start_label(this_type, (pmID)(node2->key), current_label_name, current_label_value);
 					    if (current_labelspec) {
 						current_labelspec->flags |= LABEL_ACTIVE;
 						++found;
@@ -2151,7 +2219,7 @@ labelitemspec	: TOK_ITEM pmid_or_name optlabelname
 				    }
 				}
 			    }
-			    do_walk_label = (found > 1);
+			    do_walk_label = found;
 			}
 		    }
 		  TOK_LBRACE optlabelitemoptlist TOK_RBRACE
@@ -2206,9 +2274,13 @@ labelitemopt	: TOK_DELETE
 			    }
 			}
 		    }
+		| newlabelspec
+		    {
+			new_label (PM_LABEL_ITEM);
+		    }
 		;
 
-labelindomspec	: TOK_INDOM indom_int optlabelname
+labelindomspec	: TOK_INDOM indom_int optlabeldetails
 		    {
 			__pmContext	*ctxp;
 			__pmHashCtl	*hcp1;
@@ -2226,6 +2298,7 @@ labelindomspec	: TOK_INDOM indom_int optlabelname
 			PM_UNLOCK(ctxp->c_lock);
 			
 			current_labelspec = NULL;
+			current_label_id = $2;
 			if ($2 == PM_ID_NULL) {
 			    /* Indom is not in the archive */
 			    do_walk_label = 0;
@@ -2263,7 +2336,7 @@ labelindomspec	: TOK_INDOM indom_int optlabelname
 				    if (current_star_indom) {
 					/* Match the globbed indom spec and keep looking. */
 					if (pmInDom_domain((pmID)(node2->key)) == star_domain) {
-					    current_labelspec = start_label(this_type, (pmID)(node2->key), $3);
+					    current_labelspec = start_label(this_type, (pmID)(node2->key), current_label_name, current_label_value);
 					    if (current_labelspec) {
 						current_labelspec->flags |= LABEL_ACTIVE;
 						++found;
@@ -2273,7 +2346,7 @@ labelindomspec	: TOK_INDOM indom_int optlabelname
 				    else {
 					/* Match the exact indom id. */
 					if ((pmID)(node2->key) == $2) {
-					    current_labelspec = start_label(this_type, (pmID)(node2->key), $3);
+					    current_labelspec = start_label(this_type, (pmID)(node2->key), current_label_name, current_label_value);
 					    if (current_labelspec) {
 						current_labelspec->flags |= LABEL_ACTIVE;
 						++found;
@@ -2282,7 +2355,7 @@ labelindomspec	: TOK_INDOM indom_int optlabelname
 				    }
 				}
 			    }
-			    do_walk_label = (found > 1);
+			    do_walk_label = found;
 			}
 		    }
 		  TOK_LBRACE optlabelindomoptlist TOK_RBRACE
@@ -2335,9 +2408,13 @@ labelindomopt	: TOK_DELETE
 			    }
 			}
 		    }
+		| newlabelspec
+		    {
+			new_label (PM_LABEL_INDOM);
+		    }
 		;
 
-labelinstancesspec	: TOK_INSTANCES indom_int optlabelname
+labelinstancesspec	: TOK_INSTANCES indom_int optlabeldetails
 		    {
 			__pmContext	*ctxp;
 			__pmHashCtl	*hcp1;
@@ -2355,6 +2432,7 @@ labelinstancesspec	: TOK_INSTANCES indom_int optlabelname
 			PM_UNLOCK(ctxp->c_lock);
 			
 			current_labelspec = NULL;
+			current_label_id = $2;
 			if ($2 == PM_ID_NULL) {
 			    /* Indom is not in the archive */
 			    do_walk_label = 0;
@@ -2392,7 +2470,7 @@ labelinstancesspec	: TOK_INSTANCES indom_int optlabelname
 				    if (current_star_indom) {
 					/* Match the globbed indom spec and keep looking. */
 					if (pmInDom_domain((pmID)(node2->key)) == star_domain) {
-					    current_labelspec = start_label(this_type, (pmID)(node2->key), $3);
+					    current_labelspec = start_label(this_type, (pmID)(node2->key), current_label_name, current_label_value);
 					    if (current_labelspec) {
 						current_labelspec->flags |= LABEL_ACTIVE;
 						++found;
@@ -2402,7 +2480,7 @@ labelinstancesspec	: TOK_INSTANCES indom_int optlabelname
 				    else {
 					/* Match the exact indom id. */
 					if ((pmID)(node2->key) == $2) {
-					    current_labelspec = start_label(this_type, (pmID)(node2->key), $3);
+					    current_labelspec = start_label(this_type, (pmID)(node2->key), current_label_name, current_label_value);
 					    if (current_labelspec) {
 						current_labelspec->flags |= LABEL_ACTIVE;
 						++found;
@@ -2411,7 +2489,7 @@ labelinstancesspec	: TOK_INSTANCES indom_int optlabelname
 				    }
 				}
 			    }
-			    do_walk_label = (found > 1);
+			    do_walk_label = found;
 			}
 		    }
 		  TOK_LBRACE optlabelinstancesoptlist TOK_RBRACE
@@ -2463,6 +2541,10 @@ labelinstancesopt	: TOK_DELETE
 				}
 			    }
 			}
+		    }
+		| newlabelspec
+		    {
+			new_label (PM_LABEL_INSTANCES);
 		    }
 		;
 
