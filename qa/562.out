@@ -3,16 +3,16 @@ QA output created by 562
 ** Labels on metric sample.colour via pmcd
 
 sample.colour
-    inst [0 or "red"] labels {"QA":562,"agent":"sample","cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing","userid":UID}
-    inst [1 or "green"] labels {"QA":562,"agent":"sample","cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing","userid":UID}
-    inst [2 or "blue"] labels {"QA":562,"agent":"sample","cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing","userid":UID}
+    inst [0 or "red"] labels {"QA":562,"agent":"sample","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing","userid":UID}
+    inst [1 or "green"] labels {"QA":562,"agent":"sample","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing","userid":UID}
+    inst [2 or "blue"] labels {"QA":562,"agent":"sample","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing","userid":UID}
 
 ** Labels on metric sample.darkness via pmcd
 
 sample.darkness
-    inst [0 or "red"] labels {"QA":562,"agent":"sample","cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing","userid":UID}
-    inst [1 or "green"] labels {"QA":562,"agent":"sample","cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing","userid":UID}
-    inst [2 or "blue"] labels {"QA":562,"agent":"sample","cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing","userid":UID}
+    inst [0 or "red"] labels {"QA":562,"agent":"sample","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing","userid":UID}
+    inst [1 or "green"] labels {"QA":562,"agent":"sample","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing","userid":UID}
+    inst [2 or "blue"] labels {"QA":562,"agent":"sample","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing","userid":UID}
 
 ** Labels on metric sample.rapid via pmcd
 
@@ -22,15 +22,15 @@ sample.rapid
 ** Labels on metric sample.bin via pmcd
 
 sample.bin
-    inst [100 or "bin-100"] labels {"QA":562,"agent":"sample","bin":100,"cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
-    inst [200 or "bin-200"] labels {"QA":562,"agent":"sample","bin":200,"cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
-    inst [300 or "bin-300"] labels {"QA":562,"agent":"sample","bin":300,"cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
-    inst [400 or "bin-400"] labels {"QA":562,"agent":"sample","bin":400,"cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
-    inst [500 or "bin-500"] labels {"QA":562,"agent":"sample","bin":500,"cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
-    inst [600 or "bin-600"] labels {"QA":562,"agent":"sample","bin":600,"cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
-    inst [700 or "bin-700"] labels {"QA":562,"agent":"sample","bin":700,"cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
-    inst [800 or "bin-800"] labels {"QA":562,"agent":"sample","bin":800,"cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
-    inst [900 or "bin-900"] labels {"QA":562,"agent":"sample","bin":900,"cluster":"zero","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
+    inst [100 or "bin-100"] labels {"QA":562,"agent":"sample","bin":100,"domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
+    inst [200 or "bin-200"] labels {"QA":562,"agent":"sample","bin":200,"domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
+    inst [300 or "bin-300"] labels {"QA":562,"agent":"sample","bin":300,"domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
+    inst [400 or "bin-400"] labels {"QA":562,"agent":"sample","bin":400,"domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
+    inst [500 or "bin-500"] labels {"QA":562,"agent":"sample","bin":500,"domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
+    inst [600 or "bin-600"] labels {"QA":562,"agent":"sample","bin":600,"domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
+    inst [700 or "bin-700"] labels {"QA":562,"agent":"sample","bin":700,"domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
+    inst [800 or "bin-800"] labels {"QA":562,"agent":"sample","bin":800,"domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
+    inst [900 or "bin-900"] labels {"QA":562,"agent":"sample","bin":900,"domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","role":"testing","userid":UID}
 
 ** Labels on indom 29.1 via pmcd
 
@@ -41,16 +41,16 @@ InDom: 29.1 0x7400001
 ** Labels on metric sampledso.colour via local context
 
 sampledso.colour
-    inst [0 or "red"] labels {"QA":562,"agent":"sample","cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing"}
-    inst [1 or "green"] labels {"QA":562,"agent":"sample","cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing"}
-    inst [2 or "blue"] labels {"QA":562,"agent":"sample","cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing"}
+    inst [0 or "red"] labels {"QA":562,"agent":"sample","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing"}
+    inst [1 or "green"] labels {"QA":562,"agent":"sample","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing"}
+    inst [2 or "blue"] labels {"QA":562,"agent":"sample","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing"}
 
 ** Labels on metric sampledso.darkness via local context
 
 sampledso.darkness
-    inst [0 or "red"] labels {"QA":562,"agent":"sample","cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing"}
-    inst [1 or "green"] labels {"QA":562,"agent":"sample","cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing"}
-    inst [2 or "blue"] labels {"QA":562,"agent":"sample","cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing"}
+    inst [0 or "red"] labels {"QA":562,"agent":"sample","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing"}
+    inst [1 or "green"] labels {"QA":562,"agent":"sample","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing"}
+    inst [2 or "blue"] labels {"QA":562,"agent":"sample","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","model":"RGB","role":"testing"}
 
 ** Labels on metric sampledso.rapid via local context
 
@@ -60,15 +60,15 @@ sampledso.rapid
 ** Labels on metric sampledso.bin via local context
 
 sampledso.bin
-    inst [100 or "bin-100"] labels {"QA":562,"agent":"sample","bin":100,"cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
-    inst [200 or "bin-200"] labels {"QA":562,"agent":"sample","bin":200,"cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
-    inst [300 or "bin-300"] labels {"QA":562,"agent":"sample","bin":300,"cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
-    inst [400 or "bin-400"] labels {"QA":562,"agent":"sample","bin":400,"cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
-    inst [500 or "bin-500"] labels {"QA":562,"agent":"sample","bin":500,"cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
-    inst [600 or "bin-600"] labels {"QA":562,"agent":"sample","bin":600,"cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
-    inst [700 or "bin-700"] labels {"QA":562,"agent":"sample","bin":700,"cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
-    inst [800 or "bin-800"] labels {"QA":562,"agent":"sample","bin":800,"cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
-    inst [900 or "bin-900"] labels {"QA":562,"agent":"sample","bin":900,"cluster":"zero","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
+    inst [100 or "bin-100"] labels {"QA":562,"agent":"sample","bin":100,"domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
+    inst [200 or "bin-200"] labels {"QA":562,"agent":"sample","bin":200,"domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
+    inst [300 or "bin-300"] labels {"QA":562,"agent":"sample","bin":300,"domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
+    inst [400 or "bin-400"] labels {"QA":562,"agent":"sample","bin":400,"domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
+    inst [500 or "bin-500"] labels {"QA":562,"agent":"sample","bin":500,"domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
+    inst [600 or "bin-600"] labels {"QA":562,"agent":"sample","bin":600,"domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
+    inst [700 or "bin-700"] labels {"QA":562,"agent":"sample","bin":700,"domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
+    inst [800 or "bin-800"] labels {"QA":562,"agent":"sample","bin":800,"domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
+    inst [900 or "bin-900"] labels {"QA":562,"agent":"sample","bin":900,"domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","role":"testing"}
 
 ** Labels on indom 30.1 via local context
 
