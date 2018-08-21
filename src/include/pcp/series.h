@@ -95,5 +95,6 @@ extern int pmSeriesMetrics(pmSeriesSettings *, int, pmSID *, void *);
 extern int pmSeriesSources(pmSeriesSettings *, int, pmSID *, void *);
 extern int pmSeriesQuery(pmSeriesSettings *, sds, pmflags, void *);
 extern int pmSeriesLoad(pmSeriesSettings *, sds, pmflags, void *);
+extern void pmSeriesDone(void);
 
 #endif /* PCP_SERIES_H */

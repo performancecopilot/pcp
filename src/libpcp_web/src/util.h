@@ -22,7 +22,11 @@ extern int tadd(struct timeval *, struct timeval *);
 extern const char *timeval_str(struct timeval *);
 
 extern int context_labels(int, pmLabelSet **);
-extern int merge_labelsets(struct metric *, struct value *,
+extern int metric_labelsets(struct metric *,
+		char *, int,
+		int (*filter)(const pmLabel *, const char *, void *),
+		void *type);
+extern int instance_labelsets(struct indom *, struct instance *,
 		char *, int,
 		int (*filter)(const pmLabel *, const char *, void *),
 		void *type);
@@ -32,13 +36,11 @@ extern const char *pmid_str(struct metric *);
 extern const char *semantics_str(struct metric *);
 extern const char *type_str(struct metric *);
 extern const char *units_str(struct metric *);
-
-extern sds json_escaped_str(const char *);
 extern const char *hash_str(const unsigned char *);
 
 extern int source_hash(struct context *);
-extern void metric_hash(struct metric *, pmDesc *);
-extern void instance_hash(struct metric *, struct value *, sds, pmDesc *);
+extern void metric_hash(struct metric *);
+extern void instance_hash(struct indom *, struct instance *);
 
 /*
  * More widely applicable web API helper routines
