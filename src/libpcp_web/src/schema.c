@@ -717,6 +717,7 @@ redis_series_label(redisSlots *slots, metric_t *metric, char *hash,
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sds(cmd, name);
     cmd = redis_param_sds(cmd, val);
+    sdsfree(name);
     sdsfree(val);
     redisSlotsRequest(slots, HMSET, key, cmd,
 			redis_series_labelvalue_callback, arg);

@@ -438,12 +438,11 @@ metric_hash(metric_t *metric)
     sds			identifier, labelset;
     char		buf[PM_MAXLABELJSONLEN];
     char		sem[32], type[32], units[64];
-    size_t		len;
-    int			i;
+    int			len, i;
 
     len = metric_labelsets(metric, buf, sizeof(buf), labels, NULL);
-    if (len < 0)
-	pmsprintf(buf, sizeof(buf), "null");
+    if (len <= 0)
+	len = pmsprintf(buf, sizeof(buf), "null");
 
     identifier = sdsempty();
     labelset = sdsnewlen(buf, len);
@@ -473,11 +472,11 @@ instance_hash(indom_t *ip, instance_t *instance)
     SHA1_CTX		shactx;
     sds			identifier, labelset;
     char		buf[PM_MAXLABELJSONLEN];
-    size_t		len;
+    int			len;
 
     len = instance_labelsets(ip, instance, buf, sizeof(buf), labels, NULL);
-    if (len < 0)
-	pmsprintf(buf, sizeof(buf), "null");
+    if (len <= 0)
+	len = pmsprintf(buf, sizeof(buf), "null");
 
     labelset = sdsnewlen(buf, len);
     identifier = sdscatfmt(sdsempty(),

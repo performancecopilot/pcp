@@ -312,7 +312,8 @@ update_instance_metadata(seriesLoadBaton *baton, indom_t *indom, int ninst,
 	    instance = calloc(1, sizeof(instance_t));
 	    instance->inst = key;
 	    entry = dictAddRaw(indom->insts, &instance->inst, NULL);
-	    dictSetVal(indom->insts, entry, instance);
+	    if (entry)
+		dictSetVal(indom->insts, entry, instance);
 	} else {
 	    instance = dictGetVal(entry);
 	}
@@ -320,7 +321,7 @@ update_instance_metadata(seriesLoadBaton *baton, indom_t *indom, int ninst,
 	if (instance->name.sds)
 	    sdsfree(instance->name.sds);
 	if ((instance->name.sds = sdsnew(namelist[i])) == NULL) {
-	    length = strlen(namelist[j]);
+	    length = strlen(namelist[i]);
 	    seriesfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
 			"update_instance_metadata labels", (__int64_t)length);
 	    webapimsg(baton, PMLOG_ERROR, msg);
@@ -713,7 +714,8 @@ new_valueset(seriesLoadBaton *baton, metric_t *metric, pmValueSet *vsp)
 	pmExtractValue(vsp->valfmt, vp, type, avp, type);
     }
 
-    metric->u.vlist->listcount = vsp->numval;
+    if (metric->u.vlist)
+	metric->u.vlist->listcount = vsp->numval;
     return count;
 }
 
