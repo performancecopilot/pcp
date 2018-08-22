@@ -77,6 +77,10 @@ class PCPBCCBase(object):
         """ Cluster labels """
         return '{}'
 
+    def label_indom(self): # pylint: disable=no-self-use
+        """ Instance domain labels """
+        return '{}'
+
     def label_instance(self, inst): # pylint: disable=no-self-use,unused-argument
         """ Instance labels """
         return '{}'

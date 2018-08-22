@@ -133,8 +133,8 @@ class PCPBCCModule(PCPBCCBase):
         except Exception: # pylint: disable=broad-except
             return [PM_ERR_AGAIN, 0]
 
-    def label_cluster(self):
-        """ Cluster labels """
+    def label_indom(self):
+        """ Instance domain labels """
         return '{"statistic":"histogram"}'
 
     def label_instance(self, inst):

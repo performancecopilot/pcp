@@ -94,6 +94,10 @@ class PCPBCCModule(PCPBCCBase):
 
     def label_cluster(self):
         """ Cluster labels """
+        return '{}'
+
+    def label_indom(self):
+        """ Instance domain labels """
         return '{"statistic":"histogram"}'
 
     def label_instance(self, inst):

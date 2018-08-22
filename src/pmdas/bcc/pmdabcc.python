@@ -29,7 +29,7 @@ from collections import OrderedDict
 
 from pcp.pmapi import pmContext as PCP
 from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
-from cpmapi import PM_INDOM_NULL, PM_ERR_VALUE, PM_ERR_PMID, PM_LABEL_CLUSTER
+from cpmapi import PM_INDOM_NULL, PM_ERR_VALUE, PM_ERR_PMID, PM_LABEL_CLUSTER, PM_LABEL_INDOM
 
 # Module references
 CONFIG = 1
@@ -44,9 +44,10 @@ BPFDATA = 9
 CLEANUP = 10
 INDOM = 11
 INSTS = 12
-LABEL_CLUSTER = 13
-LABEL_INSTANCE = 14
-STORE = 15
+LABEL_INDOM = 13
+LABEL_CLUSTER = 14
+LABEL_INSTANCE = 15
+STORE = 16
 
 class BCCPMDA(PMDA):
     """ PCP BCC PMDA """
@@ -189,6 +190,7 @@ class BCCPMDA(PMDA):
             self.modules[module][BPFDATA] = obj.bpfdata
             self.modules[module][CLEANUP] = obj.cleanup
             self.modules[module][LABEL_CLUSTER] = obj.label_cluster
+            self.modules[module][LABEL_INDOM] = obj.label_indom
             self.modules[module][LABEL_INSTANCE] = obj.label_instance
             self.modules[module][STORE] = obj.store
         self.log("Modules initialized.")
@@ -262,10 +264,13 @@ class BCCPMDA(PMDA):
             return [PM_ERR_VALUE, 0]
 
     def bcc_label(self, ident, label_type):
-        """ Cluster labels """
+        """ Cluster and instance domain labels """
         if label_type == PM_LABEL_CLUSTER:
             module = self.clusters[ident]
             return self.modules[module][LABEL_CLUSTER]()
+        if label_type == PM_LABEL_INDOM:
+            module = self.indoms[ident]
+            return self.modules[module][LABEL_INDOM]()
         return '{}'
 
     def bcc_label_callback(self, indom, inst):

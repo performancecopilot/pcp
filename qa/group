@@ -1478,8 +1478,8 @@ BAD
 1114 archive pmval multi-archive local pmlogextract
 1115 pmda.bcc local python
 1116 pmda.bcc local python
-1117 pmda.bcc local python
-1118 pmda.bcc local python
+1117 pmda.bcc local python labels
+1118 pmda.bcc local python labels
 1119 pmlogsummary archive multi-archive decompress-xz local pmlogextract
 1120 pmda.prometheus local python
 1121 pmda.linux local
