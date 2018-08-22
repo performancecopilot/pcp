@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -197,6 +197,24 @@ pmSetProgname(const char *program)
     __pmSetSignalHandler(SIGTERM, sigterm_callback);
 }
 
+static LPTSTR
+append_option(LPTSTR cmdline, int *size, const char *option)
+{
+    int sz = *size, length = strlen(command);
+
+    /* add 1space or 1null */
+    if ((cmdline = realloc(cmdline, sz + length + 1)) == NULL) {
+	pmNoMem("__pmServerStart", sz + length + 1, PM_FATAL_ERR);
+	/* NOTREACHED */
+    }
+    strcpy(&cmdline[sz], command);
+    cmdline[sz + length] = ' ';
+    sz += length + 1;
+
+    *size = sz;
+    return cmdline;
+}
+
 void
 __pmServerStart(int argc, char **argv, int flags)
 {
@@ -207,7 +225,6 @@ __pmServerStart(int argc, char **argv, int flags)
     int i, sz = 0;
     int	sts;
 
-    (void)flags;
     fflush(stdout);
     fflush(stderr);
 
@@ -229,19 +246,20 @@ __pmServerStart(int argc, char **argv, int flags)
 	    /* append argv[0] (with leading slash) at cmdline[sz] */
 	}
     }
- 
-    for (command = argv[0], i = 0; i < argc && command && *command; command = argv[++i]) {
-	int length = strlen(command);
-	/* add 1space or 1null */
-	if ((cmdline = realloc(cmdline, sz + length + 1)) == NULL) {
-	    pmNoMem("__pmServerStart", sz + length + 1, PM_FATAL_ERR);
-	    /* NOTREACHED */
-	}
-	strcpy(&cmdline[sz], command);
-	cmdline[sz + length] = ' ';
-	sz += length + 1;
+    for (command = argv[0], i = 0;
+	 i < argc && command && *command;
+	 command = argv[++i]) {
+	cmdline = append_option(cmdline, &sz, command)
+    }
+    if (flags & 0x1) {
+	/*
+	 * force append -f option - no exec() so for traditional PCP
+	 * daemons, this is added to argv to prevent infinite loop.
+	 */
+	cmdline = append_option(cmdline, &sz, "-f");
     }
     cmdline[sz - 1] = '\0';
+
     if (pmDebugOptions.exec)
 	fprintf(stderr, "__pmServerStart: cmdline=%s\n", cmdline);
 
