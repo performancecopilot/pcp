@@ -127,6 +127,7 @@ mmv2_nostats
 mmv2_simple
 mmv3_labels
 mmv3_simple
+mmv3_bad_labels
 multictx
 multifetch
 multithread0

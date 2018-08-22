@@ -944,7 +944,7 @@ get_label(const char *name, const char *value, mmv_value_type_t type,
 	    value = "null";
 	    break;
     	case MMV_BOOLEAN_TYPE:
-	    if (!strcmp(value,"true") && !strcmp(value,"false")) {
+	    if (strcmp(value,"true") != 0 && strcmp(value,"false") != 0) {
 		setoserror(EINVAL);
 		return -1;
 	    }
