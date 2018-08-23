@@ -75,7 +75,7 @@ class PCPBCCBase(object):
 
     def label_cluster(self): # pylint: disable=no-self-use
         """ Cluster labels """
-        return '{}'
+        return '{"bcc_module":"' + self._who + '"}'
 
     def label_indom(self): # pylint: disable=no-self-use
         """ Instance domain labels """
