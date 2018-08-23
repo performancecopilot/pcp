@@ -1140,7 +1140,7 @@ class PrometheusPMDA(PMDA):
             if val < 0:
                 return c_api.PM_ERR_BADSTORE
             self.dbg = (val != 0)
-            self.log('%s.control.debug: set to %d' % (self.pmda.pmda_name, self.dbg))
+            self.log('%s.control.debug: set to %d' % (self.pmda_name, self.dbg))
             return 0
 
         if cluster < MAX_CLUSTER and item < MAX_METRIC:
