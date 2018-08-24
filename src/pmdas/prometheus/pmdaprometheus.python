@@ -80,7 +80,8 @@ class Metric(object):
         self.pcpline = pcpline
         self.typeline = typeline
         self.values = {} # instance-vector-to-value
-        self.labels = {}
+        self.labels = {} # metric labels
+        self.inst_labels = {} # dict of instid:labels (where labels is a dict)
         if instances is not None: # dict is empty for singular metrics (no indom)
             for key, val in instances.items():
                 self.labels[key] = val
@@ -196,9 +197,11 @@ class Metric(object):
                     self.labels[key] = val
             inst = self.indom_table.intern_lookup_value(instname)
 
+            self.values[inst] = float(value)
+            self.inst_labels[inst] = labels
             if self.source.pmda.dbg:
                 self.source.pmda.debug('store inst=%d instname="%s" value="%s"' % (inst, instname, value))
-            self.values[inst] = float(value)
+                self.source.pmda.debug('store inst_labels[%d] = %s' % (inst, labels))
 
     def save(self):
         if self.indom_table is not None:
@@ -1073,6 +1076,7 @@ class PrometheusPMDA(PMDA):
                 for m, mv in v.metrics_by_name.items():
                     if mv.mindom == indom:
                         return '{"source":"%s"}' % v.name
+            return '{}' # no indom labels
 
         elif type == c_api.PM_LABEL_CLUSTER:
             # Labels for a cluster, i.e. an individual source.
@@ -1099,38 +1103,37 @@ class PrometheusPMDA(PMDA):
                         host = gethostname()
                     return '{"hostname":"%s","source":"%s","url":"%s"}' % (host, s.name, s.url)
             except:
-                pass # ignore key error for unknown cluster number
+                return '{}' # ignore key error for unknown cluster number
 
-        elif type == c_api.PM_LABEL_ITEM:
-            # labels for a metric pmid=ident
-            itemlabels = ''
-            for k, v in self.source_by_cluster.items():
-                for m, mv in v.metrics_by_name.items():
-                    if mv.pmid == ident:
-                        self.debug('prom_label PM_LABEL_ITEM, found pmid %#x, labels=%s' % (ident, mv.labels)) if self.dbg else None
-                        for lname, lval in sorted(mv.labels.items()):
-                            if len(itemlabels) > 0:
-                                itemlabels += ','
-                            itemlabels += '"%s":"%s"' % (lname, lval)
-                        return '{%s}' % itemlabels
-
-        # all other cases return an empty label set
-        return '{}'
+        else: # empty label set for all other types
+            return '{}'
 
     def prom_label_callback(self, indom, inst):
         '''
         return label for given instance ID in given indom
         '''
-        self.debug('prom_label_callback(indom=%#x, inst=%d)' % (indom, inst)) if self.dbg else None
-        for k, v in self.source_by_cluster.items():
-            for m, mv in v.metrics_by_name.items():
-                if indom == mv.mindom:
-                    for i, n in enumerate(mv.indom_table.instances):
-                        if inst == i:
-                            # success
-                            return '{"instname": "' + n + '"}'
-        # inst not found in indom
-        return '{}'
+        instlabels = ''
+        try:
+            self.debug('prom_label_callback(indom=%#x, inst=%d)' % (indom, inst)) if self.dbg else None
+            for k, v in self.source_by_cluster.items():
+                for m, mv in v.metrics_by_name.items():
+                    if indom == mv.mindom:
+                        for i, n in enumerate(mv.indom_table.instances):
+                            if inst == i:
+                                # found
+                                self.debug('prom_label_callback: found inst label "%s"' % n) if self.dbg else None
+                                # first add the instname label, which matches the external instance name
+                                instlabels = '"instname": "%s %s"' % (i,n)
+                                # and now each label for this instance separately
+                                self.debug('prom_label_callback: i=%d mv.inst_labels[%d]=%s' % (i,i,mv.inst_labels[i]))
+                                if i in mv.inst_labels:
+                                    for l,v in mv.inst_labels[i].items():
+                                        instlabels = instlabels + "," + '"%s":"%s"' % (l,v)
+        except Exception as e:
+            self.debug("prom_label_callback: exception %s" % e)
+            self.debug(traceback.format_exc())
+                
+        return '{%s}' % instlabels
 
     def prom_store_callback(self, cluster, item, inst, val):
         '''
