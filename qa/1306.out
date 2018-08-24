@@ -29,23 +29,23 @@ FILTER: INCLUDE .*
 === pminfo listing. Note some labels in the pminfo listing have been removed, see _filter
 
 prometheus.labelfiltering.metric1
-    labels {"agent":"prometheus","foo":"abc","source":"labelfiltering"}
+    labels {"agent":"prometheus","source":"labelfiltering"}
     inst [0 or "0 foo:abc"] value 1
-    inst [0 or "0 foo:abc"] labels {"agent":"prometheus","instname":"foo:abc","source":"labelfiltering"}
+    inst [0 or "0 foo:abc"] labels {"agent":"prometheus","foo":"abc","instname":"0 foo:abc","source":"labelfiltering"}
 
 prometheus.labelfiltering.metric2
     labels {"agent":"prometheus","source":"labelfiltering"}
     value 8
 
 prometheus.labelfiltering.metric3
-    labels {"abc":"0","agent":"prometheus","source":"labelfiltering"}
+    labels {"agent":"prometheus","source":"labelfiltering"}
     inst [0 or "0 abc:0"] value 458
-    inst [0 or "0 abc:0"] labels {"agent":"prometheus","instname":"abc:0","source":"labelfiltering"}
+    inst [0 or "0 abc:0"] labels {"abc":"0","agent":"prometheus","instname":"0 abc:0","source":"labelfiltering"}
 
 prometheus.labelfiltering.metric4
-    labels {"agent":"prometheus","someoptionallabel":"not in instance name","source":"labelfiltering","xyz":"0"}
+    labels {"agent":"prometheus","source":"labelfiltering"}
     inst [0 or "0 someoptionallabel:not in instance name xyz:0"] value 456
-    inst [0 or "0 someoptionallabel:not in instance name xyz:0"] labels {"agent":"prometheus","instname":"someoptionallabel:not in instance name xyz:0","source":"labelfiltering"}
+    inst [0 or "0 someoptionallabel:not in instance name xyz:0"] labels {"agent":"prometheus","instname":"0 someoptionallabel:not in instance name xyz:0","someoptionallabel":"not in instance name","source":"labelfiltering","xyz":"0"}
 
 prometheus.labelfiltering.singular_metric
     labels {"agent":"prometheus","source":"labelfiltering"}
