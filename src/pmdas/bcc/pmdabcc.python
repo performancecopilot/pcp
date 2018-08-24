@@ -19,17 +19,17 @@ try:
 except ImportError:
     import ConfigParser as configparser
 import importlib
+import traceback
 import fnmatch
 import atexit
 import sys
 import os
-import traceback
 
 from collections import OrderedDict
 
 from pcp.pmapi import pmContext as PCP
 from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
-from cpmapi import PM_INDOM_NULL, PM_ERR_VALUE, PM_ERR_PMID, PM_LABEL_CLUSTER, PM_LABEL_INDOM
+from cpmapi import PM_INDOM_NULL, PM_ERR_VALUE, PM_ERR_BADSTORE, PM_LABEL_CLUSTER, PM_LABEL_INDOM
 
 # Module references
 CONFIG = 1
@@ -286,7 +286,7 @@ class BCCPMDA(PMDA):
         except Exception as error: # pylint: disable=broad-except
             self.err(str(error))
             self.err(traceback.format_exc())
-            return PM_ERR_PMID
+            return PM_ERR_BADSTORE
 
 if __name__ == '__main__':
     BCCPMDA('bcc', 149).run()
