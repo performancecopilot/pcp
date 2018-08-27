@@ -1127,12 +1127,14 @@ static void
 series_query_services(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
-    pmSeriesSettings	*settings = baton->settings;
+    pmSeriesCommand	*command = &baton->settings->command;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_services");
-    redis_init(&baton->slots, settings->hostspec, 1, settings->on_info,
-		series_query_end_phase, baton->userdata, settings->events,
-		(void *)baton);
+    command->slots = baton->slots =
+	redisSlotsConnect(
+		command->hostspec, 1, command->on_info,
+		series_query_end_phase, baton->userdata,
+		command->events, (void *)baton);
 }
 
 static void
@@ -1943,13 +1945,15 @@ static void
 series_lookup_services(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
-    pmSeriesSettings	*settings = baton->settings;
+    pmSeriesCommand	*command = &baton->settings->command;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_services");
     seriesBatonReferences(baton, 1, "series_lookup_services");
-    redis_init(&baton->slots, settings->hostspec, 1, settings->on_info,
-		series_lookup_end_phase, baton->userdata, settings->events,
-		(void *)baton);
+    command->slots = baton->slots =
+	redisSlotsConnect(
+		command->hostspec, 1, command->on_info,
+		series_lookup_end_phase, baton->userdata,
+		command->events, (void *)baton);
 }
 
 static void

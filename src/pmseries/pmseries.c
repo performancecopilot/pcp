@@ -680,7 +680,7 @@ on_series_done(int sts, void *arg)
 	arg = entry->arg;
 	func(dp, arg);
     } else {
-	pmSeriesDone();
+	pmSeriesClose(&dp->settings.command);
 	series_data_free(dp);
     }
 }
@@ -851,6 +851,8 @@ pmseries_request(uv_timer_t *arg)
     series_data		*dp = (series_data *)handle->data;
     series_flags	flags = dp->flags;
 
+    pmSeriesSetup(&dp->settings.command, dp);
+
     if (flags & PMSERIES_OPT_LOAD)
 	series_load(dp);
     else if (flags & PMSERIES_OPT_QUERY)
@@ -866,13 +868,12 @@ pmseries_execute(series_data *dp)
 {
     uv_timer_t		request;
     uv_handle_t		*handle = (uv_handle_t *)&request;
-    uv_loop_t		*loop = (uv_loop_t *)dp->settings.events;
+    uv_loop_t		*loop = (uv_loop_t *)dp->settings.command.events;
 
     handle->data = (void *)dp;
     uv_timer_init(loop, &request);
     uv_timer_start(&request, pmseries_request, 0, 0);
     uv_run(loop, UV_RUN_DEFAULT);
-    fprintf(stderr, "Clean exit\n");
     return dp->status;
 }
 
@@ -1060,6 +1061,7 @@ main(int argc, char *argv[])
 	query = sdsjoin(&argv[opts.optind], argc - opts.optind, (char *)split);
 
     dp = series_data_init(flags, query);
+
     dp->settings.on_match = on_series_match;
     dp->settings.on_desc = on_series_desc;
     dp->settings.on_inst = on_series_inst;
@@ -1069,10 +1071,11 @@ main(int argc, char *argv[])
     dp->settings.on_metric = on_series_metric;
     dp->settings.on_value = on_series_value;
     dp->settings.on_label = on_series_label;
-    dp->settings.on_info = on_series_info;
     dp->settings.on_done = on_series_done;
-    dp->settings.hostspec = sdscatprintf(sdsempty(), "%s:%u", hostname, port);
-    dp->settings.events = (void *)uv_default_loop();
+
+    dp->settings.command.on_info = on_series_info;
+    dp->settings.command.events = (void *)uv_default_loop();
+    dp->settings.command.hostspec = sdscatprintf(sdsempty(), "%s:%u", hostname, port);
 
     return pmseries_execute(dp);
 }

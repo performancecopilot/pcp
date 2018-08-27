@@ -20,7 +20,9 @@
 typedef sds pmSID;	/* external 40-byte series or source identifier */
 
 typedef enum pmloglevel {
-    PMLOG_INFO = 1,	/* general information */
+    PMLOG_TRACE,	/* verbose event tracing */
+    PMLOG_DEBUG,	/* debugging diagnostics */
+    PMLOG_INFO,		/* general information */
     PMLOG_WARNING,	/* generic warnings */
     PMLOG_ERROR,	/* generic error */
     PMLOG_REQUEST,	/* error processing a request */
@@ -63,16 +65,29 @@ typedef struct pmSeriesLabel {
     sds		value;		/* value of this label */
 } pmSeriesLabel;
 
+typedef void (*pmSeriesInfoCallBack)(pmloglevel, sds, void *);
+typedef void (*pmSeriesSetupCallBack)(void *);
+
+typedef void (*pmSeriesInitCallBack)(void *);
 typedef int (*pmSeriesMatchCallBack)(pmSID, void *);
 typedef int (*pmSeriesStringCallBack)(pmSID, sds, void *);
 typedef int (*pmSeriesDescCallBack)(pmSID, pmSeriesDesc *, void *);
 typedef int (*pmSeriesInstCallBack)(pmSID, pmSeriesInst *, void *);
 typedef int (*pmSeriesValueCallBack)(pmSID, pmSeriesValue *, void *);
 typedef int (*pmSeriesLabelCallBack)(pmSID, pmSeriesLabel *, void *);
-typedef void (*pmSeriesInfoCallBack)(pmloglevel, sds, void *);
 typedef void (*pmSeriesDoneCallBack)(int, void *);
 
+typedef struct pmSeriesCommand {
+    sds                         hostspec;       /* initial connect hostspec */
+    pmSeriesInfoCallBack	on_info;	/* general diagnostics call */
+    pmSeriesSetupCallBack	on_setup;	/* server connections setup */
+    void			*events;	/* opaque event library data */
+    void			*slots;		/* opaque server slots data */
+    void			*data;		/* private internal lib data */
+} pmSeriesCommand;
+
 typedef struct pmSeriesSettings {
+    pmSeriesCommand		command;	/* general command setup */
     pmSeriesMatchCallBack	on_match;	/* one series identifier */
     pmSeriesDescCallBack	on_desc;	/* metric descriptor */
     pmSeriesInstCallBack	on_inst;	/* instance details */
@@ -82,10 +97,7 @@ typedef struct pmSeriesSettings {
     pmSeriesStringCallBack	on_metric;	/* one metric name */
     pmSeriesStringCallBack	on_label;	/* one label name */
     pmSeriesValueCallBack	on_value;	/* timestamped value */
-    pmSeriesInfoCallBack	on_info;	/* diagnostics */
     pmSeriesDoneCallBack	on_done;	/* request completed */
-    sds                         hostspec;       /* hostspec of redis instance */
-    void			*events;	/* opaque event lib pointer */
 } pmSeriesSettings;
 
 extern int pmSeriesDescs(pmSeriesSettings *, int, pmSID *, void *);
@@ -95,6 +107,8 @@ extern int pmSeriesMetrics(pmSeriesSettings *, int, pmSID *, void *);
 extern int pmSeriesSources(pmSeriesSettings *, int, pmSID *, void *);
 extern int pmSeriesQuery(pmSeriesSettings *, sds, pmflags, void *);
 extern int pmSeriesLoad(pmSeriesSettings *, sds, pmflags, void *);
-extern void pmSeriesDone(void);
+
+extern void pmSeriesSetup(pmSeriesCommand *, void *);
+extern void pmSeriesClose(pmSeriesCommand *);
 
 #endif /* PCP_SERIES_H */

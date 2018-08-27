@@ -58,6 +58,7 @@ extern char *pmwebapi_hash_str(const unsigned char *);
 #define seriesmsg(baton, level, msg)	\
 	((baton)->info((level), (msg), (baton)->userdata), sdsfree(msg))
 #define webapimsg(sp, level, msg)	\
-	((sp)->settings->on_info((level), (msg), (sp)->userdata), sdsfree(msg))
+	((sp)->settings->command.on_info((level), (msg), (sp)->userdata), \
+	sdsfree(msg))
 
 #endif	/* SERIES_UTIL_H */

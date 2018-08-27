@@ -1548,20 +1548,40 @@ doneRedisSlotsBaton(redisSlotsBaton *baton)
     free(baton);
 }
 
-static redisSlots		*slots;
-
-void
-redis_init(redisSlots **slotsp, sds server, int version_check,
+redisSlots *
+redisSlotsConnect(sds server, int version_check,
 		redisInfoCallBack info, redisDoneCallBack done,
 		void *userdata, void *events, void *arg)
 {
     redisSlotsBaton		*baton;
+    redisSlots			*slots;
     sds				msg;
 
-    /* fast path for when Redis has been setup already */
-    if (slots) {
-	*slotsp = slots;
+    if ((baton = (redisSlotsBaton *)calloc(1, sizeof(redisSlotsBaton))) != NULL) {
+	if ((slots = redisSlotsInit(server, info, events, userdata)) != NULL) {
+	    initRedisSlotsBaton(baton, version_check, info, done,
+				    userdata, events, arg);
+	    baton->redis = slots;
+	    redis_load_slots(baton);
+	    return slots;
+	}
+	baton->version = -1;
+	doneRedisSlotsBaton(baton);
+    } else {
 	done(arg);
+    }
+    seriesfmt(msg, "Failed to allocate memory for Redis slots");
+    info(PMLOG_ERROR, msg, arg);
+    sdsfree(msg);
+    return NULL;
+}
+
+void
+pmSeriesSetup(pmSeriesCommand *command, void *arg)
+{
+    /* fast path for when Redis has been setup already */
+    if (command->slots) {
+	command->on_setup(arg);
 	return;
     }
 
@@ -1569,27 +1589,15 @@ redis_init(redisSlots **slotsp, sds server, int version_check,
     redisScriptsInit();
     redisMapsInit();
 
-    if ((baton = (redisSlotsBaton *)calloc(1, sizeof(redisSlotsBaton))) != NULL) {
-	if ((slots = redisSlotsInit(server, info, events, userdata)) != NULL) {
-	    initRedisSlotsBaton(baton, version_check, info, done,
-				    userdata, events, arg);
-	    baton->redis = *slotsp = slots;
-	    redis_load_slots(baton);
-	    return;
-	}
-	baton->version = -1;
-	doneRedisSlotsBaton(baton);
-    } else {
-	done(arg);
-    }
-    *slotsp = NULL;
-    seriesfmt(msg, "Failed to allocate memory for Redis slots");
-    info(PMLOG_ERROR, msg, arg);
-    sdsfree(msg);
+    /* establish initial connection to Redis instances */
+    command->slots = redisSlotsConnect(
+			command->hostspec, 1, command->on_info,
+			command->on_setup, arg, command->events, arg);
 }
 
 void
-pmSeriesDone(void)
+pmSeriesClose(pmSeriesCommand *command)
 {
-    redisFreeSlots(slots);
+    redisSlotsFree((redisSlots *)command->slots);
+    command->slots = NULL;
 }

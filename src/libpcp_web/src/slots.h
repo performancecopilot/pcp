@@ -55,12 +55,15 @@ typedef struct redisSlots {
 typedef void (*redisPhase)(redisSlots *, void *);	/* phased operations */
 
 extern redisSlots *redisSlotsInit(sds, redisInfoCallBack, void *, void *);
-extern int redisSlotRangeInsert(struct redisSlots *, struct redisSlotRange *);
-extern redisAsyncContext *redisSlotsConnect(redisSlots *, const char *);
-extern redisAsyncContext *redisGet(struct redisSlots *, const char *, sds);
-extern void redisFreeSlots(struct redisSlots *);
+extern int redisSlotRangeInsert(redisSlots *, redisSlotRange *);
+extern redisAsyncContext *redisAttach(redisSlots *, const char *);
+extern redisAsyncContext *redisGet(redisSlots *, const char *, sds);
 
-extern int redisSlotsRequest(redisSlots *, const char *, sds, sds, redisAsyncCallBack *, void *);
+extern redisSlots *redisSlotsConnect(sds, int,
+		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
+extern int redisSlotsRequest(redisSlots *, const char *, sds, sds,
+		redisAsyncCallBack *, void *);
+extern void redisSlotsFree(redisSlots *);
 
 typedef struct {
     unsigned int	magic;		/* MAGIC_SLOTS */

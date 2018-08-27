@@ -1077,13 +1077,15 @@ series_source_mapping(void *arg)
 	    seriesBatonReference(baton, "series_source_mapping mapid");
 	    redisGetMap(baton->slots, contextmap, context->name.sds,
 			&context->name.mapid, source_mapping_callback,
-			baton->settings->on_info, baton->arg, (void *)baton);
+			baton->settings->command.on_info, baton->arg,
+			(void *)baton);
 	}
 	if (context->hostid <= 0) {
 	    seriesBatonReference(baton, "series_source_mapping hostid");
 	    redisGetMap(baton->slots, contextmap, context->host,
 			&context->hostid, source_mapping_callback,
-			baton->settings->on_info, baton->arg, (void *)baton);
+			baton->settings->command.on_info, baton->arg,
+			(void *)baton);
 	}
 	seriesBatonDereference(baton, "series_source_mapping");
     }
@@ -1209,11 +1211,12 @@ connect_pmapi_source_service(void *arg)
 static void
 connect_redis_source_service(seriesLoadBaton *baton)
 {
-    pmSeriesSettings	*settings = baton->settings;
+    pmSeriesCommand	*command = &baton->settings->command;
 
-    redis_init(&baton->slots, settings->hostspec, 1, settings->on_info,
-		series_load_end_phase, baton->userdata, settings->events,
-		(void *)baton);
+    command->slots = redisSlotsConnect(
+		command->hostspec, 1, command->on_info,
+		series_load_end_phase, baton->userdata,
+		command->events, (void *)baton);
 }
 
 static void
@@ -1277,7 +1280,7 @@ doneSeriesLoadBaton(seriesLoadBaton *baton)
 redisInfoCallBack
 seriesLoadBatonInfo(seriesLoadBaton *baton)
 {
-    return baton->settings->on_info;
+    return baton->settings->command.on_info;
 }
 
 void *
