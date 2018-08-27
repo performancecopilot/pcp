@@ -125,7 +125,7 @@ class BCCPMDA(PMDA):
             sys.exit(1)
 
         self.log("Enabled modules:")
-        self.log(str([module for module in self.modules]))
+        self.log(str(list(self.modules)))
 
         self.log("Configuring modules:")
         for module in self.modules:
@@ -164,14 +164,18 @@ class BCCPMDA(PMDA):
         self.log("Initializing modules:")
 
         # For packaging, allow both .python and .py suffixed files
-        moduledir = PCP.pmGetConfig('PCP_PMDAS_DIR')
-        moduledir += '/' + self.read_name() + '/' + 'modules'
-        for root, _dirnames, filenames in os.walk(moduledir):
+        cwd = os.getcwd()
+        pmdadir = PCP.pmGetConfig('PCP_PMDAS_DIR') + '/' + self.read_name()
+        for root, _, filenames in os.walk(pmdadir):
+            os.chdir(root)
             for filename in fnmatch.filter(filenames, '*.python'):
-                pythonf = os.path.join(root, filename)
-                pyf = pythonf[:-4]
+                if filename in ('pmdabcc.python', 'domain.h.python', 'pmns.python'):
+                    continue
+                pyf = filename[:-4]
                 if not os.path.exists(pyf):
-                    os.symlink(pythonf, pyf)
+                    os.symlink(filename, pyf)
+            os.chdir(pmdadir)
+        os.chdir(cwd)
 
         for module in self.modules:
             self.log(module)
@@ -200,7 +204,7 @@ class BCCPMDA(PMDA):
         self.log("Registering metrics:")
         for module in self.modules:
             self.log(module)
-            cluster = int(self.modules[module][CLUSTER])
+            cluster = self.modules[module][CLUSTER]
             indom, metrics = self.modules[module][METRICS]()
             self.modules[module][INDOM] = PM_INDOM_NULL
             if indom:
