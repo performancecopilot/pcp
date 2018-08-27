@@ -73,7 +73,7 @@ class Data_ipv6(ct.Structure):
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC tcpretrans module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, _):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
