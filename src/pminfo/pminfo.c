@@ -550,9 +550,9 @@ myindomlabels(pmInDom indom)
 }
 
 static void
-myinstancelabels(pmInDom indom)
+myinstancelabels(pmInDom indom, pmDesc *dp)
 {
-    pmLabelSet	*labels[4] = {0}; /* context+domain+indom+insts */
+    pmLabelSet	*labels[6] = {0}; /* context+domain+indom+cluster+item+insts */
     pmLabelSet	*ilabels = NULL;
     char	*iname, buf[PM_MAXLABELJSONLEN];
     int		i = 0, j, n, inst, count, sts = 0;
@@ -567,6 +567,8 @@ myinstancelabels(pmInDom indom)
     labels[i++] = lookup_context_labels();
     labels[i++] = lookup_domain_labels(pmInDom_domain(indom));
     labels[i++] = lookup_indom_labels(indom);
+    labels[i++] = lookup_cluster_labels(dp->pmid);
+    labels[i++] = lookup_item_labels(dp->pmid);
 
     for (j = 0; j < n; j++) {
 	count = i;
@@ -947,7 +949,7 @@ report(void)
 	if (p_series)
 	    myinstanceseries(desc.indom);
 	if (p_label)
-	    myinstancelabels(desc.indom);
+	    myinstancelabels(desc.indom, &desc);
     }
 
     if (result != NULL) {
