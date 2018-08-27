@@ -326,7 +326,6 @@ main(int argc, char *argv[])
     int		maxpending = MAXPENDING;
     int		env_warn = 0;
     char	*envstr;
-    void	*server;
 #ifdef HAVE_SA_SIGINFO
     static struct sigaction act;
 #endif

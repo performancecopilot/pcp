@@ -584,8 +584,10 @@ OpenRequestPorts(const char *path, int maxpending)
 
     if ((sp = calloc(1, sizeof(ServerInfo))) == NULL)
 	return NULL;
-    if ((sts = __pmServerOpenRequestPorts(&sp->sockFds, maxpending)) < 0)
+    if ((sts = __pmServerOpenRequestPorts(&sp->sockFds, maxpending)) < 0) {
+	free(sp);
 	return NULL;
+    }
     sp->maxReqPortFd = sp->maxSockFd = sts;
     return sp;
 }
