@@ -241,6 +241,10 @@ class PCPBCCBase(object):
         if not self.proc_filter:
             return 0
         if not procs and self.proc_filter:
+            if hasattr(self, 'pid'):
+                self.pid = None
+            else:
+                self.pids = []
             return -1
         if hasattr(self, 'pid'):
             if self.pid not in [p[0] for p in procs]:
@@ -261,17 +265,25 @@ class PCPBCCBase(object):
         return 0
 
     @staticmethod
-    def apply_pid_filter(bpf_text, pids, need_pid_def=True):
-        """ Apply PID filtering for BPF text """
-        if need_pid_def:
+    def apply_pid_filter(bpf_text, pids, need_pid_def=True, need_shift=False):
+        if pids and need_pid_def:
             pid_filter = "u32 pid = bpf_get_current_pid_tgid() >> 32; if (PID_CHECK) return 0;"
         else:
             pid_filter = "if (PID_CHECK) return 0;"
+        # Try to cover all known variants
+        if "if (FILTER_PID)" in bpf_text:
+            bpf_text = bpf_text.replace("FILTER_PID", "PID_CHECK")
+        if "pid_tgid >> 32 != FILTER_PID" in bpf_text:
+            bpf_text = bpf_text.replace("pid_tgid >> 32 != FILTER_PID", "PID_CHECK")
+            need_shift = True
+        bpf_text = bpf_text.replace("//FILTER_PID", pid_filter)
+        bpf_text = bpf_text.replace("FILTER_PID", pid_filter)
+        bpf_text = bpf_text.replace("PID_FILTER", pid_filter)
         if not pids:
-            return bpf_text.replace("//FILTER_PID", "FILTER_PID").replace("FILTER_PID", "")
-        bpf_text = bpf_text.replace("//FILTER_PID", "FILTER_PID").replace("FILTER_PID", pid_filter)
-        check_pid = " && ".join(["pid != %d" % pid for pid in pids])
-        return bpf_text.replace("PID_CHECK", check_pid)
+            return bpf_text.replace("PID_CHECK", "0")
+        pid_check = "pid >> 32 != %d" if need_shift else "pid != %d"
+        check_str = " && ".join([pid_check % pid for pid in pids])
+        return bpf_text.replace("PID_CHECK", check_str)
 
     @staticmethod
     def pid_alive(pid):
@@ -281,6 +293,21 @@ class PCPBCCBase(object):
             return True
         except Exception: # pylint: disable=broad-except
             return False
+
+    @staticmethod
+    def parse_inst_name(string):
+        """ Parse string into valid instance name """
+        name = ""
+        started = 0
+        ok_chars = ['.', '/', '<', '>', '[', ']', '_']
+        for c in string:
+            if not started and not c.isalnum():
+                continue
+            if not c.isalnum() and c not in ok_chars:
+                break
+            name += c
+            started = 1
+        return name.replace("/", ".").replace("[", "{").replace("]", "}")
 
     def perf_buffer_poller(self):
         """ BPF poller """
