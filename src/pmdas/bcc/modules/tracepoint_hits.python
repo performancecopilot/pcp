@@ -13,7 +13,7 @@
 #
 """ PCP BCC PMDA tracepoint hits module """
 
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, too-many-instance-attributes
 
 from ctypes import c_int
 from os import path
@@ -55,27 +55,25 @@ units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 # PCP BCC Module
 #
 class PCPBCCModule(PCPBCCBase):
-    """ PCP BCC tracepoint count module """
-    def __init__(self, config, log, err):
+    """ PCP BCC tracepoint hits module """
+    def __init__(self, config, log, err, proc_refresh):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
-        self.cache = {}
-        self.compile_test = False
         self.pids = []
+        self.proc_filter = None
+        self.proc_refresh = proc_refresh
+
+        self.cache = None
+        self.compile_test = False
         self.tracepoints = []
 
         for opt in self.config.options(MODULE):
             if opt == 'compile_test':
                 self.compile_test = self.config.getboolean(MODULE, opt)
             if opt == 'process':
-                val = self.config.get(MODULE, opt)
-                procs = self.get_proc_info(val)
-                if not procs:
-                    self.log("No matching PIDs found for %s, PID filtering disabled." % val)
-                for proc in procs:
-                    self.log("Tracing PID %s: %s %s." % (str(proc[0]), proc[1], proc[2]))
-                    self.pids.append(proc[0])
+                self.proc_filter = self.config.get(MODULE, opt)
+                self.update_pids(self.get_proc_info(self.proc_filter))
             if opt == 'tracepoints':
                 self.tracepoints = self.read_probe_conf(self.config.get(MODULE, opt))
 
@@ -92,6 +90,8 @@ class PCPBCCModule(PCPBCCBase):
                     self.insts[tp] = c_int(1)
         self.tracepoints = found
 
+        if not self.tracepoints:
+            raise RuntimeError("No matching tracepoints found.")
         self.log("Found %s tracepoints: %s." % (str(len(self.tracepoints)), str(self.tracepoints)))
 
         self.log("Initialized.")
@@ -105,47 +105,67 @@ class PCPBCCModule(PCPBCCBase):
         )
         return True, self.items
 
+    def reset_cache(self):
+        """ Reset internal cache """
+        self.cache = {}
+
+    def undef_cache(self):
+        """ Undefine internal cache """
+        self.cache = None
+
     def compile(self):
         """ Compile BPF """
         try:
-            if not self.tracepoints:
-                raise RuntimeError("No tracepoints enabled.")
-            with open(path.dirname(__file__) + '/../' + bpf_src) as src:
-                bpf_text = src.read()
-            tps = []
-            tested_probes = ""
-            for tp in self.tracepoints:
-                hash_key = tp.replace(":", "__")
-                tp_category, tp_event = tp.split(":")
-                probe = tp_probe.replace("HASH_KEY", hash_key)
-                probe = probe.replace("TRACEPOINT_NAME", tp)
-                probe = probe.replace("TRACEPOINT_CATEGORY", tp_category)
-                probe = probe.replace("TRACEPOINT_EVENT", tp_event)
-                if self.compile_test:
-                    self.log("Compilation test for tracepoint probe: '%s'." % tp)
-                    test_probe = bpf_text + probe.replace("FILTER_PID", "")
-                    test_probe = test_probe.replace("TRACEPOINT_COUNT", "1")
-                    try:
-                        test_bpf = BPF(text=test_probe)
-                        test_bpf.cleanup()
+            if not self.pids and self.proc_filter and not self.proc_refresh:
+                raise RuntimeError("No process to trace found.")
+
+            if not self.bpf_text:
+                with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                    self.bpf_text = src.read()
+
+                tps = []
+                tested_probes = ""
+                for tp in self.tracepoints:
+                    hash_key = tp.replace(":", "__")
+                    tp_category, tp_event = tp.split(":")
+                    probe = tp_probe.replace("HASH_KEY", hash_key)
+                    probe = probe.replace("TRACEPOINT_NAME", tp)
+                    probe = probe.replace("TRACEPOINT_CATEGORY", tp_category)
+                    probe = probe.replace("TRACEPOINT_EVENT", tp_event)
+                    if self.compile_test:
+                        self.log("Compilation test for tracepoint probe: '%s'." % tp)
+                        test_probe = self.bpf_text + probe.replace("FILTER_PID", "")
+                        test_probe = test_probe.replace("TRACEPOINT_COUNT", "1")
+                        try:
+                            test_bpf = BPF(text=test_probe)
+                            test_bpf.cleanup()
+                            tps.append(tp)
+                            tested_probes += probe
+                        except Exception: # pylint: disable=broad-except
+                            self.err("Failed to compile tracepoint probe '%s', disabling." % tp)
+                    else:
                         tps.append(tp)
-                        tested_probes += probe
-                    except Exception: # pylint: disable=broad-except
-                        self.err("Failed to compile tracepoint probe '%s', disabling." % tp)
-                else:
-                    tps.append(tp)
-                    bpf_text += probe
-            bpf_text += tested_probes
-            bpf_text = bpf_text.replace("TRACEPOINT_COUNT", str(len(tps)))
-            bpf_text = self.apply_pid_filter(bpf_text, self.pids)
-            self.log("Compiling %s tracepoints: %s" % (str(len(tps)), str((tps))))
+                        self.bpf_text += probe
+
+                    self.bpf_text += tested_probes
+                    self.bpf_text = self.bpf_text.replace("TRACEPOINT_COUNT", str(len(tps)))
+                    self.log("Compiling %s tracepoints: %s" % (str(len(tps)), str((tps))))
+
+            if not self.pids and self.proc_filter and self.proc_refresh:
+                self.log("No process to trace found, activation postponed.")
+                return
+
+            bpf_text = self.apply_pid_filter(self.bpf_text, self.pids)
+
             if self.debug:
-                self.log("BPF to be compiled:")
-                self.log("\n" + bpf_text)
+                self.log("BPF to be compiled:\n" + bpf_text.strip())
+
+            self.reset_cache()
             self.bpf = BPF(text=bpf_text)
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
+            self.undef_cache()
             self.err(str(error))
             self.err("Module NOT active!")
             raise

@@ -63,6 +63,8 @@ class BCCPMDA(PMDA):
         self.clusters = OrderedDict()
         self.indoms = {}
         self.prefix = "bcc."
+        self.proc_helper = None
+        self.proc_refresh = 0
 
         self.read_config_file()
         self.connect_pmcd()
@@ -92,6 +94,7 @@ class BCCPMDA(PMDA):
                     self.modules[module][CLEANUP]()
                 self.log("Modules cleaned up.")
 
+    # pylint: disable=too-many-branches
     def read_config_file(self):
         """ Read configuration file """
         conffile = PCP.pmGetConfig('PCP_PMDAS_DIR')
@@ -113,6 +116,8 @@ class BCCPMDA(PMDA):
                             self.modules[module] = {}
                 elif opt == 'prefix':
                     self.prefix = config.get('pmda', opt)
+                elif opt == 'process_refresh':
+                    self.proc_refresh = int(config.get('pmda', opt))
                 else:
                     self.err("Invalid directive '%s' in %s, aborting." % (opt, conffile))
                     sys.exit(1)
@@ -177,6 +182,8 @@ class BCCPMDA(PMDA):
             os.chdir(pmdadir)
         os.chdir(cwd)
 
+        import pmdautil
+        self.proc_helper = pmdautil.ProcMon(self.log, self.err)
         for module in self.modules:
             self.log(module)
             try:
@@ -186,7 +193,12 @@ class BCCPMDA(PMDA):
                 self.err(traceback.format_exc())
                 self.err("Module %s not found, aborting." % module)
                 sys.exit(1)
-            obj = mod.PCPBCCModule(self.modules[module][CONFIG], self.log, self.err)
+            try:
+                obj = mod.PCPBCCModule(self.modules[module][CONFIG],
+                                       self.log, self.err, self.proc_refresh)
+            except Exception: # pylint: disable=broad-except
+                # Compat for older modules, will be removed in the future
+                obj = mod.PCPBCCModule(self.modules[module][CONFIG], self.log, self.err)
             self.modules[module][METRICS] = obj.metrics
             self.modules[module][HELPERS] = obj.helpers
             self.modules[module][COMPILE] = obj.compile
@@ -197,6 +209,7 @@ class BCCPMDA(PMDA):
             self.modules[module][LABEL_INDOM] = obj.label_indom
             self.modules[module][LABEL_INSTANCE] = obj.label_instance
             self.modules[module][STORE] = obj.store
+            self.proc_helper.add_module(module, obj)
         self.log("Modules initialized.")
 
     def register_metrics(self):
@@ -243,6 +256,7 @@ class BCCPMDA(PMDA):
                         self.err("Failed to compile module " + module + ", aborting.")
                         sys.exit(1)
             self.log("Modules compiled.")
+            self.proc_helper.enable_proc_refresh(self.proc_refresh)
 
     def bcc_refresh(self, cluster):
         """ Refresh """
