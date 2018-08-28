@@ -155,10 +155,10 @@ class PCPBCCModule(PCPBCCBase):
                 self.log("No process to trace found, activation postponed.")
                 return
 
-            bpf_text = self.apply_pid_filter(self.bpf_text, self.pids)
-
             self.log("Compiling %s tracepoints: %s" % (str(len(self.tracepoints)),
                                                        str((self.tracepoints))))
+
+            bpf_text = self.apply_pid_filter(self.bpf_text, self.pids)
 
             if self.debug:
                 self.log("BPF to be compiled:\n" + bpf_text.strip())
