@@ -356,8 +356,6 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
     int nb;
     int len;
     __pmLogHdr hdr;
-    uint32_t *buf = NULL;
-    int buflen = 0;
     int sts;
     int nrec;
     struct timeval tv;
@@ -373,7 +371,8 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
     int ident;
     int nsets;
     pmLabelSet *labelset;
-
+    static uint32_t *buf = NULL;
+    static int buflen = 0;
 
     if (p->ctx < 0) {
     	/*
@@ -439,7 +438,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		hdr.type = ntohl(hdr.type);
 		len = hdr.len - sizeof(hdr);
 		if (len > buflen) {
-		    buflen = len + 1048576;
+		    buflen = len + 4096;
 		    buf = (uint32_t *)realloc(buf, buflen);
 		}
 
@@ -494,20 +493,35 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	 */
 	for (;;) {
 	    off = lseek(p->ctx, 0, SEEK_CUR);
-	    if ((nb = read(p->ctx, &hdr, sizeof(__pmLogHdr))) != sizeof(__pmLogHdr)) {
+	    nb = read(p->ctx, &hdr, sizeof(__pmLogHdr));
+
+	    if (nb != sizeof(__pmLogHdr)) {
 		/* rewind so we can wait for more data on the next change CallBack */
 		lseek(p->ctx, off, SEEK_SET);
 		break;
 	    }
+
 	    hdr.len = ntohl(hdr.len);
 	    hdr.type = ntohl(hdr.type);
-	    len = hdr.len - sizeof(hdr);
+	    if (hdr.len <= 0) {
+	    	/* rewind and wait for more data, as above */
+		lseek(p->ctx, off, SEEK_SET);
+		break;
+	    }
+
+	    /* record length: see __pmLogLoadMeta() */
+	    len = hdr.len - (int)sizeof(__pmLogHdr); /* includes trailer */
+	    if (len <= 0) {
+		fprintf(stderr, "METADATA unknown record type %d (0x%02x), len=%d:", hdr.type, hdr.type, len);
+		continue; /* skip this one */
+	    }
+
 	    if (len > buflen) {
-		buflen = len + 1048576;
+		buflen = len + 4096;
 	    	buf = (uint32_t *)realloc(buf, buflen);
 	    }
 
-	    /* read the body, len bytes */
+	    /* read the body + trailer */
 	    if ((nb = read(p->ctx, buf, len)) != len) {
 	    	/* rewind and wait for more data, as above */
 		lseek(p->ctx, off, SEEK_SET);
@@ -517,7 +531,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	    if (pmDebugOptions.discovery)
 		fprintf(stderr, "METADATA read len %4d type %d:", len, hdr.type);
 
-	    /* TODO - use m_time from p->statbuf */
+	    /* TODO - use m_time from p->statbuf ? */
 	    gettimeofday(&tv, NULL);
 	    ptv.tv_sec = tv.tv_sec;
 	    ptv.tv_usec = tv.tv_usec;
@@ -561,22 +575,26 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		    break;
 
 		case TYPE_LABEL:
-		    if (pmDebugOptions.discovery)
-			fprintf(stderr, "LABEL\n");
 		    /* decode labelset from buf */
 		    if ((sts = pmDiscoverDecodeMetaLabelset(buf, len, &ident, &type, &nsets, &labelset)) < 0)
 			fprintf(stderr, "Error pmDiscoverDecodeMetaLabelset: %s\n", pmErrStr(sts));
 		    else {
+			if (pmDebugOptions.discovery) {
+			    fprintf(stderr, "LABEL type=%d \"%s\" ident=%s nsets=%d\n",
+				type, __pmLabelTypeString(type), pmIDStr(ident), nsets);
+			}
 			for (i=0; i < n_discoverCallBacksList; i++) {
 			    if (discoverCallBacksList[i] && discoverCallBacksList[i]->labelCallBack)
 				discoverCallBacksList[i]->labelCallBack(p->archiveLabel->ll_hostname, &ptv, ident, type, nsets, labelset);
 			}
-			/* TODO free labelset */
+			/* free labelset */
+			pmFreeLabelSets(labelset, nsets);
 		    }
 		    break;
 
 		case TYPE_TEXT:
-		    fprintf(stderr, "TEXT\n");
+		    if (pmDebugOptions.discovery)
+			fprintf(stderr, "TEXT\n");
 		    /* decode help text from buffer */
 		    if ((sts = pmDiscoverDecodeMetaHelptext(buf, len, &type, &id, &buffer)) < 0)
 			fprintf(stderr, "Error pmDiscoverDecodeMetaHelptext: %s\n", pmErrStr(sts));
@@ -588,16 +606,15 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 			if (buffer)
 			    free(buffer);
 		    }
+		    break;
 
 		default:
 		    if (pmDebugOptions.discovery)
-                        fprintf(stderr, "%s\n", hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS02) ? "PM_LOG_MAGICv2" : "UNKNOWN");
+                        fprintf(stderr, "%s, len = %d\n", hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS02) ? "PM_LOG_MAGICv2" : "UNKNOWN", len);
 		    break;
 	    }
 	}
     }
-    if (buf)
-	free(buf);
 }
 
 static void
@@ -849,28 +866,119 @@ pmDiscoverDecodeMetaHelptext(uint32_t *buf, int len, int *type, int *id, char **
     return 0;
 }
 
-int
-pmDiscoverDecodeMetaLabelset(uint32_t *buf, int len, int *ident, int *type, int *nsets, pmLabelSet **labelset)
+#ifndef __ntohpmLabel
+static void
+__ntohpmLabel(pmLabel * const label)
 {
-    // pmTimeval tv;
+    label->name = ntohs(label->name);
+    /* label->namelen is one byte */
+    /* label->flags is one byte */
+    label->value = ntohs(label->value);
+    label->valuelen = ntohs(label->valuelen);
+}
+#endif
 
-    // tv.tv_sec = ntohl(buf[0]);
-    // tv.tv_usec = ntohl(buf[1]);
-    *type = ntohl(buf[2]);
-    *ident = ntohl(buf[3]);
-    *nsets = ntohl(buf[4]);
-    if (*nsets == 0) {
-    	*labelset = NULL;
-	return 0;
+int
+pmDiscoverDecodeMetaLabelset(uint32_t *buf, int buflen, int *identp, int *typep, int *nsetsp, pmLabelSet **setsp)
+{
+    char	*tbuf = (char *)buf;
+    pmLabelSet	*labelsets = NULL;
+    int		type;
+    int		ident;
+    int		nsets;
+    int		inst;
+    int		jsonlen;
+    int		nlabels;
+    pmTimeval	stamp;
+    int		i, j, k;
+
+    /* this is similar to __pmLogLoadMeta() for the LABEL case */
+    k = 0;
+    stamp = *((pmTimeval *)&tbuf[k]);
+    stamp.tv_sec = ntohl(stamp.tv_sec);
+    stamp.tv_usec = ntohl(stamp.tv_usec);
+    k += sizeof(stamp);
+
+    type = ntohl(*((unsigned int*)&tbuf[k]));
+    k += sizeof(type);
+
+    ident = ntohl(*((unsigned int*)&tbuf[k]));
+    k += sizeof(ident);
+
+    nsets = *((unsigned int *)&tbuf[k]);
+    nsets = ntohl(nsets);
+    k += sizeof(nsets);
+
+    if (nsets < 0)
+    	return PM_ERR_IPC;
+    if (nsets == 0) {
+    	labelsets = NULL;
+	goto success;
     }
 
-#if 1
-    *labelset = NULL;
-#else /* TODO decode the label sets, maybe use but the PDU varient is slightly different */
-__pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int *nsetp)
-#endif /* TODO */
+    if ((labelsets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL)
+	return -ENOMEM;
+    memset(labelsets, 0, nsets * sizeof(pmLabelSet));
 
+    for (i=0; i < nsets; i++) {
+	inst = *((unsigned int*)&tbuf[k]);
+	inst = ntohl(inst);
+	k += sizeof(inst);
+	labelsets[i].inst = inst;
+
+	jsonlen = ntohl(*((unsigned int*)&tbuf[k]));
+	k += sizeof(jsonlen);
+	labelsets[i].jsonlen = jsonlen;
+
+	if (jsonlen < 0 || jsonlen > PM_MAXLABELJSONLEN)
+	    goto corrupt;
+
+	/* TODO - should we allocate one byte here? jsonlen is commonly 0 */
+	if ((labelsets[i].json = (char *)malloc(jsonlen+1)) == NULL) {
+	    free(labelsets);
+	    return -ENOMEM;
+	}
+
+	memcpy((void *)labelsets[i].json, (void *)&tbuf[k], jsonlen);
+	labelsets[i].json[jsonlen] = '\0';
+	k += jsonlen;
+
+	/* label nlabels */
+	nlabels = ntohl(*((unsigned int *)&tbuf[k]));
+	k += sizeof(nlabels);
+	labelsets[i].nlabels = nlabels;
+
+	if (nlabels >= PM_MAXLABELS)
+	    goto corrupt;
+
+	if (nlabels > 0) { /* less than zero is an err code, skip it */
+	    if (nlabels > PM_MAXLABELS || k + nlabels * sizeof(pmLabel) > buflen)
+	    	goto corrupt;
+	    if ((labelsets[i].labels = (pmLabel *)calloc(nlabels, sizeof(pmLabel))) == NULL) {
+	    	free(labelsets);
+		return -ENOMEM;
+	    }
+	    /* label pmLabels */
+	    for (j = 0; j < nlabels; j++) {
+		labelsets[i].labels[j] = *((pmLabel *)&tbuf[k]);
+		__ntohpmLabel(&labelsets[i].labels[j]);
+		k += sizeof(pmLabel);
+	    }
+	}
+    }
+
+success:
+    *identp = ident;
+    *typep = type;
+    *nsetsp = nsets;
+    *setsp = labelsets;
     return 0;
+
+corrupt:
+    /* caller to handle this */
+    if (labelsets)
+	pmFreeLabelSets(labelsets, nsets);
+    return PM_ERR_IPC;
 }
 
 #endif /* HAVE_LIBUV */
