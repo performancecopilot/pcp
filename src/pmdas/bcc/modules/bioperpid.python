@@ -49,6 +49,7 @@ class PCPBCCModule(PCPBCCBase):
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
         self.cache = {}
+        self.stale_pids = []
 
         self.disklookup = None
         self.update_disk_info()
@@ -95,13 +96,16 @@ class PCPBCCModule(PCPBCCBase):
         if self.bpf is None:
             return None
 
-        counts = self.bpf.get_table("counts")
-
         # Clean stale data
-        for key in list(self.cache):
+        for key in list(self.stale_pids):
+            del self.cache[key]
+            del self.insts[key]
+            self.stale_pids.remove(key)
+        for key in self.cache:
             if not self.pid_alive(key.split("::")[1]):
-                del self.cache[key]
-                del self.insts[key]
+                self.stale_pids.append(key)
+
+        counts = self.bpf["counts"]
 
         # Update current data
         for k, v in counts.items():

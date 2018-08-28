@@ -129,9 +129,9 @@ class PCPBCCModule(PCPBCCBase):
                 self.log("No process to attach found, activation postponed.")
                 return
 
-            bpf_text = self.apply_pid_filter(self.bpf_text, self.pids)
-
             self.log("Compiling %s uprobes: %s" % (str(len(self.uprobes)), str((self.uprobes))))
+
+            bpf_text = self.apply_pid_filter(self.bpf_text, self.pids)
 
             if self.debug:
                 self.log("BPF to be compiled:\n" + bpf_text.strip())

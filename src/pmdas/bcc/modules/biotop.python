@@ -144,7 +144,7 @@ class PCPBCCModule(PCPBCCBase):
         self.cache = {}
         self.lock.release()
 
-        counts = self.bpf.get_table("counts")
+        counts = self.bpf["counts"]
         sorted_counts = sorted(counts.items(), key=self.sort_fn, reverse=self.sort_reversed)
 
         idx = 0
