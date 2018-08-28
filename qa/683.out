@@ -12,6 +12,7 @@ Check mmv metrics have appeared ... 3 metrics and 3 values
 mmv.labels3.labels3.u64.instant PMID: 70.322.2 = 293931010 = 0x11850802
     Data Type: 64-bit unsigned int  InDom: 70.659458 0x118a1002
     Semantics: instant  Units: none
+    labels {"agent":"mmv","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","registry_label":"string","userid":UID}
     inst [0 or "sda"] value 0
     inst [1 or "sdb"] value 0
     inst [0 or "sda"] labels {"agent":"mmv","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","registry_label":"string","userid":UID}
@@ -20,6 +21,7 @@ mmv.labels3.labels3.u64.instant PMID: 70.322.2 = 293931010 = 0x11850802
 mmv.labels3.labels3.u32.counter PMID: 70.322.1 = 293931009 = 0x11850801
     Data Type: 32-bit unsigned int  InDom: 70.659457 0x118a1001
     Semantics: counter  Units: count
+    labels {"agent":"mmv","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","indom_label":42.001,"machineid":"MACHINE","metric_label":null,"registry_label":"string","userid":UID}
     inst [0 or "cpu0"] value 42
     inst [1 or "cpu1"] value 0
     inst [2 or "cpu3"] value 0

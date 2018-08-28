@@ -22,7 +22,7 @@ typedef enum {
     MAGIC_STREAM,
     MAGIC_QUERY,
     MAGIC_SID,
-    MAGIC_VALUE,
+    MAGIC_NAMES,
     MAGIC_LABELMAP,
 
     MAGIC_COUNT
@@ -55,6 +55,6 @@ typedef struct seriesBatonPhase {
 } seriesBatonPhase;
 
 extern void seriesBatonPhases(seriesBatonPhase *, unsigned int, void *);
-extern void seriesPassBaton(seriesBatonPhase **, unsigned int *, void *);
+extern void seriesPassBaton(seriesBatonPhase **, void *);
 
 #endif	/* SERIES_BATONS_H */

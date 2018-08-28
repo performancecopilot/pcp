@@ -36,7 +36,7 @@ redisSlotsInit(sds hostspec, redisInfoCallBack info, void *events, void *userdat
     slots->info = info;
     slots->events = events;
     slots->userdata = userdata;
-    slots->control = redisSlotsConnect(slots, hostspec);
+    slots->control = redisAttach(slots, hostspec);
     return slots;
 }
 
@@ -93,7 +93,7 @@ redisSlotRangeFree(redisSlots *pool, redisSlotRange *range)
 }
 
 void
-redisFreeSlots(redisSlots *pool)
+redisSlotsFree(redisSlots *pool)
 {
     void		*root = pool->slots;
     redisSlotRange	*range;
@@ -208,7 +208,7 @@ redis_connect(const char *server)
 }
 
 redisAsyncContext *
-redisSlotsConnect(redisSlots *slots, const char *server)
+redisAttach(redisSlots *slots, const char *server)
 {
     redisAsyncContext	*redis = redis_connect(server);
 
@@ -245,7 +245,7 @@ redisGet(redisSlots *slots, const char *command, sds key)
     server = (range->nslaves == 0) ? &range->master :
 	     &range->slaves[range->counter % range->nslaves];
     if (server->redis == NULL)
-	server->redis = redisSlotsConnect(slots, server->hostspec);
+	server->redis = redisAttach(slots, server->hostspec);
     return server->redis;
 }
 

@@ -1,0 +1,54 @@
+#!/bin/sh
+# PCP QA Test No. 1176
+# Exercise the BCC PMDA cachestat module - install, remove and values.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bcc
+
+_pmdabcc_check
+
+write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
+out_file=$tmp.tmpfile
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+_prepare_pmda bcc
+trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+cat <<EOF | _pmdabcc_install
+[pmda]
+modules = cachestat
+prefix = bcc.
+[cachestat]
+module = cachestat
+cluster = 17
+EOF
+
+_pmdabcc_wait_for_metric
+
+# Generate write activity the BCC cachestat module
+dd if=/dev/zero of=${out_file} bs=${write_size} count=1 conv=fsync 2>/dev/null
+echo "=== report metric values for writes ==="
+pminfo -dfmtT bcc.mem.vmstat.dirtied 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+# Generate read activity the BCC cachestat module
+dd if=${out_file} of=/dev/null bs=${write_size} count=1 2>/dev/null
+
+echo "=== report metric values for cached reads ==="
+pminfo -dfmtT bcc.mem.vmstat.hits 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+_pmdabcc_remove
+
+status=0
+exit

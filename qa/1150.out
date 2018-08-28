@@ -9,7 +9,7 @@ Info: usdt_hits
 Info: Modules configured.
 Info: Initializing modules:
 Info: usdt_hits
-Info: usdt_hits: Found PMCD.
+Info: usdt_hits: Tracing PID.
 Info: usdt_hits: Configured USDTs: ['PCP_BINADM_DIR/pmcd:PMCD', 'PCP_BINADM_DIR/pmcd:PMCD_PDU']
 Info: usdt_hits: Found 2 USDTs: ['PCP_BINADM_DIR/pmcd:PMCD', 'PCP_BINADM_DIR/pmcd:PMCD_PDU'].
 Info: usdt_hits: Initialized.
@@ -28,7 +28,7 @@ Info: usdt_hits
 Info: Modules configured.
 Info: Initializing modules:
 Info: usdt_hits
-Info: usdt_hits: Found PMCD.
+Info: usdt_hits: Tracing PID.
 Info: usdt_hits: Configured USDTs: ['PCP_BINADM_DIR/pmcd:PMCD', 'PCP_BINADM_DIR/pmcd:PMCD_PDU']
 Info: usdt_hits: Found 2 USDTs: ['PCP_BINADM_DIR/pmcd:PMCD', 'PCP_BINADM_DIR/pmcd:PMCD_PDU'].
 Info: usdt_hits: Initialized.

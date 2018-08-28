@@ -42,7 +42,7 @@ units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC biolatency module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, _):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
@@ -105,12 +105,12 @@ class PCPBCCModule(PCPBCCBase):
         except Exception: # pylint: disable=broad-except
             return [PM_ERR_AGAIN, 0]
 
-    def label_cluster(self):
-        """ Cluster labels """
+    def label_indom(self):
+        """ Instance domain labels """
         return '{"statistic":"histogram"}'
 
     def label_instance(self, inst):
         """ Instance labels """
         key = self.pmdaIndom.inst_name_lookup(inst)
-        bounds = key.split('-')
+        bounds = key.split("-")
         return '{"lower_bound":%s,"upper_bound":%s}' % (bounds[0], bounds[1])

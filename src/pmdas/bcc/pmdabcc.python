@@ -19,17 +19,17 @@ try:
 except ImportError:
     import ConfigParser as configparser
 import importlib
+import traceback
 import fnmatch
 import atexit
 import sys
 import os
-import traceback
 
 from collections import OrderedDict
 
 from pcp.pmapi import pmContext as PCP
 from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
-from cpmapi import PM_INDOM_NULL, PM_ERR_VALUE, PM_ERR_PMID, PM_LABEL_CLUSTER
+from cpmapi import PM_INDOM_NULL, PM_ERR_VALUE, PM_ERR_BADSTORE, PM_LABEL_CLUSTER, PM_LABEL_INDOM
 
 # Module references
 CONFIG = 1
@@ -44,9 +44,10 @@ BPFDATA = 9
 CLEANUP = 10
 INDOM = 11
 INSTS = 12
-LABEL_CLUSTER = 13
-LABEL_INSTANCE = 14
-STORE = 15
+LABEL_INDOM = 13
+LABEL_CLUSTER = 14
+LABEL_INSTANCE = 15
+STORE = 16
 
 class BCCPMDA(PMDA):
     """ PCP BCC PMDA """
@@ -62,6 +63,8 @@ class BCCPMDA(PMDA):
         self.clusters = OrderedDict()
         self.indoms = {}
         self.prefix = "bcc."
+        self.proc_helper = None
+        self.proc_refresh = 0
 
         self.read_config_file()
         self.connect_pmcd()
@@ -91,6 +94,7 @@ class BCCPMDA(PMDA):
                     self.modules[module][CLEANUP]()
                 self.log("Modules cleaned up.")
 
+    # pylint: disable=too-many-branches
     def read_config_file(self):
         """ Read configuration file """
         conffile = PCP.pmGetConfig('PCP_PMDAS_DIR')
@@ -112,6 +116,8 @@ class BCCPMDA(PMDA):
                             self.modules[module] = {}
                 elif opt == 'prefix':
                     self.prefix = config.get('pmda', opt)
+                elif opt == 'process_refresh':
+                    self.proc_refresh = int(config.get('pmda', opt))
                 else:
                     self.err("Invalid directive '%s' in %s, aborting." % (opt, conffile))
                     sys.exit(1)
@@ -124,7 +130,7 @@ class BCCPMDA(PMDA):
             sys.exit(1)
 
         self.log("Enabled modules:")
-        self.log(str([module for module in self.modules]))
+        self.log(str(list(self.modules)))
 
         self.log("Configuring modules:")
         for module in self.modules:
@@ -163,15 +169,21 @@ class BCCPMDA(PMDA):
         self.log("Initializing modules:")
 
         # For packaging, allow both .python and .py suffixed files
-        moduledir = PCP.pmGetConfig('PCP_PMDAS_DIR')
-        moduledir += '/' + self.read_name() + '/' + 'modules'
-        for root, _dirnames, filenames in os.walk(moduledir):
+        cwd = os.getcwd()
+        pmdadir = PCP.pmGetConfig('PCP_PMDAS_DIR') + '/' + self.read_name()
+        for root, _, filenames in os.walk(pmdadir):
+            os.chdir(root)
             for filename in fnmatch.filter(filenames, '*.python'):
-                pythonf = os.path.join(root, filename)
-                pyf = pythonf[:-4]
+                if filename in ('pmdabcc.python', 'domain.h.python', 'pmns.python'):
+                    continue
+                pyf = filename[:-4]
                 if not os.path.exists(pyf):
-                    os.symlink(pythonf, pyf)
+                    os.symlink(filename, pyf)
+            os.chdir(pmdadir)
+        os.chdir(cwd)
 
+        import pmdautil
+        self.proc_helper = pmdautil.ProcMon(self.log, self.err)
         for module in self.modules:
             self.log(module)
             try:
@@ -181,7 +193,12 @@ class BCCPMDA(PMDA):
                 self.err(traceback.format_exc())
                 self.err("Module %s not found, aborting." % module)
                 sys.exit(1)
-            obj = mod.PCPBCCModule(self.modules[module][CONFIG], self.log, self.err)
+            try:
+                obj = mod.PCPBCCModule(self.modules[module][CONFIG],
+                                       self.log, self.err, self.proc_refresh)
+            except Exception: # pylint: disable=broad-except
+                # Compat for older modules, will be removed in the future
+                obj = mod.PCPBCCModule(self.modules[module][CONFIG], self.log, self.err)
             self.modules[module][METRICS] = obj.metrics
             self.modules[module][HELPERS] = obj.helpers
             self.modules[module][COMPILE] = obj.compile
@@ -189,8 +206,10 @@ class BCCPMDA(PMDA):
             self.modules[module][BPFDATA] = obj.bpfdata
             self.modules[module][CLEANUP] = obj.cleanup
             self.modules[module][LABEL_CLUSTER] = obj.label_cluster
+            self.modules[module][LABEL_INDOM] = obj.label_indom
             self.modules[module][LABEL_INSTANCE] = obj.label_instance
             self.modules[module][STORE] = obj.store
+            self.proc_helper.add_module(module, obj)
         self.log("Modules initialized.")
 
     def register_metrics(self):
@@ -198,7 +217,7 @@ class BCCPMDA(PMDA):
         self.log("Registering metrics:")
         for module in self.modules:
             self.log(module)
-            cluster = int(self.modules[module][CLUSTER])
+            cluster = self.modules[module][CLUSTER]
             indom, metrics = self.modules[module][METRICS]()
             self.modules[module][INDOM] = PM_INDOM_NULL
             if indom:
@@ -237,6 +256,7 @@ class BCCPMDA(PMDA):
                         self.err("Failed to compile module " + module + ", aborting.")
                         sys.exit(1)
             self.log("Modules compiled.")
+            self.proc_helper.enable_proc_refresh(self.proc_refresh)
 
     def bcc_refresh(self, cluster):
         """ Refresh """
@@ -262,10 +282,13 @@ class BCCPMDA(PMDA):
             return [PM_ERR_VALUE, 0]
 
     def bcc_label(self, ident, label_type):
-        """ Cluster labels """
+        """ Cluster and instance domain labels """
         if label_type == PM_LABEL_CLUSTER:
             module = self.clusters[ident]
             return self.modules[module][LABEL_CLUSTER]()
+        if label_type == PM_LABEL_INDOM:
+            module = self.indoms[ident]
+            return self.modules[module][LABEL_INDOM]()
         return '{}'
 
     def bcc_label_callback(self, indom, inst):
@@ -281,7 +304,7 @@ class BCCPMDA(PMDA):
         except Exception as error: # pylint: disable=broad-except
             self.err(str(error))
             self.err(traceback.format_exc())
-            return PM_ERR_PMID
+            return PM_ERR_BADSTORE
 
 if __name__ == '__main__':
     BCCPMDA('bcc', 149).run()

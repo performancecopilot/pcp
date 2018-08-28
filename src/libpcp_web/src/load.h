@@ -17,21 +17,22 @@
 #include "pmapi.h"
 #include "series.h"
 
+typedef struct seriesname {
+    sds			sds;		/* external sds for this series */
+    long long		mapid;		/* internal string identifiers */
+    unsigned char	hash[20];	/* SHA1 of intrinsic metadata */
+} seriesname_t;
+
 typedef struct context {
-    sds			name;		/* source archive or hostspec */
+    seriesname_t	name;		/* source archive or hostspec */
     sds			host;		/* hostname from archive/host */
     sds			origin;		/* host where series loaded in */
-    unsigned char	hash[20];	/* context labels metadata SHA1 */
+    long long		hostid;		/* hostname source identifier */
+    double		location[2];	/* latitude and longitude */
     unsigned int	type	: 7;
     unsigned int	cached	: 1;
-    double		location[2];	/* latitude and longitude */
     int			context;	/* PMAPI context */
-    long long		hostid;		/* hostname source identifier */
-    long long		mapid;		/* internal source identifier */
-    pmInDom		mapinst;	/* instance name identifier map */
-    pmInDom		mapnames;	/* label name identifier map */
-    pmInDom		mapvalues;	/* label value identifier map */
-    int			nmetrics;	/* TODO remove nmetrics/metrics */
+    int			nmetrics;
     const char		**metrics;	/* metric specification strings */
     pmLabelSet		*labels;
 } context_t;
@@ -41,18 +42,6 @@ typedef struct domain {
     context_t		*context;
     pmLabelSet		*labels;
 } domain_t;
-
-typedef struct indom {
-    pmInDom		indom;
-    domain_t		*domain;
-    pmLabelSet		*labels;
-} indom_t;
-
-typedef struct cluster {
-    unsigned int	cluster;
-    domain_t		*domain;
-    pmLabelSet		*labels;
-} cluster_t;
 
 typedef struct labellist {
     long long		nameid;
@@ -65,34 +54,45 @@ typedef struct labellist {
     void		*arg;
 } labellist_t;
 
-typedef struct value {
-    unsigned char	hash[20];	/* SHA1 of intrinsic metadata */
-    int			inst;		/* internal instance identifier */
-    long long		mapid;		/* internal name identifier */
-    unsigned int	cached : 1;	/* metadata is already cached */
-    unsigned int	updated : 1;	/* last sample modified value */
-    unsigned int	padding : 30;	/* zero-fill structure padding */
-    labellist_t		*labellist;	/* label name/value mapping set */
-    sds			name;		/* external instance name or "?" */
+typedef struct instance {
+    seriesname_t	name;		/* instance naming information */
+    unsigned int	inst;		/* internal instance identifier */
     pmLabelSet		*labels;	/* instance labels or NULL */
+    labellist_t		*labellist;	/* label name/value mapping set */
+} instance_t;
+
+typedef struct indom {
+    pmInDom		indom;
+    domain_t		*domain;
+    pmLabelSet		*labels;
+    struct dict		*insts;		/* map identifiers to instances */
+} indom_t;
+
+typedef struct cluster {
+    unsigned int	cluster;
+    domain_t		*domain;
+    pmLabelSet		*labels;
+} cluster_t;
+
+typedef struct value {
+    int			inst;		/* internal instance identifier */
+    unsigned int	updated;	/* last sample modified value */
     pmAtomValue		atom;		/* most recent sampled value */
 } value_t;
 
-typedef struct instlist {
+typedef struct valuelist {
     unsigned int	listsize;	/* high-water-mark inst count */
     unsigned int	listcount;	/* currently init'd inst count */
-    struct value	value[0];
-} instlist_t;
+    value_t		value[0];
+} valuelist_t;
 
 typedef struct metric {
-    unsigned char	hash[20];	/* SHA1 of intrinsic metadata */
+    pmDesc		desc;
     cluster_t		*cluster;
     indom_t		*indom;
-    pmDesc		desc;
     pmLabelSet		*labels;	/* metric item labels or NULL */
     labellist_t		*labellist;	/* label name/value mapping set */
-    long long		*mapids;	/* internal name(s) identifiers */
-    sds			*names;		/* PMNS entries for this metric */
+    seriesname_t	*names;		/* metric names and mappings */
     unsigned int	numnames : 16;	/* count of metric PMNS entries */
     unsigned int	padding : 14;	/* zero-fill structure padding */
     unsigned int	updated : 1;	/* last sample returned success */
@@ -100,7 +100,7 @@ typedef struct metric {
     int			error;		/* a PMAPI negative error code */
     union {
 	pmAtomValue	atom;		/* singleton value (PM_IN_NULL) */
-	struct instlist *inst;		/* instance values and metadata */
+	valuelist_t	*vlist;		/* instance values and metadata */
     } u;
 } metric_t;
 
@@ -112,5 +112,7 @@ extern pmSeriesInfoCallBack seriesLoadBatonInfo(struct seriesLoadBaton *);
 extern context_t *seriesLoadBatonContext(struct seriesLoadBaton *);
 extern void *seriesLoadBatonUser(struct seriesLoadBaton *);
 extern void seriesLoadBatonFetch(struct seriesLoadBaton *);
+
+extern void *findID(struct dict *, void *);
 
 #endif	/* SERIES_LOAD_H */

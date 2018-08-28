@@ -44,7 +44,7 @@ units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC bioperpid module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, _):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
