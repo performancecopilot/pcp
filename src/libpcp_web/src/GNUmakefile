@@ -107,3 +107,5 @@ jsmn.o:		jsmn.c jsmn.h
 http_parser.o:	http_parser.c http_parser.h
 
 http_client.o load.o query.o query_parser.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+discover.o:	discover.h discover.c
