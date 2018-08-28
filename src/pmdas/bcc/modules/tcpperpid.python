@@ -95,7 +95,6 @@ class PCPBCCModule(PCPBCCBase):
 
         self.dports = []
         self.lports = []
-        self.session_count = 20
         self.buffer_page_count = 64
 
         for opt in self.config.options(MODULE):
@@ -108,8 +107,6 @@ class PCPBCCModule(PCPBCCBase):
             if opt == 'process':
                 self.proc_filter = self.config.get(MODULE, opt)
                 self.update_pids(self.get_proc_info(self.proc_filter))
-            if opt == 'session_count':
-                self.session_count = int(self.config.get(MODULE, opt))
             if opt == 'buffer_page_count':
                 self.buffer_page_count = int(self.config.get(MODULE, opt))
                 if not self.buffer_page_count or \
@@ -215,8 +212,12 @@ class PCPBCCModule(PCPBCCBase):
 
             self.reset_cache()
             self.bpf = BPF(text=bpf_text)
-            self.bpf["ipv4_events"].open_perf_buffer(self.handle_ipv4_event, page_cnt=64)
-            self.bpf["ipv6_events"].open_perf_buffer(self.handle_ipv6_event, page_cnt=64)
+            self.bpf["ipv4_events"].open_perf_buffer(self.handle_ipv4_event,
+                                                     page_cnt=self.buffer_page_count,
+                                                     lost_cb=self.perf_buffer_lost_cb)
+            self.bpf["ipv6_events"].open_perf_buffer(self.handle_ipv6_event,
+                                                     page_cnt=self.buffer_page_count,
+                                                     lost_cb=self.perf_buffer_lost_cb)
             self.thread = Thread(name="bpfpoller", target=self.perf_buffer_poller)
             self.thread.setDaemon(True)
             self.thread.start()
