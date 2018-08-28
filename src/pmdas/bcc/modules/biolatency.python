@@ -91,7 +91,7 @@ class PCPBCCModule(PCPBCCBase):
         if self.bpf is None:
             return None
 
-        dist = self.bpf.get_table("dist")
+        dist = self.bpf["dist"]
         self.insts = self.read_log2_histogram(dist, self.cache)
         dist.clear()
 
