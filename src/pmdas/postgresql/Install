@@ -20,8 +20,53 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=postgresql
+domain=110
 python_opt=true
 daemon_opt=false
+
+conf=$PCP_PMDAS_DIR/$iam/pmdapostgresql.conf
+if [ ! -f "$conf" ]; then
+    echo "Error: missing config file \"$conf\""
+    status=1
+    exit
+fi
+
+eval `grep "user=" $conf`
+if [ -z "$user" ]; then
+    echo "Error: \"user\" not defined in $conf"
+    status=1
+    exit
+fi
+
+echo "postgres user defined in $conf is \"$user\""
+if ! id $user >/dev/null 2>&1; then
+    echo "Error: no such user \"$user\" on this system"
+    status=1
+    exit
+fi
+
+gid=`id postgres | sed -e 's/^.*gid=//' -e 's/(.*$//'`
+echo "group id for user \"$user\" is \"$gid\""
+
+mkdir -p "$PCP_VAR_DIR/config/pmda" 2>/dev/null
+indoms="0 1 2 3 4 5 6 7 8 9 10 11 12"
+for indom in $indoms
+do
+    failed=false
+    c="$PCP_VAR_DIR/config/pmda/$domain.$indom"
+    if [ ! -f "$c" ]; then
+	if touch $c >/dev/null 2>&1; then
+	    # TODO need a pmda cache init function
+	    echo "2 0 2147483647" >> $c # standard v2 header
+	    chmod 664 "$c"
+	    chgrp $gid "$c"
+	else
+	    echo "Error: failed to create indom persistance file \"$c\""
+	    status=1
+	    exit
+	fi
+    fi
+done
 
 pmdaSetup
 pmdaInstall
