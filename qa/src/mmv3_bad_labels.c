@@ -110,450 +110,87 @@ main(int argc, char **argv)
     
     ret = mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"string1\"", MMV_STRING_TYPE, 0);
-                    
-    fprintf(stderr, "0 Return: %d, %s\n", ret, strerror(errno));
 
-
-    fprintf(stderr, "STRING\n");
-
-    // 1 Bad label string init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "string2\"", MMV_STRING_TYPE, 0);
-
-    fprintf(stderr, "1 Return: %d, %s\n", ret, strerror(errno));
-
-    errno = 0;
     
-    // 2 Bad label string init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"string3", MMV_STRING_TYPE, 0);
-
-    fprintf(stderr, "2 Return: %d, %s\n", ret, strerror(errno));
     
-    errno = 0;
-
-    // 3 Bad label string init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"stri\"n\"g4\"", MMV_STRING_TYPE, 0);
 
-    fprintf(stderr, "3 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 4 Bad label string init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"stri\"", MMV_STRING_TYPE, 0);
 
-    fprintf(stderr, "4 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    fprintf(stderr, "BOOLEAN\n");
-
-    // 5 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"true\"", MMV_BOOLEAN_TYPE, 0);
 
-    fprintf(stderr, "5 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 6 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "True", MMV_BOOLEAN_TYPE, 0);
 
-    fprintf(stderr, "6 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 7 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "False", MMV_BOOLEAN_TYPE, 0);
 
-    fprintf(stderr, "7 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 8 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"false\"", MMV_BOOLEAN_TYPE, 0);
 
-    fprintf(stderr, "8 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    fprintf(stderr, "NUMBER\n");
-
-    // 9 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "2.0", MMV_NUMBER_TYPE, 0);
 
-    fprintf(stderr, "9 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 10 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "2.2", MMV_NUMBER_TYPE, 0);
 
-    fprintf(stderr, "10 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 11 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "1", MMV_NUMBER_TYPE, 0);
 
-    fprintf(stderr, "11 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 12 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "-12", MMV_NUMBER_TYPE, 0);
 
-    fprintf(stderr, "12 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 13 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"12\"", MMV_NUMBER_TYPE, 0);
 
-    fprintf(stderr, "12 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 14 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "12.13.13", MMV_NUMBER_TYPE, 0);
 
-    fprintf(stderr, "13 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    fprintf(stderr, "NULL\n");
-
-    // 15 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "12.13.13", MMV_NULL_TYPE, 0);
 
-    fprintf(stderr, "14 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 15 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "null", MMV_NULL_TYPE, 0);
 
-    fprintf(stderr, "15 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    fprintf(stderr, "ARRAY\n");
-
-    // 16 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "[1,2,3]", MMV_ARRAY_TYPE, 0);
 
-    fprintf(stderr, "16 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "1,2,3]", MMV_ARRAY_TYPE, 0);
 
-    fprintf(stderr, "17 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "[1,2,3", MMV_ARRAY_TYPE, 0);
 
-    fprintf(stderr, "18 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "[1,2 3]", MMV_ARRAY_TYPE, 0);
 
-    fprintf(stderr, "19 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "[\"123\",12]", MMV_ARRAY_TYPE, 0);
 
-    fprintf(stderr, "20 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    fprintf(stderr, "MAP\n");
-
-    // 16 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "{\"a\":1,\"b\":2}", MMV_MAP_TYPE, 0);
 
-    fprintf(stderr, "21 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"a\":1,\"b\":2}", MMV_MAP_TYPE, 0);
 
-    fprintf(stderr, "22 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "{\"a\":1,\"b\":2", MMV_MAP_TYPE, 0);
 
-    fprintf(stderr, "23 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "{a\":1,\"b\":2}", MMV_MAP_TYPE, 0);
 
-    fprintf(stderr, "24 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
     ret =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "{a:1,\"b\":2}", MMV_MAP_TYPE, 0);
 
-    fprintf(stderr, "25 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    /*fprintf(stderr, "STRING\n");
-
-    // 1 Bad label string init
-    ret = check_label("label1", "string2\"", MMV_STRING_TYPE, 0);
-
-    fprintf(stderr, "1 Return: %d, %s\n", ret, strerror(errno));
-
-    errno = 0;
-    
-    // 2 Bad label string init
-    ret = check_label("label1", "\"string3", MMV_STRING_TYPE, 0);
-
-    fprintf(stderr, "2 Return: %d, %s\n", ret, strerror(errno));
-    
-    errno = 0;
-
-    // 3 Bad label string init
-    ret = check_label("label1", "\"stri\"n\"g4\"", MMV_STRING_TYPE, 0);
-
-    fprintf(stderr, "3 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 4 Bad label string init
-    ret = check_label("label1", "\"stri\"", MMV_STRING_TYPE, 0);
-
-    fprintf(stderr, "4 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    fprintf(stderr, "BOOLEAN\n");
-
-    // 5 Bad label boolean init
-    ret = check_label("label1", "\"true\"", MMV_BOOLEAN_TYPE, 0);
-
-    fprintf(stderr, "5 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 6 Bad label boolean init
-    ret = check_label("label1", "True", MMV_BOOLEAN_TYPE, 0);
-
-    fprintf(stderr, "6 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 7 Bad label boolean init
-    ret = check_label("label1", "False", MMV_BOOLEAN_TYPE, 0);
-
-    fprintf(stderr, "7 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 8 Bad label boolean init
-    ret = check_label("label1", "\"false\"", MMV_BOOLEAN_TYPE, 0);
-
-    fprintf(stderr, "8 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    fprintf(stderr, "NUMBER\n");
-
-    // 9 Bad label boolean init
-    ret = check_label("label1", "2.0", MMV_NUMBER_TYPE, 0);
-
-    fprintf(stderr, "9 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 10 Bad label boolean init
-    ret = check_label("label1", "2.2", MMV_NUMBER_TYPE, 0);
-
-    fprintf(stderr, "10 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 11 Bad label boolean init
-    ret = check_label("label1", "1", MMV_NUMBER_TYPE, 0);
-
-    fprintf(stderr, "11 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 12 Bad label boolean init
-    ret = check_label("label1", "-12", MMV_NUMBER_TYPE, 0);
-
-    fprintf(stderr, "12 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 13 Bad label boolean init
-    ret = check_label("label1", "\"12\"", MMV_NUMBER_TYPE, 0);
-
-    fprintf(stderr, "12 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 14 Bad label boolean init
-    ret = check_label("label1", "12.13.13", MMV_NUMBER_TYPE, 0);
-
-    fprintf(stderr, "13 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    fprintf(stderr, "NULL\n");
-
-    // 15 Bad label boolean init
-    ret = check_label("label1", "12.13.13", MMV_NULL_TYPE, 0);
-
-    fprintf(stderr, "14 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    // 15 Bad label boolean init
-    ret = check_label("label1", "null", MMV_NULL_TYPE, 0);
-
-    fprintf(stderr, "15 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    fprintf(stderr, "ARRAY\n");
-
-    // 16 Bad label boolean init
-    ret = check_label("label1", "[1,2,3]", MMV_ARRAY_TYPE, 0);
-
-    fprintf(stderr, "16 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
-    ret = check_label("label1", "1,2,3]", MMV_ARRAY_TYPE, 0);
-
-    fprintf(stderr, "17 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
-    ret = check_label("label1", "[1,2,3", MMV_ARRAY_TYPE, 0);
-
-    fprintf(stderr, "18 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
-    ret = check_label("label1", "[1,2 3]", MMV_ARRAY_TYPE, 0);
-
-    fprintf(stderr, "19 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
-    ret = check_label("label1", "[\"123\",12]", MMV_ARRAY_TYPE, 0);
-
-    fprintf(stderr, "20 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-    fprintf(stderr, "MAP\n");
-
-    // 16 Bad label boolean init
-    ret = check_label("label1", "{\"a\":1,\"b\":2}", MMV_MAP_TYPE, 0);
-
-    fprintf(stderr, "21 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
-    ret = check_label("label1", "\"a\":1,\"b\":2}", MMV_MAP_TYPE, 0);
-
-    fprintf(stderr, "22 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
-    ret = check_label("label1", "{\"a\":1,\"b\":2", MMV_MAP_TYPE, 0);
-
-    fprintf(stderr, "23 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
-    ret = check_label("label1", "{a\":1,\"b\":2}", MMV_MAP_TYPE, 0);
-
-    fprintf(stderr, "24 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;
-
-     // 16 Bad label boolean init
-    ret = check_label("label1", "{a:1,\"b\":2}", MMV_MAP_TYPE, 0);
-
-    fprintf(stderr, "25 Return: %d, %s\n", ret, strerror(errno));
-     
-    errno = 0;*/
-    
-
-    /*ret = mmv_stats_add_registry_label(registry,
-		    "registry_label", "\"string\"", MMV_STRING_TYPE, 0);
-    fprintf(stderr, "Return: %d, %s\n", ret, strerror(errno));
-
-    ret = mmv_stats_add_registry_label(registry,
-		    "registry_label", "\"string\"", MMV_STRING_TYPE, 0);
-    fprintf(stderr, "Return: %d, %s\n", ret, strerror(errno));
-
-    ret = mmv_stats_add_registry_label(registry,
-		    "registry_label", "\"string\"", MMV_STRING_TYPE, 0);
-    fprintf(stderr, "Return: %d, %s\n", ret, strerror(errno));
-
-    ret = mmv_stats_add_registry_label(registry,
-		    "registry_label", "\"string\"", MMV_STRING_TYPE, 0);
-    fprintf(stderr, "Return: %d, %s\n", ret, strerror(errno));
-
-    ret = mmv_stats_add_registry_label(registry,
-		    "registry_label", "\"string\"", MMV_STRING_TYPE, 0);
-    fprintf(stderr, "Return: %d, %s\n", ret, strerror(errno));
-
-    ret = mmv_stats_add_registry_label(registry,
-		    "registry_label", "\"string\"", MMV_STRING_TYPE, 0);
-    fprintf(stderr, "Return: %d, %s\n", ret, strerror(errno));*/
-
     map = mmv_stats_start(registry);
+    
     if (!map) {
 	fprintf(stderr, "mmv_stats_start: %s - %s\n", file, strerror(errno));
 	return 1;
