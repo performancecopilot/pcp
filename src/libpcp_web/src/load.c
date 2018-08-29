@@ -13,63 +13,11 @@
  */
 
 #include <math.h>
-#include <stdarg.h>
 #include <limits.h>
 #include <assert.h>
 #include <ctype.h>
-
-#include "series.h"
-#include "query.h"
 #include "schema.h"
-#include "load.h"
-#include "maps.h"
-#include "dict.h"
 #include "util.h"
-#include "slots.h"
-#include "batons.h"
-
-#include "libpcp.h"
-
-#define LOAD_PHASES	5
-
-typedef struct seriesGetContext {
-    seriesBatonMagic	header;		/* MAGIC_CONTEXT */
-
-    context_t		context;
-    unsigned long long	count;		/* number of samples processed */
-    pmResult		*result;	/* currently active sample data */
-    int			error;		/* PMAPI error code from fetch */
-
-    redisDoneCallBack	done;
-
-    void		*baton;
-} seriesGetContext;
-
-typedef struct seriesLoadBaton {
-    seriesBatonMagic	header;		/* MAGIC_LOAD */
-
-    seriesBatonPhase	*current;
-    seriesBatonPhase	phases[LOAD_PHASES];
-
-    seriesGetContext	pmapi;		/* PMAPI context info */
-    redisSlots		*slots;		/* Redis server slots */
-
-    pmSeriesSettings	*settings;
-    void		*userdata;
-    timing_t		timing;
-    pmflags		flags;
-
-    dict		*clusters;
-    dict		*domains;
-    dict		*indoms;
-    dict		*pmids;
-
-    dict		*errors;	/* PMIDs where errors observed */
-    dict		*wanted;	/* PMIDs from query whitelist */
-
-    int			error;
-    void		*arg;
-} seriesLoadBaton;
 
 void initSeriesLoadBaton(seriesLoadBaton *, pmSeriesSettings *, pmflags, void *);
 void freeSeriesLoadBaton(seriesLoadBaton *);
@@ -1283,22 +1231,10 @@ seriesLoadBatonInfo(seriesLoadBaton *baton)
     return baton->settings->command.on_info;
 }
 
-void *
-seriesLoadBatonSlots(seriesLoadBaton *baton)
-{
-    return baton->slots;
-}
-
 context_t *
 seriesLoadBatonContext(seriesLoadBaton *baton)
 {
     return &baton->pmapi.context;
-}
-
-void *
-seriesLoadBatonUser(seriesLoadBaton *baton)
-{
-    return baton->userdata;
 }
 
 int
