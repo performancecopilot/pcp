@@ -110,6 +110,7 @@ main(int argc, char **argv)
     
     ret = mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"string1\"", MMV_STRING_TYPE, 0);
+                    
     fprintf(stderr, "0 Return: %d, %s\n", ret, strerror(errno));
 
 
