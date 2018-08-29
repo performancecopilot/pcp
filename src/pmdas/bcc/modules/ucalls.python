@@ -45,16 +45,18 @@ units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC ucalls module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, proc_refresh):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
-        self.cache = {}
         self.pid = None
-        self.lang = None
-        self.usdt = None
+        self.proc_filter = None
+        self.proc_refresh = proc_refresh
 
-        self.langs = ["java", "perl", "php", "python", "ruby"]
+        self.cache = None
+        self.lang = None
+        self.usdt_contexts = []
+
         self.methods = {
             "java"   : ["bpf_usdt_readarg(2, ctx, &clazz);", "bpf_usdt_readarg(4, ctx, &method);"],
             "perl"   : ["bpf_usdt_readarg(2, ctx, &clazz);", "bpf_usdt_readarg(1, ctx, &method);"],
@@ -67,22 +69,18 @@ class PCPBCCModule(PCPBCCBase):
             if opt == 'language':
                 self.lang = self.config.get(MODULE, opt)
             if opt == 'process':
-                procs = self.get_proc_info(self.config.get(MODULE, opt))
-                if procs:
-                    if len(procs) > 1:
-                        self.log("Several PIDs found, using the first one.")
-                    self.log("Tracing PID %s: %s %s" % (str(procs[0][0]), procs[0][1], procs[0][2]))
-                    self.pid = procs[0][0]
-
-        if self.pid is None:
-            # https://github.com/iovisor/bcc/issues/1774
-            self.err("No process to attach found/set, will not activate!")
+                self.proc_filter = self.config.get(MODULE, opt)
+                self.update_pids(self.get_proc_info(self.proc_filter))
 
         if not self.lang:
-            self.lang = utils.detect_language(self.langs, self.pid)
+            self.lang = utils.detect_language(self.methods.keys(), self.pid)
             self.log("Language not set, detected: %s." % str(self.lang))
-        if self.lang not in self.langs:
-            raise RuntimeError("Language must be one of: %s." % str(self.langs))
+        if self.lang not in self.methods.keys():
+            raise RuntimeError("Language must be one of: %s." % str(self.methods.keys()))
+
+        if not self.proc_filter:
+            # https://github.com/iovisor/bcc/issues/1774
+            raise RuntimeError("Process filter is mandatory.")
 
         self.log("Initialized.")
 
@@ -95,21 +93,31 @@ class PCPBCCModule(PCPBCCBase):
         )
         return True, self.items
 
+    def reset_cache(self):
+        """ Reset internal cache """
+        self.cache = {}
+
+    def undef_cache(self):
+        """ Undefine internal cache """
+        self.cache = None
+
     def compile(self):
         """ Compile BPF """
         try:
-            if self.pid is None:
+            if not self.pid and self.proc_filter and not self.proc_refresh:
                 # https://github.com/iovisor/bcc/issues/1774
-                raise RuntimeError("No PID found/set.")
-            with open(path.dirname(__file__) + '/../' + bpf_src) as src:
-                bpf_text = src.read()
-            bpf_text = self.apply_pid_filter(bpf_text, [self.pid], True)
-            bpf_text = bpf_text.replace("READ_CLASS", self.methods[self.lang][0])
-            bpf_text = bpf_text.replace("READ_METHOD", self.methods[self.lang][1])
+                raise RuntimeError("No process to attach found.")
 
-            if self.debug:
-                self.log("BPF to be compiled:")
-                self.log("\n" + bpf_text)
+            if not self.bpf_text:
+                with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                    self.bpf_text = src.read()
+
+                self.bpf_text = self.bpf_text.replace("READ_CLASS", self.methods[self.lang][0])
+                self.bpf_text = self.bpf_text.replace("READ_METHOD", self.methods[self.lang][1])
+
+            if not self.pid and self.proc_filter and self.proc_refresh:
+                self.log("No process to attach found, activation postponed.")
+                return
 
             # Set the language specific tracepoint
             if self.lang in ("java", "ruby"):
@@ -122,32 +130,27 @@ class PCPBCCModule(PCPBCCBase):
             if self.lang == "ruby":
                 extra_method = "cmethod__entry"
 
-            self.usdt = USDT(pid=self.pid)
-            self.usdt.enable_probe(entry_method, "trace_entry")
+            self.usdt_contexts = []
+            usdt = USDT(pid=self.pid)
+            usdt.enable_probe(entry_method, "trace_entry")
             if extra_method:
-                self.usdt.enable_probe(extra_method, "trace_entry")
-            self.bpf = BPF(text=bpf_text, usdt_contexts=[self.usdt])
+                usdt.enable_probe(extra_method, "trace_entry")
+            self.usdt_contexts.append(usdt)
+
+            bpf_text = self.apply_pid_filter(self.bpf_text, [self.pid])
+
+            if self.debug:
+                self.log("BPF to be compiled:\n" + bpf_text.strip())
+
+            self.reset_cache()
+            self.bpf = BPF(text=bpf_text, usdt_contexts=self.usdt_contexts)
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
+            self.undef_cache()
             self.err(str(error))
             self.err("Module NOT active!")
             raise
-
-    @staticmethod
-    def parse_inst_name(string):
-        """ Parse string into valid instance name """
-        name = ""
-        started = 0
-        ok_chars = ['.', '/', '<', '>', '[', ']', '_']
-        for c in string:
-            if not started and not c.isalnum():
-                continue
-            if not c.isalnum() and c not in ok_chars:
-                break
-            name += c
-            started = 1
-        return name.replace("/", ".").replace("[", "{").replace("]", "}")
 
     def refresh(self):
         """ Refresh BPF data """

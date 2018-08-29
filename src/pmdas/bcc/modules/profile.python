@@ -51,8 +51,8 @@ class StackNode(object):
         self.children = {}
         self.parents = []
 
-    def find_or_create(self, name, libtype=None):
-        """ Finds or creates a new stack node """
+    def lookup_or_init(self, name, libtype=None):
+        """ Lookup or init new stack node """
         if name in self.children:
             return self.children[name]
 
@@ -78,11 +78,14 @@ class StackNodeEncoder(json.JSONEncoder):
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC profile module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, proc_refresh):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
         self.pid = None
+        self.proc_filter = None
+        self.proc_refresh = proc_refresh
+
         self.user_stacks_only = False
         self.kernel_stacks_only = False
         self.stack_storage_size = 16384
@@ -90,8 +93,9 @@ class PCPBCCModule(PCPBCCBase):
         self.sample_period = 1000000
 
         for opt in self.config.options(MODULE):
-            if opt == 'pid':
-                self.pid = int(self.config.get(MODULE, opt))
+            if opt == 'process':
+                self.proc_filter = self.config.get(MODULE, opt)
+                self.update_pids(self.get_proc_info(self.proc_filter))
             if opt == 'user_stacks_only':
                 self.user_stacks_only = self.config.getboolean(MODULE, opt)
             if opt == 'kernel_stacks_only':
@@ -133,28 +137,23 @@ class PCPBCCModule(PCPBCCBase):
 
         self.log("Starting profiling...")
         try:
-            with open(path.dirname(__file__) + '/../' + bpf_src) as f:
-                bpf_text = f.read()
+            if not self.bpf_text:
+                with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                    self.bpf_text = src.read()
 
-            # Set thread filter
-            if self.pid is not None:
-                thread_filter = 'pid == %s' % self.pid
-            else:
-                thread_filter = '1'
-            bpf_text = bpf_text.replace('THREAD_FILTER', thread_filter)
+                # Set stack storage size
+                self.bpf_text = self.bpf_text.replace("STACK_STORAGE_SIZE",
+                                                      str(self.stack_storage_size))
 
-            # Set stack storage size
-            bpf_text = bpf_text.replace('STACK_STORAGE_SIZE', str(self.stack_storage_size))
-
-            # Handle stack args
-            kernel_stack_get = "stack_traces.get_stackid(&ctx->regs, 0)"
-            user_stack_get = "stack_traces.get_stackid(&ctx->regs, BPF_F_USER_STACK)"
-            if self.user_stacks_only:
-                kernel_stack_get = "-1"
-            elif self.kernel_stacks_only:
-                user_stack_get = "-1"
-            bpf_text = bpf_text.replace('USER_STACK_GET', user_stack_get)
-            bpf_text = bpf_text.replace('KERNEL_STACK_GET', kernel_stack_get)
+                # Handle stack args
+                kernel_stack_get = "stack_traces.get_stackid(&ctx->regs, 0)"
+                user_stack_get = "stack_traces.get_stackid(&ctx->regs, BPF_F_USER_STACK)"
+                if self.user_stacks_only:
+                    kernel_stack_get = "-1"
+                elif self.kernel_stacks_only:
+                    user_stack_get = "-1"
+                self.bpf_text = self.bpf_text.replace("USER_STACK_GET", user_stack_get)
+                self.bpf_text = self.bpf_text.replace("KERNEL_STACK_GET", kernel_stack_get)
 
             sample_freq = 0
             sample_period = 0
@@ -163,9 +162,16 @@ class PCPBCCModule(PCPBCCBase):
             elif self.sample_period:
                 sample_period = self.sample_period
 
+            # Set thread filter
+            self.update_pids(self.get_proc_info(self.proc_filter))
+            if self.pid:
+                thread_filter = "pid == %s" % self.pid
+            else:
+                thread_filter = "1"
+            bpf_text = self.bpf_text.replace("THREAD_FILTER", thread_filter)
+
             if self.debug:
-                self.log("BPF to be compiled:")
-                self.log("\n" + bpf_text)
+                self.log("BPF to be compiled:\n" + bpf_text.strip())
 
             self.bpf = BPF(text=bpf_text)
             self.bpf.attach_perf_event(ev_type=PerfType.SOFTWARE, ev_config=PerfSWConfig.CPU_CLOCK,
@@ -212,7 +218,7 @@ class PCPBCCModule(PCPBCCBase):
         counts = self.bpf["counts"]
         stack_traces = self.bpf["stack_traces"]
 
-        root_node = StackNode('root')
+        root_node = StackNode("root")
         for k, v in sorted(counts.items(), key=lambda counts: counts[1].value):
             # Handle get_stackid errors
             if not self.user_stacks_only and self.stack_id_err(k.kernel_stack_id):
@@ -236,23 +242,23 @@ class PCPBCCModule(PCPBCCBase):
 
             user_stack = list(user_stack)
             kernel_stack = list(kernel_stack)
-            cur_node = root_node.find_or_create(k.name.decode(), libtype="user")
+            cur_node = root_node.lookup_or_init(k.name.decode(), libtype="user")
 
             # If we failed to get the stack is, such as due to no space (-ENOMEM) or
             # hash collision (-EEXIST), we still print a placeholder for consistency
             if not self.kernel_stacks_only:
                 if self.stack_id_err(k.user_stack_id):
-                    cur_node = cur_node.find_or_create("[Missed User Stack]", libtype="user")
+                    cur_node = cur_node.lookup_or_init("[Missed User Stack]", libtype="user")
                 else:
                     for addr in reversed(user_stack):
-                        cur_node = cur_node.find_or_create(
+                        cur_node = cur_node.lookup_or_init(
                             self.enforce_str(self.bpf.sym(addr, k.pid)), libtype="user")
             if not self.user_stacks_only:
                 if self.stack_id_err(k.kernel_stack_id):
-                    cur_node = cur_node.find_or_create("[Missed Kernel Stack]", libtype="kernel")
+                    cur_node = cur_node.lookup_or_init("[Missed Kernel Stack]", libtype="kernel")
                 else:
                     for addr in reversed(kernel_stack):
-                        cur_node = cur_node.find_or_create(
+                        cur_node = cur_node.lookup_or_init(
                             self.enforce_str(self.bpf.ksym(addr)), libtype="kernel")
             cur_node.increment(v.value)
 
@@ -272,6 +278,7 @@ class PCPBCCModule(PCPBCCBase):
 
     def refresh(self):
         """ Refresh BPF data """
+        return
 
     def bpfdata(self, item, inst):
         """ Return BPF data as PCP metric value """

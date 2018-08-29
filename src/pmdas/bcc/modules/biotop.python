@@ -49,7 +49,7 @@ units_none = pmUnits(0, 0, 0, 0, 0, 0)
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC biotop module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, _):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
@@ -82,7 +82,9 @@ class PCPBCCModule(PCPBCCBase):
 
         self.cache = {}
         self.insts = {str(i) : ct.c_int(1) for i in range(self.process_count)}
-        self.disklookup = {}
+
+        self.disklookup = None
+        self.update_disk_info()
 
         self.lock = Lock()
         if self.interval > 0:
@@ -139,10 +141,10 @@ class PCPBCCModule(PCPBCCBase):
     def refresh_stats(self):
         """ Refresh statistics from BPF table """
         self.lock.acquire()
-        self.cache.clear()
+        self.cache = {}
         self.lock.release()
 
-        counts = self.bpf.get_table("counts")
+        counts = self.bpf["counts"]
         sorted_counts = sorted(counts.items(), key=self.sort_fn, reverse=self.sort_reversed)
 
         idx = 0
@@ -182,7 +184,8 @@ class PCPBCCModule(PCPBCCBase):
         while True:
             cnt = self.refresh_stats()
             if self.debug:
-                self.log("Fetched data from BPF table, current number of processes performing I/O: %d." % cnt)
+                self.log("Fetched data from BPF table, "
+                         "current number of processes performing I/O: %d." % cnt)
             sleep(self.interval)
 
     def refresh(self):

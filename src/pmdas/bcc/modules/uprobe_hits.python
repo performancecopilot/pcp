@@ -56,23 +56,21 @@ units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC uprobe hits module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, proc_refresh):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
-        self.cache = {}
         self.pids = []
+        self.proc_filter = None
+        self.proc_refresh = proc_refresh
+
+        self.cache = None
         self.uprobes = []
 
         for opt in self.config.options(MODULE):
             if opt == 'process':
-                val = self.config.get(MODULE, opt)
-                procs = self.get_proc_info(val)
-                if not procs:
-                    self.log("No matching PIDs found for %s, PID filtering disabled." % val)
-                for proc in procs:
-                    self.log("Tracing PID %s: %s %s." % (str(proc[0]), proc[1], proc[2]))
-                    self.pids.append(proc[0])
+                self.proc_filter = self.config.get(MODULE, opt)
+                self.update_pids(self.get_proc_info(self.proc_filter))
             if opt == 'uprobes':
                 self.uprobes = self.read_probe_conf(self.config.get(MODULE, opt))
 
@@ -85,6 +83,8 @@ class PCPBCCModule(PCPBCCBase):
                 self.insts[uprobe.replace(":", "::")] = c_int(1)
         self.uprobe = found
 
+        if not self.uprobe:
+            raise RuntimeError("No matching uprobes found.")
         self.log("Found %s uprobes: %s." % (str(len(self.uprobes)), str(self.uprobes)))
 
         self.log("Initialized.")
@@ -98,26 +98,45 @@ class PCPBCCModule(PCPBCCBase):
         )
         return True, self.items
 
+    def reset_cache(self):
+        """ Reset internal cache """
+        self.cache = {}
+
+    def undef_cache(self):
+        """ Undefine internal cache """
+        self.cache = None
+
     def compile(self):
         """ Compile BPF """
         try:
-            if not self.uprobe:
-                raise RuntimeError("No uprobes enabled.")
-            with open(path.dirname(__file__) + '/../' + bpf_src) as src:
-                bpf_text = src.read()
-            for uprobe in self.uprobes:
-                hash_key = uprobe.replace(":", "__")
-                probe = uprobe_txt.replace("HASH_KEY", hash_key)
-                probe = probe.replace("UPROBE_NAME", uprobe)
-                if self.debug:
-                    self.log("Generated function:\n%s" % probe)
-                bpf_text += probe
-            bpf_text = bpf_text.replace("UPROBE_COUNT", str(len(self.uprobe)))
-            bpf_text = self.apply_pid_filter(bpf_text, self.pids)
+            if not self.pids and self.proc_filter and not self.proc_refresh:
+                raise RuntimeError("No process to attach found.")
+
+            if not self.bpf_text:
+                with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                    self.bpf_text = src.read()
+
+                for uprobe in self.uprobes:
+                    hash_key = uprobe.replace(":", "__")
+                    probe = uprobe_txt.replace("HASH_KEY", hash_key)
+                    probe = probe.replace("UPROBE_NAME", uprobe)
+                    if self.debug:
+                        self.log("Generated function:\n%s" % probe)
+                    self.bpf_text += probe
+                self.bpf_text = self.bpf_text.replace("UPROBE_COUNT", str(len(self.uprobe)))
+
+            if not self.pids and self.proc_filter and self.proc_refresh:
+                self.log("No process to attach found, activation postponed.")
+                return
+
             self.log("Compiling %s uprobes: %s" % (str(len(self.uprobes)), str((self.uprobes))))
+
+            bpf_text = self.apply_pid_filter(self.bpf_text, self.pids)
+
             if self.debug:
-                self.log("BPF to be compiled:")
-                self.log("\n" + bpf_text)
+                self.log("BPF to be compiled:\n" + bpf_text.strip())
+
+            self.reset_cache()
             self.bpf = BPF(text=bpf_text)
             for uprobe in self.uprobes:
                 lib, sym = uprobe.split(":")
@@ -129,6 +148,7 @@ class PCPBCCModule(PCPBCCBase):
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
+            self.undef_cache()
             self.err(str(error))
             self.err("Module NOT active!")
             raise

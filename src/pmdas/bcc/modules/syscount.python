@@ -47,14 +47,27 @@ units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC syscount module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, proc_refresh):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
-        self.cache = {}
+        self.pids = []
+        self.proc_filter = None
+        self.proc_refresh = proc_refresh
+
         self.errno = 0
         self.failed = False
-        self.pids = []
+
+        def parse_syscall(line):
+            """ Helper to parse ausyscall(8) output """
+            parts = line.split()
+            return (int(parts[0]), parts[1].strip().decode("UTF-8"))
+
+        try:
+            out = subprocess.check_output('ausyscall --dump | tail -n +2', shell=True)
+            self.syscalls = dict(map(parse_syscall, out.strip().split(b'\n')))
+        except Exception: # pylint: disable=broad-except
+            raise RuntimeError("ausyscall: command not found")
 
         def read_errno(errstr):
             """ Helper to read errno """
@@ -69,25 +82,10 @@ class PCPBCCModule(PCPBCCBase):
             if opt == 'failed':
                 self.failed = self.config.getboolean(MODULE, opt)
             if opt == 'process':
-                val = self.config.get(MODULE, opt)
-                procs = self.get_proc_info(val)
-                if not procs:
-                    self.log("No matching PIDs found for %s, PID filtering disabled." % val)
-                for proc in procs:
-                    self.log("Tracing PID %s: %s %s." % (str(proc[0]), proc[1], proc[2]))
-                    self.pids.append(proc[0])
+                self.proc_filter = self.config.get(MODULE, opt)
+                self.update_pids(self.get_proc_info(self.proc_filter))
 
-        def parse_syscall(line):
-            """ Helper to parse ausyscall(8) output """
-            parts = line.split()
-            return (int(parts[0]), parts[1].strip().decode("UTF-8"))
-
-        try:
-            out = subprocess.check_output('ausyscall --dump | tail -n +2', shell=True)
-            self.syscalls = dict(map(parse_syscall, out.strip().split(b'\n')))
-        except Exception: # pylint: disable=broad-except
-            raise RuntimeError("ausyscall: command not found")
-
+        self.cache = None
         self.insts = {self.syscalls[i] : c_int(1) for i in range(len(self.syscalls))}
 
         self.log("Initialized.")
@@ -101,28 +99,47 @@ class PCPBCCModule(PCPBCCBase):
         )
         return True, self.items
 
+    def reset_cache(self):
+        """ Reset internal cache """
+        self.cache = {}
+
+    def undef_cache(self):
+        """ Undefine internal cache """
+        self.cache = None
+
     def compile(self):
         """ Compile BPF """
         try:
-            with open(path.dirname(__file__) + '/../' + bpf_src) as src:
-                bpf_text = src.read()
-            if self.errno:
-                errno_filter = "if (args->ret != -%d) return 0;" % self.errno
-                bpf_text = bpf_text.replace("//FILTER_ERRNO", errno_filter)
-            if self.failed:
-                failed_filter = "if (args->ret >= 0) return 0;"
-                bpf_text = bpf_text.replace("//FILTER_FAILED", failed_filter)
-            bpf_text = self.apply_pid_filter(bpf_text, self.pids, False)
-            bpf_text = bpf_text.replace("NR_SYSCALLS", str(len(self.syscalls)))
+            if not self.pids and self.proc_filter and not self.proc_refresh:
+                raise RuntimeError("No process to attach found.")
+
+            if not self.bpf_text:
+                with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                    self.bpf_text = src.read()
+
+                if self.errno:
+                    errno_filter = "if (args->ret != -%d) return 0;" % self.errno
+                    self.bpf_text = self.bpf_text.replace("//FILTER_ERRNO", errno_filter)
+                if self.failed:
+                    failed_filter = "if (args->ret >= 0) return 0;"
+                    self.bpf_text = self.bpf_text.replace("//FILTER_FAILED", failed_filter)
+                self.bpf_text = self.bpf_text.replace("NR_SYSCALLS", str(len(self.syscalls)))
+
+            if not self.pids and self.proc_filter and self.proc_refresh:
+                self.log("No process to attach found, activation postponed.")
+                return
+
+            bpf_text = self.apply_pid_filter(self.bpf_text, self.pids, False)
 
             if self.debug:
-                self.log("BPF to be compiled:")
-                self.log("\n" + bpf_text)
+                self.log("BPF to be compiled:\n" + bpf_text.strip())
 
+            self.reset_cache()
             self.bpf = BPF(text=bpf_text)
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
+            self.undef_cache()
             self.err(str(error))
             self.err("Module NOT active!")
             raise
