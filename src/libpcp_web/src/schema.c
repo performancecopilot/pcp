@@ -12,12 +12,11 @@
  * for more details.
  */
 #include <assert.h>
+#include "pmapi.h"
+#include "pmda.h"
 #include "schema.h"
-#include "batons.h"
-#include "maps.h"
 #include "util.h"
 #include "sha1.h"
-#include <pcp/pmda.h>
 
 #define STRINGIFY(s)	#s
 #define TO_STRING(s)	STRINGIFY(s)
@@ -177,6 +176,20 @@ checkIntegerReply(redisInfoCallBack info, void *userdata,
     reportReplyError(info, userdata, reply, format, argp);
     va_end(argp);
     return -1;
+}
+
+static sds
+checkStringReply(redisInfoCallBack info, void *userdata,
+	redisReply *reply, const char *format, ...)
+{
+    va_list		argp;
+
+    if (reply && reply->type == REDIS_REPLY_STRING)
+	return sdsnew(reply->str);
+    va_start(argp, format);
+    reportReplyError(info, userdata, reply, format, argp);
+    va_end(argp);
+    return NULL;
 }
 
 static void
@@ -353,9 +366,9 @@ redisGetMap(redisSlots *slots, redisMap *mapping, sds mapKey, long long *mapID,
 static void
 redis_source_context_name(redisAsyncContext *c, redisReply *reply, void *arg)
 {
-    struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
+    seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
 
-    checkIntegerReply(seriesLoadBatonInfo(baton), seriesLoadBatonUser(baton),
+    checkIntegerReply(seriesLoadBatonInfo(baton), baton->userdata,
 		reply, "%s: %s", SADD, "mapping context to source or host name");
     doneSeriesLoadBaton(baton);
 }
@@ -363,9 +376,9 @@ redis_source_context_name(redisAsyncContext *c, redisReply *reply, void *arg)
 static void
 redis_source_location(redisAsyncContext *c, redisReply *reply, void *arg)
 {
-    struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
+    seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
 
-    checkIntegerReply(seriesLoadBatonInfo(baton), seriesLoadBatonUser(baton),
+    checkIntegerReply(seriesLoadBatonInfo(baton), baton->userdata,
 		reply, "%s: %s", GEOADD, "mapping source location");
     doneSeriesLoadBaton(baton);
 }
@@ -373,9 +386,9 @@ redis_source_location(redisAsyncContext *c, redisReply *reply, void *arg)
 static void
 redis_context_name_source(redisAsyncContext *c, redisReply *reply, void *arg)
 {
-    struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
+    seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
 
-    checkIntegerReply(seriesLoadBatonInfo(baton), seriesLoadBatonUser(baton),
+    checkIntegerReply(seriesLoadBatonInfo(baton), baton->userdata,
 		reply, "%s: %s", SADD, "mapping source names to context");
     doneSeriesLoadBaton(baton);
 }
@@ -383,8 +396,8 @@ redis_context_name_source(redisAsyncContext *c, redisReply *reply, void *arg)
 void
 redis_series_source(redisSlots *slots, context_t *context, void *arg)
 {
-    struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
-    const char			*hash = pmwebapi_hash_str(context->hash);
+    seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
+    const char			*hash = pmwebapi_hash_str(context->name.hash);
     sds				cmd, key, val, val2;
 
     /* Async recipe:
@@ -395,21 +408,21 @@ redis_series_source(redisSlots *slots, context_t *context, void *arg)
      */
     seriesBatonReferences(baton, 4, "redis_series_source");
 
-    key = sdscatfmt(sdsempty(), "pcp:source:context.name:%I", context->mapid);
+    key = sdscatfmt(sdsempty(), "pcp:source:context.name:%I", context->name.mapid);
     cmd = redis_command(3);
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
-    cmd = redis_param_sha(cmd, context->hash);
+    cmd = redis_param_sha(cmd, context->name.hash);
     redisSlotsRequest(slots, SADD, key, cmd, redis_source_context_name, arg);
 
     key = sdscatfmt(sdsempty(), "pcp:source:context.name:%I", context->hostid);
     cmd = redis_command(3);
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
-    cmd = redis_param_sha(cmd, context->hash);
+    cmd = redis_param_sha(cmd, context->name.hash);
     redisSlotsRequest(slots, SADD, key, cmd, redis_source_context_name, arg);
 
-    val = sdscatfmt(sdsempty(), "%I", context->mapid);
+    val = sdscatfmt(sdsempty(), "%I", context->name.mapid);
     val2 = sdscatfmt(sdsempty(), "%I", context->hostid);
     key = sdscatfmt(sdsempty(), "pcp:context.name:source:%s", hash);
     cmd = redis_command(4);
@@ -429,7 +442,7 @@ redis_series_source(redisSlots *slots, context_t *context, void *arg)
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sds(cmd, val2);
     cmd = redis_param_sds(cmd, val);
-    cmd = redis_param_sha(cmd, context->hash);
+    cmd = redis_param_sha(cmd, context->name.hash);
     sdsfree(val2);
     sdsfree(val);
     redisSlotsRequest(slots, GEOADD, key, cmd, redis_source_location, arg);
@@ -438,9 +451,9 @@ redis_series_source(redisSlots *slots, context_t *context, void *arg)
 static void
 redis_series_inst_name_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
-    struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
+    seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
 
-    checkIntegerReply(seriesLoadBatonInfo(baton), seriesLoadBatonUser(baton),
+    checkIntegerReply(seriesLoadBatonInfo(baton), baton->userdata,
 		reply, "%s: %s", SADD, "mapping series to inst name");
     seriesBatonDereference(baton, "redis_series_inst_name_callback");
 }
@@ -448,9 +461,9 @@ redis_series_inst_name_callback(redisAsyncContext *c, redisReply *reply, void *a
 static void
 redis_instances_series_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
-    struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
+    seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
 
-    checkIntegerReply(seriesLoadBatonInfo(baton), seriesLoadBatonUser(baton),
+    checkIntegerReply(seriesLoadBatonInfo(baton), baton->userdata,
 		reply, "%s: %s", SADD, "mapping instance to series");
     seriesBatonDereference(baton, "redis_instances_series_callback");
 }
@@ -458,44 +471,48 @@ redis_instances_series_callback(redisAsyncContext *c, redisReply *reply, void *a
 static void
 redis_series_inst_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
-    struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
+    seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
 
-    checkStatusReplyOK(seriesLoadBatonInfo(baton), seriesLoadBatonUser(baton),
+    checkStatusReplyOK(seriesLoadBatonInfo(baton), baton->userdata,
 		reply, "%s: %s", HMSET, "setting metric inst");
     seriesBatonDereference(baton, "redis_series_inst_callback");
 }
 
 void
-redis_series_inst(redisSlots *slots, metric_t *metric, value_t *value, void *arg)
+redis_series_instance(redisSlots *slots, metric_t *metric, instance_t *instance, void *arg)
 {
-    struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
+    seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
     const char			*hash;
     sds				cmd, key, val, id;
+    int				i;
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "redis_series_inst");
     seriesBatonReferences(baton, 3, "redis_series_inst");
 
-    assert(value->name);
-    assert(value->mapid > 0);
+    assert(instance->name.sds);
+    assert(instance->name.mapid > 0);
 
-    key = sdscatfmt(sdsempty(), "pcp:series:inst.name:%I", value->mapid);
-    cmd = redis_command(3);
+    key = sdscatfmt(sdsempty(), "pcp:series:inst.name:%I", instance->name.mapid);
+    cmd = redis_command(2 + metric->numnames);
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
-    cmd = redis_param_sha(cmd, metric->hash);
+    for (i = 0; i < metric->numnames; i++)
+	cmd = redis_param_sha(cmd, metric->names[i].hash);
     redisSlotsRequest(slots, SADD, key, cmd, redis_series_inst_name_callback, arg);
 
-    hash = pmwebapi_hash_str(metric->hash);
-    key = sdscatfmt(sdsempty(), "pcp:instances:series:%s", hash);
-    cmd = redis_command(3);
-    cmd = redis_param_str(cmd, SADD, SADD_LEN);
-    cmd = redis_param_sds(cmd, key);
-    cmd = redis_param_sha(cmd, value->hash);
-    redisSlotsRequest(slots, SADD, key, cmd, redis_instances_series_callback, arg);
+    for (i = 0; i < metric->numnames; i++) {
+	hash = pmwebapi_hash_str(metric->names[i].hash);
+	key = sdscatfmt(sdsempty(), "pcp:instances:series:%s", hash);
+	cmd = redis_command(3);
+	cmd = redis_param_str(cmd, SADD, SADD_LEN);
+	cmd = redis_param_sds(cmd, key);
+	cmd = redis_param_sha(cmd, instance->name.hash);
+	redisSlotsRequest(slots, SADD, key, cmd, redis_instances_series_callback, arg);
+    }
 
-    hash = pmwebapi_hash_str(value->hash);
-    id = sdscatfmt(sdsempty(), "%I", value->mapid);
-    val = sdscatfmt(sdsempty(), "%i", value->inst);
+    hash = pmwebapi_hash_str(instance->name.hash);
+    id = sdscatfmt(sdsempty(), "%I", instance->name.mapid);
+    val = sdscatfmt(sdsempty(), "%i", instance->inst);
     key = sdscatfmt(sdsempty(), "pcp:inst:series:%s", hash);
     cmd = redis_command(8);
     cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
@@ -504,62 +521,64 @@ redis_series_inst(redisSlots *slots, metric_t *metric, value_t *value, void *arg
     cmd = redis_param_sds(cmd, val);
     cmd = redis_param_str(cmd, "name", sizeof("name")-1);
     cmd = redis_param_sds(cmd, id);
-    cmd = redis_param_str(cmd, "series", sizeof("series")-1);
-    cmd = redis_param_sha(cmd, metric->hash);
+    cmd = redis_param_str(cmd, "source", sizeof("series")-1);
+    cmd = redis_param_sha(cmd, metric->indom->domain->context->name.hash);
     sdsfree(val);
     sdsfree(id);
     redisSlotsRequest(slots, HMSET, key, cmd, redis_series_inst_callback, arg);
 }
 
-typedef struct seriesGetValueBaton {
-    seriesBatonMagic	header;		/* MAGIC_VALUE */
-    sds			timestamp;
+typedef struct seriesGetNames {
+    seriesBatonMagic	header;		/* MAGIC_NAMES */
     metric_t		*metric;
-    value_t		*value;
+    instance_t		*instance;
+
+    sds			timestamp;	/* TODO: move to context */
     unsigned int	meta : 1;	/* writing metadata */
     unsigned int	data : 1;	/* writing atomvalues */
     unsigned int	mark : 1;	/* writing a mark record */
+
     redisDoneCallBack	done;
     void		*arg;
     void		*baton;
-} seriesGetValueBaton;
+} seriesGetNames;
 
 static void
-initSeriesGetValueBaton(seriesGetValueBaton *baton,
-		metric_t *metric, value_t *value, void *arg)
+initSeriesGetNames(seriesGetNames *baton,
+		metric_t *metric, instance_t *instance, void *arg)
 {
     if (UNLIKELY(pmDebugOptions.series))
 	fprintf(stderr, "Baton %p initd\n", baton);
-    initSeriesBatonMagic(baton, MAGIC_VALUE);
+    initSeriesBatonMagic(baton, MAGIC_NAMES);
+    baton->instance = instance;
     baton->metric = metric;
-    baton->value = value;
     baton->baton = arg;
 }
 
 static void
-freeSeriesGetValueBaton(seriesGetValueBaton *baton)
+freeSeriesGetNames(seriesGetNames *baton, const char *called)
 {
     if (UNLIKELY(pmDebugOptions.series))
-	fprintf(stderr, "Baton %p freed\n", baton);
+	fprintf(stderr, "Baton %p freed by %s\n", baton, called);
 
-    seriesBatonCheckMagic(baton, MAGIC_VALUE, "freeSeriesGetValueBaton");
-    seriesBatonCheckCount(baton, "freeSeriesGetValueBaton");
+    seriesBatonCheckMagic(baton, MAGIC_NAMES, "freeSeriesGetNames");
+    seriesBatonCheckCount(baton, "freeSeriesGetNames");
 
-    /* TODO:
+    /* TODO: insert <valgrind> here.
     memset(baton, 0, sizeof(*baton));
     free(baton);
     */
 }
 
 static void
-doneSeriesGetValueBaton(seriesGetValueBaton *baton, const char *caller)
+doneSeriesGetNames(seriesGetNames *baton, const char *caller)
 {
-    seriesBatonCheckMagic(baton, MAGIC_VALUE, caller);
+    seriesBatonCheckMagic(baton, MAGIC_NAMES, caller);
 
     if (seriesBatonDereference(baton, caller)) {
 	if (baton->done)
 	    baton->done(baton);
-	freeSeriesGetValueBaton(baton);
+	freeSeriesGetNames(baton, "doneSeriesGetNames");
     }
 }
 
@@ -567,48 +586,46 @@ static void
 label_value_mapping_callback(void *arg)
 {
     labellist_t			*list = (labellist_t *)arg;
-    seriesGetValueBaton		*baton = (seriesGetValueBaton *)list->arg;
+    seriesGetNames		*baton = (seriesGetNames *)list->arg;
 
-    seriesBatonCheckMagic(baton, MAGIC_VALUE, "label_value_mapping_callback");
+    seriesBatonCheckMagic(baton, MAGIC_NAMES, "label_value_mapping_callback");
     redisMapRelease(list->valuemap);
-    doneSeriesGetValueBaton(baton, "label_value_mapping_callback");
+    doneSeriesGetNames(baton, "label_value_mapping_callback");
 }
 
 static void
 label_name_mapping_callback(void *arg)
 {
     labellist_t			*list = (labellist_t *)arg;
-    seriesGetValueBaton		*baton = (seriesGetValueBaton *)list->arg;
-    struct seriesLoadBaton	*load = (struct seriesLoadBaton *)baton->baton;
+    seriesGetNames		*baton = (seriesGetNames *)list->arg;
+    seriesLoadBaton		*load = (seriesLoadBaton *)baton->baton;
     sds				key;
 
-    seriesBatonCheckMagic(baton, MAGIC_VALUE, "label_name_mapping_callback");
+    seriesBatonCheckMagic(baton, MAGIC_NAMES, "label_name_mapping_callback");
 
     key = sdscatfmt(sdsempty(), "label.%I.value", list->nameid);
     list->valuemap = redisMapCreate(key);
 
     seriesBatonReference(baton, "label_name_mapping_callback");
-    redisGetMap(seriesLoadBatonSlots(load),
+    redisGetMap(load->slots,
 		list->valuemap, list->value, &list->valueid,
 		label_value_mapping_callback,
-		seriesLoadBatonInfo(load), seriesLoadBatonUser(load),
+		seriesLoadBatonInfo(load), load->userdata,
 		(void *)list);
 
-    doneSeriesGetValueBaton(baton, "label_name_mapping_callback");
+    doneSeriesGetNames(baton, "label_name_mapping_callback");
 }
 
 static int
 annotate_metric(const pmLabel *label, const char *json, void *arg)
 {
-    seriesGetValueBaton		*baton = (seriesGetValueBaton *)arg;
-    struct seriesLoadBaton	*load = (struct seriesLoadBaton *)baton->baton;
+    seriesGetNames		*baton = (seriesGetNames *)arg;
+    seriesLoadBaton		*load = (seriesLoadBaton *)baton->baton;
     labellist_t			*list;
-    metric_t			*metric;
-    value_t			*value;
+    instance_t			*instance = baton->instance;
+    metric_t			*metric = baton->metric;
 
-    seriesBatonCheckMagic(baton, MAGIC_VALUE, "annotate_metric");
-    value = baton->value;
-    metric = baton->metric;
+    seriesBatonCheckMagic(baton, MAGIC_NAMES, "annotate_metric");
 
     /*
      * TODO: check id this label is already in the list?
@@ -627,18 +644,18 @@ annotate_metric(const pmLabel *label, const char *json, void *arg)
     list->flags = label->flags;
 
     if (pmDebugOptions.series) {
-	fprintf(stderr, "Annotate metric %s", *metric->names);
-	if (value)
-	    fprintf(stderr, "[%s]", value->name);
+	fprintf(stderr, "Annotate metric %s", metric->names[0].sds);
+	if (instance)
+	    fprintf(stderr, "[%s]", instance->name.sds);
 	fprintf(stderr, " label %s=%s (flags=0x%x)\n",
 			list->name, list->value, list->flags);
     }
 
-    /* prepend map onto the list for this value or metric */
-    if (value) {
-	if (value->labellist)
-	    list->next = value->labellist;
-	value->labellist = list;
+    /* prepend map onto the list for this metric or instance */
+    if (instance) {
+	if (instance->labellist)
+	    list->next = instance->labellist;
+	instance->labellist = list;
     } else {
 	if (metric->labellist)
 	    list->next = metric->labellist;
@@ -646,10 +663,10 @@ annotate_metric(const pmLabel *label, const char *json, void *arg)
     }
 
     seriesBatonReference(baton, "annotate_metric");
-    redisGetMap(seriesLoadBatonSlots(load),
+    redisGetMap(load->slots,
 		labelsmap, list->name, &list->nameid,
 		label_name_mapping_callback,
-		seriesLoadBatonInfo(load), seriesLoadBatonUser(load),
+		seriesLoadBatonInfo(load), load->userdata,
 		(void *)list);
     return 0;
 }
@@ -657,7 +674,9 @@ annotate_metric(const pmLabel *label, const char *json, void *arg)
 static void
 redis_series_labelvalue_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
-    checkStatusReplyOK(seriesLoadBatonInfo(arg), seriesLoadBatonUser(arg),
+    seriesLoadBaton		*load = (seriesLoadBaton *)arg;
+
+    checkStatusReplyOK(seriesLoadBatonInfo(load), load->userdata,
 		reply, "%s: %s", HMSET, "setting series label value");
     seriesBatonDereference(arg, "redis_series_labelvalue_callback");
 }
@@ -665,7 +684,9 @@ redis_series_labelvalue_callback(redisAsyncContext *c, redisReply *reply, void *
 static void
 redis_series_labelflags_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
-    checkStatusReplyOK(seriesLoadBatonInfo(arg), seriesLoadBatonUser(arg),
+    seriesLoadBaton		*load = (seriesLoadBaton *)arg;
+
+    checkStatusReplyOK(seriesLoadBatonInfo(load), load->userdata,
 		reply, "%s: %s", HMSET, "setting series label flags");
     seriesBatonDereference(arg, "redis_series_labelflags_callback");
 }
@@ -673,144 +694,189 @@ redis_series_labelflags_callback(redisAsyncContext *c, redisReply *reply, void *
 static void
 redis_series_label_set_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
-    checkIntegerReply(seriesLoadBatonInfo(arg), seriesLoadBatonUser(arg),
+    seriesLoadBaton		*load = (seriesLoadBaton *)arg;
+
+    checkIntegerReply(seriesLoadBatonInfo(load), load->userdata,
 		reply, "%s %s", SADD, "pcp:series:label.X.value:Y");
     seriesBatonDereference(arg, "redis_series_label_set_callback");
 }
 
 static void
-redis_series_label(redisSlots *slots, metric_t *metric, value_t *value, void *arg)
+redis_series_label(redisSlots *slots, metric_t *metric, char *hash,
+		labellist_t *list, void *arg)
 {
-    struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
-    labellist_t			*list;
-    char			*hash;
+    seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
     sds				cmd, key, val, name;
+    int				i;
 
-    if (value != NULL) {
-	hash = pmwebapi_hash_str(value->hash);
-	list = value->labellist;
-    } else {
-	hash = pmwebapi_hash_str(metric->hash);
-	list = metric->labellist;
-    }
+    seriesBatonReferences(baton, 2, "redis_series_label");
 
-    do {
-	seriesBatonReferences(baton, 2, "redis_series_label");
-
-	if (list->flags != PM_LABEL_CONTEXT) {
-	    seriesBatonReference(baton, "redis_series_label");
-
-	    name = sdscatfmt(sdsempty(), "%I", list->nameid);
-	    val = sdscatfmt(sdsempty(), "%I", list->flags);
-	    key = sdscatfmt(sdsempty(), "pcp:labelflags:series:%s", hash);
-	    cmd = redis_command(4);
-	    cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
-	    cmd = redis_param_sds(cmd, key);
-	    cmd = redis_param_sds(cmd, name);
-	    cmd = redis_param_sds(cmd, val);
-	    sdsfree(name);
-	    sdsfree(val);
-	    redisSlotsRequest(slots, HMSET, key, cmd,
-				redis_series_labelflags_callback, arg);
-	}
+    if (list->flags != PM_LABEL_CONTEXT) {
+	seriesBatonReference(baton, "redis_series_label");
 
 	name = sdscatfmt(sdsempty(), "%I", list->nameid);
-	val = sdscatfmt(sdsempty(), "%I", list->valueid);
-	key = sdscatfmt(sdsempty(), "pcp:labelvalue:series:%s", hash);
+	val = sdscatfmt(sdsempty(), "%I", list->flags);
+	key = sdscatfmt(sdsempty(), "pcp:labelflags:series:%s", hash);
 	cmd = redis_command(4);
 	cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
 	cmd = redis_param_sds(cmd, key);
 	cmd = redis_param_sds(cmd, name);
 	cmd = redis_param_sds(cmd, val);
+	sdsfree(name);
 	sdsfree(val);
 	redisSlotsRequest(slots, HMSET, key, cmd,
-				redis_series_labelvalue_callback, arg);
+				redis_series_labelflags_callback, arg);
+    }
 
-	key = sdscatfmt(sdsempty(), "pcp:series:label.%I.value:%I",
+    name = sdscatfmt(sdsempty(), "%I", list->nameid);
+    val = sdscatfmt(sdsempty(), "%I", list->valueid);
+    key = sdscatfmt(sdsempty(), "pcp:labelvalue:series:%s", hash);
+    cmd = redis_command(4);
+    cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_sds(cmd, name);
+    cmd = redis_param_sds(cmd, val);
+    sdsfree(name);
+    sdsfree(val);
+    redisSlotsRequest(slots, HMSET, key, cmd,
+			redis_series_labelvalue_callback, arg);
+
+    key = sdscatfmt(sdsempty(), "pcp:series:label.%I.value:%I",
 			list->nameid, list->valueid);
-	cmd = redis_command(3);
-	cmd = redis_param_str(cmd, SADD, SADD_LEN);
-	cmd = redis_param_sds(cmd, key);
-	cmd = redis_param_sha(cmd, metric->hash);
-	redisSlotsRequest(slots, SADD, key, cmd,
+    cmd = redis_command(2 + metric->numnames);
+    cmd = redis_param_str(cmd, SADD, SADD_LEN);
+    cmd = redis_param_sds(cmd, key);
+    for (i = 0; i < metric->numnames; i++)
+	cmd = redis_param_sha(cmd, metric->names[i].hash);
+    redisSlotsRequest(slots, SADD, key, cmd,
 				redis_series_label_set_callback, arg);
+}
 
-    } while ((list = list->next) != NULL);
+static void
+redis_series_labelset(redisSlots *slots, metric_t *metric, instance_t *instance, void *arg)
+{
+    labellist_t			*list;
+    char			*hash;
+    int				i;
+
+    if (instance != NULL) {
+	hash = pmwebapi_hash_str(instance->name.hash);
+	list = instance->labellist;
+	do {
+	    redis_series_label(slots, metric, hash, list, arg);
+	} while ((list = list->next) != NULL);
+    } else {
+	for (i = 0; i < metric->numnames; i++) {
+	    hash = pmwebapi_hash_str(metric->names[0].hash);
+	    list = metric->labellist;
+	    do {
+		redis_series_label(slots, metric, hash, list, arg);
+	    } while ((list = list->next) != NULL);
+	}
+    }
 }
 
 void
-series_label_mapping(seriesGetValueBaton *baton)
+series_metric_label_mapping(seriesGetNames *baton)
 {
-    struct seriesLoadBaton	*load;
+    seriesLoadBaton		*load;
+    metric_t			*metric = baton->metric;
     char			buf[PM_MAXLABELJSONLEN];
     char			pmmsg[PM_MAXERRMSGLEN];
-    metric_t			*metric = baton->metric;
-    value_t			*value = baton->value;
     sds				msg;
     int				sts;
 
-    sts = merge_labelsets(metric, value, buf, sizeof(buf), annotate_metric, baton);
+    sts = metric_labelsets(metric, buf, sizeof(buf), annotate_metric, baton);
     if (sts < 0) {
-	load = (struct seriesLoadBaton *)baton->baton;
-	seriesfmt(msg, "Cannot merge series %s label set: %s",
-			pmwebapi_hash_str(metric->hash),
-			pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
-	(seriesLoadBatonInfo(load))(PMLOG_ERROR, msg, seriesLoadBatonUser(load));
+	load = (seriesLoadBaton *)baton->baton;
+	seriesfmt(msg, "Cannot merge metric %s [%s] label set: %s",
+		pmwebapi_hash_str(metric->names[0].hash),
+		metric->names[0].sds, pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
+	(seriesLoadBatonInfo(load))(PMLOG_ERROR, msg, load->userdata);
 	sdsfree(msg);
     }
-    doneSeriesGetValueBaton(baton, "series_label_mapping");
+    doneSeriesGetNames(baton, "series_label_mapping");
 }
 
 static void
 series_name_mapping_callback(void *arg)
 {
-    seriesBatonCheckMagic(arg, MAGIC_VALUE, "series_name_mapping_callback");
-    doneSeriesGetValueBaton(arg, "series_name_mapping_callback");
+    seriesGetNames		*baton = (seriesGetNames *)arg;
+
+    seriesBatonCheckMagic(arg, MAGIC_NAMES, "series_name_mapping_callback");
+    if (UNLIKELY(pmDebugOptions.series)) {
+	if (baton->instance)
+	    fprintf(stderr, "Baton [names/%p] series_name_mapping_callback mapped instance %s to %lld\n", baton, baton->instance->name.sds, baton->instance->name.mapid);
+	else
+	    fprintf(stderr, "Baton [names/%p] series_name_mapping_callback mapped metric %s to %lld\n", baton, baton->metric->names[0].sds, baton->metric->names[0].mapid);
+    }
+    doneSeriesGetNames(arg, "series_name_mapping_callback");
 }
 
 void
-series_value_mapping(seriesGetValueBaton *baton)
+series_instance_mapping(seriesGetNames *baton)
 {
-    struct seriesLoadBaton	*load;
-    struct redisSlots		*slots;
-    value_t			*value;
+    seriesLoadBaton		*load;
+    instance_t			*instance;
+    metric_t			*metric;
+    char			buf[PM_MAXLABELJSONLEN];
+    char			pmmsg[PM_MAXERRMSGLEN];
+    sds				msg;
+    int				sts;
 
-    seriesBatonCheckMagic(baton, MAGIC_VALUE, "series_value_mapping");
-    value = baton->value;
+    seriesBatonCheckMagic(baton, MAGIC_NAMES, "series_instance_mapping");
+    instance = baton->instance;
+    metric = baton->metric;
 
-    /* map instance (value) name string to identifier if not already done */
-    if (value->mapid <= 0) {
-	assert(value->name != NULL);
-	seriesBatonReference(baton, "series_value_mapping");
-	load = (struct seriesLoadBaton *)baton->baton;
-	slots = (struct redisSlots *)seriesLoadBatonSlots(load);
-	redisGetMap(slots, instmap, value->name, &value->mapid,
+    /* map instance name string to identifier if not already done */
+    if (instance->name.mapid <= 0) {
+
+	if (UNLIKELY(pmDebugOptions.series))
+	    fprintf(stderr, "MAPPING instance name: %s\n", instance->name.sds);
+
+	assert(instance->name.sds != NULL);
+	seriesBatonReference(baton, "series_instance_mapping");
+	load = (seriesLoadBaton *)baton->baton;
+	redisGetMap(load->slots,
+			instmap, instance->name.sds, &instance->name.mapid,
 			series_name_mapping_callback, seriesLoadBatonInfo(load),
-			seriesLoadBatonUser(load), baton);
+			load->userdata, baton);
     }
+
+    sts = instance_labelsets(metric->indom, instance, buf, sizeof(buf),
+			     annotate_metric, baton);
+    if (sts < 0) {
+	load = (seriesLoadBaton *)baton->baton;
+	seriesfmt(msg, "Cannot merge instance %s [%s] label set: %s",
+		pmwebapi_hash_str(instance->name.hash),
+		instance->name.sds, pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
+	(seriesLoadBatonInfo(load))(PMLOG_ERROR, msg, load->userdata);
+	sdsfree(msg);
+    }
+    doneSeriesGetNames(baton, "series_label_mapping");
 }
 
 static void
-series_value_mapped(void *arg)
+series_instance_mapped(void *arg)
 {
-    seriesGetValueBaton		*baton = (seriesGetValueBaton *)arg;
-    seriesGetValueBaton		*metric = baton->arg;
+    seriesGetNames		*baton = (seriesGetNames *)arg;
+    seriesGetNames		*metric = baton->arg;
 
-    seriesBatonCheckMagic(baton, MAGIC_VALUE, "series_value_mapped");
-    seriesBatonCheckCount(baton, "series_value_mapped");
-    freeSeriesGetValueBaton(baton);
+    seriesBatonCheckMagic(baton, MAGIC_NAMES, "series_instance_mapped");
+    seriesBatonCheckCount(baton, "series_instance_mapped");
+    freeSeriesGetNames(baton, "series_instance_mapped");
 
-    doneSeriesGetValueBaton(metric, "series_value_mapped");
+    doneSeriesGetNames(metric, "series_instance_mapped");
 }
 
 static void redis_series_metadata(redisSlots *, context_t *, metric_t *, void *);
-static void redis_series_stream(redisSlots *, sds, metric_t *, void *); /*TODO*/
+static void redis_series_streamed(redisSlots *, sds, metric_t *, void *); /*TODO*/
 
 static void
 series_stored_metric(void *arg)
 {
-    seriesGetValueBaton		*baton = (seriesGetValueBaton *)arg;
-    struct seriesLoadBaton	*load = (struct seriesLoadBaton *)baton->baton;
+    seriesGetNames		*baton = (seriesGetNames *)arg;
+    seriesLoadBaton		*load = (seriesLoadBaton *)baton->baton;
 
     seriesLoadBatonFetch(load);
 }
@@ -818,105 +884,112 @@ series_stored_metric(void *arg)
 static void
 series_metric_mapped(void *arg)
 {
-    seriesGetValueBaton		*baton = (seriesGetValueBaton *)arg;
-    struct seriesLoadBaton	*load = (struct seriesLoadBaton *)baton->baton;
-    redisSlots			*slots = seriesLoadBatonSlots(load);
-    context_t			*context = seriesLoadBatonContext(load);
+    seriesGetNames		*baton = (seriesGetNames *)arg;
+    seriesLoadBaton		*load = (seriesLoadBaton *)baton->baton;
+    redisSlots			*slots = load->slots;
+    context_t			*context = &load->pmapi.context;
     sds				timestamp = baton->timestamp;
 
-    seriesBatonCheckMagic(baton, MAGIC_VALUE, "series_metric_mapped");
+    seriesBatonCheckMagic(baton, MAGIC_NAMES, "series_metric_mapped");
     seriesBatonCheckCount(baton, "series_metric_mapped");
 
+    seriesBatonReference(load, "series_metric_mapped");
     seriesBatonReference(baton, "series_metric_mapped");
     baton->done = series_stored_metric;
 
     /* push the metric, instances and any label metadata into the cache */
-    if (baton->meta)
+    if (baton->meta || baton->data)
 	redis_series_metadata(slots, context, baton->metric, load);
 
     /* push values for all instances, no-value or errors into the cache */
     if (baton->data)
-	redis_series_stream(slots, timestamp, baton->metric, load);
+	redis_series_streamed(slots, timestamp, baton->metric, load);
 
-    doneSeriesGetValueBaton(baton, "series_metric_mapped");
+    doneSeriesGetNames(baton, "series_metric_mapped");
 }
 
 void
 redis_series_metric(redisSlots *slots, metric_t *metric,
 		sds timestamp, int meta, int data, void *arg)
 {
-    struct seriesLoadBaton	*load = (struct seriesLoadBaton *)arg;
-    seriesGetValueBaton		*baton, *field;
-    value_t			*value = NULL;
+    seriesLoadBaton		*load = (seriesLoadBaton *)arg;
+    seriesGetNames		*mname, *iname;
+    instance_t			*instance;
+    value_t			*value;
     sds				msg;
     int				i;
-
-    if (UNLIKELY(pmDebugOptions.series))
-	fprintf(stderr, "Caching metric %s values [time=%s meta=%u data=%u]\n",
-			*metric->names, timestamp, meta, data);
 
     /*
      * First satisfy any/all mappings for metric name, instance
      * names, label names and values.  Then issue the metadata
      * and data simultaneously.
      */
-    if ((baton = calloc(1, sizeof(seriesGetValueBaton))) == 0) {
-	seriesfmt(msg, "OOM creating metric value baton");
-	seriesmsg(slots, PMLOG_ERROR, msg);
+    if ((mname = calloc(1, sizeof(seriesGetNames))) == NULL) {
+	seriesfmt(msg, "OOM creating metric name baton for %s",
+			metric->names[0].sds);
+	webapimsg(load, PMLOG_ERROR, msg);
 	return;
     }
-    initSeriesGetValueBaton(baton, metric, value, load);
-    seriesBatonReference(baton, "redis_series_metric");
-    baton->done = series_metric_mapped;
-    baton->timestamp = sdsdup(timestamp);
-    baton->meta = meta;
-    baton->data = data;
+    initSeriesGetNames(mname, metric, NULL, load);
+    seriesBatonReference(mname, "redis_series_metric");
+    mname->done = series_metric_mapped;
+
+    mname->timestamp = sdsdup(timestamp);	/* TODO - context */
+    mname->meta = meta;				/* TODO - context */
+    mname->data = data;				/* TODO - context */
 
     for (i = 0; i < metric->numnames; i++) {
-	assert(metric->names[i]);
-	if (metric->mapids[i] <= 0) {
-	    seriesBatonReference(baton, "redis_series_metric names");
+	assert(metric->names[i].sds != NULL);
+	if (metric->names[i].mapid <= 0) {
+	    seriesBatonReference(mname, "redis_series_metric names");
 	    redisGetMap(slots,
-			namesmap, metric->names[i], &metric->mapids[i],
+			namesmap, metric->names[i].sds, &metric->names[i].mapid,
 			series_name_mapping_callback,
-			seriesLoadBatonInfo(load), seriesLoadBatonUser(load),
-			(void *)baton);
+			seriesLoadBatonInfo(load), load->userdata,
+			(void *)mname);
 	}
     }
 
     if (metric->desc.indom == PM_INDOM_NULL) {
-	seriesBatonReference(baton, "redis_series_metric metric");
-	series_label_mapping(baton);
+	seriesBatonReference(mname, "redis_series_metric metric");
+	series_metric_label_mapping(mname);
     } else {
-	if (metric->u.inst->listcount)
-	    seriesBatonReference(baton, "redis_series_metric metric");
-	for (i = 0; i < metric->u.inst->listcount; i++) {
-	    if ((field = calloc(1, sizeof(seriesGetValueBaton))) == NULL) {
-		seriesfmt(msg, "OOM creating series value baton");
-		seriesmsg(slots, PMLOG_ERROR, msg);
+	if (metric->u.vlist->listcount)
+	    seriesBatonReference(mname, "redis_series_metric metric");
+	for (i = 0; i < metric->u.vlist->listcount; i++) {
+	    value = &metric->u.vlist->value[i];
+	    if ((instance = findID(metric->indom->insts, &value->inst)) == NULL) {
+		seriesfmt(msg, "indom lookup failure for %s instance %u",
+				pmInDomStr(metric->indom->indom), value->inst);
+		webapimsg(load, PMLOG_ERROR, msg);
+		continue;
+	    }
+	    if ((iname = calloc(1, sizeof(seriesGetNames))) == NULL) {
+		seriesfmt(msg, "OOM creating name baton for instance %s",
+				instance->name.sds);
+		webapimsg(load, PMLOG_ERROR, msg);
 		continue;
 	    }
 
-	    value = &metric->u.inst->value[i];
-
-	    initSeriesGetValueBaton(field, metric, value, load);
-	    seriesBatonReferences(field, 2, "redis_series_metric instance");
-	    field->done = series_value_mapped;
-	    field->arg = baton;
+	    initSeriesGetNames(iname, metric, instance, load);
+	    seriesBatonReferences(iname, 2, "redis_series_metric instance");
+	    iname->done = series_instance_mapped;
+	    iname->arg = mname;
     
-	    series_value_mapping(field);
-	    series_label_mapping(field);
+	    series_instance_mapping(iname);
 
-	    doneSeriesGetValueBaton(field, "redis_series_metric instance");
+	    doneSeriesGetNames(iname, "redis_series_metric instance");
 	}
     }
-    doneSeriesGetValueBaton(baton, "redis_series_metric");
+    doneSeriesGetNames(mname, "redis_series_metric");
 }
 
 static void
 redis_metric_name_series_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
-    checkIntegerReply(seriesLoadBatonInfo(arg), seriesLoadBatonUser(arg),
+    seriesLoadBaton		*load = (seriesLoadBaton *)arg;
+
+    checkIntegerReply(seriesLoadBatonInfo(load), load->userdata,
 			reply, "%s %s", SADD, "map metric name to series");
     seriesBatonDereference(arg, "redis_metric_name_series_callback");
 }
@@ -924,7 +997,9 @@ redis_metric_name_series_callback(redisAsyncContext *c, redisReply *reply, void 
 static void
 redis_series_metric_name_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
-    checkIntegerReply(seriesLoadBatonInfo(arg), seriesLoadBatonUser(arg),
+    seriesLoadBaton		*load = (seriesLoadBaton *)arg;
+
+    checkIntegerReply(seriesLoadBatonInfo(load), load->userdata,
 			reply, "%s: %s", SADD, "map series to metric name");
     seriesBatonDereference(arg, "redis_series_metric_name_callback");
 }
@@ -932,7 +1007,9 @@ redis_series_metric_name_callback(redisAsyncContext *c, redisReply *reply, void 
 static void
 redis_desc_series_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
-    checkStatusReplyOK(seriesLoadBatonInfo(arg), seriesLoadBatonUser(arg),
+    seriesLoadBaton		*load = (seriesLoadBaton *)arg;
+
+    checkStatusReplyOK(seriesLoadBatonInfo(load), load->userdata,
 			reply, "%s: %s", HMSET, "setting metric desc");
     seriesBatonDereference(arg, "redis_desc_series_callback");
 }
@@ -940,7 +1017,9 @@ redis_desc_series_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 static void
 redis_series_source_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
-    checkIntegerReply(seriesLoadBatonInfo(arg), seriesLoadBatonUser(arg),
+    seriesLoadBaton		*load = (seriesLoadBaton *)arg;
+
+    checkIntegerReply(seriesLoadBatonInfo(load), load->userdata,
 			reply, "%s: %s", SADD, "mapping series to context");
     seriesBatonDereference(arg, "redis_series_source_callback");
 }
@@ -948,18 +1027,26 @@ redis_series_source_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 static void
 redis_series_metadata(redisSlots *slots, context_t *context, metric_t *metric, void *arg)
 {
-    struct seriesLoadBaton	*baton = (struct seriesLoadBaton *)arg;
+    seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
+    instance_t			*instance;
     value_t			*value;
-    const char			*hash = pmwebapi_hash_str(metric->hash);
+    const char			*hash;
     const char			*units, *indom, *pmid, *sem, *type;
     long long			map;
     sds				val, cmd, key;
     int				i;
 
+    indom = indom_str(metric);
+    pmid = pmid_str(metric);
+    sem = semantics_str(metric);
+    type = type_str(metric);
+    units = units_str(metric);
+
     for (i = 0; i < metric->numnames; i++) {
-	assert(metric->names[i]);
-	map = metric->mapids[i];
+	assert(metric->names[i].sds != NULL);
+	map = metric->names[i].mapid;
 	assert(map > 0);
+	hash = pmwebapi_hash_str(metric->names[i].hash);
 
 	seriesBatonReferences(baton, 2, "redis_series_metadata names");
 
@@ -977,52 +1064,49 @@ redis_series_metadata(redisSlots *slots, context_t *context, metric_t *metric, v
 	cmd = redis_command(3);
 	cmd = redis_param_str(cmd, SADD, SADD_LEN);
 	cmd = redis_param_sds(cmd, key);
-	cmd = redis_param_sha(cmd, metric->hash);
+	cmd = redis_param_sha(cmd, metric->names[i].hash);
 	redisSlotsRequest(slots, SADD, key, cmd,
 			redis_series_metric_name_callback, arg);
+
+	key = sdscatfmt(sdsempty(), "pcp:desc:series:%s", hash);
+	cmd = redis_command(14);
+	cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
+	cmd = redis_param_sds(cmd, key);
+	cmd = redis_param_str(cmd, "indom", sizeof("indom")-1);
+	cmd = redis_param_str(cmd, indom, strlen(indom));
+	cmd = redis_param_str(cmd, "pmid", sizeof("pmid")-1);
+	cmd = redis_param_str(cmd, pmid, strlen(pmid));
+	cmd = redis_param_str(cmd, "semantics", sizeof("semantics")-1);
+	cmd = redis_param_str(cmd, sem, strlen(sem));
+	cmd = redis_param_str(cmd, "source", sizeof("source")-1);
+	cmd = redis_param_sha(cmd, context->name.hash);
+	cmd = redis_param_str(cmd, "type", sizeof("type")-1);
+	cmd = redis_param_str(cmd, type, strlen(type));
+	cmd = redis_param_str(cmd, "units", sizeof("units")-1);
+	cmd = redis_param_str(cmd, units, strlen(units));
+	redisSlotsRequest(slots, HMSET, key, cmd, redis_desc_series_callback, arg);
     }
 
-    seriesBatonReferences(baton, 2, "redis_series_metadata");
+    seriesBatonReference(baton, "redis_series_metadata");
 
-    indom = indom_str(metric);
-    pmid = pmid_str(metric);
-    sem = semantics_str(metric);
-    type = type_str(metric);
-    units = units_str(metric);
-
-    key = sdscatfmt(sdsempty(), "pcp:desc:series:%s", hash);
-    cmd = redis_command(14);
-    cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
-    cmd = redis_param_sds(cmd, key);
-    cmd = redis_param_str(cmd, "indom", sizeof("indom")-1);
-    cmd = redis_param_str(cmd, indom, strlen(indom));
-    cmd = redis_param_str(cmd, "pmid", sizeof("pmid")-1);
-    cmd = redis_param_str(cmd, pmid, strlen(pmid));
-    cmd = redis_param_str(cmd, "semantics", sizeof("semantics")-1);
-    cmd = redis_param_str(cmd, sem, strlen(sem));
-    cmd = redis_param_str(cmd, "source", sizeof("source")-1);
-    cmd = redis_param_sha(cmd, context->hash);
-    cmd = redis_param_str(cmd, "type", sizeof("type")-1);
-    cmd = redis_param_str(cmd, type, strlen(type));
-    cmd = redis_param_str(cmd, "units", sizeof("units")-1);
-    cmd = redis_param_str(cmd, units, strlen(units));
-    redisSlotsRequest(slots, HMSET, key, cmd, redis_desc_series_callback, arg);
-
-    hash = pmwebapi_hash_str(context->hash);
+    hash = pmwebapi_hash_str(context->name.hash);
     key = sdscatfmt(sdsempty(), "pcp:series:source:%s", hash);
-    cmd = redis_command(3);
+    cmd = redis_command(2 + metric->numnames);
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
-    cmd = redis_param_sha(cmd, metric->hash);
+    for (i = 0; i < metric->numnames; i++)
+        cmd = redis_param_sha(cmd, metric->names[i].hash);
     redisSlotsRequest(slots, SADD, key, cmd, redis_series_source_callback, arg);
 
     if (metric->desc.indom == PM_INDOM_NULL) {
-	redis_series_label(slots, metric, NULL, baton);
+	redis_series_labelset(slots, metric, NULL, baton);
     } else {
-	for (i = 0; i < metric->u.inst->listcount; i++) {
-	    value = &metric->u.inst->value[i];
-	    redis_series_inst(slots, metric, value, baton);
-	    redis_series_label(slots, metric, value, baton);
+	for (i = 0; i < metric->u.vlist->listcount; i++) {
+	    value = &metric->u.vlist->value[i];
+	    if ((instance = findID(metric->indom->insts, &value->inst)) == NULL)
+		continue;
+	    redis_series_instance(slots, metric, instance, baton);
+	    redis_series_labelset(slots, metric, instance, baton);
 	}
     }
 }
@@ -1054,10 +1138,14 @@ initRedisStreamBaton(redisStreamBaton *baton,
 void
 doneRedisStreamBaton(redisStreamBaton *baton)
 {
+    void		*load = baton->arg;
+
     seriesBatonCheckMagic(baton, MAGIC_STREAM, "doneRedisStreamBaton");
-    seriesBatonDereference(baton->arg, "doneRedisStreamBaton");
+    seriesBatonCheckMagic(load, MAGIC_LOAD, "doneRedisStreamBaton");
     memset(baton, 0, sizeof(*baton));
     free(baton);
+
+    doneSeriesLoadBaton(load);
 }
 
 static sds
@@ -1078,8 +1166,10 @@ series_stream_value(sds cmd, sds name, int type, pmAtomValue *avp)
     const char		*string;
     sds			value;
 
-    if (!avp)
-	return series_stream_append(cmd, name, sdsnewlen("0", 1));
+    if (!avp) {
+	value = sdsnewlen("0", 1);
+	goto append;
+    }
 
     switch (type) {
     case PM_TYPE_32:
@@ -1125,10 +1215,11 @@ series_stream_value(sds cmd, sds name, int type, pmAtomValue *avp)
 	break;
     }
 
+append:
     return series_stream_append(cmd, name, value);
 }
 
-void
+static void
 redis_series_stream_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
     redisStreamBaton	*baton = (redisStreamBaton *)arg;
@@ -1148,26 +1239,25 @@ redis_series_stream_callback(redisAsyncContext *c, redisReply *reply, void *arg)
     doneRedisStreamBaton(baton);
 }
 
-void
-redis_series_stream(redisSlots *slots, sds stamp, metric_t *metric, void *arg)
+static void
+redis_series_stream(redisSlots *slots, sds stamp, metric_t *metric,
+		const char *hash, void *arg)
 {
-    struct seriesLoadBaton	*load = (struct seriesLoadBaton *)arg;
+    seriesLoadBaton		*load = (seriesLoadBaton *)arg;
     redisInfoCallBack		info = seriesLoadBatonInfo(load);
     redisStreamBaton		*baton;
     unsigned int		count;
-    const char			*hash = pmwebapi_hash_str(metric->hash);
     int				i, sts, type;
     sds				cmd, key, name, stream = sdsempty();
 
     if ((baton = malloc(sizeof(redisStreamBaton))) == NULL) {
 	stream = sdscatfmt(stream, "OOM creating stream baton");
-	info(PMLOG_ERROR, stream, seriesLoadBatonUser(load));
+	info(PMLOG_ERROR, stream, load->userdata);
 	sdsfree(stream);
 	return;
     }
-    initRedisStreamBaton(baton, slots, stamp, hash, info,
-			seriesLoadBatonUser(load), load);
-    seriesBatonReference(arg, "redis_series_stream");
+    initRedisStreamBaton(baton, slots, stamp, hash, info, load->userdata, load);
+    seriesBatonReference(load, "redis_series_stream");
 
     count = 3;	/* XADD key stamp */
     key = sdscatfmt(sdsempty(), "pcp:values:series:%s", hash);
@@ -1182,13 +1272,17 @@ redis_series_stream(redisSlots *slots, sds stamp, metric_t *metric, void *arg)
 	if (metric->desc.indom == PM_INDOM_NULL) {
 	    stream = series_stream_value(stream, name, type, &metric->u.atom);
 	    count += 2;
-	} else if (metric->u.inst->listcount <= 0) {
+	} else if (metric->u.vlist->listcount <= 0) {
 	    stream = series_stream_append(stream, sdsnew("0"), sdsnew("0"));
 	    count += 2;
 	} else {
-	    for (i = 0; i < metric->u.inst->listcount; i++) {
-		value_t	*v = &metric->u.inst->value[i];
-		name = sdscpylen(name, (const char *)&v->hash[0], sizeof(v->hash));
+	    for (i = 0; i < metric->u.vlist->listcount; i++) {
+		instance_t	*inst;
+		value_t		*v = &metric->u.vlist->value[i];
+
+		if ((inst = findID(metric->indom->insts, &v->inst)) == NULL)
+		    continue;
+		name = sdscpylen(name, (const char *)inst->name.hash, sizeof(inst->name.hash));
 		stream = series_stream_value(stream, name, type, &v->atom);
 		count += 2;
 	    }
@@ -1204,6 +1298,18 @@ redis_series_stream(redisSlots *slots, sds stamp, metric_t *metric, void *arg)
     sdsfree(stream);
 
     redisSlotsRequest(slots, XADD, key, cmd, redis_series_stream_callback, baton);
+}
+
+static void
+redis_series_streamed(redisSlots *slots, sds stamp, metric_t *metric, void *arg)
+{
+    const char			*hash;
+    int				i;
+
+    for (i = 0; i < metric->numnames; i++) {
+	hash = pmwebapi_hash_str(metric->names[i].hash);
+	redis_series_stream(slots, stamp, metric, hash, arg);
+    }
 }
 
 void
@@ -1234,7 +1340,7 @@ redis_update_version(redisSlotsBaton *baton)
     cmd = redis_param_str(cmd, SETS, SETS_LEN);
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_str(cmd, ver, sizeof(ver)-1);
-    redisSlotsRequest(baton->redis, SETS, key, cmd, redis_update_version_callback, baton);
+    redisSlotsRequest(baton->slots, SETS, key, cmd, redis_update_version_callback, baton);
 }
 
 static void
@@ -1246,7 +1352,6 @@ redis_load_version_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_load_version_callback");
 
-    baton->version = -1;
     if (reply->type == REDIS_REPLY_STRING) {
 	version = (unsigned int)atoi(reply->str);
 	if (version == 0 || version == SCHEMA_VERSION) {
@@ -1283,7 +1388,97 @@ redis_load_version(redisSlotsBaton *baton)
     cmd = redis_command(2);
     cmd = redis_param_str(cmd, GETS, GETS_LEN);
     cmd = redis_param_sds(cmd, key);
-    redisSlotsRequest(baton->redis, GETS, key, cmd, redis_load_version_callback, baton);
+    redisSlotsRequest(baton->slots, GETS, key, cmd, redis_load_version_callback, baton);
+}
+
+static int
+decodeCommandKey(redisSlotsBaton *baton, int index, redisReply *reply)
+{
+    redisSlots		*slots = baton->slots;
+    redisReply		*node;
+    dictEntry		*entry;
+    long long		position;
+    sds			msg, cmd;
+
+    /*
+     * Each element contains:
+     * - command name
+     * - command arity specification
+     * - nested array reply of command flags
+     * - position of first key in argument list
+     * - position of last key in argument list
+     * - step count for locating repeating keys
+     *
+     * We care primarily about the command name and position of
+     * the first key, as that key is the one used when selecting
+     * the Redis server to communicate with for each command, in
+     * a setup with more than one server (cluster or otherwise).
+     */
+    if (reply->elements < 6) {
+	seriesfmt(msg, "bad reply %s[%d] response (%lld elements)",
+			COMMAND, index, (long long)reply->elements);
+	seriesmsg(baton, PMLOG_RESPONSE, msg);
+	return -EPROTO;
+    }
+
+    node = reply->element[3];
+    if ((position = checkIntegerReply(baton->info, baton->userdata, node,
+			"KEY position for %s element %d", COMMAND, index)) < 0)
+	return -EINVAL;
+    node = reply->element[0];
+    if ((cmd = checkStringReply(baton->info, baton->userdata, node,
+			"NAME for %s element %d", COMMAND, index)) == NULL)
+	return -EINVAL;
+
+    if ((entry = dictAddRaw(slots->keymap, cmd, NULL)) != NULL) {
+	dictSetSignedIntegerVal(entry, position);
+	return 0;
+    }
+    sdsfree(cmd);
+    return -ENOMEM;
+}
+
+static void
+redis_load_keymap_callback(redisAsyncContext *c, redisReply *reply, void *arg)
+{
+    redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
+    redisReply		*command;
+    sds			msg;
+    int			i;
+
+    seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_load_keymap_callback");
+
+    if (reply->type == REDIS_REPLY_ARRAY) {
+	for (i = 0; i < reply->elements; i++) {
+	    command = reply->element[i];
+	    if (checkArrayReply(baton->info, baton->userdata,
+			command, "%s entry %d", COMMAND, i) == 0)
+		decodeCommandKey(baton, i, command);
+	}
+    } else if (reply->type == REDIS_REPLY_ERROR) {
+	seriesfmt(msg, "command key mapping error: %s", reply->str);
+	seriesmsg(baton, PMLOG_REQUEST, msg);
+    } else if (reply->type != REDIS_REPLY_NIL) {
+	seriesfmt(msg, "unexpected command reply type (%s)",
+		redis_reply(reply->type));
+	seriesmsg(baton, PMLOG_ERROR, msg);
+    }
+
+    /* Verify pmseries schema version if previously requested */
+    if (baton->flags & SLOTS_VERSION)
+	redis_load_version(baton);
+    else
+	doneRedisSlotsBaton(baton);
+}
+
+static void
+redis_load_keymap(redisSlotsBaton *baton)
+{
+    sds			cmd;
+
+    cmd = redis_command(1);
+    cmd = redis_param_str(cmd, COMMAND, COMMAND_LEN);
+    redisSlotsRequest(baton->slots, GETS, NULL, cmd, redis_load_keymap_callback, baton);
 }
 
 static int
@@ -1375,7 +1570,7 @@ decodeRedisSlot(redisSlotsBaton *baton, redisReply *reply)
 	    decodeRedisNode(baton, node, &sp->slaves[i]);
     }
 
-    return redisSlotRangeInsert(baton->redis, sp);
+    return redisSlotRangeInsert(baton->slots, sp);
 }
 
 static void
@@ -1411,12 +1606,12 @@ redis_load_slots_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 		seriesmsg(baton, PMLOG_ERROR, msg);
 		baton->version = -1;
 	    } else {
-		servers->hostspec = sdscatfmt(sdsempty(), "%s", baton->redis->hostspec);
+		servers->hostspec = sdscatfmt(sdsempty(), "%s", baton->slots->hostspec);
 		slots->nslaves = 0;
 		slots->start = 0;
 		slots->end = MAXSLOTS;
 		slots->master = *servers;
-		redisSlotRangeInsert(baton->redis, slots);
+		redisSlotRangeInsert(baton->slots, slots);
 	    }
 	}
     }
@@ -1427,8 +1622,11 @@ redis_load_slots_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 	    decodeRedisSlots(baton, reply);
     }
 
-    /* Verify pmseries schema version if previously requested */
-    if (baton->version == 1)
+    if (baton->flags & SLOTS_KEYMAP)
+	/* Prepare mapping of commands to key positions if needed */
+	redis_load_keymap(baton);
+    else if (baton->flags & SLOTS_VERSION)
+	/* Verify pmseries schema version if previously requested */
 	redis_load_version(baton);
     else
 	doneRedisSlotsBaton(baton);
@@ -1442,18 +1640,19 @@ redis_load_slots(redisSlotsBaton *baton)
     cmd = redis_command(2);
     cmd = redis_param_str(cmd, CLUSTER, CLUSTER_LEN);
     cmd = redis_param_str(cmd, "SLOTS", sizeof("SLOTS")-1);
-    redisSlotsRequest(baton->redis, CLUSTER, NULL, cmd, redis_load_slots_callback, baton);
+    redisSlotsRequest(baton->slots, CLUSTER, NULL, cmd, redis_load_slots_callback, baton);
 }
 
 void
-initRedisSlotsBaton(redisSlotsBaton *baton, int version,
+initRedisSlotsBaton(redisSlotsBaton *baton, redisSlotsFlags flags,
 		redisInfoCallBack info, redisDoneCallBack done,
 		void *userdata, void *events, void *arg)
 {
     initSeriesBatonMagic(baton, MAGIC_SLOTS);
     baton->info = info;
     baton->done = done;
-    baton->version = version;
+    baton->flags = flags;
+    baton->version = -1;
     baton->userdata = userdata;
     baton->arg = arg;
 }
@@ -1467,28 +1666,38 @@ doneRedisSlotsBaton(redisSlotsBaton *baton)
     free(baton);
 }
 
-static redisSlots		*slots;
-
-#if 0 /* TODO */
-void
-pmSeriesDone(void)
-{
-    redisFreeSlots(slots);
-}
-#endif
-
-void
-redis_init(redisSlots **slotsp, sds server, int version_check,
+redisSlots *
+redisSlotsConnect(sds server, redisSlotsFlags flags,
 		redisInfoCallBack info, redisDoneCallBack done,
 		void *userdata, void *events, void *arg)
 {
     redisSlotsBaton		*baton;
+    redisSlots			*slots;
     sds				msg;
 
-    /* fast path for when Redis has been setup already */
-    if (slots) {
-	*slotsp = slots;
+    if ((baton = (redisSlotsBaton *)calloc(1, sizeof(redisSlotsBaton))) != NULL) {
+	if ((slots = redisSlotsInit(server, events)) != NULL) {
+	    initRedisSlotsBaton(baton, flags, info, done, userdata, events, arg);
+	    baton->slots = slots;
+	    redis_load_slots(baton);
+	    return slots;
+	}
+	doneRedisSlotsBaton(baton);
+    } else {
 	done(arg);
+    }
+    seriesfmt(msg, "Failed to allocate memory for Redis slots");
+    info(PMLOG_ERROR, msg, arg);
+    sdsfree(msg);
+    return NULL;
+}
+
+void
+pmSeriesSetup(pmSeriesCommand *command, void *arg)
+{
+    /* fast path for when Redis has been setup already */
+    if (command->slots) {
+	command->on_setup(arg);
 	return;
     }
 
@@ -1496,21 +1705,15 @@ redis_init(redisSlots **slotsp, sds server, int version_check,
     redisScriptsInit();
     redisMapsInit();
 
-    if ((baton = (redisSlotsBaton *)calloc(1, sizeof(redisSlotsBaton))) != NULL) {
-	if ((slots = redisSlotsInit(server, info, events, userdata)) != NULL) {
-	    initRedisSlotsBaton(baton, version_check, info, done,
-				    userdata, events, arg);
-	    baton->redis = *slotsp = slots;
-	    redis_load_slots(baton);
-	    return;
-	}
-	baton->version = -1;
-	doneRedisSlotsBaton(baton);
-    } else {
-	done(arg);
-    }
-    *slotsp = NULL;
-    seriesfmt(msg, "Failed to allocate memory for Redis slots");
-    info(PMLOG_ERROR, msg, arg);
-    sdsfree(msg);
+    /* establish initial connection to Redis instances */
+    command->slots = redisSlotsConnect(
+			command->hostspec, 1, command->on_info,
+			command->on_setup, arg, command->events, arg);
+}
+
+void
+pmSeriesClose(pmSeriesCommand *command)
+{
+    redisSlotsFree((redisSlots *)command->slots);
+    command->slots = NULL;
 }

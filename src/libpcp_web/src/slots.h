@@ -14,10 +14,18 @@
 #ifndef SLOTS_H
 #define SLOTS_H
 
+#include "batons.h"
 #include "redis.h"
+#include "maps.h"
 
 #define MAXSLOTS	(1 << 14)
 #define SLOTMASK	(MAXSLOTS-1)
+
+typedef enum {
+    SLOTS_NONE		= 0,
+    SLOTS_VERSION	= 1,
+    SLOTS_KEYMAP	= 2,
+} redisSlotsFlags;
 
 typedef struct redisSlotServer {
     sds			hostspec;	/* hostname:port or unix socket file */
@@ -33,47 +41,42 @@ typedef struct redisSlotRange {
     redisSlotServer	*slaves;
 } redisSlotRange;
 
-typedef void (*redisInfoCallBack)(pmloglevel, sds, void *);
-typedef void (*redisDoneCallBack)(void *);
-
 typedef struct redisSlots {
-    unsigned int	magic;
     redisAsyncContext	*control;	/* initial Redis context connection */
     sds			hostspec;	/* control socket host specification */
     redisSlotRange	*slots;		/* all instances; e.g. CLUSTER SLOTS */
+    redisMap		*keymap;	/* map command names to key position */
     void		*events;
-
-    redisInfoCallBack	info;		/* TODO: remove - use baton */
-    void		*userdata;	/* TODO: remove - use baton */
 } redisSlots;
-
-#define slotsfmt(msg, fmt, ...)		\
-	((msg) = sdscatprintf(sdsempty(), fmt, ##__VA_ARGS__))
-#define slotsinfo(slots, level, msg)	\
-	((slots)->info((level), (msg), (slots)->userdata), sdsfree(msg))
 
 typedef void (*redisPhase)(redisSlots *, void *);	/* phased operations */
 
-extern redisSlots *redisSlotsInit(sds, redisInfoCallBack, void *, void *);
-extern int redisSlotRangeInsert(struct redisSlots *, struct redisSlotRange *);
-extern redisAsyncContext *redisSlotsConnect(redisSlots *, const char *);
-extern redisAsyncContext *redisGet(struct redisSlots *, const char *, sds);
-extern void redisFreeSlots(struct redisSlots *);
+extern redisSlots *redisSlotsInit(sds, void *);
+extern int redisSlotRangeInsert(redisSlots *, redisSlotRange *);
+extern redisAsyncContext *redisAttach(redisSlots *, const char *);
+extern redisAsyncContext *redisGetAsyncContext(redisSlots *, const char *, sds);
 
-extern int redisSlotsRequest(redisSlots *, const char *, sds, sds, redisAsyncCallBack *, void *);
+extern redisSlots *redisSlotsConnect(sds, redisSlotsFlags,
+		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
+extern int redisSlotsRequest(redisSlots *, const char *, sds, sds,
+		redisAsyncCallBack *, void *);
+extern int redisSlotsProxy(redisSlots *,
+		redisInfoCallBack, redisReader **, ssize_t, const char *,
+		redisAsyncCallBack *, void *);
+extern void redisSlotsFree(redisSlots *);
 
 typedef struct {
-    unsigned int	magic;		/* MAGIC_SLOTS */
-    unsigned int	refcount;
+    seriesBatonMagic	magic;		/* MAGIC_SLOTS */
+    redisSlotsFlags	flags;
     int			version;
-    redisSlots		*redis;
+    redisSlots		*slots;
     redisInfoCallBack	info;
     redisDoneCallBack	done;
     void		*userdata;
     void		*arg;
 } redisSlotsBaton;
 
-extern void initRedisSlotsBaton(redisSlotsBaton *, int,
+extern void initRedisSlotsBaton(redisSlotsBaton *, redisSlotsFlags,
 		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
 extern void doneRedisSlotsBaton(redisSlotsBaton *);
 

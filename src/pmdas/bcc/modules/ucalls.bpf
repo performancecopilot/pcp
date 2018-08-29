@@ -13,8 +13,8 @@ struct method_t {
 BPF_HASH(counts, struct method_t, u64);
 
 int trace_entry(struct pt_regs *ctx) {
-    //FILTER_PID
-    u64 clazz = 0, method = 0, *val, zero = 0;
+    FILTER_PID
+    u64 clazz = 0, method = 0, zero = 0, *val;
     struct method_t data = {0};
     READ_CLASS
     READ_METHOD

@@ -118,6 +118,12 @@ redisMapsInit(void)
     contextrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[3]);
 }
 
+redisMap *
+redisKeyMapCreate(const char *name)
+{
+    return dictCreate(&mapCallBackDict, (void *)name);
+}
+
 const char *
 redisMapName(redisMap *map)
 {

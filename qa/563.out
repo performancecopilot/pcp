@@ -3,47 +3,47 @@ QA output created by 563
 == No global labels
 
 pmcd.labels
-    value ""
     labels {"agent":"pmcd","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","userid":UID}
+    value ""
 
 == Bad global label
 
 pmcd.labels
-    value ""
     labels {"agent":"pmcd","hostname":"HOSTNAME"}
+    value ""
 
 == Empty global label
 
 pmcd.labels
-    value ""
     labels {"agent":"pmcd","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","userid":UID}
+    value ""
 
 == Simple global label
 
 pmcd.labels
-    value "{"one":"two"}"
     labels {"agent":"pmcd","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","one":"two","userid":UID}
+    value "{"one":"two"}"
 
 == Empty string global label value
 
 pmcd.labels
-    value "{"one":""}"
     labels {"agent":"pmcd","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","one":"","userid":UID}
+    value "{"one":""}"
 
 == Array global label
 
 pmcd.labels
-    value "{"a1":[1,2,3,4],"a2":[]}"
     labels {"a1":[1,2,3,4],"a2":[],"agent":"pmcd","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","userid":UID}
+    value "{"a1":[1,2,3,4],"a2":[]}"
 
 == Map global label
 
 pmcd.labels
-    value "{"map1":{"a":1,"b":2},"map2":{}}"
     labels {"agent":"pmcd","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","map1":{"a":1,"b":2},"map2":{},"userid":UID}
+    value "{"map1":{"a":1,"b":2},"map2":{}}"
 
 == Multiple global labels
 
 pmcd.labels
-    value "{"a1":[1,2,3,4],"a2":[],"map1":{"a":1,"b":2},"map2":{},"one":"two"}"
     labels {"a1":[1,2,3,4],"a2":[],"agent":"pmcd","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINE","map1":{"a":1,"b":2},"map2":{},"one":"two","userid":UID}
+    value "{"a1":[1,2,3,4],"a2":[],"map1":{"a":1,"b":2},"map2":{},"one":"two"}"

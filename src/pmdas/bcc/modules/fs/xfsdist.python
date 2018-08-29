@@ -15,7 +15,7 @@
 #
 """ PCP BCC PMDA xfsdist module """
 
-# pylint: disable=invalid-name, line-too-long
+# pylint: disable=invalid-name, line-too-long, too-many-instance-attributes
 
 from os import path
 
@@ -44,12 +44,21 @@ units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC xfsdist module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, proc_refresh):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
-        self.cache = {}
+        self.pids = []
+        self.proc_filter = None
+        self.proc_refresh = proc_refresh
+
+        self.cache = None
         self.item_identifiers = ['open', 'read', 'write', 'fsync']
+
+        for opt in self.config.options(MODULE):
+            if opt == 'process':
+                self.proc_filter = self.config.get(MODULE, opt)
+                self.update_pids(self.get_proc_info(self.proc_filter))
 
         self.log("Initialized.")
 
@@ -62,18 +71,34 @@ class PCPBCCModule(PCPBCCBase):
             )
         return True, self.items
 
+    def reset_cache(self):
+        """ Reset internal cache """
+        self.cache = {}
+
+    def undef_cache(self):
+        """ Undefine internal cache """
+        self.cache = None
+
     def compile(self):
         """ Compile BPF """
         try:
-            with open(path.dirname(__file__) + '/../../' + bpf_src) as f:
-                bpf_text = f.read()
+            if not self.pids and self.proc_filter and not self.proc_refresh:
+                raise RuntimeError("No process to attach found.")
 
-            bpf_text = bpf_text.replace("FILTER_PID", "0")
+            if not self.bpf_text:
+                with open(path.dirname(__file__) + '/../../' + bpf_src) as src:
+                    self.bpf_text = src.read()
+
+            if not self.pids and self.proc_filter and self.proc_refresh:
+                self.log("No process to attach found, activation postponed.")
+                return
+
+            bpf_text = self.apply_pid_filter(self.bpf_text, self.pids, False)
 
             if self.debug:
-                self.log("BPF to be compiled:")
-                self.log("\n" + bpf_text)
+                self.log("BPF to be compiled:\n" + bpf_text.strip())
 
+            self.reset_cache()
             self.bpf = BPF(text=bpf_text)
             self.bpf.attach_kprobe(event="xfs_file_read_iter", fn_name="trace_entry")
             self.bpf.attach_kprobe(event="xfs_file_write_iter", fn_name="trace_entry")
@@ -86,6 +111,7 @@ class PCPBCCModule(PCPBCCBase):
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
+            self.undef_cache()
             self.err(str(error))
             self.err("Module NOT active!")
             raise
@@ -95,7 +121,7 @@ class PCPBCCModule(PCPBCCBase):
         if self.bpf is None:
             return None
 
-        dist = self.bpf.get_table("dist")
+        dist = self.bpf["dist"]
         self.insts = self.read_log2_histograms(dist, self.cache)
         dist.clear()
 
@@ -117,8 +143,8 @@ class PCPBCCModule(PCPBCCBase):
         except Exception: # pylint: disable=broad-except
             return [PM_ERR_AGAIN, 0]
 
-    def label_cluster(self):
-        """ Cluster labels """
+    def label_indom(self):
+        """ Instance domain labels """
         return '{"statistic":"histogram"}'
 
     def label_instance(self, inst):

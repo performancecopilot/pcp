@@ -6,13 +6,13 @@ BPF_ARRAY(stats, u64, NR_SYSCALLS);
 TRACEPOINT_PROBE(raw_syscalls, sys_exit) {
     u32 pid = bpf_get_current_pid_tgid() >> 32;
 
-    //FILTER_PID
+    FILTER_PID
     //FILTER_FAILED
     //FILTER_ERRNO
 
     u32 id = args->id;
-    u64 *leaf = stats.lookup(&id);
-    if (leaf) (*leaf)++;
+    u64 *val = stats.lookup(&id);
+    if (val) (*val)++;
 
     return 0;
 }
