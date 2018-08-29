@@ -1036,6 +1036,12 @@ redis_series_metadata(redisSlots *slots, context_t *context, metric_t *metric, v
     sds				val, cmd, key;
     int				i;
 
+    indom = indom_str(metric);
+    pmid = pmid_str(metric);
+    sem = semantics_str(metric);
+    type = type_str(metric);
+    units = units_str(metric);
+
     for (i = 0; i < metric->numnames; i++) {
 	assert(metric->names[i].sds != NULL);
 	map = metric->names[i].mapid;
@@ -1061,33 +1067,27 @@ redis_series_metadata(redisSlots *slots, context_t *context, metric_t *metric, v
 	cmd = redis_param_sha(cmd, metric->names[i].hash);
 	redisSlotsRequest(slots, SADD, key, cmd,
 			redis_series_metric_name_callback, arg);
+
+	key = sdscatfmt(sdsempty(), "pcp:desc:series:%s", hash);
+	cmd = redis_command(14);
+	cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
+	cmd = redis_param_sds(cmd, key);
+	cmd = redis_param_str(cmd, "indom", sizeof("indom")-1);
+	cmd = redis_param_str(cmd, indom, strlen(indom));
+	cmd = redis_param_str(cmd, "pmid", sizeof("pmid")-1);
+	cmd = redis_param_str(cmd, pmid, strlen(pmid));
+	cmd = redis_param_str(cmd, "semantics", sizeof("semantics")-1);
+	cmd = redis_param_str(cmd, sem, strlen(sem));
+	cmd = redis_param_str(cmd, "source", sizeof("source")-1);
+	cmd = redis_param_sha(cmd, context->name.hash);
+	cmd = redis_param_str(cmd, "type", sizeof("type")-1);
+	cmd = redis_param_str(cmd, type, strlen(type));
+	cmd = redis_param_str(cmd, "units", sizeof("units")-1);
+	cmd = redis_param_str(cmd, units, strlen(units));
+	redisSlotsRequest(slots, HMSET, key, cmd, redis_desc_series_callback, arg);
     }
 
-    seriesBatonReferences(baton, 2, "redis_series_metadata");
-
-    indom = indom_str(metric);
-    pmid = pmid_str(metric);
-    sem = semantics_str(metric);
-    type = type_str(metric);
-    units = units_str(metric);
-
-    key = sdscatfmt(sdsempty(), "pcp:desc:series:%s", hash);
-    cmd = redis_command(14);
-    cmd = redis_param_str(cmd, HMSET, HMSET_LEN);
-    cmd = redis_param_sds(cmd, key);
-    cmd = redis_param_str(cmd, "indom", sizeof("indom")-1);
-    cmd = redis_param_str(cmd, indom, strlen(indom));
-    cmd = redis_param_str(cmd, "pmid", sizeof("pmid")-1);
-    cmd = redis_param_str(cmd, pmid, strlen(pmid));
-    cmd = redis_param_str(cmd, "semantics", sizeof("semantics")-1);
-    cmd = redis_param_str(cmd, sem, strlen(sem));
-    cmd = redis_param_str(cmd, "source", sizeof("source")-1);
-    cmd = redis_param_sha(cmd, context->name.hash);
-    cmd = redis_param_str(cmd, "type", sizeof("type")-1);
-    cmd = redis_param_str(cmd, type, strlen(type));
-    cmd = redis_param_str(cmd, "units", sizeof("units")-1);
-    cmd = redis_param_str(cmd, units, strlen(units));
-    redisSlotsRequest(slots, HMSET, key, cmd, redis_desc_series_callback, arg);
+    seriesBatonReference(baton, "redis_series_metadata");
 
     hash = pmwebapi_hash_str(context->name.hash);
     key = sdscatfmt(sdsempty(), "pcp:series:source:%s", hash);
