@@ -15,7 +15,7 @@
 #
 """ PCP BCC PMDA ucalls module """
 
-# pylint: disable=invalid-name, line-too-long
+# pylint: disable=invalid-name, line-too-long, too-many-instance-attributes
 
 from ctypes import c_int
 from os import path
