@@ -1279,11 +1279,11 @@ class PMReporter(object):
                 continue
             rank = abs(self.rank) if self.pmconfig.descs[i].contents.indom != PM_IN_NULL else 1
             c, r, t = (0, [], [])
-            for i in sorted(results[metric] + self.all_ranked[metric], key=lambda value: value[2], reverse=revs):
-                if i[0] not in t and c < rank:
+            for j in sorted(results[metric] + self.all_ranked[metric], key=lambda value: value[2], reverse=revs):
+                if j[0] not in t and c < rank:
                     c += 1
-                    r.append(i)
-                    t.append(i[0])
+                    r.append(j)
+                    t.append(j[0])
             self.all_ranked[metric] = r
 
     def finalize(self):
