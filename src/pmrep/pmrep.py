@@ -246,7 +246,7 @@ class PMReporter(object):
             return 1
         return 0
 
-    def option(self, opt, optarg, index):
+    def option(self, opt, optarg, _index):
         """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
@@ -506,7 +506,7 @@ class PMReporter(object):
 
     def report(self, tstamp):
         """ Report metric values """
-        if tstamp != None:
+        if tstamp is not None:
             tstamp = tstamp.strftime(self.timefmt)
 
         if self.overall_rank:
@@ -781,7 +781,6 @@ class PMReporter(object):
             if self.context.type != PM_CONTEXT_ARCHIVE:
                 self.writer.write(" (Ctrl-C to stop)")
             self.writer.write("\n")
-        return
 
     def write_header_csv(self, results=()):
         """ Write info header for CSV output """
@@ -896,9 +895,9 @@ class PMReporter(object):
                     def lookup_inst_index(mres, instance):
                         """ Helper to lookup instance index """
                         index = -1
-                        for inst, _, _ in mres:
+                        for ins, _, _ in mres:
                             index += 1
-                            if inst == instance:
+                            if ins == instance:
                                 return index
                         return -1
                     index = lookup_inst_index(self.prev_res[metric], inst)
@@ -922,7 +921,7 @@ class PMReporter(object):
         """ Update dynamic header as needed """
         if self.rank:
             for metric in results:
-                for i in results[metric]:
+                for _ in results[metric]:
                     results[metric] = sorted(results[metric], key=lambda x: x[0])
         insts = [i[0] for metric in results for i in results[metric]]
         if insts and (self.repeat_header == self.lines or insts != self.prev_insts):

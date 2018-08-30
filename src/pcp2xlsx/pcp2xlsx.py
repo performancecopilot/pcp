@@ -183,7 +183,7 @@ class PCP2XLSX(object):
             return 1
         return 0
 
-    def option(self, opt, optarg, index):
+    def option(self, opt, optarg, _index):
         """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
@@ -329,7 +329,7 @@ class PCP2XLSX(object):
 
     def report(self, tstamp):
         """ Report metric values """
-        if tstamp != None:
+        if tstamp is not None:
             tstamp = tstamp.strftime(self.timefmt)
 
         self.write_xlsx(tstamp)
@@ -498,7 +498,6 @@ class PCP2XLSX(object):
             self.wb.save(self.outfile)
             self.wb.close()
             self.wb = None
-        return
 
 if __name__ == '__main__':
     try:
