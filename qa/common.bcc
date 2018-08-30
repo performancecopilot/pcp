@@ -150,9 +150,9 @@ _mount_filesystem()
     mountpoint=$tmp.mount.$fs
 
     truncate -s 30M $image
-    mkfs.$fs $image > /dev/null 2>&1
+    echo y | mkfs.$fs $image > /dev/null 2>&1
     mkdir -p $mountpoint
-    $sudo mount $image $mountpoint
+    $sudo mount -t $fs $image $mountpoint
     $sudo chown $(id -u):$(id -g) $mountpoint
 }
 
