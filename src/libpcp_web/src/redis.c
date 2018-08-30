@@ -436,7 +436,7 @@ processItem(redisReader *r)
 
     /* check if we need to read type */
     if (cur->type < 0) {
-        if ((p = readBytes(r,1)) != NULL) {
+        if ((p = readBytes(r, 1)) != NULL) {
             switch (p[0]) {
             case '-':
                 cur->type = REDIS_REPLY_ERROR;

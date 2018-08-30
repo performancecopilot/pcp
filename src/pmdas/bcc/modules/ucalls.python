@@ -119,11 +119,6 @@ class PCPBCCModule(PCPBCCBase):
                 self.log("No process to attach found, activation postponed.")
                 return
 
-            bpf_text = self.apply_pid_filter(self.bpf_text, [self.pid])
-
-            if self.debug:
-                self.log("BPF to be compiled:\n" + bpf_text.strip())
-
             # Set the language specific tracepoint
             if self.lang in ("java", "ruby"):
                 entry_method = "method__entry"
@@ -135,13 +130,19 @@ class PCPBCCModule(PCPBCCBase):
             if self.lang == "ruby":
                 extra_method = "cmethod__entry"
 
-            self.reset_cache()
             self.usdt_contexts = []
             usdt = USDT(pid=self.pid)
             usdt.enable_probe(entry_method, "trace_entry")
             if extra_method:
                 usdt.enable_probe(extra_method, "trace_entry")
             self.usdt_contexts.append(usdt)
+
+            bpf_text = self.apply_pid_filter(self.bpf_text, [self.pid])
+
+            if self.debug:
+                self.log("BPF to be compiled:\n" + bpf_text.strip())
+
+            self.reset_cache()
             self.bpf = BPF(text=bpf_text, usdt_contexts=self.usdt_contexts)
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except

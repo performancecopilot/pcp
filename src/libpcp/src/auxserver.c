@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -11,8 +11,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-
-#include <sys/stat.h> 
 
 #include "pmapi.h"
 #include "libpcp.h"
@@ -402,7 +400,7 @@ __pmServerSetupRequestPorts(void)
 	    }
 	}
     }
-    return 0;
+    return nport;
 }
 
 static const char *

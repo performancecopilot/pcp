@@ -10,10 +10,10 @@ Group:   Applications/System
 %global  github https://github.com/performancecopilot
 
 Source0: %{bintray}/download/pcp/source/pcp-%{version}.src.tar.gz
-Source1: %{github}/pcp-webapp-vector/archive/1.2.2/pcp-webapp-vector-1.2.2.tar.gz
+Source1: %{github}/pcp-webapp-vector/archive/1.3.1/pcp-webapp-vector-1.3.1.tar.gz
 Source2: %{github}/pcp-webapp-grafana/archive/1.9.1-2/pcp-webapp-grafana-1.9.1-2.tar.gz
 Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
-Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
+Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenlights-1.0.1.tar.gz
 
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %global __python2 python2
@@ -3372,6 +3372,12 @@ cd
 %endif
 
 %changelog
+* Fri Sep 14 2018 Nathan Scott <nathans@redhat.com> - 4.1.2-1
+- Work-in-progress (see https://pcp.io/roadmap)
+
+* Wed Aug 29 2018 Nathan Scott <nathans@redhat.com> - 4.1.1-3
+- Updated versions of Vector (1.3.1) and Blinkenlights (1.0.1) webapps
+
 * Fri Aug 03 2018 Dave Brolley <brolley@redhat.com> - 4.1.1-2
 - pcp.spec: Fix the _with_dstat reference in the %configure command
 
@@ -3388,6 +3394,7 @@ cd
 
 * Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-1
 - Rapid compression of PCP log data and metadata (BZ 1293471)
+- Added Perl package build dependencies.
 - Update to latest PCP sources.
 
 * Fri May 11 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.2-1

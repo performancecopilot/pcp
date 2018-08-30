@@ -100,14 +100,15 @@ class PCPBCCModule(PCPBCCBase):
                 self.log("No process to trace found, activation postponed.")
                 return
 
-            if self.debug:
-                self.log("BPF to be compiled:\n" + self.bpf_text.strip())
-
             self.usdt_contexts = []
             usdt = USDT(pid=self.pid)
             usdt.enable_probe("thread__start", "trace_jvm_thread_start")
             usdt.enable_probe("thread__stop", "trace_jvm_thread_stop")
             self.usdt_contexts.append(usdt)
+
+            if self.debug:
+                self.log("BPF to be compiled:\n" + self.bpf_text.strip())
+
             self.reset_cache()
             self.bpf = BPF(text=self.bpf_text, usdt_contexts=self.usdt_contexts)
             self.log("Compiled.")

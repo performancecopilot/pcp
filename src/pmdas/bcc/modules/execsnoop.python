@@ -166,15 +166,16 @@ class PCPBCCModule(PCPBCCBase):
     def compile(self):
         """ Compile BPF """
         try:
-            with open(path.dirname(__file__) + '/../' + bpf_src) as src:
-                bpf_text = src.read()
+            if not self.bpf_text:
+                with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                    self.bpf_text = src.read()
 
-            bpf_text = bpf_text.replace("MAXARG", str(self.max_args))
+                self.bpf_text = self.bpf_text.replace("MAXARG", str(self.max_args))
 
             if self.debug:
-                self.log("BPF to be compiled:\n" + bpf_text.strip())
+                self.log("BPF to be compiled:\n" + self.bpf_text.strip())
 
-            self.bpf = BPF(text=bpf_text)
+            self.bpf = BPF(text=self.bpf_text)
             execve_fnname = self.get_syscall_fnname("execve")
             self.bpf.attach_kprobe(event=execve_fnname, fn_name="syscall__execve")
             self.bpf.attach_kretprobe(event=execve_fnname, fn_name="do_ret_sys_execve")
