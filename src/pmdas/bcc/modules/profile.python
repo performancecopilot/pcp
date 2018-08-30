@@ -91,6 +91,7 @@ class PCPBCCModule(PCPBCCBase):
         self.stack_storage_size = 16384
         self.sample_frequency = 47
         self.sample_period = 1000000
+        self.cpu = -1
 
         for opt in self.config.options(MODULE):
             if opt == 'process':
@@ -106,6 +107,8 @@ class PCPBCCModule(PCPBCCBase):
                 self.sample_frequency = int(self.config.get(MODULE, opt))
             if opt == 'sample_period':
                 self.sample_period = int(self.config.get(MODULE, opt))
+            if opt == 'cpu':
+                self.cpu = int(self.config.get(MODULE, opt))
 
         self.lock = Lock()
         self.status = "stopped"
@@ -130,7 +133,11 @@ class PCPBCCModule(PCPBCCBase):
         """ Starts profiling """
         with self.lock:
             if self.status != "stopped":
-                self.err("Profiling must be stopped before, current status: %s" % self.status)
+                self.err("Profiling must be stopped before, current status: %s." % self.status)
+                return
+            self.update_pids(self.get_proc_info(self.proc_filter))
+            if self.proc_filter and not self.pid:
+                self.log("Nothing to profile, profiling not started.")
                 return
             self.status = "starting"
             self.data = "null"
@@ -162,12 +169,7 @@ class PCPBCCModule(PCPBCCBase):
             elif self.sample_period:
                 sample_period = self.sample_period
 
-            # Set thread filter
-            self.update_pids(self.get_proc_info(self.proc_filter))
-            if self.pid:
-                thread_filter = "pid == %s" % self.pid
-            else:
-                thread_filter = "1"
+            thread_filter = "pid == %s" % self.pid if self.pid else "1"
             bpf_text = self.bpf_text.replace("THREAD_FILTER", thread_filter)
 
             if self.debug:
@@ -176,11 +178,11 @@ class PCPBCCModule(PCPBCCBase):
             self.bpf = BPF(text=bpf_text)
             self.bpf.attach_perf_event(ev_type=PerfType.SOFTWARE, ev_config=PerfSWConfig.CPU_CLOCK,
                                        fn_name="do_perf_event", sample_period=sample_period,
-                                       sample_freq=sample_freq)
+                                       sample_freq=sample_freq, cpu=self.cpu)
 
-            self.log("Started profiling.")
             with self.lock:
                 self.status = "started"
+            self.log("Started profiling.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
             self.err(str(error))
@@ -199,15 +201,13 @@ class PCPBCCModule(PCPBCCBase):
     @staticmethod
     def enforce_str(x):
         """ Decode bytes object """
-        if isinstance(x, bytes):
-            return x.decode()
-        return x
+        return x.decode() if isinstance(x, bytes) else x
 
     def stop_profiling(self):
         """ Stops profiling and generates JSON of stacktraces """
         with self.lock:
             if self.status != "started":
-                self.err("Please start profiling first, current status: %s" % self.status)
+                self.err("Please start profiling first, current status: %s." % self.status)
                 return
             self.status = "stopping"
 
@@ -268,13 +268,12 @@ class PCPBCCModule(PCPBCCBase):
             self.log("WARNING: %d stack traces could not be displayed.%s" %
                      (missing_stacks, enomem_str))
 
-        self.bpf.cleanup()
-        self.bpf = None
-        self.log("Stopped profiling.")
+        super(PCPBCCModule, self).cleanup()
 
         with self.lock:
             self.data = json.dumps(root_node, cls=StackNodeEncoder)
             self.status = "stopped"
+        self.log("Stopped profiling.")
 
     def refresh(self):
         """ Refresh BPF data """
@@ -304,3 +303,7 @@ class PCPBCCModule(PCPBCCBase):
             return PM_ERR_BADSTORE
 
         return 0
+
+    def cleanup(self):
+        """ Clean up at exit """
+        # This module cleans up the BPF code on-the-fly when profiling request is stopped
