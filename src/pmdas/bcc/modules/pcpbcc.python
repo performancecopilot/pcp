@@ -99,11 +99,11 @@ class PCPBCCBase(object):
             self.undef_cache()
             self.bpf = None
 
-    def reset_cache(self):
+    def reset_cache(self): # pylint: disable=no-self-use
         """ Reset internal cache """
         return
 
-    def undef_cache(self):
+    def undef_cache(self): # pylint: disable=no-self-use
         """ Undefine internal cache """
         return
 
@@ -223,7 +223,7 @@ class PCPBCCBase(object):
                     cmdline = fcmd.read().decode().split("\x00")
                 with open("/proc/%s/comm" % dirname) as fcomm:
                     comm = fcomm.read().strip()
-                cmdline = cmdline if cmdline[0] else [comm, ""]
+                cmdline = cmdline if cmdline[0] else ["(" + comm + ")", ""]
                 cmdline_full = " ".join(cmdline[:-1])
                 cmdline_args = " ".join(cmdline[1:-1])
                 for filt in filters:
@@ -238,7 +238,10 @@ class PCPBCCBase(object):
     # pylint: disable=access-member-before-definition, attribute-defined-outside-init, no-member
     def update_pids(self, procs):
         """ Update PIDs to trace """
+        prev = self.pid if hasattr(self, 'pid') else self.pids
         if not self.proc_filter:
+            return 0
+        if not prev and not procs:
             return 0
         if not procs and self.proc_filter:
             if hasattr(self, 'pid'):
@@ -266,6 +269,7 @@ class PCPBCCBase(object):
 
     @staticmethod
     def apply_pid_filter(bpf_text, pids, need_pid_def=True, need_shift=False):
+        """ Apply PID filtering for BPF text """
         if pids and need_pid_def:
             pid_filter = "u32 pid = bpf_get_current_pid_tgid() >> 32; if (PID_CHECK) return 0;"
         else:
@@ -300,12 +304,12 @@ class PCPBCCBase(object):
         name = ""
         started = 0
         ok_chars = ['.', '/', '<', '>', '[', ']', '_']
-        for c in string:
-            if not started and not c.isalnum():
+        for char in string:
+            if not started and not char.isalnum():
                 continue
-            if not c.isalnum() and c not in ok_chars:
+            if not char.isalnum() and char not in ok_chars:
                 break
-            name += c
+            name += char
             started = 1
         return name.replace("/", ".").replace("[", "{").replace("]", "}")
 
