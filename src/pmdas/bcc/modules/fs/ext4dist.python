@@ -161,8 +161,9 @@ class PCPBCCModule(PCPBCCBase):
                 # BCC module is ready (we have histogram buckets),
                 # but doesn't contain the specified histogram bucket
                 return [0, 1]
-            # BCC module isn't ready yet
-            return [PM_ERR_AGAIN, 0]
+            else:
+                # BCC module isn't ready yet
+                return [PM_ERR_AGAIN, 0]
         except Exception: # pylint: disable=broad-except
             return [PM_ERR_AGAIN, 0]
 
