@@ -175,7 +175,8 @@ class PCPBCCModule(PCPBCCBase):
             (name + 'comm', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'command'),
             (name + 'laddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'local address'),
             (name + 'lport', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'local port'),
-            (name + 'daddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'destination address'),
+            (name + 'daddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'destination ' \
+                'address'),
             (name + 'dport', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'destination port'),
             (name + 'tx', None, PM_TYPE_U64, PM_SEM_INSTANT, units_bytes, 'transmitted data'),
             (name + 'rx', None, PM_TYPE_U64, PM_SEM_INSTANT, units_bytes, 'received data'),
@@ -200,12 +201,12 @@ class PCPBCCModule(PCPBCCBase):
                 # Compat with bcc < 0.6
                 self.log("Testing BCC compatilibility, possible errors below are safe to ignore.")
                 try:
-                    test_txt = self.bpf_text.replace("// NEW: ", "")
+                    test_txt = self.bpf_text.replace("// NEW: ", "").replace("FILTER_PID", "")
                     test_bpf = BPF(text=test_txt)
                     test_bpf.cleanup()
                     self.bpf_text = test_txt
                 except Exception: # pylint: disable=broad-except
-                    self.bpf_text = self.bpf_text.replace("// OLD: ", "")
+                    self.bpf_text = self.bpf_text.replace("// OLD: ", "").replace("FILTER_PID", "")
                 self.log("Tested BCC compatilibility, possible errors above are safe to ignore.")
 
                 if self.dports:
