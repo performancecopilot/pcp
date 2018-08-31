@@ -23,75 +23,10 @@ static mmv_metric2_t metrics[] = {
     },
 };
 
-int 
-check_label(const char *name, const char *value, mmv_value_type_t type, int flags) {
-    pmLabelSet *set = NULL;
-    int len, sts;
-    char buffer[244];
-    double aux = 1.0;
-    char *endnum;
-
-    /* The +5 is for the characters we add next - {"":} */
-    if (strlen(name) + strlen(value) + 5 > MMV_LABELMAX) {
-	setoserror(E2BIG);
-	return -1;
-    }
-
-    switch (type) {
-    	case MMV_NULL_TYPE:
-	    value = "null";
-	    break;
-    	case MMV_BOOLEAN_TYPE:
-	    if (!strcmp(value,"true") && !strcmp(value,"false")) {
-		setoserror(EINVAL);
-		return -1;
-	    }
-	    break;
-    	case MMV_MAP_TYPE:
-	    if (value[0] != '{' ||  value[strlen(value)-1] != '}') {
-		setoserror(EINVAL);
-		return -1;
-	    }
-            break;
-	case MMV_ARRAY_TYPE:
-	    if (value[0] != '[' ||  value[strlen(value)-1] != ']') {
-		setoserror(EINVAL);
-		return -1;
-	    }
-            break;
-    	case MMV_STRING_TYPE:
-	    if (value[0] != '\"' ||  value[strlen(value)-1] != '\"') {
-		setoserror(EINVAL);
-		return -1;
-	    }
-	    break;
- 	case MMV_NUMBER_TYPE:
-	    aux = strtod(value, &endnum);
-            if (*endnum != '\0') {
-		setoserror(EINVAL);
-		return -1;
-            }
-	    break;
-    	default:
-	    setoserror(EINVAL);
-	    return -1; // error
-    }
-
-    
-    len = pmsprintf(buffer, MMV_LABELMAX, "{\"%s\":%s}", name, value);
-    
-    if ((sts = __pmParseLabelSet(buffer, len, flags, &set)) < 0) {
-	setoserror(sts);
-	return -1;
-    }
-    pmFreeLabelSets(set, 1);
-    return len;
-}
-
 int
 main(int argc, char **argv)
 {
-    int			i, cnt, ret;
+    int			i, sts;
     void		*map;
     char		*file = (argc > 1) ? argv[1] : "bad_labels";
     mmv_registry_t	*registry = mmv_stats_registry(file, 321, 0);
@@ -107,90 +42,116 @@ main(int argc, char **argv)
 			 metrics[i].semantics, metrics[i].dimension, 0,
 			 metrics[i].shorttext, metrics[i].helptext);
    
-    
-    ret = mmv_stats_add_registry_label(registry,
+    sts = mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"string1\"", MMV_STRING_TYPE, 0);
+    if (sts < 0) perror("failed string - string1");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "string2\"", MMV_STRING_TYPE, 0);
+    if (sts < 0) perror("failed string - string2");
     
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"string3", MMV_STRING_TYPE, 0);
+    if (sts < 0) perror("failed string - string3");
     
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"stri\"n\"g4\"", MMV_STRING_TYPE, 0);
+    if (sts < 0) perror("failed string - string4");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"stri\"", MMV_STRING_TYPE, 0);
+    if (sts < 0) perror("failed string - stri");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"true\"", MMV_BOOLEAN_TYPE, 0);
+    if (sts < 0) perror("failed boolean - \"true\"");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "True", MMV_BOOLEAN_TYPE, 0);
+    if (sts < 0) perror("failed boolean - True");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "False", MMV_BOOLEAN_TYPE, 0);
+    if (sts < 0) perror("failed boolean - False");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"false\"", MMV_BOOLEAN_TYPE, 0);
+    if (sts < 0) perror("failed boolean - \"false\"");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "2.0", MMV_NUMBER_TYPE, 0);
+    if (sts < 0) perror("failed number - 2.0");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "2.2", MMV_NUMBER_TYPE, 0);
+    if (sts < 0) perror("failed number - 2.2");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "1", MMV_NUMBER_TYPE, 0);
+    if (sts < 0) perror("failed number - 1");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "-12", MMV_NUMBER_TYPE, 0);
+    if (sts < 0) perror("failed number - 12");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"12\"", MMV_NUMBER_TYPE, 0);
+    if (sts < 0) perror("failed number - \"12\"");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "12.13.13", MMV_NUMBER_TYPE, 0);
+    if (sts < 0) perror("failed number - 12.13.13");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "12.13.13", MMV_NULL_TYPE, 0);
+    if (sts < 0) perror("failed null - 12.13.13");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "null", MMV_NULL_TYPE, 0);
+    if (sts < 0) perror("failed null - null");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "[1,2,3]", MMV_ARRAY_TYPE, 0);
+    if (sts < 0) perror("failed array - [1,2,3]");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "1,2,3]", MMV_ARRAY_TYPE, 0);
+    if (sts < 0) perror("failed array - 1,2,3]");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "[1,2,3", MMV_ARRAY_TYPE, 0);
+    if (sts < 0) perror("failed array - [1,2,3");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "[1,2 3]", MMV_ARRAY_TYPE, 0);
+    if (sts < 0) perror("failed array - [1,2 3");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "[\"123\",12]", MMV_ARRAY_TYPE, 0);
+    if (sts < 0) perror("failed array - [\"123\",12]");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "{\"a\":1,\"b\":2}", MMV_MAP_TYPE, 0);
+    if (sts < 0) perror("failed map - {\"a\":1,\"b\":2}");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "\"a\":1,\"b\":2}", MMV_MAP_TYPE, 0);
+    if (sts < 0) perror("failed map - \"a\":1,\"b\":2}");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "{\"a\":1,\"b\":2", MMV_MAP_TYPE, 0);
+    if (sts < 0) perror("failed map - {\"a\":1,\"b\":2");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "{a\":1,\"b\":2}", MMV_MAP_TYPE, 0);
+    if (sts < 0) perror("failed map - {a\":1,\"b\":2}");
 
-    ret =  mmv_stats_add_registry_label(registry,
+    sts =  mmv_stats_add_registry_label(registry,
 		    "registry_label", "{a:1,\"b\":2}", MMV_MAP_TYPE, 0);
+    if (sts < 0) perror("failed map - {a:1,\"b\":2}");
 
     map = mmv_stats_start(registry);
-    
+
     if (!map) {
 	fprintf(stderr, "mmv_stats_start: %s - %s\n", file, strerror(errno));
 	return 1;
