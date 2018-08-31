@@ -25,7 +25,8 @@ from time import sleep
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
-from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING, PM_TIME_USEC, PM_SEM_INSTANT, PM_SPACE_BYTE
+from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING
+from cpmapi import PM_SEM_INSTANT, PM_SPACE_BYTE, PM_TIME_USEC
 from cpmapi import PM_ERR_AGAIN
 
 from modules.pcpbcc import PCPBCCBase
