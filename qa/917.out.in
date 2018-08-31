@@ -86,7 +86,7 @@ decl 1:
   allow [pcp_pmlogger_t] [kernel_t] : [unix_dgram_socket] { sendto };
   allow [pcp_pmlogger_t] [home_bin_t] : [dir] { search };
   allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read map };
-  allow [pcp_pmie_t] self : [capability] { kill dac_override sys_ptrace net_admin chown };
+  allow [pcp_pmie_t] self : [capability] { kill dac_override sys_ptrace net_admin chown fowner };
   allow [pcp_pmie_t] [init_t] : [unix_stream_socket] { connectto };
   allow [pcp_pmie_t] [initrc_var_run_t] : [file] { lock open read };
   allow [pcp_pmie_t] [init_t] : [system] { status };
@@ -108,7 +108,7 @@ decl 1:
   allow [pcp_pmcd_t] [modules_object_t] : [dir] { search };
   allow [pcp_pmcd_t] [modules_object_t] : [file] { getattr open read };
   allow [pcp_pmcd_t] [saslauthd_t] : [unix_stream_socket] { connectto };
-  allow [pcp_pmproxy_t] self : [capability] { net_admin };
+  allow [pcp_pmproxy_t] self : [capability] { dac_override net_admin };
   allow [pcp_pmproxy_t] [sysctl_net_t] : [file] { getattr open read };
   allow [pcp_pmproxy_t] [sysctl_net_t] : [dir] { search };
   allow [pcp_pmproxy_t] [proc_net_t] : [file] { read };

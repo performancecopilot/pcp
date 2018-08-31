@@ -303,7 +303,7 @@ allow pcp_pmlogger_t home_bin_t:dir search;
 allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read @PCP_HOSTNAME_EXEC_MAP@ };
 
 #type=AVC msg=audit(1498847682.537:15753): avc:  denied  { sys_ptrace } for  pid=30881 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=capability permissive=0
-allow pcp_pmie_t self:capability { chown dac_override kill net_admin sys_ptrace };
+allow pcp_pmie_t self:capability { chown fowner dac_override kill net_admin sys_ptrace };
 
 #type=AVC msg=audit(04/05/2017 10:24:45.084:351) : avc: denied { connectto } for pid=8941 comm=systemctl path=/run/systemd/private scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:init_t:s0 tclass=unix_stream_socket
 allow pcp_pmie_t init_t:unix_stream_socket connectto;
@@ -366,7 +366,7 @@ allow pcp_pmcd_t saslauthd_t:unix_stream_socket connectto;
 
 #============= pcp_pmproxy_t ==============
 #type=AVC msg=audit(04/05/2017 09:54:13.548:281) : avc: denied { net_admin } for pid=6669 comm=pmproxy capability=net_admin scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:system_r:pcp_pmproxy_t:s0 tclass=capability
-allow pcp_pmproxy_t self:capability net_admin;
+allow pcp_pmproxy_t self:capability { net_admin dac_override };
 
 #type=AVC msg=audit(04/05/2017 09:54:13.548:281) : avc: denied { read } for pid=6669 comm=pmproxy name=disable_ipv6 dev="proc" ino=9994 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
 #type=AVC msg=audit(04/05/2017 10:24:45.771:356) : avc: denied { open } for pid=9669 comm=pmproxy path=/proc/sys/net/ipv6/conf/all/disable_ipv6 dev="proc" ino=9994 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
