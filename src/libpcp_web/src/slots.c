@@ -298,6 +298,8 @@ redisSlotsProxy(redisSlots *slots, redisInfoCallBack info,
 		key = sdsnew(reply->element[position]->str);
 	}
 	context = redisGetAsyncContext(slots, cmd, key);
+	if (key)
+	    sdsfree(key);
 	sts = redisAsyncFormattedCommand(context,
 			callback, arg, reader->buf, reader->len);
 	if (sts != REDIS_OK)

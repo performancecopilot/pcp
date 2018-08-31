@@ -929,6 +929,11 @@ get_label(const char *name, const char *value, mmv_value_type_t type,
     char *endnum = NULL;
     int i, len, sts;
 
+    if (name == NULL || value == NULL) {
+	setoserror(EINVAL);
+	return -1;
+    }
+
     /* The +5 is for the characters we add next - {"":} */
     if (strlen(name) + strlen(value) + 5 > MMV_LABELMAX) {
 	setoserror(E2BIG);
