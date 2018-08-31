@@ -166,8 +166,8 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 	buf->base = NULL;
 	buf->len = 0;
 #endif
+	uv_close((uv_handle_t *)stream, on_client_close);
     }
-    uv_close((uv_handle_t *)stream, on_client_close);
 }
 
 static void
@@ -231,15 +231,17 @@ OpenRequestPort(struct proxy *proxy, struct server *server, stream_family family
 {
     struct stream	*stream = &server->stream;
     uv_handle_t		*handle;
-    int			sts;
+    int			sts, flags = 0;
 
     stream->family = family;
+    if (family == STREAM_TCP6)
+	flags = UV_TCP_IPV6ONLY;
 
     uv_tcp_init(proxy->events, &stream->u.tcp);
     handle = (uv_handle_t *)&stream->u.tcp;
     handle->data = (void *)proxy;
 
-    uv_tcp_bind(&stream->u.tcp, addr, 0);
+    uv_tcp_bind(&stream->u.tcp, addr, flags);
     uv_tcp_nodelay(&stream->u.tcp, 1);
     uv_tcp_keepalive(&stream->u.tcp, 1, 50);	/* TODO: config file */
 
@@ -286,9 +288,10 @@ OpenRequestLocal(struct proxy *proxy, struct server *server,
 void *
 OpenRequestPorts(const char *localpath, int maxpending)
 {
-    int			total, count, port, sts, i, n;
+    int			inaddr, total, count, port, sts, i, n;
+    int			with_ipv6 = strcmp(pmGetAPIConfig("ipv6"), "true") == 0;
     const char		*address;
-    __pmSockAddr	**addrlist;
+    __pmSockAddr	**addrlist, *addr;
     const struct sockaddr *sockaddr;
     stream_family	family;
     struct server	*server;
@@ -296,26 +299,46 @@ OpenRequestPorts(const char *localpath, int maxpending)
 
     if ((sts = total = __pmServerSetupRequestPorts()) < 0)
 	return NULL;
+
     /* allow for both IPv6 and IPv4 addresses for each port */
     if ((addrlist = calloc(total * 2, sizeof(__pmSockAddr *))) == NULL)
 	return NULL;
 
+    /* fill in sockaddr structs for subsequent listen calls */
     for (i = n = 0; i < total; i++) {
 	__pmServerGetRequestPort(i, &address, &port);
-	if ((addrlist[n] = __pmStringToSockAddr(address)) == NULL)
-	    goto fail;
-	family = __pmSockAddrGetFamily(addrlist[n]);
-	if (!family) { /* attempt both IPv4 and IPv6 */
-	    if ((addrlist[n+1] = __pmSockAddrDup(addrlist[n])) == NULL)
-		goto fail;
-	    __pmSockAddrSetFamily(addrlist[n], AF_INET);
-	    __pmSockAddrSetPort(addrlist[n++], port);
-	    __pmSockAddrSetFamily(addrlist[n], AF_INET6);
-	    __pmSockAddrSetPort(addrlist[n++], port);
-	} else {
-	    __pmSockAddrSetFamily(addrlist[n], family);
-	    __pmSockAddrSetPort(addrlist[n++], port);
+
+	if (address != NULL &&
+	    strcmp(address, "INADDR_ANY") != 0 &&
+	    strcmp(address, "INADDR_LOOPBACK") != 0) {
+	    addr = __pmStringToSockAddr(address);
+	    if (__pmSockAddrGetFamily(addr) == AF_UNSPEC)
+		__pmSockAddrFree(addr);
+	    else {
+		__pmSockAddrSetPort(addr, port);
+		addrlist[n++] = addr;
+		continue;
+	    }
 	}
+
+	/* address unspecified - create both ipv4 and ipv6 entries */
+	if (address == NULL || strcmp(address, "INADDR_ANY") == 0)
+	    inaddr = INADDR_ANY;
+	else if (strcmp(address, "INADDR_LOOPBACK") == 0)
+	    inaddr = INADDR_LOOPBACK;
+	else
+	    continue;
+
+	addrlist[n] = __pmSockAddrAlloc();
+	__pmSockAddrInit(addrlist[n], AF_INET, inaddr, port);
+	n++;
+
+	if (!with_ipv6)
+	     continue;
+
+	addrlist[n] = __pmSockAddrAlloc();
+	__pmSockAddrInit(addrlist[n], AF_INET6, inaddr, port);
+	n++;
     }
     total = n;
 
