@@ -44,7 +44,10 @@ Updating the PMCD control file, and notifying PMCD ...
 Check bcc metrics have appeared ... X metrics and X values
 
 === generate ucall activity ===
-=== report metric values ===
+done
+=== report metric values for ucall count ===
+OK
+=== report metric values for ucall cml lat ===
 OK
 
 === remove bcc agent ===
