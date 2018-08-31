@@ -15,7 +15,7 @@
 #
 """ PCP BCC PMDA profile module """
 
-# pylint: disable=invalid-name, line-too-long, too-many-branches, too-many-instance-attributes
+# pylint: disable=invalid-name, too-many-branches, too-many-instance-attributes
 
 from threading import Thread, Lock
 from os import path

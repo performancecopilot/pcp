@@ -30,14 +30,20 @@ prefix = bcc.
 module = ucalls
 cluster = 16
 process = .*/pmdabcc.python
+latency = True
 EOF
 _pmdabcc_wait_for_metric
 
 echo "=== generate ucall activity ==="
 for i in `seq 1 10`; do pminfo -f bcc > /dev/null 2>&1 ; done
+echo done
 
-echo "=== report metric values ==="
+echo "=== report metric values for ucall count ==="
 pminfo -dfmtT bcc.proc.ucall.count 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+echo "=== report metric values for ucall cml lat ==="
+pminfo -dfmtT bcc.proc.ucall.latency.cml 2>&1 | grep refresh | tee -a $here/$seq.full \
 | _value_filter_nonzero
 
 _pmdabcc_remove

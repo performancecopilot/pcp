@@ -166,6 +166,7 @@ class PCPBCCModule(PCPBCCBase):
         """ IPv6 event handler """
         self.handle_ip_event(data, 6)
 
+    # pylint: disable=bad-continuation
     def metrics(self):
         """ Get metric definitions """
         name = BASENS
@@ -175,12 +176,12 @@ class PCPBCCModule(PCPBCCBase):
             (name + 'comm', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'command'),
             (name + 'laddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'local address'),
             (name + 'lport', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'local port'),
-            (name + 'daddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'destination ' \
-                'address'),
+            (name + 'daddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'destination '
+                                                                               'address'),
             (name + 'dport', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'destination port'),
             (name + 'tx', None, PM_TYPE_U64, PM_SEM_INSTANT, units_bytes, 'transmitted data'),
             (name + 'rx', None, PM_TYPE_U64, PM_SEM_INSTANT, units_bytes, 'received data'),
-            (name + 'duration', None, PM_TYPE_U32, PM_SEM_INSTANT, units_usecs, 'duration of ' \
+            (name + 'duration', None, PM_TYPE_U32, PM_SEM_INSTANT, units_usecs, 'duration of '
                 'the TCP session (from TCP_ESTABLISHED/TCP_SYN_* until TCP_CLOSE)'),
         )
         return True, self.items

@@ -15,7 +15,7 @@
 #
 """ PCP BCC PMDA ext4dist module """
 
-# pylint: disable=invalid-name, line-too-long, too-many-instance-attributes
+# pylint: disable=invalid-name, too-many-instance-attributes
 
 from os import path
 
@@ -78,12 +78,14 @@ class PCPBCCModule(PCPBCCBase):
 
         self.log("Initialized.")
 
+    # pylint: disable=bad-continuation
     def metrics(self):
         """ Get metric definitions """
         for item in self.item_identifiers:
             self.items.append(
                 # Name - reserved - type - semantics - units - help
-                (BASENS + item, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'ext4 %s latency distribution' % item),
+                (BASENS + item, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'ext4'
+                    '%s latency distribution' % item),
             )
         return True, self.items
 
