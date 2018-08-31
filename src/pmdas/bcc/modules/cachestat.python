@@ -100,7 +100,8 @@ class PCPBCCModule(PCPBCCBase):
         counts = self.bpf["counts"]
 
         for k, v in counts.items():
-            event = self.bpf.ksym(k.ip).decode("ASCII")
+            event = self.bpf.ksym(k.ip)
+            event = event if isinstance(event, str) else event.decode("ASCII")
             val = v.value
             if event == "mark_page_accessed":
                 mpa = val
