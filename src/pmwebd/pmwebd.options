@@ -15,6 +15,9 @@ OPTIONS="$OPTIONS -R $PCP_SHARE_DIR/webapps -A $PCP_LOG_DIR -G -X"
 # Use _-canonicalized hostnames as the first component of graphite metrics.
 OPTIONS="$OPTIONS -J"
 
+# Retain a cache of open archive contexts
+# OPTIONS="$OPTIONS -r 10"
+
 # Assume identity of some user other than "pcp"
 # OPTIONS="$OPTIONS -U nobody"
 

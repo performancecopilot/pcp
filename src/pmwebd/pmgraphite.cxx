@@ -29,6 +29,7 @@
 #include <set>
 #include <stack>
 #include <map>
+#include <list>
 
 using namespace std;
 
@@ -349,6 +350,157 @@ typedef multimap<string,archivecache_entry*> ac_by_ap_t;
 ac_by_ap_t archivecache_by_archivepart;
 
 
+// Data to keep a list of recently opened pmapi archive contexts.
+struct archive_context_t { string filename; int context; };
+static list<archive_context_t> live_archive_contexts; // currently open
+static list<archive_context_t> retained_archive_contexts; // recently used
+unsigned max_retained_archive_contexts = 1;
+#ifdef HAVE_PTHREAD_H
+static pthread_mutex_t archive_contexts_lock = PTHREAD_MUTEX_INITIALIZER;
+// lock for both above lists
+#endif
+
+
+// Act as if pmNewContext (PM_CONTEXT_ARCHIVE, ...), but reusing
+// any retained, free context.  Open a new one if needed.  Return
+// PMAPI rc.
+//
+// NB: this function might be called concurrently from multiple
+// threads, so it protects itself with a mutex.  NB: don't hold the
+// mutex during actual PMAPI opening operations, since those can take
+// a long time!
+int pmgNewArchiveContext(const string& filename)
+{
+    int context = -1;
+#ifdef HAVE_PTHREAD_H
+    pthread_mutex_lock (& archive_contexts_lock);
+#endif
+    // NB: linear search.  Don't let this get hundreds of entries long.
+    for (list<archive_context_t>::iterator it = retained_archive_contexts.begin();
+         it != retained_archive_contexts.end();
+         it++) {
+        archive_context_t& n = *it;
+        if (n.filename == filename) {
+            context = n.context;
+
+            if (verbosity > 2)
+                timestamp (clog) << "Archive context cache: reused ctx#" << n.context
+                                 << " file " << n.filename
+                                 << endl;
+            
+            // move over to live list
+            live_archive_contexts.push_back(n);
+            retained_archive_contexts.erase(it);
+
+            break;
+        }
+    }
+#ifdef HAVE_PTHREAD_H
+    pthread_mutex_unlock (& archive_contexts_lock);
+#endif
+    
+    if (context >= 0) {
+        pmUseContext (context); // make sure it's active for this thread
+        return context;
+    }
+
+    // unknown / unretained -- open it
+    context = pmNewContext(PM_CONTEXT_ARCHIVE, filename.c_str());
+    if (context >= 0) {
+        // Success - add it to the live list
+        archive_context_t n;
+        n.filename = filename;
+        n.context = context;
+
+        if (verbosity > 2)
+            timestamp (clog) << "Archive context cache: created ctx#" << n.context
+                             << " file " << n.filename
+                             << endl;
+
+#ifdef HAVE_PTHREAD_H
+        pthread_mutex_lock (& archive_contexts_lock);
+#endif
+        live_archive_contexts.push_back(n);
+#ifdef HAVE_PTHREAD_H
+        pthread_mutex_unlock (& archive_contexts_lock);
+#endif
+    }
+
+    return context; // whether success or failure
+}
+
+
+
+// Look through the list of retained contexts and clean 'er up
+void
+pmgRATGarbageCollect(size_t num)
+{
+#ifdef HAVE_PTHREAD_H
+    pthread_mutex_lock (& archive_contexts_lock);
+#endif
+
+    while (retained_archive_contexts.size() > num) {
+        archive_context_t& n = retained_archive_contexts.back();
+        pmDestroyContext (n.context);
+        if (verbosity > 2)
+            timestamp (clog) << "Archive context cache: released ctx#" << n.context
+                             << " file " << n.filename
+                             << endl;
+        retained_archive_contexts.pop_back();
+    }
+#ifdef HAVE_PTHREAD_H
+    pthread_mutex_unlock (& archive_contexts_lock);
+#endif
+}
+
+
+
+
+// Designate the given pmapi context# for eventual destruction.
+// If it was in the retained list, just mark it non-busy, for
+// subsequent garbage collection.
+
+void
+pmgDestroyArchiveContext(int ctx)
+{
+#ifdef HAVE_PTHREAD_H
+    pthread_mutex_lock (& archive_contexts_lock);
+#endif
+    // NB: linear search.  Don't let this get hundreds of entries long.
+    for (list<archive_context_t>::iterator it = live_archive_contexts.begin();
+         it != live_archive_contexts.end();
+         it++) {
+        archive_context_t& n = *it;
+        if (n.context == ctx) {
+            ctx = -1;
+
+            if (verbosity > 2)
+                timestamp (clog) << "Archive context cache: retained ctx#" << n.context
+                                 << " file " << n.filename
+                                 << endl;
+
+            // move over to retained list
+            retained_archive_contexts.push_front(n); // LRU: front
+            live_archive_contexts.erase(it);
+            break;
+        }
+    }
+#ifdef HAVE_PTHREAD_H
+    pthread_mutex_unlock (& archive_contexts_lock);
+#endif
+
+    // If ctx >= 0, then this must have been a context gained some other way.
+    // but that mustn't happen.
+    assert (ctx < 0);
+
+    // nuke old contexts, if any
+    pmgRATGarbageCollect(max_retained_archive_contexts);
+}
+
+
+
+
+
 // Compute an "archivepart" for the given archive file name (.meta or
 // dir/), already opened with given pcp archive context.  This can be
 // an encoded version of the file name, or the pcp hostname found
@@ -430,7 +582,7 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
         e = new archivecache_entry;
 
         e->filename = filename;
-        ctx = pmNewContext (PM_CONTEXT_ARCHIVE, filename.c_str ());
+        ctx = pmgNewArchiveContext(filename);
         if (ctx < 0) {
             e->archive_begin.tv_sec = 0;
             e->archivepart = "";
@@ -519,7 +671,7 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
 
         // open a context if not already open from the new-archive case above
         if (ctx < 0) {
-            ctx = pmNewContext (PM_CONTEXT_ARCHIVE, filename.c_str ());
+            ctx = pmgNewArchiveContext(filename);
             if (ctx < 0) {
                 // Suspected corrupt file -- give it a lastvol_mtime that is old enough
                 // that we won't frequently retry opening it.
@@ -602,7 +754,7 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
     if (need_pmapi_archiveend)  {
 	// open a context if not already open from the new-archive or metrics case above
 	if (ctx < 0) {
-	    ctx = pmNewContext (PM_CONTEXT_ARCHIVE, filename.c_str ());
+	    ctx = pmgNewArchiveContext(filename);
 	    if (ctx < 0) {
 		connstamp (cerr, connection) << "cannot open " << filename << ": "
 					     << pmErrStr_r (ctx, pmmsg, sizeof (pmmsg))
@@ -621,7 +773,7 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
     }
 
     if (ctx >= 0)
-        pmDestroyContext (ctx);
+        pmgDestroyArchiveContext (ctx);
 
     if (verbosity > 2)
         connstamp (clog, connection) << "searched " << e->filename
@@ -647,18 +799,21 @@ ac_refresh(struct MHD_Connection * connection, const string& filename)
 void
 ac_refresh_all(struct MHD_Connection* connection /* may be null */)
 {
-    
     // for progress messages
     unsigned num_archives = 0;
     unsigned num_directories = 0;
     time_t last_report = time(NULL);
     time_t first_report = last_report;
+
+    // Empty out the archive context cache if shutting down
+    if (exit_p)
+        pmgRATGarbageCollect(0);
     
     const time_t min_refresh_interval = 60; 
     static time_t last_refresh = 0;
     // Don't scan more than once per this long; so we may miss the
     // creation of new archives for that long.
-    if (last_refresh > 0 && (last_refresh + min_refresh_interval) >= last_report)
+    if (!exit_p && last_refresh > 0 && (last_refresh + min_refresh_interval) >= last_report)
         return;
     last_refresh = last_report;
 
@@ -797,7 +952,6 @@ ac_refresh_all(struct MHD_Connection* connection /* may be null */)
                          << archivecache_by_archivepart.size() << " names" << endl;
         last_dumpstats = time(NULL);
     }
-    
 }
 
 
@@ -1381,7 +1535,7 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
     archive = spec->filename;
 
     // Open the bad boy.
-    pmc = pmNewContext (PM_CONTEXT_ARCHIVE, archive.c_str ());
+    pmc = pmgNewArchiveContext(archive);
     if (pmc < 0) {
         // error already noted XXX where?
         goto out0;
@@ -1628,7 +1782,7 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
     }
 
  out:
-    pmDestroyContext (pmc);
+    pmgDestroyArchiveContext (pmc);
  out0:
     // vector output already returned via jobspec pointer
 

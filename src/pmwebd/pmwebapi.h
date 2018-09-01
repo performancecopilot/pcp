@@ -72,6 +72,7 @@ extern unsigned multithread;			/* set by -M option */
 extern unsigned graphite_timestep;              /* set by -i option */
 extern unsigned graphite_hostcache;             /* set by -J option */
 extern unsigned graphite_encode;                /* set by -X option */
+extern unsigned max_retained_archive_contexts;  /* set by -r option */
 
 struct http_params: public std::multimap <std::string, std::string> {
     std::string operator [] (const std::string &) const;

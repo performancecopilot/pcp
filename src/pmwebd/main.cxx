@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2017 Red Hat.
+ * Copyright (c) 2011-2018 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -487,6 +487,7 @@ longopts[] = {
     {"graphite", 0, 'G', 0, "enable graphite 0.9 API/backend emulation"},
     {"graphite-noencode", 0, 'X', 0, "don't encode special characters that are now allowed by graphite"},
     {"graphite-timestamp", 1, 'i', "SEC", "minimum graphite timestep (s) [default 60]"},
+    {"graphite-retain", 1, 'r', "NUM", "number of graphite archives to keep open [default 1]"},
     {"graphite-archivedir", 0, 'I', 0, "prefer archive directories [default OFF]"},
     {"graphite-host", 0, 'J', 0, "prefer hostname as metric component [default OFF]"},
     PMAPI_OPTIONS_HEADER ("Context options"),
@@ -543,7 +544,7 @@ main (int argc, char *argv[])
     pmGetUsername (&username_str);
     __pmServerSetFeature (PM_SERVER_FEATURE_DISCOVERY);
 
-    opts.short_options = "A:a:c:CD:h:Ll:NM:Pp:R:GJi:It:U:vx:d:SX46?";
+    opts.short_options = "A:a:c:CD:h:Ll:NM:Pp:R:r:GJi:It:U:vx:d:SX46?";
     opts.long_options = longopts;
     opts.override = option_overrides;
 
@@ -571,6 +572,10 @@ main (int argc, char *argv[])
 
         case 'R':
             resourcedir = opts.optarg;
+            break;
+
+        case 'r':
+            max_retained_archive_contexts = (unsigned) atoi(opts.optarg);
             break;
 
         case 'G':

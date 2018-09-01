@@ -35,6 +35,7 @@
 [\f3\-J\f1
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-A\f1 \f2archivesdir\f1]
+[\f3\-r\f1 \f2number\f1]
 [\f3\-S\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
@@ -128,6 +129,14 @@ The default is 60.  Smaller values give higher precision (but not
 necessarily accuracy) data, but may cost extra processing time at
 .B pmwebd
 or the web browser; and vice versa.
+.TP
+\f3\-r\f1 \f2number\f1
+When serving graphite time series queries, pmwebd must frequently
+reopen archive files.  For some times of files (e.g., huge .meta),
+this can reopening can take many seconds.  pmwebd can optionally
+retain \f2number\f1 open archives for quick reopening.  This trades
+memory for time and I/O, so no single setting is ideal.  The default
+is 1.
 .TP
 \f3\-J\f1
 When constructing graphite metric names, use the stored \f2hostname\f1
