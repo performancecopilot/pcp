@@ -13,7 +13,7 @@
 #
 """ PCP BCC PMDA USDT JVM allocation profile module """
 
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, too-many-instance-attributes
 
 from platform import architecture
 from ctypes import c_int
@@ -50,7 +50,7 @@ class PCPBCCModule(PCPBCCBase):
 
         self.pid = None
         self.proc_filter = None
-        self.proc_refresh = 60
+        self.proc_refresh = proc_refresh
 
         self.cache = None
         self.freq = 0

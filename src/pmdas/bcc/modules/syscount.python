@@ -15,7 +15,7 @@
 #
 """ PCP BCC PMDA syscount module """
 
-# pylint: disable=invalid-name, line-too-long
+# pylint: disable=invalid-name, too-many-instance-attributes
 
 import errno
 import subprocess

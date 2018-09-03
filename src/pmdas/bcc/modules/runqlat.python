@@ -15,7 +15,7 @@
 #
 """ PCP BCC PMDA runqlat module """
 
-# pylint: disable=invalid-name, line-too-long
+# pylint: disable=invalid-name
 
 from os import path
 
@@ -66,7 +66,8 @@ class PCPBCCModule(PCPBCCBase):
         name = METRIC
         self.items.append(
             # Name - reserved - type - semantics - units - help
-            (name, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'run queue (scheduler) latency distribution'),
+            (name, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'run queue (scheduler)'
+                                                                   'latency distribution'),
         )
         return True, self.items
 

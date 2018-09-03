@@ -28,10 +28,12 @@ import os
 from collections import OrderedDict
 
 from pcp.pmapi import pmContext as PCP
-from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
+from pcp.pmda import PMDA, pmdaInstid, pmdaIndom, pmdaMetric
 from cpmapi import PM_INDOM_NULL, PM_ERR_VALUE, PM_ERR_BADSTORE, PM_LABEL_CLUSTER, PM_LABEL_INDOM
+import cpmda
 
 # Module references
+CACHED = 0
 CONFIG = 1
 MODULE = 2
 CLUSTER = 3
@@ -153,9 +155,14 @@ class BCCPMDA(PMDA):
                         sys.exit(1)
                 if opt == 'prefix':
                     self.modules[module][PREFIX] = config.get(module, opt)
+                if opt == 'pmdacache':
+                    self.modules[module][CACHED] = config.getboolean(module, opt)
         else:
             self.err("No [%s] section found, aborting." % module)
             sys.exit(1)
+
+        if CACHED not in self.modules[module]:
+            self.modules[module][CACHED] = True
 
         if PREFIX not in self.modules[module]:
             self.modules[module][PREFIX] = self.prefix
@@ -220,9 +227,10 @@ class BCCPMDA(PMDA):
             cluster = self.modules[module][CLUSTER]
             indom, metrics = self.modules[module][METRICS]()
             self.modules[module][INDOM] = PM_INDOM_NULL
+            caching = {} if self.modules[module][CACHED] else []
             if indom:
                 self.modules[module][INDOM] = self.indom(cluster)
-                self.modules[module][INSTS] = pmdaIndom(self.modules[module][INDOM], {})
+                self.modules[module][INSTS] = pmdaIndom(self.modules[module][INDOM], caching)
                 self.add_indom(self.modules[module][INSTS])
             for item, _ in enumerate(metrics):
                 self.add_metric(self.modules[module][PREFIX] + metrics[item][0],
@@ -268,8 +276,17 @@ class BCCPMDA(PMDA):
             self.err(str(error))
             self.err(traceback.format_exc())
         if self.modules[module][INDOM] != PM_INDOM_NULL:
+            if not self.modules[module][CACHED]:
+                insts_array = []
+                if insts:
+                    for name, i in insts.items():
+                        insts_array.append(pmdaInstid(i, name))
+                insts = insts_array
             self.modules[module][INSTS].set_instances(self.modules[module][INDOM], insts)
             self.replace_indom(self.modules[module][INDOM], insts)
+            if not self.modules[module][CACHED]:
+                cpmda.set_need_refresh()
+                self.pmns_refresh()
 
     def bcc_fetch_callback(self, cluster, item, inst):
         """ Fetch callback """
