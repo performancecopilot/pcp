@@ -1,0 +1,58 @@
+#!/bin/sh
+# PCP QA Test No. 1178
+# Exercise the BCC PMDA tcpperpid module - install, remove and values.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bcc
+
+_pmdabcc_check
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+
+target_ip=1.1.1.1
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+_install_filter()
+{
+    sed \
+    -e "s/Using BPF source file .\+/Using BPF source file X/g" \
+    #end
+}
+
+_prepare_pmda bcc
+trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+cat <<EOF | _pmdabcc_install | _install_filter
+[pmda]
+modules = tcpperpid
+prefix = bcc.
+[tcpperpid]
+module = tcpperpid
+cluster = 11
+dport = 80
+EOF
+
+_pmdabcc_wait_for_metric
+
+# Generate system activity for the BCC tcpperpid module
+curl -s http://${target_ip} &
+curlpid=$!
+
+pmsleep 2
+
+echo "=== report metric values ==="
+pminfo -dfmtT bcc.proc.io.net.total.rx 2>&1 | grep $curl_pid\" | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+_pmdabcc_remove
+
+status=0
+exit
