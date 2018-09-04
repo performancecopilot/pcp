@@ -1,7 +1,17 @@
 // Copyright 2017, Sasha Goldshtein.
 // Licensed under the Apache License, Version 2.0 (the "License")
 
+DEFINE_DETAILS
+
+struct info_t {
+    u32 pid;
+    u32 id;
+};
+
 BPF_ARRAY(stats, u64, NR_SYSCALLS);
+#ifdef DETAILS
+  BPF_HASH(pidstats, struct info_t, u64, MAX_PIDS * NR_SYSCALLS);
+#endif
 
 TRACEPOINT_PROBE(raw_syscalls, sys_exit) {
     u32 pid = bpf_get_current_pid_tgid() >> 32;
@@ -11,8 +21,15 @@ TRACEPOINT_PROBE(raw_syscalls, sys_exit) {
     //FILTER_ERRNO
 
     u32 id = args->id;
+    if (id > NR_SYSCALLS) return 0;
     u64 *val = stats.lookup(&id);
     if (val) (*val)++;
+#ifdef DETAILS
+    u64 zero = 0;
+    struct info_t key = {.pid = pid, .id = id};
+    val = pidstats.lookup_or_init(&key, &zero);
+    ++(*val);
+#endif
 
     return 0;
 }

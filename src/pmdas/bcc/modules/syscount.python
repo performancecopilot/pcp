@@ -57,6 +57,9 @@ class PCPBCCModule(PCPBCCBase):
 
         self.errno = 0
         self.failed = False
+        self.details = False
+
+        self.max_pids = 128
 
         def parse_syscall(line):
             """ Helper to parse ausyscall(8) output """
@@ -81,12 +84,14 @@ class PCPBCCModule(PCPBCCBase):
                 self.errno = read_errno(self.config.get(MODULE, opt))
             if opt == 'failed':
                 self.failed = self.config.getboolean(MODULE, opt)
+            if opt == 'details':
+                self.details = self.config.getboolean(MODULE, opt)
             if opt == 'process':
                 self.proc_filter = self.config.get(MODULE, opt)
                 self.update_pids(self.get_proc_info(self.proc_filter))
 
         self.cache = None
-        self.insts = {self.syscalls[i] : c_int(1) for i in range(len(self.syscalls))}
+        self.insts = None
 
         self.log("Initialized.")
 
@@ -99,13 +104,49 @@ class PCPBCCModule(PCPBCCBase):
         )
         return True, self.items
 
+    def init_insts(self):
+        """ Initialize insts """
+        self.insts = {self.syscalls[i] : c_int(1) for i in range(len(self.syscalls))}
+
     def reset_cache(self):
         """ Reset internal cache """
         self.cache = {}
+        self.init_insts()
 
     def undef_cache(self):
         """ Undefine internal cache """
         self.cache = None
+        self.insts = None
+
+    def update_pids(self, procs):
+        """ Update PIDs to trace """
+        prev = self.pids
+        if not self.proc_filter:
+            return 0
+        if not prev and not procs:
+            return 0
+        if not procs and self.proc_filter:
+            self.pids = []
+            return -1
+        trace_pids = []
+        for pid in self.pids:
+            if self.pid_alive(pid):
+                trace_pids.append(pid)
+        if len(trace_pids) == self.max_pids:
+            return 0
+        found_procs = [p for p in procs if p[0] not in trace_pids]
+        if found_procs:
+            for proc in found_procs:
+                if len(trace_pids) < self.max_pids:
+                    trace_pids.append(proc[0])
+            self.pids = trace_pids
+            for proc in procs:
+                if proc[0] in self.pids:
+                    info = proc[1] + " " + proc[2] if proc[2] else proc[1]
+                    self.log("Tracing PID %s: %s." % (str(proc[0]), info))
+            return 1
+        return 0
+
 
     def compile(self):
         """ Compile BPF """
@@ -124,12 +165,16 @@ class PCPBCCModule(PCPBCCBase):
                     failed_filter = "if (args->ret >= 0) return 0;"
                     self.bpf_text = self.bpf_text.replace("//FILTER_FAILED", failed_filter)
                 self.bpf_text = self.bpf_text.replace("NR_SYSCALLS", str(len(self.syscalls)))
+                self.bpf_text = self.bpf_text.replace("MAX_PIDS", str(self.max_pids))
 
             if not self.pids and self.proc_filter and self.proc_refresh:
                 self.log("No process to attach found, activation postponed.")
                 return
 
-            bpf_text = self.apply_pid_filter(self.bpf_text, self.pids, False)
+            details = "#define DETAILS" if self.details and self.pids else ""
+            bpf_text = self.bpf_text.replace("DEFINE_DETAILS", details)
+
+            bpf_text = self.apply_pid_filter(bpf_text, self.pids, False)
 
             if self.debug:
                 self.log("BPF to be compiled:\n" + bpf_text.strip())
@@ -149,12 +194,29 @@ class PCPBCCModule(PCPBCCBase):
         if self.bpf is None:
             return None
 
+        self.init_insts()
+
         stats = self.bpf["stats"]
         for i in stats:
             val = stats[i].value
             if val:
                 key = self.syscalls[i.value]
                 self.cache[key] = val
+
+        check_pids = set()
+        stale_pids = set()
+        if self.details and self.pids:
+            pidstats = self.bpf["pidstats"]
+            for k, v in pidstats.items():
+                if k.pid not in check_pids:
+                    if k.pid in stale_pids or not self.pid_alive(k.pid):
+                        stale_pids.add(k.pid)
+                        continue
+                    else:
+                        check_pids.add(k.pid)
+                key = str(k.pid) + "::" + self.syscalls[k.id]
+                self.cache[key] = v.value
+                self.insts[key] = c_int(1)
 
         return self.insts
 
