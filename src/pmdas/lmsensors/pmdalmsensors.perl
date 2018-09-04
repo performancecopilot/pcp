@@ -18,101 +18,76 @@
 use strict;
 use warnings;
 use PCP::PMDA;
-use File::Slurp;
 
 use vars qw( $pmda );
 
 my $basename="lmsensors";
-my %sensorvalues;	# sensorpath   -> sensorvalue (temp/fan)
-my %sensorname;		# sensorpath   -> sensorname
+my %sensorvalues;	# sensorname -> sensorvalue (temp/fan)
+my %sensorname;		# sensornumber -> sensorname
 my $debug=0;
 
-sub lmsensors_detect
+sub lmsensors_get
 {
-	my $basedir = '/sys/class/hwmon';
-	my $monfile;
-	my $fh;
+	my @result=qx( /usr/bin/sensors -u );
 
-	my $devname0;		   # i.e. coretemp
-	my $devname1;		   # i.e. temp1 or fan1
-	my $sensorvalue;		# i.e. 42, actual sensor value
+	my $devname0;	   # i.e. coretemp-isa-0000
+	my $devname1;	   # i.e. Adapter: ISA adapter
+	my $devname2;	   # i.e. Package id 0
+	my $devname3;	   # i.e. temp1_input or fan1_input
+	my $sensorvalue;	# i.e. 42, actual sensor value
 
-	opendir(DIR, $basedir) or die $!;
-	while (my $hwmon = readdir(DIR)) {
-		next if ($hwmon=~m/^\./);
-		# We only want dirs
-		next unless (-d "$basedir/$hwmon");
+	foreach (@result) {
+		next if m/_crit/;   # we are not making these available
+		next if m/_max/;	# we are not making these available
+		next if m/^$/;
+		chomp();	
+		if ( $debug == 1 ) { 
+			print "full line $_\n";
+		};
 
-		opendir(DIR2, "$basedir/$hwmon") or die $!;
-
-		if ( -f "$basedir/$hwmon/name" ) {
-			open($fh,'<',"$basedir/$hwmon/name") or die "Could not open $basedir/$hwmon/name";
-			$devname0=<$fh>;
-			chomp($devname0);
-			close($fh);
+		if ( m/^([a-z0-9-]*)/ && !m/:/ ) {
+			$devname0=$1;
+			next;
 		}
-		else {
-			die "file $basedir/$hwmon/name not found.";
-		}
-
-		while ($monfile = readdir(DIR2)) {
-			next if ($monfile=~m/^\./);
-			next unless ($monfile=~m/(.*)_input$/);
+		if ( m/^Adapter: (.*)/ ) {
 			$devname1=$1;
-
-			open($fh,'<',"$basedir/$hwmon/$monfile") or die "Could not open $basedir/$hwmon/$monfile";
-			$sensorvalue=<$fh>;
-			if ( $devname1 =~ m/temp/ ) {   # is this a fan, or temperature which needs fixing?
-				$sensorvalue/=1000;
-			}
-			close($fh);
-				 
-			# print "debug, should register: ${devname0}.${devname1}\n";
-			$sensorvalues{"$basedir/$hwmon/$monfile"}=$sensorvalue;
-			$sensorname{"$basedir/$hwmon/$monfile"}="$devname0.$devname1";
+			$devname1=~s/\s/-/g;
+			next;
 		}
-		closedir(DIR2);
-	}
-	closedir(DIR);
-}
-
-sub lmsensors_read
-{
-	my $fh;
-	my $sensorvalue;		# i.e. 42, actual sensor value
-
-	for my $monfile (sort keys %sensorvalues) {
-		# print "debug monfile: $monfile\n";
-		$sensorvalue = read_file($monfile);
-		if ( $monfile =~ m/temp/ ) {   # is this a fan, or temperature which needs fixing?
-			$sensorvalue/=1000;
+		if ( m/^([a-zA-Z0-9-\s]*):/ ) {
+			$devname2=$1;
+			$devname2=~s/\s/-/g;
+			next;
 		}
-		$sensorvalues{"$monfile"}=$sensorvalue;
+
+		# now only lines with sensor name and value should be left
+		m/([0-9a-zA-Z_]+)_input:\s([0-9]*)/;
+		$devname3=$1;
+		$sensorvalue=$2;
+
+		$sensorvalues{"$devname0.$devname1.$devname2.$devname3"}=$sensorvalue;
 	}
 }
 
 sub lmsensors_register
 {
 	my $i=0;
-	my $sens;
 	my @devname;
-
-	for my $monfile (sort keys %sensorvalues) {
-		$sens=$sensorname{$monfile};
+	for my $sens (sort keys %sensorvalues) {
 		@devname=split('\.',$sens);
 
 		if ( $debug == 0 ) {
-			$pmda->add_metric(pmda_pmid(0,$i),			# metric ID (PMID)
+			$pmda->add_metric(pmda_pmid(0,$i),				# metric ID (PMID)
 				PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,	# type, instances,
-			   	pmda_units(0, 0, 0, 0, 0, 0),			# semantics, units
-			   	"$basename.$devname[0].$devname[1]",	# metric name
-			   	"sensor values from 'sensors -u'",		# short help
-			   	"sensor values from $sens");			# long help
+			   	pmda_units(0, 0, 0, 0, 0, 0),				# semantics, units
+			   	"$basename.$devname[0].$devname[3]",		# metric name
+			 	"sensor values from 'sensors -u'",			# short help
+				"sensor values from $sens");				# long help
 		}
 		else {
-			print "registering metric: 0,$i $devname[0].$devname[1] $sens \n";
+			print "registering metric: 0,$i $devname[0].$devname[3] $sens \n";
 		};
-		$sensorname{"$i"}=$monfile;
+		$sensorname{"$i"}=$sens;
 		$i++;
 	}
 }
@@ -123,7 +98,7 @@ sub lmsensors_fetch_callback	# must return array of value,status
 
 	return (PM_ERR_INST, 0) unless ( $inst == PM_IN_NULL );
 
-	&lmsensors_read;
+	&lmsensors_get;
 
 	if ($cluster == 0) {
 		return ($sensorvalues{$sensorname{$item}}, 1);
@@ -137,8 +112,9 @@ if (( $ARGV[0] ) && ( $ARGV[0] eq 'debug' )) {
 	$debug=1;
 }
 
-&lmsensors_detect;
-&lmsensors_read;
+qx( /usr/bin/sensors -u ) ||
+	die "Was not able to execute '/usr/bin/sensors -u', is lmsensors installed?\n";
+&lmsensors_get;
 
 $pmda = PCP::PMDA->new('lmsensors', 74);
 $pmda->connect_pmcd;
