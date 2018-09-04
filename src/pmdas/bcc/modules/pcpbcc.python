@@ -277,9 +277,6 @@ class PCPBCCBase(object):
         # Try to cover all known variants
         if "if (FILTER_PID)" in bpf_text:
             bpf_text = bpf_text.replace("FILTER_PID", "PID_CHECK")
-        if "pid_tgid >> 32 != FILTER_PID" in bpf_text:
-            bpf_text = bpf_text.replace("pid_tgid >> 32 != FILTER_PID", "PID_CHECK")
-            need_shift = True
         bpf_text = bpf_text.replace("//FILTER_PID", pid_filter)
         bpf_text = bpf_text.replace("FILTER_PID", pid_filter)
         bpf_text = bpf_text.replace("PID_FILTER", pid_filter)
