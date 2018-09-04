@@ -106,7 +106,7 @@ class PCPBCCModule(PCPBCCBase):
         name = BASENS
         self.items = (
             # Name - reserved - type - semantics - units - help
-            (name + 'count' , None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'syscall count'),
+            (name + 'count', None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'syscall count'),
             (name + 'latency.avg', None, PM_TYPE_U64, PM_SEM_INSTANT, units_nsecs, 'syscall avg'
                                                                                    'latency'),
             (name + 'latency.cml', None, PM_TYPE_U64, PM_SEM_COUNTER, units_nsecs, 'syscall cml'
