@@ -25,8 +25,8 @@ from os import path
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
-from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
-from cpmapi import PM_ERR_AGAIN
+from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_SEM_INSTANT, PM_COUNT_ONE, PM_TIME_NSEC
+from cpmapi import PM_ERR_AGAIN, PM_ERR_PMID
 
 from modules.pcpbcc import PCPBCCBase
 
@@ -39,8 +39,9 @@ bpf_src = "modules/syscount.bpf"
 # PCP BCC PMDA constants
 #
 MODULE = 'syscount'
-METRIC = 'proc.syscall.count'
+BASENS = 'proc.syscall.'
 units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
+units_nsecs = pmUnits(0, 1, 0, 0, PM_TIME_NSEC, 0)
 
 #
 # PCP BCC Module
@@ -58,6 +59,7 @@ class PCPBCCModule(PCPBCCBase):
         self.errno = 0
         self.failed = False
         self.details = False
+        self.latency = False
 
         self.max_pids = 128
 
@@ -86,21 +88,29 @@ class PCPBCCModule(PCPBCCBase):
                 self.failed = self.config.getboolean(MODULE, opt)
             if opt == 'details':
                 self.details = self.config.getboolean(MODULE, opt)
+            if opt == 'latency':
+                self.latency = self.config.getboolean(MODULE, opt)
             if opt == 'process':
                 self.proc_filter = self.config.get(MODULE, opt)
                 self.update_pids(self.get_proc_info(self.proc_filter))
 
-        self.cache = None
+        self.cnt_cache = None
+        self.avg_cache = None
+        self.cml_cache = None
         self.insts = None
 
         self.log("Initialized.")
 
     def metrics(self):
         """ Get metric definitions """
-        name = METRIC
-        self.items.append(
+        name = BASENS
+        self.items = (
             # Name - reserved - type - semantics - units - help
-            (name, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'syscall count'),
+            (name + 'count' , None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'syscall count'),
+            (name + 'latency.avg', None, PM_TYPE_U64, PM_SEM_INSTANT, units_nsecs, 'syscall avg'
+                                                                                   'latency'),
+            (name + 'latency.cml', None, PM_TYPE_U64, PM_SEM_COUNTER, units_nsecs, 'syscall cml'
+                                                                                   'latency'),
         )
         return True, self.items
 
@@ -110,12 +120,16 @@ class PCPBCCModule(PCPBCCBase):
 
     def reset_cache(self):
         """ Reset internal cache """
-        self.cache = {}
+        self.cnt_cache = {}
+        self.avg_cache = {}
+        self.cml_cache = {}
         self.init_insts()
 
     def undef_cache(self):
         """ Undefine internal cache """
-        self.cache = None
+        self.cnt_cache = None
+        self.avg_cache = None
+        self.cml_cache = None
         self.insts = None
 
     def update_pids(self, procs):
@@ -171,10 +185,13 @@ class PCPBCCModule(PCPBCCBase):
                 self.log("No process to attach found, activation postponed.")
                 return
 
+            bpf_text = self.bpf_text
             details = "#define DETAILS" if self.details and self.pids else ""
-            bpf_text = self.bpf_text.replace("DEFINE_DETAILS", details)
+            latency = "#define LATENCY" if self.latency else ""
+            bpf_text = bpf_text.replace("DEFINE_DETAILS", details)
+            bpf_text = bpf_text.replace("DEFINE_LATENCY", latency)
 
-            bpf_text = self.apply_pid_filter(bpf_text, self.pids, False)
+            bpf_text = self.apply_pid_filter(bpf_text, self.pids, False, True)
 
             if self.debug:
                 self.log("BPF to be compiled:\n" + bpf_text.strip())
@@ -201,22 +218,49 @@ class PCPBCCModule(PCPBCCBase):
             val = stats[i].value
             if val:
                 key = self.syscalls[i.value]
-                self.cache[key] = val
+                self.cnt_cache[key] = val
+
+        if self.latency:
+            latstats = self.bpf["latstats"]
+            for i in latstats:
+                val = latstats[i].value
+                if val:
+                    key = self.syscalls[i.value]
+                    self.cml_cache[key] = val
+                    val = val if key not in self.avg_cache else int(val / self.cnt_cache[key])
+                    self.avg_cache[key] = val
 
         check_pids = set()
         stale_pids = set()
+
+        def use_pid(pid):
+            """ Helper to quickly check whether to use PID info """
+            if k.pid not in check_pids:
+                if k.pid in stale_pids or not self.pid_alive(k.pid):
+                    stale_pids.add(k.pid)
+                    return False
+                else:
+                    check_pids.add(k.pid)
+            return True
+
         if self.details and self.pids:
             pidstats = self.bpf["pidstats"]
             for k, v in pidstats.items():
-                if k.pid not in check_pids:
-                    if k.pid in stale_pids or not self.pid_alive(k.pid):
-                        stale_pids.add(k.pid)
-                        continue
-                    else:
-                        check_pids.add(k.pid)
+                if not use_pid(k.pid):
+                    continue
                 key = str(k.pid) + "::" + self.syscalls[k.id]
-                self.cache[key] = v.value
+                self.cnt_cache[key] = v.value
                 self.insts[key] = c_int(1)
+
+        if self.details and self.pids and self.latency:
+            pidlatstats = self.bpf["pidlatstats"]
+            for k, v in pidlatstats.items():
+                if not use_pid(k.pid):
+                    continue
+                key = str(k.pid) + "::" + self.syscalls[k.id]
+                self.cml_cache[key] = v.value
+                val = v.value if key not in self.avg_cache else int(v.value / self.cnt_cache[key])
+                self.avg_cache[key] = val
 
         return self.insts
 
@@ -224,6 +268,13 @@ class PCPBCCModule(PCPBCCBase):
         """ Return BPF data as PCP metric value """
         try:
             key = self.pmdaIndom.inst_name_lookup(inst)
-            return [self.cache[key], 1]
+            if item == 0:
+                return [self.cnt_cache[key], 1]
+            elif item == 1:
+                return [self.avg_cache[key], 1]
+            elif item == 2:
+                return [self.cml_cache[key], 1]
+            else:
+                return [PM_ERR_PMID, 0]
         except Exception: # pylint: disable=broad-except
             return [PM_ERR_AGAIN, 0]
