@@ -1527,6 +1527,8 @@ BAD
 1175 pmda.bcc local python
 1176 pmda.bcc local python
 1177 pmns derive libpcp pmlogger local
+1178 pmda.bcc local python
+1179 pmda.bcc local python
 1180 logutil local pmrep python BAD @vm34
 1182 libpcp local
 1184 pminfo pmseries local

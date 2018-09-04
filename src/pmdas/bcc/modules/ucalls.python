@@ -78,15 +78,17 @@ class PCPBCCModule(PCPBCCBase):
                 self.proc_filter = self.config.get(MODULE, opt)
                 self.update_pids(self.get_proc_info(self.proc_filter))
 
+        if not self.proc_filter:
+            # https://github.com/iovisor/bcc/issues/1774
+            raise RuntimeError("Process filter is mandatory.")
+
         if not self.lang:
+            if not self.pid:
+                raise RuntimeError("Language must be set when no process found on startup!")
             self.lang = utils.detect_language(self.methods.keys(), self.pid)
             self.log("Language not set, detected: %s." % str(self.lang))
         if self.lang not in self.methods.keys():
             raise RuntimeError("Language must be one of: %s." % str(self.methods.keys()))
-
-        if not self.proc_filter:
-            # https://github.com/iovisor/bcc/issues/1774
-            raise RuntimeError("Process filter is mandatory.")
 
         self.log("Initialized.")
 

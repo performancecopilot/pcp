@@ -322,11 +322,12 @@ class PCPBCCBase(object):
             else:
                 # Compat: bcc < 0.6.0
                 poll = self.bpf.kprobe_poll
-            while self.bpf:
+            bpf = self.bpf
+            while bpf == self.bpf:
                 poll()
         except Exception as error: # pylint: disable=broad-except
             self.err(str(error))
-            self.err("BPF kprobe poll failed!")
+            self.err("BPF perf buffer poll failed!")
         self.log("Poller thread exiting.")
 
     def get_syscall_prefix(self):
