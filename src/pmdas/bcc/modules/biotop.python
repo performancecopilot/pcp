@@ -16,17 +16,17 @@
 #
 """ PCP BCC PMDA biotop module """
 
-# pylint: disable=invalid-name, line-too-long
+# pylint: disable=invalid-name, line-too-long, too-many-instance-attributes
 
 import ctypes as ct
 from threading import Lock, Thread
-from os import path
 from time import sleep
 
 from bcc import BPF
 
 from pcp.pmapi import pmUnits
-from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING, PM_TIME_USEC, PM_SEM_INSTANT, PM_SPACE_BYTE
+from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING
+from cpmapi import PM_SEM_INSTANT, PM_SPACE_BYTE, PM_TIME_USEC
 from cpmapi import PM_ERR_AGAIN
 
 from modules.pcpbcc import PCPBCCBase
@@ -50,7 +50,7 @@ units_none = pmUnits(0, 0, 0, 0, 0, 0)
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC biotop module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, _):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
@@ -82,8 +82,10 @@ class PCPBCCModule(PCPBCCBase):
         self.sort_fn = self.sort_fns[sort_key]
 
         self.cache = {}
-        self.insts = {str(i) : ct.c_int(1) for i in range(0, self.process_count)}
-        self.disklookup = {}
+        self.insts = {str(i) : ct.c_int(1) for i in range(self.process_count)}
+
+        self.disklookup = None
+        self.update_disk_info()
 
         self.lock = Lock()
         if self.interval > 0:
@@ -123,14 +125,7 @@ class PCPBCCModule(PCPBCCBase):
     def compile(self):
         """ Compile BPF """
         try:
-            with open(path.dirname(__file__) + '/../' + bpf_src) as f:
-                bpf_text = f.read()
-
-            if self.debug:
-                self.log("BPF to be compiled:")
-                self.log("\n" + bpf_text)
-
-            self.bpf = BPF(text=bpf_text)
+            self.bpf = BPF(src_file=bpf_src)
             self.bpf.attach_kprobe(event="blk_account_io_start", fn_name="trace_pid_start")
             self.bpf.attach_kprobe(event="blk_start_request", fn_name="trace_req_start")
             self.bpf.attach_kprobe(event="blk_mq_start_request", fn_name="trace_req_start")
@@ -147,10 +142,10 @@ class PCPBCCModule(PCPBCCBase):
     def refresh_stats(self):
         """ Refresh statistics from BPF table """
         self.lock.acquire()
-        self.cache.clear()
+        self.cache = {}
         self.lock.release()
 
-        counts = self.bpf.get_table("counts")
+        counts = self.bpf["counts"]
         sorted_counts = sorted(counts.items(), key=self.sort_fn, reverse=self.sort_reversed)
 
         idx = 0
@@ -190,7 +185,8 @@ class PCPBCCModule(PCPBCCBase):
         while True:
             cnt = self.refresh_stats()
             if self.debug:
-                self.log("Fetched data from BPF table, current number of processes performing I/O: %d." % cnt)
+                self.log("Fetched data from BPF table, "
+                         "current number of processes performing I/O: %d." % cnt)
             sleep(self.interval)
 
     def refresh(self):

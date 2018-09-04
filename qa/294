@@ -19,8 +19,8 @@ which pmdumptext >/dev/null 2>&1 || _notrun "No installed pmdumptext binary"
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 username=`id -u -n`
-$sudo rm -rf $tmp.*
-trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 rm -f $seq.out
 case $PCP_PLATFORM
@@ -138,17 +138,14 @@ End-of-File
 _service pmproxy stop >/dev/null 2>&1
 $sudo $signal -a pmproxy >/dev/null 2>&1
 
-proxyargs="-Dcontext"
-id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U $username"
+mkdir -p $tmp.rundir
+export PCP_RUN_DIR=$tmp.rundir
+proxyargs="-Dcontext -U $username"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
 $PCP_BINADM_DIR/pmcd_wait -t 5sec -h localhost@localhost
 
-PMPROXY_HOST=localhost
-export PMPROXY_HOST
-
-rm -f $seq.full
-
 # real QA test starts here
+export PMPROXY_HOST=localhost
 _do pminfo -h $PMPROXY_HOST -d pmcd.agent
 _do pminfo -h $PMPROXY_HOST -f sample.hordes
 _do pmprobe -v -h localhost hinv.ncpu

@@ -18,11 +18,16 @@
 #include "redis.h"
 #include "private.h"
 #include "slots.h"
+#include "query.h"
 
-#define EVALSHA		"EVALSHA"
-#define EVALSHA_LEN	(sizeof(EVALSHA)-1)
+#define COMMAND		"COMMAND"
+#define COMMAND_LEN	(sizeof(COMMAND)-1)
 #define CLUSTER		"CLUSTER"
 #define CLUSTER_LEN	(sizeof(CLUSTER)-1)
+#define EVALSHA		"EVALSHA"
+#define EVALSHA_LEN	(sizeof(EVALSHA)-1)
+#define GEOADD		"GEOADD"
+#define GEOADD_LEN	(sizeof(GEOADD)-1)
 #define GETS		"GET"
 #define GETS_LEN	(sizeof(GETS)-1)
 #define HGET		"HGET"
@@ -49,7 +54,6 @@
 #define XADD_LEN	(sizeof(XADD)-1)
 #define XRANGE		"XRANGE"
 #define XRANGE_LEN	(sizeof(XRANGE)-1)
-
 
 /* create a Redis protocol command (e.g. XADD, SMEMBER) */
 static inline sds
@@ -89,17 +93,52 @@ redis_param_raw(sds cmd, sds param)
     return sdscatfmt(cmd, "%S\r\n", param);
 }
 
-typedef void (*redis_callback)(redisSlots *, redisReply *, void *);
-extern int redis_submitcb(redisSlots *, const char *, sds, sds,
-			redis_callback, void *);
-extern int redis_submit(redisSlots *, const char *, sds, sds);
+extern void redis_series_source(redisSlots *, context_t *, void *);
+extern void redis_series_mark(redisSlots *, context_t *, sds, int, void *);
+extern void redis_series_metric(redisSlots *, metric_t *, sds, int, int, void *);
 
-extern redisSlots *redis_init(sds);
-extern redisContext *redis_connect(char *, struct timeval *);
-extern void redis_stop(redisContext *);
+/*
+ * Asynchronous schema load baton structures
+ */
+#define LOAD_PHASES	5
 
-extern void redis_series_source(redisSlots *, context_t *);
-extern void redis_series_metric(redisSlots *, context_t *, metric_t *);
-extern void redis_series_mark(redisSlots *, context_t *, sds);
-extern void redis_series_stream(redisSlots *, sds, metric_t *);
+typedef struct seriesGetContext {
+    seriesBatonMagic	header;		/* MAGIC_CONTEXT */
+
+    context_t		context;
+    unsigned long long	count;		/* number of samples processed */
+    pmResult		*result;	/* currently active sample data */
+    int			error;		/* PMAPI error code from fetch */
+
+    redisDoneCallBack	done;
+
+    void		*baton;
+} seriesGetContext;
+
+typedef struct seriesLoadBaton {
+    seriesBatonMagic	header;		/* MAGIC_LOAD */
+
+    seriesBatonPhase	*current;
+    seriesBatonPhase	phases[LOAD_PHASES];
+
+    seriesGetContext	pmapi;		/* PMAPI context info */
+    redisSlots		*slots;		/* Redis server slots */
+
+    pmSeriesSettings	*settings;
+    void		*userdata;
+    timing_t		timing;
+    pmflags		flags;
+
+    dict		*clusters;
+    dict		*domains;
+    dict		*indoms;
+    dict		*pmids;
+
+    dict		*errors;	/* PMIDs where errors observed */
+    dict		*wanted;	/* PMIDs from query whitelist */
+
+    int			error;
+    void		*arg;
+} seriesLoadBaton;
+
 #endif	/* SERIES_SCHEMA_H */

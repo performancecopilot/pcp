@@ -18,7 +18,7 @@
 \f3pminfo\f1 \- display information about performance metrics
 .SH SYNOPSIS
 \fBpminfo\fR
-[\fB\-dfFIlLmMsStTvxz\fR]
+[\fB\-dfFIlLmMstTvxz\fR]
 [\fB\-a\fR \fIarchive\fR]
 [\fB\-b\fR \fIbatchsize\fR]
 [\fB\-c\fR \fIdmfile\fR]
@@ -185,20 +185,14 @@ for a complete description of this option, and the syntax for the
 argument.
 .TP
 \fB\-s\fR, \fB\-\-series\fR
-Print time series identifiers associated with metrics and instances.
+Print time series identifiers associated with metrics, instances and
+sources.
 These unique identifiers are calculated from intrinsic (non-optional)
-labels and other metric metadata associated with every metric and
-instance.
-See also
-.BR pmLookupLabels (3)
-and the \fB\-l/\fB\-\-labels\fR option.
-.TP
-\fB\-S\fR, \fB\-\-source\fR
-Print the source identifier associated with the PMAPI context.
-These unique identifiers are calculated from the intrinsic labels
-associated with the context.
-Archive, local context or host connections for the same host will
-all produce the same source identifier.
+labels and other metric metadata associated with each PMAPI context
+(sources), metrics and instances.
+Archive, local context or
+.BR pmcd (1)
+connections for the same host all produce the same source identifier.
 See also
 .BR pmLookupLabels (3)
 and the \fB\-l/\fB\-\-labels\fR option.

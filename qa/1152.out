@@ -9,7 +9,7 @@ Info: usdt_jvm_alloc
 Info: Modules configured.
 Info: Initializing modules:
 Info: usdt_jvm_alloc
-Info: usdt_jvm_alloc: Found a Java process.
+Info: usdt_jvm_alloc: Tracing PID.
 Info: usdt_jvm_alloc: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:
@@ -26,7 +26,7 @@ Info: usdt_jvm_alloc
 Info: Modules configured.
 Info: Initializing modules:
 Info: usdt_jvm_alloc
-Info: usdt_jvm_alloc: Found a Java process.
+Info: usdt_jvm_alloc: Tracing PID.
 Info: usdt_jvm_alloc: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:

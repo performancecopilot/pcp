@@ -1,0 +1,77 @@
+// Copyright 2016 Sasha Goldshtein
+// Licensed under the Apache License, Version 2.0 (the "License")
+
+#include <uapi/linux/ptrace.h>
+
+#define MAX_STRING_LENGTH 128
+DEFINE_LATENCY
+
+struct method_t {
+    char clazz[MAX_STRING_LENGTH];
+    char method[MAX_STRING_LENGTH];
+};
+struct entry_t {
+    u64 pid;
+    struct method_t method;
+};
+struct info_t {
+    u64 num_calls;
+    u64 total_us;
+};
+
+#ifndef LATENCY
+  BPF_HASH(counts, struct method_t, u64);
+#else
+  BPF_HASH(times, struct method_t, struct info_t);
+  BPF_HASH(entry, struct entry_t, u64);
+#endif
+
+int trace_entry(struct pt_regs *ctx) {
+    FILTER_PID
+    u64 clazz = 0, method = 0, val = 0;
+    u64 *valp;
+    struct entry_t data = {0};
+#ifdef LATENCY
+    u64 timestamp = bpf_ktime_get_ns();
+    data.pid = bpf_get_current_pid_tgid();
+#endif
+    READ_CLASS
+    READ_METHOD
+    bpf_probe_read(&data.method.clazz, sizeof(data.method.clazz),
+                   (void *)clazz);
+    bpf_probe_read(&data.method.method, sizeof(data.method.method),
+                   (void *)method);
+#ifndef LATENCY
+    valp = counts.lookup_or_init(&data.method, &val);
+    ++(*valp);
+#endif
+#ifdef LATENCY
+    entry.update(&data, &timestamp);
+#endif
+    return 0;
+}
+
+#ifdef LATENCY
+int trace_return(struct pt_regs *ctx) {
+    FILTER_PID
+    u64 *entry_timestamp, clazz = 0, method = 0;
+    struct info_t *info, zero = {};
+    struct entry_t data = {};
+    data.pid = bpf_get_current_pid_tgid();
+    READ_CLASS
+    READ_METHOD
+    bpf_probe_read(&data.method.clazz, sizeof(data.method.clazz),
+                   (void *)clazz);
+    bpf_probe_read(&data.method.method, sizeof(data.method.method),
+                   (void *)method);
+    entry_timestamp = entry.lookup(&data);
+    if (!entry_timestamp) {
+        return 0;   // missed the entry event
+    }
+    info = times.lookup_or_init(&data.method, &zero);
+    info->num_calls += 1;
+    info->total_us += (bpf_ktime_get_ns() - *entry_timestamp) / 1000;
+    entry.delete(&data);
+    return 0;
+}
+#endif

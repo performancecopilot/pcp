@@ -1,11 +1,8 @@
 Trivial PMDA
 ============
 
-This PMDA is a sample that illustrates how a simple PMDA might be
-constructed using libpcp_pmda, or using perl.
-
-Although the metrics supported as simple, the framework is quite
-general, and could be extended to implement a much more complex PMDA.
+This PMDA is a sample that illustrates how a minimal PMDA might be
+constructed using libpcp_pmda or scripting languages (perl/python).
 
 Note:
 	The C variant of this PMDA may be remade from source and hence 

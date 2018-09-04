@@ -18,7 +18,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=infiniband
-pmda_interface=3
 daemon_opt=true
 dso_opt=false
 pipe_opt=true

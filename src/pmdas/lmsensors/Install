@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=lmsensors
-pmda_interface=2
 dso_opt=true
 socket_opt=true
 socket_inet_def=2079

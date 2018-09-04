@@ -36,12 +36,15 @@ $python -c "import openpyxl" >/dev/null 2>&1
 skip_pmrep=false
 $python -c "from collections import OrderedDict" >/dev/null 2>&1
 if [ $? -ne 0 ]; then
-    skip_pmrep=true
-    skip_pcp2xml=true
-    skip_pcp2json=true
+    skip_pcp2elasticsearch=true
     skip_pcp2graphite=true
     skip_pcp2influxdb=true
+    skip_pcp2json=true
+    skip_pcp2spark=true
+    skip_pcp2xlsx=true
+    skip_pcp2xml=true
     skip_pcp2zabbix=true
+    skip_pmrep=true
 fi
 
 # these may not be available if X11 display is missing
@@ -70,10 +73,11 @@ _check_completion_bash()
     $skip_pcp2elasticsearch && [ "$cmd" = pcp2elasticsearch ] && continue
     $skip_pcp2graphite && [ "$cmd" = pcp2graphite ] && continue
     $skip_pcp2influxdb && [ "$cmd" = pcp2influxdb ] && continue
-    $skip_pcp2zabbix && [ "$cmd" = pcp2zabbix ] && continue
     $skip_pcp2json && [ "$cmd" = pcp2json ] && continue
+    $skip_pcp2spark && [ "$cmd" = pcp2spark ] && continue
     $skip_pcp2xlsx && [ "$cmd" = pcp2xlsx ] && continue
     $skip_pcp2xml && [ "$cmd" = pcp2xml ] && continue
+    $skip_pcp2zabbix && [ "$cmd" = pcp2zabbix ] && continue
     $skip_pmchart && [ "$cmd" = pmchart ] && continue
     $skip_pmrep && [ "$cmd" = pmrep ] && continue
     comps=$(grep -A 1 "  $cmd)" $bash_comp | tail -n 1 | sed -e 's,all_args=",,' -e 's,",,')
@@ -114,10 +118,11 @@ _check_completion_zsh()
     $skip_pcp2elasticsearch && [ "$cmd" = pcp2elasticsearch ] && continue
     $skip_pcp2graphite && [ "$cmd" = pcp2graphite ] && continue
     $skip_pcp2influxdb && [ "$cmd" = pcp2influxdb ] && continue
-    $skip_pcp2zabbix && [ "$cmd" = pcp2zabbix ] && continue
     $skip_pcp2json && [ "$cmd" = pcp2json ] && continue
+    $skip_pcp2spark && [ "$cmd" = pcp2spark ] && continue
     $skip_pcp2xlsx && [ "$cmd" = pcp2xlsx ] && continue
     $skip_pcp2xml && [ "$cmd" = pcp2xml ] && continue
+    $skip_pcp2zabbix && [ "$cmd" = pcp2zabbix ] && continue
     $skip_pmchart && [ "$cmd" = pmchart ] && continue
     $skip_pmrep && [ "$cmd" = pmrep ] && continue
     echo $cmd | grep = > /dev/null 2>&1 && continue

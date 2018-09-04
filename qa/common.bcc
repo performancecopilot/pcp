@@ -37,6 +37,7 @@ _pmdabcc_install_filter()
     # and therefore it has no values
     sed \
     -e "s/.*pmdabcc.* Info/Info/g" \
+    -e "s/Tracing PID.*/Tracing PID./g" \
     -e "s/[0-9]\+ warnings, //" \
     -e "s/[0-9]\+ metrics and [0-9]\+ values/X metrics and X values/g" \
     #end
@@ -149,9 +150,9 @@ _mount_filesystem()
     mountpoint=$tmp.mount.$fs
 
     truncate -s 30M $image
-    mkfs.$fs $image > /dev/null 2>&1
+    echo y | mkfs.$fs $image > /dev/null 2>&1
     mkdir -p $mountpoint
-    $sudo mount $image $mountpoint
+    $sudo mount -t $fs $image $mountpoint
     $sudo chown $(id -u):$(id -g) $mountpoint
 }
 

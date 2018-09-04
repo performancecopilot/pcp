@@ -26,7 +26,11 @@ _pcp_complete()
     ;;
     pcp2json)
         all_args="ahLKcCeVHGASTOstRrZzrIijJ89nNvP0qQbByYFfxXE"
-        arg_regex="-[ahKceASTOstZiJ89NP0qQbByYgFf]"
+        arg_regex="-[ahKceASTOstZiJ89NP0qQbByYFf]"
+    ;;
+    pcp2spark)
+        all_args="ahLKcCeVHGASTOstRrZzrIijJ89nNvP0qQbByYgp"
+        arg_regex="-[ahKceASTOstZiJ89NP0qQbByYgp]"
     ;;
     pcp2xlsx)
         all_args="ahLKcCeVHGASTOstRrZzrIivP0qQbByYFf"
@@ -38,7 +42,7 @@ _pcp_complete()
     ;;
     pcp2zabbix)
         all_args="ahLKcCeVHGASTOstRrIijJ89nNvP0qQbByYgpXExl"
-        arg_regex="-[ahKceASTOstZiJ89NP0qQbByYgpXEx]"
+        arg_regex="-[ahKceASTOstiJ89NP0qQbByYgpXEx]"
     ;;
     pmdumplog)
         all_args="adehiLlmnrSsTtVvxZz"
@@ -53,7 +57,7 @@ _pcp_complete()
         arg_regex="-[AafhiKnOpSsTtUwxZ]"
     ;;
     pminfo)
-        all_args="abcdFfhIKLlMmNnOSsTtVvxZz"
+        all_args="abcdFfhIKLlMmNnOsTtVvxZz"
         arg_regex="-[abchKNnOZ]"
     ;;
     pmlogcheck)
@@ -88,7 +92,7 @@ _pcp_complete()
 
     # Complete
     pytool=0
-    [[ "pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2xlsx pcp2xml pcp2zabbix pmrep" =~ $cmd ]] && pytool=1
+    [[ "pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmrep" =~ $cmd ]] && pytool=1
     if [[ "$cur" == -* ]]; then
         # Arguments
         local comp=( $(echo $all_args | sed -e 's,.\{1\},-& ,g') )
@@ -126,4 +130,4 @@ _pcp_complete()
         fi
     fi
 }
-complete -F _pcp_complete -o default pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2xlsx pcp2xml pcp2zabbix pmdumplog pmdumptext pmevent pminfo pmlogcheck pmlogextract pmlogsummary pmprobe pmrep pmstore pmval
+complete -F _pcp_complete -o default pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmdumplog pmdumptext pmevent pminfo pmlogcheck pmlogextract pmlogsummary pmprobe pmrep pmstore pmval

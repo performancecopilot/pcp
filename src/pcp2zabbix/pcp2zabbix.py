@@ -228,9 +228,9 @@ class PCP2Zabbix(object):
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
-        opts.pmSetLongOption("zabbix-server", 1, "g", "SERVER", "zabbix server (default: " + ZBXSERVER + ")")
-        opts.pmSetLongOption("zabbix-port", 1, "p", "PORT", "zabbix port (default: " + str(ZBXPORT) + ")")
-        opts.pmSetLongOption("zabbix-host", 1, "X", "HOSTID", "zabbix host-id for measurements")
+        opts.pmSetLongOption("zabbix-server", 1, "g", "SERVER", "Zabbix server (default: " + ZBXSERVER + ")")
+        opts.pmSetLongOption("zabbix-port", 1, "p", "PORT", "Zabbix port (default: " + str(ZBXPORT) + ")")
+        opts.pmSetLongOption("zabbix-host", 1, "X", "HOSTID", "Zabbix host-id for measurements")
         opts.pmSetLongOption("zabbix-interval", 1, "E", "INTERVAL", "interval to send collected metrics")
         opts.pmSetLongOption("zabbix-prefix", 1, "x", "PREFIX", "prefix for metric names (default: " + ZBXPREFIX + ")")
         opts.pmSetLongOption("zabbix-lld", 0, "l", "", "emit low level discovery keys for each metric")
@@ -243,8 +243,8 @@ class PCP2Zabbix(object):
             return 1
         return 0
 
-    def option(self, opt, optarg, index):
-        """ Perform setup for an individual command line option """
+    def option(self, opt, optarg, _index):
+        """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
         elif opt == 'K':
@@ -306,7 +306,7 @@ class PCP2Zabbix(object):
         elif opt == 'g':
             self.zabbix_server = optarg
         elif opt == 'p':
-            self.zabbix_port = optarg
+            self.zabbix_port = int(optarg)
         elif opt == 'X':
             self.zabbix_host = optarg
         elif opt == 'E':
@@ -319,7 +319,7 @@ class PCP2Zabbix(object):
             raise pmapi.pmUsageErr()
 
     def connect(self):
-        """ Establish a PMAPI context """
+        """ Establish PMAPI context """
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
         self.pmfg = pmapi.fetchgroup(context, self.source)
@@ -410,8 +410,8 @@ class PCP2Zabbix(object):
         self.report(None)
 
     def report(self, tstamp):
-        """ Report the metric values """
-        if tstamp != None:
+        """ Report metric values """
+        if tstamp is not None:
             tstamp = tstamp.strftime(self.timefmt)
 
         self.write_zabbix(tstamp)
@@ -433,7 +433,7 @@ class PCP2Zabbix(object):
             sys.stdout.write("...\n(Ctrl-C to stop)\n")
 
     def recv_from_zabbix(self, sock, count):
-        """ Receive a response from a Zabbix server. """
+        """ Receive response from Zabbix server """
         buf = b''
         while len(buf) < count:
             chunk = sock.recv(count - len(buf))
@@ -443,7 +443,7 @@ class PCP2Zabbix(object):
         return buf
 
     def send_to_zabbix(self, metrics, zabbix_host, zabbix_port, timeout=15):
-        """ Send a set of metrics to a Zabbix server. """
+        """ Send set of metrics to Zabbix server """
         j = json.dumps
         # Zabbix has a very fragile JSON parser, so we cannot use json to
         # dump the whole packet
@@ -477,28 +477,26 @@ class PCP2Zabbix(object):
             resp_hdr = self.recv_from_zabbix(zabbix, 13)
             if not bytes.decode(resp_hdr).startswith('ZBXD\1') or len(resp_hdr) != 13:
                 if self.context.pmDebug(PM_DEBUG_APPL0):
-                    print('Invalid Zabbix response len=%d' % len(resp_hdr))
+                    print("Invalid Zabbix response len=%d" % len(resp_hdr))
                 return False
             resp_body_len = struct.unpack('<Q', resp_hdr[5:])[0]
             # get response body from zabbix
             resp_body = zabbix.recv(resp_body_len)
             resp = json.loads(bytes.decode(resp_body))
             if self.context.pmDebug(PM_DEBUG_APPL0):
-                print('Got response from Zabbix: %s' % resp)
+                print("Got response from Zabbix: %s" % resp)
             if resp.get('response') != 'success':
-                sys.stderr.write('Error response from Zabbix: %s' % resp)
-                sys.stderr.flush()
+                sys.stderr.write("Error response from Zabbix: %s\n" % str(resp))
                 return False
             return True
         except socket.timeout as err:
-            sys.stderr.write("Zabbix connection timed out: " + str(err))
-            sys.stderr.flush()
+            sys.stderr.write("Zabbix connection timed out: %s\n" % str(err))
             return False
         finally:
             zabbix.close()
 
     def write_zabbix(self, timestamp):
-        """ Write (send) metrics to a Zabbix server """
+        """ Write (send) metrics to Zabbix server """
         if timestamp is None:
             # Send any remaining buffered values
             if self.zabbix_metrics:
@@ -535,7 +533,7 @@ class PCP2Zabbix(object):
                     key += "[" + name + "]"
                 value = format(value, fmt) if isinstance(value, float) else str(value)
                 self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, value, ts))
-                
+
             # Construct extra LLD pseudo-metric if needed
             if self.zabbix_lld and send_lld:
                 # https://www.zabbix.com/documentation/3.4/manual/discovery/low_level_discovery
@@ -552,7 +550,7 @@ class PCP2Zabbix(object):
                 value += ",".join(values)
                 value += "] }"
                 self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, value, ts))
-                
+
         # Send when needed
         if self.context.type == PM_CONTEXT_ARCHIVE:
             if len(self.zabbix_metrics) >= self.zabbix_interval:
@@ -578,7 +576,7 @@ if __name__ == '__main__':
         P.finalize()
 
     except pmapi.pmErr as error:
-        sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
+        sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
         sys.exit(1)
     except pmapi.pmUsageErr as usage:
         usage.message()

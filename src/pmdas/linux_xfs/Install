@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=xfs
-pmda_interface=3
 daemon_opt=true
 pipe_opt=true
 pmns_source=root_xfs

@@ -1220,6 +1220,8 @@ PCP_CALL extern void __pmServerSetServiceSpec(const char *);
 typedef void (*__pmServerCallback)(__pmFdSet *, int, int);
 PCP_CALL extern void __pmServerAddNewClients(__pmFdSet *, __pmServerCallback);
 PCP_CALL extern int __pmServerOpenRequestPorts(__pmFdSet *, int);
+PCP_CALL int __pmServerGetRequestPort(int, const char **, int *);
+PCP_CALL extern int __pmServerSetupRequestPorts(void);
 PCP_CALL extern void __pmServerCloseRequestPorts(void);
 PCP_CALL extern void __pmServerDumpRequestPorts(FILE *);
 PCP_CALL extern char *__pmServerRequestPortString(int, char *, size_t);

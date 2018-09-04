@@ -1082,17 +1082,8 @@ _install()
     #
     if [ -f $help_source ]
     then
-	case $pmda_interface
-	in
-	    1)
-		    help_version=1
-		    ;;
-	    *)	# PMDA_INTERFACE_2 or later
-		    help_version=2
-		    ;;
-	esac
 	sed -e "/^@ $SYMDOM\./s/$SYMDOM\./$domain./" <$help_source \
-	| newhelp -n root -v $help_version -o $help_source
+	| newhelp -n root -o $help_source
     fi
 
     if [ "X$pmda_type" = Xperl -o "X$pmda_type" = Xpython ]
@@ -1504,8 +1495,6 @@ pmns_source=pmns
 pmns_dupok=false
 #	Source for the helptext
 help_source=help
-#	Assume libpcp_pmda.so.3
-pmda_interface=3
 #	Full pathname to directory where PMDA is to be found ...
 #	exectable and/or DSO, domain.h, pmns, control files, etc.
 pmda_dir="`pwd`"

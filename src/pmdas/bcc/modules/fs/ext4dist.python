@@ -15,7 +15,7 @@
 #
 """ PCP BCC PMDA ext4dist module """
 
-# pylint: disable=invalid-name, line-too-long
+# pylint: disable=invalid-name, too-many-instance-attributes
 
 from os import path
 
@@ -44,58 +44,85 @@ units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC ext4dist module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, proc_refresh):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
-        self.cache = {}
+        self.pids = []
+        self.proc_filter = None
+        self.proc_refresh = proc_refresh
+
+        self.cache = None
+        self.ops_addr = None
         self.item_identifiers = ['open', 'read', 'write', 'fsync']
+
+        for opt in self.config.options(MODULE):
+            if opt == 'process':
+                self.proc_filter = self.config.get(MODULE, opt)
+                self.update_pids(self.get_proc_info(self.proc_filter))
+
+        def read_ext4_file_operations_addr():
+            """ Read address of ext4_file_operations symbol """
+            with open("/proc/kallsyms") as syms:
+                for line in syms:
+                    addr, _size, name = line.rstrip().split(" ", 2)
+                    name = name.split("\t")[0]
+                    if name == "ext4_file_operations":
+                        return "0x" + addr
+            return None
+
+        self.ops_addr = read_ext4_file_operations_addr()
+        if not self.ops_addr:
+            raise RuntimeError("No ext4_file_operations in /proc/kallsyms "
+                               "(kernel not built with CONFIG_KALLSYMS_ALL).")
 
         self.log("Initialized.")
 
+    # pylint: disable=bad-continuation
     def metrics(self):
         """ Get metric definitions """
         for item in self.item_identifiers:
             self.items.append(
                 # Name - reserved - type - semantics - units - help
-                (BASENS + item, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'ext4 %s latency distribution' % item),
+                (BASENS + item, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'ext4'
+                    '%s latency distribution' % item),
             )
         return True, self.items
 
-    @staticmethod
-    def read_ext4_file_operations_addr():
-        """ Read address of ext4_file_operations symbol """
-        with open("/proc/kallsyms") as syms:
-            for line in syms:
-                addr, _size, name = line.rstrip().split(" ", 2)
-                name = name.split("\t")[0]
-                if name == "ext4_file_operations":
-                    return "0x" + addr
-        return None
+    def reset_cache(self):
+        """ Reset internal cache """
+        self.cache = {}
+
+    def undef_cache(self):
+        """ Undefine internal cache """
+        self.cache = None
 
     def compile(self):
         """ Compile BPF """
         try:
-            with open(path.dirname(__file__) + '/../../' + bpf_src) as f:
-                bpf_text = f.read()
+            if not self.pids and self.proc_filter and not self.proc_refresh:
+                raise RuntimeError("No process to attach found.")
 
-            ops_addr = self.read_ext4_file_operations_addr()
-            if not ops_addr:
-                self.err("No ext4_file_operations in /proc/kallsyms (kernel not built with CONFIG_KALLSYMS_ALL). Exiting.")
-                self.bpf = None
+            if not self.bpf_text:
+                with open(path.dirname(__file__) + '/../../' + bpf_src) as src:
+                    self.bpf_text = src.read()
+
+                self.bpf_text = self.bpf_text.replace("EXT4_FILE_OPERATIONS", self.ops_addr)
+
+            if not self.pids and self.proc_filter and self.proc_refresh:
+                self.log("No process to attach found, activation postponed.")
                 return
 
-            bpf_text = bpf_text.replace("EXT4_FILE_OPERATIONS", ops_addr)
-            bpf_text = bpf_text.replace("FILTER_PID", "0")
+            bpf_text = self.apply_pid_filter(self.bpf_text, self.pids, False)
 
             if self.debug:
-                self.log("BPF to be compiled:")
-                self.log("\n" + bpf_text)
+                self.log("BPF to be compiled:\n" + bpf_text.strip())
 
+            self.reset_cache()
             self.bpf = BPF(text=bpf_text)
             # Compat: bcc < 0.6.0 (first check)
             if 'get_kprobe_functions' in dir(self.bpf) and \
-               self.get_kprobe_functions(b'ext4_file_read_iter'):
+               self.get_kprobe_functions(b"ext4_file_read_iter"):
                 self.bpf.attach_kprobe(event="ext4_file_read_iter", fn_name="trace_entry")
             else:
                 self.bpf.attach_kprobe(event="generic_file_read_iter", fn_name="trace_read_entry")
@@ -109,6 +136,7 @@ class PCPBCCModule(PCPBCCBase):
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
+            self.undef_cache()
             self.err(str(error))
             self.err("Module NOT active!")
             raise
@@ -118,7 +146,7 @@ class PCPBCCModule(PCPBCCBase):
         if self.bpf is None:
             return None
 
-        dist = self.bpf.get_table("dist")
+        dist = self.bpf["dist"]
         self.insts = self.read_log2_histograms(dist, self.cache)
         dist.clear()
 
@@ -135,13 +163,14 @@ class PCPBCCModule(PCPBCCBase):
                 # BCC module is ready (we have histogram buckets),
                 # but doesn't contain the specified histogram bucket
                 return [0, 1]
-            # BCC module isn't ready yet
-            return [PM_ERR_AGAIN, 0]
+            else:
+                # BCC module isn't ready yet
+                return [PM_ERR_AGAIN, 0]
         except Exception: # pylint: disable=broad-except
             return [PM_ERR_AGAIN, 0]
 
-    def label_cluster(self):
-        """ Cluster labels """
+    def label_indom(self):
+        """ Instance domain labels """
         return '{"statistic":"histogram"}'
 
     def label_instance(self, inst):

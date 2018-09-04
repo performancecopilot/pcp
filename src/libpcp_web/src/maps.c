@@ -11,6 +11,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+#include "series.h"
+#include "slots.h"
 #include "util.h"
 #include "maps.h"
 
@@ -114,6 +116,12 @@ redisMapsInit(void)
     labelsrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[2]);
     contextmap = dictCreate(&mapCallBackDict, (void *)mapnames[3]);
     contextrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[3]);
+}
+
+redisMap *
+redisKeyMapCreate(const char *name)
+{
+    return dictCreate(&mapCallBackDict, (void *)name);
 }
 
 const char *

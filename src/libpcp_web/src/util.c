@@ -116,23 +116,6 @@ tadd(struct timeval *a, struct timeval *b)
     return 0;
 }
 
-void
-fputstamp(struct timeval *stamp, int delimiter, FILE *out)
-{
-    static char	timebuf[32];
-    char	*ddmm, *yr;
-    time_t	time;
-
-    time = stamp->tv_sec;
-    ddmm = pmCtime(&time, timebuf);
-    ddmm[10] = ' ';
-    ddmm[11] = '\0';
-    yr = &ddmm[20];
-    fprintf(out, "%c'%s", delimiter, ddmm);
-    pmPrintStamp(out, stamp);
-    fprintf(out, " %4.4s\'", yr);
-}
-
 /* convert into <milliseconds>-<nanoseconds> format for series streaming */
 const char *
 timeval_str(struct timeval *stamp)
@@ -227,16 +210,6 @@ value_precision(char *buf, int maxlen, int usedlen)
 }
 #endif
 
-sds
-json_escaped_str(const char *string)
-{
-    sds		s = sdsempty();
-
-    if (string == NULL || string[0] == '\0')
-	return s;
-    return sdscatrepr(s, string, strlen(string));
-}
-
 static int
 default_labelset(context_t *c, pmLabelSet **sets)
 {
@@ -253,10 +226,10 @@ default_labelset(context_t *c, pmLabelSet **sets)
 }
 
 int
-merge_labelsets(metric_t *metric, value_t *value, char *buffer, int length,
+metric_labelsets(metric_t *metric, char *buffer, int length,
 	int (*filter)(const pmLabel *, const char *, void *), void *arg)
 {
-    pmLabelSet	*sets[6];
+    pmLabelSet	*sets[5];
     cluster_t	*cluster = metric->cluster;
     domain_t	*domain = cluster->domain;
     context_t	*context = domain->context;
@@ -273,8 +246,27 @@ merge_labelsets(metric_t *metric, value_t *value, char *buffer, int length,
 	sets[nsets++] = cluster->labels;
     if (metric->labels)
 	sets[nsets++] = metric->labels;
-    if (value && value->labels)
-	sets[nsets++] = value->labels;
+
+    return pmMergeLabelSets(sets, nsets, buffer, length, filter, arg);
+}
+
+int
+instance_labelsets(indom_t *indom, instance_t *inst, char *buffer, int length,
+	int (*filter)(const pmLabel *, const char *, void *), void *arg)
+{
+    pmLabelSet	*sets[4];
+    domain_t	*domain = indom->domain;
+    context_t	*context = domain->context;
+    int		nsets = 0;
+
+    if (context->labels)
+	sets[nsets++] = context->labels;
+    if (domain->labels)
+	sets[nsets++] = domain->labels;
+    if (indom->labels)
+	sets[nsets++] = indom->labels;
+    if (inst->labels)
+	sets[nsets++] = inst->labels;
 
     return pmMergeLabelSets(sets, nsets, buffer, length, filter, arg);
 }
@@ -307,18 +299,6 @@ static int
 context_labels_str(context_t *c, char *buffer, int length)
 {
     return pmMergeLabelSets(&c->labels, 1, buffer, length, labels, NULL);
-}
-
-static char *
-metric_labels_str(metric_t *metric, value_t *value)
-{
-    static char	lbuf[PM_MAXLABELJSONLEN];
-    int		sts;
-
-    sts = merge_labelsets(metric, value, lbuf, sizeof(lbuf), labels, NULL);
-    if (sts < 0)
-	return "none";
-    return lbuf;
 }
 
 int
@@ -424,18 +404,18 @@ pmwebapi_hash_sds(const unsigned char *p)
 }
 
 int
-pmwebapi_source_hash(unsigned char *p, const char *labels, int length)
+pmwebapi_source_hash(unsigned char *hash, const char *labels, int length)
 {
     SHA1_CTX		shactx;
-    const char		prefix[] = "{\"labels\":";
-    const char		suffix[] = ",\"type\":\"source\"}";
+    const char		prefix[] = "{\"series\":\"source\",\"labels\":";
+    const char		suffix[] = "}";
 
-    /* Calculate unique context identifier 20-byte SHA1 hash */
+    /* Calculate unique source identifier 20-byte SHA1 hash */
     SHA1Init(&shactx);
     SHA1Update(&shactx, (unsigned char *)prefix, sizeof(prefix)-1);
     SHA1Update(&shactx, (unsigned char *)labels, length);
     SHA1Update(&shactx, (unsigned char *)suffix, sizeof(suffix)-1);
-    SHA1Final(p, &shactx);
+    SHA1Final(hash, &shactx);
     return 0;
 }
 
@@ -447,56 +427,65 @@ source_hash(context_t *context)
 
     if ((sts = context_labels_str(context, labels, sizeof(labels))) < 0)
 	return sts;
-    return pmwebapi_source_hash(context->hash, labels, strlen(labels));
+    return pmwebapi_source_hash(context->name.hash, labels, strlen(labels));
 }
 
 void
-metric_hash(metric_t *metric, pmDesc *desc)
+metric_hash(metric_t *metric)
 {
     SHA1_CTX		shactx;
-    pmID		pmid = desc->pmid;
-    pmInDom		indom = desc->indom;
-    sds			identifier;
+    pmDesc		*desc = &metric->desc;
+    sds			identifier, labelset;
+    char		buf[PM_MAXLABELJSONLEN];
+    char		sem[32], type[32], units[64];
+    int			len, i;
 
-    identifier = sdscatfmt(sdsempty(),
-		"{\"descriptor\":{\"domain\":%u,\"cluster\":%u,\"item\":%u,"
-		    "\"serial\":%u,\"semantics\":%u,\"type\":%u,\"units\":%u},"
-		  "\"labels\":%s,"
-		  "\"type\":\"metric\""
-		"}",
-		pmID_domain(pmid), pmID_cluster(pmid), pmID_item(pmid),
-		(indom == PM_INDOM_NULL) ? -1 : pmInDom_serial(indom),
-		desc->sem, desc->type, *(unsigned int *)&desc->units,
-		metric_labels_str(metric, NULL));
+    len = metric_labelsets(metric, buf, sizeof(buf), labels, NULL);
+    if (len <= 0)
+	len = pmsprintf(buf, sizeof(buf), "null");
 
-    SHA1Init(&shactx);
-    SHA1Update(&shactx, (unsigned char *)identifier, sdslen(identifier));
-    SHA1Final(metric->hash, &shactx);
+    identifier = sdsempty();
+    labelset = sdsnewlen(buf, len);
+
+    for (i = 0; i < metric->numnames; i++) {
+	identifier = sdscatfmt(identifier,
+		"{\"series\":\"metric\",\"name\":\"%S\",\"labels\":%S,"
+		 "\"semantics\":\"%s\",\"type\":\"%s\",\"units\":\"%s\"}",
+		metric->names[i].sds, labelset,
+		pmSemStr_r(desc->sem, sem, sizeof(sem)),
+		pmTypeStr_r(desc->type, type, sizeof(type)),
+		pmUnitsStr_r(&desc->units, units, sizeof(units)));
+	/* Calculate unique metric identifier 20-byte SHA1 hash */
+	SHA1Init(&shactx);
+	SHA1Update(&shactx, (unsigned char *)identifier, sdslen(identifier));
+	SHA1Final(metric->names[i].hash, &shactx);
+	sdsclear(identifier);
+    }
+
     sdsfree(identifier);
+    sdsfree(labelset);
 }
 
 void
-instance_hash(metric_t *metric, value_t *value, sds inst, pmDesc *desc)
+instance_hash(indom_t *ip, instance_t *instance)
 {
     SHA1_CTX		shactx;
-    pmInDom		indom = desc->indom;
-    pmID		pmid = desc->pmid;
-    sds			identifier;
+    sds			identifier, labelset;
+    char		buf[PM_MAXLABELJSONLEN];
+    int			len;
 
+    len = instance_labelsets(ip, instance, buf, sizeof(buf), labels, NULL);
+    if (len <= 0)
+	len = pmsprintf(buf, sizeof(buf), "null");
+
+    labelset = sdsnewlen(buf, len);
     identifier = sdscatfmt(sdsempty(),
-		"{\"descriptor\":{\"domain\":%u,\"cluster\":%u,\"item\":%u,"
-		    "\"serial\":%u,\"semantics\":%u,\"type\":%u,\"units\":%u},"
-		  "\"instance\":\"%S\","
-		  "\"labels\":\"%s\","
-		  "\"type\":\"instance\""
-		"}",
-		pmID_domain(pmid), pmID_cluster(pmid), pmID_item(pmid),
-		(indom == PM_INDOM_NULL) ? -1 : pmInDom_serial(indom),
-		desc->sem, desc->type, *(unsigned int *)&desc->units,
-		inst, metric_labels_str(metric, value));
-
+		"{\"series\":\"instance\",\"name\":\"%S\",\"labels\":%S}",
+		instance->name.sds, labelset);
+    /* Calculate unique instance identifier 20-byte SHA1 hash */
     SHA1Init(&shactx);
     SHA1Update(&shactx, (unsigned char *)identifier, sdslen(identifier));
-    SHA1Final(value->hash, &shactx);
+    SHA1Final(instance->name.hash, &shactx);
     sdsfree(identifier);
+    sdsfree(labelset);
 }

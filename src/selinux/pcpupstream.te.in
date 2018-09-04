@@ -73,12 +73,14 @@ require {
         type system_map_t; # pmda.bcc
         type sysctl_irq_t; # pmda.bcc
         type gpsd_t; #RHBZ1594991
+        type default_t;
+        type home_bin_t;
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
 	class dir { add_name open read search write getattr };
 	class unix_stream_socket connectto;
-	class capability { kill sys_ptrace net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
+	class capability { kill dac_override sys_ptrace net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
 	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
 	class fifo_file { getattr read open unlink }; # qa/455
@@ -259,6 +261,8 @@ allow pcp_pmcd_t init_t:shm unix_read;
 #RHBZ1594991
 allow pcp_pmcd_t gpsd_t:shm { associate getattr };
 
+allow pcp_pmcd_t default_t:file getattr;
+
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
@@ -275,7 +279,6 @@ allow pcp_pmlogger_t devlog_t:lnk_file read;
 allow pcp_pmlogger_t self:capability { sys_ptrace fowner fsetid };
 
 ## type=AVC msg=audit(04/19/2017 16:57:40.120:11020) : avc:  denied  { signal } for  pid=28414 comm=pmsignal scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process
-
 allow pcp_pmlogger_t unconfined_t:process signal;
 
 #type=AVC msg=audit(1503321970.417:261): avc:  denied  { execute_no_trans } for  pid=6760 comm="pmlogger_check" path="/usr/bin/pmlogger" dev="dm-1" ino=1051023 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:pcp_pmlogger_exec_t:s0 tclass=file permissive=0
@@ -284,17 +287,23 @@ allow pcp_pmlogger_t pcp_pmlogger_exec_t:file execute_no_trans;
 #type=AVC msg=audit(1493690261.688:262): avc:  denied  { name_connect } for  pid=17604 comm="pmlc" dest=4330 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:dey_sapi_port_t:s0 tclass=tcp_socket
 allow pcp_pmlogger_t dey_sapi_port_t:tcp_socket name_connect;
 
+#type=AVC msg=audit(1533291591.092:495620): avc:  denied  { connectto } for  pid=18025 comm="pmprobe" path="/run/pcp/pmcd.socket" scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=unix_stream_socket permissive=0
+allow pcp_pmlogger_t unconfined_t:unix_stream_socket connectto;
+
 #RHBZ1488116
 #type=AVC msg=audit(1504516526.487:431): avc:  denied  { search } for  pid=18056 comm="ps" name="testuser" dev="dm-0" ino=539096275 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_home_dir_t:s0 tclass=dir
 allow pcp_pmlogger_t user_home_dir_t:dir search;
-
 #RHBZ1547066
 allow pcp_pmlogger_t kernel_t:unix_dgram_socket sendto;
+
+allow pcp_pmlogger_t home_bin_t:dir search;
+
+
 #============= pcp_pmie_t ==============
 allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read @PCP_HOSTNAME_EXEC_MAP@ };
 
 #type=AVC msg=audit(1498847682.537:15753): avc:  denied  { sys_ptrace } for  pid=30881 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=capability permissive=0
-allow pcp_pmie_t self:capability { chown kill net_admin sys_ptrace };
+allow pcp_pmie_t self:capability { chown fowner dac_override kill net_admin sys_ptrace };
 
 #type=AVC msg=audit(04/05/2017 10:24:45.084:351) : avc: denied { connectto } for pid=8941 comm=systemctl path=/run/systemd/private scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:init_t:s0 tclass=unix_stream_socket
 allow pcp_pmie_t init_t:unix_stream_socket connectto;
@@ -337,6 +346,9 @@ allow pcp_pmie_t pcp_pmcd_t:process signal;
 
 #RHBZ1547066
 allow pcp_pmie_t init_exec_t:file getattr;
+
+@PCP_CAPUSERNS_PTRACE_RULE_PMIE@
+allow pcp_pmie_t user_home_dir_t:dir search;
 #============= pmda-lio ==============
 allow pcp_pmcd_t configfs_t:dir { open read search };
 allow pcp_pmcd_t configfs_t:file { getattr open read };
@@ -354,7 +366,7 @@ allow pcp_pmcd_t saslauthd_t:unix_stream_socket connectto;
 
 #============= pcp_pmproxy_t ==============
 #type=AVC msg=audit(04/05/2017 09:54:13.548:281) : avc: denied { net_admin } for pid=6669 comm=pmproxy capability=net_admin scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:system_r:pcp_pmproxy_t:s0 tclass=capability
-allow pcp_pmproxy_t self:capability net_admin;
+allow pcp_pmproxy_t self:capability { net_admin dac_override };
 
 #type=AVC msg=audit(04/05/2017 09:54:13.548:281) : avc: denied { read } for pid=6669 comm=pmproxy name=disable_ipv6 dev="proc" ino=9994 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
 #type=AVC msg=audit(04/05/2017 10:24:45.771:356) : avc: denied { open } for pid=9669 comm=pmproxy path=/proc/sys/net/ipv6/conf/all/disable_ipv6 dev="proc" ino=9994 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
@@ -395,4 +407,3 @@ allow pcp_pmcd_t self:capability sys_rawio;
 #============= pmda-redis ==============
 #type=AVC msg=audit(1533183330.416:362367): avc:  denied  { name_connect } for  pid=15299 comm="pmdaredis" dest=6379 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:redis_port_t:s0 tclass=tcp_socket permissive=0
 allow pcp_pmcd_t redis_port_t:tcp_socket name_connect;
-

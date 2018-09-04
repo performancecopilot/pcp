@@ -436,7 +436,7 @@ processItem(redisReader *r)
 
     /* check if we need to read type */
     if (cur->type < 0) {
-        if ((p = readBytes(r,1)) != NULL) {
+        if ((p = readBytes(r, 1)) != NULL) {
             switch (p[0]) {
             case '-':
                 cur->type = REDIS_REPLY_ERROR;
@@ -948,9 +948,9 @@ redisSetTimeout(redisContext *c, const struct timeval tv)
 
 /* Enable connection KeepAlive. */
 int
-redisEnableKeepAlive(redisContext *c)
+redisAsyncEnableKeepAlive(redisAsyncContext *ac)
 {
-    if (redisKeepAlive(c, REDIS_KEEPALIVE_INTERVAL) != REDIS_OK)
+    if (redisKeepAlive(&ac->c, REDIS_KEEPALIVE_INTERVAL) != REDIS_OK)
         return REDIS_ERR;
     return REDIS_OK;
 }
@@ -984,7 +984,7 @@ redisBufferRead(redisContext *c)
         __redisSetError(c, REDIS_ERR_EOF, "Server closed the connection");
         return REDIS_ERR;
     } else {
-        if (redisReaderFeed(c->reader,buf,nread) != REDIS_OK) {
+        if (redisReaderFeed(c->reader, buf, nread) != REDIS_OK) {
             __redisSetError(c, c->reader->err, c->reader->errstr);
             return REDIS_ERR;
         }
@@ -1096,16 +1096,6 @@ __redisAppendCommand(redisContext *c, const char *cmd, size_t len)
 	return REDIS_ERR;
     }
     c->obuf = newbuf;
-    return REDIS_OK;
-}
-
-int
-redisAppendFormattedCommand(redisContext *c, const char *cmd, size_t len)
-{
-    if (pmDebugOptions.desperate)
-	fprintf(stderr, "C[%lu]: %s\n", (long)len, cmd);
-    if (__redisAppendCommand(c, cmd, len) != REDIS_OK)
-	return REDIS_ERR;
     return REDIS_OK;
 }
 
@@ -1711,7 +1701,7 @@ nextArgument(const char *start, const char **str, size_t *len)
  * provided callback function with the context.
  */
 static int
-__redisAsyncCommand(redisAsyncContext *ac, redisCallBackFunc *func,
+__redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
 		void *privdata, const char *cmd, size_t len)
 {
     redisContext	*c = &(ac->c);
@@ -1789,7 +1779,7 @@ __redisAsyncCommand(redisAsyncContext *ac, redisCallBackFunc *func,
 }
 
 int
-redisAsyncFormattedCommand(redisAsyncContext *ac, redisCallBackFunc *func,
+redisAsyncFormattedCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
 		void *data, const char *cmd, size_t len)
 {
     return __redisAsyncCommand(ac, func, data, cmd, len);
