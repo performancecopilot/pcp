@@ -37,4 +37,4 @@ install_pcp : install
 check :: check_pcp
 
 check_pcp:
-	python -m unittest discover -s test -p '*_test.py'
+	pmpython -m unittest discover -s test -p '*_test.py'
