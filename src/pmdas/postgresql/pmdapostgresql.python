@@ -719,12 +719,12 @@ class POSTGRESQLPMDA(PMDA):
         # add all the metrics
         self.setup_metrics()
 
-        self.debug("Connecting to db '%s' as user '%s'" % (self.config["dbname"], self.config["user"]))
-        self.set_user(self.config["user"])
+        self.debug("Connecting to db '%s' as user '%s'" % (self.conf["dbname"], self.conf["user"]))
+        self.set_user(self.conf["user"])
 
         # TODO wrap exception
-        self.conn = psycopg2.connect(dbname=self.config["dbname"],
-            user=self.config["user"], password=self.config["password"])
+        self.conn = psycopg2.connect(dbname=self.conf["dbname"],
+            user=self.conf["user"], password=self.conf["password"])
 
         cur = self.conn.cursor()
         cur.execute('SELECT version()')
@@ -953,15 +953,15 @@ class POSTGRESQLPMDA(PMDA):
         parser.read(filename)
 
         # get section, default to postgresql
-        self.config = {}
+        self.conf = {}
         if parser.has_section(section):
             conf = parser.items(section)
             for param in conf:
-                self.config[param[0]] = param[1]
+                self.conf[param[0]] = param[1]
         else:
             raise Exception('Section {0} not found in the {1} file'.format(section, filename))
 
-        return self.config# dict
+        return self.conf # dict
 
     def debug(self, msg):
         if self.dbg:
