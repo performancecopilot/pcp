@@ -12,7 +12,9 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# pylint: disable=C0103,R0914,R0902,W0141
+# pylint: disable=bad-continuation,invalid-name,global-statement
+# pylint: disable=line-too-long,too-many-locals
+
 """ Display device mapper cache statistics for the system """
 
 import sys
@@ -28,8 +30,7 @@ CACHE_METRICS = ['dmcache.cache.used', 'dmcache.cache.total',
                  'dmcache.write_hits', 'dmcache.write_misses',
                  'disk.dm.read', 'disk.dm.write']
 
-HEADING = ''
-COL_HEADING = \
+COLUMN_HEADING = \
     ' ---%used--- ---------reads--------- --------writes---------'
 
 SUBHEAD_IOPS = \
@@ -39,7 +40,7 @@ SUBHEAD_RATIO = \
 RATIO = True                # default to displaying cache hit ratios
 REPEAT = 10                # repeat heading after every N samples
 
-def option(opt, optarg, index):
+def option(opt, optarg, _):
     """ Perform setup for an individual command line option """
     global RATIO
     global REPEAT
@@ -132,13 +133,13 @@ class DmCachePrinter(pmcc.MetricGroupPrinter):
         else:
             print('No values available')
 
-    def report(self, groups):
+    def report(self, manager):
         """ Report driver routine - headings, sub-headings and values """
-        self.convert(groups)
-        group = groups['dmcache']
+        self.convert(manager)
+        group = manager['dmcache']
         max_lv = max_lv_length(group)
         padding = " "*max_lv
-        if groups.counter % REPEAT == 1:
+        if manager.counter % REPEAT == 1:
             if not self.hostname:
                 self.hostname = group.contextCache.pmGetContextHostName()
             stamp = group.contextCache.pmCtime(long(group.timestamp))
@@ -147,9 +148,9 @@ class DmCachePrinter(pmcc.MetricGroupPrinter):
                 style = "%s%s" % (padding, SUBHEAD_RATIO)
             else:
                 style = "%s%s" % (padding, SUBHEAD_IOPS)
-            
-            HEADING = ' device '.center(max_lv,'-') + COL_HEADING
-            print('%s\n%s\n%s' % (title, HEADING, style))
+
+            heading = ' device '.center(max_lv, '-') + COLUMN_HEADING
+            print('%s\n%s\n%s' % (title, heading, style))
         self.report_values(group, width=max_lv)
 
 if __name__ == '__main__':
@@ -162,14 +163,14 @@ if __name__ == '__main__':
         options.pmSetLongOption('iops', 0, 'i', '', 'display IOPs instead of cache hit ratio')
         options.pmSetLongOptionVersion()
         options.pmSetLongOptionHelp()
-        manager = pmcc.MetricGroupManager.builder(options, sys.argv)
-        missing = manager.checkMissingMetrics(CACHE_METRICS)
+        dmcache = pmcc.MetricGroupManager.builder(options, sys.argv)
+        missing = dmcache.checkMissingMetrics(CACHE_METRICS)
         if missing != None:
             sys.stderr.write('Error: not all required metrics are available\nMissing: %s\n' % (missing))
             sys.exit(1)
-        manager.printer = DmCachePrinter(options.pmGetOperands())
-        manager['dmcache'] = CACHE_METRICS
-        manager.run()
+        dmcache.printer = DmCachePrinter(options.pmGetOperands())
+        dmcache['dmcache'] = CACHE_METRICS
+        dmcache.run()
     except pmapi.pmErr as error:
         print('%s: %s\n' % (error.progname(), error.message()))
     except pmapi.pmUsageErr as usage:
