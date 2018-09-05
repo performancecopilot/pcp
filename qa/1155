@@ -12,6 +12,8 @@ echo "QA output created by $seq"
 
 _pmdabcc_check
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+[[ "$(python src/bcc_version_check.python)" = "0.6.1" ]] \
+  && _notrun "Broken BCC version detected"
 
 target_ip=1.1.1.1
 

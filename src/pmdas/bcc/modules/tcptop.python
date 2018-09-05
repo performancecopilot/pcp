@@ -15,7 +15,7 @@
 #
 """ PCP BCC PMDA tcptop module """
 
-# pylint: disable=invalid-name, line-too-long, too-many-instance-attributes, too-many-locals
+# pylint: disable=invalid-name, too-many-instance-attributes, too-many-locals
 
 import ctypes as ct
 from collections import namedtuple
@@ -85,6 +85,7 @@ class PCPBCCModule(PCPBCCBase):
 
         self.log("Initialized.")
 
+    # pylint: disable=line-too-long
     def metrics(self):
         """ Get metric definitions """
         name = METRIC
@@ -193,7 +194,7 @@ class PCPBCCModule(PCPBCCBase):
         keys.update(ipv6_recv_bytes_dict)
 
         idx = 0
-        for k, v in sorted(keys.items(), key=lambda kv: kv[1], reverse=True): # pylint: disable=unused-variable
+        for k, _ in sorted(keys.items(), key=lambda kv: kv[1], reverse=True):
             send_bytes = 0
             recv_bytes = 0
 
@@ -236,7 +237,8 @@ class PCPBCCModule(PCPBCCBase):
             while bpf == self.bpf:
                 cnt = self.refresh_stats()
                 if self.debug:
-                    self.log("Fetched data from BPF table, current number of connections: %d." % cnt)
+                    self.log("Fetched data from BPF table, "
+                             "current number of connections: %d." % cnt)
                 sleep(self.interval)
         except Exception as error: # pylint: disable=broad-except
             self.err(str(error))
