@@ -647,8 +647,12 @@ reportconfig(void)
 	    change |= 1;
 	    printf("\nLabel: %s",
 		   __pmLabelIdentString(lp->old_id, lp->old_type, buf, sizeof(buf)));
-	    if (lp->old_type == PM_LABEL_INSTANCES && lp->old_instance != 0)
-		printf(", Instance: %d", lp->old_instance);
+	    if (lp->old_type == PM_LABEL_INSTANCES) {
+		if (lp->old_instance != -1)
+		    printf(", Instance: %d", lp->old_instance);
+		else
+		    printf(", Instances: ALL");
+	    }
 	    if (lp->old_label != NULL)
 		printf(", Label: \"%s\"", lp->old_label);
 	    if (lp->old_value != NULL)

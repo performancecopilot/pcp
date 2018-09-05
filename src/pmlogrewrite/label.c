@@ -300,12 +300,12 @@ do_labelset(void)
     unsigned int	type = 0;
     unsigned int	ident = 0;
     int			nsets = 0;
+    int			flags = 0;
     pmLabelSet		*labellist;
     pmLabelSet		*lsp;
     pmTimeval		stamp;
     labelspec_t		*lp;
     int			full_record;
-    int			changed;
     int			ls_ix;
     int			sts;
     char		buf[64];
@@ -323,6 +323,11 @@ do_labelset(void)
 	if (lp->old_type != type)
 	    continue;
 	if (lp->old_id != ident)
+	    continue;
+
+	/* We are not interested in LABEL_NEW operations here. */
+	flags = lp->flags & ~LABEL_NEW;
+	if (flags == 0)
 	    continue;
 
 	/*
@@ -349,7 +354,7 @@ do_labelset(void)
 
 	/* Perform any full record operations here, if able. */
 	if (full_record) {
-	    if (lp->flags & LABEL_DELETE) {
+	    if ((flags & LABEL_DELETE)) {
 		if (pmDebugOptions.appl1) {
 		    fprintf(stderr, "Delete: label set for ");
 		    if ((lp->old_type & PM_LABEL_CONTEXT))
@@ -370,10 +375,8 @@ do_labelset(void)
 	    }
 
 	    /* Rewrite the id as specified. */
-	    if ((lp->flags & LABEL_CHANGE_ID))
+	    if ((flags & LABEL_CHANGE_ID))
 		ident = lp->new_id;
-
-	    continue; /* next change record */
 	}
 
 	/*
@@ -384,8 +387,8 @@ do_labelset(void)
 	for (ls_ix = 0; ls_ix < nsets; ++ls_ix) {
 	    lsp = & labellist[ls_ix];
 	    /*
-	     * If the change record is for an indom instance, then the instance
-	     * in the labelset must match.
+	     * If the change record is for a specific indom instance, then the
+	     * instance in the labelset must match.
 	     */
 	    if (lp->old_type == PM_LABEL_INSTANCES &&
 		lp->old_instance != -1 && lp->old_instance != lsp->inst)
@@ -400,67 +403,61 @@ do_labelset(void)
 		 * If all we're doing is changing the instance for this label
 		 * set, then it can be done in place.
 		 */
-		if (lp->flags == LABEL_CHANGE_INSTANCE) {
+		if (flags == LABEL_CHANGE_INSTANCE) {
 		    lsp->inst = lp->new_instance;
 		    continue; /* next labelset */
 		}
 
 		/*
-		 * We don't handle NEW operations here, but all other operations
-		 * require that we extract the current labelset from the label
-		 * record.
+		 * All other operations require that we extract the current
+		 * labelset from the label record.
 		 */
-		if ((lp->flags & ~LABEL_NEW)) {
-		    lsp = extract_labelset (ls_ix, & labellist, & nsets);
+		lsp = extract_labelset (ls_ix, & labellist, & nsets);
 
-		    if (lp->flags & LABEL_DELETE) {
-			pmFreeLabelSets(lsp, 1);
-			if (nsets == 1)
-			    return; /* last labelset deleted */
-			--ls_ix; /* labelset was extracted */
-			continue; /* next labelset */
-		    }
-
-		    changed = 0;
-		    if (lp->flags == LABEL_CHANGE_INSTANCE) {
-			lsp->inst = lp->new_instance;
-			changed = 1;
-		    }
-		    if ((lp->flags & LABEL_CHANGE_ID)) {
-			/*
-			 * The new id will be picked up from the change record
-			 * when the record is written below.
-			 */
-			changed = 1;
-		    }
-		    /*
-		     * If the extracted labelset has changed, write it here.
-		     * libpcp, via __pmLogPutLabel(), assumes control of the
-		     * storage pointed to by lsp.
-		     */
-		    if (changed) {
-			if ((sts = __pmLogPutLabel(&outarch.archctl, type,
-						   lp->new_id, 1, lsp,
-						   &stamp)) < 0) {
-			    fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
-				    pmGetProgname(),
-				    __pmLabelIdentString(lp->new_id, type,
-							 buf, sizeof(buf)),
-				    pmErrStr(sts));
-			    abandon();
-			    /*NOTREACHED*/
-			}
-			    
-			if (pmDebugOptions.appl0) {
-			    fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
-				    __pmLabelIdentString(lp->new_id, type,
-							 buf, sizeof(buf)),
-				    out_offset);
-			}
-		    }
-
+		if (flags & LABEL_DELETE) {
+		    pmFreeLabelSets(lsp, 1);
+		    if (nsets == 1)
+			return; /* last labelset deleted */
 		    --ls_ix; /* labelset was extracted */
+		    continue; /* next labelset */
 		}
+
+		if ((flags & LABEL_CHANGE_INSTANCE))
+		    lsp->inst = lp->new_instance;
+
+		/*
+		 * We know that there is another operation to perform and that it
+		 * is LABEL_CHANGE_ID. Otherwise the instance would have been
+		 * changed in place aove.
+		 * The changed id will be written below.
+		 */
+		assert((flags & LABEL_CHANGE_ID));
+
+		/*
+		 * Write the extracted labelset here.
+		 * libpcp, via __pmLogPutLabel(), assumes control of the
+		 * storage pointed to by lsp.
+		 */
+		if ((sts = __pmLogPutLabel(&outarch.archctl, type,
+					   lp->new_id, 1, lsp,
+					   &stamp)) < 0) {
+		    fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
+			    pmGetProgname(),
+			    __pmLabelIdentString(lp->new_id, type,
+						 buf, sizeof(buf)),
+			    pmErrStr(sts));
+		    abandon();
+		    /*NOTREACHED*/
+		}
+			    
+		if (pmDebugOptions.appl0) {
+		    fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
+			    __pmLabelIdentString(lp->new_id, type,
+						 buf, sizeof(buf)),
+			    out_offset);
+		}
+
+		--ls_ix; /* labelset was extracted */
 		continue; /* next labelset */
 	    } /* operating on entire labelset */
 	    
@@ -468,7 +465,7 @@ do_labelset(void)
 	     * Iterate over a specific label and/or value was specified
 	     */
 #if 0
-	    if (lp->flags & LABEL_DELETE) {
+	    if (flags & LABEL_DELETE) {
 		if (pmDebugOptions.appl1) {
 		    fprintf(stderr, "Delete: label {");
 		    if (lp->old_label)
@@ -515,27 +512,27 @@ do_labelset(void)
 	    }
 
 	    /* Rewrite the record as specified. */
-	    if ((lp->flags & LABEL_CHANGE_ID))
+	    if ((flags & LABEL_CHANGE_ID))
 		ident = lp->new_id;
 	
 	    if (pmDebugOptions.appl1) {
-		if ((lp->flags & LABEL_CHANGE_ANY)) {
+		if ((flags & LABEL_CHANGE_ANY)) {
 		    fprintf(stderr, "Rewrite: label set %s",
 			    __pmLabelIdentString(lp->old_id, lp->old_type,
 						 buf, sizeof(buf)));
 		}
-		if ((lp->flags & (LABEL_CHANGE_LABEL | LABEL_CHANGE_VALUE))) {
+		if ((flags & (LABEL_CHANGE_LABEL | LABEL_CHANGE_VALUE))) {
 		    fprintf(stderr, " \"%s\"", lp->old_label);
 		}
-		if ((lp->flags & LABEL_CHANGE_ANY)) {
+		if ((flags & LABEL_CHANGE_ANY)) {
 		    fprintf(stderr, " to\nlabel set %s",
 			    __pmLabelIdentString(lp->new_id, lp->new_type,
 						 buf, sizeof(buf)));
 		}
-		if ((lp->flags & (LABEL_CHANGE_LABEL | LABEL_CHANGE_VALUE))) {
+		if ((flags & (LABEL_CHANGE_LABEL | LABEL_CHANGE_VALUE))) {
 		    fprintf(stderr, " \"%s\"\"%s\"", lp->new_label, lp->new_value);
 		}
-		if ((lp->flags & LABEL_CHANGE_ANY))
+		if ((flags & LABEL_CHANGE_ANY))
 		    fputc('\n', stderr);
 	    }
 #endif
