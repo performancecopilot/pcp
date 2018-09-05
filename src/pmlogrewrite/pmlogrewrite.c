@@ -645,8 +645,15 @@ reportconfig(void)
     for (lp = label_root; lp != NULL; lp = lp->l_next) {
 	if (lp->flags != 0) {
 	    change |= 1;
-	    printf("\nLabel: %s\n",
+	    printf("\nLabel: %s",
 		   __pmLabelIdentString(lp->old_id, lp->old_type, buf, sizeof(buf)));
+	    if (lp->old_type == PM_LABEL_INSTANCES && lp->old_instance != 0)
+		printf(", Instance: %d", lp->old_instance);
+	    if (lp->old_label != NULL)
+		printf(", Label: \"%s\"", lp->old_label);
+	    if (lp->old_value != NULL)
+		printf(", Value: \"%s\"", lp->old_value);
+	    putchar ('\n');
 	}
 	if (lp->flags & LABEL_NEW) {
 	    printf("NEW:\n");
@@ -903,7 +910,7 @@ link_entries(void)
 		    continue;
 
 		/* Found one. */
-		lp = start_label(type, (int)(node2->key), NULL, NULL);
+		lp = start_label(type, (int)(node2->key), 0, NULL, NULL);
 		assert(lp->old_id == ip->old_indom);
 		if (change)
 		    lp->ip = ip;
@@ -962,7 +969,7 @@ link_entries(void)
 		    continue;
 
 		/* Found one. */
-		lp = start_label(type, old_id, NULL, NULL);
+		lp = start_label(type, old_id, 0, NULL, NULL);
 		assert(lp->old_id == old_id);
 		if (old_id != new_id) {
 		    if (lp->flags & LABEL_CHANGE_ID) {

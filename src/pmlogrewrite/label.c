@@ -15,6 +15,7 @@
  */
 
 #include <string.h>
+#include <assert.h>
 #include "pmapi.h"
 #include "libpcp.h"
 #include "logger.h"
@@ -23,7 +24,7 @@
  * Find or create a new labelspec_t
  */
 labelspec_t *
-start_label(int type, int id, char *label, char *value)
+start_label(int type, int id, int instance, char *label, char *value)
 {
     labelspec_t	*lp;
     char	buf[64];
@@ -37,22 +38,34 @@ start_label(int type, int id, char *label, char *value)
     for (lp = label_root; lp != NULL; lp = lp->l_next) {
 	if (type == lp->old_type) {
 	    if (id == lp->old_id) {
-		if ((label == NULL ||
-		     (lp->old_label != NULL && strcmp (label, lp->old_label) == 0)) &&
-		    (value == NULL ||
-		     (lp->old_value != NULL && strcmp (value, lp->old_value) == 0))) {
-		    if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
-			fprintf(stderr, " -> %s",
-				__pmLabelIdentString(lp->new_id, lp->new_type,
-						     buf, sizeof(buf)));
+		if (instance == -1 || instance == lp->old_instance) {
+		    if ((label == NULL ||
+			 (lp->old_label != NULL && strcmp (label, lp->old_label) == 0)) &&
+			(value == NULL ||
+			 (lp->old_value != NULL && strcmp (value, lp->old_value) == 0))) {
+			if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
+			    fprintf(stderr, " -> %s",
+				    __pmLabelIdentString(lp->new_id, lp->new_type,
+							 buf, sizeof(buf)));
+			}
+			return lp;
 		    }
-		    return lp;
 		}
 	    }
 	}
     }
 
     /* The label set was not found. Create a new change spec. */
+    lp = create_label(type, id, instance, label, value);
+    return lp;
+}
+
+labelspec_t *
+create_label(int type, int id, int instance, char *label, char *value)
+{
+    labelspec_t	*lp;
+
+    /* Create a new change spec. */
     lp = (labelspec_t *)malloc(sizeof(labelspec_t));
     if (lp == NULL) {
 	fprintf(stderr, "labelspec malloc(%d) failed: %s\n", (int)sizeof(labelspec_t), strerror(errno));
@@ -65,6 +78,7 @@ start_label(int type, int id, char *label, char *value)
     label_root = lp;
     lp->old_type = lp->new_type = type;
     lp->old_id = lp->new_id = id;
+    lp->old_instance = lp->new_instance = instance;
     lp->old_label = label;
     lp->old_value = value;
     lp->new_label = NULL;
@@ -183,6 +197,102 @@ _pmUnpackLabelSet(__pmPDU *pdubuf, unsigned int *type, unsigned int *ident,
     }
 }
 
+#if 0
+static int
+find_label (
+    const char *label,
+    const char *value,
+    int nsets,
+    const pmLabelSet *labellist,
+    int *labelset_ix,
+    int *label_ix)
+{
+    const pmLabelSet	*lsp;
+    const pmLabel	*lp;
+
+    /*
+     * Find the specified label in the given label set beginning at the given
+     * position.
+     * - When starting at the beginning, both labelset_ix and label_ix will be
+     *   -1.
+     * - When resuming the search, they will indicate the position of the last
+     *   label found.
+     * - One or both of label and value may be NULL
+     *   - If both are NULL, then we're not looking for any label in particular.
+     *     In this case, for the initial search  just return 1 for success, and
+     *     for any subsequent search, return 0.
+     *   - If either is non-NULL, then we are looking for the particular label(s)
+     *     with those names and values.
+     */
+    if (*labelset_ix == -1) {
+	*labelset_ix = 0;
+	*label_ix = 0;
+	if (label == NULL && value == NULL)
+	    return 1; /* success */
+    }
+    else {
+	if (label == NULL && value == NULL)
+	    return 0; /* not found */
+	++*label_ix;
+    }
+
+    /* We'll need these later */
+    if (label != NULL)
+	label_len = strlen(label);
+    if (value != NULL)
+	value_len = strlen(value);
+
+    /* Look for the next matching label. */
+    while (*labelset_ix < nsets) {
+	lsp = &labellist[*labelset_ix];
+	while (*label_ix < lsp->nlabels) {
+	    lp = &lsp->labels[*label_ix];
+	}
+
+	/* Look in the next label set, if there is one. */
+	++*labelset_ix;
+    }
+
+    return 0;
+}
+#endif
+
+static pmLabelSet *
+extract_labelset (int ls_ix, pmLabelSet **labellist, int *nsets)
+{
+    pmLabelSet *extracted;
+
+    /* if there is only one label set in the list, then just return it. */
+    if (*nsets == 1) {
+	extracted = *labellist;
+	*nsets = 0;
+	*labellist = NULL;
+	return extracted;
+    }
+    
+    /*
+     * Make a copy of the selected labelset. We can just use a struct assignment.
+     */
+    extracted = malloc(sizeof(*extracted));
+    *extracted = (*labellist)[ls_ix];
+
+    /* Now collapse the list, if necessary */
+    if (ls_ix < *nsets - 1)
+	memmove(*labellist + ls_ix, *labellist + ls_ix + 1,
+		(*nsets - ls_ix - 1) * sizeof(**labellist));
+
+    /* Reallocate the list to its new size */
+    --*nsets;
+    *labellist = realloc(*labellist, *nsets * sizeof(**labellist));
+    if (*labellist == NULL) {
+	fprintf(stderr, "labelset realloc(%d) failed: %s\n", (int)(*nsets * sizeof(**labellist)), strerror(errno));
+	abandon();
+	/*NOTREACHED*/
+    }
+    
+    return extracted;
+}
+
 void
 do_labelset(void)
 {
@@ -190,9 +300,13 @@ do_labelset(void)
     unsigned int	type = 0;
     unsigned int	ident = 0;
     int			nsets = 0;
-    pmLabelSet		*labellist = NULL;
+    pmLabelSet		*labellist;
+    pmLabelSet		*lsp;
     pmTimeval		stamp;
     labelspec_t		*lp;
+    int			full_record;
+    int			changed;
+    int			ls_ix;
     int			sts;
     char		buf[64];
 
@@ -205,79 +319,247 @@ do_labelset(void)
      * PDU buffer, so this is reflected in the unpacked value of stamp.
      */
     for (lp = label_root; lp != NULL; lp = lp->l_next) {
-	if (lp->old_id != ident)
-	    continue;
+	/* Check the label type and id for a match. */
 	if (lp->old_type != type)
 	    continue;
+	if (lp->old_id != ident)
+	    continue;
 
-	/* Delete the record? */
-	if (lp->flags & LABEL_DELETE) {
-	    if (pmDebugOptions.appl1) {
-		fprintf(stderr, "Delete: label for ");
-		if ((lp->old_type & PM_LABEL_CONTEXT))
-		    fprintf(stderr, " context\n");
-		else if ((lp->old_type & PM_LABEL_DOMAIN))
-		    fprintf(stderr, " domain %d\n", pmID_domain(lp->old_id));
-		else if ((lp->old_type & PM_LABEL_CLUSTER))
-		    fprintf(stderr, " item %d.%d\n", pmID_domain(lp->old_id), pmID_cluster (lp->old_id));
-		else if ((lp->old_type & PM_LABEL_ITEM))
-		    fprintf(stderr, " item %s\n", pmIDStr(lp->old_id));
-		else if ((lp->old_type & PM_LABEL_INDOM))
-		    fprintf(stderr, " indom %s\n", pmInDomStr(lp->old_id));
-		else if ((lp->old_type & PM_LABEL_INSTANCES))
-		    fprintf(stderr, " the instances of indom %s\n", pmInDomStr(lp->old_id));
+	/*
+	 * We can Operate on the entire label record if no specific label/value
+	 * was specified on the change record AND if no specific instance
+	 * was specified or all of the instances in the labelsets match.
+	 */
+	full_record = 0;
+	if (lp->old_label == NULL && lp->old_value == NULL) {
+	    if (lp->old_type != PM_LABEL_INSTANCES)
+		full_record = 1;
+	    else if (lp->old_instance == -1)
+		full_record = 1;
+	    else {
+		for (ls_ix = 0; ls_ix < nsets; ++ls_ix) {
+		    lsp = & labellist[ls_ix];
+		    if (lp->old_instance != lsp->inst)
+			break;
+		}
+		if (ls_ix >= nsets)
+		    full_record = 1;
 	    }
-	    free(labellist);
-	    return;
 	}
 
-	/* Rewrite the record as specified. */
-	if ((lp->flags & LABEL_CHANGE_ID))
-	    ident = lp->new_id;
-#if 0 /* not supported yet */
-	if ((lp->flags & LABEL_CHANGE_LABEL))
-	    buffer = lp->new_label;
-	if ((lp->flags & LABEL_CHANGE_VALUE))
-	    buffer = lp->new_label;
-#endif
+	/* Perform any full record operations here, if able. */
+	if (full_record) {
+	    if (lp->flags & LABEL_DELETE) {
+		if (pmDebugOptions.appl1) {
+		    fprintf(stderr, "Delete: label set for ");
+		    if ((lp->old_type & PM_LABEL_CONTEXT))
+			fprintf(stderr, " context\n");
+		    else if ((lp->old_type & PM_LABEL_DOMAIN))
+			fprintf(stderr, " domain %d\n", pmID_domain(lp->old_id));
+		    else if ((lp->old_type & PM_LABEL_CLUSTER))
+			fprintf(stderr, " item %d.%d\n", pmID_domain(lp->old_id), pmID_cluster (lp->old_id));
+		    else if ((lp->old_type & PM_LABEL_ITEM))
+			fprintf(stderr, " item %s\n", pmIDStr(lp->old_id));
+		    else if ((lp->old_type & PM_LABEL_INDOM))
+			fprintf(stderr, " indom %s\n", pmInDomStr(lp->old_id));
+		    else if ((lp->old_type & PM_LABEL_INSTANCES))
+			fprintf(stderr, " the instances of indom %s\n", pmInDomStr(lp->old_id));
+		}
+		pmFreeLabelSets(labellist, nsets);
+		return;
+	    }
+
+	    /* Rewrite the id as specified. */
+	    if ((lp->flags & LABEL_CHANGE_ID))
+		ident = lp->new_id;
+
+	    continue; /* next change record */
+	}
+
+	/*
+	 * We're operating on a specific labelsets and/or labels within the
+	 * label record. We need to iterate over the affected labels in each
+	 * affected labelset.
+	 */
+	for (ls_ix = 0; ls_ix < nsets; ++ls_ix) {
+	    lsp = & labellist[ls_ix];
+	    /*
+	     * If the change record is for an indom instance, then the instance
+	     * in the labelset must match.
+	     */
+	    if (lp->old_type == PM_LABEL_INSTANCES &&
+		lp->old_instance != -1 && lp->old_instance != lsp->inst)
+		continue;
+
+	    /*
+	     * If no specific label/value was specified, then we're operating
+	     * on the entire labelset.
+	     */
+	    if (lp->old_label == NULL && lp->old_value == NULL) {
+		/*
+		 * If all we're doing is changing the instance for this label
+		 * set, then it can be done in place.
+		 */
+		if (lp->flags == LABEL_CHANGE_INSTANCE) {
+		    lsp->inst = lp->new_instance;
+		    continue; /* next labelset */
+		}
+
+		/*
+		 * We don't handle NEW operations here, but all other operations
+		 * require that we extract the current labelset from the label
+		 * record.
+		 */
+		if ((lp->flags & ~LABEL_NEW)) {
+		    lsp = extract_labelset (ls_ix, & labellist, & nsets);
+
+		    if (lp->flags & LABEL_DELETE) {
+			pmFreeLabelSets(lsp, 1);
+			if (nsets == 1)
+			    return; /* last labelset deleted */
+			--ls_ix; /* labelset was extracted */
+			continue; /* next labelset */
+		    }
+
+		    changed = 0;
+		    if (lp->flags == LABEL_CHANGE_INSTANCE) {
+			lsp->inst = lp->new_instance;
+			changed = 1;
+		    }
+		    if ((lp->flags & LABEL_CHANGE_ID)) {
+			/*
+			 * The new id will be picked up from the change record
+			 * when the record is written below.
+			 */
+			changed = 1;
+		    }
+		    /*
+		     * If the extracted labelset has changed, write it here.
+		     * libpcp, via __pmLogPutLabel(), assumes control of the
+		     * storage pointed to by lsp.
+		     */
+		    if (changed) {
+			if ((sts = __pmLogPutLabel(&outarch.archctl, type,
+						   lp->new_id, 1, lsp,
+						   &stamp)) < 0) {
+			    fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
+				    pmGetProgname(),
+				    __pmLabelIdentString(lp->new_id, type,
+							 buf, sizeof(buf)),
+				    pmErrStr(sts));
+			    abandon();
+			    /*NOTREACHED*/
+			}
+			    
+			if (pmDebugOptions.appl0) {
+			    fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
+				    __pmLabelIdentString(lp->new_id, type,
+							 buf, sizeof(buf)),
+				    out_offset);
+			}
+		    }
+
+		    --ls_ix; /* labelset was extracted */
+		}
+		continue; /* next labelset */
+	    } /* operating on entire labelset */
+	    
+	    /*
+	     * Iterate over a specific label and/or value was specified
+	     */
+#if 0
+	    if (lp->flags & LABEL_DELETE) {
+		if (pmDebugOptions.appl1) {
+		    fprintf(stderr, "Delete: label {");
+		    if (lp->old_label)
+			fprintf(stderr, "\"%s\",", lp->old_label);
+		    else
+			fprintf(stderr, "ALL,");
+		    if (lp->old_value)
+			fprintf(stderr, "\"%s\" ", lp->old_value);
+		    else
+			fprintf(stderr, "ALL ");
+		    fprintf(stderr, "} for ");
+		    if ((lp->old_type & PM_LABEL_CONTEXT))
+			fprintf(stderr, "context");
+		    else if ((lp->old_type & PM_LABEL_DOMAIN))
+			fprintf(stderr, "domain %d", pmID_domain(lp->old_id));
+		    else if ((lp->old_type & PM_LABEL_CLUSTER))
+			fprintf(stderr, "cluster %d.%d", pmID_domain(lp->old_id), pmID_cluster (lp->old_id));
+		    else if ((lp->old_type & PM_LABEL_ITEM))
+			fprintf(stderr, "item %s", pmIDStr(lp->old_id));
+		    else if ((lp->old_type & PM_LABEL_INDOM))
+			fprintf(stderr, "indom %s", pmInDomStr(lp->old_id));
+		    else if ((lp->old_type & PM_LABEL_INSTANCES)) {
+			if (lp->old_instance)
+			    fprintf(stderr, "instance %d ", lp->old_instance);
+			else
+			    fprintf(stderr, "all instances ");
+			fprintf(stderr, "of indom %s", pmInDomStr(lp->old_id));
+		    }
+		    fputc('\n', stderr);
+		}
+
+		/* Delete the selected label(set)(s). */
+		if (labelset_ix == -1) {
+		    /* Free the entire label set. */
+		    pmFreeLabelSets(labellist, nsets);
+		    continue; /* next change record */
+		}
+
+		/*
+		 * We're deleting an individual label. It needs to be extracted
+		 * from the label set data structure.
+		 */
+		   
+	    }
+
+	    /* Rewrite the record as specified. */
+	    if ((lp->flags & LABEL_CHANGE_ID))
+		ident = lp->new_id;
 	
-	if (pmDebugOptions.appl1) {
-	    if ((lp->flags & LABEL_CHANGE_ANY)) {
-		fprintf(stderr, "Rewrite: label set %s",
-			__pmLabelIdentString(lp->old_id, lp->old_type,
-					     buf, sizeof(buf)));
+	    if (pmDebugOptions.appl1) {
+		if ((lp->flags & LABEL_CHANGE_ANY)) {
+		    fprintf(stderr, "Rewrite: label set %s",
+			    __pmLabelIdentString(lp->old_id, lp->old_type,
+						 buf, sizeof(buf)));
+		}
+		if ((lp->flags & (LABEL_CHANGE_LABEL | LABEL_CHANGE_VALUE))) {
+		    fprintf(stderr, " \"%s\"", lp->old_label);
+		}
+		if ((lp->flags & LABEL_CHANGE_ANY)) {
+		    fprintf(stderr, " to\nlabel set %s",
+			    __pmLabelIdentString(lp->new_id, lp->new_type,
+						 buf, sizeof(buf)));
+		}
+		if ((lp->flags & (LABEL_CHANGE_LABEL | LABEL_CHANGE_VALUE))) {
+		    fprintf(stderr, " \"%s\"\"%s\"", lp->new_label, lp->new_value);
+		}
+		if ((lp->flags & LABEL_CHANGE_ANY))
+		    fputc('\n', stderr);
 	    }
-	    if ((lp->flags & (LABEL_CHANGE_LABEL | LABEL_CHANGE_VALUE))) {
-		fprintf(stderr, " \"%s\"", lp->old_label);
-	    }
-	    if ((lp->flags & LABEL_CHANGE_ANY)) {
-		fprintf(stderr, " to\nlabel set %s",
-			__pmLabelIdentString(lp->new_id, lp->new_type,
-					     buf, sizeof(buf)));
-	    }
-	    if ((lp->flags & (LABEL_CHANGE_LABEL | LABEL_CHANGE_VALUE))) {
-		fprintf(stderr, " \"%s\"\"%s\"", lp->new_label, lp->new_value);
-	    }
-	    if ((lp->flags & LABEL_CHANGE_ANY))
-		fputc('\n', stderr);
-	}
-    }
+#endif
+	} /* Loop over labelsets */
+    } /* Loop over change records */
 
     /*
+     * Write what remains of the label record, if anything.
      * libpcp, via __pmLogPutLabel(), assumes control of the storage pointed
      * to by labellist.
      */
-    if ((sts = __pmLogPutLabel(&outarch.archctl, type, ident, nsets, labellist, &stamp)) < 0) {
-	fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
-		pmGetProgname(),
-		__pmLabelIdentString(ident, type, buf, sizeof(buf)),
-		pmErrStr(sts));
-	abandon();
-	/*NOTREACHED*/
-    }
+    if (nsets > 0) {
+	if ((sts = __pmLogPutLabel(&outarch.archctl, type, ident, nsets, labellist, &stamp)) < 0) {
+	    fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
+		    pmGetProgname(),
+		    __pmLabelIdentString(ident, type, buf, sizeof(buf)),
+		    pmErrStr(sts));
+	    abandon();
+	    /*NOTREACHED*/
+	}
 
-    if (pmDebugOptions.appl0) {
-	fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
-		__pmLabelIdentString(ident, type, buf, sizeof(buf)), out_offset);
+	if (pmDebugOptions.appl0) {
+	    fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
+		    __pmLabelIdentString(ident, type, buf, sizeof(buf)), out_offset);
+	}
     }
 }
