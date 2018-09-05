@@ -1492,11 +1492,10 @@ __redisGetSubscribeCallBack(redisAsyncContext *ac, redisReply *reply, redisCallB
             }
         }
         sdsfree(sname);
-    } else {
-        /* Shift callback for invalid commands. */
-        __redisShiftCallBack(&ac->sub.invalid, dstcb);
+	return REDIS_OK;
     }
-    return REDIS_OK;
+    /* Shift callback for invalid commands. */
+    return __redisShiftCallBack(&ac->sub.invalid, dstcb);
 }
 
 void
