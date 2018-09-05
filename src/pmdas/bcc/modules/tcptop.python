@@ -79,6 +79,10 @@ class PCPBCCModule(PCPBCCBase):
         self.lock = Lock()
         self.thread = None
 
+        # Exit hard if impossible to continue
+        if self.bcc_version() == "0.6.1":
+            raise RuntimeError("BCC 0.6.1 bug makes it incompatible with this module.")
+
         self.log("Initialized.")
 
     def metrics(self):

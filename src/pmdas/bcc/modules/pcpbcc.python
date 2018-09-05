@@ -310,15 +310,28 @@ class PCPBCCBase(object):
             started = 1
         return name.replace("/", ".").replace("[", "{").replace("]", "}")
 
+    @staticmethod
+    def bcc_version():
+        """ Check BCC version """
+        try:
+            from bcc import __version__
+            return __version__
+        except Exception: # pylint: disable=broad-except
+            from bcc import BPF
+            if 'perf_buffer_poll' in dir(BPF):
+                return "0.6.0"
+            else:
+                return "0.5.0"
+
     def perf_buffer_poller(self):
         """ BPF poller """
         try:
             # pylint: disable=no-member
-            if 'perf_buffer_poll' in dir(self.bpf):
-                poll = self.bpf.perf_buffer_poll
-            else:
-                # Compat: bcc < 0.6.0
+            if self.bcc_version() == "0.5.0":
+               # Compat: bcc < 0.6.0
                 poll = self.bpf.kprobe_poll
+            else:
+                poll = self.bpf.perf_buffer_poll
             bpf = self.bpf
             while bpf == self.bpf:
                 poll()
