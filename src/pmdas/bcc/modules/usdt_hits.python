@@ -13,7 +13,7 @@
 #
 """ PCP BCC PMDA USDT hits module """
 
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, too-many-instance-attributes
 
 from ctypes import c_int
 from os import path

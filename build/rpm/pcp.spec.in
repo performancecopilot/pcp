@@ -97,7 +97,7 @@ Obsoletes: pcp-pmda-kvm
 Provides: pcp-pmda-kvm
 
 # Utilities used indirectly e.g. by scripts we install
-Requires: bash gawk sed grep coreutils findutils
+Requires: bash bc bzip2 gawk gcc sed grep coreutils findutils
 # which(1) comes from different places
 %if 0%{?suse_version} >= 1100
 Requires: util-linux
@@ -1411,7 +1411,7 @@ collecting metrics about Samba.
 %package pmda-slurm
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
+Summary: Performance Co-Pilot (PCP) metrics for the SLURM Workload Manager
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = @package_version@
 

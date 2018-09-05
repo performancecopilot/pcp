@@ -29,7 +29,8 @@ EXPERIMENTAL = false
 ifeq "$(EXPERIMENTAL)" "true"
 #ifeq "$(HAVE_LIBUV)" "true"
 LCFLAGS += $(LIBUVCFLAGS) -I$(TOPDIR)/src/libpcp_web/src
-CFILES += server.c
+CFILES += server.c redis.c pcp.c
+HFILES += server.h
 else
 CFILES += deprecated.c
 endif
@@ -45,6 +46,4 @@ default_pcp:	default
 
 install_pcp:	install
 
-$(OBJECTS):	$(HFILES)
-
-$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
+$(OBJECTS):	$(HFILES) $(TOPDIR)/src/include/pcp/libpcp.h

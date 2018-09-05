@@ -44,7 +44,7 @@ cc ... \-lpcp_mmv \-lpcp
 .ft 1
 .SH DESCRIPTION
 .P
-.B Note: these functions are deprecated \- see mmv_stats_resgistry(3).
+.B Note: these functions are deprecated \- see mmv_stats_registry(3).
 .P
 \f3mmv_stats_init\f1 creates and initializes the content of the 
 \f2MMV\f1(5) file, returning a handle that is used in subsequent
@@ -158,8 +158,9 @@ On failure, NULL is returned and \f2errno\f1 is set to a value suitable
 for decoding with
 .BR strerror (3).
 .SH SEE ALSO
-.BR mmv_inc_value (3),
+.BR mmv_stats_registry (3),
 .BR mmv_lookup_value_desc (3),
+.BR mmv_inc_value (3),
 .BR strerror (3)
 and
 .BR mmv (5).

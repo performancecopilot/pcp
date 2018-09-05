@@ -15,7 +15,7 @@
 #
 """ PCP BCC PMDA xfsdist module """
 
-# pylint: disable=invalid-name, line-too-long, too-many-instance-attributes
+# pylint: disable=invalid-name, too-many-instance-attributes
 
 from os import path
 
@@ -62,12 +62,14 @@ class PCPBCCModule(PCPBCCBase):
 
         self.log("Initialized.")
 
+    # pylint: disable=bad-continuation
     def metrics(self):
         """ Get metric definitions """
         for item in self.item_identifiers:
             self.items.append(
                 # Name - reserved - type - semantics - units - help
-                (BASENS + item, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'xfs %s latency distribution' % item),
+                (BASENS + item, None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'xfs'
+                    '%s latency distribution' % item),
             )
         return True, self.items
 
@@ -138,8 +140,9 @@ class PCPBCCModule(PCPBCCBase):
                 # BCC module is ready (we have histogram buckets),
                 # but doesn't contain the specified histogram bucket
                 return [0, 1]
-            # BCC module isn't ready yet
-            return [PM_ERR_AGAIN, 0]
+            else:
+                # BCC module isn't ready yet
+                return [PM_ERR_AGAIN, 0]
         except Exception: # pylint: disable=broad-except
             return [PM_ERR_AGAIN, 0]
 

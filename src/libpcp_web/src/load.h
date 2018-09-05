@@ -107,10 +107,8 @@ typedef struct metric {
 struct seriesLoadBaton;
 extern void doneSeriesLoadBaton(struct seriesLoadBaton *);
 
-extern void *seriesLoadBatonSlots(struct seriesLoadBaton *);
 extern pmSeriesInfoCallBack seriesLoadBatonInfo(struct seriesLoadBaton *);
 extern context_t *seriesLoadBatonContext(struct seriesLoadBaton *);
-extern void *seriesLoadBatonUser(struct seriesLoadBaton *);
 extern void seriesLoadBatonFetch(struct seriesLoadBaton *);
 
 extern void *findID(struct dict *, void *);

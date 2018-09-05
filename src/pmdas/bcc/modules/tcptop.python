@@ -227,11 +227,16 @@ class PCPBCCModule(PCPBCCBase):
 
     def refresh_stats_loop(self):
         """ Refresh statistics thread loop """
-        while self.bpf is not None:
-            cnt = self.refresh_stats()
-            if self.debug:
-                self.log("Fetched data from BPF table, current number of connections: %d." % cnt)
-            sleep(self.interval)
+        try:
+            bpf = self.bpf
+            while bpf == self.bpf:
+                cnt = self.refresh_stats()
+                if self.debug:
+                    self.log("Fetched data from BPF table, current number of connections: %d." % cnt)
+                sleep(self.interval)
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            self.err("Failed to refresh BPF statistics!")
         self.log("Statistics refresher thread exiting.")
 
     def refresh(self):

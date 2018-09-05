@@ -113,8 +113,10 @@ class PCPBCCModule(PCPBCCBase):
                    self.buffer_page_count & (self.buffer_page_count - 1):
                     raise RuntimeError("Buffer page count is not power of two.")
 
-        self.ipv4_stats = None
-        self.ipv6_stats = None
+        self.ipv4_stats = {}
+        self.ipv6_stats = {}
+        self.stale_ipv4_pids = []
+        self.stale_ipv6_pids = []
 
         self.lock = Lock()
         self.thread = None
@@ -160,13 +162,13 @@ class PCPBCCModule(PCPBCCBase):
 
     def reset_cache(self):
         """ Reset internal cache """
-        self.ipv4_stats = {}
-        self.ipv6_stats = {}
+        # Preserve the contents to allow providing
+        # results when a traced process has exited
 
     def undef_cache(self):
         """ Undefine internal cache """
-        self.ipv4_stats = None
-        self.ipv6_stats = None
+        # Preserve the contents to allow providing
+        # results when a traced process has exited
 
     def perf_buffer_lost_cb(self, lost_cnt):
         """ Callback for lost perf buffer events """
@@ -184,12 +186,12 @@ class PCPBCCModule(PCPBCCBase):
                 # Compat with bcc < 0.6
                 self.log("Testing BCC compatilibility, possible errors below are safe to ignore.")
                 try:
-                    test_txt = self.bpf_text.replace("// NEW: ", "")
+                    test_txt = self.bpf_text.replace("// NEW: ", "").replace("FILTER_PID", "")
                     test_bpf = BPF(text=test_txt)
                     test_bpf.cleanup()
                     self.bpf_text = test_txt
                 except Exception: # pylint: disable=broad-except
-                    self.bpf_text = self.bpf_text.replace("// OLD: ", "")
+                    self.bpf_text = self.bpf_text.replace("// OLD: ", "").replace("FILTER_PID", "")
                 self.log("Tested BCC compatilibility, possible errors above are safe to ignore.")
 
                 if self.dports:
@@ -210,7 +212,6 @@ class PCPBCCModule(PCPBCCBase):
             if self.debug:
                 self.log("BPF to be compiled:\n" + bpf_text.strip())
 
-            self.reset_cache()
             self.bpf = BPF(text=bpf_text)
             self.bpf["ipv4_events"].open_perf_buffer(self.handle_ipv4_event,
                                                      page_cnt=self.buffer_page_count,
@@ -224,29 +225,36 @@ class PCPBCCModule(PCPBCCBase):
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
-            self.undef_cache()
             self.err(str(error))
             self.err("Module NOT active!")
             raise
 
     def refresh(self):
         """ Refresh BPF data """
-        if self.bpf is None:
-            return None
+        # We do not check for self.bpf to allow
+        # results when a traced process has exited
+
+        self.lock.acquire()
 
         self.insts = {}
 
-        self.lock.acquire()
-        for pid in list(self.ipv4_stats):
+        # Clean stale data
+        for pid in list(self.stale_ipv4_pids):
+            del self.ipv4_stats[pid]
+            self.stale_ipv4_pids.remove(pid)
+        for pid in list(self.stale_ipv6_pids):
+            del self.ipv6_stats[pid]
+            self.stale_ipv6_pids.remove(pid)
+
+        for pid in self.ipv4_stats:
             if not self.pid_alive(pid):
-                del self.ipv4_stats[pid]
-            else:
-                self.insts[pid] = ct.c_int(1)
-        for pid in list(self.ipv6_stats):
+                self.stale_ipv4_pids.append(pid)
+            self.insts[pid] = ct.c_int(1)
+        for pid in self.ipv6_stats:
             if not self.pid_alive(pid):
-                del self.ipv6_stats[pid]
-            else:
-                self.insts[pid] = ct.c_int(1)
+                self.stale_ipv6_pids.append(pid)
+            self.insts[pid] = ct.c_int(1)
+
         self.lock.release()
 
         return self.insts

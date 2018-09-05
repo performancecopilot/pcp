@@ -51,6 +51,7 @@ class Data(ct.Structure):
     """ execsnoop data struct """
     _fields_ = [
         ("pid", ct.c_uint),
+        ("ppid", ct.c_uint),
         ("comm", ct.c_char * TASK_COMM_LEN),
         ("type", ct.c_int),
         ("argv", ct.c_char * ARGSIZE),
@@ -146,7 +147,7 @@ class PCPBCCModule(PCPBCCBase):
                 skip = True
 
             if not skip:
-                ppid = self.get_ppid(event.pid)
+                ppid = event.ppid if event.ppid > 0 else self.get_ppid(event.pid)
                 argv_text = b" ".join(self.argv_cache[event.pid]).replace(b"\n", b"\\n")
 
                 self.lock.acquire()

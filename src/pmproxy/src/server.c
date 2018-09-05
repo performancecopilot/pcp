@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2018 Red Hat.
- * Copyright (c) 2018 Challa Venkata Naga Prajwal <cvnprajwal at gmail dot com>
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,42 +11,13 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <uv.h>
-#include "pmapi.h"
-#include "libpcp.h"
-#include "series.h"
-#include "pmproxy.h"
-#include "slots.h"
+#include "server.h"
 
-typedef enum stream_type {
-    STREAM_LOCAL,
-    STREAM_TCP,
-} stream_type;
-
-typedef struct stream {
-    stream_type		type;
-    unsigned int	active;
-    union {
-	uv_pipe_t	local;
-	uv_tcp_t	tcp;
-    } u;
-    __pmServerPresence	*presence;
-} stream;
-
-typedef struct server {
-    uv_loop_t		*events;
-    struct stream	*streams;
-    int			nstreams;
-    int			connected;	/* is Redis slots connections setup */
-    sds			hostspec;	/* initial Redis host specification */
-    redisSlots		*slots;
-} server;
-
-extern void
-serverlog(pmloglevel level, sds message, void *arg)
+void
+proxylog(pmloglevel level, sds message, void *arg)
 {
-    struct server	*server = (struct server *)arg;
-    const char		*state = server->connected? NULL : "- DISCONNECTED - ";
+    struct proxy	*proxy = (struct proxy *)arg;
+    const char		*state = proxy->redisetup? "" : "- DISCONNECTED - ";
     int			priority;
 
     switch (level) {
@@ -71,227 +41,406 @@ serverlog(pmloglevel level, sds message, void *arg)
     pmNotifyErr(priority, "%s%s", state, message);
 }
 
-static void
-on_redis_connected(void *arg)
-{
-    struct server	*server = (struct server *)arg;
-
-    server->connected = 1;
-    pmNotifyErr(LOG_INFO, "%s: connected to redis-server on %s\n",
-		    pmGetProgname(), server->hostspec);
-    /* TODO: issue COMMAND exchange to calculate key positions */
-}
-
-static void
-setup_redis_slots(uv_timer_t *arg)
-{
-    struct server	*server = (struct server *)arg;
-
-    server->slots = redisSlotsConnect(
-	    server->hostspec, /* no schema version exchange */ 0,
-	    serverlog, on_redis_connected, server, server->events, server);
-}
-
-static void
-close_redis_slots(void *arg)
-{
-    struct server	*server = (struct server *)arg;
-
-    if (server->connected) {
-	server->connected = 0;
-	redisSlotsFree(server->slots);
-	server->slots = NULL;
-    }
-}
-
-static struct server *
+static struct proxy *
 server_init(int portcount, const char *localpath)
 {
-    struct stream	*streams;
-    struct server	*server;
+    struct server	*servers;
+    struct proxy	*proxy;
     int			count;
 
-    if ((server = calloc(1, sizeof(struct server))) == NULL) {
-	fprintf(stderr, "%s: out-of-memory in server setup\n", pmGetProgname());
+    if ((proxy = calloc(1, sizeof(struct proxy))) == NULL) {
+	fprintf(stderr, "%s: out-of-memory in proxy server setup\n",
+			pmGetProgname());
 	return NULL;
     }
 
     count = portcount + (*localpath ? 1 : 0);
     if (count) {
-	/* allocate space for listen port data structures */
-	if ((streams = calloc(count, sizeof(stream))) == NULL) {
-	    fprintf(stderr, "%s: out-of-memory allocating %d streams\n",
+	/* allocate space for maximum listen port data structures */
+	if ((servers = calloc(count, sizeof(struct server))) == NULL) {
+	    fprintf(stderr, "%s: out-of-memory allocating for %d ports\n",
 			    pmGetProgname(), count);
-	    free(server);
+	    free(proxy);
 	    return NULL;
 	}
-	server->streams = streams;
+	proxy->servers = servers;
     } else {
 	fprintf(stderr, "%s: no ports or local paths specified\n",
 			pmGetProgname());
-	free(server);
+	free(proxy);
 	return NULL;
     }
 
-    server->hostspec = sdsnew("localhost:6379");	/* TODO: config file */
-    server->events = uv_default_loop();
-    uv_loop_init(server->events);
-    return server;
+    proxy->redishost = sdsnew("localhost:6379");	/* TODO: config file */
+    proxy->events = uv_default_loop();
+    uv_loop_init(proxy->events);
+    return proxy;
 }
 
 static void
-on_client_connection(uv_stream_t *server, int status)
+on_client_alloc(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
 {
-    /* TODO - plugin proxying logic! (PCP & RESP protocols) */
+    struct client	*client = (struct client *)handle;
+
+    if (pmDebugOptions.desperate)
+	fprintf(stderr, "%s: client %p buffer allocation of %lld bytes\n",
+			pmGetProgname(), client, (long long)suggested_size);
+
+    if ((buf->base = malloc(suggested_size)) != NULL)
+	buf->len = suggested_size;
+    else
+	buf->len = 0;
+}
+
+void
+on_client_close(uv_handle_t *handle)
+{
+    struct client	*client = (struct client *)handle;
+
+    if (pmDebugOptions.desperate)
+	fprintf(stderr, "%s: client %p connection closed\n",
+			pmGetProgname(), client);
+
+#if 0
+    struct proxy	*proxy = (struct proxy *)handle->data;
+    struct client	*tmp;
+    /* remove client from the doubly-linked list */
+    tmp = client->prev;
+    tmp->next = client->next;
+    if (tmp->next == NULL)
+	proxy->tail = tmp;
+    else
+	tmp->next->prev = tmp;
+    /* TODO: free any partially accrued read/write buffers here */
+    free(client);
+#endif
+}
+
+static stream_protocol
+client_protocol(int key)
+{
+    switch (key) {
+    case 'p':	/* pmproxy */
+	return STREAM_PCP;
+    case '-':	/* error */
+    case '+':	/* status */
+    case ':':	/* integer */
+    case '$':	/* string */
+    case '*':	/* array */
+	return STREAM_REDIS;
+    case '\0':
+	return STREAM_SECURE;
+    default:
+	break;
+    }
+    return STREAM_UNKNOWN;
+}
+
+static void
+on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
+{
+    struct proxy	*proxy = (struct proxy *)stream->data;
+    struct client	*client = (struct client *)stream;
+
+    if (nread > 0) {
+	if (client->protocol == STREAM_UNKNOWN)
+	    client->protocol = client_protocol(*buf->base);
+	switch (client->protocol) {
+	case STREAM_PCP:
+	    return on_pcp_client_read(proxy, client, nread, buf);
+	case STREAM_REDIS:
+	    return on_redis_client_read(proxy, client, nread, buf);
+	default:
+	    break;
+	}
+	if (pmDebugOptions.pdu)
+	    fprintf(stderr, "%s: unknown protocol key '%c' - disconnecting\n",
+			pmGetProgname(), *buf->base);
+    } else {
+	if (nread < 0)
+	    fprintf(stderr, "%s: read error %ld - disconnecting\n",
+			pmGetProgname(), (long)nread);
+#if 0
+	if (buf->base != NULL)
+	    free(buf->base);
+	buf->base = NULL;
+	buf->len = 0;
+#endif
+	uv_close((uv_handle_t *)stream, on_client_close);
+    }
+}
+
+static void
+on_client_connection(uv_stream_t *stream, int status)
+{
+    struct proxy	*proxy = (struct proxy *)stream->data;
+    struct client	*client;
+    uv_handle_t		*handle;
+
+    if (status != 0) {
+	fprintf(stderr, "%s: client connection failed: %s\n",
+			pmGetProgname(), uv_strerror(status));
+	return;
+    }
+
+    if ((client = calloc(1, sizeof(*client))) == NULL) {
+	fprintf(stderr, "%s: out-of-memory for new client\n",
+			pmGetProgname());
+	return;
+    }
+
+    status = uv_tcp_init(proxy->events, &client->stream.u.tcp);
+    if (status != 0) {
+	fprintf(stderr, "%s: client tcp init failed: %s\n",
+			pmGetProgname(), uv_strerror(status));
+	free(client);
+	return;
+    }
+
+    status = uv_accept(stream, (uv_stream_t *)&client->stream.u.tcp);
+    if (status != 0) {
+	fprintf(stderr, "%s: client tcp init failed: %s\n",
+			pmGetProgname(), uv_strerror(status));
+	free(client);
+	return;
+    }
+    handle = (uv_handle_t *)&client->stream.u.tcp;
+    handle->data = (void *)proxy;
+
+    /* insert client into doubly-linked list at the head */
+    if (proxy->head != NULL) {
+	client->next = proxy->head;
+	proxy->head->prev = client;
+	proxy->head = client;
+    } else {
+	proxy->head = proxy->tail = client;
+    }
+
+    status = uv_read_start((uv_stream_t *)&client->stream.u.tcp,
+			    on_client_alloc, on_client_read);
+    if (status != 0) {
+	fprintf(stderr, "%s: client read start failed: %s\n",
+			pmGetProgname(), uv_strerror(status));
+	uv_close((uv_handle_t *)stream, on_client_close);
+    }
 }
 
 static int
-OpenRequestPort(struct stream *stream, const char *address, int port, int maxpending)
+OpenRequestPort(struct proxy *proxy, struct server *server, stream_family family,
+		const struct sockaddr *addr, int port, int maxpending)
 {
-    struct sockaddr_in6	addr;
-    int			sts;
+    struct stream	*stream = &server->stream;
+    uv_handle_t		*handle;
+    int			sts, flags = 0;
 
-    stream->type = STREAM_TCP;
+    stream->family = family;
+    if (family == STREAM_TCP6)
+	flags = UV_TCP_IPV6ONLY;
 
-    /*
-     * @address is a string representing the Inet/IPv6 address that the port
-     * is advertised for.  To allow connections to all of the hosts internet
-     * addresses from clients use address == "INADDR_ANY", or for localhost
-     * access only use address == "INADDR_LOOPBACK".
-     * If the address is NULL or "INADDR_ANY" or "INADDR_LOOPBACK", then we
-     * open one socket for each address family (inet, IPv6).
-     */
-    if (!address || strcmp(address, "INADDR_ANY") == 0)
-	uv_ip6_addr("0.0.0.0", port, &addr);
-    else if (strcmp(address, "INADDR_LOOPBACK") == 0)
-	uv_ip6_addr("127.0.0.1", port, &addr);
-    else
-	uv_ip6_addr(address, port, &addr);
+    uv_tcp_init(proxy->events, &stream->u.tcp);
+    handle = (uv_handle_t *)&stream->u.tcp;
+    handle->data = (void *)proxy;
 
-    uv_tcp_init(uv_default_loop(), &stream->u.tcp);
-    uv_tcp_bind(&stream->u.tcp, (const struct sockaddr *) &addr, 0);
+    uv_tcp_bind(&stream->u.tcp, addr, flags);
     uv_tcp_nodelay(&stream->u.tcp, 1);
-    uv_tcp_keepalive(&stream->u.tcp, 1, 50);
+    uv_tcp_keepalive(&stream->u.tcp, 1, 50);	/* TODO: config file */
+
     sts = uv_listen((uv_stream_t *)&stream->u.tcp, maxpending, on_client_connection);
     if (sts != 0) {
 	fprintf(stderr, "%s: socket listen error %s\n",
 			pmGetProgname(), uv_strerror(sts));
         return -ENOTCONN;
     }
-    if (__pmServerHasFeature(PM_SERVER_FEATURE_DISCOVERY))
-	stream->presence = __pmServerAdvertisePresence(PM_SERVER_PROXY_SPEC, port);
     stream->active = 1;
+    if (__pmServerHasFeature(PM_SERVER_FEATURE_DISCOVERY))
+	server->presence = __pmServerAdvertisePresence(PM_SERVER_PROXY_SPEC, port);
     return 0;
 }
 
 static int
-OpenRequestLocal(struct stream *stream, const char *name, int maxpending)
+OpenRequestLocal(struct proxy *proxy, struct server *server,
+		const char *name, int maxpending)
 {
+    uv_handle_t		*handle;
+    struct stream	*stream = &server->stream;
     int			sts;
 
-    stream->type = STREAM_LOCAL;
+    stream->family = STREAM_LOCAL;
 
-    uv_pipe_init(uv_default_loop(), &stream->u.local, 0);
+    uv_pipe_init(proxy->events, &stream->u.local, 0);
+    handle = (uv_handle_t *)&stream->u.local;
+    handle->data = (void *)proxy;
+
     uv_pipe_bind(&stream->u.local, name);
     uv_pipe_chmod(&stream->u.local, UV_READABLE);
+
     sts = uv_listen((uv_stream_t *)&stream->u.local, maxpending, on_client_connection);
     if (sts != 0) {
 	fprintf(stderr, "%s: local listen error %s\n",
 			pmGetProgname(), uv_strerror(sts));
         return -ENOTCONN;
     }
-    __pmServerSetFeature(PM_SERVER_FEATURE_UNIX_DOMAIN);
     stream->active = 1;
+    __pmServerSetFeature(PM_SERVER_FEATURE_UNIX_DOMAIN);
     return 0;
 }
 
 void *
 OpenRequestPorts(const char *localpath, int maxpending)
 {
-    int			total, count, port, sts, i, n = 0;
+    int			inaddr, total, count, port, sts, i, n;
+    int			with_ipv6 = strcmp(pmGetAPIConfig("ipv6"), "true") == 0;
     const char		*address;
+    __pmSockAddr	**addrlist, *addr;
+    const struct sockaddr *sockaddr;
+    stream_family	family;
     struct server	*server;
-    struct stream	*stream;
+    struct proxy	*proxy;
 
     if ((sts = total = __pmServerSetupRequestPorts()) < 0)
 	return NULL;
 
-    if ((server = server_init(total, localpath)) == NULL)
+    /* allow for both IPv6 and IPv4 addresses for each port */
+    if ((addrlist = calloc(total * 2, sizeof(__pmSockAddr *))) == NULL)
 	return NULL;
 
-    count = 0;
+    /* fill in sockaddr structs for subsequent listen calls */
+    for (i = n = 0; i < total; i++) {
+	__pmServerGetRequestPort(i, &address, &port);
+
+	if (address != NULL &&
+	    strcmp(address, "INADDR_ANY") != 0 &&
+	    strcmp(address, "INADDR_LOOPBACK") != 0) {
+	    addr = __pmStringToSockAddr(address);
+	    if (__pmSockAddrGetFamily(addr) == AF_UNSPEC)
+		__pmSockAddrFree(addr);
+	    else {
+		__pmSockAddrSetPort(addr, port);
+		addrlist[n++] = addr;
+		continue;
+	    }
+	}
+
+	/* address unspecified - create both ipv4 and ipv6 entries */
+	if (address == NULL || strcmp(address, "INADDR_ANY") == 0)
+	    inaddr = INADDR_ANY;
+	else if (strcmp(address, "INADDR_LOOPBACK") == 0)
+	    inaddr = INADDR_LOOPBACK;
+	else
+	    continue;
+
+	addrlist[n] = __pmSockAddrAlloc();
+	__pmSockAddrInit(addrlist[n], AF_INET, inaddr, port);
+	n++;
+
+	if (!with_ipv6)
+	     continue;
+
+	addrlist[n] = __pmSockAddrAlloc();
+	__pmSockAddrInit(addrlist[n], AF_INET6, inaddr, port);
+	n++;
+    }
+    total = n;
+
+    if ((proxy = server_init(total, localpath)) == NULL)
+	goto fail;
+
+    count = n = 0;
     if (*localpath) {
-	stream = &server->streams[n++];
-	if (OpenRequestLocal(stream, localpath, maxpending) == 0)
+	server = &proxy->servers[n++];
+	if (OpenRequestLocal(proxy, server, localpath, maxpending) == 0)
 	    count++;
     }
 
     for (i = 0; i < total; i++) {
-	if ((sts = __pmServerGetRequestPort(i, &address, &port)) < 0)
-	    break;
-	stream = &server->streams[n++];
-	if (OpenRequestPort(stream, address, port, maxpending) < 0)
-	    continue;
-	count++;
+	sockaddr = (const struct sockaddr *)addrlist[i];
+	family = __pmSockAddrGetFamily(addrlist[i]) == AF_INET ?
+					STREAM_TCP4 : STREAM_TCP6;
+	server = &proxy->servers[n++];
+	if (OpenRequestPort(proxy, server, family, sockaddr, port, maxpending) == 0)
+	    count++;
+	__pmSockAddrFree(addrlist[i]);
     }
+    free(addrlist);
 
     if (count == 0) {
 	pmNotifyErr(LOG_ERR, "%s: can't open any request ports, exiting\n",
 		pmGetProgname());
-	free(server);
+	free(proxy);
 	return NULL;
     }
-    server->nstreams = count;
-    return server;
+    proxy->nservers = count;
+    return proxy;
+
+fail:
+    for (i = 0; i < n; i++)
+	__pmSockAddrFree(addrlist[i]);
+    free(addrlist);
+    return NULL;
 }
 
 extern void
 ShutdownPorts(void *arg)
 {
-    struct server	*server = (struct server *)arg;
+    struct proxy	*proxy = (struct proxy *)arg;
+    struct server	*server;
     struct stream	*stream;
     int			i;
 
-    for (i = 0; i < server->nstreams; i++) {
-	stream = &server->streams[i++];
+    for (i = 0; i < proxy->nservers; i++) {
+	server = &proxy->servers[i++];
+	stream = &server->stream;
 	if (stream->active == 0)
 	    continue;
-	if (stream->type == STREAM_LOCAL)
-	    uv_close((uv_handle_t *)&stream->u.local, NULL);
-	if (stream->type == STREAM_TCP)
-	    uv_close((uv_handle_t *)&stream->u.tcp, NULL);
-	if (stream->presence)
-	    __pmServerUnadvertisePresence(stream->presence);
+	uv_close((uv_handle_t *)&stream, NULL);
+	if (server->presence)
+	    __pmServerUnadvertisePresence(server->presence);
     }
-    server->nstreams = 0;
-    free(server->streams);
+    proxy->nservers = 0;
+    free(proxy->servers);
+    proxy->servers = NULL;
+
+    if (proxy->redisetup) {
+	proxy->redisetup = 0;
+	redisSlotsFree(proxy->slots);
+    }
+    proxy->slots = NULL;
+    sdsfree(proxy->redishost);
 }
 
 void
 DumpRequestPorts(FILE *stream, void *arg)
 {
-    struct server	*server = (struct server *)arg;
+    struct proxy	*proxy = (struct proxy *)arg;
 
     /* TODO */
-    (void)server;
+    (void)proxy;
+}
+
+/*
+ * Attempt to establish a Redis connection straight away;
+ * this is achieved via a timer that expires immediately.
+ */
+static void
+setup_proxy(uv_timer_t *arg)
+{
+    uv_handle_t		*handle = (uv_handle_t *)arg;
+    struct proxy	*proxy = (struct proxy *)handle->data;
+
+    setup_redis_proxy(proxy);
 }
 
 void
 MainLoop(void *arg)
 {
-    struct server	*server = (struct server *)arg;
+    struct proxy	*proxy = (struct proxy *)arg;
     uv_timer_t		attempt;
+    uv_handle_t		*handle;
 
-    /*
-     * Attempt to establish a Redis connection straight away;
-     * this is achieved via a timer that expires immediately.
-     * If this fails (now or from subsequent connection drop),
-     * we try again later during client request processing.
-     */
-    uv_timer_init(server->events, &attempt);
-    uv_timer_start(&attempt, setup_redis_slots, 0, 0);
+    uv_timer_init(proxy->events, &attempt);
+    handle = (uv_handle_t *)&attempt;
+    handle->data = (void *)proxy;
+    uv_timer_start(&attempt, setup_proxy, 0, 0);
 
-    uv_run(server->events, UV_RUN_DEFAULT);
-
-    close_redis_slots(server->slots);
+    uv_run(proxy->events, UV_RUN_DEFAULT);
 }

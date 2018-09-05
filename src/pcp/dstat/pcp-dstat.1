@@ -512,7 +512,7 @@ pcp dstat \-tcndylp
 .RE
 .\}
 .sp
-this is identical to
+this is identical to:
 .sp
 .if n \{\
 .RS 4
@@ -532,7 +532,19 @@ to report 10 samples from metrics recorded in a PCP archive from 2:30am:
 .RS 4
 .\}
 .nf
-pcp \-\-origin '@02:30'  \-\-archive 20180729 dstat \-\-time \-\-cpu\-adv \-\-sys 1 10
+pcp \-\-origin '@02:30' \-\-archive 20180729 dstat \-\-time \-\-cpu\-adv \-\-sys 1 10
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Examine the same metrics live from a remote host:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+pcp \-\-host www.acme.com dstat \-\-time \-\-cpu\-adv \-\-sys 1 10
 .fi
 .if n \{\
 .RE

@@ -75,7 +75,7 @@ class ProcMon(object):
                         cmdline = fcmd.read().decode().split("\x00")
                     with open("/proc/%s/comm" % dirname) as fcomm:
                         comm = fcomm.read().strip()
-                    cmdline = cmdline if cmdline[0] else [comm, ""]
+                    cmdline = cmdline if cmdline[0] else ["(" + comm + ")", ""]
                     cmdline_full = " ".join(cmdline[:-1])
                     cmdline_args = " ".join(cmdline[1:-1])
                     for module in objects:

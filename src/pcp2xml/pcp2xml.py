@@ -197,7 +197,7 @@ class PCP2XML(object):
             return 1
         return 0
 
-    def option(self, opt, optarg, index):
+    def option(self, opt, optarg, _index):
         """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
@@ -356,7 +356,7 @@ class PCP2XML(object):
 
     def report(self, tstamp):
         """ Report metric values """
-        if tstamp != None:
+        if tstamp is not None:
             tstamp = tstamp.strftime(self.timefmt)
 
         self.write_xml(tstamp)
@@ -550,7 +550,6 @@ class PCP2XML(object):
             except: # pylint: disable=bare-except
                 pass
             self.writer = None
-        return
 
 if __name__ == '__main__':
     try:

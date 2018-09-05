@@ -11,8 +11,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-#ifndef _PRIVATE_H
-#define _PRIVATE_H
+#ifndef _LIBPCP_WEB_PRIVATE_H
+#define _LIBPCP_WEB_PRIVATE_H
 
 #if defined(__GNUC__) && (__GNUC__ >= 4) && !defined(IS_MINGW)
 # define _PMWEB_HIDDEN __attribute__ ((visibility ("hidden")))
@@ -50,4 +50,4 @@
 # define ELEM_AT(a, i, v) ((unsigned int) (i) < ARRAY_SIZE(a) ? (a)[(i)] : (v))
 #endif
 
-#endif /* _PRIVATE_H */
+#endif /* _LIBPCP_WEB_PRIVATE_H */
