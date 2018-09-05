@@ -124,6 +124,11 @@ class PCPBCCModule(PCPBCCBase):
         # Compat with kernel < 4.16
         self.log("Using BPF source file %s." % bpf_src)
 
+        # Exit hard if impossible to continue
+        if self.bcc_version() == "0.6.1" and bpf_src == bpf_src_old_kb:
+            raise RuntimeError("BCC 0.6.1 bug makes it incompatible with this module "
+                               "on kernel < 4.15.")
+
         self.log("Initialized.")
 
     def handle_ipv4_event(self, _cpu, data, _size):

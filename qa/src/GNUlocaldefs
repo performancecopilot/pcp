@@ -148,7 +148,8 @@ PYTHONFILES = \
 	test_set_source.python test_pmda_memleak.python \
 	test_webcontainers.python test_webprocesses.python \
 	test_pmfg.python \
-	mergelabels.python mergelabelsets.python
+	mergelabels.python mergelabelsets.python \
+	bcc_version_check.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 LDIRT += $(PYFILES)
