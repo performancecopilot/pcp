@@ -1,4 +1,4 @@
-default default_pcp setup:
+default default_pcp setup check:
 
 clobber clean:
 	rm -f domain.h domain.h.perl domain.h.save
