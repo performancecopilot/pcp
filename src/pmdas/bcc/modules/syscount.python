@@ -235,12 +235,12 @@ class PCPBCCModule(PCPBCCBase):
 
         def use_pid(pid):
             """ Helper to quickly check whether to use PID info """
-            if k.pid not in check_pids:
-                if k.pid in stale_pids or not self.pid_alive(k.pid):
-                    stale_pids.add(k.pid)
+            if pid not in check_pids:
+                if pid in stale_pids or not self.pid_alive(pid):
+                    stale_pids.add(pid)
                     return False
                 else:
-                    check_pids.add(k.pid)
+                    check_pids.add(pid)
             return True
 
         if self.details and self.pids:
