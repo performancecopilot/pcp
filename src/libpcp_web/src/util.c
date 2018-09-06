@@ -313,6 +313,10 @@ const char *
 pmLogLevelStr(pmloglevel level)
 {
     switch (level) {
+    case PMLOG_TRACE:
+	return "Trace";
+    case PMLOG_DEBUG:
+	return "Debug";
     case PMLOG_INFO:
 	return "Info";
     case PMLOG_WARNING:
@@ -336,6 +340,8 @@ pmLogLevelStr(pmloglevel level)
 #define ANSI_FG_RED	"\x1b[31m"
 #define ANSI_FG_GREEN	"\x1b[32m"
 #define ANSI_FG_YELLOW	"\x1b[33m"
+#define ANSI_FG_BLUE	"\x1b[34m"
+#define ANSI_FG_MAGENTA	"\x1b[35m"
 #define ANSI_FG_CYAN	"\x1b[36m"
 #define ANSI_BG_RED	"\x1b[41m"
 #define ANSI_BG_WHITE	"\x1b[47m"
@@ -345,6 +351,12 @@ pmLogLevelPrint(FILE *stream, pmloglevel level, sds message, int istty)
     const char		*colour, *levels = pmLogLevelStr(level);
 
     switch (level) {
+    case PMLOG_TRACE:
+	colour = ANSI_FG_MAGENTA;
+	break;
+    case PMLOG_DEBUG:
+	colour = ANSI_FG_BLUE;
+	break;
     case PMLOG_INFO:
 	colour = ANSI_FG_GREEN;
 	break;

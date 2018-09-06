@@ -122,7 +122,7 @@ seriesBatonDereference(void *arg, const char *caller)
 }
 
 void
-seriesPassBaton(seriesBatonPhase **head, void *arg)
+seriesPassBaton(seriesBatonPhase **head, void *arg, const char *caller)
 {
     seriesBatonPhase	*next;
     seriesBatonMagic	*baton = (seriesBatonMagic *)arg;
@@ -130,9 +130,9 @@ seriesPassBaton(seriesBatonPhase **head, void *arg)
 
     if (UNLIKELY(baton->traced || pmDebugOptions.series)) {
 	fprintf(stderr,
-		"Baton [%s/%p] references: %u -> %u (@ %s)\n",
+		"Baton [%s/%p] references: %u -> %u (@ %s[%s])\n",
 		magic_str(baton), baton, baton->refcount, baton->refcount - 1,
-		"seriesPassBaton");
+		caller, "seriesPassBaton");
     }
 
     if ((*refcount = *refcount - 1) > 0) {

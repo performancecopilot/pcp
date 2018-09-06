@@ -641,7 +641,7 @@ series_prepare_maps_glob_reply(redisAsyncContext *c, redisReply *reply, void *ar
 	    baton->error = -EPROTO;
     }
 
-    seriesPassBaton(&baton->current, baton);
+    seriesPassBaton(&baton->current, baton, "series_prepare_maps_glob_reply");
 }
 
 static void
@@ -671,7 +671,7 @@ series_prepare_maps_name_reply(redisAsyncContext *c, redisReply *reply, void *ar
 				node_subtype(np), reply->str);
     }
 
-    seriesPassBaton(&baton->current, baton);
+    seriesPassBaton(&baton->current, baton, "series_prepare_maps_name_reply");
 }
 
 /*
@@ -791,7 +791,7 @@ series_prepare_eval_eq_reply(redisAsyncContext *c, redisReply *reply, void *arg)
 	np->key = sdscatfmt(np->key, "%s:%s", name, reply->str);
     }
 
-    seriesPassBaton(&baton->current, baton);
+    seriesPassBaton(&baton->current, baton, "series_prepare_eval_eq_reply");
 }
 
 /*
@@ -863,7 +863,7 @@ series_prepare_smembers_reply(redisAsyncContext *c, redisReply *reply, void *arg
     if (np->nmatches)
 	np->nmatches--;	/* processed one more from this batch */
 
-    seriesPassBaton(&baton->current, baton);
+    seriesPassBaton(&baton->current, baton, "series_prepare_smembers_reply");
 }
 
 static void
@@ -965,7 +965,7 @@ series_query_end_phase(void *arg)
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_end_phase");
 
     if (baton->error == 0) {
-	seriesPassBaton(&baton->current, baton);
+	seriesPassBaton(&baton->current, baton, "series_query_end_phase");
     } else {	/* fail after waiting on outstanding I/O */
 	if (seriesBatonDereference(baton, "series_query_end_phase"))
 	    series_query_finished(baton);
@@ -1131,11 +1131,18 @@ series_query_services(void *arg)
     pmSeriesCommand	*command = &baton->settings->command;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_services");
-    command->slots = baton->slots =
-	redisSlotsConnect(
+
+    /* attempt to re-use existing slots connections */
+    if (command->slots) {
+	baton->slots = command->slots;
+	series_query_end_phase(baton);
+    } else {
+	baton->slots = command->slots =
+	    redisSlotsConnect(
 		command->hostspec, 1, command->on_info,
 		series_query_end_phase, baton->userdata,
 		command->events, (void *)baton);
+    }
 }
 
 static void
@@ -1935,7 +1942,7 @@ series_lookup_end_phase(void *arg)
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_end_phase");
 
     if (baton->error == 0) {
-	seriesPassBaton(&baton->current, baton);
+	seriesPassBaton(&baton->current, baton, "series_lookup_end_phase");
     } else {	/* fail after waiting on outstanding I/O */
 	if (seriesBatonDereference(baton, "series_lookup_end_phase"))
 	    series_lookup_finished(baton);
@@ -1950,11 +1957,18 @@ series_lookup_services(void *arg)
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_services");
     seriesBatonReferences(baton, 1, "series_lookup_services");
-    command->slots = baton->slots =
-	redisSlotsConnect(
+
+    /* attempt to re-use existing slots connections */
+    if (command->slots) {
+	baton->slots = command->slots;
+	series_lookup_end_phase(baton);
+    } else {
+	baton->slots = command->slots =
+	    redisSlotsConnect(
 		command->hostspec, 1, command->on_info,
 		series_lookup_end_phase, baton->userdata,
 		command->events, (void *)baton);
+    }
 }
 
 static void

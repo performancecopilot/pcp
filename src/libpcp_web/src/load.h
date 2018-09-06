@@ -104,8 +104,11 @@ typedef struct metric {
     } u;
 } metric_t;
 
+struct seriesGetContext;
+extern void doneSeriesGetContext(struct seriesGetContext *, const char *);
+
 struct seriesLoadBaton;
-extern void doneSeriesLoadBaton(struct seriesLoadBaton *);
+extern void doneSeriesLoadBaton(struct seriesLoadBaton *, const char *);
 
 extern pmSeriesInfoCallBack seriesLoadBatonInfo(struct seriesLoadBaton *);
 extern context_t *seriesLoadBatonContext(struct seriesLoadBaton *);

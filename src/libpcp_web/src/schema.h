@@ -93,8 +93,8 @@ redis_param_raw(sds cmd, sds param)
     return sdscatfmt(cmd, "%S\r\n", param);
 }
 
-extern void redis_series_source(redisSlots *, context_t *, void *);
-extern void redis_series_mark(redisSlots *, context_t *, sds, int, void *);
+extern void redis_series_source(redisSlots *, void *);
+extern void redis_series_mark(redisSlots *, sds, int, void *);
 extern void redis_series_metric(redisSlots *, metric_t *, sds, int, int, void *);
 
 /*
