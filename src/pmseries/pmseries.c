@@ -533,14 +533,15 @@ series_add_labels(sds name, sds value,
 		unsigned int *nlabelsp, series_label **labelsp)
 {
     unsigned int	nlabels = *nlabelsp;
-    series_label	*lp = *labelsp;
+    series_label	*p, *lp = *labelsp;
     size_t		bytes;
 
     bytes = sizeof(series_label) * (nlabels + 1);
-    if ((lp = realloc(lp, bytes)) != NULL) {
-	lp += nlabels;
-	lp->name = sdsdup(name);
-	lp->value = sdsdup(value);
+    if ((p = realloc(lp, bytes)) != NULL) {
+	lp = p;
+	p += nlabels;
+	p->name = sdsdup(name);
+	p->value = sdsdup(value);
 
 	*labelsp = lp;
 	*nlabelsp = nlabels + 1;
