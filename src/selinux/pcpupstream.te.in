@@ -75,6 +75,7 @@ require {
         type gpsd_t; #RHBZ1594991
         type default_t;
         type home_bin_t;
+        type named_zone_t;
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -262,6 +263,10 @@ allow pcp_pmcd_t init_t:shm unix_read;
 allow pcp_pmcd_t gpsd_t:shm { associate getattr };
 
 allow pcp_pmcd_t default_t:file getattr;
+
+#RHBZ1622253
+#type=AVC msg=audit(1532540174.341:22480): avc:  denied  { search } for  pid=25668 comm="perl" name="named" dev="dm-3" ino=2128175 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:named_zone_t:s0 tclass=dir
+allow pcp_pmcd_t named_zone_t:dir search;
 
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
