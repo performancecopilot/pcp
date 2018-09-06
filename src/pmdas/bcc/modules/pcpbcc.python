@@ -351,6 +351,10 @@ class PCPBCCBase(object):
             return "sys_"
         if self.bpf.ksymname("__x64_sys_bpf") != -1:
             return "__x64_sys_"
+        if self.bpf.ksymname("__x32_compat_sys_bpf") != -1:
+            return "__x32_compat_sys_"
+        if self.bpf.ksymname("__ia32_compat_sys_bpf") != -1:
+            return "__ia32_compat_sys_"
         # None of them, just return "sys_",
         # later API calls will return error
         return "sys_"
