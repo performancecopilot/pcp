@@ -31,3 +31,6 @@ default_pcp:	default
 install_pcp:	install
 
 pmerr.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check::	$(CFILES)
+	$(CLINT) $^

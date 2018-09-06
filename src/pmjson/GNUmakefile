@@ -32,3 +32,6 @@ install_pcp : install
 
 pmjson.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 pmjson.o:	$(TOPDIR)/src/include/pcp/pmjson.h
+
+check:: $(CFILES)
+	$(CLINT) $^

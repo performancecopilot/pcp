@@ -32,9 +32,6 @@ SCRIPTS = pmnsadd
 LOCKERS	= lockpmns unlockpmns
 STDPMID = stdpmid.pcp stdpmid.local
 
-LSRCFILES = Make.stdpmid GNUmakefile.install Rebuild ReplacePmnsSubtree \
-	    $(STDPMID) $(SCRIPTS) $(LOCKERS)
-
 LLDLIBS = $(PCPLIB)
 LDIRT	= *.log *.pmns stdpmid .NeedRebuild build.script $(TARGETS)
 
@@ -79,3 +76,6 @@ default_pcp:	default
 install_pcp:	install
 
 pmnsdel.o pmnsmerge.o pmnsutil.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check:: $(CFILES)
+	$(CLINT) $^
