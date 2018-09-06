@@ -104,8 +104,9 @@ $(LIBTARGET): $(VERSION_SCRIPT) $(XFILES)
 endif
 
 jsmn.o:		jsmn.c jsmn.h
+discover.o:	discover.h discover.c
 http_parser.o:	http_parser.c http_parser.h
-
 http_client.o load.o query.o query_parser.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
-discover.o:	discover.h discover.c
+check:: $(CFILES) $(HFILES) $(XFILES)
+	$(CLINT) $^

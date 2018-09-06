@@ -1604,6 +1604,7 @@ redis_load_slots_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 	    if ((slots = calloc(1, sizeof(redisSlotRange))) == NULL) {
 		seriesfmt(msg, "failed to allocate Redis slots memory");
 		seriesmsg(baton, PMLOG_ERROR, msg);
+		free(servers);
 		baton->version = -1;
 	    } else {
 		servers->hostspec = sdscatfmt(sdsempty(), "%s", baton->slots->hostspec);

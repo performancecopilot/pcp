@@ -834,10 +834,13 @@ pmDiscoverDecodeMetaIndom(uint32_t *buf, int len, pmInResult *inresult)
     ir.namelist = NULL;
 
     if (ir.numinst > 0) {
-	ir.instlist = (int *)malloc(ir.numinst * sizeof(int));
-	ir.namelist = (char **)malloc(ir.numinst * sizeof(char *));
-	if (ir.instlist == NULL || ir.namelist == NULL)
+	if ((ir.instlist = (int *)calloc(ir.numinst, sizeof(int))) == NULL)
 	    return -ENOMEM;
+	ir.namelist = (char **)calloc(ir.numinst, sizeof(char *));
+	if (ir.namelist == NULL) {
+	    free(ir.instlist);
+	    return -ENOMEM;
+	}
 	namesbuf = &buf[4];
 	index = &namesbuf[ir.numinst];
 	str = (char *)&namesbuf[ir.numinst + ir.numinst];
