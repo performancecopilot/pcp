@@ -494,9 +494,10 @@ series_union(series_set_t *a, series_set_t *b)
 
     if ((need = (saved - small) / SHA1SZ) > 0) {
 	/* grow the larger set to cater for new entries, then add 'em */
-	if ((large = realloc(large, (nlarge + need) * SHA1SZ)) == NULL)
+	if ((cp = realloc(large, (nlarge + need) * SHA1SZ)) == NULL)
 	    return -ENOMEM;
-	cp = large + (nlarge * SHA1SZ);
+	large = cp;
+	cp += (nlarge * SHA1SZ);
 	memcpy(cp, small, need * SHA1SZ);
 	total = nlarge + need;
     } else {

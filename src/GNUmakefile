@@ -139,11 +139,6 @@ install :: default_pcp install_pcp
 install_pcp : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-check :: check_pcp
- 
-check_pcp : pcp python
-	$(SUBDIRS_MAKERULE)
-
 $(LIBPCP_SUBDIR): $(INCLUDE_SUBDIR)
 $(PMNS_SUBDIR): $(LIBPCP_SUBDIR)
 $(LIBS_SUBDIRS): $(PMNS_SUBDIR)

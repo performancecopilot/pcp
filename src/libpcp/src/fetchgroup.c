@@ -1291,7 +1291,7 @@ pmExtendFetchGroup_item(pmFG pmfg,
 			const char *scale, pmAtomValue *out_value,
 			int out_type, int *out_sts)
 {
-    int sts;
+    int sts, rc;
     pmFGI item;
 
     if (pmfg == NULL || metric == NULL)
@@ -1335,9 +1335,13 @@ pmExtendFetchGroup_item(pmFG pmfg,
 	    /* try again */
 	    sts = pmfg_lookup_item(metric, instance, item);
 	    /* go back to saved position */
-	    pmSetMode(saved_mode, &saved_origin, saved_delta);
+	    rc = pmSetMode(saved_mode, &saved_origin, saved_delta);
 	    if (sts < 0)
 		goto out;
+	    if (rc < 0) {
+		sts = rc;
+		goto out;
+	    }
 	} else { /* not an archive */
 	    PM_UNLOCK(ctxp->c_lock);
 	    goto out;
@@ -1469,7 +1473,7 @@ pmExtendFetchGroup_event(pmFG pmfg,
 		int out_type, int out_stss[],
 		unsigned int out_maxnum, unsigned int *out_num, int *out_sts)
 {
-    int sts;
+    int sts, rc;
     pmFGI item;
 
     if (pmfg == NULL || metric == NULL)
@@ -1513,9 +1517,13 @@ pmExtendFetchGroup_event(pmFG pmfg,
 	    /* try again */
 	    sts = pmfg_lookup_event(metric, instance, field, item);
 	    /* go back to saved position */
-	    pmSetMode(saved_mode, &saved_origin, saved_delta);
+	    rc = pmSetMode(saved_mode, &saved_origin, saved_delta);
 	    if (sts < 0)
 		goto out;
+	    if (rc < 0) {
+		sts = rc;
+		goto out;
+	    }
 	} else { /* not archive */
 	    PM_UNLOCK(ctxp->c_lock);
 	    goto out;

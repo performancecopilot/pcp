@@ -13,6 +13,10 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
+# pylint: disable=missing-docstring,multiple-imports,invalid-name
+# pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
+# pylint: disable=line-too-long,bad-continuation,broad-except,bare-except
+# pylint: disable=global-variable-undefined,global-at-module-level
 
 # Common imports
 from collections import OrderedDict
@@ -32,14 +36,14 @@ from cpmapi import PM_ERR_EOL, PM_IN_NULL, pmUsageMessage
 if sys.version >= '3':
     long = int
 
-def py3round(number, ndigits = None):
+def py3round(number, ndigits=None):
     if sys.version >= '3':
         if ndigits is not None:
             return round(number, ndigits)
         return round(number)
     ndigits = ndigits if ndigits is not None else 0
     if abs(round(number) - number) == 0.5:
-        return 2.0 * round(number / 2.0, ndigits);
+        return 2.0 * round(number / 2.0, ndigits)
     return round(number, ndigits)
 
 NOUNITS = pmapi.pmUnits()
@@ -120,7 +124,8 @@ class DstatTerminal:
             try:
                 import curses
                 curses.setupterm()
-                curses.tigetnum('lines'), curses.tigetnum('cols')
+                curses.tigetnum('lines')
+                curses.tigetnum('cols')
             except:
                 pass
             else:
@@ -255,34 +260,34 @@ class DstatPlugin(object):
             lookups from pmConfig metricspecs at fetch (sampling) time.
         """
         # slot zero is magic - holds metric name (during setup only)
-        if metric[1] == None:
+        if metric[1] is None:
             metric[1] = self.label
         if metric[2] == []:
             metric[2] = self.instances
-        if metric[3] == None:
+        if metric[3] is None:
             metric[3] = self.unit
-        if metric[4] == None:
+        if metric[4] is None:
             metric[4] = self.type
-        if metric[5] == None:
+        if metric[5] is None:
             metric[5] = self.width
         # slot six also magic - fetchgroup state
-        if metric[7] == None:
+        if metric[7] is None:
             metric[7] = self.precision
-        if metric[8] == None:
+        if metric[8] is None:
             metric[8] = self.limit
-        if metric[9] == None:
+        if metric[9] is None:
             metric[9] = self.printtype
-        if metric[10] == None:
+        if metric[10] is None:
             metric[10] = self.colorstep
-        if metric[11] == None:
+        if metric[11] is None:
             metric[11] = self.grouptype
-        if metric[12] == None:
+        if metric[12] is None:
             metric[12] = self.cullinsts
         metric[13] = self   # back-pointer to this from metric dict
 
     def prepare_grouptype(self, instlist):
         """Setup a list of instances from the command line"""
-        if instlist == None:
+        if instlist is None:
             instlist = ['total']
         if 'total' in instlist:
             self.grouptype = 2 if (len(instlist) == 1) else 3
@@ -307,7 +312,7 @@ class DstatPlugin(object):
         return self.igroup
 
     def title(self):
-        if self.grouptype == None:
+        if self.grouptype is None:
             width = self.statwidth()
             label = self.label[0:width].center(width).replace(' ', '-')
             return THEME['title'] + label + THEME['default']
@@ -327,44 +332,49 @@ class DstatPlugin(object):
 
     def subtitle(self):
         ret = ''
-        if self.grouptype == None:
+        if self.grouptype is None:
             for i, nick in enumerate(self.names):
                 label = nick[0:self.width].center(self.width)
                 ret = ret + THEME['subtitle'] + label + THEME['default']
-                if i + 1 != len(self.names): ret = ret + CHAR['space']
+                if i + 1 != len(self.names):
+                    ret = ret + CHAR['space']
             return ret
         ilist = self.instlist()
-        for i, name in enumerate(ilist):
+        for i, _ in enumerate(ilist):
             for j, nick in enumerate(self.names):
                 label = nick[0:self.width].center(self.width)
                 ret = ret + THEME['subtitle'] + label + THEME['default']
-                if j + 1 != len(self.names): ret = ret + CHAR['space']
-            if i + 1 != len(ilist): ret = ret + THEME['frame'] + CHAR['colon']
+                if j + 1 != len(self.names):
+                    ret = ret + CHAR['space']
+            if i + 1 != len(ilist):
+                ret = ret + THEME['frame'] + CHAR['colon']
         return ret
 
     def csvtitle(self):
-        if self.grouptype == None:
+        if self.grouptype is None:
             label = '"' + self.label + '"'
             return label
         ret = ''
         ilist = self.instlist()
-        for i, name in enumerate(ilist):
+        for _, name in enumerate(ilist):
             name = self.label.replace('%I', name)
             ret = ret + name
         return '"' + ret + '"'
 
     def csvsubtitle(self):
         ret = ''
-        if self.grouptype == None:
+        if self.grouptype is None:
             for i, nick in enumerate(self.names):
                 ret = ret + '"' + nick + '"'
-                if i + 1 != len(self.names): ret = ret + CHAR['sep']
+                if i + 1 != len(self.names):
+                    ret = ret + CHAR['sep']
             return ret
         ilist = self.instlist()
-        for i, name in enumerate(ilist):
+        for _, _ in enumerate(ilist):
             for j, nick in enumerate(self.names):
                 ret = ret + '"' + nick + '"'
-                if j + 1 != len(self.names): ret = ret + CHAR['sep']
+                if j + 1 != len(self.names):
+                    ret = ret + CHAR['sep']
         return ret
 
 def dchg(var, width, base):
@@ -432,10 +442,8 @@ def tshow(plugin, stamp):
 
 def mshow(plugin, index, result):
     "Display stat results"
-    #sys.stderr.write("Result metric: %s\n" % metric)
     metric = op.metrics[plugin.mgroup[index]]
-    label = metric[0]
-    insts = metric[1]
+    #sys.stderr.write("Result metric: %s\n" % metric)
     units = metric[2][1]
     width = metric[4]
     pmtype = metric[5].pmtype
@@ -445,7 +453,7 @@ def mshow(plugin, index, result):
     line = ''
     count = 0
     sep = CHAR['space']
-    for inst, name, value in result:
+    for _, _, value in result:
         if count > 0:
             line = line + sep
         line = line + cprint(value, units, printtype, pmtype, width, colorstep)
@@ -461,20 +469,13 @@ def roundcsv(var):
 
 def mshowcsv(plugin, index, result):
     "Return stat results for CSV file"
+    #metric = op.metrics[plugin.mgroup[index]]
     #sys.stderr.write("Result metric: %s\n" % metric)
-    metric = op.metrics[plugin.mgroup[index]]
-    label = metric[0]
-    insts = metric[1]
-    units = metric[2][1]
-    width = metric[4]
-    pmtype = metric[5].pmtype
-    printtype = metric[8]
-    colorstep = metric[9]
 
     line = ''
     count = 0
     sep = CHAR['sep']
-    for inst, name, value in result:
+    for _, _, value in result:
         if count > 0:
             line = line + sep
         line = line + roundcsv(value)
@@ -501,13 +502,13 @@ def gshow(plugin, results):
             return False
         if plugin.instances and inst in plugin.instances:
             return True
-        return (plugin.grouptype == 1)
+        return plugin.grouptype == 1
 
     for inst in plugin.igroup:      # e.g. [cpu0, cpu1, total]
         for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
             result = results[name]
             value = None
-            for instid, instname, val in result:
+            for _, instname, val in result:
                 if instname == inst:
                     value = val
             #sys.stderr.write("[%s] inst=%s name=%s value=%s\n" % (name, instid, instname, str(value)))
@@ -526,7 +527,7 @@ def gshow(plugin, results):
         for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
             values = 0
             result = results[name]
-            for instid, instname, val in result:
+            for _, instname, val in result:
                 totals[i] += val
                 values += 1
         if values and plugin.printtype == 'p':
@@ -565,13 +566,13 @@ def gshowcsv(plugin, results):
             return False
         if plugin.instances and inst in plugin.instances:
             return True
-        return (plugin.grouptype == 1)
+        return plugin.grouptype == 1
 
     for inst in plugin.igroup:      # e.g. [cpu0, cpu1, total]
         for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
             result = results[name]
             value = None
-            for instid, instname, val in result:
+            for _, instname, val in result:
                 if instname == inst:
                     value = val
             #sys.stderr.write("[%s] inst=%s name=%s value=%s\n" % (name, instid, instname, str(value)))
@@ -590,7 +591,7 @@ def gshowcsv(plugin, results):
         for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
             values = 0
             result = results[name]
-            for instid, instname, val in result:
+            for _, instname, val in result:
                 totals[i] += val
                 values += 1
         if values and plugin.printtype == 'p':
@@ -606,7 +607,7 @@ def gshowcsv(plugin, results):
 def cprint(value, units, printtype, pmtype, width, colorstep):
     """Color print one column"""
 
-    if printtype == None:
+    if printtype is None:
         if pmtype in [PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64]:
             printtype = 'd'
         elif pmtype in [PM_TYPE_DOUBLE, PM_TYPE_FLOAT]:
@@ -624,9 +625,10 @@ def cprint(value, units, printtype, pmtype, width, colorstep):
 
     ### Display units when base is exact 1000 or 1024
     showunit = False
-    if colorstep == None and width >= len(str(base)) and type(value) != type(''):
-        showunit = True
-        width = width - 1
+    if colorstep is None:
+        if width >= len(str(base)) and not isinstance(value, str):
+            showunit = True
+            width = width - 1
 
     ### If this is a negative value, return a dash
     if printtype in ('b', 'd', 'f') and value < 0:
@@ -833,7 +835,7 @@ class DstatTool(object):
         self.pmconfig.set_signal_handler()
         self.term.set_title(self.arguments, self.context)
         self.term.set_theme(self.blackonwhite)
-        if self.color == None:
+        if self.color is None:
             self.color = self.term.get_color()
 
         ### Empty ansi and theme databases when colors not in use
@@ -899,8 +901,10 @@ class DstatTool(object):
             sys.stderr.write("Cannot parse configs in %s\n" % paths)
             sys.exit(1)
 
-        #print("Found configs: %s" % found)
-        #print("with sections: %s" % config.sections())
+        if self.debug:
+            print("Found configs: %s" % found)
+            print("with sections: %s" % config.sections())
+
         for plugin in config.sections():
             self.allplugins.append(plugin)
             self.opts.pmSetLongOption(plugin, 0, '', '', '')
@@ -985,17 +989,17 @@ class DstatTool(object):
         operands = self.opts.pmGetOperands()
         if not operands:
             operands = []
-        if len(operands) > 0:
+        else:
             try:
                 self.interval = pmapi.timeval.fromInterval(operands[0])
                 self.delay = float(self.interval)
-            except Exception as e:
+            except:
                 sys.stderr.write("Invalid sample delay '%s'\n" % operands[0])
                 sys.exit(1)
         if len(operands) > 1:
             try:
                 self.samples = int(operands[1])
-            except Exception as e:
+            except:
                 sys.stderr.write("Invalid sample count '%s'\n" % operands[1])
                 sys.exit(1)
         if len(operands) > 2:
@@ -1223,11 +1227,11 @@ class DstatTool(object):
                 sep = ', '
             sys.stdout.write("%s%s" % (sep, name))
         sys.stdout.write("\n")
-        rows, cols = self.term.get_size()
+        _, columns = self.term.get_size()
         for i, path in enumerate(self.DEFAULT_CONFIGS):
-            self.show_config_files(path, cols)
+            self.show_config_files(path, columns)
 
-    def show_config_files(self, path, cols):
+    def show_config_files(self, path, columns):
         files = self.config_files([path])
         if files == []:
             return
@@ -1237,21 +1241,22 @@ class DstatTool(object):
         try:
             config.read(files)
             sys.stdout.write("%s:\n\t" % path)
-            self.show_config_plugins(config, cols)
+            self.show_config_plugins(config, columns)
         except:
             sys.stderr.write("%s: failed to read configuration file(s)" % path)
 
-    def show_config_plugins(self, config, cols):
+    def show_config_plugins(self, config, columns):
         plugins = sorted(config.sections())
-        cols2 = cols - 8
+        cols2 = columns - 8
+        mod = None
         for mod in plugins:
             cols2 = cols2 - len(mod) - 2
             if cols2 <= 0:
                 sys.stdout.write('\n\t')
-                cols2 = cols - len(mod) - 10
+                cols2 = columns - len(mod) - 10
             if mod != plugins[-1]:
                 sys.stdout.write("%s, " % mod)
-        if mod != None:
+        if mod is not None:
             sys.stdout.write("%s\n" % mod)
 
     def show_version(self):
@@ -1274,8 +1279,8 @@ class DstatTool(object):
         if not self.term.get_color():
             color = "no "
         print('Terminal type: %s (%scolor support)' % (os.getenv('TERM'), color))
-        rows, cols = self.term.get_size()
-        print('Terminal size: %d lines, %d columns' % (rows, cols))
+        row, col = self.term.get_size()
+        print('Terminal size: %d lines, %d columns' % (row, col))
         print('')
         print('Processors: %d' % cpucount())
         print('Pagesize: %d' % pagesize())
@@ -1298,7 +1303,7 @@ class DstatTool(object):
                 if self.source != 'local:':
                     raise
                 context = PM_CONTEXT_LOCAL
-        if self.pmfg == None:
+        if self.pmfg is None:
             self.pmfg = pmapi.fetchgroup(context, self.source)
         self.pmfg_ts = self.pmfg.extend_timestamp()
         self.context = self.pmfg.get_context()
@@ -1384,27 +1389,27 @@ class DstatTool(object):
         if op.pidfile:
             os.remove(op.pidfile)
 
-    def show_header(self, vislist):
+    def show_header(self, visible):
         "Return the header for a set of module counters"
         line = ''
         ### Process title
-        for o in vislist:
+        for o in visible:
             line += o.title()
-            if o is not vislist[-1]:
+            if o is not visible[-1]:
                 line += THEME['frame'] + CHAR['space']
-            elif self.totlist != vislist:
+            elif self.totlist != visible:
                 line += THEME['title'] + CHAR['gt']
         line += '\n'
         ### Process subtitle
-        for o in vislist:
+        for o in visible:
             line += o.subtitle()
-            if o is not vislist[-1]:
+            if o is not visible[-1]:
                 line += THEME['frame'] + CHAR['pipe']
-            elif self.totlist != vislist:
+            elif self.totlist != visible:
                 line += THEME['title'] + CHAR['gt']
         return line + '\n'
 
-    def show_csvheader(self, vislist):
+    def show_csvheader(self, visible):
         "Return the header for CSV file"
         line = ''
         ### CSV Header
@@ -1415,19 +1420,19 @@ class DstatTool(object):
         line += '"Host:","' + self.context.pmGetContextHostName() + '",,,,"User:","' + getpass.getuser() + '"\n'
         line += '"Cmdline:","' + self.context.pmProgname() + ' ' + ' '.join(self.arguments) + '",,,,"Date:","' + time.strftime('%d %b %Y %H:%M:%S %Z') + '"\n'
         ### Process title
-        for o in vislist:
+        for o in visible:
             line += o.csvtitle()
-            if o is not vislist[-1]:
+            if o is not visible[-1]:
                 line += CHAR['sep'] * len(o.names)
-            elif self.totlist != vislist:
+            elif self.totlist != visible:
                 pass #line += THEME['title'] + CHAR['gt']
         line += '\n'
         ### Process subtitle
-        for o in vislist:
+        for o in visible:
             line += o.csvsubtitle()
-            if o is not vislist[-1]:
+            if o is not visible[-1]:
                 line += CHAR['sep']
-            elif self.totlist != vislist:
+            elif self.totlist != visible:
                 pass #line += THEME['title'] + CHAR['gt']
         return line + '\n'
 
@@ -1532,7 +1537,6 @@ class DstatTool(object):
         i = 0
         line = newline
         oline = newoline
-        metric = None
 
         ### Walk the result dict reporting on visible plugins.
         ### In conjuntion, we walk through the ordered results
@@ -1548,7 +1552,7 @@ class DstatTool(object):
                 sep = THEME['frame'] + CHAR['pipe']
             if plugin in self.timelist:
                 line = line + sep + tshow(plugin, self.pmfg_ts)
-            elif plugin.grouptype == None:
+            elif plugin.grouptype is None:
                 for m, name in enumerate(plugin.mgroup):
                     line = line + sep + mshow(plugin, m, results[name])
                     sep = CHAR['space']
@@ -1568,7 +1572,7 @@ class DstatTool(object):
                     sep = CHAR['sep']
                 if plugin in self.timelist:
                     oline = oline + sep + tshow(plugin, self.pmfg_ts)
-                elif plugin.grouptype == None:
+                elif plugin.grouptype is None:
                     for m, name in enumerate(plugin.mgroup):
                         oline = oline + sep + mshowcsv(plugin, m, results[name])
                         sep = CHAR['sep']
