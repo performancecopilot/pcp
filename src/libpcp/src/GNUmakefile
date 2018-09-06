@@ -172,3 +172,6 @@ $(LIBCONFIG): $(LIBCONFIG).in
 endif
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check::	$(CFILES) $(HFILES)
+	$(CLINT) $^

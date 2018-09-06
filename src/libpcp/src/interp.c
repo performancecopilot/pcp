@@ -894,7 +894,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     int		seen_mark;
     static int	dowrap = -1;
     pmTimeval	tmp;
-    struct timeval delta_tv;
+    struct timeval delta_tv = {0};
 
     PM_LOCK(__pmLock_extcall);
     if (dowrap == -1) {
