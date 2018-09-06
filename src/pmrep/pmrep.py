@@ -677,7 +677,7 @@ class PMReporter(object):
             if not self.interpol and self.opts.pmGetOptionSamples():
                 samples = str(samples) + " (requested)"
             elif not self.interpol:
-                samples = "N/A" # pylint: disable=redefined-variable-type
+                samples = "N/A"
 
         comm = "#" if self.output == OUTPUT_CSV else ""
         self.writer.write(comm + "\n")
@@ -1036,7 +1036,7 @@ class PMReporter(object):
                 value = pmconfig.TRUNC
             elif s + 2 > width:
                 fmt[k] = "{X:" + str(width) + "d}"
-                value = int(value) # pylint: disable=redefined-variable-type
+                value = int(value)
             else:
                 c = precision
                 for _ in reversed(range(c+1)):
