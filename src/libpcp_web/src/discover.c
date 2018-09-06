@@ -371,6 +371,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
     int ident;
     int nsets;
     pmLabelSet *labelset;
+    uint32_t *bp;
     static uint32_t *buf = NULL;
     static int buflen = 0;
 
@@ -439,7 +440,13 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		len = hdr.len - sizeof(hdr);
 		if (len > buflen) {
 		    buflen = len + 4096;
-		    buf = (uint32_t *)realloc(buf, buflen);
+		    if ((bp = (uint32_t *)realloc(buf, buflen)) == NULL) {
+			buf = bp;
+		    } else {
+			fprintf(stderr, "ERROR realloc %d bytes failed on \"%s\"\n",
+					buflen, p->path);
+			break;
+		    }
 		}
 
 		if ((nb = read(p->ctx, buf, len)) != len) {
@@ -679,6 +686,7 @@ pmDiscoverRegister(char *dir, pmTimeval *origin, pmDiscoverCallBacks *callBacks)
 {
     int handle = -1;
     int avail_handle = -1;
+    pmDiscoverCallBacks **cbp;
 
     if (callBacks != NULL) {
 	for (handle=0; handle < n_discoverCallBacksList; handle++) {
@@ -689,12 +697,14 @@ pmDiscoverRegister(char *dir, pmTimeval *origin, pmDiscoverCallBacks *callBacks)
 	}
 	if (handle == n_discoverCallBacksList && avail_handle < 0) {
 	    avail_handle = n_discoverCallBacksList++;
-	    discoverCallBacksList = (pmDiscoverCallBacks **)realloc(discoverCallBacksList,
-		n_discoverCallBacksList * sizeof(pmDiscoverCallBacks *));
-	    if (pmDebugOptions.discovery) {
-	    	fprintf(stderr, "pmDiscoverRegister: new handle [%d] for callbacks %p\n",
+	    cbp = (pmDiscoverCallBacks **)realloc(discoverCallBacksList,
+			n_discoverCallBacksList * sizeof(pmDiscoverCallBacks *));
+	    if (cbp == NULL)
+		return -ENOMEM;
+	    discoverCallBacksList = cbp;
+	    if (pmDebugOptions.discovery)
+		fprintf(stderr, "pmDiscoverRegister: new handle [%d] for callbacks %p\n",
 		    avail_handle, callBacks);
-	    }
 	}
 	handle = avail_handle;
 	discoverCallBacksList[handle] = callBacks;
@@ -792,6 +802,9 @@ pmDiscoverDecodeMetaDesc(uint32_t *buf, int buflen, pmDesc *p_desc, int *p_numna
 	names[i] = (char *)malloc(len + 1);
 	if (names[i] == NULL) {
 	    fprintf(stderr, "Arrgh: names[%d] malloc failed\n", i);
+	    while (i)
+		free(names[--i]);
+	    free(names);
 	    return -ENOMEM;
 	}
 	strncpy(names[i], cp, len);
@@ -857,15 +870,17 @@ pmDiscoverDecodeMetaIndom(uint32_t *buf, int len, pmInResult *inresult)
 int
 pmDiscoverDecodeMetaHelptext(uint32_t *buf, int len, int *type, int *id, char **buffer)
 {
+    char	*bp;
+
     *type = ntohl(buf[0]);
 
     if ((*type) & PM_TEXT_INDOM)
     	*id = __ntohpmInDom(buf[1]);
     else
     	*id = __ntohpmID(buf[1]);
-    if ((*buffer = strdup((char *)&buf[2])) == NULL)
+    if ((bp = strdup((char *)&buf[2])) == NULL)
     	return -ENOMEM;
-
+    *buffer = bp;
     return 0;
 }
 
