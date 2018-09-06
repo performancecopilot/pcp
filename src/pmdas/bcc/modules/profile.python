@@ -131,7 +131,7 @@ class PCPBCCModule(PCPBCCBase):
 
     def start_profiling(self):
         """ Starts profiling """
-        with self.lock:	# pylint: disable=not-context-manager
+        with self.lock: # pylint: disable=not-context-manager
             if self.status != "stopped":
                 self.err("Profiling must be stopped before, current status: %s." % self.status)
                 return
@@ -205,7 +205,7 @@ class PCPBCCModule(PCPBCCBase):
 
     def stop_profiling(self):
         """ Stops profiling and generates JSON of stacktraces """
-        with self.lock:	# pylint: disable=not-context-manager
+        with self.lock: # pylint: disable=not-context-manager
             if self.status != "started":
                 self.err("Please start profiling first, current status: %s." % self.status)
                 return
@@ -270,7 +270,7 @@ class PCPBCCModule(PCPBCCBase):
 
         super(PCPBCCModule, self).cleanup()
 
-        with self.lock:	# pylint: disable=not-context-manager
+        with self.lock: # pylint: disable=not-context-manager
             self.data = json.dumps(root_node, cls=StackNodeEncoder)
             self.status = "stopped"
         self.log("Stopped profiling.")
