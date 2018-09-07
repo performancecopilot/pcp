@@ -21,6 +21,10 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 %global __python2 python
 %endif
 
+%if 0%{?rhel} > 7
+%global __requires_exclude ^perl-LDAP$
+%endif
+
 %if 0%{?fedora} || 0%{?rhel} > 5
 %global disable_selinux 0
 %else
@@ -1060,7 +1064,9 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for 389 Directory Servers
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+%if 0%{?rhel} <= 7
 Requires: perl-LDAP
+%endif
 
 %description pmda-ds389
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for

@@ -15,8 +15,15 @@
 use strict;
 use warnings;
 use PCP::PMDA;
-use Net::LDAP;
 use POSIX;
+
+my $have_ldap = eval {
+	# check if we have LDAP
+	require Net::LDAP;
+	Net::LDAP->import();
+	1;
+};
+if (!$have_ldap) { die("Net::LDAP unavailable on this platform"); }
 
 our $server = 'localhost';
 our $binddn = 'cn=Directory Manager';
