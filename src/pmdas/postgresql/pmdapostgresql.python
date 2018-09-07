@@ -61,8 +61,6 @@ class POSTGRESQLPMDA(PMDA):
         """ constructor """
         PMDA.__init__(self, name, domain)
         self.dbg = False
-        if os.getenv("PCP_PYTHON_DEBUG") is not None:
-            self.dbg = True
         self.debug("starting __init__")
 
         #
@@ -851,7 +849,7 @@ class POSTGRESQLPMDA(PMDA):
                         name = "%s %d" % (self.indomtable[indom][self.INDOM_INSTID], instid)
                     insts[name] = c_int(rownum) # TODO should be id?
                     rownum += 1
-                    self.debug("pg_refresh_all indom 0x%04x table=%s inst=%d name=%s" % (indom, table, id, name))
+                    self.debug("pg_refresh_all indom 0x%04x table=%s inst=%d name=%s" % (indom, table, instid, name))
 
                 # update the indom table for this indom
                 self.debug("pg_refresh_all: replace_indom(0x%04x) from table %s with %d instances" %
@@ -956,12 +954,12 @@ class POSTGRESQLPMDA(PMDA):
     def setup_metrics(self):
         """ create metric table """
         for pmid, metric in self.metrictable.items():
-            self.debug("Adding pmid 0x%04x '%s'" % (pmid, metric[self.METRIC_NAME]))
+            # self.debug("Adding pmid 0x%04x '%s'" % (pmid, metric[self.METRIC_NAME]))
             self.add_metric(metric[self.METRIC_NAME], metric[self.METRIC_PMDAMETRIC])
 
     def config(self, filename='pmdapostgresql.conf', section='authentication'):
         """ parse config file """
-        parser = configparser()
+        parser = configparser.SafeConfigParser()
         parser.read(filename)
 
         # get section, default to postgresql
