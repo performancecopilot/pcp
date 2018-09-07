@@ -365,6 +365,10 @@ allow pcp_pmie_t init_exec_t:file getattr;
 
 @PCP_CAPUSERNS_PTRACE_RULE_PMIE@
 allow pcp_pmie_t user_home_dir_t:dir search;
+
+#RHBZ1623988
+#type=AVC msg=audit(1535642748.855:3214): avc:  denied  { signal } for  pid=3106 comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process permissive=1
+allow pcp_pmie_t unconfined_t:process signal;
 #============= pmda-lio ==============
 allow pcp_pmcd_t configfs_t:dir { open read search };
 allow pcp_pmcd_t configfs_t:file { getattr open read };
