@@ -29,7 +29,7 @@ void freeSeriesGetContext(seriesGetContext *, int);
 static void
 server_cache_source(seriesLoadBaton *baton)
 {
-    redis_series_source(baton->slots, &baton->pmapi.context, baton);
+    redis_series_source(baton->slots, baton);
 }
 
 /* cache information about this metric (values/metadata) */
@@ -37,7 +37,6 @@ static void
 server_cache_metric(seriesLoadBaton *baton,
 		metric_t *metric, sds timestamp, int meta, int data)
 {
-    seriesBatonReference(&baton->pmapi, "server_cache_metric");
     redis_series_metric(baton->slots, metric, timestamp, meta, data, baton);
 }
 
@@ -45,10 +44,7 @@ server_cache_metric(seriesLoadBaton *baton,
 static void
 server_cache_mark(seriesLoadBaton *baton, sds timestamp, int data)
 {
-    context_t		*context = seriesLoadBatonContext(baton);
-
-    seriesBatonReference(&baton->pmapi, "server_cache_mark");
-    redis_series_mark(baton->slots, context, timestamp, data, baton);
+    redis_series_mark(baton->slots, timestamp, data, baton);
 }
 
 static uint64_t
@@ -670,7 +666,8 @@ new_valueset(seriesLoadBaton *baton, metric_t *metric, pmValueSet *vsp)
 static void
 series_cache_update(seriesLoadBaton *baton)
 {
-    pmResult		*result = baton->pmapi.result;
+    seriesGetContext	*context = &baton->pmapi;
+    pmResult		*result = context->result;
     pmValueSet		*vsp;
     dictEntry		*entry = NULL;
     metric_t		*metric = NULL;
@@ -681,9 +678,9 @@ series_cache_update(seriesLoadBaton *baton)
     write_data = (!(baton->flags & PMFLAG_METADATA));
 
     if (result->numpmid == 0) {
+	seriesBatonReference(context, "series_cache_update[mark]");
 	server_cache_mark(baton, timestamp, write_data);
-	sdsfree(timestamp);
-	return;
+	goto out;
     }
 
     pmSortInstances(result);
@@ -727,12 +724,19 @@ series_cache_update(seriesLoadBaton *baton)
 	/* record the error code in the cache */
 	metric->error = (vsp->numval < 0) ? vsp->numval : 0;
 
+	/* make PMAPI calls to cache metadata */
 	if (write_meta && get_instance_metadata(baton, metric->desc.indom) != 0)
 	    continue;
 
+	/* initiate writes to backend caching servers (Redis) */
+	seriesBatonReference(context, "series_cache_update[metric]");
 	server_cache_metric(baton, metric, timestamp, write_meta, write_data);
     }
+
+out:
     sdsfree(timestamp);
+    /* drop reference taken in server_cache_window */
+    doneSeriesGetContext(context, "series_cache_update");
 }
 
 static void server_cache_window(void *);	/* TODO */
@@ -754,8 +758,24 @@ server_cache_series(seriesLoadBaton *baton)
 	return sts;
     }
 
+    seriesBatonReference(baton, "server_cache_series");
     server_cache_window(baton);
-    return sts;
+    return 0;
+}
+
+static void
+server_cache_series_finished(void *arg)
+{
+    seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
+    seriesGetContext	*context = &baton->pmapi;
+
+    assert(context->result == NULL);
+
+    /* drop context reference taken in server_cache_window */
+    doneSeriesGetContext(context, "server_cache_series_finished");
+
+    /* drop load reference taken in server_cache_series */
+    doneSeriesLoadBaton(baton, "server_cache_series_finished");
 }
 
 static void
@@ -769,11 +789,12 @@ server_cache_update_done(void *arg)
     context->result = NULL;
     context->count++;
 
+    /* drop reference taken in server_cache_window */
+    doneSeriesGetContext(context, "server_cache_update_done");
+
     /* begin processing of the next record if any */
     server_cache_window(baton);
 }
-
-static void doneSeriesGetContext(seriesGetContext *); /* TODO */
 
 void
 server_cache_window(void *arg)
@@ -791,6 +812,9 @@ server_cache_window(void *arg)
     if (pmDebugOptions.series)
 	fprintf(stderr, "server_cache_window: fetching next result\n");
 
+    seriesBatonReference(context, "server_cache_window");
+    context->done = server_cache_series_finished;
+
     if ((sts = pmFetchArchive(&result)) >= 0) {
 	context->result = result;
 	if (finish->tv_sec > result->timestamp.tv_sec ||
@@ -799,20 +823,18 @@ server_cache_window(void *arg)
 	    seriesBatonReference(context, "server_cache_window");
 	    context->done = server_cache_update_done;
 	    series_cache_update(baton);
-	    doneSeriesGetContext(context);
 	}
 	else {
+	    sts = PM_ERR_EOL;
 	    pmFreeResult(result);
 	    context->result = NULL;
-	    sts = PM_ERR_EOL;
 	}
     }
 
-    if (sts < 0 && sts != PM_ERR_EOL)
-	baton->error = sts;
     if (sts < 0) {
-	//doneSeriesGetContext(context);
-	doneSeriesLoadBaton(baton);
+	if (sts != PM_ERR_EOL)
+	    baton->error = sts;
+	doneSeriesGetContext(context, "server_cache_window");
     }
 }
 
@@ -1004,7 +1026,7 @@ source_mapping_callback(void *arg)
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "source_mapping_callback");
-    seriesPassBaton(&baton->current, baton);
+    seriesPassBaton(&baton->current, baton, "source_mapping_callback");
 }
 
 void
@@ -1014,13 +1036,13 @@ series_source_mapping(void *arg)
     context_t		*context = &baton->pmapi.context;
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_source_mapping");
+    seriesBatonCheckCount(baton, "series_source_mapping");
+    seriesBatonReference(baton, "series_source_mapping");
 
     if (context->name.mapid > 0 && context->hostid > 0) {
 	/* fast path - string maps are already resolved */
-	seriesPassBaton(&baton->current, baton);
+	seriesPassBaton(&baton->current, baton, "series_source_mapping");
     } else {
-	seriesBatonCheckCount(baton, "series_source_mapping");
-	seriesBatonReference(baton, "series_source_mapping");
 	if (context->name.mapid <= 0) {
 	    seriesBatonReference(baton, "series_source_mapping mapid");
 	    redisGetMap(baton->slots, contextmap, context->name.sds,
@@ -1064,20 +1086,20 @@ freeSeriesGetContext(seriesGetContext *baton, int release)
     }
 }
 
-static void
-doneSeriesGetContext(seriesGetContext *context)
+void
+doneSeriesGetContext(seriesGetContext *context, const char *caller)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)context->baton;
 
     seriesBatonCheckMagic(context, MAGIC_CONTEXT, "doneSeriesGetContext");
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "doneSeriesGetContext");
 
-    if (seriesBatonDereference(context, "doneSeriesGetContext"))
+    if (seriesBatonDereference(context, caller))
 	context->done(baton);
 
     if (context->error) {
 	char		pmmsg[PM_MAXERRMSGLEN];
-	sds			msg;
+	sds		msg;
 
 	if (context->error == PM_ERR_EOF) {
 	    seriesfmt(msg, "processed %llu archive records from %s",
@@ -1094,7 +1116,7 @@ doneSeriesGetContext(seriesGetContext *context)
 void
 seriesLoadBatonFetch(seriesLoadBaton *baton)
 {
-    doneSeriesGetContext(&baton->pmapi);
+    doneSeriesGetContext(&baton->pmapi, "seriesLoadBatonFetch");
 }
 
 static void
@@ -1133,7 +1155,7 @@ series_load_end_phase(void *arg)
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_load_end_phase");
 
     if (baton->error == 0) {
-	seriesPassBaton(&baton->current, baton);
+	seriesPassBaton(&baton->current, baton, "series_load_end_phase");
     } else {	/* fail after waiting on outstanding I/O */
 	if (seriesBatonDereference(baton, "series_load_end_phase"))
 	    series_load_finished(baton);
@@ -1145,7 +1167,7 @@ connect_pmapi_source_service(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
 
-    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_load_end_phase");
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "connect_pmapi_source_service");
 
     new_pmapi_context(baton);
     if (baton->error == 0) {
@@ -1161,10 +1183,17 @@ connect_redis_source_service(seriesLoadBaton *baton)
 {
     pmSeriesCommand	*command = &baton->settings->command;
 
-    command->slots = redisSlotsConnect(
+    /* attempt to re-use existing slots connections */
+    if (command->slots) {
+	baton->slots = command->slots;
+	series_load_end_phase(baton);
+    } else {
+	baton->slots = command->slots =
+	    redisSlotsConnect(
 		command->hostspec, 1, command->on_info,
 		series_load_end_phase, baton->userdata,
 		command->events, (void *)baton);
+    }
 }
 
 static void
@@ -1220,9 +1249,9 @@ freeSeriesLoadBaton(seriesLoadBaton *baton)
 }
 
 void
-doneSeriesLoadBaton(seriesLoadBaton *baton)
+doneSeriesLoadBaton(seriesLoadBaton *baton, const char *caller)
 {
-    seriesPassBaton(&baton->current, baton);
+    seriesPassBaton(&baton->current, baton, caller);
 }
 
 redisInfoCallBack

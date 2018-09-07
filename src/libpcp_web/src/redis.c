@@ -1604,7 +1604,7 @@ __redisAsyncHandleConnect(redisAsyncContext *ac)
             return REDIS_OK;
 
         if (ac->onConnect)
-	    ac->onConnect(ac,REDIS_ERR);
+	    ac->onConnect(ac, REDIS_ERR);
         __redisAsyncDisconnect(ac);
         return REDIS_ERR;
     }
@@ -1612,7 +1612,7 @@ __redisAsyncHandleConnect(redisAsyncContext *ac)
     /* Mark context as connected. */
     c->flags |= REDIS_CONNECTED;
     if (ac->onConnect)
-	ac->onConnect(ac,REDIS_OK);
+	ac->onConnect(ac, REDIS_OK);
     return REDIS_OK;
 }
 
@@ -1658,7 +1658,7 @@ redisAsyncHandleWrite(redisAsyncContext *ac)
             return;
     }
 
-    if (redisBufferWrite(c,&done) == REDIS_ERR) {
+    if (redisBufferWrite(c, &done) == REDIS_ERR) {
         __redisAsyncDisconnect(ac);
     } else {
         /* Continue writing when not done, stop writing otherwise */

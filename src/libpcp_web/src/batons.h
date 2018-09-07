@@ -55,6 +55,6 @@ typedef struct seriesBatonPhase {
 } seriesBatonPhase;
 
 extern void seriesBatonPhases(seriesBatonPhase *, unsigned int, void *);
-extern void seriesPassBaton(seriesBatonPhase **, void *);
+extern void seriesPassBaton(seriesBatonPhase **, void *, const char *);
 
 #endif	/* SERIES_BATONS_H */

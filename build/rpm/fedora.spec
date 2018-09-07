@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.1.2
+Version: 4.1.3
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -19,6 +19,10 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 %global __python2 python2
 %else
 %global __python2 python
+%endif
+
+%if 0%{?rhel} > 7
+%global __requires_exclude ^perl-LDAP$
 %endif
 
 %if 0%{?fedora} || 0%{?rhel} > 5
@@ -1060,7 +1064,9 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for 389 Directory Servers
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+%if 0%{?rhel} <= 7
 Requires: perl-LDAP
+%endif
 
 %description pmda-ds389
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -3379,7 +3385,7 @@ cd
 %endif
 
 %changelog
-* Fri Sep 14 2018 Nathan Scott <nathans@redhat.com> - 4.1.2-1
+* Fri Sep 14 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
 - Work-in-progress (see https://pcp.io/roadmap)
 
 * Wed Aug 29 2018 Nathan Scott <nathans@redhat.com> - 4.1.1-3

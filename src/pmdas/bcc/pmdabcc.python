@@ -1,4 +1,4 @@
-#!/usr/bin/env pmpython
+#!/usr/bin/pmpython
 #
 # Copyright (C) 2017-2018 Marko Myllynen <myllynen@redhat.com>
 #
@@ -203,7 +203,7 @@ class BCCPMDA(PMDA):
             try:
                 obj = mod.PCPBCCModule(self.modules[module][CONFIG],
                                        self.log, self.err, self.proc_refresh)
-            except Exception: # pylint: disable=broad-except
+            except TypeError:
                 # Compat for older modules, will be removed in the future
                 obj = mod.PCPBCCModule(self.modules[module][CONFIG], self.log, self.err)
             self.modules[module][METRICS] = obj.metrics

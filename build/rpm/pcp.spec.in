@@ -11,6 +11,9 @@ Distribution: @package_distribution@
 BuildRequires: procps bison flex
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
+%if 0%{?rhel} > 7
+%global __requires_exclude ^perl-LDAP$
+%endif
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %global __python2 python2
 %else
@@ -1067,7 +1070,9 @@ Requires: perl-PCP-PMDA = @package_version@
 %if "%{_vendor}" == "suse"
 Requires: perl-ldap
 %else
+%if 0%{?rhel} <= 7
 Requires: perl-LDAP
+%endif
 %endif
 
 %description pmda-ds389

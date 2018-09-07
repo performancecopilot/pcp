@@ -33,10 +33,10 @@ redisSlotsInit(sds hostspec, void *events)
     if ((slots = (redisSlots *)calloc(1, sizeof(redisSlots))) == NULL)
 	return NULL;
 
-    slots->hostspec = sdsdup(hostspec);
     slots->events = events;
-    slots->control = redisAttach(slots, hostspec);
     slots->keymap = redisKeyMapCreate(keymap);
+    slots->control.hostspec = sdsdup(hostspec);
+    slots->control.redis = redisAttach(slots, hostspec);
     return slots;
 }
 
@@ -73,9 +73,9 @@ redisSlotRangeInsert(redisSlots *redis, redisSlotRange *range)
 static void
 redisSlotServerFree(redisSlots *pool, redisSlotServer *server)
 {
-    if (server->redis != pool->control)
+    if (server->redis != pool->control.redis)
 	redisAsyncDisconnect(server->redis);
-    if (server->hostspec != pool->hostspec)
+    if (server->hostspec != pool->control.hostspec)
 	sdsfree(server->hostspec);
     memset(server, 0, sizeof(*server));
 }
@@ -103,9 +103,9 @@ redisSlotsFree(redisSlots *pool)
 	tdelete(range, &root, slotsCompare);
 	redisSlotRangeFree(pool, range);
     }
-    redisAsyncDisconnect(pool->control);
-    sdsfree(pool->hostspec);
-    free(pool->control);
+    redisAsyncDisconnect(pool->control.redis);
+    sdsfree(pool->control.hostspec);
+    free(pool->control.redis);
     redisMapRelease(pool->keymap);
     memset(pool, 0, sizeof(*pool));
 }
@@ -144,15 +144,15 @@ redis_connect_callback(const redisAsyncContext *redis, int status)
 {
     if (status == REDIS_OK) {
 	if (pmDebugOptions.series)
-	    fprintf(stderr, "Connected to redis on %s:%d",
+	    fprintf(stderr, "Connected to redis on %s:%d\n",
 			redis->c.tcp.host, redis->c.tcp.port);
 	redisAsyncEnableKeepAlive((redisAsyncContext *)redis);
     } else if (pmDebugOptions.series) {
 	if (redis->c.connection_type == REDIS_CONN_UNIX)
-	    fprintf(stderr, "Connecting to %s failed - %s",
+	    fprintf(stderr, "Connecting to %s failed - %s\n",
 			redis->c.unix_sock.path, redis->errstr);
 	else
-	    fprintf(stderr, "Connecting to %s:%d failed - %s",
+	    fprintf(stderr, "Connecting to %s:%d failed - %s\n",
 			redis->c.tcp.host, redis->c.tcp.port, redis->errstr);
     }
 }
@@ -166,10 +166,10 @@ redis_disconnect_callback(const redisAsyncContext *redis, int status)
 			redis->c.tcp.host, redis->c.tcp.port);
     } else if (pmDebugOptions.series) {
 	if (redis->c.connection_type == REDIS_CONN_UNIX)
-	    fprintf(stderr, "Disconnecting from %s failed - %s",
+	    fprintf(stderr, "Disconnecting from %s failed - %s\n",
 			redis->c.unix_sock.path, redis->errstr);
 	else
-	    fprintf(stderr, "Disconnecting from %s:%d failed - %s",
+	    fprintf(stderr, "Disconnecting from %s:%d failed - %s\n",
 			redis->c.tcp.host, redis->c.tcp.port, redis->errstr);
     }
 }
@@ -222,7 +222,7 @@ redisGetAsyncContext(redisSlots *slots, const char *command, sds key)
     void		*p;
 
     if (key == NULL)
-	return slots->control;
+	return slots->control.redis;
 
     slot = keySlot(key, sdslen(key));
     if (UNLIKELY(pmDebugOptions.series))

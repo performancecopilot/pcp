@@ -17,7 +17,7 @@ General Functionality:
 [x] handle explicit command line instances correctly (-C|-D|-I|-N|-S)
 [x] need to handle dstat 'total' columns better?  (see instances too)
 [x] figure out why --disk and --io not usable together (same labels?)
-[ ] improved handling of first counter sample (see ticks() code)
+[x] improved handling of first counter sample (see ticks() code)
 [x] fix terminal title writing to use metric values (see code)
 [x] fix version output writing to use metric values (see code)
 [x] csv output option (for dstat backward compatibility)

@@ -846,13 +846,17 @@ series_report(series_data *dp)
 }
 
 static void
-pmseries_request(uv_timer_t *arg)
+on_series_setup(void *arg)
 {
-    uv_handle_t		*handle = (uv_handle_t *)arg;
-    series_data		*dp = (series_data *)handle->data;
+    series_data		*dp = (series_data *)arg;
     series_flags	flags = dp->flags;
+    sds			msg;
 
-    pmSeriesSetup(&dp->settings.command, dp);
+    if (pmDebugOptions.series) {
+	msg = sdsnew("Connection established");
+	on_series_info(PMLOG_DEBUG, msg, arg);
+	sdsfree(msg);
+    }
 
     if (flags & PMSERIES_OPT_LOAD)
 	series_load(dp);
@@ -862,6 +866,15 @@ pmseries_request(uv_timer_t *arg)
 	series_source(dp);
     else
 	series_report(dp);
+}
+
+static void
+pmseries_request(uv_timer_t *arg)
+{
+    uv_handle_t		*handle = (uv_handle_t *)arg;
+    series_data		*dp = (series_data *)handle->data;
+
+    pmSeriesSetup(&dp->settings.command, dp);
 }
 
 static int
@@ -1075,6 +1088,7 @@ main(int argc, char *argv[])
     dp->settings.on_done = on_series_done;
 
     dp->settings.command.on_info = on_series_info;
+    dp->settings.command.on_setup = on_series_setup;
     dp->settings.command.events = (void *)uv_default_loop();
     dp->settings.command.hostspec = sdscatprintf(sdsempty(), "%s:%u", hostname, port);
 

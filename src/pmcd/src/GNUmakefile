@@ -40,3 +40,7 @@ install_pcp:	install
 $(OBJECTS):	$(HFILES)
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check:: $(CFILES) $(HFILES)
+	$(CLINT) $^
+

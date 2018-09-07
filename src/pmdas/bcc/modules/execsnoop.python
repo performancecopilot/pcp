@@ -104,6 +104,10 @@ class PCPBCCModule(PCPBCCBase):
         self.thread = Thread(name="bpfpoller", target=self.perf_buffer_poller)
         self.thread.setDaemon(True)
 
+        # Exit hard if impossible to continue
+        if self.bcc_version() == "0.5.0":
+            raise RuntimeError("BCC 0.5.0 is too old for this module to work properly.")
+
         self.log("Initialized.")
 
     def metrics(self):

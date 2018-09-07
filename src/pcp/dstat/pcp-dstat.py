@@ -458,6 +458,8 @@ def mshow(plugin, index, result):
             line = line + sep
         line = line + cprint(value, units, printtype, pmtype, width, colorstep)
         count += 1
+    if count == 0:
+        line = line + cprint(None, units, printtype, pmtype, width, colorstep)
     #sys.stderr.write("mshow result line:\n%s%s\n" % (line, THEME['default']))
     return line
 
@@ -483,9 +485,17 @@ def mshowcsv(plugin, index, result):
     #sys.stderr.write("mshow result line:\n%s%s\n" % (line, THEME['default']))
     return line
 
+def instance_match(inst, plugin):
+    if plugin.cullinsts != None and re.match(plugin.cullinsts, inst):
+        return False
+    if plugin.instances and inst in plugin.instances:
+        return True
+    return plugin.grouptype == 1
+
 def gshow(plugin, results):
     "Display stat group results"
     metric = op.metrics[plugin.mgroup[0]]
+    #sys.stderr.write("Result metric: %s\n" % metric)
     units = metric[2][1]
     width = metric[4]
     pmtype = metric[5].pmtype
@@ -497,21 +507,14 @@ def gshow(plugin, results):
     totals = [0] * len(plugin.mgroup)
     col = THEME['frame'] + CHAR['colon']
 
-    def instance_match(inst, plugin):
-        if plugin.cullinsts != None and re.match(plugin.cullinsts, inst):
-            return False
-        if plugin.instances and inst in plugin.instances:
-            return True
-        return plugin.grouptype == 1
-
     for inst in plugin.igroup:      # e.g. [cpu0, cpu1, total]
         for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
             result = results[name]
             value = None
-            for _, instname, val in result:
+            for instid, instname, val in result:
                 if instname == inst:
                     value = val
-            #sys.stderr.write("[%s] inst=%s name=%s value=%s\n" % (name, instid, instname, str(value)))
+            #sys.stderr.write("[%s] inst=%s value=%s\n" % (name, inst, str(value)))
             if not instance_match(inst, plugin):
                 continue
             if plugin.grouptype == 2:   # total only
@@ -530,6 +533,8 @@ def gshow(plugin, results):
             for _, instname, val in result:
                 totals[i] += val
                 values += 1
+        if values == 0:
+            totals = [None] * len(plugin.mgroup)
         if values and plugin.printtype == 'p':
             for i in range(0, len(plugin.mgroup)):
                 totals[i] /= values
@@ -550,23 +555,12 @@ def cprintlist(values, units, prtype, pmtype, width, colorstep):
 def gshowcsv(plugin, results):
     "Return stat group results for CSV file"
     metric = op.metrics[plugin.mgroup[0]]
-    units = metric[2][1]
-    width = metric[4]
-    pmtype = metric[5].pmtype
     printtype = metric[8]
-    colorstep = metric[9]
 
     line = ''
     count = 0
     totals = [0] * len(plugin.mgroup)
     col = THEME['frame'] + CHAR['colon']
-
-    def instance_match(inst, plugin):
-        if plugin.cullinsts != None and re.match(plugin.cullinsts, inst):
-            return False
-        if plugin.instances and inst in plugin.instances:
-            return True
-        return plugin.grouptype == 1
 
     for inst in plugin.igroup:      # e.g. [cpu0, cpu1, total]
         for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
@@ -580,11 +574,9 @@ def gshowcsv(plugin, results):
                 continue
             if plugin.grouptype == 2:   # total only
                 continue
-            if count > 0 and (count % len(plugin.mgroup)) == 0:
-                line = line + col
-            elif count > 0:
-                line = line + CHAR['space']
-            line = line + cprint(value, units, printtype, pmtype, width, colorstep)
+            if count > 0:
+                line = line + CHAR['sep']
+            line = line + roundcsv(value)
             count += 1
 
     if plugin.grouptype > 1:   # report 'total' (sum) calculation
@@ -606,6 +598,11 @@ def gshowcsv(plugin, results):
 
 def cprint(value, units, printtype, pmtype, width, colorstep):
     """Color print one column"""
+
+    if value is None:
+        value = ''
+        printtype = 's'
+        colorstep = None
 
     if printtype is None:
         if pmtype in [PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64]:
@@ -1358,11 +1355,6 @@ class DstatTool(object):
         # Common preparations
         self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
 
-        try:
-            self.pmfg.fetch()    # prime initial values (TODO: fix, somehow)
-        except:
-            pass
-
         update = 0.0
         interval = 1.0
         if not self.update:
@@ -1578,11 +1570,6 @@ class DstatTool(object):
                         sep = CHAR['sep']
                 else:
                     oline = oline + sep + gshowcsv(plugin, results)
-                if self.totlist == vislist:
-                    continue
-                if plugin in self.totlist and plugin not in vislist:
-                    oline = oline + THEME['frame'] + CHAR['gt']
-                    break
 
         # Print stats
         sys.stdout.write(line + THEME['input'])

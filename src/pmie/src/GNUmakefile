@@ -26,8 +26,6 @@ HFILES  = fun.h dstruct.h eval.h lexicon.h pragmatics.h stats.h \
 SKELETAL = hdr.sk fetch.sk misc.sk aggregate.sk unary.sk binary.sk \
 	merge.sk act.sk binary_str.sk
 
-LSRCFILES = $(SKELETAL) meta logger.h
-
 LDIRT += $(YFILES:%.y=%.tab.?) fun.c fun.o $(TARGET) grammar.h
 
 LLDLIBS = $(PCPLIB) $(LIB_FOR_MATH) $(LIB_FOR_REGEX)
@@ -78,3 +76,6 @@ grammar.tab.o lexicon.o pmie.o syntax.o systemlog.o: syntax.h
 fun.o grammar.tab.o systemlog.o: systemlog.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check::	$(CFILES) $(HFILES)
+	$(CLINT) $^

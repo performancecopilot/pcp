@@ -34,3 +34,6 @@ install:	$(CMDTARGET)
 default_pcp:	default
 
 install_pcp:	install
+
+check:: $(CFILES)
+	$(CLINT) $^
