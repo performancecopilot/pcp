@@ -11,6 +11,7 @@ decl 1:
   allow [init_t] [pcp_var_lib_t] : [file] { append create execute execute_no_trans getattr ioctl open read write };
   allow [init_t] [pcp_var_lib_t] : [lnk_file] { read };
   allow [init_t] [tmp_t] : [file] { open };
+  allow [init_t] [system_cronjob_t] : [dbus] { send_msg };
   allow [pcp_pmcd_t] [svirt_sandbox_file_t] : [dir] { open read search };
   allow [pcp_pmcd_t] [svirt_lxc_net_t] : [dir] { open read search };
   allow [pcp_pmcd_t] [sysctl_net_t] : [dir] { search };

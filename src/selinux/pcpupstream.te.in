@@ -76,6 +76,7 @@ require {
         type default_t;
         type home_bin_t;
         type named_zone_t;
+        type system_cronjob_t;
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -95,6 +96,7 @@ require {
 	class blk_file { ioctl open read };
 	class msgq { unix_read };
         class unix_dgram_socket { sendto };
+        class dbus { send_msg };
 }
 
 #============= init_t ==============
@@ -117,6 +119,10 @@ allow init_t pcp_var_lib_t:lnk_file read;
 # type=AVC msg=audit(1484681301.369:174692): avc:  denied  { open } for  pid=21901 comm="pmcd" path="/var/tmp/pcp.sQReBLg6R/pcp.env.path" dev="dm-1" ino=930323 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:tmp_t:s0 tclass=file permissive=0
 #
 allow init_t tmp_t:file open;
+
+#type=USER_AVC msg=audit(1535947021.608:238558): pid=775 uid=81 auid=4294967295 ses=4294967295 subj=system_u:system_r:system_dbusd_t:s0-s0:c0.c1023 msg='avc:  denied  { send_msg } for msgtype=method_return dest=:1.14778 spid=1 tpid=19555 scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:system_cronjob_t:s0-s0:c0.c1023 tclass=dbus permissive=0  exe="/usr/bin/dbus-daemon" sauid=81 hostname=? addr=? terminal=?'
+allow init_t system_cronjob_t:dbus send_msg;
+
 
 #============= pcp_pmcd_t ==============
 
