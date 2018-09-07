@@ -1036,13 +1036,13 @@ series_source_mapping(void *arg)
     context_t		*context = &baton->pmapi.context;
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_source_mapping");
+    seriesBatonCheckCount(baton, "series_source_mapping");
+    seriesBatonReference(baton, "series_source_mapping");
 
     if (context->name.mapid > 0 && context->hostid > 0) {
 	/* fast path - string maps are already resolved */
 	seriesPassBaton(&baton->current, baton, "series_source_mapping");
     } else {
-	seriesBatonCheckCount(baton, "series_source_mapping");
-	seriesBatonReference(baton, "series_source_mapping");
 	if (context->name.mapid <= 0) {
 	    seriesBatonReference(baton, "series_source_mapping mapid");
 	    redisGetMap(baton->slots, contextmap, context->name.sds,

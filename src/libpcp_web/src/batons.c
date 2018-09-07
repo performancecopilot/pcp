@@ -126,7 +126,6 @@ seriesPassBaton(seriesBatonPhase **head, void *arg, const char *caller)
 {
     seriesBatonPhase	*next;
     seriesBatonMagic	*baton = (seriesBatonMagic *)arg;
-    unsigned int	*refcount = &baton->refcount;
 
     if (UNLIKELY(baton->traced || pmDebugOptions.series)) {
 	fprintf(stderr,
@@ -134,8 +133,9 @@ seriesPassBaton(seriesBatonPhase **head, void *arg, const char *caller)
 		magic_str(baton), baton, baton->refcount, baton->refcount - 1,
 		caller, "seriesPassBaton");
     }
+    assert(baton->refcount);
 
-    if ((*refcount = *refcount - 1) > 0) {
+    if (--baton->refcount > 0) {
 	/* phase still in-progress so no more to do */
     } else if ((next = (*head)->next) != NULL) {
 	*head = next;	/* move onto the next phase */
