@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.1.2
+Version: 4.1.3
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -3378,7 +3378,7 @@ cd
 %endif
 
 %changelog
-* Fri Sep 14 2018 Nathan Scott <nathans@redhat.com> - 4.1.2-1
+* Fri Sep 14 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
 - Work-in-progress (see https://pcp.io/roadmap)
 
 * Wed Aug 29 2018 Nathan Scott <nathans@redhat.com> - 4.1.1-3
