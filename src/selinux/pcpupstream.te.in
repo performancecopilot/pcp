@@ -252,8 +252,8 @@ allow pcp_pmcd_t glusterd_conf_t:dir { search };
 allow pcp_pmcd_t glusterd_t:unix_stream_socket connectto;
 allow pcp_pmcd_t glusterd_var_lib_t:dir search;
 
-#RHBZ1565158
-allow pcp_pmcd_t mozilla_plugin_t:sem unix_read;
+#RHBZ1565158, RHBZ1619383
+allow pcp_pmcd_t mozilla_plugin_t:sem { associate getattr unix_read };
 
 #pmda.bcc
 allow pcp_pmcd_t self:process { execmem setrlimit };
