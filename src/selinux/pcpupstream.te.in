@@ -77,6 +77,7 @@ require {
         type home_bin_t;
         type named_zone_t;
         type system_cronjob_t;
+        type xdm_t;
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -274,6 +275,10 @@ allow pcp_pmcd_t default_t:file getattr;
 #type=AVC msg=audit(1532540174.341:22480): avc:  denied  { search } for  pid=25668 comm="perl" name="named" dev="dm-3" ino=2128175 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:named_zone_t:s0 tclass=dir
 allow pcp_pmcd_t named_zone_t:dir search;
 
+#RHBZ1619381
+#type=AVC msg=audit(1534774142.552:48731): avc:  denied  { unix_read } for  pid=1726 comm="pmdalinux" key=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tclass=shm permissive=0
+allow pcp_pmcd_t xdm_t:shm unix_read;
+
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
@@ -360,6 +365,10 @@ allow pcp_pmie_t init_exec_t:file getattr;
 
 @PCP_CAPUSERNS_PTRACE_RULE_PMIE@
 allow pcp_pmie_t user_home_dir_t:dir search;
+
+#RHBZ1623988
+#type=AVC msg=audit(1535642748.855:3214): avc:  denied  { signal } for  pid=3106 comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process permissive=1
+allow pcp_pmie_t unconfined_t:process signal;
 #============= pmda-lio ==============
 allow pcp_pmcd_t configfs_t:dir { open read search };
 allow pcp_pmcd_t configfs_t:file { getattr open read };
