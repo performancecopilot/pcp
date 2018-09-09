@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (c) 2013-2016 Red Hat.
+# Copyright (c) 2013-2016,2018 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -12,12 +12,15 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
+#
+# pylint: disable=bare-except,missing-docstring,unnecessary-lambda,too-few-public-methods
 
 # get python3-compatible incremental line printing
 from __future__ import print_function
+
+import sys
 from pcp import pmapi
 import cpmapi as c_api
-import sys
 
 
 class sampler(object):
@@ -39,7 +42,7 @@ class sampler(object):
         self.cpu_util = 0
         self.peak_cpu_util = -1
         self.peak_cpu = 0
-        for (ucode, uname, uvalue), (scode, sname, svalue) in zip(self.cpu_user(), self.cpu_sys()):
+        for (ucode, _, uvalue), (scode, _, svalue) in zip(self.cpu_user(), self.cpu_sys()):
             assert ucode == scode	# indoms should match
             try:
                 util = uvalue() + svalue()

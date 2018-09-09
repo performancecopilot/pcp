@@ -18,17 +18,28 @@ include $(TOPDIR)/src/include/builddefs
 CFILES	= pmseries.c
 CMDTARGET = pmseries$(EXECSUFFIX)
 LLDLIBS	= $(PCP_WEBLIB)
+LCFLAGS = $(LIBUVCFLAGS)
 ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lws2_32
 endif
 
-default:	$(CMDTARGET)
+default:	build-me
+
+ifeq "$(HAVE_LIBUV)" "true"
+build-me:	$(CMDTARGET)
 
 install:	default
 	#$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
+else
+build-me:
+install:
+endif
 
 include $(BUILDRULES)
 
 default_pcp : default
 
 install_pcp : install
+
+check:: $(CFILES)
+	$(CLINT) $^

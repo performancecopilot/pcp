@@ -29,7 +29,6 @@
 [\fB\-\-container\fP \fIcontainer\fP]
 [\fB\-\-daemonize\fP]
 [\fB\-e\fP \fIderived\fP]
-[\fB\-E\fP \fIpassword\fP]
 [\fB\-g\fP \fIserver\fP]
 [\fB\-h\fP \fIhost\fP]
 [\fB\-i\fP \fIinstances\fP]
@@ -44,9 +43,6 @@
 [\fB\-S\fP \fIstarttime\fP]
 [\fB\-t\fP \fIinterval\fP]
 [\fB\-T\fP \fIendtime\fP]
-[\fB\-U\fP \fIusername\fP]
-[\fB\-x\fP \fIdatabase\fP]
-[\fB\-X\fP \fItags\fP]
 [\fB\-y\fP|\fB\-Y\fP \fItime-scale\fP]
 \fImetricspec\fP
 \fI[...]\fP
@@ -249,6 +245,11 @@ For details see
 and
 .BR pmRegisterDerived (3).
 .TP
+\fB\-g\fR \fIserver\fR, \fB\-\-spark\-server\fR=\fIserver\fR
+Spark
+.I server
+to send the metrics to.
+.TP
 \fB\-G\fR, \fB\-\-no\-globals\fR
 Do not include global metrics in reporting (see
 .BR pmrep.conf (5)).
@@ -380,6 +381,10 @@ Refer to
 for a complete description of the syntax for
 .IR origin .
 .TP
+\fB\-p\fR \fIport\fR, \fB\-\-spark\-port\fR=\fIport\fR
+Spark server
+.IR port .
+.TP
 \fB\-P\fR \fIprecision\fR, \fB\-\-precision\fR=\fIprecision\fR
 Use
 .I precision
@@ -504,11 +509,6 @@ and
 \fB\-V\fR, \fB\-\-version\fR
 Display version number and exit.
 .TP
-\fB\-X\fR \fItags\fR, \fB\-\-db\-tags\fR=\fItags\fR
-Specify strings of
-.I tags
-to add to the metrics.
-.TP
 \fB\-y\fR \fIscale\fR, \fB\-\-time\-scale\fR=\fIscale\fR
 .I Unit/scale
 for time metrics, possible values include
@@ -551,6 +551,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pcp (1),
 .BR pcp2elasticsearch (1),
 .BR pcp2graphite (1),
+.BR pcp2influxdb (1),
 .BR pcp2json (1),
 .BR pcp2xlsx (1),
 .BR pcp2xml (1),

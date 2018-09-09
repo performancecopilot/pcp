@@ -9,7 +9,7 @@ Info: usdt_jvm_threads
 Info: Modules configured.
 Info: Initializing modules:
 Info: usdt_jvm_threads
-Info: usdt_jvm_threads: Found a Java process.
+Info: usdt_jvm_threads: Tracing PID.
 Info: usdt_jvm_threads: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:
@@ -25,7 +25,7 @@ Info: usdt_jvm_threads
 Info: Modules configured.
 Info: Initializing modules:
 Info: usdt_jvm_threads
-Info: usdt_jvm_threads: Found a Java process.
+Info: usdt_jvm_threads: Tracing PID.
 Info: usdt_jvm_threads: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:

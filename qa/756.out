@@ -124,4 +124,6 @@ PMU : software
  ===== test_dynamic_events_cpumask_handling ==== 
  ===== test_only_dynamic_events ==== 
 3 allowed events
+ ===== test_cpu_max_smt ==== 
+ ===== test_cpu_smt ==== 
 Unit tests Passed

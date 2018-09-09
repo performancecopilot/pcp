@@ -17,6 +17,7 @@
 #include "sds.h"
 #include "dict.h"
 
+struct redisSlots;
 typedef dict redisMap;
 typedef dictEntry redisMapEntry;
 
@@ -29,6 +30,7 @@ extern redisMap *labelsmap;
 extern redisMap *contextmap;
 
 extern redisMap *redisMapCreate(const char *);
+extern redisMap *redisKeyMapCreate(const char *);
 extern redisMapEntry *redisMapLookup(redisMap *, sds);
 extern long long redisMapValue(redisMapEntry *);
 extern void redisMapInsert(redisMap *, sds, long long);
@@ -46,9 +48,36 @@ extern redisMapEntry *redisRMapLookup(redisMap *, const char *);
 extern sds redisRMapValue(redisMapEntry *);
 extern void redisRMapInsert(redisMap *, const char *, sds);
 
-/* Helper utilities applicable to all maps */
+/*
+ * Helper utilities applicable to all map caches
+ */
 extern void redisMapsInit(void);
 extern const char *redisMapName(redisMap *);
 extern void redisMapRelease(redisMap *);
 
-#endif
+/*
+ * Asynchronous mapping response helpers
+ */
+typedef void (*redisInfoCallBack)(pmloglevel, sds, void *);
+typedef void (*redisDoneCallBack)(void *);
+
+typedef struct redisMapBaton {
+    seriesBatonMagic	magic;		/* MAGIC_MAPPING */
+    int			newMapping;
+    redisMap		*mapping;
+    sds			mapKey;
+    long long		*mapID;
+    struct redisSlots	*slots;
+    int			loaded;
+    int			scriptID;
+    sds			scriptHash;
+    redisDoneCallBack	mapped;
+    redisInfoCallBack	info;
+    void		*userdata;
+    void		*arg;
+} redisMapBaton;
+
+extern void redisGetMap(struct redisSlots *, redisMap *, sds, long long *,
+		redisDoneCallBack, redisInfoCallBack, void *, void *);
+
+#endif	/* SERIES_MAPS_H */

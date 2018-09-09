@@ -17,18 +17,19 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 TARGET = pcp-dmcache
+SCRIPT = $(TARGET).py
 LVTARGET = pcp-lvmcache
 MAN_SECTION = 1
 MAN_PAGES = $(TARGET).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default: $(TARGET).py $(MAN_PAGES)
+default: $(SCRIPT) $(MAN_PAGES)
 
 include $(BUILDRULES)
 
 install: default
 ifeq "$(HAVE_PYTHON)" "true"
-	$(INSTALL) -m 755 $(TARGET).py $(PCP_BINADM_DIR)/$(TARGET)
+	$(INSTALL) -m 755 $(SCRIPT) $(PCP_BINADM_DIR)/$(TARGET)
 	$(INSTALL) -S $(PCP_BINADM_DIR)/$(TARGET) $(PCP_BINADM_DIR)/$(LVTARGET)
 	@$(INSTALL_MAN)
 endif
@@ -36,3 +37,6 @@ endif
 default_pcp : default
 
 install_pcp : install
+
+check:: $(SCRIPT)
+	$(PYLINT) $^

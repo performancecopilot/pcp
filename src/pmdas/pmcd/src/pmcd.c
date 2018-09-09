@@ -445,6 +445,7 @@ refresh_pmie_indom(void)
 {
     static struct stat	lastsbuf;
     pid_t		pmiepid;
+    pmie_t		*pmiep;
     struct dirent	*dp;
     struct stat		statbuf;
     size_t		size;
@@ -494,11 +495,12 @@ refresh_pmie_indom(void)
 		    pmNoMem("pmie iname", strlen(dp->d_name), PM_RECOV_ERR);
 		    continue;
 		}
-		if ((pmies = (pmie_t *)realloc(pmies, size)) == NULL) {
+		if ((pmiep = (pmie_t *)realloc(pmies, size)) == NULL) {
 		    pmNoMem("pmie instlist", size, PM_RECOV_ERR);
 		    free(endp);
 		    continue;
 		}
+		pmies = pmiep;
 		if ((fd = open(fullpath, O_RDONLY)) < 0) {
 		    pmNotifyErr(LOG_WARNING, "pmcd pmda cannot open %s: %s",
 				fullpath, osstrerror());

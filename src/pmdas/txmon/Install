@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=txmon
-pmda_interface=2
 
 pmdaSetup
 

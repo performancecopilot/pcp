@@ -43,11 +43,10 @@ static pmLongOptions longopts[] = {
     { "fetch",    0, 'f', 0, "fetch and print values for all instances" },
     { "fetchall", 0, 'F', 0, "fetch and print values for non-enumerable indoms" },
     { "fullindom",0, 'I', 0, "print InDom in verbose format" },
-    { "labels",   0, 'l', 0, "print metric value labels (metadata)" },
+    { "labels",   0, 'l', 0, "print InDom, metric and instance labels" },
     { "pmid",     0, 'm', 0, "print PMID" },
     { "fullpmid", 0, 'M', 0, "print PMID in verbose format" },
-    { "series",   0, 's', 0, "print metric series identifier" },
-    { "source",   0, 'S', 0, "print metric source identifier" },
+    { "series",   0, 's', 0, "print source, metric, instance series identifiers" },
     { "oneline",  0, 't', 0, "get and display (terse) oneline text" },
     { "helptext", 0, 'T', 0, "get and display (verbose) help text" },
     PMAPI_OPTIONS_HEADER("Metrics options"),
@@ -59,7 +58,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:b:c:CdD:Ffh:IK:lLMmN:n:O:sStTvVxzZ:?",
+    .short_options = "a:b:c:CdD:Ffh:IK:lLMmN:n:O:stTvVxzZ:?",
     .long_options = longopts,
     .short_usage = "[options] [metricname | pmid | indom]...",
     .override = myoverrides,
@@ -69,9 +68,8 @@ static int	p_mid;		/* Print metric IDs of leaf nodes */
 static int	p_fullmid;	/* Print verbose metric IDs of leaf nodes */
 static int	p_fulliid;	/* Print verbose indom IDs in descriptions */
 static int	p_desc;		/* Print descriptions for metrics */
-static int	p_label;	/* Print labels for metrics, indoms and values */
+static int	p_label;	/* Print labels for InDoms,, metrics indoms and instances */
 static int	p_series;	/* Print metrics series identifiers */
-static int	p_source;	/* Print metrics source identifiers */
 static int	p_oneline;	/* fetch oneline text? */
 static int	p_help;		/* fetch help text? */
 static int	p_value;	/* pmFetch and print value(s)? */
@@ -552,55 +550,63 @@ myindomlabels(pmInDom indom)
 }
 
 static void
-myinstslabels(pmDesc *dp, pmLabelSet **sets, int nsets, char *buffer, int buflen)
+myinstancelabels(pmInDom indom, pmDesc *dp)
 {
+    pmLabelSet	*labels[6] = {0}; /* context+domain+indom+cluster+item+insts */
     pmLabelSet	*ilabels = NULL;
-    char	*iname;
-    int		i, n, sts, inst, count;
+    char	*iname, buf[PM_MAXLABELJSONLEN];
+    int		i = 0, j, n, inst, count, sts = 0;
+
+    if (indom == PM_INDOM_NULL)
+	return;
 
     /* prime the cache (if not done already) and get the instance count */
-    if ((n = lookup_instance_nlabelset(dp->indom)) <= 0)
-	n = lookup_instance_numinst(dp->indom);
+    if ((n = lookup_instance_nlabelset(indom)) <= 0)
+	n = lookup_instance_numinst(indom);
 
-    for (i = 0; i < n; i++) {
-	count = nsets - 1;
-	if ((ilabels = lookup_instance_labels(dp->indom, i)) != NULL)
-	    sets[count++] = ilabels;
+    labels[i++] = lookup_context_labels();
+    labels[i++] = lookup_domain_labels(pmInDom_domain(indom));
+    labels[i++] = lookup_indom_labels(indom);
+    labels[i++] = lookup_cluster_labels(dp->pmid);
+    labels[i++] = lookup_item_labels(dp->pmid);
+
+    for (j = 0; j < n; j++) {
+	count = i;
+	if ((ilabels = lookup_instance_labels(indom, j)) != NULL)
+	    labels[count++] = ilabels;
 	/* merge all the labels down to each leaf instance */
-	if ((sts = pmMergeLabelSets(sets, count, buffer, buflen, 0, 0)) > 0) {
-	    inst = ilabels? ilabels->inst : lookup_instance_inum(dp->indom, i);
-	    if ((iname = lookup_instance_name(dp->indom, inst)) == NULL)
+	sts = pmMergeLabelSets(labels, count, buf, sizeof(buf), 0, 0);
+	if (sts > 0) {
+	    inst = ilabels? ilabels->inst : lookup_instance_inum(indom, j);
+	    if ((iname = lookup_instance_name(indom, inst)) == NULL)
 		iname = "DISAPPEARED";
-	    printf("    inst [%d or \"%s\"] labels %s\n", inst, iname, buffer);
+	    printf("    inst [%d or \"%s\"] labels %s\n", inst, iname, buf);
 	} else if (sts < 0) {
 	    fprintf(stderr, "%s: %s instances labels merge failed: %s\n",
-			pmGetProgname(), pmInDomStr(dp->indom), pmErrStr(sts));
+			pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
 	}
     }
 }
 
 static void
-mylabels(pmDesc *dp)
+mymetriclabels(pmDesc *dp)
 {
-    pmLabelSet	*labels[6] = {0}; /* context+domain+indom+cluster+item+insts */
+    pmLabelSet	*labels[5] = {0}; /* context+domain+indom+cluster+item */
     char	buf[PM_MAXLABELJSONLEN];
-    int		sts = 0;
+    int		i = 0, sts = 0;
 
-    labels[0] = lookup_context_labels();
-    labels[1] = lookup_domain_labels(pmID_domain(dp->pmid));
-    labels[2] = lookup_indom_labels(dp->indom);
-    labels[3] = lookup_cluster_labels(dp->pmid);
-    labels[4] = lookup_item_labels(dp->pmid);
-    if (dp->indom != PM_INDOM_NULL) {
-	myinstslabels(dp, labels, 6, buf, sizeof(buf));
-	return;
-    }
-    sts = pmMergeLabelSets(labels, 5, buf, sizeof(buf), NULL, NULL);
+    labels[i++] = lookup_context_labels();
+    labels[i++] = lookup_domain_labels(pmID_domain(dp->pmid));
+    if (dp->indom != PM_INDOM_NULL)
+	labels[i++] = lookup_indom_labels(dp->indom);
+    labels[i++] = lookup_cluster_labels(dp->pmid);
+    labels[i++] = lookup_item_labels(dp->pmid);
+    sts = pmMergeLabelSets(labels, i, buf, sizeof(buf), NULL, NULL);
     if (sts > 0)
 	printf("    labels %s\n", buf);
     else if (sts < 0)
 	fprintf(stderr, "%s: metric %s labels merge failed: %s\n",
-		pmGetProgname(), pmIDStr(dp->pmid), pmErrStr(sts));
+		    pmGetProgname(), pmIDStr(dp->pmid), pmErrStr(sts));
 }
 
 /* Input: 20-byte SHA1 hash, output: 40-byte representation */
@@ -619,8 +625,8 @@ static unsigned char *
 mysourcehash(unsigned char *hash, const char *labels)
 {
     SHA1_CTX		shactx;
-    const unsigned char	prefix[] = "{\"labels\":";
-    const unsigned char	suffix[] = ",\"type\":\"source\"}";
+    const unsigned char	prefix[] = "{\"series\":\"source\",\"labels\":";
+    const unsigned char	suffix[] = "}";
 
     SHA1Init(&shactx);
     SHA1Update(&shactx, prefix, sizeof(prefix)-1);
@@ -631,23 +637,16 @@ mysourcehash(unsigned char *hash, const char *labels)
 }
 
 static unsigned char *
-mymetrichash(unsigned char *hash, pmDesc *desc, const char *labels)
+mymetrichash(unsigned char *hash, const char *name, pmDesc *desc, const char *labels)
 {
     SHA1_CTX		shactx;
-    pmID		pmid = desc->pmid;
-    pmInDom		indom = desc->indom;
     char		buffer[PM_MAXLABELJSONLEN+256];
 
     pmsprintf(buffer, sizeof(buffer),
-		"{\"descriptor\":{\"domain\":%u,\"cluster\":%u,\"item\":%u,"
-		    "\"serial\":%u,\"semantics\":%u,\"type\":%u,\"units\":%u},"
-		  "\"labels\":%s,"
-		  "\"type\":\"metric\""
-		"}",
-		pmID_domain(pmid), pmID_cluster(pmid), pmID_item(pmid),
-		(indom == PM_INDOM_NULL) ? -1 : pmInDom_serial(indom),
-		desc->sem, desc->type, *(unsigned int *)&desc->units,
-		labels);
+		"{\"series\":\"metric\",\"name\":\"%s\",\"labels\":%s,"
+		 "\"semantics\":%s,\"type\":%s,\"units\":%s}",
+		name, labels, pmSemStr(desc->sem), pmTypeStr(desc->type),
+		pmUnitsStr(&desc->units));
     SHA1Init(&shactx);
     SHA1Update(&shactx, (unsigned char *)buffer, strlen(buffer));
     SHA1Final(hash, &shactx);
@@ -655,25 +654,14 @@ mymetrichash(unsigned char *hash, pmDesc *desc, const char *labels)
 }
 
 unsigned char *
-myinsthash(unsigned char *hash, pmDesc *desc,
-	    const char *labels, const char *instance)
+myinstancehash(unsigned char *hash, const char *labels, const char *instance)
 {
     SHA1_CTX		shactx;
-    pmID		pmid = desc->pmid;
-    pmInDom		indom = desc->indom;
     char		buffer[PM_MAXLABELJSONLEN+512];
 
     pmsprintf(buffer, sizeof(buffer),
-		"{\"descriptor\":{\"domain\":%u,\"cluster\":%u,\"item\":%u,"
-		    "\"serial\":%u,\"semantics\":%u,\"type\":%u,\"units\":%u},"
-		  "\"instance\":%s,"
-		  "\"labels\":%s,"
-		  "\"type\":\"instance\""
-		"}",
-		pmID_domain(pmid), pmID_cluster(pmid), pmID_item(pmid),
-		(indom == PM_INDOM_NULL) ? -1 : pmInDom_serial(indom),
-		desc->sem, desc->type, *(unsigned int *)&desc->units,
-		instance ? instance : "null", labels);
+		"{\"series\":\"instance\",\"name\":\"%s\",\"labels\":%s}",
+		instance ? instance : "???", labels ? labels : "null");
     SHA1Init(&shactx);
     SHA1Update(&shactx, (unsigned char *)buffer, strlen(buffer));
     SHA1Final(hash, &shactx);
@@ -690,9 +678,9 @@ intrinsics(const pmLabel *label, const char *json, void *arg)
 }
 
 static void
-mysource(void)
+mymetricseries(const char *name, pmDesc *dp)
 {
-    pmLabelSet		*labels[1] = {0}; /* context labels only */
+    pmLabelSet		*labels[5] = {0};
     char		buf[PM_MAXLABELJSONLEN];
     char		hash[40+1];
     unsigned char	id[20];
@@ -706,64 +694,56 @@ mysource(void)
 	fprintf(stderr, "%s: context labels merge failed: %s\n",
 		pmGetProgname(), pmErrStr(sts));
     }
-}
-
-static void
-myinstseries(pmDesc *dp, pmLabelSet **sets, int nsets, char *buffer, int buflen)
-{
-    unsigned char	id[20];
-    pmLabelSet		*ilabels = NULL;
-    char		hash[40+1];
-    char		*iname;
-    int			i, n, sts, inst, count;
-
-    /* prime the cache (if not done already) and get the instance count */
-    if ((n = lookup_instance_nlabelset(dp->indom)) <= 0)
-	n = lookup_instance_numinst(dp->indom);
-
-    for (i = 0; i < n; i++) {
-	count = nsets - 1;
-	if ((ilabels = lookup_instance_labels(dp->indom, i)) != NULL)
-	    sets[count++] = ilabels;
-	/* merge all the labels down to each leaf instance */
-	if ((sts = pmMergeLabelSets(sets, count, buffer, buflen, 0, 0)) > 0) {
-	    inst = ilabels ? ilabels->inst : lookup_instance_inum(dp->indom, i);
-	    iname = lookup_instance_name(dp->indom, inst);
-	    printf("    inst [%d or \"%s\"] series %s\n",
-		    inst, iname ? iname : "DISAPPEARED",
-		    myhash(myinsthash(id, dp, buffer, iname), hash));
-	} else if (sts < 0) {
-	    fprintf(stderr, "%s: %s instances labels merge failed: %s\n",
-		    pmGetProgname(), pmInDomStr(dp->indom), pmErrStr(sts));
-	}
-    }
-}
-
-static void
-myseries(pmDesc *dp, int type)
-{
-    pmLabelSet		*labels[6] = {0};
-    char		buf[PM_MAXLABELJSONLEN];
-    char		hash[40+1];
-    unsigned char	id[20];
-    int			sts = 0;
 
     labels[0] = lookup_context_labels();
     labels[1] = lookup_domain_labels(pmID_domain(dp->pmid));
     labels[2] = lookup_indom_labels(dp->indom);
     labels[3] = lookup_cluster_labels(dp->pmid);
     labels[4] = lookup_item_labels(dp->pmid);
+    sts = pmMergeLabelSets(labels, 5, buf, sizeof(buf), intrinsics, NULL);
+    if (sts > 0) {
+	printf("    Series: %s\n", myhash(mymetrichash(id, name, dp, buf), hash));
+    } else if (sts < 0) {
+	fprintf(stderr, "%s: metric %s labels merge failed: %s\n",
+		pmGetProgname(), pmIDStr(dp->pmid), pmErrStr(sts));
+    }
+}
 
-    if (type != PM_LABEL_INSTANCES) {
-	sts = pmMergeLabelSets(labels, 5, buf, sizeof(buf), intrinsics, NULL);
+static void
+myinstanceseries(pmInDom indom)
+{
+    unsigned char	id[20];
+    pmLabelSet		*labels[4] = {0}, *ilabels = NULL;
+    char		buffer[PM_MAXLABELJSONLEN], hash[64], *iname;
+    int			i, n, sts, inst, count;
+
+    if (indom == PM_INDOM_NULL)
+	return;
+
+    labels[0] = lookup_context_labels();
+    labels[1] = lookup_domain_labels(pmInDom_domain(indom));
+    labels[2] = lookup_indom_labels(indom);
+
+    /* prime the cache (if not done already) and get the instance count */
+    if ((n = lookup_instance_nlabelset(indom)) <= 0)
+	n = lookup_instance_numinst(indom);
+
+    for (i = 0; i < n; i++) {
+	count = 3;
+	if ((ilabels = lookup_instance_labels(indom, i)) != NULL)
+	    labels[count++] = ilabels;
+	/* merge all the labels down to each leaf instance */
+	sts = pmMergeLabelSets(labels, count, buffer, sizeof(buffer), 0, 0);
 	if (sts > 0) {
-	    printf("    Series: %s\n", myhash(mymetrichash(id, dp, buf), hash));
+	    inst = ilabels ? ilabels->inst : lookup_instance_inum(indom, i);
+	    iname = lookup_instance_name(indom, inst);
+	    printf("    inst [%d or \"%s\"] series %s\n",
+		    inst, iname ? iname : "DISAPPEARED",
+		    myhash(myinstancehash(id, buffer, iname), hash));
 	} else if (sts < 0) {
-	    fprintf(stderr, "%s: metric %s labels merge failed: %s\n",
-		    pmGetProgname(), pmIDStr(dp->pmid), pmErrStr(sts));
+	    fprintf(stderr, "%s: %s instances labels merge failed: %s\n",
+		    pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
 	}
-    } else if (dp->indom != PM_INDOM_NULL) {
-	myinstseries(dp, labels, 6, buf, sizeof(buf));
     }
 }
 
@@ -958,18 +938,18 @@ report(void)
 	putchar('\n');
 	if (p_desc)
 	    mydesc(&desc);
-	if (p_source)
-	    mysource();
 	if (p_series)
-	    myseries(&desc, !PM_LABEL_INSTANCES);
+	    mymetricseries(namelist[i], &desc);
+	if (p_label)
+	    mymetriclabels(&desc);
 	if (p_help)
 	    myhelptext(pmidlist[i], PM_TEXT_PMID);
 	if (p_value)
 	    mydump(&desc, vsp, NULL);
 	if (p_series)
-	    myseries(&desc, PM_LABEL_INSTANCES);
+	    myinstanceseries(desc.indom);
 	if (p_label)
-	    mylabels(&desc);
+	    myinstancelabels(desc.indom, &desc);
     }
 
     if (result != NULL) {
@@ -1057,7 +1037,7 @@ dodigit(const char *arg)
 static int
 myoverrides(int opt, pmOptions *opts)
 {
-    if (opt == 's' || opt == 'S' || opt == 't' || opt == 'T')
+    if (opt == 's' || opt == 't' || opt == 'T')
 	return 1;	/* we've claimed these, inform pmGetOptions */
     return 0;
 }
@@ -1135,13 +1115,6 @@ main(int argc, char **argv)
 
 	    case 's':
 		p_series = 1;
-		need_context = 1;
-		need_labels = 1;
-		need_pmid = 1;
-		break;
-
-	    case 'S':
-		p_source = 1;
 		need_context = 1;
 		need_labels = 1;
 		need_pmid = 1;

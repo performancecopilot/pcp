@@ -69,9 +69,9 @@ redisLibuvDelRead(void *privdata)
 
     p->events &= ~UV_READABLE;
     if (p->events)
-	uv_poll_start(&p->handle, p->events, redisLibuvPoll);
+        uv_poll_start(&p->handle, p->events, redisLibuvPoll);
     else
-	uv_poll_stop(&p->handle);
+        uv_poll_stop(&p->handle);
 }
 
 static void
@@ -90,9 +90,9 @@ redisLibuvDelWrite(void *privdata)
 
     p->events &= ~UV_WRITABLE;
     if (p->events)
-	uv_poll_start(&p->handle, p->events, redisLibuvPoll);
+        uv_poll_start(&p->handle, p->events, redisLibuvPoll);
     else
-	uv_poll_stop(&p->handle);
+        uv_poll_stop(&p->handle);
 }
 
 static void
@@ -115,7 +115,6 @@ redisLibuvCleanup(void *privdata)
 static int
 redisLibuvAttach(redisAsyncContext *ac, uv_loop_t *loop)
 {
-    redisContext	*c = &(ac->c);
     redisLibuvEvents	*p;
 
     if (ac->ev.data != NULL)
@@ -128,9 +127,9 @@ redisLibuvAttach(redisAsyncContext *ac, uv_loop_t *loop)
     ac->ev.cleanup  = redisLibuvCleanup;
 
     if ((p = (redisLibuvEvents *)calloc(1, sizeof(*p))) == NULL)
-	return REDIS_ERR;
+        return REDIS_ERR;
 
-    if (uv_poll_init(loop, &p->handle, c->fd) != 0)
+    if (uv_poll_init(loop, &p->handle, ac->c.fd) != 0)
         return REDIS_ERR;
 
     ac->ev.data    = p;

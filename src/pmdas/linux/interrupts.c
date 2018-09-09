@@ -55,6 +55,7 @@ unsigned int irq_err_count;
 static int
 setup_interrupts(int reset)
 {
+    online_cpu_t *op;
     static int setup;
 
     if (!setup) {
@@ -65,9 +66,10 @@ setup_interrupts(int reset)
 	setup = 1;
     }
     if (cpu_count != _pm_ncpus) {
-	online_cpumap = realloc(online_cpumap, _pm_ncpus * sizeof(online_cpu_t));
-	if (!online_cpumap)
+	op = realloc(online_cpumap, _pm_ncpus * sizeof(online_cpu_t));
+	if (!op)
 	    return -oserror();
+	online_cpumap = op;
 	cpu_count = _pm_ncpus;
     }
     if (reset)
@@ -297,18 +299,19 @@ extend_interrupts(interrupt_t **interp, int indom, unsigned int *countp)
 {
     int cnt = cpu_count * sizeof(unsigned long);
     unsigned long *values = malloc(cnt);
-    interrupt_t *interrupt = *interp;
+    interrupt_t *ip, *interrupt = *interp;
     int count = *countp + 1;
 
     if (!values)
 	return 0;
 
-    interrupt = realloc(interrupt, count * sizeof(interrupt_t));
-    if (!interrupt) {
+    ip = realloc(interrupt, count * sizeof(interrupt_t));
+    if (!ip) {
 	pmdaCacheOp(INDOM(indom), PMDA_CACHE_CULL);
 	free(values);
 	return 0;
     }
+    interrupt = ip;
     interrupt[count-1].values = values;
     *interp = interrupt;
     *countp = count;

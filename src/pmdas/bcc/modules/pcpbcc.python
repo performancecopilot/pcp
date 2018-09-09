@@ -13,12 +13,16 @@
 #
 """ PCP BCC PMDA module base class """
 
+import re
 import ctypes as ct
-from os import kill
+from os import kill, listdir, path
 from collections import OrderedDict
+
 from bcc.table import log2_index_max
 
-# pylint: disable=too-many-instance-attributes
+from cpmapi import PM_ERR_BADSTORE
+
+# pylint: disable=too-many-instance-attributes, too-many-public-methods
 class PCPBCCBase(object):
     """ PCP BCC Base Class """
     def __init__(self, module, config, log, err):
@@ -28,6 +32,7 @@ class PCPBCCBase(object):
         self._err = err
 
         self.bpf = None
+        self.bpf_text = None
         self.insts = {}
         self.items = []
 
@@ -72,22 +77,35 @@ class PCPBCCBase(object):
 
     def label_cluster(self): # pylint: disable=no-self-use
         """ Cluster labels """
+        return '{"bcc_module":"' + self._who + '"}'
+
+    def label_indom(self): # pylint: disable=no-self-use
+        """ Instance domain labels """
         return '{}'
 
     def label_instance(self, inst): # pylint: disable=no-self-use,unused-argument
         """ Instance labels """
         return '{}'
 
-    def store(self, item, inst, val):
+    def store(self, item, inst, val): # pylint: disable=no-self-use,unused-argument
         """ Store callback """
-        raise NotImplementedError
+        return PM_ERR_BADSTORE
 
     def cleanup(self):
         """ Clean up at exit """
         if self.bpf is not None:
             self.bpf.cleanup()
-        self.bpf = None
-        self.log("BPF detached.")
+            self.log("BPF detached.")
+            self.undef_cache()
+            self.bpf = None
+
+    def reset_cache(self): # pylint: disable=no-self-use
+        """ Reset internal cache """
+        return
+
+    def undef_cache(self): # pylint: disable=no-self-use
+        """ Undefine internal cache """
+        return
 
     #
     # Helpers for modules
@@ -134,7 +152,7 @@ class PCPBCCBase(object):
         """
 
         if not isinstance(table.Key(), ct.Structure):
-            raise Exception("Histogram does not contain multiple sections")
+            raise Exception("Histogram does not contain multiple sections.")
 
         hist_sections = {}
         hist_key_field1 = table.Key._fields_[0][0]
@@ -163,7 +181,7 @@ class PCPBCCBase(object):
     def read_log2_histogram(cls, table, cache):
         """ Read single log2 histogram """
         if isinstance(table.Key(), ct.Structure):
-            raise Exception("Histogram contains multiple sections")
+            raise Exception("Histogram contains multiple sections.")
 
         hist_data = [0] * log2_index_max
         for k, v in table.items(): # pylint: disable=invalid-name
@@ -178,63 +196,95 @@ class PCPBCCBase(object):
         if ":" in conf:
             return conf.split(",")
         if not conf.startswith("/"):
-            from os import path
             conf = path.dirname(__file__) + "/../" + conf
         return [l.strip() for l in open(conf).readlines() if l.strip() != "" and '#' not in l]
 
     @staticmethod
-    def get_proc_info(process):
-        """ Get process info for given PIDs or process name """
+    def get_proc_info(proc_filter):
+        """ Get process info for given process filter """
+        if not proc_filter:
+            return None
 
-        def get_pids(procname):
-            """ Get PIDs for a process """
-            from os import listdir
-            import re
-            pids = []
-            comp = re.compile(r'\A' + procname + r'\Z')
-            for dirname in listdir("/proc"):
-                try:
-                    with open("/proc/%s/cmdline" % dirname, "rb") as fcmd:
-                        cmdline = fcmd.read().decode().split("\x00")
-                    with open("/proc/%s/comm" % dirname) as fcomm:
-                        comm = fcomm.read().strip()
-                    if procname == comm or re.match(comp, " ".join(cmdline[:-1])):
-                        pids.append(int(dirname))
-                except Exception: # pylint: disable=broad-except
-                    continue
-            return pids
+        filters = []
+        for filt in proc_filter.split(","):
+            if filt.isalnum():
+                filters.append(filt)
+            else:
+                filters.append(re.compile(r'\A' + filt + r'\Z'))
 
-        def get_proc_details(pids):
-            """ Get process info for PIDs """
-            procinfo = []
-            for pid in pids:
-                try:
-                    with open("/proc/%s/cmdline" % str(pid), "rb") as fcmd:
-                        cmdline = fcmd.read().decode().split("\x00")
-                    procinfo.append([pid, cmdline[0], " ".join(cmdline[1:-1])])
-                except Exception: # pylint: disable=broad-except
-                    continue
-            return procinfo
+        procinfo = []
+        retype = type(re.compile('test'))
+        for dirname in listdir("/proc"):
+            if not dirname.isdigit():
+                continue
+            try:
+                pid = int(dirname)
+                with open("/proc/%s/cmdline" % dirname, "rb") as fcmd:
+                    cmdline = fcmd.read().decode().split("\x00")
+                with open("/proc/%s/comm" % dirname) as fcomm:
+                    comm = fcomm.read().strip()
+                cmdline = cmdline if cmdline[0] else ["(" + comm + ")", ""]
+                cmdline_full = " ".join(cmdline[:-1])
+                cmdline_args = " ".join(cmdline[1:-1])
+                for filt in filters:
+                    if filt == dirname or filt == comm or \
+                       (isinstance(filt, retype) and re.match(filt, cmdline_full)):
+                        procinfo.append([pid, cmdline[0], cmdline_args])
+            except Exception: # pylint: disable=broad-except
+                continue
 
-        try:
-            pids = [int(i) for i in process.split(",")]
-        except ValueError:
-            pids = [pid for proc in process.split(",") for pid in get_pids(proc)]
+        return procinfo
 
-        return get_proc_details(pids)
+    # pylint: disable=access-member-before-definition, attribute-defined-outside-init, no-member
+    def update_pids(self, procs):
+        """ Update PIDs to trace """
+        prev = self.pid if hasattr(self, 'pid') else self.pids
+        if not self.proc_filter:
+            return 0
+        if not prev and not procs:
+            return 0
+        if not procs and self.proc_filter:
+            if hasattr(self, 'pid'):
+                self.pid = None
+            else:
+                self.pids = []
+            return -1
+        if hasattr(self, 'pid'):
+            if self.pid not in [p[0] for p in procs]:
+                if len(procs) > 1:
+                    self.log("Several PIDs found, tracing the first one.")
+                info = procs[0][1] + " " + procs[0][2] if procs[0][2] else procs[0][1]
+                self.log("Tracing PID %s: %s." % (str(procs[0][0]), info))
+                self.pid = procs[0][0]
+                return 1
+        else:
+            if [p[0] for p in procs if p[0] not in self.pids]:
+                self.pids = []
+                for proc in procs:
+                    info = proc[1] + " " + proc[2] if proc[2] else proc[1]
+                    self.log("Tracing PID %s: %s." % (str(proc[0]), info))
+                    self.pids.append(proc[0])
+                return 1
+        return 0
 
     @staticmethod
-    def apply_pid_filter(bpf_text, pids, need_pid_def=True):
+    def apply_pid_filter(bpf_text, pids, need_pid_def=True, need_shift=False):
         """ Apply PID filtering for BPF text """
-        if need_pid_def:
+        if pids and need_pid_def:
             pid_filter = "u32 pid = bpf_get_current_pid_tgid() >> 32; if (PID_CHECK) return 0;"
         else:
             pid_filter = "if (PID_CHECK) return 0;"
+        # Try to cover all known variants
+        if "if (FILTER_PID)" in bpf_text:
+            bpf_text = bpf_text.replace("FILTER_PID", "PID_CHECK")
+        bpf_text = bpf_text.replace("//FILTER_PID", pid_filter)
+        bpf_text = bpf_text.replace("FILTER_PID", pid_filter)
+        bpf_text = bpf_text.replace("PID_FILTER", pid_filter)
         if not pids:
-            return bpf_text.replace("//FILTER_PID", "FILTER_PID").replace("FILTER_PID", "")
-        bpf_text = bpf_text.replace("//FILTER_PID", "FILTER_PID").replace("FILTER_PID", pid_filter)
-        check_pid = " && ".join(["pid != %d" % pid for pid in pids])
-        return bpf_text.replace("PID_CHECK", check_pid)
+            return bpf_text.replace("PID_CHECK", "0")
+        pid_check = "pid >> 32 != %d" if need_shift else "pid != %d"
+        check_str = " && ".join([pid_check % pid for pid in pids])
+        return bpf_text.replace("PID_CHECK", check_str)
 
     @staticmethod
     def pid_alive(pid):
@@ -245,41 +295,74 @@ class PCPBCCBase(object):
         except Exception: # pylint: disable=broad-except
             return False
 
+    @staticmethod
+    def parse_inst_name(string):
+        """ Parse string into valid instance name """
+        name = ""
+        started = 0
+        ok_chars = ['.', '/', '<', '>', '[', ']', '_']
+        for char in string:
+            if not started and not char.isalnum():
+                continue
+            if not char.isalnum() and char not in ok_chars:
+                break
+            name += char
+            started = 1
+        return name.replace("/", ".").replace("[", "{").replace("]", "}")
+
+    @staticmethod
+    def bcc_version():
+        """ Check BCC version """
+        try:
+            from bcc import __version__
+            return __version__
+        except Exception: # pylint: disable=broad-except
+            from bcc import BPF
+            if 'perf_buffer_poll' in dir(BPF):
+                return "0.6.0"
+            else:
+                return "0.5.0"
+
     def perf_buffer_poller(self):
         """ BPF poller """
         try:
             # pylint: disable=no-member
-            if 'perf_buffer_poll' in dir(self.bpf):
-                poll = self.bpf.perf_buffer_poll
-            else:
-                # Compat: bcc < 0.6.0
+            if self.bcc_version() == "0.5.0":
+               # Compat: bcc < 0.6.0
                 poll = self.bpf.kprobe_poll
-            while self.bpf:
+            else:
+                poll = self.bpf.perf_buffer_poll
+            bpf = self.bpf
+            while bpf == self.bpf:
                 poll()
         except Exception as error: # pylint: disable=broad-except
             self.err(str(error))
-            self.err("BPF kprobe poll failed!")
+            self.err("BPF perf buffer poll failed!")
         self.log("Poller thread exiting.")
 
     def get_syscall_prefix(self):
         """
         Get syscall prefix
-        compat for bcc < 0.6.0
+        Compat: bcc < 0.6.0
         source: https://github.com/iovisor/bcc/blame/master/src/python/bcc/__init__.py
         """
-        # test bpf syscall kernel func name
+        # Test BPF syscall kernel function name
         if self.bpf.ksymname("sys_bpf") != -1:
             return "sys_"
         if self.bpf.ksymname("__x64_sys_bpf") != -1:
             return "__x64_sys_"
-        # none of them, just return "sys_", later API
-        # calls will return error
+        if self.bpf.ksymname("__x32_compat_sys_bpf") != -1:
+            return "__x32_compat_sys_"
+        if self.bpf.ksymname("__ia32_compat_sys_bpf") != -1:
+            return "__ia32_compat_sys_"
+        # None of them, just return "sys_",
+        # later API calls will return error
         return "sys_"
 
     def get_syscall_fnname(self, name):
         """
         Get syscall function name
-        compat for bcc < 0.6.0
+        Compat: bcc < 0.6.0
         source: https://github.com/iovisor/bcc/blame/master/src/python/bcc/__init__.py
         """
         return self.get_syscall_prefix() + name
@@ -288,7 +371,7 @@ class PCPBCCBase(object):
         """
         Get list of kprobe functions matching a regex
         event_re: regex pattern (bytes object)
-        compat wrapper: bcc 0.5.0 expects a string pattern, bcc 0.6.0+ a bytes pattern
+        Compat: bcc 0.5.0 expects a string pattern, bcc 0.6.0+ a bytes pattern
         """
         try:
             return self.bpf.get_kprobe_functions(event_re)

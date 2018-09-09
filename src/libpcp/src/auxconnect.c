@@ -294,13 +294,14 @@ __pmSockAddr *
 __pmStringToSockAddr(const char *cp)
 {
     __pmSockAddr *addr = __pmSockAddrAlloc();
+
     if (addr) {
-        if (cp == NULL || strcmp(cp, "INADDR_ANY") == 0) {
+	if (cp == NULL || strcmp(cp, "INADDR_ANY") == 0) {
 	    addr->sockaddr.inet.sin_addr.s_addr = INADDR_ANY;
 	    /* Set the address family to 0, meaning "not set". */
 	    addr->sockaddr.raw.sa_family = 0;
 	}
-        else if (strcmp(cp, "INADDR_LOOPBACK") == 0) {
+	else if (strcmp(cp, "INADDR_LOOPBACK") == 0) {
 	    addr->sockaddr.inet.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	    /* Set the address family to 0, meaning "not set". */
 	    addr->sockaddr.raw.sa_family = 0;
@@ -352,10 +353,10 @@ __pmStringToSockAddr(const char *cp)
 	    }
 	    else {
 		addr->sockaddr.raw.sa_family = AF_INET;
-	        sts = inet_pton(AF_INET, cp, &addr->sockaddr.inet.sin_addr);
+		sts = inet_pton(AF_INET, cp, &addr->sockaddr.inet.sin_addr);
 	    }
 	    if (sts <= 0) {
-	        __pmSockAddrFree(addr);
+		__pmSockAddrFree(addr);
 		addr = NULL;
 	    }
 	}
@@ -897,7 +898,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     __pmHostEnt		*servInfo;
     int			fd;
     int			sts;
-    int			fdFlags[FD_SETSIZE];
+    int			fdFlags[sizeof(__pmFdSet)];
     __pmFdSet		allFds;
     __pmFdSet		readyFds;
     int			maxFd;

@@ -33,3 +33,6 @@ default_pcp:	default
 install_pcp:	install
 
 pmlogsummary.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check::	$(CFILES)
+	$(CLINT) $^

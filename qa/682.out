@@ -1,0 +1,130 @@
+QA output created by 682
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: QADIR/src/mmv3_labels
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== dump labels and values ===
+=== std out ===
+MMV file   = PCP_TMP_DIR/mmv/labels3
+Version    = 3
+Generated  = TIMESTAMP
+TOC count  = 6
+Cluster    = 322
+Process    = PID
+Flags      = 0x0 (none)
+
+TOC[0]: offset 40, indoms offset 136 (2 entries)
+  [1/136] 3 instances, starting at offset 200
+       shorttext=indom shorttext1
+       helptext=indom helptext1
+  [2/168] 2 instances, starting at offset 272
+       shorttext=indom shorttext2
+       helptext=indom helptext2
+
+TOC[1]: offset 56, instances offset 200 (5 entries)
+  [1/200] instance = [0 or "cpu0"]
+  [1/280] instance = [1 or "cpu1"]
+  [1/360] instance = [2 or "cpu3"]
+  [2/440] instance = [0 or "sda"]
+  [2/520] instance = [1 or "sdb"]
+
+TOC[2]: toc offset 72, metrics offset 320 (2 entries)
+  [1/320] labels3.u32.counter
+       type=32-bit unsigned int (0x1), sem=counter (0x1), pad=0x0
+       units=count
+       indom=1
+       shorttext=metric shortext1
+       helptext=metric helptext1
+  [2/368] labels3.u64.instant
+       type=64-bit unsigned int (0x3), sem=instant (0x3), pad=0x0
+       units=
+       indom=2
+       shorttext=metric shorttext2
+       helptext=metric helptext2
+
+TOC[3]: offset 88, values offset 416 (5 entries)
+  [1/416] labels3.u32.counter[0 or "cpu0"] = 42
+  [1/448] labels3.u32.counter[1 or "cpu1"] = 0
+  [1/480] labels3.u32.counter[2 or "cpu3"] = 0
+  [2/512] labels3.u64.instant[0 or "sda"] = 0
+  [2/544] labels3.u64.instant[1 or "sdb"] = 0
+
+TOC[4]: offset 104, string offset 576 (15 entries)
+  [1/576] cpu0
+  [2/832] cpu1
+  [3/1088] cpu3
+  [4/1344] sda
+  [5/1600] sdb
+  [6/1856] labels3.u32.counter
+  [7/2112] labels3.u64.instant
+  [8/2368] metric shortext1
+  [9/2624] metric helptext1
+  [10/2880] metric shorttext2
+  [11/3136] metric helptext2
+  [12/3392] indom shorttext1
+  [13/3648] indom helptext1
+  [14/3904] indom shorttext2
+  [15/4160] indom helptext2
+
+TOC[5]: offset 120, labels offset 4416 (6 entries)
+  [1/4416] {"registry_label":"string"}
+        flags=0x8, identity=0x142
+        internal=0xffffffff
+  [2/4672] {"metric_label":null}
+        flags=0x90, identity=0x1
+        internal=0xffffffff
+  [3/4928] {"indom_label":42.001}
+        flags=0x4, identity=0x1
+        internal=0xffffffff
+  [4/5184] {"item_label1":true}
+        flags=0xa0, identity=0x1
+        internal=0x0
+  [5/5440] {"item_label2":[1,2,3,4,5]}
+        flags=0x20, identity=0x1
+        internal=0x1
+  [6/5696] {"item_label3":{"a":1,"b":2}}
+        flags=0xa0, identity=0x1
+        internal=0x2
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: PCP_PMDAS_DIR/mmv/mmvdump PCP_TMP_DIR/mmv/labels3
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== check labels and values ===
+=== std out ===
+
+mmv.labels3.labels3.u64.instant PMID: 70.322.2 = 293931010 = 0x11850802
+    Data Type: 64-bit unsigned int  InDom: 70.659458 0x118a1002
+    Semantics: instant  Units: none
+    labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","registry_label":"string"}
+    inst [0 or "sda"] value 0
+    inst [1 or "sdb"] value 0
+    inst [0 or "sda"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","registry_label":"string"}
+    inst [1 or "sdb"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","machineid":"MACHINE","registry_label":"string"}
+
+mmv.labels3.labels3.u32.counter PMID: 70.322.1 = 293931009 = 0x11850801
+    Data Type: 32-bit unsigned int  InDom: 70.659457 0x118a1001
+    Semantics: counter  Units: count
+    labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","indom_label":42.001,"machineid":"MACHINE","metric_label":null,"registry_label":"string"}
+    inst [0 or "cpu0"] value 42
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu3"] value 0
+    inst [0 or "cpu0"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","indom_label":42.001,"item_label1":true,"machineid":"MACHINE","metric_label":null,"registry_label":"string"}
+    inst [1 or "cpu1"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","indom_label":42.001,"item_label2":[1,2,3,4,5],"machineid":"MACHINE","metric_label":null,"registry_label":"string"}
+    inst [2 or "cpu3"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","indom_label":42.001,"item_label3":{"a":1,"b":2},"machineid":"MACHINE","metric_label":null,"registry_label":"string"}
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -d mmv.labels3 -l -M -f
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

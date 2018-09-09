@@ -1,3 +1,5 @@
+#! /bin/sh
+#
 # Copyright (c) 2014 Red Hat.
 # Copyright (c) 1995,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2018 Ken McDonell.  All Rights Reserved.

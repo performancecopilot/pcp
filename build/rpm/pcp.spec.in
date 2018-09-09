@@ -11,6 +11,9 @@ Distribution: @package_distribution@
 BuildRequires: procps bison flex
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
+%if 0%{?rhel} > 7
+%global __requires_exclude ^perl-LDAP$
+%endif
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %global __python2 python2
 %else
@@ -97,7 +100,7 @@ Obsoletes: pcp-pmda-kvm
 Provides: pcp-pmda-kvm
 
 # Utilities used indirectly e.g. by scripts we install
-Requires: bash gawk sed grep coreutils findutils
+Requires: bash bc bzip2 gawk gcc sed grep coreutils findutils
 # which(1) comes from different places
 %if 0%{?suse_version} >= 1100
 Requires: util-linux
@@ -615,6 +618,7 @@ Requires: %{__python2}-pcp = @package_version@
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to graphite (http://graphite.readthedocs.org).
 
+%if "@pcp2influxdb@" == "true"
 #
 # pcp-export-pcp2influxdb
 #
@@ -635,6 +639,7 @@ Requires: %{__python2}-requests
 %description export-pcp2influxdb
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to InfluxDB (https://influxdata.com/time-series-platform/influxdb).
+%endif
 
 #
 # pcp-export-pcp2json
@@ -1065,7 +1070,9 @@ Requires: perl-PCP-PMDA = @package_version@
 %if "%{_vendor}" == "suse"
 Requires: perl-ldap
 %else
+%if 0%{?rhel} <= 7
 Requires: perl-LDAP
+%endif
 %endif
 
 %description pmda-ds389
@@ -1405,7 +1412,7 @@ collecting metrics about Samba.
 %package pmda-slurm
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
+Summary: Performance Co-Pilot (PCP) metrics for the SLURM Workload Manager
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = @package_version@
 
@@ -2245,12 +2252,14 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_fil
 %if "@pcp2elasticsearch@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2elasticsearch' >export_pcp2elasticsearch_files
 %endif
+%if "@pcp2influxdb@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2influxdb' >export_pcp2influxdb_files
+%endif
 %if "@pcp2xlsx@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2xlsx' >export_pcp2xlsx_files
 %endif
 %if "@have_python@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2graphite' >export_pcp2graphite_files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2influxdb' >export_pcp2influxdb_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2json' >export_pcp2json_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2spark' >export_pcp2spark_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2xml' >export_pcp2xml_files
@@ -2515,7 +2524,6 @@ BEGIN {
     while( getline < "pmda_mic_files") pmda_mic[$0]=1;
     while( getline < "pmda_haproxy_files") pmda_haproxy[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
-    while( getline < "export_pcp2influxdb_files") export_pcp2influxdb[$0]=1;
     while( getline < "export_pcp2json_files") export_pcp2json[$0]=1;
     while( getline < "export_pcp2spark_files") export_pcp2spark[$0]=1;
     while( getline < "export_pcp2xml_files") export_pcp2xml[$0]=1;
@@ -2523,6 +2531,9 @@ BEGIN {
 %endif
 %if "@pcp2elasticsearch@" == "true"
     while( getline < "export_pcp2elasticsearch_files") export_pcp2elasticsearch[$0]=1;
+%endif
+%if "@pcp2influxdb@" == "true"
+    while( getline < "export_pcp2influxdb_files") export_pcp2influxdb[$0]=1;
 %endif
 %if "@pcp2xlsx@" == "true"
     while( getline < "export_pcp2xlsx_files") export_pcp2xlsx[$0]=1;
@@ -2650,7 +2661,6 @@ BEGIN {
     else if (pmda_mic[$NF]) f="pmda_mic_files.rpm";
     else if (pmda_haproxy[$NF]) f="pmda_haproxy_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
-    else if (export_pcp2influxdb[$NF]) f="export_pcp2influxdb_files.rpm";
     else if (export_pcp2json[$NF]) f="export_pcp2json_files.rpm";
     else if (export_pcp2spark[$NF]) f="export_pcp2spark_files.rpm";
     else if (export_pcp2xml[$NF]) f="export_pcp2xml_files.rpm";
@@ -2658,6 +2668,9 @@ BEGIN {
 %endif
 %if "@pcp2elasticsearch@" == "true"
     else if (export_pcp2elasticsearch[$NF]) f="export_pcp2elasticsearch_files.rpm";
+%endif
+%if "@pcp2influxdb@" == "true"
+    else if (export_pcp2influxdb[$NF]) f="export_pcp2influxdb_files.rpm";
 %endif
 %if "@pcp2xlsx@" == "true"
     else if (export_pcp2xlsx[$NF]) f="export_pcp2xlsx_files.rpm";
@@ -3406,8 +3419,6 @@ cd
 
 %files export-pcp2graphite -f export_pcp2graphite_files.rpm
 
-%files export-pcp2influxdb -f export_pcp2influxdb_files.rpm
-
 %files export-pcp2json -f export_pcp2json_files.rpm
 
 %files export-pcp2spark -f export_pcp2spark_files.rpm
@@ -3419,6 +3430,10 @@ cd
 
 %if "@pcp2elasticsearch@" == "true"
 %files export-pcp2elasticsearch -f export_pcp2elasticsearch_files.rpm
+%endif
+
+%if "@pcp2influxdb@" == "true"
+%files export-pcp2influxdb -f export_pcp2influxdb_files.rpm
 %endif
 
 %if "@pcp2xlsx@" == "true"

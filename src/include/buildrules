@@ -141,6 +141,11 @@ ifeq ($(TARGET_OS), mingw)
 	$(CCF) -o $* $(LDFLAGS) $(OBJECTS) $(LDLIBS)
 endif
 
+check :: $(SUBDIRS)
+ifdef SUBDIRS
+	$(SUBDIRS_MAKERULE)
+endif
+
 clean clobber :: $(SUBDIRS) $(PRO_SUBDIRS) $(SNIA_SUBDIRS)
 	rm -rf $(DIRT)
 	@rm -fr $(DIRDIRT)

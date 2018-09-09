@@ -216,7 +216,7 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 #elif defined(HAVE_32BIT_PTR)
     pmValueSet	*vsp;		/* vlist_t == pmValueSet */
 #else
-    Bozo - unexpected sizeof pointer!!
+#error Bozo - unexpected sizeof pointer!! - commented for static checking
 #endif
 
     if (ctxp != NULL)

@@ -778,6 +778,12 @@ AC_OUTPUT(src/include/pcp/platform_defs.h src/include/pcp/platformsz.h)
 AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
 
+AC_CHECK_PROGS(CPPCHECK, cppcheck, /bin/true)
+AC_SUBST(CPPCHECK)
+
+AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
+AC_SUBST(PYLINT)
+
 dnl check if python available for the build and runtime
 AC_CHECK_PROGS(PYTHON, python, python2.7)
 AC_SUBST(PYTHON)
@@ -940,6 +946,15 @@ PCP_CHECK_PYTHON_MODULE(libvirt)
 AC_SUBST(have_python_libvirt)
 PCP_CHECK_PYTHON_MODULE(six)
 AC_SUBST(have_python_six)
+
+AC_MSG_CHECKING([if the python InfluxDB support should be included])
+have_python_influxdb=false
+if test "$have_python" = true
+then
+    $have_python_requests && $have_python_OrderedDict && have_python_influxdb=true
+fi
+AC_SUBST(have_python_influxdb)
+if $have_python_influxdb; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the json PMDA should be included])
 pmda_json=false

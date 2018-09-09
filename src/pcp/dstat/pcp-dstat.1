@@ -306,7 +306,7 @@ show process that will be killed by the out-of-memory (OOM) killer the first
 expand \fB\-C\fR, \fB\-D\fR, \fB\-I\fR, \fB\-N\fR and \fB\-S\fR discovery lists
 .TP
 \fB\-v\fR, \fB\-\-vmstat\fR
-equals \fB\-pmgdsc \-D total\fR
+equals \fB\-pmgdsc \-D\fR \fItotal\fR
 .TP
 \fB\-\-bits\fR
 force bits for values expressed in bytes
@@ -331,8 +331,8 @@ disable repetitive headers
 \fB\-\-noupdate\fR
 disable intermediate updates when \fIdelay\fR greater than 1.
 .TP
-\fB\-\-output file\fR
-write CSV output to file
+\fB\-o\fR \fIfile\fR, \fB\-\-output\fR \fIfile\fR
+write CSV (Comma-Separated Value) format output to a \fIfile\fR.
 .PP
 .SH OPTIONAL METRICS PLUGINS
 Some
@@ -512,7 +512,7 @@ pcp dstat \-tcndylp
 .RE
 .\}
 .sp
-this is identical to
+this is identical to:
 .sp
 .if n \{\
 .RS 4
@@ -532,7 +532,19 @@ to report 10 samples from metrics recorded in a PCP archive from 2:30am:
 .RS 4
 .\}
 .nf
-pcp \-\-origin '@02:30'  \-\-archive 20180729 dstat \-\-time \-\-cpu\-adv \-\-sys 1 10
+pcp \-\-origin '@02:30' \-\-archive 20180729 dstat \-\-time \-\-cpu\-adv \-\-sys 1 10
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Examine the same metrics live from a remote host:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+pcp \-\-host www.acme.com dstat \-\-time \-\-cpu\-adv \-\-sys 1 10
 .fi
 .if n \{\
 .RE

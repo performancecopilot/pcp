@@ -101,9 +101,9 @@ class pmConfig(object):
         for arg in args:
             if arg in self.arghelp:
                 return None
-            if arg == '-c' or arg == '--config' or arg.startswith("-c"):
+            if arg in ('-c', '--config') or arg.startswith("-c"):
                 try:
-                    if arg == '-c' or arg == '--config':
+                    if arg in ('-c', '--config'):
                         config = next(args)
                     else:
                         config = arg.replace("-c", "", 1)

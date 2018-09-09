@@ -171,7 +171,7 @@ refresh_proc_stat(proc_stat_t *proc_stat)
     pernode_t	*np;
     percpu_t	*cp;
     pmInDom	cpus, nodes;
-    char	buf[MAXPATHLEN], *name;
+    char	buf[MAXPATHLEN], *name, *sp, **bp;
     int		n = 0, i, size;
 
     static int fd = -1; /* kept open until exit(), unless testing */
@@ -213,8 +213,9 @@ refresh_proc_stat(proc_stat_t *proc_stat)
     for (;;) {
 	while (n >= maxstatbuf) {
 	    size = maxstatbuf + 512;
-	    if ((statbuf = (char *)realloc(statbuf, size)) == NULL)
+	    if ((sp = (char *)realloc(statbuf, size)) == NULL)
 		return -ENOMEM;
+	    statbuf = sp;
 	    maxstatbuf = size;
 	}
 	size = (statbuf + maxstatbuf) - (statbuf + n);
@@ -239,8 +240,9 @@ refresh_proc_stat(proc_stat_t *proc_stat)
 	    statbuf[i] = '\0';
 	    if (nbufindex + 1 >= maxbufindex) {
 		size = (maxbufindex + 4) * sizeof(char *);
-		if ((bufindex = (char **)realloc(bufindex, size)) == NULL)
+		if ((bp = (char **)realloc(bufindex, size)) == NULL)
 		    return -ENOMEM;
+		bufindex = bp;
 	    	maxbufindex += 4;
 	    }
 	    bufindex[++nbufindex] = statbuf + i + 1;

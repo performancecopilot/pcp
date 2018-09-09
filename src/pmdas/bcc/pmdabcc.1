@@ -47,6 +47,8 @@ modules
 .IP \(bu
 prefix
 .IP \(bu
+process_refresh
+.IP \(bu
 module_failure_fatal
 .RE
 .PD
@@ -61,6 +63,22 @@ a module failing to compile should cause the whole PMDA to abort (this is
 the default) or to start up with any possibly functional modules.
 Module configuration errors and internal errors (such as failing to
 register the provided PMNS metrics) will always cause the PMDA to fail.
+.PP
+Of particular note, the \fBprocess\fP option accepted by some modules
+evalutes the given PIDs and process names at PMDA/module initialization
+time and apply filtering for only those processes found at that stage.
+This is due to fact that the in-kernel BPF program is compiled at module
+initialization time and, even more importantly, they are often running
+at performance critical areas where it is not acceptable to do process
+name lookups each time a request is processed by the BPF program.
+To allow modules to monitor named processes (say, \fBprocess = java\fP)
+even if they restart the \fBprocess_refresh\fP should be set to a
+non-negative integer \fIN\fP to dynamically refresh monitored processes
+every \fIN\fP seconds.
+In case new processes matching the process filter have appeared, the
+currently running BPF is detached and a new BPF program with updated PID
+information is installed (and if no PIDs matching the filter are anymore
+present, the BPF program will be detach to avoid any needless overhead).
 .PP
 For each listed module a corresponding \fB[module]\fP section must be
 defined containing at least the following options:
@@ -84,18 +102,7 @@ described above.
 All modules accept but not necessarily use the boolean \fBdebug\fP option.
 .PP
 Modules may also support additional module-specific configuration options,
-refer to the default configuration file and each Python module for their
-supported options.
-Of particular note, the \fBprocess\fP option accepted by some modules
-evalutes the given PIDs and process names at PMDA/module initialization
-time and apply filtering for only those processes found at that stage.
-In other words, it is not possible to define, say, \fBprocess = java\fP
-and expect all future Java processes to be traced by such modules.
-(This is due to fact that the in-kernel BPF program is constructed at
-module initialization time and, even more importantly, they are often
-running at performance critical areas where it is not acceptable to
-do process name lookups each time a request is processed by a BPF
-program.)
+refer to the default configuration file for their supported options.
 .PP
 Once the needed setup is ready, you can install the PMDA to load the
 configured modules and the BPF programs they utilize.
@@ -126,16 +133,17 @@ directly.
 The Install and Remove scripts notify \fBpmcd\fP(1) when the agent is
 installed or removed.
 .PP
-Note that the PMDA installation will be considered successful even if some
-or even all configured modules fail to load, in such cases metrics provided
+In case \fBmodule_failure_fatal\fP is set to \fBfalse\fP, the PMDA
+installation will be considered successful even if some or even all
+configured modules fail to load, in such cases metric values provided
 by the failing modules will not be available.
 The \fBpmdabcc\fP agent log file (see below) will contain detailed
 information about activation of each module.
 .PP
 Some modules will start providing values only after having collected data
 from related system activity.
-For instance, the \fBtcplife\fP module will not provide any values unless
-there are processes generating TCP traffic running on the system.
+For instance, the \fBtcpperpid\fP module will not provide any values unless
+there are processes generating TCP traffic on the system.
 .SH FILES
 .TP
 .I \f(CW$PCP_PMDAS_DIR\fP/bcc/bcc.conf

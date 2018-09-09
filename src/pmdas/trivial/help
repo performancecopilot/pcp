@@ -27,5 +27,5 @@
 # blank lines before the @ line are ignored
 #
 
-@ trivial.time The time in seconds since 1 Jan 1970
-The time in seconds since the 1st of January, 1970.
+@ trivial.time time in seconds since 1 Jan 1970
+The time in seconds since the epoch (1st of January, 1970).

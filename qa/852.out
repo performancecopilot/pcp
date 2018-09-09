@@ -1629,6 +1629,7 @@ proc.psinfo.pid
     inst [N or "009185 /sbin/getty"] value 9185
     inst [N or "009186 /sbin/getty"] value 9186
     inst [N or "009188 postgres:"] value 9188
+    inst [N or "009268 <exiting>"] value 9268
     inst [N or "009470 /usr/sbin/apache2"] value 9470
     inst [N or "009471 /usr/sbin/apache2"] value 9471
     inst [N or "009472 /usr/sbin/apache2"] value 9472
@@ -1798,6 +1799,7 @@ proc.psinfo.psargs
     inst [N or "009185 /sbin/getty"] value "/sbin/getty 38400 tty5"
     inst [N or "009186 /sbin/getty"] value "/sbin/getty 38400 tty6"
     inst [N or "009188 postgres:"] value "postgres: postgres postgres [local] idle"
+    inst [N or "009268 <exiting>"] value "<exiting>"
     inst [N or "009470 /usr/sbin/apache2"] value "/usr/sbin/apache2 -k start"
     inst [N or "009471 /usr/sbin/apache2"] value "/usr/sbin/apache2 -k start"
     inst [N or "009472 /usr/sbin/apache2"] value "/usr/sbin/apache2 -k start"

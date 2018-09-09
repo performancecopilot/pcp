@@ -125,12 +125,6 @@ realclean distclean clean clobber:
 	@true
 endif
 
-check :: check_pcp
-
-check_pcp : src
-	$(SUBDIRS_MAKERULE)
-
-
 aclocal.m4:
 	# older aclocal(1) versions use --acdir but not the current versions
 	aclocal --system-acdir=`pwd`/m4 --output=$@

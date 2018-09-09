@@ -1,0 +1,71 @@
+// Copyright 2017, Sasha Goldshtein.
+// Licensed under the Apache License, Version 2.0 (the "License")
+
+DEFINE_DETAILS
+DEFINE_LATENCY
+
+struct key_t {
+    u32 pid;
+    u32 id;
+};
+
+BPF_ARRAY(stats, u64, NR_SYSCALLS);
+#ifdef LATENCY
+BPF_ARRAY(latstats, u64, NR_SYSCALLS);
+BPF_HASH(start, u64, u64);
+#endif
+
+#ifdef DETAILS
+BPF_HASH(pidstats, struct key_t, u64, MAX_PIDS * NR_SYSCALLS);
+#ifdef LATENCY
+BPF_HASH(pidlatstats, struct key_t, u64, MAX_PIDS * NR_SYSCALLS);
+#endif
+#endif
+
+#ifdef LATENCY
+TRACEPOINT_PROBE(raw_syscalls, sys_enter) {
+    u64 pid = bpf_get_current_pid_tgid();
+
+    FILTER_PID
+
+    u64 t = bpf_ktime_get_ns();
+    start.update(&pid, &t);
+    return 0;
+}
+#endif
+
+TRACEPOINT_PROBE(raw_syscalls, sys_exit) {
+    u64 pid = bpf_get_current_pid_tgid();
+
+    FILTER_PID
+
+    //FILTER_FAILED
+    //FILTER_ERRNO
+
+    u32 id = args->id;
+    if (id > NR_SYSCALLS) return 0;
+    u64 *val = stats.lookup(&id);
+    if (val) (*val)++;
+#ifdef DETAILS
+    u64 zero = 0;
+    struct key_t key = {.pid = pid >> 32, .id = id};
+    val = pidstats.lookup_or_init(&key, &zero);
+    ++(*val);
+#endif
+#ifdef LATENCY
+    u64 *start_ns = start.lookup(&pid);
+    if (!start_ns)
+        return 0;
+    start.delete(&pid);
+    u64 time_ns = bpf_ktime_get_ns() - *start_ns;
+
+    val = latstats.lookup(&id);
+    if (val) (*val) += time_ns;
+#ifdef DETAILS
+    val = pidlatstats.lookup_or_init(&key, &zero);
+    if (val) (*val) += time_ns;
+#endif
+#endif
+
+    return 0;
+}

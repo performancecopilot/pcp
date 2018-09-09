@@ -1,4 +1,4 @@
-#compdef pcp pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pminfo pmiostat pmlogcheck pmlogextract pmlogger pmloglabel pmlogsummary pmprobe pmrep pmstat pmstore pmval
+#compdef pcp pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pminfo pmiostat pmlogcheck pmlogextract pmlogger pmloglabel pmlogsummary pmprobe pmrep pmstat pmstore pmval
 #
 # PCP <https://pcp.io> completions for zsh <http://zsh.sf.net>.
 #
@@ -31,7 +31,7 @@ _pcp () {
   declare -A opt_args
 
   local -a py_tools
-  py_tools=(pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2xlsx pcp2xml pcp2zabbix pmrep)
+  py_tools=(pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmrep)
 
   local exargs="-? --help -V --version"
   common_help=(
@@ -182,6 +182,22 @@ _pcp () {
       "(-E --exact-types $exargs)"{-E,--exact-types}'[write numbers as number data types]' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      '*:metric:->metrics' \
+      && return 0
+  ;;
+  pcp2spark)
+    _arguments -C -S -s \
+      "$common_help[@]" \
+      "$common_pmda[@]" \
+      "$common_python[@]" \
+      "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
+      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
+      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
+      "(-g --spark-server $exargs)"{-g+,--spark-server}'[spark server]:host:_hosts' \
+      "(-p --spark-port $exargs)"{-p+,--spark-port}'[spark port]:port:' \
       '*:metric:->metrics' \
       && return 0
   ;;
@@ -456,8 +472,7 @@ _pcp () {
       "(-l --labels $exargs)"{-l,--labels}'[print metric value labels]' \
       "(-m --pmid $exargs)"{-m,--pmid}'[print PMID]' \
       "(-M --fullpmid $exargs)"{-M,--fullpmid}'[print PMID verbosely]' \
-      "(-s --series $exargs)"{-s,--series}'[print metric series identifier]' \
-      "(-S --source $exargs)"{-S,--source}'[print metric source identifier]' \
+      "(-s --series $exargs)"{-s,--series}'[print source, metric and instance series identifiers]' \
       "(-t --oneline $exargs)"{-t,--oneline}'[print terse help text]' \
       "(-T --helptext $exargs)"{-T,--helptext}'[print verbose help text]' \
       "(-c --derived $exargs)"{-c+,--derived}'[specify derived metrics config]:file:_files' \
