@@ -17,7 +17,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
-out_file="$PCP_TMPFILE_DIR/pcp-qa-$seq"
+out_file=$tmp.out
 
 _value_filter_bytes()
 {

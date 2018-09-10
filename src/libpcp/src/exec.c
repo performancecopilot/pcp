@@ -308,6 +308,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 
 	execvp(path, (char * const *)ep->argv);
 	/* oops, not supposed to get here */
+	cleanup(ep);	/* for valgrind */
 	exit(127);
     }
 
@@ -585,6 +586,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 
 	execvp(path, (char * const *)ep->argv);
 	/* oops, not supposed to get here */
+	cleanup(ep);	/* for valgrind */
 	exit(127);
     }
 
