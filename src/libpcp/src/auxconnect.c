@@ -898,7 +898,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     __pmHostEnt		*servInfo;
     int			fd;
     int			sts;
-    int			fdFlags[sizeof(__pmFdSet)];
+    int			fdFlags[PM_FDSET_SIZE];
     __pmFdSet		allFds;
     __pmFdSet		readyFds;
     int			maxFd;
@@ -910,11 +910,11 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 
     if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
 	if (pmDebugOptions.context) {
-	    const char	*errmsg;
 	    PM_LOCK(__pmLock_extcall);
-	    errmsg = hoststrerror();		/* THREADSAFE */
-	    fprintf(stderr, "%s:__pmAuxConnectPMCDPort(%s, %d) : hosterror=%d, ``%s''\n",
-		    __FILE__, hostname, pmcd_port, hosterror(), errmsg);
+	    fprintf(stderr, "%s:__pmAuxConnectPMCDPort(%s, %d) : "
+			    "hosterror=%d, ``%s''\n",
+		    __FILE__, hostname, pmcd_port, hosterror(),
+		    hoststrerror());		/* THREADSAFE */
 	    PM_UNLOCK(__pmLock_extcall);
 	}
 	return -EHOSTUNREACH;
@@ -965,7 +965,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 			  __FILE__, hostname, pmcd_port, __pmSockAddrGetFamily(myAddr));
 	    fd = -EINVAL;
 	}
-	if (fd < 0) {
+	if (fd < 0 || fd >= PM_FDSET_SIZE) {
 	    if (pmDebugOptions.context && pmDebugOptions.desperate) {
 		char *sockname = __pmSockAddrToString(myAddr);
 		fprintf(stderr, "__pmAuxConnectPMCDPort: failed to create socket %s, errno=%d\n", sockname, errno);
