@@ -345,6 +345,69 @@ extract_labelset (int ls_ix, pmLabelSet **labellist, int *nsets)
     return extracted;
 }
 
+static const char *
+label_id_str(const labelspec_t *lp, int old)
+{
+    static char buf[1024];
+
+    pmsprintf(buf, sizeof(buf), "label {");
+    if (lp->old_label)
+	pmsprintf(buf, sizeof(buf), "\"%s\",", old ? lp->old_label : lp->new_label);
+    else
+	pmsprintf(buf, sizeof(buf), "ALL,");
+    if (lp->old_value)
+	pmsprintf(buf, sizeof(buf), "\"%s\" ", old ? lp->old_value : lp->new_value);
+    else
+	pmsprintf(buf, sizeof(buf), "ALL ");
+    pmsprintf(buf, sizeof(buf), "}");
+
+    return buf;
+}
+
+static const char *
+label_association_str(const labelspec_t *lp, int old)
+{
+    static char buf[1024];
+
+    if ((lp->old_type & PM_LABEL_CONTEXT))
+	pmsprintf(buf, sizeof(buf), "context");
+    else if ((lp->old_type & PM_LABEL_DOMAIN)) {
+	pmsprintf(buf, sizeof(buf), "domain %d",
+		  old ? pmID_domain(lp->old_id) : pmID_domain(lp->new_id));
+    }
+    else if ((lp->old_type & PM_LABEL_CLUSTER)) {
+	pmsprintf(buf, sizeof(buf), "cluster %d.%d",
+		  old ? pmID_domain(lp->old_id) : pmID_domain(lp->new_id),
+		  old ? pmID_cluster (lp->old_id) : pmID_cluster (lp->new_id));
+    }
+    else if ((lp->old_type & PM_LABEL_ITEM)) {
+	pmsprintf(buf, sizeof(buf), "item %s",
+		  old ? pmIDStr(lp->old_id) : pmIDStr(lp->new_id));
+    }
+    else if ((lp->old_type & PM_LABEL_INDOM)) {
+	pmsprintf(buf, sizeof(buf), "indom %s",
+		  old ? pmInDomStr(lp->old_id) : pmInDomStr(lp->new_id));
+    }
+    else if ((lp->old_type & PM_LABEL_INSTANCES)) {
+	if (old ) {
+	    if (lp->old_instance)
+		pmsprintf(buf, sizeof(buf), "instance %d ", lp->old_instance);
+	    else
+		pmsprintf(buf, sizeof(buf), "all instances ");
+	    pmsprintf(buf, sizeof(buf), "of indom %s", pmInDomStr(lp->old_id));
+	}
+	else {
+	    if (lp->new_instance)
+		pmsprintf(buf, sizeof(buf), "instance %d ", lp->new_instance);
+	    else
+		pmsprintf(buf, sizeof(buf), "all instances ");
+	    pmsprintf(buf, sizeof(buf), "of indom %s", pmInDomStr(lp->new_id));
+	}
+    }
+
+    return buf;
+}
+
 void
 do_labelset(void)
 {
@@ -384,7 +447,7 @@ do_labelset(void)
 	    continue;
 
 	/*
-	 * We can Operate on the entire label record if no specific label/value
+	 * We can operate on the entire label record if no specific label/value
 	 * was specified on the change record AND if no specific instance
 	 * was specified or all of the instances in the labelsets match.
 	 */
@@ -409,19 +472,8 @@ do_labelset(void)
 	if (full_record) {
 	    if ((flags & LABEL_DELETE)) {
 		if (pmDebugOptions.appl1) {
-		    fprintf(stderr, "Delete: label set for ");
-		    if ((lp->old_type & PM_LABEL_CONTEXT))
-			fprintf(stderr, " context\n");
-		    else if ((lp->old_type & PM_LABEL_DOMAIN))
-			fprintf(stderr, " domain %d\n", pmID_domain(lp->old_id));
-		    else if ((lp->old_type & PM_LABEL_CLUSTER))
-			fprintf(stderr, " item %d.%d\n", pmID_domain(lp->old_id), pmID_cluster (lp->old_id));
-		    else if ((lp->old_type & PM_LABEL_ITEM))
-			fprintf(stderr, " item %s\n", pmIDStr(lp->old_id));
-		    else if ((lp->old_type & PM_LABEL_INDOM))
-			fprintf(stderr, " indom %s\n", pmInDomStr(lp->old_id));
-		    else if ((lp->old_type & PM_LABEL_INSTANCES))
-			fprintf(stderr, " the instances of indom %s\n", pmInDomStr(lp->old_id));
+		    fprintf(stderr, "Delete: label sets for %s\n",
+			    label_association_str(lp, 1/*old*/));
 		}
 		pmFreeLabelSets(labellist, nsets);
 		return;
@@ -458,6 +510,10 @@ do_labelset(void)
 		 */
 		if (flags == LABEL_CHANGE_INSTANCE) {
 		    lsp->inst = lp->new_instance;
+		    if (pmDebugOptions.appl1) {
+			fprintf(stderr, "Rewrite: instance for label %s to %d\n",
+				label_id_str(lp, 1/*old*/), lp->new_instance);
+		    }
 		    continue; /* next labelset */
 		}
 
@@ -468,6 +524,10 @@ do_labelset(void)
 		lsp = extract_labelset (ls_ix, & labellist, & nsets);
 
 		if (flags & LABEL_DELETE) {
+		    if (pmDebugOptions.appl1) {
+			fprintf(stderr, "Delete: labelset for %s\n",
+				label_association_str(lp, 1/*old*/));
+		    }
 		    pmFreeLabelSets(lsp, 1);
 		    if (nsets == 1)
 			return; /* last labelset deleted */
@@ -485,6 +545,14 @@ do_labelset(void)
 		 * The changed id will be written below.
 		 */
 		assert((flags & LABEL_CHANGE_ID));
+		if (pmDebugOptions.appl1) {
+		    fprintf(stderr, "Rewrite: label set %s",
+			    __pmLabelIdentString(lp->old_id, lp->old_type,
+						 buf, sizeof(buf)));
+		    fprintf(stderr, " to %s",
+			    __pmLabelIdentString(lp->new_id, lp->new_type,
+						 buf, sizeof(buf)));
+		}
 
 		/*
 		 * Write the extracted labelset here.
@@ -522,8 +590,14 @@ do_labelset(void)
 	     */
 	    label_ix = 0;
 	    while ((label_ix = find_label(lsp, label_ix, lp->old_label, lp->old_value)) != -1) {
-		if (flags & LABEL_DELETE)
-		    ; /* Do nothing. The label will be extracted below.  */
+		if (flags & LABEL_DELETE) {
+		    /* Do nothing. The label will be extracted below.  */
+		    if (pmDebugOptions.appl1) {
+			fprintf(stderr, "Delete: label %s for %s\n",
+				label_id_str(lp, 1/*old*/),
+				label_association_str(lp, 1/*old*/));
+		    }
+		}
 		else {
 		    pmLabelSet	*new_labelset = NULL;
 		    char	buf[PM_MAXLABELJSONLEN];
@@ -531,6 +605,14 @@ do_labelset(void)
 		    const char	*new_value;
 		    int		new_label_len;
 		    int		new_value_len;
+
+		    if (pmDebugOptions.appl1) {
+			fprintf(stderr, "Rewrite: label %s for %s to %s\n",
+				label_id_str(lp, 1/*old*/),
+				label_association_str(lp, 1/*old*/),
+				label_id_str(lp, 0/*new*/));
+		    }
+
 		    /*
 		     * All other operations require that we contruct a new
 		     * labelset containing the affected label.
@@ -594,78 +676,6 @@ do_labelset(void)
 		--ls_ix;
 	    }
 
-#if 0
-	    if (flags & LABEL_DELETE) {
-		if (pmDebugOptions.appl1) {
-		    fprintf(stderr, "Delete: label {");
-		    if (lp->old_label)
-			fprintf(stderr, "\"%s\",", lp->old_label);
-		    else
-			fprintf(stderr, "ALL,");
-		    if (lp->old_value)
-			fprintf(stderr, "\"%s\" ", lp->old_value);
-		    else
-			fprintf(stderr, "ALL ");
-		    fprintf(stderr, "} for ");
-		    if ((lp->old_type & PM_LABEL_CONTEXT))
-			fprintf(stderr, "context");
-		    else if ((lp->old_type & PM_LABEL_DOMAIN))
-			fprintf(stderr, "domain %d", pmID_domain(lp->old_id));
-		    else if ((lp->old_type & PM_LABEL_CLUSTER))
-			fprintf(stderr, "cluster %d.%d", pmID_domain(lp->old_id), pmID_cluster (lp->old_id));
-		    else if ((lp->old_type & PM_LABEL_ITEM))
-			fprintf(stderr, "item %s", pmIDStr(lp->old_id));
-		    else if ((lp->old_type & PM_LABEL_INDOM))
-			fprintf(stderr, "indom %s", pmInDomStr(lp->old_id));
-		    else if ((lp->old_type & PM_LABEL_INSTANCES)) {
-			if (lp->old_instance)
-			    fprintf(stderr, "instance %d ", lp->old_instance);
-			else
-			    fprintf(stderr, "all instances ");
-			fprintf(stderr, "of indom %s", pmInDomStr(lp->old_id));
-		    }
-		    fputc('\n', stderr);
-		}
-
-		/* Delete the selected label(set)(s). */
-		if (labelset_ix == -1) {
-		    /* Free the entire label set. */
-		    pmFreeLabelSets(labellist, nsets);
-		    continue; /* next change record */
-		}
-
-		/*
-		 * We're deleting an individual label. It needs to be extracted
-		 * from the label set data structure.
-		 */
-		   
-	    }
-
-	    /* Rewrite the record as specified. */
-	    if ((flags & LABEL_CHANGE_ID))
-		ident = lp->new_id;
-	
-	    if (pmDebugOptions.appl1) {
-		if ((flags & LABEL_CHANGE_ANY)) {
-		    fprintf(stderr, "Rewrite: label set %s",
-			    __pmLabelIdentString(lp->old_id, lp->old_type,
-						 buf, sizeof(buf)));
-		}
-		if ((flags & (LABEL_CHANGE_LABEL | LABEL_CHANGE_VALUE))) {
-		    fprintf(stderr, " \"%s\"", lp->old_label);
-		}
-		if ((flags & LABEL_CHANGE_ANY)) {
-		    fprintf(stderr, " to\nlabel set %s",
-			    __pmLabelIdentString(lp->new_id, lp->new_type,
-						 buf, sizeof(buf)));
-		}
-		if ((flags & (LABEL_CHANGE_LABEL | LABEL_CHANGE_VALUE))) {
-		    fprintf(stderr, " \"%s\"\"%s\"", lp->new_label, lp->new_value);
-		}
-		if ((flags & LABEL_CHANGE_ANY))
-		    fputc('\n', stderr);
-	    }
-#endif
 	} /* Loop over labelsets */
     } /* Loop over change records */
 
