@@ -193,6 +193,9 @@ extern void __pmCheckAcceptedAddress(__pmSockAddr *) _PCP_HIDDEN;
 extern int __pmSecureSocketsError(int) _PCP_HIDDEN;
 #endif
 
+#define PM_FDSET_SIZE \
+	(sizeof(__pmFdSet) > FD_SETSIZE ? sizeof(__pmFdSet) : FD_SETSIZE)
+
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
 #endif
