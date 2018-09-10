@@ -751,17 +751,19 @@ fixstamp(struct timeval *tvp)
 static void
 link_entries(void)
 {
-    indomspec_t		*ip;
-    metricspec_t	*mp;
-    textspec_t		*tp;
-    labelspec_t		*lp;
-    __pmHashCtl		*hcp, *hcp2;
-    __pmHashNode	*node, *node2;
-    int			old_id, new_id;
-    int			i;
-    int			type;
-    int			change;
-    char		strbuf[64];
+    indomspec_t			*ip;
+    metricspec_t		*mp;
+    textspec_t			*tp;
+    labelspec_t			*lp;
+    const pmLabelSet		*lsp;
+    const __pmLogLabelSet	*llsp;
+    __pmHashCtl			*hcp, *hcp2;
+    __pmHashNode		*node, *node2;
+    int				old_id, new_id;
+    int				i;
+    int				type;
+    int				change;
+    char			strbuf[64];
 
     /* Link metricspec_t entries to indomspec_t entries */
     hcp = &inarch.ctxp->c_archctl->ac_log->l_hashpmid;
@@ -914,22 +916,26 @@ link_entries(void)
 		    continue;
 
 		/* Found one. */
-		lp = start_label(type, (int)(node2->key), 0, NULL, NULL);
-		assert(lp->old_id == ip->old_indom);
-		if (change)
-		    lp->ip = ip;
-		if (ip->new_indom != ip->old_indom) {
-		    if (lp->flags & LABEL_CHANGE_ID) {
-			/* indom already changed via label clause */
-			if (lp->new_id != ip->new_indom) {
-			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmInDomStr(lp->new_id));
-			    pmsprintf(mess, sizeof(mess), "Conflicting indom change for label set (%s from text clause, %s from indom clause)", strbuf, pmInDomStr(ip->new_indom));
-			    yysemantic(mess);
+		llsp = (__pmLogLabelSet *)node2->data;
+		for (i = 0; i < llsp->nsets; ++i) {
+		    lsp = &llsp->labelsets[i];
+		    lp = start_label(type, (int)node2->key, lsp->inst, NULL, NULL);
+		    assert(lp->old_id == ip->old_indom);
+		    if (change)
+			lp->ip = ip;
+		    if (ip->new_indom != ip->old_indom) {
+			if (lp->flags & LABEL_CHANGE_ID) {
+			    /* indom already changed via label clause */
+			    if (lp->new_id != ip->new_indom) {
+				pmsprintf(strbuf, sizeof(strbuf), "%s", pmInDomStr(lp->new_id));
+				pmsprintf(mess, sizeof(mess), "Conflicting indom change for label set (%s from text clause, %s from indom clause)", strbuf, pmInDomStr(ip->new_indom));
+				yysemantic(mess);
+			    }
 			}
-		    }
-		    else {
-			lp->flags |= LABEL_CHANGE_ID;
-			lp->new_id = ip->new_indom;
+			else {
+			    lp->flags |= LABEL_CHANGE_ID;
+			    lp->new_id = ip->new_indom;
+			}
 		    }
 		}
 	    }

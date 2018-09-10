@@ -2929,7 +2929,7 @@ labelinstancesspec	: TOK_INSTANCES indom_int optinstancelabeldetails
 
 				/*
 				 * Collect the label records associated with the specified
-				 * imdom(s).
+				 * indom instance(s).
 				 */
 				hcp2 = (__pmHashCtl *)(node1->data);
 				for (node2 = __pmHashWalk(hcp2, PM_HASH_WALK_START);
