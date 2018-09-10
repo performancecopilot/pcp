@@ -54,7 +54,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 %global disable_webapps 0
 %global disable_cairo 0
 
-%if 0%{?rhel} > 7
+%if 0%{?rhel} > 7 || 0%{?fedora} >= 30
 %global disable_python2 1
 %else
 %global disable_python2 0
