@@ -1,6 +1,6 @@
 #!gmake
 
-default default_pcp setup: 
+default default_pcp setup check:
 
 install install_pcp:
 

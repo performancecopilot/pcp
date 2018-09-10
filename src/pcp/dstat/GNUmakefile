@@ -16,6 +16,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 TARGET = pcp-dstat
+SCRIPT = $(TARGET).py
 MAN_PAGES = $(TARGET).1 $(TARGET).5
 
 SUBDIRS = plugins
@@ -28,11 +29,11 @@ ifeq "$(HAVE_PYTHON_ORDEREDDICT)" "true"
 build-me:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-build-me:: $(TARGET).py $(MAN_PAGES)
+build-me:: $(SCRIPT) $(MAN_PAGES)
 
 install: default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 755 $(TARGET).py $(PCP_BINADM_DIR)/$(TARGET)
+	$(INSTALL) -m 755 $(SCRIPT) $(PCP_BINADM_DIR)/$(TARGET)
 ifeq "$(ENABLE_DSTAT)" "true"
 	$(INSTALL) -S $(PCP_BINADM_DIR)/pcp-dstat $(PCP_BIN_DIR)/dstat
 endif
@@ -45,3 +46,6 @@ endif
 default_pcp : default
 
 install_pcp : install
+
+check:: $(SCRIPT)
+	$(PYLINT) $^

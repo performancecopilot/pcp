@@ -778,6 +778,12 @@ AC_OUTPUT(src/include/pcp/platform_defs.h src/include/pcp/platformsz.h)
 AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
 
+AC_CHECK_PROGS(CPPCHECK, cppcheck, /bin/true)
+AC_SUBST(CPPCHECK)
+
+AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
+AC_SUBST(PYLINT)
+
 dnl check if python available for the build and runtime
 AC_CHECK_PROGS(PYTHON, python, python2.7)
 AC_SUBST(PYTHON)

@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2014-2017 Red Hat.
+# Copyright (C) 2014-2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,7 +12,8 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# pylint: disable=C0103,R0914,R0902
+# pylint: disable=missing-docstring,bad-continuation,bad-whitespace
+#
 """ Display amount of free and used memory in the system """
 
 import sys
@@ -21,7 +22,6 @@ from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE, PM_SPACE_KBYTE
 
 if sys.version >= '3':
     long = int  # python2 to python3 portability (no long() in python3)
-    xrange = range  # more back-compat (xrange() is range() in python3)
 
 class Free(object):
     """ Gives a short summary of kernel virtual memory information,
@@ -70,7 +70,7 @@ class Free(object):
     def override(self, opt):
         """ Override a few standard PCP options to match free(1) """
         # pylint: disable=R0201
-        if (opt == 'g' or opt == 's' or opt == 't'):
+        if opt == 'g' or opt == 's' or opt == 't':
             return 1
         return 0
 
@@ -106,12 +106,12 @@ class Free(object):
     def extract(self, descs, result):
         """ Extract the set of metric values from a given pmResult """
         values = []
-        for index in xrange(len(descs)):
+        for index, desc in enumerate(descs):
             if result.contents.get_numval(index) > 0:
                 atom = self.context.pmExtractValue(
                                 result.contents.get_valfmt(index),
                                 result.contents.get_vlist(index, 0),
-                                descs[index].contents.type, PM_TYPE_U64)
+                                desc.contents.type, PM_TYPE_U64)
                 atom = self.context.pmConvScale(PM_TYPE_U64, atom, descs, index,
                                 pmapi.pmUnits(1, 0, 0, PM_SPACE_KBYTE, 0, 0))
                 values.append(long(atom.ull))
@@ -133,9 +133,9 @@ class Free(object):
         pmids = self.context.pmLookupName(metrics)
         descs = self.context.pmLookupDescs(pmids)
 
-        if self.pause == None and self.count == 0:
+        if self.pause is None and self.count == 0:
             self.count = 1
-        if self.pause != None and self.count == 0:
+        if self.pause is not None and self.count == 0:
             self.count = -1
 
         while self.count != 0:
@@ -152,7 +152,7 @@ class Free(object):
                     break
                 if self.context.type != PM_CONTEXT_ARCHIVE:
                     self.context.pmtimevalSleep(self.interval)
-            elif self.count == 1 and self.pause == None:
+            elif self.count == 1 and self.pause is None:
                 break
             elif self.count > 0:
                 self.count -= 1

@@ -22,7 +22,7 @@ _cleanup()
     _wait_for_pmcd
     _wait_for_pmlogger
 
-    $sudo rm -f $tmp.*
+    $sudo rm -fr $tmp.*
     $sudo rm -fr $tmp
 }
 
@@ -44,13 +44,16 @@ _stop_auto_restart pmproxy
 _service pmproxy stop >/dev/null 2>&1
 $sudo $signal -a pmproxy >/dev/null 2>&1
 
-proxyargs="-C $PCP_SECURE_DB_METHOD$collectordb -P $collectorpw"
-id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U $username"
+mkdir -p $tmp.rundir
+export PCP_RUN_DIR=$tmp.rundir
+proxyargs="-C $PCP_SECURE_DB_METHOD$collectordb -P $collectorpw -U $username"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1
 echo "Checking pmproxy.log for unexpected messages" | tee -a $seq.full
 sleep 1	# allow log file creation to complete
 egrep 'Error:|Info:' $tmp.log
 cat $tmp.log >> $seq.full
+unset PCP_RUN_DIR
+eval `$PCP_BINADM_DIR/pmconfig -s PCP_RUN_DIR`
 
 # verify that local clients are prompted to establish a connection
 # when a valid collectoer certificate exists but no client config.

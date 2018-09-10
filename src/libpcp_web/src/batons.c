@@ -27,7 +27,7 @@ magic_str(seriesBatonMagic *baton)
     case MAGIC_STREAM:   return "stream";
     case MAGIC_QUERY:    return "query";
     case MAGIC_SID:      return "sid";
-    case MAGIC_VALUE:    return "value";
+    case MAGIC_NAMES:    return "names";
     case MAGIC_LABELMAP: return "labelmap";
     default:             break;
     }
@@ -122,12 +122,21 @@ seriesBatonDereference(void *arg, const char *caller)
 }
 
 void
-seriesPassBaton(seriesBatonPhase **head, unsigned int *refcount, void *arg)
+seriesPassBaton(seriesBatonPhase **head, void *arg, const char *caller)
 {
     seriesBatonPhase	*next;
+    seriesBatonMagic	*baton = (seriesBatonMagic *)arg;
 
-    if (refcount && (*refcount = *refcount - 1) > 0) {
-	; /* phase is still in-progress, do nothing */
+    if (UNLIKELY(baton->traced || pmDebugOptions.series)) {
+	fprintf(stderr,
+		"Baton [%s/%p] references: %u -> %u (@ %s[%s])\n",
+		magic_str(baton), baton, baton->refcount, baton->refcount - 1,
+		caller, "seriesPassBaton");
+    }
+    assert(baton->refcount);
+
+    if (--baton->refcount > 0) {
+	/* phase still in-progress so no more to do */
     } else if ((next = (*head)->next) != NULL) {
 	*head = next;	/* move onto the next phase */
 	next->func(arg);

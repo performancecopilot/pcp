@@ -60,11 +60,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -102,11 +101,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -144,11 +142,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -186,11 +183,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -228,11 +224,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -270,11 +265,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -312,11 +306,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -354,11 +347,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -396,11 +388,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -438,11 +429,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -480,11 +470,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -522,11 +511,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -564,11 +552,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -606,11 +593,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -648,11 +634,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -690,11 +675,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -742,11 +726,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -784,11 +767,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -836,11 +818,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -886,11 +867,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -928,11 +908,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 
@@ -970,11 +949,10 @@ Protocol options:
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
-  -l, --labels          print metric value labels (metadata)
+  -l, --labels          print InDom, metric and instance labels
   -m, --pmid            print PMID
   -M, --fullpmid        print PMID in verbose format
-  -s, --series          print metric series identifier
-  -S, --source          print metric source identifier
+  -s, --series          print source, metric, instance series identifiers
   -t, --oneline         get and display (terse) oneline text
   -T, --helptext        get and display (verbose) help text
 

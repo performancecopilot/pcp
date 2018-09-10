@@ -472,8 +472,7 @@ _pcp () {
       "(-l --labels $exargs)"{-l,--labels}'[print metric value labels]' \
       "(-m --pmid $exargs)"{-m,--pmid}'[print PMID]' \
       "(-M --fullpmid $exargs)"{-M,--fullpmid}'[print PMID verbosely]' \
-      "(-s --series $exargs)"{-s,--series}'[print metric series identifier]' \
-      "(-S --source $exargs)"{-S,--source}'[print metric source identifier]' \
+      "(-s --series $exargs)"{-s,--series}'[print source, metric and instance series identifiers]' \
       "(-t --oneline $exargs)"{-t,--oneline}'[print terse help text]' \
       "(-T --helptext $exargs)"{-T,--helptext}'[print verbose help text]' \
       "(-c --derived $exargs)"{-c+,--derived}'[specify derived metrics config]:file:_files' \

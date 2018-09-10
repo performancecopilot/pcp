@@ -28,7 +28,10 @@ _cleanup()
 
 _filter()
 {
-    sed -e "/Information not currently available/d"
+    sed \
+	-e "/Information not currently available/d" \
+	-e "/Metric not supported by this version of monitored application/d" \
+    #end
 }
 
 iam=redis

@@ -45,9 +45,5 @@ install :: install_pcp
 install_pcp : $(SUBDIRS)
 	$(INSTALL) -m 755 pcp.sh $(PCP_BIN_DIR)/pcp$(SHELLSUFFIX)
 	$(SUBDIRS_MAKERULE)
-check :: check_pcp
-
-check_pcp : pidstat mpstat
-	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)

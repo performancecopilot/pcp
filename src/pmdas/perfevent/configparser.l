@@ -150,6 +150,8 @@ static void add_pmc_setting_name_derived(configuration_t *config, char *name)
         if (NULL == new_setting_list)
         {
             fprintf(stderr, "Error in allocating memory\n");
+	    free(newpmcderivedsetting->name);
+	    free(newpmcderivedsetting);
             return;
         }
         new_setting_list->nsettings = 0;

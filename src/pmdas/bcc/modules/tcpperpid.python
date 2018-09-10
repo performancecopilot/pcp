@@ -85,16 +85,17 @@ class Data_ipv6(ct.Structure):
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC tcpperpid module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, proc_refresh):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
         self.pids = []
+        self.proc_filter = None
+        self.proc_refresh = proc_refresh
+
         self.dports = []
         self.lports = []
-
-        self.ipv4_stats = {}
-        self.ipv6_stats = {}
+        self.buffer_page_count = 64
 
         for opt in self.config.options(MODULE):
             if opt == 'dport':
@@ -104,20 +105,29 @@ class PCPBCCModule(PCPBCCBase):
                 self.lports = [int(port) for port in self.config.get(MODULE, opt).split(",")]
                 self.log("Filtering on local ports: %s." % str(self.lports))
             if opt == 'process':
-                val = self.config.get(MODULE, opt)
-                procs = self.get_proc_info(val)
-                if not procs:
-                    self.log("No matching PIDs found for %s, PID filtering disabled." % val)
-                for proc in procs:
-                    self.log("Tracing PID %s: %s %s." % (str(proc[0]), proc[1], proc[2]))
-                    self.pids.append(proc[0])
+                self.proc_filter = self.config.get(MODULE, opt)
+                self.update_pids(self.get_proc_info(self.proc_filter))
+            if opt == 'buffer_page_count':
+                self.buffer_page_count = int(self.config.get(MODULE, opt))
+                if not self.buffer_page_count or \
+                   self.buffer_page_count & (self.buffer_page_count - 1):
+                    raise RuntimeError("Buffer page count is not power of two.")
+
+        self.ipv4_stats = {}
+        self.ipv6_stats = {}
+        self.stale_ipv4_pids = []
+        self.stale_ipv6_pids = []
 
         self.lock = Lock()
-        self.thread = Thread(name="bpfpoller", target=self.perf_buffer_poller)
-        self.thread.setDaemon(True)
+        self.thread = None
 
         # Compat with kernel < 4.16
         self.log("Using BPF source file %s." % bpf_src)
+
+        # Exit hard if impossible to continue
+        if self.bcc_version() == "0.6.1" and bpf_src == bpf_src_old_kb:
+            raise RuntimeError("BCC 0.6.1 bug makes it incompatible with this module "
+                               "on kernel < 4.15.")
 
         self.log("Initialized.")
 
@@ -155,65 +165,101 @@ class PCPBCCModule(PCPBCCBase):
         )
         return True, self.items
 
+    def reset_cache(self):
+        """ Reset internal cache """
+        # Preserve the contents to allow providing
+        # results when a traced process has exited
+
+    def undef_cache(self):
+        """ Undefine internal cache """
+        # Preserve the contents to allow providing
+        # results when a traced process has exited
+
+    def perf_buffer_lost_cb(self, lost_cnt):
+        """ Callback for lost perf buffer events """
+        self.err("Lost %d events; buffer_page_count should be increased." % lost_cnt)
+
     def compile(self):
         """ Compile BPF """
         try:
-            # Compat with bcc < 0.6
-            self.log("Testing BCC compatilibility, possible errors below are safe to ignore.")
-            with open(path.dirname(__file__) + '/../' + bpf_src) as src:
-                bpf_text = src.read()
-            try:
-                test_txt = bpf_text.replace("// NEW: ", "")
-                test_bpf = BPF(text=test_txt)
-                test_bpf.cleanup()
-                bpf_text = test_txt
-            except Exception: # pylint: disable=broad-except
-                bpf_text = bpf_text.replace("// OLD: ", "")
-            self.log("Tested BCC compatilibility, possible errors above are safe to ignore.")
+            if not self.pids and self.proc_filter and not self.proc_refresh:
+                raise RuntimeError("No process to attach found.")
 
-            bpf_text = self.apply_pid_filter(bpf_text, self.pids, False)
+            if not self.bpf_text:
+                with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                    self.bpf_text = src.read()
+                # Compat with bcc < 0.6
+                self.log("Testing BCC compatilibility, possible errors below are safe to ignore.")
+                try:
+                    test_txt = self.bpf_text.replace("// NEW: ", "").replace("FILTER_PID", "")
+                    test_bpf = BPF(text=test_txt)
+                    test_bpf.cleanup()
+                    self.bpf_text = test_txt
+                except Exception: # pylint: disable=broad-except
+                    self.bpf_text = self.bpf_text.replace("// OLD: ", "").replace("FILTER_PID", "")
+                self.log("Tested BCC compatilibility, possible errors above are safe to ignore.")
 
-            if self.dports:
-                filterp = " && ".join(["dport != %d" % port for port in self.dports])
-                filter_txt = "if (%s) { birth.delete(&sk); return 0; }" % filterp
-                bpf_text = bpf_text.replace("//FILTER_DPORT", filter_txt)
-            if self.lports:
-                filterp = " && ".join(["lport != %d" % port for port in self.lports])
-                filter_txt = "if (%s) { birth.delete(&sk); return 0; }" % filterp
-                bpf_text = bpf_text.replace("//FILTER_LPORT", filter_txt)
+                if self.dports:
+                    filterp = " && ".join(["dport != %d" % port for port in self.dports])
+                    filter_txt = "if (%s) { birth.delete(&sk); return 0; }" % filterp
+                    self.bpf_text = self.bpf_text.replace("//FILTER_DPORT", filter_txt)
+                if self.lports:
+                    filterp = " && ".join(["lport != %d" % port for port in self.lports])
+                    filter_txt = "if (%s) { birth.delete(&sk); return 0; }" % filterp
+                    self.bpf_text = self.bpf_text.replace("//FILTER_LPORT", filter_txt)
+
+            if not self.pids and self.proc_filter and self.proc_refresh:
+                self.log("No process to attach found, activation postponed.")
+                return
+
+            bpf_text = self.apply_pid_filter(self.bpf_text, self.pids, False)
 
             if self.debug:
-                self.log("BPF to be compiled:")
-                self.log("\n" + bpf_text)
+                self.log("BPF to be compiled:\n" + bpf_text.strip())
 
             self.bpf = BPF(text=bpf_text)
-            self.bpf["ipv4_events"].open_perf_buffer(self.handle_ipv4_event, page_cnt=64)
-            self.bpf["ipv6_events"].open_perf_buffer(self.handle_ipv6_event, page_cnt=64)
+            self.bpf["ipv4_events"].open_perf_buffer(self.handle_ipv4_event,
+                                                     page_cnt=self.buffer_page_count,
+                                                     lost_cb=self.perf_buffer_lost_cb)
+            self.bpf["ipv6_events"].open_perf_buffer(self.handle_ipv6_event,
+                                                     page_cnt=self.buffer_page_count,
+                                                     lost_cb=self.perf_buffer_lost_cb)
+            self.thread = Thread(name="bpfpoller", target=self.perf_buffer_poller)
+            self.thread.setDaemon(True)
             self.thread.start()
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
+            self.bpf = None
             self.err(str(error))
             self.err("Module NOT active!")
-            self.bpf = None
+            raise
 
     def refresh(self):
         """ Refresh BPF data """
-        if self.bpf is None:
-            return None
+        # We do not check for self.bpf to allow
+        # results when a traced process has exited
+
+        self.lock.acquire()
 
         self.insts = {}
 
-        self.lock.acquire()
-        for pid in list(self.ipv4_stats):
+        # Clean stale data
+        for pid in list(self.stale_ipv4_pids):
+            del self.ipv4_stats[pid]
+            self.stale_ipv4_pids.remove(pid)
+        for pid in list(self.stale_ipv6_pids):
+            del self.ipv6_stats[pid]
+            self.stale_ipv6_pids.remove(pid)
+
+        for pid in self.ipv4_stats:
             if not self.pid_alive(pid):
-                del self.ipv4_stats[pid]
-            else:
-                self.insts[pid] = ct.c_int(1)
-        for pid in list(self.ipv6_stats):
+                self.stale_ipv4_pids.append(pid)
+            self.insts[pid] = ct.c_int(1)
+        for pid in self.ipv6_stats:
             if not self.pid_alive(pid):
-                del self.ipv6_stats[pid]
-            else:
-                self.insts[pid] = ct.c_int(1)
+                self.stale_ipv6_pids.append(pid)
+            self.insts[pid] = ct.c_int(1)
+
         self.lock.release()
 
         return self.insts

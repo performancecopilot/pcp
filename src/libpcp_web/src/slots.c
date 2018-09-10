@@ -23,20 +23,20 @@
 #endif
 
 static char default_server[] = "localhost:6379";
+static const char * const keymap = "command key map";
 
 redisSlots *
-redisSlotsInit(sds hostspec, redisInfoCallBack info, void *events, void *userdata)
+redisSlotsInit(sds hostspec, void *events)
 {
     redisSlots		*slots;
 
     if ((slots = (redisSlots *)calloc(1, sizeof(redisSlots))) == NULL)
 	return NULL;
 
-    slots->hostspec = sdsdup(hostspec);
-    slots->info = info;
     slots->events = events;
-    slots->userdata = userdata;
-    slots->control = redisSlotsConnect(slots, hostspec);
+    slots->keymap = redisKeyMapCreate(keymap);
+    slots->control.hostspec = sdsdup(hostspec);
+    slots->control.redis = redisAttach(slots, hostspec);
     return slots;
 }
 
@@ -73,9 +73,9 @@ redisSlotRangeInsert(redisSlots *redis, redisSlotRange *range)
 static void
 redisSlotServerFree(redisSlots *pool, redisSlotServer *server)
 {
-    if (server->redis != pool->control)
+    if (server->redis != pool->control.redis)
 	redisAsyncDisconnect(server->redis);
-    if (server->hostspec != pool->hostspec)
+    if (server->hostspec != pool->control.hostspec)
 	sdsfree(server->hostspec);
     memset(server, 0, sizeof(*server));
 }
@@ -93,7 +93,7 @@ redisSlotRangeFree(redisSlots *pool, redisSlotRange *range)
 }
 
 void
-redisFreeSlots(redisSlots *pool)
+redisSlotsFree(redisSlots *pool)
 {
     void		*root = pool->slots;
     redisSlotRange	*range;
@@ -103,9 +103,10 @@ redisFreeSlots(redisSlots *pool)
 	tdelete(range, &root, slotsCompare);
 	redisSlotRangeFree(pool, range);
     }
-    redisAsyncDisconnect(pool->control);
-    sdsfree(pool->hostspec);
-    free(pool->control);
+    redisAsyncDisconnect(pool->control.redis);
+    sdsfree(pool->control.hostspec);
+    free(pool->control.redis);
+    redisMapRelease(pool->keymap);
     memset(pool, 0, sizeof(*pool));
 }
 
@@ -141,44 +142,35 @@ keySlot(const char *key, unsigned int keylen)
 static void
 redis_connect_callback(const redisAsyncContext *redis, int status)
 {
-    redisSlots		*slots = (redisSlots *)redis->data;
-    sds			msg;
-
     if (status == REDIS_OK) {
-	seriesfmt(msg, "Connected to redis on %s:%d",
+	if (pmDebugOptions.series)
+	    fprintf(stderr, "Connected to redis on %s:%d\n",
 			redis->c.tcp.host, redis->c.tcp.port);
-	seriesmsg(slots, PMLOG_INFO, msg);
 	redisAsyncEnableKeepAlive((redisAsyncContext *)redis);
-    } else {
+    } else if (pmDebugOptions.series) {
 	if (redis->c.connection_type == REDIS_CONN_UNIX)
-	    seriesfmt(msg, "Connecting to %s failed - %s",
+	    fprintf(stderr, "Connecting to %s failed - %s\n",
 			redis->c.unix_sock.path, redis->errstr);
 	else
-	    seriesfmt(msg, "Connecting to %s:%d failed - %s",
+	    fprintf(stderr, "Connecting to %s:%d failed - %s\n",
 			redis->c.tcp.host, redis->c.tcp.port, redis->errstr);
-	seriesmsg(slots, PMLOG_ERROR, msg);
     }
 }
 
 static void
 redis_disconnect_callback(const redisAsyncContext *redis, int status)
 {
-    redisSlots		*slots;
-    sds			msg;
-
-    slots = (redisSlots *)redis->data;
     if (status == REDIS_OK) {
 	if (pmDebugOptions.series)
 	    fprintf(stderr, "Disconnected from redis on %s:%d\n",
 			redis->c.tcp.host, redis->c.tcp.port);
-    } else {
+    } else if (pmDebugOptions.series) {
 	if (redis->c.connection_type == REDIS_CONN_UNIX)
-	    seriesfmt(msg, "Disconnecting from %s failed - %s",
+	    fprintf(stderr, "Disconnecting from %s failed - %s\n",
 			redis->c.unix_sock.path, redis->errstr);
 	else
-	    seriesfmt(msg, "Disconnecting from %s:%d failed - %s",
+	    fprintf(stderr, "Disconnecting from %s:%d failed - %s\n",
 			redis->c.tcp.host, redis->c.tcp.port, redis->errstr);
-	seriesmsg(slots, PMLOG_ERROR, msg);
     }
 }
 
@@ -208,7 +200,7 @@ redis_connect(const char *server)
 }
 
 redisAsyncContext *
-redisSlotsConnect(redisSlots *slots, const char *server)
+redisAttach(redisSlots *slots, const char *server)
 {
     redisAsyncContext	*redis = redis_connect(server);
 
@@ -222,7 +214,7 @@ redisSlotsConnect(redisSlots *slots, const char *server)
 }
 
 redisAsyncContext *
-redisGet(redisSlots *slots, const char *command, sds key)
+redisGetAsyncContext(redisSlots *slots, const char *command, sds key)
 {
     redisSlotServer	*server;
     redisSlotRange	*range, s;
@@ -230,7 +222,7 @@ redisGet(redisSlots *slots, const char *command, sds key)
     void		*p;
 
     if (key == NULL)
-	return slots->control;
+	return slots->control.redis;
 
     slot = keySlot(key, sdslen(key));
     if (UNLIKELY(pmDebugOptions.series))
@@ -245,7 +237,7 @@ redisGet(redisSlots *slots, const char *command, sds key)
     server = (range->nslaves == 0) ? &range->master :
 	     &range->slaves[range->counter % range->nslaves];
     if (server->redis == NULL)
-	server->redis = redisSlotsConnect(slots, server->hostspec);
+	server->redis = redisAttach(slots, server->hostspec);
     return server->redis;
 }
 
@@ -253,7 +245,7 @@ int
 redisSlotsRequest(redisSlots *slots, const char *command, sds key, sds cmd,
 	redisAsyncCallBack *callback, void *arg)
 {
-    redisAsyncContext	*context = redisGet(slots, command, key);
+    redisAsyncContext	*context = redisGetAsyncContext(slots, command, key);
     int			sts;
 
     if (UNLIKELY(pmDebugOptions.desperate))
@@ -265,5 +257,53 @@ redisSlotsRequest(redisSlots *slots, const char *command, sds key, sds cmd,
     sdsfree(cmd);
     if (sts != REDIS_OK)
 	return -ENOMEM;
+    return 0;
+}
+
+int
+redisSlotsProxy(redisSlots *slots, redisInfoCallBack info,
+	redisReader **readerp, ssize_t nread, const char *buffer,
+	redisAsyncCallBack *callback, void *arg)
+{
+    redisAsyncContext	*context;
+    redisReader		*reader = *readerp;
+    redisReply		*reply = NULL;
+    dictEntry		*entry;
+    long long		position;
+    sds			cmd, key, msg;
+    int			sts;
+
+    if (!reader &&
+	(reader = *readerp = redisReaderCreate()) == NULL) {
+	seriesfmt(msg, "out-of-memory for redis client reader");
+	info(PMLOG_REQUEST, msg, arg), sdsfree(msg);
+	sdsfree(msg);
+	return -ENOMEM;
+    }
+
+    if (redisReaderFeed(reader, buffer, nread) != REDIS_OK ||
+	redisReaderGetReply(reader, (void **)&reply) != REDIS_OK) {
+	seriesfmt(msg, "failed to parse Redis protocol request");
+	info(PMLOG_REQUEST, msg, arg), sdsfree(msg);
+	return -EPROTO;
+    }
+
+    if (reply != NULL) {	/* client request is complete */
+	key = cmd = NULL;
+	if (reply->type == REDIS_REPLY_ARRAY)
+	    cmd = sdsnew(reply->element[0]->str);
+	if (cmd && (entry = dictFind(slots->keymap, cmd)) != NULL) {
+	    position = dictGetSignedIntegerVal(entry);
+	    if (position < reply->elements)
+		key = sdsnew(reply->element[position]->str);
+	}
+	context = redisGetAsyncContext(slots, cmd, key);
+	if (key)
+	    sdsfree(key);
+	sts = redisAsyncFormattedCommand(context,
+			callback, arg, reader->buf, reader->len);
+	if (sts != REDIS_OK)
+	    return -EPROTO;
+    }
     return 0;
 }

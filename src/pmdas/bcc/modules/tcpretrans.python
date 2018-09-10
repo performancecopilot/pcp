@@ -73,7 +73,7 @@ class Data_ipv6(ct.Structure):
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC tcpretrans module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, _):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
@@ -122,7 +122,7 @@ class PCPBCCModule(PCPBCCBase):
 
     def cumulate_count_table(self, bcc_table, ip_version):
         """ Cumulate counts from BPF tables """
-        counts = self.bpf.get_table(bcc_table)
+        counts = self.bpf[bcc_table]
 
         for k, v in counts.items():
             if ip_version == 4:

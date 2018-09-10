@@ -82,7 +82,7 @@ int kprobe__tcp_set_state(struct pt_regs *ctx, struct sock *sk, int state)
     // record PID & comm on SYN_SENT
     if (state == TCP_SYN_SENT || state == TCP_LAST_ACK) {
         // now we can PID filter, both here and a little later on for CLOSE
-        //FILTER_PID
+        FILTER_PID
         struct id_t me = {.pid = pid};
         bpf_get_current_comm(&me.task, sizeof(me.task));
         whoami.update(&sk, &me);
@@ -106,7 +106,7 @@ int kprobe__tcp_set_state(struct pt_regs *ctx, struct sock *sk, int state)
     mep = whoami.lookup(&sk);
     if (mep != 0)
         pid = mep->pid;
-    //FILTER_PID
+    FILTER_PID
 
     // get throughput stats. see tcp_get_info().
     u64 rx_b = 0, tx_b = 0, sport = 0;

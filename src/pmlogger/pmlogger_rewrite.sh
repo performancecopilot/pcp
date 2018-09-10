@@ -172,21 +172,21 @@ do
 	    # may already be the base name of an archive ... look for
 	    # a .meta or .meta.* file
 	    #
-	    rm -f $tmp.ok
+	    rm -f $tmp/ok
 	    if [ -f "$base".meta ]
 	    then
-		touch $tmp.ok
+		touch $tmp/ok
 	    else
 		for suff in $compress_suffixes
 		do
 		    if [ -f "$base.meta"$suff ]
 		    then
-			touch $tmp.ok
+			touch $tmp/ok
 			break
 		    fi
 		done
 	    fi
-	    if [ ! -f $tmp.ok ]
+	    if [ ! -f $tmp/ok ]
 	    then
 		base=''
 		$verbose && echo "Warning: $try: not a PCP archive name"

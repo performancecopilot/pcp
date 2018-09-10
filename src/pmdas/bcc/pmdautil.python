@@ -1,0 +1,97 @@
+#
+# Copyright (C) 2018 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA helpers """
+
+# pylint: disable=too-many-branches, too-many-locals, too-many-nested-blocks
+
+import re
+from os import listdir
+from time import sleep
+from threading import Thread
+from collections import OrderedDict
+
+class ProcMon(object):
+    """ Process monitor helper """
+    def __init__(self, log, err):
+        """ Constructor """
+        self._log = log
+        self._err = err
+
+        self._objects = OrderedDict()
+        self._thread = None
+
+    def add_module(self, module, obj):
+        """ Add module to monitor """
+        self._objects[module] = obj
+
+    def enable_proc_refresh(self, interval):
+        """ Start target process refresher thread """
+        if not self._thread:
+            self._thread = Thread(target=self._filter_procs, args=(interval,))
+            self._thread.setDaemon(True)
+            self._thread.start()
+
+    def _filter_procs(self, interval):
+        """ Update processes to trace periodically """
+        filters = {}
+        objects = OrderedDict()
+        retype = type(re.compile('test'))
+        for module in self._objects:
+            if hasattr(self._objects[module], 'proc_filter') and \
+               self._objects[module].proc_filter:
+                objects[module] = self._objects[module]
+        if not interval or not objects:
+            return
+        for module in objects:
+            filters[module] = []
+            for filt in objects[module].proc_filter.split(","):
+                if filt.isalnum():
+                    filters[module].append(filt)
+                else:
+                    filters[module].append(re.compile(r'\A' + filt + r'\Z'))
+        self._log("Starting dynamic process filtering, interval %d s." % interval)
+        while True:
+            procinfo = {}
+            sleep(interval)
+            for module in objects:
+                procinfo[module] = []
+            for dirname in listdir("/proc"):
+                if not dirname.isdigit():
+                    continue
+                try:
+                    pid = int(dirname)
+                    with open("/proc/%s/cmdline" % dirname, "rb") as fcmd:
+                        cmdline = fcmd.read().decode().split("\x00")
+                    with open("/proc/%s/comm" % dirname) as fcomm:
+                        comm = fcomm.read().strip()
+                    cmdline = cmdline if cmdline[0] else ["(" + comm + ")", ""]
+                    cmdline_full = " ".join(cmdline[:-1])
+                    cmdline_args = " ".join(cmdline[1:-1])
+                    for module in objects:
+                        for filt in filters[module]:
+                            if filt == dirname or filt == comm or \
+                               (isinstance(filt, retype) and re.match(filt, cmdline_full)):
+                                procinfo[module].append([pid, cmdline[0], cmdline_args])
+                except Exception: # pylint: disable=broad-except
+                    continue
+
+            for module in procinfo:
+                status = objects[module].update_pids(procinfo[module])
+                if status < 0:
+                    if objects[module].bpf is not None:
+                        self._log(module + ": No process to trace found.")
+                    objects[module].cleanup()
+                elif status > 0:
+                    objects[module].cleanup()
+                    objects[module].compile()

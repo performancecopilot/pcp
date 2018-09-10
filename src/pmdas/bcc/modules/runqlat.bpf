@@ -24,7 +24,7 @@ struct rq;
 // record enqueue timestamp
 static int trace_enqueue(u32 tgid, u32 pid)
 {
-    if (0 || pid == 0)
+    if (FILTER || pid == 0)
         return 0;
     u64 ts = bpf_ktime_get_ns();
     start.update(&pid, &ts);
@@ -51,7 +51,7 @@ int trace_run(struct pt_regs *ctx, struct task_struct *prev)
     if (prev->state == TASK_RUNNING) {
         tgid = prev->tgid;
         pid = prev->pid;
-        if (!(0 || pid == 0)) {
+        if (!(FILTER || pid == 0)) {
             u64 ts = bpf_ktime_get_ns();
             start.update(&pid, &ts);
         }
@@ -59,7 +59,7 @@ int trace_run(struct pt_regs *ctx, struct task_struct *prev)
 
     tgid = bpf_get_current_pid_tgid() >> 32;
     pid = bpf_get_current_pid_tgid();
-    if (0 || pid == 0)
+    if (FILTER || pid == 0)
         return 0;
     u64 *tsp, delta;
 

@@ -436,7 +436,7 @@ processItem(redisReader *r)
 
     /* check if we need to read type */
     if (cur->type < 0) {
-        if ((p = readBytes(r,1)) != NULL) {
+        if ((p = readBytes(r, 1)) != NULL) {
             switch (p[0]) {
             case '-':
                 cur->type = REDIS_REPLY_ERROR;
@@ -1492,11 +1492,10 @@ __redisGetSubscribeCallBack(redisAsyncContext *ac, redisReply *reply, redisCallB
             }
         }
         sdsfree(sname);
-    } else {
-        /* Shift callback for invalid commands. */
-        __redisShiftCallBack(&ac->sub.invalid, dstcb);
+	return REDIS_OK;
     }
-    return REDIS_OK;
+    /* Shift callback for invalid commands. */
+    return __redisShiftCallBack(&ac->sub.invalid, dstcb);
 }
 
 void
@@ -1605,7 +1604,7 @@ __redisAsyncHandleConnect(redisAsyncContext *ac)
             return REDIS_OK;
 
         if (ac->onConnect)
-	    ac->onConnect(ac,REDIS_ERR);
+	    ac->onConnect(ac, REDIS_ERR);
         __redisAsyncDisconnect(ac);
         return REDIS_ERR;
     }
@@ -1613,7 +1612,7 @@ __redisAsyncHandleConnect(redisAsyncContext *ac)
     /* Mark context as connected. */
     c->flags |= REDIS_CONNECTED;
     if (ac->onConnect)
-	ac->onConnect(ac,REDIS_OK);
+	ac->onConnect(ac, REDIS_OK);
     return REDIS_OK;
 }
 
@@ -1659,7 +1658,7 @@ redisAsyncHandleWrite(redisAsyncContext *ac)
             return;
     }
 
-    if (redisBufferWrite(c,&done) == REDIS_ERR) {
+    if (redisBufferWrite(c, &done) == REDIS_ERR) {
         __redisAsyncDisconnect(ac);
     } else {
         /* Continue writing when not done, stop writing otherwise */

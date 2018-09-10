@@ -257,6 +257,7 @@ parseargs(int argc, char *argv[])
     int			c;
     int			sts;
     int			sep = pmPathSeparator();
+    char		**cp;
     struct stat		sbuf;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
@@ -270,9 +271,10 @@ parseargs(int argc, char *argv[])
 		break;
 	    }
 	    if (S_ISREG(sbuf.st_mode) || S_ISLINK(sbuf.st_mode)) {
-		nconf++;
-		if ((conf = (char **)realloc(conf, nconf*sizeof(conf[0]))) != NULL)
-		    conf[nconf-1] = opts.optarg;
+		if ((cp = (char **)realloc(conf, (nconf+1)*sizeof(conf[0]))) != NULL) {
+		    conf = cp;
+		    conf[nconf++] = opts.optarg;
+		}
 	    }
 	    else if (S_ISDIR(sbuf.st_mode)) {
 		DIR		*dirp;
@@ -292,10 +294,10 @@ parseargs(int argc, char *argv[])
 			opts.errors++;
 		    }
 		    else if (S_ISREG(sbuf.st_mode) || S_ISLINK(sbuf.st_mode)) {
-			nconf++;
-			if ((conf = (char **)realloc(conf, nconf*sizeof(conf[0]))) == NULL)
+			if ((cp = (char **)realloc(conf, (nconf+1)*sizeof(conf[0]))) == NULL)
 			    break;
-			if ((conf[nconf-1] = strdup(path)) == NULL) {
+			conf = cp;
+			if ((conf[nconf++] = strdup(path)) == NULL) {
 			    fprintf(stderr, "conf[%d] strdup(%s) failed: %s\n", nconf-1, path, strerror(errno));
 			    abandon();
 			    /*NOTREACHED*/

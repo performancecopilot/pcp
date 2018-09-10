@@ -117,6 +117,9 @@ domain.h: ../../pmns/stdpmid
 $(CONFTARGETS):	mk.rewrite
 	CPP="$(CPP)" INCDIR="$(TOPDIR)/src/include" ./mk.rewrite
 
+check:: $(CFILES) $(HFILES)
+	$(CLINT) $^
+
 interrupts.o pmda.o proc_partitions.o:	linux.h
 numa_meminfo.o proc_cpuinfo.o proc_stat.o:	linux.h
 filesys.o interrupts.o pmda.o:	filesys.h

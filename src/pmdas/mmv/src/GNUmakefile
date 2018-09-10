@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2015,2018 Red Hat.
 # Copyright (c) 2009-2010 Aconex.  All Rights Reserved.
 # Copyright (c) 2000-2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -26,7 +26,6 @@ TARGETS		= $(CMDTARGET) $(LIBTARGET)
 
 CFILES		= mmv.c
 VERSION_SCRIPT	= exports
-LSRCFILES	= Install Remove root_mmv
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
 LDIRT		= domain.h *.log pmns $(VERSION_SCRIPT)
@@ -57,7 +56,10 @@ $(OBJECTS): domain.h
 domain.h: ../../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-pmns :
+pmns:
 	$(LN_S) -f root_mmv pmns
 
 mmv.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check::	$(CFILES)
+	$(CLINT) $^

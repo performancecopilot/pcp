@@ -1,1 +1,1 @@
-default setup install clean:
+default setup install clean check:

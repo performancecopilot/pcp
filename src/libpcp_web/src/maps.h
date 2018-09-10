@@ -17,6 +17,7 @@
 #include "sds.h"
 #include "dict.h"
 
+struct redisSlots;
 typedef dict redisMap;
 typedef dictEntry redisMapEntry;
 
@@ -29,6 +30,7 @@ extern redisMap *labelsmap;
 extern redisMap *contextmap;
 
 extern redisMap *redisMapCreate(const char *);
+extern redisMap *redisKeyMapCreate(const char *);
 extern redisMapEntry *redisMapLookup(redisMap *, sds);
 extern long long redisMapValue(redisMapEntry *);
 extern void redisMapInsert(redisMap *, sds, long long);
@@ -56,14 +58,16 @@ extern void redisMapRelease(redisMap *);
 /*
  * Asynchronous mapping response helpers
  */
+typedef void (*redisInfoCallBack)(pmloglevel, sds, void *);
+typedef void (*redisDoneCallBack)(void *);
+
 typedef struct redisMapBaton {
-    unsigned int	magic;
-    unsigned int	refcount;
+    seriesBatonMagic	magic;		/* MAGIC_MAPPING */
     int			newMapping;
     redisMap		*mapping;
     sds			mapKey;
     long long		*mapID;
-    redisSlots		*slots;
+    struct redisSlots	*slots;
     int			loaded;
     int			scriptID;
     sds			scriptHash;
@@ -73,7 +77,7 @@ typedef struct redisMapBaton {
     void		*arg;
 } redisMapBaton;
 
-extern void redisGetMap(redisSlots *, redisMap *, sds, long long *,
+extern void redisGetMap(struct redisSlots *, redisMap *, sds, long long *,
 		redisDoneCallBack, redisInfoCallBack, void *, void *);
 
 #endif	/* SERIES_MAPS_H */
