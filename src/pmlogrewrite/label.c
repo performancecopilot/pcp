@@ -197,65 +197,117 @@ _pmUnpackLabelSet(__pmPDU *pdubuf, unsigned int *type, unsigned int *ident,
     }
 }
 
-#if 0
 static int
-find_label (
+find_label(
+    pmLabelSet *lsp,
+    int label_ix,
     const char *label,
-    const char *value,
-    int nsets,
-    const pmLabelSet *labellist,
-    int *labelset_ix,
-    int *label_ix)
-{
-    const pmLabelSet	*lsp;
+    const char *value
+) {
     const pmLabel	*lp;
+    int			label_len;
+    int			value_len;
 
     /*
      * Find the specified label in the given label set beginning at the given
      * position.
-     * - When starting at the beginning, both labelset_ix and label_ix will be
-     *   -1.
-     * - When resuming the search, they will indicate the position of the last
-     *   label found.
-     * - One or both of label and value may be NULL
-     *   - If both are NULL, then we're not looking for any label in particular.
-     *     In this case, for the initial search  just return 1 for success, and
-     *     for any subsequent search, return 0.
-     *   - If either is non-NULL, then we are looking for the particular label(s)
-     *     with those names and values.
+     * - label_ix indicates where to begin the search.
+     * - One of label or value may be NULL, but not both.
+     * - If either is non-NULL, then we are looking for the particular label(s)
+     *   with those names and values.
+     * - Return the index of the found label or -1 if not found.
+     *
+     * We'll need these lengths later
      */
-    if (*labelset_ix == -1) {
-	*labelset_ix = 0;
-	*label_ix = 0;
-	if (label == NULL && value == NULL)
-	    return 1; /* success */
-    }
-    else {
-	if (label == NULL && value == NULL)
-	    return 0; /* not found */
-	++*label_ix;
-    }
-
-    /* We'll need these later */
-    if (label != NULL)
-	label_len = strlen(label);
-    if (value != NULL)
-	value_len = strlen(value);
+    label_len = label != NULL ? strlen(label) : 0;
+    value_len = value != NULL ? strlen(value) : 0;
 
     /* Look for the next matching label. */
-    while (*labelset_ix < nsets) {
-	lsp = &labellist[*labelset_ix];
-	while (*label_ix < lsp->nlabels) {
-	    lp = &lsp->labels[*label_ix];
+    for (/**/; label_ix < lsp->nlabels; ++label_ix) {
+	lp = &lsp->labels[label_ix];
+
+	/* Compare this label to the one we want. */
+	if (label != NULL) {
+	    if (label_len != lp->namelen)
+		continue; /* not this one */
+	    if (memcmp(label, lsp->json + lp->name, label_len) != 0)
+		continue; /* not this one */
+	}
+	if (value != NULL) {
+	    if (value_len != lp->valuelen)
+		continue; /* not this one */
+	    if (memcmp(value, lsp->json + lp->value, value_len) != 0)
+		continue; /* not this one */
 	}
 
-	/* Look in the next label set, if there is one. */
-	++*labelset_ix;
+	/* We've found our candidate. */
+	return label_ix;
     }
 
-    return 0;
+    /* No matching label found. */
+    return -1;
 }
-#endif
+
+static void
+extract_label(pmLabelSet *lsp, int label_ix)
+{
+    int		json_pos;
+    int		json_size;
+    pmLabel	*lp = & lsp->labels[label_ix];
+
+    /*
+     * If there is only one label remaining, then free the storage for the
+     * label and the JSON.
+     */
+    if (lsp->nlabels == 1) {
+	free(lsp->labels);
+	free(lsp->json);
+	/* Prevent double free by pmFreeLabelSets */
+	lsp->nlabels = 0;
+	lsp->json = NULL;
+	return;
+    }
+
+    /*
+     * There is more than one label remaining. We need to extract it from the
+     * labelset.
+     *
+     * The size of the JSON is the length of the name and
+     * value plus the double quotes around the name, plus the colon, plus
+     * the comma separating the next label.
+     */
+    json_size = lp->namelen + lp->valuelen + 2 + 1 + 1;
+
+    /*
+     * Shift the remaining data to fill the hole, if necessary.
+     */
+    if (label_ix < lsp->nlabels - 1) {
+	json_pos = lp->name - 1; /* one back for the double quote */
+	memmove(lsp->json + json_pos, lsp->json + json_pos + json_size,
+		json_size);
+
+	memmove(lsp->labels + label_ix, lsp->labels + label_ix + 1,
+		sizeof (*lsp->labels));
+    }
+    
+    /* Now reallocate the remaining data to the new (smaller) size. */
+    lsp->jsonlen -= json_size;
+    lsp->json = realloc(lsp->json, lsp->jsonlen);
+    if (lsp->json == NULL) {
+	fprintf(stderr, "labelset json realloc(%d) failed: %s\n", lsp->jsonlen, strerror(errno));
+	abandon();
+	/*NOTREACHED*/
+    }
+
+    --lsp->nlabels;
+    lsp->labels = realloc(lsp->labels, lsp->nlabels * sizeof(*lsp->labels));
+    if (lsp->labels == NULL) {
+	fprintf(stderr, "labelset labels realloc(%d) failed: %s\n",
+		(int)(lsp->nlabels * sizeof(*lsp->labels)), strerror(errno));
+	abandon();
+	/*NOTREACHED*/
+    }
+}
 
 static pmLabelSet *
 extract_labelset (int ls_ix, pmLabelSet **labellist, int *nsets)
@@ -307,6 +359,7 @@ do_labelset(void)
     labelspec_t		*lp;
     int			full_record;
     int			ls_ix;
+    int			label_ix;
     int			sts;
     char		buf[64];
 
@@ -462,8 +515,85 @@ do_labelset(void)
 	    } /* operating on entire labelset */
 	    
 	    /*
-	     * Iterate over a specific label and/or value was specified
+	     * A specific label and/or value was specified. We need to operate
+	     * on the individual labels selected. For all changes, it's probably
+	     * easiest if we extract the label(s) from the current labelset
+	     * and write the changed versions directly.
 	     */
+	    label_ix = 0;
+	    while ((label_ix = find_label(lsp, label_ix, lp->old_label, lp->old_value)) != -1) {
+		if (flags & LABEL_DELETE)
+		    ; /* Do nothing. The label will be extracted below.  */
+		else {
+		    pmLabelSet	*new_labelset = NULL;
+		    char	buf[PM_MAXLABELJSONLEN];
+		    const char	*new_label;
+		    const char	*new_value;
+		    int		new_label_len;
+		    int		new_value_len;
+		    /*
+		     * All other operations require that we contruct a new
+		     * labelset containing the affected label.
+		     */
+		    if (lp->new_label != NULL) {
+			new_label = lp->new_label;
+			new_label_len = strlen(new_label);
+		    }
+		    else {
+			new_label = lsp->json + lsp->labels[label_ix].name;
+			new_label_len = lsp->labels[label_ix].namelen;
+		    }
+		    if (lp->new_value != NULL) {
+			new_value = lp->new_value;
+			pmsprintf(buf, sizeof(buf), "{\"%.*s\":\"%s\"}",
+				  new_label_len, new_label, new_value);
+		    }
+		    else {
+			new_value = lsp->json + lsp->labels[label_ix].value;
+			new_value_len = lsp->labels[label_ix].valuelen;
+			pmsprintf(buf, sizeof(buf), "{\"%.*s\":%.*s}",
+				  new_label_len, new_label, new_value_len, new_value);
+		    }
+		    if ((sts = __pmAddLabels(&new_labelset, buf, lp->new_type)) < 0) {
+			fprintf(stderr, "Unable to rewrite label %s: %s",
+				buf, pmErrStr(sts));
+			abandon();
+			/*NOTREACHED*/
+		    }
+		    if ((flags & LABEL_CHANGE_INSTANCE))
+			new_labelset->inst = lp->new_instance;
+		    else
+			new_labelset->inst = lsp->inst;
+
+		    /*
+		     * Write the new label.
+		     * libpcp, via __pmLogPutLabel(), assumes control of the
+		     * storage pointed to by new_labelset.
+		     */
+		    if ((sts = __pmLogPutLabel(&outarch.archctl, lp->new_type,
+					       lp->new_id, 1, new_labelset,
+					       &stamp)) < 0) {
+			fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
+				pmGetProgname(),
+				__pmLabelIdentString(lp->new_id, type,
+						     buf, sizeof(buf)),
+				pmErrStr(sts));
+			abandon();
+			/*NOTREACHED*/
+		    }
+		}
+
+		/* Remove the old label from the original labeset */
+		extract_label(lsp, label_ix);
+	    }
+
+	    /* Extract and free the original labelset if it is now empty. */
+	    if (lsp->nlabels == 0) {
+		lsp = extract_labelset (ls_ix, & labellist, & nsets);
+		pmFreeLabelSets(lsp, 1);
+		--ls_ix;
+	    }
+
 #if 0
 	    if (flags & LABEL_DELETE) {
 		if (pmDebugOptions.appl1) {
