@@ -1571,6 +1571,7 @@ BAD
 1276 pmmgr containers local
 1287 pmda.install pmda.prometheus local python
 1289 pmval archive multi-archive decompress-xz local pmlogextract
+1294 mmv labels local
 1299 libpcp pminfo local
 1304 pmstat context local_context local
 1306 pmda.prometheus labels local python
