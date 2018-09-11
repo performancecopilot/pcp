@@ -1,0 +1,23 @@
+QA output created by 1294
+=== std out ===
+=== std err ===
+failed string - string2: Invalid argument
+failed string - string3: Invalid argument
+failed string - string4: Invalid argument
+failed boolean - "true": Invalid argument
+failed boolean - True: Invalid argument
+failed boolean - False: Invalid argument
+failed boolean - "false": Invalid argument
+failed number - "12": Invalid argument
+failed number - 12.13.13: Invalid argument
+failed array - 1,2,3]: Invalid argument
+failed array - [1,2,3: Invalid argument
+failed map - "a":1,"b":2}: Invalid argument
+failed map - {"a":1,"b":2: Invalid argument
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: QAPATH/src/mmv3_bad_labels
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

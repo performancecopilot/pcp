@@ -999,7 +999,7 @@ get_label(const char *name, const char *value, mmv_value_type_t type,
 
     len = pmsprintf(buffer, MMV_LABELMAX, "{\"%s\":%s}", name, value);
     if ((sts = __pmParseLabelSet(buffer, len, flags, &set)) < 0) {
-	setoserror(sts);
+	setoserror(-sts);
 	return -1;
     }
     pmFreeLabelSets(set, 1);
