@@ -128,7 +128,7 @@ fi
 test $REAL_UID -ne 0 && CHOWN=true
 test "$NO_CHOWN" = "true" && CHOWN=true
 
-while getopts "d:g:m:o:S:" c $*
+while getopts "d:g:m:o:S:" c
 do
    case $c in
    d) 
