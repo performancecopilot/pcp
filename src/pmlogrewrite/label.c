@@ -71,6 +71,7 @@ create_label(int type, int id, int instance, char *label, char *value)
 	fprintf(stderr, "labelspec malloc(%d) failed: %s\n", (int)sizeof(labelspec_t), strerror(errno));
 	abandon();
 	/*NOTREACHED*/
+	return NULL; /* For Coverity */
     }
 
     /* Initialize and link. */
@@ -541,7 +542,7 @@ do_labelset(void)
 		/*
 		 * We know that there is another operation to perform and that it
 		 * is LABEL_CHANGE_ID. Otherwise the instance would have been
-		 * changed in place aove.
+		 * changed in place above.
 		 * The changed id will be written below.
 		 */
 		assert((flags & LABEL_CHANGE_ID));
@@ -683,8 +684,10 @@ do_labelset(void)
      * Write what remains of the label record, if anything.
      * libpcp, via __pmLogPutLabel(), assumes control of the storage pointed
      * to by labellist.
+     * If nsets has been reduced to zero, then labellist is already NULL.
      */
-    if (nsets > 0) {
+    if (labellist != NULL) {
+	assert(nsets > 0);
 	if ((sts = __pmLogPutLabel(&outarch.archctl, type, ident, nsets, labellist, &stamp)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
 		    pmGetProgname(),

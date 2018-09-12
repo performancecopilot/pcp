@@ -42,8 +42,10 @@ pmFreeLabelSets(pmLabelSet *sets, int nsets)
 	if (sets[i].json)
 	    free(sets[i].json);
     }
-    if (nsets > 0)
+    if (sets != NULL) {
+	assert(nsets > 0);
 	free(sets);
+    }
 }
 
 static pmLabelSet *

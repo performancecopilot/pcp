@@ -825,20 +825,19 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		    instlist[i] = ntohl(instlist[i]);
 	            namelist[i] = &namebase[ntohl(stridx[i])];
 		}
+		if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0)
+		    goto end;
+		/* If this indom was a duplicate, then we need to free tbuf and
+		   namelist, as appropriate. */
+		if (sts == PMLOGPUTINDOM_DUP) {
+		    free(tbuf);
+		    if (namelist != NULL && !allinbuf)
+			free(namelist);
+		}
 	    }
 	    else {
 		/* no instances, or an error */
-		instlist = NULL;
-		namelist = NULL;
-	    }
-	    if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0)
-		goto end;
-	    /* If this indom was a duplicate, then we need to free tbuf and
-	       namelist, as appropriate. */
-	    if (sts == PMLOGPUTINDOM_DUP) {
 		free(tbuf);
-		if (namelist != NULL && !allinbuf)
-		    free(namelist);
 	    }
 	}
 	else if (h.type == TYPE_LABEL) {
