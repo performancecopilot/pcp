@@ -16,7 +16,7 @@ which pmchart >/dev/null 2>&1 || _notrun "pmchart not installed"
 [ -f $PCP_VAR_DIR/config/pmchart/BusyCPU ] || _notrun "BusyCPU view not installed"
 case `hostname`
 in
-    vm20)
+    vm20|shard)
 	    # cannot explain or understand this, but the condition appears
 	    # to be entirely reproducible - Aug 2018
 	    #
