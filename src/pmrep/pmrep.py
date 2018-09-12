@@ -725,10 +725,12 @@ class PMReporter(object):
             line += metric
             if self.pmconfig.insts[i][0][0] != PM_IN_NULL and name:
                 line += "[\"" + name + "\"]"
-            if self.metrics[metric][2][0]:
-                line += " - " + self.metrics[metric][2][0] + "\n"
-            else:
-                line += " - none\n"
+            if self.unitinfo:
+                if self.metrics[metric][2][0]:
+                    line += " - " + self.metrics[metric][2][0]
+                else:
+                    line += " - none"
+            line += "\n"
             self.writer.write(line.format(str(k)))
 
         k = 0
