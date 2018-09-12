@@ -145,13 +145,13 @@ Running diff TMP.original.txt TMP.extracted.txt
 <     InDom 60.0[3] labels (9 bytes): {"cpu":3}
 <         [0] name(2,3) : value(7,1) [instances]
 2176a2169,2176
->     InDom 60.200[0] labels (9 bytes): {"cpu":0}
->         [0] name(2,3) : value(7,1) [instances]
->     InDom 60.200[1] labels (9 bytes): {"cpu":1}
+>     InDom 60.200[3] labels (9 bytes): {"cpu":3}
 >         [0] name(2,3) : value(7,1) [instances]
 >     InDom 60.200[2] labels (9 bytes): {"cpu":2}
 >         [0] name(2,3) : value(7,1) [instances]
->     InDom 60.200[3] labels (9 bytes): {"cpu":3}
+>     InDom 60.200[1] labels (9 bytes): {"cpu":1}
+>         [0] name(2,3) : value(7,1) [instances]
+>     InDom 60.200[0] labels (9 bytes): {"cpu":0}
 >         [0] name(2,3) : value(7,1) [instances]
 2586,2591d2585
 < InDom: 60.0
@@ -313,13 +313,13 @@ Running diff TMP.original.txt TMP.extracted.txt
 <     InDom 60.0[3] labels (9 bytes): {"cpu":3}
 <         [0] name(2,3) : value(7,1) [instances]
 2176a2169,2176
->     InDom 200.0[0] labels (9 bytes): {"cpu":0}
->         [0] name(2,3) : value(7,1) [instances]
->     InDom 200.0[1] labels (9 bytes): {"cpu":1}
+>     InDom 200.0[3] labels (9 bytes): {"cpu":3}
 >         [0] name(2,3) : value(7,1) [instances]
 >     InDom 200.0[2] labels (9 bytes): {"cpu":2}
 >         [0] name(2,3) : value(7,1) [instances]
->     InDom 200.0[3] labels (9 bytes): {"cpu":3}
+>     InDom 200.0[1] labels (9 bytes): {"cpu":1}
+>         [0] name(2,3) : value(7,1) [instances]
+>     InDom 200.0[0] labels (9 bytes): {"cpu":0}
 >         [0] name(2,3) : value(7,1) [instances]
 2586,2591d2585
 < InDom: 60.0
