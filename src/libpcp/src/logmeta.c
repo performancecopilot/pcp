@@ -32,42 +32,65 @@ StrTimeval(const pmTimeval *tp)
 	__pmPrintTimeval(stderr, tp);
 }
 
+static inline int
+sameinst(const __pmLogInDom *a, const __pmLogInDom *b, int index)
+{
+    if (a->instlist[index] != b->instlist[index])
+	return 0;
+    return strcmp(a->namelist[index], b->namelist[index]) == 0;
+}
+
 /*
- * Return 1 if the indoms are the same, 0 otherwise.
- * The time stamp does not count for this comparison.
+ * Return true (non-zero) if the indoms are the same, else false (zero).
+ * The time stamp does not matter in this indom comparison.  Because we
+ * keep sorted instance lists in memory (see addinsts) we are able to do
+ * a linear indom comparison here.
  */
 static int
 sameindom(const __pmLogInDom *idp1, const __pmLogInDom *idp2)
 {
-    int i, j;
+    int			i, numinst;
 
-    if (idp1->numinst != idp2->numinst)
-	return 0; /* different */
+    if ((numinst = idp1->numinst) != idp2->numinst)
+	return 0;
+    for (i = 0; i < numinst; i++)
+	if (!sameinst(idp1, idp2, i))
+	    break;
+    return i == numinst;
+}
 
-    /*
-     * Make sure that the instances and their names are the same.
-     * We can't assume that the instances are always in the same order,
-     * but we do assume that each instance occurs only once.
-     */
-    for (i = 0; i < idp1->numinst; ++i) {
-	for (j = 0; j < idp2->numinst; ++j) {
-	    if (idp1->instlist[i] == idp2->instlist[j]) {
-		/*
-		 * We found the same instance. Make sure that the names are
-		 * the same.
-		 */
-		if (strcmp(idp1->namelist[i], idp2->namelist[j]) != 0)
-		    return 0; /* different */
-		break;
-	    }
+/*
+ * Sort the given instance arrays based on ascending identifier,
+ * before associating them with the __pmLogInDom.  This allows a
+ * variety of optimised lookups in subsequent code that needs to
+ * search for specific instances, compare instance domains, etc.
+ * Use an insertion sort because its often the case that we're
+ * dealing with close-to-sorted data.  Because we have dependent
+ * arrays, we cannot use the usual qsort/sort_r routines here.
+ */
+static void
+addinsts(__pmLogInDom *idp, int numinst, int *instlist, char **namelist)
+{
+    int			i, j, id;
+    char		*name;
+
+    for (i = 0; i < numinst; i++) {
+	name = namelist[i];
+	id = instlist[i];
+	j = i;
+
+	while (j > 0 && id < instlist[j-1]) {
+	    namelist[j] = namelist[j-1];
+	    instlist[j] = instlist[j-1];
+	    j = j - 1;
 	}
-	if (j >= idp2->numinst) {
-	    /* The current idp1 instance was not found in idp2. */
-	    return 0; /* different */
-	}
+	namelist[j] = name;
+	instlist[j] = id;
     }
 
-    return 1; /* duplicate */
+    idp->numinst = numinst;
+    idp->instlist = instlist;
+    idp->namelist = namelist;
 }
 
 /*
@@ -88,11 +111,9 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((idp = (__pmLogInDom *)malloc(sizeof(__pmLogInDom))) == NULL)
 	return -oserror();
     idp->stamp = *tp;		/* struct assignment */
-    idp->numinst = numinst;
-    idp->instlist = instlist;
-    idp->namelist = namelist;
     idp->buf = indom_buf;
     idp->allinbuf = allinbuf;
+    addinsts(idp, numinst, instlist, namelist);
 
     if (pmDebugOptions.logmeta) {
 	char    strbuf[20];
