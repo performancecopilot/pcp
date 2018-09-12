@@ -329,16 +329,14 @@ sort_labels(pmLabel *lp, int nlabels, const char *json)
     }
 
     /* Verify the name of the final label */
-    assert (nlabels > 0); /* not called otherwise */
-    assert (i == nlabels - 1);
+    assert(nlabels > 0); /* not called otherwise */
+    assert(i == nlabels - 1);
     if (verify_label_name(&lp[i], json) < 0) {
-	    if (pmDebugOptions.labels)
-		pmNotifyErr(LOG_ERR, "Label name is invalid %.*s",
+	if (pmDebugOptions.labels)
+	    pmNotifyErr(LOG_ERR, "Label name is invalid %.*s",
 			    (int)lp[i].namelen, label_name(&lp[i], json));
-	    return -EINVAL;
-	}
-
-
+	return -EINVAL;
+    }
     return 0;
 }
 
