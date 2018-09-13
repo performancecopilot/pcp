@@ -869,6 +869,7 @@ new_indom_instance_label(int indom)
 	TOK_INSTANCES
 	TOK_INSTANCE
 	TOK_NEW
+	TOK_VALUE
 
 %token<str>	TOK_GNAME TOK_NUMBER TOK_STRING TOK_NL_STRING TOK_HNAME TOK_FLOAT
 %token<str>	TOK_INDOM_STAR TOK_PMID_INT TOK_PMID_STAR
@@ -3057,6 +3058,52 @@ labelinstancesopt	: TOK_DELETE
 			    }
 			}
 		    }
+		| TOK_LABEL TOK_ASSIGN TOK_STRING
+		    {
+			labelspec_t	*lp;
+			for (lp = walk_label(W_START, LABEL_CHANGE_LABEL, "label", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_LABEL, "label", 0)) {
+			    if (lp->new_label != NULL) {
+				pmsprintf(mess, sizeof(mess), "Duplicate label clause for instances of indom %s", pmInDomStr(lp->old_id));
+				yyerror(mess);
+			    }
+			    if (lp->old_label != NULL &&
+				strcmp(lp->old_label, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Label for instance domain %s: label: No change", pmInDomStr(lp->old_id));
+				    yywarn(mess);
+				}
+			    }
+			    else {
+				lp->new_label = $3;
+				lp->flags |= LABEL_CHANGE_LABEL;
+			    }
+			}
+		    }
+		;
+		| TOK_VALUE TOK_ASSIGN TOK_STRING
+		    {
+			labelspec_t	*lp;
+			for (lp = walk_label(W_START, LABEL_CHANGE_VALUE, "value", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_VALUE, "value", 0)) {
+			    if (lp->new_value != NULL) {
+				pmsprintf(mess, sizeof(mess), "Duplicate value clause for instances of indom %s", pmInDomStr(lp->old_id));
+				yyerror(mess);
+			    }
+			    if (lp->old_value != NULL &&
+				strcmp(lp->old_value, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Label for instance domain %s: value: No change", pmInDomStr(lp->old_id));
+				    yywarn(mess);
+				}
+			    }
+			    else {
+				lp->new_value = $3;
+				lp->flags |= LABEL_CHANGE_VALUE;
+			    }
+			}
+		    }
+		;
 		| newlabelspec
 		    {
 			new_indom_instance_label(current_label_id);

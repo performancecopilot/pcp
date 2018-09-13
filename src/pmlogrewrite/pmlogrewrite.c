@@ -671,10 +671,20 @@ reportconfig(void)
 	    printf("%s\n", 
 		   labelIDStr(lp->new_type, lp->new_id, buf, sizeof(buf)));
 	}
-	if (lp->flags & LABEL_CHANGE_LABEL)
-	    printf("Label:\t\t\"%s\" -> \"%s\"\n", lp->old_label, lp->new_label); 
-	if (lp->flags & LABEL_CHANGE_VALUE)
-	    printf("Label:\t\t\"value\" -> \"%s\"\n", lp->new_value); 
+	if (lp->flags & LABEL_CHANGE_LABEL) {
+	    printf("Label:\t\t%s%s%s -> \"%s\"\n",
+		   lp->old_label ? "\"" : "",
+		   lp->old_label ? lp->old_label : "ALL",
+		   lp->old_label ? "\"" : "",
+		   lp->new_label);
+	}
+	if (lp->flags & LABEL_CHANGE_VALUE) {
+	    printf("Value:\t\t%s%s%s -> \"%s\"\n",
+		   lp->old_value ? "\"" : "",
+		   lp->old_value ? lp->old_value : "ALL",
+		   lp->old_value ? "\"" : "",
+		   lp->new_value);
+	}
 	if (lp->flags & LABEL_DELETE)
 	    printf("DELETE\n");
     }

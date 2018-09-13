@@ -409,6 +409,89 @@ label_association_str(const labelspec_t *lp, int old)
     return buf;
 }
 
+static void
+change_labels(pmLabelSet *lsp, const labelspec_t *lp) {
+    char	*current_name;
+    pmLabel	*current_label;
+    char	*new_json;
+    int		target_label_len = 0;
+    int		new_label_len;
+    int		delta;
+    int		i;
+
+    /*
+     * Change the labels in the given label set according to the given
+     * change record.
+     */
+    if (lp->old_label != NULL)
+	target_label_len = strlen(lp->old_label);
+
+    for (i = 0; i < lsp->nlabels; ++i) {
+	current_label = & lsp->labels[i];
+	current_name = lsp->json + current_label->name;
+
+	if (lp->old_label != NULL) {
+	    /*
+	     * A specific label has been specified on the change record.
+	     * Make sure we have the matching one.
+	     */
+	    if (current_label->namelen != target_label_len ||
+		memcmp (lp->old_label, current_name, target_label_len) != 0)
+		continue; /* next label */
+	}
+
+	/*
+	 * We have a matching label. Change its name. Do this by reallocating
+	 * the JSON to the new size, transfering the old data as needed and then
+	 * writing the new name. This code handles both the case where the size
+	 * of the json grows and when it shrinks.
+	 */
+	new_label_len = strlen(lp->new_label);
+	delta = new_label_len - current_label->namelen;
+	if (delta != 0) {
+	    /*
+	     * Reallocate the JSON. We can't just use realloc(3) because
+	     * the new size may be smaller, causing us to lose the data
+	     * at the end before it can be shifted.
+	     * Don't forget about the terminating nul.
+	     */
+	    new_json = malloc(lsp->jsonlen + 1 + delta);
+	    if (new_json == NULL) {
+		fprintf(stderr, "labelset JSON realloc malloc(%d) failed: %s\n", lsp->jsonlen + delta, strerror(errno));
+		abandon();
+		/*NOTREACHED*/
+		return; /* For Coverity */
+	    }
+
+	    /*
+	     * Transfer the existing data. This is always needed due to the
+	     * JSON syntax surrounding the name/value pairs. Don't forget
+	     * about the terminating nul byte.
+	     */
+	    memcpy(new_json, lsp->json, current_label->name);
+	    memcpy(new_json + current_label->name + current_label->namelen + delta,
+		   current_name + current_label->namelen,
+		   lsp->jsonlen -
+		   (current_label->name + current_label->namelen) +
+		   1);
+	    free(lsp->json);
+	    lsp->json = new_json;
+	    lsp->jsonlen += delta;
+	    current_name = lsp->json + current_label->name;
+	}
+
+	/*
+	 * Write the new name. Note that we don't need to worry about the
+	 * double quotes, since the ones from the previous name have already
+	 * been shifted into place, if necessary above.
+	 */
+	memcpy(current_name, lp->new_label, new_label_len);
+
+	if (lp->old_label != NULL)
+	    break; /* there can only be one matching label */
+    }
+}
+
 void
 do_labelset(void)
 {
@@ -536,23 +619,39 @@ do_labelset(void)
 		    continue; /* next labelset */
 		}
 
-		if ((flags & LABEL_CHANGE_INSTANCE))
-		    lsp->inst = lp->new_instance;
+		if ((flags & LABEL_CHANGE_ID)) {
+		    /* The changed id will be written below. */
+		    if (pmDebugOptions.appl1) {
+			fprintf(stderr, "Rewrite: label set %s",
+				__pmLabelIdentString(lp->old_id, lp->old_type,
+						     buf, sizeof(buf)));
+			fprintf(stderr, " to %s",
+				__pmLabelIdentString(lp->new_id, lp->new_type,
+						     buf, sizeof(buf)));
+		    }
+		}
 
-		/*
-		 * We know that there is another operation to perform and that it
-		 * is LABEL_CHANGE_ID. Otherwise the instance would have been
-		 * changed in place above.
-		 * The changed id will be written below.
-		 */
-		assert((flags & LABEL_CHANGE_ID));
-		if (pmDebugOptions.appl1) {
-		    fprintf(stderr, "Rewrite: label set %s",
-			    __pmLabelIdentString(lp->old_id, lp->old_type,
-						 buf, sizeof(buf)));
-		    fprintf(stderr, " to %s",
-			    __pmLabelIdentString(lp->new_id, lp->new_type,
-						 buf, sizeof(buf)));
+		if ((flags & LABEL_CHANGE_INSTANCE)) {
+		    lsp->inst = lp->new_instance;
+		    if (pmDebugOptions.appl1) {
+			fprintf(stderr, "Rewrite: instance for label %s to %d\n",
+				label_id_str(lp, 1/*old*/), lp->new_instance);
+		    }
+		}
+
+		if ((flags & LABEL_CHANGE_LABEL)) {
+		    if (pmDebugOptions.appl1) {
+			fprintf(stderr, "Rewrite: name for label %s to \"%s\"\n",
+				label_id_str(lp, 1/*old*/), lp->new_label);
+		    }
+		    change_labels(lsp, lp);
+		}
+
+		if ((flags & LABEL_CHANGE_VALUE)) {
+		    if (pmDebugOptions.appl1) {
+			fprintf(stderr, "Rewrite: value for label %s to \"%s\"\n",
+				label_id_str(lp, 1/*old*/), lp->new_value);
+		    }
 		}
 
 		/*
