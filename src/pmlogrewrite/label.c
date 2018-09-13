@@ -492,6 +492,86 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp) {
     }
 }
 
+static void
+change_values(pmLabelSet *lsp, const labelspec_t *lp) {
+    char	*current_value;
+    pmLabel	*current_label;
+    char	*new_json;
+    int		target_value_len = 0;
+    int		new_value_len;
+    int		delta;
+    int		i;
+
+    /*
+     * Change the values in the given label set according to the given
+     * change record.
+     */
+    if (lp->old_value != NULL)
+	target_value_len = strlen(lp->old_value);
+
+    for (i = 0; i < lsp->nlabels; ++i) {
+	current_label = & lsp->labels[i];
+	current_value = lsp->json + current_label->value;
+
+	if (lp->old_value != NULL) {
+	    /*
+	     * A specific value has been specified on the change record.
+	     * Make sure we have the matching one.
+	     */
+	    if (current_label->valuelen != target_value_len ||
+		memcmp (lp->old_value, current_value, target_value_len) != 0)
+		continue; /* next label */
+	}
+
+	/*
+	 * We have a matching label. Change its value. Do this by reallocating
+	 * the JSON to the new size, transfering the old data as needed and then
+	 * writing the new value. This code handles both the case where the size
+	 * of the json grows and when it shrinks.
+	 */
+	new_value_len = strlen(lp->new_value);
+	delta = new_value_len - current_label->valuelen;
+	if (delta != 0) {
+	    /*
+	     * Reallocate the JSON. We can't just use realloc(3) because
+	     * the new size may be smaller, causing us to lose the data
+	     * at the end before it can be shifted.
+	     * Don't forget about the terminating nul.
+	     */
+	    new_json = malloc(lsp->jsonlen + 1 + delta);
+	    if (new_json == NULL) {
+		fprintf(stderr, "labelset JSON realloc malloc(%d) failed: %s\n", lsp->jsonlen + delta, strerror(errno));
+		abandon();
+		/*NOTREACHED*/
+		return; /* For Coverity */
+	    }
+
+	    /*
+	     * Transfer the existing data. This is always needed due to the
+	     * JSON syntax surrounding the name/value pairs. Don't forget
+	     * about the terminating nul byte.
+	     */
+	    memcpy(new_json, lsp->json, current_label->value);
+	    memcpy(new_json + current_label->value + current_label->valuelen + delta,
+		   current_value + current_label->valuelen,
+		   lsp->jsonlen -
+		   (current_label->value + current_label->valuelen) +
+		   1);
+	    free(lsp->json);
+	    lsp->json = new_json;
+	    lsp->jsonlen += delta;
+	    current_value = lsp->json + current_label->value;
+	}
+
+	/*
+	 * Write the new value. Note that we don't need to worry about the
+	 * double quotes, since the ones from the previous value have already
+	 * been shifted into place, if necessary above.
+	 */
+	memcpy(current_value, lp->new_value, new_value_len);
+    }
+}
+
 void
 do_labelset(void)
 {
@@ -652,6 +732,7 @@ do_labelset(void)
 			fprintf(stderr, "Rewrite: value for label %s to \"%s\"\n",
 				label_id_str(lp, 1/*old*/), lp->new_value);
 		    }
+		    change_values(lsp, lp);
 		}
 
 		/*
