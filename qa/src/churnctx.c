@@ -100,7 +100,7 @@ main(int argc, char **argv)
     int		fetch_samples = 1;
     char	*endnum;
     pmResult	*rp;
-    __uint64_t	highwater = 0;
+    __psint_t	highwater = 0;
     char	*q;
     struct timeval delta = { 15, 0 };
     struct timeval startTime;
@@ -409,7 +409,7 @@ Options:\n\
     iter = 1;
     while (samples == -1 || samples-- > 0) {
 	int		new_ctx;
-	__uint64_t	check;
+	__psint_t	check;
 
 	if (iter == 1 || (iter % fetch_samples) == 0) {
 	    if (dupctx) {
@@ -443,7 +443,7 @@ Options:\n\
 
 	/* check for outrageous memory leaks */
 #ifndef IS_MINGW
-	check = (__uint64_t)sbrk(0);
+	check = (__psint_t)sbrk(0);
 #else
 	/*
 	 * if this fails, don't bother trying to get memory leak data,
@@ -455,7 +455,7 @@ Options:\n\
 	     * it to a pointer is a bit odd, but we're only
 	     * interested in how much this increases
 	     */
-	    check = (__uint64_t)winmemstats.ullTotalVirtual;
+	    check = (__psint_t)winmemstats.ullTotalVirtual;
 	}
 	else
 	    check = 0;
