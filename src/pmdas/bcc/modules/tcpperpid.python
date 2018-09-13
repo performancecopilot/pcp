@@ -96,7 +96,7 @@ class PCPBCCModule(PCPBCCBase):
         self.proc_filter = None
         self.proc_refresh = proc_refresh
 
-        self.highres = True
+        self.highres = False
 
         self.dports = []
         self.lports = []
