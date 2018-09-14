@@ -17,7 +17,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
-out_file=$tmp.out
+out_file="$PCP_TMPFILE_DIR/pcp-qa-$seq"
 
 _value_filter_bytes()
 {
@@ -43,8 +43,14 @@ _value_filter_bytes()
     fi
 }
 
+_cleanup()
+{
+    _pmdabcc_cleanup
+    $sudo rm -f "$out_file"
+}
+
 _prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here

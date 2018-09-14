@@ -210,9 +210,9 @@ class PCPBCCModule(PCPBCCBase):
                     test_txt = self.bpf_text.replace("// NEW: ", "").replace("FILTER_PID", "")
                     test_bpf = BPF(text=test_txt)
                     test_bpf.cleanup()
-                    self.bpf_text = test_txt
+                    self.bpf_text = self.bpf_text.replace("// NEW: ", "")
                 except Exception: # pylint: disable=broad-except
-                    self.bpf_text = self.bpf_text.replace("// OLD: ", "").replace("FILTER_PID", "")
+                    self.bpf_text = self.bpf_text.replace("// OLD: ", "")
                 self.log("Tested BCC compatilibility, possible errors above are safe to ignore.")
 
                 if self.dports:

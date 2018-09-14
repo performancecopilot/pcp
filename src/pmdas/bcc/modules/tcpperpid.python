@@ -43,6 +43,9 @@ if not path.exists(TRACEFS + "/events/sock/inet_sock_set_state"):
     else:
         bpf_src = bpf_src_old_kb
 
+# Alternative, "high resolution" BPF
+bpf_highres = "modules/tcptop.bpf"
+
 #
 # PCP BCC PMDA constants
 #
@@ -93,6 +96,8 @@ class PCPBCCModule(PCPBCCBase):
         self.proc_filter = None
         self.proc_refresh = proc_refresh
 
+        self.highres = False
+
         self.dports = []
         self.lports = []
         self.buffer_page_count = 64
@@ -107,6 +112,8 @@ class PCPBCCModule(PCPBCCBase):
             if opt == 'process':
                 self.proc_filter = self.config.get(MODULE, opt)
                 self.update_pids(self.get_proc_info(self.proc_filter))
+            if opt == 'highres':
+                self.highres = self.config.getboolean(MODULE, opt)
             if opt == 'buffer_page_count':
                 self.buffer_page_count = int(self.config.get(MODULE, opt))
                 if not self.buffer_page_count or \
@@ -122,12 +129,13 @@ class PCPBCCModule(PCPBCCBase):
         self.thread = None
 
         # Compat with kernel < 4.16
-        self.log("Using BPF source file %s." % bpf_src)
+        src = bpf_src if not self.highres else bpf_highres
+        self.log("Using BPF source file %s." % src)
 
         # Exit hard if impossible to continue
-        if self.bcc_version() == "0.6.1" and bpf_src == bpf_src_old_kb:
+        if self.bcc_version() == "0.6.1" and src == bpf_src_old_kb and not self.highres:
             raise RuntimeError("BCC 0.6.1 bug makes it incompatible with this module "
-                               "on kernel < 4.15.")
+                               "on kernel < 4.15 in non-highres mode.")
 
         self.log("Initialized.")
 
@@ -186,17 +194,20 @@ class PCPBCCModule(PCPBCCBase):
                 raise RuntimeError("No process to attach found.")
 
             if not self.bpf_text:
-                with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                bsrc = bpf_src if not self.highres else bpf_highres
+                with open(path.dirname(__file__) + '/../' + bsrc) as src:
                     self.bpf_text = src.read()
+                if self.highres:
+                    self.bpf_text = self.bpf_text.replace("FILTER", "FILTER_PID")
                 # Compat with bcc < 0.6
                 self.log("Testing BCC compatilibility, possible errors below are safe to ignore.")
                 try:
                     test_txt = self.bpf_text.replace("// NEW: ", "").replace("FILTER_PID", "")
                     test_bpf = BPF(text=test_txt)
                     test_bpf.cleanup()
-                    self.bpf_text = test_txt
+                    self.bpf_text = self.bpf_text.replace("// NEW: ", "")
                 except Exception: # pylint: disable=broad-except
-                    self.bpf_text = self.bpf_text.replace("// OLD: ", "").replace("FILTER_PID", "")
+                    self.bpf_text = self.bpf_text.replace("// OLD: ", "")
                 self.log("Tested BCC compatilibility, possible errors above are safe to ignore.")
 
                 if self.dports:
@@ -218,21 +229,36 @@ class PCPBCCModule(PCPBCCBase):
                 self.log("BPF to be compiled:\n" + bpf_text.strip())
 
             self.bpf = BPF(text=bpf_text)
-            self.bpf["ipv4_events"].open_perf_buffer(self.handle_ipv4_event,
-                                                     page_cnt=self.buffer_page_count,
-                                                     lost_cb=self.perf_buffer_lost_cb)
-            self.bpf["ipv6_events"].open_perf_buffer(self.handle_ipv6_event,
-                                                     page_cnt=self.buffer_page_count,
-                                                     lost_cb=self.perf_buffer_lost_cb)
-            self.thread = Thread(name="bpfpoller", target=self.perf_buffer_poller)
-            self.thread.setDaemon(True)
-            self.thread.start()
+            if not self.highres:
+                self.bpf["ipv4_events"].open_perf_buffer(self.handle_ipv4_event,
+                                                         page_cnt=self.buffer_page_count,
+                                                         lost_cb=self.perf_buffer_lost_cb)
+                self.bpf["ipv6_events"].open_perf_buffer(self.handle_ipv6_event,
+                                                         page_cnt=self.buffer_page_count,
+                                                         lost_cb=self.perf_buffer_lost_cb)
+                self.thread = Thread(name="bpfpoller", target=self.perf_buffer_poller)
+                self.thread.setDaemon(True)
+                self.thread.start()
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
             self.err(str(error))
             self.err("Module NOT active!")
             raise
+
+    def refresh_highres(self):
+        """ Refresh with alternative 'high resolution' BPF """
+        for data in "ipv4_send_bytes", "ipv4_recv_bytes", \
+                    "ipv6_send_bytes", "ipv6_recv_bytes":
+            counts = self.bpf[data]
+            stats = self.ipv4_stats if "4" in data else self.ipv6_stats
+            item = 0 if "send" in data else 1
+            for k, v in counts.items():
+                pid = str(k.pid).zfill(6)
+                if pid not in stats:
+                    stats[pid] = [0, 0]
+                stats[pid][item] += v.value
+            counts.clear()
 
     def refresh(self):
         """ Refresh BPF data """
@@ -250,6 +276,9 @@ class PCPBCCModule(PCPBCCBase):
         for pid in list(self.stale_ipv6_pids):
             del self.ipv6_stats[pid]
             self.stale_ipv6_pids.remove(pid)
+
+        if self.highres:
+            self.refresh_highres()
 
         for pid in self.ipv4_stats:
             if not self.pid_alive(pid):
