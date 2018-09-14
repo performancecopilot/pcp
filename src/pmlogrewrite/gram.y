@@ -2286,6 +2286,54 @@ labelcontextopt	: TOK_DELETE
 			    lp->flags |= LABEL_DELETE;
 			}
 		    }
+		| TOK_LABEL TOK_ASSIGN TOK_STRING
+		    {
+			labelspec_t	*lp;
+			for (lp = walk_label(W_START, LABEL_CHANGE_LABEL, "label", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_LABEL, "label", 0)) {
+			    if (lp->new_label != NULL) {
+				pmsprintf(mess, sizeof(mess), "Duplicate label clause for context");
+				yyerror(mess);
+			    }
+			    if (lp->old_label != NULL &&
+				strcmp(lp->old_label, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Label for context: label: No change");
+				    yywarn(mess);
+				}
+				free($3);
+			    }
+			    else {
+				lp->new_label = $3;
+				lp->flags |= LABEL_CHANGE_LABEL;
+			    }
+			}
+		    }
+		;
+		| TOK_VALUE TOK_ASSIGN TOK_STRING
+		    {
+			labelspec_t	*lp;
+			for (lp = walk_label(W_START, LABEL_CHANGE_VALUE, "value", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_VALUE, "value", 0)) {
+			    if (lp->new_value != NULL) {
+				pmsprintf(mess, sizeof(mess), "Duplicate value clause for cluster %d.%d", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
+				yyerror(mess);
+			    }
+			    if (lp->old_value != NULL &&
+				strcmp(lp->old_value, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Label for cluster %d.%d: value: No change", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
+				    yywarn(mess);
+				}
+				free($3);
+			    }
+			    else {
+				lp->new_value = $3;
+				lp->flags |= LABEL_CHANGE_VALUE;
+			    }
+			}
+		    }
+		;
 		| newlabelspec
 		    {
 			new_context_label();
@@ -2430,6 +2478,54 @@ labeldomainopt	: TOK_DELETE
 			    }
 			}
 		    }
+		| TOK_LABEL TOK_ASSIGN TOK_STRING
+		    {
+			labelspec_t	*lp;
+			for (lp = walk_label(W_START, LABEL_CHANGE_LABEL, "label", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_LABEL, "label", 0)) {
+			    if (lp->new_label != NULL) {
+				pmsprintf(mess, sizeof(mess), "Duplicate label clause for domain %d", lp->old_id);
+				yyerror(mess);
+			    }
+			    if (lp->old_label != NULL &&
+				strcmp(lp->old_label, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Label for domain %d: label: No change", lp->old_id);
+				    yywarn(mess);
+				}
+				free($3);
+			    }
+			    else {
+				lp->new_label = $3;
+				lp->flags |= LABEL_CHANGE_LABEL;
+			    }
+			}
+		    }
+		;
+		| TOK_VALUE TOK_ASSIGN TOK_STRING
+		    {
+			labelspec_t	*lp;
+			for (lp = walk_label(W_START, LABEL_CHANGE_VALUE, "value", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_VALUE, "value", 0)) {
+			    if (lp->new_value != NULL) {
+				pmsprintf(mess, sizeof(mess), "Duplicate value clause for cluster %d.%d", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
+				yyerror(mess);
+			    }
+			    if (lp->old_value != NULL &&
+				strcmp(lp->old_value, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Label for cluster %d.%d: value: No change", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
+				    yywarn(mess);
+				}
+				free($3);
+			    }
+			    else {
+				lp->new_value = $3;
+				lp->flags |= LABEL_CHANGE_VALUE;
+			    }
+			}
+		    }
+		;
 		| newlabelspec
 		    {
 			new_domain_label(current_label_id);
@@ -2588,7 +2684,7 @@ labelclusteropt	: TOK_DELETE
 			    if (cluster == lp->old_id) {
 				/* no change ... */
 				if (wflag) {
-				    pmsprintf(mess, sizeof(mess), "Label for cluster: %d: No change", lp->old_id);
+				    pmsprintf(mess, sizeof(mess), "Label for cluster: %d.%d: No change", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
 				    yywarn(mess);
 				}
 			    }
@@ -2602,6 +2698,54 @@ labelclusteropt	: TOK_DELETE
 			    }
 			}
 		    }
+		| TOK_LABEL TOK_ASSIGN TOK_STRING
+		    {
+			labelspec_t	*lp;
+			for (lp = walk_label(W_START, LABEL_CHANGE_LABEL, "label", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_LABEL, "label", 0)) {
+			    if (lp->new_label != NULL) {
+				pmsprintf(mess, sizeof(mess), "Duplicate label clause for cluster %d.%d", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
+				yyerror(mess);
+			    }
+			    if (lp->old_label != NULL &&
+				strcmp(lp->old_label, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Label for cluster %d.%d: label: No change", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
+				    yywarn(mess);
+				}
+				free($3);
+			    }
+			    else {
+				lp->new_label = $3;
+				lp->flags |= LABEL_CHANGE_LABEL;
+			    }
+			}
+		    }
+		;
+		| TOK_VALUE TOK_ASSIGN TOK_STRING
+		    {
+			labelspec_t	*lp;
+			for (lp = walk_label(W_START, LABEL_CHANGE_VALUE, "value", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_VALUE, "value", 0)) {
+			    if (lp->new_value != NULL) {
+				pmsprintf(mess, sizeof(mess), "Duplicate value clause for cluster %d.%d", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
+				yyerror(mess);
+			    }
+			    if (lp->old_value != NULL &&
+				strcmp(lp->old_value, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Label for cluster %d.%d: value: No change", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
+				    yywarn(mess);
+				}
+				free($3);
+			    }
+			    else {
+				lp->new_value = $3;
+				lp->flags |= LABEL_CHANGE_VALUE;
+			    }
+			}
+		    }
+		;
 		| newlabelspec
 		    {
 			new_cluster_label(current_label_id);
@@ -2744,6 +2888,54 @@ labelitemopt	: TOK_DELETE
 			    }
 			}
 		    }
+		| TOK_LABEL TOK_ASSIGN TOK_STRING
+		    {
+			labelspec_t	*lp;
+			for (lp = walk_label(W_START, LABEL_CHANGE_LABEL, "label", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_LABEL, "label", 0)) {
+			    if (lp->new_label != NULL) {
+				pmsprintf(mess, sizeof(mess), "Duplicate label clause for metric %s", pmIDStr(lp->old_id));
+				yyerror(mess);
+			    }
+			    if (lp->old_label != NULL &&
+				strcmp(lp->old_label, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Label for metric %s: label: No change", pmIDStr(lp->old_id));
+				    yywarn(mess);
+				}
+				free($3);
+			    }
+			    else {
+				lp->new_label = $3;
+				lp->flags |= LABEL_CHANGE_LABEL;
+			    }
+			}
+		    }
+		;
+		| TOK_VALUE TOK_ASSIGN TOK_STRING
+		    {
+			labelspec_t	*lp;
+			for (lp = walk_label(W_START, LABEL_CHANGE_VALUE, "value", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_VALUE, "value", 0)) {
+			    if (lp->new_value != NULL) {
+				pmsprintf(mess, sizeof(mess), "Duplicate value clause for metric %s", pmIDStr(lp->old_id));
+				yyerror(mess);
+			    }
+			    if (lp->old_value != NULL &&
+				strcmp(lp->old_value, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Label for metric %s: value: No change", pmIDStr(lp->old_id));
+				    yywarn(mess);
+				}
+				free($3);
+			    }
+			    else {
+				lp->new_value = $3;
+				lp->flags |= LABEL_CHANGE_VALUE;
+			    }
+			}
+		    }
+		;
 		| newlabelspec
 		    {
 			new_item_label(current_label_id);
@@ -2877,6 +3069,54 @@ labelindomopt	: TOK_DELETE
 			    }
 			}
 		    }
+		| TOK_LABEL TOK_ASSIGN TOK_STRING
+		    {
+			labelspec_t	*lp;
+			for (lp = walk_label(W_START, LABEL_CHANGE_LABEL, "label", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_LABEL, "label", 0)) {
+			    if (lp->new_label != NULL) {
+				pmsprintf(mess, sizeof(mess), "Duplicate label clause for indom %s", pmInDomStr(lp->old_id));
+				yyerror(mess);
+			    }
+			    if (lp->old_label != NULL &&
+				strcmp(lp->old_label, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Label for instance domain %s: label: No change", pmInDomStr(lp->old_id));
+				    yywarn(mess);
+				}
+				free($3);
+			    }
+			    else {
+				lp->new_label = $3;
+				lp->flags |= LABEL_CHANGE_LABEL;
+			    }
+			}
+		    }
+		;
+		| TOK_VALUE TOK_ASSIGN TOK_STRING
+		    {
+			labelspec_t	*lp;
+			for (lp = walk_label(W_START, LABEL_CHANGE_VALUE, "value", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_VALUE, "value", 0)) {
+			    if (lp->new_value != NULL) {
+				pmsprintf(mess, sizeof(mess), "Duplicate value clause for indom %s", pmInDomStr(lp->old_id));
+				yyerror(mess);
+			    }
+			    if (lp->old_value != NULL &&
+				strcmp(lp->old_value, $3) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Label for instance domain %s: value: No change", pmInDomStr(lp->old_id));
+				    yywarn(mess);
+				}
+				free($3);
+			    }
+			    else {
+				lp->new_value = $3;
+				lp->flags |= LABEL_CHANGE_VALUE;
+			    }
+			}
+		    }
+		;
 		| newlabelspec
 		    {
 			new_indom_label(current_label_id);
@@ -3055,6 +3295,7 @@ labelinstancesopt	: TOK_DELETE
 				    pmsprintf(mess, sizeof(mess), "Label for instance domain %s instance %d: instance: No change", pmInDomStr(lp->old_id), lp->old_instance);
 				    yywarn(mess);
 				}
+				free($3);
 			    }
 			}
 		    }
@@ -3070,9 +3311,10 @@ labelinstancesopt	: TOK_DELETE
 				strcmp(lp->old_label, $3) == 0) {
 				/* no change ... */
 				if (wflag) {
-				    pmsprintf(mess, sizeof(mess), "Label for instance domain %s: label: No change", pmInDomStr(lp->old_id));
+				    pmsprintf(mess, sizeof(mess), "Label for instances of instance domain %s: label: No change", pmInDomStr(lp->old_id));
 				    yywarn(mess);
 				}
+				free($3);
 			    }
 			    else {
 				lp->new_label = $3;
@@ -3093,9 +3335,10 @@ labelinstancesopt	: TOK_DELETE
 				strcmp(lp->old_value, $3) == 0) {
 				/* no change ... */
 				if (wflag) {
-				    pmsprintf(mess, sizeof(mess), "Label for instance domain %s: value: No change", pmInDomStr(lp->old_id));
+				    pmsprintf(mess, sizeof(mess), "Label for instances of instance domain %s: value: No change", pmInDomStr(lp->old_id));
 				    yywarn(mess);
 				}
+				free($3);
 			    }
 			    else {
 				lp->new_value = $3;

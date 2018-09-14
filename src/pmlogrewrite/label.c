@@ -255,6 +255,7 @@ extract_label(pmLabelSet *lsp, int label_ix)
     int		json_pos;
     int		json_size;
     pmLabel	*lp = & lsp->labels[label_ix];
+    int		i;
 
     /*
      * If there is only one label remaining, then free the storage for the
@@ -272,23 +273,54 @@ extract_label(pmLabelSet *lsp, int label_ix)
     /*
      * There is more than one label remaining. We need to extract it from the
      * labelset.
-     *
-     * The size of the JSON is the length of the name and
-     * value plus the double quotes around the name, plus the colon, plus
-     * the comma separating the next label.
      */
-    json_size = lp->namelen + lp->valuelen + 2 + 1 + 1;
 
     /*
      * Shift the remaining data to fill the hole, if necessary.
+     *
+     * The size of the JSON being removed is the length of the name and
+     * value plus the double quotes around the name, plus the colon, plus
+     * The comma separating the previous/next label.
      */
+    json_size = lp->namelen + lp->valuelen + 2 + 1 + 1;
+
     if (label_ix < lsp->nlabels - 1) {
+	/*
+	 * This label is not the last one in the list.
+	 *
+	 * The size of the JSON is the length of the name and
+	 * value plus the double quotes around the name, plus the colon, plus
+	 * the comma separating the next label.
+	 */
 	json_pos = lp->name - 1; /* one back for the double quote */
 	memmove(lsp->json + json_pos, lsp->json + json_pos + json_size,
-		json_size);
+		lsp->jsonlen - (json_pos + json_size));
 
+	/*
+	 * Need to update the offsets of the names/values of the remaining
+	 * labels.
+	 */
+	for (i = label_ix + 1; i < lsp->nlabels; ++i) {
+	    lsp->labels[i].name -= json_size;
+	    lsp->labels[i].value -= json_size;
+	}
+
+	/* Collapse the list of labels. */
 	memmove(lsp->labels + label_ix, lsp->labels + label_ix + 1,
-		sizeof (*lsp->labels));
+		(lsp->nlabels - label_ix - 1) * sizeof (*lsp->labels));
+
+    }
+    else {
+	/*
+	 * This is the last label in a list of more than one.
+	 * We need only collapse the json string.
+	 * The position of the data is two bytes back from the label
+	 * name. One for the double quote and one for the preceding comma.
+	 */
+	assert(lsp->nlabels > 1);
+	json_pos = lp->name - 2;
+	memmove(lsp->json + json_pos, lsp->json + json_pos + json_size,
+		lsp->jsonlen - (json_pos + json_size));
     }
     
     /* Now reallocate the remaining data to the new (smaller) size. */
@@ -417,7 +449,7 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp) {
     int		target_label_len = 0;
     int		new_label_len;
     int		delta;
-    int		i;
+    int		i, j;
 
     /*
      * Change the labels in the given label set according to the given
@@ -487,6 +519,16 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp) {
 	 */
 	memcpy(current_name, lp->new_label, new_label_len);
 
+	/*
+	 * Update the length of the current name and the offsets of
+	 * the names/values in subsequent labels.
+	 */
+	current_label->namelen += delta;
+	for (j = i + 1; j < lsp->nlabels; ++j) {
+	    lsp->labels[j].name += delta;
+	    lsp->labels[j].value += delta;
+	}
+
 	if (lp->old_label != NULL)
 	    break; /* there can only be one matching label */
     }
@@ -500,7 +542,7 @@ change_values(pmLabelSet *lsp, const labelspec_t *lp) {
     int		target_value_len = 0;
     int		new_value_len;
     int		delta;
-    int		i;
+    int		i, j;
 
     /*
      * Change the values in the given label set according to the given
@@ -561,6 +603,16 @@ change_values(pmLabelSet *lsp, const labelspec_t *lp) {
 	    lsp->json = new_json;
 	    lsp->jsonlen += delta;
 	    current_value = lsp->json + current_label->value;
+
+	    /*
+	     * Update the length of the current value and the offsets of
+	     * the names/value in subsequent labels.
+	     */
+	    current_label->valuelen += delta;
+	    for (j = i + 1; j < lsp->nlabels; ++j) {
+		lsp->labels[j].name += delta;
+		lsp->labels[j].value += delta;
+	    }
 	}
 
 	/*
@@ -818,7 +870,7 @@ do_labelset(void)
 				  new_label_len, new_label, new_value_len, new_value);
 		    }
 		    if ((sts = __pmAddLabels(&new_labelset, buf, lp->new_type)) < 0) {
-			fprintf(stderr, "Unable to rewrite label %s: %s",
+			fprintf(stderr, "Unable to rewrite label %s: %s\n",
 				buf, pmErrStr(sts));
 			abandon();
 			/*NOTREACHED*/
