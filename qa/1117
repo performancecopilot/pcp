@@ -29,8 +29,14 @@ _label_filter()
     grep '"0-1"' | grep '"statistic":"histogram"' | grep '"lower_bound":0' | grep 'upper_bound":1' > /dev/null && echo 'OK'
 }
 
+_cleanup()
+{
+    _pmdabcc_cleanup
+    $sudo rm -f "$out_file"
+}
+
 _prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here
