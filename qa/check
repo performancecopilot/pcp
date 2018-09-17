@@ -511,51 +511,105 @@ do
 	    fi
 	    if [ ! -f $seq.out ]
 	    then
-		$PCP_ECHO_PROG $PCP_ECHO_N " - no qualified output""$PCP_ECHO_C"
+		echo " - no qualified output"
 		mv $tmp.out $seq.out.bad
 		err=true
 	    else
+		# we have $seq.out (expected) and $tmp.out (observed)
+		# output files, first check if they match
+		#
 		if diff $seq.out $tmp.out >/dev/null 2>&1
 		then
-		    if $err
+		    done_nl=false
+		else
+		    [ $color = true ] && tput bold && tput setaf 1 # red
+		    echo " - output mismatch (see $seq.out.bad)"
+		    [ $color = true ] && tput sgr0 # reset
+		    done_nl=true
+		    $diff $seq.out $tmp.out
+		    err=true
+		fi
+
+		# now some integrity checks to see if the test has
+		# left things in a bad state ... if badness
+		# found, append to $seq.out.bad
+		#
+
+		# make sure this test did not muck up the permissions or
+		# ownership of key installed files and directories
+		#
+		sh ./994 --fix >$tmp.tmp
+		if [ -s $tmp.tmp ]
+		then
+		    [ $color = true ] && tput bold && tput setaf 1 # red
+		    if $done_nl
+		    then
+			echo "$seq ... - also failed permissions check"
+		    else
+			$PCP_ECHO_PROG $PCP_ECHO_N " - failed permissions check""$PCP_ECHO_C"
+		    fi
+		    [ $color = true ] && tput sgr0 # reset
+		    reported=true
+		    echo >>$seq.out.bad
+		    echo "*** Failed permissions/ownership checks ***" >>$seq.out.bad
+		    cat $tmp.tmp >>$seq.out.bad
+		    err=true
+		fi
+
+		# optional callback
+		#
+		callback_abort=false
+		if [ -x ./check.callback ]
+		then
+		    if ./check.callback $seq >$tmp.tmp 2>&1
 		    then
 			:
 		    else
-			echo "$seq `expr $stop - $start`" >>$tmp.time
+			# check.callback suggests we should abandon the QA run ...
+			#
+			[ $color = true ] && tput bold && tput setaf 1 # red
+			if $done_nl
+			then
+			    echo "$seq ... - also run aborted by check.callback"
+			else
+			    $PCP_ECHO_PROG $PCP_ECHO_N " - run aborted by check.callback""$PCP_ECHO_C"
+			fi
+			[ $color = true ] && tput sgr0 # reset
+			echo >>$seq.out.bad
+			echo "+++ check.callback output +++" >>$seq.out.bad
+			cat $tmp.tmp >>$seq.out.bad
+			err=true
+			echo "Check! [after $seq] Run aborted by check.callback @ `date`" | tee -a check.log
+			callback_abort=true
 		    fi
-		else
-		    [ $color = true ] && tput bold && tput setaf 1 # red
-		    $PCP_ECHO_PROG $PCP_ECHO_N " - output mismatch (see $seq.out.bad)""$PCP_ECHO_C"
-		    [ $color = true ] && tput sgr0 # reset
-		    mv $tmp.out $seq.out.bad
-		    $PCP_ECHO_PROG
-		    $diff $seq.out $seq.out.bad
-		    err=true
+		    if [ -s $tmp.tmp ]
+		    then
+			# output from check.callback, this means something bad has been
+			# detected ...
+			#
+			[ $color = true ] && tput bold && tput setaf 1 # red
+			if $done_nl
+			then
+			    echo "$seq ... - also badness detected by check.callback"
+			else
+			    $PCP_ECHO_PROG $PCP_ECHO_N " - badness detected by check.callback""$PCP_ECHO_C"
+			fi
+			[ $color = true ] && tput sgr0 # reset
+			echo >>$seq.out.bad
+			echo "+++ check.callback output +++" >>$seq.out.bad
+			cat $tmp.tmp >>$seq.out.bad
+		    fi
 		fi
-	    fi
 
-	    # make sure this test did not muck up the permissions or
-	    # ownership of key installed files and directories
-	    #
-	    sh 994 --fix >$tmp.out
-	    if [ -s $tmp.out ]
-	    then
-		$PCP_ECHO_PROG $PCP_ECHO_N " - failed permissions check""$PCP_ECHO_C"
-		echo >$tmp.head
-		echo "*** Failed permissions/ownership checks ***" >>$tmp.head
-		if [ -f $seq.out.bad ]
+		if $err
 		then
-		    cat $tmp.head $tmp.out >>$seq.out.bad
-		elif [ -f $seq.out ]
-		then
-		    cp $seq.out $seq.out.bad
-		    cat $tmp.head $tmp.out >>$seq.out.bad
+		    :
 		else
-		    cat $tmp.head $tmp.out >$seq.out.bad
+		    echo "$seq `expr $stop - $start`" >>$tmp.time
 		fi
-		err=true
+
+		$done_nl || echo
 	    fi
-	    $PCP_ECHO_PROG ""
 
 	    # really tried to run the test, update the state
 	    #
@@ -568,25 +622,6 @@ do
 		    pmtrace -qh $qadepot -v $qapassed "$qasrc:$seq:$qaown" 2>/dev/null
 		fi
 	    fi
-	fi
-    fi
-
-    # optional callback
-    #
-    callback_abort=false
-    if [ -x ./check.callback ]
-    then
-	if ./check.callback $seq >$tmp.tmp 2>&1
-	then
-	    :
-	else
-	    echo "Check! [after $seq] Run aborted by check.callback @ `date`" | tee -a check.log
-	    err=true
-	    callback_abort=true
-	    [ -f $seq.out.bad ] || cp $seq.out $seq.out.bad
-	    echo >>$seq.out.bad
-	    echo "+++ check.callback output +++" >>$seq.out.bad
-	    cat $tmp.tmp >>$seq.out.bad
 	fi
     fi
 
