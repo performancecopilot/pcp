@@ -2,16 +2,10 @@ QA output created by 778
 Waiting for pmcd to terminate ...
 
 === postgresql agent installation ===
-Updating the Performance Metrics Name Space (PMNS) ...
-Terminate PMDA if already installed ...
-[...install files, make output...]
-Updating the PMCD control file, and notifying PMCD ...
 Starting pmcd ... 
-Check postgresql metrics have appeared ... X metrics and Y values
+Check postgresql metrics have appeared ... X warnings, Y metrics and Z values
 
 === check values with pmie ===
-DATE: postgresql.active.xlog_current_location_offset: OK
-DATE: postgresql.stat.activity.datid: OK
 DATE: postgresql.stat.all_indexes.idx_tup_read: OK
 DATE: postgresql.stat.all_tables.idx_tup_fetch: OK
 DATE: postgresql.stat.database.tup_returned: OK
@@ -25,7 +19,6 @@ validate values ...
 
 === pg_stat_activity ===
 client_port: match
-backend_start: match
 
 === pg_stat_bgwriter ===
 checkpoints_timed: match

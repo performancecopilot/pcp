@@ -31,6 +31,7 @@
 static int __pmMergeLabels(const char *, const char *, char *, int);
 static int __pmParseLabels(const char *, int, pmLabel *, int, char *, int *);
 
+/* coverity[+free] : arg-0 */
 void
 pmFreeLabelSets(pmLabelSet *sets, int nsets)
 {

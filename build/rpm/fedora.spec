@@ -124,8 +124,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 # Qt development and runtime environment missing components before el6
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_qt 0
-# We need qt5 for fedora
-%if 0%{?fedora} != 0
+%if 0%{?fedora} != 0 || 0%{?rhel} > 7
 %global default_qt 5
 %endif
 %else
@@ -1357,9 +1356,16 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
 URL: https://pcp.io
-Requires: perl-PCP-PMDA = %{version}-%{release}
-Requires: perl(DBI) perl(DBD::Pg)
-BuildRequires: perl(DBI) perl(DBD::Pg)
+
+%if !%{disable_python3}
+Requires: python3-pcp
+Requires: python3-psycopg2
+BuildRequires: python3-psycopg2
+%else
+Requires: %{__python2}-pcp
+Requires: %{__python2}-psycopg2
+BuildRequires: %{__python2}-psycopg2
+%endif
 
 %description pmda-postgresql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for

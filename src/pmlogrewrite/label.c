@@ -71,7 +71,6 @@ create_label(int type, int id, int instance, char *label, char *value)
 	fprintf(stderr, "labelspec malloc(%d) failed: %s\n", (int)sizeof(labelspec_t), strerror(errno));
 	abandon();
 	/*NOTREACHED*/
-	return NULL; /* For Coverity */
     }
 
     /* Initialize and link. */
@@ -343,7 +342,7 @@ extract_label(pmLabelSet *lsp, int label_ix)
 }
 
 static pmLabelSet *
-extract_labelset (int ls_ix, pmLabelSet **labellist, int *nsets)
+extract_labelset(int ls_ix, pmLabelSet **labellist, int *nsets)
 {
     pmLabelSet *extracted;
 
@@ -442,7 +441,8 @@ label_association_str(const labelspec_t *lp, int old)
 }
 
 static void
-change_labels(pmLabelSet *lsp, const labelspec_t *lp) {
+change_labels(pmLabelSet *lsp, const labelspec_t *lp)
+{
     char	*current_name;
     pmLabel	*current_label;
     char	*new_json;
@@ -492,7 +492,6 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp) {
 		fprintf(stderr, "labelset JSON realloc malloc(%d) failed: %s\n", lsp->jsonlen + delta, strerror(errno));
 		abandon();
 		/*NOTREACHED*/
-		return; /* For Coverity */
 	    }
 
 	    /*
@@ -535,7 +534,8 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp) {
 }
 
 static void
-change_values(pmLabelSet *lsp, const labelspec_t *lp) {
+change_values(pmLabelSet *lsp, const labelspec_t *lp)
+{
     char	*current_value;
     pmLabel	*current_label;
     char	*new_json;
@@ -585,7 +585,6 @@ change_values(pmLabelSet *lsp, const labelspec_t *lp) {
 		fprintf(stderr, "labelset JSON realloc malloc(%d) failed: %s\n", lsp->jsonlen + delta, strerror(errno));
 		abandon();
 		/*NOTREACHED*/
-		return; /* For Coverity */
 	    }
 
 	    /*
@@ -737,7 +736,7 @@ do_labelset(void)
 		 * All other operations require that we extract the current
 		 * labelset from the label record.
 		 */
-		lsp = extract_labelset (ls_ix, & labellist, & nsets);
+		lsp = extract_labelset(ls_ix, &labellist, &nsets);
 
 		if (flags & LABEL_DELETE) {
 		    if (pmDebugOptions.appl1) {
@@ -904,7 +903,7 @@ do_labelset(void)
 
 	    /* Extract and free the original labelset if it is now empty. */
 	    if (lsp->nlabels == 0) {
-		lsp = extract_labelset (ls_ix, & labellist, & nsets);
+		lsp = extract_labelset(ls_ix, &labellist, &nsets);
 		pmFreeLabelSets(lsp, 1);
 		--ls_ix;
 	    }

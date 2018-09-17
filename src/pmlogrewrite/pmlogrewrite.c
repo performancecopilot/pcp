@@ -1863,6 +1863,7 @@ void
 abandon(void)
 {
     char    path[MAXNAMELEN+1];
+
     if (dflag == 0) {
 	if (Cflag == 0 && iflag == 0)
 	    fprintf(stderr, "Archive \"%s\" not created.\n", outarch.name);
@@ -1884,4 +1885,5 @@ abandon(void)
 	fprintf(stderr, "Archive \"%s\" creation truncated.\n", outarch.name);
 
     exit(1);
+    /*NOTREACHED*/
 }
