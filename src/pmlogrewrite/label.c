@@ -71,7 +71,6 @@ create_label(int type, int id, int instance, char *label, char *value)
 	fprintf(stderr, "labelspec malloc(%d) failed: %s\n", (int)sizeof(labelspec_t), strerror(errno));
 	abandon();
 	/*NOTREACHED*/
-	return NULL; /* For Coverity */
     }
 
     /* Initialize and link. */
@@ -493,7 +492,6 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp)
 		fprintf(stderr, "labelset JSON realloc malloc(%d) failed: %s\n", lsp->jsonlen + delta, strerror(errno));
 		abandon();
 		/*NOTREACHED*/
-		return; /* For Coverity */
 	    }
 
 	    /*
@@ -587,7 +585,6 @@ change_values(pmLabelSet *lsp, const labelspec_t *lp)
 		fprintf(stderr, "labelset JSON realloc malloc(%d) failed: %s\n", lsp->jsonlen + delta, strerror(errno));
 		abandon();
 		/*NOTREACHED*/
-		return; /* For Coverity */
 	    }
 
 	    /*
