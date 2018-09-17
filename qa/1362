@@ -42,17 +42,11 @@ pmdapostgresql_install()
     echo "=== postgresql agent installation ===" | tee -a $here/$seq.full
     $sudo ./Install </dev/null >$tmp.out 2>&1
     cat $tmp.out >>$here/$seq.full
-    # filter lines like ...
-    # Check postgresql metrics have appeared ... 4 warnings, 208 metrics and 6839 values
-    # into
-    # Check postgresql metrics have appeared ... X metrics and Y values
-    _filter_pmda_install <$tmp.out \
-    | sed \
-        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
-        -e 's/[0-9][0-9]* warnings, //' \
+    _filter_pmda_install < $tmp.out | sed -e '1,/Updating the PMCD control file/d' \
     | $PCP_AWK_PROG '
-/Check postgresql metrics have appeared/   { if ($7 >= 200) $7 = "X"
-                                          if ($10 >= 5000) $10 = "Y"
+/Check postgresql metrics have appeared/   { if ($7 < 20) $7 = "X"
+                                          if ($9 >= 200) $9 = "Y"
+                                          if ($12 >= 7000) $12 = "Z"
                                         }
                                         { print }'
 }
@@ -67,24 +61,22 @@ _stop_auto_restart pmcd
 pmdapostgresql_install
 
 echo;echo == check initial fetch
-pminfo -f postgresql.recovery.is_in_recovery >/dev/null 2>&1 || exit
+pminfo -f postgresql.stat.activity.usename >/dev/null 2>&1 || exit
 echo OK
 
-echo === signaling pmdapostgresql to disconnect
-pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "python[2-3]* $PCP_PMDAS_DIR.*pmdapostgresql" | fgrep -v grep | awk '{print $2}'`
-# echo pid is $pid
-$sudo kill -USR1 $pid
+echo === restart postgresql service
+$sudo service postgresql restart 2>&1 | grep -v Redirecting
 
 sleep 1
 
 echo === checking log for disconnect messages
-pminfo -f postgresql.recovery.is_in_recovery >/dev/null 2>&1
-grep -i disconnect $PCP_LOG_DIR/pmcd/postgresql.log | sed -e 's/^.*WARN/WARN/'
+pminfo -f postgresql.stat.activity.usename >/dev/null 2>&1
+grep -i "Warning: connection lost" $PCP_LOG_DIR/pmcd/postgresql.log | sed -e 's/^.*Warning/Warning/'
 
 sleep 2
 
 echo;echo == fetch again .. should have reconnected
-pminfo -f postgresql.recovery.is_in_recovery >/dev/null 2>&1 || exit
+pminfo -f postgresql.stat.activity.usename >/dev/null 2>&1 | exit
 echo OK
 
 echo "PMDA log file ..." >>$here/$seq.full
