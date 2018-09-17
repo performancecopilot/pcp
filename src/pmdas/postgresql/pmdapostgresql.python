@@ -18,9 +18,11 @@
 
 # pylint: disable=bad-continuation
 # pylint: disable=line-too-long
+# pylint: disable=too-many-lines
 
 import os
 import sys
+import time
 from ctypes import c_int
 try:
     import configparser
@@ -44,6 +46,7 @@ class POSTGRESQLPMDA(PMDA):
     INDOM_TABLE = 1
     INDOM_INSTID = 2
     INDOM_INSTNAME = 3
+
     METRIC_NAME = 0
     METRIC_TABLE = 1
     METRIC_COLUMN = 2
@@ -60,18 +63,17 @@ class POSTGRESQLPMDA(PMDA):
     def __init__(self, name, domain):
         """ constructor """
         PMDA.__init__(self, name, domain)
-        self.dbg = False
+        self.dbg = False # True for very verbose logging
         self.debug("starting __init__")
 
         #
         # Indom dict
-        # indomid : [pmdaIndom, table, inst_column, instname_column]
+        # indomid : [pmdaIndom, table, inst_column, table_name_column]
         self.indomtable = {
             self.INDOM_ID(0) : [pmdaIndom(self.INDOM_ID(0), {}), 'pg_stat_all_tables', 'relid', 'relname'],
             self.INDOM_ID(1) : [pmdaIndom(self.INDOM_ID(1), {}), 'pg_stat_sys_tables', 'relid', 'relname'],
             self.INDOM_ID(2) : [pmdaIndom(self.INDOM_ID(2), {}), 'pg_stat_user_tables', 'relid', 'relname'],
-            # self.INDOM_ID(3) : [pmdaIndom(self.INDOM_ID(3), {}), 'pg_stat_activity', 'pid', 'application_name'],
-            self.INDOM_ID(3) : [pmdaIndom(self.INDOM_ID(3), {}), 'pg_stat_activity', 'pid', 'pid'],
+            self.INDOM_ID(3) : [pmdaIndom(self.INDOM_ID(3), {}), 'pg_stat_activity', 'pid', 'application_name'],
             self.INDOM_ID(4) : [pmdaIndom(self.INDOM_ID(4), {}), 'pg_stat_user_functions', 'funcid', 'funcname'],
             self.INDOM_ID(5) : [pmdaIndom(self.INDOM_ID(5), {}), 'pg_stat_database_conflicts', 'datid', 'datname'],
             self.INDOM_ID(6) : [pmdaIndom(self.INDOM_ID(6), {}), 'pg_stat_all_indexes', 'indexrelid', 'indexrelname'],
@@ -459,7 +461,7 @@ class POSTGRESQLPMDA(PMDA):
             self.PM_ID(14, 7) : ['postgresql.stat.sys_indexes.idx_tup_fetch', 'pg_stat_sys_indexes', 'idx_tup_fetch',
                 pmdaMetric(self.PM_ID(14, 7), c_api.PM_TYPE_U32, self.INDOM_ID(7), c_api.PM_SEM_COUNTER, pmUnits(0, 0, 1, 0, 0, 0))],
 
-            self.PM_ID(15, 0) : ['postgresql.stat.user_indexes.relid', 'pg_stat_sys_indexes', 'relid',
+            self.PM_ID(15, 0) : ['postgresql.stat.user_indexes.relid', 'pg_stat_user_indexes', 'relid',
                 pmdaMetric(self.PM_ID(15, 0), c_api.PM_TYPE_32, self.INDOM_ID(8), c_api.PM_SEM_INSTANT, zeroUnits)],
 
             self.PM_ID(15, 2) : ['postgresql.stat.user_indexes.schemaname', 'pg_stat_user_indexes', 'schemaname',
@@ -717,232 +719,275 @@ class POSTGRESQLPMDA(PMDA):
         self.connect_pmcd()
         self.NAME = name
 
+        # dicts to hold fetched data and indom lists
+        self.rowdata = {}
+        self.instances = {}
+        self.refreshed_tables = []
+
         # parse config for db auth and server etc
         self.config(conf_file)
+        self.dbname = self.conf["dbname"]
+        self.user = self.conf["user"]
+        self.password = self.conf["password"]
 
-        # add all the indoms
-        self.setup_indoms()
+        self.log("Switching to user '%s'" % self.user)
+        self.set_user(self.user)
 
-        # add all the metrics
-        self.setup_metrics()
+        self.log("Connecting to db '%s' as user '%s'" % (self.dbname, self.user))
+        while not self.pg_connect():
+            # server not running or invalid credentials
+            time.sleep(10) # keep trying ...
 
-        self.debug("Connecting to db '%s' as user '%s'" % (self.conf["dbname"], self.conf["user"]))
-        self.set_user(self.conf["user"])
-
-        # TODO wrap exception
-        self.conn = psycopg2.connect(dbname=self.conf["dbname"],
-            user=self.conf["user"], password=self.conf["password"])
-
-        cur = self.conn.cursor()
+        cur = self.pg_cursor()
         cur.execute('SELECT version()')
         self.db_version = " ".join(cur.fetchone()).split()[1]
         cur.close()
-        self.debug("postgres server VERSION %s" % self.db_version)
+        self.log("Connected to postgres server VERSION %s" % self.db_version)
 
-        # set up the list of tables
+        # add all the indoms
+        self.log("Setting up indoms")
+        self.setup_indoms()
+
+        # add all the metrics
+        self.log("Setting up metrics")
+        self.setup_metrics()
+
+        # set up the list of tables and their key index
         self.tablelist = []
         for _, data in self.metrictable.items():
             if data[self.METRIC_TABLE] not in self.tablelist:
                 self.tablelist.append(data[self.METRIC_TABLE])
         self.debug("monitoring %d tables" % len(self.tablelist))
 
-        # Set up table:column mapping - this is done dynamically since
-        # different postgres versions have different column ordering.
-        self.tables = {}
-        cur = self.conn.cursor()
+        # set up metric pmid:column mapping
+        self.setup_table_column_mappings()
+
+        self.set_instance(self.pg_instance)
+        self.set_fetch(self.pg_fetch)
+        self.set_fetch_callback(self.pg_fetch_callback)
+        self.log("completed __init__")
+
+    def pg_refresh(self, pmid):
+        """ refresh table rowdata for given metric, if not already done """
+        table = self.metrictable[pmid][self.METRIC_TABLE]
+        if table in self.refreshed_tables:
+            # nothing to do - table already refreshed for this fetch
+            return
+        if self.pmid_column_dict[pmid] is None:
+            # no mapping for this metric
+            return
+
+        indom = self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.indom
+        if indom == c_api.PM_INDOM_NULL:
+            # refresh table for singular indom
+            self.debug("pg_refresh singular table %s" % table)
+            # query and extract row data (i.e. metric values)
+            cur = self.pg_cursor()
+            try:
+                cur.execute('SELECT * FROM %s' % (table))
+            except (psycopg2.DatabaseError) as error: # pylint disable: broad-except
+                self.debug("pg_refresh: singular table %s not available: %s" % (table, error))
+                cur.close()
+                return # fail
+
+            # per-table dict of instid:[rowdata]
+            self.rowdata[table] = {} # clear
+            for row in cur:
+                # should only be one row for a singular indom/table
+                self.rowdata[table][0] = row
+            cur.close()
+        else:
+            # this table has multiple rows, fetch and then refresh it's instance domain
+            indomdata = self.indomtable[indom]
+            inst_column_name = indomdata[self.INDOM_INSTID] # column name of table key
+            # column number of the instid column name in this table
+            instcol = self.table_column_dict["%s.%s" % (table, inst_column_name)]
+
+            instname_column_name = indomdata[self.INDOM_INSTNAME]
+            # column number of the instid column name in this table
+            instnamecol = self.table_column_dict["%s.%s" % (table, instname_column_name)]
+
+            self.debug("pg_refresh: indom=0x%04x table=%s instcol=%s (col %d), instnamecol=%s (col %d)" %
+                (indom, table, inst_column_name, instcol, instname_column_name, instnamecol))
+
+            # query and extract row data (i.e. metric values)
+            cur = self.pg_cursor()
+            try:
+                cur.execute('SELECT * FROM %s ORDER BY %s' % (table, inst_column_name))
+            except (psycopg2.DatabaseError) as error: # pylint disable: broad-except
+                # recover from aborted transaction block and skip this table
+                self.debug("pg_refresh: indom 0x%04x: warning, table %s not available: %s" % (indom, table, error))
+                cur.close()
+                return # fail
+
+            # dict of name:id for replace_indom()
+            self.instances[indom] = {} # clear
+
+            # per-table dict of instid:[rowdata]
+            self.rowdata[table] = {} # clear
+
+            for row in cur:
+                # inst name list for pmdaIndom
+                instname = "%s" % row[instnamecol]
+                leninstname = len(instname)
+                if instname is None or leninstname == 0:
+                    # Unfortunately, can't use "" with pmdaCache
+                    # So use the instid table.column and it's stringified value
+                    instname = "%s%d" % (inst_column_name, row[instcol])
+                self.instances[indom][instname] = c_int(1)
+                self.debug("pg_refresh: row loop indom=0x%04x instname=%s" % (indom, instname))
+
+                # rowdata is per-table dict of instname:[metric data]
+                # i.e. an array of metric values for the same indom and inst
+                self.rowdata[table][instname] = row # values are extracted by fetch callback
+            cur.close()
+
+            # update the indom
+            self.replace_indom(indom, self.instances[indom])
+            self.debug("pg_refresh: indom=0x%04x instances=%s" % (indom, self.instances[indom]))
+
+        # success
+        self.refreshed_tables.append(table)
+
+    def pg_refresh_all(self):
+        """ refresh all tables """
+        self.debug("pg_refresh_all: started")
+        self.refreshed_tables = []
+        for pmid, _ in self.metrictable.items():
+            self.pg_refresh(pmid)
+        self.debug("pg_refresh_all: finished")
+
+    def pg_instance(self, serial):
+        """ Called once per "instance" PDU """
+        indom = self.INDOM_ID(serial)
+        self.pg_refresh(indom)
+
+    def pg_fetch(self):
+        """ Called once per fetch PDU, before callbacks """
+        self.refreshed_tables = [] # clear list of refreshed tables
+
+    def pg_fetch_callback(self, cluster, item, inst):
+        """ Called for each instance of each fetched metric """
+        pmid = self.PM_ID(cluster, item)
+
+        if pmid not in self.metrictable:
+            return [c_api.PM_ERR_PMID, 0]
+
+        if self.pmid_column_dict[pmid] is None:
+            # no mapping for this metric with this version of postgresql
+            return [c_api.PM_ERR_APPVERSION, 0]
+
+        pmnsname = self.metrictable[pmid][self.METRIC_NAME]
+        indom = self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.indom
+
+        # refresh the table for this pmid, if necessary
+        table = self.metrictable[pmid][self.METRIC_TABLE]
+        if table not in self.refreshed_tables:
+            self.pg_refresh(pmid)
+
+        self.debug("pg_fetch_callback pmid 0x%04x '%s': cluster %d, item %d, inst %d, indom=0x%04x" %
+            (pmid, pmnsname, cluster, item, inst, indom))
+        self.debug("pg_fetch_callback: dict rowdata[table]=%s" % self.rowdata[table])
+
+        # get the rowdata for this indom and instance
+        try:
+            if indom == c_api.PM_INDOM_NULL:
+                # singular indom only ever has one row of metric values
+                inst_rowdata = self.rowdata[table][0]
+            else:
+                instname = self.inst_name_lookup(indom, inst)
+                instid = self.inst_lookup(indom, inst)
+                self.debug("pg_fetch_callback: indom=0x%04x inst=%d instid=%s instname=%s" % (indom, inst, instid, instname))
+                if instname is None:
+                    return [c_api.PM_ERR_INST, 0] # unknown instance for this pmid
+                inst_rowdata = self.rowdata[table][instname] # dict lookup
+        except KeyError as error:
+            # no values available
+            self.debug("pg_fetch_callback: PM_ERR_VALUE pmid=0x%04x name='%s' indom=0x%04x inst=%d instname=%s: %s" %
+                (pmid, pmnsname, indom, inst, instname, error))
+            self.debug(traceback.format_exc())
+            return [c_api.PM_ERR_VALUE, 0]
+
+        # extract value from the column of the rowdata for this pmid
+        metric_col = self.pmid_column_dict[pmid]
+        value = inst_rowdata[metric_col]
+
+        if value is None:
+            # The table and column exist, but the data is None
+            # maybe this should return PM_ERR_VALUE?
+            self.debug("pg_fetch_callback: value is None")
+            if self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.type == c_api.PM_TYPE_STRING:
+                value = ""
+            else:
+                value = 0
+
+        if not isinstance(value, str) and self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.type == c_api.PM_TYPE_STRING:
+            return [str(value), 1] # convert to str. some rowdata values are datetime etc
+        return [value, 1] # no conversion needed
+
+    def setup_table_column_mappings(self):
+        """
+        Set up pmid to rowdata column mapping - this is done dynamically
+        on startup since different postgres versions have different column
+        ordering and even different columns - we have to adapt.
+        Also set up table column name to column number mappings.
+        """
+
+        self.log("setup_table_column_mappings: setting up table/column mapping dicts")
+        # dict mapping pmid:column in the table for each metric
+        self.pmid_column_dict = {} # pmid to column number
+
+        # dict mapping "table + column name" to column number
+        self.table_column_dict = {} # "table column" to column number mapping
+
+        # Initialize self.pmid_column_dict mapping for all metrics.
+        for pmid, _ in self.metrictable.items():
+            # stays None if not found, see below
+            self.pmid_column_dict[pmid] = None
+
+        # fetch each table, and set up the column number mappings
+        cur = self.pg_cursor()
         for table in self.tablelist:
-
-            self.tables[table] = {}
-            self.tables[table]["by_name"] = {}
-            self.tables[table]["by_column"] = {}
-            col = 0
-
             try:
                 cur.execute('SELECT * from %s;' % table)
-            except (Exception, psycopg2.DatabaseError) as error: # pylint disable: broad-except
+            except (psycopg2.DatabaseError) as error: # pylint disable: broad-except
                 # recover from aborted transaction block and skip this table
-                self.debug("WARNING: table %s not available: %s" % (table, error))
+                self.log("WARNING: table %s not available: %s" % (table, error))
                 cur.execute('rollback;')
                 continue
 
+            # walk the returned array of column headings, setup the col number mappings
+            col = 0
             for d in cur.description:
-                name = d[0] # PMNS name is table.name
+                name = d[0] # table column name
 
-                # We use a dict so we can lookup col number for a named column.
-                # The col number is 1:1 with the values tuple returned by select.
-                self.tables[table]["by_name"][name] = col # col name to col number
-                self.tables[table]["by_column"][col] = name # col number to col name
-                self.debug("table %s column[%d] = %s" % (table, col, name))
+                # table.column:number mapping
+                table_column = "%s.%s" % (table, name)
+                self.table_column_dict[table_column] = col
 
-                # List of rows, each row is returned as a tuple of metric values.
-                # Columns in each row represent one instance of the INDOM for each
-                # metric in the table.
-                self.tables[table]["rowdata"] = [] # initially an empty list
+                # find the metric for table.name and set it's pmid:column number
+                for pmid, metric in self.metrictable.items():
+                    if metric[self.METRIC_TABLE] == table and metric[self.METRIC_COLUMN] == name:
+                        self.pmid_column_dict[pmid] = col # pmid to table column number
+                        break
                 col += 1
 
         # done with this cursor
         cur.close()
 
-        # initial fetch and refresh to populate rowdata
-        # self.pg_refresh_all()
+        # report metrics with unresolved table.col mapping
+        for pmid, column in self.pmid_column_dict.items():
+            if column is None:
+                m = self.metrictable[pmid]
+                self.log("Warning: metric '%s', table '%s', column '%s' has no mapping" %
+                    (m[self.METRIC_NAME], m[self.METRIC_TABLE], m[self.METRIC_COLUMN]))
 
-        self.set_instance(self.pg_instance)
-        self.set_fetch(self.pg_fetch)
-        self.set_fetch_callback(self.pg_fetch_callback)
-        self.debug("completed __init__")
-
-    def pg_refresh_all(self):
-        """
-        refresh all postgres pg_stat tables
-        """
-        self.debug("pg_refresh_all start")
-        cur = self.conn.cursor()
-        for table in self.tablelist:
-            try:
-                cur.execute('SELECT * from %s' % table)
-            except (Exception, psycopg2.DatabaseError) as error: # pylint disable: broad-except
-                self.debug('WARNING: select on table %s failed: %s' % (table, error))
-                cur.execute('rollback;')
-                continue
-
-            # iterate cursor. Singular indoms only have one row
-            self.tables[table]["rowdata"] = [] # clear
-            self.tables[table]["rownum"] = {} # instid:rownum
-            for row in cur:
-                self.tables[table]["rowdata"].append(row)
-
-        # fetch completed
-        cur.close()
-        self.debug("pg_refresh_all fetch phase completed")
-
-        # refresh the instance domain tables
-        try:
-            for indom, data in self.indomtable.items():
-                table = data[self.INDOM_TABLE]
-                self.debug("pg_refresh: refreshing table %s" % table)
-                if table is None or table not in self.tables:
-                    self.debug("pg_refresh_all: skipping empty indom for table %s" % table)
-                    continue
-
-                # get the column name of the instance ID and name
-                colname_id = data[self.INDOM_INSTID]
-                colname_instname = data[self.INDOM_INSTNAME]
-                # self.debug("pg_refresh_all indom 0x%04x table=%s colname_id=%s colname_instname=%s" % (indom, table, colname_id, colname_instname))
-
-                # get the column numbers of the instance ID and name
-                id_colnum = self.tables[table]["by_name"][colname_id]
-                name_colnum = self.tables[table]["by_name"][colname_instname]
-
-                # walk the table rowdata for these two columns and populate insts dict
-                insts = {}
-                rownum = 0
-                for row in self.tables[table]["rowdata"]:
-                    # inst_name:inst_id
-                    instid = row[id_colnum]
-                    self.tables[table]["rownum"][instid] = rownum
-                    name = "%s" % row[name_colnum]
-                    namelen = len(name)
-                    if name is None or namelen == 0:
-                        # inst name column is missing. fallback to inst id column
-                        self.debug("pg_refresh_all: name is None for table %s, indom 0x%04x, rownum %d" %
-                            (table, indom, rownum))
-                        name = "%s %d" % (self.indomtable[indom][self.INDOM_INSTID], instid)
-                    insts[name] = c_int(rownum) # TODO should be id?
-                    rownum += 1
-                    self.debug("pg_refresh_all indom 0x%04x table=%s inst=%d name=%s" % (indom, table, instid, name))
-
-                # update the indom table for this indom
-                self.debug("pg_refresh_all: replace_indom(0x%04x) from table %s with %d instances" %
-                    (indom, table, len(insts)))
-                self.indomtable[indom][self.INDOM_PMDAINDOM].set_instances(indom, insts)
-                self.replace_indom(self.indomtable[indom][self.INDOM_PMDAINDOM], insts)
-
-        except Exception as error: # pylint disable: broad-except
-            self.debug("ERROR: pg_refresh_all failed in fetch phase: %s" % str(error))
-            self.debug(traceback.format_exc())
-
-        # done
-        self.debug("pg_refresh_all finish")
-
-    def pg_instance(self, serial):
-        """ Called once per "instance" PDU """
-        self.pg_refresh_all()
-
-    def pg_fetch(self):
-        """ Called once per "fetch" PDU, before callbacks """
-        try:
-            self.debug("pg_fetch start")
-            self.pg_refresh_all()
-            self.debug("pg_fetch return")
-            return 1
-        except Exception as error: # pylint disable: broad-except
-            self.log("ERROR: pg_fetch exception: %s" % str(error))
-            self.log(traceback.format_exc())
-
-    def pg_fetch_callback(self, cluster, item, inst):
-        """ Called for each instance of each fetched metric """
-        pmid = self.PM_ID(cluster, item)
-        self.debug("pg_fetch_callback pmid 0x%04x: cluster %d, item %d, inst %d" % (pmid, cluster, item, inst))
-
-        if pmid not in self.metrictable:
-            return [c_api.PM_ERR_PMID, 0] # unknown pmid
-
-        try:
-            # find the indom for this metric
-            indom = self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.indom
-            pmnsname = self.metrictable[pmid][self.METRIC_NAME]
-
-            self.debug("pg_fetch_callback pmid=0x%04x '%s' indom=0x%04x" % (pmid, pmnsname, indom))
-            if indom != c_api.PM_INDOM_NULL and self.inst_lookup(indom, inst) is None:
-                return [c_api.PM_ERR_INST, 0] # unknown instance for this pmid
-
-            # find the table and column name for this pmid
-            table_name = self.metrictable[pmid][self.METRIC_TABLE]
-            col_name = self.metrictable[pmid][self.METRIC_COLUMN]
-
-            # find the column number for this column name
-            col_num = self.tables[table_name]["by_name"][col_name]
-
-            if indom == c_api.PM_INDOM_NULL:
-                # always row 0 (the only row, with one column for each metric in this table)
-                instance_row = 0
-                self.debug("pg_fetch_callback: table=%s instance_row=%d col_num=%d for pmid=0x%04x inst=%d\n" %
-                    (table_name, instance_row, col_num, pmid, inst))
-            else:
-                # find the row number for this instance from the "rownum" dict
-                # instance_row = self.tables[table_name]["rownum"][inst]
-                instance_row = inst # TODO use the rownum dict
-
-            self.debug("pg_fetch_callback: table=%s instance_row=%d col_num=%d for pmid=0x%04x inst=%d\n" %
-                (table_name, instance_row, col_num, pmid, inst))
-
-            # now extract the value from the rowdata[instance_row][col_num]
-            value = self.tables[table_name]["rowdata"][instance_row][col_num]
-            if value is None:
-                # TODO: maybe this should return PM_ERR_VALUE.
-                # The table and column exist, but the data is None
-                self.debug("pg_fetch_callback: value is None")
-                if self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.type == c_api.PM_TYPE_STRING:
-                    value = ""
-                else:
-                    value = 0
-
-            self.debug("pg_fetch_callback: indom=0x%04x table=%s col_name=%s col_num=%d inst=%d row=%d value=%s" %
-                    (indom, table_name, col_name, col_num, inst, instance_row, value))
-            if self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.type == c_api.PM_TYPE_STRING:
-                return ["%s" % value, 1] # convert to str. some values are datetime etc
-            else:
-                return [value, 1] # no conversion needed
-
-        except Exception as error: # pylint disable: broad-except
-            self.debug("pg_fetch_callback failed for metric %s: %s" %
-                (self.metrictable[pmid][self.METRIC_NAME], str(error)))
-            # self.log(traceback.format_exc())
-
-        # if we get to here, either the column is missing or even the entire table
-        # e.g. the 'pg_active' table is missing on newer postgres versions
-        # and the 'waiting' column in the 'pg_stat_activity' table is awol
-        return[c_api.PM_ERR_APPVERSION, 0]
+        # dump the mappings
+        for pmid, column in self.pmid_column_dict.items():
+            self.debug("pmid_column_dict[pmid=0x%04x \"%s\"] = %s" %
+                (pmid, self.metrictable[pmid][self.METRIC_NAME], column))
+        for tablecol, column in self.table_column_dict.items():
+            self.debug("table_column_dict[%s] = %s" % (tablecol, column))
 
     def setup_indoms(self):
         """ create indom table """
@@ -954,7 +999,7 @@ class POSTGRESQLPMDA(PMDA):
     def setup_metrics(self):
         """ create metric table """
         for pmid, metric in self.metrictable.items():
-            # self.debug("Adding pmid 0x%04x '%s'" % (pmid, metric[self.METRIC_NAME]))
+            self.debug("Adding pmid 0x%04x '%s'" % (pmid, metric[self.METRIC_NAME]))
             self.add_metric(metric[self.METRIC_NAME], metric[self.METRIC_PMDAMETRIC])
 
     def config(self, filename='pmdapostgresql.conf', section='authentication'):
@@ -973,6 +1018,36 @@ class POSTGRESQLPMDA(PMDA):
 
         return self.conf # dict
 
+    def pg_connect(self):
+        """ connect to the postgresql server """
+        try:
+            self.conn = psycopg2.connect(dbname=self.dbname, user=self.user, password=self.password)
+        except (psycopg2.DatabaseError) as error: # pylint disable: broad-except
+            self.log("Error connecting to db %s as user %s: %s" % (self.dbname, self.user, error))
+            self.conn = None
+            return False
+        # success
+        self.log("Successfully connected to db '%s' as user '%s'" % (self.dbname, self.user))
+        return True
+
+    def pg_cursor(self):
+        """
+        Return a cursor, reconnect if necessary. Caller should close when done.
+        """
+        connected = False
+        while not connected:
+            try:
+                if self.conn is None:
+                    raise psycopg2.DatabaseError('Not connected')
+                self.cur = self.conn.cursor()
+                connected = True
+            except (psycopg2.InterfaceError, psycopg2.DatabaseError):
+                self.log("Warning: connection lost to postgres server, reconnecting ...")
+                if not self.pg_connect():
+                    time.sleep(2)
+        # success
+        return self.cur
+
     def debug(self, msg):
         """ print message if dbg is set """
         if self.dbg:
@@ -980,4 +1055,5 @@ class POSTGRESQLPMDA(PMDA):
 
 if __name__ == "__main__":
     pmda = POSTGRESQLPMDA("postgresql", 110)
+    pmda.pg_refresh_all()
     pmda.run()
