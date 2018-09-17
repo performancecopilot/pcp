@@ -142,9 +142,9 @@ p
 	fi
 	echo "$name" >>$tmp.pmdalist
     done
-    if [ -f check.callback.pmdalist ]
+    if [ -f $tmp.pmdalist.prev ]
     then
-	if diff -u check.callback.pmdalist $tmp.pmdalist >$tmp.out
+	if diff -u $tmp.pmdalist.prev $tmp.pmdalist >$tmp.out
 	then
 	    :
 	else
@@ -153,7 +153,7 @@ p
 	    $abort && status=1
 	fi
     fi
-    cp $tmp.pmdalist check.callback.pmdalist
+    cp $tmp.pmdalist $tmp.pmdalist.prev
 else
     echo "check.callback: fail: pminfo not well!"
     cat $tmp.err $tmp.out
