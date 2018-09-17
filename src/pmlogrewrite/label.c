@@ -442,7 +442,8 @@ label_association_str(const labelspec_t *lp, int old)
 }
 
 static void
-change_labels(pmLabelSet *lsp, const labelspec_t *lp) {
+change_labels(pmLabelSet *lsp, const labelspec_t *lp)
+{
     char	*current_name;
     pmLabel	*current_label;
     char	*new_json;
@@ -535,7 +536,8 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp) {
 }
 
 static void
-change_values(pmLabelSet *lsp, const labelspec_t *lp) {
+change_values(pmLabelSet *lsp, const labelspec_t *lp)
+{
     char	*current_value;
     pmLabel	*current_label;
     char	*new_json;
