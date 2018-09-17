@@ -20,7 +20,7 @@ in
 	    # cannot explain or understand this, but the condition appears
 	    # to be entirely reproducible - Aug 2018
 	    #
-	    _notrun "pmchart hangs for this test on vm20"
+	    _notrun "pmchart hangs for this test on `hostname`"
 	    ;;
 esac
 
