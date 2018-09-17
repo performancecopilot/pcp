@@ -1,18 +1,19 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2014-2016 Red Hat.
+# Copyright (C) 2014-2016,2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# pylint: disable=C0103
+# pylint: disable=bad-continuation
+#
 """ Tell how long the system has been running """
 
 import sys
@@ -45,9 +46,9 @@ def print_uptime(seconds):
 def print_users(nusers):
     """ Report the number of logged in users at sample time """
     if nusers == 1:
-        return ' 1 user, ' 
+        return ' 1 user, '
     else:
-        return (' %2d users, ' % nusers)
+        return ' %2d users, ' % nusers
 
 def print_load(one, five, fifteen):
     """ Report 1, 5, 15 minute load averages at sample time """
@@ -104,7 +105,7 @@ class Uptime(object):
                         descs[1].contents.type, PM_TYPE_U32)
         uptime += print_users(atom.ul)
 
-        averages = [1, 5, 15]
+        averages = [None, None, None]
         for inst in range(3):
             averages[inst] = self.context.pmExtractValue(
                                       result.contents.get_valfmt(2),

@@ -370,7 +370,7 @@ redis_source_context_name(redisAsyncContext *c, redisReply *reply, void *arg)
 
     checkIntegerReply(seriesLoadBatonInfo(baton), baton->userdata,
 		reply, "%s: %s", SADD, "mapping context to source or host name");
-    doneSeriesLoadBaton(baton);
+    doneSeriesLoadBaton(baton, "redis_source_context_name");
 }
 
 static void
@@ -380,7 +380,7 @@ redis_source_location(redisAsyncContext *c, redisReply *reply, void *arg)
 
     checkIntegerReply(seriesLoadBatonInfo(baton), baton->userdata,
 		reply, "%s: %s", GEOADD, "mapping source location");
-    doneSeriesLoadBaton(baton);
+    doneSeriesLoadBaton(baton, "redis_source_location");
 }
 
 static void
@@ -390,13 +390,14 @@ redis_context_name_source(redisAsyncContext *c, redisReply *reply, void *arg)
 
     checkIntegerReply(seriesLoadBatonInfo(baton), baton->userdata,
 		reply, "%s: %s", SADD, "mapping source names to context");
-    doneSeriesLoadBaton(baton);
+    doneSeriesLoadBaton(baton, "redis_context_name_source");
 }
 
 void
-redis_series_source(redisSlots *slots, context_t *context, void *arg)
+redis_series_source(redisSlots *slots, void *arg)
 {
     seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
+    context_t			*context = seriesLoadBatonContext(baton);
     const char			*hash = pmwebapi_hash_str(context->name.hash);
     sds				cmd, key, val, val2;
 
@@ -877,8 +878,9 @@ series_stored_metric(void *arg)
 {
     seriesGetNames		*baton = (seriesGetNames *)arg;
     seriesLoadBaton		*load = (seriesLoadBaton *)baton->baton;
+    seriesGetContext		*context = &load->pmapi;
 
-    seriesLoadBatonFetch(load);
+    doneSeriesGetContext(context, "series_stored_metric");
 }
 
 static void
@@ -893,7 +895,6 @@ series_metric_mapped(void *arg)
     seriesBatonCheckMagic(baton, MAGIC_NAMES, "series_metric_mapped");
     seriesBatonCheckCount(baton, "series_metric_mapped");
 
-    seriesBatonReference(load, "series_metric_mapped");
     seriesBatonReference(baton, "series_metric_mapped");
     baton->done = series_stored_metric;
 
@@ -928,6 +929,7 @@ redis_series_metric(redisSlots *slots, metric_t *metric,
 	seriesfmt(msg, "OOM creating metric name baton for %s",
 			metric->names[0].sds);
 	webapimsg(load, PMLOG_ERROR, msg);
+	load->error = -ENOMEM;
 	return;
     }
     initSeriesGetNames(mname, metric, NULL, load);
@@ -1145,7 +1147,7 @@ doneRedisStreamBaton(redisStreamBaton *baton)
     memset(baton, 0, sizeof(*baton));
     free(baton);
 
-    doneSeriesLoadBaton(load);
+    doneSeriesLoadBaton(load, "doneRedisStreamBaton");
 }
 
 static sds
@@ -1313,9 +1315,13 @@ redis_series_streamed(redisSlots *slots, sds stamp, metric_t *metric, void *arg)
 }
 
 void
-redis_series_mark(redisSlots *redis, context_t *context, sds timestamp, int data, void *arg)
+redis_series_mark(redisSlots *redis, sds timestamp, int data, void *arg)
 {
-    /* TODO: inject mark records into time series */
+    seriesLoadBaton		*load = (seriesLoadBaton *)arg;
+    seriesGetContext		*context = &load->pmapi;
+
+    /* TODO: cache mark records in Redis series, then in done callback... */
+    doneSeriesGetContext(context, "redis_series_mark");
 }
 
 static void
@@ -1601,17 +1607,19 @@ redis_load_slots_callback(redisAsyncContext *c, redisReply *reply, void *arg)
     if (testReplyError(reply, REDIS_ENOCLUSTER)) {
 	/* TODO: allow setup of multiple servers via configuration file */
 	if ((servers = calloc(1, sizeof(redisSlotServer))) != NULL) {
-	    if ((slots = calloc(1, sizeof(redisSlotRange))) == NULL) {
-		seriesfmt(msg, "failed to allocate Redis slots memory");
-		seriesmsg(baton, PMLOG_ERROR, msg);
-		baton->version = -1;
-	    } else {
-		servers->hostspec = sdscatfmt(sdsempty(), "%s", baton->slots->hostspec);
+	    if ((slots = calloc(1, sizeof(redisSlotRange))) != NULL) {
+		servers->hostspec = baton->slots->control.hostspec;
+		servers->redis = baton->slots->control.redis;
 		slots->nslaves = 0;
 		slots->start = 0;
 		slots->end = MAXSLOTS;
 		slots->master = *servers;
 		redisSlotRangeInsert(baton->slots, slots);
+	    } else {
+		seriesfmt(msg, "failed to allocate Redis slots memory");
+		seriesmsg(baton, PMLOG_ERROR, msg);
+		free(servers);
+		baton->version = -1;
 	    }
 	}
     }

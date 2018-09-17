@@ -24,7 +24,7 @@ ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure mic haproxy lio prometheus
 endif
 
-default default_pcp setup: $(SUBDIRS) localconfig new remake check qa_hosts
+default default_pcp setup: $(SUBDIRS) localconfig qa_hosts
 	$(QA_SUBDIRS_MAKERULE)
 
 LDIRT += 051.work 134.full.* \

@@ -75,6 +75,9 @@ require {
         type gpsd_t; #RHBZ1594991
         type default_t;
         type home_bin_t;
+        type named_zone_t;
+        type system_cronjob_t;
+        type xdm_t;
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -94,6 +97,7 @@ require {
 	class blk_file { ioctl open read };
 	class msgq { unix_read };
         class unix_dgram_socket { sendto };
+        class dbus { send_msg };
 }
 
 #============= init_t ==============
@@ -116,6 +120,10 @@ allow init_t pcp_var_lib_t:lnk_file read;
 # type=AVC msg=audit(1484681301.369:174692): avc:  denied  { open } for  pid=21901 comm="pmcd" path="/var/tmp/pcp.sQReBLg6R/pcp.env.path" dev="dm-1" ino=930323 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:tmp_t:s0 tclass=file permissive=0
 #
 allow init_t tmp_t:file open;
+
+#type=USER_AVC msg=audit(1535947021.608:238558): pid=775 uid=81 auid=4294967295 ses=4294967295 subj=system_u:system_r:system_dbusd_t:s0-s0:c0.c1023 msg='avc:  denied  { send_msg } for msgtype=method_return dest=:1.14778 spid=1 tpid=19555 scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:system_cronjob_t:s0-s0:c0.c1023 tclass=dbus permissive=0  exe="/usr/bin/dbus-daemon" sauid=81 hostname=? addr=? terminal=?'
+allow init_t system_cronjob_t:dbus send_msg;
+
 
 #============= pcp_pmcd_t ==============
 
@@ -245,8 +253,8 @@ allow pcp_pmcd_t glusterd_conf_t:dir { search };
 allow pcp_pmcd_t glusterd_t:unix_stream_socket connectto;
 allow pcp_pmcd_t glusterd_var_lib_t:dir search;
 
-#RHBZ1565158
-allow pcp_pmcd_t mozilla_plugin_t:sem unix_read;
+#RHBZ1565158, RHBZ1619383
+allow pcp_pmcd_t mozilla_plugin_t:sem { associate getattr unix_read };
 
 #pmda.bcc
 allow pcp_pmcd_t self:process { execmem setrlimit };
@@ -262,6 +270,14 @@ allow pcp_pmcd_t init_t:shm unix_read;
 allow pcp_pmcd_t gpsd_t:shm { associate getattr };
 
 allow pcp_pmcd_t default_t:file getattr;
+
+#RHBZ1622253
+#type=AVC msg=audit(1532540174.341:22480): avc:  denied  { search } for  pid=25668 comm="perl" name="named" dev="dm-3" ino=2128175 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:named_zone_t:s0 tclass=dir
+allow pcp_pmcd_t named_zone_t:dir search;
+
+#RHBZ1619381
+#type=AVC msg=audit(1534774142.552:48731): avc:  denied  { unix_read } for  pid=1726 comm="pmdalinux" key=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tclass=shm permissive=0
+allow pcp_pmcd_t xdm_t:shm unix_read;
 
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
@@ -349,6 +365,10 @@ allow pcp_pmie_t init_exec_t:file getattr;
 
 @PCP_CAPUSERNS_PTRACE_RULE_PMIE@
 allow pcp_pmie_t user_home_dir_t:dir search;
+
+#RHBZ1623988
+#type=AVC msg=audit(1535642748.855:3214): avc:  denied  { signal } for  pid=3106 comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process permissive=1
+allow pcp_pmie_t unconfined_t:process signal;
 #============= pmda-lio ==============
 allow pcp_pmcd_t configfs_t:dir { open read search };
 allow pcp_pmcd_t configfs_t:file { getattr open read };

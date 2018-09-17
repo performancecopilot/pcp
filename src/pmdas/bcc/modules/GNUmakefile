@@ -30,3 +30,6 @@ install_pcp install:	default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 -d $(MODULEDIR)
 	$(INSTALL) -m 644 $(EBPFPROGS) $(PYSCRIPTS) $(MODULEDIR)
+
+check:: $(PYSCRIPTS)
+	$(PYLINT) $^

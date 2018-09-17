@@ -75,7 +75,7 @@ int
 __pmDecodeInstanceReq(__pmPDU *pdubuf, pmTimeval *when, pmInDom *indom, int *inst, char **name)
 {
     instance_req_t	*pp;
-    char		*pdu_end;
+    char		*np, *pdu_end;
     int			namelen;
 
     pp = (instance_req_t *)pdubuf;
@@ -94,10 +94,11 @@ __pmDecodeInstanceReq(__pmPDU *pdubuf, pmTimeval *when, pmInDom *indom, int *ins
 	    return PM_ERR_IPC;
 	if (pdu_end - (char *)pp < sizeof(instance_req_t) - sizeof(pp->name) + namelen)
 	    return PM_ERR_IPC;
-	if ((*name = (char *)malloc(namelen+1)) == NULL)
+	if ((np = (char *)malloc(namelen+1)) == NULL)
 	    return -oserror();
-	strncpy(*name, pp->name, namelen);
-	(*name)[namelen] = '\0';
+	strncpy(np, pp->name, namelen);
+	np[namelen] = '\0';
+	*name = np;
     }
     else if (namelen < 0) {
 	return PM_ERR_IPC;

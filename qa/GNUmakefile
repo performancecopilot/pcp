@@ -32,7 +32,7 @@ endif
 #
 %.out: %
 
-default_pcp default: new remake check qa_outfiles localconfig $(OTHERS) $(SUBDIRS)
+default_pcp default: qa_outfiles localconfig $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 setup: $(SUBDIRS) localconfig qa_hosts

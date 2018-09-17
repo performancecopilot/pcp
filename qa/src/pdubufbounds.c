@@ -12,7 +12,7 @@
 /* Test pdubuf bounds checking logic. */
 
 #define INT sizeof(int)
-#define INTALIGN(p) ((void*) ((__uint64_t)(p) & (~ (INT-1))))
+#define INTALIGN(p) ((void*) ((__psint_t)(p) & (~ (INT-1))))
 
 int main ()
 {

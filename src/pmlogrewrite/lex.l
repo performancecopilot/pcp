@@ -121,6 +121,10 @@ dupstr(char *s, int strip_quotes)
 <label>"item"		{ return TOK_ITEM; }
 <label>"indom"		{ return TOK_INDOM; }
 <label>"instances"	{ return TOK_INSTANCES; }
+<label>"instance"	{ return TOK_INSTANCE; }
+<label>"new"		{ return TOK_NEW; }
+<label>"label"		{ return TOK_LABEL; }
+<label>"value"		{ return TOK_VALUE; }
 <label>\*		{ return TOK_LABEL_STAR; }
 
 <type>"32"		{ yylval.ival = PM_TYPE_32; BEGIN(metric); return TOK_TYPE_NAME; }

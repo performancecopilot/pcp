@@ -117,7 +117,7 @@ chrtos(char *buf, size_t size, char byte)
     case '\a': len = pmsprintf(buf, size, "\"\\a\""); break;
     case '\b': len = pmsprintf(buf, size, "\"\\b\""); break;
     default:
-        if (isprint(byte))
+        if (isprint((int)byte))
             len = pmsprintf(buf, size, "\"%c\"", byte);
         else
             len = pmsprintf(buf, size, "\"\\x%02x\"", (unsigned char)byte);
@@ -1464,7 +1464,7 @@ __redisGetSubscribeCallBack(redisAsyncContext *ac, redisReply *reply, redisCallB
         assert(reply->elements >= 2);
         assert(reply->element[0]->type == REDIS_REPLY_STRING);
         stype = reply->element[0]->str;
-        pvariant = (tolower(stype[0]) == 'p') ? 1 : 0;
+        pvariant = (tolower((int)stype[0]) == 'p') ? 1 : 0;
 
         if (pvariant)
             callbacks = ac->sub.patterns;
@@ -1492,11 +1492,10 @@ __redisGetSubscribeCallBack(redisAsyncContext *ac, redisReply *reply, redisCallB
             }
         }
         sdsfree(sname);
-    } else {
-        /* Shift callback for invalid commands. */
-        __redisShiftCallBack(&ac->sub.invalid, dstcb);
+	return REDIS_OK;
     }
-    return REDIS_OK;
+    /* Shift callback for invalid commands. */
+    return __redisShiftCallBack(&ac->sub.invalid, dstcb);
 }
 
 void
@@ -1605,7 +1604,7 @@ __redisAsyncHandleConnect(redisAsyncContext *ac)
             return REDIS_OK;
 
         if (ac->onConnect)
-	    ac->onConnect(ac,REDIS_ERR);
+	    ac->onConnect(ac, REDIS_ERR);
         __redisAsyncDisconnect(ac);
         return REDIS_ERR;
     }
@@ -1613,7 +1612,7 @@ __redisAsyncHandleConnect(redisAsyncContext *ac)
     /* Mark context as connected. */
     c->flags |= REDIS_CONNECTED;
     if (ac->onConnect)
-	ac->onConnect(ac,REDIS_OK);
+	ac->onConnect(ac, REDIS_OK);
     return REDIS_OK;
 }
 
@@ -1659,7 +1658,7 @@ redisAsyncHandleWrite(redisAsyncContext *ac)
             return;
     }
 
-    if (redisBufferWrite(c,&done) == REDIS_ERR) {
+    if (redisBufferWrite(c, &done) == REDIS_ERR) {
         __redisAsyncDisconnect(ac);
     } else {
         /* Continue writing when not done, stop writing otherwise */
@@ -1725,7 +1724,7 @@ __redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
     p = nextArgument(cmd, &cstr, &clen);
     assert(p != NULL);
     hasnext = (p[0] == '$');
-    pvariant = (tolower(cstr[0]) == 'p') ? 1 : 0;
+    pvariant = (tolower((int)cstr[0]) == 'p') ? 1 : 0;
     cstr += pvariant;
     clen -= pvariant;
 

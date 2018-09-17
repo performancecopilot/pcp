@@ -42,8 +42,7 @@ typedef struct redisSlotRange {
 } redisSlotRange;
 
 typedef struct redisSlots {
-    redisAsyncContext	*control;	/* initial Redis context connection */
-    sds			hostspec;	/* control socket host specification */
+    redisSlotServer	control;	/* control socket/host specification */
     redisSlotRange	*slots;		/* all instances; e.g. CLUSTER SLOTS */
     redisMap		*keymap;	/* map command names to key position */
     void		*events;

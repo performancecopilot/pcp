@@ -12,6 +12,8 @@ echo "QA output created by $seq"
 
 _pmdabcc_check
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+[ "$(pmpython src/bcc_version_check.python)" = "0.6.1" ] \
+  && _notrun "Broken BCC version detected"
 
 target_ip=1.1.1.1
 
@@ -46,9 +48,14 @@ _pmdabcc_wait_for_metric
 curl -s http://${target_ip} &
 curlpid=$!
 
-pmsleep 2
+pmsleep 3
 
 echo "=== report metric values ==="
+pminfo -dfmtT bcc.proc.io.net.total.rx 2>&1 | grep $curl_pid\" | tee -a $here/$seq.full \
+| _value_filter_nonzero
+# Twice as the old kprobe based BPF seems to provide
+# results occasionally with some delay.
+# Safe to remove when no kernel < 4.16 / bcc < 0.6 in use anywhere
 pminfo -dfmtT bcc.proc.io.net.total.rx 2>&1 | grep $curl_pid\" | tee -a $here/$seq.full \
 | _value_filter_nonzero
 

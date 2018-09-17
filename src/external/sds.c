@@ -758,14 +758,14 @@ void sdsrange(sds s, ssize_t start, ssize_t end) {
 void sdstolower(sds s) {
     size_t len = sdslen(s), j;
 
-    for (j = 0; j < len; j++) s[j] = tolower(s[j]);
+    for (j = 0; j < len; j++) s[j] = tolower((int)s[j]);
 }
 
 /* Apply toupper() to every character of the sds string 's'. */
 void sdstoupper(sds s) {
     size_t len = sdslen(s), j;
 
-    for (j = 0; j < len; j++) s[j] = toupper(s[j]);
+    for (j = 0; j < len; j++) s[j] = toupper((int)s[j]);
 }
 
 /* Compare two sds strings s1 and s2 with memcmp().
@@ -885,7 +885,7 @@ sds sdscatrepr(sds s, const char *p, size_t len) {
         case '\a': s = sdscatlen(s,"\\a",2); break;
         case '\b': s = sdscatlen(s,"\\b",2); break;
         default:
-            if (isprint(*p))
+            if (isprint((int)(*p)))
                 s = sdscatprintf(s,"%c",*p);
             else
                 s = sdscatprintf(s,"\\x%02x",(unsigned char)*p);
@@ -954,7 +954,7 @@ sds *sdssplitargs(const char *line, int *argc) {
     *argc = 0;
     while(1) {
         /* skip blanks */
-        while(*p && isspace(*p)) p++;
+        while(*p && isspace((int)(*p))) p++;
         if (*p) {
             /* get a token */
             int inq=0;  /* set to 1 if we are in "quotes" */
@@ -990,7 +990,7 @@ sds *sdssplitargs(const char *line, int *argc) {
                     } else if (*p == '"') {
                         /* closing quote must be followed by a space or
                          * nothing at all. */
-                        if (*(p+1) && !isspace(*(p+1))) goto err;
+                        if (*(p+1) && !isspace((int)(*(p+1)))) goto err;
                         done=1;
                     } else if (!*p) {
                         /* unterminated quotes */
@@ -1005,7 +1005,7 @@ sds *sdssplitargs(const char *line, int *argc) {
                     } else if (*p == '\'') {
                         /* closing quote must be followed by a space or
                          * nothing at all. */
-                        if (*(p+1) && !isspace(*(p+1))) goto err;
+                        if (*(p+1) && !isspace((int)(*(p+1)))) goto err;
                         done=1;
                     } else if (!*p) {
                         /* unterminated quotes */

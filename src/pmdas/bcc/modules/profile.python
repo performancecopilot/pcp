@@ -131,7 +131,7 @@ class PCPBCCModule(PCPBCCBase):
 
     def start_profiling(self):
         """ Starts profiling """
-        with self.lock:
+        with self.lock: # pylint: disable=not-context-manager
             if self.status != "stopped":
                 self.err("Profiling must be stopped before, current status: %s." % self.status)
                 return
@@ -180,14 +180,14 @@ class PCPBCCModule(PCPBCCBase):
                                        fn_name="do_perf_event", sample_period=sample_period,
                                        sample_freq=sample_freq, cpu=self.cpu)
 
-            with self.lock:
+            with self.lock: # pylint: disable=not-context-manager
                 self.status = "started"
             self.log("Started profiling.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
             self.err(str(error))
             self.err("Failed to compile BPF code!")
-            with self.lock:
+            with self.lock: # pylint: disable=not-context-manager
                 self.status = "stopped"
             raise
 
@@ -205,7 +205,7 @@ class PCPBCCModule(PCPBCCBase):
 
     def stop_profiling(self):
         """ Stops profiling and generates JSON of stacktraces """
-        with self.lock:
+        with self.lock: # pylint: disable=not-context-manager
             if self.status != "started":
                 self.err("Please start profiling first, current status: %s." % self.status)
                 return
@@ -270,7 +270,7 @@ class PCPBCCModule(PCPBCCBase):
 
         super(PCPBCCModule, self).cleanup()
 
-        with self.lock:
+        with self.lock: # pylint: disable=not-context-manager
             self.data = json.dumps(root_node, cls=StackNodeEncoder)
             self.status = "stopped"
         self.log("Stopped profiling.")
@@ -282,7 +282,7 @@ class PCPBCCModule(PCPBCCBase):
     def bpfdata(self, item, inst):
         """ Return BPF data as PCP metric value """
         try:
-            with self.lock:
+            with self.lock: # pylint: disable=not-context-manager
                 value = '{"status": "%s", "data": %s}' % (self.status, self.data)
             return [value, 1]
         except Exception: # pylint: disable=broad-except

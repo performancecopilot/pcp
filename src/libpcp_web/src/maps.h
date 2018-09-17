@@ -62,8 +62,7 @@ typedef void (*redisInfoCallBack)(pmloglevel, sds, void *);
 typedef void (*redisDoneCallBack)(void *);
 
 typedef struct redisMapBaton {
-    unsigned int	magic;
-    unsigned int	refcount;
+    seriesBatonMagic	magic;		/* MAGIC_MAPPING */
     int			newMapping;
     redisMap		*mapping;
     sds			mapKey;

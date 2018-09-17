@@ -25,7 +25,7 @@ static pmOptions opts = {
 static void
 resultPrintCallBack(char *source, pmTimeval *tv, pmResult *result)
 {
-    printf("->  result: source \"%s\" time %d.%06d numpmid %d\n",
+    printf("-->RESULT: source \"%s\" time %d.%06d numpmid %d\n",
     	source, tv->tv_sec, tv->tv_usec, result->numpmid);
 }
 
@@ -34,7 +34,7 @@ descPrintCallBack(char *source, pmTimeval *tv, pmDesc *desc, int numnames, char 
 {
     int i;
 
-    printf("->  desc: source \"%s\" time %d.%06d ", source, tv->tv_sec, tv->tv_usec);
+    printf("-->DESC: source \"%s\" time %d.%06d ", source, tv->tv_sec, tv->tv_usec);
     for (i=0; i < numnames; i++)
     	printf("\"%s\"%s", names[i], i<numnames-1 ? ", " : "\n");
     pmPrintDesc(stdout, desc);
@@ -43,7 +43,7 @@ descPrintCallBack(char *source, pmTimeval *tv, pmDesc *desc, int numnames, char 
 static void
 indomPrintCallBack(char *source, pmTimeval *tv, pmInResult *inresult)
 {
-    printf("->  indom: source \"%s\" time %d.%06d indom %s numinst %d\n",
+    printf("-->INDOM: source \"%s\" time %d.%06d indom %s numinst %d\n",
     	source, tv->tv_sec, tv->tv_usec, pmInDomStr(inresult->indom), inresult->numinst);
 }
 
@@ -53,18 +53,15 @@ labelPrintCallBack(char *source, pmTimeval *tv, int ident, int type, int nsets, 
     char identbuf[64];
 
     __pmLabelIdentString(ident, type, identbuf, sizeof(identbuf));
-    printf("->  label: source \"%s\" time %d.%06d ident:%s type:%s nsets=%d\n",
+    printf("-->LABEL: source \"%s\" time %d.%06d ident:%s type:%s nsets=%d\n",
     	source, tv->tv_sec, tv->tv_usec, identbuf, __pmLabelTypeString(type), nsets);
-    /*
-     * TODO pmPrintLabelSets(stdout, ident, type, NULL, 0);
-     * See pmDiscoverDecodeMetaLabelset(), not fully implemented yet.
-     */
+    pmPrintLabelSets(stdout, ident, type, labelset, nsets);
 }
 
 static void
 textPrintCallBack(char *source, pmTimeval *tv, int type, int id, char *text)
 {
-    printf("->  text: source \"%s\" time %d.%06d type=0x%02x ",
+    printf("-->TEXT: source \"%s\" time %d.%06d type=0x%02x ",
     	source, tv->tv_sec, tv->tv_usec, type);
     if (type & PM_TEXT_INDOM)
     	printf("INDOM %s\n", pmInDomStr((pmInDom)id));

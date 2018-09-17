@@ -168,20 +168,20 @@ Recording metrics...
 Recording metrics...
 14 samples(s) with 1.0 sec interval ~ 13 sec duration.
           d.d.write  d.d.write  d.d.write  d.d.write  d.d.read  d.d.read  d.d.read  d.d.read
-                sda        sdb        sdd        sdc       sda       sdb       sdd       sdc
+                sda        sdb        sdc        sdd       sda       sdb       sdc       sdd
               count      count      count      count     count     count     count     count
 00:00:00          0          0        N/A        N/A         0         0       N/A       N/A
 00:00:01          1          1        N/A        N/A         1         1       N/A       N/A
-00:00:02        N/A          4          6        N/A       N/A         4         6       N/A
-00:00:03        N/A          6          9        N/A       N/A         6         9       N/A
-00:00:04        N/A          8         12        N/A       N/A         8        12       N/A
-00:00:05        N/A         10         15        N/A       N/A        10        15       N/A
-00:00:06        N/A         12         18        N/A       N/A        12        18       N/A
-00:00:07          7          7        N/A        N/A         7       N/A       N/A       107
-00:00:08          8          8        N/A        N/A         8       N/A       N/A       108
-00:00:09          9          9        N/A        N/A         9       N/A       N/A       109
-00:00:10         10         10        N/A        N/A        10       N/A       N/A       110
-00:00:11         11         11        N/A        N/A        11       N/A       N/A       111
+00:00:02        N/A          4        N/A          6       N/A         4       N/A         6
+00:00:03        N/A          6        N/A          9       N/A         6       N/A         9
+00:00:04        N/A          8        N/A         12       N/A         8       N/A        12
+00:00:05        N/A         10        N/A         15       N/A        10       N/A        15
+00:00:06        N/A         12        N/A         18       N/A        12       N/A        18
+00:00:07          7          7        N/A        N/A         7       N/A       107       N/A
+00:00:08          8          8        N/A        N/A         8       N/A       108       N/A
+00:00:09          9          9        N/A        N/A         9       N/A       109       N/A
+00:00:10         10         10        N/A        N/A        10       N/A       110       N/A
+00:00:11         11         11        N/A        N/A        11       N/A       111       N/A
 00:00:12       1000       1000        N/A        N/A      1000      1000       N/A       N/A
 00:00:13       1000       1000        N/A        N/A      1000      1000       N/A       N/A
 Recording metrics...
@@ -253,39 +253,39 @@ Recording metrics...
 Recording metrics...
 14 samples(s) with 1.0 sec interval ~ 13 sec duration.
           d.d.write  d.d.write  d.d.write  d.d.write  d.d.read  d.d.read  d.d.read  d.d.read
-                sda        sdb        sdd        sdc       sda       sdb       sdd       sdc
+                sda        sdb        sdc        sdd       sda       sdb       sdc       sdd
               count      count      count      count     count     count     count     count
 00:00:00          0          0        N/A        N/A         0         0       N/A       N/A
 00:00:01          1          1        N/A        N/A         1         1       N/A       N/A
-00:00:02        N/A          4          6        N/A       N/A         4         6       N/A
-00:00:03        N/A          6          9        N/A       N/A         6         9       N/A
-00:00:04        N/A          8         12        N/A       N/A         8        12       N/A
-00:00:05        N/A         10         15        N/A       N/A        10        15       N/A
-00:00:06        N/A         12         18        N/A       N/A        12        18       N/A
-00:00:07          7        N/A        N/A          7         7       N/A       N/A       107
-00:00:08          8        N/A        N/A          8         8       N/A       N/A       108
-00:00:09          9        N/A        N/A          9         9       N/A       N/A       109
-00:00:10         10        N/A        N/A         10        10       N/A       N/A       110
-00:00:11         11        N/A        N/A         11        11       N/A       N/A       111
+00:00:02        N/A          4        N/A          6       N/A         4       N/A         6
+00:00:03        N/A          6        N/A          9       N/A         6       N/A         9
+00:00:04        N/A          8        N/A         12       N/A         8       N/A        12
+00:00:05        N/A         10        N/A         15       N/A        10       N/A        15
+00:00:06        N/A         12        N/A         18       N/A        12       N/A        18
+00:00:07          7        N/A          7        N/A         7       N/A       107       N/A
+00:00:08          8        N/A          8        N/A         8       N/A       108       N/A
+00:00:09          9        N/A          9        N/A         9       N/A       109       N/A
+00:00:10         10        N/A         10        N/A        10       N/A       110       N/A
+00:00:11         11        N/A         11        N/A        11       N/A       111       N/A
 00:00:12       1000       1000        N/A        N/A      1000      1000       N/A       N/A
 00:00:13       1000       1000        N/A        N/A      1000      1000       N/A       N/A
 Recording metrics...
 14 samples(s) with 1.0 sec interval ~ 13 sec duration.
           d.d.write  d.d.write  d.d.write  d.d.write  d.d.read  d.d.read  d.d.read  d.d.read
-                sda        sdb        sdd        sdc       sda       sdb       sdd       sdc
+                sda        sdb        sdc        sdd       sda       sdb       sdc       sdd
               count      count      count      count     count     count     count     count
 00:00:00          0          0        N/A        N/A         0         0       N/A       N/A
 00:00:01          1          1        N/A        N/A         1         1       N/A       N/A
-00:00:02        N/A          4          6        N/A       N/A         4         6       N/A
-00:00:03        N/A          6          9        N/A       N/A         6         9       N/A
-00:00:04        N/A          8         12        N/A       N/A         8        12       N/A
-00:00:05        N/A         10         15        N/A       N/A        10        15       N/A
-00:00:06        N/A         12         18        N/A       N/A        12        18       N/A
-00:00:07          7        N/A        N/A          7         7       N/A       N/A       107
-00:00:08          8        N/A        N/A          8         8       N/A       N/A       108
-00:00:09          9        N/A        N/A          9         9       N/A       N/A       109
-00:00:10         10        N/A        N/A         10        10       N/A       N/A       110
-00:00:11         11        N/A        N/A         11        11       N/A       N/A       111
+00:00:02        N/A          4        N/A          6       N/A         4       N/A         6
+00:00:03        N/A          6        N/A          9       N/A         6       N/A         9
+00:00:04        N/A          8        N/A         12       N/A         8       N/A        12
+00:00:05        N/A         10        N/A         15       N/A        10       N/A        15
+00:00:06        N/A         12        N/A         18       N/A        12       N/A        18
+00:00:07          7        N/A          7        N/A         7       N/A       107       N/A
+00:00:08          8        N/A          8        N/A         8       N/A       108       N/A
+00:00:09          9        N/A          9        N/A         9       N/A       109       N/A
+00:00:10         10        N/A         10        N/A        10       N/A       110       N/A
+00:00:11         11        N/A         11        N/A        11       N/A       111       N/A
 00:00:12       1000       1000        N/A        N/A      1000      1000       N/A       N/A
 00:00:13       1000       1000        N/A        N/A      1000      1000       N/A       N/A
 == test predicate being filtered out

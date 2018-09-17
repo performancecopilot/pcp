@@ -1491,9 +1491,9 @@ BAD
 1127 pmda.bcc local python
 1128 pmie local
 1129 derive local
-1130 pcp2elasticsearch python pcp2xxx local BAD @bozo @bozo-vm @vm27
+1130 pcp2elasticsearch python pcp2xxx local BAD @bozo @bozo-vm @vm27 @bozo
 1131 pcp2json python pcp2xxx local BAD @vm14 @vm28
-1132 pcp2xlsx python pcp2xxx local BAD @vm01 @vm11 @vm12 @vm36
+1132 pcp2xlsx python pcp2xxx local BAD @vm01 @vm11 @vm12 @vm36 @bozo
 1133 pcp2xml python pcp2xxx local
 1134 pmrep pcp2json pcp2xml python pcp2xxx local python
 1135 pmrep python pmda.sample archive local
@@ -1571,6 +1571,7 @@ BAD
 1276 pmmgr containers local
 1287 pmda.install pmda.prometheus local python
 1289 pmval archive multi-archive decompress-xz local pmlogextract
+1294 mmv labels local
 1299 libpcp pminfo local
 1304 pmstat context local_context local
 1306 pmda.prometheus labels local python

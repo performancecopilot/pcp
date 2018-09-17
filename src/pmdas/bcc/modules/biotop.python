@@ -62,12 +62,15 @@ class PCPBCCModule(PCPBCCBase):
         }
 
         self.interval = 1
+        self.include_residual = False
         self.process_count = 20
         sort_key = '-bytes'
 
         for opt in self.config.options(MODULE):
             if opt == 'interval':
                 self.interval = int(self.config.get(MODULE, opt))
+            if opt == 'include_residual':
+                self.include_residual = self.config.getboolean(MODULE, opt)
             if opt == 'process_count':
                 self.process_count = int(self.config.get(MODULE, opt))
             if opt == 'sort':
@@ -150,6 +153,9 @@ class PCPBCCModule(PCPBCCBase):
 
         idx = 0
         for k, v in sorted_counts:
+            if not self.include_residual and k.pid == 0:
+                continue
+
             disk = str(k.major) + "," + str(k.minor)
 
             if disk in self.disklookup:

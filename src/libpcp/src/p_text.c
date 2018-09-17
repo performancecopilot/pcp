@@ -125,7 +125,7 @@ int
 __pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
 {
     text_t	*pp;
-    char	*pduend;
+    char	*pduend, *bp;
     int		buflen;
 
     pp = (text_t *)pdubuf;
@@ -147,9 +147,10 @@ __pmDecodeText(__pmPDU *pdubuf, int *ident, char **buffer)
 	return PM_ERR_IPC;
     if (pduend - (char *)pp < sizeof(text_t) - sizeof(pp->buffer) + buflen)
 	return PM_ERR_IPC;
-    if ((*buffer = (char *)malloc(buflen+1)) == NULL)
+    if ((bp = (char *)malloc(buflen+1)) == NULL)
 	return -oserror();
-    strncpy(*buffer, pp->buffer, buflen);
-    (*buffer)[buflen] = '\0';
+    strncpy(bp, pp->buffer, buflen);
+    bp[buflen] = '\0';
+    *buffer = bp;
     return 0;
 }

@@ -1031,6 +1031,9 @@ rewriting rule modifies a label record and has the form:
 .PP
 .KW LABEL
 \fIlabelid\fP
+[ \fIinstance\fP ]
+[ \f(BI"\fP\fIlabel-name\fP\f(BI"\fP ]
+[ \f(BI"\fP\fIlabel-value\fP\f(BI"\fP ]
 .KW {
 .I labelspec
 \&...
@@ -1066,6 +1069,20 @@ in the same way as an asterisk may be used for the cluster within \fImetricid\fP
 \fIdomain\fP\f(BI.\fP\fIserial\fP
 has the same form and meaning as for an \f(BIINDOM\fP rewriting rule (see above).
 .PP
+In the case of an
+.KW INSTANCES
+\fIlabelid\fP, the number of a specific instance may be optionally specified as
+\fIinstance\fP.
+This number may be omitted or specified as an asterisk ``*'' to indicate that
+labels for all instances of the specified instance domain are selected.
+.PP
+In all cases, a \f(BI"\fP\fIlabel-name\fP\f(BI"\fP and/or a
+\f(BI"\fP\fIlabel-value\fP\f(BI"\fP may be optionally specified
+in double quotes in order to select labels with the given name and/or
+given value. These may individually be omitted or specified as
+asterisks ``*'' to indicate that labels with all names and/or values are
+selected.
+.PP
 If a designated label record is not in
 .I inlog
 the rule has no effect.
@@ -1078,7 +1095,42 @@ is zero or more of the following clauses:
 .KW DELETE
 .RS +4n
 .PP
-The selected label(s) are completely removed from \fIoutlog\fP.
+The selected labels are completely removed from \fIoutlog\fP.
+.RE
+.PP
+.KW NEW
+\f(BI"\fP\fInew-label-name\fP\f(BI"\fP
+\f(BI"\fP\fInew-label-value\fP\f(BI"\fP
+.RS +4n
+.PP
+A new label with the name \f(BI"\fP\fInew-label-name\fP\f(BI"\fP and the value
+\f(BI"\fP\fInew-label-value\fP\f(BI"\fP is created and associated with the
+specified \fIlabelid\fP and optional \fIinstance\fP (in the case of a
+.KW INSTANCES
+\fIlabelid\fP). If \f(BI"\fP\fIlabel-name\fP\f(BI"\fP or
+\f(BI"\fP\fIlabel-value\fP\f(BI"\fP were specified, then they are ignored
+with a warning. If \fIinstance\fP is not specified for an 
+.KW INSTANCES
+\fIlabelid\fP, then a new label will be created for each instance in the
+specified instance domain.
+.RE
+.PP
+.KW LABEL
+.KW ->
+\f(BI"\fP\fInew-label-name\fP\f(BI"\fP
+.RS +4n
+.PP
+The name of the selected label(s) is changed to
+\f(BI"\fP\fInew-label-name\fP\f(BI"\fP.
+.RE
+.PP
+.KW VALUE
+.KW ->
+\f(BI"\fP\fInew-label-value\fP\f(BI"\fP
+.RS +4n
+.PP
+The value of the selected label(s) is changed to
+\f(BI"\fP\fInew-label-value\fP\f(BI"\fP.
 .RE
 .PP
 .KW DOMAIN

@@ -195,11 +195,16 @@ class PCPBCCModule(PCPBCCBase):
     def create_probes(self):
         """ Create probes """
         probes_by_lang = {
-            "node": Probe("node", ["node"], {
-                "gc__start": Category.GC
+            "java": Probe("java", ["java"], {
+                "gc__begin": Category.GC,
+                "mem__pool__gc__begin": Category.GC,
+                "thread__start": Category.THREAD,
+                "class__loaded": Category.CLOAD,
+                "object__alloc": Category.OBJNEW,
+                "method__entry": Category.METHOD,
+                "ExceptionOccurred__entry": Category.EXCP
                 }),
-            "python": Probe("python", ["python"], {
-                "function__entry": Category.METHOD,
+            "node": Probe("node", ["node"], {
                 "gc__start": Category.GC
                 }),
             "perl": Probe("perl", ["perl"], {
@@ -209,6 +214,10 @@ class PCPBCCModule(PCPBCCBase):
                 "function__entry": Category.METHOD,
                 "compile__file__entry": Category.CLOAD,
                 "exception__thrown": Category.EXCP
+                }),
+            "python": Probe("python", ["python"], {
+                "function__entry": Category.METHOD,
+                "gc__start": Category.GC
                 }),
             "ruby": Probe("ruby", ["ruby", "irb"], {
                 "method__entry": Category.METHOD,
@@ -223,15 +232,6 @@ class PCPBCCModule(PCPBCCBase):
                 "load__entry": Category.CLOAD,
                 "raise": Category.EXCP
                 }),
-            "java": Probe("java", ["java"], {
-                "gc__begin": Category.GC,
-                "mem__pool__gc__begin": Category.GC,
-                "thread__start": Category.THREAD,
-                "class__loaded": Category.CLOAD,
-                "object__alloc": Category.OBJNEW,
-                "method__entry": Category.METHOD,
-                "ExceptionOccurred__entry": Category.EXCP
-                })
         }
         self.probes = [probes_by_lang[self.lang]]
 
@@ -259,6 +259,10 @@ class PCPBCCModule(PCPBCCBase):
                        for path, func, addr, _ in usdt.enumerate_active_probes()}
             for path, func, addr in uprobes:
                 try:
+                    # Compat: bcc < 0.6.0
+                    if self.bcc_version() == "0.5.0":
+                        func = func.decode()
+                        path = path.decode()
                     self.bpf.attach_uprobe(name=path, fn_name=func, addr=addr, pid=-1)
                 except Exception: # pylint: disable=broad-except
                     self.err("USDT instrumentation for a process failed.")

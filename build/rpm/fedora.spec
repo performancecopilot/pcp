@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.1.2
+Version: 4.1.3
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -19,6 +19,10 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 %global __python2 python2
 %else
 %global __python2 python
+%endif
+
+%if 0%{?rhel} > 7
+%global __requires_exclude ^perl-LDAP$
 %endif
 
 %if 0%{?fedora} || 0%{?rhel} > 5
@@ -50,7 +54,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 %global disable_webapps 0
 %global disable_cairo 0
 
-%if 0%{?rhel} > 7
+%if 0%{?rhel} > 7 || 0%{?fedora} >= 30
 %global disable_python2 1
 %else
 %global disable_python2 0
@@ -120,8 +124,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 # Qt development and runtime environment missing components before el6
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_qt 0
-# We need qt5 for fedora
-%if 0%{?fedora} != 0
+%if 0%{?fedora} != 0 || 0%{?rhel} > 7
 %global default_qt 5
 %endif
 %else
@@ -1060,7 +1063,9 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for 389 Directory Servers
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+%if 0%{?rhel} <= 7
 Requires: perl-LDAP
+%endif
 
 %description pmda-ds389
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1396,7 +1401,7 @@ collecting metrics about Samba.
 %package pmda-slurm
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
+Summary: Performance Co-Pilot (PCP) metrics for the SLURM Workload Manager
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
 
@@ -3372,7 +3377,7 @@ cd
 %endif
 
 %changelog
-* Fri Sep 14 2018 Nathan Scott <nathans@redhat.com> - 4.1.2-1
+* Fri Sep 14 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
 - Work-in-progress (see https://pcp.io/roadmap)
 
 * Wed Aug 29 2018 Nathan Scott <nathans@redhat.com> - 4.1.1-3

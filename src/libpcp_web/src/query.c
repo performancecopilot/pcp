@@ -24,7 +24,7 @@
 #include "maps.h"
 
 #define SHA1SZ		20	/* internal sha1 hash buffer size in bytes */
-#define QUERY_PHASES	5
+#define QUERY_PHASES	6
 
 typedef struct seriesGetSID {
     seriesBatonMagic	header;		/* MAGIC_SID */
@@ -71,6 +71,50 @@ typedef struct seriesQueryBaton {
 
 static int series_union(series_set_t *, series_set_t *);
 static int series_intersect(series_set_t *, series_set_t *);
+
+static void
+initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
+{
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "initSeriesGetQuery");
+    baton->u.query.root = *root;
+    baton->u.query.timing = *timing;
+}
+
+static void
+freeSeriesGetQuery(seriesQueryBaton *baton)
+{
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "freeSeriesGetQuery");
+    seriesBatonCheckCount(baton, "freeSeriesGetQuery");
+    memset(baton, 0, sizeof(seriesQueryBaton));
+    free(baton);
+}
+
+static void
+series_query_finished(void *arg)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+
+    baton->settings->on_done(baton->error, baton->userdata);
+    freeSeriesGetQuery(baton);
+}
+
+static void
+series_query_end_phase(void *arg)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_end_phase");
+
+    if (baton->error == 0) {
+	seriesPassBaton(&baton->current, baton, "series_query_end_phase");
+    } else {	/* fail after waiting on outstanding I/O */
+	if (seriesBatonDereference(baton, "series_query_end_phase"))
+	    series_query_finished(baton);
+    }
+}
+
+static void initSeriesGetSID(seriesGetSID *, const char *, void *); /* TODO */
+static void freeSeriesGetSID(seriesGetSID *sid);	/* TODO */
 
 const char *
 series_instance_name(sds key)
@@ -494,9 +538,10 @@ series_union(series_set_t *a, series_set_t *b)
 
     if ((need = (saved - small) / SHA1SZ) > 0) {
 	/* grow the larger set to cater for new entries, then add 'em */
-	if ((large = realloc(large, (nlarge + need) * SHA1SZ)) == NULL)
+	if ((cp = realloc(large, (nlarge + need) * SHA1SZ)) == NULL)
 	    return -ENOMEM;
-	cp = large + (nlarge * SHA1SZ);
+	large = cp;
+	cp += (nlarge * SHA1SZ);
 	memcpy(cp, small, need * SHA1SZ);
 	total = nlarge + need;
     } else {
@@ -622,6 +667,7 @@ series_prepare_maps_glob_reply(redisAsyncContext *c, redisReply *reply, void *ar
     node_t		*left;
     sds			msg;
 
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_prepare_maps_glob_reply");
     assert(np->type == N_GLOB);	/* indirect hash lookup with key globbing */
 
     /* TODO: need to handle multiple sets of results using the cursor. */
@@ -640,7 +686,7 @@ series_prepare_maps_glob_reply(redisAsyncContext *c, redisReply *reply, void *ar
 	    baton->error = -EPROTO;
     }
 
-    seriesPassBaton(&baton->current, baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -650,6 +696,7 @@ series_prepare_maps_name_reply(redisAsyncContext *c, redisReply *reply, void *ar
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     sds			msg;
 
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_prepare_maps_name_reply");
     assert(np->type == N_NAME);
     assert(np->subtype == N_LABEL || np->subtype == N_CONTEXT);
 
@@ -670,7 +717,7 @@ series_prepare_maps_name_reply(redisAsyncContext *c, redisReply *reply, void *ar
 				node_subtype(np), reply->str);
     }
 
-    seriesPassBaton(&baton->current, baton);
+    series_query_end_phase(baton);
 }
 
 /*
@@ -768,6 +815,7 @@ series_prepare_eval_eq_reply(redisAsyncContext *c, redisReply *reply, void *arg)
     node_t		*left;
     sds			msg;
 
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_prepare_maps_name_reply");
     assert(np->type == N_EQ);
 
     left = np->left;
@@ -782,15 +830,15 @@ series_prepare_eval_eq_reply(redisAsyncContext *c, redisReply *reply, void *arg)
 	webapimsg(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     } else {
-	sdsclear(np->key);
+	assert(np->key == NULL);
 	if (np->subtype == N_CONTEXT)
-	    np->key = sdscat(np->key, "pcp:source:");
+	    np->key = sdsnew("pcp:source:");
 	else
-	    np->key = sdscat(np->key, "pcp:series:");
+	    np->key = sdsnew("pcp:series:");
 	np->key = sdscatfmt(np->key, "%s:%s", name, reply->str);
     }
 
-    seriesPassBaton(&baton->current, baton);
+    series_query_end_phase(baton);
 }
 
 /*
@@ -845,6 +893,7 @@ series_prepare_smembers_reply(redisAsyncContext *c, redisReply *reply, void *arg
     int			sts;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_prepare_smembers_reply");
+
     if (reply->type != REDIS_REPLY_ARRAY) {
 	seriesfmt(msg, "expected array for %s set \"%s\" (type=%s)",
 			node_subtype(np->left), np->right->value,
@@ -862,7 +911,7 @@ series_prepare_smembers_reply(redisAsyncContext *c, redisReply *reply, void *arg
     if (np->nmatches)
 	np->nmatches--;	/* processed one more from this batch */
 
-    seriesPassBaton(&baton->current, baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -931,50 +980,6 @@ series_prepare_expr(seriesQueryBaton *baton, node_t *np, int level)
 }
 
 static void
-initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
-{
-    seriesBatonCheckMagic(baton, MAGIC_QUERY, "initSeriesGetQuery");
-    baton->u.query.root = *root;
-    baton->u.query.timing = *timing;
-}
-
-static void
-freeSeriesGetQuery(seriesQueryBaton *baton)
-{
-    seriesBatonCheckMagic(baton, MAGIC_QUERY, "freeSeriesGetQuery");
-    seriesBatonCheckCount(baton, "freeSeriesGetQuery");
-    memset(baton, 0, sizeof(seriesQueryBaton));
-    free(baton);
-}
-
-static void
-series_query_finished(void *arg)
-{
-    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
-
-    baton->settings->on_done(baton->error, baton->userdata);
-    freeSeriesGetQuery(baton);
-}
-
-static void
-series_query_end_phase(void *arg)
-{
-    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
-
-    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_end_phase");
-
-    if (baton->error == 0) {
-	seriesPassBaton(&baton->current, baton);
-    } else {	/* fail after waiting on outstanding I/O */
-	if (seriesBatonDereference(baton, "series_query_end_phase"))
-	    series_query_finished(baton);
-    }
-}
-
-static void initSeriesGetSID(seriesGetSID *, const char *, void *); /* TODO */
-static void freeSeriesGetSID(seriesGetSID *sid);	/* TODO */
-
-static void
 series_prepare_time_reply(redisAsyncContext *c, redisReply *reply, void *arg)
 {
     seriesGetSID	*sid = (seriesGetSID *)arg;
@@ -994,7 +999,7 @@ series_prepare_time_reply(redisAsyncContext *c, redisReply *reply, void *arg)
     }
     freeSeriesGetSID(sid);
 
-    series_query_finished(baton);
+    series_query_end_phase(baton);
 }
 
 #define DEFAULT_VALUE_COUNT 10
@@ -1067,7 +1072,6 @@ series_report_set(seriesQueryBaton *baton, series_set_t *set)
     }
     if (sid)
 	sdsfree(sid);
-    series_query_finished(baton);
 }
 
 static void
@@ -1076,7 +1080,11 @@ series_query_report_matches(void *arg)
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_report_matches");
+    seriesBatonCheckCount(baton, "series_query_report_matches");
+
+    seriesBatonReference(baton, "series_query_report_matches");
     series_report_set(baton, &baton->u.query.root.result);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1085,7 +1093,11 @@ series_query_maps(void *arg)
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_maps");
+    seriesBatonCheckCount(baton, "series_query_maps");
+
+    seriesBatonReference(baton, "series_query_maps");
     series_prepare_maps(baton, &baton->u.query.root, 0);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1094,7 +1106,11 @@ series_query_eval(void *arg)
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_eval");
+    seriesBatonCheckCount(baton, "series_query_eval");
+
+    seriesBatonReference(baton, "series_query_eval");
     series_prepare_eval(baton, &baton->u.query.root, 0);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1103,7 +1119,11 @@ series_query_expr(void *arg)
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_expr");
+    seriesBatonCheckCount(baton, "series_query_expr");
+
+    seriesBatonReference(baton, "series_query_expr");
     series_prepare_expr(baton, &baton->u.query.root, 0);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1112,7 +1132,11 @@ series_query_report_values(void *arg)
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_report_values");
+    seriesBatonCheckCount(baton, "series_query_report_values");
+
+    seriesBatonReference(baton, "series_query_report_values");
     series_prepare_time(baton, &baton->u.query.root.result);
+    series_query_end_phase(baton);
 }
 
 static int
@@ -1130,11 +1154,21 @@ series_query_services(void *arg)
     pmSeriesCommand	*command = &baton->settings->command;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_services");
-    command->slots = baton->slots =
-	redisSlotsConnect(
+    seriesBatonCheckCount(baton, "series_query_services");
+
+    seriesBatonReference(baton, "series_query_services");
+
+    /* attempt to re-use existing slots connections */
+    if (command->slots) {
+	baton->slots = command->slots;
+	series_query_end_phase(baton);
+    } else {
+	baton->slots = command->slots =
+	    redisSlotsConnect(
 		command->hostspec, 1, command->on_info,
 		series_query_end_phase, baton->userdata,
 		command->events, (void *)baton);
+    }
 }
 
 static void
@@ -1176,6 +1210,9 @@ series_solve(pmSeriesSettings *settings,
     else
 	/* Report actual values within the given time window */
 	baton->phases[i++].func = series_query_report_values;
+
+    /* final callback once everything is finished, free baton */
+    baton->phases[i++].func = series_query_finished;
 
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
@@ -1321,7 +1358,6 @@ freeSeriesGetLabelMap(seriesGetLabelMap *value)
     memset(value, 0, sizeof(seriesGetLabelMap));
 }
 
-static void series_lookup_end_phase(void *arg);	/* TODO */
 static void
 series_label_value_reply(redisAsyncContext *c, redisReply *reply, void *arg)
 {
@@ -1360,7 +1396,7 @@ series_label_value_reply(redisAsyncContext *c, redisReply *reply, void *arg)
     }
 
     freeSeriesGetLabelMap(value);
-    series_lookup_end_phase(baton);
+    series_query_end_phase(baton);
 }
 
 static int
@@ -1455,7 +1491,7 @@ series_lookup_labels_callback(redisAsyncContext *c, redisReply *reply, void *arg
     }
     freeSeriesGetSID(sid);
 
-    series_lookup_end_phase(baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1586,7 +1622,7 @@ redis_series_desc_reply(redisAsyncContext *c, redisReply *reply, void *arg)
     sdsfree(desc.type);
     sdsfree(desc.units);
 
-    series_lookup_end_phase(baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1708,7 +1744,7 @@ series_instances_reply_callback(redisAsyncContext *c, redisReply *reply, void *a
     sdsfree(inst.name);
     sdsfree(inst.series);
 
-    series_lookup_end_phase(baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1773,7 +1809,7 @@ series_lookup_instances_callback(redisAsyncContext *c, redisReply *reply, void *
 	baton->error = -EPROTO;
     }
 
-    series_lookup_end_phase(baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1898,7 +1934,7 @@ redis_lookup_mapping_callback(redisAsyncContext *c, redisReply *reply, void *arg
 	baton->error = -EPROTO;
     }
 
-    series_lookup_end_phase(baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1908,6 +1944,9 @@ series_lookup_mapping(void *arg)
     sds			cmd, key;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_mapping");
+    seriesBatonCheckCount(baton, "series_lookup_mapping");
+    seriesBatonReference(baton, "series_lookup_mapping");
+
     key = sdscatfmt(sdsempty(), "pcp:map:%s", redisMapName(baton->u.lookup.map));
     cmd = redis_command(2);
     cmd = redis_param_str(cmd, HGETALL, HGETALL_LEN);
@@ -1927,33 +1966,25 @@ series_lookup_finished(void *arg)
 }
 
 static void
-series_lookup_end_phase(void *arg)
-{
-    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
-
-    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_end_phase");
-
-    if (baton->error == 0) {
-	seriesPassBaton(&baton->current, baton);
-    } else {	/* fail after waiting on outstanding I/O */
-	if (seriesBatonDereference(baton, "series_lookup_end_phase"))
-	    series_lookup_finished(baton);
-    }
-}
-
-static void
 series_lookup_services(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
     pmSeriesCommand	*command = &baton->settings->command;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_services");
-    seriesBatonReferences(baton, 1, "series_lookup_services");
-    command->slots = baton->slots =
-	redisSlotsConnect(
+    seriesBatonReference(baton, "series_lookup_services");
+
+    /* attempt to re-use existing slots connections */
+    if (command->slots) {
+	baton->slots = command->slots;
+	series_query_end_phase(baton);
+    } else {
+	baton->slots = command->slots =
+	    redisSlotsConnect(
 		command->hostspec, 1, command->on_info,
-		series_lookup_end_phase, baton->userdata,
+		series_query_end_phase, baton->userdata,
 		command->events, (void *)baton);
+    }
 }
 
 static void
@@ -1977,7 +2008,7 @@ redis_get_sid_callback(redisAsyncContext *redis, redisReply *reply, void *arg)
 			reply->elements, reply->element)) < 0) {
 	baton->error = sts;
     }
-    series_lookup_end_phase(baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1990,6 +2021,7 @@ series_lookup_sources(void *arg)
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_sources");
     seriesBatonCheckCount(baton, "series_lookup_sources");
+    seriesBatonReference(baton, "series_lookup_sources");
 
     for (i = 0; i < baton->u.lookup.nseries; i++) {
 	seriesBatonReference(baton, "series_lookup_sources");
@@ -2001,6 +2033,7 @@ series_lookup_sources(void *arg)
 	redisSlotsRequest(baton->slots, SMEMBERS, key, cmd,
 			redis_get_sid_callback, sid);
     }
+    series_query_end_phase(baton);
 }
 
 int
