@@ -6,7 +6,6 @@ Starting pmcd ...
 Check postgresql metrics have appeared ... X warnings, Y metrics and Z values
 
 === check values with pmie ===
-DATE: postgresql.stat.activity.datid: OK
 DATE: postgresql.stat.all_indexes.idx_tup_read: OK
 DATE: postgresql.stat.all_tables.idx_tup_fetch: OK
 DATE: postgresql.stat.database.tup_returned: OK

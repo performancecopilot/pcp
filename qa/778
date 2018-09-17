@@ -218,14 +218,6 @@ otherwise
 ;
 
 ruleset
-    postgresql.stat.activity.datid > 0
-    -> print "postgresql.stat.activity.datid: OK"
-else
-    postgresql.stat.activity.datid <= 0
-    -> print "postgresql.stat.activity.datid: BAD" " %v"
-;
-
-ruleset
     sum_inst instant(postgresql.stat.sys_indexes.idx_scan) > 0
     -> print "postgresql.stat.sys_indexes.idx_scan: OK"
 otherwise
