@@ -124,8 +124,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 # Qt development and runtime environment missing components before el6
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_qt 0
-# We need qt5 for fedora
-%if 0%{?fedora} != 0
+%if 0%{?fedora} != 0 || 0%{?rhel} > 7
 %global default_qt 5
 %endif
 %else
