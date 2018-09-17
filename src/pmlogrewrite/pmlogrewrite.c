@@ -57,6 +57,7 @@ static pmOptions opts = {
 /*
  *  Global variables
  */
+static int	needti = 0;		/* need time index record */
 static int	first_datarec = 1;	/* first record flag */
 static char	bak_base[MAXPATHLEN+1];	/* basename for backup with -i */
 
@@ -646,8 +647,23 @@ reportconfig(void)
     for (lp = label_root; lp != NULL; lp = lp->l_next) {
 	if (lp->flags != 0) {
 	    change |= 1;
-	    printf("\nLabel: %s\n",
+	    printf("\nLabel: %s",
 		   __pmLabelIdentString(lp->old_id, lp->old_type, buf, sizeof(buf)));
+	    if (lp->old_type == PM_LABEL_INSTANCES) {
+		if (lp->old_instance != -1)
+		    printf(", Instance: %d", lp->old_instance);
+		else
+		    printf(", Instances: ALL");
+	    }
+	    if (lp->old_label != NULL)
+		printf(", Label: \"%s\"", lp->old_label);
+	    if (lp->old_value != NULL)
+		printf(", Value: \"%s\"", lp->old_value);
+	    putchar ('\n');
+	}
+	if (lp->flags & LABEL_NEW) {
+	    printf("NEW:\n");
+	    pmPrintLabelSets(stdout, lp->new_id, lp->new_type, lp->new_labels, 1);
 	}
 	if (lp->flags & LABEL_CHANGE_ID) {
 	    printf("ID:\t\t%s -> ", 
@@ -656,9 +672,9 @@ reportconfig(void)
 		   labelIDStr(lp->new_type, lp->new_id, buf, sizeof(buf)));
 	}
 	if (lp->flags & LABEL_CHANGE_LABEL)
-	    printf("Label:\t\t\"%s\" -> \"%s\n", lp->old_label, lp->new_label); 
+	    printf("Label:\t\t\"%s\" -> \"%s\"\n", lp->old_label, lp->new_label); 
 	if (lp->flags & LABEL_CHANGE_VALUE)
-	    printf("Label:\t\t\"value\" -> \"%s\n", lp->new_value); 
+	    printf("Label:\t\t\"value\" -> \"%s\"\n", lp->new_value); 
 	if (lp->flags & LABEL_DELETE)
 	    printf("DELETE\n");
     }
@@ -737,17 +753,19 @@ fixstamp(struct timeval *tvp)
 static void
 link_entries(void)
 {
-    indomspec_t		*ip;
-    metricspec_t	*mp;
-    textspec_t		*tp;
-    labelspec_t		*lp;
-    __pmHashCtl		*hcp, *hcp2;
-    __pmHashNode	*node, *node2;
-    int			old_id, new_id;
-    int			i;
-    int			type;
-    int			change;
-    char		strbuf[64];
+    indomspec_t			*ip;
+    metricspec_t		*mp;
+    textspec_t			*tp;
+    labelspec_t			*lp;
+    const pmLabelSet		*lsp;
+    const __pmLogLabelSet	*llsp;
+    __pmHashCtl			*hcp, *hcp2;
+    __pmHashNode		*node, *node2;
+    int				old_id, new_id;
+    int				i;
+    int				type;
+    int				change;
+    char			strbuf[64];
 
     /* Link metricspec_t entries to indomspec_t entries */
     hcp = &inarch.ctxp->c_archctl->ac_log->l_hashpmid;
@@ -900,22 +918,26 @@ link_entries(void)
 		    continue;
 
 		/* Found one. */
-		lp = start_label(type, (int)(node2->key), NULL);
-		assert(lp->old_id == ip->old_indom);
-		if (change)
-		    lp->ip = ip;
-		if (ip->new_indom != ip->old_indom) {
-		    if (lp->flags & LABEL_CHANGE_ID) {
-			/* indom already changed via label clause */
-			if (lp->new_id != ip->new_indom) {
-			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmInDomStr(lp->new_id));
-			    pmsprintf(mess, sizeof(mess), "Conflicting indom change for label set (%s from text clause, %s from indom clause)", strbuf, pmInDomStr(ip->new_indom));
-			    yysemantic(mess);
+		llsp = (__pmLogLabelSet *)node2->data;
+		for (i = 0; i < llsp->nsets; ++i) {
+		    lsp = &llsp->labelsets[i];
+		    lp = start_label(type, (int)node2->key, lsp->inst, NULL, NULL);
+		    assert(lp->old_id == ip->old_indom);
+		    if (change)
+			lp->ip = ip;
+		    if (ip->new_indom != ip->old_indom) {
+			if (lp->flags & LABEL_CHANGE_ID) {
+			    /* indom already changed via label clause */
+			    if (lp->new_id != ip->new_indom) {
+				pmsprintf(strbuf, sizeof(strbuf), "%s", pmInDomStr(lp->new_id));
+				pmsprintf(mess, sizeof(mess), "Conflicting indom change for label set (%s from text clause, %s from indom clause)", strbuf, pmInDomStr(ip->new_indom));
+				yysemantic(mess);
+			    }
 			}
-		    }
-		    else {
-			lp->flags |= LABEL_CHANGE_ID;
-			lp->new_id = ip->new_indom;
+			else {
+			    lp->flags |= LABEL_CHANGE_ID;
+			    lp->new_id = ip->new_indom;
+			}
 		    }
 		}
 	    }
@@ -959,7 +981,7 @@ link_entries(void)
 		    continue;
 
 		/* Found one. */
-		lp = start_label(type, old_id, NULL);
+		lp = start_label(type, old_id, 0, NULL, NULL);
 		assert(lp->old_id == old_id);
 		if (old_id != new_id) {
 		    if (lp->flags & LABEL_CHANGE_ID) {
@@ -1255,6 +1277,90 @@ check_output()
     }
 }
 
+static void
+do_newlabelsets(void)
+{
+    long		out_offset;
+    unsigned int	type;
+    unsigned int	ident;
+    int			nsets;
+    pmLabelSet		*labellist = NULL;
+    pmTimeval		stamp;
+    labelspec_t		*lp;
+    int			sts;
+    char		buf[64];
+
+    out_offset = __pmFtell(outarch.logctl.l_mdfp);
+
+    /*
+     * Traverse the list of label change records and emit any new label sets
+     * at the globally adjusted start time.
+     */
+    stamp.tv_sec = inarch.rp->timestamp.tv_sec;
+    stamp.tv_usec = inarch.rp->timestamp.tv_usec;
+    
+    for (lp = label_root; lp != NULL; lp = lp->l_next) {
+	/* Is this a new label record? */
+	if (! ((lp->flags & LABEL_NEW)))
+	    continue;
+
+	/*
+	 * Write the record.
+	 * libpcp, via __pmLogPutLabel(), assumes control of the storage pointed
+	 * to by labellist.
+	 */
+	ident = lp->new_id;
+	type = lp->new_type;
+	nsets = 1;
+	labellist = lp->new_labels;
+
+	if (pmDebugOptions.appl1) {
+	    fprintf(stderr, "New: labels for ");
+	    if ((lp->old_type & PM_LABEL_CONTEXT))
+		fprintf(stderr, " context\n");
+	    else if ((lp->old_type & PM_LABEL_DOMAIN))
+		fprintf(stderr, " domain %d\n", pmID_domain(lp->old_id));
+	    else if ((lp->old_type & PM_LABEL_CLUSTER))
+		fprintf(stderr, " item %d.%d\n", pmID_domain(lp->old_id), pmID_cluster (lp->old_id));
+	    else if ((lp->old_type & PM_LABEL_ITEM))
+		fprintf(stderr, " item %s\n", pmIDStr(lp->old_id));
+	    else if ((lp->old_type & PM_LABEL_INDOM))
+		fprintf(stderr, " indom %s\n", pmInDomStr(lp->old_id));
+	    else if ((lp->old_type & PM_LABEL_INSTANCES))
+		fprintf(stderr, " the instances of indom %s\n", pmInDomStr(lp->old_id));
+	    pmPrintLabelSets(stderr, ident, type, labellist, nsets);
+	}
+
+	if ((sts = __pmLogPutLabel(&outarch.archctl, type, ident,
+				   nsets, labellist, &stamp)) < 0) {
+	    fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
+		    pmGetProgname(),
+		    __pmLabelIdentString(ident, type, buf, sizeof(buf)),
+		    pmErrStr(sts));
+	    abandon();
+	    /*NOTREACHED*/
+	}
+
+	if (pmDebugOptions.appl0) {
+	    fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
+		    __pmLabelIdentString(ident, type, buf, sizeof(buf)), out_offset);
+	}
+
+	if (first_datarec) {
+	    first_datarec = 0;
+	    /*
+	     * Any global time adjustment done after the first record is output
+	     * above
+	     */
+	    outarch.logctl.l_label.ill_start.tv_sec = inarch.rp->timestamp.tv_sec;
+	    outarch.logctl.l_label.ill_start.tv_usec = inarch.rp->timestamp.tv_usec;
+	    /* need to fix start-time in label records */
+	    writelabel(1);
+	    needti = 1;
+	}
+    }
+}
+
 int
 main(int argc, char **argv)
 {
@@ -1264,7 +1370,6 @@ main(int argc, char **argv)
     int		i;
     int		ti_idx;			/* next slot for input temporal index */
     int		dir_fd = -1;		/* poinless initialization to humour gcc */
-    int		needti = 0;
     int		doneti = 0;
     pmTimeval	tstamp = { 0 };		/* for last log record */
     off_t	old_log_offset = 0;	/* log offset before last log record */
@@ -1526,6 +1631,13 @@ main(int argc, char **argv)
 	 * metadata, temporal index entries and label records
 	 * */
 	fixstamp(&inarch.rp->timestamp);
+
+	/*
+	 * Write out any new label sets before any other data using the adjusted
+	 * time stamp of the first data record.
+	 */
+	if (first_datarec)
+	    do_newlabelsets();
 
 	/*
 	 * process metadata until find an indom record with timestamp

@@ -21,7 +21,7 @@
 /* associate a libuv event loop with an async context */
 extern int redisEventAttach(redisAsyncContext *, void *);
 #else
-#define redisEventAttach(ac, p)	(REDIS_ERR)
+#define redisEventAttach(ac, p)	do { } while (0)
 #endif
 
 #endif /* SERIES_LIBUV_H */

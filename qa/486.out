@@ -672,12 +672,14 @@ pmdumplog diffs ...
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
-@@ -30,7 +30,7 @@
+@@ -28,9 +28,9 @@
+ Instance Domains in the Log ...
+ InDom: 29.2
  10:46:07.406806 9 instances
++   42 or "bin-300"
     100 or "bin-100"
     200 or "bin-200"
 -   300 or "bin-300"
-+   42 or "bin-300"
     400 or "bin-400"
     500 or "bin-500"
     600 or "bin-600"

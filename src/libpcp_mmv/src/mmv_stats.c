@@ -942,12 +942,12 @@ get_label(const char *name, const char *value, mmv_value_type_t type,
 
     /* Verify the name meets pmLookupLabel(3) syntax rules */
     len = name ? strlen(name) : 0;
-    if (len < 1 || !isalpha(name[0])) {
+    if (len < 1 || !isalpha((int)(name[0]))) {
 	setoserror(EINVAL);
 	return -1;
     }
     for (i = 1; i < len; i++) {
-	if (isalnum(name[i]) || name[i] == '_')
+	if (isalnum((int)(name[i])) || name[i] == '_')
 	    continue;
 	setoserror(EINVAL);
 	return -1;
@@ -999,7 +999,7 @@ get_label(const char *name, const char *value, mmv_value_type_t type,
 
     len = pmsprintf(buffer, MMV_LABELMAX, "{\"%s\":%s}", name, value);
     if ((sts = __pmParseLabelSet(buffer, len, flags, &set)) < 0) {
-	setoserror(sts);
+	setoserror(-sts);
 	return -1;
     }
     pmFreeLabelSets(set, 1);

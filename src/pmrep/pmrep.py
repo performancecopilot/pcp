@@ -391,11 +391,11 @@ class PMReporter(object):
                 sys.stderr.write("Output directory %s not accessible.\n" % outdir)
                 sys.exit(1)
 
-        # Metric text label width can be ignored
+        # Set default width when needed
         if self.separate_header and not self.width:
             self.width = 8
 
-        # Adjustments and checks for for overall rankings
+        # Adjustments and checks for overall rankings
         if not self.rank and (self.overall_rank or self.overall_rank_alt):
             sys.stderr.write("Overall ranking requires ranking enabled.\n")
             sys.exit(1)
@@ -725,10 +725,12 @@ class PMReporter(object):
             line += metric
             if self.pmconfig.insts[i][0][0] != PM_IN_NULL and name:
                 line += "[\"" + name + "\"]"
-            if self.metrics[metric][2][0]:
-                line += " - " + self.metrics[metric][2][0] + "\n"
-            else:
-                line += " - none\n"
+            if self.unitinfo:
+                if self.metrics[metric][2][0]:
+                    line += " - " + self.metrics[metric][2][0]
+                else:
+                    line += " - none"
+            line += "\n"
             self.writer.write(line.format(str(k)))
 
         k = 0

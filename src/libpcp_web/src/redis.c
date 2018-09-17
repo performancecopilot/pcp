@@ -117,7 +117,7 @@ chrtos(char *buf, size_t size, char byte)
     case '\a': len = pmsprintf(buf, size, "\"\\a\""); break;
     case '\b': len = pmsprintf(buf, size, "\"\\b\""); break;
     default:
-        if (isprint(byte))
+        if (isprint((int)byte))
             len = pmsprintf(buf, size, "\"%c\"", byte);
         else
             len = pmsprintf(buf, size, "\"\\x%02x\"", (unsigned char)byte);
@@ -1464,7 +1464,7 @@ __redisGetSubscribeCallBack(redisAsyncContext *ac, redisReply *reply, redisCallB
         assert(reply->elements >= 2);
         assert(reply->element[0]->type == REDIS_REPLY_STRING);
         stype = reply->element[0]->str;
-        pvariant = (tolower(stype[0]) == 'p') ? 1 : 0;
+        pvariant = (tolower((int)stype[0]) == 'p') ? 1 : 0;
 
         if (pvariant)
             callbacks = ac->sub.patterns;
@@ -1724,7 +1724,7 @@ __redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
     p = nextArgument(cmd, &cstr, &clen);
     assert(p != NULL);
     hasnext = (p[0] == '$');
-    pvariant = (tolower(cstr[0]) == 'p') ? 1 : 0;
+    pvariant = (tolower((int)cstr[0]) == 'p') ? 1 : 0;
     cstr += pvariant;
     clen -= pvariant;
 

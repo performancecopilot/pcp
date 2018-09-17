@@ -957,6 +957,15 @@ $ pmrep \-i '.*firefox.*' :proc-io
 .ft P
 .RE
 .PP
+Display the three most CPU-using processes:
+.RS +4
+.ft B
+.nf
+$ pmrep \-1gUJ 3 proc.hog.cpu
+.fi
+.ft P
+.RE
+.PP
 Display
 .B sar \-w
 and

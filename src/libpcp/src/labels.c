@@ -42,8 +42,10 @@ pmFreeLabelSets(pmLabelSet *sets, int nsets)
 	if (sets[i].json)
 	    free(sets[i].json);
     }
-    if (nsets > 0)
+    if (sets != NULL) {
+	assert(nsets > 0);
 	free(sets);
+    }
 }
 
 static pmLabelSet *
@@ -304,13 +306,14 @@ verify_label_name(pmLabel *lp, const char *json)
  * Sort and verify labels in the set - no (internal) duplicate
  * names are allowed, and the naming rules must be satisfied.
  */
-int
+static int
 sort_labels(pmLabel *lp, int nlabels, const char *json)
 {
     void	*data = (void *)json;
     int		i;
 
-    sort_r(lp, nlabels, sizeof(pmLabel), namecmp, data);
+    if (nlabels > 1)
+	sort_r(lp, nlabels, sizeof(pmLabel), namecmp, data);
 
     for (i = 0; i < nlabels-1; i++) {
 	if (namecmp(&lp[i], &lp[i+1], data) == 0) {
@@ -325,6 +328,16 @@ sort_labels(pmLabel *lp, int nlabels, const char *json)
 			    (int)lp[i].namelen, label_name(&lp[i], json));
 	    return -EINVAL;
 	}
+    }
+
+    /* Verify the name of the final label */
+    assert(nlabels > 0); /* not called otherwise */
+    assert(i == nlabels - 1);
+    if (verify_label_name(&lp[i], json) < 0) {
+	if (pmDebugOptions.labels)
+	    pmNotifyErr(LOG_ERR, "Label name is invalid %.*s",
+			    (int)lp[i].namelen, label_name(&lp[i], json));
+	return -EINVAL;
     }
     return 0;
 }
