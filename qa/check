@@ -579,10 +579,9 @@ do
 			echo "+++ check.callback output +++" >>$seq.out.bad
 			cat $tmp.tmp >>$seq.out.bad
 			err=true
-			echo "Check! [after $seq] Run aborted by check.callback @ `date`" | tee -a check.log
+			echo "Check! [after $seq] Run aborted by check.callback @ `date`" >>check.log
 			callback_abort=true
-		    fi
-		    if [ -s $tmp.tmp ]
+		    elif [ -s $tmp.tmp ]
 		    then
 			# output from check.callback, this means something bad has been
 			# detected ...
