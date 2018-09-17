@@ -75,9 +75,9 @@ check_strings="/usr/lib/systemd/systemd mem.util.used kernel.all.sysfork"
 echo checking output
 for str in $(echo $check_metrics | tr ' ' '\n'); do
 	grep $str ref/xl/sharedStrings.xml > /dev/null 2>&1
-	[[ $? -ne 0 ]] && fail=1
+	[ $? -ne 0 ] && fail=1
 	grep $str ref/xl/sharedStrings.xml > /dev/null 2>&1
-	[[ $? -ne 0 ]] && fail=1
+	[ $? -ne 0 ] && fail=1
 done
 if [ $fail -eq 1 ]; then
 	echo expected data not found in the sheet file

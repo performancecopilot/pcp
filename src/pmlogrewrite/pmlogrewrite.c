@@ -671,10 +671,20 @@ reportconfig(void)
 	    printf("%s\n", 
 		   labelIDStr(lp->new_type, lp->new_id, buf, sizeof(buf)));
 	}
-	if (lp->flags & LABEL_CHANGE_LABEL)
-	    printf("Label:\t\t\"%s\" -> \"%s\"\n", lp->old_label, lp->new_label); 
-	if (lp->flags & LABEL_CHANGE_VALUE)
-	    printf("Label:\t\t\"value\" -> \"%s\"\n", lp->new_value); 
+	if (lp->flags & LABEL_CHANGE_LABEL) {
+	    printf("Label:\t\t%s%s%s -> \"%s\"\n",
+		   lp->old_label ? "\"" : "",
+		   lp->old_label ? lp->old_label : "ALL",
+		   lp->old_label ? "\"" : "",
+		   lp->new_label);
+	}
+	if (lp->flags & LABEL_CHANGE_VALUE) {
+	    printf("Value:\t\t%s%s%s -> \"%s\"\n",
+		   lp->old_value ? "\"" : "",
+		   lp->old_value ? lp->old_value : "ALL",
+		   lp->old_value ? "\"" : "",
+		   lp->new_value);
+	}
 	if (lp->flags & LABEL_DELETE)
 	    printf("DELETE\n");
     }
@@ -1853,6 +1863,7 @@ void
 abandon(void)
 {
     char    path[MAXNAMELEN+1];
+
     if (dflag == 0) {
 	if (Cflag == 0 && iflag == 0)
 	    fprintf(stderr, "Archive \"%s\" not created.\n", outarch.name);
@@ -1874,4 +1885,5 @@ abandon(void)
 	fprintf(stderr, "Archive \"%s\" creation truncated.\n", outarch.name);
 
     exit(1);
+    /*NOTREACHED*/
 }
