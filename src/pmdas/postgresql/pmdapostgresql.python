@@ -1040,6 +1040,7 @@ class POSTGRESQLPMDA(PMDA):
                 if self.conn is None:
                     raise psycopg2.DatabaseError('Not connected')
                 self.cur = self.conn.cursor()
+                self.cur.execute('SELECT version()')
                 connected = True
             except (psycopg2.InterfaceError, psycopg2.DatabaseError):
                 self.log("Warning: connection lost to postgres server, reconnecting ...")
