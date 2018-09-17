@@ -226,11 +226,15 @@ find_label(
     for (/**/; label_ix < lsp->nlabels; ++label_ix) {
 	lp = &lsp->labels[label_ix];
 
-	/* Compare this label to the one we want. */
+	/*
+	 * Compare this label to the one we want.
+	 * Careful: The offset and length of the label name in the label
+	 * do not include the double quotes.
+	 */
 	if (label != NULL) {
-	    if (label_len != lp->namelen)
+	    if (label_len != lp->namelen + 2)
 		continue; /* not this one */
-	    if (memcmp(label, lsp->json + lp->name, label_len) != 0)
+	    if (memcmp(label, lsp->json + lp->name - 1, label_len) != 0)
 		continue; /* not this one */
 	}
 	if (value != NULL) {
@@ -384,11 +388,11 @@ label_id_str(const labelspec_t *lp, int old)
 
     pmsprintf(buf, sizeof(buf), "label {");
     if (lp->old_label)
-	pmsprintf(buf, sizeof(buf), "\"%s\",", old ? lp->old_label : lp->new_label);
+	pmsprintf(buf, sizeof(buf), "%s,", old ? lp->old_label : lp->new_label);
     else
 	pmsprintf(buf, sizeof(buf), "ALL,");
     if (lp->old_value)
-	pmsprintf(buf, sizeof(buf), "\"%s\" ", old ? lp->old_value : lp->new_value);
+	pmsprintf(buf, sizeof(buf), "%s ", old ? lp->old_value : lp->new_value);
     else
 	pmsprintf(buf, sizeof(buf), "ALL ");
     pmsprintf(buf, sizeof(buf), "}");
@@ -772,7 +776,7 @@ do_labelset(void)
 
 		if ((flags & LABEL_CHANGE_LABEL)) {
 		    if (pmDebugOptions.appl1) {
-			fprintf(stderr, "Rewrite: name for label %s to \"%s\"\n",
+			fprintf(stderr, "Rewrite: name for label %s to %s\n",
 				label_id_str(lp, 1/*old*/), lp->new_label);
 		    }
 		    change_labels(lsp, lp);
@@ -780,7 +784,7 @@ do_labelset(void)
 
 		if ((flags & LABEL_CHANGE_VALUE)) {
 		    if (pmDebugOptions.appl1) {
-			fprintf(stderr, "Rewrite: value for label %s to \"%s\"\n",
+			fprintf(stderr, "Rewrite: value for label %s to %s\n",
 				label_id_str(lp, 1/*old*/), lp->new_value);
 		    }
 		    change_values(lsp, lp);
@@ -854,18 +858,18 @@ do_labelset(void)
 			new_label_len = strlen(new_label);
 		    }
 		    else {
-			new_label = lsp->json + lsp->labels[label_ix].name;
-			new_label_len = lsp->labels[label_ix].namelen;
+			new_label = lsp->json + lsp->labels[label_ix].name - 1;
+			new_label_len = lsp->labels[label_ix].namelen + 2;
 		    }
 		    if (lp->new_value != NULL) {
 			new_value = lp->new_value;
-			pmsprintf(buf, sizeof(buf), "{\"%.*s\":\"%s\"}",
+			pmsprintf(buf, sizeof(buf), "{%.*s:%s}",
 				  new_label_len, new_label, new_value);
 		    }
 		    else {
 			new_value = lsp->json + lsp->labels[label_ix].value;
 			new_value_len = lsp->labels[label_ix].valuelen;
-			pmsprintf(buf, sizeof(buf), "{\"%.*s\":%.*s}",
+			pmsprintf(buf, sizeof(buf), "{%.*s:%.*s}",
 				  new_label_len, new_label, new_value_len, new_value);
 		    }
 		    if ((sts = __pmAddLabels(&new_labelset, buf, lp->new_type)) < 0) {
