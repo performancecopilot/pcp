@@ -342,7 +342,7 @@ extract_label(pmLabelSet *lsp, int label_ix)
 }
 
 static pmLabelSet *
-extract_labelset (int ls_ix, pmLabelSet **labellist, int *nsets)
+extract_labelset(int ls_ix, pmLabelSet **labellist, int *nsets)
 {
     pmLabelSet *extracted;
 
@@ -736,7 +736,7 @@ do_labelset(void)
 		 * All other operations require that we extract the current
 		 * labelset from the label record.
 		 */
-		lsp = extract_labelset (ls_ix, & labellist, & nsets);
+		lsp = extract_labelset(ls_ix, &labellist, &nsets);
 
 		if (flags & LABEL_DELETE) {
 		    if (pmDebugOptions.appl1) {
@@ -903,7 +903,7 @@ do_labelset(void)
 
 	    /* Extract and free the original labelset if it is now empty. */
 	    if (lsp->nlabels == 0) {
-		lsp = extract_labelset (ls_ix, & labellist, & nsets);
+		lsp = extract_labelset(ls_ix, &labellist, &nsets);
 		pmFreeLabelSets(lsp, 1);
 		--ls_ix;
 	    }

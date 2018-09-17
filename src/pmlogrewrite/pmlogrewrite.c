@@ -1859,7 +1859,6 @@ main(int argc, char **argv)
     exit(0);
 }
 
-/* coverity[+kill] */
 void
 abandon(void)
 {
