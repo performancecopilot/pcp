@@ -198,9 +198,6 @@ dupstr(char *s, int strip_quotes)
 <count>"ONE"		{ yylval.ival = PM_COUNT_ONE; BEGIN(metric); return TOK_COUNT_NAME; }
 <count>[0-9]+		{ yylval.ival = atoi(yytext); BEGIN(metric); return TOK_COUNT_NAME; }
 
-<label>\"[^\"\n][^\"\n]*\"	{ yylval.str = dupstr(yytext, 0); return TOK_JSON_STRING; }
-<label>[0-9]+		{ yylval.str = dupstr(yytext, 0); return TOK_JSON_NUMBER; }
-
 \"[^\"\n][^\"\n]*\"	{ yylval.str = dupstr(yytext, 1); return TOK_STRING; }
 \"[^\"][^\"]*\"		{ yylval.str = dupstr(yytext, 1); return TOK_NL_STRING; }
 
@@ -215,10 +212,9 @@ dupstr(char *s, int strip_quotes)
 [0-9]+\.[0-9]+\.\*	{ yylval.str = dupstr(yytext, 0); return TOK_PMID_STAR; }
 [0-9]+\.\*\.\*		{ yylval.str = dupstr(yytext, 0); return TOK_PMID_STAR; }
 
--?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][\+-]?[0-9]+)? { yylval.str = dupstr(yytext, 0); return TOK_JSON_NUMBER; }
+(0|[1-9][0-9]*)(\.[0-9]+)?([eE][\+-]?[0-9]+)? { yylval.str = dupstr(yytext, 0); return TOK_JSON_NUMBER; }
 
 \"(\\[\"\\/bfnrt]|\\u[A-Fa-f0-9][A-Fa-f0-9][A-Fa-f0-9][A-Fa-f0-9]|[^\"\\\n])*\"	{ yylval.str = dupstr(yytext, 0); return TOK_JSON_STRING; }
-
 
 	/*
 	 * Generic name, e.g. for identifier or metric or hostname

@@ -49,6 +49,25 @@ static int		current_label_instance;
 static labelspec_t	*current_labelspec;
 static int		do_walk_label;
 
+static char *
+dupcat(const char* s1, const char* s2)
+{
+    size_t	len;
+    char	*s;
+
+    len = strlen(s1) + strlen(s2) + 1;
+    s = malloc(len);
+    if (s == NULL) {
+	fprintf(stderr, "dupcat malloc(%d) failed: %s\n",
+		(int)len, strerror(errno));
+	abandon();
+	/*NOTREACHED*/
+    }
+
+    pmsprintf(s, len, "%s%s", s1, s2);
+    return s;
+}
+ 
 indomspec_t *
 walk_indom(int mode)
 {
@@ -883,7 +902,7 @@ new_indom_instance_label(int indom)
 %type<pmid>	pmid_int pmid_or_name
 %type<ival>	signnumber number rescaleopt duplicateopt texttype texttypes opttexttypes pmid_domain pmid_cluster
 %type<dval>	float
-%type<str>	textstring jsonvalue
+%type<str>	textstring jsonname jsonvalue jsonnumber
 
 %%
 
@@ -2251,7 +2270,7 @@ labelcontextspec	: TOK_CONTEXT optlabeldetails
 		  TOK_LBRACE optlabelcontextoptlist TOK_RBRACE
 		;
 
-optlabeldetails	: TOK_JSON_STRING optlabelvalue
+optlabeldetails	: jsonname optlabelvalue
 		    { current_label_name = $1; }
 		| TOK_LABEL_STAR optlabelvalue
 		    { current_label_name = NULL; }
@@ -2262,6 +2281,12 @@ optlabeldetails	: TOK_JSON_STRING optlabelvalue
 		    }
 		;
 
+jsonname	: TOK_JSON_STRING
+		    { $$ = $1; }
+		| TOK_STRING
+		    { $$ = $1; }
+		;
+
 optlabelvalue	: jsonvalue
 		    { current_label_value = $1; }
 		| TOK_LABEL_STAR
@@ -2270,15 +2295,31 @@ optlabelvalue	: jsonvalue
 		    { current_label_value = NULL; }
 		;
 
-jsonvalue	: TOK_JSON_STRING
+jsonvalue	: jsonname
 		    { $$ = $1; }
-		| TOK_JSON_NUMBER
+		| jsonnumber
 		    { $$ = $1; }
 		| TOK_JSON_TRUE
 		    { $$ = $1; }
 		| TOK_JSON_FALSE
 		    { $$ = $1; }
 		| TOK_JSON_NULL
+		    { $$ = $1; }
+		;
+
+jsonnumber	: TOK_MINUS TOK_NUMBER
+		    {
+			$$ = dupcat("-", $2);
+			free($2);
+		    }
+		| TOK_NUMBER
+		    { $$ = $1; }
+		| TOK_MINUS TOK_JSON_NUMBER
+		    {
+			$$ = dupcat("-", $2);
+			free($2);
+		    }
+		| TOK_JSON_NUMBER
 		    { $$ = $1; }
 		;
 
@@ -2300,7 +2341,7 @@ labelcontextopt	: TOK_DELETE
 			    lp->flags |= LABEL_DELETE;
 			}
 		    }
-		| TOK_LABEL TOK_ASSIGN TOK_JSON_STRING
+		| TOK_LABEL TOK_ASSIGN jsonname
 		    {
 			labelspec_t	*lp;
 			for (lp = walk_label(W_START, LABEL_CHANGE_LABEL, "label", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_LABEL, "label", 0)) {
@@ -2353,7 +2394,7 @@ labelcontextopt	: TOK_DELETE
 			new_context_label();
 		    }
 		
-newlabelspec	: TOK_NEW TOK_JSON_STRING jsonvalue
+newlabelspec	: TOK_NEW jsonname jsonvalue
 		    {
 			/* The current label name and value must both NOT be specified. */
 			if (current_label_name || current_label_value) {
@@ -2492,7 +2533,7 @@ labeldomainopt	: TOK_DELETE
 			    }
 			}
 		    }
-		| TOK_LABEL TOK_ASSIGN TOK_JSON_STRING
+		| TOK_LABEL TOK_ASSIGN jsonname
 		    {
 			labelspec_t	*lp;
 			for (lp = walk_label(W_START, LABEL_CHANGE_LABEL, "label", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_LABEL, "label", 0)) {
@@ -2712,7 +2753,7 @@ labelclusteropt	: TOK_DELETE
 			    }
 			}
 		    }
-		| TOK_LABEL TOK_ASSIGN TOK_JSON_STRING
+		| TOK_LABEL TOK_ASSIGN jsonname
 		    {
 			labelspec_t	*lp;
 			for (lp = walk_label(W_START, LABEL_CHANGE_LABEL, "label", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_LABEL, "label", 0)) {
@@ -2902,7 +2943,7 @@ labelitemopt	: TOK_DELETE
 			    }
 			}
 		    }
-		| TOK_LABEL TOK_ASSIGN TOK_JSON_STRING
+		| TOK_LABEL TOK_ASSIGN jsonname
 		    {
 			labelspec_t	*lp;
 			for (lp = walk_label(W_START, LABEL_CHANGE_LABEL, "label", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_LABEL, "label", 0)) {
@@ -3083,7 +3124,7 @@ labelindomopt	: TOK_DELETE
 			    }
 			}
 		    }
-		| TOK_LABEL TOK_ASSIGN TOK_JSON_STRING
+		| TOK_LABEL TOK_ASSIGN jsonname
 		    {
 			labelspec_t	*lp;
 			for (lp = walk_label(W_START, LABEL_CHANGE_LABEL, "label", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_LABEL, "label", 0)) {
@@ -3222,7 +3263,7 @@ labelinstancesspec	: TOK_INSTANCES indom_int optinstancelabeldetails
 		  TOK_LBRACE optlabelinstancesoptlist TOK_RBRACE
 		;
 
-optinstancelabeldetails	: TOK_JSON_STRING optlabelvalue
+optinstancelabeldetails	: jsonname optlabelvalue
 		    {
 			current_label_instance = -1;
 			current_label_name = $1;
@@ -3313,7 +3354,7 @@ labelinstancesopt	: TOK_DELETE
 			    }
 			}
 		    }
-		| TOK_LABEL TOK_ASSIGN TOK_JSON_STRING
+		| TOK_LABEL TOK_ASSIGN jsonname
 		    {
 			labelspec_t	*lp;
 			for (lp = walk_label(W_START, LABEL_CHANGE_LABEL, "label", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_LABEL, "label", 0)) {
