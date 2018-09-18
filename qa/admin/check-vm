@@ -1257,6 +1257,16 @@ pkg_add?	smartctl		[? (QA optional)]
 pkg?		smartctl		[? (QA optional)]
 slackpkg?	smartctl		[smartmontools (QA optional)]
 pacman?		smartctl		[? (QA optional)]
+# -- ausyscall
+dpkg?		ausyscall		[auditd (QA optional)]
+rpm?		ausyscall		[audit (QA optional)]
+urpmi?		ausyscall		[audit (QA optional)]
+emerge?		ausyscall		[? (QA optional)]
+pkgin?		ausyscall		[? (QA optional)]
+pkg_add?	ausyscall		[? (QA optional)]
+pkg?		ausyscall		[? (QA optional)]
+slackpkg?	ausyscall		[? (QA optional)]
+pacman?		ausyscall		[? (QA optional)]
 #
 # misc
 #
