@@ -2,18 +2,14 @@ QA output created by 1362
 Waiting for pmcd to terminate ...
 
 === postgresql agent installation ===
-Updating the Performance Metrics Name Space (PMNS) ...
-Terminate PMDA if already installed ...
-[...install files, make output...]
-Updating the PMCD control file, and notifying PMCD ...
 Starting pmcd ... 
-Check postgresql metrics have appeared ... X metrics and Y values
+Check postgresql metrics have appeared ... X warnings, Y metrics and Z values
 
 == check initial fetch
 OK
-=== signaling pmdapostgresql to disconnect
+=== restart postgresql service
 === checking log for disconnect messages
-WARNING: disconnecting PostgreSQL connection
+Warning: connection lost to postgres server, reconnecting ...
 
 == fetch again .. should have reconnected
 OK

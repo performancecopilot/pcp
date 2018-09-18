@@ -7908,14 +7908,11 @@ $as_echo "no" >&6; }; fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the postgresql PMDA should be included" >&5
 $as_echo_n "checking if the postgresql PMDA should be included... " >&6; }
 pmda_postgresql=false
-if test "$have_perl" = true
+if test "$have_python" = true
 then
-        if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+        if $pcp_python_prog -c "import psycopg2" >/dev/null 2>&1
     then
-	if $pcp_perl_prog -e "use DBD::Pg" >/dev/null 2>&1
-	then
-	    pmda_postgresql=true
-	fi
+	pmda_postgresql=true
     fi
 fi
 PMDA_POSTGRESQL=$pmda_postgresql
@@ -10457,12 +10454,12 @@ if test -n "$libuv_CFLAGS"; then
     pkg_cv_libuv_CFLAGS="$libuv_CFLAGS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libuv") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv >= 1.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libuv >= 1.0") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_libuv_CFLAGS=`$PKG_CONFIG --cflags "libuv" 2>/dev/null`
+  pkg_cv_libuv_CFLAGS=`$PKG_CONFIG --cflags "libuv >= 1.0" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -10474,12 +10471,12 @@ if test -n "$libuv_LIBS"; then
     pkg_cv_libuv_LIBS="$libuv_LIBS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libuv") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv >= 1.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libuv >= 1.0") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_libuv_LIBS=`$PKG_CONFIG --libs "libuv" 2>/dev/null`
+  pkg_cv_libuv_LIBS=`$PKG_CONFIG --libs "libuv >= 1.0" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -10500,9 +10497,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        libuv_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libuv" 2>&1`
+	        libuv_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libuv >= 1.0" 2>&1`
         else
-	        libuv_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libuv" 2>&1`
+	        libuv_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libuv >= 1.0" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$libuv_PKG_ERRORS" >&5

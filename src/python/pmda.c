@@ -1234,6 +1234,21 @@ pmda_pmid(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+pmid_build(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int result;
+    int domain, cluster, item;
+    char *keyword_list[] = {"domain", "cluster", "item", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"iii:pmid_build", keyword_list,
+			&domain, &cluster, &item))
+	return NULL;
+    result = pmID_build(domain, cluster, item);
+    return Py_BuildValue("i", result);
+}
+
+static PyObject *
 pmda_indom(PyObject *self, PyObject *args, PyObject *keywords)
 {
     int result;
@@ -1244,6 +1259,21 @@ pmda_indom(PyObject *self, PyObject *args, PyObject *keywords)
 			"i:pmda_indom", keyword_list, &serial))
 	return NULL;
     result = pmInDom_build(dispatch.domain, serial);
+    return Py_BuildValue("i", result);
+}
+
+static PyObject *
+indom_build(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int result;
+    int domain, serial;
+    char *keyword_list[] = {"domain", "serial", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"ii:indom_build", keyword_list,
+			&domain, &serial))
+	return NULL;
+    result = pmInDom_build(domain, serial);
     return Py_BuildValue("i", result);
 }
 
@@ -1392,7 +1422,11 @@ set_refresh_metrics(PyObject *self, PyObject *args)
 static PyMethodDef methods[] = {
     { .ml_name = "pmda_pmid", .ml_meth = (PyCFunction)pmda_pmid,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmid_build", .ml_meth = (PyCFunction)pmid_build,
+	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_indom", .ml_meth = (PyCFunction)pmda_indom,
+	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "indom_build", .ml_meth = (PyCFunction)indom_build,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_units", .ml_meth = (PyCFunction)pmda_units,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },

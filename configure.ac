@@ -1037,15 +1037,12 @@ if $pmda_mysql; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the postgresql PMDA should be included])
 pmda_postgresql=false
-if test "$have_perl" = true
+if test "$have_python" = true
 then
-    dnl rpm build for postgresql PMDA needs Perl DBI and DBD::Pg
-    if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+    dnl rpm build for postgresql PMDA needs python psycopg2 module
+    if $pcp_python_prog -c "import psycopg2" >/dev/null 2>&1
     then
-	if $pcp_perl_prog -e "use DBD::Pg" >/dev/null 2>&1
-	then
-	    pmda_postgresql=true
-	fi
+	pmda_postgresql=true
     fi
 fi
 AC_SUBST(PMDA_POSTGRESQL, $pmda_postgresql)
@@ -1683,7 +1680,7 @@ then
 fi
 AC_SUBST(lib_for_regex)
 
-PKG_CHECK_MODULES([libuv], [libuv], [have_libuv=true], [have_libuv=false])
+PKG_CHECK_MODULES([libuv], [libuv >= 1.0], [have_libuv=true], [have_libuv=false])
 AC_SUBST(HAVE_LIBUV, [$have_libuv])
 
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
