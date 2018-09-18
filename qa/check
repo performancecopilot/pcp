@@ -532,7 +532,7 @@ do
 
 		# now some integrity checks to see if the test has
 		# left things in a bad state ... if badness
-		# found, append to $seq.out.bad
+		# found, append to $tmp.out
 		#
 
 		# make sure this test did not muck up the permissions or
@@ -550,9 +550,9 @@ do
 		    fi
 		    [ $color = true ] && tput sgr0 # reset
 		    reported=true
-		    echo >>$seq.out.bad
-		    echo "*** Failed permissions/ownership checks ***" >>$seq.out.bad
-		    cat $tmp.tmp >>$seq.out.bad
+		    echo >>$tmp.out
+		    echo "*** Failed permissions/ownership checks ***" >>$tmp.out
+		    cat $tmp.tmp >>$tmp.out
 		    err=true
 		fi
 
@@ -579,9 +579,9 @@ do
 				$PCP_ECHO_PROG $PCP_ECHO_N " - badness detected by check.callback""$PCP_ECHO_C"
 			    fi
 			    [ $color = true ] && tput sgr0 # reset
-			    echo >>$seq.out.bad
-			    echo "+++ check.callback output +++" >>$seq.out.bad
-			    cat $tmp.tmp >>$seq.out.bad
+			    echo >>$tmp.out
+			    echo "+++ check.callback output +++" >>$tmp.out
+			    cat $tmp.tmp >>$tmp.out
 			fi
 		    else
 			# check.callback suggests we should abandon the QA run ...
@@ -594,9 +594,9 @@ do
 			    $PCP_ECHO_PROG $PCP_ECHO_N " - run aborted by check.callback""$PCP_ECHO_C"
 			fi
 			[ $color = true ] && tput sgr0 # reset
-			echo >>$seq.out.bad
-			echo "+++ check.callback output +++" >>$seq.out.bad
-			cat $tmp.tmp >>$seq.out.bad
+			echo >>$tmp.out
+			echo "+++ check.callback output +++" >>$tmp.out
+			cat $tmp.tmp >>$tmp.out
 			err=true
 			echo "Check! [after $seq] Run aborted by check.callback @ `date`" >>check.log
 			callback_abort=true
@@ -605,7 +605,7 @@ do
 
 		if $err
 		then
-		    :
+		    mv $tmp.out $seq.out.bad
 		else
 		    echo "$seq `expr $stop - $start`" >>$tmp.time
 		fi
