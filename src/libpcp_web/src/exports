@@ -74,13 +74,3 @@ PCP_WEB_1.5 {
     pmLogLevelPrint;
     pmLogLevelStr;
 } PCP_WEB_1.4;
-
-PCP_WEB_1.6 {
-  global:
-    pmSeriesSetup;
-    pmSeriesClose;
-
-    redisSlotsConnect;
-    redisSlotsProxy;
-    redisSlotsFree;
-} PCP_WEB_1.5;
