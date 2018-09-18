@@ -563,7 +563,26 @@ do
 		then
 		    if ./check.callback $seq >$tmp.tmp 2>&1
 		    then
-			:
+			# script passes, so don't think about aborting
+			# but output would indicate a problem
+			# ...
+			if [ -s $tmp.tmp ]
+			then
+			    # output from check.callback, this means something bad has been
+			    # detected ...
+			    #
+			    [ $color = true ] && tput bold && tput setaf 1 # red
+			    if $done_nl
+			    then
+				echo "$seq ... - also badness detected by check.callback"
+			    else
+				$PCP_ECHO_PROG $PCP_ECHO_N " - badness detected by check.callback""$PCP_ECHO_C"
+			    fi
+			    [ $color = true ] && tput sgr0 # reset
+			    echo >>$seq.out.bad
+			    echo "+++ check.callback output +++" >>$seq.out.bad
+			    cat $tmp.tmp >>$seq.out.bad
+			fi
 		    else
 			# check.callback suggests we should abandon the QA run ...
 			#
@@ -581,22 +600,6 @@ do
 			err=true
 			echo "Check! [after $seq] Run aborted by check.callback @ `date`" >>check.log
 			callback_abort=true
-		    elif [ -s $tmp.tmp ]
-		    then
-			# output from check.callback, this means something bad has been
-			# detected ...
-			#
-			[ $color = true ] && tput bold && tput setaf 1 # red
-			if $done_nl
-			then
-			    echo "$seq ... - also badness detected by check.callback"
-			else
-			    $PCP_ECHO_PROG $PCP_ECHO_N " - badness detected by check.callback""$PCP_ECHO_C"
-			fi
-			[ $color = true ] && tput sgr0 # reset
-			echo >>$seq.out.bad
-			echo "+++ check.callback output +++" >>$seq.out.bad
-			cat $tmp.tmp >>$seq.out.bad
 		    fi
 		fi
 
