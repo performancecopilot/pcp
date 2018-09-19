@@ -1275,21 +1275,6 @@ collecting metrics about the Nginx Webserver.
 #end pcp-pmda-nginx
 
 #
-# pcp-pmda-nfsclient
-#
-%package pmda-nfsclient
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
-URL: https://pcp.io
-Requires: perl-PCP-PMDA = %{version}-%{release}
-
-%description pmda-nfsclient
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics for NFS Clients.
-#end pcp-pmda-nfsclient
-
-#
 # pcp-pmda-oracle
 #
 %package pmda-oracle
@@ -1347,30 +1332,6 @@ BuildRequires: postfix-doc
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Postfix (MTA).
 #end pcp-pmda-postfix
-
-#
-# pcp-pmda-postgresql
-#
-%package pmda-postgresql
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
-URL: https://pcp.io
-
-%if !%{disable_python3}
-Requires: python3-pcp
-Requires: python3-psycopg2
-BuildRequires: python3-psycopg2
-%else
-Requires: %{__python2}-pcp
-Requires: %{__python2}-psycopg2
-BuildRequires: %{__python2}-psycopg2
-%endif
-
-%description pmda-postgresql
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the PostgreSQL database.
-#end pcp-pmda-postgresql
 
 #
 # pcp-pmda-rsyslog
@@ -1518,6 +1479,46 @@ Requires: %{__python2}-pcp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the gluster filesystem.
 # end pcp-pmda-gluster
+
+#
+# pcp-pmda-nfsclient
+#
+%package pmda-nfsclient
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
+URL: https://pcp.io
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-nfsclient
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics for NFS Clients.
+#end pcp-pmda-nfsclient
+
+#
+# pcp-pmda-postgresql
+#
+%package pmda-postgresql
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
+URL: https://pcp.io
+%if !%{disable_python3}
+Requires: python3-pcp
+Requires: python3-psycopg2
+BuildRequires: python3-psycopg2
+%else
+Requires: %{__python2}-pcp
+Requires: %{__python2}-psycopg2
+BuildRequires: %{__python2}-psycopg2
+%endif
+%description pmda-postgresql
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the PostgreSQL database.
+#end pcp-pmda-postgresql
 
 #
 # pcp-pmda-zswap

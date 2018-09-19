@@ -78,6 +78,7 @@ require {
         type named_zone_t;
         type system_cronjob_t;
         type xdm_t;
+        type postgresql_t;
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -278,6 +279,9 @@ allow pcp_pmcd_t named_zone_t:dir search;
 #RHBZ1619381
 #type=AVC msg=audit(1534774142.552:48731): avc:  denied  { unix_read } for  pid=1726 comm="pmdalinux" key=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tclass=shm permissive=0
 allow pcp_pmcd_t xdm_t:shm unix_read;
+
+allow pcp_pmcd_t postgresql_t:sem { associate getattr unix_read };
+allow pcp_pmcd_t postgresql_t:shm { associate getattr unix_read };
 
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };

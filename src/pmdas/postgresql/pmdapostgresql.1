@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2018 Red Hat.  All Rights Reserved.
 .\" Copyright (c) 2009 Aconex.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -18,7 +19,7 @@
 \f3pmdapostgresql\f1 \- PostgreSQL database PMDA
 .SH DESCRIPTION
 \f3pmdapostgresql\f1 is a Performance Co-Pilot \s-1PMDA\s0 which extracts
-live performance data from a running PostgreSQL database.
+live performance data from a running PostgreSQL database server.
 .PP
 Many of the staticstics available from a PostgreSQL server may not
 be enabled by default.
@@ -27,30 +28,25 @@ Refer to the online documentation at
 which describes each of the available parameters related to statistics
 collection and how to enable them.
 .SH INSTALLATION
-\f3pmdapostgresql\f1 uses a configuration file from (in this order):
-.PD 0
+\f3pmdapostgresql\f1 uses a configuration file from \&\f(CW$PCP_PMDAS_DIR\fR/postgresql/postgresql.conf
+.PP
+This file currently contains only one section
+.B [authentication]
+which specifies values for the following default settings:
 .IP "\(bu" 4
-/etc/pcpdbi.conf
+host \- hostname, [default: 'localhost']
 .IP "\(bu" 4
-\&\f(CW$PCP_PMDAS_DIR\fR/postgresql/postgresql.conf
+dbname \- database name, [default: 'postgres']
 .IP "\(bu" 4
-\&./postgresql.conf
+username \- username to run as and to connect to the database [default: 'postgres']
+.IP "\(bu" 4
+password \- password to connect to the database [default: 'password']
 .PD
 .PP
-This file can contain overridden values (Perl code) for the settings
-listed at the start of pmdapostgresql.pl, for example:
-.PD 0
-.IP "\(bu" 4
-$database \- database access method and database name, [default: 'dbi:Pg:dbname=postgres']
-(see \s-1\fIDBI\s0\fR\|(3) for details)
-.IP "\(bu" 4
-$username \- username to connect to the database [default: 'postgres']
-.IP "\(bu" 4
-$password \- password to connect to the database [default: '']
-.IP "\(bu" 4
-$os_user \-
-operating system username (PMDA will run with the corresponding user id, if invoked as root) [default: $username]
-.PD
+the defaults as described above will result in the PMDA running as the
+.B postgres
+user, using a UNIX domain socket connection to the PostgreSQL server on the localhost.
+As such, it is normally not necessary to alter the default configuration file.
 .PP
 Once this is setup, you can access the names and values for the
 postgresql performance metrics by doing the following as root:
@@ -69,31 +65,19 @@ To uninstall, do the following as root:
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
 agent is installed or removed.
 .PP
-\fBpmdapostgresql\fR will automatically attempt to reconnect to the postgresql server
-if it's connection is lost - e.g. if the postgresql service is restarted.
-In addition, \fBpmdapostgresql\fR will disconnect if it is sent a
-.B SIGUSR1
-signal, and will then attempt to reconnect on the next fetch.
-This is mostly for quality assurance and test purposes, but may be useful in other circumstances.
+\fBpmdapostgresql\fR will automatically attempt to reconnect to the PostgreSQL server
+if it's connection is lost - e.g. if the PostgreSQL service is restarted.
 .SH "SUPPORTED VERSIONS"
 \fBpmdapostgresql\fR has been tested and verified with
-.B postgresql
-server, version
-.B 9.6.7
+PostgreSQL server version
+.B 10.2
 and earlier.
-The verification was done using the
-.BR pgbench (1)
-utility.
-It has not (yet) been tested or verified with
-.B postgresql
-version
-.BR 10.x .
+Later versions will probably also work correctly because the PMDA
+probes the various performance tables on start-up to determine the
+column ordering.
+It also tolerates missing or renamed tables and/or columns.
 .SH FILES
-.PD 0
-.IP "\fB/etc/pcpdbi.conf\fR" 4
-configuration file for all \s-1PCP\s0 database monitors
-.ie n .IP "\fB$PCP_PMDAS_DIR/postgresql/postgresql.conf\f1" 4
-.el .IP "\f(CW$PCP_PMDAS_DIR\fR/postgresql/postgresql.conf\f1" 4
+.IP "\fB$PCP_PMDAS_DIR/postgresql/pmdapostgresql.conf\f1"
 configuration file for \fBpmdapostgresql\fR
 .IP "\fB$PCP_PMDAS_DIR/postgresql/Install\fR" 4 
 installation script for the \fBpmdapostgresql\fR agent 
@@ -101,6 +85,12 @@ installation script for the \fBpmdapostgresql\fR agent
 undo installation script for the \fBpmdapostgresql\fR agent 
 .IP "\fB$PCP_LOG_DIR/pmcd/postgresql.log\fR" 4 
 default log file for error messages from \fBpmdapostgresql\fR 
+.PP
+Note the usual/default value for \fB$PCP_PMDAS_DIR\fP is
+.B /var/lib/pcp/pmdas
+and the default for \fB$PCP_LOG_DIR\fP is
+.B /var/log/pcp
+but these settings are platform dependent.
 .PD
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
@@ -110,6 +100,6 @@ The \fB$PCP_CONF\fR variable may be used to specify an alternative
 configuration file, as described in \fIpcp.conf\fR(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
-.BR pmdadbping (1)
+.BR PMCD (1)
 and
-.BR DBI (3).
+.B https://www.postgresql.org/docs/current/static/monitoring-stats.html
