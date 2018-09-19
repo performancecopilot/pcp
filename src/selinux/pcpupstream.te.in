@@ -69,7 +69,7 @@ require {
         type kernel_t;
         type mozilla_plugin_t;
         type fsadm_exec_t;
-        type tracefs_t; # pmda.gfs2
+        @PCP_TRACEFS@ # pmda.gfs2
         type system_map_t; # pmda.bcc
         type sysctl_irq_t; # pmda.bcc
         type gpsd_t; #RHBZ1594991
