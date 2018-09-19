@@ -235,7 +235,7 @@ kvm_trace_refresh(void)
     size_t		bufsize = ksize + sizeof(unsigned long long);
     int			i, sts, changed = 0;
 
-    if (ntrace == 0)
+    if (ntrace == 0 || group_fd == NULL)
 	return;
 
     if (buffer == NULL) {
@@ -610,6 +610,7 @@ kvm_init(pmdaInterface *dp)
 	    pmNotifyErr(LOG_INFO, "disabling perf_event support: %s",
 			pmErrStr(sts));
 	    free(group_fd);
+	    group_fd = NULL;
 	}
     }
 
