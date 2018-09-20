@@ -13,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
-
 _cleanup()
 {
     cd $here
@@ -33,10 +31,57 @@ _filter()
 	-e 's|PID for pmlogger: [0-9]*|PID for pmlogger: PID|'
 }
 
+# find these lines, report 'em and the next one
+# PMIDs 60.0.20, 60.0.21, 60.0.22 and 60.0.127 labels
+#
+_pick1()
+{
+    tee -a $seq.full \
+    | $PCP_AWK_PROG '
+$1 == "PMID" && $3 == "labels" {
+		if ($2 == "60.0.20" || $2 == "60.0.21" ||
+		    $2 == "60.0.22" || $2 == "60.0.127")
+			want = 2
+	    }
+want > 0    { print; want-- }' \
+    | _filter
+}
+
+# find these lines, report 'em and the next one
+# PMIDs 60.0.* and 60.1.* labels
+#
+_pick2()
+{
+    tee -a $seq.full \
+    | $PCP_AWK_PROG '
+$1 == "PMID" && $3 == "labels" {
+		if ($2 ~ /^60\.0\./ || $2 ~ /^60\.1\./)
+			want = 2
+	    }
+want > 0    { print; want-- }' \
+    | _filter
+}
+
+# find these lines, report 'em and the next one
+# PMIDs 60.*.* and 127.*.* labels
+#
+_pick3()
+{
+    tee -a $seq.full \
+    | $PCP_AWK_PROG '
+$1 == "PMID" && $3 == "labels" {
+		if ($2 ~ /^60\./ || $2 ~ /^127\./)
+			want = 2
+	    }
+want > 0    { print; want-- }' \
+    | _filter
+}
+
 # real QA test starts here
 DIR=archives
 
 # First, run pmlogrewrite against the archive, deleting and reassociating some item labels
+echo "=== LABEL ITEM changes ==="
 CONFIG=$tmp.config
 cat > $CONFIG << EOF
 LABEL ITEM kernel.all.cpu.user { } # does nothing
@@ -61,15 +106,18 @@ echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq.full
 pmdumplog -zhide $IN 2>&1 > $DUMP1
 
 DUMP2=$tmp.rewritten.txt
-IN=$OUT
-echo "Running pmdumplog -iteh $IN" | _filter | tee -a $seq.full
-pmdumplog -zhide $IN 2>&1 > $DUMP2
+echo "Running pmdumplog -zhide $OUT" | _filter | tee -a $seq.full
+pmdumplog -zhide $OUT 2>&1 > $DUMP2
 
 # Make sure the item labels have been deleted or reassociated
-echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
-diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
+echo "Input archive:" | tee -a $seq.full
+_pick1 <$DUMP1 2>&1
+echo "Output archive:" | tee -a $seq.full
+_pick1 <$DUMP2 2>&1
 
 # Now try reassociating to a new cluster
+echo
+echo "=== LABEL ITEM cluster 0 -> cluster 1 ==="
 CONFIG=$tmp.config
 cat > $CONFIG << EOF
 LABEL ITEM 60.0.* { ITEM -> 60.1.* }
@@ -91,16 +139,18 @@ echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq.full
 pmdumplog -zhide $IN 2>&1 > $DUMP1
 
 DUMP2=$tmp.rewritten.txt
-IN=$OUT
-echo "Running pmdumplog -iteh $IN" | _filter | tee -a $seq.full
-pmdumplog -zhide $IN 2>&1 > $DUMP2
+echo "Running pmdumplog -zhide $OUT" | _filter | tee -a $seq.full
+pmdumplog -zhide $OUT 2>&1 > $DUMP2
 
 # Make sure the item labels have been reassociated
-echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
-diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
-
+echo "Input archive:" | tee -a $seq.full
+_pick2 <$DUMP1 2>&1
+echo "Output archive:" | tee -a $seq.full
+_pick2 <$DUMP2 2>&1
 
 # Now try reassociating to a new domain
+echo
+echo "=== LABEL ITEM domain 60 -> domain 127 ==="
 CONFIG=$tmp.config
 cat > $CONFIG << EOF
 LABEL ITEM 60.*.* { ITEM -> 127.*.* }
@@ -122,13 +172,14 @@ echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq.full
 pmdumplog -zhide $IN 2>&1 > $DUMP1
 
 DUMP2=$tmp.rewritten.txt
-IN=$OUT
-echo "Running pmdumplog -iteh $IN" | _filter | tee -a $seq.full
-pmdumplog -zhide $IN 2>&1 > $DUMP2
+echo "Running pmdumplog -zhide $OUT" | _filter | tee -a $seq.full
+pmdumplog -zhide $OUT 2>&1 > $DUMP2
 
 # Make sure the item labels have been reassociated
-echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
-diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
+echo "Input archive:" | tee -a $seq.full
+_pick3 <$DUMP1 2>&1
+echo "Output archive:" | tee -a $seq.full
+_pick3 <$DUMP2 2>&1
 
 # success, all done
 status=0

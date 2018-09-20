@@ -1,59 +1,63 @@
 QA output created by 1267
+=== PMID 60.0.20 -> 200.0.20 ===
 Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
-Running pmdumplog -iteh archives/20180127.08.40
-Running pmdumplog -iteh TMP.pmlogrewrite
-Running diff TMP.original.txt TMP.extracted.txt
-131,133d130
-< PMID: 60.0.20 (kernel.all.cpu.user)
-<     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-<     Semantics: counter  Units: millisec
-745a743,745
-> PMID: 200.0.20 (kernel.all.cpu.user)
->     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
->     Semantics: counter  Units: millisec
-1505c1505
-<     Domain 60 labels (17 bytes): {"agent":"linux"}
----
->     Domain 200 labels (17 bytes): {"agent":"linux"}
-1507,1508d1506
-<     PMID 60.0.20 labels (21 bytes): {"device_type":"cpu"}
-<         [0] name(2,11) : value(15,5) [pmid]
-1523a1522,1523
->         [0] name(2,11) : value(15,5) [pmid]
->     PMID 200.0.20 labels (21 bytes): {"device_type":"cpu"}
+Running pmdumplog -zide archives/20180127.08.40
+Running pmdumplog -zide TMP.pmlogrewrite
+Input archive:
+PMID: 60.0.20 (kernel.all.cpu.user)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    Domain 60 labels (17 bytes): {"agent":"linux"}
+        [0] name(2,5) : value(9,7) [domain]
+    PMID 60.0.20 labels (21 bytes): {"device_type":"cpu"}
+        [0] name(2,11) : value(15,5) [pmid]
+Output archive:
+PMID: 200.0.20 (kernel.all.cpu.user)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    Domain 200 labels (17 bytes): {"agent":"linux"}
+        [0] name(2,5) : value(9,7) [domain]
+    PMID 200.0.20 labels (21 bytes): {"device_type":"cpu"}
+        [0] name(2,11) : value(15,5) [pmid]
+
+=== PMID 60.0.20 -> 60.100.20 ===
 Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
-Running pmdumplog -iteh archives/20180127.08.40
-Running pmdumplog -iteh TMP.pmlogrewrite
-Running diff TMP.original.txt TMP.extracted.txt
-131,133d130
-< PMID: 60.0.20 (kernel.all.cpu.user)
-<     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-<     Semantics: counter  Units: millisec
-1078a1076,1078
-> PMID: 60.100.20 (kernel.all.cpu.user)
->     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
->     Semantics: counter  Units: millisec
-1507,1508d1506
-<     PMID 60.0.20 labels (21 bytes): {"device_type":"cpu"}
-<         [0] name(2,11) : value(15,5) [pmid]
-1523a1522,1523
->         [0] name(2,11) : value(15,5) [pmid]
->     PMID 60.100.20 labels (21 bytes): {"device_type":"cpu"}
+Running pmdumplog -zide archives/20180127.08.40
+Running pmdumplog -zide TMP.pmlogrewrite
+Input archive:
+PMID: 60.0.20 (kernel.all.cpu.user)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    Domain 60 labels (17 bytes): {"agent":"linux"}
+        [0] name(2,5) : value(9,7) [domain]
+    PMID 60.0.20 labels (21 bytes): {"device_type":"cpu"}
+        [0] name(2,11) : value(15,5) [pmid]
+Output archive:
+PMID: 60.100.20 (kernel.all.cpu.user)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    Domain 60 labels (17 bytes): {"agent":"linux"}
+        [0] name(2,5) : value(9,7) [domain]
+    PMID 60.100.20 labels (21 bytes): {"device_type":"cpu"}
+        [0] name(2,11) : value(15,5) [pmid]
+
+=== PMID 60.0.20 -> 60.0.400 ===
 Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
-Running pmdumplog -iteh archives/20180127.08.40
-Running pmdumplog -iteh TMP.pmlogrewrite
-Running diff TMP.original.txt TMP.extracted.txt
-131,133d130
-< PMID: 60.0.20 (kernel.all.cpu.user)
-<     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-<     Semantics: counter  Units: millisec
-1009a1007,1009
-> PMID: 60.0.400 (kernel.all.cpu.user)
->     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
->     Semantics: counter  Units: millisec
-1507,1508d1506
-<     PMID 60.0.20 labels (21 bytes): {"device_type":"cpu"}
-<         [0] name(2,11) : value(15,5) [pmid]
-1523a1522,1523
->         [0] name(2,11) : value(15,5) [pmid]
->     PMID 60.0.400 labels (21 bytes): {"device_type":"cpu"}
+Running pmdumplog -zide archives/20180127.08.40
+Running pmdumplog -zide TMP.pmlogrewrite
+Input archive:
+PMID: 60.0.20 (kernel.all.cpu.user)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    Domain 60 labels (17 bytes): {"agent":"linux"}
+        [0] name(2,5) : value(9,7) [domain]
+    PMID 60.0.20 labels (21 bytes): {"device_type":"cpu"}
+        [0] name(2,11) : value(15,5) [pmid]
+Output archive:
+PMID: 60.0.400 (kernel.all.cpu.user)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    Domain 60 labels (17 bytes): {"agent":"linux"}
+        [0] name(2,5) : value(9,7) [domain]
+    PMID 60.0.400 labels (21 bytes): {"device_type":"cpu"}
+        [0] name(2,11) : value(15,5) [pmid]
