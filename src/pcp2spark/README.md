@@ -53,7 +53,7 @@ The example to run with python
 # PCP2SparkStreamCollector
 #
 # A basic spark streaming collector worker using the spark streaming
-# api to import pcp metrics into spark with conjuntion with pcp2spark.
+# api to import pcp metrics into spark with conjunction with pcp2spark.
 #
 
 # Import Required Libraries
