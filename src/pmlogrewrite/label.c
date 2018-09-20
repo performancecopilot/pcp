@@ -481,8 +481,10 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp)
 	 * the JSON to the new size, transfering the old data as needed and then
 	 * writing the new name. This code handles both the case where the size
 	 * of the json grows and when it shrinks.
+	 *
+	 * Careful, the new_label includes the surrounding double quotes.
 	 */
-	new_label_len = strlen(lp->new_label);
+	new_label_len = strlen(lp->new_label) - 2;
 	delta = new_label_len - current_label->namelen;
 	if (delta != 0) {
 	    /*
@@ -519,8 +521,11 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp)
 	 * Write the new name. Note that we don't need to worry about the
 	 * double quotes, since the ones from the previous name have already
 	 * been shifted into place, if necessary above.
+	 *
+	 * Careful, the new_label includes the surrounding double quotes, but
+	 * the length has already been adjusted.
 	 */
-	memcpy(current_name, lp->new_label, new_label_len);
+	memcpy(current_name, lp->new_label + 1, new_label_len);
 
 	/*
 	 * Update the length of the current name and the offsets of

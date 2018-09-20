@@ -68,6 +68,25 @@ dupcat(const char* s1, const char* s2)
     return s;
 }
  
+static char *
+add_quotes(const char *s)
+{
+    size_t	len;
+    char	*s1;
+
+    len = strlen(s) + 2 + 1;
+    s1 = malloc(len);
+    if (s1 == NULL) {
+	fprintf(stderr, "add_quotes malloc(%d) failed: %s\n",
+		(int)len, strerror(errno));
+	abandon();
+	/*NOTREACHED*/
+    }
+
+    pmsprintf(s1, len, "\"%s\"", s);
+    return s1;
+}
+ 
 indomspec_t *
 walk_indom(int mode)
 {
@@ -2284,7 +2303,10 @@ optlabeldetails	: jsonname optlabelvalue
 jsonname	: TOK_JSON_STRING
 		    { $$ = $1; }
 		| TOK_STRING
-		    { $$ = $1; }
+		    {
+			$$ = add_quotes($1);
+			free($1);
+		    }
 		;
 
 optlabelvalue	: jsonvalue
