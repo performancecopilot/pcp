@@ -283,6 +283,9 @@ allow pcp_pmcd_t xdm_t:shm unix_read;
 allow pcp_pmcd_t postgresql_t:sem { associate getattr unix_read };
 allow pcp_pmcd_t postgresql_t:shm { associate getattr unix_read };
 
+#type=AVC msg=audit(...): avc:  denied  { connectto } for  pid=NNN comm="python" path="/run/postgresql/.s.PGSQL.5432" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:postgresql_t:s0 tclass=unix_stream_socket
+allow pcp_pmcd_t postgresql_t:unix_stream_socket connectto;
+
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
