@@ -125,3 +125,45 @@ Running diff TMP.original.txt TMP.rewritten.txt
 <     PMID 60.0.82 labels (21 bytes): {"device_type":"cpu"}
 ---
 >     PMID 127.0.82 labels (21 bytes): {"device_type":"cpu"}
+Running pmlogrewrite -c TMP.config archives/20180416.10.00 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180416.10.00
+Running pmdumplog -iteh TMP.pmlogrewrite
+Running diff TMP.original.txt TMP.rewritten.txt
+3057a3058,3068
+> 10:01:25.325401
+>     PMID 60.0.53 labels (35 bytes): {"new_item_label":"new_item_value"}
+>         [0] name(2,14) : value(18,16) [pmid]
+>     PMID 60.0.54 labels (33 bytes): {"new_item_number":-123.456e+789}
+>         [0] name(2,15) : value(19,13) [pmid]
+>     PMID 60.0.55 labels (22 bytes): {"new_item_true":true}
+>         [0] name(2,13) : value(17,4) [pmid]
+>     PMID 60.0.60 labels (24 bytes): {"new_item_false":false}
+>         [0] name(2,14) : value(18,5) [pmid]
+>     PMID 60.0.78 labels (22 bytes): {"new_item_null":null}
+>         [0] name(2,13) : value(17,4) [pmid]
+3069,3080c3080,3091
+<     PMID 60.0.20 labels (21 bytes): {"device_type":"cpu"}
+<         [0] name(2,11) : value(15,5) [pmid]
+<     PMID 60.0.21 labels (21 bytes): {"device_type":"cpu"}
+<         [0] name(2,11) : value(15,5) [pmid]
+<     PMID 60.0.22 labels (21 bytes): {"device_type":"cpu"}
+<         [0] name(2,11) : value(15,5) [pmid]
+<     PMID 60.0.23 labels (21 bytes): {"device_type":"cpu"}
+<         [0] name(2,11) : value(15,5) [pmid]
+<     PMID 60.0.34 labels (21 bytes): {"device_type":"cpu"}
+<         [0] name(2,11) : value(15,5) [pmid]
+<     PMID 60.0.35 labels (21 bytes): {"device_type":"cpu"}
+<         [0] name(2,11) : value(15,5) [pmid]
+---
+>     PMID 60.0.20 labels (25 bytes): {"new_device_type":"cpu"}
+>         [0] name(2,15) : value(19,5) [pmid]
+>     PMID 60.0.21 labels (27 bytes): {"device_type":"new_value"}
+>         [0] name(2,11) : value(15,11) [pmid]
+>     PMID 60.0.22 labels (25 bytes): {"new_device_type":"cpu"}
+>         [0] name(2,15) : value(15,5) [pmid]
+>     PMID 60.0.23 labels (27 bytes): {"device_type":"new_value"}
+>         [0] name(2,11) : value(15,11) [pmid]
+>     PMID 60.0.34 labels (25 bytes): {"new_device_type":"cpu"}
+>         [0] name(2,15) : value(15,5) [pmid]
+>     PMID 60.0.35 labels (27 bytes): {"device_type":"new_value"}
+>         [0] name(2,11) : value(15,11) [pmid]

@@ -1,6 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 1349
-# Test that item labels can be deleted and reassociated by pmlogrewrite(1)
+# Test that item labels can be created, deleted and rewritten
+# by pmlogrewrite(1)
 #
 # Copyright (c) 2018 Red Hat.  All Rights Reserved.
 #
@@ -99,11 +100,51 @@ pmdumplog -zhide $IN 2>&1 > $DUMP2
 echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
 diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
 
-
 # Now try reassociating to a new domain
 CONFIG=$tmp.config
 cat > $CONFIG << EOF
 LABEL ITEM 60.*.* { ITEM -> 127.*.* }
+EOF
+echo contents of $CONFIG >> $seq.full
+echo ........................ >> $seq.full
+cat $CONFIG >> $seq.full
+echo ........................ >> $seq.full
+IN=$DIR/20180416.10.00
+OUT=$tmp.pmlogrewrite
+rm -f $OUT.*
+echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq.full
+pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq.full
+[ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
+
+# Now run pmdumplog against the rewritten archive.
+DUMP1=$tmp.original.txt
+echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq.full
+pmdumplog -zhide $IN 2>&1 > $DUMP1
+
+DUMP2=$tmp.rewritten.txt
+IN=$OUT
+echo "Running pmdumplog -iteh $IN" | _filter | tee -a $seq.full
+pmdumplog -zhide $IN 2>&1 > $DUMP2
+
+# Make sure the item labels have been reassociated
+echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
+diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
+
+# Now try creating and rewriting individual labels
+CONFIG=$tmp.config
+cat > $CONFIG << EOF
+LABEL ITEM 60.0.20 "device_type" { LABEL -> "new_device_type" }
+LABEL ITEM 60.0.21 * "cpu" { VALUE -> "new_value" }
+LABEL ITEM 60.0.22 { LABEL -> "new_device_type" }
+LABEL ITEM 60.0.23 { VALUE -> "new_value" }
+LABEL ITEM 60.0.34 * { LABEL -> "new_device_type" }
+LABEL ITEM 60.0.35 * * { VALUE -> "new_value" }
+
+LABEL ITEM 60.0.53 { NEW "new_item_label" "new_item_value" }
+LABEL ITEM 60.0.54 { NEW "new_item_number" -123.456e+789 }
+LABEL ITEM 60.0.55 { NEW "new_item_true" true }
+LABEL ITEM 60.0.60 { NEW "new_item_false" false }
+LABEL ITEM 60.0.78 { NEW "new_item_null" null }
 EOF
 echo contents of $CONFIG >> $seq.full
 echo ........................ >> $seq.full
