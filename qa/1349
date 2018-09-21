@@ -78,6 +78,26 @@ want > 0    { print; want-- }' \
     | _filter
 }
 
+# find these lines, report 'em and the next one
+# PMIDs 60.*.* and 127.*.* labels
+#
+_pick4()
+{
+    tee -a $seq.full \
+    | $PCP_AWK_PROG '
+$1 == "PMID" && $3 == "labels" {
+		if ($2 == "60.0.20" || $2 == "60.0.21" ||
+		    $2 == "60.0.22" || $2 == "60.0.23" ||
+		    $2 == "60.0.34" || $2 == "60.0.35" ||
+		    $2 == "60.0.53" || $2 == "60.0.54" ||
+		    $2 == "60.0.55" || $2 == "60.0.60" ||
+		    $2 == "60.0.78")
+			want = 2
+	    }
+want > 0    { print; want-- }' \
+    | _filter
+}
+
 # real QA test starts here
 DIR=archives
 
@@ -219,9 +239,11 @@ IN=$OUT
 echo "Running pmdumplog -iteh $IN" | _filter | tee -a $seq.full
 pmdumplog -zhide $IN 2>&1 > $DUMP2
 
-# Make sure the item labels have been reassociated
-echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
-diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
+# Make sure the item labels have been rewritten
+echo "Input archive:" | tee -a $seq.full
+_pick4 <$DUMP1 2>&1
+echo "Output archive:" | tee -a $seq.full
+_pick4 <$DUMP2 2>&1
 
 # success, all done
 status=0
