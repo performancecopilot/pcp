@@ -3385,8 +3385,8 @@ cd
 %endif
 
 %changelog
-* Fri Sep 14 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
-- Work-in-progress (see https://pcp.io/roadmap)
+* Fri Sep 21 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
+- Update to latest PCP sources.
 
 * Wed Aug 29 2018 Nathan Scott <nathans@redhat.com> - 4.1.1-3
 - Updated versions of Vector (1.3.1) and Blinkenlights (1.0.1) webapps
