@@ -47,7 +47,7 @@ https://www.tutorialspoint.com/apache_spark/apache_spark_installation.htm
 ## A pcp2spark example
 Here we will use pcp2spark to import pcp metrics and print in spark
 
-## PCP2SparkStreamCollector.py
+## PCP2SparkStreamCollector.python
 The example to run with python
 ```shell
 # PCP2SparkStreamCollector
@@ -91,7 +91,7 @@ $ pcp2spark -t 5 disk.all.write
 ### Submit the python script
 Open a shell and start the spark worker script
 ```shell
-$ spark-submit PCP2SparkStreamCollector.py localhost 44325
+$ spark-submit PCP2SparkStreamCollector.python localhost 44325
 ```
 
 ### You'll see time slots with the output

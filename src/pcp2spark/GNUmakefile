@@ -19,7 +19,7 @@ TARGET = pcp2spark
 MAN_SECTION = 1
 MAN_PAGES = $(TARGET).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
-DFILES = README.md PCP2SparkStreamCollector.py
+DFILES = README.md PCP2SparkStreamCollector.python
 EX_DIR = $(PCP_SHARE_DIR)/examples/pcp2spark
 
 default: $(TARGET).py $(MAN_PAGES)
