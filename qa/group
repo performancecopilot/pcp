@@ -1609,5 +1609,6 @@ BAD
 1415 pmda.mmv labels local
 1422 pmda.mmv local
 1423 pcp2spark python pcp2xxx local
+1455 pmlogrewrite labels pmdumplog local
 1495 pmlogrewrite labels pmdumplog local
 4751 libpcp threads valgrind local pcp python
