@@ -10,7 +10,7 @@ Group:   Applications/System
 %global  github https://github.com/performancecopilot
 
 Source0: %{bintray}/download/pcp/source/pcp-%{version}.src.tar.gz
-Source1: %{github}/pcp-webapp-vector/archive/1.3.1/pcp-webapp-vector-1.3.1.tar.gz
+Source1: %{github}/pcp-webapp-vector/archive/1.3.1-1/pcp-webapp-vector-1.3.1-1.tar.gz
 Source2: %{github}/pcp-webapp-grafana/archive/1.9.1-2/pcp-webapp-grafana-1.9.1-2.tar.gz
 Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
 Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenlights-1.0.1.tar.gz
@@ -19,10 +19,6 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 %global __python2 python2
 %else
 %global __python2 python
-%endif
-
-%if 0%{?rhel} > 7
-%global __requires_exclude ^perl-LDAP$
 %endif
 
 %if 0%{?fedora} || 0%{?rhel} > 5
@@ -1275,6 +1271,21 @@ collecting metrics about the Nginx Webserver.
 #end pcp-pmda-nginx
 
 #
+# pcp-pmda-nfsclient
+#
+%package pmda-nfsclient
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
+URL: https://pcp.io
+Requires: perl-PCP-PMDA = %{version}-%{release}
+
+%description pmda-nfsclient
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics for NFS Clients.
+#end pcp-pmda-nfsclient
+
+#
 # pcp-pmda-oracle
 #
 %package pmda-oracle
@@ -1332,6 +1343,30 @@ BuildRequires: postfix-doc
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Postfix (MTA).
 #end pcp-pmda-postfix
+
+#
+# pcp-pmda-postgresql
+#
+%package pmda-postgresql
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
+URL: https://pcp.io
+
+%if !%{disable_python3}
+Requires: python3-pcp
+Requires: python3-psycopg2
+BuildRequires: python3-psycopg2
+%else
+Requires: %{__python2}-pcp
+Requires: %{__python2}-psycopg2
+BuildRequires: %{__python2}-psycopg2
+%endif
+
+%description pmda-postgresql
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the PostgreSQL database.
+#end pcp-pmda-postgresql
 
 #
 # pcp-pmda-rsyslog
@@ -1479,46 +1514,6 @@ Requires: %{__python2}-pcp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the gluster filesystem.
 # end pcp-pmda-gluster
-
-#
-# pcp-pmda-nfsclient
-#
-%package pmda-nfsclient
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
-URL: https://pcp.io
-%if !%{disable_python3}
-Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
-%description pmda-nfsclient
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics for NFS Clients.
-#end pcp-pmda-nfsclient
-
-#
-# pcp-pmda-postgresql
-#
-%package pmda-postgresql
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
-URL: https://pcp.io
-%if !%{disable_python3}
-Requires: python3-pcp
-Requires: python3-psycopg2
-BuildRequires: python3-psycopg2
-%else
-Requires: %{__python2}-pcp
-Requires: %{__python2}-psycopg2
-BuildRequires: %{__python2}-psycopg2
-%endif
-%description pmda-postgresql
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the PostgreSQL database.
-#end pcp-pmda-postgresql
 
 #
 # pcp-pmda-zswap
@@ -3385,8 +3380,8 @@ cd
 %endif
 
 %changelog
-* Fri Sep 21 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
-- Update to latest PCP sources.
+* Fri Sep 14 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
+- Work-in-progress (see https://pcp.io/roadmap)
 
 * Wed Aug 29 2018 Nathan Scott <nathans@redhat.com> - 4.1.1-3
 - Updated versions of Vector (1.3.1) and Blinkenlights (1.0.1) webapps
@@ -3405,7 +3400,22 @@ cd
   values(BZ 1600262)
 - Update to latest PCP sources.
 
-* Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-1
+* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 4.1.0-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
+* Tue Jul 03 2018 Petr Pisar <ppisar@redhat.com> - 4.1.0-6
+- Perl 5.28 rebuild
+
+* Fri Jun 29 2018 Miro Hrončok <mhroncok@redhat.com> - 4.1.0-5
+- Rebuilt for Python 3.7
+
+* Thu Jun 28 2018 Jitka Plesnikova <jplesnik@redhat.com> - 4.1.0-4
+- Perl 5.28 rebuild
+
+* Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 4.1.0-3
+- Rebuilt for Python 3.7
+
+* Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-2
 - Rapid compression of PCP log data and metadata (BZ 1293471)
 - Added Perl package build dependencies.
 - Update to latest PCP sources.
