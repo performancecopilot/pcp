@@ -49,44 +49,6 @@ static int		current_label_instance;
 static labelspec_t	*current_labelspec;
 static int		do_walk_label;
 
-static char *
-dupcat(const char* s1, const char* s2)
-{
-    size_t	len;
-    char	*s;
-
-    len = strlen(s1) + strlen(s2) + 1;
-    s = malloc(len);
-    if (s == NULL) {
-	fprintf(stderr, "dupcat malloc(%d) failed: %s\n",
-		(int)len, strerror(errno));
-	abandon();
-	/*NOTREACHED*/
-    }
-
-    pmsprintf(s, len, "%s%s", s1, s2);
-    return s;
-}
- 
-static char *
-add_quotes(const char *s)
-{
-    size_t	len;
-    char	*s1;
-
-    len = strlen(s) + 2 + 1;
-    s1 = malloc(len);
-    if (s1 == NULL) {
-	fprintf(stderr, "add_quotes malloc(%d) failed: %s\n",
-		(int)len, strerror(errno));
-	abandon();
-	/*NOTREACHED*/
-    }
-
-    pmsprintf(s1, len, "\"%s\"", s);
-    return s1;
-}
- 
 indomspec_t *
 walk_indom(int mode)
 {
