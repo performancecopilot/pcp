@@ -521,9 +521,9 @@ pacman?	/usr/lib/python3.*/*-packages/defusedxml/lxml.py	[python-defusedxml (bui
 # -- python prometheus-client
 dpkg?	/usr/lib/python2.*/*-packages/prometheus_client	[python-prometheus-client (build optional)]
 dpkg?	/usr/lib/python3/*-packages/prometheus_client	[python3-prometheus-client (build optional)]
-rpm?	/usr/lib*/python2.*/*-packages/prometheus_client	[python-prometheus-client (build optional)]
-rpm?	/usr/lib*/python3.*/*-packages/prometheus_client	[python3-prometheus-client (build optional)]
-urpmi?	/usr/lib*/python*/*-packages/prometheus_client		[?python-prometheus-client (build optional)]
+rpm?	/usr/lib*/python2.*/*-packages/prometheus_client	[python-prometheus_client (build optional)]
+rpm?	/usr/lib*/python3.*/*-packages/prometheus_client	[python3-prometheus_client (build optional)]
+urpmi?	/usr/lib*/python*/*-packages/prometheus_client		[?python-prometheus_client (build optional)]
 emerge?	/usr/lib/python*/*-packages/prometheus_client		[?dev-python/prometheus-client (build optional)]
 pkgin?	/usr/pkg/lib/python3.*/*-packages/prometheus_client	[py36-prometheus-client (build optional)]
 pkg_add?	/usr/local/lib/python*/*-packages/prometheus_client	[?py-prometheus-client (build optional)]
@@ -583,8 +583,8 @@ pkg?	/usr/lib/python3.*/*-packages/PIL/Image.py	[N/A (QA optional)]
 slackpkg?	/usr/lib*/python2.*/*-packages/PIL/Image.py	[python-pillow (QA optional)]
 pacman?		Image.py	[?]
 # -- python psycopg2
-dpkg?    /usr/lib*/python2.*/*-packages/psycopg2	[python-psycopg2 (postgresql)]
-dpkg?    /usr/lib*/python3.*/*-packages/psycopg2	[python3-psycopg2 (postgresql)]
+dpkg?    /usr/lib/python2/*-packages/psycopg2		[python-psycopg2 (postgresql)]
+dpkg?    /usr/lib/python3/*-packages/psycopg2		[python3-psycopg2 (postgresql)]
 rpm?    /usr/lib*/python2.*/*-packages/psycopg2		[python-psycopg2 (postgresql)]
 rpm?    /usr/lib*/python3.*/*-packages/psycopg2		[python3-psycopg2 (postgresql)]
 urpmi?	/usr/lib*/python3.*/*-packages/psycopg2		[python3-psycopg2 (postgresql)]
@@ -1358,10 +1358,16 @@ in
 	na='python3-bcc'
 	;;
     bozo-vm)
-	na='python3-prometheus-client python3-bcc docker.io'
+	na='docker.io python3-bpfcc libsoqt5-dev'
+	;;
+    vm00)
+	na='libuv1-dev python3-libvirt python3-prometheus-client python3-elasticsearch python3-openpyxl python3-bpfcc libsoqt5-dev'
 	;;
     vm01)
 	na='python3-bpfcc libsoqt5-dev'
+	;;
+    vm03)
+	na='python3-prometheus-client'
 	;;
     vm04)
 	na='python-prometheus-client python-openpyxl zabbix-agent qtchooser qtchooser'
