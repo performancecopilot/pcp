@@ -473,7 +473,7 @@ slackpkg?	jsonpointer.py				[N/A (build optional)]
 pacman?	/usr/lib/python2.*/site-packages/jsonpointer.py	[python2-jsonpointer (build optional)
 pacman?	/usr/lib/python3.*/site-packages/jsonpointer.py	[python-jsonpointer (build optional)
 # -- python lio
-rpm?	/usr/lib*/python2.*/*-packages/rtslib		[python-rtslib]
+rpm?	/usr/lib*/python2.*/*-packages/rtslib		[python-rtslib or python2-rtslib]
 rpm?	/usr/lib*/python3.*/*-packages/rtslib		[python3-rtslib]
 urpmi?	/usr/lib*/python2.*/*-packages/rtslib		[python3-rtslib]
 urpmi?	/usr/lib*/python2.*/*-packages/rtslib		[python-rtslib]
@@ -494,8 +494,8 @@ pacman?	/usr/lib/python3.*/site-packages/setuptools	[python-setuptools]
 # -- python libvirt and lxml for libvirt PMDA
 dpkg?	/usr/lib/python2.*/*-packages/libvirt.py	[python-libvirt (build optional)]
 dpkg?	/usr/lib/python3/*-packages/libvirt.py	[python3-libvirt (build optional)]
-rpm?	/usr/lib*/python2.*/*-packages/libvirt.py	[libvirt-python or python-libvirt (build optional)]
-rpm?	/usr/lib*/python3.*/*-packages/libvirt.py	[libvirt-python3 or python3-libvirt (build optional)]
+rpm?	/usr/lib*/python2.*/*-packages/libvirt.py	[libvirt-python or python-libvirt-python (build optional)]
+rpm?	/usr/lib*/python3.*/*-packages/libvirt.py	[libvirt-python3 or python3-libvirt or python3-libvirt-python (build optional)]
 dpkg?	/usr/lib/python2.*/*-packages/lxml	[python-lxml (build optional)]
 dpkg?	/usr/lib/python3/*-packages/lxml	[python3-lxml (build optional)]
 rpm?	/usr/lib*/python2.*/*-packages/lxml	[python-lxml (build optional)]
@@ -836,7 +836,7 @@ slackpkg?	avahi-browse	[N/A (QA optional)]
 pacman?	avahi-browse		[avahi (QA optional)]
 # -- ifconfig
 dpkg?		ifconfig	[net-tools]
-rpm?		ifconfig	[net-tools]
+rpm?		ifconfig	[net-tools or net-tools-deprecated]
 urpmi?		ifconfig	[net-tools]
 emerge?		ifconfig	[?]
 pkgin?		ifconfig	[?]
@@ -846,7 +846,7 @@ slackpkg?	ifconfig	[net-tools]
 pacman?		ifconfig	[?]
 # -- netstat
 dpkg?		netstat		[net-tools]
-rpm?		netstat		[net-tools]
+rpm?		netstat		[net-tools or net-tools-deprecated]
 urpmi?		netstat		[net-tools]
 emerge?		netstat		[?]
 pkgin?		netstat		[?]
@@ -856,7 +856,7 @@ slackpkg?	netstat		[net-tools]
 pacman?		netstat		[?]
 # -- kubectl
 dpkg?		kubectl		[N/A]
-rpm?		kubectl		[kubernetes-client]
+rpm?		kubectl		[kubernetes-client or kubectl]
 urpmi?		kubectl		[kubernetes-client]
 emerge?		kubectl		[?]
 pkgin?		kubectl		[?]
@@ -1030,7 +1030,7 @@ slackpkg?	mkfs.gfs2	[N/A (gfs2 QA optional)]
 pacman?	mkfs.gfs2		[gfs2? (gfs2 QA optional)]
 # -- docker
 dpkg?		docker		[docker.io (QA optional)]
-rpm?		docker		[docker-common (QA optional)]
+rpm?		docker		[docker-common or docker (QA optional)]
 urpmi?		docker		[docker-common (QA optional)]
 emerge?		docker		[? (QA optional)]
 pkgin?		docker		[? (QA optional)]
@@ -1365,6 +1365,9 @@ in
 	;;
     vm01)
 	na='python3-bpfcc libsoqt5-dev'
+	;;
+    vm02)
+	na='python-prometheus_client python3-prometheus_client zabbix-agent kubernetes-node qtchooser selinux-policy-devel selinux-policy-targeted'
 	;;
     vm03)
 	na='python3-prometheus-client'
@@ -1739,7 +1742,7 @@ libpfm-devel				>=	4.4	pcp-pmda-perfevent
 libpfm|libpfm4				>=	4.4	pcp-pmda-perfevent
 libibmad-devel|infiniband-diags-devel	>=	1.1.7	pcp-pmda-infiniband
 libibmad|libibmad5|infiniband-diags	>=	1.1.7	pcp-pmda-infiniband
-libibumad-devel				>=	1.1.7	pcp-pmda-infiniband
+libibumad-devel|rdma-core-devel		>=	1.1.7	pcp-pmda-infiniband
 libibumad|libibumad3			>=	1.1.7	pcp-pmda-infiniband
 End-of-File
     cat $tmp.rpm \
