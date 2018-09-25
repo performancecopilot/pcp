@@ -19,6 +19,7 @@
 
 #ifdef HAVE_LIBUV
 #include <uv.h>
+#endif
 
 /*
  * Register a directory to be monitored, along with corresponding callback
@@ -34,10 +35,6 @@
  * efficiently - using libuv/fs_notify mechanisms - no polling and callbacks
  * are issued with low latency when changes are detected.
  */
-
-extern int pmDiscoverRegister(const char *,
-		pmDiscoverModule *, pmDiscoverCallBacks *, void *);
-extern void pmDiscoverUnregister(int);
 
 /*
  * Discovery state flags for a given path
@@ -71,8 +68,10 @@ typedef struct pmDiscover {
     pmDiscoverFlags		flags;		/* state for discovery process */
     pmTimespec			timestamp;	
     int				ctx;		/* PMAPI context or .meta fd */
+#ifdef HAVE_LIBUV
     uv_fs_event_t		*event_handle;	/* uv fs_notify event handle */ 
     uv_stat_t			statbuf;	/* stat buffer from event CB */
+#endif
     void			*baton;		/* private internal lib data */
     void			*data;		/* opaque user data pointer */
 } pmDiscover;
@@ -90,6 +89,11 @@ extern void pmSeriesDiscoverInDom(pmDiscoverEvent *,
 				pmInResult *, void *);
 extern void pmSeriesDiscoverText(pmDiscoverEvent *,
 				int, int, char *, void *);
+
+#ifdef HAVE_LIBUV
+extern int pmDiscoverRegister(const char *,
+		pmDiscoverModule *, pmDiscoverCallBacks *, void *);
+extern void pmDiscoverUnregister(int);
 
 #else
 #define pmDiscoverRegister(path, module, callbacks, data)	(-EOPNOTSUPP)
