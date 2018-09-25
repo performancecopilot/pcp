@@ -137,6 +137,7 @@ typedef struct pmDiscoverContext {
     pmLabelSet			*labelset;	/* context labels of source */
     sds				hostname;	/* hostname from the context */
     sds				name;		/* name for creating context */
+    int				type;		/* type for creating context */
 } pmDiscoverContext;
 
 typedef struct pmDiscoverEvent {

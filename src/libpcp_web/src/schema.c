@@ -61,6 +61,10 @@ redisScriptsInit(void)
     redisScript		*script;
     SHA1_CTX		shactx;
     int			i;
+    static int		setup;
+
+    if (setup)
+	return;
 
     for (i = 0; i < NSCRIPTS; i++) {
 	script = &scripts[i];
@@ -72,6 +76,7 @@ redisScriptsInit(void)
 	SHA1Final(hash, &shactx);
 	scripts->hash = sdsnew(pmwebapi_hash_str(hash));
     }
+    setup = 1;
 }
 
 static redisScript *
@@ -1699,16 +1704,17 @@ redisSlotsConnect(sds server, redisSlotsFlags flags,
 void
 pmSeriesSetup(pmSeriesModule *module, void *arg)
 {
+    /* create global EVAL hashes and string map caches */
+    redisScriptsInit();
+    redisMapsInit();
+
     /* fast path for when Redis has been setup already */
     if (module->slots) {
 	module->on_setup(arg);
     } else {
-	/* create global EVAL hashes and string map caches */
-	redisScriptsInit();
-	redisMapsInit();
-	/* establish initial connection to Redis instances */
+	/* establish initial basic connection to Redis instances */
 	module->slots = redisSlotsConnect(
-			module->hostspec, 1, module->on_info,
+			module->hostspec, SLOTS_VERSION, module->on_info,
 			module->on_setup, arg, module->events, arg);
     }
 }
@@ -1729,6 +1735,10 @@ pmDiscoverSetup(pmDiscoverSettings *settings, void *arg)
     char		path[MAXPATHLEN];
     char		sep = pmPathSeparator();
     int			i, handle;
+
+    /* create global EVAL hashes and string map caches */
+    redisScriptsInit();
+    redisMapsInit();
 
     if (!logdir)
 	logdir = fallback;

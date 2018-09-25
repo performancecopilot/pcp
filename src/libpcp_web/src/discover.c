@@ -63,6 +63,7 @@ pmDiscoverLookupAdd(const char *path, pmDiscoverModule *module, void *arg)
 	    return NULL;
 	h->ctx = -1; /* no PMAPI context initially */
 	h->flags = PM_DISCOVER_FLAGS_NEW;
+	h->context.type = PM_CONTEXT_ARCHIVE;
 	h->context.name = sdsnew(path);
 	h->module = module;
 	h->data = arg;
@@ -259,7 +260,7 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
 	uv_fs_req_cleanup(&sreq);
     }
 
-    if (p->changed && path_changed)
+    if (p && p->changed && path_changed)
     	p->changed(p);
 
     sdsfree(path);
@@ -635,7 +636,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	    struct timeval	tvp;
 
 	    /* create the PMAPI context (once off) */
-	    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, p->context.name)) < 0) {
+	    if ((sts = pmNewContext(p->context.type, p->context.name)) < 0) {
 		infofmt(msg, "pmNewContext failed for %s: %s\n",
 			p->context.name, pmErrStr(sts));
 		moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
@@ -654,7 +655,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	}
 	else if (p->flags & PM_DISCOVER_FLAGS_META) {
 	    /* temporary context to get archive hostname and label details */
-	    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, p->context.name)) < 0) {
+	    if ((sts = pmNewContext(p->context.type, p->context.name)) < 0) {
 		infofmt(msg, "pmNewContext failed for %s: %s\n",
 				p->context.name, pmErrStr(sts));
 		moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
@@ -688,10 +689,10 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		len = hdr.len - sizeof(hdr);
 		if (len > buflen) {
 		    buflen = len + 4096;
-		    if ((bp = (uint32_t *)realloc(buf, buflen)) == NULL) {
+		    if ((bp = (uint32_t *)realloc(buf, buflen)) != NULL) {
 			buf = bp;
 		    } else {
-			infofmt(msg, "realloc %d bytes failed fon %s\n",
+			infofmt(msg, "realloc %d bytes failed for %s\n",
 					buflen, p->context.name);
 			moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
 			break;

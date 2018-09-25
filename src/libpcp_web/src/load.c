@@ -1325,10 +1325,11 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
 			    module->slots, arg);
 	initSeriesGetContext(&baton->pmapi, baton);
 	cp = &baton->pmapi.context;
-	cp->type = PM_CONTEXT_ARCHIVE;
 	cp->context = p->ctx;
+	cp->type = p->context.type;
+	cp->name.sds = p->context.name;
+	cp->host = p->context.hostname;
 	cp->labels = p->context.labelset;
-	cp->name.sds = p->context.source;
 	pmwebapi_source_hash(cp->name.hash, cp->labels->json, cp->labels->jsonlen);
 	set_source_origin(cp);
 	p->baton = baton;
@@ -1350,7 +1351,7 @@ pmSeriesDiscoverClosed(pmDiscoverEvent *event, void *arg)
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
 
-    assert(arg == baton->arg);
+    (void)arg;
     freeSeriesLoadBaton(baton);
 }
 
@@ -1361,7 +1362,8 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
 
-    assert(arg == baton->arg);
+    (void)arg;
+    (void)baton;
     /* TODO: load labels */
 }
 
@@ -1372,7 +1374,8 @@ pmSeriesDiscoverMetric(pmDiscoverEvent *event,
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
 
-    assert(arg == baton->arg);
+    (void)arg;
+    (void)baton;
     /* TODO: load metric */
 }
 
@@ -1382,7 +1385,8 @@ pmSeriesDiscoverValues(pmDiscoverEvent *event, pmResult *result, void *arg)
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
 
-    assert(arg == baton->arg);
+    (void)arg;
+    (void)baton;
     /* TODO: load values */
 }
 
@@ -1392,7 +1396,8 @@ pmSeriesDiscoverInDom(pmDiscoverEvent *event, pmInResult *inresult, void *arg)
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
 
-    assert(arg == baton->arg);
+    (void)arg;
+    (void)baton;
     /* TODO: load indom */
 }
 
@@ -1403,6 +1408,7 @@ pmSeriesDiscoverText(pmDiscoverEvent *event,
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
 
-    assert(arg == baton->arg);
+    (void)arg;
+    (void)baton;
     /* Ignore for now, help text will need special handling (RediSearch) */
 }
