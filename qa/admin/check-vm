@@ -990,7 +990,7 @@ slackpkg?	memcached	[N/A (memcache QA optional)]
 pacman?	memcached		[memcached (memcache QA optional)]
 # -- zabbix
 dpkg?	zabbix_agentd		[zabbix-agent (zabbix QA optional)]
-rpm?	zabbix_agentd		[zabbix-agent (zabbix QA optional)]
+rpm?	zabbix_agentd		[zabbix-agent or zabbix22-agent (zabbix QA optional)]
 urpmi?	zabbix_agentd		[N/A (zabbix QA optional)]
 emerge?	zabbix_agentd		[? (zabbix QA optional)]
 pkgin?	zabbix_agentd		[zabbix-agent (zabbix QA optional)]
@@ -1385,7 +1385,7 @@ in
 	na='python3-bpfcc docker.io libsoqt5-dev'
 	;;
     vm12)
-	na='python3-prometheus-client python3-bcc kubernetes-client kubernetes-node'
+	na='python3-prometheus_client python3-bcc kubernetes-client kubernetes-node'
 	;;
     vm14)
 	na='systemd-devel libpfm-devel python-prometheus-client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin3-devel Net::SNMP YAML::XS::LibYAML libuv-devel kubernetes-client kubernetes-node docker-common'
@@ -1414,6 +1414,9 @@ in
     vm24)
 	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin3-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch python3-bcc python3-pillow docker-io'
 	;;
+    vm25)
+	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser'
+    	;;
     vm27)
 	na='python3-bpfcc'
 	;;
