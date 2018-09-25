@@ -1750,6 +1750,7 @@ pmDiscoverSetup(pmDiscoverSettings *settings, void *arg)
 	if ((handle = pmDiscoverRegister(path,
 			&settings->module, &settings->callbacks, arg)) < 0)
 	    continue;
+	/* coverity[DEADCODE] -- this is reached when HAVE_LIBUV is set */
 	settings->module.handle = handle;
     }
 }
