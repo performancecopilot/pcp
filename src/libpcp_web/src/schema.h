@@ -123,11 +123,12 @@ typedef struct seriesLoadBaton {
 
     seriesGetContext	pmapi;		/* PMAPI context info */
     redisSlots		*slots;		/* Redis server slots */
-
-    pmSeriesSettings	*settings;
+    void		*module;
+    pmSeriesFlags	flags;
+    pmSeriesDoneCallBack done;
+    pmLogInfoCallBack	info;
     void		*userdata;
     timing_t		timing;
-    pmflags		flags;
 
     dict		*clusters;
     dict		*domains;

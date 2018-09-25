@@ -11,7 +11,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include "series.h"
+#include "pmwebapi.h"
 #include "slots.h"
 #include "util.h"
 #include "maps.h"

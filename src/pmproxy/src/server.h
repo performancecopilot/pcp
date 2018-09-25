@@ -16,9 +16,9 @@
 
 #include <uv.h>
 #include "pmapi.h"
-#include "libpcp.h"
-#include "series.h"
+#include "pmwebapi.h"
 #include "pmproxy.h"
+#include "libpcp.h"
 #include "slots.h"
 
 typedef enum stream_protocol {
@@ -76,7 +76,7 @@ typedef struct proxy {
     redisSlots		*slots;
 } proxy;
 
-extern void proxylog(pmloglevel, sds, void *);
+extern void proxylog(pmLogLevel, sds, void *);
 extern void on_client_close(uv_handle_t *);
 
 extern void setup_redis_proxy(struct proxy *);

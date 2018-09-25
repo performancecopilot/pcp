@@ -74,3 +74,24 @@ PCP_WEB_1.5 {
     pmLogLevelPrint;
     pmLogLevelStr;
 } PCP_WEB_1.4;
+
+PCP_WEB_1.6 {
+  global:
+    pmDiscoverSetup;
+    pmDiscoverClose;
+
+    pmSeriesSetup;
+    pmSeriesClose;
+
+    pmSeriesDiscoverSource;
+    pmSeriesDiscoverClosed;
+    pmSeriesDiscoverLabels;
+    pmSeriesDiscoverMetric;
+    pmSeriesDiscoverValues;
+    pmSeriesDiscoverInDom;
+    pmSeriesDiscoverText;
+
+    redisSlotsConnect;
+    redisSlotsProxy;
+    redisSlotsFree;
+} PCP_WEB_1.5;

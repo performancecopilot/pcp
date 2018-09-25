@@ -15,7 +15,7 @@
 #define SERIES_QUERY_H
 
 #include "pmapi.h"
-#include "series.h"
+#include "pmwebapi.h"
 
 /*
  * Time series querying
@@ -134,8 +134,8 @@ typedef struct series {
     timing_t		time;
 } series_t;
 
-extern int series_solve(pmSeriesSettings *, node_t *, timing_t *, pmflags, void *);
-extern int series_load(pmSeriesSettings *, node_t *, timing_t *, pmflags, void *);
+extern int series_solve(pmSeriesSettings *, node_t *, timing_t *, pmSeriesFlags, void *);
+extern int series_load(pmSeriesSettings *, node_t *, timing_t *, pmSeriesFlags, void *);
 
 extern const char *series_instance_name(sds);
 extern const char *series_context_name(sds);

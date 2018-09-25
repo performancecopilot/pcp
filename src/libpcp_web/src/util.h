@@ -19,7 +19,10 @@
 
 extern int tsub(struct timeval *, struct timeval *);
 extern int tadd(struct timeval *, struct timeval *);
-extern const char *timeval_str(struct timeval *);
+extern const char *timeval_str(struct timeval *, char *, int);
+extern const char *timeval_stream_str(struct timeval *, char *, int);
+extern const char *timespec_str(pmTimespec *, char *, int);
+extern const char *timespec_stream_str(pmTimespec *, char *, int);
 
 extern int context_labels(int, pmLabelSet **);
 extern int metric_labelsets(struct metric *,
@@ -53,12 +56,11 @@ extern char *pmwebapi_hash_str(const unsigned char *);
 /*
  * Generally useful sds buffer formatting and diagnostics callback macros
  */
-#define seriesfmt(msg, fmt, ...)	\
+#define infofmt(msg, fmt, ...)	\
 	((msg) = sdscatprintf(sdsempty(), fmt, ##__VA_ARGS__))
-#define seriesmsg(baton, level, msg)	\
+#define batoninfo(baton, level, msg)	\
 	((baton)->info((level), (msg), (baton)->userdata), sdsfree(msg))
-#define webapimsg(sp, level, msg)	\
-	((sp)->settings->command.on_info((level), (msg), (sp)->userdata), \
-	sdsfree(msg))
+#define moduleinfo(module, level, msg, data)	\
+	((module)->on_info((level), (msg), (data)), sdsfree(msg))
 
 #endif	/* SERIES_UTIL_H */
