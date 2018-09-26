@@ -39,8 +39,11 @@ typedef struct stream {
 	uv_pipe_t	local;
 	uv_tcp_t	tcp;
     } u;
-    unsigned int	active;
     stream_family	family;
+    unsigned int	active: 1;
+    unsigned int	zero : 15;
+    unsigned int	port : 16;
+    const char		*address;
 } stream;
 
 typedef struct redis_client {
