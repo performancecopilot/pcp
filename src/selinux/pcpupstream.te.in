@@ -88,7 +88,7 @@ require {
 	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
 	class fifo_file { getattr read open unlink }; # qa/455
-	class process { signal execmem setrlimit }; #RHBZ1443632
+	class process { signull signal execmem setrlimit }; #RHBZ1443632
 	class sock_file write; #RHBZ1449671
 	@PCP_SOCK_FILE_GETATTR@
 	@PCP_CLASS_STATUS@
@@ -99,6 +99,7 @@ require {
 	class msgq { unix_read };
         class unix_dgram_socket { sendto };
         class dbus { send_msg };
+        @PCP_BPF_STATUS_CLASS@
 }
 
 #============= init_t ==============
@@ -286,6 +287,10 @@ allow pcp_pmcd_t postgresql_t:shm { associate getattr unix_read };
 #type=AVC msg=audit(...): avc:  denied  { connectto } for  pid=NNN comm="python" path="/run/postgresql/.s.PGSQL.5432" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:postgresql_t:s0 tclass=unix_stream_socket
 allow pcp_pmcd_t postgresql_t:unix_stream_socket connectto;
 
+#RHBZ1633211
+@PCP_BPF_STATUS_RULE@
+
+allow pcp_pmcd_t kernel_t:process signull;
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;

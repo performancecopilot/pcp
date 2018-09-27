@@ -22,6 +22,13 @@ which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
 [ -f "$policy_file" ] || _notrun "upstream policy package not installed"
 $sudo semodule -l 2>&1 | grep -q $policy_name || _notrun "upstream policy package not loaded"
 
+seinfo --common >/dev/null 2>&1
+if [ $? -eq 0 ]
+then
+    common_flag="--common"
+else
+    common_flag=""
+fi
 nsfs_t=`seinfo -t | grep 'nsfs_t$'`
 docker_var_lib_t=""
 svirt_lxc_net_t=`seinfo -t | grep "svirt_lxc_net_t$"`
@@ -30,18 +37,19 @@ systemd_systemctl_unit_file_t=`seinfo -t | grep "systemd_unit_file_t$"`
 systemd_systemctl_unit_dir_t=`seinfo -t | grep "systemd_unit_dir_t$"`
 devlog_t=`seinfo -t | grep "devlog_t$"`
 init_t=`seinfo -t | grep "init_t$"`
-cap_userns_ptrace=`seinfo --class=cap_userns -x 2>&1 | grep "sys_ptrace$"`
+cap_userns_ptrace=`seinfo --class=cap_userns $common_flag -x 2>&1 | grep "sys_ptrace$"`
 unreserved_port_t=`seinfo -t | grep "unreserved_port_t$"`
 tracefs_t=`seinfo -t | grep "tracefs_t$"`
-class_status=`seinfo -x --class=system | grep "status$"`
-sock_file_getattr=`seinfo -x --class=sock_file | grep "getattr$"`
-hostname_exec_map_a=`seinfo -x --class=file | grep "map$"`
+class_status=`seinfo -x --class=system $common_flag | grep "status$"`
+sock_file_getattr=`seinfo -x --class=sock_file $common_flag | grep "getattr$"`
+hostname_exec_map_a=`seinfo -x --class=file $common_flag | grep "map$"`
 hostname_exec_map_b=`seinfo -x --common=file 2>/dev/null | grep "map$"`
 #container_runtime_tmpfs_t=`seinfo -t | grep "container_runtime_tmpfs_t$"`
 container_runtime_tmpfs_t=""
 unconfined_service=`seinfo -t | grep "unconfined_service_t$"`
 mock_var_lib=`seinfo -t | grep "mock_var_lib_t$"`
 numad_context=`seinfo -t | grep "numad_t$"`
+bpf_class=`seinfo -x --class=bpf $common_flag | grep "class bpf"`
 
 _filter_semodule()
 {
@@ -78,6 +86,7 @@ _filter_outfile()
 	-v unconfined_service="$unconfined_service" \
 	-v mock_var_lib="$mock_var_lib" \
 	-v numad_context="$numad_context" \
+        -v bpf_class="$bpf_class" \
     '{
     	if (container_t == "" && /container_runtime_t /)
 	   !/container_runtime_t / ;
@@ -124,6 +133,8 @@ _filter_outfile()
 	else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /hostname_exec_t/ && /pcp_pmie_t/) {
 	     printf("  allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };\n")
 	   }
+        else if (bpf_class == "" && /bpf/)
+            !/bpf/ ;
 	else
 	   print;
     }'

@@ -86,3 +86,8 @@ ifeq "$(PCP_SELINUX_NUMAD)" "true"
 PCP_NUMAD_CONTEXT="type numad_t\;"
 PCP_NUMAD_RULE="allow pcp_pmcd_t numad_t:msgq unix_read\;"
 endif
+
+ifeq "$(PCP_SELINUX_BPF_STATUS)" "true"
+PCP_BPF_STATUS_CLASS="class bpf { map_create map_read map_write prog_load prog_run }\;"
+PCP_BPF_STATUS_RULE="allow pcp_pmcd_t self:bpf { map_create map_read map_write prog_load prog_run }\;"
+endif

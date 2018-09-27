@@ -1991,13 +1991,21 @@ pcp_selinux_hostname_exec_map=false
 pcp_selinux_mock=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
+pcp_selinux_bpf_class=false
 
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 for policy_file in /etc/selinux/targeted/policy/policy.*
 do
+    seinfo --common >/dev/null 2>&1
+    if test $? -eq 0
+    then
+        seinfo_common_flag="--common="
+    else
+        seinfo_common_flag="--class="
+    fi
     if test -f "$policy_file"
     then
-        class_status=`eval seinfo -x --class=system -- $policy_file | grep status | awk '{ print $1 }'`
+        class_status=`eval seinfo -x --class=system $seinfo_common_flag  -- $policy_file | grep status | awk '{ print $1 }'`
     	if test "x$class_status" != "x"
 	then
 	    pcp_selinux_class_status=true
@@ -2032,7 +2040,7 @@ do
 	then
 	    pcp_selinux_systemd_exec=true
 	fi
-	cap_userns_ptrace=`eval seinfo -x --class=cap_userns -- $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
+	cap_userns_ptrace=`eval seinfo -x --class=cap_userns $seinfo_common_flag -- $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
     	if test "x$cap_userns_ptrace" != "x"
 	then
 	    pcp_selinux_cap_userns_ptrace=true
@@ -2047,12 +2055,12 @@ do
 	then
 	    pcp_selinux_tracefs=true
 	fi
-	sock_file_getattr=`eval seinfo -x --class=sock_file -- $policy_file | grep getattr | awk '{ print $1 }'`
+	sock_file_getattr=`eval seinfo -x --class=sock_file $seinfo_common_flag -- $policy_file | grep getattr | awk '{ print $1 }'`
 	if test "x$sock_file_getattr" != "x"
 	then
 	    pcp_selinux_sock_file_getattr=true
 	fi
-	hostname_exec_map_a=`eval seinfo -x --class=file -- $policy_file | grep map | awk '{ print $1 }'`
+	hostname_exec_map_a=`eval seinfo -x --class=file $seinfo_common_flag -- $policy_file | grep map | awk '{ print $1 }'`
 	hostname_exec_map_b=`eval seinfo -x --common file -- $policy_file 2>/dev/null | grep map | awk '{ print $1 }'`
 	if test "x$hostname_exec_map_a" != "x" -o "x$hostname_exec_map_b" != "x"
 	then
@@ -2073,6 +2081,11 @@ do
        then
            pcp_selinux_numad=true
        fi
+       bpf_class=`eval seinfo -x --class=bpf $seinfo_common_flag -- $policy_file 2>/dev/null | grep status | awk '{ print $1 }'`
+       if test "x$bpf_class" != "x"
+       then
+	    pcp_selinux_bpf_status=true
+       fi
     fi
 done
 ])
@@ -2091,6 +2104,7 @@ AC_SUBST(pcp_selinux_hostname_exec_map)
 AC_SUBST(pcp_selinux_mock)
 AC_SUBST(pcp_selinux_unconfined)
 AC_SUBST(pcp_selinux_numad)
+AC_SUBST(pcp_selinux_bpf_status)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
