@@ -245,7 +245,7 @@ ed
 git
 make
 !pkg?	egcc|gcc	[gcc]
-pkg?	gcc		[build-essential]
+pkg?	gcc		[build-essential or gcc]
 autoconf
 flex
 bison
@@ -295,7 +295,7 @@ urpmi?		pkg-config	[pkgconfig]
 emerge?		pkg-config	[?]
 pkgin?		pkg-config	[pkg-config]
 pkg_add?	pkg-config	[?]
-pkg?		pkg-config	[pkg-config]
+pkg?		pkg-config	[devel/pkgconf]
 slackpkg?	pkg-config	[pkg-config]
 pacman?		pkg-config	[pkg-config]
 # -- libuv
@@ -305,7 +305,7 @@ urpmi?	/usr/include/uv.h	[libuv-devel (build optional)]
 emerge?	/usr/include/uv.h	[net-libs/libuv (build optional)]
 pkgin?	/usr/pkg/include/uv.h	[libuv (build optional)]
 pkg_add?	/usr/local/include/uv.h	[libuv (build optional)]
-pkg?	/usr/include/uv.h	[libuv (build optional)]
+pkg?	/usr/local/include/uv.h	[libuv (build optional)]
 slackpkg?	uv.h		[N/A (build optional)]
 pacman?	/usr/include/uv.h	[libuv (build optional)]
 # -- libmicrohttpd
@@ -315,8 +315,8 @@ urpmi?	/usr/include/microhttpd.h	[libmicrohttpd-devel (build optional)]
 emerge?	/usr/include/microhttpd.h	[net-libs/libmicrohttpd (build optional)]
 pkgin?	/usr/pkg/include/microhttpd.h	[libmicrohttpd (build optional)]
 pkg_add?	/usr/local/include/microhttpd.h	[libmicrohttpd (build optional)]
-pkg?		/usr/include/microhttpd.h	[libmicrohttpd (build optional)]
-pkg?		/usr/include/gnutls/gnutls.h	[gnutls (build optional)]
+pkg?		/usr/local/include/microhttpd.h	[libmicrohttpd (build optional)]
+pkg?		/usr/local/include/gnutls/gnutls.h	[gnutls (build optional)]
 slackpkg?	microhttpd.h		[N/A (build optional)]
 pacman?	/usr/include/microhttpd.h	[libmicrohttpd (build optional)]
 # -- libcairo
@@ -326,7 +326,7 @@ urpmi?	/usr/include/cairo/cairo.h	[cairo-devel (build optional)]
 emerge?	/usr/include/cairo/cairo.h	[x11-libs/cairo (build optional)]
 pkgin?	/usr/pkg/include/cairo/cairo.h	[cairo (build optional)]
 pkg_add?	/usr/local/include/cairo/cairo.h	[cairo (build optional)]
-pkg?	/usr/include/cairo/cairo.h	[cairo (build optional)]
+pkg?	/usr/local/include/cairo/cairo.h	[cairo (build optional)]
 slackpkg?	/usr/include/cairo/cairo.h	[cairo (build optional)]
 pacman?	/usr/include/cairo/cairo.h	[cairo (build optional)]
 # -- zlib
@@ -356,7 +356,7 @@ urpmi?	/usr/include/sasl/sasl.h	[lib64sasl-devel (build optional)]
 emerge?	/usr/include/sasl/sasl.h	[dev-libs/cyrus-sasl (build optional)]
 pkgin?	/usr/pkg/include/sasl/sasl.h	[cyrus-sasl (build optional)]
 pkg_add?	/usr/local/include/sasl/sasl.h	[cyrus-sasl (build optional)]
-pkg?	/usr/include/sasl/sasl.h	[system/header (build optional)]
+pkg?	/usr/local/include/sasl/sasl.h	[cyrus-sasl or system/header (build optional)]
 slackpkg?	/usr/include/sasl/sasl.h	[cyrus-sasl (build optional)]
 pacman?	/usr/include/sasl/sasl.h	[cyrus-sasl (build optional)]
 # -- systemd API
@@ -373,7 +373,7 @@ urpmi?	umad.h				[N/A (build optional)]
 emerge?	/usr/include/infiniband/umad.h	[sys-infiniband/libibumad (build optional)]
 pkgin?	/usr/pkg/include/umad.h		[libibumad (build optional)]
 pkg_add?	/usr/local/include/umad.h	[libumad (build optional)]
-pkg?	/usr/include/sys/ib/clients/of/sol_umad/sol_umad.h			[system/header (build optional)]
+pkg?	/usr/include/sys/ib/clients/of/sol_umad/sol_umad.h			[libibumad or system/header (build optional)]
 slackpkg?	umad.h			[N/A (build optional)]
 pacman?		umad.h			[umad? (build optional)]
 dpkg?	/usr/include/infiniband/mad.h	[libibmad-dev (build optional)]
@@ -382,7 +382,7 @@ urpmi?	mad.h				[N/A (build optional)]
 emerge?	/usr/include/infiniband/mad.h	[sys-infiniband/libibmad (build optional)]
 pkgin?	/usr/pkg/include/mad.h		[libibmad (build optional)]
 pkg_add?	/usr/local/include/mad.h	[libmad (build optional)]
-pkg?	/usr/include/sys/ib/clients/of/rdma/ib_user_mad.h			[system/header (build optional)]
+pkg?	/usr/include/sys/ib/clients/of/rdma/ib_user_mad.h			[libibmad or system/header (build optional)]
 slackpkg?	mad.h			[N/A (build optional)]
 pacman?	/usr/include/mad.h		[libmad (build optional)]
 # -- avahi API
@@ -392,7 +392,7 @@ urpmi?	/usr/include/avahi-common	[lib64avahi-common-devel (build optional)]
 emerge?	/usr/include/avahi-common	[net-dns/avahi (build optional)]
 pkgin?	/usr/pkg/include/avahi-common	[avahi (build optional)]
 pkg_add?	/usr/local/include/avahi-common	[avahi (build optional)]
-pkg?	/usr/include/avahi-common	[network/avahi (build optional)]
+pkg?	/usr/include/avahi-common	[avahi (build optional)]
 slackpkg?	avahi-common		[N/A (build optional)]
 pacman?	/usr/include/avahi-common	[avahi (build optional)]
 # -- libpapi
@@ -1397,7 +1397,7 @@ in
 	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
 	;;
     vm19)
-	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch zabbix-agent docker-io qtchooser selinux-policy-devel python3-pillow python3-bcc'
+	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch zabbix-agent docker-io qtchooser selinux-policy-devel python3-pillow python3-bcc python3-prometheus_client'
 	;;
     vm20)
 	na='sysv-rc-conf'
@@ -1406,13 +1406,13 @@ in
 	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-openpyxl zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io'
 	;;
     vm22)
-	na='python-prometheus-client python3-prometheus-client python3-openpyxl python3-bcc'
+	na='python-prometheus-client python3-prometheus-client python3-openpyxl python3-bcc python3-prometheus_client'
 	;;
     vm23)
-	na='python-prometheus-client python3-prometheus-client python3-bcc kubernetes-client kubernetes-node'
+	na='python-prometheus-client python3-prometheus-client python3-bcc kubernetes-client kubernetes-node python3-prometheus_client'
 	;;
     vm24)
-	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin3-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch python3-bcc python3-pillow docker-io'
+	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin3-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch python3-bcc python3-pillow docker-io python3-prometheus_client'
 	;;
     vm25)
 	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser'
@@ -1431,6 +1431,9 @@ in
 	;;
     vm31)
 	na='python-prometheus-client python3-prometheus-client python3-bcc'
+	;;
+    vm32)
+	na='libibumad libibmad'
 	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
