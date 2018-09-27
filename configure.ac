@@ -378,7 +378,7 @@ fi
 
 dnl check if user wants their own C compiler
 cflags_abi=
-AC_PROG_CC(suncc egcc gcc cc)
+AC_PROG_CC(suncc egcc gcc cc clang)
 if test $target_os = solaris
 then
     AC_PATH_PROG(CCPATH,$CC,$CC)
@@ -493,7 +493,7 @@ AS_IF([test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no],[
 ])
 AC_SUBST(INVISIBILITY)
 
-AC_PROG_CXX(eg++ g++ c++)
+AC_PROG_CXX(eg++ g++ c++ clang++)
 cxx=$CXX
 AC_SUBST(cxx)
 AC_MSG_CHECKING([for working C++ compiler])
