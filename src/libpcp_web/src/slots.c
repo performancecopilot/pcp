@@ -275,15 +275,14 @@ redisSlotsProxy(redisSlots *slots, redisInfoCallBack info,
 
     if (!reader &&
 	(reader = *readerp = redisReaderCreate()) == NULL) {
-	seriesfmt(msg, "out-of-memory for redis client reader");
+	infofmt(msg, "out-of-memory for redis client reader");
 	info(PMLOG_REQUEST, msg, arg), sdsfree(msg);
-	sdsfree(msg);
 	return -ENOMEM;
     }
 
     if (redisReaderFeed(reader, buffer, nread) != REDIS_OK ||
 	redisReaderGetReply(reader, (void **)&reply) != REDIS_OK) {
-	seriesfmt(msg, "failed to parse Redis protocol request");
+	infofmt(msg, "failed to parse Redis protocol request");
 	info(PMLOG_REQUEST, msg, arg), sdsfree(msg);
 	return -EPROTO;
     }

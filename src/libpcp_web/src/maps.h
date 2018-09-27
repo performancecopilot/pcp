@@ -58,7 +58,7 @@ extern void redisMapRelease(redisMap *);
 /*
  * Asynchronous mapping response helpers
  */
-typedef void (*redisInfoCallBack)(pmloglevel, sds, void *);
+typedef void (*redisInfoCallBack)(pmLogLevel, sds, void *);
 typedef void (*redisDoneCallBack)(void *);
 
 typedef struct redisMapBaton {

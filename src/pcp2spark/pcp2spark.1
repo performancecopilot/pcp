@@ -54,12 +54,12 @@ Any available performance metric, live or archived, system and/or
 application, can be selected for exporting using either command line
 arguments or a configuration file.
 .PP
-.B pcp2spark 
-acts as a bridge which provides a network socket stream on a given 
-address/port which an Apache Spark worker task can connect to 
-and pull the configured PCP metrics from 
 .B pcp2spark
-exporting them using the streaming extensions of the Apache Spark 
+acts as a bridge which provides a network socket stream on a given
+address/port which an Apache Spark worker task can connect to
+and pull the configured PCP metrics from
+.B pcp2spark
+exporting them using the streaming extensions of the Apache Spark
 API.
 .PP
 .B pcp2spark
@@ -96,6 +96,38 @@ Configuration file options override the corresponding
 environment variables (if any).
 Command line options override the corresponding configuration
 file options (if any).
+.SH GENERAL USAGE
+A general setup for making use of
+.B pcp2spark
+would involve the user configuring
+.B pcp2spark
+for the PCP metrics to export followed by starting the
+.B pcp2spark
+application. The
+.B pcp2spark
+application will then wait and listen on the given address/port for a
+connection from an Apache Spark worker thread to be started.
+The worker thread will then connect to
+.B pcp2spark.
+.PP
+When an Apache Spark worker thread has connected
+.B pcp2spark
+will begin streaming PCP metric data to Apache Spark until the worker
+thread completes or the connection is interrupted.
+If the connectionis interrupted or the socket is closed from the Apache
+Spark worker thread
+.B pcp2spark
+will exit.
+.PP
+For an example Apache Spark worker job which will connect to an
+.B pcp2spark
+instance on a given address/port and pull in PCP metric data please
+see the example provided in the PCP examples directory for
+.B pcp2spark
+(often provided by the PCP development package) or the online version
+at
+.UR https://github.com/performancecopilot/pcp/blob/master/src/pcp2spark/
+.UE .
 .SH CONFIGURATION FILE
 .B pcp2spark
 uses a configuration file with overall syntax described in
@@ -138,9 +170,9 @@ compatibility.
 .PP
 spark_server (string)
 .RS 4
-Specify the address on which 
-.B pcp2spark 
-will listen for connections from an apache spark worker thread.
+Specify the address on which
+.B pcp2spark
+will listen for connections from an Apache Spark worker thread.
 Corresponding command line option is \fB\-g\fP.
 Default is \fB127.0.0.1\fP.
 .RE
@@ -148,7 +180,8 @@ Default is \fB127.0.0.1\fP.
 spark_port (integer)
 .RS 4
 Specify the port to run
-.B pcp2spark on.
+.B pcp2spark
+on.
 Corresponding command line option is \fB\-p\fP.
 Default is \fB44325\fP.
 .RE
@@ -547,34 +580,6 @@ Display usage message and exit.
 .TP
 .I pcp2spark.conf
 \fBpcp2spark\fP configuration file (see \fB\-c\fP)
-.SH GENERAL USAGE
-A general setup for making use of 
-.B pcp2spark 
-would involve the user configuring 
-.B pcp2spark 
-for the PCP metrics to export followed by starting the 
-.B pcp2spark 
-application. The
-.B pcp2spark 
-application will then wait and listen on the given address/port for a
-connection from an apache spark worker thread to be started. The 
-worker thread will then connect to 
-.B pcp2spark.
-.PP
-When an apache spark worker thread has connected 
-.B pcp2spark 
-will begin streaming PCP metric data to apache spark until the worker
-thread completes or the connection is interrupted. If the connection
-is interrupted or the socket is closed from the apache spark worker
-thread
-.B pcp2spark 
-will exit.
-.PP
-For an example apache spark worker job which will connect to an
-.B pcp2spark 
-instance on a given address/port and pull in pcp metric data please 
-look at the example in the examples directory of 
-.B pcp2spark.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

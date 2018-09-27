@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 
 _pmdabcc_check
 _pmdabcc_require_kernel_version 4 7
-which ausyscall >/dev/null || _notrun "No ausyscall binary found"
+which ausyscall >/dev/null 2>&1 || _notrun "No ausyscall binary found"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal

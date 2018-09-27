@@ -14,7 +14,7 @@
 #include "server.h"
 
 void
-proxylog(pmloglevel level, sds message, void *arg)
+proxylog(pmLogLevel level, sds message, void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
     const char		*state = proxy->redisetup? "" : "- DISCONNECTED - ";
