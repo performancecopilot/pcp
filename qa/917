@@ -49,7 +49,7 @@ container_runtime_tmpfs_t=""
 unconfined_service=`seinfo -t | grep "unconfined_service_t$"`
 mock_var_lib=`seinfo -t | grep "mock_var_lib_t$"`
 numad_context=`seinfo -t | grep "numad_t$"`
-bpf_class=`seinfo -x --class=bpf $common_flag | grep "class bpf"`
+bpf_class=`seinfo -x --class=bpf $common_flag 2>/dev/null | grep "class bpf"`
 
 _filter_semodule()
 {
