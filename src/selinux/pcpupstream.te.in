@@ -291,6 +291,8 @@ allow pcp_pmcd_t postgresql_t:unix_stream_socket connectto;
 @PCP_BPF_STATUS_RULE@
 
 allow pcp_pmcd_t kernel_t:process signull;
+
+allow pcp_pmcd_t xdm_t:shm { associate getattr };
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
