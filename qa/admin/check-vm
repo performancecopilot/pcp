@@ -1417,17 +1417,20 @@ in
     vm25)
 	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser'
     	;;
+    vm26)
+	na='python3-prometheus_client'
+	;;
     vm27)
 	na='python3-bpfcc'
 	;;
     vm28)
-	na='systemd-devel libpfm-devel python-prometheus-client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel docker-common qtchooser qtchooser Coin3-devel'
+	na='systemd-devel libpfm-devel python-prometheus_client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel docker-common qtchooser qtchooser Coin3-devel'
 	;;
     vm29)
-	na='python-prometheus-client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel python-openpyxl'
+	na='python-prometheus_client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel python-openpyxl libuv-devel'
     	;;
     vm30)
-	na='libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus-client python3-prometheus-client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin3-devel SoQt-devel python3-libs boost-devel yajl'
+	na='libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin3-devel SoQt-devel python3-libs boost-devel yajl python3-psycopg2'
 	;;
     vm31)
 	na='python-prometheus-client python3-prometheus-client python3-bcc'
