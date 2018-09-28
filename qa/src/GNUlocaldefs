@@ -177,7 +177,7 @@ PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 CFILES_TARGETS = $(CFILES)
 
 TARGETS = $(subst broken_pmda,,$(basename $(patsubst %.c,%,$(CFILES_TARGETS)))) \
-	chkctx2_lite$ template \
+	chkctx2_lite template \
 	fetchrate_lite pv
 
 ifeq "$(TARGET_OS)" "linux"
