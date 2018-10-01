@@ -52,7 +52,7 @@ target=`uname -s | tr 'A-Z' 'a-z'`
 # Apple $gnutool
 # or these lines:
 # *This* tar defaults to:
-# --format=gnu ...
+# --format=gnu ... or --format=posix
 #
 gnu_tool()
 {
@@ -82,7 +82,7 @@ gnu_tool()
 BEGIN				{ want = 0 }
 /This\** tar defaults to:/	{ want=1; next }
 want == 1			{ print; exit }'
-		if grep '[-][-]format=gnu' <$tmp.check >/dev/null
+		if egrep '[-][-]format=(gnu)|(posix)' <$tmp.check >/dev/null
 		then
 		    echo $exec
 		    return 0

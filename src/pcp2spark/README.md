@@ -39,27 +39,27 @@ Spark streaming please see Apache Spark pages:
 https://www.mankier.com/1/pcp2spark
 https://spark.apache.org/streaming/
 
-# Get started with Spark Streaming
+# Get Started with Spark Streaming
 
-## Installations
+## Installation
 
 Follow this tutorial to install Spark:
 
 https://www.tutorialspoint.com/apache_spark/apache_spark_installation.htm
 
-## A pcp2spark example
+## A pcp2spark Example
 
 Here we will use pcp2spark to import PCP metrics and print in Spark
 
-## PCP2SparkStreamCollector.python
+### PCP2SparkStreamCollector.python
 
 The example to run with python:
 
 ```python
 # PCP2SparkStreamCollector
 #
-# A basic Spark streaming collector worker using the Spark streaming
-# api to import pcp metrics into Spark with conjunction with pcp2spark.
+# A basic Spark Streaming collector worker using the Spark Streaming
+# API to import PCP metrics into Spark in conjunction with pcp2spark.
 
 import sys
 from pyspark import SparkContext
@@ -67,14 +67,14 @@ from pyspark.streaming import StreamingContext
 
 if __name__ == "__main__":
     sc = SparkContext(appName="PCP2SparkStreamCollector")
-    # 10 is the batch interval: 10 seconds
-    ssc = StreamingContext(sc, 10)
+    # 5 is the batch interval: 5 seconds
+    ssc = StreamingContext(sc, 5)
 
     # Checkpoint for backups
     ssc.checkpoint("file:///tmp/spark")
 
-    # Define the socket where pcp2spark is listening for a connection
-    # metrics is not an rdd but a sequence of rdd, not static, constantly changing
+    # Define the socket where pcp2spark is listening for a connection.
+    # metrics is not an RDD but a sequence of constantly changing RDDs
     # argv1 = address of pcp2spark, argv2 = port of pcp2spark
     metrics = ssc.socketTextStream(sys.argv[1], int(sys.argv[2]))
 
@@ -94,15 +94,18 @@ Open a shell and start pcp2spark in the command line using one metric:
 $ pcp2spark -t 5 disk.all.write
 ```
 
-### Submit the Python script
+### Submit the Python Script
 
 Open a shell and start the Spark worker script:
 
 ```shell
-$ spark-submit PCP2SparkStreamCollector.python localhost 44325
+$ spark-submit PCP2SparkStreamCollector.py localhost 44325
 ```
 
-### Expected output
+Note that as of Spark 2.3.2 _spark-submit_ auto-detects only Python
+files ending with _.py_ but not with _.python_.
+
+### Expected Output
 
 On the same shell we will see the output from the worker as it starts:
 

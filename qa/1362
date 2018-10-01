@@ -14,6 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ -d $PCP_PMDAS_DIR/postgresql ] || _notrun "postgresql PMDA directory is not installed"
+[ -f $PCP_PMDAS_DIR/pmdapostgresql.python ] || _notrun "postgresql PMDA is not installed"
 
 echo '\q' | $sudo -u postgres psql >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "Cannot run psql as the postgres user, postgresql not installed or running?"
@@ -67,7 +68,7 @@ pminfo -f postgresql.stat.activity.usename >/dev/null 2>&1 || exit
 echo OK
 
 echo === restart postgresql service
-$sudo service postgresql restart 2>&1 | grep -v Redirecting
+$sudo service postgresql restart >>$here/$seq.full 2>&1
 
 sleep 1
 

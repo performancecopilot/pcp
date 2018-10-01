@@ -106,7 +106,11 @@ class BCCPMDA(PMDA):
             self.err("Configuration file %s not found, aborting." % conffile)
             sys.exit(1)
 
-        config = configparser.SafeConfigParser()
+        # Python < 3.2 compat
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
+            config = configparser.ConfigParser()
+        else:
+            config = configparser.SafeConfigParser()
         config.read(conffile)
         if config.has_section('pmda'):
             for opt in config.options('pmda'):

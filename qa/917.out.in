@@ -78,6 +78,9 @@ decl 1:
   allow [pcp_pmcd_t] [postgresql_t] : [sem] { unix_read associate getattr };
   allow [pcp_pmcd_t] [postgresql_t] : [shm] { unix_read associate getattr };
   allow [pcp_pmcd_t] [postgresql_t] : [unix_stream_socket] { connectto };
+  allow [pcp_pmcd_t] self : [bpf] { map_create map_read map_write prog_load prog_run };
+  allow [pcp_pmcd_t] [kernel_t] : [process] { signull };
+  allow [pcp_pmcd_t] [xdm_t] : [shm] { associate getattr };
   allow [pcp_pmlogger_t] [kmsg_device_t] : [chr_file] { open write };
   allow [pcp_pmlogger_t] self : [capability] { kill };
   allow [pcp_pmlogger_t] [init_t] : [system] { status };
@@ -104,6 +107,7 @@ decl 1:
   allow [pcp_pmie_t] [kmsg_device_t] : [chr_file] { open };
   allow [pcp_pmie_t] [pcp_pmcd_t] : [process] { signal };
   allow [pcp_pmie_t] [init_exec_t] : [file] { getattr };
+  allow [pcp_pmie_t] self : [cap_userns] { sys_ptrace };
   allow [pcp_pmie_t] [user_home_dir_t] : [dir] { search };
   allow [pcp_pmie_t] [unconfined_t] : [process] { signal };
   allow [pcp_pmcd_t] [configfs_t] : [dir] { open read search };
