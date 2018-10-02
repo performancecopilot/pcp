@@ -12,6 +12,11 @@ echo "QA output created by $seq"
 
 _pmdabcc_check
 
+# btrfs currently not fully supported
+# https://github.com/iovisor/bcc/issues/1993
+fstype=$(df --output=fstype $(dirname $tmp) | grep -v Type)
+[ $fstype = btrfs ] && _notrun "btrfs not fully supported by cachestat"
+
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
 out_file=$tmp.tmpfile
 

@@ -27,7 +27,7 @@ have_probes()
     return 1
 }
 
-have_probes || _notrun "No Python USDT probes available"
+have_probes || _notrun "No Python USDT probes available"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
