@@ -807,7 +807,7 @@ do
 	    #	sanity trace
 	    # and some tests are not working yet
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -X 603'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -x valgrind -X 603'
 	    ;;
 
 	vm35)
