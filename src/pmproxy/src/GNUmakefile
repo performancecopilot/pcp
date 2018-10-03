@@ -28,7 +28,7 @@ EXPERIMENTAL = false
 
 ifeq "$(EXPERIMENTAL)" "true"
 #ifeq "$(HAVE_LIBUV)" "true"
-LCFLAGS += $(LIBUVCFLAGS) -I$(TOPDIR)/src/libpcp_web/src
+LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1 -I$(TOPDIR)/src/libpcp_web/src
 CFILES += server.c redis.c pcp.c
 HFILES += server.h
 else

@@ -11,7 +11,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include "series.h"
+#include "pmwebapi.h"
 #include "slots.h"
 #include "util.h"
 #include "maps.h"
@@ -107,6 +107,10 @@ redisMapsInit(void)
     static const char * const mapnames[] = {
 	"inst.name", "metric.name", "label.name", "context.name"
     };
+    static int setup;
+
+    if (setup)
+	return;
 
     instmap = dictCreate(&mapCallBackDict, (void *)mapnames[0]);
     instrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[0]);
@@ -116,6 +120,7 @@ redisMapsInit(void)
     labelsrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[2]);
     contextmap = dictCreate(&mapCallBackDict, (void *)mapnames[3]);
     contextrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[3]);
+    setup = 1;
 }
 
 redisMap *

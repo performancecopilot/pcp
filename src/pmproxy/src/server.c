@@ -14,7 +14,7 @@
 #include "server.h"
 
 void
-proxylog(pmloglevel level, sds message, void *arg)
+proxylog(pmLogLevel level, sds message, void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
     const char		*state = proxy->redisetup? "" : "- DISCONNECTED - ";
@@ -236,6 +236,7 @@ OpenRequestPort(struct proxy *proxy, struct server *server, stream_family family
     stream->family = family;
     if (family == STREAM_TCP6)
 	flags = UV_TCP_IPV6ONLY;
+    stream->port = port;
 
     uv_tcp_init(proxy->events, &stream->u.tcp);
     handle = (uv_handle_t *)&stream->u.tcp;
@@ -249,7 +250,7 @@ OpenRequestPort(struct proxy *proxy, struct server *server, stream_family family
     if (sts != 0) {
 	fprintf(stderr, "%s: socket listen error %s\n",
 			pmGetProgname(), uv_strerror(sts));
-        return -ENOTCONN;
+	return -ENOTCONN;
     }
     stream->active = 1;
     if (__pmServerHasFeature(PM_SERVER_FEATURE_DISCOVERY))
@@ -285,13 +286,20 @@ OpenRequestLocal(struct proxy *proxy, struct server *server,
     return 0;
 }
 
+typedef struct proxyaddr {
+    __pmSockAddr	*addr;
+    const char		*address;
+    int			port;
+} proxyaddr;
+
 void *
 OpenRequestPorts(const char *localpath, int maxpending)
 {
     int			inaddr, total, count, port, sts, i, n;
     int			with_ipv6 = strcmp(pmGetAPIConfig("ipv6"), "true") == 0;
     const char		*address;
-    __pmSockAddr	**addrlist, *addr;
+    __pmSockAddr	*addr;
+    struct proxyaddr	*addrlist;
     const struct sockaddr *sockaddr;
     stream_family	family;
     struct server	*server;
@@ -301,12 +309,14 @@ OpenRequestPorts(const char *localpath, int maxpending)
 	return NULL;
 
     /* allow for both IPv6 and IPv4 addresses for each port */
-    if ((addrlist = calloc(total * 2, sizeof(__pmSockAddr *))) == NULL)
+    if ((addrlist = calloc(total * 2, sizeof(proxyaddr))) == NULL)
 	return NULL;
 
     /* fill in sockaddr structs for subsequent listen calls */
     for (i = n = 0; i < total; i++) {
 	__pmServerGetRequestPort(i, &address, &port);
+	addrlist[n].address = address;
+	addrlist[n].port = port;
 
 	if (address != NULL &&
 	    strcmp(address, "INADDR_ANY") != 0 &&
@@ -316,7 +326,7 @@ OpenRequestPorts(const char *localpath, int maxpending)
 		__pmSockAddrFree(addr);
 	    else {
 		__pmSockAddrSetPort(addr, port);
-		addrlist[n++] = addr;
+		addrlist[n++].addr = addr;
 		continue;
 	    }
 	}
@@ -329,15 +339,15 @@ OpenRequestPorts(const char *localpath, int maxpending)
 	else
 	    continue;
 
-	addrlist[n] = __pmSockAddrAlloc();
-	__pmSockAddrInit(addrlist[n], AF_INET, inaddr, port);
+	addrlist[n].addr = __pmSockAddrAlloc();
+	__pmSockAddrInit(addrlist[n].addr, AF_INET, inaddr, port);
 	n++;
 
 	if (!with_ipv6)
 	     continue;
 
-	addrlist[n] = __pmSockAddrAlloc();
-	__pmSockAddrInit(addrlist[n], AF_INET6, inaddr, port);
+	addrlist[n].addr = __pmSockAddrAlloc();
+	__pmSockAddrInit(addrlist[n].addr, AF_INET6, inaddr, port);
 	n++;
     }
     total = n;
@@ -348,18 +358,20 @@ OpenRequestPorts(const char *localpath, int maxpending)
     count = n = 0;
     if (*localpath) {
 	server = &proxy->servers[n++];
+	server->stream.address = localpath;
 	if (OpenRequestLocal(proxy, server, localpath, maxpending) == 0)
 	    count++;
     }
 
     for (i = 0; i < total; i++) {
-	sockaddr = (const struct sockaddr *)addrlist[i];
-	family = __pmSockAddrGetFamily(addrlist[i]) == AF_INET ?
+	sockaddr = (const struct sockaddr *)addrlist[i].addr;
+	family = __pmSockAddrGetFamily(addrlist[i].addr) == AF_INET ?
 					STREAM_TCP4 : STREAM_TCP6;
 	server = &proxy->servers[n++];
+	server->stream.address = addrlist[i].address;
 	if (OpenRequestPort(proxy, server, family, sockaddr, port, maxpending) == 0)
 	    count++;
-	__pmSockAddrFree(addrlist[i]);
+	__pmSockAddrFree(addrlist[i].addr);
     }
     free(addrlist);
 
@@ -374,7 +386,7 @@ OpenRequestPorts(const char *localpath, int maxpending)
 
 fail:
     for (i = 0; i < n; i++)
-	__pmSockAddrFree(addrlist[i]);
+	__pmSockAddrFree(addrlist[i].addr);
     free(addrlist);
     return NULL;
 }
@@ -409,12 +421,30 @@ ShutdownPorts(void *arg)
 }
 
 void
-DumpRequestPorts(FILE *stream, void *arg)
+DumpRequestPorts(FILE *output, void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
+    struct stream	*stream;
+    uv_os_fd_t		uv_fd;
+    int			i, fd;
 
-    /* TODO */
-    (void)proxy;
+    fprintf(output, "%s request port(s):\n"
+		"  sts fd   port  family address\n"
+		"  === ==== ===== ====== =======\n", pmGetProgname());
+
+    for (i = 0; i < proxy->nservers; i++) {
+	stream = &proxy->servers[i].stream;
+	fd = (uv_fileno((uv_handle_t *)stream, &uv_fd) < 0) ? -1 : (int)uv_fd;
+	if (stream->family == STREAM_LOCAL)
+	    fprintf(output, "  %-3s %4d %5s %-6s %s\n",
+		    stream->active ? "ok" : "err", fd, "",
+		    "unix", stream->address);
+	else
+	    fprintf(output, "  %-3s %4d %5d %-6s %s\n",
+		    stream->active ? "ok" : "err", fd, stream->port,
+		    stream->family == STREAM_TCP4 ? "inet" : "ipv6",
+		    stream->address ? stream->address : "INADDR_ANY");
+    }
 }
 
 /*

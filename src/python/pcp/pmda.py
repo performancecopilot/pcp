@@ -542,8 +542,16 @@ class PMDA(MetricDispatch):
         return cpmda.pmda_pmid(cluster, item)
 
     @staticmethod
+    def pmid_build(domain, cluster, item):
+        return cpmda.pmid_build(domain, cluster, item)
+
+    @staticmethod
     def indom(serial):
         return cpmda.pmda_indom(serial)
+
+    @staticmethod
+    def indom_build(domain, serial):
+        return cpmda.indom_build(domain, serial)
 
     @staticmethod
     def units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count):

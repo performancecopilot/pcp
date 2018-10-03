@@ -1,0 +1,62 @@
+#!/bin/sh
+# PCP QA Test No. 685
+# PMNS rebuild should not include root_foo if the foo PMDA is not
+# in pmcd.conf
+#
+# Test relies on NO qa PMDA being defined in pmcd.conf.
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.* $PCP_VAR_DIR/pmns/root_qa
+    $sudo $PCP_BINADM_DIR/pmnsdel qa
+    _service pmcd start
+    _wait_for_pmcd
+    # expect Error: qa: Unknown metric name
+    # and NOT qa.check: pmLookupDesc: Unknown or illegal metric identifier
+    #
+    pminfo -f qa
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File >$tmp.root
+/*
+ * from QA $seq
+ */
+root {
+    qa
+}
+
+qa {
+    check	251:0:0
+}
+End-of-File
+
+$sudo cp $tmp.root $PCP_VAR_DIR/pmns/root_qa
+$sudo touch $PCP_VAR_DIR/pmns/.NeedRebuild
+_service pmcd start
+_wait_for_pmcd
+
+# expect Error: qa: Unknown metric name
+# and NOT qa.check: pmLookupDesc: Unknown or illegal metric identifier
+#
+pminfo -v qa
+
+# success, all done
+status=0
+exit

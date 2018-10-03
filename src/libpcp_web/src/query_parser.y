@@ -1248,7 +1248,7 @@ series_dumpexpr(node_t *np, int level)
 }
 
 int
-pmSeriesQuery(pmSeriesSettings *settings, sds query, pmflags flags, void *arg)
+pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *arg)
 {
     PARSER	yp = { .yy_input = (char *)query };
     series_t	*sp = &yp.yy_series;
@@ -1263,7 +1263,7 @@ pmSeriesQuery(pmSeriesSettings *settings, sds query, pmflags flags, void *arg)
 }
 
 int
-pmSeriesLoad(pmSeriesSettings *settings, sds source, pmflags flags, void *arg)
+pmSeriesLoad(pmSeriesSettings *settings, sds source, pmSeriesFlags flags, void *arg)
 {
     PARSER	yp = { .yy_input = (char *)source };
     series_t	*sp = &yp.yy_series;

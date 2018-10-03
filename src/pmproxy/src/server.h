@@ -16,9 +16,9 @@
 
 #include <uv.h>
 #include "pmapi.h"
-#include "libpcp.h"
-#include "series.h"
+#include "pmwebapi.h"
 #include "pmproxy.h"
+#include "libpcp.h"
 #include "slots.h"
 
 typedef enum stream_protocol {
@@ -39,8 +39,11 @@ typedef struct stream {
 	uv_pipe_t	local;
 	uv_tcp_t	tcp;
     } u;
-    unsigned int	active;
     stream_family	family;
+    unsigned int	active: 1;
+    unsigned int	zero : 15;
+    unsigned int	port : 16;
+    const char		*address;
 } stream;
 
 typedef struct redis_client {
@@ -76,7 +79,7 @@ typedef struct proxy {
     redisSlots		*slots;
 } proxy;
 
-extern void proxylog(pmloglevel, sds, void *);
+extern void proxylog(pmLogLevel, sds, void *);
 extern void on_client_close(uv_handle_t *);
 
 extern void setup_redis_proxy(struct proxy *);

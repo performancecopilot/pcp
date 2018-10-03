@@ -230,6 +230,8 @@ extern int		change_inst_by_name(pmInDom, char *, char *);
 extern int		inst_name_eq(const char *, const char *);
 
 extern char	*SemStr(int);
+extern char	*add_quotes(const char *);
+extern char	*dupcat(const char *, const char *);
 extern void	newvolume(int);
 
 extern void	do_desc(void);

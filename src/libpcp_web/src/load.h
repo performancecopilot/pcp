@@ -15,7 +15,7 @@
 #define SERIES_LOAD_H
 
 #include "pmapi.h"
-#include "series.h"
+#include "pmwebapi.h"
 
 typedef struct seriesname {
     sds			sds;		/* external sds for this series */
@@ -110,7 +110,6 @@ extern void doneSeriesGetContext(struct seriesGetContext *, const char *);
 struct seriesLoadBaton;
 extern void doneSeriesLoadBaton(struct seriesLoadBaton *, const char *);
 
-extern pmSeriesInfoCallBack seriesLoadBatonInfo(struct seriesLoadBaton *);
 extern context_t *seriesLoadBatonContext(struct seriesLoadBaton *);
 extern void seriesLoadBatonFetch(struct seriesLoadBaton *);
 

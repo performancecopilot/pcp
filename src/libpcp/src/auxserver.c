@@ -868,7 +868,7 @@ __pmServerDumpRequestPorts(FILE *stream)
 	  "  === ==== ===== ====== =======\n", pmGetProgname());
 
     if (localSocketFd != -EPROTO)
-	fprintf(stderr, "  %-3s %4d %5s %-6s %s\n",
+	fprintf(stream, "  %-3s %4d %5s %-6s %s\n",
 		(localSocketFd != -1) ? "ok" : "err",
 		localSocketFd, "", "unix",
 		localSocketPath);
@@ -877,7 +877,7 @@ __pmServerDumpRequestPorts(FILE *stream)
 	ReqPortInfo *rp = &reqPorts[i];
 	for (j = 0; j < FAMILIES; j++) {
 	    if (rp->fds[j] != -EPROTO)
-		fprintf(stderr, "  %-3s %4d %5d %-6s %s\n",
+		fprintf(stream, "  %-3s %4d %5d %-6s %s\n",
 		    (rp->fds[j] != -1) ? "ok" : "err",
 		    rp->fds[j], rp->port, RequestFamilyString(j),
 		    rp->address ? rp->address : "(any address)");

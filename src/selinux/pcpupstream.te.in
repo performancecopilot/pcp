@@ -69,7 +69,7 @@ require {
         type kernel_t;
         type mozilla_plugin_t;
         type fsadm_exec_t;
-        type tracefs_t; # pmda.gfs2
+        @PCP_TRACEFS@ # pmda.gfs2
         type system_map_t; # pmda.bcc
         type sysctl_irq_t; # pmda.bcc
         type gpsd_t; #RHBZ1594991
@@ -78,6 +78,7 @@ require {
         type named_zone_t;
         type system_cronjob_t;
         type xdm_t;
+        type postgresql_t;
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -87,7 +88,7 @@ require {
 	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
 	class fifo_file { getattr read open unlink }; # qa/455
-	class process { signal execmem setrlimit }; #RHBZ1443632
+	class process { signull signal execmem setrlimit }; #RHBZ1443632
 	class sock_file write; #RHBZ1449671
 	@PCP_SOCK_FILE_GETATTR@
 	@PCP_CLASS_STATUS@
@@ -98,6 +99,7 @@ require {
 	class msgq { unix_read };
         class unix_dgram_socket { sendto };
         class dbus { send_msg };
+        @PCP_BPF_STATUS_CLASS@
 }
 
 #============= init_t ==============
@@ -279,6 +281,18 @@ allow pcp_pmcd_t named_zone_t:dir search;
 #type=AVC msg=audit(1534774142.552:48731): avc:  denied  { unix_read } for  pid=1726 comm="pmdalinux" key=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tclass=shm permissive=0
 allow pcp_pmcd_t xdm_t:shm unix_read;
 
+allow pcp_pmcd_t postgresql_t:sem { associate getattr unix_read };
+allow pcp_pmcd_t postgresql_t:shm { associate getattr unix_read };
+
+#type=AVC msg=audit(...): avc:  denied  { connectto } for  pid=NNN comm="python" path="/run/postgresql/.s.PGSQL.5432" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:postgresql_t:s0 tclass=unix_stream_socket
+allow pcp_pmcd_t postgresql_t:unix_stream_socket connectto;
+
+#RHBZ1633211
+@PCP_BPF_STATUS_RULE@
+
+allow pcp_pmcd_t kernel_t:process signull;
+
+allow pcp_pmcd_t xdm_t:shm { associate getattr };
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;

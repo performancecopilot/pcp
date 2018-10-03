@@ -1,5 +1,6 @@
 #! /bin/sh
 #
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
 # Copyright (c) 2011 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -19,22 +20,53 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=postgresql
-perl_opt=true
+domain=110
+python_opt=true
 daemon_opt=false
 
-perl -e "use DBI" 2>/dev/null
-if test $? -ne 0; then
-    echo "Perl database interface (DBI) is not installed"
+conf=$PCP_PMDAS_DIR/$iam/pmdapostgresql.conf
+if [ ! -f "$conf" ]; then
+    echo "Error: missing config file \"$conf\""
     status=1
     exit
 fi
 
-perl -e "use DBD::Pg" 2>/dev/null
-if test $? -ne 0; then
-    echo "Postgres database driver (DBD::Pg) is not installed"
+eval `grep "user=" $conf`
+if [ -z "$user" ]; then
+    echo "Error: \"user\" not defined in $conf"
     status=1
     exit
 fi
+
+echo "postgres user defined in $conf is \"$user\""
+if ! id $user >/dev/null 2>&1; then
+    echo "Error: no such user \"$user\" on this system"
+    status=1
+    exit
+fi
+
+gid=`id postgres | sed -e 's/^.*gid=//' -e 's/(.*$//'`
+echo "group id for user \"$user\" is \"$gid\""
+
+mkdir -p "$PCP_VAR_DIR/config/pmda" 2>/dev/null
+indoms="0 1 2 3 4 5 6 7 8 9 10 11 12"
+for indom in $indoms
+do
+    failed=false
+    c="$PCP_VAR_DIR/config/pmda/$domain.$indom"
+    if [ ! -f "$c" ]; then
+	if touch $c >/dev/null 2>&1; then
+	    # TODO need a pmda cache init function
+	    echo "2 0 2147483647" >> $c # standard v2 header
+	    chmod 664 "$c"
+	    chgrp $gid "$c"
+	else
+	    echo "Error: failed to create indom persistance file \"$c\""
+	    status=1
+	    exit
+	fi
+    fi
+done
 
 pmdaSetup
 pmdaInstall

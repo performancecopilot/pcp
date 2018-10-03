@@ -1,0 +1,181 @@
+#!/bin/sh
+#
+# Trying to track down assorted transient QA environment issues.
+#
+# Run from check after each test completes, but you need to ensure
+# the script is called check.callback and it is executable.
+#
+# Usage: check.callback [seq#]
+#
+# Note: This is a SAMPLE script, you should either
+#	(a) $ ln check.callback.sample check.callback
+#           or probably better to ensure tracking any upstream changes
+#           $ ln -s check.callback.sample check.callback
+#	    to have it activated "as is", or
+#	(b) $ cp check.callback.sample check.callback
+#	    and then edit check.callback to suit local needs ... see
+#	    in particular the CONFIGURE-ME comments below
+#
+
+if [ -z "$PCP_LOG_DIR" ]
+then
+    # running standalone (not called from check), so need to populate
+    # environment
+    # (logic copied from common.rc)
+    #
+    # source the PCP configuration environment variables
+    if [ -r $PCP_DIR/etc/pcp.env ]
+    then
+	. $PCP_DIR/etc/pcp.env
+    else
+	echo "Error: unable to read $PCP_DIR/etc/pcp.env!" >&2
+	exit 1
+    fi
+fi
+
+# Did pmlogger.daily get run as expected?
+#
+yesterday=`pmdate -1d %Y%m%d`
+host=`hostname`
+case $host
+in
+    # CONFIGURE-ME
+    # - may need to add extra hosts here to enable this test
+    #
+    bozo)
+	    if [ ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta.xz -a ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta ]
+	    then
+		echo "check.callback: fail: pmlogger.daily not well!"
+		echo "Missing $yesterday archive ..."
+		ls -l $PCP_LOG_DIR/pmlogger/$host/$yesterday.*
+	    fi
+	    ;;
+esac
+
+status=0
+tmp=/var/tmp/check.callback-$$
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# CONFIGURE-ME
+# Set abort to true if you want to stop QA as soon as a problem is
+# seen, otherwise set it to false and the checks will be run and
+# reported, but QA will continue on
+# Aborting is good for hard problems, because you'd like to know which
+# QA test is breaking things and there is no point continuing.
+# Not aborting is good for transient problems, because the breakage may
+# be repaired autonomously (usually timeing related) or by a later QA
+# test.
+#
+abort=true
+
+# Check pmcd status
+#
+if ./941 --check $1 >$tmp.out 2>$tmp.err
+then
+    # ok
+    :
+else
+    echo "check.callback: fail: pmcd not well!"
+    cat $tmp.err $tmp.out
+    $abort && status=1
+fi
+
+# Check pmlogger status
+#
+if ./870 --check $1 >$tmp.out.1 2>$tmp.err.1
+then
+    # ok
+    :
+else
+    # may be a transient thing, e.g. cron-driven log rotation or pmmgr
+    # log restarting, wait a bit and try again
+    #
+    sleep 3
+
+    if ./870 --check $1 >$tmp.out.2 2>$tmp.err.2
+    then
+	# ok this time
+	:
+    else
+	echo "check.callback: fail: pmlogger not well!"
+	diff=false
+	cat $tmp.err.1 $tmp.out.1
+	if cmp $tmp.err.1 $tmp.err.2 >/dev/null
+	then
+	    if cmp $tmp.out.1 $tmp.out.2 >/dev/null
+	    then
+		:
+	    else
+		diff=true
+	    fi
+	else
+	    diff=true
+	fi
+	if $diff
+	then
+	    echo "... and different output from 3 seconds later"
+	    cat $tmp.err.2 $tmp.out.2
+	fi
+	$abort && status=1
+    fi
+fi
+
+# Check are all pmdas alive and well
+#
+if pminfo -f pmcd.agent.status >$tmp.out 2>$tmp.err
+then
+    rm -f $tmp.pmdalist
+    sed -n <$tmp.out \
+	-e '/^  *inst /{
+s/^  *inst \[//
+s/ or / /
+s/"//g
+s/] value / /
+p
+}' \
+    | while read domain name status
+    do
+	if [ "$status" != 0 ]
+	then
+	    echo "check.callback: fail: pmda $name not well, status=$status!"
+	    $abort && status=1
+	fi
+	echo "$name" >>$tmp.pmdalist
+    done
+    if [ -f $tmp.pmdalist.prev ]
+    then
+	if diff -u $tmp.pmdalist.prev $tmp.pmdalist >$tmp.out
+	then
+	    :
+	else
+	    echo "check.callback: fail: installed pmdas changed!"
+	    cat $tmp.out
+	    $abort && status=1
+	fi
+    fi
+    cp $tmp.pmdalist $tmp.pmdalist.prev
+else
+    echo "check.callback: fail: pminfo not well!"
+    cat $tmp.err $tmp.out
+    $abort && status=1
+fi
+
+# Check the PMNS ... specifically looking for cases where a PMDA is
+# Install(ed) and pmcd.conf is restored without a Remove ... this leaves
+# the PMDA not in pmcd.conf, but with bogus entries in the PMNS
+#
+# CONFIGURE-ME
+# - may need to add metrics (in the grep -v part) that are OK to return
+#   'Unknown or illegal metric', but this is most unlikely
+#
+pminfo -v 2>&1 \
+| grep 'Unknown or illegal metric' \
+| grep -v 'sample.*\.bad\.unknown' >$tmp.out
+if [ -s $tmp.out ]
+then
+    echo "check.callback: fail: PMNS not well!"
+    cat $tmp.out
+    $abort && status=1
+fi
+
+exit

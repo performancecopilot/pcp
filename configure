@@ -709,6 +709,7 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+pcp_selinux_bpf_status
 pcp_selinux_numad
 pcp_selinux_unconfined
 pcp_selinux_mock
@@ -3532,7 +3533,7 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 if test -n "$ac_tool_prefix"; then
-  for ac_prog in suncc egcc gcc cc
+  for ac_prog in suncc egcc gcc cc clang
   do
     # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
 set dummy $ac_tool_prefix$ac_prog; ac_word=$2
@@ -3576,7 +3577,7 @@ fi
 fi
 if test -z "$CC"; then
   ac_ct_CC=$CC
-  for ac_prog in suncc egcc gcc cc
+  for ac_prog in suncc egcc gcc cc clang
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -4328,7 +4329,7 @@ if test -z "$CXX"; then
     CXX=$CCC
   else
     if test -n "$ac_tool_prefix"; then
-  for ac_prog in eg++ g++ c++
+  for ac_prog in eg++ g++ c++ clang++
   do
     # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
 set dummy $ac_tool_prefix$ac_prog; ac_word=$2
@@ -4372,7 +4373,7 @@ fi
 fi
 if test -z "$CXX"; then
   ac_ct_CXX=$CXX
-  for ac_prog in eg++ g++ c++
+  for ac_prog in eg++ g++ c++ clang++
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -7908,14 +7909,11 @@ $as_echo "no" >&6; }; fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the postgresql PMDA should be included" >&5
 $as_echo_n "checking if the postgresql PMDA should be included... " >&6; }
 pmda_postgresql=false
-if test "$have_perl" = true
+if test "$have_python" = true
 then
-        if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+        if $pcp_python_prog -c "import psycopg2" >/dev/null 2>&1
     then
-	if $pcp_perl_prog -e "use DBD::Pg" >/dev/null 2>&1
-	then
-	    pmda_postgresql=true
-	fi
+	pmda_postgresql=true
     fi
 fi
 PMDA_POSTGRESQL=$pmda_postgresql
@@ -10457,12 +10455,12 @@ if test -n "$libuv_CFLAGS"; then
     pkg_cv_libuv_CFLAGS="$libuv_CFLAGS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libuv") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv >= 1.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libuv >= 1.0") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_libuv_CFLAGS=`$PKG_CONFIG --cflags "libuv" 2>/dev/null`
+  pkg_cv_libuv_CFLAGS=`$PKG_CONFIG --cflags "libuv >= 1.0" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -10474,12 +10472,12 @@ if test -n "$libuv_LIBS"; then
     pkg_cv_libuv_LIBS="$libuv_LIBS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libuv") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv >= 1.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libuv >= 1.0") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_libuv_LIBS=`$PKG_CONFIG --libs "libuv" 2>/dev/null`
+  pkg_cv_libuv_LIBS=`$PKG_CONFIG --libs "libuv >= 1.0" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -10500,9 +10498,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        libuv_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libuv" 2>&1`
+	        libuv_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libuv >= 1.0" 2>&1`
         else
-	        libuv_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libuv" 2>&1`
+	        libuv_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libuv >= 1.0" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$libuv_PKG_ERRORS" >&5
@@ -11940,14 +11938,22 @@ pcp_selinux_hostname_exec_map=false
 pcp_selinux_mock=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
+pcp_selinux_bpf_class=false
 
 if test "x$enable_selinux" != "xfalse"; then :
 
 for policy_file in /etc/selinux/targeted/policy/policy.*
 do
+    seinfo --common >/dev/null 2>&1
+    if test $? -eq 0
+    then
+        seinfo_common_flag="--common"
+    else
+        seinfo_common_flag=""
+    fi
     if test -f "$policy_file"
     then
-        class_status=`eval seinfo -x --class=system -- $policy_file | grep status | awk '{ print $1 }'`
+        class_status=`eval seinfo -x --class=system $seinfo_common_flag  -- $policy_file | grep status | awk '{ print $1 }'`
     	if test "x$class_status" != "x"
 	then
 	    pcp_selinux_class_status=true
@@ -11982,7 +11988,7 @@ do
 	then
 	    pcp_selinux_systemd_exec=true
 	fi
-	cap_userns_ptrace=`eval seinfo -x --class=cap_userns -- $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
+	cap_userns_ptrace=`eval seinfo -x --class=cap_userns $seinfo_common_flag -- $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
     	if test "x$cap_userns_ptrace" != "x"
 	then
 	    pcp_selinux_cap_userns_ptrace=true
@@ -11997,12 +12003,12 @@ do
 	then
 	    pcp_selinux_tracefs=true
 	fi
-	sock_file_getattr=`eval seinfo -x --class=sock_file -- $policy_file | grep getattr | awk '{ print $1 }'`
+	sock_file_getattr=`eval seinfo -x --class=sock_file $seinfo_common_flag -- $policy_file | grep getattr | awk '{ print $1 }'`
 	if test "x$sock_file_getattr" != "x"
 	then
 	    pcp_selinux_sock_file_getattr=true
 	fi
-	hostname_exec_map_a=`eval seinfo -x --class=file -- $policy_file | grep map | awk '{ print $1 }'`
+	hostname_exec_map_a=`eval seinfo -x --class=file $seinfo_common_flag -- $policy_file | grep map | awk '{ print $1 }'`
 	hostname_exec_map_b=`eval seinfo -x --common file -- $policy_file 2>/dev/null | grep map | awk '{ print $1 }'`
 	if test "x$hostname_exec_map_a" != "x" -o "x$hostname_exec_map_b" != "x"
 	then
@@ -12023,10 +12029,16 @@ do
        then
            pcp_selinux_numad=true
        fi
+       bpf_class=`eval seinfo -x --class=bpf $seinfo_common_flag -- $policy_file 2>/dev/null | grep status | awk '{ print $1 }'`
+       if test "x$bpf_class" != "x"
+       then
+	    pcp_selinux_bpf_status=true
+       fi
     fi
 done
 
 fi
+
 
 
 

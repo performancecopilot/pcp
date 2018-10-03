@@ -25,7 +25,7 @@ INFILES = config.h.in configsz.h.in platform_defs.h.in platformsz.h.in
 CONFFILES = config.h configsz.h platform_defs.h platformsz.h
 EXTERNAL_HFILES = sds.h
 GENERATED_HFILES = $(CONFFILES)
-NOSHIP_HFILES = libpcp.h series.h sds.h
+NOSHIP_HFILES = pmwebapi.h libpcp.h sds.h
 
 LDIRT = $(GENERATED_HFILES)
 

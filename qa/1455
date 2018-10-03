@@ -1,6 +1,6 @@
 #!/bin/sh
-# PCP QA Test No. 1383
-# Test that indom labels can be created, deleted and rewritten
+# PCP QA Test No. 1455
+# Test that cluster labels can be created, deleted and rewritten
 # by pmlogrewrite(1)
 #
 # Copyright (c) 2018 Red Hat.  All Rights Reserved.
@@ -37,19 +37,23 @@ _filter()
 # real QA test starts here
 DIR=archives
 
-# First, run pmlogrewrite against the archive, deleting and reassociating some item labels
+# The test archive has no cluster labels, so create some. We will then work
+# with those new labels.
 CONFIG=$tmp.config
 cat > $CONFIG << EOF
-LABEL INDOM 60.0 {  }
-LABEL INDOM 60.0 { DELETE }
-LABEL INDOM 60.1 { INDOM -> 60.2 }
+LABEL CLUSTER 60.0 { NEW "cluster_60_0_label" "cluster_60_0_value" }
+LABEL CLUSTER 60.7 { NEW "cluster_60_7_label" "cluster_60_7_value" }
+LABEL CLUSTER 60.14 { NEW "cluster_60_14_label" "cluster_60_14_value" }
+LABEL CLUSTER 60.15 { NEW "cluster_60_15_label" "cluster_60_15_value" }
+LABEL CLUSTER 60.28 { NEW "cluster_60_28_label" "cluster_60_28_value" }
+LABEL CLUSTER 60.68 { NEW "cluster_60_68_label" "cluster_60_68_value" }
 EOF
 echo contents of $CONFIG >> $seq.full
 echo ........................ >> $seq.full
 cat $CONFIG >> $seq.full
 echo ........................ >> $seq.full
 IN=$DIR/20180416.10.00
-OUT=$tmp.pmlogrewrite
+OUT=$tmp.newlabels
 rm -f $OUT.*
 echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq.full
 pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq.full
@@ -69,26 +73,21 @@ pmdumplog -zhide $IN 2>&1 > $DUMP2
 echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
 diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
 
-# Now try creating and rewriting individual labels
+# Now, run pmlogrewrite against the archive, deleting and reassociating some
+# item labels
 cat > $CONFIG << EOF
-LABEL INDOM 60.0 "device_type" { LABEL -> "new_device_type" }
-LABEL INDOM 60.0 * "cpu" { VALUE -> "new_value" }
-LABEL INDOM 60.1 { LABEL -> "new_device_type" }
-LABEL INDOM 60.3 { VALUE -> "new_value" }
-LABEL INDOM 60.10 * { LABEL -> "new_device_type" }
-LABEL INDOM 60.12 * * { VALUE -> "new_value" }
-
-LABEL INDOM 60.17 { NEW "new_indom_label" "new_indom_value" }
-LABEL INDOM 60.19 { NEW "new_indom_number" -123.456e+789 }
-LABEL INDOM 60.24 { NEW "new_indom_true" true }
-LABEL INDOM 60.31 { NEW "new_indom_false" false }
-LABEL INDOM 60.32 { NEW "new_indom_null" null }
+LABEL CLUSTER 60.0 { } # does nothing
+LABEL CLUSTER 60.7 { DELETE }
+LABEL CLUSTER 60.14 { CLUSTER -> 60.23 } 
+LABEL CLUSTER 60.15 "cluster_60_15_label" { LABEL -> "new_label" }
+LABEL CLUSTER 60.28 * "cluster_60_28_value" { VALUE -> "new_value" }
+LABEL CLUSTER 60.68 * * { VALUE -> false }
 EOF
 echo contents of $CONFIG >> $seq.full
 echo ........................ >> $seq.full
 cat $CONFIG >> $seq.full
 echo ........................ >> $seq.full
-IN=$DIR/20180416.10.00
+IN=$tmp.newlabels
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
 echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq.full

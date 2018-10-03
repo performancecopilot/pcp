@@ -94,14 +94,14 @@ _copy_Rebuild .
 echo "=== Rebuild ==="
 rm -f root root.bin
 cp root.start root
-$sudo ./Rebuild | _filter
+$sudo ./Rebuild -o | _filter
 pminfo -m -n root
 
 echo
 echo "=== Rebuild -u ==="
 rm -f root root.bin
 cp root.start root
-$sudo ./Rebuild -u | _filter
+$sudo ./Rebuild -o -u | _filter
 pminfo -m -n root
 
 # success, all done

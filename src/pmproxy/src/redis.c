@@ -13,6 +13,22 @@
  * for more details.
  */
 #include "server.h"
+#include "discover.h"
+
+static int series_queries = 1;		/* TODO: config file */
+static int redis_protocol = 1;		/* TODO: config file */
+static int archive_discovery = 1;	/* TODO: config file */
+
+static pmDiscoverSettings redis_discover = {
+    .callbacks.on_source	= pmSeriesDiscoverSource,
+    .callbacks.on_closed	= pmSeriesDiscoverClosed,
+    .callbacks.on_labels	= pmSeriesDiscoverLabels,
+    .callbacks.on_metric	= pmSeriesDiscoverMetric,
+    .callbacks.on_values	= pmSeriesDiscoverValues,
+    .callbacks.on_indom		= pmSeriesDiscoverInDom,
+    .callbacks.on_text		= pmSeriesDiscoverText,
+    .module.on_info		= proxylog,
+};
 
 static sds
 redisfmt(redisReply *reply)
@@ -84,7 +100,8 @@ void
 on_redis_client_read(struct proxy *proxy, struct client *client,
 		ssize_t nread, const uv_buf_t *buf)
 {
-    if (redisSlotsProxy(proxy->slots, proxylog, &client->u.redis.reader,
+    if (!redis_protocol ||
+        redisSlotsProxy(proxy->slots, proxylog, &client->u.redis.reader,
 		nread, buf->base, on_redis_server_reply, client) < 0)
 	uv_close((uv_handle_t *)&client->stream, on_client_close);
 }
@@ -93,17 +110,34 @@ static void
 on_redis_connected(void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
+    sds			message;
 
+    message = sdsnew("slots");
+    if (redis_protocol)
+	message = sdscat(message, ", command keys");
+    if (archive_discovery | series_queries)
+	message = sdscat(message, ", schema version");
     pmNotifyErr(LOG_INFO,
-		"%s: slots and command keys setup from redis-server on %s\n",
-		pmGetProgname(), proxy->redishost);
+		"%s: %s setup from redis-server on %s\n",
+		pmGetProgname(), message, proxy->redishost);
+    sdsfree(message);
+
+    redis_discover.module.events = proxy->events;
+    redis_discover.module.slots = proxy->slots;
+    pmDiscoverSetup(&redis_discover, proxy);
     proxy->redisetup = 1;
 }
 
 void
 setup_redis_proxy(struct proxy *proxy)
 {
-    proxy->slots = redisSlotsConnect(
-	    proxy->redishost, SLOTS_KEYMAP,
+    redisSlotsFlags	flags = SLOTS_NONE;
+
+    if (redis_protocol)
+	flags |= SLOTS_KEYMAP;
+    if (archive_discovery | series_queries)
+	flags |= SLOTS_VERSION;
+
+    proxy->slots = redisSlotsConnect(proxy->redishost, flags,
 	    proxylog, on_redis_connected, proxy, proxy->events, proxy);
 }

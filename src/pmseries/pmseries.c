@@ -12,9 +12,7 @@
  * for more details.
  */
 
-#include "series.h"
-#include "pmapi.h"
-#include "sds.h"
+#include "pmwebapi.h"
 #include <uv.h>
 
 typedef enum series_flags {
@@ -235,7 +233,7 @@ series_next(series_data *dp, sds sid)
 }
 
 static void
-on_series_info(pmloglevel level, sds message, void *arg)
+on_series_info(pmLogLevel level, sds message, void *arg)
 {
     series_data		*dp = (series_data *)arg;
     int			colour = (dp->flags & PMSERIES_COLOUR);
@@ -278,7 +276,8 @@ series_type_phrase(const char *type_word)
 static void
 series_load(series_data *data)
 {
-    pmflags		meta = data->flags & PMSERIES_FAST? PMFLAG_METADATA : 0;
+    pmSeriesFlags	meta = data->flags & PMSERIES_FAST ?
+				PM_SERIES_FLAG_METADATA : 0;
 
     pmSeriesLoad(&data->settings, data->query, meta, data);
 }
@@ -332,7 +331,8 @@ on_series_value(pmSID sid, pmSeriesValue *value, void *arg)
 static void
 series_query(series_data *data)
 {
-    pmflags		meta = data->flags & PMSERIES_FAST? PMFLAG_METADATA : 0;
+    pmSeriesFlags	meta = data->flags & PMSERIES_FAST ?
+		   		PM_SERIES_FLAG_METADATA : 0;
 
     pmSeriesQuery(&data->settings, data->query, meta, data);
 }
@@ -681,7 +681,7 @@ on_series_done(int sts, void *arg)
 	arg = entry->arg;
 	func(dp, arg);
     } else {
-	pmSeriesClose(&dp->settings.command);
+	pmSeriesClose(&dp->settings.module);
 	series_data_free(dp);
     }
 }
@@ -874,7 +874,7 @@ pmseries_request(uv_timer_t *arg)
     uv_handle_t		*handle = (uv_handle_t *)arg;
     series_data		*dp = (series_data *)handle->data;
 
-    pmSeriesSetup(&dp->settings.command, dp);
+    pmSeriesSetup(&dp->settings.module, dp);
 }
 
 static int
@@ -882,7 +882,7 @@ pmseries_execute(series_data *dp)
 {
     uv_timer_t		request;
     uv_handle_t		*handle = (uv_handle_t *)&request;
-    uv_loop_t		*loop = (uv_loop_t *)dp->settings.command.events;
+    uv_loop_t		*loop = (uv_loop_t *)dp->settings.module.events;
 
     handle->data = (void *)dp;
     uv_timer_init(loop, &request);
@@ -1076,21 +1076,21 @@ main(int argc, char *argv[])
 
     dp = series_data_init(flags, query);
 
-    dp->settings.on_match = on_series_match;
-    dp->settings.on_desc = on_series_desc;
-    dp->settings.on_inst = on_series_inst;
-    dp->settings.on_labelmap = on_series_labelmap;
-    dp->settings.on_instance = on_series_instance;
-    dp->settings.on_context = on_series_context;
-    dp->settings.on_metric = on_series_metric;
-    dp->settings.on_value = on_series_value;
-    dp->settings.on_label = on_series_label;
-    dp->settings.on_done = on_series_done;
+    dp->settings.callbacks.on_match = on_series_match;
+    dp->settings.callbacks.on_desc = on_series_desc;
+    dp->settings.callbacks.on_inst = on_series_inst;
+    dp->settings.callbacks.on_labelmap = on_series_labelmap;
+    dp->settings.callbacks.on_instance = on_series_instance;
+    dp->settings.callbacks.on_context = on_series_context;
+    dp->settings.callbacks.on_metric = on_series_metric;
+    dp->settings.callbacks.on_value = on_series_value;
+    dp->settings.callbacks.on_label = on_series_label;
+    dp->settings.callbacks.on_done = on_series_done;
 
-    dp->settings.command.on_info = on_series_info;
-    dp->settings.command.on_setup = on_series_setup;
-    dp->settings.command.events = (void *)uv_default_loop();
-    dp->settings.command.hostspec = sdscatprintf(sdsempty(), "%s:%u", hostname, port);
+    dp->settings.module.on_info = on_series_info;
+    dp->settings.module.on_setup = on_series_setup;
+    dp->settings.module.events = (void *)uv_default_loop();
+    dp->settings.module.hostspec = sdscatprintf(sdsempty(), "%s:%u", hostname, port);
 
     return pmseries_execute(dp);
 }

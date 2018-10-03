@@ -226,11 +226,15 @@ find_label(
     for (/**/; label_ix < lsp->nlabels; ++label_ix) {
 	lp = &lsp->labels[label_ix];
 
-	/* Compare this label to the one we want. */
+	/*
+	 * Compare this label to the one we want.
+	 * Careful: The offset and length of the label name in the label
+	 * do not include the double quotes.
+	 */
 	if (label != NULL) {
-	    if (label_len != lp->namelen)
+	    if (label_len != lp->namelen + 2)
 		continue; /* not this one */
-	    if (memcmp(label, lsp->json + lp->name, label_len) != 0)
+	    if (memcmp(label, lsp->json + lp->name - 1, label_len) != 0)
 		continue; /* not this one */
 	}
 	if (value != NULL) {
@@ -384,11 +388,11 @@ label_id_str(const labelspec_t *lp, int old)
 
     pmsprintf(buf, sizeof(buf), "label {");
     if (lp->old_label)
-	pmsprintf(buf, sizeof(buf), "\"%s\",", old ? lp->old_label : lp->new_label);
+	pmsprintf(buf, sizeof(buf), "%s,", old ? lp->old_label : lp->new_label);
     else
 	pmsprintf(buf, sizeof(buf), "ALL,");
     if (lp->old_value)
-	pmsprintf(buf, sizeof(buf), "\"%s\" ", old ? lp->old_value : lp->new_value);
+	pmsprintf(buf, sizeof(buf), "%s ", old ? lp->old_value : lp->new_value);
     else
 	pmsprintf(buf, sizeof(buf), "ALL ");
     pmsprintf(buf, sizeof(buf), "}");
@@ -477,8 +481,10 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp)
 	 * the JSON to the new size, transfering the old data as needed and then
 	 * writing the new name. This code handles both the case where the size
 	 * of the json grows and when it shrinks.
+	 *
+	 * Careful, the new_label includes the surrounding double quotes.
 	 */
-	new_label_len = strlen(lp->new_label);
+	new_label_len = strlen(lp->new_label) - 2;
 	delta = new_label_len - current_label->namelen;
 	if (delta != 0) {
 	    /*
@@ -515,8 +521,11 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp)
 	 * Write the new name. Note that we don't need to worry about the
 	 * double quotes, since the ones from the previous name have already
 	 * been shifted into place, if necessary above.
+	 *
+	 * Careful, the new_label includes the surrounding double quotes, but
+	 * the length has already been adjusted.
 	 */
-	memcpy(current_name, lp->new_label, new_label_len);
+	memcpy(current_name, lp->new_label + 1, new_label_len);
 
 	/*
 	 * Update the length of the current name and the offsets of
@@ -772,7 +781,7 @@ do_labelset(void)
 
 		if ((flags & LABEL_CHANGE_LABEL)) {
 		    if (pmDebugOptions.appl1) {
-			fprintf(stderr, "Rewrite: name for label %s to \"%s\"\n",
+			fprintf(stderr, "Rewrite: name for label %s to %s\n",
 				label_id_str(lp, 1/*old*/), lp->new_label);
 		    }
 		    change_labels(lsp, lp);
@@ -780,7 +789,7 @@ do_labelset(void)
 
 		if ((flags & LABEL_CHANGE_VALUE)) {
 		    if (pmDebugOptions.appl1) {
-			fprintf(stderr, "Rewrite: value for label %s to \"%s\"\n",
+			fprintf(stderr, "Rewrite: value for label %s to %s\n",
 				label_id_str(lp, 1/*old*/), lp->new_value);
 		    }
 		    change_values(lsp, lp);
@@ -854,18 +863,18 @@ do_labelset(void)
 			new_label_len = strlen(new_label);
 		    }
 		    else {
-			new_label = lsp->json + lsp->labels[label_ix].name;
-			new_label_len = lsp->labels[label_ix].namelen;
+			new_label = lsp->json + lsp->labels[label_ix].name - 1;
+			new_label_len = lsp->labels[label_ix].namelen + 2;
 		    }
 		    if (lp->new_value != NULL) {
 			new_value = lp->new_value;
-			pmsprintf(buf, sizeof(buf), "{\"%.*s\":\"%s\"}",
+			pmsprintf(buf, sizeof(buf), "{%.*s:%s}",
 				  new_label_len, new_label, new_value);
 		    }
 		    else {
 			new_value = lsp->json + lsp->labels[label_ix].value;
 			new_value_len = lsp->labels[label_ix].valuelen;
-			pmsprintf(buf, sizeof(buf), "{\"%.*s\":%.*s}",
+			pmsprintf(buf, sizeof(buf), "{%.*s:%.*s}",
 				  new_label_len, new_label, new_value_len, new_value);
 		    }
 		    if ((sts = __pmAddLabels(&new_labelset, buf, lp->new_type)) < 0) {

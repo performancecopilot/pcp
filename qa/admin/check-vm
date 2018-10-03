@@ -245,7 +245,7 @@ ed
 git
 make
 !pkg?	egcc|gcc	[gcc]
-pkg?	gcc		[build-essential]
+pkg?	gcc		[build-essential or gcc]
 autoconf
 flex
 bison
@@ -295,7 +295,7 @@ urpmi?		pkg-config	[pkgconfig]
 emerge?		pkg-config	[?]
 pkgin?		pkg-config	[pkg-config]
 pkg_add?	pkg-config	[?]
-pkg?		pkg-config	[pkg-config]
+pkg?		pkg-config	[devel/pkgconf]
 slackpkg?	pkg-config	[pkg-config]
 pacman?		pkg-config	[pkg-config]
 # -- libuv
@@ -305,7 +305,7 @@ urpmi?	/usr/include/uv.h	[libuv-devel (build optional)]
 emerge?	/usr/include/uv.h	[net-libs/libuv (build optional)]
 pkgin?	/usr/pkg/include/uv.h	[libuv (build optional)]
 pkg_add?	/usr/local/include/uv.h	[libuv (build optional)]
-pkg?	/usr/include/uv.h	[libuv (build optional)]
+pkg?	/usr/local/include/uv.h	[libuv (build optional)]
 slackpkg?	uv.h		[N/A (build optional)]
 pacman?	/usr/include/uv.h	[libuv (build optional)]
 # -- libmicrohttpd
@@ -315,8 +315,8 @@ urpmi?	/usr/include/microhttpd.h	[libmicrohttpd-devel (build optional)]
 emerge?	/usr/include/microhttpd.h	[net-libs/libmicrohttpd (build optional)]
 pkgin?	/usr/pkg/include/microhttpd.h	[libmicrohttpd (build optional)]
 pkg_add?	/usr/local/include/microhttpd.h	[libmicrohttpd (build optional)]
-pkg?		/usr/include/microhttpd.h	[libmicrohttpd (build optional)]
-pkg?		/usr/include/gnutls/gnutls.h	[gnutls (build optional)]
+pkg?		/usr/local/include/microhttpd.h	[libmicrohttpd (build optional)]
+pkg?		/usr/local/include/gnutls/gnutls.h	[gnutls (build optional)]
 slackpkg?	microhttpd.h		[N/A (build optional)]
 pacman?	/usr/include/microhttpd.h	[libmicrohttpd (build optional)]
 # -- libcairo
@@ -326,7 +326,7 @@ urpmi?	/usr/include/cairo/cairo.h	[cairo-devel (build optional)]
 emerge?	/usr/include/cairo/cairo.h	[x11-libs/cairo (build optional)]
 pkgin?	/usr/pkg/include/cairo/cairo.h	[cairo (build optional)]
 pkg_add?	/usr/local/include/cairo/cairo.h	[cairo (build optional)]
-pkg?	/usr/include/cairo/cairo.h	[cairo (build optional)]
+pkg?	/usr/local/include/cairo/cairo.h	[cairo (build optional)]
 slackpkg?	/usr/include/cairo/cairo.h	[cairo (build optional)]
 pacman?	/usr/include/cairo/cairo.h	[cairo (build optional)]
 # -- zlib
@@ -356,7 +356,7 @@ urpmi?	/usr/include/sasl/sasl.h	[lib64sasl-devel (build optional)]
 emerge?	/usr/include/sasl/sasl.h	[dev-libs/cyrus-sasl (build optional)]
 pkgin?	/usr/pkg/include/sasl/sasl.h	[cyrus-sasl (build optional)]
 pkg_add?	/usr/local/include/sasl/sasl.h	[cyrus-sasl (build optional)]
-pkg?	/usr/include/sasl/sasl.h	[system/header (build optional)]
+pkg?	/usr/local/include/sasl/sasl.h	[cyrus-sasl or system/header (build optional)]
 slackpkg?	/usr/include/sasl/sasl.h	[cyrus-sasl (build optional)]
 pacman?	/usr/include/sasl/sasl.h	[cyrus-sasl (build optional)]
 # -- systemd API
@@ -373,7 +373,7 @@ urpmi?	umad.h				[N/A (build optional)]
 emerge?	/usr/include/infiniband/umad.h	[sys-infiniband/libibumad (build optional)]
 pkgin?	/usr/pkg/include/umad.h		[libibumad (build optional)]
 pkg_add?	/usr/local/include/umad.h	[libumad (build optional)]
-pkg?	/usr/include/sys/ib/clients/of/sol_umad/sol_umad.h			[system/header (build optional)]
+pkg?	/usr/include/sys/ib/clients/of/sol_umad/sol_umad.h			[libibumad or system/header (build optional)]
 slackpkg?	umad.h			[N/A (build optional)]
 pacman?		umad.h			[umad? (build optional)]
 dpkg?	/usr/include/infiniband/mad.h	[libibmad-dev (build optional)]
@@ -382,7 +382,7 @@ urpmi?	mad.h				[N/A (build optional)]
 emerge?	/usr/include/infiniband/mad.h	[sys-infiniband/libibmad (build optional)]
 pkgin?	/usr/pkg/include/mad.h		[libibmad (build optional)]
 pkg_add?	/usr/local/include/mad.h	[libmad (build optional)]
-pkg?	/usr/include/sys/ib/clients/of/rdma/ib_user_mad.h			[system/header (build optional)]
+pkg?	/usr/include/sys/ib/clients/of/rdma/ib_user_mad.h			[libibmad or system/header (build optional)]
 slackpkg?	mad.h			[N/A (build optional)]
 pacman?	/usr/include/mad.h		[libmad (build optional)]
 # -- avahi API
@@ -392,7 +392,7 @@ urpmi?	/usr/include/avahi-common	[lib64avahi-common-devel (build optional)]
 emerge?	/usr/include/avahi-common	[net-dns/avahi (build optional)]
 pkgin?	/usr/pkg/include/avahi-common	[avahi (build optional)]
 pkg_add?	/usr/local/include/avahi-common	[avahi (build optional)]
-pkg?	/usr/include/avahi-common	[network/avahi (build optional)]
+pkg?	/usr/include/avahi-common	[avahi (build optional)]
 slackpkg?	avahi-common		[N/A (build optional)]
 pacman?	/usr/include/avahi-common	[avahi (build optional)]
 # -- libpapi
@@ -473,7 +473,7 @@ slackpkg?	jsonpointer.py				[N/A (build optional)]
 pacman?	/usr/lib/python2.*/site-packages/jsonpointer.py	[python2-jsonpointer (build optional)
 pacman?	/usr/lib/python3.*/site-packages/jsonpointer.py	[python-jsonpointer (build optional)
 # -- python lio
-rpm?	/usr/lib*/python2.*/*-packages/rtslib		[python-rtslib]
+rpm?	/usr/lib*/python2.*/*-packages/rtslib		[python-rtslib or python2-rtslib]
 rpm?	/usr/lib*/python3.*/*-packages/rtslib		[python3-rtslib]
 urpmi?	/usr/lib*/python2.*/*-packages/rtslib		[python3-rtslib]
 urpmi?	/usr/lib*/python2.*/*-packages/rtslib		[python-rtslib]
@@ -494,8 +494,8 @@ pacman?	/usr/lib/python3.*/site-packages/setuptools	[python-setuptools]
 # -- python libvirt and lxml for libvirt PMDA
 dpkg?	/usr/lib/python2.*/*-packages/libvirt.py	[python-libvirt (build optional)]
 dpkg?	/usr/lib/python3/*-packages/libvirt.py	[python3-libvirt (build optional)]
-rpm?	/usr/lib*/python2.*/*-packages/libvirt.py	[libvirt-python or python-libvirt (build optional)]
-rpm?	/usr/lib*/python3.*/*-packages/libvirt.py	[libvirt-python3 or python3-libvirt (build optional)]
+rpm?	/usr/lib*/python2.*/*-packages/libvirt.py	[libvirt-python or python-libvirt-python (build optional)]
+rpm?	/usr/lib*/python3.*/*-packages/libvirt.py	[libvirt-python3 or python3-libvirt or python3-libvirt-python (build optional)]
 dpkg?	/usr/lib/python2.*/*-packages/lxml	[python-lxml (build optional)]
 dpkg?	/usr/lib/python3/*-packages/lxml	[python3-lxml (build optional)]
 rpm?	/usr/lib*/python2.*/*-packages/lxml	[python-lxml (build optional)]
@@ -521,9 +521,9 @@ pacman?	/usr/lib/python3.*/*-packages/defusedxml/lxml.py	[python-defusedxml (bui
 # -- python prometheus-client
 dpkg?	/usr/lib/python2.*/*-packages/prometheus_client	[python-prometheus-client (build optional)]
 dpkg?	/usr/lib/python3/*-packages/prometheus_client	[python3-prometheus-client (build optional)]
-rpm?	/usr/lib*/python2.*/*-packages/prometheus_client	[python-prometheus-client (build optional)]
-rpm?	/usr/lib*/python3.*/*-packages/prometheus_client	[python3-prometheus-client (build optional)]
-urpmi?	/usr/lib*/python*/*-packages/prometheus_client		[?python-prometheus-client (build optional)]
+rpm?	/usr/lib*/python2.*/*-packages/prometheus_client	[python-prometheus_client (build optional)]
+rpm?	/usr/lib*/python3.*/*-packages/prometheus_client	[python3-prometheus_client (build optional)]
+urpmi?	/usr/lib*/python*/*-packages/prometheus_client		[?python-prometheus_client (build optional)]
 emerge?	/usr/lib/python*/*-packages/prometheus_client		[?dev-python/prometheus-client (build optional)]
 pkgin?	/usr/pkg/lib/python3.*/*-packages/prometheus_client	[py36-prometheus-client (build optional)]
 pkg_add?	/usr/local/lib/python*/*-packages/prometheus_client	[?py-prometheus-client (build optional)]
@@ -582,6 +582,16 @@ pkg?	/usr/lib/python2.*/*-packages/PIL/Image.py	[N/A (QA optional)]
 pkg?	/usr/lib/python3.*/*-packages/PIL/Image.py	[N/A (QA optional)]
 slackpkg?	/usr/lib*/python2.*/*-packages/PIL/Image.py	[python-pillow (QA optional)]
 pacman?		Image.py	[?]
+# -- python psycopg2
+dpkg?    /usr/lib/python2/*-packages/psycopg2		[python-psycopg2 (postgresql)]
+dpkg?    /usr/lib/python3/*-packages/psycopg2		[python3-psycopg2 (postgresql)]
+rpm?    /usr/lib*/python2.*/*-packages/psycopg2		[python-psycopg2 (postgresql)]
+rpm?    /usr/lib*/python3.*/*-packages/psycopg2		[python3-psycopg2 (postgresql)]
+urpmi?	/usr/lib*/python3.*/*-packages/psycopg2		[python3-psycopg2 (postgresql)]
+pkg?	/usr/lib/python2.*/*-packages/psycopg2		[N/A]
+pkg?	/usr/lib/python3.*/*-packages/psycopg2		[N/A]
+slackpkg?	/usr/lib*/python2.*/*-packages/psycopg2	[python-psycopg2 (postgresql)]
+pacman?		psycopg1.py				[?]
 # perl modules
 # -- Time::HiRes
 dpkg?	Time::HiRes		[perl]
@@ -826,7 +836,7 @@ slackpkg?	avahi-browse	[N/A (QA optional)]
 pacman?	avahi-browse		[avahi (QA optional)]
 # -- ifconfig
 dpkg?		ifconfig	[net-tools]
-rpm?		ifconfig	[net-tools]
+rpm?		ifconfig	[net-tools or net-tools-deprecated]
 urpmi?		ifconfig	[net-tools]
 emerge?		ifconfig	[?]
 pkgin?		ifconfig	[?]
@@ -836,7 +846,7 @@ slackpkg?	ifconfig	[net-tools]
 pacman?		ifconfig	[?]
 # -- netstat
 dpkg?		netstat		[net-tools]
-rpm?		netstat		[net-tools]
+rpm?		netstat		[net-tools or net-tools-deprecated]
 urpmi?		netstat		[net-tools]
 emerge?		netstat		[?]
 pkgin?		netstat		[?]
@@ -846,7 +856,7 @@ slackpkg?	netstat		[net-tools]
 pacman?		netstat		[?]
 # -- kubectl
 dpkg?		kubectl		[N/A]
-rpm?		kubectl		[kubernetes-client]
+rpm?		kubectl		[kubernetes-client or kubectl]
 urpmi?		kubectl		[kubernetes-client]
 emerge?		kubectl		[?]
 pkgin?		kubectl		[?]
@@ -958,27 +968,6 @@ pkg_add?	/usr/lib/*/libicui18n.so	[? (QA optional)]
 pkg?		/usr/lib/*/libicui18n.so	[? (QA optional)]
 slackpkg?	/usr/lib*/libicui18n.so		[icu4c (QA optional)]
 pacman?		/usr/lib/libicui18n.so		[? (QA optional)]
-# -- DBI
-dpkg?	Class::DBI::Query	[libclass-dbi-perl (postgresql QA optional)]
-rpm?	DBI::			[perl-DBI or 'perl(DBI)' (postgresql QA optional)]
-urpmi?	DBI::			[perl-DBI or 'perl(DBI)' (postgresql QA optional)]
-emerge?	DBI::			[dev-perl/DBI (postgresql QA optional)]
-pkgin?	DBI::			[p5-DBI (postgresql QA optional)]
-pkg_add?	DBI::		[p5-DBI (postgresql QA optional)]
-pkg?	DBI::			[perl-5/postgres-dbi (postgresql QA optional)]
-slackpkg?	DBI::		[perl (postgresql QA optional)]
-pacman?	DBI::			[perl-dbi (postgresql QA optional)]
-# -- DBD::Pg
-dpkg?	DBD::Pg			[libdbd-pg-perl (postgresql QA optional)]
-rpm?	DBD::Pg			[perl-DBD-Pg or 'perl(DBD::Pg)' (postgresql QA optional)]
-urpmi?	DBD::Pg			[perl-DBD-Pg or 'perl(DBD::Pg)' (postgresql QA optional)]
-emerge?	DBD::Pg			[dev-perl/DBD-Pg (postgresql QA optional)]
-pkgin?	DBD::Pg			[p5-DBD-postgresql (postgresql QA optional)]
-pkg_add?	/usr/local/bin/pg_config	[postgresql95-client (postgresql QA optional)]
-pkg_add?	DBD::Pg		[p5-DBD-Pg (postgresql QA optional)]
-pkg?	DBD::Pg			[perl-5/postgres-dbi (postgresql QA optional)]
-slackpkg?	DBD::Pg		[N/A (postgresql QA optional)]
-pacman?	DBD::Pg			[perl-dbd-pg (postgresql QA optional)]
 # -- DBD::mysql
 dpkg?	DBD::mysql		[libdbd-mysql-perl (mysql QA optional)]
 rpm?	DBD::mysql		[perl-DBD-mysql or 'perl(DBD::mysql)' (mysql QA optional)]
@@ -1001,7 +990,7 @@ slackpkg?	memcached	[N/A (memcache QA optional)]
 pacman?	memcached		[memcached (memcache QA optional)]
 # -- zabbix
 dpkg?	zabbix_agentd		[zabbix-agent (zabbix QA optional)]
-rpm?	zabbix_agentd		[zabbix-agent (zabbix QA optional)]
+rpm?	zabbix_agentd		[zabbix-agent or zabbix22-agent (zabbix QA optional)]
 urpmi?	zabbix_agentd		[N/A (zabbix QA optional)]
 emerge?	zabbix_agentd		[? (zabbix QA optional)]
 pkgin?	zabbix_agentd		[zabbix-agent (zabbix QA optional)]
@@ -1041,7 +1030,7 @@ slackpkg?	mkfs.gfs2	[N/A (gfs2 QA optional)]
 pacman?	mkfs.gfs2		[gfs2? (gfs2 QA optional)]
 # -- docker
 dpkg?		docker		[docker.io (QA optional)]
-rpm?		docker		[docker-common (QA optional)]
+rpm?		docker		[docker-common or docker (QA optional)]
 urpmi?		docker		[docker-common (QA optional)]
 emerge?		docker		[? (QA optional)]
 pkgin?		docker		[? (QA optional)]
@@ -1257,6 +1246,16 @@ pkg_add?	smartctl		[? (QA optional)]
 pkg?		smartctl		[? (QA optional)]
 slackpkg?	smartctl		[smartmontools (QA optional)]
 pacman?		smartctl		[? (QA optional)]
+# -- ausyscall
+dpkg?		ausyscall		[auditd (QA optional)]
+rpm?		ausyscall		[audit (QA optional)]
+urpmi?		ausyscall		[audit (QA optional)]
+emerge?		ausyscall		[? (QA optional)]
+pkgin?		ausyscall		[? (QA optional)]
+pkg_add?	ausyscall		[? (QA optional)]
+pkg?		ausyscall		[? (QA optional)]
+slackpkg?	ausyscall		[? (QA optional)]
+pacman?		ausyscall		[? (QA optional)]
 #
 # misc
 #
@@ -1359,10 +1358,19 @@ in
 	na='python3-bcc'
 	;;
     bozo-vm)
-	na='python3-prometheus-client python3-bcc docker.io'
+	na='docker.io python3-bpfcc libsoqt5-dev'
+	;;
+    vm00)
+	na='libuv1-dev python3-libvirt python3-prometheus-client python3-elasticsearch python3-openpyxl python3-bpfcc libsoqt5-dev'
 	;;
     vm01)
 	na='python3-bpfcc libsoqt5-dev'
+	;;
+    vm02)
+	na='python-prometheus_client python3-prometheus_client zabbix-agent kubernetes-node qtchooser selinux-policy-devel selinux-policy-targeted'
+	;;
+    vm03)
+	na='python3-prometheus-client'
 	;;
     vm04)
 	na='python-prometheus-client python-openpyxl zabbix-agent qtchooser qtchooser'
@@ -1377,7 +1385,7 @@ in
 	na='python3-bpfcc docker.io libsoqt5-dev'
 	;;
     vm12)
-	na='python3-prometheus-client python3-bcc kubernetes-client kubernetes-node'
+	na='python3-prometheus_client python3-bcc kubernetes-client kubernetes-node'
 	;;
     vm14)
 	na='systemd-devel libpfm-devel python-prometheus-client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin3-devel Net::SNMP YAML::XS::LibYAML libuv-devel kubernetes-client kubernetes-node docker-common'
@@ -1389,7 +1397,7 @@ in
 	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
 	;;
     vm19)
-	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch zabbix-agent docker-io qtchooser selinux-policy-devel python3-pillow python3-bcc'
+	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch zabbix-agent docker-io qtchooser selinux-policy-devel python3-pillow python3-bcc python3-prometheus_client'
 	;;
     vm20)
 	na='sysv-rc-conf'
@@ -1398,16 +1406,22 @@ in
 	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-openpyxl zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io'
 	;;
     vm22)
-	na='python-prometheus-client python3-prometheus-client python3-openpyxl python3-bcc'
+	na='python-prometheus-client python3-prometheus-client python3-openpyxl python3-bcc python3-prometheus_client'
 	;;
     vm23)
-	na='python-prometheus-client python3-prometheus-client python3-bcc kubernetes-client kubernetes-node'
+	na='python-prometheus-client python3-prometheus-client python3-bcc kubernetes-client kubernetes-node python3-prometheus_client'
 	;;
     vm24)
-	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin3-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch python3-bcc python3-pillow docker-io'
+	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin3-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch python3-bcc python3-pillow docker-io python3-prometheus_client'
 	;;
+    vm25)
+	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser'
+    	;;
     vm27)
 	na='python3-bpfcc'
+	;;
+    vm28)
+	na='systemd-devel libpfm-devel python-prometheus-client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel docker-common qtchooser qtchooser Coin3-devel'
 	;;
     vm29)
 	na='python-prometheus-client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel python-openpyxl'
@@ -1417,6 +1431,9 @@ in
 	;;
     vm31)
 	na='python-prometheus-client python3-prometheus-client python3-bcc'
+	;;
+    vm32)
+	na='libibumad libibmad'
 	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
@@ -1731,7 +1748,7 @@ libpfm-devel				>=	4.4	pcp-pmda-perfevent
 libpfm|libpfm4				>=	4.4	pcp-pmda-perfevent
 libibmad-devel|infiniband-diags-devel	>=	1.1.7	pcp-pmda-infiniband
 libibmad|libibmad5|infiniband-diags	>=	1.1.7	pcp-pmda-infiniband
-libibumad-devel				>=	1.1.7	pcp-pmda-infiniband
+libibumad-devel|rdma-core-devel		>=	1.1.7	pcp-pmda-infiniband
 libibumad|libibumad3			>=	1.1.7	pcp-pmda-infiniband
 End-of-File
     cat $tmp.rpm \

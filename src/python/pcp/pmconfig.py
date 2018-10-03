@@ -173,7 +173,11 @@ class pmConfig(object):
 
     def read_options(self):
         """ Read options from configuration file """
-        config = ConfigParser.SafeConfigParser()
+        # Python < 3.2 compat
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
+            config = ConfigParser.ConfigParser()
+        else:
+            config = ConfigParser.SafeConfigParser()
         config.optionxform = str
         if self.util.config:
             try:
@@ -294,7 +298,11 @@ class pmConfig(object):
             raise pmapi.pmUsageErr()
 
         # Read config
-        config = ConfigParser.SafeConfigParser()
+        # Python < 3.2 compat
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
+            config = ConfigParser.ConfigParser()
+        else:
+            config = ConfigParser.SafeConfigParser()
         config.optionxform = str
         if self.util.config:
             try:

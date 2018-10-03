@@ -118,9 +118,8 @@ tadd(struct timeval *a, struct timeval *b)
 
 /* convert into <milliseconds>-<nanoseconds> format for series streaming */
 const char *
-timeval_str(struct timeval *stamp)
+timeval_stream_str(struct timeval *stamp, char *buffer, int buflen)
 {
-    static char	tsbuf[64];
     __uint64_t	millipart;
     __uint64_t	nanopart;
     __uint64_t	crossover = stamp->tv_usec / 1000;
@@ -130,9 +129,44 @@ timeval_str(struct timeval *stamp)
     nanopart = stamp->tv_usec * 1000;
     nanopart -= crossover;
 
-    pmsprintf(tsbuf, sizeof(tsbuf), "%" FMT_UINT64 "-%"FMT_UINT64,
+    pmsprintf(buffer, buflen, "%" FMT_UINT64 "-%"FMT_UINT64,
 		(__uint64_t)millipart, (__uint64_t)nanopart);
-    return tsbuf;
+    return buffer;
+}
+
+/* convert timeval into human readable date/time format for logging */
+const char *
+timeval_str(struct timeval *tvp, char *buffer, int buflen)
+{
+    struct tm	tmp;
+    time_t	now = (time_t)tvp->tv_sec;
+
+    pmLocaltime(&now, &tmp);
+    pmsprintf(buffer, sizeof(buflen), "%02u:%02u:%02u.%06u",
+	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (unsigned int)tvp->tv_usec);
+    return buffer;
+}
+
+/* convert into <milliseconds>-<nanoseconds> format for series streaming */
+const char *
+timespec_stream_str(pmTimespec *stamp, char *buffer, int buflen)
+{
+    pmsprintf(buffer, buflen, "%" FMT_UINT64 "-%"FMT_UINT64,
+		(__uint64_t)stamp->tv_sec, (__uint64_t)stamp->tv_nsec);
+    return buffer;
+}
+
+/* convert timespec into human readable date/time format for logging */
+const char *
+timespec_str(pmTimespec *tsp, char *buffer, int buflen)
+{
+    struct tm	tmp;
+    time_t	now = (time_t)tsp->tv_sec;
+
+    pmLocaltime(&now, &tmp);
+    pmsprintf(buffer, buflen, "%02u:%02u:%02u.%09u",
+	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (unsigned int)tsp->tv_nsec);
+    return buffer;
 }
 
 const char *
@@ -310,7 +344,7 @@ pmLogLevelIsTTY(void)
 }
 
 const char *
-pmLogLevelStr(pmloglevel level)
+pmLogLevelStr(pmLogLevel level)
 {
     switch (level) {
     case PMLOG_TRACE:
@@ -346,7 +380,7 @@ pmLogLevelStr(pmloglevel level)
 #define ANSI_BG_RED	"\x1b[41m"
 #define ANSI_BG_WHITE	"\x1b[47m"
 void
-pmLogLevelPrint(FILE *stream, pmloglevel level, sds message, int istty)
+pmLogLevelPrint(FILE *stream, pmLogLevel level, sds message, int istty)
 {
     const char		*colour, *levels = pmLogLevelStr(level);
 
