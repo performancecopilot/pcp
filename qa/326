@@ -71,7 +71,8 @@ _filter_pmval()
 #
 _filter_start()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
 	-e '/Failed to create avahi client/d' \
     # end
 }

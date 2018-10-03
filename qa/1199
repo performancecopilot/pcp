@@ -20,12 +20,23 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
+# if avahi not quite there, don't need this ...
+# [Wed Oct  3 09:05:37] pmcd(88378) Error: Failed to create avahi client: Daemon not running
+#
+_filter_start()
+{
+    tee -a $here/$seq.full \
+    | sed \
+	-e '/Failed to create avahi client/d' \
+    # end
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
-_service pmcd restart | _filter_pcp_start
+_service pmcd restart 2>&1 | _filter_pcp_start | _filter_start
 pminfo -v sample >/dev/null
 
 # real QA test starts here
