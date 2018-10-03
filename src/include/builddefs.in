@@ -179,7 +179,11 @@ PYLINT	= @PYLINT@ --rcfile=$(TOPDIR)/.pylintrc --output-format=colorized
 PYTHON	= @PYTHON@
 PYTHON3	= @PYTHON3@
 DTRACE  = @DTRACE@
+ifeq "$(TARGET_OS)" "freebsd"
+QMAKE	= @qmake@
+else
 QMAKE	= QT_SELECT=@qt_version@ @qmake@
+endif
 
 INSTALL_SH = $(TOPDIR)/install-sh
 INSTALL	= $(INSTALL_SH) -o $(PCP_USER_INSTALL) -g $(PCP_GROUP_INSTALL)
