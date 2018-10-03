@@ -52,7 +52,7 @@ De-installation
 
  +  Simply use
 
-        # cd $PCP_PMDAS_DIR/lmsensors
+	# $PCP_PMDAS_DIR/lmsensors
 	# ./Remove
 
 Troubleshooting
