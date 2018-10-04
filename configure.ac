@@ -1063,13 +1063,18 @@ if $pmda_oracle; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the elasticsearch PMDA should be included])
 pmda_elasticsearch=false
-if test "$have_perl" = true
+if test "$have_python" = true
 then
-    dnl rpm build for elasticsearch PMDA needs Perl LWP::UserAgent
-    if $pcp_perl_prog -e "use LWP::UserAgent" >/dev/null 2>&1
+    dnl rpm build for elasticsearch PMDA needs Python urllib module
+    if $pcp_python_prog -c "import urllib" >/dev/null 2>&1
     then
 	pmda_elasticsearch=true
     fi
+    if $pcp_python_prog -c "import urllib2" >/dev/null 2>&1
+    then
+	pmda_elasticsearch=true
+    fi
+
 fi
 AC_SUBST(PMDA_ELASTICSEARCH, $pmda_elasticsearch)
 if $pmda_elasticsearch; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi

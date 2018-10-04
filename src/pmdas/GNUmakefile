@@ -30,11 +30,12 @@ CPMDAS = root pmcd \
 PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache mysql oracle vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
-	rsyslog elasticsearch snmp nginx nfsclient \
+	rsyslog snmp nginx nfsclient \
 	ds389 ds389log activemq lustre gpfs slurm \
 	bind2 redis nutcracker
 
-PYPMDAS = bcc gluster zswap unbound mic haproxy json libvirt lio prometheus
+PYPMDAS = bcc gluster zswap unbound mic haproxy json libvirt lio prometheus \
+	elasticsearch
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf
