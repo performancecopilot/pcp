@@ -77,16 +77,14 @@ server_init(int portcount, const char *localpath)
     return proxy;
 }
 
-static void
-on_client_alloc(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
+void
+on_buffer_alloc(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
 {
-    struct client	*client = (struct client *)handle;
-
     if (pmDebugOptions.desperate)
-	fprintf(stderr, "%s: client %p buffer allocation of %lld bytes\n",
-			pmGetProgname(), client, (long long)suggested_size);
+	fprintf(stderr, "%s: handle %p buffer allocation of %lld bytes\n",
+			"on_buffer_alloc", handle, (long long)suggested_size);
 
-    if ((buf->base = malloc(suggested_size)) != NULL)
+    if ((buf->base = sdsnewlen(SDS_NOINIT, suggested_size)) != NULL)
 	buf->len = suggested_size;
     else
 	buf->len = 0;
@@ -98,8 +96,18 @@ on_client_close(uv_handle_t *handle)
     struct client	*client = (struct client *)handle;
 
     if (pmDebugOptions.desperate)
-	fprintf(stderr, "%s: client %p connection closed\n",
-			pmGetProgname(), client);
+	fprintf(stderr, "client %p connection closed\n", client);
+
+    switch (client->protocol) {
+    case STREAM_PCP:
+	on_pcp_client_close(client);
+	break;
+    case STREAM_REDIS:
+	on_redis_client_close(client);
+	break;
+    default:
+	break;
+    }
 
 #if 0
     struct proxy	*proxy = (struct proxy *)handle->data;
@@ -116,17 +124,52 @@ on_client_close(uv_handle_t *handle)
 #endif
 }
 
+static void
+on_client_write(uv_write_t *writer, int status)
+{
+    struct client	*client = (struct client *)writer->handle;
+    stream_write_baton	*request = (stream_write_baton *)writer;
+
+    sdsfree(request->buffer[0].base);
+    if (request->buffer[1].base)	/* optional second buffer */
+	sdsfree(request->buffer[1].base);
+    free(request);
+
+    if (status != 0)
+	uv_close((uv_handle_t *)&client->stream, on_client_close);
+}
+
+void
+client_write(struct client *client, sds buffer, sds suffix)
+{
+    stream_write_baton	*request = calloc(1, sizeof(stream_write_baton));
+    unsigned int	nbuffers = 0;
+
+    if (request) {
+	if (pmDebugOptions.pdu)
+	    fprintf(stderr, "%s: sending %ld bytes to client %p\n",
+			"client_write", sdslen(buffer), client);
+	request->buffer[nbuffers++] = uv_buf_init(buffer, sdslen(buffer));
+	if (suffix != NULL)
+	    request->buffer[nbuffers++] = uv_buf_init(suffix, sdslen(suffix));
+	uv_write(&request->writer, (uv_stream_t *)&client->stream,
+		 request->buffer, nbuffers, on_client_write);
+    } else {
+	uv_close((uv_handle_t *)&client->stream, on_client_close);
+    }
+}
+
 static stream_protocol
 client_protocol(int key)
 {
     switch (key) {
-    case 'p':	/* pmproxy */
+    case 'p':	/* PCP pmproxy */
 	return STREAM_PCP;
-    case '-':	/* error */
-    case '+':	/* status */
-    case ':':	/* integer */
-    case '$':	/* string */
-    case '*':	/* array */
+    case '-':	/* RESP error */
+    case '+':	/* RESP status */
+    case ':':	/* RESP integer */
+    case '$':	/* RESP string */
+    case '*':	/* RESP array */
 	return STREAM_REDIS;
     case '\0':
 	return STREAM_SECURE;
@@ -154,15 +197,15 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 	    break;
 	}
 	if (pmDebugOptions.pdu)
-	    fprintf(stderr, "%s: unknown protocol key '%c' - disconnecting\n",
-			pmGetProgname(), *buf->base);
+	    fprintf(stderr, "%s: unknown protocol key '%c' - disconnecting"
+			"client %p\n", "on_client_read", *buf->base, proxy);
     } else {
-	if (nread < 0)
-	    fprintf(stderr, "%s: read error %ld - disconnecting\n",
-			pmGetProgname(), (long)nread);
+	if (pmDebugOptions.pdu && nread < 0)
+	    fprintf(stderr, "%s: read error %ld - disconnecting client %p\n",
+			"on_client_read", (long)nread, client);
 #if 0
 	if (buf->base != NULL)
-	    free(buf->base);
+	    sdsfree(buf->base);
 	buf->base = NULL;
 	buf->len = 0;
 #endif
@@ -188,6 +231,8 @@ on_client_connection(uv_stream_t *stream, int status)
 			pmGetProgname());
 	return;
     }
+    if (pmDebugOptions.pdu)
+	fprintf(stderr, "%s: new client %p\n", "on_client_connection", client);
 
     status = uv_tcp_init(proxy->events, &client->stream.u.tcp);
     if (status != 0) {
@@ -215,9 +260,10 @@ on_client_connection(uv_stream_t *stream, int status)
     } else {
 	proxy->head = proxy->tail = client;
     }
+    client->proxy = proxy;
 
     status = uv_read_start((uv_stream_t *)&client->stream.u.tcp,
-			    on_client_alloc, on_client_read);
+			    on_buffer_alloc, on_client_read);
     if (status != 0) {
 	fprintf(stderr, "%s: client read start failed: %s\n",
 			pmGetProgname(), uv_strerror(status));

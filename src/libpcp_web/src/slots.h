@@ -59,10 +59,12 @@ extern redisSlots *redisSlotsConnect(sds, redisSlotsFlags,
 		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
 extern int redisSlotsRequest(redisSlots *, const char *, sds, sds,
 		redisAsyncCallBack *, void *);
-extern int redisSlotsProxy(redisSlots *,
-		redisInfoCallBack, redisReader **, ssize_t, const char *,
-		redisAsyncCallBack *, void *);
 extern void redisSlotsFree(redisSlots *);
+
+extern int redisSlotsProxyConnect(redisSlots *,
+		redisInfoCallBack, redisReader **, const char *, ssize_t,
+		redisAsyncCallBack *, void *);
+extern void redisSlotsProxyFree(redisReader *);
 
 typedef struct {
     seriesBatonMagic	magic;		/* MAGIC_SLOTS */

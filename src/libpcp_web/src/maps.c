@@ -86,7 +86,7 @@ sdsFreeCallBack(void *privdata, void *val)
     sdsfree(val);
 }
 
-static dictType	mapCallBackDict = {
+dictType	sdsDictCallBacks = {
     .hashFunction	= mapHashCallBack,
     .keyCompare		= mapCompareCallBack,
     .keyDup		= sdsDupCallBack,
@@ -112,13 +112,13 @@ redisMapsInit(void)
     if (setup)
 	return;
 
-    instmap = dictCreate(&mapCallBackDict, (void *)mapnames[0]);
+    instmap = dictCreate(&sdsDictCallBacks, (void *)mapnames[0]);
     instrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[0]);
-    namesmap = dictCreate(&mapCallBackDict, (void *)mapnames[1]);
+    namesmap = dictCreate(&sdsDictCallBacks, (void *)mapnames[1]);
     namesrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[1]);
-    labelsmap = dictCreate(&mapCallBackDict, (void *)mapnames[2]);
+    labelsmap = dictCreate(&sdsDictCallBacks, (void *)mapnames[2]);
     labelsrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[2]);
-    contextmap = dictCreate(&mapCallBackDict, (void *)mapnames[3]);
+    contextmap = dictCreate(&sdsDictCallBacks, (void *)mapnames[3]);
     contextrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[3]);
     setup = 1;
 }
@@ -126,7 +126,7 @@ redisMapsInit(void)
 redisMap *
 redisKeyMapCreate(const char *name)
 {
-    return dictCreate(&mapCallBackDict, (void *)name);
+    return dictCreate(&sdsDictCallBacks, (void *)name);
 }
 
 const char *
@@ -147,7 +147,7 @@ redisMapRelease(redisMap *map)
 redisMap *
 redisMapCreate(const char *name)
 {
-    return dictCreate(&mapCallBackDict, (void *)name);
+    return dictCreate(&sdsDictCallBacks, (void *)name);
 }
 
 redisMapEntry *
