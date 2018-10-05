@@ -23,7 +23,6 @@
 #endif
 
 static char default_server[] = "localhost:6379";
-static const char * const keymap = "command key map";
 
 redisSlots *
 redisSlotsInit(sds hostspec, void *events)
@@ -34,7 +33,7 @@ redisSlotsInit(sds hostspec, void *events)
 	return NULL;
 
     slots->events = events;
-    slots->keymap = redisKeyMapCreate(keymap);
+    slots->keymap = dictCreate(&sdsDictCallBacks, "command keymap");
     slots->control.hostspec = sdsdup(hostspec);
     slots->control.redis = redisAttach(slots, hostspec);
     return slots;
@@ -106,7 +105,7 @@ redisSlotsFree(redisSlots *pool)
     redisAsyncDisconnect(pool->control.redis);
     sdsfree(pool->control.hostspec);
     free(pool->control.redis);
-    redisMapRelease(pool->keymap);
+    dictRelease(pool->keymap);
     memset(pool, 0, sizeof(*pool));
 }
 
@@ -261,8 +260,8 @@ redisSlotsRequest(redisSlots *slots, const char *command, sds key, sds cmd,
 }
 
 int
-redisSlotsProxy(redisSlots *slots, redisInfoCallBack info,
-	redisReader **readerp, ssize_t nread, const char *buffer,
+redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
+	redisReader **readerp, const char *buffer, ssize_t nread,
 	redisAsyncCallBack *callback, void *arg)
 {
     redisAsyncContext	*context;
@@ -275,7 +274,7 @@ redisSlotsProxy(redisSlots *slots, redisInfoCallBack info,
 
     if (!reader &&
 	(reader = *readerp = redisReaderCreate()) == NULL) {
-	infofmt(msg, "out-of-memory for redis client reader");
+	infofmt(msg, "out-of-memory for Redis client reader");
 	info(PMLOG_REQUEST, msg, arg), sdsfree(msg);
 	return -ENOMEM;
     }
@@ -305,4 +304,10 @@ redisSlotsProxy(redisSlots *slots, redisInfoCallBack info,
 	    return -EPROTO;
     }
     return 0;
+}
+
+void
+redisSlotsProxyFree(redisReader *reader)
+{
+    redisReaderFree(reader);
 }

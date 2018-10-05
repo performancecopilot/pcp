@@ -20,13 +20,12 @@
 #include "pmproxy.h"
 #include "libpcp.h"
 #include "slots.h"
+#include "pcp.h"
 
-typedef enum stream_protocol {
-    STREAM_UNKNOWN	= 0,
-    STREAM_SECURE	= 0x1,
-    STREAM_REDIS	= 0x2,
-    STREAM_PCP		= 0x8,
-} stream_protocol;
+typedef struct stream_write_baton {
+    uv_write_t		writer;
+    uv_buf_t		buffer[2];
+} stream_write_baton;
 
 typedef enum stream_family {
     STREAM_LOCAL	= 1,
@@ -46,21 +45,39 @@ typedef struct stream {
     const char		*address;
 } stream;
 
+typedef enum stream_protocol {
+    STREAM_UNKNOWN	= 0,
+    STREAM_SECURE	= 0x1,
+    STREAM_REDIS	= 0x2,
+    STREAM_PCP		= 0x8,
+} stream_protocol;
+
 typedef struct redis_client {
-    redisReader		*reader;
-    uv_write_t		writereq;
-    uv_buf_t		writebuf;
-    uv_buf_t		readbuf;
+    redisReader		*reader;	/* RESP request handling state */
 } redis_client;
+
+typedef struct pcp_client {
+    pcp_proxy_state	state;
+    sds			hostname;
+    unsigned int	port : 16;
+    unsigned int	certreq : 1;
+    unsigned int	connected : 1;
+    unsigned int	pad : 14;
+    uv_connect_t	pmcd;
+    uv_tcp_t		socket;
+} pcp_client;
 
 typedef struct client {
     struct stream	stream;
     stream_protocol	protocol;
     union {
 	redis_client	redis;
+	pcp_client	pcp;
     } u;
+    struct proxy	*proxy;
     struct client	*next;
     struct client	*prev;
+    sds			buffer;
 } client;
 
 typedef struct server {
@@ -80,13 +97,18 @@ typedef struct proxy {
 } proxy;
 
 extern void proxylog(pmLogLevel, sds, void *);
-extern void on_client_close(uv_handle_t *);
-
 extern void setup_redis_proxy(struct proxy *);
+
+extern void on_client_close(uv_handle_t *);
+extern void on_buffer_alloc(uv_handle_t *, size_t, uv_buf_t *);
+extern void client_write(struct client *, sds, sds);
+
 extern void on_redis_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
+extern void on_redis_client_close(struct client *);
 
 extern void on_pcp_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
+extern void on_pcp_client_close(struct client *);
 
 #endif	/* PROXY_SERVER_H */

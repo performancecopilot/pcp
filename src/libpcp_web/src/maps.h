@@ -19,6 +19,7 @@
 
 struct redisSlots;
 typedef dict redisMap;
+typedef dictType redisMapType;
 typedef dictEntry redisMapEntry;
 
 /*
@@ -54,6 +55,7 @@ extern void redisRMapInsert(redisMap *, const char *, sds);
 extern void redisMapsInit(void);
 extern const char *redisMapName(redisMap *);
 extern void redisMapRelease(redisMap *);
+extern redisMapType sdsDictCallBacks;
 
 /*
  * Asynchronous mapping response helpers

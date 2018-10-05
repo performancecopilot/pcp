@@ -92,6 +92,8 @@ PCP_WEB_1.6 {
     pmSeriesDiscoverText;
 
     redisSlotsConnect;
-    redisSlotsProxy;
     redisSlotsFree;
+    redisSlotsProxyConnect;
+    redisSlotsProxyFree;
+    sdsDictCallBacks;
 } PCP_WEB_1.5;
