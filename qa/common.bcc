@@ -179,3 +179,27 @@ _value_filter_exact()
 {
     grep "value $1" > /dev/null && echo OK
 }
+
+# Marko's triage ...
+# openSUSE 15.0 bcc-0.5.0-lp150.9.2 is carrying a patch to backport bcc
+# upstream commit c0ca99a2 but not a subsequent fix made in upstream
+# commit d1a83c1b so bcc on openSUSE 15.0 is broken on this regard.
+#
+_bcc_check_ArgString()
+{
+    if [ -f /etc/os-release ]
+    then
+	if grep 'openSUSE Leap' /etc/os-release >/dev/null
+	then
+	    case "`rpm -q libbcc0`"
+	    in
+		bcc-0.5.0-lp150.9.2)
+		    # BAD
+		    return 0
+	    esac
+	fi
+    fi
+    
+    # OK
+    return 1
+}
