@@ -14,8 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
-
 _cleanup()
 {
     cd $here
@@ -52,7 +50,7 @@ echo contents of $CONFIG >> $seq.full
 echo ........................ >> $seq.full
 cat $CONFIG >> $seq.full
 echo ........................ >> $seq.full
-IN=$DIR/20180416.10.00
+IN=$DIR/20180415.09.16
 OUT=$tmp.newlabels
 rm -f $OUT.*
 echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq.full

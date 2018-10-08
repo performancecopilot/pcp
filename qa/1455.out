@@ -1,10 +1,10 @@
 QA output created by 1455
-Running pmlogrewrite -c TMP.config archives/20180416.10.00 TMP.newlabels
-Running pmdumplog -zhide archives/20180416.10.00
+Running pmlogrewrite -c TMP.config archives/20180415.09.16 TMP.newlabels
+Running pmdumplog -zhide archives/20180415.09.16
 Running pmdumplog -iteh TMP.newlabels
 Running diff TMP.original.txt TMP.rewritten.txt
 3057a3058,3070
-> 10:01:25.325401
+> 09:16:18.661615
 >     Cluster 60.0 labels (43 bytes): {"cluster_60_0_label":"cluster_60_0_value"}
 >         [0] name(2,18) : value(22,20) [cluster]
 >     Cluster 60.7 labels (43 bytes): {"cluster_60_7_label":"cluster_60_7_value"}
