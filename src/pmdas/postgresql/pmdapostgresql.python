@@ -726,6 +726,8 @@ class POSTGRESQLPMDA(PMDA):
 
         # parse config for db auth and server etc
         self.config(conf_file)
+        self.host = self.conf["host"]
+        self.port = self.conf["port"]
         self.dbname = self.conf["dbname"]
         self.user = self.conf["user"]
         self.password = self.conf["password"]
@@ -733,7 +735,7 @@ class POSTGRESQLPMDA(PMDA):
         self.log("Switching to user '%s'" % self.user)
         self.set_user(self.user)
 
-        self.log("Connecting to db '%s' as user '%s'" % (self.dbname, self.user))
+        self.log("Connecting to host '%s', port '%s', db '%s' as user '%s'" % (self.host, self.port, self.dbname, self.user))
         while not self.pg_connect():
             # server not running or invalid credentials
             time.sleep(10) # keep trying ...
@@ -1027,8 +1029,13 @@ class POSTGRESQLPMDA(PMDA):
 
     def pg_connect(self):
         """ connect to the postgresql server """
+        if self.host == "local":
+            # local UNIX domain, but still need port number for the socket filename
+            params = "port=%s dbname=%s user=%s password=%s" % (self.port, self.dbname, self.user, self.password)
+        else:
+            params = "host=%s port=%s dbname=%s user=%s password=%s" % (self.host, self.port, self.dbname, self.user, self.password)
         try:
-            self.conn = psycopg2.connect("dbname=%s user=%s password=%s" % (self.dbname, self.user, self.password))
+            self.conn = psycopg2.connect(params)
         except (psycopg2.DatabaseError) as error: # pylint disable: broad-except
             self.log("Error connecting to db %s as user %s: %s" % (self.dbname, self.user, error))
             self.conn = None
