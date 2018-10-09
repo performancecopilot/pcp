@@ -957,7 +957,8 @@ class POSTGRESQLPMDA(PMDA):
                 cur.execute('SELECT * from %s;' % table)
             except (psycopg2.DatabaseError) as error: # pylint disable: broad-except
                 # recover from aborted transaction block and skip this table
-                self.log("WARNING: table %s not available: %s" % (table, error))
+                self.log("table %s not available for this version of postgreSQL" % table)
+                self.debug("WARNING: table %s not available: %s" % (table, error))
                 cur.execute('rollback;')
                 continue
 
@@ -984,7 +985,7 @@ class POSTGRESQLPMDA(PMDA):
         for pmid, column in self.pmid_column_dict.items():
             if column is None:
                 m = self.metrictable[pmid]
-                self.log("Warning: metric '%s', table '%s', column '%s' has no mapping" %
+                self.debug("WARNING: metric '%s', table '%s', column '%s' has no mapping" %
                     (m[self.METRIC_NAME], m[self.METRIC_TABLE], m[self.METRIC_COLUMN]))
 
         # dump the mappings
