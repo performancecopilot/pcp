@@ -1009,9 +1009,9 @@ class POSTGRESQLPMDA(PMDA):
         """ parse config file """
         # Python < 3.2 compat
         if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
-            config = configparser.ConfigParser()
+            parser = configparser.ConfigParser()
         else:
-            config = configparser.SafeConfigParser()
+            parser = configparser.SafeConfigParser()
         parser.read(filename)
 
         # get section, default to postgresql
