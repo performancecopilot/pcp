@@ -252,7 +252,7 @@ Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia
 
 # Obsoletes for distros that already have single install pmda's with compat package
-Obsoletes: pcp-compat
+Obsoletes: pcp-compat pcp-collector pcp-monitor
 
 Requires: pcp-libs = %{version}-%{release}
 
@@ -450,8 +450,52 @@ Requires: pcp-libs-devel = %{version}-%{release}
 Requires: pcp-devel = %{version}-%{release}
 Obsoletes: pcp-gui-testsuite
 
+# The following are inherited from pcp-collector and pcp-monitor,
+# both of which are now obsoleted by the base pcp package
+Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
+Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre
+Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
+Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
+Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-dm pcp-pmda-apache
+Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
+Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
+
+%if !%{disable_nutcracker}
+Requires: pcp-pmda-nutcracker
+%endif
+%if !%{disable_bcc}
+Requires: pcp-pmda-bcc
+%endif
+%if !%{disable_python2} || !%{disable_python3}
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
+Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus pcp-pmda-haproxy
+%endif
+%if !%{disable_snmp}
+Requires: pcp-pmda-snmp
+%endif
+%if !%{disable_json}
+Requires: pcp-pmda-json
+%endif
+%if !%{disable_rpm}
+Requires: pcp-pmda-rpm
+%endif
+Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
+
+%if !%{disable_microhttpd}
+Requires: pcp-webapi
+%endif
+%if !%{disable_python2} || !%{disable_python3}
+Requires: pcp-system-tools
+%endif
+%if !%{disable_qt}
+Requires: pcp-gui
+%endif
+
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
+# end testsuite
 
 #
 # pcp-manager
@@ -1975,68 +2019,6 @@ collecting metrics about web server logs.
 # end pcp-pmda-weblog
 # end C pmdas
 
-# pcp-collector metapackage
-%package collector
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) Collection meta Package
-URL: https://pcp.io
-Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
-Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre
-Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
-Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
-Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
-Requires: pcp-pmda-dm pcp-pmda-apache
-Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
-Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
-%if !%{disable_nutcracker}
-Requires: pcp-pmda-nutcracker
-%endif
-%if !%{disable_bcc}
-Requires: pcp-pmda-bcc
-%endif
-%if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
-Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus pcp-pmda-haproxy
-%endif
-%if !%{disable_snmp}
-Requires: pcp-pmda-snmp
-%endif
-%if !%{disable_json}
-Requires: pcp-pmda-json
-%endif
-%if !%{disable_rpm}
-Requires: pcp-pmda-rpm
-%endif
-Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
-%description collector
-This meta-package installs the PCP metric collection dependencies.  This
-includes the vast majority of packages used to collect PCP metrics.  The
-pcp-collector package also automatically enables and starts the pmcd and
-pmlogger services.
-# collector
-
-# pcp-monitor metapackage
-%package monitor
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) Monitoring meta Package
-URL: https://pcp.io
-%if !%{disable_microhttpd}
-Requires: pcp-webapi
-%endif
-%if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-system-tools
-%endif
-%if !%{disable_qt}
-Requires: pcp-gui
-%endif
-%description monitor
-This meta-package contains the PCP performance monitoring dependencies.  This
-includes a large number of packages for analysing PCP metrics in various ways.
-# monitor
-
 %package zeroconf
 License: GPLv2+
 Group: Applications/System
@@ -2423,6 +2405,19 @@ exit 0
 
 %post testsuite
 chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
+%if 0%{?rhel}
+%if !%{disable_systemd}
+    systemctl restart pmcd >/dev/null 2>&1
+    systemctl restart pmlogger >/dev/null 2>&1
+    systemctl enable pmcd >/dev/null 2>&1
+    systemctl enable pmlogger >/dev/null 2>&1
+%else
+    /sbin/chkconfig --add pmcd >/dev/null 2>&1
+    /sbin/chkconfig --add pmlogger >/dev/null 2>&1
+    /sbin/service pmcd condrestart
+    /sbin/service pmlogger condrestart
+%endif
+%endif
 exit 0
 
 %pre
@@ -2766,21 +2761,6 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
     /sbin/service pmmgr condrestart
 %endif
 
-%post collector
-%if 0%{?rhel}
-%if !%{disable_systemd}
-    systemctl restart pmcd >/dev/null 2>&1
-    systemctl restart pmlogger >/dev/null 2>&1
-    systemctl enable pmcd >/dev/null 2>&1
-    systemctl enable pmlogger >/dev/null 2>&1
-%else
-    /sbin/chkconfig --add pmcd >/dev/null 2>&1
-    /sbin/chkconfig --add pmlogger >/dev/null 2>&1
-    /sbin/service pmcd condrestart
-    /sbin/service pmlogger condrestart
-%endif
-%endif
-
 %post zeroconf
 PCP_PMDAS_DIR=%{_pmdasdir}
 PCP_SYSCONFIG_DIR=%{_sysconfdir}/sysconfig
@@ -2966,12 +2946,6 @@ cd
 %if !%{disable_sdt}
 %{tapsetdir}/pmcd.stp
 %endif
-
-%files monitor
-#empty
-
-%files collector
-#empty
 
 %files zeroconf
 %{_libexecdir}/pcp/bin/pmlogger_daily_report
