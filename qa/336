@@ -49,7 +49,7 @@ _cleanup()
         $sudo cp /tmp/$seq.dir/pmcd.conf $PCP_PMCDCONF_PATH
         $sudo cp /tmp/$seq.dir/root      $PCP_VAR_DIR/pmns/root 
         rm -rf /tmp/$seq.dir
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false

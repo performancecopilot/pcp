@@ -21,7 +21,7 @@ host=`hostname`
 _cleanup()
 {
     _restore_config $PCP_PMCDCONF_PATH
-    _service pcp restart | _filter_pcp_start
+    _service pcp restart 2>&1 | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
     $sudo rm -f $tmp.*
@@ -87,7 +87,7 @@ esac
 $sudo rm -f ${TRACELOG}? $seq.full
 _save_config $PCP_PMCDCONF_PATH
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 sleep 15
