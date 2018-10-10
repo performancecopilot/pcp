@@ -96,6 +96,14 @@ do
 	    report_group=pmlogrewrite
 	    ;;
 
+	valgrind)	# executable maybe hidden in wrappers, so look for
+			# cmd and guard and wrapper
+	    ( grep -v '^#' $seq \
+	      | egrep -q "(^[ 	]*(valgrind|_check_valgrind)([ '\"]|$))|([ /'\"\`_=](valgrind|_run_valgrind)([ '\"\`_]|$))" \
+	    ) && echo $seq >>$tmp.tmp
+	    report_group="valgrind"
+	    ;;
+
 	*)
 	    ( grep -v '^#' $seq \
 	      | egrep "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))" >$tmp.debug \
