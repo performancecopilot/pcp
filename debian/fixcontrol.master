@@ -77,7 +77,7 @@ fi
 
 if $PMDA_BCC
 then
-    echo "s/?{python3-bpfcc}/python3-bpfcc,/" >>$tmp.sed
+    echo "s/?{python3-bpfcc}/python3-bpfcc | python3-bcc,/" >>$tmp.sed
 else
     echo "s/?{python3-bpfcc}//" >>$tmp.sed
 fi

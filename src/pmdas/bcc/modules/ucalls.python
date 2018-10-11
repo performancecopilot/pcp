@@ -67,6 +67,7 @@ class PCPBCCModule(PCPBCCBase):
             "php"    : ["bpf_usdt_readarg(4, ctx, &clazz);", "bpf_usdt_readarg(1, ctx, &method);"],
             "python" : ["bpf_usdt_readarg(1, ctx, &clazz);", "bpf_usdt_readarg(2, ctx, &method);"],
             "ruby"   : ["bpf_usdt_readarg(1, ctx, &clazz);", "bpf_usdt_readarg(2, ctx, &method);"],
+            "tcl"    : ["", "bpf_usdt_readarg(1, ctx, &method);"],
         }
 
         for opt in self.config.options(MODULE):
@@ -144,6 +145,9 @@ class PCPBCCModule(PCPBCCBase):
             elif self.lang in ("perl",):
                 entry_probe = "sub__entry"
                 return_probe = "sub__return"
+            elif self.lang in ("tcl",):
+                entry_probe = "proc__entry"
+                return_probe = "proc__return"
             else:
                 entry_probe = "function__entry"
                 return_probe = "function__return"

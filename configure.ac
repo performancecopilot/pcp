@@ -789,7 +789,7 @@ AC_CHECK_PROGS(PYTHON, python, python2.7)
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
-AC_CHECK_PROGS(PYTHON3, python3, python3.4)
+AC_CHECK_PROGS(PYTHON3, python3, python3.6, python3.4)
 AC_SUBST(PYTHON3)
 
 dnl check if python tools/packages wanted (need python >= 2.6)

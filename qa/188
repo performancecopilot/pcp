@@ -72,7 +72,7 @@ if [ $PCP_PLATFORM = linux ] ; then
 	    esac
 	elif which emerge >/dev/null 2>&1
 	then
-	    # looking for a line like ...
+	    # Gentoo ... looking for a line like ...
 	    # sys-libs/glibc-2.12.2 was built with the following:
 	    version="`emerge --info glibc | sed -n -e '/was built with/{
 s/ was built with.*//
@@ -81,7 +81,9 @@ p
 }'`"
 	    case "$version"
 	    in
-		glibc-2\.1[23][-.]*|glibc-2\.2[01][-.]*)
+		# only have the glibc versions we have verified the output
+		# for
+		glibc-2\.1[23][-.]*|glibc-2\.2[016][-.]*)
 		    ln $seq.linux $seq.out
 		    ;;
 		*)

@@ -146,6 +146,7 @@ class PCPBCCModule(PCPBCCBase):
             "php"    : 1,
             "python" : 1,
             "ruby"   : 1,
+            "tcl"    : 1,
         }
 
         for opt in self.config.options(MODULE):
@@ -231,6 +232,10 @@ class PCPBCCModule(PCPBCCBase):
                 "require__entry": Category.CLOAD,
                 "load__entry": Category.CLOAD,
                 "raise": Category.EXCP
+                }),
+            "tcl": Probe("tcl", ["tclsh", "wish"], {
+                "proc__entry": Category.METHOD,
+                "obj__create": Category.OBJNEW
                 }),
         }
         self.probes = [probes_by_lang[self.lang]]
