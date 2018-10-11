@@ -497,6 +497,7 @@ do
 	fi
 
 	$sudo rm -f $seq.out.bad
+	callback_abort=false
 	if [ -f $seq.notrun ]
 	then
 	    [ $color = true ] && tput bold && tput setaf 4 # blue
@@ -558,7 +559,6 @@ do
 
 		# optional callback
 		#
-		callback_abort=false
 		if [ -x ./check.callback ]
 		then
 		    if ./check.callback $seq >$tmp.tmp 2>&1

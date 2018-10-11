@@ -250,13 +250,20 @@ then
 elif [ $target = freebsd ]
 then
     # Python build does not work on FreeBSD 9.3, so skip it
+    # For FreeBSD 10.4 it seems to fail when trying to build Python and
+    # Python3 at the same time ... so skip Python(2)
     #
     case `uname -r`
     in
 	9.3*)
-		# Bog-standard, just without python
+		# Bog-standard, just without python and without python3
 		#
 		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no --with-python3=no"
+		;;
+	10.4*)
+		# Bog-standard, just without python2
+		#
+		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no"
 		;;
 	*)
 		# Bog-standard, as below ...

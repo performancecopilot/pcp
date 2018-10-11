@@ -13,17 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# if avahi not quite there, don't need this ...
-# [Wed Oct  3 09:05:37] pmcd(88378) Error: Failed to create avahi client: Daemon not running
-#
-_filter_start()
-{
-    tee -a $here/$seq.full \
-    | sed \
-	-e '/Failed to create avahi client/d' \
-    # end
-}
-
 signal=$PCP_BINADM_DIR/pmsignal
 _needclean=true
 pmns="nameall.pmns"
@@ -42,9 +31,9 @@ cleanup()
 	$signal -s TERM $pmcd
 	sleep 1
 	unset PMCD_SOCKET
-	_filter_start <$tmp.err
+	_filter_pcp_start <$tmp.err
         echo "Restart and ping pmcd ..."
-        _service pcp restart 2>&1 | _filter_pcp_start | _filter_start
+        _service pcp restart 2>&1 | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
