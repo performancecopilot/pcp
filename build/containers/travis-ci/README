@@ -1,0 +1,2 @@
+To test locally, cd to the top of the PCP source tree, run:
+docker build -f build/containers/travis-ci/Dockerfile -t pcp-qa .
