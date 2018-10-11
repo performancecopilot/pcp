@@ -753,7 +753,7 @@ do_labelset(void)
 				label_association_str(lp, 1/*old*/));
 		    }
 		    pmFreeLabelSets(lsp, 1);
-		    if (nsets == 1)
+		    if (nsets == 0)
 			return; /* last labelset deleted */
 		    --ls_ix; /* labelset was extracted */
 		    continue; /* next labelset */
