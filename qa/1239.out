@@ -468,32 +468,33 @@ Running diff TMP.original.txt TMP.rewritten.txt
 <         [0] name(2,3) : value(7,4) [instances]
 <     InDom 3.9[7066] labels (12 bytes): {"pid":7066}
 <         [0] name(2,3) : value(7,4) [instances]
-3594,3595d3129
+3594,3599c3130,3131
 <     InDom 60.0[1] labels (9 bytes): {"cpu":1}
 <         [0] name(2,3) : value(7,1) [instances]
-3598,3599c3132,3133
+<     InDom 60.0[2] labels (9 bytes): {"cpu":2}
+<         [0] name(2,3) : value(7,1) [instances]
 <     InDom 60.0[3] labels (9 bytes): {"cpu":3}
 <         [0] name(2,3) : value(7,1) [instances]
 ---
 >     InDom 60.1[1] labels (25 bytes): {"new_device_name":"sdb"}
 >         [0] name(2,15) : value(19,5) [instances]
-3602,3603d3135
+3602,3603d3133
 <     InDom 60.1[1] labels (21 bytes): {"device_name":"sdb"}
 <         [0] name(2,11) : value(15,5) [instances]
-3608a3141,3142
+3608a3139,3140
 >     InDom 60.3[1] labels (22 bytes): {"interface":"new_lo"}
 >         [0] name(2,9) : value(13,8) [instances]
-3611,3612d3144
+3611,3612d3142
 <     InDom 60.3[1] labels (18 bytes): {"interface":"lo"}
 <         [0] name(2,9) : value(13,4) [instances]
-3625,3626d3156
+3625,3626d3154
 <     InDom 60.10[1] labels (22 bytes): {"device_name":"sda2"}
 <         [0] name(2,11) : value(15,6) [instances]
-3747c3277
+3747c3275
 <     InDom 60.19[0] labels (15 bytes): {"numa_node":0}
 ---
 >     InDom 60.24[0] labels (15 bytes): {"numa_node":0}
-3749,3756d3278
+3749,3756d3276
 <     InDom 60.24[0] labels (59 bytes): {"device_name":"luks-5a0e6d00-f9db-4ff0-8adb-4d121f60921e"}
 <         [0] name(2,11) : value(15,43) [instances]
 <     InDom 60.24[1] labels (53 bytes): {"device_name":"fedora_unused--10--15--17--216-root"}
@@ -502,7 +503,7 @@ Running diff TMP.original.txt TMP.rewritten.txt
 <         [0] name(2,11) : value(15,37) [instances]
 <     InDom 60.24[3] labels (53 bytes): {"device_name":"fedora_unused--10--15--17--216-home"}
 <         [0] name(2,11) : value(15,37) [instances]
-3889,3894d3410
+3889,3894d3408
 <     InDom 60.32[0] labels (28 bytes): {"numa_node":0,"zone":"DMA"}
 <         [0] name(2,9) : value(13,1) [instances]
 <         [1] name(16,4) : value(22,5) [instances]
