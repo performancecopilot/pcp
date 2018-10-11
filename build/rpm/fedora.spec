@@ -788,12 +788,12 @@ URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-Requires: python3-elasticsearch
-BuildRequires: python3-elasticsearch
+Requires: python3-requests
+BuildRequires: python3-requests
 %else
 Requires: %{__python2}-pcp = %{version}-%{release}
-Requires: %{__python2}-elasticsearch
-BuildRequires: %{__python2}-elasticsearch
+Requires: %{__python2}-requests
+BuildRequires: %{__python2}-requests
 %endif
 
 %description export-pcp2elasticsearch

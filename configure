@@ -845,7 +845,6 @@ have_python_requests
 have_python_setuptools
 have_python_openpyxl
 have_python_jsonpointer
-have_python_Elasticsearch
 have_python_OrderedDict
 have_python_BPF
 enable_dstat
@@ -7599,28 +7598,6 @@ $as_echo "yes" >&6; }
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 	eval have_python_OrderedDict=false
-    fi
-
-
- { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module Elasticsearch" >&5
-$as_echo_n "checking for Python module Elasticsearch... " >&6; }
-    if test -n "from elasticsearch import Elasticsearch"
-    then
-	txt="from elasticsearch import Elasticsearch"
-    else
-	txt="import Elasticsearch"
-    fi
-    $pcp_python_prog -c 'import sys;
-'"$txt" >>config.log 2>&1
-    if test "$?" = 0
-    then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-	eval have_python_Elasticsearch=true
-    else
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-	eval have_python_Elasticsearch=false
     fi
 
 

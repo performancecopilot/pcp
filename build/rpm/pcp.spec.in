@@ -660,10 +660,10 @@ URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
-Requires: python3-elasticsearch
+Requires: python3-requests
 %else
 Requires: %{__python2}-pcp = @package_version@
-Requires: %{__python2}-elasticsearch
+Requires: %{__python2}-requests
 %endif
 
 %description export-pcp2elasticsearch

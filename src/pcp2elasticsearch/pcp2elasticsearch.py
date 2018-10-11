@@ -374,12 +374,12 @@ class pcp2elasticsearch(object):
         ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_MSEC)
 
         try:
-            body={'settings': { 'ignore':400 },
+            body={'ignore': 400,
                   'mappings': { 'pcp-metric':
-                                {'properties':{'@timestamp':{'type':'date'},
-                                               'host-id':{'type':'string'}}}}}
+                                {'properties':{'@timestamp':{'type':'epoch_milli'},
+                                               '@host-id':{'type':'string'}}}}}
             headers = {'content-type': 'application/json'} # Do we need this?
-            url = self.es_server+self.es_index
+            url = self.es_server+'/'+self.es_index
             es = requests.put(url, data=json.dumps(body), headers=headers)
 
         except Exception as error:
