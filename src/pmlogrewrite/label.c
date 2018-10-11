@@ -24,7 +24,7 @@
  * Find or create a new labelspec_t
  */
 labelspec_t *
-start_label(int type, int id, int instance, char *label, char *value)
+start_label(int type, int id, int instance, const char *instance_name, char *label, char *value)
 {
     labelspec_t	*lp;
     char	buf[64];
@@ -32,6 +32,40 @@ start_label(int type, int id, int instance, char *label, char *value)
     if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
 	fprintf(stderr, "start_label(%s)",
 		__pmLabelIdentString(id, type, buf, sizeof(buf)));
+    }
+    
+    /*
+     * If an instance name was specified, we need to convert it to
+     * an instance id for this indom, if possible.
+     */
+    if (instance_name != NULL) {
+	int		i;
+	int		numinst;
+	int		*instlist;
+	char	**namelist;
+	numinst = pmGetInDomArchive(id, &instlist, &namelist);
+	if (numinst < 0) {
+	    if (wflag) {
+		pmsprintf(mess, sizeof(mess), "Instance domain %s: %s", pmInDomStr(id), pmErrStr(numinst));
+		yywarn(mess);
+	    }
+	    return NULL;
+	}
+	for (i = 0; i < numinst; i++) {
+	    if (inst_name_eq(namelist[i], instance_name) > 0) {
+		instance = instlist[i];
+		break;
+	    }
+	}
+	free(instlist);
+	free(namelist);
+	if (i >= numinst) {
+	    if (wflag) {
+		pmsprintf(mess, sizeof(mess), "Instance domain %s: no instance \"%s\" found", pmInDomStr(id), instance_name);
+		yywarn(mess);
+	    }
+	    return NULL;
+	}
     }
 
     /* Search for this help label in the existing list of changes. */
