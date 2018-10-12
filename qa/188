@@ -53,7 +53,16 @@ if [ $PCP_PLATFORM = linux ] ; then
     elif [ -f /etc/arch-release ]
     then
 	ln $seq.linux $seq.out
+    elif [ -f /etc/os-release ]
+    then
+	if grep 'openSUSE Leap 15.0' /etc/os-release >/dev/null
+	then
+	    ln $seq.opensuse.15 $seq.out
+	fi
     fi
+
+    # if any of the rules above matched we have $seq.out, otherwise ...
+    #
     if [ ! -f $seq.out ]
     then
 	# this is some old folklore ... better to handle in the explicit
