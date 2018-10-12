@@ -728,7 +728,8 @@ grab_values(char *json_query, pmInDom indom, char *local_path, json_metric_desc 
 		fprintf(stderr, "%s: cannot allocate container %s space\n",
 			pmGetProgname(), local_path);
 	    }
-	    return 0;
+	    sts = -ENOMEM;
+	    goto unlock;
 	}
     }
     memcpy(local_metrics, json, (sizeof(json_metric_desc)*json_size));
