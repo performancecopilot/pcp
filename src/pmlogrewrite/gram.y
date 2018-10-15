@@ -884,7 +884,7 @@ new_indom_instance_label(int indom)
 %type<pmid>	pmid_int pmid_or_name
 %type<ival>	signnumber number rescaleopt duplicateopt texttype texttypes opttexttypes pmid_domain pmid_cluster
 %type<dval>	float
-%type<str>	textstring jsonname jsonvalue jsonnumber
+%type<str>	textstring opttextvalue jsonname jsonvalue jsonnumber
 
 %%
 
@@ -1790,7 +1790,7 @@ textmetricorindomspec	: textmetricspec
 			| textindomspec
 			;
 
-textmetricspec	: TOK_METRIC pmid_or_name opttexttypes
+textmetricspec	: TOK_METRIC pmid_or_name opttexttypes opttextvalue
 		    {
 			__pmContext	*ctxp;
 			__pmHashCtl	*hcp1;
@@ -1854,7 +1854,7 @@ textmetricspec	: TOK_METRIC pmid_or_name opttexttypes
 					if (pmID_domain((pmID)(node2->key)) == star_domain &&
 					    (star_cluster == PM_ID_NULL ||
 					     star_cluster == pmID_cluster((pmID)(node2->key)))) {
-					    current_textspec = start_text(this_type, (pmID)(node2->key));
+					    current_textspec = start_text(this_type, (pmID)(node2->key), $4);
 					    if (current_textspec) {
 						current_textspec->flags |= TEXT_ACTIVE;
 						++found;
@@ -1865,7 +1865,7 @@ textmetricspec	: TOK_METRIC pmid_or_name opttexttypes
 				    else {
 					/* Match the exact metric PMID. */
 					if ((pmID)(node2->key) == $2) {
-					    current_textspec = start_text(this_type, (pmID)(node2->key));
+					    current_textspec = start_text(this_type, (pmID)(node2->key), $4);
 					    if (current_textspec) {
 						current_textspec->flags |= TEXT_ACTIVE;
 						++found;
@@ -1908,6 +1908,12 @@ texttype	: TOK_ALL
 		    { $$ = PM_TEXT_HELP; }
 		| TOK_ONELINE
 		    { $$ = PM_TEXT_ONELINE; }
+		;
+
+opttextvalue	: textstring
+		    { $$ = $1; }
+		| /* nothing */
+		    { $$ = NULL; }
 		;
 
 opttextmetricoptlist	: textmetricoptlist
@@ -2015,7 +2021,7 @@ textstring	: TOK_STRING
 		    { $$ = $1; }
 		;
 
-textindomspec	: TOK_INDOM indom_int opttexttypes
+textindomspec	: TOK_INDOM indom_int opttexttypes opttextvalue
 		    {
 			__pmContext	*ctxp;
 			__pmHashCtl	*hcp1;
@@ -2073,7 +2079,7 @@ textindomspec	: TOK_INDOM indom_int opttexttypes
 				    if (current_star_indom) {
 					/* Match the globbed metric spec and keep looking. */
 					if (pmInDom_domain((pmID)(node2->key)) == star_domain) {
-					    current_textspec = start_text(this_type, (pmID)(node2->key));
+					    current_textspec = start_text(this_type, (pmID)(node2->key), $4);
 					    if (current_textspec) {
 						current_textspec->flags |= TEXT_ACTIVE;
 						++found;
@@ -2083,7 +2089,7 @@ textindomspec	: TOK_INDOM indom_int opttexttypes
 				    else {
 					/* Match the exact indom id. */
 					if ((pmID)(node2->key) == $2) {
-					    current_textspec = start_text(this_type, (pmID)(node2->key));
+					    current_textspec = start_text(this_type, (pmID)(node2->key), $4);
 					    if (current_textspec) {
 						current_textspec->flags |= TEXT_ACTIVE;
 						++found;
