@@ -86,8 +86,6 @@ END	{ if (NR > 0) {
 		mv $tmp.out check.time
 	    fi
 
-	    echo "" >>check.log
-	    date >>check.log
 	    echo $list | fmt | sed -e 's/^/    /' >>check.log
 	    if $aborted
 	    then
@@ -408,6 +406,14 @@ fi
 torun=`echo $list | wc -w | sed -e 's/ //g'`
 haverun=0
 
+if $showme
+then
+    :
+else
+    echo "" >>check.log
+    date >>check.log
+fi
+
 for seq in $list
 do
     err=false
@@ -497,7 +503,7 @@ do
 	fi
 
 	$sudo rm -f $seq.out.bad
-	callback_abort=false
+	rm -f $tmp.callback_abort
 	if [ -f $seq.notrun ]
 	then
 	    [ $color = true ] && tput bold && tput setaf 4 # blue
@@ -599,7 +605,7 @@ do
 			cat $tmp.tmp >>$tmp.out
 			err=true
 			echo "Check! [after $seq] Run aborted by check.callback @ `date`" >>check.log
-			callback_abort=true
+			touch $tmp.callback_abort
 		    fi
 		fi
 
@@ -641,10 +647,16 @@ do
     [ -f $seq.notrun ] || try=`expr $try + 1`
     rm -f $seq.notrun
 
-    $callback_abort && break
+    [ -f $tmp.callback_abort ] && break
 
 done
 
-aborted=false
+if [ -f $tmp.callback_abort ]
+then
+    aborted=true
+else
+    aborted=false
+fi
+
 status=$n_bad
 exit
