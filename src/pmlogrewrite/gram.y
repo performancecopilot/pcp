@@ -46,6 +46,7 @@ static int		current_label_id;
 static char *		current_label_name;
 static char *		current_label_value;
 static int		current_label_instance;
+static char *		current_label_instance_name;
 static labelspec_t	*current_labelspec;
 static int		do_walk_label;
 
@@ -2238,7 +2239,7 @@ labelcontextspec	: TOK_CONTEXT optlabeldetails
 				 node2 != NULL;
 				 node2 = __pmHashWalk(hcp2, PM_HASH_WALK_NEXT)) {
 				/* We want all of the context labels. */
-				current_labelspec = start_label(this_type, (pmID)(node2->key), 0,
+				current_labelspec = start_label(this_type, (pmID)(node2->key), 0, NULL,
 								current_label_name, current_label_value);
 				if (current_labelspec) {
 				    current_labelspec->flags |= LABEL_ACTIVE;
@@ -2439,7 +2440,7 @@ labeldomainspec	: TOK_DOMAIN pmid_domain optlabeldetails
 				 node2 = __pmHashWalk(hcp2, PM_HASH_WALK_NEXT)) {
 				/* Match the exact metric domain. */
 				if ((pmID)(node2->key) == $2) {
-				    current_labelspec = start_label(this_type, (pmID)(node2->key), 0,
+				    current_labelspec = start_label(this_type, (pmID)(node2->key), 0, NULL,
 								    current_label_name, current_label_value);
 				    if (current_labelspec) {
 					current_labelspec->flags |= LABEL_ACTIVE;
@@ -2624,7 +2625,7 @@ labelclusterspec	: TOK_CLUSTER pmid_cluster optlabeldetails
 				if (current_star_metric) {
 				    /* Match the globbed cluster spec and keep looking. */
 				    if (pmID_domain((pmID)(node2->key)) == star_domain) {
-					current_labelspec = start_label(this_type, (pmID)(node2->key), 0,
+					current_labelspec = start_label(this_type, (pmID)(node2->key), 0, NULL,
 									current_label_name, current_label_value);
 					if (current_labelspec) {
 					    current_labelspec->flags |= LABEL_ACTIVE;
@@ -2635,7 +2636,7 @@ labelclusterspec	: TOK_CLUSTER pmid_cluster optlabeldetails
 				else {
 				    /* Match the exact cluster spec. */
 				    if ((pmID)(node2->key) == $2) {
-					current_labelspec = start_label(this_type, (pmID)(node2->key), 0,
+					current_labelspec = start_label(this_type, (pmID)(node2->key), 0, NULL,
 									current_label_name, current_label_value);
 					if (current_labelspec) {
 					    current_labelspec->flags |= LABEL_ACTIVE;
@@ -2853,7 +2854,7 @@ labelitemspec	: TOK_ITEM pmid_or_name optlabeldetails
 					if (pmID_domain((pmID)(node2->key)) == star_domain &&
 					    (star_cluster == PM_ID_NULL ||
 					     star_cluster == pmID_cluster((pmID)(node2->key)))) {
-					    current_labelspec = start_label(this_type, (pmID)(node2->key), 0,
+					    current_labelspec = start_label(this_type, (pmID)(node2->key), 0, NULL,
 									    current_label_name, current_label_value);
 					    if (current_labelspec) {
 						current_labelspec->flags |= LABEL_ACTIVE;
@@ -2865,7 +2866,7 @@ labelitemspec	: TOK_ITEM pmid_or_name optlabeldetails
 				    else {
 					/* Match the exact metric PMID. */
 					if ((pmID)(node2->key) == $2) {
-					    current_labelspec = start_label(this_type, (pmID)(node2->key), 0,
+					    current_labelspec = start_label(this_type, (pmID)(node2->key), 0, NULL,
 									    current_label_name, current_label_value);
 					    if (current_labelspec) {
 						current_labelspec->flags |= LABEL_ACTIVE;
@@ -3037,7 +3038,7 @@ labelindomspec	: TOK_INDOM indom_int optlabeldetails
 				    if (current_star_indom) {
 					/* Match the globbed indom spec and keep looking. */
 					if (pmInDom_domain((pmID)(node2->key)) == star_domain) {
-					    current_labelspec = start_label(this_type, (pmID)(node2->key), 0,
+					    current_labelspec = start_label(this_type, (pmID)(node2->key), 0, NULL,
 									    current_label_name, current_label_value);
 					    if (current_labelspec) {
 						current_labelspec->flags |= LABEL_ACTIVE;
@@ -3048,7 +3049,7 @@ labelindomspec	: TOK_INDOM indom_int optlabeldetails
 				    else {
 					/* Match the exact indom id. */
 					if ((pmID)(node2->key) == $2) {
-					    current_labelspec = start_label(this_type, (pmID)(node2->key), 0,
+					    current_labelspec = start_label(this_type, (pmID)(node2->key), 0, NULL,
 									    current_label_name, current_label_value);
 					    if (current_labelspec) {
 						current_labelspec->flags |= LABEL_ACTIVE;
@@ -3219,7 +3220,7 @@ labelinstancesspec	: TOK_INSTANCES indom_int optinstancelabeldetails
 					/* Match the globbed indom spec and keep looking. */
 					if (pmInDom_domain((pmID)(node2->key)) == star_domain) {
 					    current_labelspec = start_label(this_type, (pmID)(node2->key),
-									    current_label_instance,
+									    current_label_instance, current_label_instance_name,
 									    current_label_name, current_label_value);
 					    if (current_labelspec) {
 						current_labelspec->flags |= LABEL_ACTIVE;
@@ -3231,7 +3232,7 @@ labelinstancesspec	: TOK_INSTANCES indom_int optinstancelabeldetails
 					/* Match the exact indom id. */
 					if ((pmID)(node2->key) == $2) {
 					    current_labelspec = start_label(this_type, (pmID)(node2->key),
-									    current_label_instance,
+									    current_label_instance, current_label_instance_name,
 									    current_label_name, current_label_value);
 					    if (current_labelspec) {
 						current_labelspec->flags |= LABEL_ACTIVE;
@@ -3247,23 +3248,26 @@ labelinstancesspec	: TOK_INSTANCES indom_int optinstancelabeldetails
 		  TOK_LBRACE optlabelinstancesoptlist TOK_RBRACE
 		;
 
-optinstancelabeldetails	: jsonname optlabelvalue
+optinstancelabeldetails	: TOK_STRING optlabeldetails
 		    {
 			current_label_instance = -1;
-			current_label_name = $1;
+			current_label_instance_name = $1;
 		    }
 		| TOK_NUMBER optlabeldetails
 		    {
 			current_label_instance = atoi($1);
 			free($1);
+			current_label_instance_name = NULL;
 		    }
 		| TOK_LABEL_STAR optlabeldetails
 		    {
 			current_label_instance = -1;
+			current_label_instance_name = NULL;
 		    }
 		| /* nothing */
 		    {
 			current_label_instance = -1;
+			current_label_instance_name = NULL;
 			current_label_name = NULL;
 			current_label_value = NULL;
 		    }

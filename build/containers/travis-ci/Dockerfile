@@ -1,4 +1,4 @@
-FROM fedora:27
+FROM fedora:28
 
 RUN dnf -y install \
         which sudo hostname findutils bc git \
@@ -12,11 +12,6 @@ RUN dnf -y install \
 COPY . /pcp
 RUN cd /pcp && ./Makepkgs --verbose
 RUN cd /pcp/pcp-*/build/rpm && VER=$(pwd | cut -d- -f2 | cut -d/ -f1) && \
-    dnf -y install \
-        pcp-$VER-1.x86_64.rpm pcp-{conf,libs}-$VER-1.x86_64.rpm \
-        pcp-{libs-devel,devel,testsuite}-$VER-1.x86_64.rpm \
-        pcp-pmda-{bcc,cisco,news}-$VER-1.x86_64.rpm \
-        perl-PCP-{LogImport,LogSummary,MMV,PMDA}-$VER-1.x86_64.rpm \
-        python3-pcp-$VER-1.x86_64.rpm
+    dnf -y install  *-$VER-*.{x86_64,noarch}.rpm
 
 CMD ["/usr/sbin/init"]
