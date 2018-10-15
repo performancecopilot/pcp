@@ -1064,6 +1064,7 @@ BAD
 684 pmstat archive multi-archive decompress-xz local pmlogextract
 685 pmns local
 686 logutil local
+687 pmlogger local
 689 pmclient archive multi-archive decompress-xz local sanity pmlogextract python
 695 pmda.trivial perl local
 696 pmda.trivial python local

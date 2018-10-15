@@ -830,7 +830,8 @@ main(int argc, char **argv)
 	opts.errors++;
     }
 
-    if (!opts.errors && opts.optind != argc - 1) {
+    if (!opts.errors && ((Cflag == 0 && opts.optind != argc - 1) ||
+			 (Cflag == 1 && opts.optind != argc))) {
 	pmprintf("%s: insufficient arguments\n", pmGetProgname());
 	opts.errors++;
     }
@@ -857,13 +858,13 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%s: Warning: log file (%s) creation failed\n", pmGetProgname(), logfile);
 	    /* continue on ... writing to stderr */
 	}
-    }
 
-    /* base name for archive is here ... */
-    archBase = strdup(argv[opts.optind]);
-    if (archBase == NULL) {
-	pmNoMem("main", strlen(argv[opts.optind])+1, PM_FATAL_ERR);
-	/* NOTREACHED */
+	/* base name for archive is here ... */
+	archBase = strdup(argv[opts.optind]);
+	if (archBase == NULL) {
+	    pmNoMem("main", strlen(argv[opts.optind])+1, PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
     }
 
     /* initialise access control */
