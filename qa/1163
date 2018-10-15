@@ -104,7 +104,7 @@ pmdumplog -h $tmp.rewritten 2>&1 | tee -a $seq.full
 
 # A few more tests
 cat > $tmp.config <<EOF
-text metric 2.0.3 all "Number of clients currently connected to PMCD" { delete }
+text metric 2.0.3 * "Number of clients currently connected to PMCD" { delete }
 text InDom 2.3 all "PMDA Instance Domain" { delete }
 EOF
 
