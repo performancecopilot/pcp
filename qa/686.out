@@ -1,0 +1,110 @@
+QA output created by 686
+=== merge fails because output archive already exists ===
+Before ...
+20180524.0 20180524.index 20180524.meta 20180525.00.10.0
+20180525.00.10.index 20180525.00.10.meta 20180525.20.30.0
+20180525.20.30.index 20180525.20.30.meta 20180526.00.10.0
+20180526.00.10.index 20180526.00.10.meta 20180526.20.30.0
+20180526.20.30.index 20180526.20.30.meta 20180526.meta
+YESTERDAY.00.10.0 YESTERDAY.00.10.index YESTERDAY.00.10.meta
+YESTERDAY.12.10.0 YESTERDAY.12.10.index YESTERDAY.12.10.meta
+TODAY.00.10.0 TODAY.00.10.index TODAY.00.10.meta
+
+
+=== daily maintenance of PCP archives for host localhost ===
+
+pmlogger_daily: [TMP.control:3]
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+pmlogger_daily: [TMP.control:3]
+Archive files older than 7 days being removed ...
+    20180524.0 20180524.index 20180524.meta 20180525.00.10.0
+    20180525.00.10.index 20180525.00.10.meta 20180525.20.30.0
+    20180525.20.30.index 20180525.20.30.meta 20180526.00.10.0
+    20180526.00.10.index 20180526.00.10.meta 20180526.20.30.0
+    20180526.20.30.index 20180526.20.30.meta 20180526.meta
+Input archives to be merged:
+	YESTERDAY.00.10
+	YESTERDAY.12.10
+Output archive files:
+<ls output> YESTERDAY.meta
+<ls output> YESTERDAY.index
+<ls output> YESTERDAY.0
+Removing input archive files ...... done
+
+After ...
+YESTERDAY.0 YESTERDAY.index YESTERDAY.meta TODAY.00.10.0
+TODAY.00.10.index TODAY.00.10.meta
+
+=== merge fails because input archives are bad ===
+Before ...
+20180524.0 20180524.index 20180524.meta 20180525.00.10.0
+20180525.00.10.index 20180525.00.10.meta 20180525.20.30.0
+20180525.20.30.index 20180525.20.30.meta 20180526.00.10.0
+20180526.00.10.index 20180526.00.10.meta 20180526.10.20.0
+20180526.10.20.index 20180526.10.20.meta 20180526.20.30.0
+20180526.20.30.index 20180526.20.30.meta YESTERDAY.00.10.0
+YESTERDAY.00.10.index YESTERDAY.00.10.meta YESTERDAY.12.10.0
+YESTERDAY.12.10.index YESTERDAY.12.10.meta TODAY.00.10.0
+TODAY.00.10.index TODAY.00.10.meta
+
+
+=== daily maintenance of PCP archives for host localhost ===
+
+pmlogger_daily: [TMP.control:3]
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+pmlogger_daily: [TMP.control:3]
+Archive files older than 7 days being removed ...
+    20180524.0 20180524.index 20180524.meta 20180525.00.10.0
+    20180525.00.10.index 20180525.00.10.meta 20180525.20.30.0
+    20180525.20.30.index 20180525.20.30.meta 20180526.00.10.0
+    20180526.00.10.index 20180526.00.10.meta 20180526.10.20.0
+    20180526.10.20.index 20180526.10.20.meta 20180526.20.30.0
+    20180526.20.30.index 20180526.20.30.meta
+Input archives to be merged:
+	YESTERDAY.00.10
+	YESTERDAY.12.10
+Output archive files:
+<ls output> YESTERDAY.meta
+<ls output> YESTERDAY.index
+<ls output> YESTERDAY.0
+Removing input archive files ...... done
+
+After ...
+YESTERDAY.0 YESTERDAY.index YESTERDAY.meta TODAY.00.10.0
+TODAY.00.10.index TODAY.00.10.meta
+
+=== logrewrite fails ===
+Before ...
+20180524.0 20180524.index 20180524.meta 20180525.00.10.0
+20180525.00.10.index 20180525.00.10.meta 20180525.20.30.0
+20180525.20.30.index 20180525.20.30.meta 20180526.00.10.0
+20180526.00.10.index 20180526.00.10.meta 20180526.20.30.0
+20180526.20.30.index 20180526.20.30.meta YESTERDAY.00.10.0
+YESTERDAY.00.10.index YESTERDAY.00.10.meta YESTERDAY.12.10.0
+YESTERDAY.12.10.index YESTERDAY.12.10.meta TODAY.00.10.0
+TODAY.00.10.index TODAY.00.10.meta pmlogrewrite
+
+
+=== daily maintenance of PCP archives for host localhost ===
+
+pmlogger_daily: [TMP.control:3]
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+pmlogger_daily: [TMP.control:3]
+Archive files older than 7 days being removed ...
+    20180524.0 20180524.index 20180524.meta 20180525.00.10.0
+    20180525.00.10.index 20180525.00.10.meta 20180525.20.30.0
+    20180525.20.30.index 20180525.20.30.meta 20180526.00.10.0
+    20180526.00.10.index 20180526.00.10.meta 20180526.20.30.0
+    20180526.20.30.index 20180526.20.30.meta
+Specification error in configuration file (TMP/myhost/pmlogrewrite)
+[line 2] syntax error
+pmlogger_daily: Warning: rewrite for YESTERDAY.00.10 failed using  -c TMP/myhost/pmlogrewrite failed
+[TMP.control:3] ... skip log merging and compressing for host "localhost"
+
+After ...
+YESTERDAY.00.10.0 YESTERDAY.00.10.index YESTERDAY.00.10.meta
+YESTERDAY.12.10.0 YESTERDAY.12.10.index YESTERDAY.12.10.meta
+TODAY.00.10.0 TODAY.00.10.index TODAY.00.10.meta pmlogrewrite

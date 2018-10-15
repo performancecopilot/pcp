@@ -5,4 +5,4 @@ Exec=pmchart
 Icon=pmchart
 Terminal=false
 Type=Application
-Categories=System;Utility;Network;Qt;
+Categories=System
