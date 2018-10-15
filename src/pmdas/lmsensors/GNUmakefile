@@ -21,14 +21,12 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= lmsensors
 DOMAIN	= LMSENSORS
 TARGETS	= $(IAM)
-CFILES	= lmsensors.c
-HFILES	= lmsensors.h
-SCRIPTS	= Install Remove
+SCRIPTS	= Install Remove pmdalmsensors.python
 DFILES	= README
 
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-LDIRT	= domain.h $(IAM).log pmda$(IAM) pmda_$(IAM).so $(TARGETS) \
+LDIRT	= domain.h $(IAM).log pmda$(IAM) pmda_$(IAM).so \
 	help.pag help.dir
 LLDLIBS	= $(PCP_PMDALIB)
 
@@ -36,7 +34,7 @@ MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default: build-me
+default: install
 
 include $(BUILDRULES)
 
@@ -45,7 +43,6 @@ build-me: $(TARGETS)
 
 install : default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
 	@$(INSTALL_MAN)
