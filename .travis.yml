@@ -26,7 +26,7 @@ before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y linux-headers-$(uname -r) cppcheck
   - sudo pip install pylint
-  - make check
+  - ./configure && make check
   - docker build -f build/containers/travis-ci/Dockerfile -t pcp-qa .
 
 before_script:
