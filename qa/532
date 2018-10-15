@@ -126,10 +126,12 @@ state == 0		{ print >"'$tmp.out.0'"
 			  if ($0 ~ /older than 2 days/) state = 1
 			  next
 			}
-state == 1 && NF == 0	{ state = 2 }
-state == 1		{ for (i = 1; i <= NF; i++) print $i >"'$tmp.out.1'" }'
+state == 1 && $0 ~ /Input archives to be merged:/	{ state = 2 }
+state == 1		{ for (i = 1; i <= NF; i++) print $i >"'$tmp.out.1'" }
+state == 2		{ print >"'$tmp.out.2'" }'
 cat $tmp.out.0
 LC_COLLATE=POSIX sort $tmp.out.1
+[ -f $tmp.out.0 ] && cat $tmp.out.2
 
 echo "out.0 ..." >>$seq.full
 cat $tmp.out.0 >>$seq.full
