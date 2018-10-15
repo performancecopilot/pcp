@@ -115,7 +115,7 @@ class LmsensorsPMDA(PMDA):
 
         self.set_fetch_callback(self.lmsensors_fetch_callback)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
-        if debug == 1 :
+        if debug > 1 :
             print("debug from __init__:")
             for key in sensorvalues:
                 print("  sensorvalues key",key," : value ",sensorvalues[key])
