@@ -20,44 +20,34 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= lmsensors
 DOMAIN	= LMSENSORS
-TARGETS	= $(IAM)
-SCRIPTS	= Install Remove pmdalmsensors.python
-DFILES	= README
+PYSCRIPT = pmda$(IAM).python
+SCRIPTS	= Install Remove $(PYSCRIPT)
+DFILES	= README pmns help root
 
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-LDIRT	= domain.h $(IAM).log pmda$(IAM) pmda_$(IAM).so \
-	help.pag help.dir
-LLDLIBS	= $(PCP_PMDALIB)
+LDIRT	= domain.h $(IAM).log help.pag help.dir
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default: install
+default_pcp default ::  build-me
 
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: $(TARGETS)
+build-me: check_domain
 
-install : default
+install_pcp install :: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
-	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
+	$(INSTALL) -m 644 $(DFILES) $(PMDADIR)
 	@$(INSTALL_MAN)
 else
 build-me:
 install:
 endif
 
-$(IAM):	$(OBJECTS)
-
-$(OBJECTS): domain.h
-
-default_pcp: default
-
-install_pcp: install
-
-domain.h: ../../pmns/stdpmid
-	$(DOMAIN_MAKERULE)
+check_domain:   ../../pmns/stdpmid
+	$(DOMAIN_PYTHONRULE)
