@@ -11,7 +11,7 @@ default default_pcp build-me install install_pcp:
 include $(BUILDRULES)
 
 ifeq "$(HAVE_PYTHON)" "true"
-check::
+test:
 	@rm -f $(MODULE)
 	$(LN_S) ../$(SCRIPT) $(MODULE)
 	pmpython -m unittest discover -s . -p '*_test.py'
