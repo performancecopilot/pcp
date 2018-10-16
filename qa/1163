@@ -102,9 +102,18 @@ pmlogrewrite -vvvv -c $tmp.config archives/20180415.09.16 $tmp.rewritten 2>&1 | 
 # Now dump the rewritten archive
 pmdumplog -h $tmp.rewritten 2>&1 | tee -a $seq.full
 
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+# A few more tests
+cat > $tmp.config <<EOF
+text metric 2.0.3 * "Number of clients currently connected to PMCD" { delete }
+text InDom 2.3 all "PMDA Instance Domain" { delete }
+EOF
+
+# Run pmlogrewrite(1)
+rm -f $tmp.rewritten*
+pmlogrewrite -vvvv -c $tmp.config archives/20180415.09.16 $tmp.rewritten 2>&1 | _filter | tee $seq.full
+
+# Now dump the rewritten archive
+pmdumplog -h $tmp.rewritten 2>&1 | tee -a $seq.full
 
 # success, all done
 status=0

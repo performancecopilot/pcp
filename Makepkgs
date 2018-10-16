@@ -25,6 +25,7 @@ dorpm=unknown
 dodeb=unknown
 webapps=false
 docker=false
+check=false
 
 if [ ! -d .git ]
 then
@@ -136,6 +137,10 @@ do
 	;;
     -verbose|--verbose)
 	verbose=true
+	shift
+	;;
+    --check)
+	check=true
 	shift
 	;;
     --nonrpm)
@@ -596,6 +601,7 @@ debian_build()
     prepare_debian_control
     sanity_check_settings
     debian_buildpackage
+    check_pcp
 
     # success!
     if ! $verbose ; then
@@ -651,6 +657,22 @@ configure_pcp()
     fi
     [ -f $tmp/failed ] && build_failure Configure
     $cfgonly && exit 0
+}
+
+check_pcp()
+{
+    $check || return 0
+
+    echo
+    echo "== Checking pcp, log is in $LOGDIR/pcp" | tee -a "$LOGDIR/pcp"
+
+    rm -f $tmp/failed
+    if $verbose ; then
+	($MAKE check 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
+    else
+	($MAKE check 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
+    fi
+    [ -f $tmp/failed ] && build_failure Checking
 }
 
 default_build()
@@ -769,6 +791,8 @@ if $docker
 then
     packaging_docker
 fi
+
+check_pcp		# static checking (should be last).
 
 # success!
 if ! $verbose ; then

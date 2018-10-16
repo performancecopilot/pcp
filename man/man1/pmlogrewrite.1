@@ -919,6 +919,9 @@ rewriting rule modifies a help text record and has the form:
 \fItextid\fP [
 \fItexttype\fP
 ]
+[
+"\fItextcontent\fP"
+]
 .KW {
 .I textspec
 \&...
@@ -941,8 +944,13 @@ to select the one line help text,
 .KW HELP
 to select the full help text, or
 .KW ALL
-to select both types of help text. If \fItexttype\fP is not specified, then the default is
+or an asterisk ``*''
+to select both types of help text.
+If \fItexttype\fP is not specified, then the default is
 .KW ONELINE .
+.PP
+The optional \fItextcontent\fP further restricts the selected text records to
+those containing the specified content.
 .PP
 If a designated help text record is not in
 .I inlog

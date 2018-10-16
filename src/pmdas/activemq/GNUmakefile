@@ -53,12 +53,6 @@ check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PERLRULE)
 
 ifeq "$(PMDA_ACTIVEMQ)" "true"
-check::
-	@if perl -p Test::Magpie 2>/dev/null; then \
-	    for test in $(TESTS); do perl $$test || exit 1; done; \
-	else \
-	    echo "No Test::Magpie perl module, skipping $(IAM) check"; \
-	fi
+test:
+	for test in $(TESTS); do perl $$test || exit 1; done
 endif
-
-test : check

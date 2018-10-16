@@ -1,0 +1,106 @@
+#!/bin/sh
+# PCP QA Test No. 1480
+# Do PMDA lm-sensors testing
+#
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# test for-some-thing || _notrun No support for some-thing
+
+_filter()
+{
+    sed -e "/Information not currently available/d"
+}
+
+_cleanup()
+{
+    cd $here
+    _restore_pmda_install $iam
+    $sudo rm -rf $tmp $tmp.*
+    $sudo rm -f domain.h.python
+    exit $status
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+python -c 'from pcp import pmda' 2>/dev/null
+test $? -eq 0 || _notrun 'Python pcp pmda module is not installed'
+
+# This test should not be run if pmda lmsensors not installed
+# or if sensors binary not installed
+[ -x $PCP_PMDAS_DIR/lmsensors/pmdalmsensors.python ] || _notrun "lmsensors PMDA not installed"
+[ -x /usr/bin/sensors ] || _notrun "/usr/bin/sensors seems not executable for me."
+sensors -u 2>&1 | grep -q 'No sensors found' && _notrun "No sensors found, probably a VM"
+
+iam=lmsensors
+echo >$seq.full
+
+# install the PMDA
+_prepare_pmda_install $iam
+$sudo ./Remove > $tmp.out 2>&1
+$sudo ./Install </dev/null >/dev/null 2>&1
+# verify
+pminfo --verify $iam | _filter
+
+# How many sensors did PMDA lmsensors register?
+PMDA=`pminfo lmsensors|wc -l`
+# How many sensors did binary lmsensors find?
+SENS=`/usr/bin/sensors -u|egrep '_input: '|wc -l`
+
+if [ $PMDA -eq $SENS ]; then
+	echo -n "number of sensors from '/usr/bin/sensors -u' and from 'pminfo "
+	echo "lmsensors' matches."
+else
+	echo -n "number of sensors from '/usr/bin/sensors -u' and from 'pminfo "
+	echo "lmsensors' does not match."
+	echo "pminfo lmsensors|wc -l:" >>$seq.full
+	pminfo lmsensors |wc -l >>$seq.full
+	echo "/usr/bin/sensors -u|egrep '_input: '|wc -l" >>$seq.full
+	/usr/bin/sensors -u|egrep '_input: '|wc -l >>$seq.full
+fi
+
+# Now, I can not check if the actual values for sensors are the same,
+# because it's not unlikely they are slightly different between multiple 
+# calls of 'sensors -u'.  So I will compare if they are +-10%.
+# Other problem: the order of sensors is hard to predict, so I will 
+# compare the averages.
+# Alternative: I could do the comparison 5 times..
+#
+# Problem with current implementation: 
+# - this still fails for a fan tuning up suddenly, i.e. from 0 to 3k.
+SENS=`sensors -u|grep '_input: '| \
+	awk '{ sum += $2; n++ } END { if (n > 0) print int(sum / n); }'`
+PMDA=`pminfo -f lmsensors|grep value| \
+	awk '{ sum += $2; n++ } END { if (n > 0) print int(sum / n); }'`
+if [ \( $SENS -lt $(( $PMDA * 9/10 )) \) -o \
+	 \( $SENS -gt $(( $PMDA * 11/10 )) \) ]; then
+	echo -n "The output of the 'sensors -u' values differs more than 10% "
+	echo "from the pmda output."
+else
+	echo -n "The output of the 'sensors -u' values differs not more than 10% "
+	echo "from the pmda output."
+fi
+
+# if error
+# exit
+
+# optional stuff if your test has verbose output to help resolve problems
+#echo
+#echo "If failure, check $seq.full"
+
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
+
+# success, all done
+status=0
+exit
