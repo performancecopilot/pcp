@@ -24,9 +24,7 @@ addons:
 before_install:
   - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
   - sudo apt-get -qq update
-  - sudo apt-get install -y linux-headers-$(uname -r) #cppcheck
-  - sudo pip install pylint
-  - ./configure && make check
+  - sudo apt-get install -y linux-headers-$(uname -r)
   - docker build -f build/containers/travis-ci/Dockerfile -t pcp-qa .
 
 before_script:
