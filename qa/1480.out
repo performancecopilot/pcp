@@ -1,0 +1,8 @@
+QA output created by 1480
+number of sensors from '/usr/bin/sensors -u' and from 'pminfo lmsensors' matches.
+The output of the 'sensors -u' values differs not more than 10% from the pmda output.
+Culling the Performance Metrics Name Space ...
+lmsensors ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check lmsensors metrics have gone away ... OK
