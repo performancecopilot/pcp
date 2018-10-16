@@ -17,13 +17,9 @@ aborted=true
 myname=`basename $0`
 iam=$myname  #  a synonym
 
-# status and log files
-CHECKLOCK=/tmp/check-LOCK
-CHECKSTS=/tmp/check.sts     	    	#  If you change these, hangcheck.pcpqa
-CHECKPID=/tmp/check.pid     	    	#  will need to change, too.
-CHECKSLOG=/var/tmp/check-start.log	#  A check.log already exists for 
-    	    	    	    	    	#  another reason.
-
+# lock (and PID) file to prevent concurrent QA execution
+#
+CHECKLOCK=/tmp/PCP-QA-LOCK
 
 _wallclock()
 {
@@ -49,16 +45,6 @@ _release_lock()
 
 _wrapup()
 {
-    # for hangcheck ...
-    # remove files that were used by hangcheck
-    #
-    if [ "$HANGCHECK" = true -a "$USER" = pcpqa ]
-    then
-        checkpid=`cat "$CHECKPID"`
-    	[ "$checkpid" = "$mypid" -a -f "$CHECKSTS" ] && rm -f "$CHECKSTS"
-    	[ "$checkpid" = "$mypid" -a -f "$CHECKPID" ] && rm -f "$CHECKPID"
-    fi
-
     if [ -z "$tmp" ]
     then
 	# did not get very far into the intialization!
@@ -86,8 +72,6 @@ END	{ if (NR > 0) {
 		mv $tmp.out check.time
 	    fi
 
-	    echo "" >>check.log
-	    date >>check.log
 	    echo $list | fmt | sed -e 's/^/    /' >>check.log
 	    if $aborted
 	    then
@@ -169,7 +153,7 @@ _get_lock()
     #  Does someone else have a lock on check at this time?  If so, we
     #  can't run a test until the lock is removed.
     #
-    #  NOTE: the use of check-LOCK rather than check.pid was done so that
+    #  NOTE: the use of CHECKLOCK rather than check.pid was done so that
     #  people running check manually (rather than run.pcpqa running check)
     #  can have tests running between themselves.  This is better than
     #  having people waiting on one long series of tests passed to check
@@ -313,67 +297,9 @@ trap "_wrapup; exit \$status" 0 1 2 3 15
 # by default don't output timestamps
 timestamp=false
 
-# extra stuff for tracing QA runs	- off/on via $qatrace
-qatrace=false
-qadepot=mazur.melbourne
-qasrc=`hostname`
-# constants - meaningful as state transitions in qavis
-qanotyet=1	# test not yet started
-qarunning=2	# test still going
-qafailed=3	# test failed
-qapassed=4	# test passed
-
-
-PCP_TRACE_TIMEOUT=15
-export PCP_TRACE_TIMEOUT
-
 # generic initialization... this may take a while to run, because (unless
 # $quick is true) make is run.
 . ./common
-
-# we have to cheat a bit... but we need to create a check.[pid|sts] file
-# to tell hangcheck that we are alive, but not ready to run yet.
-if [ "$HANGCHECK" = true -a "$USER" = pcpqa ]
-then
-    # for hangcheck ...
-    # Save pid of check in a well known place, so that hangcheck can be sure it
-    # has the right pid (getting the pid from ps output is not reliable enough).
-    #
-    if [ -f "$CHECKPID" ]
-    then
-    	checkpidowner=`/bin/sh "ls -l $CHECKPID" | $PCP_AWK_PROG '{ print $3 }'`
-    	if [ "$checkpidowner" != pcpqa ]
-    	then
-    	    $sudo rm -f "$CHECKPID"
-    	else
-    	    #  There should be a BIG FAT WARNING here if QA is trying to
-    	    #  run tests twice!
-    	    echo "$myname: a check.pid file already exists... are you already running tests?!" >&2
-    	    status=1
-	    exit
-    	fi
-    fi
-    [ ! -f "$CHECKPID" ] && echo "$mypid" >"$CHECKPID"
-
-    # for hangcheck ...
-    # Save the status of check in a well known place, so that hangcheck can be
-    # sure to know where check is up to (getting test number from ps output is
-    # not reliable enough since the trace stuff has been introduced).
-    #
-    if [ -f "$CHECKSTS" ]
-    then
-    	checkpidowner=`/bin/sh "ls -l $CHECKSTS" | $PCP_AWK_PROG '{ print $3 }'`
-    	if [ "$checkpidowner" != pcpqa ]
-    	then
-    	    $sudo rm -f "$CHECKSTS"
-    	else
-    	    echo "$myname: a check.sts file already exists... are you already running tests?!" >&2
-    	    status=1
-	    exit
-    	fi
-    fi
-    [ ! -f "$CHECKSTS" ] && echo "preamble" >"$CHECKSTS"
-fi
 
 [ -f check.time ] || touch check.time
 
@@ -382,31 +308,16 @@ $sudo rm -f $PCP_PMDAS_DIR/*/.NeedInstall $PCP_PMDAS_DIR/*/.NeedRemove
 
 [ "`_get_config pmcd`" != on ] && _change_config pmcd on
 
-if $showme
-then
-    qatrace=false
-fi
-
-if $qatrace
-then
-    # if tracing turned on, make sure trace agent running ok
-    switchon=`pmprobe -h $qadepot trace.control.reset 2>&1 | $PCP_AWK_PROG '{ print $2 }'`
-    [ "$switchon" != "1" ] && qatrace=false
-fi
-
-if $qatrace
-then
-    for seq in $list
-    do
-	$verbose && printf "Preparing pmtrace tags: %-.16s:%s\r" \
-	  "$qasrc" "$seq"
-	pmtrace -qh $qadepot -v $qanotyet "$qasrc:$seq" 2>/dev/null
-    done
-    $verbose && printf "%68s\r" " "
-fi
-
 torun=`echo $list | wc -w | sed -e 's/ //g'`
 haverun=0
+
+if $showme
+then
+    :
+else
+    echo "" >>check.log
+    date >>check.log
+fi
 
 for seq in $list
 do
@@ -454,25 +365,11 @@ do
 	start=`_wallclock`
 	$timestamp && _timestamp
 
-	# for hangcheck ...
-	[ "$HANGCHECK" = true -a "$USER" = pcpqa ] && echo "$seq" >"$CHECKSTS"
+	./$seq >$tmp.out 2>&1
+	sts=$?
 
-	if $qatrace
-	then
-	    pmtrace -qh $qadepot -v $qarunning "$qasrc:$seq" 2>/dev/null
-	    pmtrace -qh $qadepot -e "./$seq" "$qasrc:$seq" >$tmp.out.1 2>&1
-	    sts=$?
-	    # check for trace errors on first line of test & blow them away
-	    $PCP_AWK_PROG '/pmtrace: / {if (NR != 1) print $0; next} {print $0}' $tmp.out.1 > $tmp.out
-	else
-	    ./$seq >$tmp.out 2>&1
-	    sts=$?
-	fi
 	$timestamp && _timestamp
 	stop=`_wallclock`
-
-	# for hangcheck ...
-	[ "$HANGCHECK" = true -a "$USER" = pcpqa ] && echo "working" >"$CHECKSTS"
 
 	if $check_config
 	then
@@ -497,7 +394,7 @@ do
 	fi
 
 	$sudo rm -f $seq.out.bad
-	callback_abort=false
+	rm -f $tmp.callback_abort
 	if [ -f $seq.notrun ]
 	then
 	    [ $color = true ] && tput bold && tput setaf 4 # blue
@@ -599,7 +496,7 @@ do
 			cat $tmp.tmp >>$tmp.out
 			err=true
 			echo "Check! [after $seq] Run aborted by check.callback @ `date`" >>check.log
-			callback_abort=true
+			touch $tmp.callback_abort
 		    fi
 		fi
 
@@ -611,18 +508,6 @@ do
 		fi
 
 		$done_nl || echo
-	    fi
-
-	    # really tried to run the test, update the state
-	    #
-	    if $qatrace
-	    then
-		if $err
-		then
-		    pmtrace -qh $qadepot -v $qafailed "$qasrc:$seq:$qaown" 2>/dev/null
-		else
-		    pmtrace -qh $qadepot -v $qapassed "$qasrc:$seq:$qaown" 2>/dev/null
-		fi
 	    fi
 	fi
     fi
@@ -641,10 +526,16 @@ do
     [ -f $seq.notrun ] || try=`expr $try + 1`
     rm -f $seq.notrun
 
-    $callback_abort && break
+    [ -f $tmp.callback_abort ] && break
 
 done
 
-aborted=false
+if [ -f $tmp.callback_abort ]
+then
+    aborted=true
+else
+    aborted=false
+fi
+
 status=$n_bad
 exit
