@@ -219,7 +219,7 @@ extern pmUnits	ntoh_pmUnits(pmUnits);
 
 extern metricspec_t	*start_metric(pmID);
 extern indomspec_t	*start_indom(pmInDom);
-extern textspec_t	*start_text(int, int);
+extern textspec_t	*start_text(int, int, char *);
 
 extern labelspec_t	*start_label(int, int, int, const char *, char *, char *);
 extern labelspec_t	*create_label(int, int, int, char *, char *);
