@@ -17,8 +17,7 @@
 
 """ PCP lmsensors Performance Metrics Domain Agent """
 
-# pylint: disable=bad-continuation
-# pylint: disable=line-too-long
+# pylint: disable=bad-continuation,line-too-long,too-few-public-methods
 
 import subprocess
 import re
