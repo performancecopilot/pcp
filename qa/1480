@@ -15,30 +15,42 @@ echo "QA output created by $seq"
 
 # test for-some-thing || _notrun No support for some-thing
 
+_filter()
+{
+    sed -e "/Information not currently available/d"
+}
+
 _cleanup()
 {
     cd $here
+    _restore_pmda_install $iam
     $sudo rm -rf $tmp $tmp.*
+    $sudo rm -f domain.h.python
+    exit $status
 }
-
-# This test should not be run if pmda lmsensors not installed
-# TODO: I actually check only if lmsensors were registered by the pmda.
-RET=`pminfo lmsensors`
-if [ $? -eq 1 ]; then
-	_notrun "No lmsensors metrics were registered by the pmda."
-fi
-
-if [ -x /usr/bin/sensorss ]; then
-	_notrun "/usr/bin/sensors seems not executable for me."
-fi
-
-###
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+python -c 'from pcp import pmda' 2>/dev/null
+test $? -eq 0 || _notrun 'Python pcp pmda module is not installed'
+
+# This test should not be run if pmda lmsensors not installed
+# or if sensors binary not installed
+[ -x $PCP_PMDAS_DIR/lmsensors/pmdalmsensors.python ] || __notrun "lmsensors PMDA not installed"
+[ -x /usr/bin/sensors ] || _notrun "/usr/bin/sensors seems not executable for me."
+
+
+iam=lmsensors
 echo >$seq.full
+
+# install the PMDA
+_prepare_pmda_install $iam
+$sudo ./Remove > $tmp.out 2>&1
+$sudo ./Install </dev/null >/dev/null 2>&1
+# verify
+pminfo --verify $iam | _filter
 
 # How many sensors did PMDA lmsensors register?
 PMDA=`pminfo lmsensors|wc -l`
@@ -85,6 +97,9 @@ fi
 # optional stuff if your test has verbose output to help resolve problems
 #echo
 #echo "If failure, check $seq.full"
+
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
 
 # success, all done
 status=0
