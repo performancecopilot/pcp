@@ -457,12 +457,13 @@ create_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
     if (pmDebugOptions.appl0)
 	pmNotifyErr(LOG_DEBUG, "MMV: create_indom: %u", id->serial);
 
-    indoms = realloc(indoms, sizeof(pmdaIndom) * (intot + 1));
-    if (indoms == NULL) {
+    ip = realloc(indoms, sizeof(pmdaIndom) * (intot + 1));
+    if (ip == NULL) {
 	pmNotifyErr(LOG_ERR, "%s: cannot grow indom list in %s",
 			pmGetProgname(), s->name);
 	return -ENOMEM;
     }
+    indoms = ip;
     ip = &indoms[intot++];
     ip->it_indom = indom;
     ip->it_set = (pmdaInstid *)calloc(count, sizeof(pmdaInstid));

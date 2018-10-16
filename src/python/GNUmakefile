@@ -82,6 +82,8 @@ install_pcp install: install_python2 install_python3
 
 check::	$(CFILES)
 	$(CLINT) $^
+
+test:
 	pmpython -m unittest discover -s test -p '*_test.py'
 
 build_python2 build_python3:	$(TOPDIR)/src/include/pcp/libpcp.h

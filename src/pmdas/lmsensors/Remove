@@ -1,7 +1,7 @@
 #! /bin/sh
 # 
+# Copyright (c) 2018 Red Hat.
 # Original implementation by Troy Dawson (dawson@fnal.gov)
-#
 # Copyright (c) 2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it

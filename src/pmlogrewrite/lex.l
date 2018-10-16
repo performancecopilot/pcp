@@ -114,6 +114,7 @@ dupstr(char *s, int strip_quotes)
 <text>"help"		{ return TOK_HELP; }
 <text>"all"		{ return TOK_ALL; }
 <text>"text"		{ return TOK_TEXT; }
+<text>\*		{ return TOK_TEXT_STAR; }
 
 <label>"context"	{ return TOK_CONTEXT; }
 <label>"domain"		{ return TOK_DOMAIN; }
