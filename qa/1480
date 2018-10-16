@@ -38,9 +38,9 @@ test $? -eq 0 || _notrun 'Python pcp pmda module is not installed'
 
 # This test should not be run if pmda lmsensors not installed
 # or if sensors binary not installed
-[ -x $PCP_PMDAS_DIR/lmsensors/pmdalmsensors.python ] || __notrun "lmsensors PMDA not installed"
+[ -x $PCP_PMDAS_DIR/lmsensors/pmdalmsensors.python ] || _notrun "lmsensors PMDA not installed"
 [ -x /usr/bin/sensors ] || _notrun "/usr/bin/sensors seems not executable for me."
-
+sensors -u 2>&1 | grep -q 'No sensors found' && _notrun "No sensors found, probably a VM"
 
 iam=lmsensors
 echo >$seq.full
