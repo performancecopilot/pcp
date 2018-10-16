@@ -31,7 +31,7 @@ before_script:
   - docker run -d --privileged -v /lib/modules:/lib/modules:ro -v /usr/src:/usr/src:ro --name pcp-qa pcp-qa
   - docker exec pcp-qa bash -c 'touch /var/lib/pcp/pmdas/simple/.NeedInstall'
   - docker exec pcp-qa bash -c 'touch /var/lib/pcp/pmdas/sample/.NeedInstall'
-  - docker exec pcp-qa systemctl restart pmcd
+  - docker exec pcp-qa bash -c 'systemctl restart pmcd || journalctl -xe'
 
 script:
   - docker exec pcp-qa bash -c 'cd /var/lib/pcp/testsuite && ./check -g sanity'
