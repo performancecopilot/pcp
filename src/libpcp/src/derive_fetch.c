@@ -38,7 +38,7 @@ get_pmids(node_t *np, int *cnt, pmID **list)
 	    pmNoMem("__dmprefetch: realloc xtralist", (*cnt)*sizeof(pmID), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
-	(*list)[*cnt-1] = np->info->pmid;
+	(*list)[*cnt-1] = np->data.info->pmid;
     }
 }
 
@@ -162,46 +162,46 @@ free_ivlist(node_t *np)
 {
     int		i;
 
-    assert(np->info != NULL);
+    assert(np->data.info != NULL);
 
     if (np->save_last) {
 	/*
 	 * saving history for delta() or rate() ... release previous
 	 * sample, and save this sample
 	 */
-	if (np->info->last_ivlist != NULL) {
+	if (np->data.info->last_ivlist != NULL) {
 	    /*
 	     * no STRING, AGGREGATE or EVENT types for delta() or rate()
 	     * so simple free()
 	     */
-	    free(np->info->last_ivlist);
+	    free(np->data.info->last_ivlist);
 	}
-	np->info->last_numval = np->info->numval;
-	np->info->last_ivlist = np->info->ivlist;
-	np->info->ivlist = NULL;
+	np->data.info->last_numval = np->data.info->numval;
+	np->data.info->last_ivlist = np->data.info->ivlist;
+	np->data.info->ivlist = NULL;
     }
     else {
 	/* no history */
-	if (np->info->ivlist != NULL) {
+	if (np->data.info->ivlist != NULL) {
 	    if (np->desc.type == PM_TYPE_STRING) {
-		for (i = 0; i < np->info->numval; i++) {
-		    if (np->info->ivlist[i].value.cp != NULL)
-			free(np->info->ivlist[i].value.cp);
+		for (i = 0; i < np->data.info->numval; i++) {
+		    if (np->data.info->ivlist[i].value.cp != NULL)
+			free(np->data.info->ivlist[i].value.cp);
 		}
 	    }
 	    else if (np->desc.type == PM_TYPE_AGGREGATE ||
 		     np->desc.type == PM_TYPE_AGGREGATE_STATIC ||
 		     np->desc.type == PM_TYPE_EVENT ||
 		     np->desc.type == PM_TYPE_HIGHRES_EVENT) {
-		for (i = 0; i < np->info->numval; i++) {
-		    if (np->info->ivlist[i].value.vbp != NULL)
-			free(np->info->ivlist[i].value.vbp);
+		for (i = 0; i < np->data.info->numval; i++) {
+		    if (np->data.info->ivlist[i].value.vbp != NULL)
+			free(np->data.info->ivlist[i].value.vbp);
 		}
 	    }
 	}
-	free(np->info->ivlist);
-	np->info->numval = 0;
-	np->info->ivlist = NULL;
+	free(np->data.info->ivlist);
+	np->data.info->numval = 0;
+	np->data.info->ivlist = NULL;
     }
 }
 
@@ -632,16 +632,16 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	if (sts < 0) {
 	    if (np->type == N_COUNT) {
 		/* count() ... special case, map errors to 0 */
-		if (np->info->ivlist == NULL) {
+		if (np->data.info->ivlist == NULL) {
 		    /* initialize ivlist[] for singular instance first time through */
-		    if ((np->info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
+		    if ((np->data.info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
 			pmNoMem("eval_expr: count ivlist", sizeof(val_t), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
-		    np->info->ivlist[0].inst = PM_IN_NULL;
+		    np->data.info->ivlist[0].inst = PM_IN_NULL;
 		}
-		np->info->numval = 1;
-		np->info->ivlist[0].value.l = 0;
+		np->data.info->numval = 1;
+		np->data.info->ivlist[0].value.l = 0;
 		sts = 1;
 	    }
 	    return sts;
@@ -661,14 +661,14 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 
 	case N_INTEGER:
 	case N_DOUBLE:
-	    if (np->info->numval == 0) {
+	    if (np->data.info->numval == 0) {
 		/* initialize ivlist[] for singular instance first time through */
-		np->info->numval = 1;
-		if ((np->info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
+		np->data.info->numval = 1;
+		if ((np->data.info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
 		    pmNoMem("eval_expr: number ivlist", sizeof(val_t), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
-		np->info->ivlist[0].inst = PM_INDOM_NULL;
+		np->data.info->ivlist[0].inst = PM_INDOM_NULL;
 		/*
 		 * don't need error checking, done in the lexical scanner
 		 * but with the advent of mktemp() the type may not be as
@@ -676,22 +676,22 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		 */
 		switch (np->desc.type) {
 		    case PM_TYPE_32:
-			np->info->ivlist[0].value.l = atoi(np->value);
+			np->data.info->ivlist[0].value.l = atoi(np->value);
 			break;
 		    case PM_TYPE_U32:
-			np->info->ivlist[0].value.ul = atoi(np->value);
+			np->data.info->ivlist[0].value.ul = atoi(np->value);
 			break;
 		    case PM_TYPE_64:
-			np->info->ivlist[0].value.ll = strtoll(np->value, NULL, 10);
+			np->data.info->ivlist[0].value.ll = strtoll(np->value, NULL, 10);
 			break;
 		    case PM_TYPE_U64:
-			np->info->ivlist[0].value.ll = strtoull(np->value, NULL, 10);
+			np->data.info->ivlist[0].value.ll = strtoull(np->value, NULL, 10);
 			break;
 		    case PM_TYPE_FLOAT:
-			np->info->ivlist[0].value.f = atof(np->value);
+			np->data.info->ivlist[0].value.f = atof(np->value);
 			break;
 		    case PM_TYPE_DOUBLE:
-			np->info->ivlist[0].value.d = atof(np->value);
+			np->data.info->ivlist[0].value.d = atof(np->value);
 			break;
 		}
 	    }
@@ -703,14 +703,14 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	    /*
 	     * this and the last values are in the left expr
 	     */
-	    np->info->last_stamp = np->info->stamp;
-	    np->info->stamp = rp->timestamp;
+	    np->data.info->last_stamp = np->data.info->stamp;
+	    np->data.info->stamp = rp->timestamp;
 	    free_ivlist(np);
-	    np->info->numval = np->left->info->numval <= np->left->info->last_numval ? np->left->info->numval : np->left->info->last_numval;
-	    if (np->info->numval <= 0)
-		return np->info->numval;
-	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-		pmNoMem("eval_expr: delta()/rate() ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+	    np->data.info->numval = np->left->data.info->numval <= np->left->data.info->last_numval ? np->left->data.info->numval : np->left->data.info->last_numval;
+	    if (np->data.info->numval <= 0)
+		return np->data.info->numval;
+	    if ((np->data.info->ivlist = (val_t *)malloc(np->data.info->numval*sizeof(val_t))) == NULL) {
+		pmNoMem("eval_expr: delta()/rate() ivlist", np->data.info->numval*sizeof(val_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    /*
@@ -720,50 +720,50 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	     * ivlist[k] = (left->ivlist[i] - left->last_ivlist[j]) /
 	     *             (timestamp - left->last_stamp)
 	     */
-	    for (i = k = 0; i < np->left->info->numval; i++) {
+	    for (i = k = 0; i < np->left->data.info->numval; i++) {
 		j = i;
-		if (j >= np->left->info->last_numval)
+		if (j >= np->left->data.info->last_numval)
 		    j = 0;
-		if (np->left->info->ivlist[i].inst != np->left->info->last_ivlist[j].inst) {
+		if (np->left->data.info->ivlist[i].inst != np->left->data.info->last_ivlist[j].inst) {
 		    /* current ith inst != last jth inst ... search in last */
 		    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
-			fprintf(stderr, "eval_expr: inst[%d] mismatch left [%d]=%d last [%d]=%d\n", k, i, np->left->info->ivlist[i].inst, j, np->left->info->last_ivlist[j].inst);
+			fprintf(stderr, "eval_expr: inst[%d] mismatch left [%d]=%d last [%d]=%d\n", k, i, np->left->data.info->ivlist[i].inst, j, np->left->data.info->last_ivlist[j].inst);
 		    }
-		    for (j = 0; j < np->left->info->last_numval; j++) {
-			if (np->left->info->ivlist[i].inst == np->left->info->last_ivlist[j].inst)
+		    for (j = 0; j < np->left->data.info->last_numval; j++) {
+			if (np->left->data.info->ivlist[i].inst == np->left->data.info->last_ivlist[j].inst)
 			    break;
 		    }
-		    if (j == np->left->info->last_numval) {
+		    if (j == np->left->data.info->last_numval) {
 			/* no match, skip this instance from this result */
 			continue;
 		    }
 		    else {
 			if (pmDebugOptions.derive && pmDebugOptions.appl2) {
-			    fprintf(stderr, "eval_expr: recover @ last [%d]=%d\n", j, np->left->info->last_ivlist[j].inst);
+			    fprintf(stderr, "eval_expr: recover @ last [%d]=%d\n", j, np->left->data.info->last_ivlist[j].inst);
 			}
 		    }
 		}
-		np->info->ivlist[k].inst = np->left->info->ivlist[i].inst;
+		np->data.info->ivlist[k].inst = np->left->data.info->ivlist[i].inst;
 		if (np->type == N_DELTA) {
 		    /* for delta() result type == operand type */
 		    switch (np->left->desc.type) {
 			case PM_TYPE_32:
-			    np->info->ivlist[k].value.l = np->left->info->ivlist[i].value.l - np->left->info->last_ivlist[j].value.l;
+			    np->data.info->ivlist[k].value.l = np->left->data.info->ivlist[i].value.l - np->left->data.info->last_ivlist[j].value.l;
 			    break;
 			case PM_TYPE_U32:
-			    np->info->ivlist[k].value.ul = np->left->info->ivlist[i].value.ul - np->left->info->last_ivlist[j].value.ul;
+			    np->data.info->ivlist[k].value.ul = np->left->data.info->ivlist[i].value.ul - np->left->data.info->last_ivlist[j].value.ul;
 			    break;
 			case PM_TYPE_64:
-			    np->info->ivlist[k].value.ll = np->left->info->ivlist[i].value.ll - np->left->info->last_ivlist[j].value.ll;
+			    np->data.info->ivlist[k].value.ll = np->left->data.info->ivlist[i].value.ll - np->left->data.info->last_ivlist[j].value.ll;
 			    break;
 			case PM_TYPE_U64:
-			    np->info->ivlist[k].value.ull = np->left->info->ivlist[i].value.ull - np->left->info->last_ivlist[j].value.ull;
+			    np->data.info->ivlist[k].value.ull = np->left->data.info->ivlist[i].value.ull - np->left->data.info->last_ivlist[j].value.ull;
 			    break;
 			case PM_TYPE_FLOAT:
-			    np->info->ivlist[k].value.f = np->left->info->ivlist[i].value.f - np->left->info->last_ivlist[j].value.f;
+			    np->data.info->ivlist[k].value.f = np->left->data.info->ivlist[i].value.f - np->left->data.info->last_ivlist[j].value.f;
 			    break;
 			case PM_TYPE_DOUBLE:
-			    np->info->ivlist[k].value.d = np->left->info->ivlist[i].value.d - np->left->info->last_ivlist[j].value.d;
+			    np->data.info->ivlist[k].value.d = np->left->data.info->ivlist[i].value.d - np->left->data.info->last_ivlist[j].value.d;
 			    break;
 			default:
 			    /*
@@ -776,26 +776,26 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		else {
 		    /* rate() conversion, type will be DOUBLE */
 		    struct timeval	stampdiff;
-		    stampdiff = np->info->stamp;
-		    pmtimevalDec(&stampdiff, &np->info->last_stamp);
+		    stampdiff = np->data.info->stamp;
+		    pmtimevalDec(&stampdiff, &np->data.info->last_stamp);
 		    switch (np->left->desc.type) {
 			case PM_TYPE_32:
-			    np->info->ivlist[k].value.d = (double)(np->left->info->ivlist[i].value.l - np->left->info->last_ivlist[j].value.l);
+			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.l - np->left->data.info->last_ivlist[j].value.l);
 			    break;
 			case PM_TYPE_U32:
-			    np->info->ivlist[k].value.d = (double)(np->left->info->ivlist[i].value.ul - np->left->info->last_ivlist[j].value.ul);
+			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.ul - np->left->data.info->last_ivlist[j].value.ul);
 			    break;
 			case PM_TYPE_64:
-			    np->info->ivlist[k].value.d = (double)(np->left->info->ivlist[i].value.ll - np->left->info->last_ivlist[j].value.ll);
+			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.ll - np->left->data.info->last_ivlist[j].value.ll);
 			    break;
 			case PM_TYPE_U64:
-			    np->info->ivlist[k].value.d = (double)(np->left->info->ivlist[i].value.ull - np->left->info->last_ivlist[j].value.ull);
+			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.ull - np->left->data.info->last_ivlist[j].value.ull);
 			    break;
 			case PM_TYPE_FLOAT:
-			    np->info->ivlist[k].value.d = (double)(np->left->info->ivlist[i].value.f - np->left->info->last_ivlist[j].value.f);
+			    np->data.info->ivlist[k].value.d = (double)(np->left->data.info->ivlist[i].value.f - np->left->data.info->last_ivlist[j].value.f);
 			    break;
 			case PM_TYPE_DOUBLE:
-			    np->info->ivlist[k].value.d = np->left->info->ivlist[i].value.d - np->left->info->last_ivlist[j].value.d;
+			    np->data.info->ivlist[k].value.d = np->left->data.info->ivlist[i].value.d - np->left->data.info->last_ivlist[j].value.d;
 			    break;
 			default:
 			    /*
@@ -804,114 +804,114 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			     */
 			    return PM_ERR_CONV;
 		    }
-		    np->info->ivlist[k].value.d /= pmtimevalToReal(&stampdiff);
+		    np->data.info->ivlist[k].value.d /= pmtimevalToReal(&stampdiff);
 		    /*
 		     * check_expr() ensures dimTime is 0 or 1 at bind time
 		     */
 		    if (np->left->desc.units.dimTime == 1) {
 			/* scale rate(time counter) -> time utilization */
-			if (np->info->time_scale < 0) {
+			if (np->data.info->time_scale < 0) {
 			    /*
 			     * one trip initialization for time utilization
 			     * scaling factor (to scale metric from counter
 			     * units into seconds)
 			     */
 			    int		i;
-			    np->info->time_scale = 1;
+			    np->data.info->time_scale = 1;
 			    if (np->left->desc.units.scaleTime > PM_TIME_SEC) {
 				for (i = PM_TIME_SEC; i < np->left->desc.units.scaleTime; i++)
-				    np->info->time_scale *= 60;
+				    np->data.info->time_scale *= 60;
 			    }
 			    else {
 				for (i = np->left->desc.units.scaleTime; i < PM_TIME_SEC; i++)
-				    np->info->time_scale /= 1000;
+				    np->data.info->time_scale /= 1000;
 			    }
 			}
-			np->info->ivlist[k].value.d *= np->info->time_scale;
+			np->data.info->ivlist[k].value.d *= np->data.info->time_scale;
 		    }
 		}
 		k++;
 	    }
-	    np->info->numval = k;
-	    return np->info->numval;
+	    np->data.info->numval = k;
+	    return np->data.info->numval;
 	    break;
 
 	case N_NOT:	/* boolean negation, values are in the left expr */
 	    assert(np->left != NULL);
 	    free_ivlist(np);
-	    np->info->numval = np->left->info->numval;
-	    if (np->info->numval <= 0)
-		return np->info->numval;
-	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-		pmNoMem("eval_expr: N_NOT ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+	    np->data.info->numval = np->left->data.info->numval;
+	    if (np->data.info->numval <= 0)
+		return np->data.info->numval;
+	    if ((np->data.info->ivlist = (val_t *)malloc(np->data.info->numval*sizeof(val_t))) == NULL) {
+		pmNoMem("eval_expr: N_NOT ivlist", np->data.info->numval*sizeof(val_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    /*
 	     * ivlist[i] = ! left->ivlist[i]
 	     */
-	    for (i = 0; i < np->info->numval; i++) {
+	    for (i = 0; i < np->data.info->numval; i++) {
 		switch (np->left->desc.type) {
 		    case PM_TYPE_32:
-			np->info->ivlist[i].value.ul = (np->left->info->ivlist[i].value.l == 0);
+			np->data.info->ivlist[i].value.ul = (np->left->data.info->ivlist[i].value.l == 0);
 			break;
 		    case PM_TYPE_U32:
-			np->info->ivlist[i].value.ul = (np->left->info->ivlist[i].value.ul == 0);
+			np->data.info->ivlist[i].value.ul = (np->left->data.info->ivlist[i].value.ul == 0);
 			break;
 		    case PM_TYPE_64:
-			np->info->ivlist[i].value.ul = (np->left->info->ivlist[i].value.ll == 0);
+			np->data.info->ivlist[i].value.ul = (np->left->data.info->ivlist[i].value.ll == 0);
 			break;
 		    case PM_TYPE_U64:
-			np->info->ivlist[i].value.ul = (np->left->info->ivlist[i].value.ull == 0);
+			np->data.info->ivlist[i].value.ul = (np->left->data.info->ivlist[i].value.ull == 0);
 			break;
 		    case PM_TYPE_FLOAT:
-			np->info->ivlist[i].value.ul = (np->left->info->ivlist[i].value.f == 0);
+			np->data.info->ivlist[i].value.ul = (np->left->data.info->ivlist[i].value.f == 0);
 			break;
 		    case PM_TYPE_DOUBLE:
-			np->info->ivlist[i].value.ul = (np->left->info->ivlist[i].value.d == 0);
+			np->data.info->ivlist[i].value.ul = (np->left->data.info->ivlist[i].value.d == 0);
 			break;
 		}
-		np->info->ivlist[i].inst = np->left->info->ivlist[i].inst;
+		np->data.info->ivlist[i].inst = np->left->data.info->ivlist[i].inst;
 	    }
-	    return np->info->numval;
+	    return np->data.info->numval;
 	    break;
 
 	case N_NEG:	/* unary arithmetic negation */
 	    assert(np->left != NULL);
 	    free_ivlist(np);
-	    np->info->numval = np->left->info->numval;
-	    if (np->info->numval <= 0)
-		return np->info->numval;
-	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-		pmNoMem("eval_expr: N_NEG ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+	    np->data.info->numval = np->left->data.info->numval;
+	    if (np->data.info->numval <= 0)
+		return np->data.info->numval;
+	    if ((np->data.info->ivlist = (val_t *)malloc(np->data.info->numval*sizeof(val_t))) == NULL) {
+		pmNoMem("eval_expr: N_NEG ivlist", np->data.info->numval*sizeof(val_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    /*
 	     * ivlist[i] = - left->ivlist[i]
 	     */
-	    for (i = 0; i < np->info->numval; i++) {
+	    for (i = 0; i < np->data.info->numval; i++) {
 		switch (np->left->desc.type) {
 		    case PM_TYPE_32:
-			np->info->ivlist[i].value.l = -np->left->info->ivlist[i].value.l;
+			np->data.info->ivlist[i].value.l = -np->left->data.info->ivlist[i].value.l;
 			break;
 		    case PM_TYPE_U32:
-			np->info->ivlist[i].value.l = -np->left->info->ivlist[i].value.ul;
+			np->data.info->ivlist[i].value.l = -np->left->data.info->ivlist[i].value.ul;
 			break;
 		    case PM_TYPE_64:
-			np->info->ivlist[i].value.ll = -np->left->info->ivlist[i].value.ll;
+			np->data.info->ivlist[i].value.ll = -np->left->data.info->ivlist[i].value.ll;
 			break;
 		    case PM_TYPE_U64:
-			np->info->ivlist[i].value.ll = -np->left->info->ivlist[i].value.ull;
+			np->data.info->ivlist[i].value.ll = -np->left->data.info->ivlist[i].value.ull;
 			break;
 		    case PM_TYPE_FLOAT:
-			np->info->ivlist[i].value.f = -np->left->info->ivlist[i].value.f;
+			np->data.info->ivlist[i].value.f = -np->left->data.info->ivlist[i].value.f;
 			break;
 		    case PM_TYPE_DOUBLE:
-			np->info->ivlist[i].value.d = -np->left->info->ivlist[i].value.d;
+			np->data.info->ivlist[i].value.d = -np->left->data.info->ivlist[i].value.d;
 			break;
 		}
-		np->info->ivlist[i].inst = np->left->info->ivlist[i].inst;
+		np->data.info->ivlist[i].inst = np->left->data.info->ivlist[i].inst;
 	    }
-	    return np->info->numval;
+	    return np->data.info->numval;
 	    break;
 
 	case N_COLON:
@@ -934,26 +934,26 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		 * semantics if we have value(s) for the guard and both the
 		 * truth/false expressions
 		 */
-		if (np->left->info->numval <= 0) {
+		if (np->left->data.info->numval <= 0) {
 		    /* no guard expression values */
-		    np->info->numval = np->left->info->numval;
-		    return np->info->numval;
+		    np->data.info->numval = np->left->data.info->numval;
+		    return np->data.info->numval;
 		}
-		if (np->right->left->info->numval <= 0) {
+		if (np->right->left->data.info->numval <= 0) {
 		    /* no true expression values */
-		    np->info->numval = np->right->left->info->numval;
-		    return np->info->numval;
+		    np->data.info->numval = np->right->left->data.info->numval;
+		    return np->data.info->numval;
 		}
-		if (np->right->right->info->numval <= 0) {
+		if (np->right->right->data.info->numval <= 0) {
 		    /* no false expression values */
-		    np->info->numval = np->right->right->info->numval;
-		    return np->info->numval;
+		    np->data.info->numval = np->right->right->data.info->numval;
+		    return np->data.info->numval;
 		}
-		numval = np->right->left->info->numval;
-		if (np->right->right->info->numval > numval)
-		    numval = np->right->right->info->numval;
-		np->info->numval = numval;
-		if ((np->info->ivlist = (val_t *)malloc(numval*sizeof(val_t))) == NULL) {
+		numval = np->right->left->data.info->numval;
+		if (np->right->right->data.info->numval > numval)
+		    numval = np->right->right->data.info->numval;
+		np->data.info->numval = numval;
+		if ((np->data.info->ivlist = (val_t *)malloc(numval*sizeof(val_t))) == NULL) {
 		    pmNoMem("eval_expr: N_QUEST ivlist", numval*sizeof(val_t), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
@@ -972,40 +972,40 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		/* guard is left operand and value is arithmetic */
 		pick = NULL;
 		for (i = 0; i < numval; i++) {
-		    if (i < np->left->info->numval) {
+		    if (i < np->left->data.info->numval) {
 			switch (np->left->desc.type) {
 			    case PM_TYPE_32:
-				if (np->left->info->ivlist[i].value.l != 0)
+				if (np->left->data.info->ivlist[i].value.l != 0)
 				    pick = np->right->left;
 				else
 				    pick = np->right->right;
 				break;
 			    case PM_TYPE_U32:
-				if (np->left->info->ivlist[i].value.ul != 0)
+				if (np->left->data.info->ivlist[i].value.ul != 0)
 				    pick = np->right->left;
 				else
 				    pick = np->right->right;
 				break;
 			    case PM_TYPE_64:
-				if (np->left->info->ivlist[i].value.ll != 0)
+				if (np->left->data.info->ivlist[i].value.ll != 0)
 				    pick = np->right->left;
 				else
 				    pick = np->right->right;
 				break;
 			    case PM_TYPE_U64:
-				if (np->left->info->ivlist[i].value.ull != 0)
+				if (np->left->data.info->ivlist[i].value.ull != 0)
 				    pick = np->right->left;
 				else
 				    pick = np->right->right;
 				break;
 			    case PM_TYPE_FLOAT:
-				if (np->left->info->ivlist[i].value.f != 0)
+				if (np->left->data.info->ivlist[i].value.f != 0)
 				    pick = np->right->left;
 				else
 				    pick = np->right->right;
 				break;
 			    case PM_TYPE_DOUBLE:
-				if (np->left->info->ivlist[i].value.d != 0)
+				if (np->left->data.info->ivlist[i].value.d != 0)
 				    pick = np->right->left;
 				else
 				    pick = np->right->right;
@@ -1013,7 +1013,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			    default:
 				if (pmDebugOptions.derive) {
 				    char	strbuf[20];
-				    fprintf(stderr, "eval_expr: botch: drived metric%s: guard has odd type (%d)\n", pmIDStr_r(np->info->pmid, strbuf, sizeof(strbuf)), np->left->desc.type);
+				    fprintf(stderr, "eval_expr: botch: drived metric%s: guard has odd type (%d)\n", pmIDStr_r(np->data.info->pmid, strbuf, sizeof(strbuf)), np->left->desc.type);
 				}
 				return PM_ERR_TYPE;
 			}
@@ -1025,78 +1025,78 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    assert(pick != NULL);
 		    switch (np->desc.type) {
 			case PM_TYPE_32:
-			    if (i < pick->info->numval)
-				np->info->ivlist[i].value.l = pick->info->ivlist[i].value.l;
+			    if (i < pick->data.info->numval)
+				np->data.info->ivlist[i].value.l = pick->data.info->ivlist[i].value.l;
 			    else
-				np->info->ivlist[i].value.l = pick->info->ivlist[0].value.l;
+				np->data.info->ivlist[i].value.l = pick->data.info->ivlist[0].value.l;
 			    break;
 			case PM_TYPE_U32:
-			    if (i < pick->info->numval)
-				np->info->ivlist[i].value.ul = pick->info->ivlist[i].value.ul;
+			    if (i < pick->data.info->numval)
+				np->data.info->ivlist[i].value.ul = pick->data.info->ivlist[i].value.ul;
 			    else
-				np->info->ivlist[i].value.ul = pick->info->ivlist[0].value.ul;
+				np->data.info->ivlist[i].value.ul = pick->data.info->ivlist[0].value.ul;
 			    break;
 			case PM_TYPE_64:
-			    if (i < pick->info->numval)
-				np->info->ivlist[i].value.ll = pick->info->ivlist[i].value.ll;
+			    if (i < pick->data.info->numval)
+				np->data.info->ivlist[i].value.ll = pick->data.info->ivlist[i].value.ll;
 			    else
-				np->info->ivlist[i].value.ll = pick->info->ivlist[0].value.ll;
+				np->data.info->ivlist[i].value.ll = pick->data.info->ivlist[0].value.ll;
 			    break;
 			case PM_TYPE_U64:
-			    if (i < pick->info->numval)
-				np->info->ivlist[i].value.ull = pick->info->ivlist[i].value.ull;
+			    if (i < pick->data.info->numval)
+				np->data.info->ivlist[i].value.ull = pick->data.info->ivlist[i].value.ull;
 			    else
-				np->info->ivlist[i].value.ull = pick->info->ivlist[0].value.ull;
+				np->data.info->ivlist[i].value.ull = pick->data.info->ivlist[0].value.ull;
 			    break;
 			case PM_TYPE_FLOAT:
-			    if (i < pick->info->numval)
-				np->info->ivlist[i].value.f = pick->info->ivlist[i].value.f;
+			    if (i < pick->data.info->numval)
+				np->data.info->ivlist[i].value.f = pick->data.info->ivlist[i].value.f;
 			    else
-				np->info->ivlist[i].value.f = pick->info->ivlist[0].value.f;
+				np->data.info->ivlist[i].value.f = pick->data.info->ivlist[0].value.f;
 			    break;
 			case PM_TYPE_DOUBLE:
-			    if (i < pick->info->numval)
-				np->info->ivlist[i].value.d = pick->info->ivlist[i].value.d;
+			    if (i < pick->data.info->numval)
+				np->data.info->ivlist[i].value.d = pick->data.info->ivlist[i].value.d;
 			    else
-				np->info->ivlist[i].value.d = pick->info->ivlist[0].value.d;
+				np->data.info->ivlist[i].value.d = pick->data.info->ivlist[0].value.d;
 			    break;
 			case PM_TYPE_STRING:
-			    if (i < pick->info->numval)
-				np->info->ivlist[i].value.cp = pick->info->ivlist[i].value.cp;
+			    if (i < pick->data.info->numval)
+				np->data.info->ivlist[i].value.cp = pick->data.info->ivlist[i].value.cp;
 			    else
-				np->info->ivlist[i].value.cp = pick->info->ivlist[0].value.cp;
+				np->data.info->ivlist[i].value.cp = pick->data.info->ivlist[0].value.cp;
 			    break;
 			/* TODO other types? */
 		    }
-		    np->info->ivlist[i].inst = pick_inst->info->ivlist[i].inst;
+		    np->data.info->ivlist[i].inst = pick_inst->data.info->ivlist[i].inst;
 		}
 	    }
-	    return np->info->numval;
+	    return np->data.info->numval;
 	    break;
 
 	case N_RESCALE:
 	    assert(np->left != NULL);
 	    free_ivlist(np);
-	    np->info->numval = np->left->info->numval;
-	    if (np->info->numval <= 0)
-		return np->info->numval;
-	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-		pmNoMem("eval_expr: N_RESCALE ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+	    np->data.info->numval = np->left->data.info->numval;
+	    if (np->data.info->numval <= 0)
+		return np->data.info->numval;
+	    if ((np->data.info->ivlist = (val_t *)malloc(np->data.info->numval*sizeof(val_t))) == NULL) {
+		pmNoMem("eval_expr: N_RESCALE ivlist", np->data.info->numval*sizeof(val_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    /*
 	     * ivlist[i] = rescale(left->ivlist[i], right->desc.units)
 	     */
-	    for (j = 0, i = 0; i < np->info->numval; i++) {
+	    for (j = 0, i = 0; i < np->data.info->numval; i++) {
 		sts = pmConvScale(np->desc.type,
-		    &np->left->info->ivlist[i].value, &np->left->desc.units,
-		    &np->info->ivlist[j].value, &np->right->desc.units);
-		np->info->ivlist[j].inst = np->left->info->ivlist[i].inst;
+		    &np->left->data.info->ivlist[i].value, &np->left->desc.units,
+		    &np->data.info->ivlist[j].value, &np->right->desc.units);
+		np->data.info->ivlist[j].inst = np->left->data.info->ivlist[i].inst;
 		if (sts >= 0)
 		    j++;
 	    }
-	    np->info->numval = j;
-	    return np->info->numval;
+	    np->data.info->numval = j;
+	    return np->data.info->numval;
 	    break;
 
 	case N_INSTANT:
@@ -1104,12 +1104,12 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	     * values are in the left expr
 	     */
 	    assert(np->left != NULL);
-	    np->info->last_stamp = np->info->stamp;
-	    np->info->stamp = rp->timestamp;
-	    np->info->numval = np->left->info->numval;
-	    if (np->info->numval > 0)
-		np->info->ivlist = np->left->info->ivlist;
-	    return np->info->numval;
+	    np->data.info->last_stamp = np->data.info->stamp;
+	    np->data.info->stamp = rp->timestamp;
+	    np->data.info->numval = np->left->data.info->numval;
+	    if (np->data.info->numval > 0)
+		np->data.info->ivlist = np->left->data.info->ivlist;
+	    return np->data.info->numval;
 	    break;
 
 	case N_AVG:
@@ -1117,69 +1117,69 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	case N_SUM:
 	case N_MAX:
 	case N_MIN:
-	    if (np->info->ivlist == NULL) {
+	    if (np->data.info->ivlist == NULL) {
 		/* initialize ivlist[] for singular instance first time through */
-		if ((np->info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
+		if ((np->data.info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
 		    pmNoMem("eval_expr: aggr ivlist", sizeof(val_t), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
-		np->info->ivlist[0].inst = PM_IN_NULL;
+		np->data.info->ivlist[0].inst = PM_IN_NULL;
 	    }
 	    /*
 	     * values are in the left expr
 	     */
 	    if (np->type == N_COUNT) {
-		np->info->numval = 1;
-		np->info->ivlist[0].value.l = np->left->info->numval;
+		np->data.info->numval = 1;
+		np->data.info->ivlist[0].value.l = np->left->data.info->numval;
 	    }
 	    else {
-		np->info->numval = 1;
+		np->data.info->numval = 1;
 		if (np->type == N_AVG)
-		    np->info->ivlist[0].value.f = 0;
+		    np->data.info->ivlist[0].value.f = 0;
 		else if (np->type == N_SUM) {
 		    switch (np->desc.type) {
 			case PM_TYPE_32:
-			    np->info->ivlist[0].value.l = 0;
+			    np->data.info->ivlist[0].value.l = 0;
 			    break;
 			case PM_TYPE_U32:
-			    np->info->ivlist[0].value.ul = 0;
+			    np->data.info->ivlist[0].value.ul = 0;
 			    break;
 			case PM_TYPE_64:
-			    np->info->ivlist[0].value.ll = 0;
+			    np->data.info->ivlist[0].value.ll = 0;
 			    break;
 			case PM_TYPE_U64:
-			    np->info->ivlist[0].value.ull = 0;
+			    np->data.info->ivlist[0].value.ull = 0;
 			    break;
 			case PM_TYPE_FLOAT:
-			    np->info->ivlist[0].value.f = 0;
+			    np->data.info->ivlist[0].value.f = 0;
 			    break;
 			case PM_TYPE_DOUBLE:
-			    np->info->ivlist[0].value.d = 0;
+			    np->data.info->ivlist[0].value.d = 0;
 			    break;
 		    }
 		}
-		for (i = 0; i < np->left->info->numval; i++) {
+		for (i = 0; i < np->left->data.info->numval; i++) {
 		    switch (np->type) {
 
 			case N_AVG:
 			    switch (np->left->desc.type) {
 				case PM_TYPE_32:
-				    np->info->ivlist[0].value.f += (float)np->left->info->ivlist[i].value.l / np->left->info->numval;
+				    np->data.info->ivlist[0].value.f += (float)np->left->data.info->ivlist[i].value.l / np->left->data.info->numval;
 				    break;
 				case PM_TYPE_U32:
-				    np->info->ivlist[0].value.f += (float)np->left->info->ivlist[i].value.ul / np->left->info->numval;
+				    np->data.info->ivlist[0].value.f += (float)np->left->data.info->ivlist[i].value.ul / np->left->data.info->numval;
 				    break;
 				case PM_TYPE_64:
-				    np->info->ivlist[0].value.f += (float)np->left->info->ivlist[i].value.ll / np->left->info->numval;
+				    np->data.info->ivlist[0].value.f += (float)np->left->data.info->ivlist[i].value.ll / np->left->data.info->numval;
 				    break;
 				case PM_TYPE_U64:
-				    np->info->ivlist[0].value.f += (float)np->left->info->ivlist[i].value.ull / np->left->info->numval;
+				    np->data.info->ivlist[0].value.f += (float)np->left->data.info->ivlist[i].value.ull / np->left->data.info->numval;
 				    break;
 				case PM_TYPE_FLOAT:
-				    np->info->ivlist[0].value.f += (float)np->left->info->ivlist[i].value.f / np->left->info->numval;
+				    np->data.info->ivlist[0].value.f += (float)np->left->data.info->ivlist[i].value.f / np->left->data.info->numval;
 				    break;
 				case PM_TYPE_DOUBLE:
-				    np->info->ivlist[0].value.f += (float)np->left->info->ivlist[i].value.d / np->left->info->numval;
+				    np->data.info->ivlist[0].value.f += (float)np->left->data.info->ivlist[i].value.d / np->left->data.info->numval;
 				    break;
 				default:
 				    /*
@@ -1194,33 +1194,33 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			    switch (np->desc.type) {
 				case PM_TYPE_32:
 				    if (i == 0 ||
-				        np->info->ivlist[0].value.l < np->left->info->ivlist[i].value.l)
-					np->info->ivlist[0].value.l = np->left->info->ivlist[i].value.l;
+				        np->data.info->ivlist[0].value.l < np->left->data.info->ivlist[i].value.l)
+					np->data.info->ivlist[0].value.l = np->left->data.info->ivlist[i].value.l;
 				    break;
 				case PM_TYPE_U32:
 				    if (i == 0 ||
-				        np->info->ivlist[0].value.ul < np->left->info->ivlist[i].value.ul)
-					np->info->ivlist[0].value.ul = np->left->info->ivlist[i].value.ul;
+				        np->data.info->ivlist[0].value.ul < np->left->data.info->ivlist[i].value.ul)
+					np->data.info->ivlist[0].value.ul = np->left->data.info->ivlist[i].value.ul;
 				    break;
 				case PM_TYPE_64:
 				    if (i == 0 ||
-				        np->info->ivlist[0].value.ll < np->left->info->ivlist[i].value.ll)
-					np->info->ivlist[0].value.ll = np->left->info->ivlist[i].value.ll;
+				        np->data.info->ivlist[0].value.ll < np->left->data.info->ivlist[i].value.ll)
+					np->data.info->ivlist[0].value.ll = np->left->data.info->ivlist[i].value.ll;
 				    break;
 				case PM_TYPE_U64:
 				    if (i == 0 ||
-				        np->info->ivlist[0].value.ull < np->left->info->ivlist[i].value.ull)
-					np->info->ivlist[0].value.ull = np->left->info->ivlist[i].value.ull;
+				        np->data.info->ivlist[0].value.ull < np->left->data.info->ivlist[i].value.ull)
+					np->data.info->ivlist[0].value.ull = np->left->data.info->ivlist[i].value.ull;
 				    break;
 				case PM_TYPE_FLOAT:
 				    if (i == 0 ||
-				        np->info->ivlist[0].value.f < np->left->info->ivlist[i].value.f)
-					np->info->ivlist[0].value.f = np->left->info->ivlist[i].value.f;
+				        np->data.info->ivlist[0].value.f < np->left->data.info->ivlist[i].value.f)
+					np->data.info->ivlist[0].value.f = np->left->data.info->ivlist[i].value.f;
 				    break;
 				case PM_TYPE_DOUBLE:
 				    if (i == 0 ||
-				        np->info->ivlist[0].value.d < np->left->info->ivlist[i].value.d)
-					np->info->ivlist[0].value.d = np->left->info->ivlist[i].value.d;
+				        np->data.info->ivlist[0].value.d < np->left->data.info->ivlist[i].value.d)
+					np->data.info->ivlist[0].value.d = np->left->data.info->ivlist[i].value.d;
 				    break;
 				default:
 				    /*
@@ -1235,33 +1235,33 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			    switch (np->desc.type) {
 				case PM_TYPE_32:
 				    if (i == 0 ||
-				        np->info->ivlist[0].value.l > np->left->info->ivlist[i].value.l)
-					np->info->ivlist[0].value.l = np->left->info->ivlist[i].value.l;
+				        np->data.info->ivlist[0].value.l > np->left->data.info->ivlist[i].value.l)
+					np->data.info->ivlist[0].value.l = np->left->data.info->ivlist[i].value.l;
 				    break;
 				case PM_TYPE_U32:
 				    if (i == 0 ||
-				        np->info->ivlist[0].value.ul > np->left->info->ivlist[i].value.ul)
-					np->info->ivlist[0].value.ul = np->left->info->ivlist[i].value.ul;
+				        np->data.info->ivlist[0].value.ul > np->left->data.info->ivlist[i].value.ul)
+					np->data.info->ivlist[0].value.ul = np->left->data.info->ivlist[i].value.ul;
 				    break;
 				case PM_TYPE_64:
 				    if (i == 0 ||
-				        np->info->ivlist[0].value.ll > np->left->info->ivlist[i].value.ll)
-					np->info->ivlist[0].value.ll = np->left->info->ivlist[i].value.ll;
+				        np->data.info->ivlist[0].value.ll > np->left->data.info->ivlist[i].value.ll)
+					np->data.info->ivlist[0].value.ll = np->left->data.info->ivlist[i].value.ll;
 				    break;
 				case PM_TYPE_U64:
 				    if (i == 0 ||
-				        np->info->ivlist[0].value.ull > np->left->info->ivlist[i].value.ull)
-					np->info->ivlist[0].value.ull = np->left->info->ivlist[i].value.ull;
+				        np->data.info->ivlist[0].value.ull > np->left->data.info->ivlist[i].value.ull)
+					np->data.info->ivlist[0].value.ull = np->left->data.info->ivlist[i].value.ull;
 				    break;
 				case PM_TYPE_FLOAT:
 				    if (i == 0 ||
-				        np->info->ivlist[0].value.f > np->left->info->ivlist[i].value.f)
-					np->info->ivlist[0].value.f = np->left->info->ivlist[i].value.f;
+				        np->data.info->ivlist[0].value.f > np->left->data.info->ivlist[i].value.f)
+					np->data.info->ivlist[0].value.f = np->left->data.info->ivlist[i].value.f;
 				    break;
 				case PM_TYPE_DOUBLE:
 				    if (i == 0 ||
-				        np->info->ivlist[0].value.d > np->left->info->ivlist[i].value.d)
-					np->info->ivlist[0].value.d = np->left->info->ivlist[i].value.d;
+				        np->data.info->ivlist[0].value.d > np->left->data.info->ivlist[i].value.d)
+					np->data.info->ivlist[0].value.d = np->left->data.info->ivlist[i].value.d;
 				    break;
 				default:
 				    /*
@@ -1275,22 +1275,22 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			case N_SUM:
 			    switch (np->desc.type) {
 				case PM_TYPE_32:
-				    np->info->ivlist[0].value.l += np->left->info->ivlist[i].value.l;
+				    np->data.info->ivlist[0].value.l += np->left->data.info->ivlist[i].value.l;
 				    break;
 				case PM_TYPE_U32:
-				    np->info->ivlist[0].value.ul += np->left->info->ivlist[i].value.ul;
+				    np->data.info->ivlist[0].value.ul += np->left->data.info->ivlist[i].value.ul;
 				    break;
 				case PM_TYPE_64:
-				    np->info->ivlist[0].value.ll += np->left->info->ivlist[i].value.ll;
+				    np->data.info->ivlist[0].value.ll += np->left->data.info->ivlist[i].value.ll;
 				    break;
 				case PM_TYPE_U64:
-				    np->info->ivlist[0].value.ull += np->left->info->ivlist[i].value.ull;
+				    np->data.info->ivlist[0].value.ull += np->left->data.info->ivlist[i].value.ull;
 				    break;
 				case PM_TYPE_FLOAT:
-				    np->info->ivlist[0].value.f += np->left->info->ivlist[i].value.f;
+				    np->data.info->ivlist[0].value.f += np->left->data.info->ivlist[i].value.f;
 				    break;
 				case PM_TYPE_DOUBLE:
-				    np->info->ivlist[0].value.d += np->left->info->ivlist[i].value.d;
+				    np->data.info->ivlist[0].value.d += np->left->data.info->ivlist[i].value.d;
 				    break;
 				default:
 				    /*
@@ -1304,7 +1304,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    }
 		}
 	    }
-	    return np->info->numval;
+	    return np->data.info->numval;
 	    break;
 
 	case N_NAME:
@@ -1313,36 +1313,36 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	     * ivlist[] as <int, pmAtomValue> pairs
 	     */
 	    for (j = 0; j < rp->numpmid; j++) {
-		if (np->info->pmid == rp->vset[j]->pmid) {
+		if (np->data.info->pmid == rp->vset[j]->pmid) {
 		    free_ivlist(np);
-		    np->info->numval = rp->vset[j]->numval;
-		    if (np->info->numval <= 0)
-			return np->info->numval;
-		    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-			pmNoMem("eval_expr: metric ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+		    np->data.info->numval = rp->vset[j]->numval;
+		    if (np->data.info->numval <= 0)
+			return np->data.info->numval;
+		    if ((np->data.info->ivlist = (val_t *)malloc(np->data.info->numval*sizeof(val_t))) == NULL) {
+			pmNoMem("eval_expr: metric ivlist", np->data.info->numval*sizeof(val_t), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
-		    for (i = 0; i < np->info->numval; i++) {
-			np->info->ivlist[i].inst = rp->vset[j]->vlist[i].inst;
+		    for (i = 0; i < np->data.info->numval; i++) {
+			np->data.info->ivlist[i].inst = rp->vset[j]->vlist[i].inst;
 			switch (np->desc.type) {
 			    case PM_TYPE_32:
 			    case PM_TYPE_U32:
-				np->info->ivlist[i].value.l = rp->vset[j]->vlist[i].value.lval;
+				np->data.info->ivlist[i].value.l = rp->vset[j]->vlist[i].value.lval;
 				break;
 			    case PM_TYPE_64:
 			    case PM_TYPE_U64:
 				if (rp->vset[j]->valfmt != PM_VAL_DPTR && rp->vset[j]->valfmt != PM_VAL_SPTR)
 				    return PM_ERR_LOGREC;
-				memcpy((void *)&np->info->ivlist[i].value.ll, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(__int64_t));
+				memcpy((void *)&np->data.info->ivlist[i].value.ll, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(__int64_t));
 				break;
 			    case PM_TYPE_FLOAT:
 				if (rp->vset[j]->valfmt == PM_VAL_INSITU) {
 				    /* old style insitu float */
-				    np->info->ivlist[i].value.l = rp->vset[j]->vlist[i].value.lval;
+				    np->data.info->ivlist[i].value.l = rp->vset[j]->vlist[i].value.lval;
 				}
 				else if (rp->vset[j]->valfmt == PM_VAL_DPTR || rp->vset[j]->valfmt == PM_VAL_SPTR) {
 				    assert(rp->vset[j]->vlist[i].value.pval->vtype == PM_TYPE_FLOAT);
-				    memcpy((void *)&np->info->ivlist[i].value.f, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(float));
+				    memcpy((void *)&np->data.info->ivlist[i].value.f, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(float));
 				}
 				else
 				    return PM_ERR_LOGREC;
@@ -1350,18 +1350,18 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			    case PM_TYPE_DOUBLE:
 				if (rp->vset[j]->valfmt != PM_VAL_DPTR && rp->vset[j]->valfmt != PM_VAL_SPTR)
 				    return PM_ERR_LOGREC;
-				memcpy((void *)&np->info->ivlist[i].value.d, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(double));
+				memcpy((void *)&np->data.info->ivlist[i].value.d, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(double));
 				break;
 			    case PM_TYPE_STRING:
 				if (rp->vset[j]->valfmt != PM_VAL_DPTR && rp->vset[j]->valfmt != PM_VAL_SPTR)
 				    return PM_ERR_LOGREC;
 				need = rp->vset[j]->vlist[i].value.pval->vlen-PM_VAL_HDR_SIZE;
-				if ((np->info->ivlist[i].value.cp = (char *)malloc(need)) == NULL) {
+				if ((np->data.info->ivlist[i].value.cp = (char *)malloc(need)) == NULL) {
 				    pmNoMem("eval_expr: string value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
 				    /*NOTREACHED*/
 				}
-				memcpy((void *)np->info->ivlist[i].value.cp, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, need);
-				np->info->ivlist[i].vlen = need;
+				memcpy((void *)np->data.info->ivlist[i].value.cp, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, need);
+				np->data.info->ivlist[i].vlen = need;
 				break;
 			    case PM_TYPE_AGGREGATE:
 			    case PM_TYPE_AGGREGATE_STATIC:
@@ -1369,12 +1369,12 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			    case PM_TYPE_HIGHRES_EVENT:
 				if (rp->vset[j]->valfmt != PM_VAL_DPTR && rp->vset[j]->valfmt != PM_VAL_SPTR)
 				    return PM_ERR_LOGREC;
-				if ((np->info->ivlist[i].value.vbp = (pmValueBlock *)malloc(rp->vset[j]->vlist[i].value.pval->vlen)) == NULL) {
+				if ((np->data.info->ivlist[i].value.vbp = (pmValueBlock *)malloc(rp->vset[j]->vlist[i].value.pval->vlen)) == NULL) {
 				    pmNoMem("eval_expr: aggregate value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
 				    /*NOTREACHED*/
 				}
-				memcpy(np->info->ivlist[i].value.vbp, (void *)rp->vset[j]->vlist[i].value.pval, rp->vset[j]->vlist[i].value.pval->vlen);
-				np->info->ivlist[i].vlen = rp->vset[j]->vlist[i].value.pval->vlen;
+				memcpy(np->data.info->ivlist[i].value.vbp, (void *)rp->vset[j]->vlist[i].value.pval, rp->vset[j]->vlist[i].value.pval->vlen);
+				np->data.info->ivlist[i].vlen = rp->vset[j]->vlist[i].value.pval->vlen;
 				break;
 			    default:
 				/*
@@ -1384,19 +1384,19 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 				return PM_ERR_TYPE;
 			}
 		    }
-		    return np->info->numval;
+		    return np->data.info->numval;
 		}
 	    }
 	    if (pmDebugOptions.derive) {
 		char	strbuf[20];
-		fprintf(stderr, "eval_expr: botch: operand %s not in the extended pmResult\n", pmIDStr_r(np->info->pmid, strbuf, sizeof(strbuf)));
+		fprintf(stderr, "eval_expr: botch: operand %s not in the extended pmResult\n", pmIDStr_r(np->data.info->pmid, strbuf, sizeof(strbuf)));
 		__pmDumpResult_ctx(ctxp, stderr, rp);
 	    }
 	    return PM_ERR_PMID;
 
 	case N_DEFINED:
 	    /* already setup from check_expr(), nothing to do ... */
-	    return np->info->numval;
+	    return np->data.info->numval;
 
 	case N_ANON:
 	    /* no values available for anonymous metrics */
@@ -1416,21 +1416,21 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	    assert(np->left != NULL);
 	    assert(np->right != NULL);
 	    free_ivlist(np);
-	    if (np->left->info->numval <= 0) {
-		np->info->numval = 0;
-		return np->info->numval;
+	    if (np->left->data.info->numval <= 0) {
+		np->data.info->numval = 0;
+		return np->data.info->numval;
 	    }
-	    if (np->right->info->numval <= 0) {
-		np->info->numval = 0;
-		return np->info->numval;
+	    if (np->right->data.info->numval <= 0) {
+		np->data.info->numval = 0;
+		return np->data.info->numval;
 	    }
 	    /*
 	     * really got some work to do ...
 	     */
 	    if (np->left->desc.indom == PM_INDOM_NULL)
-		np->info->numval = np->right->info->numval;
+		np->data.info->numval = np->right->data.info->numval;
 	    else if (np->right->desc.indom == PM_INDOM_NULL)
-		np->info->numval = np->left->info->numval;
+		np->data.info->numval = np->left->data.info->numval;
 	    else {
 		/*
 		 * Generally have the same number of instances because
@@ -1439,36 +1439,36 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		 * the result can contain no more instances than in
 		 * the smaller of the operands.
 		 */
-		if (np->left->info->numval <= np->right->info->numval)
-		    np->info->numval = np->left->info->numval;
+		if (np->left->data.info->numval <= np->right->data.info->numval)
+		    np->data.info->numval = np->left->data.info->numval;
 		else
-		    np->info->numval = np->right->info->numval;
+		    np->data.info->numval = np->right->data.info->numval;
 	    }
-	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-		pmNoMem("eval_expr: expr ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+	    if ((np->data.info->ivlist = (val_t *)malloc(np->data.info->numval*sizeof(val_t))) == NULL) {
+		pmNoMem("eval_expr: expr ivlist", np->data.info->numval*sizeof(val_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    /*
 	     * ivlist[k] = left->ivlist[i] <op> right->ivlist[j]
 	     */
-	    for (i = j = k = 0; k < np->info->numval; ) {
-		if (i >= np->left->info->numval || j >= np->right->info->numval) {
+	    for (i = j = k = 0; k < np->data.info->numval; ) {
+		if (i >= np->left->data.info->numval || j >= np->right->data.info->numval) {
 		    /* run out of operand instances, quit */
-		    np->info->numval = k;
+		    np->data.info->numval = k;
 		    break;
 		}
 		if (np->left->desc.indom != PM_INDOM_NULL &&
 		    np->right->desc.indom != PM_INDOM_NULL) {
-		    if (np->left->info->ivlist[i].inst != np->right->info->ivlist[j].inst) {
+		    if (np->left->data.info->ivlist[i].inst != np->right->data.info->ivlist[j].inst) {
 			/* left ith inst != right jth inst ... search in right */
 			if (pmDebugOptions.derive && pmDebugOptions.appl2) {
-			    fprintf(stderr, "eval_expr: inst[%d] mismatch left [%d]=%d right [%d]=%d\n", k, i, np->left->info->ivlist[i].inst, j, np->right->info->ivlist[j].inst);
+			    fprintf(stderr, "eval_expr: inst[%d] mismatch left [%d]=%d right [%d]=%d\n", k, i, np->left->data.info->ivlist[i].inst, j, np->right->data.info->ivlist[j].inst);
 			}
-			for (j = 0; j < np->right->info->numval; j++) {
-			    if (np->left->info->ivlist[i].inst == np->right->info->ivlist[j].inst)
+			for (j = 0; j < np->right->data.info->numval; j++) {
+			    if (np->left->data.info->ivlist[i].inst == np->right->data.info->ivlist[j].inst)
 				break;
 			}
-			if (j == np->right->info->numval) {
+			if (j == np->right->data.info->numval) {
 			    /*
 			     * no match, so next instance on left operand,
 			     * and reset to start from first instance of
@@ -1480,7 +1480,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			}
 			else {
 			    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
-				fprintf(stderr, "eval_expr: recover @ right [%d]=%d\n", j, np->right->info->ivlist[j].inst);
+				fprintf(stderr, "eval_expr: recover @ right [%d]=%d\n", j, np->right->data.info->ivlist[j].inst);
 			    }
 			}
 		    }
@@ -1496,49 +1496,49 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    int	res_type = promote[np->left->desc.type][np->right->desc.type];
 		    pmAtomValue	res;
 		    res = bin_op(res_type, np->type,
-			   np->left->info->ivlist[i].value, np->left->desc.type,
-			   np->left->info->mul_scale, np->left->info->div_scale,
-			   np->right->info->ivlist[j].value, np->right->desc.type,
-			   np->right->info->mul_scale, np->right->info->div_scale);
+			   np->left->data.info->ivlist[i].value, np->left->desc.type,
+			   np->left->data.info->mul_scale, np->left->data.info->div_scale,
+			   np->right->data.info->ivlist[j].value, np->right->desc.type,
+			   np->right->data.info->mul_scale, np->right->data.info->div_scale);
 		    switch (res_type) {
 			case PM_TYPE_32:
-			    np->info->ivlist[k].value.ul = (__uint32_t)res.l;
+			    np->data.info->ivlist[k].value.ul = (__uint32_t)res.l;
 			    break;
 			case PM_TYPE_U32:
-			    np->info->ivlist[k].value.ul = (__uint32_t)res.ul;
+			    np->data.info->ivlist[k].value.ul = (__uint32_t)res.ul;
 			    break;
 			case PM_TYPE_64:
-			    np->info->ivlist[k].value.ul = (__uint32_t)res.ll;
+			    np->data.info->ivlist[k].value.ul = (__uint32_t)res.ll;
 			    break;
 			case PM_TYPE_U64:
-			    np->info->ivlist[k].value.ul = (__uint32_t)res.ull;
+			    np->data.info->ivlist[k].value.ul = (__uint32_t)res.ull;
 			    break;
 			case PM_TYPE_FLOAT:
-			    np->info->ivlist[k].value.ul = (__uint32_t)res.f;
+			    np->data.info->ivlist[k].value.ul = (__uint32_t)res.f;
 			    break;
 			case PM_TYPE_DOUBLE:
-			    np->info->ivlist[k].value.ul = (__uint32_t)res.d;
+			    np->data.info->ivlist[k].value.ul = (__uint32_t)res.d;
 			    break;
 		    }
 		}
 		else {
 		    /* arithmetic operators, just do it */
-		    np->info->ivlist[k].value = bin_op(np->desc.type, np->type,
-			   np->left->info->ivlist[i].value, np->left->desc.type,
-			   np->left->info->mul_scale, np->left->info->div_scale,
-			   np->right->info->ivlist[j].value, np->right->desc.type,
-			   np->right->info->mul_scale, np->right->info->div_scale);
+		    np->data.info->ivlist[k].value = bin_op(np->desc.type, np->type,
+			   np->left->data.info->ivlist[i].value, np->left->desc.type,
+			   np->left->data.info->mul_scale, np->left->data.info->div_scale,
+			   np->right->data.info->ivlist[j].value, np->right->desc.type,
+			   np->right->data.info->mul_scale, np->right->data.info->div_scale);
 		}
 		if (np->left->desc.indom != PM_INDOM_NULL)
-		    np->info->ivlist[k].inst = np->left->info->ivlist[i].inst;
+		    np->data.info->ivlist[k].inst = np->left->data.info->ivlist[i].inst;
 		else
-		    np->info->ivlist[k].inst = np->right->info->ivlist[j].inst;
+		    np->data.info->ivlist[k].inst = np->right->data.info->ivlist[j].inst;
 		k++;
 		if (np->left->desc.indom != PM_INDOM_NULL) {
 		    i++;
 		    if (np->right->desc.indom != PM_INDOM_NULL) {
 			j++;
-			if (j >= np->right->info->numval) {
+			if (j >= np->right->data.info->numval) {
 			    /* rescan if need be */
 			    j = 0;
 			}
@@ -1548,7 +1548,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    j++;
 		}
 	    }
-	    return np->info->numval;
+	    return np->data.info->numval;
 
     }
     /*NOTREACHED*/
@@ -1639,28 +1639,28 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 
 	fprintf(stderr, "__dmpostfetch: [%d] root node %s: numval=%d", j, pmIDStr_r(rp->vset[j]->pmid, strbuf, sizeof(strbuf)), numval);
 	for (k = 0; k < numval; k++) {
-	    fprintf(stderr, " vset[%d]: inst=%d", k, cp->mlist[m].expr->info->ivlist[k].inst);
+	    fprintf(stderr, " vset[%d]: inst=%d", k, cp->mlist[m].expr->data.info->ivlist[k].inst);
 	    if (cp->mlist[m].expr->desc.type == PM_TYPE_32)
-		fprintf(stderr, " l=%d", cp->mlist[m].expr->info->ivlist[k].value.l);
+		fprintf(stderr, " l=%d", cp->mlist[m].expr->data.info->ivlist[k].value.l);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_U32)
-		fprintf(stderr, " u=%u", cp->mlist[m].expr->info->ivlist[k].value.ul);
+		fprintf(stderr, " u=%u", cp->mlist[m].expr->data.info->ivlist[k].value.ul);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_64)
-		fprintf(stderr, " ll=%"PRIi64, cp->mlist[m].expr->info->ivlist[k].value.ll);
+		fprintf(stderr, " ll=%"PRIi64, cp->mlist[m].expr->data.info->ivlist[k].value.ll);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_U64)
-		fprintf(stderr, " ul=%"PRIu64, cp->mlist[m].expr->info->ivlist[k].value.ull);
+		fprintf(stderr, " ul=%"PRIu64, cp->mlist[m].expr->data.info->ivlist[k].value.ull);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_FLOAT)
-		fprintf(stderr, " f=%f", (double)cp->mlist[m].expr->info->ivlist[k].value.f);
+		fprintf(stderr, " f=%f", (double)cp->mlist[m].expr->data.info->ivlist[k].value.f);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_DOUBLE)
-		fprintf(stderr, " d=%f", cp->mlist[m].expr->info->ivlist[k].value.d);
+		fprintf(stderr, " d=%f", cp->mlist[m].expr->data.info->ivlist[k].value.d);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_STRING) {
-		fprintf(stderr, " cp=%s (len=%d)", cp->mlist[m].expr->info->ivlist[k].value.cp, cp->mlist[m].expr->info->ivlist[k].vlen);
+		fprintf(stderr, " cp=%s (len=%d)", cp->mlist[m].expr->data.info->ivlist[k].value.cp, cp->mlist[m].expr->data.info->ivlist[k].vlen);
 	    }
 	    else {
-		fprintf(stderr, " vbp=" PRINTF_P_PFX "%p (len=%d)", cp->mlist[m].expr->info->ivlist[k].value.vbp, cp->mlist[m].expr->info->ivlist[k].vlen);
+		fprintf(stderr, " vbp=" PRINTF_P_PFX "%p (len=%d)", cp->mlist[m].expr->data.info->ivlist[k].value.vbp, cp->mlist[m].expr->data.info->ivlist[k].vlen);
 	    }
 	}
 	fputc('\n', stderr);
-	if (cp->mlist[m].expr->info != NULL)
+	if (cp->mlist[m].expr->data.info != NULL)
 	    __dmdumpexpr(cp->mlist[m].expr, 1);
     }
 		    }
@@ -1714,11 +1714,11 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	    /*
 	     * the rewrite case ...
 	     */
-	    newrp->vset[j]->vlist[i].inst = cp->mlist[m].expr->info->ivlist[i].inst;
+	    newrp->vset[j]->vlist[i].inst = cp->mlist[m].expr->data.info->ivlist[i].inst;
 	    switch (cp->mlist[m].expr->desc.type) {
 		case PM_TYPE_32:
 		case PM_TYPE_U32:
-		    newrp->vset[j]->vlist[i].value.lval = cp->mlist[m].expr->info->ivlist[i].value.l;
+		    newrp->vset[j]->vlist[i].value.lval = cp->mlist[m].expr->data.info->ivlist[i].value.l;
 		    break;
 
 		case PM_TYPE_64:
@@ -1730,7 +1730,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		    }
 		    vp->vlen = need;
 		    vp->vtype = cp->mlist[m].expr->desc.type;
-		    memcpy((void *)vp->vbuf, (void *)&cp->mlist[m].expr->info->ivlist[i].value.ll, sizeof(__int64_t));
+		    memcpy((void *)vp->vbuf, (void *)&cp->mlist[m].expr->data.info->ivlist[i].value.ll, sizeof(__int64_t));
 		    newrp->vset[j]->vlist[i].value.pval = vp;
 		    break;
 
@@ -1742,7 +1742,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		    }
 		    vp->vlen = need;
 		    vp->vtype = PM_TYPE_FLOAT;
-		    memcpy((void *)vp->vbuf, (void *)&cp->mlist[m].expr->info->ivlist[i].value.f, sizeof(float));
+		    memcpy((void *)vp->vbuf, (void *)&cp->mlist[m].expr->data.info->ivlist[i].value.f, sizeof(float));
 		    newrp->vset[j]->vlist[i].value.pval = vp;
 		    break;
 
@@ -1754,12 +1754,12 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		    }
 		    vp->vlen = need;
 		    vp->vtype = PM_TYPE_DOUBLE;
-		    memcpy((void *)vp->vbuf, (void *)&cp->mlist[m].expr->info->ivlist[i].value.f, sizeof(double));
+		    memcpy((void *)vp->vbuf, (void *)&cp->mlist[m].expr->data.info->ivlist[i].value.f, sizeof(double));
 		    newrp->vset[j]->vlist[i].value.pval = vp;
 		    break;
 
 		case PM_TYPE_STRING:
-		    need = PM_VAL_HDR_SIZE + cp->mlist[m].expr->info->ivlist[i].vlen;
+		    need = PM_VAL_HDR_SIZE + cp->mlist[m].expr->data.info->ivlist[i].vlen;
 		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
 			pmNoMem("__dmpostfetch: string value", need, PM_FATAL_ERR);
@@ -1767,7 +1767,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		    }
 		    vp->vlen = need;
 		    vp->vtype = cp->mlist[m].expr->desc.type;
-		    memcpy((void *)vp->vbuf, cp->mlist[m].expr->info->ivlist[i].value.cp, cp->mlist[m].expr->info->ivlist[i].vlen);
+		    memcpy((void *)vp->vbuf, cp->mlist[m].expr->data.info->ivlist[i].value.cp, cp->mlist[m].expr->data.info->ivlist[i].vlen);
 		    newrp->vset[j]->vlist[i].value.pval = vp;
 		    break;
 
@@ -1775,13 +1775,13 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		case PM_TYPE_AGGREGATE_STATIC:
 		case PM_TYPE_EVENT:
 		case PM_TYPE_HIGHRES_EVENT:
-		    need = cp->mlist[m].expr->info->ivlist[i].vlen;
+		    need = cp->mlist[m].expr->data.info->ivlist[i].vlen;
 		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
 			pmNoMem("__dmpostfetch: aggregate or event value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
-		    memcpy((void *)vp, cp->mlist[m].expr->info->ivlist[i].value.vbp, cp->mlist[m].expr->info->ivlist[i].vlen);
+		    memcpy((void *)vp, cp->mlist[m].expr->data.info->ivlist[i].value.vbp, cp->mlist[m].expr->data.info->ivlist[i].vlen);
 		    newrp->vset[j]->vlist[i].value.pval = vp;
 		    break;
 
