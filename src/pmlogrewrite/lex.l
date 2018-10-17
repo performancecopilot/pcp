@@ -63,6 +63,27 @@ dupstr(char *s, int strip_quotes)
     return p;
 }
 
+/* Same as dupstr(), except allow escaped characters. */
+static char *
+duptextstr(char *s, int strip_quotes)
+{
+    const char	*p;
+    char	*q;
+
+    s = dupstr(s, strip_quotes);
+    q = s;
+    for (p = s; *p != '\0'; ++p) {
+        if (p[0] == '\\' && p[1] != '\0')
+            ++p;
+        if (p != q)
+            *q = *p;
+        ++q;
+    }
+    *q = '\0';
+
+    return s;
+}
+
 %}
 
 %option noinput
@@ -199,7 +220,7 @@ dupstr(char *s, int strip_quotes)
 <count>[0-9]+		{ yylval.ival = atoi(yytext); BEGIN(metric); return TOK_COUNT_NAME; }
 
 \"[^\"\n][^\"\n]*\"	{ yylval.str = dupstr(yytext, 1); return TOK_STRING; }
-\"[^\"][^\"]*\"		{ yylval.str = dupstr(yytext, 1); return TOK_NL_STRING; }
+\"(\\\"|[^\"])+\"	{ yylval.str = duptextstr(yytext, 1); return TOK_TEXT_STRING; }
 
 [0-9]+			{ yylval.str = dupstr(yytext, 0); return TOK_NUMBER; }
 
