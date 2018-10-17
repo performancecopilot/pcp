@@ -13,5 +13,5 @@ COPY . /pcp
 RUN cd /pcp && ./Makepkgs --check --verbose
 RUN cd /pcp/pcp-*/build/rpm && VER=$(pwd | cut -d- -f2 | cut -d/ -f1) && \
     dnf -y install  *-$VER-*.{x86_64,noarch}.rpm
-
+RUN sed -ie '/\[Service\]/aTimeoutSec=120' /usr/lib/systemd/system/pmcd.service
 CMD ["/usr/sbin/init"]

@@ -20,6 +20,11 @@ trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 error=false
 warn=false
 
+_filter_run_dir()
+{
+    sed -e "s,$PCP_RUN_DIR,PCP_RUN_DIR,g"
+}
+
 # real QA test starts here
 _get_pids_by_name -a pmcd >$tmp.pid
 
@@ -43,7 +48,7 @@ else
 	else
 	    if grep "^`cat $PCP_RUN_DIR/pmcd.pid`\$" $tmp.pid >/dev/null
 	    then
-		echo "Info: pmcd's PID matches $PCP_RUN_DIR/pmcd.pid"
+		echo "Info: pmcd's PID matches $PCP_RUN_DIR/pmcd.pid" | _filter_run_dir
 	    else
 		echo "Error: $PCP_RUN_DIR/pmcd.pid (`cat $PCP_RUN_DIR/pmcd.pid`) does not match running pmcds:"
 		sed -e 's/^/	/' <$tmp.out
@@ -68,7 +73,7 @@ else
 		    | uniq >$tmp.tmp
 		    if grep "^pmcd `cat $PCP_RUN_DIR/pmcd.pid`\$" $tmp.tmp >/dev/null
 		    then
-			echo "Info: pmcd's PID matches $PCP_RUN_DIR/pmcd.socket owner"
+			echo "Info: pmcd's PID matches $PCP_RUN_DIR/pmcd.socket owner" | _filter_run_dir
 		    else
 			echo "Error: pmcd's PMID (`cat $PCP_RUN_DIR/pmcd.pid`) does not match $PCP_RUN_DIR/pmcd.socket owner"
 			$sudo lsof -U | grep $PCP_RUN_DIR/pmcd.socket
@@ -81,7 +86,7 @@ else
 		    fi
 		else
 		    # no lsof, sigh ... fake it
-		    echo "Info: pmcd's PID matches $PCP_RUN_DIR/pmcd.socket owner"
+		    echo "Info: pmcd's PID matches $PCP_RUN_DIR/pmcd.socket owner" | _filter_run_dir
 		fi
 	    else
 		echo "Error: $PCP_RUN_DIR/pmcd.socket is not a socket"

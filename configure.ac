@@ -3326,8 +3326,8 @@ AC_SUBST(pcp_sysconfig_dir)
 
 dnl logs
 AC_ARG_WITH(logdir,[AC_HELP_STRING([--with-logdir],[log directory [LOCALSTATEDIR/log/pcp]])],
-                   [pcp_log_dir=$withval],
-                   [pcp_log_dir=$localstatedir/log/pcp])
+                  [pcp_log_dir=$withval],
+                  [pcp_log_dir=$localstatedir/log/pcp])
 pcp_log_dir=`eval echo $pcp_log_dir`
 pcp_log_dir=`eval echo $pcp_log_dir`
 AC_SUBST(pcp_log_dir)
@@ -3336,8 +3336,13 @@ pcp_sa_dir=$pcp_log_dir/sa
 AC_SUBST(pcp_sa_dir)
 
 AC_ARG_WITH(rundir,[AC_HELP_STRING([--with-rundir],[run directory [LOCALSTATEDIR/run/pcp]])],
-                   [pcp_run_dir=$withval],
-                   [pcp_run_dir=$localstatedir/run/pcp])
+                  [pcp_run_dir=$withval], [
+if test -d /run
+then
+    pcp_run_dir="/run/pcp"
+else
+    pcp_run_dir="$localstatedir/run/pcp"
+fi])
 pcp_run_dir=`eval echo $pcp_run_dir`
 pcp_run_dir=`eval echo $pcp_run_dir`
 AC_SUBST(pcp_run_dir)

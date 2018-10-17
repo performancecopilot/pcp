@@ -830,9 +830,15 @@ main(int argc, char **argv)
 	opts.errors++;
     }
 
-    if (!opts.errors && ((Cflag == 0 && opts.optind != argc - 1) ||
-			 (Cflag == 1 && opts.optind != argc))) {
+    if (!opts.errors && ((Cflag == 0 && opts.optind > argc - 1) ||
+			 (Cflag == 1 && opts.optind > argc))) {
 	pmprintf("%s: insufficient arguments\n", pmGetProgname());
+	opts.errors++;
+    }
+
+    if (!opts.errors && ((Cflag == 0 && opts.optind < argc - 1) ||
+			 (Cflag == 1 && opts.optind < argc))) {
+	pmprintf("%s: too many arguments\n", pmGetProgname());
 	opts.errors++;
     }
 

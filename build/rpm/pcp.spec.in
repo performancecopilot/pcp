@@ -1872,6 +1872,8 @@ Requires: python3-pcp
 %else
 Requires: %{__python2}-pcp
 %endif
+# rewritten in python, so there is no longer a debuginfo package
+Obsoletes: pcp-pmda-lmsensors-debuginfo
 %description pmda-lmsensors
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Linux hardware monitoring sensors.

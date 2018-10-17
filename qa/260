@@ -58,7 +58,7 @@ $1 == "pmie_xpect_360:"	{ if ($2 >= 355.0 && $2 <= 363.0) $2 = "360"; else $0 = 
 $1 == "derived_xpect_60:"	{ if (sample < 3) $2 = "<skipped>"
 				  else if ($2 >= 55.0 && $2 <= 61.0) $2 = "60"; else $0 = $0 " !bad" }
 $1 == "derived_xpect_180:"	{ if (sample < 3) $2 = "<skipped>"
-				  else if ($2 >= 170.0 && $2 <= 183.0) $2 = "180"; else $0 = $0 " !bad" }
+				  else if ($2 >= 170.0 && $2 <= 184.0) $2 = "180"; else $0 = $0 " !bad" }
 			{ print }'
 }
 
