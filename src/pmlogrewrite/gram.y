@@ -860,7 +860,6 @@ new_indom_instance_label(int indom)
 	TOK_TEXT
 	TOK_ONELINE
 	TOK_HELP
-	TOK_ALL
 	TOK_TEXT_STAR
 	TOK_LABEL
 	TOK_CONTEXT
@@ -1903,9 +1902,7 @@ texttypes	: texttype
 		    { $$ = $1 | $2; } /* Accumulate */
 		;
 
-texttype	: TOK_ALL
-		    { $$ = PM_TEXT_ONELINE | PM_TEXT_HELP; }
-		| TOK_TEXT_STAR
+texttype	: TOK_TEXT_STAR
 		    { $$ = PM_TEXT_ONELINE | PM_TEXT_HELP; }
 		| TOK_HELP
 		    { $$ = PM_TEXT_HELP; }
