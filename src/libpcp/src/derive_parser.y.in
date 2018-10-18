@@ -43,6 +43,7 @@
 #define YYDEBUG 1
 
 static int		need_init = 1;
+static int		in_matchinst = 0;	/* context sensitive / lexing */
 static ctl_t		registered = {
 #ifdef PM_MULTI_THREAD
 #ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
@@ -429,7 +430,10 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 	    return(NULL);
 	}
     }
-    if (np->type != N_SCALE) {
+    if (np->type == N_SCALE) {
+	new->data.info = NULL;
+    }
+    else {
 	if ((new->data.info = (info_t *)malloc(sizeof(info_t))) == NULL) {
 	    PM_UNLOCK(registered.mutex);
 	    pmNoMem("bind_expr: info block", sizeof(info_t), PM_FATAL_ERR);
@@ -446,9 +450,6 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 	new->data.info->last_ivlist = NULL;
 	new->data.info->last_stamp.tv_sec = 0;
 	new->data.info->last_stamp.tv_usec = 0;
-    }
-    else {
-	new->data.info = NULL;
     }
 
     /* TODO ... need to investigate this for N_SCALE nodes! */
@@ -2272,8 +2273,6 @@ PUT-PREFIX-DECL-HERE ... see GNumakefile
 %token      L_COLON
 %token      L_LPAREN
 %token      L_RPAREN
-%token      L_LSQB
-%token      L_RSQB
 %token      L_AVG
 %token      L_COUNT
 %token      L_DELTA
@@ -2308,6 +2307,8 @@ PUT-PREFIX-DECL-HERE ... see GNumakefile
 %token <s>  L_DOUBLE
 %token <s>  L_NAME
 %token <s>  L_STRING
+%token <s>  L_INSTNAME
+%token <s>  L_PATTERN
 
 %type  <n>  defn
 %type  <n>  expr
@@ -2402,12 +2403,12 @@ defn	: expr L_EOS
 
 expr	: L_LPAREN expr L_RPAREN
 		{ $$ = $2; }
-	| L_NAME L_LSQB L_STRING L_RSQB
+	| L_NAME L_INSTNAME
 		{ np = newnode(N_FILTERINST);
 		  np->right = newnode(N_NAME);
 		  np->right->value = $1;
 		  np->left = newnode(N_PATTERN);
-		  np->left->value = $3;
+		  np->left->value = $2;
 		  if ((np->left->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
 		      PM_UNLOCK(registered.mutex);
 		      pmNoMem("pmRegisterDerived: alloc pattern", (int)sizeof(pattern_t), PM_FATAL_ERR);
@@ -2416,11 +2417,11 @@ expr	: L_LPAREN expr L_RPAREN
 		  np->left->data.pattern->ftype = F_EXACT;
 		  $$ = np;
 		}
-	| L_LPAREN expr L_RPAREN L_LSQB L_STRING L_RSQB
+	| L_LPAREN expr L_RPAREN L_INSTNAME
 		{ np = newnode(N_FILTERINST);
 		  np->right = $2;
 		  np->left = newnode(N_PATTERN);
-		  np->left->value = $5;
+		  np->left->value = $4;
 		  if ((np->left->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
 		      PM_UNLOCK(registered.mutex);
 		      pmNoMem("pmRegisterDerived: alloc pattern", (int)sizeof(pattern_t), PM_FATAL_ERR);
@@ -2518,7 +2519,7 @@ expr	: L_LPAREN expr L_RPAREN
 		{ gramerr(aexpr_str, follow, n_type_str(N_COLON)); YYERROR; }
 	;
 
-regexpr	: opt_bang L_STRING
+regexpr	: opt_bang L_PATTERN
 		{ int	lsts;
 		  np = newnode(N_PATTERN);
 		  np->value = $2;
@@ -2532,7 +2533,7 @@ regexpr	: opt_bang L_STRING
 		      /* regcomp() failed ... */
 		      char	errmsg[128];
 		      regerror(lsts, &np->data.pattern->regex, errmsg, sizeof(errmsg));
-		      gramerr("Bad regular expression:", NULL, errmsg);
+		      gramerr("bad regular expression:", NULL, errmsg);
 		      derive_error(NULL);
 		      return -1;
 		  }
@@ -2774,6 +2775,7 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  np->left = $3;
 		  np->right = $5;
 		  $$ = np;
+		  in_matchinst = 0;
 		}
 	| L_ANON L_LPAREN error
 		{ gramerr(name_str, follow, "anon("); YYERROR; }
@@ -2797,10 +2799,12 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		{ gramerr(op_str, follow, "rescale("); YYERROR; }
 	| L_RESCALE L_LPAREN expr L_COMMA error
 		{ gramerr("Units string", follow, "rescale(<expr>,"); YYERROR; }
-	| L_MATCHINST L_LPAREN regexpr L_COMMA error
-		{ gramerr("<expr>", follow, "matchinst(<pattern>,"); YYERROR; }
 	| L_MATCHINST L_LPAREN error
-		{ gramerr("<pattern>", follow, "matchinst("); YYERROR; }
+		{ gramerr("<filter>, <expr>)", follow, "matchinst("); YYERROR; }
+	| L_MATCHINST L_LPAREN regexpr error
+		{ gramerr(", <expr>)", follow, "matchinst(<filter>"); YYERROR; }
+	| L_MATCHINST L_LPAREN regexpr L_COMMA error
+		{ gramerr("<expr>)", follow, "matchinst(<filter>,"); YYERROR; }
 	;
 
 %%
@@ -2845,14 +2849,14 @@ static struct {
     { L_COLON,		N_COLON,	"COLON",	":" },
     { L_LPAREN,		0,		"LPAREN",	"(" },
     { L_RPAREN,		0,		"RPAREN",	")" },
-    { L_LSQB,		0,		"LSQB",		"[" },
-    { L_RSQB,		0,		"RSQB",		"]" },
     { L_TYPE,		0,		"TYPE",		NULL },
     { L_SEMANTICS,	0,		"SEMANTICS",	NULL },
     { L_UNITS,		0,		"UNITS",	NULL },
     { L_ASSIGN,		0,		"ASSIGN",	"=" },
     { L_COMMA,		0,		"COMMA",	"," },
-    { L_STRING,		0,		"STRING",	"\"" },
+    { L_STRING,		0,		"STRING",	NULL },
+    { L_INSTNAME,	0,		"INSTNAME",	NULL },
+    { L_PATTERN,	0,		"PATTERN",	NULL },
     { L_AVG,		N_AVG,		"AVG",		NULL },
     { L_COUNT,		N_COUNT,	"COUNT",	NULL },
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
@@ -2964,6 +2968,7 @@ derive_lex(void)
     int		i;
     int		firstch = 1;
     int		ret = L_UNDEF;
+    int		escape = 0;
 
     for ( ; ret == L_UNDEF; ) {
 	c = get();
@@ -3029,8 +3034,12 @@ derive_lex(void)
 			break;
 
 		    case '/':
-			*p = '\0';
-			ret = L_SLASH;
+			if (!in_matchinst) {
+			    *p = '\0';
+			    ret = L_SLASH;
+			}
+			else
+			    ltype = L_PATTERN;
 			break;
 
 		    case '(':
@@ -3041,16 +3050,6 @@ derive_lex(void)
 		    case ')':
 			*p = '\0';
 			ret = L_RPAREN;
-			break;
-
-		    case '[':
-			*p = '\0';
-			ret = L_LSQB;
-			break;
-
-		    case ']':
-			*p = '\0';
-			ret = L_RSQB;
 			break;
 
 		    case '<':
@@ -3094,6 +3093,10 @@ derive_lex(void)
 
 		    case '"':
 			ltype = L_STRING;
+			break;
+
+		    case '[':
+			ltype = L_INSTNAME;
 			break;
 
 		    default:
@@ -3155,6 +3158,8 @@ derive_lex(void)
 			    unget(c);
 			    p[-1] = '\0';
 			    ret = func[i].f_type;
+			    if (ret == L_MATCHINST)
+				in_matchinst = 1;
 			    break;
 			}
 		    }
@@ -3202,6 +3207,62 @@ derive_lex(void)
 		    break;
 		}
 		ret = L_STRING;
+		break;
+	    }
+	    else if (ltype == L_INSTNAME) {
+		if (escape && c != '\0') {
+		    escape = 0;
+		    continue;
+		}
+		if (escape == 0 && c == '\\') {
+		    p--;
+		    escape = 1;
+		    continue;
+		}
+		if (c != ']') {
+		    if (c == '\0') {
+			PM_TPD(derive_errmsg) = "unterminated instance name";
+			ret = L_ERROR;
+			break;
+		    }
+		    continue;
+		}
+		/* [-1] and [1] to strip [ .. ] */
+		p[-1] = '\0';
+		if ((derive_lval.s = strdup(&tokbuf[1])) == NULL) {
+		    PM_TPD(derive_errmsg) = "strdup() for INSTNAME failed";
+		    ret = L_ERROR;
+		    break;
+		}
+		ret = L_INSTNAME;
+		break;
+	    }
+	    else if (ltype == L_PATTERN) {
+		if (escape && c != '\0') {
+		    escape = 0;
+		    continue;
+		}
+		if (escape == 0 && c == '\\') {
+		    p--;
+		    escape = 1;
+		    continue;
+		}
+		if (c != '/') {
+		    if (c == '\0') {
+			PM_TPD(derive_errmsg) = "unterminated pattern";
+			ret = L_ERROR;
+			break;
+		    }
+		    continue;
+		}
+		/* [-1] and [1] to strip / .. / */
+		p[-1] = '\0';
+		if ((derive_lval.s = strdup(&tokbuf[1])) == NULL) {
+		    PM_TPD(derive_errmsg) = "strdup() for PATTERN failed";
+		    ret = L_ERROR;
+		    break;
+		}
+		ret = L_PATTERN;
 		break;
 	    }
 	    else if (ltype == L_LT) {
@@ -3288,7 +3349,7 @@ derive_lex(void)
 
     }
     if (pmDebugOptions.derive && pmDebugOptions.appl0) {
-	if (ltype == L_STRING)
+	if (ltype == L_STRING || ltype == L_INSTNAME || ltype == L_PATTERN)
 	    fprintf(stderr, "derive_lex() -> type=L_%s \"%s\"\n", l_type_str(ret), &tokbuf[1]);
 	else
 	    fprintf(stderr, "derive_lex() -> type=L_%s \"%s\"\n", l_type_str(ret), ret == L_EOS ? "" : tokbuf);
