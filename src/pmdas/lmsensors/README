@@ -58,6 +58,7 @@ De-installation
 Troubleshooting
 ===============
 
+ +  Running with the '--debug 1' or '--debug 2' provides more details.
  +  After installing or restarting the agent, the PMCD log file
     ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
     ($PCP_LOG_DIR/pmcd/lmsensors.log) should be checked for any warnings or

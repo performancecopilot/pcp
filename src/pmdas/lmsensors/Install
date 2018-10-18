@@ -23,6 +23,9 @@ iam=lmsensors
 python_opt=true
 daemon_opt=false
 
+# example for injecting sensor input
+# args="--inject /var/lib/pcp/pmdas/lmsensors/sensors_u__thinkpad_t460s.txt"
+
 pmdaSetup
 pmdaInstall
 exit
