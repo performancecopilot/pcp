@@ -851,9 +851,14 @@ License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
 URL: https://pcp.io
+%if 0%{?centos_ver} == 7
+BuildRequires: python36-devel
+Requires: python36
+%else
 BuildRequires: python3-devel
-Requires: pcp-libs = @package_version@
 Requires: python3
+%endif
+Requires: pcp-libs = @package_version@
 
 %description -n python3-pcp
 This python PCP module contains the language bindings for
@@ -1872,8 +1877,6 @@ Requires: python3-pcp
 %else
 Requires: %{__python2}-pcp
 %endif
-# rewritten in python, so there is no longer a debuginfo package
-Obsoletes: pcp-pmda-lmsensors-debuginfo
 %description pmda-lmsensors
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Linux hardware monitoring sensors.
