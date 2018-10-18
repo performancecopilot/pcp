@@ -21,7 +21,6 @@
 
 import subprocess
 import re
-import sys
 import argparse
 import os.path
 import cpmapi as c_api
@@ -52,7 +51,7 @@ def lmsensors_get():
         if args.inject:
             outline2 = outline                  # just copy data
         else:
-            outline2 = outline.decode("utf-8")  # required if source is 'sensors -u' 
+            outline2 = outline.decode("utf-8")  # required if source is 'sensors -u'
 
         outline2.rstrip()
         if args.debug:
@@ -83,7 +82,7 @@ def lmsensors_get():
                     print("    assigned devname2:", devname2)
             continue
 
-        # We are just interested in m/_input/.  Everything else, for example 
+        # We are just interested in m/_input/.  Everything else, for example
         # lines with temp1_max_hyst: or temp1_emergency:, should be ignored.
         if not re.search(r'_input: .*', outline2):
             continue
