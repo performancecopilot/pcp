@@ -43,6 +43,9 @@ rm -f $HOME/.pcp/pmie/config.pmie
 
 # real QA test starts here
 
+# prep the new test config
+pmieconf -r ./pconf list memory >/dev/null 2>&1
+
 echo
 echo "=== basic test - check that we get one rule..."
 pmieconf -r ./pconf list memory

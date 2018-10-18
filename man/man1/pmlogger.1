@@ -19,27 +19,22 @@
 \f3pmlogger\f1 \- create archive log for performance metrics
 .SH SYNOPSIS
 \f3pmlogger\f1
+[\f3\-CLoPruy\f1]
 [\f3\-c\f1 \f2configfile\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-H\f1 \f2hostname\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-l\f1 \f2logfile\f1]
-[\f3\-L\f1]
 [\f3\-m\f1 \f2note\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
-[\f3\-o\f1]
 [\f3\-p\f1 \f2pid\f1]
-[\f3\-P\f1]
-[\f3\-r\f1]
 [\f3\-s\f1 \f2endsize\f1]
 [\f3\-t\f1 \f2interval\f1]
 [\f3\-T\f1 \f2endtime\f1]
-[\f3\-u\f1]
 [\f3\-U\f1 \f2username\f1]
 [\f3\-v\f1 \f2volsize\f1]
 [\f3\-V\f1 \f2version\f1]
 [\f3\-x\f1 \f2fd\f1]
-[\f3\-y\f1]
 \f2archive\f1
 .SH DESCRIPTION
 .B pmlogger
@@ -466,6 +461,19 @@ option of
 process. Without this option, the value returned from the logged
 .BR pmcd (1)
 is used.
+.P
+The
+.B \-C
+option will cause the configuration file to be parsed and
+.I pmlogger
+will then exit
+without creating an output archive,
+so when
+.B \-C
+is specified, the
+.I archive
+command line argument is not required.
+Any errors in the configuration file are reported.
 .SH CONFIGURATION FILE SYNTAX
 The configuration file may be specified with the
 .B \-c

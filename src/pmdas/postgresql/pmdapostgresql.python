@@ -726,6 +726,8 @@ class POSTGRESQLPMDA(PMDA):
 
         # parse config for db auth and server etc
         self.config(conf_file)
+        self.host = self.conf["host"]
+        self.port = self.conf["port"]
         self.dbname = self.conf["dbname"]
         self.user = self.conf["user"]
         self.password = self.conf["password"]
@@ -733,7 +735,7 @@ class POSTGRESQLPMDA(PMDA):
         self.log("Switching to user '%s'" % self.user)
         self.set_user(self.user)
 
-        self.log("Connecting to db '%s' as user '%s'" % (self.dbname, self.user))
+        self.log("Connecting to host '%s', port '%s', db '%s' as user '%s'" % (self.host, self.port, self.dbname, self.user))
         while not self.pg_connect():
             # server not running or invalid credentials
             time.sleep(10) # keep trying ...
@@ -955,7 +957,8 @@ class POSTGRESQLPMDA(PMDA):
                 cur.execute('SELECT * from %s;' % table)
             except (psycopg2.DatabaseError) as error: # pylint disable: broad-except
                 # recover from aborted transaction block and skip this table
-                self.log("WARNING: table %s not available: %s" % (table, error))
+                self.log("table %s not available for this version of postgreSQL" % table)
+                self.debug("WARNING: table %s not available: %s" % (table, error))
                 cur.execute('rollback;')
                 continue
 
@@ -982,7 +985,7 @@ class POSTGRESQLPMDA(PMDA):
         for pmid, column in self.pmid_column_dict.items():
             if column is None:
                 m = self.metrictable[pmid]
-                self.log("Warning: metric '%s', table '%s', column '%s' has no mapping" %
+                self.debug("WARNING: metric '%s', table '%s', column '%s' has no mapping" %
                     (m[self.METRIC_NAME], m[self.METRIC_TABLE], m[self.METRIC_COLUMN]))
 
         # dump the mappings
@@ -1009,9 +1012,9 @@ class POSTGRESQLPMDA(PMDA):
         """ parse config file """
         # Python < 3.2 compat
         if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
-            config = configparser.ConfigParser()
+            parser = configparser.ConfigParser()
         else:
-            config = configparser.SafeConfigParser()
+            parser = configparser.SafeConfigParser()
         parser.read(filename)
 
         # get section, default to postgresql
@@ -1027,8 +1030,13 @@ class POSTGRESQLPMDA(PMDA):
 
     def pg_connect(self):
         """ connect to the postgresql server """
+        if self.host == "local":
+            # local UNIX domain, but still need port number for the socket filename
+            params = "port=%s dbname=%s user=%s password=%s" % (self.port, self.dbname, self.user, self.password)
+        else:
+            params = "host=%s port=%s dbname=%s user=%s password=%s" % (self.host, self.port, self.dbname, self.user, self.password)
         try:
-            self.conn = psycopg2.connect("dbname=%s user=%s password=%s" % (self.dbname, self.user, self.password))
+            self.conn = psycopg2.connect(params)
         except (psycopg2.DatabaseError) as error: # pylint disable: broad-except
             self.log("Error connecting to db %s as user %s: %s" % (self.dbname, self.user, error))
             self.conn = None

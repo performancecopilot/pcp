@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # PCP QA Test No. 1202
 # Replay dmstats instance archive using pmrep
 #

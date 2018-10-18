@@ -7366,7 +7366,7 @@ else
   ac_cv_prog_PYTHON3="$PYTHON3" # Let the user override the test.
 else
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
+for as_dir in python3.4
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
@@ -7394,7 +7394,7 @@ fi
 
   test -n "$PYTHON3" && break
 done
-test -n "$PYTHON3" || PYTHON3="python3.4"
+test -n "$PYTHON3" || PYTHON3="python3.6"
 
 
 
@@ -11947,9 +11947,9 @@ do
     seinfo --common >/dev/null 2>&1
     if test $? -eq 0
     then
-        seinfo_common_flag="--common"
+        seinfo_common_flag="--common="
     else
-        seinfo_common_flag=""
+        seinfo_common_flag="--class="
     fi
     if test -f "$policy_file"
     then
@@ -15375,7 +15375,13 @@ pcp_sa_dir=$pcp_log_dir/sa
 if test "${with_rundir+set}" = set; then :
   withval=$with_rundir; pcp_run_dir=$withval
 else
-  pcp_run_dir=$localstatedir/run/pcp
+
+if test -d /run
+then
+    pcp_run_dir="/run/pcp"
+else
+    pcp_run_dir="$localstatedir/run/pcp"
+fi
 fi
 
 pcp_run_dir=`eval echo $pcp_run_dir`

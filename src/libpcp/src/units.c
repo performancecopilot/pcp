@@ -93,14 +93,14 @@ pmAtomStr_r(const pmAtomValue *avp, int type, char *buf, int buflen)
 		for (i = 0; i < vlen && i < 12; i++) {
 		    bp = &buf[strlen(buf)];
 		    if ((i % 4) == 0)
-			pmsprintf(bp, sizeof(buf) - (bp - buf), " %02x", *cp & 0xff);
+			pmsprintf(bp, buflen - (bp - buf), " %02x", *cp & 0xff);
 		    else
-			pmsprintf(bp, sizeof(buf) - (bp - buf), "%02x", *cp & 0xff);
+			pmsprintf(bp, buflen - (bp - buf), "%02x", *cp & 0xff);
 		    cp++;
 		}
 		if (vlen > 12) {
 		    bp = &buf[strlen(buf)];
-		    pmsprintf(bp, sizeof(buf) - (bp - buf), " ...");
+		    pmsprintf(bp, buflen - (bp - buf), " ...");
 		}
 	    }
 	    break;

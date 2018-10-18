@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+pminfo kernel.percpu.cpu.wait >/dev/null 2>&1 || _notrun "kernel.percpu.cpu.wait metric not available"
+
 _cleanup()
 {
     cd $here

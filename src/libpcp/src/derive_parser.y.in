@@ -3172,7 +3172,10 @@ derive_lex(void)
 
     }
     if (pmDebugOptions.derive && pmDebugOptions.appl0) {
-	fprintf(stderr, "derive_lex() -> type=L_%s \"%s\"\n", l_type_str(ret), ret == L_EOS ? "" : tokbuf);
+	if (ltype == L_STRING)
+	    fprintf(stderr, "derive_lex() -> type=L_%s \"%s\"\n", l_type_str(ret), &tokbuf[1]);
+	else
+	    fprintf(stderr, "derive_lex() -> type=L_%s \"%s\"\n", l_type_str(ret), ret == L_EOS ? "" : tokbuf);
     }
 
     return ret;

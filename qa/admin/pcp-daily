@@ -773,21 +773,26 @@ do
 	    [ X"$what" = Xall ] && check_what='-X 739'
 	    ;;
 
-	vm06|vm10|vm09|vm13|vm33)
+	vm05)
+	    # Exclude -x valgrind ... does not work on my Gentoo at the
+	    # moment
+	    #
+	    [ X"$what" = Xall ] && check_what='-x valgrind'
+	    ;;
+
+	vm06|vm09|vm13|vm33)
 	    # Only -g sanity at this stage for NetBSD or OpenBSD or FreeBSD
 	    # or OpenIndiana
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
 
-	vm07|vm11)
-	    # Exclude -x valgrind at this stage for Debian stretch
-	    # until
-	    # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=810295
-	    # is fixed.
-	    # We have a workaround in common.check, so re-enable these
-	    # tests (20 Jul 2016)
+	vm10)
+	    # Only selected groups this stage for FreeBSD 10.4
+	    #	sanity trace libpcp
+	    # and some tests are not working yet
 	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -x valgrind'
 	    ;;
 
 	vm15)
@@ -803,11 +808,11 @@ do
 	    ;;
 
 	vm32)
-	    # Only selected groups this stage for FreeBSD:
-	    #	sanity trace
+	    # Only selected groups this stage for FreeBSD 11.1
+	    #	sanity trace libpcp
 	    # and some tests are not working yet
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -X 603'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -x valgrind -X 603'
 	    ;;
 
 	vm35)

@@ -63,37 +63,12 @@ redisfmt(redisReply *reply)
 }
 
 static void
-on_redis_client_write(uv_write_t *wrreq, int status)
-{
-    struct client	*client = (struct client *)wrreq->data;
-    uv_buf_t		*wrbuf = &client->u.redis.writebuf;
-
-    sdsfree(wrbuf->base);
-    wrbuf->base = NULL;
-    wrbuf->len = 0;
-}
-
-static void
 on_redis_server_reply(redisAsyncContext *c, redisReply *reply, void *arg)
 {
     struct client	*client = (struct client *)arg;
-    uv_stream_t		*stream = (uv_stream_t *)&client->stream;
-    uv_write_t		*wrreq = &client->u.redis.writereq;
-    uv_buf_t		*wrbuf = &client->u.redis.writebuf;
-    sds			command;
-    int			sts;
 
     (void)c;
-    command = redisfmt(reply);
-    wrbuf->base = command;
-    wrbuf->len = sdslen(command);
-    wrreq->data = (void *)client;
-    sts = uv_write(wrreq, stream, wrbuf, 1, on_redis_client_write);
-    if (sts) {
-	fprintf(stderr, "%s: out-of-memory for redis client reader\n",
-			pmGetProgname());
-	uv_close((uv_handle_t *)stream, on_client_close);
-    }
+    client_write(client, redisfmt(reply), NULL);
 }
 
 void
@@ -101,9 +76,15 @@ on_redis_client_read(struct proxy *proxy, struct client *client,
 		ssize_t nread, const uv_buf_t *buf)
 {
     if (!redis_protocol ||
-        redisSlotsProxy(proxy->slots, proxylog, &client->u.redis.reader,
-		nread, buf->base, on_redis_server_reply, client) < 0)
+	redisSlotsProxyConnect(proxy->slots, proxylog, &client->u.redis.reader,
+		buf->base, nread, on_redis_server_reply, client) < 0)
 	uv_close((uv_handle_t *)&client->stream, on_client_close);
+}
+
+void
+on_redis_client_close(struct client *client)
+{
+    redisSlotsProxyFree(client->u.redis.reader);
 }
 
 static void
@@ -117,9 +98,8 @@ on_redis_connected(void *arg)
 	message = sdscat(message, ", command keys");
     if (archive_discovery | series_queries)
 	message = sdscat(message, ", schema version");
-    pmNotifyErr(LOG_INFO,
-		"%s: %s setup from redis-server on %s\n",
-		pmGetProgname(), message, proxy->redishost);
+    pmNotifyErr(LOG_INFO, "%s setup from redis-server on %s\n",
+		message, proxy->redishost);
     sdsfree(message);
 
     redis_discover.module.events = proxy->events;

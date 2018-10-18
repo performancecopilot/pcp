@@ -279,7 +279,7 @@ class pmConfig(object):
             metrics[key][2] = insts
         else:
             # Verbose / multi-line definition
-            if not '.' in key or key.rsplit(".")[1] not in self.metricspec:
+            if '.' not in key or key.rsplit(".")[1] not in self.metricspec:
                 # New metric
                 self.parse_new_verbose_metric(metrics, key, value)
             else:

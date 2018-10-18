@@ -833,7 +833,7 @@ link_entries(void)
 		    continue;
 
 		/* Found one. */
-		tp = start_text(type, (int)(node2->key));
+		tp = start_text(type, (int)(node2->key), NULL);
 		assert(tp->old_id == ip->old_indom);
 		if (change)
 		    tp->ip = ip;
@@ -878,7 +878,7 @@ link_entries(void)
 		    continue;
 
 		/* Found one. */
-		tp = start_text(type, (int)(node2->key));
+		tp = start_text(type, (int)(node2->key), NULL);
 		assert(tp->old_id == mp->old_desc.pmid);
 		if (mp->new_desc.pmid != mp->old_desc.pmid) {
 		    if (tp->flags & TEXT_CHANGE_ID) {
@@ -927,7 +927,7 @@ link_entries(void)
 		llsp = (__pmLogLabelSet *)node2->data;
 		for (i = 0; i < llsp->nsets; ++i) {
 		    lsp = &llsp->labelsets[i];
-		    lp = start_label(type, (int)node2->key, lsp->inst, NULL, NULL);
+		    lp = start_label(type, (int)node2->key, lsp->inst, NULL, NULL, NULL);
 		    assert(lp->old_id == ip->old_indom);
 		    if (change)
 			lp->ip = ip;
@@ -987,7 +987,7 @@ link_entries(void)
 		    continue;
 
 		/* Found one. */
-		lp = start_label(type, old_id, 0, NULL, NULL);
+		lp = start_label(type, old_id, 0, NULL, NULL, NULL);
 		assert(lp->old_id == old_id);
 		if (old_id != new_id) {
 		    if (lp->flags & LABEL_CHANGE_ID) {

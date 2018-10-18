@@ -1,0 +1,15 @@
+# All of this needs to be run as root, or peferably by a user in an authorised
+# group. See build/containers/GNUlocalrules for instructions.
+
+# To locally test what travis-ci does, cd to the top of the PCP source tree, run:
+# (note: first time you run this will download a large fedora base image)
+docker build -f build/containers/travis-ci/Dockerfile -t pcp-qa .
+
+# Then run the 'pcp-qa' container image and tag it 'pcp-qa':
+docker run -d --privileged -v /usr/src:/usr/src:ro --name pcp-qa pcp-qa
+
+# Then run the QA 'sanity' group in the pcp-qa container
+docker exec pcp-qa bash -c 'cd /var/lib/pcp/testsuite && ./check -g sanity'
+
+# Finally, kill and remove the container and it's base image
+docker kill pcp-qa; docker rm pcp-qa; docker rmi pcp-qa

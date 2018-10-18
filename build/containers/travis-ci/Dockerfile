@@ -1,22 +1,17 @@
-FROM fedora:27
+FROM fedora:28
 
 RUN dnf -y install \
-        which sudo hostname findutils bc git \
+        which sudo hostname findutils bc git cppcheck \
         pkg-config make gcc gcc-c++ perl flex bison \
         rpm-build redhat-rpm-config initscripts man procps \
         avahi-devel ncurses-devel readline-devel zlib-devel \
         perl perl-devel perl-generators perl-ExtUtils-MakeMaker \
-        python2-devel python3 python3-devel \
+        python2-devel python3 python3-devel pylint \
         bcc-tools e2fsprogs xfsprogs
 
 COPY . /pcp
-RUN cd /pcp && ./Makepkgs --verbose
+RUN cd /pcp && ./Makepkgs --check --verbose
 RUN cd /pcp/pcp-*/build/rpm && VER=$(pwd | cut -d- -f2 | cut -d/ -f1) && \
-    dnf -y install \
-        pcp-$VER-1.x86_64.rpm pcp-{conf,libs}-$VER-1.x86_64.rpm \
-        pcp-{libs-devel,devel,testsuite}-$VER-1.x86_64.rpm \
-        pcp-pmda-{bcc,cisco,news}-$VER-1.x86_64.rpm \
-        perl-PCP-{LogImport,LogSummary,MMV,PMDA}-$VER-1.x86_64.rpm \
-        python3-pcp-$VER-1.x86_64.rpm
-
+    dnf -y install  *-$VER-*.{x86_64,noarch}.rpm
+RUN sed -ie '/\[Service\]/aTimeoutSec=120' /usr/lib/systemd/system/pmcd.service
 CMD ["/usr/sbin/init"]

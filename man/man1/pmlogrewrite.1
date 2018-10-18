@@ -919,6 +919,9 @@ rewriting rule modifies a help text record and has the form:
 \fItextid\fP [
 \fItexttype\fP
 ]
+[
+"\fItextcontent\fP"
+]
 .KW {
 .I textspec
 \&...
@@ -941,8 +944,13 @@ to select the one line help text,
 .KW HELP
 to select the full help text, or
 .KW ALL
-to select both types of help text. If \fItexttype\fP is not specified, then the default is
+or an asterisk ``*''
+to select both types of help text.
+If \fItexttype\fP is not specified, then the default is
 .KW ONELINE .
+.PP
+The optional \fItextcontent\fP further restricts the selected text records to
+those containing the specified content.
 .PP
 If a designated help text record is not in
 .I inlog
@@ -1071,10 +1079,20 @@ has the same form and meaning as for an \f(BIINDOM\fP rewriting rule (see above)
 .PP
 In the case of an
 .KW INSTANCES
-\fIlabelid\fP, the number of a specific instance may be optionally specified as
+\fIlabelid\fP, the name or number of a specific instance may be optionally
+specified as
 \fIinstance\fP.
-This number may be omitted or specified as an asterisk ``*'' to indicate that
+This name or number number may be omitted or specified as an asterisk ``*'' to indicate that
 labels for all instances of the specified instance domain are selected.
+If an instance name is specified, it must be within double quotes.
+If the instance name contains any embedded
+spaces then special care needs to be taken in respect of the
+PCP instance naming rule that treats the leading non-space
+part of the instance name as the unique portion of the name for
+the purposes of matching and ensuring uniqueness within an
+instance domain, refer to
+.BR pmdaInstance (3)
+for a discussion of this issue.
 .PP
 In all cases, a \f(BI"\fP\fIlabel-name\fP\f(BI"\fP and/or a
 \f(BI"\fP\fIlabel-value\fP\f(BI"\fP may be optionally specified
