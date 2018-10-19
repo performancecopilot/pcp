@@ -26,7 +26,7 @@ _stop_auto_restart pmcd
 cd java
 java USDTJVMTest &
 javapid=$!
-disown
+disown > /dev/null 2>&1 || :
 cd ..
 
 # real QA test starts here

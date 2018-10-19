@@ -45,7 +45,7 @@ echo "=== start test program ==="
 cd java
 java USDTJVMTest &
 javapid=$!
-disown
+disown > /dev/null 2>&1 || :
 cd ..
 
 # Wait for values to appear
