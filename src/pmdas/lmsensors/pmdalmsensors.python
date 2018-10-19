@@ -97,7 +97,8 @@ def lmsensors_get():
         sensorvalue = re.sub(r'\..*', "", temp)         # i.e. 42, actual sensor value
         sensorvalue.rstrip()
 
-        sensorvalues[devname0 + "." + devname1 + "." + devname2 + "." + devname3] = sensorvalue
+        final_name = (devname0 + "." + devname1 + "." + devname2 + "." + devname3).replace('-', '_')
+        sensorvalues[final_name] = sensorvalue
 
 
 class LmsensorsPMDA(PMDA):
