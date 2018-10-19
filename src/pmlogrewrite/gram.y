@@ -872,7 +872,7 @@ new_indom_instance_label(int indom)
 	TOK_NEW
 	TOK_VALUE
 
-%token<str>	TOK_GNAME TOK_NUMBER TOK_STRING TOK_NL_STRING TOK_HNAME TOK_FLOAT
+%token<str>	TOK_GNAME TOK_NUMBER TOK_STRING TOK_TEXT_STRING TOK_HNAME TOK_FLOAT
 %token<str>	TOK_JSON_STRING TOK_JSON_NUMBER
 %token<str>	TOK_JSON_TRUE TOK_JSON_FALSE TOK_JSON_NULL
 %token<str>	TOK_INDOM_STAR TOK_PMID_INT TOK_PMID_STAR
@@ -2017,7 +2017,7 @@ textmetricopt	: TOK_DELETE
 
 textstring	: TOK_STRING
 		    { $$ = $1; }
-		| TOK_NL_STRING
+		| TOK_TEXT_STRING
 		    { $$ = $1; }
 		;
 
