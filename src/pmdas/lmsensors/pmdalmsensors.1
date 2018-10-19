@@ -62,20 +62,20 @@ is installed or removed.
 .PP
 pmdalmsensors.python supports the following options.
 .TP
-\fB\\-i\fR, \fB\\-\\-inject\fR
+\fB\-i\fR, \fB\-\-inject\fR
 inject data from file instead of using sensors
 .TP
-\fB\\-d\fR, \fB\\-\\-debug\fR
+\fB\-d\fR, \fB\-\-debug\fR
 debug level: 0 (default), 1 or 2
 .TP
-\fB\\-h\fR, \fB\\-\\-help\fR
+\fB\-h\fR, \fB\-\-help\fR
 show a help message
 
 To use options while pmdalmsensors.python is run from PMCD,
 you might want to use 'args' in the 'Install' stript, for
 example
 
-arge="\-i /path/static_sensors_output.txt"
+args="\-i /path/static_sensors_output.txt"
 .SH "FILES"
 .PD 0
 .TP 10
@@ -113,6 +113,7 @@ as described in
 .SH "SEE ALSO"
 .BR PCPIntro (1),
 .BR pmcd (1),
-.BR pcp.conf (5)
+.BR pcp.conf (5),
+.BR pcp.env (5)
 and
-.BR pcp.env (5).
+.BR sensors (1).
