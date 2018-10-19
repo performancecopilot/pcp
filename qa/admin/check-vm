@@ -1388,6 +1388,17 @@ F_pkg?		/usr/local/share/X11/xkb	[xkeyboard-config (QA optional)]
 S_pkg?		/usr/share/X11/xkb	[? (QA optional)]
 slackpkg?	/usr/share/X11/xkb	[? (QA optional)]
 pacman?		/usr/share/X11/xkb	[? (QA optional)]
+# -- sensors (command for pmdalmsensors)
+dpkg?		sensors		[lm-sensors (QA optional)]
+rpm?		sensors		[lm_sensors/sensors (QA optional)]
+urpmi?		sensors		[? (QA optional)]
+emerge?		sensors		[? (QA optional)]
+pkgin?		sensors		[? (QA optional)]
+pkg_add?	sensors		[? (QA optional)]
+F_pkg?		sensors		[? (QA optional)]
+S_pkg?		sensors		[? (QA optional)]
+slackpkg?	sensors		[? (QA optional)]
+pacman?		sensors		[? (QA optional)]
 #
 # misc
 #
