@@ -193,13 +193,13 @@ _bcc_check_ArgString()
 	then
 	    case "`rpm -q libbcc0`"
 	    in
-		bcc-0.5.0-lp150.9.2)
+		libbcc-0.5.0-lp150.9.2*)
 		    # BAD
-		    return 0
+		    return 1
 	    esac
 	fi
     fi
     
     # OK
-    return 1
+    return 0
 }
