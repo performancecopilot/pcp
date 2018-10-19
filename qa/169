@@ -300,10 +300,10 @@ _set_timeouts 10 5
 #
 _echo ""
 _echo "Expect dummyproc to fail (timeout for pmcd failure):"
-#DEBUG# date
+echo "Before pminfo: `date`" >>$seq.full
 pminfo -n $pmns -d dummyproc 2>&1 \
 | _filter
-#DEBUG# date
+echo "After pminfo: `date`" >>$seq.full
 _echo ""
 
 ps $PCP_PS_ALL_FLAGS >$tmp.ps
