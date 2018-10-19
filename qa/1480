@@ -56,15 +56,15 @@ PMDA=`pminfo lmsensors|wc -l`
 SENS=`/usr/bin/sensors -u|egrep '_input: '|wc -l`
 
 if [ $PMDA -eq $SENS ]; then
-	echo -n "number of sensors from '/usr/bin/sensors -u' and from 'pminfo "
-	echo "lmsensors' matches."
+    echo -n "number of sensors from '/usr/bin/sensors -u' and from 'pminfo "
+    echo "lmsensors' matches."
 else
-	echo -n "number of sensors from '/usr/bin/sensors -u' and from 'pminfo "
-	echo "lmsensors' does not match."
-	echo "pminfo lmsensors|wc -l:" >>$here/seq.full
-	pminfo lmsensors |wc -l >>$here/seq.full
-	echo "/usr/bin/sensors -u|egrep '_input: '|wc -l" >>$here/$seq.full
-	/usr/bin/sensors -u|egrep '_input: '|wc -l >>$here/$seq.full
+    echo -n "number of sensors from '/usr/bin/sensors -u' and from 'pminfo "
+    echo "lmsensors' does not match."
+    echo "pminfo lmsensors|wc -l:" >>$here/seq.full
+    pminfo lmsensors |wc -l >>$here/seq.full
+    echo "/usr/bin/sensors -u|egrep '_input: '|wc -l" >>$here/$seq.full
+    /usr/bin/sensors -u|egrep '_input: '|wc -l >>$here/$seq.full
 fi
 
 # Now, I can not check if the actual values for sensors are the same,
@@ -85,14 +85,12 @@ echo "pminfo -f lmsensors output:" >> $here/$seq.full
 PMDA=`pminfo -f lmsensors | tee -a $here/$seq.full | grep value | \
 	awk '{ sum += $2; n++ } END { if (n > 0) print int(sum / n); }'`
 
-# TODO: this (below) is bash-specific, can we use _within_tolerance() instead?
-if [ \( $SENS -lt $(( $PMDA * 9/10 )) \) -o \
-	 \( $SENS -gt $(( $PMDA * 11/10 )) \) ]; then
-	echo -n "The output of the 'sensors -u' values differs more than 10% "
-	echo "from the pmda output."
+if _within_tolerance "Expecting $SENS +- 10%" $PMDA $SENS 10%; then
+    echo -n "The output of the 'sensors -u' values differs not more than 10% "
+    echo "from the pmda output."
 else
-	echo -n "The output of the 'sensors -u' values differs not more than 10% "
-	echo "from the pmda output."
+    echo -n "The output of the 'sensors -u' values differs more than 10% "
+    echo "from the pmda output."
 fi
 
 $sudo ./Remove >$tmp.out 2>&1
