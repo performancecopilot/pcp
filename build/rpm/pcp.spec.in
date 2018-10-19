@@ -277,11 +277,12 @@ Requires: pcp-pmda-memcache pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nfsclient pcp-pmda-pdns
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
-Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm pcp-pmda-redis pcp-pmda-docker pcp-pmda-smart
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-haproxy
+Requires: pcp-pmda-lmsensors
 %endif
 %if "@pmda_bcc@" == "true"
 Requires: pcp-pmda-bcc
@@ -1671,7 +1672,28 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting performance metrics from HAProxy over the HAProxy stats socket.
 # end pcp-pmda-haproxy
 
+#
+# pcp-pmda-lmsensors
+#
+%package pmda-lmsensors
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for hardware sensors
+URL: https://pcp.io
+Requires: pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
 %endif
+# rewritten in python, so there is no longer a debuginfo package
+Obsoletes: pcp-pmda-lmsensors-debuginfo
+%description pmda-lmsensors
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Linux hardware monitoring sensors.
+# end pcp-pmda-lmsensors
+
+%endif # @have_python@
 
 %if "@pmda_libvirt@" == "true"
 #
@@ -1856,28 +1878,6 @@ Requires: pcp-libs = @package_version@
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Global Filesystem v2.
 # end pcp-pmda-gfs2
-
-#
-# pcp-pmda-lmsensors
-#
-%package pmda-lmsensors
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for hardware sensors
-URL: https://pcp.io
-Requires: pcp-libs = @package_version@
-Requires: lm_sensors
-%if "@enable_python3@" == "true"
-Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
-# rewritten in python, so there is no longer a debuginfo package
-Obsoletes: pcp-pmda-lmsensors-debuginfo
-%description pmda-lmsensors
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Linux hardware monitoring sensors.
-# end pcp-pmda-lmsensors
 
 #
 # pcp-pmda-logger
@@ -3109,8 +3109,10 @@ pmieconf -c enable dmthin
 %preun pmda-gfs2
 %{pmda_remove "$1" "gfs2"}
 
+%if "@have_python@" == "true"
 %preun pmda-lmsensors
 %{pmda_remove "$1" "lmsensors"}
+%endif
 
 %preun pmda-logger
 %{pmda_remove "$1" "logger"}
@@ -3420,6 +3422,9 @@ cd
 %files export-pcp2xml -f export_pcp2xml_files.rpm
 
 %files export-pcp2zabbix -f export_pcp2zabbix_files.rpm
+
+%files pmda-lmsensors -f pmda_lmsensors_files.rpm
+
 %endif
 
 %if "@pcp2elasticsearch@" == "true"
@@ -3461,8 +3466,6 @@ cd
 %files pmda-cisco -f pmda_cisco_files.rpm
 
 %files pmda-gfs2 -f pmda_gfs2_files.rpm
-
-%files pmda-lmsensors -f pmda_lmsensors_files.rpm
 
 %files pmda-logger -f pmda_logger_files.rpm
 

@@ -458,7 +458,7 @@ Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
-Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
 Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
 
@@ -471,6 +471,7 @@ Requires: pcp-pmda-bcc
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus pcp-pmda-haproxy
+Requires: pcp-pmda-lmsensors
 %endif
 %if !%{disable_snmp}
 Requires: pcp-pmda-snmp
@@ -1712,6 +1713,27 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting statistics from programs instrumented as Prometheus endpoints.
 #end pcp-pmda-prometheus
 
+#
+# pcp-pmda-lmsensors
+#
+%package pmda-lmsensors
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for hardware sensors
+URL: https://pcp.io
+Requires: pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+# rewritten in python, so there is no longer a debuginfo package
+Obsoletes: pcp-pmda-lmsensors-debuginfo
+%description pmda-lmsensors
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Linux hardware monitoring sensors.
+# end pcp-pmda-lmsensors
+
 %endif # !%{disable_python2} || !%{disable_python3}
 
 %if !%{disable_json}
@@ -1808,28 +1830,6 @@ Requires: pcp-libs = %{version}-%{release}
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Global Filesystem v2.
 # end pcp-pmda-gfs2
-
-#
-# pcp-pmda-lmsensors
-#
-%package pmda-lmsensors
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for hardware sensors
-URL: https://pcp.io
-Requires: pcp-libs = %{version}-%{release}
-Requires: lm_sensors
-%if !%{disable_python3}
-Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
-# rewritten in python, so there is no longer a debuginfo package
-Obsoletes: pcp-pmda-lmsensors-debuginfo
-%description pmda-lmsensors
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Linux hardware monitoring sensors.
-# end pcp-pmda-lmsensors
 
 #
 # pcp-pmda-logger
@@ -2666,6 +2666,10 @@ fi
 
 %preun pmda-libvirt
 %{pmda_remove "$1" "libvirt"}
+
+%preun pmda-lmsensors
+%{pmda_remove "$1" "lmsensors"}
+
 %endif # !%{disable_python[2,3]}
 
 %preun pmda-apache
@@ -2682,9 +2686,6 @@ fi
 
 %preun pmda-gfs2
 %{pmda_remove "$1" "gfs2"}
-
-%preun pmda-lmsensors
-%{pmda_remove "$1" "lmsensors"}
 
 %preun pmda-logger
 %{pmda_remove "$1" "logger"}
@@ -3250,6 +3251,10 @@ cd
 
 %files export-pcp2zabbix
 %{_bindir}/pcp2zabbix
+
+%files pmda-lmsensors
+%{_pmdasdir}/lmsensors
+
 %endif # !%{disable_python2} || !%{disable_python3}
 
 %files export-zabbix-agent
@@ -3275,9 +3280,6 @@ cd
 
 %files pmda-gfs2
 %{_pmdasdir}/gfs2
-
-%files pmda-lmsensors
-%{_pmdasdir}/lmsensors
 
 %files pmda-logger
 %{_pmdasdir}/logger
