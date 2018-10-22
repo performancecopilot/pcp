@@ -15,7 +15,12 @@
 #define SERIES_UTIL_H
 
 #include "sds.h"
+#include "dict.h"
 #include "load.h"
+
+extern dictType intKeyDictCallBacks;	/* integer key -> (void *) value */
+extern dictType sdsKeyDictCallBacks;	/* sds string -> (void *) value */
+extern dictType sdsDictCallBacks;	/* sds key -> sds string value */
 
 extern int tsub(struct timeval *, struct timeval *);
 extern int tadd(struct timeval *, struct timeval *);
@@ -34,24 +39,54 @@ extern int instance_labelsets(struct indom *, struct instance *,
 		int (*filter)(const pmLabel *, const char *, void *),
 		void *type);
 
-extern const char *indom_str(struct metric *);
-extern const char *pmid_str(struct metric *);
-extern const char *semantics_str(struct metric *);
-extern const char *type_str(struct metric *);
-extern const char *units_str(struct metric *);
-extern const char *hash_str(const unsigned char *);
+extern const char *pmwebapi_indom_str(struct metric *, char *, int);
+extern const char *pmwebapi_pmid_str(struct metric *, char *, int);
+extern const char *pmwebapi_semantics_str(struct metric *, char *, int);
+extern const char *pmwebapi_type_str(struct metric *, char *, int);
+extern const char *pmwebapi_units_str(struct metric *, char *, int);
 
-extern int source_hash(struct context *);
-extern void metric_hash(struct metric *);
-extern void instance_hash(struct indom *, struct instance *);
+extern int pmwebapi_context_hash(struct context *);
+extern void pmwebapi_metric_hash(struct metric *);
+extern void pmwebapi_instance_hash(struct indom *, struct instance *);
 
-/*
- * More widely applicable web API helper routines
- */
+extern sds pmwebapi_new_context(struct context *);
+extern void pmwebapi_free_context(struct context *);
 extern int pmwebapi_source_meta(struct context *, char *, int);
 extern int pmwebapi_source_hash(unsigned char *, const char *, int);
-extern sds pmwebapi_hash_sds(const unsigned char *);
-extern char *pmwebapi_hash_str(const unsigned char *);
+extern int pmwebapi_string_hash(unsigned char *, const char *, int);
+extern sds pmwebapi_hash_sds(sds, const unsigned char *);
+extern char *pmwebapi_hash_str(const unsigned char *, char *, int);
+
+extern struct domain *pmwebapi_new_domain(struct context *, unsigned int);
+extern struct domain *pmwebapi_add_domain(struct context *, unsigned int);
+extern void pmwebapi_add_domain_labels(struct domain *);
+
+extern struct cluster *pmwebapi_new_cluster(struct context *,
+		struct domain *, pmID);
+extern struct cluster *pmwebapi_add_cluster(struct context *,
+		struct domain *, pmID);
+extern void pmwebapi_add_cluster_labels(struct cluster *);
+
+extern struct indom *pmwebapi_new_indom(struct context *,
+		struct domain *, pmInDom);
+extern struct indom *pmwebapi_add_indom(struct context *,
+		struct domain *, pmInDom);
+extern void pmwebapi_add_indom_labels(struct indom *);
+
+extern unsigned int pmwebapi_add_indom_instances(struct indom *);
+extern void pmwebapi_lookup_instance(struct indom *, int);
+
+extern struct instance *pmwebapi_new_instance(struct indom *, int, sds);
+extern struct instance *pmwebapi_add_instance(struct indom *, int, char *);
+
+extern struct metric *pmwebapi_new_metric(struct context *,
+		pmDesc *, int, char **, pmLogInfoCallBack, void *);
+extern struct metric *pmwebapi_add_pmid(struct context *,
+		pmID, pmLogInfoCallBack, void *);
+extern struct metric *pmwebapi_add_metric(struct context *,
+		pmDesc *, int, char **, pmLogInfoCallBack, void *);
+extern void pmwebapi_add_item_labels(struct metric *);
+extern int pmwebapi_add_valueset(struct metric *, pmValueSet *);
 
 /*
  * Generally useful sds buffer formatting and diagnostics callback macros

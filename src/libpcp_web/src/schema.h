@@ -42,6 +42,10 @@
 #define HMSET_LEN	(sizeof(HMSET)-1)
 #define HSCAN		"HSCAN"
 #define HSCAN_LEN	(sizeof(HSCAN)-1)
+#define HSET		"HSET"
+#define HSET_LEN	(sizeof(HSET)-1)
+#define HVALS		"HVALS"
+#define HVALS_LEN	(sizeof(HVALS)-1)
 #define PUBLISH		"PUBLISH"
 #define PUBLISH_LEN	(sizeof(PUBLISH)-1)
 #define SADD		"SADD"
@@ -130,11 +134,8 @@ typedef struct seriesLoadBaton {
     void		*userdata;
     timing_t		timing;
 
-    dict		*clusters;
-    dict		*domains;
-    dict		*indoms;
-    dict		*pmids;
-
+    unsigned int	nmetrics;	/* number of metric names passed */
+    const char		**metrics;	/* metric specification strings */
     dict		*errors;	/* PMIDs where errors observed */
     dict		*wanted;	/* PMIDs from query whitelist */
 

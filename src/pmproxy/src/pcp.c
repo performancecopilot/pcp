@@ -273,3 +273,9 @@ on_pcp_client_read(struct proxy *proxy, struct client *client,
 	break;
     }
 }
+
+void
+setup_pcp_modules(struct proxy *proxy)
+{
+    /* no PCP protocol modules */
+}

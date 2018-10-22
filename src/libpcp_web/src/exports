@@ -96,4 +96,11 @@ PCP_WEB_1.6 {
     redisSlotsProxyConnect;
     redisSlotsProxyFree;
     sdsDictCallBacks;
+
+    dictAdd;
+    dictAddRaw;
+    dictCreate;
+    dictFind;
+    dictRelease;
+
 } PCP_WEB_1.5;

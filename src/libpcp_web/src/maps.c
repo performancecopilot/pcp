@@ -16,30 +16,64 @@
 #include "util.h"
 #include "maps.h"
 
+/* reverse hash mapping of all SHA1 hashes to strings */
 redisMap *instmap;
 redisMap *namesmap;
 redisMap *labelsmap;
 redisMap *contextmap;
 
-redisMap *instrmap;
-redisMap *namesrmap;
-redisMap *labelsrmap;
-redisMap *contextrmap;
+static uint64_t
+intHashCallBack(const void *key)
+{
+    const unsigned int	*i = (const unsigned int *)key;
+
+    return dictGenHashFunction(i, sizeof(unsigned int));
+}
+
+static int
+intCmpCallBack(void *privdata, const void *a, const void *b)
+{
+    const unsigned int	*ia = (const unsigned int *)a;
+    const unsigned int	*ib = (const unsigned int *)b;
+
+    (void)privdata;
+    return (*ia == *ib);
+}
+
+static void *
+intDupCallBack(void *privdata, const void *key)
+{
+    unsigned int	*i = (unsigned int *)key;
+    unsigned int	*k = (unsigned int *)malloc(sizeof(*i));
+
+    (void)privdata;
+    if (k)
+	*k = *i;
+    return k;
+}
+
+static void
+intFreeCallBack(void *privdata, void *value)
+{
+    (void)privdata;
+    if (value) free(value);
+}
+
+dictType intKeyDictCallBacks = {
+    .hashFunction	= intHashCallBack,
+    .keyCompare		= intCmpCallBack,
+    .keyDup		= intDupCallBack,
+    .keyDestructor	= intFreeCallBack,
+};
 
 static uint64_t
-mapHashCallBack(const void *key)
+sdsHashCallBack(const void *key)
 {
     return dictGenHashFunction((unsigned char *)key, sdslen((char *)key));
 } 
 
-static uint64_t
-rmapHashCallBack(const void *key)
-{
-    return dictGenHashFunction((unsigned char *)key, sizeof(long long));
-} 
-
 static int
-mapCompareCallBack(void *privdata, const void *key1, const void *key2)
+sdsCompareCallBack(void *privdata, const void *key1, const void *key2)
 {
     int		l1, l2;
 
@@ -48,29 +82,6 @@ mapCompareCallBack(void *privdata, const void *key1, const void *key2)
     l2 = sdslen((sds)key2);
     if (l1 != l2) return 0;
     return memcmp(key1, key2, l1) == 0;
-}
-
-static int
-rmapCompareCallBack(void *privdata, const void *key1, const void *key2)
-{
-    (void)privdata;
-    return memcmp(key1, key2, sizeof(long long)) == 0;
-}
-
-static void *
-rmapKeyDupCallBack(void *privdata, const void *key)
-{
-    void	*dupkey;
-
-    if ((dupkey = malloc(sizeof(long long))) != NULL)
-	memcpy(dupkey, key, sizeof(long long));
-    return dupkey;
-}
-
-static void
-rmapKeyFreeCallBack(void *privdata, void *key)
-{
-    free(key);
 }
 
 static void *
@@ -86,18 +97,18 @@ sdsFreeCallBack(void *privdata, void *val)
     sdsfree(val);
 }
 
-dictType	sdsDictCallBacks = {
-    .hashFunction	= mapHashCallBack,
-    .keyCompare		= mapCompareCallBack,
+dictType sdsKeyDictCallBacks = {
+    .hashFunction	= sdsHashCallBack,
+    .keyCompare		= sdsCompareCallBack,
     .keyDup		= sdsDupCallBack,
     .keyDestructor	= sdsFreeCallBack,
 };
 
-static dictType	rmapCallBackDict = {
-    .hashFunction	= rmapHashCallBack,
-    .keyCompare		= rmapCompareCallBack,
-    .keyDup		= rmapKeyDupCallBack,
-    .keyDestructor	= rmapKeyFreeCallBack,
+dictType sdsDictCallBacks = {
+    .hashFunction	= sdsHashCallBack,
+    .keyCompare		= sdsCompareCallBack,
+    .keyDup		= sdsDupCallBack,
+    .keyDestructor	= sdsFreeCallBack,
     .valDestructor	= sdsFreeCallBack,
 };
 
@@ -107,20 +118,16 @@ redisMapsInit(void)
     static const char * const mapnames[] = {
 	"inst.name", "metric.name", "label.name", "context.name"
     };
-    static int setup;
+    static int		setup;
 
     if (setup)
 	return;
+    setup = 1;
 
     instmap = dictCreate(&sdsDictCallBacks, (void *)mapnames[0]);
-    instrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[0]);
     namesmap = dictCreate(&sdsDictCallBacks, (void *)mapnames[1]);
-    namesrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[1]);
     labelsmap = dictCreate(&sdsDictCallBacks, (void *)mapnames[2]);
-    labelsrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[2]);
     contextmap = dictCreate(&sdsDictCallBacks, (void *)mapnames[3]);
-    contextrmap = dictCreate(&rmapCallBackDict, (void *)mapnames[3]);
-    setup = 1;
 }
 
 redisMap *
@@ -135,15 +142,6 @@ redisMapName(redisMap *map)
     return (const char *)map->privdata;
 }
 
-void
-redisMapRelease(redisMap *map)
-{
-    dictRelease(map);
-}
-
-/*
- * Regular map interfaces
- */
 redisMap *
 redisMapCreate(const char *name)
 {
@@ -159,49 +157,19 @@ redisMapLookup(redisMap *map, sds key)
 }
 
 void
-redisMapInsert(redisMap *map, sds key, long long value)
+redisMapInsert(redisMap *map, sds key, sds value)
 {
-    redisMapEntry	*entry;
-
-    if (map && ((entry = dictAddRaw(map, key, NULL)) != NULL))
-	dictSetSignedIntegerVal(entry, value);
-}
-
-long long
-redisMapValue(redisMapEntry *entry)
-{
-    return entry->v.s64;
-}
-
-/*
- * Reverse map interfaces
- */
-redisMap *
-redisRMapCreate(const char *name)
-{
-    return dictCreate(&rmapCallBackDict, (void *)name);
-}
-
-redisMapEntry *
-redisRMapLookup(redisMap *map, const char *key)
-{
-    long long		llkey = strtoll(key, NULL, 10);
-
-    if (map)
-	return dictFind(map, &llkey);
-    return NULL;
-}
-
-void
-redisRMapInsert(redisMap *map, const char *key, sds value)
-{
-    long long		llkey = strtoll(key, NULL, 10);
-
-    dictAdd(map, &llkey, value);
+    dictAdd(map, key, value);
 }
 
 sds
-redisRMapValue(redisMapEntry *entry)
+redisMapValue(redisMapEntry *entry)
 {
-    return (sds)entry->v.val;
+    return (sds)dictGetVal(entry);
+}
+
+void
+redisMapRelease(redisMap *map)
+{
+    dictRelease(map);
 }

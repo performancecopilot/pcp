@@ -16,8 +16,7 @@
 #include "libpcp.h"
 #include "pmproxy.h"
 
-#define MAXPENDING	5	/* maximum number of pending connections */
-#define FDNAMELEN	40	/* maximum length of a fd description */
+#define MAXPENDING	128	/* maximum number of pending connections */
 #define STRINGIFY(s)    #s
 #define TO_STRING(s)    STRINGIFY(s)
 

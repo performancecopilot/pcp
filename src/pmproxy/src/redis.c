@@ -75,10 +75,12 @@ void
 on_redis_client_read(struct proxy *proxy, struct client *client,
 		ssize_t nread, const uv_buf_t *buf)
 {
-    if (!redis_protocol ||
-	redisSlotsProxyConnect(proxy->slots, proxylog, &client->u.redis.reader,
-		buf->base, nread, on_redis_server_reply, client) < 0)
+    if (redis_protocol == 0 ||
+	redisSlotsProxyConnect(proxy->slots,
+		proxylog, &client->u.redis.reader,
+		buf->base, nread, on_redis_server_reply, client) < 0) {
 	uv_close((uv_handle_t *)&client->stream, on_client_close);
+    }
 }
 
 void
@@ -102,22 +104,24 @@ on_redis_connected(void *arg)
 		message, proxy->redishost);
     sdsfree(message);
 
-    redis_discover.module.events = proxy->events;
     redis_discover.module.slots = proxy->slots;
-    pmDiscoverSetup(&redis_discover, proxy);
-    proxy->redisetup = 1;
 }
 
 void
-setup_redis_proxy(struct proxy *proxy)
+setup_redis_modules(struct proxy *proxy)
 {
     redisSlotsFlags	flags = SLOTS_NONE;
 
-    if (redis_protocol)
-	flags |= SLOTS_KEYMAP;
-    if (archive_discovery | series_queries)
-	flags |= SLOTS_VERSION;
-
-    proxy->slots = redisSlotsConnect(proxy->redishost, flags,
-	    proxylog, on_redis_connected, proxy, proxy->events, proxy);
+    if (proxy->slots == NULL) {
+	if (redis_protocol)
+	    flags |= SLOTS_KEYMAP;
+	if (archive_discovery | series_queries)
+	    flags |= SLOTS_VERSION;
+	proxy->slots = redisSlotsConnect(proxy->redishost,
+			flags, proxylog, on_redis_connected,
+			proxy, proxy->events, proxy);
+    }
+    redis_discover.module.events = proxy->events;
+    redis_discover.module.metrics = proxy->metrics;
+    //TODO: pmDiscoverSetup(&redis_discover, proxy);
 }
