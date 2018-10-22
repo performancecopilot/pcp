@@ -1,0 +1,319 @@
+#!/bin/sh
+#
+# Validation script for package.manifest
+#
+# DO NOT RUN DIRECTLY ... this script is exec'd from check-vm -c
+#
+
+# Need directory where whatami script is located
+#
+dir=`echo $0 | sed -e 's/\/*check-manifest$//'`
+[ -z "$dir" ] && dir=`pwd`
+if [ ! -d "$dir" ]
+then
+    echo "$0: Botch: \$0=$0 -> bad \$dir=$dir ?"
+    exit 1
+fi
+if [ ! -f "$dir"/whatami ]
+then
+    echo "$0: Botch: cannot find whatami"
+    exit 1
+fi
+
+_usage()
+{
+    echo "Usage: $0 [-v] manifest-from-check-vm-c"
+    exit 1
+}
+
+verbose=false
+very_verbose=false
+while getopts 'v?' p
+do
+    case "$p"
+    in
+	v)	if $verbose
+		then
+		    very_verbose=true
+		else
+		    verbose=true
+		fi
+		;;
+
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -eq 1 ] || _usage
+
+tmp="$1"
+if [ ! -f $tmp.manifest ]
+then
+    echo "$0: Hand off botch: $tmp.manifest not found"
+    exit 1
+fi
+
+_cleanup()
+{
+    if $very_verbose
+    then
+	mv $tmp.manifest /tmp/package.manifest
+	echo "Saving manifest to /tmp/package.manifest"
+    fi
+    rm -f $tmp.*
+}
+
+sts=1
+trap "_cleanup; exit \$sts" 0 1 2 3 15
+
+# $pkgtool tells us what family of packaging tools we need
+# to use
+#
+$dir/whatami >$tmp.tmp
+case "`sed <$tmp.tmp -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
+in
+    *Ubuntu*)
+	pkgtool=dpkg
+	;;
+esac
+if [ -z "$pkgtool" ]
+then
+    echo "$0: Botch: don't recognize pkgtool for: `cat $tmp.tmp`"
+    exit
+fi
+
+_path_to_pkg()
+{
+    case "$pkgtool"
+    in
+	dpkg)
+	    # expecting output like
+	    # lm-sensors: /usr/bin/sensors
+	    dpkg-query -S "$1" 2>/dev/null | sed -e 's/:.*//' >$tmp.tmp
+	    # if not found in any package, try realpath() alternative
+	    if [ -s "$tmp.tmp" ]
+	    then
+		cat $tmp.tmp
+	    else
+		_target=`realpath $1`
+		if [ "$_target" != "$1" ]
+		then
+		    dpkg-query -S "$_target" 2>/dev/null | sed -e 's/:.*//'
+		fi
+	    fi
+	    ;;
+	*)
+	    echo "_path_to_pkg: cannot handle $pkgtool packaging yet"
+	    ;;
+    esac
+}
+
+# Deal with some known metapackage equivalences.
+#
+# Usage: _match_pkg pkg-from-pkgtool pkg-from-manifest
+#
+_match_pkg()
+{
+    xpect="$1"
+    case $pkgtool
+    in
+	dpkg)
+		case "$1"
+		in
+		    libpython3.[0-9]-stdlib)	# e.g. libpython3.6-stdlib
+			xpect=libpython3-stdlib
+			;;
+		    libpython3.[0-9]-dev|libpython.3.[0-9]m)	# e.g. libpython3.6-dev
+			xpect=libpython3-dev
+			;;
+		    libboost1.[0-9]*-dev)		# e.g. libboost1.65-dev
+			xpect=libboost-dev
+			;;
+		    perl-modules-5.[0-9]*)		# e.g. perl-modules-5.26
+			xpect=perl-modules
+			;;
+		esac
+		;;
+    esac
+    [ "$xpect" = "$2" ]
+    return $?
+}
+
+# Hunt for a target in the packages.
+# On entry:
+# $target is a list of alternate targets (separated by |)
+# $pkginfo is the list of alternate packages (separated by
+# a space) that we think one of the targets is to be found in
+#  ... this is the [...] part of the manifest with noise words
+#  removed
+#
+_hunt()
+{
+    rm -f $tmp.msg $tmp.ok
+    for file in `echo "$target" | sed -e 's/|/ /g'`
+    do
+	case "$file"
+	in
+	    /*)
+		if [ -f "$file" -o -d "$file" ]
+		then
+		    :
+		else
+		    echo "$line: file/dir target \"$file\" not found" >>$tmp.msg
+		    file=''
+		fi
+		;;
+	    *)
+		which=`which $file 2>/dev/null`
+		if [ -z "$which" -o ! -x "$which" ]
+		then
+		    echo "$line: exec target \"$file\" not found or not executable" >>$tmp.msg
+		    file=''
+		else
+		    file="$which"
+		fi
+		;;
+	esac
+	if [ -n "$file" ]
+	then
+	    pkg=`_path_to_pkg $file`
+	    $very_verbose && echo "file=\"$file\" from pkg=\"$pkg\""
+	    if [ -z "$pkg" ]
+	    then
+		echo "$line: target \"$file\" not installed from any package" >>$tmp.msg
+	    else
+		rm -f $tmp.ok
+		for spec in $pkginfo
+		do
+		    if _match_pkg "$pkg" "$spec"
+		    then
+			$verbose && echo "$line: OK target $file found in $spec"
+			touch $tmp.ok
+		    else
+			echo "$line: target \"$file\" in package $pkg not $spec" >>$tmp.msg
+		    fi
+		done
+		if [ ! -f $tmp.ok ]
+		then
+		    echo "$line: target \"$file\" not in any [...] package" >>$tmp.msg
+		else
+		    break
+		fi
+	    fi
+	fi
+    done
+    if [ ! -f $tmp.ok ]
+    then
+	cat $tmp.msg
+    fi
+}
+
+# strip comments, empty (only :<lineno>) and N/A lines
+#
+sed <$tmp.manifest \
+    -e 's/#.*\(:[0-9][0-9]*\)$/\1/' \
+    -e '/^[ 	]*:[0-9][0-9]*$/d' \
+    -e '/\[N\/A/d' \
+| while read guard target extra
+do
+    # most lines have no guard, but some do, e.g.
+    # !pkg?   egcc|gcc        [gcc]
+    # weird?  foobar          [foobar-dev]
+    # so do the guard logic to decide if this line should
+    # be processed or skipped
+    #
+    case "$guard"
+    in
+	*\?)
+	    _guard=`echo "$guard" | sed -e 's/?$//'`
+	    if `which $_guard >/dev/null`
+	    then
+		:
+	    else
+		continue
+	    fi
+	    ;;
+	!*\?)
+	    _guard=`echo "$guard" | sed -e '/s/^!//' -e 's/?$//'`
+	    if `which $_guard >/dev/null`
+	    then
+		continue
+	    fi
+	    ;;
+    esac
+    extra="$target $extra"
+    target="$guard"
+
+    line=`echo $extra | sed -e 's/.*:\([0-9][0-9]*\)$/\1/'`
+    # reduce things like "[lm-sensors (QA optional)]:1189" down to
+    # "lm-sensors"
+    # and "[perl-Spreadsheet-ReadSXC or 'perl(Spreadsheet::ReadSXC)' or from cpan (QA optional)]:601
+    # down to "perl-Spreadsheet-ReadSXC cpan"
+    # and cull the [N/A...] lines
+    #
+    pkginfo=`echo "$extra" \
+	| sed \
+	    -e 's/:[0-9][0-9]*//' \
+	    -e 's/\[//' \
+	    -e 's/]//' \
+	    -e "s/'perl([^0]*)'//" \
+	    -e 's/([^)]*)//'g \
+	    -e 's/from cpan/cpan/' \
+	    -e 's/ or / /g' \
+	    -e 's/  */ /g' \
+	    -e 's/^ //' \
+	    -e 's/ $//'`
+    # we have some manifest lines for really common commands where
+    # there is no [pkginfo], so punt on the package name being the same
+    # as the target name
+    #
+    [ -z "$pkginfo" ] && pkginfo="$target"
+    $very_verbose && echo target=\"$target\" extra=\"$extra\" pkginfo=\"$pkginfo\"
+
+    case "$target"
+    in
+	*::)
+	    # special case Perl, no module name
+	    perl=`echo "$target" | sed -e 's/:://'`
+	    _target=`find /usr/lib/perl5/*/$module /usr/lib/*/perl5/*/$module /usr/share/perl/* -print 2>/dev/null \
+	             | grep "\\/$perl.pm$" \
+		     | ( tr '\012' '|'; echo ) \
+		     | sed -e 's/|$//'`
+	    if [ -z "$_target" ]
+	    then
+		echo "$line: Perl source \"$target\" not found" >>$tmp.msg
+	    else
+		target="$_target"
+		_hunt
+	    fi
+	    ;;
+
+	*::*)
+	    # normal case Perl, with module name
+	    _module=`echo "$target" | sed -e 's/::.*//'`
+	    _perl=`echo "$target" | sed -e 's/.*:://'`
+	    _target=`find /usr/lib/perl5/*/$module /usr/lib/*/perl5/*/$module /usr/share/perl/* -print 2>/dev/null \
+	             | grep "\\/$_module\\/$_perl.pm$" \
+		     | ( tr '\012' '|'; echo ) \
+		     | sed -e 's/|$//'`
+	    if [ -z "$_target" ]
+	    then
+		echo "$line: Perl source \"$target\" not found" >>$tmp.msg
+	    else
+		target="$_target"
+		_hunt
+	    fi
+	    ;;
+
+	*)  # file, directory or executable tests, separated by |
+	    # if we can find one of the alternatives we're good
+	    #
+	    _hunt
+	    ;;
+    esac
+
+done
+
+sts=0
+exit

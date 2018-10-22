@@ -88,10 +88,18 @@ force=false
 pkglist=false
 verbose=false
 very_verbose=false
-while getopts 'fpv?' p
+check_manifest=false
+check_mainfest_args=''
+while getopts 'cfpv?' p
 do
     case "$p"
     in
+	c)	# exec check-mainfest when manifest has been build
+		# ... expert only, so not even mentioned in Usage
+		#
+		check_manifest=true
+		;;
+
 	f)
 		force=true
 		;;
@@ -103,8 +111,10 @@ do
 	v)	if $verbose
 		then
 		    very_verbose=true
+		    check_manifest_args="-vv"
 		else
 		    verbose=true
+		    check_manifest_args="-v"
 		fi
 		;;
 
@@ -235,7 +245,14 @@ then
     exit 1
 fi
 
-cat $dir/package.manifest >$tmp.main
+if $check_manifest
+then
+    # append original line numbers
+    #
+    $PCP_AWK_PROG '{ print $0 " :" NR }' <$dir/package.manifest >$tmp.manifest
+else
+    cat <$dir/package.manifest >$tmp.manifest
+fi
 
 if which python >/dev/null 2>&1
 then
@@ -253,7 +270,7 @@ then
 	    touch $tmp.need
 	fi
 	[ -f $tmp.need ] && \
-	    echo "rpm?	/usr/share/doc/python-ctypes*	[python-ctypes]" >>$tmp.main
+	    echo "rpm?	/usr/share/doc/python-ctypes*	[python-ctypes]" >>$tmp.manifest
     fi
 fi
 
@@ -316,13 +333,13 @@ do
     if which $pkgtool >/dev/null 2>&1 && $want
     then
 	$very_verbose && echo "include ${pkgtype}? lines"
-	sed -e "s/^${pkgtype}?[ 	]//" <$tmp.main >$tmp.tmp
-	mv $tmp.tmp $tmp.main
+	sed -e "s/^${pkgtype}?[ 	]//" <$tmp.manifest >$tmp.tmp
+	mv $tmp.tmp $tmp.manifest
 	touch $tmp.ok
     else
 	$very_verbose && echo "exclude ${pkgtype}? lines"
-	grep -v "^${pkgtype}?[ 	]" <$tmp.main >$tmp.tmp
-	mv $tmp.tmp $tmp.main
+	grep -v "^${pkgtype}?[ 	]" <$tmp.manifest >$tmp.tmp
+	mv $tmp.tmp $tmp.manifest
     fi
 done
 if [ ! -f $tmp.ok ]
@@ -364,12 +381,12 @@ do
     if $pick
     then
 	$very_verbose && echo "include ${distro}? lines"
-	sed -e "s/^${distro}?[ 	]//" <$tmp.main >$tmp.tmp
-	mv $tmp.tmp $tmp.main
+	sed -e "s/^${distro}?[ 	]//" <$tmp.manifest >$tmp.tmp
+	mv $tmp.tmp $tmp.manifest
     else
 	$very_verbose && echo "exclude ${distro}? lines"
-	grep -v "^${distro}?[ 	]" <$tmp.main >$tmp.tmp
-	mv $tmp.tmp $tmp.main
+	grep -v "^${distro}?[ 	]" <$tmp.manifest >$tmp.tmp
+	mv $tmp.tmp $tmp.manifest
     fi
 done
 
@@ -379,6 +396,12 @@ done
 na=''
 case `hostname -s`
 in
+    bozo)
+	# not so much unavailable as unsafe to install on hypervisor
+	# and nameserver
+	#
+	na='docker.io unbound libsoqt5-dev'
+	;;
     bozo-laptop)
 	na='python3-bcc'
 	;;
@@ -475,10 +498,11 @@ then
     for f in $na
     do
 # s;[^ 	]*\('"$f"'\);\1;
-	sed <$tmp.main >$tmp.tmp -e "/$f/{"'
-s;\[.*;[N/A on host '"`hostname -s`"'];
+	sed <$tmp.manifest >$tmp.tmp -e "/$f/{"'
+s;\[[^]]*];[N/A on host '"`hostname -s`"'];
 }'
-	mv $tmp.tmp $tmp.main
+	mv $tmp.tmp $tmp.manifest
+	$very_verbose && echo "n/a for $f"
     done
 fi
 
@@ -499,11 +523,11 @@ else
 		echo "Warning: cannot get Python version from: `$PCP_PYTHON_PROG --version`"
 	    else
 		#debug# echo "pyver=$pyver"
-		sed <$tmp.main >$tmp.tmp -e '/\/python[0-9]/{
+		sed <$tmp.manifest >$tmp.tmp -e '/\/python[0-9]/{
     /\/python'"$pyver"'[./]/!d
     }'
-		#debug# diff $tmp.main $tmp.tmp
-		mv $tmp.tmp $tmp.main
+		#debug# diff $tmp.manifest $tmp.tmp
+		mv $tmp.tmp $tmp.manifest
 	    fi
 	fi
     fi
@@ -527,15 +551,21 @@ else
     if [ -n "$cull" ]
     then
 	#debug# echo "cull=$cull"
-	grep -vi "$cull" <$tmp.main >$tmp.tmp
-	#debug# diff $tmp.main $tmp.tmp
-	mv $tmp.tmp $tmp.main
+	grep -vi "$cull" <$tmp.manifest >$tmp.tmp
+	#debug# diff $tmp.manifest $tmp.tmp
+	mv $tmp.tmp $tmp.manifest
     fi
+fi
+
+if $check_manifest
+then
+    echo "Handing off to $dir/check-manifest ..."
+    exec $dir/check-manifest $check_manifest_args $tmp
 fi
 
 # main loop
 #
-cat $tmp.main \
+cat $tmp.manifest \
 | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
 | while read apps
 do
@@ -692,13 +722,17 @@ s/@/ /g
 }'`"
 	fi
     fi
-done \
-| if $pkglist
+done >$tmp.out
+
+if [ -s $tmp.out ]
 then
-    tr '[\012]' ' ' | sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//'
-    echo
-else
-    cat
+    if $pkglist
+    then
+	tr '[\012]' ' ' <$tmp.out | sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//'
+	echo
+    else
+	cat $tmp.out
+    fi
 fi
 
 $pkglist && exit
