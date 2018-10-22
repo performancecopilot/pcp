@@ -704,7 +704,7 @@ n
 }' \
 		-e 's/  */ /g' \
 		-e p \
-	    # end
+	    | sed -e '/^ *$/d'
 
 	else
 	    echo "Missing: `echo $apps \

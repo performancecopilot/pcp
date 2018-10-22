@@ -161,7 +161,7 @@ _match_pkg()
 		    libreadline[0-9]*-dev)	# e.g. libreadline6-dev
 			xpect=libreadline-dev
 			;;
-		    libuv[0-9]*-dev|libuv[0-9]*.[0-9]*-dev)	# e.g. libuv1-dev|libuv0.10-dev 
+		    libuv[0-9]*.[0-9]*-dev)	# e.g. libuv0.10-dev 
 			xpect=libuv-dev
 			;;
 		    mariadb-client-core-[0-9]*.[0-9]*)	# e.g. mariadb-client-core-10.1

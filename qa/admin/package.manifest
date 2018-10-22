@@ -126,7 +126,7 @@ S_pkg?		pkg-config	[devel/pkgconf]
 slackpkg?	pkg-config	[pkg-config]
 pacman?		pkg-config	[pkg-config]
 # -- libuv
-dpkg?	/usr/include/uv.h	[libuv-dev (build optional)]
+dpkg?	/usr/include/uv.h	[libuv-dev or libuv1-dev (build optional)]
 rpm?	/usr/include/uv.h	[libuv-devel (build optional)]
 urpmi?	/usr/include/uv.h	[libuv-devel (build optional)]
 emerge?	/usr/include/uv.h	[dev-libs/libuv (build optional)]
