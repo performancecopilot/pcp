@@ -76,6 +76,9 @@ in
     *Ubuntu*)
 	pkgtool=dpkg
 	;;
+    *Fedora*)
+	pkgtool=rpm
+	;;
 esac
 if [ -z "$pkgtool" ]
 then
@@ -90,8 +93,10 @@ _path_to_pkg()
 	dpkg)
 	    # expecting output like
 	    # lm-sensors: /usr/bin/sensors
+	    #
 	    dpkg-query -S "$1" 2>/dev/null | sed -e 's/:.*//' >$tmp.tmp
 	    # if not found in any package, try realpath() alternative
+	    #
 	    if [ -s "$tmp.tmp" ]
 	    then
 		cat $tmp.tmp
@@ -103,6 +108,23 @@ _path_to_pkg()
 		fi
 	    fi
 	    ;;
+	rpm)
+	    # expecting output like
+	    # lm_sensors-3.4.0-8.fc27.x86_64
+	    #
+	    rpm -qf "$1" 2>/dev/null | sed -e 's/-[0-9].*//' >$tmp.tmp
+	    if [ -s "$tmp.tmp" ]
+	    then
+		cat $tmp.tmp
+	    else
+		_target=`realpath $1`
+		if [ "$_target" != "$1" ]
+		then
+		    rpm -qf "$_target" 2>/dev/null | sed -e 's/-[0-9].*//'
+		fi
+	    fi
+	    ;;
+
 	*)
 	    echo "_path_to_pkg: cannot handle $pkgtool packaging yet"
 	    ;;
@@ -132,6 +154,14 @@ _match_pkg()
 			;;
 		    perl-modules-5.[0-9]*)		# e.g. perl-modules-5.26
 			xpect=perl-modules
+			;;
+		esac
+		;;
+	rpm)
+		case "$1"
+		in
+		    libTODOxyz)
+			xpect=libTODO
 			;;
 		esac
 		;;
@@ -225,25 +255,27 @@ do
     #
     case "$guard"
     in
-	*\?)
+	!*\?)	# negated guard
+	    _guard=`echo "$guard" | sed -e 's/^!//' -e 's/?$//'`
+	    if which $_guard >/dev/null 2>&1
+	    then
+		continue
+	    fi
+	    ;;
+	*\?)	# guard
 	    _guard=`echo "$guard" | sed -e 's/?$//'`
-	    if `which $_guard >/dev/null`
+	    if which $_guard >/dev/null 2>&1
 	    then
 		:
 	    else
 		continue
 	    fi
 	    ;;
-	!*\?)
-	    _guard=`echo "$guard" | sed -e '/s/^!//' -e 's/?$//'`
-	    if `which $_guard >/dev/null`
-	    then
-		continue
-	    fi
+	*)	# just regular lines, there is no "guard"
+	    extra="$target $extra"
+	    target="$guard"
 	    ;;
     esac
-    extra="$target $extra"
-    target="$guard"
 
     line=`echo $extra | sed -e 's/.*:\([0-9][0-9]*\)$/\1/'`
     # reduce things like "[lm-sensors (QA optional)]:1189" down to
