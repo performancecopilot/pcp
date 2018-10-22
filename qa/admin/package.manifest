@@ -41,7 +41,17 @@ bash
 sed
 grep
 ed
-git
+# -- git
+dpkg?		git		[git]
+rpm?		git		[git-core]
+urpmi?		git		[git]
+emerge?		git		[git]
+pkgin?		git		[git]
+pkg_add?	git		[git]
+F_pkg?		git		[git]
+S_pkg?		git		[git]
+slackpkg?	git		[git]
+pacman?		git		[git]
 make
 !pkg?	egcc|gcc	[gcc]
 F_pkg?	gcc		[gcc]
@@ -53,8 +63,8 @@ gdb
 gawk
 # -- mktemp
 dpkg?		mktemp		[coreutils]
-rpm?		mktemp		[?]
-urpmi?		mktemp		[?]
+rpm?		mktemp		[coreutils]
+urpmi?		mktemp		[coreutils]
 emerge?		mktemp		[?]
 pkgin?		mktemp		[?]
 pkg_add?	mktemp		[?]
@@ -95,7 +105,7 @@ dpkg?	/usr/share/doc/python3-all-dev	[python3-all-dev]
 rpm?	perl				[perl-interpreter]
 # -- cpan
 dpkg?		cpan		[perl]
-rpm?		cpan
+rpm?		cpan		[perl-CPAN]
 urpmi?		cpan		[perl-devel]
 emerge?		cpan		[dev-lang/perl]
 pkgin?		cpan		[?]
@@ -106,7 +116,7 @@ slackpkg?	cpan		[perl]
 pacman?		cpan		[perl]
 # -- pkg-config
 dpkg?		pkg-config	[pkg-config]
-rpm?		pkg-config	[pkg-config]
+rpm?		pkg-config	[pkgconf-pkg-config]
 urpmi?		pkg-config	[pkgconfig]
 emerge?		pkg-config	[dev-util/pkgconfig]
 pkgin?		pkg-config	[pkg-config]
@@ -193,7 +203,7 @@ slackpkg?	sd-daemon.h			[N/A (build optional)]
 pacman?	/usr/include/systemd/sd-daemon.h	[systemd (build optional)]
 # -- infiniband libibumad & libibmad
 dpkg?	/usr/include/infiniband/umad.h	[libibumad-dev (build optional)]
-rpm?	/usr/include/infiniband/umad.h	[libibumad-devel (build optional)]
+rpm?	/usr/include/infiniband/umad.h	[rdma-core-devel or libibumad-devel (build optional)]
 urpmi?	umad.h				[N/A (build optional)]
 emerge?	/usr/include/infiniband/umad.h	[sys-fabric/libibumad (build optional)]
 pkgin?	/usr/pkg/include/umad.h		[libibumad (build optional)]
@@ -203,7 +213,7 @@ S_pkg?	/usr/include/sys/ib/clients/of/sol_umad/sol_umad.h	[system/header (build 
 slackpkg?	umad.h			[N/A (build optional)]
 pacman?		umad.h			[umad? (build optional)]
 dpkg?	/usr/include/infiniband/mad.h	[libibmad-dev (build optional)]
-rpm?	/usr/include/infiniband/mad.h	[libibmad-devel (build optional)]
+rpm?	/usr/include/infiniband/mad.h	[infiniband-diags-devel or libibmad-devel (build optional)]
 urpmi?	mad.h				[N/A (build optional)]
 emerge?	/usr/include/infiniband/mad.h	[sys-fabric/libibmad (build optional)]
 pkgin?	/usr/pkg/include/mad.h		[libibmad (build optional)]
@@ -797,7 +807,7 @@ slackpkg?	/etc/httpd/httpd.conf	[httpd (QA optional)]
 pacman?	/etc/httpd/conf/httpd.conf	[apache (QA optional)]
 # -- realpath(1)
 dpkg?	realpath		[coreutils]
-rpm?	realpath		[realpath]
+rpm?	realpath		[coreutils]
 urpmi?	realpath		[realpath]
 emerge?	realpath		[sys-apps/coreutils]
 pkgin?	realpath		[?]
@@ -900,7 +910,7 @@ slackpkg?	zabbix_agentd	[N/A (zabbix QA optional)]
 pacman?	zabbix_agentd		[N/A (zabbix QA optional)]
 # -- mysql
 dpkg?	mysql			[mysql-client-core-5.7 (mysql QA optional)]
-rpm?	mysql			[mysql or community-mysql (mysql QA optional)]
+rpm?	mysql			[mysql or community-mysql or mariadb (mysql QA optional)]
 urpmi?	mysql			[mariadb-client or community-mysql (mysql QA optional)]
 emerge?	mysql			[virtual/mysql (mysql QA optional)]
 pkgin?	mysql			[? (mysql QA optional)]
@@ -1197,8 +1207,8 @@ slackpkg?	ausyscall		[? (QA optional)]
 pacman?		ausyscall		[? (QA optional)]
 # -- xkb (for X11 apps, including pmchart, on some platforms)
 dpkg?		/usr/share/X11/xkb	[xkb-data (QA optional)]
-rpm?		/usr/share/X11/xkb	[keyboard-config (QA optional)]
-urpmi?		/usr/share/X11/xkb	[keyboard-config (QA optional)]
+rpm?		/usr/share/X11/xkb	[xkeyboard-config (QA optional)]
+urpmi?		/usr/share/X11/xkb	[xkeyboard-config (QA optional)]
 emerge?		/usr/share/X11/xkb	[x11-misc/xkeyboard-config (QA optional)]
 pkgin?		/usr/share/X11/xkb	[? (QA optional)]
 pkg_add?	/usr/share/X11/xkb	[? (QA optional)]
@@ -1225,4 +1235,5 @@ centos?		/usr/sbin/qshape	[postfix-perl-scripts]
 mandriva?	/usr/sbin/qshape	[postfix]
 suse?		/usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl		[postfix-doc]
 arch?		/usr/bin/qshape		[N/A (build optional)]
-mktemp			[coreutils]
+
+
