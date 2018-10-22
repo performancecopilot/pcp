@@ -49,6 +49,7 @@ server_cache_mark(seriesLoadBaton *baton, sds timestamp, int data)
     redis_series_mark(baton->slots, timestamp, data, baton);
 }
 
+#if 0
 static void
 pmidErr(seriesLoadBaton *baton, pmID pmid, const char *fmt, ...)
 {
@@ -74,6 +75,7 @@ pmidErr(seriesLoadBaton *baton, pmID pmid, const char *fmt, ...)
 	batoninfo(baton, PMLOG_WARNING, msg);
     }
 }
+#endif
 
 static void
 load_prepare_metric(const char *name, void *arg)
@@ -176,6 +178,7 @@ new_metric(seriesLoadBaton *baton, pmValueSet *vsp)
     return metric;
 }
 
+#if 0
 static void
 free_metric(metric_t *metric)
 {
@@ -190,6 +193,7 @@ free_metric(metric_t *metric)
     }
     free(metric);
 }
+#endif
 
 static int
 pmwebapi_add_value(metric_t *metric, int inst, int index)
@@ -941,6 +945,8 @@ pmSeriesDiscoverMetric(pmDiscoverEvent *event,
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
 
+    (void)arg;
+    (void)baton;
 #if 0
     pmwebapi_add_metric(&baton->pmapi.context, desc, numnames, names,
 		    baton->info, arg);
@@ -967,15 +973,18 @@ pmSeriesDiscoverInDom(pmDiscoverEvent *event, pmInResult *in, void *arg)
 {
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
+
+    (void)arg;
+    (void)baton;
+
+
+#if 0
     struct context	*context = &baton->pmapi.context;
     struct domain	*domain;
     struct indom	*indom;
     pmInDom		id = in->indom;
     int			i;
 
-    (void)arg;
-
-#if 0
     if ((domain = pmwebapi_add_domain(context, pmInDom_domain(id))) == NULL) {
 	/* TODO: fail, diagnostic */
 	return;
