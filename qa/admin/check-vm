@@ -451,7 +451,7 @@ in
 	na='sysv-rc-conf'
 	;;
     vm21)
-	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-openpyxl zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io'
+	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-openpyxl zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io libuv-dev libsoqt5-dev'
 	;;
     vm22)
 	na='python-prometheus-client python3-prometheus-client python3-openpyxl python3-bcc python3-prometheus_client'

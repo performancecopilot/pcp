@@ -146,7 +146,13 @@ _match_pkg()
 		    libboost1.[0-9]*-dev)	# e.g. libboost1.65-dev
 			xpect=libboost-dev
 			;;
-		    libpython2.[0-9]-dev|libpython.3.[0-9]m)	# e.g. libpython2.7-dev
+		    libcoin[0-9]*-dev)		# e.g. libcoin80-dev
+			xpect=libcoin-dev
+			;;
+		    libicu[0-9]*[0-9])		# e.g. libicu60
+			xpect=libicu
+			;;
+		    libpython2.[0-9]-dev)	# e.g. libpython2.7-dev
 			xpect=libpython-dev
 			;;
 		    libpython2.[0-9]-stdlib)	# e.g. libpython2.7-stdlib
@@ -167,11 +173,20 @@ _match_pkg()
 		    mariadb-client-core-[0-9]*.[0-9]*)	# e.g. mariadb-client-core-10.1
 			xpect=mariadb-client-core
 			;;
+		    mysql-client-[0-9]*.[0-9]*)	# e.g. mysql-client-5.5
+			xpect=mysql-client
+			;;
 		    mysql-client-core-[0-9]*.[0-9]*)	# e.g. mysql-client-core-5.5
 			xpect=mysql-client-core
 			;;
 		    perl-modules-5.[0-9]*)	# e.g. perl-modules-5.26
 			xpect=perl-modules
+			;;
+		    python2.[0-9])		# e.g. python2.7
+			xpect=python
+			;;
+		    python2.[0-9]-dev)		# e.g. python2.7-dev
+			xpect=python-dev
 			;;
 		esac
 		;;
