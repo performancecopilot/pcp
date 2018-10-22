@@ -442,7 +442,7 @@ in
     	na='valgrind socat'
     	;;
     vm18)
-	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
+	na='python3-libvirt python3-prometheus-client python3-elasticsearch python-prometheus-client python-elasticsearch libsoqt5-dev'
 	;;
     vm19)
 	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch zabbix-agent docker-io qtchooser selinux-policy-devel python3-pillow python3-bcc python3-prometheus_client'
