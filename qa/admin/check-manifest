@@ -5,6 +5,17 @@
 # DO NOT RUN DIRECTLY ... this script is exec'd from check-vm -c
 #
 
+if [ -f /etc/pcp.conf ]
+then
+    . /etc/pcp.conf
+else
+    # punt
+    #
+    PCP_ECHO_PROG=echo
+    PCP_ECHO_N='-m'i
+    PCP_ECHO_C=''
+fi
+
 # Need directory where whatami script is located
 #
 dir=`echo $0 | sed -e 's/\/*check-manifest$//'`
@@ -68,16 +79,28 @@ sts=1
 trap "_cleanup; exit \$sts" 0 1 2 3 15
 
 # $pkgtool tells us what family of packaging tools we need
-# to use
+# to use to map a pathname to an installed package name
+# $searchtool tells us how to search for packages by name
+# (including uninstalled packages)
 #
+pgktool=''
+searchtool=''
 $dir/whatami >$tmp.tmp
 case "`sed <$tmp.tmp -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
 in
     *Ubuntu*|*Debian*|*LinuxMint*)
 	pkgtool=dpkg
+	searchtool=dpkg-query
 	;;
-    *Fedora*)
+    *Fedora*|*openSUSE*)
 	pkgtool=rpm
+	if which zypper >/dev/null
+	then
+	    searchtool=zypper
+	elif which dnf >/dev/null
+	then
+	    searchtool=dnf
+	fi
 	;;
 esac
 if [ -z "$pkgtool" ]
@@ -112,7 +135,7 @@ _path_to_pkg()
 	    # expecting output like
 	    # lm_sensors-3.4.0-8.fc27.x86_64
 	    #
-	    rpm -qf "$1" 2>/dev/null | sed -e 's/-[0-9].*//' >$tmp.tmp
+	    rpm -qf "$1" 2>/dev/null | sed -e '/is not owned by any/d' -e 's/-[0-9].*//' >$tmp.tmp
 	    if [ -s "$tmp.tmp" ]
 	    then
 		cat $tmp.tmp
@@ -120,7 +143,7 @@ _path_to_pkg()
 		_target=`realpath $1`
 		if [ "$_target" != "$1" ]
 		then
-		    rpm -qf "$_target" 2>/dev/null | sed -e 's/-[0-9].*//'
+		    rpm -qf "$_target" 2>/dev/null | sed -e '/is not owned by any/d' -e 's/-[0-9].*//'
 		fi
 	    fi
 	    ;;
@@ -193,8 +216,14 @@ _match_pkg()
 	rpm)
 		case "$1"
 		in
-		    libTODOxyz)
-			xpect=libTODO
+		    Coin[0-9]*-devel)		# e.g. Coin3-devel
+			xpect=Coin-devel
+			;;
+		    libboost_headers*-devel)	# e.g. libboost_headers1_66_0-devel
+			xpect=libboost-devel
+			;;
+		    postgresql[0-9]*)		# e.g. postgresql10
+			xpect=postgresql
 			;;
 		esac
 		;;
@@ -244,7 +273,15 @@ _hunt()
 	    $very_verbose && echo "file=\"$file\" from pkg=\"$pkg\""
 	    if [ -z "$pkg" ]
 	    then
-		echo "$line: target \"$file\" not installed from any package" >>$tmp.msg
+		if echo "$spec" | grep cpan >/dev/null
+		then
+		    # if "cpan" is specified as a possible provider, then
+		    # it is OK if not installed by the package manager
+		    #
+		    :
+		else
+		    echo "$line: target \"$file\" not installed from any package" >>$tmp.msg
+		fi
 	    else
 		rm -f $tmp.ok
 		for spec in $pkginfo
@@ -266,7 +303,7 @@ _hunt()
 	    fi
 	fi
     done
-    if [ ! -f $tmp.ok ]
+    if [ ! -f $tmp.ok -a -f $tmp.msg ]
     then
 	cat $tmp.msg
     fi
@@ -277,6 +314,7 @@ _hunt()
 sed <$tmp.manifest \
     -e 's/#.*\(:[0-9][0-9]*\)$/\1/' \
     -e '/^[ 	]*:[0-9][0-9]*$/d' \
+    -e '/^[ 	]*$/d' \
     -e '/\[N\/A/d' \
 | while read guard target extra
 do
@@ -413,26 +451,46 @@ q
 		    -e 's/ or / /g'`
 	for pkg in $_extra
 	do
-	    $verbose && echo "$lineno: check N/A for \"$pkg\""
-	    case "$pkg"
+	    if $verbose
+	    then
+		echo "$lineno: check N/A for \"$pkg\""
+	    else
+		# may be slow, so emit dots for progress ...
+		#
+		$PCP_ECHO_PROG $PCP_ECHO_N ."$PCP_ECHO_C"
+	    fi
+	    rm -f $tmp.avail
+	    case "$searchtool"
 	    in
+		dpkg-query)
+		    if dpkg-query -l "$pkg" >$tmp.out 2>&1
+		    then
+			touch $tmp.avail
+			$verbose && cat $tmp.out
+		    fi
+		    ;;
+
+		zypper)
+		    if zypper search -t package -x "$pkg" >$tmp.out 2>&1
+		    then
+			touch $tmp.avail
+			$verbose && cat $tmp.out
+		    fi
+		    ;;
+
 		*)
-		    case "$pkgtool"
-		    in
-			dpkg)
-			    if dpkg-query -l "$pkg" >/dev/null 2>/dev/null
-			    then
-				echo "$lineno: looks like package $pkg may be available"
-			    fi
-			    ;;
-			rpm)
-			    # TODO
-			    ;;
-		    esac
+		    echo "_hunt: Botch: no rule for searchtool=$searchtool"
+		    break
+		    ;;
 	    esac
+	[ -f $tmp.avail ] && echo "$lineno: looks like package $pkg may be available"
 	done
     done
+    # done with dots ...
+    #
+    $verbose || echo
 fi
+
 
 sts=0
 exit
