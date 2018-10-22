@@ -73,7 +73,7 @@ trap "_cleanup; exit \$sts" 0 1 2 3 15
 $dir/whatami >$tmp.tmp
 case "`sed <$tmp.tmp -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
 in
-    *Ubuntu*)
+    *Ubuntu*|*Debian*)
 	pkgtool=dpkg
 	;;
     *Fedora*)
@@ -143,8 +143,14 @@ _match_pkg()
 	dpkg)
 		case "$1"
 		in
+		    libpython2.[0-9]-stdlib)	# e.g. libpython2.7-stdlib
+			xpect=libpython-stdlib
+			;;
 		    libpython3.[0-9]-stdlib)	# e.g. libpython3.6-stdlib
 			xpect=libpython3-stdlib
+			;;
+		    libpython2.[0-9]-dev|libpython.3.[0-9]m)	# e.g. libpython2.7-dev
+			xpect=libpython-dev
 			;;
 		    libpython3.[0-9]-dev|libpython.3.[0-9]m)	# e.g. libpython3.6-dev
 			xpect=libpython3-dev
@@ -290,7 +296,7 @@ do
 	    -e 's/\[//' \
 	    -e 's/]//' \
 	    -e "s/'perl([^0]*)'//" \
-	    -e 's/([^)]*)//'g \
+	    -e 's/([^)]*)//g' \
 	    -e 's/from cpan/cpan/' \
 	    -e 's/ or / /g' \
 	    -e 's/  */ /g' \
@@ -346,6 +352,60 @@ do
     esac
 
 done
+
+# check the N/A packages list for this host
+#
+sed -n -e '/\[N\/A/p' <$tmp.manifest \
+| sed -e 's/.*:\([0-9][0-9]*\)$/\1/' >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo "Checking the N/A packages for `hostname -s` ..."
+    cat $tmp.tmp \
+    | while read lineno
+    do
+	eval `sed <$dir/package.manifest -n -e "$lineno{"'
+s/^!//
+s/^[a-z][a-z]*[?][ 	][ 	]*//
+s/[ 	][ 	]*/ /g
+s/^/_target="/
+s/ \[/"\n\
+_extra="/
+s/]/"/
+p
+q
+}'`
+	# if package list is N/A, use the target as a best guess
+	# alias
+	#
+	[ "$_extra" = "N/A" ] && _extra="$_target"
+	_extra=`echo "$_extra" \
+	        | sed \
+		    -e 's/([^)]*)//g' \
+		    -e 's/from cpan/cpan/' \
+		    -e 's/cpan//' \
+		    -e 's/ or / /g'`
+	for pkg in $_extra
+	do
+	    $verbose && echo "$lineno: check N/A for \"$pkg\""
+	    case "$pkg"
+	    in
+		*)
+		    case "$pkgtool"
+		    in
+			dpkg)
+			    if dpkg-query -l "$pkg" >/dev/null 2>/dev/null
+			    then
+				echo "$lineno: looks like package $pkg may be available"
+			    fi
+			    ;;
+			rpm)
+			    # TODO
+			    ;;
+		    esac
+	    esac
+	done
+    done
+fi
 
 sts=0
 exit

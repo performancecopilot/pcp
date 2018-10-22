@@ -406,7 +406,7 @@ in
 	na='python3-bcc'
 	;;
     bozo-vm)
-	na='docker.io python3-bpfcc libsoqt5-dev'
+	na='docker.io python3-bpfcc libsoqt5-dev python-elasticsearch python-openpyxl python-psycopg2'
 	;;
     vm00)
 	na='libuv1-dev python3-libvirt python3-prometheus-client python3-elasticsearch python3-openpyxl python3-bpfcc libsoqt5-dev'
