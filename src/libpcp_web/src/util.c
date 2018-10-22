@@ -891,10 +891,10 @@ pmwebapi_new_metric(context_t *context, pmDesc *desc,
     if (numnames <= 0)
 	return NULL;
 
-    if ((metric = calloc(1, sizeof(metric_t))) == NULL ||
-	(series = calloc(numnames, sizeof(seriesname_t))) == NULL) {
-	if (metric)
-	    free(metric);
+    if ((metric = calloc(1, sizeof(metric_t))) == NULL)
+	return NULL;
+    if ((series = calloc(numnames, sizeof(seriesname_t))) == NULL) {
+	free(metric);
 	return NULL;
     }
     for (i = 0; i < numnames; i++) {
