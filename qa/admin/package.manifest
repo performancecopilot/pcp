@@ -632,7 +632,7 @@ slackpkg?	Spreadsheet::XLSX	[from cpan (QA optional)]
 pacman?	Spreadsheet::XLSX	[from cpan (QA optional)]
 # -- Text::CSV_XS
 dpkg?	Text::CSV_XS		[libtext-csv-xs-perl or from cpan (QA optional)]
-rpm?	Text::CSV_XS		[perl-Text-CSV_XS or 'perl(Text::CSV_XS)'] (QA optional)]
+rpm?	Text::CSV_XS		[perl-Text-CSV_XS or 'perl(Text::CSV_XS)' or cpan] (QA optional)]
 urpmi?	Text::CSV_XS		[perl-Text-CSV_XS or 'perl(Text::CSV_XS)'] (QA optional)]
 emerge?	Text::CSV_XS		[dev-perl/Text-CSV_XS (QA optional)]
 pkgin?	Text::CSV_XS		[p5-Text-CSV_XS (QA optional)]

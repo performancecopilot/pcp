@@ -92,7 +92,7 @@ in
 	pkgtool=dpkg
 	searchtool=dpkg-query
 	;;
-    *Fedora*|*openSUSE*)
+    *Fedora*|*openSUSE*|*SUSE\ SLES*)
 	pkgtool=rpm
 	if which zypper >/dev/null
 	then
@@ -273,7 +273,7 @@ _hunt()
 	    $very_verbose && echo "file=\"$file\" from pkg=\"$pkg\""
 	    if [ -z "$pkg" ]
 	    then
-		if echo "$spec" | grep cpan >/dev/null
+		if echo "$pkginfo" | grep cpan >/dev/null
 		then
 		    # if "cpan" is specified as a possible provider, then
 		    # it is OK if not installed by the package manager
@@ -424,7 +424,13 @@ sed -n -e '/\[N\/A/p' <$tmp.manifest \
 | sed -e 's/.*:\([0-9][0-9]*\)$/\1/' >$tmp.tmp
 if [ -s $tmp.tmp ]
 then
-    echo "Checking the N/A packages for `hostname -s` ..."
+    $PCP_ECHO_PROG $PCP_ECHO_N "Checking the N/A packages for `hostname -s` ""$PCP_ECHO_C"
+    if $verbose
+    then
+	$PCP_ECHO_PROG "..."
+    else
+	touch $tmp.dots
+    fi
     cat $tmp.tmp \
     | while read lineno
     do
@@ -458,6 +464,7 @@ q
 		# may be slow, so emit dots for progress ...
 		#
 		$PCP_ECHO_PROG $PCP_ECHO_N ."$PCP_ECHO_C"
+		touch $tmp.dots
 	    fi
 	    rm -f $tmp.avail
 	    case "$searchtool"
@@ -471,7 +478,10 @@ q
 		    ;;
 
 		zypper)
-		    if zypper search -t package -x "$pkg" >$tmp.out 2>&1
+		    # make package name match up to the first digit or hypen
+		    #
+		    prefix=`echo "$pkg" | sed -e 's/^\([^0-9-]*\).*/\1/'`
+		    if zypper search -t package "$pkg" | grep "| $prefix" >$tmp.out 2>&1
 		    then
 			touch $tmp.avail
 			$verbose && cat $tmp.out
@@ -479,18 +489,36 @@ q
 		    ;;
 
 		*)
+		    if [ -f $tmp.dots ]
+		    then
+			echo
+			rm -f $tmp.dots
+		    fi
 		    echo "_hunt: Botch: no rule for searchtool=$searchtool"
 		    break
 		    ;;
 	    esac
-	[ -f $tmp.avail ] && echo "$lineno: looks like package $pkg may be available"
+	    if [ -f $tmp.avail ]
+	    then
+		if [ -f $tmp.dots ]
+		then
+		    echo
+		    rm -f $tmp.dots
+		fi
+		$verbose && cat $tmp.out
+		echo "$lineno: looks like package $pkg may be available"
+	    fi
 	done
     done
-    # done with dots ...
-    #
-    $verbose || echo
-fi
 
+    if [ -f $tmp.dots ]
+    then
+	# done with dots ...
+	#
+	echo
+	rm -f $tmp.dots
+    fi
+fi
 
 sts=0
 exit
