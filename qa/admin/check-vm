@@ -88,10 +88,18 @@ force=false
 pkglist=false
 verbose=false
 very_verbose=false
-while getopts 'fpv?' p
+check_manifest=false
+check_mainfest_args=''
+while getopts 'cfpv?' p
 do
     case "$p"
     in
+	c)	# exec check-mainfest when manifest has been build
+		# ... expert only, so not even mentioned in Usage
+		#
+		check_manifest=true
+		;;
+
 	f)
 		force=true
 		;;
@@ -103,8 +111,10 @@ do
 	v)	if $verbose
 		then
 		    very_verbose=true
+		    check_manifest_args="-vv"
 		else
 		    verbose=true
+		    check_manifest_args="-v"
 		fi
 		;;
 
@@ -235,7 +245,14 @@ then
     exit 1
 fi
 
-cat $dir/package.manifest >$tmp.main
+if $check_manifest
+then
+    # append original line numbers
+    #
+    $PCP_AWK_PROG '{ print $0 " :" NR }' <$dir/package.manifest >$tmp.manifest
+else
+    cat <$dir/package.manifest >$tmp.manifest
+fi
 
 if which python >/dev/null 2>&1
 then
@@ -253,7 +270,7 @@ then
 	    touch $tmp.need
 	fi
 	[ -f $tmp.need ] && \
-	    echo "rpm?	/usr/share/doc/python-ctypes*	[python-ctypes]" >>$tmp.main
+	    echo "rpm?	/usr/share/doc/python-ctypes*	[python-ctypes]" >>$tmp.manifest
     fi
 fi
 
@@ -316,13 +333,13 @@ do
     if which $pkgtool >/dev/null 2>&1 && $want
     then
 	$very_verbose && echo "include ${pkgtype}? lines"
-	sed -e "s/^${pkgtype}?[ 	]//" <$tmp.main >$tmp.tmp
-	mv $tmp.tmp $tmp.main
+	sed -e "s/^${pkgtype}?[ 	]//" <$tmp.manifest >$tmp.tmp
+	mv $tmp.tmp $tmp.manifest
 	touch $tmp.ok
     else
 	$very_verbose && echo "exclude ${pkgtype}? lines"
-	grep -v "^${pkgtype}?[ 	]" <$tmp.main >$tmp.tmp
-	mv $tmp.tmp $tmp.main
+	grep -v "^${pkgtype}?[ 	]" <$tmp.manifest >$tmp.tmp
+	mv $tmp.tmp $tmp.manifest
     fi
 done
 if [ ! -f $tmp.ok ]
@@ -364,12 +381,12 @@ do
     if $pick
     then
 	$very_verbose && echo "include ${distro}? lines"
-	sed -e "s/^${distro}?[ 	]//" <$tmp.main >$tmp.tmp
-	mv $tmp.tmp $tmp.main
+	sed -e "s/^${distro}?[ 	]//" <$tmp.manifest >$tmp.tmp
+	mv $tmp.tmp $tmp.manifest
     else
 	$very_verbose && echo "exclude ${distro}? lines"
-	grep -v "^${distro}?[ 	]" <$tmp.main >$tmp.tmp
-	mv $tmp.tmp $tmp.main
+	grep -v "^${distro}?[ 	]" <$tmp.manifest >$tmp.tmp
+	mv $tmp.tmp $tmp.manifest
     fi
 done
 
@@ -379,14 +396,20 @@ done
 na=''
 case `hostname -s`
 in
+    bozo)
+	# not so much unavailable as unsafe to install on hypervisor
+	# and nameserver
+	#
+	na='docker.io unbound libsoqt5-dev'
+	;;
     bozo-laptop)
 	na='python3-bcc'
 	;;
     bozo-vm)
-	na='docker.io python3-bpfcc libsoqt5-dev'
+	na='docker.io python3-bpfcc libsoqt5-dev python-elasticsearch python-openpyxl python-psycopg2'
 	;;
     vm00)
-	na='libuv1-dev python3-libvirt python3-prometheus-client python3-elasticsearch python3-openpyxl python3-bpfcc libsoqt5-dev'
+	na='libuv1-dev python3-libvirt python3-prometheus-client python3-elasticsearch python3-openpyxl python3-bpfcc libsoqt5-dev python-prometheus-client python-elasticsearch python-openpyxl python-psycopg2'
 	;;
     vm01)
 	na='python3-bpfcc libsoqt5-dev'
@@ -404,7 +427,7 @@ in
 	na='docker.io'
 	;;
     vm09)
-	na='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg Coin dtrace boost json_reformat'
+	na='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg dtrace boost json_reformat py36-imaging nmap' 
 	;;
     vm11)
 	na='python3-bpfcc docker.io libsoqt5-dev'
@@ -413,22 +436,22 @@ in
 	na='python3-prometheus_client python3-bcc kubernetes-client kubernetes-node'
 	;;
     vm14)
-	na='systemd-devel libpfm-devel python-prometheus_client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin3-devel Net::SNMP YAML::XS::LibYAML libuv-devel kubernetes-client kubernetes-node docker-common'
+	na='systemd-devel libpfm-devel python-prometheus_client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin-devel Net::SNMP YAML::XS::LibYAML libuv-devel kubernetes-client kubernetes-node docker-common'
 	;;
     vm15)
     	na='valgrind socat'
     	;;
     vm18)
-	na='python3-libvirt python3-prometheus-client python3-elasticsearch'
+	na='python3-libvirt python3-prometheus-client python3-elasticsearch python-prometheus-client python-elasticsearch libsoqt5-dev'
 	;;
     vm19)
-	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch zabbix-agent docker-io qtchooser selinux-policy-devel python3-pillow python3-bcc python3-prometheus_client'
+	na='python3-jsonpointer python3-rtslib libvirt-python3 python-prometheus_client python3-elasticsearch zabbix-agent docker-io qtchooser python3-pillow python3-bcc python3-prometheus_client'
 	;;
     vm20)
 	na='sysv-rc-conf'
 	;;
     vm21)
-	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-openpyxl zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io'
+	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-openpyxl zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io libuv-dev libsoqt5-dev'
 	;;
     vm22)
 	na='python-prometheus-client python3-prometheus-client python3-openpyxl python3-bcc python3-prometheus_client'
@@ -437,7 +460,7 @@ in
 	na='python-prometheus-client python3-prometheus-client python3-bcc kubernetes-client kubernetes-node python3-prometheus_client'
 	;;
     vm24)
-	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin3-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch python3-bcc python3-pillow docker-io python3-prometheus_client'
+	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch python3-bcc python3-pillow docker-io python3-prometheus_client python-prometheus_client python-elasticsearch'
 	;;
     vm25)
 	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser'
@@ -449,13 +472,13 @@ in
 	na='python3-bpfcc'
 	;;
     vm28)
-	na='systemd-devel libpfm-devel python-prometheus_client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel docker-common qtchooser qtchooser Coin3-devel'
+	na='systemd-devel libpfm-devel python-prometheus_client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel docker-common qtchooser qtchooser Coin-devel'
 	;;
     vm29)
-	na='python-prometheus_client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin3-devel SoQt-devel python-openpyxl libuv-devel'
+	na='python-prometheus_client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin-devel SoQt-devel python-openpyxl libuv-devel'
     	;;
     vm30)
-	na='libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin3-devel SoQt-devel python3-libs boost-devel yajl python-psycopg2 python3-psycopg2'
+	na='libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin-devel SoQt-devel python3-libs yajl python-psycopg2 python3-psycopg2'
 	;;
     vm31)
 	na='python-prometheus-client python3-prometheus-client python3-bcc'
@@ -475,10 +498,11 @@ then
     for f in $na
     do
 # s;[^ 	]*\('"$f"'\);\1;
-	sed <$tmp.main >$tmp.tmp -e "/$f/{"'
-s;\[.*;[N/A on host '"`hostname -s`"'];
+	sed <$tmp.manifest >$tmp.tmp -e "/$f/{"'
+s;\[[^]]*];[N/A on host '"`hostname -s`"'];
 }'
-	mv $tmp.tmp $tmp.main
+	mv $tmp.tmp $tmp.manifest
+	$very_verbose && echo "n/a for $f"
     done
 fi
 
@@ -499,11 +523,11 @@ else
 		echo "Warning: cannot get Python version from: `$PCP_PYTHON_PROG --version`"
 	    else
 		#debug# echo "pyver=$pyver"
-		sed <$tmp.main >$tmp.tmp -e '/\/python[0-9]/{
+		sed <$tmp.manifest >$tmp.tmp -e '/\/python[0-9]/{
     /\/python'"$pyver"'[./]/!d
     }'
-		#debug# diff $tmp.main $tmp.tmp
-		mv $tmp.tmp $tmp.main
+		#debug# diff $tmp.manifest $tmp.tmp
+		mv $tmp.tmp $tmp.manifest
 	    fi
 	fi
     fi
@@ -527,15 +551,21 @@ else
     if [ -n "$cull" ]
     then
 	#debug# echo "cull=$cull"
-	grep -vi "$cull" <$tmp.main >$tmp.tmp
-	#debug# diff $tmp.main $tmp.tmp
-	mv $tmp.tmp $tmp.main
+	grep -vi "$cull" <$tmp.manifest >$tmp.tmp
+	#debug# diff $tmp.manifest $tmp.tmp
+	mv $tmp.tmp $tmp.manifest
     fi
+fi
+
+if $check_manifest
+then
+    echo "Handing off to $dir/check-manifest ..."
+    exec $dir/check-manifest $check_manifest_args $tmp
 fi
 
 # main loop
 #
-cat $tmp.main \
+cat $tmp.manifest \
 | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
 | while read apps
 do
@@ -674,7 +704,7 @@ n
 }' \
 		-e 's/  */ /g' \
 		-e p \
-	    # end
+	    | sed -e '/^ *$/d'
 
 	else
 	    echo "Missing: `echo $apps \
@@ -692,13 +722,17 @@ s/@/ /g
 }'`"
 	fi
     fi
-done \
-| if $pkglist
+done >$tmp.out
+
+if [ -s $tmp.out ]
 then
-    tr '[\012]' ' ' | sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//'
-    echo
-else
-    cat
+    if $pkglist
+    then
+	tr '[\012]' ' ' <$tmp.out | sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//'
+	echo
+    else
+	cat $tmp.out
+    fi
 fi
 
 $pkglist && exit

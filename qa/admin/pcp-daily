@@ -237,7 +237,7 @@ sed -e 's/^/ /' <Logs/pcp \
     -e '/input.* defined but not used/d' \
     -e '/jobserver unavailable: using -j1/d'\
     -e '/^warning: File listed twice: .*python/d' \
-    -e /Deprecated external dependency generator is used!/d' \
+    -e '/Deprecated external dependency generator is used!/d' \
     -e '/^dpkg-shlibdeps: warning: .*\/pmda_pmcd.so contains an unresolvable .* probably a plugin/d' \
     -e '/^configure: WARNING: unrecognized options: --disable-dependency-tracking/d' \
     -e '/^\/usr\/share\/selinux\/devel\/.* duplicate definition of /d' \
