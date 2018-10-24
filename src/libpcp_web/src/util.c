@@ -851,8 +851,8 @@ pmwebapi_add_indom_instances(struct indom *indom)
     unsigned int	count = 0;
     dictIterator	*iterator;
     dictEntry		*entry;
-    char		errmsg[PM_MAXERRMSGLEN], buffer[64], **namelist;
-    int			*instlist, i, sts;
+    char		errmsg[PM_MAXERRMSGLEN], buffer[64], **namelist = NULL;
+    int			*instlist = NULL, i, sts;
 
     /* refreshing instance domain entries so mark all out-of-date first */
     iterator = dictGetIterator(indom->insts);
@@ -868,14 +868,16 @@ pmwebapi_add_indom_instances(struct indom *indom)
 	    instance->updated = 1;
 	    count++;
 	}
-	free(instlist);
-	free(namelist);
     } else {
 	if (pmDebugOptions.series)
 	    fprintf(stderr, "failed to get indom (%s) instances: %s\n",
 		    pmInDomStr_r(indom->indom, buffer, sizeof(buffer)),
 		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     }
+    if (instlist)
+	free(instlist);
+    if (namelist)
+	free(namelist);
     return count;
 }
 
@@ -933,6 +935,7 @@ pmwebapi_add_metric(context_t *context, pmDesc *desc,
 	    return metric;
 	}
     }
+    sdsfree(name);
     return pmwebapi_new_metric(context, desc, numnames, names, info, arg);
 }
 
