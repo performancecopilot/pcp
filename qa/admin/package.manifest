@@ -951,7 +951,7 @@ slackpkg?	mkfs.gfs2	[N/A (gfs2 QA optional)]
 pacman?	mkfs.gfs2		[gfs2? (gfs2 QA optional)]
 # -- docker
 dpkg?		docker		[docker.io (QA optional)]
-rpm?		docker		[docker-common or docker (QA optional)]
+rpm?		docker		[docker-common or docker or docker-io (QA optional)]
 urpmi?		docker		[docker-common (QA optional)]
 emerge?		docker		[app-emulation/docker (QA optional)]
 pkgin?		docker		[? (QA optional)]
