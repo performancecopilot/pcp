@@ -421,7 +421,7 @@ in
 	na='python3-prometheus_client'
 	;;
     vm04)
-	na='python-prometheus-client python-openpyxl zabbix-agent qtchooser qtchooser'
+	na='python-prometheus_client python-openpyxl qtchooser qtchooser'
 	;;
     vm07)
 	na='docker.io'

@@ -92,14 +92,17 @@ in
 	pkgtool=dpkg
 	searchtool=dpkg-query
 	;;
-    *Fedora*|*openSUSE*|*SUSE\ SLES*)
+    *Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
 	pkgtool=rpm
-	if which zypper >/dev/null
+	if which zypper >/dev/null 2>&1
 	then
 	    searchtool=zypper
-	elif which dnf >/dev/null
+	elif which dnf >/dev/null 2>&1
 	then
 	    searchtool=dnf
+	elif which yum >/dev/null 2>&1
+	then
+	    searchtool=yum
 	fi
 	;;
     *NetBSD*)
@@ -268,6 +271,10 @@ _match_pkg()
 #
 _hunt()
 {
+    # all the places where Perl bits might get installed .. geez!
+    #
+    _perl_dirs="/usr/lib*/perl5 /usr/lib/*/perl5 /usr/share/perl /usr/share/perl5 /usr/pkg/lib/perl5 /usr/local/share/perl5"
+
     rm -f $tmp.msg $tmp.ok
     for file in `echo "$target" | sed -e 's/|/ /g'`
     do
@@ -421,7 +428,7 @@ do
 	*::)
 	    # special case Perl, no module name
 	    _perl=`echo "$target" | sed -e 's/:://'`
-	    _target=`find /usr/lib/perl5 /usr/lib/*/perl5 /usr/share/perl /usr/pkg/lib/perl5 -name "$_perl.*" -print 2>/dev/null \
+	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
 	             | egrep "/$_perl.(pm|so)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
@@ -439,7 +446,7 @@ do
 	    _module=`echo "$target" | sed -e 's/::.*//'`
 	    _submodule=`echo "$target" | sed -e 's/[^:]*::\([^:][^:]*\)::.*/\1/'`
 	    _perl=`echo "$target" | sed -e 's/.*:://'`
-	    _target=`find /usr/lib/perl5 /usr/lib/*/perl5 /usr/share/perl /usr/pkg/lib/perl5 -name "$_perl.*" -print 2>/dev/null \
+	    _target=`find $_perl_dirs "$_perl.*" -print 2>/dev/null \
 	             | egrep "/$_module/($_submodule|$_submodule/$_perl)/$_perl.(pm|so)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
@@ -456,7 +463,7 @@ do
 	    # normal case Perl, with module name
 	    _module=`echo "$target" | sed -e 's/::.*//'`
 	    _perl=`echo "$target" | sed -e 's/.*:://'`
-	    _target=`find /usr/lib/perl5 /usr/lib/*/perl5 /usr/share/perl /usr/pkg/lib/perl5 -name "$_perl.*" -print 2>/dev/null \
+	    _target=`find $_perl_dirs "$_perl.*" -print 2>/dev/null \
 	             | egrep "/$_module/$_perl.(pm|so)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
@@ -546,6 +553,19 @@ q
 	    in
 		dpkg-query)
 		    if dpkg-query -l "$pkg" >$tmp.out 2>&1
+		    then
+			touch $tmp.avail
+			$verbose && cat $tmp.out
+		    fi
+		    ;;
+
+		yum)
+		    # For example: search bash ->
+		    # bash.x86_64 : The GNU Bourne Again shell
+		    # make package name match up to the .
+		    #
+		    prefix=`echo "$pkg" | sed -e 's/[. ].*//'`
+		    if yum search "$pkg" 2>&1 | grep "^$prefix" >$tmp.out 2>&1
 		    then
 			touch $tmp.avail
 			$verbose && cat $tmp.out
