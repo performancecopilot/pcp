@@ -457,13 +457,13 @@ in
 	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-openpyxl zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io libuv-dev libsoqt5-dev'
 	;;
     vm22)
-	na='python-prometheus-client python3-prometheus-client python3-openpyxl python3-bcc python3-prometheus_client'
+	na='python-prometheus_client python3-prometheus_client python3-openpyxl python3-bcc python3-prometheus_client'
 	;;
     vm23)
-	na='python-prometheus-client python3-prometheus-client python3-bcc kubernetes-client kubernetes-node python3-prometheus_client'
+	na='python-prometheus_client python3-prometheus_client python3-bcc kubernetes-client kubernetes-node python3-prometheus_client'
 	;;
     vm24)
-	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch python3-bcc python3-pillow docker-io python3-prometheus_client python-prometheus_client python-elasticsearch'
+	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus_client python3-elasticsearch python3-bcc python3-pillow docker-io python3-prometheus_client python-prometheus_client python-elasticsearch'
 	;;
     vm25)
 	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser python3-requests'
@@ -484,7 +484,7 @@ in
 	na='libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin-devel SoQt-devel python3-libs yajl python-psycopg2 python3-psycopg2'
 	;;
     vm31)
-	na='python-prometheus-client python3-prometheus-client python3-bcc'
+	na='python-prometheus_client' 
 	;;
     vm32)
 	na='libibumad libibmad'

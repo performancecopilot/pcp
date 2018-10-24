@@ -572,6 +572,19 @@ q
 		    fi
 		    ;;
 
+		dnf)
+		    # For example: search bash ->
+		    # bash.x86_64 : The GNU Bourne Again shell
+		    # make package name match up to the .
+		    #
+		    prefix=`echo "$pkg" | sed -e 's/[. ].*//'`
+		    if dnf search "$pkg" 2>&1 | grep "^$prefix" >$tmp.out 2>&1
+		    then
+			touch $tmp.avail
+			$verbose && cat $tmp.out
+		    fi
+		    ;;
+
 		zypper)
 		    # make package name match up to the first digit or hypen
 		    #
