@@ -102,6 +102,10 @@ in
 	    searchtool=dnf
 	fi
 	;;
+    *NetBSD*)
+	pkgtool=pkgin
+	searchtool=pkgin
+	;;
 esac
 if [ -z "$pkgtool" ]
 then
@@ -131,6 +135,7 @@ _path_to_pkg()
 		fi
 	    fi
 	    ;;
+
 	rpm)
 	    # expecting output like
 	    # lm_sensors-3.4.0-8.fc27.x86_64
@@ -145,6 +150,18 @@ _path_to_pkg()
 		then
 		    rpm -qf "$_target" 2>/dev/null | sed -e '/is not owned by any/d' -e 's/-[0-9].*//'
 		fi
+	    fi
+	    ;;
+
+	pkgin)
+	    # expecting output like
+	    # bash-4.4.18<version babble>
+	    #
+	    pkg_info -Fe "$1" 2>/dev/null \
+	    | sed >$tmp.tmp -e 's/-[0-9].*//'
+	    if [ -s "$tmp.tmp" ]
+	    then
+		cat $tmp.tmp
 	    fi
 	    ;;
 
@@ -227,6 +244,15 @@ _match_pkg()
 			;;
 		esac
 		;;
+
+	pkgin)
+		case "$1"
+		in
+		    postgresql[0-9]*-client)	# e.g. postgresql95-client
+			xpect=postgresql-client
+			;;
+		esac
+		;;
     esac
     [ "$xpect" = "$2" ]
     return $?
@@ -273,11 +299,21 @@ _hunt()
 	    $very_verbose && echo "file=\"$file\" from pkg=\"$pkg\""
 	    if [ -z "$pkg" ]
 	    then
-		if echo "$pkginfo" | grep cpan >/dev/null
+		if echo " $pkginfo " | grep ' cpan ' >/dev/null
 		then
 		    # if "cpan" is specified as a possible provider, then
 		    # it is OK if not installed by the package manager
 		    #
+		    :
+		elif echo " $pkginfo " | grep ' base ' >/dev/null
+		then
+		    # if "base" is specified as a possible provider (which
+		    # may be from a line that contains no provider info,
+		    # see above) and the file exists (or we wouldn't be here
+		    # then that is OK if it is not installed by the package
+		    # manager
+		    #
+		    $verbose && echo "$line: OK target $file assumed to be from base system install"
 		    :
 		else
 		    echo "$line: target \"$file\" not installed from any package" >>$tmp.msg
@@ -363,29 +399,53 @@ do
 	    -e "s/'perl([^0]*)'//" \
 	    -e 's/([^)]*)//g' \
 	    -e 's/from cpan/cpan/' \
+	    -e 's/base NetBSD install/base/' \
+	    -e 's/base OpenBSD install/base/' \
+	    -e 's/base FreeBSD install/base/' \
 	    -e 's/ or / /g' \
 	    -e 's/  */ /g' \
 	    -e 's/^ //' \
 	    -e 's/ $//'`
     # we have some manifest lines for really common commands where
     # there is no [pkginfo], so punt on the package name being the same
-    # as the target name
+    # as the target name else it is part of a base system install
     #
-    [ -z "$pkginfo" ] && pkginfo="$target"
+    [ -z "$pkginfo" ] && pkginfo="$target base"
+    # unknown ones warrant a warning
+    #
+    [ "$pkginfo" = "?" ] && echo "$line: Warning: package for \"$target\" is not known"
     $very_verbose && echo target=\"$target\" extra=\"$extra\" pkginfo=\"$pkginfo\"
 
     case "$target"
     in
 	*::)
 	    # special case Perl, no module name
-	    perl=`echo "$target" | sed -e 's/:://'`
-	    _target=`find /usr/lib/perl5/*/$module /usr/lib/*/perl5/*/$module /usr/share/perl/* -print 2>/dev/null \
-	             | grep "\\/$perl.pm$" \
+	    _perl=`echo "$target" | sed -e 's/:://'`
+	    _target=`find /usr/lib/perl5 /usr/lib/*/perl5 /usr/share/perl /usr/pkg/lib/perl5 -name "$_perl.*" -print 2>/dev/null \
+	             | egrep "/$_perl.(pm|so)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
-		echo "$line: Perl source \"$target\" not found" >>$tmp.msg
+		echo "$line: Perl source \"$target\" not found"
+	    else
+		target="$_target"
+		_hunt
+	    fi
+	    ;;
+
+	*::*::*)
+	    # special case Perl, with module and submodule name
+	    _module=`echo "$target" | sed -e 's/::.*//'`
+	    _submodule=`echo "$target" | sed -e 's/[^:]*::\([^:][^:]*\)::.*/\1/'`
+	    _perl=`echo "$target" | sed -e 's/.*:://'`
+	    _target=`find /usr/lib/perl5 /usr/lib/*/perl5 /usr/share/perl /usr/pkg/lib/perl5 -name "$_perl.*" -print 2>/dev/null \
+	             | egrep "/$_module/($_submodule|$_submodule/$_perl)/$_perl.(pm|so)$" \
+		     | ( tr '\012' '|'; echo ) \
+		     | sed -e 's/|$//'`
+	    if [ -z "$_target" ]
+	    then
+		echo "$line: Perl source \"$target\" not found"
 	    else
 		target="$_target"
 		_hunt
@@ -396,13 +456,13 @@ do
 	    # normal case Perl, with module name
 	    _module=`echo "$target" | sed -e 's/::.*//'`
 	    _perl=`echo "$target" | sed -e 's/.*:://'`
-	    _target=`find /usr/lib/perl5/*/$module /usr/lib/*/perl5/*/$module /usr/share/perl/* -print 2>/dev/null \
-	             | grep "\\/$_module\\/$_perl.pm$" \
+	    _target=`find /usr/lib/perl5 /usr/lib/*/perl5 /usr/share/perl /usr/pkg/lib/perl5 -name "$_perl.*" -print 2>/dev/null \
+	             | egrep "/$_module/$_perl.(pm|so)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
-		echo "$line: Perl source \"$target\" not found" >>$tmp.msg
+		echo "$line: Perl source \"$target\" not found"
 	    else
 		target="$_target"
 		_hunt
@@ -424,7 +484,9 @@ sed -n -e '/\[N\/A/p' <$tmp.manifest \
 | sed -e 's/.*:\([0-9][0-9]*\)$/\1/' >$tmp.tmp
 if [ -s $tmp.tmp ]
 then
+    rm -f $tmp.botch $tmp.allpkgs
     $PCP_ECHO_PROG $PCP_ECHO_N "Checking the N/A packages for `hostname -s` ""$PCP_ECHO_C"
+    $PCP_ECHO_PROG $PCP_ECHO_N "[`wc -l <$tmp.tmp | sed -e 's/ //g'` packages] ""$PCP_ECHO_C"
     if $verbose
     then
 	$PCP_ECHO_PROG "..."
@@ -439,22 +501,35 @@ s/^!//
 s/^[a-z][a-z]*[?][ 	][ 	]*//
 s/[ 	][ 	]*/ /g
 s/^/_target="/
-s/ \[/"\n\
-_extra="/
-s/]/"/
+s/ .*/"/
 p
 q
 }'`
+	eval `sed <$dir/package.manifest -n -e "$lineno{"'
+s/^!//
+s/^[a-z][a-z]*[?][ 	][ 	]*//
+s/[ 	][ 	]*/ /g
+s/\[//
+s/]//
+s/^[^ ]* /_extra="/
+s/$/"/
+p
+q
+}'`
+	$very_verbose && echo "line=\"$lineno\" _target=\"$_target\" _extra=\"$_extra\""
 	# if package list is N/A, use the target as a best guess
 	# alias
 	#
-	[ "$_extra" = "N/A" ] && _extra="$_target"
 	_extra=`echo "$_extra" \
 	        | sed \
 		    -e 's/([^)]*)//g' \
 		    -e 's/from cpan/cpan/' \
 		    -e 's/cpan//' \
-		    -e 's/ or / /g'`
+		    -e 's/ or / /g' \
+		    -e 's/^  *//' \
+		    -e 's/  *$//'`
+	[ "$_extra" = "N/A" ] && _extra="$_target"
+	$very_verbose && echo "after cull _extra=\"$_extra\""
 	for pkg in $_extra
 	do
 	    if $verbose
@@ -488,6 +563,15 @@ q
 		    fi
 		    ;;
 
+		pkgin)
+		    [ ! -f $tmp.allpkgs ] && pkgin avail >$tmp.allpkgs
+		    if grep "^$pkg-" $tmp.allpkgs >$tmp.out 2>&1
+		    then
+			touch $tmp.avail
+			$verbose && cat $tmp.out
+		    fi
+		    ;;
+
 		*)
 		    if [ -f $tmp.dots ]
 		    then
@@ -495,6 +579,7 @@ q
 			rm -f $tmp.dots
 		    fi
 		    echo "_hunt: Botch: no rule for searchtool=$searchtool"
+		    touch $tmp.botch
 		    break
 		    ;;
 	    esac
@@ -509,6 +594,7 @@ q
 		echo "$lineno: looks like package $pkg may be available"
 	    fi
 	done
+	[ -f $tmp.botch ] && break
     done
 
     if [ -f $tmp.dots ]
