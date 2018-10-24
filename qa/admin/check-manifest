@@ -92,7 +92,7 @@ in
 	pkgtool=dpkg
 	searchtool=dpkg-query
 	;;
-    *Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
+    *RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
 	pkgtool=rpm
 	if which zypper >/dev/null 2>&1
 	then
@@ -130,7 +130,8 @@ _path_to_pkg()
 	    if [ -s "$tmp.tmp" ]
 	    then
 		cat $tmp.tmp
-	    else
+	    elif which realpath >/dev/null 2>&1
+	    then
 		_target=`realpath $1`
 		if [ "$_target" != "$1" ]
 		then
@@ -144,10 +145,13 @@ _path_to_pkg()
 	    # lm_sensors-3.4.0-8.fc27.x86_64
 	    #
 	    rpm -qf "$1" 2>/dev/null | sed -e '/is not owned by any/d' -e 's/-[0-9].*//' >$tmp.tmp
+	    # if not found in any package, try realpath() alternative
+	    #
 	    if [ -s "$tmp.tmp" ]
 	    then
 		cat $tmp.tmp
-	    else
+	    elif which realpath >/dev/null 2>&1
+	    then
 		_target=`realpath $1`
 		if [ "$_target" != "$1" ]
 		then
