@@ -179,7 +179,7 @@ Conflicts: librapi
 Obsoletes: pcp-pmda-kvm
 Provides: pcp-pmda-kvm
 
-# https://fedoraproject.org/wiki/Packaging:C_and_C%2B%2B
+# https://fedoraproject.org/wiki/Packaging "C and C++"
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
 BuildRequires: nss-devel
@@ -2103,8 +2103,10 @@ Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_dstat}
-Obsoletes: dstat
+https://fedoraproject.org/wiki/Packaging:Guidelines "Renaming/Replacing Existing Packages"
+Provides: dstat = %{version}-%{release}
 Provides: /usr/bin/dstat
+Obsoletes: dstat <= 0.7.3-5
 %endif
 
 %description system-tools
