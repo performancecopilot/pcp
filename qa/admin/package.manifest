@@ -49,7 +49,7 @@ gdb
 gawk
 # -- gcc
 dpkg?		gcc		[gcc]
-rpm?		gcc		[gcc]
+rpm?		gcc		[gcc or ccache]
 urpmi?		gcc		[gcc]
 emerge?		gcc		[gcc]
 pkgin?		gcc		[base NetBSD install]
@@ -264,7 +264,7 @@ rpm?	/usr/include/rpm/header.h	[rpm-devel (build optional)]
 urpmi?	/usr/include/rpm/header.h	[lib64rpm-devel (build optional)]
 # -- gcc C++ compiler
 dpkg?	g++				[g++]
-rpm?	g++				[gcc-c++]
+rpm?	g++				[gcc-c++ or ccache]
 urpmi?	g++				[gcc-c++]
 emerge?	g++				[sys-devel/gcc]
 pkgin?	g++				[base NetBSD install]
