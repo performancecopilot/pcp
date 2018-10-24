@@ -273,7 +273,7 @@ _hunt()
 {
     # all the places where Perl bits might get installed .. geez!
     #
-    _perl_dirs="/usr/lib*/perl5 /usr/lib/*/perl5 /usr/share/perl /usr/share/perl5 /usr/pkg/lib/perl5 /usr/local/share/perl5"
+    _perl_dirs="/usr/lib*/perl5 /usr/lib/*/perl5 /usr/share/perl /usr/share/perl5 /usr/pkg/lib/perl5 /usr/local/share/perl5 /usr/local/lib*/perl5/"
 
     rm -f $tmp.msg $tmp.ok
     for file in `echo "$target" | sed -e 's/|/ /g'`

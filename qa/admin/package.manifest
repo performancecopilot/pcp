@@ -815,7 +815,7 @@ slackpkg?	/etc/httpd/httpd.conf	[httpd (QA optional)]
 pacman?	/etc/httpd/conf/httpd.conf	[apache (QA optional)]
 # -- realpath(1)
 dpkg?	realpath		[coreutils or realpath]
-rpm?	realpath		[coreutils]
+rpm?	realpath		[coreutils or realpath]
 urpmi?	realpath		[realpath]
 emerge?	realpath		[sys-apps/coreutils]
 pkgin?	realpath		[?]
@@ -1156,7 +1156,7 @@ slackpkg?	pluginviewer		[cyrus-sasl (QA optional)]
 pacman?		pluginviewer		[libsasl (QA optional)]
 # -- selinux policy
 rpm?		seinfo			[setools-console or setools (build optional)]
-rpm?    /usr/share/selinux/devel/Makefile [selinux-policy-devel (build optional)]
+rpm?    /usr/share/selinux/devel/Makefile [selinux-policy-devel or selinux-policy (build optional)]
 rpm?    /etc/selinux/targeted/policy	 [selinux-policy-targeted (build optional)]
 # -- systemtap
 dpkg?		dtrace		[systemtap-sdt-dev (build optional)]
