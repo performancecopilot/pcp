@@ -421,13 +421,22 @@ in
 	na='python3-prometheus_client'
 	;;
     vm04)
-	na='python-prometheus-client python-openpyxl zabbix-agent qtchooser qtchooser'
+	na='python-prometheus_client python-openpyxl qtchooser'
+	;;
+    vm06)
+	na='sensors'
 	;;
     vm07)
 	na='docker.io'
 	;;
+    vm08)
+	na='python-prometheus_client python-openpyxl qtchooser'
+	;;
     vm09)
 	na='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg dtrace boost json_reformat py36-imaging nmap' 
+	;;
+    vm10)
+	na='sensors'
 	;;
     vm11)
 	na='python3-bpfcc docker.io libsoqt5-dev'
@@ -454,25 +463,25 @@ in
 	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-openpyxl zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io libuv-dev libsoqt5-dev'
 	;;
     vm22)
-	na='python-prometheus-client python3-prometheus-client python3-openpyxl python3-bcc python3-prometheus_client'
+	na='python-prometheus_client python3-prometheus_client python3-openpyxl python3-bcc python3-prometheus_client'
 	;;
     vm23)
-	na='python-prometheus-client python3-prometheus-client python3-bcc kubernetes-client kubernetes-node python3-prometheus_client'
+	na='python-prometheus_client python3-prometheus_client python3-bcc kubernetes-client kubernetes-node python3-prometheus_client'
 	;;
     vm24)
-	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus-client python3-elasticsearch python3-bcc python3-pillow docker-io python3-prometheus_client python-prometheus_client python-elasticsearch'
+	na='selinux-policy-targeted selinux-policy-devel SoQt-devel Coin-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus_client python3-elasticsearch python3-bcc python3-pillow docker-io python3-prometheus_client python-prometheus_client python-elasticsearch'
 	;;
     vm25)
-	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser'
+	na='python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser python3-requests'
     	;;
     vm26)
 	na='python3-prometheus_client'
 	;;
     vm27)
-	na='python3-bpfcc'
+	na='libsoqt5-dev python3-bpfcc'
 	;;
     vm28)
-	na='systemd-devel libpfm-devel python-prometheus_client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel docker-common qtchooser qtchooser Coin-devel'
+	na='systemd-devel libpfm-devel python-prometheus_client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel qtchooser Coin-devel realpath'
 	;;
     vm29)
 	na='python-prometheus_client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin-devel SoQt-devel python-openpyxl libuv-devel'
@@ -481,10 +490,10 @@ in
 	na='libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin-devel SoQt-devel python3-libs yajl python-psycopg2 python3-psycopg2'
 	;;
     vm31)
-	na='python-prometheus-client python3-prometheus-client python3-bcc'
+	na='python-prometheus_client' 
 	;;
     vm32)
-	na='libibumad libibmad'
+	na='libibumad libibmad sensors'
 	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'

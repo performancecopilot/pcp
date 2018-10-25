@@ -92,19 +92,28 @@ in
 	pkgtool=dpkg
 	searchtool=dpkg-query
 	;;
-    *Fedora*|*openSUSE*|*SUSE\ SLES*)
+    *RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
 	pkgtool=rpm
-	if which zypper >/dev/null
+	if which zypper >/dev/null 2>&1
 	then
 	    searchtool=zypper
-	elif which dnf >/dev/null
+	elif which dnf >/dev/null 2>&1
 	then
 	    searchtool=dnf
+	elif which yum >/dev/null 2>&1
+	then
+	    searchtool=yum
 	fi
 	;;
+
     *NetBSD*)
 	pkgtool=pkgin
 	searchtool=pkgin
+	;;
+
+    *FreeBSD*)
+	pkgtool=F_pkg		# FreeBSD version of pkg(1)
+	searchtool=F_pkg
 	;;
 esac
 if [ -z "$pkgtool" ]
@@ -127,7 +136,8 @@ _path_to_pkg()
 	    if [ -s "$tmp.tmp" ]
 	    then
 		cat $tmp.tmp
-	    else
+	    elif which realpath >/dev/null 2>&1
+	    then
 		_target=`realpath $1`
 		if [ "$_target" != "$1" ]
 		then
@@ -141,10 +151,13 @@ _path_to_pkg()
 	    # lm_sensors-3.4.0-8.fc27.x86_64
 	    #
 	    rpm -qf "$1" 2>/dev/null | sed -e '/is not owned by any/d' -e 's/-[0-9].*//' >$tmp.tmp
+	    # if not found in any package, try realpath() alternative
+	    #
 	    if [ -s "$tmp.tmp" ]
 	    then
 		cat $tmp.tmp
-	    else
+	    elif which realpath >/dev/null 2>&1
+	    then
 		_target=`realpath $1`
 		if [ "$_target" != "$1" ]
 		then
@@ -159,6 +172,23 @@ _path_to_pkg()
 	    #
 	    pkg_info -Fe "$1" 2>/dev/null \
 	    | sed >$tmp.tmp -e 's/-[0-9].*//'
+	    if [ -s "$tmp.tmp" ]
+	    then
+		cat $tmp.tmp
+	    fi
+	    ;;
+
+	F_pkg)
+	    # expecting output like
+	    # /usr/local/bin/bash was installed by package bash-4.4.19
+	    #
+	    pkg which "$1" 2>/dev/null \
+	    | sed -n >$tmp.tmp \
+		-e '/was installed by package/{
+s/.*was installed by package //
+s/-[0-9].*//
+p
+}'
 	    if [ -s "$tmp.tmp" ]
 	    then
 		cat $tmp.tmp
@@ -191,6 +221,9 @@ _match_pkg()
 			;;
 		    libicu[0-9]*[0-9])		# e.g. libicu60
 			xpect=libicu
+			;;
+		    libperl5.[0-9]*)		# e.g. libperl5.22
+			xpect=libperl5
 			;;
 		    libpython2.[0-9]-dev)	# e.g. libpython2.7-dev
 			xpect=libpython-dev
@@ -253,6 +286,16 @@ _match_pkg()
 			;;
 		esac
 		;;
+
+	F_pkg)
+		case "$1"
+		in
+		    postgresql[0-9]*-client)	# e.g. postgresql95-client
+			xpect=postgresql-client
+			;;
+		esac
+		;;
+
     esac
     [ "$xpect" = "$2" ]
     return $?
@@ -268,6 +311,10 @@ _match_pkg()
 #
 _hunt()
 {
+    # all the places where Perl bits might get installed .. geez!
+    #
+    _perl_dirs="/usr/lib*/perl5 /usr/lib/*/perl5 /usr/lib/*/perl /usr/share/perl /usr/share/perl5 /usr/pkg/lib/perl5 /usr/local/share/perl5 /usr/local/lib*/perl5/ /usr/local/share/perl"
+
     rm -f $tmp.msg $tmp.ok
     for file in `echo "$target" | sed -e 's/|/ /g'`
     do
@@ -421,7 +468,7 @@ do
 	*::)
 	    # special case Perl, no module name
 	    _perl=`echo "$target" | sed -e 's/:://'`
-	    _target=`find /usr/lib/perl5 /usr/lib/*/perl5 /usr/share/perl /usr/pkg/lib/perl5 -name "$_perl.*" -print 2>/dev/null \
+	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
 	             | egrep "/$_perl.(pm|so)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
@@ -439,7 +486,7 @@ do
 	    _module=`echo "$target" | sed -e 's/::.*//'`
 	    _submodule=`echo "$target" | sed -e 's/[^:]*::\([^:][^:]*\)::.*/\1/'`
 	    _perl=`echo "$target" | sed -e 's/.*:://'`
-	    _target=`find /usr/lib/perl5 /usr/lib/*/perl5 /usr/share/perl /usr/pkg/lib/perl5 -name "$_perl.*" -print 2>/dev/null \
+	    _target=`find $_perl_dirs "$_perl.*" -print 2>/dev/null \
 	             | egrep "/$_module/($_submodule|$_submodule/$_perl)/$_perl.(pm|so)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
@@ -456,7 +503,7 @@ do
 	    # normal case Perl, with module name
 	    _module=`echo "$target" | sed -e 's/::.*//'`
 	    _perl=`echo "$target" | sed -e 's/.*:://'`
-	    _target=`find /usr/lib/perl5 /usr/lib/*/perl5 /usr/share/perl /usr/pkg/lib/perl5 -name "$_perl.*" -print 2>/dev/null \
+	    _target=`find $_perl_dirs "$_perl.*" -print 2>/dev/null \
 	             | egrep "/$_module/$_perl.(pm|so)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
@@ -552,6 +599,32 @@ q
 		    fi
 		    ;;
 
+		yum)
+		    # For example: search bash ->
+		    # bash.x86_64 : The GNU Bourne Again shell
+		    # make package name match up to the .
+		    #
+		    prefix=`echo "$pkg" | sed -e 's/[. ].*//'`
+		    if yum search "$pkg" 2>&1 | grep "^$prefix" >$tmp.out 2>&1
+		    then
+			touch $tmp.avail
+			$verbose && cat $tmp.out
+		    fi
+		    ;;
+
+		dnf)
+		    # For example: search bash ->
+		    # bash.x86_64 : The GNU Bourne Again shell
+		    # make package name match up to the .
+		    #
+		    prefix=`echo "$pkg" | sed -e 's/[. ].*//'`
+		    if dnf search "$pkg" 2>&1 | grep "^$prefix" >$tmp.out 2>&1
+		    then
+			touch $tmp.avail
+			$verbose && cat $tmp.out
+		    fi
+		    ;;
+
 		zypper)
 		    # make package name match up to the first digit or hypen
 		    #
@@ -566,6 +639,19 @@ q
 		pkgin)
 		    [ ! -f $tmp.allpkgs ] && pkgin avail >$tmp.allpkgs
 		    if grep "^$pkg-" $tmp.allpkgs >$tmp.out 2>&1
+		    then
+			touch $tmp.avail
+			$verbose && cat $tmp.out
+		    fi
+		    ;;
+
+		F_pkg)
+		    # For example: search bash ->
+		    # bash-4.4.23                    GNU Project's Bourne Again SHell
+		    # make package name match up to the -<digit>
+		    #
+		    prefix=`echo "$pkg" | sed -e 's/-[0-9].*//'`
+		    if pkg search "$pkg" 2>&1 | grep "^$prefix" >$tmp.out 2>&1
 		    then
 			touch $tmp.avail
 			$verbose && cat $tmp.out
