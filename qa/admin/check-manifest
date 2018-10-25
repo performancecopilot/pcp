@@ -222,6 +222,9 @@ _match_pkg()
 		    libicu[0-9]*[0-9])		# e.g. libicu60
 			xpect=libicu
 			;;
+		    libperl5.[0-9]*)		# e.g. libperl5.22
+			xpect=libperl5
+			;;
 		    libpython2.[0-9]-dev)	# e.g. libpython2.7-dev
 			xpect=libpython-dev
 			;;
@@ -310,7 +313,7 @@ _hunt()
 {
     # all the places where Perl bits might get installed .. geez!
     #
-    _perl_dirs="/usr/lib*/perl5 /usr/lib/*/perl5 /usr/share/perl /usr/share/perl5 /usr/pkg/lib/perl5 /usr/local/share/perl5 /usr/local/lib*/perl5/"
+    _perl_dirs="/usr/lib*/perl5 /usr/lib/*/perl5 /usr/lib/*/perl /usr/share/perl /usr/share/perl5 /usr/pkg/lib/perl5 /usr/local/share/perl5 /usr/local/lib*/perl5/ /usr/local/share/perl"
 
     rm -f $tmp.msg $tmp.ok
     for file in `echo "$target" | sed -e 's/|/ /g'`

@@ -478,7 +478,7 @@ in
 	na='python3-prometheus_client'
 	;;
     vm27)
-	na='python3-bpfcc'
+	na='libsoqt5-dev python3-bpfcc'
 	;;
     vm28)
 	na='systemd-devel libpfm-devel python-prometheus_client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel qtchooser Coin-devel realpath'

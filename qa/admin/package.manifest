@@ -468,7 +468,7 @@ slackpkg?	/usr/lib*/python2.*/*-packages/psycopg2	[python-psycopg2 (postgresql)]
 pacman?		psycopg1.py				[?]
 # perl modules
 # -- Time::HiRes
-dpkg?	Time::HiRes		[perl]
+dpkg?	Time::HiRes		[perl or libperl5]
 rpm?	Time::HiRes		[perl or perl-Time-HiRes or 'perl(Time::HiRes)']
 urpmi?	Time::HiRes		[perl]
 emerge?	Time::HiRes		[dev-lang/perl]
@@ -479,7 +479,7 @@ S_pkg?	Time::HiRes		[perl]
 slackpkg?	Time::HiRes	[perl]
 pacman?	Time::HiRes		[perl]
 # -- Date::Format
-dpkg?	Date::Format		[perl]
+dpkg?	Date::Format		[perl or libtimedate-perl]
 rpm?	Date::Format		[perl-TimeDate or 'perl(Date::Format)']
 urpmi?	Date::Format		[perl-TimeDate or 'perl(Date::Format)']
 emerge?	Date::Format		[dev-perl/TimeDate]
@@ -492,7 +492,7 @@ pacman?	Date::Format		[perl-timedate]
 # -- Date::Manip
 rpm?	Date::Manip		[perl-Date-Manip or 'perl(Date::Manip)']
 # -- Date::Parse
-dpkg?	Date::Parse		[perl]
+dpkg?	Date::Parse		[perl or libtimedate-perl]
 rpm?	Date::Parse		[perl-TimeDate or 'perl(Date::Parse)']
 urpmi?	Date::Parse		[perl-TimeDate or 'perl(Date::Parse)']
 emerge?	Date::Parse		[dev-perl/TimeDate]
