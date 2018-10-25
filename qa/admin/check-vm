@@ -493,7 +493,7 @@ in
 	na='python-prometheus_client' 
 	;;
     vm32)
-	na='libibumad libibmad'
+	na='libibumad libibmad sensors'
 	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
