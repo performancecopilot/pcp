@@ -423,6 +423,9 @@ in
     vm04)
 	na='python-prometheus_client python-openpyxl qtchooser'
 	;;
+    vm06)
+	na='sensors'
+	;;
     vm07)
 	na='docker.io'
 	;;

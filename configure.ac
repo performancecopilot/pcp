@@ -620,7 +620,7 @@ then
     AC_MSG_RESULT([ -n])
   fi
 else
-  echo_n= echo_c='\c'
+  echo_n= echo_c='\\c'
   AC_MSG_RESULT([backslash-c])
 fi
 AC_SUBST(echo_n)

@@ -172,9 +172,9 @@ PCP_CC_PROG="@cc@ @cflags_abi@"
 # echo
 # for lines without newline, use
 #	$PCP_ECHO_PROG $PCP_ECHO_N "string""$PCP_ECHO_C"
-PCP_ECHO_PROG='@echo@'
-PCP_ECHO_N='@echo_n@'
-PCP_ECHO_C='@echo_c@'
+PCP_ECHO_PROG=@echo@
+PCP_ECHO_N=@echo_n@
+PCP_ECHO_C=@echo_c@
 
 # write to the system log
 PCP_SYSLOG_PROG=@pcp_syslog_prog@
