@@ -432,6 +432,9 @@ in
     vm09)
 	na='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg dtrace boost json_reformat py36-imaging nmap' 
 	;;
+    vm10)
+	na='sensors'
+	;;
     vm11)
 	na='python3-bpfcc docker.io libsoqt5-dev'
 	;;
