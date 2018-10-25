@@ -51,7 +51,17 @@ $PCP_BINADM_DIR/pmlogger -Cc $tmp.config 2>&1 | _filter
 
 echo
 echo "=== should be in man page ==="
-man pmlogger | grep .-C
+man pmlogger \
+| sed -n \
+    -e '/\[-[^]]*C/{
+s//[-...C/
+s/C.*/C...] .../
+p
+}' \
+    -e '/The -C option/{
+s/configuration file.*/configuration file .../p
+}' \
+# end
 
 echo
 echo "=== should be in usage message ==="
