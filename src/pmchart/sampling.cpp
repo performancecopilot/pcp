@@ -125,9 +125,9 @@ SamplingItem::updateValues(bool forward,
 
     // sz will be the number of previous samples we want to keep.
     if (my.dataCount < sampleHistory)
-	sz = qMax(0, (int)(my.dataCount * sizeof(double)));
+	sz = qMax(0, (int)(my.dataCount));
     else
-	sz = qMax(0, (int)((my.dataCount - 1) * sizeof(double)));
+	sz = qMax(0, (int)((my.dataCount - 1)));
 
     if (forward) {
 	// Keep sz samples and add the new sample to the beginning.
