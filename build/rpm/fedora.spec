@@ -3370,6 +3370,8 @@ cd
 %changelog
 * Fri Nov 16 2018 Nathan Scott <nathans@redhat.com> - 4.2.0-1
 - Work in progress, see https://pcp.io/roadmap
+- Resolves pcp-dstat packaging issues (BZ 1640912)
+- Resolves pcp-dstat cursor positioning problem (BZ 1640913)
 
 * Fri Sep 21 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
 - Update to latest PCP sources.
