@@ -2103,7 +2103,7 @@ Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_dstat}
-https://fedoraproject.org/wiki/Packaging:Guidelines "Renaming/Replacing Existing Packages"
+# https://fedoraproject.org/wiki/Packaging:Guidelines "Renaming/Replacing Existing Packages"
 Provides: dstat = %{version}-%{release}
 Provides: /usr/bin/dstat
 Obsoletes: dstat <= 0.7.3-5
