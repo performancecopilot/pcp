@@ -91,15 +91,7 @@ ANSI = {
     'clearline': '\033[2K',
     'save': '\033[s',
     'restore': '\033[u',
-    'save_all': '\0337',
-    'restore_all': '\0338',
-    'linewrap': '\033[7h',
     'nolinewrap': '\033[7l',
-
-    'up': '\033[1A',
-    'down': '\033[1B',
-    'right': '\033[1C',
-    'left': '\033[1D',
 
     'default': '\033[0;0m',
 }
