@@ -1220,13 +1220,12 @@ perfhandle_t *perf_event_create(const char *config_file)
     while(pmcsetting)
     {
         (void) perf_setup_event(inst, pmcsetting->name, pmcsetting->cpuConfig);
-
         pmcsetting = pmcsetting->next;
     }
 
     /* Setup the dynamic events */
     if (perfconfig->dynamicpmc) {
-	ret = init_dynamic_events(&pmu_list);
+	ret = init_dynamic_events(&pmu_list, perfconfig->dynamicpmc->dynamicSettingList);
 	if (!ret)
 	    perf_setup_dynamic_events(inst,
 				      perfconfig->dynamicpmc->dynamicSettingList,
