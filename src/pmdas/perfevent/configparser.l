@@ -140,6 +140,7 @@ static void add_pmc_setting_name_derived(configuration_t *config, char *name)
     newpmcderivedsetting->cpuConfig = CPUCONFIG_EACH_CPU;
     newpmcderivedsetting->scale = 1.0;
     newpmcderivedsetting->need_perf_scale = 0;
+    newpmcderivedsetting->chip = -1;
     newpmcderivedsetting->next = NULL;
 
     setting_lists = entry->setting_lists;
@@ -197,6 +198,7 @@ static void add_pmc_setting_name_dynamic(configuration_t *config, char *name)
     newpmcdynamicsetting->cpuConfig = 0;
     newpmcdynamicsetting->scale = 1.0;
     newpmcdynamicsetting->need_perf_scale = 0;
+    newpmcdynamicsetting->chip = -1;
     newpmcdynamicsetting->next = NULL;
 
     slist = entry->dynamicSettingList;
@@ -352,6 +354,36 @@ static void set_pmcsetting_cpuconfig(configuration_t *config, int cpuconfig)
     pmcsetting->cpuConfig = cpuconfig;
 }
 
+static void set_pmcsetting_chip(configuration_t *config, char *chip)
+{
+    pmcsetting_t *pmcsetting, *setting_lists;
+
+    if( (NULL == config) || (0 == config->nConfigEntries) )
+    {
+        return;
+    }
+    if (context_dynamic)
+    {
+        setting_lists = config->dynamicpmc->dynamicSettingList;
+        if (NULL == setting_lists)
+        {
+          return;
+        }
+        while (setting_lists->next)
+        {
+          setting_lists = setting_lists->next;
+        }
+
+        pmcsetting = setting_lists;
+	if( NULL == pmcsetting )
+        {
+          return;
+        }
+
+	pmcsetting->chip = atoi(chip);
+    }
+}
+
 #ifdef DEBUG_PRINT_CONFIG
 static void printconfig(configuration_t *config)
 {
@@ -496,6 +528,7 @@ node_rr       set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_ROUNDROBIN_NUMANODE);
 [0-9]*        set_pmcsetting_cpuconfig(yyextra, atoi(yytext));
 perf_scale    set_pmcsetting_derived_scale(yyextra, strtod(yytext, NULL), 1);
 ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)  set_pmcsetting_derived_scale(yyextra, strtod(yytext, NULL), 0);
+(chip:)[0-9]*	set_pmcsetting_chip(yyextra, &yytext[5]);
 }
 
 <*>.|\n { fprintf(stderr, "Syntax error on line: %d \n", yylineno); return -1; }
