@@ -1519,7 +1519,8 @@ class DstatTool(object):
         newline = ''
         if op.update and not self.novalues:
             if step == 1 and update != 0 and not onovalues:
-                newline = '\n' + ANSI['reset'] + ANSI['clearline'] + ANSI['save']
+                newline = '\n'
+                newline += ANSI['reset'] + ANSI['clearline'] + ANSI['save']
             elif loop != 0:
                 newline = ANSI['restore']
 
@@ -1530,6 +1531,7 @@ class DstatTool(object):
             showheader = False
             sys.stdout.write(newline)
             newline = self.show_header(vislist)
+            newline += ANSI['reset'] + ANSI['clearline'] + ANSI['save']
 
         # Display CSV header
         newoline = ''
