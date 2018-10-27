@@ -250,7 +250,10 @@ typedef void (*SIG_PF) (int);
 #endif
 
 #ifdef IS_OPENBSD
+/* was not defined for some older versions, but is now ... */
+#ifndef EPROTO
 #define EPROTO          ENOPROTOOPT
+#endif
 #endif
 
 #ifdef IS_DARWIN
