@@ -137,6 +137,15 @@ fi
 if [ -f /etc/pcp.conf ]
 then
     . /etc/pcp.conf
+else
+    # punt!
+    #
+    if which gawk >/dev/null 2>&1
+    then
+	PCP_AWK_PROG=gawk
+    else
+	PCP_AWK_PROG=awk
+    fi
 fi
 
 # version1 is on line 1
@@ -210,7 +219,7 @@ done
 #	urpmi - OpenMandriva (also RPM based)
 #	emerge - Gentoo
 #	pkgin - NetBSD
-#	pkg_add
+#	pkg_add - OpenBSD
 #	F_pkg - pkg(1) on FreeBSD
 #	S_pkg - pkg(1) on OpenIndiana
 #	slackpkg - Slackware
@@ -231,7 +240,7 @@ pkgtools="dpkg rpm urpmi emerge pkgin pkg_add F_pkg S_pkg slackpkg pacman"
 distros="debian redhat centos suse arch mandriva"
 
 # Need directory where check-vm script is located so we can find
-# the package.manifest file
+# the package.manifest file and the whatami script
 #
 dir=`echo $0 | sed -e 's/\/*check-vm$//'`
 if [ -z "$dir" -o ! -d "$dir" ]
@@ -242,6 +251,11 @@ fi
 if [ ! -f "$dir"/package.manifest ]
 then
     echo "Botch: cannot find $dir/package.manifest"
+    exit 1
+fi
+if [ ! -f "$dir"/whatami ]
+then
+    echo "Botch: cannot find $dir/whatami"
     exit 1
 fi
 
@@ -501,6 +515,14 @@ in
     vm36)
 	na='python3-bpfcc libsoqt5-dev'
     	;;
+    vm37)
+	# qtbase is Qt5 and gcc++ is too old to compile Qt5 headers ... revist
+	# if we change from gcc to clang here
+	# qtsvg is not needed without Qt5
+	# valgrind is available, but segv's
+	#
+	na='libibumad py36-jsonpointer libvirt-python3 realpath py3-prometheus-client py3-openpyxl py3-bcc qtchooser qtbase qtsvg valgrind'
+	;;
 esac
 if [ -n "$na" ]
 then
@@ -1012,5 +1034,22 @@ then
     #
     sudo -u pcp [ -x $HOME ] || echo "Error: $HOME is not searchable by user \"pcp\""
 fi
+
+# Now some platform-specific tests
+#
+$dir/whatami >$tmp.tmp
+case "`sed <$tmp.tmp -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
+in
+    *OpenBSD*)
+	allowkmem=`sysctl kern.allowkmem | sed -e 's/.*=//'`
+	if [ "$allowkmem" != 1 ]
+	then
+	    echo "Warning: kern.allowkmem is \"$allowkmem\" not 1 and so openbsd PMDA will not be able"
+	    echo "         to access /dev/kmem"
+	    echo "         Suggest adding kern.allowkmem=1 to etc/sysctl.conf and rebooting."
+	fi
+	;;
+
+esac
 
 $verbose && echo "temp files:" $tmp.*
