@@ -65,7 +65,14 @@ _filter()
 	-e '/^nginx\..*: Try again./d' \
 	-e '/^zswap\..*: Try again./d' \
 	-e '/Container not found/d' \
-    # end
+    | if [ $PCP_PLATFORM = openbsd ]
+    then
+	sed \
+	    -e '/^mem.util.anonpages: Not Supported/d' \
+	# end
+    else
+	cat
+    fi
 }
 
 _filter_libvirt()
