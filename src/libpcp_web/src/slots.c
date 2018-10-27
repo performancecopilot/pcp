@@ -1,15 +1,15 @@
 /*
  * Copyright (c) 2017-2018 Red Hat.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but
+ * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
 #include "schema.h"
 #include "batons.h"
@@ -60,8 +60,8 @@ redisSlotRangeInsert(redisSlots *redis, redisSlotRange *range)
 
 	fprintf(stderr, "Slot range: %05u-%05u\n", range->start, range->end);
 	fprintf(stderr, "    Master: %s\n", range->master.hostspec);
-	for (i = 0; i < range->nslaves; i++)
-	    fprintf(stderr, "\tSlave%05u: %s\n", i, range->slaves[i].hostspec);
+	for (i = 0; i < range->nreplicas; i++)
+	    fprintf(stderr, "\tReplica%05u: %s\n", i, range->replicas[i].hostspec);
     }
 
     if (tsearch((const void *)range, (void **)&redis->slots, slotsCompare))
@@ -85,9 +85,9 @@ redisSlotRangeFree(redisSlots *pool, redisSlotRange *range)
     int			i;
 
     redisSlotServerFree(pool, &range->master);
-    for (i = 0; i < range->nslaves; i++)
-	redisSlotServerFree(pool, &range->slaves[i]);
-    free(range->slaves);
+    for (i = 0; i < range->nreplicas; i++)
+	redisSlotServerFree(pool, &range->replicas[i]);
+    free(range->replicas);
     memset(range, 0, sizeof(*range));
 }
 
@@ -103,8 +103,8 @@ redisSlotsFree(redisSlots *pool)
 	redisSlotRangeFree(pool, range);
     }
     redisAsyncDisconnect(pool->control.redis);
+    redisAsyncFree(pool->control.redis);
     sdsfree(pool->control.hostspec);
-    free(pool->control.redis);
     dictRelease(pool->keymap);
     memset(pool, 0, sizeof(*pool));
 }
@@ -233,8 +233,8 @@ redisGetAsyncContext(redisSlots *slots, const char *command, sds key)
 	return NULL;
 
     range->counter++;
-    server = (range->nslaves == 0) ? &range->master :
-	     &range->slaves[range->counter % range->nslaves];
+    server = (range->nreplicas == 0) ? &range->master :
+	     &range->replicas[range->counter % range->nreplicas];
     if (server->redis == NULL)
 	server->redis = redisAttach(slots, server->hostspec);
     return server->redis;

@@ -1,15 +1,15 @@
 /*
  * Copyright (c) 2018 Red Hat.
- * 
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
 #include "server.h"
 
@@ -17,7 +17,7 @@ void
 proxylog(pmLogLevel level, sds message, void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
-    const char		*state = proxy->redisetup? "" : "- DISCONNECTED - ";
+    const char		*state = proxy->slots ? "" : "- DISCONNECTED - ";
     int			priority;
 
     switch (level) {
@@ -171,7 +171,11 @@ client_protocol(int key)
     case '$':	/* RESP string */
     case '*':	/* RESP array */
 	return STREAM_REDIS;
-    case '\0':
+    case 0x14:	/* TLS ChangeCipherSpec */
+    case 0x15:	/* TLS Alert */
+    case 0x16:	/* TLS Handshake */
+    case 0x17:	/* TLS Application */
+    case 0x18:	/* TLS Heartbeat */
 	return STREAM_SECURE;
     default:
 	break;
@@ -193,12 +197,15 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 	    return on_pcp_client_read(proxy, client, nread, buf);
 	case STREAM_REDIS:
 	    return on_redis_client_read(proxy, client, nread, buf);
+	case STREAM_SECURE:
+	    fprintf(stderr, "%s: SSL/TLS connection initiated by client %p\n",
+			"client_protocol", client);
 	default:
 	    break;
 	}
 	if (pmDebugOptions.pdu)
-	    fprintf(stderr, "%s: unknown protocol key '%c' - disconnecting"
-			"client %p\n", "on_client_read", *buf->base, proxy);
+	    fprintf(stderr, "%s: unknown protocol key '%c' (0x%x) - disconnecting"
+			"client %p\n", "on_client_read", *buf->base, (unsigned int)*buf->base, proxy);
     } else {
 	if (pmDebugOptions.pdu && nread < 0)
 	    fprintf(stderr, "%s: read error %ld - disconnecting client %p\n",
@@ -458,11 +465,10 @@ ShutdownPorts(void *arg)
     free(proxy->servers);
     proxy->servers = NULL;
 
-    if (proxy->redisetup) {
-	proxy->redisetup = 0;
+    if (proxy->slots) {
 	redisSlotsFree(proxy->slots);
+	proxy->slots = NULL;
     }
-    proxy->slots = NULL;
     sdsfree(proxy->redishost);
 }
 
@@ -496,6 +502,8 @@ DumpRequestPorts(FILE *output, void *arg)
 /*
  * Attempt to establish a Redis connection straight away;
  * this is achieved via a timer that expires immediately.
+ * Once the connection is established (async) modules are
+ * again informed via the setup routines.
  */
 static void
 setup_proxy(uv_timer_t *arg)
@@ -503,7 +511,8 @@ setup_proxy(uv_timer_t *arg)
     uv_handle_t		*handle = (uv_handle_t *)arg;
     struct proxy	*proxy = (struct proxy *)handle->data;
 
-    setup_redis_proxy(proxy);
+    setup_redis_modules(proxy);
+    setup_pcp_modules(proxy);
 }
 
 void

@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2018 Red Hat.
  * Copyright (c) 2018 Challa Venkata Naga Prajwal <cvnprajwal at gmail dot com>
- * 
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
 #include "server.h"
 #include "discover.h"
@@ -75,10 +75,12 @@ void
 on_redis_client_read(struct proxy *proxy, struct client *client,
 		ssize_t nread, const uv_buf_t *buf)
 {
-    if (!redis_protocol ||
-	redisSlotsProxyConnect(proxy->slots, proxylog, &client->u.redis.reader,
-		buf->base, nread, on_redis_server_reply, client) < 0)
+    if (redis_protocol == 0 ||
+	redisSlotsProxyConnect(proxy->slots,
+		proxylog, &client->u.redis.reader,
+		buf->base, nread, on_redis_server_reply, client) < 0) {
 	uv_close((uv_handle_t *)&client->stream, on_client_close);
+    }
 }
 
 void
@@ -102,22 +104,24 @@ on_redis_connected(void *arg)
 		message, proxy->redishost);
     sdsfree(message);
 
-    redis_discover.module.events = proxy->events;
     redis_discover.module.slots = proxy->slots;
-    pmDiscoverSetup(&redis_discover, proxy);
-    proxy->redisetup = 1;
 }
 
 void
-setup_redis_proxy(struct proxy *proxy)
+setup_redis_modules(struct proxy *proxy)
 {
     redisSlotsFlags	flags = SLOTS_NONE;
 
-    if (redis_protocol)
-	flags |= SLOTS_KEYMAP;
-    if (archive_discovery | series_queries)
-	flags |= SLOTS_VERSION;
-
-    proxy->slots = redisSlotsConnect(proxy->redishost, flags,
-	    proxylog, on_redis_connected, proxy, proxy->events, proxy);
+    if (proxy->slots == NULL) {
+	if (redis_protocol)
+	    flags |= SLOTS_KEYMAP;
+	if (archive_discovery | series_queries)
+	    flags |= SLOTS_VERSION;
+	proxy->slots = redisSlotsConnect(proxy->redishost,
+			flags, proxylog, on_redis_connected,
+			proxy, proxy->events, proxy);
+    }
+    redis_discover.module.events = proxy->events;
+    redis_discover.module.metrics = proxy->metrics;
+    //TODO: pmDiscoverSetup(&redis_discover, proxy);
 }
