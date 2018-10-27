@@ -185,26 +185,23 @@ static pmdaMetric metrictab[] = {
     { NULL, 	/* mem.util.inactive */
       { PMDA_PMID(CL_VM_UVMEXP,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    { NULL, 	/* mem.util.avail */
+    { NULL,	/* mem.util.zeropages */
       { PMDA_PMID(CL_VM_UVMEXP,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    { NULL,	/* mem.util.zeropages */
+    { NULL,	/* mem.util.pagedaemonpages */
       { PMDA_PMID(CL_VM_UVMEXP,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    { NULL,	/* mem.util.pagedaemonpages */
+    { NULL,	/* mem.util.kernelpages */
       { PMDA_PMID(CL_VM_UVMEXP,14), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    { NULL,	/* mem.util.kernelpages */
-      { PMDA_PMID(CL_VM_UVMEXP,15), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    { NULL,	/* mem.util.anonpages */
-      { PMDA_PMID(CL_VM_UVMEXP,16), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { NULL,	/* mem.util.anonpages ... has gone away */
+      { PMDA_PMID(CL_VM_UVMEXP,15), PM_TYPE_NOSUPPORT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
     { NULL,	/* mem.util.vnodepages */
-      { PMDA_PMID(CL_VM_UVMEXP,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      { PMDA_PMID(CL_VM_UVMEXP,16), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
     { NULL,	/* mem.util.vtextpages */
-      { PMDA_PMID(CL_VM_UVMEXP,18), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      { PMDA_PMID(CL_VM_UVMEXP,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
 
     { NULL,	/* disk.dev.read */
