@@ -2504,13 +2504,13 @@ int main()
     printf("lld\n");
 #endif
 #else
-/* on NetBSD, for example, there is no __WORDSIZE */
-    if (sizeof(int) == 8)
-	printf("d\n");
+/* on NetBSD and OpenBSD, for example, there is no __WORDSIZE */
+    if (sizeof(long long) == 8)
+	printf("lld\n");
     else if (sizeof(long) == 8)
 	printf("ld\n");
-    else if (sizeof(long long) == 8)
-	printf("lld\n");
+    else if (sizeof(int) == 8)
+	printf("d\n");
     else {
 	printf("no clue what printf format to use for __int64_t\n");
 	return(1);
