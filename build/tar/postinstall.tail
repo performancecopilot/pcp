@@ -105,7 +105,7 @@ then
     #
     if [ "$PCP_PLATFORM" = darwin ]
     then
-	./useradd.darwin -c "Performance Co-Pilot" -g pcp -d "$PCP_VAR_DIR" -s "$nologin" pcp
+	./useradd.darwin -c "Performance Co-Pilot" -g pcp -d "$PCP_VAR_DIR" -s $nologin pcp
     else
 	if grep '^pcp:' /etc/group >/dev/null
 	then
@@ -113,7 +113,7 @@ then
 	else
 	    if which groupadd >/dev/null 2>&1
 	    then
-		groupadd "$sys_acc" pcp
+		groupadd $sys_acc pcp
 	    else
 		if [ "$PCP_PLATFORM" = freebsd ]
 		then
@@ -131,7 +131,7 @@ then
 	else
 	    if which useradd >/dev/null 2>&1
 	    then
-		useradd -c "Performance Co-Pilot" -g pcp -d "$PCP_VAR_DIR" "$no_home_dir" "$sys_acc" -s "$nologin" pcp
+		useradd -c "Performance Co-Pilot" -g pcp -d "$PCP_VAR_DIR" $no_home_dir $sys_acc -s $nologin pcp
 	    elif which adduser >/dev/null 2>&1
 	    then
 		echo "pcp::::::Performance Co-Pilot:$PCP_VAR_DIR::" \
@@ -148,7 +148,7 @@ then
     #
     if [ "$PCP_PLATFORM" = darwin ]
     then
-	./useradd.darwin -c "PCP Quality Assurance" -g pcpqa -d "$PCP_VAR_DIR"/testsuite -s "$bash" pcpqa
+	./useradd.darwin -c "PCP Quality Assurance" -g pcpqa -d "$PCP_VAR_DIR"/testsuite -s $bash pcpqa
     else
 	if grep '^pcpqa:' /etc/group >/dev/null
 	then
@@ -156,7 +156,7 @@ then
 	else
 	    if which groupadd >/dev/null 2>&1
 	    then
-		groupadd "$sys_acc" pcpqa
+		groupadd $sys_acc pcpqa
 	    else
 		if [ "$PCP_PLATFORM" = freebsd ]
 		then
@@ -174,7 +174,7 @@ then
 	else
 	    if which useradd >/dev/null 2>&1
 	    then
-		useradd -c "PCP Quality Assurance" -g pcpqa -d "$PCP_VAR_DIR"/testsuite "$no_home_dir" "$sys_acc" -s "$bash" pcpqa
+		useradd -c "PCP Quality Assurance" -g pcpqa -d "$PCP_VAR_DIR"/testsuite $no_home_dir $sys_acc -s $bash pcpqa
 	    elif which adduser >/dev/null 2>&1
 	    then
 		# no bash for default FreeBSD
