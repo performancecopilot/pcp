@@ -314,6 +314,26 @@ clobber(Expr *x)
     }
 }
 
+/*
+ * returns true if the operator produces a scalar value from
+ * a set valued operand
+ */
+static int
+isScalarResult(Expr *x)
+{
+    if (x->op == CND_SUM_HOST || x->op == CND_SUM_INST ||
+	x->op == CND_SUM_TIME ||
+	x->op == CND_AVG_HOST || x->op == CND_AVG_INST ||
+	x->op == CND_AVG_TIME ||
+	x->op == CND_MAX_HOST || x->op == CND_MAX_INST ||
+	x->op == CND_MAX_TIME ||
+	x->op == CND_MIN_HOST || x->op == CND_MIN_INST ||
+	x->op == CND_MIN_TIME ||
+	x->op == CND_COUNT_HOST || x->op == CND_COUNT_INST ||
+	x->op == CND_COUNT_TIME)
+	return 1;
+    return 0;
+}
 
 /***********************************************************************
  * exported functions
@@ -332,7 +352,10 @@ findEval(Expr *x)
      *	2	arg2 has tspan 1, and must always have one metric value
      */
     if (x->arg1) {
-	if (x->arg1->tspan == 1) {
+	if (isScalarResult(x->arg1)) {
+	    arity |= 1;
+	}
+	else if (x->arg1->tspan == 1) {
 	    for (m = x->arg1->metrics; m; m = m->next) {
 		if (m->desc.indom == PM_INDOM_NULL) continue;
 		if (m->specinst == 0) break;
@@ -345,6 +368,9 @@ findEval(Expr *x)
 	}
     }
     if (x->arg2) {
+	if (isScalarResult(x->arg2)) {
+	    arity |= 2;
+	}
 	if (x->arg2->tspan == 1) {
 	    for (m = x->arg2->metrics; m; m = m->next) {
 		if (m->desc.indom == PM_INDOM_NULL) continue;

@@ -90,7 +90,7 @@ Expr dump @ ADDR033
   nsmpls=1 nvals=1 sem=TRUTH units=
 .. Expr dump @ ADDR034
 ..   op=34 (>) arg1=ADDR038 arg2=ADDR039 parent=ADDR033
-..   eval=cndGt_n_1 metrics=ADDR036 ring=ADDR040
+..   eval=cndGt_1_1 metrics=ADDR036 ring=ADDR040
 ..   valid=0 cardinality[H,I,T]=[1,-1,1] tspan=1
 ..   nsmpls=1 nvals=1 sem=TRUTH units=
 .. .. Expr dump @ ADDR038
@@ -240,7 +240,7 @@ Expr dump @ ADDR090
   nsmpls=1 nvals=1 sem=TRUTH units=
 .. Expr dump @ ADDR091
 ..   op=34 (>) arg1=ADDR095 arg2=ADDR096 parent=ADDR090
-..   eval=cndGt_n_1 metrics=ADDR093 ring=ADDR097
+..   eval=cndGt_1_1 metrics=ADDR093 ring=ADDR097
 ..   valid=0 cardinality[H,I,T]=[1,-1,1] tspan=1
 ..   nsmpls=1 nvals=1 sem=TRUTH units=
 .. .. Expr dump @ ADDR095
