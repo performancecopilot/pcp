@@ -2002,9 +2002,9 @@ do
     seinfo --common >/dev/null 2>&1
     if test $? -eq 0
     then
-        seinfo_common_flag="--common="
+        seinfo_common_flag="--common"
     else
-        seinfo_common_flag="--class="
+        seinfo_common_flag="--class"
     fi
     if test -f "$policy_file"
     then
