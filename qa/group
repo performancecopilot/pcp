@@ -1069,6 +1069,7 @@ BAD
 689 pmclient archive multi-archive decompress-xz local sanity pmlogextract python
 690:reserved derive local
 691:reserved derive local
+692 pmie pmda.sample local
 695 pmda.trivial perl local
 696 pmda.trivial python local
 701 pmlogcheck local
