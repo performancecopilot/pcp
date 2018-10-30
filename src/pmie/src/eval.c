@@ -314,11 +314,15 @@ clobber(Expr *x)
     }
 }
 
+/***********************************************************************
+ * exported functions
+ ***********************************************************************/
+
 /*
  * returns true if the operator produces a scalar value from
  * a set valued operand
  */
-static int
+int
 isScalarResult(Expr *x)
 {
     if (x->op == CND_SUM_HOST || x->op == CND_SUM_INST ||
@@ -334,10 +338,6 @@ isScalarResult(Expr *x)
 	return 1;
     return 0;
 }
-
-/***********************************************************************
- * exported functions
- ***********************************************************************/
 
 /* fill in appropriate evaluator function for given Expr */
 void
