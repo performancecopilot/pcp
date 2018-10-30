@@ -238,7 +238,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash bc bzip2 gawk gcc sed grep findutils which
+Requires: bash bc bzip2 gawk sed grep findutils which
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
@@ -449,7 +449,6 @@ Requires: pcp-libs = %{version}-%{release}
 Requires: pcp-libs-devel = %{version}-%{release}
 Requires: pcp-devel = %{version}-%{release}
 Obsoletes: pcp-gui-testsuite
-
 # The following are inherited from pcp-collector and pcp-monitor,
 # both of which are now obsoleted by the base pcp package
 Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
@@ -461,7 +460,6 @@ Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
 Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
-
 %if !%{disable_nutcracker}
 Requires: pcp-pmda-nutcracker
 %endif
@@ -483,7 +481,6 @@ Requires: pcp-pmda-json
 Requires: pcp-pmda-rpm
 %endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
-
 %if !%{disable_microhttpd}
 Requires: pcp-webapi
 %endif
@@ -493,6 +490,7 @@ Requires: pcp-system-tools
 %if !%{disable_qt}
 Requires: pcp-gui
 %endif
+Requires: gcc
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).

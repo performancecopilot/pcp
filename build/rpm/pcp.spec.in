@@ -100,7 +100,7 @@ Obsoletes: pcp-pmda-kvm
 Provides: pcp-pmda-kvm
 
 # Utilities used indirectly e.g. by scripts we install
-Requires: bash bc bzip2 gawk gcc sed grep coreutils findutils
+Requires: bash bc bzip2 gawk sed grep coreutils findutils
 # which(1) comes from different places
 %if 0%{?suse_version} >= 1100
 Requires: util-linux
@@ -268,7 +268,6 @@ Requires: pcp-libs = @package_version@
 Requires: pcp-libs-devel = @package_version@
 Requires: pcp-devel = @package_version@
 Obsoletes: pcp-gui-testsuite
-
 # The following are inherited from pcp-collector and pcp-monitor,
 # both of which are now obsoleted by the base pcp package
 Requires: pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
@@ -332,7 +331,6 @@ Requires: pcp-pmda-elasticsearch
 %if "@pmda_postfix@" == "true"
 Requires: pcp-pmda-postfix
 %endif
-
 %if "@enable_webapi@" == "true"
 Requires: pcp-webapi
 %endif
@@ -342,6 +340,7 @@ Requires: pcp-system-tools
 %if "@enable_qt@" == "true"
 Requires: pcp-gui
 %endif
+Requires: gcc
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
