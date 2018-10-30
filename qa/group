@@ -406,7 +406,7 @@ BAD
 026 other help local ostest sanity libpcp
 027 libpcp local ostest sanity
 028 pmns local ostest
-029 pmns local ostest pmdumplog
+029 pmns local ostest pmdumplog pmda.sample
 030 pdu pmcd pmda context_local local ostest pmstore
 031 pmns local sanity
 032 pmlc local ostest pmlogger
@@ -516,7 +516,7 @@ BAD
 136 pmlogger local pmdumplog pmloglabel pmlc
 137 dbpmda local pmda.simple sanity
 138 pmns local
-139 pmlc local
+139 pmlc local pmda.sample
 140 pmns local
 141 archive context local
 142 pmlogreduce local pmdumplog
@@ -633,7 +633,7 @@ BAD
 253 derive local
 254 libpcp pmns local
 255 compat pmda #508731 #509091 pmda.proc help pmda.install local pmda.simple
-256 derive pmns local sanity
+256 derive pmns local sanity pmda.sample
 257 libpcp pmns compat remote
 258 trace local pmda.install folio
 259 derive pmval local
@@ -650,7 +650,7 @@ BAD
 270 local pmdumplog
 271 archive local pmdumplog
 272 pmcd pmval pmprobe remote pmstore
-273 libpcp local pmval pmstore
+273 libpcp local pmval pmstore pmda.sample
 274 pmda help local pmda.install dbpmda
 275 derive local
 276 pmie pmval indom local
@@ -886,7 +886,7 @@ BAD
 506 pmlogrewrite local slow
 507 pcp local
 508 archive pmlogreduce local pmval
-509 derive pmns local
+509 derive pmns local pmda.sample
 510 pmlogger pmlc local
 511 pmimport pmdumplog pmlogsummary perl local
 512 threads pminfo pmlogger pmlogextract pmdumplog dbpmda local fault
@@ -946,7 +946,7 @@ BAD
 566 pmlogcheck local
 567 libpcp labels local sanity python
 568 pmcd pmda.sample pminfo labels libpcp local sanity
-569 pmprobe #679693 local sanity pmstore
+569 pmprobe #679693 local sanity pmstore pmda.sample
 570:retired pmns #690735 local
 571 pmlogger local pmdumplog
 572 pmcd pmda local pmda.install pmda.sample pmda.simple pmda.trivial pmstore
@@ -1039,7 +1039,7 @@ BAD
 659 pmlogreduce local
 660 pmwebd local
 661 pmwebd local python
-662 pmwebd pmda.sample local python
+662 pmwebd pmda.sample local python pmda.sample
 663 pmwebd local python
 664 logutil local pmlogrewrite
 665 pmda.linux local
@@ -1069,6 +1069,7 @@ BAD
 689 pmclient archive multi-archive decompress-xz local sanity pmlogextract python
 690:reserved derive local
 691:reserved derive local
+692 pmie pmda.sample local
 695 pmda.trivial perl local
 696 pmda.trivial python local
 701 pmlogcheck local
@@ -1132,7 +1133,7 @@ BAD
 759 pmda.unbound pmda.install local python
 760 pmda.activemq pmda.install local
 761 pmda.root local containers
-762 help local
+762 help local pmda.sample
 763 pmda local
 764 pmie local
 765 pmlogsummary local
@@ -1437,7 +1438,7 @@ BAD
 1064 derive local
 1065 libpcp valgrind local
 1066 derive valgrind local
-1067 zabbix zbxpcp local
+1067 zabbix zbxpcp local pmda.sample
 1068 zabbix pcp2zabbix python pcp2xxx local
 1069 pmrep python local timezone
 1070 pmrep pmimport python perl local

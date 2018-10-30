@@ -326,4 +326,12 @@ PMID 29.0.1006: dynamic *.secret.foo.bar.grunt.snort.six metric
 
 PMID 29.0.1007: dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric
 
+PMID 29.0.1008: Number of visible ghosts
+
+PMID 29.0.1009: Country or region of source for each ghost
+
+PMID 29.0.1010: Karma measure for each ghost
+
+PMID 29.0.1011: Ghost states
+
 PMID 29.0.1023 sample.bigid: a metric with item number bigger then 2^9
