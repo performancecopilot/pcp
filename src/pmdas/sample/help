@@ -555,6 +555,30 @@ Value 6.
 @ SAMPLE.0.1007 dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric
 Value 7.
 
+@ SAMPLE.0.1008 Number of visible ghosts
+If *.ghosts.visible is < 0, then all the other ghosts.* metrics are
+invisible!
+Values between 0 and 8 expose progressively more of the ghosts
+instance domain.
+Use pmstore(1) to change the value.
+
+@ SAMPLE.0.1009 Country or region of source for each ghost
+
+@ SAMPLE.0.1010 Karma measure for each ghost
+Remotely related (as in strlen()) to the name of the ghost.
+
+@ SAMPLE.0.1011 Ghost states
+Tricky binary values for each of the ghosts. The pattern below
+repeats for consecutive fetches (columns).
+    Obambo     0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1
+    Banjhakri  1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0
+    Mogwai     1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0
+    Pocong     0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1
+    Hitodama   0 0 0 1 1 1 0 0 0 1 1 1 0 0 0 1 1 1 0 0 0 1 1 1
+    Krahang    1 1 1 0 0 0 1 1 1 0 0 0 1 1 1 0 0 0 1 1 1 0 0 0
+    Zmeu       1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0
+    Duppy      0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
 @ sample.scramble.bin Several constant instances, instances scrambled
 Like sample.bin, except
 1. instances are missing with probability 0.33
