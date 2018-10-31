@@ -1,8 +1,20 @@
 QA output created by 692
 === with metric visible from the start ===
-DATE: falling!
-DATE: rising!
+DATE: all_inst ok!
+DATE: avg_inst, count_inst & sum_inst ok!
+DATE: falling ok!
+DATE: max_inst ok!
+DATE: min_inst ok!
+DATE: print all_inst + compound expr ok!
+DATE: rising ok!
+DATE: sum_inst & count_inst ok!
 
 === with metric invisible from the start ===
-DATE: falling!
-DATE: rising!
+DATE: all_inst ok!
+DATE: avg_inst, count_inst & sum_inst ok!
+DATE: falling ok!
+DATE: max_inst ok!
+DATE: min_inst ok!
+DATE: print all_inst + compound expr ok!
+DATE: rising ok!
+DATE: sum_inst & count_inst ok!

@@ -2,6 +2,7 @@
 # PCP QA Test No. 692
 # pmie reshaping when metrics become available
 # GH issue #571
+# extended to become a more general reinitMetric() test for pmie
 #
 # Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
 #
@@ -18,19 +19,16 @@ _cleanup()
 {
     cd $here
     $sudo rm -rf $tmp $tmp.*
+    pmstore sample.ghosts.visible -1 >>$seq.full
 }
 
-# find at least one line like ...
-# Tue Oct 30 20:03:44 2018: rising!
+# find at uniq lines (modulo datestamp differences) like ...
+# Tue Oct 30 20:03:44 2018: <something> ok!
 #
 _filter()
 {
     sed -n \
-	-e '/rising!/{
-s/.*:/DATE:/
-p
-}' \
-	-e '/falling!/{
+	-e '/ ok!$/{
 s/.*:/DATE:/
 p
 }' \
@@ -43,12 +41,20 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 cat <<'End-of-File' >$tmp.pmie
-sample.ghosts.visible;
-sample.ghosts.state;
-count_inst (sample.ghosts.state == 0);
-count_inst (sample.ghosts.state == 0) >= 5;
-rising count_inst (sample.ghosts.state == 0) >= 5 -> print "rising!";
-falling count_inst (sample.ghosts.state == 0) >= 5 -> print "falling!";
+// this is the GH #571 case
+rising count_inst (sample.ghosts.state == 0) >= 5 -> print "rising ok!";
+// some other operators ...
+falling count_inst (sample.ghosts.state == 0) >= 5 -> print "falling ok!";
+(sum_inst (sample.ghosts.state ) + count_inst (sample.ghosts.state == 0)) == 8 -> print "sum_inst & count_inst ok!";
+avg_inst(sample.ghosts.state) * count_inst(sample.ghosts.state == 0 || sample.ghosts.state == 1) - sum_inst(sample.ghosts.state) == 0 -> print "avg_inst, count_inst & sum_inst ok!";
+max_inst(sample.ghosts.state) == 1 -> print "max_inst ok!";
+min_inst(sample.ghosts.state) == 0 -> print "min_inst ok!";
+all_inst(sample.ghosts.state != 2) -> print "all_inst ok!";
+all_inst(sample.ghosts.state == 0 || sample.ghosts.state == 1) -> print "print all_inst + compound expr ok!"; 
+// debugging
+state = sample.ghosts.state;
+count_0 = count_inst (sample.ghosts.state == 0);
+boolean_expr = count_inst (sample.ghosts.state == 0) >= 5;
 End-of-File
 
 # real QA test starts here
