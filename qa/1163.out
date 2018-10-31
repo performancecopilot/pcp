@@ -6982,3 +6982,2180 @@ rewritten
 InDom: 62.0 [rewritten
 multiple
 lines]
+Start configfile: CONFIG
+PCP Archive Log Rewrite Specifications Summary
+
+Help Text: One Line pmID (2.0.20)
+DELETE
+
+Help Text: full pmID (2.0.20)
+DELETE
+
+Help Text: One Line pmID (2.0.16)
+DELETE
+
+Help Text: full pmID (2.0.16)
+DELETE
+
+Help Text: One Line pmInDom (2.3)
+DELETE
+
+Help Text: full pmInDom (2.3)
+DELETE
+
+Help Text: One Line pmID (2.0.3)
+DELETE
+
+Help Text: full pmID (2.0.3)
+DELETE
+
+Metric Help Text in the Log ...
+PMID: 2.0.2 [Number of agents (PMDAs) currently connected to PMCD]
+PMID: 2.0.2
+The number of agents (PMDAs) currently connected to PMCD.  This may differ
+from the number of agents configured in $PCP_PMCDCONF_PATH if agents have
+terminated and/or been timed-out by PMCD.
+PMID: 2.0.3
+The number of connections open to client programs retrieving information
+from PMCD.
+PMID: 2.0.7 [PMCD version]
+PMID: 2.0.16 [running PCP services on the local host]
+PMID: 2.0.20 [build version for installed PCP package]
+PMID: 2.3.1 [host from which active pmlogger is fetching metrics]
+PMID: 2.3.1
+The fully qualified domain name of the host from which a pmlogger
+instance is fetching metrics to be archived.
+
+The instance names are process IDs of the active pmloggers.  The
+primary pmlogger has an extra instance with the instance name "primary"
+and an instance id of zero (in addition to its normal process id
+instance).
+PMID: 2.4.1 [PMDA status]
+PMID: 2.4.1
+This metric encodes the current status of each PMDA.  The default value
+is 0 if the PMDA is active.
+
+Other values encode various degrees of PMDA difficulty in three bit fields
+(bit 0 is the low-order bit) as follows:
+
+bits 7..0
+    1   the PMDA is connected, but not yet "ready" to accept requests
+        from the PMDA
+    2   the PMDA has exited of its own accord
+    4   some error prevented the PMDA being started
+    8   PMCD stopped communication with the PMDA due to a protocol or
+        timeout error
+
+bits 15..8
+        the exit() status from the PMDA
+
+bits 23..16
+        the number of the signal that terminated the PMDA
+PMID: 2.5.0 [configuration file name]
+PMID: 2.5.0
+The full path in the filesystem to the configuration file containing the
+rules being evaluated by each pmie instance.
+
+If the configuration file was supplied on the standard input, then this
+metric will have the value "<stdin>".  If multiple configuration files were
+given to pmie, then the value of this metric will be the first configuration
+file specified.
+PMID: 2.5.1 [filename of pmie instance event log]
+PMID: 2.5.1
+The file to which each instance of pmie is writting events.  No two pmie
+instances can share the same log file.  If no logfile was specified when
+pmie was started, this metrics has the value "<none>".  All daemon pmie
+instances started through pmie_check(1) must have an associated log file.
+PMID: 2.5.2 [default hostname for pmie instance]
+PMID: 2.5.2
+The default host from which pmie is fetching metrics.  This is either the
+hostname given to pmie on the command line or the local host.  Note that this
+does not consider host names specified in the pmie configuration file (these
+are considered non-default and can be more than one per pmie instance).
+All daemon pmie instances started through pmie_check(1) will have their
+default host passed in on their command line.
+PMID: 2.5.3 [number of rules being evaluated]
+PMID: 2.5.3
+The total number of rules being evaluated by each pmie process.
+PMID: 2.5.4 [count of rules evaluating to true]
+PMID: 2.5.4
+A cumulative count of the evaluated pmie rules which have evaluated to true.
+
+This value is incremented once each time an action is executed.  This value
+will always be less than or equal to pmcd.pmie.eval.true because predicates
+which have evaluated to true may be suppressed in the action part of the
+pmie rule, in which case this counter will not be incremented.
+PMID: 2.5.5 [count of pmie predicates evaluated to true]
+PMID: 2.5.5
+The predicate part of a pmie rule can be said to evaluate to either true,
+false, or not known.  This metric is a cumulative count of the number of
+rules which have evaluated to true for each pmie instance.
+PMID: 2.5.6 [count of pmie predicates evaluated to false]
+PMID: 2.5.6
+The predicate part of a pmie rule can be said to evaluate to either true,
+false, or not known.  This metric is a cumulative count of the number of
+rules which have evaluated to false for each pmie instance.
+PMID: 2.5.7 [count of pmie predicates not evaluated]
+PMID: 2.5.7
+The predicate part of a pmie rule can be said to evaluate to either true,
+false, or not known.  This metric is a cumulative count of the number of
+rules which have not been successfully evaluated.  This could be due to not
+yet having sufficient values to evaluate the rule, or a metric fetch may
+have been unsuccessful in retrieving current values for metrics required
+for evaluation of the rule.
+PMID: 2.5.8 [expected rate of rule evaluations]
+PMID: 2.5.8
+This is the expected rate of evaluation of pmie rules.  The value is
+calculated once when pmie starts, and is the number of pmie rules divided
+by the average time interval over which they are to be evaluated.
+PMID: 2.5.9 [count of actual rule evaluations]
+PMID: 2.5.9
+A cumulative count of the pmie rules which have been evaluated.
+
+This value is incremented once for each evaluation of each rule.
+PMID: 3.8.0 [process identifier]
+PMID: 3.8.0
+process identifier
+PMID: 3.8.1 [command name]
+PMID: 3.8.1
+command name
+PMID: 3.8.2 [process state identifier (see ps(1)). See also proc.runq metrics.]
+PMID: 3.8.2
+process state identifier (see ps(1)). See also proc.runq metrics.
+PMID: 3.8.3 [parent process identifier]
+PMID: 3.8.3
+parent process identifier
+PMID: 3.8.9 [count of minor page faults (i.e. reclaims)]
+PMID: 3.8.9
+count of minor page faults (i.e. reclaims)
+PMID: 3.8.11 [count of page faults other than reclaims]
+PMID: 3.8.11
+count of page faults other than reclaims
+PMID: 3.8.13 [time (in ms) spent executing user code since process started]
+PMID: 3.8.13
+time (in ms) spent executing user code since process started
+PMID: 3.8.14 [time (in ms) spent executing system code (calls) since process started]
+PMID: 3.8.14
+time (in ms) spent executing system code (calls) since process started
+PMID: 3.8.17 [scheduling priority value]
+PMID: 3.8.17
+scheduling priority value
+PMID: 3.8.18 [process nice value (negative nice values are lower priority)]
+PMID: 3.8.18
+process nice value (negative nice values are lower priority)
+PMID: 3.8.21 [start time of the process relative to system boot time (in ms)]
+PMID: 3.8.21
+start time of the process relative to system boot time (in ms)
+PMID: 3.8.22 [virtual size of the process in Kbytes]
+PMID: 3.8.22
+virtual size of the process in Kbytes
+PMID: 3.8.23 [resident set size (i.e. physical memory) of the process]
+PMID: 3.8.23
+resident set size (i.e. physical memory) of the process
+PMID: 3.8.38 [last CPU the process was running on]
+PMID: 3.8.38
+last CPU the process was running on
+PMID: 3.8.40 [name of an event for which the process is sleeping (if blank, the process is running).]
+PMID: 3.8.40
+This field needs access to a namelist file for proper 
+address-to-symbol name translation. If no namelist file
+is available, the address is printed instead. The namelist
+file must match the current Linux kernel exactly.
+The search path for the namelist file is as follows:
+	/boot/System.map-`uname -r`
+	/boot/System.map
+	/lib/modules/`uname -r`/System.map
+	/usr/src/linux/System.map
+	/System.map
+
+PMID: 3.8.42 [Real-time scheduling priority, a number in the range 1 to 99]
+PMID: 3.8.42
+Real-time scheduling priority, a number in the range 1 to 99
+PMID: 3.8.43 [Scheduling policy]
+PMID: 3.8.43
+Scheduling policy
+PMID: 3.8.45 [Guest time of the process]
+PMID: 3.8.45
+Time spent running a virtual CPU for a guest operating system.
+
+PMID: 3.8.99 [instantaneous number of processes]
+PMID: 3.9.0 [instantaneous virtual size of process, excluding page table and task structure.]
+PMID: 3.9.0
+instantaneous virtual size of process, excluding page table and task structure.
+PMID: 3.9.1 [instantaneous resident size of process, excluding page table and task structure.]
+PMID: 3.9.1
+instantaneous resident size of process, excluding page table and task structure.
+PMID: 3.9.2 [instantaneous amount of memory shared by this process with other processes ]
+PMID: 3.9.2
+instantaneous amount of memory shared by this process with other processes 
+PMID: 3.11.1 [name of processes container (from /proc/<pid>/cgroup heuristics)]
+PMID: 3.11.1
+name of processes container (from /proc/<pid>/cgroup heuristics)
+PMID: 3.13.0 [number of runnable (on run queue) processes]
+PMID: 3.13.0
+Instantaneous number of runnable (on run queue) processes;
+state 'R' in ps(1).
+PMID: 3.13.1 [number of processes in uninterruptible sleep]
+PMID: 3.13.1
+Instantaneous number of processes in uninterruptible sleep or parked;
+state 'D' in ps(1).
+PMID: 3.24.0 [real user ID from /proc/<pid>/status]
+PMID: 3.24.0
+real user ID from /proc/<pid>/status
+PMID: 3.24.1 [effective user ID from /proc/<pid>/status]
+PMID: 3.24.1
+effective user ID from /proc/<pid>/status
+PMID: 3.24.2 [saved user ID from /proc/<pid>/status]
+PMID: 3.24.2
+saved user ID from /proc/<pid>/status
+PMID: 3.24.3 [filesystem user ID from /proc/<pid>/status]
+PMID: 3.24.3
+filesystem user ID from /proc/<pid>/status
+PMID: 3.24.4 [real group ID from /proc/<pid>/status]
+PMID: 3.24.4
+real group ID from /proc/<pid>/status
+PMID: 3.24.5 [effective group ID from /proc/<pid>/status]
+PMID: 3.24.5
+effective group ID from /proc/<pid>/status
+PMID: 3.24.6 [saved group ID from /proc/<pid>/status]
+PMID: 3.24.6
+saved group ID from /proc/<pid>/status
+PMID: 3.24.7 [filesystem group ID from /proc/<pid>/status]
+PMID: 3.24.7
+filesystem group ID from /proc/<pid>/status
+PMID: 3.24.8 [real user name based on real user ID from /proc/<pid>/status]
+PMID: 3.24.8
+real user name based on real user ID from /proc/<pid>/status
+PMID: 3.24.9 [effective user name based on effective user ID from /proc/<pid>/status]
+PMID: 3.24.9
+effective user name based on effective user ID from /proc/<pid>/status
+PMID: 3.24.10 [saved user name based on saved user ID from /proc/<pid>/status]
+PMID: 3.24.10
+saved user name based on saved user ID from /proc/<pid>/status
+PMID: 3.24.11 [filesystem user name based on filesystem user ID from /proc/<pid>/status]
+PMID: 3.24.11
+filesystem user name based on filesystem user ID from /proc/<pid>/status
+PMID: 3.24.20 [total virtual memory (from /proc/<pid>/status)]
+PMID: 3.24.20
+total virtual memory (from /proc/<pid>/status)
+PMID: 3.24.23 [virtual memory used for data (from /proc/<pid>/status)]
+PMID: 3.24.23
+virtual memory used for data (from /proc/<pid>/status)
+PMID: 3.24.24 [virtual memory used for stack (from /proc/<pid>/status)]
+PMID: 3.24.24
+virtual memory used for stack (from /proc/<pid>/status)
+PMID: 3.24.25 [virtual memory used for non-library executable code (from /proc/<pid>/status)]
+PMID: 3.24.25
+virtual memory used for non-library executable code (from /proc/<pid>/status)
+PMID: 3.24.26 [virtual memory used for libraries (from /proc/<pid>/status)]
+PMID: 3.24.26
+virtual memory used for libraries (from /proc/<pid>/status)
+PMID: 3.24.27 [virtual memory size currently swapped out (from /proc/<pid>/status)]
+PMID: 3.24.27
+virtual memory size currently swapped out (from /proc/<pid>/status)
+PMID: 3.24.28 [number of threads (from /proc/<pid>/status)]
+PMID: 3.24.28
+number of threads (from /proc/<pid>/status)
+PMID: 3.24.41 [thread group identifier]
+PMID: 3.24.41
+thread group identifier
+PMID: 3.24.42 [OpenVZ container identifier]
+PMID: 3.24.42
+OpenVZ container identifier
+PMID: 3.32.4 [physical device read bytes]
+PMID: 3.32.4
+Number of bytes physically read on by devices on behalf of this process.
+
+PMID: 3.32.5 [physical device write bytes]
+PMID: 3.32.5
+Number of bytes physically written to devices on behalf of this process.
+This must be reduced by any truncated I/O (proc.io.cancelled_write_bytes).
+
+PMID: 3.32.6 [physical device write cancelled bytes]
+PMID: 3.32.6
+Number of bytes cancelled via truncate by this process.  Actual physical
+writes for an individual process can be calculated as:
+	proc.io.write_bytes - proc.io.cancelled_write_bytes.
+
+PMID: 11.16.33 [number of buffer writes going to the disk from the log]
+PMID: 11.16.33
+This variable counts the number of log buffer writes going to the
+physical log partitions of XFS filesystems. Log data traffic is
+proportional to the level of meta-data updating. Log buffer writes get
+generated when they fill up or external syncs occur.
+PMID: 11.16.34 [write throughput to the physical XFS log]
+PMID: 11.16.34
+This variable counts the number of Kbytes of information being written
+to the physical log partitions of XFS filesystems. Log data traffic
+is proportional to the level of meta-data updating. The rate with which
+log data gets written depends on the size of internal log buffers and
+disk write speed. Therefore, filesystems with very high meta-data
+updating may need to stripe the log partition or put the log partition
+on a separate drive.
+PMID: 11.16.35 [count of failures for immediate get of buffered/internal]
+PMID: 11.16.35
+This variable keeps track of times when a logged transaction can not
+get any log buffer space. When this occurs, all of the internal log
+buffers are busy flushing their data to the physical on-disk log.
+PMID: 11.16.51 [number of XFS file system write operations]
+PMID: 11.16.51
+This is the number of write(2) system calls made to files in
+XFS file systems.
+PMID: 11.16.52 [number of bytes written in XFS file system write operations]
+PMID: 11.16.52
+This is the number of bytes written via write(2) system calls to files
+in XFS file systems. It can be used in conjunction with the write_calls
+count to calculate the average size of the write operations to files in
+XFS file systems.
+PMID: 11.16.53 [number of XFS file system read operations]
+PMID: 11.16.53
+This is the number of read(2) system calls made to files in XFS file
+systems.
+PMID: 11.16.54 [number of bytes read in XFS file system read operations]
+PMID: 11.16.54
+This is the number of bytes read via read(2) system calls to files in
+XFS file systems. It can be used in conjunction with the read_calls
+count to calculate the average size of the read operations to files in
+XFS file systems.
+PMID: 11.16.63 [value from xs_qm_dqcachehits field of struct xfsstats]
+PMID: 11.17.0 [number of request buffer calls]
+PMID: 11.17.1 [number of buffers created]
+PMID: 11.17.2 [number of requests for a locked buffer which succeeded]
+PMID: 11.17.3 [number of requests for a locked buffer which waited]
+PMID: 11.17.4 [number of non-blocking requests for a locked buffer which failed]
+PMID: 11.17.5 [number of requests for a locked buffer which failed due to no buffer]
+PMID: 11.17.6 [number of retry attempts when allocating a page for insertion in a buffer]
+PMID: 11.17.7 [number of hits in the page cache when looking for a page]
+PMID: 11.17.8 [number of buffer get calls requiring immediate device reads]
+PMID: 60.0.0 [percpu user CPU time metric from /proc/stat, including guest CPU time]
+PMID: 60.0.1 [percpu nice user CPU time metric from /proc/stat, including guest CPU time]
+PMID: 60.0.2 [percpu sys CPU time metric from /proc/stat]
+PMID: 60.0.3 [percpu idle CPU time metric from /proc/stat]
+PMID: 60.0.4 [per-disk read operations]
+PMID: 60.0.4
+Cumulative number of disk read operations since system boot time (subject
+to counter wrap).
+PMID: 60.0.5 [per-disk write operations]
+PMID: 60.0.5
+Cumulative number of disk write operations since system boot time (subject
+to counter wrap).
+PMID: 60.0.6 [per-disk block read operations]
+PMID: 60.0.6
+Cumulative number of disk block read operations since system boot time
+(subject to counter wrap).
+PMID: 60.0.7 [per-disk block write operations]
+PMID: 60.0.7
+Cumulative number of disk block write operations since system boot time
+(subject to counter wrap).
+PMID: 60.0.8 [pages read from swap devices due to demand for physical memory]
+PMID: 60.0.9 [pages written to swap devices due to demand for physical memory]
+PMID: 60.0.10 [number of swap in operations]
+PMID: 60.0.11 [number of swap out operations]
+PMID: 60.0.12 [interrupt count metric from /proc/stat]
+PMID: 60.0.12
+The value is the first value from the intr field in /proc/stat,
+which is a counter of the total number of interrupts processed.
+The value is normally converted to a rate (count/second).
+This counter usually increases by at least HZ/second,
+i.e. the clock interrupt rate, wehich is usually 100/second.
+
+See also kernel.percpu.intr and kernel.percpu.interrupts to get
+the breakdown of interrupt count by interrupt type and which CPU
+processed each one.
+PMID: 60.0.13 [context switches metric from /proc/stat]
+PMID: 60.0.14 [fork rate metric from /proc/stat]
+PMID: 60.0.15 [number of currently running processes from /proc/stat]
+PMID: 60.0.16 [number of currently blocked processes from /proc/stat]
+PMID: 60.0.19 [number of NUMA nodes in the system]
+PMID: 60.0.20 [total user CPU time from /proc/stat for all CPUs, including guest CPU time]
+PMID: 60.0.21 [total nice user CPU time from /proc/stat for all CPUs, including guest time]
+PMID: 60.0.22 [total sys CPU time from /proc/stat for all CPUs]
+PMID: 60.0.23 [total idle CPU time from /proc/stat for all CPUs]
+PMID: 60.0.24 [total read operations, summed for all disks]
+PMID: 60.0.24
+Cumulative number of disk read operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+PMID: 60.0.25 [total write operations, summed for all disks]
+PMID: 60.0.25
+Cumulative number of disk read operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+PMID: 60.0.26 [block read operations, summed for all disks]
+PMID: 60.0.26
+Cumulative number of disk block read operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+PMID: 60.0.27 [block write operations, summed for all disks]
+PMID: 60.0.27
+Cumulative number of disk block write operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+PMID: 60.0.28 [per-disk total (read+write) operations]
+PMID: 60.0.28
+Cumulative number of disk read and write operations since system boot
+time (subject to counter wrap).
+PMID: 60.0.29 [total (read+write) operations, summed for all disks]
+PMID: 60.0.29
+Cumulative number of disk read and write operations since system boot
+time (subject to counter wrap), summed over all disk devices.
+PMID: 60.0.30 [percpu wait CPU time]
+PMID: 60.0.30
+Per-CPU I/O wait CPU time - time spent with outstanding I/O requests.
+PMID: 60.0.31 [percpu interrupt CPU time ]
+PMID: 60.0.31
+Total time spent processing interrupts on each CPU (this includes
+both soft and hard interrupt processing time).
+PMID: 60.0.32 [number of CPUs in the system]
+PMID: 60.0.33 [number of disks in the system]
+PMID: 60.0.34 [total interrupt CPU time from /proc/stat for all CPUs]
+PMID: 60.0.34
+Total time spent processing interrupts on all CPUs.
+This value includes both soft and hard interrupt processing time.
+PMID: 60.0.35 [total wait CPU time from /proc/stat for all CPUs]
+PMID: 60.0.37 [total (read+write) block operations, summed for all disks]
+PMID: 60.0.37
+Cumulative number of disk block read and write operations since system
+boot time (subject to counter wrap), summed over all disk devices.
+PMID: 60.0.38 [per-disk count of bytes read]
+PMID: 60.0.39 [per-disk count of bytes written]
+PMID: 60.0.40 [per-disk count of total bytes read and written]
+PMID: 60.0.41 [count of bytes read for all disk devices]
+PMID: 60.0.42 [count of bytes written for all disk devices]
+PMID: 60.0.43 [total count of bytes read and written for all disk devices]
+PMID: 60.0.44 [total count of active time, summed for all disks]
+PMID: 60.0.44
+Counts the number of milliseconds for which at least one I/O is in
+progress on each disk, summed across all disks.
+
+When converted to a rate and divided by the number of disks (hinv.ndisk),
+this metric represents the average utilization of all disks during the
+sampling interval.  A value of 0.25 (or 25%) means that on average every
+disk was active (i.e. busy) one quarter of the time.
+PMID: 60.0.45 [total time averaged count of request queue length, summed for all disks]
+PMID: 60.0.45
+When converted to a rate, this metric represents the average across all disks
+of the time averaged request queue length during the sampling interval.  A
+value of 1.5 (or 150%) suggests that (on average) each all disk experienced a
+time averaged queue length of 1.5 requests during the sampling interval.
+PMID: 60.0.46 [per-disk count of active time]
+PMID: 60.0.46
+Counts the number of milliseconds for which at least one I/O is in
+progress for each device.
+
+When converted to a rate, this metric represents the average utilization of
+the disk during the sampling interval.  A value of 0.5 (or 50%) means the
+disk was active (i.e. busy) half the time.
+PMID: 60.0.47 [per-disk time averaged count of request queue length]
+PMID: 60.0.47
+When converted to a rate, this metric represents the time averaged disk
+request queue length during the sampling interval.  A value of 2.5 (or 250%)
+represents a time averaged queue length of 2.5 requests during the sampling
+interval.
+PMID: 60.0.48 [value of HZ (jiffies/second) for the currently running kernel]
+PMID: 60.0.49 [per-disk count of merged read requests]
+PMID: 60.0.49
+Count of read requests that were merged with an already queued read request.
+PMID: 60.0.50 [per-disk count of merged write requests]
+PMID: 60.0.50
+Count of write requests that were merged with an already queued write request.
+PMID: 60.0.51 [total count of merged read requests, summed for all disks]
+PMID: 60.0.51
+Total count of read requests that were merged with an already queued read request.
+PMID: 60.0.52 [total count of merged write requests, summed for all disks]
+PMID: 60.0.52
+Total count of write requests that were merged with an already queued write request.
+PMID: 60.0.53 [soft interrupt CPU time from /proc/stat for all CPUs]
+PMID: 60.0.53
+Total soft interrupt CPU time (deferred interrupt handling code,
+not run in the initial interrupt handler).
+PMID: 60.0.54 [hard interrupt CPU time from /proc/stat for all CPUs]
+PMID: 60.0.54
+Total hard interrupt CPU time ("hard" interrupt handling code
+is the code run directly on receipt of the initial hardware
+interrupt, and does not include "soft" interrupt handling code
+which is deferred until later).
+PMID: 60.0.55 [total virtualisation CPU steal time for all CPUs]
+PMID: 60.0.55
+Total CPU time when a CPU had a runnable process, but the hypervisor
+(virtualisation layer) chose to run something else instead.
+PMID: 60.0.56 [percpu soft interrupt CPU time ]
+PMID: 60.0.56
+Per-CPU soft interrupt CPU time (deferred interrupt handling code,
+not run in the initial interrupt handler).
+PMID: 60.0.57 [percpu hard interrupt CPU time ]
+PMID: 60.0.57
+Per-CPU hard interrupt CPU time ("hard" interrupt handling code
+is the code run directly on receipt of the initial hardware
+interrupt, and does not include "soft" interrupt handling code
+which is deferred until later).
+PMID: 60.0.58 [percpu CPU steal time ]
+PMID: 60.0.58
+Per-CPU time when the CPU had a runnable process, but the hypervisor
+(virtualisation layer) chose to run something else instead.
+PMID: 60.0.59 [per-disk I/O scheduler]
+PMID: 60.0.59
+The name of the I/O scheduler in use for each device.  The scheduler
+is part of the block layer in the kernel, and attempts to optimise the
+I/O submission patterns using various techniques (typically, sorting
+and merging adjacent requests into larger ones to reduce seek activity,
+but certainly not limited to that).
+PMID: 60.0.60 [total virtual guest CPU time for all CPUs]
+PMID: 60.0.60
+Total CPU time spent running virtual guest operating systems.
+PMID: 60.0.61 [percpu guest CPU time]
+PMID: 60.0.61
+Per-CPU time spent running (virtual) guest operating systems.
+PMID: 60.0.72 [per-disk raw count of read response time]
+PMID: 60.0.72
+For each completed read on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding reads for a disk.  When divided by the number
+of completed reads for a disk (disk.dev.read), the value represents the
+stochastic average of the read response (or wait) time for that disk.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dev.r_await = delta(disk.dev.read_rawactive) / delta(disk.dev.read)
+PMID: 60.0.73 [per-disk raw count of write response time]
+PMID: 60.0.73
+For each completed write on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a disk.  When divided by
+the number of completed writes for a disk (disk.dev.write), the value
+represents the stochastic average of the write response (or wait)
+time for that disk.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dev.w_await = delta(disk.dev.write_rawactive) / delta(disk.dev.write)
+PMID: 60.0.74 [raw count of read response time, summed for all disks]
+PMID: 60.0.74
+For each completed read on every disk the response time (queue time plus
+service time) in milliseconds is added to this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding reads across all disks.  When divided
+by the number of completed reads for all disks (disk.all.read), value
+represents the stochastic average of the read response (or wait) time
+across all disks.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.all.r_await = delta(disk.all.read_rawactive) / delta(disk.all.read)
+PMID: 60.0.75 [raw count of write response time, summed for all disks]
+PMID: 60.0.75
+For each completed write on every disk the response time (queue time
+plus service time) in milliseconds is added to this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding writes across all disks.  When divided by
+the number of completed writes for all disks (disk.all.write), value
+represents the stochastic average of the write response (or wait) time
+across all disks.
+PMID: 60.0.76 [percpu user CPU time metric from /proc/stat, excluding guest CPU time]
+PMID: 60.0.78 [total user CPU time from /proc/stat for all CPUs, excluding guest CPU time]
+PMID: 60.0.79 [per-disk raw count of I/O response time]
+PMID: 60.0.79
+For each completed I/O on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding I/Os for a disk.  When divided by the number
+of completed I/Os for a disk (disk.dev.total), the value represents the
+stochastic average of the I/O response (or wait) time for that disk.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dev.await = delta(disk.dev.total_rawactive) / delta(disk.dev.total)
+PMID: 60.0.80 [raw count of I/O response time, summed for all disks]
+PMID: 60.0.80
+For each completed I/O on every disk the response time (queue time
+plus service time) in milliseconds is added to this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding I/Os across all disks.  When divided by
+the number of completed I/Os for all disks (disk.all.total), value
+represents the stochastic average of the I/O response (or wait) time
+across all disks.
+PMID: 60.0.81 [total virtual guest CPU nice time for all CPUs]
+PMID: 60.0.81
+Total CPU nice time spent running virtual guest operating systems.
+PMID: 60.0.82 [total nice user CPU time from /proc/stat for all CPUs, excluding guest time]
+PMID: 60.0.83 [percpu nice guest CPU time]
+PMID: 60.0.83
+Per-CPU nice time spent running (virtual) guest operating systems.
+PMID: 60.0.84 [percpu nice user CPU time metric from /proc/stat, excluding guest CPU time]
+PMID: 60.1.0 [total system memory metric reported by /proc/meminfo]
+PMID: 60.1.0
+The value of this metric corresponds to the "MemTotal" field
+reported by /proc/meminfo. Note that this does not necessarily
+correspond to actual installed physical memory - there may
+be areas of the physical address space mapped as ROM in
+various peripheral devices and the bios may be mirroring
+certain ROMs in RAM.
+PMID: 60.1.1 [used memory metric from /proc/meminfo]
+PMID: 60.1.1
+Used memory is the difference between mem.physmem and mem.freemem.
+PMID: 60.1.2 [free memory metric from /proc/meminfo]
+PMID: 60.1.2
+Alias for mem.freemem.
+PMID: 60.1.3 [shared memory metric from /proc/meminfo]
+PMID: 60.1.3
+Shared memory metric. Currently always zero on Linux 2.4 kernels
+and has been removed from 2.6 kernels.
+PMID: 60.1.4 [I/O buffers metric from /proc/meminfo]
+PMID: 60.1.4
+Memory allocated for buffer_heads.
+PMID: 60.1.5 [page cache metric from /proc/meminfo]
+PMID: 60.1.5
+Memory used by the page cache, including buffered file data.
+This is in-memory cache for files read from the disk (the pagecache)
+but doesn't include SwapCached.
+PMID: 60.1.6 [total swap available metric from /proc/meminfo]
+PMID: 60.1.7 [swap used metric from /proc/meminfo]
+PMID: 60.1.8 [swap free metric from /proc/meminfo]
+PMID: 60.1.9 [total system memory metric from /proc/meminfo]
+PMID: 60.1.10 [free system memory metric from /proc/meminfo]
+PMID: 60.1.11 [Memory page size]
+PMID: 60.1.11
+The memory page size of the running kernel in bytes.
+PMID: 60.1.12 [unaccounted memory]
+PMID: 60.1.12
+Memory that is not free (i.e. has been referenced) and is not cached.
+mem.physmem - mem.util.free - mem.util.cached - mem.util.buffers
+PMID: 60.1.13 [Kbytes in swap cache, from /proc/meminfo]
+PMID: 60.1.13
+Memory that once was swapped out, is swapped back in but still also
+is in the swapfile (if memory is needed it doesn't need to be swapped
+out AGAIN because it is already in the swapfile. This saves I/O)
+PMID: 60.1.14 [Kbytes on the active page list (recently referenced pages)]
+PMID: 60.1.14
+Memory that has been used more recently and usually not reclaimed unless
+absolutely necessary.
+PMID: 60.1.15 [Kbytes on the inactive page list (candidates for discarding)]
+PMID: 60.1.15
+Memory which has been less recently used.  It is more eligible to be
+reclaimed for other purposes
+PMID: 60.1.16 [Kbytes in high memory, from /proc/meminfo]
+PMID: 60.1.16
+This is apparently an i386 specific metric, and seems to be always zero
+on ia64 architecture (and possibly others). On i386 arch (at least),
+highmem is all memory above ~860MB of physical memory. Highmem areas
+are for use by userspace programs, or for the pagecache. The kernel
+must use tricks to access this memory, making it slower to access
+than lowmem.
+PMID: 60.1.17 [Kbytes free high memory, from /proc/meminfo]
+PMID: 60.1.17
+See mem.util.highTotal. Not used on ia64 arch (and possibly others).
+PMID: 60.1.18 [Kbytes in low memory total, from /proc/meminfo]
+PMID: 60.1.18
+Lowmem is memory which can be used for everything that highmem can be
+used for, but it is also availble for the kernel's use for its own
+data structures. Among many other things, it is where everything
+from the Slab is allocated.  Bad things happen when you're out of lowmem.
+(this may only be true on i386 architectures).
+PMID: 60.1.19 [Kbytes free low memory, from /proc/meminfo]
+PMID: 60.1.19
+See mem.util.lowTotal
+PMID: 60.1.20 [Kbytes swap, from /proc/meminfo]
+PMID: 60.1.20
+total amount of swap space available
+PMID: 60.1.21 [Kbytes free swap, from /proc/meminfo]
+PMID: 60.1.21
+Memory which has been evicted from RAM, and is temporarily on the disk
+PMID: 60.1.22 [Kbytes in dirty pages, from /proc/meminfo]
+PMID: 60.1.22
+Memory which is waiting to get written back to the disk
+PMID: 60.1.23 [Kbytes in writeback pages, from /proc/meminfo]
+PMID: 60.1.23
+Memory which is actively being written back to the disk
+PMID: 60.1.24 [Kbytes in mapped pages, from /proc/meminfo]
+PMID: 60.1.24
+files which have been mmaped, such as libraries
+PMID: 60.1.25 [Kbytes in slab memory, from /proc/meminfo]
+PMID: 60.1.25
+in-kernel data structures cache
+PMID: 60.1.26 [Kbytes committed to address spaces, from /proc/meminfo]
+PMID: 60.1.26
+An estimate of how much RAM you would need to make a 99.99% guarantee
+that there never is OOM (out of memory) for this workload. Normally
+the kernel will overcommit memory. That means, say you do a 1GB malloc,
+nothing happens, really. Only when you start USING that malloc memory
+you will get real memory on demand, and just as much as you use.
+PMID: 60.1.27 [Kbytes in kernel page tables, from /proc/meminfo]
+PMID: 60.1.28 [Kbytes in reverse mapped pages, from /proc/meminfo]
+PMID: 60.1.29 [Kbytes cached and not dirty or writeback, derived from /proc/meminfo]
+PMID: 60.1.30 [Kbytes in user pages not backed by files, from /proc/meminfo]
+PMID: 60.1.31 [Kbytes limit for address space commit, from /proc/meminfo]
+PMID: 60.1.31
+The static total, in Kbytes, available for commitment to address 
+spaces. Thus, mem.util.committed_AS may range up to this total. Normally 
+the kernel overcommits memory, so this value may exceed mem.physmem
+PMID: 60.1.32 [Kbytes in bounce buffers, from /proc/meminfo]
+PMID: 60.1.33 [Kbytes in NFS unstable memory, from /proc/meminfo]
+PMID: 60.1.34 [Kbytes in reclaimable slab pages, from /proc/meminfo]
+PMID: 60.1.35 [Kbytes in unreclaimable slab pages, from /proc/meminfo]
+PMID: 60.1.36 [anonymous Active list LRU memory]
+PMID: 60.1.37 [anonymous Inactive list LRU memory]
+PMID: 60.1.38 [file-backed Active list LRU memory]
+PMID: 60.1.39 [file-backed Inactive list LRU memory]
+PMID: 60.1.40 [kbytes of memory that is unevictable]
+PMID: 60.1.41 [kbytes of memory that is pinned via mlock()]
+PMID: 60.1.42 [kbytes of shmem]
+PMID: 60.1.43 [kbytes of memory used for kernel stacks]
+PMID: 60.1.44 [a count of total hugepages]
+PMID: 60.1.45 [a count of free hugepages]
+PMID: 60.1.46 [a count of reserved hugepages]
+PMID: 60.1.47 [a count of surplus hugepages]
+PMID: 60.1.48 [amount of memory that is directly mapped in 4kB pages]
+PMID: 60.1.49 [amount of memory that is directly mapped in 2MB pages]
+PMID: 60.1.50 [amount of kernel memory allocated via vmalloc]
+PMID: 60.1.51 [amount of used vmalloc memory]
+PMID: 60.1.52 [amount of vmalloc chunk memory]
+PMID: 60.1.53 [amount of mmap_copy space (non-MMU kernels only)]
+PMID: 60.1.54 [amount of memory in the per-CPU quicklists]
+PMID: 60.1.55 [amount of memory in hardware corrupted pages]
+PMID: 60.1.56 [amount of memory in anonymous huge pages]
+PMID: 60.1.57 [amount of memory that is directly mapped in 1GB pages]
+PMID: 60.1.58 [available memory from /proc/meminfo]
+PMID: 60.1.58
+The amount of memory that is available for a new workload,
+without pushing the system into swap. Estimated from MemFree,
+Active(file), Inactive(file), and SReclaimable, as well as the "low"
+watermarks from /proc/zoneinfo.
+PMID: 60.1.59 [Huge page size from /proc/meminfo]
+PMID: 60.1.59
+The memory huge page size of the running kernel in bytes.
+PMID: 60.1.60 [amount of memory in total hugepages]
+PMID: 60.1.61 [amount of memory in free hugepages]
+PMID: 60.1.62 [amount of memory in reserved hugepages]
+PMID: 60.1.63 [amount of memory in surplus hugepages]
+PMID: 60.1.63
+
+User memory (Kbytes) in pages not backed by files, e.g. from malloc()
+PMID: 60.2.0 [1, 5 and 15 minute load average]
+PMID: 60.2.1 [most recently allocated process identifier]
+PMID: 60.2.2 [total number of processes in the (per-CPU) run queues]
+PMID: 60.2.3 [total number of processes (lightweight)]
+PMID: 60.3.0 [network recv read bytes from /proc/net/dev per network interface]
+PMID: 60.3.0
+bytes column on the "Receive" side of /proc/net/dev (stats->rx_bytes counter in
+rtnl_link_stats64)
+PMID: 60.3.1 [network recv read packets from /proc/net/dev per network interface]
+PMID: 60.3.1
+packets column on the "Receive" side of /proc/net/dev
+(stats->rx_packets counter in rtnl_link_stats64)
+PMID: 60.3.2 [network recv read errors from /proc/net/dev per network interface]
+PMID: 60.3.2
+errors column on the "Receive" side of /proc/net/dev
+(stats->rx_errors counter in rtnl_link_stats64)
+PMID: 60.3.3 [network recv read drops from /proc/net/dev per network interface]
+PMID: 60.3.3
+drop column on the "Receive" side of /proc/net/dev
+(stats->{rx_dropped + rx_missed_errors} counters in rtnl_link_stats64)
+rx_dropped are the dropped packets due to no space in linux buffers and rx_missed
+are due to the receiver NIC missing a packet.
+Not all NICS use the rx_missed_errors counter.
+PMID: 60.3.4 [network recv fifo overrun errors from /proc/net/dev per network interface]
+PMID: 60.3.4
+fifo column on the "Receive" side of /proc/net/dev
+(stats->rx_fifo_errors counter in rtnl_link_stats64)
+PMID: 60.3.5 [network recv frames errors from /proc/net/dev per network interface]
+PMID: 60.3.5
+frame column on the "Receive" side of /proc/net/dev
+(stats->{rx_length_errors + rx_over_errors + rx_crc_errors + rx_frame_errors}
+counters in rtnl_link_stats64)
+PMID: 60.3.6 [network recv compressed from /proc/net/dev per network interface]
+PMID: 60.3.6
+compressed column on the "Receive" side of /proc/net/dev
+(stats->rx_compressed counter in rtnl_link_stats64).
+Almost exclusively used for CSLIP or HDLC devices
+PMID: 60.3.7 [network recv multicast packets from /proc/net/dev per network interface]
+PMID: 60.3.7
+multicast column on the "Receive" side of /proc/net/dev
+(stats->multicast counter in rtnl_link_stats64)
+PMID: 60.3.8 [network send bytes from /proc/net/dev per network interface]
+PMID: 60.3.8
+bytes column on the "Transmit" side of /proc/net/dev
+(stats->tx_bytes counter in rtnl_link_stats64)
+PMID: 60.3.9 [network send packets from /proc/net/dev per network interface]
+PMID: 60.3.9
+packets column on the "Transmit" side of /proc/net/dev
+(stats->tx_packets counter in rtnl_link_stats64)
+PMID: 60.3.10 [network send errors from /proc/net/dev per network interface]
+PMID: 60.3.10
+errors column on the "Transmit" side of /proc/net/dev
+(stats->tx_errors counter in rtnl_link_stats64)
+PMID: 60.3.11 [network send drops from /proc/net/dev per network interface]
+PMID: 60.3.11
+drop column on the "Transmit" side of /proc/net/dev
+(stats->tx_dropped counter in rtnl_link_stats64)
+PMID: 60.3.12 [network send fifos from /proc/net/dev per network interface]
+PMID: 60.3.12
+fifo column on the "Transmit" side of /proc/net/dev
+(stats->tx_fifo_errors counter in rtnl_link_stats64)
+PMID: 60.3.13 [network send collisions from /proc/net/dev per network interface]
+PMID: 60.3.13
+colls column on the "Transmit" side of /proc/net/dev
+(stats->collisions counter in rtnl_link_stats64).
+Counter only valid for outgoing packets.
+PMID: 60.3.14 [network send carrier from /proc/net/dev per network interface]
+PMID: 60.3.14
+carrier column on the "Transmit" side of /proc/net/dev
+(stats->{tx_carrier_errors + tx_aborted_errors + tx_window_errors +
+tx_heartbeat_errors} counters in rtnl_link_stats64).
+PMID: 60.3.15 [network send compressed from /proc/net/dev per network interface]
+PMID: 60.3.15
+compressed column on the "Transmit" side of /proc/net/dev
+(stats->tx_compressed counter in rtnl_link_stats64).
+Almost exclusively used for CSLIP or HDLC devices
+PMID: 60.3.16 [network total (in+out) bytes from /proc/net/dev per network interface]
+PMID: 60.3.17 [network total (in+out) packets from /proc/net/dev per network interface]
+PMID: 60.3.18 [network total (in+out) errors from /proc/net/dev per network interface]
+PMID: 60.3.19 [network total (in+out) drops from /proc/net/dev per network interface]
+PMID: 60.3.20 [network total (in) mcasts from /proc/net/dev per network interface]
+PMID: 60.3.20
+Linux does not account for outgoing mcast packets per device, so this counter
+is identical to the incoming mcast metric.
+PMID: 60.3.21 [maximum transmission unit on network interface]
+PMID: 60.3.22 [interface speed in megabytes per second]
+PMID: 60.3.22
+The linespeed on the network interface, as reported by the kernel,
+scaled from Megabits/second to Megabytes/second.
+See also network.interface.baudrate for the bytes/second value.
+PMID: 60.3.23 [interface speed in bytes per second]
+PMID: 60.3.23
+The linespeed on the network interface, as reported by the kernel,
+scaled up from Megabits/second to bits/second and divided by 8 to convert
+to bytes/second.
+See also network.interface.speed for the Megabytes/second value.
+PMID: 60.3.24 [value one for half or two for full duplex interface]
+PMID: 60.3.25 [boolean for whether interface is currently up or down]
+PMID: 60.3.26 [boolean for whether interface has resources allocated]
+PMID: 60.3.27 [number of active (up) network interfaces]
+PMID: 60.3.28 [boolean for whether interface is wireless]
+PMID: 60.4.3 [interrupt error count from /proc/interrupts]
+PMID: 60.4.3
+This is a global counter (normally converted to a count/second)
+for any and all errors that occur while handling interrupts.
+PMID: 60.4.4 [interrupt count metric from /proc/interrupts]
+PMID: 60.4.4
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+PMID: 60.5.0 [number of (local) file systems currently mounted]
+PMID: 60.5.1 [Total capacity of mounted filesystem (Kbytes)]
+PMID: 60.5.7 [File system mount point]
+PMID: 60.5.8 [Percentage of filesystem in use]
+PMID: 60.5.9 [Size of each block on mounted filesystem (Bytes)]
+PMID: 60.6.0 [physical swap free space]
+PMID: 60.6.1 [physical swap size]
+PMID: 60.6.2 [maximum swap length (same as swapdev.length on Linux)]
+PMID: 60.6.3 [virtual swap size (always zero on Linux)]
+PMID: 60.6.3
+Virtual swap size (always zero on Linux since Linux does not support
+virtual swap).
+
+This metric is retained on Linux for interoperability with PCP monitor
+tools running on IRIX.
+PMID: 60.6.4 [swap resource priority]
+PMID: 60.7.4 [cumulative total of client NFSv2 requests by request type]
+PMID: 60.7.12 [cumulative total of client NFSv2 requests by request type]
+PMID: 60.7.20 [cumulative total of client RPC requests]
+PMID: 60.7.21 [cumulative total of client RPC retransmissions]
+PMID: 60.7.22 [cumulative total of client RPC auth refreshes]
+PMID: 60.7.24 [cumulative total of client RPC network layer requests]
+PMID: 60.7.25 [cumulative total of client RPC UDP network layer requests]
+PMID: 60.7.26 [cumulative total of client RPC TCP network layer requests]
+PMID: 60.7.27 [cumulative total of client RPC TCP network layer connection requests]
+PMID: 60.7.30 [cumulative total of server RPC requests]
+PMID: 60.7.32 [cumulative total of server RPC bad format errors]
+PMID: 60.7.33 [cumulative total of server RPC bad auth errors]
+PMID: 60.7.34 [cumulative total of server RPC bad client errors]
+PMID: 60.7.35 [cumulative total of request-reply-cache hits]
+PMID: 60.7.36 [cumulative total of request-reply-cache misses]
+PMID: 60.7.37 [cumulative total of uncached request-reply-cache requests]
+PMID: 60.7.44 [cumulative total of server RPC network layer requests]
+PMID: 60.7.45 [cumulative total of server RPC UDP network layer requests]
+PMID: 60.7.46 [cumulative total of server RPC TCP network layer requests]
+PMID: 60.7.47 [cumulative total of server RPC TCP network layer connection requests]
+PMID: 60.7.50 [cumulative total of server NFSv2 requests]
+PMID: 60.7.54 [cumulative count of bytes returned from read requests]
+PMID: 60.7.55 [cumulative count of bytes passed into write requests]
+PMID: 60.7.61 [cumulative total of client NFSv3 requests by request type]
+PMID: 60.7.62 [cumulative total of server NFSv3 requests]
+PMID: 60.7.63 [cumulative total of client NFSv3 requests by request type]
+PMID: 60.7.65 [cumulative total for each client NFSv4 request type]
+PMID: 60.7.66 [cumulative total of server NFSv4 operations, plus NULL requests]
+PMID: 60.7.67 [cumulative total for each server NFSv4 operation, and for NULL requests]
+PMID: 60.7.71 [number of nfsd threads running]
+PMID: 60.7.72 [number of thread pools]
+PMID: 60.7.73 [cumulative total of requests received]
+PMID: 60.7.74 [cumulative total of requests that had to wait to be processed]
+PMID: 60.7.75 [cumulative total of requests processed immediately]
+PMID: 60.7.76 [cumulative total of threads that timedout from inactivity]
+PMID: 60.10.0 [read operations metric for storage partitions]
+PMID: 60.10.0
+Cumulative number of disk read operations since system boot time
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
+PMID: 60.10.1 [write operations metric for storage partitions]
+PMID: 60.10.1
+Cumulative number of disk write operations since system boot time
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
+PMID: 60.10.2 [total (read+write) I/O operations metric for storage partitions]
+PMID: 60.10.2
+Cumulative number of disk read and write operations since system boot
+time (subject to counter wrap) for individual disk partitions or
+logical volumes.
+PMID: 60.10.3 [block read operations metric for storage partitions]
+PMID: 60.10.3
+Cumulative number of disk block read operations since system boot time
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
+PMID: 60.10.4 [block write operations metric for storage partitions]
+PMID: 60.10.4
+Cumulative number of disk block write operations since system boot time
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
+PMID: 60.10.5 [total (read+write) block operations metric for storage partitions]
+PMID: 60.10.5
+Cumulative number of disk block read and write operations since system
+boot time (subject to counter wrap) for individual disk partitions or
+logical volumes.
+PMID: 60.10.6 [number of bytes read for storage partitions]
+PMID: 60.10.6
+Cumulative number of bytes read since system boot time (subject to
+counter wrap) for individual disk partitions or logical volumes.
+PMID: 60.10.7 [number of bytes written for storage partitions]
+PMID: 60.10.7
+Cumulative number of bytes written since system boot time (subject to
+counter wrap) for individual disk partitions or logical volumes.
+PMID: 60.10.8 [total number of bytes read and written for storage partitions]
+PMID: 60.10.8
+Cumulative number of bytes read and written since system boot time
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
+PMID: 60.10.9 [per-disk-partition count of merged read requests]
+PMID: 60.10.10 [per-disk-partition count of merged write requests]
+PMID: 60.10.11 [per-disk-partition device count of active time]
+PMID: 60.10.11
+Counts the number of milliseconds for which at least one I/O is in
+progress for each disk partition.
+
+When converted to a rate, this metric represents the average utilization
+of the disk partition during the sampling interval.  A value of 0.5
+(or 50%) means the disk partition was active (i.e. busy) half the time.
+PMID: 60.10.12 [per-disk-partition device time averaged count of request queue length]
+PMID: 60.10.13 [per-disk-partition raw count of read response time]
+PMID: 60.10.13
+For each completed read on each disk partition the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding reads for a disk partition.  When divided by
+the number of completed reads for a disk partition (disk.partitions.read),
+the value represents the stochastic average of the read response (or wait)
+time for that disk partition.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.partitions.r_await = delta(disk.partitions.read_rawactive) /
+                             delta(disk.partitions.read)
+PMID: 60.10.14 [per-disk-partition raw count of write response time]
+PMID: 60.10.14
+For each completed write on each disk partition the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a disk partition.
+When divided by the number of completed writes for a disk partition
+(disk.partitions.write), the value represents the stochastic average of
+the write response (or wait) time for that disk partition.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.partitions.w_await = delta(disk.partitions.write_rawactive) /
+                             delta(disk.partitions.write)
+PMID: 60.10.15 [per-disk-partition raw count of I/O response time]
+PMID: 60.10.15
+For each completed I/O on each disk partition the response time (queue
+time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding I/Os for a disk partition.
+When divided by the number of completed I/Os for a disk partition
+(disk.partitions.total), the value represents the stochastic average of
+the I/O response (or wait) time for that disk partition.
+PMID: 60.11.0 [instantaneous number of tcp sockets currently in use]
+PMID: 60.11.3 [instantaneous number of udp sockets currently in use]
+PMID: 60.11.6 [instantaneous number of raw sockets currently in use]
+PMID: 60.11.8 [instantaneous number of udplite sockets currently in use]
+PMID: 60.11.9 [total number of sockets used by the system.]
+PMID: 60.11.10 [instantaneous number of orphan sockets]
+PMID: 60.11.11 [instantaneous number of sockets wating close]
+PMID: 60.11.12 [instantaneous number of allocated sockets]
+PMID: 60.11.13 [instantaneous number of used memory for tcp ]
+PMID: 60.11.14 [nstantaneous number of used memory for udp]
+PMID: 60.11.15 [instantaneous number of frag sockets currently in use]
+PMID: 60.11.16 [nstantaneous number of used memory for frag]
+PMID: 60.12.0 [release level of the running kernel]
+PMID: 60.12.0
+Release level of the running kernel as reported via the release[]
+value returned from uname(2) or uname -r.
+
+See also pmda.uname.
+PMID: 60.12.1 [version level (build number) and build date of the running kernel]
+PMID: 60.12.1
+Version level of the running kernel as reported by the version[]
+value returned from uname(2) or uname -v.  Usually a build number
+followed by a build date.
+
+See also pmda.uname.
+PMID: 60.12.2 [name of the implementation of the operating system]
+PMID: 60.12.2
+Name of the implementation of the running operating system as reported
+by the sysname[] value returned from uname(2) or uname -s.  Usually
+"Linux".
+
+See also pmda.uname.
+PMID: 60.12.3 [name of the hardware type the system is running on]
+PMID: 60.12.3
+Name of the hardware type the system is running on as reported by the machine[]
+value returned from uname(2) or uname -m, e.g. "i686".
+
+See also pmda.uname.
+PMID: 60.12.4 [host name of this node on the network]
+PMID: 60.12.4
+Name of this node on the network as reported by the nodename[]
+value returned from uname(2) or uname -n.  Usually a synonym for
+the host name.
+
+See also pmda.uname.
+PMID: 60.12.5 [identity and type of current system]
+PMID: 60.12.5
+Identity and type of current system.  The concatenation of the values
+returned from utsname(2), also similar to uname -a.
+
+See also the kernel.uname.* metrics
+PMID: 60.12.7 [Linux distribution name]
+PMID: 60.12.7
+The Linux distribution name, as determined by a number of heuristics.
+For example:
++ on Fedora, the contents of /etc/fedora-release
++ on RedHat, the contents of /etc/redhat-release
+PMID: 60.14.0 [count of ip forwarding]
+PMID: 60.14.1 [count of ip defaultttl]
+PMID: 60.14.2 [count of ip inreceives]
+PMID: 60.14.3 [count of ip inhdrerrors]
+PMID: 60.14.4 [count of ip inaddrerrors]
+PMID: 60.14.5 [count of ip forwdatagrams]
+PMID: 60.14.6 [count of ip inunknownprotos]
+PMID: 60.14.7 [count of ip indiscards]
+PMID: 60.14.8 [count of ip indelivers]
+PMID: 60.14.9 [count of ip outrequests]
+PMID: 60.14.10 [count of ip outdiscards]
+PMID: 60.14.11 [count of ip outnoroutes]
+PMID: 60.14.12 [count of ip reasmtimeout]
+PMID: 60.14.13 [count of ip reasmreqds]
+PMID: 60.14.14 [count of ip reasmoks]
+PMID: 60.14.15 [count of ip reasmfails]
+PMID: 60.14.16 [count of ip fragoks]
+PMID: 60.14.17 [count of ip fragfails]
+PMID: 60.14.18 [count of ip fragcreates]
+PMID: 60.14.20 [count of icmp inmsgs]
+PMID: 60.14.21 [count of icmp inerrors]
+PMID: 60.14.22 [count of icmp indestunreachs]
+PMID: 60.14.23 [count of icmp intimeexcds]
+PMID: 60.14.24 [count of icmp inparmprobs]
+PMID: 60.14.25 [count of icmp insrcquenchs]
+PMID: 60.14.26 [count of icmp inredirects]
+PMID: 60.14.27 [count of icmp inechos]
+PMID: 60.14.28 [count of icmp inechoreps]
+PMID: 60.14.29 [count of icmp intimestamps]
+PMID: 60.14.30 [count of icmp intimestampreps]
+PMID: 60.14.31 [count of icmp inaddrmasks]
+PMID: 60.14.32 [count of icmp inaddrmaskreps]
+PMID: 60.14.33 [count of icmp outmsgs]
+PMID: 60.14.34 [count of icmp outerrors]
+PMID: 60.14.35 [count of icmp outdestunreachs]
+PMID: 60.14.36 [count of icmp outtimeexcds]
+PMID: 60.14.37 [count of icmp outparmprobs]
+PMID: 60.14.38 [count of icmp outsrcquenchs]
+PMID: 60.14.39 [count of icmp outredirects]
+PMID: 60.14.40 [count of icmp outechos]
+PMID: 60.14.41 [count of icmp outechoreps]
+PMID: 60.14.42 [count of icmp outtimestamps]
+PMID: 60.14.43 [count of icmp outtimestampreps]
+PMID: 60.14.44 [count of icmp outaddrmasks]
+PMID: 60.14.45 [count of icmp outaddrmaskreps]
+PMID: 60.14.46 [count of icmp in checksum errors]
+PMID: 60.14.50 [the restransmission timeout algorithm in use]
+PMID: 60.14.51 [minimum retransmission timeout]
+PMID: 60.14.52 [maximum retransmission timeout]
+PMID: 60.14.53 [limit on tcp connections]
+PMID: 60.14.54 [count of tcp activeopens]
+PMID: 60.14.55 [count of tcp passiveopens]
+PMID: 60.14.56 [count of tcp attemptfails]
+PMID: 60.14.57 [count of tcp estabresets]
+PMID: 60.14.58 [current established tcp connections]
+PMID: 60.14.59 [count of tcp segments received]
+PMID: 60.14.60 [count of tcp segments sent]
+PMID: 60.14.61 [count of tcp segments retransmitted]
+PMID: 60.14.62 [count of tcp segments received in error]
+PMID: 60.14.63 [count of tcp segments sent with RST flag]
+PMID: 60.14.64 [count of tcp segments received with checksum errors]
+PMID: 60.14.70 [count of udp indatagrams]
+PMID: 60.14.71 [count of udp noports]
+PMID: 60.14.72 [count of udp inerrors]
+PMID: 60.14.74 [count of udp outdatagrams]
+PMID: 60.14.75 [count of udp receive buffer errors]
+PMID: 60.14.76 [count of udp send buffer errors]
+PMID: 60.14.83 [count of udp in checksum errors]
+PMID: 60.15.0 [list of active SCSI devices]
+PMID: 60.15.0
+There is one string value for each SCSI device active in the system,
+as extracted from /proc/scsi/scsi. The external instance name
+for each device is in the format scsiD:C:I:L where
+D is controller number, C is channel number, I is device ID
+and L is the SCSI LUN number for the device. The values for this
+metric are the actual device names (sd[a-z] are SCSI disks, st[0-9]
+are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
+PMID: 60.18.0 [clock rate in Mhz for each CPU as reported by /proc/cpuinfo]
+PMID: 60.18.1 [manufacturer of each CPU as reported by /proc/cpuinfo]
+PMID: 60.18.2 [model number of each CPU as reported by /proc/cpuinfo]
+PMID: 60.18.3 [stepping of each CPU as reported by /proc/cpuinfo]
+PMID: 60.18.4 [primary cache size of each CPU as reported by /proc/cpuinfo]
+PMID: 60.18.5 [bogo mips rating for each CPU as reported by /proc/cpuinfo]
+PMID: 60.18.6 [logical to physical CPU mapping for each CPU]
+PMID: 60.18.7 [hardware identifier as reported by uname(2)]
+PMID: 60.18.8 [logical CPU to NUMA node mapping for each CPU]
+PMID: 60.18.9 [model name of each CPU as reported by /proc/cpuinfo]
+PMID: 60.18.10 [Hardware capability flags for each CPU as reported by /proc/cpuinfo]
+PMID: 60.18.11 [Cache alignment for each CPU as reported by /proc/cpuinfo]
+PMID: 60.20.0 [number of active objects in each cache]
+PMID: 60.20.1 [total number of objects in each cache]
+PMID: 60.20.2 [size of individual objects of each cache]
+PMID: 60.20.3 [number of active slabs comprising each cache]
+PMID: 60.20.4 [total number of slabs comprising each cache]
+PMID: 60.20.5 [number of pages in each slab]
+PMID: 60.20.6 [number of objects in each slab]
+PMID: 60.20.7 [total number of bytes allocated for active objects in each slab]
+PMID: 60.21.0 [maximum number of entries in a semaphore map (from semctl(..,IPC_INFO,..))]
+PMID: 60.21.1 [maximum number of semaphore identifiers (from semctl(..,IPC_INFO,..))]
+PMID: 60.21.2 [maximum number of semaphores in system (from semctl(..,IPC_INFO,..))]
+PMID: 60.21.3 [number of undo structures in system (from semctl(..,IPC_INFO,..))]
+PMID: 60.21.4 [maximum number of semaphores per identifier (from semctl(..,IPC_INFO,..))]
+PMID: 60.21.5 [maximum number of operations per semop call (from semctl(..,IPC_INFO,..))]
+PMID: 60.21.6 [maximum number of undo entries per process (from semctl(..,IPC_INFO,..))]
+PMID: 60.21.7 [size of struct sem_undo (from semctl(..,IPC_INFO,..))]
+PMID: 60.21.8 [semaphore maximum value (from semctl(..,IPC_INFO,..))]
+PMID: 60.21.9 [adjust on exit maximum value (from semctl(..,IPC_INFO,..))]
+PMID: 60.22.0 [size of message pool in kilobytes (from msgctl(..,IPC_INFO,..))]
+PMID: 60.22.1 [number of entries in a message map (from msgctl(..,IPC_INFO,..))]
+PMID: 60.22.2 [maximum size of a message in bytes (from msgctl(..,IPC_INFO,..))]
+PMID: 60.22.3 [default maximum size of a message queue (from msgctl(..,IPC_INFO,..))]
+PMID: 60.22.4 [maximum number of message queue identifiers (from msgctl(..,IPC_INFO,..))]
+PMID: 60.22.5 [message segment size (from msgctl(..,IPC_INFO,..))]
+PMID: 60.22.6 [number of system message headers (from msgctl(..,IPC_INFO,..))]
+PMID: 60.22.7 [maximum number of message segments (from msgctl(..,IPC_INFO,..))]
+PMID: 60.23.0 [maximum shared segment size in bytes (from shmctl(..,IPC_INFO,..))]
+PMID: 60.23.1 [minimum shared segment size in bytes (from shmctl(..,IPC_INFO,..))]
+PMID: 60.23.2 [maximum number of shared segments in system (from shmctl(..,IPC_INFO,..))]
+PMID: 60.23.3 [maximum number of shared segments per process (from shmctl(..,IPC_INFO,..))]
+PMID: 60.23.4 [maximum amount of shared memory in system in pages (from shmctl(..,IPC_INFO,..))]
+PMID: 60.25.0 [number of user sessions on system]
+PMID: 60.26.0 [time the current kernel has been running]
+PMID: 60.26.1 [time the current kernel has been idle since boot]
+PMID: 60.27.0 [number of in-use file structures]
+PMID: 60.27.1 [number of available file structures]
+PMID: 60.27.2 [hard maximum on number of file structures]
+PMID: 60.27.3 [number of in-use inode structures]
+PMID: 60.27.4 [number of available inode structures]
+PMID: 60.27.5 [number of in-use dentry structures]
+PMID: 60.27.6 [number of available dentry structures]
+PMID: 60.28.0 [number of pages in dirty state]
+PMID: 60.28.0
+Instantaneous number of pages in dirty state, from /proc/vmstat
+PMID: 60.28.1 [number of pages in writeback state]
+PMID: 60.28.1
+Instantaneous number of pages in writeback state, from /proc/vmstat
+PMID: 60.28.2 [number of pages in unstable state]
+PMID: 60.28.2
+Instantaneous number of pages in unstable state, from /proc/vmstat
+PMID: 60.28.3 [number of page table pages]
+PMID: 60.28.3
+Instantaneous number of page table pages, from /proc/vmstat
+PMID: 60.28.4 [number of mapped pagecache pages]
+PMID: 60.28.4
+Instantaneous number of mapped pagecache pages, from /proc/vmstat
+See also mem.vmstat.nr_anon for anonymous mapped pages.
+PMID: 60.28.5 [number of slab pages]
+PMID: 60.28.5
+Instantaneous number of slab pages, from /proc/vmstat
+This counter was retired in 2.6.18 kernels, and is now the sum of
+mem.vmstat.nr_slab_reclaimable and mem.vmstat.nr_slab_unreclaimable.
+PMID: 60.28.6 [page in operations]
+PMID: 60.28.6
+Count of page in operations since boot, from /proc/vmstat
+PMID: 60.28.7 [page out operations]
+PMID: 60.28.7
+Count of page out operations since boot, from /proc/vmstat
+PMID: 60.28.8 [pages swapped in]
+PMID: 60.28.8
+Count of pages swapped in since boot, from /proc/vmstat
+PMID: 60.28.9 [pages swapped out]
+PMID: 60.28.9
+Count of pages swapped out since boot, from /proc/vmstat
+PMID: 60.28.10 [high mem page allocations]
+PMID: 60.28.10
+Count of high mem page allocations since boot, from /proc/vmstat
+PMID: 60.28.11 [normal mem page allocations]
+PMID: 60.28.11
+Count of normal mem page allocations since boot, from /proc/vmstat
+PMID: 60.28.12 [dma mem page allocations]
+PMID: 60.28.12
+Count of dma mem page allocations since boot, from /proc/vmstat
+PMID: 60.28.13 [page free operations]
+PMID: 60.28.13
+Count of page free operations since boot, from /proc/vmstat
+PMID: 60.28.14 [pages moved from inactive to active]
+PMID: 60.28.14
+Count of pages moved from inactive to active since boot, from /proc/vmstat
+PMID: 60.28.15 [pages moved from active to inactive]
+PMID: 60.28.15
+Count of pages moved from active to inactive since boot, from /proc/vmstat
+PMID: 60.28.16 [page major and minor fault operations]
+PMID: 60.28.16
+Count of page major and minor fault operations since boot, from /proc/vmstat
+PMID: 60.28.17 [major page fault operations]
+PMID: 60.28.17
+Count of major page fault operations since boot, from /proc/vmstat
+PMID: 60.28.18 [high mem pages inspected in refill_inactive_zone]
+PMID: 60.28.18
+Count of high mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+PMID: 60.28.19 [normal mem pages inspected in refill_inactive_zone]
+PMID: 60.28.19
+Count of normal mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+PMID: 60.28.20 [dma mem pages inspected in refill_inactive_zone]
+PMID: 60.28.20
+Count of dma mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+PMID: 60.28.21 [high mem pages reclaimed]
+PMID: 60.28.21
+Count of high mem pages reclaimed since boot, from /proc/vmstat
+PMID: 60.28.22 [normal mem pages reclaimed]
+PMID: 60.28.22
+Count of normal mem pages reclaimed since boot, from /proc/vmstat
+PMID: 60.28.23 [dma mem pages reclaimed]
+PMID: 60.28.23
+Count of dma mem pages reclaimed since boot, from /proc/vmstat
+PMID: 60.28.24 [high mem pages scanned by kswapd]
+PMID: 60.28.24
+Count of high mem pages scanned by kswapd since boot, from /proc/vmstat
+PMID: 60.28.25 [normal mem pages scanned by kswapd]
+PMID: 60.28.25
+Count of normal mem pages scanned by kswapd since boot, from /proc/vmstat
+PMID: 60.28.26 [dma mem pages scanned by kswapd]
+PMID: 60.28.26
+Count of dma mem pages scanned by kswapd since boot, from /proc/vmstat
+PMID: 60.28.27 [high mem pages scanned]
+PMID: 60.28.27
+Count of high mem pages scanned since boot, from /proc/vmstat
+PMID: 60.28.28 [normal mem pages scanned]
+PMID: 60.28.28
+Count of normal mem pages scanned since boot, from /proc/vmstat
+PMID: 60.28.29 [dma mem pages scanned]
+PMID: 60.28.29
+Count of dma mem pages scanned since boot, from /proc/vmstat
+PMID: 60.28.30 [pages reclaimed via inode freeing]
+PMID: 60.28.30
+Count of pages reclaimed via inode freeing since boot, from /proc/vmstat
+PMID: 60.28.31 [slab pages scanned]
+PMID: 60.28.31
+Count of slab pages scanned since boot, from /proc/vmstat
+PMID: 60.28.32 [pages reclaimed by kswapd]
+PMID: 60.28.32
+Count of pages reclaimed by kswapd since boot, from /proc/vmstat
+PMID: 60.28.33 [pages reclaimed via kswapd inode freeing]
+PMID: 60.28.33
+Count of pages reclaimed via kswapd inode freeing since boot, from
+/proc/vmstat
+PMID: 60.28.34 [kswapd calls to page reclaim]
+PMID: 60.28.34
+Count of kswapd calls to page reclaim since boot, from /proc/vmstat
+PMID: 60.28.35 [direct reclaim calls]
+PMID: 60.28.35
+Count of direct reclaim calls since boot, from /proc/vmstat
+PMID: 60.28.36 [pages rotated to tail of the LRU]
+PMID: 60.28.36
+Count of pages rotated to tail of the LRU since boot, from /proc/vmstat
+PMID: 60.28.37 [reclaimable slab pages]
+PMID: 60.28.37
+Instantaneous number of reclaimable slab pages, from /proc/vmstat.
+PMID: 60.28.38 [unreclaimable slab pages]
+PMID: 60.28.38
+Instantaneous number of unreclaimable slab pages, from /proc/vmstat.
+PMID: 60.28.39 [number of anonymous mapped pagecache pages]
+PMID: 60.28.39
+Instantaneous number of anonymous mapped pagecache pages, from /proc/vmstat
+See also mem.vmstat.mapped for other mapped pages.
+PMID: 60.28.40 [number of bounce buffer pages]
+PMID: 60.28.40
+Instantaneous number of bounce buffer pages, from /proc/vmstat
+PMID: 60.28.42 [pages written by VM scanner from LRU]
+PMID: 60.28.42
+Count of pages written from the LRU by the VM scanner, from /proc/vmstat.
+The VM is supposed to minimise the number of pages which get written
+from the LRU (for IO scheduling efficiency, and for high reclaim-success
+rates).
+PMID: 60.28.43 [huge TLB page buddy allocation failures]
+PMID: 60.28.43
+Count of huge TLB page buddy allocation failures, from /proc/vmstat
+PMID: 60.28.44 [huge TLB page buddy allocation successes]
+PMID: 60.28.44
+Count of huge TLB page buddy allocation successes, from /proc/vmstat
+PMID: 60.28.45 [number of active anonymous memory pages]
+PMID: 60.28.46 [number of active file memory memory pages]
+PMID: 60.28.47 [number of free pages]
+PMID: 60.28.48 [number of inactive anonymous memory pages]
+PMID: 60.28.49 [number of inactive file memory pages]
+PMID: 60.28.50 [number of isolated anonymous memory pages]
+PMID: 60.28.51 [number of isolated file memory pages]
+PMID: 60.28.52 [number of pages of kernel stack]
+PMID: 60.28.53 [number of pages under mlock]
+PMID: 60.28.54 [number of shared memory pages]
+PMID: 60.28.55 [number of unevictable pages]
+PMID: 60.28.56 [number of temporary writeback pages]
+PMID: 60.28.57 [count of compact blocks moved]
+PMID: 60.28.58 [count of unsuccessful compactions for high order allocations]
+PMID: 60.28.59 [count of pages unsuccessfully compacted]
+PMID: 60.28.60 [count of pages successfully moved for compaction]
+PMID: 60.28.61 [count of failures to even start compacting]
+PMID: 60.28.62 [count of successful compactions for high order allocations]
+PMID: 60.28.63 [dma32 mem page allocations]
+PMID: 60.28.63
+Count of dma32 mem page allocations since boot, from /proc/vmstat
+PMID: 60.28.64 [movable mem page allocations]
+PMID: 60.28.64
+Count of movable mem page allocations since boot, from /proc/vmstat
+PMID: 60.28.65 [dma32 mem pages inspected in refill_inactive_zone]
+PMID: 60.28.65
+Count of dma32 mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+PMID: 60.28.66 [movable mem pages inspected in refill_inactive_zone]
+PMID: 60.28.66
+Count of movable mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+PMID: 60.28.67 [dma32 mem pages scanned]
+PMID: 60.28.67
+Count of dma32 mem pages scanned since boot, from /proc/vmstat
+PMID: 60.28.68 [movable mem pages scanned]
+PMID: 60.28.68
+Count of movable mem pages scanned since boot, from /proc/vmstat
+PMID: 60.28.69 [dma32 mem pages scanned by kswapd]
+PMID: 60.28.69
+Count of dma32 mem pages scanned by kswapd since boot, from /proc/vmstat
+PMID: 60.28.70 [movable mem pages scanned by kswapd]
+PMID: 60.28.70
+Count of movable mem pages scanned by kswapd since boot, from /proc/vmstat
+PMID: 60.28.71 [dma32 mem pages reclaimed]
+PMID: 60.28.71
+Count of dma32 mem pages reclaimed since boot, from /proc/vmstat
+PMID: 60.28.72 [movable mem pages reclaimed]
+PMID: 60.28.72
+Count of movable mem pages reclaimed since boot, from /proc/vmstat
+PMID: 60.28.73 [transparent huge page fault allocations]
+PMID: 60.28.74 [transparent huge page fault fallbacks]
+PMID: 60.28.75 [transparent huge page collapse allocations]
+PMID: 60.28.76 [transparent huge page collapse failures]
+PMID: 60.28.77 [count of transparent huge page splits]
+PMID: 60.28.78 [count of unevictable pages cleared]
+PMID: 60.28.79 [count of unevictable pages culled]
+PMID: 60.28.80 [count of mlocked unevictable pages]
+PMID: 60.28.81 [count of unevictable pages mlock freed]
+PMID: 60.28.82 [count of unevictable pages munlocked]
+PMID: 60.28.83 [count of unevictable pages rescued]
+PMID: 60.28.84 [count of unevictable pages scanned]
+PMID: 60.28.85 [count of unevictable pages stranded]
+PMID: 60.28.86 [number of zone reclaim failures]
+PMID: 60.28.87 [count of times low watermark reached quickly]
+PMID: 60.28.87
+Count of times kswapd reached low watermark quickly, from /proc/vmstat
+PMID: 60.28.88 [count of times high watermark reached quickly]
+PMID: 60.28.88
+Count of times kswapd reached high watermark quickly, from /proc/vmstat
+PMID: 60.28.89 [count of times kswapd skipped waiting on device congestion]
+PMID: 60.28.89
+Count of times kswapd skipped waiting due to device congestion as a
+result of being under the low watermark, from /proc/vmstat
+PMID: 60.28.90 [number of anonymous transparent huge pages]
+PMID: 60.28.90
+Instantaneous number of anonymous transparent huge pages, from /proc/vmstat
+PMID: 60.28.91 [count of pages dirtied]
+PMID: 60.28.91
+Count of pages entering dirty state, from /proc/vmstat
+PMID: 60.28.92 [background writeback threshold]
+PMID: 60.28.93 [dirty throttling threshold]
+PMID: 60.28.94 [count of pages written out]
+PMID: 60.28.94
+Count of pages written out, from /proc/vmstat
+PMID: 60.28.95 [count of foreign NUMA zone allocations]
+PMID: 60.28.96 [count of successful allocations from preferred NUMA zone]
+PMID: 60.28.97 [count of interleaved NUMA allocations]
+PMID: 60.28.98 [count of successful allocations from local NUMA zone]
+PMID: 60.28.99 [count of unsuccessful allocations from preferred NUMA zona]
+PMID: 60.28.100 [count of unsuccessful allocations from local NUMA zone]
+PMID: 60.28.101 [count of transparent huge page zeroed page allocations]
+PMID: 60.28.102 [count of transparent huge page zeroed page allocation failures]
+PMID: 60.28.103 [number of virt guest balloon page deflations]
+PMID: 60.28.104 [count of virt guest balloon page inflations]
+PMID: 60.28.105 [number of virt guest balloon page migrations]
+PMID: 60.28.106 [number of times the memory compaction daemon was woken]
+PMID: 60.28.107 [count of pages scanned for freeing by compaction daemon]
+PMID: 60.28.108 [count of pages scanned for migration by compaction daemon]
+PMID: 60.28.109 [count of calls to drop page cache pages]
+PMID: 60.28.110 [count of calls to drop slab cache pages]
+PMID: 60.28.111 [count of free Contiguous Memory Allocator pages]
+PMID: 60.28.112 [count of pages scanned during page reclaim]
+PMID: 60.28.113 [prioritise for reclaim when writeback ends]
+PMID: 60.28.114 [count of NUMA page migrations]
+PMID: 60.28.115 [count of NUMA page table entry updates]
+PMID: 60.28.116 [count of pages lazily freed]
+PMID: 60.28.117 [count of unsuccessful NUMA page migrations]
+PMID: 60.28.118 [count of successful NUMA page migrations]
+PMID: 60.28.119 [count of huge page enqueues for splitting]
+PMID: 60.28.120 [count of huge page splits into base pages]
+PMID: 60.28.121 [count of failures to split a huge page]
+PMID: 60.28.122 [count of times a PMD was split into table of PTEs]
+PMID: 60.28.122
+This can happen, for instance, when an application calls mprotect() or
+munmap() on part of huge page. It doesn't split huge page, only the page
+table entry.
+PMID: 60.28.123 [count of page activations to form the working set]
+PMID: 60.28.124 [count of NUMA node working set page reclaims]
+PMID: 60.28.125 [count of refaults of previously evicted pages]
+PMID: 60.28.126 [count of page isolations for memory compaction]
+PMID: 60.28.127 [number of huge pages used for shared memory]
+PMID: 60.28.128 [number of huge page PMD mappings]
+PMID: 60.28.129 [number of inactive anonymous memory pages in zones]
+PMID: 60.28.130 [number of inactive file memory pages in zones]
+PMID: 60.28.131 [number of isolated anonymous memory pages in zones]
+PMID: 60.28.132 [number of isolated file memory pages in zones]
+PMID: 60.28.133 [number of unevictable memory pages in zones]
+PMID: 60.28.134 [count of dirty, writeback and unstable pages]
+PMID: 60.28.135 [number of compressed pages]
+PMID: 60.28.136 [count of times huge pages were allocated and put in page cache]
+PMID: 60.28.137 [count of times huge pages were used for file mappings]
+PMID: 60.28.138 [dma mem pages reclaimed by kswapd]
+PMID: 60.28.138
+Count of dma mem pages reclaimed by kswapd since boot, from /proc/vmstat
+since Linux 3.4
+PMID: 60.28.139 [dma32 mem pages reclaimed by kswapd]
+PMID: 60.28.139
+Count of dma32 mem pages reclaimed by kswapd since boot, from /proc/vmstat
+since Linux 3.4
+PMID: 60.28.140 [normal mem pages reclaimed by kswapd]
+PMID: 60.28.140
+Count of normal mem pages reclaimed by kswapd since boot, from /proc/vmstat
+since Linux 3.4
+PMID: 60.28.141 [movable mem pages reclaimed by kswapd]
+PMID: 60.28.141
+Count of movable mem pages reclaimed by kswapd since boot, from /proc/vmstat
+since Linux 3.4
+PMID: 60.28.142 [dma mem pages reclaimed]
+PMID: 60.28.142
+Count of dma mem pages reclaimed since boot, from /proc/vmstat
+since Linux 3.4
+PMID: 60.28.143 [dma32 mem pages reclaimed]
+PMID: 60.28.143
+Count of dma32 mem pages reclaimed since boot, from /proc/vmstat
+since Linux 3.4
+PMID: 60.28.144 [normal mem pages reclaimed]
+PMID: 60.28.144
+Count of normal mem pages reclaimed since boot, from /proc/vmstat
+since Linux 3.4
+PMID: 60.28.145 [movable mem pages reclaimed]
+PMID: 60.28.145
+Count of movable mem pages reclaimed since boot, from /proc/vmstat
+since Linux 2.6.23
+PMID: 60.33.0 [string INET interface address (ifconfig style)]
+PMID: 60.33.1 [string IPv6 interface address (ifconfig style)]
+PMID: 60.33.2 [string IPv6 interface scope (ifconfig style)]
+PMID: 60.33.3 [hardware address (from sysfs)]
+PMID: 60.36.0 [per-node total memory]
+PMID: 60.36.1 [per-node free memory]
+PMID: 60.36.2 [per-node used memory]
+PMID: 60.36.3 [per-node Active list LRU memory]
+PMID: 60.36.4 [per-node Inactive list LRU memory]
+PMID: 60.36.5 [per-node anonymous Active list LRU memory]
+PMID: 60.36.6 [per-node anonymous Inactive list LRU memory]
+PMID: 60.36.7 [per-node file-backed Active list LRU memory]
+PMID: 60.36.8 [per-node file-backed Inactive list LRU memory]
+PMID: 60.36.9 [per-node highmem total]
+PMID: 60.36.10 [per-node highmem free]
+PMID: 60.36.11 [per-node lowmem total]
+PMID: 60.36.12 [per-node lowmem free]
+PMID: 60.36.13 [per-node Unevictable memory]
+PMID: 60.36.14 [per-node count of Mlocked memory]
+PMID: 60.36.15 [per-node dirty memory]
+PMID: 60.36.16 [per-node count of memory locked for writeback to stable storage]
+PMID: 60.36.17 [per-node count of memory backed by files]
+PMID: 60.36.18 [per-node mapped memory]
+PMID: 60.36.19 [per-node anonymous memory]
+PMID: 60.36.20 [per-node amount of shared memory]
+PMID: 60.36.21 [per-node memory used as kernel stacks]
+PMID: 60.36.22 [per-node memory used for pagetables]
+PMID: 60.36.23 [per-node memory holding NFS data that needs writeback]
+PMID: 60.36.24 [per-node memory used for bounce buffers]
+PMID: 60.36.25 [per-node temporary memory used for writeback]
+PMID: 60.36.26 [per-node memory used for slab objects]
+PMID: 60.36.27 [per-node memory used for slab objects that can be reclaimed]
+PMID: 60.36.28 [per-node memory used for slab objects that is unreclaimable]
+PMID: 60.36.29 [per-node total count of hugepages]
+PMID: 60.36.30 [per-node count of free hugepages]
+PMID: 60.36.31 [per-node count of surplus hugepages]
+PMID: 60.36.32 [per-node count of times a task wanted alloc on local node and succeeded]
+PMID: 60.36.33 [per-node count of times a task wanted alloc on local node but got another node]
+PMID: 60.36.34 [count of times a task on another node alloced on that node, but got this node]
+PMID: 60.36.35 [count of times interleaving wanted to allocate on this node and succeeded]
+PMID: 60.36.36 [count of times a process ran on this node and got memory on this node]
+PMID: 60.36.37 [count of times a process ran on this node and got memory from another node]
+PMID: 60.36.38 [maximum memory bandwidth supported on each numa node]
+PMID: 60.36.38
+Maximum memory bandwidth supported on each numa node. It makes use of a
+bandwith.conf file which has the bandwidth information for each node :
+node_num:bandwidth
+The node_num must match with any node in sysfs/devices/system/node directory.
+And, the bandwidth is expressed in terms of MBps. This config file should be
+filled up manually after running some bandwidth saturation benchmark tools.
+PMID: 60.36.39 [per-node total amount of hugepages memory]
+PMID: 60.36.40 [per-node amount of free hugepages memory]
+PMID: 60.36.41 [per-node amount of surplus hugepages memory]
+PMID: 60.53.0 [Number of IP datagrams discarded due to no routes in forwarding path]
+PMID: 60.53.1 [Number of IP datagrams discarded due to frame not carrying enough data]
+PMID: 60.53.2 [Number of received IP multicast datagrams]
+PMID: 60.53.3 [Number of sent IP multicast datagrams]
+PMID: 60.53.4 [Number of received IP broadcast datagrams]
+PMID: 60.53.5 [Number of sent IP bradcast datagrams]
+PMID: 60.53.6 [Number of received octets]
+PMID: 60.53.7 [Number of sent octets]
+PMID: 60.53.8 [Number of received IP multicast octets]
+PMID: 60.53.9 [Number of sent IP multicast octets]
+PMID: 60.53.10 [Number of received IP broadcast octets]
+PMID: 60.53.11 [Number of sent IP broadcast octets]
+PMID: 60.53.12 [Number of IP datagrams with checksum errors]
+PMID: 60.53.13 [Number of packets received with NOECT]
+PMID: 60.53.14 [Number of packets received with ECT(1)]
+PMID: 60.53.15 [Number of packets received with ECT(0)]
+PMID: 60.53.16 [Number of packets received with Congestion Experimented]
+PMID: 60.53.17 [Number of sent SYN cookies]
+PMID: 60.53.18 [Number of received SYN cookies]
+PMID: 60.53.19 [Number of failed SYN cookies]
+PMID: 60.53.20 [Number of resets received for embryonic SYN_RECV sockets]
+PMID: 60.53.21 [Number of packets pruned from receive queue because of socket buffer overrun]
+PMID: 60.53.22 [Number of packets pruned from receive queue]
+PMID: 60.53.23 [Number of packets dropped from out-of-order queue because of socket buffer overrun]
+PMID: 60.53.24 [Number of dropped out of window ICMPs]
+PMID: 60.53.25 [Number of dropped ICMP because socket was locked]
+PMID: 60.53.26 [Number of arp packets filtered]
+PMID: 60.53.27 [Number of TCP sockets finished time wait in fast timer]
+PMID: 60.53.28 [Number of time wait sockets recycled by time stamp]
+PMID: 60.53.29 [Number of TCP sockets finished time wait in slow timer]
+PMID: 60.53.30 [Number of passive connections rejected because of timestamp]
+PMID: 60.53.31 [Number of active connections rejected because of timestamp]
+PMID: 60.53.32 [Number of packets rejects in established connections because of timestamp]
+PMID: 60.53.33 [Number of delayed acks sent]
+PMID: 60.53.34 [Number of delayed acks further delayed because of locked socket]
+PMID: 60.53.35 [Number of times quick ack mode was activated times]
+PMID: 60.53.36 [Number of times the listen queue of a socket overflowed]
+PMID: 60.53.37 [Number of SYNs to LISTEN sockets dropped]
+PMID: 60.53.38 [Number of packets directly queued to recvmsg prequeue]
+PMID: 60.53.39 [Number of bytes directly in process context from backlog]
+PMID: 60.53.40 [Number of bytes directly received in process context from prequeue]
+PMID: 60.53.41 [Number of packets dropped from prequeue]
+PMID: 60.53.42 [Number of packet headers predicted]
+PMID: 60.53.43 [Number of packets header predicted and directly queued to user]
+PMID: 60.53.44 [Number of acknowledgments not containing data payload received]
+PMID: 60.53.45 [Number of predicted acknowledgments]
+PMID: 60.53.46 [Number of times recovered from packet loss due to fast retransmit]
+PMID: 60.53.47 [Number of times recovered from packet loss by selective acknowledgements]
+PMID: 60.53.48 [Number of bad SACK blocks received]
+PMID: 60.53.49 [Number of times detected reordering using FACK]
+PMID: 60.53.50 [Number of times detected reordering using SACK]
+PMID: 60.53.51 [Number of times detected reordering using reno fast retransmit]
+PMID: 60.53.52 [Number of times detected reordering times using time stamp]
+PMID: 60.53.53 [Number of congestion windows fully recovered without slow start]
+PMID: 60.53.54 [Number of congestion windows partially recovered using Hoe heuristic]
+PMID: 60.53.55 [Number of congestion windows recovered without slow start using DSACK]
+PMID: 60.53.56 [Number of congestion windows recovered without slow start after partial ack]
+PMID: 60.53.57 [Number of retransmits lost]
+PMID: 60.53.58 [Number of timeouts after reno fast retransmit]
+PMID: 60.53.59 [Number of timeouts after SACK recovery]
+PMID: 60.53.60 [Number of timeouts in loss state]
+PMID: 60.53.61 [Number of fast retransmits]
+PMID: 60.53.62 [Number of forward retransmits]
+PMID: 60.53.63 [Number of retransmits in slow start]
+PMID: 60.53.64 [Number of other TCP timeouts]
+PMID: 60.53.65 [Number of sent TCP loss probes]
+PMID: 60.53.66 [Number of TCP loss probe recoveries]
+PMID: 60.53.67 [Number of reno fast retransmits failed]
+PMID: 60.53.68 [Number of SACK retransmits failed]
+PMID: 60.53.69 [Number of times receiver scheduled too late for direct processing]
+PMID: 60.53.70 [Number of packets collapsed in receive queue due to low socket buffer]
+PMID: 60.53.71 [Number of DSACKs sent for old packets]
+PMID: 60.53.72 [Number of DSACKs sent for out of order packets]
+PMID: 60.53.73 [Number of DSACKs received]
+PMID: 60.53.74 [Number of DSACKs for out of order packets received]
+PMID: 60.53.75 [Number of connections reset due to unexpected data]
+PMID: 60.53.76 [Number of connections reset due to early user close]
+PMID: 60.53.77 [Number of connections aborted due to memory pressure]
+PMID: 60.53.78 [Number of connections aborted due to timeout]
+PMID: 60.53.79 [Number of connections aborted after user close in linger timeout]
+PMID: 60.53.80 [Number of times unable to send RST due to no memory]
+PMID: 60.53.81 [Numer of times TCP ran low on memory]
+PMID: 60.53.82 [Number of SACKs discarded]
+PMID: 60.53.83 [Number of ignored old duplicate SACKs]
+PMID: 60.53.84 [Number of ignored duplicate SACKs with undo_marker not set]
+PMID: 60.53.85 [Number of FRTO's successfully detected spurious RTOs]
+PMID: 60.53.86 [Number of times MD5 hash expected but not found]
+PMID: 60.53.87 [Number of times MD5 hash unexpected but found]
+PMID: 60.53.88 [Number of SACKs shifted]
+PMID: 60.53.89 [Number of SACKs merged]
+PMID: 60.53.90 [Number of SACKs fallbacks]
+PMID: 60.53.91 [Number of frames dropped because of full backlog queue]
+PMID: 60.53.92 [Number of frames dropped when TTL is under the minimum]
+PMID: 60.53.93 [Number of dropped ACK frames when socket is in SYN-RECV state]
+PMID: 60.53.93
+Due to SYNACK retrans count lower than defer_accept value
+PMID: 60.53.94 [Number of packets dropped in input path because of rp_filter settings]
+PMID: 60.53.95 [Number of occurences of time wait bucket overflow]
+PMID: 60.53.96 [Number of times a SYNCOOKIE was replied to client]
+PMID: 60.53.97 [Number of times a SYN request was dropped due to disabled syncookies]
+PMID: 60.53.98 [Number of failed tcp_retransmit_skb() calls]
+PMID: 60.53.99 [Number of times tried to coalesce the receive queue]
+PMID: 60.53.100 [Number of packets queued in OFO queue]
+PMID: 60.53.101 [Number of packets meant to be queued in OFO but dropped due to limits hit]
+PMID: 60.53.101
+Number of packets meant to be queued in OFO but dropped because socket rcvbuf
+limit reached.
+PMID: 60.53.102 [Number of packets in OFO that were merged with other packets]
+PMID: 60.53.103 [Number of challenge ACKs sent (RFC 5961 3.2)]
+PMID: 60.53.104 [Number of challenge ACKs sent in response to SYN packets]
+PMID: 60.53.105 [Number of successful active fast opens]
+PMID: 60.53.106 [Number of fast open attempts failed due to remote not accepting it or time outs]
+PMID: 60.53.107 [Number of successful passive fast opens]
+PMID: 60.53.108 [Number of passive fast open attempts failed]
+PMID: 60.53.109 [Number of times the fastopen listen queue overflowed]
+PMID: 60.53.110 [Number of fast open cookies requested]
+PMID: 60.53.111 [Number of times that the fast clone is not yet freed in tcp_transmit_skb()]
+PMID: 60.53.112 [Number of low latency application-fetched packets]
+PMID: 60.53.113 [Number of times stack detected skb was underused and its flush was deferred]
+PMID: 60.53.114 [Number of times window went from zero to non-zero]
+PMID: 60.53.115 [Number of times window went from non-zero to zero]
+PMID: 60.53.116 [Number of times zero window announced]
+PMID: 60.53.117 [Number of SYN-SYN/ACK retransmits]
+PMID: 60.53.117
+Number of SYN-SYN/ACK retransmits to break down retransmissions in SYN, fast/timeout
+retransmits.
+PMID: 60.53.118 [Number of outgoing packets with original data]
+PMID: 60.53.118
+Excluding retransmission but including data-in-SYN). This counter is different from
+TcpOutSegs because TcpOutSegs also tracks pure ACKs. TCPOrigDataSent is
+more useful to track the TCP retransmission rate.
+PMID: 60.54.0 [per-device-mapper device read operations]
+PMID: 60.54.1 [per-device-mapper device write operations]
+PMID: 60.54.2 [per-device-mapper device total (read+write) operations]
+PMID: 60.54.3 [per-device-mapper device block read operations]
+PMID: 60.54.4 [per-device-mapper device block write operations]
+PMID: 60.54.6 [per-device-mapper device count of bytes read]
+PMID: 60.54.7 [per-device-mapper device count of bytes written]
+PMID: 60.54.8 [per-device-mapper device count of total bytes read and written]
+PMID: 60.54.9 [per-device-mapper device count of merged read requests]
+PMID: 60.54.10 [per-device-mapper device count of merged write requests]
+PMID: 60.54.11 [per-device-mapper device count of active time]
+PMID: 60.54.11
+Counts the number of milliseconds for which at least one I/O is in
+progress for each device-mapper device.
+
+When converted to a rate, this metric represents the average utilization
+of the device during the sampling interval.  A value of 0.5 (or 50%)
+means the device was active (i.e. busy) half the time.
+PMID: 60.54.12 [per-device-mapper device time averaged count of request queue length]
+PMID: 60.54.13 [per-device-mapper device persistent name mapping to dm-[0-9]*]
+PMID: 60.54.14 [per-device-mapper raw count of read response time]
+PMID: 60.54.14
+For each completed read on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding reads for a device-mapper device.
+When divided by the number of completed reads for a device-mapper device
+(disk.dm.read), the value represents the stochastic average of the read
+response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.r_await = delta(disk.dm.read_rawactive) / delta(disk.dm.read)
+PMID: 60.54.15 [per-device-mapper raw count of write response time]
+PMID: 60.54.15
+For each completed write on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a device-mapper device.
+When divided by the number of completed writes for a device-mapper device
+(disk.dm.write), the value represents the stochastic average of the
+write response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.w_await = delta(disk.dm.write_rawactive) / delta(disk.dm.write)
+PMID: 60.54.16 [per-device-mapper raw count of I/O response time]
+PMID: 60.54.16
+For each completed I/O on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding I/Os for a device-mapper device.
+When divided by the number of completed I/Os for a device-mapper device
+(disk.dm.total), the value represents the stochastic average of the I/O
+response (or wait) time for that device-mapper device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.await = delta(disk.dm.total_rawactive) / delta(disk.dm.total)
+PMID: 60.55.0 [CPU online state from /sys/devices/system/cpu/*/online]
+PMID: 60.55.1 [NUMA node online state from /sys/devices/system/node/*/online]
+PMID: 60.56.0 [total number of shared memory pages (from shmctl(..,SHM_INFO,..))]
+PMID: 60.56.1 [number of resident shared memory pages (from shmctl(..,SHM_INFO,..))]
+PMID: 60.56.2 [number of swapped shared memory pages (from shmctl(..,SHM_INFO,..))]
+PMID: 60.56.3 [number of currently existing segments (from shmctl(..,SHM_INFO,..))]
+PMID: 60.56.4 [number of swap attempts (from shmctl(..,SHM_INFO,..))]
+PMID: 60.56.5 [number of swap successes (from shmctl(..,SHM_INFO,..))]
+PMID: 60.57.0 [number of packets (not including netpoll) received by the interrupt handler]
+PMID: 60.57.1 [number of packets that were dropped because netdev_max_backlog was exceeded]
+PMID: 60.57.2 [number of times ksoftirq ran out of netdev_budget or time slice with work remaining]
+PMID: 60.57.3 [number of times that two cpus collided trying to get the device queue lock]
+PMID: 60.57.4 [number of times rps_trigger_softirq has been called]
+PMID: 60.57.5 [softnet_data flow limit counter]
+PMID: 60.57.6 [number of packets (not including netpoll) received by the interrupt handler]
+PMID: 60.57.7 [number of packets that were dropped because netdev_max_backlog was exceeded]
+PMID: 60.57.8 [number of times ksoftirq ran out of netdev_budget or time slice with work remaining]
+PMID: 60.57.9 [number of times that two cpus collided trying to get the device queue lock]
+PMID: 60.57.10 [number of times rps_trigger_softirq has been called]
+PMID: 60.57.11 [softnet_data flow limit counter]
+PMID: 60.57.11
+The network stack has to drop packets when a receive processing a CPUs
+backlog reaches netdev_max_backlog.  The flow_limit_count counter is
+the number of times very active flows have dropped their traffic earlier
+to maintain capacity for other less active flows.
+PMID: 60.58.0 [count of ip6 inreceives]
+PMID: 60.58.1 [count of ip6 inhdrerrors]
+PMID: 60.58.2 [count of ip6 intoobigerrors]
+PMID: 60.58.3 [count of ip6 innoroutes]
+PMID: 60.58.4 [count of ip6 inaddrerrors]
+PMID: 60.58.5 [count of ip6 inunknownprotos]
+PMID: 60.58.6 [count of ip6 intruncatedpkts]
+PMID: 60.58.7 [count of ip6 indiscards]
+PMID: 60.58.8 [count of ip6 indelivers]
+PMID: 60.58.9 [count of ip6 outforwdatagrams]
+PMID: 60.58.10 [count of ip6 outrequests]
+PMID: 60.58.11 [count of ip6 outdiscards]
+PMID: 60.58.12 [count of ip6 outnoroutes]
+PMID: 60.58.13 [count of ip6 reasmtimeout]
+PMID: 60.58.14 [count of ip6 reassembly requireds]
+PMID: 60.58.15 [count of ip6 reassembly oks]
+PMID: 60.58.16 [count of ip6 reassembly failures]
+PMID: 60.58.17 [count of ip6 fragmentation oks]
+PMID: 60.58.18 [count of ip6 fragmentation failures]
+PMID: 60.58.19 [count of ip6 fragmentation creations]
+PMID: 60.58.20 [count of ip6 multicast packets in]
+PMID: 60.58.21 [count of ip6 multicast packets out]
+PMID: 60.58.22 [count of ip6 octets in]
+PMID: 60.58.23 [count of ip6 octets out]
+PMID: 60.58.24 [count of ip6 multicast octets in]
+PMID: 60.58.25 [count of ip6 multicast octets out]
+PMID: 60.58.26 [count of ip6 broadcast octets in]
+PMID: 60.58.27 [count of ip6 broadcast octets uot]
+PMID: 60.58.28 [count of ip6 packets received with NOECT]
+PMID: 60.58.29 [count of ip6 packets received with ECT(1)]
+PMID: 60.58.30 [count of ip6 packets received with ECT(0)]
+PMID: 60.58.31 [count of ip6 Congestion Experimented packets in]
+PMID: 60.58.32 [count of icmp6 inmsgs]
+PMID: 60.58.33 [count of icmp6 inerrors]
+PMID: 60.58.34 [count of icmp6 outmsgs]
+PMID: 60.58.35 [count of icmp6 outerrors]
+PMID: 60.58.36 [count of icmp6 incsumerrors]
+PMID: 60.58.37 [count of icmp6 indestunreachs]
+PMID: 60.58.38 [count of icmp6 inpkttoobigs]
+PMID: 60.58.39 [count of icmp6 intimeexcds]
+PMID: 60.58.40 [count of icmp6 inparmprobs]
+PMID: 60.58.41 [count of icmp6 inechos]
+PMID: 60.58.42 [count of icmp6 inechoreplies]
+PMID: 60.58.43 [count of icmp6 ingroupmembqueries]
+PMID: 60.58.44 [count of icmp6 ingroupmembresponses]
+PMID: 60.58.45 [count of icmp6 ingroupmembreductions]
+PMID: 60.58.46 [count of icmp6 inroutersolicits]
+PMID: 60.58.47 [count of icmp6 inrouteradvertisements]
+PMID: 60.58.48 [count of icmp6 inneighborsolicits]
+PMID: 60.58.49 [count of icmp6 inneighboradvertisements]
+PMID: 60.58.50 [count of icmp6 inredirects]
+PMID: 60.58.51 [count of icmp6 inmldv2reports]
+PMID: 60.58.52 [count of icmp6 outdestunreachs]
+PMID: 60.58.53 [count of icmp6 outpkttoobigs]
+PMID: 60.58.54 [count of icmp6 outtimeexcds]
+PMID: 60.58.55 [count of icmp6 outparmproblems]
+PMID: 60.58.56 [count of icmp6 outechos]
+PMID: 60.58.57 [count of icmp6 outechoreplies]
+PMID: 60.58.58 [count of icmp6 outgroupmembqueries]
+PMID: 60.58.59 [count of icmp6 outgroupmembresponses]
+PMID: 60.58.60 [count of icmp6 outgroupmembreductions]
+PMID: 60.58.61 [count of icmp6 outroutersolicits]
+PMID: 60.58.62 [count of icmp6 outrouteradvertisements]
+PMID: 60.58.63 [count of icmp6 outneighborsolicits]
+PMID: 60.58.64 [count of icmp6 outneighboradvertisements]
+PMID: 60.58.65 [count of icmp6 outredirects]
+PMID: 60.58.66 [count of icmp6 outmldv2reports]
+PMID: 60.58.67 [count of udp6 indatagrams]
+PMID: 60.58.68 [count of udp6 noports]
+PMID: 60.58.69 [count of udp6 inerrors]
+PMID: 60.58.70 [count of udp6 outdatagrams]
+PMID: 60.58.71 [count of udp6 rcvbuferrors]
+PMID: 60.58.72 [count of udp6 sndbuferrors]
+PMID: 60.58.73 [count of udp6 incsumerrors]
+PMID: 60.58.74 [count of udp6 ignoredmulti]
+PMID: 60.59.0 [per-multi-device device read operations]
+PMID: 60.59.1 [per-multi-device device write operations]
+PMID: 60.59.2 [per-multi-device device total (read+write) operations]
+PMID: 60.59.3 [per-multi-device device block read operations]
+PMID: 60.59.4 [per-multi-device device block write operations]
+PMID: 60.59.6 [per-multi-device device count of bytes read]
+PMID: 60.59.7 [per-multi-device device count of bytes written]
+PMID: 60.59.8 [per-multi-device device count of total bytes read and written]
+PMID: 60.59.9 [per-multi-device device count of merged read requests]
+PMID: 60.59.10 [per-multi-device device count of merged write requests]
+PMID: 60.59.11 [per-multi-device device count of active time]
+PMID: 60.59.11
+Counts the number of milliseconds for which at least one I/O is in
+progress for each multi-device device.
+
+When converted to a rate, this metric represents the average utilization
+of the device during the sampling interval.  A value of 0.5 (or 50%)
+means the device was active (i.e. busy) half the time.
+PMID: 60.59.12 [per-multi-device device time averaged count of request queue length]
+PMID: 60.59.13 [per-multi-device device persistent name mapping to md[0-9]*]
+PMID: 60.59.14 [per-multi-device raw count of read response time]
+PMID: 60.59.14
+For each completed read on each multi-device device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding reads for a multi-device device.
+When divided by the number of completed reads for a multi-device device
+(disk.md.read), the value represents the stochastic average of the read
+response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.md.r_await = delta(disk.md.read_rawactive) / delta(disk.md.read)
+PMID: 60.59.15 [per-multi-device raw count of write response time]
+PMID: 60.59.15
+For each completed write on each multi-device device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a multi-device device.
+When divided by the number of completed writes for a multi-device device
+(disk.md.write), the value represents the stochastic average of the
+write response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.md.w_await = delta(disk.md.write_rawactive) / delta(disk.md.write)
+PMID: 60.59.16 [per-multi-device raw count of I/O response time]
+PMID: 60.59.16
+For each completed I/O on each multi-device device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding I/Os for a multi-device device.
+When divided by the number of completed I/Os for a multi-device device
+(disk.md.total), the value represents the stochastic average of the I/O
+response (or wait) time for that multi-device device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.md.await = delta(disk.md.total_rawactive) / delta(disk.md.total)
+PMID: 60.60.0 [per-multi-device "mdadm --test --detail <device>" return code]
+PMID: 60.61.0 [number of semaphore sets currently on the system (from semctl(..,SEM_INFO,..))]
+PMID: 60.61.1 [number of semaphores in all sets on the system (from semctl(..,SEM_INFO,..))]
+PMID: 60.62.0 [number of message queues that currently exist (from msgctl(..,MSG_INFO,..))]
+PMID: 60.62.1 [total number of messages in all queues (from msgctl(..,MSG_INFO,..))]
+PMID: 60.62.2 [number of bytes in all messages in all queues (from msgctl(..,MSG_INFO,..))]
+PMID: 60.64.0 [Key supplied to shmget (from shmctl(.., SHM_STAT, ..))]
+PMID: 60.64.1 [share memory segment owner (rom shmctl(.., SHM_STAT, ..))]
+PMID: 60.64.2 [operation perms (from shmctl(.., SHM_STAT, ..))]
+PMID: 60.64.3 [size of segment (bytes) (from shmctl(.., SHM_STAT, ..))]
+PMID: 60.64.4 [no. of current attaches (from shmctl(.., SHM_STAT, ..))]
+PMID: 60.64.5 [share memory segment status (from shmctl(.., SHM_STAT, ..))]
+PMID: 60.65.0 [name of these messages slot (from msgctl(..,MSG_STAT,..))]
+PMID: 60.65.1 [username of owner (from msgctl(..,MSG_STAT,..))]
+PMID: 60.65.2 [access permissions (from msgctl(..,MSG_STAT,..))]
+PMID: 60.65.3 [used size in bytes (from msgctl(..,MSG_STAT,..))]
+PMID: 60.65.4 [number of messages currently queued (from msgctl(..,MSG_STAT,..))]
+PMID: 60.66.0 [key of these semaphore (from msgctl(..,SEM_STAT,..))]
+PMID: 60.66.1 [username of owner (from msgctl(..,SEM_STAT,..))]
+PMID: 60.66.2 [access permissions (from msgctl(..,SEM_STAT,..))]
+PMID: 60.66.3 [number of semaphore (from semctl(..,SEM_STAT,..))]
+PMID: 60.67.0 [fragmented page count from /proc/buddyinfo]
+PMID: 60.67.1 [page fragmentation size from /proc/buddyinfo]
+PMID: 60.68.0 [free space in each zone for each NUMA node]
+PMID: 60.68.1 [min space in each zone for each NUMA node]
+PMID: 60.68.2 [low space in each zone for each NUMA node]
+PMID: 60.68.3 [high space in each zone for each NUMA node]
+PMID: 60.68.4 [scanned space in each zone for each NUMA node]
+PMID: 60.68.5 [spanned space in each zone for each NUMA node]
+PMID: 60.68.6 [present space in each zone for each NUMA node]
+PMID: 60.68.7 [managed space in each zone for each NUMA node]
+PMID: 60.68.8 [number of free pages in each zone for each NUMA node.]
+PMID: 60.68.9 [number of pages allocated to other zones due to insufficient memory]
+PMID: 60.68.9
+Number of pages allocated to other zones due to insufficient memory, for
+each zone for each NUMA node.
+PMID: 60.68.10 [number of inactive anonymous memory pages in each zone for each NUMA node]
+PMID: 60.68.11 [number of active anonymous memory pages in each zone for each NUMA node]
+PMID: 60.68.12 [number of inactive file memory pages in each zone for each NUMA node]
+PMID: 60.68.13 [number of active file memory memory pages in each zone for each NUMA node]
+PMID: 60.68.14 [number of unevictable pages in each zone for each NUMA node]
+PMID: 60.68.15 [number of pages under mlock in each zone for each NUMA node]
+PMID: 60.68.16 [number of anonymous mapped pagecache pages in each zone for each NUMA node]
+PMID: 60.68.17 [number of mapped pagecache pages in each zone for each NUMA node]
+PMID: 60.68.18 [number of file pagecache pages in each zone for each NUMA node]
+PMID: 60.68.19 [number of pages dirty state in each zone for each NUMA node]
+PMID: 60.68.20 [number of pages writeback state in each zone for each NUMA node]
+PMID: 60.68.21 [number of reclaimable slab pages in each zone for each NUMA node]
+PMID: 60.68.22 [number of unreclaimable slab pages in each zone for each NUMA node]
+PMID: 60.68.23 [number of page table pages in each zone for each NUMA node]
+PMID: 60.68.24 [number of pages of kernel stack in each zone for each NUMA node]
+PMID: 60.68.25 [number of pages unstable state in each zone for each NUMA node]
+PMID: 60.68.26 [number of bounce buffer pages in each zone for each NUMA node]
+PMID: 60.68.27 [pages written from the LRU by the VM scanner]
+PMID: 60.68.27
+Count of pages written from the LRU by the VM scanner in each zone
+for each NUMA node.The VM is supposed to minimise the number of
+pages which get written from the LRU (for IO scheduling efficiency,
+and for high reclaim-success rates).
+PMID: 60.68.28 [prioritise for reclaim when writeback ends in each zone for each NUMA node]
+PMID: 60.68.29 [number of temporary writeback pages in each zone for each NUMA node]
+PMID: 60.68.30 [number of isolated anonymous memory pages in each zone for each NUMA node]
+PMID: 60.68.31 [number of isolated file memory pages in each zone for each NUMA node]
+PMID: 60.68.32 [number of shared memory pages in each zone for each NUMA node]
+PMID: 60.68.33 [count of pages entering dirty state in each zone for each NUMA node]
+PMID: 60.68.34 [count of pages written out in each zone for each NUMA node]
+PMID: 60.68.35 [successful allocations from preferred NUMA zone]
+PMID: 60.68.35
+Count of successful allocations from preferred NUMA zone in each zone
+for each NUMA node.
+PMID: 60.68.36 [unsuccessful allocations from preferred NUMA zone]
+PMID: 60.68.36
+Count of unsuccessful allocations from preferred NUMA zone in each zone
+for each NUMA node.
+PMID: 60.68.37 [foreign NUMA zone allocations]
+PMID: 60.68.37
+Count of foreign NUMA zone allocations in each zone for each NUMA node.
+PMID: 60.68.38 [count of interleaved NUMA allocations in each zone for each NUMA node]
+PMID: 60.68.39 [successful allocations from local NUMA zone]
+PMID: 60.68.39
+Count of successful allocations from local NUMA zone in each zone for
+each NUMA node.
+PMID: 60.68.40 [unsuccessful allocations from local NUMA zone]
+PMID: 60.68.40
+Count of unsuccessful allocations from local NUMA zone in each zone for
+each NUMA node.
+PMID: 60.68.41 [count of refaults of previously evicted pages in each zone for each NUMA node]
+PMID: 60.68.42 [count of page activations to form the working set in each zone for each NUMA node]
+PMID: 60.68.43 [count of NUMA node working set page reclaims in each zone for each NUMA node]
+PMID: 60.68.44 [number of anonymous transparent huge pages in each zone for each NUMA node]
+PMID: 60.68.45 [count of free Contiguous Memory Allocator pages in each zone for each NUMA node.]
+PMID: 60.69.0 [Number of times that KSM has scanned for duplicated content]
+PMID: 60.69.1 [Kernel allows merging across NUMA nodes]
+PMID: 60.69.2 [The number of nodes in the stable tree]
+PMID: 60.69.3 [The number of virtual pages that are sharing a single page]
+PMID: 60.69.4 [Number of pages to scan at a time]
+PMID: 60.69.5 [The number of nodes in the unstable tree]
+PMID: 60.69.6 [Number of pages that are candidate to be shared]
+PMID: 60.69.7 [Whether the KSM daemon has run and/or is running]
+PMID: 60.69.8 [Time ksmd should sleep between batches]
+PMID: 60.70.0 [protection space in each zone for each NUMA node]
+PMID: 60.71.0 [number of I/Os currently outstanding to this tape device]
+PMID: 60.71.1 [cummulative amount of time spent waiting for all I/O to complete to tape device]
+PMID: 60.71.1
+The amount of time spent waiting (in nanoseconds) for all I/O to complete
+(including read and write). This includes tape movement commands such as seeking
+between file or set marks and implicit tape movement such as when rewind on close
+tape devices are used.
+PMID: 60.71.2 [number of I/Os issued to the tape drive other than read or write commands]
+PMID: 60.71.3 [number of bytes read from the tape drive]
+PMID: 60.71.4 [number of read requests issued to the tape drive]
+PMID: 60.71.5 [cummulative amount of time spent waiting for read requests to complete]
+PMID: 60.71.6 [count of read or write residual data, per tape device]
+PMID: 60.71.6
+Number of times during a read or write we found the residual amount to be non-zero.
+For reads this means a program is issuing a read larger than the block size on tape.
+For writes it means not all data made it to tape.
+PMID: 60.71.7 [number of bytes written to the tape drive]
+PMID: 60.71.8 [number of write requests issued to the tape drive]
+PMID: 60.71.9 [cummulative amount of time spent waiting for write requests to complete]
+PMID: 60.71.16 [number of Linux scsi tape devices]
+PMID: 60.72.0 [entropy available to random number generators]
+PMID: 60.72.1 [maximum size of the entropy pool]
+PMID: 60.72.2 [maximum process identifier from /proc/sys/kernel/pid_max]
+PMID: 60.73.0 [instantaneous number of tcp6 sockets currently in use]
+PMID: 60.73.1 [instantaneous number of udp6 sockets currently in use]
+PMID: 60.73.2 [instantaneous number of udplite6 sockets currently in use]
+PMID: 60.73.3 [instantaneous number of raw6 sockets currently in use]
+PMID: 60.73.4 [instantaneous number of frag6 sockets currently in use]
+PMID: 60.73.5 [instantaneous number of used memory for frag6]
+PMID: 62.0.1 [Export]
+PMID: 62.2.1 [Age in Seconds]
+PMID: 62.6.1 [NFSIOS_NORMALREADBYTES]
+PMID: 62.6.1
+The number of bytes read by applications via the read system call
+interface
+PMID: 62.6.2 [NFSIOS_NORMALWRITTENBYTES]
+PMID: 62.6.2
+The number of bytes written by applications via the write system call
+interface
+PMID: 62.6.3 [NFSIOS_DIRECTREADBYTES]
+PMID: 62.6.3
+The number of bytes read by applications from files opened with the
+O_DIRECT flag
+PMID: 62.6.4 [NFSIOS_DIRECTWRITTENBYTES]
+PMID: 62.6.4
+The number of bytes written by applications to files opened with the
+O_DIRECT flag
+PMID: 62.6.5 [NFSIOS_SERVERREADBYTES]
+PMID: 62.6.5
+The number of bytes read from the nfs server by the nfs client via nfs
+read requests
+PMID: 62.6.6 [NFSIOS_SERVERWRITTENBYTES]
+PMID: 62.6.6
+The number of bytes written to the nfs server by the nfs client via nfs
+write requests
+PMID: 62.6.7 [NFSIOS_READPAGES]
+PMID: 62.6.7
+The number of pages read via nfs_readpage or nfs_readpages
+PMID: 62.6.8 [NFSIOS_WRITEPAGES]
+PMID: 62.6.8
+The number of pages written via nfs_writepage or nfs_writepages
+PMID: 70.0.0 [Control maps reloading]
+PMID: 70.0.0
+Writing anything other then 0 to this metric will result in
+re-reading directory and re-mapping files.
+
+PMID: 70.0.1 [Debug flag]
+PMID: 70.0.1
+See pmdbg(1).  pmstore into this metric to change the debug value.
+
+PMID: 70.0.2 [Memory mapped file count]
+PMID: 70.0.2
+Count of currently mapped and exported statistics files.
+
+PMID: 129.0.2 [Metadata block used]
+PMID: 129.0.2
+The number of metadata blocks used.
+PMID: 129.0.3 [Total metadata blocks]
+PMID: 129.0.3
+The total number of metadata blocks.
+PMID: 129.0.5 [Cache blocks used]
+PMID: 129.0.5
+The number of cache blocks used.
+PMID: 129.0.6 [Total cache blocks]
+PMID: 129.0.6
+The total number of cache blocks.
+PMID: 129.0.7 [Read bio mapping cache]
+PMID: 129.0.7
+Number of times a READ bio has been mapped to the cache.
+PMID: 129.0.8 [Read bio mapping origin]
+PMID: 129.0.8
+Number of times a READ bio has been mapped to the origin.
+PMID: 129.0.9 [Write bio mapping cache]
+PMID: 129.0.9
+Number of times a WRITE bio has been mapped to the cache.
+PMID: 129.0.10 [Write bio mapping origin]
+PMID: 129.0.10
+Number of times a WRITE bio has been mapped to the origin.
+InDom: 2.1 [Instance domain "pmloggers" from PMCD PMDA]
+InDom: 2.1
+This is the list of currently active pmlogger instances on the same
+machine as this PMCD.  The instance names are the process IDs of the
+pmlogger instances.  The primary pmlogger has an extra instance with the
+instance name "primary" and an instance id of zero (in addition to its
+normal process id instance).
+InDom: 2.3
+One instance per PMDA managed by PMCD.  The external and internal instance
+identifiers are taken from the first two fields of the PMDA specification
+in $PCP_PMCDCONF_PATH.
+InDom: 2.4 [pmie Instance Domain]
+InDom: 2.4
+One instance per running pmie process.  The internal and external instance
+identifiers are the process IDs of the pmie instances.
+InDom: 3.9 [all current processes]
+InDom: 60.0 [set of all processors]
+InDom: 60.1 [set of all disks]
+InDom: 60.2 [load averages for 1, 5, and 15 minutes]
+InDom: 60.3 [set of network interfaces]
+InDom: 60.5 [mounted block-device-backed filesystem]
+InDom: 60.6 [swap devices]
+InDom: 60.7 [network filesystem (NFS) v2 operations]
+InDom: 60.8 [network filesystem (NFS) v3 operations]
+InDom: 60.10 [set of all disk partitions]
+InDom: 60.11 [SCSI devices]
+InDom: 60.12 [kernel memory slabs]
+InDom: 60.14 [network filesystem (NFS) v4 client operations]
+InDom: 60.15 [network filesystem (NFS) v4 server operations]
+InDom: 60.17 [network interface addresses (inet and ipv6)]
+InDom: 60.19 [non-uniform memory access (NUMA) nodes]
+InDom: 60.24 [device mapper driver devices]
+InDom: 60.25 [multi-device driver devices]
+InDom: 60.28 [IPC shm_stat shared memory IDs]
+InDom: 60.29 [IPC msg_stat message queue IDs]
+InDom: 60.30 [IPC sem_stat semaphore IDs]
+InDom: 60.31 [buddyinfo memory fragmentation sets, per-NUMA-node]
+InDom: 60.32 [zoneinfo memory types, per-NUMA-node]
+InDom: 60.33 [low memory regions for each zoneinfo memory type, per-NUMA-node]
+InDom: 60.34 [scsi tape devices, per scsi tape device]
+InDom: 60.34
+The scsi tape instance domain includes st[0-9]+ devices, but not any of the
+derived devices such as nst0, nst0a, st0l, st0m and so forth. The derived
+devices all share the same statistics in the kernel as the st devices.
+InDom: 62.0 [NFS client mount points]
+InDom: 129.0 [Device mapper cache block devices]

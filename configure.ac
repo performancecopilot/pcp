@@ -378,7 +378,7 @@ fi
 
 dnl check if user wants their own C compiler
 cflags_abi=
-AC_PROG_CC(suncc egcc gcc cc)
+AC_PROG_CC(suncc egcc gcc cc clang)
 if test $target_os = solaris
 then
     AC_PATH_PROG(CCPATH,$CC,$CC)
@@ -493,7 +493,7 @@ AS_IF([test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no],[
 ])
 AC_SUBST(INVISIBILITY)
 
-AC_PROG_CXX(eg++ g++ c++)
+AC_PROG_CXX(eg++ g++ c++ clang++)
 cxx=$CXX
 AC_SUBST(cxx)
 AC_MSG_CHECKING([for working C++ compiler])
@@ -620,7 +620,7 @@ then
     AC_MSG_RESULT([ -n])
   fi
 else
-  echo_n= echo_c='\c'
+  echo_n= echo_c='\\c'
   AC_MSG_RESULT([backslash-c])
 fi
 AC_SUBST(echo_n)
@@ -778,12 +778,18 @@ AC_OUTPUT(src/include/pcp/platform_defs.h src/include/pcp/platformsz.h)
 AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
 
+AC_CHECK_PROGS(CPPCHECK, cppcheck, /bin/true)
+AC_SUBST(CPPCHECK)
+
+AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
+AC_SUBST(PYLINT)
+
 dnl check if python available for the build and runtime
 AC_CHECK_PROGS(PYTHON, python, python2.7)
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
-AC_CHECK_PROGS(PYTHON3, python3, python3.4)
+AC_CHECK_PROGS(PYTHON3, python3, python3.6, python3.4)
 AC_SUBST(PYTHON3)
 
 dnl check if python tools/packages wanted (need python >= 2.6)
@@ -1031,15 +1037,12 @@ if $pmda_mysql; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the postgresql PMDA should be included])
 pmda_postgresql=false
-if test "$have_perl" = true
+if test "$have_python" = true
 then
-    dnl rpm build for postgresql PMDA needs Perl DBI and DBD::Pg
-    if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+    dnl rpm build for postgresql PMDA needs python psycopg2 module
+    if $pcp_python_prog -c "import psycopg2" >/dev/null 2>&1
     then
-	if $pcp_perl_prog -e "use DBD::Pg" >/dev/null 2>&1
-	then
-	    pmda_postgresql=true
-	fi
+	pmda_postgresql=true
     fi
 fi
 AC_SUBST(PMDA_POSTGRESQL, $pmda_postgresql)
@@ -1677,7 +1680,7 @@ then
 fi
 AC_SUBST(lib_for_regex)
 
-PKG_CHECK_MODULES([libuv], [libuv], [have_libuv=true], [have_libuv=false])
+PKG_CHECK_MODULES([libuv], [libuv >= 1.0], [have_libuv=true], [have_libuv=false])
 AC_SUBST(HAVE_LIBUV, [$have_libuv])
 
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
@@ -1988,13 +1991,21 @@ pcp_selinux_hostname_exec_map=false
 pcp_selinux_mock=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
+pcp_selinux_bpf_class=false
 
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 for policy_file in /etc/selinux/targeted/policy/policy.*
 do
+    seinfo --common >/dev/null 2>&1
+    if test $? -eq 0
+    then
+        seinfo_common_flag="--common="
+    else
+        seinfo_common_flag="--class="
+    fi
     if test -f "$policy_file"
     then
-        class_status=`eval seinfo -x --class=system -- $policy_file | grep status | awk '{ print $1 }'`
+        class_status=`eval seinfo -x --class=system $seinfo_common_flag  -- $policy_file | grep status | awk '{ print $1 }'`
     	if test "x$class_status" != "x"
 	then
 	    pcp_selinux_class_status=true
@@ -2029,7 +2040,7 @@ do
 	then
 	    pcp_selinux_systemd_exec=true
 	fi
-	cap_userns_ptrace=`eval seinfo -x --class=cap_userns -- $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
+	cap_userns_ptrace=`eval seinfo -x --class=cap_userns $seinfo_common_flag -- $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
     	if test "x$cap_userns_ptrace" != "x"
 	then
 	    pcp_selinux_cap_userns_ptrace=true
@@ -2044,12 +2055,12 @@ do
 	then
 	    pcp_selinux_tracefs=true
 	fi
-	sock_file_getattr=`eval seinfo -x --class=sock_file -- $policy_file | grep getattr | awk '{ print $1 }'`
+	sock_file_getattr=`eval seinfo -x --class=sock_file $seinfo_common_flag -- $policy_file | grep getattr | awk '{ print $1 }'`
 	if test "x$sock_file_getattr" != "x"
 	then
 	    pcp_selinux_sock_file_getattr=true
 	fi
-	hostname_exec_map_a=`eval seinfo -x --class=file -- $policy_file | grep map | awk '{ print $1 }'`
+	hostname_exec_map_a=`eval seinfo -x --class=file $seinfo_common_flag -- $policy_file | grep map | awk '{ print $1 }'`
 	hostname_exec_map_b=`eval seinfo -x --common file -- $policy_file 2>/dev/null | grep map | awk '{ print $1 }'`
 	if test "x$hostname_exec_map_a" != "x" -o "x$hostname_exec_map_b" != "x"
 	then
@@ -2070,6 +2081,11 @@ do
        then
            pcp_selinux_numad=true
        fi
+       bpf_class=`eval seinfo -x --class=bpf $seinfo_common_flag -- $policy_file 2>/dev/null | grep status | awk '{ print $1 }'`
+       if test "x$bpf_class" != "x"
+       then
+	    pcp_selinux_bpf_status=true
+       fi
     fi
 done
 ])
@@ -2088,6 +2104,7 @@ AC_SUBST(pcp_selinux_hostname_exec_map)
 AC_SUBST(pcp_selinux_mock)
 AC_SUBST(pcp_selinux_unconfined)
 AC_SUBST(pcp_selinux_numad)
+AC_SUBST(pcp_selinux_bpf_status)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
@@ -2487,13 +2504,13 @@ int main()
     printf("lld\n");
 #endif
 #else
-/* on NetBSD, for example, there is no __WORDSIZE */
-    if (sizeof(int) == 8)
-	printf("d\n");
+/* on NetBSD and OpenBSD, for example, there is no __WORDSIZE */
+    if (sizeof(long long) == 8)
+	printf("lld\n");
     else if (sizeof(long) == 8)
 	printf("ld\n");
-    else if (sizeof(long long) == 8)
-	printf("lld\n");
+    else if (sizeof(int) == 8)
+	printf("d\n");
     else {
 	printf("no clue what printf format to use for __int64_t\n");
 	return(1);
@@ -3309,8 +3326,8 @@ AC_SUBST(pcp_sysconfig_dir)
 
 dnl logs
 AC_ARG_WITH(logdir,[AC_HELP_STRING([--with-logdir],[log directory [LOCALSTATEDIR/log/pcp]])],
-                   [pcp_log_dir=$withval],
-                   [pcp_log_dir=$localstatedir/log/pcp])
+                  [pcp_log_dir=$withval],
+                  [pcp_log_dir=$localstatedir/log/pcp])
 pcp_log_dir=`eval echo $pcp_log_dir`
 pcp_log_dir=`eval echo $pcp_log_dir`
 AC_SUBST(pcp_log_dir)
@@ -3319,8 +3336,13 @@ pcp_sa_dir=$pcp_log_dir/sa
 AC_SUBST(pcp_sa_dir)
 
 AC_ARG_WITH(rundir,[AC_HELP_STRING([--with-rundir],[run directory [LOCALSTATEDIR/run/pcp]])],
-                   [pcp_run_dir=$withval],
-                   [pcp_run_dir=$localstatedir/run/pcp])
+                  [pcp_run_dir=$withval], [
+if test -d /run
+then
+    pcp_run_dir="/run/pcp"
+else
+    pcp_run_dir="$localstatedir/run/pcp"
+fi])
 pcp_run_dir=`eval echo $pcp_run_dir`
 pcp_run_dir=`eval echo $pcp_run_dir`
 AC_SUBST(pcp_run_dir)

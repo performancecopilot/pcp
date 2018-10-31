@@ -13,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
-
 _cleanup()
 {
     cd $here
@@ -42,42 +40,42 @@ text indom 60.1 { }
 # delete metric text records
 text metric pmcd.numagents oneline { delete }
 text metric 2.0.3 help { delete }
-text metric 2.0.16 all { delete }
+text metric 2.0.16 * { delete }
 
 text metric 3.8.* oneline { delete }
 text metric 3.9.* help { delete }
-text metric 3.11.* all { delete }
+text metric 3.11.* * { delete }
 
 text metric 11.*.* oneline { delete }
 text metric 60.*.* help { delete }
-text metric 62.*.* all { delete }
+text metric 62.*.* * { delete }
 
 # delete indom text records
 text indom 2.1 oneline { delete }
 text indom 2.3 help { delete }
-text indom 2.4 all { delete }
+text indom 2.4 * { delete }
 
 text indom 60.* oneline { delete }
 text indom 62.* help { delete }
-text indom 129.* all { delete }
+text indom 129.* * { delete }
 
 # replace metric text records
 text metric pmcd.numagents help { text -> "rewritten" }
 text metric 2.0.3 oneline { text -> "rewritten" }
-text metric 2.0.20 all { text -> "rewritten" }
+text metric 2.0.20 * { text -> "rewritten" }
 
 text metric 3.8.* help { text -> "rewritten" }
 text metric 3.9.* oneline { text -> "rewritten" }
-text metric 2.5.* all { text -> "rewritten" }
+text metric 2.5.* * { text -> "rewritten" }
 
 text metric 11.*.* help { text -> "rewritten" }
 text metric 60.*.* oneline { text -> "rewritten" }
-text metric 70.*.* all { text -> "rewritten" }
+text metric 70.*.* * { text -> "rewritten" }
 
 # replace indom text records
 text indom 2.1 help { text -> "rewritten" }
 text indom 2.3 oneline { text -> "rewritten" }
-text indom 3.9 all { text -> "rewritten" }
+text indom 3.9 * { text -> "rewritten" }
 
 text indom 60.* help { text -> "rewritten" }
 text indom 62.* oneline { text -> "rewritten
@@ -87,12 +85,12 @@ lines" }
 # change metric association
 text metric 2.3.1 oneline { metric -> 2.0.16 } # previous text deleted
 text metric 2.4.1 help { metric -> 2.0.16 } # previous text deleted
-text metric 2.5.0 all { metric -> 3.11.1 } # previous text deleted
+text metric 2.5.0 * { metric -> 3.11.1 } # previous text deleted
 
 # change indom association
 text indom 2.1 help { indom -> 2.3 } # previous text deleted
 text indom 2.3 oneline { indom -> 2.1 } # previous text deleted
-text indom 3.9 all { indom -> 60.6 } # no previous text
+text indom 3.9 * { indom -> 60.6 } # no previous text
 EOF
 
 # Run pmlogrewrite(1)
@@ -102,9 +100,28 @@ pmlogrewrite -vvvv -c $tmp.config archives/20180415.09.16 $tmp.rewritten 2>&1 | 
 # Now dump the rewritten archive
 pmdumplog -h $tmp.rewritten 2>&1 | tee -a $seq.full
 
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+# A few more tests
+cat > $tmp.config <<EOF
+text metric 2.0.3 * "Number of clients currently connected to PMCD" { delete }
+text InDom 2.3 * "PMDA Instance Domain" { delete }
+
+text metric 2.0.16 *
+"A space-separated string representing all running PCP services with PID
+files in \$PCP_RUN_DIR (such as pmcd itself, pmproxy and a few others)."
+{ delete }
+
+text metric 2.0.20 *
+"Minor part of the PCP build version numbering.  For example on Linux
+with RPM packaging, if the PCP RPM version is pcp-2.5.99-20070323 then
+pmcd.build returns the string \"20070323\"."{ delete }
+EOF
+
+# Run pmlogrewrite(1)
+rm -f $tmp.rewritten*
+pmlogrewrite -vvvv -c $tmp.config archives/20180415.09.16 $tmp.rewritten 2>&1 | _filter | tee $seq.full
+
+# Now dump the rewritten archive
+pmdumplog -h $tmp.rewritten 2>&1 | tee -a $seq.full
 
 # success, all done
 status=0

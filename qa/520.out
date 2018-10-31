@@ -248,7 +248,7 @@ Expr dump @ ADDR100
   nsmpls=1 nvals=1 sem=TRUTH units=
 .. Expr dump @ ADDR101
 ..   op=32 (<) arg1=ADDR105 arg2=ADDR106 parent=ADDR100
-..   eval=cndLt_1_n metrics=ADDR103 ring=ADDR107
+..   eval=cndLt_1_1 metrics=ADDR103 ring=ADDR107
 ..   valid=0 cardinality[H,I,T]=[-1,-1,1] tspan=1
 ..   nsmpls=1 nvals=1 sem=TRUTH units=
 .. .. Expr dump @ ADDR105
@@ -386,7 +386,7 @@ Expr dump @ ADDR159
   nsmpls=1 nvals=1 sem=TRUTH units=
 .. Expr dump @ ADDR160
 ..   op=30 (==) arg1=ADDR164 arg2=ADDR165 parent=ADDR159
-..   eval=cndEq_n_1 metrics=ADDR162 ring=ADDR166
+..   eval=cndEq_1_1 metrics=ADDR162 ring=ADDR166
 ..   valid=0 cardinality[H,I,T]=[-1,-1,1] tspan=1
 ..   nsmpls=1 nvals=1 sem=TRUTH units=
 .. .. Expr dump @ ADDR164
@@ -441,7 +441,7 @@ Expr dump @ ADDR180
   nsmpls=1 nvals=1 sem=TRUTH units=
 .. Expr dump @ ADDR181
 ..   op=34 (>) arg1=ADDR185 arg2=ADDR186 parent=ADDR180
-..   eval=cndGt_n_1 metrics=ADDR183 ring=ADDR187
+..   eval=cndGt_1_1 metrics=ADDR183 ring=ADDR187
 ..   valid=0 cardinality[H,I,T]=[-1,-1,1] tspan=1
 ..   nsmpls=1 nvals=1 sem=TRUTH units=
 .. .. Expr dump @ ADDR185

@@ -21,10 +21,12 @@ _cleanup()
 
 _filter()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
 	-e '/^pmgetconfig:/d' \
 	-e "s/`hostname -f`/HOSTNAME/" \
 	-e "s/`hostname`/HOSTNAME/" \
+    | LC_COLLATE=POSIX sort
     # end
 }
 

@@ -1,7 +1,7 @@
 /*
  * Utiility routines for pmlogrewrite
  *
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 1997-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -89,9 +89,6 @@ inst_name_eq(const char *p, const char *q)
  * If _any_ error occurs, don't make any changes.
  *
  * Note: also handles compressed versions of files.
- *
- * TODO - need global locking for PCP 3.6 version if this is promoted
- *        to libpcp
  */
 int
 _pmLogRename(const char *old, const char *new)
@@ -203,9 +200,6 @@ cleanup:
  * Remove all the physical archive files with basename of base.
  *
  * Note: also handles compressed versions of files.
- *
- * TODO - need global locking for PCP 3.6 version if this is promoted
- *        to libpcp
  */
 int
 _pmLogRemove(const char *name)
@@ -280,4 +274,42 @@ _pmLogRemove(const char *name)
     free(base);
 
     return sts;
+}
+
+char *
+dupcat(const char* s1, const char* s2)
+{
+    size_t	len;
+    char	*s;
+
+    len = strlen(s1) + strlen(s2) + 1;
+    s = malloc(len);
+    if (s == NULL) {
+	fprintf(stderr, "dupcat malloc(%d) failed: %s\n",
+		(int)len, strerror(errno));
+	abandon();
+	/*NOTREACHED*/
+    }
+
+    pmsprintf(s, len, "%s%s", s1, s2);
+    return s;
+}
+ 
+char *
+add_quotes(const char *s)
+{
+    size_t	len;
+    char	*s1;
+
+    len = strlen(s) + 2 + 1;
+    s1 = malloc(len);
+    if (s1 == NULL) {
+	fprintf(stderr, "add_quotes malloc(%d) failed: %s\n",
+		(int)len, strerror(errno));
+	abandon();
+	/*NOTREACHED*/
+    }
+
+    pmsprintf(s1, len, "\"%s\"", s);
+    return s1;
 }

@@ -52,7 +52,7 @@ endif
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PERLRULE)
 
-check:
+ifeq "$(PMDA_ACTIVEMQ)" "true"
+test:
 	for test in $(TESTS); do perl $$test || exit 1; done
-
-test : check
+endif

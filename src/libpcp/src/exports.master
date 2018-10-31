@@ -672,3 +672,9 @@ PCP_3.24 {
     __pmAccess;
     __pmStat;
 } PCP_3.23;
+
+PCP_3.25 {
+  global:
+    __pmServerGetRequestPort;
+    __pmServerSetupRequestPorts;
+} PCP_3.24;

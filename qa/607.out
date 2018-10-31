@@ -1,12 +1,12 @@
 QA output created by 607
-pmGetOptions: PCP_HOST=HOSTNAME set from the environment
-pmGetOptions: PCP_DEBUG=config set from the environment
 
-pmcd.hostname
     value "HOSTNAME"
+pmGetOptions: PCP_DEBUG=config set from the environment
+pmGetOptions: PCP_HOST=HOSTNAME set from the environment
+pmcd.hostname
 
+
+    inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
 pmGetOptions: PCP_ARCHIVE=archives/rattle set from the environment
 pmGetOptions: PCP_DEBUG=config set from the environment
-
 pmcd.pmlogger.host
-    inst [19856 or "19856"] value "rattle.melbourne.sgi.com"

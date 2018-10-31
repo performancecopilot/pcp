@@ -17,7 +17,6 @@ big1.*
 check.out
 check.log
 check.callback
-check.callback.pmdalist
 pmlogger.log
 webapi-pmcd-*
 webapi-webd-*

@@ -107,9 +107,17 @@ then
     # or
     # NAME="Arch Linux"
     #
-    name=`sed </etc/os-release -n -e '/^NAME *= */s///p'`
+    name=`sed </etc/os-release -n -e '/^NAME *= */{
+s///
+s/"//g
+p
+}'`
     name=`echo "$name" | sed -e 's/"//g'`
-    ver=`sed </etc/os-release -n -e '/^VERSION *= */s///p'`
+    ver=`sed </etc/os-release -n -e '/^VERSION *= */{
+s///
+s/"//g
+p
+}'`
     os="$name $ver"
     $debug && from=' [/etc/os-release]'
 elif [ -f /etc/release ]

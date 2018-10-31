@@ -48,7 +48,7 @@ End-of-File
 
 # real QA test starts here
 echo "=== Rebuild -d ==="
-$PCP_VAR_DIR/pmns/Rebuild -d 2>&1 | _filter
+$PCP_VAR_DIR/pmns/Rebuild -o -d 2>&1 | _filter
 pminfo -n root -m
 
 echo

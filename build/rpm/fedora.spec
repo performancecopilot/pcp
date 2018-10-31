@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.1.2
+Version: 4.2.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -10,10 +10,10 @@ Group:   Applications/System
 %global  github https://github.com/performancecopilot
 
 Source0: %{bintray}/download/pcp/source/pcp-%{version}.src.tar.gz
-Source1: %{github}/pcp-webapp-vector/archive/1.2.2/pcp-webapp-vector-1.2.2.tar.gz
+Source1: %{github}/pcp-webapp-vector/archive/1.3.1-1/pcp-webapp-vector-1.3.1-1.tar.gz
 Source2: %{github}/pcp-webapp-grafana/archive/1.9.1-2/pcp-webapp-grafana-1.9.1-2.tar.gz
 Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
-Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
+Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenlights-1.0.1.tar.gz
 
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %global __python2 python2
@@ -50,7 +50,8 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %global disable_webapps 0
 %global disable_cairo 0
 
-%if 0%{?rhel} > 7
+%if 0%{?rhel} > 7 || 0%{?fedora} >= 30
+%global _with_python2 --with-python=no
 %global disable_python2 1
 %else
 %global disable_python2 0
@@ -120,8 +121,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 # Qt development and runtime environment missing components before el6
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_qt 0
-# We need qt5 for fedora
-%if 0%{?fedora} != 0
+%if 0%{?fedora} != 0 || 0%{?rhel} > 7
 %global default_qt 5
 %endif
 %else
@@ -179,7 +179,7 @@ Conflicts: librapi
 Obsoletes: pcp-pmda-kvm
 Provides: pcp-pmda-kvm
 
-# https://fedoraproject.org/wiki/Packaging:C_and_C%2B%2B
+# https://fedoraproject.org/wiki/Packaging "C and C++"
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
 BuildRequires: nss-devel
@@ -238,7 +238,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash gawk sed grep findutils which
+Requires: bash bc bzip2 gawk sed grep findutils which
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
@@ -252,7 +252,7 @@ Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia
 
 # Obsoletes for distros that already have single install pmda's with compat package
-Obsoletes: pcp-compat
+Obsoletes: pcp-compat pcp-collector pcp-monitor
 
 Requires: pcp-libs = %{version}-%{release}
 
@@ -449,9 +449,52 @@ Requires: pcp-libs = %{version}-%{release}
 Requires: pcp-libs-devel = %{version}-%{release}
 Requires: pcp-devel = %{version}-%{release}
 Obsoletes: pcp-gui-testsuite
+# The following are inherited from pcp-collector and pcp-monitor,
+# both of which are now obsoleted by the base pcp package
+Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
+Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre
+Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
+Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
+Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-dm pcp-pmda-apache
+Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
+Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
+%if !%{disable_nutcracker}
+Requires: pcp-pmda-nutcracker
+%endif
+%if !%{disable_bcc}
+Requires: pcp-pmda-bcc
+%endif
+%if !%{disable_python2} || !%{disable_python3}
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
+Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus pcp-pmda-haproxy
+Requires: pcp-pmda-lmsensors
+%endif
+%if !%{disable_snmp}
+Requires: pcp-pmda-snmp
+%endif
+%if !%{disable_json}
+Requires: pcp-pmda-json
+%endif
+%if !%{disable_rpm}
+Requires: pcp-pmda-rpm
+%endif
+Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
+%if !%{disable_microhttpd}
+Requires: pcp-webapi
+%endif
+%if !%{disable_python2} || !%{disable_python3}
+Requires: pcp-system-tools
+%endif
+%if !%{disable_qt}
+Requires: pcp-gui
+%endif
+Requires: gcc
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
+# end testsuite
 
 #
 # pcp-manager
@@ -1060,7 +1103,9 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for 389 Directory Servers
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+%if 0%{?rhel} <= 7
 Requires: perl-LDAP
+%endif
 
 %description pmda-ds389
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1270,21 +1315,6 @@ collecting metrics about the Nginx Webserver.
 #end pcp-pmda-nginx
 
 #
-# pcp-pmda-nfsclient
-#
-%package pmda-nfsclient
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
-URL: https://pcp.io
-Requires: perl-PCP-PMDA = %{version}-%{release}
-
-%description pmda-nfsclient
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics for NFS Clients.
-#end pcp-pmda-nfsclient
-
-#
 # pcp-pmda-oracle
 #
 %package pmda-oracle
@@ -1344,23 +1374,6 @@ collecting metrics about the Postfix (MTA).
 #end pcp-pmda-postfix
 
 #
-# pcp-pmda-postgresql
-#
-%package pmda-postgresql
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
-URL: https://pcp.io
-Requires: perl-PCP-PMDA = %{version}-%{release}
-Requires: perl(DBI) perl(DBD::Pg)
-BuildRequires: perl(DBI) perl(DBD::Pg)
-
-%description pmda-postgresql
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the PostgreSQL database.
-#end pcp-pmda-postgresql
-
-#
 # pcp-pmda-rsyslog
 #
 %package pmda-rsyslog
@@ -1396,7 +1409,7 @@ collecting metrics about Samba.
 %package pmda-slurm
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
+Summary: Performance Co-Pilot (PCP) metrics for the SLURM Workload Manager
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
 
@@ -1506,6 +1519,46 @@ Requires: %{__python2}-pcp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the gluster filesystem.
 # end pcp-pmda-gluster
+
+#
+# pcp-pmda-nfsclient
+#
+%package pmda-nfsclient
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
+URL: https://pcp.io
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-nfsclient
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics for NFS Clients.
+#end pcp-pmda-nfsclient
+
+#
+# pcp-pmda-postgresql
+#
+%package pmda-postgresql
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
+URL: https://pcp.io
+%if !%{disable_python3}
+Requires: python3-pcp
+Requires: python3-psycopg2
+BuildRequires: python3-psycopg2
+%else
+Requires: %{__python2}-pcp
+Requires: %{__python2}-psycopg2
+BuildRequires: %{__python2}-psycopg2
+%endif
+%description pmda-postgresql
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the PostgreSQL database.
+#end pcp-pmda-postgresql
 
 #
 # pcp-pmda-zswap
@@ -1658,6 +1711,27 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting statistics from programs instrumented as Prometheus endpoints.
 #end pcp-pmda-prometheus
 
+#
+# pcp-pmda-lmsensors
+#
+%package pmda-lmsensors
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for hardware sensors
+URL: https://pcp.io
+Requires: pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+# rewritten in python, so there is no longer a debuginfo package
+Obsoletes: pcp-pmda-lmsensors-debuginfo
+%description pmda-lmsensors
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Linux hardware monitoring sensors.
+# end pcp-pmda-lmsensors
+
 %endif # !%{disable_python2} || !%{disable_python3}
 
 %if !%{disable_json}
@@ -1754,20 +1828,6 @@ Requires: pcp-libs = %{version}-%{release}
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Global Filesystem v2.
 # end pcp-pmda-gfs2
-
-#
-# pcp-pmda-lmsensors
-#
-%package pmda-lmsensors
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for hardware sensors
-URL: https://pcp.io
-Requires: pcp-libs = %{version}-%{release}
-%description pmda-lmsensors
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Linux hardware monitoring sensors.
-# end pcp-pmda-lmsensors
 
 #
 # pcp-pmda-logger
@@ -1965,68 +2025,6 @@ collecting metrics about web server logs.
 # end pcp-pmda-weblog
 # end C pmdas
 
-# pcp-collector metapackage
-%package collector
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) Collection meta Package
-URL: https://pcp.io
-Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
-Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre
-Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
-Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
-Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
-Requires: pcp-pmda-dm pcp-pmda-apache
-Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
-Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
-%if !%{disable_nutcracker}
-Requires: pcp-pmda-nutcracker
-%endif
-%if !%{disable_bcc}
-Requires: pcp-pmda-bcc
-%endif
-%if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
-Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus pcp-pmda-haproxy
-%endif
-%if !%{disable_snmp}
-Requires: pcp-pmda-snmp
-%endif
-%if !%{disable_json}
-Requires: pcp-pmda-json
-%endif
-%if !%{disable_rpm}
-Requires: pcp-pmda-rpm
-%endif
-Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
-%description collector
-This meta-package installs the PCP metric collection dependencies.  This
-includes the vast majority of packages used to collect PCP metrics.  The
-pcp-collector package also automatically enables and starts the pmcd and
-pmlogger services.
-# collector
-
-# pcp-monitor metapackage
-%package monitor
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) Monitoring meta Package
-URL: https://pcp.io
-%if !%{disable_microhttpd}
-Requires: pcp-webapi
-%endif
-%if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-system-tools
-%endif
-%if !%{disable_qt}
-Requires: pcp-gui
-%endif
-%description monitor
-This meta-package contains the PCP performance monitoring dependencies.  This
-includes a large number of packages for analysing PCP metrics in various ways.
-# monitor
-
 %package zeroconf
 License: GPLv2+
 Group: Applications/System
@@ -2103,8 +2101,10 @@ Requires: %{__python2}-pcp = %{version}-%{release}
 %endif
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_dstat}
-Obsoletes: dstat
+# https://fedoraproject.org/wiki/Packaging:Guidelines "Renaming/Replacing Existing Packages"
+Provides: dstat = %{version}-%{release}
 Provides: /usr/bin/dstat
+Obsoletes: dstat <= 0.7.3-5
 %endif
 
 %description system-tools
@@ -2194,7 +2194,7 @@ updated policy package.
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps} %{?_with_python2}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2413,6 +2413,19 @@ exit 0
 
 %post testsuite
 chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
+%if 0%{?rhel}
+%if !%{disable_systemd}
+    systemctl restart pmcd >/dev/null 2>&1
+    systemctl restart pmlogger >/dev/null 2>&1
+    systemctl enable pmcd >/dev/null 2>&1
+    systemctl enable pmlogger >/dev/null 2>&1
+%else
+    /sbin/chkconfig --add pmcd >/dev/null 2>&1
+    /sbin/chkconfig --add pmlogger >/dev/null 2>&1
+    /sbin/service pmcd condrestart
+    /sbin/service pmlogger condrestart
+%endif
+%endif
 exit 0
 
 %pre
@@ -2653,6 +2666,10 @@ fi
 
 %preun pmda-libvirt
 %{pmda_remove "$1" "libvirt"}
+
+%preun pmda-lmsensors
+%{pmda_remove "$1" "lmsensors"}
+
 %endif # !%{disable_python[2,3]}
 
 %preun pmda-apache
@@ -2669,9 +2686,6 @@ fi
 
 %preun pmda-gfs2
 %{pmda_remove "$1" "gfs2"}
-
-%preun pmda-lmsensors
-%{pmda_remove "$1" "lmsensors"}
 
 %preun pmda-logger
 %{pmda_remove "$1" "logger"}
@@ -2754,21 +2768,6 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %else
     /sbin/chkconfig --add pmmgr >/dev/null 2>&1
     /sbin/service pmmgr condrestart
-%endif
-
-%post collector
-%if 0%{?rhel}
-%if !%{disable_systemd}
-    systemctl restart pmcd >/dev/null 2>&1
-    systemctl restart pmlogger >/dev/null 2>&1
-    systemctl enable pmcd >/dev/null 2>&1
-    systemctl enable pmlogger >/dev/null 2>&1
-%else
-    /sbin/chkconfig --add pmcd >/dev/null 2>&1
-    /sbin/chkconfig --add pmlogger >/dev/null 2>&1
-    /sbin/service pmcd condrestart
-    /sbin/service pmlogger condrestart
-%endif
 %endif
 
 %post zeroconf
@@ -2956,12 +2955,6 @@ cd
 %if !%{disable_sdt}
 %{tapsetdir}/pmcd.stp
 %endif
-
-%files monitor
-#empty
-
-%files collector
-#empty
 
 %files zeroconf
 %{_libexecdir}/pcp/bin/pmlogger_daily_report
@@ -3258,6 +3251,10 @@ cd
 
 %files export-pcp2zabbix
 %{_bindir}/pcp2zabbix
+
+%files pmda-lmsensors
+%{_pmdasdir}/lmsensors
+
 %endif # !%{disable_python2} || !%{disable_python3}
 
 %files export-zabbix-agent
@@ -3283,9 +3280,6 @@ cd
 
 %files pmda-gfs2
 %{_pmdasdir}/gfs2
-
-%files pmda-lmsensors
-%{_pmdasdir}/lmsensors
 
 %files pmda-logger
 %{_pmdasdir}/logger
@@ -3372,6 +3366,17 @@ cd
 %endif
 
 %changelog
+* Fri Nov 16 2018 Nathan Scott <nathans@redhat.com> - 4.2.0-1
+- Work in progress, see https://pcp.io/roadmap
+- Resolves pcp-dstat packaging issues (BZ 1640912)
+- Resolves pcp-dstat cursor positioning problem (BZ 1640913)
+
+* Fri Sep 21 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
+- Update to latest PCP sources.
+
+* Wed Aug 29 2018 Nathan Scott <nathans@redhat.com> - 4.1.1-3
+- Updated versions of Vector (1.3.1) and Blinkenlights (1.0.1) webapps
+
 * Fri Aug 03 2018 Dave Brolley <brolley@redhat.com> - 4.1.1-2
 - pcp.spec: Fix the _with_dstat reference in the %configure command
 
@@ -3386,8 +3391,24 @@ cd
   values(BZ 1600262)
 - Update to latest PCP sources.
 
-* Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-1
+* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 4.1.0-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
+* Tue Jul 03 2018 Petr Pisar <ppisar@redhat.com> - 4.1.0-6
+- Perl 5.28 rebuild
+
+* Fri Jun 29 2018 Miro Hrončok <mhroncok@redhat.com> - 4.1.0-5
+- Rebuilt for Python 3.7
+
+* Thu Jun 28 2018 Jitka Plesnikova <jplesnik@redhat.com> - 4.1.0-4
+- Perl 5.28 rebuild
+
+* Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 4.1.0-3
+- Rebuilt for Python 3.7
+
+* Fri Jun 15 2018 Nathan Scott <nathans@redhat.com> - 4.1.0-2
 - Rapid compression of PCP log data and metadata (BZ 1293471)
+- Added Perl package build dependencies.
 - Update to latest PCP sources.
 
 * Fri May 11 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.0.2-1

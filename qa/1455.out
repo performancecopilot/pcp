@@ -1,0 +1,42 @@
+QA output created by 1455
+Running pmlogrewrite -c TMP.config archives/20180415.09.16 TMP.newlabels
+Running pmdumplog -zhide archives/20180415.09.16
+Running pmdumplog -iteh TMP.newlabels
+Running diff TMP.original.txt TMP.rewritten.txt
+3057a3058,3070
+> 09:16:18.661615
+>     Cluster 60.0 labels (43 bytes): {"cluster_60_0_label":"cluster_60_0_value"}
+>         [0] name(2,18) : value(22,20) [cluster]
+>     Cluster 60.7 labels (43 bytes): {"cluster_60_7_label":"cluster_60_7_value"}
+>         [0] name(2,18) : value(22,20) [cluster]
+>     Cluster 60.14 labels (45 bytes): {"cluster_60_14_label":"cluster_60_14_value"}
+>         [0] name(2,19) : value(23,21) [cluster]
+>     Cluster 60.15 labels (45 bytes): {"cluster_60_15_label":"cluster_60_15_value"}
+>         [0] name(2,19) : value(23,21) [cluster]
+>     Cluster 60.28 labels (45 bytes): {"cluster_60_28_label":"cluster_60_28_value"}
+>         [0] name(2,19) : value(23,21) [cluster]
+>     Cluster 60.68 labels (45 bytes): {"cluster_60_68_label":"cluster_60_68_value"}
+>         [0] name(2,19) : value(23,21) [cluster]
+Running pmlogrewrite -c TMP.config TMP.newlabels TMP.pmlogrewrite
+Running pmdumplog -zhide TMP.newlabels
+Running pmdumplog -iteh TMP.pmlogrewrite
+Running diff TMP.original.txt TMP.rewritten.txt
+3061,3069c3061,3063
+<     Cluster 60.7 labels (43 bytes): {"cluster_60_7_label":"cluster_60_7_value"}
+<         [0] name(2,18) : value(22,20) [cluster]
+<     Cluster 60.14 labels (45 bytes): {"cluster_60_14_label":"cluster_60_14_value"}
+<         [0] name(2,19) : value(23,21) [cluster]
+<     Cluster 60.15 labels (45 bytes): {"cluster_60_15_label":"cluster_60_15_value"}
+<         [0] name(2,19) : value(23,21) [cluster]
+<     Cluster 60.28 labels (45 bytes): {"cluster_60_28_label":"cluster_60_28_value"}
+<         [0] name(2,19) : value(23,21) [cluster]
+<     Cluster 60.68 labels (45 bytes): {"cluster_60_68_label":"cluster_60_68_value"}
+---
+>     Cluster 60.15 labels (35 bytes): {"new_label":"cluster_60_15_value"}
+>         [0] name(2,9) : value(13,21) [cluster]
+>     Cluster 60.23 labels (45 bytes): {"cluster_60_14_label":"cluster_60_14_value"}
+3070a3065,3068
+>     Cluster 60.28 labels (35 bytes): {"cluster_60_28_label":"new_value"}
+>         [0] name(2,19) : value(23,11) [cluster]
+>     Cluster 60.68 labels (29 bytes): {"cluster_60_68_label":false}
+>         [0] name(2,19) : value(23,5) [cluster]

@@ -12,6 +12,8 @@ echo "QA output created by $seq"
 
 _pmdabcc_check
 _pmdabcc_require_kernel_version 4 7
+[ "$(pmpython src/bcc_version_check.python)" = "0.5.0" ] \
+  && _notrun "Too old BCC version detected"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal

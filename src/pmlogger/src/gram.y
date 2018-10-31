@@ -631,7 +631,7 @@ append_dynroot_list(const char *name, int state, int control, struct timeval *ti
 
     if (pmDebugOptions.log) {
 	fprintf(stderr, "pmlogger: possible dynamic root \"%s\", state=0x%x, control=0x%x, delta=%ld.%06ld\n",
-	    name, state, control, timedelta->tv_sec, (long)timedelta->tv_usec);
+	    name, state, control, (long)timedelta->tv_sec, (long)timedelta->tv_usec);
     }
 }
 

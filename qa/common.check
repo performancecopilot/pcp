@@ -1267,7 +1267,10 @@ _run_valgrind()
     else
 	_valgrind_prefix=''
     fi
-    __version=`valgrind --version | sed -e 's/valgrind-//'`
+    # extract version number I.J.K ... ignore anything after that,
+    # e.g. .SVN or .SVN-Debian for Debian-based distros
+    #
+    __version=`valgrind --version | sed -e 's/valgrind-//' -e 's/\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/'`
     if [ -f $here/valgrind-suppress-$__version ]
     then
 	__extra="--suppressions=$here/valgrind-suppress-$__version"

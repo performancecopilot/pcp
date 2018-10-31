@@ -13,7 +13,7 @@
 #
 """ PCP BCC PMDA USDT JVM allocation profile module """
 
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, too-many-instance-attributes
 
 from platform import architecture
 from ctypes import c_int
@@ -43,15 +43,19 @@ units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
 # PCP BCC Module
 #
 class PCPBCCModule(PCPBCCBase):
-    """ PCP BCC USDT JVM allocation profile module """
-    def __init__(self, config, log, err):
+    """ PCP BCC USDT JVM allocations module """
+    def __init__(self, config, log, err, proc_refresh):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
-        self.cache = {}
-        self.freq = 0
         self.pid = None
+        self.proc_filter = None
+        self.proc_refresh = proc_refresh
+
+        self.cache = None
+        self.freq = 0
         self.jvm_path = "/etc/alternatives/jre/lib/server/libjvm.so"
+        self.usdt_contexts = []
 
         for opt in self.config.options(MODULE):
             if opt == 'frequency':
@@ -61,16 +65,12 @@ class PCPBCCModule(PCPBCCBase):
             if opt == 'jvm_path':
                 self.jvm_path = self.config.get(MODULE, opt)
             if opt == 'process':
-                procs = self.get_proc_info(self.config.get(MODULE, opt))
-                if len(procs) > 1:
-                    self.log("Several PIDs found, using the first one.")
-                if procs:
-                    self.log("Using PID %s: %s %s" % (str(procs[0][0]), procs[0][1], procs[0][2]))
-                    self.pid = procs[0][0]
+                self.proc_filter = self.config.get(MODULE, opt)
+                self.update_pids(self.get_proc_info(self.proc_filter))
 
-        if self.pid is None:
+        if not self.proc_filter:
             # https://github.com/iovisor/bcc/issues/1774
-            self.err("No process to attach found/set, will not activate!")
+            raise RuntimeError("Process filter is mandatory.")
 
         self.log("Initialized.")
 
@@ -83,46 +83,56 @@ class PCPBCCModule(PCPBCCBase):
         )
         return True, self.items
 
+    def reset_cache(self):
+        """ Reset internal cache """
+        self.cache = {}
+
+    def undef_cache(self):
+        """ Undefine internal cache """
+        self.cache = None
+
     def compile(self):
         """ Compile BPF """
         try:
-            if self.pid is None:
+            if not self.pid and self.proc_filter and not self.proc_refresh:
                 # https://github.com/iovisor/bcc/issues/1774
-                raise RuntimeError("No PID found/set.")
-            with open(path.dirname(__file__) + '/../' + bpf_src) as src:
-                bpf_text = src.read()
-            if self.freq:
-                init_filter = "u64 *count = samples.lookup_or_init(&zero, &zero);"
-                sample_filter = "if (++(*count) & %d) return 0;" % (self.freq - 1)
-                bpf_text = bpf_text.replace("//FILTER_INIT", init_filter)
-                bpf_text = bpf_text.replace("//FILTER_SAMPLE", sample_filter)
-            if architecture()[0] == "64bit":
-                bpf_text = bpf_text.replace("JVM_WORDSIZE N", "JVM_WORDSIZE 8")
-            else:
-                bpf_text = bpf_text.replace("JVM_WORDSIZE N", "JVM_WORDSIZE 4")
+                raise RuntimeError("No process to attach found.")
+
+            if not self.bpf_text:
+                with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                    self.bpf_text = src.read()
+
+                if self.freq:
+                    init_filter = "u64 *count = samples.lookup_or_init(&zero, &zero);"
+                    sample_filter = "if (++(*count) & %d) return 0;" % (self.freq - 1)
+                    self.bpf_text = self.bpf_text.replace("//FILTER_INIT", init_filter)
+                    self.bpf_text = self.bpf_text.replace("//FILTER_SAMPLE", sample_filter)
+                if architecture()[0] == "64bit":
+                    self.bpf_text = self.bpf_text.replace("JVM_WORDSIZE N", "JVM_WORDSIZE 8")
+                else:
+                    self.bpf_text = self.bpf_text.replace("JVM_WORDSIZE N", "JVM_WORDSIZE 4")
+
+            if not self.pid and self.proc_filter and self.proc_refresh:
+                self.log("No process to attach found, activation postponed.")
+                return
+
+            self.usdt_contexts = []
             usdt = USDT(pid=self.pid)
             usdt.enable_probe("object__alloc", "trace_jvm_object_alloc")
+            self.usdt_contexts.append(usdt)
+
             if self.debug:
-                self.log("BPF to be compiled:")
-                self.log("\n" + bpf_text)
-            self.bpf = BPF(text=bpf_text, usdt_contexts=[usdt])
+                self.log("BPF to be compiled:\n" + self.bpf_text.strip())
+
+            self.reset_cache()
+            self.bpf = BPF(text=self.bpf_text, usdt_contexts=self.usdt_contexts)
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
+            self.undef_cache()
             self.err(str(error))
             self.err("Module NOT active!")
             raise
-
-    @staticmethod
-    def parse_name(text):
-        """ Parse class name into valid instance name """
-        try:
-            name = "".join([chr(i) for i in text if 32 < i < 127])
-        except TypeError:
-            name = text
-        if not name:
-            name = "".join([i for i in text if 32 < ord(i) < 127])
-        return name.replace("[", "<").replace(",", "").replace("/", ".")
 
     def refresh(self):
         """ Refresh BPF data """
@@ -130,7 +140,7 @@ class PCPBCCModule(PCPBCCBase):
             return None
 
         for k, v in self.bpf["classes"].items():
-            key = self.parse_name(k.name)
+            key = self.parse_inst_name(k.name.decode("ASCII", "replace"))
             self.cache[key] = v.value
             self.insts[key] = c_int(1)
 

@@ -15,7 +15,7 @@
 #
 """ PCP BCC PMDA tcptop module """
 
-# pylint: disable=invalid-name, line-too-long, too-many-instance-attributes, too-many-locals
+# pylint: disable=invalid-name, too-many-instance-attributes, too-many-locals
 
 import ctypes as ct
 from collections import namedtuple
@@ -53,9 +53,13 @@ TCPSessionKey = namedtuple('TCPSession', ['pid', 'laddr', 'lport', 'daddr', 'dpo
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC tcptop module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, proc_refresh):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.pids = []
+        self.proc_filter = None
+        self.proc_refresh = proc_refresh
 
         self.interval = 1
         self.conn_count = 20
@@ -65,17 +69,23 @@ class PCPBCCModule(PCPBCCBase):
                 self.interval = int(self.config.get(MODULE, opt))
             if opt == 'conn_count':
                 self.conn_count = int(self.config.get(MODULE, opt))
+            if opt == 'process':
+                self.proc_filter = self.config.get(MODULE, opt)
+                self.update_pids(self.get_proc_info(self.proc_filter))
 
-        self.cache = {}
-        self.insts = {str(i) : ct.c_int(1) for i in range(0, self.conn_count)}
+        self.cache = None
+        self.insts = {str(i) : ct.c_int(1) for i in range(self.conn_count)}
 
         self.lock = Lock()
-        if self.interval > 0:
-            self.thread = Thread(name="tcptop_refresh", target=self.refresh_stats_loop)
-            self.thread.setDaemon(True)
+        self.thread = None
+
+        # Exit hard if impossible to continue
+        if self.bcc_version() == "0.6.1":
+            raise RuntimeError("BCC 0.6.1 bug makes it incompatible with this module.")
 
         self.log("Initialized.")
 
+    # pylint: disable=line-too-long
     def metrics(self):
         """ Get metric definitions """
         name = METRIC
@@ -85,32 +95,52 @@ class PCPBCCModule(PCPBCCBase):
             (name + 'comm', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'command'),
             (name + 'laddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'local address'),
             (name + 'lport', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'local port'),
-            (name + 'daddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'destination ' \
-                'address'),
+            (name + 'daddr', None, PM_TYPE_STRING, PM_SEM_INSTANT, units_none, 'destination address'),
             (name + 'dport', None, PM_TYPE_U32, PM_SEM_INSTANT, units_none, 'destination port'),
             (name + 'rx', None, PM_TYPE_U64, PM_SEM_INSTANT, units_bytes, 'bytes received'),
             (name + 'tx', None, PM_TYPE_U64, PM_SEM_INSTANT, units_bytes, 'bytes sent'),
         )
         return True, self.items
 
+    def reset_cache(self):
+        """ Reset internal cache """
+        self.cache = {}
+
+    def undef_cache(self):
+        """ Undefine internal cache """
+        self.cache = None
+
     def compile(self):
         """ Compile BPF """
         try:
-            with open(path.dirname(__file__) + '/../' + bpf_src) as f:
-                bpf_text = f.read()
+            if not self.pids and self.proc_filter and not self.proc_refresh:
+                raise RuntimeError("No process to attach found.")
 
-            bpf_text = bpf_text.replace('FILTER', '')
+            if not self.bpf_text:
+                with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                    self.bpf_text = src.read()
+
+                    self.bpf_text = self.bpf_text.replace("FILTER", "FILTER_PID")
+
+            if not self.pids and self.proc_filter and self.proc_refresh:
+                self.log("No process to attach found, activation postponed.")
+                return
+
+            bpf_text = self.apply_pid_filter(self.bpf_text, self.pids, False)
 
             if self.debug:
-                self.log("BPF to be compiled:")
-                self.log("\n" + bpf_text)
+                self.log("BPF to be compiled:\n" + bpf_text.strip())
 
+            self.reset_cache()
             self.bpf = BPF(text=bpf_text)
             if self.interval > 0:
+                self.thread = Thread(name="bpfpoller", target=self.refresh_stats_loop)
+                self.thread.setDaemon(True)
                 self.thread.start()
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
+            self.undef_cache()
             self.err(str(error))
             self.err("Module NOT active!")
             raise
@@ -141,11 +171,10 @@ class PCPBCCModule(PCPBCCBase):
                               daddr=inet_ntop(AF_INET6, pack("QQ", k.daddr0, k.daddr1)),
                               dport=k.dport):v.value for k, v in table.items()}
 
-
     def refresh_stats(self):
         """ Refresh statistics from BPF table """
         self.lock.acquire()
-        self.cache.clear()
+        self.reset_cache()
         self.lock.release()
 
         ipv4_send_bytes = self.bpf["ipv4_send_bytes"]
@@ -165,7 +194,7 @@ class PCPBCCModule(PCPBCCBase):
         keys.update(ipv6_recv_bytes_dict)
 
         idx = 0
-        for k, v in sorted(keys.items(), key=lambda kv: kv[1], reverse=True): # pylint: disable=unused-variable
+        for k, _ in sorted(keys.items(), key=lambda kv: kv[1], reverse=True):
             send_bytes = 0
             recv_bytes = 0
 
@@ -203,11 +232,18 @@ class PCPBCCModule(PCPBCCBase):
 
     def refresh_stats_loop(self):
         """ Refresh statistics thread loop """
-        while True:
-            cnt = self.refresh_stats()
-            if self.debug:
-                self.log("Fetched data from BPF table, current number of connections: %d." % cnt)
-            sleep(self.interval)
+        try:
+            bpf = self.bpf
+            while bpf == self.bpf:
+                cnt = self.refresh_stats()
+                if self.debug:
+                    self.log("Fetched data from BPF table, "
+                             "current number of connections: %d." % cnt)
+                sleep(self.interval)
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            self.err("Failed to refresh BPF statistics!")
+        self.log("Statistics refresher thread exiting.")
 
     def refresh(self):
         """ Refresh BPF data """

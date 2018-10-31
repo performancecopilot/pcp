@@ -174,10 +174,16 @@ ECHO	= @echo@
 LN_S	= @LN_S@
 GREP    = @grep@
 GIT	= @GIT@
+CLINT	= @CPPCHECK@ --std=posix --force --quiet --error-exitcode=1
+PYLINT	= @PYLINT@ --rcfile=$(TOPDIR)/.pylintrc --output-format=colorized
 PYTHON	= @PYTHON@
 PYTHON3	= @PYTHON3@
 DTRACE  = @DTRACE@
+ifeq "$(TARGET_OS)" "freebsd"
+QMAKE	= @qmake@
+else
 QMAKE	= QT_SELECT=@qt_version@ @qmake@
+endif
 
 INSTALL_SH = $(TOPDIR)/install-sh
 INSTALL	= $(INSTALL_SH) -o $(PCP_USER_INSTALL) -g $(PCP_GROUP_INSTALL)
@@ -273,6 +279,7 @@ PCP_SELINUX_HOSTNAME_EXEC_MAP = @pcp_selinux_hostname_exec_map@
 PCP_SELINUX_MOCK = @pcp_selinux_mock@
 PCP_SELINUX_UNCONFINED = @pcp_selinux_unconfined@
 PCP_SELINUX_NUMAD = @pcp_selinux_numad@
+PCP_SELINUX_BPF_STATUS = @pcp_selinux_bpf_status@
 
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@

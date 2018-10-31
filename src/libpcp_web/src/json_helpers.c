@@ -254,8 +254,8 @@ jsmnstrdup(const char *js, jsmntok_t *tok, char **name)
 	return -1;
     if (s)
 	free(s);
-    s = strndup(js + tok->start, tok->end - tok->start);
-    return ((*name = s) == NULL) ? -1 : 0;
+    s = *name = strndup(js + tok->start, tok->end - tok->start);
+    return (s == NULL) ? -1 : 0;
 }
 
 static int
@@ -404,10 +404,10 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
 {
     int		sts = 0;
     jsmn_parser	parser;
-    jsmntok_t	*json_tokens;
+    jsmntok_t	*json_tokens, *tp;
     int		token_count = 256;
     int		json_length = 0;
-    char	*json = NULL;
+    char	*json = NULL, *jp;
     char	buffer[BUFSIZ];
     int		bytes;
 
@@ -428,10 +428,11 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
 	}
 
 	/* Successfully read in more data, extend sizeof json array */
-	if ((json = realloc(json, json_length + bytes + 1)) == NULL) {
+	if ((jp = realloc(json, json_length + bytes + 1)) == NULL) {
 	    sts = -ENOMEM;
 	    goto finished;
 	}
+	json = jp;
 	strncpy(json + json_length, buffer, bytes);
 	json_length = json_length + bytes;
 
@@ -445,11 +446,12 @@ parsing:
 	    if (sts == JSMN_ERROR_NOMEM) {	/* ran out of token space */
 		token_count *= 2;
 		bytes = sizeof(*json_tokens) * token_count;
-		if ((json_tokens = realloc(json_tokens, bytes)) == NULL) {
+		if ((tp = realloc(json_tokens, bytes)) == NULL) {
 		    free(json);
 		    free(json_tokens);
 		    return -ENOMEM;
 		}
+		json_tokens = tp;
 		/* set the newly allocated memory to zero */
 		memset(&json_tokens[token_count / 2], 0, bytes / 2);
 		goto parsing;
@@ -576,7 +578,7 @@ pmjsonPrint(FILE *fp, json_flags flags, const char *pointer,
     int		sts = 0;
     int		eof_expected = 0;
     jsmn_parser	parser;
-    jsmntok_t	*json_tokens;
+    jsmntok_t	*json_tokens, *tp;
     int		token_count = 256;
     int		json_length = 0;
     char	*json = NULL;
@@ -622,11 +624,12 @@ parsing:
 	    if (sts == JSMN_ERROR_NOMEM) {	/* ran out of token space */
 		token_count *= 2;
 		bytes = sizeof(*json_tokens) * token_count;
-		if ((json_tokens = realloc(json_tokens, bytes)) == NULL) {
+		if ((tp = realloc(json_tokens, bytes)) == NULL) {
 		    free(json);
 		    free(json_tokens);
 		    return -ENOMEM;
 		}
+		json_tokens = tp;
 		/* set the newly allocated memory to zero */
 		memset(&json_tokens[token_count / 2], 0, bytes / 2);
 		goto parsing;

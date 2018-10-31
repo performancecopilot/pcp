@@ -1,4 +1,4 @@
-default setup install:
+default setup install check:
 
 clean:
 	rm -f cvalue cvalue.o

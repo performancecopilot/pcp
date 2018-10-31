@@ -1,6 +1,8 @@
 #
 # Original implementation by Troy Dawson (dawson@fnal.gov)
+# Reworked by Christian Horn (chorn@fluxcoil.net)
 # 
+# Copyright (c) 2018 Red Hat Inc.  All Rights Reserved.
 # Copyright (c) 2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -10,8 +12,9 @@ lmsensors PMDA
 This PMDA exports information about the lm sensors on 
 compatible motherboards.
 
-This source code was contributed by Troy Dawson (dawson@fnal.gov)
-to the PCP open source project.
+The original source code was contributed by Troy Dawson (dawson@fnal.gov)
+to the PCP open source project, the reimplementation in Python is from
+Christian Horn (chorn@fluxcoil.net).
 
 Metrics
 =======
@@ -26,6 +29,9 @@ the available metrics and their explanatory "help" text:
 
 Installation
 ============
+
+ +  Ensure that /usr/bin/sensors is available, usually provided by the
+    lm_sensors package.  On Fedora: 'dnf install lm_sensors'.
 
  +  # cd $PCP_PMDAS_DIR/lmsensors
 
@@ -46,13 +52,19 @@ De-installation
 
  +  Simply use
 
-        # cd $PCP_PMDAS_DIR/lmsensors
+	# $PCP_PMDAS_DIR/lmsensors
 	# ./Remove
 
 Troubleshooting
 ===============
 
+ +  Running with the '--debug 1' or '--debug 2' provides more details.
  +  After installing or restarting the agent, the PMCD log file
     ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
     ($PCP_LOG_DIR/pmcd/lmsensors.log) should be checked for any warnings or
     errors.
+ +  If 'pminfo -fT lmsensors' is not showing the expected values, first
+    verify if 'sensors -u' is showing you sensor output.
+ +  After setting 'debug' to 1 or 2 in pmdalmsensors.python and
+    then running the script from the commandline, debug output
+    should be available.

@@ -6573,7 +6573,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	return 0; /* no values available */
 	    atom->ull = proc_meminfo.ReverseMaps >> 10;
 	    break;
-	case 29: /* mem.util.clean_cache (in kbytes) */
+	case 29: /* mem.util.cache_clean (in kbytes) */
 	    /* clean=cached-(dirty+writeback) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Cached) ||
 	        !MEMINFO_VALID_VALUE(proc_meminfo.Dirty) ||

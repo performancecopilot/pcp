@@ -60,15 +60,18 @@ _filter_pmdas()
 	-e '/inst \[60 or "linux"]/d' \
 	-e '/inst \[62 or "nfsclient"]/d' \
 	-e '/inst \[68 or "apache"]/d' \
+	-e '/inst \[74 or "lmsensors"]/d' \
 	-e '/inst \[78 or "darwin"]/d' \
 	-e '/inst \[95 or "kvm"]/d' \
 	-e '/inst \[126 or "papi"]/d' \
 	-e '/inst \[106 or "logger"]/d' \
+	-e '/inst \[110 or "postgresql"]/d' \
 	-e '/inst \[114 or "systemd"]/d' \
 	-e '/inst \[123 or "rpm"]/d' \
 	-e '/inst \[129 or "dm"]/d' \
 	-e '/inst \[142 or "lio"]/d' \
 	-e '/inst \[144 or "prometheus"]/d' \
+	-e '/inst \[149 or "bcc"]/d' \
 	-e '/inst \[250 or "trivial"]/d' \
     # end
 }

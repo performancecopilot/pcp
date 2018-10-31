@@ -17,14 +17,14 @@ General Functionality:
 [x] handle explicit command line instances correctly (-C|-D|-I|-N|-S)
 [x] need to handle dstat 'total' columns better?  (see instances too)
 [x] figure out why --disk and --io not usable together (same labels?)
-[ ] improved handling of first counter sample (see ticks() code)
-[ ] fix terminal title writing to use metric values (see code)
-[ ] fix version output writing to use metric values (see code)
-[ ] csv output option (for dstat backward compatibility)
+[x] improved handling of first counter sample (see ticks() code)
+[x] fix terminal title writing to use metric values (see code)
+[x] fix version output writing to use metric values (see code)
+[x] csv output option (for dstat backward compatibility)
 [x] implement sub-second time(stamp) and epoch reporting support
-[ ] implement historical reporting support via PCP archives
-[ ] create pmlogconf(1) configuration file(s)
-[ ] write regression tests with archives
+[x] implement historical reporting support via PCP archives
+[x] create pmlogconf(1) configuration file(s)
+[x] write regression tests with archives
 [x] write pcp-dstat(5) man page
 [x] write pcp-dstat(1) man page
 

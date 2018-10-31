@@ -191,7 +191,7 @@ class pcp2elasticsearch(object):
             return 1
         return 0
 
-    def option(self, opt, optarg, index):
+    def option(self, opt, optarg, _index):
         """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
@@ -345,7 +345,7 @@ class pcp2elasticsearch(object):
 
     def report(self, tstamp):
         """ Report metric values """
-        if tstamp != None:
+        if tstamp is not None:
             tstamp = tstamp.strftime(self.timefmt)
 
         self.write_es(tstamp)

@@ -160,6 +160,13 @@ then
     exit
 fi
 
+_compress_now()
+{
+    # If $PCP_COMPRESSAFTER=0 in the control file(s), compress archives now.
+    # Invoked just before exit when this script has finished successfully.
+    $PCP_BINADM_DIR/pmlogger_daily -K $daily_args
+}
+
 # after argument checking, everything must be logged to ensure no mail is
 # accidentally sent from cron.  Close stdout and stderr, then open stdout
 # as our logfile and redirect stderr there too.
@@ -222,11 +229,19 @@ fi
 
 if [ $STOP_PMLOGGER = true ]
 then
-    # if pmlogger has never been started, there's no work to do to stop it
-    [ ! -d "$PCP_TMP_DIR/pmlogger" ] && exit
+    # if pmlogger hasn't been started, there's no work to do to stop it
+    # but we still want to compress existing logs, if any
+    if [ ! -d "$PCP_TMP_DIR/pmlogger" ]
+    then
+    	_compress_now
+	exit
+    fi
     $QUIETLY || $PCP_BINADM_DIR/pmpost "stop pmlogger from $prog"
 elif [ $START_PMLOGGER = false ]
 then
+    # if we're not going to start pmlogger, there is no work to do other
+    # than compress existing logs, if any.
+    _compress_now
     exit
 fi
 
@@ -967,10 +982,8 @@ then
     fi
 fi
 
-# and if $PCP_COMPRESSAFTER=0 in the control file(s), compress archives now ...
-#
-$PCP_BINADM_DIR/pmlogger_daily -K $daily_args
-
+# Prior to exiting we compress existing logs, if any. See pmlogger_daily -K
+_compress_now
 
 [ -f $tmp/err ] && status=1
 exit

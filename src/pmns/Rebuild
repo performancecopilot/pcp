@@ -77,6 +77,7 @@ _die()
 
 prog=`basename $0`
 debug=false
+skip_pmda_check=false
 nochanges=false
 root=root
 root_updated=false
@@ -88,6 +89,7 @@ _usage()
 {
     _trace "Usage: Rebuild [-nsuv]"
     _trace "Options:"
+    _trace "  -o    old behaviour, do not check PMDAs in pmcd.conf"
     _trace "  -n    dry run, show me what would be done"
     _trace "  -s    silent, exit status says it all"
     _trace "  -u    once only upgrade processing for a new PCP version"
@@ -185,11 +187,13 @@ skip				{ next }
     fi
 }
 
-while getopts dnusv\? c
+while getopts dnousv\? c
 do
     case $c
     in
 	d)	echo "$prog: Warning: -d deprecated, duplicate PMNS names allowed by default"
+		;;
+	o)	skip_pmda_check=true
 		;;
 	n)	nochanges=true
 		echo "$prog: Warning: dry run, no changes will be made"
@@ -294,16 +298,43 @@ EOFEOF
     fi
 fi
 
-# Merge $root and root_* to produce the new root.
+# Merge $root and root_* to produce the new root, subject to the
+# constraint that the corresponding PMDA is configured in pmcd.conf.
+#
+# For root_foo, we assume the corresponding PMDA is called foo in
+# pmcd.conf ... if this is not the case, add an entry for the
+# initialization of map[] in the awk script below.
+#
 # Each root_* file should be a complete namespace,
 # i.e. it should include an entry for root.
 #
-mergelist=""
+echo >$tmp/mergelist
 if [ "`echo root_*`" != "root_*" ]
 then
-    mergelist=`ls -1 root_* | $PCP_AWK_PROG '
-    /root_web/		{next}
-			{print}'`
+    ls -1 root_* \
+    | while read root_file
+    do
+	pmda=`echo "$root_file" \
+	      | sed -e 's/root_//' \
+	      | $PCP_AWK_PROG '
+BEGIN	{ map["root_web"] = "-"	# historical old file, not present anymore
+				# "-" means skip this one
+	  # map["foo"] = "bar"	# example to where the PMDA bar populates
+				# metrics defined in root_foo
+        }
+	{ if (map[$1] == "")	{ print $1; next }	# no mapping
+	  if (map[$1] == "-")	{ next }		# omit
+	  			{ print map[$1]; next }
+	}'`
+	if $skip_pmda_check \
+	   || grep "^$pmda[ 	]" $PCP_PMCDCONF_PATH >/dev/null 2>&1
+	then
+	    # good to go, skipping check or PMDA is in pmcd.conf
+	    #
+	    echo "$root_file" >>$tmp/mergelist
+	fi
+    done
+    mergelist="`cat $tmp/mergelist`"
 fi
 
 _trace "$prog: merging the following PMNS files: "

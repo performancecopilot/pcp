@@ -32,42 +32,65 @@ StrTimeval(const pmTimeval *tp)
 	__pmPrintTimeval(stderr, tp);
 }
 
+static inline int
+sameinst(const __pmLogInDom *a, const __pmLogInDom *b, int index)
+{
+    if (a->instlist[index] != b->instlist[index])
+	return 0;
+    return strcmp(a->namelist[index], b->namelist[index]) == 0;
+}
+
 /*
- * Return 1 if the indoms are the same, 0 otherwise.
- * The time stamp does not count for this comparison.
+ * Return true (non-zero) if the indoms are the same, else false (zero).
+ * The time stamp does not matter in this indom comparison.  Because we
+ * keep sorted instance lists in memory (see addinsts) we are able to do
+ * a linear indom comparison here.
  */
 static int
 sameindom(const __pmLogInDom *idp1, const __pmLogInDom *idp2)
 {
-    int i, j;
+    int			i, numinst;
 
-    if (idp1->numinst != idp2->numinst)
-	return 0; /* different */
+    if ((numinst = idp1->numinst) != idp2->numinst)
+	return 0;
+    for (i = 0; i < numinst; i++)
+	if (!sameinst(idp1, idp2, i))
+	    break;
+    return i == numinst;
+}
 
-    /*
-     * Make sure that the instances and their names are the same.
-     * We can't assume that the instances are always in the same order,
-     * but we do assume that each instance occurs only once.
-     */
-    for (i = 0; i < idp1->numinst; ++i) {
-	for (j = 0; j < idp2->numinst; ++j) {
-	    if (idp1->instlist[i] == idp2->instlist[j]) {
-		/*
-		 * We found the same instance. Make sure that the names are
-		 * the same.
-		 */
-		if (strcmp(idp1->namelist[i], idp2->namelist[j]) != 0)
-		    return 0; /* different */
-		break;
-	    }
+/*
+ * Sort the given instance arrays based on ascending identifier,
+ * before associating them with the __pmLogInDom.  This allows a
+ * variety of optimised lookups in subsequent code that needs to
+ * search for specific instances, compare instance domains, etc.
+ * Use an insertion sort because its often the case that we're
+ * dealing with close-to-sorted data.  Because we have dependent
+ * arrays, we cannot use the usual qsort/sort_r routines here.
+ */
+static void
+addinsts(__pmLogInDom *idp, int numinst, int *instlist, char **namelist)
+{
+    int			i, j, id;
+    char		*name;
+
+    for (i = 0; i < numinst; i++) {
+	name = namelist[i];
+	id = instlist[i];
+	j = i;
+
+	while (j > 0 && id < instlist[j-1]) {
+	    namelist[j] = namelist[j-1];
+	    instlist[j] = instlist[j-1];
+	    j = j - 1;
 	}
-	if (j >= idp2->numinst) {
-	    /* The current idp1 instance was not found in idp2. */
-	    return 0; /* different */
-	}
+	namelist[j] = name;
+	instlist[j] = id;
     }
 
-    return 1; /* duplicate */
+    idp->numinst = numinst;
+    idp->instlist = instlist;
+    idp->namelist = namelist;
 }
 
 /*
@@ -88,11 +111,9 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((idp = (__pmLogInDom *)malloc(sizeof(__pmLogInDom))) == NULL)
 	return -oserror();
     idp->stamp = *tp;		/* struct assignment */
-    idp->numinst = numinst;
-    idp->instlist = instlist;
-    idp->namelist = namelist;
     idp->buf = indom_buf;
     idp->allinbuf = allinbuf;
+    addinsts(idp, numinst, instlist, namelist);
 
     if (pmDebugOptions.logmeta) {
 	char    strbuf[20];
@@ -383,7 +404,7 @@ samelabelset(const pmLabelSet *set1, const pmLabelSet *set2)
 static void
 discard_dup_labelsets(__pmLogLabelSet *idp, const __pmLogLabelSet *idp_next)
 {
-    int i, j;
+    int			i, j;
 
     for (i = 0; i < idp->nsets; ++i) {
 	for (j = 0; j < idp_next->nsets; ++j) {
@@ -804,20 +825,19 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		    instlist[i] = ntohl(instlist[i]);
 	            namelist[i] = &namebase[ntohl(stridx[i])];
 		}
+		if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0)
+		    goto end;
+		/* If this indom was a duplicate, then we need to free tbuf and
+		   namelist, as appropriate. */
+		if (sts == PMLOGPUTINDOM_DUP) {
+		    free(tbuf);
+		    if (namelist != NULL && !allinbuf)
+			free(namelist);
+		}
 	    }
 	    else {
 		/* no instances, or an error */
-		instlist = NULL;
-		namelist = NULL;
-	    }
-	    if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0)
-		goto end;
-	    /* If this indom was a duplicate, then we need to free tbuf and
-	       namelist, as appropriate. */
-	    if (sts == PMLOGPUTINDOM_DUP) {
 		free(tbuf);
-		if (namelist != NULL && !allinbuf)
-		    free(namelist);
 	    }
 	}
 	else if (h.type == TYPE_LABEL) {
@@ -1044,7 +1064,7 @@ __pmLogLookupDesc(__pmArchCtl *acp, pmID pmid, pmDesc *dp)
 {
     __pmLogCtl		*lcp = acp->ac_log;
     __pmHashNode	*hp;
-    pmDesc	*tp;
+    pmDesc		*tp;
 
     if ((hp = __pmHashSearch((unsigned int)pmid, &lcp->l_hashpmid)) == NULL)
 	return PM_ERR_PMID_LOG;
@@ -1061,13 +1081,11 @@ __pmLogLookupDesc(__pmArchCtl *acp, pmID pmid, pmDesc *dp)
 int
 __pmLogPutDesc(__pmArchCtl *acp, const pmDesc *dp, int numnames, char **names)
 {
-    __pmLogCtl	*lcp = acp->ac_log;
-    __pmFILE	*f = lcp->l_mdfp;
-    pmDesc	*tdp;
-    int		olen;		/* length to write out */
-    int		i;
-    int		sts;
-    int		len;
+    __pmLogCtl		*lcp = acp->ac_log;
+    __pmFILE		*f = lcp->l_mdfp;
+    pmDesc		*tdp;
+    int			olen;		/* length to write out */
+    int			i, sts, len;
     typedef struct {			/* skeletal external record */
 	__pmLogHdr	hdr;
 	pmDesc		desc;
@@ -1211,7 +1229,7 @@ __pmLogLookupInDom(__pmArchCtl *acp, pmInDom indom, pmTimeval *tp,
 {
     __pmLogCtl		*lcp = acp->ac_log;
     __pmLogInDom	*idp = searchindom(lcp, indom, tp);
-    int		i;
+    int			i;
 
     if (idp == NULL)
 	return PM_ERR_INDOM_LOG;
@@ -1244,7 +1262,7 @@ __pmLogNameInDom(__pmArchCtl *acp, pmInDom indom, pmTimeval *tp, int inst, char 
 {
     __pmLogCtl		*lcp = acp->ac_log;
     __pmLogInDom	*idp = searchindom(lcp, indom, tp);
-    int		i;
+    int			i;
 
     if (idp == NULL)
 	return PM_ERR_INDOM_LOG;
@@ -1299,17 +1317,15 @@ int
 __pmLogPutLabel(__pmArchCtl *acp, unsigned int type, unsigned int ident,
 		int nsets, pmLabelSet *labelsets, const pmTimeval *tp)
 {
-    __pmLogCtl	*lcp = acp->ac_log;
-    int		sts = 0;
-    int		i;
-    int		j;
-    int		len;
-    char	*ptr;
-    int		inst;
-    int		nlabels;
-    int		jsonlen;
-    int		convert;
-    pmLabel	label;
+    __pmLogCtl		*lcp = acp->ac_log;
+    char		*ptr;
+    int			sts = 0;
+    int			i, j, len;
+    int			inst;
+    int			nlabels;
+    int			jsonlen;
+    int			convert;
+    pmLabel		label;
     typedef struct {
 	__pmLogHdr	hdr;
 	pmTimeval	stamp;
@@ -1318,7 +1334,7 @@ __pmLogPutLabel(__pmArchCtl *acp, unsigned int type, unsigned int ident,
 	int		nsets;
 	char		data[0];
     } ext_t;
-    ext_t	*out;
+    ext_t		*out;
 
     len = (int)sizeof(ext_t);
     for (i = 0; i < nsets; i++) {
@@ -1419,18 +1435,16 @@ int
 __pmLogPutText(__pmArchCtl *acp, unsigned int ident, unsigned int type,
 		char *buffer, int cached)
 {
-    __pmLogCtl	*lcp = acp->ac_log;
-    int		sts;
-    int		len;
-    char	*ptr;
-    int		textlen;
+    __pmLogCtl		*lcp = acp->ac_log;
+    char		*ptr;
+    int			sts, len, textlen;
     typedef struct {
 	__pmLogHdr	hdr;
 	int		type;
 	int		ident;
 	char		data[0];
     } ext_t;
-    ext_t	*out;
+    ext_t		*out;
 
     assert(type & (PM_TEXT_HELP|PM_TEXT_ONELINE));
     assert(type & (PM_TEXT_PMID|PM_TEXT_INDOM));
@@ -1476,13 +1490,12 @@ int
 __pmLogPutInDom(__pmArchCtl *acp, pmInDom indom, const pmTimeval *tp, 
 		int numinst, int *instlist, char **namelist)
 {
-    __pmLogCtl	*lcp = acp->ac_log;
-    int		sts = 0;
-    int		i;
-    int		*inst;
-    int		*stridx;
-    char	*str;
-    int		len;
+    __pmLogCtl		*lcp = acp->ac_log;
+    char		*str;
+    int			sts = 0;
+    int			i, len;
+    int			*inst;
+    int			*stridx;
     typedef struct {			/* skeletal external record */
 	__pmLogHdr	hdr;
 	pmTimeval	stamp;
@@ -1491,7 +1504,7 @@ __pmLogPutInDom(__pmArchCtl *acp, pmInDom indom, const pmTimeval *tp,
 	char		data[0];	/* inst[] then stridx[] then strings */
 					/* will be expanded if numinst > 0 */
     } ext_t;
-    ext_t	*out;
+    ext_t		*out;
 
     len = (int)sizeof(ext_t)
 	    + (numinst > 0 ? numinst : 0) * ((int)sizeof(instlist[0]) + (int)sizeof(stridx[0]))
@@ -1544,11 +1557,11 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 int
 pmLookupInDomArchive(pmInDom indom, const char *name)
 {
-    int		n;
-    int		j;
+    int			n;
+    int			j;
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
-    __pmContext	*ctxp;
+    __pmContext		*ctxp;
 
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
@@ -1598,11 +1611,11 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 int
 pmNameInDomArchive(pmInDom indom, int inst, char **name)
 {
-    int		n;
-    int		j;
+    int			n;
+    int			j;
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
-    __pmContext	*ctxp;
+    __pmContext		*ctxp;
 
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
@@ -1645,33 +1658,38 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
  * to search the instance and name lists to be returned.
  * Smaller indoms will use the regular linear search.
  */
-#define HASH_THRESHOLD 16
-#define HASH_SIZE 509 /* prime */
+#define HASH_THRESHOLD	16
+#define HASH_SIZE	509 /* prime */
 
 static struct {
-    int len;
-    int max;
-    int *list;
-} ihash[HASH_SIZE] = {
-    { 0, 0, NULL }
-};
+    int			len;
+    int			max;
+    int			*list;
+} ihash[HASH_SIZE];
 
 static int
 find_add_ihash(int id)
 {
-    int i = id % HASH_SIZE; 
-    int j;
+    int			*tmp, j, i = id % HASH_SIZE; 
 
-    for (j=0; j < ihash[i].len; j++) {
-    	if (ihash[i].list[j] == id)
+    for (j = 0; j < ihash[i].len; j++) {
+	if (ihash[i].list[j] == id)
 	    return 1;
     }
     ihash[i].len++;
     if (ihash[i].len >= ihash[i].max) {
-    	ihash[i].max += 8;
-	ihash[i].list = (int *)realloc(ihash[i].list, ihash[i].max * sizeof(int));
+	ihash[i].max += 8;
+	tmp = (int *)realloc(ihash[i].list, ihash[i].max * sizeof(int));
+	if (tmp)
+	    ihash[i].list = tmp;
+	else {
+	    ihash[i].len = ihash[i].max = 0;
+	    free(ihash[i].list);
+	    ihash[i].list = NULL;
+	}
     }
-    ihash[i].list[ihash[i].len-1] = id;
+    if (ihash[i].list)
+	ihash[i].list[ihash[i].len-1] = id;
 
     return 0;
 }
@@ -1679,10 +1697,10 @@ find_add_ihash(int id)
 static void
 reset_ihash(void)
 {
-    int i;
+    int			i;
 
     /* invalidate all entries, but don't free the memory */
-    for (i=0; i < HASH_SIZE; i++)
+    for (i = 0; i < HASH_SIZE; i++)
     	ihash[i].len = 0;
 }
 
@@ -1695,12 +1713,11 @@ reset_ihash(void)
 int
 pmGetInDomArchive_ctx(__pmContext *ctxp, pmInDom indom, int **instlist, char ***namelist)
 {
-    int			n;
-    int			i;
-    int			j;
     char		*p;
-    __pmHashNode		*hp;
-    __pmLogInDom		*idp;
+    __pmHashNode	*hp;
+    __pmLogInDom	*idp;
+    size_t		bytes;
+    int			n, i, j;
     int			numinst = 0;
     int			strsize = 0;
     int			*ilist = NULL;
@@ -1716,9 +1733,8 @@ pmGetInDomArchive_ctx(__pmContext *ctxp, pmInDom indom, int **instlist, char ***
 	return PM_ERR_INDOM;
 
     if (ctxp == NULL) {
-	if ((n = pmWhichContext()) < 0) {
+	if ((n = pmWhichContext()) < 0)
 	    return n;
-	}
 	ctxp = __pmHandleToPtr(n);
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
@@ -1763,23 +1779,26 @@ pmGetInDomArchive_ctx(__pmContext *ctxp, pmInDom indom, int **instlist, char ***
 	    if (i < numinst)
 		continue;
 
-	    numinst++;
+	    bytes = (numinst + 1) * sizeof(ilist[0]);
 PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
-	    if ((ilist = (int *)realloc(ilist, numinst*sizeof(ilist[0]))) == NULL) {
-		pmNoMem("pmGetInDomArchive: ilist", numinst*sizeof(ilist[0]), PM_FATAL_ERR);
+	    if ((ilist = (int *)realloc(ilist, bytes)) == NULL) {
+		pmNoMem("pmGetInDomArchive: ilist", bytes, PM_FATAL_ERR);
 	    }
+	    bytes = (numinst + 1) * sizeof(nlist[0]);
 PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
-	    if ((nlist = (char **)realloc(nlist, numinst*sizeof(nlist[0]))) == NULL) {
-		pmNoMem("pmGetInDomArchive: nlist", numinst*sizeof(nlist[0]), PM_FATAL_ERR);
+	    if ((nlist = (char **)realloc(nlist, bytes)) == NULL) {
+		pmNoMem("pmGetInDomArchive: nlist", bytes, PM_FATAL_ERR);
 	    }
-	    ilist[numinst-1] = idp->instlist[j];
-	    nlist[numinst-1] = idp->namelist[j];
+	    ilist[numinst] = idp->instlist[j];
+	    nlist[numinst] = idp->namelist[j];
 	    strsize += strlen(idp->namelist[j])+1;
+	    numinst++;
 	}
     }
+    bytes = numinst * sizeof(olist[0]) + strsize;
 PM_FAULT_POINT("libpcp/" __FILE__ ":9", PM_FAULT_ALLOC);
-    if ((olist = (char **)malloc(numinst*sizeof(olist[0]) + strsize)) == NULL) {
-	pmNoMem("pmGetInDomArchive: olist", numinst*sizeof(olist[0]) + strsize, PM_FATAL_ERR);
+    if ((olist = (char **)malloc(bytes)) == NULL) {
+	pmNoMem("pmGetInDomArchive: olist", bytes, PM_FATAL_ERR);
     }
     p = (char *)olist;
     p += numinst * sizeof(olist[0]);
@@ -1802,7 +1821,5 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":9", PM_FAULT_ALLOC);
 int
 pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 {
-    int	sts;
-    sts = pmGetInDomArchive_ctx(NULL, indom, instlist, namelist);
-    return sts;
+    return pmGetInDomArchive_ctx(NULL, indom, instlist, namelist);
 }

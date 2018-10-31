@@ -987,8 +987,15 @@ reinitMetric(Metric *m)
 	    }
 	    if (x->parent) {
 		x = x->parent;
-		if (x->metrics == m)
+		if (x->metrics == m) {
+		    /* if operand is a set -> scalar function, like
+		     * CND_COUNT_INST, don't propagate instance reshaping
+		     * further up the tree
+		     */
+		    if (isScalarResult(x))
+			break;
 		    continue;
+		}
 	    }
 	    break;
 	}

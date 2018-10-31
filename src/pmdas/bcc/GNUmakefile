@@ -39,6 +39,7 @@ install_pcp install ::	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
 	$(INSTALL) -m 644 README $(CONFIGS) $(PMDADIR)
+	$(INSTALL) -m 644 pmdautil.python $(PMDADIR)/pmdautil.python
 	@$(INSTALL_MAN)
 
 default_pcp default ::	$(SUBDIRS)
@@ -54,3 +55,6 @@ endif
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)
+
+check:: $(PYSCRIPT)
+	$(PYLINT) $^

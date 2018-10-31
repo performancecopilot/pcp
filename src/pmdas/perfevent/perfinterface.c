@@ -413,7 +413,7 @@ static int fetch_perf_scale(char *event_name, double *scale)
  */
 static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
 {
-    derived_event_t *curr, *derived_events = inst->derived_events;
+    derived_event_t *curr, *derived_events;
     int nderivedevents = inst->nderivedevents;
     event_t *event;
     pmcsetting_t *derived_setting;
@@ -501,7 +501,7 @@ static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
         return -E_PERFEVENT_LOGIC;
     }
 
-    derived_events = realloc(derived_events,
+    derived_events = realloc(inst->derived_events,
                              (nderivedevents + 1) * sizeof(*derived_events));
     if (NULL == derived_events) {
         free(inst->derived_events);
@@ -529,13 +529,13 @@ static int perf_setup_event(perfdata_t *inst, const char *eventname, const int c
     int ncpus, ret;
     int *cpuarr;
 
-    event_t *events = inst->events;
+    event_t *events;
     int nevents = inst->nevents;
     archinfo_t *archinfo = inst->archinfo;
 
     /* Increase size of event array */
-    events = realloc(events, (nevents + 1) * sizeof(*events) );
-    if(NULL == events)
+    events = realloc(inst->events, (nevents + 1) * sizeof(*events));
+    if (NULL == events)
     {
         free(inst->events);
         inst->nevents = 0;
@@ -672,7 +672,7 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
 				     struct pmu *pmu_list)
 {
     int i, ncpus, ret = 0, *cpuarr = NULL, nevents = inst->nevents, *cpumask = NULL;
-    event_t *events = inst->events;
+    event_t *evp, *events = inst->events;
     archinfo_t *archinfo = inst->archinfo;
     struct pmu *pmu_ptr;
     struct pmu_event *event_ptr;
@@ -695,14 +695,15 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
             }
 
             /* Increase the size of event array */
-            events = realloc(events, (nevents + 1) * sizeof(*events));
-            if (!events) {
+            evp = realloc(events, (nevents + 1) * sizeof(*events));
+            if (!evp) {
                 free(inst->events);
                 inst->nevents = 0;
                 inst->events = NULL;
                 free(cpumask);
                 return -E_PERFEVENT_REALLOC;
             }
+	    events = evp;
 
             setup_cpu_config(pmu_ptr, &ncpus, &cpumask);
 
@@ -772,7 +773,6 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
             }
         }
     }
-
 
     inst->events = events;
     inst->nevents = nevents;
@@ -1010,13 +1010,12 @@ static int perf_derived_get(perf_derived_counter **derived_counters,
     perf_derived_counter *pdcounter = *derived_counters;
     int nderivedcounters = *derived_size;
 
-    if(NULL == pdcounter || nderivedcounters != pdata->nderivedevents)
+    if (NULL == pdcounter || nderivedcounters != pdata->nderivedevents)
     {
-        pdcounter = malloc(pdata->nderivedevents * sizeof *pdcounter);
+        pdcounter = calloc(pdata->nderivedevents, sizeof *pdcounter);
         if (NULL == pdcounter) {
             return -E_PERFEVENT_REALLOC;
         }
-        memset(pdcounter, 0, pdata->nderivedevents * sizeof *pdcounter);
         nderivedcounters = pdata->nderivedevents;
 
         for (idx = 0; idx < pdata->nderivedevents; idx++) {
@@ -1032,8 +1031,10 @@ static int perf_derived_get(perf_derived_counter **derived_counters,
                 counter = get_counter(counters, *size, event_list->event->name);
                 if (counter != NULL) {
                     ptr = calloc(1, sizeof(*ptr));
-                    if (!ptr)
+                    if (!ptr) {
+			free(pdcounter);
                         return -E_PERFEVENT_REALLOC;
+		    }
                     ptr->counter = counter;
                     ptr->scale = event_list->scale;
                     ptr->next = NULL;

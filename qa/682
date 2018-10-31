@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 683
+# PCP QA Test No. 682
 # Exercise MMV v3 labels support under valgrind.
 #
 # Copyright (c) 2018 Red Hat.

@@ -82,3 +82,6 @@ filesys.o pmda.o:	filesys.h
 pmda.o: $(VERSION_SCRIPT)
 
 pmda.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check:: $(CFILES) $(HFILES)
+	$(CLINT) $^

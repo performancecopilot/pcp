@@ -15,8 +15,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  */
+#include <ctype.h>
 #include "pmapi.h"
-#include <sys/stat.h>
 #include "mmv_stats.h"
 #include "mmv_dev.h"
 #include "libpcp.h"
@@ -131,7 +131,7 @@ mmv_init(const char *fname, int version,
 		const mmv_indom_t *in1, int nindom1,
 		const mmv_metric2_t *st2, int nmetric2,
 		const mmv_indom2_t *in2, int nindom2,
-                const mmv_label_t *lb, int nlabels)
+		const mmv_label_t *lb, int nlabels)
 {
     mmv_disk_instance2_t *inlist2;
     mmv_disk_instance_t *inlist1;
@@ -221,7 +221,7 @@ mmv_init(const char *fname, int version,
     if (nstrings)
 	size += sizeof(mmv_disk_toc_t) * 1;
     if (nlabels) {
-        size += sizeof(mmv_disk_toc_t) * 1;
+	size += sizeof(mmv_disk_toc_t) * 1;
     }
     indoms_offset = sizeof(mmv_disk_header_t) + size;
 
@@ -328,7 +328,7 @@ mmv_init(const char *fname, int version,
 	tocidx++;
     }
     if (nlabels) {
-        toc[tocidx].type = MMV_TOC_LABELS;
+	toc[tocidx].type = MMV_TOC_LABELS;
 	toc[tocidx].count = nlabels;
 	toc[tocidx].offset = labels_offset;
 	tocidx++;
@@ -487,7 +487,7 @@ mmv_init(const char *fname, int version,
 
     /*
      * 6 phases: v2 instance names, v2 metric names, all string values,
-     *           any metric help, any indom help, v3 metric labels.
+     *	   any metric help, any indom help, v3 metric labels.
      */
     if (version == MMV_VERSION2 || version == MMV_VERSION3) {
 	inlist2 = (mmv_disk_instance2_t *)((char *)addr + instances_offset);
@@ -684,7 +684,7 @@ mmv_stats_init(const char *fname,
 
     return mmv_init(fname, version, cluster, flags,
 		    st, nmetrics, in, nindoms, 
-                    NULL, 0, NULL, 0, NULL, 0);
+		    NULL, 0, NULL, 0, NULL, 0);
 }
 
 static int
@@ -773,8 +773,8 @@ mmv_stats2_init(const char *fname,
 
 mmv_registry_t *
 mmv_stats_registry(const char *file,
-                   int cluster,
-                   mmv_stats_flags_t flags)
+		   int cluster,
+		   mmv_stats_flags_t flags)
 {
     mmv_registry_t * mr;
 
@@ -799,8 +799,8 @@ mmv_stats_registry(const char *file,
 
 int 
 mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
-                     mmv_metric_type_t type, mmv_metric_sem_t sem, pmUnits units,
-                     int serial, const char *shorthelp, const char *longhelp)
+		     mmv_metric_type_t type, mmv_metric_sem_t sem, pmUnits units,
+		     int serial, const char *shorthelp, const char *longhelp)
 {
     mmv_metric2_t * metric;
     size_t bytes;
@@ -836,14 +836,14 @@ mmv_stats_add_metric(mmv_registry_t *registry, const char *name, int item,
 
 int
 mmv_stats_add_indom(mmv_registry_t *registry, int serial, 
-                    const char *shorthelp, const char *longhelp) 
+		    const char *shorthelp, const char *longhelp) 
 {
     mmv_indom2_t * indom;
     size_t bytes;
 
     if (registry == NULL) {
-        setoserror(EFAULT);
-        return -1;
+	setoserror(EFAULT);
+	return -1;
     }
 
     bytes = (registry->nindoms + 1) * sizeof(mmv_indom2_t);
@@ -920,25 +920,86 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
 /*
  * Verify the user-supplied label.  Produce a JSONB form label in
  * the provided buffer (out) of length MMV_LABELMAX.
- *
- * TODO: - check the name according to the pmLookupLabels(3) rules;
- *       - check using the type if the value is correctly specified
  */
 static int
 get_label(const char *name, const char *value, mmv_value_type_t type,
 		int flags, char *buffer)
 {
     pmLabelSet *set = NULL;
-    int len, sts;
+    char *endnum = NULL;
+    int i, len, sts;
+
+    if (name == NULL || value == NULL) {
+	setoserror(EINVAL);
+	return -1;
+    }
 
     /* The +5 is for the characters we add next - {"":} */
     if (strlen(name) + strlen(value) + 5 > MMV_LABELMAX) {
 	setoserror(E2BIG);
 	return -1;
     }
+
+    /* Verify the name meets pmLookupLabel(3) syntax rules */
+    len = name ? strlen(name) : 0;
+    if (len < 1 || !isalpha((int)(name[0]))) {
+	setoserror(EINVAL);
+	return -1;
+    }
+    for (i = 1; i < len; i++) {
+	if (isalnum((int)(name[i])) || name[i] == '_')
+	    continue;
+	setoserror(EINVAL);
+	return -1;
+    }
+
+    /* Verify values meet some (type-based) sanity checks */
+    len = value ? strlen(value) : 0;
+    switch (type) {
+	case MMV_NULL_TYPE:
+	    value = "null";
+	    break;
+	case MMV_BOOLEAN_TYPE:
+	    if ((len < 4 || len > 5) ||
+		(strcmp(value, "true") != 0 && strcmp(value, "false")) != 0) {
+		setoserror(EINVAL);
+		return -1;
+	    }
+	    break;
+	case MMV_MAP_TYPE:
+	    if (len < 2 || value[0] != '{' || value[len-1] != '}') {
+		setoserror(EINVAL);
+		return -1;
+	    }
+	    break;
+	case MMV_ARRAY_TYPE:
+	    if (len < 2 || value[0] != '[' || value[len-1] != ']') {
+		setoserror(EINVAL);
+		return -1;
+	    }
+	    break;
+	case MMV_STRING_TYPE:
+	    if (len < 2 || value[0] != '\"' || value[len-1] != '\"') {
+		setoserror(EINVAL);
+		return -1;
+	    }
+	    break;
+	case MMV_NUMBER_TYPE:
+	    if (value)
+		(void)strtod(value, &endnum);
+	    if (len < 1 || *endnum != '\0') {
+		setoserror(EINVAL);
+		return -1;
+	    }
+	    break;
+	default:
+	    setoserror(EINVAL);
+	    return -1;
+    }
+
     len = pmsprintf(buffer, MMV_LABELMAX, "{\"%s\":%s}", name, value);
     if ((sts = __pmParseLabelSet(buffer, len, flags, &set)) < 0) {
-	setoserror(sts);
+	setoserror(-sts);
 	return -1;
     }
     pmFreeLabelSets(set, 1);
@@ -1004,8 +1065,8 @@ mmv_stats_add_indom_label(mmv_registry_t *registry, int serial,
     int flags = PM_LABEL_INDOM;
 
     if (registry == NULL) {
-        setoserror(EFAULT);
-        return -1;
+	setoserror(EFAULT);
+	return -1;
     }
     if (optional)
 	flags |= PM_LABEL_OPTIONAL;
@@ -1047,8 +1108,8 @@ mmv_stats_add_metric_label(mmv_registry_t *registry, int item,
     int flags = PM_LABEL_ITEM;
 
     if (registry == NULL) {
-        setoserror(EFAULT);
-        return -1;
+	setoserror(EFAULT);
+	return -1;
     }
     if (optional)
 	flags |= PM_LABEL_OPTIONAL;

@@ -8,18 +8,18 @@ myname.suba.subb.four = 4*sample.long.one
 myname.suba.subb.subc.subd.five = 5*sample.long.one
 myname.suba.subb.subc.subd.six = 6*sample.long.one
 
-=== -h localhost myname.suba.subb.subc.subd.six ===
+=== -h local: myname.suba.subb.subc.subd.six ===
 myname.suba.subb.subc.subd.six
-=== -h localhost -f myname.suba.subb.subc.subd.six ===
+=== -h local: -f myname.suba.subb.subc.subd.six ===
 
 myname.suba.subb.subc.subd.six
     value 6
 
-=== -h localhost myname.suba.subb ===
+=== -h local: myname.suba.subb ===
 myname.suba.subb.four
 myname.suba.subb.subc.subd.five
 myname.suba.subb.subc.subd.six
-=== -h localhost -f myname.suba.subb ===
+=== -h local: -f myname.suba.subb ===
 
 myname.suba.subb.four
     value 4
@@ -30,14 +30,14 @@ myname.suba.subb.subc.subd.five
 myname.suba.subb.subc.subd.six
     value 6
 
-=== -h localhost myname ===
+=== -h local: myname ===
 myname.one
 myname.suba.two
 myname.suba.three
 myname.suba.subb.four
 myname.suba.subb.subc.subd.five
 myname.suba.subb.subc.subd.six
-=== -h localhost -f myname ===
+=== -h local: -f myname ===
 
 myname.one
     value 1
@@ -57,14 +57,14 @@ myname.suba.subb.subc.subd.five
 myname.suba.subb.subc.subd.six
     value 6
 
-=== -h localhost myname.one.bad ===
+=== -h local: myname.one.bad ===
 Error: myname.one.bad: Unknown metric name
-=== -h localhost -f myname.one.bad ===
+=== -h local: -f myname.one.bad ===
 Error: myname.one.bad: Unknown metric name
 
-=== -h localhost myname.suba.subb.subc.bad ===
+=== -h local: myname.suba.subb.subc.bad ===
 Error: myname.suba.subb.subc.bad: Unknown metric name
-=== -h localhost -f myname.suba.subb.subc.bad ===
+=== -h local: -f myname.suba.subb.subc.bad ===
 Error: myname.suba.subb.subc.bad: Unknown metric name
 
 ARCHIVE context ...
@@ -336,6 +336,7 @@ sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
 sampledso.secret.foo.one
 sampledso.secret.foo.two
 sampledso.secret.bar
+sampledso.ghosts.visible
 sampledso.long.one
 sampledso.long.ten
 sampledso.long.hundred
@@ -537,6 +538,7 @@ sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
 sampledso.secret.foo.one
 sampledso.secret.foo.two
 sampledso.secret.bar
+sampledso.ghosts.visible
 sampledso.long.one
 sampledso.long.ten
 sampledso.long.hundred
@@ -684,6 +686,7 @@ Name space load: N.NN msec
 30.0.36 alias sampledso.write_me and sampledso.dupnames.two.write_me
 30.0.46 alias sampledso.lights and sampledso.dupnames.two.lights
 pmNameAll(sampledso.secret): Unknown or illegal metric identifier
+pmNameAll(sampledso.ghosts): Unknown or illegal metric identifier
 30.0.16 alias sampledso.float.ten and sampledso.dupnames.two.float.ten
 30.0.26 alias sampledso.double.ten and sampledso.dupnames.two.double.ten
 30.0.1 alias sampledso.dupnames.daemon_pid and sampledso.dupnames.pid_daemon

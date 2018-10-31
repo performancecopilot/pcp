@@ -1,0 +1,68 @@
+#!/bin/sh
+# PCP QA Test No. 1173
+# Exercise the BCC PMDA ucalls module - install, remove and values.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bcc
+
+_pmdabcc_check
+_pmdabcc_require_kernel_version 4 7
+
+have_probes()
+{
+    python -c 'import time;time.sleep(5)' > /dev/null 2>&1 &
+    pypid=$!
+    probes=
+    for tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
+    do
+        which $tplistcmd >/dev/null 2>&1 && \
+            probes=$($tplistcmd -p $pypid 2>/dev/null | grep function__entry)
+        [[ -n "$probes" ]] && return 0
+    done
+    return 1
+}
+
+have_probes || _notrun "No Python USDT probes available"
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+_prepare_pmda bcc
+trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+cat <<EOF | _pmdabcc_install
+[pmda]
+modules = ucalls
+prefix = bcc.
+[ucalls]
+module = ucalls
+cluster = 16
+process = .*/pmdabcc.python
+latency = True
+EOF
+_pmdabcc_wait_for_metric
+
+echo "=== generate ucall activity ==="
+for i in `seq 1 10`; do pminfo -f bcc > /dev/null 2>&1 ; done
+echo done
+
+echo "=== report metric values for ucall count ==="
+pminfo -dfmtT bcc.proc.ucall.count 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+echo "=== report metric values for ucall cml lat ==="
+pminfo -dfmtT bcc.proc.ucall.latency.cml 2>&1 | grep refresh | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+_pmdabcc_remove
+
+status=0
+exit

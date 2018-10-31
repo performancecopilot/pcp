@@ -499,6 +499,7 @@ static int
 UnpackEventRecords(__pmContext *ctxp, pmValueSet *vsp, int idx, pmResult ***rap)
 {
     pmEventArray	*eap;
+    pmResult		**rpp;
     const char		caller[] = "pmUnpackEventRecords";
     char		*base;
     size_t		need;
@@ -524,8 +525,9 @@ UnpackEventRecords(__pmContext *ctxp, pmValueSet *vsp, int idx, pmResult ***rap)
      */
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     need = (eap->ea_nrecords + 1) * sizeof(pmResult *);
-    if ((*rap = (pmResult **)malloc(need)) == NULL)
+    if ((rpp = (pmResult **)malloc(need)) == NULL)
 	return -oserror();
+    *rap = rpp;
 
     base = (char *)&eap->ea_record[0];
     /* walk packed event record array */
@@ -598,6 +600,7 @@ int
 pmUnpackHighResEventRecords(pmValueSet *vsp, int idx, pmHighResResult ***rap)
 {
     pmHighResEventArray	*hreap;
+    pmHighResResult	**rpp;
     const char		caller[] = "pmUnpackHighResEventRecords";
     char		*base;
     size_t		need;
@@ -623,8 +626,9 @@ pmUnpackHighResEventRecords(pmValueSet *vsp, int idx, pmHighResResult ***rap)
      */
 PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
     need = (hreap->ea_nrecords + 1) * sizeof(pmHighResResult *);
-    if ((*rap = (pmHighResResult **)malloc(need)) == NULL)
+    if ((rpp = (pmHighResResult **)malloc(need)) == NULL)
 	return -oserror();
+    *rap = rpp;
 
     base = (char *)&hreap->ea_record[0];
     /* walk packed event record array */

@@ -81,7 +81,7 @@ End-of-File
 cat <<End-of-File >$tmp.macros.default
 %undef disk_all
 End-of-File
-pmlogger -Dlog -C -c $tmp.config $tmp 2>&1 | _filter
+pmlogger -Dlog -C -c $tmp.config 2>&1 | _filter
 
 echo
 echo "=== now with disk_all defined ==="
@@ -89,7 +89,7 @@ cat <<End-of-File >$tmp.macros.default
 %define disk_all disk.all
 %define disk_all_freq 20sec
 End-of-File
-pmlogger -Dlog -C -c $tmp.config $tmp >$tmp.out 2>$tmp.err
+pmlogger -Dlog -C -c $tmp.config >$tmp.out 2>$tmp.err
 echo "--- stdout ---" >>$here/$seq.full
 cat $tmp.out >>$here/$seq.full
 echo "--- stderr ---" >>$here/$seq.full

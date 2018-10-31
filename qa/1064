@@ -42,7 +42,7 @@ _filter_values()
 {
     $PCP_AWK_PROG '
 NF == 1 && $1 ~ /^a\.m/	{ metric = $1 }
-$1 == "value" && metric == "a.m1"	{ if ($2 >= 0 && $2 <= 1023*60/1024) $2 = "OK" }
+$1 == "value" && metric == "a.m1"	{ if ($2 >= 0 && $2 <= 60) $2 = "OK" }
 			{ print }'
 
 }
@@ -50,7 +50,8 @@ $1 == "value" && metric == "a.m1"	{ if ($2 >= 0 && $2 <= 1023*60/1024) $2 = "OK"
 # real QA test starts here
 
 cat <<End-of-File >$tmp.config
-# expect 0 ... 1023 * 60 / 1024 (so around 60)
+# expect 0 ... int(1023 * 60 / 1024 + 0.5) (so 60) ...
+# Note: integer rounding occurs in pmConvScale()
 a.m1 = rescale(sample.byte_rate, "Kbyte/min")
 a.m2 = rescale(mkconst(36000, units="count/hour"),"count/sec")
 a.m3 = rescale(mkconst(36000, units="count/hour")+rescale(mkconst(600, units="count/min"),"count/hour"), "count/sec")

@@ -3,6 +3,7 @@ build_python
 build_python2
 build_python3
 dist
+test
 s-setup
 MANIFEST
 pcp.egg-info

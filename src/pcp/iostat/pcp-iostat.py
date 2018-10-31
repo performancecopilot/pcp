@@ -205,7 +205,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
                 # total active time in seconds (same units as dt)
                 tot_active = (float)(c_avactive[inst] - p_avactive[inst]) / 1000.0
 
-                avgrqsz = avgqsz = await = r_await = w_await = util = 0.0
+                avgrqsz = avgqsz = t_await = r_await = w_await = util = 0.0
 
                 # average request size units are KB (sysstat reports in units of sectors)
                 if tot_ios:
@@ -216,7 +216,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
 
                 # await, r_await, w_await
                 if tot_ios:
-                    await = ((c_ractive[inst] - p_ractive[inst]) + (c_wactive[inst] - p_wactive[inst])) / tot_ios
+                    t_await = ((c_ractive[inst] - p_ractive[inst]) + (c_wactive[inst] - p_wactive[inst])) / tot_ios
 
                 if tot_rios:
                     r_await = (c_ractive[inst] - p_ractive[inst]) / tot_rios
@@ -229,7 +229,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
                     util = 100.0 * tot_active / dt
 
                 device = inst	# prepare name for printing
-                badcounters = rrqm < 0 or wrqm < 0 or r < 0 or w < 0 or await < 0 or avgrqsz < 0 or avgqsz < 0 or util < 0
+                badcounters = rrqm < 0 or wrqm < 0 or r < 0 or w < 0 or t_await < 0 or avgrqsz < 0 or avgqsz < 0 or util < 0
 
                 if "t" in IostatOptions.xflag:
                     if badcounters:
@@ -250,7 +250,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
                         if not IostatOptions.Gflag:
                             print(valfmt % (timestamp, device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision,\
                             r,precision+4,precision, w,precision+6,precision, rkb,precision+6,precision, wkb, avgrqszspace,precision+1 ,avgrqsz,\
-                            avgrqszspace,precision+1, avgqsz,precision+5,precision, await,awaitspace,precision, r_await,awaitspace,precision,\
+                            avgrqszspace,precision+1, avgqsz,precision+5,precision, t_await,awaitspace,precision, r_await,awaitspace,precision,\
                             w_await,utilspace,precision, util))
                 else:
                     if badcounters:
@@ -270,7 +270,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
                         if not IostatOptions.Gflag:
                             print(valfmt % (device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision, r,precision+4,\
                             precision, w,precision+6,precision, rkb,precision+6,precision, wkb,\
-                            avgrqszspace,precision+1 ,avgrqsz,avgrqszspace,precision+1, avgqsz,precision+5,precision, await,awaitspace,precision,\
+                            avgrqszspace,precision+1 ,avgrqsz,avgrqszspace,precision+1, avgqsz,precision+5,precision, t_await,awaitspace,precision,\
                             r_await,awaitspace,precision, w_await,utilspace,precision, util))
 
                 if IostatOptions.Gflag and not badcounters:
@@ -282,7 +282,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
                     aggr_wkb = aggregate(aggr, aggr_wkb, wkb)
                     aggr_avgrqsz = aggregate(aggr, aggr_avgrqsz, avgrqsz)
                     aggr_avgqsz = aggregate(aggr, aggr_avgqsz, avgqsz)
-                    aggr_await = aggregate(aggr, aggr_await, await)
+                    aggr_await = aggregate(aggr, aggr_await, t_await)
                     aggr_r_await = aggregate(aggr, aggr_r_await, r_await)
                     aggr_w_await = aggregate(aggr, aggr_w_await, w_await)
                     aggr_util = aggregate(aggr, aggr_util, util)

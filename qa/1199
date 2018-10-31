@@ -25,7 +25,7 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
-_service pmcd restart | _filter_pcp_start
+_service pmcd restart 2>&1 | _filter_pcp_start
 pminfo -v sample >/dev/null
 
 # real QA test starts here
@@ -52,9 +52,15 @@ pmprobe -v pmcd.datasize | tee -a $here/$seq.full >$tmp.tmp
 end=`cat $tmp.tmp | awk '{print $3}'`
 echo "end=$start" >>$here/$seq.full
 
-if [ "$start" != "$end" ]
+# we have to be a little tolerant here ... there are a number of
+# deferred initializations that might not have been done at the time
+# of the first pmprobe, so allow a 128K (32 pages most likely) slop.
+#
+# The real leaks this test is designed for should exceed this easily.
+#
+if [ "$end" -gt "`expr $start + 128`" ]
 then
-    echo "Arrgh ... pmcd memory leak from $start to $end during test"
+    echo "Arrgh ... pmcd memory leak (>128Kbytes) from $start to $end during test"
 fi
 
 # success, all done

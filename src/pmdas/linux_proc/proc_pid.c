@@ -417,7 +417,7 @@ hotproc_eval_procs(void)
     process_t *oldnode = NULL;      
     process_t *newnode = NULL;      
     int np = 0;                    
-    struct timeval p_timestamp;   
+    struct timeval p_timestamp = {0};   
     config_vars vars;
     proc_pid_entry_t    *statentry;
     proc_pid_entry_t    *statusentry;
@@ -1107,26 +1107,29 @@ proc_open(const char *base, proc_pid_entry_t *ep)
     char buf[128];
 
     if (procpids.threads) {
-	pmsprintf(buf, sizeof(buf), "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
-	if ((fd = open(buf, O_RDONLY)) >= 0) {
+	pmsprintf(buf, sizeof(buf), "%s/proc/%d/task/%d/%s",
+			proc_statspath, ep->id, ep->id, base);
+	fd = open(buf, O_RDONLY);
+	if (fd < 0) {
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
+		char ebuf[1024];
+		fprintf(stderr, "proc_open: open(\"%s\", O_RDONLY) failed: %s\n",
+			    buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
+	    }
+	    /* fallback to /proc path if task path open fails */
+	} else {
 	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
 		fprintf(stderr, "proc_open: thread: %s -> fd=%d\n", buf, fd);
 	    return fd;
 	}
-	else {
-	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
-		char ebuf[1024];
-		fprintf(stderr, "proc_open: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
-	    }
-	}
-	/* fallback to /proc path if task path open fails */
     }
     pmsprintf(buf, sizeof(buf), "%s/proc/%d/%s", proc_statspath, ep->id, base);
-    fd =  open(buf, O_RDONLY);
+    fd = open(buf, O_RDONLY);
     if (fd < 0) {
 	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ebuf[1024];
-	    fprintf(stderr, "proc_open: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
+	    fprintf(stderr, "proc_open: open(\"%s\", O_RDONLY) failed: %s\n",
+			    buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	}
     }
     if (pmDebugOptions.libpmda && pmDebugOptions.desperate)
@@ -1236,10 +1239,10 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 	    ep->stat_buf[0] = '\0';
 	if ((fd = proc_open("stat", ep)) < 0)
 	    *sts = maperr();
-	else
+	else {
 	    *sts = read_proc_entry(fd, &ep->stat_buflen, &ep->stat_buf);
-	if (fd >= 0)
 	    close(fd);
+	}
 	ep->flags |= PROC_PID_FLAG_STAT_FETCHED;
     }
 
@@ -1248,10 +1251,10 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 	    ep->wchan_buf[0] = '\0';
 	if ((fd = proc_open("wchan", ep)) < 0)
 	    ; /* ignore failure here, backwards compat */
-	else
+	else {
 	    *sts = read_proc_entry(fd, &ep->wchan_buflen, &ep->wchan_buf);
-	if (fd >= 0)
 	    close(fd);
+	}
 	ep->flags |= PROC_PID_FLAG_WCHAN_FETCHED;
     }
 
@@ -1260,6 +1263,7 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 	    ep->environ_buf[0] = '\0';
 	if ((fd = proc_open("environ", ep)) >= 0) {
 	    *sts = read_proc_entry(fd, &ep->environ_buflen, &ep->environ_buf);
+	    close(fd);
 	    if (*sts == 0) {
 		/* Replace nulls with spaces */
 		if (ep->environ_buf) {
@@ -1278,7 +1282,6 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 		ep->environ_buflen = 0;
 		*sts = 0; /* clear -ENODATA */
 	    }
-	    close(fd);
 	}
 	else {
 	    /*
@@ -1341,8 +1344,10 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 	    ep->status_buf[0] = '\0';
 	if ((fd = proc_open("status", ep)) < 0)
 	    *sts = maperr();
-	else
+	else {
 	    *sts = read_proc_entry(fd, &ep->status_buflen, &ep->status_buf);
+	    close(fd);
+	}
 
 	if (*sts == 0) {
 	    /* assign pointers to individual lines in buffer */
@@ -1508,8 +1513,6 @@ nomatch:
 	    }
 	    ep->flags |= PROC_PID_FLAG_STATUS_FETCHED;
 	}
-	if (fd >= 0)
-	    close(fd);
     }
 
     return (*sts < 0) ? NULL : ep;
@@ -1535,10 +1538,10 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid, int *sts)
 	    ep->statm_buf[0] = '\0';
 	if ((fd = proc_open("statm", ep)) < 0)
 	    *sts = maperr();
-	else
+	else {
 	    *sts = read_proc_entry(fd, &ep->statm_buflen, &ep->statm_buf);
-	if (fd >= 0)
 	    close(fd);
+	}
 	ep->flags |= PROC_PID_FLAG_STATM_FETCHED;
     }
 
@@ -1569,6 +1572,8 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid, int *sts)
 	    *sts = maperr();
 	else {
 	    *sts = read_proc_entry(fd, &ep->maps_buflen, &ep->maps_buf);
+	    close(fd);
+
 	    /* If there are no maps, make maps_buf a zero length string. */
 	    if (ep->maps_buflen == 0) {
 		ep->maps_buflen = 1;
@@ -1582,8 +1587,6 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid, int *sts)
 		ep->maps_buflen = 0;
 	}
 
-	if (fd >= 0)
-	    close(fd);
 	ep->flags |= PROC_PID_FLAG_MAPS_FETCHED;
     }
 
@@ -1610,10 +1613,10 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid, int *sts)
 	    ep->schedstat_buf[0] = '\0';
 	if ((fd = proc_open("schedstat", ep)) < 0)
 	    *sts = maperr();
-	else
+	else {
 	    *sts = read_proc_entry(fd, &ep->schedstat_buflen, &ep->schedstat_buf);
-	if (fd >= 0)
 	    close(fd);
+	}
 	ep->flags |= PROC_PID_FLAG_SCHEDSTAT_FETCHED;
     }
 
@@ -1647,8 +1650,10 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 	    ep->io_buf[0] = '\0';
 	if ((fd = proc_open("io", ep)) < 0)
 	    *sts = maperr();
-	else
+	else {
 	    *sts = read_proc_entry(fd, &ep->io_buflen, &ep->io_buf);
+	    close(fd);
+	}
 
 	if (*sts == 0) {
 	    /* assign pointers to individual lines in buffer */
@@ -1692,8 +1697,6 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 	    }
 	    ep->flags |= PROC_PID_FLAG_IO_FETCHED;
 	}
-	if (fd >= 0)
-	    close(fd);
     }
 
     return (*sts < 0) ? NULL : ep;
@@ -1903,7 +1906,7 @@ _pm_getfield(char *buf, int field)
 {
     static int	retbuflen = 0;
     static char	*retbuf = NULL;
-    char	*p;
+    char	*p, *rp;
     int		i;
 
     if (buf == NULL)
@@ -1932,8 +1935,10 @@ _pm_getfield(char *buf, int field)
     }
 
     if (i >= retbuflen) {
+	if ((rp = (char *)realloc(retbuf, i + 4)) == NULL)
+	    return NULL;
+	retbuf = rp;
 	retbuflen = i+4;
-	retbuf = (char *)realloc(retbuf, retbuflen);
     }
     memcpy(retbuf, p, i);
     retbuf[i] = '\0';

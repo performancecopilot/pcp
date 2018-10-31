@@ -85,11 +85,11 @@ for args in myname.suba.subb.subc.subd.six myname.suba.subb myname \
     myname.one.bad myname.suba.subb.subc.bad
 do
     echo | tee -a $seq.full
-    echo "=== -h localhost $args ===" | tee -a $seq.full
-    pminfo -h localhost -c $tmp.config $args >$tmp.out 2>&1
+    echo "=== -h local: $args ===" | tee -a $seq.full
+    pminfo -h local: -c $tmp.config $args >$tmp.out 2>&1
     _filter
-    echo "=== -h localhost -f $args ===" | tee -a $seq.full
-    pminfo -h localhost -c $tmp.config -f $args >$tmp.out 2>&1
+    echo "=== -h local: -f $args ===" | tee -a $seq.full
+    pminfo -h local: -c $tmp.config -f $args >$tmp.out 2>&1
     _filter
 done
 
@@ -200,8 +200,8 @@ sample.long.foo.bar.derived = sample.long.one
 End-of-File
 cat $tmp.config
 export PCP_DERIVED_CONFIG=$tmp.config
-#debug# src/torture_pmns -Dall -h localhost derived.tree >$tmp.out 2>&1
-src/torture_pmns -Dderive,appl1,appl2 -h localhost derived.tree >$tmp.out 2>&1
+#debug# src/torture_pmns -Dall -h local: derived.tree >$tmp.out 2>&1
+src/torture_pmns -Dderive,appl1,appl2 -h local: derived.tree >$tmp.out 2>&1
 _filter | _filter2
 
 # success, all done

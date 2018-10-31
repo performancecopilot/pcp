@@ -29,7 +29,6 @@
 [\fB\-\-container\fP \fIcontainer\fP]
 [\fB\-\-daemonize\fP]
 [\fB\-e\fP \fIderived\fP]
-[\fB\-E\fP \fIpassword\fP]
 [\fB\-g\fP \fIserver\fP]
 [\fB\-h\fP \fIhost\fP]
 [\fB\-i\fP \fIinstances\fP]
@@ -44,9 +43,6 @@
 [\fB\-S\fP \fIstarttime\fP]
 [\fB\-t\fP \fIinterval\fP]
 [\fB\-T\fP \fIendtime\fP]
-[\fB\-U\fP \fIusername\fP]
-[\fB\-x\fP \fIdatabase\fP]
-[\fB\-X\fP \fItags\fP]
 [\fB\-y\fP|\fB\-Y\fP \fItime-scale\fP]
 \fImetricspec\fP
 \fI[...]\fP
@@ -57,6 +53,14 @@ Apache Spark.
 Any available performance metric, live or archived, system and/or
 application, can be selected for exporting using either command line
 arguments or a configuration file.
+.PP
+.B pcp2spark
+acts as a bridge which provides a network socket stream on a given
+address/port which an Apache Spark worker task can connect to
+and pull the configured PCP metrics from
+.B pcp2spark
+exporting them using the streaming extensions of the Apache Spark
+API.
 .PP
 .B pcp2spark
 is a close relative of
@@ -92,6 +96,38 @@ Configuration file options override the corresponding
 environment variables (if any).
 Command line options override the corresponding configuration
 file options (if any).
+.SH GENERAL USAGE
+A general setup for making use of
+.B pcp2spark
+would involve the user configuring
+.B pcp2spark
+for the PCP metrics to export followed by starting the
+.B pcp2spark
+application. The
+.B pcp2spark
+application will then wait and listen on the given address/port for a
+connection from an Apache Spark worker thread to be started.
+The worker thread will then connect to
+.B pcp2spark.
+.PP
+When an Apache Spark worker thread has connected
+.B pcp2spark
+will begin streaming PCP metric data to Apache Spark until the worker
+thread completes or the connection is interrupted.
+If the connectionis interrupted or the socket is closed from the Apache
+Spark worker thread
+.B pcp2spark
+will exit.
+.PP
+For an example Apache Spark worker job which will connect to an
+.B pcp2spark
+instance on a given address/port and pull in PCP metric data please
+see the example provided in the PCP examples directory for
+.B pcp2spark
+(often provided by the PCP development package) or the online version
+at
+.UR https://github.com/performancecopilot/pcp/blob/master/src/pcp2spark/
+.UE .
 .SH CONFIGURATION FILE
 .B pcp2spark
 uses a configuration file with overall syntax described in
@@ -134,14 +170,18 @@ compatibility.
 .PP
 spark_server (string)
 .RS 4
-Specify the address of the local server to host the metrics.
+Specify the address on which
+.B pcp2spark
+will listen for connections from an Apache Spark worker thread.
 Corresponding command line option is \fB\-g\fP.
 Default is \fB127.0.0.1\fP.
 .RE
 .PP
 spark_port (integer)
 .RS 4
-Specify the port to run the local server on.
+Specify the port to run
+.B pcp2spark
+on.
 Corresponding command line option is \fB\-p\fP.
 Default is \fB44325\fP.
 .RE
@@ -248,6 +288,11 @@ For details see
 .BR pmLoadDerivedConfig (3)
 and
 .BR pmRegisterDerived (3).
+.TP
+\fB\-g\fR \fIserver\fR, \fB\-\-spark\-server\fR=\fIserver\fR
+Spark
+.I server
+to send the metrics to.
 .TP
 \fB\-G\fR, \fB\-\-no\-globals\fR
 Do not include global metrics in reporting (see
@@ -380,6 +425,10 @@ Refer to
 for a complete description of the syntax for
 .IR origin .
 .TP
+\fB\-p\fR \fIport\fR, \fB\-\-spark\-port\fR=\fIport\fR
+Spark server
+.IR port .
+.TP
 \fB\-P\fR \fIprecision\fR, \fB\-\-precision\fR=\fIprecision\fR
 Use
 .I precision
@@ -504,11 +553,6 @@ and
 \fB\-V\fR, \fB\-\-version\fR
 Display version number and exit.
 .TP
-\fB\-X\fR \fItags\fR, \fB\-\-db\-tags\fR=\fItags\fR
-Specify strings of
-.I tags
-to add to the metrics.
-.TP
 \fB\-y\fR \fIscale\fR, \fB\-\-time\-scale\fR=\fIscale\fR
 .I Unit/scale
 for time metrics, possible values include
@@ -551,6 +595,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pcp (1),
 .BR pcp2elasticsearch (1),
 .BR pcp2graphite (1),
+.BR pcp2influxdb (1),
 .BR pcp2json (1),
 .BR pcp2xlsx (1),
 .BR pcp2xml (1),

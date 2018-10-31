@@ -1,0 +1,152 @@
+#!/bin/sh
+# PCP QA Test No. 686
+# pmlogger_daily ... does culling happen if merging/rewrite fails?
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    tee -a $here/$seq.full \
+    | sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@$PCP_BINADM_DIR@PCP_BINADM_DIR@g" \
+	-e '/^.[rwx-][rwx-][rwx-]/s/.* 20/<ls output> 20/' \
+	-e "s/$TODAY/TODAY/g" \
+	-e "s/$YESTERDAY/YESTERDAY/g" \
+	-e '/Warning: skipping pmnewlog because we don/d' \
+	
+	# -e '/^+ date-and-timestamp/s/stamp .*/stamp .../' \
+	# -e '/^pmlogger_daily:.*\.control:[0-9]]$/d' \
+    # end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+TODAY=`pmdate %Y%m%d`
+YESTERDAY=`pmdate -1d %Y%m%d`
+# setup the log farm
+#
+cat <<End-of-File >$tmp.farm
+myhost		archives/ok-foo	20180524
+myhost		archives/ok-foo	20180525.00.10
+myhost		archives/ok-foo	20180525.20.30
+myhost		archives/ok-foo	20180526.00.10
+myhost		archives/ok-foo	20180526.20.30
+myhost		archives/ok-foo	$YESTERDAY.00.10
+myhost		archives/ok-foo	$YESTERDAY.12.10
+myhost		archives/ok-foo	$TODAY.00.10
+End-of-File
+
+_setup()
+{
+    cd $here
+    $sudo rm -rf $tmp/*
+    if ./mk.logfarm -c $tmp.farm $tmp >$tmp.out 2>&1
+    then
+	_filter <$tmp.out
+    else
+	cat $tmp.out
+	echo "Arrgh ... mk.logfarm failed!"
+	exit
+    fi
+    cd $tmp
+    find * \
+    | while read f
+    do
+	case "$f"
+	in
+	    */..)	;;
+	    *)		$sudo chown pcp:pcp "$f"
+	    		;;
+	esac
+    done
+}
+
+# create test control file
+#
+cat <<End-of-File >$tmp.control
+\$version=1.1
+#Host           P?  S?  directory       args
+localhost       n   n   $tmp/myhost    -c /no/such/config
+End-of-File
+
+mkdir $tmp
+cd $tmp
+
+# real QA test starts here
+export PCP_DERIVED_CONFIG=
+
+echo "=== merge fails because output archive already exists ==="
+_setup
+$sudo -u pcp touch -d "20180526 01:00:00" $tmp/myhost/20180526.meta
+echo "Before ..."
+ls $tmp/myhost | _filter | fmt -72
+echo
+$sudo rm -f $tmp.log
+$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 7 -x never -V -l $tmp.log >$tmp.err 2>&1
+_filter <$tmp.err
+_filter <$tmp.log
+echo
+echo "After ..."
+ls $tmp/myhost | _filter | fmt -72
+
+echo
+echo "=== merge fails because input archives are bad ==="
+_setup
+# truncated metadata, merge should fail
+for suff in 0 meta index
+do
+    $sudo -u pcp cp $here/badarchives/badmeta-2.$suff $tmp/myhost/20180526.10.20.$suff
+    $sudo touch -d "20180526 10:20:00" $tmp/myhost/20180526.10.20.$suff
+done
+echo "Before ..."
+ls $tmp/myhost | _filter | fmt -72
+echo
+$sudo rm -f $tmp.log
+$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 7 -x never -V -l $tmp.log >$tmp.err 2>&1
+_filter <$tmp.err
+_filter <$tmp.log
+echo
+echo "After ..."
+ls $tmp/myhost | _filter | fmt -72
+
+echo
+echo "=== logrewrite fails ==="
+_setup
+echo "metric 1.2.3 {" >$tmp.badrewrite
+$sudo -u pcp cp $tmp.badrewrite $tmp/myhost/pmlogrewrite
+echo "Before ..."
+ls $tmp/myhost | _filter | fmt -72
+echo
+$sudo rm -f $tmp.log
+$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 7 -x never -V -l $tmp.log >$tmp.err 2>&1
+_filter <$tmp.err
+_filter <$tmp.log
+echo
+echo "After ..."
+ls $tmp/myhost | _filter | fmt -72
+
+# success, all done
+status=0
+exit

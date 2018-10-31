@@ -960,33 +960,11 @@ main(int argc, char *argv[])
      */
     __pmServerSetLocalSocket(sockpath);
 
-    /* Set the service spec. This will cause our service to be advertised on
-     * the network if that is supported.
-     */
+    /* Advertise the service on the network if that is supported */
     __pmServerSetServiceSpec(PM_SERVER_SERVICE_SPEC);
 
-    if (run_daemon) {
-#ifdef IS_MINGW
-	/*
-	 * no exec() here, so __pmServerStart() is going to launch
-	 * me again, so need -f added to argv to prevent infinite
-	 * loop.
-	 */
-	char	**nargv = (char **)malloc((argc+1)*sizeof(char *));
-	int	nargc;
-	if (nargv == NULL) {
-	    pmNoMem("__pmServerStart setup", (int)((argc+1)*sizeof(char *)), PM_FATAL_ERR);
-	    /*NOTREACHED*/
-	}
-	for (nargc = 0; nargc < argc; nargc++)
-	    nargv[nargc] = argv[nargc];
-	nargv[nargc] = "-f";
-	__pmServerStart(nargc+1, nargv, 1);
-	exit(0);
-#else
+    if (run_daemon)
 	__pmServerStart(argc, argv, 1);
-#endif
-    }
     pmcd_pid = getpid();
 
 #ifdef HAVE_SA_SIGINFO
@@ -1023,11 +1001,14 @@ main(int argc, char *argv[])
     assert(sts >= 0);
 
     if (env_warn & ENV_WARN_PORT)
-	fprintf(stderr, "Warning: nports=%d from PMCD_PORT=%s in environment\n", nport, getenv("PMCD_PORT"));
+	fprintf(stderr, "%s: nports=%d from PMCD_PORT=%s in environment\n",
+			"Warning", nport, getenv("PMCD_PORT"));
     if (env_warn & ENV_WARN_LOCAL)
-	fprintf(stderr, "Warning: localhost only from PMCD_LOCAL=%s in environment\n", getenv("PMCD_LOCAL"));
+	fprintf(stderr, "%s: localhost only from PMCD_LOCAL=%s in environment\n",
+			"Warning", getenv("PMCD_LOCAL"));
     if (env_warn & ENV_WARN_MAXPENDING)
-	fprintf(stderr, "Warning: maxpending=%d from PMCD_MAXPENDING=%s from environment\n", maxpending, getenv("PMCD_MAXPENDING"));
+	fprintf(stderr, "%s: maxpending=%d from PMCD_MAXPENDING=%s in environment\n",
+			"Warning", maxpending, getenv("PMCD_MAXPENDING"));
 
     sts = pmLoadASCIINameSpace(pmnsfile, dupok);
     if (sts < 0) {

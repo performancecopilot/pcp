@@ -25,6 +25,7 @@ dorpm=unknown
 dodeb=unknown
 webapps=false
 docker=false
+check=false
 
 if [ ! -d .git ]
 then
@@ -52,7 +53,7 @@ target=`uname -s | tr 'A-Z' 'a-z'`
 # Apple $gnutool
 # or these lines:
 # *This* tar defaults to:
-# --format=gnu ...
+# --format=gnu ... or --format=posix
 #
 gnu_tool()
 {
@@ -82,7 +83,7 @@ gnu_tool()
 BEGIN				{ want = 0 }
 /This\** tar defaults to:/	{ want=1; next }
 want == 1			{ print; exit }'
-		if grep '[-][-]format=gnu' <$tmp.check >/dev/null
+		if egrep '[-][-]format=(gnu)|(posix)' <$tmp.check >/dev/null
 		then
 		    echo $exec
 		    return 0
@@ -136,6 +137,10 @@ do
 	;;
     -verbose|--verbose)
 	verbose=true
+	shift
+	;;
+    --check)
+	check=true
 	shift
 	;;
     --nonrpm)
@@ -250,13 +255,20 @@ then
 elif [ $target = freebsd ]
 then
     # Python build does not work on FreeBSD 9.3, so skip it
+    # For FreeBSD 10.4 it seems to fail when trying to build Python and
+    # Python3 at the same time ... so skip Python(2)
     #
     case `uname -r`
     in
 	9.3*)
-		# Bog-standard, just without python
+		# Bog-standard, just without python and without python3
 		#
 		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no --with-python3=no"
+		;;
+	10.4*)
+		# Bog-standard, just without python2
+		#
+		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no"
 		;;
 	*)
 		# Bog-standard, as below ...
@@ -589,6 +601,7 @@ debian_build()
     prepare_debian_control
     sanity_check_settings
     debian_buildpackage
+    check_pcp
 
     # success!
     if ! $verbose ; then
@@ -644,6 +657,22 @@ configure_pcp()
     fi
     [ -f $tmp/failed ] && build_failure Configure
     $cfgonly && exit 0
+}
+
+check_pcp()
+{
+    $check || return 0
+
+    echo
+    echo "== Checking pcp, log is in $LOGDIR/pcp" | tee -a "$LOGDIR/pcp"
+
+    rm -f $tmp/failed
+    if $verbose ; then
+	($MAKE check 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
+    else
+	($MAKE check 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
+    fi
+    [ -f $tmp/failed ] && build_failure Checking
 }
 
 default_build()
@@ -762,6 +791,8 @@ if $docker
 then
     packaging_docker
 fi
+
+check_pcp		# static checking (should be last).
 
 # success!
 if ! $verbose ; then

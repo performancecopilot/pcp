@@ -246,7 +246,7 @@ class PMReporter(object):
             return 1
         return 0
 
-    def option(self, opt, optarg, index):
+    def option(self, opt, optarg, _index):
         """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
@@ -391,11 +391,11 @@ class PMReporter(object):
                 sys.stderr.write("Output directory %s not accessible.\n" % outdir)
                 sys.exit(1)
 
-        # Metric text label width can be ignored
+        # Set default width when needed
         if self.separate_header and not self.width:
             self.width = 8
 
-        # Adjustments and checks for for overall rankings
+        # Adjustments and checks for overall rankings
         if not self.rank and (self.overall_rank or self.overall_rank_alt):
             sys.stderr.write("Overall ranking requires ranking enabled.\n")
             sys.exit(1)
@@ -506,7 +506,7 @@ class PMReporter(object):
 
     def report(self, tstamp):
         """ Report metric values """
-        if tstamp != None:
+        if tstamp is not None:
             tstamp = tstamp.strftime(self.timefmt)
 
         if self.overall_rank:
@@ -677,7 +677,7 @@ class PMReporter(object):
             if not self.interpol and self.opts.pmGetOptionSamples():
                 samples = str(samples) + " (requested)"
             elif not self.interpol:
-                samples = "N/A" # pylint: disable=redefined-variable-type
+                samples = "N/A"
 
         comm = "#" if self.output == OUTPUT_CSV else ""
         self.writer.write(comm + "\n")
@@ -725,10 +725,12 @@ class PMReporter(object):
             line += metric
             if self.pmconfig.insts[i][0][0] != PM_IN_NULL and name:
                 line += "[\"" + name + "\"]"
-            if self.metrics[metric][2][0]:
-                line += " - " + self.metrics[metric][2][0] + "\n"
-            else:
-                line += " - none\n"
+            if self.unitinfo:
+                if self.metrics[metric][2][0]:
+                    line += " - " + self.metrics[metric][2][0]
+                else:
+                    line += " - none"
+            line += "\n"
             self.writer.write(line.format(str(k)))
 
         k = 0
@@ -781,7 +783,6 @@ class PMReporter(object):
             if self.context.type != PM_CONTEXT_ARCHIVE:
                 self.writer.write(" (Ctrl-C to stop)")
             self.writer.write("\n")
-        return
 
     def write_header_csv(self, results=()):
         """ Write info header for CSV output """
@@ -896,9 +897,9 @@ class PMReporter(object):
                     def lookup_inst_index(mres, instance):
                         """ Helper to lookup instance index """
                         index = -1
-                        for inst, _, _ in mres:
+                        for ins, _, _ in mres:
                             index += 1
-                            if inst == instance:
+                            if ins == instance:
                                 return index
                         return -1
                     index = lookup_inst_index(self.prev_res[metric], inst)
@@ -922,7 +923,7 @@ class PMReporter(object):
         """ Update dynamic header as needed """
         if self.rank:
             for metric in results:
-                for i in results[metric]:
+                for _ in results[metric]:
                     results[metric] = sorted(results[metric], key=lambda x: x[0])
         insts = [i[0] for metric in results for i in results[metric]]
         if insts and (self.repeat_header == self.lines or insts != self.prev_insts):
@@ -1037,7 +1038,7 @@ class PMReporter(object):
                 value = pmconfig.TRUNC
             elif s + 2 > width:
                 fmt[k] = "{X:" + str(width) + "d}"
-                value = int(value) # pylint: disable=redefined-variable-type
+                value = int(value)
             else:
                 c = precision
                 for _ in reversed(range(c+1)):
@@ -1280,11 +1281,11 @@ class PMReporter(object):
                 continue
             rank = abs(self.rank) if self.pmconfig.descs[i].contents.indom != PM_IN_NULL else 1
             c, r, t = (0, [], [])
-            for i in sorted(results[metric] + self.all_ranked[metric], key=lambda value: value[2], reverse=revs):
-                if i[0] not in t and c < rank:
+            for j in sorted(results[metric] + self.all_ranked[metric], key=lambda value: value[2], reverse=revs):
+                if j[0] not in t and c < rank:
                     c += 1
-                    r.append(i)
-                    t.append(i[0])
+                    r.append(j)
+                    t.append(j[0])
             self.all_ranked[metric] = r
 
     def finalize(self):

@@ -11,6 +11,12 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
+_bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
+
+# sch_netem is part of optional kernel-modules-extra on Fedora
+$sudo modprobe sch_netem
+lsmod | grep sch_netem >/dev/null 2>&1 \
+  || _notrun "sch_netem kernel module not available"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 
 target_ip=1.1.1.1

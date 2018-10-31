@@ -31,8 +31,9 @@ cleanup()
 	$signal -s TERM $pmcd
 	sleep 1
 	unset PMCD_SOCKET
+	_filter_pcp_start <$tmp.err
         echo "Restart and ping pmcd ..."
-        _service pcp restart | _filter_pcp_start
+        _service pcp restart 2>&1 | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -68,7 +69,7 @@ _service pcp stop | _filter_pcp_stop
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 #
 export PMCD_SOCKET=$tmp/pmcd.socket
-$PCP_PMCD_PROG -f -n $pmns -l $seq.full &
+$PCP_PMCD_PROG -f -n $pmns -l $seq.full 2>$tmp.err &
 pmcd=$!
 _wait_for_pmcd
 

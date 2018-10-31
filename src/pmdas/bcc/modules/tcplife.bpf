@@ -89,7 +89,7 @@ TRACEPOINT_PROBE(sock, inet_sock_set_state)
     // record PID & comm on SYN_SENT
     if (args->newstate == TCP_SYN_SENT || args->newstate == TCP_LAST_ACK) {
         // now we can PID filter, both here and a little later on for CLOSE
-        //FILTER_PID
+        FILTER_PID
         struct id_t me = {.pid = pid};
         bpf_get_current_comm(&me.task, sizeof(me.task));
         whoami.update(&sk, &me);
@@ -113,7 +113,7 @@ TRACEPOINT_PROBE(sock, inet_sock_set_state)
     mep = whoami.lookup(&sk);
     if (mep != 0)
         pid = mep->pid;
-    //FILTER_PID
+    FILTER_PID
 
     // get throughput stats. see tcp_get_info().
     u64 rx_b = 0, tx_b = 0, sport = 0;

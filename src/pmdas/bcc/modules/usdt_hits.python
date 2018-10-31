@@ -13,7 +13,7 @@
 #
 """ PCP BCC PMDA USDT hits module """
 
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, too-many-instance-attributes
 
 from ctypes import c_int
 from os import path
@@ -55,28 +55,24 @@ units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
 #
 class PCPBCCModule(PCPBCCBase):
     """ PCP BCC USDT hits module """
-    def __init__(self, config, log, err):
+    def __init__(self, config, log, err, proc_refresh):
         """ Constructor """
         PCPBCCBase.__init__(self, MODULE, config, log, err)
 
-        self.cache = {}
         self.pid = None
+        self.proc_filter = None
+        self.proc_refresh = proc_refresh
+
+        self.cache = None
         self.usdts = []
+        self.usdt_contexts = []
 
         for opt in self.config.options(MODULE):
             if opt == 'process':
-                procs = self.get_proc_info(self.config.get(MODULE, opt))
-                if len(procs) > 1:
-                    self.log("Several PIDs found, using the first one.")
-                if procs:
-                    self.log("Using PID %s (%s %s)." % (str(procs[0][0]), procs[0][1], procs[0][2]))
-                    self.pid = procs[0][0]
+                self.proc_filter = self.config.get(MODULE, opt)
+                self.update_pids(self.get_proc_info(self.proc_filter))
             if opt == 'usdts':
                 self.usdts = self.read_probe_conf(self.config.get(MODULE, opt))
-
-        if self.pid is None:
-            # https://github.com/iovisor/bcc/issues/1774
-            self.err("No process to attach found/set, will not activate!")
 
         self.log("Configured USDTs: " + str(self.usdts))
 
@@ -92,7 +88,13 @@ class PCPBCCModule(PCPBCCBase):
                     self.insts[lib + "::" + pn] = c_int(1)
         self.usdts = found
 
+        if not self.usdts:
+            raise RuntimeError("No matching USDTs found.")
         self.log("Found %s USDTs: %s." % (str(len(self.usdts)), str(self.usdts)))
+
+        if not self.proc_filter:
+            # https://github.com/iovisor/bcc/issues/1774
+            raise RuntimeError("Process filter is mandatory.")
 
         self.log("Initialized.")
 
@@ -111,17 +113,31 @@ class PCPBCCModule(PCPBCCBase):
         key = key.replace(":", "__").replace("/", "_").replace("-", "_")
         return key.replace(".", "_").replace(",", "_").replace(";", "_")
 
+    def reset_cache(self):
+        """ Reset internal cache """
+        self.cache = {}
+
+    def undef_cache(self):
+        """ Undefine internal cache """
+        self.cache = None
+
     def compile(self):
         """ Compile BPF """
         try:
-            if not self.usdts:
-                raise RuntimeError("No USDTs enabled.")
-            if self.pid is None:
+            if not self.pid and self.proc_filter and not self.proc_refresh:
                 # https://github.com/iovisor/bcc/issues/1774
-                raise RuntimeError("No PID found/set.")
-            with open(path.dirname(__file__) + '/../' + bpf_src) as src:
-                bpf_text = src.read()
-            usdt_contexts = []
+                raise RuntimeError("No process to attach found.")
+
+            if not self.bpf_text:
+                with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                    self.bpf_text = src.read()
+
+            if not self.pid and self.proc_filter and self.proc_refresh:
+                self.log("No process to attach found, activation postponed.")
+                return
+
+            self.usdt_contexts = []
+            bpf_text = self.bpf_text
             if self.pid:
                 u = USDT(pid=self.pid)
             for usdt in self.usdts:
@@ -134,21 +150,25 @@ class PCPBCCModule(PCPBCCBase):
                 else:
                     u = USDT(path=lib)
                     u.enable_probe(name, "trace_HASH_KEY".replace("HASH_KEY", hash_key))
-                    usdt_contexts.append(u)
+                    self.usdt_contexts.append(u)
                 if self.debug:
                     self.log("Generated function:\n%s" % probe)
                 bpf_text += probe
             if self.pid:
-                usdt_contexts.append(u)
+                self.usdt_contexts.append(u)
             bpf_text = bpf_text.replace("USDT_COUNT", str(len(self.usdts)))
+
             self.log("Compiling %s probes: %s" % (str(len(self.usdts)), str((self.usdts))))
+
             if self.debug:
-                self.log("BPF to be compiled:")
-                self.log("\n" + bpf_text)
-            self.bpf = BPF(text=bpf_text, usdt_contexts=usdt_contexts)
+                self.log("BPF to be compiled:\n" + bpf_text.strip())
+
+            self.reset_cache()
+            self.bpf = BPF(text=bpf_text, usdt_contexts=self.usdt_contexts)
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None
+            self.undef_cache()
             self.err(str(error))
             self.err("Module NOT active!")
             raise

@@ -474,7 +474,7 @@ _warning()
 _skipping()
 {
     echo "$prog: Warning: $@"
-    echo "[$filename:$line] ... skip log merging, culling and compressing for host \"$host\""
+    echo "[$filename:$line] ... skip log merging and compressing for host \"$host\""
     touch $tmp/skip
 }
 
@@ -1098,6 +1098,49 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
 	if ! $COMPRESSONLY
 	then
+	    # Cull any old archives.  
+	    #
+	    # We now do this first, so that if the archives are bad for
+	    # any reason we don't want failures to merge or rewrite to
+	    # prevent removing old files as this can lead to full
+	    # filesystems if left unattended.
+	    #
+	    if [ X"$CULLAFTER" != Xforever -a X"$CULLAFTER" != Xnever ]
+	    then
+		if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
+		then
+		    # *BSD semantics for find(1) -mtime +N are "rounded up to
+		    # the next full 24-hour period", compared to GNU/Linux
+		    # semantics "any fractional part is ignored".  So, these are
+		    # almost always off by one day in terms of the files selected.
+		    # For consistency, try to match the GNU/Linux semantics by
+		    # using one MORE day.
+		    #
+		    mtime=`expr $CULLAFTER + 1`
+		else
+		    mtime=$CULLAFTER
+		fi
+		find . -type f -mtime +$mtime \
+		| _filter_filename \
+		| sort >$tmp/list
+		if [ -s $tmp/list ]
+		then
+		    if $VERBOSE
+		    then
+			echo "Archive files older than $CULLAFTER days being removed ..."
+			fmt <$tmp/list | sed -e 's/^/    /'
+		    fi
+		    if $SHOWME
+		    then
+			cat $tmp/list | xargs echo + rm -f 
+		    else
+			cat $tmp/list | xargs rm -f
+		    fi
+		else
+		    $VERY_VERBOSE && echo "$prog: Warning: no archive files found to cull"
+		fi
+	    fi
+
 	    # Merge archive logs.
 	    #
 	    # Will work for new style YYYYMMDD.HH.MM[-NN] archives and old style
@@ -1198,6 +1241,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 				    fi
 				done
 			    fi
+			    [ -f $tmp/skip ] && break
 			    if $VERY_VERBOSE
 			    then
 				for arch in $inlist
@@ -1256,47 +1300,10 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 		# this is sufficiently serious that we don't want to remove
 		# the lock file, so problems are not compounded the next time
 		# the script is run
-		$VERY_VERBOSE && echo "Skip culling and compression ..."
+		$VERY_VERBOSE && echo "Skip compression ..."
 		continue
 	    fi
 
-	    # and cull old archives
-	    #
-	    if [ X"$CULLAFTER" != Xforever -a X"$CULLAFTER" != Xnever ]
-	    then
-		if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
-		then
-		    # *BSD semantics for find(1) -mtime +N are "rounded up to
-		    # the next full 24-hour period", compared to GNU/Linux
-		    # semantics "any fractional part is ignored".  So, these are
-		    # almost always off by one day in terms of the files selected.
-		    # For consistency, try to match the GNU/Linux semantics by
-		    # using one MORE day.
-		    #
-		    mtime=`expr $CULLAFTER + 1`
-		else
-		    mtime=$CULLAFTER
-		fi
-		find . -type f -mtime +$mtime \
-		| _filter_filename \
-		| sort >$tmp/list
-		if [ -s $tmp/list ]
-		then
-		    if $VERBOSE
-		    then
-			echo "Archive files older than $CULLAFTER days being removed ..."
-			fmt <$tmp/list | sed -e 's/^/    /'
-		    fi
-		    if $SHOWME
-		    then
-			cat $tmp/list | xargs echo + rm -f 
-		    else
-			cat $tmp/list | xargs rm -f
-		    fi
-		else
-		    $VERY_VERBOSE && echo "$prog: Warning: no archive files found to cull"
-		fi
-	    fi
 	fi
 
 	# and compress old archive data files

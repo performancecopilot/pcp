@@ -1,0 +1,111 @@
+#!/bin/sh
+# PCP QA Test No. 1455
+# Test that cluster labels can be created, deleted and rewritten
+# by pmlogrewrite(1)
+#
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tmpx=`echo $tmp`
+    sed -e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
+	-e "s|$tmpx|TMP|g" \
+	-e 's|PID for pmlogger: [0-9]*|PID for pmlogger: PID|'
+}
+
+# real QA test starts here
+DIR=archives
+
+# The test archive has no cluster labels, so create some. We will then work
+# with those new labels.
+CONFIG=$tmp.config
+cat > $CONFIG << EOF
+LABEL CLUSTER 60.0 { NEW "cluster_60_0_label" "cluster_60_0_value" }
+LABEL CLUSTER 60.7 { NEW "cluster_60_7_label" "cluster_60_7_value" }
+LABEL CLUSTER 60.14 { NEW "cluster_60_14_label" "cluster_60_14_value" }
+LABEL CLUSTER 60.15 { NEW "cluster_60_15_label" "cluster_60_15_value" }
+LABEL CLUSTER 60.28 { NEW "cluster_60_28_label" "cluster_60_28_value" }
+LABEL CLUSTER 60.68 { NEW "cluster_60_68_label" "cluster_60_68_value" }
+EOF
+echo contents of $CONFIG >> $seq.full
+echo ........................ >> $seq.full
+cat $CONFIG >> $seq.full
+echo ........................ >> $seq.full
+IN=$DIR/20180415.09.16
+OUT=$tmp.newlabels
+rm -f $OUT.*
+echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq.full
+pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq.full
+[ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
+
+# Now run pmdumplog against the original and rewritten archives.
+DUMP1=$tmp.original.txt
+echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq.full
+pmdumplog -zhide $IN 2>&1 > $DUMP1
+
+DUMP2=$tmp.rewritten.txt
+IN=$OUT
+echo "Running pmdumplog -iteh $IN" | _filter | tee -a $seq.full
+pmdumplog -zhide $IN 2>&1 > $DUMP2
+
+# Make sure the item labels have been deleted or reassociated
+echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
+diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
+
+# Now, run pmlogrewrite against the archive, deleting and reassociating some
+# item labels
+cat > $CONFIG << EOF
+LABEL CLUSTER 60.0 { } # does nothing
+LABEL CLUSTER 60.7 { DELETE }
+LABEL CLUSTER 60.14 { CLUSTER -> 60.23 } 
+LABEL CLUSTER 60.15 "cluster_60_15_label" { LABEL -> "new_label" }
+LABEL CLUSTER 60.28 * "cluster_60_28_value" { VALUE -> "new_value" }
+LABEL CLUSTER 60.68 * * { VALUE -> false }
+EOF
+echo contents of $CONFIG >> $seq.full
+echo ........................ >> $seq.full
+cat $CONFIG >> $seq.full
+echo ........................ >> $seq.full
+IN=$tmp.newlabels
+OUT=$tmp.pmlogrewrite
+rm -f $OUT.*
+echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq.full
+pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq.full
+[ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
+
+# Now run pmdumplog against the original and rewritten archives.
+DUMP1=$tmp.original.txt
+echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq.full
+pmdumplog -zhide $IN 2>&1 > $DUMP1
+
+DUMP2=$tmp.rewritten.txt
+IN=$OUT
+echo "Running pmdumplog -iteh $IN" | _filter | tee -a $seq.full
+pmdumplog -zhide $IN 2>&1 > $DUMP2
+
+# Make sure the item labels have been deleted or reassociated
+echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
+diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
+
+# success, all done
+status=0
+exit

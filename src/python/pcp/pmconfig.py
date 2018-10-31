@@ -101,9 +101,9 @@ class pmConfig(object):
         for arg in args:
             if arg in self.arghelp:
                 return None
-            if arg == '-c' or arg == '--config' or arg.startswith("-c"):
+            if arg in ('-c', '--config') or arg.startswith("-c"):
                 try:
-                    if arg == '-c' or arg == '--config':
+                    if arg in ('-c', '--config'):
                         config = next(args)
                     else:
                         config = arg.replace("-c", "", 1)
@@ -173,7 +173,11 @@ class pmConfig(object):
 
     def read_options(self):
         """ Read options from configuration file """
-        config = ConfigParser.SafeConfigParser()
+        # Python < 3.2 compat
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
+            config = ConfigParser.ConfigParser()
+        else:
+            config = ConfigParser.SafeConfigParser()
         config.optionxform = str
         if self.util.config:
             try:
@@ -275,7 +279,7 @@ class pmConfig(object):
             metrics[key][2] = insts
         else:
             # Verbose / multi-line definition
-            if not '.' in key or key.rsplit(".")[1] not in self.metricspec:
+            if '.' not in key or key.rsplit(".")[1] not in self.metricspec:
                 # New metric
                 self.parse_new_verbose_metric(metrics, key, value)
             else:
@@ -294,7 +298,11 @@ class pmConfig(object):
             raise pmapi.pmUsageErr()
 
         # Read config
-        config = ConfigParser.SafeConfigParser()
+        # Python < 3.2 compat
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
+            config = ConfigParser.ConfigParser()
+        else:
+            config = ConfigParser.SafeConfigParser()
         config.optionxform = str
         if self.util.config:
             try:

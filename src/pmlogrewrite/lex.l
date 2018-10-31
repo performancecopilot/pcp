@@ -63,6 +63,27 @@ dupstr(char *s, int strip_quotes)
     return p;
 }
 
+/* Same as dupstr(), except allow escaped characters. */
+static char *
+duptextstr(char *s, int strip_quotes)
+{
+    const char	*p;
+    char	*q;
+
+    s = dupstr(s, strip_quotes);
+    q = s;
+    for (p = s; *p != '\0'; ++p) {
+        if (p[0] == '\\' && p[1] != '\0')
+            ++p;
+        if (p != q)
+            *q = *p;
+        ++q;
+    }
+    *q = '\0';
+
+    return s;
+}
+
 %}
 
 %option noinput
@@ -112,8 +133,8 @@ dupstr(char *s, int strip_quotes)
 <text>"indom"		{ return TOK_INDOM; }
 <text>"oneline"		{ return TOK_ONELINE; }
 <text>"help"		{ return TOK_HELP; }
-<text>"all"		{ return TOK_ALL; }
 <text>"text"		{ return TOK_TEXT; }
+<text>\*		{ return TOK_TEXT_STAR; }
 
 <label>"context"	{ return TOK_CONTEXT; }
 <label>"domain"		{ return TOK_DOMAIN; }
@@ -121,6 +142,13 @@ dupstr(char *s, int strip_quotes)
 <label>"item"		{ return TOK_ITEM; }
 <label>"indom"		{ return TOK_INDOM; }
 <label>"instances"	{ return TOK_INSTANCES; }
+<label>"instance"	{ return TOK_INSTANCE; }
+<label>"new"		{ return TOK_NEW; }
+<label>"label"		{ return TOK_LABEL; }
+<label>"value"		{ return TOK_VALUE; }
+<label>"true"		{ yylval.str = dupstr(yytext, 0); return TOK_JSON_TRUE; }
+<label>"false"		{ yylval.str = dupstr(yytext, 0); return TOK_JSON_FALSE; }
+<label>"null"		{ yylval.str = dupstr(yytext, 0); return TOK_JSON_NULL; }
 <label>\*		{ return TOK_LABEL_STAR; }
 
 <type>"32"		{ yylval.ival = PM_TYPE_32; BEGIN(metric); return TOK_TYPE_NAME; }
@@ -192,7 +220,7 @@ dupstr(char *s, int strip_quotes)
 <count>[0-9]+		{ yylval.ival = atoi(yytext); BEGIN(metric); return TOK_COUNT_NAME; }
 
 \"[^\"\n][^\"\n]*\"	{ yylval.str = dupstr(yytext, 1); return TOK_STRING; }
-\"[^\"][^\"]*\"		{ yylval.str = dupstr(yytext, 1); return TOK_NL_STRING; }
+\"(\\\"|[^\"])+\"	{ yylval.str = duptextstr(yytext, 1); return TOK_TEXT_STRING; }
 
 [0-9]+			{ yylval.str = dupstr(yytext, 0); return TOK_NUMBER; }
 
@@ -204,6 +232,10 @@ dupstr(char *s, int strip_quotes)
 
 [0-9]+\.[0-9]+\.\*	{ yylval.str = dupstr(yytext, 0); return TOK_PMID_STAR; }
 [0-9]+\.\*\.\*		{ yylval.str = dupstr(yytext, 0); return TOK_PMID_STAR; }
+
+(0|[1-9][0-9]*)(\.[0-9]+)?([eE][\+-]?[0-9]+)? { yylval.str = dupstr(yytext, 0); return TOK_JSON_NUMBER; }
+
+\"(\\[\"\\/bfnrt]|\\u[A-Fa-f0-9][A-Fa-f0-9][A-Fa-f0-9][A-Fa-f0-9]|[^\"\\\n])*\"	{ yylval.str = dupstr(yytext, 0); return TOK_JSON_STRING; }
 
 	/*
 	 * Generic name, e.g. for identifier or metric or hostname

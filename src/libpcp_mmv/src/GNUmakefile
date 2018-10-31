@@ -72,3 +72,6 @@ $(LIBTARGET): $(VERSION_SCRIPT)
 endif
 
 mmv_stats.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check:: $(CFILES)
+	$(CLINT) $^

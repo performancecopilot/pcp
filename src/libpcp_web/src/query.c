@@ -17,23 +17,24 @@
 #include "util.h"
 #include "query.h"
 #include "schema.h"
-#include "series.h"
 #include "libpcp.h"
+#include "batons.h"
 #include "slots.h"
 #include "maps.h"
 
 #define SHA1SZ		20	/* internal sha1 hash buffer size in bytes */
-#define QUERY_PHASES	5
+#define QUERY_PHASES	6
 
 typedef struct seriesGetSID {
-    unsigned int	magic;		/* MAGIC_SID */
+    seriesBatonMagic	header;		/* MAGIC_SID */
     sds			name;		/* series or source SID */
     sds			metric;		/* back-pointer for instance series */
+    int			freed;		/* freed individually on completion */
     void		*baton;
 } seriesGetSID;
 
 typedef struct seriesGetLabelMap {
-    unsigned int	magic;		/* MAGIC_LABELMAP */
+    seriesBatonMagic	header;		/* MAGIC_LABELMAP */
     redisMap		*map;
     sds			series;
     sds			name;
@@ -55,11 +56,12 @@ typedef struct seriesGetQuery {
 } seriesGetQuery;
 
 typedef struct seriesQueryBaton {
-    unsigned int	magic;		/* MAGIC_QUERY */
+    seriesBatonMagic	header;		/* MAGIC_QUERY */
     seriesBatonPhase	*current;
     seriesBatonPhase	phases[QUERY_PHASES];
-    unsigned int	refcount;
-    pmSeriesSettings	*settings;
+    pmSeriesModule	*module;
+    pmSeriesCallBacks	*callbacks;
+    pmLogInfoCallBack	info;
     void		*userdata;
     redisSlots          *slots;
     int			error;
@@ -69,16 +71,148 @@ typedef struct seriesQueryBaton {
     } u;
 } seriesQueryBaton;
 
-#define queryfmt(msg, fmt, ...)		\
-	((msg) = sdscatprintf(sdsempty(), fmt, ##__VA_ARGS__))
-#define querymsg(p, level, msg)	\
-	((p)->settings->on_info(level, msg, (p)->userdata), sdsfree(msg))
-
-#define solvervalue(SP, sid, n, value)	\
-	((SP)->settings->on_value((sid), (n), (value), (SP)->arg))
-
 static int series_union(series_set_t *, series_set_t *);
 static int series_intersect(series_set_t *, series_set_t *);
+static void series_lookup_services(void *);
+static void series_lookup_mapping(void *);
+static void series_lookup_finished(void *);
+
+static void
+initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
+{
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "initSeriesGetQuery");
+    baton->u.query.root = *root;
+    baton->u.query.timing = *timing;
+}
+
+static void
+freeSeriesGetQuery(seriesQueryBaton *baton)
+{
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "freeSeriesGetQuery");
+    seriesBatonCheckCount(baton, "freeSeriesGetQuery");
+    memset(baton, 0, sizeof(seriesQueryBaton));
+    free(baton);
+}
+
+static void
+initSeriesGetLabelMap(seriesGetLabelMap *value, sds series, sds name,
+		redisMap *map, sds mapID, sds mapKey, void *baton)
+{
+    initSeriesBatonMagic(value, MAGIC_LABELMAP);
+    value->map = map;
+    value->series = sdsdup(series);
+    value->name = sdsdup(name);
+    value->mapID = sdsdup(mapID);
+    value->mapKey = sdsdup(mapKey);
+    value->baton = baton;
+}
+
+static void
+freeSeriesGetLabelMap(seriesGetLabelMap *value)
+{
+    seriesBatonCheckMagic(value, MAGIC_LABELMAP, "freeSeriesGetLabelMap");
+
+    redisMapRelease(value->map);
+    sdsfree(value->series);
+    sdsfree(value->name);
+    sdsfree(value->mapID);
+    sdsfree(value->mapKey);
+    memset(value, 0, sizeof(seriesGetLabelMap));
+}
+
+static void
+initSeriesGetSID(seriesGetSID *sid, const char *name, int needfree, void *baton)
+{
+    initSeriesBatonMagic(sid, MAGIC_SID);
+    sid->name = sdsnew(name);
+    sid->freed = needfree;
+    sid->baton = baton;
+}
+
+static void
+freeSeriesGetSID(seriesGetSID *sid)
+{
+    int		needfree;
+
+    seriesBatonCheckMagic(sid, MAGIC_SID, "freeSeriesGetSID");
+    sdsfree(sid->name);
+    needfree = sid->freed;
+    memset(sid, 0, sizeof(seriesGetSID));
+    if (needfree)
+	free(sid);
+}
+
+static void
+initSeriesQueryBaton(seriesQueryBaton *baton,
+		pmSeriesSettings *settings, void *userdata)
+{
+    initSeriesBatonMagic(baton, MAGIC_QUERY);
+    baton->callbacks = &settings->callbacks;
+    baton->info = settings->module.on_info;
+    baton->slots = settings->module.slots;
+    baton->module = &settings->module;
+    baton->userdata = userdata;
+}
+
+static void
+initSeriesGetLookup(seriesQueryBaton *baton, int nseries, pmSID *series,
+		pmSeriesStringCallBack func, redisMap *map)
+{
+    seriesGetSID	*sid;
+    unsigned int	i;
+
+    for (i = 0; i < nseries; i++) {
+	sid = &baton->u.lookup.series[i];
+	initSeriesGetSID(sid, series[i], 0, baton);
+    }
+    baton->u.lookup.nseries = nseries;
+    baton->u.lookup.func = func;
+    baton->u.lookup.map = map;
+}
+
+static void
+freeSeriesGetLookup(seriesQueryBaton *baton)
+{
+    seriesGetSID	*sid;
+    size_t		bytes;
+    unsigned int	i, nseries;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "freeSeriesGetLookup");
+    seriesBatonCheckCount(baton, "freeSeriesGetLookup");
+
+    nseries = baton->u.lookup.nseries;
+    for (i = 0; i < nseries; i++) {
+	sid = &baton->u.lookup.series[i];
+	sdsfree(sid->name);
+    }
+    bytes = sizeof(seriesQueryBaton) + (nseries * sizeof(seriesGetSID));
+    memset(baton, 0, bytes);
+    free(baton);
+}
+
+static void
+series_query_finished(void *arg)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+
+    baton->callbacks->on_done(baton->error, baton->userdata);
+    freeSeriesGetQuery(baton);
+}
+
+static void
+series_query_end_phase(void *arg)
+{
+    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_end_phase");
+
+    if (baton->error == 0) {
+	seriesPassBaton(&baton->current, baton, "series_query_end_phase");
+    } else {	/* fail after waiting on outstanding I/O */
+	if (seriesBatonDereference(baton, "series_query_end_phase"))
+	    series_query_finished(baton);
+    }
+}
 
 const char *
 series_instance_name(sds key)
@@ -169,9 +303,9 @@ extract_string(seriesQueryBaton *baton, pmSID series,
 	*string = sdscpylen(*string, reply->str, reply->len);
 	return 0;
     }
-    queryfmt(msg, "expected string result for %s of series %s (got %s)",
+    infofmt(msg, "expected string result for %s of series %s (got %s)",
 			message, series, redis_reply(reply->type));
-    querymsg(baton, PMLOG_RESPONSE, msg);
+    batoninfo(baton, PMLOG_RESPONSE, msg);
     return -EINVAL;
 }
 
@@ -180,19 +314,22 @@ extract_mapping(seriesQueryBaton *baton, pmSID series,
 		redisReply *reply, sds *string, const char *message)
 {
     redisMapEntry	*entry;
-    sds			msg;
+    sds			msg, key;
 
     if (reply->type == REDIS_REPLY_STRING) {
-	if ((entry = redisRMapLookup(baton->u.lookup.map, reply->str)) != NULL) {
-	    *string = redisRMapValue(entry);
+	key = sdsnewlen(reply->str, reply->len);
+	entry = redisMapLookup(baton->u.lookup.map, key);
+	sdsfree(key);
+	if (entry != NULL) {
+	    *string = redisMapValue(entry);
 	    return 0;
 	}
-	queryfmt(msg, "bad mapping for %s of series %s", message, series);
-	querymsg(baton, PMLOG_CORRUPT, msg);
+	infofmt(msg, "bad mapping for %s of series %s", message, series);
+	batoninfo(baton, PMLOG_CORRUPT, msg);
 	return -EINVAL;
     }
-    queryfmt(msg, "expected string for %s of series %s", message, series);
-    querymsg(baton, PMLOG_RESPONSE, msg);
+    infofmt(msg, "expected string for %s of series %s", message, series);
+    batoninfo(baton, PMLOG_RESPONSE, msg);
     return -EPROTO;
 }
 
@@ -201,22 +338,22 @@ extract_sha1(seriesQueryBaton *baton, pmSID series,
 		redisReply *reply, sds *sha, const char *message)
 {
     sds			msg;
-    char		*hash;
+    char		hashbuf[42];
 
     if (reply->type != REDIS_REPLY_STRING) {
-	queryfmt(msg, "expected string result for %s of series %s",
+	infofmt(msg, "expected string result for %s of series %s",
 			message, series);
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EINVAL;
     }
     if (reply->len != 20) {
-	queryfmt(msg, "expected sha1 for %s of series %s, got %ld bytes",
+	infofmt(msg, "expected sha1 for %s of series %s, got %ld bytes",
 			message, series, (long)reply->len);
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EINVAL;
     }
-    hash = pmwebapi_hash_str((unsigned char *)reply->str);
-    *sha = sdscpylen(*sha, hash, 40);
+    pmwebapi_hash_str((unsigned char *)reply->str, hashbuf, sizeof(hashbuf));
+    *sha = sdscpylen(*sha, hashbuf, 40);
     return 0;
 }
 
@@ -234,8 +371,8 @@ extract_time(seriesQueryBaton *baton, pmSID series,
 	*stamp = val;
 	return 0;
     }
-    queryfmt(msg, "expected string timestamp in series %s", series);
-    querymsg(baton, PMLOG_RESPONSE, msg);
+    infofmt(msg, "expected string timestamp in series %s", series);
+    batoninfo(baton, PMLOG_RESPONSE, msg);
     return -EPROTO;
 }
 
@@ -246,7 +383,7 @@ static int
 series_instance_reply(seriesQueryBaton *baton, sds series,
 	pmSeriesValue *value, int nelements, redisReply **elements)
 {
-    char		*hash;
+    char		hashbuf[42];
     sds			inst;
     int			i, sts = 0;
 
@@ -259,8 +396,8 @@ series_instance_reply(seriesQueryBaton *baton, sds series,
 	if (sdslen(inst) == 0) {	/* no InDom, use series */
 	    inst = sdscpylen(inst, series, 40);
 	} else if (sdslen(inst) == 20) {
-	    hash = pmwebapi_hash_str((const unsigned char *)inst);
-	    inst = sdscpylen(inst, hash, 40);
+	    pmwebapi_hash_str((const unsigned char *)inst, hashbuf, sizeof(hashbuf));
+	    inst = sdscpylen(inst, hashbuf, 40);
 	} else {
 	    /* TODO: propogate errors and mark records - separate callbacks? */
 	    continue;
@@ -270,7 +407,7 @@ series_instance_reply(seriesQueryBaton *baton, sds series,
 	if (extract_string(baton, series, elements[i+1], &value->data, "value") < 0)
 	    sts = -EPROTO;
 	else
-	    baton->settings->on_value(series, value, baton->userdata);
+	    baton->callbacks->on_value(series, value, baton->userdata);
     }
     return sts;
 }
@@ -285,8 +422,8 @@ series_result_reply(seriesQueryBaton *baton, sds series, pmSeriesValue *value,
 
     /* expecting timestamp:valueset pairs, then instance:value pairs */
     if (nelements % 2) {
-	queryfmt(msg, "expected time:valueset pairs in %s XRANGE", series);
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	infofmt(msg, "expected time:valueset pairs in %s XRANGE", series);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EPROTO;
     }
 
@@ -296,9 +433,9 @@ series_result_reply(seriesQueryBaton *baton, sds series, pmSeriesValue *value,
 				&value->timestamp)) < 0) {
 	    baton->error = sts;
 	} else if (reply->type != REDIS_REPLY_ARRAY) {
-	    queryfmt(msg, "expected value array for series %s %s (type=%s)",
+	    infofmt(msg, "expected value array for series %s %s (type=%s)",
 			series, XRANGE, redis_reply(reply->type));
-	    querymsg(baton, PMLOG_RESPONSE, msg);
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
 	    baton->error = -EPROTO;
 	} else if ((sts = series_instance_reply(baton, series, value,
 				reply->elements, reply->element)) < 0) {
@@ -316,8 +453,8 @@ series_values_reply(seriesQueryBaton *baton, sds series,
     redisReply		*reply;
     int			i, sts;
 
-    value.timestamp = sdsnewlen(NULL, 32);
-    value.series = sdsnewlen(NULL, 40);
+    value.timestamp = sdsempty();
+    value.series = sdsempty();
     value.data = sdsempty();
 
     for (i = 0; i < nelements; i++) {
@@ -344,6 +481,7 @@ node_series_reply(seriesQueryBaton *baton, node_t *np, int nelements, redisReply
     series_set_t	set;
     unsigned char	*series;
     redisReply		*reply;
+    char		hashbuf[42];
     sds			msg;
     int			i, sts = 0;
 
@@ -351,9 +489,9 @@ node_series_reply(seriesQueryBaton *baton, node_t *np, int nelements, redisReply
 	return nelements;
 
     if ((series = (unsigned char *)calloc(nelements, SHA1SZ)) == NULL) {
-	queryfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+	infofmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
 			"series reply", (__int64_t)nelements * SHA1SZ);
-	querymsg(baton, PMLOG_REQUEST, msg);
+	batoninfo(baton, PMLOG_REQUEST, msg);
 	return -ENOMEM;
     }
     set.series = series;
@@ -363,14 +501,16 @@ node_series_reply(seriesQueryBaton *baton, node_t *np, int nelements, redisReply
 	reply = elements[i];
 	if (reply->type == REDIS_REPLY_STRING) {
 	    memcpy(series, reply->str, SHA1SZ);
-	    if (pmDebugOptions.series)
-		printf("    %s\n", pmwebapi_hash_str(series));
+	    if (pmDebugOptions.series) {
+		pmwebapi_hash_str(series, hashbuf, sizeof(hashbuf));
+		printf("    %s\n", hashbuf);
+	    }
 	    series += SHA1SZ;
 	} else {
-	    queryfmt(msg, "expected string in %s set \"%s\" (type=%s)",
+	    infofmt(msg, "expected string in %s set \"%s\" (type=%s)",
 		    node_subtype(np->left), np->left->key,
 		    redis_reply(reply->type));
-	    querymsg(baton, PMLOG_REQUEST, msg);
+	    batoninfo(baton, PMLOG_REQUEST, msg);
 	    sts = -EPROTO;
 	}
     }
@@ -434,9 +574,13 @@ series_intersect(series_set_t *a, series_set_t *b)
     }
 
     if (pmDebugOptions.series) {
+	char		hashbuf[42];
+
 	printf("Intersect result set contains %d series:\n", total);
-	for (i = 0, cp = small; i < total; cp++, i++)
-	    printf("    %s\n", pmwebapi_hash_str(cp));
+	for (i = 0, cp = small; i < total; cp++, i++) {
+	    pmwebapi_hash_str(cp, hashbuf, sizeof(hashbuf));
+	    printf("    %s\n", hashbuf);
+	}
     }
 
     a->nseries = total;
@@ -502,9 +646,10 @@ series_union(series_set_t *a, series_set_t *b)
 
     if ((need = (saved - small) / SHA1SZ) > 0) {
 	/* grow the larger set to cater for new entries, then add 'em */
-	if ((large = realloc(large, (nlarge + need) * SHA1SZ)) == NULL)
+	if ((cp = realloc(large, (nlarge + need) * SHA1SZ)) == NULL)
 	    return -ENOMEM;
-	cp = large + (nlarge * SHA1SZ);
+	large = cp;
+	cp += (nlarge * SHA1SZ);
 	memcpy(cp, small, need * SHA1SZ);
 	total = nlarge + need;
     } else {
@@ -512,9 +657,13 @@ series_union(series_set_t *a, series_set_t *b)
     }
 
     if (pmDebugOptions.series) {
+	char		hashbuf[42];
+
 	printf("Union result set contains %d series:\n", total);
-	for (i = 0, cp = large; i < total; cp += SHA1SZ, i++)
-	    printf("    %s\n", pmwebapi_hash_str(cp));
+	for (i = 0, cp = large; i < total; cp += SHA1SZ, i++) {
+	    pmwebapi_hash_str(cp, hashbuf, sizeof(hashbuf));
+	    printf("    %s\n", hashbuf);
+	}
     }
 
     a->nseries = total;
@@ -552,27 +701,27 @@ node_glob_reply(seriesQueryBaton *baton, node_t *np, const char *name, int nelem
     unsigned int	i;
 
     if (nelements != 2) {
-	queryfmt(msg, "expected cursor and results from %s (got %d elements)",
+	infofmt(msg, "expected cursor and results from %s (got %d elements)",
 			HSCAN, nelements);
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EPROTO;
     }
 
     /* Update the cursor, in case subsequent calls are needed */
     reply = elements[0];
     if (!reply || reply->type != REDIS_REPLY_STRING) {
-	queryfmt(msg, "expected integer cursor result from %s (got %s)",
+	infofmt(msg, "expected integer cursor result from %s (got %s)",
 			HSCAN, reply ? redis_reply(reply->type) : "null");
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EPROTO;
     }
     np->cursor = strtoull(reply->str, NULL, 10);
 
     reply = elements[1];
     if (!reply || reply->type != REDIS_REPLY_ARRAY) {
-	queryfmt(msg, "expected array of results from %s (got %s)",
+	infofmt(msg, "expected array of results from %s (got %s)",
 			HSCAN, reply ? redis_reply(reply->type) : "null");
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EPROTO;
     }
 
@@ -585,17 +734,17 @@ node_glob_reply(seriesQueryBaton *baton, node_t *np, const char *name, int nelem
 
     /* result array sanity checking */
     if (nelements % 2) {
-	queryfmt(msg, "expected even number of results from %s (not %d)",
+	infofmt(msg, "expected even number of results from %s (not %d)",
 		    HSCAN, nelements);
-	querymsg(baton, PMLOG_REQUEST, msg);
+	batoninfo(baton, PMLOG_REQUEST, msg);
 	return -EPROTO;
     }
     for (i = 0; i < nelements; i += 2) {
 	r = reply->element[i];
 	if (r->type != REDIS_REPLY_STRING) {
-	    queryfmt(msg, "expected only string results from %s (type=%s)",
+	    infofmt(msg, "expected only string results from %s (type=%s)",
 		    HSCAN, redis_reply(r->type));
-	    querymsg(baton, PMLOG_REQUEST, msg);
+	    batoninfo(baton, PMLOG_REQUEST, msg);
 	    return -EPROTO;
 	}
     }
@@ -603,9 +752,9 @@ node_glob_reply(seriesQueryBaton *baton, node_t *np, const char *name, int nelem
     /* response is matching key:value pairs from the scanned hash */
     nelements /= 2;
     if ((matches = (sds *)calloc(nelements, sizeof(sds))) == NULL) {
-	queryfmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+	infofmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
 			"glob reply", (__int64_t)nelements * sizeof(sds));
-	querymsg(baton, PMLOG_REQUEST, msg);
+	batoninfo(baton, PMLOG_REQUEST, msg);
 	return -ENOMEM;
     }
     for (i = 0; i < nelements; i++) {
@@ -630,6 +779,7 @@ series_prepare_maps_glob_reply(redisAsyncContext *c, redisReply *reply, void *ar
     node_t		*left;
     sds			msg;
 
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_prepare_maps_glob_reply");
     assert(np->type == N_GLOB);	/* indirect hash lookup with key globbing */
 
     /* TODO: need to handle multiple sets of results using the cursor. */
@@ -637,9 +787,9 @@ series_prepare_maps_glob_reply(redisAsyncContext *c, redisReply *reply, void *ar
     left = np->left;
     name = left->key + sizeof("pcp:map:") - 1;
     if (reply->type != REDIS_REPLY_ARRAY) {
-	queryfmt(msg, "expected array for %s key \"%s\" (type=%s)",
+	infofmt(msg, "expected array for %s key \"%s\" (type=%s)",
 		    node_subtype(left), left->key, redis_reply(reply->type));
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     } else {
 	if (pmDebugOptions.series)
@@ -648,7 +798,7 @@ series_prepare_maps_glob_reply(redisAsyncContext *c, redisReply *reply, void *ar
 	    baton->error = -EPROTO;
     }
 
-    seriesPassBaton(&baton->current, &baton->refcount, baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -658,13 +808,14 @@ series_prepare_maps_name_reply(redisAsyncContext *c, redisReply *reply, void *ar
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     sds			msg;
 
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_prepare_maps_name_reply");
     assert(np->type == N_NAME);
     assert(np->subtype == N_LABEL || np->subtype == N_CONTEXT);
 
     if (reply->type != REDIS_REPLY_STRING) {
-	queryfmt(msg, "expected string for %s map \"%s\" (type=%s)",
+	infofmt(msg, "expected string for %s map \"%s\" (type=%s)",
 		node_subtype(np), np->value, redis_reply(reply->type));
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     } else if (np->subtype == N_LABEL) {
 	/* TODO: need to handle JSONB label name nesting. */
@@ -678,7 +829,7 @@ series_prepare_maps_name_reply(redisAsyncContext *c, redisReply *reply, void *ar
 				node_subtype(np), reply->str);
     }
 
-    seriesPassBaton(&baton->current, &baton->refcount, baton);
+    series_query_end_phase(baton);
 }
 
 /*
@@ -710,7 +861,7 @@ series_prepare_maps(seriesQueryBaton *baton, node_t *np, int level)
 	    np->key = sdsdup(key);
 	    np->subtype = N_CONTEXT;
 	    np->baton = baton;
-	    baton->refcount++;
+	    seriesBatonReference(baton, "series_prepare_maps");
 	    cmd = redis_command(3);
 	    cmd = redis_param_str(cmd, HGET, HGET_LEN);
 	    cmd = redis_param_sds(cmd, key);
@@ -724,7 +875,7 @@ series_prepare_maps(seriesQueryBaton *baton, node_t *np, int level)
 	    np->key = sdsdup(key);
 	    np->subtype = N_LABEL;
 	    np->baton = baton;
-	    baton->refcount++;
+	    seriesBatonReference(baton, "series_prepare_maps");
 	    cmd = redis_command(3);
 	    cmd = redis_param_str(cmd, HGET, HGET_LEN);
 	    cmd = redis_param_sds(cmd, key);
@@ -734,7 +885,7 @@ series_prepare_maps(seriesQueryBaton *baton, node_t *np, int level)
 	}
     } else if (np->type == N_GLOB) {	/* indirect hash lookup with key globbing */
 	np->baton = baton;
-	baton->refcount++;
+	seriesBatonReference(baton, "series_prepare_maps");
 	cur = sdscatfmt(sdsempty(), "%U", np->cursor);
 	val = np->right->value;
 	key = sdsdup(np->left->key);
@@ -757,48 +908,21 @@ series_prepare_maps(seriesQueryBaton *baton, node_t *np, int level)
 static sds
 series_node_value(node_t *np)
 {
+    unsigned char	hash[20];
+    sds			val = sdsnewlen(SDS_NOINIT, 20);
+
     /* special JSON cases still to do: null, true, false */
     if (np->left->type == N_NAME &&
 	np->left->subtype == N_LABEL &&
 	np->right->type == N_STRING) {
 	np->right->subtype = N_LABEL;
-	return sdscatfmt(sdsempty(), "\"%S\"", np->right->value);
-    }
-    return sdsdup(np->right->value);
-}
-
-static void
-series_prepare_eval_eq_reply(redisAsyncContext *c, redisReply *reply, void *arg)
-{
-    node_t		*np = (node_t *)arg;
-    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
-    const char		*name;
-    node_t		*left;
-    sds			msg;
-
-    assert(np->type == N_EQ);
-
-    left = np->left;
-    name = left->key + sizeof("pcp:map:") - 1;
-    if (reply->type == REDIS_REPLY_NIL) {
-	queryfmt(msg, "no match for time series query");
-	querymsg(baton, PMLOG_ERROR, msg);
-	baton->error = -EINVAL;
-    } else if (reply->type != REDIS_REPLY_STRING) {
-	queryfmt(msg, "expected string for %s key \"%s\" (type=%s)",
-		    node_subtype(left), left->key, redis_reply(reply->type));
-	querymsg(baton, PMLOG_RESPONSE, msg);
-	baton->error = -EPROTO;
+	val = sdscatfmt(val, "\"%S\"", np->right->value);
+	pmwebapi_string_hash(hash, val, sdslen(val));
     } else {
-	sdsclear(np->key);
-	if (np->subtype == N_CONTEXT)
-	    np->key = sdscat(np->key, "pcp:source:");
-	else
-	    np->key = sdscat(np->key, "pcp:series:");
-	np->key = sdscatfmt(np->key, "%s:%s", name, reply->str);
+	pmwebapi_string_hash(hash, np->right->value, strlen(np->right->value));
     }
-
-    seriesPassBaton(&baton->current, &baton->refcount, baton);
+    sdsclear(val);
+    return pmwebapi_hash_sds(val, hash);
 }
 
 /*
@@ -807,8 +931,10 @@ series_prepare_eval_eq_reply(redisAsyncContext *c, redisReply *reply, void *arg)
 static int
 series_prepare_eval(seriesQueryBaton *baton, node_t *np, int level)
 {
-    sds 		key, val, cmd;
+    sds 		val;
     int			sts;
+    node_t		*left;
+    const char		*name;
 
     if (np == NULL)
 	return 0;
@@ -818,17 +944,16 @@ series_prepare_eval(seriesQueryBaton *baton, node_t *np, int level)
 
     switch (np->type) {
     case N_EQ:		/* direct hash lookup */
+    left = np->left;
+    name = left->key + sizeof("pcp:map:") - 1;
+	assert(np->key == NULL);
 	val = series_node_value(np);
-	key = sdsdup(np->left->key);
-	np->baton = baton;
-	baton->refcount++;
-	cmd = redis_command(3);
-	cmd = redis_param_str(cmd, HGET, HGET_LEN);
-	cmd = redis_param_sds(cmd, key);
-	cmd = redis_param_sds(cmd, val);
+	if (np->subtype == N_CONTEXT)
+	    np->key = sdsnew("pcp:source:");
+	else
+	    np->key = sdsnew("pcp:series:");
+	np->key = sdscatfmt(np->key, "%s:%S", name, val);
 	sdsfree(val);
-	redisSlotsRequest(baton->slots, HGET, key, cmd,
-			series_prepare_eval_eq_reply, np);
 	break;
 
     case N_LT:  case N_LEQ: case N_GEQ: case N_GT:  case N_NEQ:
@@ -852,12 +977,13 @@ series_prepare_smembers_reply(redisAsyncContext *c, redisReply *reply, void *arg
     sds			msg;
     int			sts;
 
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_prepare_smembers_reply");
+
     if (reply->type != REDIS_REPLY_ARRAY) {
-	queryfmt(msg, "expected array for %s set \"%s\" (type=%s)",
+	infofmt(msg, "expected array for %s set \"%s\" (type=%s)",
 			node_subtype(np->left), np->right->value,
 			redis_reply(reply->type));
-	querymsg(baton, PMLOG_CORRUPT, msg);
+	batoninfo(baton, PMLOG_CORRUPT, msg);
 	baton->error = -EPROTO;
     } else {
 	if (pmDebugOptions.series)
@@ -870,7 +996,7 @@ series_prepare_smembers_reply(redisAsyncContext *c, redisReply *reply, void *arg
     if (np->nmatches)
 	np->nmatches--;	/* processed one more from this batch */
 
-    seriesPassBaton(&baton->current, &baton->refcount, baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -904,7 +1030,7 @@ series_prepare_expr(seriesQueryBaton *baton, node_t *np, int level)
     switch (np->type) {
     case N_EQ:		/* direct hash lookup */
 	if (np->key) {
-	    baton->refcount++;
+	    seriesBatonReference(baton, "series_prepare_expr[direct]");
 	    np->baton = baton;
 	    series_prepare_smembers(baton, np->key, np);
 	}
@@ -915,7 +1041,7 @@ series_prepare_expr(seriesQueryBaton *baton, node_t *np, int level)
     case N_RNE:
 	np->baton = baton;
 	for (i = 0; i < np->nmatches; i++) {
-	    baton->refcount++;
+	    seriesBatonReference(baton, "series_prepare_expr");
 	    series_prepare_smembers(baton, np->matches[i], np);
 	}
 	break;
@@ -939,73 +1065,26 @@ series_prepare_expr(seriesQueryBaton *baton, node_t *np, int level)
 }
 
 static void
-initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
-{
-    assert(baton->magic == MAGIC_QUERY);
-    baton->u.query.root = *root;
-    baton->u.query.timing = *timing;
-}
-
-static void
-freeSeriesGetQuery(seriesQueryBaton *baton)
-{
-    assert(baton->magic == MAGIC_QUERY);
-    assert(baton->refcount == 0);
-
-    memset(baton, 0, sizeof(seriesQueryBaton));
-    free(baton);
-}
-
-static void
-series_query_finished(void *arg)
-{
-    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
-
-    baton->settings->on_done(baton->error, baton->userdata);
-    freeSeriesGetQuery(baton);
-}
-
-static void
-series_query_end_phase(void *arg)
-{
-    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
-
-    assert(baton->magic == MAGIC_QUERY);
-
-    if (baton->error == 0) {
-	seriesPassBaton(&baton->current, &baton->refcount, baton);
-    } else {	/* fail after waiting on outstanding I/O */
-	if (baton->refcount != 0)
-	    baton->refcount--;
-	if (baton->refcount == 0)
-	    series_query_finished(baton);
-    }
-}
-
-static void initSeriesGetSID(seriesGetSID *, const char *, void *); /* TODO */
-static void freeSeriesGetSID(seriesGetSID *sid);	/* TODO */
-
-static void
 series_prepare_time_reply(redisAsyncContext *c, redisReply *reply, void *arg)
 {
     seriesGetSID	*sid = (seriesGetSID *)arg;
     seriesQueryBaton	*baton = (seriesQueryBaton *)sid->baton;
     sds			msg;
 
-    assert(sid->magic == MAGIC_SID);
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(sid, MAGIC_SID, "series_prepare_time_reply");
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_prepare_time_reply");
 
     if (reply->type != REDIS_REPLY_ARRAY) {
-	queryfmt(msg, "expected array from %s XSTREAM values (type=%s)",
+	infofmt(msg, "expected array from %s XSTREAM values (type=%s)",
 			sid->name, redis_reply(reply->type));
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     } else {
 	series_values_reply(baton, sid->name, reply->elements, reply->element, arg);
     }
     freeSeriesGetSID(sid);
 
-    series_query_finished(baton);
+    series_query_end_phase(baton);
 }
 
 #define DEFAULT_VALUE_COUNT 10
@@ -1016,15 +1095,16 @@ series_prepare_time(seriesQueryBaton *baton, series_set_t *result)
     timing_t		*tp = &baton->u.query.timing;
     unsigned char	*series = result->series;
     seriesGetSID	*sid;
+    char		buffer[64];
     sds			count, start, end, key, cmd;
     unsigned int	i;
 
-    start = sdsnew(timeval_str(&tp->start));
+    start = sdsnew(timeval_stream_str(&tp->start, buffer, sizeof(buffer)));
     if (pmDebugOptions.series)
 	fprintf(stderr, "START: %s\n", start);
 
     if (tp->end.tv_sec)
-	end = sdsnew(timeval_str(&tp->end));
+	end = sdsnew(timeval_stream_str(&tp->end, buffer, sizeof(buffer)));
     else
 	end = sdsnew("+");	/* "+" means "no end" - to the most recent */
     if (pmDebugOptions.series)
@@ -1042,8 +1122,9 @@ series_prepare_time(seriesQueryBaton *baton, series_set_t *result)
      */
     for (i = 0; i < result->nseries; i++, series += SHA1SZ) {
 	sid = calloc(1, sizeof(seriesGetSID));
-	initSeriesGetSID(sid, pmwebapi_hash_str(series), baton);
-	baton->refcount++;
+	pmwebapi_hash_str(series, buffer, sizeof(buffer));
+	initSeriesGetSID(sid, buffer, 1, baton);
+	seriesBatonReference(baton, "series_prepare_time");
 
 	key = sdscatfmt(sdsempty(), "pcp:values:series:%S", sid->name);
 
@@ -1067,18 +1148,20 @@ static void
 series_report_set(seriesQueryBaton *baton, series_set_t *set)
 {
     unsigned char	*series = set->series;
+    char		hashbuf[42];
     sds			sid = NULL;
     int			i;
 
     if (set->nseries)
-	sid = sdsnewlen(NULL, 40+1);
+	sid = sdsempty();
     for (i = 0; i < set->nseries; series += SHA1SZ, i++) {
-	sid = sdscpylen(sid, pmwebapi_hash_str(series), 40);
-	baton->settings->on_match(sid, baton->userdata);
+	pmwebapi_hash_str(series, hashbuf, sizeof(hashbuf));
+	sid = sdscpylen(sid, hashbuf, 40);
+	baton->callbacks->on_match(sid, baton->userdata);
     }
     if (sid)
 	sdsfree(sid);
-    series_query_finished(baton);
+    baton->callbacks->on_match_done(set->nseries, baton->userdata);
 }
 
 static void
@@ -1086,8 +1169,12 @@ series_query_report_matches(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
 
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_report_matches");
+    seriesBatonCheckCount(baton, "series_query_report_matches");
+
+    seriesBatonReference(baton, "series_query_report_matches");
     series_report_set(baton, &baton->u.query.root.result);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1095,8 +1182,12 @@ series_query_maps(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
 
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_maps");
+    seriesBatonCheckCount(baton, "series_query_maps");
+
+    seriesBatonReference(baton, "series_query_maps");
     series_prepare_maps(baton, &baton->u.query.root, 0);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1104,8 +1195,12 @@ series_query_eval(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
 
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_eval");
+    seriesBatonCheckCount(baton, "series_query_eval");
+
+    seriesBatonReference(baton, "series_query_eval");
     series_prepare_eval(baton, &baton->u.query.root, 0);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1113,8 +1208,12 @@ series_query_expr(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
 
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_expr");
+    seriesBatonCheckCount(baton, "series_query_expr");
+
+    seriesBatonReference(baton, "series_query_expr");
     series_prepare_expr(baton, &baton->u.query.root, 0);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1122,8 +1221,12 @@ series_query_report_values(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
 
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_report_values");
+    seriesBatonCheckCount(baton, "series_query_report_values");
+
+    seriesBatonReference(baton, "series_query_report_values");
     series_prepare_time(baton, &baton->u.query.root.result);
+    series_query_end_phase(baton);
 }
 
 static int
@@ -1138,26 +1241,29 @@ static void
 series_query_services(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
-    pmSeriesSettings	*settings = baton->settings;
+    pmSeriesModule	*module = baton->module;
 
-    assert(baton->magic == MAGIC_QUERY);
-    redis_init(&baton->slots, settings->hostspec, 1, settings->on_info,
-		series_query_end_phase, baton->userdata, settings->events,
-		(void *)baton);
-}
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_services");
+    seriesBatonCheckCount(baton, "series_query_services");
 
-static void
-initSeriesQueryBaton(seriesQueryBaton *baton,
-		pmSeriesSettings *settings, void *userdata)
-{
-    baton->magic = MAGIC_QUERY;
-    baton->settings = settings;
-    baton->userdata = userdata;
+    seriesBatonReference(baton, "series_query_services");
+
+    /* attempt to re-use existing slots connections */
+    if (module->slots) {
+	baton->slots = module->slots;
+	series_query_end_phase(baton);
+    } else {
+	baton->slots = module->slots =
+	    redisSlotsConnect(
+		module->hostspec, 1, baton->info,
+		series_query_end_phase, baton->userdata,
+		module->events, (void *)baton);
+    }
 }
 
 int
 series_solve(pmSeriesSettings *settings,
-	node_t *root, timing_t *timing, pmflags flags, void *arg)
+	node_t *root, timing_t *timing, pmSeriesFlags flags, void *arg)
 {
     seriesQueryBaton	*baton;
     unsigned int	i = 0;
@@ -1179,12 +1285,15 @@ series_solve(pmSeriesSettings *settings,
     /* Perform final matching (set of) series solving */
     baton->phases[i++].func = series_query_expr;
 
-    if ((flags & PMFLAG_METADATA) || !series_time_window(timing))
+    if ((flags & PM_SERIES_FLAG_METADATA) || !series_time_window(timing))
 	/* Report matching series IDs, unless time windowing */
 	baton->phases[i++].func = series_query_report_matches;
     else
 	/* Report actual values within the given time window */
 	baton->phases[i++].func = series_query_report_values;
+
+    /* final callback once everything is finished, free baton */
+    baton->phases[i++].func = series_query_finished;
 
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
@@ -1195,28 +1304,28 @@ series_solve(pmSeriesSettings *settings,
 static void
 reverse_map(seriesQueryBaton *baton, int nkeys, redisReply **elements)
 {
-    redisReply		*name, *key;
-    sds			msg, val;
+    redisReply		*name, *hash;
+    sds			msg, key, val;
     unsigned int	i;
 
     for (i = 0; i < nkeys; i += 2) {
-	name = elements[i];
-	key = elements[i+1];
+	hash = elements[i];
+	name = elements[i+1];
 	if (name->type == REDIS_REPLY_STRING) {
-	    if (key->type == REDIS_REPLY_STRING) {
+	    if (hash->type == REDIS_REPLY_STRING) {
+		key = sdsnewlen(hash->str, hash->len);
 		val = sdsnewlen(name->str, name->len);
-		redisRMapInsert(baton->u.lookup.map, key->str, val);
-		sdsfree(val);
+		redisMapInsert(baton->u.lookup.map, key, val);
 	    } else {
-		queryfmt(msg, "expected string key for hashmap (type=%s)",
-			redis_reply(key->type));
-		querymsg(baton, PMLOG_RESPONSE, msg);
+		infofmt(msg, "expected string key for hashmap (type=%s)",
+			redis_reply(hash->type));
+		batoninfo(baton, PMLOG_RESPONSE, msg);
 		baton->error = -EINVAL;
 	    }
 	} else {
-	    queryfmt(msg, "expected string name for hashmap (type=%s)",
+	    infofmt(msg, "expected string name for hashmap (type=%s)",
 		    redis_reply(name->type));
-	    querymsg(baton, PMLOG_RESPONSE, msg);
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
 	    baton->error = -EINVAL;
 	}
     }
@@ -1231,32 +1340,35 @@ series_map_reply(seriesQueryBaton *baton, sds series,
 {
     redisMapEntry	*entry;
     redisReply		*reply;
-    sds			msg;
+    sds			msg, key;
     unsigned int	i;
     int			sts = 0;
 
+    key = sdsnewlen(SDS_NOINIT, 20);
     for (i = 0; i < nelements; i++) {
 	reply = elements[i];
 	if (reply->type == REDIS_REPLY_STRING) {
-	    if ((entry = redisRMapLookup(baton->u.lookup.map, reply->str)) != NULL)
-		baton->u.lookup.func(series, redisRMapValue(entry), baton->userdata);
+	    sdsclear(key);
+	    key = sdscatlen(key, reply->str, reply->len);
+	    if ((entry = redisMapLookup(baton->u.lookup.map, key)) != NULL)
+		baton->u.lookup.func(series, redisMapValue(entry), baton->userdata);
 	    else {
-		queryfmt(msg, "%s - timeseries string map", series);
-		querymsg(baton, PMLOG_CORRUPT, msg);
+		infofmt(msg, "%s - timeseries string map", series);
+		batoninfo(baton, PMLOG_CORRUPT, msg);
 		sts = -EINVAL;
 	    }
 	} else {
-	    queryfmt(msg, "expected string in %s set (type=%s)",
+	    infofmt(msg, "expected string in %s set (type=%s)",
 			series, redis_reply(reply->type));
-	    querymsg(baton, PMLOG_RESPONSE, msg);
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
 	    sts = -EPROTO;
 	}
     }
+    sdsfree(key);
 
     return sts;
 }
 
-static void freeSeriesGetLookup(seriesQueryBaton *baton);  /* TODO */
 static void
 series_map_keys_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
@@ -1265,7 +1377,7 @@ series_map_keys_callback(redisAsyncContext *c, redisReply *reply, void *arg)
     sds			val, msg;
     unsigned int	i;
 
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_map_keys_callback");
 
     if (reply->type == REDIS_REPLY_ARRAY) {
 	val = sdsempty();
@@ -1275,20 +1387,22 @@ series_map_keys_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 		    val = sdscpylen(val, child->str, child->len);
 		    baton->u.lookup.func(NULL, val, baton->userdata);
 	    } else {
-		queryfmt(msg, "bad response for string map %s (%s)",
-			HKEYS, redis_reply(child->type));
-		querymsg(baton, PMLOG_RESPONSE, msg);
+		infofmt(msg, "bad response for string map %s (%s)",
+			HVALS, redis_reply(child->type));
+		batoninfo(baton, PMLOG_RESPONSE, msg);
 		sdsfree(val);
 		baton->error = -EINVAL;
 	    }
 	}
 	sdsfree(val);
     } else {
-	queryfmt(msg, "expected array from string map %s (reply=%s)",
-		HKEYS, redis_reply(reply->type));
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	infofmt(msg, "expected array from string map %s (reply=%s)",
+		HVALS, redis_reply(reply->type));
+	batoninfo(baton, PMLOG_RESPONSE, msg);
+	baton->error = -EPROTO;
     }
 
+    baton->callbacks->on_done(baton->error, baton->userdata);
     freeSeriesGetLookup(baton);
 }
 
@@ -1299,38 +1413,13 @@ series_map_keys(seriesQueryBaton *baton, const char *name)
 
     key = sdscatfmt(sdsempty(), "pcp:map:%s", name);
     cmd = redis_command(2);
-    cmd = redis_param_str(cmd, HKEYS, HKEYS_LEN);
+    cmd = redis_param_str(cmd, HVALS, HVALS_LEN);
     cmd = redis_param_sds(cmd, key);
-    redisSlotsRequest(baton->slots, HKEYS, key, cmd,
+    redisSlotsRequest(baton->slots, HVALS, key, cmd,
 		   	 series_map_keys_callback, baton);
     return 0;
 }
 
-static void
-initSeriesGetLabelMap(seriesGetLabelMap *value, sds series, sds name,
-		redisMap *map, const char *mapID, sds mapKey, void *baton)
-{
-    value->magic = MAGIC_LABELMAP;
-    value->map = map;
-    value->series = series;
-    value->name = name;
-    value->mapID = sdsnew(mapID);
-    value->mapKey = mapKey;
-    value->baton = baton;
-}
-
-static void
-freeSeriesGetLabelMap(seriesGetLabelMap *value)
-{
-    assert(value->magic == MAGIC_LABELMAP);
-
-    redisMapRelease(value->map);
-    sdsfree(value->mapID);
-    sdsfree(value->mapKey);
-    memset(value, 0, sizeof(seriesGetLabelMap));
-}
-
-static void series_lookup_end_phase(void *arg);	/* TODO */
 static void
 series_label_value_reply(redisAsyncContext *c, redisReply *reply, void *arg)
 {
@@ -1340,36 +1429,37 @@ series_label_value_reply(redisAsyncContext *c, redisReply *reply, void *arg)
     pmSeriesLabel	label;
     sds			msg;
 
-    assert(baton->magic == MAGIC_LABELMAP);
+    seriesBatonCheckMagic(value, MAGIC_LABELMAP, "series_label_value_reply");
 
     /* unpack - produce reverse map of ids-to-values for each entry */
     if (reply->type == REDIS_REPLY_ARRAY)
 	reverse_map(baton, reply->elements, reply->element);
     else {
-	queryfmt(msg, "expected array from %s %s.%s.value (type=%s)", HGETALL,
+	infofmt(msg, "expected array from %s %s.%s.value (type=%s)", HGETALL,
 		      "pcp:map:label", value->mapID, redis_reply(reply->type));
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     }
 
     if (baton->error == 0) {
 	label.name = value->name;
-	if ((entry = redisRMapLookup(value->map, value->mapID)) == NULL)
+	if ((entry = redisMapLookup(value->map, value->mapID)) == NULL)
 	    label.value = sdsnew("null");
 	else
-	    label.value = redisRMapValue(entry);
+	    label.value = redisMapValue(entry);
 
-	baton->settings->on_labelmap(value->series, &label, baton->userdata);
+	baton->callbacks->on_labelmap(value->series, &label, baton->userdata);
 
 	if (entry == NULL)
 	    sdsfree(label.value);
     } else {
-	queryfmt(msg, "%s - timeseries name map", value->series);
-	querymsg(baton, PMLOG_CORRUPT, msg);
+	infofmt(msg, "%s - timeseries name map", value->series);
+	batoninfo(baton, PMLOG_CORRUPT, msg);
     }
 
     freeSeriesGetLabelMap(value);
-    series_lookup_end_phase(baton);
+
+    series_query_end_phase(baton);
 }
 
 static int
@@ -1380,64 +1470,81 @@ series_label_reply(seriesQueryBaton *baton, sds series,
     redisMapEntry 	*entry;
     redisReply		*reply;
     redisMap		*vmap;
-    sds			msg, key, cmd, name, vkey;
-    char		*nmapID, *vmapID;
+    char		hashbuf[42];
+    sds			msg, key, cmd, name, vkey, nmapID, vmapID;
     unsigned int	i, index;
     int			sts = 0;
 
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_label_reply");
 
     /* result verification first */
     if (nelements % 2) {
-	queryfmt(msg, "expected even number of results from %s (not %d)",
+	infofmt(msg, "expected even number of results from %s (not %d)",
 		    HGETALL, nelements);
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EPROTO;
     }
     for (i = 0; i < nelements; i++) {
 	reply = elements[i];
 	if (reply->type != REDIS_REPLY_STRING) {
-	    queryfmt(msg, "expected only string results from %s (type=%s)",
+	    infofmt(msg, "expected only string results from %s (type=%s)",
 			HGETALL, redis_reply(reply->type));
-	    querymsg(baton, PMLOG_RESPONSE, msg);
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
 	    return -EPROTO;
 	}
     }
+
+    nmapID = sdsnewlen(SDS_NOINIT, 20);
+    vmapID = sdsnewlen(SDS_NOINIT, 20);
+    key = sdsempty();
 
     /* perform the label value reverse lookup */
     nelements /= 2;
     for (i = 0; i < nelements; i++) {
 	index = i * 2;
-	nmapID = elements[index]->str;
-	vmapID = elements[index+1]->str;
 
-	if ((entry = redisRMapLookup(baton->u.lookup.map, nmapID)) != NULL) {
-	    vkey = sdscatfmt(sdsempty(), "label.%s.value", nmapID);
-	    vmap = redisRMapCreate(vkey);
-	    name = redisRMapValue(entry);
+	sdsclear(nmapID);
+	nmapID = sdscatlen(nmapID, elements[index]->str, elements[index]->len);
+	sdsclear(vmapID);
+	vmapID = sdscatlen(vmapID, elements[index+1]->str, elements[index+1]->len);
 
-	    baton->settings->on_label(series, name, baton->userdata);
+	sdsclear(key);
+	key = sdscatlen(key, reply->str, reply->len);
+	if ((entry = redisMapLookup(baton->u.lookup.map, nmapID)) != NULL) {
+	    pmwebapi_hash_str((unsigned char *)nmapID, hashbuf, sizeof(hashbuf));
+	    vkey = sdscatfmt(sdsempty(), "label.%s.value", hashbuf);
+	    vmap = redisMapCreate(vkey);
+	    name = redisMapValue(entry);
+
+	    baton->callbacks->on_label(series, name, baton->userdata);
 
 	    if ((labelmap = calloc(1, sizeof(seriesGetLabelMap))) == NULL) {
-		queryfmt(msg, "%s - label value lookup OOM", series);
-		querymsg(baton, PMLOG_ERROR, msg);
+		infofmt(msg, "%s - label value lookup OOM", series);
+		batoninfo(baton, PMLOG_ERROR, msg);
 		sts = -ENOMEM;
 		continue;
 	    }
 	    initSeriesGetLabelMap(labelmap, series, name, vmap, vmapID, vkey, baton);
 
-	    key = sdscatfmt(sdsempty(), "pcp:map:label.%s.value", vmapID);
+	    seriesBatonReference(baton, "series_label_reply");
+
+	    pmwebapi_hash_str((unsigned char *)vmapID, hashbuf, sizeof(hashbuf));
+	    key = sdscatfmt(sdsempty(), "pcp:map:label.%s.value", hashbuf);
 	    cmd = redis_command(2);
 	    cmd = redis_param_str(cmd, HGETALL, HGETALL_LEN);
 	    cmd = redis_param_sds(cmd, key);
 	    redisSlotsRequest(baton->slots, HGETALL, key, cmd,
 				series_label_value_reply, labelmap);
 	} else {
-	    queryfmt(msg, "%s - timeseries label map", series);
-	    querymsg(baton, PMLOG_CORRUPT, msg);
+	    infofmt(msg, "%s - timeseries label map", series);
+	    batoninfo(baton, PMLOG_CORRUPT, msg);
 	    sts = -EINVAL;
 	}
     }
+
+    sdsfree(nmapID);
+    sdsfree(vmapID);
+    sdsfree(key);
     return sts;
 }
 
@@ -1449,14 +1556,14 @@ series_lookup_labels_callback(redisAsyncContext *c, redisReply *reply, void *arg
     sds			msg;
     int                 sts;
 
-    assert(sid->magic == MAGIC_SID);
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(sid, MAGIC_SID, "series_lookup_labels_callback");
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_labels_callback");
 
     if (reply->type != REDIS_REPLY_ARRAY) {
-	queryfmt(msg, "expected array from %s %s:%s (type=%s)",
+	infofmt(msg, "expected array from %s %s:%s (type=%s)",
 			HGETALL, "pcp:labelvalue:series", sid->name,
 			redis_reply(reply->type));
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     } else if ((sts = series_label_reply(baton, sid->name,
 				reply->elements, reply->element)) < 0) {
@@ -1464,7 +1571,7 @@ series_lookup_labels_callback(redisAsyncContext *c, redisReply *reply, void *arg
     }
     freeSeriesGetSID(sid);
 
-    series_lookup_end_phase(baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1475,12 +1582,12 @@ series_lookup_labels(void *arg)
     sds			cmd, key;
     unsigned int	i;
 
-    assert(baton->magic == MAGIC_QUERY);
-    assert(baton->refcount == 0);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_labels");
+    seriesBatonCheckCount(baton, "series_lookup_labels");
 
     /* unpack - iterate over series and extract labels names and values */
     for (i = 0; i < baton->u.lookup.nseries; i++) {
-	baton->refcount++;
+	seriesBatonReference(baton, "series_lookup_labels");
 	sid = &baton->u.lookup.series[i];
 	key = sdscatfmt(sdsempty(), "pcp:labelvalue:series:%S", sid->name);
 	cmd = redis_command(2);
@@ -1490,12 +1597,6 @@ series_lookup_labels(void *arg)
 			series_lookup_labels_callback, sid);
     }
 }
-
-static void initSeriesGetLookup(seriesQueryBaton *, int, pmSID *,
-		pmSeriesStringCallBack, redisMap *);	/* TODO */
-static void series_lookup_services(void *);
-static void series_lookup_mapping(void *);
-static void series_lookup_finished(void *);
 
 int
 pmSeriesLabels(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg)
@@ -1510,7 +1611,7 @@ pmSeriesLabels(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg
     if ((baton = calloc(1, bytes)) == NULL)
 	return -ENOMEM;
     initSeriesQueryBaton(baton, settings, arg);
-    initSeriesGetLookup(baton, nseries, series, settings->on_label, labelsrmap);
+    initSeriesGetLookup(baton, nseries, series, settings->callbacks.on_label, labelsmap);
 
     if (nseries == 0)
 	return series_map_keys(baton, redisMapName(baton->u.lookup.map));
@@ -1532,15 +1633,15 @@ extract_series_desc(seriesQueryBaton *baton, pmSID series,
     sds			msg;
 
     if (nelements < 6) {
-	queryfmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	infofmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EPROTO;
     }
 
     /* sanity check - were we given an invalid series identifier? */
     if (elements[0]->type == REDIS_REPLY_NIL) {
-	queryfmt(msg, "no descriptor for series identifier %s", series);
-	querymsg(baton, PMLOG_ERROR, msg);
+	infofmt(msg, "no descriptor for series identifier %s", series);
+	batoninfo(baton, PMLOG_ERROR, msg);
 	return -EINVAL;
     }
 
@@ -1569,23 +1670,23 @@ redis_series_desc_reply(redisAsyncContext *c, redisReply *reply, void *arg)
     sds			msg;
     int			sts;
 
-    desc.indom = sdsnewlen(NULL, 16);
-    desc.pmid = sdsnewlen(NULL, 16);
-    desc.semantics = sdsnewlen(NULL, 16);
-    desc.source = sdsnewlen(NULL, 40);
-    desc.type = sdsnewlen(NULL, 16);
-    desc.units = sdsnewlen(NULL, 16);
+    desc.indom = sdsempty();
+    desc.pmid = sdsempty();
+    desc.semantics = sdsempty();
+    desc.source = sdsempty();
+    desc.type = sdsempty();
+    desc.units = sdsempty();
 
     if (reply->type != REDIS_REPLY_ARRAY) {
-	queryfmt(msg, "expected array type from series %s %s (type=%s)",
+	infofmt(msg, "expected array type from series %s %s (type=%s)",
 			sid->name, HMGET, redis_reply(reply->type));
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     }
     else if ((sts = extract_series_desc(baton, sid->name,
 			reply->elements, reply->element, &desc)) < 0)
 	baton->error = sts;
-    else if ((sts = baton->settings->on_desc(sid->name, &desc, baton->userdata)) < 0)
+    else if ((sts = baton->callbacks->on_desc(sid->name, &desc, baton->userdata)) < 0)
 	baton->error = sts;
 
     sdsfree(desc.indom);
@@ -1595,7 +1696,7 @@ redis_series_desc_reply(redisAsyncContext *c, redisReply *reply, void *arg)
     sdsfree(desc.type);
     sdsfree(desc.units);
 
-    series_lookup_end_phase(baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1606,12 +1707,12 @@ series_lookup_desc(void *arg)
     sds			cmd, key;
     unsigned int	i;
 
-    assert(baton->magic == MAGIC_QUERY);
-    assert(baton->refcount == 0);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_desc");
+    seriesBatonCheckCount(baton, "series_lookup_desc");
 
     for (i = 0; i < baton->u.lookup.nseries; i++) {
 	sid = &baton->u.lookup.series[i];
-	baton->refcount++;
+	seriesBatonReference(baton, "series_lookup_desc");
 
 	key = sdscatfmt(sdsempty(), "pcp:desc:series:%S", sid->name);
 	cmd = redis_command(8);
@@ -1659,8 +1760,8 @@ extract_series_inst(seriesQueryBaton *baton, seriesGetSID *sid,
     sds			msg, series = sid->metric;
 
     if (nelements < 3) {
-	queryfmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	infofmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EPROTO;
     }
 
@@ -1673,9 +1774,9 @@ extract_series_inst(seriesQueryBaton *baton, seriesGetSID *sid,
 
     /* verify that this instance series matches the given series */
     if (sdscmp(series, inst->series) != 0) {
-	queryfmt(msg, "mismatched series for instance %s of series %s (got %s)",
+	infofmt(msg, "mismatched series for instance %s of series %s (got %s)",
 			sid->name, series, inst->series);
-	querymsg(baton, PMLOG_CORRUPT, msg);
+	batoninfo(baton, PMLOG_CORRUPT, msg);
 	return -EINVAL;
     }
     /* return instance series identifiers, not the metric series */
@@ -1688,28 +1789,27 @@ series_instances_reply_callback(redisAsyncContext *c, redisReply *reply, void *a
 {
     seriesGetSID	*sid = (seriesGetSID *)arg;
     seriesQueryBaton	*baton = (seriesQueryBaton *)sid->baton;
-    pmSeriesSettings	*settings = baton->settings;
     pmSeriesInst	inst;
     sds			msg;
     int			sts;
 
-    assert(sid->magic == MAGIC_SID);
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(sid, MAGIC_SID, "series_instances_reply_callback");
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_instances_reply_callback");
 
-    inst.instid = sdsnewlen(NULL, 16);
-    inst.name = sdsnewlen(NULL, 16);
-    inst.series = sdsnewlen(NULL, 40);
+    inst.instid = sdsempty();
+    inst.name = sdsempty();
+    inst.series = sdsempty();
 
     if (reply->type != REDIS_REPLY_ARRAY) {
-	queryfmt(msg, "expected array from series %s %s (type=%s)",
+	infofmt(msg, "expected array from series %s %s (type=%s)",
 			HMGET, sid->name, redis_reply(reply->type));
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     }
     else if ((sts = extract_series_inst(baton, sid, &inst,
 				reply->elements, reply->element)) < 0)
 	baton->error = sts;
-    else if ((sts = settings->on_inst(sid->metric, &inst, baton->userdata)) < 0)
+    else if ((sts = baton->callbacks->on_inst(sid->metric, &inst, baton->userdata)) < 0)
 	baton->error = sts;
     freeSeriesGetSID(sid);
 
@@ -1717,7 +1817,7 @@ series_instances_reply_callback(redisAsyncContext *c, redisReply *reply, void *a
     sdsfree(inst.name);
     sdsfree(inst.series);
 
-    series_lookup_end_phase(baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1729,7 +1829,7 @@ series_instances_reply(seriesQueryBaton *baton,
     sds			key, cmd;
     int			i;
 
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_instances_reply");
 
     /*
      * Iterate over the instance series identifiers, looking up
@@ -1740,14 +1840,15 @@ series_instances_reply(seriesQueryBaton *baton,
 	    /* TODO: report error */
 	    continue;
 	}
-	initSeriesGetSID(sid, series, baton);
+	initSeriesGetSID(sid, series, 1, baton);
 	sid->metric = sdsempty();
 
 	if (extract_sha1(baton, series, elements[i], &sid->metric, "series") < 0) {
 	    /* TODO: report error */
 	    continue;
 	}
-	baton->refcount++;
+	seriesBatonReference(sid, "series_instances_reply");
+	seriesBatonReference(baton, "series_instances_reply");
 
 	key = sdscatfmt(sdsempty(), "pcp:inst:series:%S", sid);
 	cmd = redis_command(5);
@@ -1769,19 +1870,19 @@ series_lookup_instances_callback(redisAsyncContext *c, redisReply *reply, void *
     seriesQueryBaton	*baton = (seriesQueryBaton *)sid->baton;
     sds			msg;
 
-    assert(sid->magic == MAGIC_SID);
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(sid, MAGIC_SID, "series_lookup_instances_callback");
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_instances_callback");
 
     if (reply->type == REDIS_REPLY_ARRAY)
 	series_instances_reply(baton, sid->name, reply->elements, reply->element);
     else {
-	queryfmt(msg, "expected array from series %s %s (type=%s)",
+	infofmt(msg, "expected array from series %s %s (type=%s)",
 			SMEMBERS, sid->name, redis_reply(reply->type));
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     }
 
-    series_lookup_end_phase(baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1792,11 +1893,11 @@ series_lookup_instances(void *arg)
     sds			cmd, key;
     int			i;
 
-    assert(baton->magic == MAGIC_QUERY);
-    assert(baton->refcount == 0);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_instances_callback");
+    seriesBatonCheckCount(baton, "series_lookup_instances_callback");
 
     for (i = 0; i < baton->u.lookup.nseries; i++) {
-	baton->refcount++;
+	seriesBatonReference(baton, "series_lookup_instances_callback");
 	sid = &baton->u.lookup.series[i];
 	key = sdscatfmt(sdsempty(), "pcp:instances:series:%S", sid->name);
 	cmd = redis_command(2);
@@ -1820,7 +1921,7 @@ pmSeriesInstances(pmSeriesSettings *settings, int nseries, pmSID *series, void *
     if ((baton = calloc(1, bytes)) == NULL)
 	return -ENOMEM;
     initSeriesQueryBaton(baton, settings, arg);
-    initSeriesGetLookup(baton, nseries, series, settings->on_instance, instrmap);
+    initSeriesGetLookup(baton, nseries, series, settings->callbacks.on_instance, instmap);
 
     if (nseries == 0)
 	return series_map_keys(baton, redisMapName(baton->u.lookup.map));
@@ -1836,77 +1937,24 @@ pmSeriesInstances(pmSeriesSettings *settings, int nseries, pmSID *series, void *
 }
 
 static void
-initSeriesGetSID(seriesGetSID *sid, const char *name, void *baton)
-{
-    sid->magic = MAGIC_SID;
-    sid->name = sdsnew(name);
-    sid->baton = baton;
-}
-
-static void
-freeSeriesGetSID(seriesGetSID *sid)
-{
-    assert(sid->magic == MAGIC_SID);
-    sdsfree(sid->name);
-    memset(sid, 0, sizeof(seriesGetSID));
-    free(sid);
-}
-
-static void
-initSeriesGetLookup(seriesQueryBaton *baton, int nseries, pmSID *series,
-		pmSeriesStringCallBack func, redisMap *map)
-{
-    seriesGetSID	*sid;
-    unsigned int	i;
-
-    for (i = 0; i < nseries; i++) {
-	sid = &baton->u.lookup.series[i];
-	initSeriesGetSID(sid, series[i], baton);
-    }
-    baton->u.lookup.nseries = nseries;
-    baton->u.lookup.func = func;
-    baton->u.lookup.map = map;
-}
-
-static void
-freeSeriesGetLookup(seriesQueryBaton *baton)
-{
-    seriesGetSID	*sid;
-    size_t		bytes;
-    unsigned int	i, nseries;
-
-    assert(baton->magic == MAGIC_QUERY);
-    assert(baton->refcount == 0);
-
-    nseries = baton->u.lookup.nseries;
-    for (i = 0; i < nseries; i++) {
-	sid = &baton->u.lookup.series[i];
-	sdsfree(sid->name);
-    }
-    bytes = sizeof(seriesQueryBaton) + (nseries * sizeof(seriesGetSID));
-    memset(baton, 0, bytes);
-    free(baton);
-}
-
-static void
 redis_lookup_mapping_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
     sds			msg;
 
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "redis_lookup_mapping_callback");
 
     /* unpack - produce reverse map of ids-to-names for each context */
     if (reply->type == REDIS_REPLY_ARRAY)
 	reverse_map(baton, reply->elements, reply->element);
     else {
-	queryfmt(msg, "expected array from %s %s (type=%s)",
+	infofmt(msg, "expected array from %s %s (type=%s)",
 		HGETALL, "pcp:map:context.name", redis_reply(reply->type));
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     }
 
-    series_lookup_end_phase(baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1914,6 +1962,10 @@ series_lookup_mapping(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
     sds			cmd, key;
+
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_mapping");
+    seriesBatonCheckCount(baton, "series_lookup_mapping");
+    seriesBatonReference(baton, "series_lookup_mapping");
 
     key = sdscatfmt(sdsempty(), "pcp:map:%s", redisMapName(baton->u.lookup.map));
     cmd = redis_command(2);
@@ -1928,37 +1980,31 @@ series_lookup_finished(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
 
-    baton->settings->on_done(baton->error, baton->userdata);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_finished");
+    baton->callbacks->on_done(baton->error, baton->userdata);
     freeSeriesGetLookup(baton);
-}
-
-static void
-series_lookup_end_phase(void *arg)
-{
-    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
-
-    assert(baton->magic == MAGIC_QUERY);
-
-    if (baton->error == 0) {
-	seriesPassBaton(&baton->current, &baton->refcount, baton);
-    } else {	/* fail after waiting on outstanding I/O */
-	if (baton->refcount != 0)
-	    baton->refcount--;
-	if (baton->refcount == 0)
-	    series_lookup_finished(baton);
-    }
 }
 
 static void
 series_lookup_services(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
-    pmSeriesSettings	*settings = baton->settings;
+    pmSeriesModule	*module = baton->module;
 
-    assert(baton->magic == MAGIC_QUERY);
-    redis_init(&baton->slots, settings->hostspec, 1, settings->on_info,
-		series_lookup_end_phase, baton->userdata, settings->events,
-		(void *)baton);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_services");
+    seriesBatonReference(baton, "series_lookup_services");
+
+    /* attempt to re-use existing slots connections */
+    if (module->slots) {
+	baton->slots = module->slots;
+	series_query_end_phase(baton);
+    } else {
+	baton->slots = module->slots =
+	    redisSlotsConnect(
+		module->hostspec, 1, baton->info,
+		series_query_end_phase, baton->userdata,
+		module->events, (void *)baton);
+    }
 }
 
 static void
@@ -1969,20 +2015,20 @@ redis_get_sid_callback(redisAsyncContext *redis, redisReply *reply, void *arg)
     sds			msg;
     int			sts;
 
-    assert(sid->magic == MAGIC_SID);
-    assert(baton->magic == MAGIC_QUERY);
+    seriesBatonCheckMagic(sid, MAGIC_SID, "redis_get_sid_callback");
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "redis_get_sid_callback");
 
     /* unpack - extract names for this source via context name map */
     if (reply->type != REDIS_REPLY_ARRAY) {
-	queryfmt(msg, "expected array from %s %s (type=%s)",
+	infofmt(msg, "expected array from %s %s (type=%s)",
 			SMEMBERS, sid->name, redis_reply(reply->type));
-	querymsg(baton, PMLOG_RESPONSE, msg);
+	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     } else if ((sts = series_map_reply(baton, sid->name,
 			reply->elements, reply->element)) < 0) {
 	baton->error = sts;
     }
-    series_lookup_end_phase(baton);
+    series_query_end_phase(baton);
 }
 
 static void
@@ -1993,11 +2039,12 @@ series_lookup_sources(void *arg)
     sds			cmd, key;
     unsigned int	i;
 
-    assert(baton->magic == MAGIC_QUERY);
-    assert(baton->refcount == 0);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_sources");
+    seriesBatonCheckCount(baton, "series_lookup_sources");
+    seriesBatonReference(baton, "series_lookup_sources");
 
     for (i = 0; i < baton->u.lookup.nseries; i++) {
-	baton->refcount++;
+	seriesBatonReference(baton, "series_lookup_sources");
 	sid = &baton->u.lookup.series[i];
 	key = sdscatfmt(sdsempty(), "pcp:context.name:source:%S", sid->name);
 	cmd = redis_command(2);
@@ -2006,6 +2053,7 @@ series_lookup_sources(void *arg)
 	redisSlotsRequest(baton->slots, SMEMBERS, key, cmd,
 			redis_get_sid_callback, sid);
     }
+    series_query_end_phase(baton);
 }
 
 int
@@ -2021,7 +2069,7 @@ pmSeriesSources(pmSeriesSettings *settings, int nsources, pmSID *sources, void *
     if ((baton = calloc(1, bytes)) == NULL)
 	return -ENOMEM;
     initSeriesQueryBaton(baton, settings, arg);
-    initSeriesGetLookup(baton, nsources, sources, settings->on_context, contextrmap);
+    initSeriesGetLookup(baton, nsources, sources, settings->callbacks.on_context, contextmap);
 
     if (nsources == 0)
 	return series_map_keys(baton, redisMapName(baton->u.lookup.map));
@@ -2044,11 +2092,11 @@ series_lookup_metrics(void *arg)
     sds			cmd, key;
     unsigned int	i;
 
-    assert(baton->magic == MAGIC_QUERY);
-    assert(baton->refcount == 0);
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_metrics");
+    seriesBatonCheckCount(baton, "series_lookup_metrics");
 
     for (i = 0; i < baton->u.lookup.nseries; i++) {
-	baton->refcount++;
+	seriesBatonReference(baton, "series_lookup_metrics");
 	sid = &baton->u.lookup.series[i];
 	key = sdscatfmt(sdsempty(), "pcp:metric.name:series:%S", sid->name);
 	cmd = redis_command(2);
@@ -2072,7 +2120,7 @@ pmSeriesMetrics(pmSeriesSettings *settings, int nseries, pmSID *series, void *ar
     if ((baton = calloc(1, bytes)) == NULL)
 	return -ENOMEM;
     initSeriesQueryBaton(baton, settings, arg);
-    initSeriesGetLookup(baton, nseries, series, settings->on_metric, namesrmap);
+    initSeriesGetLookup(baton, nseries, series, settings->callbacks.on_metric, namesmap);
 
     if (nseries == 0)
 	return series_map_keys(baton, redisMapName(baton->u.lookup.map));

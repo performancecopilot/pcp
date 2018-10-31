@@ -17,7 +17,7 @@ __pmHashWalkState
 walker(const __pmHashNode *n, void *v)
 {
     __pmHashWalkState state = (__pmHashWalkState)v;
-    dumpnode(n->key, (__int64_t)n->data);
+    dumpnode(n->key, (__int64_t)((__psint_t)n->data));
     return state;
 }
 
@@ -29,7 +29,7 @@ chained(__pmHashCtl *h)
     for (n = __pmHashWalk(h, PM_HASH_WALK_START);
          n != NULL;
          n = __pmHashWalk(h, PM_HASH_WALK_NEXT)) {
-	dumpnode(n->key, (__int64_t)n->data);
+	dumpnode(n->key, (__int64_t)((__psint_t)n->data));
     }
 }
 

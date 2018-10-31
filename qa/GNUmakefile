@@ -16,7 +16,7 @@ TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9][0-9]*:reserved/d' -
 
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
 	  archives badarchives views qt linux unbound cifs gpfs lustre ganglia \
-	  java mmv postfix perl json slurm tmparch sheet smart
+	  java mmv postfix perl json slurm tmparch sheet smart admin
 ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif
@@ -32,7 +32,7 @@ endif
 #
 %.out: %
 
-default_pcp default: new remake check qa_outfiles localconfig $(OTHERS) $(SUBDIRS)
+default_pcp default: qa_outfiles localconfig $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 setup: $(SUBDIRS) localconfig qa_hosts

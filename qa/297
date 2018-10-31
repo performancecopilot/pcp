@@ -24,14 +24,16 @@ status=0	# success is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 killpid=""
 username=`id -u -n`
-$sudo rm -rf $tmp.*
-trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 
 _cleanup()
 {
     [ -n "$killpid" ] && $signal $killpid
-    $sudo $signal -a pmproxy >/dev/null 2>&1
-    _service pmproxy restart >/dev/null 2>&1
+    $sudo $signal -a pmproxy >>$seq.full 2>&1
+    _service pmproxy restart >>$seq.full 2>&1
 }
 
 realname=`hostname`
@@ -91,19 +93,18 @@ _filter_pmproxy()
 	-e 's/localhost/MY_HOST/g'
 }
 
-_service pmproxy stop >/dev/null 2>&1
-$sudo $signal -a pmproxy >/dev/null 2>&1
+_service pmproxy stop >>$seq.full 2>&1
+$sudo $signal -a pmproxy >>$seq.full 2>&1
 
-export PMCD_RECONNECT_TIMEOUT=1
-
-proxyargs="-Dcontext"
-id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U $username"
-
+OLD_PCP_RUN_DIR=$PCP_RUN_DIR
+mkdir -p $tmp.rundir
+export PCP_RUN_DIR=$tmp.rundir
+proxyargs="-Dcontext -U $username"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
 
-export PMPROXY_HOST=localhost
-
 # real QA test starts here
+export PMPROXY_HOST=localhost
+export PMCD_RECONNECT_TIMEOUT=1
 pmdumptext -Dcontext -t 0.5 sample.bin >$tmp.out 2>&1 &
 killpid=$!
 
@@ -113,7 +114,7 @@ unset PMPROXY_HOST
 
 sleep 3
 echo "killing pmproxy ..."
-$signal -a pmproxy >/dev/null 2>&1
+$signal -a pmproxy >>$seq.full 2>&1
 sleep 2
 echo "1st pmproxy log" >$seq.full
 cat $tmp.log >>$seq.full
@@ -122,15 +123,27 @@ echo "re-starting pmproxy ..."
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
 
 sleep 4
-echo "killing pmcd ..."
-_service pcp stop >/dev/null 2>&1
-sleep 2
+primary_logger_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger | grep ' -P' | $PCP_AWK_PROG '{ print $2 }'`
+if [ -z "$primary_logger_pid" ]
+then
+    echo "Argh! primary pmlogger not running?"
+    exit
+fi
+echo "killing pmcd ..." | tee -a $seq.full
+_service pmlogger stop >>$seq.full 2>&1
+_wait_pmlogger_end $primary_logger_pid
+_service pmcd stop >>$seq.full 2>&1
+_wait_pmcd_end
 echo >>$seq.full
 echo "1st pmcd log" >>$seq.full
 cat $PMCDLOG >>$seq.full
 
-echo "re-starting pmcd ..."
-_service pcp restart >/dev/null 2>&1
+echo "re-starting pmcd ..." | tee -a $seq.full
+export PCP_RUN_DIR=$OLD_PCP_RUN_DIR
+_service pmcd start >>$seq.full 2>&1
+_restore_auto_restart pmcd
+_service pmlogger start >>$seq.full 2>&1
+_restore_auto_restart pmlogger
 _wait_for_pmcd
 _wait_for_pmlogger
 

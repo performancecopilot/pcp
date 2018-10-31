@@ -41,7 +41,7 @@ code {
 Portability Guidelines for PCP QA
 </font></h1>
 <p align="center"><font size="4">Ken McDonell &ltkenj@kenj.id.au&gt</font></p>
-<p align="center"><font size="3"><i>May 2018</i></font></p>
+<p align="center"><font size="3"><i>September 2018</i></font></p>
 
 <h2>Background</h2>
 
@@ -140,7 +140,7 @@ is being run for the corresponding target platform.</li>
 <li>Optional headers are checked for
 using the <i>AC_CHECK_HEADERS</i>() macro in <a
 href="https://github.com/performancecopilot/pcp/blob/master/configure.ac">configure.ac</a>
-and <i>cpp</i> conditionals and macros are used to guard
+and <b>cpp</b> conditionals and macros are used to guard
 the inclusion of these headers, e.g. &lt;strings.h&gt; in <a
 href="https://github.com/performancecopilot/pcp/blob/master/src/dbpmda/src/util.c">src/dbpmda/src/util.c</a>.</li>
 
@@ -156,7 +156,7 @@ href="https://github.com/performancecopilot/pcp/blob/master/src/pmdas/darwin/pmd
 or notrun.  The latter is used to indicate that the test either cannot
 be run because some required component is missing or the test is not
 appropriate for the current platform.  See the tests for the Python
-<b>OrderedDict</b> module and the <i>pmrep</i> application in <a
+<b>OrderedDict</b> module and the <b>pmrep</b> application in <a
 href="https://github.com/performancecopilot/pcp/blob/master/qa/035">qa/035</a>.</li>
 
 </ul>
@@ -165,7 +165,7 @@ href="https://github.com/performancecopilot/pcp/blob/master/qa/035">qa/035</a>.<
 
 <p>Mostly what's been done here is common and good engineering
 practice.  For example using configure, conditionals in the
-GNUmakefiles and assorted <i>sed</i>/<i>awk</i> rewriting scripts
+GNUmakefiles and assorted <b>sed</b>/<b>awk</b> rewriting scripts
 to ensure the code will compile cleanly on all platforms.  Compiler
 warnings are enabled and builds are expected to complete without
 warnings.  And in the source code we demand thorough error checking
@@ -179,12 +179,12 @@ href="https://github.com/performancecopilot/pcp/blob/master/src/include/pcp.conf
 bound to values at build time by configure and installed
 in /etc/pcp.conf.  These can then be used in
 shell scripts and applications in C, C++, Perl, Python
-have run-time access to these via <i>pmGetConfig</i>()
-or <i>pmGetOptionalConfig</i>(), see for example <a
+have run-time access to these via <b>pmGetConfig</b>()
+or <b>pmGetOptionalConfig</b>(), see for example <a
 href="https://github.com/performancecopilot/pcp/blob/master/src/pmie/src/pmie.c">src/pmie/src/pmie.c</a>.</p>
 
 <p>Even file pathname separators (/ for the sane world, \ elsewhere)
-have been abstracted out and <i>pmPathSeparator</i>() is used to
+have been abstracted out and <b>pmPathSeparator</b>() is used to
 construct pathnames from directory components.</p>
 
 <p>At a higher level we don't even try to build code if it is not
@@ -261,10 +261,10 @@ installed or because we need special command line arguments to make
 a (non-PCP) command behave in a standard manner, the following are
 available:
 <ul>
-<li>$PCP_AWK_PROG Posix-compliant <i>awk</i></li>
-<li>$PCP_SORT_PROG Unix-like <i>sort</i></li>
-<li>$PCP_MAKE_PROG the preferred <i>gmake</i></li>
-<li>$PCP_CC_PROG the preferred <i>gcc</i></li>
+<li>$PCP_AWK_PROG Posix-compliant <b>awk</b></li>
+<li>$PCP_SORT_PROG Unix-like <b>sort</b></li>
+<li>$PCP_MAKE_PROG the preferred <b>gmake</b></li>
+<li>$PCP_CC_PROG the preferred <b>gcc</b></li>
 <li>$PCP_ECHO_PROG the standard echo and importantly the
 prefix ($PCP_ECHO_N) and the suffix ($PCP_ECHO_C) to allow output
 without a trailing newline.  These are important because<br>
@@ -274,10 +274,10 @@ is not portable, nor is<br>
 but this portable and correct, albeit ugly!<br>
 <code>$ $PCP_ECHO_PROG $PCP_ECHO_N "Prompt? $PCP_ECHO_C"</code><br>
 </li>
-<li>$PCP_PS_PROG the preferred <i>ps</i> and more importantly when
+<li>$PCP_PS_PROG the preferred <b>ps</b> and more importantly when
 $PCP_PS_PROG is run with $PCP_PS_ALL_FLAGS as the argument we
 get the fields and field-order that a QA test can rely upon.</li>
-<li>$PCP_PYTHON_PROG the version of <i>python</i> that the installed PCP
+<li>$PCP_PYTHON_PROG the version of <b>python</b> that the installed PCP
 components are expecting (critical for version 2 vs version 3
 differences).</li>
 </ul>
@@ -296,12 +296,12 @@ removed when the script ends.  For example:<br>
 <code>$ ... >$tmp.out 2>$tmp.err</code><br>
 <code>$ mkdir $tmp</code><br>
 </li>
-<li>$<b>sudo</b>: run the <i>sudo</i> command with arguments that make it work
+<li>$<b>sudo</b>: run the <b>sudo</b> command with arguments that make it work
 the same everywhere</li>
 <li>$<b>DSO_SUFFIX</b>: if you need to refer to a shared
 library by name, avoid the literal
-".<b>so</b>" suffix; instead use .$DSO_SUFFIX that will become
-.<b>so</b> or .<b>dll</b> or .<b>dylib</b> or ... and will work across all
+"<b>.so</b>" suffix; instead use <b>.</b>$DSO_SUFFIX that will become
+<b>.so</b> or <b>.dll</b> or <b>.dylib</b> or ... and will work across all
 platforms.</li>
 </ul>
 
@@ -312,7 +312,7 @@ that are required to build PCP from source and/or run PCP QA.
 The script
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/admin/check-vm">qa/admin/check-vm</a>
 tries to capture all of these requirements.
-<i>check-vm</i> should be used as follows:
+<b>check-vm</b> should be used as follows:
 <ul>
 <li>Before starting a new QA cycle, running this script with
 a <b>-p</b> argument will identify any packages that you should consider
@@ -326,28 +326,46 @@ captured in qa/admin/check-vm.</li>
 <h3>Avoid exotic commands and non-standard command arguments</h3>
 
 <p>Our QA tests scripts are run with <b>sh</b> not <b>bash</b> and on
-some platforms these are really different!  Things like an <b>==</b> operand
-used with
-<i>test</i> (aka <i>[</i>) as in<br>
-<code>$ if [ "$foo" == "bar" ] ...</code><br>
-will not work and any use of<br>
-<code>$ ... [[ ... ]]</code><br>
-is going to blow up when presented to a real Bourne shell.</p>
-<p> Instead, use the = operator, e.g.</br>
-<code><br>$ sh<br>$ x=1<br>$ [ "$x" = 1 ] && echo yippee<br>yippee<br>
-$ [ "$x" == 1 ] && echo boo<br>sh: 3: [: 1: unexpected operator</code>
+some platforms these are really different!</p>
 
-<p>Another recurring one is the <i>-i</i> argument for <b>sed</b>;
+<p>Things like an <b>==</b> operand
+used with
+<b>test</b> (aka <b>[</b>) as in<br>
+<code>$ if [ "$foo" == "bar" ] ...</code><br>
+will not work with the Bourne shell.
+Instead, use the <b>=</b> operator, e.g.<br>
+<code>$ sh</code><br>
+<code>$ x=1</code><br>
+<code>$ [ "$x" = 1 ] && echo yippee</code><br>
+<code>yippee</code><br>
+<code>$ [ "$x" == 1 ] && echo boo</code><br>
+<code>sh: 3: [: 1: unexpected operator</code></p>
+
+<p>Also and any use of the <b>bash</b> <b>[[</b> operator<br>
+<code>$ ... [[ ... ]]</code><br>
+is going to blow up when presented to a real Bourne shell.
+In most cases <b>test</b> (aka <b>[</b>) can be used for a
+straight forward rewrite.</p>
+
+<p>Even less portable is any use of the <b>bash</b> <b>$((...))</b>
+construct for in-built arithmetic.
+For these cases, you'll need equivalent logic using <b>expr</b>, e.g.<br>
+instead of<br>
+<code>x=$(($x+1))</code><br>
+use<br>
+<code>x=&#96;expr $x + 1&#96;</code></p>
+
+<p>Another recurring one is the <b>-i</b> argument for <b>sed</b>;
 this is not standard and not supported everywhere so just do not use
 it. The alternative:<br>
 <code>$ sed ... &lt;somefile &gt;$tmp.tmp; mv $tmp.tmp somefile</code><br>
 works everywhere for most of the cases in QA.
-If cross-filesystem linking and a lame <i>mv</i> are in play then the
+If cross-filesystem linking and a lame <b>mv</b> are in play then the
 following is even more portable:<br>
 <code>$ sed ... &lt;somefile &gt;$tmp.tmp; cp $tmp.tmp somefile; rm $tmp.tmp</code><br>
 If permissions are in play, then you may need:<br>
 <code>$ sed ... &lt;somefile &gt;$tmp.tmp; $sudo cp $tmp.tmp somefile; rm $tmp.tmp</code></p>
-<p>Do not use <i>seq</i> as it is not portable.
+<p>Do not use <b>seq</b> as it is not portable.
 For example, this is not portable:<br>
 <code>for i in $(seq 4); do ...; done</code><br>
 but it can be rewritten as follows and this will work everywhere:<br>
@@ -371,7 +389,7 @@ produce output that is irrelevant
 to the success or otherwise of the test.
 The most obvious example is the current date from an application
 run on the test system.
-Consequently, most QA test scripts include one or more <i>_filter</i>() functions
+Consequently, most QA test scripts include one or more <b>_filter</b>() functions
 that are responsible to translating the raw output from the applications
 run in the test into the deterministic output.</p>
 <p>These filtering functions in turn often use a set of standard functions in
@@ -390,34 +408,34 @@ functions in
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/common.filter">qa/common.filter</a>
 that may be used, for example:
 <ul>
-<li><i>_filter_pcp_start</i>() filters the output from running the <i>pcp</i>
-&quot;init&quot; script that starts <i>pmcd</i> and <i>pmlogger</i>.
-May also be used for the separate <i>pmcd</i> and <i>pmlogger</i>
-&quot;init&quot; scripts that start just <i>pmcd</i> and <i>pmlogger</i>
+<li><b>_filter_pcp_start</b>() filters the output from running the <b>pcp</b>
+&quot;init&quot; script that starts <b>pmcd</b> and <b>pmlogger</b>.
+May also be used for the separate <b>pmcd</b> and <b>pmlogger</b>
+&quot;init&quot; scripts that start just <b>pmcd</b> and <b>pmlogger</b>
 respectively.</li>
-<li><i>_filter_pcp_stop</i>() filters the output from running the <i>pcp</i>
-&quot;init&quot; script that stops <i>pmcd</i> and <i>pmlogger</i>.
-May also be used for the separate <i>pmcd</i> and <i>pmlogger</i>
-&quot;init&quot; scripts that stop just <i>pmcd</i> and <i>pmlogger</i>
-<li><i>_filter_pmie_start</i>() filters the output from running the <i>pmie</i>
-&quot;init&quot; script that starts <i>pmie</i>.</li>
-<li><i>_filter_pmda_install</i>() filters the output from installing a
-new PMDA.</i>
-<li><i>_filter_pmcd_log</i>() filters the log file from <i>pmcd</i>.</li>
-<li><i>_filter_pmlogger_log</i>() filters the log file from <i>pmlogger</i>.</li>
-<li><i>_filter_pmdumplog_log</i>() filters the log file from <i>pmdumplog</i>.</li>
-<li><i>_filter_pmdumptext_log</i>() filters the log file from <i>pmdumptext</i>.</li>
-<li><i>_filter_optional_pmdas</i>() removes lines containing the names
+<li><b>_filter_pcp_stop</b>() filters the output from running the <b>pcp</b>
+&quot;init&quot; script that stops <b>pmcd</b> and <b>pmlogger</b>.
+May also be used for the separate <b>pmcd</b> and <b>pmlogger</b>
+&quot;init&quot; scripts that stop just <b>pmcd</b> and <b>pmlogger</b>
+<li><b>_filter_pmie_start</b>() filters the output from running the <b>pmie</b>
+&quot;init&quot; script that starts <b>pmie</b>.</li>
+<li><b>_filter_pmda_install</b>() filters the output from installing a
+new PMDA.</li>
+<li><b>_filter_pmcd_log</b>() filters the log file from <b>pmcd</b>.</li>
+<li><b>_filter_pmlogger_log</b>() filters the log file from <b>pmlogger</b>.</li>
+<li><b>_filter_pmdumplog_log</b>() filters the log file from <b>pmdumplog</b>.</li>
+<li><b>_filter_pmdumptext_log</b>() filters the log file from <b>pmdumptext</b>.</li>
+<li><b>_filter_optional_pmdas</b>() removes lines containing the names
 of executable PMDAs that may, or may not, be installed.</li>
-<li><i>_filter_top_pmns</i>() removes lines containing the just the
+<li><b>_filter_top_pmns</b>() removes lines containing the just the
 top-level PMNS names for PMDAs that may, or may not, be installed.</li>
-<li><i>_filter_pmie_log</i>() filters the log file from <i>pmie</i>.</li>
-<li><i>_filter_dumpresult</i>() filters the diagnostic output from
-<i>pmDumpResult</i>() (translate timestamp to a literal <b>TIMESTAMP</b>,
+<li><b>_filter_pmie_log</b>() filters the log file from <b>pmie</b>.</li>
+<li><b>_filter_dumpresult</b>() filters the diagnostic output from
+<b>pmDumpResult</b>() (translate timestamp to a literal <b>TIMESTAMP</b>,
 remove data addresses, replace metric values by literals
 like <b>NUMBER</b>, <b>HEXNUMBER</b>, <b>STRING</b> or
 <b>AGGREGATE</b>).</li>
-<li><i>_filter_dbg</i>() strips timestamps from some of the diagnostics
+<li><b>_filter_dbg</b>() strips timestamps from some of the diagnostics
 generated by the <b>-D</b> command line option to PCP commands.</li>
 </ul>
 </li>
@@ -426,7 +444,7 @@ not critical to the success of the test, so replacing the actual date and/or
 time by a constant is common filtering operation.  See for example DATE in
 _filter() in
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/866">qa/866</a>, or
-TIMESTAMP in <i>_filter__pmdumplog</i>() in
+TIMESTAMP in <b>_filter__pmdumplog</b>() in
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/common.filter">qa/common.filter</a>
 </li>
 <li>Another approach to ensuring deterministic output for tests that
@@ -446,31 +464,31 @@ includes several examples of this type of filtering.
 is confined to one or more fields or columns.  If the <i>other</i> fields
 and columns are not deterministic, then vertical filtering may be
 appropriate.
-For an example using <i>cut</i> see
+For an example using <b>cut</b> see
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/951">qa/951</a>
 while
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/957">qa/957</a>
-shows how vertical filtering can be achieved using <i>awk</i>.
+shows how vertical filtering can be achieved using <b>awk</b>.
 </li>
 <li>Similarly, sometimes the information that is critical to
 the outcome of a QA test may be in only some of the output lines
 while the other lines are not constant across platforms.
-Horizontal filtering may be pattern-based (e.g. using <i>grep</i> or <i>sed</i>)
-or ordinal line number based (e.g. using <i>sed</i> or <i>awk</i> to remove or
-keep lines N-M) or FSA-based (e.g. using <i>awk</i> to skip lines until
+Horizontal filtering may be pattern-based (e.g. using <b>grep</b> or <b>sed</b>)
+or ordinal line number based (e.g. using <b>sed</b> or <b>awk</b> to remove or
+keep lines N-M) or FSA-based (e.g. using <b>awk</b> to skip lines until
 the first line of interest is found, then output the following lines
 until the last line of interest is found).</li>
 <li>Gratuitous white space differences for the same command across different
 platforms is another common scenario.
-See for example <i>od</i> output filtering in
+See for example <b>od</b> output filtering in
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/079">qa/079</a>,
-or <i>wc</i> output filtering in
+or <b>wc</b> output filtering in
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/1059">qa/1059</a>.
 </li>
 <li>For some tests, a value may be deemed &quot;correct&quot;
 if it is in an expected range.
 In these cases filtering is required to map the actual value onto
-a constant literal value.  For an example, see the <i>_range</i>() function in
+a constant literal value.  For an example, see the <b>_range</b>() function in
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/178">qa/178</a>.
 </li>
 </ul>
@@ -488,7 +506,7 @@ after the test has been run.</p>
 current platform, it should create a <i>NNNN.notrun</i> file.
 Optionally <i>NNNN.notrun</i> contains the reason the test has not been run.
 </p>
-<p>The convenience function <i>_notrun</i>() defined in 
+<p>The convenience function <b>_notrun</b>() defined in 
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/common.check">qa/common.check</a>
 may be used to create the file, write the reason to the file and exit.
 </p>
@@ -511,7 +529,7 @@ then depending on the PMDA(s) involved,
 there is a chance that the names in the PMNS may be processed
 in different orders on different platforms.</p>
 <p>The simplest solution is to enumerate the PMNS nodes of interest
-in the QA script using <i>pminfo</i>, sort the list and then have the
+in the QA script using <b>pminfo</b>, sort the list and then have the
 application being tested operate on the leaf nodes of the PMNS one
 at a time.
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/647">qa/647</a>
@@ -529,22 +547,22 @@ may be use to re-order the reported instances so the sequence is
 deterministic.
 See
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/1180">qa/1180</a>
-for an example that uses <i>$here/src/sortinst</i> to re-order <i>pminfo</i> <i>-</i>f output.
+for an example that uses <i>$here/src/sortinst</i> to re-order <b>pminfo</b> <b>-</b>f output.
 </p>
 
 <h3>Sort ordering</h3>
-<p>Unfortunately <i>sort</i> does not produce the same sorted
+<p>Unfortunately <b>sort</b> does not produce the same sorted
 order on all platforms by default.
 We need to take control of <b>LC_COLLATE</b> and the decision has been made
 to standardize on <b>POSIX</b> as the collating sequence for PCP QA.</p>
 <p><b>$LC_COLLATE</b> is set and exported into the environment in
 <a href="https://github.com/performancecopilot/pcp/blob/master/qa/common.rc">common.rc</a>,
 but this is a relatively recent change so <b>LC_COLLATE=POSIX</b> is liberally
-sprinkled throughout the QA test suite ahead of running <i>sort</i>.
+sprinkled throughout the QA test suite ahead of running <b>sort</b>.
 </p>
 
 <h3>Filesystem directory order</h3>
-<p>Some PMDAs use <i>readdir</i>() or similar routines to scan a directory
+<p>Some PMDAs use <b>readdir</b>() or similar routines to scan a directory
 contents to find metrics and/or instances.
 This practice is certain to expose platform differences as the order
 of directory entries is unlikely to be deterministic.</p>

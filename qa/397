@@ -43,6 +43,8 @@ fetch sample.event.records
 fetch sample.event.records
 fetch sample.event.records
 fetch sample.event.records
+close
+wait 1
 End-of-File
 
 cat $tmp.out >>$seq.full

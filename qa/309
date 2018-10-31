@@ -13,6 +13,14 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+ndisk=`pmprobe disk.dev.read | $PCP_AWK_PROG '
+$2 > 0	{ print "ok" }'`
+if [ -z "$ndisk" ]
+then
+    _notrun "DISK_INDOM is empty, pmstore won't work"
+    # NOTREACHED
+fi
+
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

@@ -138,19 +138,25 @@ typedef struct labelspec {
     int			new_type;
     int			old_id;
     int			new_id;
+    int			old_instance;
+    int			new_instance;
     char		*old_label;
+    char		*old_value;
     char		*new_label;
     char		*new_value;
+    pmLabelSet		*new_labels;
     indomspec_t		*ip;		/* for instance id changes */
 } labelspec_t;
 
 /* values for labelspec_t flags[] */
-#define LABEL_ACTIVE            1
-#define LABEL_CHANGE_ID		2
-#define LABEL_CHANGE_LABEL	4
-#define LABEL_CHANGE_VALUE	8
-#define LABEL_DELETE		16
-#define LABEL_CHANGE_ANY       0x1e 
+#define LABEL_ACTIVE            0x01
+#define LABEL_CHANGE_ID		0x02
+#define LABEL_CHANGE_LABEL	0x04
+#define LABEL_CHANGE_INSTANCE	0x08
+#define LABEL_CHANGE_VALUE	0x10
+#define LABEL_DELETE		0x20
+#define LABEL_NEW		0x40
+#define LABEL_CHANGE_ANY        0x7e 
 
 extern labelspec_t	*label_root;
 
@@ -213,13 +219,19 @@ extern pmUnits	ntoh_pmUnits(pmUnits);
 
 extern metricspec_t	*start_metric(pmID);
 extern indomspec_t	*start_indom(pmInDom);
-extern textspec_t	*start_text(int, int);
-extern labelspec_t	*start_label(int, int, char *);
+extern textspec_t	*start_text(int, int, char *);
+
+extern labelspec_t	*start_label(int, int, int, const char *, char *, char *);
+extern labelspec_t	*create_label(int, int, int, char *, char *);
+extern void		deactivate_labels(void);
+
 extern int		change_inst_by_inst(pmInDom, int, int);
 extern int		change_inst_by_name(pmInDom, char *, char *);
 extern int		inst_name_eq(const char *, const char *);
 
 extern char	*SemStr(int);
+extern char	*add_quotes(const char *);
+extern char	*dupcat(const char *, const char *);
 extern void	newvolume(int);
 
 extern void	do_desc(void);

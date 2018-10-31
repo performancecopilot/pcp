@@ -117,10 +117,12 @@ container_lookup(int fd, linux_container_t *cp)
 	return sts;
 
     /* process the results - stash current container details */
-    if (sts > cp->length && (np = strdup(name)) != NULL) {
-	cp->length = sts;
-	free(cp->name);
-	cp->name = np;
+    if (sts > cp->length) {
+	if ((np = strdup(name)) != NULL) {
+	    cp->length = sts;
+	    free(cp->name);
+	    cp->name = np;
+	}
     }
     cp->pid = pid;
     return 0;

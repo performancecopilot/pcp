@@ -189,8 +189,16 @@ do
 done
 if [ -f $tmp.y ]
 then
-    push="ssh://git@github.com/performancecopilot/pcp.git"
-    $GIT push --mirror $push
+    case `id -un`
+    in
+	kenj)
+	    echo "You're not trusted to do this ..."
+	    ;;
+	*)
+	    push="ssh://git@github.com/performancecopilot/pcp.git"
+	    $GIT push $push
+	    ;;
+    esac
 fi
 
 # remember last commit that was pushed ...
@@ -204,8 +212,13 @@ else
     case `id -un`
     in
 	kenj)
-	    echo "To send commit mail ..."
-	    echo '$ sendcommitmail'
+	    echo "And now send commit mail ..."
+	    if [ `hostname` = bozo ]
+	    then
+		sendcommitmail
+	    else
+		echo "cut-n-paste from /tmp/msg into mail program and send to pcp@group.io"
+	    fi
 	    ;;
     esac
 fi

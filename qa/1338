@@ -1,6 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 1338
-# Test that context labels can be deleted by pmlogrewrite(1)
+# Test that context labels can be created, deleted and rewritten
+# by pmlogrewrite(1)
 #
 # Copyright (c) 2018 Red Hat.  All Rights Reserved.
 #
@@ -12,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-
-# test for-some-thing || _notrun No support for some-thing
 
 _cleanup()
 {
@@ -41,6 +40,41 @@ CONFIG=$tmp.config
 cat > $CONFIG << EOF
 LABEL CONTEXT { } # does nothing
 LABEL CONTEXT { delete } # delete all context labels
+EOF
+echo contents of $CONFIG >> $seq.full
+echo ........................ >> $seq.full
+cat $CONFIG >> $seq.full
+echo ........................ >> $seq.full
+IN=$DIR/20180416.10.00
+OUT=$tmp.pmlogrewrite
+rm -f $OUT.*
+echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq.full
+pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq.full
+[ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
+
+# Now run pmdumplog against the original and rewritten archives.
+DUMP1=$tmp.original.txt
+echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq.full
+pmdumplog -zhide $IN 2>&1 > $DUMP1
+
+DUMP2=$tmp.rewritten.txt
+IN=$OUT
+echo "Running pmdumplog -iteh $IN" | _filter | tee -a $seq.full
+pmdumplog -zhide $IN 2>&1 > $DUMP2
+
+# Make sure the context labels have been deleted
+echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
+diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
+
+# Test creating and rewriting context labels
+cat > $CONFIG << EOF
+LABEL CONTEXT "domainname" { LABEL -> "new_domainname" }
+LABEL CONTEXT * "brolley-t530" { VALUE -> "retired-t530" }
+LABEL CONTEXT { NEW "new_context_label" "new_context_value" }
+LABEL CONTEXT { NEW "new_context_number" -123.456e+789 }
+LABEL CONTEXT { NEW "new_context_true" true }
+LABEL CONTEXT { NEW "new_context_false" false }
+LABEL CONTEXT { NEW "new_context_null" null }
 EOF
 echo contents of $CONFIG >> $seq.full
 echo ........................ >> $seq.full

@@ -145,6 +145,7 @@ choose_cluster(int requested, const char *path)
 static int
 create_client_stat(const char *client, const char *path, size_t size)
 {
+    stats_t *sp;
     int fd;
 
     if (pmDebugOptions.appl0)
@@ -213,8 +214,9 @@ create_client_stat(const char *client, const char *path, size_t size)
 		pmNotifyErr(LOG_DEBUG, "MMV: loading %s client: %d \"%s\"",
 				    prefix, cluster, path);
 
-	    slist = realloc(slist, sizeof(stats_t) * (scnt + 1));
-	    if (slist != NULL) {
+	    sp = realloc(slist, sizeof(stats_t) * (scnt + 1));
+	    if (sp != NULL) {
+		slist = sp;
 		memset(&slist[scnt], 0, sizeof(stats_t));
 		slist[scnt].name = strdup(client);
 		slist[scnt].addr = m;
@@ -230,6 +232,8 @@ create_client_stat(const char *client, const char *path, size_t size)
 				pmGetProgname(), client, osstrerror());
 		__pmMemoryUnmap(m, size);
 		scnt = 0;
+		free(slist);
+		slist = NULL;
 	    }
 	} else {
 	    pmNotifyErr(LOG_ERR, "%s: failed to memory map \"%s\" - %s",
@@ -288,15 +292,17 @@ static int
 create_metric(pmdaExt *pmda, stats_t *s, char *name, pmID pmid, unsigned indom,
 	mmv_metric_type_t type, mmv_metric_sem_t semantics, pmUnits units)
 {
+    pmdaMetric *mp;
+
     if (pmDebugOptions.appl0)
 	pmNotifyErr(LOG_DEBUG, "MMV: create_metric: %s - %s", name, pmIDStr(pmid));
 
-    metrics = realloc(metrics, sizeof(pmdaMetric) * (mtot + 1));
-    if (metrics == NULL)  {
+    mp = realloc(metrics, sizeof(pmdaMetric) * (mtot + 1));
+    if (mp == NULL)  {
 	pmNotifyErr(LOG_ERR, "cannot grow MMV metric list: %s", s->name);
 	return -ENOMEM;
     }
-
+    metrics = mp;
     metrics[mtot].m_user = NULL;
     metrics[mtot].m_desc.pmid = pmid;
 
@@ -362,6 +368,7 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
     mmv_disk_instance_t *in1 = NULL;
     mmv_disk_instance2_t *in2 = NULL;
     mmv_disk_string_t *string;
+    pmdaInstid *iip;
     int i, j, size, newinsts = 0;
 
     if (pmDebugOptions.appl0)
@@ -398,13 +405,16 @@ update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
 
     /* allocate memory, then append new instances to the known set */
     size = sizeof(pmdaInstid) * (ip->it_numinst + newinsts);
-    ip->it_set = (pmdaInstid *)realloc(ip->it_set, size);
-    if (ip->it_set == NULL) {
+    iip = (pmdaInstid *)realloc(ip->it_set, size);
+    if (iip == NULL) {
 	pmNotifyErr(LOG_ERR, "%s: cannot get memory for instance list in %s",
 			pmGetProgname(), s->name);
 	ip->it_numinst = 0;
+	free(ip->it_set);
+	ip->it_set = NULL;
 	return -ENOMEM;
     }
+    ip->it_set = iip;
 
     if (s->version == MMV_VERSION1) {
 	for (i = 0; i < count; i++) {
@@ -447,12 +457,13 @@ create_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
     if (pmDebugOptions.appl0)
 	pmNotifyErr(LOG_DEBUG, "MMV: create_indom: %u", id->serial);
 
-    indoms = realloc(indoms, sizeof(pmdaIndom) * (intot + 1));
-    if (indoms == NULL) {
+    ip = realloc(indoms, sizeof(pmdaIndom) * (intot + 1));
+    if (ip == NULL) {
 	pmNotifyErr(LOG_ERR, "%s: cannot grow indom list in %s",
 			pmGetProgname(), s->name);
 	return -ENOMEM;
     }
+    indoms = ip;
     ip = &indoms[intot++];
     ip->it_indom = indom;
     ip->it_set = (pmdaInstid *)calloc(count, sizeof(pmdaInstid));

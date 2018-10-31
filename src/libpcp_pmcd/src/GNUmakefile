@@ -88,3 +88,6 @@ default_pcp : default
 install_pcp : install
 
 client.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check::	$(CFILES)
+	$(CLINT) $^
