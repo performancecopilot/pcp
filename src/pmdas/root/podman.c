@@ -307,7 +307,7 @@ podman_insts_refresh(container_engine_t *dp, pmInDom indom)
     static char		*cgroup;
     static jsonsl_t	jsn;
     parser_t		parse = {0};
-    size_t		bytes;
+    ssize_t		bytes;
     char		buffer[BUFSIZ];
     int			fd;
 
