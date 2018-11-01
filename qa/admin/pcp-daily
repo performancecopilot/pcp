@@ -781,9 +781,14 @@ do
 	    [ X"$what" = Xall ] && check_what='-x valgrind'
 	    ;;
 
-	vm06|vm09|vm13|vm33)
-	    # Only -g sanity at this stage for NetBSD or OpenBSD or FreeBSD
-	    # or OpenIndiana
+	vm06)
+	    # Only -g sanity at this stage for FreeBSD
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity'
+	    ;;
+
+	vm09)
+	    # Only -g sanity at this stage for NetBSD
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
@@ -794,6 +799,12 @@ do
 	    # and some tests are not working yet
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -x valgrind'
+	    ;;
+
+	vm13)
+	    # Only -g sanity at this stage for OpenIndiana
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
 
 	vm15)
@@ -814,6 +825,12 @@ do
 	    # and some tests are not working yet
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -x valgrind -X 603'
+	    ;;
+
+	vm33)
+	    # Only -g sanity at this stage for OpenBSD 5.8
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
 
 	vm35)
@@ -844,6 +861,15 @@ do
 		efile=''
 	    fi
 	    ;;
+
+	vm37)
+	    # Only selected groups this stage for OpenBSD 6.4
+	    #	sanity threads
+	    # and some tests are not working yet
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity -g threads'
+	    ;;
+
     esac
 
     if which virsh >/dev/null 2>&1
