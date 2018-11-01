@@ -61,6 +61,7 @@ p
     -e '/The -C option/{
 s/configuration file.*/configuration file .../p
 }' \
+| tr -s ' ' \
 # end
 
 echo
