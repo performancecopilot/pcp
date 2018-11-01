@@ -16,7 +16,7 @@
 #define _CGROUP_H
 
 #define MAXCIDLEN	128	/* maximum container name length */
-#define DOCKERCIDLEN	64	/* length of a docker container ID */
+#define SHA256CIDLEN	64	/* length of a SHA256 container ID */
 #define MAXMNTOPTSLEN	256	/* maximum mount option string length */
 
 /*

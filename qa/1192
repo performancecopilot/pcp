@@ -1,8 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 042
-# Exercise fixes for some containers issues.
+# PCP QA Test No. 1192
+# Exercise podman container detection and metrics.
 #
-# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -11,15 +11,15 @@ echo "QA output created by $seq"
 . ./common.containers
 
 _check_containers
-_check_docker_binary
-_check_docker_images busybox
+_check_podman_binary
+_check_podman_images busybox
 
 _cleanup()
 {
     if [ -n "$container" ]
     then
         echo "== removing container" | tee -a $seq.full
-        _remove_docker_containers $container
+        _remove_podman_containers $container
         container=""
     fi 
     rm -rf $tmp.*
@@ -47,12 +47,12 @@ _filter_pminfo()
 }
 
 # real QA test starts here
-container=`$docker run -d busybox sleep 15`
+container=`$sudo $podman run -d busybox sleep 15`
 echo "== container: $container" >> $seq.full
 
 echo "== kernel PMDA" | tee -a $seq.full
-# expect 2 interfaces (lo/eth0) and 2 mounts
-metrics="network.interface.in.bytes filesys.used"
+# expect 2 interfaces (lo/eth0) # mounts different.
+metrics="network.interface.in.bytes" # filesys.used
 for m in $metrics
 do
     pminfo --fetch --container=$container $m | _filter_pminfo

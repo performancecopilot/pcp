@@ -8,13 +8,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-. ./common.docker
+. ./common.containers
 
 _check_containers
+_check_docker_binary
 which atomic >/dev/null 2>&1 || _notrun "no atomic command found"
 _check_docker_images pcp-collector pcp-pmlogger pcp-monitor pcp-pmie pcp-pmwebd
 

@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.containers
 
 _check_containers
 

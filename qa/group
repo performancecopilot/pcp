@@ -1543,6 +1543,7 @@ BAD
 1187 python pcp dstat local
 1188 pmda.dm local valgrind
 1191 pmda.prometheus local python
+1192 containers local
 1193 pmlogrewrite labels help pmdumplog local
 1194 pmlogrewrite local
 1196 pmcd local
