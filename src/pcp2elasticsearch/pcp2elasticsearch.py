@@ -42,7 +42,7 @@ CONFVER = 1
 ES_INDEX = "pcp"
 ES_SERVER = "http://localhost:9200/"
 
-class pcp2elasticsearch(object): # pylint: disable=useless-object-inheritance
+class pcp2elasticsearch(object):
     """ PCP to Elasticsearch """
     def __init__(self):
         """ Construct object, prepare for command line handling """
