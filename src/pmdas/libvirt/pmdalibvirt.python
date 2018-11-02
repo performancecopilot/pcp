@@ -20,7 +20,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=bare-except, broad-except
+# pylint: disable=broad-except
 # pylint: disable=bad-continuation, wrong-import-order
 # pylint: disable=consider-using-enumerate, too-many-return-statements
 
@@ -542,7 +542,6 @@ class LibvirtPMDA(PMDA):
                             break
                 self.vm_vcpu_insts.set_instances(self.vm_vcpu_indom, insts)
                 self.replace_indom(self.vm_vcpu_indom, insts)
-
             except libvirt.libvirtError as error:
                 self.log("Failed to get domain vcpu stats: %s" % error)
             return
@@ -590,7 +589,7 @@ class LibvirtPMDA(PMDA):
                                     key = src.keys().index(path)
                                     path = src.values()[key]
                                     break
-                                except:
+                                except Exception:
                                     pass
                             if not path:
                                 continue
@@ -616,7 +615,6 @@ class LibvirtPMDA(PMDA):
                             break
                 self.vm_block_insts.set_instances(self.vm_block_indom, insts)
                 self.replace_indom(self.vm_block_indom, insts)
-
             except libvirt.libvirtError as error:
                 self.log("Failed to get domain block stats: %s" % error)
             return
@@ -667,7 +665,6 @@ class LibvirtPMDA(PMDA):
                             break
                 self.vm_net_insts.set_instances(self.vm_net_indom, insts)
                 self.replace_indom(self.vm_net_indom, insts)
-
             except libvirt.libvirtError as error:
                 self.log("Failed to get domain net stats: %s" % error)
             return
@@ -696,7 +693,7 @@ class LibvirtPMDA(PMDA):
                     value = method()
                 value = self.convert_value(value, self.hv_metrics[item][2])
                 return [value, 1]
-            except:
+            except Exception:
                 return [PM_ERR_VALUE, 0]
 
         if not self.doms:
@@ -739,14 +736,14 @@ class LibvirtPMDA(PMDA):
 
                 value = self.convert_value(value, self.vm_metrics[item][2])
                 return [value, 1]
-            except:
+            except Exception:
                 return [PM_ERR_VALUE, 0]
 
         if cluster == self.vm_memstats_cluster:
             try:
                 key = self.vm_memstats[item][0].rpartition('.')[2]
                 return [self.vm_memstats_res[self.vm_insts.inst_name_lookup(inst)][key], 1]
-            except:
+            except Exception:
                 return [PM_ERR_VALUE, 0]
 
         if cluster == self.vm_cpustats_cluster or \
@@ -863,7 +860,7 @@ class LibvirtPMDA(PMDA):
                 if mtype == PM_TYPE_STRING and value.startswith(' '):
                     value = value[1:]
                 return [value, 1]
-            except:
+            except Exception:
                 return [PM_ERR_VALUE, 0]
 
         return [PM_ERR_PMID, 0]
