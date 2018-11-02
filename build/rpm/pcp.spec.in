@@ -100,7 +100,7 @@ Obsoletes: pcp-pmda-kvm
 Provides: pcp-pmda-kvm
 
 # Utilities used indirectly e.g. by scripts we install
-Requires: bash bc bzip2 gawk gcc sed grep coreutils findutils
+Requires: bash xz gawk sed grep coreutils findutils
 # which(1) comes from different places
 %if 0%{?suse_version} >= 1100
 Requires: util-linux
@@ -268,7 +268,6 @@ Requires: pcp-libs = @package_version@
 Requires: pcp-libs-devel = @package_version@
 Requires: pcp-devel = @package_version@
 Obsoletes: pcp-gui-testsuite
-
 # The following are inherited from pcp-collector and pcp-monitor,
 # both of which are now obsoleted by the base pcp package
 Requires: pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
@@ -332,7 +331,6 @@ Requires: pcp-pmda-elasticsearch
 %if "@pmda_postfix@" == "true"
 Requires: pcp-pmda-postfix
 %endif
-
 %if "@enable_webapi@" == "true"
 Requires: pcp-webapi
 %endif
@@ -342,6 +340,7 @@ Requires: pcp-system-tools
 %if "@enable_qt@" == "true"
 Requires: pcp-gui
 %endif
+Requires: gcc bc bzip2 gzip
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
@@ -661,10 +660,10 @@ URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
-Requires: python3-elasticsearch
+Requires: python3-requests
 %else
 Requires: %{__python2}-pcp = @package_version@
-Requires: %{__python2}-elasticsearch
+Requires: %{__python2}-requests
 %endif
 
 %description export-pcp2elasticsearch
@@ -1178,23 +1177,6 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from a 389 Directory Server log.
 #end pcp-pmda-ds389log
 
-%if "@pmda_elasticsearch@" == "true"
-#
-# pcp-pmda-elasticsearch
-#
-%package pmda-elasticsearch
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for Elasticsearch
-URL: https://pcp.io
-Requires: perl-PCP-PMDA = @package_version@
-Requires: perl(LWP::UserAgent)
-
-%description pmda-elasticsearch
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about Elasticsearch.
-#end pcp-pmda-elasticsearch
-%endif
 
 #
 # pcp-pmda-gpfs
@@ -1761,6 +1743,28 @@ kernels configfs filesystem. The PMDA provides per LUN level stats, and a
 summary instance per iSCSI target, which aggregates all LUN metrics within the
 target.
 #end pcp-pmda-lio
+%endif
+
+%if "@pmda_elasticsearch@" == "true"
+#
+# pcp-pmda-elasticsearch
+#
+%package pmda-elasticsearch
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for Elasticsearch
+URL: https://pcp.io
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+Requires: python3-urllib3
+%else
+Requires: %{__python2}-pcp
+Requires: %{__python2}-urllib3
+%endif
+%description pmda-elasticsearch
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about Elasticsearch.
+#end pcp-pmda-elasticsearch
 %endif
 
 %if "@pmda_prometheus@" == "true"

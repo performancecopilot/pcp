@@ -40,7 +40,7 @@ pack_pcp : rpmmacros $(SPEC)
 		sed -e "s,^,$${RPMDIR},g" -e 's/$$/.rpm/g'`; \
 	    rpmsign --addsign --key-id=$${RPM_SIGN_KEYID} $${RPMS}; \
 	fi
-	rm -f $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm rpmmacros 
+	rm -f $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm rpmmacros
 
 rpmmacros : macros.template
 	@TREEROOT=`cd ${TOPDIR}; pwd`; \
@@ -88,7 +88,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_nutcracker@|$(PMDA_NUTCRACKER)|g' \
 	    -e's|@pcp2xlsx@|$(HAVE_PYTHON_OPENPYXL)|g' \
 	    -e's|@pcp2influxdb@|$(HAVE_PYTHON_INFLUXDB)|g' \
-	    -e's|@pcp2elasticsearch@|$(HAVE_PYTHON_ELASTICSEARCH)|g' \
+	    -e's|@pcp2elasticsearch@|$(HAVE_PYTHON_REQUESTS)|g' \
 	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \

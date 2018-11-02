@@ -17,9 +17,6 @@
 #include <sys/stat.h>
 #include "pmjson.h"
 
-#define JSONMETRICS_SZ	5
-extern json_metric_desc json_metrics[JSONMETRICS_SZ];
-
 enum {
     CONTAINERS_INDOM,
     NUM_INDOMS

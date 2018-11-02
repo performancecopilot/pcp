@@ -42,7 +42,7 @@ in that order along with other service-specific initialization.
     common.avahi
     common.compress
     common.discovery
-    common.docker
+    common.containers
     common.gfs2
     common.pcpweb
     common.python

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 Red Hat.
+# Copyright (c) 2014-2015,2018 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,9 +21,10 @@ CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "root	1	pipe	binary		$(PMDADIR)/$(CMDTARGET)"
 
-CFILES		= root.c agent.c
+CFILES		= root.c agent.c jsonsl.c
+XFILES		= jsonsl.c jsonsl.h
 ifeq "$(TARGET_OS)" "linux"
-CFILES		+= docker.c lxc.c
+CFILES		+= podman.c docker.c lxc.c
 endif
 
 VERSION_SCRIPT	= exports
@@ -32,7 +33,7 @@ LDIRT		= $(HELPTARGETS) pmns domain.h $(VERSION_SCRIPT)
 
 LLDLIBS		= $(PCP_WEBLIB)
 
-default:	$(CMDTARGET) $(HELPTARGETS) pmns
+default:	$(XFILES) $(CMDTARGET) $(HELPTARGETS) pmns
 ifneq "$(TARGET_OS)" "mingw"
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
@@ -60,6 +61,9 @@ $(HELPTARGETS) : help
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
 
+$(XFILES):
+	$(LN_S) -f $(TOPDIR)/src/external/$@ $@
+
 $(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
@@ -69,3 +73,6 @@ pmns :
 	$(LN_S) -f root_root pmns
 
 lxc.o root.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check:: $(CFILES) $(HFILES) $(XFILES)
+	$(CLINT) $^

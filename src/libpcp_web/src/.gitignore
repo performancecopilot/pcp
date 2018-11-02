@@ -3,6 +3,8 @@ dict.c
 dict.h
 jsmn.c
 jsmn.h
+jsonsl.c
+jsonsl.h
 sha1.c
 sha1.h
 crc16.c

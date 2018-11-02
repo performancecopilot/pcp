@@ -8,9 +8,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.docker
+. ./common.containers
 
 _check_containers
+_check_docker_binary
 _check_docker_images busybox
 count=`_count_docker_containers`
 [ "$count" -gt 0 ] && \

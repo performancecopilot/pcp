@@ -238,7 +238,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash bc bzip2 gawk gcc sed grep findutils which
+Requires: bash xz gawk sed grep findutils which
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
@@ -449,7 +449,6 @@ Requires: pcp-libs = %{version}-%{release}
 Requires: pcp-libs-devel = %{version}-%{release}
 Requires: pcp-devel = %{version}-%{release}
 Obsoletes: pcp-gui-testsuite
-
 # The following are inherited from pcp-collector and pcp-monitor,
 # both of which are now obsoleted by the base pcp package
 Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
@@ -461,7 +460,6 @@ Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
 Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
-
 %if !%{disable_nutcracker}
 Requires: pcp-pmda-nutcracker
 %endif
@@ -483,7 +481,6 @@ Requires: pcp-pmda-json
 Requires: pcp-pmda-rpm
 %endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
-
 %if !%{disable_microhttpd}
 Requires: pcp-webapi
 %endif
@@ -493,6 +490,7 @@ Requires: pcp-system-tools
 %if !%{disable_qt}
 Requires: pcp-gui
 %endif
+Requires: bc gcc gzip bzip2
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
@@ -790,12 +788,12 @@ URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-Requires: python3-elasticsearch
-BuildRequires: python3-elasticsearch
+Requires: python3-requests
+BuildRequires: python3-requests
 %else
 Requires: %{__python2}-pcp = %{version}-%{release}
-Requires: %{__python2}-elasticsearch
-BuildRequires: %{__python2}-elasticsearch
+Requires: %{__python2}-requests
+BuildRequires: %{__python2}-requests
 %endif
 
 %description export-pcp2elasticsearch
@@ -1130,22 +1128,6 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from a 389 Directory Server log.
 #end pcp-pmda-ds389log
 
-#
-# pcp-pmda-elasticsearch
-#
-%package pmda-elasticsearch
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for Elasticsearch
-URL: https://pcp.io
-Requires: perl-PCP-PMDA = %{version}-%{release}
-Requires: perl(LWP::UserAgent)
-BuildRequires: perl(LWP::UserAgent)
-
-%description pmda-elasticsearch
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about Elasticsearch.
-#end pcp-pmda-elasticsearch
 
 #
 # pcp-pmda-gpfs
@@ -1663,6 +1645,28 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting virtualisation statistics from libvirt about behaviour of guest
 and hypervisor machines.
 # end pcp-pmda-libvirt
+
+#
+# pcp-pmda-elasticsearch
+#
+%package pmda-elasticsearch
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for Elasticsearch
+URL: https://pcp.io
+%if !%{disable_python3}
+Requires: python3-pcp
+Requires: python3-urllib3
+BuildRequires: python3-urllib3
+%else
+Requires: %{__python2}-pcp
+Requires: %{__python2}-urllib3
+BuildRequires: %{__python2}-urllib3
+%endif
+%description pmda-elasticsearch
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about Elasticsearch.
+#end pcp-pmda-elasticsearch
 
 #
 # pcp-pmda-lio

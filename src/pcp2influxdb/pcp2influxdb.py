@@ -538,7 +538,7 @@ class PCP2InfluxDB(object):
         except ValueError:
             sys.stderr.write("Can't send request that has no metrics.\n")
         except requests.exceptions.ConnectionError as error:
-            sys.stderr.write("Can't connect to InfluxDB server %s: %s, continuing.\n" % (self.influx_server, str(error.args[0].reason)))
+            sys.stderr.write("Can't connect to InfluxDB server %s: %s, continuing.\n" % (self.influx_server, str(error)))
 
     def finalize(self):
         """ Finalize and clean up """
