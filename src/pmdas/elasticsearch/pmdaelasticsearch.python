@@ -338,7 +338,7 @@ class elasticsearchPMDA(PMDA):
     def setup_urllib(self, url, auth, pasw):
         """ Setup urllib """
         try:
-            import urllib.request as request # pylint: disable=useless-import-alias
+            import urllib.request as request
         except:
             import urllib2 as request
         passman = request.HTTPPasswordMgrWithDefaultRealm()
