@@ -1,6 +1,7 @@
 #!/usr/bin/env pmpython
 #
 # Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -28,9 +29,8 @@ from collections import OrderedDict
 import errno
 import time
 import sys
-
-# Our imports
-from elasticsearch import Elasticsearch, ElasticsearchException
+import json
+import requests
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
@@ -374,14 +374,15 @@ class pcp2elasticsearch(object):
         ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_MSEC)
 
         try:
-            es = Elasticsearch(hosts=[self.es_server])
-            # pylint: disable=unexpected-keyword-arg
-            es.indices.create(index=self.es_index,
-                              ignore=[400],
-                              body={'mappings':{'pcp-metric':
-                                                {'properties':{'@timestamp':{'type':'date'},
-                                                               'host-id':{'type':'string'}}}}})
-        except ElasticsearchException as error:
+            body={'ignore': 400,
+                  'mappings': { 'pcp-metric':
+                                {'properties':{'@timestamp':{'type':'epoch_milli'},
+                                               '@host-id':{'type':'string'}}}}}
+            headers = {'content-type': 'application/json'} # Do we need this?
+            url = self.es_server+'/'+self.es_index
+            es = requests.put(url, data=json.dumps(body), headers=headers)
+
+        except Exception as error:
             sys.stderr.write("Can't connect to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
             return
 
@@ -428,13 +429,11 @@ class pcp2elasticsearch(object):
                         insts.append({inst_key: name, last_part: value})
 
         try:
-            # pylint: disable=unexpected-keyword-arg
-            es.index(index=self.es_index,
-                     doc_type='pcp-metric',
-                     timestamp=long(ts),
-                     body=es_doc)
-        except ElasticsearchException as error:
-            sys.stderr.write("Can't send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
+            url = self.es_server + self.es_index + "/pcp-metric"
+            es = requests.post(url, data=json.dumps(es_doc), headers=headers)
+
+        except Exception as error:
+            sys.stderr.write("Can't send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error.error)))
             return
 
     def finalize(self):
