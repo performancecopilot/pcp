@@ -157,7 +157,11 @@ enable(Task *t)
 	    p = &h->waits;
 	    m = *p;
 	    while (m) {
-		switch (reinitMetric(m)) {
+		int	sts;
+		sts = reinitMetric(m);
+		if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
+		    fprintf(stderr, "reinitMetric: returns %d to enable()\n", sts);
+		switch (sts) {
 		case 1:
 		    *p = m->next;
 		    unwaitMetric(m);
@@ -836,7 +840,7 @@ run(void)
     while (t) {
 	t->eval = t->epoch = start;
 	if (waiting(t))
-	    t->retry = RETRY;
+	    t->retry = t->delta > RETRY ? RETRY : t->delta;
 	else
 	    t->retry = 0;
 	t->tick = 0;
@@ -856,13 +860,15 @@ run(void)
 	eval(t);
 	if (waiting(t) && t->retry == 0) {
 	    /* just failed host or metric availability */
-	    t->retry = RETRY;
+	    t->retry = t->delta > RETRY ? RETRY : t->delta;
 	}
 	if (t->retry > 0) {
 	    if (t->retry < t->delta) {
-		/* exponential back-off, ... */
+		/* exponential back-off up to t->delta ... */
 		t->eval = now + t->retry;
 		t->retry *= 2;
+		if (t->retry > t->delta)
+		    t->retry = t->delta;
 	    }
 	    else {
 		/* ... capped at delta */

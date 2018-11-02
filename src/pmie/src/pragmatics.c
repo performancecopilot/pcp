@@ -760,8 +760,10 @@ initMetric(Metric *m)
 		numinst =  m->specinst == 0 ? m->m_idom : m->specinst;
 		for (i = 0; i < numinst; i++) {
 		    fprintf(stderr, "  indom[%d]", i);
-		    if (m->iids[i] == PM_IN_NULL) 
+		    if (m->iids[i] == PM_IN_NULL) {
 			fprintf(stderr, " ?missing");
+			ret = 0;
+		    }
 		    else
 			fprintf(stderr, " %d", m->iids[i]);
 		    fprintf(stderr, " \"%s\"\n", m->inames[i]);
@@ -816,23 +818,35 @@ reinitMetric(Metric *m)
     int		sts;
     int		i, j;
 
+    if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
+	fprintf(stderr, "reinitMetric(m=%p %s)\n", m, mname);
+
     /* set up temporary context */
-    if ((handle = newContext(&m->hname, hconn, 1)) < 0)
+    if ((handle = newContext(&m->hname, hconn, 1)) < 0) {
+	if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
+	    fprintf(stderr, "reinitMetric: newContext failed: %s\n", pmErrStr(handle));
 	return 0;
+    }
     hname = symName(m->hname);
 
     host_state_changed(hconn, STATE_RECONN);
 
     if ((sts = pmLookupName(1, &mname, &m->desc.pmid)) < 0) {
+	if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
+	    fprintf(stderr, "reinitMetric: pmLookupName failed: %s\n", pmErrStr(sts));
 	ret = 0;
 	goto end;
     }
 
     /* fill in performance metric descriptor */
     if ((sts = pmLookupDesc(m->desc.pmid, &m->desc)) < 0) {
+	if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
+	    fprintf(stderr, "reinitMetric: pmLookupDesc(%s) failed: %s\n", pmIDStr(m->desc.pmid), pmErrStr(sts));
 	ret = 0;
         goto end;
     }
+    if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
+	fprintf(stderr, "reinitMetric: got metadata pmid=%s type=%s units=%s\n", pmIDStr(m->desc.pmid), pmTypeStr(m->desc.type), pmUnitsStr(&m->desc.units));
 
     if (m->desc.type == PM_TYPE_AGGREGATE ||
 	m->desc.type == PM_TYPE_AGGREGATE_STATIC ||
@@ -855,6 +869,12 @@ reinitMetric(Metric *m)
 	    ret = 0;
 	}
 	else {
+	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+		fprintf(stderr, "reinitMetric: got indom, %d instances \"%s\"", sts, inames[0]);
+		if (sts > 1)
+		    fprintf(stderr, "...\"%s\"", inames[sts-1]);
+		fputc('\n', stderr);
+	    }
 	    if (m->specinst == 0) {
 		/* all instances */
 		m->iids = iids;
@@ -916,12 +936,13 @@ reinitMetric(Metric *m)
 		fprintf(stderr, "reinitMetric: %s from %s: instance domain specinst=%d\n",
 			mname, hname, m->specinst);
 		if (m->m_idom < 1) fprintf(stderr, "  %d instances!\n", m->m_idom);
-		if (m->specinst == 0) numinst = m->m_idom;
-		else numinst = m->specinst;
+		numinst =  m->specinst == 0 ? m->m_idom : m->specinst;
 		for (i = 0; i < numinst; i++) {
 		    fprintf(stderr, "  indom[%d]", i);
-		    if (m->iids[i] == PM_IN_NULL) 
+		    if (m->iids[i] == PM_IN_NULL) {
 			fprintf(stderr, " ?missing");
+			ret = 0;
+		    }
 		    else
 			fprintf(stderr, " %d", m->iids[i]);
 		    fprintf(stderr, " \"%s\"\n", m->inames[i]);
@@ -937,7 +958,7 @@ reinitMetric(Metric *m)
 	}
     }
 
-    if (ret == 1) {
+    if (ret > 0) {
 	/* compute conversion factor into canonical units
 	   - non-zero conversion factor flags initialized metric */
 	m->conv = scale(m->desc.units);
@@ -950,16 +971,17 @@ reinitMetric(Metric *m)
 	}
     }
 
-    if (ret >= 0) {
+    if (ret > 0) {
 	/*
-	 * re-shape, starting here are working up the expression until
+	 * reshape, starting here are working up the expression until
 	 * we reach the top of the tree or the designated metrics
 	 * associated with the node are not the same
 	 */
 	Expr	*x = m->expr;
+	int	reshape = 0;
 	while (x) {
 	    /*
-	     * only re-shape expressions that may have set values
+	     * only reshape expressions that may have set values
 	     */
 	    if (x->op == CND_FETCH ||
 		x->op == CND_NEG || x->op == CND_ADD || x->op == CND_SUB ||
@@ -978,26 +1000,40 @@ reinitMetric(Metric *m)
 		x->op == CND_NOT || x->op == CND_AND || x->op == CND_OR ||
 		x->op == CND_RISE || x->op == CND_FALL || x->op == CND_INSTANT ||
 		x->op == CND_MATCH || x->op == CND_NOMATCH) {
+		reshape++;
 		instFetchExpr(x);
 		findEval(x);
 		if (pmDebugOptions.appl1) {
-		    fprintf(stderr, "reinitMetric: re-shaped ...\n");
+		    fprintf(stderr, "reinitMetric: reshaped ...\n");
 		    dumpExpr(x);
 		}
 	    }
 	    if (x->parent) {
 		x = x->parent;
-		if (x->metrics == m) {
-		    /* if operand is a set -> scalar function, like
-		     * CND_COUNT_INST, don't propagate instance reshaping
-		     * further up the tree
-		     */
-		    if (isScalarResult(x))
-			break;
-		    continue;
-		}
+		/*
+		 * used to stop if x->metrics != m, but this is wrong
+		 * when the same metric is used as the left and right
+		 * operator (with different instance specifiers), e.g.
+		 * all_inst(foo == foo #'magic') ...
+		 */
+		;
+		/* 
+		 * if operand is a set -> scalar function, like
+		 * CND_COUNT_INST, don't propagate instance reshaping
+		 * further up the tree
+		 */
+		if (isScalarResult(x))
+		    break;
 	    }
-	    break;
+	    else
+		break;		/* x is root of expression tree */
+	}
+	if (reshape && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
+	    x = m->expr;
+	    while (x->parent)
+		x = x->parent;
+	    fprintf(stderr, "reinitMetric: enclosing tree after reshaping\n");
+	    dumpTree(x);
 	}
     }
 
