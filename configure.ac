@@ -785,11 +785,11 @@ AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
 AC_SUBST(PYLINT)
 
 dnl check if python available for the build and runtime
-AC_CHECK_PROGS(PYTHON, python, python2.7)
+AC_CHECK_PROGS(PYTHON, [python python2.7])
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
-AC_CHECK_PROGS(PYTHON3, python3, python3.6, python3.4)
+AC_CHECK_PROGS(PYTHON3, [python3 python3.7 python3.6 python3.4])
 AC_SUBST(PYTHON3)
 
 dnl check if python tools/packages wanted (need python >= 2.6)
