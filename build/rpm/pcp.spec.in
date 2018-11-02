@@ -100,7 +100,7 @@ Obsoletes: pcp-pmda-kvm
 Provides: pcp-pmda-kvm
 
 # Utilities used indirectly e.g. by scripts we install
-Requires: bash bc bzip2 gawk sed grep coreutils findutils
+Requires: bash xz gawk sed grep coreutils findutils
 # which(1) comes from different places
 %if 0%{?suse_version} >= 1100
 Requires: util-linux
@@ -340,7 +340,7 @@ Requires: pcp-system-tools
 %if "@enable_qt@" == "true"
 Requires: pcp-gui
 %endif
-Requires: gcc
+Requires: gcc bc bzip2 gzip
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).

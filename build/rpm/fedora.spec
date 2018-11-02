@@ -238,7 +238,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash bc bzip2 gawk sed grep findutils which
+Requires: bash xz gawk sed grep findutils which
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
@@ -490,7 +490,7 @@ Requires: pcp-system-tools
 %if !%{disable_qt}
 Requires: pcp-gui
 %endif
-Requires: gcc
+Requires: bc gcc gzip bzip2
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
