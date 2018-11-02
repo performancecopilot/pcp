@@ -24,17 +24,6 @@ domain=108
 python_opt=true
 daemon_opt=false
 
-#for module in JSON LWP::UserAgent
-#do
-#    perl -e "use $module" 2>/dev/null
-#    if test $? -ne 0
-#    then
-#        echo "$module perl module is not installed"
-#	status=1
-#	exit
-#    fi
-#done
-
 pmdaSetup
 pmdaInstall
 exit
