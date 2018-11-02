@@ -15,11 +15,8 @@
 # for more details.
 #
 
-# pylint: disable=superfluous-parens, bad-whitespace
-# pylint: disable=invalid-name, line-too-long, no-self-use
-# pylint: disable=too-many-instance-attributes, too-many-locals
-# pylint: disable=bare-except, broad-except, too-many-branches
-# pylint: disable=too-many-return-statements, bad-continuation
+# pylint: disable=bad-whitespace, line-too-long, too-many-return-statements
+# pylint: disable=bare-except, broad-except
 
 """ Performance Metrics Domain Agent exporting Elasticsearch metrics. """
 
@@ -28,16 +25,16 @@ try:
 except ImportError:
     import configparser as ConfigParser
 
-from ctypes import c_int
+import sys
 import json
+from ctypes import c_int
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 from pcp.pmapi import pmUnits
 from pcp.pmapi import pmContext as PCP
-from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
 from cpmapi import PM_INDOM_NULL
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING
 from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
-from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_SPACE_MBYTE, PM_TIME_MSEC, PM_TIME_SEC
+from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_TIME_MSEC
 from cpmapi import PM_ERR_AGAIN, PM_ERR_PMID, PM_ERR_APPVERSION
 
 DEFAULT_PORT = 9200
@@ -320,7 +317,8 @@ class elasticsearchPMDA(PMDA):
         """ Read Configuration file """
 
         configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
-        configfile += '/' + self.read_name() + '/es.conf'  #keep es.conf name from perl version of the pmda
+        configfile += '/' + self.read_name() + '/es.conf'
+        # (retain es.conf name from original version of the pmda)
         config = ConfigParser.SafeConfigParser()
         config.read(configfile)
         if config.has_section('pmda'):
@@ -340,7 +338,7 @@ class elasticsearchPMDA(PMDA):
     def setup_urllib(self, url, auth, pasw):
         """ Setup urllib """
         try:
-            import urllib.request as request
+            import urllib.request as request # pylint: disable=useless-import-alias
         except:
             import urllib2 as request
         passman = request.HTTPPasswordMgrWithDefaultRealm()
@@ -351,6 +349,7 @@ class elasticsearchPMDA(PMDA):
         return request
 
     def get_url(self, url):
+        """ Perform HTTP GET """
         self.log(str("url: " + str(url)))
         try:
             req = self.request.urlopen(url)
@@ -374,7 +373,7 @@ class elasticsearchPMDA(PMDA):
                 self.master_node = ()
             if self.index:
                 self.index = {}
-            return
+            return None
         return req
 
     def elasticsearch_refresh(self, cluster):
@@ -386,7 +385,7 @@ class elasticsearchPMDA(PMDA):
         if cluster == self.nodes_cluster:
             temp = {}
             insts = {}
-            request = self.get_url(self.baseurl + "_nodes/stats") #XXX
+            request = self.get_url(self.baseurl + "_nodes/stats")
             temp = json.loads(request.read())
             request.close()
             self.nodes = temp['nodes']
@@ -412,7 +411,7 @@ class elasticsearchPMDA(PMDA):
             self.info = json.loads(request.read())
             request.close()
 
-        if cluster == self.search_cluster or cluster == self.perindex_cluster:
+        if cluster in (self.search_cluster, self.perindex_cluster):
             temp = {}
             insts = {}
             request = self.get_url(self.baseurl + "_stats/search")
@@ -427,7 +426,7 @@ class elasticsearchPMDA(PMDA):
                 self.perindex_insts.set_instances(self.perindex_indom, insts)
                 self.replace_indom(self.perindex_indom, insts)
 
-        if cluster == self.master_node_cluster or cluster == self.index_cluster:
+        if cluster in (self.master_node_cluster, cluster == self.index_cluster):
             temp = {}
             insts = {}
             request = self.get_url(self.baseurl + "_cluster/state")
@@ -522,9 +521,9 @@ class elasticsearchPMDA(PMDA):
                 elif item == 18:
                     return [self.nodes[node]['jvm']['threads']['peak_count'], 1]
                 elif item == 19:
-                    return [self.nodes[node]['jvm']['gc']['collection_count'], 1] #XXX this should be adapted for newer versions
+                    return [self.nodes[node]['jvm']['gc']['collection_count'], 1]
                 elif item == 20:
-                    return [self.nodes[node]['jvm']['gc']['collection_time_in_millis'], 1] #XXX check this and below
+                    return [self.nodes[node]['jvm']['gc']['collection_time_in_millis'], 1]
                 elif item == 21:
                     return [self.nodes[node]['jvm']['gc']['collectors']['Copy']['collection_count'], 1]
                 elif item == 22:

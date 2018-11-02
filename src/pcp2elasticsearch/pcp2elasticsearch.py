@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 #
 # Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
-# Copyright (C) 2018 Red Hat.
+# Copyright (C) 2014-2015,2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,15 +12,9 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-
-# [write_es] Copyright (C) 2014-2015 Red Hat, based on pcp2es by Frank Ch. Eigler
-
-# pylint: disable=superfluous-parens
-# pylint: disable=invalid-name, line-too-long, no-self-use
-# pylint: disable=too-many-boolean-expressions, too-many-statements
-# pylint: disable=too-many-instance-attributes, too-many-locals
-# pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=broad-except
+#
+# pylint: disable=line-too-long, broad-except, bad-continuation
+#
 
 """ PCP to Elasticsearch Bridge """
 
@@ -48,7 +42,7 @@ CONFVER = 1
 ES_INDEX = "pcp"
 ES_SERVER = "http://localhost:9200/"
 
-class pcp2elasticsearch(object):
+class pcp2elasticsearch(object): # pylint: disable=useless-object-inheritance
     """ PCP to Elasticsearch """
     def __init__(self):
         """ Construct object, prepare for command line handling """
@@ -374,13 +368,13 @@ class pcp2elasticsearch(object):
         ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_MSEC)
 
         try:
-            body={'ignore': 400,
-                  'mappings': { 'pcp-metric':
+            body = {'ignore': 400,
+                    'mappings': {'pcp-metric':
                                 {'properties':{'@timestamp':{'type':'epoch_milli'},
                                                '@host-id':{'type':'string'}}}}}
             headers = {'content-type': 'application/json'} # Do we need this?
             url = self.es_server+'/'+self.es_index
-            es = requests.put(url, data=json.dumps(body), headers=headers)
+            requests.put(url, data=json.dumps(body), headers=headers)
 
         except Exception as error:
             sys.stderr.write("Can't connect to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
@@ -430,10 +424,10 @@ class pcp2elasticsearch(object):
 
         try:
             url = self.es_server + self.es_index + "/pcp-metric"
-            es = requests.post(url, data=json.dumps(es_doc), headers=headers)
+            requests.post(url, data=json.dumps(es_doc), headers=headers)
 
         except Exception as error:
-            sys.stderr.write("Can't send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error.error)))
+            sys.stderr.write("Cannot send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
             return
 
     def finalize(self):

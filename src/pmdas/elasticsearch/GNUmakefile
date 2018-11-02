@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011 Aconex.  All Rights Reserved.
-# Copyright (c) 2018 Red Hat Inc.  All Rights Reserved.
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -48,3 +48,6 @@ endif
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)
+
+check:: $(PYSCRIPT)
+	$(PYLINT) $^

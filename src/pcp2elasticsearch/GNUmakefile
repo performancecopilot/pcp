@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Red Hat.
+# Copyright (c) 2017-2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -33,3 +33,6 @@ endif
 default_pcp: default
 
 install_pcp: install
+
+check:: $(TARGET).py
+	$(PYLINT) $^
