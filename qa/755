@@ -21,7 +21,10 @@ $sudo rm -rf $tmp.* $seq.full
 _filter_apache()
 {
     # cull message resulting from no running httpd
-    grep -v 'Information not currently available'
+    # or no activity
+    #
+    grep -v 'Information not currently available' \
+    | grep -v 'No value(s) available'
 }
 
 pmdaapache_remove()
