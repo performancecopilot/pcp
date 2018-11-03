@@ -57,6 +57,7 @@ pcp.sample.secret.foo.bar.four                VALUE
 pcp.sample.secret.foo.bar.grunt.five          VALUE
 pcp.sample.secret.foo.bar.grunt.snort.six     VALUE
 pcp.sample.secret.foo.bar.grunt.snort.huff.puff.seven VALUE
+pcp.sample.ghosts.visible                     VALUE
 pcp.sample.long.one                           VALUE
 pcp.sample.long.ten                           VALUE
 pcp.sample.long.hundred                       VALUE
