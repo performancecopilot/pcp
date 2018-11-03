@@ -39,6 +39,7 @@ _cleanup()
     echo >>$seq.full
     cat $PCP_LOG_DIR/pmcd/dumb_pmda.log >>$seq.full
     _restore_config $PCP_PMCDCONF_PATH
+    _restore_config $PCP_SYSCONFIG_DIR/pmcd
     _service pcp start >$tmp.start
     _filter_pcp_start <$tmp.start | _filter_dots
     _wait_for_pmcd
@@ -150,6 +151,20 @@ _service pmlogger stop >>$here/$seq.full 2>&1
 _service pmie stop >>$here/$seq.full 2>&1
 
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+
+# turn off
+# PMCD_RESTART_AGENTS=1
+# from sysconfig environment
+#
+_save_config $PCP_SYSCONFIG_DIR/pmcd
+$sudo sed -e '/^PMCD_RESTART_AGENTS/{
+s/=1/=0/
+i\
+#\
+# NOTE: changed by QA '"$seq on `date`"'
+}' $PCP_SYSCONFIG_DIR/pmcd >$tmp.sysconfig
+$sudo cp $tmp.sysconfig $PCP_SYSCONFIG_DIR/pmcd
+
 # Note: need to use $PCP_RC_DIR/pmcd here, not _service pmcd so that
 # systemd (if it is available) does not notice any pmcd exiting
 #
