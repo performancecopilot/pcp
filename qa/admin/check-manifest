@@ -121,6 +121,11 @@ in
 	searchtool=pkg_locate
 	;;
 
+    *Gentoo*)
+	pkgtool=emerge
+	searchtool=equery
+	;;
+
 esac
 if [ -z "$pkgtool" ]
 then
@@ -139,7 +144,7 @@ _path_to_pkg()
 	    dpkg-query -S "$1" 2>/dev/null | sed -e 's/:.*//' >$tmp.tmp
 	    # if not found in any package, try realpath() alternative
 	    #
-	    if [ -s "$tmp.tmp" ]
+	    if [ -s $tmp.tmp ]
 	    then
 		cat $tmp.tmp
 	    elif which realpath >/dev/null 2>&1
@@ -159,7 +164,7 @@ _path_to_pkg()
 	    rpm -qf "$1" 2>/dev/null | sed -e '/is not owned by any/d' -e 's/-[0-9].*//' >$tmp.tmp
 	    # if not found in any package, try realpath() alternative
 	    #
-	    if [ -s "$tmp.tmp" ]
+	    if [ -s $tmp.tmp ]
 	    then
 		cat $tmp.tmp
 	    elif which realpath >/dev/null 2>&1
@@ -178,7 +183,7 @@ _path_to_pkg()
 	    #
 	    pkg_info -Fe "$1" 2>/dev/null \
 	    | sed >$tmp.tmp -e 's/-[0-9].*//'
-	    if [ -s "$tmp.tmp" ]
+	    if [ -s $tmp.tmp ]
 	    then
 		cat $tmp.tmp
 	    fi
@@ -195,7 +200,7 @@ s/.*was installed by package //
 s/-[0-9].*//
 p
 }'
-	    if [ -s "$tmp.tmp" ]
+	    if [ -s $tmp.tmp ]
 	    then
 		cat $tmp.tmp
 	    fi
@@ -219,7 +224,21 @@ p
 	    | uniq \
 	    | ( tr '\012' '|'; echo ) \
 	    | sed -e 's/|$//' >$tmp.tmp
-	    if [ -s "$tmp.tmp" ]
+	    if [ -s $tmp.tmp ]
+	    then
+		cat $tmp.tmp
+	    fi
+	    ;;
+
+	emerge)
+	    # expecting output like
+	    # sys-apps/lm_sensors-3.4.0_p20170901
+	    # (don't be fooled by interactive output, when output goes
+	    # to a file, a different format is used!)
+	    #
+	    equery belongs "$1" 2>/dev/null \
+	    | sed -e 's/-[0-9].*//' >$tmp.tmp
+	    if [ -s $tmp.tmp ]
 	    then
 		cat $tmp.tmp
 	    fi
@@ -340,6 +359,18 @@ _match_pkg()
 			    ;;
 		    esac
 		    ;;
+
+	    emerge)
+		    # names like foo/bar are expected from equery, but
+		    # often bar is unique and the foo/ part is not needed
+		    # so test for trailing match first
+		    #
+		    basename=`echo "$xpect" | sed -e 's/.*\///'`
+		    if [ "$basename" = "$2" ]
+		    then
+			touch $tmp.match
+			break
+		    fi
 
 	esac
 	if [ "$xpect" = "$2" ]
@@ -728,6 +759,18 @@ q
 		    # path, not package name
 		    #
 		    if pkg_info "$pkg" 2>&1 | grep '^Information ' >$tmp.out
+		    then
+			touch $tmp.avail
+			$verbose && cat $tmp.out
+		    fi
+		    ;;
+
+		equery)
+		    # For example: equery meta bash ->
+		    # ...
+		    # Location:    /usr/portage/app-shells/bash
+		    #
+		    if equery meta "$pkg" 2>&1 | grep '^Location:' >$tmp.out
 		    then
 			touch $tmp.avail
 			$verbose && cat $tmp.out

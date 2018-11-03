@@ -437,6 +437,9 @@ in
     vm04)
 	na='python-prometheus_client python-openpyxl qtchooser'
 	;;
+    vm05)
+	na=''
+	;;
     vm06)
 	na='sensors'
 	;;
@@ -457,6 +460,9 @@ in
 	;;
     vm12)
 	na='python3-prometheus_client python3-bcc kubernetes-client kubernetes-node'
+	;;
+    vm13)
+	na=''
 	;;
     vm14)
 	na='systemd-devel libpfm-devel python-prometheus_client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin-devel Net::SNMP YAML::XS::LibYAML libuv-devel kubernetes-client kubernetes-node docker-common'
@@ -509,8 +515,14 @@ in
     vm32)
 	na='libibumad libibmad sensors'
 	;;
+    vm33)
+	na=''
+	;;
     vm34)
 	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
+	;;
+    vm35)
+	na=''
 	;;
     vm36)
 	na='python3-bpfcc libsoqt5-dev'
