@@ -53,6 +53,7 @@ echo
 echo "=== should be in man page ==="
 man pmlogger \
 | sed -n \
+    -e 's/.//g' \
     -e '/\[-[^]]*C/{
 s//[-...C/
 s/C.*/C...] .../
