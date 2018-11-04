@@ -36,7 +36,10 @@ p
 
 case "$version"
 in
-    1.*|2.[0-2].*)
+    1.*)
+		_notrun "zabbix_agentd $version too old (no LoadModulePath config option)"
+		;;
+    2.[0-2].*)
     		ln $seq.out.0 $seq.out
 		;;
     2.4.*|3.*)
