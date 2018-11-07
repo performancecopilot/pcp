@@ -167,6 +167,7 @@ stmnt	: /* empty */
 					"mode\n", opStrings($3->op));
 			parse = NULL;
 		    }
+		    free($1);
 		}
 	| exp
 		{   parse = statement(NULL, $1);
@@ -307,9 +308,9 @@ actarg	: arglist
 	;
 
 arglist	: STRING
-		{   $$ = actArgList(NULL, $1); }
+		{   $$ = actArgList(NULL, $1); free($1); }
 	| STRING arglist
-		{   $$ = actArgList($2, $1); }
+		{   $$ = actArgList($2, $1); free($1); }
 	;
 
 bexp	: '(' bexp ')'
@@ -558,7 +559,7 @@ dom	: HOST_DOM
 	;
 
 fetch   : metric hosts insts times
-		{   $$ = fetchExpr($1, $2, $3, $4); }
+		{   $$ = fetchExpr($1, $2, $3, $4); free($1); }
 	;
 
 metric	: IDENT
@@ -672,7 +673,7 @@ unit	: SPACE_UNIT
 	;
 
 str	: STRING
-		{   $$ = strConst($1); }
+		{   $$ = strConst($1); free($1); }
 	;
 
 %%
