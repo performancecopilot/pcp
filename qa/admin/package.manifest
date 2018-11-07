@@ -1261,6 +1261,17 @@ F_pkg?		sensors		[? (QA optional)]
 S_pkg?		sensors		[? (QA optional)]
 slackpkg?	sensors		[? (QA optional)]
 pacman?		sensors		[? (QA optional)]
+# -- device-mapper and devel for pmdadm dmstats
+dpkg?	/usr/include/libdevmapper.h	[libdevmapper-dev (build optional)]
+rpm?	/usr/include/libdevmapper.h	[device-mapper-devel (build optional)]
+urpmi?	/usr/include/libdevmapper.h	[device-mapper-devel (build optional)]
+emerge?	/usr/include/libdevmapper.h	[? (build optional)]
+pkgin?	/usr/include/libdevmapper.h	[? (build optional)]
+pkg_add?	/usr/include/libdevmapper.h	[? (build optional)]
+F_pkg?	/usr/local/include/libdevmapper.h	[? (build optional)]
+S_pkg?	/usr/local/include/libdevmapper.h	[? (build optional)]
+slackpkg?	/usr/include/libdevmapper.h	[? (build optional)]
+pacman?	/usr/include/libdevmapper.h	[? (build optional)]
 
 # misc
 #

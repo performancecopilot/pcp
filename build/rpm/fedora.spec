@@ -1462,6 +1462,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Device Mapper Cache and Thin Client
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
+BuildRequires: device-mapper-devel
 %description pmda-dm
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Device Mapper Cache and Thin Client.
