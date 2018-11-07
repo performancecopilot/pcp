@@ -1075,6 +1075,7 @@ BAD
 695 pmda.trivial perl local
 696 pmda.trivial python local
 697 pmie valgrind local
+698 pmie valgrind local
 701 pmlogcheck local
 702 python libpcp local sanity
 703 pmda.weblog local
@@ -1127,7 +1128,7 @@ BAD
 750 pmda.rpm local flakey pmval
 751 pmda.rpm local pmdumplog pmlogrewrite
 752 libpcp local pmval timezone
-753 derive pmie local pmval pmstore
+753 derive local pmval pmstore
 754 pmda.unbound local python
 755 pmda.apache pmda.install local
 756 pmda.perfevent local

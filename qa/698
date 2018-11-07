@@ -1,8 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 692
+# PCP QA Test No. 698
 # pmie reshaping when metrics become available
 # GH issue #571
-# see also qa/698 for the valgrind version of this test
+# valgrind version of qa/692
 #
 # Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
 #
@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+
+_check_valgrind
 
 _cleanup()
 {
@@ -27,6 +29,10 @@ _cleanup()
 _filter()
 {
     sed -n \
+	-e 's/.* Info: evaluator exiting/pmie: note - evaluator exiting/gp' \
+	-e '/ SUMMARY/p' \
+	-e '/Memcheck/p' \
+	-e '/lost: /p' \
 	-e '/rising!/{
 s/.*:/DATE:/
 p
@@ -55,14 +61,14 @@ End-of-File
 # real QA test starts here
 echo "=== with metric visible from the start ===" | tee -a $seq.full
 pmstore sample.ghosts.visible 8 >>$seq.full
-pmie -t 0.1sec -T2.5sec -c $tmp.pmie -v >$tmp.out 2>$tmp.err
+_run_valgrind pmie -t 0.1sec -T2.5sec -c $tmp.pmie -v >$tmp.out 2>$tmp.err
 cat $tmp.out $tmp.err >>$seq.full
 _filter <$tmp.out
 
 echo | tee -a $seq.full
 echo "=== with metric invisible from the start ===" | tee -a $seq.full
 pmstore sample.ghosts.visible -1 >>$seq.full
-pmie -t 0.1sec -T3.5sec -c $tmp.pmie -v >$tmp.out 2>$tmp.err &
+_run_valgrind pmie -t 0.1sec -T3.5sec -c $tmp.pmie -v >$tmp.out 2>$tmp.err &
 pmsleep 1sec
 pmstore sample.ghosts.visible 8 >>$seq.full
 wait

@@ -1,0 +1,20 @@
+QA output created by 698
+=== with metric visible from the start ===
+DATE: falling!
+DATE: rising!
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+pmie: note - evaluator exiting
+
+=== with metric invisible from the start ===
+DATE: falling!
+DATE: rising!
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+Memcheck, a memory error detector
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+pmie: note - evaluator exiting
