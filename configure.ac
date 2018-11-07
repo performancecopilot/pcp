@@ -1686,6 +1686,9 @@ AC_SUBST(lib_for_regex)
 PKG_CHECK_MODULES([libuv], [libuv >= 1.0], [have_libuv=true], [have_libuv=false])
 AC_SUBST(HAVE_LIBUV, [$have_libuv])
 
+PKG_CHECK_MODULES([libvarlink], [libvarlink], [have_libvarlink=true], [have_libvarlink=false])
+AC_SUBST(HAVE_LIBVARLINK, [$have_libvarlink])
+
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
@@ -1704,8 +1707,7 @@ then
 fi
 AC_SUBST(HAVE_DEVMAPPER, [$have_devmapper])
 
-PKG_CHECK_MODULES([SYSTEMD], [libsystemd],
-                  [pmda_systemd=true], [pmda_systemd=false])
+PKG_CHECK_MODULES([SYSTEMD], [libsystemd], [pmda_systemd=true], [pmda_systemd=false])
 if $pmda_systemd
 then
     :

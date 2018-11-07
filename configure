@@ -760,6 +760,9 @@ DEVMAPPER_CFLAGS
 HAVE_NCURSES
 ncurses_LIBS
 ncurses_CFLAGS
+HAVE_LIBVARLINK
+libvarlink_LIBS
+libvarlink_CFLAGS
 HAVE_LIBUV
 libuv_LIBS
 libuv_CFLAGS
@@ -1053,6 +1056,8 @@ avahi_LIBS
 SYSTEMD_SYSTEMUNITDIR
 libuv_CFLAGS
 libuv_LIBS
+libvarlink_CFLAGS
+libvarlink_LIBS
 ncurses_CFLAGS
 ncurses_LIBS
 DEVMAPPER_CFLAGS
@@ -1790,6 +1795,10 @@ Some influential environment variables:
   libuv_CFLAGS
               C compiler flags for libuv, overriding pkg-config
   libuv_LIBS  linker flags for libuv, overriding pkg-config
+  libvarlink_CFLAGS
+              C compiler flags for libvarlink, overriding pkg-config
+  libvarlink_LIBS
+              linker flags for libvarlink, overriding pkg-config
   ncurses_CFLAGS
               C compiler flags for ncurses, overriding pkg-config
   ncurses_LIBS
@@ -10498,6 +10507,80 @@ $as_echo "yes" >&6; }
 	have_libuv=true
 fi
 HAVE_LIBUV=$have_libuv
+
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libvarlink" >&5
+$as_echo_n "checking for libvarlink... " >&6; }
+
+if test -n "$libvarlink_CFLAGS"; then
+    pkg_cv_libvarlink_CFLAGS="$libvarlink_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libvarlink\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libvarlink") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libvarlink_CFLAGS=`$PKG_CONFIG --cflags "libvarlink" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$libvarlink_LIBS"; then
+    pkg_cv_libvarlink_LIBS="$libvarlink_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libvarlink\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libvarlink") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libvarlink_LIBS=`$PKG_CONFIG --libs "libvarlink" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        libvarlink_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libvarlink" 2>&1`
+        else
+	        libvarlink_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libvarlink" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$libvarlink_PKG_ERRORS" >&5
+
+	have_libvarlink=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_libvarlink=false
+else
+	libvarlink_CFLAGS=$pkg_cv_libvarlink_CFLAGS
+	libvarlink_LIBS=$pkg_cv_libvarlink_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_libvarlink=true
+fi
+HAVE_LIBVARLINK=$have_libvarlink
 
 
 
