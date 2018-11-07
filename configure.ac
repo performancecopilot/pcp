@@ -1997,6 +1997,7 @@ pcp_selinux_mock=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
 pcp_selinux_bpf_class=false
+pcp_selinux_wap_port=false
 
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 for policy_file in /etc/selinux/targeted/policy/policy.*
@@ -2086,10 +2087,15 @@ do
        then
            pcp_selinux_numad=true
        fi
-       bpf_class=`eval seinfo -x --class=bpf $seinfo_common_flag -- $policy_file 2>/dev/null | grep status | awk '{ print $1 }'`
+       bpf_class=`eval seinfo -x --class=bpf $seinfo_common_flag -- $policy_file 2>/dev/null | grep g | awk '{ print $1 }'`
        if test "x$bpf_class" != "x"
        then
 	    pcp_selinux_bpf_status=true
+       fi
+       wap_port=`eval seinfo -t -- $policy_file | grep wap_wsp_port_t | awk '{ print $1 }'`
+       if test "x$wap_port" != "x"
+       then
+            pcp_selinux_wap_port=true
        fi
     fi
 done
@@ -2110,6 +2116,7 @@ AC_SUBST(pcp_selinux_mock)
 AC_SUBST(pcp_selinux_unconfined)
 AC_SUBST(pcp_selinux_numad)
 AC_SUBST(pcp_selinux_bpf_status)
+AC_SUBST(pcp_selinux_wap_port)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL

@@ -280,6 +280,7 @@ PCP_SELINUX_MOCK = @pcp_selinux_mock@
 PCP_SELINUX_UNCONFINED = @pcp_selinux_unconfined@
 PCP_SELINUX_NUMAD = @pcp_selinux_numad@
 PCP_SELINUX_BPF_STATUS = @pcp_selinux_bpf_status@
+PCP_SELINUX_WAP_PORT = @pcp_selinux_wap_port@
 
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@

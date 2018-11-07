@@ -39,13 +39,14 @@ from cpmapi import PM_ERR_AGAIN, PM_ERR_PMID, PM_ERR_APPVERSION
 DEFAULT_PORT = 9200
 DEFAULT_URL = "http://localhost:%s/" % DEFAULT_PORT
 DEFAULT_VERSION = 2
+DEFAULT_USER = "root"
 
 class elasticsearchPMDA(PMDA):
     """ PCP Elasticsearch PMDA """
     def __init__(self, name, domain):
         """ Constructor """
         PMDA.__init__(self, name, domain)
-        self.user = None
+        self.user = DEFAULT_USER
         self.baseurl = DEFAULT_URL
         self.auth = None
         self.password = None
@@ -53,8 +54,9 @@ class elasticsearchPMDA(PMDA):
         self.version = DEFAULT_VERSION
         self.read_config()
 
-#        if not self.user:
-#            self.set_user(self.user)
+        if not self.user:
+            self.log("Switching to user '%s'" % self.user)
+            self.set_user(self.user)
 
         self.connect_pmcd()
         try:

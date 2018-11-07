@@ -709,6 +709,7 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+pcp_selinux_wap_port
 pcp_selinux_bpf_status
 pcp_selinux_numad
 pcp_selinux_unconfined
@@ -12002,6 +12003,7 @@ pcp_selinux_mock=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
 pcp_selinux_bpf_class=false
+pcp_selinux_wap_port=false
 
 if test "x$enable_selinux" != "xfalse"; then :
 
@@ -12092,15 +12094,21 @@ do
        then
            pcp_selinux_numad=true
        fi
-       bpf_class=`eval seinfo -x --class=bpf $seinfo_common_flag -- $policy_file 2>/dev/null | grep status | awk '{ print $1 }'`
+       bpf_class=`eval seinfo -x --class=bpf $seinfo_common_flag -- $policy_file 2>/dev/null | grep g | awk '{ print $1 }'`
        if test "x$bpf_class" != "x"
        then
 	    pcp_selinux_bpf_status=true
+       fi
+       wap_port=`eval seinfo -t -- $policy_file | grep wap_wsp_port_t | awk '{ print $1 }'`
+       if test "x$wap_port" != "x"
+       then
+            pcp_selinux_wap_port=true
        fi
     fi
 done
 
 fi
+
 
 
 
