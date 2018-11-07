@@ -712,7 +712,7 @@ init(Metric *m, int reinit)
 		    "pmGetIndom failed: %s\n", mname, findsource(hname, hconn), pmErrStr(sts));
 	    ret = 0;
 	}
-	if (ret == 1) {
+	if (sts >= 0) {
 	    /* got instance domain */
 	    if (pmDebugOptions.appl1 && pmDebugOptions.desperate) {
 		fprintf(stderr, "%sinitMetric: got indom, %d instances", reinit ? "re" : "", sts);
@@ -751,13 +751,6 @@ init(Metric *m, int reinit)
 			m->iids[i] = PM_IN_NULL;
 			ret = 0;
 		    }
-		}
-		if (sts > 0) {
-		    /*
-		     * pmGetInDom or pmGetInDomArchive returned some
-		     * instances above
-		     */
-		    free(iids);
 		}
 
 		/* 
@@ -799,13 +792,13 @@ init(Metric *m, int reinit)
 		    fprintf(stderr, " \"%s\"\n", m->inames[i]);
 		}
 	    }
-	}
-	if (sts > 0) {
 	    /*
 	     * pmGetInDom or pmGetInDomArchive returned some instances
 	     * above
 	     */
 	    free(inames);
+	    if (m->specinst != 0)
+		free(iids);
 	}
     }
 
