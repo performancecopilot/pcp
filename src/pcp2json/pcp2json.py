@@ -504,7 +504,7 @@ class PCP2JSON(object):
                     raise
             try:
                 self.writer.close()
-            except: # pylint: disable=bare-except
+            except Exception:
                 pass
             self.writer = None
 
@@ -515,7 +515,6 @@ if __name__ == '__main__':
         P.validate_config()
         P.execute()
         P.finalize()
-
     except pmapi.pmErr as error:
         sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
         sys.exit(1)
