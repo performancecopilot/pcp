@@ -30,7 +30,6 @@ import time
 import sys
 
 # Our imports
-import socket
 import json
 import os
 
@@ -499,7 +498,7 @@ class PCP2JSON(object):
                                              separators=(',', ': ')))
                 self.writer.write("\n")
                 self.writer.flush()
-            except socket.error as error:
+            except IOError as error:
                 if error.errno != errno.EPIPE:
                     raise
             try:
