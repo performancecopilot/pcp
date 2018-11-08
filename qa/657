@@ -17,7 +17,8 @@ echo "QA output created by $seq"
 
 [ $PCP_PLATFORM = linux ] || _notrun "Device Mapper is Linux-specific (dm)"
 [ -d $PCP_PMDAS_DIR/dm ] || _notrun "dm PMDA directory is not installed"
-which dmsetup >/dev/null 2>&1 || _notrun "dmsetup is not installed"
+[ -x $PCP_PMDAS_DIR/dm/pmdadm ] || _notrun "pcp-pmda-dm package not installed"
+which dmsetup >/dev/null 2>&1 || _notrun "dmsetup from device-mapper package is not installed"
 
 root=$tmp.root
 export DM_SETUP_CACHE="cat $root/dmcache-caches"
@@ -61,6 +62,7 @@ _install_pmda()
 	-e '/^Check vdo metrics.*/d' \
 	-e '/^To use the dmstats metrics.*/d' \
 	-e '/^Check dmstats metrics/s/[0-9][0-9]* warnings, //' \
+	-e 's/[0-9]* values/X values/' \
     | tr -s '\n'
 }
 
@@ -116,6 +118,9 @@ echo
 echo "=== Installing Device Mapper PMDA ==="
 _prepare_pmda_install dm
 _install_pmda
+
+# fail this test if this message appears in the pmdadm log
+grep "built without support for dmstats metrics" $PCP_LOG_DIR/pmcd/dm.log
 
 echo
 echo "=== Check dm-cache metrics ==="

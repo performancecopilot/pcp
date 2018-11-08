@@ -1209,6 +1209,10 @@ dm_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
+#ifndef HAVE_DEVMAPPER
+    pmNotifyErr(LOG_WARNING, "built without support for dmstats metrics\n");
+#endif
+
     /* Check for environment variables allowing test injection */
     dm_cache_setup();
     dm_thin_setup();
