@@ -574,7 +574,6 @@ if __name__ == '__main__':
         P.validate_config()
         P.execute()
         P.finalize()
-
     except pmapi.pmErr as error:
         sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
         sys.exit(1)

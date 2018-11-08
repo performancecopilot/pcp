@@ -23,6 +23,8 @@ from collections import OrderedDict
 import errno
 import time
 import sys
+
+# Our imports
 import json
 import requests
 
@@ -375,7 +377,6 @@ class pcp2elasticsearch(object):
             headers = {'content-type': 'application/json'} # Do we need this?
             url = self.es_server+'/'+self.es_index
             requests.put(url, data=json.dumps(body), headers=headers)
-
         except Exception as error:
             sys.stderr.write("Can't connect to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
             return
@@ -425,7 +426,6 @@ class pcp2elasticsearch(object):
         try:
             url = self.es_server + self.es_index + "/pcp-metric"
             requests.post(url, data=json.dumps(es_doc), headers=headers)
-
         except Exception as error:
             sys.stderr.write("Cannot send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
             return
@@ -441,7 +441,6 @@ if __name__ == '__main__':
         P.validate_config()
         P.execute()
         P.finalize()
-
     except pmapi.pmErr as error:
         sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
         sys.exit(1)

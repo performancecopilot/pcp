@@ -80,6 +80,7 @@ require {
         type xdm_t;
         type postgresql_t;
         type cache_home_t; #RHBZ1634205
+        @PCP_WAP_PORT_CONTEXT@
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -270,7 +271,7 @@ allow pcp_pmcd_t sysctl_irq_t:dir { search };
 allow pcp_pmcd_t init_t:shm unix_read;
 
 #RHBZ1594991
-allow pcp_pmcd_t gpsd_t:shm { associate getattr };
+allow pcp_pmcd_t gpsd_t:shm { associate getattr unix_read };
 
 allow pcp_pmcd_t default_t:file getattr;
 
@@ -300,6 +301,8 @@ allow pcp_pmcd_t user_home_dir_t:dir { getattr search };
 #RHBZ1535522
 #type=AVC msg=audit(1538550792.679:11735): avc:  denied  { search } for  pid=21371 comm="pmdalinux" name=".cache" dev="dm-0" ino=11796488 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:cache_home_t:s0 tclass=dir permissive=0
 allow pcp_pmcd_t cache_home_t:dir search;
+
+@PCP_WAP_PORT_RULE@
 
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
@@ -331,6 +334,8 @@ allow pcp_pmlogger_t unconfined_t:unix_stream_socket connectto;
 #RHBZ1488116
 #type=AVC msg=audit(1504516526.487:431): avc:  denied  { search } for  pid=18056 comm="ps" name="testuser" dev="dm-0" ino=539096275 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_home_dir_t:s0 tclass=dir
 allow pcp_pmlogger_t user_home_dir_t:dir search;
+allow pcp_pmlogger_t user_home_t:file { read open };
+
 #RHBZ1547066
 allow pcp_pmlogger_t kernel_t:unix_dgram_socket sendto;
 
@@ -390,7 +395,7 @@ allow pcp_pmie_t init_exec_t:file getattr;
 
 @PCP_CAPUSERNS_PTRACE_RULE_PMIE@
 allow pcp_pmie_t user_home_dir_t:dir search;
-allow pcp_pmie_t user_home_t:file read;
+allow pcp_pmie_t user_home_t:file { read open };
 
 #RHBZ1623988
 #type=AVC msg=audit(1535642748.855:3214): avc:  denied  { signal } for  pid=3106 comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process permissive=1

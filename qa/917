@@ -2,7 +2,7 @@
 # PCP QA Test No. 917
 # SELinux Testing
 #
-# Copyright (c) 2017 Red Hat Inc.  All Rights Reserved.
+# Copyright (c) 2017-2018 Red Hat Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -50,6 +50,7 @@ unconfined_service=`seinfo -t | grep "unconfined_service_t$"`
 mock_var_lib=`seinfo -t | grep "mock_var_lib_t$"`
 numad_context=`seinfo -t | grep "numad_t$"`
 bpf_class=`seinfo -x --class=bpf $common_flag 2>/dev/null | grep "class bpf"`
+wap_port_type=`seinfo -t | grep "wap_wsp_port_t$"`
 
 _filter_semodule()
 {
@@ -87,6 +88,7 @@ _filter_outfile()
 	-v mock_var_lib="$mock_var_lib" \
 	-v numad_context="$numad_context" \
         -v bpf_class="$bpf_class" \
+        -v wap_port_type="$wap_port_type" \
     '{
     	if (container_t == "" && /container_runtime_t /)
 	   !/container_runtime_t / ;
@@ -135,6 +137,8 @@ _filter_outfile()
 	   }
         else if (bpf_class == "" && /bpf/)
             !/bpf/ ;
+        else if (wap_port_type == "" && /wap_wsp_port_t/)
+            !/wap_wsp_port_t/ ;
 	else
 	   print;
     }'

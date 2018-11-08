@@ -18,7 +18,7 @@
 # pylint: disable=superfluous-parens, bad-whitespace
 # pylint: disable=invalid-name, line-too-long, no-self-use
 # pylint: disable=too-many-instance-attributes, too-many-locals
-# pylint: disable=bare-except, broad-except, too-many-branches
+# pylint: disable=broad-except, too-many-branches
 # pylint: disable=too-many-return-statements, bad-continuation
 
 """ PCP HAProxy Performance Metrics Domain Agent """
@@ -286,7 +286,7 @@ class HAProxyPMDA(PMDA):
         """ Setup urllib """
         try:
             import urllib.request as request
-        except:
+        except Exception:
             import urllib2 as request
         passman = request.HTTPPasswordMgrWithDefaultRealm()
         passman.add_password(None, url, auth, pasw)
@@ -367,7 +367,7 @@ class HAProxyPMDA(PMDA):
                     return [self.info[self.info_metrics[item][4]], 1]
                 else:
                     return [long(self.info[self.info_metrics[item][4]]), 1]
-            except:
+            except Exception:
                 return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.stat_cluster:
@@ -379,7 +379,7 @@ class HAProxyPMDA(PMDA):
                     return [self.stat[name][item], 1]
                 else:
                     return [long(self.stat[name][item]), 1]
-            except:
+            except Exception:
                 return [PM_ERR_APPVERSION, 0]
 
         return [PM_ERR_PMID, 0]

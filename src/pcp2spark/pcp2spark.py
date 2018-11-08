@@ -445,7 +445,7 @@ class PCP2Spark(object):
         if self.client_conn:
             try:
                 self.client_conn.close()
-            except: # pylint: disable=bare-except
+            except Exception:
                 pass
             self.client_conn = None
 
@@ -456,7 +456,6 @@ if __name__ == '__main__':
         P.validate_config()
         P.execute()
         P.finalize()
-
     except pmapi.pmErr as error:
         sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
         sys.exit(1)

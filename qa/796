@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -f $PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.pl ] || \
+[ -f $PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.python ] || \
 	_notrun "elasticsearch pmda not installed"
 
 port=9200

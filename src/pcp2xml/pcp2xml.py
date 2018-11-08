@@ -28,7 +28,6 @@ import time
 import sys
 
 # Our imports
-import socket
 import os
 
 # PCP Python PMAPI
@@ -542,12 +541,12 @@ class PCP2XML(object):
                 self.writer.write("  </host>\n")
                 self.writer.write("</pcp>\n")
                 self.writer.flush()
-            except socket.error as error:
+            except IOError as error:
                 if error.errno != errno.EPIPE:
                     raise
             try:
                 self.writer.close()
-            except: # pylint: disable=bare-except
+            except Exception:
                 pass
             self.writer = None
 
@@ -558,7 +557,6 @@ if __name__ == '__main__':
         P.validate_config()
         P.execute()
         P.finalize()
-
     except pmapi.pmErr as error:
         sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
         sys.exit(1)

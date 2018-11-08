@@ -1,5 +1,4 @@
 #!/usr/bin/env pmpython
-
 #
 # Copyright (C) 2018 Red Hat.
 # Copyright (C) 2017 Marko Myllynen <myllynen@redhat.com>
@@ -16,7 +15,7 @@
 #
 
 # pylint: disable=bad-whitespace, line-too-long, too-many-return-statements
-# pylint: disable=bare-except, broad-except
+# pylint: disable=broad-except
 
 """ Performance Metrics Domain Agent exporting Elasticsearch metrics. """
 
@@ -40,13 +39,14 @@ from cpmapi import PM_ERR_AGAIN, PM_ERR_PMID, PM_ERR_APPVERSION
 DEFAULT_PORT = 9200
 DEFAULT_URL = "http://localhost:%s/" % DEFAULT_PORT
 DEFAULT_VERSION = 2
+DEFAULT_USER = "root"
 
 class elasticsearchPMDA(PMDA):
     """ PCP Elasticsearch PMDA """
     def __init__(self, name, domain):
         """ Constructor """
         PMDA.__init__(self, name, domain)
-        self.user = None
+        self.user = DEFAULT_USER
         self.baseurl = DEFAULT_URL
         self.auth = None
         self.password = None
@@ -54,8 +54,9 @@ class elasticsearchPMDA(PMDA):
         self.version = DEFAULT_VERSION
         self.read_config()
 
-#        if not self.user:
-#            self.set_user(self.user)
+        if not self.user:
+            self.log("Switching to user '%s'" % self.user)
+            self.set_user(self.user)
 
         self.connect_pmcd()
         try:
@@ -317,9 +318,13 @@ class elasticsearchPMDA(PMDA):
         """ Read Configuration file """
 
         configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        # Retain es.conf name from original version of the PMDA
         configfile += '/' + self.read_name() + '/es.conf'
-        # (retain es.conf name from original version of the pmda)
-        config = ConfigParser.SafeConfigParser()
+        # Python < 3.2 compat
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
+            config = ConfigParser.ConfigParser()
+        else:
+            config = ConfigParser.SafeConfigParser()
         config.read(configfile)
         if config.has_section('pmda'):
             for opt in config.options('pmda'):
@@ -339,7 +344,7 @@ class elasticsearchPMDA(PMDA):
         """ Setup urllib """
         try:
             import urllib.request as request
-        except:
+        except Exception:
             import urllib2 as request
         passman = request.HTTPPasswordMgrWithDefaultRealm()
         passman.add_password(None, url, auth, pasw)
@@ -474,7 +479,7 @@ class elasticsearchPMDA(PMDA):
                         return [1, 1]
                     elif self.cluster['status'] == 'red':
                         return [2, 1]
-            except:
+            except Exception:
                 return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.nodes_cluster:
@@ -612,8 +617,7 @@ class elasticsearchPMDA(PMDA):
                     return [self.nodes[node]['http']['current_open'], 1]
                 elif item == 64:
                     return [self.nodes[node]['http']['total_opened'], 1]
-
-            except:
+            except Exception:
                 return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.node_info_cluster:
@@ -639,7 +643,7 @@ class elasticsearchPMDA(PMDA):
                     return [self.node_info[node]['jvm']['mem']['non_heap_max_in_bytes'], 1]
                 elif item == 8:
                     return [self.node_info[node]['process']['max_file_descriptors'], 1]
-            except:
+            except Exception:
                 return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.version_cluster:
@@ -647,7 +651,7 @@ class elasticsearchPMDA(PMDA):
                 return [PM_ERR_AGAIN, 0]
             try:
                 return [str(self.info['version']['number']), 1]
-            except:
+            except Exception:
                 return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.search_cluster:
@@ -674,8 +678,9 @@ class elasticsearchPMDA(PMDA):
                     return [self.search['_all']['total']['search']['fetch_total'], 1]
                 elif item == 9:
                     return [self.search['_all']['total']['search']['fetch_time_in_millis'], 1]
-            except:
+            except Exception:
                 return [PM_ERR_APPVERSION, 0]
+
         if cluster == self.perindex_cluster:
             if not self.search:
                 return [PM_ERR_AGAIN, 0]
@@ -697,15 +702,16 @@ class elasticsearchPMDA(PMDA):
                     return [self.perindex[index]['total']['search']['fetch_total'], 1]
                 elif item == 7:
                     return [self.perindex[index]['total']['search']['fetch_time_in_millis'], 1]
-            except:
+            except Exception:
                 return [PM_ERR_APPVERSION, 0]
+
         if cluster == self.master_node_cluster:
             if not self.master_node:
                 return [PM_ERR_AGAIN, 0]
             try:
                 if item == 0:
                     return [str(self.master_node['master_node']), 1]
-            except:
+            except Exception:
                 return [PM_ERR_APPVERSION, 0]
 
         if cluster == self.index_cluster:
@@ -721,7 +727,7 @@ class elasticsearchPMDA(PMDA):
                     return [int(self.index[index]['settings']['index']['number_of_shards']), 1]
                 elif item == 3:
                     return [int(self.index[index]['settings']['index']['version_created']), 1]
-            except:
+            except Exception:
                 return [PM_ERR_APPVERSION, 0]
 
         return [PM_ERR_PMID, 0]
