@@ -46,6 +46,13 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 %endif
 %endif
 
+# libvarlink and pmdapodman
+%if 0%{?fedora} >= 28 || 0%{?rhel} >= 7
+%global disable_podman 0
+%else
+%global disable_podman 1
+%endif
+
 %global disable_microhttpd 0
 %global disable_webapps 0
 %global disable_cairo 0
@@ -203,6 +210,9 @@ BuildRequires: cyrus-sasl-devel
 %if !%{disable_papi}
 BuildRequires: papi-devel
 %endif
+%if !%{disable_podman}
+BuildRequires: libvarlink-devel
+%endif
 %if !%{disable_perfevent}
 BuildRequires: libpfm-devel >= 4
 %endif
@@ -312,6 +322,12 @@ Requires: pcp-libs = %{version}-%{release}
 %global _with_perfevent --with-perfevent=no
 %else
 %global _with_perfevent --with-perfevent=yes
+%endif
+
+%if %{disable_podman}
+%global _with_podman --with-podman=no
+%else
+%global _with_podman --with-podman=yes
 %endif
 
 %if %{disable_bcc}
@@ -957,6 +973,24 @@ BuildRequires: papi-devel
 %description pmda-papi
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting hardware counters statistics through PAPI (Performance API).
+%endif
+
+%if !%{disable_podman}
+#
+# pcp-pmda-podman
+#
+%package pmda-podman
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for podman containers
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: libvarlink
+BuildRequires: libvarlink-devel
+
+%description pmda-podman
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting podman container and pod statistics through libvarlink.
 %endif
 
 %if !%{disable_perfevent}
@@ -2201,7 +2235,7 @@ updated policy package.
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps} %{?_with_python2}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_papi} %{?_with_podman} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps} %{?_with_python2}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2303,6 +2337,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^oracle' |\
   grep -E -v '^papi' |\
   grep -E -v '^pdns' |\
+  grep -E -v '^podman' |\
   grep -E -v '^postfix' |\
   grep -E -v '^postgresql' |\
   grep -E -v '^redis' |\
@@ -2541,6 +2576,11 @@ fi
 %preun pmda-perfevent
 %{pmda_remove "$1" "perfevent"}
 %endif #preun pmda-perfevent
+
+%if !%{disable_podman}
+%preun pmda-podman
+%{pmda_remove "$1" "podman"}
+%endif #preun pmda-podman
 
 %if !%{disable_json}
 %preun pmda-json
@@ -3089,6 +3129,11 @@ cd
 %{_pmdasdir}/papi
 %endif
 
+%if !%{disable_podman}
+%files pmda-podman
+%{_pmdasdir}/podman
+%endif
+
 %if !%{disable_perfevent}
 %files pmda-perfevent
 %{_pmdasdir}/perfevent
@@ -3377,6 +3422,7 @@ cd
 - Work in progress, see https://pcp.io/roadmap
 - Resolves pcp-dstat packaging issues (BZ 1640912)
 - Resolves pcp-dstat cursor positioning problem (BZ 1640913)
+- New conditionally-built pcp-pmda-podman sub-package.
 
 * Fri Sep 21 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
 - Update to latest PCP sources.
