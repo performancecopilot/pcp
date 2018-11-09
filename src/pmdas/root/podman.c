@@ -38,6 +38,7 @@ podman_setup(container_engine_t *dp)
 {
     const char		*podman_default_datadir = CONTAINERS_DATADIR;
     const char		*podman_default_rundir = CONTAINERS_RUNDIR;
+    char		path[MAXPATHLEN];
 
     podman_datadir = getenv("PCP_PODMAN_DATADIR");
     podman_rundir = getenv("PCP_PODMAN_RUNDIR");
@@ -47,11 +48,12 @@ podman_setup(container_engine_t *dp)
 	podman_datadir = podman_default_datadir;
     if (podman_rundir == NULL)
 	podman_rundir = podman_default_rundir;
-    pmsprintf(dp->path, sizeof(dp->path), "%s/containers.json", podman_datadir);
+    pmsprintf(path, sizeof(path), "%s/containers.json", podman_datadir);
+    dp->path = strdup(path);
 
     if (pmDebugOptions.attr)
-	pmNotifyErr(LOG_DEBUG, "podman setup using %s and rundir %s\n",
-			podman_datadir, podman_rundir);
+	pmNotifyErr(LOG_DEBUG, "podman setup %s (rundir %s)\n", dp->path,
+				podman_rundir);
 }
 
 int
