@@ -281,8 +281,8 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
     __pmContext		*ctxp;
     char		*p;
     int			need;
-    int			*ilist;
-    char		**nlist;
+    int			*ilist = NULL;
+    char		**nlist = NULL;
 
     if (pmDebugOptions.pmapi) {
 	char    dbgbuf[20];
@@ -363,7 +363,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		    goto pmapi_return;
 		}
 		if ((nlist = (char **)malloc(need)) == NULL) {
-		    free(ilist);
 		    PM_UNLOCK(ctxp->c_lock);
 		    sts = -oserror();
 		    goto pmapi_return;
@@ -398,6 +397,16 @@ pmapi_return:
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
+    }
+    if (sts <= 0) {
+	/*
+	 * clean up alloc's if errors or empty indoms and so not returning
+	 * arrays via instlist[] and namelist[]
+	 */
+	if (ilist != NULL)
+	    free(ilist);
+	if (nlist != NULL)
+	    free(nlist);
     }
 
     return sts;
