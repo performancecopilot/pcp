@@ -117,7 +117,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL)
 
-default: pcp.preinst pcp.postinst pcp.postrm vector control
+default: pcp.preinst pcp.postinst pcp.postrm vector control pcp-gui.install
 
 include $(BUILDRULES)
 
@@ -341,6 +341,13 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	( cd pcp/$(VECTOR) && find . -type f ) \
 		| sed -e "s,^.,$(VECTOR),g" > $(VECTORPKG).install
 endif
+endif
+
+pcp-gui.install:	pcp-gui.install.base pcp-gui.install.hicolor
+	rm -f pcp-gui.install
+	cat pcp-gui.install.base >pcp-gui.install
+ifeq ($(HAVE_HICOLOR_ICONS), true)
+	cat pcp-gui.install.hicolor >>pcp-gui.install
 endif
 
 control:	control.master control.webapi control.pcpgui fixcontrol.master

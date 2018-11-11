@@ -1033,6 +1033,7 @@ End-of-File
 
 	# actually do the remote work here
 	#
+	start=`date +%s`
 	ssh -t $build_user@$host sh -c ./daily.script
 	scp -q $build_user@$host:daily.log $tmp.out
 	echo "=== build and install: `date` ===" >>$log
@@ -1099,7 +1100,16 @@ End-of-File
 		echo "No failures."
 	    fi
 	fi
+	end=`date +%s`
+	echo "$start $end" | awk >>$log '
+    { delta = $2 - $1
+      hr = int(delta/3600)
+      min = int((delta-hr*3600)/60)
+      sec = delta % 60
+      printf "Elapsed time: %d:%02d:%02d (%d secs)\n", hr, min, sec, delta
+    }'
     fi
+    
 
     if $sflag
     then
