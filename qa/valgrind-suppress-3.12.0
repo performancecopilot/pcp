@@ -26,3 +26,18 @@
    fun:__pmAuxConnectPMCDPort
    fun:__pmConnectPMCD
 }
+
+# qa/681 on vm07
+# at 0x4C2BBAF: malloc (vg_replace_malloc.c:299)
+# by 0x51533B9: strdup (strdup.c:42)
+# by 0x4E94F66: __pmProcessAddArg (in /usr/lib/libpcp.so.3)
+# by 0x10937E: main (exectest.c:97)
+{
+   broken valgrind/gcc
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:strdup
+   fun:__pmProcessAddArg
+   fun:main
+}
