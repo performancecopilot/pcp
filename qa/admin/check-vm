@@ -444,7 +444,7 @@ in
 	na='sensors'
 	;;
     vm07)
-	na='docker.io'
+	na='python3-bpfcc libsoqt5-dev docker.io'
 	;;
     vm08)
 	na='libvarlink-devel python-prometheus_client python-openpyxl qtchooser'
@@ -480,7 +480,7 @@ in
 	na='sysv-rc-conf'
 	;;
     vm21)
-	na='dh-python libpapi-dev libpfm4-dev python-json-pointer python-prometheus-client python-elasticsearch python-openpyxl zabbix-agent gfs2-utils qtchooser qtbase5-dev qtbase5-dev-tools libqt5svg5-dev docker.io libuv-dev libsoqt5-dev'
+	na='python3-bpfcc docker.io libsoqt5-dev'
 	;;
     vm22)
 	na='libvarlink-devel python-prometheus_client python3-prometheus_client python3-openpyxl python3-bcc python3-prometheus_client'
