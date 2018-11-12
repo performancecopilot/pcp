@@ -1,0 +1,105 @@
+#!/bin/sh
+# PCP QA Test No. 699
+# pmlogrewrite clobbers existing output file?
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    sed -n \
+	-e "s@$tmp@TMP@g" \
+	-e '/Error/p ' \
+	-e '/already exists/p' \
+    # end
+}
+
+_filter_pminfo()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+for suff in 0 1 2 index meta
+do
+    cp tmparch/mv-foo.$suff $tmp.in.$suff
+    cp tmparch/mv-foo.$suff $tmp.out.$suff
+done
+
+echo 'metric sample.seconds { type -> 64 }' >$tmp.config
+
+# real QA test starts here
+
+echo "=== output archive exists, case ===" | tee -a $here/$seq.full
+
+echo "--- check archives before ---"
+pmlogcheck $tmp.in
+pminfo -d sample.seconds -a $tmp.in
+pmlogcheck $tmp.out
+pminfo -d sample.seconds -a $tmp.out
+
+echo "--- pmlogrewrite, expect failure ---"
+pmlogrewrite -Dlog -c $tmp.config $tmp.in $tmp.out 2>$tmp.err
+cat $tmp.err | tee -a $here/$seq.full | _filter
+
+echo "--- check archives after ---"
+pmlogcheck $tmp.in
+pminfo -d sample.seconds -a $tmp.in
+pmlogcheck $tmp.out 2>&1 \
+| sed -e "s@$tmp@TMP@g"
+pminfo -d sample.seconds -a $tmp.out
+
+for suff in meta index 0 1 2
+do
+    echo | tee -a $here/$seq.full
+    echo "=== removed output archive .$suff file ===" | tee -a $here/$seq.full
+    rm -f $tmp.out.$suff
+
+    echo "--- pmlogrewrite, expect failure ---"
+    pmlogrewrite -Dlog -c $tmp.config $tmp.in $tmp.out 2>$tmp.err
+    cat $tmp.err | tee -a $here/$seq.full | _filter
+
+    echo "--- check archives after ---"
+    pminfo -d sample.seconds -a $tmp.in
+    pminfo -d sample.seconds -a $tmp.out 2>&1 | _filter_pminfo
+
+    for x in meta index 0 1 2
+    do
+	if [ -f $tmp.out.$x ]
+	then
+	    if cmp $tmp.in.$x $tmp.out.$x >/dev/null 2>&1
+	    then
+		echo "TMP.out.$x: no change"
+	    else
+		echo "TMP.out.$x: different"
+	    fi
+	else
+	    echo "TMP.out.$x: absent"
+	fi
+    done
+
+done
+
+
+# success, all done
+status=0
+exit

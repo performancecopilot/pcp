@@ -518,7 +518,7 @@ pm_dm_histogram_instance_refresh(void)
 	    for (i = 0; i < bins; i++) {
 		bound_width = dm_histogram_get_bin_lower(dmh, i);
 		_scale_bound_value_to_suffix(&bound_width, &suffix);
-		sprintf(buffer, "%s:%lu:%lu%s", names->name, region_id, bound_width, suffix);
+		sprintf(buffer, "%s:%" FMT_UINT64 ":%" FMT_UINT64 "%s", names->name, region_id, bound_width, suffix);
 
 		sts = pmdaCacheLookupName(indom, buffer, NULL, (void **)&pw);
 		if (sts == PM_ERR_INST || (sts >= 0 && pw == NULL)) {

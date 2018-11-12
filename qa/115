@@ -105,13 +105,13 @@ _count_pmies()
 
     for process in $plist
     do
-	ps -p $process >/dev/null 2>&1
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $process >/dev/null 2>&1
 	if [ $? = 1 ]
 	then
 	    echo "urk, $PCP_TMP_DIR/pmie/$process has no running pmie instance"
 	else
 	    count=`expr $count + 1`
-	    ps -f -p $process >>$here/$seq.full
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $process >>$here/$seq.full
 	    if `which pstree >/dev/null 2>&1`
 	    then
 		pstree $process >>$here/$seq.full

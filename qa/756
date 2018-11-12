@@ -28,7 +28,7 @@ then
     # we're in the git tree, rebuild the binary to be sure, to be sure
     #
     rm -f perfevent_test
-    if $PCP_MAKE_PROG >>$here/$seq.full 2>&1
+    if $PCP_MAKE_PROG perfevent_test >>$here/$seq.full 2>&1
     then
 	:
     else

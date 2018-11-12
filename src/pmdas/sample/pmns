@@ -80,6 +80,7 @@ sample {
     event
     dupnames
     negative
+    ghosts	SAMPLE:*:*
 }
 
 sample.long {
@@ -322,3 +323,4 @@ sample.negative.discrete {
     m_float		SAMPLE:0:151
     m_double		SAMPLE:0:152
 }
+

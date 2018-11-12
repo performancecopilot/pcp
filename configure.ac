@@ -146,6 +146,12 @@ AC_ARG_WITH([perfevent],
     [do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"],
     [do_perfevent=check])
 
+AC_ARG_WITH([pmdapodman],
+    [AC_HELP_STRING([--with-pmdapodman],
+		   [enable podman pmda (default is on)])],
+    [do_pmdapodman=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdapodman=$withval"],
+    [do_pmdapodman=check])
+
 AC_ARG_WITH([pmdabcc],
     [AC_HELP_STRING([--with-pmdabcc],
 		   [enable BCC pmda (default is on)])],
@@ -785,11 +791,11 @@ AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
 AC_SUBST(PYLINT)
 
 dnl check if python available for the build and runtime
-AC_CHECK_PROGS(PYTHON, python, python2.7)
+AC_CHECK_PROGS(PYTHON, [python python2.7])
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
-AC_CHECK_PROGS(PYTHON3, python3, python3.6, python3.4)
+AC_CHECK_PROGS(PYTHON3, [python3 python3.7 python3.6 python3.4])
 AC_SUBST(PYTHON3)
 
 dnl check if python tools/packages wanted (need python >= 2.6)
@@ -932,8 +938,6 @@ PCP_CHECK_PYTHON_MODULE(BPF, [from bcc import BPF])
 AC_SUBST(have_python_BPF)
 PCP_CHECK_PYTHON_MODULE(OrderedDict, [from collections import OrderedDict])
 AC_SUBST(have_python_OrderedDict)
-PCP_CHECK_PYTHON_MODULE(Elasticsearch, [from elasticsearch import Elasticsearch])
-AC_SUBST(have_python_Elasticsearch)
 PCP_CHECK_PYTHON_MODULE(jsonpointer)
 AC_SUBST(have_python_jsonpointer)
 PCP_CHECK_PYTHON_MODULE(openpyxl)
@@ -1063,13 +1067,18 @@ if $pmda_oracle; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the elasticsearch PMDA should be included])
 pmda_elasticsearch=false
-if test "$have_perl" = true
+if test "$have_python" = true
 then
-    dnl rpm build for elasticsearch PMDA needs Perl LWP::UserAgent
-    if $pcp_perl_prog -e "use LWP::UserAgent" >/dev/null 2>&1
+    dnl rpm build for elasticsearch PMDA needs Python urllib module
+    if $pcp_python_prog -c "import urllib" >/dev/null 2>&1
     then
 	pmda_elasticsearch=true
     fi
+    if $pcp_python_prog -c "import urllib2" >/dev/null 2>&1
+    then
+	pmda_elasticsearch=true
+    fi
+
 fi
 AC_SUBST(PMDA_ELASTICSEARCH, $pmda_elasticsearch)
 if $pmda_elasticsearch; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
@@ -1683,6 +1692,9 @@ AC_SUBST(lib_for_regex)
 PKG_CHECK_MODULES([libuv], [libuv >= 1.0], [have_libuv=true], [have_libuv=false])
 AC_SUBST(HAVE_LIBUV, [$have_libuv])
 
+PKG_CHECK_MODULES([libvarlink], [libvarlink], [have_libvarlink=true], [have_libvarlink=false])
+AC_SUBST(HAVE_LIBVARLINK, [$have_libvarlink])
+
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
@@ -1701,8 +1713,7 @@ then
 fi
 AC_SUBST(HAVE_DEVMAPPER, [$have_devmapper])
 
-PKG_CHECK_MODULES([SYSTEMD], [libsystemd],
-                  [pmda_systemd=true], [pmda_systemd=false])
+PKG_CHECK_MODULES([SYSTEMD], [libsystemd], [pmda_systemd=true], [pmda_systemd=false])
 if $pmda_systemd
 then
     :
@@ -1786,7 +1797,7 @@ AS_IF([test "x$do_papi" != "xno"], [
 	    ;;
     esac
 
-    # $papi_LIBS may include -lpapi harmlessly redudantly with AC_CHECK_LIB
+    # $papi_LIBS may include -lpapi harmlessly redundantly with AC_CHECK_LIB
     AC_CHECK_LIB([papi], [PAPI_library_init],
 		 [papi_libs="$LDFLAGS -lpapi"],
 		 [enable_papi=false])
@@ -1852,6 +1863,14 @@ AS_IF([test "x$do_perfevent" = "xyes"], [
 AC_MSG_CHECKING([if the perfevent PMDA should be included])
 AC_SUBST(PMDA_PERFEVENT, $pmda_perfevent)
 if $pmda_perfevent; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+dnl Do you have varlink libraries for pmdapodman?
+AC_MSG_CHECKING([if the podman PMDA should be included])
+pmda_podman=false
+AS_IF([test "x$do_pmdapodman" = "xyes"], [pmda_podman=true])
+AS_IF([test "x$do_pmdapodman" = "xcheck"], [$have_libvarlink && pmda_podman=true])
+AC_SUBST(PMDA_PODMAN, $pmda_podman)
+if $pmda_podman; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 dnl Do you have RPM Package Manager libraries for pmdarpm?
 pmda_rpm=false
@@ -1992,6 +2011,7 @@ pcp_selinux_mock=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
 pcp_selinux_bpf_class=false
+pcp_selinux_wap_port=false
 
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 for policy_file in /etc/selinux/targeted/policy/policy.*
@@ -1999,9 +2019,9 @@ do
     seinfo --common >/dev/null 2>&1
     if test $? -eq 0
     then
-        seinfo_common_flag="--common="
+        seinfo_common_flag="--common"
     else
-        seinfo_common_flag="--class="
+        seinfo_common_flag="--class"
     fi
     if test -f "$policy_file"
     then
@@ -2081,10 +2101,15 @@ do
        then
            pcp_selinux_numad=true
        fi
-       bpf_class=`eval seinfo -x --class=bpf $seinfo_common_flag -- $policy_file 2>/dev/null | grep status | awk '{ print $1 }'`
+       bpf_class=`eval seinfo -x --class=bpf $seinfo_common_flag -- $policy_file 2>/dev/null | grep g | awk '{ print $1 }'`
        if test "x$bpf_class" != "x"
        then
 	    pcp_selinux_bpf_status=true
+       fi
+       wap_port=`eval seinfo -t -- $policy_file | grep wap_wsp_port_t | awk '{ print $1 }'`
+       if test "x$wap_port" != "x"
+       then
+            pcp_selinux_wap_port=true
        fi
     fi
 done
@@ -2105,6 +2130,7 @@ AC_SUBST(pcp_selinux_mock)
 AC_SUBST(pcp_selinux_unconfined)
 AC_SUBST(pcp_selinux_numad)
 AC_SUBST(pcp_selinux_bpf_status)
+AC_SUBST(pcp_selinux_wap_port)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL

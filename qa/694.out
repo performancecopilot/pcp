@@ -1,0 +1,714 @@
+QA output created by 694
+
+=== err ===
+
+=== out ===
+=== filtered valgrind report ===
+=== std err ===
+=== std out ===
+Command: pmie -T 10 -v TMP.config
+ERROR SUMMARY: 0 errors from 0 contexts ...
+ERROR SUMMARY: 0 errors from 0 contexts ...
+ERROR SUMMARY: 0 errors from 0 contexts ...
+ERROR SUMMARY: 0 errors from 0 contexts ...
+ERROR SUMMARY: 0 errors from 0 contexts ...
+ERROR SUMMARY: 0 errors from 0 contexts ...
+ERROR SUMMARY: 0 errors from 0 contexts ...
+ERROR SUMMARY: 0 errors from 0 contexts ...
+ERROR SUMMARY: 0 errors from 0 contexts ...
+ERROR SUMMARY: 0 errors from 0 contexts ...
+ERROR SUMMARY: 0 errors from 0 contexts ...
+ERROR SUMMARY: 0 errors from 0 contexts ...
+ERROR SUMMARY: 0 errors from 0 contexts ...
+LEAK SUMMARY:
+LEAK SUMMARY:
+LEAK SUMMARY:
+LEAK SUMMARY:
+LEAK SUMMARY:
+LEAK SUMMARY:
+LEAK SUMMARY:
+LEAK SUMMARY:
+LEAK SUMMARY:
+LEAK SUMMARY:
+LEAK SUMMARY:
+LEAK SUMMARY:
+LEAK SUMMARY:
+Memcheck, a memory error detector
+act1: true
+act1: true
+act1: true
+act2: false
+act2: false
+act2: false
+act3: true
+act3: true
+act3: true
+act4: true
+act4: true
+act4: true
+bool1: false false false false true true true true true
+bool1: false false false false true true true true true
+bool1: false false false false true true true true true
+bool1: false false false false true true true true true
+bool2: true true true true true false false false false
+bool2: true true true true true false false false false
+bool2: true true true true true false false false false
+bool2: true true true true true false false false false
+bool_all1: true
+bool_all1: true
+bool_all1: true
+bool_all1: true
+bool_all2: false
+bool_all2: false
+bool_all2: false
+bool_all2: false
+bool_and: false false false false true false false false false
+bool_and: false false false false true false false false false
+bool_and: false false false false true false false false false
+bool_and: false false false false true false false false false
+bool_not: true true true true false false false false false
+bool_not: true true true true false false false false false
+bool_not: true true true true false false false false false
+bool_not: true true true true false false false false false
+bool_or: true true true true true true true true true
+bool_or: true true true true true true true true true
+bool_or: true true true true true true true true true
+bool_or: true true true true true true true true true
+bool_pcnt1: true
+bool_pcnt1: true
+bool_pcnt1: true
+bool_pcnt1: true
+bool_pcnt2: false
+bool_pcnt2: false
+bool_pcnt2: false
+bool_pcnt2: false
+bool_pcnt3: true
+bool_pcnt3: true
+bool_pcnt3: true
+bool_pcnt3: true
+bool_pcnt4: true
+bool_pcnt4: true
+bool_pcnt4: true
+bool_pcnt4: true
+bool_some1: true
+bool_some1: true
+bool_some1: true
+bool_some1: true
+bool_some2: false
+bool_some2: false
+bool_some2: false
+bool_some2: false
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+definitely lost: 0 bytes in 0 blocks
+expr_1: 43
+expr_1: 43
+expr_1: 43
+expr_1: 43
+expr_1: 43
+expr_1: 43
+expr_1: 43
+expr_1: 43
+expr_1: 43
+expr_1: 43
+expr_1: 43
+indirectly lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+inst_add1: 200 400 600 800 1000 1200 1400 1600 1800
+inst_add1: 200 400 600 800 1000 1200 1400 1600 1800
+inst_add1: 200 400 600 800 1000 1200 1400 1600 1800
+inst_add1: 200 400 600 800 1000 1200 1400 1600 1800
+inst_add1: 200 400 600 800 1000 1200 1400 1600 1800
+inst_add1: 200 400 600 800 1000 1200 1400 1600 1800
+inst_add1: 200 400 600 800 1000 1200 1400 1600 1800
+inst_add1: 200 400 600 800 1000 1200 1400 1600 1800
+inst_add1: 200 400 600 800 1000 1200 1400 1600 1800
+inst_add1: 200 400 600 800 1000 1200 1400 1600 1800
+inst_add1: 200 400 600 800 1000 1200 1400 1600 1800
+inst_add2: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add2: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add2: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add2: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add2: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add2: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add2: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add2: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add2: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add2: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add2: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add3: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add3: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add3: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add3: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add3: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add3: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add3: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add3: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add3: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add3: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_add3: 1000100 1000200 1000300 1000400 1000500 1000600 1000700 1000800 1000900
+inst_avg: 500
+inst_avg: 500
+inst_avg: 500
+inst_avg: 500
+inst_avg: 500
+inst_avg: 500
+inst_avg: 500
+inst_avg: 500
+inst_avg: 500
+inst_avg: 500
+inst_avg: 500
+inst_count: 5
+inst_count: 5
+inst_count: 5
+inst_count: 5
+inst_count: 5
+inst_count: 5
+inst_count: 5
+inst_count: 5
+inst_count: 5
+inst_count: 5
+inst_count: 5
+inst_div: 1 1 1 1 1 1 1 1 1
+inst_div: 1 1 1 1 1 1 1 1 1
+inst_div: 1 1 1 1 1 1 1 1 1
+inst_div: 1 1 1 1 1 1 1 1 1
+inst_div: 1 1 1 1 1 1 1 1 1
+inst_div: 1 1 1 1 1 1 1 1 1
+inst_div: 1 1 1 1 1 1 1 1 1
+inst_div: 1 1 1 1 1 1 1 1 1
+inst_div: 1 1 1 1 1 1 1 1 1
+inst_div: 1 1 1 1 1 1 1 1 1
+inst_div: 1 1 1 1 1 1 1 1 1
+inst_eq1: true true true true true true true true true
+inst_eq1: true true true true true true true true true
+inst_eq1: true true true true true true true true true
+inst_eq1: true true true true true true true true true
+inst_eq1: true true true true true true true true true
+inst_eq1: true true true true true true true true true
+inst_eq1: true true true true true true true true true
+inst_eq1: true true true true true true true true true
+inst_eq1: true true true true true true true true true
+inst_eq1: true true true true true true true true true
+inst_eq1: true true true true true true true true true
+inst_eq2: false false false false false false false false false
+inst_eq2: false false false false false false false false false
+inst_eq2: false false false false false false false false false
+inst_eq2: false false false false false false false false false
+inst_eq2: false false false false false false false false false
+inst_eq2: false false false false false false false false false
+inst_eq2: false false false false false false false false false
+inst_eq2: false false false false false false false false false
+inst_eq2: false false false false false false false false false
+inst_eq2: false false false false false false false false false
+inst_eq2: false false false false false false false false false
+inst_eq3: false false false false true false false false false
+inst_eq3: false false false false true false false false false
+inst_eq3: false false false false true false false false false
+inst_eq3: false false false false true false false false false
+inst_eq3: false false false false true false false false false
+inst_eq3: false false false false true false false false false
+inst_eq3: false false false false true false false false false
+inst_eq3: false false false false true false false false false
+inst_eq3: false false false false true false false false false
+inst_eq3: false false false false true false false false false
+inst_eq3: false false false false true false false false false
+inst_fetch1: 100 200 300 400 500 600 700 800 900
+inst_fetch1: 100 200 300 400 500 600 700 800 900
+inst_fetch1: 100 200 300 400 500 600 700 800 900
+inst_fetch1: 100 200 300 400 500 600 700 800 900
+inst_fetch1: 100 200 300 400 500 600 700 800 900
+inst_fetch1: 100 200 300 400 500 600 700 800 900
+inst_fetch1: 100 200 300 400 500 600 700 800 900
+inst_fetch1: 100 200 300 400 500 600 700 800 900
+inst_fetch1: 100 200 300 400 500 600 700 800 900
+inst_fetch1: 100 200 300 400 500 600 700 800 900
+inst_fetch1: 100 200 300 400 500 600 700 800 900
+inst_fetch2: 200 400 600 800
+inst_fetch2: 200 400 600 800
+inst_fetch2: 200 400 600 800
+inst_fetch2: 200 400 600 800
+inst_fetch2: 200 400 600 800
+inst_fetch2: 200 400 600 800
+inst_fetch2: 200 400 600 800
+inst_fetch2: 200 400 600 800
+inst_fetch2: 200 400 600 800
+inst_fetch2: 200 400 600 800
+inst_fetch2: 200 400 600 800
+inst_geq1: true true true true true true true true true
+inst_geq1: true true true true true true true true true
+inst_geq1: true true true true true true true true true
+inst_geq1: true true true true true true true true true
+inst_geq1: true true true true true true true true true
+inst_geq1: true true true true true true true true true
+inst_geq1: true true true true true true true true true
+inst_geq1: true true true true true true true true true
+inst_geq1: true true true true true true true true true
+inst_geq1: true true true true true true true true true
+inst_geq1: true true true true true true true true true
+inst_geq2: false false false false false false false false false
+inst_geq2: false false false false false false false false false
+inst_geq2: false false false false false false false false false
+inst_geq2: false false false false false false false false false
+inst_geq2: false false false false false false false false false
+inst_geq2: false false false false false false false false false
+inst_geq2: false false false false false false false false false
+inst_geq2: false false false false false false false false false
+inst_geq2: false false false false false false false false false
+inst_geq2: false false false false false false false false false
+inst_geq2: false false false false false false false false false
+inst_gt1: true true true true true true true true true
+inst_gt1: true true true true true true true true true
+inst_gt1: true true true true true true true true true
+inst_gt1: true true true true true true true true true
+inst_gt1: true true true true true true true true true
+inst_gt1: true true true true true true true true true
+inst_gt1: true true true true true true true true true
+inst_gt1: true true true true true true true true true
+inst_gt1: true true true true true true true true true
+inst_gt1: true true true true true true true true true
+inst_gt1: true true true true true true true true true
+inst_gt2: false false false false false false false false false
+inst_gt2: false false false false false false false false false
+inst_gt2: false false false false false false false false false
+inst_gt2: false false false false false false false false false
+inst_gt2: false false false false false false false false false
+inst_gt2: false false false false false false false false false
+inst_gt2: false false false false false false false false false
+inst_gt2: false false false false false false false false false
+inst_gt2: false false false false false false false false false
+inst_gt2: false false false false false false false false false
+inst_gt2: false false false false false false false false false
+inst_gt3: false false false false false true true true true
+inst_gt3: false false false false false true true true true
+inst_gt3: false false false false false true true true true
+inst_gt3: false false false false false true true true true
+inst_gt3: false false false false false true true true true
+inst_gt3: false false false false false true true true true
+inst_gt3: false false false false false true true true true
+inst_gt3: false false false false false true true true true
+inst_gt3: false false false false false true true true true
+inst_gt3: false false false false false true true true true
+inst_gt3: false false false false false true true true true
+inst_leq1: true true true true true true true true true
+inst_leq1: true true true true true true true true true
+inst_leq1: true true true true true true true true true
+inst_leq1: true true true true true true true true true
+inst_leq1: true true true true true true true true true
+inst_leq1: true true true true true true true true true
+inst_leq1: true true true true true true true true true
+inst_leq1: true true true true true true true true true
+inst_leq1: true true true true true true true true true
+inst_leq1: true true true true true true true true true
+inst_leq1: true true true true true true true true true
+inst_leq2: false false false false false false false false false
+inst_leq2: false false false false false false false false false
+inst_leq2: false false false false false false false false false
+inst_leq2: false false false false false false false false false
+inst_leq2: false false false false false false false false false
+inst_leq2: false false false false false false false false false
+inst_leq2: false false false false false false false false false
+inst_leq2: false false false false false false false false false
+inst_leq2: false false false false false false false false false
+inst_leq2: false false false false false false false false false
+inst_leq2: false false false false false false false false false
+inst_lt1: true true true true true true true true true
+inst_lt1: true true true true true true true true true
+inst_lt1: true true true true true true true true true
+inst_lt1: true true true true true true true true true
+inst_lt1: true true true true true true true true true
+inst_lt1: true true true true true true true true true
+inst_lt1: true true true true true true true true true
+inst_lt1: true true true true true true true true true
+inst_lt1: true true true true true true true true true
+inst_lt1: true true true true true true true true true
+inst_lt1: true true true true true true true true true
+inst_lt2: false false false false false false false false false
+inst_lt2: false false false false false false false false false
+inst_lt2: false false false false false false false false false
+inst_lt2: false false false false false false false false false
+inst_lt2: false false false false false false false false false
+inst_lt2: false false false false false false false false false
+inst_lt2: false false false false false false false false false
+inst_lt2: false false false false false false false false false
+inst_lt2: false false false false false false false false false
+inst_lt2: false false false false false false false false false
+inst_lt2: false false false false false false false false false
+inst_lt3: true true true true false false false false false
+inst_lt3: true true true true false false false false false
+inst_lt3: true true true true false false false false false
+inst_lt3: true true true true false false false false false
+inst_lt3: true true true true false false false false false
+inst_lt3: true true true true false false false false false
+inst_lt3: true true true true false false false false false
+inst_lt3: true true true true false false false false false
+inst_lt3: true true true true false false false false false
+inst_lt3: true true true true false false false false false
+inst_lt3: true true true true false false false false false
+inst_max: 900
+inst_max: 900
+inst_max: 900
+inst_max: 900
+inst_max: 900
+inst_max: 900
+inst_max: 900
+inst_max: 900
+inst_max: 900
+inst_max: 900
+inst_max: 900
+inst_min: 100
+inst_min: 100
+inst_min: 100
+inst_min: 100
+inst_min: 100
+inst_min: 100
+inst_min: 100
+inst_min: 100
+inst_min: 100
+inst_min: 100
+inst_min: 100
+inst_mul: 10000 40000 90000 160000 250000 360000 490000 640000 810000
+inst_mul: 10000 40000 90000 160000 250000 360000 490000 640000 810000
+inst_mul: 10000 40000 90000 160000 250000 360000 490000 640000 810000
+inst_mul: 10000 40000 90000 160000 250000 360000 490000 640000 810000
+inst_mul: 10000 40000 90000 160000 250000 360000 490000 640000 810000
+inst_mul: 10000 40000 90000 160000 250000 360000 490000 640000 810000
+inst_mul: 10000 40000 90000 160000 250000 360000 490000 640000 810000
+inst_mul: 10000 40000 90000 160000 250000 360000 490000 640000 810000
+inst_mul: 10000 40000 90000 160000 250000 360000 490000 640000 810000
+inst_mul: 10000 40000 90000 160000 250000 360000 490000 640000 810000
+inst_mul: 10000 40000 90000 160000 250000 360000 490000 640000 810000
+inst_neg: -100 -200 -300 -400 -500 -600 -700 -800 -900
+inst_neg: -100 -200 -300 -400 -500 -600 -700 -800 -900
+inst_neg: -100 -200 -300 -400 -500 -600 -700 -800 -900
+inst_neg: -100 -200 -300 -400 -500 -600 -700 -800 -900
+inst_neg: -100 -200 -300 -400 -500 -600 -700 -800 -900
+inst_neg: -100 -200 -300 -400 -500 -600 -700 -800 -900
+inst_neg: -100 -200 -300 -400 -500 -600 -700 -800 -900
+inst_neg: -100 -200 -300 -400 -500 -600 -700 -800 -900
+inst_neg: -100 -200 -300 -400 -500 -600 -700 -800 -900
+inst_neg: -100 -200 -300 -400 -500 -600 -700 -800 -900
+inst_neg: -100 -200 -300 -400 -500 -600 -700 -800 -900
+inst_neq1: true true true true true true true true true
+inst_neq1: true true true true true true true true true
+inst_neq1: true true true true true true true true true
+inst_neq1: true true true true true true true true true
+inst_neq1: true true true true true true true true true
+inst_neq1: true true true true true true true true true
+inst_neq1: true true true true true true true true true
+inst_neq1: true true true true true true true true true
+inst_neq1: true true true true true true true true true
+inst_neq1: true true true true true true true true true
+inst_neq1: true true true true true true true true true
+inst_neq2: false false false false false false false false false
+inst_neq2: false false false false false false false false false
+inst_neq2: false false false false false false false false false
+inst_neq2: false false false false false false false false false
+inst_neq2: false false false false false false false false false
+inst_neq2: false false false false false false false false false
+inst_neq2: false false false false false false false false false
+inst_neq2: false false false false false false false false false
+inst_neq2: false false false false false false false false false
+inst_neq2: false false false false false false false false false
+inst_neq2: false false false false false false false false false
+inst_neq3: true true true true false true true true true
+inst_neq3: true true true true false true true true true
+inst_neq3: true true true true false true true true true
+inst_neq3: true true true true false true true true true
+inst_neq3: true true true true false true true true true
+inst_neq3: true true true true false true true true true
+inst_neq3: true true true true false true true true true
+inst_neq3: true true true true false true true true true
+inst_neq3: true true true true false true true true true
+inst_neq3: true true true true false true true true true
+inst_neq3: true true true true false true true true true
+inst_rate: 0 0 0 0 0 0 0 0 0
+inst_rate: 0 0 0 0 0 0 0 0 0
+inst_rate: 0 0 0 0 0 0 0 0 0
+inst_rate: 0 0 0 0 0 0 0 0 0
+inst_rate: 0 0 0 0 0 0 0 0 0
+inst_rate: 0 0 0 0 0 0 0 0 0
+inst_rate: 0 0 0 0 0 0 0 0 0
+inst_rate: 0 0 0 0 0 0 0 0 0
+inst_rate: 0 0 0 0 0 0 0 0 0
+inst_rate: 0 0 0 0 0 0 0 0 0
+inst_rate: ? ? ? ? ? ? ? ? ?
+inst_sub: 0 0 0 0 0 0 0 0 0
+inst_sub: 0 0 0 0 0 0 0 0 0
+inst_sub: 0 0 0 0 0 0 0 0 0
+inst_sub: 0 0 0 0 0 0 0 0 0
+inst_sub: 0 0 0 0 0 0 0 0 0
+inst_sub: 0 0 0 0 0 0 0 0 0
+inst_sub: 0 0 0 0 0 0 0 0 0
+inst_sub: 0 0 0 0 0 0 0 0 0
+inst_sub: 0 0 0 0 0 0 0 0 0
+inst_sub: 0 0 0 0 0 0 0 0 0
+inst_sub: 0 0 0 0 0 0 0 0 0
+inst_sum: 4500
+inst_sum: 4500
+inst_sum: 4500
+inst_sum: 4500
+inst_sum: 4500
+inst_sum: 4500
+inst_sum: 4500
+inst_sum: 4500
+inst_sum: 4500
+inst_sum: 4500
+inst_sum: 4500
+multi1: 1500
+multi1: 1500
+multi1: 1500
+multi1: 1500
+multi1: ?
+multi1: ?
+multi2: 1500
+multi2: 1500
+multi2: 1500
+multi2: 1500
+multi2: ?
+multi2: ?
+pmie: note - evaluator exiting
+time_add1: 30
+time_add1: 30
+time_add1: 30
+time_add1: 30
+time_add1: 30
+time_add1: 30
+time_add1: 30
+time_add1: 30
+time_add1: 30
+time_add1: ?
+time_add1: ?
+time_add2: 20 20
+time_add2: 20 20
+time_add2: 20 20
+time_add2: 20 20
+time_add2: 20 20
+time_add2: 20 20
+time_add2: 20 20
+time_add2: 20 20
+time_add2: 20 20
+time_add2: 20 ?
+time_add2: ? ?
+time_add3: 11 11 11
+time_add3: 11 11 11
+time_add3: 11 11 11
+time_add3: 11 11 11
+time_add3: 11 11 11
+time_add3: 11 11 11
+time_add3: 11 11 11
+time_add3: 11 11 11
+time_add3: 11 11 11
+time_add3: 11 11 ?
+time_add3: 11 ? ?
+time_add4: 11 11 11
+time_add4: 11 11 11
+time_add4: 11 11 11
+time_add4: 11 11 11
+time_add4: 11 11 11
+time_add4: 11 11 11
+time_add4: 11 11 11
+time_add4: 11 11 11
+time_add4: 11 11 11
+time_add4: 11 11 ?
+time_add4: 11 ? ?
+time_avg: 10
+time_avg: 10
+time_avg: 10
+time_avg: 10
+time_avg: 10
+time_avg: 10
+time_avg: 10
+time_avg: 10
+time_avg: 10
+time_avg: ?
+time_avg: ?
+time_count: 3
+time_count: 3
+time_count: 3
+time_count: 3
+time_count: 3
+time_count: 3
+time_count: 3
+time_count: 3
+time_count: 3
+time_count: ?
+time_count: ?
+time_fetch01: 10 10
+time_fetch01: 10 10
+time_fetch01: 10 10
+time_fetch01: 10 10
+time_fetch01: 10 10
+time_fetch01: 10 10
+time_fetch01: 10 10
+time_fetch01: 10 10
+time_fetch01: 10 10
+time_fetch01: 10 10
+time_fetch01: 10 ?
+time_fetch02: 10 10 10
+time_fetch02: 10 10 10
+time_fetch02: 10 10 10
+time_fetch02: 10 10 10
+time_fetch02: 10 10 10
+time_fetch02: 10 10 10
+time_fetch02: 10 10 10
+time_fetch02: 10 10 10
+time_fetch02: 10 10 10
+time_fetch02: 10 10 ?
+time_fetch02: 10 ? ?
+time_fetch0: 10
+time_fetch0: 10
+time_fetch0: 10
+time_fetch0: 10
+time_fetch0: 10
+time_fetch0: 10
+time_fetch0: 10
+time_fetch0: 10
+time_fetch0: 10
+time_fetch0: 10
+time_fetch0: 10
+time_fetch12: 10 10
+time_fetch12: 10 10
+time_fetch12: 10 10
+time_fetch12: 10 10
+time_fetch12: 10 10
+time_fetch12: 10 10
+time_fetch12: 10 10
+time_fetch12: 10 10
+time_fetch12: 10 10
+time_fetch12: 10 ?
+time_fetch12: ? ?
+time_fetch1: 10
+time_fetch1: 10
+time_fetch1: 10
+time_fetch1: 10
+time_fetch1: 10
+time_fetch1: 10
+time_fetch1: 10
+time_fetch1: 10
+time_fetch1: 10
+time_fetch1: 10
+time_fetch1: ?
+time_fetch2: 10
+time_fetch2: 10
+time_fetch2: 10
+time_fetch2: 10
+time_fetch2: 10
+time_fetch2: 10
+time_fetch2: 10
+time_fetch2: 10
+time_fetch2: 10
+time_fetch2: ?
+time_fetch2: ?
+time_gt1: true true
+time_gt1: true true
+time_gt1: true true
+time_gt1: true true
+time_gt1: true true
+time_gt1: true true
+time_gt1: true true
+time_gt1: true true
+time_gt1: true true
+time_gt1: true true
+time_gt1: true unknown
+time_gt2: false false
+time_gt2: false false
+time_gt2: false false
+time_gt2: false false
+time_gt2: false false
+time_gt2: false false
+time_gt2: false false
+time_gt2: false false
+time_gt2: false false
+time_gt2: false false
+time_gt2: false unknown
+time_gt3: true true true
+time_gt3: true true true
+time_gt3: true true true
+time_gt3: true true true
+time_gt3: true true true
+time_gt3: true true true
+time_gt3: true true true
+time_gt3: true true true
+time_gt3: true true true
+time_gt3: true true unknown
+time_gt3: true unknown unknown
+time_gt4: false false false
+time_gt4: false false false
+time_gt4: false false false
+time_gt4: false false false
+time_gt4: false false false
+time_gt4: false false false
+time_gt4: false false false
+time_gt4: false false false
+time_gt4: false false false
+time_gt4: false false unknown
+time_gt4: false unknown unknown
+time_max: 10
+time_max: 10
+time_max: 10
+time_max: 10
+time_max: 10
+time_max: 10
+time_max: 10
+time_max: 10
+time_max: 10
+time_max: ?
+time_max: ?
+time_min: 10
+time_min: 10
+time_min: 10
+time_min: 10
+time_min: 10
+time_min: 10
+time_min: 10
+time_min: 10
+time_min: 10
+time_min: ?
+time_min: ?
+time_sum: 30
+time_sum: 30
+time_sum: 30
+time_sum: 30
+time_sum: 30
+time_sum: 30
+time_sum: 30
+time_sum: 30
+time_sum: 30
+time_sum: ?
+time_sum: ?
+
+=== /tmp/pmie.err ===
+act 4 fired
+act 4 fired
+act 4 fired
+act1 fired
+act1 fired
+act1 fired
+act3...
+act3...
+act3...
+fired
+fired
+fired

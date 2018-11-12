@@ -280,6 +280,7 @@ PCP_SELINUX_MOCK = @pcp_selinux_mock@
 PCP_SELINUX_UNCONFINED = @pcp_selinux_unconfined@
 PCP_SELINUX_NUMAD = @pcp_selinux_numad@
 PCP_SELINUX_BPF_STATUS = @pcp_selinux_bpf_status@
+PCP_SELINUX_WAP_PORT = @pcp_selinux_wap_port@
 
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@
@@ -293,7 +294,6 @@ HAVE_PYTHON_REQUESTS = @have_python_requests@
 HAVE_PYTHON_SETUPTOOLS = @have_python_setuptools@
 HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
 HAVE_PYTHON_ORDEREDDICT = @have_python_OrderedDict@
-HAVE_PYTHON_ELASTICSEARCH = @have_python_Elasticsearch@
 HAVE_PYTHON_INFLUXDB = @have_python_influxdb@
 HAVE_PYTHON_OPENPYXL = @have_python_openpyxl@
 HAVE_PYTHON_BPF = @have_python_BPF@
@@ -323,6 +323,8 @@ LIB_FOR_LZMA = @lib_for_lzma@
 
 HAVE_LIBUV = @HAVE_LIBUV@
 LIB_FOR_LIBUV = @libuv_LIBS@
+HAVE_LIBVARLINK = @HAVE_LIBVARLINK@
+LIB_FOR_LIBVARLINK = @libvarlink_LIBS@
 HAVE_NCURSES = @HAVE_NCURSES@
 LIB_FOR_NCURSES = @ncurses_LIBS@
 HAVE_DEVMAPPER = @HAVE_DEVMAPPER@
@@ -348,6 +350,7 @@ PMDA_BCC = @PMDA_BCC@
 PMDA_RPM = @PMDA_RPM@
 PMDA_JSON = @PMDA_JSON@
 PMDA_PAPI = @PMDA_PAPI@
+PMDA_PODMAN = @PMDA_PODMAN@
 PMDA_LIBVIRT = @PMDA_LIBVIRT@
 PMDA_SYSTEMD = @PMDA_SYSTEMD@
 PMDA_PERFEVENT = @PMDA_PERFEVENT@

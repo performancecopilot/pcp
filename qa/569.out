@@ -50,6 +50,7 @@ sample.secret.foo.bar.four 1
 sample.secret.foo.bar.grunt.five 1
 sample.secret.foo.bar.grunt.snort.six 1
 sample.secret.foo.bar.grunt.snort.huff.puff.seven 1
+sample.ghosts.visible 1
 sample.long.one 1
 sample.long.ten 1
 sample.long.hundred 1
@@ -209,6 +210,7 @@ sample.secret.foo.bar.four 1 PM_IN_NULL
 sample.secret.foo.bar.grunt.five 1 PM_IN_NULL
 sample.secret.foo.bar.grunt.snort.six 1 PM_IN_NULL
 sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 PM_IN_NULL
+sample.ghosts.visible 1 PM_IN_NULL
 sample.long.one 1 PM_IN_NULL
 sample.long.ten 1 PM_IN_NULL
 sample.long.hundred 1 PM_IN_NULL
@@ -398,6 +400,7 @@ sample.secret.foo.bar.four 1 PM_IN_NULL
 sample.secret.foo.bar.grunt.five 1 PM_IN_NULL
 sample.secret.foo.bar.grunt.snort.six 1 PM_IN_NULL
 sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 PM_IN_NULL
+sample.ghosts.visible 1 PM_IN_NULL
 sample.long.one 1 PM_IN_NULL
 sample.long.ten 1 PM_IN_NULL
 sample.long.hundred 1 PM_IN_NULL
@@ -593,6 +596,7 @@ sample.secret.foo.bar.four 1 4
 sample.secret.foo.bar.grunt.five 1 5
 sample.secret.foo.bar.grunt.snort.six 1 6
 sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 7
+sample.ghosts.visible 1 -1
 sample.long.one 1 1
 sample.long.ten 1 10
 sample.long.hundred 1 100
@@ -774,6 +778,7 @@ sample.secret.foo.bar.four 1 PM_IN_NULL PM_IN_NULL
 sample.secret.foo.bar.grunt.five 1 PM_IN_NULL PM_IN_NULL
 sample.secret.foo.bar.grunt.snort.six 1 PM_IN_NULL PM_IN_NULL
 sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 PM_IN_NULL PM_IN_NULL
+sample.ghosts.visible 1 PM_IN_NULL PM_IN_NULL
 sample.long.one 1 PM_IN_NULL PM_IN_NULL
 sample.long.ten 1 PM_IN_NULL PM_IN_NULL
 sample.long.hundred 1 PM_IN_NULL PM_IN_NULL

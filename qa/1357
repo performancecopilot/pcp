@@ -1,0 +1,66 @@
+#!/bin/sh
+# PCP QA Test No. 1358
+# Verify podman PMDA memory accesses using valgrind.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.containers
+
+[ -f $PCP_PMDAS_DIR/podman/pmdapodman ] || _notrun "podman pmda not installed"
+_check_valgrind
+_check_containers
+_check_podman_binary
+_check_podman_images busybox
+
+iam=podman
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    if [ -n "$container" ]
+    then
+        echo "== removing container" | tee -a $here/$seq.full
+        _remove_podman_containers $container
+        container=""
+    fi
+    if [ -n "$pod" ]
+    then
+        echo "== removing pod" | tee -a $here/$seq.full
+        _remove_podman_pods $pod1
+        pod=""
+    fi
+    $sudo rm -f $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \
+    #end
+}
+
+# real QA test starts here
+container=`$podman run -d busybox sleep 10`
+echo "== container: $container" >> $here/$seq.full
+[ -z "$container" ] && _fail "Failed to create container"
+pod=`$podman pod create`
+echo "== pod: $pod" >> $here/$seq.full
+[ -z "$pod" ] && _fail "Failed to create pod"
+
+pmda=$PCP_PMDAS_DIR/podman/pmda_podman.so,podman_init
+pmns=$PCP_VAR_DIR/pmns/root_podman
+args="-L -K clear -K add,33,$pmda -v -n $pmns"
+
+_run_valgrind --sudo pminfo $args podman 2>&1 | _filter
+
+# success, all done
+status=0
+exit

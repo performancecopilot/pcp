@@ -105,7 +105,7 @@ main(int argc, char **argv)
 	    iv.vbp = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE+strlen(vp));
 	    iv.vbp->vlen = PM_VAL_HDR_SIZE+strlen(vp);
 	    iv.vbp->vtype = type;
-	    strncpy(iv.vbp->vbuf, vp, strlen(vp));
+	    memcpy(iv.vbp->vbuf, vp, strlen(vp));
 	    q = "";
 	    break;
 	case PM_TYPE_EVENT:	// ignore the value, force 0 event records

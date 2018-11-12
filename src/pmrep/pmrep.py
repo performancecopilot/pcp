@@ -29,7 +29,6 @@ import sys
 
 # Our imports
 from datetime import datetime, timedelta
-import socket
 import time
 import math
 import re
@@ -1293,12 +1292,12 @@ class PMReporter(object):
         if self.writer:
             try:
                 self.writer.flush()
-            except socket.error as error:
+            except IOError as error:
                 if error.errno != errno.EPIPE:
                     raise error
             try:
                 self.writer.close()
-            except: # pylint: disable=bare-except
+            except Exception:
                 pass
             self.writer = None
         if self.pmi:
@@ -1312,7 +1311,6 @@ if __name__ == '__main__':
         P.validate_config()
         P.execute()
         P.finalize()
-
     except pmapi.pmErr as error:
         sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
         sys.exit(1)

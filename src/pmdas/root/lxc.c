@@ -36,13 +36,15 @@ lxc_setup(container_engine_t *dp)
      static const char *lxc_default = "/var/lib/lxc";
      const char *lxc = getenv("PCP_LXC_DIR");
      char *lxc_cmd = getenv("PCP_LXC_INFO");
+     char path[MAXPATHLEN];
 
      if (!lxc)
 	lxc = lxc_default;
      if (lxc_cmd)
 	lxc_info = lxc_cmd;
-     strncpy(dp->path, lxc, sizeof(dp->path));
-     dp->path[sizeof(dp->path)-1] = '\0';
+     strncpy(path, lxc, sizeof(path));
+     path[sizeof(path)-1] = '\0';
+     dp->path = strdup(path);
 
     if (pmDebugOptions.attr)
 	pmNotifyErr(LOG_DEBUG, "lxc_setup: using path: %s\n", dp->path);

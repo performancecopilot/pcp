@@ -709,6 +709,7 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+pcp_selinux_wap_port
 pcp_selinux_bpf_status
 pcp_selinux_numad
 pcp_selinux_unconfined
@@ -742,6 +743,7 @@ libmicrohttpd_CFLAGS
 PMDA_POSTFIX
 QSHAPE
 PMDA_RPM
+PMDA_PODMAN
 PMDA_PERFEVENT
 PFM_LIBS
 PMDA_PAPI
@@ -760,6 +762,9 @@ DEVMAPPER_CFLAGS
 HAVE_NCURSES
 ncurses_LIBS
 ncurses_CFLAGS
+HAVE_LIBVARLINK
+libvarlink_LIBS
+libvarlink_CFLAGS
 HAVE_LIBUV
 libuv_LIBS
 libuv_CFLAGS
@@ -845,7 +850,6 @@ have_python_requests
 have_python_setuptools
 have_python_openpyxl
 have_python_jsonpointer
-have_python_Elasticsearch
 have_python_OrderedDict
 have_python_BPF
 enable_dstat
@@ -961,7 +965,6 @@ infodir
 docdir
 oldincludedir
 includedir
-runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -1004,6 +1007,7 @@ with_books
 with_books_brand
 with_papi
 with_perfevent
+with_pmdapodman
 with_pmdabcc
 with_pmdajson
 with_pmdanutcracker
@@ -1055,6 +1059,8 @@ avahi_LIBS
 SYSTEMD_SYSTEMUNITDIR
 libuv_CFLAGS
 libuv_LIBS
+libvarlink_CFLAGS
+libvarlink_LIBS
 ncurses_CFLAGS
 ncurses_LIBS
 DEVMAPPER_CFLAGS
@@ -1111,7 +1117,6 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
-runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1364,15 +1369,6 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
-  -runstatedir | --runstatedir | --runstatedi | --runstated \
-  | --runstate | --runstat | --runsta | --runst | --runs \
-  | --run | --ru | --r)
-    ac_prev=runstatedir ;;
-  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
-  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
-  | --run=* | --ru=* | --r=*)
-    runstatedir=$ac_optarg ;;
-
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1510,7 +1506,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir runstatedir
+		libdir localedir mandir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1663,7 +1659,6 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
-  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1742,6 +1737,7 @@ Optional Packages:
                           The optional argument may be a full path of a PAPI
                           installation prefix, or a pkgconfig module name.
   --with-perfevent        enable perfevent pmda (default is on)
+  --with-pmdapodman       enable podman pmda (default is on)
   --with-pmdabcc          enable BCC pmda (default is on)
   --with-pmdajson         enable JSON pmda (default is on)
   --with-pmdanutcracker   enable nutcracker pmda (default is on)
@@ -1803,6 +1799,10 @@ Some influential environment variables:
   libuv_CFLAGS
               C compiler flags for libuv, overriding pkg-config
   libuv_LIBS  linker flags for libuv, overriding pkg-config
+  libvarlink_CFLAGS
+              C compiler flags for libvarlink, overriding pkg-config
+  libvarlink_LIBS
+              linker flags for libvarlink, overriding pkg-config
   ncurses_CFLAGS
               C compiler flags for ncurses, overriding pkg-config
   ncurses_LIBS
@@ -3007,6 +3007,15 @@ if test "${with_perfevent+set}" = set; then :
   withval=$with_perfevent; do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"
 else
   do_perfevent=check
+fi
+
+
+
+# Check whether --with-pmdapodman was given.
+if test "${with_pmdapodman+set}" = set; then :
+  withval=$with_pmdapodman; do_pmdapodman=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdapodman=$withval"
+else
+  do_pmdapodman=check
 fi
 
 
@@ -7320,7 +7329,7 @@ test -n "$PYLINT" || PYLINT="/bin/true"
 
 
 
-for ac_prog in python
+for ac_prog in python python2.7
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -7361,11 +7370,10 @@ fi
 
   test -n "$PYTHON" && break
 done
-test -n "$PYTHON" || PYTHON="python2.7"
 
 
 
-for ac_prog in python3
+for ac_prog in python3 python3.7 python3.6 python3.4
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -7378,7 +7386,7 @@ else
   ac_cv_prog_PYTHON3="$PYTHON3" # Let the user override the test.
 else
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in python3.4
+for as_dir in $PATH
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
@@ -7406,7 +7414,6 @@ fi
 
   test -n "$PYTHON3" && break
 done
-test -n "$PYTHON3" || PYTHON3="python3.6"
 
 
 
@@ -7599,28 +7606,6 @@ $as_echo "yes" >&6; }
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 	eval have_python_OrderedDict=false
-    fi
-
-
- { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module Elasticsearch" >&5
-$as_echo_n "checking for Python module Elasticsearch... " >&6; }
-    if test -n "from elasticsearch import Elasticsearch"
-    then
-	txt="from elasticsearch import Elasticsearch"
-    else
-	txt="import Elasticsearch"
-    fi
-    $pcp_python_prog -c 'import sys;
-'"$txt" >>config.log 2>&1
-    if test "$?" = 0
-    then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-	eval have_python_Elasticsearch=true
-    else
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-	eval have_python_Elasticsearch=false
     fi
 
 
@@ -7953,12 +7938,17 @@ $as_echo "no" >&6; }; fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the elasticsearch PMDA should be included" >&5
 $as_echo_n "checking if the elasticsearch PMDA should be included... " >&6; }
 pmda_elasticsearch=false
-if test "$have_perl" = true
+if test "$have_python" = true
 then
-        if $pcp_perl_prog -e "use LWP::UserAgent" >/dev/null 2>&1
+        if $pcp_python_prog -c "import urllib" >/dev/null 2>&1
     then
 	pmda_elasticsearch=true
     fi
+    if $pcp_python_prog -c "import urllib2" >/dev/null 2>&1
+    then
+	pmda_elasticsearch=true
+    fi
+
 fi
 PMDA_ELASTICSEARCH=$pmda_elasticsearch
 
@@ -10534,6 +10524,80 @@ HAVE_LIBUV=$have_libuv
 
 
 pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libvarlink" >&5
+$as_echo_n "checking for libvarlink... " >&6; }
+
+if test -n "$libvarlink_CFLAGS"; then
+    pkg_cv_libvarlink_CFLAGS="$libvarlink_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libvarlink\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libvarlink") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libvarlink_CFLAGS=`$PKG_CONFIG --cflags "libvarlink" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$libvarlink_LIBS"; then
+    pkg_cv_libvarlink_LIBS="$libvarlink_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libvarlink\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libvarlink") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libvarlink_LIBS=`$PKG_CONFIG --libs "libvarlink" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        libvarlink_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libvarlink" 2>&1`
+        else
+	        libvarlink_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libvarlink" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$libvarlink_PKG_ERRORS" >&5
+
+	have_libvarlink=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_libvarlink=false
+else
+	libvarlink_CFLAGS=$pkg_cv_libvarlink_CFLAGS
+	libvarlink_LIBS=$pkg_cv_libvarlink_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_libvarlink=true
+fi
+HAVE_LIBVARLINK=$have_libvarlink
+
+
+
+pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ncurses" >&5
 $as_echo_n "checking for ncurses... " >&6; }
 
@@ -11194,7 +11258,7 @@ fi
 	    ;;
     esac
 
-    # $papi_LIBS may include -lpapi harmlessly redudantly with AC_CHECK_LIB
+    # $papi_LIBS may include -lpapi harmlessly redundantly with AC_CHECK_LIB
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PAPI_library_init in -lpapi" >&5
 $as_echo_n "checking for PAPI_library_init in -lpapi... " >&6; }
 if ${ac_cv_lib_papi_PAPI_library_init+:} false; then :
@@ -11385,6 +11449,21 @@ $as_echo_n "checking if the perfevent PMDA should be included... " >&6; }
 PMDA_PERFEVENT=$pmda_perfevent
 
 if $pmda_perfevent; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the podman PMDA should be included" >&5
+$as_echo_n "checking if the podman PMDA should be included... " >&6; }
+pmda_podman=false
+if test "x$do_pmdapodman" = "xyes"; then :
+  pmda_podman=true
+fi
+if test "x$do_pmdapodman" = "xcheck"; then :
+  $have_libvarlink && pmda_podman=true
+fi
+PMDA_PODMAN=$pmda_podman
+
+if $pmda_podman; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 
@@ -11951,6 +12030,7 @@ pcp_selinux_mock=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
 pcp_selinux_bpf_class=false
+pcp_selinux_wap_port=false
 
 if test "x$enable_selinux" != "xfalse"; then :
 
@@ -11959,9 +12039,9 @@ do
     seinfo --common >/dev/null 2>&1
     if test $? -eq 0
     then
-        seinfo_common_flag="--common="
+        seinfo_common_flag="--common"
     else
-        seinfo_common_flag="--class="
+        seinfo_common_flag="--class"
     fi
     if test -f "$policy_file"
     then
@@ -12041,15 +12121,21 @@ do
        then
            pcp_selinux_numad=true
        fi
-       bpf_class=`eval seinfo -x --class=bpf $seinfo_common_flag -- $policy_file 2>/dev/null | grep status | awk '{ print $1 }'`
+       bpf_class=`eval seinfo -x --class=bpf $seinfo_common_flag -- $policy_file 2>/dev/null | grep g | awk '{ print $1 }'`
        if test "x$bpf_class" != "x"
        then
 	    pcp_selinux_bpf_status=true
+       fi
+       wap_port=`eval seinfo -t -- $policy_file | grep wap_wsp_port_t | awk '{ print $1 }'`
+       if test "x$wap_port" != "x"
+       then
+            pcp_selinux_wap_port=true
        fi
     fi
 done
 
 fi
+
 
 
 
