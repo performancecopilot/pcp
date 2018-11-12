@@ -1,0 +1,81 @@
+QA output created by 1358
+
+=== podman agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check podman metrics have appeared ... X metrics and Y values
+=== podman metric verification ===
+podman.container.name
+     inst [NNN or "CONTAINER"] value STRING
+     inst [NNN or "CONTAINER"] value STRING
+podman.container.command
+     inst [NNN or "CONTAINER"] value STRING
+     inst [NNN or "CONTAINER"] value STRING
+podman.container.status
+     inst [NNN or "CONTAINER"] value STRING
+     inst [NNN or "CONTAINER"] value STRING
+podman.container.rwsize
+     inst [NNN or "CONTAINER"] value INTEGER
+     inst [NNN or "CONTAINER"] value INTEGER
+podman.container.rootfssize
+     inst [NNN or "CONTAINER"] value INTEGER
+     inst [NNN or "CONTAINER"] value INTEGER
+podman.container.running
+     inst [NNN or "CONTAINER"] value INTEGER
+     inst [NNN or "CONTAINER"] value INTEGER
+podman.container.stats.net_input
+     inst [NNN or "CONTAINER"] value INTEGER
+     inst [NNN or "CONTAINER"] value INTEGER
+podman.container.stats.net_output
+     inst [NNN or "CONTAINER"] value INTEGER
+     inst [NNN or "CONTAINER"] value INTEGER
+podman.container.stats.block_input
+     inst [NNN or "CONTAINER"] value INTEGER
+     inst [NNN or "CONTAINER"] value INTEGER
+podman.container.stats.block_output
+     inst [NNN or "CONTAINER"] value INTEGER
+     inst [NNN or "CONTAINER"] value INTEGER
+podman.container.stats.cpu
+     inst [NNN or "CONTAINER"] value FLOAT
+     inst [NNN or "CONTAINER"] value FLOAT
+podman.container.stats.cpu_nano
+     inst [NNN or "CONTAINER"] value INTEGER
+     inst [NNN or "CONTAINER"] value INTEGER
+podman.container.stats.system_nano
+     inst [NNN or "CONTAINER"] value INTEGER
+     inst [NNN or "CONTAINER"] value INTEGER
+podman.container.stats.mem_usage
+     inst [NNN or "CONTAINER"] value INTEGER
+     inst [NNN or "CONTAINER"] value INTEGER
+podman.container.stats.mem_limit
+     inst [NNN or "CONTAINER"] value INTEGER
+     inst [NNN or "CONTAINER"] value INTEGER
+podman.container.stats.mem_perc
+     inst [NNN or "CONTAINER"] value FLOAT
+     inst [NNN or "CONTAINER"] value FLOAT
+podman.container.stats.pids
+     inst [NNN or "CONTAINER"] value INTEGER
+     inst [NNN or "CONTAINER"] value INTEGER
+podman.pod.name
+     inst [NNN or "POD"] value STRING
+     inst [NNN or "POD"] value STRING
+podman.pod.cgroup
+     inst [NNN or "POD"] value STRING
+     inst [NNN or "POD"] value STRING
+podman.pod.status
+     inst [NNN or "POD"] value STRING
+     inst [NNN or "POD"] value STRING
+podman.pod.containers
+     inst [NNN or "POD"] value INTEGER
+     inst [NNN or "POD"] value INTEGER
+
+=== remove podman agent ===
+Culling the Performance Metrics Name Space ...
+podman ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check podman metrics have gone away ... OK
+== removing containers
+== removing pods

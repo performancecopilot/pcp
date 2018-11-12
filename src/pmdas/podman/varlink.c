@@ -172,12 +172,15 @@ varlink_container_info(varlink_t *link, char *name, container_info_t *ip)
     sts = varlink_object_get_object(reply.parameters, "container", &info);
     if (sts != 0)
 	goto done;
+    temp = NULL;
     varlink_object_get_string(info, "names", &temp);
-    ip->name = podman_strings_insert(temp);
+    ip->name = temp? podman_strings_insert(temp) : -1;
+    temp = NULL;
     varlink_object_get_string(info, "command", &temp);
-    ip->command = podman_strings_insert(temp);
+    ip->command = temp? podman_strings_insert(temp) : -1;
+    temp = NULL;
     varlink_object_get_string(info, "status", &temp);
-    ip->status = podman_strings_insert(temp);
+    ip->status = temp? podman_strings_insert(temp) : -1;
     varlink_object_get_int(info, "rootfssize", &ip->rootfssize);
     varlink_object_get_int(info, "rwsize", &ip->rwsize);
     varlink_object_get_bool(info, "running", &ip->running);
@@ -319,14 +322,17 @@ varlink_container_list(varlink_t *link, pmInDom indom)
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, id, (void *)cp);
 
+	temp = NULL;
 	varlink_object_get_string(state, "command", &temp);
-	cp->info.command = podman_strings_insert(temp);
+	cp->info.command = temp? podman_strings_insert(temp) : -1;
+	temp = NULL;
 	varlink_object_get_string(state, "status", &temp);
-	cp->info.status = podman_strings_insert(temp);
+	cp->info.status = temp? podman_strings_insert(temp) : -1;
 	varlink_object_get_int(state, "rootfssize", &cp->info.rootfssize);
 	varlink_object_get_int(state, "rwsize", &cp->info.rwsize);
+	temp = NULL;
 	varlink_object_get_string(state, "names", &temp);
-	cp->info.name = podman_strings_insert(temp);
+	cp->info.name = temp? podman_strings_insert(temp) : -1;
 	varlink_object_get_bool(state, "running", &cp->info.running);
 
 	cp->flags |= STATE_INFO;
@@ -383,14 +389,18 @@ varlink_pod_list(varlink_t *link, pmInDom indom)
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, id, (void *)pp);
 
+	temp = NULL;
 	varlink_object_get_string(state, "name", &temp);
-	pp->name = podman_strings_insert(temp);
+	pp->name = temp? podman_strings_insert(temp) : -1;
+	temp = NULL;
 	varlink_object_get_string(state, "cgroup", &temp);
-	pp->cgroup = podman_strings_insert(temp);
+	pp->cgroup = temp? podman_strings_insert(temp) : -1;
+	temp = NULL;
 	varlink_object_get_string(state, "status", &temp);
-	pp->status = podman_strings_insert(temp);
+	pp->status = temp? podman_strings_insert(temp) : -1;
+	temp = NULL;
 	varlink_object_get_string(state, "numberofcontainers", &temp);
-	pp->ncontainers = atoi(temp);
+	pp->ncontainers = temp ? atoi(temp) : 0;
 
 	pp->flags |= STATE_INFO;
     }
@@ -466,14 +476,18 @@ varlink_pod_info(varlink_t *link, char *name, pod_info_t *pp)
     sts = varlink_object_get_object(reply.parameters, "container", &info);
     if (sts != 0)
 	goto done;
+    temp = NULL;
     varlink_object_get_string(info, "name", &temp);
-    pp->name = podman_strings_insert(temp);
+    pp->name = temp? podman_strings_insert(temp) : -1;
+    temp = NULL;
     varlink_object_get_string(info, "cgroup", &temp);
-    pp->cgroup = podman_strings_insert(temp);
+    pp->cgroup = temp? podman_strings_insert(temp) : -1;
+    temp = NULL;
     varlink_object_get_string(info, "status", &temp);
-    pp->status = podman_strings_insert(temp);
+    pp->status = temp? podman_strings_insert(temp) : -1;
+    temp = NULL;
     varlink_object_get_string(info, "numberofcontainers", &temp);
-    pp->ncontainers = atoi(temp);
+    pp->ncontainers = temp? atoi(temp) : 0;
 
 done:
     varlink_object_unref(reply.parameters);

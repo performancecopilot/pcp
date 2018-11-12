@@ -1593,7 +1593,6 @@ BAD
 1323 pmlogrewrite labels help pmdumplog local
 1324 pmclient archive multi-archive decompress-xz local pmlogextract python
 1326 pmstore pmda.pmcd local
-1327:reserved pmproxy2
 1330 pmda.prometheus local python
 1331 verify local
 1338 pmlogrewrite labels pmdumplog local
@@ -1604,8 +1603,9 @@ BAD
 1350 pmda.proc local
 1351 pmcd pmda.mmv libpcp libpcp_pmda local
 1354 pmval archive local
+1357 pmda.podman valgrind local
+1358 pmda.podman local
 1359 libpcp local
-1360:reserved dstat local
 1362 pmda.postgresql local
 1367 labels pmda.simple local python
 1368 labels help pmlogger pmdumplog local sanity
