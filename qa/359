@@ -65,6 +65,7 @@ _filter()
 	-e '/^nginx\..*: Try again./d' \
 	-e '/^zswap\..*: Try again./d' \
 	-e '/Container not found/d' \
+	-e '/^postgresql/d' \
     | if [ $PCP_PLATFORM = openbsd ]
     then
 	sed \
