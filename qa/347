@@ -100,8 +100,6 @@ export PMCD_REQUEST_TIMEOUT
 
 echo
 echo "=== default $iam agent installation ==="
-$sudo ./Remove >$tmp.out 2>&1
-
 $sudo ./Install </dev/null >>$tmp.out 2>&1
 _filter <$tmp.out
 

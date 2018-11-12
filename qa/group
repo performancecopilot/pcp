@@ -1076,6 +1076,7 @@ BAD
 696 pmda.trivial python local
 697 pmie valgrind local
 698 pmie valgrind local
+699 pmlogrewrite local
 701 pmlogcheck local
 702 python libpcp local sanity
 703 pmda.weblog local
