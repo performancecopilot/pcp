@@ -1,0 +1,57 @@
+/*
+ * Copyright (c) 2018 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+#ifndef PODMAN
+#define PODMAN 33
+#endif
+
+root {
+    podman
+}
+
+podman {
+    container
+    pod
+}
+
+podman.pod {
+    name		PODMAN:2:0
+    cgroup		PODMAN:2:1
+    status		PODMAN:2:2
+    containers		PODMAN:2:3
+}
+
+podman.container {
+    stats
+    name		PODMAN:1:0
+    command		PODMAN:1:1
+    status		PODMAN:1:2
+    rwsize		PODMAN:1:3
+    rootfssize		PODMAN:1:4
+    running		PODMAN:1:5
+}
+
+podman.container.stats {
+    net_input		PODMAN:0:0
+    net_output		PODMAN:0:1
+    block_input		PODMAN:0:2
+    block_output	PODMAN:0:3
+    cpu			PODMAN:0:4
+    cpu_nano		PODMAN:0:5
+    system_nano		PODMAN:0:6
+    mem_usage		PODMAN:0:7
+    mem_limit		PODMAN:0:8
+    mem_perc		PODMAN:0:9
+    pids		PODMAN:0:10
+}

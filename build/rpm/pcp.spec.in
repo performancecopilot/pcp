@@ -76,6 +76,9 @@ BuildRequires: rpm-devel
 %if "@pmda_papi@" == "true"
 BuildRequires: papi-devel
 %endif
+%if "@pmda_podman@" == "true"
+BuildRequires: libvarlink-devel
+%endif
 %if "@pmda_perfevent@" == "true"
 BuildRequires: libpfm-devel >= 4
 %endif
@@ -1013,6 +1016,24 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting Infiniband statistics.  By default, it monitors the local HCAs
 but can also be configured to monitor remote GUIDs such as IB switches.
 #end pcp-pmda-infiniband
+%endif
+
+%if "@pmda_podman@" == "true"
+#
+# pcp-pmda-podman
+#
+%package pmda-podman
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for podman containers
+URL: https://pcp.io
+Requires: libvarlink
+BuildRequires: libvarlink-devel
+
+%description pmda-podman
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting podman container and pod statistics through libvarlink.
+#end pcp-pmda-podman
 %endif
 
 %if "@pmda_perfevent@" == "true"
@@ -2278,13 +2299,15 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infi
 %if "@pmda_papi@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/papi' >pmda_papi_files
 %endif
+%if "@pmda_podman@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/podman' > pmda_podman_files
+%endif
 %if "@pmda_perfevent@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'perfevent|perfalloc.1' > pmda_perfevent_files
 %endif
 %if "@pmda_systemd@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/systemd' > pmda_systemd_files
 %endif
-
 %if "@pmda_activemq@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/activemq' > pmda_activemq_files
 %endif
@@ -2386,13 +2409,13 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/trace' > pmda_trace_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/weblog' > pmda_weblog_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zeroconf|daily[-_]report|/sa$' > zeroconf_files
 
-touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files \
-      pmda_perfevent_files pmda_bonding_files pmda_dbping_files \
+touch gui_files webapi_files manager_files pmda_infiniband_files \
+      pmda_papi_files pmda_perfevent_files pmda_podman_files \
+      pmda_bonding_files pmda_dbping_files pmda_pdns_files \
       pmda_ds389_files pmda_ds389log_files pmda_gpfs_files \
       pmda_gpsd_files pmda_lustre_files pmda_lustrecomm_files \
       pmda_memcache_files pmda_named_files pmda_redis_files pmda_docker_files \
       pmda_netfilter_files pmda_news_files pmda_nfsclient_files \
-      pmda_pdns_files \
       pmda_rsyslog_files pmda_samba_files pmda_slurm_files \
       pmda_vmware_files pmda_zimbra_files pmda_apache_files pmda_bash_files \
       pmda_cifs_files pmda_cisco_files pmda_gfs2_files \
@@ -2466,6 +2489,7 @@ BEGIN {
     while( getline < "testsuite_files") testsuite[$0]=1;
     while( getline < "pmda_infiniband_files") pmda_infiniband[$0]=1;
     while( getline < "pmda_papi_files") pmda_papi[$0]=1;
+    while( getline < "pmda_podman_files") pmda_podman[$0]=1;
     while( getline < "pmda_perfevent_files") pmda_perfevent[$0]=1;
 %if "@pmda_activemq@" == "true"
     while( getline < "pmda_activemq_files") pmda_activemq[$0]=1;
@@ -2603,6 +2627,7 @@ BEGIN {
     else if (testsuite[$NF]) f="testsuite_files.rpm";
     else if (pmda_infiniband[$NF]) f="pmda_infiniband_files.rpm";
     else if (pmda_papi[$NF]) f="pmda_papi_files.rpm";
+    else if (pmda_podman[$NF]) f="pmda_podman_files.rpm";
     else if (pmda_perfevent[$NF]) f="pmda_perfevent_files.rpm";
 %if "@pmda_activemq@" == "true"
     else if (pmda_activemq[$NF]) f="pmda_activemq_files.rpm";
@@ -2949,6 +2974,11 @@ pmieconf -c enable dmthin
 %preun pmda-perfevent
 %{pmda_remove "$1" "perfevent"}
 %endif #preun pmda-perfevent
+
+%if "@pmda_podman@" == "true"
+%preun pmda-podman
+%{pmda_remove "$1" "podman"}
+%endif #preun pmda-podman
 
 %if "@pmda_json@" == "true"
 %preun pmda-json
@@ -3313,12 +3343,16 @@ cd
 %files testsuite -f testsuite_files.rpm
 %defattr(-,pcpqa,pcpqa)
 
+%if "@pmda_infiniband@" == "true"
+%files pmda-infiniband -f pmda_infiniband_files.rpm
+%endif
+
 %if "@pmda_papi@" == "true"
 %files pmda-papi -f pmda_papi_files.rpm
 %endif
 
-%if "@pmda_infiniband@" == "true"
-%files pmda-infiniband -f pmda_infiniband_files.rpm
+%if "@pmda_podman@" == "true"
+%files pmda-podman -f pmda_podman_files.rpm
 %endif
 
 %if "@pmda_perfevent@" == "true"

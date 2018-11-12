@@ -1,0 +1,55 @@
+#
+# Copyright (c) 2018 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# podman PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@ 33.0 podman managed containers
+@ 33.1 podman managed pods
+
+@ podman.container.name human-readable name for each podman container
+@ podman.container.command command line of initial container process
+@ podman.container.status string indicating current container status
+@ podman.container.rwsize prefered I/O size for podman container
+@ podman.container.rootfssize size of container root filesystem
+@ podman.container.running zero or one indicating container running
+
+@ podman.container.stats.net_input interface bytes received per container
+@ podman.container.stats.net_output interface bytes transmitted per container
+@ podman.container.stats.block_input block layer bytes read per container
+@ podman.container.stats.block_output block layer bytes written per container
+@ podman.container.stats.cpu total processer time spent per container
+@ podman.container.stats.cpu_nano user time spent per container
+@ podman.container.stats.system_nano system time spent per container
+@ podman.container.stats.mem_usage memory used by each podman container
+@ podman.container.stats.mem_limit maximum memory for each podman container
+@ podman.container.stats.mem_perc percentage of used to total memory for each container
+@ podman.container.stats.pids count of running processes for each container
+
+@ podman.pod.name human-readable name for each podman pod
+@ podman.pod.cgroup control group name for podman pod
+@ podman.pod.status status string for each podman pod
+@ podman.pod.containers count of containers for each podman pod
+

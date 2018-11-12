@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2016 Red Hat.
+# Copyright (c) 2013-2018 Red Hat.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@ CPMDAS = root pmcd \
 	mmv lmsensors process roomtemp summary etw \
 	lustrecomm infiniband logger bash systemd \
 	gfs2 jbd2 cifs rpm nvidia papi perfevent \
-	dm pipe openbsd docker smart
+	dm pipe openbsd docker smart podman
 
 PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache mysql oracle vmware kvm \

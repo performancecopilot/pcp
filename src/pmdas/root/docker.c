@@ -39,6 +39,7 @@ docker_setup(container_engine_t *dp)
 {
     static const char	*docker_default = "/var/lib/docker";
     const char		*docker = getenv("PCP_DOCKER_DIR");
+    char		path[MAXPATHLEN];
 
     /* determine the default container naming heuristic */
     if (systemd_cgroup == NULL)
@@ -47,7 +48,8 @@ docker_setup(container_engine_t *dp)
     /* determine the location of docker container config.json files */
     if (docker == NULL)
 	docker = docker_default;
-    pmsprintf(dp->path, sizeof(dp->path), "%s/containers", docker);
+    pmsprintf(path, sizeof(path), "%s/containers", docker);
+    dp->path = strdup(path);
 
     if (pmDebugOptions.attr)
 	pmNotifyErr(LOG_DEBUG, "docker_setup: path %s, %s style names\n",

@@ -58,7 +58,7 @@ typedef int (*container_match_t)(struct container_engine *,
 typedef struct container_engine {
     char		*name;		/* docker, lxc, rkt, etc. */
     int			state;		/* external driver states */
-    char		path[60];	/* suffix for cgroup path */
+    char		*path;		/* suffix for cgroup path */
     container_setup_t	setup;
     container_changed_t	indom_changed;
     container_insts_t	insts_refresh;

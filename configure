@@ -743,6 +743,7 @@ libmicrohttpd_CFLAGS
 PMDA_POSTFIX
 QSHAPE
 PMDA_RPM
+PMDA_PODMAN
 PMDA_PERFEVENT
 PFM_LIBS
 PMDA_PAPI
@@ -1006,6 +1007,7 @@ with_books
 with_books_brand
 with_papi
 with_perfevent
+with_pmdapodman
 with_pmdabcc
 with_pmdajson
 with_pmdanutcracker
@@ -1735,6 +1737,7 @@ Optional Packages:
                           The optional argument may be a full path of a PAPI
                           installation prefix, or a pkgconfig module name.
   --with-perfevent        enable perfevent pmda (default is on)
+  --with-pmdapodman       enable podman pmda (default is on)
   --with-pmdabcc          enable BCC pmda (default is on)
   --with-pmdajson         enable JSON pmda (default is on)
   --with-pmdanutcracker   enable nutcracker pmda (default is on)
@@ -3004,6 +3007,15 @@ if test "${with_perfevent+set}" = set; then :
   withval=$with_perfevent; do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"
 else
   do_perfevent=check
+fi
+
+
+
+# Check whether --with-pmdapodman was given.
+if test "${with_pmdapodman+set}" = set; then :
+  withval=$with_pmdapodman; do_pmdapodman=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdapodman=$withval"
+else
+  do_pmdapodman=check
 fi
 
 
@@ -11246,7 +11258,7 @@ fi
 	    ;;
     esac
 
-    # $papi_LIBS may include -lpapi harmlessly redudantly with AC_CHECK_LIB
+    # $papi_LIBS may include -lpapi harmlessly redundantly with AC_CHECK_LIB
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PAPI_library_init in -lpapi" >&5
 $as_echo_n "checking for PAPI_library_init in -lpapi... " >&6; }
 if ${ac_cv_lib_papi_PAPI_library_init+:} false; then :
@@ -11437,6 +11449,21 @@ $as_echo_n "checking if the perfevent PMDA should be included... " >&6; }
 PMDA_PERFEVENT=$pmda_perfevent
 
 if $pmda_perfevent; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the podman PMDA should be included" >&5
+$as_echo_n "checking if the podman PMDA should be included... " >&6; }
+pmda_podman=false
+if test "x$do_pmdapodman" = "xyes"; then :
+  pmda_podman=true
+fi
+if test "x$do_pmdapodman" = "xcheck"; then :
+  $have_libvarlink && pmda_podman=true
+fi
+PMDA_PODMAN=$pmda_podman
+
+if $pmda_podman; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 

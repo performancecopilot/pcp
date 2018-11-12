@@ -146,6 +146,12 @@ AC_ARG_WITH([perfevent],
     [do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"],
     [do_perfevent=check])
 
+AC_ARG_WITH([pmdapodman],
+    [AC_HELP_STRING([--with-pmdapodman],
+		   [enable podman pmda (default is on)])],
+    [do_pmdapodman=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdapodman=$withval"],
+    [do_pmdapodman=check])
+
 AC_ARG_WITH([pmdabcc],
     [AC_HELP_STRING([--with-pmdabcc],
 		   [enable BCC pmda (default is on)])],
@@ -1791,7 +1797,7 @@ AS_IF([test "x$do_papi" != "xno"], [
 	    ;;
     esac
 
-    # $papi_LIBS may include -lpapi harmlessly redudantly with AC_CHECK_LIB
+    # $papi_LIBS may include -lpapi harmlessly redundantly with AC_CHECK_LIB
     AC_CHECK_LIB([papi], [PAPI_library_init],
 		 [papi_libs="$LDFLAGS -lpapi"],
 		 [enable_papi=false])
@@ -1857,6 +1863,14 @@ AS_IF([test "x$do_perfevent" = "xyes"], [
 AC_MSG_CHECKING([if the perfevent PMDA should be included])
 AC_SUBST(PMDA_PERFEVENT, $pmda_perfevent)
 if $pmda_perfevent; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+dnl Do you have varlink libraries for pmdapodman?
+AC_MSG_CHECKING([if the podman PMDA should be included])
+pmda_podman=false
+AS_IF([test "x$do_pmdapodman" = "xyes"], [pmda_podman=true])
+AS_IF([test "x$do_pmdapodman" = "xcheck"], [$have_libvarlink && pmda_podman=true])
+AC_SUBST(PMDA_PODMAN, $pmda_podman)
+if $pmda_podman; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 dnl Do you have RPM Package Manager libraries for pmdarpm?
 pmda_rpm=false
