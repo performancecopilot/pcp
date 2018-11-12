@@ -23,6 +23,7 @@ _check_podman_binary()
     podman=${PCP_PODMAN_PROG:-podman}
     which $podman >/dev/null 2>&1
     [ $? -eq 0 ] || _notrun "No podman binary found"
+    podman="$sudo $podman"
 }
 
 _check_docker_binary()
@@ -79,8 +80,8 @@ _remove_podman_containers()
 {
     for __container in "$@"
     do
-	eval $sudo $podman stop --time=2 $__container >/dev/null
-	eval $sudo $podman rm --force $__container >/dev/null
+	eval $podman stop --time=2 $__container >/dev/null
+	eval $podman rm --force $__container >/dev/null
     done
 }
 
@@ -98,7 +99,7 @@ _remove_docker_containers()
 _count_podman_containers()
 {
     # podman seems to need to run as root for ps
-    $sudo $podman ps -q | wc -l
+    $podman ps -q | wc -l
 }
 
 _count_docker_containers()
