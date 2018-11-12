@@ -77,4 +77,5 @@ podman ... done
 Updating the PMCD control file, and notifying PMCD ...
 [...removing files...]
 Check podman metrics have gone away ... OK
-== removing container
+== removing containers
+== removing pods
