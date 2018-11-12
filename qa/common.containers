@@ -94,6 +94,18 @@ _remove_docker_containers()
     done
 }
 
+# given a list of one or more (temporary) pods started during a
+# QA test, ensure they are stopped and removed.
+#
+_remove_podman_pods()
+{
+    for __pod in "$@"
+    do
+	$podman pod stop $__pod >/dev/null
+	$podman pod rm $__pod >/dev/null
+    done
+}
+
 # count the number of (running) containers
 #
 _count_podman_containers()
