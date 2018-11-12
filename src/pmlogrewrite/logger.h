@@ -212,7 +212,7 @@ extern int	yyparse(void);
 extern int	_pmLogGet(__pmArchCtl *, int, __pmPDU **);
 extern int	_pmLogPut(FILE *, __pmPDU *);
 extern int	_pmLogRename(const char *, const char *);
-extern int	_pmLogRemove(const char *);
+extern int	_pmLogRemove(const char *, int);
 extern pmUnits	ntoh_pmUnits(pmUnits);
 #define ntoh_pmInDom(indom) ntohl(indom)
 #define ntoh_pmID(pmid)     ntohl(pmid)

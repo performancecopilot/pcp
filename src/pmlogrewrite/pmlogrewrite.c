@@ -121,6 +121,17 @@ newvolume(int vol)
     else {
 	fprintf(stderr, "%s: __pmLogNewFile(%s,%d) Error: %s\n",
 		pmGetProgname(), outarch.name, vol, pmErrStr(-oserror()));
+	if (oserror() == EEXIST) {
+	    /*
+	     * We've written some files (.index, .meta, .0, ...) and then
+	     * found a duplicate file name ... doesn't matter what you do
+	     * here, badness will result
+	     */
+	    fprintf(stderr, "Removing output files we've created for archive \"%s\"\n", outarch.name);
+	    _pmLogRemove(outarch.name, vol-1);
+	    exit(1);
+	    /*NOTREACHED*/
+	}
 	abandon();
 	/*NOTREACHED*/
     }
@@ -1563,7 +1574,11 @@ main(int argc, char **argv)
     if ((sts = __pmLogCreate("", outarch.name, PM_LOG_VERS02, &outarch.archctl)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate(%s): %s\n",
 		pmGetProgname(), outarch.name, pmErrStr(sts));
-	abandon();
+	/*
+	 * do not cleanup ... if error is EEXIST we should not clobber an
+	 * existing (and persumably) good archive
+	 */
+	exit(1);
 	/*NOTREACHED*/
     }
 
@@ -1849,7 +1864,7 @@ main(int argc, char **argv)
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	_pmLogRemove(bak_base);
+	_pmLogRemove(bak_base, -1);
     }
 
     exit(0);
@@ -1864,7 +1879,7 @@ abandon(void)
 	if (Cflag == 0 && iflag == 0)
 	    fprintf(stderr, "Archive \"%s\" not created.\n", outarch.name);
 
-	_pmLogRemove(outarch.name);
+	_pmLogRemove(outarch.name, -1);
 	if (iflag)
 	    _pmLogRename(bak_base, inarch.name);
 	while (outarch.archctl.ac_curvol >= 0) {
