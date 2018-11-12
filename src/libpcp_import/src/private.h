@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -38,6 +38,13 @@ typedef struct {
 } pmi_handle;
 
 typedef struct {
+    unsigned int	type;
+    unsigned int	id;
+    char		*content;
+    int			meta_done;
+} pmi_text;
+
+typedef struct {
     int		state;
     char	*archive;
     char	*hostname;
@@ -51,6 +58,8 @@ typedef struct {
     pmi_indom	*indom;
     int		nhandle;
     pmi_handle	*handle;
+    int		ntext;
+    pmi_text	*text;
     int		last_sts;
     struct timeval	last_stamp;
 } pmi_context;
@@ -67,6 +76,7 @@ typedef struct {
 
 extern int _pmi_stuff_value(pmi_context *, pmi_handle *, const char *) _PMI_HIDDEN;
 extern int _pmi_put_result(pmi_context *, pmResult *) _PMI_HIDDEN;
+extern int _pmi_put_text(pmi_context *) _PMI_HIDDEN;
 extern int _pmi_end(pmi_context *) _PMI_HIDDEN;
 
 #endif /* _PRIVATE_H */

@@ -7,6 +7,7 @@ pmiDump: context 0 of 1 archive: myarchive
   No metrics.
   No indoms.
   No handles.
+  No text.
   No pmResult.
 pmiSetHostname: OK
 pmiSetTimezone: OK
@@ -38,6 +39,20 @@ pmiGetHandle: OK ->1
 pmiGetHandle: Error: Unknown metric name
 pmiPutValueHandle: Error: Value already assigned for this metric-instance
 pmiPutValueHandle: Error: Illegal handle
+pmiPutText: OK
+pmiPutText: OK
+pmiPutText: OK
+pmiPutText: OK
+pmiPutText: Error: Illegal text type
+pmiPutText: Error: Illegal text class
+pmiPutText: Error: Illegal text identifier
+pmiPutText: Error: Illegal text identifier
+pmiPutText: Error: Text is empty
+pmiPutText: Error: Text is empty
+pmiPutText: Error: Help text already exists
+pmiPutText: Error: Help text already exists
+pmiPutText: Error: Help text already exists
+pmiPutText: Error: Help text already exists
 pmiDump: context 0 of 1 archive: myarchive
   state: 1 (start) hostname: somehost.com timezone: GMT-12
   metric[0] name=my.metric.foo pmid=245.0.1
@@ -63,6 +78,12 @@ pmiDump: context 0 of 1 archive: myarchive
    instance[1] eek (2)
    instance[2] blah (3)
   handle[0] metric=my.metric.foo (245.0.1) instance=-1
+  text[0] pmid=245.0.1 [One line text for my.metric.foo]
+  text[1] pmid=245.0.1 
+Full help text for my.metric.foo
+  text[2] indom=245.1 [One line text for indom 'eek']
+  text[3] indom=245.1 
+Full help text for indom 'eek'
 pmResult ... numpmid: 6
   245.0.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 123 1.7235971e-43 0x7b
@@ -117,6 +138,12 @@ pmiDump: context 1 of 2 archive: myotherarchive
    instance[2] blah (3)
   handle[0] metric=my.metric.foo (245.0.1) instance=-1
   handle[1] metric=my.metric.bar (245.0.2) instance=2
+  text[0] pmid=245.0.1 [One line text for my.metric.foo]
+  text[1] pmid=245.0.1 
+Full help text for my.metric.foo
+  text[2] indom=245.1 [One line text for indom 'eek']
+  text[3] indom=245.1 
+Full help text for indom 'eek'
 pmResult ... numpmid: 1
   245.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [2 or ???] value 6543210987654
@@ -188,7 +215,7 @@ Temporal Index
 		Log Vol    end(meta)     end(log)
 TIMESTAMP      0          132          132
 TIMESTAMP      0          531          132
-TIMESTAMP      0          531          536
+TIMESTAMP      0          737          536
 
 [228 bytes]
 TIMESTAMP 6 metrics
@@ -223,13 +250,18 @@ Perl wrapper version ...
 *PCP::LogImport::PMI_ERR_BADHANDLE
 *PCP::LogImport::PMI_ERR_BADMETRICNAME
 *PCP::LogImport::PMI_ERR_BADSEM
+*PCP::LogImport::PMI_ERR_BADTEXTCLASS
+*PCP::LogImport::PMI_ERR_BADTEXTID
+*PCP::LogImport::PMI_ERR_BADTEXTTYPE
 *PCP::LogImport::PMI_ERR_BADTIMESTAMP
 *PCP::LogImport::PMI_ERR_BADTYPE
 *PCP::LogImport::PMI_ERR_DUPINSTID
 *PCP::LogImport::PMI_ERR_DUPINSTNAME
 *PCP::LogImport::PMI_ERR_DUPMETRICID
 *PCP::LogImport::PMI_ERR_DUPMETRICNAME
+*PCP::LogImport::PMI_ERR_DUPTEXT
 *PCP::LogImport::PMI_ERR_DUPVALUE
+*PCP::LogImport::PMI_ERR_EMPTYTEXTCONTENT
 *PCP::LogImport::PMI_ERR_INSTNOTNULL
 *PCP::LogImport::PMI_ERR_INSTNULL
 *PCP::LogImport::PMI_ERR_NODATA
@@ -245,6 +277,10 @@ Perl wrapper version ...
 *PCP::LogImport::PM_SPACE_KBYTE
 *PCP::LogImport::PM_SPACE_MBYTE
 *PCP::LogImport::PM_SPACE_TBYTE
+*PCP::LogImport::PM_TEXT_HELP
+*PCP::LogImport::PM_TEXT_INDOM
+*PCP::LogImport::PM_TEXT_ONELINE
+*PCP::LogImport::PM_TEXT_PMID
 *PCP::LogImport::PM_TIME_HOUR
 *PCP::LogImport::PM_TIME_MIN
 *PCP::LogImport::PM_TIME_MSEC
@@ -280,6 +316,7 @@ Perl wrapper version ...
 *PCP::LogImport::pmiID
 *PCP::LogImport::pmiInDom
 *PCP::LogImport::pmiPutMark
+*PCP::LogImport::pmiPutText
 *PCP::LogImport::pmiPutValue
 *PCP::LogImport::pmiPutValueHandle
 *PCP::LogImport::pmiSetHostname
@@ -300,13 +337,18 @@ PMI_DOMAIN
 PMI_ERR_BADHANDLE
 PMI_ERR_BADMETRICNAME
 PMI_ERR_BADSEM
+PMI_ERR_BADTEXTCLASS
+PMI_ERR_BADTEXTID
+PMI_ERR_BADTEXTTYPE
 PMI_ERR_BADTIMESTAMP
 PMI_ERR_BADTYPE
 PMI_ERR_DUPINSTID
 PMI_ERR_DUPINSTNAME
 PMI_ERR_DUPMETRICID
 PMI_ERR_DUPMETRICNAME
+PMI_ERR_DUPTEXT
 PMI_ERR_DUPVALUE
+PMI_ERR_EMPTYTEXTCONTENT
 PMI_ERR_INSTNOTNULL
 PMI_ERR_INSTNULL
 PMI_ERR_NODATA
@@ -322,6 +364,10 @@ PM_SPACE_GBYTE
 PM_SPACE_KBYTE
 PM_SPACE_MBYTE
 PM_SPACE_TBYTE
+PM_TEXT_HELP
+PM_TEXT_INDOM
+PM_TEXT_ONELINE
+PM_TEXT_PMID
 PM_TIME_HOUR
 PM_TIME_MIN
 PM_TIME_MSEC
@@ -357,6 +403,7 @@ pmiGetHandle
 pmiID
 pmiInDom
 pmiPutMark
+pmiPutText
 pmiPutValue
 pmiPutValueHandle
 pmiSetHostname
@@ -375,6 +422,7 @@ pmiDump: context 0 of 1 archive: myarchive
   No metrics.
   No indoms.
   No handles.
+  No text.
   No pmResult.
 pmiSetHostname: OK
 pmiSetTimezone: OK
@@ -406,6 +454,10 @@ pmiGetHandle: OK ->1
 pmiGetHandle: Error: Unknown metric name
 pmiPutValueHandle: Error: Value already assigned for this metric-instance
 pmiPutValueHandle: Error: Illegal handle
+pmiPutText: OK
+pmiPutText: OK
+pmiPutText: OK
+pmiPutText: OK
 pmiDump: context 0 of 1 archive: myarchive
   state: 1 (start) hostname: somehost.com timezone: GMT-12
   metric[0] name=my.metric.foo pmid=245.0.1
@@ -431,6 +483,12 @@ pmiDump: context 0 of 1 archive: myarchive
    instance[1] eek (2)
    instance[2] blah (3)
   handle[0] metric=my.metric.foo (245.0.1) instance=-1
+  text[0] pmid=245.0.1 [One line text for my.metric.foo]
+  text[1] pmid=245.0.1 
+Full help text for my.metric.foo
+  text[2] indom=245.1 [One line text for indom 'eek']
+  text[3] indom=245.1 
+Full help text for indom 'eek'
 pmResult ... numpmid: 6
   245.0.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 123 1.7235971e-43 0x7b
@@ -485,6 +543,12 @@ pmiDump: context 1 of 2 archive: myotherarchive
    instance[2] blah (3)
   handle[0] metric=my.metric.foo (245.0.1) instance=-1
   handle[1] metric=my.metric.bar (245.0.2) instance=2
+  text[0] pmid=245.0.1 [One line text for my.metric.foo]
+  text[1] pmid=245.0.1 
+Full help text for my.metric.foo
+  text[2] indom=245.1 [One line text for indom 'eek']
+  text[3] indom=245.1 
+Full help text for indom 'eek'
 pmResult ... numpmid: 1
   245.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [2 or ???] value 6543210987654
@@ -556,7 +620,7 @@ Temporal Index
 		Log Vol    end(meta)     end(log)
 TIMESTAMP      0          132          132
 TIMESTAMP      0          531          132
-TIMESTAMP      0          531          536
+TIMESTAMP      0          737          536
 
 [228 bytes]
 TIMESTAMP 6 metrics

@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """Wrapper module for libpcp_import - Performace Co-Pilot Log Import API
 #
-# Copyright (C) 2012-2015 Red Hat.
+# Copyright (C) 2012-2018 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -55,7 +55,7 @@ from pcp.pmapi import pmID, pmInDom, pmUnits, pmResult
 from cpmi import pmiErrSymDict, PMI_MAXERRMSGLEN
 
 import ctypes
-from ctypes import cast, c_int, c_char_p, POINTER
+from ctypes import cast, c_int, c_uint, c_char_p, POINTER
 
 # Performance Co-Pilot PMI library (C)
 LIBPCP_IMPORT = ctypes.CDLL(ctypes.util.find_library("pcp_import"))
@@ -119,6 +119,9 @@ LIBPCP_IMPORT.pmiPutResult.argtypes = [POINTER(pmResult)]
 
 LIBPCP_IMPORT.pmiPutMark.restype = c_int
 LIBPCP_IMPORT.pmiPutMark.argtypes = None
+
+LIBPCP_IMPORT.pmiPutText.restype = c_int
+LIBPCP_IMPORT.pmiPutText.argtypes = [c_uint, c_uint, c_uint, c_char_p]
 
 #
 # definition of exception classes
@@ -331,6 +334,18 @@ class pmiLogImport(object):
         if status < 0:
             raise pmiErr(status)
         status = LIBPCP_IMPORT.pmiPutResult(cast(result, POINTER(pmResult)))
+        if status < 0:
+            raise pmiErr(status)
+        return status
+
+    def pmiPutText(self, typ, cls, ident, content):
+        """PMI - add a text record to a Log Import archive """
+        status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
+        if status < 0:
+            raise pmiErr(status)
+        if type(content) != type(b''):
+            content = content.encode('utf-8')
+        status = LIBPCP_IMPORT.pmiPutText(typ, cls, ident, c_char_p(content))
         if status < 0:
             raise pmiErr(status)
         return status

@@ -2,7 +2,7 @@
 """ Python test case for Log Import API wrapper module
 """
 #
-# Copyright (C) 2012-2014 Red Hat Inc.
+# Copyright (C) 2012-2018 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -52,6 +52,16 @@ def check_import(archive, hostname, timezone):
     log.pmiPutValue("kernel.all.load", "1 minute", "%f" % 0.01)
     log.pmiPutValue("kernel.all.load", "5 minute", "%f" % 0.05)
     log.pmiPutValue("kernel.all.load", "15 minute", "%f" % 0.15)
+
+    # test help text
+    log.pmiPutText(cpmapi.PM_TEXT_PMID, cpmapi.PM_TEXT_ONELINE, pmid,
+		     "One line text for my.metric.foo");
+    log.pmiPutText(cpmapi.PM_TEXT_PMID, cpmapi.PM_TEXT_HELP, pmid,
+		     "Full help text for my.metric.foo");
+    log.pmiPutText(cpmapi.PM_TEXT_INDOM, cpmapi.PM_TEXT_ONELINE, indom,
+		     "One line text for indom 'eek'");
+    log.pmiPutText(cpmapi.PM_TEXT_INDOM, cpmapi.PM_TEXT_HELP, indom,
+		     "Full help text for indom 'eek'");
 
     timetuple = math.modf(time.time())
     useconds = int(timetuple[0] * 1000000)

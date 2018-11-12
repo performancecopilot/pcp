@@ -2,6 +2,7 @@
  * Exercise libpcp_import
  *
  * Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2018 Red Hat.
  */
 
 #include <pcp/pmapi.h>
@@ -128,6 +129,51 @@ main(int argc, char **argv)
     sts = pmiPutValueHandle(0, "error");
     check(sts, "pmiPutValueHandle");
 
+    sts = pmiPutText(PM_TEXT_PMID, PM_TEXT_ONELINE, pmID_build(245,0,1),
+		     "One line text for my.metric.foo");
+    check(sts, "pmiPutText");
+    sts = pmiPutText(PM_TEXT_PMID, PM_TEXT_HELP, pmID_build(245,0,1),
+		     "Full help text for my.metric.foo");
+    check(sts, "pmiPutText");
+    sts = pmiPutText(PM_TEXT_INDOM, PM_TEXT_ONELINE, pmInDom_build(245,1),
+		     "One line text for indom 'eek'");
+    check(sts, "pmiPutText");
+    sts = pmiPutText(PM_TEXT_INDOM, PM_TEXT_HELP, pmInDom_build(245,1),
+		     "Full help text for indom 'eek'");
+    check(sts, "pmiPutText");
+
+    sts = pmiPutText(PM_TEXT_PMID+1000, PM_TEXT_ONELINE, pmID_build(245,0,1),
+		     "Illegal text type");
+    check(sts, "pmiPutText");
+    sts = pmiPutText(PM_TEXT_PMID, PM_TEXT_ONELINE+1000, pmID_build(245,0,1),
+		     "Illegal text class");
+    check(sts, "pmiPutText");
+    sts = pmiPutText(PM_TEXT_PMID, PM_TEXT_ONELINE, PM_ID_NULL,
+		     "Illegal metric id");
+    check(sts, "pmiPutText");
+    sts = pmiPutText(PM_TEXT_INDOM, PM_TEXT_ONELINE, PM_INDOM_NULL,
+		     "Illegal indom id");
+    check(sts, "pmiPutText");
+    sts = pmiPutText(PM_TEXT_PMID, PM_TEXT_ONELINE, pmID_build(245,0,1),
+		     NULL);
+    check(sts, "pmiPutText");
+    sts = pmiPutText(PM_TEXT_PMID, PM_TEXT_ONELINE, pmID_build(245,0,1),
+		     "");
+    check(sts, "pmiPutText");
+    /* These next four are duplicates. */
+    sts = pmiPutText(PM_TEXT_PMID, PM_TEXT_ONELINE, pmID_build(245,0,1),
+		     "One line text for my.metric.foo");
+    check(sts, "pmiPutText");
+    sts = pmiPutText(PM_TEXT_PMID, PM_TEXT_HELP, pmID_build(245,0,1),
+		     "Full help text for my.metric.foo");
+    check(sts, "pmiPutText");
+    sts = pmiPutText(PM_TEXT_INDOM, PM_TEXT_ONELINE, pmInDom_build(245,1),
+		     "One line text for indom 'eek'");
+    check(sts, "pmiPutText");
+    sts = pmiPutText(PM_TEXT_INDOM, PM_TEXT_HELP, pmInDom_build(245,1),
+		     "Full help text for indom 'eek'");
+    check(sts, "pmiPutText");
+    
     pmiDump();
 
     sts = pmiWrite((int)(365.25*30*24*60*60), 0);

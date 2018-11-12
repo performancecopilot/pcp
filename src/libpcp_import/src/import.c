@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -115,6 +115,33 @@ pmiDump(void)
 		current->handle[h].inst);
 	}
     }
+    if (current->ntext == 0)
+	fprintf(f, "  No text.\n");
+    else {
+	int		t;
+	unsigned int	id;
+	unsigned int	type;
+	for (t = 0; t < current->ntext; t++) {
+	    fprintf(f, "  text[%d] ", t);
+	    id = current->text[t].id;
+	    type = current->text[t].type;
+	    if ((type & PM_TEXT_PMID))
+		fprintf(f, "pmid=%s ", pmIDStr((pmID)id));
+	    else if ((type & PM_TEXT_INDOM))
+		fprintf(f, "indom=%s ", pmInDomStr((pmInDom)id));
+	    else
+		fprintf(f, "type=unknown ");
+
+	    if ((type & PM_TEXT_ONELINE))
+		fprintf(f, "[%s]", current->text[t].content);
+	    else if ((type & PM_TEXT_HELP))
+		fprintf(f, "\n%s", current->text[t].content);
+	    else
+		fprintf(f, "content=unknown");
+
+	    fputc('\n', f);
+	}
+    }
     if (current->result == NULL)
 	fprintf(f, "  No pmResult.\n");
     else
@@ -200,6 +227,21 @@ pmiErrStr_r(int code, char *buf, int buflen)
 	    break;
 	case PMI_ERR_BADTIMESTAMP:
 	    msg = "Illegal result timestamp";
+	    break;
+	case PMI_ERR_BADTEXTTYPE:
+	    msg = "Illegal text type";
+	    break;
+	case PMI_ERR_BADTEXTCLASS:
+	    msg = "Illegal text class";
+	    break;
+	case PMI_ERR_BADTEXTID:
+	    msg = "Illegal text identifier";
+	    break;
+	case PMI_ERR_EMPTYTEXTCONTENT:
+	    msg = "Text is empty";
+	    break;
+	case PMI_ERR_DUPTEXT:
+	    msg = "Help text already exists";
 	    break;
 	default:
 	    return pmErrStr_r(code, buf, buflen);
@@ -310,6 +352,25 @@ pmiStart(const char *archive, int inherit)
 	}
 	else
 	    current->handle = NULL;
+	current->ntext = old_current->ntext;
+	if (old_current->text != NULL) {
+	    int		t;
+	    current->text = (pmi_text *)malloc(current->ntext*sizeof(pmi_text));
+	    if (current->text == NULL) {
+		pmNoMem("pmiStart: pmi_text", current->ntext*sizeof(pmi_text), PM_FATAL_ERR);
+	    }
+	    for (t = 0; t < current->ntext; t++) {
+		current->text[t].id = old_current->text[t].id;
+		current->text[t].type = old_current->text[t].type;
+		current->text[t].content = strdup(old_current->text[t].content);
+		if (current->text[t].content == NULL) {
+		    pmNoMem("pmiStart: pmi_text content", strlen(old_current->text[t].content) + 1, PM_FATAL_ERR);
+		}
+		current->text[t].meta_done = 0;
+	    }
+	}
+	else
+	    current->text = NULL;
 	current->last_stamp = old_current->last_stamp;
     }
     else {
@@ -319,6 +380,8 @@ pmiStart(const char *archive, int inherit)
 	current->indom = NULL;
 	current->nhandle = 0;
 	current->handle = NULL;
+	current->ntext = 0;
+	current->text = NULL;
 	current->last_stamp.tv_sec = current->last_stamp.tv_usec = 0;
     }
     return ncontext;
@@ -680,14 +743,88 @@ pmiPutValueHandle(int handle, const char *value)
     return current->last_sts = _pmi_stuff_value(current, &current->handle[handle-1], value);
 }
 
-static int
-check_timestamp(void)
+int
+pmiPutText(unsigned int type, unsigned int class, unsigned int id, const char *content)
 {
-    if (current->result->timestamp.tv_sec < current->last_stamp.tv_sec ||
-        (current->result->timestamp.tv_sec == current->last_stamp.tv_sec &&
-	 current->result->timestamp.tv_usec < current->last_stamp.tv_usec)) {
+    size_t		size;
+    int			t;
+    pmi_text		*tp;
+
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    /* Check the type */
+    if (type != PM_TEXT_PMID && type != PM_TEXT_INDOM)
+	return current->last_sts = PMI_ERR_BADTEXTTYPE;
+
+    /* Check the class */
+    if (class != PM_TEXT_ONELINE && class != PM_TEXT_HELP)
+	return current->last_sts = PMI_ERR_BADTEXTCLASS;
+
+    /* Check the id. */
+    if (id == PM_ID_NULL)
+	return current->last_sts = PMI_ERR_BADTEXTID;
+
+    /* Make sure the content is not empty or NULL */
+    if (content == NULL || *content == '\0')
+	return current->last_sts = PMI_ERR_EMPTYTEXTCONTENT;
+
+    /* Make sure that the text is not duplicate */
+    for (t = 0; t < current->ntext; t++) {
+	if (current->text[t].type != (type | class))
+	    continue;
+	if (current->text[t].id != id)
+	    continue;
+	if (strcmp(current->text[t].content, content) != 0)
+	    continue;
+	/* duplicate text is not good */
+	return current->last_sts = PMI_ERR_DUPTEXT;
+    }
+
+    /* Add the new text. */
+    current->ntext++;
+    size = current->ntext * sizeof(pmi_text);
+    current->text = (pmi_text *)realloc(current->text, size);
+    if (current->text == NULL) {
+	pmNoMem("pmiPutText: pmi_text", size, PM_FATAL_ERR);
+    }
+    tp = &current->text[current->ntext-1];
+    tp->type = type | class;
+    tp->id = id;
+    tp->content = strdup(content);
+    if (tp->content == NULL) {
+	pmNoMem("pmiPutText: content", strlen(content)+1, PM_FATAL_ERR);
+    }
+    tp->meta_done = 0;
+
+    return current->last_sts = 0;
+}
+
+/*
+ * Search the current context for pending text to write. If found, return
+ * 1 (true) otherwise return 0 (false).
+ */
+static int
+text_pending(void)
+{
+    int t;
+    for (t = 0; t < current->ntext; ++t) {
+	if (current->text[t].meta_done == 0)
+	    return 1; /* found one */
+    }
+
+    /* Not found */
+    return 0;
+}
+
+static int
+check_timestamp(const struct timeval *timestamp)
+{
+    if (timestamp->tv_sec < current->last_stamp.tv_sec ||
+        (timestamp->tv_sec == current->last_stamp.tv_sec &&
+	 timestamp->tv_usec < current->last_stamp.tv_usec)) {
 	fprintf(stderr, "Fatal Error: timestamp ");
-	printstamp(stderr, &current->result->timestamp);
+	printstamp(stderr, timestamp);
 	fprintf(stderr, " not greater than previous valid timestamp ");
 	printstamp(stderr, &current->last_stamp);
 	fputc('\n', stderr);
@@ -699,27 +836,39 @@ check_timestamp(void)
 int
 pmiWrite(int sec, int usec)
 {
-    int		sts;
+    struct timeval	timestamp;
+    int			sts;
 
     if (current == NULL)
 	return PM_ERR_NOCONTEXT;
-    if (current->result == NULL)
+    if (current->result == NULL && !text_pending())
 	return current->last_sts = PMI_ERR_NODATA;
 
     if (sec < 0) {
-	pmtimevalNow(&current->result->timestamp);
+	pmtimevalNow(&timestamp);
     }
     else {
-	current->result->timestamp.tv_sec = sec;
-	current->result->timestamp.tv_usec = usec;
-    }
-    if ((sts = check_timestamp()) == 0) {
-	sts = _pmi_put_result(current, current->result);
-	current->last_stamp = current->result->timestamp;
+	timestamp.tv_sec = sec;
+	timestamp.tv_usec = usec;
     }
 
-    pmFreeResult(current->result);
-    current->result = NULL;
+    if ((sts = check_timestamp(&timestamp)) == 0) {
+	/* We are guaranteed to be writing some data. */
+	current->last_stamp = timestamp;
+
+	/* Pending results? */
+	if (current->result != NULL) {
+	    current->result->timestamp = timestamp;
+	    sts = _pmi_put_result(current, current->result);
+	    pmFreeResult(current->result);
+	    current->result = NULL;
+	}
+
+	if (sts >= 0) {
+	    /* Pending text? */
+	    sts = _pmi_put_text(current);
+	}
+    }
 
     return current->last_sts = sts;
 }
@@ -733,7 +882,7 @@ pmiPutResult(const pmResult *result)
 	return PM_ERR_NOCONTEXT;
 
     current->result = (pmResult *)result;
-    if ((sts = check_timestamp()) == 0) {
+    if ((sts = check_timestamp(&current->result->timestamp)) == 0) {
 	sts = _pmi_put_result(current, current->result);
 	current->last_stamp = current->result->timestamp;
     }

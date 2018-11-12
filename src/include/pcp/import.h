@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2018 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -43,6 +43,7 @@ PMI_CALL extern int pmiPutValueHandle(int, const char *);
 PMI_CALL extern int pmiWrite(int, int);
 PMI_CALL extern int pmiPutResult(const pmResult *);
 PMI_CALL extern int pmiPutMark(void);
+PMI_CALL extern int pmiPutText(unsigned int, unsigned int, unsigned int, const char *);
 
 /* helper routines */
 PMI_CALL extern pmID pmiID(int, int, int);
@@ -70,6 +71,11 @@ PMI_CALL extern void pmiDump(void);
 #define PMI_ERR_NODATA		(-PMI_ERR_BASE-11) /* No data to output */
 #define PMI_ERR_BADMETRICNAME	(-PMI_ERR_BASE-12) /* Illegal metric name */
 #define PMI_ERR_BADTIMESTAMP	(-PMI_ERR_BASE-13) /* Illegal result timestamp */
+#define PMI_ERR_BADTEXTTYPE	(-PMI_ERR_BASE-14) /* Illegal text type */
+#define PMI_ERR_BADTEXTCLASS	(-PMI_ERR_BASE-15) /* Illegal text type */
+#define PMI_ERR_BADTEXTID	(-PMI_ERR_BASE-16) /* Illegal text type */
+#define PMI_ERR_EMPTYTEXTCONTENT (-PMI_ERR_BASE-17)/* Empty text content */
+#define PMI_ERR_DUPTEXT         (-PMI_ERR_BASE-18) /* Duplicate text */
 
 #ifdef __cplusplus
 }

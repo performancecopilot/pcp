@@ -125,6 +125,12 @@ pmiPutValueHandle(handle, value)
 	int		handle;
 	const char	*value;
 
+int pmiPutText(type, class, id, content)
+     unsigned int	type;
+     unsigned int	class;
+     unsigned int	id;
+     const char		*content;
+
 int
 pmiWrite(sec, usec)
 	int		sec;

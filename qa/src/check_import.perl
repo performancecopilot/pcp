@@ -2,6 +2,7 @@
 # Exercise libpcp_import ... Perl version of check_import.c
 #
 # Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2018 Red Hat.
 #
 use strict;
 use warnings;
@@ -104,6 +105,20 @@ $_ = pmiPutValueHandle($hdl1, "321");
 check($_, "pmiPutValueHandle");
 $_ = pmiPutValueHandle(0, "error");
 check($_, "pmiPutValueHandle");
+
+$_ = pmiPutText(PM_TEXT_PMID, PM_TEXT_ONELINE, pmID_build(245,0,1),
+		"One line text for my.metric.foo");
+check($_, "pmiPutText");
+$_ = pmiPutText(PM_TEXT_PMID, PM_TEXT_HELP, pmID_build(245,0,1),
+		"Full help text for my.metric.foo");
+check($_, "pmiPutText");
+$_ = pmiPutText(PM_TEXT_INDOM, PM_TEXT_ONELINE, pmInDom_build(245,1),
+		"One line text for indom 'eek'");
+check($_, "pmiPutText");
+$_ = pmiPutText(PM_TEXT_INDOM, PM_TEXT_HELP, pmInDom_build(245,1),
+		"Full help text for indom 'eek'");
+check($_, "pmiPutText");
+
 
 pmiDump();
 

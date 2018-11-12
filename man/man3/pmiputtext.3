@@ -1,6 +1,5 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 .\" Copyright (c) 2018 Red Hat.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -14,61 +13,92 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMIPUTVALUEHANDLE 3 "" "Performance Co-Pilot"
+.TH PMIPUTTEXT 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmiPutValueHandle\f1 \- add a value for a metric-instance pair via a handle
+\f3pmiputtext\f1 \- add help text for an metric or instance domain
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .br
 #include <pcp/import.h>
 .sp
-int pmiPutValueHandle(int \fIhandle\fP, const char *\fIvalue\fP);
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmiputtext(unsigned int \fItype\fP, unsigned int \fIclass\fP, unsigned int \fIid\fP, const char *\fIcontent\fP)
 .sp
+.in
+.hy
+.ad
 cc ... \-lpcp_import \-lpcp
 .ft 1
 .SH "Perl SYNOPSIS"
 .ft 3
 use PCP::LogImport;
 .sp
-pmiPutValueHandle($\fIhandle\fP, $\fIvalue\fP);
+pmiputtext($\fItype\fP, $\fIclass\fP, $\fIid\fP, $\fIcontent\fP);
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see
 .BR LOGIMPORT (3)),
-.B pmiPutValueHandle
-adds a single value to the current output record for a given
-metric and instance, using the
-.I handle
-defined by an earlier call to
-.BR pmiGetHandle (3).
+.B pmiputtext
+adds help text for a given
+metric or instance domain.
 .PP
 The
-.I value
-should be in a format consistent with the metric's type as
-defined in the call to
+.I type
+must be one of
+.BR PM_TEXT_PMID
+or
+.BR PM_TEXT_INDOM .
+.PP
+The
+.I class
+must be one of
+.BR PM_TEXT_ONELINE
+or
+.BR PM_TEXT_HELP .
+.PP
+If
+.I type
+is
+.BR PM_TEXT_PMID ,
+then
+.I id
+should match a pmid defined earlier in a call to
 .BR pmiAddMetric (3).
+If
+.I type
+is
+.BR PM_TEXT_INDOM ,
+then
+.I id
+should match an instance domain defined earlier in a call to
+.BR pmiAddMetric (3).
+.PP
+.I content
+is a string containing the content of the help text.
 .PP
 No data will be written until
 .BR pmiWrite (3)
 is called, so multiple calls to
-.B pmiPutValueHandle
-or
-.BR pmiPutValue (3)
-are typically used to accumulate data values for several
-metric-instance pairs before calling
+.B pmiputtext
+are typically used to accumulate help text for several
+metrics or instance domains before calling
 .BR pmiWrite (3).
 .SH DIAGNOSTICS
-.B pmiPutValueHandle
+.B pmiputtext
 returns zero on success else a negative value that can be turned into an
 error message by calling
 .BR pmiErrStr (3).
 .SH SEE ALSO
 .BR LOGIMPORT (3),
+.BR pmiAddInstance (3),
+.BR pmiAddMetric (3),
 .BR pmiErrStr (3),
-.BR pmiGetHandle (3),
 .BR pmiPutResult (3),
 .BR pmiPutValue (3),
-.BR pmiPutText (3),
+.BR pmiPutValueHandle (3)
 and
 .BR pmiWrite (3).
