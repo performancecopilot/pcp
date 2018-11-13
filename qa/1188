@@ -37,6 +37,7 @@ _filter()
     $here/src/sortinst | \
     sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e '/Warning: built without support for dmstats metrics/d' \
     #end
 }
 

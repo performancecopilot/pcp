@@ -361,7 +361,7 @@ _echo ""
 sleep 8
 
 ps $PCP_PS_ALL_FLAGS >$tmp.ps
-egrep '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
+egrep '[P]ID|[p]mcd|[p]mda' $tmp.ps >>$seq.full
 new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/dumb_pmda /{print $2}'`
 echo "new_dumb_pid=$new_dumb_pid" >>$seq.full
 new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/pmcd /{print $2}'`

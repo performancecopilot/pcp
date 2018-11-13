@@ -36,10 +36,10 @@ fi
 # need -q 10 because valgrind with all these options sometimes takes
 # longer to startup than the default credentials timeout of 3 seconds
 #
-dbpmda -f -q 10 -ie 2>$tmp._valgrind.err >$tmp._valgrind.out <<End-of-File
+dbpmda -f -q 20 -ie 2>$tmp._valgrind.err >$tmp._valgrind.out <<End-of-File
 open pipe $VALGRIND --leak-check=full --read-var-info=yes --gen-suppressions=all --suppressions=valgrind-suppress $__extra --log-file=$tmp._valgrind pmdas/github-56/pmdatrivial
 # need to give valgrind a chance to get the PMDA started ...
-wait 5
+wait 20
 children trivial
 exit
 End-of-File
