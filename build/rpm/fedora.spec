@@ -3418,11 +3418,11 @@ cd
 %endif
 
 %changelog
-* Fri Nov 16 2018 Nathan Scott <nathans@redhat.com> - 4.2.0-1
-- Work in progress, see https://pcp.io/roadmap
+* Fri Nov 16 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.2.0-1
 - Resolves pcp-dstat packaging issues (BZ 1640912)
 - Resolves pcp-dstat cursor positioning problem (BZ 1640913)
 - New conditionally-built pcp-pmda-podman sub-package.
+- Update to latest PCP sources.
 
 * Fri Sep 21 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
 - Update to latest PCP sources.
