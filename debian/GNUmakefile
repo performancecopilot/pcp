@@ -108,7 +108,7 @@ DEVWEB_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-web1-dev
 SUBDIRS = source
 LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	pcp.preinst pcp.preinst.head pcp.postinst pcp.postinst.head \
-	pcp-webapp-vector.dirs pcp-webapp-vector.install \
+	pcp-webapp-vector.dirs pcp-webapp-vector.install pcp-gui.install \
 	$(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
