@@ -138,12 +138,52 @@ varlink_connection_wait(varlink_t *link)
     return 0;
 }
 
+static void
+refresh_container_info(VarlinkObject *info, container_info_t *ip)
+{
+    VarlinkArray	*args;
+    const char		*temp;
+    size_t		bytes, length = 0;
+    char		cmd[BUFSIZ] = {0};
+    int			i, sts, count;
+
+    temp = NULL;
+    varlink_object_get_string(info, "names", &temp);
+    ip->name = temp? podman_strings_insert(temp) : -1;
+
+    /* extract the command, stored as an array of strings */
+    sts = varlink_object_get_array(info, "command", &args);
+    count = sts < 0? 0 : varlink_array_get_n_elements(args);
+    for (i = 0; i < count; i++) {
+	temp = NULL;
+	varlink_array_get_string(args, i, &temp);
+	bytes = temp? strlen(temp) : 0;
+	if (bytes > 0 && bytes < sizeof(cmd) - length - 1) {
+	    strcat(cmd, temp);
+	    strcat(cmd, " ");
+	}
+	length += bytes + 1;
+    }
+    if (length > 0) {
+	cmd[length-1] = '\0';
+	ip->command = podman_strings_insert(cmd);
+    } else {
+	ip->command = -1;
+    }
+
+    temp = NULL;
+    varlink_object_get_string(info, "status", &temp);
+    ip->status = temp? podman_strings_insert(temp) : -1;
+    varlink_object_get_int(info, "rootfssize", &ip->rootfssize);
+    varlink_object_get_int(info, "rwsize", &ip->rwsize);
+    varlink_object_get_bool(info, "running", &ip->running);
+}
+
 static int
 varlink_container_info(varlink_t *link, char *name, container_info_t *ip)
 {
     varlink_reply_t	reply = {0};
     VarlinkObject	*info;
-    const char		*temp;
     int			sts;
 
     if (pmDebugOptions.attr)
@@ -172,18 +212,8 @@ varlink_container_info(varlink_t *link, char *name, container_info_t *ip)
     sts = varlink_object_get_object(reply.parameters, "container", &info);
     if (sts != 0)
 	goto done;
-    temp = NULL;
-    varlink_object_get_string(info, "names", &temp);
-    ip->name = temp? podman_strings_insert(temp) : -1;
-    temp = NULL;
-    varlink_object_get_string(info, "command", &temp);
-    ip->command = temp? podman_strings_insert(temp) : -1;
-    temp = NULL;
-    varlink_object_get_string(info, "status", &temp);
-    ip->status = temp? podman_strings_insert(temp) : -1;
-    varlink_object_get_int(info, "rootfssize", &ip->rootfssize);
-    varlink_object_get_int(info, "rwsize", &ip->rwsize);
-    varlink_object_get_bool(info, "running", &ip->running);
+
+    refresh_container_info(info, ip);
 
 done:
     varlink_object_unref(reply.parameters);
@@ -282,7 +312,7 @@ varlink_container_list(varlink_t *link, pmInDom indom)
     varlink_reply_t	reply = {0};
     VarlinkObject	*state;
     VarlinkArray	*list;
-    const char		*id, *temp;
+    const char		*id;
     int			i, sts, count = 0;
 
     if (pmDebugOptions.attr)
@@ -321,20 +351,7 @@ varlink_container_list(varlink_t *link, pmInDom indom)
 		fprintf(stderr, "adding container %s (%u)\n", id, cp->id);
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, id, (void *)cp);
-
-	temp = NULL;
-	varlink_object_get_string(state, "command", &temp);
-	cp->info.command = temp? podman_strings_insert(temp) : -1;
-	temp = NULL;
-	varlink_object_get_string(state, "status", &temp);
-	cp->info.status = temp? podman_strings_insert(temp) : -1;
-	varlink_object_get_int(state, "rootfssize", &cp->info.rootfssize);
-	varlink_object_get_int(state, "rwsize", &cp->info.rwsize);
-	temp = NULL;
-	varlink_object_get_string(state, "names", &temp);
-	cp->info.name = temp? podman_strings_insert(temp) : -1;
-	varlink_object_get_bool(state, "running", &cp->info.running);
-
+	refresh_container_info(state, &cp->info);
 	cp->flags |= STATE_INFO;
     }
 
