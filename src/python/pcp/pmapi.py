@@ -2790,6 +2790,7 @@ class fetchgroup(object):
         sts = LIBPCP.pmFetchGroup(self.pmfg)
         if sts < 0:
             raise pmErr(sts)
+        return sts  # propogate any pmFetch(3) state flags to caller
 
     def clear(self):
         """Clear all the metrics in this fetchgroup ready to start again."""
