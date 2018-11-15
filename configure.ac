@@ -2101,7 +2101,7 @@ do
        then
            pcp_selinux_numad=true
        fi
-       bpf_class=`eval seinfo -x --class=bpf $seinfo_common_flag -- $policy_file 2>/dev/null | grep g | awk '{ print $1 }'`
+       bpf_class=`eval seinfo -x --class=bpf -- $policy_file 2>/dev/null | grep bpf | awk '{ print $1 }'`
        if test "x$bpf_class" != "x"
        then
 	    pcp_selinux_bpf_status=true
