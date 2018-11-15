@@ -3419,8 +3419,9 @@ cd
 
 %changelog
 * Fri Nov 16 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.2.0-1
-- Resolves pcp-dstat packaging issues (BZ 1640912)
-- Resolves pcp-dstat cursor positioning problem (BZ 1640913)
+- Resolves dstat packaging issues (BZ 1640912)
+- Resolves dstat cursor positioning problem (BZ 1640913)
+- Resolve a signal handling issue in dstat shutdown (BZ 1648552)
 - New conditionally-built pcp-pmda-podman sub-package.
 - Update to latest PCP sources.
 
