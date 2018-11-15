@@ -3422,6 +3422,7 @@ cd
 - Resolves dstat packaging issues (BZ 1640912)
 - Resolves dstat cursor positioning problem (BZ 1640913)
 - Resolve a signal handling issue in dstat shutdown (BZ 1648552)
+- Rename variable named await in python code (BZ 1633367)
 - New conditionally-built pcp-pmda-podman sub-package.
 - Update to latest PCP sources.
 
