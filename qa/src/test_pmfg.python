@@ -25,46 +25,45 @@ def test_pmfg_live(self, typed, target):
     # Any errors hereabouts trigger pmErr exceptions -> implicit fail
     pmfg = pmapi.fetchgroup(typed, target)
     tt = pmfg.extend_timestamp()
-    v1 = pmfg.extend_item("hinv.ncpu") # infer type
-    v2 = pmfg.extend_item("kernel.all.load", c_api.PM_TYPE_FLOAT, instance="1 minute")
+    v1 = pmfg.extend_item("sample.ulong.one") # infer type
+    v2 = pmfg.extend_item("sample.float.bin", c_api.PM_TYPE_FLOAT, instance="bin-100")
 
     # some type errors
     self.assertRaises(Exception, lambda : pmfg.extend_item(2, 0))  # type error
-    self.assertRaises(Exception, lambda : pmfg.extend_item('kernel.all.load', 2))  # missing indom
-    self.assertRaises(Exception, lambda : pmfg.extend_item('hinv.ncpu', -999))  # type-id error
-    self.assertRaises(Exception, lambda : pmfg.extend_item('kernel.all.load', "chicken salad")) # type error
+    self.assertRaises(Exception, lambda : pmfg.extend_item('sample.float.bin', 2))  # missing indom
+    self.assertRaises(Exception, lambda : pmfg.extend_item('sample.ulong.one', -999))  # type-id error
+    self.assertRaises(Exception, lambda : pmfg.extend_item('sample.float.bin', "chicken salad")) # type error
 
     pmfg.fetch() # to get a cpu count into v1
-    vv1 = pmfg.extend_indom("kernel.percpu.cpu.idle", c_api.PM_TYPE_64, scale="s/100s", maxnum=v1()-1)
-    vv2 = pmfg.extend_indom("kernel.percpu.cpu.idle", scale="s/100s", maxnum=v1()) # infer type
+    vv1 = pmfg.extend_indom("sample.ulonglong.bin_ctr", c_api.PM_TYPE_64, scale="rate", maxnum=8)
+    vv2 = pmfg.extend_indom("sample.ulonglong.bin_ctr", scale="rate", maxnum=9) # infer type
     vv3 = pmfg.extend_indom("sample.bogus_bin", c_api.PM_TYPE_32, scale="instant")
-    # would be nice if there were a non-sample useful event source available by default
     vv4 = pmfg.extend_event("sample.event.records", instance="fungus", field="sample.event.param_double")
 
     for i in range(0, 4):
         pmfg.fetch()
         print("time: %s" % tt())
-        print("cpus: %d" % v1())
+        print("sample.ulong.one: %d" % v1())
         self.assertTrue(v1() >= 0)
-        print("load average: %f" % v2())
+        print("sample.float.bin[bin-100]: %f" % v2())
         self.assertTrue(v2() >= 0)
 
-        self.assertRaises(pmapi.pmErr, vv1) # PM_ERR_TOOBIG
+        self.assertRaises(pmapi.pmErr, vv1) # PM_ERR_TOOBIG (see maxnum above)
 
-        if i > 0: # rate conversion eats first value
+        if i > 0: # rate conversion means no value from first sample
             for icode, iname, value in vv2():
-                print("cpu idle %s: %d %%" % (iname, value()))
-                self.assertTrue(value() >= 0 and value() <= 125) # >100% sometimes seen at short intervals
+                print("sample.ulonglong.bin_ctr[%s]: %d" % (iname, value()))
+                self.assertTrue(value() == 0.0)
 
         for icode, iname, value in vv3():
-            print("bin %d %s: %d" % (icode, iname, value()))
+            print("sample.bogus_bin %d %s: %d" % (icode, iname, value()))
             self.assertTrue(value() == icode)
 
         for ts, num in vv4():
             print("sample.event.param_double @%s : %s" % (ts, num()))
             self.assertTrue(num() == 8 or num() == -9)
 
-        time.sleep(0.5)
+        time.sleep(0.025)
 
     print("clearing fetchgroup")
     pmfg.clear()
@@ -73,13 +72,12 @@ def test_pmfg_live(self, typed, target):
     print("adding back timestamp")
     tt = pmfg.extend_timestamp()
     print("adding back metric")
-    vvv1 = pmfg.extend_item("hinv.ncpu")
+    vvv1 = pmfg.extend_item("sample.ulong.one")
     pmfg.fetch()
     print("time: %s" % tt())
-    print("cpus: %d" % vvv1())
+    print("sample.ulong.one: %d" % vvv1())
 
-    # garbage collector will take care of it
-    #del pmfg
+    # python garbage collection will take care of 'del pmfg' here
 
 
 def test_pmfg_pmns(self, typed, target):
