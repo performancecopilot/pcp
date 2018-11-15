@@ -3424,6 +3424,15 @@ cd
 - Resolve a signal handling issue in dstat shutdown (BZ 1648552)
 - Rename variable named await in python code (BZ 1633367)
 - New conditionally-built pcp-pmda-podman sub-package.
+- SELinux is preventing pmdalinux from 'unix_read' accesses on the shared memory labeled gpsd_t
+  (BZ 1626487)
+- SELinux is preventing ps from 'search' accesses on the directory .cache
+  (BZ 1634205, BZ 1635522)
+- SELinux is preventing ps from 'sys_ptrace' accesses on the cap_userns Unknown
+  (BZ 1635394)
+- PCP SELinux AVCs (BZ 1633211)
+- SELinux is preventing pmdalinux from 'search' accesses on the directory spider
+  (BZ 1647843)
 - Update to latest PCP sources.
 
 * Fri Sep 21 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
