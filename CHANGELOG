@@ -38,7 +38,13 @@ pcp-4.2.0 (16 November 2018)
 	- libpcp: fix buffer length error in pmAtomStr_r(3)
 	- python api: propagate pmFetch(3) result for fetchgroup users
     - Security Enhanced Linux:
-	- selinux: multiple bugs, qa, configure fix
+	- selinux: update container policy for pmdaroot/podman
+	- selinux: fix bpf related build issue
+	- selinux: RHBZ1626487 unix_read on gpsd_t:shm
+	- selinux: RHBZ1633211 bpf class & inheritence issues
+	- selinux: RHBZ1634205 add pmlogger/cache_home context dir:search
+        - selinux: RHBZ1635394 fix configure glue to trigger existing rule inclusion
+        - selinux: RHBZ1535522 add pmcd/cache_home context dir:search
     - Misc build, infrastructure and packaging updates
 	- build: Fix FreeBSD Qt builds
 	- build: fix a number of Debian packaging issues
