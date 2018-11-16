@@ -1,3 +1,6 @@
+pcp-4.3.0 (21 December 2018)
+	- Work in progress, see https://pcp.io/roadmap
+
 pcp-4.2.0 (16 November 2018)
     - Client tools and utilities:
 	- pcp-dstat: fix cursor offsetting in unusual terminal states

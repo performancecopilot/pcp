@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.2.0
+Version: 4.3.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -3418,6 +3418,9 @@ cd
 %endif
 
 %changelog
+* Fri Dec 21 2018 Lukas Berk <lberk@redhat.com> - 4.3.0-1
+- Work in progress, see https://pcp.io/roadmap
+
 * Fri Nov 16 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.2.0-1
 - Resolves dstat packaging issues (BZ 1640912)
 - Resolves dstat cursor positioning problem (BZ 1640913)
