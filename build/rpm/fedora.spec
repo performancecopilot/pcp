@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.2.0
+Version: 4.3.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -3418,11 +3418,25 @@ cd
 %endif
 
 %changelog
-* Fri Nov 16 2018 Nathan Scott <nathans@redhat.com> - 4.2.0-1
+* Fri Dec 21 2018 Lukas Berk <lberk@redhat.com> - 4.3.0-1
 - Work in progress, see https://pcp.io/roadmap
-- Resolves pcp-dstat packaging issues (BZ 1640912)
-- Resolves pcp-dstat cursor positioning problem (BZ 1640913)
+
+* Fri Nov 16 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.2.0-1
+- Resolves dstat packaging issues (BZ 1640912)
+- Resolves dstat cursor positioning problem (BZ 1640913)
+- Resolve a signal handling issue in dstat shutdown (BZ 1648552)
+- Rename variable named await in python code (BZ 1633367)
 - New conditionally-built pcp-pmda-podman sub-package.
+- SELinux is preventing pmdalinux from 'unix_read' accesses on the shared memory labeled gpsd_t
+  (BZ 1626487)
+- SELinux is preventing ps from 'search' accesses on the directory .cache
+  (BZ 1634205, BZ 1635522)
+- SELinux is preventing ps from 'sys_ptrace' accesses on the cap_userns Unknown
+  (BZ 1635394)
+- PCP SELinux AVCs (BZ 1633211)
+- SELinux is preventing pmdalinux from 'search' accesses on the directory spider
+  (BZ 1647843)
+- Update to latest PCP sources.
 
 * Fri Sep 21 2018 Nathan Scott <nathans@redhat.com> - 4.1.3-1
 - Update to latest PCP sources.

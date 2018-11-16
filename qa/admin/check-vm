@@ -483,10 +483,10 @@ in
 	na='python3-bpfcc docker.io libsoqt5-dev'
 	;;
     vm22)
-	na='libvarlink-devel python-prometheus_client python3-prometheus_client python3-openpyxl python3-bcc python3-prometheus_client'
+	na=''
 	;;
     vm23)
-	na='libvarlink-devel python-prometheus_client python3-prometheus_client python3-bcc kubernetes-client kubernetes-node python3-prometheus_client'
+	na='python3-bcc kubernetes-client kubernetes-node 389-ds-base'
 	;;
     vm24)
 	na='libvarlink-devel selinux-policy-targeted selinux-policy-devel SoQt-devel Coin-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus_client python3-elasticsearch python3-bcc python3-pillow docker-io python3-prometheus_client python-prometheus_client python-elasticsearch'

@@ -291,7 +291,7 @@ podman_error_callback(jsonsl_t jsn, jsonsl_error_t err,
     struct parser	*parser = (struct parser *)jsn->data;
 
     fprintf(stderr, "%s: error at offset %lu of %s: %s\n", "podman_parser",
-		    jsn->pos, parser->dp->path, jsonsl_strerror(err));
+		    (unsigned long)jsn->pos, parser->dp->path, jsonsl_strerror(err));
     (void)state;
     (void)at;
     return 0;

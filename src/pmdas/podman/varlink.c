@@ -72,6 +72,7 @@ varlink_disconnect(varlink_t *link)
     epoll_control(link->epoll_fd, EPOLL_CTL_DEL,
 		  varlink_connection_get_fd(link->connection), 0, NULL);
     varlink_connection_close(link->connection);
+    varlink_connection_free(link->connection);
     link->connection = NULL;
 }
 
@@ -195,6 +196,7 @@ varlink_container_info(varlink_t *link, char *name, container_info_t *ip)
     sts = varlink_connection_call(link->connection,
 			"io.podman.GetContainer",
 			reply.parameters, 0, varlink_reply_callback, &reply);
+    varlink_object_unref(reply.parameters);
     if (sts != 0)
 	return sts;
 
@@ -237,6 +239,7 @@ varlink_container_stats(varlink_t *link, char *name, container_stats_t *cp)
     sts = varlink_connection_call(link->connection,
 			"io.podman.GetContainerStats",
 			reply.parameters, 0, varlink_reply_callback, &reply);
+    varlink_object_unref(reply.parameters);
     if (sts != 0)
 	return sts;
 
@@ -318,12 +321,10 @@ varlink_container_list(varlink_t *link, pmInDom indom)
     if (pmDebugOptions.attr)
 	fprintf(stderr, "list containers\n");
 
-    varlink_object_new(&reply.parameters);
-
     sts = varlink_connection_call(link->connection, "io.podman.ListContainers",
 			reply.parameters, 0, varlink_reply_callback, &reply);
     if (sts != 0)
-	return 0;
+	return sts;
 
     if ((sts = varlink_connection_wait(link)) < 0)
 	goto done;
@@ -373,12 +374,10 @@ varlink_pod_list(varlink_t *link, pmInDom indom)
     if (pmDebugOptions.attr)
 	fprintf(stderr, "list pods\n");
 
-    varlink_object_new(&reply.parameters);
-
     sts = varlink_connection_call(link->connection, "io.podman.ListPods",
 			reply.parameters, 0, varlink_reply_callback, &reply);
     if (sts != 0)
-	return 0;
+	return sts;
 
     if ((sts = varlink_connection_wait(link)) < 0)
 	goto done;
@@ -476,6 +475,7 @@ varlink_pod_info(varlink_t *link, char *name, pod_info_t *pp)
     sts = varlink_connection_call(link->connection,
 			"io.podman.GetPod",
 			reply.parameters, 0, varlink_reply_callback, &reply);
+    varlink_object_unref(reply.parameters);
     if (sts != 0)
 	return sts;
 

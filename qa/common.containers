@@ -24,6 +24,8 @@ _check_podman_binary()
     which $podman >/dev/null 2>&1
     [ $? -eq 0 ] || _notrun "No podman binary found"
     podman="$sudo $podman"
+
+    $sudo test -S /run/podman/io.podman || _notrun "no podman varlink socket"
 }
 
 _check_docker_binary()

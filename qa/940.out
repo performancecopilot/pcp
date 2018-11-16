@@ -7,4 +7,5 @@ Checking policies.
 decl 1:
   allow [pcp_pmcd_t] [container_runtime_t] : [unix_stream_socket] { connectto };
   allow [pcp_pmcd_t] [container_runtime_tmpfs_t] : [dir] { getattr };
+  allow [pcp_pmcd_t] [container_var_run_t] : [file] { getattr read open };
 

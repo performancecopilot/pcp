@@ -799,9 +799,9 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
     if (value == NULL)
 	return PM_ERR_TEXT;
 #if PY_MAJOR_VERSION >= 3
-    *buffer = PyUnicode_AsUTF8(value);
+    *buffer = (char *)PyUnicode_AsUTF8(value);
 #else
-    *buffer = PyString_AsString(value);
+    *buffer = (char *)PyString_AsString(value);
 #endif
     /* "value" is a borrowed reference, do not decrement */
     return 0;

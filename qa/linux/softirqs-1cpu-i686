@@ -1,0 +1,11 @@
+                      CPU0
+           HI:          0
+        TIMER:    6403664
+       NET_TX:      28234
+       NET_RX:    2315415
+        BLOCK:     649022
+     IRQ_POLL:          0
+      TASKLET:         25
+        SCHED:          0
+      HRTIMER:       6675
+          RCU:    9479358

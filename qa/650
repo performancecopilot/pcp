@@ -57,6 +57,7 @@ _filter_pmdas()
 	-e '/inst \[10 or "trace"]/d' \
 	-e '/inst \[15 or "sendmail"]/d' \
 	-e '/inst \[24 or "redis"]/d' \
+	-e '/inst \[33 or "podman"]/d' \
 	-e '/inst \[60 or "linux"]/d' \
 	-e '/inst \[62 or "nfsclient"]/d' \
 	-e '/inst \[68 or "apache"]/d' \

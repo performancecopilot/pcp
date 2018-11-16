@@ -32,6 +32,15 @@ _cleanup()
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+_filter_accept_encoding()
+{
+    sed \
+	-e 's/, br//g' \
+	-e 's/: br,/:/g' \
+    #end
+}
+
+# real QA test starts here
 webport=44339   # not 44323, so system pmwebd is unaffected by test case
 webargs="-U $username -p $webport"
 
@@ -52,8 +61,9 @@ egrep 'gzip|deflate' $tmp.hdr.1
 egrep 'gzip|deflate' $tmp.err.1
 echo "repeating with compression requested"
 curl -v -D $tmp.hdr.2 --compressed -s -S "$url" > $tmp.out.2 2> $tmp.err.2
-egrep 'gzip|deflate' $tmp.hdr.2
-egrep 'gzip|deflate' $tmp.err.2
+
+egrep 'gzip|deflate' $tmp.hdr.2 | _filter_accept_encoding
+egrep 'gzip|deflate' $tmp.err.2 | _filter_accept_encoding
 
 echo "comparing compressed vs uncompressed outputs"
 diff $tmp.out.1 $tmp.out.2 # should be empty result

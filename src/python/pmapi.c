@@ -843,9 +843,9 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
     for (i = 0; i < argCount; i++) {
 	PyObject *pyarg = PyList_GET_ITEM(pyargv, i);
 #if PY_MAJOR_VERSION >= 3
-	char *string = PyUnicode_AsUTF8(pyarg);
+	char *string = (char *)PyUnicode_AsUTF8(pyarg);
 #else
-	char *string = PyString_AsString(pyarg);
+	char *string = (char *)PyString_AsString(pyarg);
 #endif
 
 	/* All parameters may be referred back to later, e.g. via
