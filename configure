@@ -1727,7 +1727,7 @@ Optional Packages:
   --with-python3          enable support for tools requiring Python3 (default
                           is on)
   --with-dstat-symlink    enable support for /usr/bin/dstat symlink (default
-                          is off)
+                          is on)
   --with-books            enable building of the PCP books (default is off)
   --with-books-brand=BRAND
                           choose the docbook brand when building the PCP books
@@ -2970,7 +2970,7 @@ fi
 if test "${with_dstat_symlink+set}" = set; then :
   withval=$with_dstat_symlink; do_dstat_symlink=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-dstat-symlink=$withval"
 else
-  do_dstat_symlink=no
+  do_dstat_symlink=check
 fi
 
 

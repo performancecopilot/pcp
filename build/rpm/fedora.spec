@@ -288,6 +288,7 @@ Requires: pcp-libs = %{version}-%{release}
 %global _with_dstat --with-dstat-symlink=yes
 %global disable_dstat 0
 %else
+%global _with_dstat --with-dstat-symlink=no
 %global disable_dstat 1
 %endif
 

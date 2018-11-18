@@ -14,6 +14,9 @@ Package: pcp
 Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, ?{python-pcp} ?{python} ?{python3-bpfcc} libpcp-web1
 Conflicts: pgpool2
 Suggests: pcp-gui, libpcp-import-perl
+Provides: dstat
+Conflicts: dstat
+Replaces: dstat
 Architecture: any
 Description: System level performance monitoring and performance management
  Performance Co-Pilot (PCP) is a framework and services to
