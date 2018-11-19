@@ -286,6 +286,9 @@ Requires: pcp-pmda-lustrecomm pcp-pmda-redis pcp-pmda-docker pcp-pmda-smart
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-haproxy
 Requires: pcp-pmda-lmsensors
 %endif
+%if "@pmda_podman@" == "true"
+Requires: pcp-pmda-podman
+%endif
 %if "@pmda_bcc@" == "true"
 Requires: pcp-pmda-bcc
 %endif
