@@ -23,9 +23,9 @@ import subprocess
 import re
 import argparse
 import os.path
-import cpmapi as c_api
 from pcp.pmda import PMDA, pmdaMetric
 from pcp.pmapi import pmUnits, pmContext as PCP
+import cpmapi as c_api
 
 sensorvalues = dict()   # lookup sensorname -> sensorvalue (temp/fan)
 sensornames = dict()    # lookup sensornumber -> sensorname

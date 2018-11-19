@@ -555,7 +555,7 @@ class DstatTool(object):
 
     def prepare_plugins(self):
         paths = self.config_files(self.DEFAULT_CONFIGS)
-        if not paths or len(paths) < 1:
+        if not paths:
             sys.stderr.write("No configs found in: %s\n" % self.DEFAULT_CONFIGS)
             sys.exit(1)
 
@@ -1123,7 +1123,7 @@ class DstatTool(object):
 
     @staticmethod
     def instance_match(inst, plugin):
-        if plugin.cullinsts != None and re.match(plugin.cullinsts, inst):
+        if plugin.cullinsts is not None and re.match(plugin.cullinsts, inst):
             return False
         if plugin.instances and inst in plugin.instances:
             return True
@@ -1316,7 +1316,7 @@ class DstatTool(object):
             color = cunit
         elif printtype in ('p') and py3round(value) >= 100.0:
             color = cdone
-        elif colorstep != None:
+        elif colorstep is not None:
             color = colors[int(value/colorstep) % len(colors)]
         elif printtype in ('b', 'd', 'f'):
             color = colors[c % len(colors)]
@@ -1421,7 +1421,7 @@ class DstatTool(object):
         # If it takes longer than 500ms, then warn!
         if loop != 0 and starttime - self.inittime - update > 1:
             self.missed = self.missed + 1
-            return 0
+            return
 
         # Initialise certain variables
         if loop == 0:

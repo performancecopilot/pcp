@@ -15,7 +15,7 @@
 #
 
 # pylint: disable=bad-whitespace, line-too-long, too-many-return-statements
-# pylint: disable=broad-except
+# pylint: disable=broad-except, useless-import-alias
 
 """ Performance Metrics Domain Agent exporting Elasticsearch metrics. """
 
