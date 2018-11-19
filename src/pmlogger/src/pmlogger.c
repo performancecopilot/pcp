@@ -1048,11 +1048,13 @@ main(int argc, char **argv)
 
     fprintf(stderr, "Archive basename: %s\n", archBase);
 
+    if (isdaemon) {
 #ifndef IS_MINGW
-    /* detach yourself from the launching process */
-    if (isdaemon)
+	/* detach yourself from the launching process */
         setpgid(getpid(), 0);
 #endif
+	__pmServerCreatePIDFile(pmGetProgname(), 0);
+    }
 
     /* set up control port */
     init_ports();

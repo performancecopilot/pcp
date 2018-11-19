@@ -35,7 +35,7 @@ Performance Co-Pilot configuration on wobbly:
      pmda: irix pmcd proc cisco trace summary sample sampledso
  pmlogger: primary logger: /var/adm/pcplog/wobbly/19981006.00.35
            wobbly.melbourne.sgi.com: /tmp/foo
-     pmie: 0: 0
+     pmie: primary engine: 0
 === Checking transient problem
 Performance Co-Pilot configuration on vm34:
 

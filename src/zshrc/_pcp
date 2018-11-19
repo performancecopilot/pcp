@@ -428,6 +428,7 @@ _pcp () {
       "(-c --config $exargs)"{-c+,--config}'[specify config file]:file:_files' \
       "(-d --interact $exargs)"{-d,--interact}'[interactive debugging mode]' \
       "(-f --foreground $exargs)"{-f,--foreground}'[run in foreground]' \
+      "(-P --primary $exargs)"{-P,--primary}'[run as primary pmie instance]' \
       "(-j $exargs)"-j+'[specify stomp protocol file]:file:_files' \
       "(-l --logfile $exargs)"{-l+,--logfile}'[specify log file]:file:_files' \
       "(-U --username $exargs)"{-U+,--username}'[specify username to run as]:user:_users' \

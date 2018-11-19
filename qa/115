@@ -343,6 +343,7 @@ rm -f $tmp.bad.$case.log
 echo
 $sudo rm -rf $tmp.nogo
 
+$sudo $signal -a -s TERM pmie >/dev/null 2>&1
 _service pmie stop 2>&1 \
 | _filter_pmie_start \
 | sed \
