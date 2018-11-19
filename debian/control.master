@@ -12,10 +12,9 @@ X-Python3-Version: >= 3.3
 
 Package: pcp
 Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, ?{python-pcp} ?{python} ?{python3-bpfcc} libpcp-web1
-Conflicts: pgpool2
+Conflicts: pgpool2, dstat
 Suggests: pcp-gui, libpcp-import-perl
 Provides: dstat
-Conflicts: dstat
 Replaces: dstat
 Architecture: any
 Description: System level performance monitoring and performance management
