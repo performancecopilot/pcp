@@ -45,3 +45,6 @@ endif
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)
+
+check::	$(PYSCRIPT)
+	$(PYLINT) $^
