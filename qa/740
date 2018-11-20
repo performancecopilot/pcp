@@ -60,7 +60,11 @@ gid=`id -g`
 wait $!
 
 # let pmdasample complete setup
-pmsleep 0.15
+for i in 1 2 3 4 5 6 7 8 9 10
+do
+    [ -f $PCP_LOG_DIR/pmcd/sample.log ] && break
+    pmsleep 0.5
+done
 
 cat $PCP_LOG_DIR/pmcd/sample.log \
 | tee -a $here/$seq.full \
