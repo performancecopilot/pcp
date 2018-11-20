@@ -1695,12 +1695,8 @@ Summary: Performance Co-Pilot (PCP) metrics for Elasticsearch
 URL: https://pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
-Requires: python3-urllib3
-BuildRequires: python3-urllib3
 %else
 Requires: %{__python2}-pcp
-Requires: %{__python2}-urllib3
-BuildRequires: %{__python2}-urllib3
 %endif
 %description pmda-elasticsearch
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
