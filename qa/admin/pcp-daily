@@ -799,7 +799,7 @@ do
 	    #	sanity trace libpcp
 	    # and some tests are not working yet
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -x valgrind'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -x valgrind'
 	    ;;
 
 	vm13)
