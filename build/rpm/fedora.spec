@@ -167,12 +167,6 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 %global disable_noarch 1
 %endif
 
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 8
-%global disable_elasticsearch 0
-%else
-%global disable_elasticsearch 1
-%endif
-
 %if 0%{?fedora} >= 24
 %global disable_xlsx 0
 %else
@@ -799,7 +793,6 @@ Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 #
 # pcp-export-pcp2elasticsearch
 #
-%if !%{disable_elasticsearch}
 %package export-pcp2elasticsearch
 License: GPLv2+
 Group: Applications/System
@@ -820,7 +813,7 @@ BuildRequires: %{__python2}-requests
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to Elasticsearch - a distributed, RESTful search and analytics engine.
 See https://www.elastic.co/community for further details.
-%endif
+
 #
 # pcp-export-pcp2graphite
 #
@@ -3276,10 +3269,8 @@ cd
 %files pmda-libvirt
 %{_pmdasdir}/libvirt
 
-%if !%{disable_elasticsearch}
 %files export-pcp2elasticsearch
 %{_bindir}/pcp2elasticsearch
-%endif
 
 %files export-pcp2graphite
 %{_bindir}/pcp2graphite
