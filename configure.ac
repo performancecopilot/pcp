@@ -116,9 +116,9 @@ AC_ARG_WITH([python3],
 
 AC_ARG_WITH([dstat-symlink],
     [AC_HELP_STRING([--with-dstat-symlink],
-		    [enable support for /usr/bin/dstat symlink (default is off)])],
+		    [enable support for /usr/bin/dstat symlink (default is on)])],
     [do_dstat_symlink=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-dstat-symlink=$withval"],
-    [do_dstat_symlink=no])
+    [do_dstat_symlink=check])
 
 AC_ARG_WITH([books],
     [AC_HELP_STRING([--with-books],

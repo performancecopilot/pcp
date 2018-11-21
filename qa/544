@@ -189,6 +189,9 @@ _checksums()
 
     SUM="sum -r"
     [ $PCP_PLATFORM = darwin ] && SUM=sum
+    [ $PCP_PLATFORM = freebsd ] && SUM=sum
+    [ $PCP_PLATFORM = openbsd ] && SUM=sum
+    [ $PCP_PLATFORM = netbsd ] && SUM=sum
     $SUM $tmp.out.* \
         | sed -e 's/[ ][ ]*[0-9]*[ ]/ /' \
 	| sed -e 's/^00*//' \

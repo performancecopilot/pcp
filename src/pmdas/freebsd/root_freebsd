@@ -58,6 +58,7 @@ kernel.all {
     intr	FREEBSD:0:24
     hz		FREEBSD:0:13
     load	FREEBSD:0:2
+    uptime	FREEBSD:1:19
     cpu
 }
 
@@ -121,6 +122,7 @@ disk.all {
 
 mem {
     util
+    freemem	FREEBSD:1:6	/* alias for mem.util.free */
 }
 
 mem.util {

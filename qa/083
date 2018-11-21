@@ -116,7 +116,7 @@ cleanup()
     $sudo $signal -a -s TERM pmlogger
     _await_logger false
     echo "Restarting pmcd and friends..."
-    _service pcp restart \
+    _service pcp start 2>&1 \
     | _filter_pcp_start \
     | sed -e '/pmlogger not running/d'
     _restore_auto_restart pmcd

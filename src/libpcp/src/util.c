@@ -2515,16 +2515,18 @@ __pmProcessExists(pid_t pid)
     return (len > 0);
 }
 #elif defined(IS_FREEBSD) || defined(IS_OPENBSD)
+#include <errno.h>
 int
 __pmProcessExists(pid_t pid)
 {
     /*
-     * kill(.., 0) returns -1 if the process exists.
+     * kill(.., 0) -1 and errno == ESRCH if the process does not exist
      */
-    if (kill(pid, 0) == -1)
-	return 1;
-    else
+    errno = 0;
+    if (kill(pid, 0) == -1 && errno == ESRCH)
 	return 0;
+    else
+	return 1;
 }
 #elif !defined(IS_MINGW)
 #define PROCFS			"/proc"

@@ -279,9 +279,12 @@ class DstatPlugin(object):
             metric[12] = self.cullinsts
         metric[13] = self   # back-pointer to this from metric dict
 
-    def prepare_grouptype(self, instlist):
+    def prepare_grouptype(self, instlist, fullinst):
         """Setup a list of instances from the command line"""
-        if instlist is None:
+        if fullinst:
+            self.grouptype = 1
+            instlist = []
+        elif instlist is None:
             instlist = ['total']
         if 'total' in instlist:
             self.grouptype = 2 if (len(instlist) == 1) else 3
@@ -444,6 +447,7 @@ class DstatTool(object):
         self.mapping = {}     # maps 'section/label' to plugin
         self.novalues = True  # values observed for this line
 
+        self.full = False
         self.bits = False
         self.blackonwhite = False
         self.color = None
@@ -555,7 +559,7 @@ class DstatTool(object):
 
     def prepare_plugins(self):
         paths = self.config_files(self.DEFAULT_CONFIGS)
-        if not paths or len(paths) < 1:
+        if not paths:
             sys.stderr.write("No configs found in: %s\n" % self.DEFAULT_CONFIGS)
             sys.exit(1)
 
@@ -633,15 +637,15 @@ class DstatTool(object):
 
                 # Instance logic for -C/-D/-I/-N/-S options
                 if section == 'cpu':
-                    plugin.prepare_grouptype(self.cpulist)
+                    plugin.prepare_grouptype(self.cpulist, self.full)
                 elif section in ['disk', 'disk-tps']:
-                    plugin.prepare_grouptype(self.disklist)
+                    plugin.prepare_grouptype(self.disklist, self.full)
                 elif section == 'int':
-                    plugin.prepare_grouptype(self.intlist)
+                    plugin.prepare_grouptype(self.intlist, self.full)
                 elif section == 'net':
-                    plugin.prepare_grouptype(self.netlist)
+                    plugin.prepare_grouptype(self.netlist, self.full)
                 elif section == 'swap':
-                    plugin.prepare_grouptype(self.swaplist)
+                    plugin.prepare_grouptype(self.swaplist, self.full)
 
             for metric in metrics:
                 name = metrics[metric][0]
@@ -1104,6 +1108,8 @@ class DstatTool(object):
     @staticmethod
     def roundcsv(var):
         '''round value for CSV output'''
+        if var is None:
+            return ''
         if var != round(var):
             return '%.3f' % var
         return '%d' % round(var)
@@ -1123,7 +1129,7 @@ class DstatTool(object):
 
     @staticmethod
     def instance_match(inst, plugin):
-        if plugin.cullinsts != None and re.match(plugin.cullinsts, inst):
+        if plugin.cullinsts is not None and re.match(plugin.cullinsts, inst):
             return False
         if plugin.instances and inst in plugin.instances:
             return True
@@ -1211,6 +1217,8 @@ class DstatTool(object):
                 for _, instname, val in result:
                     totals[i] += val
                     values += 1
+            if values == 0:
+                totals = [None] * len(plugin.mgroup)
             if values and plugin.printtype == 'p':
                 for i in range(0, len(plugin.mgroup)):
                     totals[i] /= values
@@ -1316,7 +1324,7 @@ class DstatTool(object):
             color = cunit
         elif printtype in ('p') and py3round(value) >= 100.0:
             color = cdone
-        elif colorstep != None:
+        elif colorstep is not None:
             color = colors[int(value/colorstep) % len(colors)]
         elif printtype in ('b', 'd', 'f'):
             color = colors[c % len(colors)]
@@ -1421,7 +1429,7 @@ class DstatTool(object):
         # If it takes longer than 500ms, then warn!
         if loop != 0 and starttime - self.inittime - update > 1:
             self.missed = self.missed + 1
-            return 0
+            return
 
         # Initialise certain variables
         if loop == 0:
@@ -1556,7 +1564,7 @@ class DstatTool(object):
         sys.stdout.write(line + THEME['input'])
 
         if self.output and step == self.delay:
-            if not os.path.exists(self.output):
+            if not os.path.exists(self.output) or not os.path.isfile(op.output):
                 outputfile = open(self.output, 'wt')
                 outputfile.write(oline)
             else:

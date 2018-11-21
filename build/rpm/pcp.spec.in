@@ -274,17 +274,19 @@ Obsoletes: pcp-gui-testsuite
 # The following are inherited from pcp-collector and pcp-monitor,
 # both of which are now obsoleted by the base pcp package
 Requires: pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
-Requires: pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre
+Requires: pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre pcp-pmda-pdns
 Requires: pcp-pmda-memcache pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
-Requires: pcp-pmda-nfsclient pcp-pmda-pdns
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm pcp-pmda-redis pcp-pmda-docker pcp-pmda-smart
 %if "@have_python@" == "true"
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-haproxy
-Requires: pcp-pmda-lmsensors
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
+Requires: pcp-pmda-haproxy pcp-pmda-nfsclient pcp-pmda-lmsensors
+%endif
+%if "@pmda_podman@" == "true"
+Requires: pcp-pmda-podman
 %endif
 %if "@pmda_bcc@" == "true"
 Requires: pcp-pmda-bcc
@@ -1777,10 +1779,8 @@ Summary: Performance Co-Pilot (PCP) metrics for Elasticsearch
 URL: https://pcp.io
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
-Requires: python3-urllib3
 %else
 Requires: %{__python2}-pcp
-Requires: %{__python2}-urllib3
 %endif
 %description pmda-elasticsearch
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -2110,6 +2110,9 @@ Summary: Performance Co-Pilot (PCP) Zeroconf Package
 URL: https://pcp.io
 Requires: pcp pcp-doc pcp-system-tools
 Requires: pcp-pmda-dm pcp-pmda-nfsclient
+%if "@have_python@" == "true"
+Requires: pcp-pmda-nfsclient
+%endif
 # to make pcp-zeroconf replace sysstat, uncomment the next line
 # Obsoletes: sysstat
 %description zeroconf
@@ -2337,7 +2340,6 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mysql' > pmda_mysql_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/named' > pmda_named_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/netfilter' > pmda_netfilter_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/news' > pmda_news_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nfsclient' > pmda_nfsclient_files
 %if "@pmda_nginx@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nginx' > pmda_nginx_files
 %endif
@@ -2381,6 +2383,8 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/unbound' > pmda_unbound_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mic' > pmda_mic_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/haproxy' > pmda_haproxy_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nfsclient' > pmda_nfsclient_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lmsensors' > pmda_lmsensors_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmcollectl|pmiostat|pmrep|dstat' \
       -e 'pcp-atop|pcp-collectl|pcp-dmcache|pcp-dstat|pcp-free|pcp-ipcs' \
       -e 'pcp-iostat|pcp-lvmcache|pcp-mpstat|pcp-numastat|pcp-pidstat' \
@@ -2392,7 +2396,6 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bash' > pmda_bash_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/cifs' > pmda_cifs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/cisco' > pmda_cisco_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gfs2' > pmda_gfs2_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lmsensors' > pmda_lmsensors_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/logger' > pmda_logger_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mailq' > pmda_mailq_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mounts' > pmda_mounts_files
@@ -2415,11 +2418,10 @@ touch gui_files webapi_files manager_files pmda_infiniband_files \
       pmda_ds389_files pmda_ds389log_files pmda_gpfs_files \
       pmda_gpsd_files pmda_lustre_files pmda_lustrecomm_files \
       pmda_memcache_files pmda_named_files pmda_redis_files pmda_docker_files \
-      pmda_netfilter_files pmda_news_files pmda_nfsclient_files \
+      pmda_netfilter_files pmda_news_files pmda_logger_files \
       pmda_rsyslog_files pmda_samba_files pmda_slurm_files \
       pmda_vmware_files pmda_zimbra_files pmda_apache_files pmda_bash_files \
       pmda_cifs_files pmda_cisco_files pmda_gfs2_files \
-      pmda_lmsensors_files pmda_logger_files \
       pmda_mailq_files pmda_mounts_files pmda_nvidia_files pmda_roomtemp_files \
       pmda_rpm_files pmda_sendmail_files pmda_shping_files pmda_summary_files \
       pmda_trace_files pmda_weblog_files pmda_dm_files pmda_systemd_files \
@@ -2427,7 +2429,8 @@ touch gui_files webapi_files manager_files pmda_infiniband_files \
 
 %if "@have_python@" == "true"
 touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
-      pmda_mic_files pmda_haproxy_files system_tools_files
+      pmda_mic_files pmda_haproxy_files system_tools_files \
+      pmda_lmsensors_files pmda_nfsclient_files 
 %endif
 %if "@pmda_bcc@" == "true"
 touch pmda_bcc_files
@@ -2520,7 +2523,6 @@ BEGIN {
     while( getline < "pmda_named_files") pmda_named[$0]=1;
     while( getline < "pmda_netfilter_files") pmda_netfilter[$0]=1;
     while( getline < "pmda_news_files") pmda_news[$0]=1;
-    while( getline < "pmda_nfsclient_files") pmda_nfsclient[$0]=1;
 %if "@pmda_nginx@" == "true"
     while( getline < "pmda_nginx_files") pmda_nginx[$0]=1;
 %endif
@@ -2553,6 +2555,8 @@ BEGIN {
     while( getline < "pmda_unbound_files") pmda_unbound[$0]=1;
     while( getline < "pmda_mic_files") pmda_mic[$0]=1;
     while( getline < "pmda_haproxy_files") pmda_haproxy[$0]=1;
+    while( getline < "pmda_lmsensors_files") pmda_lmsensors[$0]=1;
+    while( getline < "pmda_nfsclient_files") pmda_nfsclient[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
     while( getline < "export_pcp2json_files") export_pcp2json[$0]=1;
     while( getline < "export_pcp2spark_files") export_pcp2spark[$0]=1;
@@ -2586,7 +2590,6 @@ BEGIN {
     while( getline < "pmda_cifs_files") pmda_cifs[$0]=1;
     while( getline < "pmda_cisco_files") pmda_cisco[$0]=1;
     while( getline < "pmda_gfs2_files") pmda_gfs2[$0]=1;
-    while( getline < "pmda_lmsensors_files") pmda_lmsensors[$0]=1;
     while( getline < "pmda_logger_files") pmda_logger[$0]=1;
     while( getline < "pmda_mailq_files") pmda_mailq[$0]=1;
     while( getline < "pmda_mounts_files") pmda_mounts[$0]=1;
@@ -2658,7 +2661,6 @@ BEGIN {
     else if (pmda_named[$NF]) f="pmda_named_files.rpm";
     else if (pmda_netfilter[$NF]) f="pmda_netfilter_files.rpm";
     else if (pmda_news[$NF]) f="pmda_news_files.rpm";
-    else if (pmda_nfsclient[$NF]) f="pmda_nfsclient_files.rpm";
 %if "@pmda_nginx@" == "true"
     else if (pmda_nginx[$NF]) f="pmda_nginx_files.rpm";
 %endif
@@ -2691,6 +2693,8 @@ BEGIN {
     else if (pmda_unbound[$NF]) f="pmda_unbound_files.rpm";
     else if (pmda_mic[$NF]) f="pmda_mic_files.rpm";
     else if (pmda_haproxy[$NF]) f="pmda_haproxy_files.rpm";
+    else if (pmda_lmsensors[$NF]) f="pmda_lmsensors_files.rpm";
+    else if (pmda_nfsclient[$NF]) f="pmda_nfsclient_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
     else if (export_pcp2json[$NF]) f="export_pcp2json_files.rpm";
     else if (export_pcp2spark[$NF]) f="export_pcp2spark_files.rpm";
@@ -2724,7 +2728,6 @@ BEGIN {
     else if (pmda_cifs[$NF]) f="pmda_cifs_files.rpm";
     else if (pmda_cisco[$NF]) f="pmda_cisco_files.rpm";
     else if (pmda_gfs2[$NF]) f="pmda_gfs2_files.rpm";
-    else if (pmda_lmsensors[$NF]) f="pmda_lmsensors_files.rpm";
     else if (pmda_logger[$NF]) f="pmda_logger_files.rpm";
     else if (pmda_mailq[$NF]) f="pmda_mailq_files.rpm";
     else if (pmda_mounts[$NF]) f="pmda_mounts_files.rpm";
@@ -3092,9 +3095,6 @@ pmieconf -c enable dmthin
 %preun pmda-news
 %{pmda_remove "$1" "news"}
 
-%preun pmda-nfsclient
-%{pmda_remove "$1" "nfsclient"}
-
 %preun pmda-pdns
 %{pmda_remove "$1" "pdns"}
 
@@ -3133,6 +3133,12 @@ pmieconf -c enable dmthin
 
 %preun pmda-haproxy
 %{pmda_remove "$1" "haproxy"}
+
+%preun pmda-nfsclient
+%{pmda_remove "$1" "nfsclient"}
+
+%preun pmda-lmsensors
+%{pmda_remove "$1" "lmsensors"}
 %endif #@have_python@
 
 %preun pmda-apache
@@ -3149,11 +3155,6 @@ pmieconf -c enable dmthin
 
 %preun pmda-gfs2
 %{pmda_remove "$1" "gfs2"}
-
-%if "@have_python@" == "true"
-%preun pmda-lmsensors
-%{pmda_remove "$1" "lmsensors"}
-%endif
 
 %preun pmda-logger
 %{pmda_remove "$1" "logger"}
@@ -3411,8 +3412,6 @@ cd
 %files pmda-nginx -f pmda_nginx_files.rpm
 %endif
 
-%files pmda-nfsclient -f pmda_nfsclient_files.rpm
-
 %files pmda-pdns -f pmda_pdns_files.rpm
 
 %if "@pmda_postfix@" == "true"
@@ -3458,6 +3457,10 @@ cd
 
 %files pmda-haproxy -f pmda_haproxy_files.rpm
 
+%files pmda-lmsensors -f pmda_lmsensors_files.rpm
+
+%files pmda-nfsclient -f pmda_nfsclient_files.rpm
+
 %files export-pcp2graphite -f export_pcp2graphite_files.rpm
 
 %files export-pcp2json -f export_pcp2json_files.rpm
@@ -3467,8 +3470,6 @@ cd
 %files export-pcp2xml -f export_pcp2xml_files.rpm
 
 %files export-pcp2zabbix -f export_pcp2zabbix_files.rpm
-
-%files pmda-lmsensors -f pmda_lmsensors_files.rpm
 
 %endif
 

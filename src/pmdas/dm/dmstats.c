@@ -13,14 +13,17 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+
+/*
+ * Note: this file is not compiled if HAVE_DEVMAPPER is not defined.
+ * See GNUmakefile and dmstats.h for details.
+ */
 #include "pmapi.h"
 #include "pmda.h"
 #include "indom.h"
 #include "dmstats.h"
 
 #include <inttypes.h>
-#include <libdevmapper.h>
-
 
 int
 pm_dm_stats_fetch(int item, struct pm_wrap *pw, pmAtomValue *atom)

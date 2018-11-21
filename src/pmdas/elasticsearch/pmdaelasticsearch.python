@@ -343,15 +343,15 @@ class elasticsearchPMDA(PMDA):
     def setup_urllib(self, url, auth, pasw):
         """ Setup urllib """
         try:
-            import urllib.request as request
+            import urllib.request as httprequest
         except Exception:
-            import urllib2 as request
-        passman = request.HTTPPasswordMgrWithDefaultRealm()
+            import urllib2 as httprequest
+        passman = httprequest.HTTPPasswordMgrWithDefaultRealm()
         passman.add_password(None, url, auth, pasw)
-        authhandler = request.HTTPBasicAuthHandler(passman)
-        opener = request.build_opener(authhandler)
-        request.install_opener(opener)
-        return request
+        authhandler = httprequest.HTTPBasicAuthHandler(passman)
+        opener = httprequest.build_opener(authhandler)
+        httprequest.install_opener(opener)
+        return httprequest
 
     def get_url(self, url):
         """ Perform HTTP GET """

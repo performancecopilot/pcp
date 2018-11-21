@@ -439,6 +439,7 @@ label_value_mapping_callback(void *arg)
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "label_value_mapping_callback");
     redisMapRelease(list->valuemap);
+    list->valuemap = NULL;
     doneSeriesLoadBaton(baton, "label_value_mapping_callback");
 }
 
@@ -447,20 +448,9 @@ label_name_mapping_callback(void *arg)
 {
     labellist_t			*list = (labellist_t *)arg;
     seriesLoadBaton		*baton = (seriesLoadBaton *)list->arg;
-    char			hashbuf[42];
-    sds				key;
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "label_name_mapping_callback");
-
-    pmwebapi_hash_str(list->nameid, hashbuf, sizeof(hashbuf));
-    key = sdscatfmt(sdsempty(), "label.%s.value", hashbuf);
-    list->valuemap = redisMapCreate(key);
-
-    seriesBatonReference(baton, "label_name_mapping_callback");
-    redisGetMap(baton->slots,
-		list->valuemap, list->valueid, list->value,
-		label_value_mapping_callback,
-		baton->info, baton->userdata, (void *)baton);
+    doneSeriesLoadBaton(baton, "label_name_mapping_callback");
 }
 
 typedef struct seriesAnnotateClosure {
@@ -477,6 +467,8 @@ annotate_metric(const pmLabel *label, const char *json, void *arg)
     labellist_t			*list;
     instance_t			*instance = closure->instance;
     metric_t			*metric = closure->metric;
+    char			hashbuf[42];
+    sds				key;
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "annotate_metric");
 
@@ -522,11 +514,22 @@ annotate_metric(const pmLabel *label, const char *json, void *arg)
 	metric->labellist = list;
     }
 
-    seriesBatonReference(baton, "annotate_metric");
+    seriesBatonReferences(baton, 2, "annotate_metric");
+
     redisGetMap(baton->slots,
 		labelsmap, list->nameid, list->name,
 		label_name_mapping_callback,
 		baton->info, baton->userdata, (void *)list);
+
+    pmwebapi_hash_str(list->nameid, hashbuf, sizeof(hashbuf));
+    key = sdscatfmt(sdsempty(), "label.%s.value", hashbuf);
+    list->valuemap = redisMapCreate(key);
+
+    redisGetMap(baton->slots,
+		list->valuemap, list->valueid, list->value,
+		label_value_mapping_callback,
+		baton->info, baton->userdata, (void *)list);
+
     return 0;
 }
 

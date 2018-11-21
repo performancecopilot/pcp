@@ -1,0 +1,52 @@
+#!/bin/sh
+# PCP QA Test No. 700
+# Find packages no longer being built (RPM only) ... these are
+# potential upgrade problems.
+#
+# Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which rpm >/dev/null 2>&1 || _notrun "No rpm(1) executable"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+rpm -qa | egrep '(pcp-|-pcp)' >$tmp.rpms
+[ -s $tmp.rpms ] || _notrun "No PCP rpms installed"
+
+# real QA test starts here
+echo "Silence is golden ..."
+sed <$tmp.rpms >$tmp.list \
+    -e 's/\.[^.]*$//' \
+    -e 's/-\([0-9]\)/ \1/' \
+# end
+pcp_version=`sed -n <$tmp.list -e '/^pcp /s/pcp //p'`
+$PCP_AWK_PROG <$tmp.list '
+$2 == "'$pcp_version'"	{ next }
+	{ list[$2] = list[$2] " " $1; bad = 1 }
+END	{ if (bad) {
+	    print "pcp version is '"$pcp_version"'"
+	    for (v in list) {
+		print "different version " v " package(s):" list[v]
+	    }
+	  }
+	}'
+
+# success, all done
+status=0
+exit

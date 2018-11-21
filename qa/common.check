@@ -567,6 +567,9 @@ _machine_id()
     cat /etc/machine-id 2> /dev/null || echo localmachine
 }
 
+# Check metric ($1) availability from pmcd on host ($2, defaults to
+# localhost) ... abort if no value(s) available
+#
 _check_metric()
 {
     if pminfo -h ${2-localhost} -f $1 2>&1 | grep " value " >/dev/null
@@ -576,6 +579,28 @@ _check_metric()
 	echo "Check failed for metric \"$1\" at host \"${2-localhost}\" ... is PMDA installed?"
 	exit 1
     fi
+}
+
+# Check for metric availability from local pmcd and _notrun if not
+# available.
+# Use this check for metrics that are requireed by a qa test but are
+# not universally available, e.g. kernel metrics across different
+# platforms.
+#
+_need_metric()
+{
+    numval=`pmprobe $1 | cut -f 2 -d ' '`
+    case "$numval"
+    in
+	-*)
+	    _notrun "metric \"$1\" not available"
+	    ;;
+	[0-9]*)
+	    ;;
+	*)
+	    echo "_need_metric: unexpected output: `pmprobe $1`"
+	    ;;
+    esac
 }
 
 # wait_for_pmcd [maxdelay [host]]
@@ -1190,6 +1215,12 @@ _check_valgrind()
 {
     which valgrind >/dev/null 2>&1
     [ $? -eq 0 ] || _notrun "No valgrind binary found"
+    case `hostname -s`
+    in
+	vm10)
+	    _notrun "valgrind broken on vm10"
+	    ;;
+    esac
 }
 
 # Note: because we may be avoiding leaks in system libraries

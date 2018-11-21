@@ -32,9 +32,9 @@ Log finished DATE
 == check simple pmda logging to stderr instead of simple.log
 dbpmda> open pipe $PCP_PMDAS_DIR/simple/pmdasimple -d 253 -l-
 Start pmdasimple PMDA: $PCP_PMDAS_DIR/simple/pmdasimple -d 253 -l-
-Log for pmdasimple on HOST started DATE
-
 dbpmda> close
 dbpmda> 
+Log for pmdasimple on HOST started DATE
+
 
 Log finished DATE

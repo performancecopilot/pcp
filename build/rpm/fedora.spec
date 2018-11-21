@@ -167,12 +167,6 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 %global disable_noarch 1
 %endif
 
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 8
-%global disable_elasticsearch 0
-%else
-%global disable_elasticsearch 1
-%endif
-
 %if 0%{?fedora} >= 24
 %global disable_xlsx 0
 %else
@@ -288,6 +282,7 @@ Requires: pcp-libs = %{version}-%{release}
 %global _with_dstat --with-dstat-symlink=yes
 %global disable_dstat 0
 %else
+%global _with_dstat --with-dstat-symlink=no
 %global disable_dstat 1
 %endif
 
@@ -476,6 +471,9 @@ Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
 Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
+%if !%{disable_podman}
+Requires: pcp-pmda-podman
+%endif
 %if !%{disable_nutcracker}
 Requires: pcp-pmda-nutcracker
 %endif
@@ -795,7 +793,6 @@ Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 #
 # pcp-export-pcp2elasticsearch
 #
-%if !%{disable_elasticsearch}
 %package export-pcp2elasticsearch
 License: GPLv2+
 Group: Applications/System
@@ -816,7 +813,7 @@ BuildRequires: %{__python2}-requests
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to Elasticsearch - a distributed, RESTful search and analytics engine.
 See https://www.elastic.co/community for further details.
-%endif
+
 #
 # pcp-export-pcp2graphite
 #
@@ -1691,12 +1688,8 @@ Summary: Performance Co-Pilot (PCP) metrics for Elasticsearch
 URL: https://pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
-Requires: python3-urllib3
-BuildRequires: python3-urllib3
 %else
 Requires: %{__python2}-pcp
-Requires: %{__python2}-urllib3
-BuildRequires: %{__python2}-urllib3
 %endif
 %description pmda-elasticsearch
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -3276,10 +3269,8 @@ cd
 %files pmda-libvirt
 %{_pmdasdir}/libvirt
 
-%if !%{disable_elasticsearch}
 %files export-pcp2elasticsearch
 %{_bindir}/pcp2elasticsearch
-%endif
 
 %files export-pcp2graphite
 %{_bindir}/pcp2graphite

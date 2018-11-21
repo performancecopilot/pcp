@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
-    _service pcp start | _filter_pcp_start
+    _service pcp start 2>&1 | _filter_pcp_start
     _wait_for_pmcd
     _restore_auto_restart pmcd
     _wait_for_pmlogger

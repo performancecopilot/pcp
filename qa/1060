@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # PCP QA Test No. 1060
 # pmie_check with Martins Innus <minnus@buffalo.edu> style
 # multi-level directory structure.
@@ -21,6 +21,7 @@ _cleanup()
 {
     if $needclean
     then
+	_service pmie stop
 	$sudo rm -f ${PCP_PMIECONTROL_PATH}.d/qa-$seq
 	needclean=false
 	_service pmie restart | _filter_pmie_start | sed -e '/Warning: .* not permanently enabled/d'

@@ -33,7 +33,7 @@ log mandatory on every 24 hours {
 	hinv.physmem
 	hinv.ncpu
 	hinv.ndisk
-	hinv.nfilesys
+	hinv.pagesize
 }
 
 mandatory on 50 msecs {
