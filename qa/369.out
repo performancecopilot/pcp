@@ -124,11 +124,11 @@ Full help text for my.metric.foo
   text[2] indom=245.1 [One line text for indom 'eek']
   text[3] indom=245.1 
 Full help text for indom 'eek'
-  label[0] context     Context labels (117 bytes): {"ContextFalse":"False","ContextNull":"Null","ContextTrue":"True","NewContextLabel":"ReplacementContextLabelContent"}
-        [0] name(2,12) : value(16,7) [context]
-        [1] name(25,11) : value(38,6) [context]
-        [2] name(46,11) : value(59,6) [context]
-        [3] name(67,15) : value(84,32) [context]
+  label[0] context     Context labels (111 bytes): {"ContextFalse":False,"ContextNull":Null,"ContextTrue":True,"NewContextLabel":"ReplacementContextLabelContent"}
+        [0] name(2,12) : value(16,5) [context]
+        [1] name(23,11) : value(36,4) [context]
+        [2] name(42,11) : value(55,4) [context]
+        [3] name(61,15) : value(78,32) [context]
   label[1]  domain=0     Domain 245 labels (56 bytes): {"NewDomainLabel245":"ReplacementDomainLabel245Content"}
         [0] name(2,17) : value(21,34) [domain]
   label[2]  cluster=0.0     Cluster 0.0 labels (62 bytes): {"NewClusterLabel245_0":"ReplacementClusterLabel245_0Content"}
@@ -273,7 +273,7 @@ Temporal Index
 		Log Vol    end(meta)     end(log)
 TIMESTAMP      0          132          132
 TIMESTAMP      0          531          132
-TIMESTAMP      0         1622          536
+TIMESTAMP      0         1616          536
 
 [228 bytes]
 TIMESTAMP 6 metrics
@@ -589,11 +589,11 @@ Full help text for my.metric.foo
   text[2] indom=245.1 [One line text for indom 'eek']
   text[3] indom=245.1 
 Full help text for indom 'eek'
-  label[0] context     Context labels (117 bytes): {"ContextFalse":"False","ContextNull":"Null","ContextTrue":"True","NewContextLabel":"ReplacementContextLabelContent"}
-        [0] name(2,12) : value(16,7) [context]
-        [1] name(25,11) : value(38,6) [context]
-        [2] name(46,11) : value(59,6) [context]
-        [3] name(67,15) : value(84,32) [context]
+  label[0] context     Context labels (111 bytes): {"ContextFalse":False,"ContextNull":Null,"ContextTrue":True,"NewContextLabel":"ReplacementContextLabelContent"}
+        [0] name(2,12) : value(16,5) [context]
+        [1] name(23,11) : value(36,4) [context]
+        [2] name(42,11) : value(55,4) [context]
+        [3] name(61,15) : value(78,32) [context]
   label[1]  domain=245     Domain 1027604480 labels (56 bytes): {"NewDomainLabel245":"ReplacementDomainLabel245Content"}
         [0] name(2,17) : value(21,34) [domain]
   label[2]  cluster=245.0     Cluster 245.0 labels (62 bytes): {"NewClusterLabel245_0":"ReplacementClusterLabel245_0Content"}
@@ -738,7 +738,7 @@ Temporal Index
 		Log Vol    end(meta)     end(log)
 TIMESTAMP      0          132          132
 TIMESTAMP      0          531          132
-TIMESTAMP      0         1622          536
+TIMESTAMP      0         1616          536
 
 [228 bytes]
 TIMESTAMP 6 metrics
