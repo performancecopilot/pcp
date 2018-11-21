@@ -137,7 +137,7 @@ cleanup()
 	echo "Restart and ping pmcd ..."
 	unset PMCD_PORT # don't worry about preserving just get rid of it
 	unset PMCD_SOCKET
-	_service pcp restart \
+	_service pcp restart 2>&1 \
 	| tee -a $here/$seq.full \
 	| _filterall_pcp_start \
 	| sed \
@@ -237,7 +237,7 @@ PMCD_PORT=$port
 PATH=$PATH:$here/src
 PMCD_SOCKET=$tmp/pmcd.socket
 export PMCD_PORT PATH PMCD_SOCKET
-$PCP_PMCD_PROG -f -t 2 &
+$PCP_PMCD_PROG -f -t 2 2>>$here/$seq.full &
 pmcd=$!
 if [ -d $PCP_RUN_DIR ]
 then

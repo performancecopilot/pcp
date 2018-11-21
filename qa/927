@@ -17,6 +17,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_need_metric kernel.all.uptime
+
 _cleanup()
 {
     cd $here

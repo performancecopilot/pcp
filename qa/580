@@ -26,11 +26,8 @@ in
 	    ln $seq.out.$PCP_PLATFORM.noproc $seq.out || exit 1
 	fi
 	;;
-    darwin)
-	ln $seq.out.$PCP_PLATFORM $seq.out || exit 1
-	;;
-    solaris)
-	# same output for Mac OS X and OpenSolaris
+    darwin|solaris|freebsd)
+	# same output for Mac OS X, OpenSolaris and FreeBSD
 	ln $seq.out.darwin $seq.out || exit 1
 	;;
     *)
@@ -53,7 +50,7 @@ _filter()
 
 # real QA test starts here
 src/indom -i 15 kernel.all.load | _filter
-if [ $PCP_PLATFORM != darwin -a $PCP_PLATFORM != solaris ]
+if [ $PCP_PLATFORM != darwin -a $PCP_PLATFORM != solaris -a $PCP_PLATFORM != freebsd ]
 then
     src/indom $target -i 1 proc.psinfo.pid \
     | _filter \
