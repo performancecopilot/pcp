@@ -30,6 +30,7 @@ _unzip_filter()
     sed \
        -e "s|Archive:.*||g" \
        -e "s|[ ]*$||g" \
+       -e 's/^\([ 	]*\)extracting:/\1 inflating:/' \
     #end
 }
 

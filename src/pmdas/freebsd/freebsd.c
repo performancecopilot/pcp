@@ -71,7 +71,7 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CL_SYSCTL,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0,0,0,0,0,0) } },
     { (void *)"hinv.physmem",
-      { PMDA_PMID(CL_SYSCTL,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      { PMDA_PMID(CL_SYSCTL,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_MBYTE,0,0) } },
     { (void *)"kernel.all.load",
       { PMDA_PMID(CL_SYSCTL,2), PM_TYPE_FLOAT, LOADAV_INDOM, PM_SEM_INSTANT,
@@ -209,13 +209,13 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
     { NULL,	/* disk.dev.read_bytes */
       { PMDA_PMID(CL_DISK,3), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
     { NULL,	/* disk.dev.write_bytes */
       { PMDA_PMID(CL_DISK,4), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
     { NULL,	/* disk.dev.total_bytes */
       { PMDA_PMID(CL_DISK,5), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
     { NULL,	/* disk.all.read */
       { PMDA_PMID(CL_DISK,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
@@ -227,13 +227,13 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
     { NULL,	/* disk.all.read_bytes */
       { PMDA_PMID(CL_DISK,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
     { NULL,	/* disk.all.write_bytes */
       { PMDA_PMID(CL_DISK,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
     { NULL,	/* disk.all.total_bytes */
       { PMDA_PMID(CL_DISK,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
     { NULL,	/* disk.dev.blkread */
       { PMDA_PMID(CL_DISK,12), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
@@ -320,6 +320,9 @@ static pmdaMetric metrictab[] = {
     { NULL,	/* kernel.uname.nodename */
       { PMDA_PMID(CL_SPECIAL,18), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* kernel.all.uptime */
+      { PMDA_PMID(CL_SPECIAL,19), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) } },
     { NULL,	/* pmda.uname */
       { PMDA_PMID(CL_SPECIAL,20), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) } },
@@ -394,16 +397,20 @@ static struct utsname		kernel_uname;
  * Fetch values from sysctl()
  *
  * Expect the result to be xpect bytes to match the PCP data size or
- * anticipated structure size, unless xpect is ==0 in which case the
+ * anticipated structure size, unless xpect is == 0 in which case the
  * size test is skipped.
  */
 static int
 do_sysctl(mib_t *mp, size_t xpect)
 {
     /*
-     * Note zero trip if mp->m_data and mp->datalen are already valid
+     * Note zero trip if mp->m_data and mp->m_datalen are already valid
      * and current
      */
+    if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
+	fprintf(stderr, "do_sysctl(%s, %d) m_data=%p m_datalen=%d m_fetched=%d\n", 
+	    mp->m_name, (int)xpect, mp->m_data, mp->m_datalen, mp->m_fetched);
+    }
     for ( ; mp->m_fetched == 0; ) {
 	int	sts;
 	sts = sysctl(mp->m_mib, (u_int)mp->m_miblen, mp->m_data, &mp->m_datalen, NULL, 0);
@@ -428,7 +435,7 @@ do_sysctl(mib_t *mp, size_t xpect)
     }
     if (xpect > 0 && mp->m_datalen != xpect) {
 	fprintf(stderr, "Error: %s: sysctl(%s) datalen=%d not %d!\n", mp->m_pcpname, mp->m_name, (int)mp->m_datalen, (int)xpect);
-	return 0;
+	return -1;
     }
     return mp->m_datalen;
 }
@@ -445,6 +452,7 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
     unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     mib_t		*mp;
+    struct timespec	now;
 
     mp = (mib_t *)mdesc->m_user;
     if (cluster == CL_SYSCTL) {
@@ -481,7 +489,7 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		sts = do_sysctl(mp, sizeof(long));
 		if (sts > 0) {
 		    /* stsctl() returns bytes, convert to MBYTES */
-		    atom->ull = (*((long *)mp->m_data))/(1024*1024);
+		    atom->ul = (*((long *)mp->m_data))/(1024*1024);
 		    sts = 1;
 		}
 		break;
@@ -522,21 +530,28 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 6:		/* kernel.all.cpu.intr */
 	    case 7:		/* kernel.all.cpu.idle */
 		/*
-		 * assume this declaration is correct ...
-		 * long pc_cp_time[CPUSTATES];	...
-		 * from /usr/include/sys/pcpu.h
+		 * PMID assignment is important in the "-3" below so
+		 * that metrics map to consecutive elements of the
+		 * returned value in the order defined for CPUSTATES,
+		 * i.e. CP_USER, CP_NICE, CP_SYS, CP_INTR and
+		 * CP_IDLE
 		 */
-		sts = do_sysctl(mp, CPUSTATES*sizeof(long));
-		if (sts > 0) {
-		    /*
-		     * PMID assignment is important in the "-3" below so
-		     * that metrics map to consecutive elements of the
-		     * returned value in the order defined for CPUSTATES,
-		     * i.e. CP_USER, CP_NICE, CP_SYS, CP_INTR and
-		     * CP_IDLE
-		     */
+		sts = do_sysctl(mp, 0);
+		if (sts == CPUSTATES*sizeof(long)) {
+		    /* 64-bit values from sysctl() */
 		    atom->ull = 1000*((__uint64_t)((long *)mp->m_data)[item-3])/cpuhz;
 		    sts = 1;
+		}
+		else if (sts == CPUSTATES*sizeof(int)) {
+		    /* 32-bit values from sysctl() */
+		    atom->ull = 1000*((__uint64_t)((int *)mp->m_data)[item-3])/cpuhz;
+		    sts = 1;
+		}
+		else {
+		    fprintf(stderr, "Error: %s: sysctl(%s) datalen=%d not %d (long) or %d (int)!\n",
+			mp->m_pcpname, mp->m_name, sts, (int)CPUSTATES*sizeof(long), 
+			(int)CPUSTATES*sizeof(int)); 
+		    sts = 0;
 		}
 		break;
 
@@ -545,19 +560,31 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 10:		/* kernel.percpu.cpu.sys */
 	    case 11:		/* kernel.percpu.cpu.intr */
 	    case 12:		/* kernel.percpu.cpu.idle */
-		sts = do_sysctl(mp, ncpu*CPUSTATES*sizeof(atom->ull));
-		if (sts > 0) {
-		    /*
-		     * PMID assignment is important in the "-8" below so
-		     * that metrics map to consecutive elements of the
-		     * returned value in the order defined for CPUSTATES,
-		     * i.e. CP_USER, CP_NICE, CP_SYS, CP_INTR and
-		     * CP_IDLE, and then there is one such set for each
-		     * CPU up to the maximum number of CPUs installed in
-		     * the system.
-		     */
-		    atom->ull = 1000*((__uint64_t *)mp->m_data)[inst * CPUSTATES + item-8]/cpuhz;
+		/*
+		 * PMID assignment is important in the "-8" below so
+		 * that metrics map to consecutive elements of the
+		 * returned value in the order defined for CPUSTATES,
+		 * i.e. CP_USER, CP_NICE, CP_SYS, CP_INTR and
+		 * CP_IDLE, and then there is one such set for each
+		 * CPU up to the maximum number of CPUs installed in
+		 * the system.
+		 */
+		sts = do_sysctl(mp, 0);
+		if (sts == ncpu*CPUSTATES*sizeof(long)) {
+		    /* 64-bit values from sysctl() */
+		    atom->ull = 1000*((__uint64_t)((long *)mp->m_data)[inst*CPUSTATES+item-8])/cpuhz;
 		    sts = 1;
+		}
+		else if (sts == ncpu*CPUSTATES*sizeof(int)) {
+		    /* 32-bit values from sysctl() */
+		    atom->ull = 1000*((__uint64_t)((int *)mp->m_data)[inst*CPUSTATES+item-8])/cpuhz;
+		    sts = 1;
+		}
+		else {
+		    fprintf(stderr, "Error: %s: sysctl(%s) datalen=%d not %d (long) or %d (int)!\n",
+			mp->m_pcpname, mp->m_name, sts, (int)ncpu*CPUSTATES*sizeof(long), 
+			(int)ncpu*CPUSTATES*sizeof(int)); 
+		    sts = 0;
 		}
 		break;
 
@@ -699,6 +726,12 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    case 18:	/* kernel.uname.nodename */
 		atom->cp = kernel_uname.nodename;
+		sts = 1;
+		break;
+
+	    case 19:	/* kernel.all.uptime */
+		clock_gettime(CLOCK_UPTIME, &now);
+		atom->ul = now.tv_sec;
 		sts = 1;
 		break;
 
@@ -884,12 +917,12 @@ freebsd_init(pmdaInterface *dp)
 		}
 		if (pmDebugOptions.appl0) {
 		    int	p;
-		    fprintf(stderr, "Info: %s (%s): sysctl metric \"%s\" -> ", (char *)metrictab[m].m_user, pmIDStr(metrictab[m].m_desc.pmid), map[i].m_name);
+		    fprintf(stderr, "Info: %s (%s): sysctl metric \"%s\" -> mib ", (char *)metrictab[m].m_user, pmIDStr(metrictab[m].m_desc.pmid), map[i].m_name);
 		    for (p = 0; p < map[i].m_miblen; p++) {
 			if (p > 0) fputc('.', stderr);
 			fprintf(stderr, "%d", map[i].m_mib[p]);
 		    }
-		    fputc('\n', stderr);
+		    fprintf(stderr, " (len=%d)\n", map[i].m_miblen);
 		}
 		metrictab[m].m_user = (void *)&map[i];
 		break;
@@ -914,16 +947,12 @@ freebsd_init(pmdaInterface *dp)
     if (pmDebugOptions.appl0)
 	fprintf(stderr, "Info: CPU time \"hz\" = %d\n", cpuhz);
 
-    sts = sysctlbyname("kern.cp_times", NULL, &sz, NULL, 0);
+    sz = sizeof(ncpu);
+    sts = sysctlbyname("hw.ncpu", &ncpu, &sz, NULL, 0);
     if (sts < 0) {
-	fprintf(stderr, "Fatal Error: sysctlbyname(\"kern.cp_times\", ...) failed: %s\n", pmErrStr(-errno));
+	fprintf(stderr, "Fatal Error: sysctlbyname(\"hw.ncpu\", ...) failed: %s\n", pmErrStr(-errno));
 	exit(1);
     }
-    /*
-     * see note below when fetching kernel.percpu.cpu.* metrics to
-     * explain this
-     */
-    ncpu = sz / (CPUSTATES * sizeof(__uint64_t));
     if (pmDebugOptions.appl0)
 	fprintf(stderr, "Info: ncpu = %d\n", ncpu);
 

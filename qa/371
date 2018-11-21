@@ -20,6 +20,10 @@ perl -e "use XML::TokeParser" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl XML::TokeParser module not installed"
 perl -e "use Spreadsheet::Read" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl Spreadsheet::Read module not installed"
+[ -f ${PCP_LIB_DIR}/libpcp_import.${DSO_SUFFIX} ] || \
+	_notrun "No support for libpcp_import"
+perl -e "use PCP::LogImport" 2>/dev/null || \
+	_notrun "Perl PCP::LogImport module is not installed"
 
 _filter()
 {

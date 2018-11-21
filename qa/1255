@@ -49,10 +49,11 @@ echo;echo == check pmie -l-
 echo hinv.ncpu | pmie -f -l- -T1s 2>&1 | _filter
 
 echo;echo == check simple pmda logging to stderr instead of simple.log
-$sudo TERM=ansi dbpmda -n $PCP_PMDAS_DIR/simple/root -ie <<End-of-File 2>&1 | _filter
+$sudo TERM=ansi dbpmda -n $PCP_PMDAS_DIR/simple/root -ie <<End-of-File 2>$tmp.err | _filter
 open pipe $PCP_PMDAS_DIR/simple/pmdasimple -d 253 -l-
 close
 End-of-File
+_filter <$tmp.err
 
 # success, all done
 status=0
