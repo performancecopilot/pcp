@@ -174,6 +174,132 @@ main(int argc, char **argv)
 		     "Full help text for indom 'eek'");
     check(sts, "pmiPutText");
     
+    /*
+     * An error while adding the first label is a special case
+     * that we will tickle here.
+     */
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "no.dots.allowed", "No.dots.allowed" );
+    check(sts, "pmiPutLabel");
+
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "NewContextLabel", "NewContextLabelContent" );
+    check(sts, "pmiPutLabel");
+
+    /*
+     * An error while adding the first label of a different type is
+     * another special case that we will tickle here.
+     */
+    sts = pmiPutLabel(PM_LABEL_DOMAIN, pmID_domain(pmID_build(245,0,1)), 0,
+		      "No.dots.allowed", "No.dots.allowed");
+    check(sts, "pmiPutLabel");
+
+    sts = pmiPutLabel(PM_LABEL_DOMAIN, pmID_domain(pmID_build(245,0,1)), 0,
+		      "NewDomainLabel245", "NewDomainLabel245Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_CLUSTER,
+		      pmID_domain(pmID_build(245,0,1)) |
+		      pmID_cluster(pmID_build(245,0,1)), 0,
+		      "NewClusterLabel245_0", "NewClusterLabel245_0Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_ITEM, pmID_build(245,0,1), 0,
+		      "NewItemLabel245_0_1", "NewItemLabel245_0_1Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_INDOM, pmInDom_build(245,1), 0,
+		      "NewIndomLabel245_1", "NewIndomLabel245_1Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 1,
+		      "NewInstancesLabel245_1__1", "NewInstancesLabel245_1__1Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 3,
+		      "NewInstancesLabel245_1__3", "NewInstancesLabel245_1__3Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "True");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "False");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextNull", "Null");
+    check(sts, "pmiPutLabel");
+
+    sts = pmiPutLabel(PM_LABEL_CONTEXT+1000, 0, 0, "Illegal label type", "Illegal");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_ITEM, PM_ID_NULL, 0,
+		      "Illegal label item id", "Illegal");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_INDOM, PM_INDOM_NULL, 0,
+		      "Illegal label indom id", "Illegal");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), PM_IN_NULL,
+		      "Illegal label instance", "Illegal");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, NULL, "NULL label name");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "NULL label content", NULL);
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "", "Empty label name");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "Empty label content", "");
+    check(sts, "pmiPutLabel");
+
+    /* Try adding the illegal labels again. */
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "no.dots.allowed", "No.dots.allowed" );
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_DOMAIN, pmID_domain(pmID_build(245,0,1)), 0,
+		      "No.dots.allowed", "No.dots.allowed");
+    check(sts, "pmiPutLabel");
+
+    /* These are duplicates - which are ok. */
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "NewContextLabel", "NewContextLabelContent" );
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_DOMAIN, pmID_domain(pmID_build(245,0,1)), 0,
+		      "NewDomainLabel245", "NewDomainLabel245Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_CLUSTER,
+		      pmID_domain(pmID_build(245,0,1)) |
+		      pmID_cluster(pmID_build(245,0,1)), 0,
+		      "NewClusterLabel245_0", "NewClusterLabel245_0Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_ITEM, pmID_build(245,0,1), 0,
+		      "NewItemLabel245_0_1", "NewItemLabel245_0_1Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_INDOM, pmInDom_build(245,1), 0,
+		      "NewIndomLabel245_1", "NewIndomLabel245_1Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 1,
+		      "NewInstancesLabel245_1__1", "NewInstancesLabel245_1__1Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 3,
+		      "NewInstancesLabel245_1__3", "NewInstancesLabel245_1__3Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "True");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "False");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextNull", "Null");
+    check(sts, "pmiPutLabel");
+
+    /* These are replacements - which are ok. */
+    sts = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "NewContextLabel", "ReplacementContextLabelContent" );
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_DOMAIN, pmID_domain(pmID_build(245,0,1)), 0,
+		      "NewDomainLabel245", "ReplacementDomainLabel245Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_CLUSTER,
+		      pmID_domain(pmID_build(245,0,1)) |
+		      pmID_cluster(pmID_build(245,0,1)), 0,
+		      "NewClusterLabel245_0", "ReplacementClusterLabel245_0Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_ITEM, pmID_build(245,0,1), 0,
+		      "NewItemLabel245_0_1", "ReplacementItemLabel245_0_1Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_INDOM, pmInDom_build(245,1), 0,
+		      "NewIndomLabel245_1", "ReplacementIndomLabel245_1Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 1,
+		      "NewInstancesLabel245_1__1", "ReplacementInstancesLabel245_1__1Content");
+    check(sts, "pmiPutLabel");
+    sts = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 3,
+		      "NewInstancesLabel245_1__3", "ReplacementInstancesLabel245_1__3Content");
+    check(sts, "pmiPutLabel");
+
     pmiDump();
 
     sts = pmiWrite((int)(365.25*30*24*60*60), 0);

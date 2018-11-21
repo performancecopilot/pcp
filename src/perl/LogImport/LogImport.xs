@@ -131,6 +131,13 @@ int pmiPutText(type, class, id, content)
      unsigned int	id;
      const char		*content;
 
+int pmiPutLabel(type, id, inst, name, content)
+     unsigned int	type;
+     unsigned int	id;
+     unsigned int	inst;
+     const char		*name;
+     const char		*content;
+
 int
 pmiWrite(sec, usec)
 	int		sec;

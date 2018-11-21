@@ -35,4 +35,6 @@ PCP_IMPORT_1.1 {
 PCP_IMPORT_1.2 {
   global:
     pmiPutText;
+    pmiPutLabel;
+    pmiCluster;
 } PCP_IMPORT_1.1;

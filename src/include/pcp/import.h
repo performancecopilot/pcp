@@ -44,9 +44,11 @@ PMI_CALL extern int pmiWrite(int, int);
 PMI_CALL extern int pmiPutResult(const pmResult *);
 PMI_CALL extern int pmiPutMark(void);
 PMI_CALL extern int pmiPutText(unsigned int, unsigned int, unsigned int, const char *);
+PMI_CALL extern int pmiPutLabel(unsigned int, unsigned int, unsigned int, const char *, const char *);
 
 /* helper routines */
 PMI_CALL extern pmID pmiID(int, int, int);
+PMI_CALL extern pmID pmiCluster(int, int);
 PMI_CALL extern pmInDom pmiInDom(int, int);
 PMI_CALL extern pmUnits pmiUnits(int, int, int, int, int, int);
 
@@ -76,6 +78,12 @@ PMI_CALL extern void pmiDump(void);
 #define PMI_ERR_BADTEXTID	(-PMI_ERR_BASE-16) /* Illegal text type */
 #define PMI_ERR_EMPTYTEXTCONTENT (-PMI_ERR_BASE-17)/* Empty text content */
 #define PMI_ERR_DUPTEXT         (-PMI_ERR_BASE-18) /* Duplicate text */
+#define PMI_ERR_BADLABELTYPE    (-PMI_ERR_BASE-19) /* Illegal label type */
+#define PMI_ERR_BADLABELID      (-PMI_ERR_BASE-20) /* Illegal label id */
+#define PMI_ERR_BADLABELINSTANCE (-PMI_ERR_BASE-21)/* Illegal label instance */
+#define PMI_ERR_EMPTYLABELNAME  (-PMI_ERR_BASE-22) /* Empty label name */
+#define PMI_ERR_EMPTYLABELVALUE (-PMI_ERR_BASE-23) /* Empty label value */
+#define PMI_ERR_ADDLABELERROR   (-PMI_ERR_BASE-24) /* Error adding label */
 
 #ifdef __cplusplus
 }

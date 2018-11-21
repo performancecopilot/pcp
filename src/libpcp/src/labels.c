@@ -49,13 +49,16 @@ pmFreeLabelSets(pmLabelSet *sets, int nsets)
     }
 }
 
-static pmLabelSet *
+pmLabelSet *
 __pmDupLabelSets(pmLabelSet *source, int nsets)
 {
     pmLabelSet	*sets, *target;
     size_t	size;
     int		i;
 
+    if (nsets == 0 || source == NULL)
+	return NULL;
+    
     assert(nsets > 0);
     if ((sets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL)
 	return NULL;

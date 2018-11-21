@@ -8,6 +8,7 @@ pmiDump: context 0 of 1 archive: myarchive
   No indoms.
   No handles.
   No text.
+  No labels.
   No pmResult.
 pmiSetHostname: OK
 pmiSetTimezone: OK
@@ -53,6 +54,45 @@ pmiPutText: Error: Help text already exists
 pmiPutText: Error: Help text already exists
 pmiPutText: Error: Help text already exists
 pmiPutText: Error: Help text already exists
+pmiPutLabel: Error: Error adding label
+pmiPutLabel: OK
+pmiPutLabel: Error: Error adding label
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: Error: Illegal label type
+pmiPutLabel: Error: Illegal label id
+pmiPutLabel: Error: Illegal label id
+pmiPutLabel: Error: Illegal label instance
+pmiPutLabel: Error: Label name is empty
+pmiPutLabel: Error: Label value is empty
+pmiPutLabel: Error: Label name is empty
+pmiPutLabel: Error: Label value is empty
+pmiPutLabel: Error: Error adding label
+pmiPutLabel: Error: Error adding label
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
 pmiDump: context 0 of 1 archive: myarchive
   state: 1 (start) hostname: somehost.com timezone: GMT-12
   metric[0] name=my.metric.foo pmid=245.0.1
@@ -84,6 +124,23 @@ Full help text for my.metric.foo
   text[2] indom=245.1 [One line text for indom 'eek']
   text[3] indom=245.1 
 Full help text for indom 'eek'
+  label[0] context     Context labels (117 bytes): {"ContextFalse":"False","ContextNull":"Null","ContextTrue":"True","NewContextLabel":"ReplacementContextLabelContent"}
+        [0] name(2,12) : value(16,7) [context]
+        [1] name(25,11) : value(38,6) [context]
+        [2] name(46,11) : value(59,6) [context]
+        [3] name(67,15) : value(84,32) [context]
+  label[1]  domain=0     Domain 245 labels (56 bytes): {"NewDomainLabel245":"ReplacementDomainLabel245Content"}
+        [0] name(2,17) : value(21,34) [domain]
+  label[2]  cluster=0.0     Cluster 0.0 labels (62 bytes): {"NewClusterLabel245_0":"ReplacementClusterLabel245_0Content"}
+        [0] name(2,20) : value(24,37) [cluster]
+  label[3]  item=245.0.1     PMID 245.0.1 labels (60 bytes): {"NewItemLabel245_0_1":"ReplacementItemLabel245_0_1Content"}
+        [0] name(2,19) : value(23,36) [pmid]
+  label[4]  indom=245.1     InDom 245.1 labels (58 bytes): {"NewIndomLabel245_1":"ReplacementIndomLabel245_1Content"}
+        [0] name(2,18) : value(22,35) [indom]
+  label[5]  instance=1 of indom=245.1     InDom 245.1[1] labels (72 bytes): {"NewInstancesLabel245_1__1":"ReplacementInstancesLabel245_1__1Content"}
+        [0] name(2,25) : value(29,42) [instances]
+  label[6]  instance=3 of indom=245.1     InDom 245.1[3] labels (72 bytes): {"NewInstancesLabel245_1__3":"ReplacementInstancesLabel245_1__3Content"}
+        [0] name(2,25) : value(29,42) [instances]
 pmResult ... numpmid: 6
   245.0.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 123 1.7235971e-43 0x7b
@@ -144,6 +201,7 @@ Full help text for my.metric.foo
   text[2] indom=245.1 [One line text for indom 'eek']
   text[3] indom=245.1 
 Full help text for indom 'eek'
+  No labels.
 pmResult ... numpmid: 1
   245.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [2 or ???] value 6543210987654
@@ -215,7 +273,7 @@ Temporal Index
 		Log Vol    end(meta)     end(log)
 TIMESTAMP      0          132          132
 TIMESTAMP      0          531          132
-TIMESTAMP      0          737          536
+TIMESTAMP      0         1622          536
 
 [228 bytes]
 TIMESTAMP 6 metrics
@@ -269,6 +327,12 @@ Perl wrapper version ...
 *PCP::LogImport::PM_ID_NULL
 *PCP::LogImport::PM_INDOM_NULL
 *PCP::LogImport::PM_IN_NULL
+*PCP::LogImport::PM_LABEL_CLUSTER
+*PCP::LogImport::PM_LABEL_CONTEXT
+*PCP::LogImport::PM_LABEL_DOMAIN
+*PCP::LogImport::PM_LABEL_INDOM
+*PCP::LogImport::PM_LABEL_INSTANCES
+*PCP::LogImport::PM_LABEL_ITEM
 *PCP::LogImport::PM_SEM_COUNTER
 *PCP::LogImport::PM_SEM_DISCRETE
 *PCP::LogImport::PM_SEM_INSTANT
@@ -315,6 +379,7 @@ Perl wrapper version ...
 *PCP::LogImport::pmiGetHandle
 *PCP::LogImport::pmiID
 *PCP::LogImport::pmiInDom
+*PCP::LogImport::pmiPutLabel
 *PCP::LogImport::pmiPutMark
 *PCP::LogImport::pmiPutText
 *PCP::LogImport::pmiPutValue
@@ -356,6 +421,12 @@ PM_COUNT_ONE
 PM_ID_NULL
 PM_INDOM_NULL
 PM_IN_NULL
+PM_LABEL_CLUSTER
+PM_LABEL_CONTEXT
+PM_LABEL_DOMAIN
+PM_LABEL_INDOM
+PM_LABEL_INSTANCES
+PM_LABEL_ITEM
 PM_SEM_COUNTER
 PM_SEM_DISCRETE
 PM_SEM_INSTANT
@@ -402,6 +473,7 @@ pmiErrStr
 pmiGetHandle
 pmiID
 pmiInDom
+pmiPutLabel
 pmiPutMark
 pmiPutText
 pmiPutValue
@@ -423,6 +495,7 @@ pmiDump: context 0 of 1 archive: myarchive
   No indoms.
   No handles.
   No text.
+  No labels.
   No pmResult.
 pmiSetHostname: OK
 pmiSetTimezone: OK
@@ -458,6 +531,33 @@ pmiPutText: OK
 pmiPutText: OK
 pmiPutText: OK
 pmiPutText: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
+pmiPutLabel: OK
 pmiDump: context 0 of 1 archive: myarchive
   state: 1 (start) hostname: somehost.com timezone: GMT-12
   metric[0] name=my.metric.foo pmid=245.0.1
@@ -489,6 +589,23 @@ Full help text for my.metric.foo
   text[2] indom=245.1 [One line text for indom 'eek']
   text[3] indom=245.1 
 Full help text for indom 'eek'
+  label[0] context     Context labels (117 bytes): {"ContextFalse":"False","ContextNull":"Null","ContextTrue":"True","NewContextLabel":"ReplacementContextLabelContent"}
+        [0] name(2,12) : value(16,7) [context]
+        [1] name(25,11) : value(38,6) [context]
+        [2] name(46,11) : value(59,6) [context]
+        [3] name(67,15) : value(84,32) [context]
+  label[1]  domain=245     Domain 1027604480 labels (56 bytes): {"NewDomainLabel245":"ReplacementDomainLabel245Content"}
+        [0] name(2,17) : value(21,34) [domain]
+  label[2]  cluster=245.0     Cluster 245.0 labels (62 bytes): {"NewClusterLabel245_0":"ReplacementClusterLabel245_0Content"}
+        [0] name(2,20) : value(24,37) [cluster]
+  label[3]  item=245.0.1     PMID 245.0.1 labels (60 bytes): {"NewItemLabel245_0_1":"ReplacementItemLabel245_0_1Content"}
+        [0] name(2,19) : value(23,36) [pmid]
+  label[4]  indom=245.1     InDom 245.1 labels (58 bytes): {"NewIndomLabel245_1":"ReplacementIndomLabel245_1Content"}
+        [0] name(2,18) : value(22,35) [indom]
+  label[5]  instance=1 of indom=245.1     InDom 245.1[1] labels (72 bytes): {"NewInstancesLabel245_1__1":"ReplacementInstancesLabel245_1__1Content"}
+        [0] name(2,25) : value(29,42) [instances]
+  label[6]  instance=3 of indom=245.1     InDom 245.1[3] labels (72 bytes): {"NewInstancesLabel245_1__3":"ReplacementInstancesLabel245_1__3Content"}
+        [0] name(2,25) : value(29,42) [instances]
 pmResult ... numpmid: 6
   245.0.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 123 1.7235971e-43 0x7b
@@ -549,6 +666,7 @@ Full help text for my.metric.foo
   text[2] indom=245.1 [One line text for indom 'eek']
   text[3] indom=245.1 
 Full help text for indom 'eek'
+  No labels.
 pmResult ... numpmid: 1
   245.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [2 or ???] value 6543210987654
@@ -620,7 +738,7 @@ Temporal Index
 		Log Vol    end(meta)     end(log)
 TIMESTAMP      0          132          132
 TIMESTAMP      0          531          132
-TIMESTAMP      0          737          536
+TIMESTAMP      0         1622          536
 
 [228 bytes]
 TIMESTAMP 6 metrics
