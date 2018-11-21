@@ -962,6 +962,14 @@ main(int argc, char **argv)
 	    __pmOptFetchDump(stderr, tp->t_fetch);
 	}
     }
+    if (pmDebugOptions.optfetch) {
+	int	j = 0;
+	for (tp = tasklist; tp != NULL; tp = tp->t_next) {
+	    fprintf(stderr, "Fetch task[%d] delta: %ld usec numpmid: %d\n",
+		j++, (long)(1000 * tp->t_delta.tv_sec + tp->t_delta.tv_usec),
+		tp->t_numpmid);
+	}
+    }
 
     if (Cflag)
 	exit(0);
