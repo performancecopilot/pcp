@@ -137,17 +137,53 @@ decl 1:
   allow [pcp_pmcd_t] [fsadm_exec_t] : [file] { map };
   allow [pcp_pmcd_t] self : [capability] { sys_rawio };
   allow [pcp_pmcd_t] [redis_port_t] : [tcp_socket] { name_connect };
-  allow [pcp_pmcd_t] [non_auth_file_type] : [dir] { open read search getattr lock ioctl };
+  allow [pcp_domain] [non_security_file_type] : [dir] { open search getattr };
+  allow [pcp_domain] [non_security_file_type] : [dir] { open read search getattr lock ioctl };
   allow [pcp_pmcd_t] [file_type] : [dir] { open read search getattr lock ioctl };
   allow [pcp_pmcd_t] [file_type] : [dir] { open search getattr };
   allow [pcp_pmcd_t] [file_type] : [file] { getattr ioctl lock open read };
-  allow [pcp_pmcd_t] [file_type] : [fifo_file] { getattr read open lock ioctl };
-  allow [pcp_pmcd_t] [domain] : [shm] { unix_read associate getattr read };
-  allow [pcp_pmcd_t] [domain] : [sem] { unix_read associate getattr read };
-  allow [pcp_pmcd_t] [domain] : [unix_stream_socket] { connectto };
-  allow [pcp_pmcd_t] [port_type] : [tcp_socket] { name_connect };
+  allow [pcp_pmie_t] [file_type] : [dir] { open read search getattr lock ioctl };
+  allow [pcp_pmie_t] [file_type] : [dir] { open search getattr };
+  allow [pcp_pmie_t] [file_type] : [file] { getattr ioctl lock open read };
+  allow [pcp_pmlogger_t] [file_type] : [dir] { open read search getattr lock ioctl };
+  allow [pcp_pmlogger_t] [file_type] : [dir] { open search getattr };
+  allow [pcp_pmlogger_t] [file_type] : [file] { getattr ioctl lock open read };
+  allow [pcp_pmmgr_t] [file_type] : [dir] { open read search getattr lock ioctl };
+  allow [pcp_pmmgr_t] [file_type] : [dir] { open search getattr };
+  allow [pcp_pmmgr_t] [file_type] : [file] { getattr ioctl lock open read };
+  allow [pcp_pmproxy_t] [file_type] : [dir] { open read search getattr lock ioctl };
+  allow [pcp_pmproxy_t] [file_type] : [dir] { open search getattr };
+  allow [pcp_pmproxy_t] [file_type] : [file] { getattr ioctl lock open read };
+  allow [pcp_pmwebd_t] [file_type] : [dir] { open read search getattr lock ioctl };
+  allow [pcp_pmwebd_t] [file_type] : [dir] { open search getattr };
+  allow [pcp_pmwebd_t] [file_type] : [file] { getattr ioctl lock open read };
+  allow [pcp_domain] [file_type] : [fifo_file] { getattr read open lock ioctl };
+  allow [pcp_domain] [domain] : [shm] { unix_read associate getattr read };
+  allow [pcp_domain] [domain] : [sem] { unix_read associate getattr read };
+  allow [pcp_domain] [domain] : [unix_stream_socket] { connectto };
+  allow [pcp_domain] [port_type] : [tcp_socket] { name_connect };
 --- begin avrule block ---
 decl 2:
   allow [pcp_pmcd_t] [etc_t] : [dir] { open read search getattr lock ioctl };
   allow [pcp_pmcd_t] [shadow_t] : [file] { getattr ioctl lock open read };
+--- begin avrule block ---
+decl 3:
+  allow [pcp_pmie_t] [etc_t] : [dir] { open read search getattr lock ioctl };
+  allow [pcp_pmie_t] [shadow_t] : [file] { getattr ioctl lock open read };
+--- begin avrule block ---
+decl 4:
+  allow [pcp_pmlogger_t] [etc_t] : [dir] { open read search getattr lock ioctl };
+  allow [pcp_pmlogger_t] [shadow_t] : [file] { getattr ioctl lock open read };
+--- begin avrule block ---
+decl 5:
+  allow [pcp_pmmgr_t] [etc_t] : [dir] { open read search getattr lock ioctl };
+  allow [pcp_pmmgr_t] [shadow_t] : [file] { getattr ioctl lock open read };
+--- begin avrule block ---
+decl 6:
+  allow [pcp_pmproxy_t] [etc_t] : [dir] { open read search getattr lock ioctl };
+  allow [pcp_pmproxy_t] [shadow_t] : [file] { getattr ioctl lock open read };
+--- begin avrule block ---
+decl 7:
+  allow [pcp_pmwebd_t] [etc_t] : [dir] { open read search getattr lock ioctl };
+  allow [pcp_pmwebd_t] [shadow_t] : [file] { getattr ioctl lock open read };
 

@@ -3,6 +3,7 @@ module pcpupstream @PACKAGE_VERSION@;
 require {
         attribute domain;
         attribute file_type;
+        attribute pcp_domain;
 	type pcp_pmcd_t;
 	type user_home_t;
 	type user_home_dir_t; #RHBZ1488116
@@ -20,6 +21,7 @@ require {
 	type pcp_pmproxy_t;
 	type pcp_pmmgr_t;
 	type pcp_tmp_t;
+        type pcp_pmwebd_t;
 	type sysctl_net_t;
 	type sysctl_fs_t; #RHBZ1505888
 	type svirt_sandbox_file_t;
@@ -466,16 +468,22 @@ allow pcp_pmcd_t self:capability sys_rawio;
 allow pcp_pmcd_t redis_port_t:tcp_socket name_connect;
 
 # allow pcp_pmcd_t domain to read all dirs,files and fifo_file in attribute file_type
-files_list_non_auth_dirs(pcp_pmcd_t)
+files_list_non_security(pcp_domain)
 files_read_all_files(pcp_pmcd_t)
-allow pcp_pmcd_t file_type:fifo_file read_fifo_file_perms;
+files_read_all_files(pcp_pmie_t)
+files_read_all_files(pcp_pmlogger_t)
+files_read_all_files(pcp_pmmgr_t)
+files_read_all_files(pcp_pmproxy_t)
+files_read_all_files(pcp_pmwebd_t)
+
+allow pcp_domain file_type:fifo_file read_fifo_file_perms;
 
 # allow pcp_pmcd_t domain to read shared memory and semaphores of all domain on system
-allow pcp_pmcd_t domain:shm r_sem_perms;
-allow pcp_pmcd_t domain:sem r_shm_perms;
+allow pcp_domain domain:shm r_sem_perms;
+allow pcp_domain domain:sem r_shm_perms;
 
-# allow pcp_pmcd_t domain stream connect to all domains
-allow pcp_pmcd_t domain:unix_stream_socket connectto;
+# allow pcp_domain stream connect to all domains
+allow pcp_domain domain:unix_stream_socket connectto;
 
-# allow pcp_pmcd_t domain to connect to all ports.
-corenet_tcp_connect_all_ports(pcp_pmcd_t)
+# allow pcp_domain to connect to all ports.
+corenet_tcp_connect_all_ports(pcp_domain)
