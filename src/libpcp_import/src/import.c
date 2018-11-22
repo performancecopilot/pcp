@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2018 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -115,6 +115,64 @@ pmiDump(void)
 		current->handle[h].inst);
 	}
     }
+    if (current->ntext == 0)
+	fprintf(f, "  No text.\n");
+    else {
+	int		t;
+	unsigned int	id;
+	unsigned int	type;
+	for (t = 0; t < current->ntext; t++) {
+	    fprintf(f, "  text[%d] ", t);
+	    id = current->text[t].id;
+	    type = current->text[t].type;
+	    if ((type & PM_TEXT_PMID))
+		fprintf(f, "pmid=%s ", pmIDStr((pmID)id));
+	    else if ((type & PM_TEXT_INDOM))
+		fprintf(f, "indom=%s ", pmInDomStr((pmInDom)id));
+	    else
+		fprintf(f, "type=unknown ");
+
+	    if ((type & PM_TEXT_ONELINE))
+		fprintf(f, "[%s]", current->text[t].content);
+	    else if ((type & PM_TEXT_HELP))
+		fprintf(f, "\n%s", current->text[t].content);
+	    else
+		fprintf(f, "content=unknown");
+
+	    fputc('\n', f);
+	}
+    }
+    if (current->nlabel == 0)
+	fprintf(f, "  No labels.\n");
+    else {
+	int		t;
+	unsigned int	id;
+	unsigned int	type;
+	for (t = 0; t < current->nlabel; t++) {
+	    fprintf(f, "  label[%d] ", t);
+	    id = current->label[t].id;
+	    type = current->label[t].type;
+	    if ((type & PM_LABEL_CONTEXT))
+		fprintf(f, "context ");
+	    else if ((type & PM_LABEL_DOMAIN))
+		fprintf(f, " domain=%d ", pmID_domain(id));
+	    else if ((type & PM_LABEL_CLUSTER))
+		fprintf(f, " cluster=%d.%d ", pmID_domain(id),
+			pmID_cluster (id));
+	    else if ((type & PM_LABEL_ITEM))
+		fprintf(f, " item=%s ", pmIDStr(id));
+	    else if ((type & PM_LABEL_INDOM))
+		fprintf(f, " indom=%s ", pmInDomStr(id));
+	    else if ((type & PM_LABEL_INSTANCES))
+		fprintf(f, " instance=%d of indom=%s ",
+			current->label[t].labelset->inst,
+			pmInDomStr(id));
+	    else
+		fprintf(f, "type=unknown ");
+
+	    pmPrintLabelSets(f, id, type, current->label[t].labelset, 1);
+	}
+    }
     if (current->result == NULL)
 	fprintf(f, "  No pmResult.\n");
     else
@@ -139,6 +197,12 @@ pmID
 pmiID(int domain, int cluster, int item)
 {
     return pmID_build(domain, cluster, item);
+}
+
+pmID
+pmiCluster(int domain, int cluster)
+{
+    return pmID_build(domain, cluster, 0);
 }
 
 pmInDom
@@ -200,6 +264,39 @@ pmiErrStr_r(int code, char *buf, int buflen)
 	    break;
 	case PMI_ERR_BADTIMESTAMP:
 	    msg = "Illegal result timestamp";
+	    break;
+	case PMI_ERR_BADTEXTTYPE:
+	    msg = "Illegal text type";
+	    break;
+	case PMI_ERR_BADTEXTCLASS:
+	    msg = "Illegal text class";
+	    break;
+	case PMI_ERR_BADTEXTID:
+	    msg = "Illegal text identifier";
+	    break;
+	case PMI_ERR_EMPTYTEXTCONTENT:
+	    msg = "Text is empty";
+	    break;
+	case PMI_ERR_DUPTEXT:
+	    msg = "Help text already exists";
+	    break;
+	case PMI_ERR_BADLABELTYPE:
+	    msg = "Illegal label type";
+	    break;
+	case PMI_ERR_BADLABELID:
+	    msg = "Illegal label id";
+	    break;
+	case PMI_ERR_BADLABELINSTANCE:
+	    msg = "Illegal label instance";
+	    break;
+	case PMI_ERR_EMPTYLABELNAME:
+	    msg = "Label name is empty";
+	    break;
+	case PMI_ERR_EMPTYLABELVALUE:
+	    msg = "Label value is empty";
+	    break;
+	case PMI_ERR_ADDLABELERROR:
+	    msg = "Error adding label";
 	    break;
 	default:
 	    return pmErrStr_r(code, buf, buflen);
@@ -310,6 +407,48 @@ pmiStart(const char *archive, int inherit)
 	}
 	else
 	    current->handle = NULL;
+	current->ntext = old_current->ntext;
+	if (old_current->text != NULL) {
+	    int		t;
+	    current->text = (pmi_text *)malloc(current->ntext*sizeof(pmi_text));
+	    if (current->text == NULL) {
+		pmNoMem("pmiStart: pmi_text", current->ntext*sizeof(pmi_text), PM_FATAL_ERR);
+	    }
+	    for (t = 0; t < current->ntext; t++) {
+		current->text[t].id = old_current->text[t].id;
+		current->text[t].type = old_current->text[t].type;
+		current->text[t].content = strdup(old_current->text[t].content);
+		if (current->text[t].content == NULL) {
+		    pmNoMem("pmiStart: pmi_text content", strlen(old_current->text[t].content) + 1, PM_FATAL_ERR);
+		}
+		current->text[t].meta_done = 0;
+	    }
+	}
+	else
+	    current->text = NULL;
+	current->nlabel = old_current->nlabel;
+	if (old_current->label != NULL) {
+	    int		t;
+	    current->label = (pmi_label *)malloc(current->nlabel*sizeof(pmi_label));
+	    if (current->label == NULL) {
+		pmNoMem("pmiStart: pmi_label", current->nlabel*sizeof(pmi_label), PM_FATAL_ERR);
+	    }
+	    for (t = 0; t < current->nlabel; t++) {
+		current->label[t].id = old_current->label[t].id;
+		current->label[t].type = old_current->label[t].type;
+		if (old_current->label[t].labelset != NULL) {
+		    current->label[t].labelset =
+			__pmDupLabelSets(old_current->label[t].labelset, 1);
+		    if (current->label[t].labelset == NULL) {
+			pmNoMem("pmiStart: pmi_label labelset", 1, PM_FATAL_ERR);
+		    }
+		}
+		else
+		    current->label[t].labelset = NULL;
+	    }
+	}
+	else
+	    current->label = NULL;
 	current->last_stamp = old_current->last_stamp;
     }
     else {
@@ -319,6 +458,10 @@ pmiStart(const char *archive, int inherit)
 	current->indom = NULL;
 	current->nhandle = 0;
 	current->handle = NULL;
+	current->ntext = 0;
+	current->text = NULL;
+	current->nlabel = 0;
+	current->label = NULL;
 	current->last_stamp.tv_sec = current->last_stamp.tv_usec = 0;
     }
     return ncontext;
@@ -680,14 +823,197 @@ pmiPutValueHandle(int handle, const char *value)
     return current->last_sts = _pmi_stuff_value(current, &current->handle[handle-1], value);
 }
 
-static int
-check_timestamp(void)
+int
+pmiPutText(unsigned int type, unsigned int class, unsigned int id, const char *content)
 {
-    if (current->result->timestamp.tv_sec < current->last_stamp.tv_sec ||
-        (current->result->timestamp.tv_sec == current->last_stamp.tv_sec &&
-	 current->result->timestamp.tv_usec < current->last_stamp.tv_usec)) {
+    size_t		size;
+    int			t;
+    pmi_text		*tp;
+
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    /* Check the type */
+    if (type != PM_TEXT_PMID && type != PM_TEXT_INDOM)
+	return current->last_sts = PMI_ERR_BADTEXTTYPE;
+
+    /* Check the class */
+    if (class != PM_TEXT_ONELINE && class != PM_TEXT_HELP)
+	return current->last_sts = PMI_ERR_BADTEXTCLASS;
+
+    /* Check the id. */
+    if (id == PM_ID_NULL)
+	return current->last_sts = PMI_ERR_BADTEXTID;
+
+    /* Make sure the content is not empty or NULL */
+    if (content == NULL || *content == '\0')
+	return current->last_sts = PMI_ERR_EMPTYTEXTCONTENT;
+
+    /* Make sure that the text is not duplicate */
+    for (t = 0; t < current->ntext; t++) {
+	if (current->text[t].type != (type | class))
+	    continue;
+	if (current->text[t].id != id)
+	    continue;
+	if (strcmp(current->text[t].content, content) != 0)
+	    continue;
+	/* duplicate text is not good */
+	return current->last_sts = PMI_ERR_DUPTEXT;
+    }
+
+    /* Add the new text. */
+    current->ntext++;
+    size = current->ntext * sizeof(pmi_text);
+    current->text = (pmi_text *)realloc(current->text, size);
+    if (current->text == NULL) {
+	pmNoMem("pmiPutText: pmi_text", size, PM_FATAL_ERR);
+    }
+    tp = &current->text[current->ntext-1];
+    tp->type = type | class;
+    tp->id = id;
+    tp->content = strdup(content);
+    if (tp->content == NULL) {
+	pmNoMem("pmiPutText: content", strlen(content)+1, PM_FATAL_ERR);
+    }
+    tp->meta_done = 0;
+
+    return current->last_sts = 0;
+}
+
+int
+pmiPutLabel(unsigned int type, unsigned int id, unsigned int inst, const char *name, const char *value)
+{
+    size_t	size;
+    int		l;
+    int		new_labelset = 0;
+    pmi_label	*lp = NULL;
+    char	buf[PM_MAXLABELJSONLEN];
+
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    /* Check the type */
+    switch (type) {
+    case PM_LABEL_CONTEXT:
+    case PM_LABEL_DOMAIN:
+    case PM_LABEL_INDOM:
+    case PM_LABEL_CLUSTER:
+    case PM_LABEL_ITEM:
+	break; /* ok */
+    case PM_LABEL_INSTANCES:
+	/* Check the instance number. */
+	if (inst == PM_IN_NULL)
+	    return current->last_sts = PMI_ERR_BADLABELINSTANCE;
+	break; /* ok */
+    default:
+	return current->last_sts = PMI_ERR_BADLABELTYPE;
+    }
+
+    /* Check the id. */
+    if (id == PM_ID_NULL)
+	return current->last_sts = PMI_ERR_BADLABELID;
+
+    /* Make sure the name is not empty or NULL */
+    if (name == NULL || *name == '\0')
+	return current->last_sts = PMI_ERR_EMPTYLABELNAME;
+
+    if (value == NULL || *value == '\0')
+	return current->last_sts = PMI_ERR_EMPTYLABELVALUE;
+
+    /* Find the labelset for this type/id/inst combination. */
+    for (l = 0; l < current->nlabel; l++) {
+	if (current->label[l].type != type)
+	    continue;
+	if (current->label[l].id != id)
+	    continue;
+	if (type == PM_LABEL_INSTANCES &&
+	    current->label[l].labelset->inst != inst)
+	    continue;
+	break; /* found it */
+    }
+
+    if (l >= current->nlabel) {
+	/* We need a new labelset. */
+	new_labelset = 1;
+	current->nlabel++;
+	size = current->nlabel * sizeof(pmi_label);
+	current->label = (pmi_label *)realloc(current->label, size);
+	if (current->label == NULL) {
+	    pmNoMem("pmiPutLabel: pmi_label", size, PM_FATAL_ERR);
+	}
+	lp = &current->label[current->nlabel-1];
+	lp->type = type;
+	lp->id = id;
+	lp->labelset = NULL;
+    }
+    else
+	lp = &current->label[l];
+
+    /*
+     * Add the label to the labelset. The value must be quoted unless it is
+     * one of the JSON key values: true, false or null.
+     */
+    if (strcasecmp(value, "true") == 0 ||
+	strcasecmp(value, "false") == 0 ||
+	strcasecmp(value, "null") == 0)
+	pmsprintf(buf, sizeof(buf), "{\"%s\":%s}", name, value);
+    else
+	pmsprintf(buf, sizeof(buf), "{\"%s\":\"%s\"}", name, value);
+
+    if (__pmAddLabels(&lp->labelset, buf, type) < 0) {
+	/*
+	 * There was an error adding this label to the labelset. If this
+	 * was the first label of its kind to to be added then we must free the
+	 * storage pointed to by lp.
+	*/
+	if (new_labelset) {
+	    current->nlabel--;
+	    if (current->nlabel == 0) {
+		free(current->label);
+		current->label = NULL;
+	    }
+	    else {
+		size = current->nlabel * sizeof(pmi_label);
+		current->label = (pmi_label *)realloc(current->label, size);
+		if (current->label == NULL) {
+		    pmNoMem("pmiPutLabel: pmi_label", size, PM_FATAL_ERR);
+		}
+	    }
+	}
+	return current->last_sts = PMI_ERR_ADDLABELERROR;
+    }
+
+    if (type == PM_LABEL_INSTANCES)
+	lp->labelset->inst = inst;
+    
+    return current->last_sts = 0;
+}
+
+/*
+ * Search the current context for pending text to write. If found, return
+ * 1 (true) otherwise return 0 (false).
+ */
+static int
+text_pending(void)
+{
+    int t;
+    for (t = 0; t < current->ntext; ++t) {
+	if (current->text[t].meta_done == 0)
+	    return 1; /* found one */
+    }
+
+    /* Not found */
+    return 0;
+}
+
+static int
+check_timestamp(const struct timeval *timestamp)
+{
+    if (timestamp->tv_sec < current->last_stamp.tv_sec ||
+        (timestamp->tv_sec == current->last_stamp.tv_sec &&
+	 timestamp->tv_usec < current->last_stamp.tv_usec)) {
 	fprintf(stderr, "Fatal Error: timestamp ");
-	printstamp(stderr, &current->result->timestamp);
+	printstamp(stderr, timestamp);
 	fprintf(stderr, " not greater than previous valid timestamp ");
 	printstamp(stderr, &current->last_stamp);
 	fputc('\n', stderr);
@@ -699,27 +1025,44 @@ check_timestamp(void)
 int
 pmiWrite(int sec, int usec)
 {
-    int		sts;
+    struct timeval	timestamp;
+    int			sts;
 
     if (current == NULL)
 	return PM_ERR_NOCONTEXT;
-    if (current->result == NULL)
+    if (current->result == NULL && !text_pending() && current->label == NULL)
 	return current->last_sts = PMI_ERR_NODATA;
 
     if (sec < 0) {
-	pmtimevalNow(&current->result->timestamp);
+	pmtimevalNow(&timestamp);
     }
     else {
-	current->result->timestamp.tv_sec = sec;
-	current->result->timestamp.tv_usec = usec;
-    }
-    if ((sts = check_timestamp()) == 0) {
-	sts = _pmi_put_result(current, current->result);
-	current->last_stamp = current->result->timestamp;
+	timestamp.tv_sec = sec;
+	timestamp.tv_usec = usec;
     }
 
-    pmFreeResult(current->result);
-    current->result = NULL;
+    if ((sts = check_timestamp(&timestamp)) == 0) {
+	/* We are guaranteed to be writing some data. */
+	current->last_stamp = timestamp;
+
+	/* Pending results? */
+	if (current->result != NULL) {
+	    current->result->timestamp = timestamp;
+	    sts = _pmi_put_result(current, current->result);
+	    pmFreeResult(current->result);
+	    current->result = NULL;
+	}
+
+	if (sts >= 0) {
+	    /* Pending text? */
+	    sts = _pmi_put_text(current);
+
+	    if (sts >= 0) {
+		/* Pending labels? */
+		sts = _pmi_put_label(current);
+	    }
+	}
+    }
 
     return current->last_sts = sts;
 }
@@ -733,7 +1076,7 @@ pmiPutResult(const pmResult *result)
 	return PM_ERR_NOCONTEXT;
 
     current->result = (pmResult *)result;
-    if ((sts = check_timestamp()) == 0) {
+    if ((sts = check_timestamp(&current->result->timestamp)) == 0) {
 	sts = _pmi_put_result(current, current->result);
 	current->last_stamp = current->result->timestamp;
     }

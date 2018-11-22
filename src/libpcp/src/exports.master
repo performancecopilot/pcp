@@ -678,3 +678,8 @@ PCP_3.25 {
     __pmServerGetRequestPort;
     __pmServerSetupRequestPorts;
 } PCP_3.24;
+
+PCP_3.26 {
+  global:
+    __pmDupLabelSets;
+} PCP_3.25;

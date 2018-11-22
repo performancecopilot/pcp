@@ -1576,6 +1576,8 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_MODE_FORW",   PM_MODE_FORW);
     dict_add(dict, "PM_MODE_BACK",   PM_MODE_BACK);
 
+    dict_add(dict, "PM_TEXT_PMID",    PM_TEXT_PMID);
+    dict_add(dict, "PM_TEXT_INDOM",   PM_TEXT_INDOM);
     dict_add(dict, "PM_TEXT_ONELINE", PM_TEXT_ONELINE);
     dict_add(dict, "PM_TEXT_HELP",    PM_TEXT_HELP);
 

@@ -2,7 +2,7 @@
 """ Python test case for Log Import API wrapper module
 """
 #
-# Copyright (C) 2012-2014 Red Hat Inc.
+# Copyright (C) 2012-2018 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -30,6 +30,7 @@ def check_import(archive, hostname, timezone):
     log.pmiSetTimezone(timezone)
 
     domain = 60  # Linux kernel
+    cluster = log.pmiCluster(domain, 2)
     pmid = log.pmiID(domain, 2, 0)
     indom = log.pmiInDom(domain, 2)
     units = log.pmiUnits(0, 0, 0, 0, 0, 0)
@@ -52,6 +53,67 @@ def check_import(archive, hostname, timezone):
     log.pmiPutValue("kernel.all.load", "1 minute", "%f" % 0.01)
     log.pmiPutValue("kernel.all.load", "5 minute", "%f" % 0.05)
     log.pmiPutValue("kernel.all.load", "15 minute", "%f" % 0.15)
+
+    # test help text
+    log.pmiPutText(cpmapi.PM_TEXT_PMID, cpmapi.PM_TEXT_ONELINE, pmid,
+		     "One line text for my.metric.foo");
+    log.pmiPutText(cpmapi.PM_TEXT_PMID, cpmapi.PM_TEXT_HELP, pmid,
+		     "Full help text for my.metric.foo");
+    log.pmiPutText(cpmapi.PM_TEXT_INDOM, cpmapi.PM_TEXT_ONELINE, indom,
+		     "One line text for indom 'eek'");
+    log.pmiPutText(cpmapi.PM_TEXT_INDOM, cpmapi.PM_TEXT_HELP, indom,
+		     "Full help text for indom 'eek'");
+
+    # test labels
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "NewContextLabel", "NewContextLabelContent");
+    log.pmiPutLabel(cpmapi.PM_LABEL_DOMAIN, domain, 0,
+		      "NewDomainLabel245", "NewDomainLabel245Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CLUSTER, cluster, 0,
+		      "NewClusterLabel245_0", "NewClusterLabel245_0Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_ITEM, pmid, 0,
+		      "NewItemLabel245_0_1", "NewItemLabel245_0_1Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_INDOM, indom, 0,
+		      "NewIndomLabel245_1", "NewIndomLabel245_1Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_INSTANCES, indom, 1,
+		      "NewInstancesLabel245_1__1", "NewInstancesLabel245_1__1Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_INSTANCES, indom, 3,
+		      "NewInstancesLabel245_1__3", "NewInstancesLabel245_1__3Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "True");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "False");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextNull", "Null");
+
+    # These are duplicates - which are ok.
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "NewContextLabel", "NewContextLabelContent" );
+    log.pmiPutLabel(cpmapi.PM_LABEL_DOMAIN, domain, 0,
+		      "NewDomainLabel245", "NewDomainLabel245Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CLUSTER, cluster, 0,
+		      "NewClusterLabel245_0", "NewClusterLabel245_0Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_ITEM, pmid, 0,
+		      "NewItemLabel245_0_1", "NewItemLabel245_0_1Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_INDOM, indom, 0,
+		      "NewIndomLabel245_1", "NewIndomLabel245_1Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_INSTANCES, indom, 1,
+		      "NewInstancesLabel245_1__1", "NewInstancesLabel245_1__1Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_INSTANCES, indom, 3,
+		      "NewInstancesLabel245_1__3", "NewInstancesLabel245_1__3Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "True");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "False");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextNull", "Null");
+
+    # These are replacements - which are ok. */
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "NewContextLabel", "ReplacementContextLabelContent" );
+    log.pmiPutLabel(cpmapi.PM_LABEL_DOMAIN, domain, 0,
+		      "NewDomainLabel245", "ReplacementDomainLabel245Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CLUSTER, cluster, 0,
+		      "NewClusterLabel245_0", "ReplacementClusterLabel245_0Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_ITEM, pmid, 0,
+		      "NewItemLabel245_0_1", "ReplacementItemLabel245_0_1Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_INDOM, indom, 0,
+		      "NewIndomLabel245_1", "ReplacementIndomLabel245_1Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_INSTANCES, indom, 1,
+		      "NewInstancesLabel245_1__1", "ReplacementInstancesLabel245_1__1Content");
+    log.pmiPutLabel(cpmapi.PM_LABEL_INSTANCES, indom, 3,
+		      "NewInstancesLabel245_1__3", "ReplacementInstancesLabel245_1__3Content");
 
     timetuple = math.modf(time.time())
     useconds = int(timetuple[0] * 1000000)
