@@ -246,6 +246,9 @@ echo "RHBZ1634205"
 msg="type=AVC msg=audit(1538179769.540:285): avc:  denied  { search } for  pid=8613 comm=\"ps\" name=\".cache\" dev=\"dm-0\" ino=1277884 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:cache_home_t:s0 tclass=dir permissive=0"
 echo $msg | audit2allow -w
 
+echo "RHBZ1648602"
+msg="type=AVC msg=audit(1541890175.206:269): avc:  denied  { search } for  pid=7835 comm=\"ps\" name=\"lightdm\" dev=\"sda1\" ino=3145740 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:xserver_log_t:s0 tclass=dir permissive=0"
+echo $msg | audit2allow -w
 
 echo "============= pcp_pmie_t =============="
 msg="type=AVC msg=audit(1498847682.537:15753): avc:  denied  { sys_ptrace } for  pid=30881 comm=\"ps\" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=capability permissive=0"
@@ -390,6 +393,7 @@ echo $msg | audit2allow -w
 echo "============= pmda-redis =============="
 msg="type=AVC msg=audit(1533183330.416:362367): avc:  denied  { name_connect } for  pid=15299 comm=\"pmdaredis\" dest=6379 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:redis_port_t:s0 tclass=tcp_socket permissive=0"
 echo $msg | audit2allow -w
+
 
 # success, all done
 status=0

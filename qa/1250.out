@@ -417,6 +417,15 @@ type=AVC msg=audit(1538179769.540:285): avc: denied { search } for pid=8613 comm
 
 		Possible mismatch between current in-memory boolean settings vs. permanent ones.
 
+RHBZ1648602
+type=AVC msg=audit(1541890175.206:269): avc: denied { search } for pid=7835 comm="ps" name="lightdm" dev="sda1" ino=3145740 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:xserver_log_t:s0 tclass=dir permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
 ============= pcp_pmie_t ==============
 type=AVC msg=audit(1498847682.537:15753): avc: denied { sys_ptrace } for pid=30881 comm="ps" capability=19 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=capability permissive=0
 
