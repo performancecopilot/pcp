@@ -91,15 +91,7 @@ ANSI = {
     'clearline': '\033[2K',
     'save': '\033[s',
     'restore': '\033[u',
-    'save_all': '\0337',
-    'restore_all': '\0338',
-    'linewrap': '\033[7h',
     'nolinewrap': '\033[7l',
-
-    'up': '\033[1A',
-    'down': '\033[1B',
-    'right': '\033[1C',
-    'left': '\033[1D',
 
     'default': '\033[0;0m',
 }
@@ -563,7 +555,7 @@ class DstatTool(object):
 
     def prepare_plugins(self):
         paths = self.config_files(self.DEFAULT_CONFIGS)
-        if not paths or len(paths) < 1:
+        if not paths:
             sys.stderr.write("No configs found in: %s\n" % self.DEFAULT_CONFIGS)
             sys.exit(1)
 
@@ -1131,7 +1123,7 @@ class DstatTool(object):
 
     @staticmethod
     def instance_match(inst, plugin):
-        if plugin.cullinsts != None and re.match(plugin.cullinsts, inst):
+        if plugin.cullinsts is not None and re.match(plugin.cullinsts, inst):
             return False
         if plugin.instances and inst in plugin.instances:
             return True
@@ -1324,7 +1316,7 @@ class DstatTool(object):
             color = cunit
         elif printtype in ('p') and py3round(value) >= 100.0:
             color = cdone
-        elif colorstep != None:
+        elif colorstep is not None:
             color = colors[int(value/colorstep) % len(colors)]
         elif printtype in ('b', 'd', 'f'):
             color = colors[c % len(colors)]
@@ -1396,11 +1388,15 @@ class DstatTool(object):
     @staticmethod
     def finalize():
         """ Finalize and clean up (atexit) """
-        if not op.verify:
-            sys.stdout.write('\n')
-            if sys.stdout.isatty():
-                sys.stdout.write(ANSI['reset'])
-        sys.stdout.flush()
+        try:
+            if not op.verify:
+                sys.stdout.write('\n')
+                if sys.stdout.isatty():
+                    sys.stdout.write(ANSI['reset'])
+            sys.stdout.flush()
+        except IOError as error:
+            if error.errno != errno.EPIPE:
+                raise error
         if op.pidfile:
             os.remove(op.pidfile)
 
@@ -1425,7 +1421,7 @@ class DstatTool(object):
         # If it takes longer than 500ms, then warn!
         if loop != 0 and starttime - self.inittime - update > 1:
             self.missed = self.missed + 1
-            return 0
+            return
 
         # Initialise certain variables
         if loop == 0:
@@ -1527,7 +1523,8 @@ class DstatTool(object):
         newline = ''
         if op.update and not self.novalues:
             if step == 1 and update != 0 and not onovalues:
-                newline = '\n' + ANSI['reset'] + ANSI['clearline'] + ANSI['save']
+                newline = '\n'
+                newline += ANSI['reset'] + ANSI['clearline'] + ANSI['save']
             elif loop != 0:
                 newline = ANSI['restore']
 
@@ -1538,6 +1535,7 @@ class DstatTool(object):
             showheader = False
             sys.stdout.write(newline)
             newline = self.show_header(vislist)
+            newline += ANSI['reset'] + ANSI['clearline'] + ANSI['save']
 
         # Display CSV header
         newoline = ''

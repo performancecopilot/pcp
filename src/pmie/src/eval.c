@@ -157,7 +157,11 @@ enable(Task *t)
 	    p = &h->waits;
 	    m = *p;
 	    while (m) {
-		switch (reinitMetric(m)) {
+		int	sts;
+		sts = reinitMetric(m);
+		if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
+		    fprintf(stderr, "reinitMetric: returns %d to enable()\n", sts);
+		switch (sts) {
 		case 1:
 		    *p = m->next;
 		    unwaitMetric(m);
@@ -314,10 +318,30 @@ clobber(Expr *x)
     }
 }
 
-
 /***********************************************************************
  * exported functions
  ***********************************************************************/
+
+/*
+ * returns true if the operator produces a scalar value from
+ * a set valued operand
+ */
+int
+isScalarResult(Expr *x)
+{
+    if (x->op == CND_SUM_HOST || x->op == CND_SUM_INST ||
+	x->op == CND_SUM_TIME ||
+	x->op == CND_AVG_HOST || x->op == CND_AVG_INST ||
+	x->op == CND_AVG_TIME ||
+	x->op == CND_MAX_HOST || x->op == CND_MAX_INST ||
+	x->op == CND_MAX_TIME ||
+	x->op == CND_MIN_HOST || x->op == CND_MIN_INST ||
+	x->op == CND_MIN_TIME ||
+	x->op == CND_COUNT_HOST || x->op == CND_COUNT_INST ||
+	x->op == CND_COUNT_TIME)
+	return 1;
+    return 0;
+}
 
 /* fill in appropriate evaluator function for given Expr */
 void
@@ -332,7 +356,10 @@ findEval(Expr *x)
      *	2	arg2 has tspan 1, and must always have one metric value
      */
     if (x->arg1) {
-	if (x->arg1->tspan == 1) {
+	if (isScalarResult(x->arg1)) {
+	    arity |= 1;
+	}
+	else if (x->arg1->tspan == 1) {
 	    for (m = x->arg1->metrics; m; m = m->next) {
 		if (m->desc.indom == PM_INDOM_NULL) continue;
 		if (m->specinst == 0) break;
@@ -345,6 +372,9 @@ findEval(Expr *x)
 	}
     }
     if (x->arg2) {
+	if (isScalarResult(x->arg2)) {
+	    arity |= 2;
+	}
 	if (x->arg2->tspan == 1) {
 	    for (m = x->arg2->metrics; m; m = m->next) {
 		if (m->desc.indom == PM_INDOM_NULL) continue;
@@ -810,7 +840,7 @@ run(void)
     while (t) {
 	t->eval = t->epoch = start;
 	if (waiting(t))
-	    t->retry = RETRY;
+	    t->retry = t->delta > RETRY ? RETRY : t->delta;
 	else
 	    t->retry = 0;
 	t->tick = 0;
@@ -830,13 +860,15 @@ run(void)
 	eval(t);
 	if (waiting(t) && t->retry == 0) {
 	    /* just failed host or metric availability */
-	    t->retry = RETRY;
+	    t->retry = t->delta > RETRY ? RETRY : t->delta;
 	}
 	if (t->retry > 0) {
 	    if (t->retry < t->delta) {
-		/* exponential back-off, ... */
+		/* exponential back-off up to t->delta ... */
 		t->eval = now + t->retry;
 		t->retry *= 2;
+		if (t->retry > t->delta)
+		    t->retry = t->delta;
 	    }
 	    else {
 		/* ... capped at delta */

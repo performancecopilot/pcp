@@ -54,14 +54,14 @@ SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.numa mk.rewrite mk.eventrec mk.interpmark mk.multihost \
 	  mk.sample_expr mk.tzchange mk.arch-all mk.atop mk.hotatop \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched \
-	  mk.ipcs mk.value-test mk.rank-pred
+	  mk.ipcs mk.value-test mk.rank-pred mk.cputime
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config \
 	  coverage.config
 
 OTHERS = README ds390-access.gz collectl-qa bigace.pmns \
-	 crontab-sar-report.tar.xz
+	 crontab-sar-report.tar.xz cputime.mpstat cputime.sar
 
 LDIRT = pmlogger.log
 LDIRDIRT = tmp

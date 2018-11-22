@@ -340,9 +340,8 @@ do
 	# end
     elif [ "$PCP_PLATFORM" = openbsd ]
     then
-	# do nothing at the moment
 	sed <$tmp.tmp \
-	    -e 's/a/a/' \
+	    -e "/mem\.util\.anonpages: $unavailable/d" \
 	# end
     fi
 done

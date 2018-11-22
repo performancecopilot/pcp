@@ -237,9 +237,11 @@ sed -e 's/^/ /' <Logs/pcp \
     -e '/input.* defined but not used/d' \
     -e '/jobserver unavailable: using -j1/d'\
     -e '/^warning: File listed twice: .*python/d' \
+    -e '/Deprecated external dependency generator is used!/d' \
     -e '/^dpkg-shlibdeps: warning: .*\/pmda_pmcd.so contains an unresolvable .* probably a plugin/d' \
     -e '/^configure: WARNING: unrecognized options: --disable-dependency-tracking/d' \
     -e '/^\/usr\/share\/selinux\/devel\/.* duplicate definition of /d' \
+    -e '/QtCore\/qvector.h:.* memcpy(/d' \
 # end
 if [ -s $tmp.err ]
 then
@@ -780,9 +782,14 @@ do
 	    [ X"$what" = Xall ] && check_what='-x valgrind'
 	    ;;
 
-	vm06|vm09|vm13|vm33)
-	    # Only -g sanity at this stage for NetBSD or OpenBSD or FreeBSD
-	    # or OpenIndiana
+	vm06)
+	    # Only -g sanity at this stage for FreeBSD
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity'
+	    ;;
+
+	vm09)
+	    # Only -g sanity at this stage for NetBSD
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
@@ -792,7 +799,13 @@ do
 	    #	sanity trace libpcp
 	    # and some tests are not working yet
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -x valgrind'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -x valgrind'
+	    ;;
+
+	vm13)
+	    # Only -g sanity at this stage for OpenIndiana
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
 
 	vm15)
@@ -813,6 +826,12 @@ do
 	    # and some tests are not working yet
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -x valgrind -X 603'
+	    ;;
+
+	vm33)
+	    # Only -g sanity at this stage for OpenBSD 5.8
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
 
 	vm35)
@@ -843,6 +862,15 @@ do
 		efile=''
 	    fi
 	    ;;
+
+	vm37)
+	    # Only selected groups this stage for OpenBSD 6.4
+	    #	sanity threads
+	    # and some tests are not working yet
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity -g threads'
+	    ;;
+
     esac
 
     if which virsh >/dev/null 2>&1
@@ -1006,6 +1034,7 @@ End-of-File
 
 	# actually do the remote work here
 	#
+	start=`date +%s`
 	ssh -t $build_user@$host sh -c ./daily.script
 	scp -q $build_user@$host:daily.log $tmp.out
 	echo "=== build and install: `date` ===" >>$log
@@ -1072,7 +1101,16 @@ End-of-File
 		echo "No failures."
 	    fi
 	fi
+	end=`date +%s`
+	echo "$start $end" | awk >>$log '
+    { delta = $2 - $1
+      hr = int(delta/3600)
+      min = int((delta-hr*3600)/60)
+      sec = delta % 60
+      printf "Elapsed time: %d:%02d:%02d (%d secs)\n", hr, min, sec, delta
+    }'
     fi
+    
 
     if $sflag
     then

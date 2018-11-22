@@ -1,5 +1,68 @@
+pcp-4.3.0 (21 December 2018)
+	- Work in progress, see https://pcp.io/roadmap
+
 pcp-4.2.0 (16 November 2018)
-    - Work in progress, see https://pcp.io/roadmap
+    - Client tools and utilities:
+	- pcp-dstat: fix cursor offsetting in unusual terminal states
+	- pcp-dstat: additional exception handling for I/O error on exit
+	- pcp-iostat: remove variable named 'await', now a keyword
+	- pmchart: ensure only one system activities menu item is presented
+	- pmchart: fix incorrect use of std::vector::resize() for single stepping
+	- pmie: fix small error in expression tree binding
+	- pmie: fix instance info propogation when metrics become available
+	- pmie: fix rare corner case logic errors
+	- pmrep, pcp2{json,xml}: properly handle broken pipe
+    - PMDA additions, enhancements and bug fixes:
+	- pmdapodman (new): export podman container and pod state and statistics
+	- pmdaroot, pmdaproc: add support for 'podman' containers
+	- pmdapostgresql: fix regression in config parser
+	- pmdapostgresql: add port number to config options
+	- pmdapostgresql: tone down the missing table and column warnings
+	- pmdabcc: add ucalls/ustat Tcl support
+	- pmdalmsensors: re-implement in python, update
+	- pmdadocker: fix a missed lock release issue coverity reported
+	- pmdaelasticsearch: Change perl implementation to python
+	- pmdaelasticsearch: enable user selection from conf file
+	- pmdanetbsd: add hinv.machine
+	- pmdaopenbsd: fixups for OpenBSD 6.4
+	- pmdasample: add sample.ghosts.* metrics
+    - Log rotation, management scripts, compression and server-side utilities:
+	- pmlogger_daily: change workflow to cull early and reliably compress
+	- pmcd_wait: default to using unix domain sockets if supported
+	- pmlogrewrite: Bug: Too many labelsets deleted.
+	- pmlogrewrite: Allow instance names to be used to specify instances labels.
+	- pmlogrewrite: Remove support for "ALL" as a text record type.
+	- pmlogrewrite: escape characters in the content string for text records.
+	- pmlogrewrite: Help Text: Support filtering by content.
+	- pmlogrewrite: Help Text: Additional text type allowed.
+	- pmlogrewrite: fix error handling when duplicate output files found
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	- pmdaproc.sh: change a few warnings to use $prog instead of Install
+	- libpcp: fix buffer length error in pmAtomStr_r(3)
+	- python api: propagate pmFetch(3) result for fetchgroup users
+    - Security Enhanced Linux:
+	- selinux: update container policy for pmdaroot/podman
+	- selinux: fix bpf related build issue
+	- selinux: RHBZ1626487 unix_read on gpsd_t:shm
+	- selinux: RHBZ1633211 bpf class & inheritence issues
+	- selinux: RHBZ1634205 add pmlogger/cache_home context dir:search
+        - selinux: RHBZ1635394 fix configure glue to trigger existing rule inclusion
+        - selinux: RHBZ1535522 add pmcd/cache_home context dir:search
+    - Misc build, infrastructure and packaging updates
+	- build: Fix FreeBSD Qt builds
+	- build: fix a number of Debian packaging issues
+	- build: pcp-gui debian packaging made to be conditional
+	- build: rpm spec and manifest updates for pmdadm dmstats
+	- build: deprecate pcp-collector and pcp-monitor RPM packages
+	- build: add option for python bcc packages from iovisor repos
+	- build: add --check option to Makepkgs script for static checks
+	- build: corrections to dstat package replacement in rpm spec
+    - Documentation and QA infrastructure:
+	- docs: pcp2spark doc and example code tweaks
+	- docs: update pmdadm(1) man page
+	- docs: update LOGIMPORT(3) man page to mention python wrapper
+	- docs: dbpmda(1) - correct default for -q ... it is 3 not 5
+	- docs: updates the containers tutorial for 'podman'
 
 pcp-4.1.3 (21 September 2018)
     - Client tools and utilities:

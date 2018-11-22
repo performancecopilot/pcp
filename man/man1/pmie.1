@@ -2,7 +2,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" Copyright (c) 2015-2016 Red Hat.
+.\" Copyright (c) 2015-2016,2018 Red Hat.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -170,6 +170,12 @@ will be used.
 .B \-n
 An alternative Performance Metrics Name Space (PMNS) is loaded from the file
 .IR pmnsfile .
+.TP
+.B \-P
+Identifies this as the primary
+.B pmie
+instance for a host.
+See the ``AUTOMATIC RESTART'' section below for further details.
 .TP
 .B \-q
 Suppresses diagnostic messages that would be printed to standard
@@ -1052,6 +1058,48 @@ or shutdown, or when they have been detected as no longer running
 Refer to 
 .BR pmie_check (1)
 for details on automating this process.
+.PP
+Optionally, each system running
+.BR pmcd (1)
+may also be configured to run a ``primary''
+.B pmie
+instance.
+This
+.B pmie
+instance is launched by
+.BR $PCP_RC_DIR/pmie ,
+and is affected by the files
+.IR $PCP_SYSCONF_DIR/pmie/control ,
+.IR $PCP_SYSCONF_DIR/pmie/control .d
+(use
+.BR chkconfig (8),
+.BR systemctl (1)
+or similar platform-specific commands to activate or disable the primary
+.B pmie
+instance)
+and
+.I $PCP_VAR_DIR/config/pmie/config.default
+(the default initial configuration file for the primary
+.BR pmie ).
+.PP
+The primary
+.B pmie
+instance is identified by the
+.B \-P
+option.
+There may be at most one ``primary''
+.B pmie
+instance on each system.
+The primary
+.B pmie
+instance (if any)
+must be running on the same host as the
+.BR pmcd (1)
+to which it connects (if any), so the
+.B \-h
+and
+.B \-P
+options are mutually exclusive.
 .SH EVENT MONITORING
 It is common for production systems to be monitored in a central
 location.

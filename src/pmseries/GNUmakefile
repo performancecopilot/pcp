@@ -29,7 +29,7 @@ ifeq "$(HAVE_LIBUV)" "true"
 build-me:	$(CMDTARGET)
 
 install:	default
-	#$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 else
 build-me:
 install:

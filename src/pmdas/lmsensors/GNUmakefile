@@ -33,13 +33,14 @@ MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 default_pcp default ::  build-me
+install_pcp : install
 
 include $(BUILDRULES)
 
-ifeq "$(TARGET_OS)" "linux"
+ifeq "$(HAVE_PYTHON)" "true"
 build-me: check_domain
 
-install_pcp install :: default
+install :: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) $(PMDADIR)

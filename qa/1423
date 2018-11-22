@@ -49,10 +49,16 @@ pid=$!
 sleep 1
 $signal $pid 2>/dev/null
 wait
-if [ -s $tmp.nc.err ]
+# some nc(1) variants chatter a bit, filter out lines like
+# nc: using stream socket
+#
+sed <$tmp.nc.err >$tmp.tmp \
+    -e '/ using stream socket$/d' \
+# end
+if [ -s $tmp.tmp ]
 then
     echo "errors from nc ..."
-    cat $tmp.nc.err
+    cat $tmp.tmp
 fi
 _filter_pcp2spark <$tmp.nc.out
 

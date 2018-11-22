@@ -118,7 +118,12 @@ do_vm_uvmexp_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	    case 15:		/* mem.util.anonpages */
-		atom->ul = ((int64_t)stats.anonpages*stats.pagesize+512)/1024;
+		/*
+		 * as of (at least) OpenBD 6.4, anonpages is no longer
+		 * available in the struct ... it has become unused01
+		 * (formerly anonpages) according to <uvm/uvmexp.h>
+		 */
+		sts = 0;
 		break;
 
 	    case 16:		/* mem.util.vnodepages */

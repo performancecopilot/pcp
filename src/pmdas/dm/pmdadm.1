@@ -23,57 +23,65 @@ metric values for Device Mapper on the local system.
 .PP
 This PMDA collects its data through the
 .BR dmsetup (8)
-utility, dmstats API and requires that the program is installed in order to function.
-.PP
-In addition, at least a statistics region must be created to use
+utility and the dmstats API and requires that the program is installed in order to function.
+In addition, at least one statistics region must be created using the
 .BR dmstats (8)
-in order to get the basic counter value.
+utility in order to get basic counter values.
+See below for examples.
 .PP
-Further details on device mapper can be found at
-http://redhat.com
+Note that device-mapper statistics collection is not enabled by default and is not
+persistent across reboots (unless a system administrator has configured something to run
+in
+.B rc.local
+or equivalent).
+This is because there are overheads associated with statistics collection.
+In addition, the
+.B pmdadm
+PMDA does not automatically enable any statistics collection
+because it may not be the only consumer of the data.
 .SH INSTALLATION
 Install the DM PMDA by using the Install script as root:
 .PP
-      # cd $PCP_PMDAS_DIR/dm
+      \fB# cd $PCP_PMDAS_DIR/dm\fP
+(\fB$PCP_PMDAS_DIR\fP is usually
+.BR /var/lib/pcp/pmdas )
 .br
-      # ./Install
+      \fB# ./Install\fP
 .PP
 To uninstall, do the following as root:
 .PP
-      # cd $PCP_PMDAS_DIR/dm
+      \fB# cd $PCP_PMDAS_DIR/dm\fP
 .br
-      # ./Remove
+      \fB# ./Remove\fP
 .PP
 .B pmdadm
 is launched by
 .BR pmcd (1)
 and should never be executed directly.
-The Install and Remove scripts notify
+The
+.B Install
+and
+.B Remove
+scripts notify
 .B pmcd
 when the agent is installed or removed.
-.SH FILES
-.IP "\fB$PCP_PMDAS_DIR/dm/help\fR" 4
-default help text file for the dm metrics
-.IP "\fB$PCP_PMDAS_DIR/dm/Install\fR" 4
-installation script for the \fBpmdadm\fR agent
-.IP "\fB$PCP_PMDAS_DIR/dm/Remove\fR" 4
-undo installation script for the \fBpmdadm\fR agent
-.IP "\fB$PCP_LOG_DIR/pmcd/dm.log\fR" 4
-default log file for error messages from \fBpmdadm\fR
-.SH dmstats metric
-This PMDA use the dmstats API (the userspace device-mapper support
-library) to allow dmstats performance data.
+.SH CONFIGURATION
+This PMDA uses the dmstats API (the userspace device-mapper support library)
+to capture device-mapper performance data.
 .br
 Using this PMDA, users need the userspace device-mapper support library (libdevmapper)
-and the userspace command line tool (dmstats).
-Before getting the statistics metric, statistics regions have to be created.
-When creating the statistics regions of all device-mapper device under /dev/mapper as below:
+and the userspace command line tool
+.BR dmstats (8).
+Before device-mapper metrics will be available for PCP,
+statistics regions have to be created.
+For example, to enable basic statistics for all local device-mapper logical devices,
+use the following command: 
 .PP
-	# dmstats create --alldevices
+	\fB# dmstats create --alldevices\fP
 .PP
-When creating the statistics regions with specified histogram boundaries as below:
+To create statistics regions with specified histogram boundaries, use the following:
 .PP
-	# dmstats create --alldevices --bounds \fBhistogram_boundaries\fp
+	\fB# dmstats create --alldevices --bounds\fP \fIhistogram_boundaries\fP
 .PP
 Specify the boundaries of a latency histogram to be tracked for the region as a comma
 separated list of latency values. Latency values are given in nanoseconds. An optional
@@ -85,10 +93,13 @@ or
 .BR s
 may be given after each value to specify units of nanoseconds,
 microseconds, miliseconds or seconds respectively.
-.br
-Further Detail on
-.BR dmstats(8)
-can be found at man page.
+For example,
+.PP
+	\fB# dmstats create --alldevices --bounds 10us,30us,50us,70us,90us\fP
+.PP
+Further details and more complex examples can be found in
+.BR dmstats (8).
+.SH METRICS
 .br
 .IP "\fBBasic Counters\fR" 4
 Basic counters provide access to the raw counter data from the kernel,
@@ -144,7 +155,7 @@ latency times falling into that bin's time range during the sample period.
 .IP "\fBdmstats.histogram.hist.bins\fR" 4
 The number of latency histogram bins configured for the area.
 .RE
-.SH "\fBExamples\fR"
+.SH EXAMPLES
 .PP
 	\fB# dmstats create looptest0 --bounds 10us,30us,50us\fR
 .br
@@ -170,6 +181,15 @@ The number of latency histogram bins configured for the area.
 	    inst [3 or "looptest0:0:50us"] value 96
 .br
 .PP
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/dm/help\fR" 4
+default help text file for the dm metrics
+.IP "\fB$PCP_PMDAS_DIR/dm/Install\fR" 4
+installation script for the \fBpmdadm\fR agent
+.IP "\fB$PCP_PMDAS_DIR/dm/Remove\fR" 4
+undo installation script for the \fBpmdadm\fR agent
+.IP "\fB$PCP_LOG_DIR/pmcd/dm.log\fR" 4
+default log file for error messages from \fBpmdadm\fR
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
 the file and directory names used by \fBPCP\fR. On each installation, the

@@ -1,9 +1,9 @@
 QA output created by 1186
 eval time start
-  retry delta  5
+  retry delta  5.000 metric/instances missing
 eval time last + 5
-  retry delta  10
+  retry delta  10.000 metric/instances missing
 eval time last + 10
-  retry delta  20
+  retry delta  12.000 metric/instances missing
 eval time last + 12
-  retry delta  20
+  retry delta  12.000 metric/instances missing

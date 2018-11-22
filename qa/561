@@ -20,7 +20,7 @@ trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 mergePy()
 {
-    result=`$python $here/src/mergelabels.python $@`
+    result=`$python $here/src/mergelabels.python "$@"`
 
     verify="FAIL"
     $python $here/src/mergelabels.python "$result" {} >/dev/null
@@ -35,7 +35,7 @@ mergePy()
 
 mergeCore()
 {
-    result=`$here/src/mergelabels $@`
+    result=`$here/src/mergelabels "$@"`
 
     verify="FAIL"
     $here/src/mergelabels "$result" {} >/dev/null
@@ -50,8 +50,8 @@ mergeCore()
 
 mergeHelper()
 {
-    mergeCore $@
-    mergePy $@
+    mergeCore "$@"
+    mergePy "$@"
 }
 
 echo "=> One label merged, value should be v2"

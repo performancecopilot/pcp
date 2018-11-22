@@ -79,6 +79,8 @@ require {
         type system_cronjob_t;
         type xdm_t;
         type postgresql_t;
+        type cache_home_t; #RHBZ1634205
+        @PCP_WAP_PORT_CONTEXT@
         class sem { unix_read associate getattr };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -269,7 +271,7 @@ allow pcp_pmcd_t sysctl_irq_t:dir { search };
 allow pcp_pmcd_t init_t:shm unix_read;
 
 #RHBZ1594991
-allow pcp_pmcd_t gpsd_t:shm { associate getattr };
+allow pcp_pmcd_t gpsd_t:shm { associate getattr unix_read };
 
 allow pcp_pmcd_t default_t:file getattr;
 
@@ -293,6 +295,15 @@ allow pcp_pmcd_t postgresql_t:unix_stream_socket connectto;
 allow pcp_pmcd_t kernel_t:process signull;
 
 allow pcp_pmcd_t xdm_t:shm { associate getattr };
+
+allow pcp_pmcd_t user_home_dir_t:dir { getattr search };
+
+#RHBZ1535522
+#type=AVC msg=audit(1538550792.679:11735): avc:  denied  { search } for  pid=21371 comm="pmdalinux" name=".cache" dev="dm-0" ino=11796488 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:cache_home_t:s0 tclass=dir permissive=0
+allow pcp_pmcd_t cache_home_t:dir search;
+
+@PCP_WAP_PORT_RULE@
+
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
@@ -323,11 +334,16 @@ allow pcp_pmlogger_t unconfined_t:unix_stream_socket connectto;
 #RHBZ1488116
 #type=AVC msg=audit(1504516526.487:431): avc:  denied  { search } for  pid=18056 comm="ps" name="testuser" dev="dm-0" ino=539096275 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_home_dir_t:s0 tclass=dir
 allow pcp_pmlogger_t user_home_dir_t:dir search;
+allow pcp_pmlogger_t user_home_t:file { read open };
+
 #RHBZ1547066
 allow pcp_pmlogger_t kernel_t:unix_dgram_socket sendto;
 
 allow pcp_pmlogger_t home_bin_t:dir search;
 
+#RHBZ1634205
+#type=AVC msg=audit(1538179769.540:285): avc:  denied  { search } for  pid=8613 comm="ps" name=".cache" dev="dm-0" ino=1277884 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:cache_home_t:s0 tclass=dir permissive=0
+allow pcp_pmlogger_t cache_home_t: dir search;
 
 #============= pcp_pmie_t ==============
 allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read @PCP_HOSTNAME_EXEC_MAP@ };
@@ -379,10 +395,15 @@ allow pcp_pmie_t init_exec_t:file getattr;
 
 @PCP_CAPUSERNS_PTRACE_RULE_PMIE@
 allow pcp_pmie_t user_home_dir_t:dir search;
+allow pcp_pmie_t user_home_t:file { read open };
 
 #RHBZ1623988
 #type=AVC msg=audit(1535642748.855:3214): avc:  denied  { signal } for  pid=3106 comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process permissive=1
 allow pcp_pmie_t unconfined_t:process signal;
+
+#RHBZ1635394
+#type=AVC msg=audit(1538509480.147:87573): avc:  denied  { sys_ptrace } for  pid=15683 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=cap_userns permissive=0
+
 #============= pmda-lio ==============
 allow pcp_pmcd_t configfs_t:dir { open read search };
 allow pcp_pmcd_t configfs_t:file { getattr open read };

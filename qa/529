@@ -151,7 +151,7 @@ do
 	echo "$metric ..." >>$seq.full
 	pmdumplog $tmp pmcd.pmie.$metric \
 	| tee -a $seq.full \
-	| grep $pid \
+	| grep '"'$pid'"' \
 	| _filter
     done
 done

@@ -39,3 +39,6 @@ endif
 default_pcp: default
 
 install_pcp: install
+
+check:: $(TARGET).py
+	$(PYLINT) $^

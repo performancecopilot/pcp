@@ -843,7 +843,7 @@ backname(__pmnsNode *np, char **name)
 
 	xl = (int)strlen(xp->name);
 	nch -= xl;
-	strncpy(&p[nch], xp->name, xl);
+	memcpy(&p[nch], xp->name, xl);
 	xp = xp->parent;
 	if (xp->parent == NULL)
 	    break;

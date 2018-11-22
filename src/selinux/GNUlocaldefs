@@ -91,3 +91,8 @@ ifeq "$(PCP_SELINUX_BPF_STATUS)" "true"
 PCP_BPF_STATUS_CLASS="class bpf { map_create map_read map_write prog_load prog_run }\;"
 PCP_BPF_STATUS_RULE="allow pcp_pmcd_t self:bpf { map_create map_read map_write prog_load prog_run }\;"
 endif
+
+ifeq "$(PCP_SELINUX_WAP_PORT)" "true"
+PCP_WAP_PORT_CONTEXT="type wap_wsp_port_t\;"
+PCP_WAP_PORT_RULE="allow pcp_pmcd_t wap_wsp_port_t:tcp_socket name_connect\;"
+endif

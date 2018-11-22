@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
- (c) Copyright 2015 Red Hat.
+ (c) Copyright 2015,2018 Red Hat.
  Permission is granted to copy, distribute, and/or modify this document
  under the terms of the Creative Commons Attribution-Share Alike, Version
  3.0 or any later version published by the Creative Commons Corp. A copy
@@ -27,6 +27,7 @@
 <TABLE WIDTH="15%" BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
 	<TR><TD BGCOLOR="#e2e2e2">
 <PRE><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0><I>Tools</I>
+podman
 docker
 lxc-info
 lxc-ls
@@ -62,13 +63,8 @@ the <A HREF="glossary.html">PCP glossary</A>.</P>
         <LI>Core Extensions
         <LI>Elevated Privileges
         <LI>Container-specific Metric Values
-    </UL>
-    <LI>
-    <A HREF="#nextstep">Next Steps</A> 
-    <UL>
-        <LI>Console Tools
-        <LI>Graphical Tools
-        <LI>Domain Agents
+        <LI>Performance Metric Domain Agents
+        <LI>Web and Graphical Tools
     </UL>
 </UL>
 </P>
@@ -85,6 +81,7 @@ differ between engines, so we will skip over them here.
 </P>
 <UL>
   <LI>Using <A HREF="https://docker.io/">Docker</A>, the <B>docker ps -a</B> command can then be used to observe running containers.
+  <LI>Under <A HREF="https://github.com/containers/libpod/blob/master/README.md">libpod</A>, <B>podman ps -a</B> is the equivalent command.
   <LI>With <A HREF="https://linuxcontainers.org/">LXC</A>, the <B>lxc-ls</B> and <B>lxc-info</B> commands are used for this purpose.
 </UL>
 <P>Once these commands are correctly reporting running containers, we
@@ -290,6 +287,19 @@ pmcd.hostname [local hostname]
 </TABLE>
 
 <P><BR></P>
+<P ALIGN=LEFT><FONT SIZE=4><B>Performance Metric Domain Agents</B></FONT>
+<P>As the underlying container technologies have matured, instrumentation
+has been added for analysis.
+For example, <B>podman</B> and <B>docker</B> have APIs to extract operational
+metrics, and these are available from <B>pmdapodman</B> and <B>pmdadocker</B>.
+</P>
+<P>
+Additionally, components of container infrastructure usually expose metrics
+via a <I>/metrics</I> HTTP endpoint in the OpenMetrics (Prometheus) format.
+These metrics can be observed using PCP tools via <B>pmdaprometheus</B>.
+</P>
+
+<P><BR></P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="nextstep">Next Steps</A></B></FONT></P></TD></TR>
 </TABLE>
@@ -297,17 +307,10 @@ pmcd.hostname [local hostname]
 <P>Upcoming versions of PCP will extend the initial work done for container
 analysis in several directions, particularly on the monitoring tool side.</P>
 
-<P ALIGN=LEFT><FONT SIZE=4><B>Console Tools</B></FONT>
-<P>In addition to adding the container command line option to more of the
-existing monitoring tools, a light-weight console-based monitoring tool
-with deep container knowledge is planned. This tool will sample and report
-cgroup and namespaced metrics for a specified container, in an easily
-consumed form - a little like <I>top</I> or <I>vmstat</I> perhaps.</P>
-
-<P ALIGN=LEFT><FONT SIZE=4><B>Graphical Tools</B></FONT>
+<P ALIGN=LEFT><FONT SIZE=4><B>Web and Graphical Tools</B></FONT>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
         <TR><TD WIDTH=500><P ALIGN=CENTER><BR><IMG ALIGN=MIDDLE SRC="images/pmchart_add_host_container.png" ALT="" BORDER=0></P></TD>
-        <TD><P>In the PCP strip chart utility <I>pmchart</I> from version 3.10.3 onward, connections to containers can be established using the "Add Host" dialog, as shown to the left.</P>
+        <TD><P>In the PCP strip chart utility <I>pmchart</I>, connections to containers can be established using the "Add Host" dialog, as shown to the left.</P>
 	<P>This can be accessed via the "New Chart" or "Open View" menu entries.</P>
 	<UL>
         <LI>Specify the name of the PCP Collector system where <I>pmcd</I> is running.
@@ -320,12 +323,10 @@ consumed form - a little like <I>top</I> or <I>vmstat</I> perhaps.</P>
 	</TD>
         </TR>
 </TABLE>
-
-<P ALIGN=LEFT><FONT SIZE=4><B>Domain Agents</B></FONT>
-<P>As the underlying container technologies are maturing, they are becoming
-instrumented for analysis. For example, <B>etcd</B> and <B>docker</B> now
-have APIs to extract the instrumentation about their behaviour, which will
-be exported as new PCP metrics.</P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR><TD><P ALIGN=CENTER>PCP container metric charts using <A HREF="http://getvector.io/">Vector</A></P></TD></TR>
+	<TR><TD WIDTH="100%"><P ALIGN=CENTER><BR><IMG ALIGN=MIDDLE SRC="images/vector-containers.png" ALT="" BORDER=0></P></TD></TR>
+</TABLE>
 
 <P><BR></P>
 <HR>

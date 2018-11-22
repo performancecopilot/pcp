@@ -195,6 +195,9 @@ $2 == '"$pid"'	{ print }'
 	    pmlogger.primary.socket)
 			pid=`ls -l $PCP_RUN_DIR/pmlogger.primary.socket | sed -e 's/.*\///' -e 's/pmlogger\.//' -e 's/\.socket//'`
 			;;
+	    pmlogger.pid)
+			pid=`cat $PCP_RUN_DIR/$file`
+			;;
 	    *)
 			pid=`echo $file | sed -e 's/pmlogger\.//' -e 's/\.socket//'`
 			;;

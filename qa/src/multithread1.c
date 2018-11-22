@@ -174,13 +174,29 @@ func2(void *arg)
     return NULL;
 }
 
+static void
+wait_for_thread(char *name, pthread_t tid)
+{
+    int		sts;
+    char	*msg;
+
+    sts = pthread_join(tid, (void *)&msg);
+    if (sts == 0) {
+	if (msg == PTHREAD_CANCELED)
+	    printf("thread %s: pthread_join: cancelled?\n", name);
+	else if (msg != NULL)
+	    printf("thread %s: pthread_join: %s\n", name, msg);
+    }
+    else
+	printf("thread %s: pthread_join: error: %s\n", name, strerror(sts));
+}
+
 int
 main()
 {
     pthread_t	tid1;
     pthread_t	tid2;
     int		sts;
-    char	*msg;
 
 #if darwin_hack
     /*
@@ -207,19 +223,17 @@ main()
 
     sts = pthread_create(&tid1, NULL, func1, NULL);
     if (sts != 0) {
-	printf("pthread_create: tid1: sts=%d\n", sts);
+	printf("pthread_create: tid1: error: %s\n", strerror(sts));
 	exit(1);
     }
     sts = pthread_create(&tid2, NULL, func2, NULL);
     if (sts != 0) {
-	printf("pthread_create: tid2: sts=%d\n", sts);
+	printf("pthread_create: tid2: error: %s\n", strerror(sts));
 	exit(1);
     }
 
-    pthread_join(tid1, (void *)&msg);
-    if (msg != NULL) printf("tid1: %s\n", msg);
-    pthread_join(tid2, (void *)&msg); 
-    if (msg != NULL) printf("tid2: %s\n", msg);
+    wait_for_thread("tid1", tid1);
+    wait_for_thread("tid2", tid2);
 
     if (rp != NULL)
 	pmFreeResult(rp);

@@ -31,6 +31,8 @@ Microseconds per "hz" tick.
 @ hinv.ninterface number of active (up) network interfaces
 @ hinv.physmem total system memory
 @ hinv.pagesize kernel page size
+@ hinv.machine name of the hardware type the system is running on
+Alias for kernel.uname.machine on NetBSD.
 @ hinv.cpu.vendor system's CPU vendor
 @ hinv.cpu.model system's CPU model
 @ hinv.cpu.arch system's machine dependent CPU architecture type

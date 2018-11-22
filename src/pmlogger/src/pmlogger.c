@@ -962,6 +962,21 @@ main(int argc, char **argv)
 	    __pmOptFetchDump(stderr, tp->t_fetch);
 	}
     }
+    if (pmDebugOptions.optfetch) {
+	int	j = 0;
+	for (tp = tasklist; tp != NULL; tp = tp->t_next) {
+	    fetchctl_t	*fcp = tp->t_fetch;
+	    int		fg = 0;
+	    fprintf(stderr, "Fetch task[%d] delta: %ld usec numpmid: %d\n",
+		j, (long)(1000 * tp->t_delta.tv_sec + tp->t_delta.tv_usec),
+		tp->t_numpmid);
+	    while (fcp != NULL) {
+		fprintf(stderr, "  Fetch group[%d.%d] %d metrics\n", j, fg++, fcp->f_numpmid);
+		fcp = fcp->f_next;
+	    }
+	    j++;
+	}
+    }
 
     if (Cflag)
 	exit(0);
@@ -1048,11 +1063,13 @@ main(int argc, char **argv)
 
     fprintf(stderr, "Archive basename: %s\n", archBase);
 
+    if (isdaemon) {
 #ifndef IS_MINGW
-    /* detach yourself from the launching process */
-    if (isdaemon)
+	/* detach yourself from the launching process */
         setpgid(getpid(), 0);
 #endif
+	__pmServerCreatePIDFile(pmGetProgname(), 0);
+    }
 
     /* set up control port */
     init_ports();

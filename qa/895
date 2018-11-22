@@ -47,15 +47,28 @@ case $PCP_PLATFORM
 in
     darwin)
 	sed <$tmp.config >$tmp.tmp \
-	    -e '/ cgroup$/d' \
-	    -e '/ ipc$/d' \
+	    -e '/ containers$/d' \
 	    -e '/ quota$/d' \
+	    -e '/ ipc$/d' \
 	    -e '/ swap$/d' \
 	    -e '/ swapdev$/d' \
 	    -e '/ sysfs$/d' \
 	    -e '/ tmpfs$/d' \
 	    -e '/ vfs$/d' \
-	    -e '/ xfs$/d' \
+	# end
+	mv $tmp.tmp $tmp.config
+	;;
+    freebsd)
+	sed <$tmp.config >$tmp.tmp \
+	    -e '/ containers$/d' \
+	    -e '/ filesys$/d' \
+	    -e '/ quota$/d' \
+	    -e '/ ipc$/d' \
+	    -e '/ rpc$/d' \
+	    -e '/ swapdev$/d' \
+	    -e '/ sysfs$/d' \
+	    -e '/ tmpfs$/d' \
+	    -e '/ vfs$/d' \
 	# end
 	mv $tmp.tmp $tmp.config
 	;;
@@ -69,6 +82,8 @@ _filter()
 	-e '/re-established connection/d' \
 	-e '/pduread: .* Interrupted system call/d' \
 	-e '/Validating metrics/d' \
+	-e '/^Fetch task/d' \
+	-e '/^  Fetch group/d' \
 	-e '/^Log for pmlogger /s/ on .*/ .../' \
 	-e '/^preprocessor cmd:/s/: .*/: .../' \
 	-e '/^Starting logger/s/".*/.../' \
@@ -86,7 +101,7 @@ state == 0		{ print }'
 
 # real QA test starts here
 export PCP_DERIVED_CONFIG=
-pmlogger -h localhost -r -c $tmp.config -m qa_$seq -l $tmp.log $tmp &
+pmlogger -Doptfetch -h localhost -r -c $tmp.config -m qa_$seq -l $tmp.log $tmp &
 pid=$!
 
 pmsleep 6
@@ -95,12 +110,15 @@ wait
 
 _filter <$tmp.log
 
-# pmlogger ends up using 2 fetch groups (check the $seq.full for different
-# numbers of metrics in case of a test failure), so ..
-# without timeouts, expect 6000msec * 2 fetch groups / 100msec = 120 records
+N=`grep '^  Fetch group' $tmp.log | tee -a $here/$seq.full | wc -l | sed -e 's/ //g'`
+
+# pmlogger ends up using N fetch groups 
+# without timeouts, expect 6000msec * N fetch groups / 100msec = 60*N records
+# +2 for preamble and postscript records
 #
-max_nrec=140
-min_nrec=100
+max_nrec=`expr $N \* 61 + 2`
+min_nrec=`expr \( $N \) \* 58 + 2`
+echo "N(fetch groups)=$N max_nrec=$max_nrec min_nrec=$min_nrec" >>$here/$seq.full
 nrec=`pmdumplog $tmp | grep '^[0-9]' | grep -v '<mark>' | wc -l | sed -e 's/ //g'`
 echo "nrec=$nrec log records" >>$here/$seq.full
 echo "log record frequency by fetch group size ..." >>$here/$seq.full
@@ -114,7 +132,7 @@ pmdumplog $tmp \
 
 if [ "$nrec" -ge $min_nrec -a "$nrec" -le $max_nrec ]
 then
-    echo "OK, between $min_nrec and $max_nrec archive records"
+    echo "OK, found expected number of archive records"
 else
     echo "oops, $nrec archive records not between the expected range of $min_nrec and $max_nrec"
     pmdumplog $tmp | grep '^[0-9]' | grep -v '<mark>' >>$here/$seq.full

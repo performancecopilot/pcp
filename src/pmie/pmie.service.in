@@ -4,10 +4,11 @@ Documentation=man:pmie(1)
 After=network-online.target pmcd.service
 
 [Service]
-Type=oneshot
-ExecStart=@path@/pmie start
-ExecStop=@path@/pmie stop
-RemainAfterExit=yes 
+Type=forking
+Restart=always
+ExecStart=@PCP_RC_DIR@/pmie start
+ExecStop=@PCP_RC_DIR@/pmie stop
+PIDFile=@PCP_RUN_DIR@/pmie.pid
 
 [Install]
 WantedBy=multi-user.target

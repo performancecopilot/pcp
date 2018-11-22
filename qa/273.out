@@ -45,6 +45,7 @@ sampledso.secret.foo.bar.grunt.snort.huff.puff.seven [dynamic *.secret.foo.bar.g
 sampledso.secret.foo.one [dynamic *.secret.foo.one metric]
 sampledso.secret.foo.two [dynamic *.secret.foo.two metric]
 sampledso.secret.bar [dynamic *.secret.bar metric]
+sampledso.ghosts.visible [Number of visible ghosts]
 sampledso.long.one [1 as a 32-bit integer]
 sampledso.long.ten [10 as a 32-bit integer]
 sampledso.long.hundred [100 as a 32-bit integer]
@@ -488,6 +489,14 @@ Value 2.
 sampledso.secret.bar
 Help:
 Value "foo".
+
+sampledso.ghosts.visible
+Help:
+If *.ghosts.visible is < 0, then all the other ghosts.* metrics are
+invisible!
+Values between 0 and 8 expose progressively more of the ghosts
+instance domain.
+Use pmstore(1) to change the value.
 
 sampledso.long.one
 Help:

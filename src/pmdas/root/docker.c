@@ -20,6 +20,15 @@
 
 static const char *systemd_cgroup;
 
+static json_metric_desc json_metrics[] = {
+    { "State/Pid", 0, 1, {0}, ""},
+    { "Name", 0, 1, {0}, ""},
+    { "State/Running", CONTAINER_FLAG_RUNNING, 1, {0}, ""},
+    { "State/Paused", CONTAINER_FLAG_PAUSED, 1, {0}, ""},
+    { "State/Restarting", CONTAINER_FLAG_RESTARTING, 1, {0}, ""},
+};
+#define JSONMETRICS_SZ	(sizeof(json_metrics)/sizeof(json_metric_desc))
+
 /*
  * Container implementation for the Docker engine
  * Uses /var/lib/docker/container files to discover local containers.
@@ -30,6 +39,7 @@ docker_setup(container_engine_t *dp)
 {
     static const char	*docker_default = "/var/lib/docker";
     const char		*docker = getenv("PCP_DOCKER_DIR");
+    char		path[MAXPATHLEN];
 
     /* determine the default container naming heuristic */
     if (systemd_cgroup == NULL)
@@ -38,8 +48,8 @@ docker_setup(container_engine_t *dp)
     /* determine the location of docker container config.json files */
     if (docker == NULL)
 	docker = docker_default;
-    pmsprintf(dp->path, sizeof(dp->path), "%s/containers", docker);
-    dp->path[sizeof(dp->path)-1] = '\0';
+    pmsprintf(path, sizeof(path), "%s/containers", docker);
+    dp->path = strdup(path);
 
     if (pmDebugOptions.attr)
 	pmNotifyErr(LOG_DEBUG, "docker_setup: path %s, %s style names\n",
@@ -220,6 +230,7 @@ docker_values_parse(FILE *fp, const char *name, container_t *values)
 
     static const int JSONMETRICS_BYTES = JSONMETRICS_SZ * sizeof(*json_metrics);
     static json_metric_desc *local_metrics;
+
     if (!local_metrics)
 	local_metrics = (json_metric_desc *)malloc(JSONMETRICS_BYTES);
 

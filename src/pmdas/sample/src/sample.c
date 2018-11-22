@@ -390,6 +390,15 @@ static pmDesc	desctab[] = {
 /*  secret.foo.bar.grunt.snort.seven */
     { PMDA_PMID(0,1007), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
+/* sample.ghosts.visible */
+    { PMDA_PMID(0,1008), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* sample.ghosts.origin	*/
+    { PMDA_PMID(0,1009), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.ghosts.karma */
+    { PMDA_PMID(0,1010), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.ghosts.state */
+    { PMDA_PMID(0,1011), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+
 /* bigid */
     { PMDA_PMID(0,1023), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
@@ -535,6 +544,20 @@ static pmdaInstid _events[] = {
     { 0, "fungus" }, { 1, "bogus" }
 };
 
+static pmdaInstid _ghosts[] = {
+    { 1, "Obambo" }, { 2, "Banjhakri" }, { 3, "Mogwai" }, { 4, "Pocong" },
+    { 5, "Hitodama" }, { 6, "Krahang" }, { 7, "Zmeu" }, { 8, "Duppy" }
+};
+
+static int visible_ghosts = -1;
+static int num_ghosts = sizeof(_ghosts) / sizeof(_ghosts[0]);
+static int state_ghosts = 23;
+
+static char	*origin_ghosts[] = {
+    "Africa", "Nepal", "China", "Indonesia", "Japan", "Thailand",
+    "Roumania", "Jamaica"
+};
+
 /* all domains supported in this PMDA - one entry each */
 static pmdaIndom indomtab[] = {
 #define COLOUR_INDOM	0
@@ -557,6 +580,8 @@ static pmdaIndom indomtab[] = {
     { 0, 9, _scramble },
 #define EVENT_INDOM	9
     { 0, 2, _events },
+#define GHOST_INDOM	10
+    { 0, 8, _ghosts },
 
     { PM_INDOM_NULL, 0, 0 }
 };
@@ -646,7 +671,11 @@ static struct {
     { "secret.foo.bar.four", PMDA_PMID(0,1004) },
     { "secret.foo.bar.grunt.five", PMDA_PMID(0,1005) },
     { "secret.foo.bar.grunt.snort.six", PMDA_PMID(0,1006) },
-    { "secret.foo.bar.grunt.snort.huff.puff.seven", PMDA_PMID(0,1007) }
+    { "secret.foo.bar.grunt.snort.huff.puff.seven", PMDA_PMID(0,1007) },
+    { "ghosts.visible", PMDA_PMID(0,1008) },
+    { "ghosts.origin", PMDA_PMID(0,1009) },
+    { "ghosts.karma", PMDA_PMID(0,1010) },
+    { "ghosts.state", PMDA_PMID(0,1011) },
 };
 static int	numdyn = sizeof(dynamic_ones)/sizeof(dynamic_ones[0]);
 
@@ -1083,6 +1112,7 @@ init_tables(int dom)
     indomtab[MANY_INDOM].it_indom = pmInDom_build(dom, serial++);
     indomtab[SCRAMBLE_INDOM].it_indom = pmInDom_build(dom, serial++);
     indomtab[EVENT_INDOM].it_indom = pmInDom_build(dom, serial++);
+    indomtab[GHOST_INDOM].it_indom = pmInDom_build(dom, serial++);
 
     /* rewrite indom in desctab[] */
     for (dp = desctab; dp->pmid != PM_ID_NULL; dp++) {
@@ -1140,6 +1170,11 @@ init_tables(int dom)
 	    case PMDA_PMID(0,136):		/* event.records */
 	    case PMDA_PMID(0,139):		/* event.highres_records */
 		dp->indom = indomtab[EVENT_INDOM].it_indom;
+		break;
+	    case PMDA_PMID(0,1009):	/* sample.ghosts.origin	*/
+	    case PMDA_PMID(0,1010):	/* sample.ghosts.karma */
+	    case PMDA_PMID(0,1011):	/* sample.ghosts.state */
+		dp->indom = indomtab[GHOST_INDOM].it_indom;
 		break;
 	}
     }
@@ -1316,6 +1351,13 @@ sample_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
     
     for (i = 0; i < numdyn; i++) {
 	if (strcmp(p, dynamic_ones[i].name) == 0) {
+	    /*
+	     * ghosts.origin and ghosts.karma and ghosts.state are not
+	     * visible in the PMNS unless visible_ghosts >= 0
+	     */
+	    if (visible_ghosts < 0 && pmID_cluster(dynamic_ones[i].pmid) == 0 &&
+		(pmID_item(dynamic_ones[i].pmid) == 1009 || pmID_item(dynamic_ones[i].pmid) == 1010 || pmID_item(dynamic_ones[i].pmid) == 1011))
+		continue;
 	    *pmid = dynamic_ones[i].pmid;
 	    return 0;
 	}
@@ -1341,34 +1383,41 @@ sample_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 
     for (i = 0; i < numdyn; i++) {
 	if (dynamic_ones[i].pmid == pmid) {
+	    if (visible_ghosts < 0 && pmID_cluster(pmid) == 0 &&
+		(pmID_item(pmid) == 1009 || pmID_item(pmid) == 1010 || pmID_item(pmid) == 1011))
+		continue;
 	    nmatch++;
 	    len += strlen(pfx)+strlen(dynamic_ones[i].name)+1;
 	}
     }
 
-    if (nmatch == 0)
-	return PM_ERR_PMID;
+    if (nmatch > 0) {
+	len += nmatch*sizeof(char *);	/* pointers to names */
 
-    len += nmatch*sizeof(char *);	/* pointers to names */
+	if ((list = (char **)malloc(len)) == NULL)
+	    return -oserror();
 
-    if ((list = (char **)malloc(len)) == NULL)
-	return -oserror();
-
-    p = (char *)&list[nmatch];
-    nmatch = 0;
-    for (i = 0; i < numdyn; i++) {
-	if (dynamic_ones[i].pmid == pmid) {
-	    list[nmatch++] = p;
-	    strcpy(p, pfx);
-	    p += strlen(pfx);
-	    strcpy(p, dynamic_ones[i].name);
-	    p += strlen(dynamic_ones[i].name);
-	    *p++ = '\0';
+	p = (char *)&list[nmatch];
+	nmatch = 0;
+	for (i = 0; i < numdyn; i++) {
+	    if (dynamic_ones[i].pmid == pmid) {
+		if (visible_ghosts < 0 && pmID_cluster(pmid) == 0 &&
+		    (pmID_item(pmid) == 1009 || pmID_item(pmid) == 1010 || pmID_item(pmid) == 1011))
+		    continue;
+		list[nmatch++] = p;
+		strcpy(p, pfx);
+		p += strlen(pfx);
+		strcpy(p, dynamic_ones[i].name);
+		p += strlen(dynamic_ones[i].name);
+		*p++ = '\0';
+	    }
 	}
-    }
-    *nameset = list;
+	*nameset = list;
 
-    return nmatch;
+	return nmatch;
+    }
+
+    return PM_ERR_PMID;
 }
 
 static int
@@ -1396,6 +1445,9 @@ sample_children(const char *name, int traverse, char ***offspring, int **status,
 
     nmatch = 0;
     for (i = 0; i < numdyn; i++) {
+	if (visible_ghosts < 0 && pmID_cluster(dynamic_ones[i].pmid) == 0 &&
+	    (pmID_item(dynamic_ones[i].pmid) == 1009 || pmID_item(dynamic_ones[i].pmid) == 1010 || pmID_item(dynamic_ones[i].pmid) == 1011))
+	    continue;
 	q = dynamic_ones[i].name;
 	if (strncmp(p, q, namelen) != 0) {
 	    /* no prefix match */
@@ -1557,6 +1609,7 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
     int		inst;
     int		numval;
     int		need_dynamic = 1;
+    int		need_ghost = 1;
     static pmResult	*res;
     static int		maxnpmids;
     static int		nbyte;
@@ -1606,6 +1659,15 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
 		    return j;
 	    }
 	}
+	if (cluster == 0 && (item == 1009 || item == 1010 || item == 1011)) {
+	    if (need_ghost) {
+		need_ghost = 0;
+		state_ghosts++;
+		/* states cycle after 24 (0 .. 23) */
+		if (state_ghosts == 24)
+		    state_ghosts = 0;
+	    }
+	}
 
 	if (direct_map) {
 	    j = item;
@@ -1645,6 +1707,9 @@ doit:
 		      item == 134 ||	/* event.param_string */
 		      item == 135))	/* event.param_aggregate */
 		numval = 0;
+	    else if (visible_ghosts < 0 && cluster == 0 &&
+		    (item == 1009 || item == 1010 || item == 1011))
+		numval = PM_ERR_PMID;
 	    else if (dp->type == PM_TYPE_NOSUPPORT)
 		numval = PM_ERR_APPVERSION;
 	    else if (dp->indom != PM_INDOM_NULL) {
@@ -2388,6 +2453,79 @@ doit:
 		    case 1007:	/* secret.foo.bar.grunt.snort.seven */
 			atom.l = 7;
 			break;
+		    case 1008:	/* sample.ghosts.visible */
+			atom.l = visible_ghosts;
+			break;
+		    case 1009:	/* sample.ghosts.origin	*/
+			atom.cp = origin_ghosts[inst-1];
+			break;
+		    case 1010:	/* sample.ghosts.karma */
+			atom.ul = strlen(_ghosts[inst-1].i_name);
+			break;
+		    case 1011:	/* sample.ghosts.state */
+			/*
+			 * binary states
+			 * inst 1 & 2 oscillate duration is 1
+			 * inst 3 & 4 oscillate duration is 2
+			 * inst 5 & 6 oscillate duration is 3
+			 * inst 7 oscillate duration is 4
+			 * and inst N+1 value is opposite to inst N value
+			 * inst 8 always 0
+			 */
+			switch (inst) {
+			    int		t;
+			    case 1:
+				if ((state_ghosts % 2) == 0)
+				    atom.ul = 1;
+				else
+				    atom.ul = 0;
+				break;
+			    case 2:
+				if ((state_ghosts % 2) == 0)
+				    atom.ul = 0;
+				else
+				    atom.ul = 1;
+				break;
+			    case 3:
+				t = state_ghosts % 4;
+				if (t < 2)
+				    atom.ul = 1;
+				else
+				    atom.ul = 0;
+				break;
+			    case 4:
+				t = state_ghosts % 4;
+				if (t < 2)
+				    atom.ul = 0;
+				else
+				    atom.ul = 1;
+				break;
+			    case 5:
+				t = state_ghosts % 6;
+				if (t < 3)
+				    atom.ul = 1;
+				else
+				    atom.ul = 0;
+				break;
+			    case 6:
+				t = state_ghosts % 6;
+				if (t < 3)
+				    atom.ul = 0;
+				else
+				    atom.ul = 1;
+				break;
+			    case 7:
+				t = state_ghosts % 8;
+				if (t < 4)
+				    atom.ul = 1;
+				else
+				    atom.ul = 0;
+				break;
+			    case 8:
+				atom.ul = 0;
+				break;
+			}
+			break;
 		    case 1023: /* bigid */
 			atom.l = 4194303;
 			break;
@@ -2439,6 +2577,9 @@ doit:
 		return _error_code;
 	    else if (item == 86)
 		*desc = magic;
+	    else if (visible_ghosts < 0 &&
+		(item == 1009 || item == 1010 || item == 1011))
+		return PM_ERR_PMID;
 	    else
 		*desc = desctab[i];
 	    return 0;
@@ -2555,6 +2696,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 141:	/* sample.negative.ctr.m_32 */
 	    case 145:	/* sample.negative.instant.m_32 */
 	    case 149:	/* sample.negative.discrete.m_32 */
+	    case 1008:	/* sample.ghosts.visible */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		    sts = PM_ERR_BADSTORE;
 		break;
@@ -2786,6 +2928,13 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 148:	/* sample.negative.instant.m_double */
 	    case 152:	/* sample.negative.discrete.m_double */
 		_neg_double = av.d;
+		break;
+	    case 1008:	/* sample.ghosts.visible */
+		visible_ghosts = av.l;
+		if (visible_ghosts > num_ghosts)
+		    visible_ghosts = num_ghosts;
+		indomtab[GHOST_INDOM].it_numinst = visible_ghosts;
+		state_ghosts = 23;
 		break;
 	    default:
 		sts = PM_ERR_PERMISSION;

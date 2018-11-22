@@ -34,10 +34,22 @@ _cleanup()
 
     if pmprobe -I pmcd.agent.status | grep '"dynamic"' >/dev/null
     then
+	# need to uninstall dynamic PMDA
+	#
         cd $here/pmdas/dynamic
         $sudo ./Remove >>$here/$seq.full 2>&1
         cd $here
     fi
+
+    if pminfo | grep '^dynamic' >/dev/null
+    then
+	# need to cleanup PMNS
+	#
+        cd $here/pmdas/dynamic
+        $sudo ./Remove >>$here/$seq.full 2>&1
+        cd $here
+    fi
+
     $sudo rm -f $tmp.*
 }
 
@@ -140,11 +152,12 @@ pmsleep 3.75
 echo "Tickle access to the failed PMDA, must see 'Try Again'"
 pmprobe -h unix:$tmp.socket -i hinv.ncpu | tee $tmp.tmp
 nval=`$PCP_AWK_PROG <$tmp.tmp '{print $2}'`
-if [ "$nval" -ge 0 ]
+if [ -z "$nval" -o "$nval" -ge 0 ]
 then
     # this is not expected
     #
     echo "Error: nval=$nval not as expected ... see $seq.full"
+    pmprobe -h unix:$tmp.socket -i hinv.ncpu >>$here/$seq.full
     echo "+++ Tickle failed `date` +++" >>$here/$seq.full
     cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
     cat $PCP_LOG_DIR/pmcd/dynamic.log >>$here/$seq.full

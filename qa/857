@@ -30,27 +30,32 @@ _filter()
 # real QA test starts here
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 metrics="kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.softirqs"
-machine=8cpu-x86_64
 
-export LINUX_STATSPATH=$tmp.root
-export LINUX_NCPUS=8
+for machine in 8cpu-x86_64 1cpu-i686
+do
+    ncpus=`echo $machine | sed -e 's/cpu.*//g'`
+    export LINUX_STATSPATH=$tmp.root
+    export LINUX_NCPUS=$ncpus
 
-mkdir -p $LINUX_STATSPATH/proc
-cp $here/linux/interrupts-$machine $LINUX_STATSPATH/proc/interrupts
-cp $here/linux/softirqs-$machine $LINUX_STATSPATH/proc/softirqs
-_make_proc_stat $LINUX_STATSPATH/proc/stat $LINUX_NCPUS
+    mkdir -p $LINUX_STATSPATH/proc
+    cp $here/linux/interrupts-$machine $LINUX_STATSPATH/proc/interrupts
+    cp $here/linux/softirqs-$machine $LINUX_STATSPATH/proc/softirqs
+    _make_proc_stat $LINUX_STATSPATH/proc/stat $ncpus
 
-echo "== Checking interrupts and softirqs names"
-_run_valgrind pminfo -L -K clear -K add,60,$pmda $metrics | _filter
-echo && echo "== done" && echo
+    echo "== Checking interrupts and softirqs names - $ncpus CPU(s)"
+    _run_valgrind pminfo -L -K clear -K add,60,$pmda $metrics | _filter
+    echo && echo "== done" && echo
 
-echo "== Checking interrupts and softirqs values"
-_run_valgrind pminfo --fetch -L -K clear -K add,60,$pmda $metrics | _filter
-echo && echo "== done" && echo
+    echo "== Checking interrupts and softirqs values"
+    _run_valgrind pminfo --fetch -L -K clear -K add,60,$pmda $metrics | _filter
+    echo && echo "== done" && echo
 
-echo "== Checking interrupts and softirqs helptext"
-_run_valgrind pminfo -tT -L -K clear -K add,60,$pmda $metrics | _filter
-echo && echo "== done" && echo
+    echo "== Checking interrupts and softirqs helptext"
+    _run_valgrind pminfo -tT -L -K clear -K add,60,$pmda $metrics | _filter
+    echo && echo "== done" && echo
+
+    rm -fr $LINUX_STATSPATH/proc
+done
 
 # success, all done
 status=0

@@ -192,7 +192,7 @@ series_split(sds string, pmSID **series)
 
     if (!string || !sdslen(string))
 	return 0;
-    length = strlen(string);
+    length = sdslen(string);
     if ((*series = sdssplitlen(string, length, ",", 1, &nseries)) == NULL)
 	return -ENOMEM;
     return nseries;
@@ -290,6 +290,15 @@ on_series_match(pmSID sid, void *arg)
     if (series_next(dp, sid))
 	printf("%s\n", sid);
     return 0;
+}
+
+static void
+on_series_match_done(int sts, void *arg)
+{
+    series_data		*dp = (series_data *)arg;
+
+    (void)dp;
+    (void)sts;
 }
 
 static int
@@ -1077,6 +1086,7 @@ main(int argc, char *argv[])
     dp = series_data_init(flags, query);
 
     dp->settings.callbacks.on_match = on_series_match;
+    dp->settings.callbacks.on_match_done = on_series_match_done;
     dp->settings.callbacks.on_desc = on_series_desc;
     dp->settings.callbacks.on_inst = on_series_inst;
     dp->settings.callbacks.on_labelmap = on_series_labelmap;

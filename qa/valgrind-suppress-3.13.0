@@ -49,3 +49,21 @@
    fun:__pmConnectPMCD
    ...
 }
+
+# qa/681 on vm02 ... this one goes away when you compile w/out -O2,
+# so probably bogus
+#
+# at 0x4C2E08F: malloc (in /usr/lib64/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0x5163219: strdup (in /lib64/libc-2.26.so)
+# by 0x4E9B742: __pmProcessAddArg (exec.c:167)
+# by 0x4012E5: main (exectest.c:97)
+{
+   processaddarg_bogus
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:strdup
+   fun:__pmProcessAddArg
+   fun:main
+}
+

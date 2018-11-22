@@ -40,7 +40,7 @@ pack_pcp : rpmmacros $(SPEC)
 		sed -e "s,^,$${RPMDIR},g" -e 's/$$/.rpm/g'`; \
 	    rpmsign --addsign --key-id=$${RPM_SIGN_KEYID} $${RPMS}; \
 	fi
-	rm -f $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm rpmmacros 
+	rm -f $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm rpmmacros
 
 rpmmacros : macros.template
 	@TREEROOT=`cd ${TOPDIR}; pwd`; \
@@ -69,6 +69,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_bcc@|$(PMDA_BCC)|g' \
 	    -e's|@pmda_rpm@|$(PMDA_RPM)|g' \
 	    -e's|@pmda_papi@|$(PMDA_PAPI)|g' \
+	    -e's|@pmda_podman@|$(PMDA_PODMAN)|g' \
 	    -e's|@pmda_systemd@|$(PMDA_SYSTEMD)|g' \
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
 	    -e's|@pmda_perfevent@|$(PMDA_PERFEVENT)|g' \
@@ -88,13 +89,12 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_nutcracker@|$(PMDA_NUTCRACKER)|g' \
 	    -e's|@pcp2xlsx@|$(HAVE_PYTHON_OPENPYXL)|g' \
 	    -e's|@pcp2influxdb@|$(HAVE_PYTHON_INFLUXDB)|g' \
-	    -e's|@pcp2elasticsearch@|$(HAVE_PYTHON_ELASTICSEARCH)|g' \
+	    -e's|@pcp2elasticsearch@|$(HAVE_PYTHON_REQUESTS)|g' \
 	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \
 	    -e's|@enable_avahi@|$(ENABLE_AVAHI)|g' \
 	    -e's|@enable_dstat@|$(ENABLE_DSTAT)|g' \
-	    -e's|@have_boost@|$(HAVE_BOOST)|g' \
 	    -e's|@enable_qt@|$(ENABLE_QT)|g' \
 	    -e's|@enable_python2@|$(ENABLE_PYTHON2)|g' \
 	    -e's|@enable_python3@|$(ENABLE_PYTHON3)|g' \
@@ -103,6 +103,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@enable_selinux@|$(ENABLE_SELINUX)|g' \
 	    -e's|@enable_lzma@|$(ENABLE_LZMA)|g' \
 	    -e's|@have_libmicrohttpd@|$(have_libmicrohttpd)|g' \
+	    -e's|@have_boost@|$(HAVE_BOOST)|g' \
 	    -e's|@have_cairo@|$(have_cairo)|g' \
 	    -e's|@have_python@|$(HAVE_PYTHON)|g' \
 	    -e's|@have_webapps@|$(HAVE_WEBAPPS)|g' \

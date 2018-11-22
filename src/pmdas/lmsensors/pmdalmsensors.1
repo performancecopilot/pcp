@@ -51,18 +51,31 @@ If you want to undo the installation, do the following as root:
 .fi 
 .ft 1
 .PP 
-pmdalmsensors.python is launched by
-.BR pmcd (1)
-The Install and Remove scripts notify
-.BR pmcd (1)
-when the agent is installed or removed.
-pmdalmsensors.python is usually not executed directly. For debugging
-purposes, 'debug' in the script can be set to 1 or 2.  When then
-running the script from command line, debug output is printed
-to STDOUT. This should just be used when running the script manually
-from the command line. To use the script from
-.BR pmcd (1)
-, the script should contain 'debug = 0'.
+pmdalmsensors.python is usually launched by pmcd (1), and not
+executed directly. Direct execution is mostly used for debugging
+purposes.
+
+
+The Install and Remove scripts notify pmcd (1) when the agent 
+is installed or removed.
+.SH "OPTIONS"
+.PP
+pmdalmsensors.python supports the following options.
+.TP
+\fB\-i\fR, \fB\-\-inject\fR
+inject data from file instead of using sensors
+.TP
+\fB\-d\fR, \fB\-\-debug\fR
+debug level: 0 (default), 1 or 2
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show a help message
+
+To use options while pmdalmsensors.python is run from PMCD,
+you might want to use 'args' in the 'Install' stript, for
+example
+
+args="\-i /path/static_sensors_output.txt"
 .SH "FILES"
 .PD 0
 .TP 10
@@ -100,6 +113,7 @@ as described in
 .SH "SEE ALSO"
 .BR PCPIntro (1),
 .BR pmcd (1),
-.BR pcp.conf (5)
+.BR pcp.conf (5),
+.BR pcp.env (5)
 and
-.BR pcp.env (5).
+.BR sensors (1).

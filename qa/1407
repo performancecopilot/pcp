@@ -31,8 +31,29 @@ then
     export DISPLAY=$PCPQA_CLOSE_X_SERVER
 fi
 
+# check pmchart can parse Iostat view
+#
+export PCP_STDERR=$tmp.err
+pmchart -C -c Iostat
+if [ -s $tmp.err ]
+then
+    echo "Arrgh ... stderr from pmchart -C -c iostat"
+    cat $tmp.err
+    exit
+fi
+
 echo expect no output, especially no qt/scaling or divide by zero exceptions
-pmchart -z -a $here/archives/zero_disk_activity -c Iostat -t 0.1 -O'@fri jul 13 00:11:40' -o $tmp.out.png 2>&1
+pmchart -z -a $here/archives/zero_disk_activity -c Iostat -t 0.1 -O'@fri jul 13 00:11:40' -o $tmp.out.png 2>>$tmp.err
+sed <$tmp.err >$tmp.tmp \
+    -e '/libGL error: No matching fbConfigs/d' \
+    -e '/libGL error: failed to load driver: swrast/d' \
+# end
+if [ -s $tmp.tmp ]
+then
+    echo "Arrgh ... stderr from pmchart ..."
+    cat $tmp.err
+    exit
+fi
 
 # success, all done
 status=0

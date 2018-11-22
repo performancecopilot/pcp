@@ -25,7 +25,7 @@ _stop_auto_restart pmcd
 cd $here/java
 java -XX:+DTraceAllocProbes -XX:+ExtendedDTraceProbes USDTJVMTest &
 javapid=$!
-disown
+disown > /dev/null 2>&1 || :
 cd $here
 
 # real QA test starts here

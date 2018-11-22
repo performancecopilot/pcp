@@ -1,0 +1,9 @@
+QA output created by 1297
+
+== confirm no primary pmie running:
+== finished
+
+== confirm primary pmie is running:
+     pmie: primary engine: PCP_LOG_DIR/pmie/HOSTNAME/pmie.log
+== finished
+

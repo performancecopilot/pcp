@@ -1,23 +1,22 @@
 QA output created by 1130
 
 === 1. pcp2elasticsearch one-shot one-metric ===
-Found correct index in output
 Found correct value in output
 === 2. pcp2elasticsearch non-default targets ===
-Found correct index in output
 Found proper hostid in output
 === 3. pcp2elasticsearch full-blown archive replay session ===
 --- Start of received data ---
-                    "type": "date"
+                    "type": "epoch_milli"
                     "type": "string"
+                "@host-id": {
                 "@timestamp": {
-                "host-id": {
                 }
                 }
             "properties": {
             }
         "pcp-metric": {
         }
+    "ignore": 400
     "mappings": {
     }
 {
@@ -92,16 +91,17 @@ Found proper hostid in output
     }
 {
 }
-                    "type": "date"
+                    "type": "epoch_milli"
                     "type": "string"
+                "@host-id": {
                 "@timestamp": {
-                "host-id": {
                 }
                 }
             "properties": {
             }
         "pcp-metric": {
         }
+    "ignore": 400
     "mappings": {
     }
 {
@@ -192,16 +192,17 @@ Found proper hostid in output
     }
 {
 }
-                    "type": "date"
+                    "type": "epoch_milli"
                     "type": "string"
+                "@host-id": {
                 "@timestamp": {
-                "host-id": {
                 }
                 }
             "properties": {
             }
         "pcp-metric": {
         }
+    "ignore": 400
     "mappings": {
     }
 {
@@ -292,16 +293,17 @@ Found proper hostid in output
     }
 {
 }
-                    "type": "date"
+                    "type": "epoch_milli"
                     "type": "string"
+                "@host-id": {
                 "@timestamp": {
-                "host-id": {
                 }
                 }
             "properties": {
             }
         "pcp-metric": {
         }
+    "ignore": 400
     "mappings": {
     }
 {
@@ -392,16 +394,17 @@ Found proper hostid in output
     }
 {
 }
-                    "type": "date"
+                    "type": "epoch_milli"
                     "type": "string"
+                "@host-id": {
                 "@timestamp": {
-                "host-id": {
                 }
                 }
             "properties": {
             }
         "pcp-metric": {
         }
+    "ignore": 400
     "mappings": {
     }
 {

@@ -96,6 +96,7 @@ static pmLongOptions longopts[] = {
     { "check", 0, 'C', 0, "parse configuration and exit" },
     { "config", 1, 'c', "FILE", "configuration file" },
     { "interact", 0, 'd', 0, "interactive debugging mode" },
+    { "primary", 0, 'P', 0, "execute as primary inference engine" },
     { "foreground", 0, 'f', 0, "run in the foreground, not as a daemon" },
     { "", 0, 'H', NULL }, /* was: no DNS lookup on the default hostname */
     { "", 1, 'j', "FILE", "stomp protocol (JMS) file" },
@@ -115,7 +116,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:A:bc:CdD:efHh:j:l:n:O:qS:t:T:U:vVWXxzZ:?",
+    .short_options = "a:A:bc:CdD:efHh:j:l:n:O:PqS:t:T:U:vVWXxzZ:?",
     .long_options = longopts,
     .short_usage = "[options] [filename ...]",
     .override = override,
@@ -468,6 +469,7 @@ getargs(int argc, char *argv[])
     char		*msg;
     int			checkFlag = 0;
     int			foreground = 0;
+    int			primary = 0;
     int			sts;
     int			c;
     int			bflag = 0;
@@ -543,6 +545,11 @@ getargs(int argc, char *argv[])
 
 	case 'f':			/* in foreground, not as daemon */
 	    foreground = 1;
+	    break;
+
+	case 'P':			/* primary (local) pmie process */
+	    primary = 1;
+	    isdaemon = 1;
 	    break;
 
 	case 'H': 			/* deprecated: no DNS lookups */
@@ -768,6 +775,8 @@ getargs(int argc, char *argv[])
 #ifndef IS_MINGW
 	setsid();	/* not process group leader, lose controlling tty */
 #endif
+	if (primary)
+	    __pmServerCreatePIDFile(pmGetProgname(), 0);
     }
 
     if (stomping)

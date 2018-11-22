@@ -1,5 +1,3 @@
 etc/pcp/pmsnap
 usr/share/icons
 usr/share/pixmaps
-var/lib/pcp/config/pmchart
-var/lib/pcp/config/pmsnap

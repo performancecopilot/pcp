@@ -62,7 +62,7 @@ No current pmie process exists for:
 host = LOCALHOST
 log file = /tmp/SEQ-PID.log0
 Restarting pmie for host "LOCALHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l /tmp/SEQ-PID.log0 -c /tmp/SEQ-PID.conf
++ $PCP_BIN_DIR/pmie -b -P -l /tmp/SEQ-PID.log0 -c /tmp/SEQ-PID.conf
 
 === warnings ... ===
 --- stale lock file ---

@@ -411,7 +411,7 @@ __check_root()
     else
 	if [ "X$ROOT" != X -a "X$ROOT" != X/ ]
 	then
-	    echo "Install: \$ROOT was set to \"$ROOT\""
+	    echo "$prog: \$ROOT was set to \"$ROOT\""
 	    echo "          Use -R rootdir to install somewhere other than /"
 	    status=1
 	    exit
@@ -433,7 +433,7 @@ __check_domain()
     then
 	__infile=domain.h.python
     else
-	echo "Install: cannot find domain.h (or similar) to determine the Performance Metrics Domain"
+	echo "$prog: cannot find domain.h (or similar) to determine the Performance Metrics Domain"
 	status=1
 	exit
     fi
@@ -460,7 +460,7 @@ __check_domain()
     fi
     if [ "X$domain" = X ]
     then
-	echo "Install: cannot determine the Performance Metrics Domain from $__infile"
+	echo "$prog: cannot determine the Performance Metrics Domain from $__infile"
 	status=1
 	exit
     fi

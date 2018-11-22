@@ -1,4 +1,249 @@
 QA output created by 886
+== Checking interrupts metrics from interrupts-1cpu-i686 (1 CPU)
+
+kernel.percpu.intr
+    inst [0 or "cpu0"] value 7538223
+
+kernel.percpu.interrupts.PIW
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.NPI
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.PIN
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.MIS
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.ERR
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.HVS
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.HRE
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.HYP
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.MCP
+    inst [0 or "cpu0"] value 276
+
+kernel.percpu.interrupts.MCE
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.DFR
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.THR
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.TRM
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.TLB
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.CAL
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.RES
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.RTR
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.IWI
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.PMI
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.SPU
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.LOC
+    inst [0 or "cpu0"] value 6651207
+
+kernel.percpu.interrupts.NMI
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.line25
+    inst [0 or "cpu0"] value 234
+
+kernel.percpu.interrupts.line24
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.line15
+    inst [0 or "cpu0"] value 578269
+
+kernel.percpu.interrupts.line14
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.line12
+    inst [0 or "cpu0"] value 1080
+
+kernel.percpu.interrupts.line11
+    inst [0 or "cpu0"] value 307009
+
+kernel.percpu.interrupts.line10
+    inst [0 or "cpu0"] value 130
+
+kernel.percpu.interrupts.line9
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.line8
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.line1
+    inst [0 or "cpu0"] value 9
+
+kernel.percpu.interrupts.line0
+    inst [0 or "cpu0"] value 9
+
+== done
+
+== Checking interrupts helptext from interrupts-1cpu-i686 (1 CPU)
+
+kernel.percpu.intr [interrupt count metric from /proc/interrupts]
+Help:
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+
+kernel.percpu.interrupts.PIW [Posted-interrupt wakeup event]
+Help:
+Posted-interrupt wakeup event
+
+kernel.percpu.interrupts.NPI [Nested posted-interrupt event]
+Help:
+Nested posted-interrupt event
+
+kernel.percpu.interrupts.PIN [Posted-interrupt notification event]
+Help:
+Posted-interrupt notification event
+
+kernel.percpu.interrupts.MIS One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.interrupts.ERR One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.interrupts.HVS [Hyper-V stimer0 interrupts]
+Help:
+Hyper-V stimer0 interrupts
+
+kernel.percpu.interrupts.HRE [Hyper-V reenlightenment interrupts]
+Help:
+Hyper-V reenlightenment interrupts
+
+kernel.percpu.interrupts.HYP [Hypervisor callback interrupts]
+Help:
+Hypervisor callback interrupts
+
+kernel.percpu.interrupts.MCP [Machine check polls]
+Help:
+Machine check polls
+
+kernel.percpu.interrupts.MCE [Machine check exceptions]
+Help:
+Machine check exceptions
+
+kernel.percpu.interrupts.DFR [Deferred Error APIC interrupts]
+Help:
+Deferred Error APIC interrupts
+
+kernel.percpu.interrupts.THR [Threshold APIC interrupts]
+Help:
+Threshold APIC interrupts
+
+kernel.percpu.interrupts.TRM [Thermal event interrupts]
+Help:
+Thermal event interrupts
+
+kernel.percpu.interrupts.TLB [TLB shootdowns]
+Help:
+TLB shootdowns
+
+kernel.percpu.interrupts.CAL [Function call interrupts]
+Help:
+Function call interrupts
+
+kernel.percpu.interrupts.RES [Rescheduling interrupts]
+Help:
+Rescheduling interrupts
+
+kernel.percpu.interrupts.RTR [APIC ICR read retries]
+Help:
+APIC ICR read retries
+
+kernel.percpu.interrupts.IWI [IRQ work interrupts]
+Help:
+IRQ work interrupts
+
+kernel.percpu.interrupts.PMI [Performance monitoring interrupts]
+Help:
+Performance monitoring interrupts
+
+kernel.percpu.interrupts.SPU [Spurious interrupts]
+Help:
+Spurious interrupts
+
+kernel.percpu.interrupts.LOC [Local timer interrupts]
+Help:
+Local timer interrupts
+
+kernel.percpu.interrupts.NMI [Non-maskable interrupts]
+Help:
+Non-maskable interrupts
+
+kernel.percpu.interrupts.line25 [PCI-MSI 65536-edge snd_hda_intel:card0]
+Help:
+PCI-MSI 65536-edge snd_hda_intel:card0
+
+kernel.percpu.interrupts.line24 [PCI-MSI 81920-edge ahci[0000:00:05.0]]
+Help:
+PCI-MSI 81920-edge ahci[0000:00:05.0]
+
+kernel.percpu.interrupts.line15 [IO-APIC 15-edge ata_piix]
+Help:
+IO-APIC 15-edge ata_piix
+
+kernel.percpu.interrupts.line14 [IO-APIC 14-edge ata_piix]
+Help:
+IO-APIC 14-edge ata_piix
+
+kernel.percpu.interrupts.line12 [IO-APIC 12-edge i8042]
+Help:
+IO-APIC 12-edge i8042
+
+kernel.percpu.interrupts.line11 [IO-APIC 11-fasteoi uhci_hcd:usb1, ens3]
+Help:
+IO-APIC 11-fasteoi uhci_hcd:usb1, ens3
+
+kernel.percpu.interrupts.line10 [IO-APIC 10-fasteoi virtio0, qxl]
+Help:
+IO-APIC 10-fasteoi virtio0, qxl
+
+kernel.percpu.interrupts.line9 [IO-APIC 9-fasteoi acpi]
+Help:
+IO-APIC 9-fasteoi acpi
+
+kernel.percpu.interrupts.line8 [IO-APIC 8-edge rtc0]
+Help:
+IO-APIC 8-edge rtc0
+
+kernel.percpu.interrupts.line1 [IO-APIC 1-edge i8042]
+Help:
+IO-APIC 1-edge i8042
+
+kernel.percpu.interrupts.line0 [IO-APIC 2-edge timer]
+Help:
+IO-APIC 2-edge timer
+
+== done
+
 == Checking interrupts metrics from interrupts-2cpu-s390x (2 CPU)
 
 kernel.percpu.intr
@@ -580,6 +825,40 @@ IR-IO-APIC 1-edge i8042
 kernel.percpu.interrupts.line0 [IR-IO-APIC 2-edge timer]
 Help:
 IR-IO-APIC 2-edge timer
+
+== done
+
+== Checking softirqs metrics from softirqs-1cpu-i686 (1 CPU)
+
+kernel.percpu.softirqs.RCU
+    inst [0 or "cpu0"] value 9479358
+
+kernel.percpu.softirqs.HRTIMER
+    inst [0 or "cpu0"] value 6675
+
+kernel.percpu.softirqs.SCHED
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.softirqs.TASKLET
+    inst [0 or "cpu0"] value 25
+
+kernel.percpu.softirqs.IRQ_POLL
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.softirqs.BLOCK
+    inst [0 or "cpu0"] value 649022
+
+kernel.percpu.softirqs.NET_RX
+    inst [0 or "cpu0"] value 2315415
+
+kernel.percpu.softirqs.NET_TX
+    inst [0 or "cpu0"] value 28234
+
+kernel.percpu.softirqs.TIMER
+    inst [0 or "cpu0"] value 6403664
+
+kernel.percpu.softirqs.HI
+    inst [0 or "cpu0"] value 0
 
 == done
 

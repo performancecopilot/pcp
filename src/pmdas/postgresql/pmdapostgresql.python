@@ -23,16 +23,16 @@
 import os
 import sys
 import time
+import traceback
 from ctypes import c_int
+import psycopg2
 try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
-import traceback
 from pcp.pmapi import pmUnits
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 import cpmapi as c_api
-import psycopg2
 if sys.version >= '3':
     long = int  # python2 to python3 portability (no long() in python3)
 

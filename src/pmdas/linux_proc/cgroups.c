@@ -282,6 +282,7 @@ cgroup_mounts_subsys(const char *system, char *buffer, int length)
 
 /*
  * From a cgroup name attempt to extract a container ID
+ *    /machine.slice/libpod-06e531[...]85c.scope (e.g. RHEL/Fedora)
  *    /system.slice/docker-0ea0c4[...]3bc0.scope (e.g. RHEL/Fedora)
  *    /docker/0ea0c4[...]3bc0  (e.g. Debian/Ubuntu/SUSE)
  * However, we need to be wary of strings like "docker-containerd".
@@ -305,15 +306,15 @@ cgroup_container_search(const char *cgroup, char *cid, int cidlen)
     if (p == cgroup)
 	return NULL;
 
-    if (strncmp(p, "/docker-", sizeof("/docker-")-1) == 0) {
-	p += sizeof("/docker-")-1;
+    if (strncmp(p, "/libpod-", 8) == 0 || strncmp(p, "/docker-", 8) == 0) {
+	p += 8;
 	if ((end = strchr(p, '.')) != NULL &&
-	    ((len = end - p) < cidlen) && len == DOCKERCIDLEN) {
+	    ((len = end - p) < cidlen) && len == SHA256CIDLEN) {
 	    strncpy(cid, p, len);
 	    cid[len] = '\0';
 	    return cid;
 	}
-    } else if ((len = (endp - p) - 2) == DOCKERCIDLEN) {
+    } else if ((len = (endp - p) - 2) == SHA256CIDLEN) {
 	strncpy(cid, p + 1, len);
 	cid[len] = '\0';
 	return cid;

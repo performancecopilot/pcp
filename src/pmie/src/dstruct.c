@@ -1319,6 +1319,9 @@ void
 dumpTask(Task *t)
 {
     int	i;
+    Host	*h;
+
+    h = t->hosts;
     fprintf(stderr, "Task dump @ " PRINTF_P_PFX "%p\n", t);
     fprintf(stderr, "  nth=%d delta=%.3f tick=%d next=" PRINTF_P_PFX "%p prev=" PRINTF_P_PFX "%p\n", t->nth, t->delta, t->tick, t->next, t->prev);
     fprintf(stderr, "  eval time: ");
@@ -1328,7 +1331,11 @@ dumpTask(Task *t)
     if (t->retry == 0)
 	fprintf(stderr, "N/A");
     else
-	fprintf(stderr, "%d", t->retry);
+	fprintf(stderr, "%.3f", t->retry);
+    if (h->down)
+	fprintf(stderr, " host %s down", symName(h->name));
+    else if (h->waits)
+	fprintf(stderr, " metric/instances missing");
     fputc('\n', stderr);
     if (t->hosts == NULL)
 	fprintf(stderr, "  host=<null>\n");

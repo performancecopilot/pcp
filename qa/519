@@ -146,9 +146,9 @@ if $have_journalctl
 then
     # be careful ... --boot not supported in all versions, -l not
     # supported in all versions
-    $sudo journalctl -b --full | tail -100 >$tmp.syslog
+    $sudo journalctl -b --full | tail -200 >$tmp.syslog
 else
-    $sudo tail -100 $SYSLOG >$tmp.syslog
+    $sudo tail -200 $SYSLOG >$tmp.syslog
 fi
 
 sed <$tmp.syslog -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
@@ -162,7 +162,7 @@ then
 else
     echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq.full
 fi
-echo "`wc -l <$tmp.syslog | sed -e 's/ //g'` lines ... expect 100" >>$seq.full
+echo "`wc -l <$tmp.syslog | sed -e 's/ //g'` lines ... expect 200" >>$seq.full
 cat $tmp.syslog >>$seq.full
 
 _check_core

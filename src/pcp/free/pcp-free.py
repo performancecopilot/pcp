@@ -70,7 +70,7 @@ class Free(object):
     def override(self, opt):
         """ Override a few standard PCP options to match free(1) """
         # pylint: disable=R0201
-        if opt == 'g' or opt == 's' or opt == 't':
+        if opt in ('g', 's', 't'):
             return 1
         return 0
 
@@ -143,7 +143,7 @@ class Free(object):
             values = self.extract(descs, result)
             self.context.pmFreeResult(result)
             self.report(values)
-            if self.pause != None:
+            if self.pause is not None:
                 print('') # empty line
                 sys.stdout.flush()
                 if self.count > 0:

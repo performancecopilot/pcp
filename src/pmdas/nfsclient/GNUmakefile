@@ -32,7 +32,7 @@ default_pcp default: build-me
 
 include $(BUILDRULES)
 
-ifeq "$(TARGET_OS)" "linux"
+ifeq "$(HAVE_PYTHON)" "true"
 build-me: check_domain
 install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)

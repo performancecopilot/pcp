@@ -92,6 +92,7 @@ typedef void (*pmSeriesDoneCallBack)(int, void *);
 
 typedef struct pmSeriesCallBacks {
     pmSeriesMatchCallBack	on_match;	/* one series identifier */
+    pmSeriesDoneCallBack	on_match_done;	/* last identifier send back */
     pmSeriesDescCallBack	on_desc;	/* metric descriptor */
     pmSeriesInstCallBack	on_inst;	/* instance details */
     pmSeriesLabelCallBack	on_labelmap;	/* label name value pair */
@@ -107,6 +108,7 @@ typedef struct pmSeriesModule {
     pmLogInfoCallBack		on_info;	/* general diagnostics call */
     pmSeriesSetupCallBack	on_setup;	/* server connections setup */
     sds                         hostspec;       /* initial connect hostspec */
+    void			*metrics;	/* registry of perf metrics */
     void			*events;	/* opaque event library data */
     void			*slots;		/* opaque server slots data */
     void			*data;		/* private internal lib data */
@@ -151,6 +153,7 @@ typedef struct pmDiscoverModule {
     pmLogInfoCallBack		on_info;	/* general diagnostics call */
     unsigned int		handle;		/* callbacks context handle */
     sds				logname;	/* archive directory dirname */
+    void			*metrics;	/* registry of perf metrics */
     void			*events;	/* opaque event library data */
     void			*slots;		/* opaque server slots data */
     void			*data;		/* private internal lib data */

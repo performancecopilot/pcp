@@ -586,6 +586,7 @@ pmDiscoverNewSource(pmDiscover *p, int context)
     int			len, nsets;
 
     p->ctx = context;
+    /* TODO: use pmwebapi_source_meta */
     host = pmGetContextHostName_r(context, hostname, sizeof(hostname));
     if ((nsets = pmGetContextLabels(&labelset)) > 0) {
 	pmwebapi_source_hash(hash, labelset->json, labelset->jsonlen);
@@ -595,7 +596,7 @@ pmDiscoverNewSource(pmDiscover *p, int context)
 	nsets = __pmAddLabels(&labelset, buf, 0);
 	pmwebapi_source_hash(hash, buf, len);
     }
-    p->context.source = pmwebapi_hash_sds(hash);
+    p->context.source = pmwebapi_hash_sds(NULL, hash);
     p->context.hostname = sdsnew(host);
     p->context.labelset = labelset;
 
@@ -824,7 +825,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		     */
 		    if ((type & PM_LABEL_CONTEXT)) {
 			pmwebapi_source_hash(hash, labelset->json, labelset->jsonlen);
-			source = pmwebapi_hash_sds(hash);
+			source = pmwebapi_hash_sds(NULL, hash);
 			if (sdscmp(source, p->context.source) == 0) {
 			    sdsfree(source);
 			} else {

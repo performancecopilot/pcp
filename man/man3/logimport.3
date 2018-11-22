@@ -28,11 +28,16 @@ cc ... \-lpcp_import \-lpcp
 .ft 3
 use PCP::LogImport;
 .ft 1
+.SH "Python SYNOPSIS"
+.ft 3
+from pcp import pmi
+.ft 1
 .SH DESCRIPTION
-The Performance Co-Pilot Log Import (LOGIMPORT) API is a library (and Perl wrapper)
-that supports the creation of PCP archives from external sources of
-performance data, either in the form of historical logs and spreadsheets
-or from real-time sources that are
+The Performance Co-Pilot Log Import (LOGIMPORT) API is a library
+(with Perl and Python wrappers) that supports the creation of PCP
+archives from external sources of performance data, either in the
+form of historical logs and spreadsheets or from real-time sources
+that are
 .B not
 integrated as a Performance Metrics
 Domain Agent (PMDA) under the control of

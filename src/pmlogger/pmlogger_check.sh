@@ -378,18 +378,7 @@ _get_logfile()
 
 _get_primary_logger_pid()
 {
-    pidfile="$PCP_TMP_DIR/pmlogger/primary"
-    if [ ! -L "$pidfile" ]
-    then
-	pid=''
-    elif which realpath >/dev/null 2>&1
-    then
-	pri=`readlink $pidfile`
-	pid=`basename "$pri"`
-    else
-	pri=`ls -l "$pidfile" | sed -e 's/.*-> //'`
-	pid=`basename "$pri"`
-    fi
+    pid=`cat "$PCP_RUN_DIR/pmlogger.pid" 2>/dev/null`
     echo "$pid"
 }
 
@@ -738,6 +727,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		    if $VERY_VERBOSE
 		    then
 			echo "primary pmlogger process pid not found"
+			ls -l "$PCP_RUN_DIR/pmlogger.pid"
 			ls -l "$PCP_TMP_DIR/pmlogger"
 		    fi
 		elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null

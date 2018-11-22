@@ -1,0 +1,54 @@
+#!/bin/sh
+# PCP QA Test No. 1297
+# Exercise systemd pmie start/stop (BZ 1650999)
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which systemctl >/dev/null 2>&1 || _notrun "systemctl tool not installed"
+[ -n "$PCP_SYSTEMDUNIT_DIR" ] || _notrun "systemd service files not installed"
+[ -f $PCP_SYSTEMDUNIT_DIR/pmie.service ] || _notrun "pmie service not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+host=`hostname`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$PCP_LOG_DIR,PCP_LOG_DIR,g" \
+	-e "s,$host,HOSTNAME,g" \
+    #end
+}
+
+# real QA test starts here
+$sudo systemctl stop pmie 2>&1 >/dev/null
+echo
+
+echo "== confirm no primary pmie running:"
+pcp | grep 'pmie: primary engine' | _filter
+echo "== finished" && echo
+
+$sudo systemctl start pmie 2>&1 >/dev/null
+echo "== confirm primary pmie is running:"
+pcp | grep 'pmie: primary engine' | _filter
+echo "== finished" && echo
+
+# success, all done
+status=0
+exit
