@@ -1,8 +1,8 @@
 module pcpupstream @PACKAGE_VERSION@;
 
 require {
-    attribute domain;
-    attribute file_type;
+        attribute domain;
+        attribute file_type;
 	type pcp_pmcd_t;
 	type user_home_t;
 	type user_home_dir_t; #RHBZ1488116
@@ -83,21 +83,21 @@ require {
         type postgresql_t;
         type cache_home_t; #RHBZ1634205
         @PCP_WAP_PORT_CONTEXT@
-        class sem { unix_read associate getattr };
+        class sem { unix_read associate getattr read };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
-	class dir { add_name open read search write getattr };
+	class dir { add_name open read search write getattr lock ioctl };
 	class unix_stream_socket connectto;
 	class capability { kill dac_override sys_ptrace net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
 	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
-	class fifo_file { getattr read open unlink }; # qa/455
+	class fifo_file { getattr read open unlink lock ioctl }; # qa/455
 	class process { signull signal execmem setrlimit }; #RHBZ1443632
 	class sock_file write; #RHBZ1449671
 	@PCP_SOCK_FILE_GETATTR@
 	@PCP_CLASS_STATUS@
 	class tcp_socket { name_bind name_connect };
-	class shm { unix_read associate getattr };
+	class shm { unix_read associate getattr read };
 	class filesystem mount;
 	class blk_file { ioctl open read };
 	class msgq { unix_read };
