@@ -1578,7 +1578,7 @@ BAD
 1243 valgrind pmfind libpcp local
 1245 libpcp local
 1247 pmlogrewrite labels text pmdumplog local
-1250 selinux local
+1250:reserved selinux local
 1255 libpcp local
 1257 libpcp python local
 1264 archive multi-archive collectl decompress-xz local pmlogextract pcp python
