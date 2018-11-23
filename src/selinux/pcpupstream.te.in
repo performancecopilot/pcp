@@ -1,6 +1,9 @@
 module pcpupstream @PACKAGE_VERSION@;
 
 require {
+        attribute domain;
+        attribute file_type;
+        attribute pcp_domain;
 	type pcp_pmcd_t;
 	type user_home_t;
 	type user_home_dir_t; #RHBZ1488116
@@ -18,6 +21,7 @@ require {
 	type pcp_pmproxy_t;
 	type pcp_pmmgr_t;
 	type pcp_tmp_t;
+        type pcp_pmwebd_t;
 	type sysctl_net_t;
 	type sysctl_fs_t; #RHBZ1505888
 	type svirt_sandbox_file_t;
@@ -81,21 +85,21 @@ require {
         type postgresql_t;
         type cache_home_t; #RHBZ1634205
         @PCP_WAP_PORT_CONTEXT@
-        class sem { unix_read associate getattr };
+        class sem { unix_read associate getattr read };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
-	class dir { add_name open read search write getattr };
+	class dir { add_name open read search write getattr lock ioctl };
 	class unix_stream_socket connectto;
 	class capability { kill dac_override sys_ptrace net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
 	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
-	class fifo_file { getattr read open unlink }; # qa/455
+	class fifo_file { getattr read open unlink lock ioctl }; # qa/455
 	class process { signull signal execmem setrlimit }; #RHBZ1443632
 	class sock_file write; #RHBZ1449671
 	@PCP_SOCK_FILE_GETATTR@
 	@PCP_CLASS_STATUS@
 	class tcp_socket { name_bind name_connect };
-	class shm { unix_read associate getattr };
+	class shm { unix_read associate getattr read };
 	class filesystem mount;
 	class blk_file { ioctl open read };
 	class msgq { unix_read };
@@ -462,3 +466,24 @@ allow pcp_pmcd_t self:capability sys_rawio;
 #============= pmda-redis ==============
 #type=AVC msg=audit(1533183330.416:362367): avc:  denied  { name_connect } for  pid=15299 comm="pmdaredis" dest=6379 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:redis_port_t:s0 tclass=tcp_socket permissive=0
 allow pcp_pmcd_t redis_port_t:tcp_socket name_connect;
+
+# allow pcp_pmcd_t domain to read all dirs,files and fifo_file in attribute file_type
+files_list_non_security(pcp_domain)
+files_read_all_files(pcp_pmcd_t)
+files_read_all_files(pcp_pmie_t)
+files_read_all_files(pcp_pmlogger_t)
+files_read_all_files(pcp_pmmgr_t)
+files_read_all_files(pcp_pmproxy_t)
+files_read_all_files(pcp_pmwebd_t)
+
+allow pcp_domain file_type:fifo_file read_fifo_file_perms;
+
+# allow pcp_pmcd_t domain to read shared memory and semaphores of all domain on system
+allow pcp_domain domain:shm r_sem_perms;
+allow pcp_domain domain:sem r_shm_perms;
+
+# allow pcp_domain stream connect to all domains
+allow pcp_domain domain:unix_stream_socket connectto;
+
+# allow pcp_domain to connect to all ports.
+corenet_tcp_connect_all_ports(pcp_domain)
