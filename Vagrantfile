@@ -4,11 +4,11 @@
 # Leave this alone
 VAGRANTFILE_API_VERSION = "2"
 
-# VM Configs
-VM_MEM = "1024"
-VM_CPU = "1"
+# General VM Parameters - 8Gb and 4CPUs
+VM_MEM = "8192"
+VM_CPU = "4"
 
-# QA Flags
+# QA Flags for provisioning/qa.sh
 QA_FLAGS = ""
 #QA_FLAGS = "022"
 #QA_FLAGS = "-g pmda.linux"
@@ -20,88 +20,108 @@ QA_FLAGS = ""
 ############################################################
 
 pcp_hosts = {
-        :ubuntu1204 => {
-                :hostname => "ubuntu1204",
-                :ipaddress => "10.100.10.10",
-                :box => "ubuntu/precise64",
+        :ubuntu1804 => {
+                :hostname => "ubuntu1804",
+                :ipaddress => "10.100.10.24",
+                :box => "generic/ubuntu1804",
                 :script => "ubuntu.sh"
         },
-#        :ubuntu1304 => {
-#                :hostname => "ubuntu1304",
-#                :ipaddress => "10.100.10.11",
-#                :box => "chef/ubuntu-13.04",
-#                :script => "#{$script_EOLubuntu}"
-#        },
+        :ubuntu1604 => {
+                :hostname => "ubuntu1604",
+                :ipaddress => "10.100.10.23",
+                :box => "generic/ubuntu1604",
+                :script => "ubuntu.sh"
+        },
         :ubuntu1404 => {
                 :hostname => "ubuntu1404",
-                :ipaddress => "10.100.10.12",
-                :box => "ubuntu/trusty64",
+                :ipaddress => "10.100.10.22",
+                :box => "generic/ubuntu1404",
                 :script => "ubuntu.sh"
         },
-#       :centos511 => {
-#                :hostname => "centos511",
-#                :ipaddress => "10.100.10.20",
-#                :box => "chef/centos-5.11",
-#                :script => "centos.sh"
-#        },
-# 	 :centos511_32 => {
-#                :hostname => "centos511-32",
-#                :ipaddress => "10.100.10.21",
-#                :box => "chef/centos-5.11-i386",
-#                :script => "centos.sh"
-#        },
-#        :centos65 => {
-#               :hostname => "centos65",
-#                :ipaddress => "10.100.10.22",
-#                :box => "chef/centos-6.5",
-#                :script => "centos.sh"
-#        },
+        :rhel7 => {
+                :hostname => "centos7",
+                :ipaddress => "10.100.10.21",
+                :box => "generic/centos7",
+                :script => "rhel.sh"
+        },
         :centos7 => {
                 :hostname => "centos7",
-                :ipaddress => "10.100.10.23",
-                :box => "centos/7",
+                :ipaddress => "10.100.10.20",
+                :box => "generic/centos7",
                 :script => "centos.sh"
         },
-        :fedora23 => {
-                :hostname => "fedora23",
-                :ipaddress => "10.100.10.30",
-                :box => "fedora/23-cloud-base",
+        :centos6 => {
+               :hostname => "centos6",
+                :ipaddress => "10.100.10.19",
+                :box => "generic/centos6",
+                :script => "centos.sh"
+        },
+        :fedora29 => {
+                :hostname => "fedora29",
+                :ipaddress => "10.100.10.18",
+                :box => "generic/fedora29",
                 :script => "fedora.sh"
         },
-        :debian76 => {
-                :hostname => "debianwheezy",
-                :ipaddress => "10.100.10.40",
-                :box => "debian/wheezy64",
-                :script => "debian.sh"
+        :fedora28 => {
+                :hostname => "fedora28",
+                :ipaddress => "10.100.10.17",
+                :box => "generic/fedora28",
+                :script => "fedora.sh"
+        },
+        :fedora27 => {
+                :hostname => "fedora27",
+                :ipaddress => "10.100.10.16",
+                :box => "generic/fedora27",
+                :script => "fedora.sh"
+        },
+        :fedora26 => {
+                :hostname => "fedora26",
+                :ipaddress => "10.100.10.15",
+                :box => "generic/fedora26",
+                :script => "fedora.sh"
+        },
+        :fedora25 => {
+                :hostname => "fedora25",
+                :ipaddress => "10.100.10.14",
+                :box => "generic/fedora25",
+                :script => "fedora.sh"
         },
         :debian8 => {
-                :hostname => "debianjessie",
-                :ipaddress => "10.100.10.40",
-                :box => "debian/jessie64",
+                :hostname => "debian8",
+                :ipaddress => "10.100.10.13",
+                :box => "generic/debian8",
                 :script => "debian.sh"
+        },
+        :debian7 => {
+                :hostname => "debian7",
+                :ipaddress => "10.100.10.12",
+                :box => "generic/debian7",
+                :script => "debian.sh"
+        },
+        :freebsd12 => {
+                :hostname => "freebsd12",
+                :ipaddress => "10.100.10.11",
+                :box => "generic/openbsd12",
+                :script => "openbsd.sh"
+        },
+        :freebsd11 => {
+                :hostname => "freebsd11",
+                :ipaddress => "10.100.10.10",
+                :box => "generic/freebsd11",
+                :script => "openbsd.sh"
+        },
+        :openbsd6 => {
+                :hostname => "openbsd6",
+                :ipaddress => "10.100.10.9",
+                :box => "generic/openbsd6",
+                :script => "openbsd.sh"
+        },
+        :opensuse42 => {
+                :hostname => "opensuse42",
+                :ipaddress => "10.100.10.8",
+                :box => "generic/opensuse42",
+                :script => "opensuse.sh"
         }
-# Built locally from : https://github.com/opscode/bento
-# NAT comes up but not the host interface
-#        :opensuse132 => {
-#                :hostname => "opensuse132",
-#                :ipaddress => "10.100.10.51",
-#                :box => "minnus-opensuse-13.2",
-#                :script => "suse.sh"
-#        }
-# Networking wont come up
-#        :opensuse131 => {
-#                :hostname => "opensuse131",
-#                :ipaddress => "10.100.10.50",
-#                :box => "chef/opensuse-13.1",
-#                :script => "suse.sh"
-#        }
-# Possible opensuse box?
-#        :opensuseleap42 => {
-#                :hostname => "opensuse42",
-#                :ipaddress => "10.100.10.52",
-#                :box => "opensuse/openSUSE-42.1-x86_64",
-#                :script => "suse.sh"
-#        }
 }
 
 

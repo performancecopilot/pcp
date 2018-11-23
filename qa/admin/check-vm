@@ -104,7 +104,7 @@ do
 		force=true
 		;;
 
-	p)	# just list most likey package for yum, dnf, apt-get, ...
+	p)	# just list most likely package for yum, dnf, apt-get, ...
 		pkglist=true
 		;;
 
