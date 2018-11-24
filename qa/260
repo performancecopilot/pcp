@@ -56,9 +56,9 @@ $1 == "r_xpect_one_quarter:"	{ if ($2 >= 0.246 && $2 <= 0.254) $2 = "0.25"; else
 $1 == "pmie_xpect_120:"	{ if ($2 >= 115.0 && $2 <= 122.0) $2 = "120"; else $0 = $0 " !bad" }
 $1 == "pmie_xpect_360:"	{ if ($2 >= 355.0 && $2 <= 363.0) $2 = "360"; else $0 = $0 " !bad" }
 $1 == "derived_xpect_60:"	{ if (sample < 3) $2 = "<skipped>"
-				  else if ($2 >= 55.0 && $2 <= 61.0) $2 = "60"; else $0 = $0 " !bad" }
+				  else if ($2 >= 55.0 && $2 <= 62.0) $2 = "60"; else $0 = $0 " !bad" }
 $1 == "derived_xpect_180:"	{ if (sample < 3) $2 = "<skipped>"
-				  else if ($2 >= 170.0 && $2 <= 184.0) $2 = "180"; else $0 = $0 " !bad" }
+				  else if ($2 >= 170.0 && $2 <= 186.0) $2 = "180"; else $0 = $0 " !bad" }
 			{ print }'
 }
 
