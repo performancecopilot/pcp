@@ -1160,6 +1160,10 @@ metric_prometheus_batch_fetch(void *closure) {
     struct metric_prometheus_traverse_closure *mptc = (struct metric_prometheus_traverse_closure *)
             closure;
     int rc;
+
+    if (mptc->pmids.size() == 0) // no metrics found?  no soup for you
+        return;
+
     struct webcontext *c = mptc->c;
     pmResult *result;
     rc = pmFetch (mptc->pmids.size(), &mptc->pmids[0], &result);
