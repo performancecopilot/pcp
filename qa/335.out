@@ -55,16 +55,16 @@ expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble
 [4] inst=300, val=300
 [5] inst=600, val=600
 derived metrics prefetch added 1 metrics: 29.0.121
-eval_expr: inst[0] mismatch left [0]=500 last [0]=700
+eval_expr: DELTA: inst[0] mismatch left [0]=500 last [0]=700
 eval_expr: recover @ last [3]=500
-eval_expr: inst[1] mismatch left [1]=100 last [1]=800
-eval_expr: inst[2] mismatch left [3]=300 last [3]=500
+eval_expr: DELTA: inst[1] mismatch left [1]=100 last [1]=800
+eval_expr: DELTA: inst[2] mismatch left [3]=300 last [3]=500
 eval_expr: recover @ last [4]=300
-eval_expr: inst[3] mismatch left [4]=600 last [4]=300
+eval_expr: DELTA: inst[3] mismatch left [4]=600 last [4]=300
 eval_expr: recover @ last [5]=600
-eval_expr: inst[4] mismatch left [5]=400 last [5]=600
-eval_expr: inst[5] mismatch left [7]=200 last [0]=700
-eval_expr: inst[5] mismatch left [8]=800 last [0]=700
+eval_expr: DELTA: inst[4] mismatch left [5]=400 last [5]=600
+eval_expr: DELTA: inst[5] mismatch left [7]=200 last [0]=700
+eval_expr: DELTA: inst[5] mismatch left [8]=800 last [0]=700
 eval_expr: recover @ last [1]=800
 __dmpostfetch: [0] root node 511.0.4: numval=6 vset[0]: inst=500 l=0 vset[1]: inst=900 l=0 vset[2]: inst=300 l=0 vset[3]: inst=600 l=0 vset[4]: inst=700 l=0 vset[5]: inst=800 l=0
 expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
@@ -91,13 +91,13 @@ expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble
 [7] inst=200, val=200
 [8] inst=800, val=800
 derived metrics prefetch added 1 metrics: 29.0.121
-eval_expr: inst[0] mismatch left [0]=200 last [0]=500
+eval_expr: DELTA: inst[0] mismatch left [0]=200 last [0]=500
 eval_expr: recover @ last [7]=200
-eval_expr: inst[1] mismatch left [1]=400 last [1]=100
+eval_expr: DELTA: inst[1] mismatch left [1]=400 last [1]=100
 eval_expr: recover @ last [5]=400
-eval_expr: inst[2] mismatch left [2]=700 last [2]=900
+eval_expr: DELTA: inst[2] mismatch left [2]=700 last [2]=900
 eval_expr: recover @ last [6]=700
-eval_expr: inst[3] mismatch left [3]=600 last [3]=300
+eval_expr: DELTA: inst[3] mismatch left [3]=600 last [3]=300
 eval_expr: recover @ last [4]=600
 __dmpostfetch: [0] root node 511.0.4: numval=4 vset[0]: inst=200 l=0 vset[1]: inst=400 l=0 vset[2]: inst=700 l=0 vset[3]: inst=600 l=0
 expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
@@ -122,9 +122,9 @@ expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble
 [7] (last inst=200, val=200)
 [8] (last inst=800, val=800)
 derived metrics prefetch added 1 metrics: 29.0.121
-eval_expr: inst[0] mismatch left [0]=600 last [0]=200
+eval_expr: DELTA: inst[0] mismatch left [0]=600 last [0]=200
 eval_expr: recover @ last [3]=600
-eval_expr: inst[1] mismatch left [1]=100 last [1]=400
+eval_expr: DELTA: inst[1] mismatch left [1]=100 last [1]=400
 __dmpostfetch: [0] root node 511.0.4: numval=1 vset[0]: inst=600 l=0
 expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 1
@@ -140,10 +140,10 @@ expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble
 [2] (last inst=700, val=700)
 [3] (last inst=600, val=600)
 derived metrics prefetch added 1 metrics: 29.0.121
-eval_expr: inst[0] mismatch left [0]=900 last [0]=600
-eval_expr: inst[0] mismatch left [1]=700 last [1]=100
-eval_expr: inst[0] mismatch left [2]=300 last [0]=600
-eval_expr: inst[0] mismatch left [3]=100 last [0]=600
+eval_expr: DELTA: inst[0] mismatch left [0]=900 last [0]=600
+eval_expr: DELTA: inst[0] mismatch left [1]=700 last [1]=100
+eval_expr: DELTA: inst[0] mismatch left [2]=300 last [0]=600
+eval_expr: DELTA: inst[0] mismatch left [3]=100 last [0]=600
 eval_expr: recover @ last [1]=100
 __dmpostfetch: [0] root node 511.0.4: numval=1 vset[0]: inst=100 l=0
 expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
