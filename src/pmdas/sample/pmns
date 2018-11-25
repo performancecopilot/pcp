@@ -81,6 +81,7 @@ sample {
     dupnames
     negative
     ghosts	SAMPLE:*:*
+    controller
 }
 
 sample.long {
@@ -324,3 +325,6 @@ sample.negative.discrete {
     m_double		SAMPLE:0:152
 }
 
+sample.controller {
+    mirage		SAMPLE:0:155
+}

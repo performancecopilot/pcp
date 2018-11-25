@@ -200,11 +200,14 @@ The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution
 over time.  Different instances of the metric have different baselines
 for the saw-tooth, but all have an max-to-min range of 100.
 
-What makes this metric interesting is that instances come and go (not
-more often than once every 10 seconds however).  Instance 0 is always
-present, but the other instances 1 thru 49 come and go in a cyclic
-pattern with a large random component influencing when each instance
-appears and disappears.
+What makes this metric interesting is that instances come and go although
+not more often than once every 10 seconds by default.  Use pmstore to
+change sample.controller.mirage and the frequency of instance domain
+changes can be varied.
+
+Instance 0 is always present, but the other instances 1 thru 49 come
+and go in a cyclic pattern with a large random component influencing
+when each instance appears and disappears.
 
 The underlying counter starts at 0 and is incremented once
 for each pmFetch() to this metric and/or sample.colour and/or
@@ -353,7 +356,7 @@ every time it is fetched.
 
 @ sample.dodgey.value 5 unreliable instances
 The metric is a set of 5 instantaneous values, drawn at random from the
-range 0 to 100.  The number of instances "visible" is controlled by
+range 0 to 100.  The number of instances "visible" is controlle/ by
 sample.dodgey.control.
 
 @ sample.dodgey.control control values retured for sample.dodgey.value
@@ -782,3 +785,7 @@ metrics are fetched.
 Maybe be reset with pmStore, but this will reset the value for all of
 the sample.negative.*.m_double metrics (they share the same underlying
 counter).
+
+@ sample.controller.mirage time control for sample.mirage instance changes
+Milliseconds before sample.mirage has a new instance domain configuration.
+Default value is 10000 (10 seconds), but this can be changed with pmstore.
