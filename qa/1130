@@ -89,5 +89,18 @@ done < $tmp.archive.data
 echo "--- End of received data ---"
 _full_stash
 
+echo "=== 4. pcp2elasticsearch with custom --es-search-type ===" | tee -a $seq.full
+socat -vv -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
+pid=$!
+sleep 2
+$pcp2elasticsearch -t 1 -s 1 -X QAHOST -x INDEX hinv.ncpu --es-search-type=test_search_type >$tmp.p2e.out 2>$tmp.p2e.err
+sleep 1
+$signal $pid 2>/dev/null
+wait
+echo "--- Start of received data ---"
+egrep -q '^POST /INDEX HTTP/' $tmp.socat.err
+[ $? -eq 0 ] && echo "Found correct index in output"
+_full_stash
+
 status=0
 exit

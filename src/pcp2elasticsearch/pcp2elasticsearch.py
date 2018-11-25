@@ -42,6 +42,7 @@ DEFAULT_CONFIG = ["./pcp2elasticsearch.conf", "$HOME/.pcp2elasticsearch.conf", "
 # Defaults
 CONFVER = 1
 ES_INDEX = "pcp"
+ES_SEARCH_TYPE = "pcp-metric"
 ES_SERVER = "http://localhost:9200/"
 
 class pcp2elasticsearch(object):
@@ -56,7 +57,7 @@ class pcp2elasticsearch(object):
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
                      'samples', 'interval', 'type', 'precision', 'daemonize',
-                     'es_server', 'es_index', 'es_hostid',
+                     'es_server', 'es_index', 'es_hostid', 'es_search_type',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
@@ -103,6 +104,7 @@ class pcp2elasticsearch(object):
 
         self.es_server = ES_SERVER
         self.es_index = ES_INDEX
+        self.es_search_type = ES_SEARCH_TYPE
         self.es_hostid = None
 
         # Internal
@@ -178,6 +180,7 @@ class pcp2elasticsearch(object):
         opts.pmSetLongOption("es-host", 1, "g", "SERVER", "Elasticsearch server (default: " + ES_SERVER + ")")
         opts.pmSetLongOption("es-index", 1, "x", "INDEX", "Elasticsearch index for metric names (default: " + ES_INDEX + ")")
         opts.pmSetLongOption("es-hostid", 1, "X", "HOSTID", "Elasticsearch host-id for measurements")
+        opts.pmSetLongOption("es-search-type", 1, "", "ES_SEARCH_TYPE", "Elasticsearch search type for measurements")
 
         return opts
 
@@ -253,6 +256,8 @@ class pcp2elasticsearch(object):
             self.es_index = optarg
         elif opt == 'X':
             self.es_hostid = optarg
+        elif opt == 'p':
+            self.es_search_type = optarg
         else:
             raise pmapi.pmUsageErr()
 
@@ -424,7 +429,7 @@ class pcp2elasticsearch(object):
                         insts.append({inst_key: name, last_part: value})
 
         try:
-            url = self.es_server + self.es_index + "/pcp-metric"
+            url = self.es_server + '/' + self.es_index + '/' + self.es_search_type
             requests.post(url, data=json.dumps(es_doc), headers=headers)
         except Exception as error:
             sys.stderr.write("Cannot send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
