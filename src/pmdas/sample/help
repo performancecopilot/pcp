@@ -356,7 +356,7 @@ every time it is fetched.
 
 @ sample.dodgey.value 5 unreliable instances
 The metric is a set of 5 instantaneous values, drawn at random from the
-range 0 to 100.  The number of instances "visible" is controlle/ by
+range 0 to 100.  The number of instances "visible" is controlled by
 sample.dodgey.control.
 
 @ sample.dodgey.control control values retured for sample.dodgey.value
