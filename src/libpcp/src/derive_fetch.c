@@ -1481,16 +1481,19 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			}
 			ip->inst = np->right->data.info->ivlist[i].inst;
 			ip->used = 0;
-			/*
-			 * Need to update context timestamp origin so that
-			 * indom search will succeed ... and then put it
-			 * back.
-			 */
-			save_origin = ctxp->c_origin;	/* struct assignment */
-			ctxp->c_origin.tv_sec = rp->timestamp.tv_sec;
-			ctxp->c_origin.tv_usec = rp->timestamp.tv_usec;
+			if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
+			    /*
+			     * Need to update context timestamp origin so that
+			     * indom search will succeed ... and then put it
+			     * back.
+			     */
+			    save_origin = ctxp->c_origin;	/* struct assignment */
+			    ctxp->c_origin.tv_sec = rp->timestamp.tv_sec;
+			    ctxp->c_origin.tv_usec = rp->timestamp.tv_usec;
+			}
 			sts = pmNameInDom_ctx(ctxp, np->right->desc.indom, ip->inst, &iname);
-			ctxp->c_origin = save_origin;	/* struct assignment */
+			if (ctxp->c_type == PM_CONTEXT_ARCHIVE)
+			    ctxp->c_origin = save_origin;	/* struct assignment */
 			if (sts >= 0) {
 			    /*
 			     * classical external instance name matching means
