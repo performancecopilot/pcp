@@ -15,7 +15,7 @@
 .\"
 .TH PMIPUTTEXT 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmiputtext\f1 \- add help text for an metric or instance domain
+\f3pmiPutText\f1 \- add help text for an metric or instance domain
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -26,7 +26,7 @@
 .hy 0
 .in +8n
 .ti -8n
-int pmiputtext(unsigned int \fItype\fP, unsigned int \fIclass\fP, unsigned int \fIid\fP, const char *\fIcontent\fP)
+int pmiPutText(unsigned int \fItype\fP, unsigned int \fIclass\fP, unsigned int \fIid\fP, const char *\fIcontent\fP)
 .sp
 .in
 .hy
@@ -37,12 +37,12 @@ cc ... \-lpcp_import \-lpcp
 .ft 3
 use PCP::LogImport;
 .sp
-pmiputtext($\fItype\fP, $\fIclass\fP, $\fIid\fP, $\fIcontent\fP);
+pmiPutText($\fItype\fP, $\fIclass\fP, $\fIid\fP, $\fIcontent\fP);
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see
 .BR LOGIMPORT (3)),
-.B pmiputtext
+.B pmiPutText
 adds help text for a given
 metric or instance domain.
 .PP
@@ -83,12 +83,12 @@ is a string containing the content of the help text.
 No data will be written until
 .BR pmiWrite (3)
 is called, so multiple calls to
-.B pmiputtext
+.B pmiPutText
 are typically used to accumulate help text for several
 metrics or instance domains before calling
 .BR pmiWrite (3).
 .SH DIAGNOSTICS
-.B pmiputtext
+.B pmiPutText
 returns zero on success else a negative value that can be turned into an
 error message by calling
 .BR pmiErrStr (3).

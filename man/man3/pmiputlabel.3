@@ -15,7 +15,7 @@
 .\"
 .TH PMIPUTLABEL 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmiputlabel\f1 \- add labels to the output archive
+\f3pmiPutLabel\f1 \- add labels to the output archive
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -26,7 +26,7 @@
 .hy 0
 .in +8n
 .ti -8n
-int pmiputlabel(unsigned int \fItype\fP, unsigned int \fIid\fP, unsigned int \fIinstance\fP, const char *\fIname\fP, const char *\fIvalue\fP)
+int pmiPutLabel(unsigned int \fItype\fP, unsigned int \fIid\fP, unsigned int \fIinstance\fP, const char *\fIname\fP, const char *\fIvalue\fP)
 .sp
 .in
 .hy
@@ -37,12 +37,12 @@ cc ... \-lpcp_import \-lpcp
 .ft 3
 use PCP::LogImport;
 .sp
-pmiputlabel($\fItype\fP, $\fIid\fP, $\fIinstance\fP, $\fIname\fP, $\fIvalue\fP);
+pmiPutLabel($\fItype\fP, $\fIid\fP, $\fIinstance\fP, $\fIname\fP, $\fIvalue\fP);
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see
 .BR LOGIMPORT (3)),
-.B pmiputlabel
+.B pmiPutLabel
 adds a label for the global context or for a given domain, cluster, item,
 instance domain or instance.
 .PP
@@ -92,11 +92,11 @@ is a string containing the value of the label to be added.
 No data will be written until
 .BR pmiWrite (3)
 is called, so multiple calls to
-.B pmiputlabel
+.B pmiPutLabel
 are typically used to accumulate several labels before calling
 .BR pmiWrite (3).
 .SH DIAGNOSTICS
-.B pmiputlabel
+.B pmiPutLabel
 returns zero on success else a negative value that can be turned into an
 error message by calling
 .BR pmiErrStr (3).
