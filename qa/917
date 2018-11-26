@@ -51,6 +51,8 @@ mock_var_lib=`seinfo -t | grep "mock_var_lib_t$"`
 numad_context=`seinfo -t | grep "numad_t$"`
 bpf_class=`seinfo -x --class=bpf $common_flag 2>/dev/null | grep "class bpf"`
 wap_port_type=`seinfo -t | grep "wap_wsp_port_t$"`
+non_auth_type=`seinfo -a | grep "non_auth_file_type$"`
+non_security_type=`seinfo -a | grep "non_security_file_type$"`
 
 _filter_semodule()
 {
@@ -89,6 +91,8 @@ _filter_outfile()
 	-v numad_context="$numad_context" \
         -v bpf_class="$bpf_class" \
         -v wap_port_type="$wap_port_type" \
+        -v non_auth_type="$non_auth_type" \
+        -v non_security_type="$non_security_type" \
     '{
     	if (container_t == "" && /container_runtime_t /)
 	   !/container_runtime_t / ;
@@ -139,6 +143,10 @@ _filter_outfile()
             !/bpf/ ;
         else if (wap_port_type == "" && /wap_wsp_port_t/)
             !/wap_wsp_port_t/ ;
+        else if (non_auth_type == "" && /non_auth_file_type/)
+            !/non_auth_file_type/ ;
+        else if (non_auth_type != "" && /non_security_file_type/)
+            !/non_security_file_type/ ;
 	else
 	   print;
     }'
