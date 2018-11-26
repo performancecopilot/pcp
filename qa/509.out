@@ -160,6 +160,7 @@ pmLoadNameSpace: million -> 29.0.23
 pmLoadNameSpace: million -> 29.0.28
 pmLoadNameSpace: million -> 29.0.96
 pmLoadNameSpace: milliseconds -> 29.0.3
+pmLoadNameSpace: mirage -> 29.0.155
 pmLoadNameSpace: mirage -> 29.0.37
 pmLoadNameSpace: mirage_longlong -> 29.0.38
 pmLoadNameSpace: needprofile -> 29.0.49
