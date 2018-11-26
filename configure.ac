@@ -1995,6 +1995,7 @@ test "$enable_selinux" = "false" && AC_MSG_RESULT(no)
 AC_SUBST(enable_selinux)
 AC_SUBST(pcp_selinux_dir)
 
+
 pcp_selinux_class_status=false
 pcp_selinux_cap_userns_ptrace=false
 pcp_selinux_container_runtime=false
@@ -2012,6 +2013,7 @@ pcp_selinux_unconfined=false
 pcp_selinux_numad=false
 pcp_selinux_bpf_class=false
 pcp_selinux_wap_port=false
+pcp_selinux_files_list_non_auth_dirs=false
 
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 for policy_file in /etc/selinux/targeted/policy/policy.*
@@ -2111,6 +2113,11 @@ do
        then
             pcp_selinux_wap_port=true
        fi
+       auth_file_type=`eval seinfo -a -- $policy_file | grep non_auth_file_type | awk '{ print $1 }'`
+       if test "x$auth_file_type" != "x"
+       then
+           pcp_selinux_files_list_non_auth_dirs=true
+       fi
     fi
 done
 ])
@@ -2131,6 +2138,7 @@ AC_SUBST(pcp_selinux_unconfined)
 AC_SUBST(pcp_selinux_numad)
 AC_SUBST(pcp_selinux_bpf_status)
 AC_SUBST(pcp_selinux_wap_port)
+AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
