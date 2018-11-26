@@ -176,6 +176,7 @@ sampledso.negative.discrete.m_32 [32-bit integer discrete metric with negative v
 sampledso.negative.discrete.m_64 [64-bit integer discrete metric with negative value]
 sampledso.negative.discrete.m_float [float discrete metric with negative value]
 sampledso.negative.discrete.m_double [double discrete metric with negative value]
+sampledso.controller.mirage [time control for sample.mirage instance changes]
 --- help.c case 2 ---
 
 sampledso.control
@@ -294,11 +295,14 @@ The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution
 over time.  Different instances of the metric have different baselines
 for the saw-tooth, but all have an max-to-min range of 100.
 
-What makes this metric interesting is that instances come and go (not
-more often than once every 10 seconds however).  Instance 0 is always
-present, but the other instances 1 thru 49 come and go in a cyclic
-pattern with a large random component influencing when each instance
-appears and disappears.
+What makes this metric interesting is that instances come and go although
+not more often than once every 10 seconds by default.  Use pmstore to
+change sampledso.controller.mirage and the frequency of instance domain
+changes can be varied.
+
+Instance 0 is always present, but the other instances 1 thru 49 come
+and go in a cyclic pattern with a large random component influencing
+when each instance appears and disappears.
 
 The underlying counter starts at 0 and is incremented once
 for each pmFetch() to this metric and/or sampledso.colour and/or
@@ -1238,6 +1242,11 @@ metrics are fetched.
 Maybe be reset with pmStore, but this will reset the value for all of
 the sampledso.negative.*.m_double metrics (they share the same underlying
 counter).
+
+sampledso.controller.mirage
+Help:
+Milliseconds before sampledso.mirage has a new instance domain configuration.
+Default value is 10000 (10 seconds), but this can be changed with pmstore.
 --- help.c case 3 ---
 
 sample.seconds

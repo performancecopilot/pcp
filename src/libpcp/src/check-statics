@@ -247,6 +247,7 @@ derive_parser.tab.o
     derive_nerrs		# guarded by registered.mutex
     parse_tree			# guarded by registered.mutex
     np				# guarded by registered.mutex
+    in_matchinst		# guarded by registered.mutex
     ?n_eh_str			# guarded by registered.mutex
     ?n_eh_c			# guarded by registered.mutex
     ?l_eh_str			# guarded by registered.mutex

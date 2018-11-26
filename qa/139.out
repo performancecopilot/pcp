@@ -177,4 +177,5 @@ sample.negative.discrete.m_32
 sample.negative.discrete.m_64
 sample.negative.discrete.m_float
 sample.negative.discrete.m_double
+sample.controller.mirage
 pmlc> 

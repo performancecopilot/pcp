@@ -291,6 +291,38 @@ the instance domain of \f(CWset\fP.
 .PD
 .RE
 .IP * 2n
+Selection of a single instance can be specified by the
+construct ``[\fIinstance_name\fR]'' which may be appended to
+a metric name or a parenthesized expression.
+For example:
+.br
+.ft CW
+fw.bytes = network.interface.in.bytes[eth1] + \e
+.br
+           network.interface.out.bytes[eth1]
+.ft R
+.br
+or (equivalently):
+.br
+.ft CW
+fw.bytes = (network.interface.in.bytes + \e
+.br
+            network.interface.out.bytes)[eth1]
+.ft R
+.RS 2n
+.PP
+All characters between the ``['' and ``]'' are considered to
+be part of the (external) instance name, so be careful to avoid
+any spurious white space.
+A backslash may be used as an escape prefix
+in the (unlikely) event that the external instance name contains a ``]''.
+.PP
+Because the result is a single value, and to allow the value to be
+used in other expressions, the instance domain is removed from the
+metadata for the result and the instance identifier is removed from
+the values during fetching.
+.RE
+.IP * 2n
 Numeric constants can also be specified using the
 .ft CW
 mkconst()
@@ -492,6 +524,42 @@ A singular instance being the sum of the values across all instances for the met
 T}
 .TE
 .IP * 2n
+The \f(CWmatchinst\fR function may be used to select a subset of the instances from
+an instance domain for a metric or expression.
+The function takes two arguments:
+.RS 2n
+.PD 0
+.IP (a) 4n
+A instance filter that consists of an optional negation operator ``!'' followed
+by a regular expression delimited by ``/'' characters.
+The regular expression follows the 
+POSIX Extended Regular Expression syntax as described in
+.BR regex (3).
+Backlashes may be used as escape prefixes, but double backslash is required to
+escape any regular expression special characters, e.g. for the (extremely unlikely)
+case of wanting to match instance names like ``some*text/other[text]'' a
+regular expression of the form \f(CW/some\e\e*text\e/other\e\e[text]/\fR
+would be required.
+If present, the negation operator reverses the sense of the filtering,
+so all instances
+.B not
+matching the regular expression will be selected.
+.IP (b) 4n
+A metric or expression that must be defined over an instance domain.
+.PD
+.PP
+For example, the following expression will have values for the
+metric \f(CWnetwork.interface.in.bytes\fB for all network
+interfaces
+.B except
+the loopback and virtual bridge devices:
+.br
+.ft CW
+matchinst(!/^(lo)|(vbir)/, network.interface.in.bytes)
+.ft R
+.br
+.RE
+.IP * 2n
 Parenthesis may be used for explicit grouping.
 .IP * 2n
 Lines beginning with ``#'' are treated as comments and ignored.
@@ -592,6 +660,11 @@ T}
 network...speed	FLOAT	Mbyte/sec
 x	DOUBLE	Mbyte/sec
 .TE
+.PP
+Expressions involving single instance selection or the
+\f(CWmatchinst\fR function must be associated with underlying
+metrics that have an instance domain.  These constructors
+make no sense for singular metrics.
 .PP
 Because semantic checking cannot be done at the time
 .B pmRegisterDerived

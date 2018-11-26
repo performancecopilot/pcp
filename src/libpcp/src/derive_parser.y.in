@@ -43,6 +43,7 @@
 #define YYDEBUG 1
 
 static int		need_init = 1;
+static int		in_matchinst = 0;	/* context sensitive / lexing */
 static ctl_t		registered = {
 #ifdef PM_MULTI_THREAD
 #ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
@@ -77,6 +78,7 @@ typedef union {
     node_t	*n;
     pmUnits	u;
     pmDesc	d;
+    int		i;
 } YYSTYPE;
 #define YYSTYPE_IS_DECLARED 1
 
@@ -87,7 +89,6 @@ static int derive_lex(void);
 static void derive_error(char *);
 int derive_debug;
 
-static char *n_type_str(int);
 static char *n_type_c(int);
 static char *l_type_str(int);
 
@@ -349,7 +350,7 @@ newnode(int type)
     np->left = NULL;
     np->right = NULL;
     np->value = NULL;
-    np->info = NULL;
+    np->data.info = NULL;
     return np;
 }
 
@@ -361,37 +362,37 @@ free_expr(node_t *np)
     free_expr(np->right);
     np->left = np->right = NULL;
     /* value is only allocated once for the static nodes */
-    if (np->info == NULL && np->value != NULL) {
+    if (np->data.info == NULL && np->value != NULL) {
 	free(np->value);
     }
     else if (np->type == N_DEFINED) {
 	/* value is strdup'd, but info is not NULL */
 	free(np->value);
     }
-    if (np->info != NULL) {
+    if (np->data.info != NULL) {
 	/* N_INSTANT nodes copy the left ivlist pointeer */
-	if (np->info->ivlist != NULL && np->type != N_INSTANT) {
+	if (np->data.info->ivlist != NULL && np->type != N_INSTANT) {
 	    if (np->desc.type == PM_TYPE_STRING) {
 		int	j;
-		for (j = 0; j < np->info->numval; j++) {
-		    if (np->info->ivlist[j].value.cp != NULL)
-			free(np->info->ivlist[j].value.cp);
+		for (j = 0; j < np->data.info->numval; j++) {
+		    if (np->data.info->ivlist[j].value.cp != NULL)
+			free(np->data.info->ivlist[j].value.cp);
 		}
 	    }
-	    free(np->info->ivlist);
+	    free(np->data.info->ivlist);
 	}
-	if (np->info->last_ivlist != NULL) {
+	if (np->data.info->last_ivlist != NULL) {
 	    if (np->desc.type == PM_TYPE_STRING) {
 		int	j;
-		for (j = 0; j < np->info->last_numval; j++) {
-		    if (np->info->last_ivlist[j].value.cp != NULL) {
-			free(np->info->last_ivlist[j].value.cp);
+		for (j = 0; j < np->data.info->last_numval; j++) {
+		    if (np->data.info->last_ivlist[j].value.cp != NULL) {
+			free(np->data.info->last_ivlist[j].value.cp);
 		    }
 		}
 	    }
-	    free(np->info->last_ivlist);
+	    free(np->data.info->last_ivlist);
 	}
-    	free(np->info);
+    	free(np->data.info);
     }
     free(np);
 }
@@ -428,26 +429,43 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 	    return(NULL);
 	}
     }
-    if (np->type != N_SCALE) {
-	if ((new->info = (info_t *)malloc(sizeof(info_t))) == NULL) {
+    if (np->type == N_SCALE) {
+	new->data.info = NULL;
+    }
+    if (np->type == N_PATTERN) {
+	if ((new->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
+	    PM_UNLOCK(registered.mutex);
+	    pmNoMem("bind_expr: pattern block", sizeof(pattern_t), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	    new->data.pattern->ftype = np->data.pattern->ftype;
+	    if (np->data.pattern->ftype == F_REGEX) {
+		new->data.pattern->regex = np->data.pattern->regex;
+		new->data.pattern->invert = np->data.pattern->invert;
+	      __pmHashInit(&new->data.pattern->hash);
+		new->data.pattern->used = 0;
+	    }
+	    else {
+		new->data.pattern->inst = np->data.pattern->inst;
+	    }
+    }
+    else {
+	if ((new->data.info = (info_t *)malloc(sizeof(info_t))) == NULL) {
 	    PM_UNLOCK(registered.mutex);
 	    pmNoMem("bind_expr: info block", sizeof(info_t), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
-	new->info->pmid = PM_ID_NULL;
-	new->info->numval = 0;
-	new->info->mul_scale = new->info->div_scale = 1;
-	new->info->ivlist = NULL;
-	new->info->stamp.tv_sec = 0;
-	new->info->stamp.tv_usec = 0;
-	new->info->time_scale = -1;		/* one-trip initialization if needed */
-	new->info->last_numval = 0;
-	new->info->last_ivlist = NULL;
-	new->info->last_stamp.tv_sec = 0;
-	new->info->last_stamp.tv_usec = 0;
-    }
-    else {
-	new->info = NULL;
+	new->data.info->pmid = PM_ID_NULL;
+	new->data.info->numval = 0;
+	new->data.info->mul_scale = new->data.info->div_scale = 1;
+	new->data.info->ivlist = NULL;
+	new->data.info->stamp.tv_sec = 0;
+	new->data.info->stamp.tv_usec = 0;
+	new->data.info->time_scale = -1;		/* one-trip initialization if needed */
+	new->data.info->last_numval = 0;
+	new->data.info->last_ivlist = NULL;
+	new->data.info->last_stamp.tv_sec = 0;
+	new->data.info->last_stamp.tv_usec = 0;
     }
 
     /* TODO ... need to investigate this for N_SCALE nodes! */
@@ -459,11 +477,11 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
     if (new->type == N_NAME) {
 	int	sts;
 
-	sts = pmLookupName_ctx(ctxp, 1, &new->value, &new->info->pmid);
+	sts = pmLookupName_ctx(ctxp, 1, &new->value, &new->data.info->pmid);
 	if (sts < 0) {
 	    if (lookup_err_ok) {
 		/* derived(x) -> false case */
-		new->info->pmid = PM_ID_NULL;
+		new->data.info->pmid = PM_ID_NULL;
 		return new;
 	    }
 	    if (pmDebugOptions.derive) {
@@ -473,12 +491,12 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 	    free_expr(new);
 	    return NULL;
 	}
-	sts = pmLookupDesc_ctx(ctxp, new->info->pmid, &new->desc);
+	sts = pmLookupDesc_ctx(ctxp, new->data.info->pmid, &new->desc);
 	if (sts < 0) {
 	    if (pmDebugOptions.derive) {
 		char	strbuf[20];
 		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 	    free_expr(new);
 	    return NULL;
@@ -536,7 +554,7 @@ void report_sem_error(char *name, node_t *np)
 	case N_SUM:
 	case N_ANON:
 	case N_DEFINED:
-	    pmprintf("%s(%s)", n_type_str(np->type), np->left->value);
+	    pmprintf("%s(%s)", __dmnode_type_str(np->type), np->left->value);
 	    break;
 	case N_QUEST:
 	    if (np->left->type == N_INTEGER || np->left->type == N_DOUBLE || np->left->type == N_NAME)
@@ -560,7 +578,7 @@ void report_sem_error(char *name, node_t *np)
 		pmprintf("%s ", np->left->value);
 	    else
 		pmprintf("<expr> ");
-	    pmprintf("%s ", n_type_str(np->type));
+	    pmprintf("%s ", __dmnode_type_str(np->type));
 	    {
 		const char		*units;
 		char		strbuf[60];
@@ -570,6 +588,9 @@ void report_sem_error(char *name, node_t *np)
 		else
 		    pmprintf("%s", units);
 	    }
+	    break;
+	case N_FILTERINST:
+	    pmprintf("%s ", __dmnode_type_str(np->type));
 	    break;
 	default:
 	    /* should never get here ... */
@@ -628,9 +649,9 @@ map_units(node_t *np)
 	    /* use the left scaleCount, scale the right operand */
 	    for (i = 0; i < diff; i++) {
 		if (right->units.dimCount > 0)
-		    np->right->info->div_scale *= 10;
+		    np->right->data.info->div_scale *= 10;
 		else
-		    np->right->info->mul_scale *= 10;
+		    np->right->data.info->mul_scale *= 10;
 	    }
 	    np->desc.type = PM_TYPE_DOUBLE;
 	}
@@ -639,9 +660,9 @@ map_units(node_t *np)
 	    np->desc.units.scaleCount = right->units.scaleCount;
 	    for (i = diff; i < 0; i++) {
 		if (left->units.dimCount > 0)
-		    np->left->info->div_scale *= 10;
+		    np->left->data.info->div_scale *= 10;
 		else
-		    np->left->info->mul_scale *= 10;
+		    np->left->data.info->mul_scale *= 10;
 	    }
 	    np->desc.type = PM_TYPE_DOUBLE;
 	}
@@ -652,9 +673,9 @@ map_units(node_t *np)
 	    /* use the left scaleTime, scale the right operand */
 	    for (i = right->units.scaleTime; i < left->units.scaleTime; i++) {
 		if (right->units.dimTime > 0)
-		    np->right->info->div_scale *= timefactor[i];
+		    np->right->data.info->div_scale *= timefactor[i];
 		else
-		    np->right->info->mul_scale *= timefactor[i];
+		    np->right->data.info->mul_scale *= timefactor[i];
 	    }
 	    np->desc.type = PM_TYPE_DOUBLE;
 	}
@@ -663,9 +684,9 @@ map_units(node_t *np)
 	    np->desc.units.scaleTime = right->units.scaleTime;
 	    for (i = left->units.scaleTime; i < right->units.scaleTime; i++) {
 		if (right->units.dimTime > 0)
-		    np->left->info->div_scale *= timefactor[i];
+		    np->left->data.info->div_scale *= timefactor[i];
 		else
-		    np->left->info->mul_scale *= timefactor[i];
+		    np->left->data.info->mul_scale *= timefactor[i];
 	    }
 	    np->desc.type = PM_TYPE_DOUBLE;
 	}
@@ -676,9 +697,9 @@ map_units(node_t *np)
 	    /* use the left scaleSpace, scale the right operand */
 	    for (i = 0; i < diff; i++) {
 		if (right->units.dimSpace > 0)
-		    np->right->info->div_scale *= 1024;
+		    np->right->data.info->div_scale *= 1024;
 		else
-		    np->right->info->mul_scale *= 1024;
+		    np->right->data.info->mul_scale *= 1024;
 	    }
 	    np->desc.type = PM_TYPE_DOUBLE;
 	}
@@ -687,9 +708,9 @@ map_units(node_t *np)
 	    np->desc.units.scaleSpace = right->units.scaleSpace;
 	    for (i = diff; i < 0; i++) {
 		if (right->units.dimSpace > 0)
-		    np->left->info->div_scale *= 1024;
+		    np->left->data.info->div_scale *= 1024;
 		else
-		    np->left->info->mul_scale *= 1024;
+		    np->left->data.info->mul_scale *= 1024;
 	    }
 	    np->desc.type = PM_TYPE_DOUBLE;
 	}
@@ -822,6 +843,10 @@ map_desc(int n, node_t *np)
 	    goto bad;
 	}
 	np->desc.units = np->right->desc.units;		/* struct assignment */
+	return 0;
+    }
+    else if (np->type == N_PATTERN) {
+	/* nothing to see or test here */
 	return 0;
     }
     else {
@@ -1036,25 +1061,25 @@ check_expr(int n, node_t *np)
     assert(np != NULL);
 
     if (np->type == N_INTEGER || np->type == N_DOUBLE || np->type == N_NAME ||
-        np->type == N_SCALE)
+        np->type == N_SCALE || np->type == N_PATTERN)
 	return 0;
 
     if (np->type == N_DEFINED) {
-	if ((np->info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
+	if ((np->data.info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
 	    pmNoMem("check_expr: defined ivlist", sizeof(val_t), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
-	np->info->numval = 1;
-	np->info->ivlist[0].inst = PM_IN_NULL;
-	if (np->left->info->pmid == PM_ID_NULL) {
+	np->data.info->numval = 1;
+	np->data.info->ivlist[0].inst = PM_IN_NULL;
+	if (np->left->data.info->pmid == PM_ID_NULL) {
 	    /* defined(x) is false */
-	    np->info->ivlist[0].value.ul = 0;
+	    np->data.info->ivlist[0].value.ul = 0;
 	}
 	else {
 	    /* defined(x) is true */
-	    np->info->ivlist[0].value.ul = 1;
+	    np->data.info->ivlist[0].value.ul = 1;
 	}
-	np->info->pmid = np->desc.pmid = PM_ID_NULL;
+	np->data.info->pmid = np->desc.pmid = PM_ID_NULL;
 	np->desc.type = PM_TYPE_U32;
 	np->desc.indom = PM_INDOM_NULL;
 	np->desc.sem = PM_SEM_DISCRETE;
@@ -1203,6 +1228,11 @@ check_expr(int n, node_t *np)
 		return -1;
 	    }
 	    /* correct pmDesc promoted through COLON node at the right */
+	    np->desc = np->right->desc;
+	    return 0;
+
+	case N_FILTERINST:
+	    /* use descriptor from right operand (left is pattern) */
 	    np->desc = np->right->desc;
 	    return 0;
 	
@@ -1380,53 +1410,86 @@ __dmdumpexpr(node_t *np, int level)
 
     if (level == 0) fprintf(stderr, "Derived metric expr dump from " PRINTF_P_PFX "%p...\n", np);
     if (np == NULL) return;
-    fprintf(stderr, "expr node " PRINTF_P_PFX "%p type=%s left=" PRINTF_P_PFX "%p right=" PRINTF_P_PFX "%p save_last=%d", np, n_type_str(np->type), np->left, np->right, np->save_last);
-    if (np->type == N_NAME || np->type == N_INTEGER || np->type == N_DOUBLE)
-	fprintf(stderr, " [%s] master=%d", np->value, np->info == NULL ? 1 : 0);
-    else if (np->type == N_SCALE) {
-	if (pmUnitsStr_r(&np->desc.units, strbuf, sizeof(strbuf)) == NULL) {
-	    fprintf(stderr, " [bad units: %d %d %d %d %d %d]", 
-	    	np->desc.units.scaleCount, np->desc.units.scaleTime,
-	    	np->desc.units.scaleSpace,
-	    	np->desc.units.dimCount, np->desc.units.dimTime,
-	    	np->desc.units.dimSpace);
+    fprintf(stderr, "expr node " PRINTF_P_PFX "%p type=%s", np, __dmnode_type_str(np->type));
+    if (np->type == N_PATTERN) {
+	__pmHashNode	*hnp;
+	instctl_t	*icp;
+	int		numinst = 0;
+	int		nummatch = 0;;
+	fprintf(stderr, " pattern: %s type: ", np->value);
+	if (np->data.pattern->ftype == F_REGEX) {
+	    /* regular expression from matchinst() */
+	    fprintf(stderr, "%sregex used=%d",
+		np->data.pattern->invert ? "inverted " : "", np->data.pattern->used);
+	    if (np->data.pattern->hash.hash != NULL) {
+		for (hnp = __pmHashWalk(&np->data.pattern->hash, PM_HASH_WALK_START);
+		     hnp != NULL;
+		     hnp = __pmHashWalk(&np->data.pattern->hash, PM_HASH_WALK_NEXT)) {
+		    numinst++;
+		    icp = (instctl_t *)hnp->data;
+		    if (icp->match) nummatch++;
+		}
+		fprintf(stderr, " (%d instances, %d matches)", numinst, nummatch);
+	    }
 	}
 	else
-	    fprintf(stderr, " [%s]", strbuf);
-    }
-    fputc('\n', stderr);
-    if (np->info) {
-	fprintf(stderr, "    PMID: %s ", pmIDStr_r(np->info->pmid, strbuf, sizeof(strbuf)));
-	fprintf(stderr, "(%s from pmDesc) numval: %d", pmIDStr_r(np->desc.pmid, strbuf, sizeof(strbuf)), np->info->numval);
-	if (np->info->div_scale != 1)
-	    fprintf(stderr, " div_scale: %d", np->info->div_scale);
-	if (np->info->mul_scale != 1)
-	    fprintf(stderr, " mul_scale: %d", np->info->mul_scale);
+	    fprintf(stderr, "exact match inst=%d", np->data.pattern->inst);
 	fputc('\n', stderr);
-	pmPrintDesc(stderr, &np->desc);
-	if (np->info->ivlist) {
-	    int		j;
-	    int		max;
-
-	    max = np->info->numval > np->info->last_numval ? np->info->numval : np->info->last_numval;
-
-	    for (j = 0; j < max; j++) {
-		fprintf(stderr, "[%d]", j);
-		if (j < np->info->numval) {
-		    fprintf(stderr, " inst=%d, val=", np->info->ivlist[j].inst);
-		    dump_value(np->desc.type, &np->info->ivlist[j].value);
-		}
-		if (j < np->info->last_numval) {
-		    fprintf(stderr, " (last inst=%d, val=", np->info->last_ivlist[j].inst);
-		    dump_value(np->desc.type, &np->info->last_ivlist[j].value);
-		    fputc(')', stderr);
-		}
+    }
+    else {
+	fprintf(stderr, " left=" PRINTF_P_PFX "%p right=" PRINTF_P_PFX "%p save_last=%d", np->left, np->right, np->save_last);
+	if (np->type == N_NAME || np->type == N_INTEGER || np->type == N_DOUBLE)
+	    fprintf(stderr, " [%s] master=%d", np->value, np->data.info == NULL ? 1 : 0);
+	if (np->type == N_SCALE) {
+	    if (pmUnitsStr_r(&np->desc.units, strbuf, sizeof(strbuf)) == NULL) {
+		fprintf(stderr, " [bad units: %d %d %d %d %d %d]", 
+		    np->desc.units.scaleCount, np->desc.units.scaleTime,
+		    np->desc.units.scaleSpace,
+		    np->desc.units.dimCount, np->desc.units.dimTime,
+		    np->desc.units.dimSpace);
+	    }
+	    else
+		fprintf(stderr, " [%s]", strbuf);
+	    fputc('\n', stderr);
+	}
+	else {
+	    fputc('\n', stderr);
+	    if (np->data.info) {
+		fprintf(stderr, "    PMID: %s ", pmIDStr_r(np->data.info->pmid, strbuf, sizeof(strbuf)));
+		fprintf(stderr, "(%s from pmDesc) numval: %d", pmIDStr_r(np->desc.pmid, strbuf, sizeof(strbuf)), np->data.info->numval);
+		if (np->data.info->div_scale != 1)
+		    fprintf(stderr, " div_scale: %d", np->data.info->div_scale);
+		if (np->data.info->mul_scale != 1)
+		    fprintf(stderr, " mul_scale: %d", np->data.info->mul_scale);
 		fputc('\n', stderr);
+		pmPrintDesc(stderr, &np->desc);
+		if (np->data.info->ivlist) {
+		    int		j;
+		    int		max;
+
+		    max = np->data.info->numval > np->data.info->last_numval ? np->data.info->numval : np->data.info->last_numval;
+
+		    for (j = 0; j < max; j++) {
+			fprintf(stderr, "[%d]", j);
+			if (j < np->data.info->numval) {
+			    fprintf(stderr, " inst=%d, val=", np->data.info->ivlist[j].inst);
+			    dump_value(np->desc.type, &np->data.info->ivlist[j].value);
+			}
+			if (j < np->data.info->last_numval) {
+			    fprintf(stderr, " (last inst=%d, val=", np->data.info->last_ivlist[j].inst);
+			    dump_value(np->desc.type, &np->data.info->last_ivlist[j].value);
+			    fputc(')', stderr);
+			}
+			fputc('\n', stderr);
+		    }
+		}
 	    }
 	}
     }
+
     if (np->left != NULL) __dmdumpexpr(np->left, level+1);
     if (np->right != NULL) __dmdumpexpr(np->right, level+1);
+
 }
 
 static int
@@ -2261,6 +2324,7 @@ PUT-PREFIX-DECL-HERE ... see GNumakefile
 %token      L_MKCONST
 %token      L_RESCALE
 %token      L_DEFINED
+%token      L_MATCHINST
 %token      L_TYPE
 %token      L_SEMANTICS
 %token      L_UNITS
@@ -2274,11 +2338,15 @@ PUT-PREFIX-DECL-HERE ... see GNumakefile
 %token <s>  L_DOUBLE
 %token <s>  L_NAME
 %token <s>  L_STRING
+%token <s>  L_INSTNAME
+%token <s>  L_PATTERN
 
 %type  <n>  defn
 %type  <n>  expr
+%type  <n>  regexpr
 %type  <n>  num
 %type  <n>  func
+%type  <i>  opt_bang
 %type  <d>  spec
 %type  <d>  speclist
 %type  <s>  specval
@@ -2366,6 +2434,34 @@ defn	: expr L_EOS
 
 expr	: L_LPAREN expr L_RPAREN
 		{ $$ = $2; }
+	| L_NAME L_INSTNAME
+		{ np = newnode(N_FILTERINST);
+		  np->right = newnode(N_NAME);
+		  np->right->value = $1;
+		  np->left = newnode(N_PATTERN);
+		  np->left->value = $2;
+		  if ((np->left->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
+		      PM_UNLOCK(registered.mutex);
+		      pmNoMem("pmRegisterDerived: alloc pattern", (int)sizeof(pattern_t), PM_FATAL_ERR);
+		      /*NOTREACHED*/
+		  }
+		  np->left->data.pattern->ftype = F_EXACT;
+		  np->left->data.pattern->inst = PM_IN_NULL;
+		  $$ = np;
+		}
+	| L_LPAREN expr L_RPAREN L_INSTNAME
+		{ np = newnode(N_FILTERINST);
+		  np->right = $2;
+		  np->left = newnode(N_PATTERN);
+		  np->left->value = $4;
+		  if ((np->left->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
+		      PM_UNLOCK(registered.mutex);
+		      pmNoMem("pmRegisterDerived: alloc pattern", (int)sizeof(pattern_t), PM_FATAL_ERR);
+		      /*NOTREACHED*/
+		  }
+		  np->left->data.pattern->ftype = F_REGEX;
+		  $$ = np;
+		}
 	| num
 		{ $$ = $1; }
 	| L_NAME
@@ -2420,40 +2516,67 @@ expr	: L_LPAREN expr L_RPAREN
 
 	/* error reporting */
 	| L_NAME error
-		{ gramerr(op_str, follow, n_type_str(N_NAME)); YYERROR; }
+		{ gramerr(op_str, follow, __dmnode_type_str(N_NAME)); YYERROR; }
 	| expr L_PLUS error
-		{ gramerr(aexpr_str, follow, n_type_str(N_PLUS)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_PLUS)); YYERROR; }
 	| expr L_MINUS error
-		{ gramerr(aexpr_str, follow, n_type_str(N_MINUS)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_MINUS)); YYERROR; }
 	| expr L_STAR error
-		{ gramerr(aexpr_str, follow, n_type_str(N_STAR)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_STAR)); YYERROR; }
 	| expr L_SLASH error
-		{ gramerr(aexpr_str, follow, n_type_str(N_SLASH)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_SLASH)); YYERROR; }
 	| L_MINUS error
-		{ gramerr(aexpr_str, follow, n_type_str(N_NEG)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEG)); YYERROR; }
 	| expr L_LT error
-		{ gramerr(aexpr_str, follow, n_type_str(N_LT)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LT)); YYERROR; }
 	| expr L_LEQ error
-		{ gramerr(aexpr_str, follow, n_type_str(N_LEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LEQ)); YYERROR; }
 	| expr L_EQ error
-		{ gramerr(aexpr_str, follow, n_type_str(N_EQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_EQ)); YYERROR; }
 	| expr L_GEQ error
-		{ gramerr(aexpr_str, follow, n_type_str(N_GEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GEQ)); YYERROR; }
 	| expr L_GT error
-		{ gramerr(aexpr_str, follow, n_type_str(N_GT)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GT)); YYERROR; }
 	| expr L_NEQ error
-		{ gramerr(aexpr_str, follow, n_type_str(N_NEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEQ)); YYERROR; }
 	| expr L_AND error
-		{ gramerr(bexpr_str, follow, n_type_str(N_AND)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_AND)); YYERROR; }
 	| expr L_OR error
-		{ gramerr(bexpr_str, follow, n_type_str(N_OR)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_OR)); YYERROR; }
 	| L_NOT error
-		{ gramerr(bexpr_str, follow, n_type_str(N_NOT)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_NOT)); YYERROR; }
 	| expr L_QUEST error
-		{ gramerr(aexpr_str, follow, n_type_str(N_QUEST)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_QUEST)); YYERROR; }
 	| expr L_QUEST expr L_COLON error
-		{ gramerr(aexpr_str, follow, n_type_str(N_COLON)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_COLON)); YYERROR; }
 	;
+
+regexpr	: opt_bang L_PATTERN
+		{ int	lsts;
+		  np = newnode(N_PATTERN);
+		  np->value = $2;
+		  if ((np->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
+		      PM_UNLOCK(registered.mutex);
+		      pmNoMem("pmRegisterDerived: alloc pattern", (int)sizeof(pattern_t), PM_FATAL_ERR);
+		      /*NOTREACHED*/
+		  }
+		  np->data.pattern->ftype = F_REGEX;
+		  if ((lsts = regcomp(&np->data.pattern->regex, np->value, REG_EXTENDED|REG_NOSUB)) != 0) {
+		      /* regcomp() failed ... */
+		      char	errmsg[128];
+		      regerror(lsts, &np->data.pattern->regex, errmsg, sizeof(errmsg));
+		      gramerr("bad regular expression:", NULL, errmsg);
+		      derive_error(NULL);
+		      return -1;
+		  }
+		  np->data.pattern->invert = $1;
+		  $$ = np;
+		}
+
+opt_bang	: L_NOT
+		{ $$ = 1; }
+	|
+		{ $$ = 0; }
 
 num	: L_INTEGER
 		{ np = newnode(N_INTEGER);
@@ -2678,6 +2801,14 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  free($5);
 		  $$ = np;
 		}
+	| L_MATCHINST L_LPAREN regexpr L_COMMA expr L_RPAREN
+		{
+		  np = newnode(N_FILTERINST);
+		  np->left = $3;
+		  np->right = $5;
+		  $$ = np;
+		  in_matchinst = 0;
+		}
 	| L_ANON L_LPAREN error
 		{ gramerr(name_str, follow, "anon("); YYERROR; }
 	| L_AVG L_LPAREN error
@@ -2700,6 +2831,12 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		{ gramerr(op_str, follow, "rescale("); YYERROR; }
 	| L_RESCALE L_LPAREN expr L_COMMA error
 		{ gramerr("Units string", follow, "rescale(<expr>,"); YYERROR; }
+	| L_MATCHINST L_LPAREN error
+		{ gramerr("<filter>, <expr>)", follow, "matchinst("); YYERROR; }
+	| L_MATCHINST L_LPAREN regexpr error
+		{ gramerr(", <expr>)", follow, "matchinst(<filter>"); YYERROR; }
+	| L_MATCHINST L_LPAREN regexpr L_COMMA error
+		{ gramerr("<expr>)", follow, "matchinst(<filter>,"); YYERROR; }
 	;
 
 %%
@@ -2721,6 +2858,7 @@ static const struct {
     { L_MKCONST,"mkconst" },
     { L_RESCALE,"rescale" },
     { L_DEFINED,"defined" },
+    { L_MATCHINST, "matchinst" },
     { L_UNDEF,	NULL }
 };
 static struct {
@@ -2748,7 +2886,9 @@ static struct {
     { L_UNITS,		0,		"UNITS",	NULL },
     { L_ASSIGN,		0,		"ASSIGN",	"=" },
     { L_COMMA,		0,		"COMMA",	"," },
-    { L_STRING,		0,		"STRING",	"\"" },
+    { L_STRING,		0,		"STRING",	NULL },
+    { L_INSTNAME,	0,		"INSTNAME",	NULL },
+    { L_PATTERN,	0,		"PATTERN",	NULL },
     { L_AVG,		N_AVG,		"AVG",		NULL },
     { L_COUNT,		N_COUNT,	"COUNT",	NULL },
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
@@ -2762,6 +2902,8 @@ static struct {
     { L_RESCALE,	N_RESCALE,	"RESCALE",	NULL },
     { 0,		N_SCALE,	"SCALE",	NULL },
     { L_DEFINED,	N_DEFINED,	"DEFINED",	NULL },
+    { L_MATCHINST,	N_FILTERINST,	"FILTERINST",	NULL },
+    { 0,		N_PATTERN,	"PATTERN",	NULL },
     { L_LT,		N_LT,		"LT",		"<" },
     { L_LEQ,		N_LEQ,		"LEQ",		"<=" },
     { L_EQ,		N_EQ,		"EQ",		"==" },
@@ -2776,8 +2918,8 @@ static struct {
 };
 
 /* full name for all node types */
-static char *
-n_type_str(int type)
+char *
+__dmnode_type_str(int type)
 {
     int		i;
     /* long enough for ... "unknown type XXXXXXXXXXX!" */
@@ -2858,6 +3000,7 @@ derive_lex(void)
     int		i;
     int		firstch = 1;
     int		ret = L_UNDEF;
+    int		escape = 0;
 
     for ( ; ret == L_UNDEF; ) {
 	c = get();
@@ -2923,8 +3066,12 @@ derive_lex(void)
 			break;
 
 		    case '/':
-			*p = '\0';
-			ret = L_SLASH;
+			if (!in_matchinst) {
+			    *p = '\0';
+			    ret = L_SLASH;
+			}
+			else
+			    ltype = L_PATTERN;
 			break;
 
 		    case '(':
@@ -2978,6 +3125,10 @@ derive_lex(void)
 
 		    case '"':
 			ltype = L_STRING;
+			break;
+
+		    case '[':
+			ltype = L_INSTNAME;
 			break;
 
 		    default:
@@ -3039,6 +3190,8 @@ derive_lex(void)
 			    unget(c);
 			    p[-1] = '\0';
 			    ret = func[i].f_type;
+			    if (ret == L_MATCHINST)
+				in_matchinst = 1;
 			    break;
 			}
 		    }
@@ -3086,6 +3239,62 @@ derive_lex(void)
 		    break;
 		}
 		ret = L_STRING;
+		break;
+	    }
+	    else if (ltype == L_INSTNAME) {
+		if (escape && c != '\0') {
+		    escape = 0;
+		    continue;
+		}
+		if (escape == 0 && c == '\\') {
+		    p--;
+		    escape = 1;
+		    continue;
+		}
+		if (c != ']') {
+		    if (c == '\0') {
+			PM_TPD(derive_errmsg) = "unterminated instance name";
+			ret = L_ERROR;
+			break;
+		    }
+		    continue;
+		}
+		/* [-1] and [1] to strip [ .. ] */
+		p[-1] = '\0';
+		if ((derive_lval.s = strdup(&tokbuf[1])) == NULL) {
+		    PM_TPD(derive_errmsg) = "strdup() for INSTNAME failed";
+		    ret = L_ERROR;
+		    break;
+		}
+		ret = L_INSTNAME;
+		break;
+	    }
+	    else if (ltype == L_PATTERN) {
+		if (escape && c != '\0') {
+		    escape = 0;
+		    continue;
+		}
+		if (escape == 0 && c == '\\') {
+		    p--;
+		    escape = 1;
+		    continue;
+		}
+		if (c != '/') {
+		    if (c == '\0') {
+			PM_TPD(derive_errmsg) = "unterminated pattern";
+			ret = L_ERROR;
+			break;
+		    }
+		    continue;
+		}
+		/* [-1] and [1] to strip / .. / */
+		p[-1] = '\0';
+		if ((derive_lval.s = strdup(&tokbuf[1])) == NULL) {
+		    PM_TPD(derive_errmsg) = "strdup() for PATTERN failed";
+		    ret = L_ERROR;
+		    break;
+		}
+		ret = L_PATTERN;
 		break;
 	    }
 	    else if (ltype == L_LT) {
@@ -3172,7 +3381,7 @@ derive_lex(void)
 
     }
     if (pmDebugOptions.derive && pmDebugOptions.appl0) {
-	if (ltype == L_STRING)
+	if (ltype == L_STRING || ltype == L_INSTNAME || ltype == L_PATTERN)
 	    fprintf(stderr, "derive_lex() -> type=L_%s \"%s\"\n", l_type_str(ret), &tokbuf[1]);
 	else
 	    fprintf(stderr, "derive_lex() -> type=L_%s \"%s\"\n", l_type_str(ret), ret == L_EOS ? "" : tokbuf);

@@ -467,6 +467,7 @@ sampledso.negative.discrete.m_32
 sampledso.negative.discrete.m_64
 sampledso.negative.discrete.m_float
 sampledso.negative.discrete.m_double
+sampledso.controller.mirage
 sampledso.one
 sampledso.suba.two
 sampledso.suba.three
@@ -669,6 +670,7 @@ sampledso.negative.discrete.m_32
 sampledso.negative.discrete.m_64
 sampledso.negative.discrete.m_float
 sampledso.negative.discrete.m_double
+sampledso.controller.mirage
 sampledso.one
 sampledso.suba.two
 sampledso.suba.three
