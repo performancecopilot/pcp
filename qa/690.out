@@ -1,2 +1,338 @@
 QA output created by 690
-[skeleton from now, replace me]
+=== simple cases ===
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: register metric[2] qa.a = matchinst(/100/, sample.bin)
+pmRegisterDerived: register metric[3] qa.b = matchinst(/[1-36-9]00/, sample.bin)
+pmRegisterDerived: register metric[4] qa.c = matchinst(!/bin-[1-5]00/, sample.bin)
+pmRegisterDerived: register metric[5] qa.d = sample.bin[bin-300] + sample.part_bin[bin-300]
+__dmopencontext(->ctx 0) called
+__dmgetpmid: metric "qa.a" -> PMID 511.0.3
+__dmbind: bind metric[2] qa.a
+Derived metric expr dump from <addr-0>...
+expr node <addr-0> type=FILTERINST left=<addr-1> right=<addr-2> save_last=0
+    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-1> type=PATTERN pattern: 100 type: regex used=0
+expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+__dmtraverse: name="qa" added "qa.a"
+__dmgetpmid: metric "qa.b" -> PMID 511.0.4
+__dmbind: bind metric[3] qa.b
+Derived metric expr dump from <addr-3>...
+expr node <addr-3> type=FILTERINST left=<addr-4> right=<addr-5> save_last=0
+    PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-4> type=PATTERN pattern: [1-36-9]00 type: regex used=0
+expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+__dmtraverse: name="qa" added "qa.b"
+__dmgetpmid: metric "qa.c" -> PMID 511.0.5
+__dmbind: bind metric[4] qa.c
+Derived metric expr dump from <addr-6>...
+expr node <addr-6> type=FILTERINST left=<addr-7> right=<addr-8> save_last=0
+    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-7> type=PATTERN pattern: bin-[1-5]00 type: inverted regex used=0
+expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+__dmtraverse: name="qa" added "qa.c"
+__dmgetpmid: metric "qa.d" -> PMID 511.0.6
+__dmbind: bind metric[5] qa.d
+Derived metric expr dump from <addr-9>...
+expr node <addr-9> type=PLUS left=<addr-10> right=<addr-13> save_last=0
+    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-10> type=FILTERINST left=<addr-11> right=<addr-12> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-11> type=PATTERN pattern: bin-300 type: exact match inst=-1
+expr node <addr-12> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-13> type=FILTERINST left=<addr-14> right=<addr-15> save_last=0
+    PMID: PM_ID_NULL (29.0.50 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-14> type=PATTERN pattern: bin-300 type: exact match inst=-1
+expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] master=0
+    PMID: 29.0.50 (29.0.50 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+__dmtraverse: name="qa" added "qa.d"
+__dmgetpmid: metric "qa.a" -> PMID 511.0.3
+__dmgetpmid: metric "qa.b" -> PMID 511.0.4
+__dmgetpmid: metric "qa.c" -> PMID 511.0.5
+__dmgetpmid: metric "qa.d" -> PMID 511.0.6
+derived metrics prefetch added 2 metrics: 29.0.6 29.0.50
+__dmpostfetch: [0] root node 511.0.3: numval=1 vset[0]: inst=100 l=100
+expr node <addr-0> type=FILTERINST left=<addr-1> right=<addr-2> save_last=0
+    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+[0] inst=100, val=100
+expr node <addr-1> type=PATTERN pattern: 100 type: regex used=1 (9 instances, 1 matches)
+expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+[0] inst=100, val=100
+[1] inst=200, val=200
+[2] inst=300, val=300
+[3] inst=400, val=400
+[4] inst=500, val=500
+[5] inst=600, val=600
+[6] inst=700, val=700
+[7] inst=800, val=800
+[8] inst=900, val=900
+__dmpostfetch: [1] root node 511.0.4: numval=7 vset[0]: inst=100 l=100 vset[1]: inst=200 l=200 vset[2]: inst=300 l=300 vset[3]: inst=600 l=600 vset[4]: inst=700 l=700 vset[5]: inst=800 l=800 vset[6]: inst=900 l=900
+expr node <addr-3> type=FILTERINST left=<addr-4> right=<addr-5> save_last=0
+    PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 7
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+[0] inst=100, val=100
+[1] inst=200, val=200
+[2] inst=300, val=300
+[3] inst=600, val=600
+[4] inst=700, val=700
+[5] inst=800, val=800
+[6] inst=900, val=900
+expr node <addr-4> type=PATTERN pattern: [1-36-9]00 type: regex used=1 (9 instances, 7 matches)
+expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+[0] inst=100, val=100
+[1] inst=200, val=200
+[2] inst=300, val=300
+[3] inst=400, val=400
+[4] inst=500, val=500
+[5] inst=600, val=600
+[6] inst=700, val=700
+[7] inst=800, val=800
+[8] inst=900, val=900
+__dmpostfetch: [2] root node 511.0.5: numval=4 vset[0]: inst=600 l=600 vset[1]: inst=700 l=700 vset[2]: inst=800 l=800 vset[3]: inst=900 l=900
+expr node <addr-6> type=FILTERINST left=<addr-7> right=<addr-8> save_last=0
+    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 4
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+[0] inst=600, val=600
+[1] inst=700, val=700
+[2] inst=800, val=800
+[3] inst=900, val=900
+expr node <addr-7> type=PATTERN pattern: bin-[1-5]00 type: inverted regex used=1 (9 instances, 4 matches)
+expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+[0] inst=100, val=100
+[1] inst=200, val=200
+[2] inst=300, val=300
+[3] inst=400, val=400
+[4] inst=500, val=500
+[5] inst=600, val=600
+[6] inst=700, val=700
+[7] inst=800, val=800
+[8] inst=900, val=900
+__dmpostfetch: [3] root node 511.0.6: numval=1 vset[0]: inst=300 l=600
+expr node <addr-9> type=PLUS left=<addr-10> right=<addr-13> save_last=0
+    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+[0] inst=300, val=600
+expr node <addr-10> type=FILTERINST left=<addr-11> right=<addr-12> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+[0] inst=300, val=300
+expr node <addr-11> type=PATTERN pattern: bin-300 type: exact match inst=300
+expr node <addr-12> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+[0] inst=100, val=100
+[1] inst=200, val=200
+[2] inst=300, val=300
+[3] inst=400, val=400
+[4] inst=500, val=500
+[5] inst=600, val=600
+[6] inst=700, val=700
+[7] inst=800, val=800
+[8] inst=900, val=900
+expr node <addr-13> type=FILTERINST left=<addr-14> right=<addr-15> save_last=0
+    PMID: PM_ID_NULL (29.0.50 from pmDesc) numval: 1
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+[0] inst=300, val=300
+expr node <addr-14> type=PATTERN pattern: bin-300 type: exact match inst=300
+expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] master=0
+    PMID: 29.0.50 (29.0.50 from pmDesc) numval: 5
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+[0] inst=100, val=100
+[1] inst=300, val=300
+[2] inst=500, val=500
+[3] inst=700, val=700
+[4] inst=900, val=900
+
+qa.a
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+    inst [100 or "bin-100"] value 100
+
+qa.b
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+qa.c
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+qa.d
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+    inst [300 or "bin-300"] value 600
+
+=== some error cases ===
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: register metric[2] qa.a = matchinst(/123/, sampledso.bin)
+pmRegisterDerived: register metric[3] qa.d = sample.bin[bin-345] + sample.part_bin[bin-345]
+__dmopencontext(->ctx 0) called
+__dmgetpmid: metric "qa.a" -> PMID 511.0.3
+__dmbind: bind metric[2] qa.a
+Derived metric expr dump from <addr-0>...
+expr node <addr-0> type=FILTERINST left=<addr-1> right=<addr-2> save_last=0
+    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 30.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-1> type=PATTERN pattern: 123 type: regex used=0
+expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.bin] master=0
+    PMID: 30.0.6 (30.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 30.2 0x....
+    Semantics: instant  Units: none
+__dmtraverse: name="qa" added "qa.a"
+__dmgetpmid: metric "qa.d" -> PMID 511.0.4
+__dmbind: bind metric[3] qa.d
+Derived metric expr dump from <addr-3>...
+expr node <addr-3> type=PLUS left=<addr-4> right=<addr-7> save_last=0
+    PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-4> type=FILTERINST left=<addr-5> right=<addr-6> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-5> type=PATTERN pattern: bin-345 type: exact match inst=-1
+expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-7> type=FILTERINST left=<addr-8> right=<addr-9> save_last=0
+    PMID: PM_ID_NULL (29.0.50 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-8> type=PATTERN pattern: bin-345 type: exact match inst=-1
+expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] master=0
+    PMID: 29.0.50 (29.0.50 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+__dmtraverse: name="qa" added "qa.d"
+__dmgetpmid: metric "qa.a" -> PMID 511.0.3
+__dmgetpmid: metric "qa.d" -> PMID 511.0.4
+derived metrics prefetch added 3 metrics: 30.0.6 29.0.6 29.0.50
+__dmpostfetch: [0] root node 511.0.3: numval=0
+expr node <addr-0> type=FILTERINST left=<addr-1> right=<addr-2> save_last=0
+    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 30.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-1> type=PATTERN pattern: 123 type: regex used=1 (9 instances, 0 matches)
+expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.bin] master=0
+    PMID: 30.0.6 (30.0.6 from pmDesc) numval: 9
+    Data Type: 32-bit int  InDom: 30.2 0x....
+    Semantics: instant  Units: none
+[0] inst=100, val=100
+[1] inst=200, val=200
+[2] inst=300, val=300
+[3] inst=400, val=400
+[4] inst=500, val=500
+[5] inst=600, val=600
+[6] inst=700, val=700
+[7] inst=800, val=800
+[8] inst=900, val=900
+eval_expr: expr node <addr-4> type=FILTERINST pmLookupInDom_ctx(...,29.2,bin-345) failed: Unknown or illegal instance identifier
+eval_expr: expr node <addr-7> type=FILTERINST pmLookupInDom_ctx(...,29.2,bin-345) failed: Unknown or illegal instance identifier
+__dmpostfetch: [1] root node 511.0.4: numval=0
+expr node <addr-3> type=PLUS left=<addr-4> right=<addr-7> save_last=0
+    PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-4> type=FILTERINST left=<addr-5> right=<addr-6> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-5> type=PATTERN pattern: bin-345 type: exact match inst=-1
+expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 9
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+[0] inst=100, val=100
+[1] inst=200, val=200
+[2] inst=300, val=300
+[3] inst=400, val=400
+[4] inst=500, val=500
+[5] inst=600, val=600
+[6] inst=700, val=700
+[7] inst=800, val=800
+[8] inst=900, val=900
+expr node <addr-7> type=FILTERINST left=<addr-8> right=<addr-9> save_last=0
+    PMID: PM_ID_NULL (29.0.50 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+expr node <addr-8> type=PATTERN pattern: bin-345 type: exact match inst=-1
+expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin] master=0
+    PMID: 29.0.50 (29.0.50 from pmDesc) numval: 5
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+[0] inst=100, val=100
+[1] inst=300, val=300
+[2] inst=500, val=500
+[3] inst=700, val=700
+[4] inst=900, val=900
+
+qa.a
+    Data Type: 32-bit int  InDom: 30.2 0x....
+    Semantics: instant  Units: none
+No value(s) available!
+
+qa.d
+    Data Type: 32-bit int  InDom: 29.2 0x....
+    Semantics: instant  Units: none
+No value(s) available!
