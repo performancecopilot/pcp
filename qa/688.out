@@ -33,7 +33,7 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[2] qa.a = matchinst(/100/, sample.bin)
 Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=FILTERINST left=<addr-5> right=<addr-6> save_last=0
-expr node <addr-5> type=PATTERN pattern: 100 type: regex
+expr node <addr-5> type=PATTERN pattern: 100 type: regex used=0
 expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
 pmRegisterDerived: name="qa.b" expr="matchinst(!/bin-[1-5]00/, sample.bin)"
 derive_lex() -> type=L_FILTERINST "matchinst"
@@ -47,7 +47,7 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[3] qa.b = matchinst(!/bin-[1-5]00/, sample.bin)
 Derived metric expr dump from <addr-7>...
 expr node <addr-7> type=FILTERINST left=<addr-8> right=<addr-9> save_last=0
-expr node <addr-8> type=PATTERN pattern: bin-[1-5]00 type: inverted regex
+expr node <addr-8> type=PATTERN pattern: bin-[1-5]00 type: inverted regex used=0
 expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
 pmRegisterDerived: name="qa.c" expr="sample.bin[bin-300] + sample.bin[bin-500]"
 derive_lex() -> type=L_NAME "sample.bin"
@@ -60,10 +60,10 @@ pmRegisterDerived: register metric[4] qa.c = sample.bin[bin-300] + sample.bin[bi
 Derived metric expr dump from <addr-10>...
 expr node <addr-10> type=PLUS left=<addr-11> right=<addr-14> save_last=0
 expr node <addr-11> type=FILTERINST left=<addr-12> right=<addr-13> save_last=0
-expr node <addr-12> type=PATTERN pattern: bin-300 type: exact match
+expr node <addr-12> type=PATTERN pattern: bin-300 type: exact match inst=-1
 expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
 expr node <addr-14> type=FILTERINST left=<addr-15> right=<addr-16> save_last=0
-expr node <addr-15> type=PATTERN pattern: bin-500 type: exact match
+expr node <addr-15> type=PATTERN pattern: bin-500 type: exact match inst=-1
 expr node <addr-16> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
 pmRegisterDerived: name="qa.d" expr="sample.bin[\b\i\n\-\3\0\0] + sample.bin[\]bin-500\\]"
 derive_lex() -> type=L_NAME "sample.bin"
@@ -76,10 +76,10 @@ pmRegisterDerived: register metric[5] qa.d = sample.bin[\b\i\n\-\3\0\0] + sample
 Derived metric expr dump from <addr-17>...
 expr node <addr-17> type=PLUS left=<addr-18> right=<addr-21> save_last=0
 expr node <addr-18> type=FILTERINST left=<addr-19> right=<addr-20> save_last=0
-expr node <addr-19> type=PATTERN pattern: bin-300 type: exact match
+expr node <addr-19> type=PATTERN pattern: bin-300 type: exact match inst=-1
 expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
 expr node <addr-21> type=FILTERINST left=<addr-22> right=<addr-23> save_last=0
-expr node <addr-22> type=PATTERN pattern: ]bin-500\ type: exact match
+expr node <addr-22> type=PATTERN pattern: ]bin-500\ type: exact match inst=-1
 expr node <addr-23> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
 pmRegisterDerived: name="qa.e" expr="matchinst(/\\[1\\]100\//, sample.bin)"
 derive_lex() -> type=L_FILTERINST "matchinst"
@@ -92,7 +92,7 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[6] qa.e = matchinst(/\\[1\\]100\//, sample.bin)
 Derived metric expr dump from <addr-24>...
 expr node <addr-24> type=FILTERINST left=<addr-25> right=<addr-26> save_last=0
-expr node <addr-25> type=PATTERN pattern: \[1\]100/ type: regex
+expr node <addr-25> type=PATTERN pattern: \[1\]100/ type: regex used=0
 expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
 __dmbind: bind metric[2] qa.a
