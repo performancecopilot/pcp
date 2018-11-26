@@ -1068,10 +1068,10 @@ BAD
 685 pmns local
 686 logutil local
 687 pmlogger local
-688:reserved derive local
+688 derive local
 689 pmclient archive multi-archive decompress-xz local sanity pmlogextract python
-690:reserved derive local
-691:reserved derive local
+690 derive local
+691 derive local pmval
 692 pmie pmda.sample local
 693 pmie pmda.sample local
 694 pmie valgrind local
