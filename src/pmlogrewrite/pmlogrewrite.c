@@ -1338,7 +1338,7 @@ do_newlabelsets(void)
 	    else if ((lp->old_type & PM_LABEL_DOMAIN))
 		fprintf(stderr, " domain %d\n", pmID_domain(lp->old_id));
 	    else if ((lp->old_type & PM_LABEL_CLUSTER))
-		fprintf(stderr, " item %d.%d\n", pmID_domain(lp->old_id), pmID_cluster (lp->old_id));
+		fprintf(stderr, " cluster %d.%d\n", pmID_domain(lp->old_id), pmID_cluster (lp->old_id));
 	    else if ((lp->old_type & PM_LABEL_ITEM))
 		fprintf(stderr, " item %s\n", pmIDStr(lp->old_id));
 	    else if ((lp->old_type & PM_LABEL_INDOM))

@@ -158,10 +158,14 @@ usr/share/man/man3/pmInDom_serial.3.gz
 usr/share/man/man3/pmindomstr.3.gz
 usr/share/man/man3/pmInDomStr.3.gz
 usr/share/man/man3/pmInDomStr_r.3.gz
+usr/share/man/man3/pmiputlabel.3.gz
+usr/share/man/man3/pmiPutLabel.3.gz
 usr/share/man/man3/pmiputmark.3.gz
 usr/share/man/man3/pmiPutMark.3.gz
 usr/share/man/man3/pmiputresult.3.gz
 usr/share/man/man3/pmiPutResult.3.gz
+usr/share/man/man3/pmiputtext.3.gz
+usr/share/man/man3/pmiPutText.3.gz
 usr/share/man/man3/pmiputvalue.3.gz
 usr/share/man/man3/pmiPutValue.3.gz
 usr/share/man/man3/pmiputvaluehandle.3.gz

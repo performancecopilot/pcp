@@ -2,6 +2,7 @@
 # Exercise libpcp_import ... Perl version of check_import.c
 #
 # Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2018 Red Hat.
 #
 use strict;
 use warnings;
@@ -104,6 +105,96 @@ $_ = pmiPutValueHandle($hdl1, "321");
 check($_, "pmiPutValueHandle");
 $_ = pmiPutValueHandle(0, "error");
 check($_, "pmiPutValueHandle");
+
+$_ = pmiPutText(PM_TEXT_PMID, PM_TEXT_ONELINE, pmID_build(245,0,1),
+		"One line text for my.metric.foo");
+check($_, "pmiPutText");
+$_ = pmiPutText(PM_TEXT_PMID, PM_TEXT_HELP, pmID_build(245,0,1),
+		"Full help text for my.metric.foo");
+check($_, "pmiPutText");
+$_ = pmiPutText(PM_TEXT_INDOM, PM_TEXT_ONELINE, pmInDom_build(245,1),
+		"One line text for indom 'eek'");
+check($_, "pmiPutText");
+$_ = pmiPutText(PM_TEXT_INDOM, PM_TEXT_HELP, pmInDom_build(245,1),
+		"Full help text for indom 'eek'");
+check($_, "pmiPutText");
+
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "NewContextLabel", "NewContextLabelContent" );
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_DOMAIN, pmID_build(245,0,0), 0,
+		  "NewDomainLabel245", "NewDomainLabel245Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_CLUSTER, pmID_build(245,0,0), 0,
+		  "NewClusterLabel245_0", "NewClusterLabel245_0Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_ITEM, pmID_build(245,0,1), 0,
+		  "NewItemLabel245_0_1", "NewItemLabel245_0_1Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_INDOM, pmInDom_build(245,1), 0,
+		  "NewIndomLabel245_1", "NewIndomLabel245_1Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 1,
+		  "NewInstancesLabel245_1__1", "NewInstancesLabel245_1__1Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 3,
+		  "NewInstancesLabel245_1__3", "NewInstancesLabel245_1__3Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "True" );
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "False" );
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextNull", "Null" );
+check($_, "pmiPutLabel");
+
+# These are duplicates - which are ok.
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "NewContextLabel", "NewContextLabelContent" );
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_DOMAIN, pmID_build(245,0,0), 0,
+		  "NewDomainLabel245", "NewDomainLabel245Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_CLUSTER, pmID_build(245,0,0), 0,
+		  "NewClusterLabel245_0", "NewClusterLabel245_0Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_ITEM, pmID_build(245,0,1), 0,
+		  "NewItemLabel245_0_1", "NewItemLabel245_0_1Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_INDOM, pmInDom_build(245,1), 0,
+		  "NewIndomLabel245_1", "NewIndomLabel245_1Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 1,
+		  "NewInstancesLabel245_1__1", "NewInstancesLabel245_1__1Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 3,
+		  "NewInstancesLabel245_1__3", "NewInstancesLabel245_1__3Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "True" );
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "False" );
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextNull", "Null" );
+check($_, "pmiPutLabel");
+
+# These are replacements - which are ok.
+    $_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "NewContextLabel", "ReplacementContextLabelContent" );
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_DOMAIN, pmID_build(245,0,0), 0,
+		  "NewDomainLabel245", "ReplacementDomainLabel245Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_CLUSTER, pmID_build(245,0,0), 0,
+		  "NewClusterLabel245_0", "ReplacementClusterLabel245_0Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_ITEM, pmID_build(245,0,1), 0,
+		  "NewItemLabel245_0_1", "ReplacementItemLabel245_0_1Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_INDOM, pmInDom_build(245,1), 0,
+		  "NewIndomLabel245_1", "ReplacementIndomLabel245_1Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 1,
+		  "NewInstancesLabel245_1__1", "ReplacementInstancesLabel245_1__1Content");
+check($_, "pmiPutLabel");
+$_ = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 3,
+		  "NewInstancesLabel245_1__3", "ReplacementInstancesLabel245_1__3Content");
+check($_, "pmiPutLabel");
 
 pmiDump();
 

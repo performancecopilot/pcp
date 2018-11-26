@@ -1,6 +1,5 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 .\" Copyright (c) 2018 Red Hat.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -14,9 +13,9 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMIPUTVALUE 3 "" "Performance Co-Pilot"
+.TH PMIPUTLABEL 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmiPutValue\f1 \- add a value for a metric-instance pair
+\f3pmiPutLabel\f1 \- add labels to the output archive
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -27,7 +26,7 @@
 .hy 0
 .in +8n
 .ti -8n
-int pmiPutValue(const char *\fIname\fP, const char *\fIinstance\fP, const\ char\ *\fIvalue\fP);
+int pmiPutLabel(unsigned int \fItype\fP, unsigned int \fIid\fP, unsigned int \fIinstance\fP, const char *\fIname\fP, const char *\fIvalue\fP)
 .sp
 .in
 .hy
@@ -38,48 +37,66 @@ cc ... \-lpcp_import \-lpcp
 .ft 3
 use PCP::LogImport;
 .sp
-pmiPutValue($\fIname\fP, $\fIinstance\fP, $\fIvalue\fP);
+pmiPutLabel($\fItype\fP, $\fIid\fP, $\fIinstance\fP, $\fIname\fP, $\fIvalue\fP);
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see
 .BR LOGIMPORT (3)),
-.B pmiPutValue
-adds a single value to the current output record for a given
-metric and instance.
-.PP
-The metric's
-.I name
-should match one defined earlier in a call to
-.BR pmiAddMetric (3).
-.PP
-For singular metrics (those defined with an instance domain of
-.BR PM_INDOM_NULL ),
-the
-.I instance
-should be NULL or an empty string, otherwise
-.I instance
-should match the name of an instance defined earlier in a call
-to
-.BR pmiAddInstance (3)
-for the metric's instance domain.
+.B pmiPutLabel
+adds a label for the global context or for a given domain, cluster, item,
+instance domain or instance.
 .PP
 The
-.I value
-should be in a format consistent with the metric's type as
-defined in the call to
+.I type
+must be one of
+.BR PM_LABEL_CONTEXT,
+.BR PM_LABEL_DOMAIN,
+.BR PM_LABEL_CLUSTER,
+.BR PM_LABEL_ITEM,
+.BR PM_LABEL_INDOM,
+or
+.BR PM_LABEL_INSTANCES .
+.PP
+.PP
+If
+.I type
+is
+.BR PM_LABEL_CONTEXT ,
+then
+.I id
+and
+.I instance
+are ignored.
+Otherwise,
+.I id
+should match a domain, cluster, metric or instance domain defined earlier in
+a call to
 .BR pmiAddMetric (3).
+.PP
+If
+.I type
+is
+.BR PM_LABEL_INSTANCES ,
+then
+.I instance
+should match an instance number of the selected domain. Otherwise
+.I instance
+is ignored.
+.PP
+.I name
+is a string containing the name of the label to be added.
+.PP
+.I value
+is a string containing the value of the label to be added.
 .PP
 No data will be written until
 .BR pmiWrite (3)
 is called, so multiple calls to
-.B pmiPutValue
-or
-.BR pmiPutValueHandle (3)
-are typically used to accumulate data values for several
-metric-instance pairs before calling
+.B pmiPutLabel
+are typically used to accumulate several labels before calling
 .BR pmiWrite (3).
 .SH DIAGNOSTICS
-.B pmiPutValue
+.B pmiPutLabel
 returns zero on success else a negative value that can be turned into an
 error message by calling
 .BR pmiErrStr (3).
@@ -89,8 +106,8 @@ error message by calling
 .BR pmiAddMetric (3),
 .BR pmiErrStr (3),
 .BR pmiPutResult (3),
+.BR pmiPutValue (3),
 .BR pmiPutValueHandle (3),
-.BR pmiPutText (3),
-.BR pmiPutLabel (3)
+.BR pmiPutText (3)
 and
 .BR pmiWrite (3).

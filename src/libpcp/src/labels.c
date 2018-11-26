@@ -49,13 +49,16 @@ pmFreeLabelSets(pmLabelSet *sets, int nsets)
     }
 }
 
-static pmLabelSet *
+pmLabelSet *
 __pmDupLabelSets(pmLabelSet *source, int nsets)
 {
     pmLabelSet	*sets, *target;
     size_t	size;
     int		i;
 
+    if (nsets == 0 || source == NULL)
+	return NULL;
+    
     assert(nsets > 0);
     if ((sets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL)
 	return NULL;
@@ -645,8 +648,14 @@ pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen,
 	return -EINVAL;
 
     for (i = 0; i < nsets; i++) {
-	if (sets[i] == NULL)
+	if (sets[i] == NULL || sets[i]->labels == NULL) {
+	    /* nothing to merge (or invalid labelset) */
+	    if (pmDebugOptions.labels) {
+		fprintf(stderr, "pmMergeLabelSets: set [%d] %s",
+				i, sets[i] ? "has NULL labels" : "is NULL");
+	    }
 	    continue;
+	}
 
 	/* avoid overwriting the working set, if there is one */
 	if (sts > 0) {
