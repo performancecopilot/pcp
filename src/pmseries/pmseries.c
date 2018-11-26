@@ -29,7 +29,7 @@ typedef enum series_flags {
     PMSERIES_NEED_INSTS	= (1<<10),	/* output requires insts lookup */
 
     PMSERIES_OPT_ALL	= (1<<16),	/* -a, --all option */
-    PMSERIES_OPT_SOURCE = (1<<17),	/* -c, --context option */
+    PMSERIES_OPT_SOURCE = (1<<17),	/* -S, --source option */
     PMSERIES_OPT_DESC	= (1<<18),	/* -d, --desc option */
     PMSERIES_OPT_INSTS	= (1<<19),	/* -i, --instances option */
     PMSERIES_OPT_LABELS	= (1<<20),	/* -l, --labels option */
@@ -90,6 +90,8 @@ typedef struct series_data {
     series_inst		*insts;		/* instances for the current series */
     pmSID		*iseries;	/* series identifiers for instances */
 } series_data;
+
+static void on_series_done(int, void *);
 
 static series_data *
 series_data_init(series_flags flags, sds query)
@@ -477,6 +479,7 @@ series_instance_names(series_data *dp, void *arg)
 		    ip->instid, ip->name, ip->series);
 	isp[i] = ip->series;
     }
+    on_series_done(0, dp);
 }
 
 static int
@@ -516,6 +519,7 @@ series_metric_labels(series_data *dp, void *arg)
 	    printf("    labels %s\n", labels);
 	sdsfree(labels);
     }
+    on_series_done(0, dp);
 }
 
 static void
@@ -535,6 +539,7 @@ series_instance_labels(series_data *dp, void *arg)
 	}
 	sdsfree(labels);
     }
+    on_series_done(0, dp);
 }
 
 static void
@@ -1066,6 +1071,11 @@ main(int argc, char *argv[])
 
     if (opts.optind == argc && (flags & PMSERIES_OPT_QUERY)) {
 	pmprintf("%s: error - no --query string provided\n", pmGetProgname());
+	opts.errors++;
+    }
+
+    if (opts.optind == argc && (flags & (PMSERIES_META_OPTS|PMSERIES_OPT_SOURCE))) {
+	pmprintf("%s: error - no series string(s) provided\n", pmGetProgname());
 	opts.errors++;
     }
 
