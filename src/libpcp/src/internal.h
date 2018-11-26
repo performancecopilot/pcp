@@ -322,6 +322,7 @@ extern int pmLookupName_ctx(__pmContext *, int, char **, pmID *) _PCP_HIDDEN;
 extern int pmNameAll_ctx(__pmContext *, pmID, char ***) _PCP_HIDDEN;
 extern int pmLookupDesc_ctx(__pmContext *, pmID, pmDesc *) _PCP_HIDDEN;
 extern int pmNameInDom_ctx(__pmContext *, pmInDom, int, char **) _PCP_HIDDEN;
+extern int pmLookupInDom_ctx(__pmContext *, pmInDom, const char *) _PCP_HIDDEN;
 extern int pmGetInDomArchive_ctx(__pmContext *, pmInDom, int **, char ***) _PCP_HIDDEN;
 extern int pmFetch_ctx(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
 extern int pmStore_ctx(__pmContext *, const pmResult *) _PCP_HIDDEN;

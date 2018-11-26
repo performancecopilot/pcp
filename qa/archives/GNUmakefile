@@ -50,7 +50,7 @@ DEFLATE = small.0.xz small.meta small.index \
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \
-	  mk.mirage mk.proc \
+	  mk.mirage mk.mirage-3 mk.proc \
 	  mk.numa mk.rewrite mk.eventrec mk.interpmark mk.multihost \
 	  mk.sample_expr mk.tzchange mk.arch-all mk.atop mk.hotatop \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched \

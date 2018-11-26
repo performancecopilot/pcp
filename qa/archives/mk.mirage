@@ -17,7 +17,7 @@ log mandatory on default {
 }
 End-of-File
 
-rm -r mirage-1.* mirage-2.*
+rm -f mirage-1.* mirage-2.*
 
 pmlogger -t 3sec -c $tmp.config -s 15 mirage-1 &
 sleep 5

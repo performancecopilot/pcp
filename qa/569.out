@@ -172,6 +172,7 @@ sample.negative.discrete.m_32 1
 sample.negative.discrete.m_64 1
 sample.negative.discrete.m_float 1
 sample.negative.discrete.m_double 1
+sample.controller.mirage 1
 
 === -i ===
 sample.control 1 PM_IN_NULL
@@ -362,6 +363,7 @@ sample.negative.discrete.m_32 1 PM_IN_NULL
 sample.negative.discrete.m_64 1 PM_IN_NULL
 sample.negative.discrete.m_float 1 PM_IN_NULL
 sample.negative.discrete.m_double 1 PM_IN_NULL
+sample.controller.mirage 1 PM_IN_NULL
 
 === -I ===
 sample.control 1 PM_IN_NULL
@@ -558,6 +560,7 @@ sample.negative.discrete.m_32 1 PM_IN_NULL
 sample.negative.discrete.m_64 1 PM_IN_NULL
 sample.negative.discrete.m_float 1 PM_IN_NULL
 sample.negative.discrete.m_double 1 PM_IN_NULL
+sample.controller.mirage 1 PM_IN_NULL
 
 === -v ===
 sample.control 1 0
@@ -740,6 +743,7 @@ sample.negative.discrete.m_32 1 -9988
 sample.negative.discrete.m_64 1 -9988
 sample.negative.discrete.m_float 1 -9988
 sample.negative.discrete.m_double 1 -9988
+sample.controller.mirage 1 10000
 
 === -iI ===
 sample.control 1 PM_IN_NULL PM_IN_NULL
@@ -968,6 +972,7 @@ sample.negative.discrete.m_32 1 PM_IN_NULL PM_IN_NULL
 sample.negative.discrete.m_64 1 PM_IN_NULL PM_IN_NULL
 sample.negative.discrete.m_float 1 PM_IN_NULL PM_IN_NULL
 sample.negative.discrete.m_double 1 PM_IN_NULL PM_IN_NULL
+sample.controller.mirage 1 PM_IN_NULL PM_IN_NULL
 
 === -iv ===
 pmprobe: at most one of -v and (-i or -I) allowed

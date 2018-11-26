@@ -20,11 +20,11 @@
 #include "fault.h"
 
 int
-pmLookupInDom(pmInDom indom, const char *name)
+pmLookupInDom_ctx(__pmContext *ctxp, pmInDom indom, const char *name)
 {
-    int			sts;
+    int		sts;
     pmInResult	*result;
-    __pmContext		*ctxp;
+    int		need_unlock = 0;
 
     if (pmDebugOptions.pmapi) {
 	char    dbgbuf[20];
@@ -35,13 +35,19 @@ pmLookupInDom(pmInDom indom, const char *name)
 	sts = PM_ERR_INDOM;
 	goto pmapi_return;
     }
+
     if ((sts = pmWhichContext()) >= 0) {
 	int	ctx = sts;
-	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp == NULL) {
-	    sts = PM_ERR_NOCONTEXT;
-	    goto pmapi_return;
+	    ctxp = __pmHandleToPtr(ctx);
+	    if (ctxp == NULL) {
+		sts = PM_ERR_NOCONTEXT;
+		goto pmapi_return;
+	    }
+	    need_unlock = 1;
 	}
+	else
+	    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				    &ctxp->c_origin, indom, PM_IN_NULL, name);
@@ -94,7 +100,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
 	    /* assume PM_CONTEXT_ARCHIVE */
 	    sts = __pmLogLookupInDom(ctxp->c_archctl, indom, &ctxp->c_origin, name);
 	}
-	PM_UNLOCK(ctxp->c_lock);
+	if (need_unlock)
+	    PM_UNLOCK(ctxp->c_lock);
     }
 
 pmapi_return:
@@ -112,6 +119,14 @@ pmapi_return:
     return sts;
 }
 
+int
+pmLookupInDom(pmInDom indom, const char *name)
+{
+    int	sts;
+    sts = pmLookupInDom_ctx(NULL, indom, name);
+    return sts;
+}
+
 /*
  * Internal variant of pmNameInDom() ... ctxp is not NULL for
  * internal callers where the current context is already locked, but
@@ -121,8 +136,8 @@ pmapi_return:
 int
 pmNameInDom_ctx(__pmContext *ctxp, pmInDom indom, int inst, char **name)
 {
-    int			need_unlock = 0;
-    int			sts;
+    int		need_unlock = 0;
+    int		sts;
     pmInResult	*result;
 
     if (pmDebugOptions.pmapi) {

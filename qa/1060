@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 1060
 # pmie_check with Martins Innus <minnus@buffalo.edu> style
 # multi-level directory structure.
