@@ -120,10 +120,11 @@ flags described in the output of pmdbg -l.  The PMCD-specific flags are:
     DBG_TRACE_APPL1       4096  Trace host access control
     DBG_TRACE_APPL2       8192  Trace config file scanner and parser
 
-It is possible to store values into this metric.  Diagnostic output is
-written to the PMCD log file (usually $PCP_LOG_DIR/pmcd/pmcd.log).
+It is possible to store values into this metric, see the -ol options for
+pmdbg(1) to help determine appropriate values for the debug flags.
 
-Setting this metric to -1 terminates PMCD.
+Diagnostic output is written to the PMCD log file (usually
+$PCP_LOG_DIR/pmcd/pmcd.log).
 
 @ pmcd.pdu_in.total Total PDUs received by PMCD
 Running total of all BINARY mode PDUs received by the PMCD from clients
