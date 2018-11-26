@@ -968,10 +968,10 @@ main(int argc, char **argv)
 	    fetchctl_t	*fcp = tp->t_fetch;
 	    int		fg = 0;
 	    fprintf(stderr, "Fetch task[%d] delta: %ld usec numpmid: %d\n",
-		j, (long)(1000 * tp->t_delta.tv_sec + tp->t_delta.tv_usec),
+		j, (long)(1000000 * tp->t_delta.tv_sec + tp->t_delta.tv_usec),
 		tp->t_numpmid);
 	    while (fcp != NULL) {
-		fprintf(stderr, "  Fetch group[%d.%d] %d metrics\n", j, fg++, fcp->f_numpmid);
+		fprintf(stderr, "  Fetch group[%d][%d] %d metrics\n", j, fg++, fcp->f_numpmid);
 		fcp = fcp->f_next;
 	    }
 	    j++;
