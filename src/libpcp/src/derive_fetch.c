@@ -611,6 +611,44 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
     return res;
 }
 
+/*
+ * For regular expression instance matching, the hash list of observed
+ * instances could grow without bounds for a dynamic indom.
+ * Use a simple algorithm ... if the instance has been observed in
+ * less than 50% of the the last REGEX_INST_COMPACT fetches for the
+ * regular expression node, drop the instance.  If a culled instance
+ * comes back again we will add it into the hash list again.
+ */
+static void
+regex_inst_gc(pattern_t *pp)
+{
+    int			numinst = 0;
+    int			numcull = 0;
+    __pmHashNode	*hnp;
+    instctl_t		*icp;
+    if (pmDebugOptions.derive && pmDebugOptions.appl2)
+	fprintf(stderr, "regex_inst_gc(" PRINTF_P_PFX "%p)", pp);
+    for (hnp = __pmHashWalk(&pp->hash, PM_HASH_WALK_START);
+	 hnp != NULL;
+	 hnp = __pmHashWalk(&pp->hash, PM_HASH_WALK_NEXT)) {
+	numinst++;
+	icp = (instctl_t *)hnp->data;
+	if (icp->used < REGEX_INST_COMPACT / 2) {
+	    int		sts;
+	    sts = __pmHashDel(icp->inst, hnp->data, &pp->hash);
+	    if (sts < 0) {
+		fprintf(stderr, "botch: __pmHashDel: failed for inst=%d\n", icp->inst);
+	    }
+	    free(icp);
+	    numcull++;
+	}
+	else
+	    icp->used = 0;
+    }
+    if (pmDebugOptions.derive && pmDebugOptions.appl2)
+	fprintf(stderr, " %d instances scanned, %d instances culled\n", numinst, numcull);
+    pp->used = 0;
+}
 
 /*
  * Walk an expression tree, filling in operand values from the
@@ -625,6 +663,8 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
     int		j;
     int		k;
     size_t	need;
+    char	strbuf[20];
+    pmTimeval	save_origin;
 
     assert(np != NULL);
     if (np->left != NULL) {
@@ -655,6 +695,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
     /* mostly, np->left is not NULL ... */
     assert (np->type == N_INTEGER || np->type == N_DOUBLE ||
             np->type == N_NAME || np->type == N_SCALE ||
+	    np->type == N_FILTERINST || np->type == N_PATTERN ||
 	    np->type == N_DEFINED || np->left != NULL);
 
     switch (np->type) {
@@ -726,8 +767,12 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    j = 0;
 		if (np->left->data.info->ivlist[i].inst != np->left->data.info->last_ivlist[j].inst) {
 		    /* current ith inst != last jth inst ... search in last */
-		    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
-			fprintf(stderr, "eval_expr: inst[%d] mismatch left [%d]=%d last [%d]=%d\n", k, i, np->left->data.info->ivlist[i].inst, j, np->left->data.info->last_ivlist[j].inst);
+		    if ((pmDebugOptions.derive && pmDebugOptions.appl2) &&
+			np->left->type != N_FILTERINST) {
+			fprintf(stderr, "eval_expr: %s: inst[%d] mismatch left [%d]=%d last [%d]=%d\n",
+			    __dmnode_type_str(np->type), k,
+			    i, np->left->data.info->ivlist[i].inst,
+			    j, np->left->data.info->last_ivlist[j].inst);
 		    }
 		    for (j = 0; j < np->left->data.info->last_numval; j++) {
 			if (np->left->data.info->ivlist[i].inst == np->left->data.info->last_ivlist[j].inst)
@@ -738,7 +783,8 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			continue;
 		    }
 		    else {
-			if (pmDebugOptions.derive && pmDebugOptions.appl2) {
+			if ((pmDebugOptions.derive && pmDebugOptions.appl2) &&
+			    np->left->type != N_FILTERINST) {
 			    fprintf(stderr, "eval_expr: recover @ last [%d]=%d\n", j, np->left->data.info->last_ivlist[j].inst);
 			}
 		    }
@@ -1012,8 +1058,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 				break;
 			    default:
 				if (pmDebugOptions.derive) {
-				    char	strbuf[20];
-				    fprintf(stderr, "eval_expr: botch: drived metric%s: guard has odd type (%d)\n", pmIDStr_r(np->data.info->pmid, strbuf, sizeof(strbuf)), np->left->desc.type);
+				    fprintf(stderr, "eval_expr: botch: drived metric %s: guard has odd type (%d)\n", pmIDStr_r(np->data.info->pmid, strbuf, sizeof(strbuf)), np->left->desc.type);
 				}
 				return PM_ERR_TYPE;
 			}
@@ -1066,7 +1111,11 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			    else
 				np->data.info->ivlist[i].value.cp = pick->data.info->ivlist[0].value.cp;
 			    break;
-			/* TODO other types? */
+			default:
+			    if (pmDebugOptions.derive) {
+				fprintf(stderr, "eval_expr: botch: drived metric %s: value has odd type (%d)\n", pmIDStr_r(np->data.info->pmid, strbuf, sizeof(strbuf)), np->left->desc.type);
+			    }
+			    return PM_ERR_TYPE;
 		    }
 		    np->data.info->ivlist[i].inst = pick_inst->data.info->ivlist[i].inst;
 		}
@@ -1388,7 +1437,6 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		}
 	    }
 	    if (pmDebugOptions.derive) {
-		char	strbuf[20];
 		fprintf(stderr, "eval_expr: botch: operand %s not in the extended pmResult\n", pmIDStr_r(np->data.info->pmid, strbuf, sizeof(strbuf)));
 		__pmDumpResult_ctx(ctxp, stderr, rp);
 	    }
@@ -1405,6 +1453,145 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	case N_SCALE:
 	    /* no associated values */
 	    return 0;
+
+	case N_FILTERINST:
+	    /*
+	     * possible values are in the right expr
+	     */
+	    assert(np->left != NULL);
+	    assert(np->right != NULL);
+	    np->data.info->last_stamp = np->data.info->stamp;
+	    np->data.info->stamp = rp->timestamp;
+	    if (np->left->data.pattern->ftype == F_REGEX)
+		free_ivlist(np);
+	    else
+		np->data.info->numval = 0;
+	    for (i = 0; i < np->right->data.info->numval; i++) {
+		if (np->left->data.pattern->ftype == F_REGEX) {
+		    /* regular expression match */
+		    __pmHashNode	*hp;
+		    instctl_t		*ip;
+		    char		*iname;
+		    char		*q;
+		    if ((hp = __pmHashSearch(np->right->data.info->ivlist[i].inst, &np->left->data.pattern->hash)) == NULL) {
+			/* first time we've seen this inst for this expr node */
+			if ((ip = (instctl_t *)malloc(sizeof(instctl_t))) == NULL) {
+			    pmNoMem("eval_expr: inst_ctl", sizeof(instctl_t), PM_FATAL_ERR);
+			    /*NOTREACHED*/
+			}
+			ip->inst = np->right->data.info->ivlist[i].inst;
+			ip->used = 0;
+			/*
+			 * Need to update context timestamp origin so that
+			 * indom search will succeed ... and then put it
+			 * back.
+			 */
+			save_origin = ctxp->c_origin;	/* struct assignment */
+			ctxp->c_origin.tv_sec = rp->timestamp.tv_sec;
+			ctxp->c_origin.tv_usec = rp->timestamp.tv_usec;
+			sts = pmNameInDom_ctx(ctxp, np->right->desc.indom, ip->inst, &iname);
+			ctxp->c_origin = save_origin;	/* struct assignment */
+			if (sts >= 0) {
+			    /*
+			     * classical external instance name matching means
+			     * strip any text after the first space
+			     */
+			    for (q = iname; *q && *q != ' '; q++)
+				;
+			    *q = '\0';
+			    if (regexec(&np->left->data.pattern->regex, iname, 0, NULL, 0) == 0)
+				ip->match = np->left->data.pattern->invert ? 0 : 1;
+			    else
+				ip->match = np->left->data.pattern->invert ? 1 : 0;
+			    free(iname);
+			}
+			else {
+			    /* pmNameInDom() failed ... this should not happen */
+			    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
+				char	errmsg[PM_MAXERRMSGLEN];
+				fprintf(stderr, "eval_expr: expr node " PRINTF_P_PFX "%p type=%s", np, __dmnode_type_str(np->type));
+				fprintf(stderr, " pmNameInDom(%s, %d, ...) failed:",
+				    pmInDomStr_r(np->right->desc.indom, strbuf, sizeof(strbuf)),
+				    ip->inst);
+				fprintf(stderr, " %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+			    }
+			    ip->match = 0;
+			}
+			if ((sts = __pmHashAdd(np->right->data.info->ivlist[i].inst, (void *)ip, &np->left->data.pattern->hash)) < 0) {
+			    /* also, should not happen */
+			    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
+				char	errmsg[PM_MAXERRMSGLEN];
+				fprintf(stderr, "eval_expr: expr node " PRINTF_P_PFX "%p type=%s", np, __dmnode_type_str(np->type));
+				fprintf(stderr, " __pmHashAdd(%d, ...) failed:",
+				    np->right->data.info->ivlist[i].inst);
+				fprintf(stderr, " %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+			    }
+			    ip->match = 0;
+			}
+		    }
+		    else
+			ip = (instctl_t *)hp->data;
+		    ip->used++;
+		    if (ip->match) {
+			val_t	*tmp_ivlist;
+			np->data.info->numval++;
+			if ((tmp_ivlist = (val_t *)realloc(np->data.info->ivlist, np->data.info->numval*sizeof(val_t))) == NULL) {
+			    pmNoMem("eval_expr: PATTERN ivlist", np->data.info->numval*sizeof(val_t), PM_FATAL_ERR);
+			    /*NOTREACHED*/
+			}
+			np->data.info->ivlist = tmp_ivlist;
+			np->data.info->ivlist[np->data.info->numval-1] = np->right->data.info->ivlist[i];
+		    }
+		}
+		else {
+		    /* simple text match */
+		    if (np->left->data.pattern->inst == PM_IN_NULL) {
+			/* need to map external name to internal instance id */
+			sts = pmLookupInDom_ctx(ctxp, np->right->desc.indom, np->left->value);
+			if (sts < 0) {
+			    /*
+			     * instance is not in the indom at this point
+			     * in time, so no point walking the right
+			     * operand's instances, just return numvla == 0
+			     */
+			    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
+				char	errmsg[PM_MAXERRMSGLEN];
+				fprintf(stderr, "eval_expr: expr node " PRINTF_P_PFX "%p type=%s", np, __dmnode_type_str(np->type));
+				fprintf(stderr, " pmLookupInDom_ctx(...,%s,%s) failed:",
+				    pmInDomStr_r(np->right->desc.indom, errmsg, sizeof(errmsg)), np->left->value);
+				fprintf(stderr, " %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+			    }
+			    break;
+			}
+			else
+			    np->left->data.pattern->inst = sts;
+		    }
+		    if (np->data.info->ivlist == NULL) {
+			/* first time, at most one value here */
+			if ((np->data.info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
+			    pmNoMem("eval_expr: filterinst ivlist", sizeof(val_t), PM_FATAL_ERR);
+			    /*NOTREACHED*/
+			}
+		    }
+		    if (np->left->data.pattern->inst == np->right->data.info->ivlist[i].inst) {
+			np->data.info->ivlist[0] = np->right->data.info->ivlist[i];
+			np->data.info->numval = 1;
+			break;
+		    }
+		}
+	    }
+	    if (np->left->data.pattern->ftype == F_REGEX) {
+		np->left->data.pattern->used++;
+		if (np->left->data.pattern->used >= REGEX_INST_COMPACT)
+		    regex_inst_gc(np->left->data.pattern);
+	    }
+	    return np->data.info->numval;
+	    break;
+
+	case N_PATTERN:
+	    /* do nothing */
+	    return 0;
+	    break;
 
 	default:
 	    /*
@@ -1460,9 +1647,17 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		if (np->left->desc.indom != PM_INDOM_NULL &&
 		    np->right->desc.indom != PM_INDOM_NULL) {
 		    if (np->left->data.info->ivlist[i].inst != np->right->data.info->ivlist[j].inst) {
-			/* left ith inst != right jth inst ... search in right */
-			if (pmDebugOptions.derive && pmDebugOptions.appl2) {
-			    fprintf(stderr, "eval_expr: inst[%d] mismatch left [%d]=%d right [%d]=%d\n", k, i, np->left->data.info->ivlist[i].inst, j, np->right->data.info->ivlist[j].inst);
+			/*
+			 * left ith inst != right jth inst ... search in right
+			 * (this is sort of expected for FILTERINST nodes)
+			 */
+			if ((pmDebugOptions.derive && pmDebugOptions.appl2) &&
+			    np->left->type != N_FILTERINST &&
+			    np->right->type != N_FILTERINST) {
+			    fprintf(stderr, "eval_expr: %s: inst[%d] mismatch left [%d]=%d right [%d]=%d\n",
+				__dmnode_type_str(np->type), k,
+				i, np->left->data.info->ivlist[i].inst,
+				j, np->right->data.info->ivlist[j].inst);
 			}
 			for (j = 0; j < np->right->data.info->numval; j++) {
 			    if (np->left->data.info->ivlist[i].inst == np->right->data.info->ivlist[j].inst)
@@ -1479,7 +1674,9 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			    continue;
 			}
 			else {
-			    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
+			    if ((pmDebugOptions.derive && pmDebugOptions.appl2) &&
+				np->left->type != N_FILTERINST &&
+				np->right->type != N_FILTERINST) {
 				fprintf(stderr, "eval_expr: recover @ right [%d]=%d\n", j, np->right->data.info->ivlist[j].inst);
 			    }
 			}

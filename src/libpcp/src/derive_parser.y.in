@@ -89,7 +89,6 @@ static int derive_lex(void);
 static void derive_error(char *);
 int derive_debug;
 
-static char *n_type_str(int);
 static char *n_type_c(int);
 static char *l_type_str(int);
 
@@ -433,6 +432,23 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
     if (np->type == N_SCALE) {
 	new->data.info = NULL;
     }
+    if (np->type == N_PATTERN) {
+	if ((new->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
+	    PM_UNLOCK(registered.mutex);
+	    pmNoMem("bind_expr: pattern block", sizeof(pattern_t), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	    new->data.pattern->ftype = np->data.pattern->ftype;
+	    if (np->data.pattern->ftype == F_REGEX) {
+		new->data.pattern->regex = np->data.pattern->regex;
+		new->data.pattern->invert = np->data.pattern->invert;
+	      __pmHashInit(&new->data.pattern->hash);
+		new->data.pattern->used = 0;
+	    }
+	    else {
+		new->data.pattern->inst = np->data.pattern->inst;
+	    }
+    }
     else {
 	if ((new->data.info = (info_t *)malloc(sizeof(info_t))) == NULL) {
 	    PM_UNLOCK(registered.mutex);
@@ -538,7 +554,7 @@ void report_sem_error(char *name, node_t *np)
 	case N_SUM:
 	case N_ANON:
 	case N_DEFINED:
-	    pmprintf("%s(%s)", n_type_str(np->type), np->left->value);
+	    pmprintf("%s(%s)", __dmnode_type_str(np->type), np->left->value);
 	    break;
 	case N_QUEST:
 	    if (np->left->type == N_INTEGER || np->left->type == N_DOUBLE || np->left->type == N_NAME)
@@ -562,7 +578,7 @@ void report_sem_error(char *name, node_t *np)
 		pmprintf("%s ", np->left->value);
 	    else
 		pmprintf("<expr> ");
-	    pmprintf("%s ", n_type_str(np->type));
+	    pmprintf("%s ", __dmnode_type_str(np->type));
 	    {
 		const char		*units;
 		char		strbuf[60];
@@ -574,7 +590,7 @@ void report_sem_error(char *name, node_t *np)
 	    }
 	    break;
 	case N_FILTERINST:
-	    pmprintf("%s ", n_type_str(np->type));
+	    pmprintf("%s ", __dmnode_type_str(np->type));
 	    break;
 	default:
 	    /* should never get here ... */
@@ -1394,15 +1410,30 @@ __dmdumpexpr(node_t *np, int level)
 
     if (level == 0) fprintf(stderr, "Derived metric expr dump from " PRINTF_P_PFX "%p...\n", np);
     if (np == NULL) return;
-    fprintf(stderr, "expr node " PRINTF_P_PFX "%p type=%s", np, n_type_str(np->type));
+    fprintf(stderr, "expr node " PRINTF_P_PFX "%p type=%s", np, __dmnode_type_str(np->type));
     if (np->type == N_PATTERN) {
+	__pmHashNode	*hnp;
+	instctl_t	*icp;
+	int		numinst = 0;
+	int		nummatch = 0;;
 	fprintf(stderr, " pattern: %s type: ", np->value);
 	if (np->data.pattern->ftype == F_REGEX) {
 	    /* regular expression from matchinst() */
-	    fprintf(stderr, "%sregex", np->data.pattern->invert ? "inverted " : "");
+	    fprintf(stderr, "%sregex used=%d",
+		np->data.pattern->invert ? "inverted " : "", np->data.pattern->used);
+	    if (np->data.pattern->hash.hash != NULL) {
+		for (hnp = __pmHashWalk(&np->data.pattern->hash, PM_HASH_WALK_START);
+		     hnp != NULL;
+		     hnp = __pmHashWalk(&np->data.pattern->hash, PM_HASH_WALK_NEXT)) {
+		    numinst++;
+		    icp = (instctl_t *)hnp->data;
+		    if (icp->match) nummatch++;
+		}
+		fprintf(stderr, " (%d instances, %d matches)", numinst, nummatch);
+	    }
 	}
 	else
-	    fprintf(stderr, "exact match");
+	    fprintf(stderr, "exact match inst=%d", np->data.pattern->inst);
 	fputc('\n', stderr);
     }
     else {
@@ -2415,6 +2446,7 @@ expr	: L_LPAREN expr L_RPAREN
 		      /*NOTREACHED*/
 		  }
 		  np->left->data.pattern->ftype = F_EXACT;
+		  np->left->data.pattern->inst = PM_IN_NULL;
 		  $$ = np;
 		}
 	| L_LPAREN expr L_RPAREN L_INSTNAME
@@ -2427,7 +2459,7 @@ expr	: L_LPAREN expr L_RPAREN
 		      pmNoMem("pmRegisterDerived: alloc pattern", (int)sizeof(pattern_t), PM_FATAL_ERR);
 		      /*NOTREACHED*/
 		  }
-		  np->left->data.pattern->ftype = F_EXACT;
+		  np->left->data.pattern->ftype = F_REGEX;
 		  $$ = np;
 		}
 	| num
@@ -2484,39 +2516,39 @@ expr	: L_LPAREN expr L_RPAREN
 
 	/* error reporting */
 	| L_NAME error
-		{ gramerr(op_str, follow, n_type_str(N_NAME)); YYERROR; }
+		{ gramerr(op_str, follow, __dmnode_type_str(N_NAME)); YYERROR; }
 	| expr L_PLUS error
-		{ gramerr(aexpr_str, follow, n_type_str(N_PLUS)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_PLUS)); YYERROR; }
 	| expr L_MINUS error
-		{ gramerr(aexpr_str, follow, n_type_str(N_MINUS)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_MINUS)); YYERROR; }
 	| expr L_STAR error
-		{ gramerr(aexpr_str, follow, n_type_str(N_STAR)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_STAR)); YYERROR; }
 	| expr L_SLASH error
-		{ gramerr(aexpr_str, follow, n_type_str(N_SLASH)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_SLASH)); YYERROR; }
 	| L_MINUS error
-		{ gramerr(aexpr_str, follow, n_type_str(N_NEG)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEG)); YYERROR; }
 	| expr L_LT error
-		{ gramerr(aexpr_str, follow, n_type_str(N_LT)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LT)); YYERROR; }
 	| expr L_LEQ error
-		{ gramerr(aexpr_str, follow, n_type_str(N_LEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LEQ)); YYERROR; }
 	| expr L_EQ error
-		{ gramerr(aexpr_str, follow, n_type_str(N_EQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_EQ)); YYERROR; }
 	| expr L_GEQ error
-		{ gramerr(aexpr_str, follow, n_type_str(N_GEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GEQ)); YYERROR; }
 	| expr L_GT error
-		{ gramerr(aexpr_str, follow, n_type_str(N_GT)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GT)); YYERROR; }
 	| expr L_NEQ error
-		{ gramerr(aexpr_str, follow, n_type_str(N_NEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEQ)); YYERROR; }
 	| expr L_AND error
-		{ gramerr(bexpr_str, follow, n_type_str(N_AND)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_AND)); YYERROR; }
 	| expr L_OR error
-		{ gramerr(bexpr_str, follow, n_type_str(N_OR)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_OR)); YYERROR; }
 	| L_NOT error
-		{ gramerr(bexpr_str, follow, n_type_str(N_NOT)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_NOT)); YYERROR; }
 	| expr L_QUEST error
-		{ gramerr(aexpr_str, follow, n_type_str(N_QUEST)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_QUEST)); YYERROR; }
 	| expr L_QUEST expr L_COLON error
-		{ gramerr(aexpr_str, follow, n_type_str(N_COLON)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_COLON)); YYERROR; }
 	;
 
 regexpr	: opt_bang L_PATTERN
@@ -2529,7 +2561,7 @@ regexpr	: opt_bang L_PATTERN
 		      /*NOTREACHED*/
 		  }
 		  np->data.pattern->ftype = F_REGEX;
-		  if ((lsts = regcomp(&np->data.pattern->regex, np->value, REG_EXTENDED)) != 0) {
+		  if ((lsts = regcomp(&np->data.pattern->regex, np->value, REG_EXTENDED|REG_NOSUB)) != 0) {
 		      /* regcomp() failed ... */
 		      char	errmsg[128];
 		      regerror(lsts, &np->data.pattern->regex, errmsg, sizeof(errmsg));
@@ -2886,8 +2918,8 @@ static struct {
 };
 
 /* full name for all node types */
-static char *
-n_type_str(int type)
+char *
+__dmnode_type_str(int type)
 {
     int		i;
     /* long enough for ... "unknown type XXXXXXXXXXX!" */
