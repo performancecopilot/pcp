@@ -264,6 +264,7 @@ ENABLE_DECOMPRESSION = @enable_decompression@
 ENABLE_LZMA = @enable_lzma@
 
 # selinux configuration bits
+PCP_SELINUX_FILES_LIST_NON_AUTH_DIRS = @pcp_selinux_files_list_non_auth_dirs@
 PCP_SELINUX_CLASS_STATUS = @pcp_selinux_class_status@
 PCP_SELINUX_CAP_USERNS_PTRACE = @pcp_selinux_cap_userns_ptrace@
 PCP_SELINUX_CONTAINER_RUNTIME = @pcp_selinux_container_runtime@

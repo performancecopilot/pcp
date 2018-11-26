@@ -468,7 +468,7 @@ allow pcp_pmcd_t self:capability sys_rawio;
 allow pcp_pmcd_t redis_port_t:tcp_socket name_connect;
 
 # allow pcp_pmcd_t domain to read all dirs,files and fifo_file in attribute file_type
-files_list_non_security(pcp_domain)
+@PCP_SELINUX_MACRO_RULE@
 files_read_all_files(pcp_pmcd_t)
 files_read_all_files(pcp_pmie_t)
 files_read_all_files(pcp_pmlogger_t)

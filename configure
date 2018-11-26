@@ -709,6 +709,7 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+pcp_selinux_files_list_non_auth_dirs
 pcp_selinux_wap_port
 pcp_selinux_bpf_status
 pcp_selinux_numad
@@ -12014,6 +12015,7 @@ $as_echo "no" >&6; }
 
 
 
+
 pcp_selinux_class_status=false
 pcp_selinux_cap_userns_ptrace=false
 pcp_selinux_container_runtime=false
@@ -12031,6 +12033,7 @@ pcp_selinux_unconfined=false
 pcp_selinux_numad=false
 pcp_selinux_bpf_class=false
 pcp_selinux_wap_port=false
+pcp_selinux_files_list_non_auth_dirs=false
 
 if test "x$enable_selinux" != "xfalse"; then :
 
@@ -12131,10 +12134,16 @@ do
        then
             pcp_selinux_wap_port=true
        fi
+       auth_file_type=`eval seinfo -a -- $policy_file | grep non_auth_file_type | awk '{ print $1 }'`
+       if test "x$auth_file_type" != "x"
+       then
+           pcp_selinux_files_list_non_auth_dirs=true
+       fi
     fi
 done
 
 fi
+
 
 
 
