@@ -1,4 +1,5 @@
 '\"macro stdmacro
+.\"
 .\" Copyright (c) 2018 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -11,12 +12,29 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
+.\"
 .TH PCP-DSTAT 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pcp-dstat\f1 \- versatile tool for generating system resource statistics
 .SH SYNOPSIS
 \f3pcp\f1 [\f2pcp\ options\f1] \f3dstat\f1 [\f2dstat\ options\f1] [\f2delay\f1 [\f2count\f1]]
 .SH DESCRIPTION
+.de EX
+.in +0.5i
+.ie t .ft CB
+.el .ft B
+.ie t .sp .5v
+.el .sp
+.ta \\w' 'u*8
+.nf
+..
+.de EE
+.fi
+.ie t .sp .5v
+.el .sp
+.ft R
+.in
+..
 .B pcp-dstat
 is a general performance analysis tool allowing you to view multiple
 system resources instantly, for example you can compare disk usage in
@@ -57,14 +75,15 @@ from the
 utility.
 The original Dstat notion of ``plugins'' is replaced by use of named
 metrics in a Performance Metric Name Space (\c
-.BR PMNS (5)) supplied by Performance Metric Domain Agents (PMDAs).
+.BR PMNS (5))
+supplied by Performance Metric Domain Agents (PMDAs).
 Metrics and other formatting information is now specified as plugin
 configuration files.
 This new style of plugin is either built-in (time-related reporting
 only), or sourced from the system-wide location (\c
-.IR $PCP_ETC_DIR/dstat )
+.BR $PCP_ETC_DIR/dstat )
 and/or sourced from an individual users set of personal plugins (\c
-.IR $HOME/pcp/dstat ).
+.BR $HOME/pcp/dstat ).
 .PP
 The list of all available plugins can be seen using the \fB\-\-list\fR
 dstat command line option.
@@ -84,7 +103,9 @@ and several other
 .I pcp options
 become indirectly available.
 .PP
-The available \f2dstat options\f1 are:
+The available
+.I dstat options
+are:
 .TP
 \fB\-\-list\fR
 list all available plugin names
@@ -96,20 +117,22 @@ enable any plugin by name
 equals \fB\-cdngy\fR (default plugin set)
 .TP
 \fB\-c\fR, \fB\-\-cpu\fR
-enable cpu stats (system, user, idle, wait), for more CPU related stats also see
+enable CPU stats (system, user, idle, wait),
+for more CPU related stats also see
 \fB\-\-cpu\-adv\fR
 and
-\fB\-\-cpu\-use\fR.
+\fB\-\-cpu\-use\fR
 .TP
 \fB\-C\fR \fI0,3,total\fR
-include cpu0, cpu3 and total (when using \fB\-c\fR/\fB\-\-cpu\fR); use
+include CPU0, CPU3 and total (when using \fB\-c\fR/\fB\-\-cpu\fR); use
 \fIall\fR
 to show all CPUs
 .TP
 \fB\-d\fR, \fB\-\-disk\fR
-enable disk stats (read, write), for more disk related stats look into the other
+enable disk stats (read, write),
+for more disk related stats look into the other
 \fB\-\-disk\fR
-plugins.
+plugins
 .TP
 \fB\-D\fR \fItotal,hda\fR
 include \fItotal\fR and \fIhda\fR (when using \fB\-d\fR/\fB\-\-disk\fR)
@@ -124,10 +147,11 @@ enable interrupt stats
 include interrupt 5 and 10 (when using \fB\-i\fR/\fB\-\-int\fR)
 .TP
 \fB\-l\fR, \fB\-\-load\fR
-enable load average stats (1 min, 5 mins, 15mins)
+enable load average stats (1 min, 5 mins, 15 mins)
 .TP
 \fB\-m\fR, \fB\-\-mem\fR
-enable memory stats (used, buffers, cache, free); for more memory related stats also try
+enable memory stats (used, buffers, cache, free);
+for more memory related stats also try
 \fB\-\-mem\-adv\fR
 and
 \fB\-\-swap\fR
@@ -144,7 +168,7 @@ show the number of packets received and transmitted
 \fB\-p\fR, \fB\-\-proc\fR
 enable process stats (runnable, uninterruptible, new)
 .TP
-\-\-proc\-count
+\fB\-\-proc\-count\fR
 show total number of processes
 .TP
 \fB\-r\fR, \fB\-\-io\fR
@@ -173,10 +197,10 @@ enable system stats (interrupts, context switches)
 enable aio stats (asynchronous I/O)
 .TP
 \fB\-\-cpu\-adv\fR
-enable advanced cpu stats
+enable advanced CPU stats
 .TP
 \fB\-\-cpu\-use\fR
-enable only cpu usage stats
+enable only CPU usage stats
 .TP
 \fB\-\-disk\-avgqu\fR
 average queue length of the requests that were issued to the device
@@ -185,16 +209,19 @@ average queue length of the requests that were issued to the device
 average size (in sectors) of the requests that were issued to the device
 .TP
 \fB\-\-disk\-svctm\fR
-average service time (in milliseconds) for I/O requests that were issued to the device
+average service time (in milliseconds) for I/O requests that
+were issued to the device
 .TP
 \fB\-\-disk\-tps\fR
 number of transfers per second that were issued to the device
 .TP
 \fB\-\-disk\-util\fR
-percentage of CPU time during which I/O requests were issued to the device (bandwidth utilization for the device)
+percentage of CPU time during which I/O requests
+were issued to the device (bandwidth utilization for the device)
 .TP
 \fB\-\-disk\-wait\fR
-average time (in milliseconds) for I/O requests issued to the device to be served
+average time (in milliseconds) for I/O requests
+issued to the device to be served
 .TP
 \fB\-\-fs\fR, \fB\-\-filesystem\fR
 enable filesystem stats (open files, inodes)
@@ -231,7 +258,8 @@ shows login information from
 .BR utmp (5)
 .TP
 \fB\-\-vm\fR
-enable virtual memory stats (hard pagefaults, soft pagefaults, allocated, free)
+enable virtual memory stats
+(hard pagefaults, soft pagefaults, allocated, free)
 .TP
 \fB\-\-vm\-adv\fR
 enable advance virtual memory stats (steal, scanK, scanD, pgoru, astll)
@@ -264,7 +292,7 @@ show remote procedure call (RPC) server calls stats
 show most expensive block I/O process
 .TP
 \fB\-\-top\-bio\-adv\fR
-show most expensive block I/O process (incl\&. pid and other stats)
+show most expensive block I/O process (incl\&. PID and other stats)
 .TP
 \fB\-\-top\-childwait\fR
 show process waiting for child the most
@@ -273,7 +301,7 @@ show process waiting for child the most
 show most expensive CPU process
 .TP
 \fB\-\-top\-cpu\-adv\fR
-show most expensive CPU process (incl\&. pid and other stats)
+show most expensive CPU process (incl\&. PID and other stats)
 .TP
 \fB\-\-top\-cputime\fR
 show process using the most CPU time (in milliseconds)
@@ -288,7 +316,7 @@ show most frequent interrupt\fR
 show most expensive I/O process\fR
 .TP
 \fB\-\-top\-io\-adv\fR
-show most expensive I/O process (incl\&. pid and other stats)
+show most expensive I/O process (incl\&. PID and other stats)
 .TP
 \fB\-\-top\-latency\fR
 show process with highest total latency (in milliseconds)
@@ -398,7 +426,7 @@ command.
 The following do not yet have metrics backing them, but have
 been included from the original Dstat utility.
 Please contact
-.I <pcp@groups.io>
+.I <pcp@groups\&.io>
 if you need or implement any of these, and we'll work with
 you to get them included.
 .TP 5
@@ -424,7 +452,8 @@ GPFS read/write I/O (needs mmpmon and a GPFS PMDA)
 GPFS filesystem operations (needs mmpmon and a GPFS PMDA)
 .TP
 \fB\-\-md\-status\fR
-show software raid (MD driver) progress and speed (needs new \fIdisk.md\fR metrics)
+show software raid (MD driver) progress and speed
+(needs new \fIdisk.md\fR metrics)
 .TP
 \fB\-\-power\fR
 show power usage (needs an ACPI PMDA)
@@ -480,81 +509,56 @@ show ZFS zil stats (needs a Linux ZFS PMDA)
 When invoking
 .B pcp-dstat
 with a \fIdelay\fR greater than 1 second and without the \fB\-\-noupdate\fR
-option, it will show intermediate updates, ie\&. the first time a 1 second
-average, the second update a 2 second average, etc\&. until the \fIdelay\fB
-has been reached.
+option, it will show intermediate updates, i\&.e\&., the first time a 1
+second average, the second update a 2 second average, etc\&. until the
+\fIdelay\fR has been reached.
 .PP
-So in case you specified a delay of 10, \fBthe 9 intermediate updates are NOT snapshots\fR, they are averages over the time that passed since the last final update\&. The end result is that you get a 10 second average on a new line, just like with vmstat\&.
+So in case you specified a delay of 10,
+\fBthe 9 intermediate updates are NOT snapshots\fR,
+they are averages over the time that passed since the last final update.
+The end result is that you get a 10 second average on a new line,
+just like with
+.BR vmstat (1).
 .SH EXAMPLES
 Using
 .B pcp-dstat
-to relate disk\-throughput with network\-usage (eth0), total CPU\-usage and system counters:
-.sp
-.if n \{\
-.RS 4
-.\}
-.nf
-pcp dstat \-dnyc \-N eth0 \-C total \-f 5
-.fi
-.if n \{\
-.RE
-.\}
-.sp
-Using the time plugin together with cpu, net, disk, system, load and proc plugins:
-.sp
-.if n \{\
-.RS 4
-.\}
-.nf
-pcp dstat \-tcndylp
-.fi
-.if n \{\
-.RE
-.\}
-.sp
-this is identical to:
-.sp
-.if n \{\
-.RS 4
-.\}
-.nf
-pcp dstat \-\-time \-\-cpu \-\-net \-\-disk \-\-sys \-\-load \-\-proc
-.fi
-.if n \{\
-.RE
-.\}
-.sp
+to relate disk\-throughput with network\-usage (eth0),
+total CPU\-usage and system counters:
+.EX
+$ pcp dstat \-dnyc \-N eth0 \-C total \-f 5
+.EE
+Using the time plugin together with cpu, net, disk, system,
+load and proc plugins:
+.EX
+$ pcp dstat \-tcndylp
+.EE
+This is identical to:
+.EX
+$ pcp dstat \-\-time \-\-cpu \-\-net \-\-disk \-\-sys \-\-load \-\-proc
+.EE
 Using
 .B pcp-dstat
-to report 10 samples from metrics recorded in a PCP archive from 2:30am:
-.sp
-.if n \{\
-.RS 4
-.\}
+to report 10 samples from metrics recorded in a PCP archive
+.I 20180729
+from 2:30 AM:
+.RS +1
+.ft B
 .nf
-pcp \-\-origin '@02:30' \-\-archive 20180729 dstat \-\-time \-\-cpu\-adv \-\-sys 1 10
+$ pcp \-\-origin '@02:30' \-a 20180729 dstat \-\-time \-\-cpu\-adv \-\-sys 1 10
 .fi
-.if n \{\
+.ft P
 .RE
-.\}
-.sp
+.PP
 Examine the same metrics live from a remote host:
-.sp
-.if n \{\
-.RS 4
-.\}
-.nf
-pcp \-\-host www.acme.com dstat \-\-time \-\-cpu\-adv \-\-sys 1 10
-.fi
-.if n \{\
-.RE
-.\}
+.EX
+$ pcp \-\-host www.acme.com dstat \-\-time \-\-cpu\-adv \-\-sys 1 10
+.EE
 .SH FILES
 .TP
 .I \f(CW$HOME\fP/\&.pcp/dstat/
 private per-user configuration files
 .TP
-.I \f(CW$PCP_ETC_DIR\fP/pcp/dstat/
+.I \f(CW$PCP_SYSCONF_DIR\fP/pcp/dstat/
 system-wide configuration files
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
@@ -565,7 +569,7 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
-.SH "ENVIRONMENT VARIABLES"
+.SH ENVIRONMENT VARIABLES
 Internal plugins behaviour can be changed through environment variables.
 .TP
 .I DSTAT_TIMEFMT
@@ -573,25 +577,36 @@ Internal plugins behaviour can be changed through environment variables.
 format string for reporting time (see \fB\-\-time\fP)
 .SH AUTHORS
 .PP
-The Dstat utility was initially written by Dag Wieers \m[blue]\fBdag@wieers\&.com\fR\m[]
+The Dstat utility was initially written by Dag Wieers
+.IR <dag@wieers\&.com> .
 .PP
-Homepage at \m[blue]\fBhttp://dag\&.wieers\&.com/home\-made/dstat/\fR\m[]
+The Dstat homepage is at
+.IR http://dag\&.wieers\&.com/home\-made/dstat/ .
 .PP
-This manpage was initially written by Andrew Pollock \m[blue]\fBapollock@debian\&.org\fR\m[] for the Debian GNU/Linux system\&.
+This manpage was initially written by Andrew Pollock
+.I <apollock@debian\&.org>
+for the Debian GNU/Linux system.
 .PP
 The
 .B pcp-dstat
-utility is written and maintained by the PCP developers \m[blue]\fBpcp@groups\&.io\fR\m[]
+utility is written and maintained by the PCP developers
+.IR <pcp@groups\&.io> .
+.PP
+The PCP homepage is at
+.IR https://pcp\&.io/ .
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pcp (1),
-.BR pmrep (1),
+.BR pmcd (1),
 .BR pminfo (1),
-.BR pmprobe (1),
 .BR pmlogger (1),
+.BR pmprobe (1),
+.BR pmrep (1),
+.BR vmstat (1),
 .BR pmGetOptions (3),
 .BR strftime (3),
 .BR PMNS (5),
+.BR pcp.conf (5),
 .BR pmrep.conf (5)
 and
-.BR pcp.conf (5)
+.BR utmp (5).
