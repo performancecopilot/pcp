@@ -648,14 +648,8 @@ pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen,
 	return -EINVAL;
 
     for (i = 0; i < nsets; i++) {
-	if (sets[i] == NULL || sets[i]->labels == NULL) {
-	    /* nothing to merge (or invalid labelset) */
-	    if (pmDebugOptions.labels) {
-		fprintf(stderr, "pmMergeLabelSets: set [%d] %s",
-				i, sets[i] ? "has NULL labels" : "is NULL");
-	    }
+	if (sets[i] == NULL)
 	    continue;
-	}
 
 	/* avoid overwriting the working set, if there is one */
 	if (sts > 0) {
