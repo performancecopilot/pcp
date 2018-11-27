@@ -1,10 +1,10 @@
 #!/bin/sh
 
-cd /vagrant
+cd /vagrant || exit
 
 # setup vm
-packages=`./qa/admin/check-vm -p`
-dnf -y $packages
+packages=$(./qa/admin/check-vm -p)
+dnf -y -b --skip-broken install $packages
 
 # build pcp
 sudo -H -u vagrant ./Makepkgs
