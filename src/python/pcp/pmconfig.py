@@ -926,10 +926,6 @@ class pmConfig(object):
             except Exception:
                 pass
 
-            # Error fetching values, remove from results
-            if not results[metric]:
-                del results[metric]
-
         if predicates:
             pred_insts = {}
             for i, predicate in enumerate(predicates):
