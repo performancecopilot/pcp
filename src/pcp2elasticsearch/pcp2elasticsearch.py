@@ -106,6 +106,7 @@ class pcp2elasticsearch(object):
         self.es_index = ES_INDEX
         self.es_search_type = ES_SEARCH_TYPE
         self.es_hostid = None
+        self.es_failed = False
 
         # Internal
         self.runtime = -1
@@ -382,8 +383,13 @@ class pcp2elasticsearch(object):
             headers = {'content-type': 'application/json'} # Do we need this?
             url = self.es_server+'/'+self.es_index
             requests.put(url, data=json.dumps(body), headers=headers)
+            if self.es_failed:
+                sys.stderr.write("Reconnected to Elasticsearch server %s.\n" % (self.es_server))
+            self.es_failed = False
         except Exception as error:
-            sys.stderr.write("Can't connect to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
+            if not self.es_failed:
+                sys.stderr.write("Can't connect to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
+            self.es_failed = True
             return
 
         # Assemble all metrics into a single document
