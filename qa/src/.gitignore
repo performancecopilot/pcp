@@ -202,6 +202,7 @@ rtimetest
 scale
 scanmeta
 semstr
+sha1int2ext
 slow_af
 sortinst
 spawn
