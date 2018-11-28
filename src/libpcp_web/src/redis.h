@@ -62,19 +62,21 @@
 /*
  * Redis protocol reply types
  */
-#define REDIS_REPLY_STRING	1
-#define REDIS_REPLY_ARRAY	2
-#define REDIS_REPLY_INTEGER	3
-#define REDIS_REPLY_NIL		4
-#define REDIS_REPLY_STATUS	5
-#define REDIS_REPLY_ERROR	6
+typedef enum redisReplyType {
+    REDIS_REPLY_STRING		= 1,
+    REDIS_REPLY_ARRAY		= 2,
+    REDIS_REPLY_INTEGER		= 3,
+    REDIS_REPLY_NIL		= 4,
+    REDIS_REPLY_STATUS		= 5,
+    REDIS_REPLY_ERROR		= 6,
+} redisReplyType;
 
 extern const char *redis_reply(int);
 
 #define REDIS_READER_MAX_BUF (1024*16)  /* Default max unused reader buffer. */
 
 typedef struct redisReadTask {
-    int			type;
+    enum redisReplyType	type;       /* REDIS_REPLY_* type of this task */
     int			elements;  /* number of elements in multibulk container */
     int			idx;       /* index in parent (array) object */
     void		*obj;      /* holds user-generated value for a read task */
@@ -157,7 +159,7 @@ int redisReaderGetReply(redisReader *r, void **reply);
 
 /* This is the reply object returned by redisCommand() */
 typedef struct redisReply {
-    int			type;       /* one of the REDIS_REPLY_* macros */
+    enum redisReplyType	type;       /* REDIS_REPLY_* type of this response */
     long long		integer;    /* value for type REDIS_REPLY_INTEGER */
     size_t		len;        /* length of string */
     char		*str;       /* used for both REDIS_REPLY_{ERROR,STRING} */
