@@ -316,11 +316,6 @@ be part of the (external) instance name, so be careful to avoid
 any spurious white space.
 A backslash may be used as an escape prefix
 in the (unlikely) event that the external instance name contains a ``]''.
-.PP
-Because the result is a single value, and to allow the value to be
-used in other expressions, the instance domain is removed from the
-metadata for the result and the instance identifier is removed from
-the values during fetching.
 .RE
 .IP * 2n
 Numeric constants can also be specified using the
@@ -549,7 +544,7 @@ A metric or expression that must be defined over an instance domain.
 .PD
 .PP
 For example, the following expression will have values for the
-metric \f(CWnetwork.interface.in.bytes\fB for all network
+metric \f(CWnetwork.interface.in.bytes\fP for all network
 interfaces
 .B except
 the loopback and virtual bridge devices:
@@ -558,6 +553,30 @@ the loopback and virtual bridge devices:
 matchinst(!/^(lo)|(vbir)/, network.interface.in.bytes)
 .ft R
 .br
+.RE
+.IP * 2n
+The \f(CWscalar\fR function may be used convert a metric or expression
+defined over an instance domain into a scalar value that can be used
+in other expressions.
+For example:
+.br
+.ft CW
+net.in.bytes = scalar(network.interface.in.bytes[eth0]) + \e
+.br
+           scalar(network.interface.in.bytes[eth1])
+.ft R
+.RS 2n
+.PP
+The instance domain is removed from the
+metadata for the result and the instance identifier is removed from
+the value during fetching.
+.PP
+If the metric or expression involves more than one instance then the
+result is formed by picking the first instance \- this is arbitrary
+and implies the \f(CWscalar\fR function should only be used for metrics
+or expressions that are expected to contain zero or one instances, e.g.
+the construct ``[\fIinstance_name\fR]'' or the \f(CWmatchinst\fR function
+with a pattern that matches at most one instance.
 .RE
 .IP * 2n
 Parenthesis may be used for explicit grouping.

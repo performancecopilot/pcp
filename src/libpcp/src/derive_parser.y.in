@@ -362,15 +362,37 @@ free_expr(node_t *np)
     free_expr(np->right);
     np->left = np->right = NULL;
     /* value is only allocated once for the static nodes */
-    if (np->data.info == NULL && np->value != NULL) {
+    if (np->type != N_PATTERN && np->data.info == NULL && np->value != NULL) {
 	free(np->value);
     }
     else if (np->type == N_DEFINED) {
 	/* value is strdup'd, but info is not NULL */
 	free(np->value);
     }
-    if (np->data.info != NULL) {
-	/* N_INSTANT nodes copy the left ivlist pointeer */
+    if (np->type == N_PATTERN) {
+	if (np->data.pattern->ftype == F_REGEX) {
+	    __pmHashNode	*hnp;
+	    __pmHashNode	*prior_hnp;
+	    /*
+	     * free all the instctl_t structs hanging off the hash list
+	     */
+	    for (hnp = __pmHashWalk(&np->data.pattern->hash, PM_HASH_WALK_START);
+		 hnp != NULL; ) {
+		free(hnp->data);
+		prior_hnp = hnp;
+		hnp = __pmHashWalk(&np->data.pattern->hash, PM_HASH_WALK_NEXT);
+		free(prior_hnp);
+	    }
+	    __pmHashClear(&np->data.pattern->hash);
+	}
+	else {
+	    /* F_EXACT */
+	    free(np->value);		/* external inst name from lexer */
+	}
+	free(np->data.pattern);
+    }
+    else if (np->data.info != NULL) {
+	/* N_INSTANT nodes copy the left ivlist pointer */
 	if (np->data.info->ivlist != NULL && np->type != N_INSTANT) {
 	    if (np->desc.type == PM_TYPE_STRING) {
 		int	j;
@@ -446,7 +468,14 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 		new->data.pattern->used = 0;
 	    }
 	    else {
+		/* F_EXACT */
 		new->data.pattern->inst = np->data.pattern->inst;
+		new->value = strdup(np->value);
+		if (new->value == NULL) {
+		    PM_UNLOCK(registered.mutex);
+		    pmNoMem("bind_expr: inst name", strlen(np->value)+1, PM_FATAL_ERR);
+		    /*NOTREACHED*/
+		}
 	    }
     }
     else {
@@ -470,7 +499,8 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 
     /* TODO ... need to investigate this for N_SCALE nodes! */
     /* need info to be non-null to protect copy of value in free_expr */
-    new->value = np->value;
+    if (new->type != N_PATTERN)
+	new->value = np->value;
 
     new->save_last = np->save_last;
 
@@ -554,6 +584,7 @@ void report_sem_error(char *name, node_t *np)
 	case N_SUM:
 	case N_ANON:
 	case N_DEFINED:
+	case N_SCALAR:
 	    pmprintf("%s(%s)", __dmnode_type_str(np->type), np->left->value);
 	    break;
 	case N_QUEST:
@@ -1250,6 +1281,7 @@ check_expr(int n, node_t *np)
      * delta()		expect numeric operand, result is instantaneous
      * rate()		expect numeric operand, dimension of time must be
      * 			0 or 1, result is instantaneous
+     * scalar()		remove indom
      * aggr funcs	most expect numeric operand, result is instantaneous
      *			and singular
      * unary -		expect numeric operand, result is signed
@@ -1275,6 +1307,10 @@ check_expr(int n, node_t *np)
 		np->desc.sem = PM_SEM_INSTANT;
 	    else
 		np->desc.sem = np->left->desc.sem;
+	    break;
+
+	case N_SCALAR:
+	    np->desc.indom = PM_INDOM_NULL;
 	    break;
 
 	case N_AVG:
@@ -1432,8 +1468,10 @@ __dmdumpexpr(node_t *np, int level)
 		fprintf(stderr, " (%d instances, %d matches)", numinst, nummatch);
 	    }
 	}
-	else
+	else {
+	    /* F_EXACT */
 	    fprintf(stderr, "exact match inst=%d", np->data.pattern->inst);
+	}
 	fputc('\n', stderr);
     }
     else {
@@ -2325,6 +2363,7 @@ PUT-PREFIX-DECL-HERE ... see GNumakefile
 %token      L_RESCALE
 %token      L_DEFINED
 %token      L_MATCHINST
+%token      L_SCALAR
 %token      L_TYPE
 %token      L_SEMANTICS
 %token      L_UNITS
@@ -2460,6 +2499,7 @@ expr	: L_LPAREN expr L_RPAREN
 		      /*NOTREACHED*/
 		  }
 		  np->left->data.pattern->ftype = F_REGEX;
+		  np->left->data.pattern->inst = PM_IN_NULL;
 		  $$ = np;
 		}
 	| num
@@ -2809,6 +2849,11 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  $$ = np;
 		  in_matchinst = 0;
 		}
+	| L_SCALAR L_LPAREN expr L_RPAREN
+		{ np = newnode(N_SCALAR);
+		  np->left = $3;
+		  $$ = np;
+		}
 	| L_ANON L_LPAREN error
 		{ gramerr(name_str, follow, "anon("); YYERROR; }
 	| L_AVG L_LPAREN error
@@ -2837,6 +2882,8 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		{ gramerr(", <expr>)", follow, "matchinst(<filter>"); YYERROR; }
 	| L_MATCHINST L_LPAREN regexpr L_COMMA error
 		{ gramerr("<expr>)", follow, "matchinst(<filter>,"); YYERROR; }
+	| L_SCALAR L_LPAREN error
+		{ gramerr("<expr>", follow, "scalar("); YYERROR; }
 	;
 
 %%
@@ -2859,6 +2906,7 @@ static const struct {
     { L_RESCALE,"rescale" },
     { L_DEFINED,"defined" },
     { L_MATCHINST, "matchinst" },
+    { L_SCALAR,	"scalar" },
     { L_UNDEF,	NULL }
 };
 static struct {
@@ -2903,6 +2951,7 @@ static struct {
     { 0,		N_SCALE,	"SCALE",	NULL },
     { L_DEFINED,	N_DEFINED,	"DEFINED",	NULL },
     { L_MATCHINST,	N_FILTERINST,	"FILTERINST",	NULL },
+    { L_SCALAR,		N_SCALAR,	"SCALAR",	NULL },
     { 0,		N_PATTERN,	"PATTERN",	NULL },
     { L_LT,		N_LT,		"LT",		"<" },
     { L_LEQ,		N_LEQ,		"LEQ",		"<=" },

@@ -29,6 +29,15 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
+# filter out non-determinism ...
+# qa1066.m50 (511.0.49): 11 values 83 3082 3481 3580 3779 3978 4077 4176 4375 4474 4573
+_filter()
+{
+    sed \
+	-e '/^qa.*\.m50 /s/: .*/: N values .../' \
+    # end
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -47,6 +56,7 @@ qa$seq.m11 = sample.string.hullo
 qa$seq.m12 = 10 * sample.ulonglong.ten + sample.ulonglong.million / sample.ulonglong.hundred
 qa$seq.m13 = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million - sample.longlong.one - sample.longlong.ten - sample.longlong.hundred - sample.longlong.million
 qa$seq.m14 = sample.bin + 100 - sample.bin - 100
+# qa/253
 qa$seq.m15 = sample.bin + sample.bucket*2 - (sample.bin + 100) - sample.bucket
 qa$seq.m16 = sample.load - sample.load + sample.load / sample.load * sample.load - sample.load
 qa$seq.m17 = sample.daemon_pid - sample.daemon_pid + sample.daemon_pid / sample.daemon_pid * sample.daemon_pid - sample.daemon_pid
@@ -54,8 +64,10 @@ qa$seq.m18 = sample.longlong.hundred - sample.longlong.hundred + sample.longlong
 qa$seq.m19 = sample.ulonglong.hundred - sample.ulonglong.hundred + sample.ulonglong.hundred / sample.ulonglong.hundred * sample.ulonglong.hundred - sample.ulonglong.hundred
 qa$seq.m20 = sample.float.hundred - sample.float.hundred + sample.float.hundred / sample.float.hundred * sample.float.hundred - sample.float.hundred
 qa$seq.m21 = sample.double.hundred - sample.double.hundred + sample.double.hundred / sample.double.hundred * sample.double.hundred - sample.double.hundred
+# qa/259
 qa$seq.m22 = delta(sample.longlong.million)
 qa$seq.m23 = delta(sampledso.recv_pdu)
+# qa/260
 qa$seq.m24 = 3 * delta(sample.const_rate.value) / delta(sample.const_rate.value) - delta(sampledso.const_rate.value) / delta(sample.const_rate.value)
 qa$seq.m25 = count(sample.bin)*(min(sample.bin) + max(sample.bin))/2 / sum(sample.bin)
 qa$seq.m26 = 4499 < mkconst(2, units="count^-1")*avg(sample.bin)*count(sample.bin) - sum(sample.bin) && mkconst(2, units="count^-1")*avg(sample.bin)*count(sample.bin) - sum(sample.bin) < 4501
@@ -73,24 +85,33 @@ qa$seq.m37 = sample.bin > 400 ? sample.bin-sample.bin : sample.bin
 qa$seq.m38 = sample.bin!=100 && sample.bin!=900 && sample.bin!=500 ? sample.long.ten : sample.bin
 qa$seq.m39 = mkconst(20, type=u64, semantics=counter, units=ms)
 qa$seq.m40 = ! sample.bin >= 700 || ! sample.bin <= 300
+# qa/1064
 qa$seq.m41 = rescale(sample.byte_rate, "Kbyte/min") <= 60
 qa$seq.m42 = rescale(mkconst(36000, units="count/hour")+rescale(mkconst(600, units="count/min"),"count/hour"), "count/sec")
 qa$seq.m43 = defined(sample.long.million)
 qa$seq.m44 = defined(sample.long.not_million)
 qa$seq.m45 = ! defined(sample.long.ten) ? 0 : defined(sample.ulong.ten) + 2*defined(sample.ulong.hundred) + 3*defined(sample.ulong.million)
 qa$seq.m46 = ! defined(sample.long.bozo) ? defined(sample.ulong.ten) + 2*defined(sample.ulong.hundred) + 3*defined(sample.ulong.million) : 0
-#qa$seq.m47
-#qa$seq.m48
-#qa$seq.m49
+# qa/688
+qa$seq.m47 = matchinst(/100/, sample.bin)
+qa$seq.m48 = matchinst(!/bin-[1-5]00/, sample.bin)
+# qa/689
+qa$seq.m49 = sample.bin[bin-300] + sample.part_bin[bin-300]
+# qa/691
+qa$seq.m50 = matchinst(/^m-/, sample.mirage)
+# qa/1103
+qa$seq.m51 = (scalar(sample.bin[bin-100]) + scalar(matchinst(/^bin-200$/,sample.bin)) + scalar(sample.bin[bin-300])) / 3
 
-#qa$seq.m99 
+# others
+qa$seq.m99 = anon(PM_TYPE_U64)
 End-of-File
 
 export PCP_DERIVED_CONFIG=$tmp.config
 
 # DEBUG=-Dderive,appl1
 DEBUG=
-_run_valgrind src/churnctx -v -t 0 -s 5 -f 2 $DEBUG qa$seq
+_run_valgrind src/churnctx -v -t 0 -s 5 -f 2 $DEBUG qa$seq \
+| _filter
 
 # success, all done
 status=0

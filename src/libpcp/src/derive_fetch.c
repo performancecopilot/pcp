@@ -1166,6 +1166,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	case N_SUM:
 	case N_MAX:
 	case N_MIN:
+	case N_SCALAR:
 	    if (np->data.info->ivlist == NULL) {
 		/* initialize ivlist[] for singular instance first time through */
 		if ((np->data.info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
@@ -1180,6 +1181,15 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 	    if (np->type == N_COUNT) {
 		np->data.info->numval = 1;
 		np->data.info->ivlist[0].value.l = np->left->data.info->numval;
+	    }
+	    else if (np->type == N_SCALAR) {
+		np->data.info->numval = np->left->data.info->numval;
+		if (np->data.info->numval > 1)
+		    /* pick first instance only */
+		    np->data.info->numval = 1;
+		np->data.info->ivlist[0].inst = PM_IN_NULL;
+		np->data.info->ivlist[0].value = np->left->data.info->ivlist[0].value;
+		np->data.info->ivlist[0].vlen = np->left->data.info->ivlist[0].vlen;
 	    }
 	    else {
 		np->data.info->numval = 1;
@@ -1547,7 +1557,7 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    }
 		}
 		else {
-		    /* simple text match */
+		    /* F_EXACT ... simple text match */
 		    if (np->left->data.pattern->inst == PM_IN_NULL) {
 			/* need to map external name to internal instance id */
 			sts = pmLookupInDom_ctx(ctxp, np->right->desc.indom, np->left->value);

@@ -1484,6 +1484,7 @@ BAD
 1100 bash zsh local pcp2xxx pcp2elasticsearch pcp2xlsx pcp2influxdb pcp2graphite pmrep python pcp2zabbix pcp2xml pcp2json
 1101 libpcp_web local valgrind
 1102 pmda.prometheus local python
+1103 derive local
 1105 derive local kernel
 1106 libpcp local
 1108 logutil local folio pmlogextract
