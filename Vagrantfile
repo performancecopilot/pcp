@@ -189,7 +189,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
   end
 
   # Global shared folder for pcp source.  Copy it so we have our own to muck around in
-  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: false, :rsync__exclude => ["qaresults/", "pcp-*"]
+  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: false, :rsync__exclude => ["qaresults/", "./pcp-\d.\d.\d" ]
+
 
   pcp_hosts.each_pair do |name, options|
     global_config.vm.define name do |config|
@@ -205,7 +206,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
        # config.vm.synced_folder "./qaresults/#{name}", "/qaresults", mount_options: ["dmode=777", "fmode=666"], create: true
 
        # TODO - this appears to fail with `vagrant provision osxsierra`
-       config.vm.synced_folder "./qaresults/#{name}", "/qaresults", create: true
+       config.vm.synced_folder "./qaresults/#{name}", "/qaresults", create: true, nfs_version: 4, nfs_udp: false
 
        config.vm.hostname = "#{options[:hostname]}"
        config.vm.network :private_network, ip: options[:ipaddress]

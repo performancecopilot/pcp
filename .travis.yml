@@ -15,7 +15,8 @@ addons:
     project:
       name: "performancecopilot/pcp"
       description: "Performance Co-Pilot is a system performance analysis toolkit."
-    notification_email: pcp+int+458+579837958761052551@groups.io
+    #notification_email: pcp+int+458+579837958761052551@groups.io - temporarily disabled (again) due to coverity server failure
+    notification_email: nathans@redhat.com
     build_command_prepend: "./configure"
     build_command: "make"
     branch_pattern: master
