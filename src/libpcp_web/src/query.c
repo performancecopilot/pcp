@@ -21,6 +21,10 @@
 #include "batons.h"
 #include "slots.h"
 #include "maps.h"
+#ifdef HAVE_REGEX_H
+#include <regex.h>
+#endif
+#include <fnmatch.h>
 
 #define SHA1SZ		20	/* internal sha1 hash buffer size in bytes */
 #define QUERY_PHASES	6
@@ -71,6 +75,7 @@ typedef struct seriesQueryBaton {
     } u;
 } seriesQueryBaton;
 
+static void series_pattern_match(seriesQueryBaton *, node_t *);
 static int series_union(series_set_t *, series_set_t *);
 static int series_intersect(series_set_t *, series_set_t *);
 static void series_lookup_services(void *);
@@ -687,17 +692,36 @@ node_series_union(node_t *np, node_t *left, node_t *right)
     return sts;
 }
 
+static int
+string_pattern_match(node_t *np, const char *pattern, const char *string)
+{
+    int		sts;
+
+    if (np->type == N_GLOB)	/* match via globbing */
+	return fnmatch(pattern, string, 0) == 0;
+
+    /* use either regular expression match or negation */
+    sts = regexec((const regex_t *)np->regex, string, 0, NULL, 0);
+    if (np->type == N_REQ)
+	return sts == 0;
+    if (np->type == N_RNE)
+	return sts != 0;
+    return 0;
+}
+
 /*
  * Add a node subtree representing glob (N_GLOB) pattern matches.
  * Each of these matches are then further evaluated (as if N_EQ).
  * Response format is described at https://redis.io/commands/scan
  */
 static int
-node_glob_reply(seriesQueryBaton *baton, node_t *np, const char *name, int nelements,
+node_pattern_reply(seriesQueryBaton *baton, node_t *np, const char *name, int nelements,
 		redisReply **elements)
 {
     redisReply		*reply, *r;
-    sds			msg, key, *matches;
+    sds			msg, key, pattern, *matches;
+    char		buffer[42];
+    size_t		bytes;
     unsigned int	i;
 
     if (nelements != 2) {
@@ -707,7 +731,7 @@ node_glob_reply(seriesQueryBaton *baton, node_t *np, const char *name, int nelem
 	return -EPROTO;
     }
 
-    /* Update the cursor, in case subsequent calls are needed */
+    /* update the cursor in case subsequent calls are needed */
     reply = elements[0];
     if (!reply || reply->type != REDIS_REPLY_STRING) {
 	infofmt(msg, "expected integer cursor result from %s (got %s)",
@@ -725,20 +749,16 @@ node_glob_reply(seriesQueryBaton *baton, node_t *np, const char *name, int nelem
 	return -EPROTO;
     }
 
-    if ((nelements = reply->elements) == 0) {
-	if (np->result.series)
-	    free(np->result.series);
-	np->result.nseries = 0;
-	return 0;
-    }
-
     /* result array sanity checking */
-    if (nelements % 2) {
+    if ((nelements = reply->elements) % 2) {
 	infofmt(msg, "expected even number of results from %s (not %d)",
 		    HSCAN, nelements);
 	batoninfo(baton, PMLOG_REQUEST, msg);
 	return -EPROTO;
     }
+    if (nelements == 0)
+	goto out;
+
     for (i = 0; i < nelements; i += 2) {
 	r = reply->element[i];
 	if (r->type != REDIS_REPLY_STRING) {
@@ -749,29 +769,52 @@ node_glob_reply(seriesQueryBaton *baton, node_t *np, const char *name, int nelem
 	}
     }
 
-    /* response is matching key:value pairs from the scanned hash */
+    /* response is key:value pairs from the scanned hash */
     nelements /= 2;
-    if ((matches = (sds *)calloc(nelements, sizeof(sds))) == NULL) {
-	infofmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
-			"glob reply", (__int64_t)nelements * sizeof(sds));
+
+    /* matching string - either glob or regex */
+    pattern = np->right->value;
+    if (np->type != N_GLOB &&
+	/* TODO: move back to initial tree parsing for error handling */
+	regcomp((regex_t *)&np->regex, pattern, REG_EXTENDED|REG_NOSUB) != 0) {
+	infofmt(msg, "invalid regular expression \"%s\"", pattern);
 	batoninfo(baton, PMLOG_REQUEST, msg);
-	return -ENOMEM;
+	return -EINVAL;
     }
+
     for (i = 0; i < nelements; i++) {
-	r = reply->element[i*2+1];
+	r = reply->element[i*2+1];	/* string value */
+	if (!string_pattern_match(np, pattern, r->str))
+	    continue;
+
+	r = reply->element[i*2];	/* SHA1 hash */
+	pmwebapi_hash_str((const unsigned char *)r->str, buffer, sizeof(buffer));
 	key = sdsnew("pcp:series:");
-	key = sdscatfmt(key, "%s:%s", name, r->str);
+	key = sdscatfmt(key, "%s:%s", name, buffer);
+
 	if (pmDebugOptions.series)
-	    printf("adding glob result key: %s\n", key);
-	matches[i] = key;
+	    fprintf(stderr, "adding pattern-matched result key: %s\n", key);
+
+	bytes = (np->nmatches + 1) * sizeof(sds);
+	if ((matches = (sds *)realloc(np->matches, bytes)) == NULL) {
+	    infofmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
+			"glob reply", (__int64_t)bytes);
+	    batoninfo(baton, PMLOG_REQUEST, msg);
+	    return -ENOMEM;
+	}
+	matches[np->nmatches++] = key;
+	np->matches = matches;
     }
-    np->nmatches = nelements;
-    np->matches = matches;
+
+out:
+    if (np->cursor > 0)	/* still more to retrieve - kick off the next batch */
+	series_pattern_match(baton, np);
+
     return nelements;
 }
 
 static void
-series_prepare_maps_glob_reply(redisAsyncContext *c, redisReply *reply, void *arg)
+series_prepare_maps_pattern_reply(redisAsyncContext *c, redisReply *reply, void *arg)
 {
     node_t		*np = (node_t *)arg;
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
@@ -783,23 +826,40 @@ series_prepare_maps_glob_reply(redisAsyncContext *c, redisReply *reply, void *ar
     assert(np->type == N_GLOB);	/* indirect hash lookup with key globbing */
 
     left = np->left;
-    name = left->key + sizeof("pcp:map:") - 1;
+
     if (reply->type != REDIS_REPLY_ARRAY) {
 	infofmt(msg, "expected array for %s key \"%s\" (type=%s)",
 		    node_subtype(left), left->key, redis_reply(reply->type));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     } else {
+	name = left->key + sizeof("pcp:map:") - 1;
 	if (pmDebugOptions.series)
 	    printf("%s %s\n", node_subtype(np->left), np->key);
-	if (node_glob_reply(baton, np, name, reply->elements, reply->element) < 0)
+	if (node_pattern_reply(baton, np, name, reply->elements, reply->element) < 0)
 	    baton->error = -EPROTO;
-
-    /* TODO: need to handle multiple sets of results using the cursor. */
-
     }
 
     series_query_end_phase(baton);
+}
+
+static void
+series_pattern_match(seriesQueryBaton *baton, node_t *np)
+{
+    sds			cmd, cur, key;
+
+    seriesBatonReference(baton, "series_pattern_match");
+    cur = sdscatfmt(sdsempty(), "%U", np->cursor);
+    key = sdsdup(np->left->key);
+    cmd = redis_command(5);
+    cmd = redis_param_str(cmd, HSCAN, HSCAN_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_sds(cmd, cur);	/* cursor */
+    cmd = redis_param_str(cmd, "COUNT", sizeof("COUNT")-1);
+    cmd = redis_param_str(cmd, "256", sizeof("256")-1); /* TODO: config file */
+    sdsfree(cur);
+    redisSlotsRequest(baton->slots, HSCAN, key, cmd,
+				series_prepare_maps_pattern_reply, np);
 }
 
 /*
@@ -811,7 +871,6 @@ series_prepare_maps(seriesQueryBaton *baton, node_t *np, int level)
     unsigned char	hash[20];
     const char		*name;
     char		buffer[42];
-    sds			cmd, cur, key;
     int			sts;
 
     if (np == NULL)
@@ -841,30 +900,14 @@ series_prepare_maps(seriesQueryBaton *baton, node_t *np, int level)
 			    pmwebapi_hash_str(hash, buffer, sizeof(buffer)));
 	}
 	break;
+
     case N_GLOB:	/* globbing or regular expression lookups */
     case N_REQ:
     case N_RNE:
-	{ /* refactor and call iteratively via callback ... */
-	seriesBatonReference(baton, "series_prepare_maps");
 	np->baton = baton;
-	cur = sdscatfmt(sdsempty(), "%U", np->cursor);
-	key = sdsdup(np->left->key);
-	cmd = redis_command(5);
-	cmd = redis_param_str(cmd, HSCAN, HSCAN_LEN);
-	cmd = redis_param_sds(cmd, key);
-	cmd = redis_param_sds(cmd, cur);	/* cursor */
-#if 0 /* move to using client-side globbing (and regex, and negated regex) */
-	val = np->right->value;
-	cmd = redis_param_str(cmd, "MATCH", sizeof("MATCH")-1);
-	cmd = redis_param_sds(cmd, val);	/* pattern */
-#endif
-	cmd = redis_param_str(cmd, "COUNT", sizeof("COUNT")-1);
-	cmd = redis_param_str(cmd, "256", sizeof("256")-1); /* TODO: config file */
-	sdsfree(cur);
-	redisSlotsRequest(baton->slots, HSCAN, key, cmd,
-				series_prepare_maps_glob_reply, np);
-	}
+	series_pattern_match(baton, np);
 	break;
+
     default:
 	break;
     }

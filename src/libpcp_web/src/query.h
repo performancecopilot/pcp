@@ -104,6 +104,7 @@ typedef struct node {
     /* partial match data for glob/regex */
     int			nmatches;
     sds			*matches;
+    void		*regex;	/* compiled regex */
     unsigned long long	cursor;
 } node_t;
 
