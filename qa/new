@@ -12,8 +12,8 @@
 # generic initialization
 . ./common.rc
 
-min=500
-max=1499
+min=1200
+max=1699
 max_probes=200
 
 _usage()

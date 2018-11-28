@@ -73,9 +73,11 @@ done >$tmp.avail
 
 if [ -s $tmp.avail ]
 then
-    echo "Between min=$min and max=$max [`wc -l <$tmp.avail | sed -e 's/ //g'` available] ..."
     echo "9999999" >>$tmp.avail
     _do_range <$tmp.avail
+    echo "$min $max `wc -l <$tmp.avail | sed -e 's/ //g'`" \
+    | awk '
+      { printf "Between min=" $1 " and max=" $2 ", " $3 " available (%.1f%% free)\n",100 * $3 /($2 - $1 + 1) }'
 fi
 
 
