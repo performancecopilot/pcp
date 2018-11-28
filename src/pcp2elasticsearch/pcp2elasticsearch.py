@@ -180,7 +180,7 @@ class pcp2elasticsearch(object):
         opts.pmSetLongOption("es-host", 1, "g", "SERVER", "Elasticsearch server (default: " + ES_SERVER + ")")
         opts.pmSetLongOption("es-index", 1, "x", "INDEX", "Elasticsearch index for metric names (default: " + ES_INDEX + ")")
         opts.pmSetLongOption("es-hostid", 1, "X", "HOSTID", "Elasticsearch host-id for measurements")
-        opts.pmSetLongOption("es-search-type", 1, "", "ES_SEARCH_TYPE", "Elasticsearch search type for measurements")
+        opts.pmSetLongOption("es-search-type", 1, "p", "ES_SEARCH_TYPE", "Elasticsearch search type for measurements")
 
         return opts
 

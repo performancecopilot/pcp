@@ -52,7 +52,7 @@ $pcp2elasticsearch -t 1 -s 1 hinv.ncpu >$tmp.p2e.out 2>$tmp.p2e.err
 sleep 1
 $signal $pid 2>/dev/null
 wait
-egrep -q '^PUT /pcp HTTP/' $tmp.socat.err
+egrep -q '^PUT /+pcp HTTP/' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct index in output"
 egrep -q '"hinv": {"ncpu": '$ncpu'}' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct value in output"
@@ -66,7 +66,7 @@ $pcp2elasticsearch -t 1 -s 1 -X QAHOST -x INDEX hinv.ncpu >$tmp.p2e.out 2>$tmp.p
 sleep 1
 $signal $pid 2>/dev/null
 wait
-egrep -q '^PUT /INDEX HTTP/' $tmp.socat.err
+egrep -q '^PUT /+INDEX HTTP/' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct index in output"
 egrep -q '"@host-id": "QAHOST"' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found proper hostid in output"
@@ -98,7 +98,7 @@ sleep 1
 $signal $pid 2>/dev/null
 wait
 echo "--- Start of received data ---"
-egrep -q '^POST /INDEX HTTP/' $tmp.socat.err
+egrep -q '^POST /+INDEX/test_search_type HTTP/' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct index in output"
 _full_stash
 
