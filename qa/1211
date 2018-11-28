@@ -18,14 +18,12 @@ which pmseries >/dev/null 2>&1 || \
 	_notrun "pmseries command line utility not installed"
 which redis-cli >/dev/null 2>&1 || \
 	_notrun "Redis command line utility not installed"
-redis-cli ping >/dev/null 2>$here/$seq.err
-sts=$?
-msg=`cat $here/$seq.err`
-rm -f $here/$seq.err
-[ $sts -eq 0 ] || _notrun $msg
+which redis-server >/dev/null 2>&1 || \
+	_notrun "Redis server utility not installed"
 
 _cleanup()
 {
+    redis-cli $options shutdown
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
@@ -33,8 +31,8 @@ _cleanup()
 status=1	# failure is the default!
 series=unknown
 hostname=`hostname`
+redisport=`_find_free_port`
 
-options=""
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -47,12 +45,23 @@ _filter_source()
 }
 
 # real QA test starts here
-echo "Clearing local cache ..."
-redis-cli -c -p 7000 flushall
+echo "Start local redis server ..."
+redis-server --port $redisport > $tmp.redis 2>&1 &
+echo "PING"
+pmsleep 0.25
+options="-p $redisport"
+redis-cli $options ping
 echo
 
 echo "Verify basic load from proc archive"
 pmseries $options --load "{source.path: \"$here/archives/proc\"}" | _filter_source
+echo
+
+echo "Verify pminfo and pmseries source and series match"
+echo "=> pminfo"
+pminfo -sd --archive $here/archives/proc kernel.all.load
+echo "=> pmseries"
+pmseries -sd "kernel.all.load{source.name:\"$here/archives/proc\"}"
 echo
 
 echo "List all metric names ..."
@@ -64,7 +73,7 @@ pmseries $options -l | LC_COLLATE=POSIX sort
 echo
 
 echo "List all context names ..."
-pmseries $options -c | _filter_source | LC_COLLATE=POSIX sort
+pmseries $options -S | _filter_source | LC_COLLATE=POSIX sort
 echo
 
 echo "List all instance names ..."
@@ -150,10 +159,6 @@ echo
 echo "Values fetch for a multi-valued query ..."
 pmseries $options 'kernel.all.load[count: 30]'
 echo
-
-status=0
-exit  # TODO: pmseries frontend is WIP from here
-# TODO: verify pminfo and pmseries source and series match
 
 echo "Perform simple source-based query ..."
 pmseries $options 'kernel.all.pswitch{source.name:"bozo-laptop"}'

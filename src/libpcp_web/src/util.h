@@ -39,6 +39,8 @@ extern int instance_labelsets(struct indom *, struct instance *,
 		int (*filter)(const pmLabel *, const char *, void *),
 		void *type);
 
+extern pmLabelSet *pmwebapi_labelsetdup(pmLabelSet *);
+
 extern const char *pmwebapi_indom_str(struct metric *, char *, int);
 extern const char *pmwebapi_pmid_str(struct metric *, char *, int);
 extern const char *pmwebapi_semantics_str(struct metric *, char *, int);
@@ -74,11 +76,14 @@ extern struct indom *pmwebapi_add_indom(struct context *,
 extern void pmwebapi_add_indom_labels(struct indom *);
 
 extern unsigned int pmwebapi_add_indom_instances(struct indom *);
-extern void pmwebapi_lookup_instance(struct indom *, int);
+extern void pmwebapi_add_instances_labels(struct indom *);
+extern struct instance *pmwebapi_lookup_instance(struct indom *, int);
 
 extern struct instance *pmwebapi_new_instance(struct indom *, int, sds);
 extern struct instance *pmwebapi_add_instance(struct indom *, int, char *);
 
+extern struct metric *pmwebapi_new_pmid(struct context *,
+		pmID, pmLogInfoCallBack, void *);
 extern struct metric *pmwebapi_new_metric(struct context *,
 		pmDesc *, int, char **, pmLogInfoCallBack, void *);
 extern struct metric *pmwebapi_add_pmid(struct context *,

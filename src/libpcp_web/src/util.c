@@ -299,7 +299,7 @@ instance_labelsets(indom_t *indom, instance_t *inst, char *buffer, int length,
 	sets[nsets++] = domain->labelset;
     if (indom->labelset)
 	sets[nsets++] = indom->labelset;
-    if (inst->labelset)
+    if (inst && inst->labelset)
 	sets[nsets++] = inst->labelset;
 
     return pmMergeLabelSets(sets, nsets, buffer, length, filter, arg);
@@ -446,9 +446,8 @@ pmwebapi_hash_sds(sds s, const unsigned char *p)
 
     hash_identity(p, namebuf, sizeof(namebuf));
     if (s == NULL)
-	s = sdsempty();
-    else
-	sdsclear(s);
+	s = sdsnewlen(SDS_NOINIT, 40);
+    sdsclear(s);
     return sdscatlen(s, namebuf, 40);
 }
 
@@ -534,6 +533,20 @@ pmwebapi_metric_hash(metric_t *metric)
 }
 
 void
+pmwebapi_add_indom_labels(indom_t *indom)
+{
+    char		buf[PM_MAXLABELJSONLEN];
+    int			len;
+
+    if (indom->labels == NULL) {
+	len = instance_labelsets(indom, NULL, buf, sizeof(buf), labels, NULL);
+	if (len <= 0)
+	    len = pmsprintf(buf, sizeof(buf), "null");
+	indom->labels = sdsnewlen(buf, len);
+    }
+}
+
+void
 pmwebapi_instance_hash(indom_t *ip, instance_t *instance)
 {
     SHA1_CTX		shactx;
@@ -602,12 +615,24 @@ pmwebapi_free_context(context_t *cp)
 {
     if (cp->context >= 0)
 	pmDestroyContext(cp->context);
+
     if (cp->name.sds)
 	sdsfree(cp->name.sds);
     if (cp->origin)
 	sdsfree(cp->origin);
     if (cp->host)
 	sdsfree(cp->host);
+
+    if (cp->pmids)
+	dictRelease(cp->pmids);
+    if (cp->metrics)
+	dictRelease(cp->metrics);
+    if (cp->indoms)
+	dictRelease(cp->indoms);
+    if (cp->domains)
+	dictRelease(cp->domains);
+    if (cp->clusters)
+	dictRelease(cp->clusters);
 }
 
 struct domain *
@@ -724,8 +749,8 @@ labelsetlen(pmLabelSet *lp)
     return sizeof(pmLabelSet) + lp->jsonlen + (lp->nlabels * sizeof(pmLabel));
 }
 
-static pmLabelSet *
-labelsetdup(pmLabelSet *lp)
+pmLabelSet *
+pmwebapi_labelsetdup(pmLabelSet *lp)
 {
     pmLabelSet		*dup;
     char		*json;
@@ -750,7 +775,7 @@ labelsetdup(pmLabelSet *lp)
 }
 
 void
-pmwebapi_add_indom_labels(struct indom *indom)
+pmwebapi_add_instances_labels(struct indom *indom)
 {
     struct instance	*instance;
     pmLabelSet		*labels, *labelsets = NULL;
@@ -777,7 +802,7 @@ pmwebapi_add_indom_labels(struct indom *indom)
 	    inst = labelsets[i].inst;
 	    if ((instance = dictFetchValue(indom->insts, &inst)) == NULL)
 		continue;
-	    if ((labels = labelsetdup(labels)) == NULL) {
+	    if ((labels = pmwebapi_labelsetdup(labels)) == NULL) {
 		if (pmDebugOptions.series)
 		    fprintf(stderr, "failed to dup %s instance labels: %s\n",
 			    pmInDomStr_r(indom->indom, buffer, sizeof(buffer)),
@@ -797,8 +822,10 @@ pmwebapi_add_indom_labels(struct indom *indom)
 	    }
 	}
 	indom->updated = 1;
-    } else if (sts < 0) {
-	if (pmDebugOptions.series)
+    } else {
+	if (sts == 0)
+	    indom->updated = 1;
+	else if (sts < 0 && pmDebugOptions.series)
 	    fprintf(stderr, "failed to get indom (%s) instance labels: %s\n",
 		    pmInDomStr_r(indom->indom, buffer, sizeof(buffer)),
 		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -818,6 +845,7 @@ pmwebapi_new_instance(indom_t *indom, int inst, sds name)
     instance->inst = inst;
     instance->name.sds = name;
     pmwebapi_string_hash(instance->name.id, name, sdslen(name));
+    pmwebapi_instance_hash(indom, instance);
     dictAdd(indom->insts, &inst, (void *)instance);
     return instance;
 }
@@ -826,22 +854,21 @@ struct instance *
 pmwebapi_add_instance(struct indom *indom, int inst, char *name)
 {
     struct instance	*instance;
-    size_t		length;
+    size_t		length = strlen(name);
 
     if ((instance = dictFetchValue(indom->insts, &inst)) != NULL) {
-	length = strlen(name);
 	/* has the external name changed for this internal identifier? */
 	if ((sdslen(instance->name.sds) != length) ||
 	    (strncmp(instance->name.sds, name, length) != 0)) {
 	    sdsclear(instance->name.sds);
 	    instance->name.sds = sdscatlen(instance->name.sds, name, length);
 	    pmwebapi_string_hash(instance->name.id, name, length);
-	    memset(instance->name.hash, 0, sizeof(instance->name.hash));
+	    pmwebapi_instance_hash(indom, instance);
 	    instance->cached = 0;
 	}
 	return instance;
     }
-    return pmwebapi_new_instance(indom, inst, sdsdup(name));
+    return pmwebapi_new_instance(indom, inst, sdsnewlen(name, length));
 }
 
 unsigned int

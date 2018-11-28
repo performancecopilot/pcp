@@ -1074,7 +1074,7 @@ main(int argc, char *argv[])
 	opts.errors++;
     }
 
-    if (opts.optind == argc && (flags & (PMSERIES_META_OPTS|PMSERIES_OPT_SOURCE))) {
+    if (opts.optind == argc && !(flags & (PMSERIES_META_OPTS|PMSERIES_OPT_SOURCE))) {
 	pmprintf("%s: error - no series string(s) provided\n", pmGetProgname());
 	opts.errors++;
     }

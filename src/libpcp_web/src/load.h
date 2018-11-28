@@ -17,6 +17,10 @@
 #include "pmapi.h"
 #include "pmwebapi.h"
 
+#ifdef HAVE_LIBUV
+#include <uv.h>
+#endif
+
 typedef struct seriesname {
     sds			sds;		/* external name for the series */
     unsigned char	id[20];		/* SHA1 of external series name */
@@ -32,8 +36,13 @@ typedef struct context {
     unsigned int	type	: 7;	/* PMAPI context type */
     unsigned int	setup	: 1;	/* context established */
     unsigned int	cached	: 1;	/* context/source in cache */
-    unsigned int	padding : 23;	/* zero-filled struct padding */
-    unsigned int	timeout;	/* context timeout in seconds */
+    unsigned int	garbage	: 1;	/* context pending removal */
+    unsigned int	updated : 1;	/* context labels are updated */
+    unsigned int	padding : 21;	/* zero-filled struct padding */
+    unsigned int	timeout;	/* context timeout in milliseconds */
+#ifdef HAVE_LIBUV
+    uv_timer_t		timer;
+#endif
     int			context;	/* PMAPI context handle */
     int			randomid;	/* random number identifier */
     struct dict		*pmids;		/* metric pmID to metric struct */
@@ -47,6 +56,7 @@ typedef struct context {
 
 typedef struct domain {
     unsigned int	domain;
+    unsigned int	updated;	/* domain labels are updated */
     context_t		*context;
     pmLabelSet		*labelset;
 } domain_t;
@@ -67,7 +77,7 @@ typedef struct instance {
     unsigned int	inst;		/* internal instance identifier */
     unsigned int	cached : 1;	/* metadata is already cached */
     unsigned int	updated : 1;	/* instance labels are updated */
-    unsigned int	padding : 31;
+    unsigned int	padding : 30;
     sds			labels;		/* fully merged inst labelset */
     pmLabelSet		*labelset;	/* labels at inst level or NULL */
     labellist_t		*labellist;	/* label name/value mapping set */
@@ -88,6 +98,7 @@ typedef struct indom {
 
 typedef struct cluster {
     unsigned int	cluster;
+    unsigned int	updated;	/* cluster labels are updated */
     domain_t		*domain;
     pmLabelSet		*labelset;
 } cluster_t;

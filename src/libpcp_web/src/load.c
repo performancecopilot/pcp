@@ -119,7 +119,7 @@ get_instance_metadata(seriesLoadBaton *baton, pmInDom indom)
 	    pmwebapi_add_domain_labels(dp);
 	if ((ip = pmwebapi_add_indom(cp, dp, indom)) &&
 	    (count = pmwebapi_add_indom_instances(ip)) > 0)
-	    pmwebapi_add_indom_labels(ip);
+	    pmwebapi_add_instances_labels(ip);
     }
     return count;
 }
@@ -159,7 +159,7 @@ new_metric(seriesLoadBaton *baton, pmValueSet *vsp)
 	pmwebapi_add_cluster_labels(metric->cluster);
     }
     if (metric->indom)
-	pmwebapi_add_indom_labels(metric->indom);
+	pmwebapi_add_instances_labels(metric->indom);
     pmwebapi_add_item_labels(metric);
     pmwebapi_metric_hash(metric);
 
@@ -921,20 +921,152 @@ pmSeriesDiscoverClosed(pmDiscoverEvent *event, void *arg)
     seriesLoadBaton	*baton = p->baton;
 
     (void)arg;
+    pmwebapi_free_context(&baton->pmapi.context);
     freeSeriesLoadBaton(baton);
-    /* TODO: release the context memory also */
 }
 
 void
 pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 		int ident, int type, pmLabelSet *sets, int nsets, void *arg)
 {
+    pmLabelSet		*labels;
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
+    struct context	*cp = &baton->pmapi.context;
+    struct domain	*domain;
+    struct cluster	*cluster;
+    struct metric	*metric;
+    struct indom	*indom;
+    struct instance	*instance;
+    char		errmsg[PM_MAXERRMSGLEN], idbuf[64];
+    sds			msg;
+    int			i, id;
 
-    (void)arg;
-    (void)baton;
-    /* TODO: load labels, dependent on type */
+    switch (type) {
+    case PM_LABEL_CONTEXT:
+	if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+	    if (cp->labelset)
+		pmFreeLabelSets(cp->labelset, 1);
+	    cp->labelset = labels;
+	    cp->updated = 1;
+	} else {
+	    infofmt(msg, "failed to dup context %d labels", ident);
+	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	}
+	break;
+
+    case PM_LABEL_DOMAIN:
+	if ((domain = dictFetchValue(cp->domains, &ident)) != NULL) {
+	    if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+		if (domain->labelset)
+		    pmFreeLabelSets(domain->labelset, 1);
+		domain->labelset = labels;
+		domain->updated = 1;
+	    } else {
+		infofmt(msg, "failed to dup domain %d labels", ident);
+		moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	    }
+	} else {
+	    infofmt(msg, "%s: failed domain label discovery (domain %u)",
+			"pmSeriesDiscoverLabels", ident);
+	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	}
+	break;
+
+    case PM_LABEL_CLUSTER:
+	id = pmID_cluster(ident);
+	if ((cluster = dictFetchValue(cp->clusters, &id)) != NULL) {
+	    if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+		if (cluster->labelset)
+		    pmFreeLabelSets(cluster->labelset, 1);
+		cluster->labelset = labels;
+		cluster->updated = 1;
+	    } else {
+		infofmt(msg, "%s: failed to dup cluster %d labels (pmID %s)",
+			    "pmSeriesDiscoverLabels", id,
+			    pmIDStr_r(ident, idbuf, sizeof(idbuf)));
+		moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	    }
+	} else {
+	    infofmt(msg, "%s: failed cluster label discovery (cluster %u)",
+			"pmSeriesDiscoverLabels", ident);
+	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	}
+	break;
+
+    case PM_LABEL_ITEM:
+	if ((metric = dictFetchValue(cp->metrics, &ident)) != NULL) {
+	    if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+		if (metric->labelset)
+		    pmFreeLabelSets(metric->labelset, 1);
+		metric->labelset = labels;
+		metric->updated = 1;
+	    } else {
+		infofmt(msg, "%s: failed to dup metric %s labels",
+			    "pmSeriesDiscoverLabels",
+			    pmIDStr_r(ident, idbuf, sizeof(idbuf)));
+		moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	    }
+	} else {
+	    infofmt(msg, "%s: failed metric label discovery (%s)",
+			"pmSeriesDiscoverLabels",
+			pmIDStr_r(ident, idbuf, sizeof(idbuf)));
+	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	}
+	break;
+
+    case PM_LABEL_INDOM:
+	if ((indom = dictFetchValue(cp->indoms, &ident)) != NULL) {
+	    if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+		if (indom->labelset)
+		    pmFreeLabelSets(indom->labelset, 1);
+		indom->labelset = labels;
+		indom->updated = 1;
+	    } else {
+		infofmt(msg, "failed to dup %s instance labels: %s",
+			pmInDomStr_r(ident, idbuf, sizeof(idbuf)),
+			pmErrStr_r(-ENOMEM, errmsg, sizeof(errmsg)));
+		moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	    }
+	} else {
+	    infofmt(msg, "%s: failed indom label discovery (%s)",
+			"pmSeriesDiscoverLabels",
+			pmInDomStr_r(ident, idbuf, sizeof(idbuf)));
+	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	}
+	break;
+
+    case PM_LABEL_INSTANCES:
+	if ((indom = dictFetchValue(cp->indoms, &ident)) != NULL) {
+	    for (i = 0; i < nsets; i++) {
+		id = sets[i].inst;
+		if ((instance = dictFetchValue(indom->insts, &id)) == NULL)
+		    continue;
+		if ((labels = pmwebapi_labelsetdup(labels)) == NULL) {
+		    infofmt(msg, "failed to dup %s instance labels: %s",
+			    pmInDomStr_r(indom->indom, idbuf, sizeof(idbuf)),
+			    pmErrStr_r(-ENOMEM, errmsg, sizeof(errmsg)));
+		    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+		}
+		if (instance->labelset)
+		    pmFreeLabelSets(instance->labelset, 1);
+		instance->labelset = labels;
+		pmwebapi_instance_hash(indom, instance);
+	    }
+	    indom->updated = 1;
+	} else {
+	    infofmt(msg, "%s: failed indom label discovery (indom %s)",
+			"pmSeriesDiscoverLabels", pmInDomStr(ident));
+	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	}
+	break;
+
+    default:
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "%s: unexpected label type %u\n",
+			    "pmSeriesDiscoverLabels", type);
+	break;
+    }
 }
 
 void
@@ -943,13 +1075,22 @@ pmSeriesDiscoverMetric(pmDiscoverEvent *event,
 {
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
+    struct metric	*metric;
+    sds			msg;
+    int			i;
 
-    (void)arg;
-    (void)baton;
-#if 0
-    pmwebapi_add_metric(&baton->pmapi.context, desc, numnames, names,
-		    baton->info, arg);
-#endif
+    if (pmDebugOptions.discovery) {
+	for (i = 0; i < numnames; i++)
+	    fprintf(stderr, "pmSeriesDiscoverMetric [%d/%d]: %s - %s\n",
+			i + 1, numnames, pmIDStr(desc->pmid), names[i]);
+    }
+
+    if ((metric = pmwebapi_add_metric(&baton->pmapi.context, desc,
+				numnames, names, baton->info, arg)) == NULL) {
+	infofmt(msg, "%s: failed metric discovery", "pmSeriesDiscoverMetric");
+	moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	return;
+    }
 }
 
 void
@@ -957,14 +1098,11 @@ pmSeriesDiscoverValues(pmDiscoverEvent *event, pmResult *result, void *arg)
 {
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
+    seriesGetContext	*context = &baton->pmapi;
 
-    (void)arg;
-    (void)baton;
-
-    /* TODO: load values - loop over result, adding metrics */
-        /* pmwebapi_add_valueset(struct metric *, pmValueSet *); */
-
-    /* flush baton->context to Redis servers */
+    baton->arg = arg;
+    context->result = result;
+    series_cache_update(baton);
 }
 
 void
@@ -972,34 +1110,37 @@ pmSeriesDiscoverInDom(pmDiscoverEvent *event, pmInResult *in, void *arg)
 {
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
-
-    (void)arg;
-    (void)baton;
-
-
-#if 0
     struct context	*context = &baton->pmapi.context;
     struct domain	*domain;
     struct indom	*indom;
     pmInDom		id = in->indom;
+    sds			msg;
     int			i;
 
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "pmSeriesDiscoverInDom: %s\n", pmInDomStr(id));
+
     if ((domain = pmwebapi_add_domain(context, pmInDom_domain(id))) == NULL) {
-	/* TODO: fail, diagnostic */
+	infofmt(msg, "%s: failed indom discovery (domain %u)",
+			"pmSeriesDiscoverInDom", pmInDom_domain(id));
+	moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	return;
     }
     if ((indom = pmwebapi_add_indom(context, domain, id)) == NULL) {
-	/* TODO: fail, diagnostic */
+	infofmt(msg, "%s: failed indom discovery (indom %s)",
+			"pmSeriesDiscoverInDom", pmInDomStr(id));
+	moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	return;
     }
     for (i = 0; i < in->numinst; i++) {
 	if (pmwebapi_add_instance(indom, in->instlist[i], in->namelist[i]))
 	    continue;
-	/* TODO: else fail, diagnostic */
+	infofmt(msg, "%s: failed indom discovery (indom %s, instance %d: %s)",
+			"pmSeriesDiscoverInDom", pmInDomStr(id),
+			in->instlist[i], in->namelist[i]);
+	moduleinfo(event->module, PMLOG_ERROR, msg, arg);
+	return;
     }
-#endif
-
-    /* flush baton->context to Redis servers */
 }
 
 void
@@ -1009,9 +1150,11 @@ pmSeriesDiscoverText(pmDiscoverEvent *event,
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
 
-    (void)arg;
     (void)baton;
+    (void)ident;
+    (void)type;
+    (void)text;
+    (void)arg;
 
-    /* TODO: for Redis help text will need special handling (RediSearch) */
-    /*       however this may be useful for other discovery modules now. */
+    /* for Redis, help text will need special handling (RediSearch) */
 }

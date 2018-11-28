@@ -67,7 +67,8 @@ typedef struct pmSeriesDesc {
 typedef struct pmSeriesInst {
     sds		instid;		/* first seen numeric instance identifier */
     sds		name;		/* full external (string) instance name */
-    sds		series;		/* metric series identifier for values */
+    sds		source;		/* instances source series identifier */
+    sds		series;		/* series identifier for inst value */
 } pmSeriesInst;
 
 typedef struct pmSeriesValue {
