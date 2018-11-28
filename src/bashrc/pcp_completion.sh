@@ -13,8 +13,8 @@ _pcp_complete()
     # Register arguments
     case $cmd in
     pcp2elasticsearch)
-        all_args="ahLKcCeVHGASTOstRrIijJ89nNvP0qQbByYgXx"
-        arg_regex="-[ahKceASTOstZiJ89NP0qQbByYgXx]"
+        all_args="ahLKcCeVHGASTOstRrIijJ89nNvP0qQbByYgXxp"
+        arg_regex="-[ahKceASTOstZiJ89NP0qQbByYgXxp]"
     ;;
     pcp2graphite)
         all_args="ahLKcCeVHGASTOstRrIijJ89nNvP0qQbByYgpXEx"
