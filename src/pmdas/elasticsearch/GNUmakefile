@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= elasticsearch
 DOMAIN	= ELASTICSEARCH
-PYSCRIPT = pmda$(IAM).py
+PYSCRIPT = pmda$(IAM).python
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 LOGCONF	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
