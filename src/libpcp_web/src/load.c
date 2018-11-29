@@ -456,6 +456,7 @@ server_cache_window(void *arg)
     }
 
     if (sts < 0) {
+	context->error = sts;
 	if (sts != PM_ERR_EOL)
 	    baton->error = sts;
 	doneSeriesGetContext(context, "server_cache_window");
@@ -674,10 +675,11 @@ doneSeriesGetContext(seriesGetContext *context, const char *caller)
 	char		pmmsg[PM_MAXERRMSGLEN];
 	sds		msg;
 
-	if (context->error == PM_ERR_EOF) {
+	if (context->error == PM_ERR_EOL) {
 	    infofmt(msg, "processed %llu archive records from %s",
 			context->count, context->context.name.sds);
 	    batoninfo(baton, PMLOG_INFO, msg);
+	    context->error = 0;
 	} else {
 	    infofmt(msg, "fetch failed: %s",
 			pmErrStr_r(context->error, pmmsg, sizeof(pmmsg)));
@@ -779,7 +781,6 @@ setup_source_services(void *arg)
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "setup_source_services");
     seriesBatonReferences(baton, 2, "setup_source_services");
-    initSeriesGetContext(&baton->pmapi, baton);
 
     connect_pmapi_source_service(baton);
     connect_redis_source_service(baton);
@@ -844,6 +845,7 @@ series_load(pmSeriesSettings *settings,
     initSeriesLoadBaton(baton, &settings->module, flags,
 			settings->module.on_info, settings->callbacks.on_done,
 			settings->module.slots, arg);
+    initSeriesGetContext(&baton->pmapi, baton);
     baton->timing = *timing;
 
     /* initial setup (non-blocking) */

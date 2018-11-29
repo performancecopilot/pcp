@@ -69,6 +69,7 @@ typedef enum redisReplyType {
     REDIS_REPLY_NIL		= 4,
     REDIS_REPLY_STATUS		= 5,
     REDIS_REPLY_ERROR		= 6,
+    REDIS_REPLY_UNKNOWN		= -1
 } redisReplyType;
 
 extern const char *redis_reply(int);
@@ -76,7 +77,7 @@ extern const char *redis_reply(int);
 #define REDIS_READER_MAX_BUF (1024*16)  /* Default max unused reader buffer. */
 
 typedef struct redisReadTask {
-    enum redisReplyType	type;       /* REDIS_REPLY_* type of this task */
+    enum redisReplyType	type;      /* REDIS_REPLY_* type of this task */
     int			elements;  /* number of elements in multibulk container */
     int			idx;       /* index in parent (array) object */
     void		*obj;      /* holds user-generated value for a read task */

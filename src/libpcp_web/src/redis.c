@@ -259,7 +259,7 @@ moveToNextTask(redisReader *r)
         } else {
             /* Reset the type because the next item can be anything */
             assert(cur->idx < prv->elements);
-            cur->type = -1;
+            cur->type = REDIS_REPLY_UNKNOWN;
             cur->elements = -1;
             cur->idx++;
             return;
@@ -408,7 +408,7 @@ processMultiBulkItem(redisReader *r)
                 cur->elements = elements;
                 cur->obj = obj;
                 r->ridx++;
-                r->rstack[r->ridx].type = -1;
+                r->rstack[r->ridx].type = REDIS_REPLY_UNKNOWN;
                 r->rstack[r->ridx].elements = -1;
                 r->rstack[r->ridx].idx = 0;
                 r->rstack[r->ridx].obj = NULL;
@@ -558,7 +558,7 @@ redisReaderGetReply(redisReader *r, void **reply)
 
     /* Set first item to process when the stack is empty. */
     if (r->ridx == -1) {
-        r->rstack[0].type = -1;
+        r->rstack[0].type = REDIS_REPLY_UNKNOWN;
         r->rstack[0].elements = -1;
         r->rstack[0].idx = -1;
         r->rstack[0].obj = NULL;
@@ -593,7 +593,7 @@ redisReaderGetReply(redisReader *r, void **reply)
     return REDIS_OK;
 }
 
-static redisReply *createReplyObject(int);
+static redisReply *createReplyObject(enum redisReplyType);
 static void *createStringObject(const redisReadTask *, char *, size_t);
 static void *createArrayObject(const redisReadTask *, int);
 static void *createIntegerObject(const redisReadTask *, long long);
@@ -610,7 +610,7 @@ static redisReplyObjectFunctions defaultFunctions = {
 };
 
 static redisReply *
-createReplyObject(int type)
+createReplyObject(enum redisReplyType type)
 {
     redisReply		*reply;
 
@@ -641,7 +641,6 @@ freeReplyObject(void *r)
     case REDIS_REPLY_ERROR:
     case REDIS_REPLY_STATUS:
     case REDIS_REPLY_STRING:
-
         if (reply->str != NULL)
             free(reply->str);
         break;

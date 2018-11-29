@@ -26,16 +26,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1561477"
-     inkscape:cx="517.75507"
+     inkscape:cx="-37.90101"
      inkscape:cy="448.5764"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="3840"
-     inkscape:window-height="2096"
-     inkscape:window-x="1920"
-     inkscape:window-y="27"
-     inkscape:window-maximized="1"
+     inkscape:window-width="1824"
+     inkscape:window-height="1884"
+     inkscape:window-x="2637"
+     inkscape:window-y="47"
+     inkscape:window-maximized="0"
      showguides="false"
      inkscape:document-rotation="0"
      inkscape:object-nodes="false"
@@ -2581,13 +2581,13 @@
        y="1175.7582"
        ry="30.539421" />
     <rect
-       style="fill:#3d3d3d;fill-opacity:1;stroke:#000000;stroke-width:5.18045092;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#3d3d3d;fill-opacity:1;stroke:#000000;stroke-width:5.67912388;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4142-9"
-       width="259.38913"
-       height="24.962408"
-       x="-451.35733"
-       y="1162.4395"
-       ry="12.481204" />
+       width="318.08487"
+       height="24.463734"
+       x="-451.108"
+       y="1162.6888"
+       ry="12.231867" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12px;line-height:0%;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -2598,7 +2598,7 @@
          id="tspan4148-8"
          x="-439.59021"
          y="1179.0635"
-         style="font-size:15px;line-height:1.25;stroke-width:1px">pcp:series:source:3123fe46</tspan></text>
+         style="font-size:15px;line-height:1.25;stroke-width:1px">pcp:series:context.name:b8a57944</tspan></text>
     <rect
        style="fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:2.60326481;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4142-3-1"
@@ -2739,12 +2739,12 @@
          id="tspan4364-7-0-1-7"
          style="font-size:15px;line-height:1.25;stroke-width:1px">The time series associated with the <tspan
    style="font-style:italic"
-   id="tspan5451">3123fe46</tspan></tspan><tspan
+   id="tspan704">b8a57944</tspan></tspan><tspan
          sodipodi:role="line"
          x="-442.09924"
          y="1433.3057"
          id="tspan5442-4-79-9"
-         style="font-size:15px;line-height:1.25;stroke-width:1px">source identifier.  Reverse map.</tspan></text>
+         style="font-size:15px;line-height:1.25;stroke-width:1px">context name.</tspan></text>
     <rect
        style="fill:#ffffff;fill-opacity:0;stroke:#000000;stroke-width:4.03125;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect3336-29-0"
@@ -2880,13 +2880,13 @@
          y="122.67949"
          style="font-style:italic;font-weight:bold;font-size:14.89678097px;line-height:1.25;stroke-width:1px">pub/sub</tspan></text>
     <rect
-       style="fill:#3d3d3d;fill-opacity:1;stroke:#000000;stroke-width:4.96108866;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#3d3d3d;fill-opacity:1;stroke:#000000;stroke-width:4.99173117;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4142-9-6-3-0"
-       width="235.81465"
-       height="25.181772"
-       x="-463.3313"
-       y="67.975601"
-       ry="12.590885" />
+       width="239.02754"
+       height="25.151131"
+       x="-463.31598"
+       y="67.990921"
+       ry="12.575564" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12px;line-height:0%;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -2899,13 +2899,13 @@
          y="84.709473"
          style="font-size:15px;line-height:1.25;stroke-width:1px">pcp:channel:metric.name</tspan></text>
     <rect
-       style="fill:#3d3d3d;fill-opacity:1;stroke:#000000;stroke-width:5.00696087;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#3d3d3d;fill-opacity:1;stroke:#000000;stroke-width:5.08967447;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4142-9-6-3-7"
-       width="240.63409"
-       height="25.1359"
-       x="-465.18341"
-       y="107.37346"
-       ry="12.56795" />
+       width="249.47108"
+       height="25.053186"
+       x="-465.14206"
+       y="107.41482"
+       ry="12.526593" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12px;line-height:0%;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -2916,7 +2916,7 @@
          id="tspan4148-8-5-4-7"
          x="-453.32971"
          y="124.08447"
-         style="font-size:15px;line-height:1.25;stroke-width:1px">pcp:channel:source.name</tspan></text>
+         style="font-size:15px;line-height:1.25;stroke-width:1px">pcp:channel:context.name</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:12px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"

@@ -369,7 +369,7 @@ extract_time(seriesQueryBaton *baton, pmSID series,
     sds			msg, val;
     char		*point;
 
-    if (reply->type == REDIS_REPLY_STATUS) {
+    if (reply->type == REDIS_REPLY_STRING) {
 	val = sdscpylen(*stamp, reply->str, reply->len);
 	if ((point = strchr(val, '-')) != NULL)
 	    *point = '.';
@@ -693,9 +693,15 @@ node_series_union(node_t *np, node_t *left, node_t *right)
 }
 
 static int
-string_pattern_match(node_t *np, const char *pattern, const char *string)
+string_pattern_match(node_t *np, sds pattern, char *string, int length)
 {
     int		sts;
+
+    /* if the string is in double quotes, we want to pattern match */
+    if (length > 1 && string[0] == '\"' && string[length-1] == '\"') {
+	string[length-1] = '\0';
+	string++;
+    }
 
     if (np->type == N_GLOB)	/* match via globbing */
 	return fnmatch(pattern, string, 0) == 0;
@@ -784,7 +790,7 @@ node_pattern_reply(seriesQueryBaton *baton, node_t *np, const char *name, int ne
 
     for (i = 0; i < nelements; i++) {
 	r = reply->element[i*2+1];	/* string value */
-	if (!string_pattern_match(np, pattern, r->str))
+	if (!string_pattern_match(np, pattern, r->str, r->len))
 	    continue;
 
 	r = reply->element[i*2];	/* SHA1 hash */
@@ -798,7 +804,7 @@ node_pattern_reply(seriesQueryBaton *baton, node_t *np, const char *name, int ne
 	bytes = (np->nmatches + 1) * sizeof(sds);
 	if ((matches = (sds *)realloc(np->matches, bytes)) == NULL) {
 	    infofmt(msg, "out of memory (%s, %" FMT_INT64 " bytes)",
-			"glob reply", (__int64_t)bytes);
+			"pattern reply", (__int64_t)bytes);
 	    batoninfo(baton, PMLOG_REQUEST, msg);
 	    return -ENOMEM;
 	}
@@ -822,8 +828,8 @@ series_prepare_maps_pattern_reply(redisAsyncContext *c, redisReply *reply, void 
     node_t		*left;
     sds			msg;
 
-    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_prepare_maps_glob_reply");
-    assert(np->type == N_GLOB);	/* indirect hash lookup with key globbing */
+    seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_prepare_maps_pattern_reply");
+    assert(np->type == N_GLOB || np->type == N_REQ || np->type == N_RNE);
 
     left = np->left;
 
@@ -1001,10 +1007,7 @@ series_prepare_eval(seriesQueryBaton *baton, node_t *np, int level)
 	name = left->key + sizeof("pcp:map:") - 1;
 	assert(np->key == NULL);
 	val = series_node_value(np);
-	if (left->subtype == N_CONTEXT)
-	    np->key = sdsnew("pcp:source:");
-	else
-	    np->key = sdsnew("pcp:series:");
+	np->key = sdsnew("pcp:series:");
 	np->key = sdscatfmt(np->key, "%s:%S", name, val);
 	sdsfree(val);
 	np->baton = baton;
@@ -1016,10 +1019,10 @@ series_prepare_eval(seriesQueryBaton *baton, node_t *np, int level)
     case N_REQ:
     case N_RNE:
 	np->baton = baton;
-	for (i = 0; i < np->nmatches; i++) {
-	    seriesBatonReference(baton, "series_prepare_eval[pattern]");
+	if (np->nmatches > 0)
+	    seriesBatonReferences(baton, np->nmatches, "series_prepare_eval[pattern]");
+	for (i = 0; i < np->nmatches; i++)
 	    series_prepare_smembers(baton, np->matches[i], np);
-	}
 	break;
 
     default:

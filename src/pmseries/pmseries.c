@@ -241,7 +241,7 @@ on_series_info(pmLogLevel level, sds message, void *arg)
     int			colour = (dp->flags & PMSERIES_COLOUR);
     FILE		*fp = (level == PMLOG_INFO) ? stdout : stderr;
 
-    if (level > PMLOG_INFO || pmDebugOptions.series)
+    if (level >= PMLOG_INFO || pmDebugOptions.series)
 	pmLogLevelPrint(fp, level, message, colour);
 }
 

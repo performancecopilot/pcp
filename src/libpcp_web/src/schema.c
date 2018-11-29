@@ -873,13 +873,13 @@ redis_series_metadata(context_t *context, metric_t *metric, void *arg)
 
     seriesBatonReference(baton, "redis_series_metadata");
 
-    pmwebapi_hash_str(context->name.hash, hashbuf, sizeof(hashbuf));
-    key = sdscatfmt(sdsempty(), "pcp:series:source:%s", hashbuf);
+    pmwebapi_hash_str(context->name.id, hashbuf, sizeof(hashbuf));
+    key = sdscatfmt(sdsempty(), "pcp:series:context.name:%s", hashbuf);
     cmd = redis_command(2 + metric->numnames);
     cmd = redis_param_str(cmd, SADD, SADD_LEN);
     cmd = redis_param_sds(cmd, key);
     for (i = 0; i < metric->numnames; i++)
-        cmd = redis_param_sha(cmd, metric->names[i].hash);
+	cmd = redis_param_sha(cmd, metric->names[i].hash);
     redisSlotsRequest(slots, SADD, key, cmd, redis_series_source_callback, arg);
 
     if (metric->desc.indom == PM_INDOM_NULL) {
