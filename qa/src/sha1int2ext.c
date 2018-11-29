@@ -7,7 +7,7 @@
  *     09be7733f1b5ed42572d26928a5e56ccf91ea8b8
  */
 #include <pcp/pmapi.h>
-#include <pcp/sds.h>
+#include "sds.h"
 
 static char *
 hash_identity(const unsigned char *hash, char *buffer, int buflen)
