@@ -39,51 +39,39 @@ pcp_hosts = {
                 :script => "ubuntu.sh"
         },
         :rhel7 => {
-                :hostname => "centos7",
+                :hostname => "rhel7",
                 :ipaddress => "10.100.10.21",
-                :box => "generic/centos7",
+                :box => "generic/rhel7",
                 :script => "rhel.sh"
         },
         :centos7 => {
                 :hostname => "centos7",
                 :ipaddress => "10.100.10.20",
-                :box => "generic/centos7",
+                :box => "centos/7",
                 :script => "centos.sh"
         },
         :centos6 => {
                :hostname => "centos6",
                 :ipaddress => "10.100.10.19",
-                :box => "generic/centos6",
+                :box => "centos/6",
                 :script => "centos.sh"
         },
         :fedora29 => {
                 :hostname => "fedora29",
                 :ipaddress => "10.100.10.18",
-                :box => "generic/fedora29",
+                :box => "fedora/29-cloud-base",
                 :script => "fedora.sh"
         },
         :fedora28 => {
                 :hostname => "fedora28",
                 :ipaddress => "10.100.10.17",
-                :box => "generic/fedora28",
+                :box => "fedora/28-cloud-base",
                 :script => "fedora.sh"
         },
         :fedora27 => {
                 :hostname => "fedora27",
                 :ipaddress => "10.100.10.16",
-                :box => "generic/fedora27",
-                :script => "fedora.sh"
-        },
-        :fedora26 => {
-                :hostname => "fedora26",
-                :ipaddress => "10.100.10.15",
-                :box => "generic/fedora26",
-                :script => "fedora.sh"
-        },
-        :fedora25 => {
-                :hostname => "fedora25",
-                :ipaddress => "10.100.10.14",
-                :box => "generic/fedora25",
+                :box => "fedora/27-cloud-base",
                 :script => "fedora.sh"
         },
         :debian8 => {
@@ -189,7 +177,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
   end
 
   # Global shared folder for pcp source.  Copy it so we have our own to muck around in
-  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: false, :rsync__exclude => ["qaresults/", "./pcp-\d.\d.\d" ]
+  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: false, :rsync__exclude => ["qaresults/", "./pcp-*" ]
 
 
   pcp_hosts.each_pair do |name, options|
@@ -206,7 +194,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
        # config.vm.synced_folder "./qaresults/#{name}", "/qaresults", mount_options: ["dmode=777", "fmode=666"], create: true
 
        # TODO - this appears to fail with `vagrant provision osxsierra`
-       config.vm.synced_folder "./qaresults/#{name}", "/qaresults", create: true, nfs_version: 4, nfs_udp: false
+       config.vm.synced_folder "./qaresults/#{name}", "/qaresults", create: true, type: "rsync"
 
        config.vm.hostname = "#{options[:hostname]}"
        config.vm.network :private_network, ip: options[:ipaddress]
