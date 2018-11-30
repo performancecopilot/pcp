@@ -62,7 +62,7 @@ $ brew link pcp
 $ pcp --version
 ```
 
-The ouput for the last command will be something like
+The output for the last command will be something like
 ```
 pcp version 4.1.1
 ```
