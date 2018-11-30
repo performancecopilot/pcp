@@ -20,6 +20,7 @@
 .SH SYNOPSIS
 \fBpcp2influxdb\fP
 [\fB\-CGHIjLnrRvV?\fP]
+[\fB\-4\fP \fIaction\fP]
 [\fB\-8\fP|\fB\-9\fP \fIlimit\fP]
 [\fB\-a\fP \fIarchive\fP]
 [\fB\-\-archive\-folio\fP \fIfolio\fP]
@@ -108,6 +109,7 @@ The following options are common with
 .BR type ,
 .BR type_prefer ,
 .BR ignore_incompat ,
+.BR names_change ,
 .BR instances ,
 .BR live_filter ,
 .BR rank ,
@@ -165,6 +167,16 @@ Corresponding command line option is \fB\-X\fP.
 .SH OPTIONS
 The available command line options are:
 .TP 5
+\fB\-4\fR \fIaction\fR, \fB\-\-names\-change\fR=\fIaction\fR
+Specify which
+.I action
+to take on receiving a
+.BR pmcd (1)
+metric names change event during sampling.
+Valid values for
+.I action
+are currently 'ignore' and 'abort'.
+.TP
 \fB\-8\fR \fIlimit\fR, \fB\-\-limit\-filter\fR=\fIlimit\fR
 Limit results to instances with values above/below
 .IR limit .

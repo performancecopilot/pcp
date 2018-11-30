@@ -82,7 +82,7 @@ class PMReporter(object):
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
-                     'live_filter', 'rank', 'invert_filter', 'predicate',
+                     'live_filter', 'rank', 'invert_filter', 'predicate', 'names_change',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # The order of preference for options (as present):
@@ -106,6 +106,7 @@ class PMReporter(object):
         self.type = 0
         self.type_prefer = self.type
         self.ignore_incompat = 0
+        self.names_change = 0 # ignore
         self.instances = []
         self.live_filter = 0
         self.rank = 0
@@ -170,7 +171,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:jJ:238:9:nN:vX:W:w:P:0:l:kxE:1gf:uq:b:y:Q:B:Y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:jJ:234:8:9:nN:vX:W:w:P:0:l:kxE:1gf:uq:b:y:Q:B:Y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -212,6 +213,7 @@ class PMReporter(object):
         opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
         opts.pmSetLongOption("overall-rank", 0, "2", "", "report overall ranking from archive")
         opts.pmSetLongOption("overall-rank-alt", 0, "3", "", "report overall ranking from archive in pmrep format")
+        opts.pmSetLongOption("names-change", 1, "4", "ACTION", "ignore/abort on PMNS changes (default: ignore)")
         opts.pmSetLongOption("limit-filter", 1, "8", "LIMIT", "default limit for value filtering")
         opts.pmSetLongOption("limit-filter-force", 1, "9", "LIMIT", "forced limit for value filtering")
         opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
@@ -300,6 +302,13 @@ class PMReporter(object):
             self.overall_rank = 1
         elif opt == '3':
             self.overall_rank_alt = 1
+        elif opt == '4':
+            if optarg == 'ignore':
+                self.names_change = 0
+            elif optarg == 'abort':
+                self.names_change = 1
+            else:
+                raise pmapi.pmUsageErr()
         elif opt == '8':
             self.limit_filter = optarg
         elif opt == '9':
@@ -481,17 +490,8 @@ class PMReporter(object):
                 self.lines += 1
 
             # Fetch values
-            try:
-                self.pmfg.fetch()
-            except pmapi.pmErr as error:
-                if error.args[0] == PM_ERR_EOL:
-                    break
-                raise error
-
-            # Watch for endtime in uninterpolated mode
-            if not self.interpol:
-                if float(self.pmfg_ts().strftime('%s')) > float(self.opts.pmGetOptionFinish()):
-                    break
+            if not self.pmconfig.fetch():
+                break
 
             # Report and prepare for the next round
             self.report(self.pmfg_ts())

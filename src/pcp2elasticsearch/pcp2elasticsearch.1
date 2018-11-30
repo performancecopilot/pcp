@@ -20,6 +20,7 @@
 .SH SYNOPSIS
 \fBpcp2elasticsearch\fP
 [\fB\-CGHIjLnrRvV?\fP]
+[\fB\-4\fP \fIaction\fP]
 [\fB\-8\fP|\fB\-9\fP \fIlimit\fP]
 [\fB\-a\fP \fIarchive\fP]
 [\fB\-\-archive\-folio\fP \fIfolio\fP]
@@ -106,6 +107,7 @@ The following options are common with
 .BR type ,
 .BR type_prefer ,
 .BR ignore_incompat ,
+.BR names_change ,
 .BR instances ,
 .BR live_filter ,
 .BR rank ,
@@ -160,6 +162,18 @@ Defaults to 'pcp-metric'.
 .SH OPTIONS
 The available command line options are:
 .TP 5
+\fB\-4\fR \fIaction\fR, \fB\-\-names\-change\fR=\fIaction\fR
+Specify which
+.I action
+to take on receiving a metric names change event during sampling.
+These events occur when a PMDA discovers new metrics sometime
+after starting up, and informs running client tools like
+.BR pcp2elasticsearch .
+Valid values for
+.I action
+are \fBignore\fP (do nothing \- the default behaviour)
+and \fBabort\fP (exit the program if such an event happens).
+.TP
 \fB\-8\fR \fIlimit\fR, \fB\-\-limit\-filter\fR=\fIlimit\fR
 Limit results to instances with values above/below
 .IR limit .

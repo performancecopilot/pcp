@@ -1632,4 +1632,5 @@ BAD
 1455 pmlogrewrite labels pmdumplog local
 1480 pmda.lmsensors local
 1495 pmlogrewrite labels pmdumplog local
+1545 pmrep local
 4751 libpcp threads valgrind local pcp python

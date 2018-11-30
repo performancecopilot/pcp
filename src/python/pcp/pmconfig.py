@@ -191,6 +191,36 @@ class pmConfig(object):
             if arg.startswith(":") and arg[1:] in config.sections():
                 self.read_section_options(config, arg[1:])
 
+    def names_change_action(self):
+        """ Action to take when namespace change occurs (ignore=0, abort=1) """
+        if hasattr(self.util, 'names_change'):
+            return self.util.names_change
+        return 0    # Default: ignore name change notification from pmcd
+
+    def fetch(self):
+        """ Sample using fetchgroup and handle special cases """
+        try:
+            state = self.util.pmfg.fetch()
+        except pmapi.pmErr as error:
+            if error.args[0] == pmapi.c_api.PM_ERR_EOL:
+                return False
+            raise error
+
+        # Handle any PMCD state change notification
+        if state & pmapi.c_api.PMCD_NAMES_CHANGE:
+            if self.names_change_action() == 1:
+                return False
+
+        # Watch for end time in uninterpolated mode
+        if not self.util.interpol:
+            sample = self.util.pmfg_ts().strftime('%s')
+            finish = self.util.opts.pmGetOptionFinish()
+            if float(sample) > float(finish):
+                return False
+
+        # Successfully completed sampling
+        return True
+
     def read_cmd_line(self):
         """ Read command line options """
         pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_DONE)

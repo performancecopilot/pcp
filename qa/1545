@@ -1,0 +1,56 @@
+#!/bin/sh
+# PCP QA Test No. 1545
+# Exercise python handling PMCD metric-names-change notification.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmrep >/dev/null 2>&1 || _notrun "No pmrep binary installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+    $sudo rm -f $PCP_TMP_DIR/mmv/test
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+$sudo rm -f $PCP_TMP_DIR/mmv/test
+pmrep -s 5 -t 1 --names-change=abort mmv.control.files > $tmp.out &
+
+pmsleep 1.5
+$sudo -u $PCP_USER $here/src/mmv_genstats
+
+wait
+echo pmrep output: > $seq.full
+cat $tmp.out >> $seq.full
+
+#
+# count output lines - we expect fewer than the 5 samples requested
+# as the early termination should kick in once mmv_genstats runs -
+# there is a header line, a blank line, then one line per sample.
+#
+count=`wc -l < $tmp.out`
+if [ $count -lt 3 -o $count -gt 6 ]
+then
+    echo "Unexpected number - $count - of pmrep samples observed"
+    cat $tmp.out
+else
+    echo "Confirmed early termination on name change event"
+fi
+
+# success, all done
+status=0
+exit
