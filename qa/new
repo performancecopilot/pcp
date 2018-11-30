@@ -328,7 +328,7 @@ if [ ! -f $id.out ]
 then
     echo "Creating skeletal output, $id.out"
     echo "QA output created by $id" >$id.out
-    echo "[skeleton from now, replace me]" >>$id.out
+    echo "[skeleton from qa/new, replace me]" >>$id.out
 fi
 
 # and finally, don't forget the git work ...
