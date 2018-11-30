@@ -221,6 +221,12 @@ class pmConfig(object):
         # Successfully completed sampling
         return True
 
+    def ignore_unknown_metrics(self):
+        """ Check if unknown metrics are ignored """
+        if hasattr(self.util, 'ignore_unknown') and self.util.ignore_unknown:
+            return True
+        return False
+
     def read_cmd_line(self):
         """ Read command line options """
         pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_DONE)
@@ -573,13 +579,22 @@ class pmConfig(object):
                     self.util.metrics[metric] = deepcopy(metrics[metric])
 
             # Resolve non-leaf metrics to allow metricspecs like disk.dm,,,MB
+            operands = pmapi.c_api.pmGetOperands()
             for metric in list(metrics):
                 self._tmp = metric
                 try:
                     self.util.context.pmTraversePMNS(metric, metric_base_check)
                 except pmapi.pmErr as error:
                     from copy import deepcopy
-                    self.util.metrics[metric] = deepcopy(metrics[metric])
+                    # Ignore unknown metrics if so requested
+                    ignore = False
+                    try:
+                        self.util.context.pmLookupName(metric)
+                    except pmapi.pmErr:
+                        if self.ignore_unknown_metrics() and metric in operands:
+                            ignore = True
+                    if not ignore:
+                        self.util.metrics[metric] = deepcopy(metrics[metric])
 
         metrics = self.util.metrics
         self.util.metrics = OrderedDict()
