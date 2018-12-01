@@ -45,6 +45,11 @@ pmrep -z -p -u -a $A -w 40 kernel.all.uptime
 echo "---"
 pmrep -z -p -u -a $A -w 40 sample.float.one
 echo "---"
+pmrep -z -p -u -a $A -w 40 --ignore-unknown no.such.metric sample.float.one
+echo "---"
+# diminutive case - fail cleanly if no known metrics at all
+pmrep -z -p -u -a $A -w 40 --ignore-unknown no.such.metric
+echo "---"
 # -s 10 can be removed when Python 2 support is dropped
 pmrep -z -p -u -a $A -w 40 -s 10 kernel.uname.release
 echo "---"

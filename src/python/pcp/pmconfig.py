@@ -585,6 +585,8 @@ class pmConfig(object):
                 try:
                     self.util.context.pmTraversePMNS(metric, metric_base_check)
                 except pmapi.pmErr as error:
+                    if error.args[0] != pmapi.c_api.PM_ERR_NAME:
+                        raise
                     from copy import deepcopy
                     # Ignore unknown metrics if so requested
                     ignore = False
@@ -614,7 +616,7 @@ class pmConfig(object):
                 sys.exit(1)
 
         # Exit if no metrics with specified instances found
-        if not self.insts:
+        if not self.insts and not self.ignore_unknown_metrics():
             sys.stderr.write("No matching instances found.\n")
             # Try to help the user to get the instance specifications right
             if self.util.instances:
@@ -848,7 +850,10 @@ class pmConfig(object):
 
         # Verify that we have valid metrics
         if not self.util.metrics:
-            sys.stderr.write("No compatible metrics found.\n")
+            if not self.ignore_unknown_metrics():
+                sys.stderr.write("No compatible metrics found.\n")
+            else:
+                sys.stderr.write("Not one known metric found.\n")
             sys.exit(1)
 
         if hasattr(self.util, 'predicate') and self.util.predicate:
