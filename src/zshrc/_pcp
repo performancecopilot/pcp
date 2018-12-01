@@ -74,6 +74,8 @@ _pcp () {
     "(-r --raw -R --raw-prefer $exargs)"{-r,--raw}'[force reporting raw values]'
     "(-R --raw-prefer -r --raw $exargs)"{-R,--raw-prefer}'[prefer reporting raw values]'
     "(-I --ignore-incompat $exargs)"{-I,--ignore-incompat}'[ignore incompatible metrics]'
+    "(-5 --ignore-unknown $exargs)"{-5,--ignore-unknown}'[ignore unknown metrics]' \
+    "(-4 --names-change $exargs)"{-4+,--names-change}'[ignore/abort on metric name changes]' \
     "($exargs)"\*{-i+,--instances}'[specify instances to report]:instances:->instances'
     "(-v --omit-flat $exargs)"{-v,--omit-flat}'[omit single-valued metrics]'
     "(-P --precision $exargs)"{-P+,--precision}'[set default floating point precision]:precision:'
