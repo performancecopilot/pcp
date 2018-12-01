@@ -32,8 +32,7 @@ import os
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL1
-from cpmapi import PM_TIME_SEC
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
 
 if sys.version_info[0] >= 3:
     long = int # pylint: disable=redefined-builtin

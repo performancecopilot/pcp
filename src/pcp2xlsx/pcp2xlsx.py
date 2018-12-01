@@ -33,7 +33,7 @@ import openpyxl
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_IN_NULL, PM_DEBUG_APPL1
 
 if sys.version_info[0] >= 3:
     long = int # pylint: disable=redefined-builtin
@@ -62,7 +62,7 @@ class PCP2XLSX(object):
                      'timefmt',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force',  'names_change',
+                     'type_prefer', 'precision_force', 'names_change',
                      'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
                      'omit_flat')
 

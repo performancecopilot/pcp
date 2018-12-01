@@ -34,8 +34,7 @@ import requests
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_DEBUG_APPL1
-from cpmapi import PM_TIME_NSEC
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_DEBUG_APPL1, PM_TIME_NSEC
 
 if sys.version_info[0] >= 3:
     long = int # pylint: disable=redefined-builtin
