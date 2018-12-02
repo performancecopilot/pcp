@@ -1620,6 +1620,7 @@ BAD
 1383 pmlogrewrite labels pmdumplog local
 1385 pmda.prometheus local python
 1388 pmwebd local
+1389 pmwebd local
 1395 pmda.prometheus local python
 1396 pcp python pidstat local BAD @vm34
 1397 pmda.smart local valgrind
