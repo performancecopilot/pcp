@@ -81,9 +81,6 @@ static mmv_metric2_t metrics[] = {
     },
 };
 
-static inline int indom_count() { return sizeof(indoms)/sizeof(indoms[0]); }
-static inline int metric_count() { return sizeof(metrics)/sizeof(metrics[0]); }
-
 int 
 main(int ac, char * av[])
 {
