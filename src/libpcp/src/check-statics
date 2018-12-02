@@ -500,6 +500,9 @@ util.o
     typename			# const
     xconfirm_init		# no unsafe side-effects, see notes in util.c
     xconfirm			# no unsafe side-effects, see notes in util.c
+    ?get			# sbrk(0) hack for Mac OS X, safe
+    ?highwater			# sbrk(0) hack for Mac OS X, safe
+    ?pick			# sbrk(0) hack for Mac OS X, safe
 deprecated.o
 ?win32.o
 				# skip statics in win32.c as we don't run this
