@@ -209,7 +209,6 @@ LZMA	= @lzma@
 XZ	= @xz@
 TAR	= @tar@
 RPMPROG	= @rpmprog@
-PACKAGE_MAKER = @package_maker@
 HDIUTIL = @hdiutil@
 MKINSTALLP = @mkinstallp@
 DLLTOOL = @dlltool@
