@@ -76,8 +76,7 @@ then
     #
     export CC=clang
     export CXX=clang
-    # configopts="`brew diy --version=$version --name=pcp` --sysconfdir=/etc --localstatedir=/var --without-manager"
-    configopts="`brew diy --version=$version --name=pcp` --localstatedir=/var --without-manager --without-webapi"
+    configopts="`brew diy --version=$version --name=pcp` --without-manager --without-webapi"
 elif [ $target = netbsd ]
 then
     # Try to mimic where pkgsrc/pkgin place things

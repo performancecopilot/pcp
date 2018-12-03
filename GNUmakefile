@@ -58,25 +58,32 @@ install :: default_pcp install_pcp
 pack_pcp : default_pcp
 	$(MAKE) -C build $@
 
+ifeq ($(TARGET_OS),darwin)
+INSTALL_PREFIX = $(PCP_PREFIX)/
+else
+INSTALL_PREFIX =
+endif
+
+
 install_pcp :  default_pcp
 	# install the common directories _once_
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)
-	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_VAR_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_SHARE_DIR)
 ifneq "$(findstring $(TARGET_OS),darwin mingw)" ""
-	$(INSTALL) -m 755 -d $(PCP_RC_DIR)
-	$(INSTALL) -m 755 -d $(PCP_SASLCONF_DIR)
-	$(INSTALL) -m 755 -d $(PCP_BIN_DIR)
-	$(INSTALL) -m 755 -d $(PCP_LIB_DIR)
-	$(INSTALL) -m 755 -d $(PCP_LIB_DIR)/pkgconfig
-	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)
-	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man1
-	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man3
-	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man5
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_RC_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_SASLCONF_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_BIN_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_LIB_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_LIB_DIR)/pkgconfig
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_MAN_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_MAN_DIR)/man1
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_MAN_DIR)/man3
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_MAN_DIR)/man5
 endif
-ifneq "$(findstring $(TARGET_OS), mingw)" ""
-	$(INSTALL) -m 1777 -d $(PCP_TMPFILE_DIR)
+ifneq ($(TARGET_OS),mingw)
+	$(INSTALL) -m 1777 -d $(INSTALL_PREFIX)$(PCP_TMPFILE_DIR)
 endif
-	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(INSTALL_PREFIX)$(PCP_TMP_DIR)
 ifeq "$(findstring $(PACKAGE_DISTRIBUTION), debian)" ""
 	# $PCP_RUN_DIR usually -> /var/run which may be a temporary filesystem
 	# and Debian's lintian complains about packages including /var/run/xxx
@@ -84,26 +91,26 @@ ifeq "$(findstring $(PACKAGE_DISTRIBUTION), debian)" ""
 	# fly in each before use case, so the inclusion in the package is
 	# sometimes desirable, but not mandatory
 	#
-	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_RUN_DIR)
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(INSTALL_PREFIX)$(PCP_RUN_DIR)
 endif
-	$(INSTALL) -m 755 -d $(PCP_SYSCONFIG_DIR)
-	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)
-	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/labels
-	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
-	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/lib
-	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/examples
-	$(INSTALL) -m 755 -d $(PCP_INC_DIR)
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmchart
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmieconf
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf
-	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmda
-	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)
-	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_NSSDB_DIR)
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/pmns
-	$(INSTALL) -m 755 -d $(PCP_PMDAS_DIR)
-	$(INSTALL) -m 755 -d $(PCP_DOC_DIR)
-	$(INSTALL) -m 755 -d $(PCP_DEMOS_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_SYSCONFIG_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_SYSCONF_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_SYSCONF_DIR)/labels
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_BINADM_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_SHARE_DIR)/lib
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_SHARE_DIR)/examples
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_INC_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_VAR_DIR)/config
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_VAR_DIR)/config/pmchart
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_VAR_DIR)/config/pmieconf
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_VAR_DIR)/config/pmlogconf
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(INSTALL_PREFIX)$(PCP_VAR_DIR)/config/pmda
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(INSTALL_PREFIX)$(PCP_LOG_DIR)
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(INSTALL_PREFIX)$(PCP_NSSDB_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_VAR_DIR)/pmns
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_PMDAS_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_DOC_DIR)
+	$(INSTALL) -m 755 -d $(INSTALL_PREFIX)$(PCP_DEMOS_DIR)
 	#
 	@for d in `echo $(SUBDIRS)`; do \
 	    if test -d "$$d" ; then \
