@@ -195,7 +195,7 @@ class pmConfig(object):
         """ Action to take when namespace change occurs (ignore=0, abort=1) """
         if hasattr(self.util, 'names_change'):
             return self.util.names_change
-        return 0    # Default: ignore name change notification from pmcd
+        return 0 # By default ignore name change notification from pmcd(1)
 
     def fetch(self):
         """ Sample using fetchgroup and handle special cases """

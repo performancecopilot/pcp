@@ -62,7 +62,8 @@ class PCP2XLSX(object):
                      'timefmt',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
-                     'type_prefer', 'precision_force', 'names_change',
+                     'type_prefer', 'precision_force',
+                     'names_change',
                      'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
                      'omit_flat')
 
