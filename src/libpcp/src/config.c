@@ -265,8 +265,14 @@ static void
 __pmconfig(__pmConfigCallback formatter, int fatal)
 {
     /*
-     * Scan ${PCP_CONF-$PCP_DIR/etc/pcp.conf} and put all PCP config
-     * variables found therein into the environment.
+     * Scan pcp.conf and put all PCP config variables found therein
+     * into the environment.
+     * Search order is:
+     * - $PCP_CONF if set
+     * - $PCP_DIR/etc/pcp.conf if $PCP_DIR is set
+     * - /usr/local/opt/pcp/etc/pcp.conf if it exists and /etc/pcp.conf
+     *   does NOT exist
+     * - /etc/pcp.conf otherwise
      */
     FILE *fp;
     char errmsg[PM_MAXERRMSGLEN];
@@ -278,27 +284,30 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
     char *p;
 
     PM_LOCK(__pmLock_extcall);
-    pcp_dir = getenv("PCP_DIR");		/* THREADSAFE */
+    pcp_dir = getenv("PCP_DIR");	/* THREADSAFE */
+    if (pcp_dir != NULL) pcp_dir = strdup(pcp_dir);
     conf = getenv("PCP_CONF");		/* THREADSAFE */
-    if (conf == NULL) {
-	conf = strdup("/etc/pcp.conf");
-	if (conf == NULL) {
-	    pmNoMem("__pmconfig", strlen("/etc/pcp.conf")+1, PM_FATAL_ERR);
-	    /* NOTREACHED */
-	}
+    if (conf != NULL)
+	conf = strdup(conf);
+    else {
 	if (pcp_dir != NULL) {
 	    pmsprintf(dir, sizeof(dir),
 			 "%s%s", pcp_dir, conf);
-	    free(conf);
 	    conf = strdup(dir);
 	}
-	/* THREADSAFE - no locks acquired in __pmNativePath() */
-	conf = __pmNativePath(conf);
+	if (access("/etc/pcp.conf", R_OK) == -1 && access("/usr/local/opt/pcp/etc/pcp.conf", R_OK) == 0)
+	    /* Mac OS X case with HomeBrew, for example */
+	    conf = strdup("/usr/local/etc/pcp.conf");
+	else
+	    conf = strdup("/etc/pcp.conf");
     }
-    else
-	conf = strdup(conf);
-    if (pcp_dir != NULL) pcp_dir = strdup(pcp_dir);
     PM_UNLOCK(__pmLock_extcall);
+    if (conf == NULL) {
+	pmNoMem("__pmconfig", strlen("/etc/pcp.conf")+1, PM_FATAL_ERR);
+	/* NOTREACHED */
+    }
+    /* THREADSAFE - no locks acquired in __pmNativePath() */
+    conf = __pmNativePath(conf);
 
     if ((fp = fopen(conf, "r")) == NULL) {
 	if (!fatal) {
