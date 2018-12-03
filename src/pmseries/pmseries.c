@@ -782,8 +782,14 @@ static void
 series_instlabels_report(series_data *dp, void *arg)
 {
     (void)arg;
-    dp->flags |= PMSERIES_INSTLABELS;
-    pmSeriesLabels(&dp->settings, dp->ninsts, dp->iseries, dp);
+
+    if (dp->ninsts > 0) {
+	dp->flags |= PMSERIES_INSTLABELS;
+	pmSeriesLabels(&dp->settings, dp->ninsts, dp->iseries, dp);
+    } else {
+	/* nothing to do - move on to next command handler */
+	on_series_done(0, dp);
+    }
 }
 
 /*
