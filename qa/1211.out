@@ -308,7 +308,7 @@ fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
     Semantics: instant  Units: none
 
 SourceID lookup for a given SeriesID ...
-    Context: bozo-laptop, PATH/archives/proc
+    Context: PATH/archives/proc, bozo-laptop
 
 Instances lookup for a given SeriesID ...
 

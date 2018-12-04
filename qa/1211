@@ -48,7 +48,17 @@ _filter_source()
     #end
 }
 
-# real QA test starts here
+_sort_context()
+{
+    sed -e 's/    Context: //g' -e 's/, /\n/g' | \
+    LC_COLLATE=POSIX sort | \
+    $PCP_AWK_PROG 'BEGIN { printf "    Context: " } {
+	if (count == 0) {printf("%s", $0)} else {printf(", %s", $0)};
+	count++
+    } END { print out }'
+}
+
+# real QA 
 echo "Start test Redis server ..."
 redis-server --port $redisport > $tmp.redis 2>&1 &
 echo "PING"
@@ -147,7 +157,7 @@ pmseries $options -dIM $series
 echo
 
 echo "SourceID lookup for a given SeriesID ..."
-pmseries $options --sources $source | _filter_source
+pmseries $options --sources $source | _filter_source | _sort_context
 echo
 
 echo "Instances lookup for a given SeriesID ..."
