@@ -1053,6 +1053,24 @@ void test_cpu_smt()
     perf_counter_destroy(data, size, pdata, derivedsize);
 }
 
+void test_parse_hv_24x7_dynamic_events(void)
+{
+    struct pmcsetting *pmctmp;
+    configuration_t *config;
+    const char *configfile = "config/test_init_hv_24x7_events.txt";
+
+    config = parse_configfile(configfile);
+    assert(config != NULL);
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+    for (pmctmp = config->dynamicpmc->dynamicSettingList; pmctmp; pmctmp = pmctmp->next) {
+        printf("event = %s chip value = %d\n", pmctmp->name, pmctmp->chip);
+	if (!(strcmp(pmctmp->name, "pmu1.bar")))
+		assert(pmctmp->chip == 0);
+	if (!(strcmp(pmctmp->name, "pmu1.foo")))
+		assert(pmctmp->chip == -1);
+    }
+}
+
 int runtest(int n)
 {
     init_mock();
@@ -1156,6 +1174,8 @@ int runtest(int n)
 	case 31:
 	    test_cpu_smt();
 	    break;
+	case 32:
+	    test_parse_hv_24x7_dynamic_events();
         default:
             ret = -1;
     }
