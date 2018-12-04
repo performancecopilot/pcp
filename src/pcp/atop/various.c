@@ -476,15 +476,16 @@ ptrverify(const void *ptr, const char *errormsg, ...)
 {
 	if (!ptr)
 	{
+        	va_list args;
+
 		acctswoff();
 		netatop_signoff();
 
 		if (vis.show_end)
 			(vis.show_end)();
 
-        	va_list args;
 		va_start(args, errormsg);
-		fprintf(stderr, errormsg, args);
+		vfprintf(stderr, errormsg, args);
         	va_end  (args);
 
 		exit(13);
