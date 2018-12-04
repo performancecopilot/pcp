@@ -63,8 +63,8 @@ $sudo $signal -s HUP $pid
 # freshness_ratio optimization.  In reality, the subject
 # phenomenon can be observed with a few hours' difference.
 
-touch -t 201801010001 $tmp.dir/archive.0
-touch -t 201801010001 $tmp.dir/archive.1
+$sudo touch -t 201801010001 $tmp.dir/archive.0
+$sudo touch -t 201801010001 $tmp.dir/archive.1
 
 ls -al $tmp.dir >> $seq.full
 
