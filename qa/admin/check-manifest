@@ -11,23 +11,33 @@ then
 else
     # punt
     #
-    PCP_ECHO_PROG=echo
-    PCP_ECHO_N=-n
-    PCP_ECHO_C=
+    case `uname`
+    in
+	Darwin)
+	    PCP_ECHO_PROG=echo
+	    PCP_ECHO_N=
+	    PCP_ECHO_C='\c'
+	    ;;
+	*)
+	    PCP_ECHO_PROG=echo
+	    PCP_ECHO_N=-n
+	    PCP_ECHO_C=
+	    ;;
+    esac
 fi
 
 # Need directory where whatami script is located
 #
-dir=`echo $0 | sed -e 's/\/*check-manifest$//'`
-[ -z "$dir" ] && dir=`pwd`
-if [ ! -d "$dir" ]
+home=`echo $0 | sed -e 's/\/*check-manifest$//'`
+[ -z "$home" ] && home=`pwd`
+if [ ! -d "$home" ]
 then
-    echo "$0: Botch: \$0=$0 -> bad \$dir=$dir ?"
+    echo "$0: Botch: \$0=$0 -> bad \$home=$home ?"
     exit 1
 fi
-if [ ! -f "$dir"/whatami ]
+if [ ! -f "$home"/whatami ]
 then
-    echo "$0: Botch: cannot find $dir/whatami"
+    echo "$0: Botch: cannot find $home/whatami"
     exit 1
 fi
 
@@ -85,7 +95,7 @@ trap "_cleanup; exit \$sts" 0 1 2 3 15
 #
 pgktool=''
 searchtool=''
-$dir/whatami >$tmp.tmp
+$home/whatami >$tmp.tmp
 case "`sed <$tmp.tmp -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
 in
     *Ubuntu*|*Debian*|*LinuxMint*)
@@ -126,6 +136,11 @@ in
 	searchtool=equery
 	;;
 
+    *Darwin*)
+	pkgtool=brew
+	searchtool=brew
+	;;
+
 esac
 if [ -z "$pkgtool" ]
 then
@@ -135,6 +150,64 @@ fi
 
 _path_to_pkg()
 {
+    # Try other packaging options (Perl or Python) first ...
+    #
+    for info in $2
+    do
+	case "$info"
+	in
+	    "cpan("*")")
+		module=`echo "$info" | sed -e 's/.*(//' -e 's/)//'`
+		if [ -z "$module" ]
+		then
+		    echo "Botch: failed to get $tool module from \"$info\""
+		    touch $tmp.abort
+		    return
+		fi
+		if which perldoc >/dev/null
+		then
+		    if [ ! -f $tmp.perldoc ]
+		    then
+			perldoc perllocal 2>&1 | sed -e 's/.//g' >$tmp.perldoc
+		    fi
+		    if grep " $module\$" $tmp.perldoc >/dev/null
+		    then
+			# found it!
+			echo "$info"
+			return
+		    fi
+		fi
+		;;
+	    "pip("*")"|"pip3("*")")
+		tool=`echo "$info" | sed -e 's/(.*//'`
+		module=`echo "$info" | sed -e 's/.*(//' -e 's/)//'`
+		if [ -z "$tool" ]
+		then
+		    echo "Botch: failed to get tool from \"$info\""
+		    touch $tmp.abort
+		    return
+		fi
+		if [ -z "$module" ]
+		then
+		    echo "Botch: failed to get $tool module from \"$info\""
+		    touch $tmp.abort
+		    return
+		fi
+		if `which "$tool"` >/dev/null
+		then
+		    $tool show -f "$module" >$tmp.tmp
+		    match=`echo $1 | sed -e 's;.*-packages/;;'`
+		    if grep " $match\$" $tmp.tmp >/dev/null
+		    then
+			# found it!
+			echo "$info"
+			return
+		    fi
+		fi
+		;;
+	esac
+    done
+
     case "$pkgtool"
     in
 	dpkg)
@@ -241,6 +314,48 @@ p
 	    if [ -s $tmp.tmp ]
 	    then
 		cat $tmp.tmp
+	    fi
+	    ;;
+
+	brew)
+	    # for commands expect output from ls like
+	    # lrwxr-xr-x  1 kenj  admin  28 29 Nov 06:14 /usr/local/bin/nmap -> ../Cellar/nmap/7.70/bin/nmap
+	    #
+	    ls -l "$1" 2>/dev/null \
+	    | sed >$tmp.tmp -n -e '/ -> .*\/Cellar\//{
+s;.* -> .*/Cellar/;;
+s;/.*;;
+p
+}'
+	    if [ -s $tmp.tmp ]
+	    then
+		cat $tmp.tmp
+	    else
+		# for non-commands, it is all a bit messier ...
+		# - use last part of pathname from $1
+		# - find $(brew --cellar) -name ... for candidates
+		# - strip $(brew --cellar) prefix
+		# - extract formula and path
+		# - try to tail match paths
+		#
+		cellar=`brew --cellar`
+		if [ ! -d "$cellar" ]
+		then
+		    echo "Botch: brew cellar \"$cellar\" does not exist"
+		    touch $tmp.abort
+		    return
+		fi
+		base=`echo "$1" | sed -e 's/.*\///'`
+		find $cellar -name $base \
+		| sed -e "s;$cellar/;;" -e 's;/[0-9./]*; ;' \
+		| while read formula path
+		do
+		    if echo "$1" | grep "$path\$" >/dev/null
+		    then
+			echo $formula
+			break
+		    fi
+		done
 	    fi
 	    ;;
 
@@ -398,9 +513,6 @@ _match_pkg()
 #
 _hunt()
 {
-    # all the places where Perl bits might get installed .. geez!
-    #
-    _perl_dirs="/usr/lib*/perl5 /usr/lib/*/perl5 /usr/lib/*/perl /usr/share/perl /usr/share/perl5 /usr/pkg/lib/perl5 /usr/local/share/perl5 /usr/local/lib*/perl5/ /usr/local/share/perl"
 
     rm -f $tmp.msg $tmp.ok
     for file in `echo "$target" | sed -e 's/|/ /g'`
@@ -429,7 +541,7 @@ _hunt()
 	esac
 	if [ -n "$file" ]
 	then
-	    pkg=`_path_to_pkg "$file"`
+	    pkg=`_path_to_pkg "$file" "$pkginfo"`
 	    if [ -f $tmp.abort ]
 	    then
 		echo "$pkg"
@@ -438,13 +550,7 @@ _hunt()
 	    $very_verbose && echo "file=\"$file\" from pkg=\"$pkg\""
 	    if [ -z "$pkg" ]
 	    then
-		if echo " $pkginfo " | grep ' cpan ' >/dev/null
-		then
-		    # if "cpan" is specified as a possible provider, then
-		    # it is OK if not installed by the package manager
-		    #
-		    :
-		elif echo " $pkginfo " | grep ' base ' >/dev/null
+		if echo " $pkginfo " | grep ' base ' >/dev/null
 		then
 		    # if "base" is specified as a possible provider (which
 		    # may be from a line that contains no provider info,
@@ -469,12 +575,7 @@ _hunt()
 			echo "$line: target \"$file\" in package $pkg not $spec" >>$tmp.msg
 		    fi
 		done
-		if [ ! -f $tmp.ok ]
-		then
-		    echo "$line: target \"$file\" not in any [...] package" >>$tmp.msg
-		else
-		    break
-		fi
+		[ -f $tmp.ok ] && break
 	    fi
 	fi
     done
@@ -483,6 +584,14 @@ _hunt()
 	cat $tmp.msg
     fi
 }
+
+# all the places where Perl bits might get installed .. geez!
+#
+_perl_dirs=''
+for dir in /usr/lib*/perl5 /usr/lib/*/perl5 /usr/lib/*/perl /usr/share/perl /usr/share/perl5 /usr/pkg/lib/perl5 /usr/local/share/perl5 /usr/local/lib*/perl5/ /usr/local/share/perl /Library/Perl/5.* /System/Library/Perl/5.* /System/Library/Perl/Extras/5.*
+do
+    [ -d "$dir" ] && _perl_dirs="$_perl_dirs $dir"
+done
 
 # strip comments, empty (only :<lineno>) and N/A lines
 #
@@ -526,21 +635,19 @@ do
     line=`echo $extra | sed -e 's/.*:\([0-9][0-9]*\)$/\1/'`
     # reduce things like "[lm-sensors (QA optional)]:1189" down to
     # "lm-sensors"
-    # and "[perl-Spreadsheet-ReadSXC or 'perl(Spreadsheet::ReadSXC)' or from cpan (QA optional)]:601
-    # down to "perl-Spreadsheet-ReadSXC cpan"
+    # and "[perl-Spreadsheet-ReadSXC or 'perl(Spreadsheet::ReadSXC)' or from cpan(Spreadsheet::ReadSXC) (QA optional)]:601
+    # down to "perl-Spreadsheet-ReadSXC cpan(Spreadsheet::ReadSXC)"
     # and cull the [N/A...] lines
     #
     pkginfo=`echo "$extra" \
 	| sed \
 	    -e 's/:[0-9][0-9]*//' \
+	    -e 's/#.*//' \
 	    -e 's/\[//' \
 	    -e 's/]//' \
 	    -e "s/'perl([^0]*)'//" \
-	    -e 's/([^)]*)//g' \
-	    -e 's/from cpan/cpan/' \
-	    -e 's/base NetBSD install/base/' \
-	    -e 's/base OpenBSD install/base/' \
-	    -e 's/base FreeBSD install/base/' \
+	    -e 's/([^)]* optional)//' \
+	    -e 's/base [^ ][^ ]* install/base/' \
 	    -e 's/ or / /g' \
 	    -e 's/  */ /g' \
 	    -e 's/^ //' \
@@ -561,13 +668,14 @@ do
 	    # special case Perl, no module name
 	    _perl=`echo "$target" | sed -e 's/:://'`
 	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
-	             | egrep "/$_perl.(pm|so)$" \
+	             | egrep "/$_perl.(pm|so|dylib|bs)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
 		echo "$line: Perl source \"$target\" not found"
 	    else
+		$very_verbose && echo "$line: Perl $target -> $_target"
 		target="$_target"
 		_hunt
 	    fi
@@ -578,14 +686,15 @@ do
 	    _module=`echo "$target" | sed -e 's/::.*//'`
 	    _submodule=`echo "$target" | sed -e 's/[^:]*::\([^:][^:]*\)::.*/\1/'`
 	    _perl=`echo "$target" | sed -e 's/.*:://'`
-	    _target=`find $_perl_dirs "$_perl.*" -print 2>/dev/null \
-	             | egrep "/$_module/($_submodule|$_submodule/$_perl)/$_perl.(pm|so)$" \
+	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
+	             | egrep "/$_module/($_submodule|$_submodule/$_perl)/$_perl.(pm|so|dylib|bs)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
 		echo "$line: Perl source \"$target\" not found"
 	    else
+		$very_verbose && echo "$line: Perl $target -> $_target"
 		target="$_target"
 		_hunt
 	    fi
@@ -595,14 +704,17 @@ do
 	    # normal case Perl, with module name
 	    _module=`echo "$target" | sed -e 's/::.*//'`
 	    _perl=`echo "$target" | sed -e 's/.*:://'`
-	    _target=`find $_perl_dirs "$_perl.*" -print 2>/dev/null \
-	             | egrep "/$_module/$_perl.(pm|so)$" \
+	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
+		     | tee $tmp.debug \
+	             | egrep "/$_module/$_perl.(pm|so|dylib|bs)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
+		$very_verbose && echo "... looking for $_module/$_perl.* from candidates: `cat $tmp.debug`"
 		echo "$line: Perl source \"$target\" not found"
 	    else
+		$very_verbose && echo "$line: Perl $target -> $_target"
 		target="$_target"
 		_hunt
 	    fi
@@ -619,7 +731,10 @@ done
 
 # check the N/A packages list for this host
 #
-sed -n -e '/\[N\/A/p' <$tmp.manifest \
+sed -n <$tmp.manifest \
+    -e '/^[^#]*\[N\/A/{
+p
+}' \
 | sed -e 's/.*:\([0-9][0-9]*\)$/\1/' >$tmp.tmp
 if [ -s $tmp.tmp ]
 then
@@ -634,7 +749,7 @@ then
     cat $tmp.tmp \
     | while read lineno
     do
-	eval `sed <$dir/package.manifest -n -e "$lineno{"'
+	eval `sed <$home/package.manifest -n -e "$lineno{"'
 s/^!//
 s/^[a-z][a-z]*[?][ 	][ 	]*//
 s/[ 	][ 	]*/ /g
@@ -643,7 +758,7 @@ s/ .*/"/
 p
 q
 }'`
-	eval `sed <$dir/package.manifest -n -e "$lineno{"'
+	eval `sed <$home/package.manifest -n -e "$lineno{"'
 s/^!//
 s/^[a-z][a-z]*[?][ 	][ 	]*//
 s/[ 	][ 	]*/ /g
@@ -660,9 +775,8 @@ q
 	#
 	_extra=`echo "$_extra" \
 	        | sed \
-		    -e 's/([^)]*)//g' \
-		    -e 's/from cpan/cpan/' \
-		    -e 's/cpan//' \
+		    -e 's/#.*//' \
+		    -e 's/ ([^)]*)//' \
 		    -e 's/ or / /g' \
 		    -e 's/^  *//' \
 		    -e 's/  *$//'`
@@ -771,6 +885,18 @@ q
 		    # Location:    /usr/portage/app-shells/bash
 		    #
 		    if equery meta "$pkg" 2>&1 | grep '^Location:' >$tmp.out
+		    then
+			touch $tmp.avail
+			$verbose && cat $tmp.out
+		    fi
+		    ;;
+
+		brew)
+		    # For example: brew info bash ->
+		    # ...
+		    # bash: stable 4.4.23 (bottled), HEAD
+		    #
+		    if brew info "$pkg" 2>&1 | grep "^$pkg:" >$tmp.out
 		    then
 			touch $tmp.avail
 			$verbose && cat $tmp.out

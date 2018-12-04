@@ -4,6 +4,27 @@
 # and packages
 #
 
+if [ -f /etc/pcp.conf ]
+then
+    . /etc/pcp.conf
+else
+    # punt
+    #
+    case `uname`
+    in
+	Darwin)
+	    PCP_ECHO_PROG=echo
+	    PCP_ECHO_N=
+	    PCP_ECHO_C='\c'
+	    ;;
+	*)
+	    PCP_ECHO_PROG=echo
+	    PCP_ECHO_N=-n
+	    PCP_ECHO_C=
+	    ;;
+    esac
+fi
+
 # same function is in allow-pmlc-access ... need to track changes
 #
 _getnetworkaddr()
@@ -224,8 +245,9 @@ done
 #	S_pkg - pkg(1) on OpenIndiana
 #	slackpkg - Slackware
 #	pacman - Arch Linux
+#	brew - Mac OS X
 #
-pkgtools="dpkg rpm urpmi emerge pkgin pkg_add F_pkg S_pkg slackpkg pacman"
+pkgtools="dpkg rpm urpmi emerge pkgin pkg_add F_pkg S_pkg slackpkg pacman brew"
 
 # Distros we know about (or more specifically ones with the same 
 # packaging tools but different package names).
@@ -694,13 +716,13 @@ do
 	fi
 	if $verbose
 	then
-	    echo -n "$app ... "
-	    $optional && echo -n "[optional] "
+	    $PCP_ECHO_PROG $PCP_ECHO_N "$app ... "$PCP_ECHO_C
+	    $optional && $PCP_ECHO_PROG $PCP_ECHO_N "[optional] "$PCP_ECHO_C
 	    if [ $ok = 0 ]
 	    then
-		echo -n "yes "
+		$PCP_ECHO_PROG $PCP_ECHO_N "yes "$PCP_ECHO_C
 	    else
-		echo -n "no "
+		$PCP_ECHO_PROG $PCP_ECHO_N "no "$PCP_ECHO_C
 	    fi
 	    touch $tmp.echo
 	fi
@@ -729,26 +751,14 @@ do
 	then
 	    echo "$apps" \
 	    | sed -n \
-		-e '/^N\/A/d' \
-		-e '/ N\/A/d' \
-		-e '/\[N\/A/d' \
-		-e 's/QA optional//' \
-		-e 's/from cpan//' \
-		-e 's/cpan//' \
-		-e 's/[A-Za-z][A-Za-z_]*::[A-Za-z][A-Za-z_]*//' \
-		-e 's/[A-Za-z][A-Za-z_]*:://' \
-		-e 's/[ 	]*\[[ 	()]*]//' \
-		-e '/[ 	]\[/{
-s/^.*[ 	]\[//
-s/]//
-s/[ 	].*//
-p
-n
-}' \
-		-e 's/  */ /g' \
+		-e 's/.*\[//' \
+		-e 's/]//' \
+		-e '/N\/A/d' \
+		-e 's/ ([^)]*)//' \
+		-e 's/[ 	][ 	]*/ /g' \
+		-e '/^ *$/d' \
 		-e p \
-	    | sed -e '/^ *$/d'
-
+	    # end
 	else
 	    echo "Missing: `echo $apps \
 		| sed \
@@ -771,8 +781,14 @@ if [ -s $tmp.out ]
 then
     if $pkglist
     then
-	tr '[\012]' ' ' <$tmp.out | sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//'
-	echo
+	sort <$tmp.out \
+	| uniq \
+	| tr '[\012]' ' ' \
+	| sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//'
+	# BSD* and Darwin heuristic hack ... don't need extra echo for
+	# these guys
+	#
+	[ -z "$PCP_ECHO_N" ] || echo
     else
 	cat $tmp.out
     fi

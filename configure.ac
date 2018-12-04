@@ -295,13 +295,23 @@ elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (Mac OS X)])
     target_distro=macosx
-    version=`sw_vers -productVersion | sed -e 's/\.//' -e 's/\..*//g'`
-    CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing -arch i386"
-    if test $version -ge 106
-    then
-	target_distro=cocoa
-	CFLAGS="$CFLAGS -arch x86_64"
-    fi
+    version=`sw_vers -productVersion`
+    CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"
+    case "$version"
+    in
+	10.[0-5].*)
+	    dnl no knowledge before this ...
+	    ;;
+	10.[6-9].*|10.1[0-3].*)
+	    target_distro=cocoa
+	    CFLAGS="$CFLAGS -arch i386 -arch x86_64"
+	    ;;
+	*)
+	    dnl at least 10.14 (Mojave) ...
+	    target_distro=cocoa
+	    CFLAGS="$CFLAGS -arch x86_64"
+	    ;;
+    esac
     export CFLAGS
     pcp_platform_paths='/usr/local/bin'
     pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
@@ -1407,36 +1417,6 @@ test ! -x "$XZ" && XZ=/usr/freeware/bin/xz
 xz=$XZ
 test -z "$xz" && xz=no-xz
 AC_SUBST(xz)
-
-dnl Check for mac PackageMaker
-AC_MSG_CHECKING([for PackageMaker])
-if test -z "$PACKAGE_MAKER"
-then
-    if test $target_os = darwin
-    then
-	if test -x /Applications/PackageMaker.app/Contents/MacOS/PackageMaker
-	then # local XCode extras install
-	    package_maker=/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
-	    AC_MSG_RESULT([ yes (local install)])
-	elif test -x /Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
-	then # Darwin 6.x
-	    package_maker=/Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
-	    AC_MSG_RESULT([ yes (darwin 6.x)])
-	elif test -x /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker
-	then # Darwin 7.x
-	    AC_MSG_RESULT([ yes (darwin 7.x)])
-	    package_maker=/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker
-	else
-	    AC_MSG_RESULT([ not found!])
-	    AC_MSG_WARN([PackageMaker not found, mac packages will not be made])
-	fi
-    else
-	AC_MSG_RESULT([ no])
-    fi
-else
-    package_maker="$PACKAGE_MAKER"
-fi
-AC_SUBST(package_maker)
 
 dnl check if the hdiutil program is available
 if test -z "$HDIUTIL"; then

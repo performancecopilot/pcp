@@ -2550,6 +2550,34 @@ __pmProcessTerminate(pid_t pid, int force)
 !bozo!
 #endif
 
+#if defined(IS_DARWIN)
+#define sbrk hack_sbrk
+/*
+ * cheap and nasty sbrk(0) for Mac OS X where sbrk() is deprecated
+ */
+void *
+hack_sbrk(int incr)
+{
+    static size_t	get[] = { 4096, 2000, 900, 2000, 4096 };
+    static int		pick = 0;
+    static void		*highwater = NULL;
+    void		*try;
+    if (incr != 0)
+	return NULL;
+
+    try = malloc(get[pick]);
+    if (try > highwater)
+	highwater = try;
+    free(try);
+
+    pick++;
+    if (pick == sizeof(get) / sizeof(get[0]))
+	pick = 0;
+
+    return highwater;
+}
+#endif
+
 #if defined(HAVE_SBRK)
 int
 __pmProcessDataSize(unsigned long *size)
@@ -2565,9 +2593,13 @@ __pmProcessDataSize(unsigned long *size)
     }
     return 0;
 }
-#elif !defined(IS_MINGW)
+#elif !defined(IS_MINGW) && !defined(IS_DARWIN)
 #warning "Platform does not define a process datasize interface?"
 int __pmProcessDataSize(unsigned long *) { return -1; }
+#endif
+
+#if defined(IS_DARWIN)
+#undef sbrk
 #endif
 
 #if !defined(IS_MINGW)

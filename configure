@@ -802,7 +802,6 @@ mkinstallp
 MKINSTALLP
 hdiutil
 HDIUTIL
-package_maker
 xz
 XZ
 lzma
@@ -966,6 +965,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -1118,6 +1118,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1370,6 +1371,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1507,7 +1517,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1660,6 +1670,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -3329,13 +3340,21 @@ then
 $as_echo "#define IS_DARWIN 1" >>confdefs.h
 
     target_distro=macosx
-    version=`sw_vers -productVersion | sed -e 's/\.//' -e 's/\..*//g'`
-    CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing -arch i386"
-    if test $version -ge 106
-    then
-	target_distro=cocoa
-	CFLAGS="$CFLAGS -arch x86_64"
-    fi
+    version=`sw_vers -productVersion`
+    CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"
+    case "$version"
+    in
+	10.0-5.*)
+	    	    ;;
+	10.6-9.*|10.10-3.*)
+	    target_distro=cocoa
+	    CFLAGS="$CFLAGS -arch i386 -arch x86_64"
+	    ;;
+	*)
+	    	    target_distro=cocoa
+	    CFLAGS="$CFLAGS -arch x86_64"
+	    ;;
+    esac
     export CFLAGS
     pcp_platform_paths='/usr/local/bin'
     pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
@@ -8762,42 +8781,6 @@ test ! -x "$XZ" && XZ=/usr/local/bin/xz
 test ! -x "$XZ" && XZ=/usr/freeware/bin/xz
 xz=$XZ
 test -z "$xz" && xz=no-xz
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for PackageMaker" >&5
-$as_echo_n "checking for PackageMaker... " >&6; }
-if test -z "$PACKAGE_MAKER"
-then
-    if test $target_os = darwin
-    then
-	if test -x /Applications/PackageMaker.app/Contents/MacOS/PackageMaker
-	then # local XCode extras install
-	    package_maker=/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: result:  yes (local install)" >&5
-$as_echo " yes (local install)" >&6; }
-	elif test -x /Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
-	then # Darwin 6.x
-	    package_maker=/Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: result:  yes (darwin 6.x)" >&5
-$as_echo " yes (darwin 6.x)" >&6; }
-	elif test -x /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker
-	then # Darwin 7.x
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: result:  yes (darwin 7.x)" >&5
-$as_echo " yes (darwin 7.x)" >&6; }
-	    package_maker=/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker
-	else
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: result:  not found!" >&5
-$as_echo " not found!" >&6; }
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: PackageMaker not found, mac packages will not be made" >&5
-$as_echo "$as_me: WARNING: PackageMaker not found, mac packages will not be made" >&2;}
-	fi
-    else
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result:  no" >&5
-$as_echo " no" >&6; }
-    fi
-else
-    package_maker="$PACKAGE_MAKER"
-fi
 
 
 if test -z "$HDIUTIL"; then

@@ -17,13 +17,13 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 CONFFILES = builddefs pcp.conf
-LDIRT = builddefs.install
+LDIRT = builddefs.install pcp.conf.install
 
 SUBDIRS = pcp
 
 default :: default_pcp
 
-default_pcp : $(SUBDIRS) pcp.conf builddefs.install
+default_pcp : $(SUBDIRS) pcp.conf pcp.conf.install builddefs.install
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
@@ -37,7 +37,7 @@ ifeq "$(TARGET_OS)" "netbsd"
 	$(INSTALL) -m 644 pcp.conf /etc/pcp.conf
 	$(INSTALL) -m 644 pcp.env /etc/pcp.env
 else
-	$(INSTALL) -m 644 pcp.conf $(PCP_ETC_DIR)/pcp.conf
+	$(INSTALL) -m 644 pcp.conf.install $(PCP_ETC_DIR)/pcp.conf
 	$(INSTALL) -m 644 pcp.env $(PCP_ETC_DIR)/pcp.env
 endif
 	$(INSTALL) -m 644 buildrules $(PCP_INC_DIR)/buildrules
@@ -50,3 +50,10 @@ builddefs.install : builddefs
 	    -e 's;^INSTALL_SH.*=.*install-sh;INSTALL_SH = $$\(PCP_BINADM_DIR\)/install-sh;' \
 	    -e 's;^GENPMDA.*=.*genpmda;GENPMDA = $$\(PCP_BIN_DIR\)/genpmda;' \
 	        < builddefs > builddefs.install
+
+pcp.conf.install : pcp.conf
+ifeq ($(TARGET_OS),darwin)
+	sed -e 's;Cellar/pcp/[^/]*/;opt/pcp/;' <pcp.conf >pcp.conf.install
+else
+	cp pcp.conf pcp.conf.install
+endif

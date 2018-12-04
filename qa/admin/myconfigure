@@ -7,6 +7,15 @@
 # works without surprises
 #
 
+if [ ! -f VERSION.pcp ]
+then
+    echo "Arrgh: VERSION.pcp not found, you need to be at the root of the git tree"
+    exit 1
+fi
+
+. VERSION.pcp
+version=$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION
+
 target=`uname -s | sed -e 's/ .*//' | tr 'A-Z' 'a-z'`
 
 # Note:	this logic needs to match the settings in Makepkgs at the
@@ -63,10 +72,11 @@ then
     configopts="$configopts --with-make=$MAKE --with-tar=$TAR --with-zip=$ZIP"
 elif [ $target = darwin ]
 then
-    # On Mac OS X platforms, we install away from /usr/bin, /usr/lib
-    # and so on because of security requirements in recent versions.
+    # On Mac OS X platforms, we're using brew ...
     #
-    configopts="--prefix=/usr/local --sysconfdir=/etc --localstatedir=/var"
+    export CC=clang
+    export CXX=clang
+    configopts="`brew diy --version=$version --name=pcp` --without-manager --without-webapi"
 elif [ $target = netbsd ]
 then
     # Try to mimic where pkgsrc/pkgin place things
