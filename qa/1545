@@ -38,12 +38,17 @@ echo pmrep output: > $seq.full
 cat $tmp.out >> $seq.full
 
 #
-# count output lines - we expect fewer than the 5 samples requested
+# Count output lines - we expect fewer than the 5 samples requested
 # as the early termination should kick in once mmv_genstats runs -
 # there is a header line, a blank line, then one line per sample.
 #
+# If pmrep is slow to start, the name change may arrive on the very
+# first fetch which will result in just the header lines, but it
+# *must* receive the notification (and exit early) before it would
+# usually exit in order for the test to pass.
+#
 count=`wc -l < $tmp.out`
-if [ $count -lt 3 -o $count -gt 6 ]
+if [ $count -lt 2 -o $count -gt 6 ]
 then
     echo "Unexpected number - $count - of pmrep samples observed"
     cat $tmp.out
