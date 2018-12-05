@@ -272,7 +272,7 @@ static void add_pmcsetting_name(configuration_t *config, char *name)
 
     entry = &config->configArr[config->nConfigEntries-1];
 
-    newpmcsetting = malloc(sizeof *newpmcsetting);
+    newpmcsetting = calloc(1, sizeof *newpmcsetting);
     newpmcsetting->name = strdup(name);
     newpmcsetting->cpuConfig = CPUCONFIG_EACH_CPU;
     newpmcsetting->next = entry->pmcSettingList;
@@ -382,6 +382,21 @@ static void set_pmcsetting_chip(configuration_t *config, char *chip)
 
 	pmcsetting->chip = atoi(chip);
     }
+}
+
+static void set_pmcsetting_rawcode(configuration_t *config,
+                                   unsigned long rawcode)
+{
+    pmcsetting_t *pmcsetting;
+
+    if (!config || !config->nConfigEntries || context_derived || context_dynamic)
+        return;
+
+    pmcsetting = config->configArr[config->nConfigEntries-1].pmcSettingList;
+    if (!pmcsetting)
+        return;
+
+    pmcsetting->rawcode = rawcode;
 }
 
 #ifdef DEBUG_PRINT_CONFIG
@@ -529,6 +544,7 @@ node_rr       set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_ROUNDROBIN_NUMANODE);
 perf_scale    set_pmcsetting_derived_scale(yyextra, strtod(yytext, NULL), 1);
 ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)  set_pmcsetting_derived_scale(yyextra, strtod(yytext, NULL), 0);
 (chip:)[0-9]*	set_pmcsetting_chip(yyextra, &yytext[5]);
+rawcode\=0x([0-9a-fA-F]+)           set_pmcsetting_rawcode(yyextra, strtoul(yytext+10, NULL, 16));
 }
 
 <*>.|\n { fprintf(stderr, "Syntax error on line: %d \n", yylineno); return -1; }
