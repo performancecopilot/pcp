@@ -442,7 +442,7 @@ static int parse_event_string(char *buf, struct pmu_event *event,
             return -E_PERFEVENT_REALLOC;
         }
 
-	sprintf(eventname,"%s.%s", pmu_name, event->name);
+	pmsprintf(eventname, sizeof(eventname), "%s.%s", pmu_name, event->name);
 
         /* Find next property */
         start = strchr(ptr, ',');
