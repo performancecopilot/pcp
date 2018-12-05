@@ -699,12 +699,15 @@ void test_init_dynamic_events(void)
     struct pmu *pmu_list = NULL, *tmp = NULL;
     struct pmu_event *event;
     int dyn_pmu_count = 0, dyn_event_count = 0;
+    const char *configfile = "config/test_init_dynamic_events.txt";
+    configuration_t *config;
 
+    config = parse_configfile(configfile);
     printf( " ===== %s ==== \n", __FUNCTION__) ;
 
     setenv("SYSFS_PREFIX", "./fakefs/syspmu", 1);
 
-    init_dynamic_events(&pmu_list);
+    init_dynamic_events(&pmu_list, config->dynamicpmc->dynamicSettingList);
     for (tmp = pmu_list; tmp; tmp = tmp->next) {
 	char	**namelist = NULL;
 	int	n = 0;
@@ -727,6 +730,7 @@ void test_init_dynamic_events(void)
 	}
 	free(namelist);
     }
+	fprintf(stderr,"RR:dyn_pmu_count = %d\n",dyn_pmu_count);
     /* PMUs : pmu1, pmu2, software */
     assert(3 == dyn_pmu_count);
     /* pmu1 : 2 events, pmu2 : 3 events, software : 9 events */
@@ -742,11 +746,15 @@ void test_minimum_dynamic_events(void)
     struct pmu *pmu_list = NULL;
     struct pmu_event *event;
     int count = 0;
+    const char *configfile = "config/test_init_dynamic_events.txt";
+    configuration_t *config;
+
+    config = parse_configfile(configfile);
 
     printf( " ===== %s ==== \n", __FUNCTION__) ;
 
     setenv("SYSFS_PREFIX", "./fakefs/syspmu_empty", 1);
-    init_dynamic_events(&pmu_list);
+    init_dynamic_events(&pmu_list, config->dynamicpmc->dynamicSettingList);
     for (event = pmu_list->ev; event; event = event->next) {
 	count++;
     }
@@ -766,11 +774,15 @@ void test_dynamic_events_fail_event(void)
 {
     struct pmu *pmu_list = NULL, *tmp;
     int count;
+    const char *configfile = "config/test_init_dynamic_events.txt";
+    configuration_t *config;
+
+    config = parse_configfile(configfile);
 
     printf( " ===== %s ==== \n", __FUNCTION__) ;
 
     setenv("SYSFS_PREFIX", "./fakefs/syspmu_fail_event", 1);
-    init_dynamic_events(&pmu_list);
+    init_dynamic_events(&pmu_list, config->dynamicpmc->dynamicSettingList);
     for (tmp = pmu_list, count = 0; tmp; tmp = tmp->next, count++) {
 	printf("PMU : %s\n", tmp->name);
 	assert(0 != strcmp("pmu1", tmp->name));
@@ -792,11 +804,14 @@ void test_dynamic_events_fail_format(void)
 {
     struct pmu *pmu_list = NULL, *tmp;
     int count;
+    const char *configfile = "config/test_init_dynamic_events.txt";configuration_t *config;
+
+    config = parse_configfile(configfile);
 
     printf( " ===== %s ==== \n", __FUNCTION__) ;
 
     setenv("SYSFS_PREFIX", "./fakefs/syspmu_fail_format", 1);
-    init_dynamic_events(&pmu_list);
+    init_dynamic_events(&pmu_list, config->dynamicpmc->dynamicSettingList);
     for (tmp = pmu_list, count = 0; tmp; tmp = tmp->next, count++) {
 	printf("PMU : %s\n", tmp->name);
 	assert(0 != strcmp("pmu2", tmp->name));
@@ -1038,6 +1053,24 @@ void test_cpu_smt()
     perf_counter_destroy(data, size, pdata, derivedsize);
 }
 
+void test_parse_hv_24x7_dynamic_events(void)
+{
+    struct pmcsetting *pmctmp;
+    configuration_t *config;
+    const char *configfile = "config/test_init_hv_24x7_events.txt";
+
+    config = parse_configfile(configfile);
+    assert(config != NULL);
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+    for (pmctmp = config->dynamicpmc->dynamicSettingList; pmctmp; pmctmp = pmctmp->next) {
+        printf("event = %s chip value = %d\n", pmctmp->name, pmctmp->chip);
+	if (!(strcmp(pmctmp->name, "pmu1.bar")))
+		assert(pmctmp->chip == 0);
+	if (!(strcmp(pmctmp->name, "pmu1.foo")))
+		assert(pmctmp->chip == -1);
+    }
+}
+
 int runtest(int n)
 {
     init_mock();
@@ -1141,6 +1174,8 @@ int runtest(int n)
 	case 31:
 	    test_cpu_smt();
 	    break;
+	case 32:
+	    test_parse_hv_24x7_dynamic_events();
         default:
             ret = -1;
     }
