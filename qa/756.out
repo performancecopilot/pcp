@@ -126,4 +126,7 @@ PMU : software
 3 allowed events
  ===== test_cpu_max_smt ==== 
  ===== test_cpu_smt ==== 
+ ===== test_parse_hv_24x7_dynamic_events ==== 
+event = pmu1.bar chip value = 0
+event = pmu1.foo chip value = -1
 Unit tests Passed
