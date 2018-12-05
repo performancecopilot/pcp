@@ -1044,7 +1044,7 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 		id = sets[i].inst;
 		if ((instance = dictFetchValue(indom->insts, &id)) == NULL)
 		    continue;
-		if ((labels = pmwebapi_labelsetdup(labels)) == NULL) {
+		if ((labels = pmwebapi_labelsetdup(&sets[i])) == NULL) {
 		    infofmt(msg, "failed to dup %s instance labels: %s",
 			    pmInDomStr_r(indom->indom, idbuf, sizeof(idbuf)),
 			    pmErrStr_r(-ENOMEM, errmsg, sizeof(errmsg)));
