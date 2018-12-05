@@ -3,12 +3,12 @@
  *
  * Copyright (c) 2014-2018 Red Hat.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -67,6 +67,7 @@ printmetricnames(FILE *f, __pmPDU *pdubuf)
 	char	*p = (char *)&pdubuf[8];
 	int	i;
 	__pmPDU	len;
+
 	for (i = 0; i < numnames; i++) {
 	    memmove((void *)&len, (void *)p, sizeof(__pmPDU));
 	    len = ntohl(len);
@@ -265,16 +266,16 @@ typedef struct {
 /*
  *  Global variables
  */
-static int	exit_status = 0;
+static int	exit_status;
 static int	inarchvers = PM_LOG_VERS02;	/* version of input archive */
 static int	outarchvers = PM_LOG_VERS02;	/* version of output archive */
 static int	first_datarec = 1;		/* first record flag */
 static int	pre_startwin = 1;		/* outside time win flag */
-static int	written = 0;			/* num log writes so far */
-int		ml_numpmid = 0;			/* num pmid in ml list */
-int		ml_size = 0;			/* actual size of ml array */
-mlist_t		*ml = NULL;			/* list of pmids with indoms */
-rlist_t		*rl = NULL;			/* list of pmResults */
+static int	written;			/* num log writes so far */
+int		ml_numpmid;			/* num pmid in ml list */
+int		ml_size;			/* actual size of ml array */
+mlist_t		*ml;				/* list of pmids with indoms */
+rlist_t		*rl;				/* list of pmResults */
 
 
 off_t		new_log_offset;			/* new log offset */
@@ -285,13 +286,7 @@ static off_t	flushsize = 100000;		/* bytes before flush */
 
 
 /* archive control stuff */
-char			*outarchname = NULL;	/* name of output archive */
-#if 0 /* not used? */
-static __pmHashCtl	mdesc_hash;	/* pmids that have been written */
-static __pmHashCtl	mindom_hash;	/* indoms that have been written */
-static __pmHashCtl	mlabelset_hash;	/* label sets that have been written */
-static __pmHashCtl	mtext_hash;	/* text that have been written */
-#endif
+char			*outarchname;	/* name of output archive */
 static __pmLogCtl	logctl;		/* output log control */
 static __pmArchCtl	archctl;	/* output archive control */
 inarch_t		*inarch;	/* input archive control(s) */
@@ -299,59 +294,55 @@ int			inarchnum;	/* number of input archives */
 
 int			ilog;		/* index of earliest log */
 
-static reclist_t	*rlog;		/* log records to be written */
-static reclist_t	*rdesc;		/* meta desc records to be written */
-static reclist_t	*rindom;	/* meta indom records to be written */
-static reclist_t	*rtext;		/* meta text records to be written */
+static __pmHashCtl	rdesc;		/* meta desc records to be written */
+static __pmHashCtl	rindom;		/* meta indom records to be written */
+static __pmHashCtl	rindomoneline;	/* indom oneline records to be written */
+static __pmHashCtl	rindomtext;	/* indom text records to be written */
+static __pmHashCtl	rpmidoneline;	/* pmid oneline records to be written */
+static __pmHashCtl	rpmidtext;	/* pmid text records to be written */
 static __pmHashCtl	rlabelset;	/* label sets to be written */
 
 static pmTimeval	curlog;		/* most recent timestamp in log */
 static pmTimeval	current;	/* most recent timestamp overall */
 
 /* time window stuff */
-static struct timeval logstart_tval = {0,0};	/* extracted log start */
-static struct timeval logend_tval = {0,0};	/* extracted log end */
-static struct timeval winstart_tval = {0,0};	/* window start tval*/
-static struct timeval winend_tval = {0,0};	/* window end tval*/
+static struct timeval logstart_tval;	/* extracted log start */
+static struct timeval logend_tval;	/* extracted log end */
+static struct timeval winstart_tval;	/* window start tval*/
+static struct timeval winend_tval;	/* window end tval*/
 
 static pmTimeval 	winstart = {-1,0};	/* window start time */
 static pmTimeval	winend = {-1,0};	/* window end time */
 static pmTimeval	logend = {-1,0};	/* log end time */
 
 /* command line args */
-char	*configfile = NULL;		/* -c arg - name of config file */
-int	farg = 0;			/* -f arg - use first timezone */
-int	old_mark_logic = 0;		/* -m arg - <mark> b/n archives */
+char	*configfile;			/* -c arg - name of config file */
+int	farg;				/* -f arg - use first timezone */
+int	old_mark_logic;			/* -m arg - <mark> b/n archives */
 int	sarg = -1;			/* -s arg - finish after X samples */
-char	*Sarg = NULL;			/* -S arg - window start */
-char	*Targ = NULL;			/* -T arg - window end */
+char	*Sarg;				/* -S arg - window start */
+char	*Targ;				/* -T arg - window end */
 int	varg = -1;			/* -v arg - switch log vol every X */
-int	warg = 0;			/* -w arg - ignore day/month/year */
-int	zarg = 0;			/* -z arg - use archive timezone */
-char	*tz = NULL;			/* -Z arg - use timezone from user */
+int	warg;				/* -w arg - ignore day/month/year */
+int	zarg;				/* -z arg - use archive timezone */
+char	*tz;				/* -Z arg - use timezone from user */
 
 /* cmd line args that could exist, but don't (needed for pmParseTimeWin) */
-char	*Aarg = NULL;			/* -A arg - non-existent */
-char	*Oarg = NULL;			/* -O arg - non-existent */
+char	*Aarg;				/* -A arg - non-existent */
+char	*Oarg;				/* -O arg - non-existent */
 
 /*--- START FUNCTIONS -------------------------------------------------------*/
 
 /*
- * return -1, 0 or 1 as the pmTimeval's compare
+ * return negative (lt), zero (eq) or positive (gt) as the pmTimeval's compare
  * a < b, a == b or a > b
  */
 static int
-tvcmp(pmTimeval a, pmTimeval b)
+tvcmp(pmTimeval *a, pmTimeval *b)
 {
-    if (a.tv_sec < b.tv_sec)
-	return -1;
-    if (a.tv_sec > b.tv_sec)
-	return 1;
-    if (a.tv_usec < b.tv_usec)
-	return -1;
-    if (a.tv_usec > b.tv_usec)
-	return 1;
-    return 0;
+    if (a->tv_sec != b->tv_sec)
+	return a->tv_sec - b->tv_sec;
+    return a->tv_usec - b->tv_usec;
 }
 
 void
@@ -544,6 +535,17 @@ writelabel_data(void)
 
 /* --- Start of reclist functions --- */
 
+static void
+init_reclist_t(reclist_t *rec)
+{
+    memset(rec, 0, sizeof(*rec));
+    rec->desc.pmid = PM_ID_NULL;
+    rec->desc.type = PM_TYPE_NOSUPPORT;
+    rec->desc.indom = PM_IN_NULL;
+    rec->desc.units = nullunits;	/* struct assignment */
+    rec->written = NOT_WRITTEN;
+}
+
 /*
  *  make a reclist_t record
  */
@@ -561,98 +563,62 @@ mk_reclist_t(void)
         totalmalloc += sizeof(reclist_t);
         fprintf(stderr, "mk_reclist_t: allocated %d\n", (int)sizeof(reclist_t));
     }
-    rec->stamp.tv_sec = 0;
-    rec->stamp.tv_usec = 0;
-    rec->pdu = NULL;
-    rec->desc.pmid = PM_ID_NULL;
-    rec->desc.type = PM_TYPE_NOSUPPORT;
-    rec->desc.indom = PM_IN_NULL;
-    rec->desc.sem = 0;
-    rec->desc.units = nullunits;	/* struct assignment */
-    rec->written = NOT_WRITTEN;
-    rec->ptr = NULL;
-    rec->next = NULL;
-    return(rec);
+    init_reclist_t(rec);
+    return rec;
+}
+
+/*
+ *  append to embedded array of reclist_t records in a given reclist
+ */
+static reclist_t *
+add_reclist_t(reclist_t *rec)
+{
+    reclist_t	*rp;
+    size_t	bytes;
+
+    bytes = (rec->nrecs + 1) * sizeof(reclist_t);
+    if (rec->nrecs == 0)
+	bytes += sizeof(reclist_t);
+
+    if ((rp = (reclist_t *)realloc(rec->recs, bytes)) == NULL) {
+	fprintf(stderr, "%s: Error: cannot realloc space for record list.\n",
+		pmGetProgname());
+	abandon_extract();
+    }
+    if (pmDebugOptions.appl0) {
+	totalmalloc += sizeof(reclist_t);
+	fprintf(stderr, "add_reclist_t: allocated %d\n",
+			(int)(rec->nrecs ? sizeof(reclist_t) : 2*sizeof(reclist_t)));
+    }
+    if (!rec->nrecs)
+	rp[rec->nrecs++] = *rec;
+    init_reclist_t(&rp[rec->nrecs]);
+    rec->sorted = 0;
+    return rp;
 }
 
 /*
  * find indom in indomreclist - if it isn't in the list then add it in
  * with no pdu buffer
  */
-static reclist_t *
+static void
 findnadd_indomreclist(int indom)
 {
-    reclist_t	*curr;
+    reclist_t		*curr;
+    __pmHashNode	*hp;
 
-    if (rindom == NULL) {
-	rindom = mk_reclist_t();
-	rindom->desc.pmid = PM_ID_NULL;
-	rindom->desc.type = PM_TYPE_NOSUPPORT;
-	rindom->desc.indom = indom;
-	rindom->desc.sem = 0;
-	rindom->desc.units = nullunits;	/* struct assignment */
-	return(rindom);
+    if ((hp = __pmHashSearch(indom, &rindom)) != NULL) {
+	return;
     }
-    else {
-	curr = rindom;
 
-	/* find matching record or last record */
-	while (curr->next != NULL && curr->desc.indom != indom)
-	    curr = curr->next;
+    curr = mk_reclist_t();
+    curr->desc.indom = indom;
 
-	if (curr->desc.indom == indom) {
-	    /* we have found a matching record - return the pointer */
-	    return(curr);
-	}
-	else {
-	    /* we have not found a matching record - append new record */
-	    curr->next = mk_reclist_t();
-	    curr = curr->next;
-	    curr->desc.pmid = PM_ID_NULL;
-	    curr->desc.type = PM_TYPE_NOSUPPORT;
-	    curr->desc.indom = indom;
-	    curr->desc.sem = 0;
-	    curr->desc.units = nullunits;	/* struct assignment */
-	    return(curr);
-	}
+    if (__pmHashAdd(indom, (void *)curr, &rindom) < 0) {
+	fprintf(stderr, "%s: Error: cannot add to indom hash table.\n",
+		pmGetProgname());
+	abandon_extract();
     }
-}
-
-/*
- *  append a new record to the log record list
- */
-void
-append_logreclist(int indx)
-{
-    inarch_t	*iap;
-    reclist_t	*curr;
-
-    iap = &inarch[indx];
-
-    if (rlog == NULL) {
-	rlog = mk_reclist_t();
-	rlog->pdu = iap->pb[LOG];
-    }
-    else {
-	curr = rlog;
-
-	/* find matching record or last record */
-	while (curr->next != NULL &&
-		curr->pdu[4] != iap->pb[LOG][4]) curr = curr->next;
-
-	if (curr->pdu[4] == iap->pb[LOG][4]) {
-	    /* LOG: discard old record; insert new record */
-	    __pmUnpinPDUBuf(curr->pdu);
-	    curr->pdu = iap->pb[LOG];
-	}
-	else {
-	    curr->next = mk_reclist_t();
-	    curr = curr->next;
-	    curr->pdu = iap->pb[LOG];
-	}
-    } /*else*/
-
-    iap->pb[LOG] = NULL;
 }
 
 /*
@@ -663,45 +629,65 @@ append_logreclist(int indx)
 void
 update_descreclist(int indx)
 {
-    inarch_t	*iap;
-    reclist_t	*curr;
-    pmUnits	pmu;
-    pmUnits	*pmup;
+    inarch_t		*iap;
+    reclist_t		*curr;
+    __pmHashNode	*hp;
+    pmUnits		pmu;
+    pmUnits		*pmup;
+    pmID		pmid;
 
     iap = &inarch[indx];
+    pmid = ntoh_pmID(iap->pb[META][2]);
 
-    if (rdesc == NULL) {
-	/* first time */
-	curr = rdesc = mk_reclist_t();
+    /* check every metric name associated with other PMIDs */
+    if (pmDebugOptions.appl1) {
+	fprintf(stderr, "update_descreclist: looking for ");
+	printmetricnames(stderr, iap->pb[META]);
+	fprintf(stderr, " (pmid:%s)\n", pmIDStr(pmid));
     }
-    else {
-	curr = rdesc;
-	/* find matching record or last record */
-	if (pmDebugOptions.appl1) {
-	    fprintf(stderr, "update_descreclist: looking for ");
-	    printmetricnames(stderr, iap->pb[META]);
-	    fprintf(stderr, " (pmid:%s)\n", pmIDStr(ntoh_pmID(iap->pb[META][2])));
-	}
-	while (curr->next != NULL && curr->desc.pmid != ntoh_pmID(iap->pb[META][2])) {
-	    if (curr->pdu != NULL) {
-		if (matchnames(curr->pdu, iap->pb[META]) != MATCH_NONE) {
-		    fprintf(stderr, "%s: Error: metric ", pmGetProgname());
-		    printmetricnames(stderr, curr->pdu);
-		    fprintf(stderr, ": PMID changed from %s", pmIDStr(curr->desc.pmid));
-		    fprintf(stderr, " to %s!\n", pmIDStr(ntoh_pmID(iap->pb[META][2])));
-		    abandon_extract();
-		}
-		if (pmDebugOptions.appl1) {
-		    fprintf(stderr, "update_descreclist: nomatch ");
-		    printmetricnames(stderr, curr->pdu);
-		    fprintf(stderr, " (pmid:%s)\n", pmIDStr(curr->desc.pmid));
-		}
+    for (hp = __pmHashWalk(&rdesc, PM_HASH_WALK_START);
+	 hp != NULL;
+	 hp = __pmHashWalk(&rdesc, PM_HASH_WALK_NEXT)) {
+	if (hp->key == pmid)
+	    continue;
+	curr = (reclist_t *)hp->data;
+	if (curr->pdu != NULL) {
+	    if (matchnames(curr->pdu, iap->pb[META]) != MATCH_NONE) {
+		fprintf(stderr, "%s: Error: metric ", pmGetProgname());
+		printmetricnames(stderr, curr->pdu);
+		fprintf(stderr, ": PMID changed from %s", pmIDStr(curr->desc.pmid));
+		fprintf(stderr, " to %s!\n", pmIDStr(pmid));
+		abandon_extract();
 	    }
-	    curr = curr->next;
+	    if (pmDebugOptions.appl1) {
+		fprintf(stderr, "update_descreclist: nomatch ");
+		printmetricnames(stderr, curr->pdu);
+		fprintf(stderr, " (pmid:%s)\n", pmIDStr(curr->desc.pmid));
+	    }
 	}
     }
 
-    if (curr->desc.pmid == ntoh_pmID(iap->pb[META][2])) {
+    if ((hp = __pmHashSearch(pmid, &rdesc)) == NULL) {
+	curr = mk_reclist_t();
+
+	/* append new record */
+	curr->pdu = iap->pb[META];
+	curr->desc.pmid = pmid;
+	curr->desc.type = ntohl(iap->pb[META][3]);
+	curr->desc.indom = ntoh_pmInDom(iap->pb[META][4]);
+	curr->desc.sem = ntohl(iap->pb[META][5]);
+	pmup = (pmUnits *)&iap->pb[META][6];
+	curr->desc.units = ntoh_pmUnits(*pmup);
+	findnadd_indomreclist(curr->desc.indom);
+
+	if (__pmHashAdd(pmid, (void *)curr, &rdesc) < 0) {
+	    fprintf(stderr, "%s: Error: cannot add to desc hash table.\n",
+		    pmGetProgname());
+	    abandon_extract();
+	}
+    } else {
+	curr = (reclist_t *)hp->data;
+
 	if (pmDebugOptions.appl1) {
 	    fprintf(stderr, "update_descreclist: pmid match ");
 	    printmetricnames(stderr, curr->pdu);
@@ -772,22 +758,9 @@ update_descreclist(int indx)
 	}
 	/* not adding, so META: discard new record */
 	free(iap->pb[META]);
-	iap->pb[META] = NULL;
     }
-    else {
-	/* append new record */
-	curr->next = mk_reclist_t();
-	curr = curr->next;
-	curr->pdu = iap->pb[META];
-	curr->desc.pmid = ntoh_pmID(iap->pb[META][2]);
-	curr->desc.type = ntohl(iap->pb[META][3]);
-	curr->desc.indom = ntoh_pmInDom(iap->pb[META][4]);
-	curr->desc.sem = ntohl(iap->pb[META][5]);
-	pmup =(pmUnits *)&iap->pb[META][6];
-	curr->desc.units = ntoh_pmUnits(*pmup);
-	curr->ptr = findnadd_indomreclist(curr->desc.indom);
-	iap->pb[META] = NULL;
-    }
+
+    iap->pb[META] = NULL;
 }
 
 /*
@@ -796,69 +769,50 @@ update_descreclist(int indx)
 void
 append_indomreclist(int indx)
 {
-    inarch_t	*iap;
-    reclist_t	*curr;
-    reclist_t	*rec;
-    int		indom;
+    inarch_t		*iap;
+    reclist_t		*curr;
+    reclist_t		*rec;
+    __pmHashNode	*hp;
+    __pmPDU		*pdu;
+    int			indom;
 
     iap = &inarch[indx];
-    indom = ntoh_pmInDom(iap->pb[META][4]);
+    pdu = iap->pb[META];
+    indom = ntoh_pmInDom(pdu[4]);
 
-    if (rindom == NULL) {
-	rindom = mk_reclist_t();
-	rindom->pdu = iap->pb[META];
-	rindom->stamp.tv_sec = ntohl(rindom->pdu[2]);
-	rindom->stamp.tv_usec = ntohl(rindom->pdu[3]);
-	rindom->desc.pmid = PM_ID_NULL;
-	rindom->desc.type = PM_TYPE_NOSUPPORT;
-	rindom->desc.indom = indom;
-	rindom->desc.sem = 0;
-	rindom->desc.units = nullunits;	/* struct assignment */
-    }
-    else {
-	curr = rindom;
+    if ((hp = __pmHashSearch(indom, &rindom)) == NULL) {
+	/* append new record */
+	curr = mk_reclist_t();
+	curr->pdu = pdu;
+	curr->stamp.tv_sec = ntohl(pdu[2]);
+	curr->stamp.tv_usec = ntohl(pdu[3]);
+	curr->desc.indom = indom;
 
-	/* find matching record or last record */
-	while (curr->next != NULL && curr->desc.indom != indom) {
-	    curr = curr->next;
+	if (__pmHashAdd(indom, (void *)curr, &rindom) < 0) {
+	    fprintf(stderr, "%s: Error: cannot add to indom hash table.\n",
+		    pmGetProgname());
+	    abandon_extract();
 	}
+    } else {
+	curr = (reclist_t *)hp->data;
 
-	if (curr->desc.indom == indom) {
-	    if (curr->pdu == NULL) {
-		/* insert new record */
-		curr->pdu = iap->pb[META];
-		curr->stamp.tv_sec = ntohl(curr->pdu[2]);
-		curr->stamp.tv_usec = ntohl(curr->pdu[3]);
-	    }
-	    else {
-		/* do NOT discard old record; insert new record */
-		rec = mk_reclist_t();
-		rec->pdu = iap->pb[META];
-		rec->stamp.tv_sec = ntohl(rec->pdu[2]);
-		rec->stamp.tv_usec = ntohl(rec->pdu[3]);
-		rec->desc.pmid = PM_ID_NULL;
-		rec->desc.type = PM_TYPE_NOSUPPORT;
-		rec->desc.indom = indom;
-		rec->desc.sem = 0;
-		rec->desc.units = nullunits;	/* struct assignment */
-		rec->next = curr->next;
-		curr->next = rec;
-	    }
-	}
-	else {
-	    /* append new record */
-	    curr->next = mk_reclist_t();
-	    curr = curr->next;
+	if (curr->pdu == NULL) {
+	    /* insert new record */
 	    curr->pdu = iap->pb[META];
 	    curr->stamp.tv_sec = ntohl(curr->pdu[2]);
 	    curr->stamp.tv_usec = ntohl(curr->pdu[3]);
-	    curr->desc.pmid = PM_ID_NULL;
-	    curr->desc.type = PM_TYPE_NOSUPPORT;
-	    curr->desc.indom = indom;
-	    curr->desc.sem = 0;
-	    curr->desc.units = nullunits;	/* struct assignment */
 	}
-    } /*else*/
+	else {
+	    /* do NOT discard old record; append new record */
+	    curr->recs = add_reclist_t(curr);
+	    rec = &curr->recs[curr->nrecs];
+	    rec->pdu = pdu;
+	    rec->stamp.tv_sec = ntohl(pdu[2]);
+	    rec->stamp.tv_usec = ntohl(pdu[3]);
+	    rec->desc.indom = indom;
+	    curr->nrecs++;
+	}
+    }
 
     iap->pb[META] = NULL;
 }
@@ -924,6 +878,33 @@ append_labelsetreclist(int i)
 }
 
 /*
+ * Search for text records of the given type associated with the
+ * given identifier.  There are two classes of text records -
+ * PM_TEXT_ONELINE / PM_TEXT_HELP, and two classes of identifier
+ * - PM_TEXT_INDOM / PM_TEXT_PMID; so, four hash tables in all.
+ */
+static reclist_t *
+text_lookup(int type, int ident)
+{
+    __pmHashNode	*hp = NULL;
+
+    if ((type & PM_TEXT_PMID)) {
+	if ((type & PM_TEXT_ONELINE))
+	    hp = __pmHashSearch(ident, &rpmidoneline);
+	else if ((type && PM_TEXT_HELP))
+	    hp = __pmHashSearch(ident, &rpmidtext);
+    } else if ((type & PM_TEXT_INDOM)) {
+	if ((type & PM_TEXT_ONELINE))
+	    hp = __pmHashSearch(ident, &rindomoneline);
+	else if ((type && PM_TEXT_HELP))
+	    hp = __pmHashSearch(ident, &rindomtext);
+    }
+    if (hp == NULL)
+	return NULL;
+    return (reclist_t *)hp->data;
+}
+
+/*
  *  append a new record to the text meta record list if not seen
  *  before, else check the text meta record is the
  *  same as the existing text record for this pmid/indom from this source
@@ -933,8 +914,8 @@ append_textreclist(int i)
 {
     inarch_t	*iap;
     reclist_t	*curr;
+    int		sts = 0;
     int		type;
-    int		type_mask;
     int		ident;
     const char *str1, *str2;
 
@@ -959,21 +940,7 @@ append_textreclist(int i)
      * Find matching record, if any. We want the record with the same
      * target (pmid vs indom and class (one line vs help).
      */
-    type_mask = PM_TEXT_PMID | PM_TEXT_INDOM | PM_TEXT_ONELINE | PM_TEXT_HELP;
-    for (curr = rtext; curr != NULL; curr = curr->next) {
-	/* Same type of record? */
-	if ((curr->desc.type & type_mask) != (type & type_mask))
-	    continue;
-
-	/* Same target? */
-	if ((type & PM_TEXT_PMID)) {
-	    if (ident == curr->desc.pmid)
-		break; /* found it */
-	    continue;
-	}
-	if (ident == curr->desc.indom)
-	    break; /* found it */
-    }
+    curr = text_lookup(type, ident);
 
     /* Did we find an existing record? */
     if (curr != NULL) {
@@ -985,8 +952,8 @@ append_textreclist(int i)
 		printmetricnames(stderr, curr->pdu);
 		fputc('\n', stderr);
 	    }
-	    else { /* (type & PM_TEXT_INDOM) */
-		fprintf(stderr, "indom match %s\n",pmInDomStr(curr->desc.indom));
+	    else if ((type & PM_TEXT_INDOM)) {
+		fprintf(stderr, "indom match %s\n", pmInDomStr(curr->desc.indom));
 	    }
 	}
 	str1 = (const char *)&curr->pdu[4];
@@ -995,14 +962,14 @@ append_textreclist(int i)
 	    fprintf(stderr, "%s: Warning: ", pmGetProgname());
 	    if ((type & PM_TEXT_PMID))
 		fprintf(stderr, "metric PMID %s", pmIDStr(curr->desc.pmid));
-	    else /* (type & PM_TEXT_INDOM) */
+	    else if ((type & PM_TEXT_INDOM))
 		fprintf(stderr, "instance domain %s",pmInDomStr(curr->desc.indom));
 	    if ((type & PM_TEXT_ONELINE)) {
 		fprintf(stderr, " one line text changed from\n");
 		fprintf(stderr, "  \"%s\" to\n", str1);
 		fprintf(stderr, "  \"%s\"!\n", str2);
 	    }
-	    else { /* (type & PM_TEXT_HELP) */
+	    else if ((type & PM_TEXT_HELP)) {
 		/*
 		 * It's not practical to print the entire help text of each as
 		 * part of an error message.
@@ -1020,15 +987,27 @@ append_textreclist(int i)
     else {
 	/* No existing record found. Add a new record to the list. */
 	curr = mk_reclist_t();
-	curr->next = rtext;
-	rtext = curr;
 
 	/* Populate the new record. */
 	curr->desc.type = type;
-	if ((type & PM_TEXT_PMID))
+	if ((type & PM_TEXT_PMID)) {
 	    curr->desc.pmid = ident;
-	else
+	    if ((type & PM_TEXT_ONELINE))
+		sts = __pmHashAdd(ident, (void *)curr, &rpmidoneline);
+	    else if ((type & PM_TEXT_HELP))
+		sts = __pmHashAdd(ident, (void *)curr, &rpmidtext);
+	} else if ((type & PM_TEXT_INDOM)) {
 	    curr->desc.indom = ident;
+	    if ((type & PM_TEXT_ONELINE))
+		sts = __pmHashAdd(ident, (void *)curr, &rindomoneline);
+	    else if ((type & PM_TEXT_HELP))
+		sts = __pmHashAdd(ident, (void *)curr, &rindomtext);
+	}
+	if (sts < 0) {
+	    fprintf(stderr, "%s: Error: cannot add to help text hash table.\n",
+		    pmGetProgname());
+	    abandon_extract();
+	}
     }
 
     /*
@@ -1235,7 +1214,7 @@ write_priorlabelset(int type, int ident, const struct timeval *now)
 	    }
 	}
 	curr_labelset = curr_labelset->next;
-    } /*while()*/
+    }
 
     /* Write the chosen record, if it has not already been written. */
     if (other_labelset != NULL && other_labelset->pdu != NULL &&
@@ -1253,71 +1232,108 @@ write_priorlabelset(int type, int ident, const struct timeval *now)
 static void
 write_textreclist(int type, int ident)
 {
-    reclist_t	*curr;
+    reclist_t		*curr = text_lookup(type, ident);
 
-    /*
-     * Search for text records of the given type associated with the
-     * given identifier. There are two classes of text records:
-     * PM_TEXT_ONELINE and PM_TEXT_HELP. We can therefore abandon the
-     * seach once we've found both.
-     */
-    for (curr = rtext; curr != NULL; curr = curr->next) {
-	/* Is it the same type? */
-	if (curr->desc.type != type)
-	    continue;
-
-	/* Is it the same target? */
-	if ((curr->desc.type & PM_TEXT_PMID)) {
-	    if (curr->desc.pmid != ident)
-		continue;
-	}
-	else { /* (curr->type & PM_TEXT_INDOM) */
-	    if (curr->desc.indom != ident)
-		continue;
-	}
-
-	/* We have a record of the same type with the same target.
-	 * Write it, if it has not already been written.
-	 */
-	if (curr->pdu != NULL && curr->written != WRITTEN) {
-	    curr->written = MARK_FOR_WRITE;
-	    write_rec(curr);
-	}
-
-	/* There will be only one record of each type for each target. */
-	break;
+    if (curr && curr->pdu && curr->written != WRITTEN) {
+	curr->written = MARK_FOR_WRITE;
+	write_rec(curr);
     }
+}
+
+static int
+indom_compare(const void *a, const void *b)
+{
+    reclist_t		*ar = (reclist_t *)a;
+    reclist_t		*br = (reclist_t *)b;
+
+    return tvcmp(&ar->stamp, &br->stamp);
+}
+
+static reclist_t *
+indom_lookup(int indom)
+{
+    __pmHashNode	*hp;
+    reclist_t		*ip;
+
+    if ((hp = __pmHashSearch(indom, &rindom)) == NULL)
+	return NULL;
+    ip = (reclist_t *)hp->data;
+    if (ip->nrecs > 0 && ip->sorted == 0) {
+	qsort(ip->recs, ip->nrecs, sizeof(reclist_t), indom_compare);
+	ip->sorted = 1;
+    }
+    return ip;
+}
+
+/*
+ * binary search through the indom array to find indom with the
+ * closest previous timestamp to the one from the current result.
+ */
+static reclist_t *
+indom_closest(reclist_t *recs, struct timeval *stamp)
+{
+    unsigned int	first, last, count, middle, previous;
+    reclist_t		*indom, *array = &recs->recs[0];
+    pmTimeval		tv = { stamp->tv_sec, stamp->tv_usec };
+    int			sts = -1;
+
+    first = 0;
+    count = last = recs->nrecs - 1;
+    middle = previous = (first + last) / 2;
+
+    while (first <= last) {
+	indom = &array[middle];
+	sts = tvcmp(&indom->stamp, &tv);
+	if (sts == 0)
+	    return indom;
+	previous = middle;
+	if (sts < 0) {	/* right */
+	    if (middle == count)
+		break;
+	    first = middle + 1;
+	}
+	else {		/* left */
+	    if (middle == 0)
+		break;
+	    last = middle - 1;
+	}
+	middle = (first + last) / 2;
+    }
+    indom = &array[middle];
+    if (previous != middle)	/* avoid unnecessary comparison */
+	sts = tvcmp(&indom->stamp, &tv);
+    if (sts < 0)
+	return indom;
+    return NULL;
 }
 
 void
 write_metareclist(pmResult *result, int *needti)
 {
-    int			i;
+    int			n, count;
     reclist_t		*curr_desc;	/* current desc record */
     reclist_t		*curr_indom;	/* current indom record */
-    reclist_t   	*othr_indom;	/* other indom record */
+    reclist_t   	*other_indom;	/* other indom record */
     pmID		pmid;
     pmInDom		indom;
-    struct timeval	*this;		/* ptr to timestamp in result */
+    __pmHashNode	*hp;
+    struct timeval	*stamp;		/* ptr to timestamp in result */
 
-    this = &result->timestamp;
+    stamp = &result->timestamp;
 
     /* if pmid in result matches a pmid in desc then write desc */
-    for (i=0; i<result->numpmid; i++) {
-	pmid = result->vset[i]->pmid;
+    for (n = 0; n < result->numpmid; n++) {
+	pmid = result->vset[n]->pmid;
 	indom = PM_IN_NULL;
+	count = 0;
 	curr_indom = NULL;
 
-	curr_desc = rdesc;
-	while (curr_desc != NULL && curr_desc->desc.pmid != pmid)
-	    curr_desc = curr_desc->next;
-
-	if (curr_desc == NULL) {
+	if ((hp = __pmHashSearch(pmid, &rdesc)) == NULL) {
 	    /* descriptor has not been found - this is bad */
 	    fprintf(stderr, "%s: Error: meta data (TYPE_DESC) for pmid %s has not been found.\n", pmGetProgname(), pmIDStr(pmid));
 	    abandon_extract();
-	}
-	else {
+	} else {
+	    curr_desc = (reclist_t *)hp->data;
 	    /* descriptor has been found */
 	    if (curr_desc->written == WRITTEN) {
 		/*
@@ -1325,7 +1341,6 @@ write_metareclist(pmResult *result, int *needti)
 		 * but still need to check indom and help text.
 		 */
 		indom = curr_desc->desc.indom;
-		curr_indom = curr_desc->ptr;
 	    }
 	    else if (curr_desc->pdu == NULL) {
 		/*
@@ -1344,21 +1359,20 @@ write_metareclist(pmResult *result, int *needti)
 		curr_desc->written = MARK_FOR_WRITE;
 		write_rec(curr_desc);
 		indom = curr_desc->desc.indom;
-		curr_indom = curr_desc->ptr;
 	    }
 	}
 
 	/* Write out the label set records associated with this pmid. */
-	write_priorlabelset(PM_LABEL_ITEM, pmid, this);
-	write_priorlabelset(PM_LABEL_DOMAIN, pmid, this);
-	write_priorlabelset(PM_LABEL_CLUSTER, pmid, this);
+	write_priorlabelset(PM_LABEL_ITEM, pmid, stamp);
+	write_priorlabelset(PM_LABEL_DOMAIN, pmid, stamp);
+	write_priorlabelset(PM_LABEL_CLUSTER, pmid, stamp);
 
 	/*
 	 * Write out any help text records associated with this pmid.
 	 */
 	write_textreclist(PM_TEXT_PMID | PM_TEXT_ONELINE, pmid);
 	write_textreclist(PM_TEXT_PMID | PM_TEXT_HELP, pmid);
-	
+
 	/*
 	 * descriptor has been found and written,
 	 * now go and find & write the indom
@@ -1370,64 +1384,45 @@ write_metareclist(pmResult *result, int *needti)
 	     *	- we can safely ignore all indoms after the current timestamp
 	     *	- we want the latest indom at, or before the current timestamp
 	     */
-	    othr_indom = NULL;
-	    while (curr_indom != NULL && curr_indom->desc.indom == indom) {
-		if (curr_indom->stamp.tv_sec < this->tv_sec ||
-		         (curr_indom->stamp.tv_sec == this->tv_sec &&
-		          curr_indom->stamp.tv_usec <= this->tv_usec))
-		{
-		    /*
-		     * indom is in list, indom has pdu
-		     * and timestamp in pdu suits us
-		     */
-		    if (othr_indom == NULL) {
-			othr_indom = curr_indom;
-		    }
-		    else if (othr_indom->stamp.tv_sec < curr_indom->stamp.tv_sec ||
-			     (othr_indom->stamp.tv_sec == curr_indom->stamp.tv_sec &&
-			      othr_indom->stamp.tv_usec <= curr_indom->stamp.tv_usec))
-		    {
-			/*
-			 * we already have a perfectly good indom,
-			 * but curr_indom has a better timestamp
-			 */
-			othr_indom = curr_indom;
-		    }
-		}
-		curr_indom = curr_indom->next;
-	    } /*while()*/
+	    curr_indom = indom_lookup(indom);
+	    assert(curr_indom->desc.indom == indom);
 
-	    if (othr_indom != NULL && othr_indom->written != WRITTEN) {
+	    if ((count = curr_indom->nrecs) == 0)
+		other_indom = curr_indom;
+	    else {
+		assert(curr_indom->sorted == 1);
+		other_indom = indom_closest(curr_indom, stamp);
+	    }
+
+	    if (other_indom != NULL && other_indom->written != WRITTEN) {
 		/*
 		 * There may be indoms which are referenced in desc records
 		 * which have no pdus. This is because the corresponding indom
 		 * record does not exist. There's no record to write, but we
-		 * still need to output the associated labels ahd help text.
+		 * still need to output the associated labels and help text.
 		 */
-		if (othr_indom->pdu != NULL) { 
-		    othr_indom->written = MARK_FOR_WRITE;
-		    othr_indom->pdu[2] = htonl(this->tv_sec);
-		    othr_indom->pdu[3] = htonl(this->tv_usec);
+		if (other_indom->pdu != NULL) { 
+		    other_indom->written = MARK_FOR_WRITE;
+		    other_indom->pdu[2] = htonl(stamp->tv_sec);
+		    other_indom->pdu[3] = htonl(stamp->tv_usec);
 
 		    /* make sure to set needti, when writing out the indom */
 		    *needti = 1;
-		    write_rec(othr_indom);
+		    write_rec(other_indom);
 		}
 
-		/* Write out the label set records associated with this indom. */
-		write_priorlabelset(PM_LABEL_INDOM, othr_indom->desc.indom, this);
-		write_priorlabelset(PM_LABEL_INSTANCES, othr_indom->desc.indom, this);
-		/*
-		 * Write out any help text records associated with this
-		 * indom.
-		 */
-		write_textreclist(PM_TEXT_INDOM | PM_TEXT_ONELINE,
-				  othr_indom->desc.indom);
-		write_textreclist(PM_TEXT_INDOM | PM_TEXT_HELP,
-				  othr_indom->desc.indom);
+		assert(other_indom->desc.indom == indom);
+
+		/* Write out the label set records associated with this indom */
+		write_priorlabelset(PM_LABEL_INDOM, indom, stamp);
+		write_priorlabelset(PM_LABEL_INSTANCES, indom, stamp);
+
+		/* Write out any help text records associated with this indom */
+		write_textreclist(PM_TEXT_INDOM | PM_TEXT_ONELINE, indom);
+		write_textreclist(PM_TEXT_INDOM | PM_TEXT_HELP, indom);
 	    }
 	}
-    } /*for(indx)*/
+    }
 }
 
 /* --- End of reclist functions --- */
@@ -1562,10 +1557,6 @@ againmeta:
 	    }
 
 	    if (want) {
-#if 0 /* not used? */
-		if (__pmHashSearch((int)pmid, &mdesc_hash) == NULL)
-		    __pmHashAdd((int)pmid, NULL, &mdesc_hash);
-#endif
 		/*
 		 * update the desc list (add first time, check on subsequent
 		 * sightings of desc for this pmid from this source
@@ -1597,12 +1588,6 @@ againmeta:
 	    }
 
 	    if (want) {
-#if 0 /* not used? */
-	        if (__pmHashSearch((int)indom, &mindom_hash) == NULL) {
-		    /* meta record has never been seen ... add it to the list */
-		    __pmHashAdd((int)indom, NULL, &mindom_hash);
-	        }
-#endif
 		/*
 		 * add to indom list 
 		 * append_indomreclist() sets pb[META] to NULL
@@ -1902,7 +1887,7 @@ againlog:
 	 * start time, then we may want it
 	 *	(irrespective of the current window end time)
 	 */
-	if (tvcmp(curtime, winstart) < 0) {
+	if (tvcmp(&curtime, &winstart) < 0) {
 	    /*
 	     * log is not in time window - discard result and get next record
 	     */
@@ -2097,7 +2082,7 @@ checkwinend(pmTimeval now)
     inarch_t	*iap;
     __pmPDU	*markpdu;	/* mark b/n time windows */
 
-    if (winend.tv_sec < 0 || tvcmp(now, winend) <= 0)
+    if (winend.tv_sec < 0 || tvcmp(&now, &winend) <= 0)
 	return(0);
 
     /*
@@ -2118,7 +2103,7 @@ checkwinend(pmTimeval now)
      * if start of next window is later than max termination
      * then bail out here
      */
-    if (tvcmp(winstart, logend) > 0)
+    if (tvcmp(&winstart, &logend) > 0)
 	    return(-1);
 
     ilog = -1;
@@ -2127,7 +2112,7 @@ checkwinend(pmTimeval now)
 	if (iap->_Nresult != NULL) {
 	    tmptime.tv_sec = iap->_Nresult->timestamp.tv_sec;
 	    tmptime.tv_usec = iap->_Nresult->timestamp.tv_usec;
-	    if (tvcmp(tmptime, winstart) < 0) {
+	    if (tvcmp(&tmptime, &winstart) < 0) {
 		/* free _result and _Nresult */
 		if (iap->_result != iap->_Nresult) {
 		    free(iap->_Nresult);
@@ -2143,7 +2128,7 @@ checkwinend(pmTimeval now)
 	if (iap->pb[LOG] != NULL) {
 	    tmptime.tv_sec = ntohl(iap->pb[LOG][3]);
 	    tmptime.tv_usec = ntohl(iap->pb[LOG][4]);
-	    if (tvcmp(tmptime, winstart) < 0) {
+	    if (tvcmp(&tmptime, &winstart) < 0) {
 		/*
 		 * free PDU buffer ... it is probably a mark
 		 * and has not been pinned
@@ -2184,7 +2169,7 @@ writerlist(rlist_t **rlready, pmTimeval mintime)
 	restime.tv_sec = (*rlready)->res->timestamp.tv_sec;
 	restime.tv_usec = (*rlready)->res->timestamp.tv_usec;
 
-        if (tvcmp(restime, mintime) > 0) {
+        if (tvcmp(&restime, &mintime) > 0) {
 #if 0
 fprintf(stderr, "writelist: restime %d.%06d mintime %d.%06d ", restime.tv_sec, restime.tv_usec, mintime.tv_sec, mintime.tv_usec);
 fprintf(stderr, " break!\n");
@@ -2270,7 +2255,7 @@ fprintf(stderr, " break!\n");
 	 * make sure that we do not write out the temporal index more
 	 * than once for the same timestamp
 	 */
-	if (needti && tvcmp(titime, restime) >= 0)
+	if (needti && tvcmp(&titime, &restime) >= 0)
 	    needti = 0;
 
 	/* flush/update */
@@ -2311,8 +2296,7 @@ fprintf(stderr, " break!\n");
 	elm->res = NULL;
 	elm->next = NULL;
 	free(elm);
-
-    } /*while(*rlready)*/
+    }
 }
 
 
@@ -2404,22 +2388,24 @@ main(int argc, char **argv)
 
     char	*msg;
 
-    pmTimeval 	now = {0,0};	/* the current time */
+    pmTimeval 	now = {0,0};		/* the current time */
     pmTimeval 	mintime = {0,0};
     pmTimeval 	tmptime = {0,0};
 
-    pmTimeval		tstamp;		/* temporary timestamp */
-    inarch_t		*iap;		/* ptr to archive control */
-    rlist_t		*rlready;	/* list of results ready for writing */
+    pmTimeval	tstamp;			/* temporary timestamp */
+    inarch_t	*iap;			/* ptr to archive control */
+    rlist_t	*rlready = NULL;	/* results ready for writing */
+
     struct timeval	unused;
 
 
-    rlog = NULL;	/* list of log records to write */
-    rdesc = NULL;	/* list of meta desc records to write */
-    rindom = NULL;	/* list of meta indom records to write */
-    rtext = NULL;	/* list of meta text records to write */
-    rlready = NULL;
-    __pmHashInit(&rlabelset);	/* list of meta label set records to write */
+    __pmHashInit(&rdesc);	/* hash of meta desc records to write */
+    __pmHashInit(&rindom);	/* hash of meta indom records to write */
+    __pmHashInit(&rindomoneline);	/* indom oneline records to write */
+    __pmHashInit(&rindomtext);	/* indom help text records to write */
+    __pmHashInit(&rpmidoneline);	/* pmid oneline records to write */
+    __pmHashInit(&rpmidtext);	/* pmid help text records to write */
+    __pmHashInit(&rlabelset);	/* hash of meta label set records to write */
 
     /*
      * These come from the PMCD PMDA and pmlogger's epilogue/prologue
@@ -2665,7 +2651,7 @@ main(int argc, char **argv)
 
 		if (ilog == indx) {
 		    tmptime = curlog;
-		    if (mintime.tv_sec <= 0 || tvcmp(mintime, tmptime) > 0)
+		    if (mintime.tv_sec <= 0 || tvcmp(&mintime, &tmptime) > 0)
 		        mintime = tmptime;
 		}
 	    }
@@ -2676,7 +2662,7 @@ main(int argc, char **argv)
 
 		if (ilog == indx) {
 		    tmptime = curlog;
-		    if (mintime.tv_sec <= 0 || tvcmp(mintime, tmptime) > 0)
+		    if (mintime.tv_sec <= 0 || tvcmp(&mintime, &tmptime) > 0)
 		        mintime = tmptime;
 		}
 	    }
@@ -2694,7 +2680,7 @@ main(int argc, char **argv)
 	 * note - mark (after last archive) will be created, but this
 	 * break, will prevent it from being written out
 	 */
-	if (tvcmp(now, logend) > 0)
+	if (tvcmp(&now, &logend) > 0)
 	    break;
 
 	sts = checkwinend(now);

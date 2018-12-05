@@ -1,26 +1,22 @@
 /*
  * Copyright (c) 2018 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  * common data structures for pmlogextract
  */
 
-#ifndef _LOGGER_H
-#define _LOGGER_H
+#ifndef PCP_LOGGER_H
+#define PCP_LOGGER_H
 
 #include "pmapi.h"
 #include "libpcp.h"
@@ -28,13 +24,15 @@
 /*
  *  list of pdu's to write out at start of time window
  */
-typedef struct _reclist_t {
+typedef struct reclist {
     __pmPDU		*pdu;		/* PDU ptr */
-    pmTimeval		stamp;		/* for indom records */
+    pmTimeval		stamp;		/* for indom and label records */
     pmDesc		desc;
-    int			written;	/* written status */
-    struct _reclist_t	*ptr;		/* ptr to record in another reclist */
-    struct _reclist_t	*next;		/* ptr to next reclist_t record */
+    unsigned int	written : 16;	/* written PDU status */
+    unsigned int	sorted : 16;	/* sorted indom status */
+    unsigned int	nrecs;		/* indom array record size */
+    struct reclist	*recs;		/* time-sorted array of records */
+    struct reclist	*next;		/* ptr to next reclist_t record */
 } reclist_t;
 
 /*
@@ -122,4 +120,4 @@ extern pmResult *searchmlist(pmResult *);
 extern void abandon_extract(void);
 
 
-#endif /* _LOGGER_H */
+#endif /* PCP_LOGGER_H */
