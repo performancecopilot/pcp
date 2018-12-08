@@ -1,0 +1,12 @@
+# N/A packages by distro
+#
+# >= 3 fields per line (separated by while space)
+# Field 1	- Distro name, as reported by whatami
+# Field 2	- Distro version, as reported by whatami
+# Field 3 .. N	- packages that are not available
+#
+# grep patterns allowed in Fields 1 and 2.
+#
+# Comments prefixed by #
+#
+Debian	9.5	docker.io python3-bpfcc libsoqt5-dev python-elasticsearch python-openpyxl python-psycopg2

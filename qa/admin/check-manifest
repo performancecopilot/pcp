@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Validation script for package.manifest
+# Validation script for packages-other/manifest
 #
 # DO NOT RUN DIRECTLY ... this script is exec'd from check-vm -c
 #
@@ -79,14 +79,23 @@ _cleanup()
 {
     if $very_verbose
     then
-	mv $tmp.manifest /tmp/package.manifest
-	echo "Saving manifest to /tmp/package.manifest"
+	echo "Temporary files preserved: `echo $tmp.*`"
+    else
+	rm -f $tmp.*
     fi
-    rm -f $tmp.*
 }
 
 sts=1
 trap "_cleanup; exit \$sts" 0 1 2 3 15
+
+if $very_verbose
+then
+    # clean up stuff left over from any previous runs
+    #
+    mv $tmp.manifest $tmp-manifest
+    rm -f $tmp.*
+    mv $tmp-manifest $tmp.manifest
+fi
 
 # $pkgtool tells us what family of packaging tools we need
 # to use to map a pathname to an installed package name
@@ -168,14 +177,18 @@ _path_to_pkg()
 		then
 		    if [ ! -f $tmp.perldoc ]
 		    then
-			perldoc perllocal 2>&1 | sed -e 's/.//g' >$tmp.perldoc
+			TERM=dumb perldoc perllocal 2>&1 >$tmp.perldoc
 		    fi
 		    if grep " $module\$" $tmp.perldoc >/dev/null
 		    then
 			# found it!
 			echo "$info"
+			$very_verbose && echo >&2 "found cpan pkg for $info"
 			return
 		    fi
+		elif [ ! -f $tmp.perldoc.warn ]
+		then
+		    echo >&2 "Warning: perldoc not installed, cannot check for Perl modules installed from cpan" | tee $tmp.perldoc.warn
 		fi
 		;;
 	    "pip("*")"|"pip3("*")")
@@ -364,6 +377,7 @@ p
 	    touch $tmp.abort
 	    ;;
     esac
+    $very_verbose && echo >&2 "no pkg for $info"
 }
 
 # Deal with some known metapackage equivalences.
@@ -547,7 +561,7 @@ _hunt()
 		echo "$pkg"
 		exit
 	    fi
-	    $very_verbose && echo "file=\"$file\" from pkg=\"$pkg\""
+	    $very_verbose && echo >&2 "file=\"$file\" from pkg=\"$pkg\""
 	    if [ -z "$pkg" ]
 	    then
 		if echo " $pkginfo " | grep ' base ' >/dev/null
@@ -558,7 +572,7 @@ _hunt()
 		    # then that is OK if it is not installed by the package
 		    # manager
 		    #
-		    $verbose && echo "$line: OK target $file assumed to be from base system install"
+		    $verbose && echo >&2 "$line: OK target $file assumed to be from base system install"
 		    :
 		else
 		    echo "$line: target \"$file\" not installed from any package" >>$tmp.msg
@@ -569,7 +583,7 @@ _hunt()
 		do
 		    if _match_pkg "$pkg" "$spec"
 		    then
-			$verbose && echo "$line: OK target $file found in $spec"
+			$verbose && echo >&2 "$line: OK target $file found in $spec"
 			touch $tmp.ok
 		    else
 			echo "$line: target \"$file\" in package $pkg not $spec" >>$tmp.msg
@@ -660,7 +674,7 @@ do
     # unknown ones warrant a warning
     #
     [ "$pkginfo" = "?" ] && echo "$line: Warning: package for \"$target\" is not known"
-    $very_verbose && echo target=\"$target\" extra=\"$extra\" pkginfo=\"$pkginfo\"
+    $very_verbose && echo >&2 target=\"$target\" extra=\"$extra\" pkginfo=\"$pkginfo\"
 
     case "$target"
     in
@@ -675,7 +689,7 @@ do
 	    then
 		echo "$line: Perl source \"$target\" not found"
 	    else
-		$very_verbose && echo "$line: Perl $target -> $_target"
+		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
 		target="$_target"
 		_hunt
 	    fi
@@ -694,7 +708,7 @@ do
 	    then
 		echo "$line: Perl source \"$target\" not found"
 	    else
-		$very_verbose && echo "$line: Perl $target -> $_target"
+		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
 		target="$_target"
 		_hunt
 	    fi
@@ -711,10 +725,10 @@ do
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
 	    then
-		$very_verbose && echo "... looking for $_module/$_perl.* from candidates: `cat $tmp.debug`"
+		$very_verbose && echo >&2 "... looking for $_module/$_perl.* from candidates: `cat $tmp.debug`"
 		echo "$line: Perl source \"$target\" not found"
 	    else
-		$very_verbose && echo "$line: Perl $target -> $_target"
+		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
 		target="$_target"
 		_hunt
 	    fi
@@ -749,7 +763,7 @@ then
     cat $tmp.tmp \
     | while read lineno
     do
-	eval `sed <$home/package.manifest -n -e "$lineno{"'
+	eval `sed <$home/other-packages/manifest -n -e "$lineno{"'
 s/^!//
 s/^[a-z][a-z]*[?][ 	][ 	]*//
 s/[ 	][ 	]*/ /g
@@ -758,7 +772,7 @@ s/ .*/"/
 p
 q
 }'`
-	eval `sed <$home/package.manifest -n -e "$lineno{"'
+	eval `sed <$home/other-packages/manifest -n -e "$lineno{"'
 s/^!//
 s/^[a-z][a-z]*[?][ 	][ 	]*//
 s/[ 	][ 	]*/ /g
@@ -769,7 +783,7 @@ s/$/"/
 p
 q
 }'`
-	$very_verbose && echo "line=\"$lineno\" _target=\"$_target\" _extra=\"$_extra\""
+	$very_verbose && echo >&2 "line=\"$lineno\" _target=\"$_target\" _extra=\"$_extra\""
 	# if package list is N/A, use the target as a best guess
 	# alias
 	#
@@ -781,16 +795,16 @@ q
 		    -e 's/^  *//' \
 		    -e 's/  *$//'`
 	[ "$_extra" = "N/A" ] && _extra="$_target"
-	$very_verbose && echo "after cull _extra=\"$_extra\""
+	$very_verbose && echo >&2 "after cull _extra=\"$_extra\""
 	for pkg in $_extra
 	do
 	    if $verbose
 	    then
-		echo "$lineno: check N/A for \"$pkg\""
+		echo >&2 "$lineno: check N/A for \"$pkg\""
 	    else
 		# may be slow, so emit dots for progress ...
 		#
-		$PCP_ECHO_PROG $PCP_ECHO_N ."$PCP_ECHO_C"
+		$PCP_ECHO_PROG >&2 $PCP_ECHO_N ."$PCP_ECHO_C"
 		touch $tmp.dots
 	    fi
 	    rm -f $tmp.avail
@@ -800,7 +814,7 @@ q
 		    if dpkg-query -l "$pkg" >$tmp.out 2>&1
 		    then
 			touch $tmp.avail
-			$verbose && cat $tmp.out
+			$verbose && cat >&2 $tmp.out
 		    fi
 		    ;;
 
@@ -813,7 +827,7 @@ q
 		    if yum search "$pkg" 2>&1 | grep "^$prefix" >$tmp.out 2>&1
 		    then
 			touch $tmp.avail
-			$verbose && cat $tmp.out
+			$verbose && cat >&2 $tmp.out
 		    fi
 		    ;;
 
@@ -826,7 +840,7 @@ q
 		    if dnf search "$pkg" 2>&1 | grep "^$prefix" >$tmp.out 2>&1
 		    then
 			touch $tmp.avail
-			$verbose && cat $tmp.out
+			$verbose && cat >&2 $tmp.out
 		    fi
 		    ;;
 
@@ -837,7 +851,7 @@ q
 		    if zypper search -t package "$pkg" | grep "| $prefix" >$tmp.out 2>&1
 		    then
 			touch $tmp.avail
-			$verbose && cat $tmp.out
+			$verbose && cat >&2 $tmp.out
 		    fi
 		    ;;
 
@@ -846,7 +860,7 @@ q
 		    if grep "^$pkg-" $tmp.allpkgs >$tmp.out 2>&1
 		    then
 			touch $tmp.avail
-			$verbose && cat $tmp.out
+			$verbose && cat >&2 $tmp.out
 		    fi
 		    ;;
 
@@ -859,7 +873,7 @@ q
 		    if pkg search "$pkg" 2>&1 | grep "^$prefix" >$tmp.out 2>&1
 		    then
 			touch $tmp.avail
-			$verbose && cat $tmp.out
+			$verbose && cat >&2 $tmp.out
 		    fi
 		    ;;
 
@@ -875,7 +889,7 @@ q
 		    if pkg_info "$pkg" 2>&1 | grep '^Information ' >$tmp.out
 		    then
 			touch $tmp.avail
-			$verbose && cat $tmp.out
+			$verbose && cat >&2 $tmp.out
 		    fi
 		    ;;
 
@@ -887,7 +901,7 @@ q
 		    if equery meta "$pkg" 2>&1 | grep '^Location:' >$tmp.out
 		    then
 			touch $tmp.avail
-			$verbose && cat $tmp.out
+			$verbose && cat >&2 $tmp.out
 		    fi
 		    ;;
 
@@ -899,7 +913,7 @@ q
 		    if brew info "$pkg" 2>&1 | grep "^$pkg:" >$tmp.out
 		    then
 			touch $tmp.avail
-			$verbose && cat $tmp.out
+			$verbose && cat >&2 $tmp.out
 		    fi
 		    ;;
 
@@ -921,7 +935,7 @@ q
 		    echo
 		    rm -f $tmp.dots
 		fi
-		$verbose && cat $tmp.out
+		$verbose && cat >&2 $tmp.out
 		echo "$lineno: looks like package $pkg may be available"
 	    fi
 	done

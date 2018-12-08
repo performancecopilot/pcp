@@ -98,12 +98,27 @@ _getnetworkaddr()
 _usage()
 {
     echo "Usage: $0 [options]"
-    echo "  -f  force, don't try to guess the version of Python, Qt, ..."
-    echo "  -p  generate list of likely packages that should be"
-    echo "      installed with dnf or apt-get or yum or ..."
-    echo "  -v  verbose (debugging)"
+    echo "  -f           force, don't try to guess the version of Python, Qt, ..."
+    echo "  -m manifest  use alternative manifest file"
+    echo "  -o otherdir  use alternative other-packages directory"
+    echo "  -p           generate list of likely packages that should be"
+    echo "               installed with dnf or apt-get or yum or ..."
+    echo "  -s skip      use alternative skip.<hostname> basename"
+    echo "  -u unavail   use alternative unavailable file"
+    echo "  -v           verbose (debugging)"
     exit 1
 }
+
+# Need directory where check-vm script is located so we can find
+# the default other-packages/manifest and other-packages/unavailable
+# files and the whatami script
+#
+home=`echo $0 | sed -e 's/\/*check-vm$//'`
+if [ -z "$home" -o ! -d "$home" ]
+then
+    echo "Botch: \$0=$0 -> bad \$home=$home ?"
+    exit 1
+fi
 
 force=false
 pkglist=false
@@ -111,7 +126,11 @@ verbose=false
 very_verbose=false
 check_manifest=false
 check_mainfest_args=''
-while getopts 'cfpv?' p
+otherdir=other-packages					# default, see -o
+manifest="$home"/other-packages/manifest		# default, see -m
+skip="$home"/other-packages/skip			# default, see -s
+unavailable="$home"/other-packages/unavailable		# default, see -u
+while getopts 'cfm:o:ps:u:v?' p
 do
     case "$p"
     in
@@ -125,18 +144,33 @@ do
 		force=true
 		;;
 
+	m)	# alternate manifest
+		manifest="$OPTARG"
+		;;
+
+	o)	# alternate other-packages directory
+		otherdir="$OPTARG"
+		;;
+
 	p)	# just list most likely package for yum, dnf, apt-get, ...
 		pkglist=true
+		;;
+
+	s)	# alternate skip basename
+		skip="$OPTARG"
+		;;
+
+	u)	# alternate unavailable
+		unavailable="$OPTARG"
 		;;
 
 	v)	if $verbose
 		then
 		    very_verbose=true
-		    check_manifest_args="-vv"
 		else
 		    verbose=true
-		    check_manifest_args="-v"
 		fi
+		check_manifest_args="$check_manifest_args -v"
 		;;
 
 	?)	_usage
@@ -146,7 +180,7 @@ done
 shift `expr $OPTIND - 1`
 [ $# -eq 0 ] || _usage
 
-if $verbose
+if $very_verbose
 then
     tmp=tmp
     rm -f $tmp.*
@@ -261,33 +295,30 @@ pkgtools="dpkg rpm urpmi emerge pkgin pkg_add F_pkg S_pkg slackpkg pacman brew"
 #
 distros="debian redhat centos suse arch mandriva"
 
-# Need directory where check-vm script is located so we can find
-# the package.manifest file and the whatami script
-#
-dir=`echo $0 | sed -e 's/\/*check-vm$//'`
-if [ -z "$dir" -o ! -d "$dir" ]
+if [ ! -f "$manifest" ]
 then
-    echo "Botch: \$0=$0 -> bad \$dir=$dir ?"
+    echo "Botch: cannot find manifest: $manifest"
     exit 1
 fi
-if [ ! -f "$dir"/package.manifest ]
+if [ ! -f "$unavailable" ]
 then
-    echo "Botch: cannot find $dir/package.manifest"
+    echo "Botch: cannot find unavailable: $unavailable"
     exit 1
 fi
-if [ ! -f "$dir"/whatami ]
+if [ ! -f "$home"/whatami ]
 then
-    echo "Botch: cannot find $dir/whatami"
+    echo "Botch: cannot find whatami :$home/whatami"
     exit 1
 fi
+$home/whatami >$tmp.whatami
 
 if $check_manifest
 then
     # append original line numbers
     #
-    $PCP_AWK_PROG '{ print $0 " :" NR }' <$dir/package.manifest >$tmp.manifest
+    $PCP_AWK_PROG '{ print $0 " :" NR }' <$manifest >$tmp.manifest
 else
-    cat <$dir/package.manifest >$tmp.manifest
+    cat <$manifest >$tmp.manifest
 fi
 
 if which python >/dev/null 2>&1
@@ -441,9 +472,6 @@ in
     bozo-laptop)
 	na='python3-bcc'
 	;;
-    bozo-vm)
-	na='docker.io python3-bpfcc libsoqt5-dev python-elasticsearch python-openpyxl python-psycopg2'
-	;;
     vm00)
 	na='libuv1-dev python3-libvirt python3-prometheus-client python3-elasticsearch python3-openpyxl python3-bpfcc libsoqt5-dev python-prometheus-client python-elasticsearch python-openpyxl python-psycopg2'
 	;;
@@ -501,9 +529,6 @@ in
     vm20)
 	na='sysv-rc-conf'
 	;;
-    vm21)
-	na='python3-bpfcc docker.io libsoqt5-dev'
-	;;
     vm22)
 	na=''
 	;;
@@ -558,17 +583,112 @@ in
 	na='libibumad py36-jsonpointer libvirt-python3 realpath py3-prometheus-client py3-openpyxl py3-bcc qtchooser qtbase qtsvg valgrind'
 	;;
 esac
+
+# the "unavailable" file records packages that are not available for a
+# particular distribution and version ... 
+#
+if [ -z "$na" ]
+then
+    rm -f $tmp.na
+    $PCP_AWK_PROG '{ for (i = 4; i <= NF; i++) printf $i " "; print "" }' <$tmp.whatami \
+    | sed \
+	-e 's/ \[.*//' \
+	-e 's/ ([^)]*)//' \
+	-e 's/RHEL Server/RHEL/' \
+	-e 's/Arch Linux/ArchLinux/' \
+	-e '/^CentOS/{
+s/CentOS Linux/CentOS/
+s/CentOS\([0-9]\)/CentOS \1/
+}' \
+	-e '/FreeBSD/s/-RELEASE//' \
+	-e '/SLES[0-9][0-9]* SP/s/ SP/-SP/' \
+	-e '/OpenIndiana/s/Hipster //' \
+	-e 's/^/_distro=/' \
+	-e 's/ / _version="/' \
+	-e 's/$/"/' \
+    | tr ' ' '\012' >$tmp.eval
+    eval `cat $tmp.eval`
+    sed <$unavailable \
+	-e 's/#.*//' \
+	-e '/^[ 	]*$/d' \
+    | while read distro_pat version_pat packages
+    do
+	if echo "$_distro" | grep "$distro_pat" >/dev/null
+	then
+	    # if $_version missing (e.g. ArchLinux) then match,
+	    # else check versions
+	    #
+	    _match=false
+	    if [ -z "$_version" ]
+	    then
+		_match=true
+	    else
+		if echo "$_version" | grep "$version_pat" >/dev/null
+		then
+		    _match=true
+		fi
+	    fi
+	    if $_match
+	    then
+		echo "$packages" >>$tmp.na
+	    fi
+	fi
+    done
+    if [ -s $tmp.na ]
+    then
+	if [ -z "$na" ]
+	then
+	    na="`cat $tmp.na`"
+	else
+	    na="$na `cat $tmp.na`"
+	fi
+    fi
+fi
+
 if [ -n "$na" ]
 then
     for f in $na
     do
-# s;[^ 	]*\('"$f"'\);\1;
-	sed <$tmp.manifest >$tmp.tmp -e "/$f/{"'
-s;\[[^]]*];[N/A on host '"`hostname -s`"'];
+	if [ -z "$_version" ]
+	then
+	    sed <$tmp.manifest >$tmp.tmp -e "/$f/{"'
+s;\[[^]]*];[N/A on '"$_distro"'];
 }'
+	else
+	    sed <$tmp.manifest >$tmp.tmp -e "/$f/{"'
+s;\[[^]]*];[N/A on '"$_distro"' '"$_version"'];
+}'
+	fi
 	mv $tmp.tmp $tmp.manifest
-	$very_verbose && echo "n/a for $f"
+	$very_verbose && echo "unavailable: $f"
     done
+fi
+
+# the optional "skip.<hostname>" file records packages that may be available
+# but for various reasons should be be installed on a particular host ...
+# examples are docker.io that does not get along with qemu or unbound that
+# does not co-exist with bind9 or libfooqt.so that is really for the wrong
+# version of Qt
+#
+na=''
+_hostname=`hostname -s`
+if [ -f $skip.$_hostname ]
+then
+    $verbose && echo "Processing $skip.`hostname -s` ..."
+    na=`sed <$skip.$_hostname \
+	    -e 's/#.*//' \
+	    -e '/^[ 	]*$/d'`
+    if [ -n "$na" ]
+    then
+	for f in $na
+	do
+	    sed <$tmp.manifest >$tmp.tmp -e "/$f/{"'
+s;\[[^]]*];[N/A on host '"$_hostname"'];
+}'
+	    mv $tmp.tmp $tmp.manifest
+	    $very_verbose && echo "skip: $f"
+	done
+    fi
 fi
 
 if $force
@@ -589,8 +709,8 @@ else
 	    else
 		#debug# echo "pyver=$pyver"
 		sed <$tmp.manifest >$tmp.tmp -e '/\/python[0-9]/{
-    /\/python'"$pyver"'[./]/!d
-    }'
+/\/python'"$pyver"'[./]/!d
+}'
 		#debug# diff $tmp.manifest $tmp.tmp
 		mv $tmp.tmp $tmp.manifest
 	    fi
@@ -624,8 +744,8 @@ fi
 
 if $check_manifest
 then
-    echo "Handing off to $dir/check-manifest ..."
-    exec $dir/check-manifest $check_manifest_args $tmp
+    echo "Handing off to $home/check-manifest ..."
+    exec $home/check-manifest $check_manifest_args $tmp
 fi
 
 # main loop
@@ -1065,8 +1185,7 @@ fi
 
 # Now some platform-specific tests
 #
-$dir/whatami >$tmp.tmp
-case "`sed <$tmp.tmp -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
+case "`sed <$tmp.whatami -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
 in
     *OpenBSD*)
 	allowkmem=`sysctl kern.allowkmem | sed -e 's/.*=//'`
