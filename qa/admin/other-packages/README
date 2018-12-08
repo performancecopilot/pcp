@@ -1,0 +1,16 @@
+This directory captures the collective knowledge about non-PCP packages
+that are required for a PCP build or PCP QA.
+
+manifest
+	This is the master list of all packages across all packaging
+	frameworks, independent of distro (when more than one distro
+	uses the same packaging framework).  For example the lines
+	beginning "rpm?" only apply to systems where rpm(1) is the
+	principal packaging framework, i.e RedHat, Fedora, SuSE SLES,
+	OpenSuSE and Centos.
+
+	This file is the principle driver for the check-vm script.
+
+unavailable
+	This file lists packages that are not available for a specific
+	distro or distro and version.
