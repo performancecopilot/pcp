@@ -407,7 +407,7 @@ _match_pkg()
 			    xpect=libicu
 			    ;;
 			libperl5.[0-9]*)		# e.g. libperl5.22
-			    xpect=libperl5
+			    xpect='libperl5.*'
 			    ;;
 			libpython2.[0-9]-dev)	# e.g. libpython2.7-dev
 			    xpect=libpython-dev
@@ -607,13 +607,14 @@ do
     [ -d "$dir" ] && _perl_dirs="$_perl_dirs $dir"
 done
 
-# strip comments, empty (only :<lineno>) and N/A lines
+# strip comments, empty (only :<lineno>) and N/A lines and skip lines
 #
 sed <$tmp.manifest \
     -e 's/#.*\(:[0-9][0-9]*\)$/\1/' \
     -e '/^[ 	]*:[0-9][0-9]*$/d' \
     -e '/^[ 	]*$/d' \
     -e '/\[N\/A/d' \
+    -e '/skip on host/d' \
 | while read guard target extra
 do
     # most lines have no guard, but some do, e.g.
@@ -813,8 +814,13 @@ q
 		dpkg-query)
 		    if dpkg-query -l "$pkg" >$tmp.out 2>&1
 		    then
-			touch $tmp.avail
-			$verbose && cat >&2 $tmp.out
+			if grep "^un *$pkg " $tmp.out >/dev/null
+			then
+			    :
+			else
+			    touch $tmp.avail
+			    $verbose && cat >&2 $tmp.out
+			fi
 		    fi
 		    ;;
 
