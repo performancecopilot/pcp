@@ -469,9 +469,6 @@ in
     vm02)
 	na='libvarlink-devel python-prometheus_client python3-prometheus_client zabbix-agent kubernetes-node qtchooser selinux-policy-devel selinux-policy-targeted'
 	;;
-    vm03)
-	na='libvarlink-devel python3-prometheus_client'
-	;;
     vm04)
 	na='libvarlink-devel python-prometheus_client python-openpyxl qtchooser'
 	;;
@@ -526,9 +523,6 @@ in
     vm25)
 	na='libvarlink-devel python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser python3-requests'
     	;;
-    vm26)
-	na='libvarlink-devel python3-prometheus_client'
-	;;
     vm27)
 	na='libsoqt5-dev python3-bpfcc'
 	;;

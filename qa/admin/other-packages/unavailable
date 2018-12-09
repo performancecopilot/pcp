@@ -12,7 +12,11 @@
 # Comments prefixed by #
 #
 #Distro	Version	Arch	N/A Packages
+#-- Debian
 Debian	9.5	-	docker.io libsoqt5-dev libuv-dev python3-bpfcc python-elasticsearch python-openpyxl python-psycopg2 
+#-- Fedora
+Fedora	27	-	libvarlink-devel python3-prometheus_client
+#-- Ubuntu
 Ubuntu	18.04	-	libsoqt5-dev libuv-dev
 # observed on vm01
 # python3-bpfcc : Depends: libbpfcc (>= 0.5.0-5ubuntu1) but it is not installable
