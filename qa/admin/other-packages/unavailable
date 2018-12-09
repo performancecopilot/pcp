@@ -13,8 +13,7 @@
 #
 #Distro	Version	Arch	N/A Packages
 #-- Debian
-Debian	9.5	-	docker.io libsoqt5-dev libuv-dev python3-bpfcc python-elasticsearch python-openpyxl python-psycopg2 
-Debian	9.6	-	docker.io libsoqt5-dev libuv-dev python3-bpfcc 
+Debian	9.[4-6]	-	docker.io libsoqt5-dev libuv-dev python3-bpfcc 
 #-- Fedora
 Fedora	27	-	libvarlink-devel python3-prometheus_client
 #-- Ubuntu

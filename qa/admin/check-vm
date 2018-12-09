@@ -478,9 +478,6 @@ in
     vm06)
 	na='sensors'
 	;;
-    vm07)
-	na='python3-bpfcc libsoqt5-dev docker.io'
-	;;
     vm08)
 	na='libvarlink-devel python-prometheus_client python-openpyxl qtchooser'
 	;;
