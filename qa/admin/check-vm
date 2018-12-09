@@ -570,12 +570,12 @@ in
 esac
 
 # the "unavailable" file records packages that are not available for a
-# particular distribution and version ... 
+# particular distribution and version and archtecture ... 
 #
 if [ -z "$na" ]
 then
     rm -f $tmp.na
-    $PCP_AWK_PROG '{ for (i = 4; i <= NF; i++) printf $i " "; print "" }' <$tmp.whatami \
+    $PCP_AWK_PROG '{ for (i = 3; i <= NF; i++) printf $i " "; print "" }' <$tmp.whatami \
     | sed \
 	-e 's/ \[.*//' \
 	-e 's/ ([^)]*)//' \
@@ -588,29 +588,47 @@ s/CentOS\([0-9]\)/CentOS \1/
 	-e '/FreeBSD/s/-RELEASE//' \
 	-e '/SLES[0-9][0-9]* SP/s/ SP/-SP/' \
 	-e '/OpenIndiana/s/Hipster //' \
-	-e 's/^/_distro=/' \
+	-e 's/^/_arch=/' \
+	-e 's/ /+_distro=/' \
 	-e 's/ / _version="/' \
+	-e 's/+_/ _/' \
 	-e 's/$/"/' \
     | tr ' ' '\012' >$tmp.eval
     eval `cat $tmp.eval`
     sed <$unavailable \
 	-e 's/#.*//' \
 	-e '/^[ 	]*$/d' \
-    | while read distro_pat version_pat packages
+    | while read distro_pat version_pat arch_pat packages
     do
 	if echo "$_distro" | grep "$distro_pat" >/dev/null
 	then
-	    # if $_version missing (e.g. ArchLinux) then match,
-	    # else check versions
+	    # Distro matches, check versions
 	    #
-	    _match=false
-	    if [ -z "$_version" ]
+	    _match=true
+	    if [ "X$version_pat" = "X-" -o -z "$_version" ]
 	    then
-		_match=true
+		:
 	    else
 		if echo "$_version" | grep "$version_pat" >/dev/null
 		then
-		    _match=true
+		    :
+		else
+		    _match=false
+		fi
+	    fi
+	    if $_match
+	    then
+		# Distro and version matches, check architecture
+		if [ "X$arch_pat" = "X-" -o -z "$_arch" ]
+		then
+		    :
+		else
+		    if echo "$_arch" | grep "$arch_pat" >/dev/null
+		    then
+			:
+		    else
+			_match=false
+		    fi
 		fi
 	    fi
 	    if $_match
