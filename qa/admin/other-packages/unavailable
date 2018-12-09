@@ -2,12 +2,15 @@
 #
 # >= 3 fields per line (separated by while space)
 # Field 1	- Distro name, as reported by whatami
-# Field 2	- Distro version, as reported by whatami
-# Field 3 .. N	- packages that are not available
+# Field 2	- Distro version, as reported by whatami, - for all versions
+# 		  (an alias for .*)
+# Field 3	- Distro architecture, - for all architectures (alias for .*)
+# Field 4 .. N	- packages that are not available
 #
-# grep patterns allowed in Fields 1 and 2.
+# grep patterns allowed in Fields 1, 2 and 3.
 #
 # Comments prefixed by #
 #
-Debian	9.5	docker.io libsoqt5-dev libuv-dev python3-bpfcc python-elasticsearch python-openpyxl python-psycopg2 
-Ubuntu	18.04	libsoqt5-dev libuv-dev
+#Distro	Version	Arch	N/A Packages
+Debian	9.5	-	docker.io libsoqt5-dev libuv-dev python3-bpfcc python-elasticsearch python-openpyxl python-psycopg2 
+Ubuntu	18.04	-	libsoqt5-dev libuv-dev
