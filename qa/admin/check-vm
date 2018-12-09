@@ -356,10 +356,10 @@ then
 	# FreeBSD is the only one to have jail(8) in the help text
 	#
 	have_F_pkg=true
-	$verbose && echo "F_pkg -> pkg for FreeBSD"
+	$verbose && echo >&2 "F_pkg -> pkg for FreeBSD"
     else
 	have_S_pkg=true
-	$verbose && echo "S_pkg -> pkg for OpenIndiana"
+	$verbose && echo >&2 "S_pkg -> pkg for OpenIndiana"
     fi
 fi
 
@@ -399,12 +399,12 @@ do
 
     if which $pkgtool >/dev/null 2>&1 && $want
     then
-	$very_verbose && echo "include ${pkgtype}? lines"
+	$very_verbose && echo >&2 "include ${pkgtype}? lines"
 	sed -e "s/^${pkgtype}?[ 	]//" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
 	touch $tmp.ok
     else
-	$very_verbose && echo "exclude ${pkgtype}? lines"
+	$very_verbose && echo >&2 "exclude ${pkgtype}? lines"
 	grep -v "^${pkgtype}?[ 	]" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
     fi
@@ -447,11 +447,11 @@ do
     esac
     if $pick
     then
-	$very_verbose && echo "include ${distro}? lines"
+	$very_verbose && echo >&2 "include ${distro}? lines"
 	sed -e "s/^${distro}?[ 	]//" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
     else
-	$very_verbose && echo "exclude ${distro}? lines"
+	$very_verbose && echo >&2 "exclude ${distro}? lines"
 	grep -v "^${distro}?[ 	]" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
     fi
@@ -645,7 +645,7 @@ s;\[[^]]*];[N/A on '"$_distro"' '"$_version"'];
 }'
 	fi
 	mv $tmp.tmp $tmp.manifest
-	$very_verbose && echo "unavailable: $f"
+	$very_verbose && echo >&2 "unavailable: $f"
     done
 fi
 
@@ -659,7 +659,7 @@ na=''
 _hostname=`hostname -s`
 if [ -f $skip.$_hostname ]
 then
-    $verbose && echo "Processing $skip.`hostname -s` ..."
+    $verbose && echo >&2 "Processing $skip.`hostname -s` ..."
     na=`sed <$skip.$_hostname \
 	    -e 's/#.*//' \
 	    -e '/^[ 	]*$/d'`
@@ -668,10 +668,10 @@ then
 	for f in $na
 	do
 	    sed <$tmp.manifest >$tmp.tmp -e "/$f/{"'
-s;\[[^]]*];[N/A on host '"$_hostname"'];
+s;\[[^]]*];[skip on host '"$_hostname"'];
 }'
 	    mv $tmp.tmp $tmp.manifest
-	    $very_verbose && echo "skip: $f"
+	    $very_verbose && echo >&2 "skip: $f"
 	done
     fi
 fi
@@ -821,13 +821,13 @@ do
 	fi
 	if $verbose
 	then
-	    $PCP_ECHO_PROG $PCP_ECHO_N "$app ... "$PCP_ECHO_C
-	    $optional && $PCP_ECHO_PROG $PCP_ECHO_N "[optional] "$PCP_ECHO_C
+	    $PCP_ECHO_PROG >&2 $PCP_ECHO_N "$app ... "$PCP_ECHO_C
+	    $optional && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "[optional] "$PCP_ECHO_C
 	    if [ $ok = 0 ]
 	    then
-		$PCP_ECHO_PROG $PCP_ECHO_N "yes "$PCP_ECHO_C
+		$PCP_ECHO_PROG >&2 $PCP_ECHO_N "yes "$PCP_ECHO_C
 	    else
-		$PCP_ECHO_PROG $PCP_ECHO_N "no "$PCP_ECHO_C
+		$PCP_ECHO_PROG >&2 $PCP_ECHO_N "no "$PCP_ECHO_C
 	    fi
 	    touch $tmp.echo
 	fi
@@ -835,7 +835,7 @@ do
 	then
 	    if $optional
 	    then
-		[ -f $tmp.echo ] && echo
+		[ -f $tmp.echo ] && echo >&2
 		continue
 	    fi
 	    touch $tmp.ok
@@ -849,7 +849,7 @@ do
 	    fi
 	fi
     done
-    [ -f $tmp.echo ] && echo
+    [ -f $tmp.echo ] && echo >&2
     if [ ! -f $tmp.ok ]
     then
 	if $pkglist
@@ -859,6 +859,7 @@ do
 		-e 's/.*\[//' \
 		-e 's/]//' \
 		-e '/N\/A/d' \
+		-e '/skip on host/d' \
 		-e 's/ ([^)]*)//' \
 		-e 's/[ 	][ 	]*/ /g' \
 		-e '/^ *$/d' \
@@ -952,7 +953,7 @@ End-of-File
 	    ( echo $version; echo $ctlversion ) | _compare $relop
 	    if [ $? = 0 ]
 	    then
-		$verbose && echo "$pkg: version installed $version, need $relop $ctlversion, OK"
+		$verbose && echo >&2 "$pkg: version installed $version, need $relop $ctlversion, OK"
 	    else
 		echo "Warning: $pkg version installed $version, need $relop $ctlversion"
 	    fi
@@ -994,7 +995,7 @@ End-of-File
 	    rpm -q $rpm >$tmp.tmp 2>/dev/null
 	    if grep 'is not installed' $tmp.tmp >/dev/null 2>&1
 	    then
-		$verbose && echo "$rpm: not installed, need $relop $specversion$pcp_pkg, OK"
+		$verbose && echo >&2 "$rpm: not installed, need $relop $specversion$pcp_pkg, OK"
 		echo "Warning: $rpm not installed, need $relop $specversion$pcp_pkg" >>$tmp.notfound
 	    else
 		touch $tmp.found
@@ -1002,7 +1003,7 @@ End-of-File
 		( echo $version; echo $specversion ) | _compare $relop
 		if [ $? = 0 ]
 		then
-		    $verbose && echo "$rpm: version installed $version, need $relop $specversion$pcp_pkg, OK"
+		    $verbose && echo >&2 "$rpm: version installed $version, need $relop $specversion$pcp_pkg, OK"
 		else
 		    echo "Warning: $rpm version installed $version, need $relop $specversion$pcp_pkg"
 		fi
@@ -1012,7 +1013,7 @@ End-of-File
 	then
 	    :
 	else
-	    $verbose || cat $tmp.notfound
+	    $verbose || cat >&2 $tmp.notfound
 	fi
     done
 fi
@@ -1043,7 +1044,7 @@ End-of-File
 	    ( echo $libversion; echo $version ) | _compare $relop
 	    if [ $? = 0 ]
 	    then
-		$verbose && echo "$lib: version installed $libversion, need $relop $version$pcp_pkg, OK"
+		$verbose && echo >&2 "$lib: version installed $libversion, need $relop $version$pcp_pkg, OK"
 	    else
 		echo "Warning: $lib version installed $libversion, need $relop $version$pcp_pkg"
 	    fi
@@ -1184,4 +1185,4 @@ in
 
 esac
 
-$verbose && echo "temp files:" $tmp.*
+$verbose && echo >&2 "temp files:" $tmp.*

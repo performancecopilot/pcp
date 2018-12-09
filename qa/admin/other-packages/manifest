@@ -19,6 +19,12 @@
 #   platform, if the package is installed with an alternate installer,
 #   then the form <package_manager>(<package_name>) may be used, e.g.
 #   pip3(jsonpointer) or cpan(Date::Format)
+#   if there is more than one alternate package source, these can be
+#   separated by white space or the word "or", but it is preferable to
+#   duplicate the line for each alternate package source and then use
+#   the unavailable file to mark which package(s) are not available for
+#   particular distros and versions that share the same packaging tool,
+#   e.g. for RedHat and SuSE rpm naming differences
 # - text after # is treated as a comment
 # - blank lines are ignored
 #
@@ -183,7 +189,8 @@ slackpkg?	cppcheck	[? (build optional)]
 pacman?		cppcheck	[? (build optional)]
 brew?		cppcheck	[cppcheck (build optional)]
 # -- libuv
-dpkg?	/usr/include/uv.h	[libuv1-dev or libuv-dev (build optional)]
+dpkg?	/usr/include/uv.h	[libuv-dev (build optional)]
+dpkg?	/usr/include/uv.h	[libuv1-dev (build optional)]
 rpm?	/usr/include/uv.h	[libuv-devel (build optional)]
 urpmi?	/usr/include/uv.h	[libuv-devel (build optional)]
 emerge?	/usr/include/uv.h	[dev-libs/libuv (build optional)]
@@ -548,7 +555,7 @@ pacman?		psycopg1.py				[?]
 brew?	/usr/local/lib/python3.*/*-packages/psycopg2	[pip3(psycopg2) (postgresql)]
 # perl modules
 # -- Time::HiRes
-dpkg?	Time::HiRes		[perl or libperl5]
+dpkg?	Time::HiRes		[perl or libperl5.*]
 rpm?	Time::HiRes		[perl or perl-Time-HiRes or 'perl(Time::HiRes)']
 urpmi?	Time::HiRes		[perl]
 emerge?	Time::HiRes		[dev-lang/perl]
