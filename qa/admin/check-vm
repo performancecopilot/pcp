@@ -490,9 +490,6 @@ in
     vm10)
 	na='sensors'
 	;;
-    vm11)
-	na='python3-bpfcc docker.io libsoqt5-dev'
-	;;
     vm12)
 	na='libvarlink-devel python3-prometheus_client python3-bcc kubernetes-client kubernetes-node'
 	;;
