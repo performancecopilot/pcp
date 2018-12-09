@@ -523,9 +523,6 @@ in
     vm25)
 	na='libvarlink-devel python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser python3-requests'
     	;;
-    vm27)
-	na='libsoqt5-dev python3-bpfcc'
-	;;
     vm28)
 	na='device-mapper-devel libvarlink-devel systemd-devel libpfm-devel python-prometheus_client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel qtchooser Coin-devel realpath'
 	;;
