@@ -463,20 +463,8 @@ done
 na=''
 case `hostname -s`
 in
-    bozo)
-	# not so much unavailable as unsafe to install on hypervisor
-	# and nameserver
-	#
-	na='docker.io unbound libsoqt5-dev'
-	;;
-    bozo-laptop)
-	na='python3-bcc'
-	;;
     vm00)
 	na='libuv1-dev python3-libvirt python3-prometheus-client python3-elasticsearch python3-openpyxl python3-bpfcc libsoqt5-dev python-prometheus-client python-elasticsearch python-openpyxl python-psycopg2'
-	;;
-    vm01)
-	na='python3-bpfcc libsoqt5-dev'
 	;;
     vm02)
 	na='libvarlink-devel python-prometheus_client python3-prometheus_client zabbix-agent kubernetes-node qtchooser selinux-policy-devel selinux-policy-targeted'
@@ -525,9 +513,6 @@ in
 	;;
     vm19)
 	na='libvarlink-devel python3-jsonpointer python3-rtslib libvirt-python3 python-prometheus_client python3-elasticsearch zabbix-agent docker-io qtchooser python3-pillow python3-bcc python3-prometheus_client'
-	;;
-    vm20)
-	na='sysv-rc-conf'
 	;;
     vm22)
 	na=''

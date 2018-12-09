@@ -9,4 +9,5 @@
 #
 # Comments prefixed by #
 #
-Debian	9.5	docker.io python3-bpfcc libsoqt5-dev python-elasticsearch python-openpyxl python-psycopg2
+Debian	9.5	docker.io libsoqt5-dev python3-bpfcc python-elasticsearch python-openpyxl python-psycopg2 
+Ubuntu	18.04	libsoqt5-dev python3-bpfcc
