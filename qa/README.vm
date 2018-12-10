@@ -99,6 +99,8 @@ RedHat
     $ sudo yum update
     # upgrade recipe
     $ ???
+    # sort packages on installed size, smallest to largest
+    $ rpm -qa --qf '%{SIZE} %{NAME}\n' | sort -k1 -n
 
 CentOS
     https://en.wikipedia.org/wiki/CentOS#CentOS_releases
