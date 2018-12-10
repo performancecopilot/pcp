@@ -11,13 +11,17 @@
 #
 # Comments prefixed by #
 #
-#Distro	Version	Arch	N/A Packages
+#Distro      Version  Arch    N/A Packages
 #-- Debian
-Debian	9.[4-6]	-	docker.io libsoqt5-dev libuv-dev python3-bpfcc 
+Debian       9.[4-6]  -       docker.io libsoqt5-dev libuv-dev python3-bpfcc
 #-- Fedora
-Fedora	27	-	libvarlink-devel python3-prometheus_client
+Fedora       27       -       libvarlink-devel python3-prometheus_client
+#-- openSUSE
+openSUSE     15       -       kubernetes-node libvarlink-devel pylint python3-prometheus_client qtchooser selinux-policy selinux-policy-devel selinux-policy-targeted zabbix-agent zabbix22-agent
+openSUSE     42.2     -       docker-io libvarlink-devel libvirt-python3 python3-bcc python3-elasticsearch python3-jsonpointer python3-pillow python3-prometheus_client python3-rtslib python-prometheus_client qtchooser zabbix-agent zabbix22-agent
+openSUSE     42.3     -       Coin-devel docker-io libvarlink-devel libvirt-python3 python3-bcc python3-elasticsearch python3-jsonpointer python3-pillow python3-prometheus_client python3-rtslib python-elasticsearch python-prometheus_client qtchooser selinux-policy-devel selinux-policy-targeted SoQt-devel zabbix-agent zabbix22-agent
 #-- Ubuntu
-Ubuntu	18.04	-	libsoqt5-dev libuv-dev
+Ubuntu       18.04    -       libsoqt5-dev libuv-dev
 # observed on vm01
 # python3-bpfcc : Depends: libbpfcc (>= 0.5.0-5ubuntu1) but it is not installable
-Ubuntu	18.04	i686	python3-bpfcc
+Ubuntu       18.04    i686    python3-bpfcc
