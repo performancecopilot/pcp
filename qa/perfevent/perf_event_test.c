@@ -1071,6 +1071,26 @@ void test_parse_hv_24x7_dynamic_events(void)
     }
 }
 
+void test_parse_raw_events(void)
+{
+    struct pmcsetting *pmctmp;
+    configuration_t *config;
+    const char *configfile = "config/test_raw_events.txt";
+
+    config = parse_configfile(configfile);
+    assert(config != NULL);
+    printf(" ===== %s ==== \n", __FUNCTION__);
+    assert(config->configArr != NULL);
+    assert((pmctmp = config->configArr->pmcSettingList) != NULL);
+    assert(!strcmp(pmctmp->name, "RAW:bar"));
+    assert(pmctmp->rawcode == 0x1);
+    printf("event = %s raw code = 0x%lx\n", pmctmp->name, pmctmp->rawcode);
+    assert((pmctmp = pmctmp->next) != NULL);
+    assert(!strcmp(pmctmp->name, "RAW:foo"));
+    assert(pmctmp->rawcode == 0x0);
+    printf("event = %s raw code = 0x%lx\n", pmctmp->name, pmctmp->rawcode);
+}
+
 int runtest(int n)
 {
     init_mock();
@@ -1176,6 +1196,10 @@ int runtest(int n)
 	    break;
 	case 32:
 	    test_parse_hv_24x7_dynamic_events();
+	    break;
+        case 33:
+            test_parse_raw_events();
+            break;
         default:
             ret = -1;
     }

@@ -129,4 +129,7 @@ PMU : software
  ===== test_parse_hv_24x7_dynamic_events ==== 
 event = pmu1.bar chip value = 0
 event = pmu1.foo chip value = -1
+ ===== test_parse_raw_events ==== 
+event = RAW:bar raw code = 0x1
+event = RAW:foo raw code = 0x0
 Unit tests Passed
