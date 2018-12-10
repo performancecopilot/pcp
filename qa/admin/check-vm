@@ -183,11 +183,11 @@ shift `expr $OPTIND - 1`
 if $very_verbose
 then
     tmp=tmp
-    rm -f $tmp.*
 else
     tmp=/var/tmp/$$
     trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 fi
+rm -f $tmp.*
 
 if [ -f /etc/pcp.conf ]
 then
@@ -460,89 +460,80 @@ done
 # Modify the package inventory for some particular hosts where we've
 # explored and _know_ certain packages are not available
 #
-na=''
+unavail_pkg=''
 case `hostname -s`
 in
     vm00)
-	na='libuv1-dev python3-libvirt python3-prometheus-client python3-elasticsearch python3-openpyxl python3-bpfcc libsoqt5-dev python-prometheus-client python-elasticsearch python-openpyxl python-psycopg2'
-	;;
-    vm02)
-	na='libvarlink-devel python-prometheus_client python3-prometheus_client zabbix-agent kubernetes-node qtchooser selinux-policy-devel selinux-policy-targeted'
+	unavail_pkg='libuv1-dev python3-libvirt python3-prometheus-client python3-elasticsearch python3-openpyxl python3-bpfcc libsoqt5-dev python-prometheus-client python-elasticsearch python-openpyxl python-psycopg2'
 	;;
     vm04)
-	na='libvarlink-devel python-prometheus_client python-openpyxl qtchooser'
+	unavail_pkg='libvarlink-devel python-prometheus_client python-openpyxl qtchooser'
 	;;
     vm05)
-	na=''
+	unavail_pkg=''
 	;;
     vm06)
-	na='sensors'
+	unavail_pkg='sensors'
 	;;
     vm08)
-	na='libvarlink-devel python-prometheus_client python-openpyxl qtchooser'
+	unavail_pkg='libvarlink-devel python-prometheus_client python-openpyxl qtchooser'
 	;;
     vm09)
-	na='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg dtrace boost json_reformat py36-imaging nmap' 
+	unavail_pkg='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg dtrace boost json_reformat py36-imaging nmap' 
 	;;
     vm10)
-	na='sensors'
+	unavail_pkg='sensors'
 	;;
     vm12)
-	na='libvarlink-devel python3-prometheus_client python3-bcc kubernetes-client kubernetes-node'
+	unavail_pkg='libvarlink-devel python3-prometheus_client python3-bcc kubernetes-client kubernetes-node'
 	;;
     vm13)
-	na=''
+	unavail_pkg=''
 	;;
     vm14)
-	na='libvarlink-devel systemd-devel libpfm-devel python-prometheus_client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin-devel Net::SNMP YAML::XS::LibYAML libuv-devel kubernetes-client kubernetes-node docker-common'
+	unavail_pkg='libvarlink-devel systemd-devel libpfm-devel python-prometheus_client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin-devel Net::SNMP YAML::XS::LibYAML libuv-devel kubernetes-client kubernetes-node docker-common'
 	;;
     vm15)
-    	na='valgrind socat'
+    	unavail_pkg='valgrind socat'
     	;;
     vm18)
-	na='python3-libvirt python3-prometheus-client python3-elasticsearch python-prometheus-client python-elasticsearch libsoqt5-dev'
-	;;
-    vm19)
-	na='libvarlink-devel python3-jsonpointer python3-rtslib libvirt-python3 python-prometheus_client python3-elasticsearch zabbix-agent docker-io qtchooser python3-pillow python3-bcc python3-prometheus_client'
+	unavail_pkg='python3-libvirt python3-prometheus-client python3-elasticsearch python-prometheus-client python-elasticsearch libsoqt5-dev'
 	;;
     vm22)
-	na=''
+	unavail_pkg=''
 	;;
     vm23)
-	na='python3-bcc kubernetes-client kubernetes-node 389-ds-base'
-	;;
-    vm24)
-	na='libvarlink-devel selinux-policy-targeted selinux-policy-devel SoQt-devel Coin-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus_client python3-elasticsearch python3-bcc python3-pillow docker-io python3-prometheus_client python-prometheus_client python-elasticsearch'
+	unavail_pkg='python3-bcc kubernetes-client kubernetes-node 389-ds-base'
 	;;
     vm25)
-	na='libvarlink-devel python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser python3-requests'
+	unavail_pkg='libvarlink-devel python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser python3-requests'
     	;;
     vm28)
-	na='device-mapper-devel libvarlink-devel systemd-devel libpfm-devel python-prometheus_client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel qtchooser Coin-devel realpath'
+	unavail_pkg='device-mapper-devel libvarlink-devel systemd-devel libpfm-devel python-prometheus_client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel qtchooser Coin-devel realpath'
 	;;
     vm29)
-	na='device-mapper-devel libvarlink-devel python-prometheus_client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin-devel SoQt-devel python-openpyxl libuv-devel'
+	unavail_pkg='device-mapper-devel libvarlink-devel python-prometheus_client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin-devel SoQt-devel python-openpyxl libuv-devel'
     	;;
     vm30)
-	na='libvarlink-devel libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin-devel SoQt-devel python3-libs yajl python-psycopg2 python3-psycopg2'
+	unavail_pkg='libvarlink-devel libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin-devel SoQt-devel python3-libs yajl python-psycopg2 python3-psycopg2'
 	;;
     vm31)
-	na='python-prometheus_client' 
+	unavail_pkg='python-prometheus_client' 
 	;;
     vm32)
-	na='libibumad libibmad sensors'
+	unavail_pkg='libibumad libibmad sensors'
 	;;
     vm33)
-	na=''
+	unavail_pkg=''
 	;;
     vm34)
-	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
+	unavail_pkg='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
 	;;
     vm35)
-	na=''
+	unavail_pkg=''
 	;;
     vm36)
-	na='python3-bpfcc libsoqt5-dev'
+	unavail_pkg='python3-bpfcc libsoqt5-dev'
     	;;
     vm37)
 	# qtbase is Qt5 and gcc++ is too old to compile Qt5 headers ... revist
@@ -550,14 +541,14 @@ in
 	# qtsvg is not needed without Qt5
 	# valgrind is available, but segv's
 	#
-	na='libibumad py36-jsonpointer libvirt-python3 realpath py3-prometheus-client py3-openpyxl py3-bcc qtchooser qtbase qtsvg valgrind'
+	unavail_pkg='libibumad py36-jsonpointer libvirt-python3 realpath py3-prometheus-client py3-openpyxl py3-bcc qtchooser qtbase qtsvg valgrind'
 	;;
 esac
 
 # the "unavailable" file records packages that are not available for a
 # particular distribution and version and archtecture ... 
 #
-if [ -z "$na" ]
+if [ -z "$unavail_pkg" ]
 then
     rm -f $tmp.na
     $PCP_AWK_PROG '{ for (i = 3; i <= NF; i++) printf $i " "; print "" }' <$tmp.whatami \
@@ -624,32 +615,40 @@ s/CentOS\([0-9]\)/CentOS \1/
     done
     if [ -s $tmp.na ]
     then
-	if [ -z "$na" ]
+	if [ -z "$unavail_pkg" ]
 	then
-	    na="`cat $tmp.na`"
+	    unavail_pkg="`cat $tmp.na`"
 	else
-	    na="$na `cat $tmp.na`"
+	    unavail_pkg="$unavail_pkg `cat $tmp.na`"
 	fi
     fi
 fi
 
-if [ -n "$na" ]
+if $pkglist
 then
-    for f in $na
-    do
-	if [ -z "$_version" ]
-	then
-	    sed <$tmp.manifest >$tmp.tmp -e "/$f/{"'
+    # for -p, don't mark manifest lines with N/A ... this is handled
+    # later for each package in [ ... ]
+    #
+    :
+else
+    if [ -n "$unavail_pkg" ]
+    then
+	for f in $unavail_pkg
+	do
+	    if [ -z "$_version" ]
+	    then
+		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$f[] ]/"'{
 s;\[[^]]*];[N/A on '"$_distro"'];
 }'
-	else
-	    sed <$tmp.manifest >$tmp.tmp -e "/$f/{"'
+	    else
+		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$f[] ]/"'{
 s;\[[^]]*];[N/A on '"$_distro"' '"$_version"'];
 }'
-	fi
-	mv $tmp.tmp $tmp.manifest
-	$very_verbose && echo >&2 "unavailable: $f"
-    done
+	    fi
+	    mv $tmp.tmp $tmp.manifest
+	    $very_verbose && echo >&2 "unavailable: $f"
+	done
+    fi
 fi
 
 # the optional "skip.<hostname>" file records packages that may be available
@@ -658,24 +657,32 @@ fi
 # does not co-exist with bind9 or libfooqt.so that is really for the wrong
 # version of Qt
 #
-na=''
+skip_pkg=''
 _hostname=`hostname -s`
 if [ -f $skip.$_hostname ]
 then
     $verbose && echo >&2 "Processing $skip.`hostname -s` ..."
-    na=`sed <$skip.$_hostname \
+    skip_pkg=`sed <$skip.$_hostname \
 	    -e 's/#.*//' \
 	    -e '/^[ 	]*$/d'`
-    if [ -n "$na" ]
+    if $pkglist
     then
-	for f in $na
-	do
-	    sed <$tmp.manifest >$tmp.tmp -e "/$f/{"'
+	# for -p, don't mark manifest lines with skip ... this is handled
+	# later for each package in [ ... ]
+	#
+	:
+    else
+	if [ -n "$unavail_pkg" ]
+	then
+	    for f in $skip_pkg
+	    do
+		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$f[] ]/"'{
 s;\[[^]]*];[skip on host '"$_hostname"'];
 }'
-	    mv $tmp.tmp $tmp.manifest
-	    $very_verbose && echo >&2 "skip: $f"
-	done
+		mv $tmp.tmp $tmp.manifest
+		$very_verbose && echo >&2 "skip: $f"
+	    done
+	fi
     fi
 fi
 
@@ -732,6 +739,13 @@ fi
 
 if $check_manifest
 then
+    # save the unavailable packages list, and hand off
+    #
+    touch $tmp.unavail
+    for _pkg in $unavail_pkg
+    do
+	echo "$_pkg" >>$tmp.unavail
+    done
     echo "Handing off to $home/check-manifest ..."
     exec $home/check-manifest $check_manifest_args $tmp
 fi
@@ -861,13 +875,25 @@ do
 	    | sed -n \
 		-e 's/.*\[//' \
 		-e 's/]//' \
-		-e '/N\/A/d' \
-		-e '/skip on host/d' \
 		-e 's/ ([^)]*)//' \
+		-e 's/ or / /' \
 		-e 's/[ 	][ 	]*/ /g' \
 		-e '/^ *$/d' \
 		-e p \
-	    # end
+	    | while read _pkgs
+	    do
+		# don't list the unavailable packages nor the skipped ones
+		#
+		for _pkg in $_pkgs
+		do
+		    if echo " $unavail_pkg " | grep " $_pkg " >/dev/null
+		    then
+			:
+		    else
+			echo "$_pkg"
+		    fi
+		done
+	    done
 	else
 	    echo "Missing: `echo $apps \
 		| sed \
@@ -1188,4 +1214,4 @@ in
 
 esac
 
-$verbose && echo >&2 "temp files:" $tmp.*
+$very_verbose && echo >&2 "temp files:" $tmp.*

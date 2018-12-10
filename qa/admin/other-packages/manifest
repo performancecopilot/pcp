@@ -20,11 +20,8 @@
 #   then the form <package_manager>(<package_name>) may be used, e.g.
 #   pip3(jsonpointer) or cpan(Date::Format)
 #   if there is more than one alternate package source, these can be
-#   separated by white space or the word "or", but it is preferable to
-#   duplicate the line for each alternate package source and then use
-#   the unavailable file to mark which package(s) are not available for
-#   particular distros and versions that share the same packaging tool,
-#   e.g. for RedHat and SuSE rpm naming differences
+#   separated by white space or the word "or", e.g. for RedHat and SuSE
+#   rpm naming differences
 # - text after # is treated as a comment
 # - blank lines are ignored
 #
@@ -166,7 +163,7 @@ pacman?		pkg-config	[pkg-config]
 brew?		pkg-config	[pkg-config]
 # -- pylint
 dpkg?		pylint		[pylint (build optional)]
-rpm?		pylint		[pylint (build optional)]
+rpm?		pylint		[pylint or python2-pylint (build optional)]
 urpmi?		pylint		[? (build optional)]
 emerge?		pylint		[? (build optional)]
 pkgin?		pylint		[? (build optional)]
