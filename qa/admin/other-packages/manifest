@@ -163,7 +163,7 @@ pacman?		pkg-config	[pkg-config]
 brew?		pkg-config	[pkg-config]
 # -- pylint
 dpkg?		pylint		[pylint (build optional)]
-rpm?		pylint		[pylint or python2-pylint (build optional)]
+rpm?		pylint		[pylint or python2-pylint or python-pylint (build optional)]
 urpmi?		pylint		[? (build optional)]
 emerge?		pylint		[? (build optional)]
 pkgin?		pylint		[? (build optional)]
