@@ -98,12 +98,27 @@ _getnetworkaddr()
 _usage()
 {
     echo "Usage: $0 [options]"
-    echo "  -f  force, don't try to guess the version of Python, Qt, ..."
-    echo "  -p  generate list of likely packages that should be"
-    echo "      installed with dnf or apt-get or yum or ..."
-    echo "  -v  verbose (debugging)"
+    echo "  -f           force, don't try to guess the version of Python, Qt, ..."
+    echo "  -m manifest  use alternative manifest file"
+    echo "  -o otherdir  use alternative other-packages directory"
+    echo "  -p           generate list of likely packages that should be"
+    echo "               installed with dnf or apt-get or yum or ..."
+    echo "  -s skip      use alternative skip.<hostname> basename"
+    echo "  -u unavail   use alternative unavailable file"
+    echo "  -v           verbose (debugging)"
     exit 1
 }
+
+# Need directory where check-vm script is located so we can find
+# the default other-packages/manifest and other-packages/unavailable
+# files and the whatami script
+#
+home=`echo $0 | sed -e 's/\/*check-vm$//'`
+if [ -z "$home" -o ! -d "$home" ]
+then
+    echo "Botch: \$0=$0 -> bad \$home=$home ?"
+    exit 1
+fi
 
 force=false
 pkglist=false
@@ -111,7 +126,11 @@ verbose=false
 very_verbose=false
 check_manifest=false
 check_mainfest_args=''
-while getopts 'cfpv?' p
+otherdir=other-packages					# default, see -o
+manifest="$home"/other-packages/manifest		# default, see -m
+skip="$home"/other-packages/skip			# default, see -s
+unavailable="$home"/other-packages/unavailable		# default, see -u
+while getopts 'cfm:o:ps:u:v?' p
 do
     case "$p"
     in
@@ -125,18 +144,33 @@ do
 		force=true
 		;;
 
+	m)	# alternate manifest
+		manifest="$OPTARG"
+		;;
+
+	o)	# alternate other-packages directory
+		otherdir="$OPTARG"
+		;;
+
 	p)	# just list most likely package for yum, dnf, apt-get, ...
 		pkglist=true
+		;;
+
+	s)	# alternate skip basename
+		skip="$OPTARG"
+		;;
+
+	u)	# alternate unavailable
+		unavailable="$OPTARG"
 		;;
 
 	v)	if $verbose
 		then
 		    very_verbose=true
-		    check_manifest_args="-vv"
 		else
 		    verbose=true
-		    check_manifest_args="-v"
 		fi
+		check_manifest_args="$check_manifest_args -v"
 		;;
 
 	?)	_usage
@@ -146,14 +180,14 @@ done
 shift `expr $OPTIND - 1`
 [ $# -eq 0 ] || _usage
 
-if $verbose
+if $very_verbose
 then
     tmp=tmp
-    rm -f $tmp.*
 else
     tmp=/var/tmp/$$
     trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 fi
+rm -f $tmp.*
 
 if [ -f /etc/pcp.conf ]
 then
@@ -261,33 +295,30 @@ pkgtools="dpkg rpm urpmi emerge pkgin pkg_add F_pkg S_pkg slackpkg pacman brew"
 #
 distros="debian redhat centos suse arch mandriva"
 
-# Need directory where check-vm script is located so we can find
-# the package.manifest file and the whatami script
-#
-dir=`echo $0 | sed -e 's/\/*check-vm$//'`
-if [ -z "$dir" -o ! -d "$dir" ]
+if [ ! -f "$manifest" ]
 then
-    echo "Botch: \$0=$0 -> bad \$dir=$dir ?"
+    echo "Botch: cannot find manifest: $manifest"
     exit 1
 fi
-if [ ! -f "$dir"/package.manifest ]
+if [ ! -f "$unavailable" ]
 then
-    echo "Botch: cannot find $dir/package.manifest"
+    echo "Botch: cannot find unavailable: $unavailable"
     exit 1
 fi
-if [ ! -f "$dir"/whatami ]
+if [ ! -f "$home"/whatami ]
 then
-    echo "Botch: cannot find $dir/whatami"
+    echo "Botch: cannot find whatami :$home/whatami"
     exit 1
 fi
+$home/whatami >$tmp.whatami
 
 if $check_manifest
 then
     # append original line numbers
     #
-    $PCP_AWK_PROG '{ print $0 " :" NR }' <$dir/package.manifest >$tmp.manifest
+    $PCP_AWK_PROG '{ print $0 " :" NR }' <$manifest >$tmp.manifest
 else
-    cat <$dir/package.manifest >$tmp.manifest
+    cat <$manifest >$tmp.manifest
 fi
 
 if which python >/dev/null 2>&1
@@ -325,10 +356,10 @@ then
 	# FreeBSD is the only one to have jail(8) in the help text
 	#
 	have_F_pkg=true
-	$verbose && echo "F_pkg -> pkg for FreeBSD"
+	$verbose && echo >&2 "F_pkg -> pkg for FreeBSD"
     else
 	have_S_pkg=true
-	$verbose && echo "S_pkg -> pkg for OpenIndiana"
+	$verbose && echo >&2 "S_pkg -> pkg for OpenIndiana"
     fi
 fi
 
@@ -368,12 +399,12 @@ do
 
     if which $pkgtool >/dev/null 2>&1 && $want
     then
-	$very_verbose && echo "include ${pkgtype}? lines"
+	$very_verbose && echo >&2 "include ${pkgtype}? lines"
 	sed -e "s/^${pkgtype}?[ 	]//" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
 	touch $tmp.ok
     else
-	$very_verbose && echo "exclude ${pkgtype}? lines"
+	$very_verbose && echo >&2 "exclude ${pkgtype}? lines"
 	grep -v "^${pkgtype}?[ 	]" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
     fi
@@ -416,11 +447,11 @@ do
     esac
     if $pick
     then
-	$very_verbose && echo "include ${distro}? lines"
+	$very_verbose && echo >&2 "include ${distro}? lines"
 	sed -e "s/^${distro}?[ 	]//" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
     else
-	$very_verbose && echo "exclude ${distro}? lines"
+	$very_verbose && echo >&2 "exclude ${distro}? lines"
 	grep -v "^${distro}?[ 	]" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
     fi
@@ -429,125 +460,80 @@ done
 # Modify the package inventory for some particular hosts where we've
 # explored and _know_ certain packages are not available
 #
-na=''
+unavail_pkg=''
 case `hostname -s`
 in
-    bozo)
-	# not so much unavailable as unsafe to install on hypervisor
-	# and nameserver
-	#
-	na='docker.io unbound libsoqt5-dev'
-	;;
-    bozo-laptop)
-	na='python3-bcc'
-	;;
-    bozo-vm)
-	na='docker.io python3-bpfcc libsoqt5-dev python-elasticsearch python-openpyxl python-psycopg2'
-	;;
     vm00)
-	na='libuv1-dev python3-libvirt python3-prometheus-client python3-elasticsearch python3-openpyxl python3-bpfcc libsoqt5-dev python-prometheus-client python-elasticsearch python-openpyxl python-psycopg2'
-	;;
-    vm01)
-	na='python3-bpfcc libsoqt5-dev'
-	;;
-    vm02)
-	na='libvarlink-devel python-prometheus_client python3-prometheus_client zabbix-agent kubernetes-node qtchooser selinux-policy-devel selinux-policy-targeted'
-	;;
-    vm03)
-	na='libvarlink-devel python3-prometheus_client'
+	unavail_pkg='libuv1-dev python3-libvirt python3-prometheus-client python3-elasticsearch python3-openpyxl python3-bpfcc libsoqt5-dev python-prometheus-client python-elasticsearch python-openpyxl python-psycopg2'
 	;;
     vm04)
-	na='libvarlink-devel python-prometheus_client python-openpyxl qtchooser'
+	unavail_pkg='libvarlink-devel python-prometheus_client python-openpyxl qtchooser'
 	;;
     vm05)
-	na=''
+	unavail_pkg=''
 	;;
     vm06)
-	na='sensors'
-	;;
-    vm07)
-	na='python3-bpfcc libsoqt5-dev docker.io'
+	unavail_pkg='sensors'
 	;;
     vm08)
-	na='libvarlink-devel python-prometheus_client python-openpyxl qtchooser'
+	unavail_pkg='libvarlink-devel python-prometheus_client python-openpyxl qtchooser'
 	;;
     vm09)
-	na='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg dtrace boost json_reformat py36-imaging nmap' 
+	unavail_pkg='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg dtrace boost json_reformat py36-imaging nmap' 
 	;;
     vm10)
-	na='sensors'
-	;;
-    vm11)
-	na='python3-bpfcc docker.io libsoqt5-dev'
+	unavail_pkg='sensors'
 	;;
     vm12)
-	na='libvarlink-devel python3-prometheus_client python3-bcc kubernetes-client kubernetes-node'
+	unavail_pkg='libvarlink-devel python3-prometheus_client python3-bcc kubernetes-client kubernetes-node'
 	;;
     vm13)
-	na=''
+	unavail_pkg=''
 	;;
     vm14)
-	na='libvarlink-devel systemd-devel libpfm-devel python-prometheus_client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin-devel Net::SNMP YAML::XS::LibYAML libuv-devel kubernetes-client kubernetes-node docker-common'
+	unavail_pkg='libvarlink-devel systemd-devel libpfm-devel python-prometheus_client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin-devel Net::SNMP YAML::XS::LibYAML libuv-devel kubernetes-client kubernetes-node docker-common'
 	;;
     vm15)
-    	na='valgrind socat'
+    	unavail_pkg='valgrind socat'
     	;;
     vm18)
-	na='python3-libvirt python3-prometheus-client python3-elasticsearch python-prometheus-client python-elasticsearch libsoqt5-dev'
-	;;
-    vm19)
-	na='libvarlink-devel python3-jsonpointer python3-rtslib libvirt-python3 python-prometheus_client python3-elasticsearch zabbix-agent docker-io qtchooser python3-pillow python3-bcc python3-prometheus_client'
-	;;
-    vm20)
-	na='sysv-rc-conf'
-	;;
-    vm21)
-	na='python3-bpfcc docker.io libsoqt5-dev'
+	unavail_pkg='python3-libvirt python3-prometheus-client python3-elasticsearch python-prometheus-client python-elasticsearch libsoqt5-dev'
 	;;
     vm22)
-	na=''
+	unavail_pkg=''
 	;;
     vm23)
-	na='python3-bcc kubernetes-client kubernetes-node 389-ds-base'
-	;;
-    vm24)
-	na='libvarlink-devel selinux-policy-targeted selinux-policy-devel SoQt-devel Coin-devel zabbix-agent qtchooser python3-jsonpointer python3-rtslib libvirt-python3 python3-prometheus_client python3-elasticsearch python3-bcc python3-pillow docker-io python3-prometheus_client python-prometheus_client python-elasticsearch'
+	unavail_pkg='python3-bcc kubernetes-client kubernetes-node 389-ds-base'
 	;;
     vm25)
-	na='libvarlink-devel python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser python3-requests'
+	unavail_pkg='libvarlink-devel python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser python3-requests'
     	;;
-    vm26)
-	na='libvarlink-devel python3-prometheus_client'
-	;;
-    vm27)
-	na='libsoqt5-dev python3-bpfcc'
-	;;
     vm28)
-	na='device-mapper-devel libvarlink-devel systemd-devel libpfm-devel python-prometheus_client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel qtchooser Coin-devel realpath'
+	unavail_pkg='device-mapper-devel libvarlink-devel systemd-devel libpfm-devel python-prometheus_client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel qtchooser Coin-devel realpath'
 	;;
     vm29)
-	na='device-mapper-devel libvarlink-devel python-prometheus_client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin-devel SoQt-devel python-openpyxl libuv-devel'
+	unavail_pkg='device-mapper-devel libvarlink-devel python-prometheus_client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin-devel SoQt-devel python-openpyxl libuv-devel'
     	;;
     vm30)
-	na='libvarlink-devel libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin-devel SoQt-devel python3-libs yajl python-psycopg2 python3-psycopg2'
+	unavail_pkg='libvarlink-devel libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin-devel SoQt-devel python3-libs yajl python-psycopg2 python3-psycopg2'
 	;;
     vm31)
-	na='python-prometheus_client' 
+	unavail_pkg='python-prometheus_client' 
 	;;
     vm32)
-	na='libibumad libibmad sensors'
+	unavail_pkg='libibumad libibmad sensors'
 	;;
     vm33)
-	na=''
+	unavail_pkg=''
 	;;
     vm34)
-	na='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
+	unavail_pkg='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
 	;;
     vm35)
-	na=''
+	unavail_pkg=''
 	;;
     vm36)
-	na='python3-bpfcc libsoqt5-dev'
+	unavail_pkg='python3-bpfcc libsoqt5-dev'
     	;;
     vm37)
 	# qtbase is Qt5 and gcc++ is too old to compile Qt5 headers ... revist
@@ -555,20 +541,149 @@ in
 	# qtsvg is not needed without Qt5
 	# valgrind is available, but segv's
 	#
-	na='libibumad py36-jsonpointer libvirt-python3 realpath py3-prometheus-client py3-openpyxl py3-bcc qtchooser qtbase qtsvg valgrind'
+	unavail_pkg='libibumad py36-jsonpointer libvirt-python3 realpath py3-prometheus-client py3-openpyxl py3-bcc qtchooser qtbase qtsvg valgrind'
 	;;
 esac
-if [ -n "$na" ]
+
+# the "unavailable" file records packages that are not available for a
+# particular distribution and version and archtecture ... 
+#
+if [ -z "$unavail_pkg" ]
 then
-    for f in $na
+    rm -f $tmp.na
+    $PCP_AWK_PROG '{ for (i = 3; i <= NF; i++) printf $i " "; print "" }' <$tmp.whatami \
+    | sed \
+	-e 's/ \[.*//' \
+	-e 's/ ([^)]*)//' \
+	-e 's/RHEL Server/RHEL/' \
+	-e 's/Arch Linux/ArchLinux/' \
+	-e '/^CentOS/{
+s/CentOS Linux/CentOS/
+s/CentOS\([0-9]\)/CentOS \1/
+}' \
+	-e '/FreeBSD/s/-RELEASE//' \
+	-e '/SLES[0-9][0-9]* SP/s/ SP/-SP/' \
+	-e '/OpenIndiana/s/Hipster //' \
+	-e 's/^/_arch=/' \
+	-e 's/ /+_distro=/' \
+	-e 's/ / _version="/' \
+	-e 's/+_/ _/' \
+	-e 's/$/"/' \
+    | tr ' ' '\012' >$tmp.eval
+    eval `cat $tmp.eval`
+    sed <$unavailable \
+	-e 's/#.*//' \
+	-e '/^[ 	]*$/d' \
+    | while read distro_pat version_pat arch_pat packages
     do
-# s;[^ 	]*\('"$f"'\);\1;
-	sed <$tmp.manifest >$tmp.tmp -e "/$f/{"'
-s;\[[^]]*];[N/A on host '"`hostname -s`"'];
-}'
-	mv $tmp.tmp $tmp.manifest
-	$very_verbose && echo "n/a for $f"
+	if echo "$_distro" | grep "$distro_pat" >/dev/null
+	then
+	    # Distro matches, check versions
+	    #
+	    _match=true
+	    if [ "X$version_pat" = "X-" -o -z "$_version" ]
+	    then
+		:
+	    else
+		if echo "$_version" | grep "$version_pat" >/dev/null
+		then
+		    :
+		else
+		    _match=false
+		fi
+	    fi
+	    if $_match
+	    then
+		# Distro and version matches, check architecture
+		if [ "X$arch_pat" = "X-" -o -z "$_arch" ]
+		then
+		    :
+		else
+		    if echo "$_arch" | grep "$arch_pat" >/dev/null
+		    then
+			:
+		    else
+			_match=false
+		    fi
+		fi
+	    fi
+	    if $_match
+	    then
+		echo "$packages" >>$tmp.na
+	    fi
+	fi
     done
+    if [ -s $tmp.na ]
+    then
+	if [ -z "$unavail_pkg" ]
+	then
+	    unavail_pkg="`cat $tmp.na`"
+	else
+	    unavail_pkg="$unavail_pkg `cat $tmp.na`"
+	fi
+    fi
+fi
+
+if $pkglist
+then
+    # for -p, don't mark manifest lines with N/A ... this is handled
+    # later for each package in [ ... ]
+    #
+    :
+else
+    if [ -n "$unavail_pkg" ]
+    then
+	for f in $unavail_pkg
+	do
+	    if [ -z "$_version" ]
+	    then
+		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$f[] ]/"'{
+s;\[[^]]*];[N/A on '"$_distro"'];
+}'
+	    else
+		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$f[] ]/"'{
+s;\[[^]]*];[N/A on '"$_distro"' '"$_version"'];
+}'
+	    fi
+	    mv $tmp.tmp $tmp.manifest
+	    $very_verbose && echo >&2 "unavailable: $f"
+	done
+    fi
+fi
+
+# the optional "skip.<hostname>" file records packages that may be available
+# but for various reasons should be be installed on a particular host ...
+# examples are docker.io that does not get along with qemu or unbound that
+# does not co-exist with bind9 or libfooqt.so that is really for the wrong
+# version of Qt
+#
+skip_pkg=''
+_hostname=`hostname -s`
+if [ -f $skip.$_hostname ]
+then
+    $verbose && echo >&2 "Processing $skip.`hostname -s` ..."
+    skip_pkg=`sed <$skip.$_hostname \
+	    -e 's/#.*//' \
+	    -e '/^[ 	]*$/d'`
+    if $pkglist
+    then
+	# for -p, don't mark manifest lines with skip ... this is handled
+	# later for each package in [ ... ]
+	#
+	:
+    else
+	if [ -n "$unavail_pkg" ]
+	then
+	    for f in $skip_pkg
+	    do
+		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$f[] ]/"'{
+s;\[[^]]*];[skip on host '"$_hostname"'];
+}'
+		mv $tmp.tmp $tmp.manifest
+		$very_verbose && echo >&2 "skip: $f"
+	    done
+	fi
+    fi
 fi
 
 if $force
@@ -589,8 +704,8 @@ else
 	    else
 		#debug# echo "pyver=$pyver"
 		sed <$tmp.manifest >$tmp.tmp -e '/\/python[0-9]/{
-    /\/python'"$pyver"'[./]/!d
-    }'
+/\/python'"$pyver"'[./]/!d
+}'
 		#debug# diff $tmp.manifest $tmp.tmp
 		mv $tmp.tmp $tmp.manifest
 	    fi
@@ -624,8 +739,15 @@ fi
 
 if $check_manifest
 then
-    echo "Handing off to $dir/check-manifest ..."
-    exec $dir/check-manifest $check_manifest_args $tmp
+    # save the unavailable packages list, and hand off
+    #
+    touch $tmp.unavail
+    for _pkg in $unavail_pkg
+    do
+	echo "$_pkg" >>$tmp.unavail
+    done
+    echo "Handing off to $home/check-manifest ..."
+    exec $home/check-manifest $check_manifest_args $tmp
 fi
 
 # main loop
@@ -716,13 +838,13 @@ do
 	fi
 	if $verbose
 	then
-	    $PCP_ECHO_PROG $PCP_ECHO_N "$app ... "$PCP_ECHO_C
-	    $optional && $PCP_ECHO_PROG $PCP_ECHO_N "[optional] "$PCP_ECHO_C
+	    $PCP_ECHO_PROG >&2 $PCP_ECHO_N "$app ... "$PCP_ECHO_C
+	    $optional && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "[optional] "$PCP_ECHO_C
 	    if [ $ok = 0 ]
 	    then
-		$PCP_ECHO_PROG $PCP_ECHO_N "yes "$PCP_ECHO_C
+		$PCP_ECHO_PROG >&2 $PCP_ECHO_N "yes "$PCP_ECHO_C
 	    else
-		$PCP_ECHO_PROG $PCP_ECHO_N "no "$PCP_ECHO_C
+		$PCP_ECHO_PROG >&2 $PCP_ECHO_N "no "$PCP_ECHO_C
 	    fi
 	    touch $tmp.echo
 	fi
@@ -730,7 +852,7 @@ do
 	then
 	    if $optional
 	    then
-		[ -f $tmp.echo ] && echo
+		[ -f $tmp.echo ] && echo >&2
 		continue
 	    fi
 	    touch $tmp.ok
@@ -744,7 +866,7 @@ do
 	    fi
 	fi
     done
-    [ -f $tmp.echo ] && echo
+    [ -f $tmp.echo ] && echo >&2
     if [ ! -f $tmp.ok ]
     then
 	if $pkglist
@@ -753,12 +875,28 @@ do
 	    | sed -n \
 		-e 's/.*\[//' \
 		-e 's/]//' \
-		-e '/N\/A/d' \
 		-e 's/ ([^)]*)//' \
+		-e 's/^or //' \
+		-e 's/ or$//' \
+		-e 's/^or$//' \
+		-e 's/ or / /g' \
 		-e 's/[ 	][ 	]*/ /g' \
 		-e '/^ *$/d' \
 		-e p \
-	    # end
+	    | while read _pkgs
+	    do
+		# don't list the unavailable packages nor the skipped ones
+		#
+		for _pkg in $_pkgs
+		do
+		    if echo " $unavail_pkg " | grep " $_pkg " >/dev/null
+		    then
+			:
+		    else
+			echo "$_pkg"
+		    fi
+		done
+	    done
 	else
 	    echo "Missing: `echo $apps \
 		| sed \
@@ -847,7 +985,7 @@ End-of-File
 	    ( echo $version; echo $ctlversion ) | _compare $relop
 	    if [ $? = 0 ]
 	    then
-		$verbose && echo "$pkg: version installed $version, need $relop $ctlversion, OK"
+		$verbose && echo >&2 "$pkg: version installed $version, need $relop $ctlversion, OK"
 	    else
 		echo "Warning: $pkg version installed $version, need $relop $ctlversion"
 	    fi
@@ -889,7 +1027,7 @@ End-of-File
 	    rpm -q $rpm >$tmp.tmp 2>/dev/null
 	    if grep 'is not installed' $tmp.tmp >/dev/null 2>&1
 	    then
-		$verbose && echo "$rpm: not installed, need $relop $specversion$pcp_pkg, OK"
+		$verbose && echo >&2 "$rpm: not installed, need $relop $specversion$pcp_pkg, OK"
 		echo "Warning: $rpm not installed, need $relop $specversion$pcp_pkg" >>$tmp.notfound
 	    else
 		touch $tmp.found
@@ -897,7 +1035,7 @@ End-of-File
 		( echo $version; echo $specversion ) | _compare $relop
 		if [ $? = 0 ]
 		then
-		    $verbose && echo "$rpm: version installed $version, need $relop $specversion$pcp_pkg, OK"
+		    $verbose && echo >&2 "$rpm: version installed $version, need $relop $specversion$pcp_pkg, OK"
 		else
 		    echo "Warning: $rpm version installed $version, need $relop $specversion$pcp_pkg"
 		fi
@@ -907,7 +1045,7 @@ End-of-File
 	then
 	    :
 	else
-	    $verbose || cat $tmp.notfound
+	    $verbose || cat >&2 $tmp.notfound
 	fi
     done
 fi
@@ -938,7 +1076,7 @@ End-of-File
 	    ( echo $libversion; echo $version ) | _compare $relop
 	    if [ $? = 0 ]
 	    then
-		$verbose && echo "$lib: version installed $libversion, need $relop $version$pcp_pkg, OK"
+		$verbose && echo >&2 "$lib: version installed $libversion, need $relop $version$pcp_pkg, OK"
 	    else
 		echo "Warning: $lib version installed $libversion, need $relop $version$pcp_pkg"
 	    fi
@@ -1065,8 +1203,7 @@ fi
 
 # Now some platform-specific tests
 #
-$dir/whatami >$tmp.tmp
-case "`sed <$tmp.tmp -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
+case "`sed <$tmp.whatami -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
 in
     *OpenBSD*)
 	allowkmem=`sysctl kern.allowkmem | sed -e 's/.*=//'`
@@ -1080,4 +1217,4 @@ in
 
 esac
 
-$verbose && echo "temp files:" $tmp.*
+$very_verbose && echo >&2 "temp files:" $tmp.*
