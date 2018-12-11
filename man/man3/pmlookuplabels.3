@@ -43,6 +43,32 @@ int pmGetContextLabels(pmLabelSet **\fIlabelsets\fP);
 .sp
 cc ... \-lpcp
 .ft 1
+.SH "PYTHON SYNOPSIS / EXAMPLE"
+.ft 3
+import json
+.br
+from pcp import pmapi
+import cpmapi as c_api
+.sp
+\fIcontext\fP = pmapi.pmContext(c_api.PM_CONTEXT_HOST, "\fBlocal:\fP")
+.br
+   ...
+.nf
+\fIlabelSetList\fP = context.pmLookupLabels(\fIpmid\fP)
+.sp
+\fIlabelSetList\fP = context.pmGetInstancesLabels(\fIindom\fP)
+.br
+\fIlabelSetList\fP = context.pmGetItemLabels(\fIpmid\fP)
+.br
+\fIlabelSetList\fP = context.pmGetClusterLabels(\fIpmid\fP)
+.br
+\fIlabelSetList\fP = context.pmGetInDomLabels(\fIindom\fP)
+.br
+\fIlabelSetList\fP = context.pmGetDomainLabels(\fIdomain\fP)
+.br
+\fIlabelSetList\fP = context.pmGetContextLabels()
+.sp
+.ft 1
 .SH DESCRIPTION
 .de CW
 .ie t \f(CW\\$1\fR\\$2
