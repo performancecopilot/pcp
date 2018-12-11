@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# reformat one line from unavailable ... sort packages and remove
+# any duplicates
+#
+
+read distro version arch pkgs_in
+
+pkgs_out=`echo "$pkgs_in" \
+	  | tr ' ' '\012' \
+	  | sort \
+	  | uniq \
+	  | tr '\012' ' ' \
+	  | sed -e 's/  *$//'`
+
+printf "%-12.12s %-8.8s %-7.7s %s\n" "$distro" "$version" "$arch" "$pkgs_out"
