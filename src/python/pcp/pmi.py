@@ -367,7 +367,7 @@ class pmiLogImport(object):
         if status < 0:
             raise pmiErr(status)
         if type(name) != type(b''):
-            name = content.encode('utf-8')
+            name = name.encode('utf-8')
         if type(content) != type(b''):
             content = content.encode('utf-8')
         status = LIBPCP_IMPORT.pmiPutLabel(typ, ident, inst, c_char_p(name), c_char_p(content))
