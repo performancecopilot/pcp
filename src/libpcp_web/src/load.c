@@ -149,10 +149,8 @@ new_metric(seriesLoadBaton *baton, pmValueSet *vsp)
     if (sts < 0)
 	return NULL;
 
-    if ((metric = pmwebapi_new_metric(context, &desc,
-			count, nameall, baton->info, baton->arg)) == NULL)
+    if ((metric = pmwebapi_new_metric(context, &desc, count, nameall)) == NULL)
 	return NULL;
-
     if (metric->cluster) {
 	if (metric->cluster->domain)
 	    pmwebapi_add_domain_labels(metric->cluster->domain);
@@ -668,7 +666,7 @@ doneSeriesGetContext(seriesGetContext *context, const char *caller)
     seriesBatonCheckMagic(context, MAGIC_CONTEXT, "doneSeriesGetContext");
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "doneSeriesGetContext");
 
-    if (seriesBatonDereference(context, caller))
+    if (seriesBatonDereference(context, caller) && context->done != NULL)
 	context->done(baton);
 
     if (context->error) {
@@ -863,13 +861,37 @@ series_load(pmSeriesSettings *settings,
     i = 0;
     baton->current = &baton->phases[i];
     baton->phases[i++].func = setup_source_services;
-    baton->phases[i++].func = series_source_mapping;	/* assign source/host string map */
-    baton->phases[i++].func = series_cache_source;	/* write source info into schema */
-    baton->phases[i++].func = series_cache_metrics;	/* write time series into schema */
+    /* assign source/host string map (series_source_mapping) */
+    baton->phases[i++].func = series_source_mapping;
+    /* write source info into schema (series_cache_source) */
+    baton->phases[i++].func = series_cache_source;
+    /* write time series into schema (series_cache_metrics) */
+    baton->phases[i++].func = series_cache_metrics;
     baton->phases[i++].func = series_load_finished;
     assert(i <= LOAD_PHASES);
     seriesBatonPhases(baton->current, i, baton);
     return 0;
+}
+
+static void
+series_source_persist(void *arg)
+{
+    seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
+
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_source_persist");
+    /* take a reference to keep this load baton until closed */
+    seriesBatonReference(baton, "series_source_persist");
+}
+
+static void
+series_discover_done(int status, void *arg)
+{
+    seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
+
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_discover_done");
+    /* archive no longer active, remove from discovery set */
+    freeSeriesLoadBaton(baton);
+    (void)status;
 }
 
 void
@@ -877,6 +899,7 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
 {
     pmDiscoverModule	*module = event->module;
     pmDiscover		*p = (pmDiscover *)event->data;
+    pmLabelSet		*set;
     seriesLoadBaton	*baton;
     context_t		*cp;
     sds			msg;
@@ -887,32 +910,41 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
 
     baton = (seriesLoadBaton *)calloc(1, sizeof(seriesLoadBaton));
     if (baton == NULL) {
-	infofmt(msg, "%s: out of memory for baton", "redisSlotsDiscoverSource");
+	infofmt(msg, "%s: out of memory for baton", "pmSeriesDiscoverSource");
 	moduleinfo(module, PMLOG_ERROR, msg, arg);
 	return;
     }
     initSeriesLoadBaton(baton, module, 0 /*flags*/,
-			module->on_info, NULL /*done*/,
+			module->on_info, series_discover_done,
 			module->slots, arg);
     initSeriesGetContext(&baton->pmapi, baton);
     p->baton = baton;
+
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "%s: new source %s context=%d\n",
+			"pmSeriesDiscoverSource", p->context.name, p->ctx);
 
     cp = &baton->pmapi.context;
     cp->context = p->ctx;
     cp->type = p->context.type;
     cp->name.sds = sdsdup(p->context.name);
     cp->host = p->context.hostname;
-    cp->labelset = p->context.labelset;
-    pmwebapi_source_hash(cp->name.hash, cp->labelset->json, cp->labelset->jsonlen);
+    cp->labelset = set = p->context.labelset;
+    pmwebapi_source_hash(cp->name.hash, set->json, set->jsonlen);
+    pmwebapi_setup_context(cp);
     set_source_origin(cp);
 
     /* ordering of async operations */
     i = 0;
     baton->current = &baton->phases[i];
+    /* assign source/host string map (series_source_mapping) */
     baton->phases[i++].func = series_source_mapping;
+    /* write source info into schema (series_cache_source) */
     baton->phases[i++].func = series_cache_source;
-    baton->phases[i++].func = series_load_finished;
+    /* batons finally released in pmSeriesDiscoverClosed */
+    baton->phases[i++].func = series_source_persist;
     assert(i <= LOAD_PHASES);
+
     seriesBatonPhases(baton->current, i, baton);
 }
 
@@ -923,8 +955,9 @@ pmSeriesDiscoverClosed(pmDiscoverEvent *event, void *arg)
     seriesLoadBaton	*baton = p->baton;
 
     (void)arg;
-    pmwebapi_free_context(&baton->pmapi.context);
-    freeSeriesLoadBaton(baton);
+
+    /* release pmSeriesDiscoverSource reference on load and context batons */
+    doneSeriesLoadBaton(baton, "pmSeriesDiscoverSource");
 }
 
 void
@@ -950,116 +983,86 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 	    if (cp->labelset)
 		pmFreeLabelSets(cp->labelset, 1);
 	    cp->labelset = labels;
+	    pmwebapi_locate_context(cp);
 	    cp->updated = 1;
 	} else {
-	    infofmt(msg, "failed to dup context %d labels", ident);
+	    infofmt(msg, "failed to duplicate label set");
 	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	}
 	break;
 
     case PM_LABEL_DOMAIN:
-	if ((domain = dictFetchValue(cp->domains, &ident)) != NULL) {
-	    if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
-		if (domain->labelset)
-		    pmFreeLabelSets(domain->labelset, 1);
-		domain->labelset = labels;
-		domain->updated = 1;
-	    } else {
-		infofmt(msg, "failed to dup domain %d labels", ident);
-		moduleinfo(event->module, PMLOG_ERROR, msg, arg);
-	    }
+	domain = pmwebapi_add_domain(cp, ident);
+	if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+	    if (domain->labelset)
+		pmFreeLabelSets(domain->labelset, 1);
+	    domain->labelset = labels;
+	    domain->updated = 1;
 	} else {
-	    infofmt(msg, "%s: failed domain label discovery (domain %u)",
-			"pmSeriesDiscoverLabels", ident);
+	    infofmt(msg, "failed to duplicate label set");
 	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	}
 	break;
 
     case PM_LABEL_CLUSTER:
-	id = pmID_cluster(ident);
-	if ((cluster = dictFetchValue(cp->clusters, &id)) != NULL) {
-	    if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
-		if (cluster->labelset)
-		    pmFreeLabelSets(cluster->labelset, 1);
-		cluster->labelset = labels;
-		cluster->updated = 1;
-	    } else {
-		infofmt(msg, "%s: failed to dup cluster %d labels (pmID %s)",
-			    "pmSeriesDiscoverLabels", id,
-			    pmIDStr_r(ident, idbuf, sizeof(idbuf)));
-		moduleinfo(event->module, PMLOG_ERROR, msg, arg);
-	    }
+	domain = pmwebapi_add_domain(cp, pmID_domain(ident));
+	cluster = pmwebapi_add_cluster(cp, domain, pmID_cluster(ident));
+	if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+	    if (cluster->labelset)
+		pmFreeLabelSets(cluster->labelset, 1);
+	    cluster->labelset = labels;
+	    cluster->updated = 1;
 	} else {
-	    infofmt(msg, "%s: failed cluster label discovery (cluster %u)",
-			"pmSeriesDiscoverLabels", ident);
+	    infofmt(msg, "failed to duplicate label set");
 	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	}
 	break;
 
     case PM_LABEL_ITEM:
-	if ((metric = dictFetchValue(cp->metrics, &ident)) != NULL) {
-	    if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
-		if (metric->labelset)
-		    pmFreeLabelSets(metric->labelset, 1);
-		metric->labelset = labels;
-		metric->updated = 1;
-	    } else {
-		infofmt(msg, "%s: failed to dup metric %s labels",
-			    "pmSeriesDiscoverLabels",
-			    pmIDStr_r(ident, idbuf, sizeof(idbuf)));
-		moduleinfo(event->module, PMLOG_ERROR, msg, arg);
-	    }
+	metric = pmwebapi_new_pmid(cp, ident, event->module->on_info, arg);
+	if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+	    if (metric->labelset)
+		pmFreeLabelSets(metric->labelset, 1);
+	    metric->labelset = labels;
+	    metric->updated = 1;
 	} else {
-	    infofmt(msg, "%s: failed metric label discovery (%s)",
-			"pmSeriesDiscoverLabels",
-			pmIDStr_r(ident, idbuf, sizeof(idbuf)));
+	    infofmt(msg, "failed to duplicate label set");
 	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	}
 	break;
 
     case PM_LABEL_INDOM:
-	if ((indom = dictFetchValue(cp->indoms, &ident)) != NULL) {
-	    if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
-		if (indom->labelset)
-		    pmFreeLabelSets(indom->labelset, 1);
-		indom->labelset = labels;
-		indom->updated = 1;
-	    } else {
-		infofmt(msg, "failed to dup %s instance labels: %s",
-			pmInDomStr_r(ident, idbuf, sizeof(idbuf)),
-			pmErrStr_r(-ENOMEM, errmsg, sizeof(errmsg)));
-		moduleinfo(event->module, PMLOG_ERROR, msg, arg);
-	    }
+	domain = pmwebapi_add_domain(cp, pmInDom_domain(ident));
+	indom = pmwebapi_add_indom(cp, domain, ident);
+	if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+	    if (indom->labelset)
+		pmFreeLabelSets(indom->labelset, 1);
+		    indom->labelset = labels;
+	    indom->updated = 1;
 	} else {
-	    infofmt(msg, "%s: failed indom label discovery (%s)",
-			"pmSeriesDiscoverLabels",
-			pmInDomStr_r(ident, idbuf, sizeof(idbuf)));
+	    infofmt(msg, "failed to duplicate label set");
 	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	}
 	break;
 
     case PM_LABEL_INSTANCES:
-	if ((indom = dictFetchValue(cp->indoms, &ident)) != NULL) {
-	    for (i = 0; i < nsets; i++) {
-		id = sets[i].inst;
-		if ((instance = dictFetchValue(indom->insts, &id)) == NULL)
-		    continue;
-		if ((labels = pmwebapi_labelsetdup(&sets[i])) == NULL) {
-		    infofmt(msg, "failed to dup %s instance labels: %s",
-			    pmInDomStr_r(indom->indom, idbuf, sizeof(idbuf)),
-			    pmErrStr_r(-ENOMEM, errmsg, sizeof(errmsg)));
-		    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
-		}
-		if (instance->labelset)
-		    pmFreeLabelSets(instance->labelset, 1);
-		instance->labelset = labels;
-		pmwebapi_instance_hash(indom, instance);
+	domain = pmwebapi_add_domain(cp, pmInDom_domain(ident));
+	indom = pmwebapi_add_indom(cp, domain, ident);
+	for (i = 0; i < nsets; i++) {
+	    id = sets[i].inst;
+	    if ((instance = dictFetchValue(indom->insts, &id)) == NULL)
+		continue;
+	    if ((labels = pmwebapi_labelsetdup(&sets[i])) == NULL) {
+		infofmt(msg, "failed to dup %s instance labels: %s",
+			pmInDomStr_r(indom->indom, idbuf, sizeof(idbuf)),
+			pmErrStr_r(-ENOMEM, errmsg, sizeof(errmsg)));
+		moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	    }
+	    if (instance->labelset)
+		pmFreeLabelSets(instance->labelset, 1);
+	    instance->labelset = labels;
+	    pmwebapi_instance_hash(indom, instance);
 	    indom->updated = 1;
-	} else {
-	    infofmt(msg, "%s: failed indom label discovery (indom %s)",
-			"pmSeriesDiscoverLabels", pmInDomStr(ident));
-	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	}
 	break;
 
@@ -1087,8 +1090,8 @@ pmSeriesDiscoverMetric(pmDiscoverEvent *event,
 			i + 1, numnames, pmIDStr(desc->pmid), names[i]);
     }
 
-    if ((metric = pmwebapi_add_metric(&baton->pmapi.context, desc,
-				numnames, names, baton->info, arg)) == NULL) {
+    if ((metric = pmwebapi_add_metric(&baton->pmapi.context,
+				desc, numnames, names)) == NULL) {
 	infofmt(msg, "%s: failed metric discovery", "pmSeriesDiscoverMetric");
 	moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	return;
@@ -1102,8 +1105,10 @@ pmSeriesDiscoverValues(pmDiscoverEvent *event, pmResult *result, void *arg)
     seriesLoadBaton	*baton = p->baton;
     seriesGetContext	*context = &baton->pmapi;
 
+    seriesBatonReference(context, "pmSeriesDiscoverValues");
     baton->arg = arg;
     context->result = result;
+
     series_cache_update(baton);
 }
 

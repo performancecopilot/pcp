@@ -48,12 +48,9 @@ kernel
 
 ## specific apps
 ##
-# pmcd app and control infrastructure
+# pcp collector infrastructure
 pmcd
-# pmcd proxy
 pmproxy
-# pmcd pmproxy2
-pmproxy2
 # strip chart app
 pmchart
 # pmdumptext app
@@ -1634,4 +1631,5 @@ BAD
 1480 pmda.lmsensors local
 1495 pmlogrewrite labels pmdumplog local
 1545 pmrep local
+1600 pmseries pmcd pmproxy pmlogger local
 4751 libpcp threads valgrind local pcp python

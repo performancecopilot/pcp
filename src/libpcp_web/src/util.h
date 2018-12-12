@@ -52,6 +52,8 @@ extern void pmwebapi_metric_hash(struct metric *);
 extern void pmwebapi_instance_hash(struct indom *, struct instance *);
 
 extern sds pmwebapi_new_context(struct context *);
+extern void pmwebapi_locate_context(struct context *);
+extern void pmwebapi_setup_context(struct context *);
 extern void pmwebapi_free_context(struct context *);
 extern int pmwebapi_source_meta(struct context *, char *, int);
 extern int pmwebapi_source_hash(unsigned char *, const char *, int);
@@ -85,11 +87,9 @@ extern struct instance *pmwebapi_add_instance(struct indom *, int, char *);
 extern struct metric *pmwebapi_new_pmid(struct context *,
 		pmID, pmLogInfoCallBack, void *);
 extern struct metric *pmwebapi_new_metric(struct context *,
-		pmDesc *, int, char **, pmLogInfoCallBack, void *);
-extern struct metric *pmwebapi_add_pmid(struct context *,
-		pmID, pmLogInfoCallBack, void *);
+		pmDesc *, int, char **);
 extern struct metric *pmwebapi_add_metric(struct context *,
-		pmDesc *, int, char **, pmLogInfoCallBack, void *);
+		pmDesc *, int, char **);
 extern void pmwebapi_add_item_labels(struct metric *);
 extern int pmwebapi_add_valueset(struct metric *, pmValueSet *);
 

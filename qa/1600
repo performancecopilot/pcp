@@ -1,0 +1,152 @@
+#!/bin/sh
+# PCP QA Test No. 1600
+# Exercise log discovery, pmproxy and pmseries.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+
+_cleanup()
+{
+    [ -n "$pmlogger_pid" ] && $signal -s TERM $pmlogger_pid
+    [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
+    [ -n "$options" ] && redis-cli $options shutdown
+    cd $here
+    if $need_restore
+    then
+	need_restore=false
+	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+	_restore_config $PCP_ETC_DIR/pcp/labels
+	_sighup_pmcd
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+
+userid=`id -u`
+groupid=`id -g`
+username=`id -u -n`
+hostname=`hostname`
+machineid=`_machine_id`
+if which domainname >/dev/null 2>&1
+then
+    domainname=`domainname`
+else
+    domainname=`hostname -d`
+fi
+[ -z "$domainname" ] && domainname=localdomain
+[ "$domainname" = "(none)" ] && domainname=localdomain
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_series()
+{
+    sed \
+	-e 's/[0-9a-z]\{40\}/TIMESERIES/g' \
+    #end
+}
+
+_filter_labels()
+{
+    sed \
+	-e "s/.domainname.:.${domainname}./\"domainname\":\"DOMAIN\"/g" \
+	-e "s/.machineid.:.${machineid}./\"machineid\":\"MACHINE\"/g" \
+	-e "s/.hostname.:.${hostname}./\"hostname\":\"HOST\"/g" \
+	-e "s/.groupid.:$groupid/\"groupid\":GID/g" \
+	-e "s/.userid.:$userid/\"userid\":UID/g" \
+    #end
+}
+
+_filter_values()
+{
+    sed \
+	-e 's/\[[0-9][0-9]*\.[0-9][0-9]*\]/[TIMESTAMP]/g' \
+	-e 's/ [0-9][0-9]*$/VALUE/g' \
+    #end
+}
+
+# real QA test starts here
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+need_restore=true
+echo '{"latitude": -25.28496, "longitude": 152.87886}' > $tmp.labels
+$sudo cp $tmp.labels $PCP_ETC_DIR/pcp/labels/pcpqa.location
+_sighup_pmcd
+
+echo "Start test Redis server ..."
+redisport=`_find_free_port`
+redis-server --port $redisport > $tmp.redis 2>&1 &
+echo "PING"
+pmsleep 0.125
+options="-p $redisport"
+redis-cli $options ping
+echo
+
+# prepare logging location and config
+export PCP_LOG_DIR=$tmp.log
+base=$PCP_LOG_DIR/pmlogger
+mkdir -p $base
+cat >$tmp.pmlogger.conf << End-Of-File
+log mandatory on default {
+    mmv
+    pmcd
+    sample
+}
+End-Of-File
+
+# start long-running pmlogger actively writing archives
+pmlogger -t 0.25 -c $tmp.pmlogger.conf -l $tmp.pmlogger.log $base/archive &
+pmlogger_pid=$!
+
+# start pmproxy 
+proxyport=`_find_free_port`
+proxyopts="-p $proxyport"  # -Dseries,discovery
+pmproxy -f -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
+pmproxy_pid=$!
+
+# check pmproxy has started and is discovering timeseries
+pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
+pmsleep 0.75
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'pmlogger|pmproxy' >> $seq.full
+
+#
+# verify we have data loading and can issue various queries
+#
+echo "== verify metric names" | tee -a $seq.full
+pmseries $options sample.double.bin* | LC_COLLATE=POSIX sort
+
+echo "== verify metric descs" | tee -a $seq.full
+series=`pmseries $options sample.long.ten`
+[ -z "$series" ] && _fail "Cannot find any timeseries matching sample.long.ten"
+pmseries $options -d $series | _filter_series
+
+echo "== verify metric insts" | tee -a $seq.full
+series=`pmseries $options sample.ulong.bin`
+[ -z "$series" ] && _fail "Cannot find any timeseries matching sample.ulong.bin"
+pmseries $options -i $series | _filter_series
+
+echo "== verify metric labels" | tee -a $seq.full
+series=`pmseries $options sample.double.bin`
+[ -z "$series" ] && _fail "Cannot find any timeseries matching sample.double.bin"
+pmseries $options -l $series | _filter_labels | _filter_series
+
+echo "== verify metric values" | tee -a  $seq.full
+pmseries $options sample.ulong.million[samples:2] | _filter_values | _filter_series
+
+echo "== all done" | tee -a $seq.full
+
+# success, all done
+status=0
+exit

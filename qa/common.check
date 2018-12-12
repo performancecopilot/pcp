@@ -1118,6 +1118,20 @@ _check_purify()
     [ $? -eq 0 ] || _notrun "No purify binary found"
 }
 
+_check_series()
+{
+    which pmseries >/dev/null 2>&1 || \
+	_notrun "pmseries command line utility not installed"
+    which redis-cli >/dev/null 2>&1 || \
+	_notrun "Redis command line utility not installed"
+    which redis-server >/dev/null 2>&1 || \
+	_notrun "Redis server utility not installed"
+    eval `redis-cli info server |
+	grep redis_version: |
+	sed -e 's/:/=/g' -e 's/\..*//g'`
+    [ $redis_version -ge 5 ] || _notrun "Redis $redis_version too old"
+}
+
 _check_display()
 {
     # note: non-X systems (MacOSX, Windows) must pass here unchallenged

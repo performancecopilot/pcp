@@ -194,6 +194,7 @@ redis_map_request_callback(redisAsyncContext *redis, redisReply *reply, void *ar
     redisMapBaton	*baton = (redisMapBaton *)arg;
     redisSlots		*slots = (redisSlots *)baton->slots;
     const char		*mapname;
+    char		hash[42];
     sds			cmd, msg, key;
     int			newname;
 
@@ -207,7 +208,8 @@ redis_map_request_callback(redisAsyncContext *redis, redisReply *reply, void *ar
 	doneRedisMapBaton(baton);
     } else {
 	/* publish any newly created name mapping */
-	msg = sdscatfmt(sdsempty(), "%S:%S", baton->mapKey, baton->mapStr);
+	pmwebapi_hash_str((unsigned char *)baton->mapKey, hash, sizeof(hash));
+	msg = sdscatfmt(sdsempty(), "%S:%S", hash, baton->mapStr);
 	key = sdscatfmt(sdsempty(), "pcp:channel:%s", mapname);
 	cmd = redis_command(3);
 	cmd = redis_param_str(cmd, PUBLISH, PUBLISH_LEN);
@@ -259,7 +261,7 @@ redisGetMap(redisSlots *slots, redisMap *mapping, unsigned char *hash, sds mapSt
 	if ((baton = calloc(1, sizeof(redisMapBaton))) != NULL) {
 	    initRedisMapBaton(baton, slots, mapping, mapKey, mapStr,
 			    on_done, on_info, userdata, arg);
-	    redisMapInsert(mapping, mapKey, mapStr);
+	    redisMapInsert(mapping, mapKey, sdsdup(mapStr));
 	    redisMapRequest(baton, mapping, mapKey, mapStr);
 	} else {
 	    on_done(arg);
@@ -739,7 +741,7 @@ redis_series_metric(redisSlots *slots, metric_t *metric,
     }
 
     /* ensure all metric or instance label strings are mapped */
-    if (metric->desc.indom == PM_INDOM_NULL) {
+    if (metric->desc.indom == PM_INDOM_NULL || metric->u.vlist == NULL) {
 	series_metric_label_mapping(metric, baton);
     } else {
 	for (i = 0; i < metric->u.vlist->listcount; i++) {
@@ -882,7 +884,7 @@ redis_series_metadata(context_t *context, metric_t *metric, void *arg)
 	cmd = redis_param_sha(cmd, metric->names[i].hash);
     redisSlotsRequest(slots, SADD, key, cmd, redis_series_source_callback, arg);
 
-    if (metric->desc.indom == PM_INDOM_NULL) {
+    if (metric->desc.indom == PM_INDOM_NULL || metric->u.vlist == NULL) {
 	redis_series_labelset(slots, metric, NULL, baton);
     } else {
 	for (i = 0; i < metric->u.vlist->listcount; i++) {
@@ -1050,7 +1052,7 @@ redis_series_stream(redisSlots *slots, sds stamp, metric_t *metric,
     } else {
 	name = sdsempty();
 	type = metric->desc.type;
-	if (metric->desc.indom == PM_INDOM_NULL) {
+	if (metric->desc.indom == PM_INDOM_NULL || metric->u.vlist == NULL) {
 	    stream = series_stream_value(stream, name, type, &metric->u.atom);
 	    count += 2;
 	} else if (metric->u.vlist->listcount <= 0) {
