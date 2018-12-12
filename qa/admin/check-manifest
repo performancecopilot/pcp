@@ -770,7 +770,7 @@ in
 	;;
 
     F_pkg)
-	echo >&2 "TODO: no list all packages method for pkg"
+	pkg info -a | sed -e 's/-[0-9].*//'
 	;;
 
     pkg_add)

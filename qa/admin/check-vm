@@ -268,7 +268,7 @@ do
     fi
 done
 
-# Packaging tools we know about.
+# Packaging types we know about.
 #	dpkg - Debian-based
 #	rpm - RPM-based, e.g. RHEL, CentOS, SuSE, Fedora
 #	urpmi - OpenMandriva (also RPM based)
@@ -281,7 +281,7 @@ done
 #	pacman - Arch Linux
 #	brew - Mac OS X
 #
-pkgtools="dpkg rpm urpmi emerge pkgin pkg_add F_pkg S_pkg slackpkg pacman brew"
+pkgtypes="dpkg rpm urpmi emerge pkgin pkg_add F_pkg S_pkg slackpkg pacman brew"
 
 # Distros we know about (or more specifically ones with the same 
 # packaging tools but different package names).
@@ -367,10 +367,10 @@ fi
 # this is an optimization remove checks from the main loop below
 #
 rm -f $tmp.ok
-for pkgtype in $pkgtools
+for pkgtype in $pkgtypes
 do
     want=true
-    pkgtool=$pkgtype
+    tool=$pkgtype
     case $pkgtype
     in
 	rpm)
@@ -388,16 +388,24 @@ do
 	    which pkgin >/dev/null 2>&1 && want=false
 	    ;;
 	S_pkg)
-	    $have_S_pkg || want=false
-	    pkgtool=pkg
+	    if $have_S_pkg
+	    then
+		tool=pkg
+	    else
+		want=false
+	    fi
 	    ;;
 	F_pkg)
-	    pkgtool=pkg
-	    $have_F_pkg || want=false
+	    if $have_F_pkg
+	    then
+		tool=pkg
+	    else
+		want=false
+	    fi
 	    ;;
     esac
 
-    if which $pkgtool >/dev/null 2>&1 && $want
+    if which $tool >/dev/null 2>&1 && $want
     then
 	$very_verbose && echo >&2 "include ${pkgtype}? lines"
 	sed -e "s/^${pkgtype}?[ 	]//" <$tmp.manifest >$tmp.tmp
@@ -409,7 +417,7 @@ do
 	    #
 	    if [ ! -f $tmp.installed ]
 	    then
-		case "$pkgtool"
+		case "$pkgtype"
 		in
 		    dpkg)
 			dpkg-query -W -f '${package}\n'
@@ -424,7 +432,7 @@ do
 			;;
 
 		    F_pkg)
-			echo >&2 "TODO: no list all packages method for pkg"
+			pkg info -a | sed -e 's/-[0-9].*//'
 			;;
 
 		    pkg_add)
@@ -440,7 +448,7 @@ do
 			;;
 
 		    *)
-			echo >&2 "Botch: no list all packages method for $pkgtool"
+			echo >&2 "Botch: no list all packages method for $pkgtype"
 			;;
 		esac >$tmp.installed
 	    fi
@@ -454,7 +462,7 @@ done
 if [ ! -f $tmp.ok ]
 then
     echo "Warning: don't understand what packing is being used here ..."
-    echo "         it is none of: $pkgtools"
+    echo "         it is none of: $pkgtypes"
 fi
 
 # Strip the distro-dependent lines that do not apply ...
@@ -511,9 +519,6 @@ in
     vm05)
 	unavail_pkg=''
 	;;
-    vm06)
-	unavail_pkg='sensors'
-	;;
     vm09)
 	unavail_pkg='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg dtrace boost json_reformat py36-imaging nmap' 
 	;;
@@ -543,9 +548,6 @@ in
 	;;
     vm31)
 	unavail_pkg='python-prometheus_client' 
-	;;
-    vm32)
-	unavail_pkg='libibumad libibmad sensors'
 	;;
     vm33)
 	unavail_pkg=''
@@ -892,12 +894,13 @@ do
 		-e 's/.*\[//' \
 		-e 's/]//' \
 		-e 's/ ([^)]*)//' \
+		-e '/skip on host/d' \
+		-e 's/N\/A//' \
+		-e 's/base [^ ]* install//' \
 		-e 's/^or //' \
 		-e 's/ or$//' \
 		-e 's/^or$//' \
 		-e 's/ or / /g' \
-		-e 's/N\/A//' \
-		-e '/skip on host/d' \
 		-e 's/[ 	][ 	]*/ /g' \
 		-e '/^ *$/d' \
 		-e p \

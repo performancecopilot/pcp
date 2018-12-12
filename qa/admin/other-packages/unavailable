@@ -19,6 +19,9 @@ CentOS       7.5      -       libvarlink-devel python2-openpyxl .*-python3 pytho
 Debian       9.[4-6]  -       docker.io libsoqt5-dev libuv-dev python3-bpfcc
 #-- Fedora
 Fedora       27       -       libvarlink-devel python3-prometheus_client
+#-- FreeBSD
+FreeBSD      10.4     -       lm_sensors
+FreeBSD      11.[12]  -       libibmad libibumad lm_sensors
 #-- openSUSE
 openSUSE     15       -       kubernetes-node libvarlink-devel pylint python3-prometheus_client python-pylint qtchooser selinux-policy selinux-policy-devel selinux-policy-targeted zabbix22-agent zabbix-agent
 openSUSE     42.2     -       Coin-devel docker-io libvarlink-devel libvirt-python3 pylint python2-pylint python3-elasticsearch python3-jsonpointer python3-libvirt python3-libvirt-python python3-pillow python3-prometheus_client python3-rtslib python3-rtslib-fb python-pylint qtchooser selinux-policy selinux-policy-devel selinux-policy-targeted SoQt-devel zabbix22-agent zabbix-agent
