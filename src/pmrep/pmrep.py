@@ -312,7 +312,8 @@ class PMReporter(object):
             elif optarg == 'abort':
                 self.names_change = 1
             else:
-                raise pmapi.pmUsageErr()
+                sys.stderr.write("Unknown names-change action '%s' specified.\n" % optarg)
+                sys.exit(1)
         elif opt == '8':
             self.limit_filter = optarg
         elif opt == '9':
@@ -494,7 +495,7 @@ class PMReporter(object):
                 self.lines += 1
 
             # Fetch values
-            if not self.pmconfig.fetch():
+            if self.pmconfig.fetch() < 0:
                 break
 
             # Report and prepare for the next round

@@ -1,3 +1,4 @@
+#
 # Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -203,23 +204,24 @@ class pmConfig(object):
             state = self.util.pmfg.fetch()
         except pmapi.pmErr as error:
             if error.args[0] == pmapi.c_api.PM_ERR_EOL:
-                return False
+                return -1
             raise error
-
-        # Handle any PMCD state change notification
-        if state & pmapi.c_api.PMCD_NAMES_CHANGE:
-            if self.names_change_action() == 1:
-                return False
 
         # Watch for end time in uninterpolated mode
         if not self.util.interpol:
             sample = self.util.pmfg_ts().strftime('%s')
             finish = self.util.opts.pmGetOptionFinish()
             if float(sample) > float(finish):
-                return False
+                return -2
+
+        # Handle any PMCD state change notification
+        if state & pmapi.c_api.PMCD_NAMES_CHANGE:
+            action = self.names_change_action()
+            if action == 1:
+                return -3
 
         # Successfully completed sampling
-        return True
+        return 0
 
     def ignore_unknown_metrics(self):
         """ Check if unknown metrics are ignored """
