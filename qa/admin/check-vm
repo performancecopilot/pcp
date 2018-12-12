@@ -403,6 +403,48 @@ do
 	sed -e "s/^${pkgtype}?[ 	]//" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
 	touch $tmp.ok
+	if $pkglist
+	then
+	    # one-trip list all currently installed packages for -p
+	    #
+	    if [ ! -f $tmp.installed ]
+	    then
+		case "$pkgtool"
+		in
+		    dpkg)
+			dpkg-query -W -f '${package}\n'
+			;;
+
+		    rpm)
+			rpm -qa --qf '%{NAME}\n'
+			;;
+
+		    pkgin)
+			echo >&2 "TODO: no list all packages method for pkg_info"
+			;;
+
+		    F_pkg)
+			echo >&2 "TODO: no list all packages method for pkg"
+			;;
+
+		    pkg_add)
+			echo >&2 "TODO: no list all packages method for pkg_locate"
+			;;
+
+		    emerge)
+			echo >&2 "TODO: no list all packages method for equery"
+			;;
+
+		    brew)
+			echo >&2 "TODO: no list all packages method for brew"
+			;;
+
+		    *)
+			echo >&2 "Botch: no list all packages method for $pkgtool"
+			;;
+		esac >$tmp.installed
+	    fi
+	fi
     else
 	$very_verbose && echo >&2 "exclude ${pkgtype}? lines"
 	grep -v "^${pkgtype}?[ 	]" <$tmp.manifest >$tmp.tmp
@@ -865,24 +907,30 @@ do
 		-e 's/[ 	][ 	]*/ /g' \
 		-e '/^ *$/d' \
 		-e p \
-	    | while read _not_installed
+	    | while read _missing
 	    do
 		# don't list the unavailable packages nor the skipped ones
+		# nor the ones already installed
 		#
-		for _not in $_not_installed
+		for _need in $_missing
 		do
-		    rm -f $tmp.match
-		    for _pkg in $unavail_pkg
-		    do
-			if echo " $_not " | grep " $_pkg " >/dev/null
-			then
-			    touch $tmp.match
-			    break
-			fi
-		    done
-		    if [ ! -f $tmp.match ]
+		    if grep "^$_need\$" $tmp.installed >/dev/null
 		    then
-			echo "$_not"
+			:
+		    else
+			rm -f $tmp.match
+			for _pkg in $unavail_pkg
+			do
+			    if echo " $_need " | grep " $_pkg " >/dev/null
+			    then
+				touch $tmp.match
+				break
+			    fi
+			done
+			if [ ! -f $tmp.match ]
+			then
+			    echo "$_need"
+			fi
 		    fi
 		done
 	    done

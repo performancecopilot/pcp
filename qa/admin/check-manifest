@@ -753,6 +753,43 @@ done
 
 # check the N/A packages list for this platform
 #
+# first, list all currently installed packages ...
+#
+case "$pkgtool"
+in
+    dpkg)
+	dpkg-query -W -f '${package}\n'
+	;;
+
+    rpm)
+	rpm -qa --qf '%{NAME}\n'
+	;;
+
+    pkgin)
+	echo >&2 "TODO: no list all packages method for pkg_info"
+	;;
+
+    F_pkg)
+	echo >&2 "TODO: no list all packages method for pkg"
+	;;
+
+    pkg_add)
+	echo >&2 "TODO: no list all packages method for pkg_locate"
+	;;
+
+    emerge)
+	echo >&2 "TODO: no list all packages method for equery"
+	;;
+
+    brew)
+	echo >&2 "TODO: no list all packages method for brew"
+	;;
+
+    *)
+	echo >&2 "Botch: no list all packages method for $pkgtool"
+	;;
+esac >$tmp.installed
+
 if [ -s $tmp.unavail ]
 then
     rm -f $tmp.botch $tmp.allpkgs
@@ -917,7 +954,12 @@ then
 		rm -f $tmp.dots
 	    fi
 	    $verbose && cat >&2 $tmp.out
-	    echo "looks like package $pkg may be available"
+	    if grep "^$pkg\$" $tmp.installed >/dev/null
+	    then
+		echo "looks like package $pkg is already installed"
+	    else
+		echo "looks like package $pkg may be available"
+	    fi
 	fi
 	[ -f $tmp.botch ] && break
     done
