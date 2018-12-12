@@ -27,7 +27,7 @@ openSUSE     42.3     -       docker-io libvarlink-devel libvirt-python3 pylint 
 RHEL         6.10     -       Coin-devel device-mapper-devel docker-common kubectl kubernetes-client kubernetes-node libicu-devel libpfm-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libvarlink-devel Net::SNMP pylint python2-elasticsearch python2-openpyxl python2-pylint .*-python3 python3-.* python3[0-9]-.* python-openpyxl python-prometheus_client python-pylint qtchooser realpath systemd-devel system-python-libs uic
 RHEL         7.[56]   -       Coin-devel cppcheck device-mapper-devel libuv-devel libvarlink-devel 'perl(Net::SNMP)' perl-Net-SNMP 'perl(YAML::LibYAML)' perl-YAML-LibYAML pylint python-.* python2-elasticsearch python2-openpyxl python2-prometheus_client python2-pylint .*-python3 python3-.* python3[0-9]-.* qtchooser SoQt-devel system-python-libs zabbix22-agent zabbix-agent
 #-- Ubuntu
-Ubuntu       18.04    -       libsoqt5-dev libuv-dev
+Ubuntu       18.04    -       libsoqt5-dev libsoqt-dev libuv-dev python-.*
 # observed on vm01
 # python3-bpfcc : Depends: libbpfcc (>= 0.5.0-5ubuntu1) but it is not installable
 Ubuntu       18.04    i686    python3-bpfcc

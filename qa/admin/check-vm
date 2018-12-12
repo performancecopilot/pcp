@@ -689,24 +689,16 @@ then
     skip_pkg=`sed <$skip.$_hostname \
 	    -e 's/#.*//' \
 	    -e '/^[ 	]*$/d'`
-    if $pkglist
+    if [ -n "$unavail_pkg" ]
     then
-	# for -p, don't mark manifest lines with skip ... this is handled
-	# later for each package in [ ... ]
-	#
-	:
-    else
-	if [ -n "$unavail_pkg" ]
-	then
-	    for _pkg in $skip_pkg
-	    do
-		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
+	for _pkg in $skip_pkg
+	do
+	    sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
 s;\[[^]]*];[skip on host '"$_hostname"'];
 }'
-		mv $tmp.tmp $tmp.manifest
-		$very_verbose && echo >&2 "skip: $_pkg"
-	    done
-	fi
+	    mv $tmp.tmp $tmp.manifest
+	    $very_verbose && echo >&2 "skip: $_pkg"
+	done
     fi
 fi
 
@@ -904,6 +896,8 @@ do
 		-e 's/ or$//' \
 		-e 's/^or$//' \
 		-e 's/ or / /g' \
+		-e 's/N\/A//' \
+		-e '/skip on host/d' \
 		-e 's/[ 	][ 	]*/ /g' \
 		-e '/^ *$/d' \
 		-e p \
