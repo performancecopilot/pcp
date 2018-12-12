@@ -120,6 +120,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@rpm_version@|$(RPM_VERSION)|g' \
 	    -e's|@have_manpages@|$(HAVE_MANPAGES)|g' \
 	    -e's|@make@|$(PCP_MAKE_PROG)|g' <$? >$@
+	./do-maybe-requires
 
 include $(BUILDRULES)
 
