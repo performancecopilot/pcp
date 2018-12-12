@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016-2017 Red Hat.
+.\" Copyright (c) 2016-2018 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -43,30 +43,24 @@ int pmGetContextLabels(pmLabelSet **\fIlabelsets\fP);
 .sp
 cc ... \-lpcp
 .ft 1
-.SH "PYTHON SYNOPSIS / EXAMPLE"
+.SH "PYTHON SYNOPSIS"
 .ft 3
-import json
-.br
 from pcp import pmapi
-import cpmapi as c_api
 .sp
-\fIcontext\fP = pmapi.pmContext(c_api.PM_CONTEXT_HOST, "\fBlocal:\fP")
-.br
-   ...
 .nf
-\fIlabelSetList\fP = context.pmLookupLabels(\fIpmid\fP)
+\fIlabelsets\fP = pmapi.pmContext().pmLookupLabels(\fIpmid\fP)
 .sp
-\fIlabelSetList\fP = context.pmGetInstancesLabels(\fIindom\fP)
+\fIlabelsets\fP = pmapi.pmContext().pmGetInstancesLabels(\fIindom\fP)
 .br
-\fIlabelSetList\fP = context.pmGetItemLabels(\fIpmid\fP)
+\fIlabelsets\fP = pmapi.pmContext().pmGetItemLabels(\fIpmid\fP)
 .br
-\fIlabelSetList\fP = context.pmGetClusterLabels(\fIpmid\fP)
+\fIlabelsets\fP = pmapi.pmContext().pmGetClusterLabels(\fIpmid\fP)
 .br
-\fIlabelSetList\fP = context.pmGetInDomLabels(\fIindom\fP)
+\fIlabelsets\fP = pmapi.pmContext().pmGetInDomLabels(\fIindom\fP)
 .br
-\fIlabelSetList\fP = context.pmGetDomainLabels(\fIdomain\fP)
+\fIlabelsets\fP = pmapi.pmContext().pmGetDomainLabels(\fIdomain\fP)
 .br
-\fIlabelSetList\fP = context.pmGetContextLabels()
+\fIlabelsets\fP = pmapi.pmContext().pmGetContextLabels()
 .sp
 .ft 1
 .SH DESCRIPTION
@@ -429,6 +423,12 @@ If no result can be obtained,
 e.g. due to IPC failure using the current PMAPI context then
 .B pmGetInstancesLabels
 will return a negative error code which may be examined using
+.PP
+A successful return from the Python API always provides the
+labelset in the form of a list, for all labels functions.
+On error a
+.B pmErr
+exception is raised containing the error code and diagnostic.
 .BR pmErrStr (3).
 .SH SEE ALSO
 .BR pmcd (1),
