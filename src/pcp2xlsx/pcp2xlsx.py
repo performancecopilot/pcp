@@ -230,7 +230,8 @@ class PCP2XLSX(object):
             elif optarg == 'abort':
                 self.names_change = 1
             else:
-                raise pmapi.pmUsageErr()
+                sys.stderr.write("Unknown names-change action '%s' specified.\n" % optarg)
+                sys.exit(1)
         elif opt == 'i':
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
         elif opt == 'v':
@@ -320,7 +321,7 @@ class PCP2XLSX(object):
         # Main loop
         while self.samples != 0:
             # Fetch values
-            if not self.pmconfig.fetch():
+            if self.pmconfig.fetch() < 0:
                 break
 
             # Report and prepare for the next round
@@ -468,7 +469,7 @@ class PCP2XLSX(object):
             precision = "0" if not self.metrics[metric][6] else "0." + "0" * self.metrics[metric][6]
             self.float_style = openpyxl.styles.NamedStyle(name="floating", number_format=precision)
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_sorted_results(valid_only=True)
 
         res = {}
         for i, metric in enumerate(results):

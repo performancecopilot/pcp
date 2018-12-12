@@ -170,7 +170,7 @@ class PCP2XML(object):
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("ignore-unknown", 0, "5", "", "ignore unknown metrics (default: abort)")
-        opts.pmSetLongOption("names-change", 1, "4", "ACTION", "ignore/abort on PMNS change (default: ignore)")
+        opts.pmSetLongOption("names-change", 1, "4", "ACTION", "update/ignore/abort on PMNS change (default: ignore)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")
         opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
@@ -240,8 +240,11 @@ class PCP2XML(object):
                 self.names_change = 0
             elif optarg == 'abort':
                 self.names_change = 1
+            elif optarg == 'update':
+                self.names_change = 2
             else:
-                raise pmapi.pmUsageErr()
+                sys.stderr.write("Unknown names-change action '%s' specified.\n" % optarg)
+                sys.exit(1)
         elif opt == 'i':
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
         elif opt == 'j':
@@ -342,9 +345,16 @@ class PCP2XML(object):
             time.sleep(align)
 
         # Main loop
+        refresh_metrics = 0
         while self.samples != 0:
+            # Refresh metrics as needed
+            if refresh_metrics:
+                refresh_metrics = 0
+                self.pmconfig.update_metrics(curr_insts=not self.live_filter)
+
             # Fetch values
-            if not self.pmconfig.fetch():
+            refresh_metrics = self.pmconfig.fetch()
+            if refresh_metrics < 0:
                 break
 
             # Report and prepare for the next round
@@ -429,14 +439,15 @@ class PCP2XML(object):
                 return None
             return string.replace("&", "&amp;").replace("<", "&lt;")
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_sorted_results(valid_only=True)
 
-        for i, metric in enumerate(results):
+        for metric in results:
             # Install value into dict in key1{key2{key3=value}} style:
             # foo.bar.baz=value    =>  foo: { bar: { baz: value ...} }
 
             pmns_parts = metric.split(".")
 
+            i = list(self.metrics.keys()).index(metric)
             fmt = "." + str(self.metrics[metric][6]) + "f"
             for inst, name, value in results[metric]:
                 value = format(value, fmt) if isinstance(value, float) else str(value)

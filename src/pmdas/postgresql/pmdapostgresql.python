@@ -730,10 +730,17 @@ class POSTGRESQLPMDA(PMDA):
         self.port = self.conf["port"]
         self.dbname = self.conf["dbname"]
         self.user = self.conf["user"]
-        self.password = self.conf["password"]
+        # GH##586 : need to escape backslashes and single quotes in password strings
+        self.password = self.conf["password"].replace("\\","\\\\").replace("'","\\'")
 
-        self.log("Switching to user '%s'" % self.user)
-        self.set_user(self.user)
+        # GH##586 : only switch user if osuser is set in the config file
+        try:
+            self.osuser = self.conf["osuser"]
+            self.log("Switching to user '%s'" % self.osuser)
+            self.set_user(self.osuser)
+        except KeyError as error:
+            # just run as the current user
+            pass
 
         self.log("Connecting to host '%s', port '%s', db '%s' as user '%s'" % (self.host, self.port, self.dbname, self.user))
         while not self.pg_connect():
@@ -1032,9 +1039,9 @@ class POSTGRESQLPMDA(PMDA):
         """ connect to the postgresql server """
         if self.host == "local":
             # local UNIX domain, but still need port number for the socket filename
-            params = "port=%s dbname=%s user=%s password=%s" % (self.port, self.dbname, self.user, self.password)
+            params = "port=%s dbname=%s user=%s password='%s'" % (self.port, self.dbname, self.user, self.password)
         else:
-            params = "host=%s port=%s dbname=%s user=%s password=%s" % (self.host, self.port, self.dbname, self.user, self.password)
+            params = "host=%s port=%s dbname=%s user=%s password='%s'" % (self.host, self.port, self.dbname, self.user, self.password)
         try:
             self.conn = psycopg2.connect(params)
         except (psycopg2.DatabaseError) as error: # pylint disable: broad-except

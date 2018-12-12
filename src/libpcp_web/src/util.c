@@ -576,7 +576,6 @@ pmwebapi_new_context(context_t *cp)
 {
     char		labels[PM_MAXLABELJSONLEN];
     char		pmmsg[PM_MAXERRMSGLEN];
-    char		hashbuf[42];
     sds			msg = NULL;
     int			sts;
 
@@ -595,11 +594,22 @@ pmwebapi_new_context(context_t *cp)
 	infofmt(msg, "failed to get context labels: %s",
 		    pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
     } else if ((sts = pmwebapi_source_hash(cp->name.hash, labels, sts)) < 0) {
-	infofmt(msg, "failed to merge context labels: %s",
+	infofmt(msg, "failed to set context hash: %s",
 		    pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
-    } else if (pmDebugOptions.series) {
+    } else {
+	pmwebapi_setup_context(cp);
+    }
+    return msg;
+}
+
+void
+pmwebapi_setup_context(context_t *cp)
+{
+    if (pmDebugOptions.series) {
+	char		hashbuf[42];
+
 	pmwebapi_hash_str(cp->name.hash, hashbuf, sizeof(hashbuf));
-	fprintf(stderr, "pmwebapi_new_context: SHA1=%s [%s]\n",
+	fprintf(stderr, "pmwebapi_setup_context: SHA1=%s [%s]\n",
 			hashbuf, cp->name.sds);
     }
     cp->pmids = dictCreate(&intKeyDictCallBacks, cp);	/* pmid: metric */
@@ -607,7 +617,52 @@ pmwebapi_new_context(context_t *cp)
     cp->indoms = dictCreate(&intKeyDictCallBacks, cp);	/* id: indom */
     cp->domains = dictCreate(&intKeyDictCallBacks, cp);	/* id: domain */
     cp->clusters = dictCreate(&intKeyDictCallBacks, cp);/* id: cluster */
-    return msg;
+
+    pmwebapi_locate_context(cp);
+}
+
+#define LATITUDE	"latitude"
+#define LATITUDE_LEN	(sizeof(LATITUDE)-1)
+#define LONGITUDE	"longitude"
+#define LONGITUDE_LEN	(sizeof(LONGITUDE)-1)
+
+void
+pmwebapi_locate_context(context_t *cp)
+{
+    pmLabel		*label;
+    double		location;
+    char		*name, *value;
+    int			i, count = cp->labelset->nlabels;
+
+    /* update the location of a context using its labels */
+    for (i = 0; i < count; i++) {
+	label = &cp->labelset->labels[i];
+	name = cp->labelset->json + label->name;
+	value = cp->labelset->json + label->value;
+	if (label->namelen == LONGITUDE_LEN &&
+	    strncmp(name, LONGITUDE, LONGITUDE_LEN) == 0) {
+	    if ((location = strtod(value, NULL)) != cp->location[1]) {
+		cp->location[1] = location;
+		cp->updated = 1;
+	    }
+	}
+	else if (label->namelen == LATITUDE_LEN &&
+	    strncmp(name, LATITUDE, LATITUDE_LEN) == 0) {
+	    if ((location = strtod(value, NULL)) != cp->location[0]) {
+		cp->location[0] = location;
+		cp->updated = 1;
+	    }
+	}
+    }
+
+    if (pmDebugOptions.series) {
+	char		hashbuf[42];
+
+	pmwebapi_hash_str(cp->name.hash, hashbuf, sizeof(hashbuf));
+	fprintf(stderr, "%s: source SHA1=%s latitude=%.5f longitude=%.5f\n",
+			"pmwebapi_locate_context", hashbuf,
+			cp->location[0], cp->location[1]);
+    }
 }
 
 void
@@ -909,8 +964,7 @@ pmwebapi_add_indom_instances(struct indom *indom)
 }
 
 struct metric *
-pmwebapi_new_metric(context_t *context, pmDesc *desc,
-		int numnames, char **names, pmLogInfoCallBack info, void *arg)
+pmwebapi_new_metric(context_t *cp, pmDesc *desc, int numnames, char **names)
 {
     struct seriesname	*series;
     struct metric	*metric;
@@ -932,22 +986,21 @@ pmwebapi_new_metric(context_t *context, pmDesc *desc,
 	pmwebapi_string_hash(series[i].id, names[i], len);
     }
 
-    domain = pmwebapi_add_domain(context, pmID_domain(desc->pmid));
-    metric->indom = pmwebapi_add_indom(context, domain, desc->indom);
-    metric->cluster = pmwebapi_add_cluster(context, domain, desc->pmid);
+    domain = pmwebapi_add_domain(cp, pmID_domain(desc->pmid));
+    metric->indom = pmwebapi_add_indom(cp, domain, desc->indom);
+    metric->cluster = pmwebapi_add_cluster(cp, domain, desc->pmid);
 
     metric->desc = *desc;
     metric->names = series;
     metric->numnames = numnames;
     for (i = 0; i < numnames; i++)
-	dictAdd(context->metrics, series[i].sds, (void *)metric);
-    dictAdd(context->pmids, &desc->pmid, (void *)metric);
+	dictAdd(cp->metrics, series[i].sds, (void *)metric);
+    dictAdd(cp->pmids, &desc->pmid, (void *)metric);
     return metric;
 }
 
 struct metric *
-pmwebapi_add_metric(context_t *context, pmDesc *desc,
-		int numnames, char **names, pmLogInfoCallBack info, void *arg)
+pmwebapi_add_metric(context_t *cp, pmDesc *desc, int numnames, char **names)
 {
     struct metric	*metric;
     sds			name = sdsempty();
@@ -957,13 +1010,13 @@ pmwebapi_add_metric(context_t *context, pmDesc *desc,
     for (i = 0; i < numnames; i++) {
 	sdsclear(name);
 	name = sdscat(name, names[i]);
-	if ((metric = dictFetchValue(context->metrics, name)) != NULL) {
+	if ((metric = dictFetchValue(cp->metrics, name)) != NULL) {
 	    sdsfree(name);
 	    return metric;
 	}
     }
     sdsfree(name);
-    return pmwebapi_new_metric(context, desc, numnames, names, info, arg);
+    return pmwebapi_new_metric(cp, desc, numnames, names);
 }
 
 struct metric *
@@ -974,22 +1027,30 @@ pmwebapi_new_pmid(context_t *cp, pmID pmid, pmLogInfoCallBack info, void *arg)
     int			sts, numnames;
     sds			msg;
 
-    if ((sts = pmLookupDesc(pmid, &desc)) < 0) {
+    if ((sts = pmUseContext(cp->context)) < 0) {
+	infofmt(msg, "failed to use context for PMID %s: %s",
+		pmIDStr_r(pmid, buffer, sizeof(buffer)),
+		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	info(PMLOG_WARNING, msg, arg);
+	sdsfree(msg);
+    } else if ((sts = pmLookupDesc(pmid, &desc)) < 0) {
 	infofmt(msg, "failed to lookup metric %s descriptor: %s",
 		pmIDStr_r(pmid, buffer, sizeof(buffer)),
 		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	info(PMLOG_WARNING, msg, arg);
 	sdsfree(msg);
-    }
-    if ((numnames = sts = pmNameAll(pmid, &names)) < 0) {
+    } else if ((numnames = sts = pmNameAll(pmid, &names)) < 0) {
 	infofmt(msg, "failed to lookup metric %s names: %s",
 		pmIDStr_r(pmid, buffer, sizeof(buffer)),
 		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	info(PMLOG_WARNING, msg, arg);
 	sdsfree(msg);
+    } else {
+	return pmwebapi_new_metric(cp, &desc, numnames, names);
     }
-    return pmwebapi_new_metric(cp, &desc, numnames, names, info, arg);
+    return NULL;
 }
+
 
 void
 pmwebapi_add_item_labels(struct metric *metric)

@@ -75,7 +75,7 @@ _pcp () {
     "(-R --raw-prefer -r --raw $exargs)"{-R,--raw-prefer}'[prefer reporting raw values]'
     "(-I --ignore-incompat $exargs)"{-I,--ignore-incompat}'[ignore incompatible metrics]'
     "(-5 --ignore-unknown $exargs)"{-5,--ignore-unknown}'[ignore unknown metrics]'
-    "(-4 --names-change $exargs)"{-4+,--names-change}'[ignore/abort on metric name changes]:action:(abort ignore)'
+    "(-4 --names-change $exargs)"{-4+,--names-change}'[update/ignore/abort on metric name changes]:action:(abort ignore update)'
     "($exargs)"\*{-i+,--instances}'[specify instances to report]:instances:->instances'
     "(-v --omit-flat $exargs)"{-v,--omit-flat}'[omit single-valued metrics]'
     "(-P --precision $exargs)"{-P+,--precision}'[set default floating point precision]:precision:'
@@ -125,7 +125,7 @@ _pcp () {
       "(-g --es-host $exargs)"{-g+,--es-host}'[elasticsearch server]:host:_hosts' \
       "(-x --es-index $exargs)"{-x+,--es-index}'[elasticsearch index]:index:' \
       "(-X --es-hostid $exargs)"{-X+,--es-hostid}'[elasticsearch host-id]:host-id:' \
-      "(-p --es-search-type $exargs)"{-p+,--es-search-type}'[elasticsearch search-type]:search-type:' \
+      "(-p --es-search-type $exargs)"{-p+,--es-search-type}'[elasticsearch search type]:type:' \
       '*:metric:->metrics' \
       && return 0
   ;;

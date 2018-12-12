@@ -251,6 +251,11 @@ file options (if any).
 .SH OPTIONS
 The available command line options are:
 .TP 5
+\fB\-0\fR \fIprecision\fR, \fB\-\-precision\-force\fR=\fIprecision\fR
+Like
+.B \-P
+but this option \fIwill\fP override per-metric specifications.
+.TP
 \fB\-1\fR, \fB\-\-dynamic\-header\fR
 Print a new dynamically adjusted header every time changes in
 availability of metric and instance values occur.
@@ -284,10 +289,11 @@ after starting up, and informs running client tools like
 .BR pmrep .
 Valid values for
 .I action
-are \fBignore\fP (do nothing \- the default behaviour)
+are \fBupdate\fP (refresh metrics being sampled),
+\fBignore\fP (do nothing \- the default behaviour)
 and \fBabort\fP (exit the program if such an event happens).
 .TP
-\fB\-5\fR, \fI\-\-ignore\-unknown\R
+\fB\-5\fR, \fI\-\-ignore\-unknown\fR
 Silently ignore any metric name that cannot be resolved.
 At least one metric must be found for the tool to start.
 .TP
@@ -671,11 +677,6 @@ is reduced one by one until the value fits,
 or not printed at all if it does not.
 The default is to use 3 decimal places (when applicable).
 This option will \fInot\fP override possible per-metric specifications.
-.TP
-\fB\-0\fR \fIprecision\fR, \fB\-\-precision\-force\fR=\fIprecision\fR
-Like
-.B \-P
-but this option \fIwill\fP override per-metric specifications.
 .TP
 \fB\-q\fR \fIscale\fR, \fB\-\-count\-scale\fR=\fIscale\fR
 .I Unit/scale

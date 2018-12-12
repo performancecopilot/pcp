@@ -1,0 +1,11 @@
+QA output created by 1600
+Start test Redis server ...
+PING
+PONG
+
+== verify metric names
+== verify metric descs
+== verify metric insts
+== verify metric labels
+== verify metric values
+== all done

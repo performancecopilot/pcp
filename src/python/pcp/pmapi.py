@@ -2854,8 +2854,8 @@ class fetchgroup(object):
 
     def clear(self):
         """Clear all the metrics in this fetchgroup ready to start again."""
-        del self.items[:]
         sts = LIBPCP.pmClearFetchGroup(self.pmfg)
+        del self.items[:]
         if sts < 0:
             raise pmErr(sts)
         self.items = []

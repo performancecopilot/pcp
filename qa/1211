@@ -14,20 +14,11 @@ path=""
 . ./common.filter
 . ./common.check
 
-which pmseries >/dev/null 2>&1 || \
-	_notrun "pmseries command line utility not installed"
-which redis-cli >/dev/null 2>&1 || \
-	_notrun "Redis command line utility not installed"
-which redis-server >/dev/null 2>&1 || \
-	_notrun "Redis server utility not installed"
-eval `redis-cli info server |
-	grep redis_version: |
-	sed -e 's/:/=/g' -e 's/\..*//g'`
-[ $redis_version -ge 5 ] || _notrun "Redis $redis_version too old"
+_check_series
 
 _cleanup()
 {
-    redis-cli $options shutdown
+    [ -n "$options" ] && redis-cli $options shutdown
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
@@ -58,7 +49,7 @@ _sort_context()
     } END { print out }'
 }
 
-# real QA 
+# real QA test starts here
 echo "Start test Redis server ..."
 redis-server --port $redisport > $tmp.redis 2>&1 &
 echo "PING"

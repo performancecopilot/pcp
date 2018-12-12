@@ -43,16 +43,25 @@ dbname \- database name, [default: 'postgres']
 username \- username to run as and to connect to the database [default: 'postgres']
 .IP "\(bu" 4
 password \- password to connect to the database [default: 'password']
+.IP "\(bu" 4
+osuser \- operating system user the PMDA runs as [default: not set]
 .PD
 .PP
 The defaults (as above) will result in the PMDA running as the
-.B postgres
-user, using a UNIX domain socket connection to the PostgreSQL server on the localhost.
+current user, using a UNIX domain socket connection to the PostgreSQL server on the localhost.
+If
+.B osuser
+is not specified in the configuration file, the PMDA will run as the current user.
 A host specification of "local" will use a UNIX domain socket, which uses peer authentication,
 see comments in the
 .B pg_hba.conf
 file.
-As such, it is normally not necessary to alter the default configuration file for monitoring
+In this case, the
+.B osuser
+setting should probably be set to
+.BR postgres .
+.PP
+It is generally not necessary to alter the default configuration file for monitoring
 the local PostgreSQL server instance with a default server configuration.
 Note the port number is required even for a UNIX domain
 connection because it's used as the socket filename by the server.

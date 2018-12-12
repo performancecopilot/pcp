@@ -215,7 +215,7 @@ class PMReporter(object):
         opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
         opts.pmSetLongOption("overall-rank", 0, "2", "", "report overall ranking from archive")
         opts.pmSetLongOption("overall-rank-alt", 0, "3", "", "report overall ranking from archive in pmrep format")
-        opts.pmSetLongOption("names-change", 1, "4", "ACTION", "ignore/abort on PMNS changes (default: ignore)")
+        opts.pmSetLongOption("names-change", 1, "4", "ACTION", "update/ignore/abort on PMNS changes (default: ignore)")
         opts.pmSetLongOption("limit-filter", 1, "8", "LIMIT", "default limit for value filtering")
         opts.pmSetLongOption("limit-filter-force", 1, "9", "LIMIT", "forced limit for value filtering")
         opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
@@ -311,8 +311,11 @@ class PMReporter(object):
                 self.names_change = 0
             elif optarg == 'abort':
                 self.names_change = 1
+            elif optarg == 'update':
+                self.names_change = 2
             else:
-                raise pmapi.pmUsageErr()
+                sys.stderr.write("Unknown names-change action '%s' specified.\n" % optarg)
+                sys.exit(1)
         elif opt == '8':
             self.limit_filter = optarg
         elif opt == '9':
@@ -403,6 +406,10 @@ class PMReporter(object):
                 sys.stderr.write("Output directory %s not accessible.\n" % outdir)
                 sys.exit(1)
 
+        if self.names_change == 2 and self.output != OUTPUT_ARCHIVE:
+            sys.stderr.write("PMNS update action currently supported only for archive output.\n")
+            sys.exit(1)
+
         # Set default width when needed
         if self.separate_header and not self.width:
             self.width = 8
@@ -485,7 +492,17 @@ class PMReporter(object):
             time.sleep(align)
 
         # Main loop
+        refresh_metrics = 0
         while self.samples != 0:
+            # Refresh metrics as needed
+            if refresh_metrics:
+                refresh_metrics = 0
+                self.pmconfig.update_metrics(curr_insts=not self.live_filter)
+                if self.output == OUTPUT_STDOUT:
+                    self.prepare_stdout()
+                if self.header == 1 and not self.dynamic_header:
+                    self.write_header()
+
             # Repeat static header if needed
             if self.output == OUTPUT_STDOUT and not self.dynamic_header:
                 if self.lines > 0 and self.repeat_header == self.lines:
@@ -494,7 +511,8 @@ class PMReporter(object):
                 self.lines += 1
 
             # Fetch values
-            if not self.pmconfig.fetch():
+            refresh_metrics = self.pmconfig.fetch()
+            if refresh_metrics < 0:
                 break
 
             # Report and prepare for the next round
@@ -867,6 +885,16 @@ class PMReporter(object):
             self.pmi = None
             return
 
+        def record_metric_info(metric, i):
+            """ Helper to record metric info """
+            self.recorded[metric] = []
+            self.pmi.pmiAddMetric(metric,
+                                  self.pmconfig.pmids[i],
+                                  self.pmconfig.descs[i].contents.type,
+                                  self.pmconfig.descs[i].contents.indom,
+                                  self.pmconfig.descs[i].contents.sem,
+                                  self.pmconfig.descs[i].contents.units)
+
         if self.pmi is None:
             # Create a new archive
             self.pmi = pmi.pmiLogImport(self.outfile)
@@ -876,18 +904,14 @@ class PMReporter(object):
                 self.pmi.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
             self.pmi.pmiSetTimezone(self.context.get_current_tz(self.opts))
             for i, metric in enumerate(self.metrics):
-                self.recorded[metric] = []
-                self.pmi.pmiAddMetric(metric,
-                                      self.pmconfig.pmids[i],
-                                      self.pmconfig.descs[i].contents.type,
-                                      self.pmconfig.descs[i].contents.indom,
-                                      self.pmconfig.descs[i].contents.sem,
-                                      self.pmconfig.descs[i].contents.units)
+                record_metric_info(metric, i)
 
         # Add current values
         data = 0
         results = self.pmconfig.get_sorted_results()
         for i, metric in enumerate(results):
+            if metric not in self.recorded:
+                record_metric_info(metric, i)
             for inst, name, value in results[metric]:
                 if inst != PM_IN_NULL and inst not in self.recorded[metric]:
                     try:
