@@ -40,9 +40,9 @@ DEFAULT_CONFIG = ["./pcp2elasticsearch.conf", "$HOME/.pcp2elasticsearch.conf", "
 
 # Defaults
 CONFVER = 1
+ES_SERVER = "http://localhost:9200/"
 ES_INDEX = "pcp"
 ES_SEARCH_TYPE = "pcp-metric"
-ES_SERVER = "http://localhost:9200/"
 
 class pcp2elasticsearch(object):
     """ PCP to Elasticsearch """
@@ -133,7 +133,7 @@ class pcp2elasticsearch(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:4:58:9:nN:vP:0:q:b:y:Q:B:Y:g:x:X:")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:4:58:9:nN:vP:0:q:b:y:Q:B:Y:g:x:X:p:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -185,7 +185,7 @@ class pcp2elasticsearch(object):
         opts.pmSetLongOption("es-host", 1, "g", "SERVER", "Elasticsearch server (default: " + ES_SERVER + ")")
         opts.pmSetLongOption("es-index", 1, "x", "INDEX", "Elasticsearch index for metric names (default: " + ES_INDEX + ")")
         opts.pmSetLongOption("es-hostid", 1, "X", "HOSTID", "Elasticsearch host-id for measurements")
-        opts.pmSetLongOption("es-search-type", 1, "p", "ES_SEARCH_TYPE", "Elasticsearch search type for measurements")
+        opts.pmSetLongOption("es-search-type", 1, "p", "TYPE", "Elasticsearch search type for measurements")
 
         return opts
 

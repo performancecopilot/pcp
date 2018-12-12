@@ -125,7 +125,7 @@ _pcp () {
       "(-g --es-host $exargs)"{-g+,--es-host}'[elasticsearch server]:host:_hosts' \
       "(-x --es-index $exargs)"{-x+,--es-index}'[elasticsearch index]:index:' \
       "(-X --es-hostid $exargs)"{-X+,--es-hostid}'[elasticsearch host-id]:host-id:' \
-      "(-p --es-search-type $exargs)"{-p+,--es-search-type}'[elasticsearch search-type]:search-type:' \
+      "(-p --es-search-type $exargs)"{-p+,--es-search-type}'[elasticsearch search type]:type:' \
       '*:metric:->metrics' \
       && return 0
   ;;
