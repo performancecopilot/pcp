@@ -411,10 +411,12 @@ static void cleanup_property_info(struct property_info *pi)
  * contains.
  */
 static int parse_event_string(char *buf, struct pmu_event *event,
-                              struct pmu *pmu)
+                              struct pmu *pmu, struct pmcsetting *dynamicpmc,
+			       char *pmu_name)
 {
     struct property_info *pi, *head = NULL, *tmp;
-    char *start, *ptr, *nptr, **endptr, *str;
+    char *start, *ptr, *nptr, **endptr, *str, eventname[BUF_SIZE];
+    struct pmcsetting *pmctmp;
 
     start = buf;
 
@@ -440,13 +442,23 @@ static int parse_event_string(char *buf, struct pmu_event *event,
             return -E_PERFEVENT_REALLOC;
         }
 
+	pmsprintf(eventname, sizeof(eventname), "%s.%s", pmu_name, event->name);
+
         /* Find next property */
         start = strchr(ptr, ',');
         if (!start) {
             str = buf + strlen(buf) - 1;
             endptr = &str;
             nptr = ptr;
-            pi->value = strtoull(nptr, endptr, 16);
+	    if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "chip"))) {
+		for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+			if (!strncmp(eventname, pmctmp->name, strlen(eventname)))
+			{
+			     pi->value = pmctmp->chip;
+			}
+		}
+            } else
+		pi->value = strtoull(nptr, endptr, 16);
             if (!head) {
                 head = pi;
                 pi = pi->next;
@@ -462,7 +474,15 @@ static int parse_event_string(char *buf, struct pmu_event *event,
             endptr = &str;
             start++;
             nptr = ptr;
-            pi->value = strtoul(nptr, endptr, 16);
+	    if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "chip"))) {
+		for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+			if (!strncmp(eventname, pmctmp->name, strlen(eventname)))
+			{
+			     pi->value = pmctmp->chip;
+			}
+		}
+	    } else
+		pi->value = strtoul(nptr, endptr, 16);
         }
 
         if (!head) {
@@ -483,7 +503,8 @@ static int parse_event_string(char *buf, struct pmu_event *event,
  * list.
  */
 static int fetch_events(DIR *events_dir, struct pmu_event **events,
-                        struct pmu *pmu, char *events_path)
+                        struct pmu *pmu, char *events_path,
+			 struct pmcsetting *dynamicpmc, char *pmu_name)
 {
     struct dirent *dir;
     struct pmu_event *ev = NULL, *tmp, *head = NULL;
@@ -530,7 +551,7 @@ static int fetch_events(DIR *events_dir, struct pmu_event **events,
             goto free_buf;
         }
 
-        ret = parse_event_string(buf, tmp, pmu);
+        ret = parse_event_string(buf, tmp, pmu, dynamicpmc, pmu_name);
         if (ret) {
             ret = -E_PERFEVENT_RUNTIME;
             goto free_buf;
@@ -588,7 +609,8 @@ static int fetch_pmu_type(char *type_path, struct pmu *pmu)
  * directory which helps in parsing the event string. We also fetch
  * the type of the pmu.
  */
-static int fetch_format_and_events(char *pmu_path, struct pmu *pmu)
+static int fetch_format_and_events(char *pmu_path, struct pmu *pmu,
+				   struct pmcsetting *dynamicpmc, char *pmu_name)
 {
     DIR *events_dir;
     char format_path[PATH_MAX], events_path[PATH_MAX];
@@ -615,7 +637,7 @@ static int fetch_format_and_events(char *pmu_path, struct pmu *pmu)
         goto close_dir;
     }
 
-    ret = fetch_events(events_dir, &ev, pmu, events_path);
+    ret = fetch_events(events_dir, &ev, pmu, events_path, dynamicpmc, pmu_name);
     if (ret) {
         cleanup_property_list(tmp);
         pmu->prop = NULL;
@@ -632,7 +654,7 @@ static int fetch_format_and_events(char *pmu_path, struct pmu *pmu)
 /*
  * Populates the entire list of available PMUs in pmus.
  */
-static int populate_pmus(struct pmu **pmus)
+static int populate_pmus(struct pmu **pmus, struct pmcsetting *dynamicpmc)
 {
     DIR *pmus_dir;
     struct pmu *tmp, *head = NULL, *ptr = NULL;
@@ -661,7 +683,7 @@ static int populate_pmus(struct pmu **pmus)
         tmp->next = NULL;
         tmp->prop = NULL;
         tmp->ev = NULL;
-        ret = fetch_format_and_events(pmu_path, tmp);
+        ret = fetch_format_and_events(pmu_path, tmp, dynamicpmc, dir->d_name);
         if (ret) {
             /*
              * If there was in issue initializing any event
@@ -705,6 +727,7 @@ static int populate_pmus(struct pmu **pmus)
     return 0;
  free_pmu:
     cleanup_pmu(tmp);
+
  free_pmulist:
     cleanup_pmu_list(head);
     closedir(pmus_dir);
@@ -760,7 +783,7 @@ void setup_cpu_config(struct pmu *pmu_ptr, int *ncpus, int **cpuarr)
  * pmu_list contains the list of all the PMUs and their events upon
  * execution of this function.
  */
-int init_dynamic_events(struct pmu **pmu_list)
+int init_dynamic_events(struct pmu **pmu_list, struct pmcsetting *dynamicpmc)
 {
     int ret = -1;
     struct pmu *pmus = NULL;
@@ -778,7 +801,7 @@ int init_dynamic_events(struct pmu **pmu_list)
     else
         pmsprintf(dev_dir, PATH_MAX, "%s%s", "/sys/", DEV_DIR);
 
-    ret = populate_pmus(&pmus);
+    ret = populate_pmus(&pmus, dynamicpmc);
     if (ret)
         return ret;
 

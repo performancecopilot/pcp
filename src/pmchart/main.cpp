@@ -614,9 +614,9 @@ main(int argc, char ** argv)
 	    liveGroup->useTZ();
     }
     else if (opts.timezone != NULL) {
-	if (opts.narchives > 0)
+	if (archiveGroup->numContexts() > 0)
 	    archiveGroup->useTZ(QString(opts.timezone));
-	if (opts.nhosts > 0)
+	if (liveGroup->numContexts() > 0)
 	    liveGroup->useTZ(QString(opts.timezone));
 	if ((sts = pmNewZone(opts.timezone)) < 0) {
 	    pmprintf("%s: cannot set timezone to \"%s\": %s\n",
@@ -633,7 +633,7 @@ main(int argc, char ** argv)
     // set in that mode too.  Later we'll make a second connection
     // in the other mode (and only "on-demand").
     //
-    if (opts.narchives > 0) {
+    if (archiveGroup->numContexts() > 0) {
 	archiveGroup->defaultTZ(tzLabel, tzString);
 	archiveGroup->updateBounds();
 	logStartTime = archiveGroup->logStart();
@@ -654,7 +654,7 @@ main(int argc, char ** argv)
 	if (tcmp(&opts.origin, &opts.finish) > 0)
 	    opts.origin = opts.finish;
     }
-    else {
+    else if (liveGroup->numContexts() > 0) {
 	liveGroup->defaultTZ(tzLabel, tzString);
 	pmtimevalNow(&logStartTime);
 	logEndTime.tv_sec = logEndTime.tv_usec = INT_MAX;

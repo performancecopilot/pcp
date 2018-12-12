@@ -604,7 +604,6 @@ class pmLabelSet(Structure):
                  ("padding", c_int, 16),
                  ("labels", POINTER(pmLabel))]
 
-
 ##############################################################################
 #
 # PMAPI function prototypes
@@ -2034,6 +2033,17 @@ class pmContext(object):
             raise pmErr(status)
         return result_p
 
+    def result_to_list(self, result_p, n):
+        """ helper to build label list from lookup labels result
+        """
+        labelL = []
+        for i in range(n):
+            if result_p[i] is not None:
+                labelL.append(result_p[i])
+        if len(labelL) == 0:
+            return None
+        return labelL
+
     def pmLookupLabels(self, pmid):
         """PMAPI - Get merged labelset for a single metric
         """
@@ -2044,19 +2054,27 @@ class pmContext(object):
         status = LIBPCP.pmLookupLabels(pmid, byref(result_p))
         if status < 0:
             raise pmErr(status)
-        return result_p
+        if status > 0:
+            labelL = self.result_to_list(result_p, status)
+        else:
+            labelL = None
+        return labelL
 
-    def pmGetInstancesLabels(self, pmid):
+    def pmGetInstancesLabels(self, indom):
         """PMAPI - Get labels for all metric values (instances)
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmGetInstancesLabels(pmid, byref(result_p))
+        status = LIBPCP.pmGetInstancesLabels(indom, byref(result_p))
         if status < 0:
             raise pmErr(status)
-        return result_p
+        if status > 0:
+            labelL = self.result_to_list(result_p, status)
+        else:
+            labelL = None
+        return labelL
 
     def pmGetItemLabels(self, pmid):
         """PMAPI - Get labels of a given metric identifier
@@ -2068,7 +2086,11 @@ class pmContext(object):
         status = LIBPCP.pmGetItemLabels(pmid, byref(result_p))
         if status < 0:
             raise pmErr(status)
-        return result_p
+        if status > 0:
+            labelL = self.result_to_list(result_p, status)
+        else:
+            labelL = None
+        return labelL
 
     def pmGetClusterLabels(self, pmid):
         """PMAPI - Get labels of a given metric cluster
@@ -2080,7 +2102,11 @@ class pmContext(object):
         status = LIBPCP.pmGetClusterLabels(pmid, byref(result_p))
         if status < 0:
             raise pmErr(status)
-        return result_p
+        if status > 0:
+            labelL = self.result_to_list(result_p, status)
+        else:
+            labelL = None
+        return labelL
 
     def pmGetInDomLabels(self, indom):
         """PMAPI - Get labels of a given instance domain
@@ -2092,7 +2118,11 @@ class pmContext(object):
         status = LIBPCP.pmGetInDomLabels(indom, byref(result_p))
         if status < 0:
             raise pmErr(status)
-        return result_p
+        if status > 0:
+            labelL = self.result_to_list(result_p, status)
+        else:
+            labelL = None
+        return labelL
 
     def pmGetDomainLabels(self, domain):
         """PMAPI - Get labels of a given performance domain
@@ -2104,7 +2134,11 @@ class pmContext(object):
         status = LIBPCP.pmGetDomainLabels(domain, byref(result_p))
         if status < 0:
             raise pmErr(status)
-        return result_p
+        if status > 0:
+            labelL = self.result_to_list(result_p, status)
+        else:
+            labelL = None
+        return labelL
 
     def pmGetContextLabels(self):
         """PMAPI - Get labels of the current context
@@ -2116,7 +2150,11 @@ class pmContext(object):
         status = LIBPCP.pmGetContextLabels(byref(result_p))
         if status < 0:
             raise pmErr(status)
-        return result_p
+        if status > 0:
+            labelL = self.result_to_list(result_p, status)
+        else:
+            labelL = None
+        return labelL
 
     ##
     # PMAPI Ancilliary Support Services
@@ -2125,10 +2163,14 @@ class pmContext(object):
     def pmMergeLabels(labels):
         """PMAPI - Merges string labels into a string
         """
+        if type(labels) is not type([]):
+            labelsL = [labels]
+        else:
+            labelsL = labels
         result_p = ctypes.create_string_buffer(c_api.PM_MAXLABELJSONLEN)
-        arg_arr = (c_char_p * len(labels))()
-        for i in range(len(labels)):
-            arg_arr[i] = c_char_p(labels[i].encode('utf-8'))
+        arg_arr = (c_char_p * len(labelsL))()
+        for i in range(len(labelsL)):
+            arg_arr[i] = c_char_p(labelsL[i].encode('utf-8'))
         status = LIBPCP.pmMergeLabels(arg_arr, len(arg_arr),
                     result_p, len(result_p))
         if status < 0:
@@ -2137,22 +2179,37 @@ class pmContext(object):
         return str(result.decode('ascii', 'ignore'))
 
     @staticmethod
-    def pmMergeLabelSets(labelSets, callback, arg):
-        """PMAPI - Merges pmLabelSets based on labelSets hierarchy
-            into a string
+    def pmMergeLabelSets(labelSets, callback=None, arg=None):
+        """PMAPI - Merges list of pmLabelSets based on labelSets hierarchy into
+           a string. Each list element may also be either a list or None.
         """
         result_p = ctypes.create_string_buffer(c_api.PM_MAXLABELJSONLEN)
         if callback is None:
             callback = lambda x,y,z: 1
         cb_func = mergeLabelSetsCB_type(callback)
-        arg_arr = (POINTER(pmLabelSet) * len(labelSets))()
-        for i in range(len(labelSets)):
-            arg_arr[i] = cast(byref(labelSets[i]), POINTER(pmLabelSet))
-        arg =  cast(c_char_p(arg), c_void_p)
-        status = LIBPCP.pmMergeLabelSets(arg_arr, len(labelSets), result_p,
-                    len(result_p), cb_func, arg)
-        if status < 0:
-            raise pmErr(status)
+
+        if labelSets is None:
+            result_p.value = b"{}"
+        else:
+            if type(labelSets) is not type([]):
+                labelSetsL = [labelSets]
+            else:
+                labelSetsL = []
+                for l in labelSets:
+                    if type(l) is type([]):
+                        labelSetsL.extend(l)
+                    elif l is not None:
+                        labelSetsL.append(l)
+
+            arg_arr = (POINTER(pmLabelSet) * len(labelSetsL))()
+            for i in range(len(labelSetsL)):
+                arg_arr[i] = cast(byref(labelSetsL[i]), POINTER(pmLabelSet))
+            arg =  cast(c_char_p(arg), c_void_p)
+            status = LIBPCP.pmMergeLabelSets(arg_arr, len(labelSetsL), result_p,
+                        len(result_p), cb_func, arg)
+            if status < 0:
+                raise pmErr(status)
+
         result = result_p.value
         return str(result.decode('ascii', 'ignore'))
 
@@ -2161,12 +2218,15 @@ class pmContext(object):
     def pmFreeLabelSets(labelSets):
         """PMAPI - Free the pmLabelSets memory
         """
-        arg_arr = (POINTER(pmLabelSet) * len(labelSets))()
-        for i in range(len(labelSets)):
-            arg_arr[i] = cast(byref(y), POINTER(pmLabelSet))
-        status = LIBPCP.pmMergeLabels(arg_arr, len(arg_arr))
-        if status < 0:
-            raise pmErr(status)
+        if type(labelSets) is not type([]):
+            labelSetsL = [labelSets]
+        else:
+            labelSetsL = labelSets
+        arg = POINTER(pmLabelSet)
+        for i in range(len(labelSetsL)):
+            arg = cast(byref(labelSetsL[i]), POINTER(pmLabelSet))
+            # TODO: this aborts with invalid pointer. Not sure why yet
+            # LIBPCP.pmFreeLabelSets(arg, 1)
         return
 
     @staticmethod

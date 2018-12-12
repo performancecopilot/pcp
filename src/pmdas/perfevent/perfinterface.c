@@ -523,7 +523,8 @@ static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
 
 /* Setup an event
  */
-static int perf_setup_event(perfdata_t *inst, const char *eventname, const int cpuSetting)
+static int perf_setup_event(perfdata_t *inst, const char *eventname,
+                            unsigned long eventcode, const int cpuSetting)
 {
     int i;
     int ncpus, ret;
@@ -607,6 +608,25 @@ static int perf_setup_event(perfdata_t *inst, const char *eventname, const int c
                 continue;
             }
 
+        } else if (!strncmp(eventname, "RAW:", 4)) {
+            info->type = EVENT_TYPE_PERF;
+
+            memset(&info->hw, 0, sizeof(info->hw));
+            info->hw.type = PERF_TYPE_RAW;
+            info->hw.size = sizeof(info->hw);
+            info->hw.config = eventcode;
+            info->hw.read_format = PERF_FORMAT_TOTAL_TIME_ENABLED | PERF_FORMAT_TOTAL_TIME_RUNNING;
+            info->hw.exclude_hv = 1;
+            info->hw.exclude_guest = 1;
+            info->hw.disabled = 1;
+            info->fd = perf_event_open(&info->hw, -1, info->cpu, -1, 0);
+
+            if (info->fd == -1) {
+                fprintf(stderr, "perf_event_open failed on cpu%d for \"%s\": %s\n",
+                        info->cpu, curr->name, strerror(errno));
+                free_eventcpuinfo(info);
+                continue;
+            }
         } else {
 
             info->type = EVENT_TYPE_PERF;
@@ -1219,14 +1239,15 @@ perfhandle_t *perf_event_create(const char *config_file)
 
     while(pmcsetting)
     {
-        (void) perf_setup_event(inst, pmcsetting->name, pmcsetting->cpuConfig);
+        (void) perf_setup_event(inst, pmcsetting->name, pmcsetting->rawcode,
+                                pmcsetting->cpuConfig);
 
         pmcsetting = pmcsetting->next;
     }
 
     /* Setup the dynamic events */
     if (perfconfig->dynamicpmc) {
-	ret = init_dynamic_events(&pmu_list);
+	ret = init_dynamic_events(&pmu_list, perfconfig->dynamicpmc->dynamicSettingList);
 	if (!ret)
 	    perf_setup_dynamic_events(inst,
 				      perfconfig->dynamicpmc->dynamicSettingList,

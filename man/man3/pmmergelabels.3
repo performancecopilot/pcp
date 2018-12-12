@@ -34,6 +34,17 @@ int pmMergeLabelSets(pmLabelSet **\fIsets\fP, int \fInsets\fP, char *\fIbuffer\f
 .ad
 cc ... \-lpcp
 .ft 1
+.SH "PYTHON SYNOPSIS"
+.ft 3
+.nf
+from pcp import pmapi
+.sp
+.nf
+\fIbuffer\fR = pmapi.pmContext().pmMergeLabels(\fIsets\fP)
+.br
+\fIbuffer\fR = pmapi.pmContext().pmMergeLabelSets(\fIsets\fP, \fIfilter\fP)
+.sp
+.ft 1
 .SH DESCRIPTION
 .B pmMergeLabels
 takes multiple (\c
@@ -102,7 +113,31 @@ from the resulting set.
 Any non-zero return value indicates that the label should be
 included in the
 .IR buffer .
-.PP
+.SH "PYTHON EXAMPLE"
+.ft 3
+.nf
+import sys
+import json
+from pcp import pmapi
+import cpmapi as c_api
+
+def merge_callback(label, jsondata, data=None):
+    d = json.loads(jsondata)
+    labelsD.update(d)
+    return 0
+
+ctx = pmapi.pmContext()
+
+for metric in sys.argv[1:]:
+    pmid = ctx.pmLookupName(metric)[0]
+    lset = ctx.pmLookupLabels(pmid)
+    labelsD = {}
+    ctx.pmMergeLabelSets(lset, merge_callback)
+    print("== %s ===" % metric)
+    for n,v in labelsD.items():
+        print("    %s = %s" % (n,v))
+    ctx.pmFreeLabelSets(lset)
+.ft 2
 .SH DIAGNOSTICS
 On success, both
 .B pmMergeLabels

@@ -546,6 +546,14 @@ __pmMergeLabelSets(pmLabel *alabels, const char *abuf, int na,
     if (no)
 	*no = 0;	/* number of output labels */
 
+    /* integrity check */
+    if ((na > 0 && alabels == NULL) || (nb > 0 && blabels == NULL)) {
+	if (pmDebugOptions.labels)
+	    fprintf(stderr, "__pmMergeLabelSets: invalid or corrupt arguments\n");
+	sts = -EINVAL;
+	goto done;
+    }
+
     /* Walk over both label sets inserting all names into the output
      * buffer, but prefering b-group values over those in the a-group.
      * As we go, check for duplicates between a-group & b-group (since
@@ -648,7 +656,7 @@ pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen,
 	return -EINVAL;
 
     for (i = 0; i < nsets; i++) {
-	if (sets[i] == NULL)
+	if (sets[i] == NULL || sets[i]->nlabels < 0)
 	    continue;
 
 	/* avoid overwriting the working set, if there is one */

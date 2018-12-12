@@ -22,4 +22,9 @@ cat <<End-of-File | pmchart -Dappl2 -C -c - 2>&1 | _filter_views
 aaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccXXXXXXXXXXXXXXXXXXX
 End-of-File
 
+echo
+echo "=== view with non-existant archive ==="
+PCP_STDERR=$tmp.err pmchart -c CPU -a /no/such/archive
+cat $tmp.err
+
 exit

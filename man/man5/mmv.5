@@ -258,16 +258,24 @@ The entries in the Labels (v3) section have the following format:
 box,center;
 c | c | c
 n | n | l.
-Offset  Length  Value
+Offset	Length	Value
 _
-0       4       Flags (PM_LABEL_[CLUSTER|ITEM|INDOM|INSTANCES]|OPTIONAL)
+0	4	Flags (PM_LABEL_[CLUSTER|ITEM|INDOM|INSTANCES]|OPTIONAL)
 _
-4       4       Identifier for given type (indom, cluster or item)
+4	4	Identifier for given type (indom, cluster or item)
 _
-8       4       Internal Instance or PM_IN_NULL
+8	4	Internal Instance or PM_IN_NULL
 _
-12      244     Payload (Name and Value JSONB String)
+12	244	Payload (Name and Value JSONB String)
 .TE
+.PP
+Each entry in the payload is a 244 byte (maximum) character array,
+containing a single NULL-terminated \fIname\fR:\fIvalue\fR pair in
+JSON format.
+Insignificant whitespace must not be present.
+Label names consist only of alphanumeric characters or underscores,
+and must begin with an alphabetic.
+Upper and lower case characters are considered distinct.
 .PP
 .SH SEE ALSO
 .BR PCPIntro (1),
