@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# Process Maybe-Requires: tag lines, conditionally
+# (a) replacing the tag with Requires: if the package is installed
+# (b) remove the tag line otherwise
+#
+# Note: Maybe-Requires: lines must have exactly one package and
+# 	no version predicate
+#
+
+tmp=/var/tmp/mangle-spec
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+rm -f $tmp.*
+verbose=false
+
+grep '^Maybe-Requires:' pcp.spec \
+| sed \
+    -e 's/Maybe-Requires://' \
+| sort \
+| uniq \
+| while read pkg
+do
+    if rpm -q "$pkg" >/dev/null
+    then
+	$verbose && echo "Requires: $pkg"
+	echo "/^Maybe-Requires: $pkg\$/s/Maybe-Requires:/Requires:/" >>$tmp.sed
+    else
+	$verbose && echo "Missing: $pkg"
+	echo "/^Maybe-Requires: $pkg\$/d" >>$tmp.sed
+    fi
+done
+
+if [ -s $tmp.sed ]
+then
+    sed -f $tmp.sed -i pcp.spec
+fi
