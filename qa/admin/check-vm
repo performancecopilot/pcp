@@ -466,17 +466,11 @@ in
     vm00)
 	unavail_pkg='libuv1-dev python3-libvirt python3-prometheus-client python3-elasticsearch python3-openpyxl python3-bpfcc libsoqt5-dev python-prometheus-client python-elasticsearch python-openpyxl python-psycopg2'
 	;;
-    vm04)
-	unavail_pkg='libvarlink-devel python-prometheus_client python-openpyxl qtchooser'
-	;;
     vm05)
 	unavail_pkg=''
 	;;
     vm06)
 	unavail_pkg='sensors'
-	;;
-    vm08)
-	unavail_pkg='libvarlink-devel python-prometheus_client python-openpyxl qtchooser'
 	;;
     vm09)
 	unavail_pkg='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg dtrace boost json_reformat py36-imaging nmap' 
@@ -490,9 +484,6 @@ in
     vm13)
 	unavail_pkg=''
 	;;
-    vm14)
-	unavail_pkg='libvarlink-devel systemd-devel libpfm-devel python-prometheus_client python-elasticsearch python-openpyxl socat zabbix-agent docker-io qtchooser qt5-qtbase-devel uic qt5-qtsvg-devel SoQt-devel Coin-devel Net::SNMP YAML::XS::LibYAML libuv-devel kubernetes-client kubernetes-node docker-common'
-	;;
     vm15)
     	unavail_pkg='valgrind socat'
     	;;
@@ -505,15 +496,6 @@ in
     vm23)
 	unavail_pkg='python3-bcc kubernetes-client kubernetes-node 389-ds-base'
 	;;
-    vm25)
-	unavail_pkg='libvarlink-devel python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow python3-psycopg2 qtchooser python3-requests'
-    	;;
-    vm28)
-	unavail_pkg='device-mapper-devel libvarlink-devel systemd-devel libpfm-devel python-prometheus_client python-openpyxl kubernetes-client kubernetes-node realpath libicu-devel qtchooser Coin-devel realpath'
-	;;
-    vm29)
-	unavail_pkg='device-mapper-devel libvarlink-devel python-prometheus_client python-elasticsearch perl-YAML-LibYAML perl-Net-SNMP zabbix-agent qtchooser qtchooser SoQt-devel Coin-devel SoQt-devel python-openpyxl libuv-devel'
-    	;;
     vm30)
 	unavail_pkg='libvarlink-devel libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin-devel SoQt-devel python3-libs yajl python-psycopg2 python3-psycopg2'
 	;;
@@ -550,14 +532,14 @@ esac
 #
 if [ -z "$unavail_pkg" ]
 then
-    rm -f $tmp.na
+    rm -f $tmp.tmp
     $PCP_AWK_PROG '{ for (i = 3; i <= NF; i++) printf $i " "; print "" }' <$tmp.whatami \
     | sed \
 	-e 's/ \[.*//' \
 	-e 's/ ([^)]*)//' \
 	-e 's/RHEL Server/RHEL/' \
 	-e 's/Arch Linux/ArchLinux/' \
-	-e '/^CentOS/{
+	-e '/CentOS/{
 s/CentOS Linux/CentOS/
 s/CentOS\([0-9]\)/CentOS \1/
 }' \
@@ -609,17 +591,17 @@ s/CentOS\([0-9]\)/CentOS \1/
 	    fi
 	    if $_match
 	    then
-		echo "$packages" >>$tmp.na
+		echo "$packages" >>$tmp.tmp
 	    fi
 	fi
     done
-    if [ -s $tmp.na ]
+    if [ -s $tmp.tmp ]
     then
 	if [ -z "$unavail_pkg" ]
 	then
-	    unavail_pkg="`cat $tmp.na`"
+	    unavail_pkg="`cat $tmp.tmp`"
 	else
-	    unavail_pkg="$unavail_pkg `cat $tmp.na`"
+	    unavail_pkg="$unavail_pkg `cat $tmp.tmp`"
 	fi
     fi
 fi
@@ -633,20 +615,20 @@ then
 else
     if [ -n "$unavail_pkg" ]
     then
-	for f in $unavail_pkg
+	for _pkg in $unavail_pkg
 	do
 	    if [ -z "$_version" ]
 	    then
-		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$f[] ]/"'{
+		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
 s;\[[^]]*];[N/A on '"$_distro"'];
 }'
 	    else
-		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$f[] ]/"'{
+		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
 s;\[[^]]*];[N/A on '"$_distro"' '"$_version"'];
 }'
 	    fi
 	    mv $tmp.tmp $tmp.manifest
-	    $very_verbose && echo >&2 "unavailable: $f"
+	    $very_verbose && echo >&2 "unavailable: $_pkg"
 	done
     fi
 fi
@@ -674,13 +656,13 @@ then
     else
 	if [ -n "$unavail_pkg" ]
 	then
-	    for f in $skip_pkg
+	    for _pkg in $skip_pkg
 	    do
-		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$f[] ]/"'{
+		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
 s;\[[^]]*];[skip on host '"$_hostname"'];
 }'
 		mv $tmp.tmp $tmp.manifest
-		$very_verbose && echo >&2 "skip: $f"
+		$very_verbose && echo >&2 "skip: $_pkg"
 	    done
 	fi
     fi
@@ -883,17 +865,24 @@ do
 		-e 's/[ 	][ 	]*/ /g' \
 		-e '/^ *$/d' \
 		-e p \
-	    | while read _pkgs
+	    | while read _not_installed
 	    do
 		# don't list the unavailable packages nor the skipped ones
 		#
-		for _pkg in $_pkgs
+		for _not in $_not_installed
 		do
-		    if echo " $unavail_pkg " | grep " $_pkg " >/dev/null
+		    rm -f $tmp.match
+		    for _pkg in $unavail_pkg
+		    do
+			if echo " $_not " | grep " $_pkg " >/dev/null
+			then
+			    touch $tmp.match
+			    break
+			fi
+		    done
+		    if [ ! -f $tmp.match ]
 		    then
-			:
-		    else
-			echo "$_pkg"
+			echo "$_not"
 		    fi
 		done
 	    done

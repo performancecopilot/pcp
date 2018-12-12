@@ -7,11 +7,14 @@
 # Field 3	- Distro architecture, - for all architectures (alias for .*)
 # Field 4 .. N	- packages that are not available
 #
-# grep patterns allowed in Fields 1, 2 and 3.
+# grep(1) patterns allowed in all Fields.
 #
 # Comments prefixed by #
 #
 #Distro      Version  Arch    N/A Packages
+#-- CentOS
+CentOS       6.10     -       Coin-devel cppcheck docker docker-common docker-io kubectl kubernetes-client kubernetes-node libpfm-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libuv-devel libvarlink-devel Net::SNMP pylint python2-elasticsearch python2-openpyxl python2-pylint .*-python3 python3-.* python3[0-9]-.* python-elasticsearch python-openpyxl python-prometheus_client python-pylint qt5-qtbase-devel qt5-qtsvg-devel qtchooser socat SoQt-devel systemd-devel system-python-libs uic zabbix22-agent zabbix-agent
+CentOS       7.5      -       libvarlink-devel python2-openpyxl .*-python3 python3-.* python3[0-9]-.* python-openpyxl python-prometheus_client python-pylint qtchooser system-python-libs
 #-- Debian
 Debian       9.[4-6]  -       docker.io libsoqt5-dev libuv-dev python3-bpfcc
 #-- Fedora
@@ -20,6 +23,9 @@ Fedora       27       -       libvarlink-devel python3-prometheus_client
 openSUSE     15       -       kubernetes-node libvarlink-devel pylint python3-prometheus_client python-pylint qtchooser selinux-policy selinux-policy-devel selinux-policy-targeted zabbix22-agent zabbix-agent
 openSUSE     42.2     -       Coin-devel docker-io libvarlink-devel libvirt-python3 pylint python2-pylint python3-elasticsearch python3-jsonpointer python3-libvirt python3-libvirt-python python3-pillow python3-prometheus_client python3-rtslib python3-rtslib-fb python-pylint qtchooser selinux-policy selinux-policy-devel selinux-policy-targeted SoQt-devel zabbix22-agent zabbix-agent
 openSUSE     42.3     -       docker-io libvarlink-devel libvirt-python3 pylint python2-pylint python3-elasticsearch python3-jsonpointer python3-libvirt python3-libvirt-python python3-pillow python3-prometheus_client python3-rtslib python3-rtslib-fb qtchooser zabbix22-agent zabbix-agent
+#-- RedHat
+RHEL         6.10     -       Coin-devel cppcheck docker docker-common docker-io kubectl kubernetes-client kubernetes-node libpfm-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libuv-devel libvarlink-devel Net::SNMP pylint python2-elasticsearch python2-openpyxl python2-pylint .*-python3 python3-.* python3[0-9]-.* python-elasticsearch python-openpyxl python-prometheus_client python-pylint qt5-qtbase-devel qt5-qtsvg-devel qtchooser socat SoQt-devel systemd-devel system-python-libs uic zabbix22-agent zabbix-agent
+RHEL         7.5      -       Coin-devel cppcheck device-mapper-devel libuv-devel libvarlink-devel 'perl(Net::SNMP)' perl-Net-SNMP 'perl(YAML::LibYAML)' perl-YAML-LibYAML pylint python-.* python2-elasticsearch python2-openpyxl python2-prometheus_client python2-pylint qtchooser SoQt-devel system-python-libs zabbix22-agent zabbix-agent .*-python3 python3-.* python3[0-9]-.*
 #-- Ubuntu
 Ubuntu       18.04    -       libsoqt5-dev libuv-dev
 # observed on vm01

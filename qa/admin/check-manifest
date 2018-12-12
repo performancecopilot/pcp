@@ -756,6 +756,14 @@ done
 if [ -s $tmp.unavail ]
 then
     rm -f $tmp.botch $tmp.allpkgs
+    if grep '[[*^$]' $tmp.unavail >/dev/null
+    then
+	# remove lines with grep patterns ... it is just too hard to
+	# know what to check for ...
+	#
+	grep -v '[[*^$]' <$tmp.unavail >$tmp.tmp
+	mv $tmp.tmp $tmp.unavail
+    fi
     $PCP_ECHO_PROG $PCP_ECHO_N "Checking the `wc -l <$tmp.unavail | sed -e 's/ //g'` N/A packages for `hostname -s` ""$PCP_ECHO_C"
     if $verbose
     then
