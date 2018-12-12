@@ -1,2 +1,69 @@
 QA output created by 1545
 Confirmed early termination on name change event
+pcp2xml output:
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Writing 1 metrics to stdout: -->
+<!-- 5 samples(s) with 1.0 sec interval ~ 4 sec runtime. -->
+<pcp>
+  <host>
+    <source>local:</source>
+    <timezone>UTC</timezone>
+    <metrics>
+      <timestamp>
+        <mmv>
+          <control>
+            <files>0</files>
+          </control>
+        </mmv>
+      </timestamp>
+      <timestamp>
+        <mmv>
+          <control>
+            <files>0</files>
+          </control>
+        </mmv>
+      </timestamp>
+      <timestamp>
+        <mmv>
+          <control>
+            <files>1</files>
+          </control>
+        </mmv>
+      </timestamp>
+      <timestamp>
+        <mmv>
+          <control>
+            <files>1</files>
+          </control>
+          <test>
+            <strings instance-name="zero">00oo00</strings>
+            <strings instance-name="hero">None</strings>
+            <indom instance-name="hero" unit="count">0</indom>
+            <indom instance-name="zero" unit="count">43</indom>
+            <string>g'day world</string>
+            <discrete>42</discrete>
+          </test>
+        </mmv>
+      </timestamp>
+      <timestamp>
+        <mmv>
+          <control>
+            <files>1</files>
+          </control>
+          <test>
+            <strings instance-name="zero">00oo00</strings>
+            <strings instance-name="hero">None</strings>
+            <indom instance-name="hero" unit="count">0</indom>
+            <interval instance-name="bird" unit="us/s">0.000</interval>
+            <interval instance-name="tree" unit="us/s">0.000</interval>
+            <interval instance-name="eggs" unit="us/s">0.000</interval>
+            <indom instance-name="zero" unit="count">43</indom>
+            <string>g'day world</string>
+            <discrete>42</discrete>
+            <counter unit="count/s">0.000</counter>
+          </test>
+        </mmv>
+      </timestamp>
+    </metrics>
+  </host>
+</pcp>

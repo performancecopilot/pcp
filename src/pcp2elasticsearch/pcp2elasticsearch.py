@@ -164,7 +164,7 @@ class pcp2elasticsearch(object):
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("ignore-unknown", 0, "5", "", "ignore unknown metrics (default: abort)")
-        opts.pmSetLongOption("names-change", 1, "4", "ACTION", "ignore/abort on PMNS change (default: ignore)")
+        opts.pmSetLongOption("names-change", 1, "4", "ACTION", "update/ignore/abort on PMNS change (default: ignore)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")
         opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
@@ -230,6 +230,8 @@ class pcp2elasticsearch(object):
                 self.names_change = 0
             elif optarg == 'abort':
                 self.names_change = 1
+            elif optarg == 'update':
+                self.names_change = 2
             else:
                 sys.stderr.write("Unknown names-change action '%s' specified.\n" % optarg)
                 sys.exit(1)
@@ -335,9 +337,16 @@ class pcp2elasticsearch(object):
             time.sleep(align)
 
         # Main loop
+        refresh_metrics = 0
         while self.samples != 0:
+            # Refresh metrics as needed
+            if refresh_metrics:
+                refresh_metrics = 0
+                self.pmconfig.update_metrics(curr_insts=not self.live_filter)
+
             # Fetch values
-            if self.pmconfig.fetch() < 0:
+            refresh_metrics = self.pmconfig.fetch()
+            if refresh_metrics < 0:
                 break
 
             # Report and prepare for the next round

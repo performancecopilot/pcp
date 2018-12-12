@@ -170,6 +170,11 @@ Default is \fBpcp.\fP.
 .SH OPTIONS
 The available command line options are:
 .TP 5
+\fB\-0\fR \fIprecision\fR, \fB\-\-precision\-force\fR=\fIprecision\fR
+Like
+.B \-P
+but this option \fIwill\fP override per-metric specifications.
+.TP
 \fB\-4\fR \fIaction\fR, \fB\-\-names\-change\fR=\fIaction\fR
 Specify which
 .I action
@@ -179,7 +184,8 @@ after starting up, and informs running client tools like
 .BR pcp2graphite .
 Valid values for
 .I action
-are \fBignore\fP (do nothing \- the default behaviour)
+are \fBupdate\fP (refresh metrics being sampled),
+\fBignore\fP (do nothing \- the default behaviour)
 and \fBabort\fP (exit the program if such an event happens).
 .TP
 \fB\-5\fR, \fI\-\-ignore\-unknown\fR
@@ -439,11 +445,6 @@ Use
 for numeric non-integer output values.
 The default is to use 3 decimal places (when applicable).
 This option will \fInot\fP override possible per-metric specifications.
-.TP
-\fB\-0\fR \fIprecision\fR, \fB\-\-precision\-force\fR=\fIprecision\fR
-Like
-.B \-P
-but this option \fIwill\fP override per-metric specifications.
 .TP
 \fB\-q\fR \fIscale\fR, \fB\-\-count\-scale\fR=\fIscale\fR
 .I Unit/scale

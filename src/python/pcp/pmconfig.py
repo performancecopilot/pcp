@@ -72,6 +72,9 @@ class pmConfig(object):
         # Pass data with pmTraversePMNS
         self._tmp = []
 
+        # Store configured metrics to avoid rereading on PMNS updates
+        self._conf_metrics = OrderedDict()
+
     def set_signal_handler(self):
         """ Set default signal handler """
         def handler(_signum, _frame):
@@ -293,7 +296,7 @@ class pmConfig(object):
                 self.parse_verbose_metric_info(metrics, key, spec, value)
 
     def prepare_metrics(self):
-        """ Construct and prepare the initial metricset """
+        """ Construct and prepare metricset """
         metrics = self.util.opts.pmGetOperands()
         if not metrics:
             sys.stderr.write("No metrics specified.\n")
@@ -355,7 +358,7 @@ class pmConfig(object):
                 else:
                     raise IOError("Metricset definition '%s' not found." % metric)
 
-        # Create the combined metricset
+        # Create combined metricset
         if self.util.globals == 1:
             for metric in globmet:
                 self.util.metrics[metric] = globmet[metric]
@@ -369,6 +372,8 @@ class pmConfig(object):
 
         if not self.util.metrics:
             raise IOError("No metrics specified.")
+
+        self._conf_metrics = deepcopy(self.util.metrics)
 
     def do_live_filtering(self):
         """ Check if doing live filtering """
@@ -499,12 +504,16 @@ class pmConfig(object):
 
     def validate_metrics(self, curr_insts=CURR_INSTS, max_insts=MAX_INSTS):
         """ Validate the metricset """
+        # Check the metrics against PMNS, resolve non-leaf metrics
+
+        if not hasattr(self.util, 'leaf_only'):
+            self.util.metrics = deepcopy(self._conf_metrics)
+
         if hasattr(self.util, 'predicate') and self.util.predicate:
             for predicate in self.util.predicate.split(","):
                 if predicate not in self.util.metrics:
                     self.util.metrics[predicate] = ['', []]
 
-        # Check the metrics against PMNS, resolve non-leaf metrics
         if self.util.derived:
             for derived in filter(None, self.util.derived.split(";")):
                 if derived.startswith("/") or derived.startswith("."):
@@ -562,7 +571,9 @@ class pmConfig(object):
                     ignore = False
                     try:
                         self.util.context.pmLookupName(metric)
-                    except pmapi.pmErr:
+                    except pmapi.pmErr as error:
+                        if error.args[0] != pmapi.c_api.PM_ERR_NAME:
+                            raise
                         if self.ignore_unknown_metrics() and metric in operands:
                             ignore = True
                     if not ignore:
@@ -594,7 +605,7 @@ class pmConfig(object):
                 print(self.util.instances)
             sys.exit(1)
 
-        # Finalize the metricset
+        # Finalize metricset
         incompat_metrics = OrderedDict()
         for i, metric in enumerate(self.util.metrics):
             # Fill in all fields for easier checking later
@@ -858,8 +869,24 @@ class pmConfig(object):
             sys.stderr.write("Interval must be greater than zero.\n")
             sys.exit(1)
 
+    def clear_metrics(self):
+        """ Clear metricset """
+        self.util.metrics = OrderedDict()
+        self.pmids = []
+        self.descs = []
+        self.insts = []
+        self.util.pmfg.clear()
+        self.util.pmfg_ts = None
+
+    def update_metrics(self, curr_insts=CURR_INSTS, max_insts=MAX_INSTS):
+        """ Update metricset """
+        self.clear_metrics()
+        self.util.pmfg_ts = self.util.pmfg.extend_timestamp()
+        self.validate_metrics(curr_insts, max_insts)
+
     def names_change_action(self):
-        """ Action to take when namespace change occurs (ignore=0, abort=1) """
+        """ Action to take when namespace change occurs:
+            ignore=0, abort=1, update=2 """
         if hasattr(self.util, 'names_change'):
             return self.util.names_change
         return 0 # By default ignore name change notification from pmcd(1)
@@ -885,6 +912,8 @@ class pmConfig(object):
             action = self.names_change_action()
             if action == 1:
                 return -3
+            elif action == 2:
+                return 1
 
         # Successfully completed sampling
         return 0
