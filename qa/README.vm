@@ -44,6 +44,8 @@ Ubuntu
     https://wiki.ubuntu.com/Releases
     04 Jun 2018: 18.04 (Bionic) 17.10 (Artful), 16.04 LTS (Xenial),
 		 14.04.3 LTS (Trusty),
+    # which packages are installed
+    $ dpkg-query -W -f '${package}\n'
     # package search recipe (name and info or description)
     $ dpkg-query -l <pattern>
     # which package installs a file/directory (only installed packages)
@@ -67,6 +69,8 @@ Fedora
     3 Apr 1017: 24 & 25
     23 Aug 2017: 25 & 26
     23 Sep 2018: 27 & 28
+    # which packages are installed
+    $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
     $ dnf search <pattern>
     # which package installs a file/directory
@@ -87,6 +91,8 @@ RedHat
     https://access.redhat.com/articles/3078
     17 Nov 2015: 5.0-5.11, 6.0-6.7, 7.0-7.1
     23 Aug 2017: 5.0-5.11, 6.0-6.9, 7.0-7.4
+    # which packages are installed
+    $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
     $ yum search <pattern>
     # which package installs a file/directory
@@ -116,6 +122,8 @@ OpenSuSE
     18 Apr 2017: 42.1 and 42.2
     23 Sep 2017: 42.2 and 42.3
     24 Sep 2018: 42.3 and 15
+    # which packages are installed
+    $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
     $ zypper search -s <pattern>
     # which package installs a file/directory
@@ -135,6 +143,8 @@ OpenSuSE
 SuSE (SLES)
     https://www.suse.com/lifecycle/
     18 Nov 2105: 11 SP4 and 12 SP1
+    # which packages are installed
+    $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
     $ zypper search -s <pattern>
     # which package installs a file/directory
@@ -152,6 +162,8 @@ FreeBSD
     https://www.freebsd.org/security/security.html#sup
     19 Nov 2015: 9.3, 10.1 and 10.2
     26 Sep 2018: 10, 10.4, 11 and 11.2
+    # which packages are installed
+    $ pkg info -a | sed -e 's/-[0-9].*//'
     # package search recipe (name and info or description)
     $ pkg search <pattern>
     # which package installs a file/directory
@@ -341,6 +353,7 @@ OpenBSD
 Template
     URL
     DATE: VERSION(S)
+    # which packages are installed
     # package search recipe (name and info or description)
     # which package installs a file/directory
     # which files are in an installed package
