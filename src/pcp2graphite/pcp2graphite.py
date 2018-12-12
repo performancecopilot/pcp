@@ -394,7 +394,7 @@ class PCP2Graphite(object):
             """ Sanitize the instance domain string for Carbon/Graphite """
             return "_" + re.sub('[^a-zA-Z_0-9-]', '_', string)
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_sorted_results(valid_only=True)
 
         # Prepare data for easier processing below
         miv_tuples = []

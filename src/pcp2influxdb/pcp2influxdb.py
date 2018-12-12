@@ -487,7 +487,7 @@ class PCP2InfluxDB(object):
             """ Sanitize instance domain string for InfluxDB """
             return "_" + re.sub('[^a-zA-Z_0-9-]', '_', string)
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_sorted_results(valid_only=True)
 
         # Prepare data for easier processing below
         metrics = []

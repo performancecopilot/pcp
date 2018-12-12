@@ -945,7 +945,7 @@ class pmConfig(object):
                 sys.stderr.write("Predicate metric values must be numeric.\n")
                 sys.exit(1)
 
-    def get_sorted_results(self):
+    def get_sorted_results(self, valid_only=False):
         """ Get filtered and ranked results """
         results = OrderedDict()
         if hasattr(self.util, 'predicate') and self.util.predicate:
@@ -978,6 +978,11 @@ class pmConfig(object):
             except Exception:
                 pass
 
+            if valid_only and not results[metric]:
+                del results[metric]
+                if metric in predicates:
+                    predicates.remove(metric)
+
         if predicates:
             pred_insts = {}
             for i, predicate in enumerate(predicates):
@@ -986,7 +991,7 @@ class pmConfig(object):
                 if p not in pred_insts:
                     pred_insts[p] = []
                 pred_insts[p].extend(x[0] for x in results[predicate] if x[0] not in pred_insts[p])
-            for i, metric in enumerate(results):
+            for metric in results:
                 if metric in predicates:
                     # Predicate instance values may all get filtered,
                     # but other metrics' instance values may be above
@@ -998,6 +1003,7 @@ class pmConfig(object):
                         elif limit < 0:
                             results[metric] = [x for x in results[metric] if x[2] <= abs(limit)]
                     continue
+                i = list(self.util.metrics.keys()).index(metric)
                 if self.descs[i].contents.indom not in self._pred_indom:
                     results[metric] = self.rank(results[metric])
                     continue

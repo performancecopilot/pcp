@@ -515,7 +515,7 @@ class PCP2Zabbix(object):
         if self.zabbix_prevsend is None:
             self.zabbix_prevsend = ts
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_sorted_results(valid_only=True)
 
         # Collect the results
         for metric in results:

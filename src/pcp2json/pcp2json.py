@@ -461,14 +461,16 @@ class PCP2JSON(object):
                     data[inst_key] = str(inst_id)
             return data
 
-        results = self.pmconfig.get_sorted_results()
-        for i, metric in enumerate(results):
+        results = self.pmconfig.get_sorted_results(valid_only=True)
+
+        for metric in results:
             # Install value into outgoing json/dict in key1{key2{key3=value}} style:
             # foo.bar.baz=value    =>  foo: { bar: { baz: value ...} }
             # foo.bar.noo[i]=value =>  foo: { bar: { noo: {@instances:[{i: value ...} ... ]}}}
 
             pmns_parts = metric.split(".")
 
+            i = list(self.metrics.keys()).index(metric)
             fmt = "." + str(self.metrics[metric][6]) + "f"
             for inst, name, value in results[metric]:
                 if self.exact_types:

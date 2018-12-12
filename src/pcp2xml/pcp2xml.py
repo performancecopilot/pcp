@@ -430,14 +430,15 @@ class PCP2XML(object):
                 return None
             return string.replace("&", "&amp;").replace("<", "&lt;")
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_sorted_results(valid_only=True)
 
-        for i, metric in enumerate(results):
+        for metric in results:
             # Install value into dict in key1{key2{key3=value}} style:
             # foo.bar.baz=value    =>  foo: { bar: { baz: value ...} }
 
             pmns_parts = metric.split(".")
 
+            i = list(self.metrics.keys()).index(metric)
             fmt = "." + str(self.metrics[metric][6]) + "f"
             for inst, name, value in results[metric]:
                 value = format(value, fmt) if isinstance(value, float) else str(value)

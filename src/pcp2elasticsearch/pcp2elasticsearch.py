@@ -404,7 +404,7 @@ class pcp2elasticsearch(object):
         insts_key = "@instances"
         inst_key = "@id"
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_sorted_results(valid_only=True)
 
         for metric in results:
             # Install value into outgoing json/dict in key1{key2{key3=value}} style:

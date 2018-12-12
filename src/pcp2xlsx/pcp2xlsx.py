@@ -469,7 +469,7 @@ class PCP2XLSX(object):
             precision = "0" if not self.metrics[metric][6] else "0." + "0" * self.metrics[metric][6]
             self.float_style = openpyxl.styles.NamedStyle(name="floating", number_format=precision)
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_sorted_results(valid_only=True)
 
         res = {}
         for i, metric in enumerate(results):
