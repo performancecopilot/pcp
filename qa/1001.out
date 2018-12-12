@@ -10,3 +10,6 @@ Load View: stdin
 Error: stdin[2] Word truncated after 255 characters!
 "aaaaaaaaaaaaaaaaaaaa ... cccccccccccccccccccc"
 Error: stdin[2] Syntax error: expecting "version", found "aaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccc"
+
+=== view with non-existant archive ===
+pmchart: Error: /no/such/archive: No such file or directory
