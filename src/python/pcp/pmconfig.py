@@ -20,6 +20,7 @@
 
 """ PCP Python Utils Config Routines """
 
+from copy import deepcopy
 from collections import OrderedDict
 try:
     import configparser as ConfigParser
@@ -191,43 +192,6 @@ class pmConfig(object):
         for arg in iter(sys.argv[1:]):
             if arg.startswith(":") and arg[1:] in config.sections():
                 self.read_section_options(config, arg[1:])
-
-    def names_change_action(self):
-        """ Action to take when namespace change occurs (ignore=0, abort=1) """
-        if hasattr(self.util, 'names_change'):
-            return self.util.names_change
-        return 0 # By default ignore name change notification from pmcd(1)
-
-    def fetch(self):
-        """ Sample using fetchgroup and handle special cases """
-        try:
-            state = self.util.pmfg.fetch()
-        except pmapi.pmErr as error:
-            if error.args[0] == pmapi.c_api.PM_ERR_EOL:
-                return -1
-            raise error
-
-        # Watch for end time in uninterpolated mode
-        if not self.util.interpol:
-            sample = self.util.pmfg_ts().strftime('%s')
-            finish = self.util.opts.pmGetOptionFinish()
-            if float(sample) > float(finish):
-                return -2
-
-        # Handle any PMCD state change notification
-        if state & pmapi.c_api.PMCD_NAMES_CHANGE:
-            action = self.names_change_action()
-            if action == 1:
-                return -3
-
-        # Successfully completed sampling
-        return 0
-
-    def ignore_unknown_metrics(self):
-        """ Check if unknown metrics are ignored """
-        if hasattr(self.util, 'ignore_unknown') and self.util.ignore_unknown:
-            return True
-        return False
 
     def read_cmd_line(self):
         """ Read command line options """
@@ -472,6 +436,12 @@ class pmConfig(object):
             sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
             sys.exit(1)
 
+    def ignore_unknown_metrics(self):
+        """ Check if unknown metrics are ignored """
+        if hasattr(self.util, 'ignore_unknown') and self.util.ignore_unknown:
+            return True
+        return False
+
     def format_metric_label(self, label):
         """ Format a metric text label """
         # See src/libpcp/src/units.c
@@ -573,7 +543,6 @@ class pmConfig(object):
 
             def metric_base_check(metric):
                 """ Helper to support non-leaf metricspecs """
-                from copy import deepcopy
                 if metric != self._tmp:
                     if metric not in self.util.metrics:
                         self.util.metrics[metric] = deepcopy(metrics[self._tmp])
@@ -589,7 +558,6 @@ class pmConfig(object):
                 except pmapi.pmErr as error:
                     if error.args[0] != pmapi.c_api.PM_ERR_NAME:
                         raise
-                    from copy import deepcopy
                     # Ignore unknown metrics if so requested
                     ignore = False
                     try:
@@ -889,6 +857,37 @@ class pmConfig(object):
         if float(self.util.interval) <= 0:
             sys.stderr.write("Interval must be greater than zero.\n")
             sys.exit(1)
+
+    def names_change_action(self):
+        """ Action to take when namespace change occurs (ignore=0, abort=1) """
+        if hasattr(self.util, 'names_change'):
+            return self.util.names_change
+        return 0 # By default ignore name change notification from pmcd(1)
+
+    def fetch(self):
+        """ Sample using fetchgroup and handle special cases """
+        try:
+            state = self.util.pmfg.fetch()
+        except pmapi.pmErr as error:
+            if error.args[0] == pmapi.c_api.PM_ERR_EOL:
+                return -1
+            raise error
+
+        # Watch for end time in uninterpolated mode
+        if not self.util.interpol:
+            sample = self.util.pmfg_ts().strftime('%s')
+            finish = self.util.opts.pmGetOptionFinish()
+            if float(sample) > float(finish):
+                return -2
+
+        # Handle any PMCD state change notification
+        if state & pmapi.c_api.PMCD_NAMES_CHANGE:
+            action = self.names_change_action()
+            if action == 1:
+                return -3
+
+        # Successfully completed sampling
+        return 0
 
     def pause(self):
         """ Pause before next sampling """
