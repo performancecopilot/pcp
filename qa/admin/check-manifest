@@ -609,7 +609,7 @@ _hunt()
 # all the places where Perl bits might get installed .. geez!
 #
 _perl_dirs=''
-for dir in /usr/lib*/perl5 /usr/lib/*/perl5 /usr/lib/*/perl /usr/share/perl /usr/share/perl5 /usr/pkg/lib/perl5 /usr/local/share/perl5 /usr/local/lib*/perl5/ /usr/local/share/perl /Library/Perl/5.* /System/Library/Perl/5.* /System/Library/Perl/Extras/5.*
+for dir in /usr/lib/perl /usr/lib/perl5 /usr/lib*/perl /usr/lib*/perl5 /usr/lib/*/perl /usr/lib/*/perl5 /usr/share/perl /usr/share/perl5 /usr/pkg/lib/perl5 /usr/local/share/perl5 /usr/local/lib*/perl5/ /usr/local/share/perl /Library/Perl/5.* /System/Library/Perl/5.* /System/Library/Perl/Extras/5.*
 do
     [ -d "$dir" ] && _perl_dirs="$_perl_dirs $dir"
 done

@@ -18,7 +18,12 @@ CentOS       7.5      -       libvarlink-devel python2-openpyxl .*-python3 pytho
 #-- Debian
 Debian       9.[4-6]  -       docker.io libsoqt5-dev libuv-dev python3-bpfcc
 #-- Fedora
-Fedora       27       -       libvarlink-devel python3-prometheus_client
+Fedora       26       -       kubectl kubernetes-client kubernetes-node libvarlink-devel python-.* python2-.* python3-bcc python3-prometheus_client
+Fedora       27       -       libvarlink-devel python-.* python2-.* python3-prometheus_client
+Fedora       2[89]    x86_64  python-.* python2-.*
+# observed on vm22, 389-ds is available but cannot be installed because
+# nothing provides 389-admin and 389-ds-base and 389-dsgw needed by 389-ds
+Fedora       2[89]    i.86    389-ds 389-ds-base kubectl kubernetes-client kubernetes-node python-.* python2-.* python3-bcc
 #-- FreeBSD
 FreeBSD      10.4     -       lm_sensors
 FreeBSD      11.[12]  -       libibmad libibumad lm_sensors
@@ -30,7 +35,9 @@ openSUSE     42.3     -       docker-io libvarlink-devel libvirt-python3 pylint 
 RHEL         6.10     -       Coin-devel device-mapper-devel docker-common kubectl kubernetes-client kubernetes-node libicu-devel libpfm-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libvarlink-devel Net::SNMP pylint python2-elasticsearch python2-openpyxl python2-pylint .*-python3 python3-.* python3[0-9]-.* python-openpyxl python-prometheus_client python-pylint qtchooser realpath systemd-devel system-python-libs uic
 RHEL         7.[56]   -       Coin-devel cppcheck device-mapper-devel libuv-devel libvarlink-devel 'perl(Net::SNMP)' perl-Net-SNMP 'perl(YAML::LibYAML)' perl-YAML-LibYAML pylint python-.* python2-elasticsearch python2-openpyxl python2-prometheus_client python2-pylint .*-python3 python3-.* python3[0-9]-.* qtchooser SoQt-devel system-python-libs zabbix22-agent zabbix-agent
 #-- Ubuntu
+Ubuntu       14.04    -       libsoqt5-dev libsoqt-dev libspreadsheet-readsxc-perl libuv1-dev python-.* python3-bpfcc python3-elasticsearch python3-libvirt python3-openpyxl python3-prometheus-client
+Ubuntu       16.04    -       libsoqt5-dev libsoqt-dev libspreadsheet-readsxc-perl libuv1-dev python-.* python3-bpfcc
 Ubuntu       18.04    -       libsoqt5-dev libsoqt-dev libuv-dev python-.*
 # observed on vm01
 # python3-bpfcc : Depends: libbpfcc (>= 0.5.0-5ubuntu1) but it is not installable
-Ubuntu       18.04    i686    python3-bpfcc
+Ubuntu       18.04    i.86    python3-bpfcc
