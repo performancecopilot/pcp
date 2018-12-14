@@ -19,6 +19,7 @@
 #include "load.h"
 #include "redis.h"
 #include "private.h"
+#include "discover.h"
 #include "slots.h"
 #include "query.h"
 

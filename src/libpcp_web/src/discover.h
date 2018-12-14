@@ -21,6 +21,8 @@
 
 #ifdef HAVE_LIBUV
 #include <uv.h>
+#else
+typedef void uv_loop_t;
 #endif
 
 /*
@@ -93,7 +95,6 @@ extern void pmSeriesDiscoverInDom(pmDiscoverEvent *,
 extern void pmSeriesDiscoverText(pmDiscoverEvent *,
 				int, int, char *, void *);
 
-#ifdef HAVE_LIBUV
 /*
  * Module internals data structure
  */
@@ -108,6 +109,8 @@ typedef struct discoverModuleData {
 } discoverModuleData;
 
 extern discoverModuleData *getDiscoverModuleData(pmDiscoverModule *);
+
+#ifdef HAVE_LIBUV
 extern int pmDiscoverRegister(const char *,
 		pmDiscoverModule *, pmDiscoverCallBacks *, void *);
 extern void pmDiscoverUnregister(int);
