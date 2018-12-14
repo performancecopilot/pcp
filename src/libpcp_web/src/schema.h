@@ -29,6 +29,8 @@
 #define CLUSTER_LEN	(sizeof(CLUSTER)-1)
 #define EVALSHA		"EVALSHA"
 #define EVALSHA_LEN	(sizeof(EVALSHA)-1)
+#define EXPIRE		"EXPIRE"
+#define EXPIRE_LEN	(sizeof(EXPIRE)-1)
 #define GEOADD		"GEOADD"
 #define GEOADD_LEN	(sizeof(GEOADD)-1)
 #define GETS		"GET"

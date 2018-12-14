@@ -1025,6 +1025,15 @@ redis_series_stream_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 }
 
 static void
+redis_series_timer_callback(redisAsyncContext *c, redisReply *reply, void *arg)
+{
+    seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
+
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "redis_series_timer_callback");
+    doneSeriesLoadBaton(baton, "redis_series_timer_callback");
+}
+
+static void
 redis_series_stream(redisSlots *slots, sds stamp, metric_t *metric,
 		const char *hash, void *arg)
 {
@@ -1040,9 +1049,9 @@ redis_series_stream(redisSlots *slots, sds stamp, metric_t *metric,
 	return;
     }
     initRedisStreamBaton(baton, slots, stamp, hash, load);
-    seriesBatonReference(load, "redis_series_stream");
+    seriesBatonReferences(load, 2, "redis_series_stream");
 
-    count = 3;	/* XADD key stamp */
+    count = 6;	/* XADD key MAXLEN ~ len stamp */
     key = sdscatfmt(sdsempty(), "pcp:values:series:%s", hash);
 
     if ((sts = metric->error) < 0) {
@@ -1076,11 +1085,23 @@ redis_series_stream(redisSlots *slots, sds stamp, metric_t *metric,
     cmd = redis_command(count);
     cmd = redis_param_str(cmd, XADD, XADD_LEN);
     cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_str(cmd, "MAXLEN", 6);	/* TODO: config file */
+    cmd = redis_param_str(cmd, "~", 1);
+    cmd = redis_param_str(cmd, "8640", 4);	/* 1 day, ~10 second delta */
     cmd = redis_param_sds(cmd, stamp);
     cmd = redis_param_raw(cmd, stream);
     sdsfree(stream);
 
     redisSlotsRequest(slots, XADD, key, cmd, redis_series_stream_callback, baton);
+
+
+    key = sdscatfmt(sdsempty(), "pcp:values:series:%s", hash);
+    cmd = redis_command(3);	/* EXPIRE key timer */
+    cmd = redis_param_str(cmd, EXPIRE, EXPIRE_LEN);
+    cmd = redis_param_sds(cmd, key);
+    cmd = redis_param_str(cmd, "86400", 5);	/* 1 day, TODO: config file */
+
+    redisSlotsRequest(slots, EXPIRE, key, cmd, redis_series_timer_callback, load);
 }
 
 static void
