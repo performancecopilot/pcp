@@ -27,6 +27,8 @@ Fedora       2[89]    i.86    389-ds 389-ds-base kubectl kubernetes-client kuber
 #-- FreeBSD
 FreeBSD      10.4     -       lm_sensors
 FreeBSD      11.[12]  -       libibmad libibumad lm_sensors
+#-- NetBSD
+NetBSD       6.1.5    -       QtSvg avahi avahi-tools avahi-utils docker dtrace json_reformat libibmad libibumad mkfs.gfs2 nmap p5-DBD-mysql py36-bcc py36-imaging py36-libvirt py36-prometheus-client python-.* python2-.* python3-jsonpointer qt5 qtchooser realpath sysstat uic valgrind zabbix-agent
 #-- openSUSE
 openSUSE     15       -       kubernetes-node libvarlink-devel pylint python3-prometheus_client python-pylint qtchooser selinux-policy selinux-policy-devel selinux-policy-targeted zabbix22-agent zabbix-agent
 openSUSE     42.2     -       Coin-devel docker-io libvarlink-devel libvirt-python3 pylint python2-pylint python3-elasticsearch python3-jsonpointer python3-libvirt python3-libvirt-python python3-pillow python3-prometheus_client python3-rtslib python3-rtslib-fb python-pylint qtchooser selinux-policy selinux-policy-devel selinux-policy-targeted SoQt-devel zabbix22-agent zabbix-agent
