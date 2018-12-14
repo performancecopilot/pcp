@@ -731,14 +731,14 @@ class POSTGRESQLPMDA(PMDA):
         self.dbname = self.conf["dbname"]
         self.user = self.conf["user"]
         # GH##586 : need to escape backslashes and single quotes in password strings
-        self.password = self.conf["password"].replace("\\", "\\\\").replace("'", "\\'")
+        self.password = self.conf["password"].replace("\\","\\\\").replace("'","\\'")
 
         # GH##586 : only switch user if osuser is set in the config file
         try:
             self.osuser = self.conf["osuser"]
             self.log("Switching to user '%s'" % self.osuser)
             self.set_user(self.osuser)
-        except KeyError:
+        except KeyError as error:
             # just run as the current user
             pass
 
