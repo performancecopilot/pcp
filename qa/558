@@ -50,7 +50,7 @@ sleep 3
 _service pcp stop | _filter_pcp_stop
 
 sleep 10
-_service pcp start | _filter_pcp_start
+_service pcp start 2>&1 | _filter_pcp_start
 pmcd_wait
 sleep 10
 $signal -s TERM $!

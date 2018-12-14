@@ -14,6 +14,13 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+case `uname -r`
+in
+    *.fc29.x86_64)
+	_notrun 'syslog("%s", "") is broken on 64-bit Fedora 29'
+	;;
+esac
+
 rm -f $seq.out
 case $PCP_PLATFORM
 in
