@@ -1486,40 +1486,166 @@ redisSlotsConnect(sds server, redisSlotsFlags flags,
     return NULL;
 }
 
-void
+seriesModuleData *
+getSeriesModuleData(pmSeriesModule *module)
+{
+    if (module->privdata == NULL)
+	module->privdata = calloc(1, sizeof(seriesModuleData));
+    return module->privdata;
+}
+
+int
+pmSeriesSetSlots(pmSeriesModule *module, void *slots)
+{
+    seriesModuleData	*data = getSeriesModuleData(module);
+
+    if (data) {
+	data->slots = (redisSlots *)slots;
+	return 0;
+    }
+    return -ENOMEM;
+}
+
+int
+pmSeriesSetHostSpec(pmSeriesModule *module, sds hostspec)
+{
+    seriesModuleData	*data = getSeriesModuleData(module);
+
+    if (data) {
+	data->hostspec = hostspec;
+	return 0;
+    }
+    return -ENOMEM;
+}
+
+int
+pmSeriesSetEventLoop(pmSeriesModule *module, void *events)
+{
+    seriesModuleData	*data = getSeriesModuleData(module);
+
+    if (data) {
+	data->events = (uv_loop_t *)events;
+	return 0;
+    }
+    return -ENOMEM;
+}
+
+int
+pmSeriesSetMetricRegistry(pmSeriesModule *module, void *registry)
+{
+    seriesModuleData	*data = getSeriesModuleData(module);
+
+    if (data) {
+	data->metrics = (mmv_registry_t *)registry;
+	return 0;
+    }
+    return -ENOMEM;
+}
+
+int
 pmSeriesSetup(pmSeriesModule *module, void *arg)
 {
+    seriesModuleData	*data = getSeriesModuleData(module);
+
     /* create global EVAL hashes and string map caches */
     redisScriptsInit();
     redisMapsInit();
 
     /* fast path for when Redis has been setup already */
-    if (module->slots) {
+    if (data == NULL) {
+	return -ENOMEM;
+    } else if (data->slots) {
 	module->on_setup(arg);
     } else {
 	/* establish initial basic connection to Redis instances */
-	module->slots = redisSlotsConnect(
-			module->hostspec, SLOTS_VERSION, module->on_info,
-			module->on_setup, arg, module->events, arg);
+	data->slots = redisSlotsConnect(
+			data->hostspec, SLOTS_VERSION, module->on_info,
+			module->on_setup, arg, data->events, arg);
     }
+    return 0;
 }
 
 void
 pmSeriesClose(pmSeriesModule *module)
 {
-    redisSlotsFree((redisSlots *)module->slots);
-//  memset(module, 0, sizeof(*module));
+    seriesModuleData	*data = (seriesModuleData *)module->privdata;
+
+    if (data) {
+	redisSlotsFree(data->slots);
+	memset(data, 0, sizeof(seriesModuleData));
+	free(data);
+    }
 }
 
-void
-pmDiscoverSetup(pmDiscoverSettings *settings, void *arg)
+discoverModuleData *
+getDiscoverModuleData(pmDiscoverModule *module)
 {
+    if (module->privdata == NULL)
+	module->privdata = calloc(1, sizeof(discoverModuleData));
+    return module->privdata;
+}
+
+int
+pmDiscoverSetSlots(pmDiscoverModule *module, void *slots)
+{
+    discoverModuleData	*data = getDiscoverModuleData(module);
+
+    if (data) {
+	data->slots = (redisSlots *)slots;
+	return 0;
+    }
+    return -ENOMEM;
+}
+
+int
+pmDiscoverSetHostSpec(pmDiscoverModule *module, sds hostspec)
+{
+    discoverModuleData	*data = getDiscoverModuleData(module);
+
+    if (data) {
+	data->hostspec = hostspec;
+	return 0;
+    }
+    return -ENOMEM;
+}
+
+int
+pmDiscoverSetEventLoop(pmDiscoverModule *module, void *events)
+{
+    discoverModuleData	*data = getDiscoverModuleData(module);
+
+    if (data) {
+	data->events = (uv_loop_t *)events;
+	return 0;
+    }
+    return -ENOMEM;
+}
+
+int
+pmDiscoverSetMetricRegistry(pmDiscoverModule *module, void *registry)
+{
+    discoverModuleData	*data = getDiscoverModuleData(module);
+
+    if (data) {
+	data->metrics = (mmv_registry_t *)registry;
+	return 0;
+    }
+    return -ENOMEM;
+}
+
+int
+pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
+{
+    discoverModuleData	*data = getDiscoverModuleData(module);
     const char		fallback[] = "/var/log/pcp";
     const char		*paths[] = { "pmlogger", "pmmgr" };
     const char		*logdir = pmGetOptionalConfig("PCP_LOG_DIR");
     char		path[MAXPATHLEN];
     char		sep = pmPathSeparator();
-    int			i, handle;
+    int			i, count = 0;
+
+    if (data == NULL)
+	return -ENOMEM;
 
     /* create global EVAL hashes and string map caches */
     redisScriptsInit();
@@ -1532,17 +1658,23 @@ pmDiscoverSetup(pmDiscoverSettings *settings, void *arg)
 	pmsprintf(path, sizeof(path), "%s%c%s", logdir, sep, paths[i]);
 	if (access(path, F_OK) != 0)
 	    continue;
-	if ((handle = pmDiscoverRegister(path,
-			&settings->module, &settings->callbacks, arg)) < 0)
+	if ((data->handle = pmDiscoverRegister(path, module, cbs, arg)) < 0)
 	    continue;
 	/* coverity[DEADCODE] -- this is reached when HAVE_LIBUV is set */
-	settings->module.handle = handle;
+	count++;
+	break;
     }
+    return count ? 0 : -ESRCH;
 }
 
 void
-pmDiscoverClose(pmDiscoverSettings *settings)
+pmDiscoverClose(pmDiscoverModule *module)
 {
-    pmDiscoverUnregister(settings->module.handle);
-    memset(settings, 0, sizeof(*settings));
+    discoverModuleData	*discover = (discoverModuleData *)module->privdata;
+
+    if (discover) {
+	pmDiscoverUnregister(discover->handle);
+	memset(discover, 0, sizeof(*discover));
+	free(discover);
+    }
 }

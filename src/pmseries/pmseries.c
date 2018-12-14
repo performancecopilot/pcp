@@ -72,6 +72,7 @@ typedef struct series_inst {
 
 typedef struct series_data {
     sds			query;
+    uv_loop_t		*loop;
     pmSeriesSettings	settings;
     series_command	args;		/* detailed command line arguments */
     series_entry	*head;		/* list of function callbacks */
@@ -900,9 +901,9 @@ pmseries_request(uv_timer_t *arg)
 static int
 pmseries_execute(series_data *dp)
 {
+    uv_loop_t		*loop = dp->loop;
     uv_timer_t		request;
     uv_handle_t		*handle = (uv_handle_t *)&request;
-    uv_loop_t		*loop = (uv_loop_t *)dp->settings.module.events;
 
     handle->data = (void *)dp;
     uv_timer_init(loop, &request);
@@ -937,8 +938,8 @@ static pmLongOptions longopts[] = {
     { "metrics", 0, 'm', 0, "report names for time series metrics" },
     { "query", 0, 'q', 0, "perform a time series query (default)" },
     { "sources", 0, 'S', 0, "report names for time series sources" },
-    { "port", 1, 'p', "N", "Connect to Redis instance on this TCP/IP port" },
-    { "host", 1, 'h', "HOST", "Connect to Redis instance using host specification" },
+    { "port", 1, 'p', "N", "connect to Redis using given TCP/IP port" },
+    { "host", 1, 'h', "HOST", "connect to Redis using given host name" },
     PMAPI_OPTIONS_HEADER("Reporting Options"),
     PMOPT_DEBUG,
     { "fast", 0, 'F', 0, "query or load series metadata, not values" },
@@ -1051,12 +1052,12 @@ main(int argc, char *argv[])
 			pmGetProgname());
 	opts.errors++;
     }
-    if ((flags & PMSERIES_OPT_LOAD) && (flags & PMSERIES_OPT_QUERY)) {
+    else if ((flags & PMSERIES_OPT_LOAD) && (flags & PMSERIES_OPT_QUERY)) {
 	pmprintf("%s: error - cannot use load and querying options together\n",
 			pmGetProgname());
 	opts.errors++;
     }
-    if ((flags & PMSERIES_OPT_QUERY) &&
+    else if ((flags & PMSERIES_OPT_QUERY) &&
 	(flags & (PMSERIES_META_OPTS | PMSERIES_OPT_SOURCE))) {
 	pmprintf("%s: error - cannot use query and metadata options together\n",
 			pmGetProgname());
@@ -1075,14 +1076,17 @@ main(int argc, char *argv[])
 	if (!(flags & (PMSERIES_NEED_DESCS|PMSERIES_NEED_INSTS)))
 	    flags |= PMSERIES_OPT_QUERY;	/* default is to query */
 
-    if (opts.optind == argc && (flags & PMSERIES_OPT_QUERY)) {
-	pmprintf("%s: error - no --query string provided\n", pmGetProgname());
-	opts.errors++;
-    }
-
-    if (opts.optind == argc && !(flags & (PMSERIES_META_OPTS|PMSERIES_OPT_SOURCE))) {
-	pmprintf("%s: error - no series string(s) provided\n", pmGetProgname());
-	opts.errors++;
+    if (opts.optind == argc) {
+	if ((flags & PMSERIES_OPT_QUERY)) {
+	   pmprintf("%s: error - no query string provided\n",
+			   pmGetProgname());
+	   opts.errors++;
+	}
+	else if (!(flags & (PMSERIES_META_OPTS|PMSERIES_OPT_SOURCE))) {
+	    pmprintf("%s: error - no series string(s) provided\n",
+			    pmGetProgname());
+	    opts.errors++;
+	}
     }
 
     if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
@@ -1100,6 +1104,7 @@ main(int argc, char *argv[])
 	query = sdsjoin(&argv[opts.optind], argc - opts.optind, (char *)split);
 
     dp = series_data_init(flags, query);
+    dp->loop = uv_default_loop();
 
     dp->settings.callbacks.on_match = on_series_match;
     dp->settings.callbacks.on_match_done = on_series_match_done;
@@ -1115,8 +1120,10 @@ main(int argc, char *argv[])
 
     dp->settings.module.on_info = on_series_info;
     dp->settings.module.on_setup = on_series_setup;
-    dp->settings.module.events = (void *)uv_default_loop();
-    dp->settings.module.hostspec = sdscatprintf(sdsempty(), "%s:%u", hostname, port);
+
+    pmSeriesSetEventLoop(&dp->settings.module, dp->loop);
+    pmSeriesSetHostSpec(&dp->settings.module, 
+		sdscatprintf(sdsempty(), "%s:%u", hostname, port));
 
     return pmseries_execute(dp);
 }

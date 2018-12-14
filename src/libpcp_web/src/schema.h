@@ -14,6 +14,8 @@
 #ifndef SERIES_SCHEMA_H
 #define SERIES_SCHEMA_H
 
+#include <pmapi.h>
+#include <mmv_stats.h>
 #include "load.h"
 #include "redis.h"
 #include "private.h"
@@ -142,5 +144,17 @@ typedef struct seriesLoadBaton {
     int			error;
     void		*arg;
 } seriesLoadBaton;
+
+/*
+ * Module internal (private) data structures and accessors
+ */
+typedef struct seriesModuleData {
+    sds			hostspec;
+    mmv_registry_t	*metrics;
+    uv_loop_t		*events;
+    redisSlots		*slots;
+} seriesModuleData;
+
+extern seriesModuleData *getSeriesModuleData(pmSeriesModule *);
 
 #endif	/* SERIES_SCHEMA_H */

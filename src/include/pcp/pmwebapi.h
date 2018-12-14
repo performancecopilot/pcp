@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 #include <pcp/pmapi.h>
-#include "sds.h"
+#include <pcp/sds.h>
 
 /*
  * Generalised asynchronous logging facilities.
@@ -108,11 +108,7 @@ typedef struct pmSeriesCallBacks {
 typedef struct pmSeriesModule {
     pmLogInfoCallBack		on_info;	/* general diagnostics call */
     pmSeriesSetupCallBack	on_setup;	/* server connections setup */
-    sds                         hostspec;       /* initial connect hostspec */
-    void			*metrics;	/* registry of perf metrics */
-    void			*events;	/* opaque event library data */
-    void			*slots;		/* opaque server slots data */
-    void			*data;		/* private internal lib data */
+    void			*privdata;	/* private internal lib data */
 } pmSeriesModule;
 
 typedef struct pmSeriesSettings {
@@ -120,7 +116,13 @@ typedef struct pmSeriesSettings {
     pmSeriesCallBacks		callbacks;
 } pmSeriesSettings;
 
-extern void pmSeriesSetup(pmSeriesModule *, void *);
+extern int pmSeriesSetup(pmSeriesModule *, void *);
+extern int pmSeriesSetSlots(pmSeriesModule *, void *);
+extern int pmSeriesSetHostSpec(pmSeriesModule *, sds);
+extern int pmSeriesSetEventLoop(pmSeriesModule *, void *);
+extern int pmSeriesSetMetricRegistry(pmSeriesModule *, void *);
+extern void pmSeriesClose(pmSeriesModule *);
+
 extern int pmSeriesDescs(pmSeriesSettings *, int, pmSID *, void *);
 extern int pmSeriesLabels(pmSeriesSettings *, int, pmSID *, void *);
 extern int pmSeriesInstances(pmSeriesSettings *, int, pmSID *, void *);
@@ -128,7 +130,6 @@ extern int pmSeriesMetrics(pmSeriesSettings *, int, pmSID *, void *);
 extern int pmSeriesSources(pmSeriesSettings *, int, pmSID *, void *);
 extern int pmSeriesQuery(pmSeriesSettings *, sds, pmSeriesFlags, void *);
 extern int pmSeriesLoad(pmSeriesSettings *, sds, pmSeriesFlags, void *);
-extern void pmSeriesClose(pmSeriesModule *);
 
 /*
  * Asynchronous archive location and contents discovery services
@@ -152,12 +153,7 @@ typedef struct pmDiscoverEvent {
 
 typedef struct pmDiscoverModule {
     pmLogInfoCallBack		on_info;	/* general diagnostics call */
-    unsigned int		handle;		/* callbacks context handle */
-    sds				logname;	/* archive directory dirname */
-    void			*metrics;	/* registry of perf metrics */
-    void			*events;	/* opaque event library data */
-    void			*slots;		/* opaque server slots data */
-    void			*data;		/* private internal lib data */
+    void			*privdata;	/* private internal lib data */
 } pmDiscoverModule;
 
 typedef void (*pmDiscoverSourceCallBack)(pmDiscoverEvent *, void *);
@@ -188,8 +184,12 @@ typedef struct pmDiscoverSettings {
     pmDiscoverCallBacks		callbacks;
 } pmDiscoverSettings;
 
-extern void pmDiscoverSetup(pmDiscoverSettings *, void *);
-extern void pmDiscoverClose(pmDiscoverSettings *);
+extern int pmDiscoverSetup(pmDiscoverModule *, pmDiscoverCallBacks *, void *);
+extern int pmDiscoverSetSlots(pmDiscoverModule *, void *);
+extern int pmDiscoverSetHostSpec(pmDiscoverModule *, sds);
+extern int pmDiscoverSetEventLoop(pmDiscoverModule *, void *);
+extern int pmDiscoverSetMetricRegistry(pmDiscoverModule *, void *);
+extern void pmDiscoverClose(pmDiscoverModule *);
 
 #ifdef __cplusplus
 }

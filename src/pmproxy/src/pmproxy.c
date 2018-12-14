@@ -21,6 +21,8 @@
 #define TO_STRING(s)    STRINGIFY(s)
 
 int		timeToDie;		/* for SIGINT handling */
+int		redis_port = 6379;	/* connect to Redis on this port */
+char		*redis_host;		/* connect to Redis on this host */
 static void	*server;		/* opaque server information */
 
 static char	*logfile = "pmproxy.log";	/* log file name */
@@ -79,6 +81,8 @@ static pmLongOptions longopts[] = {
     { "interface", 1, 'i', "ADDR", "accept connections on this IP address" },
     { "port", 1, 'p', "N", "accept connections on this port" },
     { "socket", 1, 's', "PATH", "Unix domain socket file [default $PCP_RUN_DIR/pmproxy.socket]" },
+    { "port", 1, 'r', "N", "Connect to Redis instance on this TCP/IP port" },
+    { "host", 1, 'h', "HOST", "Connect to Redis instance on this host name" },
     PMAPI_OPTIONS_HEADER("Diagnostic options"),
     { "log", 1, 'l', "PATH", "redirect diagnostics and trace output" },
     { "", 1, 'x', "PATH", "fatal messages at startup sent to file [default /dev/tty]" },
@@ -86,7 +90,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "A:C:D:fi:l:L:M:p:P:s:U:x:?",
+    .short_options = "A:C:D:fh:i:l:L:M:p:P:r:s:U:x:?",
     .long_options = longopts,
 };
 
@@ -120,21 +124,24 @@ ParseOptions(int argc, char *argv[], int *nports)
 	    run_daemon = 0;
 	    break;
 
+	case 'h':	/* Redis host name */
+	    redis_host = opts.optarg;
+	    break;
+
 	case 'i':
 	    /* one (of possibly several) interfaces for client requests */
 	    __pmServerAddInterface(opts.optarg);
 	    break;
 
-	case 'l':
-	    /* log file name */
+	case 'l':	/* log file name */
 	    logfile = opts.optarg;
 	    break;
 
-        case 'M':   /* nickname for the server cert. Use to query the nssdb */
+        case 'M':	/* nickname for server cert, use to query the nssdb */
             cert_nickname = opts.optarg;
             break;
 
-	case 'L': /* Maximum size for PDUs from clients */
+	case 'L':	/* Maximum size for PDUs from clients */
 	    sts = (int)strtol(opts.optarg, NULL, 0);
 	    if (sts <= 0) {
 		pmprintf("%s: -L requires a positive value\n", pmGetProgname());
@@ -162,7 +169,15 @@ ParseOptions(int argc, char *argv[], int *nports)
 	    __pmServerSetFeature(PM_SERVER_FEATURE_CERT_REQD);
 	    break;
 
-	case 's':	   /* path to local unix domain socket */
+	case 'r':	/* Redis port number */
+	    redis_port = (int)strtol(opts.optarg, NULL, 0);
+	    if (redis_port <= 0) {
+		pmprintf("%s: -r requires a positive value\n", pmGetProgname());
+		opts.errors++;
+	    }
+	    break;
+
+	case 's':	/* path to local unix domain socket */
 	    pmsprintf(sockpath, sizeof(sockpath), "%s", opts.optarg);
 	    break;
 
@@ -273,38 +288,6 @@ SigBad(int sig)
     }
     _exit(sig);
 }
-
-#if 0
-/*
- * Hostname extracted and cached for later use during protocol negotiations
- */
-static void
-GetProxyHostname(void)
-{
-    __pmHostEnt	*hep;
-    char        host[MAXHOSTNAMELEN];
-
-    if (gethostname(host, MAXHOSTNAMELEN) < 0) {
-        pmNotifyErr(LOG_ERR, "%s: gethostname failure\n", pmGetProgname());
-        DontStart();
-    }
-    host[MAXHOSTNAMELEN-1] = '\0';
-
-    hep = __pmGetAddrInfo(host);
-    if (hep == NULL) {
-        pmNotifyErr(LOG_ERR, "%s: __pmGetAddrInfo failure\n", pmGetProgname());
-        DontStart();
-    } else {
-        hostname = __pmHostEntGetName(hep);
-        if (!hostname) {	/* no reverse DNS lookup for local hostname */
-            hostname = strdup(host);
-            if (!hostname)	/* out of memory, we're having a bad day!?! */
-                pmNoMem("PMPROXY.hostname", strlen(host), PM_FATAL_ERR);
-        }
-        __pmHostEntFree(hep);
-    }
-}
-#endif
 
 void *
 GetServerInfo(void)

@@ -16,6 +16,8 @@
 
 #include "pmwebapi.h"
 #include "libpcp.h"
+#include "mmv_stats.h"
+#include "slots.h"
 
 #ifdef HAVE_LIBUV
 #include <uv.h>
@@ -92,6 +94,20 @@ extern void pmSeriesDiscoverText(pmDiscoverEvent *,
 				int, int, char *, void *);
 
 #ifdef HAVE_LIBUV
+/*
+ * Module internals data structure
+ */
+typedef struct discoverModuleData {
+    unsigned int		handle;		/* callbacks context handle */
+    sds				logname;	/* archive directory dirname */
+    sds				hostspec;	/* slots connection hostspec */
+    mmv_registry_t		*metrics;	/* registry of metrics */
+    uv_loop_t			*events;	/* event library loop */
+    redisSlots			*slots;		/* server slots data */
+    void			*data;		/* user-supplied pointer */
+} discoverModuleData;
+
+extern discoverModuleData *getDiscoverModuleData(pmDiscoverModule *);
 extern int pmDiscoverRegister(const char *,
 		pmDiscoverModule *, pmDiscoverCallBacks *, void *);
 extern void pmDiscoverUnregister(int);

@@ -758,17 +758,20 @@ static void
 connect_redis_source_service(seriesLoadBaton *baton)
 {
     pmSeriesModule	*module = (pmSeriesModule *)baton->module;
+    seriesModuleData	*data = getSeriesModuleData(module);
 
     /* attempt to re-use existing slots connections */
-    if (module->slots) {
-	baton->slots = module->slots;
+    if (data == NULL) {
+	baton->error = -ENOMEM;
+    } else if (data->slots) {
+	baton->slots = data->slots;
 	series_load_end_phase(baton);
     } else {
-	baton->slots = module->slots =
+	baton->slots = data->slots =
 	    redisSlotsConnect(
-		module->hostspec, 1, baton->info,
+		data->hostspec, 1, baton->info,
 		series_load_end_phase, baton->userdata,
-		module->events, (void *)baton);
+		data->events, (void *)baton);
     }
 }
 
@@ -835,14 +838,17 @@ series_load(pmSeriesSettings *settings,
 	node_t *root, timing_t *timing, pmSeriesFlags flags, void *arg)
 {
     seriesLoadBaton	*baton;
+    seriesModuleData	*data = getSeriesModuleData(&settings->module);
     sds			msg;
     int			i;
 
+    if (data == NULL)
+	return -ENOMEM;
     if ((baton = (seriesLoadBaton *)calloc(1, sizeof(seriesLoadBaton))) == NULL)
 	return -ENOMEM;
     initSeriesLoadBaton(baton, &settings->module, flags,
 			settings->module.on_info, settings->callbacks.on_done,
-			settings->module.slots, arg);
+			data->slots, arg);
     initSeriesGetContext(&baton->pmapi, baton);
     baton->timing = *timing;
 
@@ -900,12 +906,13 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
     pmDiscoverModule	*module = event->module;
     pmDiscover		*p = (pmDiscover *)event->data;
     pmLabelSet		*set;
+    discoverModuleData	*data = getDiscoverModuleData(module);
     seriesLoadBaton	*baton;
     context_t		*cp;
     sds			msg;
     int			i;
 
-    if (module->slots == NULL)
+    if (data == NULL || data->slots == NULL)
 	return;
 
     baton = (seriesLoadBaton *)calloc(1, sizeof(seriesLoadBaton));
@@ -916,7 +923,7 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
     }
     initSeriesLoadBaton(baton, module, 0 /*flags*/,
 			module->on_info, series_discover_done,
-			module->slots, arg);
+			data->slots, arg);
     initSeriesGetContext(&baton->pmapi, baton);
     p->baton = baton;
 

@@ -137,7 +137,7 @@ initSeriesGetSID(seriesGetSID *sid, const char *name, int needfree, void *baton)
 static void
 freeSeriesGetSID(seriesGetSID *sid)
 {
-    int		needfree;
+    int			needfree;
 
     seriesBatonCheckMagic(sid, MAGIC_SID, "freeSeriesGetSID");
     sdsfree(sid->name);
@@ -151,10 +151,12 @@ static void
 initSeriesQueryBaton(seriesQueryBaton *baton,
 		pmSeriesSettings *settings, void *userdata)
 {
+    seriesModuleData	*data = getSeriesModuleData(&settings->module);
+
     initSeriesBatonMagic(baton, MAGIC_QUERY);
     baton->callbacks = &settings->callbacks;
     baton->info = settings->module.on_info;
-    baton->slots = settings->module.slots;
+    baton->slots = data->slots;
     baton->module = &settings->module;
     baton->userdata = userdata;
 }
@@ -1245,6 +1247,7 @@ series_query_services(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
     pmSeriesModule	*module = baton->module;
+    seriesModuleData	*data = getSeriesModuleData(module);
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_services");
     seriesBatonCheckCount(baton, "series_query_services");
@@ -1252,15 +1255,17 @@ series_query_services(void *arg)
     seriesBatonReference(baton, "series_query_services");
 
     /* attempt to re-use existing slots connections */
-    if (module->slots) {
-	baton->slots = module->slots;
+    if (data == NULL) {
+	baton->error = -ENOMEM;
+    } else if (data->slots) {
+	baton->slots = data->slots;
 	series_query_end_phase(baton);
     } else {
-	baton->slots = module->slots =
+	baton->slots = data->slots =
 	    redisSlotsConnect(
-		module->hostspec, 1, baton->info,
+		data->hostspec, 1, baton->info,
 		series_query_end_phase, baton->userdata,
-		module->events, (void *)baton);
+		data->events, (void *)baton);
     }
 }
 
@@ -1986,20 +1991,23 @@ series_lookup_services(void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
     pmSeriesModule	*module = baton->module;
+    seriesModuleData	*data = getSeriesModuleData(module);
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_services");
     seriesBatonReference(baton, "series_lookup_services");
 
     /* attempt to re-use existing slots connections */
-    if (module->slots) {
-	baton->slots = module->slots;
+    if (data == NULL) {
+	baton->error = -ENOMEM;
+    } else if (data->slots) {
+	baton->slots = data->slots;
 	series_query_end_phase(baton);
     } else {
-	baton->slots = module->slots =
+	baton->slots = data->slots =
 	    redisSlotsConnect(
-		module->hostspec, 1, baton->info,
+		data->hostspec, 1, baton->info,
 		series_query_end_phase, baton->userdata,
-		module->events, (void *)baton);
+		data->events, (void *)baton);
     }
 }
 
