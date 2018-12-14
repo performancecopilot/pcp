@@ -96,8 +96,9 @@ on_client_close(uv_handle_t *handle)
 {
     struct client	*client = (struct client *)handle;
 
-    if (pmDebugOptions.desperate)
-	fprintf(stderr, "client %p connection closed\n", client);
+    if (pmDebugOptions.context | pmDebugOptions.desperate)
+	fprintf(stderr, "%s: client %p connection closed\n",
+			"on_client_close", client);
 
     switch (client->protocol) {
     case STREAM_PCP:
@@ -110,19 +111,12 @@ on_client_close(uv_handle_t *handle)
 	break;
     }
 
-#if 0
-    struct proxy	*proxy = (struct proxy *)handle->data;
-    struct client	*tmp;
     /* remove client from the doubly-linked list */
-    tmp = client->prev;
-    tmp->next = client->next;
-    if (tmp->next == NULL)
-	proxy->tail = tmp;
-    else
-	tmp->next->prev = tmp;
-    /* TODO: free any partially accrued read/write buffers here */
+    if (client->next != NULL)
+	client->next->prev = client->prev;
+    *client->prev = client->next;
+
     free(client);
-#endif
 }
 
 static void
@@ -239,8 +233,9 @@ on_client_connection(uv_stream_t *stream, int status)
 			pmGetProgname());
 	return;
     }
-    if (pmDebugOptions.pdu)
-	fprintf(stderr, "%s: new client %p\n", "on_client_connection", client);
+    if (pmDebugOptions.context | pmDebugOptions.pdu)
+	fprintf(stderr, "%s: accept new client %p\n",
+			"on_client_connection", client);
 
     status = uv_tcp_init(proxy->events, &client->stream.u.tcp);
     if (status != 0) {
@@ -259,16 +254,13 @@ on_client_connection(uv_stream_t *stream, int status)
     }
     handle = (uv_handle_t *)&client->stream.u.tcp;
     handle->data = (void *)proxy;
+    client->proxy = proxy;
 
     /* insert client into doubly-linked list at the head */
-    if (proxy->head != NULL) {
-	client->next = proxy->head;
-	proxy->head->prev = client;
-	proxy->head = client;
-    } else {
-	proxy->head = proxy->tail = client;
-    }
-    client->proxy = proxy;
+    if ((client->next = proxy->first) != NULL)
+	proxy->first->prev = &client->next;
+    proxy->first = client;
+    client->prev = &proxy->first;
 
     status = uv_read_start((uv_stream_t *)&client->stream.u.tcp,
 			    on_buffer_alloc, on_client_read);
