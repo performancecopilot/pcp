@@ -71,7 +71,8 @@ server_init(int portcount, const char *localpath)
 	return NULL;
     }
 
-    proxy->redishost = sdsnew("localhost:6379");	/* TODO: config file */
+    proxy->redishost = sdscatfmt(sdsempty(), "%s:%u",
+		    redis_host ? redis_host : "localhost", redis_port);
     proxy->events = uv_default_loop();
     uv_loop_init(proxy->events);
     return proxy;

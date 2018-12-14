@@ -268,7 +268,7 @@ do
     fi
 done
 
-# Packaging tools we know about.
+# Packaging types we know about.
 #	dpkg - Debian-based
 #	rpm - RPM-based, e.g. RHEL, CentOS, SuSE, Fedora
 #	urpmi - OpenMandriva (also RPM based)
@@ -281,7 +281,7 @@ done
 #	pacman - Arch Linux
 #	brew - Mac OS X
 #
-pkgtools="dpkg rpm urpmi emerge pkgin pkg_add F_pkg S_pkg slackpkg pacman brew"
+pkgtypes="dpkg rpm urpmi emerge pkgin pkg_add F_pkg S_pkg slackpkg pacman brew"
 
 # Distros we know about (or more specifically ones with the same 
 # packaging tools but different package names).
@@ -367,10 +367,10 @@ fi
 # this is an optimization remove checks from the main loop below
 #
 rm -f $tmp.ok
-for pkgtype in $pkgtools
+for pkgtype in $pkgtypes
 do
     want=true
-    pkgtool=$pkgtype
+    tool=$pkgtype
     case $pkgtype
     in
 	rpm)
@@ -388,21 +388,71 @@ do
 	    which pkgin >/dev/null 2>&1 && want=false
 	    ;;
 	S_pkg)
-	    $have_S_pkg || want=false
-	    pkgtool=pkg
+	    if $have_S_pkg
+	    then
+		tool=pkg
+	    else
+		want=false
+	    fi
 	    ;;
 	F_pkg)
-	    pkgtool=pkg
-	    $have_F_pkg || want=false
+	    if $have_F_pkg
+	    then
+		tool=pkg
+	    else
+		want=false
+	    fi
 	    ;;
     esac
 
-    if which $pkgtool >/dev/null 2>&1 && $want
+    if which $tool >/dev/null 2>&1 && $want
     then
 	$very_verbose && echo >&2 "include ${pkgtype}? lines"
 	sed -e "s/^${pkgtype}?[ 	]//" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
 	touch $tmp.ok
+	if $pkglist
+	then
+	    # one-trip list all currently installed packages for -p
+	    #
+	    if [ ! -f $tmp.installed ]
+	    then
+		case "$pkgtype"
+		in
+		    dpkg)
+			dpkg-query -W -f '${package}\n'
+			;;
+
+		    rpm)
+			rpm -qa --qf '%{NAME}\n'
+			;;
+
+		    pkgin)
+			echo >&2 "TODO: no list all packages method for pkg_info"
+			;;
+
+		    F_pkg)
+			pkg info -a | sed -e 's/-[0-9].*//'
+			;;
+
+		    pkg_add)
+			echo >&2 "TODO: no list all packages method for pkg_locate"
+			;;
+
+		    emerge)
+			echo >&2 "TODO: no list all packages method for equery"
+			;;
+
+		    brew)
+			echo >&2 "TODO: no list all packages method for brew"
+			;;
+
+		    *)
+			echo >&2 "Botch: no list all packages method for $pkgtype"
+			;;
+		esac >$tmp.installed
+	    fi
+	fi
     else
 	$very_verbose && echo >&2 "exclude ${pkgtype}? lines"
 	grep -v "^${pkgtype}?[ 	]" <$tmp.manifest >$tmp.tmp
@@ -412,7 +462,7 @@ done
 if [ ! -f $tmp.ok ]
 then
     echo "Warning: don't understand what packing is being used here ..."
-    echo "         it is none of: $pkgtools"
+    echo "         it is none of: $pkgtypes"
 fi
 
 # Strip the distro-dependent lines that do not apply ...
@@ -463,26 +513,8 @@ done
 unavail_pkg=''
 case `hostname -s`
 in
-    vm00)
-	unavail_pkg='libuv1-dev python3-libvirt python3-prometheus-client python3-elasticsearch python3-openpyxl python3-bpfcc libsoqt5-dev python-prometheus-client python-elasticsearch python-openpyxl python-psycopg2'
-	;;
-    vm05)
-	unavail_pkg=''
-	;;
-    vm06)
-	unavail_pkg='sensors'
-	;;
     vm09)
 	unavail_pkg='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg dtrace boost json_reformat py36-imaging nmap' 
-	;;
-    vm10)
-	unavail_pkg='sensors'
-	;;
-    vm12)
-	unavail_pkg='libvarlink-devel python3-prometheus_client python3-bcc kubernetes-client kubernetes-node'
-	;;
-    vm13)
-	unavail_pkg=''
 	;;
     vm15)
     	unavail_pkg='valgrind socat'
@@ -490,29 +522,11 @@ in
     vm18)
 	unavail_pkg='python3-libvirt python3-prometheus-client python3-elasticsearch python-prometheus-client python-elasticsearch libsoqt5-dev'
 	;;
-    vm22)
-	unavail_pkg=''
-	;;
-    vm23)
-	unavail_pkg='python3-bcc kubernetes-client kubernetes-node 389-ds-base'
-	;;
     vm30)
 	unavail_pkg='libvarlink-devel libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin-devel SoQt-devel python3-libs yajl python-psycopg2 python3-psycopg2'
 	;;
-    vm31)
-	unavail_pkg='python-prometheus_client' 
-	;;
-    vm32)
-	unavail_pkg='libibumad libibmad sensors'
-	;;
-    vm33)
-	unavail_pkg=''
-	;;
     vm34)
 	unavail_pkg='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
-	;;
-    vm35)
-	unavail_pkg=''
 	;;
     vm36)
 	unavail_pkg='python3-bpfcc libsoqt5-dev'
@@ -647,24 +661,16 @@ then
     skip_pkg=`sed <$skip.$_hostname \
 	    -e 's/#.*//' \
 	    -e '/^[ 	]*$/d'`
-    if $pkglist
+    if [ -n "$unavail_pkg" ]
     then
-	# for -p, don't mark manifest lines with skip ... this is handled
-	# later for each package in [ ... ]
-	#
-	:
-    else
-	if [ -n "$unavail_pkg" ]
-	then
-	    for _pkg in $skip_pkg
-	    do
-		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
+	for _pkg in $skip_pkg
+	do
+	    sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
 s;\[[^]]*];[skip on host '"$_hostname"'];
 }'
-		mv $tmp.tmp $tmp.manifest
-		$very_verbose && echo >&2 "skip: $_pkg"
-	    done
-	fi
+	    mv $tmp.tmp $tmp.manifest
+	    $very_verbose && echo >&2 "skip: $_pkg"
+	done
     fi
 fi
 
@@ -858,6 +864,9 @@ do
 		-e 's/.*\[//' \
 		-e 's/]//' \
 		-e 's/ ([^)]*)//' \
+		-e '/skip on host/d' \
+		-e 's/N\/A//' \
+		-e 's/base [^ ]* install//' \
 		-e 's/^or //' \
 		-e 's/ or$//' \
 		-e 's/^or$//' \
@@ -865,24 +874,30 @@ do
 		-e 's/[ 	][ 	]*/ /g' \
 		-e '/^ *$/d' \
 		-e p \
-	    | while read _not_installed
+	    | while read _missing
 	    do
 		# don't list the unavailable packages nor the skipped ones
+		# nor the ones already installed
 		#
-		for _not in $_not_installed
+		for _need in $_missing
 		do
-		    rm -f $tmp.match
-		    for _pkg in $unavail_pkg
-		    do
-			if echo " $_not " | grep " $_pkg " >/dev/null
-			then
-			    touch $tmp.match
-			    break
-			fi
-		    done
-		    if [ ! -f $tmp.match ]
+		    if grep "^$_need\$" $tmp.installed >/dev/null
 		    then
-			echo "$_not"
+			:
+		    else
+			rm -f $tmp.match
+			for _pkg in $unavail_pkg
+			do
+			    if echo " $_need " | grep " $_pkg " >/dev/null
+			    then
+				touch $tmp.match
+				break
+			    fi
+			done
+			if [ ! -f $tmp.match ]
+			then
+			    echo "$_need"
+			fi
 		    fi
 		done
 	    done

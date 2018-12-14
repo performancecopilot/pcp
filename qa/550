@@ -36,7 +36,7 @@ cd secure
 for leak_test in leak-*
 do
     echo "$leak_test checking: " | tee -a $here/$seq.full
-    python $leak_test $host $iterate
+    pmpython $leak_test $host $iterate
     pmcd_wait -t $timeout -h $host
     sts=$?
     echo "$leak_test complete sts=$sts" | tee -a $here/$seq.full

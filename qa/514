@@ -23,8 +23,8 @@ LOCALHOST=`hostname`
 
 case $PCP_PLATFORM
 in
-    linux|solaris)
-	# same syslog options for Linux and OpenSolaris
+    linux|solaris|freebsd|netbsd|openbsd)
+	# same syslog options for Linux and OpenSolaris and *BSD
 	SYSLOG_OPT='"-p daemon.info"'
 	;;
     darwin)

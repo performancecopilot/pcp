@@ -201,7 +201,6 @@ rootclient
 rtimetest
 scale
 scanmeta
-sds.h
 semstr
 sha1int2ext
 slow_af
