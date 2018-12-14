@@ -621,7 +621,8 @@ sed <$tmp.manifest \
     -e '/^[ 	]*:[0-9][0-9]*$/d' \
     -e '/^[ 	]*$/d' \
     -e '/\[N\/A/d' \
-    -e '/skip on host/d' \
+    -e '/\[skip]/d' \
+    -e '/\[skip on host/d' \
 | while read guard target extra
 do
     # most lines have no guard, but some do, e.g.
@@ -774,7 +775,7 @@ in
 	;;
 
     pkg_add)
-	echo >&2 "TODO: no list all packages method for pkg_add"
+	pkg_info -a | sed -e 's/-[0-9].*//'
 	;;
 
     emerge)

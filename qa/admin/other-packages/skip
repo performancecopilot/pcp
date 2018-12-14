@@ -1,0 +1,35 @@
+# Skip packages by distro ... these are ones that although available
+# are:
+# - incompatible with other pieces we need, e.g. Qt4 when other
+#   packages are Qt5, or
+# - fail prerequisites due to packaging botches, or
+# - are bad e.g. like valgrind dumping core
+#
+# >= 3 fields per line (separated by while space)
+# Field 1	- Distro name, as reported by whatami
+# Field 2	- Distro version, as reported by whatami, - for all versions
+# 		  (an alias for .*)
+# Field 3	- Distro architecture, - for all architectures (alias for .*)
+# Field 4 .. N	- packages that should be skipped
+#
+# grep(1) patterns allowed in all Fields.
+#
+# Comments prefixed by #
+#
+#Distro      Version  Arch    Skipped Packages
+#-- Fedora
+# observed on vm22
+# 389-ds is available but cannot be installed because nothing provides
+# 389-admin and 389-ds-base and 389-dsgw needed by 389-ds
+Fedora       29       i.86    389-ds
+#-- OpenBSD
+# observed on vm37
+# qtbase is Qt5 and gcc++ here is too old to compile Qt5 headers ... revisit
+# if we change from gcc to clang for OpenBSD
+# qtsvg is not needed without Qt5
+# valgrind is available, but segv's
+OpenBSD      6.4      -       qtbase qtsvg valgrind
+#-- Ubuntu
+# observed on vm01
+# python3-bpfcc : Depends: libbpfcc (>= 0.5.0-5ubuntu1) but it is not installable
+Ubuntu       18.04    i.86    python3-bpfcc

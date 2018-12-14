@@ -103,7 +103,8 @@ _usage()
     echo "  -o otherdir  use alternative other-packages directory"
     echo "  -p           generate list of likely packages that should be"
     echo "               installed with dnf or apt-get or yum or ..."
-    echo "  -s skip      use alternative skip.<hostname> basename"
+    echo "  -s skip      use alternative skip file"
+    echo "  -S skipbase  use alternative basename for skipbase.<hostname> files"
     echo "  -u unavail   use alternative unavailable file"
     echo "  -v           verbose (debugging)"
     exit 1
@@ -125,16 +126,17 @@ pkglist=false
 verbose=false
 very_verbose=false
 check_manifest=false
-check_mainfest_args=''
+check_manifest_args=''
 otherdir=other-packages					# default, see -o
 manifest="$home"/other-packages/manifest		# default, see -m
 skip="$home"/other-packages/skip			# default, see -s
+skipbase="$home"/other-packages/skip			# default, see -S
 unavailable="$home"/other-packages/unavailable		# default, see -u
-while getopts 'cfm:o:ps:u:v?' p
+while getopts 'cfm:o:ps:S:u:v?' p
 do
     case "$p"
     in
-	c)	# exec check-mainfest when manifest has been build
+	c)	# exec check-manifest when manifest has been build
 		# ... expert only, so not even mentioned in Usage
 		#
 		check_manifest=true
@@ -156,8 +158,12 @@ do
 		pkglist=true
 		;;
 
-	s)	# alternate skip basename
+	s)	# alternate skip
 		skip="$OPTARG"
+		;;
+
+	S)	# alternate skip basename
+		skipbase="$OPTARG"
 		;;
 
 	u)	# alternate unavailable
@@ -251,6 +257,78 @@ NR == 2	{ nf = NF
 	    ;;
     esac
     return $ret
+}
+
+# The unavailable and skip files have the same format, listing packages
+# and package patterns that apply to a particular distribution, version
+# and architecture.
+# This function parses one of these files (specified as $1) and the
+# selected packages (if any) are written on std output
+#
+_parse_file()
+{
+    $PCP_AWK_PROG '{ for (i = 3; i <= NF; i++) printf $i " "; print "" }' <$tmp.whatami \
+    | sed \
+	-e 's/ \[.*//' \
+	-e 's/ ([^)]*)//' \
+	-e 's/RHEL Server/RHEL/' \
+	-e 's/Arch Linux/ArchLinux/' \
+	-e '/CentOS/{
+s/CentOS Linux/CentOS/
+s/CentOS\([0-9]\)/CentOS \1/
+}' \
+	-e '/FreeBSD/s/-RELEASE//' \
+	-e '/SLES[0-9][0-9]* SP/s/ SP/-SP/' \
+	-e '/OpenIndiana/s/Hipster //' \
+	-e 's/^/_arch=/' \
+	-e 's/ /+_distro=/' \
+	-e 's/ / _version="/' \
+	-e 's/+_/ _/' \
+	-e 's/$/"/' \
+    | tr ' ' '\012' >$tmp.eval
+    eval `cat $tmp.eval`
+    sed <$1 \
+	-e 's/#.*//' \
+	-e '/^[ 	]*$/d' \
+    | while read distro_pat version_pat arch_pat packages
+    do
+	if echo "$_distro" | grep "$distro_pat" >/dev/null
+	then
+	    # Distro matches, check versions
+	    #
+	    _match=true
+	    if [ "X$version_pat" = "X-" -o -z "$_version" ]
+	    then
+		:
+	    else
+		if echo "$_version" | grep "$version_pat" >/dev/null
+		then
+		    :
+		else
+		    _match=false
+		fi
+	    fi
+	    if $_match
+	    then
+		# Distro and version matches, check architecture
+		if [ "X$arch_pat" = "X-" -o -z "$_arch" ]
+		then
+		    :
+		else
+		    if echo "$_arch" | grep "$arch_pat" >/dev/null
+		    then
+			:
+		    else
+			_match=false
+		    fi
+		fi
+	    fi
+	    if $_match
+	    then
+		echo "$packages"
+	    fi
+	fi
+    done
 }
 
 # add additional and optional directories
@@ -436,7 +514,7 @@ do
 			;;
 
 		    pkg_add)
-			echo >&2 "TODO: no list all packages method for pkg_locate"
+			pkg_info -a | sed -e 's/-[0-9].*//'
 			;;
 
 		    emerge)
@@ -528,14 +606,6 @@ in
     vm36)
 	unavail_pkg='python3-bpfcc libsoqt5-dev'
     	;;
-    vm37)
-	# qtbase is Qt5 and gcc++ is too old to compile Qt5 headers ... revist
-	# if we change from gcc to clang here
-	# qtsvg is not needed without Qt5
-	# valgrind is available, but segv's
-	#
-	unavail_pkg='libibumad py36-jsonpointer libvirt-python3 realpath py3-prometheus-client py3-openpyxl py3-bcc qtchooser qtbase qtsvg valgrind'
-	;;
 esac
 
 # the "unavailable" file records packages that are not available for a
@@ -543,77 +613,10 @@ esac
 #
 if [ -z "$unavail_pkg" ]
 then
-    rm -f $tmp.tmp
-    $PCP_AWK_PROG '{ for (i = 3; i <= NF; i++) printf $i " "; print "" }' <$tmp.whatami \
-    | sed \
-	-e 's/ \[.*//' \
-	-e 's/ ([^)]*)//' \
-	-e 's/RHEL Server/RHEL/' \
-	-e 's/Arch Linux/ArchLinux/' \
-	-e '/CentOS/{
-s/CentOS Linux/CentOS/
-s/CentOS\([0-9]\)/CentOS \1/
-}' \
-	-e '/FreeBSD/s/-RELEASE//' \
-	-e '/SLES[0-9][0-9]* SP/s/ SP/-SP/' \
-	-e '/OpenIndiana/s/Hipster //' \
-	-e 's/^/_arch=/' \
-	-e 's/ /+_distro=/' \
-	-e 's/ / _version="/' \
-	-e 's/+_/ _/' \
-	-e 's/$/"/' \
-    | tr ' ' '\012' >$tmp.eval
-    eval `cat $tmp.eval`
-    sed <$unavailable \
-	-e 's/#.*//' \
-	-e '/^[ 	]*$/d' \
-    | while read distro_pat version_pat arch_pat packages
-    do
-	if echo "$_distro" | grep "$distro_pat" >/dev/null
-	then
-	    # Distro matches, check versions
-	    #
-	    _match=true
-	    if [ "X$version_pat" = "X-" -o -z "$_version" ]
-	    then
-		:
-	    else
-		if echo "$_version" | grep "$version_pat" >/dev/null
-		then
-		    :
-		else
-		    _match=false
-		fi
-	    fi
-	    if $_match
-	    then
-		# Distro and version matches, check architecture
-		if [ "X$arch_pat" = "X-" -o -z "$_arch" ]
-		then
-		    :
-		else
-		    if echo "$_arch" | grep "$arch_pat" >/dev/null
-		    then
-			:
-		    else
-			_match=false
-		    fi
-		fi
-	    fi
-	    if $_match
-	    then
-		echo "$packages" >>$tmp.tmp
-	    fi
-	fi
-    done
-    if [ -s $tmp.tmp ]
+    _parse_file $unavailable >$tmp.pkgs
+    if [ -s $tmp.pkgs ]
     then
-	if [ -z "$unavail_pkg" ]
-	then
-	    unavail_pkg="`cat $tmp.tmp`"
-	else
-	    unavail_pkg="$unavail_pkg `cat $tmp.tmp`"
-	fi
+	unavail_pkg="$unavail_pkg `cat $tmp.pkgs`"
     fi
 fi
 
@@ -652,10 +655,10 @@ fi
 #
 skip_pkg=''
 _hostname=`hostname -s`
-if [ -f $skip.$_hostname ]
+if [ -f $skipbase.$_hostname ]
 then
-    $verbose && echo >&2 "Processing $skip.`hostname -s` ..."
-    skip_pkg=`sed <$skip.$_hostname \
+    $verbose && echo >&2 "Processing $skipbase.`hostname -s` ..."
+    skip_pkg=`sed <$skipbase.$_hostname \
 	    -e 's/#.*//' \
 	    -e '/^[ 	]*$/d'`
     if [ -n "$unavail_pkg" ]
@@ -666,9 +669,23 @@ then
 s;\[[^]]*];[skip on host '"$_hostname"'];
 }'
 	    mv $tmp.tmp $tmp.manifest
-	    $very_verbose && echo >&2 "skip: $_pkg"
+	    $very_verbose && echo >&2 "skip for host: $_pkg"
 	done
     fi
+fi
+
+_parse_file $skip >$tmp.pkgs
+if [ -s $tmp.pkgs ]
+then
+    skip_pkg="$skip_pkg `cat $tmp.pkgs`"
+    for _pkg in `cat $tmp.pkgs`
+    do
+	sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
+s;\[[^]]*];[skip];
+}'
+	mv $tmp.tmp $tmp.manifest
+	$very_verbose && echo >&2 "skip: $_pkg"
+    done
 fi
 
 if $force
@@ -858,10 +875,11 @@ do
 	then
 	    echo "$apps" \
 	    | sed -n \
+		-e '/\[skip]/d' \
+		-e '/\[skip on host/d' \
 		-e 's/.*\[//' \
 		-e 's/]//' \
 		-e 's/ ([^)]*)//' \
-		-e '/skip on host/d' \
 		-e 's/N\/A//' \
 		-e 's/base [^ ]* install//' \
 		-e 's/^or //' \
