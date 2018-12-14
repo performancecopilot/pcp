@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2012,2014,2016 Red Hat.
+# Copyright (c) 2012,2014,2016,2018 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -20,7 +20,7 @@ LLDFLAGS = \
 NVIDIACFLAGS = -I$(TOPDIR)/src/pmdas/nvidia
 NVIDIAQALIB = libnvidia-ml.$(DSOSUFFIX)
 
-LDIRT += localconfig.h libpcp.h sds.h
+LDIRT += localconfig.h libpcp.h
 
 include GNUlocaldefs
 
@@ -38,7 +38,3 @@ install install_pcp:
 libpcp.h:	$(TOPDIR)/src/include/pcp/libpcp.h
 	rm -f libpcp.h
 	$(LN_S) $(TOPDIR)/src/include/pcp/libpcp.h libpcp.h
-
-sds.h:	$(TOPDIR)/src/include/pcp/sds.h
-	rm -f sds.h
-	$(LN_S) $(TOPDIR)/src/include/pcp/sds.h sds.h
