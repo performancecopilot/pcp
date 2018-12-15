@@ -27,6 +27,8 @@ FreeBSD      10.4     -       lm_sensors
 FreeBSD      11.[12]  -       libibmad libibumad lm_sensors
 #-- NetBSD
 NetBSD       6.1.5    -       QtSvg avahi avahi-tools avahi-utils docker dtrace json_reformat libibmad libibumad mkfs.gfs2 nmap p5-DBD-mysql py36-bcc py36-imaging py36-libvirt py36-prometheus-client python-.* python2-.* python3-jsonpointer qt5 qtchooser realpath sysstat uic valgrind zabbix-agent
+#-- Gentoo
+Gentoo       -        -       
 #-- OpenBSD
 OpenBSD      6.4      -       libibumad libvirt-python3 py3-bcc py3-openpyxl py3-prometheus-client py36-jsonpointer qtchooser realpath
 #-- openSUSE

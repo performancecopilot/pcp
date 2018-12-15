@@ -22,6 +22,11 @@
 # 389-ds is available but cannot be installed because nothing provides
 # 389-admin and 389-ds-base and 389-dsgw needed by 389-ds
 Fedora       29       i.86    389-ds
+#-- Gentoo
+# observed on vm05
+# I cannot figure out how to remake this package with USE=utils so that
+# avahi-browse is built and installed (Ken)
+Gentoo       2.4.2    -       net-dns/avahi
 #-- OpenBSD
 # observed on vm37
 # qtbase is Qt5 and gcc++ here is too old to compile Qt5 headers ... revisit

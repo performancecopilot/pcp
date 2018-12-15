@@ -330,7 +330,7 @@ p
 	    # to a file, a different format is used!)
 	    #
 	    equery belongs "$1" 2>/dev/null \
-	    | sed -e 's/-[0-9].*//' >$tmp.tmp
+	    | sed -e '/Searching for/d' -e 's/-[0-9].*//' >$tmp.tmp
 	    if [ -s $tmp.tmp ]
 	    then
 		cat $tmp.tmp
@@ -384,7 +384,10 @@ p
 	    touch $tmp.abort
 	    ;;
     esac
-    $very_verbose && echo >&2 "no pkg for $info"
+    if $very_verbose
+    then
+	[ -s $tmp.tmp ] || echo >&2 "no pkg for $info"
+    fi
 }
 
 # Deal with some known metapackage equivalences.
@@ -497,6 +500,13 @@ _match_pkg()
 		    ;;
 
 	    emerge)
+		    # try full package name first
+		    #
+		    if [ "$xpect" = "$2" ]
+		    then
+			touch $tmp.match
+			break
+		    fi
 		    # names like foo/bar are expected from equery, but
 		    # often bar is unique and the foo/ part is not needed
 		    # so test for trailing match first
@@ -575,7 +585,7 @@ _hunt()
 		then
 		    # if "base" is specified as a possible provider (which
 		    # may be from a line that contains no provider info,
-		    # see above) and the file exists (or we wouldn't be here
+		    # see above) and the file exists (or we wouldn't be here)
 		    # then that is OK if it is not installed by the package
 		    # manager
 		    #
@@ -779,7 +789,7 @@ in
 	;;
 
     emerge)
-	echo >&2 "TODO: no list all packages method for emerge"
+	equery list '*' | sed -e 's/.*].*] //' -e 's/-[0-9].*//'
 	;;
 
     brew)

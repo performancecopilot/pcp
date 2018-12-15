@@ -518,7 +518,7 @@ do
 			;;
 
 		    emerge)
-			echo >&2 "TODO: no list all packages method for equery"
+			equery list '*' | sed -e 's/.*].*] //' -e 's/-[0-9].*//'
 			;;
 
 		    brew)
