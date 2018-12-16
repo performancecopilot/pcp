@@ -23,7 +23,9 @@
 int		timeToDie;		/* for SIGINT handling */
 int		redis_port = 6379;	/* connect to Redis on this port */
 char		*redis_host;		/* connect to Redis on this host */
-static void	*server;		/* opaque server information */
+
+static void	*info;			/* opaque server information */
+static pmproxy	*server;		/* proxy server implementation */
 
 static char	*logfile = "pmproxy.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
@@ -82,6 +84,7 @@ static pmLongOptions longopts[] = {
     { "port", 1, 'p', "N", "accept connections on this port" },
     { "socket", 1, 's', "PATH", "Unix domain socket file [default $PCP_RUN_DIR/pmproxy.socket]" },
     { "port", 1, 'r', "N", "Connect to Redis instance on this TCP/IP port" },
+    { "timeseries", 1, 't', 0, "Enable automatic scalable timeseries loading" },
     { "host", 1, 'h', "HOST", "Connect to Redis instance on this host name" },
     PMAPI_OPTIONS_HEADER("Diagnostic options"),
     { "log", 1, 'l', "PATH", "redirect diagnostics and trace output" },
@@ -90,7 +93,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "A:C:D:fh:i:l:L:M:p:P:r:s:U:x:?",
+    .short_options = "A:C:D:fh:i:l:L:M:p:P:r:s:tU:x:?",
     .long_options = longopts,
 };
 
@@ -100,6 +103,7 @@ ParseOptions(int argc, char *argv[], int *nports)
     int		c;
     int		sts;
     int		usage = 0;
+    int		timeseries = 0;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -126,6 +130,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 
 	case 'h':	/* Redis host name */
 	    redis_host = opts.optarg;
+	    timeseries++;
 	    break;
 
 	case 'i':
@@ -175,6 +180,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 		pmprintf("%s: -r requires a positive value\n", pmGetProgname());
 		opts.errors++;
 	    }
+	    timeseries++;
 	    break;
 
 	case 's':	/* path to local unix domain socket */
@@ -183,6 +189,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 
 	case 'S':	/* only allow authenticated clients */
 	    __pmServerSetFeature(PM_SERVER_FEATURE_CREDS_REQD);
+	    break;
+
+	case 't':
+	    timeseries++;
 	    break;
 
 	case 'U':	/* run as user username */
@@ -209,13 +219,15 @@ ParseOptions(int argc, char *argv[], int *nports)
 	    exit(0);
 	DontStart();
     }
+
+    server = timeseries ? &libuv_pmproxy: &libpcp_pmproxy;
 }
 
 /* Called to shutdown pmproxy in an orderly manner */
 void
 Shutdown(void)
 {
-    ShutdownPorts(server);
+    server->shutdown(info);
     __pmSecureServerShutdown();
     pmNotifyErr(LOG_INFO, "pmproxy Shutdown\n");
     fflush(stderr);
@@ -292,7 +304,7 @@ SigBad(int sig)
 void *
 GetServerInfo(void)
 {
-    return server;	/* deprecated access mode for server information */
+    return info;	/* deprecated access mode for server information */
 }
 
 #define ENV_WARN_PORT		1
@@ -365,7 +377,7 @@ main(int argc, char *argv[])
     __pmSetSignalHandler(SIGSEGV, SigBad);
 
     /* Open non-blocking request ports for client connections */
-    if ((server = OpenRequestPorts(sockpath, maxpending)) == NULL)
+    if ((info = server->openports(sockpath, maxpending)) == NULL)
 	DontStart();
 
     if (env_warn & ENV_WARN_PORT)
@@ -393,11 +405,11 @@ main(int argc, char *argv[])
 #ifdef HAVE_GETUID
     fprintf(stderr, ", user = %s (%d)\n", username, getuid());
 #endif
-    DumpRequestPorts(stderr, server);
+    server->dumpports(stderr, info);
     fflush(stderr);
 
     /* Loop processing client connections and server responses */
-    MainLoop(server);
+    server->loop(info);
     Shutdown();
     exit(0);
 }

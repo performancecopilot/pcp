@@ -272,7 +272,7 @@ on_client_connection(uv_stream_t *stream, int status)
 }
 
 static int
-OpenRequestPort(struct proxy *proxy, struct server *server, stream_family family,
+open_request_port(struct proxy *proxy, struct server *server, stream_family family,
 		const struct sockaddr *addr, int port, int maxpending)
 {
     struct stream	*stream = &server->stream;
@@ -305,7 +305,7 @@ OpenRequestPort(struct proxy *proxy, struct server *server, stream_family family
 }
 
 static int
-OpenRequestLocal(struct proxy *proxy, struct server *server,
+open_request_local(struct proxy *proxy, struct server *server,
 		const char *name, int maxpending)
 {
     uv_handle_t		*handle;
@@ -338,8 +338,8 @@ typedef struct proxyaddr {
     int			port;
 } proxyaddr;
 
-void *
-OpenRequestPorts(const char *localpath, int maxpending)
+static void *
+open_request_ports(const char *localpath, int maxpending)
 {
     int			inaddr, total, count, port, sts, i, n;
     int			with_ipv6 = strcmp(pmGetAPIConfig("ipv6"), "true") == 0;
@@ -405,7 +405,7 @@ OpenRequestPorts(const char *localpath, int maxpending)
     if (*localpath) {
 	server = &proxy->servers[n++];
 	server->stream.address = localpath;
-	if (OpenRequestLocal(proxy, server, localpath, maxpending) == 0)
+	if (open_request_local(proxy, server, localpath, maxpending) == 0)
 	    count++;
     }
 
@@ -415,7 +415,7 @@ OpenRequestPorts(const char *localpath, int maxpending)
 					STREAM_TCP4 : STREAM_TCP6;
 	server = &proxy->servers[n++];
 	server->stream.address = addrlist[i].address;
-	if (OpenRequestPort(proxy, server, family, sockaddr, port, maxpending) == 0)
+	if (open_request_port(proxy, server, family, sockaddr, port, maxpending) == 0)
 	    count++;
 	__pmSockAddrFree(addrlist[i].addr);
     }
@@ -437,8 +437,8 @@ fail:
     return NULL;
 }
 
-extern void
-ShutdownPorts(void *arg)
+static void
+shutdown_ports(void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
     struct server	*server;
@@ -465,8 +465,8 @@ ShutdownPorts(void *arg)
     sdsfree(proxy->redishost);
 }
 
-void
-DumpRequestPorts(FILE *output, void *arg)
+static void
+dump_request_ports(FILE *output, void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
     struct stream	*stream;
@@ -508,8 +508,8 @@ setup_proxy(uv_timer_t *arg)
     setup_pcp_modules(proxy);
 }
 
-void
-MainLoop(void *arg)
+static void
+main_loop(void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
     uv_timer_t		attempt;
@@ -522,3 +522,10 @@ MainLoop(void *arg)
 
     uv_run(proxy->events, UV_RUN_DEFAULT);
 }
+
+struct pmproxy libuv_pmproxy = {
+    .openports	= open_request_ports,
+    .dumpports	= dump_request_ports,
+    .shutdown	= shutdown_ports,
+    .loop 	= main_loop,
+};
