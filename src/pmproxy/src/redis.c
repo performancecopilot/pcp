@@ -95,16 +95,17 @@ on_redis_connected(void *arg)
     struct proxy	*proxy = (struct proxy *)arg;
     sds			message;
 
+    pmNotifyErr(LOG_INFO, "connected to %s redis-server\n", proxy->redishost);
+
     message = sdsnew("slots");
     if (redis_protocol)
 	message = sdscat(message, ", command keys");
     if (archive_discovery | series_queries)
 	message = sdscat(message, ", schema version");
-    pmNotifyErr(LOG_INFO, "%s setup from redis-server on %s\n",
-		message, proxy->redishost);
+    pmNotifyErr(LOG_INFO, "%s setup\n", message);
     sdsfree(message);
 
-    redis_discover.module.slots = proxy->slots;
+    pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
 }
 
 void
@@ -121,7 +122,9 @@ setup_redis_modules(struct proxy *proxy)
 			flags, proxylog, on_redis_connected,
 			proxy, proxy->events, proxy);
     }
-    redis_discover.module.events = proxy->events;
-    redis_discover.module.metrics = proxy->metrics;
-    //TODO: pmDiscoverSetup(&redis_discover, proxy);
+    pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
+    pmDiscoverSetHostSpec(&redis_discover.module, proxy->redishost);
+    pmDiscoverSetEventLoop(&redis_discover.module, proxy->events);
+    pmDiscoverSetMetricRegistry(&redis_discover.module, proxy->metrics);
+    pmDiscoverSetup(&redis_discover.module, &redis_discover.callbacks, proxy);
 }

@@ -78,7 +78,7 @@ typedef struct client {
     } u;
     struct proxy	*proxy;
     struct client	*next;
-    struct client	*prev;
+    struct client	**prev;
     sds			buffer;
 } client;
 
@@ -88,8 +88,7 @@ typedef struct server {
 } server;
 
 typedef struct proxy {
-    struct client	*head;		/* doubly linked list of clients */
-    struct client	*tail;
+    struct client	*first;		/* doubly linked list of clients */
     struct server	*servers;	/* array of tcp/pipe socket servers */
     int			nservers;	/* count of entries in server array */
     int			redisetup;	/* is Redis slots information setup */

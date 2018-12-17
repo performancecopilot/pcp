@@ -23,17 +23,12 @@ LCFLAGS = $(PIECFLAGS)
 LLDFLAGS = $(PIELDFLAGS)
 LLDLIBS	= $(PCP_WEBLIB)
 
-EXPERIMENTAL = false
-#EXPERIMENTAL = true
-
-ifeq "$(EXPERIMENTAL)" "true"
-#ifeq "$(HAVE_LIBUV)" "true"
+ifeq "$(HAVE_LIBUV)" "true"
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1 -I$(TOPDIR)/src/libpcp_web/src
 CFILES += server.c redis.c pcp.c
 HFILES += server.h pcp.h
-else
-CFILES += deprecated.c
 endif
+CFILES += deprecated.c
 
 default:	$(CMDTARGET)
 

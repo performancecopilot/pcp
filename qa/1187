@@ -84,6 +84,11 @@ echo "CSV contents" | tee -a $here/$seq.full
 cat $tmp.csv | tee -a $here/$seq.full | filter_info
 echo "CSV complete" | tee -a $here/$seq.full
 
+dstat "CSV instances" --cpu -C 1,2,total --cpu-use -o $tmp.csv2 | filter_info
+echo "CSV instances contents" | tee -a $here/$seq.full
+cat $tmp.csv2 | tee -a $here/$seq.full | filter_info
+echo "CSV instances complete" | tee -a $here/$seq.full
+
 # success, all done
 status=0
 exit

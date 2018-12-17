@@ -1,5 +1,67 @@
 pcp-4.3.0 (21 December 2018)
-	- Work in progress, see https://pcp.io/roadmap
+    - Client tools and utilities:
+	- Add pmseries(1) for fast, scalable time series querying
+	- pmrep, pcp2xxx: add support for the --names-change option
+	- pmrep, pcp2xxx: support for the --ignore-unknown metrics option
+	- Implement the dstat --full option to expand instances
+	- Add an 'entropy' dstat plugin configuration file
+	- pcp2elasticsearch: support for es_search_type config flag
+	- pcp2elasticsearch: reduce logging in server down scenarios
+	- pcp-atop: fix an incorrect use of varargs vfprintf interface
+	- pmlogextract: numerous scalability improvements
+	- pmchart: fix sigsegv on non-existant archive via command line
+    - PMDA additions, enhancements and bug fixes:
+	- FreeBSD: add kernel.all.uptime, mem.freemem metrics
+	- FreeBSD: fix 32 vs 64 bit types on memory and CPU metrics
+	- FreeBSD: fix units on some disk (bytes) metrics
+	- FreeBSD: fix CPU count logic error affecting per-CPU metrics
+	- perfevent: add hv_24x7 perf events
+	- perfevent: add support for raw perf events
+	- pmdapostgresql: add optional 'osuser' to configuration
+    - Log rotation, management scripts, compression and server-side utilities:
+	- zeroconf: change logging frequency for proc metrics to 30 seconds
+	- rc scripts: improve systemd interaction for local pmie
+	- pmlogger_daily: whole day granularity for PCP_COMPRESSAFTER config
+	- pmlogger_check: resolve a 'cat: broken pipe' warning message
+	- pmlogrewrite config files for FreeBSD metadata changes
+	- pmproxy: auto-loading of historical timeseries from discovery
+	- pmproxy: add --timeseries option to switch libpcp/uv versions
+	- pmwebd: tolerate live archives with multi-hour-old volumes
+    - Misc build, infrastructure and packaging updates:
+	- Fixed RHEL-5 build packaging for nfsclient and lmsensors PMDAs
+	- Enable dstat -> pcp-dstat binary symlink on more platforms now
+	- Drop the elasticsearch python[23]-urllib3 spec file dependency
+	- Changes for Mac OS X HomeBrew build and packaging
+	- Support for Mac OS X Mojave latest release
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	- libpcp: instance filtering for derived metrics
+	- libpcp: add scalar() for derived metrics
+	- libpcp: fix process existence checks on FreeBSD
+	- libpcp: be more defensive in pmMergeLabelSets
+	- libpcp: add an integrity check in __pmMergeLabelSets
+	- python pmapi: fix a crash in labels wrapper functions
+	- python pmapi: fix a crash in fetchgroup clearing function
+	- python pmapi: rework labels lookup, merge and free functions
+	- python pmconfig: fix logic error in get_sorted_results function
+	- python logimport: fix wrong variable usage in pmiPutLabel
+    - Security Enhanced Linux:
+	- Generic policy rules to allow pcp_pmcd process to read system objects
+	- Fix the build on older selinux versions (RHEL6 era)
+    - Documentation and QA infrastructure:
+	- logimport(3): new pmiPutLabel(3) API function for adding labels
+	- docs: improve formatting for Vector containers screenshot
+	- docs: tweaks for pcp-dstat.1 to use same conventions as pmrep.1
+	- docs: correct typo in INSTALL notes for MacOSX
+	- docs: fix formatting in mmv(5) labels section, add more detail
+	- docs: add python synopsis and examples in pmMergeLabels(3)
+	- docs: add python synopsis in pmLookupLabels(3)
+	- qa/README.vm: instructions for setting up VMs for QA
+	- qa: add kernel group for base OS PMDA testing
+	- qa: add sample.controller.mirage to sample PMDA
+	- qa: numerous Vagrantfile updates and improvements
+	- qa: add helper tool for reporting internal/external sha IDs
+	- qa/admin/check-vm: Mac OS X changes
+	- qa/admin/check-vm et al: refactor for Vagrant
 
 pcp-4.2.0 (16 November 2018)
     - Client tools and utilities:
@@ -48,7 +110,7 @@ pcp-4.2.0 (16 November 2018)
 	- selinux: RHBZ1634205 add pmlogger/cache_home context dir:search
         - selinux: RHBZ1635394 fix configure glue to trigger existing rule inclusion
         - selinux: RHBZ1535522 add pmcd/cache_home context dir:search
-    - Misc build, infrastructure and packaging updates
+    - Misc build, infrastructure and packaging updates:
 	- build: Fix FreeBSD Qt builds
 	- build: fix a number of Debian packaging issues
 	- build: pcp-gui debian packaging made to be conditional
@@ -127,7 +189,7 @@ pcp-4.1.3 (21 September 2018)
 	- added several new rules and QA
 	- resolved AVCs in pmproxy and pmie
 	- updates for postgresql AVC denials
-    - Misc build, infrastructure and packaging updates
+    - Misc build, infrastructure and packaging updates:
 	- drop $pmda_interface on Install
 	- pmdaproc.sh: remove pmda_interface references throughout
 	- pmns/Rebuild: conditionally omit some root_foo PMNS files

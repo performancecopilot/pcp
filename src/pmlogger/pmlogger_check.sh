@@ -895,7 +895,7 @@ END				{ print m }'`
 	    if [ -f $LOGNAME.0 ] 
 	    then
 		$VERBOSE && echo "Latest folio created for $LOGNAME"
-		mkaf $LOGNAME.0 >Latest
+		mkaf $LOGNAME.0 >Latest 2>/dev/null
 		chown $PCP_USER:$PCP_GROUP Latest >/dev/null 2>&1
 	    else
 		touch $tmp/err

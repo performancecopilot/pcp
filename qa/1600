@@ -112,7 +112,7 @@ pmlogger_pid=$!
 
 # start pmproxy 
 proxyport=`_find_free_port`
-proxyopts="-p $proxyport"  # -Dseries,discovery
+proxyopts="-p $proxyport -r $redisport"  # -Dseries,discovery
 pmproxy -f -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
 

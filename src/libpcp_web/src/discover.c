@@ -272,10 +272,12 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
 static int
 pmDiscoverMonitor(sds path, void (*callback)(pmDiscover *))
 {
+    discoverModuleData	*data;
     pmDiscover		*p;
 
     if ((p = pmDiscoverLookup(path)) == NULL)
 	return -ESRCH;
+    data = getDiscoverModuleData(p->module);
 
     /* save the discovery callback to be invoked */
     p->changed = callback;
@@ -286,7 +288,7 @@ pmDiscoverMonitor(sds path, void (*callback)(pmDiscover *))
 	 * Start monitoring, using given uv loop. Up to the caller to create
 	 * a PCP PMAPI context and to fetch/logtail in the changed callback.
 	 */
-	uv_fs_event_init(p->module->events, p->event_handle);
+	uv_fs_event_init(data->events, p->event_handle);
 	uv_fs_event_start(p->event_handle, fs_change_callBack, p->context.name,
 			UV_FS_EVENT_WATCH_ENTRY);
     }

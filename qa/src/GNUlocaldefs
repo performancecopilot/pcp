@@ -163,7 +163,7 @@ endif
 MYFILES += \
 	err_v1.dump \
 	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
-	pthread_barrier.h libpcp.h sds.h pv.c qa_test.c qa_timezone.c \
+	pthread_barrier.h libpcp.h pv.c qa_test.c qa_timezone.c \
 	permslist \
 	qa_shmctl.c qa_sem_msg_ctl.c \
 	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c \
@@ -748,7 +748,6 @@ xarch.o:	libpcp.h
 xlog.o:	libpcp.h
 xmktime.o:	libpcp.h
 xxx.o:	libpcp.h
-sha1int2ext.o:	sds.h
 
 bozo:
 	@echo CFILES_TARGETS=$(CFILES_TARGETS)

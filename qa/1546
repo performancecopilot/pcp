@@ -8,7 +8,6 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
 . ./common.python
 
 $python -c "from pcp import pmapi" >/dev/null 2>&1
@@ -32,18 +31,20 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 $sudo rm -f $PCP_TMP_DIR/mmv/test
-pmsleep 1
 pminfo -f mmv > /dev/null 2>&1
-pcp2xml -5 -t 1 -s 15 -x --names-change=update mmv > $seq.full 2>&1 &
-pmsleep 1
+pcp2xml -5 -t 1 -s 8 -x --names-change=update mmv > $seq.full 2>&1 &
+pid=$!
+pmsleep 1.5
 for i in 1 2 3; do
-    $sudo -u $PCP_USER $here/src/mmv2_genstats test 3
+    $sudo -u $PCP_USER $here/src/mmv2_genstats test 1
     sudo rm -f $PCP_TMP_DIR/mmv/test
-    pmsleep 3
+    pmsleep 1
+    kill -0 $pid > /dev/nul 2>&1 || break
 done
 wait
+
 # Look for the closing tag pcp2xml will write on normal exit
-grep /pcp $seq.full > /dev/null 2>&1
+grep '</pcp>' $seq.full > /dev/null 2>&1
 if [ $? -eq 0 ]; then
   echo Test OK, pcp2xml finished ok
 else
@@ -51,7 +52,6 @@ else
 fi
 
 $sudo rm -f $PCP_TMP_DIR/mmv/test
-pmsleep 1
 pminfo -f mmv > /dev/null 2>&1
 
 # success, all done

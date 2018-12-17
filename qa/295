@@ -34,14 +34,14 @@ _filter_pmproxy()
 	-e '/^__pmSetDataIPC:/d' \
 	-e '/^__pmDataIPC: /d' \
 	-e '/^IPC table fd/d' \
-
+    # end
 }
 
 _check()
 {
-    connects=`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'`
-    disconnects=`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'`
-    difference=$(($connects - $disconnects))
+    connects=`egrep 'AcceptNewClient|accept new client' $tmp.log | wc -l`
+    disconnects=`egrep 'DeleteClient|connection closed' $tmp.log | wc -l`
+    difference=`expr $connects - $disconnects`
     echo "N connects"
     echo "N-$difference disconnects"
     echo "--- $tmp.log ---" >>$here/$seq.full

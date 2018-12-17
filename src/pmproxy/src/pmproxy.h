@@ -15,15 +15,27 @@
 #ifndef PMPROXY_H
 #define PMPROXY_H
 
-extern void *OpenRequestPorts(const char *, int);
-extern void DumpRequestPorts(FILE *, void *);
-extern void *GetServerInfo(void);
-extern void MainLoop(void *);
-extern void ShutdownPorts(void *);
+typedef void *(*proxyOpenRequestPorts)(const char *, int);
+typedef void (*proxyDumpRequestPorts)(FILE *, void *);
+typedef void (*proxyShutdownPorts)(void *);
+typedef void (*proxyMainLoop)(void *);
 
+typedef struct pmproxy {
+    proxyOpenRequestPorts	openports;
+    proxyDumpRequestPorts	dumpports;
+    proxyShutdownPorts		shutdown;
+    proxyMainLoop		loop;
+} pmproxy;
+
+extern struct pmproxy libpcp_pmproxy;
+extern struct pmproxy libuv_pmproxy;
+
+extern void *GetServerInfo(void);
 extern void SignalShutdown(void);
 extern void Shutdown(void);
 
-extern int timeToDie;	/* for SIGINT handling */
+extern int timeToDie;		/* for SIGINT handling */
+extern int redis_port;		/* connect to Redis on this port */
+extern char *redis_host;	/* connect to Redis on this host */
 
 #endif /* PMPROXY_H */

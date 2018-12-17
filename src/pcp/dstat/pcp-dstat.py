@@ -353,25 +353,33 @@ class DstatPlugin(object):
             return label
         ret = ''
         ilist = self.instlist()
-        for _, name in enumerate(ilist):
+        for i, name in enumerate(ilist):
+            if i > 0:
+                ret = ret + CHAR['sep']
             name = self.label.replace('%I', name)
-            ret = ret + name
-        return '"' + ret + '"'
+            ret = ret + '"' + name  + '"'
+            for j, _ in enumerate(self.names):
+                if j > 0:
+                    ret = ret + CHAR['sep']
+        return ret
 
     def csvsubtitle(self):
         ret = ''
         if self.grouptype is None:
             for i, nick in enumerate(self.names):
-                ret = ret + '"' + nick + '"'
-                if i + 1 != len(self.names):
+                if i > 0:
                     ret = ret + CHAR['sep']
+                ret = ret + '"' + nick + '"'
             return ret
         ilist = self.instlist()
-        for _, _ in enumerate(ilist):
+        for i, name in enumerate(ilist):
+            if i > 0:
+                ret = ret + CHAR['sep']
+            name = self.label.replace('%I', name)
             for j, nick in enumerate(self.names):
-                ret = ret + '"' + nick + '"'
-                if j + 1 != len(self.names):
+                if j > 0 or i > 0:
                     ret = ret + CHAR['sep']
+                ret = ret + '"' + name + CHAR['colon'] + nick + '"'
         return ret
 
 

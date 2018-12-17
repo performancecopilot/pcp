@@ -83,7 +83,7 @@ NewClient(ServerInfo *sp)
     return i;
 }
 
-void
+static void
 DeleteClient(ServerInfo *sp, ClientInfo *cp)
 {
     int		i;
@@ -158,7 +158,7 @@ CleanupClient(ServerInfo *sp, ClientInfo *cp, int sts)
 #define MY_VERSION "pmproxy-server 1\n"
 
 /* Establish a new socket connection to a client */
-ClientInfo *
+static ClientInfo *
 AcceptNewClient(ServerInfo *sp, int reqfd)
 {
     int		i;
@@ -518,7 +518,7 @@ FdToString(ServerInfo *sp, int fd)
 }
 
 /* Loop, synchronously processing requests from clients. */
-void
+static void
 MainLoop(void *arg)
 {
     int		i, sts;
@@ -555,14 +555,14 @@ MainLoop(void *arg)
     }
 }
 
-void
+static void
 DumpRequestPorts(FILE *stream, void *arg)
 {
     (void)arg;
     __pmServerDumpRequestPorts(stderr);
 }
 
-void
+static void
 ShutdownPorts(void *arg)
 {
     ServerInfo	*sp = (ServerInfo *)arg;
@@ -574,7 +574,7 @@ ShutdownPorts(void *arg)
     __pmServerCloseRequestPorts();
 }
 
-void *
+static void *
 OpenRequestPorts(const char *path, int maxpending)
 {
     ServerInfo	*sp;
@@ -591,3 +591,10 @@ OpenRequestPorts(const char *path, int maxpending)
     sp->maxReqPortFd = sp->maxSockFd = sts;
     return sp;
 }
+
+struct pmproxy libpcp_pmproxy = {
+    .openports	= OpenRequestPorts,
+    .dumpports	= DumpRequestPorts,
+    .shutdown	= ShutdownPorts,
+    .loop 	= MainLoop,
+};
