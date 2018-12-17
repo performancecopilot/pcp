@@ -74,7 +74,10 @@ class PCPBCCModule(PCPBCCBase):
         try:
             self.bpf = BPF(src_file=bpf_src)
             if self.queued:
-                self.bpf.attach_kprobe(event="blk_start_request", fn_name="trace_req_start")
+                # Compat: bcc < 0.6.0 (first check)
+                if 'get_kprobe_functions' not in dir(self.bpf) or \
+                   self.get_kprobe_functions(b"blk_start_request"):
+                    self.bpf.attach_kprobe(event="blk_start_request", fn_name="trace_req_start")
                 self.bpf.attach_kprobe(event="blk_mq_start_request", fn_name="trace_req_start")
             else:
                 self.bpf.attach_kprobe(event="blk_account_io_start", fn_name="trace_req_start")
