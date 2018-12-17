@@ -903,7 +903,10 @@ class PMReporter(object):
 
         # Add current values
         data = 0
-        results = self.pmconfig.get_sorted_results()
+        # NB. We use valid_only=False to make sure that for every metric
+        # requested their metadata will be recorded in the archive even
+        # if their values are not available for whatever reason.
+        results = self.pmconfig.get_sorted_results(valid_only=False)
         for i, metric in enumerate(results):
             if metric not in self.recorded:
                 record_metric_info(metric, i)
