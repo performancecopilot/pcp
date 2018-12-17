@@ -1016,7 +1016,8 @@ if __name__ == '__main__':
     try:
         i_samples = 0
         while (i_samples < opts.n_samples) or (opts.n_samples == 0):
-            pm.pmtimevalSleep(delta)
+            if not replay_archive: # sleep only in live mode
+                pm.pmtimevalSleep(delta)
             if opts.verbosity != "brief" and len(subsys) > 1:
                 print("\n### RECORD %d >>> %s <<< %s ###" % \
                      (i_samples+1, host, time.strftime("%a %b %d %H:%M:%S %Y")))
