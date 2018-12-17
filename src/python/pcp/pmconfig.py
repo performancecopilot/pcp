@@ -1007,8 +1007,11 @@ class pmConfig(object):
 
             if valid_only and not results[metric]:
                 del results[metric]
-                if metric in predicates:
-                    predicates.remove(metric)
+
+        # Ignore predicate if its values missing
+        for metric in list(predicates):
+            if metric not in results or not results[metric]:
+                predicates.remove(metric)
 
         if predicates:
             pred_insts = {}
