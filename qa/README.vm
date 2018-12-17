@@ -204,7 +204,7 @@ NetBSD
     # package search recipe (name and info or description)
     $ pkgin search <pattern>
     # which package installs a file/directory
-    $ pkg_info -eF <path>
+    $ pkg_info -F <path>
     # which files are in an installed package
     $ pkgin pkg-content <package>
     # available packages
@@ -218,9 +218,10 @@ NetBSD
     # release upgrade recipe
     $ ???
     # --- pkgsrc for source --
+    $ sudo pkgin install cvs
     # run everything as root, after cd /usr
-    # to seed with the 2018Q1 stable release
-    # cvs -q -z2 -d anoncvs@anoncvs.NetBSD.org:/cvsroot checkout -r pkgsrc-2018Q1 -P pkgsrc
+    # to seed with the 2018Q3 stable release
+    # cvs -q -z2 -d anoncvs@anoncvs.NetBSD.org:/cvsroot checkout -r pkgsrc-2018Q3 -P pkgsrc
     # to update CVS
     # cd /usr/pkgsrc && cvs update -dP
 

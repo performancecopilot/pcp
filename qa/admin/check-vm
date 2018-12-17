@@ -103,6 +103,7 @@ _usage()
     echo "  -o otherdir  use alternative other-packages directory"
     echo "  -p           generate list of likely packages that should be"
     echo "               installed with dnf or apt-get or yum or ..."
+    echo "  -r require   use alternative require file"
     echo "  -s skip      use alternative skip file"
     echo "  -S skipbase  use alternative basename for skipbase.<hostname> files"
     echo "  -u unavail   use alternative unavailable file"
@@ -127,12 +128,13 @@ verbose=false
 very_verbose=false
 check_manifest=false
 check_manifest_args=''
-otherdir=other-packages					# default, see -o
 manifest="$home"/other-packages/manifest		# default, see -m
+otherdir=other-packages					# default, see -o
+require="$home"/other-packages/require			# default, see -r
 skip="$home"/other-packages/skip			# default, see -s
 skipbase="$home"/other-packages/skip			# default, see -S
 unavailable="$home"/other-packages/unavailable		# default, see -u
-while getopts 'cfm:o:ps:S:u:v?' p
+while getopts 'cfm:o:pr:s:S:u:v?' p
 do
     case "$p"
     in
@@ -156,6 +158,10 @@ do
 
 	p)	# just list most likely package for yum, dnf, apt-get, ...
 		pkglist=true
+		;;
+
+	r)	# alternate require
+		require="$OPTARG"
 		;;
 
 	s)	# alternate skip
@@ -259,9 +265,10 @@ NR == 2	{ nf = NF
     return $ret
 }
 
-# The unavailable and skip files have the same format, listing packages
-# and package patterns that apply to a particular distribution, version
-# and architecture.
+# The require, unavailable and skip files have the same format,
+# listing packages and package patterns that apply to a particular
+# distribution, version and architecture.
+#
 # This function parses one of these files (specified as $1) and the
 # selected packages (if any) are written on std output
 #
@@ -378,9 +385,19 @@ then
     echo "Botch: cannot find manifest: $manifest"
     exit 1
 fi
+if [ ! -f "$require" ]
+then
+    echo "Botch: cannot find require: $require"
+    exit 1
+fi
 if [ ! -f "$unavailable" ]
 then
     echo "Botch: cannot find unavailable: $unavailable"
+    exit 1
+fi
+if [ ! -f "$skip" ]
+then
+    echo "Botch: cannot find skip: $skip"
     exit 1
 fi
 if [ ! -f "$home"/whatami ]
@@ -489,47 +506,44 @@ do
 	sed -e "s/^${pkgtype}?[ 	]//" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
 	touch $tmp.ok
-	if $pkglist
+	# one-trip list all currently installed packages for -p
+	#
+	if [ ! -f $tmp.installed ]
 	then
-	    # one-trip list all currently installed packages for -p
-	    #
-	    if [ ! -f $tmp.installed ]
-	    then
-		case "$pkgtype"
-		in
-		    dpkg)
-			dpkg-query -W -f '${package}\n'
-			;;
+	    case "$pkgtype"
+	    in
+		dpkg)
+		    dpkg-query -W -f '${package}\n'
+		    ;;
 
-		    rpm)
-			rpm -qa --qf '%{NAME}\n'
-			;;
+		rpm)
+		    rpm -qa --qf '%{NAME}\n'
+		    ;;
 
-		    pkgin)
-			pkgin list | sed -e 's/-[0-9].*//'
-			;;
+		pkgin)
+		    pkgin list | sed -e 's/-[0-9].*//'
+		    ;;
 
-		    F_pkg)
-			pkg info -a | sed -e 's/-[0-9].*//'
-			;;
+		F_pkg)
+		    pkg info -a | sed -e 's/-[0-9].*//'
+		    ;;
 
-		    pkg_add)
-			pkg_info -a | sed -e 's/-[0-9].*//'
-			;;
+		pkg_add)
+		    pkg_info -a | sed -e 's/-[0-9].*//'
+		    ;;
 
-		    emerge)
-			equery list '*' | sed -e 's/.*].*] //' -e 's/-[0-9].*//'
-			;;
+		emerge)
+		    equery list '*' | sed -e 's/.*].*] //' -e 's/-[0-9].*//'
+		    ;;
 
-		    brew)
-			echo >&2 "TODO: no list all packages method for brew"
-			;;
+		brew)
+		    echo >&2 "TODO: no list all packages method for brew"
+		    ;;
 
-		    *)
-			echo >&2 "Botch: no list all packages method for $pkgtype"
-			;;
-		esac >$tmp.installed
-	    fi
+		*)
+		    echo >&2 "Botch: no list all packages method for $pkgtype"
+		    ;;
+	    esac >$tmp.installed
 	fi
     else
 	$very_verbose && echo >&2 "exclude ${pkgtype}? lines"
@@ -620,6 +634,33 @@ then
     fi
 fi
 
+# the "require" file records packages that are must be installed for a
+# particular distribution and version and archtecture ... 
+#
+require_pkg=''
+_parse_file $require >$tmp.pkgs
+if [ -s $tmp.pkgs ]
+then
+    for _need in `cat $tmp.pkgs`
+    do
+	if grep "^$_need\$" $tmp.installed >/dev/null
+	then
+	    :
+	else
+	    if [ -z "$require_pkg" ]
+	    then
+		require_pkg="$_need"
+	    else
+		require_pkg="$require_pkg $_need"
+	    fi
+	fi
+    done
+    if [ -n "$require_pkg" ]
+    then
+	$very_verbose && echo >&2 "require: $require_pkg"
+    fi
+fi
+
 if $pkglist
 then
     # for -p, don't mark manifest lines with N/A ... this is handled
@@ -674,6 +715,9 @@ s;\[[^]]*];[skip on host '"$_hostname"'];
     fi
 fi
 
+# the "skip" file records packages that should not be installed for a
+# particular distribution and version and archtecture ... 
+#
 _parse_file $skip >$tmp.pkgs
 if [ -s $tmp.pkgs ]
 then
@@ -934,6 +978,15 @@ s/@/ /g
     fi
 done >$tmp.out
 
+if $pkglist
+then
+    # append required packages ... uniq below culls any duplicates
+    for _pkg in $require_pkg
+    do
+	echo "$_pkg" >>$tmp.out
+    done
+fi
+
 if [ -s $tmp.out ]
 then
     if $pkglist
@@ -952,6 +1005,13 @@ then
 fi
 
 $pkglist && exit
+
+# Any required packages not installed?
+#
+for _pkg in $require_pkg
+do
+    echo "Missing: $_pkg [required package not installed]"
+done
 
 # Some platform-specific and special case tests
 #

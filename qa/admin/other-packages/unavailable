@@ -26,7 +26,8 @@ Fedora       2[89]    i.86    389-ds-base kubectl kubernetes-client kubernetes-n
 FreeBSD      10.4     -       lm_sensors
 FreeBSD      11.[12]  -       libibmad libibumad lm_sensors
 #-- NetBSD
-NetBSD       6.1.5    -       QtSvg avahi avahi-tools avahi-utils docker dtrace json_reformat libibmad libibumad mkfs.gfs2 nmap p5-DBD-mysql py36-bcc py36-imaging py36-libvirt py36-prometheus-client python-.* python2-.* python3-jsonpointer qt5 qtchooser realpath sysstat uic valgrind zabbix-agent
+NetBSD       6.1.5    -       QtSvg avahi avahi-tools avahi-utils docker dtrace json_reformat libibmad libibumad mkfs.gfs2 nmap p5-DBD-mysql py27-.* py36-bcc py36-imaging py36-libvirt py36-prometheus-client python3-jsonpointer qt5 qtchooser realpath sysstat uic valgrind zabbix-agent
+NetBSD       8.0      -       QtSvg avahi-tools avahi-utils dtrace json_reformat libibmad libibumad mkfs.gfs2 py27-.* py36-bcc py36-imaging py36-libvirt py36-prometheus-client python3-jsonpointer qtchooser realpath sysstat uic valgrind zabbix-agent
 #-- Gentoo
 Gentoo       -        -       
 #-- OpenBSD
