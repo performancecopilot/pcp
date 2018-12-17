@@ -261,7 +261,9 @@ Print a new dynamically adjusted header every time changes in
 availability of metric and instance values occur.
 By default a static header that never changes is printed once.
 See also
-.BR \-E .
+.B \-E
+and
+.BR \-4 .
 .TP
 \fB\-2\fR, \fB\-\-overall\-rank\fR
 Perform overall ranking of instances in archive.
@@ -292,6 +294,7 @@ Valid values for
 are \fBupdate\fP (refresh metrics being sampled),
 \fBignore\fP (do nothing \- the default behaviour)
 and \fBabort\fP (exit the program if such an event happens).
+\fIupdate\fP implies \fB\-\-dynamic\-header\fP.
 .TP
 \fB\-5\fR, \fI\-\-ignore\-unknown\fR
 Silently ignore any metric name that cannot be resolved.
@@ -325,7 +328,7 @@ a directory containing one or more archives.
 See also
 .BR \-u .
 .TP
-.B \-\-archive\-folio
+\fB\-\-archive\-folio\fR=\fIfolio\fR
 Read metric source archives from the PCP archive
 .I folio
 created by tools like
