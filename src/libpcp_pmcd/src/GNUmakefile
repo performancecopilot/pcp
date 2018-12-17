@@ -54,7 +54,7 @@ probes.h: probes.d pmcd.stp
 probes.o: probes.d
 	$(DTRACE) -G -s $< -o $@
 endif
-ifneq "$(findstring $(TARGET_OS),solaris freebsd)" ""
+ifneq "$(findstring $(TARGET_OS),solaris freebsd netbsd)" ""
 $(STATICLIBTARGET): rewrite
 trace.o: probes.h
 probes.h: probes.d
