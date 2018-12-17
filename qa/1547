@@ -1,0 +1,79 @@
+#!/bin/sh
+# PCP QA Test No. 1547
+# Exercise pmrep handling PMCD metric-names-change notification.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "No pmrep binary installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+    $sudo rm -f $PCP_TMP_DIR/mmv/test
+    pminfo -f mmv > /dev/null 2>&1 || :
+}
+
+_filter_value()
+{
+    sed \
+        -e 's,[0-9]\{6\,7\},xxxxxxx,g' \
+    #end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+# test names-change=ignore
+echo testing names-change=ignore
+$sudo rm -f $PCP_TMP_DIR/mmv/test
+pminfo -f mmv > /dev/null 2>&1
+pmrep -s 4 -t 1 -r --names-change=ignore mmv | _filter_value &
+
+pmsleep 1.5
+$sudo -u $PCP_USER $here/src/mmv_genstats test 1
+wait
+
+# test names-change=update
+echo testing names-change=update
+$sudo rm -f $PCP_TMP_DIR/mmv/test
+pminfo -f mmv > /dev/null 2>&1
+pmrep -s 5 -t 1 -r --names-change=update mmv | _filter_value &
+
+pmsleep 1.5
+$sudo -u $PCP_USER $here/src/mmv_genstats test 2
+wait
+
+# test names-change=update
+echo testing names-change=update with instance filtering
+$sudo rm -f $PCP_TMP_DIR/mmv/test
+pminfo -f mmv > /dev/null 2>&1
+pmrep -s 10 -t 1 -i zero -i eggs -r --names-change=update mmv | _filter_value &
+
+pmsleep 1.5
+$sudo -u $PCP_USER $here/src/mmv_genstats test 3
+$sudo rm -f $PCP_TMP_DIR/mmv/test
+pminfo -f mmv > /dev/null 2>&1
+pmsleep 2
+$sudo -u $PCP_USER $here/src/mmv_genstats test 3
+wait
+
+$sudo rm -f $PCP_TMP_DIR/mmv/test
+pminfo -f mmv > /dev/null 2>&1
+
+# success, all done
+status=0
+exit

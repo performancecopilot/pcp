@@ -406,10 +406,6 @@ class PMReporter(object):
                 sys.stderr.write("Output directory %s not accessible.\n" % outdir)
                 sys.exit(1)
 
-        if self.names_change == 2 and self.output != OUTPUT_ARCHIVE:
-            sys.stderr.write("PMNS update action currently supported only for archive output.\n")
-            sys.exit(1)
-
         # Set default width when needed
         if self.separate_header and not self.width:
             self.width = 8
@@ -428,6 +424,9 @@ class PMReporter(object):
             self.header = 0
             self.colxrow = None
             self.predicate = None
+
+        if self.names_change == 2:
+            self.dynamic_header = 1
 
         self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
@@ -498,10 +497,6 @@ class PMReporter(object):
             if refresh_metrics:
                 refresh_metrics = 0
                 self.pmconfig.update_metrics(curr_insts=not self.live_filter)
-                if self.output == OUTPUT_STDOUT:
-                    self.prepare_stdout()
-                if self.header == 1 and not self.dynamic_header:
-                    self.write_header()
 
             # Repeat static header if needed
             if self.output == OUTPUT_STDOUT and not self.dynamic_header:
