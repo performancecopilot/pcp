@@ -47,6 +47,13 @@ pmrep -z -p -u -a $A -w 40 sample.float.one
 echo "---"
 pmrep -z -p -u -a $A -w 40 --ignore-unknown no.such.metric sample.float.one
 echo "---"
+cat > $tmp.config <<EOF
+[test]
+no.such.metric = ,,
+sample.float.one = ,,
+EOF
+pmrep -z -p -u -a $A -w 40 -c $tmp.config -5 :test
+echo "---"
 # diminutive case - fail cleanly if no known metrics at all
 pmrep -z -p -u -a $A -w 40 --ignore-unknown no.such.metric
 echo "---"

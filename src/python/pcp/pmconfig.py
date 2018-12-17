@@ -559,7 +559,6 @@ class pmConfig(object):
                     self.util.metrics[metric] = deepcopy(metrics[metric])
 
             # Resolve non-leaf metrics to allow metricspecs like disk.dm,,,MB
-            operands = pmapi.c_api.pmGetOperands()
             for metric in list(metrics):
                 self._tmp = metric
                 try:
@@ -574,7 +573,7 @@ class pmConfig(object):
                     except pmapi.pmErr as error:
                         if error.args[0] != pmapi.c_api.PM_ERR_NAME:
                             raise
-                        if self.ignore_unknown_metrics() and metric in operands:
+                        if self.ignore_unknown_metrics() and metric in self._conf_metrics:
                             ignore = True
                     if not ignore:
                         self.util.metrics[metric] = deepcopy(metrics[metric])
