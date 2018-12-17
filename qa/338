@@ -48,7 +48,7 @@ _filter()
 	# OpenBSD-style fmt
         # -w width
 	cmd="fmt -w 76"
-    elif fmt --help 2>&1 | grep '.-m ' >/dev/null
+    elif fmt --help 2>&1 | grep '.-[mg] ' >/dev/null
     then
 	# NetBSD's version of fmt is different (may apply to other variants) ...
 	cmd="fmt -g 76 -m 77"
