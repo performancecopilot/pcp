@@ -219,7 +219,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 			pmGetProgname());
 	opts.errors++;
     } else {
-	server = libpcp_pmproxy;
+	server = &libpcp_pmproxy;
     }
 #else
     server = timeseries ? &libuv_pmproxy: &libpcp_pmproxy;
