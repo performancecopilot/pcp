@@ -194,7 +194,7 @@ fi
 _do_dir()
 {
     dir="$3"
-    [ -d "$dir" ] || mkdir "$dir"
+    [ -d "$dir" ] || mkdir -p "$dir"
     chown "$1" "$dir"
     chmod "$2" "$dir"
 }
