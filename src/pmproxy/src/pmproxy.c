@@ -213,14 +213,24 @@ ParseOptions(int argc, char *argv[], int *nports)
 	}
     }
 
+#if !defined(HAVE_LIBUV)
+    if (timeseries) {
+	pmprintf("%s: -t/--timeseries requires libuv support (missing)\n",
+			pmGetProgname());
+	opts.errors++;
+    } else {
+	server = libpcp_pmproxy;
+    }
+#else
+    server = timeseries ? &libuv_pmproxy: &libpcp_pmproxy;
+#endif
+
     if (usage || opts.errors || opts.optind < argc) {
 	pmUsageMessage(&opts);
 	if (usage)
 	    exit(0);
 	DontStart();
     }
-
-    server = timeseries ? &libuv_pmproxy: &libpcp_pmproxy;
 }
 
 /* Called to shutdown pmproxy in an orderly manner */
