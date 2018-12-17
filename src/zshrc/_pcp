@@ -39,53 +39,53 @@ _pcp () {
     '(- *)'{-V,--version}'[display version number]'
   )
   common_most=(
-    "(--container -h --host -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives'
-    "(-h --host -a --archive -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts'
+    "(--container -h --host -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive=}'[specify metrics source archive]:archive:->archives'
+    "(-h --host -a --archive -L --local-PMDA -K --spec-local $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts'
     "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]'
-    "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone'
-    "(-s --samples $exargs)"{-s+,--samples}'[specify number of samples]:samples:'
-    "(-t --interval $exargs)"{-t+,--interval}'[specify sampling interval]:interval:'
-    "(-A --align $exargs)"{-A+,--align}'[set initial sample time alignment]:timespec:'
-    "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:'
-    "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:'
-    "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:'
+    "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone'
+    "(-s --samples $exargs)"{-s+,--samples=}'[specify number of samples]:samples:'
+    "(-t --interval $exargs)"{-t+,--interval=}'[specify sampling interval]:interval:'
+    "(-A --align $exargs)"{-A+,--align=}'[set initial sample time alignment]:timespec:'
+    "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:'
+    "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:'
+    "(-O --origin $exargs)"{-O+,--origin=}'[set initial sample time origin]:timespec:'
   )
   common_pmda=(
     "(-L --local-PMDA -a --archive -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]'
-    "(-a --archive -h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)'
+    "(-a --archive -h --host $exargs)"\*{-K+,--spec-local=}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)'
   )
   common_python=(
-    "(--archive-folio --container -h --host -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives'
-    "(--archive-folio -a --archive --container -h --host -L --local-pmda -K --spec-local $exargs)"--archive-folio+'[specify metrics source folio]:folio:_files'
-    "(--container -a --archive --archive-folio -d --delay -u --no-interpol $exargs)"--container+'[specify container to query]:container:->containers'
-    "(-h --host -a --archive --archive-folio -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts'
+    "(--archive-folio --container -h --host -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive=}'[specify metrics source archive]:archive:->archives'
+    "(--archive-folio -a --archive --container -h --host -L --local-pmda -K --spec-local $exargs)"--archive-folio=+'[specify metrics source folio]:folio:_files'
+    "(--container -a --archive --archive-folio -d --delay -u --no-interpol $exargs)"--container=+'[specify container to query]:container:->containers'
+    "(-h --host -a --archive --archive-folio -L --local-PMDA -K --spec-local $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts'
     "(--daemonize $exargs)"--daemonize'[daemonize on startup]'
-    "(-s --samples $exargs)"{-s+,--samples}'[specify number of samples]:samples:'
-    "(-t --interval $exargs)"{-t+,--interval}'[specify sampling interval]:interval:'
-    "(-A --align $exargs)"{-A+,--align}'[set initial sample time alignment]:timespec:'
-    "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:'
-    "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:'
-    "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:'
-    "(-c --config $exargs)"{-c+,--config}'[specify config file]:file:_files'
+    "(-s --samples $exargs)"{-s+,--samples=}'[specify number of samples]:samples:'
+    "(-t --interval $exargs)"{-t+,--interval=}'[specify sampling interval]:interval:'
+    "(-A --align $exargs)"{-A+,--align=}'[set initial sample time alignment]:timespec:'
+    "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:'
+    "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:'
+    "(-O --origin $exargs)"{-O+,--origin=}'[set initial sample time origin]:timespec:'
+    "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files'
     "(-C --check $exargs)"{-C,--check}'[check config only]'
-    "($exargs)"\*{-e+,--derived}'[derived metrics definitions]:file or formula:_files'
+    "($exargs)"\*{-e+,--derived=}'[derived metrics definitions]:file or formula:_files'
     "(-H --no-header $exargs)"{-H,--no-header}'[omit headers]'
     "(-G --no-globals $exargs)"{-G,--no-globals}'[omit global metrics]'
     "(-r --raw -R --raw-prefer $exargs)"{-r,--raw}'[force reporting raw values]'
     "(-R --raw-prefer -r --raw $exargs)"{-R,--raw-prefer}'[prefer reporting raw values]'
     "(-I --ignore-incompat $exargs)"{-I,--ignore-incompat}'[ignore incompatible metrics]'
     "(-5 --ignore-unknown $exargs)"{-5,--ignore-unknown}'[ignore unknown metrics]'
-    "(-4 --names-change $exargs)"{-4+,--names-change}'[update/ignore/abort on metric name changes]:action:(abort ignore update)'
-    "($exargs)"\*{-i+,--instances}'[specify instances to report]:instances:->instances'
+    "(-4 --names-change $exargs)"{-4+,--names-change=}'[update/ignore/abort on metric name changes]:action:(abort ignore update)'
+    "($exargs)"\*{-i+,--instances=}'[specify instances to report]:instances:->instances'
     "(-v --omit-flat $exargs)"{-v,--omit-flat}'[omit single-valued metrics]'
-    "(-P --precision $exargs)"{-P+,--precision}'[set default floating point precision]:precision:'
-    "(-0 --precision-force $exargs)"{-0+,--precision-force}'[set forced floating point precision]:precision:'
-    "(-q --count-scale -Q --count-scale-force $exargs)"{-q+,--count-scale}'[set default count unit]:scale:->scales_count'
-    "(-Q --count-scale-force -q --count-scale $exargs)"{-Q+,--count-scale-force}'[set forced count unit]:scale:->scales_count'
-    "(-b --space-scale -B --space-scale-force $exargs)"{-b+,--space-scale}'[set default space unit]:scale:->scales_space'
-    "(-B --space-scale-force -b --space-scale $exargs)"{-B+,--space-scale-force}'[set forced space unit]:scale:->scales_space'
-    "(-y --time-scale -Y --time-scale-force $exargs)"{-y+,--time-scale}'[set default time unit]:scale:->scales_time'
-    "(-Y --time-scale-force -y --time-scale $exargs)"{-Y+,--time-scale-force}'[set forced time unit]:scale:->scales_time'
+    "(-P --precision $exargs)"{-P+,--precision=}'[set default floating point precision]:precision:'
+    "(-0 --precision-force $exargs)"{-0+,--precision-force=}'[set forced floating point precision]:precision:'
+    "(-q --count-scale -Q --count-scale-force $exargs)"{-q+,--count-scale=}'[set default count unit]:scale:->scales_count'
+    "(-Q --count-scale-force -q --count-scale $exargs)"{-Q+,--count-scale-force=}'[set forced count unit]:scale:->scales_count'
+    "(-b --space-scale -B --space-scale-force $exargs)"{-b+,--space-scale=}'[set default space unit]:scale:->scales_space'
+    "(-B --space-scale-force -b --space-scale $exargs)"{-B+,--space-scale-force=}'[set forced space unit]:scale:->scales_space'
+    "(-y --time-scale -Y --time-scale-force $exargs)"{-y+,--time-scale=}'[set default time unit]:scale:->scales_time'
+    "(-Y --time-scale-force -y --time-scale $exargs)"{-Y+,--time-scale-force=}'[set forced time unit]:scale:->scales_time'
   )
 
   case $service in
@@ -100,8 +100,8 @@ _pcp () {
       "$common_help[@]" \
       "$common_most[@]" \
       "(-g --guimode $exargs)"{-g,--guimode}'[GUI mode with new time control]' \
-      "(-p --guiport $exargs)"{-p+,--guiport}'[specify existing time control port]:port:' \
-      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-p --guiport $exargs)"{-p+,--guiport=}'[specify existing time control port]:port:' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       - set1 \
       '1:command:->pcp_commands' \
       - set2 \
@@ -117,15 +117,15 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
-      "(-g --es-host $exargs)"{-g+,--es-host}'[elasticsearch server]:host:_hosts' \
-      "(-x --es-index $exargs)"{-x+,--es-index}'[elasticsearch index]:index:' \
-      "(-X --es-hostid $exargs)"{-X+,--es-hostid}'[elasticsearch host-id]:host-id:' \
-      "(-p --es-search-type $exargs)"{-p+,--es-search-type}'[elasticsearch search type]:type:' \
+      "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
+      "(-g --es-host $exargs)"{-g+,--es-host=}'[elasticsearch server]:host:_hosts' \
+      "(-x --es-index $exargs)"{-x+,--es-index=}'[elasticsearch index]:index:' \
+      "(-X --es-hostid $exargs)"{-X+,--es-hostid=}'[elasticsearch host-id]:host-id:' \
+      "(-p --es-search-type $exargs)"{-p+,--es-search-type=}'[elasticsearch search type]:type:' \
       '*:metric:->metrics' \
       && return 0
   ;;
@@ -135,16 +135,16 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
-      "(-E --text-port -p --pickle-port -X --pickle-protocol $exargs)"{-E+,--text-port}'[graphite plaintext port]:port:' \
-      "(-g --graphite-host $exargs)"{-g+,--graphite-host}'[graphite server]:host:_hosts' \
-      "(-p --pickle-port -E --text-port $exargs)"{-p+,--pickle-port}'[graphite pickle port]:port:' \
-      "(-x --prefix $exargs)"{-x+,--prefix}'[prefix for metric names]:port:' \
-      "(-X --pickle-protocol -E --text-port $exargs)"{-X+,--pickle-protocol}'[pickle protocol version]:protocol:' \
+      "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
+      "(-E --text-port -p --pickle-port -X --pickle-protocol $exargs)"{-E+,--text-port=}'[graphite plaintext port]:port:' \
+      "(-g --graphite-host $exargs)"{-g+,--graphite-host=}'[graphite server]:host:_hosts' \
+      "(-p --pickle-port -E --text-port $exargs)"{-p+,--pickle-port=}'[graphite pickle port]:port:' \
+      "(-x --prefix $exargs)"{-x+,--prefix=}'[prefix for metric names]:port:' \
+      "(-X --pickle-protocol -E --text-port $exargs)"{-X+,--pickle-protocol=}'[pickle protocol version]:protocol:' \
       '*:metric:->metrics' \
       && return 0
   ;;
@@ -154,16 +154,16 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
-      "(-E --db-pass $exargs)"{-E+,--db-pass}'[password for database]:password:' \
-      "(-g --db-server $exargs)"{-g+,--db-server}'[server URL]:url:_urls' \
-      "(-U --db-user $exargs)"{-U+,--db-user}'[username for database]:username:_users' \
-      "(-x --db-name $exargs)"{-x+,--db-name}'[metrics database name]:database:' \
-      "(-X --db-tags $exargs)"{-X+,--db-tags}'[string of tags to add to the metrics]:tags:' \
+      "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
+      "(-E --db-pass $exargs)"{-E+,--db-pass=}'[password for database]:password:' \
+      "(-g --db-server $exargs)"{-g+,--db-server=}'[server URL]:url:_urls' \
+      "(-U --db-user $exargs)"{-U+,--db-user=}'[username for database]:username:_users' \
+      "(-x --db-name $exargs)"{-x+,--db-name=}'[metrics database name]:database:' \
+      "(-X --db-tags $exargs)"{-X+,--db-tags=}'[string of tags to add to the metrics]:tags:' \
       '*:metric:->metrics' \
       && return 0
   ;;
@@ -172,19 +172,19 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
-      "(-f --timestamp-format $exargs)"{-f+,--timestamp-format}'[set time format string]:format:' \
-      "(-F --output-file $exargs)"{-F+,--output-file}'[specify output file]:file:_files' \
+      "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
+      "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
+      "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
       "(-x --extended -X --everything $exargs)"{-x,--extended}'[write extended information]' \
       "(-X --everything -x --extended $exargs)"{-X,--everything}'[write everything, incl. internals]' \
       "(-E --exact-types $exargs)"{-E,--exact-types}'[write numbers as number data types]' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       '*:metric:->metrics' \
       && return 0
   ;;
@@ -194,13 +194,13 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
-      "(-g --spark-server $exargs)"{-g+,--spark-server}'[spark server]:host:_hosts' \
-      "(-p --spark-port $exargs)"{-p+,--spark-port}'[spark port]:port:' \
+      "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
+      "(-g --spark-server $exargs)"{-g+,--spark-server=}'[spark server]:host:_hosts' \
+      "(-p --spark-port $exargs)"{-p+,--spark-port=}'[spark port]:port:' \
       '*:metric:->metrics' \
       && return 0
   ;;
@@ -209,10 +209,10 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
-      "(-f --timestamp-format $exargs)"{-f+,--timestamp-format}'[set time format string]:format:' \
-      "(-F --output-file $exargs)"{-F+,--output-file}'[specify output file]:file:_files' \
+      "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
+      "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       '*:metric:->metrics' \
       && return 0
   ;;
@@ -221,18 +221,18 @@ _pcp () {
       "$common_help[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
-      "(-f --timestamp-format $exargs)"{-f+,--timestamp-format}'[set time format string]:format:' \
-      "(-F --output-file $exargs)"{-F+,--output-file}'[specify output file]:file:_files' \
+      "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
+      "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
+      "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
       "(-x --extended -X --everything $exargs)"{-x,--extended}'[write extended information]' \
       "(-X --everything -x --extended $exargs)"{-X,--everything}'[write everything, incl. internals]' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       '*:metric:->metrics' \
       && return 0
   ;;
@@ -242,16 +242,16 @@ _pcp () {
       "$common_pmda[@]" \
       "$common_python[@]" \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
-      "(-E --zabbix-interval $exargs)"{-E+,--zabbix-interval}'[send interval]:interval:' \
-      "(-g --zabbix-server $exargs)"{-g+,--zabbix-server}'[zabbix server]:host:_hosts' \
-      "(-p --zabbix-port $exargs)"{-p+,--zabbix-port}'[zabbix port]:port:' \
-      "(-x --zabbix-prefix $exargs)"{-x+,--zabbix-prefix}'[prefix for metric names]:prefix:' \
-      "(-X --zabbix-host $exargs)"{-X+,--zabbix-host}'[zabbix host-id]:host-id:' \
+      "(-N --predicate $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
+      "(-E --zabbix-interval $exargs)"{-E+,--zabbix-interval=}'[send interval]:interval:' \
+      "(-g --zabbix-server $exargs)"{-g+,--zabbix-server=}'[zabbix server]:host:_hosts' \
+      "(-p --zabbix-port $exargs)"{-p+,--zabbix-port=}'[zabbix port]:port:' \
+      "(-x --zabbix-prefix $exargs)"{-x+,--zabbix-prefix=}'[prefix for metric names]:prefix:' \
+      "(-X --zabbix-host $exargs)"{-X+,--zabbix-host=}'[zabbix host-id]:host-id:' \
       "(-l --zabbix-lld $exargs)"{-l,--zabbix-lld}'[enable low-level discovery]' \
       '*:metric:->metrics' \
       && return 0
@@ -266,28 +266,28 @@ _pcp () {
   pmchart)
     _arguments -C -S -s \
       "$common_help[@]" \
-      "(-A --align $exargs)"{-A+,--align}'[set initial sample time alignment]:timespec:' \
-      "(-h --host -H --hostsfile -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
-      "(-a --archive -L --local-PMDA -K --spec-local $exargs)"\*{-h+,--host}'[specify metrics source host]:host:_hosts' \
-      "(-a --archive -L --local-PMDA -K --spec-local $exargs)"\*{-H+,--hostsfile}'[specify metrics source hosts file]:file:_files' \
-      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
-      "(-a --archive -h --host -H --hostsfile $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
+      "(-A --align $exargs)"{-A+,--align=}'[set initial sample time alignment]:timespec:' \
+      "(-h --host -H --hostsfile -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive=}'[specify metrics source archive]:archive:->archives' \
+      "(-a --archive -L --local-PMDA -K --spec-local $exargs)"\*{-h+,--host=}'[specify metrics source host]:host:_hosts' \
+      "(-a --archive -L --local-PMDA -K --spec-local $exargs)"\*{-H+,--hostsfile=}'[specify metrics source hosts file]:file:_files' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-a --archive -h --host -H --hostsfile $exargs)"\*{-K+,--spec-local=}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
       "(-L --local-PMDA -a --archive -h --host -H --hostsfile $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
-      "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:' \
-      "(-p --guiport $exargs)"{-p+,--guiport}'[specify existing time control port]:port:' \
-      "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
-      "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
-      "(-t --interval $exargs)"{-t+,--interval}'[specify sampling interval]:interval:' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-O --origin $exargs)"{-O+,--origin=}'[set initial sample time origin]:timespec:' \
+      "(-p --guiport $exargs)"{-p+,--guiport=}'[specify existing time control port]:port:' \
+      "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
+      "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
+      "(-t --interval $exargs)"{-t+,--interval=}'[specify sampling interval]:interval:' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
-      "(-c --view $exargs)"\*{-c+,--view}'[specify chart views to load]:file:_files' \
+      "(-c --view $exargs)"\*{-c+,--view=}'[specify chart views to load]:file:_files' \
       "(-C --check $exargs)"{-C,--check}'[check views only]' \
-      "(-F --font-size $exargs)"{-F+,--font-size}'[specify font size]:size:' \
-      "(-f --font-family $exargs)"{-f+,--font-family}'[specify font family]:family:_xft_fonts' \
-      "(-g --geometry $exargs)"{-g+,--geometry}'[specify image geometry (WxH)]:geometry:' \
-      "(-o --output $exargs)"{-o+,--output}'[specify output file]:file:_files' \
-      "(-s --samples $exargs)"{-s+,--samples}'[buffer up N points of sample history]:samples:' \
-      "(-v --visible $exargs)"{-v+,--visible}'[set points to display]:points:' \
+      "(-F --font-size $exargs)"{-F+,--font-size=}'[specify font size]:size:' \
+      "(-f --font-family $exargs)"{-f+,--font-family=}'[specify font family]:family:_xft_fonts' \
+      "(-g --geometry $exargs)"{-g+,--geometry=}'[specify image geometry (WxH)]:geometry:' \
+      "(-o --output $exargs)"{-o+,--output=}'[specify output file]:file:_files' \
+      "(-s --samples $exargs)"{-s+,--samples=}'[buffer up N points of sample history]:samples:' \
+      "(-v --visible $exargs)"{-v+,--visible=}'[set points to display]:points:' \
       "(-W --white $exargs)"{-W,--white}'[export using opaque (white) bg]' \
       '*:source:_hosts' \
       && return 0
@@ -297,8 +297,8 @@ _pcp () {
       "$common_help[@]" \
       "$common_most[@]" \
       "(-g --guimode $exargs)"{-g,--guimode}'[GUI mode with new time control]' \
-      "(-p --guiport $exargs)"{-p+,--guiport}'[specify existing time control port]:port:' \
-      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-p --guiport $exargs)"{-p+,--guiport=}'[specify existing time control port]:port:' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-P --pause -h --host $exargs)"{-P,--pause}'[pause between updates in archive mode]' \
       && return 0
   ;;
@@ -315,17 +315,17 @@ _pcp () {
     _arguments -A "-*" -C -S -s \
       "$common_help[@]" \
       "(-d --keep $exargs)"{-d,--keep}'[debug, keep temp files]' \
-      "(-p --precision $exargs)"{-p+,--precision}'[set floating point precision]:precision:' \
-      "(-q --threshold $exargs)"{-q+,--threshold}'[specify reporting threshold]:threshold:' \
+      "(-p --precision $exargs)"{-p+,--precision=}'[set floating point precision]:precision:' \
+      "(-q --threshold $exargs)"{-q+,--threshold=}'[specify reporting threshold]:threshold:' \
       "(--skip-excluded $exargs)"--skip-excluded'[omit excluded metrics info]' \
       "(--skip-missing $exargs)"--skip-missing'[omit missing metrics info]' \
-      "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
-      "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
-      "(-B --begin $exargs)"{-B+,--begin}'[set start of second time window]:timespec:' \
-      "(-E --end $exargs)"{-E+,--end}'[set end of time second window]:timespec:' \
+      "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
+      "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
+      "(-B --begin $exargs)"{-B+,--begin=}'[set start of second time window]:timespec:' \
+      "(-E --end $exargs)"{-E+,--end=}'[set end of time second window]:timespec:' \
       "(-x $exargs)"-x+'[define exclude pattern]:regex:' \
       "(-X $exargs)"-X+'[specify exclude pattern file]:file:_files' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       '1:archive:->archives' \
       '2:archive:->archives' \
@@ -344,14 +344,14 @@ _pcp () {
       "(-L $exargs)"-L'[verbose label dump]' \
       "(-l --label $exargs)"{-l,--label}'[dump archive log label]' \
       "(-m --metrics $exargs)"{-m,--metrics}'[dump values of metrics]' \
-      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-r --reverse $exargs)"{-r,--reverse}'[reverse chronological order]' \
-      "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
+      "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
       "(-s --sizes $exargs)"{-s,--sizes}'[report data record sizes]' \
-      "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
+      "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
       "(-t $exargs)"-t'[dump temporal index]' \
       "(-x $exargs)"-x'[include date in timestamps]' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       '1:archive:->archives' \
       '*:metric:->metrics' \
@@ -362,21 +362,21 @@ _pcp () {
   pmdumptext)
     _arguments -C -S -s \
       "$common_help[@]" \
-      "(-A --align $exargs)"{-A+,--align}'[set initial sample time alignment]:timespec:' \
-      "(-h --host $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
-      "(-h --host -a --archive $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
-      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
-      "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:' \
-      "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
-      "(-s --samples $exargs)"{-s+,--samples}'[specify number of samples]:samples:' \
-      "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
-      "(-t --interval $exargs)"{-t+,--interval}'[specify sampling interval]:interval:' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-A --align $exargs)"{-A+,--align=}'[set initial sample time alignment]:timespec:' \
+      "(-h --host $exargs)"\*{-a+,--archive=}'[specify metrics source archive]:archive:->archives' \
+      "(-h --host -a --archive $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-O --origin $exargs)"{-O+,--origin=}'[set initial sample time origin]:timespec:' \
+      "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
+      "(-s --samples $exargs)"{-s+,--samples=}'[specify number of samples]:samples:' \
+      "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
+      "(-t --interval $exargs)"{-t+,--interval=}'[specify sampling interval]:interval:' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
-      "(-c --config $exargs)"{-c+,--config}'[specify metrics list file]:file:_files' \
+      "(-c --config $exargs)"{-c+,--config=}'[specify metrics list file]:file:_files' \
       "(-C --check $exargs)"{-C,--check}'[check metrics only]' \
-      "(-d --delimiter $exargs)"{-d+,--delimiter}'[set column delimiter]:delimiter:' \
-      "(-f --time-format $exargs)"{-f+,--time-format}'[set time format string]:format:' \
+      "(-d --delimiter $exargs)"{-d+,--delimiter=}'[set column delimiter]:delimiter:' \
+      "(-f --time-format $exargs)"{-f+,--time-format=}'[set time format string]:format:' \
       "(-F --fixed $exargs)"{-F,--fixed}'[use fixed width values]' \
       "(-G --scientific $exargs)"{-G,--scientific}'[use scientific format (if shorter)]' \
       "(-H --headers $exargs)"{-H,--headers}'[show all headers]' \
@@ -386,12 +386,12 @@ _pcp () {
       "(-M $exargs)"-M'[show complete metric names]' \
       "(-N $exargs)"-N'[show normalizing factor]' \
       "(-o --offset $exargs)"{-o,--offset}'[prefix timestamp with offset]' \
-      "(-P --precision $exargs)"{-P+,--precision}'[set floating point precision]:precision:' \
-      "(-R --repeat $exargs)"{-R+,--repeat}'[set header repeat frequency]:samples:' \
+      "(-P --precision $exargs)"{-P+,--precision=}'[set floating point precision]:precision:' \
+      "(-R --repeat $exargs)"{-R+,--repeat=}'[set header repeat frequency]:samples:' \
       "(-r --raw $exargs)"{-r,--raw}'[report raw values]' \
-      "(-U --unavailable $exargs)"{-U+,--unavailable}'[define string for unavailable values]:string:' \
+      "(-U --unavailable $exargs)"{-U+,--unavailable=}'[define string for unavailable values]:string:' \
       "(-u --units $exargs)"{-u,--units}'[show metric units]' \
-      "(-w --width $exargs)"{-w+,--width}'[set column width]:width:' \
+      "(-w --width $exargs)"{-w+,--width=}'[set column width]:width:' \
       "(-X --extended $exargs)"{-X,--extended}'[show extended metric names]' \
       '*:metric:->metrics' \
       && return 0
@@ -406,10 +406,10 @@ _pcp () {
   pmfind)
     _arguments -C -S -s \
       "$common_help[@]" \
-      "(-m --mechanism $exargs)"{-m+,--mechanism}'[specify service discovery mechanism]:mechanism:->pmfind_mechs' \
+      "(-m --mechanism $exargs)"{-m+,--mechanism=}'[specify service discovery mechanism]:mechanism:->pmfind_mechs' \
       "(-r --resolve $exargs)"{-r,--resolve}'[resolve addresses]' \
-      "(-s --service $exargs)"{-s+,--service}'[specify service to find]:service:(all pmcd pmproxy pmwebd)' \
-      "(-t --timeout $exargs)"{-t+,--timeout}'[set discovery timeout in seconds]:timeout:' \
+      "(-s --service $exargs)"{-s+,--service=}'[specify service to find]:service:(all pmcd pmproxy pmwebd)' \
+      "(-t --timeout $exargs)"{-t+,--timeout=}'[set discovery timeout in seconds]:timeout:' \
       "(-q --quiet $exargs)"{-q,--quiet}'[quiet mode]' \
       && return 0
   ;;
@@ -417,24 +417,24 @@ _pcp () {
     exargs="-? --help"
     _arguments -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
-      "(-A --align $exargs)"{-A+,--align}'[set initial sample time alignment]:timespec:' \
-      "(-h --host $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
-      "(-a --archive $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
-      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
-      "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:' \
-      "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
-      "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
-      "(-t --interval $exargs)"{-t+,--interval}'[specify sampling interval]:interval:' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-A --align $exargs)"{-A+,--align=}'[set initial sample time alignment]:timespec:' \
+      "(-h --host $exargs)"\*{-a+,--archive=}'[specify metrics source archive]:archive:->archives' \
+      "(-a --archive $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-O --origin $exargs)"{-O+,--origin=}'[set initial sample time origin]:timespec:' \
+      "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
+      "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
+      "(-t --interval $exargs)"{-t+,--interval=}'[specify sampling interval]:interval:' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       "(-C --check $exargs)"{-C,--check}'[check config only]' \
-      "(-c --config $exargs)"{-c+,--config}'[specify config file]:file:_files' \
+      "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files' \
       "(-d --interact $exargs)"{-d,--interact}'[interactive debugging mode]' \
       "(-f --foreground $exargs)"{-f,--foreground}'[run in foreground]' \
       "(-P --primary $exargs)"{-P,--primary}'[run as primary pmie instance]' \
       "(-j $exargs)"-j+'[specify stomp protocol file]:file:_files' \
-      "(-l --logfile $exargs)"{-l+,--logfile}'[specify log file]:file:_files' \
-      "(-U --username $exargs)"{-U+,--username}'[specify username to run as]:user:_users' \
+      "(-l --logfile $exargs)"{-l+,--logfile=}'[specify log file]:file:_files' \
+      "(-U --username $exargs)"{-U+,--username=}'[specify username to run as]:user:_users' \
       "(-b --buffer $exargs)"{-b,--buffer}'[use line buffered output]' \
       "(-e --timestamp $exargs)"{-e,--timestamp}'[print timestamps in verbose mode]' \
       "(-q --quiet $exargs)"{-q,--quiet}'[quiet mode]' \
@@ -450,25 +450,25 @@ _pcp () {
     exargs="-? --help"
     _arguments -A "-*" -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
-      "(-d --delimiter $exargs)"{-d+,--delimiter}'[specify output delimiter character]:delimiter:' \
-      "(-p --precision $exargs)"{-p+,--precision}'[specify output floating point precision]:precision:' \
-      "(-w --width $exargs)"{-w+,--width}'[specify output column width]:width:' \
+      "(-d --delimiter $exargs)"{-d+,--delimiter=}'[specify output delimiter character]:delimiter:' \
+      "(-p --precision $exargs)"{-p+,--precision=}'[specify output floating point precision]:precision:' \
+      "(-w --width $exargs)"{-w+,--width=}'[specify output column width]:width:' \
       && return 0
   ;;
   pminfo)
     _arguments -C -S -s \
       "$common_help[@]" \
-      "(--container -h --host -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
-      "(-h --host -a --archive -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
-      "(--container -a --archive $exargs)"--container+'[specify container to query]:container:->containers' \
+      "(--container -h --host -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive=}'[specify metrics source archive]:archive:->archives' \
+      "(-h --host -a --archive -L --local-PMDA -K --spec-local $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts' \
+      "(--container -a --archive $exargs)"--container=+'[specify container to query]:container:->containers' \
       "(-L --local-PMDA -a --archive -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
-      "(-a --archive -h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
-      "(-n --namespace -N --uniqnames $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
-      "(-N --uniqnames -n --namespace $exargs)"{-N+,--uniqnames}'[specify alt. PMNS with unique PMID names]:pmnsfile:_files' \
-      "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-a --archive -h --host $exargs)"\*{-K+,--spec-local=}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
+      "(-n --namespace -N --uniqnames $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-N --uniqnames -n --namespace $exargs)"{-N+,--uniqnames=}'[specify alt. PMNS with unique PMID names]:pmnsfile:_files' \
+      "(-O --origin $exargs)"{-O+,--origin=}'[set initial sample time origin]:timespec:' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
-      "(-b --batch $exargs)"{-b+,--batch}'[set fetch batch size]:size:' \
+      "(-b --batch $exargs)"{-b+,--batch=}'[set fetch batch size]:size:' \
       "(-d --desc $exargs)"{-d,--desc}'[print metric description]' \
       "(-f --fetch $exargs)"{-f,--fetch}'[fetch and print metric values]' \
       "(-F --fetchall $exargs)"{-F,--fetchall}'[fetch and print all metric values]' \
@@ -479,7 +479,7 @@ _pcp () {
       "(-s --series $exargs)"{-s,--series}'[print source, metric and instance series identifiers]' \
       "(-t --oneline $exargs)"{-t,--oneline}'[print terse help text]' \
       "(-T --helptext $exargs)"{-T,--helptext}'[print verbose help text]' \
-      "(-c --derived $exargs)"{-c+,--derived}'[specify derived metrics config]:file:_files' \
+      "(-c --derived $exargs)"{-c+,--derived=}'[specify derived metrics config]:file:_files' \
       "(-x --events $exargs)"{-x,--events}'[unpack and report events]' \
       "(-v --verify $exargs)"{-v,--verify}'[verify mode, report errors only]' \
       '*:metric:->metrics' \
@@ -488,19 +488,19 @@ _pcp () {
   pmiostat)
     _arguments -C -S -s \
       "$common_help[@]" \
-      "(-A --align $exargs)"{-A+,--align}'[set initial sample time alignment]:timespec:' \
-      "(-h --host $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
-      "(-G --aggregate $exargs)"{-G+,--aggregate}'[set method to aggregate device values]:method:(sum avg min max)' \
-      "(-h --host -a --archive -u --no-interpolation $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
-      "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:' \
-      "(-P --precision $exargs)"{-P+,--precision}'[set floating point precision]:precision:' \
-      "(-R --regex $exargs)"{-R+,--regex}'[define device matching regex]:regex:' \
-      "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
-      "(-s --samples $exargs)"{-s+,--samples}'[specify number of samples]:samples:' \
-      "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
-      "(-t --interval $exargs)"{-t+,--interval}'[specify sampling interval]:interval:' \
+      "(-A --align $exargs)"{-A+,--align=}'[set initial sample time alignment]:timespec:' \
+      "(-h --host $exargs)"\*{-a+,--archive=}'[specify metrics source archive]:archive:->archives' \
+      "(-G --aggregate $exargs)"{-G+,--aggregate=}'[set method to aggregate device values]:method:(sum avg min max)' \
+      "(-h --host -a --archive -u --no-interpolation $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts' \
+      "(-O --origin $exargs)"{-O+,--origin=}'[set initial sample time origin]:timespec:' \
+      "(-P --precision $exargs)"{-P+,--precision=}'[set floating point precision]:precision:' \
+      "(-R --regex $exargs)"{-R+,--regex=}'[define device matching regex]:regex:' \
+      "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
+      "(-s --samples $exargs)"{-s+,--samples=}'[specify number of samples]:samples:' \
+      "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
+      "(-t --interval $exargs)"{-t+,--interval=}'[specify sampling interval]:interval:' \
       "(-u --no-interpolation -h --host $exargs)"{-u,--no-interpolation}'[disable interpolation]' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       "(-x $exargs)"-x+'[set comma-separated extended options]:options:->pmiostat_extopts' \
       && return 0
@@ -510,12 +510,12 @@ _pcp () {
     _arguments -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
       "(-l --label $exargs)"{-l,--label}'[print archive label]' \
-      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
-      "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
-      "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
+      "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
       "(-v --verbose $exargs)"{-v,--verbose}'[verbose output]' \
       "(-w --nowrap $exargs)"{-w,--nowrap}'[suppress counter wrap warnings]' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       '1:archive:->archives' \
       && return 0
@@ -524,16 +524,16 @@ _pcp () {
     exargs="-? --help"
     _arguments -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
-      "(-c --config $exargs)"{-c+,--config}'[specify config file]:file:_files' \
+      "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files' \
       "(-d --desperate $exargs)"{-d,--desperate}'[save output after fatal error]' \
       "(-f --first $exargs)"{-f,--first}'[use timezone from the first (not last) archive]' \
       "(-m --mark $exargs)"{-m,--mark}'[ignore prologue/epilogue and <mark> records between archives]' \
-      "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
-      "(-s --samples $exargs)"{-s+,--samples}'[specify number of log records to write]:samples:' \
-      "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
+      "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
+      "(-s --samples $exargs)"{-s+,--samples=}'[specify number of log records to write]:samples:' \
+      "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
       "(-v $exargs)"-v+'[switch log volumes after this many samples]' \
       "(-w $exargs)"-w'[ignore day/month/year]' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       '*:archive:->archives' \
       && return 0
@@ -542,24 +542,24 @@ _pcp () {
     exargs="-? --help"
     _arguments -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
-      "(-c --config $exargs)"{-c+,--config}'[specify config file]:file:_files' \
+      "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files' \
       "(-C --check $exargs)"{-C,--check}'[check config only]' \
-      "(-h --host -o --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
-      "(-H --labelhost $exargs)"{-H+,--labelhost}'[specify hostname label]:label:' \
-      "(-l --log $exargs)"{-l+,--log}'[specify log file]:file:_files' \
+      "(-h --host -o --local-PMDA -K --spec-local $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts' \
+      "(-H --labelhost $exargs)"{-H+,--labelhost=}'[specify hostname label]:label:' \
+      "(-l --log $exargs)"{-l+,--log=}'[specify log file]:file:_files' \
       "(-L --linger $exargs)"{-L,--linger}'[linger even if not logging]' \
-      "(-m --note $exargs)"{-m+,--note}'[define map file note]:note:' \
-      "(-h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
+      "(-m --note $exargs)"{-m+,--note=}'[define map file note]:note:' \
+      "(-h --host $exargs)"\*{-K+,--spec-local=}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
       "(-o --local-PMDA -h --host $exargs)"{-o,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
-      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
-      "(-p --PID $exargs)"{-p+,--PID}'[specify PID to exit after]:PID:_pids' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-p --PID $exargs)"{-p+,--PID=}'[specify PID to exit after]:PID:_pids' \
       "(-P --primary $exargs)"{-P,--primary}'[run as primary logger instance]' \
       "(-r --report $exargs)"{-r,--report}'[report record sizes]' \
-      "(-s --size $exargs)"{-s+,--size}'[set endsize of archive]:size:' \
-      "(-t --interval $exargs)"{-t+,--interval}'[set logging interval]:interval:' \
-      "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
-      "(-U --username $exargs)"{-U+,--username}'[specify username to run as]:user:_users' \
-      "(-v --volsize $exargs)"{-v+,--volsize}'[set log volume size]:size:' \
+      "(-s --size $exargs)"{-s+,--size=}'[set endsize of archive]:size:' \
+      "(-t --interval $exargs)"{-t+,--interval=}'[set logging interval]:interval:' \
+      "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
+      "(-U --username $exargs)"{-U+,--username=}'[specify username to run as]:user:_users' \
+      "(-v --volsize $exargs)"{-v+,--volsize=}'[set log volume size]:size:' \
       "(-x $exargs)"-x+'[set control file descriptor]:fd:_file_descriptors' \
       "(-y $exargs)"-y'[use local time not PMCD timezone]' \
       '1:archive:_files' \
@@ -569,14 +569,14 @@ _pcp () {
     exargs="-? --help"
     _arguments -C -S -s \
       '(- *)'-\?'[display help message]' \
-      "(-h --host $exargs)"{-h+,--host}'[set hostname for all files in archive]:hostname:_hosts' \
+      "(-h --host $exargs)"{-h+,--host=}'[set hostname for all files in archive]:hostname:_hosts' \
       "(-l --label $exargs)"{-l,--label}'[print archive label]' \
       "(-L $exargs)"-L'[print archive label verbosely]' \
-      "(-p --pid $exargs)"{-p+,--pid}'[set logger PID for all files in archive]:pid:' \
+      "(-p --pid $exargs)"{-p+,--pid=}'[set logger PID for all files in archive]:pid:' \
       "(-s $exargs)"-s'[write label sentinel values for all files in archive]' \
       "(-v --verbose $exargs)"{-v,--verbose}'[verbose output]' \
-      "(-V --version $exargs)"{-V+,--version}'[set version number for all files in archive]' \
-      "(-Z --timezone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-V --version $exargs)"{-V+,--version=}'[set version number for all files in archive]' \
+      "(-Z --timezone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       '1:archive:->archives' \
       && return 0
   ;;
@@ -586,7 +586,7 @@ _pcp () {
       "$common_help[@]" \
       "(-a --all $exargs)"{-a,--all}'[print all information]' \
       "(-b -x $exargs)"-b'[print both type time averages]' \
-      "(-B --bins $exargs)"{-B+,--bins}'[set number of bins]:bins:' \
+      "(-B --bins $exargs)"{-B+,--bins=}'[set number of bins]:bins:' \
       "(-f -F $exargs)"-f'[spreadsheet format with tabs]' \
       "(-F -f $exargs)"-F'[spreadsheet format with commas]' \
       "(-H --header $exargs)"{-H,--header}'[print header]' \
@@ -595,14 +595,14 @@ _pcp () {
       "(-l --label $exargs)"{-l,--label}'[print archive label]' \
       "(-m --minimum $exargs)"{-m,--minimum}'[print minimum value]' \
       "(-M --maximum $exargs)"{-M,--maximum}'[print maximum value]' \
-      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-N -v --verbose --$exargs)"-N'[suppress warnings]' \
-      "(-p --precision $exargs)"{-p+,--precision}'[set floating point precision]:precision:' \
-      "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
-      "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
+      "(-p --precision $exargs)"{-p+,--precision=}'[set floating point precision]:precision:' \
+      "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
+      "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
       "(-v --verbose -N $exargs)"{-v,--verbose}'[verbose mode]' \
       "(-x -b $exargs)"-x'[print stochastic averages only]' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       '1:archive:->archives' \
       '*:metric:->metrics' \
@@ -613,15 +613,15 @@ _pcp () {
     _arguments -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
       '(- *)'{-d,--version}'[display version number]' \
-      "(--container -h --host -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
-      "(-h --host -a --archive -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
-      "(--container -a --archive $exargs)"--container+'[specify container to query]:container:->containers' \
-      "(--derived $exargs)"--derived+'[specify derived metrics config]:file:_files' \
+      "(--container -h --host -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive=}'[specify metrics source archive]:archive:->archives' \
+      "(-h --host -a --archive -L --local-PMDA -K --spec-local $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts' \
+      "(--container -a --archive $exargs)"--container=+'[specify container to query]:container:->containers' \
+      "(--derived $exargs)"--derived=+'[specify derived metrics config]:file:_files' \
       "(-L --local-PMDA -a --archice -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
-      "(-a --archive -h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
-      "(-b --batch $exargs)"{-b+,--batch}'[set fetch batch size]:size:' \
-      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
-      "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:' \
+      "(-a --archive -h --host $exargs)"\*{-K+,--spec-local=}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
+      "(-b --batch $exargs)"{-b+,--batch=}'[set fetch batch size]:size:' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-O --origin $exargs)"{-O+,--origin=}'[set initial sample time origin]:timespec:' \
       "(-f --force $exargs)"{-f,--force}'[report all instances]' \
       "(-F --faster $exargs)"{-F,--faster}'[assume metrics are PMNS leaf nodes]' \
       "(-I --external -v --values $exargs)"{-I,--external}'[list external instance names]' \
@@ -629,7 +629,7 @@ _pcp () {
       "(-V --verbose $exargs)"{-V,--verbose}'[report PDU operations]' \
       "(-v --values -I --external -i --internal $exargs)"{-v,--values}'[report metric values]' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       '*:metric:->metrics' \
       && return 0
   ;;
@@ -639,29 +639,29 @@ _pcp () {
       "$common_most[@]" \
       "$common_pmda[@]" \
       "$common_python[@]" \
-      "(-o --output $exargs)"{-o+,--output}'[set output target]:target:(archive csv stdout)' \
-      "(-F --output-file $exargs)"{-F+,--output-file}'[specify output file]:file:_files' \
+      "(-o --output $exargs)"{-o+,--output=}'[set output target]:target:(archive csv stdout)' \
+      "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
       "(-U --no-unit-info $exargs)"{-U,--no-unit-info}'[omit unit info]' \
       "(-p --timestamps $exargs)"{-p,--timestamps}'[print timestamps]' \
       "(-d --delay --container -h --host -L --local-PMDA -K --spec-local -u --no-interpol $exargs)"{-d,--delay}'[delay between updates in archive mode]' \
-      "(-X --colxrow $exargs)"{-X+,--colxrow}'[swap stdout columns and rows using header label]:label:' \
-      "(-w --width -W --width-force $exargs)"{-w+,--width}'[set default column width]:width:' \
-      "(-W --width-force -w --width $exargs)"{-W+,--width-force}'[forced column width]:width:' \
-      "(-l --delimiter $exargs)"{-l+,--delimiter}'[set column delimiter]:delimiter:' \
+      "(-X --colxrow $exargs)"{-X+,--colxrow=}'[swap stdout columns and rows using header label]:label:' \
+      "(-w --width -W --width-force $exargs)"{-w+,--width=}'[set default column width]:width:' \
+      "(-W --width-force -w --width $exargs)"{-W+,--width-force=}'[forced column width]:width:' \
+      "(-l --delimiter $exargs)"{-l+,--delimiter=}'[set column delimiter]:delimiter:' \
       "(-j --live-filter $exargs)"{-j,--live-filter}'[perform instance live filtering]' \
-      "(-J --rank $exargs)"{-J+,--rank}'[set limit for results of valued instances]' \
+      "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
       "(-2 --overall-rank -3 --overall-rank-alt -N --predicate $exargs)"{-2,--overall-rank}'[perform overall ranking from archive]' \
       "(-3 --overall-rank-alt -2 --overall-rank -N --predicate $exargs)"{-3,--overall-rank-alt}'[perform overall ranking using pmrep format]' \
-      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter}'[set default limit filter]' \
-      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force}'[set forced limit filter]' \
+      "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
+      "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \
-      "(-N --predicate -2 --overall-rank -3 --overall-rank-alt $exargs)"{-N+,--predicate}'[specify predicate metric]:metric:->metrics' \
+      "(-N --predicate -2 --overall-rank -3 --overall-rank-alt $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
       "(-k --extended-csv $exargs)"{-k,--extended-csv}'[write extended CSV]' \
       "(-x --extended-header $exargs)"{-x,--extended-header}'[print extended header]' \
-      "(-E --repeat-header $exargs)"{-E+,--repeat-header}'[set header repeat frequency]:samples:' \
+      "(-E --repeat-header $exargs)"{-E+,--repeat-header=}'[set header repeat frequency]:samples:' \
       "(-1 --dynamic-header $exargs)"{-1,--dynamic-header}'[update header dynamically]:samples:' \
       "(-g --separate-header $exargs)"{-g,--separate-header}'[print separate header]' \
-      "(-f --timestamp-format $exargs)"{-f+,--timestamp-format}'[set time format string]:format:' \
+      "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
       "(-u --no-interpol --container -d --delay -h --host -L --local-PMDA -K --spec-local -t --interval $exargs)"{-u,--no-interpol}'[disable interpolation]' \
       '*:metric:->metrics' \
       && return 0
@@ -669,20 +669,20 @@ _pcp () {
   pmstat)
     _arguments -C -S -s \
       "$common_help[@]" \
-      "(-A --align $exargs)"{-A+,--align}'[set initial sample time alignment]:timespec:' \
-      "(-h --host -H --hostsfile -L --local-PMDA $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
+      "(-A --align $exargs)"{-A+,--align=}'[set initial sample time alignment]:timespec:' \
+      "(-h --host -H --hostsfile -L --local-PMDA $exargs)"\*{-a+,--archive=}'[specify metrics source archive]:archive:->archives' \
       "(-g --guimode $exargs)"{-g,--guimode}'[GUI mode with new time control]' \
-      "(-a --archive -L --local-PMDA $exargs)"\*{-h+,--host}'[specify metrics source host]:host:_hosts' \
-      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
-      "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:' \
-      "(-p --guiport $exargs)"{-p+,--guiport}'[specify existing time control port]:port:' \
-      "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
-      "(-s --samples $exargs)"{-s+,--samples}'[specify number of samples]:samples:' \
-      "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
-      "(-t --interval $exargs)"{-t+,--interval}'[specify sampling interval]:interval:' \
-      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-a --archive -L --local-PMDA $exargs)"\*{-h+,--host=}'[specify metrics source host]:host:_hosts' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-O --origin $exargs)"{-O+,--origin=}'[set initial sample time origin]:timespec:' \
+      "(-p --guiport $exargs)"{-p+,--guiport=}'[specify existing time control port]:port:' \
+      "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
+      "(-s --samples $exargs)"{-s+,--samples=}'[specify number of samples]:samples:' \
+      "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
+      "(-t --interval $exargs)"{-t+,--interval=}'[specify sampling interval]:interval:' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
-      "(-a --archive -L --local-PMDA $exargs)"\*{-H+,--hostsfile}'[specify metrics source hosts file]:file:_files' \
+      "(-a --archive -L --local-PMDA $exargs)"\*{-H+,--hostsfile=}'[specify metrics source hosts file]:file:_files' \
       "(-L --local-PMDA -a --archive -h --host -H --hostsfile $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
       "(-l --suffix $exargs)"{-l,--suffix}'[print hostname suffix]' \
       "(-P --pause -h --host -L --local-pmda $exargs)"{-P,--pause}'[pause between updates in archive mode]' \
@@ -692,14 +692,14 @@ _pcp () {
   pmstore)
     _arguments -A "-*" -C -S -s \
       "$common_help[@]" \
-      "(-h --host -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
+      "(-h --host -L --local-PMDA -K --spec-local $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts' \
       "(-F --fetch $exargs)"{-F,--fetch}'[perform pmFetch after pmStore to confirm value]' \
       "(-L --local-PMDA -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
-      "(-h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
-      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-h --host $exargs)"\*{-K+,--spec-local=}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-F --fetch $exargs)"{-F,--fetch}'[perform pmFetch after pmStore to confirm value]' \
       "(-f --force $exargs)"{-f,--force}'[store value even if unset]' \
-      "($exargs)"\*{-i+,--insts}'[specify instances to store to]:instances:->instances' \
+      "($exargs)"\*{-i+,--insts=}'[specify instances to store to]:instances:->instances' \
       '1:metric:->metrics' \
       && return 0
   ;;
@@ -709,18 +709,18 @@ _pcp () {
       "$common_most[@]" \
       "$common_pmda[@]" \
       "(-g --guimode $exargs)"{-g,--guimode}'[GUI mode with new time control]' \
-      "(-p --guiport $exargs)"{-p+,--guiport}'[specify existing time control port]:port:' \
-      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
-      "(--container -a --archive -U --nointerp $exargs)"--container+'[specify container to query]:container:->containers' \
-      "(--derived $exargs)"--derived+'[specify derived metrics config]:file:_files' \
+      "(-p --guiport $exargs)"{-p+,--guiport=}'[specify existing time control port]:port:' \
+      "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(--container -a --archive -U --nointerp $exargs)"--container=+'[specify container to query]:container:->containers' \
+      "(--derived $exargs)"--derived=+'[specify derived metrics config]:file:_files' \
       "(-d --delay --container -h --host -L --local-PMDA -K --spec-local $exargs)"{-d,--delay}'[delay between updates in archive mode]' \
-      "(-f --precision $exargs)"{-f+,--precision}'[set fixed output format precision]:precision:' \
-      "($exargs)"\*{-i+,--instances}'[specify instances to report]:instances:->instances' \
+      "(-f --precision $exargs)"{-f+,--precision=}'[set fixed output format precision]:precision:' \
+      "($exargs)"\*{-i+,--instances=}'[specify instances to report]:instances:->instances' \
       "(-r --raw $exargs)"{-r,--raw}'[report raw values]' \
-      "(-a --archive --container -h --host -L --local-PMDA -K --spec-local $exargs)"{-U+,--nointerp}'[specify uninterpolated metrics source archive]:archive:->archives' \
+      "(-a --archive --container -h --host -L --local-PMDA -K --spec-local $exargs)"{-U+,--nointerp=}'[specify uninterpolated metrics source archive]:archive:->archives' \
       "(-v --verbose $exargs)"{-v,--verbose}'[verbose mode]' \
-      "(-w --width $exargs)"{-w+,--width}'[set column width]:width:' \
-      "(-x --filter $exargs)"{-x+,--filter}'[define event filter pattern]:filter:' \
+      "(-w --width $exargs)"{-w+,--width=}'[set column width]:width:' \
+      "(-x --filter $exargs)"{-x+,--filter=}'[define event filter pattern]:filter:' \
       '1:metric:->metrics' \
       && return 0
   ;;
