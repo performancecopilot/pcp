@@ -9,6 +9,7 @@
 #include "libpcp.h"
 #include <pcp/trace.h>
 #include <pcp/trace_dev.h>
+#include <limits.h>
 
 static void
 decode_label_req(const char *name)
