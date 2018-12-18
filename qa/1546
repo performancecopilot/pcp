@@ -39,7 +39,7 @@ for i in 1 2 3; do
     $sudo -u $PCP_USER $here/src/mmv2_genstats test 1
     sudo rm -f $PCP_TMP_DIR/mmv/test
     pmsleep 1
-    kill -0 $pid > /dev/nul 2>&1 || break
+    kill -0 $pid > /dev/null 2>&1 || break
 done
 wait
 
