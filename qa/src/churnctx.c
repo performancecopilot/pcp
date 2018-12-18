@@ -444,7 +444,13 @@ Options:\n\
 	/* check for outrageous memory leaks */
 	__pmProcessDataSize(&check);
 	if (highwater != 0) {
-	    if (check - highwater > 512*1024) {
+	    /*
+	     * check and highwater are signed, values from
+	     * __pmProcessDataSize() are not monotonic increasing, so
+	     * need to check that it has gone up and gone up by more than
+	     * 512K
+	     */
+	    if (check > highwater && check - highwater > 512*1024) {
 		/* use first 2 iterations to get stable */
 		if (iter > 2)
 		    printf("Memory growth (iteration %d): %ld\n", iter, (long)(check - highwater));
