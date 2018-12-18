@@ -29,6 +29,12 @@ _getnetworkaddr()
 		    # inet addr:192.168.1.224  Bcast:192.168.1.255  Mask:255.255.255.0
 		    #
 		    mask=`ifconfig | grep "[ :]$addr " | sed -e 's/.*ask[ :]\([^ ][^ ]*\).*/\1/'`
+		    if [ -z "$mask" ]
+		    then
+			# or
+			# inet 192.168.1.238/24 broadcast 192.168.1.255 flags 0x0
+			mask=`ifconfig | grep "[ :]$addr/" | sed -e 's/'"$addr"'\//' -e 's/ .*//'`
+		    fi
 		    $__verbose && echo "_getnetworkaddr: ifconfig -> mask=$mask" >&2
 		    case "$mask"
 		    in

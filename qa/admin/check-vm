@@ -103,7 +103,9 @@ _usage()
     echo "  -o otherdir  use alternative other-packages directory"
     echo "  -p           generate list of likely packages that should be"
     echo "               installed with dnf or apt-get or yum or ..."
-    echo "  -s skip      use alternative skip.<hostname> basename"
+    echo "  -r require   use alternative require file"
+    echo "  -s skip      use alternative skip file"
+    echo "  -S skipbase  use alternative basename for skipbase.<hostname> files"
     echo "  -u unavail   use alternative unavailable file"
     echo "  -v           verbose (debugging)"
     exit 1
@@ -125,16 +127,18 @@ pkglist=false
 verbose=false
 very_verbose=false
 check_manifest=false
-check_mainfest_args=''
-otherdir=other-packages					# default, see -o
+check_manifest_args=''
 manifest="$home"/other-packages/manifest		# default, see -m
+otherdir=other-packages					# default, see -o
+require="$home"/other-packages/require			# default, see -r
 skip="$home"/other-packages/skip			# default, see -s
+skipbase="$home"/other-packages/skip			# default, see -S
 unavailable="$home"/other-packages/unavailable		# default, see -u
-while getopts 'cfm:o:ps:u:v?' p
+while getopts 'cfm:o:pr:s:S:u:v?' p
 do
     case "$p"
     in
-	c)	# exec check-mainfest when manifest has been build
+	c)	# exec check-manifest when manifest has been build
 		# ... expert only, so not even mentioned in Usage
 		#
 		check_manifest=true
@@ -156,8 +160,16 @@ do
 		pkglist=true
 		;;
 
-	s)	# alternate skip basename
+	r)	# alternate require
+		require="$OPTARG"
+		;;
+
+	s)	# alternate skip
 		skip="$OPTARG"
+		;;
+
+	S)	# alternate skip basename
+		skipbase="$OPTARG"
 		;;
 
 	u)	# alternate unavailable
@@ -253,6 +265,79 @@ NR == 2	{ nf = NF
     return $ret
 }
 
+# The require, unavailable and skip files have the same format,
+# listing packages and package patterns that apply to a particular
+# distribution, version and architecture.
+#
+# This function parses one of these files (specified as $1) and the
+# selected packages (if any) are written on std output
+#
+_parse_file()
+{
+    $PCP_AWK_PROG '{ for (i = 3; i <= NF; i++) printf $i " "; print "" }' <$tmp.whatami \
+    | sed \
+	-e 's/ \[.*//' \
+	-e 's/ ([^)]*)//' \
+	-e 's/RHEL Server/RHEL/' \
+	-e 's/Arch Linux/ArchLinux/' \
+	-e '/CentOS/{
+s/CentOS Linux/CentOS/
+s/CentOS\([0-9]\)/CentOS \1/
+}' \
+	-e '/FreeBSD/s/-RELEASE//' \
+	-e '/SLES[0-9][0-9]* SP/s/ SP/-SP/' \
+	-e '/OpenIndiana/s/Hipster //' \
+	-e 's/^/_arch=/' \
+	-e 's/ /+_distro=/' \
+	-e 's/ / _version="/' \
+	-e 's/+_/ _/' \
+	-e 's/$/"/' \
+    | tr ' ' '\012' >$tmp.eval
+    eval `cat $tmp.eval`
+    sed <$1 \
+	-e 's/#.*//' \
+	-e '/^[ 	]*$/d' \
+    | while read distro_pat version_pat arch_pat packages
+    do
+	if echo "$_distro" | grep "$distro_pat" >/dev/null
+	then
+	    # Distro matches, check versions
+	    #
+	    _match=true
+	    if [ "X$version_pat" = "X-" -o -z "$_version" ]
+	    then
+		:
+	    else
+		if echo "$_version" | grep "$version_pat" >/dev/null
+		then
+		    :
+		else
+		    _match=false
+		fi
+	    fi
+	    if $_match
+	    then
+		# Distro and version matches, check architecture
+		if [ "X$arch_pat" = "X-" -o -z "$_arch" ]
+		then
+		    :
+		else
+		    if echo "$_arch" | grep "$arch_pat" >/dev/null
+		    then
+			:
+		    else
+			_match=false
+		    fi
+		fi
+	    fi
+	    if $_match
+	    then
+		echo "$packages"
+	    fi
+	fi
+    done
+}
+
 # add additional and optional directories
 for dir in /sbin /usr/sbin
 do
@@ -300,9 +385,19 @@ then
     echo "Botch: cannot find manifest: $manifest"
     exit 1
 fi
+if [ ! -f "$require" ]
+then
+    echo "Botch: cannot find require: $require"
+    exit 1
+fi
 if [ ! -f "$unavailable" ]
 then
     echo "Botch: cannot find unavailable: $unavailable"
+    exit 1
+fi
+if [ ! -f "$skip" ]
+then
+    echo "Botch: cannot find skip: $skip"
     exit 1
 fi
 if [ ! -f "$home"/whatami ]
@@ -411,47 +506,44 @@ do
 	sed -e "s/^${pkgtype}?[ 	]//" <$tmp.manifest >$tmp.tmp
 	mv $tmp.tmp $tmp.manifest
 	touch $tmp.ok
-	if $pkglist
+	# one-trip list all currently installed packages for -p
+	#
+	if [ ! -f $tmp.installed ]
 	then
-	    # one-trip list all currently installed packages for -p
-	    #
-	    if [ ! -f $tmp.installed ]
-	    then
-		case "$pkgtype"
-		in
-		    dpkg)
-			dpkg-query -W -f '${package}\n'
-			;;
+	    case "$pkgtype"
+	    in
+		dpkg)
+		    dpkg-query -W -f '${package}\n'
+		    ;;
 
-		    rpm)
-			rpm -qa --qf '%{NAME}\n'
-			;;
+		rpm)
+		    rpm -qa --qf '%{NAME}\n'
+		    ;;
 
-		    pkgin)
-			echo >&2 "TODO: no list all packages method for pkg_info"
-			;;
+		pkgin)
+		    pkgin list | sed -e 's/-[0-9].*//'
+		    ;;
 
-		    F_pkg)
-			pkg info -a | sed -e 's/-[0-9].*//'
-			;;
+		F_pkg)
+		    pkg info -a | sed -e 's/-[0-9].*//'
+		    ;;
 
-		    pkg_add)
-			echo >&2 "TODO: no list all packages method for pkg_locate"
-			;;
+		pkg_add)
+		    pkg_info -a | sed -e 's/-[0-9].*//'
+		    ;;
 
-		    emerge)
-			echo >&2 "TODO: no list all packages method for equery"
-			;;
+		emerge)
+		    equery list '*' | sed -e 's/.*].*] //' -e 's/-[0-9].*//'
+		    ;;
 
-		    brew)
-			echo >&2 "TODO: no list all packages method for brew"
-			;;
+		brew)
+		    echo >&2 "TODO: no list all packages method for brew"
+		    ;;
 
-		    *)
-			echo >&2 "Botch: no list all packages method for $pkgtype"
-			;;
-		esac >$tmp.installed
-	    fi
+		*)
+		    echo >&2 "Botch: no list all packages method for $pkgtype"
+		    ;;
+	    esac >$tmp.installed
 	fi
     else
 	$very_verbose && echo >&2 "exclude ${pkgtype}? lines"
@@ -513,9 +605,6 @@ done
 unavail_pkg=''
 case `hostname -s`
 in
-    vm09)
-	unavail_pkg='avahi sysstat valgrind py36-bcc py36-libvirt realpath libibumad libibmad python3-jsonpointer p5-DBD-mysql zabbix-agent py36-prometheus-client mkfs.gfs2 docker qtchooser qt5 uic QtSvg dtrace boost json_reformat py36-imaging nmap' 
-	;;
     vm15)
     	unavail_pkg='valgrind socat'
     	;;
@@ -531,14 +620,6 @@ in
     vm36)
 	unavail_pkg='python3-bpfcc libsoqt5-dev'
     	;;
-    vm37)
-	# qtbase is Qt5 and gcc++ is too old to compile Qt5 headers ... revist
-	# if we change from gcc to clang here
-	# qtsvg is not needed without Qt5
-	# valgrind is available, but segv's
-	#
-	unavail_pkg='libibumad py36-jsonpointer libvirt-python3 realpath py3-prometheus-client py3-openpyxl py3-bcc qtchooser qtbase qtsvg valgrind'
-	;;
 esac
 
 # the "unavailable" file records packages that are not available for a
@@ -546,77 +627,37 @@ esac
 #
 if [ -z "$unavail_pkg" ]
 then
-    rm -f $tmp.tmp
-    $PCP_AWK_PROG '{ for (i = 3; i <= NF; i++) printf $i " "; print "" }' <$tmp.whatami \
-    | sed \
-	-e 's/ \[.*//' \
-	-e 's/ ([^)]*)//' \
-	-e 's/RHEL Server/RHEL/' \
-	-e 's/Arch Linux/ArchLinux/' \
-	-e '/CentOS/{
-s/CentOS Linux/CentOS/
-s/CentOS\([0-9]\)/CentOS \1/
-}' \
-	-e '/FreeBSD/s/-RELEASE//' \
-	-e '/SLES[0-9][0-9]* SP/s/ SP/-SP/' \
-	-e '/OpenIndiana/s/Hipster //' \
-	-e 's/^/_arch=/' \
-	-e 's/ /+_distro=/' \
-	-e 's/ / _version="/' \
-	-e 's/+_/ _/' \
-	-e 's/$/"/' \
-    | tr ' ' '\012' >$tmp.eval
-    eval `cat $tmp.eval`
-    sed <$unavailable \
-	-e 's/#.*//' \
-	-e '/^[ 	]*$/d' \
-    | while read distro_pat version_pat arch_pat packages
+    _parse_file $unavailable >$tmp.pkgs
+    if [ -s $tmp.pkgs ]
+    then
+	unavail_pkg="$unavail_pkg `cat $tmp.pkgs`"
+    fi
+fi
+
+# the "require" file records packages that are must be installed for a
+# particular distribution and version and archtecture ... 
+#
+require_pkg=''
+_parse_file $require >$tmp.pkgs
+if [ -s $tmp.pkgs ]
+then
+    for _need in `cat $tmp.pkgs`
     do
-	if echo "$_distro" | grep "$distro_pat" >/dev/null
+	if grep "^$_need\$" $tmp.installed >/dev/null
 	then
-	    # Distro matches, check versions
-	    #
-	    _match=true
-	    if [ "X$version_pat" = "X-" -o -z "$_version" ]
+	    :
+	else
+	    if [ -z "$require_pkg" ]
 	    then
-		:
+		require_pkg="$_need"
 	    else
-		if echo "$_version" | grep "$version_pat" >/dev/null
-		then
-		    :
-		else
-		    _match=false
-		fi
-	    fi
-	    if $_match
-	    then
-		# Distro and version matches, check architecture
-		if [ "X$arch_pat" = "X-" -o -z "$_arch" ]
-		then
-		    :
-		else
-		    if echo "$_arch" | grep "$arch_pat" >/dev/null
-		    then
-			:
-		    else
-			_match=false
-		    fi
-		fi
-	    fi
-	    if $_match
-	    then
-		echo "$packages" >>$tmp.tmp
+		require_pkg="$require_pkg $_need"
 	    fi
 	fi
     done
-    if [ -s $tmp.tmp ]
+    if [ -n "$require_pkg" ]
     then
-	if [ -z "$unavail_pkg" ]
-	then
-	    unavail_pkg="`cat $tmp.tmp`"
-	else
-	    unavail_pkg="$unavail_pkg `cat $tmp.tmp`"
-	fi
+	$very_verbose && echo >&2 "require: $require_pkg"
     fi
 fi
 
@@ -655,10 +696,10 @@ fi
 #
 skip_pkg=''
 _hostname=`hostname -s`
-if [ -f $skip.$_hostname ]
+if [ -f $skipbase.$_hostname ]
 then
-    $verbose && echo >&2 "Processing $skip.`hostname -s` ..."
-    skip_pkg=`sed <$skip.$_hostname \
+    $verbose && echo >&2 "Processing $skipbase.`hostname -s` ..."
+    skip_pkg=`sed <$skipbase.$_hostname \
 	    -e 's/#.*//' \
 	    -e '/^[ 	]*$/d'`
     if [ -n "$unavail_pkg" ]
@@ -669,9 +710,26 @@ then
 s;\[[^]]*];[skip on host '"$_hostname"'];
 }'
 	    mv $tmp.tmp $tmp.manifest
-	    $very_verbose && echo >&2 "skip: $_pkg"
+	    $very_verbose && echo >&2 "skip for host: $_pkg"
 	done
     fi
+fi
+
+# the "skip" file records packages that should not be installed for a
+# particular distribution and version and archtecture ... 
+#
+_parse_file $skip >$tmp.pkgs
+if [ -s $tmp.pkgs ]
+then
+    skip_pkg="$skip_pkg `cat $tmp.pkgs`"
+    for _pkg in `cat $tmp.pkgs`
+    do
+	sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
+s;\[[^]]*];[skip];
+}'
+	mv $tmp.tmp $tmp.manifest
+	$very_verbose && echo >&2 "skip: $_pkg"
+    done
 fi
 
 if $force
@@ -861,10 +919,11 @@ do
 	then
 	    echo "$apps" \
 	    | sed -n \
+		-e '/\[skip]/d' \
+		-e '/\[skip on host/d' \
 		-e 's/.*\[//' \
 		-e 's/]//' \
 		-e 's/ ([^)]*)//' \
-		-e '/skip on host/d' \
 		-e 's/N\/A//' \
 		-e 's/base [^ ]* install//' \
 		-e 's/^or //' \
@@ -919,6 +978,15 @@ s/@/ /g
     fi
 done >$tmp.out
 
+if $pkglist
+then
+    # append required packages ... uniq below culls any duplicates
+    for _pkg in $require_pkg
+    do
+	echo "$_pkg" >>$tmp.out
+    done
+fi
+
 if [ -s $tmp.out ]
 then
     if $pkglist
@@ -937,6 +1005,13 @@ then
 fi
 
 $pkglist && exit
+
+# Any required packages not installed?
+#
+for _pkg in $require_pkg
+do
+    echo "Missing: $_pkg [required package not installed]"
+done
 
 # Some platform-specific and special case tests
 #

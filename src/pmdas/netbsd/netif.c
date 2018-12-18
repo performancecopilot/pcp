@@ -115,7 +115,6 @@ refresh_netif_metrics(void)
     size_t		new_buflen;
     struct rt_msghdr	*rtm;
     struct if_msghdr	*ifm;
-    struct if_data	*ifd = NULL;
     struct sockaddr	*sa;
     struct sockaddr	*rti_info[RTAX_MAX];
     struct sockaddr_dl	*sdl;
@@ -169,7 +168,6 @@ refresh_netif_metrics(void)
 	switch (rtm->rtm_type) {
 	case RTM_IFINFO:
 	    ifm = (struct if_msghdr *)next;
-	    ifd = &ifm->ifm_data;
 	    sa = (struct sockaddr *)(ifm + 1);
 	    get_rtaddrs(ifm->ifm_addrs, sa, rti_info);
 	    sdl = (struct sockaddr_dl *)rti_info[RTAX_IFP];

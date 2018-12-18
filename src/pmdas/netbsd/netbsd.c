@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <sys/resource.h>
+#include <sys/sched.h>
 #include <sys/time.h>
 #include <uvm/uvm_param.h>
 #include <sys/utsname.h>

@@ -1,0 +1,17 @@
+# Required packages by distro ... these are ones that must be installed.
+# If there is a match to a pattern in unavailable or in skip, the
+# package must be installed (so requires takes precedence).
+#
+# >= 3 fields per line (separated by while space)
+# Field 1	- Distro name, as reported by whatami
+# Field 2	- Distro version, as reported by whatami, - for all versions
+# 		  (an alias for .*)
+# Field 3	- Distro architecture, - for all architectures (alias for .*)
+# Field 4 .. N	- packages that should be skipped
+#
+# grep(1) patterns allowed in all Fields.
+#
+# Comments prefixed by #
+#
+#Distro      Version  Arch    Required Packages
+NetBSD       -        -       py27-setuptools

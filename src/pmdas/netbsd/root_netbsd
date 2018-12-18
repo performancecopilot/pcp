@@ -118,6 +118,7 @@ disk.all {
 
 mem {
     util
+    freemem	NETBSD:5:6	/* alias for mem.util.freemem */
 }
 
 mem.util {

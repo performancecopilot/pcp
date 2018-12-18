@@ -242,6 +242,8 @@ sed -e 's/^/ /' <Logs/pcp \
     -e '/^configure: WARNING: unrecognized options: --disable-dependency-tracking/d' \
     -e '/^\/usr\/share\/selinux\/devel\/.* duplicate definition of /d' \
     -e '/QtCore\/qvector.h:.* memcpy(/d' \
+    -e '/libpython.* warning: warning: tmpnam() possibly used unsafely/d' \
+    -e '/libpython.* warning: warning: tempnam() possibly used unsafely/d' \
 # end
 if [ -s $tmp.err ]
 then
@@ -869,6 +871,12 @@ do
 	    # and some tests are not working yet
 	    #
 	    [ X"$what" = Xall ] && check_what='-g sanity -g threads'
+	    ;;
+
+	vm38)
+	    # Only -g sanity at this stage for NetBSD 8.0
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
 
     esac

@@ -355,7 +355,7 @@ then
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-efw
-elif test $target_os = netbsdelf
+elif test $target_os = netbsdelf -o $target_os = netbsd
 then
     target_os=netbsd
     AC_DEFINE(IS_NETBSD, [1], [Platform is NetBSD])
@@ -2461,6 +2461,9 @@ else
     cat <<End-of-File >conftest.c
 #include <sys/types.h>
 #include <unistd.h>
+#if defined pid_t	/* for NetBSD 8.0 */
+#undef pid_t
+#endif
 pid_t bozo;
 End-of-File
     _do_type
@@ -2476,6 +2479,7 @@ if test "$cross_compiling" = "yes"; then
     ans=$printf_fmt_int64
     echo "cross-compile -> \"$ans\"" >&5
 else
+    dnl first approach ... is there a #define that we can leverage?
     cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <stdint.h>
@@ -2489,7 +2493,7 @@ int main()
     /* Darwin */
     printf("%s\n", __PRI_64_LENGTH_MODIFIER__ "d");
 #else
-    bozo!	/* fall through to the hardway below */
+    bozo!	/* fall through to the second approach below */
 #endif
     return(0);
 }
@@ -2499,11 +2503,11 @@ End-of-File
     if test -x ./conftest
     then
 	ans=`./conftest`
-	echo "./conftest -> \"$ans\"" >&5
+	echo "./conftest (first approach) -> \"$ans\"" >&5
     fi
     if test -z "$ans"
     then
-	dnl have to try the hardway ...
+	dnl second approach _WORDSIZE may help ...
 	cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <stdint.h>
@@ -2518,17 +2522,10 @@ int main()
     printf("lld\n");
 #endif
 #else
-/* on NetBSD and OpenBSD, for example, there is no __WORDSIZE */
-    if (sizeof(long long) == 8)
-	printf("lld\n");
-    else if (sizeof(long) == 8)
-	printf("ld\n");
-    else if (sizeof(int) == 8)
-	printf("d\n");
-    else {
-	printf("no clue what printf format to use for __int64_t\n");
-	return(1);
-    }
+/*
+ * on NetBSD and OpenBSD, for example, there is no __WORDSIZE
+ * so fall through to the third approach below ...
+ */
 #endif
     return(0);
 }
@@ -2540,7 +2537,38 @@ End-of-File
 	    if test $target_os = mingw -a "$ans" = "lld"; then
 		ans='I64d'
 	    fi
-	    echo "./conftest -> \"$ans\"" >&5
+	    echo "./conftest (second approach) -> \"$ans\"" >&5
+	    if test -z "$ans" -a "$GCC" = "yes"
+	    then
+		dnl third approach, for gcc look for a printf format that
+		dnl does not produce compiler warnings
+		rm -f conftest.ans
+		for fmt in lld ld d
+		do
+		    cat <<End-of-File >conftest.$ac_ext
+#include <stdio.h>
+#include <sys/types.h>
+int main(void)
+{
+    __int64_t	x = -1;
+    printf("%$fmt\n", x);
+    return 0;
+}
+End-of-File
+		    $CC -Wall $CFLAGS $CPPFLAGS -c conftest.$ac_ext 2>conftest.err
+		    if test -s conftest.err >/dev/null
+		    then
+			echo "-- not $fmt for fmt_64" >&5
+			cat conftest.err >&5
+		    else
+			echo "$fmt" >conftest.ans
+			echo "no warnings (third approach) -> \"$fmt\"" >&5
+			break
+		    fi
+		done
+		test -s conftest.ans && ans=`cat conftest.ans`
+		rm -f conftest.ans conftest.err
+	    fi
 	fi
     fi
 fi

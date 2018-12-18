@@ -199,10 +199,12 @@ NetBSD
     23 Nov 2015: 6.1.5 and 7.0
     14 Feb 2018: 6.1.5 and 7.1.1
     # --- pkgin for pre-build binaries ---
+    # which packages are installed
+    $ pkg_info -a | sed -e 's/-[0-9].*//'
     # package search recipe (name and info or description)
     $ pkgin search <pattern>
     # which package installs a file/directory
-    $ pkg_info -eF <path>
+    $ pkg_info -F <path>
     # which files are in an installed package
     $ pkgin pkg-content <package>
     # available packages
@@ -216,15 +218,18 @@ NetBSD
     # release upgrade recipe
     $ ???
     # --- pkgsrc for source --
+    $ sudo pkgin install cvs
     # run everything as root, after cd /usr
-    # to seed with the 2018Q1 stable release
-    # cvs -q -z2 -d anoncvs@anoncvs.NetBSD.org:/cvsroot checkout -r pkgsrc-2018Q1 -P pkgsrc
+    # to seed with the 2018Q3 stable release
+    # cvs -q -z2 -d anoncvs@anoncvs.NetBSD.org:/cvsroot checkout -r pkgsrc-2018Q3 -P pkgsrc
     # to update CVS
     # cd /usr/pkgsrc && cvs update -dP
 
 Gentoo
     https://wiki.gentoo.org/wiki/Main_Page
-
+    No concept of versions, just install latest.
+    # which packages are installed
+    $ equery list '*' | sed -e 's/.*].*] //' -e 's/-[0-9].*//'
     # package search recipe - names
     $ emerge --search |-s somestring
     $ emerge --search |-s "%someregexp"
