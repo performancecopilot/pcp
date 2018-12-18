@@ -15,7 +15,6 @@ $python -c "from pcp import pmapi" >/dev/null 2>&1
 $python -c "from collections import OrderedDict" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
 
-which pmrep >/dev/null 2>&1 || _notrun "No pmrep binary installed"
 which pcp2xml >/dev/null 2>&1 || _notrun "No pcp2xml binary installed"
 
 _cleanup()
@@ -23,7 +22,6 @@ _cleanup()
     cd $here
     $sudo rm -rf $tmp $tmp.*
     $sudo rm -f $PCP_TMP_DIR/mmv/test
-    pminfo -f mmv > /dev/null 2>&1 || :
 }
 
 _filter_xml()
@@ -32,6 +30,7 @@ _filter_xml()
         -e 's,<host .*>,<host>,g' \
         -e 's,<timezone.*/,<timezone>UTC</,g' \
         -e 's,<timestamp.*>,<timestamp>,g' \
+        -e 's,[0-9]\{4\,7\},xxxxxxx,g' \
     #end
 }
 
@@ -40,49 +39,16 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-# test names-change=abort
-$sudo rm -f $PCP_TMP_DIR/mmv/test
-pminfo -f mmv > /dev/null 2>&1
-pmrep -s 5 -t 1 --names-change=abort mmv.control.files >> $tmp.out &
-
-pmsleep 1.5
-$sudo -u $PCP_USER $here/src/mmv_genstats test 1
-
-wait
-echo pmrep output for abort: >> $seq.full
-cat $tmp.out >> $seq.full
-
-#
-# Count output lines - we expect fewer than the 5 samples requested
-# as the early termination should kick in once mmv_genstats runs -
-# there is a header line, a blank line, then one line per sample.
-#
-count=`wc -l < $tmp.out`
-if [ $count -lt 3 -o $count -gt 6 ]
-then
-    echo "Unexpected number - $count - of pmrep samples observed"
-    cat $tmp.out
-else
-    echo "Confirmed early termination on name change event"
-fi
-
 # test names-change=update with pcp2xml
-pmsleep 1
+echo testing names-change=update with pcp2xml
 $sudo rm -f $PCP_TMP_DIR/mmv/test
-pminfo -f mmv > /dev/null 2>&1
-pcp2xml -s 5 -t 1 -5 --names-change=update mmv.control.files mmv.test | _filter_xml > $tmp.out &
+pcp2xml -s 5 -t 1 -5 -r --names-change=update mmv.control.files mmv.test | _filter_xml &
 
 pmsleep 1.5
 $sudo -u $PCP_USER $here/src/mmv_genstats test 1
-
 wait
-echo pcp2xml output: >> $seq.full
-cat $tmp.out >> $seq.full
-echo pcp2xml output:
-cat $tmp.out
 
 $sudo rm -f $PCP_TMP_DIR/mmv/test
-pminfo -f mmv > /dev/null 2>&1
 
 # success, all done
 status=0
