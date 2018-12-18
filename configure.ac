@@ -1669,7 +1669,7 @@ then
 fi
 AC_SUBST(lib_for_regex)
 
-PKG_CHECK_MODULES([libuv], [libuv >= 1.0], [have_libuv=true], [have_libuv=false])
+PKG_CHECK_MODULES([libuv], [libuv >= 1.16], [have_libuv=true], [have_libuv=false])
 AC_SUBST(HAVE_LIBUV, [$have_libuv])
 
 PKG_CHECK_MODULES([libvarlink], [libvarlink], [have_libvarlink=true], [have_libvarlink=false])
