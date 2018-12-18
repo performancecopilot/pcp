@@ -1,4 +1,8 @@
 QA output created by 1547
+Running tests with pmrep ...
+testing names-change=abort
+  m.c.files
+           
 testing names-change=ignore
   m.c.files  m.c.debug  m.c.reload
                                   
