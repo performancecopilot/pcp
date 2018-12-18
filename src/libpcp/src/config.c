@@ -260,61 +260,70 @@ posix_formatter(char *var, char *prefix, char *val)
 PCP_DATA const __pmConfigCallback __pmNativeConfig = posix_formatter;
 #endif
 
+/*
+ * Search order for pcp.conf file is:
+ * - $PCP_CONF if set (handled already)
+ * - $PCP_DIR/etc/pcp.conf if $PCP_DIR is set
+ * - /usr/local/etc/pcp.conf if it exists and /etc/pcp.conf does NOT exist
+ * - /etc/pcp.conf otherwise
+ */
+static char *
+__pmconfigpath(const char *pcp_dir, const char *pcp_conf)
+{
+    char	path[MAXPATHLEN];
 
+    if (pcp_dir != NULL) {
+	pmsprintf(path, sizeof(path), "%s/etc/pcp.conf", pcp_dir);
+	return strdup(path);
+    }
+
+    if (access("/etc/pcp.conf", R_OK) == -1) {
+	/* may still be the Mac OS X case with HomeBrew, for example */
+	if (access("/usr/local/etc/pcp.conf", R_OK) == 0)
+	    strdup("/usr/local/etc/pcp.conf");
+    }
+    return strdup("/etc/pcp.conf");
+}
+
+/*
+ * Scan pcp.conf and put all PCP config variables found therein
+ * into the environment.
+ */
 static void
 __pmconfig(__pmConfigCallback formatter, int fatal)
 {
-    /*
-     * Scan pcp.conf and put all PCP config variables found therein
-     * into the environment.
-     * Search order is:
-     * - $PCP_CONF if set
-     * - $PCP_DIR/etc/pcp.conf if $PCP_DIR is set
-     * - /usr/local/opt/pcp/etc/pcp.conf if it exists and /etc/pcp.conf
-     *   does NOT exist
-     * - /etc/pcp.conf otherwise
-     */
-    FILE *fp;
-    char errmsg[PM_MAXERRMSGLEN];
-    char dir[MAXPATHLEN];
-    char var[MAXPATHLEN];
-    char *pcp_dir;
-    char *conf;
-    char *val;
-    char *p;
+    FILE	*fp;
+    char	*pcp_conf, *pcp_dir, *val, *p;
+    char	errmsg[PM_MAXERRMSGLEN];
+    char	var[MAXPATHLEN];
 
     PM_LOCK(__pmLock_extcall);
     pcp_dir = getenv("PCP_DIR");	/* THREADSAFE */
-    if (pcp_dir != NULL) pcp_dir = strdup(pcp_dir);
-    conf = getenv("PCP_CONF");		/* THREADSAFE */
-    if (conf != NULL)
-	conf = strdup(conf);
-    else {
-	if (pcp_dir != NULL) {
-	    pmsprintf(dir, sizeof(dir),
-			 "%s%s", pcp_dir, conf);
-	    conf = strdup(dir);
-	}
-	if (access("/etc/pcp.conf", R_OK) == -1 && access("/usr/local/opt/pcp/etc/pcp.conf", R_OK) == 0)
-	    /* Mac OS X case with HomeBrew, for example */
-	    conf = strdup("/usr/local/etc/pcp.conf");
-	else
-	    conf = strdup("/etc/pcp.conf");
-    }
+    if (pcp_dir != NULL)
+	pcp_dir = strdup(pcp_dir);
+    pcp_conf = getenv("PCP_CONF");	/* THREADSAFE */
+    if (pcp_conf != NULL)
+	pcp_conf = strdup(pcp_conf);
+    else
+	pcp_conf = __pmconfigpath(pcp_dir, pcp_conf);
     PM_UNLOCK(__pmLock_extcall);
-    if (conf == NULL) {
-	pmNoMem("__pmconfig", strlen("/etc/pcp.conf")+1, PM_FATAL_ERR);
-	/* NOTREACHED */
-    }
-    /* THREADSAFE - no locks acquired in __pmNativePath() */
-    conf = __pmNativePath(conf);
 
-    if ((fp = fopen(conf, "r")) == NULL) {
-	if (!fatal) {
-	    free(conf);
-	    if (pcp_dir != NULL) free(pcp_dir);
-	    return;
-	}
+    if (pcp_conf == NULL) {
+	if (!fatal)
+	    goto out;
+	/* see note below about fprintf use - applies equally here */
+	fprintf(stderr,
+		"FATAL PCP ERROR: could not allocate %u bytes for %s\n",
+		(unsigned int) strlen("/etc/pcp.conf") + 1, "/etc/pcp.conf");
+	goto failure;
+    }
+
+    /* THREADSAFE - no locks acquired in __pmNativePath() */
+    pcp_conf = __pmNativePath(pcp_conf);
+
+    if ((fp = fopen(pcp_conf, "r")) == NULL) {
+	if (!fatal)
+	    goto out;
 	/*
 	 * we used to pmprintf() here to be sure the message
 	 * would be seen, given the seriousness of the situation
@@ -326,10 +335,8 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	fprintf(stderr,
 	    "FATAL PCP ERROR: could not open config file \"%s\" : %s\n"
 	    "You may need to set PCP_CONF or PCP_DIR in your environment.\n",
-		conf, osstrerror_r(errmsg, sizeof(errmsg)));
-	free(conf);
-	if (pcp_dir != NULL) free(pcp_dir);
-	exit(1);
+		pcp_conf, osstrerror_r(errmsg, sizeof(errmsg)));
+	goto failure;
     }
 
     while (fgets(var, sizeof(var), fp) != NULL) {
@@ -355,8 +362,17 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	PM_UNLOCK(__pmLock_extcall);
     }
     fclose(fp);
-    free(conf);
-    if (pcp_dir != NULL) free(pcp_dir);
+out:
+    if (pcp_dir != NULL)
+	free(pcp_dir);
+    free(pcp_conf);
+    return;
+
+failure:
+    if (pcp_dir != NULL)
+	free(pcp_dir);
+    free(pcp_conf);
+    exit(1);
 }
 
 void
