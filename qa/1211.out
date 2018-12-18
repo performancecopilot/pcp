@@ -283,6 +283,11 @@ Perform globbing instance-based query (2) ... no result
 Perform globbing instance-based query (3) ...
 fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
 
+Perform globbing instance-based query (4) ...
+2db1da4d276d81c42c578c2829e99188ae7cc898
+ca134b5dbe631cf5bfb3fa72d9e9f697e38f97d5
+ccf157fc1740b6459681bfca477fb6ea6864d32c
+
 Descriptor lookup for a given SeriesID ...
 
 fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
@@ -360,6 +365,73 @@ fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
     [1317633024305.305844695] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
     [1317633024305.305844695] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
 
+Multi-series lookups from a multi-series query ...
+2db1da4d276d81c42c578c2829e99188ae7cc898
+ca134b5dbe631cf5bfb3fa72d9e9f697e38f97d5
+ccf157fc1740b6459681bfca477fb6ea6864d32c
+
+2db1da4d276d81c42c578c2829e99188ae7cc898
+    PMID: 60.10.3
+    Data Type: 32-bit unsigned int  InDom: 60.10 0xf00000a
+    Semantics: counter  Units: count
+    Source: 2cd6a38f9339f2dd1f0b4775bda89a9e7244def6
+    Metric: disk.partitions.blkread
+    inst [0 or "sda1"] series fc9b70c6335e1012f5a29ed6728f3293f0cb2959
+    inst [1 or "sda2"] series 16757e6a0970fe0f60cfa94ea1afab80a9197a04
+    inst [2 or "sda3"] series cb09d166010ce7908e900b50fd2cf05464bd1674
+    inst [3 or "sda4"] series 63a09bd6be8cf8a0a2dd75561f2834e2c87eefd8
+    inst [4 or "sda5"] series b02a7e6b3e670a158110c0a86ed86351bf901370
+    inst [5 or "sda6"] series da06484f07f07b4342a97f3129c893f6c537b969
+    inst [6 or "sr0"] series e90d9b1b2048fd387c6dd531b70e4fb60b7d0d27
+    inst [0 or "sda1"] labels {"hostname":"bozo-laptop"}
+    inst [1 or "sda2"] labels {"hostname":"bozo-laptop"}
+    inst [2 or "sda3"] labels {"hostname":"bozo-laptop"}
+    inst [3 or "sda4"] labels {"hostname":"bozo-laptop"}
+    inst [4 or "sda5"] labels {"hostname":"bozo-laptop"}
+    inst [5 or "sda6"] labels {"hostname":"bozo-laptop"}
+    inst [6 or "sr0"] labels {"hostname":"bozo-laptop"}
+
+ca134b5dbe631cf5bfb3fa72d9e9f697e38f97d5
+    PMID: 60.10.4
+    Data Type: 32-bit unsigned int  InDom: 60.10 0xf00000a
+    Semantics: counter  Units: count
+    Source: 2cd6a38f9339f2dd1f0b4775bda89a9e7244def6
+    Metric: disk.partitions.blkwrite
+    inst [0 or "sda1"] series fc9b70c6335e1012f5a29ed6728f3293f0cb2959
+    inst [1 or "sda2"] series 16757e6a0970fe0f60cfa94ea1afab80a9197a04
+    inst [2 or "sda3"] series cb09d166010ce7908e900b50fd2cf05464bd1674
+    inst [3 or "sda4"] series 63a09bd6be8cf8a0a2dd75561f2834e2c87eefd8
+    inst [4 or "sda5"] series b02a7e6b3e670a158110c0a86ed86351bf901370
+    inst [5 or "sda6"] series da06484f07f07b4342a97f3129c893f6c537b969
+    inst [6 or "sr0"] series e90d9b1b2048fd387c6dd531b70e4fb60b7d0d27
+    inst [0 or "sda1"] labels {"hostname":"bozo-laptop"}
+    inst [1 or "sda2"] labels {"hostname":"bozo-laptop"}
+    inst [2 or "sda3"] labels {"hostname":"bozo-laptop"}
+    inst [3 or "sda4"] labels {"hostname":"bozo-laptop"}
+    inst [4 or "sda5"] labels {"hostname":"bozo-laptop"}
+    inst [5 or "sda6"] labels {"hostname":"bozo-laptop"}
+    inst [6 or "sr0"] labels {"hostname":"bozo-laptop"}
+
+ccf157fc1740b6459681bfca477fb6ea6864d32c
+    PMID: 60.10.5
+    Data Type: 32-bit unsigned int  InDom: 60.10 0xf00000a
+    Semantics: counter  Units: count
+    Source: 2cd6a38f9339f2dd1f0b4775bda89a9e7244def6
+    Metric: disk.partitions.blktotal
+    inst [0 or "sda1"] series fc9b70c6335e1012f5a29ed6728f3293f0cb2959
+    inst [1 or "sda2"] series 16757e6a0970fe0f60cfa94ea1afab80a9197a04
+    inst [2 or "sda3"] series cb09d166010ce7908e900b50fd2cf05464bd1674
+    inst [3 or "sda4"] series 63a09bd6be8cf8a0a2dd75561f2834e2c87eefd8
+    inst [4 or "sda5"] series b02a7e6b3e670a158110c0a86ed86351bf901370
+    inst [5 or "sda6"] series da06484f07f07b4342a97f3129c893f6c537b969
+    inst [6 or "sr0"] series e90d9b1b2048fd387c6dd531b70e4fb60b7d0d27
+    inst [0 or "sda1"] labels {"hostname":"bozo-laptop"}
+    inst [1 or "sda2"] labels {"hostname":"bozo-laptop"}
+    inst [2 or "sda3"] labels {"hostname":"bozo-laptop"}
+    inst [3 or "sda4"] labels {"hostname":"bozo-laptop"}
+    inst [4 or "sda5"] labels {"hostname":"bozo-laptop"}
+    inst [5 or "sda6"] labels {"hostname":"bozo-laptop"}
+    inst [6 or "sr0"] labels {"hostname":"bozo-laptop"}
 Perform simple source-based query ...
 
 Error handling - descriptor for bad series identifier

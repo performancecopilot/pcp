@@ -1630,7 +1630,7 @@ BAD
 1455 pmlogrewrite labels pmdumplog local
 1480 pmda.lmsensors local
 1495 pmlogrewrite labels pmdumplog local
-1545 pmrep python local
+1545 pcp2xml python pcp2xxx local
 1546 pmrep python local
 1547 pmrep python local
 1600 pmseries pmcd pmproxy pmlogger local

@@ -743,9 +743,14 @@ class POSTGRESQLPMDA(PMDA):
             pass
 
         self.log("Connecting to host '%s', port '%s', db '%s' as user '%s'" % (self.host, self.port, self.dbname, self.user))
+        retries = 0
         while not self.pg_connect():
             # server not running or invalid credentials
-            time.sleep(10) # keep trying ...
+            time.sleep(5) # keep trying ...
+            retries += 1
+            if retries > 5:
+                self.log("FATAL: failed to connect after 5 retries")
+                os._exit(1)
 
         cur = self.pg_cursor()
         cur.execute('SELECT version()')

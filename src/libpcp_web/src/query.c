@@ -328,7 +328,8 @@ extract_mapping(seriesQueryBaton *baton, pmSID series,
 	entry = redisMapLookup(baton->u.lookup.map, key);
 	sdsfree(key);
 	if (entry != NULL) {
-	    *string = redisMapValue(entry);
+	    key = redisMapValue(entry);
+	    *string = sdscpylen(*string, key, sdslen(key));
 	    return 0;
 	}
 	infofmt(msg, "bad mapping for %s of series %s", message, series);
@@ -1779,7 +1780,7 @@ extract_series_inst(seriesQueryBaton *baton, seriesGetSID *sid,
 	return -EPROTO;
 
     /* return instance series identifiers, not the metric series */
-    inst->series = sdscpy(inst->series, sid->name);
+    inst->series = sdscpylen(inst->series, sid->name, sdslen(sid->name));
     return 0;
 }
 

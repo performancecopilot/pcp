@@ -155,8 +155,10 @@ series_del_insts(series_data *dp)
 	sdsfree(ip->instid);
 	sdsfree(ip->name);
     }
-    if (dp->insts)
+    if (dp->insts) {
 	free(dp->insts);
+	dp->insts = NULL;
+    }
     dp->ninsts = 0;
 }
 

@@ -74,7 +74,7 @@ then
     echo "Series identifier mismatch - loaded $loaded, expected $series"
     exit 1
 fi
-pmseries -smd $series
+pmseries $options -smd $series
 echo
 
 echo "List all metric names ..."
@@ -130,6 +130,10 @@ echo "Perform globbing instance-based query (3) ..."
 pmseries $options 'kernel.all.load{instance.name:"*1*"}'
 echo
 
+echo "Perform globbing instance-based query (4) ..."
+pmseries $options 'disk.partitions.blk*' | LC_COLLATE=POSIX sort
+echo
+
 # kernel.all.load from proc archive (host:bozo-laptop)
 echo "Descriptor lookup for a given SeriesID ..."
 pmseries $options --desc $series
@@ -170,6 +174,12 @@ echo
 echo "Values fetch for a multi-valued query ..."
 pmseries $options 'kernel.all.load[count: 30]'
 echo
+
+echo "Multi-series lookups from a multi-series query ..."
+pmseries $options 'disk.partitions.blk*' | \
+	LC_COLLATE=POSIX sort | \
+	tee -a $tmp.series
+pmseries $options -a `cat $tmp.series`
 
 echo "Perform simple source-based query ..."
 pmseries $options 'kernel.all.pswitch{source.name:"bozo-laptop"}'
