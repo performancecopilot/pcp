@@ -36,7 +36,7 @@ pid=$!
 pmsleep 1.5
 for i in 1 2 3 4; do
     $sudo -u $PCP_USER $here/src/mmv2_genstats test 1
-    sudo rm -f $PCP_TMP_DIR/mmv/test
+    $sudo rm -f $PCP_TMP_DIR/mmv/test
     pmsleep 1
     kill -0 $pid > /dev/null 2>&1 || break
 done
