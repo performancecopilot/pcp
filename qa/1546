@@ -22,7 +22,6 @@ _cleanup()
     cd $here
     $sudo rm -rf $tmp $tmp.*
     $sudo rm -f $PCP_TMP_DIR/mmv/test
-    pminfo -f mmv > /dev/null 2>&1 || :
 }
 
 status=1	# failure is the default!
@@ -32,10 +31,10 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 $sudo rm -f $PCP_TMP_DIR/mmv/test
 pminfo -f mmv > /dev/null 2>&1
-pcp2xml -5 -t 1 -s 8 -x --names-change=update mmv > $seq.full 2>&1 &
+pcp2xml -5 -t 1 -s 9 -x --names-change=update mmv > $seq.full 2>&1 &
 pid=$!
 pmsleep 1.5
-for i in 1 2 3; do
+for i in 1 2 3 4; do
     $sudo -u $PCP_USER $here/src/mmv2_genstats test 1
     sudo rm -f $PCP_TMP_DIR/mmv/test
     pmsleep 1
@@ -52,7 +51,6 @@ else
 fi
 
 $sudo rm -f $PCP_TMP_DIR/mmv/test
-pminfo -f mmv > /dev/null 2>&1
 
 # success, all done
 status=0
