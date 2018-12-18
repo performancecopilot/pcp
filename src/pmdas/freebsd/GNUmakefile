@@ -30,8 +30,7 @@ HFILES		= freebsd.h
 CONFTARGETS	= freebsd_disk_units.conf freebsd_misc.conf
 
 LSRCFILES	= help root_freebsd
-LDIRT		= help.dir help.pag help.sed help.tmp domain.h $(IAM).log \
-		  $(CONFTARGETS)
+LDIRT		= help.dir help.pag help.sed help.tmp domain.h $(IAM).log
 
 LLDLIBS = $(PCP_PMDALIB) -ldevstat -lkvm
 
