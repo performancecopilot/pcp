@@ -2,7 +2,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/admin/other-packages
-DATA	= manifest unavailable skip.*
+DATA	= manifest unavailable skip skip.*
 
 default setup default_pcp:
 

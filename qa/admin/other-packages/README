@@ -1,6 +1,10 @@
 This directory captures the collective knowledge about non-PCP packages
 that are required for a PCP build or PCP QA.
 
+These files is the principal drivers for the ../check-vm script.
+
+check-vm -c may be used check the manifest and unavailable files.
+
 manifest
 	This is the master list of all packages across all packaging
 	frameworks, independent of distro (when more than one distro
@@ -9,8 +13,27 @@ manifest
 	principal packaging framework, i.e RedHat, Fedora, SuSE SLES,
 	OpenSuSE and Centos.
 
-	This file is the principle driver for the check-vm script.
-
 unavailable
-	This file lists packages that are not available for a specific
-	distro or distro and version.
+	This file lists the names of packages (or patterns that match
+	package names) that are not available for a specific distro
+	or distro and version or distro and version and architecture.
+
+skip
+	This file lists the names of packages (or patterns that
+	match package names, although that is less likely in this
+	case) that should not be installed for a specific distro or
+	distro and version or distro and version and architecture.
+	These are not installed because the packaging is broken or the
+	application versions delivered in the package are broken in
+	some catastrophic manner.  Each line is prefixed by a comment
+	block explaining why the package should not be installed.
+
+skip.<hostname>
+	Beyond the general cases captured by the skip file, there
+	are some circumstances where a specific package should not be
+	installed on a specific host, e.g. dues to conflict with some
+	required and installed package that has nothing to do with PCP.
+
+	The format of this file is different to skip and unavailable,
+	and lists the packages one per line, prefixed by a comment
+	block explaining why the package should not be installed.
