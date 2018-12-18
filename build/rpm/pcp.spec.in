@@ -2751,6 +2751,7 @@ $1 == "d" {
 $1 == "f" && $6 ~ "etc/pcp.conf" { printf ("%%%%config ") >> f; }
 $1 == "f" && $6 ~ "etc/pcp.env"  { printf ("%%%%config ") >> f; }
 $1 == "f" && $6 ~ "etc/pcp.sh"   { printf ("%%%%config ") >> f; }
+$1 == "f" && $6 ~ "pmdapostgresql.conf"   { printf ("%%%%config(noreplace) ") >> f; }
 $1 == "f" {
 	    for (i=0; i < nconf; i++) {
 		if ($6 ~ conf[i]) {

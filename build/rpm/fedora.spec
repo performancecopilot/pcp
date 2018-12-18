@@ -3218,6 +3218,7 @@ cd
 
 %files pmda-postgresql
 %{_pmdasdir}/postgresql
+%config(noreplace) %{_pmdasdir}/postgresql/pmdapostgresql.conf
 
 %files pmda-redis
 %{_pmdasdir}/redis
