@@ -78,4 +78,6 @@ pmiDump: context 0 of 1 archive: TMP
   handle[0] metric=hinv.ncpu (60.0.32) instance=-1
   handle[1] metric=kernel.percpu.cpu.sys (60.0.2) instance=0
   handle[2] metric=kernel.percpu.cpu.sys (60.0.2) instance=1
+  No text.
+  No labels.
   No pmResult.
