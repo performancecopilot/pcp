@@ -965,6 +965,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -1117,6 +1118,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1369,6 +1371,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1506,7 +1517,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1659,6 +1670,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -13193,36 +13205,36 @@ End-of-File
 		ans='I64d'
 	    fi
 	    echo "./conftest (second approach) -> \"$ans\"" >&5
-	    if test -z "$ans" -a "$GCC" = "yes"
-	    then
-						rm -f conftest.ans
-		for fmt in lld ld d
-		do
-		    cat <<End-of-File >conftest.$ac_ext
+	fi
+    fi
+    if test -z "$ans" -a "$GCC" = "yes"
+    then
+			rm -f conftest.ans
+	for fmt in lld ld d
+	do
+	    cat <<End-of-File >conftest.$ac_ext
 #include <stdio.h>
 #include <sys/types.h>
 int main(void)
 {
-    __int64_t	x = -1;
+    int64_t	x = -1;
     printf("%$fmt\n", x);
     return 0;
 }
 End-of-File
-		    $CC -Wall $CFLAGS $CPPFLAGS -c conftest.$ac_ext 2>conftest.err
-		    if test -s conftest.err >/dev/null
-		    then
-			echo "-- not $fmt for fmt_64" >&5
-			cat conftest.err >&5
-		    else
-			echo "$fmt" >conftest.ans
-			echo "no warnings (third approach) -> \"$fmt\"" >&5
-			break
-		    fi
-		done
-		test -s conftest.ans && ans=`cat conftest.ans`
-		rm -f conftest.ans conftest.err
+	    $CC -Wall $CFLAGS $CPPFLAGS -c conftest.$ac_ext 2>conftest.err
+	    if test -s conftest.err >/dev/null
+	    then
+		echo "-- not $fmt for fmt_64" >&5
+		cat conftest.err >&5
+	    else
+		echo "$fmt" >conftest.ans
+		echo "no warnings (third approach) -> \"$fmt\"" >&5
+		break
 	    fi
-	fi
+	done
+	test -s conftest.ans && ans=`cat conftest.ans`
+	rm -f conftest.ans conftest.err
     fi
 fi
 if test -z "$ans"

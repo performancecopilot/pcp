@@ -2538,38 +2538,38 @@ End-of-File
 		ans='I64d'
 	    fi
 	    echo "./conftest (second approach) -> \"$ans\"" >&5
-	    if test -z "$ans" -a "$GCC" = "yes"
-	    then
-		dnl third approach, for gcc look for a printf format that
-		dnl does not produce compiler warnings
-		rm -f conftest.ans
-		for fmt in lld ld d
-		do
-		    cat <<End-of-File >conftest.$ac_ext
+	fi
+    fi
+    if test -z "$ans" -a "$GCC" = "yes"
+    then
+	dnl third approach, for gcc look for a printf format that
+	dnl does not produce compiler warnings
+	rm -f conftest.ans
+	for fmt in lld ld d
+	do
+	    cat <<End-of-File >conftest.$ac_ext
 #include <stdio.h>
 #include <sys/types.h>
 int main(void)
 {
-    __int64_t	x = -1;
+    int64_t	x = -1;
     printf("%$fmt\n", x);
     return 0;
 }
 End-of-File
-		    $CC -Wall $CFLAGS $CPPFLAGS -c conftest.$ac_ext 2>conftest.err
-		    if test -s conftest.err >/dev/null
-		    then
-			echo "-- not $fmt for fmt_64" >&5
-			cat conftest.err >&5
-		    else
-			echo "$fmt" >conftest.ans
-			echo "no warnings (third approach) -> \"$fmt\"" >&5
-			break
-		    fi
-		done
-		test -s conftest.ans && ans=`cat conftest.ans`
-		rm -f conftest.ans conftest.err
+	    $CC -Wall $CFLAGS $CPPFLAGS -c conftest.$ac_ext 2>conftest.err
+	    if test -s conftest.err >/dev/null
+	    then
+		echo "-- not $fmt for fmt_64" >&5
+		cat conftest.err >&5
+	    else
+		echo "$fmt" >conftest.ans
+		echo "no warnings (third approach) -> \"$fmt\"" >&5
+		break
 	    fi
-	fi
+	done
+	test -s conftest.ans && ans=`cat conftest.ans`
+	rm -f conftest.ans conftest.err
     fi
 fi
 if test -z "$ans"
