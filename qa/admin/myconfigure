@@ -4,8 +4,32 @@
 # the goal is to make the workarea files
 # src/include/pcp.conf and src/include/builddefs match /etc/pcp.conf
 # and /usr/include/pcp/builddefs so "sudo make install"
-# works without surprises
+# works without surprises from anywhere in the source tree and
+# "make setup" works in the qa directory
 #
+
+_usage()
+{
+    echo >&2 "Usage: $0 [options]"
+    echo >&2 "Options:"
+    echo >&2 "-q	do configure, skip make and check steps"
+    exit 1
+}
+
+quick=false
+while getopts 'q?' p
+do
+    case "$p"
+    in
+	q)	quick=true
+		refresh=false
+		;;
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -ne 0 ] && _usage
 
 if [ ! -f VERSION.pcp ]
 then
@@ -150,26 +174,29 @@ then
     exit 1
 fi
 
-#debug# exit 0
-
 . src/include/pcp.conf
+
+here=`pwd`
+
+# build critical stuff for "make setup" in qa directory
+#
+cd src/include; $PCP_MAKE_PROG; cd $here
+cd src/pmns; $PCP_MAKE_PROG; cd $here
+cd src/libpcp_qmc; $PCP_MAKE_PROG; cd $here
+
+if $quick
+then
+    echo "== Configured pcp ($configopts)"
+    exit 0
+fi
 
 # build some useful libs ...
 #
-here=`pwd`
-cd src/include
-$PCP_MAKE_PROG
-cd ../libpcp
-$PCP_MAKE_PROG
-cd ../libpcp_pmda
-$PCP_MAKE_PROG
-cd ../pmns
-$PCP_MAKE_PROG
-cd ../pmcpp
-$PCP_MAKE_PROG
-cd ../newhelp
-$PCP_MAKE_PROG
-cd $here
+cd src/libpcp; $PCP_MAKE_PROG; cd $here
+cd src/libpcp_static; $PCP_MAKE_PROG; cd $here
+cd src/libpcp_pmda; $PCP_MAKE_PROG; cd $here
+cd src/pmcpp; $PCP_MAKE_PROG; cd $here
+cd src/newhelp; $PCP_MAKE_PROG; cd $here
 
 # check expected files are the same
 #
