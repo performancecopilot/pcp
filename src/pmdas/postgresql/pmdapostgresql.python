@@ -899,7 +899,7 @@ class POSTGRESQLPMDA(PMDA):
 
         if pmid not in self.pmid_column_dict or self.pmid_column_dict[pmid] is None:
             # no mapping for this metric with this version of postgresql
-            self.log("pg_fetch_callback: no mapping for metric %d.%d.%d" % (110, cluster, item))
+            self.debug("pg_fetch_callback: no mapping for metric %d.%d.%d" % (110, cluster, item))
             return [c_api.PM_ERR_APPVERSION, 0]
 
         pmnsname = self.metrictable[pmid][self.METRIC_NAME]
