@@ -14,7 +14,7 @@
 #Distro      Version  Arch    N/A Packages
 #-- CentOS
 CentOS       6.10     -       Coin-devel cppcheck docker docker-common docker-io kubectl kubernetes-client kubernetes-node libpfm-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libuv-devel libvarlink-devel Net::SNMP pylint python2-elasticsearch python2-openpyxl python2-pylint .*-python3 python3-.* python3[0-9]-.* python-elasticsearch python-openpyxl python-prometheus_client python-pylint qt5-qtbase-devel qt5-qtsvg-devel qtchooser socat SoQt-devel systemd-devel system-python-libs uic zabbix22-agent zabbix-agent
-CentOS       7.5      -       libvarlink-devel python2-openpyxl .*-python3 python3-.* python3[0-9]-.* python-openpyxl python-prometheus_client python-pylint qtchooser system-python-libs
+CentOS       7.[56]   -       libvarlink-devel python2-openpyxl .*-python3 python3-.* python3[0-9]-.* python-openpyxl python-prometheus_client python-pylint qtchooser system-python-libs
 #-- Debian
 Debian       9.[4-6]  -       docker.io libsoqt5-dev libuv-dev python3-bpfcc
 #-- Fedora
