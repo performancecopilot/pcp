@@ -157,6 +157,11 @@ in
 	searchtool=brew
 	;;
 
+    *OpenIndiana*)
+	pkgtool=S_pkg		# OpenIndiana version of pkg(1)
+	searchtool=S_pkg
+	;;
+
 esac
 if [ -z "$pkgtool" ]
 then
@@ -297,6 +302,15 @@ p
 	    then
 		cat $tmp.tmp
 	    fi
+	    ;;
+
+	S_pkg)
+	    # expecting output like
+	    # shell/bash
+	    #
+	    # need to strip leading / from path before searching
+	    #
+	    pkg contents -H -o pkg.name -a path=`echo "$1" | sed -e 's;^/;;'`
 	    ;;
 
 	pkg_add)
@@ -782,6 +796,10 @@ in
 
     F_pkg)
 	pkg info -a | sed -e 's/-[0-9].*//'
+	;;
+
+    S_pkg)
+	pkg list -H | sed -e 's/ .*//'
 	;;
 
     pkg_add)

@@ -322,12 +322,14 @@ OpenIndiana
     17 Aug 2016: 2016.04
     # initial setup to get rid of restricitions
     $ sudo pkg uninstall userland-incorporation entire
+    # which packages are installed
+    $ pkg list -H | sed -e 's/ .*//'
     # package search recipe (name and info or description)
     $ pkg search -pr <pattern>
     # which package installs a file/directory
-    $ pkg search -p <path>
+    $ pkg contents -H -o pkg.name -a path=<path without leading slash>
     # which files are in an installed package
-    $ ???
+    $ pkg contents <package>
     # package install recipe
     $ sudo pkg install <package>
     # update all packages recipe

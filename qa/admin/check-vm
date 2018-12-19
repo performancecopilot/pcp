@@ -528,6 +528,10 @@ do
 		    pkg info -a | sed -e 's/-[0-9].*//'
 		    ;;
 
+		S_pkg)
+		    pkg list -H | sed -e 's/ .*//'
+		    ;;
+
 		pkg_add)
 		    pkg_info -a | sed -e 's/-[0-9].*//'
 		    ;;
