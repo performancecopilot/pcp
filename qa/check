@@ -479,6 +479,7 @@ do
 			    echo >>$tmp.out
 			    echo "+++ check.callback output +++" >>$tmp.out
 			    cat $tmp.tmp >>$tmp.out
+			    err=true
 			fi
 		    else
 			# check.callback suggests we should abandon the QA run ...
