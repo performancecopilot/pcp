@@ -610,8 +610,8 @@ _wait_for_pmcd()
     # 20 seconds default seems like a reasonble max time to get going
     #debug# set -x
     _can_wait=${1-20}
-    [ -n "$2" ] && _host_opt="-h $_host"
     _host=${2:localhost}
+    [ -n "$2" ] && _host_opt="-h $_host"
     _i=0
     _dead=true
     #debug# ping -c 2 $_host
@@ -622,7 +622,7 @@ _wait_for_pmcd()
     do
 	echo "-- $_i --" >>$tmp._wait_for_pmcd.err
 	echo "-- $_i --" >>$tmp._wait_for_pmcd.out
-	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $_hostopt pmcd.numclients
+	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $_host_opt pmcd.numclients
 	_sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $_host_opt pmcd.numclients 2>>$tmp._wait_for_pmcd.err | tee -a $tmp._wait_for_pmcd.out | $PCP_AWK_PROG '{print $2}'`
 	if [ "${_sts:-0}" -gt 0 ]
 	then
