@@ -20,8 +20,9 @@ which pcp2xml >/dev/null 2>&1 || _notrun "No pcp2xml binary installed"
 _cleanup()
 {
     cd $here
-    $sudo rm -rf $tmp $tmp.*
     $sudo rm -f $PCP_TMP_DIR/mmv/test
+    _restore_pmda_mmv
+    $sudo rm -rf $tmp $tmp.*
 }
 
 _filter_xml()
@@ -39,16 +40,15 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+_prepare_pmda_mmv
+
 # test names-change=update with pcp2xml
 echo testing names-change=update with pcp2xml
-$sudo rm -f $PCP_TMP_DIR/mmv/test
 pcp2xml -s 5 -t 1 -5 -r --names-change=update mmv.control.files mmv.test | _filter_xml &
 
 pmsleep 1.5
-$sudo -u $PCP_USER $here/src/mmv_genstats test 1
+$here/src/mmv_genstats test 1
 wait
-
-$sudo rm -f $PCP_TMP_DIR/mmv/test
 
 # success, all done
 status=0
