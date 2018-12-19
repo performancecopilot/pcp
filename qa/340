@@ -94,6 +94,7 @@ then
     exit
 fi
 
+echo "me=$me" >>$seq.full
 echo "other=$other" >>$seq.full
 
 list=`_all_hostnames $other`
