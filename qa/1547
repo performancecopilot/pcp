@@ -20,8 +20,9 @@ which pmrep >/dev/null 2>&1 || _notrun "No pmrep binary installed"
 _cleanup()
 {
     cd $here
-    $sudo rm -rf $tmp $tmp.*
     $sudo rm -f $PCP_TMP_DIR/mmv/test
+    _restore_pmda_mmv
+    $sudo rm -rf $tmp $tmp.*
 }
 
 _filter_value()
@@ -36,48 +37,48 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+_prepare_pmda_mmv
+
 echo Running tests with pmrep ...
 
 # test names-change=abort
 echo testing names-change=abort
-$sudo rm -f $PCP_TMP_DIR/mmv/test
+rm -f $PCP_TMP_DIR/mmv/test
 pmrep -s 4 -t 1 --names-change=abort mmv.control.files | _filter_value &
 
 pmsleep 1.5
-$sudo -u $PCP_USER $here/src/mmv_genstats test 1
+$here/src/mmv_genstats test 1
 wait
 
 # test names-change=ignore
 echo testing names-change=ignore
-$sudo rm -f $PCP_TMP_DIR/mmv/test
+rm -f $PCP_TMP_DIR/mmv/test
 pmrep -s 4 -t 1 -r --names-change=ignore mmv | _filter_value &
 
 pmsleep 1.5
-$sudo -u $PCP_USER $here/src/mmv_genstats test 1
+$here/src/mmv_genstats test 1
 wait
 
 # test names-change=update
 echo testing names-change=update
-$sudo rm -f $PCP_TMP_DIR/mmv/test
+rm -f $PCP_TMP_DIR/mmv/test
 pmrep -s 5 -t 1 -r --names-change=update mmv | _filter_value &
 
 pmsleep 1.5
-$sudo -u $PCP_USER $here/src/mmv_genstats test 2
+$here/src/mmv_genstats test 2
 wait
 
 # test names-change=update
 echo testing names-change=update with instance filtering
-$sudo rm -f $PCP_TMP_DIR/mmv/test
+rm -f $PCP_TMP_DIR/mmv/test
 pmrep -s 10 -t 1 -i zero -i eggs -r --names-change=update mmv | _filter_value &
 
 pmsleep 1.5
-$sudo -u $PCP_USER $here/src/mmv_genstats test 3
-$sudo rm -f $PCP_TMP_DIR/mmv/test
+$here/src/mmv_genstats test 3
+rm -f $PCP_TMP_DIR/mmv/test
 pmsleep 2
-$sudo -u $PCP_USER $here/src/mmv_genstats test 3
+$here/src/mmv_genstats test 3
 wait
-
-$sudo rm -f $PCP_TMP_DIR/mmv/test
 
 # success, all done
 status=0

@@ -17,24 +17,13 @@ status=0	# success is the default!
 username=`id -u -n`
 $sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
-culldir=false
 
 _cleanup()
 {
-    $culldir && _restore_config "$PCP_TMP_DIR/mmv"
+    _restore_pmda_mmv
     $sudo rm -f mmv.log
     rm -f $tmp.*
 }
-
-# is a pre-existing mmv directory in place?  if so, write access needed
-if [ -d "$PCP_TMP_DIR/mmv" ]
-then
-    _save_config "$PCP_TMP_DIR/mmv"
-    $sudo rm -rf $PCP_TMP_DIR/mmv
-fi
-culldir=true
-$sudo mkdir -p -m 1777 "$PCP_TMP_DIR/mmv"
-$sudo chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/mmv"
 
 _filter()
 {
@@ -54,6 +43,8 @@ pipeargs=""
 id pcp >/dev/null 2>&1 && pipeargs="-U $username"
 
 # real QA test starts here
+_prepare_pmda_mmv
+
 echo "=== DSO PMDA test ==="
 cat <<End-of-File | dbpmda -ei 2>&1 | _filter
 open dso $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX sample_init 30

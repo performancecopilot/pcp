@@ -2330,6 +2330,26 @@ _check_core()
     fi
 }
 
+# is a pre-existing mmv directory in place?  if so, move it aside
+# and prepare a directory with write access by unprivileged users
+#
+_prepare_pmda_mmv()
+{
+    if [ -d "$PCP_TMP_DIR/mmv" ]
+    then
+	_save_config "$PCP_TMP_DIR/mmv"
+	$sudo rm -rf $PCP_TMP_DIR/mmv
+    fi
+    $sudo mkdir -p -m 1777 "$PCP_TMP_DIR/mmv"
+    $sudo chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/mmv"
+    cullmmv=true
+}
+
+_restore_pmda_mmv()
+{
+    [ -n "$cullmmv" ] && $cullmmv && _restore_config "$PCP_TMP_DIR/mmv"
+}
+
 # prepare for a save-able pmcd and pmda configuration.
 #
 _prepare_pmda_install()
