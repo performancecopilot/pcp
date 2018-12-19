@@ -100,9 +100,11 @@ then
 	echo "==> start $PCP_LOG_DIR/pmcd/pmcd.log file ==>"
 	cat $PCP_LOG_DIR/pmcd/pmcd.log
 	echo "<= end $PCP_LOG_DIR/pmcd/pmcd.log file <=="
+	$check && status=1
     fi
 else
     echo "Error: $PCP_LOG_DIR/pmcd/pmcd.log missing!"
+    $check && status=1
 fi
 
 if [ -f $PCP_LOG_DIR/pmcd/pmcd.log.prev ]
@@ -113,6 +115,7 @@ then
 	echo "==> start $PCP_LOG_DIR/pmcd/pmcd.log.prev file ==>"
 	cat $PCP_LOG_DIR/pmcd/pmcd.log.prev
 	echo "<= end $PCP_LOG_DIR/pmcd/pmcd.log.prev file <=="
+	$check && status=1
     fi
 fi
 
@@ -123,11 +126,18 @@ then
 	$check || echo "OK: run file has pmcd's pid"
     else
 	echo "Error: $PCP_RUN_DIR/pmcd.pid -> PID `cat $PCP_RUN_DIR/pmcd.pid` not pmcd (PID=$pid)"
-	status = 1
+	status=1
     fi
 else
     echo "Error: $PCP_RUN_DIR/pmcd.pid missing"
-    status = 1
+    status=1
+fi
+
+if grep 'file created by QA' $PCP_PMCDOPTIONS_PATH >/dev/null
+then
+    echo "Error: $PCP_PMCDOPTIONS_PATH changed for QA, may not be correct"
+    grep 'file created by QA' $PCP_PMCDOPTIONS_PATH
+    status=1
 fi
 
 # success, all done
