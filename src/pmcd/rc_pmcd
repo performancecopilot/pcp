@@ -225,6 +225,19 @@ _start_pmcheck()
 	wait_option=''
     fi
 
+    # check to see if pmcd started with explicit Unix domain socket;
+    # if so, we'll wait on that interface.
+    #
+    if [ -z "$PMCD_SOCKET" ]
+    then
+	sock_option=`sed -n <$PMCDOPTS 2>/dev/null \
+			 -e '/^[^-]/d' \
+			 -e 's/  / /' \
+			 -e 's/^/ /' \
+			 -e 's/ -s *//gp'`
+	[ -n "$sock_option" ] && export PMCD_SOCKET="$sock_option"
+    fi
+
     if $PCP_BINADM_DIR/pmcd_wait $wait_option
     then
 	:

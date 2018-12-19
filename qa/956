@@ -25,6 +25,7 @@ _cleanup()
 {
     _service pmcd stop | _filter_pcp_stop
     unset PMCD_PORT
+    unset PMCD_SOCKET
     _restore_config $PCP_PMCDOPTIONS_PATH
     _service pcp start | _filter_pcp_start
     _wait_for_pmcd
@@ -72,20 +73,23 @@ cat <<End-of-File >$tmp.newoptions
 #
 -s $tmp.socket
 End-of-File
-$sudo cp $tmp.newoptions $PCP_PMCDOPTIONS_PATH
 
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
 _service pcp stop | _filter_pcp_stop
+
+$sudo cp $tmp.newoptions $PCP_PMCDOPTIONS_PATH
 
 # need to start pmcd indirectly in a shell script because sudo
 # may cleanse the environment, which also means we cannot use
 # the _service wrapper
 #
 echo "export PMCD_PORT=$port" >$tmp.start
+echo "export PMCD_SOCKET=$tmp.socket" >>$tmp.start
 echo "$PCP_RC_DIR/pmcd restart" >>$tmp.start
 $sudo sh $tmp.start | _filter_pcp_start
 export PMCD_PORT=$port
+export PMCD_SOCKET=$tmp.socket
 _wait_for_pmcd
 
 cd $here/pmdas/dynamic
