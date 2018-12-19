@@ -485,8 +485,10 @@ sts=\$?
 # look for badness in daily.qa.log and report here (so it goes into any
 # cron-based email)
 awk <\$HOME/daily.qa.log '
-\$1 == "Aborted!"	{ print }
-\$1 == "Check!"		{ print }'
+/waiting for lock/		{ print }
+/could not acquire lock/	{ print }
+\$1 == "Aborted!"		{ print }
+\$1 == "Check!"			{ print }'
 # get last block from check.log ... then get the summary on
 # stdout (not needed in the daily.qa.log already there)
 sed -e '/^    [0-9 ]*\$/d' <check.log \
