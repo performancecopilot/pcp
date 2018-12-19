@@ -101,8 +101,8 @@ class POSTGRESQLPMDA(PMDA):
             self.PM_ID(0, 11) : ['postgresql.stat.activity.query_start', 'pg_stat_activity', 'query_start',
                 pmdaMetric(self.PM_ID(0, 11), c_api.PM_TYPE_STRING, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, zeroUnits)],
 
-            self.PM_ID(0, 12) : ['postgresql.stat.activity.waiting', 'pg_stat_activity', 'wait_event_type', # or 'waiting'
-                pmdaMetric(self.PM_ID(0, 12), c_api.PM_TYPE_32, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, zeroUnits)],
+            # self.PM_ID(0, 12) : ['postgresql.stat.activity.waiting', 'pg_stat_activity', 'wait_event_type', # or 'waiting'
+                # pmdaMetric(self.PM_ID(0, 12), c_api.PM_TYPE_32, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, zeroUnits)],
 
             self.PM_ID(0, 13) : ['postgresql.stat.activity.current_query', 'pg_stat_activity', 'query',
                 pmdaMetric(self.PM_ID(0, 13), c_api.PM_TYPE_STRING, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, zeroUnits)],
@@ -750,7 +750,7 @@ class POSTGRESQLPMDA(PMDA):
             retries += 1
             if retries > 5:
                 self.log("FATAL: failed to connect after 5 retries")
-                os._exit(1)
+                exit(1)
 
         cur = self.pg_cursor()
         cur.execute('SELECT version()')
@@ -781,17 +781,24 @@ class POSTGRESQLPMDA(PMDA):
         self.set_fetch_callback(self.pg_fetch_callback)
         self.log("completed __init__")
 
-    def pg_refresh(self, pmid):
-        """ refresh table rowdata for given metric, if not already done """
-        table = self.metrictable[pmid][self.METRIC_TABLE]
+    def pg_refresh(self, arg_id, id_is_indom=False):
+        """ refresh table rowdata for given indom (or metric), if not already done """
+
+        if id_is_indom:
+            indom = arg_id
+            table = self.indomtable[indom][self.INDOM_TABLE]
+        else:
+            pmid = arg_id
+            table = self.metrictable[pmid][self.METRIC_TABLE]
+            if self.pmid_column_dict[pmid] is None:
+                # no mapping for this metric
+                return
+            indom = self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.indom
+
         if table in self.refreshed_tables:
-            # nothing to do - table already refreshed for this fetch
-            return
-        if self.pmid_column_dict[pmid] is None:
-            # no mapping for this metric
+            # nothing to do - table already refreshed
             return
 
-        indom = self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.indom
         if indom == c_api.PM_INDOM_NULL:
             # refresh table for singular indom
             self.debug("pg_refresh singular table %s" % table)
@@ -871,13 +878,13 @@ class POSTGRESQLPMDA(PMDA):
         self.debug("pg_refresh_all: started")
         self.refreshed_tables = []
         for pmid, _ in self.metrictable.items():
-            self.pg_refresh(pmid)
+            self.pg_refresh(pmid, False)
         self.debug("pg_refresh_all: finished")
 
     def pg_instance(self, serial):
         """ Called once per "instance" PDU """
         indom = self.INDOM_ID(serial)
-        self.pg_refresh(indom)
+        self.pg_refresh(indom, True)
 
     def pg_fetch(self):
         """ Called once per fetch PDU, before callbacks """
@@ -890,8 +897,9 @@ class POSTGRESQLPMDA(PMDA):
         if pmid not in self.metrictable:
             return [c_api.PM_ERR_PMID, 0]
 
-        if self.pmid_column_dict[pmid] is None:
+        if pmid not in self.pmid_column_dict or self.pmid_column_dict[pmid] is None:
             # no mapping for this metric with this version of postgresql
+            self.log("pg_fetch_callback: no mapping for metric %d.%d.%d" % (110, cluster, item))
             return [c_api.PM_ERR_APPVERSION, 0]
 
         pmnsname = self.metrictable[pmid][self.METRIC_NAME]
@@ -900,7 +908,7 @@ class POSTGRESQLPMDA(PMDA):
         # refresh the table for this pmid, if necessary
         table = self.metrictable[pmid][self.METRIC_TABLE]
         if table not in self.refreshed_tables:
-            self.pg_refresh(pmid)
+            self.pg_refresh(pmid, False)
 
         self.debug("pg_fetch_callback pmid 0x%04x '%s': cluster %d, item %d, inst %d, indom=0x%04x" %
             (pmid, pmnsname, cluster, item, inst, indom))

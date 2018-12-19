@@ -568,15 +568,15 @@ _machine_id()
 }
 
 # Check metric ($1) availability from pmcd on host ($2, defaults to
-# localhost) ... abort if no value(s) available
+# a local: pminfo connection) ... abort if no value(s) available
 #
 _check_metric()
 {
-    if pminfo -h ${2-localhost} -f $1 2>&1 | grep " value " >/dev/null
+    if pminfo -h ${2-local:} -f $1 2>&1 | grep " value " >/dev/null
     then
 	:
     else
-	echo "Check failed for metric \"$1\" at host \"${2-localhost}\" ... is PMDA installed?"
+	echo "Check failed for metric \"$1\" at host \"${2-local:}\" ... is PMDA installed?"
 	exit 1
     fi
 }
@@ -610,7 +610,8 @@ _wait_for_pmcd()
     # 20 seconds default seems like a reasonble max time to get going
     #debug# set -x
     _can_wait=${1-20}
-    _host=${2-localhost}
+    [ -n "$2" ] && _host_opt="-h $_host"
+    _host=${2:localhost}
     _i=0
     _dead=true
     #debug# ping -c 2 $_host
@@ -621,8 +622,8 @@ _wait_for_pmcd()
     do
 	echo "-- $_i --" >>$tmp._wait_for_pmcd.err
 	echo "-- $_i --" >>$tmp._wait_for_pmcd.out
-	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
-	_sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients 2>>$tmp._wait_for_pmcd.err | tee -a $tmp._wait_for_pmcd.out | $PCP_AWK_PROG '{print $2}'`
+	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $_hostopt pmcd.numclients
+	_sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $_host_opt pmcd.numclients 2>>$tmp._wait_for_pmcd.err | tee -a $tmp._wait_for_pmcd.out | $PCP_AWK_PROG '{print $2}'`
 	if [ "${_sts:-0}" -gt 0 ]
 	then
 	    # numval really > 0, we're done
@@ -642,8 +643,8 @@ _wait_for_pmcd()
 	echo "=== failing pmprobes stderr ==="
 	cat $tmp._wait_for_pmcd.err
 	echo "... and now"
-	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients"
-	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
+	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $_host_opt pmcd.numclients"
+	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $_host_opt pmcd.numclients
 	case $_host
 	in
 	    localhost|unix:|local:|`hostname`)
