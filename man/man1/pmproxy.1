@@ -1,25 +1,25 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2015 Red Hat.
+.\" Copyright (c) 2013-2015,2018 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMPROXY 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmproxy\f1 \- proxy for performance metrics collector daemon
 .SH SYNOPSIS
 \f3pmproxy\f1
-[\f3\-Af\f1]
+[\f3\-Aft\f1]
 [\f3\-C\f1 \f2dirname\f1]
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -173,6 +173,15 @@ ownership ("pcp" user, typically) and permissions on this file (0400, so as to
 be unreadable by any user other than the user running the
 .B pmproxy
 process).
+.TP
+\fB\-t\f1, \fB\-\-timeseries\f1
+Operate in automatic archive timeseries discovery mode.
+This (experimental) mode of operation will detect system
+archives created by
+.BR pmlogger (1)
+and import into a
+.BR redis-server (1)
+automatically, for fast, scalable timeseries queries.
 .TP
 \f3\-U\f1 \f2username\f1
 Assume the identity of
@@ -370,6 +379,8 @@ as described in
 .BR PCPIntro (1),
 .BR pmcd (1),
 .BR pmdbg (1),
+.BR pmlogger (1),
+.BR redis-server (1),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
