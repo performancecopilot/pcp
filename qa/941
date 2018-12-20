@@ -133,11 +133,27 @@ else
     status=1
 fi
 
-if grep 'file created by QA' $PCP_PMCDOPTIONS_PATH >/dev/null
+marker='PCP QA test'
+# Did a QA test leave behind a modified pmcd.conf file?
+#
+if grep "$marker" $PCP_PMCDCONF_PATH >/dev/null
+then
+    echo "Error: $PCP_PMCDCONF_PATH changed for QA, may not be correct"
+    grep "$marker" $PCP_PMCDCONF_PATH
+    status=1
+else
+    $check || echo "OK: PMCDCONF_PATH not from a QA test"
+fi
+
+# Did a QA test leave behind a modified pmcd.options file?
+#
+if grep "$marker" $PCP_PMCDOPTIONS_PATH >/dev/null
 then
     echo "Error: $PCP_PMCDOPTIONS_PATH changed for QA, may not be correct"
-    grep 'file created by QA' $PCP_PMCDOPTIONS_PATH
+    grep "$marker" $PCP_PMCDOPTIONS_PATH
     status=1
+else
+    $check || echo "OK: PMCDOPTIONS_PATH not from a QA test"
 fi
 
 # success, all done
