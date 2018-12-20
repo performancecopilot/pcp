@@ -1,6 +1,6 @@
 pcp-4.3.0 (21 December 2018)
     - Client tools and utilities:
-	- Add pmseries(1) for fast, scalable time series querying
+	- Add pmseries(1) for fast, scalable time series querying (experimental)
 	- pmrep, pcp2xxx: add support for the --names-change option
 	- pmrep, pcp2xxx: support for the --ignore-unknown metrics option
 	- Implement the dstat --full option to expand instances
