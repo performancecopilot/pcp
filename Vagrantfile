@@ -8,13 +8,6 @@ VAGRANTFILE_API_VERSION = "2"
 VM_MEM = "8192"
 VM_CPU = "4"
 
-# QA Flags for provisioning/qa.sh
-QA_FLAGS = ""
-#QA_FLAGS = "022"
-#QA_FLAGS = "-g pmda.linux"
-
-
-
 ############################################################
 # Host Definititions
 ############################################################
@@ -24,91 +17,99 @@ pcp_hosts = {
                 :hostname => "ubuntu1804",
                 :ipaddress => "10.100.10.24",
                 :box => "generic/ubuntu1804",
-                :script => "ubuntu.sh"
+                :script => "ubuntu.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey"
         },
         :ubuntu1604 => {
                 :hostname => "ubuntu1604",
                 :ipaddress => "10.100.10.23",
                 :box => "generic/ubuntu1604",
-                :script => "ubuntu.sh"
+                :script => "ubuntu.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey"
         },
         :ubuntu1404 => {
                 :hostname => "ubuntu1404",
                 :ipaddress => "10.100.10.22",
                 :box => "generic/ubuntu1404",
-                :script => "ubuntu.sh"
+                :script => "ubuntu.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey"
         },
         :rhel7 => {
                 :hostname => "rhel7",
                 :ipaddress => "10.100.10.21",
                 :box => "generic/rhel7",
-                :script => "rhel.sh"
+                :script => "rhel.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey"
         },
         :centos7 => {
                 :hostname => "centos7",
                 :ipaddress => "10.100.10.20",
                 :box => "centos/7",
-                :script => "centos.sh"
+                :script => "centos.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey"
         },
         :centos6 => {
                :hostname => "centos6",
                 :ipaddress => "10.100.10.19",
                 :box => "centos/6",
-                :script => "centos.sh"
+                :script => "centos.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey"
         },
         :fedora29 => {
                 :hostname => "fedora29",
                 :ipaddress => "10.100.10.18",
                 :box => "fedora/29-cloud-base",
-                :script => "fedora.sh"
+                :script => "fedora.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey"
         },
         :fedora28 => {
                 :hostname => "fedora28",
                 :ipaddress => "10.100.10.17",
                 :box => "fedora/28-cloud-base",
-                :script => "fedora.sh"
-        },
-        :fedora27 => {
-                :hostname => "fedora27",
-                :ipaddress => "10.100.10.16",
-                :box => "fedora/27-cloud-base",
-                :script => "fedora.sh"
+                :script => "fedora.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey"
         },
         :debian8 => {
                 :hostname => "debian8",
                 :ipaddress => "10.100.10.13",
                 :box => "generic/debian8",
-                :script => "debian.sh"
+                :script => "debian.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey"
         },
         :debian7 => {
                 :hostname => "debian7",
                 :ipaddress => "10.100.10.12",
                 :box => "generic/debian7",
-                :script => "debian.sh"
+                :script => "debian.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey"
         },
         :freebsd12 => {
                 :hostname => "freebsd12",
                 :ipaddress => "10.100.10.11",
                 :box => "generic/openbsd12",
-                :script => "openbsd.sh"
+                :script => "openbsd.sh",
+                :qa => "-g sanity -x flakey"
         },
         :freebsd11 => {
                 :hostname => "freebsd11",
                 :ipaddress => "10.100.10.10",
                 :box => "generic/freebsd11",
-                :script => "openbsd.sh"
+                :script => "openbsd.sh",
+                :qa => "-g sanity -x flakey"
         },
         :openbsd6 => {
                 :hostname => "openbsd6",
                 :ipaddress => "10.100.10.9",
                 :box => "generic/openbsd6",
-                :script => "openbsd.sh"
+                :script => "openbsd.sh",
+                :qa => "-g sanity -x flakey"
         },
         :opensuse42 => {
                 :hostname => "opensuse42",
                 :ipaddress => "10.100.10.8",
                 :box => "generic/opensuse42",
-                :script => "opensuse.sh"
+                :script => "opensuse.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey"
         }
 }
 
@@ -177,8 +178,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
   end
 
   # Global shared folder for pcp source.  Copy it so we have our own to muck around in
-  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: false, :rsync__exclude => ["qaresults/", "./pcp-*" ]
-
+  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: false, :rsync__exclude => ["qaresults/", "./pcp-*/" ], :rsync__args => ["--verbose", "--archive", "--delete", "-z", "--no-owner", "--no-group" ]
 
   pcp_hosts.each_pair do |name, options|
     global_config.vm.define name do |config|
@@ -206,7 +206,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
        config.vm.provision :shell, path: "provisioning/#{options[:script]}"
 
        # Run QA and copy results back to host
-       config.vm.provision :shell, :path => "provisioning/qa.sh"
+       config.vm.provision :shell, path: "provisioning/qa.sh", args: [ "#{options[:qa]}" ]
     end
   end
 end
