@@ -69,7 +69,7 @@ fi
 echo "port=$port" >>$seq.full
 _save_config $PCP_PMCDOPTIONS_PATH
 cat <<End-of-File >$tmp.newoptions
-# New pmcd.options file created by QA $seq
+# New pmcd.options file created by PCP QA test $seq
 #
 -s $tmp.socket
 End-of-File

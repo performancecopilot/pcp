@@ -55,7 +55,7 @@ echo ""
 _save_config $PCP_PMCDOPTIONS_PATH
 cp $PCP_PMCDOPTIONS_PATH $tmp.options
 cat <<End-Of-File >>$tmp.options
-# Dummy lines added by PCP QA test 170
+# Dummy lines added for PCP QA test $seq
 #
 -l $tmp.1.pmcd.log
 -l $tmp.2.pmcd.log
