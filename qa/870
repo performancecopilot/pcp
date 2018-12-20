@@ -193,8 +193,9 @@ $2 == '"$pid"'	{ print }'
 
     # Check for dead run files with no pmlogger attached
     #
-    for file in `cd $PCP_RUN_DIR; ls pmlogger.*`
+    for file in `cd $PCP_RUN_DIR; ls`
     do
+	pid=''
 	case "$file"
 	in
 	    pmlogger.primary.socket)
@@ -203,10 +204,11 @@ $2 == '"$pid"'	{ print }'
 	    pmlogger.pid)
 			pid=`cat $PCP_RUN_DIR/$file`
 			;;
-	    *)
+	    pmlogger.*)
 			pid=`echo $file | sed -e 's/pmlogger\.//' -e 's/\.socket//'`
 			;;
 	esac
+	[ -z "$pid" ] && continue
 	$PCP_AWK_PROG <$tmp.ps.out >$tmp.ps.pid '
 $2 == '"$pid"'	{ print }'
 	if [ -s $tmp.ps.pid ]
