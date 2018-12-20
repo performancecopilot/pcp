@@ -200,7 +200,7 @@ echo 'hinv { ncpu 1:0:1 }' >> $FAKE_NS
 # sample agent (domain 254).  These agents will be appended to the file.
 #
 cat <<EOF >$TMP_CONFIG
-# Created by QA $seq
+# Created by PCP QA test $seq
 fake_irix 1 pipe binary $here/src/dumb_pmda -d 1 fake_irix
 fake_proc 3 pipe binary $here/src/dumb_pmda -d 3 fake_proc
 fake_cisco 5 pipe binary $here/src/dumb_pmda -d 5 fake_cisco
