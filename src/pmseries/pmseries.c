@@ -940,16 +940,17 @@ static pmLongOptions longopts[] = {
     { "metrics", 0, 'm', 0, "report names for time series metrics" },
     { "query", 0, 'q', 0, "perform a time series query (default)" },
     { "sources", 0, 'S', 0, "report names for time series sources" },
+    PMAPI_OPTIONS_HEADER("Connection Options"),
     { "port", 1, 'p', "N", "connect to Redis using given TCP/IP port" },
     { "host", 1, 'h', "HOST", "connect to Redis using given host name" },
     PMAPI_OPTIONS_HEADER("Reporting Options"),
-    PMOPT_DEBUG,
     { "fast", 0, 'F', 0, "query or load series metadata, not values" },
     { "fullpmid", 0, 'M', 0, "print PMID in verbose format" },
     { "fullindom", 0, 'I', 0, "print InDom in verbose format" },
     { "names", 0, 'n', 0, "print label names only, not values" },
     { "series", 0, 's', 0, "print series ID for metrics, instances and sources" },
     PMOPT_VERSION,
+    PMOPT_DEBUG,
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
@@ -1078,7 +1079,7 @@ main(int argc, char *argv[])
 	if (!(flags & (PMSERIES_NEED_DESCS|PMSERIES_NEED_INSTS)))
 	    flags |= PMSERIES_OPT_QUERY;	/* default is to query */
 
-    if (opts.optind == argc) {
+    if (opts.optind == argc && !opts.errors) {
 	if ((flags & PMSERIES_OPT_QUERY)) {
 	   pmprintf("%s: error - no query string provided\n",
 			   pmGetProgname());

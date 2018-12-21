@@ -1,0 +1,444 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2018 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMSERIES 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmseries\f1 \- display information about performance metric timeseries
+.SH SYNOPSIS
+\fBpmseries\fR
+[\fB\-adFilLmMnqsS\fR]
+[\fB\-p\fR \fIport\fR]
+[\fB\-h\fR \fIhost\fR]
+[\fIquery\fR | \fIseries\fR ... | \fIsource\fR ... ]
+.SH DESCRIPTION
+.de SAMPLE
+.br
+.RS 2n
+.nf
+.nh
+..
+.de ESAMPLE
+.hy
+.fi
+.RE
+..
+.B pmseries
+displays various types of information about performance metrics
+available through the scalable timeseries facilities of the
+Performance Co-Pilot (PCP) and the Redis distributed data store.
+.PP
+By default
+.B pmseries
+communicates with a local
+.BR redis-server (1),
+however the \fB\-p\fR/\fB\-\-port\fR option and
+\fB\-h\fR/\fB\-\-host\fR options can be used to
+specify an alternate Redis instance.
+If this instance is a node of a Redis cluster, all
+other instances in the cluster will be discovered
+and used automatically.
+.PP
+.B pmseries
+runs in several different modes \- either querying
+timeseries identifiers, metadata or values (already
+stored in Redis), or manually loading timeseries
+into Redis.
+The latter mode is seldom used, however, since
+.BR pmproxy (1)
+will automatically perform this function when it is
+started with the \fB\-t\fR/\fB\-\-timeseries\fR option.
+In time, this option will become enabled by default.
+.PP
+Without command line options specifying otherwise,
+.B pmseries
+will issue a timeseries query to find matching timeseries and
+values.
+All timeseries are identified using a unique SHA-1 hash which
+is always displayed in a 40-hexdigit human readable form.
+These hashes are formed using the metadata associated with
+every metric.
+.PP
+Importantly, this includes all metric metadata (labels, names,
+descriptors).
+Metric labels in particular are (as far as possible) unique for
+every machine \- on Linux for example the labels associated
+with every metric include the unique \fI/etc/machine-id\fR,
+the hostname, domainname, and other automatically generated
+machine labels, as well as any administrator-defined labels
+from \fI/etc/pcp/labels\fR.
+These labels can be reported with
+.BR pminfo (1)
+and the \fIpmcd.labels\fR metric.
+.PP
+See
+.BR pmLookupLabels (3),
+.BR pmLookupInDom (3),
+.BR pmLookupName (3)
+and
+.BR pmLookupDesc (3)
+for detailed information about metric labels and other metric
+metadata used in each timeseries identifier hash calculation.
+.PP
+The timeseries identifiers provide a higher level (and machine
+independent) identifier than the traditional PCP performance
+metric identifiers (pmID), instance domain identifiers (pmInDom)
+and metric names.
+However,
+.B pmseries
+uses timeseries identifiers in much the same way that
+.B pminfo
+uses the lower level indom, metric identifiers and metric names.
+.SH TIMESERIES QUERIES
+The default mode of
+.B pmseries
+operation is to issue a query that will be evaluated over all
+known timeseries.
+Query expressions are formed using the
+.B pmseries
+query language described below, but can be as simple as a
+metric name.
+.P
+The following is an example of querying timeseries from all
+hosts that match a metric name pattern (globbed):
+.P
+.SAMPLE
+$ pmseries kernel.all.cpu*
+1d7b0bb3f6aec0f49c54f5210885464a53629b60
+379db729afd63fb9eff436625bd6c55a7adc5cfd
+3dd3b45bb05f96636043e5d58b52b441ce542285
+[...]
+ed2bf325ff6dc7589ec966698e5404b67252306a
+dcb2a032a308b5717bf605ba8f8737e9c6e1ed19
+.ESAMPLE
+.PP
+To identify timeseries, the query language uses the general
+syntax:
+.PP
+.SAMPLE
+[\fImetric.name\fB] '{' metadata qualifiers '}' '[' time specification ']'
+.ESAMPLE
+.PP
+The \fImetric.name\fR component restricts the timeseries query
+to any matching PCP metric name (the list of metric names for a
+PCP archive or live host is the reported by
+.B pminfo
+with no arguments beyond \-\-\fIhost\fR or \-\-\fIarchive\fR).
+The
+.B pmseries
+syntax extends on that of
+.B pminfo
+and allows for
+.BR glob (7)
+based pattern matching within the metric name.
+.PP
+Metadata qualifiers are enclosed by ('curly') braces, and further
+restrict the query results to timeseries with various metadata
+properties.
+These qualifiers are based on metric or instance names, and
+metric label values, and take the general form
+\fImetadata.name\fR OPERATOR \fIvalue\fR, such as:
+.P
+.SAMPLE
+instance.name == "cpu0"
+metric.name != "kernel.all.pswitch"
+.ESAMPLE
+.PP
+When using label names, the metadata qualifier is optional and
+can be dropped, such as:
+.P
+.SAMPLE
+label.hostname == "www.acme.com"
+hostname == "www.acme.com"
+.ESAMPLE
+.PP
+For metric and instance names only the string operators apply,
+but for metric label values all operators are available.
+The set of available operators is:
+.SS Boolean operators
+All string (label, metrics and instances) and numeric
+(label) values can be tested for equality ("==") or
+inequality ("!=").
+.SS String operators
+Strings can be subject to pattern matching in the form of
+glob matching ("~~"), regular expression matching ("=~"),
+and regular expression non-matching ("!~").
+The ":" operator is equivalent to "~~" - i.e. regular expression
+matching.
+.SS Relational operators (numeric label values only)
+Numeric label values can be subject to the less than ("<"),
+greater than (">"), less than or equal ("<="), greater than
+or equal (">="), equal ("==") and not equal ("!=") operators.
+.PP
+.SS Logical operators
+Multiple metadata qualifiers can be combined with the logical
+operators for AND ("&&") and OR ("||") as in many programming
+languages.
+The comma (",") character is equivalent to logical AND ("&&").
+.SH TIME SPECIFICATION
+The final (optional) component of a query allows the user to
+specify a specific time window of interest.
+Any time specification will result in values being returned
+for all matching timeseries, for the time window specified.
+.PP
+The specification is ('square') bracket enclosed, and consists
+of one or more comma-separated components.
+Each component specifies some aspect related to time, taking
+the general form: \fBkeyword\fR: \fIvalue\fR, such as:
+.P
+.SAMPLE
+samples: 10
+.ESAMPLE
+.SS Sample count
+The number of samples to return, specified via either the
+.I samples
+or (equivalent)
+.I count
+keyword.
+The
+.I value
+provided must be a positive integer.
+If no end time is explicitly set (see ``Time window'' later)
+then the most recent samples will be returned.
+.SS Sample interval
+An interval between successive samples can be requested using
+the
+.B interval
+or (equivalent)
+.B delta
+keyword.
+The
+.I value
+provided should be either a numeric or string value that will
+be parsed by
+.BR pmParseTimeInterval (3).
+.SS Time window
+Start and end times, and alignments, affecting the returned
+values.
+The keywords match the parameters to the
+.BR pmParseTimeWindow (3)
+function which will be used to parse them, and are:
+.I start
+or (equivalent)
+.IR begin ,
+.I finish
+or (equivalent)
+.IR end ,
+.I align
+and
+.IR offset .
+.SS Time zones
+The resulting timestamps can be returned having been evaluated
+for a specific timezone, using the
+.B timezone
+or
+.B hostzone
+keywords.
+The
+.I value
+associated with
+.B timezone
+will be interpreted by
+.BR pmNewZone (3).
+A
+.I true
+or
+.I false
+value should be associated with
+.BR hostzone ,
+and when set to
+.I true
+this has the same effect as described by
+.BR pmNewContextZone (3).
+.SH TIMESERIES METADATA
+Using command line options,
+.B pmseries
+can be requested to provide metadata (metric names, instance
+names, labels, descriptors) associated with either individual
+timeseries or a group of timeseries, for example:
+.PP
+.SAMPLE
+$ pmseries -a dcb2a032a308b5717bf605ba8f8737e9c6e1ed19
+
+dcb2a032a308b5717bf605ba8f8737e9c6e1ed19
+    PMID: 60.0.21
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    Source: f5ca7481da8c038325d15612bb1c6473ce1ef16f
+    Metric: kernel.all.cpu.nice
+    labels {"agent":"linux","domainname":"localdomain",\\
+            "groupid":1000,"hostname":"shard",\\
+            "latitude":-25.28496,"longitude":152.87886,\\
+            "machineid":"295b16e3b6074cc8bdbda8bf96f6930a",\\
+            "userid":1000}
+.ESAMPLE
+.PP
+The complete set of
+.B pmseries
+metadata reporting options are:
+.TP 5
+\fB\-a\fR, \fB\-\-all\fR
+Convenience option to report all metadata for the given timeseries,
+equivalent to \fB\-dilms\fR.
+.TP
+\fB\-d\fR, \fB\-\-desc\fR
+Metric descriptions detailing the PMID, data type, data semantics, units,
+scale and associated instance domain.
+This option has a direct \fBpminfo\fR(1) equivalent.
+.TP
+\fB\-i\fR, \fB\-\-instances\fR
+Metric descriptions detailing the PMID, data type, data semantics, units,
+scale and associated instance domain.
+.TP
+\fB\-I\fR, \fB\-\-fullindom\fR
+Print the InDom in verbose mode.
+This option has a direct \fBpminfo\fR(1) equivalent.
+.TP
+\fB\-l\fR, \fB\-\-labels\fR
+Print label sets associated with metrics and instances.
+Labels are optional metric metadata described in detail in
+.BR pmLookupLabels (3).
+This option has a direct \fBpminfo\fR(1) equivalent.
+.TP
+\fB\-m\fR, \fB\-\-metrics\fR
+Print metric names.
+.TP
+\fB\-M\fR, \fB\-\-fullpmid\fR
+Print the PMID in verbose mode.
+This option has a direct \fBpminfo\fR(1) equivalent.
+.TP
+\fB\-s\fR, \fB\-\-series\fR
+Print time series identifiers associated with metrics, instances and
+sources.
+These unique identifiers are calculated from intrinsic (non-optional)
+labels and other metric metadata associated with each PMAPI context
+(sources), metrics and instances.
+Archive, local context or
+.BR pmcd (1)
+connections for the same host all produce the same source identifier.
+This option has a direct \fBpminfo\fR(1) equivalent.
+See also
+.BR pmLookupLabels (3)
+and the \fB\-l/\fB\-\-labels\fR option.
+.SH TIMESERIES SOURCES
+A source is a unique identifier (represented externally as a 40-byte
+hexadecimal SHA-1 hash) that represents both the live host and/or
+archives from which each timeseries originated.
+.PP
+The \fB\-S\fR/\fB\-\-sources\fR option reports names for timeseries
+sources.
+These names are either hostnames or fully qualified archive paths.
+.PP
+It is important to note that live and archived sources can and will
+generate the same SHA-1 source identifier hash \- that is, provided
+the context labels remain the same for that host (labels are stored
+in PCP archives and can also be fetched live from
+.BR pmcd ).
+.SH TIMESERIES LOADING
+Timeseries metadata and data are loaded either automatically
+by a local
+.BR pmproxy ,
+or manually using a specially crafted
+.B pmseries
+query and the \fI-l\fR/\fI\-\-load\fR option.
+.PP
+.SAMPLE
+$ pmseries --load "{source.path: \\"$PCP_LOG_DIR/pmlogger/acme\\"}"
+pmseries: [Info] processed 2275 archive records from [...]
+.ESAMPLE
+.PP
+This query must specify a source archive path, but can also restrict
+the import to specific timeseries (using metric names, labels, etc)
+and to specific a time window using the time specification component
+of the query language.
+.SH EXAMPLES
+The following sample query shows several fundamental aspects of the
+.B pmseries
+query language:
+.PP
+.SAMPLE
+$ pmseries 'kernel.all.load{hostname:toium}[count:2]' 
+
+eb713a9cf472f775aa59ae90c43cd7f960f7870f
+    [1545346764128.128] 1.000000e-01 b84040ffccd54f839b65140cf139bab51cbbcf62
+    [1545346764128.128] 6.800000e-01 a60b5b3bf25e71071c41934fa4d7d251f765f30c
+    [1545346764128.128] 6.400000e-01 e1974a062375e6e62370ffadf5b0650dad739480
+    [1545346774112.112] 1.600000e-01 b84040ffccd54f839b65140cf139bab51cbbcf62
+    [1545346774112.112] 6.700000e-01 a60b5b3bf25e71071c41934fa4d7d251f765f30c
+    [1545346774112.112] 6.400000e-01 e1974a062375e6e62370ffadf5b0650dad739480
+.ESAMPLE
+.PP
+This query returns the two most recent values for all instances of
+the
+.I kernel.all.load
+metric with a
+.I label.hostname
+matching the regular expression "toium".
+This is a set-valued metric (i.e. with an instance domain or
+1, 5 and 15 minute averages).
+The first column returned is a timestamp, then a floating point
+value, and finally an instance identifier timeseries hash (two
+values returned for three instances, so six rows are returned).
+The metadata for these timeseries can then be further examined:
+.PP
+.SAMPLE
+$ pmseries -a eb713a9cf472f775aa59ae90c43cd7f960f7870f
+
+eb713a9cf472f775aa59ae90c43cd7f960f7870f
+    PMID: 60.2.0
+    Data Type: float  InDom: 60.2 0xf000002
+    Semantics: instant  Units: none
+    Source: 0e89c1192db79326900d82131c31399524f0b3ee
+    Metric: kernel.all.load
+    inst [1 or "1 minute"] series b84040ffccd54f839b65140cf139bab51cbbcf62
+    inst [5 or "5 minute"] series a60b5b3bf25e71071c41934fa4d7d251f765f30c
+    inst [15 or "15 minute"] series e1974a062375e6e62370ffadf5b0650dad739480
+    inst [1 or "1 minute"] labels {"agent":"linux","hostname":"toium"}
+    inst [5 or "5 minute"] labels {"agent":"linux","hostname":"toium"}
+    inst [15 or "15 minute"] labels {"agent":"linux","hostname":"toium"}
+.ESAMPLE
+.PP
+.PP
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR pminfo (1),
+.BR pmproxy (1),
+.BR redis-server (1),
+.BR PMAPI (3),
+.BR PMWEBAPI (3),
+.BR pmLookupLabels (3),
+.BR pmLookupInDom (3),
+.BR pmLookupName (3),
+.BR pmLookupDesc (3),
+.BR pmNewZone (3).
+.BR pmNewContextZone (3).
+.BR pmParseTimeInterval (3),
+.BR pmParseTimeWindow (3),
+.BR pcp.conf (5),
+.BR pcp.env (5),
+.BR glob (7)
+and
+.BR regex (7).

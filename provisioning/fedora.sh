@@ -4,7 +4,7 @@ cd /vagrant || exit
 
 # setup vm
 packages=$(./qa/admin/check-vm -p)
-dnf -y -b --skip-broken install $packages
+dnf -y -b --skip-broken install "${packages}"
 
 # build pcp
 sudo -H -u vagrant ./Makepkgs
@@ -12,7 +12,7 @@ sudo -H -u vagrant ./Makepkgs
 # install pcp
 . ./VERSION.pcp
 version="$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION"
-rpm -Uvh pcp-$version/build/rpm/*.rpm
+rpm -Uvh "pcp-$version/build/rpm/*.rpm"
 
 # setup pcpqa
 sed -i '/requiretty/d' /etc/sudoers	# for sudo to work from a script

@@ -3413,6 +3413,15 @@ cd
 * Fri Dec 21 2018 Lukas Berk <lberk@redhat.com> - 4.3.0-1
 - Add the dstat -f/--full option to expand instances (BZ 1651536)
 - Improve systemd interaction for local pmie (BZ 1650999)
+- SELinux is preventing ps from 'search' accesses on the directory
+  .config (BZ 1569697)
+- SELinux is preventing pmdalinux from 'search' accesses on
+  the directory /var/lib/libvirt/images (BZ 1579988)
+- SELinux is preventing pmdalinux from 'unix_read' accesses
+  on the semáforo Unknown (BZ 1607658)
+- SELinux is preventing pmdalinux from 'unix_read' accesses
+  on the shared memory Unknown (BZ 1618756, BZ 1619381, BZ 1601721)
+
 - Update to latest PCP sources.
 
 * Fri Nov 16 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.2.0-1
