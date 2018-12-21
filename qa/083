@@ -122,6 +122,15 @@ cleanup()
     _restore_auto_restart pmcd
     _restore_auto_restart pmlogger
     _wait_for_pmcd
+    case `hostname -s`
+    in
+	vm10)
+	    # on vm10 we consistently don't get pmlogger started in the
+	    # default 20 seconds, so be patient ...
+	    #
+	    sleep 30
+	    ;;
+    esac
     _wait_for_pmlogger
     rm -rf $tmp $tmp.*
 }
