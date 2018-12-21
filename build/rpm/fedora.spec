@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.3.0
+Version: 4.3.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -3410,7 +3410,10 @@ cd
 %endif
 
 %changelog
-* Fri Dec 21 2018 Lukas Berk <lberk@redhat.com> - 4.3.0-1
+* Fri Feb 22 2019 Lukas Berk <lberk@redhat.com> - 4.3.1-1
+- Work-in-progress, see https://pcp.io/roadmap
+
+* Fri Dec 21 2018 Nathan Scott <nathans@redhat.com> - 4.3.0-1
 - Add the dstat -f/--full option to expand instances (BZ 1651536)
 - Improve systemd interaction for local pmie (BZ 1650999)
 - SELinux is preventing ps from 'search' accesses on the directory
@@ -3421,7 +3424,6 @@ cd
   on the semáforo Unknown (BZ 1607658)
 - SELinux is preventing pmdalinux from 'unix_read' accesses
   on the shared memory Unknown (BZ 1618756, BZ 1619381, BZ 1601721)
-
 - Update to latest PCP sources.
 
 * Fri Nov 16 2018 Mark Goodwin <mgoodwin@redhat.com> - 4.2.0-1

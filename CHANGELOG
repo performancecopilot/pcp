@@ -1,3 +1,6 @@
+pcp-4.3.1 (22 February 2019)
+    - Work-in-progress, see https://pcp.io/roadmap
+
 pcp-4.3.0 (21 December 2018)
     - Client tools and utilities:
 	- Add pmseries(1) for fast, scalable time series querying (experimental)
