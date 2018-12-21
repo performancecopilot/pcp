@@ -206,7 +206,7 @@ echo "me: ip=$me_ip hex_ip=$me_xip" >>$seq.full
 echo "host1: ip=$other1_ip hex_ip=$other1_xip" >>$seq.full
 echo "host2: ip=$other2_ip hex_ip=$other2_xip" >>$seq.full
 
-echo "# from qa/$seq" >$nconfig
+echo "# Installed by PCP QA test $seq on `date`" >$nconfig
 egrep '^(linux|darwin|solaris)' $config >>$nconfig
 grep '^pmcd' $config >>$nconfig
 

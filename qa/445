@@ -36,7 +36,7 @@ case "$PCP_PLATFORM" in
 linux)
     TRACELOG=$PCP_LOG_DIR/pmcd/trace.log
     cat >> $tmp.conf << EOF
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 linux   60      dso     linux_init      $PCP_PMDAS_DIR/linux/pmda_linux.so
 trace	10	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 10 -l ${TRACELOG}1
@@ -47,7 +47,7 @@ EOF
 darwin)
     TRACELOG=$PCP_LOG_DIR/pmcd/trace.log
     cat >> $tmp.conf << EOF
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
 darwin  78      dso     darwin_init     $PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
 trace	10	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 10 -l ${TRACELOG}1
@@ -58,7 +58,7 @@ EOF
 solaris)
     TRACELOG=$PCP_LOG_DIR/pmcd/trace.log
     cat >> $tmp.conf << EOF
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
 trace	10	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 10 -l ${TRACELOG}1
@@ -69,7 +69,7 @@ EOF
 freebsd)
     TRACELOG=$PCP_LOG_DIR/pmcd/trace.log
     cat >> $tmp.conf << EOF
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
 trace	10	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 10 -l ${TRACELOG}1

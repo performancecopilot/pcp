@@ -234,6 +234,16 @@ $2 == '"$pid"'	{ print }'
 	fi
     done
 
+    # Did a QA test leave behind a modified pmlogger control file?
+    #
+    marker='PCP QA test'
+    if grep "$marker" $PCP_PMLOGGERCONTROL_PATH >/dev/null
+    then
+	echo "Error: $PCP_PMLOGGERCONTROL_PATH changed for QA, may not be correct"
+	grep "$marker" $PCP_PMLOGGERCONTROL_PATH
+	$check && status=1
+    fi
+
     # And finally, at most 1 primary pmlogger
     #
     num_primary=`grep 'pmlogger .*-P ' <$tmp.ps.out | wc -l | sed -e 's/ //g'`

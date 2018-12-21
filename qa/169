@@ -138,7 +138,8 @@ EOF
 
 _save_config $PCP_PMCDCONF_PATH
 cat >$tmp.tmp <<End-Of-File
-# QA test 169 dummy pmcd.conf (blame Jonathan if you find this!)
+# Installed by PCP QA test $seq on `date`
+# (blame Jonathan if you find this!)
 #
 dummyproc	$dummy_domain	pipe	binary 	$here/src/dumb_pmda -d $dummy_domain $TAG
 End-Of-File

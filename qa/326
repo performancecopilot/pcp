@@ -82,7 +82,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 _service pcp stop >/dev/null 2>&1
 
 cat <<End-of-File >$tmp.tmp
-# temporary for qa/$seq
+# Installed by PCP QA test $seq on `date`
 pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
 sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
 End-of-File
@@ -121,7 +121,7 @@ sleep 3
 
 echo "=== drop sample PMDA, like Remove ==="
 cat <<End-of-File >$tmp.tmp
-# temporary for qa/$seq
+# Installed by PCP QA test $seq on `date`
 pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
@@ -130,7 +130,7 @@ sleep 3
 
 echo "=== add sample PMDA, like Install ==="
 cat <<End-of-File >$tmp.tmp
-# temporary for qa/$seq
+# Installed by PCP QA test $seq on `date`
 pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
 sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
 End-of-File

@@ -121,7 +121,7 @@ $0 != last	{ print; last = $0 }' \
 }
 
 cat >$tmp.new <<End-of-File
-# From QA 200
+# Installed by PCP QA test $seq on `date`
 #
 # Name	Id	IPC	IPC Params 	File/Cmd
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX

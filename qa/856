@@ -59,7 +59,7 @@ _stop_auto_restart pmlogger
 _service pcp stop >/dev/null 2>&1
 
 cat <<End-of-File >$tmp.tmp
-# temporary for qa/$seq
+# Installed by PCP QA test $seq on `date`
 pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
 sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
 simple	253	pipe	binary 		/var/lib/pcp/pmdas/simple/pmdasimple -d 253 

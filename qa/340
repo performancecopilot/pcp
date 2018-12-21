@@ -75,7 +75,7 @@ $unix_domain_sockets && target="unix:"
 _chkconfig_pmlogger_on=true
 $sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
 cat <<End-of-File >$tmp.tmp
-# dummy file created by qa/$seq on `date`
+# Installed by PCP QA test $seq on `date`
 # the goal here is to have a controlled primary logger that does
 # not make requests to pmcd!
 \$version=1.1

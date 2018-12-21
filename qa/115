@@ -124,7 +124,7 @@ _count_pmies()
 
 # create a basic pmcd config file
 cat >$tmp.pmcd.conf << EOF
-# from QA $seq
+# Installed by PCP QA test $seq on `date`
 pmcd	2	dso	pmcd_init	pmda_pmcd.so
 EOF
 

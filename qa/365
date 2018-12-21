@@ -66,7 +66,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 if [ $PCP_PLATFORM = linux ]
 then
     cat <<End-of-File >$tmp.tmp
-# from qa/$seq
+# Installed by PCP QA test $seq on `date`
 #
 linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
@@ -75,7 +75,7 @@ End-of-File
 elif [ $PCP_PLATFORM = darwin ]
 then
     cat <<End-of-File >$tmp.tmp
-# from qa/$seq
+# Installed by PCP QA test $seq on `date`
 #
 darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
@@ -84,7 +84,7 @@ End-of-File
 elif [ $PCP_PLATFORM = solaris ]
 then
     cat <<End-of-File >$tmp.tmp
-# from qa/$seq
+# Installed by PCP QA test $seq on `date`
 #
 solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
@@ -93,7 +93,7 @@ End-of-File
 elif [ $PCP_PLATFORM = freebsd ]
 then
     cat <<End-of-File >$tmp.tmp
-# from qa/$seq
+# Installed by PCP QA test $seq on `date`
 #
 freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so

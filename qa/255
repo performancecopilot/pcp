@@ -248,10 +248,12 @@ _agent_install()
     if $daemon
     then
 	cat << end-of-file >> $tmp.latest
+# Installed by PCP QA test $seq on `date`
 $agent	$domain	pipe	binary	$path/pmda$agent -d $domain
 end-of-file
     else
     	cat << end-of-file >> $tmp.latest
+# Installed by PCP QA test $seq on `date`
 $agent	$domain	dso	${agent}_init	$path/pmda_$agent.$DSO_SUFFIX
 end-of-file
     fi
@@ -304,6 +306,7 @@ _broken_install()
     echo "=== Installing $agent ==="
     cp $tmp.newconf $tmp.latest
     cat << end-of-file >> $tmp.latest
+# Installed by PCP QA test $seq on `date`
 broken	$broken_domain	pipe	binary	$here/pmdas/broken/$agent -d $broken_domain
 end-of-file
 
