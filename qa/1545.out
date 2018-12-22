@@ -1,72 +1,72 @@
 QA output created by 1545
 testing names-change=update with pcp2xml
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- Writing 1 metrics to stdout: -->
 <!-- 5 samples(s) with 1.0 sec interval ~ 4 sec runtime. -->
 <pcp>
-<host>
-<metrics>
-<timestamp>
-<mmv>
-<control>
-<files>0</files>
-</control>
-</mmv>
-</timestamp>
-<timestamp>
-<mmv>
-<control>
-<files>0</files>
-</control>
-</mmv>
-</timestamp>
-<timestamp>
-<mmv>
-<control>
-<files>1</files>
-</control>
-</mmv>
-</timestamp>
-<timestamp>
-<mmv>
-<control>
-<files>1</files>
-</control>
-<test>
-<counter unit="count">41</counter>
-<discrete>42</discrete>
-<indom instance-name="hero" unit="count">0</indom>
-<indom instance-name="zero" unit="count">43</indom>
-<interval instance-name="bird" unit="microsec">0</interval>
-<interval instance-name="tree" unit="microsec">0</interval>
-<interval instance-name="eggs" unit="microsec">xxxxxxx</interval>
-<string>g'day world</string>
-<strings instance-name="zero">00oo00</strings>
-<strings instance-name="hero">None</strings>
-</test>
-</mmv>
-</timestamp>
-<timestamp>
-<mmv>
-<control>
-<files>1</files>
-</control>
-<test>
-<counter unit="count">41</counter>
-<discrete>42</discrete>
-<indom instance-name="hero" unit="count">0</indom>
-<indom instance-name="zero" unit="count">43</indom>
-<interval instance-name="bird" unit="microsec">0</interval>
-<interval instance-name="tree" unit="microsec">0</interval>
-<interval instance-name="eggs" unit="microsec">xxxxxxx</interval>
-<string>g'day world</string>
-<strings instance-name="zero">00oo00</strings>
-<strings instance-name="hero">None</strings>
-</test>
-</mmv>
-</timestamp>
-</metrics>
-<source>local:</source>
-<timezone>UTC</timezone>
-</host>
+  <host>
+    <source>local:</source>
+    <timezone>UTC</timezone>
+    <metrics>
+      <timestamp>
+        <mmv>
+          <control>
+            <files>0</files>
+          </control>
+        </mmv>
+      </timestamp>
+      <timestamp>
+        <mmv>
+          <control>
+            <files>0</files>
+          </control>
+        </mmv>
+      </timestamp>
+      <timestamp>
+        <mmv>
+          <control>
+            <files>1</files>
+          </control>
+        </mmv>
+      </timestamp>
+      <timestamp>
+        <mmv>
+          <control>
+            <files>1</files>
+          </control>
+          <test>
+            <strings instance-name="zero">00oo00</strings>
+            <strings instance-name="hero">None</strings>
+            <indom instance-name="hero" unit="count">0</indom>
+            <interval instance-name="bird" unit="microsec">0</interval>
+            <interval instance-name="tree" unit="microsec">0</interval>
+            <interval instance-name="eggs" unit="microsec">xxxxxxx</interval>
+            <indom instance-name="zero" unit="count">43</indom>
+            <string>g'day world</string>
+            <discrete>42</discrete>
+            <counter unit="count">41</counter>
+          </test>
+        </mmv>
+      </timestamp>
+      <timestamp>
+        <mmv>
+          <control>
+            <files>1</files>
+          </control>
+          <test>
+            <strings instance-name="zero">00oo00</strings>
+            <strings instance-name="hero">None</strings>
+            <indom instance-name="hero" unit="count">0</indom>
+            <interval instance-name="bird" unit="microsec">0</interval>
+            <interval instance-name="tree" unit="microsec">0</interval>
+            <interval instance-name="eggs" unit="microsec">xxxxxxx</interval>
+            <indom instance-name="zero" unit="count">43</indom>
+            <string>g'day world</string>
+            <discrete>42</discrete>
+            <counter unit="count">41</counter>
+          </test>
+        </mmv>
+      </timestamp>
+    </metrics>
+  </host>
 </pcp>
-
