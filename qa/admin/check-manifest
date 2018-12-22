@@ -185,22 +185,22 @@ _path_to_pkg()
 		    touch $tmp.abort
 		    return
 		fi
-		if which perldoc >/dev/null
+		if which cpan >/dev/null
 		then
-		    if [ ! -f $tmp.perldoc ]
+		    if [ ! -f $tmp.perlmodules ]
 		    then
-			TERM=dumb perldoc perllocal 2>&1 >$tmp.perldoc
+			sudo cpan -l 2>/dev/null | sed -e 's/[ 	].*//' >$tmp.perlmodules
 		    fi
-		    if grep " $module\$" $tmp.perldoc >/dev/null
+		    if grep "^$module\$" $tmp.perlmodules >/dev/null
 		    then
 			# found it!
 			echo "$info"
-			$very_verbose && echo >&2 "found cpan pkg for $info"
+			$very_verbose && echo >&2 "found cpan info for $info"
 			return
 		    fi
-		elif [ ! -f $tmp.perldoc.warn ]
+		elif [ ! -f $tmp.cpan.warn ]
 		then
-		    echo >&2 "Warning: perldoc not installed, cannot check for Perl modules installed from cpan" | tee $tmp.perldoc.warn
+		    echo >&2 "Warning: cpan not installed, cannot check Perl modules for cpan()" | tee $tmp.cpan.warn
 		fi
 		;;
 	    "pip("*")"|"pip3("*")")
@@ -309,8 +309,11 @@ p
 	    # shell/bash
 	    #
 	    # need to strip leading / from path before searching
+	    # also more than one package can install the same binary (!)
+	    # e.g. g++ in developer/gcc-6 and developer/gcc-7, in this
+	    # case, pick the first one (arbitrarily)
 	    #
-	    pkg contents -H -o pkg.name -a path=`echo "$1" | sed -e 's;^/;;'`
+	    pkg contents -H -o pkg.name -a path=`echo "$1" | sed -e 's;^/;;' -e 1q` 2>/dev/null
 	    ;;
 
 	pkg_add)
@@ -633,7 +636,7 @@ _hunt()
 # all the places where Perl bits might get installed .. geez!
 #
 _perl_dirs=''
-for dir in /usr/lib/perl /usr/lib/perl5 /usr/lib*/perl /usr/lib*/perl5 /usr/lib/*/perl /usr/lib/*/perl5 /usr/share/perl /usr/share/perl5 /usr/pkg/lib/perl5 /usr/local/share/perl5 /usr/local/lib*/perl5/ /usr/local/share/perl /Library/Perl/5.* /System/Library/Perl/5.* /System/Library/Perl/Extras/5.*
+for dir in /usr/lib/perl /usr/lib/perl5 /usr/lib*/perl /usr/lib*/perl5 /usr/lib/*/perl /usr/lib/*/perl5 /usr/share/perl /usr/share/perl5 /usr/pkg/lib/perl5 /usr/local/share/perl5 /usr/local/lib*/perl5/ /usr/local/share/perl /usr/perl5 /Library/Perl/5.* /System/Library/Perl/5.* /System/Library/Perl/Extras/5.*
 do
     [ -d "$dir" ] && _perl_dirs="$_perl_dirs $dir"
 done
