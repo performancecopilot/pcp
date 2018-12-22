@@ -624,13 +624,6 @@ in
     vm36)
 	unavail_pkg='python3-bpfcc libsoqt5-dev'
     	;;
-    ubuntu1804)
-        unavail_pkg='apache2-mpm-worker avahi-tools cpan(Spreadsheet::ReadSXC) cpan(Text::CSV_XS) libcoin-dev libsoqt5-dev mariadb-client-core mysql-client-core libuv1-dev postfix bsd-mailx smartmontools'
-        ;;
-    ubuntu1604)
-        unavail_pkg='apache2-mpm-worker avahi-tools cpan(Spreadsheet::ReadSXC) cpan(Text::CSV_XS) libcoin-dev libsoqt5-dev mariadb-client-core mysql-client-core libuv1-dev postfix bsd-mailx smartmontools libspreadsheet-readsxc-perl python3-bpfcc'
-        ;;
-
 esac
 
 # the "unavailable" file records packages that are not available for a
