@@ -27,7 +27,7 @@ _cleanup()
 	_restore_config $control
 	needclean=false
 	_restore_primary_logger
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
     fi
     $sudo rm -f $tmp.*
@@ -50,7 +50,7 @@ sed -e '/^LOCALHOSTNAME/s/$/ -Dall/' < $control >$tmp.control
 _save_config $control
 $sudo cp $tmp.control $control
 _writable_primary_logger
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

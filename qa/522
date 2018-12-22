@@ -21,7 +21,7 @@ $sudo rm -f /var/tmp/*.pmcheck
 _change_config pmlogger on
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _restore_auto_restart pmcd
 _wait_for_pmlogger

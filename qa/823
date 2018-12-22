@@ -32,7 +32,7 @@ cleanup()
     _restore_config $PCP_SASLCONF_DIR/pmcd.conf
 
     _service pcp stop 2>&1 | _filter_pcp_stop
-    _service pcp start 2>&1 | _filter_pcp_start
+    _service pcp start 2>&1 2>&1 | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
 
@@ -74,7 +74,7 @@ ls -l $tmp.passwd.db >>$seq.full
 $sudo -u pcp od -c $tmp.passwd.db >>$seq.full
 
 echo "Start pmcd with this shiny new sasldb"
-_service pcp restart | tee -a $seq.full >$tmp.out
+_service pcp restart 2>&1 | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger
 

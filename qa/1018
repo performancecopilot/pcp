@@ -37,7 +37,7 @@ $sudo qt/qmc_source/qmc_source -DPMC 2>&1 | _filter
 _service pcp stop | _filter_pcp_stop
 $sudo qt/qmc_source/qmc_source -DPMC 2>&1 | _filter
 
-_service pcp start | _filter_pcp_start
+_service pcp start 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

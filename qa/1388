@@ -85,7 +85,7 @@ sasldblistusers2 -f $tmp.passwd.db \
 | _filter_listusers2
 
 echo "Start pmcd with this shiny new sasldb"
-_service pcp restart | tee -a $seq.full >$tmp.out
+_service pcp restart 2>&1 | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger
 

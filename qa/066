@@ -94,7 +94,7 @@ cleanup()
 	    && $sudo sh $tmp.cmd
 	echo "Restarting pmcd"
 	echo "+++ restarting pmcd `date` +++" >>$seq.full
-	_service pcp restart | tee -a $seq.full | _filter_pcp_start
+	_service pcp restart 2>&1 | tee -a $seq.full | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -188,7 +188,7 @@ $sudo cp $tmp $PCP_PMCDCONF_PATH
 # try to dodge bind: Address already in use
 [ $PCP_PLATFORM = solaris ] && sleep 10
 echo "+++ starting pmcd `date` +++" >>$seq.full
-_service pcp start | tee -a $seq.full | _filter_pcp_start
+_service pcp start 2>&1 | tee -a $seq.full | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 echo "first config:"

@@ -40,7 +40,7 @@ _cleanup()
     cat $PCP_LOG_DIR/pmcd/dumb_pmda.log >>$seq.full
     _restore_config $PCP_PMCDCONF_PATH
     _restore_config $PCP_SYSCONFIG_DIR/pmcd
-    _service pcp start >$tmp.start
+    _service pcp start 2>&1 >$tmp.start
     _filter_pcp_start <$tmp.start | _filter_dots
     _wait_for_pmcd
     _restore_auto_restart pmcd

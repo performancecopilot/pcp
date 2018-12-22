@@ -40,7 +40,7 @@ echo "=== empty config and -L, no reconnect and no exit ===" | tee -a $here/$seq
 $sudo rm -f $tmp.*
 _start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp
 _wait_for_pmlogger $pid $tmp.log 5
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 echo "expect pmlogger process ..."
@@ -58,7 +58,7 @@ echo "pid=$pid" >>$here/$seq.full
 ps $PCP_PS_ALL_FLAGS | grep pmlogger >>$here/$seq.full
 _service pmcd stop | _filter_pcp_stop
 sleep 2
-_service pmcd start | _filter_pcp_start
+_service pmcd start 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 sleep 2
