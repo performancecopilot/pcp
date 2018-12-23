@@ -618,9 +618,6 @@ in
     vm34)
 	unavail_pkg='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
 	;;
-    vm36)
-	unavail_pkg='python3-bpfcc libsoqt5-dev'
-    	;;
 esac
 
 # the "unavailable" file records packages that are not available for a

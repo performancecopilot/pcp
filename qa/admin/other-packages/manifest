@@ -289,8 +289,7 @@ slackpkg?	cppcheck	[? (build optional)]
 pacman?		cppcheck	[? (build optional)]
 brew?		cppcheck	[cppcheck (build optional)]
 # -- libuv
-dpkg?	/usr/include/uv.h	[libuv-dev (build optional)]
-dpkg?	/usr/include/uv.h	[libuv1-dev (build optional)]
+dpkg?	/usr/include/uv.h	[libuv-dev or libuv1-dev or libuv0.10-dev (build optional)]
 rpm?	/usr/include/uv.h	[libuv-devel (build optional)]
 urpmi?	/usr/include/uv.h	[libuv-devel (build optional)]
 emerge?	/usr/include/uv.h	[dev-libs/libuv (build optional)]
@@ -518,7 +517,7 @@ rpm?	/usr/lib*/python3.*/*-packages/rtslib		[python3-rtslib or python3-rtslib-fb
 urpmi?	/usr/lib*/python2.*/*-packages/rtslib		[python3-rtslib]
 urpmi?	/usr/lib*/python2.*/*-packages/rtslib		[python-rtslib]
 # -- python setuptools
-dpkg?	/usr/lib/python2.*/*-packages/setuptools/config.py	[python-setuptools]
+dpkg?	/usr/lib/python2.*/*-packages/setuptools/dist.py	[python-setuptools]
 dpkg?	/usr/lib/python3/*-packages/setuptools/dist.py	[python3-setuptools]
 rpm?	/usr/lib*/python2.*/*-packages/setuptools/config.py	[python-setuptools or python2-setuptools]
 rpm?	/usr/lib*/python3.*/*-packages/setuptools/dist.py	[python3-setuptools or python36-setuptools]
