@@ -14,6 +14,8 @@ $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 $python -c "from collections import OrderedDict" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+$python -c "from lxml import etree" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python lxml etree module not installed"
 
 which pcp2xml >/dev/null 2>&1 || _notrun "No pcp2xml binary installed"
 
