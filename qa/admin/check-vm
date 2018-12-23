@@ -285,7 +285,7 @@ s/CentOS Linux/CentOS/
 s/CentOS\([0-9]\)/CentOS \1/
 }' \
 	-e '/FreeBSD/s/-RELEASE//' \
-	-e '/SLES[0-9][0-9]* SP/s/ SP/-SP/' \
+	-e '/SLES\([0-9][0-9]*\) SP/s//\1-SP/' \
 	-e '/OpenIndiana/s/Hipster //' \
 	-e 's/^/_arch=/' \
 	-e 's/ /+_distro=/' \
@@ -294,6 +294,7 @@ s/CentOS\([0-9]\)/CentOS \1/
 	-e 's/$/"/' \
     | tr ' ' '\012' >$tmp.eval
     eval `cat $tmp.eval`
+    $very_verbose && echo >&2 "_parse_file: vars: `cat $tmp.eval`"
     sed <$1 \
 	-e 's/#.*//' \
 	-e '/^[ 	]*$/d' \
@@ -612,9 +613,6 @@ in
     vm15)
     	unavail_pkg='valgrind socat'
     	;;
-    vm30)
-	unavail_pkg='libvarlink-devel libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin-devel SoQt-devel python3-libs yajl python-psycopg2 python3-psycopg2'
-	;;
     vm34)
 	unavail_pkg='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
 	;;
@@ -628,8 +626,9 @@ then
     _parse_file $unavailable >$tmp.pkgs
     if [ -s $tmp.pkgs ]
     then
-	unavail_pkg="$unavail_pkg `cat $tmp.pkgs`"
+	unavail_pkg="`cat $tmp.pkgs`"
     fi
+    $very_verbose && echo >&2 "unavailable: $unavail_pkg"
 fi
 
 # the "require" file records packages that are must be installed for a
@@ -653,10 +652,7 @@ then
 	    fi
 	fi
     done
-    if [ -n "$require_pkg" ]
-    then
-	$very_verbose && echo >&2 "require: $require_pkg"
-    fi
+    $very_verbose && echo >&2 "require: $require_pkg"
 fi
 
 if $pkglist
