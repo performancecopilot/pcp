@@ -27,6 +27,10 @@ Fedora       29       i.86    389-ds
 # I cannot figure out how to remake this package with USE=utils so that
 # avahi-browse is built and installed (Ken)
 Gentoo       2.4.2    -       net-dns/avahi
+#-- LinuxMint
+# observed on vm18
+# libsoqt-dev -> libsoqt4-dev and all the other Qt pieces are Qt 5
+LinuxMint    17.3     -       libsoqt-dev
 #-- OpenBSD
 # observed on vm37
 # qtbase is Qt5 and gcc++ here is too old to compile Qt5 headers ... revisit

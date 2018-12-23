@@ -487,6 +487,7 @@ sts=\$?
 awk <\$HOME/daily.qa.log '
 /waiting for lock/		{ print }
 /could not acquire lock/	{ print }
+/error while loading shared libraries/	{ print }
 \$1 == "Aborted!"		{ print }
 \$1 == "Check!"			{ print }'
 # get last block from check.log ... then get the summary on

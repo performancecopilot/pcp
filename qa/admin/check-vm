@@ -612,9 +612,6 @@ in
     vm15)
     	unavail_pkg='valgrind socat'
     	;;
-    vm18)
-	unavail_pkg='python3-libvirt python3-prometheus-client python3-elasticsearch python-prometheus-client python-elasticsearch libsoqt5-dev'
-	;;
     vm30)
 	unavail_pkg='libvarlink-devel libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin-devel SoQt-devel python3-libs yajl python-psycopg2 python3-psycopg2'
 	;;
