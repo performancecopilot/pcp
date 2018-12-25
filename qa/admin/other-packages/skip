@@ -42,7 +42,7 @@ LinuxMint    18.3     -       libsoqt-dev
 OpenBSD      6.4      -       qtbase qtsvg valgrind
 #-- SuSE SLES
 # we're using python3
-SUSE         12-SP0   -       python-.*
+SUSE         12-SP.*  -       python-.*
 #-- Ubuntu
 # observed on vm01
 # python3-bpfcc : Depends: libbpfcc (>= 0.5.0-5ubuntu1) but it is not installable

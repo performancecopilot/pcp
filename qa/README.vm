@@ -156,7 +156,11 @@ SuSE (SLES)
     # update all packages recipe
     $ sudo zypper refresh; sudo zypper update
     # release upgrade recipe
-    $ ???
+    # once only ...
+    $ sudo zypper install zypper-migration-plugin
+    # then
+    $ sudo zypper update; sudo zypper patch
+    $ sudo zypper migration
 
 FreeBSD
     https://www.freebsd.org/security/security.html#sup
