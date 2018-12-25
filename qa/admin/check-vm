@@ -541,6 +541,10 @@ do
 		    equery list '*' | sed -e 's/.*].*] //' -e 's/-[0-9].*//'
 		    ;;
 
+		slackpkg)
+		    ls /var/log/packages | sed -e 's/-[0-9].*//'
+		    ;;
+
 		brew)
 		    echo >&2 "TODO: no list all packages method for brew"
 		    ;;
@@ -610,9 +614,6 @@ done
 unavail_pkg=''
 case `hostname -s`
 in
-    vm15)
-    	unavail_pkg='valgrind socat'
-    	;;
     vm34)
 	unavail_pkg='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
 	;;

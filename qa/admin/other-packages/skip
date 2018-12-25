@@ -40,6 +40,9 @@ LinuxMint    18.3     -       libsoqt-dev
 # qtsvg is not needed without Qt5
 # valgrind is available, but segv's
 OpenBSD      6.4      -       qtbase qtsvg valgrind
+#-- Slackware
+# we're using python2
+Slackware    14.2     -       python3-.*
 #-- SuSE SLES
 # we're using python3
 SUSE         12-SP.*  -       python-.*

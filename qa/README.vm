@@ -280,24 +280,22 @@ Mandriva
     $ ???
 
 Slackware
-    https://http://www.slackware.com/
+    https://www.slackware.com
     27 June 2016: 14.1
-    # package search recipe (name and info or description)
-    $ sudo slackpkg file-search <filename-pattern>
-    $ sudo slackpkg search <info-pattern>
     # which packages are installed
-    $ ls /var/log/packages | grep <package-name>
+    $ ls /var/log/packages | sed -e 's/-[0-9].*//'
+    # package search recipe (name and info or description)
+    $ sudo slackpkg search <info-pattern>
     # which package installs a file/directory
-    $ ???
+    $ sudo slackpkg file-search <filename-pattern>
     # which files are in an installed package
-    $ ???
+    $ sed -e '1,/^FILE LIST:/d' </var/log/packages/<package>
     # package install recipe
     $ sudo slackpkg install <package>
     # update all packages recipe
     $ sudo slackpkg update; sudo slackpkg install-new
-    $ sudo slackpkg upgrade-all; sudo slackpkg clean-system
     # release upgrade recipe
-    $ ???
+    $ sudo slackpkg upgrade-all; sudo slackpkg clean-system
 
 Arch Linux
     https://www.archlinux.org/releng/releases/

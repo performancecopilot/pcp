@@ -162,6 +162,11 @@ in
 	searchtool=S_pkg
 	;;
 
+    *Slackware*)
+	pkgtool=slackpkg
+	searchtool=slackpkg
+	;;
+
 esac
 if [ -z "$pkgtool" ]
 then
@@ -352,6 +357,39 @@ p
 	    then
 		cat $tmp.tmp
 	    fi
+	    ;;
+
+	slackpkg)
+	    # expecting output like
+	    # /var/log/packages/bash-4.3.048-x86_64-1_slack14.2
+	    #
+	    # Need to strip leading / from path before searching.
+	    # Apply realpath to unwind any symlinks.
+	    # Try exact match first, else prefix match with *.new suffix
+	    # (this was needed for /bin/bash where the packaed file is
+	    # /bin/bash4.new and some post-install magic makes the real
+	    # /usr/bin/bash and the symlink /bin/bash).  Ditto for
+	    # /etc/httpd/httpd.conf.new (packaged) vs
+	    # /etc/httpd/httpd.conf (installed).
+	    #
+	    _path=`realpath "$1"`
+	    if $very_verbose
+	    then
+		echo >&2 "_path_to_pkg: arg=\"$1\" _path=\"$_path\""
+	    fi
+	    for suff in '' '.*\.new'
+	    do
+		grep -rl `echo "$_path$suff" | sed -e 's;^/;^;' -e 's/$/\$/'` /var/log/packages \
+		| sed >$tmp.tmp \
+		    -e 's,/var/log/packages/,,' \
+		    -e 's/-[0-9].*//' \
+		# end
+		if [ -s $tmp.tmp ]
+		then
+		    cat $tmp.tmp
+		    return
+		fi
+	    done
 	    ;;
 
 	brew)
@@ -813,6 +851,10 @@ in
 	equery list '*' | sed -e 's/.*].*] //' -e 's/-[0-9].*//'
 	;;
 
+    slackpkg)
+	ls /var/log/packages | sed -e 's/-[0-9].*//'
+	;;
+
     brew)
 	echo >&2 "TODO: no list all packages method for brew"
 	;;
@@ -949,6 +991,19 @@ then
 		# Location:    /usr/portage/app-shells/bash
 		#
 		if equery meta "$pkg" 2>&1 | grep '^Location:' >$tmp.out
+		then
+		    touch $tmp.avail
+		    $verbose && cat >&2 $tmp.out
+		fi
+		;;
+
+	    slackpkg)
+		# For example: slackpkg sarch bash ->
+		# ...
+		# [ installed ] - bash-4.3.048-x86_64-1_slack14.2
+		# [uninstalled] - bash-completion-2.2-noarch-3
+		#
+		if slackpkg search "$pkg" 2>&1 | grep '^\[uninstalled]' >$tmp.out
 		then
 		    touch $tmp.avail
 		    $verbose && cat >&2 $tmp.out
