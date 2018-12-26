@@ -524,13 +524,13 @@ check_pmiend_fdleak:	check_pmiend_fdleak.c
 
 httpfetch:	httpfetch.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web $(LIB_FOR_LIBUV)
 json_test:	json_test.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web $(LIB_FOR_LIBUV)
 sha1int2ext:	sha1int2ext.o
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web $(LIB_FOR_LIBUV)
 
 # --- need libpcp_fault
 #
