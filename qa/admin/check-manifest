@@ -144,7 +144,7 @@ in
 
     *OpenBSD*)
 	pkgtool=pkg_add
-	searchtool=pkg_locate
+	searchtool=pkg_info
 	;;
 
     *Gentoo*)
@@ -560,8 +560,11 @@ _match_pkg()
 	    pkg_add)
 		    case "$xpect"
 		    in
-			base64|comp64)
+			base6[1-4]|comp6[1-4])
 			    xpect=base
+			    ;;
+			xshare6[1-4])
+			    xpect=xshare
 			    ;;
 		    esac
 		    ;;
@@ -985,14 +988,14 @@ then
 		fi
 		;;
 
-	    pkg_locate)
+	    pkg_info)
 		# For example: search bash (installed) ->
 		# Information for inst:bash-4.4.23
 		# 		   search GraphicsMagic (not installed) ->
 		# Information for https://mirror.aarnet.edu.au/pub/OpenBSD/6.4/packages/amd64/GraphicsMagick-1.3.30.tgz
 		#
-		# Really using pkg_info becasuse pkg_locate matches on
-		# path, not package name
+		# Using pkg_info becasuse pkg_locate matches on path,
+		# not package name
 		#
 		if pkg_info "$pkg" 2>&1 | grep '^Information ' >$tmp.out
 		then

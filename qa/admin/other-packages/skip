@@ -42,7 +42,8 @@ LinuxMint    18.3     -       libsoqt-dev
 # if we change from gcc to clang for OpenBSD
 # qtsvg is not needed without Qt5
 # valgrind is available, but segv's
-OpenBSD      6.4      -       qtbase qtsvg valgrind
+# we're using python3
+OpenBSD      6.[34]   -       qtbase qtsvg valgrind python-.* .*-python
 #-- Slackware
 # we're using python2
 Slackware    14.2     -       python3-.*

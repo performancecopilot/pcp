@@ -36,7 +36,8 @@ LinuxMint    18.3     -       python3-bpfcc libsoqt5-dev
 NetBSD       6.1.5    -       QtSvg avahi avahi-tools avahi-utils docker dtrace json_reformat libibmad libibumad mkfs.gfs2 nmap p5-DBD-mysql py27-.* py36-bcc py36-imaging py36-libvirt py36-prometheus-client python3-jsonpointer qt5 qtchooser realpath sysstat uic valgrind zabbix-agent
 NetBSD       8.0      -       QtSvg avahi-tools avahi-utils dtrace json_reformat libibmad libibumad mkfs.gfs2 py27-.* py36-bcc py36-imaging py36-libvirt py36-prometheus-client python3-jsonpointer qtchooser realpath sysstat uic valgrind zabbix-agent
 #-- OpenBSD
-OpenBSD      6.4      -       libibumad libvirt-python3 py3-bcc py3-openpyxl py3-prometheus-client py36-jsonpointer qtchooser realpath
+OpenBSD      6.3      -       avahi-tools avahi-utils libibumad libvirt-python3 py3-bcc py3-elasticsearch py3-openpyxl py3-prometheus-client py3-jsonpointer qtchooser realpath
+OpenBSD      6.4      -       libibumad libvirt-python3 py3-bcc py3-openpyxl py3-prometheus-client py3-jsonpointer qtchooser realpath
 #-- openSUSE
 openSUSE     15       -       kubernetes-node libvarlink-devel pylint python3-prometheus_client python-pylint qtchooser selinux-policy selinux-policy-devel selinux-policy-targeted zabbix22-agent zabbix-agent
 openSUSE     42.2     -       Coin-devel docker-io libvarlink-devel libvirt-python3 pylint python2-pylint python3-elasticsearch python3-jsonpointer python3-libvirt python3-libvirt-python python3-pillow python3-prometheus_client python3-rtslib python3-rtslib-fb python-pylint qtchooser selinux-policy selinux-policy-devel selinux-policy-targeted SoQt-devel zabbix22-agent zabbix-agent

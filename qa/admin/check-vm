@@ -103,6 +103,7 @@ _usage()
     echo "  -o otherdir  use alternative other-packages directory"
     echo "  -p           generate list of likely packages that should be"
     echo "               installed with dnf or apt-get or yum or ..."
+    echo "  -P           same as -p, but emit shell commands for installer"
     echo "  -r require   use alternative require file"
     echo "  -s skip      use alternative skip file"
     echo "  -S skipbase  use alternative basename for skipbase.<hostname> files"
@@ -124,6 +125,7 @@ fi
 
 force=false
 pkglist=false
+pkgcmd=false
 verbose=false
 very_verbose=false
 check_manifest=false
@@ -134,7 +136,7 @@ require="$home"/other-packages/require			# default, see -r
 skip="$home"/other-packages/skip			# default, see -s
 skipbase="$home"/other-packages/skip			# default, see -S
 unavailable="$home"/other-packages/unavailable		# default, see -u
-while getopts 'cfm:o:pr:s:S:u:v?' p
+while getopts 'cfm:o:pPr:s:S:u:v?' p
 do
     case "$p"
     in
@@ -157,6 +159,11 @@ do
 		;;
 
 	p)	# just list most likely package for yum, dnf, apt-get, ...
+		pkglist=true
+		;;
+
+	P)	# same as -P but emit shell commands for installer
+		pkgcmd=true
 		pkglist=true
 		;;
 
@@ -337,6 +344,66 @@ s/CentOS\([0-9]\)/CentOS \1/
 	    fi
 	fi
     done
+}
+
+_find_installer_cmd()
+{
+    installcmd=''
+    case "`sed <$tmp.whatami -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
+    in
+	*Ubuntu*|*Debian*|*LinuxMint*)
+	    installcmd="apt install"
+	    ;;
+	*RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
+	    if which zypper >/dev/null 2>&1
+	    then
+		installcmd="zypper install"
+	    elif which dnf >/dev/null 2>&1
+	    then
+		installcmd="dnf install"
+	    elif which yum >/dev/null 2>&1
+	    then
+		installcmd="yum install"
+	    fi
+	    ;;
+
+	*NetBSD*)
+	    installcmd="pkgin install"
+	    ;;
+
+	*FreeBSD*)
+	    installcmd="pkg install"
+	    ;;
+
+	*OpenBSD*)
+	    installcmd="pkg_add"
+	    ;;
+
+	*Gentoo*)
+	    installcmd="emerge --ask"
+	    ;;
+
+	*Darwin*)
+	    installcmd="brew install"
+	    ;;
+
+	*OpenIndiana*)
+	    installcmd="pkg install"
+	    ;;
+
+	*Slackware*)
+	    installcmd="slackpkg install"
+	    ;;
+
+	*Arch\ Linux*)
+	    installcmd="pacman -S"
+	    ;;
+    esac
+    if [ -z "$installcmd" ]
+    then
+	echo "$0: Botch: don't recognize installcmd for: `cat $tmp.whatami`"
+	exit
+    fi
 }
 
 # add additional and optional directories
@@ -1010,13 +1077,37 @@ then
     if $pkglist
     then
 	sort <$tmp.out \
-	| uniq \
-	| tr '[\012]' ' ' \
-	| sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//'
-	# BSD* and Darwin heuristic hack ... don't need extra echo for
-	# these guys
-	#
-	[ -z "$PCP_ECHO_N" ] || echo
+	| uniq >$tmp.tmp
+	if $pkgcmd
+	then
+	    _find_installer_cmd
+	    grep -v 'cpan(' <$tmp.tmp | grep -v 'pip3(' >$tmp.pkg
+	    if [ -s $tmp.pkg ]
+	    then
+		echo "sudo $installcmd `tr '\012' ' ' <$tmp.pkg`"
+	    fi
+	    grep 'cpan(' <$tmp.tmp >$tmp.pkg
+	    if [ -s $tmp.pkg ]
+	    then
+		sed <$tmp.pkg \
+		    -e 's/^/sudo cpan /' \
+		    -e 's/cpan(/"/' \
+		    -e 's/)/"/'
+		# end
+	    fi
+	    grep 'pip3(' <$tmp.tmp >$tmp.pkg
+	    if [ -s $tmp.pkg ]
+	    then
+		echo "sudo pip3 install `tr '\012' ' ' <$tmp.pkg`"
+	    fi
+	else
+	    tr '\012' ' ' <$tmp.tmp \
+	    | sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//'
+	    # BSD* and Darwin heuristic hack ... don't need extra echo for
+	    # these guys
+	    #
+	    [ -z "$PCP_ECHO_N" ] || echo
+	fi
     else
 	cat $tmp.out
     fi
