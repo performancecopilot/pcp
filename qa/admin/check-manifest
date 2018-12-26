@@ -167,6 +167,11 @@ in
 	searchtool=slackpkg
 	;;
 
+    *Arch\ Linux*)
+	pkgtool=pacman
+	searchtool=pacman
+	;;
+
 esac
 if [ -z "$pkgtool" ]
 then
@@ -390,6 +395,13 @@ p
 		    return
 		fi
 	    done
+	    ;;
+
+	pacman)
+	    # expecting output like
+	    # /usr/bin/bash is owned by core/bash 4.4.023-1
+	    #
+	    pacman -Qo "$1" | sed -e 's/.* is owned by //' -e 's/ .*//'
 	    ;;
 
 	brew)
@@ -686,8 +698,8 @@ sed <$tmp.manifest \
     -e '/^[ 	]*:[0-9][0-9]*$/d' \
     -e '/^[ 	]*$/d' \
     -e '/\[N\/A/d' \
-    -e '/\[skip]/d' \
-    -e '/\[skip on host/d' \
+    -e '/\[SKIP]/d' \
+    -e '/\[SKIP on host/d' \
 | while read guard target extra
 do
     # most lines have no guard, but some do, e.g.
@@ -855,6 +867,10 @@ in
 	ls /var/log/packages | sed -e 's/-[0-9].*//'
 	;;
 
+    pacman)
+	pacman -Q -i | sed -n -e '/^Name /s/.* : //p'
+	;;
+
     brew)
 	echo >&2 "TODO: no list all packages method for brew"
 	;;
@@ -998,7 +1014,7 @@ then
 		;;
 
 	    slackpkg)
-		# For example: slackpkg sarch bash ->
+		# For example: slackpkg search bash ->
 		# ...
 		# [ installed ] - bash-4.3.048-x86_64-1_slack14.2
 		# [uninstalled] - bash-completion-2.2-noarch-3
@@ -1009,6 +1025,18 @@ then
 		    $verbose && cat >&2 $tmp.out
 		fi
 		;;
+
+	    pacman)
+		# For example: pacman -Sl | grep " bash " ->
+		# core bash 4.4.023-1 [installed]
+		#
+		if pacman -Sl | grep " $pkg " >$tmp.out
+		then
+		    touch $tmp.avail
+		    $verbose && cat >&2 $tmp.out
+		fi
+		;;
+
 
 	    brew)
 		# For example: brew info bash ->

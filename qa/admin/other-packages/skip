@@ -17,6 +17,9 @@
 # Comments prefixed by #
 #
 #Distro      Version  Arch    Skipped Packages
+#-- ArchLinux
+# we're using python3
+ArchLinux    -        -       python2-.* .*-python2
 #-- Fedora
 # observed on vm22
 # 389-ds is available but cannot be installed because nothing provides

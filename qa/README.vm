@@ -301,13 +301,15 @@ Arch Linux
     https://www.archlinux.org/releng/releases/
     04 Jan 2018: 2018.01.01 2017.12.01 2107.11.01
     27 Jun 2016: 2016.06.01, 2016.05.01, 2016.04.01
+    # which packages are installed
+    $ pacman -Q -i | sed -n -e '/^Name /s/.* : //p'
     # package search recipe (name and info or description)
     $ pacman -S -l | grep <package-name-pattern>
     $ pacman -S -s <regexp>
     # which package installs a file/directory
     $ pacman -Q -o <path> | <filename>
     # which files are in an installed package
-    $ pacman -F -y (refresh files database) then
+    $ sudo pacman -F -y (refresh files database) then
     $         pacman -F -l <package> (files in a package)
     $         pacman -F -o <fullpath> (package(s) owning a file)
     $         pacman -F -s <regexp> (package(s) owning matching files)
