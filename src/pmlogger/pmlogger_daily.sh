@@ -98,9 +98,6 @@ then
 	exit
     fi
 fi
-# On GNU/Linux we use whole day granularity for mtime (BSD is different)
-find . -daystart -name NoSuchFile >/dev/null 2>&1 && FIND_DAYSTART="-daystart"
-
 COMPRESSREGEX=""
 COMPRESSREGEX_CMDLINE=""
 COMPRESSREGEX_DEFAULT="\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$"
@@ -1392,8 +1389,7 @@ p
 			else
 			    mtime=$COMPRESSAFTER
 			fi
-			# $FIND_DAYSTART may not be set on some platforms, so it's not quoted here
-			find . -type f $FIND_DAYSTART -mtime +$mtime
+			find . -type f -mtime +$mtime
 		    fi \
 		    | _filter_filename \
 		    | egrep -v "$COMPRESSREGEX" \
