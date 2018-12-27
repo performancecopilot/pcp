@@ -102,7 +102,7 @@ install : default
 
 $(LN_FILES):
 	rm -f $@
-	ln $(TOPDIR)/src/libpcp/src/$@ .
+	ln -s $(TOPDIR)/src/libpcp/src/$@ .
 
 $(EXT_FILES):
 	rm -f $@
