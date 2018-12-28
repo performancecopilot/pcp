@@ -138,14 +138,21 @@ arch=ok-truncbin
 rm -f $tmp.arch/*
 cp archives/$arch.* $tmp.arch
 ls -l $tmp.arch >>$seq.full
+# Note: 204XXX filtering is because stdio does not always return the same
+#       value on different platforms ... it is 204800 (EOF) on OpenBSD 6.3
+#       (vm33) but 204456 elsewhere
+#
 pmlogrewrite -Dlog -iwv -c $tmp.conf $tmp.arch/$arch 2>$tmp.err >$tmp.out
 cat $tmp.out $tmp.err \
 | _filter \
-| sed -e '/inspect file/{
+| sed \
+    -e '/inspect file/{
 s/\.meta/.EXT/
 s/\.index/.EXT/
 s/\.0/.EXT/
-}'
+}' \
+    -e '/occurred/s/offset 204[0-9][0-9][0-9]/offset 204XXX/' \
+# end
 ls $tmp.arch
 ls -l $tmp.arch >>$seq.full
 _cmp archives/$arch $tmp.arch/$arch
