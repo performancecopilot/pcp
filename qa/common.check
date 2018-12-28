@@ -2271,18 +2271,16 @@ _disable_loggers()
 		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
     if [ -f $PCP_PMLOGGERCONTROL_PATH ]
     then
-	[ ! -f $tmp.control ] && \
-		$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
+	$sudo mv $PCP_PMLOGGERCONTROL_PATH $PCP_PMLOGGERCONTROL_PATH.$seq
     fi
     if [ -d $PCP_PMLOGGERCONTROL_PATH.d ]
     then
-	[ ! -d $tmp.control.d ] && \
-		$sudo cp -a $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
-	$sudo rm -fr $PCP_PMLOGGERCONTROL_PATH.d
+	rm -rf $PCP_PMLOGGERCONTROL_PATH.$seq.d
+	$sudo mv $PCP_PMLOGGERCONTROL_PATH.d $PCP_PMLOGGERCONTROL_PATH.$seq.d
     fi
     cat <<End-of-File >$tmp._tmp
-# dummy file created by qa/$seq on `date`
-# the goal here is to have a controlled primary logger that does
+# Installed by PCP QA test $seq on `date`
+# The goal here is to have a controlled primary logger that does
 # not make requests to pmcd!
 \$version=1.1
 LOCALHOSTNAME y n PCP_LOG_DIR/pmlogger/LOCALHOSTNAME -c /dev/null
@@ -2294,13 +2292,13 @@ _restore_loggers()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
-    if [ -d $tmp.control.d ]
+    if [ -d $PCP_PMLOGGERCONTROL_PATH.$seq.d ]
     then
-	$sudo cp -a $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
-	$sudo rm -fr $tmp.control.d
+	$sudo rm -fr $PCP_PMLOGGERCONTROL_PATH.d
+	$sudo mv $PCP_PMLOGGERCONTROL_PATH.$seq.d $PCP_PMLOGGERCONTROL_PATH.d
     fi
-    [ -f $tmp.control ] && \
-	$sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
+    [ -f $PCP_PMLOGGERCONTROL_PATH.$seq ] && \
+	$sudo mv $PCP_PMLOGGERCONTROL_PATH.$seq $PCP_PMLOGGERCONTROL_PATH
 }
 
 # _check_core [dir]
