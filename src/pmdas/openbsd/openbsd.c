@@ -479,52 +479,6 @@ do_sysctl(mib_t *mp, size_t xpect)
 }
 
 /*
- * kernel memory reader setup
- */
-struct nlist	symbols[] = {
-	{ .n_name = "_ifnet" },
-	{ .n_name = NULL }
-};
-kvm_t	*kvmp;
-
-static void
-kmemread_init(void)
-{
-    int		sts;
-    int		i;
-    char	errmsg[_POSIX2_LINE_MAX];
-
-    /*
-     * If we're running as a daemon PMDA, assume we're setgid kmem,
-     * so we can open /dev/kmem, and downgrade privileges after the
-     * kvm_open().
-     * For a DSO PMDA, we have to assume pmcd has the required
-     * privileges and don't dink with them.
-     */
-    kvmp = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errmsg);
-    if (!isDSO)
-	setgid(getgid());
-    if (kvmp == NULL) {
-	fprintf(stderr, "kmemread_init: kvm_openfiles failed: %s\n", errmsg);
-	return;
-    }
-
-    sts = kvm_nlist(kvmp, symbols);
-    if (sts < 0) {
-	fprintf(stderr, "kmemread_init: kvm_nlist failed: %s\n", pmErrStr(-errno));
-	for (i = 0; i < sizeof(symbols)/sizeof(symbols[0])-1; i++)
-	    symbols[i].n_value = 0;
-	return;
-    }
-    if (pmDebugOptions.appl0) {
-	for (i = 0; i < sizeof(symbols)/sizeof(symbols[0])-1; i++) {
-	    fprintf(stderr, "Info: kernel symbol %s found at 0x%08lx\n", symbols[i].n_name, symbols[i].n_value);
-	}
-    }
-
-}
-
-/*
  * Callback provided to pmdaFetch ... come here once per metric-instance
  * pair in each pmFetch().
  */
@@ -577,6 +531,24 @@ openbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 5:		/* kernel.all.cpu.sys */
 	    case 6:		/* kernel.all.cpu.intr */
 	    case 7:		/* kernel.all.cpu.idle */
+#ifdef HAVE_32BIT_LONG
+		/*
+		 * for 32-bit kernels, fetch as 32-bit, and
+		 * promote to 64-bit metric values
+		 */
+		sts = do_sysctl(mp, CPUSTATES*sizeof(atom->ul));
+		if (sts > 0) {
+		    /*
+		     * PMID assignment is important in the "-3" below so
+		     * that metrics map to consecutive elements of the
+		     * returned value in the order defined for CPUSTATES,
+		     * i.e. CP_USER, CP_NICE, CP_SYS, CP_INTR and
+		     * CP_IDLE
+		     */
+		    atom->ull = 1000*((__uint32_t *)mp->m_data)[item-3]/cpuhz;
+		    sts = 1;
+		}
+#else
 		sts = do_sysctl(mp, CPUSTATES*sizeof(atom->ull));
 		if (sts > 0) {
 		    /*
@@ -589,6 +561,7 @@ openbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    atom->ull = 1000*((__uint64_t *)mp->m_data)[item-3]/cpuhz;
 		    sts = 1;
 		}
+#endif
 		break;
 
 	    case 13:		/* kernel.all.hz */
@@ -965,8 +938,6 @@ openbsd_init(pmdaInterface *dp)
 	    /*NOTREACHED*/
 	}
     }
-
-    kmemread_init();
 }
 
 static void
