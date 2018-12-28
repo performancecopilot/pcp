@@ -15,3 +15,11 @@
 # Both pmlogger command line (via control file) and also pmlogger
 # configuration file directives will override this value.
 # PMLOGGER_INTERVAL=60
+
+# The default behaviour, when pmlogger configuration comes from
+# pmlogconf(1), is to regenerate the configuration file and check for
+# changes whenever pmlogger is started from pmlogger_check(1).
+# If the PMDA configuration is stable, this is not necessary, and
+# setting PMLOGGER_CHECK_SKIP_LOGCONF to yes disables the regeneration
+# and checking.
+# PMLOGGER_CHECK_SKIP_LOGCONF=yes
