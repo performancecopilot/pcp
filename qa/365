@@ -45,6 +45,10 @@ done_clean=false
 $sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# don't need to regenerate config.default with pmlogconf
+#
+export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+
 qahost=`hostname`
 eval `./getpmcdhosts -L -n 2 2>$tmp.out | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 echo "other1=$other1" >$seq.full
@@ -96,6 +100,15 @@ then
 # Installed by PCP QA test $seq on `date`
 #
 freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+
+End-of-File
+elif [ $PCP_PLATFORM = openbsd ]
+then
+    cat <<End-of-File >$tmp.tmp
+# Installed by PCP QA test $seq on `date`
+#
+openbsd	139	dso	openbsd_init	$PCP_PMDAS_DIR/openbsd/pmda_openbsd.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 
 End-of-File
