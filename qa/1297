@@ -23,6 +23,7 @@ _cleanup()
     if $was_running
     then
 	_restore_auto_restart pmie
+	$sudo systemctl start pmie 2>&1 >>$here/$seq.full
     else
 	echo "== stop primary pmie" >>$here/$seq.full
 	$sudo systemctl stop pmie 2>&1 >>$here/$seq.full
