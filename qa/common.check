@@ -980,6 +980,81 @@ p
     done
 }
 
+# Wait for at primary pmie to start ...
+#
+_wait_for_pmie()
+{
+    #debug# set -x
+
+    _i=0
+    while true
+    do
+	if [ ! -f $PCP_RUN_DIR/pmie.pid ]
+	then
+	    # process not started yet ...
+	    _i=`expr $_i + 1`
+	    if [ "$_i" -ge 100 ]
+	    then
+		echo "_wait_for_pmie: failed to see pmie start after 100 iterations"
+		#debug# set +x
+		return
+	    fi
+	    pmsleep 0.1
+	else
+	    # process has really started ...
+	    #debug# set +x
+	    return
+	fi
+    done
+}
+
+# Wait for primary pmie to end
+#
+_wait_pmie_end()
+{
+    #debug# set -x
+
+    _pid=`cat $PCP_RUN_DIR/pmie.pid 2>/dev/null`
+    if [ -z "$_pid" ]
+    then
+	# no $PCP_RUN_DIR/pmie.pid file, try ps(1) the hard way
+	#
+	_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+	| sed -n -e '/\[p]mie /{
+s/^[^ 	]*//
+s/^[ 	]*//
+s/[ 	].*//
+p
+}'`
+    fi
+    if [ -z "$_pid" ]
+    then
+	#debug# set +x
+	return
+    fi
+
+    _i=0
+    while true
+    do
+	if sudo kill -s 0 $_pid 2>/dev/null
+	then
+	    # process still exists
+	    _i=`expr $_i + 1`
+	    if [ "$_i" -ge 100 ]
+	    then
+		echo "_wait_pmie_end: failed to see pid $_pid exit after 100 iterations"
+		#debug# set +x
+		return
+	    fi
+	    pmsleep 0.1
+	else
+	    # process has really exited
+	    #debug# set +x
+	    return
+	fi
+    done
+}
+
 # ensure primary logger allows pmlc state changes
 #
 _writable_primary_logger()
@@ -2269,14 +2344,31 @@ _disable_loggers()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+    if [ -f $PCP_PMLOGGERCONTROL_PATH.$seq ]
+    then
+	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq already exists"
+	date
+	ls -l $PCP_PMLOGGERCONTROL_PATH.$seq
+	exit
+    fi
     if [ -f $PCP_PMLOGGERCONTROL_PATH ]
     then
 	$sudo mv $PCP_PMLOGGERCONTROL_PATH $PCP_PMLOGGERCONTROL_PATH.$seq
+    else
+	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH missing"
+    fi
+    if [ -d $PCP_PMLOGGERCONTROL_PATH.$seq.d ]
+    then
+	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq.d already exists"
+	date
+	ls -ld $PCP_PMLOGGERCONTROL_PATH.$seq.d
+	exit
     fi
     if [ -d $PCP_PMLOGGERCONTROL_PATH.d ]
     then
-	rm -rf $PCP_PMLOGGERCONTROL_PATH.$seq.d
 	$sudo mv $PCP_PMLOGGERCONTROL_PATH.d $PCP_PMLOGGERCONTROL_PATH.$seq.d
+    else
+	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.d missing"
     fi
     cat <<End-of-File >$tmp._tmp
 # Installed by PCP QA test $seq on `date`
@@ -2296,9 +2388,15 @@ _restore_loggers()
     then
 	$sudo rm -fr $PCP_PMLOGGERCONTROL_PATH.d
 	$sudo mv $PCP_PMLOGGERCONTROL_PATH.$seq.d $PCP_PMLOGGERCONTROL_PATH.d
+    else
+	echo "_restore_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq.d missing"
     fi
-    [ -f $PCP_PMLOGGERCONTROL_PATH.$seq ] && \
+    if [ -f $PCP_PMLOGGERCONTROL_PATH.$seq ]
+    then
 	$sudo mv $PCP_PMLOGGERCONTROL_PATH.$seq $PCP_PMLOGGERCONTROL_PATH
+    else
+	echo "_restore_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq missing"
+    fi
 }
 
 # _check_core [dir]
