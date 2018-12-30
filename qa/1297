@@ -20,6 +20,14 @@ which systemctl >/dev/null 2>&1 || _notrun "systemctl tool not installed"
 _cleanup()
 {
     cd $here
+    if $was_running
+    then
+	_restore_auto_restart pmie
+    else
+	echo "== stop primary pmie" >>$here/$seq.full
+	$sudo systemctl stop pmie 2>&1 >>$here/$seq.full
+	_wait_pmie_end
+    fi
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -27,6 +35,8 @@ status=1	# failure is the default!
 host=`hostname`
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+was_running=false
+[ -f $PCP_RUN_DIR/pmie.pid ] && was_running=true
 
 _filter()
 {
@@ -36,16 +46,23 @@ _filter()
     #end
 }
 
+if $was_running
+then
+    _stop_auto_restart pmie
+fi
+
 # real QA test starts here
-$sudo systemctl stop pmie 2>&1 >/dev/null
+$sudo systemctl stop pmie 2>&1 >>$here/$seq.full
+_wait_pmie_end
 echo
 
-echo "== confirm no primary pmie running:"
+echo "== confirm no primary pmie running:" | tee -a $here/$seq.full
 pcp | grep 'pmie: primary engine' | _filter
 echo "== finished" && echo
 
-$sudo systemctl start pmie 2>&1 >/dev/null
-echo "== confirm primary pmie is running:"
+$sudo systemctl start pmie 2>&1 >>$here/$seq.full
+_wait_for_pmie
+echo "== confirm primary pmie is running:" | tee -a $here/$seq.full
 pcp | grep 'pmie: primary engine' | _filter
 echo "== finished" && echo
 
