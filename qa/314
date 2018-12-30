@@ -13,9 +13,50 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_cleanup()
+{
+    cd $here
+    if $was_running
+    then
+	_restore_auto_restart pmie
+	_service pmie start 2>&1 >>$here/$seq.full
+    else
+	_service pmie stop 2>&1 >>$here/$seq.full
+	_wait_pmie_end
+    fi
+    $sudo rm -fr $tmp.*
+    $sudo rm -fr /tmp/$seq;
+}
+
+# wait for a file to appear ...
+#
+_wait_for()
+{
+    _i=0
+    while [ ! -f "$1" ]
+    do
+	_i=`expr $_i + 1`
+	if [ "$_i" -ge 100 ]
+	then
+	    echo "_wait_for: failed to see file $1 after 100 iterations"
+	    return
+	fi
+	pmsleep 0.1
+    done
+}
+
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
-trap "$sudo rm -fr $tmp.*; $sudo rm -fr /tmp/$seq; exit \$status" 0 1 2 3 15
+trap "_cleanup;
+exit \$status" 0 1 2 3 15
+
+was_running=false
+[ -f $PCP_RUN_DIR/pmie.pid ] && was_running=true
+
+if $was_running
+then
+    _stop_auto_restart pmie
+fi
 
 # create a pmie config file, causing frequent output (to log)
 cat > $tmp.config << EOF1
@@ -37,6 +78,8 @@ echo "=== pmie control ===" >>$seq.full
 cat $tmp.control >>$seq.full
 
 # real QA test starts here
+_service pmie stop >>$seq.full
+_wait_pmie_end
 $sudo $signal -a -s TERM pmie 2>/dev/null
 $sudo rm -fr /tmp/$seq && mkdir /tmp/$seq || exit 1
 id pcp >/dev/null 2>&1 && $sudo chown -R pcp:pcp /tmp/$seq
@@ -47,6 +90,7 @@ echo "Starting pmie process"
 echo "=== pmie_check ===" >>$seq.full
 $sudo $PCP_BINADM_DIR/pmie_check -c $tmp.control -VV -l $tmp.log
 $sudo cat $tmp.log >>$seq.full
+_wait_for /tmp/$seq/1.good.log
 ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
 sleep 6		# fill original log a bit
 cat /tmp/$seq/1.good.log >>$seq.full
@@ -57,6 +101,7 @@ previous=`pmdate -1d %Y%m%d`
 echo "=== pmie_daily ===" >>$seq.full
 $sudo $PCP_BINADM_DIR/pmie_daily -c $tmp.control -VV -l $tmp.log
 $sudo cat $tmp.log >>$seq.full
+_wait_for /tmp/$seq/1.good.log
 ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
 sleep 3		# fill rotated log a bit
 
