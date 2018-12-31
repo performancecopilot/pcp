@@ -136,7 +136,7 @@ do
 	rm -f $tmp.ok
         i=`expr $i + 1`
 	echo "pmlogger probe #$i `date`" >>$seq.full
-        ls -l $tmp.xfsmount/$hostname/config.pmlogger >>$seq.full 2>/dev/null
+        ls -l $tmp.xfsmount/$hostname/config.pmlogger >>$seq.full 2>&1
 
         # NB: shan't check through pminfo pmcd.*, since these daemons run unprivileged
         # under the pcpqa userid and may not have permission to write into the
@@ -149,6 +149,7 @@ do
     if [ ! -f $tmp.ok ]
     then
 	echo "Arrg, failed to start pmlogger at iteration $x"
+	echo "Looking for non-empty $tmp.xfsmount/$hostname/config.pmlogger"
 	ls -lR $tmp.xfsmount
     fi
 
