@@ -1014,12 +1014,13 @@ _wait_pmie_end()
 {
     #debug# set -x
 
-    _pid=`cat $PCP_RUN_DIR/pmie.pid 2>/dev/null`
-    if [ -z "$_pid" ]
+    _pidlist=`cat $PCP_RUN_DIR/pmie.pid 2>/dev/null`
+    if [ -z "$_pidlist" ]
     then
-	# no $PCP_RUN_DIR/pmie.pid file, try ps(1) the hard way
+	# no $PCP_RUN_DIR/pmie.pid file, try ps(1) the hard way ...
+	# Note, this will wait for ALL pmie's running on the local machine.
 	#
-	_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+	_pidlist=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
 	| sed -n -e '/\[p]mie /{
 s/^[^ 	]*//
 s/^[ 	]*//
@@ -1027,7 +1028,7 @@ s/[ 	].*//
 p
 }'`
     fi
-    if [ -z "$_pid" ]
+    if [ -z "$_pidlist" ]
     then
 	#debug# set +x
 	return
@@ -1036,21 +1037,30 @@ p
     _i=0
     while true
     do
-	if sudo kill -s 0 $_pid 2>/dev/null
+	rm -f $tmp.some_pmie_running
+	for _pid in $_pidlist
+	do
+	    if sudo kill -s 0 $_pid 2>/dev/null
+	    then
+		# process still exists
+		touch $tmp.some.pmie
+	    fi
+	done
+	if [ -f $tmp.some.pmie ]
 	then
-	    # process still exists
 	    _i=`expr $_i + 1`
 	    if [ "$_i" -ge 100 ]
 	    then
-		echo "_wait_pmie_end: failed to see pid $_pid exit after 100 iterations"
+		echo "_wait_pmie_end: failed to see pid(s) $_pidlist exit after 100 iterations"
+		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|[p]mie'
 		#debug# set +x
-		return
+		break
 	    fi
 	    pmsleep 0.1
 	else
-	    # process has really exited
+	    # all processes have exited
 	    #debug# set +x
-	    return
+	    break
 	fi
     done
 }
