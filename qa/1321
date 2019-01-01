@@ -17,6 +17,7 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 _cleanup()
 {
     $sudo $PCP_BINADM_DIR/pmsignal -s TERM $pmlogger_pid >/dev/null 2>&1
+    _wait_pmlogger_end $pmlogger_pid
     echo "=== prometheus PMDA log ===" >>$here/$seq.full
     if [ -f $PCP_LOG_DIR/pmcd/prometheus.log ]
     then
