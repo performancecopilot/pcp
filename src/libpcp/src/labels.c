@@ -1033,8 +1033,8 @@ pmLookupLabels(pmID pmid, pmLabelSet **labels)
     if ((sts = pmLookupDesc(pmid, &desc)) < 0)
 	return sts;
 
-    /* context, domain, [indom], cluster, item, [insts...] */
-    total = (desc.indom == PM_INDOM_NULL) ? 4 : 6;
+    /* context, domain, [indom], cluster, item */
+    total = (desc.indom == PM_INDOM_NULL) ? 4 : 5;
     if ((sets = calloc(total, sizeof(pmLabelSet))) == NULL)
 	return -ENOMEM;
     count = 0;
@@ -1083,27 +1083,6 @@ pmLookupLabels(pmID pmid, pmLabelSet **labels)
 	sets[count++] = *lsp;
 	free(lsp);
 	lsp = NULL;
-    }
-
-    if (desc.indom != PM_INDOM_NULL) {
-	if ((sts = n = pmGetInstancesLabels(desc.indom, &lsp)) < 0)
-	    goto fail;
-	if (lsp && n + count > total) {
-	    /* make space on the end for additional instance sets */
-	    sets = realloc(sets, (count + n) * sizeof(pmLabelSet));
-	    if (sets == NULL) {
-		free(lsp);
-		lsp = NULL;
-		sts = -ENOMEM;
-		goto fail;
-	    }
-	}
-	if (lsp) {
-	    memcpy(&sets[count], lsp, n * sizeof(pmLabelSet));
-	    count += n;
-	    free(lsp);
-	    lsp = NULL;
-	}
     }
 
     *labels = sets;
