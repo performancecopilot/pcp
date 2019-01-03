@@ -27,7 +27,7 @@ _cleanup()
     unset PMCD_PORT
     unset PMCD_SOCKET
     _restore_config $PCP_PMCDOPTIONS_PATH
-    _service pcp start | _filter_pcp_start
+    _service pcp start 2>&1 | _filter_pcp_start
     _wait_for_pmcd
     _restore_auto_restart pmcd
     _wait_for_pmlogger
@@ -87,7 +87,7 @@ $sudo cp $tmp.newoptions $PCP_PMCDOPTIONS_PATH
 echo "export PMCD_PORT=$port" >$tmp.start
 echo "export PMCD_SOCKET=$tmp.socket" >>$tmp.start
 echo "$PCP_RC_DIR/pmcd restart" >>$tmp.start
-$sudo sh $tmp.start | _filter_pcp_start
+$sudo sh $tmp.start 2>&1 | _filter_pcp_start
 export PMCD_PORT=$port
 export PMCD_SOCKET=$tmp.socket
 _wait_for_pmcd

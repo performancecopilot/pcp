@@ -6,8 +6,8 @@
 
 int main()
 {
-    time_t sept = (30*365.25+244)*24*3600; /* 1 Septemnber 2000 */
-    time_t march = (30*365.25+60)*24*3600; /* 1 March 2000 */
+    time_t sep = (30*365.25+244)*24*3600; /* 1 September 2000 */
+    time_t mar = (30*365.25+60)*24*3600; /* 1 March 2000 */
 
     /* Two sets of timezone strings - one works for the first half
      * of the year, another for the second. Make sure that in the case
@@ -37,6 +37,8 @@ int main()
     char * tz = getenv("TZ");
 
     if (tz == NULL) {
+	printf("Debug: Mar time_t %ld -> %s", (long)mar, ctime(&mar));
+	printf("Debug: Sep time_t %ld -> %s", (long)sep, ctime(&sep));
 	puts("Timezone is not set, abort the test");
     } else {
 	int i;
@@ -61,13 +63,13 @@ int main()
             newtz = __pmTimezone();
 
             printf("%s -> %s\n", tz, newtz);
-	    tmp = localtime(&march);
+	    tmp = localtime(&mar);
 	    dst = tmp->tm_isdst;
 
             strftime(tstr, 64, "%d %B %Y %H:%M %Z", tmp);
 	    printf("In March daylight saving is %s, and the time is %s\n",
 		(dst ? "on" : "off"), tstr);
-	    tmp = localtime(&sept);
+	    tmp = localtime(&sep);
 	    dst = tmp->tm_isdst;
             strftime(tstr, 64, "%d %B %Y %H:%M %Z", tmp);
 	    printf("In September daylight saving is %s, and the time is %s\n\n",

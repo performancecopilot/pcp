@@ -22,6 +22,10 @@ LOCALHOST=`hostname`
 
 trap "_cleanup" 0 1 2 3 15
 
+# don't need to regenerate config.default with pmlogconf
+#
+export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+
 _stop_auto_restart pmcd
 
 if [ -d $PCP_LOG_DIR/pmlogger ]

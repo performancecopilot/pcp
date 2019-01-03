@@ -111,7 +111,7 @@ then
     sleep $BREATHER
 fi
 dbugEcho 1 "Starting up PCP"
-_service pcp restart >/dev/null
+_service pcp restart 2>&1 >/dev/null
 _wait_for_pmcd
 _wait_for_pmlogger
 

@@ -103,6 +103,7 @@ _usage()
     echo "  -o otherdir  use alternative other-packages directory"
     echo "  -p           generate list of likely packages that should be"
     echo "               installed with dnf or apt-get or yum or ..."
+    echo "  -P           same as -p, but emit shell commands for installer"
     echo "  -r require   use alternative require file"
     echo "  -s skip      use alternative skip file"
     echo "  -S skipbase  use alternative basename for skipbase.<hostname> files"
@@ -124,6 +125,7 @@ fi
 
 force=false
 pkglist=false
+pkgcmd=false
 verbose=false
 very_verbose=false
 check_manifest=false
@@ -134,7 +136,7 @@ require="$home"/other-packages/require			# default, see -r
 skip="$home"/other-packages/skip			# default, see -s
 skipbase="$home"/other-packages/skip			# default, see -S
 unavailable="$home"/other-packages/unavailable		# default, see -u
-while getopts 'cfm:o:pr:s:S:u:v?' p
+while getopts 'cfm:o:pPr:s:S:u:v?' p
 do
     case "$p"
     in
@@ -157,6 +159,11 @@ do
 		;;
 
 	p)	# just list most likely package for yum, dnf, apt-get, ...
+		pkglist=true
+		;;
+
+	P)	# same as -P but emit shell commands for installer
+		pkgcmd=true
 		pkglist=true
 		;;
 
@@ -279,13 +286,13 @@ _parse_file()
 	-e 's/ \[.*//' \
 	-e 's/ ([^)]*)//' \
 	-e 's/RHEL Server/RHEL/' \
-	-e 's/Arch Linux/ArchLinux/' \
+	-e 's/Arch Linux/ArchLinux /' \
 	-e '/CentOS/{
 s/CentOS Linux/CentOS/
 s/CentOS\([0-9]\)/CentOS \1/
 }' \
 	-e '/FreeBSD/s/-RELEASE//' \
-	-e '/SLES[0-9][0-9]* SP/s/ SP/-SP/' \
+	-e '/SLES\([0-9][0-9]*\) SP/s//\1-SP/' \
 	-e '/OpenIndiana/s/Hipster //' \
 	-e 's/^/_arch=/' \
 	-e 's/ /+_distro=/' \
@@ -293,6 +300,7 @@ s/CentOS\([0-9]\)/CentOS \1/
 	-e 's/+_/ _/' \
 	-e 's/$/"/' \
     | tr ' ' '\012' >$tmp.eval
+    $very_verbose && echo >&2 "_parse_file: vars: `tr '\012' ' ' <$tmp.eval`"
     eval `cat $tmp.eval`
     sed <$1 \
 	-e 's/#.*//' \
@@ -336,6 +344,66 @@ s/CentOS\([0-9]\)/CentOS \1/
 	    fi
 	fi
     done
+}
+
+_find_installer_cmd()
+{
+    installcmd=''
+    case "`sed <$tmp.whatami -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
+    in
+	*Ubuntu*|*Debian*|*LinuxMint*)
+	    installcmd="apt install"
+	    ;;
+	*RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
+	    if which zypper >/dev/null 2>&1
+	    then
+		installcmd="zypper install"
+	    elif which dnf >/dev/null 2>&1
+	    then
+		installcmd="dnf install"
+	    elif which yum >/dev/null 2>&1
+	    then
+		installcmd="yum install"
+	    fi
+	    ;;
+
+	*NetBSD*)
+	    installcmd="pkgin install"
+	    ;;
+
+	*FreeBSD*)
+	    installcmd="pkg install"
+	    ;;
+
+	*OpenBSD*)
+	    installcmd="pkg_add"
+	    ;;
+
+	*Gentoo*)
+	    installcmd="emerge --ask"
+	    ;;
+
+	*Darwin*)
+	    installcmd="brew install"
+	    ;;
+
+	*OpenIndiana*)
+	    installcmd="pkg install"
+	    ;;
+
+	*Slackware*)
+	    installcmd="slackpkg install"
+	    ;;
+
+	*Arch\ Linux*)
+	    installcmd="pacman -S"
+	    ;;
+    esac
+    if [ -z "$installcmd" ]
+    then
+	echo "$0: Botch: don't recognize installcmd for: `cat $tmp.whatami`"
+	exit
+    fi
 }
 
 # add additional and optional directories
@@ -407,14 +475,9 @@ then
 fi
 $home/whatami >$tmp.whatami
 
-if $check_manifest
-then
-    # append original line numbers
-    #
-    $PCP_AWK_PROG '{ print $0 " :" NR }' <$manifest >$tmp.manifest
-else
-    cat <$manifest >$tmp.manifest
-fi
+# append original line numbers for non-blank lines
+#
+$PCP_AWK_PROG 'NF > 0 { print $0 " :" NR }' <$manifest >$tmp.manifest
 
 if which python >/dev/null 2>&1
 then
@@ -540,6 +603,14 @@ do
 		    equery list '*' | sed -e 's/.*].*] //' -e 's/-[0-9].*//'
 		    ;;
 
+		slackpkg)
+		    ls /var/log/packages | sed -e 's/-[0-9].*//'
+		    ;;
+
+		pacman)
+		    pacman -Q -i | sed -n -e '/^Name /s/.* : //p'
+		    ;;
+
 		brew)
 		    echo >&2 "TODO: no list all packages method for brew"
 		    ;;
@@ -603,47 +674,15 @@ do
     fi
 done
 
-# Modify the package inventory for some particular hosts where we've
-# explored and _know_ certain packages are not available
-#
-unavail_pkg=''
-case `hostname -s`
-in
-    vm15)
-    	unavail_pkg='valgrind socat'
-    	;;
-    vm18)
-	unavail_pkg='python3-libvirt python3-prometheus-client python3-elasticsearch python-prometheus-client python-elasticsearch libsoqt5-dev'
-	;;
-    vm30)
-	unavail_pkg='libvarlink-devel libuv-devel python3-six python3-jsonpointer python3-rtslib libvirt-python3 python3-lxml python-prometheus_client python3-prometheus_client python-elasticsearch python3-elasticsearch python-openpyxl python3-openpyxl python3-bcc python3-pillow kubernetes-client kubernetes-node python3-requests 389-ds-base memcached zabbix-agent gfs2-utils qtchooser qt5-qtbase-devel qt5-qtsvg-devel SoQt-devel Coin-devel SoQt-devel python3-libs yajl python-psycopg2 python3-psycopg2'
-	;;
-    vm34)
-	unavail_pkg='umad libpapi libpfm gfs2 python-prometheus-client python2-prometheus-client python2-openpyxl dtrace boost'
-	;;
-    vm36)
-	unavail_pkg='python3-bpfcc libsoqt5-dev'
-    	;;
-    ubuntu1804)
-        unavail_pkg='apache2-mpm-worker avahi-tools cpan(Spreadsheet::ReadSXC) cpan(Text::CSV_XS) libcoin-dev libsoqt5-dev mariadb-client-core mysql-client-core libuv1-dev postfix bsd-mailx smartmontools'
-        ;;
-    ubuntu1604)
-        unavail_pkg='apache2-mpm-worker avahi-tools cpan(Spreadsheet::ReadSXC) cpan(Text::CSV_XS) libcoin-dev libsoqt5-dev mariadb-client-core mysql-client-core libuv1-dev postfix bsd-mailx smartmontools libspreadsheet-readsxc-perl python3-bpfcc'
-        ;;
-
-esac
-
 # the "unavailable" file records packages that are not available for a
 # particular distribution and version and archtecture ... 
 #
-if [ -z "$unavail_pkg" ]
+_parse_file $unavailable >$tmp.pkgs
+if [ -s $tmp.pkgs ]
 then
-    _parse_file $unavailable >$tmp.pkgs
-    if [ -s $tmp.pkgs ]
-    then
-	unavail_pkg="$unavail_pkg `cat $tmp.pkgs`"
-    fi
+    unavail_pkg="`cat $tmp.pkgs`"
 fi
+$very_verbose && echo >&2 "unavailable: $unavail_pkg"
 
 # the "require" file records packages that are must be installed for a
 # particular distribution and version and archtecture ... 
@@ -666,10 +705,7 @@ then
 	    fi
 	fi
     done
-    if [ -n "$require_pkg" ]
-    then
-	$very_verbose && echo >&2 "require: $require_pkg"
-    fi
+    $very_verbose && echo >&2 "require: $require_pkg"
 fi
 
 if $pkglist
@@ -718,10 +754,10 @@ then
 	for _pkg in $skip_pkg
 	do
 	    sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
-s;\[[^]]*];[skip on host '"$_hostname"'];
+s;\[[^]]*];[SKIP on host '"$_hostname"'];
 }'
 	    mv $tmp.tmp $tmp.manifest
-	    $very_verbose && echo >&2 "skip for host: $_pkg"
+	    $very_verbose && echo >&2 "skip on host: $_pkg"
 	done
     fi
 fi
@@ -736,7 +772,7 @@ then
     for _pkg in `cat $tmp.pkgs`
     do
 	sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
-s;\[[^]]*];[skip];
+s;\[[^]]*];[SKIP];
 }'
 	mv $tmp.tmp $tmp.manifest
 	$very_verbose && echo >&2 "skip: $_pkg"
@@ -811,8 +847,10 @@ fi
 #
 cat $tmp.manifest \
 | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
-| while read apps
+| while read line
 do
+    apps=`echo "$line" | sed -e 's/:[0-9][0-9]*$//' -e 's/ $//'`
+    lineno=`echo "$line" | sed -e 's/.* :\([0-9][0-9]*\)$/\\1/'`
     rm -f $tmp.ok
     rm -f $tmp.echo
     for app in $apps
@@ -909,7 +947,11 @@ do
 	then
 	    if $optional
 	    then
-		[ -f $tmp.echo ] && echo >&2
+		if [ -f $tmp.echo ]
+		then
+		    echo >&2
+		    rm -f $tmp.echo
+		fi
 		continue
 	    fi
 	    touch $tmp.ok
@@ -923,19 +965,16 @@ do
 	    fi
 	fi
     done
-    [ -f $tmp.echo ] && echo >&2
     if [ ! -f $tmp.ok ]
     then
 	if $pkglist
 	then
 	    echo "$apps" \
 	    | sed -n \
-		-e '/\[skip]/d' \
-		-e '/\[skip on host/d' \
+		-e '/\[SKIP on host/s/on host.*/]/' \
 		-e 's/.*\[//' \
 		-e 's/]//' \
 		-e 's/ ([^)]*)//' \
-		-e 's/N\/A//' \
 		-e 's/base [^ ]* install//' \
 		-e 's/^or //' \
 		-e 's/ or$//' \
@@ -951,15 +990,40 @@ do
 		#
 		for _need in $_missing
 		do
+		    if [ "$_need" = "N/A" ]
+		    then
+			if $verbose
+			then
+			    $PCP_ECHO_PROG >&2 $PCP_ECHO_N "[unavailable] "$PCP_ECHO_C
+			    touch $tmp.echo
+			fi
+			continue
+		    fi
+		    if [ "$_need" = "SKIP" ]
+		    then
+			if $verbose
+			then
+			    $PCP_ECHO_PROG >&2 $PCP_ECHO_N "[skip] "$PCP_ECHO_C
+			    touch $tmp.echo
+			fi
+			continue
+		    fi
 		    if grep "^$_need\$" $tmp.installed >/dev/null
 		    then
-			:
+			[ -f $tmp.echo ] && echo >&2
+			echo >&2 "Warning: manifest:$lineno botch? target: \"`echo "$apps" | sed -e 's/[ 	].*//'`\" not found, but package \"$_need\" already installed"
+			rm -f $tmp.echo
 		    else
 			rm -f $tmp.match
 			for _pkg in $unavail_pkg
 			do
 			    if echo " $_need " | grep " $_pkg " >/dev/null
 			    then
+				if $verbose
+				then
+				    $PCP_ECHO_PROG >&2 $PCP_ECHO_N "[unavailable] "$PCP_ECHO_C
+				    touch $tmp.echo
+				fi
 				touch $tmp.match
 				break
 			    fi
@@ -986,8 +1050,18 @@ t loop2
 s/@/ /g
 }'`"
 	fi
+    else
+	if echo "$apps" | grep 'N/A' >/dev/null
+	then
+	    [ -f $tmp.echo ] && echo >&2
+	    echo >&2 "Warning: manifest:$lineno botch? target: \"`echo "$apps" | sed -e 's/[ 	].*//'`\" found, but marked N/A"
+	    rm -f $tmp.echo
+	fi
     fi
+    [ -f $tmp.echo ] && echo >&2
+
 done >$tmp.out
+
 
 if $pkglist
 then
@@ -1003,13 +1077,37 @@ then
     if $pkglist
     then
 	sort <$tmp.out \
-	| uniq \
-	| tr '[\012]' ' ' \
-	| sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//'
-	# BSD* and Darwin heuristic hack ... don't need extra echo for
-	# these guys
-	#
-	[ -z "$PCP_ECHO_N" ] || echo
+	| uniq >$tmp.tmp
+	if $pkgcmd
+	then
+	    _find_installer_cmd
+	    grep -v 'cpan(' <$tmp.tmp | grep -v 'pip3(' >$tmp.pkg
+	    if [ -s $tmp.pkg ]
+	    then
+		echo "sudo $installcmd `tr '\012' ' ' <$tmp.pkg`"
+	    fi
+	    grep 'cpan(' <$tmp.tmp >$tmp.pkg
+	    if [ -s $tmp.pkg ]
+	    then
+		sed <$tmp.pkg \
+		    -e 's/^/sudo cpan /' \
+		    -e 's/cpan(/"/' \
+		    -e 's/)/"/'
+		# end
+	    fi
+	    grep 'pip3(' <$tmp.tmp >$tmp.pkg
+	    if [ -s $tmp.pkg ]
+	    then
+		echo "sudo pip3 install `tr '\012' ' ' <$tmp.pkg`"
+	    fi
+	else
+	    tr '\012' ' ' <$tmp.tmp \
+	    | sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//'
+	    # BSD* and Darwin heuristic hack ... don't need extra echo for
+	    # these guys
+	    #
+	    [ -z "$PCP_ECHO_N" ] || echo
+	fi
     else
 	cat $tmp.out
     fi

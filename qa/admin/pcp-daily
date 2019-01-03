@@ -487,6 +487,7 @@ sts=\$?
 awk <\$HOME/daily.qa.log '
 /waiting for lock/		{ print }
 /could not acquire lock/	{ print }
+/error while loading shared libraries/	{ print }
 \$1 == "Aborted!"		{ print }
 \$1 == "Check!"			{ print }'
 # get last block from check.log ... then get the summary on
@@ -833,9 +834,10 @@ do
 	    ;;
 
 	vm33)
-	    # Only -g sanity at this stage for OpenBSD 5.8
+	    # Only selected groups at this stage for OpenBSD 6.3
+	    #	sanity threads kernel
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g threads -g kernel'
 	    ;;
 
 	vm35)
@@ -869,10 +871,10 @@ do
 
 	vm37)
 	    # Only selected groups this stage for OpenBSD 6.4
-	    #	sanity threads
+	    #	sanity threads kernel
 	    # and some tests are not working yet
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g threads'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g threads -g kernel'
 	    ;;
 
 	vm38)

@@ -122,7 +122,7 @@ cleanup()
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
 	echo "Restarting pmcd"
-	_service pcp restart >/dev/null
+	_service pcp restart 2>&1 >/dev/null
 	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger

@@ -126,7 +126,7 @@ _cleanup()
 	cat $PCP_PMCDCONF_PATH >>$seq.full
 	echo '=== $PCP_PMCDOPTIONS_PATH before init.d/pcp/start' >>$seq.full
 	cat $PCP_PMCDOPTIONS_PATH >>$seq.full
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger

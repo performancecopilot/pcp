@@ -66,6 +66,20 @@ s/ i:[0-9] / i:? /
 s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
 s/entry=[^ ]*/entry=[OS]_init/
 }' \
+	-e '/^netbsd.*pmda_netbsd/{
+s/netbsd/[OS]   /
+s/116/ ??/
+s/ i:[0-9] / i:? /
+s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
+s/entry=[^ ]*/entry=[OS]_init/
+}' \
+	-e '/^openbsd.*pmda_openbsd/{
+s/openbsd/[OS]   /
+s/139/ ??/
+s/ i:[0-9] / i:? /
+s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
+s/entry=[^ ]*/entry=[OS]_init/
+}' \
 	-e '/^solaris.*pmda_solaris/{
 s/solaris/[OS]   /
 s/75/??/
