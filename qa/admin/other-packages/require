@@ -14,4 +14,8 @@
 # Comments prefixed by #
 #
 #Distro      Version  Arch    Required Packages
+Debian       -        -       python-setuptools
+LinuxMint    -        -       python-setuptools
 NetBSD       -        -       py27-setuptools
+SUSE         -        -       python-setuptools
+Ubuntu       -        -       python-setuptools

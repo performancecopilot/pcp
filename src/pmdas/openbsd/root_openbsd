@@ -117,6 +117,7 @@ disk.all {
 
 mem {
     util
+    freemem	OPENBSD:5:6	/* alias for mem.util.free */
 }
 
 mem.util {

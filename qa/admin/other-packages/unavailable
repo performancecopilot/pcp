@@ -12,6 +12,8 @@
 # Comments prefixed by #
 #
 #Distro      Version  Arch    N/A Packages
+#-- ArchLinux
+ArchLinux    -        -       python-bcc qtchooser
 #-- CentOS
 CentOS       6.10     -       Coin-devel cppcheck docker docker-common docker-io kubectl kubernetes-client kubernetes-node libpfm-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libuv-devel libvarlink-devel Net::SNMP pylint python2-elasticsearch python2-openpyxl python2-pylint .*-python3 python3-.* python3[0-9]-.* python-elasticsearch python-openpyxl python-prometheus_client python-pylint qt5-qtbase-devel qt5-qtsvg-devel qtchooser socat SoQt-devel systemd-devel system-python-libs uic zabbix22-agent zabbix-agent
 CentOS       7.[56]   -       libvarlink-devel python2-openpyxl .*-python3 python3-.* python3[0-9]-.* python-openpyxl python-prometheus_client python-pylint qtchooser system-python-libs
@@ -25,17 +27,26 @@ Fedora       2[89]    i.86    389-ds-base kubectl kubernetes-client kubernetes-n
 #-- FreeBSD
 FreeBSD      10.4     -       lm_sensors
 FreeBSD      11.[12]  -       libibmad libibumad lm_sensors
+#-- Gentoo
+Gentoo       -        -       
+#-- LinuxMint
+LinuxMint    17.3     -       libsoqt5-dev libspreadsheet-readsxc-perl libuv1-dev python-.* python3-bpfcc python3-elasticsearch python3-libvirt python3-openpyxl python3-prometheus-client
+LinuxMint    18.3     -       python3-bpfcc libsoqt5-dev
 #-- NetBSD
 NetBSD       6.1.5    -       QtSvg avahi avahi-tools avahi-utils docker dtrace json_reformat libibmad libibumad mkfs.gfs2 nmap p5-DBD-mysql py27-.* py36-bcc py36-imaging py36-libvirt py36-prometheus-client python3-jsonpointer qt5 qtchooser realpath sysstat uic valgrind zabbix-agent
 NetBSD       8.0      -       QtSvg avahi-tools avahi-utils dtrace json_reformat libibmad libibumad mkfs.gfs2 py27-.* py36-bcc py36-imaging py36-libvirt py36-prometheus-client python3-jsonpointer qtchooser realpath sysstat uic valgrind zabbix-agent
-#-- Gentoo
-Gentoo       -        -       
 #-- OpenBSD
-OpenBSD      6.4      -       libibumad libvirt-python3 py3-bcc py3-openpyxl py3-prometheus-client py36-jsonpointer qtchooser realpath
+OpenBSD      6.3      -       avahi-tools avahi-utils libibumad libvirt-python3 py3-bcc py3-elasticsearch py3-openpyxl py3-prometheus-client py3-jsonpointer qtchooser realpath
+OpenBSD      6.4      -       libibumad libvirt-python3 py3-bcc py3-openpyxl py3-prometheus-client py3-jsonpointer qtchooser realpath
 #-- openSUSE
 openSUSE     15       -       kubernetes-node libvarlink-devel pylint python3-prometheus_client python-pylint qtchooser selinux-policy selinux-policy-devel selinux-policy-targeted zabbix22-agent zabbix-agent
 openSUSE     42.2     -       Coin-devel docker-io libvarlink-devel libvirt-python3 pylint python2-pylint python3-elasticsearch python3-jsonpointer python3-libvirt python3-libvirt-python python3-pillow python3-prometheus_client python3-rtslib python3-rtslib-fb python-pylint qtchooser selinux-policy selinux-policy-devel selinux-policy-targeted SoQt-devel zabbix22-agent zabbix-agent
 openSUSE     42.3     -       docker-io libvarlink-devel libvirt-python3 pylint python2-pylint python3-elasticsearch python3-jsonpointer python3-libvirt python3-libvirt-python python3-pillow python3-prometheus_client python3-rtslib python3-rtslib-fb qtchooser zabbix22-agent zabbix-agent
+#-- Slackware
+Slackware    14.2     -       cppcheck pylint python-psycopg2 socat valgrind
+#-- SuSE SLES
+SUSE         12-SP0   -       389-ds 389-ds-base Coin-devel cppcheck gfs2-utils kubectl kubernetes-client kubernetes-node libqt5-qtsvg-devel libuv-devel libvarlink-devel libvirt-python3 memcached python36-libs python36-six python3-bcc python3-curses python3-elasticsearch python3-jsonpointer python3-libs python3-libvirt python3-libvirt-python python3-lxml python3-openpyxl python3-pillow python3-Pillow python3-prometheus_client python3-psycopg2 python3-requests python3-rtslib python3-rtslib-fb python3-six qt5-qtbase-devel qt5-qtsvg-devel qtchooser SoQt-devel system-python-libs yajl zabbix22-agent zabbix-agent
+SUSE         12-SP4   -       389-ds 389-ds-base Coin-devel cppcheck gfs2-utils kubectl kubernetes-client kubernetes-node libuv-devel libvarlink-devel libvirt-python3 python36-libs python36-six python3-bcc python3-elasticsearch python3-jsonpointer python3-libs python3-libvirt python3-libvirt-python python3-openpyxl python3-pillow python3-Pillow python3-prometheus_client python3-psycopg2 python3-rtslib python3-rtslib-fb qt5-qtbase-devel qt5-qtsvg-devel qtchooser SoQt-devel system-python-libs yajl zabbix22-agent zabbix-agent selinux-policy-targeted
 #-- RedHat
 RHEL         6.10     -       Coin-devel device-mapper-devel docker-common kubectl kubernetes-client kubernetes-node libicu-devel libpfm-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libvarlink-devel Net::SNMP pylint python2-elasticsearch python2-openpyxl python2-pylint .*-python3 python3-.* python3[0-9]-.* python-openpyxl python-prometheus_client python-pylint qtchooser realpath systemd-devel system-python-libs uic
 RHEL         7.[56]   -       Coin-devel cppcheck device-mapper-devel libuv-devel libvarlink-devel 'perl(Net::SNMP)' perl-Net-SNMP 'perl(YAML::LibYAML)' perl-YAML-LibYAML pylint python-.* python2-elasticsearch python2-openpyxl python2-prometheus_client python2-pylint .*-python3 python3-.* python3[0-9]-.* qtchooser SoQt-devel system-python-libs zabbix22-agent zabbix-agent

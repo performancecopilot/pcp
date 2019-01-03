@@ -17,7 +17,7 @@ _cleanup()
 {
     _restore_config $PCP_SYSCONFIG_DIR/pmcd
     _restore_primary_logger
-    _service pcp restart | _filter_pcp_start
+    _service pcp restart 2>&1 | _filter_pcp_start
     _restore_auto_restart pmcd
     _restore_auto_restart pmlogger
     _wait_for_pmcd
@@ -61,7 +61,7 @@ _disable_agent_restart
 ls -l $PCP_VAR_DIR/config/pmlogger/config.default >>$seq.full
 cat $PCP_VAR_DIR/config/pmlogger/config.default >>$seq.full
 pmlc -P </dev/null 2>&1 >>$seq.full
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|([p]mlogger)' >>$here/$seq.full

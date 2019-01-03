@@ -784,6 +784,22 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
+.PP
+The default behaviour, when
+.BR pmlogger (1)
+configuration comes from
+.BR pmlogconf (1),
+is to regenerate the configuration file and check for
+changes whenever
+.BR pmlogger (1)
+is started from
+.BR pmlogger_check.
+If the PMDA configuration is stable, this is not necessary, 
+and setting
+.B $PMLOGGER_CHECK_SKIP_LOGCONF
+to
+.B yes
+disables the regeneration and checking.
 .SH SEE ALSO
 .BR egrep (1),
 .BR PCPIntro (1),

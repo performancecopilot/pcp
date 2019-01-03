@@ -163,12 +163,14 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+src/tztest >$seq.full
+
 TZ=XYZ-11; export TZ
 
 # I don't understand the sed replacement below - Ken, Jul 2003
 #
 src/tztest \
-| tee $seq.full \
+| tee -a $seq.full \
 | sed \
 	-e's|XYZ-11:03:04ABC-10:01:02,M12.5.0/3:04:05,M7.1.0/2:06:07|ABC-10:01:02XYZ-11:03:04,M12.5.0/3:04:05,M7.1.0/2:06:07|' \
 	-e's|XYZ-11ABC-10,M12.5.0/3:01:02,M7.1.0/2:03:04|ABC-10XYZ-11,M12.5.0/3:01:02,M7.1.0/2:03:04|'

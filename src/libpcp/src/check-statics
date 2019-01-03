@@ -329,13 +329,13 @@ ipc.o
 jsmn.o
 labels.o
 lock.o
-    lock_lock			# local mutex
+    ?lock_lock			# local mutex
     __pmLock_libpcp		# the global libpcp mutex
     __pmLock_extcall		# mutex for calls to external routines that are not thread-safe
     ?init			# local __pmInitLocks mutex
     ?done			# guarded by local __pmInitLocks mutex
     ?__pmTPDKey			# one-trip initialization then read-only
-    multi_init			# guarded by lock_lock mutex
+    ?multi_init			# guarded by lock_lock mutex
     ?multi_seen			# guarded by lock_lock mutex
     ?hashctl			# for lock debug tracing
     ?__pmTPDKey			# if don't have __thread support

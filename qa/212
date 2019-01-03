@@ -42,7 +42,7 @@ w!
 q
 End-of-File
 	_needclean=false
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
     fi
@@ -129,9 +129,9 @@ do
     rm -f $PMCD_LOG_DIR/core*
     if [ $1 -eq 1 ]
     then
-	_service pcp start | _filter_pcp_start
+	_service pcp start 2>&1 | _filter_pcp_start
     else
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
     fi
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -142,14 +142,14 @@ echo
 echo "stop pmcd ..."
 for i in 1 2 3
 do
-    _service pcp start | _filter_pcp_start
+    _service pcp start 2>&1 | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
     rm -f $PMCD_LOG_DIR/core*
     _service pcp stop | _filter_pcp_stop
     [ "`echo $PMCD_LOG_DIR/core*`" != "$PMCD_LOG_DIR/core*" ] && _cleanup
 done
-_service pcp start | _filter_pcp_start
+_service pcp start 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 
@@ -162,7 +162,7 @@ g/^#$seq#.*pmdacisco/s/^#$seq#//
 w!
 q
 End-of-File
-    _service pcp restart | _filter_pcp_start
+    _service pcp restart 2>&1 | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
 

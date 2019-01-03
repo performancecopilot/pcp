@@ -2,3 +2,5 @@ QA output created by 941
 OK: one pmcd running
 OK: pmcd.log is for running pmcd
 OK: run file has pmcd's pid
+OK: PMCDCONF_PATH not from a QA test
+OK: PMCDOPTIONS_PATH not from a QA test

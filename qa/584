@@ -56,7 +56,7 @@ echo "sample.bin > 0" | _run_purify -t 1sec -T 25sec >$tmp.purified 2>&1 &
 sleep 5
 _service pcp stop | _filter_pcp_stop
 sleep 5
-_service pcp start | _filter_pcp_start
+_service pcp start 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 wait

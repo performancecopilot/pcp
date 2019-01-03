@@ -1,0 +1,13 @@
+# for vagrant, these are the packages we don't want to install
+apache2-mpm-worker
+avahi-tools
+bsd-mailx
+cpan(Spreadsheet::ReadSXC)
+cpan(Text::CSV_XS)
+libcoin-dev
+libsoqt5-dev
+libuv1-dev
+mariadb-client-core
+mysql-client-core
+postfix
+smartmontools

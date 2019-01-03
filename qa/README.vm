@@ -156,7 +156,11 @@ SuSE (SLES)
     # update all packages recipe
     $ sudo zypper refresh; sudo zypper update
     # release upgrade recipe
-    $ ???
+    # once only ...
+    $ sudo zypper install zypper-migration-plugin
+    # then
+    $ sudo zypper update; sudo zypper patch
+    $ sudo zypper migration
 
 FreeBSD
     https://www.freebsd.org/security/security.html#sup
@@ -276,36 +280,36 @@ Mandriva
     $ ???
 
 Slackware
-    https://http://www.slackware.com/
+    https://www.slackware.com
     27 June 2016: 14.1
-    # package search recipe (name and info or description)
-    $ sudo slackpkg file-search <filename-pattern>
-    $ sudo slackpkg search <info-pattern>
     # which packages are installed
-    $ ls /var/log/packages | grep <package-name>
+    $ ls /var/log/packages | sed -e 's/-[0-9].*//'
+    # package search recipe (name and info or description)
+    $ sudo slackpkg search <info-pattern>
     # which package installs a file/directory
-    $ ???
+    $ sudo slackpkg file-search <filename-pattern>
     # which files are in an installed package
-    $ ???
+    $ sed -e '1,/^FILE LIST:/d' </var/log/packages/<package>
     # package install recipe
     $ sudo slackpkg install <package>
     # update all packages recipe
     $ sudo slackpkg update; sudo slackpkg install-new
-    $ sudo slackpkg upgrade-all; sudo slackpkg clean-system
     # release upgrade recipe
-    $ ???
+    $ sudo slackpkg upgrade-all; sudo slackpkg clean-system
 
 Arch Linux
     https://www.archlinux.org/releng/releases/
     04 Jan 2018: 2018.01.01 2017.12.01 2107.11.01
     27 Jun 2016: 2016.06.01, 2016.05.01, 2016.04.01
+    # which packages are installed
+    $ pacman -Q -i | sed -n -e '/^Name /s/.* : //p'
     # package search recipe (name and info or description)
     $ pacman -S -l | grep <package-name-pattern>
     $ pacman -S -s <regexp>
     # which package installs a file/directory
     $ pacman -Q -o <path> | <filename>
     # which files are in an installed package
-    $ pacman -F -y (refresh files database) then
+    $ sudo pacman -F -y (refresh files database) then
     $         pacman -F -l <package> (files in a package)
     $         pacman -F -o <fullpath> (package(s) owning a file)
     $         pacman -F -s <regexp> (package(s) owning matching files)
@@ -344,8 +348,8 @@ OpenIndiana
 OpenBSD
     https://en.wikipedia.org/wiki/OpenBSD_version_history
     26 Oct 2018: 6.2, 6.3, 6.4
-    # package search recipe (name and info or description)
-    $ ???
+    # package search recipe (name only, not info or description)
+    $ pkg_info -Q <pattern>
     # which package installs a file/directory
     $ pkglocate <filename> or <pathname>
     # which files are in an installed package

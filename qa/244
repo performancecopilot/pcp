@@ -92,10 +92,6 @@ $1 == "cisco"		{ $4 = "fd_in"; $5 = "fd_out"
 CONFIG=$PCP_PMCDCONF_PATH
 NEWCONFIG=$tmp/pmcd.conf
 CONFIGSAVE=$tmp/pmcd.conf.save
-[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
-	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
-LOGCONTROL=$PCP_PMLOGGERCONTROL_PATH
-SAVE_LOGCONTROL=$tmp/control.save
 signal="$sudo $PCP_BINADM_DIR/pmsignal"
 _needclean=true
 status=1
@@ -111,7 +107,6 @@ cd $tmp
 
 $sudo chmod u+w $CONFIG
 cp $CONFIG $CONFIGSAVE
-[ -f $LOGCONTROL ] && $sudo mv $LOGCONTROL $SAVE_LOGCONTROL
 
 _cleanup()
 {
@@ -126,7 +121,6 @@ _cleanup()
 	$sudo rm -f $CONFIG
 	$sudo cp $CONFIGSAVE $CONFIG
 	$sudo chmod u-w $CONFIG
-	[ -f $SAVE_LOGCONTROL ] && $sudo mv $SAVE_LOGCONTROL $LOGCONTROL
 	_restore_loggers
 	echo "Restart and ping pmcd ..."
 	unset PMCD_PORT

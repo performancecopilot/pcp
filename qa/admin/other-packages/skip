@@ -17,6 +17,9 @@
 # Comments prefixed by #
 #
 #Distro      Version  Arch    Skipped Packages
+#-- ArchLinux
+# we're using python3
+ArchLinux    -        -       python2-.* .*-python2
 #-- Fedora
 # observed on vm22
 # 389-ds is available but cannot be installed because nothing provides
@@ -27,13 +30,26 @@ Fedora       29       i.86    389-ds
 # I cannot figure out how to remake this package with USE=utils so that
 # avahi-browse is built and installed (Ken)
 Gentoo       2.4.2    -       net-dns/avahi
+#-- LinuxMint
+# observed on vm18
+# libsoqt-dev -> libsoqt4-dev and all the other Qt pieces are Qt 5
+LinuxMint    17.3     -       libsoqt-dev
+# observed on vm36 ... ditto
+LinuxMint    18.3     -       libsoqt-dev
 #-- OpenBSD
 # observed on vm37
 # qtbase is Qt5 and gcc++ here is too old to compile Qt5 headers ... revisit
 # if we change from gcc to clang for OpenBSD
 # qtsvg is not needed without Qt5
 # valgrind is available, but segv's
-OpenBSD      6.4      -       qtbase qtsvg valgrind
+# we're using python3
+OpenBSD      6.[34]   -       qtbase qtsvg valgrind python-.* .*-python
+#-- Slackware
+# we're using python2
+Slackware    14.2     -       python3-.*
+#-- SuSE SLES
+# we're using python3
+SUSE         12-SP.*  -       python-.*
 #-- Ubuntu
 # observed on vm01
 # python3-bpfcc : Depends: libbpfcc (>= 0.5.0-5ubuntu1) but it is not installable

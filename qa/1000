@@ -26,7 +26,7 @@ _cleanup()
 	:
     else
 	cd $here
-	_service pcp start >/dev/null
+	_service pcp start 2>&1 >/dev/null
 	_wait_for_pmcd
 	_restore_auto_restart pmcd
 	_wait_for_pmlogger
