@@ -174,7 +174,7 @@ ECHO	= @echo@
 LN_S	= @LN_S@
 GREP    = @grep@
 GIT	= @GIT@
-CLINT	= @CPPCHECK@ --std=posix --force --quiet --error-exitcode=1
+CLINT	= @CPPCHECK@ --std=posix --force --quiet --error-exitcode=1 -I$(TOPDIR)/src/include/pcp -I/usr/include/bits
 PYLINT	= @PYLINT@ --rcfile=$(TOPDIR)/.pylintrc --output-format=colorized
 PYTHON	= @PYTHON@
 PYTHON3	= @PYTHON3@
