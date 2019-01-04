@@ -53,6 +53,21 @@ then
     _stop_auto_restart pmie
 fi
 
+# There may be a primary pmie that was started by QA that is not under
+# systemctl control, and if this is the case then systemctl below will
+# not stop it ... so use a big hammer first
+#
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+| sed -n -e '/[p]mie .*-P /{
+s/^[^ ]*  *//
+s/ .*//
+p
+}' \
+| while read pid
+do
+    sudo kill -TERM $pid
+done
+
 # real QA test starts here
 $sudo systemctl stop pmie 2>&1 >>$here/$seq.full
 _wait_pmie_end

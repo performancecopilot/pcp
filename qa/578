@@ -24,8 +24,10 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 rm -f $seq.full
 
-_needpmmgr=false
-[ -x "$PCP_BINADM_DIR/pmmgr" ] && _needpmmgr=true
+pmmgr_was_running=false
+[ -x "$PCP_BINADM_DIR/pmmgr" ] && pmmgr_was_running=true
+pmie_was_running=false
+[ -f $PCP_RUN_DIR/pmie.pid ] && pmie_was_running=true
 
 signal=$PCP_BINADM_DIR/pmsignal
 simple_domain=253
@@ -56,6 +58,7 @@ _cleanup()
         _restore_config $PCP_VAR_DIR/pmns/root
     	echo "=== Restart PMCD ==="
 	unset PMCD_PORT
+	_restore_auto_restart pmlogger
 	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -75,6 +78,21 @@ _cleanup()
     then
 	echo '=== pmcd log' >>$here/$seq.full
 	cat $tmp.log >>$here/$seq.full
+    fi
+
+    if $pmie_was_running
+    then
+	_restore_auto_restart pmie
+	_service pmie start >>$here/$seq.full 2>&1
+    else
+	_service pmie stop >>$here/$seq.full 2>&1
+	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$here/$seq.full 2>&1
+	_wait_pmie_end
+    fi
+    if $pmmgr_was_running
+    then
+	_restore_auto_restart pmmgr
+	_service pmmgr start >>$here/$seq.full 2>&1
     fi
 
     rm -rf $tmp.*
@@ -145,9 +163,18 @@ export PMCD_PORT
 
 # don't want these guys trying to connect to pmcd either ...
 #
+_stop_auto_restart pmlogger
 _service pmlogger stop >>$here/$seq.full 2>&1
-_service pmie stop >>$here/$seq.full 2>&1
-$_needpmmgr && _service pmmgr stop >>$here/$seq.full 2>&1
+if $pmie_was_running
+then
+    _stop_auto_restart pmie
+    _service pmie stop >>$here/$seq.full 2>&1
+fi
+if $pmmgr_was_running
+then
+    _stop_auto_restart pmmgr
+    _service pmmgr stop >>$here/$seq.full 2>&1
+fi
 
 # and we're starting a new pmcd ...
 _service pmcd stop
