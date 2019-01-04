@@ -84,8 +84,15 @@ The
 .B pmLookupLabels
 routine is a convenience interface providing retrieval for all
 labels associated with a single performance metric identifier,
-.IR pmid .
-It performs no caching of labels internally.
+.IR pmid ,
+.B except
+labels at the instances level.
+Labels at the instances level must be retrieved separately with a call to
+.BR pmGetInstancesLabels 
+because different metric instances may have labels with the same label name.
+The
+.B pmLookupLabels
+function performs no caching of labels internally.
 .PP
 For efficiency in communication and storage within the various
 components of the PMCS (Performance Metrics Collection System),
@@ -149,6 +156,11 @@ These independent
 can be merged using
 .BR pmMergeLabelSets (3)
 to form the complete set of all labels associated with a given value.
+Note that the label sets returned by
+.B pmGetInstancesLabels
+can be traversed but should not be merged because the label names are unlikely
+to be unique for different instances of the given
+.IR indom .
 .PP
 .SH LABEL SYNTAX
 Labels are stored and communicated within PCP using JSONB format.
@@ -381,6 +393,35 @@ and
 .IR name s:
 transient)
 to form the complete set for each of the metrics.
+.SH "PYTHON EXAMPLE"
+.ft 3
+.nf
+#!/usr/bin/env pmpython
+
+import sys
+from pcp import pmapi
+import cpmapi as c_api
+
+ctx = pmapi.pmContext(c_api.PM_CONTEXT_HOST, "local:")
+
+for metric in sys.argv[1:]:
+    pmid = ctx.pmLookupName(metric)[0]
+    desc = ctx.pmLookupDescs(pmid)[0]
+
+    print("== label sets for %s ==" % metric)
+    labelSetList = ctx.pmLookupLabels(pmid)
+    # class pmLabelSet has a __str__ handler
+    for labelSet in labelSetList:
+        print("\t%s" % labelSet)
+    ctx.pmFreeLabelSets(labelSetList)
+
+    if desc.contents.indom != c_api.PM_INDOM_NULL:
+        print("== instances label sets for %s ==" % metric)
+        labelSetList = ctx.pmGetInstancesLabels(desc.contents.indom)
+        for labelSet in labelSetList:
+            print("\t%s" % labelSet)
+        ctx.pmFreeLabelSets(labelSetList)
+.ft 2
 .SH DIAGNOSTICS
 On success these interfaces all return the number of elements in
 the
@@ -397,7 +438,8 @@ Only in the case of
 .B pmLookupLabels
 will the resulting
 .I labelset
-be a merged set of labels from all hierarchy levels.
+be a merged set of labels from all hierarchy levels
+(except at the instances level, as described above).
 .PP
 For the other routines, except for
 .BR pmGetInstancesLabels ,
