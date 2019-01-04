@@ -33,6 +33,12 @@ metrics="kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.softirqs"
 
 for machine in 8cpu-x86_64 1cpu-i686
 do
+
+    # Need to clear the linux PMDA's indom cache to prevent cross-version
+    # pollution
+    #
+    $sudo rm -f $PCP_VAR_DIR/config/pmda/60.*
+
     ncpus=`echo $machine | sed -e 's/cpu.*//g'`
     export LINUX_STATSPATH=$tmp.root
     export LINUX_NCPUS=$ncpus
