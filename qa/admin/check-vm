@@ -445,8 +445,11 @@ pkgtypes="dpkg rpm urpmi emerge pkgin pkg_add F_pkg S_pkg slackpkg pacman brew"
 #	suse		SLES or OpenSuSE
 #	arch		Arch Linux
 #	mandriva	OpenMandriva
+#	freebsd		FreeBSD
+#	netbsd		NetBSD
+#	openbsd		OpenBSD
 #
-distros="debian redhat centos suse arch mandriva"
+distros="debian redhat centos suse arch mandriva freebsd netbsd openbsd"
 
 if [ ! -f "$manifest" ]
 then
@@ -635,20 +638,51 @@ fi
 # Strip the distro-dependent lines that do not apply ...
 # this is an optimization remove checks from the main loop below
 #
-# tests here are copied from $(TOPDIR)/configure.ac
-#
-[ -f /etc/SuSE-release ] && iam=suse
-[ -f /etc/fedora-release ] && iam=fedora
-if [ -f /etc/redhat-release ]
+
+if [ -n "$PCP_PLATFORM" ]
 then
-    iam=redhat
-    [ -f /etc/centos-release ] && iam=centos
+    iam="$PCP_PLATFORM"
+else
+    # tests here are copied from whatami
+    #
+    if [ -f /etc/SuSE-release ]
+    then
+	iam=suse
+    elif [ -f /etc/centos-release ]
+    then
+	iam=centos
+    elif [ -f /etc/redhat-release ]
+    then
+	iam=redhat
+    elif [ -f /etc/debian_version ]
+    then
+	iam=debian
+    elif [ -f /etc/mandriva-release ]
+    then
+	iam=mandriva
+    elif [ -f /etc/gentoo-release ]
+    then
+	iam=gentoo
+    elif [ -f /etc/fedora-release ]
+    then
+	iam=fedora
+    elif [ -f /etc/os-release ]
+    then
+	iam=opensuse
+    elif [ -f /etc/release ]
+    then
+	iam=openindiana
+    elif [ -f /etc/slackware-version ]
+    then
+	iam=slackware
+    elif [ -f /etc/arch-release ]
+    then
+	iam=arch
+    elif [ -f /etc/lsb-release ]
+    then
+	iam=`sed </etc/lsb-release -n -e '/^DISTRIB_ID *= */s///p' | tr '[A-Z]' '[a-z]'`
+    fi
 fi
-[ -f /etc/debian_version ] && iam=debian
-[ -f /etc/slackware-version ] && iam=slackware
-[ -f /etc/gentoo-release ] && iam=gentoo
-[ -f /etc/mandriva-release ] && iam=mandriva
-[ -f /etc/arch-release ] && iam=arch
 
 for distro in $distros
 do
