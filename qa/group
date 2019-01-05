@@ -672,7 +672,7 @@ BAD
 291 logutil local pmlogextract pmdumplog
 292 pmlogextract logutil pmval local
 293 pmstat #939275 local
-294 pmproxy local pmval pmie pmstat kernel
+294 pmproxy local pmval pmie pmstat
 295 pmproxy local pmval pmstat pmie
 296 pmcd local
 297 pmproxy local
@@ -1029,7 +1029,7 @@ BAD
 648 pmda.mmv local
 649 pmda.mmv local
 650 pmlogger local pmdumplog
-651 pmproxy local kernel
+651 pmproxy local
 652 pmda.systemd event flakey
 653 libpcp local
 654 pmda.gfs2 local
@@ -1091,7 +1091,7 @@ BAD
 710 python pmimport local pmdumplog
 711 pmimport pmlogsummary perl local
 712 context libpcp pmcd secure local kernel
-713 context libpcp pmproxy secure local kernel
+713 context libpcp pmproxy secure local
 714 context libpcp pmcd secure local kernel
 715 pmda.simple perl
 716 dbpmda pmda.simple perl
