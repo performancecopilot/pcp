@@ -25,7 +25,6 @@ _filter()
     sed <$1 \
 	-e '/Warning: already using all instances for pmcd.agent.status/d' \
 	-e '/^$/d' \
-	-e '/^hinv[^:]*$/d' \
 	-e '/^disk[^:]*$/d' \
 	-e '/^network[^:]*$/d' \
 	-e '/^kernel[^:]*$/d' \
@@ -59,7 +58,7 @@ sleep 5
 # real QA test starts here
 pmlc <<End-of-File >>$tmp.tmp 2>&1
 connect primary
-query { hinv disk network kernel pmcd sample sampledso }
+query { disk network kernel pmcd sample sampledso }
 End-of-File
 
 cat $tmp.tmp >>$seq.full
@@ -73,7 +72,7 @@ else
 fi
 
 $PCP_ECHO_PROG $PCP_ECHO_N "Expect at least 250 metrics to be reported ...""$PCP_ECHO_C"
-num=`egrep '^(hinv|disk|network|kernel|pmcd|sample|sampledso)\.' $tmp.tmp | wc -l | sed -e 's/ //g'`
+num=`egrep '^(disk|network|kernel|pmcd|sample|sampledso)\.' $tmp.tmp | wc -l | sed -e 's/ //g'`
 if [ $num -ge 250 ]
 then
     echo " PASS"
