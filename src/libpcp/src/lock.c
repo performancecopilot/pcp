@@ -247,9 +247,11 @@ again:
     if (report == REPORT_STYLE0) {
 	fprintf(stderr, "(global_libpcp)");
     }
+#ifdef PM_MULTI_THREAD_DEBUG
     else if (report == REPORT_STYLE1) {
 	fprintf(stderr, "(ctx %d)", ctx);
     }
+#endif
     else if (report == REPORT_STYLE2) {
 #ifdef PM_MULTI_THREAD_DEBUG
 	fprintf(stderr, "(%s)", lockname(lock));
