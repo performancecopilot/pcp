@@ -1,0 +1,8 @@
+[Unit]
+Description=Generate system activity reports
+Documentation=man:pmlogger(1)
+
+[Service]
+Type=oneshot
+ExecStart=@PCP_BINADM_DIR@/pmlogger_daily_report -o @PCP_SA_DIR@
+User=@PCP_USER@

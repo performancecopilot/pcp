@@ -1,0 +1,9 @@
+[Unit]
+Description=Half-hourly check of pmlogger instances
+
+[Timer]
+OnCalendar=*-*-* *:25:00
+OnCalendar=*-*-* *:55:00
+
+[Install]
+WantedBy=timers.target

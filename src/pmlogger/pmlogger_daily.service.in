@@ -1,0 +1,8 @@
+[Unit]
+Description=Process archive logs
+Documentation=man:pmlogger(1)
+
+[Service]
+Type=oneshot
+ExecStart=@PCP_BINADM_DIR@/pmlogger_daily
+User=@PCP_USER@
