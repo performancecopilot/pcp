@@ -38,7 +38,15 @@ _cleanup()
     done
     $sudo rm -f $tmp.*
     _restore_auto_restart pmcd
-    _restore_auto_restart pmie
+    if $pmie_was_running
+    then
+	_restore_auto_restart pmie
+	_service pmie start >>$here/$seq.full 2>&1
+    else
+	_service pmie stop >>$here/$seq.full 2>&1
+	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$here/$seq.full 2>&1
+	_wait_pmie_end
+    fi
 }
 
 status=1	# failure is the default!
@@ -48,7 +56,6 @@ needclean=false
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
-_stop_auto_restart pmie
 
 lhost=`hostname | sed -e 's/\..*//'`
 host=`_get_fqdn`
@@ -148,6 +155,15 @@ $remote         n n $tmp.log2 -c $tmp.conf
 LOCALHOSTNAME   y n $tmp.log0 -c $tmp.conf
 EOF
 
+pmie_was_running=false
+if [ -f $PCP_RUN_DIR/pmie.pid ]
+then
+    pmie_was_running=true
+    echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$here/$seq.full
+    _stop_auto_restart pmie
+    _service pmie stop >>$here/$seq.full 2>&1
+fi
+
 # real QA test starts here
 _save_config $PCP_PMIECONTROL_PATH
 _save_config $PCP_PMCDCONF_PATH
@@ -155,7 +171,7 @@ needclean=true
 $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH 
 
 $sudo $signal -a -s TERM pmie >/dev/null 2>&1
-sleep 1
+_wait_pmie_end
 _change_config pmcd on
 _change_config pmie off
 $sudo rm -f $PCP_TMP_DIR/pmie/*
@@ -166,6 +182,7 @@ echo
 
 echo === check default install operation === | tee -a $here/$seq.full
 _service pmie restart 2>&1 | _filter_pmie_start
+_wait_for_pmie
 _count_pmies
 # chkconfig no longer controls start-ability, expect non-zero
 echo "pmie count after chkconfig pmie off: $?"
@@ -344,12 +361,6 @@ echo
 $sudo rm -rf $tmp.nogo
 
 $sudo $signal -a -s TERM pmie >/dev/null 2>&1
-_service pmie stop 2>&1 \
-| _filter_pmie_start \
-| sed \
-    -e '/PMIE not running/d' \
-    -e '/pmie not running/d' \
-# end
 _change_config pmie off
 
 status=0

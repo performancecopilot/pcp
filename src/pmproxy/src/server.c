@@ -143,7 +143,7 @@ client_write(struct client *client, sds buffer, sds suffix)
     if (request) {
 	if (pmDebugOptions.pdu)
 	    fprintf(stderr, "%s: sending %ld bytes to client %p\n",
-			"client_write", sdslen(buffer), client);
+			"client_write", (long)sdslen(buffer), client);
 	request->buffer[nbuffers++] = uv_buf_init(buffer, sdslen(buffer));
 	if (suffix != NULL)
 	    request->buffer[nbuffers++] = uv_buf_init(suffix, sdslen(suffix));

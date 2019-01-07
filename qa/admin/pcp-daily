@@ -216,8 +216,9 @@ rm -f VERSION.pcp
 git checkout -- VERSION.pcp
 # Look for errors/warnings in the build logs ...
 #
-# In the sed below are "warnings" that are
-# (a) out of out control (e.g. in flex/bison generated code), or
+# In the seds below are for "errors" and "warnings" that are:
+# (a) out of out control (e.g. in flex/bison generated code,
+#     Qt headers, non-PCP libraries, etc), or
 # (b) apparently benign things we're no going to fix, or
 # (c) stuff we've triaged and made a "no change needed" call
 #
@@ -228,7 +229,10 @@ do
     echo "--- end $log ---" >>$HOME/daily.log
 done
 grep 'Permission denied' Logs/pcp >$tmp.err
-grep ' [Ee]rror: ' Logs/pcp >>$tmp.err
+grep ' [Ee]rror: ' Logs/pcp \
+| sed >>$tmp.err \
+    -e '/^\/usr\/share\/selinux\/devel\/.* duplicate definition of /d' \
+    # end
 sed -e 's/^/ /' <Logs/pcp \
 | grep -i ' warning: ' \
 | sed >>$tmp.err \
@@ -240,16 +244,15 @@ sed -e 's/^/ /' <Logs/pcp \
     -e '/Deprecated external dependency generator is used!/d' \
     -e '/^dpkg-shlibdeps: warning: .*\/pmda_pmcd.so contains an unresolvable .* probably a plugin/d' \
     -e '/^configure: WARNING: unrecognized options: --disable-dependency-tracking/d' \
-    -e '/^\/usr\/share\/selinux\/devel\/.* duplicate definition of /d' \
     -e '/QtCore\/qvector.h:.* memcpy(/d' \
     -e '/libpython.* warning: warning: tmpnam() possibly used unsafely/d' \
     -e '/libpython.* warning: warning: tempnam() possibly used unsafely/d' \
 # end
 if [ -s $tmp.err ]
 then
-    echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build warnings/errors" | tee -a $HOME/daily.log
+    echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build errors/warnings" | tee -a $HOME/daily.log
     cat $tmp.err >>$HOME/daily.log
-    echo "--- end build warnings/errors ---" >>$HOME/daily.log
+    echo "--- end build errors/warnings ---" >>$HOME/daily.log
     ok=false
 fi
 $ok && echo "Info: Makepkgs" | tee -a $HOME/daily.log

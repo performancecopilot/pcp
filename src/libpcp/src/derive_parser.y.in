@@ -172,14 +172,15 @@ __dminit_component(const char *name, int descend, int recover)
 {
     struct stat	sbuf;
     int		sts = 0;
+    int		lsts = 0;
 
     if (stat(name, &sbuf) < 0) {
+	sts = -oserror();
 	if (pmDebugOptions.derive) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "Warning: derived metrics path component: %s: %s\n",
-		name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+		name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
-	sts = -oserror();
 	goto finish;
     }
     if (S_ISREG(sbuf.st_mode)) {
@@ -197,12 +198,12 @@ __dminit_component(const char *name, int descend, int recover)
 	struct dirent	*dp;
 
 	if ((dirp = opendir(name)) == NULL) {
+	    sts = -oserror();
 	    if (pmDebugOptions.derive) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "Warning: derived metrics path directory component: %s: %s\n",
-		    name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
-	    sts = -oserror();
 	    goto finish;
 	}
 	/* dirp is an on-stack variable, so readdir() is ... */
@@ -224,10 +225,11 @@ __dminit_component(const char *name, int descend, int recover)
 	    sts += localsts;
 	}
 	/* error is most unlikely and ignore unless -Dderive specified */
-	if (oserror() != 0 && pmDebugOptions.derive) {
+	lsts = -oserror();
+	if (lsts != 0 && pmDebugOptions.derive) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "Warning: %s: readdir failed: %s\n",
-		name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+		name, pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
 	}
 	closedir(dirp);
 	goto finish;

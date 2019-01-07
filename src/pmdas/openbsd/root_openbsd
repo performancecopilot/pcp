@@ -60,6 +60,7 @@ kernel.all {
     intr	OPENBSD:5:3
     hz		OPENBSD:0:13
     load	OPENBSD:1:2
+    uptime	OPENBSD:1:19
     cpu
 }
 

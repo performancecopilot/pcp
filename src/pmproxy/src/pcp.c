@@ -48,7 +48,7 @@ server_write(struct client *client, sds buffer)
     if (request) {
 	if (pmDebugOptions.pdu)
 	    fprintf(stderr, "%s: %ld bytes from client %p to pmcd\n",
-			"server_write", sdslen(buffer), client);
+			"server_write", (long)sdslen(buffer), client);
 	request->buffer[0] = uv_buf_init(buffer, sdslen(buffer));
 	uv_write(&request->writer, (uv_stream_t *)&client->u.pcp.socket,
 		 request->buffer, 1, on_server_write);
@@ -66,7 +66,7 @@ on_server_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 
     if (pmDebugOptions.pdu)
 	fprintf(stderr, "%s: client %p read %ld bytes from pmcd\n",
-			"on_server_read", client, nread);
+			"on_server_read", client, (long)nread);
 
     /* proxy data through to the client */
     buffer = sdsnewlen(buf->base, nread);
@@ -147,7 +147,7 @@ pcp_consume_bytes(struct client *client, const char *base, ssize_t nread)
 
     if (pmDebugOptions.pdu)
 	fprintf(stderr, "%s: client %p consuming %ld PDU bytes\n",
-			"pcp_consume_bytes", client, nread);
+			"pcp_consume_bytes", client, (long)nread);
 
     if ((buffer = client->buffer) == NULL)
 	buffer = sdsnewlen(base, nread);
@@ -227,7 +227,7 @@ on_pcp_client_read(struct proxy *proxy, struct client *client,
 
     if (pmDebugOptions.pdu)
 	fprintf(stderr, "%s: read %ld bytes from PCP client %p (state=%x)\n",
-		"on_pcp_client_read", nread, client, client->u.pcp.state);
+		"on_pcp_client_read", (long)nread, client, client->u.pcp.state);
 
     if (nread <= 0)
 	return;

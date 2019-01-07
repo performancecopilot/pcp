@@ -255,12 +255,24 @@ do
 	echo "Warning: $base: bad archive (pmlogcheck exit status=$sts), rewriting skipped"
 	continue
     fi
-    # use sum(1) to detect changes at the level of individual files
+    if `which sum >/dev/null 2>&1`
+    then
+	SUM=sum
+    elif `which cksum >/dev/null 2>&1`
+    then
+	SUM=cksum
+    else
+	# Using wc(1) is lame, but no real choice!
+	#
+	echo "Warning: can't find sum(1) or chksum(1)"
+	SUM="wc -c"
+    fi
+    # use sum(1) or cksum(1) to detect changes at the level of individual files
     #
     rm -f $tmp/sum.before
     for file in $archive.*
     do
-	echo "$file `sum "$file" | sed -e 's/[ 	][ 	]*/ /g'`" >>$tmp/sum.before
+	echo "$file `$SUM "$file" | sed -e 's/[ 	][ 	]*/ /g'`" >>$tmp/sum.before
     done
 
     eval pmlogrewrite $rewrite_args "$archive"
@@ -268,7 +280,7 @@ do
     rm -f $tmp/sum.after
     for file in $archive.*
     do
-	echo "$file `sum "$file" | sed -e 's/[ 	][ 	]*/ /g'`" >>$tmp/sum.after
+	echo "$file `$SUM "$file" | sed -e 's/[ 	][ 	]*/ /g'`" >>$tmp/sum.after
     done
     # now use comm to find the lines that are in $tmp/sum.after and not
     # in $tmp/sum.before ... these are the files that have been changed

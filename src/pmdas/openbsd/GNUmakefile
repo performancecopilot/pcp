@@ -23,12 +23,14 @@ DOMAIN		= OPENBSD
 CMDTARGET 	= pmdaopenbsd
 LIBTARGET	= pmda_openbsd.so
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+LOGREWRITEDIR   = $(PCP_VAR_DIR)/config/pmlogrewrite
 CONF_LINE	= "openbsd	139	dso	openbsd_init	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES		= openbsd.c disk.c percpu.c netif.c swap.c vm_uvmexp.c \
 		  filesys.c
 
 HFILES		= openbsd.h
+CONFTARGETS	= openbsd_disk_units.conf openbsd_misc.conf
 
 LSRCFILES	= help root_openbsd
 LDIRT		= help.dir help.pag help.sed help.tmp domain.h $(IAM).log
@@ -40,7 +42,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "openbsd"
-build-me: $(LIBTARGET) $(CMDTARGET) help.dir help.pag
+build-me: $(LIBTARGET) $(CMDTARGET) help.dir help.pag $(CONFTARGETS)
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -52,6 +54,7 @@ install: default
 	$(INSTALL) -m 644 domain.h help help.dir help.pag $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root_openbsd $(PCP_VAR_DIR)/pmns/root_openbsd
+	$(INSTALL) -m 644 openbsd_disk_units.conf $(LOGREWRITEDIR)/openbsd_disk_units.conf
 else
 build-me:
 install:
