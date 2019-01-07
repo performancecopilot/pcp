@@ -1,0 +1,8 @@
+[Unit]
+Description=Process PMIE logs
+Documentation=man:pmie(1)
+
+[Service]
+Type=oneshot
+ExecStart=@PCP_BINADM_DIR@/pmie_daily -X xz -x 3
+User=@PCP_USER@

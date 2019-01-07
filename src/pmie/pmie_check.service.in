@@ -1,0 +1,8 @@
+[Unit]
+Description=Check PMIE instances are running
+Documentation=man:pmie(1)
+
+[Service]
+Type=oneshot
+ExecStart=@PCP_BINADM_DIR@/pmie_check -C
+User=@PCP_USER@
