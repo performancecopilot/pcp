@@ -208,6 +208,14 @@ while [ $c -lt $maxfd ]; do
    curl -s -L -S "http://localhost:44323/src/" > $tmp.out
    c=`expr $c + 1`
 done
+
+echo "+++ should not fail after patch from GH PR594" | tee -a $seq.full
+( curl -s -v -S "http://localhost:44323/pmapi/1/metrics" 2>&1; echo ) \
+| tee -a $seq.full \
+| _webapi_response_filter \
+| sed -e '/^$/d'
+echo | tee -a $seq.full
+
 grep -q PMWEBD.error $tmp.out && echo fd leak || echo no fd leak
 grep -q OK $tmp.out && echo redirected file ok || echo redirected file bad
 
