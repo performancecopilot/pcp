@@ -713,6 +713,9 @@ endif
 else
 SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
 endif
+ifeq "$(ENABLE_PYTHON3)" "true"
+SETUP_PY_BUILD_OPTIONS += -DENABLE_PYTHON3
+endif
 # RPM byte-compiles and installs results in our DIST_ROOT, cater for this:
 ifeq "$(shell [ '$(TARGET_OS)' = linux -a '$(PACKAGE_DISTRIBUTION)' != gentoo \
 	      ] && echo 1)" "1"
