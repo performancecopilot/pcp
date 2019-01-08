@@ -36,10 +36,11 @@ HFILES = derive.h internal.h compiler.h pmdbg.h \
 	avahi.h shellprobe.h subnetprobe.h
 EXT_FILES = jsmn.h jsmn.c sort_r.h
 YFILES = getdate.y derive_parser.y
+OTHERS	= fix_derive_parser_y derive_parser.y.in
 VERSION_SCRIPT = exports
 
 # files that will be symbolic-linked to here from libpcp directory
-LN_FILES = $(filter-out $(EXT_FILES),$(CFILES)) $(HFILES) $(YFILES)
+LN_FILES = $(filter-out $(EXT_FILES),$(CFILES)) $(HFILES) getdate.y $(OTHERS)
 
 CFLAGS_OPT = -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1 -g -O0
 
@@ -102,8 +103,8 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) getdate.h check.done \
-	$(LN_FILES) $(EXT_FILES) exports *.c
+LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) derive_parser.y \
+	getdate.h check.done $(LN_FILES) $(EXT_FILES) exports *.c
 
 base default : $(HFILES) $(CFILES) $(EXT_FILES) $(VERSION_SCRIPT) $(INFILES) \
 	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
@@ -137,6 +138,9 @@ getdate.h getdate.tab.c: getdate.y
 derive_parser.tab.h derive_parser.tab.c: derive_parser.y derive.h
 	$(YACC) -d -b `basename $< .y` $<
 
+derive_parser.y: derive_parser.y.in fix_derive_parser_y
+	./fix_derive_parser_y
+
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows
 else
@@ -166,10 +170,6 @@ $(VERSION_SCRIPT): ../../libpcp/src/$(VERSION_SCRIPT) mk.exports
 pmdbg.h:	../../libpcp/src/pmdbg.h
 ../../libpcp/src/pmdbg.h:
 	( cd ../../libpcp/src; ./mk.pmdbg )
-
-derive_parser.y:	../../libpcp/src/derive_parser.y
-../../libpcp/src/derive_parser.y:
-	( cd ../../libpcp/src; $(MAKE) derive_parser.y )
 
 $(LN_FILES):
 	rm -f $@
