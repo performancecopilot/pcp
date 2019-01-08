@@ -163,6 +163,12 @@ extern int __pmIsConnectLock(void *) _PCP_HIDDEN;
 extern int __pmIsExecLock(void *) _PCP_HIDDEN;
 #endif
 
+/*
+ * Generic have / do not have lock macros
+ */
+#define PM_LOCKED	1
+#define PM_NOT_LOCKED	0
+
 #if !defined(PTHREAD_STACK_MIN)
 #if defined(IS_SOLARIS)
 #define PTHREAD_STACK_MIN       ((size_t)_sysconf(_SC_THREAD_STACK_MIN))
@@ -318,7 +324,7 @@ extern int __pmAddPorts(const char *, int **, int) _PCP_HIDDEN;
  * Internal variants for with extra __pmContext parameter to allow
  * for context being locked or not locked
  */
-extern int pmLookupName_ctx(__pmContext *, int, char **, pmID *) _PCP_HIDDEN;
+extern int pmLookupName_ctx(__pmContext *, int, int, char **, pmID *) _PCP_HIDDEN;
 extern int pmNameAll_ctx(__pmContext *, pmID, char ***) _PCP_HIDDEN;
 extern int pmLookupDesc_ctx(__pmContext *, pmID, pmDesc *) _PCP_HIDDEN;
 extern int pmNameInDom_ctx(__pmContext *, pmInDom, int, char **) _PCP_HIDDEN;

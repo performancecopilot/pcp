@@ -1685,7 +1685,7 @@ pmUnloadNameSpace(void)
  * current context is not locked.
  */
 int
-pmLookupName_ctx(__pmContext *ctxp, int numpmid, char *namelist[], pmID pmidlist[])
+pmLookupName_ctx(__pmContext *ctxp, int derive_locked, int numpmid, char *namelist[], pmID pmidlist[])
 {
     int		pmns_location;
     int		sts = 0;
@@ -1934,7 +1934,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	nfail = 0;
 	for (i = 0; i < numpmid; i++) {
 	    if (pmidlist[i] == PM_ID_NULL) {
-		lsts = __dmgetpmid(namelist[i], &pmidlist[i]);
+		lsts = __dmgetpmid(derive_locked, namelist[i], &pmidlist[i]);
 		if (lsts < 0) {
 		    nfail++;
 		}
@@ -1999,7 +1999,7 @@ int
 pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 {
     int	sts;
-    sts = pmLookupName_ctx(NULL, numpmid, namelist, pmidlist);
+    sts = pmLookupName_ctx(NULL, PM_NOT_LOCKED, numpmid, namelist, pmidlist);
     return sts;
 }
 
@@ -2379,7 +2379,7 @@ check:
     /*
      * see if there are derived metrics that qualify
      */
-    dm_num = __dmchildren(ctxp, name, &dm_offspring, &dm_statuslist);
+    dm_num = __dmchildren(ctxp, PM_NOT_LOCKED, name, &dm_offspring, &dm_statuslist);
 
     if (pmDebugOptions.derive) {
 	char	errmsg[PM_MAXERRMSGLEN];

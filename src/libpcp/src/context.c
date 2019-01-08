@@ -264,7 +264,7 @@ pmGetContextHostName_r(int handle, char *buf, int buflen)
 	    PM_TPD(curr_ctxp) = ctxp;
 
 	    name = "pmcd.hostname";
-	    sts = pmLookupName_ctx(ctxp, 1, &name, &pmid);
+	    sts = pmLookupName_ctx(ctxp, PM_NOT_LOCKED, 1, &name, &pmid);
 	    if (sts >= 0)
 		sts = pmFetch_ctx(ctxp, 1, &pmid, &resp);
 	    if (pmDebugOptions.context)
