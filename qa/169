@@ -46,8 +46,15 @@ _cleanup()
     _restore_auto_restart pmcd
     _wait_for_pmlogger
     _restore_auto_restart pmlogger
-    _service pmie start >>$seq.full
     _restore_auto_restart pmie
+    if $pmie_was_running
+    then
+	_service pmie start >>$seq.full 2>&1
+    else
+	_service pmie stop >>$seq.full 2>&1
+	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$seq.full 2>&1
+	_wait_pmie_end
+    fi
 
     rm -f $tmp.*
 }
@@ -59,6 +66,14 @@ rm -f $seq.full
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
 _stop_auto_restart pmie
+
+pmie_was_running=false
+if [ -f $PCP_RUN_DIR/pmie.pid ]
+then
+    pmie_was_running=true
+    echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$here/$seq.full
+    _service pmie stop >>$here/$seq.full 2>&1
+fi
 
 # real QA test starts here
 

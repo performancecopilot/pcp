@@ -15,7 +15,16 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
-    _change_config pmie off
+    if $pmie_was_running
+    then
+	_restore_auto_restart pmie
+	_service pmie start >>$here/$seq.full 2>&1
+    else
+	_service pmie stop >>$here/$seq.full 2>&1
+	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$here/$seq.full 2>&1
+	_wait_pmie_end
+	_change_config pmie off
+    fi
     rm -f $tmp.*
 }
 
@@ -23,8 +32,18 @@ signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# real QA test starts here
+pmie_was_running=false
+if [ -f $PCP_RUN_DIR/pmie.pid ]
+then
+    pmie_was_running=true
+    echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$here/$seq.full
+    _stop_auto_restart pmie
+    _service pmie stop >>$here/$seq.full 2>&1
+fi
 $sudo $signal -a pmie >/dev/null 2>&1
+_wait_pmie_end
+
+# real QA test starts here
 
 _change_config pmie on
 # The "pmie not running" message does not appear when systemd is in

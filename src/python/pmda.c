@@ -963,6 +963,7 @@ update_indom_metric_buffers(void)
     /* Copy the indoms. */
     for (i = 0; !error && i < nindoms; i++) {
 	item = PyList_GetItem(indom_list, i);
+#if defined(ENABLE_PYTHON3)
 	/* Newer buffer interface */
 	if (item && PyObject_CheckBuffer(item)) {
 	    /* Attempt to extract buffer information from it. */
@@ -975,8 +976,9 @@ update_indom_metric_buffers(void)
 	    ptr = buffer.buf;
 	    len = buffer.len;
 	}
+#else
 	/* Older buffer interface */
-	else if (item && PyObject_CheckReadBuffer(item)) {
+	if (item && PyObject_CheckReadBuffer(item)) {
 	    /* Attempt to extract information from the item. */
 	    if (PyObject_AsReadBuffer(item, &ptr, &len) == -1) {
 		PyErr_SetString(PyExc_TypeError,
@@ -986,6 +988,7 @@ update_indom_metric_buffers(void)
 	    }
 	    buffer.buf = NULL;
 	}
+#endif
 	else {
  	    PyErr_SetString(PyExc_TypeError, "Unable to retrieve indom");
 	    error = 1;
@@ -1011,6 +1014,7 @@ update_indom_metric_buffers(void)
     /* Copy the metrics. */
     for (i = 0; !error && i < nmetrics; i++) {
 	item = PyList_GetItem(metric_list, i);
+#if defined(ENABLE_PYTHON3)
 	/* Newer buffer interface */
 	if (item && PyObject_CheckBuffer(item)) {
 	    /* Attempt to extract buffer information from it. */
@@ -1024,8 +1028,9 @@ update_indom_metric_buffers(void)
 	    ptr = buffer.buf;
 	    len = buffer.len;
 	}
+#else
 	/* Older buffer interface */
-	else if (item && PyObject_CheckReadBuffer(item)) {
+	if (item && PyObject_CheckReadBuffer(item)) {
 	    /* Attempt to extract information from the item. */
 	    if (PyObject_AsReadBuffer(item, &ptr, &len) == -1) {
 		PyErr_SetString(PyExc_TypeError,
@@ -1035,6 +1040,7 @@ update_indom_metric_buffers(void)
 	    }
 	    buffer.buf = NULL;
 	}
+#endif
 	else {
 	    PyErr_SetString(PyExc_TypeError, "Unable to retrieve metric");
 	    error = 1;

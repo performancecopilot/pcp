@@ -160,6 +160,13 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 %global disable_boost 1
 %endif
 
+# libuv
+%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
+%global disable_libuv 0
+%else
+%global disable_libuv 1
+%endif
+
 # rpm producing "noarch" packages
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_noarch 0
@@ -221,6 +228,9 @@ BuildRequires: systemtap-sdt-devel
 %endif
 %if !%{disable_boost}
 BuildRequires: boost-devel
+%endif
+%if !%{disable_libuv}
+BuildRequires: libuv-devel >= 1.16
 %endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 7
 BuildRequires: perl-generators

@@ -1028,7 +1028,7 @@ pmLookupLabels(pmID pmid, pmLabelSet **labels)
     pmLabelSet	*lsp = NULL, *sets = NULL;
     pmDesc	desc;
     pmID	ident;
-    int		n, sts, count, total;
+    int		sts, count, total;
 
     if ((sts = pmLookupDesc(pmid, &desc)) < 0)
 	return sts;

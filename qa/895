@@ -117,7 +117,7 @@ N=`grep '^  Fetch group' $tmp.log | tee -a $here/$seq.full | wc -l | sed -e 's/ 
 # +2 for preamble and postscript records
 #
 max_nrec=`expr $N \* 61 + 2`
-min_nrec=`expr \( $N \) \* 58 + 2`
+min_nrec=`expr \( $N \) \* 56 + 2`
 echo "N(fetch groups)=$N max_nrec=$max_nrec min_nrec=$min_nrec" >>$here/$seq.full
 nrec=`pmdumplog $tmp | grep '^[0-9]' | grep -v '<mark>' | wc -l | sed -e 's/ //g'`
 echo "nrec=$nrec log records" >>$here/$seq.full

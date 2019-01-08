@@ -19,6 +19,8 @@ which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
 which pcp2json >/dev/null 2>&1 || _notrun "pcp2json not installed"
 which pcp2xml >/dev/null 2>&1 || _notrun "pcp2xml not installed"
 
+[ $PCP_PLATFORM = openbsd ] && _notrun "OpenBSD Python chokes on non-ascii chars"
+
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp $tmp.* $seq.full

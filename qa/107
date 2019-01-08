@@ -8,9 +8,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard filters
+# get standard environment, filters and checks
 . ./common.product
 . ./common.filter
+. ./common.check
 
 _filter()
 {
@@ -20,7 +21,7 @@ _filter()
     #   sampledso.secret.foo.bar.max.redirect are aliases (i.e. have the
     #   same PMID) for pmcd.agent.status ... so the Warning is expected
     #
-    echo "Checking for errors in $1 ..."
+    echo "Checking for errors in pmlc output ..."
     sed <$1 \
 	-e '/Warning: already using all instances for pmcd.agent.status/d' \
 	-e '/^$/d' \
@@ -42,14 +43,28 @@ _filter()
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
+# don't need to regenerate config.default with pmlogconf
+#
+export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+
+# Need healthy pmlogger connected to pmcd ... force this
+#
+_service pcp stop >>$seq.full 2>&1
+_service pcp start >>$seq.full 2>&1
+_wait_for_pmcd
+_wait_for_pmlogger
+sleep 5
+
 # real QA test starts here
-pmlc <<End-of-File >$seq.full 2>&1
+pmlc <<End-of-File >>$tmp.tmp 2>&1
 connect primary
 query { disk network kernel pmcd sample sampledso }
 End-of-File
 
+cat $tmp.tmp >>$seq.full
+
 $PCP_ECHO_PROG $PCP_ECHO_N "Expect at least one metric with logging state \"on\" ...""$PCP_ECHO_C"
-if egrep '^    (mand on )|(adv  on )' $seq.full >/dev/null
+if egrep '^    (mand on )|(adv  on )' $tmp.tmp >/dev/null
 then
     echo " PASS"
 else
@@ -57,7 +72,7 @@ else
 fi
 
 $PCP_ECHO_PROG $PCP_ECHO_N "Expect at least 250 metrics to be reported ...""$PCP_ECHO_C"
-num=`egrep '^(disk|network|kernel|pmcd|sample|sampledso)\.' $seq.full | wc -l | sed -e 's/ //g'`
+num=`egrep '^(disk|network|kernel|pmcd|sample|sampledso)\.' $tmp.tmp | wc -l | sed -e 's/ //g'`
 if [ $num -ge 250 ]
 then
     echo " PASS"
@@ -65,4 +80,4 @@ else
     echo " FAIL (found $num)"
 fi
 
-_filter $seq.full
+_filter $tmp.tmp

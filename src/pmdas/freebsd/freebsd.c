@@ -409,7 +409,7 @@ do_sysctl(mib_t *mp, size_t xpect)
      */
     if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
 	fprintf(stderr, "do_sysctl(%s, %d) m_data=%p m_datalen=%d m_fetched=%d\n", 
-	    mp->m_name, (int)xpect, mp->m_data, mp->m_datalen, mp->m_fetched);
+	    mp->m_name, (int)xpect, mp->m_data, (int)mp->m_datalen, mp->m_fetched);
     }
     for ( ; mp->m_fetched == 0; ) {
 	int	sts;
@@ -488,7 +488,7 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 1:		/* hinv.physmem */
 		sts = do_sysctl(mp, sizeof(long));
 		if (sts > 0) {
-		    /* stsctl() returns bytes, convert to MBYTES */
+		    /* stsctl() returns bytes, convert to Mbytes */
 		    atom->ul = (*((long *)mp->m_data))/(1024*1024);
 		    sts = 1;
 		}
@@ -922,7 +922,7 @@ freebsd_init(pmdaInterface *dp)
 			if (p > 0) fputc('.', stderr);
 			fprintf(stderr, "%d", map[i].m_mib[p]);
 		    }
-		    fprintf(stderr, " (len=%d)\n", map[i].m_miblen);
+		    fprintf(stderr, " (len=%d)\n", (int)map[i].m_miblen);
 		}
 		metrictab[m].m_user = (void *)&map[i];
 		break;
