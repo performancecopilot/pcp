@@ -9,10 +9,6 @@ echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.python
-
-$python -c "from pcp import pmapi" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
-
 . ./common.config
 echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$here/$seq.full
 
@@ -50,6 +46,8 @@ if [ $? -ne 0 ]; then
     skip_pcp2zabbix=true
     skip_pmrep=true
 fi
+skip_pmdumptext=false
+which pmdumptext >/dev/null 2>&1 || skip_pmdumptext=true
 
 # these may not be available if X11 display is missing
 #
@@ -71,7 +69,7 @@ zsh_comp=${share_dir}/zsh/site-functions/_pcp
 # functions
 _check_completion_bash()
 {
-  cmds="$(grep '  pcp2.*)' $bash_comp | tr -d ')'))"
+  cmds="$(grep '  pcp2.*)' $bash_comp | tr -d ')')"
   cmds="$cmds $(grep '  pm.*)' $bash_comp | tr -d ')')"
   for cmd in $cmds; do
     $skip_pcp2elasticsearch && [ "$cmd" = pcp2elasticsearch ] && continue
@@ -84,6 +82,7 @@ _check_completion_bash()
     $skip_pcp2zabbix && [ "$cmd" = pcp2zabbix ] && continue
     $skip_pmchart && [ "$cmd" = pmchart ] && continue
     $skip_pmrep && [ "$cmd" = pmrep ] && continue
+    $skip_pmdumptext && [ "$cmd" = pmdumptext ] && continue
     comps=$(grep -A 1 "  $cmd)" $bash_comp | tail -n 1 | sed -e 's,all_args=",,' -e 's,",,')
     # Need $tmp.err and PCP_STDERR for pmchart ...
     #
@@ -129,6 +128,7 @@ _check_completion_zsh()
     $skip_pcp2zabbix && [ "$cmd" = pcp2zabbix ] && continue
     $skip_pmchart && [ "$cmd" = pmchart ] && continue
     $skip_pmrep && [ "$cmd" = pmrep ] && continue
+    $skip_pmdumptext && [ "$cmd" = pmdumptext ] && continue
     echo $cmd | grep = > /dev/null 2>&1 && continue
     common=$(awk "/common_most=/,/  \)/" $zsh_comp)
     pytool=$(awk "/common_python=/,/  \)/" $zsh_comp)
