@@ -1,6 +1,6 @@
 #
 # Copyright (C) 2016 Sasha Goldshtein
-# Copyright (C) 2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2018-2019 Marko Myllynen <myllynen@redhat.com>
 # Based on the ustat BCC tool by Sasha Goldshtein:
 # https://github.com/iovisor/bcc/blob/master/tools/lib/ustat.py
 #
