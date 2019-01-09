@@ -20,7 +20,7 @@
 
 from ctypes import c_int
 
-from bcc import BPF, USDT, utils
+from bcc import BPF, USDT, USDTException, utils
 
 from pcp.pmapi import pmUnits
 from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
@@ -65,7 +65,10 @@ class Probe(object):
     def _enable_probes(self):
         """ Enable probes """
         for pid in self.targets:
-            usdt = USDT(pid=pid)
+            try:
+                usdt = USDT(pid=pid)
+            except USDTException:
+                continue
             for event in self.events:
                 try:
                     usdt.enable_probe(event, "%s_%s" % (self.language, event))
