@@ -23,15 +23,23 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 eval `pmconfig -L lock_asserts`
 echo "lock_asserts=$lock_asserts" >>$here/$seq.full
 
+rm -f $seq.out
+if $lock_asserts
+then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
 _filter()
 {
     if $lock_asserts
     then
-	tee -a $here/$seq.full \
-	| sed \
+	sed \
 	    -e '/^exerlock: lock.c:[0-9]*: __pmUnlock: Assertion .* failed/d' \
 	    -e '/^exerlock.c:[0-9][0-9]*:/s/:[0-9][0-9]*:/:N:/' \
 	    -e 's/ __pmUnlock([^)]*)/ unlock/' \
+	    -e 's/ __pmLock([^)]*)/ lock/' \
 	    -e '/^Aborted (core dumped)/d' \
 	    -e '/^Aborted$/d' \
 	| $PCP_AWK_PROG '
@@ -41,21 +49,27 @@ $1 == "backtrace:"	{ exit }
 	sed \
 	    -e '/^exerlock.c:[0-9][0-9]*:/s/:[0-9][0-9]*:/:N:/' \
 	    -e 's/ __pmUnlock([^)]*)/ unlock/' \
+	    -e 's/ __pmLock([^)]*)/ lock/' \
 	# end
     fi
 }
 
 # real QA test starts here
 #
-# test assumes mutex is recursive ... last test case
-# will return an error and the filter is required if
-# libpcp is built with BUILD_LOCK_ASSERTS defined
+# This test used to assume the big libpcp mutex is recursive ...
+# but this is no longer the case (as of Jan 2019), so the nested lock
+# tests now fail with "Resource deadlock avoided" (lock-lock) or
+# "Operation not permitted" (unlock-unlock) rather than succeeding.
+# The test cases with nested unlock or lock operations will return an
+# error and the filter is required if libpcp is built with
+# BUILD_LOCK_ASSERTS defined.
 #
 for arg in ilu ilululu illluluuluu ll iluu
 do
-    echo
-    echo "=== $arg ==="
+    echo | tee -a $here/$seq.full
+    echo "=== $arg ===" | tee -a $here/$seq.full
     ( sh -c "src/exerlock $arg" 2>&1 ) \
+    | tee -a $here/$seq.full \
     | _filter
 done
 

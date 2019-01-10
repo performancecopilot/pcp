@@ -18,18 +18,23 @@ unlock
 initialize
 lock
 lock
+exerlock.c:N: lock failed: Resource deadlock avoided
+lock
+exerlock.c:N: lock failed: Resource deadlock avoided
+unlock
 lock
 unlock
+unlock
+exerlock.c:N: unlock failed: Operation not permitted
 lock
 unlock
 unlock
-lock
-unlock
-unlock
+exerlock.c:N: unlock failed: Operation not permitted
 
 === ll ===
 lock
 lock
+exerlock.c:N: lock failed: Resource deadlock avoided
 
 === iluu ===
 initialize
