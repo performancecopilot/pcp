@@ -141,7 +141,7 @@ extern int __dmgetname(pmID, char **) _PCP_HIDDEN;
 extern void __dmopencontext(__pmContext *) _PCP_HIDDEN;
 extern void __dmbind(int, __pmContext *, int) _PCP_HIDDEN;
 extern void __dmclosecontext(__pmContext *) _PCP_HIDDEN;
-extern int __dmdesc(__pmContext *, pmID, pmDesc *) _PCP_HIDDEN;
+extern int __dmdesc(__pmContext *, int, pmID, pmDesc *) _PCP_HIDDEN;
 extern int __dmprefetch(__pmContext *, int, const pmID *, pmID **) _PCP_HIDDEN;
 extern void __dmpostfetch(__pmContext *, pmResult **) _PCP_HIDDEN;
 extern void __dmdumpexpr(node_t *, int) _PCP_HIDDEN;

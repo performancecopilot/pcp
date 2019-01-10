@@ -326,7 +326,7 @@ extern int __pmAddPorts(const char *, int **, int) _PCP_HIDDEN;
  */
 extern int pmLookupName_ctx(__pmContext *, int, int, char **, pmID *) _PCP_HIDDEN;
 extern int pmNameAll_ctx(__pmContext *, pmID, char ***) _PCP_HIDDEN;
-extern int pmLookupDesc_ctx(__pmContext *, pmID, pmDesc *) _PCP_HIDDEN;
+extern int pmLookupDesc_ctx(__pmContext *, int, pmID, pmDesc *) _PCP_HIDDEN;
 extern int pmNameInDom_ctx(__pmContext *, pmInDom, int, char **) _PCP_HIDDEN;
 extern int pmLookupInDom_ctx(__pmContext *, pmInDom, const char *) _PCP_HIDDEN;
 extern int pmGetInDomArchive_ctx(__pmContext *, pmInDom, int **, char ***) _PCP_HIDDEN;

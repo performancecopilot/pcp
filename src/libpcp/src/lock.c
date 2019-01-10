@@ -390,6 +390,11 @@ __pmInitLocks(void)
 	}
 #endif
 	/*
+	 * Global locks
+	 */
+	__pmInitMutex(&__pmLock_libpcp);
+
+	/*
 	 * Now initialize the local mutexes.
 	 */
 	init_pmns_lock();
