@@ -2,7 +2,7 @@ Name:    pcp
 Version: 4.3.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
-License: GPLv2+ and LGPLv2.1+ and CC-BY
+License: GPLv2+ and LGPLv2+ and CC-BY
 URL:     https://pcp.io
 Group:   Applications/System
 
@@ -405,7 +405,7 @@ applications to easily retrieve and process any subset of that data.
 # pcp-conf
 #
 %package conf
-License: LGPLv2.1+
+License: LGPLv2+
 Group: System Environment/Libraries
 Summary: Performance Co-Pilot run-time configuration
 URL: https://pcp.io
@@ -420,7 +420,7 @@ Performance Co-Pilot (PCP) run-time configuration
 # pcp-libs
 #
 %package libs
-License: LGPLv2.1+
+License: LGPLv2+
 Group: System Environment/Libraries
 Summary: Performance Co-Pilot run-time libraries
 URL: https://pcp.io
@@ -433,7 +433,7 @@ Performance Co-Pilot (PCP) run-time libraries
 # pcp-libs-devel
 #
 %package libs-devel
-License: GPLv2+ and LGPLv2.1+
+License: GPLv2+ and LGPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers
 URL: https://pcp.io
@@ -446,7 +446,7 @@ Performance Co-Pilot (PCP) headers for development.
 # pcp-devel
 #
 %package devel
-License: GPLv2+ and LGPLv2.1+
+License: GPLv2+ and LGPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development tools and documentation
 URL: https://pcp.io
