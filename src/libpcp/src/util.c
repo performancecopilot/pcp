@@ -755,7 +755,7 @@ dump_valueset(__pmContext *ctxp, FILE *f, pmValueSet *vsp)
 	return;
     }
     if (__pmGetInternalState() == PM_STATE_PMCS ||
-	pmLookupDesc_ctx(ctxp, vsp->pmid, &desc) < 0) {
+	pmLookupDesc_ctx(ctxp, PM_NOT_LOCKED, vsp->pmid, &desc) < 0) {
 	/* don't know, so punt on the most common cases */
 	desc.indom = PM_INDOM_NULL;
 	have_desc = 0;

@@ -472,7 +472,7 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 	    free_expr(new);
 	    return NULL;
 	}
-	sts = pmLookupDesc_ctx(ctxp, new->data.info->pmid, &new->desc);
+	sts = pmLookupDesc_ctx(ctxp, PM_LOCKED, new->data.info->pmid, &new->desc);
 	if (sts < 0) {
 	    if (pmDebugOptions.derive) {
 		char	strbuf[20];
@@ -2254,7 +2254,7 @@ __dmclosecontext(__pmContext *ctxp)
 }
 
 int
-__dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
+__dmdesc(__pmContext *ctxp, int derive_locked, pmID pmid, pmDesc *desc)
 {
     int		i;
     ctl_t	*cp = (ctl_t *)ctxp->c_dm;
@@ -2267,7 +2267,7 @@ __dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
 	if (cp->mlist[i].pmid == pmid) {
 	    if (cp->mlist[i].bind == 0) {
 		/* ctxp->c_lock already locked at this point */
-		__dmbind(PM_NOT_LOCKED, ctxp, i);
+		__dmbind(derive_locked, ctxp, i);
 	    }
 	    if (cp->mlist[i].expr == NULL)
 		/* bind failed for some reason, reported earlier */
