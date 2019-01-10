@@ -141,6 +141,7 @@ pmwebres_respond (struct MHD_Connection *connection, const http_params& params, 
         if (! resp)
             return MHD_NO;
 
+        close (fd); // don't leak file fd
         resp_code = 304;
         goto out_304;
     }
