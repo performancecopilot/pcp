@@ -1850,7 +1850,7 @@ __pmSetClientId(const char *id)
     if (ctxp == NULL)
 	return PM_ERR_NOCONTEXT;
 
-    if ((sts = pmLookupName_ctx(ctxp, 1, &name, &pmid)) < 0) {
+    if ((sts = pmLookupName_ctx(ctxp, PM_NOT_LOCKED, 1, &name, &pmid)) < 0) {
 	PM_UNLOCK(ctxp->c_lock);
 	return sts;
     }

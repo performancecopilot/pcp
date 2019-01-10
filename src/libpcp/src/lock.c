@@ -53,11 +53,7 @@ __pmIsLockLock(void *lock)
 #endif
 
 /* the big libpcp lock */
-#ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
-pthread_mutex_t	__pmLock_libpcp = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-#else
 pthread_mutex_t	__pmLock_libpcp = PTHREAD_MUTEX_INITIALIZER;
-#endif
 
 #ifndef HAVE___THREAD
 pthread_key_t 	__pmTPDKey = 0;
@@ -385,30 +381,6 @@ __pmInitLocks(void)
     }
     if (!done) {
 	SetupDebug();
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
-	/*
-	 * Unable to initialize at compile time, need to do it here in
-	 * a one trip for all threads run-time initialization.
-	 */
-	pthread_mutexattr_t	attr;
-
-	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
-	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "__pmInitLocks: pthread_mutexattr_init failed: %s", errmsg);
-	    exit(4);
-	}
-	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
-	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "__pmInitLocks: pthread_mutexattr_settype failed: %s", errmsg);
-	    exit(4);
-	}
-	if ((psts = pthread_mutex_init(&__pmLock_libpcp, &attr)) != 0) {
-	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "__pmInitLocks: pthread_mutex_init failed: %s", errmsg);
-	    exit(4);
-	}
-	pthread_mutexattr_destroy(&attr);
-#endif
 #ifndef HAVE___THREAD
 	/* first thread here creates the thread private data key */
 	if ((psts = pthread_key_create(&__pmTPDKey, __pmTPD__destroy)) != 0) {

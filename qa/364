@@ -79,20 +79,22 @@ _filter_freebsd()
 	cat
     else
 	sed \
-	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
 	    -e '/^disk\.all\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
+	    -e '/^filesys .* Unknown metric name/d' \
+	    -e '/^filesys\..* Unknown metric name/d' \
 	    -e '/^hinv\.nnode .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.io\..* Unknown metric name/d' \
 	    -e '/^kernel\.all\.kpreempt .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.kswitch .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.nusers .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pswitch .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.sysexec .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.sysfork .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.sysioctl .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.sysread .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.syswrite .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.uptime .* Unknown metric name/d' \
-	    -e '/^kernel\.all\.pswitch .* Unknown metric name/d' \
 	    -e '/^kernel\.percpu\.pswitch .* Unknown metric name/d' \
 	    -e '/^kernel\.percpu\.syscall .* Unknown metric name/d' \
 	    -e '/^mem\.util\.bufmem .* Unknown metric name/d' \
@@ -101,8 +103,8 @@ _filter_freebsd()
 	    -e '/^name_cache\.removes .* Unknown metric name/d' \
 	    -e '/^name_cache\.searches .* Unknown metric name/d' \
 	    -e '/^network\.icmp .* Unknown metric name/d' \
-	    -e '/^network\.interface\.collisions .* Unknown metric name/d' \
 	    -e '/^network\.igmp .* Unknown metric name/d' \
+	    -e '/^network\.interface\.collisions .* Unknown metric name/d' \
 	    -e '/^network\.ip .* Unknown metric name/d' \
 	    -e '/^network\.tcp .* Unknown metric name/d' \
 	    -e '/^network\.udp .* Unknown metric name/d' \

@@ -10,6 +10,9 @@ echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 $python -c "from collections import OrderedDict" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
 which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"

@@ -46,11 +46,7 @@ static int		need_init = 1;
 static int		in_matchinst = 0;	/* context sensitive / lexing */
 static ctl_t		registered = {
 #ifdef PM_MULTI_THREAD
-#ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
-    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
-#else
     PTHREAD_MUTEX_INITIALIZER,
-#endif
 #else
     0,
 #endif
@@ -87,6 +83,8 @@ static node_t *parse_tree;
 int derive_parse(void);
 static int derive_lex(void);
 static void derive_error(char *);
+static int registeranon(int, const char *, int);
+static int __dminit_configfile(const char *);
 int derive_debug;
 
 static char *n_type_c(int);
@@ -103,57 +101,6 @@ static const char initial_str[]	 = "Unexpected initial";
 
 static const pmUnits noUnits;
 static pmDesc specdesc;
-
-#if defined(PM_MULTI_THREAD) && !defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
-static void
-initialize_mutex(void)
-{
-    static pthread_mutex_t	init = PTHREAD_MUTEX_INITIALIZER;
-    static int			done;
-    int				psts;
-    char			errmsg[PM_MAXERRMSGLEN];
-
-    if ((psts = pthread_mutex_lock(&init)) != 0) {
-	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "initialize_mutex: pthread_mutex_lock failed: %s", errmsg);
-	exit(4);
-    }
-    if (!done) {
-	/*
-	 * Unable to initialize at compile time, need to do it here in
-	 * a one trip for all threads run-time initialization.
-	 */
-	pthread_mutexattr_t    attr;
-
-	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
-	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_init failed: %s", errmsg);
-	    exit(4);
-	}
-	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
-	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_settype failed: %s", errmsg);
-	    exit(4);
-	}
-	if ((psts = pthread_mutex_init(&registered.mutex, &attr)) != 0) {
-	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "initialize_mutex: pthread_mutex_init failed: %s", errmsg);
-	    exit(4);
-	}
-	pthread_mutexattr_destroy(&attr);
-	done = 1;
-    }
-    if ((psts = pthread_mutex_unlock(&init)) != 0) {
-	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "initialize_mutex: pthread_mutex_unlock failed: %s", errmsg);
-	exit(4);
-    }
-}
-#else
-# define initialize_mutex() do { } while (0)
-#endif
-
-static int __dminit_configfile(const char *);
 
 /*
  * Handle one component of the ':' separated derived config spec.
@@ -295,14 +242,14 @@ __dminit(void)
 
 	/* anon metrics for event record unpacking */
 PM_FAULT_POINT("libpcp/derive.c:7", PM_FAULT_PMAPI);
-	sts = __pmRegisterAnon("event.flags", PM_TYPE_U32);
+	sts = registeranon(PM_LOCKED, "event.flags", PM_TYPE_U32);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s: Warning: failed to register event.flags: %s\n",
 		    pmGetProgname(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 PM_FAULT_POINT("libpcp/derive.c:8", PM_FAULT_PMAPI);
-	sts = __pmRegisterAnon("event.missed", PM_TYPE_U32);
+	sts = registeranon(PM_LOCKED, "event.missed", PM_TYPE_U32);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s: Warning: failed to register event.missed: %s\n",
@@ -430,7 +377,9 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 {
     node_t	*new;
 
+    PM_ASSERT_IS_LOCKED(registered.mutex);
     assert(np != NULL);
+
     new = newnode(np->type);
     if (np->left != NULL) {
 	/*
@@ -509,7 +458,7 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
     if (new->type == N_NAME) {
 	int	sts;
 
-	sts = pmLookupName_ctx(ctxp, 1, &new->value, &new->data.info->pmid);
+	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, &new->value, &new->data.info->pmid);
 	if (sts < 0) {
 	    if (lookup_err_ok) {
 		/* derived(x) -> false case */
@@ -1556,15 +1505,19 @@ checkname(char *p)
 }
 
 static char *
-registerderived(const char *name, const char *expr, int isanon)
+registerderived(int derive_locked, const char *name, const char *expr, int isanon)
 {
     node_t		*np;
     static __pmID_int	pmid;
     int			i;
 
-    PM_INIT_LOCKS();
-    initialize_mutex();
-    PM_LOCK(registered.mutex);
+    if (derive_locked == PM_NOT_LOCKED) {
+	PM_INIT_LOCKS();
+	PM_LOCK(registered.mutex);
+    }
+    else {
+	PM_ASSERT_IS_LOCKED(registered.mutex);
+    }
 
     if (pmDebugOptions.derive && pmDebugOptions.appl0) {
 	fprintf(stderr, "pmRegisterDerived: name=\"%s\" expr=\"%s\"\n", name, expr);
@@ -1574,7 +1527,8 @@ registerderived(const char *name, const char *expr, int isanon)
 	if (strcmp(name, registered.mlist[i].name) == 0) {
 	    /* oops, duplicate name ... */
 	    PM_TPD(derive_errmsg) = "Duplicate derived metric name";
-	    PM_UNLOCK(registered.mutex);
+	    if (derive_locked == PM_NOT_LOCKED)
+		PM_UNLOCK(registered.mutex);
 	    return (char *)expr;
 	}
     }
@@ -1593,7 +1547,8 @@ registerderived(const char *name, const char *expr, int isanon)
     if (np == NULL) {
 	/* parser error */
 	char	*sts = (char *)lexicon;
-	PM_UNLOCK(registered.mutex);
+	if (derive_locked == PM_NOT_LOCKED)
+	    PM_UNLOCK(registered.mutex);
 	return sts;
     }
 
@@ -1622,7 +1577,8 @@ registerderived(const char *name, const char *expr, int isanon)
 	    __dmdumpexpr(np, 0);
     }
 
-    PM_UNLOCK(registered.mutex);
+    if (derive_locked == PM_NOT_LOCKED)
+	PM_UNLOCK(registered.mutex);
     return NULL;
 }
 
@@ -1630,7 +1586,7 @@ registerderived(const char *name, const char *expr, int isanon)
 char *
 pmRegisterDerived(const char *name, const char *expr)
 {
-    return registerderived(name, expr, 0);
+    return registerderived(PM_NOT_LOCKED, name, expr, 0);
 }
 
 /* Variant including error handling. */
@@ -1646,7 +1602,7 @@ pmRegisterDerivedMetric(const char *name, const char *expr, char **errmsg)
 	"Error: pmRegisterDerivedMetric(\"%s\", ...) syntax error\n%s\n%*s^\n";
 
     *errmsg = NULL;
-    if ((offset = registerderived(name, expr, 0)) == NULL)
+    if ((offset = registerderived(PM_NOT_LOCKED, name, expr, 0)) == NULL)
 	return 0;
 
     /* failed to register name/expr - build an error string to pass back */
@@ -1674,6 +1630,13 @@ pmRegisterDerivedMetric(const char *name, const char *expr, char **errmsg)
 int
 __pmRegisterAnon(const char *name, int type)
 {
+    return registeranon(PM_NOT_LOCKED, name, type);
+}
+
+/* Internal version of register an anonymous metric */
+static int
+registeranon(int derive_locked, const char *name, int type)
+{
     char	*msg;
     char	buf[21];	/* anon(PM_TYPE_XXXXXX) */
 
@@ -1700,7 +1663,7 @@ PM_FAULT_RETURN(PM_FAULT_PMAPI);
 	default:
 	    return PM_ERR_TYPE;
     }
-    if ((msg = registerderived(name, buf, 1)) != NULL) {
+    if ((msg = registerderived(derive_locked, name, buf, 1)) != NULL) {
 	pmprintf("__pmRegisterAnon(%s, %d): @ \"%s\" Error: %s\n", name, type, msg, pmDerivedErrStr());
 	pmflush();
 	return PM_ERR_GENERIC;
@@ -1714,7 +1677,6 @@ pmLoadDerivedConfig(const char *fname)
     int		sts;
 
     PM_INIT_LOCKS();
-    initialize_mutex();
     PM_LOCK(registered.mutex);
     __dminit();
     sts = __dminit_parse(fname, 0 /*non-recovering*/);
@@ -1814,7 +1776,7 @@ __dminit_configfile(const char *fname)
 		    free(np);
 		    goto next_line;
 		}
-		errp = pmRegisterDerived(q, ep);
+		errp = registerderived(PM_LOCKED, q, ep, 0);
 		if (errp != NULL) {
 		    pmprintf("[%s:%d] Error: pmRegisterDerived(%s, ...) syntax error\n", fname, lineno, q);
 		    pmprintf("%s\n", &buf[eq+1]);
@@ -1906,7 +1868,8 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 	/* no derived metrics below PMCS, not even anon */
     	return PM_ERR_NAME;
 
-    initialize_mutex();
+    PM_LOCK(ctxp->c_lock);
+
     PM_LOCK(registered.mutex);
     __dminit();
 
@@ -1924,10 +1887,7 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 	     * will skip the metric
 	     */
 	    if (ctxp != NULL && cp->mlist[i].bind == 0) {
-		/* ctxp->c_lock not locked at this point */
-		PM_LOCK(ctxp->c_lock);
-		__dmbind(ctxp, i);
-		PM_UNLOCK(ctxp->c_lock);
+		__dmbind(PM_LOCKED, ctxp, i);
 	    }
 	    /* skip invalid derived metrics, e.g. due to missing operands */
 	    if (!cp->mlist[i].anon) {
@@ -1953,12 +1913,13 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
     }
     *namelist = list;
 
+    PM_UNLOCK(ctxp->c_lock);
     PM_UNLOCK(registered.mutex);
     return sts;
 }
 
 int
-__dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statuslist)
+__dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***offspring, int **statuslist)
 {
     int		i;
     int		j;
@@ -1977,9 +1938,13 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
 	/* no derived metrics below PMCS, not even anon */
     	return PM_ERR_NAME;
 
-    initialize_mutex();
-    PM_LOCK(registered.mutex);
-    __dminit();
+    if (derive_locked == PM_NOT_LOCKED) {
+	PM_LOCK(registered.mutex);
+	__dminit();
+    }
+    else {
+	PM_ASSERT_IS_LOCKED(registered.mutex);
+    }
 
     for (i = 0; i < cp->nmetric; i++) {
 	/* skip invalid derived metrics, e.g. due to missing operands */
@@ -2009,7 +1974,8 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
 		 * and status[] are realloc'd
 		 */
 		assert(num_chn == 0 && children == NULL && status == NULL);
-		PM_UNLOCK(registered.mutex);
+		if (derive_locked == PM_NOT_LOCKED)
+		    PM_UNLOCK(registered.mutex);
 		return 0;
 	    }
 	    start = matchlen > 0 ? matchlen + 1 : 0;
@@ -2023,14 +1989,16 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
 		/* first time for this one */
 		num_chn++;
 		if ((children = (char **)realloc(children, num_chn*sizeof(children[0]))) == NULL) {
-		    PM_UNLOCK(registered.mutex);
+		    if (derive_locked == PM_NOT_LOCKED)
+			PM_UNLOCK(registered.mutex);
 		    pmNoMem("__dmchildren: children", num_chn*sizeof(children[0]), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
 		for (len = 0; cp->mlist[i].name[start+len] != '\0' && cp->mlist[i].name[start+len] != '.'; len++)
 		    ;
 		if ((children[num_chn-1] = (char *)malloc(len+1)) == NULL) {
-		    PM_UNLOCK(registered.mutex);
+		    if (derive_locked == PM_NOT_LOCKED)
+			PM_UNLOCK(registered.mutex);
 		    pmNoMem("__dmchildren: name", len+1, PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
@@ -2043,7 +2011,8 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
 
 		if (statuslist != NULL) {
 		    if ((status = (int *)realloc(status, num_chn*sizeof(status[0]))) == NULL) {
-			PM_UNLOCK(registered.mutex);
+			if (derive_locked == PM_NOT_LOCKED)
+			    PM_UNLOCK(registered.mutex);
 			pmNoMem("__dmchildren: statrus", num_chn*sizeof(status[0]), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
@@ -2060,7 +2029,8 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
     }
 
     if (num_chn == 0) {
-	PM_UNLOCK(registered.mutex);
+	if (derive_locked == PM_NOT_LOCKED)
+	    PM_UNLOCK(registered.mutex);
 	return PM_ERR_NAME;
     }
 
@@ -2091,27 +2061,35 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
     if (statuslist != NULL)
 	*statuslist = status;
 
-    PM_UNLOCK(registered.mutex);
+    if (derive_locked == PM_NOT_LOCKED)
+	PM_UNLOCK(registered.mutex);
     return num_chn;
 }
 
 int
-__dmgetpmid(const char *name, pmID *dp)
+__dmgetpmid(int derive_locked, const char *name, pmID *dp)
 {
     int		i;
 
-    initialize_mutex();
-    PM_LOCK(registered.mutex);
-    __dminit();
+    if (derive_locked == PM_NOT_LOCKED) {
+	PM_LOCK(registered.mutex);
+	__dminit();
+    }
+    else {
+	PM_ASSERT_IS_LOCKED(registered.mutex);
+    }
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (strcmp(name, registered.mlist[i].name) == 0) {
 	    *dp = registered.mlist[i].pmid;
-	    PM_UNLOCK(registered.mutex);
+	    if (derive_locked == PM_NOT_LOCKED)
+		PM_UNLOCK(registered.mutex);
 	    return 0;
 	}
     }
-    PM_UNLOCK(registered.mutex);
+    if (derive_locked == PM_NOT_LOCKED)
+	PM_UNLOCK(registered.mutex);
+
     return PM_ERR_NAME;
 }
 
@@ -2120,7 +2098,6 @@ __dmgetname(pmID pmid, char ** name)
 {
     int		i;
 
-    initialize_mutex();
     PM_LOCK(registered.mutex);
     __dminit();
 
@@ -2146,13 +2123,21 @@ __dmgetname(pmID pmid, char ** name)
  * sets cp->mlist[i].expr as return value (NULL for error)
  */
 void
-__dmbind(__pmContext *ctxp, int i)
+__dmbind(int derive_locked, __pmContext *ctxp, int i)
 {
     int		sts;
     pmID	pmid;
     ctl_t	*cp;
 
     PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+
+    if (derive_locked == PM_NOT_LOCKED) {
+	PM_INIT_LOCKS();
+	PM_LOCK(registered.mutex);
+    }
+    else {
+	PM_ASSERT_IS_LOCKED(registered.mutex);
+    }
 
     cp = (ctl_t *)ctxp->c_dm;
 
@@ -2165,7 +2150,7 @@ __dmbind(__pmContext *ctxp, int i)
 	 * derived metric searching is performed if the name is valid
 	 * for a real metric in the current context.
 	 */
-	sts = pmLookupName_ctx(ctxp, 1, &registered.mlist[i].name, &pmid);
+	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, &registered.mlist[i].name, &pmid);
 	if (sts >= 0 && !IS_DERIVED(pmid)) {
 	    if (pmDebugOptions.derive) {
 		char	strbuf[20];
@@ -2198,6 +2183,8 @@ __dmbind(__pmContext *ctxp, int i)
 
 done:
     cp->mlist[i].bind = 1;
+    if (derive_locked == PM_NOT_LOCKED)
+	PM_UNLOCK(registered.mutex);
     return;
 }
 
@@ -2211,7 +2198,6 @@ __dmopencontext(__pmContext *ctxp)
     int		i;
     ctl_t	*cp;
 
-    initialize_mutex();
     PM_LOCK(registered.mutex);
     __dminit();
 
@@ -2281,7 +2267,7 @@ __dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
 	if (cp->mlist[i].pmid == pmid) {
 	    if (cp->mlist[i].bind == 0) {
 		/* ctxp->c_lock already locked at this point */
-		__dmbind(ctxp, i);
+		__dmbind(PM_NOT_LOCKED, ctxp, i);
 	    }
 	    if (cp->mlist[i].expr == NULL)
 		/* bind failed for some reason, reported earlier */
