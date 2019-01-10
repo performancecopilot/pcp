@@ -515,6 +515,7 @@ Requires: pcp-system-tools
 Requires: pcp-gui
 %endif
 Requires: bc gcc gzip bzip2
+Requires: redhat-rpm-config
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).

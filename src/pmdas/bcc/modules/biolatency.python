@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2017-2019 Marko Myllynen <myllynen@redhat.com>
 # Based on the biolatency BCC tool by Brendan Gregg:
 # https://github.com/iovisor/bcc/blob/master/tools/biolatency.py
 #
@@ -81,7 +81,7 @@ class PCPBCCModule(PCPBCCBase):
                 self.bpf.attach_kprobe(event="blk_mq_start_request", fn_name="trace_req_start")
             else:
                 self.bpf.attach_kprobe(event="blk_account_io_start", fn_name="trace_req_start")
-            self.bpf.attach_kprobe(event="blk_account_io_completion", fn_name="trace_req_completion")
+            self.bpf.attach_kprobe(event="blk_account_io_done", fn_name="trace_req_done")
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None

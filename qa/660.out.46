@@ -61,5 +61,23 @@ PMWEBD error, XXX
 
 +++ should pass, feed this very script
 file service ok
++++ should not fail after patch from GH PR594
+*   Trying LOCALADDR...
+* TCP_NODELAY set
+* Connected to LOCALHOST (LOCALADDR) port 44323 (####)
+> GET /pmapi/1/metrics HTTP/1.1
+> Host: LOCALHOST:44323
+> Accept: */*
+>
+< HTTP/1.1 400 Bad Request
+< Content-Length: 60
+< Access-Control-Allow-Origin: *
+< Content-Type: text/plain
+< Date: DATE
+<
+{ [data not shown]
+* Connection #### to host LOCALHOST left intact
+PMWEBD error, XXX
+
 no fd leak
 redirected file ok
