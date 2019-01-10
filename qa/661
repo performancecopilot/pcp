@@ -80,6 +80,13 @@ curl -s -i "http://localhost:$webport/?zoo=goo&phantasm" | _filter_curl_i
 curl -s -i "http://localhost:$webport/blinkenlights" | _filter_curl_i
 curl -s -i "http://localhost:$webport/blinkenlights/" | _filter_curl_i
 curl -s -i "http://localhost:$webport/graphite/index.html" | _filter_curl_i | grep -i etag
+etag=`curl -s -i "http://localhost:$webport/graphite/index.html" | grep '^ETag:' | awk '{print $2}'`
+# try to trigger a fd exhaustion
+j=0
+for i in `seq 5000`; do
+    curl -s -i -H "If-None-Match: $etag" "http://localhost:$webport/graphite/index.html" | grep -q 'HTTP.*304' && j=`expr $j + 1`
+done
+echo "304 responses noted $j times"
 curl -s -S "http://localhost:$webport/graphite/index.html?foo=bar&ectoplasm=egon"
 
 echo
