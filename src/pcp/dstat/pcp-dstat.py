@@ -594,9 +594,15 @@ class DstatTool(object):
     def prepare_metrics(self, config):
         """ Using the list of requested plugins, prepare for sampling """
 
-        if not self.plugins:
+        # If no plugins were requested, or if all requested plugins
+        # are displaying only time, add the default reporting stats.
+        timelen = 0
+        for section in self.plugins:
+            if section in self.timeplugins:
+                timelen += 1
+        if not self.plugins or (timelen > 0 and timelen == len(self.plugins)):
             print('You did not select any stats, using -cdngy by default.')
-            self.plugins = ['cpu', 'disk', 'net', 'page', 'sys']
+            self.plugins += ['cpu', 'disk', 'net', 'page', 'sys']
 
         lib = self.pmconfig
         for section in self.plugins:
@@ -1499,7 +1505,9 @@ class DstatTool(object):
                 sep = ''
             else:
                 sep = THEME['frame'] + CHAR['pipe']
-            if plugin in self.timelist:
+            if plugin not in vislist:
+                pass
+            elif plugin in self.timelist:
                 line = line + sep + self.tshow(plugin, self.pmfg_ts)
             elif plugin.grouptype is None:
                 for m, name in enumerate(plugin.mgroup):
