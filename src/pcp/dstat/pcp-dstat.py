@@ -1513,7 +1513,7 @@ class DstatTool(object):
                 for m, name in enumerate(plugin.mgroup):
                     line = line + sep + self.mshow(plugin, m, results[name])
                     sep = CHAR['space']
-            else:
+            elif plugin.mgroup:
                 line = line + sep + self.gshow(plugin, results)
             if self.totlist == vislist:
                 continue
@@ -1533,7 +1533,7 @@ class DstatTool(object):
                     for m, name in enumerate(plugin.mgroup):
                         oline = oline + sep + self.mshowcsv(plugin, m, results[name])
                         sep = CHAR['sep']
-                else:
+                elif plugin.mgroup:
                     oline = oline + sep + self.gshowcsv(plugin, results)
 
         # Prepare the colors for intermediate updates

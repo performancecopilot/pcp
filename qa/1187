@@ -67,6 +67,7 @@ dstat "Per CPU" --cpu -C 1,2,total --cpu-use
 dstat "CPU" --cpu-adv
 dstat "Per Disk" --disk -D sda,total --disk-wait
 dstat "All Disks" --disk --full
+dstat "Zero Disks" --all -D --full
 dstat "Disk" --io
 dstat "Kernel" --ipc --sys --utmp
 dstat "Memory" --mem-adv --swap
@@ -89,6 +90,6 @@ echo "CSV instances contents" | tee -a $here/$seq.full
 cat $tmp.csv2 | tee -a $here/$seq.full | filter_info
 echo "CSV instances complete" | tee -a $here/$seq.full
 
-# success, all done
+# success, -D all done
 status=0
 exit

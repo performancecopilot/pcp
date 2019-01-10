@@ -43,6 +43,17 @@ All Disks
 === std err
 === done
 
+Zero Disks
+=== std out
+----system---- ----total-usage----  -net/total- ---paging-- ---system--
+     time     |usr sys idl wai stl|| recv  send|  in   out | int   csw 
+25-07 16:08:19|                   |           |           |           
+25-07 16:08:20|  6   1  93   0   0|2146  1653 |   0     0 |1753  7008 
+25-07 16:08:21| 11   1  88   0   0|  12k 1009 |   0     0 |2775  2736 
+
+=== std err
+=== done
+
 Disk
 === std out
 ----system---- --io/total-
