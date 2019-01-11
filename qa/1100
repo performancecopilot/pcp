@@ -46,8 +46,6 @@ if [ $? -ne 0 ]; then
     skip_pcp2zabbix=true
     skip_pmrep=true
 fi
-skip_pmdumptext=false
-which pmdumptext >/dev/null 2>&1 || skip_pmdumptext=true
 
 # these may not be available if X11 display is missing
 #
@@ -96,7 +94,6 @@ _check_completion_bash()
     $skip_pmchart && [ "$cmd" = pmchart ] && continue
     $skip_pmdumptext && [ "$cmd" = pmdumptext ] && continue
     $skip_pmrep && [ "$cmd" = pmrep ] && continue
-    $skip_pmdumptext && [ "$cmd" = pmdumptext ] && continue
     comps=$(grep -A 1 "  $cmd)" $bash_comp | tail -n 1 | sed -e 's,all_args=",,' -e 's,",,')
     # Need $tmp.err and PCP_STDERR for pmchart ...
     #
@@ -143,7 +140,6 @@ _check_completion_zsh()
     $skip_pmchart && [ "$cmd" = pmchart ] && continue
     $skip_pmdumptext && [ "$cmd" = pmdumptext ] && continue
     $skip_pmrep && [ "$cmd" = pmrep ] && continue
-    $skip_pmdumptext && [ "$cmd" = pmdumptext ] && continue
     echo $cmd | grep = > /dev/null 2>&1 && continue
     common=$(awk "/common_most=/,/  \)/" $zsh_comp)
     pytool=$(awk "/common_python=/,/  \)/" $zsh_comp)
