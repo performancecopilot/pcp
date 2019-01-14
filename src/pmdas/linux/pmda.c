@@ -1,7 +1,7 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2019 Red Hat.
  * Copyright (c) 2016-2017 Fujitsu.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
@@ -69,6 +69,7 @@
 #include "ksm.h"
 #include "sysfs_tapestats.h"
 #include "proc_tty.h"
+#include "proc_pressure.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -100,6 +101,7 @@ static msg_info_t              _msg_info;
 static login_info_t		login_info;
 static proc_net_softnet_t	proc_net_softnet;
 static proc_buddyinfo_t		proc_buddyinfo;
+static proc_pressure_t		proc_pressure;
 static ksm_info_t               ksm_info;
 static proc_fs_nfsd_t 		proc_fs_nfsd;
 static proc_locks_t 		proc_locks;
@@ -319,6 +321,10 @@ static pmdaInstid nfs4_svr_indom_id[NR_RPC4_SVR_COUNTERS] = {
 	{ 71, "write_same" },
 };
 
+static pmdaInstid pressureavg_indom_id[] = {
+    { 10, "10 second" }, { 60, "1 minute" }, { 300, "5 minute" }
+};
+
 static pmdaIndom indomtab[] = {
     { CPU_INDOM, 0, NULL }, /* cached */
     { DISK_INDOM, 0, NULL }, /* cached */
@@ -357,6 +363,7 @@ static pmdaIndom indomtab[] = {
     { TAPEDEV_INDOM, 0, NULL },
     { TTY_INDOM, 0, NULL },
     { SOFTIRQS_INDOM, 0, NULL },
+    { PRESSUREAVG_INDOM, 3, pressureavg_indom_id },
 };
 
 
@@ -5635,6 +5642,39 @@ static pmdaMetric metrictab[] = {
     { NULL, {PMDA_PMID(CLUSTER_TTY,TTY_IRQ), PM_TYPE_U32, TTY_INDOM,
 	     PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0)} },
 
+/*
+ * /proc/pressure/{cpu,memory,io} clusters
+ */
+    /* kernel.all.pressure.cpu.some.avg */
+    { NULL, { PMDA_PMID(CLUSTER_PRESSURE_CPU,0), PM_TYPE_FLOAT,
+	      PRESSUREAVG_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+    /* kernel.all.pressure.cpu.some.total */
+    { NULL, { PMDA_PMID(CLUSTER_PRESSURE_CPU,1), PM_TYPE_U64, PM_INDOM_NULL,
+	      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0)}},
+    /* kernel.all.pressure.memory.some.avg */
+    { NULL, { PMDA_PMID(CLUSTER_PRESSURE_MEM,0), PM_TYPE_FLOAT,
+	      PRESSUREAVG_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+    /* kernel.all.pressure.memory.some.total */
+    { NULL, { PMDA_PMID(CLUSTER_PRESSURE_MEM,1), PM_TYPE_U64, PM_INDOM_NULL,
+	      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0)}},
+    /* kernel.all.pressure.memory.full.avg */
+    { NULL, { PMDA_PMID(CLUSTER_PRESSURE_MEM,2), PM_TYPE_FLOAT,
+	      PRESSUREAVG_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+    /* kernel.all.pressure.memory.full.total */
+    { NULL, { PMDA_PMID(CLUSTER_PRESSURE_MEM,3), PM_TYPE_U64, PM_INDOM_NULL,
+	      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0)}},
+    /* kernel.all.pressure.io.some.avg */
+    { NULL, { PMDA_PMID(CLUSTER_PRESSURE_IO,0), PM_TYPE_FLOAT,
+	      PRESSUREAVG_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+    /* kernel.all.pressure.io.some.total */
+    { NULL, { PMDA_PMID(CLUSTER_PRESSURE_IO,1), PM_TYPE_U64, PM_INDOM_NULL,
+	      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0)}},
+    /* kernel.all.pressure.io.full.avg */
+    { NULL, { PMDA_PMID(CLUSTER_PRESSURE_IO,2), PM_TYPE_FLOAT,
+	      PRESSUREAVG_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+    /* kernel.all.pressure.io.full.total */
+    { NULL, { PMDA_PMID(CLUSTER_PRESSURE_IO,3), PM_TYPE_U64, PM_INDOM_NULL,
+	      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0)}},
 };
 
 typedef struct {
@@ -5920,6 +5960,14 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	    proc_tty_permission = 0;
 	}
     }
+
+    if (need_refresh[CLUSTER_PRESSURE_CPU])
+	refresh_proc_pressure_cpu(&proc_pressure);
+    if (need_refresh[CLUSTER_PRESSURE_MEM])
+	refresh_proc_pressure_mem(&proc_pressure);
+    if (need_refresh[CLUSTER_PRESSURE_IO])
+	refresh_proc_pressure_io(&proc_pressure);
+
 done:
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
@@ -5946,9 +5994,6 @@ linux_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt
 	break;
     case NODE_INDOM:
 	need_refresh[CLUSTER_NUMA_MEMINFO]++;
-	break;
-    case LOADAVG_INDOM:
-	need_refresh[CLUSTER_LOADAVG]++;
 	break;
     case NET_DEV_INDOM:
 	need_refresh[CLUSTER_NET_DEV]++;
@@ -7930,6 +7975,82 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    default:
 		return PM_ERR_PMID;
 	    }
+	}
+	break;
+
+    case CLUSTER_PRESSURE_CPU:
+	switch (item) {
+	case 0:	/* kernel.all.pressure.cpu.some.avg */
+	    if (proc_pressure.some_cpu.updated == 0)
+		return 0;
+	    if (average_proc_pressure(&proc_pressure.some_cpu, inst, atom) < 0)
+	    	return PM_ERR_INST;
+	    break;
+	case 1:	/* kernel.all.pressure.cpu.some.total */
+	    if (proc_pressure.some_cpu.updated == 0)
+		return 0;
+	    atom->ull = proc_pressure.some_cpu.total;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_PRESSURE_MEM:
+	switch (item) {
+	case 0:	/* kernel.all.pressure.memory.some.avg */
+	    if (proc_pressure.some_mem.updated == 0)
+		return 0;
+	    if (average_proc_pressure(&proc_pressure.some_mem, inst, atom) < 0)
+	    	return PM_ERR_INST;
+	    break;
+	case 1:	/* kernel.all.pressure.memory.some.total */
+	    if (proc_pressure.some_mem.updated == 0)
+		return 0;
+	    atom->ull = proc_pressure.some_mem.total;
+	    break;
+	case 2:	/* kernel.all.pressure.memory.full.avg */
+	    if (proc_pressure.full_mem.updated == 0)
+		return 0;
+	    if (average_proc_pressure(&proc_pressure.full_mem, inst, atom) < 0)
+	    	return PM_ERR_INST;
+	    break;
+	case 3:  /* kernel.all.pressure.memory.full.total */
+	    if (proc_pressure.full_mem.updated == 0)
+		return 0;
+	    atom->ull = proc_pressure.full_mem.total;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_PRESSURE_IO:
+	switch (item) {
+	case 0:	/* kernel.all.pressure.io.some.avg */
+	    if (proc_pressure.some_io.updated == 0)
+		return 0;
+	    if (average_proc_pressure(&proc_pressure.some_io, inst, atom) < 0)
+	    	return PM_ERR_INST;
+	    break;
+	case 1:  /* kernel.all.pressure.io.some.total */
+	    if (proc_pressure.some_io.updated == 0)
+		return 0;
+	    atom->ull = proc_pressure.some_io.total;
+	    break;
+	case 2:	/* kernel.all.pressure.io.full.avg */
+	    if (proc_pressure.full_io.updated == 0)
+		return 0;
+	    if (average_proc_pressure(&proc_pressure.full_io, inst, atom) < 0)
+	    	return PM_ERR_INST;
+	    break;
+	case 3:  /* kernel.all.pressure.io.full.total */
+	    if (proc_pressure.full_io.updated == 0)
+		return 0;
+	    atom->ull = proc_pressure.full_io.total;
+	    break;
+	default:
+	    return PM_ERR_PMID;
 	}
 	break;
 
