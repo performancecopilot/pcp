@@ -744,7 +744,7 @@ BAD
 363 local pmlogsummary
 364 pmlogconf local kernel
 365 pmcd remote pmlc kernel
-366 pmlogconf local
+366:retired pmlogconf local
 367 pdu local trace
 368 pmlogconf local
 369 pmimport local sanity pmdumplog perl
