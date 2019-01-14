@@ -25,3 +25,27 @@
    fun:__pmFindPDUBuf
    ...
 }
+
+# qa/720 on vm34 (Arch Linux)
+# at 0x4C2CE5F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0x5C4AFA2: sasl_client_new (in /usr/lib/libsasl2.so.3.0.0)
+# by 0x4E9C5EA: __pmSecureClientIPCFlags (secureconnect.c:949)
+# by 0x4E9C5EA: __pmSecureClientHandshake (secureconnect.c:1230)
+# by 0x4E4E5AD: attributes_handshake (connect.c:205)
+# by 0x4E4E5AD: __pmConnectHandshake (connect.c:306)
+# by 0x4E4EDD0: __pmConnectPMCD (connect.c:465)
+# by 0x4E51668: pmNewContext (context.c:1131)
+# by 0x10A45B: main (pminfo.c:877)
+{
+   sasl_client_new
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sasl_client_new
+   fun:__pmSecureClientIPCFlags
+   fun:__pmSecureClientHandshake
+   fun:attributes_handshake
+   fun:__pmConnectHandshake
+   fun:__pmConnectPMCD
+   ...
+}
