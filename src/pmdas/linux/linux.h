@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 Red Hat.
+ * Copyright (c) 2016-2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -104,6 +104,9 @@ enum {
 	CLUSTER_NET_UDP6,	/* 80 /proc/net/udp6 */
 	CLUSTER_NET_UNIX,	/* 81 /proc/net/unix */
 	CLUSTER_SOFTIRQS_TOTAL,	/* 82 /proc/softirqs */
+	CLUSTER_PRESSURE_CPU,	/* 83 /proc/pressure/cpu metrics */
+	CLUSTER_PRESSURE_MEM,	/* 84 /proc/pressure/memory metrics */
+	CLUSTER_PRESSURE_IO,	/* 85 /proc/pressure/io metrics */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -171,6 +174,7 @@ enum {
 	TAPEDEV_INDOM,		/* 34 - tape devices */
 	TTY_INDOM,              /* 35 - serial tty devices */
 	SOFTIRQS_INDOM,		/* 36 - softirqs */
+	PRESSUREAVG_INDOM,	/* 37 - 10, 60, 300 second pressure averages */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };
