@@ -791,23 +791,24 @@ do
 	    ;;
 
 	vm06)
-	    # Only -g sanity at this stage for FreeBSD
+	    # Only selected groups at this stage for FreeBSD 10.4
+	    #	sanity trace libpcp kernel pmrep threads
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind'
 	    ;;
 
 	vm09)
-	    # Only -g sanity at this stage for NetBSD
+	    # Only selected groups at this stage for NetBSD 6.1.5
+	    #	sanity trace libpcp kernel pmrep threads
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind'
 	    ;;
 
 	vm10)
-	    # Only selected groups this stage for FreeBSD 10.4
-	    #	sanity trace libpcp
-	    # and some tests are not working yet
+	    # Only selected groups at this stage for FreeBSD 10.4
+	    #	sanity trace libpcp kernel pmrep threads
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -x valgrind'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind'
 	    ;;
 
 	vm13)
@@ -829,18 +830,18 @@ do
 	    ;;
 
 	vm32)
-	    # Only selected groups this stage for FreeBSD 11.1
-	    #	sanity trace libpcp
+	    # Only selected groups at this stage for FreeBSD 11.1
+	    #	sanity trace libpcp kernel pmrep threads
 	    # and some tests are not working yet
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -x valgrind -X 603'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind -X 603'
 	    ;;
 
 	vm33)
 	    # Only selected groups at this stage for OpenBSD 6.3
-	    #	sanity threads kernel
+	    #	sanity trace libpcp kernel pmrep threads
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g threads -g kernel'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads'
 	    ;;
 
 	vm35)
