@@ -49,6 +49,10 @@ builddefs.install : builddefs
 	    -e 's;^BUILDRULES.*=.*buildrules;BUILDRULES = $$\(PCP_INC_DIR\)/buildrules;' \
 	    -e 's;^INSTALL_SH.*=.*install-sh;INSTALL_SH = $$\(PCP_BINADM_DIR\)/install-sh;' \
 	    -e 's;^GENPMDA.*=.*genpmda;GENPMDA = $$\(PCP_BIN_DIR\)/genpmda;' \
+	    -e 's;-I\$$(TOPDIR)/src/include/pcp;-I$$(PCP_INC_DIR);' \
+	    -e 's;-I\$$(TOPDIR)/src/include;-I$$(PCP_INC_DIR)/..;' \
+	    -e '/^PCPLIB_LDFLAGS/s;-L.*;-L$$(PCP_LIB_DIR);' \
+	    -e '/^[ 	][ 	]*-L\$$(TOPDIR)/d' \
 	        < builddefs > builddefs.install
 
 pcp.conf.install : pcp.conf
