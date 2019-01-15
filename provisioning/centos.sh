@@ -6,7 +6,7 @@ cd /vagrant
 cat <<EOM >/etc/yum.repos.d/epel-bootstrap.repo
 [epel]
 name=Bootstrap EPEL
-mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-\\\$releasever&arch=\\\$basearch
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-\$releasever&arch=\$basearch
 failovermethod=priority
 enabled=0
 gpgcheck=0
