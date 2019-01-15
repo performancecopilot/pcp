@@ -19,7 +19,7 @@ TMP             := $(CFLAGS:-I%=)
 CFLAGS          = $(TMP)
 PCP_LIBS	=
 
-CFLAGS		+= -I$(PCP_INC_DIR)
+CFLAGS		+= -I$(PCP_INC_DIR) -I$(PCP_INC_DIR)/..
 ifneq "$(PCP_LIB_DIR)" "/usr/lib"
 # for ld add -L<run-time-lib-dir> and include -rpath when
 # $(PCP_LIB_DIR) may not be on the default ld search path.

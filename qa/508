@@ -40,7 +40,9 @@ _join()
     # Note: sed in the pipeline is because join(1) on ia64 SuSE SLES 11
     #       is broken and produces gratuitous white space in the output
     #
-    join -a 1 -a 2 $1 $2 \
+    # Bizarre ... NetBSD join demands NO SPACE after -a in this usage!
+    #
+    join -a1 -a2 $1 $2 \
     | sed -e 's/  */ /g' \
     | awk '
 /No .* values available No .* values available/	{ next }

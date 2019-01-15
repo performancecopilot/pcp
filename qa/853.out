@@ -358,7 +358,7 @@ Text from a.
 ----------------------
 # 1 "a"
 <<include "./b"?
-<<include "/var/lib/pcp/pmns/b"?
+<<include "PCP_VAR_DIR/pmns/b"?
 pmcpp: a[1]: #include <b>
 pmcpp: Error: Cannot open file for #include
 ----------------------

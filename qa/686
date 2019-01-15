@@ -35,6 +35,30 @@ _filter()
     # end
 }
 
+if fmt --help 2>&1 | grep '.-w, ' >/dev/null
+then
+    # GNU-style fmt(1)
+    # -w, --width=WIDTH         maximum line width (default of 75 columns)
+    cmd="fmt -w 72"
+elif fmt --help 2>&1 | grep '.-w .* width' >/dev/null
+then
+    # FreeBSD-style fmt
+    # -w <n> set maximum width to <n>
+    cmd="fmt -w 72"
+elif fmt --help 2>&1 | grep '.-w width' >/dev/null
+then
+    # OpenBSD-style fmt
+    # -w width
+    cmd="fmt -w 72"
+elif fmt --help 2>&1 | grep '.-[mg] ' >/dev/null
+then
+    # NetBSD's version of fmt is different (may apply to other variants) ...
+    cmd="fmt -g 70 -m 71"
+else
+    echo "Warning: no clue how to set max line length for fmt(1)"
+    cmd="fmt"
+fi
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -99,9 +123,9 @@ export PCP_DERIVED_CONFIG=
 
 echo "=== merge fails because output archive already exists ==="
 _setup
-$sudo -u pcp touch -d "20180526 01:00:00" $tmp/myhost/20180526.meta
+$sudo -u pcp touch -t 201805260100.00 $tmp/myhost/20180526.meta
 echo "Before ..."
-ls $tmp/myhost | _filter | fmt -72
+ls $tmp/myhost | _filter | $cmd
 echo
 $sudo rm -f $tmp.log
 $sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 7 -x never -V -l $tmp.log >$tmp.err 2>&1
@@ -109,7 +133,7 @@ _filter <$tmp.err
 _filter <$tmp.log
 echo
 echo "After ..."
-ls $tmp/myhost | _filter | fmt -72
+ls $tmp/myhost | _filter | $cmd
 
 echo
 echo "=== merge fails because input archives are bad ==="
@@ -118,10 +142,10 @@ _setup
 for suff in 0 meta index
 do
     $sudo -u pcp cp $here/badarchives/badmeta-2.$suff $tmp/myhost/20180526.10.20.$suff
-    $sudo touch -d "20180526 10:20:00" $tmp/myhost/20180526.10.20.$suff
+    $sudo touch -t 201805261020.00 $tmp/myhost/20180526.10.20.$suff
 done
 echo "Before ..."
-ls $tmp/myhost | _filter | fmt -72
+ls $tmp/myhost | _filter | $cmd
 echo
 $sudo rm -f $tmp.log
 $sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 7 -x never -V -l $tmp.log >$tmp.err 2>&1
@@ -129,7 +153,7 @@ _filter <$tmp.err
 _filter <$tmp.log
 echo
 echo "After ..."
-ls $tmp/myhost | _filter | fmt -72
+ls $tmp/myhost | _filter | $cmd
 
 echo
 echo "=== logrewrite fails ==="
@@ -137,7 +161,7 @@ _setup
 echo "metric 1.2.3 {" >$tmp.badrewrite
 $sudo -u pcp cp $tmp.badrewrite $tmp/myhost/pmlogrewrite
 echo "Before ..."
-ls $tmp/myhost | _filter | fmt -72
+ls $tmp/myhost | _filter | $cmd
 echo
 $sudo rm -f $tmp.log
 $sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 7 -x never -V -l $tmp.log >$tmp.err 2>&1
@@ -145,7 +169,7 @@ _filter <$tmp.err
 _filter <$tmp.log
 echo
 echo "After ..."
-ls $tmp/myhost | _filter | fmt -72
+ls $tmp/myhost | _filter | $cmd
 
 # success, all done
 status=0

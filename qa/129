@@ -85,7 +85,9 @@ _do()
     echo "--- filtered ---" >>$seq.full
     cat $tmp.reduce >>$seq.full
 
-    join -a 1 -a 2 -e "?" $tmp.orig $tmp.reduce >$tmp.join
+    # Bizarre ... NetBSD join demands NO SPACE after -a in this usage!
+    #
+    join -a1 -a2 -e "?" $tmp.orig $tmp.reduce >$tmp.join
 
 # cat $tmp.join
 

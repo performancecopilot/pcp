@@ -51,7 +51,7 @@ _filter()
     elif fmt --help 2>&1 | grep '.-[mg] ' >/dev/null
     then
 	# NetBSD's version of fmt is different (may apply to other variants) ...
-	cmd="fmt -g 76 -m 77"
+	cmd="fmt -g 74 -m 75"
     else
 	echo "Warning: no clue how to set max line length for fmt(1)"
 	cmd="fmt"

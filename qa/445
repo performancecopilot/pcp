@@ -77,6 +77,17 @@ trace	99	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 99 -l ${TRACELOG}2
 EOF
     ;;
 
+netbsd)
+    TRACELOG=$PCP_LOG_DIR/pmcd/trace.log
+    cat >> $tmp.conf << EOF
+# Installed by PCP QA test $seq on `date`
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+netbsd	116	dso	netbsd_init	$PCP_PMDAS_DIR/netbsd/pmda_netbsd.so
+trace	10	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 10 -l ${TRACELOG}1
+trace	99	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 99 -l ${TRACELOG}2
+EOF
+    ;;
+
 *)
     echo "Unknown platfrom $PCP_PLATFORM"
     exit 1

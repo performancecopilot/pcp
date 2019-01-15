@@ -262,6 +262,7 @@ _filter_pmie_log <$tmp.out \
     -e '/^NETWORK lo$/d' \
     -e '/^NETWORK p[0-9][0-9]*p[0-9][0-9]*$/d' \
     -e '/^NETWORK pan[0-9][0-9]*$/d' \
+    -e '/^NETWORK pcn[0-9][0-9]*$/d' \
     -e '/^NETWORK pflog[0-9][0-9]*$/d' \
     -e '/^NETWORK ppp[0-9][0-9]*$/d' \
     -e '/^NETWORK re[0-9]/d' \

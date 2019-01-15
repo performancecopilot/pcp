@@ -181,19 +181,19 @@ End-of-File
 
 	# And finally change the access and modification times.
 	#
-	# Need to use the *bsd verson of touch(1) syntax for -d, namely
-	# "YYYY-MM-DD hh:mm:SS" which also works for the Linux variants
+	# Need to use the *bsd verson of touch(1) syntax for -t, namely
+	# "YYYYMMDDhhmm.SS" which also works for the Linux variants
 	# of touch(1).
 	#
 	stamp="`echo "$dst" | sed \
 				-e 's/-[0-9][0-9]*$//' \
-				-e 's/^\(....\)\(..\)\(..\)\.\(..\)\.\(..\)$/\1-\2-\3 \4:\5:00/' \
-				-e 's/^\(....\)\(..\)\(..\)$/\1-\2-\3 00:00:00/' \
+				-e 's/^\(....\)\(..\)\(..\)\.\(..\)\.\(..\)$/\1\2\3\4\5.00/' \
+				-e 's/^\(....\)\(..\)\(..\)$/\1\2\30000.00/' \
 	      `"
 	#debug# echo "dst=$dst stamp=$stamp"
 	for file in "$rootdir"/"$host"/"$dst".*
 	do
-	    touch -d "$stamp" "$file"
+	    touch -t "$stamp" "$file"
 	done
     else
 	# skip timestamp for $dst"

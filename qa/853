@@ -20,6 +20,7 @@ _filter()
 {
     sed \
 	-e "/^# [1-9]/s@$tmp@TMP@" \
+	-e '/include/s@'"$PCP_VAR_DIR"'/@PCP_VAR_DIR/@' \
     # end
 }
 

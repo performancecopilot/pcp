@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
+if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
 then
     # same options for all these platforms
     NM_ARG='--dynamic -B'

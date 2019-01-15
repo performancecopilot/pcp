@@ -26,7 +26,7 @@ done
 
 if [ -s $tmp.raw ]
 then
-    ( sort -t ' ' -k 1,1 -n -k 2,2 $tmp.raw ; echo "end-of-list" ) \
+    ( sort -t ' ' -k 1,1 -k 2,2n $tmp.raw ; echo "end-of-list" ) \
     | awk '
 BEGIN		{ last_grp = "" }
 $1 != last_grp	{ if (last_grp != "") print last_grp,nfail,tests
@@ -38,7 +38,7 @@ $1 != last_grp	{ if (last_grp != "") print last_grp,nfail,tests
 		{ nfail++
 		  tests = tests " " $2
 		}' \
-    | sort -t ' ' -nr -k 2,2 -d -k 1,1 \
+    | sort -t ' ' -k 2,2nr -k 1,1d \
     | awk '{ $2 = ""; print }' \
     | while read grp tests
     do

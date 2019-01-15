@@ -49,7 +49,7 @@ echo "Checking trace stub library builds ..."
 cd $PCP_DEMOS_DIR/trace
 case $PCP_PLATFORM
 in
-    linux|solaris|freebsd)
+    linux|solaris|freebsd|netbsd|openbsd)
 	$sudo $PCP_MAKE_PROG -f Makefile.stub clobber >/dev/null 2>&1
 	$sudo $PCP_MAKE_PROG -f Makefile.stub lib/libpcp_trace.so >/dev/null 2>&1
 	export LD_PRELOAD=$PCP_DEMOS_DIR/trace/lib/libpcp_trace.so.2
