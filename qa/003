@@ -190,6 +190,7 @@ do
 	    -e "/ipc\.shm\.perms: $unavailable/d" \
 	    -e "/ipc\.shm\.segsz: $unavailable/d" \
 	    -e "/ipc\.shm\.status: $unavailable/d" \
+	    -e "/kernel\.all\.pressure\..*: $unavailable/d" \
 	    -e "/kernel\.percpu\.softirqs\.none: $unavailable/d" \
 	    -e "/kernel\.pernode..*: $unavailable/d" \
 	    -e "/kernel\..*\.syscall: $unavailable/d" \
