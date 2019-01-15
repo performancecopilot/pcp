@@ -16,14 +16,14 @@ pcp_hosts = {
         :ubuntu1804 => {
                 :hostname => "ubuntu1804",
                 :ipaddress => "10.100.10.24",
-                :box => "generic/ubuntu1804",
+                :box => "performancecopilot/ubuntu1804",
                 :script => "ubuntu.sh",
                 :qa => "-g sanity -g pmda.linux -x flakey"
         },
         :ubuntu1604 => {
                 :hostname => "ubuntu1604",
                 :ipaddress => "10.100.10.23",
-                :box => "generic/ubuntu1604",
+                :box => "performancecopilot/ubuntu1604",
                 :script => "ubuntu.sh",
                 :qa => "-g sanity -g pmda.linux -x flakey"
         },
@@ -32,13 +32,6 @@ pcp_hosts = {
                 :ipaddress => "10.100.10.22",
                 :box => "generic/ubuntu1404",
                 :script => "ubuntu.sh",
-                :qa => "-g sanity -g pmda.linux -x flakey"
-        },
-        :rhel7 => {
-                :hostname => "rhel7",
-                :ipaddress => "10.100.10.21",
-                :box => "generic/rhel7",
-                :script => "rhel.sh",
                 :qa => "-g sanity -g pmda.linux -x flakey"
         },
         :centos7 => {
@@ -69,10 +62,17 @@ pcp_hosts = {
                 :script => "fedora.sh",
                 :qa => "-g sanity -g pmda.linux -x flakey"
         },
+        :debian9 => {
+                :hostname => "debian9",
+                :ipaddress => "10.100.10.14",
+                :box => "performancecopilot/debian9",
+                :script => "debian.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey"
+        },
         :debian8 => {
                 :hostname => "debian8",
                 :ipaddress => "10.100.10.13",
-                :box => "generic/debian8",
+                :box => "performancecopilot/debian8",
                 :script => "debian.sh",
                 :qa => "-g sanity -g pmda.linux -x flakey"
         },
@@ -100,14 +100,14 @@ pcp_hosts = {
         :openbsd6 => {
                 :hostname => "openbsd6",
                 :ipaddress => "10.100.10.9",
-                :box => "generic/openbsd6",
+                :box => "performancecopilot/openbsd6",
                 :script => "openbsd.sh",
                 :qa => "-g sanity -x flakey"
         },
         :opensuse42 => {
                 :hostname => "opensuse42",
                 :ipaddress => "10.100.10.8",
-                :box => "generic/opensuse42",
+                :box => "performancecopilot/opensuse42",
                 :script => "opensuse.sh",
                 :qa => "-g sanity -g pmda.linux -x flakey"
         }
