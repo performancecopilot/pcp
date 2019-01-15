@@ -61,6 +61,7 @@ kernel.all {
     intr	NETBSD:5:3
     hz		NETBSD:0:13
     load	NETBSD:1:2
+    uptime	NETBSD:1:19
     cpu
 }
 

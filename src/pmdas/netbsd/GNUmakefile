@@ -23,17 +23,19 @@ DOMAIN		= NETBSD
 CMDTARGET 	= pmdanetbsd
 LIBTARGET	= pmda_netbsd.so
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+LOGREWRITEDIR   = $(PCP_VAR_DIR)/config/pmlogrewrite
 CONF_LINE	= "netbsd	116	dso	netbsd_init	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES		= netbsd.c disk.c percpu.c netif.c swap.c vm_uvmexp.c \
 		  filesys.c
 
 HFILES		= netbsd.h
+CONFTARGETS	= netbsd_disk_units.conf netbsd_misc.conf
 
 LSRCFILES	= help root_netbsd
 LDIRT		= help.dir help.pag help.sed help.tmp domain.h $(IAM).log
 
-LLDLIBS = $(PCP_PMDALIB) -lkvm
+LLDLIBS = $(PCP_PMDALIB)
 
 default:	build-me
 
@@ -52,6 +54,7 @@ install: default
 	$(INSTALL) -m 644 domain.h help help.dir help.pag $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root_netbsd $(PCP_VAR_DIR)/pmns/root_netbsd
+	$(INSTALL) -m 644 netbsd_disk_units.conf $(LOGREWRITEDIR)/netbsd_disk_units.conf
 else
 build-me:
 install:
