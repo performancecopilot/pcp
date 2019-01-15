@@ -66,7 +66,10 @@ endif
 demos:	$(APPS) pmtrace.c
 
 pmtrace.c:	$(TOPDIR)/src/pmtrace/pmtrace.c
-	rm -f $@ && cp $< $@
+	rm -f $@
+	sed <$< >$@ \
+	    -e 's@"pmapi.h"@<pcp/pmapi.h>@' \
+	    -e 's@"trace.h"@<pcp/trace.h>@'
 
 app1.o:	app1.c $(TOPDIR)/src/include/pcp/pmapi.h
 	$(CCF) -c -o $@ app1.c
