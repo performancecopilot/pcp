@@ -26,6 +26,7 @@ F90DEMO	= fapp1.f90
 JDEMO	= japp1.class
 
 CFLAGS	= -DPMTRACE_DEBUG -I PCP_INC_DIR
+LDFLAGS = LD_FLAGS
 FFLAGS	=
 JFLAGS	=
 
@@ -36,27 +37,27 @@ java:		$(JDEMO)
 
 pmtrace:	pmtrace.c
 	rm -f $@
-	$(CC) $(CFLAGS) -o $@ pmtrace.c -lpcp -lpcp_trace 
+	$(CC) $(CFLAGS) -o $@ pmtrace.c $(LDFLAGS) -lpcp -lpcp_trace 
 
 app1:	app1.c
 	rm -f $@
-	$(CC) $(CFLAGS) -o $@ app1.c -lpcp -lpcp_trace
+	$(CC) $(CFLAGS) -o $@ app1.c $(LDFLAGS) -lpcp -lpcp_trace
 
 app2:	app2.c
 	rm -f $@
-	$(CC) $(CFLAGS) -o $@ app2.c -lpcp -lpcp_trace
+	$(CC) $(CFLAGS) -o $@ app2.c $(LDFLAGS) -lpcp -lpcp_trace
 
 app3:	app3.c
 	rm -f $@
-	$(CC) $(CFLAGS) -o $@ app3.c -lpcp -lpcp_trace PTHREAD_LIB DLOPEN_LIB MATH_LIB
+	$(CC) $(CFLAGS) -o $@ app3.c $(LDFLAGS) -lpcp -lpcp_trace PTHREAD_LIB DLOPEN_LIB MATH_LIB
 
 fapp1.77:	fapp1.f
 	rm -f $@
-	$(F77C) $(FFLAGS) -o $@ fapp1.f -lpcp -lpcp_trace
+	$(F77C) $(FFLAGS) -o $@ fapp1.f $(LDFLAGS) -lpcp -lpcp_trace
 
 fapp1.90:	fapp1.f
 	rm -f $@
-	$(F90C) $(FFLAGS) -o $@ fapp1.f -lpcp -lpcp_trace
+	$(F90C) $(FFLAGS) -o $@ fapp1.f $(LDFLAGS) -lpcp -lpcp_trace
 
 japp1.class:	japp1.java
 	rm -f $@

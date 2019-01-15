@@ -42,7 +42,7 @@ ifeq "$(shell [ -f $(PCP_LIB_DIR)/libpcp_trace.$(DSO_SUFFIX) ] && echo 1)" "1"
 TARGETS	+= lib/libpcp_trace.$(DSO_SUFFIX) 
 endif
 CFILES	= stub.c
-CFLAGS += -DPMTRACE_DEBUG
+CFLAGS += -DPMTRACE_DEBUG -IPCP_INC_DIR
 CFLAGS += -fPIC -fno-strict-aliasing
 LDIRT	= lib lib32 lib64
 
