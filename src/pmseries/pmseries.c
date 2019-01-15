@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -279,12 +279,14 @@ series_type_phrase(const char *type_word)
 }
 
 static void
-series_load(series_data *data)
+series_load(series_data *dp)
 {
-    pmSeriesFlags	meta = data->flags & PMSERIES_FAST ?
+    pmSeriesFlags	meta = dp->flags & PMSERIES_FAST ?
 				PM_SERIES_FLAG_METADATA : 0;
+    int			sts;
 
-    pmSeriesLoad(&data->settings, data->query, meta, data);
+    if ((sts = pmSeriesLoad(&dp->settings, dp->query, meta, dp)) < 0)
+	on_series_done(sts, dp);
 }
 
 static int
@@ -343,12 +345,14 @@ on_series_value(pmSID sid, pmSeriesValue *value, void *arg)
 }
 
 static void
-series_query(series_data *data)
+series_query(series_data *dp)
 {
-    pmSeriesFlags	meta = data->flags & PMSERIES_FAST ?
+    pmSeriesFlags	meta = dp->flags & PMSERIES_FAST ?
 		   		PM_SERIES_FLAG_METADATA : 0;
+    int			sts;
 
-    pmSeriesQuery(&data->settings, data->query, meta, data);
+    if ((sts = pmSeriesQuery(&dp->settings, dp->query, meta, dp)) < 0)
+	on_series_done(sts, dp);
 }
 
 static int
@@ -666,7 +670,8 @@ series_source(series_data *dp)
     } else {
 	dp->args.nsource = nsources;
 	dp->args.source = sources;
-	pmSeriesSources(&dp->settings, nsources, sources, dp);
+	if ((sts = pmSeriesSources(&dp->settings, nsources, sources, dp)) < 0)
+	    on_series_done(sts, dp);
     }
 }
 
@@ -754,45 +759,67 @@ series_report_footer(series_data *dp, void *arg)
 static void
 series_desc_report(series_data *dp, void *arg)
 {
-    pmSeriesDescs(&dp->settings, arg? 1 : 0, (pmSID *)&arg, dp);
+    pmSID	sid = (pmSID)arg;
+    int		sts;
+
+    if ((sts = pmSeriesDescs(&dp->settings, sid? 1 : 0, &sid, dp)) < 0)
+	on_series_done(sts, dp);
 }
 
 static void
 series_source_report(series_data *dp, void *arg)
 {
-    pmSeriesSources(&dp->settings, arg? 1 : 0, (pmSID *)&arg, dp);
+    pmSID	sid = (pmSID)arg;
+    int		sts;
+
+    if ((sts = pmSeriesSources(&dp->settings, sid? 1 : 0, &sid, dp)) < 0)
+	on_series_done(sts, dp);
 }
 
 static void
 series_metric_report(series_data *dp, void *arg)
 {
-    pmSeriesMetrics(&dp->settings, arg? 1 : 0, (pmSID *)&arg, dp);
+    pmSID	sid = (pmSID)arg;
+    int		sts;
+
+    if ((sts = pmSeriesMetrics(&dp->settings, sid? 1 : 0, &sid, dp)) < 0)
+	on_series_done(sts, dp);
 }
 
 static void
 series_labels_report(series_data *dp, void *arg)
 {
-    pmSeriesLabels(&dp->settings, arg? 1 : 0, (pmSID *)&arg, dp);
+    pmSID	sid = (pmSID)arg;
+    int		sts;
+
+    if ((sts = pmSeriesLabels(&dp->settings, sid? 1 : 0, &sid, dp)) < 0)
+	on_series_done(sts, dp);
 }
 
 static void
 series_instances_report(series_data *dp, void *arg)
 {
-    pmSeriesInstances(&dp->settings, arg? 1 : 0, (pmSID *)&arg, dp);
+    pmSID	sid = (pmSID)arg;
+    int		sts;
+
+    if ((sts = pmSeriesInstances(&dp->settings, sid? 1 : 0, &sid, dp)) < 0)
+	on_series_done(sts, dp);
 }
 
 static void
 series_instlabels_report(series_data *dp, void *arg)
 {
-    (void)arg;
+    int		sts;
 
+    (void)arg;
     if (dp->ninsts > 0) {
 	dp->flags |= PMSERIES_INSTLABELS;
-	pmSeriesLabels(&dp->settings, dp->ninsts, dp->iseries, dp);
+	sts = pmSeriesLabels(&dp->settings, dp->ninsts, dp->iseries, dp);
     } else {
 	/* nothing to do - move on to next command handler */
-	on_series_done(0, dp);
+	sts = 0;
     }
+    on_series_done(sts, dp);
 }
 
 /*

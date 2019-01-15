@@ -12,18 +12,18 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
+.\"
 .TH PMSERIES 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmseries\f1 \- display information about performance metric timeseries
 .SH SYNOPSIS
 \fBpmseries\fR
-[\fB\-adFilLmMnqsS\fR]
+[\fB\-adFiIlLmMnqsSV\fR]
 [\fB\-p\fR \fIport\fR]
 [\fB\-h\fR \fIhost\fR]
 [\fIquery\fR | \fIseries\fR ... | \fIsource\fR ... ]
 .SH DESCRIPTION
 .de SAMPLE
-.br
 .RS 2n
 .nf
 .nh
@@ -42,8 +42,8 @@ By default
 .B pmseries
 communicates with a local
 .BR redis-server (1),
-however the \fB\-p\fR/\fB\-\-port\fR option and
-\fB\-h\fR/\fB\-\-host\fR options can be used to
+however the \fB\-h\fR/\fB\-\-host\fR and
+\fB\-p\fR/\fB\-\-port\fR options can be used to
 specify an alternate Redis instance.
 If this instance is a node of a Redis cluster, all
 other instances in the cluster will be discovered
@@ -94,10 +94,13 @@ The timeseries identifiers provide a higher level (and machine
 independent) identifier than the traditional PCP performance
 metric identifiers (pmID), instance domain identifiers (pmInDom)
 and metric names.
+See
+.BR PCPIntro (1)
+for more details about these traditional identifiers.
 However,
 .B pmseries
 uses timeseries identifiers in much the same way that
-.B pminfo
+.BR pminfo (1)
 uses the lower level indom, metric identifiers and metric names.
 .SH TIMESERIES QUERIES
 The default mode of
@@ -126,14 +129,14 @@ To identify timeseries, the query language uses the general
 syntax:
 .PP
 .SAMPLE
-[\fImetric.name\fB] '{' metadata qualifiers '}' '[' time specification ']'
+[\fImetric.name\fR] '\fB{\fImetadata qualifiers\fB}\fR' '\fB[\fItime specification\fB]\fR'
 .ESAMPLE
 .PP
 The \fImetric.name\fR component restricts the timeseries query
 to any matching PCP metric name (the list of metric names for a
-PCP archive or live host is the reported by
-.B pminfo
-with no arguments beyond \-\-\fIhost\fR or \-\-\fIarchive\fR).
+PCP archive or live host is reported by
+.BR pminfo (1)
+with no arguments beyond \-\-\fBhost\fR or \-\-\fBarchive\fR).
 The
 .B pmseries
 syntax extends on that of
@@ -141,10 +144,10 @@ syntax extends on that of
 and allows for
 .BR glob (7)
 based pattern matching within the metric name.
-.PP
-Metadata qualifiers are enclosed by ('curly') braces, and further
-restrict the query results to timeseries with various metadata
-properties.
+.SH METADATA QUALIFIERS AND OPERATORS
+Metadata qualifiers are enclosed by ``curly'' braces (\fB{}\fR),
+and further restrict the query results to timeseries with various
+metadata properties.
 These qualifiers are based on metric or instance names, and
 metric label values, and take the general form
 \fImetadata.name\fR OPERATOR \fIvalue\fR, such as:
@@ -173,7 +176,7 @@ inequality ("!=").
 Strings can be subject to pattern matching in the form of
 glob matching ("~~"), regular expression matching ("=~"),
 and regular expression non-matching ("!~").
-The ":" operator is equivalent to "~~" - i.e. regular expression
+The ":" operator is equivalent to "~~" - i.e., regular expression
 matching.
 .SS Relational operators (numeric label values only)
 Numeric label values can be subject to the less than ("<"),
@@ -189,10 +192,10 @@ The comma (",") character is equivalent to logical AND ("&&").
 The final (optional) component of a query allows the user to
 specify a specific time window of interest.
 Any time specification will result in values being returned
-for all matching timeseries, for the time window specified.
+for all matching timeseries only for the time window specified.
 .PP
-The specification is ('square') bracket enclosed, and consists
-of one or more comma-separated components.
+The specification is ``square'' bracket (\fB[]\fR) enclosed,
+and consists of one or more comma-separated components.
 Each component specifies some aspect related to time, taking
 the general form: \fBkeyword\fR: \fIvalue\fR, such as:
 .P
@@ -201,9 +204,9 @@ samples: 10
 .ESAMPLE
 .SS Sample count
 The number of samples to return, specified via either the
-.I samples
+.B samples
 or (equivalent)
-.I count
+.B count
 keyword.
 The
 .I value
@@ -221,22 +224,23 @@ The
 .I value
 provided should be either a numeric or string value that will
 be parsed by
-.BR pmParseTimeInterval (3).
+.BR pmParseTimeInterval (3),
+such as \fB5\fR (seconds) or \fB2min\fR (minutes).
 .SS Time window
 Start and end times, and alignments, affecting the returned
 values.
 The keywords match the parameters to the
 .BR pmParseTimeWindow (3)
 function which will be used to parse them, and are:
-.I start
+.B start
 or (equivalent)
-.IR begin ,
-.I finish
+.BR begin ,
+.B finish
 or (equivalent)
-.IR end ,
-.I align
+.BR end ,
+.B align
 and
-.IR offset .
+.BR offset .
 .SS Time zones
 The resulting timestamps can be returned having been evaluated
 for a specific timezone, using the
@@ -251,13 +255,13 @@ associated with
 will be interpreted by
 .BR pmNewZone (3).
 A
-.I true
+.B true
 or
-.I false
+.B false
 value should be associated with
 .BR hostzone ,
 and when set to
-.I true
+.B true
 this has the same effect as described by
 .BR pmNewContextZone (3).
 .SH TIMESERIES METADATA
@@ -289,7 +293,7 @@ metadata reporting options are:
 .TP 5
 \fB\-a\fR, \fB\-\-all\fR
 Convenience option to report all metadata for the given timeseries,
-equivalent to \fB\-dilms\fR.
+equivalent to \fB\-dilmsS\fR.
 .TP
 \fB\-d\fR, \fB\-\-desc\fR
 Metric descriptions detailing the PMID, data type, data semantics, units,
@@ -318,7 +322,7 @@ Print the PMID in verbose mode.
 This option has a direct \fBpminfo\fR(1) equivalent.
 .TP
 \fB\-s\fR, \fB\-\-series\fR
-Print time series identifiers associated with metrics, instances and
+Print timeseries identifiers associated with metrics, instances and
 sources.
 These unique identifiers are calculated from intrinsic (non-optional)
 labels and other metric metadata associated with each PMAPI context
@@ -333,24 +337,25 @@ and the \fB\-l/\fB\-\-labels\fR option.
 .SH TIMESERIES SOURCES
 A source is a unique identifier (represented externally as a 40-byte
 hexadecimal SHA-1 hash) that represents both the live host and/or
-archives from which each timeseries originated.
-.PP
-The \fB\-S\fR/\fB\-\-sources\fR option reports names for timeseries
-sources.
+archives from which each timeseries originated can be reported with:
+.TP 5
+\fB\-S\fR, \fB\-\-sources\fR
+Print names for timeseries sources.
 These names are either hostnames or fully qualified archive paths.
+This option has a direct \fBpminfo\fR(1) equivalent.
 .PP
 It is important to note that live and archived sources can and will
-generate the same SHA-1 source identifier hash \- that is, provided
+generate the same SHA-1 source identifier hash, provided that
 the context labels remain the same for that host (labels are stored
 in PCP archives and can also be fetched live from
-.BR pmcd ).
+.BR pmcd (1)).
 .SH TIMESERIES LOADING
 Timeseries metadata and data are loaded either automatically
 by a local
-.BR pmproxy ,
+.BR pmproxy (1),
 or manually using a specially crafted
 .B pmseries
-query and the \fI-l\fR/\fI\-\-load\fR option.
+query and the \fB-L\fR/\fB\-\-load\fR option:
 .PP
 .SAMPLE
 $ pmseries --load "{source.path: \\"$PCP_LOG_DIR/pmlogger/acme\\"}"
@@ -359,15 +364,42 @@ pmseries: [Info] processed 2275 archive records from [...]
 .PP
 This query must specify a source archive path, but can also restrict
 the import to specific timeseries (using metric names, labels, etc)
-and to specific a time window using the time specification component
+and to a specific time window using the time specification component
 of the query language.
+.SH OPTIONS
+The available command line options, in addition to timeseries
+metadata and sources options described above, are:
+.TP 5
+.TP
+\fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
+Connect Redis server at
+.IR host ,
+rather than the one the localhost.
+.TP
+\fB\-L\fR, \fB\-\-load\fR
+Load timeseries metadata and data into the Redis cluster.
+.TP
+\fB\-p\fR \fIport\fR, \fB\-\-port\fR=\fIport\fR
+Connect Redis server at
+.IR port ,
+rather than the default \fB6379\fR.
+.TP
+\fB\-q\fR, \fB\-\-query\fR
+Perform a timeseries query.
+This is the default action.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH EXAMPLES
 The following sample query shows several fundamental aspects of the
 .B pmseries
 query language:
 .PP
 .SAMPLE
-$ pmseries 'kernel.all.load{hostname:toium}[count:2]' 
+$ pmseries 'kernel.all.load{hostname:toium}[count:2]'
 
 eb713a9cf472f775aa59ae90c43cd7f960f7870f
     [1545346764128.128] 1.000000e-01 b84040ffccd54f839b65140cf139bab51cbbcf62
@@ -380,12 +412,13 @@ eb713a9cf472f775aa59ae90c43cd7f960f7870f
 .PP
 This query returns the two most recent values for all instances of
 the
-.I kernel.all.load
+.B kernel.all.load
 metric with a
 .I label.hostname
 matching the regular expression "toium".
-This is a set-valued metric (i.e. with an instance domain or
-1, 5 and 15 minute averages).
+This is a set-valued metric (i.e., a metric with an ``instance
+domain'' which in this case consists of three instances: 1, 5
+and 15 minute averages).
 The first column returned is a timestamp, then a floating point
 value, and finally an instance identifier timeseries hash (two
 values returned for three instances, so six rows are returned).
@@ -408,8 +441,7 @@ eb713a9cf472f775aa59ae90c43cd7f960f7870f
     inst [15 or "15 minute"] labels {"agent":"linux","hostname":"toium"}
 .ESAMPLE
 .PP
-.PP
-.SH "PCP ENVIRONMENT"
+.SH PCP ENVIRONMENT
 Environment variables with the prefix
 .B PCP_
 are used to parameterize the file and directory names
@@ -424,21 +456,22 @@ configuration file,
 as described in
 .BR pcp.conf (5).
 .SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
 .BR pminfo (1),
 .BR pmproxy (1),
 .BR redis-server (1),
 .BR PMAPI (3),
 .BR PMWEBAPI (3),
-.BR pmLookupLabels (3),
-.BR pmLookupInDom (3),
-.BR pmLookupName (3),
 .BR pmLookupDesc (3),
-.BR pmNewZone (3).
-.BR pmNewContextZone (3).
+.BR pmLookupInDom (3),
+.BR pmLookupLabels (3),
+.BR pmLookupName (3),
+.BR pmNewContextZone (3),
+.BR pmNewZone (3),
 .BR pmParseTimeInterval (3),
 .BR pmParseTimeWindow (3),
 .BR pcp.conf (5),
-.BR pcp.env (5),
 .BR glob (7)
 and
 .BR regex (7).

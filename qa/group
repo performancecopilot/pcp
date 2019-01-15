@@ -1559,6 +1559,7 @@ BAD
 1202 pmda.dm local pmrep python
 1203 derive pmval libpcp local
 1211 pmseries local kernel
+1212 pmseries local
 1217 pmrep python local
 1219 pcp local
 1220 pmda.proc local
