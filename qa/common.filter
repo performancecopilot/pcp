@@ -67,7 +67,7 @@ s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
 s/entry=[^ ]*/entry=[OS]_init/
 }' \
 	-e '/^netbsd.*pmda_netbsd/{
-s/netbsd/[OS]   /
+s/netbsd/[OS]  /
 s/116/ ??/
 s/ i:[0-9] / i:? /
 s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
@@ -641,11 +641,13 @@ _filter_pmda_install()
 	-e '/Terminate PMDA/,/Updating the PMCD/c\
 Terminate PMDA if already installed ...\
 [...install files, make output...]\
-Updating the PMCD control file, and notifying PMCD ...' \
+Updating the PMCD control file, and notifying PMCD ...
+' \
 	-e '/Installing files/,/Updating the Performance Metrics/c\
 Installing files ...\
 [...install files, make output...]\
-Updating the Performance Metrics Name Space (PMNS) ...'
+Updating the Performance Metrics Name Space (PMNS) ...
+'
 }
 
 _filter_pmda_remove()
