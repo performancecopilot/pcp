@@ -281,6 +281,7 @@ if test $target_os = linux
 then
     AC_DEFINE(IS_LINUX, [1], [Platform is Linux])
     test -f /etc/SuSE-release && target_distro=suse
+    grep -q 'ID_LIKE="suse"' /etc/os-release 2> /dev/null && target_distro=suse
     test -f /etc/fedora-release && target_distro=fedora
     test -f /etc/redhat-release && target_distro=redhat
     test -f /etc/debian_version && target_distro=debian

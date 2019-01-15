@@ -3324,6 +3324,7 @@ then
 $as_echo "#define IS_LINUX 1" >>confdefs.h
 
     test -f /etc/SuSE-release && target_distro=suse
+    grep -q 'ID_LIKE="suse"' /etc/os-release 2> /dev/null && target_distro=suse
     test -f /etc/fedora-release && target_distro=fedora
     test -f /etc/redhat-release && target_distro=redhat
     test -f /etc/debian_version && target_distro=debian
