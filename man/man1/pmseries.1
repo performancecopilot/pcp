@@ -329,6 +329,10 @@ Print metric names.
 Print the PMID in verbose mode.
 This option has a direct \fBpminfo\fR(1) equivalent.
 .TP
+\fB\-n\fR, \fB\-\-names\fR
+Print comma-separated label names only (not values) for the labels
+associated with metrics and instances.
+.TP
 \fB\-s\fR, \fB\-\-series\fR
 Print timeseries identifiers associated with metrics, instances and
 sources.
@@ -410,12 +414,12 @@ query language:
 $ pmseries 'kernel.all.load{hostname:toium}[count:2]'
 
 eb713a9cf472f775aa59ae90c43cd7f960f7870f
-    [1545346764128.128] 1.000000e-01 b84040ffccd54f839b65140cf139bab51cbbcf62
-    [1545346764128.128] 6.800000e-01 a60b5b3bf25e71071c41934fa4d7d251f765f30c
-    [1545346764128.128] 6.400000e-01 e1974a062375e6e62370ffadf5b0650dad739480
-    [1545346774112.112] 1.600000e-01 b84040ffccd54f839b65140cf139bab51cbbcf62
-    [1545346774112.112] 6.700000e-01 a60b5b3bf25e71071c41934fa4d7d251f765f30c
-    [1545346774112.112] 6.400000e-01 e1974a062375e6e62370ffadf5b0650dad739480
+    [1545346764128.128] 1.0e-01 b84040ffccd54f839b65140cf139bab51cbbcf62
+    [1545346764128.128] 6.8e-01 a60b5b3bf25e71071c41934fa4d7d251f765f30c
+    [1545346764128.128] 6.4e-01 e1974a062375e6e62370ffadf5b0650dad739480
+    [1545346774112.112] 1.6e-01 b84040ffccd54f839b65140cf139bab51cbbcf62
+    [1545346774112.112] 6.7e-01 a60b5b3bf25e71071c41934fa4d7d251f765f30c
+    [1545346774112.112] 6.4e-01 e1974a062375e6e62370ffadf5b0650dad739480
 .ESAMPLE
 .PP
 This query returns the two most recent values for all instances of

@@ -6,12 +6,9 @@ pmseries: [Error] cannot parse given string
 kernel.all.!bang
            ^ -- syntax error
 
-pmseries: Invalid argument
-
 == Query parse error handling - invalid sample
 pmseries: [Error] cannot parse given string
 
 kernel.all.load[badness]
                 ^ -- syntax error
 
-pmseries: Invalid argument

@@ -26,13 +26,12 @@ status=1	# failure is the default!
 
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+echo
 
 # real QA test starts here
-echo
 echo "== Query parse error handling - invalid metric name"
 pmseries kernel.all.!bang
 
-echo
 echo "== Query parse error handling - invalid sample"
 pmseries kernel.all.load[badness]
 
