@@ -1179,7 +1179,7 @@ redis_load_version_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 	batoninfo(baton, PMLOG_REQUEST, msg);
     } else if (reply->type != REDIS_REPLY_NIL) {
 	infofmt(msg, "unexpected schema version reply type (%s)",
-		redis_reply(reply->type));
+		redis_reply_type(reply));
 	batoninfo(baton, PMLOG_ERROR, msg);
     } else {
 	baton->version = 0;	/* NIL - no version key yet */
@@ -1273,7 +1273,7 @@ redis_load_keymap_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 	batoninfo(baton, PMLOG_REQUEST, msg);
     } else if (reply->type != REDIS_REPLY_NIL) {
 	infofmt(msg, "unexpected command reply type (%s)",
-		redis_reply(reply->type));
+		redis_reply_type(reply));
 	batoninfo(baton, PMLOG_ERROR, msg);
     }
 
