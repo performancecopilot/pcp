@@ -41,7 +41,7 @@ TMP="$tmp"
 SEQ="$seq"
 
 default:
-		\$(CC) -I\$(PCP_INC_DIR)/.. \$(LCFLAGS) \$(LDFLAGS) '-DSEQ=\$(SEQ)' '-DTMP=\$(TMP)' -o $tmp src/qa_libpcp_compat.c -lpcp
+		\$(CC) -I\$(PCP_INC_DIR)/.. \$(CFLAGS) \$(LDFLAGS) '-DSEQ=\$(SEQ)' '-DTMP=\$(TMP)' -o $tmp src/qa_libpcp_compat.c -lpcp
 End-of-File
 
 # real QA test starts here
