@@ -1,13 +1,5 @@
 QA output created by 1212
 
-== Query parse error handling - series instead of query
-pmseries: [Error] cannot parse given string
-
-7fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f
-^ -- syntax error
-
-pmseries: Invalid argument
-
 == Query parse error handling - invalid metric name
 pmseries: [Error] cannot parse given string
 

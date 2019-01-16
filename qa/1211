@@ -2,7 +2,7 @@
 # PCP QA Test No. 1211
 # Exercise basic pmseries loading and querying.
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 #
 
 seq=`basename $0`
@@ -60,6 +60,10 @@ echo
 
 echo "Verify basic load from proc archive"
 pmseries $options --load "{source.path: \"$here/archives/proc\"}" | _filter_source
+echo
+
+echo "Error handling - load from bad path"
+pmseries $options --load "{source.path: \"/no/such/archive\"}"
 echo
 
 echo "Verify pminfo and pmseries source and series match"

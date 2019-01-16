@@ -815,11 +815,12 @@ series_instlabels_report(series_data *dp, void *arg)
     if (dp->ninsts > 0) {
 	dp->flags |= PMSERIES_INSTLABELS;
 	sts = pmSeriesLabels(&dp->settings, dp->ninsts, dp->iseries, dp);
+	if (sts < 0)
+	    on_series_done(sts, dp);
     } else {
 	/* nothing to do - move on to next command handler */
-	sts = 0;
+	on_series_done(0, dp);
     }
-    on_series_done(sts, dp);
 }
 
 /*
@@ -1102,9 +1103,22 @@ main(int argc, char *argv[])
     if (flags & PMSERIES_OPT_LABELS)
 	flags |= PMSERIES_NEED_INSTS;
 
-    if (!(flags & (PMSERIES_META_OPTS|PMSERIES_OPT_LOAD|PMSERIES_OPT_SOURCE)))
-	if (!(flags & (PMSERIES_NEED_DESCS|PMSERIES_NEED_INSTS)))
-	    flags |= PMSERIES_OPT_QUERY;	/* default is to query */
+    /*
+     * Determine default mode if no specific options presented.
+     * If all parameters are series hashes, assume --all metadata
+     * mode otherwise assume its a --query request.
+     */
+    if (!(flags & (PMSERIES_META_OPTS|PMSERIES_OPT_LOAD|PMSERIES_OPT_SOURCE)) &&
+	!(flags & (PMSERIES_NEED_DESCS|PMSERIES_NEED_INSTS))) {
+	for (c = opts.optind; c < argc; c++) {
+	    if (strlen(argv[c]) != 40)
+		break;
+	}
+	if (c != argc)
+	    flags |= PMSERIES_OPT_QUERY;
+	else
+	    flags |= PMSERIES_OPT_ALL | PMSERIES_META_OPTS | PMSERIES_SERIESID;
+    }
 
     if (opts.optind == argc && !opts.errors) {
 	if ((flags & PMSERIES_OPT_QUERY)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -311,7 +311,7 @@ extract_string(seriesQueryBaton *baton, pmSID series,
 	return 0;
     }
     infofmt(msg, "expected string result for %s of series %s (got %s)",
-			message, series, redis_reply(reply->type));
+			message, series, redis_reply_type(reply));
     batoninfo(baton, PMLOG_RESPONSE, msg);
     return -EINVAL;
 }
@@ -350,7 +350,7 @@ extract_sha1(seriesQueryBaton *baton, pmSID series,
 
     if (reply->type != REDIS_REPLY_STRING) {
 	infofmt(msg, "expected string result for \"%s\" of series %s got %s",
-			message, series, redis_reply(reply->type));
+			message, series, redis_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EINVAL;
     }
@@ -442,7 +442,7 @@ series_result_reply(seriesQueryBaton *baton, sds series, pmSeriesValue *value,
 	    baton->error = sts;
 	} else if (reply->type != REDIS_REPLY_ARRAY) {
 	    infofmt(msg, "expected value array for series %s %s (type=%s)",
-			series, XRANGE, redis_reply(reply->type));
+			series, XRANGE, redis_reply_type(reply));
 	    batoninfo(baton, PMLOG_RESPONSE, msg);
 	    baton->error = -EPROTO;
 	} else if ((sts = series_instance_reply(baton, series, value,
@@ -517,7 +517,7 @@ node_series_reply(seriesQueryBaton *baton, node_t *np, int nelements, redisReply
 	} else {
 	    infofmt(msg, "expected string in %s set \"%s\" (type=%s)",
 		    node_subtype(np->left), np->left->key,
-		    redis_reply(reply->type));
+		    redis_reply_type(reply));
 	    batoninfo(baton, PMLOG_REQUEST, msg);
 	    sts = -EPROTO;
 	}
@@ -744,7 +744,7 @@ node_pattern_reply(seriesQueryBaton *baton, node_t *np, const char *name, int ne
     reply = elements[0];
     if (!reply || reply->type != REDIS_REPLY_STRING) {
 	infofmt(msg, "expected integer cursor result from %s (got %s)",
-			HSCAN, reply ? redis_reply(reply->type) : "null");
+			HSCAN, reply ? redis_reply_type(reply) : "null");
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EPROTO;
     }
@@ -753,7 +753,7 @@ node_pattern_reply(seriesQueryBaton *baton, node_t *np, const char *name, int ne
     reply = elements[1];
     if (!reply || reply->type != REDIS_REPLY_ARRAY) {
 	infofmt(msg, "expected array of results from %s (got %s)",
-			HSCAN, reply ? redis_reply(reply->type) : "null");
+			HSCAN, reply ? redis_reply_type(reply) : "null");
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EPROTO;
     }
@@ -772,7 +772,7 @@ node_pattern_reply(seriesQueryBaton *baton, node_t *np, const char *name, int ne
 	r = reply->element[i];
 	if (r->type != REDIS_REPLY_STRING) {
 	    infofmt(msg, "expected only string results from %s (type=%s)",
-		    HSCAN, redis_reply(r->type));
+		    HSCAN, redis_reply_type(r));
 	    batoninfo(baton, PMLOG_REQUEST, msg);
 	    return -EPROTO;
 	}
@@ -836,9 +836,9 @@ series_prepare_maps_pattern_reply(redisAsyncContext *c, redisReply *reply, void 
 
     left = np->left;
 
-    if (reply->type != REDIS_REPLY_ARRAY) {
+    if (reply == NULL || reply->type != REDIS_REPLY_ARRAY) {
 	infofmt(msg, "expected array for %s key \"%s\" (type=%s)",
-		    node_subtype(left), left->key, redis_reply(reply->type));
+		    node_subtype(left), left->key, redis_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     } else {
@@ -958,7 +958,7 @@ series_prepare_smembers_reply(redisAsyncContext *c, redisReply *reply, void *arg
     if (reply->type != REDIS_REPLY_ARRAY) {
 	infofmt(msg, "expected array for %s set \"%s\" (type=%s)",
 			node_subtype(np->left), np->right->value,
-			redis_reply(reply->type));
+			redis_reply_type(reply));
 	batoninfo(baton, PMLOG_CORRUPT, msg);
 	baton->error = -EPROTO;
     } else {
@@ -1082,7 +1082,7 @@ series_prepare_time_reply(redisAsyncContext *c, redisReply *reply, void *arg)
 
     if (reply->type != REDIS_REPLY_ARRAY) {
 	infofmt(msg, "expected array from %s XSTREAM values (type=%s)",
-			sid->name, redis_reply(reply->type));
+			sid->name, redis_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     } else {
@@ -1327,13 +1327,13 @@ reverse_map(seriesQueryBaton *baton, redisMap *map, int nkeys, redisReply **elem
 		redisMapInsert(map, key, val);
 	    } else {
 		infofmt(msg, "expected string key for hashmap (type=%s)",
-			redis_reply(hash->type));
+			redis_reply_type(hash));
 		batoninfo(baton, PMLOG_RESPONSE, msg);
 		baton->error = -EINVAL;
 	    }
 	} else {
 	    infofmt(msg, "expected string name for hashmap (type=%s)",
-		    redis_reply(name->type));
+		    redis_reply_type(name));
 	    batoninfo(baton, PMLOG_RESPONSE, msg);
 	    baton->error = -EINVAL;
 	}
@@ -1368,7 +1368,7 @@ series_map_reply(seriesQueryBaton *baton, sds series,
 	    }
 	} else {
 	    infofmt(msg, "expected string in %s set (type=%s)",
-			series, redis_reply(reply->type));
+			series, redis_reply_type(reply));
 	    batoninfo(baton, PMLOG_RESPONSE, msg);
 	    sts = -EPROTO;
 	}
@@ -1388,7 +1388,7 @@ series_map_keys_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_map_keys_callback");
 
-    if (reply->type == REDIS_REPLY_ARRAY) {
+    if (reply && reply->type == REDIS_REPLY_ARRAY) {
 	val = sdsempty();
 	for (i = 0; i < reply->elements; i++) {
 	    child = reply->element[i];
@@ -1397,7 +1397,7 @@ series_map_keys_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 		    baton->u.lookup.func(NULL, val, baton->userdata);
 	    } else {
 		infofmt(msg, "bad response for string map %s (%s)",
-			HVALS, redis_reply(child->type));
+			HVALS, redis_reply_type(child));
 		batoninfo(baton, PMLOG_RESPONSE, msg);
 		sdsfree(val);
 		baton->error = -EINVAL;
@@ -1406,7 +1406,7 @@ series_map_keys_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 	sdsfree(val);
     } else {
 	infofmt(msg, "expected array from string map %s (reply=%s)",
-		HVALS, redis_reply(reply->type));
+		HVALS, redis_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     }
@@ -1445,7 +1445,7 @@ series_label_value_reply(redisAsyncContext *c, redisReply *reply, void *arg)
 	reverse_map(baton, value->map, reply->elements, reply->element);
     else {
 	infofmt(msg, "expected array from %s %s.%s.value (type=%s)", HGETALL,
-		      "pcp:map:label", value->mapID, redis_reply(reply->type));
+		      "pcp:map:label", value->mapID, redis_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     }
@@ -1496,7 +1496,7 @@ series_label_reply(seriesQueryBaton *baton, sds series,
 	reply = elements[i];
 	if (reply->type != REDIS_REPLY_STRING) {
 	    infofmt(msg, "expected only string results from %s (type=%s)",
-			HGETALL, redis_reply(reply->type));
+			HGETALL, redis_reply_type(reply));
 	    batoninfo(baton, PMLOG_RESPONSE, msg);
 	    return -EPROTO;
 	}
@@ -1566,10 +1566,10 @@ series_lookup_labels_callback(redisAsyncContext *c, redisReply *reply, void *arg
     seriesBatonCheckMagic(sid, MAGIC_SID, "series_lookup_labels_callback");
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_labels_callback");
 
-    if (reply->type != REDIS_REPLY_ARRAY) {
+    if (reply == NULL || reply->type != REDIS_REPLY_ARRAY) {
 	infofmt(msg, "expected array from %s %s:%s (type=%s)",
 			HGETALL, "pcp:labelvalue:series", sid->name,
-			redis_reply(reply->type));
+			redis_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     } else if ((sts = series_label_reply(baton, sid->name,
@@ -1686,7 +1686,7 @@ redis_series_desc_reply(redisAsyncContext *c, redisReply *reply, void *arg)
 
     if (reply->type != REDIS_REPLY_ARRAY) {
 	infofmt(msg, "expected array type from series %s %s (type=%s)",
-			sid->name, HMGET, redis_reply(reply->type));
+			sid->name, HMGET, redis_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     }
@@ -1801,9 +1801,9 @@ series_instances_reply_callback(redisAsyncContext *c, redisReply *reply, void *a
     inst.source = sdsempty();
     inst.series = sdsempty();
 
-    if (reply->type != REDIS_REPLY_ARRAY) {
+    if (reply == NULL || reply->type != REDIS_REPLY_ARRAY) {
 	infofmt(msg, "expected array from series %s %s (type=%s)",
-			HMGET, sid->name, redis_reply(reply->type));
+			HMGET, sid->name, redis_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     }
@@ -1875,11 +1875,11 @@ series_lookup_instances_callback(redisAsyncContext *c, redisReply *reply, void *
     seriesBatonCheckMagic(sid, MAGIC_SID, "series_lookup_instances_callback");
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_instances_callback");
 
-    if (reply->type == REDIS_REPLY_ARRAY)
+    if (reply && reply->type == REDIS_REPLY_ARRAY)
 	series_instances_reply(baton, sid->name, reply->elements, reply->element);
     else {
 	infofmt(msg, "expected array from series %s %s (type=%s)",
-			SMEMBERS, sid->name, redis_reply(reply->type));
+			SMEMBERS, sid->name, redis_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     }
@@ -1947,11 +1947,11 @@ redis_lookup_mapping_callback(redisAsyncContext *c, redisReply *reply, void *arg
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "redis_lookup_mapping_callback");
 
     /* unpack - produce reverse map of ids-to-names for each context */
-    if (reply->type == REDIS_REPLY_ARRAY)
+    if (reply && reply->type == REDIS_REPLY_ARRAY)
 	reverse_map(baton, baton->u.lookup.map, reply->elements, reply->element);
     else {
 	infofmt(msg, "expected array from %s %s (type=%s)",
-		HGETALL, "pcp:map:context.name", redis_reply(reply->type));
+		HGETALL, "pcp:map:context.name", redis_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     }
@@ -2024,9 +2024,9 @@ redis_get_sid_callback(redisAsyncContext *redis, redisReply *reply, void *arg)
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "redis_get_sid_callback");
 
     /* unpack - extract names for this source via context name map */
-    if (reply->type != REDIS_REPLY_ARRAY) {
+    if (reply == NULL || reply->type != REDIS_REPLY_ARRAY) {
 	infofmt(msg, "expected array from %s %s (type=%s)",
-			SMEMBERS, sid->name, redis_reply(reply->type));
+			SMEMBERS, sid->name, redis_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	baton->error = -EPROTO;
     } else if ((sts = series_map_reply(baton, sid->name,

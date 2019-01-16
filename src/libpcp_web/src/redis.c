@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, Red Hat.
+ * Copyright (c) 2017-2019, Red Hat.
  * Copyright (c) 2009-2011, Salvatore Sanfilippo <antirez at gmail dot com>
  * Copyright (c) 2010-2014, Pieter Noordhuis <pcnoordhuis at gmail dot com>
  *
@@ -54,9 +54,11 @@
     } while(0);
 
 const char *
-redis_reply(int reply)
+redis_reply_type(redisReply *reply)
 {
-    switch (reply) {
+    if (reply == NULL)
+	return "none";
+    switch (reply->type) {
     case REDIS_REPLY_STRING:
 	return "string";
     case REDIS_REPLY_ARRAY:
