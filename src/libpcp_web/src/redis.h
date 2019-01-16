@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  * Copyright (c) 2009-2011, Salvatore Sanfilippo <antirez at gmail dot com>
  * Copyright (c) 2009-2014, Pieter Noordhuis <pcnoordhuis at gmail dot com>
  *
@@ -71,8 +71,6 @@ typedef enum redisReplyType {
     REDIS_REPLY_ERROR		= 6,
     REDIS_REPLY_UNKNOWN		= -1
 } redisReplyType;
-
-extern const char *redis_reply(int);
 
 #define REDIS_READER_MAX_BUF (1024*16)  /* Default max unused reader buffer. */
 
@@ -156,7 +154,7 @@ int redisReaderGetReply(redisReader *r, void **reply);
  * SO_REUSEADDR is being used. */
 #define REDIS_CONNECT_RETRIES  10
 
-#define __redis_strerror_r(errno, buf, len) pmErrStr_r(-(errno), buf, len)
+#define __redis_strerror_r(errno, buf, len) pmErrStr_r(-(errno), (buf), (len))
 
 /* This is the reply object returned by redisCommand() */
 typedef struct redisReply {
@@ -171,6 +169,8 @@ typedef struct redisReply {
 extern redisReader *redisReaderCreate(void);
 
 extern void freeReplyObject(void *);
+
+extern const char *redis_reply_type(redisReply *);
 
 enum redisConnectionType {
     REDIS_CONN_TCP,

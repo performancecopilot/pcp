@@ -6,6 +6,10 @@ PONG
 Verify basic load from proc archive
 pmseries: [Info] processed 5 archive records from PATH/archives/proc
 
+Error handling - load from bad path
+pmseries: [Error] cannot open archive "/no/such/archive": No such file or directory
+pmseries: Attempt to use an illegal context
+
 Verify pminfo and pmseries source and series match
 => pminfo
 

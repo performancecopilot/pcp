@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -746,6 +746,7 @@ connect_pmapi_source_service(void *arg)
 
     if ((msg = pmwebapi_new_context(cp)) != NULL) {
 	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = PM_ERR_NOCONTEXT;
     } else if (baton->error == 0) {
 	/* setup metric and time-based filtering for source load */
 	load_prepare_timing(baton);

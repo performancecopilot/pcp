@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2018 Red Hat.
+.\" Copyright (c) 2018-2019 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -102,11 +102,19 @@ However,
 uses timeseries identifiers in much the same way that
 .BR pminfo (1)
 uses the lower level indom, metric identifiers and metric names.
-.SH TIMESERIES QUERIES
+.PP
 The default mode of
 .B pmseries
-operation is to issue a query that will be evaluated over all
-known timeseries.
+operation (i.e. with no command line options) depends on the
+arguments it is presented.
+If all non-option arguments appear to be timeseries
+identifiers (in 40 hex digit form)
+.B pmseries
+will report metadata for these timeseries \- refer to
+the \fB\-a\fR/\fB\-\-all\fR option for details.
+Otherwise, the parameters will be treated as a timeseries
+query.
+.SH TIMESERIES QUERIES
 Query expressions are formed using the
 .B pmseries
 query language described below, but can be as simple as a
