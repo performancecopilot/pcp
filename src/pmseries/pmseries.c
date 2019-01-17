@@ -244,6 +244,8 @@ on_series_info(pmLogLevel level, sds message, void *arg)
     int			colour = (dp->flags & PMSERIES_COLOUR);
     FILE		*fp = (level == PMLOG_INFO) ? stdout : stderr;
 
+    if (level >= PMLOG_ERROR)
+	dp->status = 1;	/* exit pmseries with error */
     if (level >= PMLOG_INFO || pmDebugOptions.series)
 	pmLogLevelPrint(fp, level, message, colour);
 }
@@ -508,6 +510,8 @@ series_labels_sort(sds s, unsigned int nlabels, series_label *labels)
 
     s = sdscpylen(s, "{", 1);
     for (i = 0; i < nlabels; i++) {
+	if (i > 0)
+	    s = sdscat(s, ",");
 	lp = &labels[i];
 	s = sdscatfmt(s, "\"%S\":%S", lp->name, lp->value);
     }
@@ -691,7 +695,7 @@ on_series_done(int sts, void *arg)
 	dp->flags &= ~PMSERIES_NEED_EOL;
 	putc('\n', stdout);
     }
-    if (sts < 0) {
+    if (dp->status == 0 && sts < 0) {
 	fprintf(stderr, "%s: %s\n", pmGetProgname(),
 			pmErrStr_r(sts, msg, sizeof(msg)));
 	dp->status = 1;
@@ -1048,7 +1052,7 @@ main(int argc, char *argv[])
 	    break;
 
 	case 'n':	/* report label names only, not values */
-	    flags |= PMSERIES_ONLY_NAMES;
+	    flags |= (PMSERIES_OPT_LABELS|PMSERIES_ONLY_NAMES);
 	    break;
 
         case 'p':	/* Redis port to connect to */
@@ -1114,7 +1118,7 @@ main(int argc, char *argv[])
 	    if (strlen(argv[c]) != 40)
 		break;
 	}
-	if (c != argc)
+	if (c != argc || opts.optind == argc)
 	    flags |= PMSERIES_OPT_QUERY;
 	else
 	    flags |= PMSERIES_OPT_ALL | PMSERIES_META_OPTS | PMSERIES_SERIESID;
@@ -1126,7 +1130,9 @@ main(int argc, char *argv[])
 			   pmGetProgname());
 	   opts.errors++;
 	}
-	else if (!(flags & (PMSERIES_META_OPTS|PMSERIES_OPT_SOURCE))) {
+	else if (!(flags & (PMSERIES_META_OPTS|PMSERIES_OPT_SOURCE)) ||
+		 /* --all needs a timeseries identifier to work on */
+		 ((flags & PMSERIES_OPT_ALL) && opts.optind == argc)) {
 	    pmprintf("%s: error - no series string(s) provided\n",
 			    pmGetProgname());
 	    opts.errors++;

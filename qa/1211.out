@@ -8,7 +8,6 @@ pmseries: [Info] processed 5 archive records from PATH/archives/proc
 
 Error handling - load from bad path
 pmseries: [Error] cannot open archive "/no/such/archive": No such file or directory
-pmseries: Attempt to use an illegal context
 
 Verify pminfo and pmseries source and series match
 => pminfo
@@ -440,7 +439,6 @@ Perform simple source-based query ...
 
 Error handling - descriptor for bad series identifier
 pmseries: [Error] no descriptor for series identifier no.such.identifier
-pmseries: Invalid argument
 
 no.such.identifier
 
