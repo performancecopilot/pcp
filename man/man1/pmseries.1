@@ -301,7 +301,7 @@ metadata reporting options are:
 .TP 5
 \fB\-a\fR, \fB\-\-all\fR
 Convenience option to report all metadata for the given timeseries,
-equivalent to \fB\-dilmsS\fR.
+equivalent to \fB\-dilms\fR.
 .TP
 \fB\-d\fR, \fB\-\-desc\fR
 Metric descriptions detailing the PMID, data type, data semantics, units,
@@ -354,7 +354,6 @@ archives from which each timeseries originated can be reported with:
 \fB\-S\fR, \fB\-\-sources\fR
 Print names for timeseries sources.
 These names are either hostnames or fully qualified archive paths.
-This option has a direct \fBpminfo\fR(1) equivalent.
 .PP
 It is important to note that live and archived sources can and will
 generate the same SHA-1 source identifier hash, provided that

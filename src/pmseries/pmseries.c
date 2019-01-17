@@ -964,7 +964,7 @@ pmseries_overrides(int opt, pmOptions *opts)
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General Options"),
-    { "all", 0, 'a', 0, "report all metadata (-dilmsS) for time series" },
+    { "all", 0, 'a', 0, "report all metadata (-dilms) for time series" },
     { "desc", 0, 'd', 0, "metric descriptor for time series" },
     { "instances", 0, 'i', 0, "report names for time series instances" },
     { "labels", 0, 'l', 0, "list all labels for time series" },
