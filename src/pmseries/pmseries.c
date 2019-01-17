@@ -510,6 +510,8 @@ series_labels_sort(sds s, unsigned int nlabels, series_label *labels)
 
     s = sdscpylen(s, "{", 1);
     for (i = 0; i < nlabels; i++) {
+	if (i > 0)
+	    s = sdscat(s, ",");
 	lp = &labels[i];
 	s = sdscatfmt(s, "\"%S\":%S", lp->name, lp->value);
     }
