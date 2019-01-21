@@ -1,6 +1,7 @@
 [Unit]
 Description=Generate system activity reports
 Documentation=man:pmlogger(1)
+ConditionPathExists=!@CRONTAB_DAILY_REPORT_PATH@
 
 [Service]
 Type=oneshot

@@ -1,6 +1,7 @@
 [Unit]
 Description=Poll log processing
 Documentation=man:pmlogger(1)
+ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
 Type=oneshot
