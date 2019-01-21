@@ -54,6 +54,7 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmie_daily.service $(PCP_SYSTEMDUNIT_DIR)/pmie_daily.service
 	$(INSTALL) -m 644 pmie_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmie_check.timer
 	$(INSTALL) -m 644 pmie_check.service $(PCP_SYSTEMDUNIT_DIR)/pmie_check.service
+	$(INSTALL) -m 644 pmie_timers.sysconfig $(PCP_SYSCONFIG_DIR)/pmie_timers
 else
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
@@ -81,6 +82,7 @@ pmie.service : pmie.service.in
 pmie_check.service : pmie_check.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
+	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
@@ -88,6 +90,7 @@ pmie_check.service : pmie_check.service.in
 pmie_daily.service : pmie_daily.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
+	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
