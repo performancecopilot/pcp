@@ -80,12 +80,14 @@ pmie.service : pmie.service.in
 
 pmie_check.service : pmie_check.service.in
 	$(SED) <$< >$@ \
+	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
 
 pmie_daily.service : pmie_daily.service.in
 	$(SED) <$< >$@ \
+	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END

@@ -1,6 +1,7 @@
 [Unit]
 Description=Process PMIE logs
 Documentation=man:pmie(1)
+ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
 Type=oneshot
