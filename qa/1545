@@ -34,7 +34,7 @@ _filter_xml()
         -e 's,<timezone.*/,<timezone>UTC</,g' \
         -e 's,<timestamp.*>,<timestamp>,g' \
         -e 's,[0-9]\{4\,7\},xxxxxxx,g' \
-    | src/sort_xml.python \
+    | pmpython src/sort_xml.python \
     | sed -e 's/^  *//'
 }
 
