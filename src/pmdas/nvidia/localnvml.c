@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -257,6 +257,12 @@ localNvmlErrStr(nvmlReturn_t sts)
 "infoROM is corrupted" }, {
 	NVML_ERROR_GPU_IS_LOST,
 "The GPU has fallen off the bus or has otherwise become inaccessible" }, {
+	NVML_ERROR_RESET_REQUIRED,
+"The GPU requires a reset before it can be used again." }, {
+	NVML_ERROR_OPERATING_SYSTEM,
+"The GPU control device has been blocked by the operating system/cgroups." }, {
+	NVML_ERROR_LIB_RM_VERSION_MISMATCH,
+"RM detects a driver/library version mismatch." }, {
 	NVML_ERROR_UNKNOWN,
 "An internal driver error occurred"
     } };

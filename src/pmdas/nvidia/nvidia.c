@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,11 @@
 #include "domain.h"
 #include "localnvml.h"
 
-/* InDom table (just one row - corresponding to the set of graphics cards) */
-enum { GCARD_INDOM = 0 };
+/* InDom table (set of graphics cards, set of processes+devices) */
+enum { GCARD_INDOM = 0, GPROC_INDOM };
 pmdaIndom indomtab[] = {
     { GCARD_INDOM, 0, NULL },
+    { GPROC_INDOM, 0, NULL },
 };
 
 /* List of metric item numbers - increasing from zero, no holes */
@@ -303,7 +304,7 @@ nvidia_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
             return PM_ERR_PMID;
     }
 
-    return 0;
+    return 1;
 }
 
 /**
@@ -325,7 +326,7 @@ nvidia_init(pmdaInterface *dp)
 
     if (isDSO) {
     	initializeHelpPath();
-    	pmdaDSO(dp, PMDA_INTERFACE_2, "nvidia DSO", mypath);
+    	pmdaDSO(dp, PMDA_INTERFACE_7, "nvidia DSO", mypath);
     }
 
     if (dp->status != 0)
@@ -373,7 +374,7 @@ main(int argc, char **argv)
     pmSetProgname(argv[0]);
 
     initializeHelpPath();
-    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmGetProgname(), NVML,
+    pmdaDaemon(&desc, PMDA_INTERFACE_7, pmGetProgname(), NVML,
 		"nvidia.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &desc);
