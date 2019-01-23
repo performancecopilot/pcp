@@ -8,7 +8,7 @@
 ** time-of-day, the cpu-time consumption and the memory-occupation. 
 **
 ** Copyright (C) 2000-2010 Gerlof Langeveld
-** Copyright (C) 2015-2017 Red Hat.
+** Copyright (C) 2015-2019 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -311,11 +311,13 @@ val2cpustr(count_t value, char *strvalue, size_t buflen)
 ** Function val2Hzstr() converts a value (in MHz) 
 ** to an ascii-string.
 ** The result-string is placed in the area pointed to strvalue,
-** which should be able to contain at least 8 positions.
+** which should be able to contain 7 positions plus null byte.
 */
 char *
 val2Hzstr(count_t value, char *strvalue, size_t buflen)
 {
+	char *fformat;
+
         if (value < 1000)
         {
                 pmsprintf(strvalue, buflen, "%4lldMHz", value);
@@ -330,8 +332,22 @@ val2Hzstr(count_t value, char *strvalue, size_t buflen)
                         prefix='T';        
                         fval /= 1000.0;
                 }
-                pmsprintf(strvalue, buflen, "%4.2f%cHz", fval, prefix);
+
+                if (fval < 10.0)
+		{
+			 fformat = "%4.2f%cHz";
+		}
+		else
+		{
+			if (fval < 100.0)
+				fformat = "%4.1f%cHz";
+                	else
+				fformat = "%4.0f%cHz";
+		}
+
+                pmsprintf(strvalue, buflen, fformat, fval, prefix);
         }
+
 	return strvalue;
 }
 
@@ -557,7 +573,8 @@ setup_step_mode(pmOptions *opts, int forward)
 }
 
 /*
-** Set the origin position and interval for PMAPI context fetching
+** Set the origin position and interval for PMAPI context fetching.
+** Enable full-thread proc reporting for all live modes.
 */
 static int
 setup_origin(pmOptions *opts)
@@ -581,6 +598,31 @@ setup_origin(pmOptions *opts)
 			opts->flags |= PM_OPTFLAG_RUNTIME_ERR;
 			opts->errors++;
 		}
+	}
+	else
+	/* set proc.control.perclient.threads to unsigned integer value 1 */
+	{
+		pmResult	*result = calloc(1, sizeof(pmResult));
+		pmValueSet	*vset = calloc(1, sizeof(pmValueSet));
+
+		ptrverify(vset, "Malloc vset failed for thread enabling\n");
+		ptrverify(result, "Malloc result failed for thread enabling\n");
+
+		vset->vlist[0].inst = PM_IN_NULL;
+		vset->vlist[0].value.lval = 1;
+		vset->valfmt = PM_VAL_INSITU;
+		vset->numval = 1;
+		vset->pmid = pmID_build(3, 10, 2);
+
+		result->vset[0] = vset;
+		result->numpmid = 1;
+
+		sts = pmStore(result);
+		if (sts < 0 && pmDebugOptions.appl0)
+			fprintf(stderr, "%s: pmStore failed: %s\n",
+					pmGetProgname(), pmErrStr(sts));
+		sts = 0;	/* continue without detailed thread stats */
+		pmFreeResult(result);
 	}
 
 	return sts;
@@ -686,6 +728,8 @@ setup_globals(pmOptions *opts)
 	/* default hardware inventory - used as fallbacks only if other metrics missing */
 	if ((hinv_nrcpus = extract_integer(result, descs, NRCPUS)) <= 0)
 		hinv_nrcpus = 1;
+	if ((hinv_nrgpus = extract_integer(result, descs, NRGPUS)) <= 0)
+		hinv_nrcpus = 1;
 	if ((hinv_nrdisk = extract_integer(result, descs, NRDISK)) <= 0)
 		hinv_nrdisk = 1;
 	if ((hinv_nrintf = extract_integer(result, descs, NRINTF)) <= 0)
@@ -756,6 +800,12 @@ extract_count_t_index(pmResult *result, pmDesc *descs, int value, int i)
 	pmExtractValue(values->valfmt, &values->vlist[i],
 			descs[value].type, &atom, PM_TYPE_64);
 	return atom.ll;
+}
+
+int
+present_metric_value(pmResult *result, int value)
+{
+	return (result->vset[value]->numval <= 0);
 }
 
 count_t

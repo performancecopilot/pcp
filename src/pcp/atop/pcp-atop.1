@@ -176,6 +176,19 @@ The default colors red and cyan can be modified in the configuration file
 as well (see separate man-page of pcp-atoprc).
 .PP
 With the key 'x' (or flag \-x), the use of colors can be suppressed.
+.SH GPU STATISTICS GATHERING
+GPU statistics can be gathered by
+.BR pmdanvidia (1)
+which is a separate data collection daemon process.
+It gathers cumulative utilization counters of every Nvidia GPU
+in the system, as well as utilization counters of every 
+process that uses a GPU.
+When
+.B atop
+notices that the daemon is active, it reads these GPU utilization
+counters with every interval.
+.PP
+Find a description about the utilization counters in the section OUTPUT DESCRIPTION.
 .SH INTERACTIVE COMMANDS
 When running
 .B pcp-atop
@@ -272,6 +285,27 @@ the occupation percentage for the chosen resource and the
 command line including arguments.
 .PP
 .TP 5
+.B e
+Show GPU utilization.
+
+Per process at least the following fields are shown:
+process-id,
+range of GPU numbers on which the process currently runs,
+GPU busy percentage on all GPUs,
+memory busy percentage (i.e. read and write accesses on memory) on all GPUs,
+memory occupation at the moment of the sample,
+average memory occupation during the sample, and
+GPU percentage.
+
+When the
+.B pmdanvidia
+daemon does not run with root privileges, the GPU busy percentage and
+the memory busy percentage are not available on process level.
+In that case, the GPU percentage on process level reflects the
+GPU memory occupation instead of the GPU busy percentage (which
+is preferred).
+.PP
+.TP 5
 .B o
 Show the user-defined line of the process.
 
@@ -355,6 +389,16 @@ chosen resource (default: cpu) and the Docker container id (CID).
 .B C 
 Sort the current list in the order of cpu consumption (default).
 The one-but-last column changes to ``CPU''.
+.PP
+.TP 5
+.B E
+Sort the current list in the order of GPU utilization
+(preferred, but only applicable
+when the
+.B pmdanvidia
+daemon runs under root privileges) or the order of
+GPU memory occupation).
+The one-but-last column changes to ``GPU''.
 .PP
 .TP 5
 .B M 
@@ -635,7 +679,7 @@ can store the system and process level statistics in the PCP archive format,
 as an archive folio (see
 .BR mkaf (1)).
 .br
-All processes/threads are stored in the raw file.
+All information about processes and threads is stored in the archive.
 .br
 The interval (default: 10 seconds) and number of samples (default: infinite)
 can be passed as last arguments. Instead of the number of samples, the flag
@@ -742,7 +786,7 @@ In case of a multi-processor system, an additional line is shown
 for every individual processor (with `cpu' in lower case),
 sorted on activity. Inactive CPUs will not be shown by default.
 The lines showing the per-cpu occupation contain the cpu number in
-the last field.
+the field combined with the wait percentage.
 
 Every line contains the percentage of cpu time spent in 
 kernel mode by all active processes (`sys'), 
@@ -750,27 +794,63 @@ the percentage of cpu time consumed in user mode (`user') for all
 active processes (including processes running with a nice value larger than
 zero), the percentage of cpu time spent for interrupt handling (`irq')
 including softirq, the percentage of unused cpu time while no processes
-were waiting for disk-I/O (`idle'), and
+were waiting for disk I/O (`idle'), and
 the percentage of unused cpu time while at least one process was waiting
-for disk-I/O (`wait').
+for disk I/O (`wait').
 .br
-In case of per-cpu occupation, the last column shows the cpu number and
+In case of per-cpu occupation, the cpu number and
 the wait percentage (`w') for that cpu.
 The number of lines showing the per-cpu occupation can be limited.
 
-For virtual machines the steal-percentage is shown (`steal'), reflecting
+For virtual machines, the steal-percentage (`steal') shows
 the percentage of cpu time stolen by other virtual machines
 running on the same hardware.
 .br
 For physical machines hosting one or more virtual machines,
-the guest-percentage is shown (`guest'), reflecting
+the guest-percentage (`guest') shows
 the percentage of cpu time used by the virtual machines. Notice that
-this percentage overlaps the user-percentage.
+this percentage overlaps the user-percentage!
 
-In case of frequency-scaling, all previously mentioned CPU-percentages
+When PMC performance monitoring counters are supported by the CPU
+and the kernel (and
+.B pcp-atop
+runs with root privileges), the number of instructions per
+CPU cycle (`ipc') is shown.
+The first sample always shows the value 'initial',
+because the counters are just activated at the moment that
+.B pcp-atop
+is started.
+.br
+When the
+.I CPU busy percentage is high
+and the IPC is less than 1.0,
+it is likely that the CPU is frequently waiting for memory access
+during instruction execution (larger CPU caches or faster memory might
+be helpful to improve performance).
+When the
+.I CPU busy percentage is high
+and the IPC is greater than 1.0,
+it is likely that the CPU is instruction-bound (more/faster cores
+might be helpful to improve performance).
+.br
+Furthermore, per CPU the effective number of cycles (`cycl') is shown.
+This value can reach the current CPU frequency if such CPU is 100% busy.
+When an idle CPU is halted, the number of effective cycles can
+be (considerably) lower than the current frequency.
+.br
+Notice that the
+.I average
+instructions per cycle and number of cycles is shown in the CPU line
+for all CPUs.
+.br
+See also:
+.I http://www.brendangregg.com/blog/2017-05-09/cpu-utilization-is-wrong.html
+
+
+In case of frequency scaling, all previously mentioned CPU percentages
 are relative to the used scaling of the CPU during the interval.
 If a CPU has been active for e.g. 50% in user mode during the interval
-while the frequency-scaling of that CPU was 40%, only 20% of the full
+while the frequency scaling of that CPU was 40%, only 20% of the full
 capacity of the CPU has been used in user mode.
 
 If the screen-width does not allow all of these counters,
@@ -790,6 +870,31 @@ of serviced interrupts (`intr') and the number of available CPUs are shown.
 
 If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
+.PP
+.TP 5
+.B GPU
+GPU utilization (Nvidia).
+.br
+Read the section GPU STATISTICS GATHERING in this document to find the details
+about the activation of the
+.B pmdanvidia
+daemon.
+
+In the first column of every line, the bus-id (last nine characters) and
+the GPU number are shown.
+The subsequent columns show the percentage of time that one or more kernels
+were executing on the GPU (`gpubusy'), the percentage of time that global
+(device) memory was being read or written (`membusy'), the occupation
+percentage of memory (`memocc'), the total memory (`total'), the memory
+being in use at the moment of the sample (`used'), the average memory
+being in use during the sample time (`usavg'), the number of processes
+being active on the GPU at the moment of the sample (`#proc'), and
+the type of GPU.
+
+If the screen-width does not allow all of these counters,
+only a relevant subset is shown.
+.br
+The number of lines showing the GPUs can be limited.
 .PP
 .TP 5
 .B MEM
@@ -839,6 +944,18 @@ times that the kernel tries to reclaim pages due to an urgent need (`stall').
 Also the number of memory pages the system read from swap space (`swin')
 and the number of memory pages the system wrote to swap space (`swout')
 are shown.
+.PP
+.TP 5
+.B PSI
+Pressure Stall Information.
+.br
+This line contains three percentages per category:
+average pressure percentage over the last 10, 60 and 300 seconds
+(separated by slashes).
+.br
+The categories are: CPU for 'some' (`cs'),
+memory for 'some' (`ms'), memory for 'full' (`mf'),
+I/O for 'some' (`is'), and I/O for 'full' (`if').
 .PP
 .TP 5
 .B LVM/MDD/DSK
@@ -900,17 +1017,16 @@ This line contains the number of RPC calls received from
 NFS clients (`rpc'),
 the number of read RPC calls received (`cread`),
 the number of write RPC calls received (`cwrit'),
-the number of network requests handled via TCP (`nettcp'), 
-the number of network requests handled via UDP (`netudp'),
 the number of Megabytes/second returned to read requests by clients (`MBcr/s`),
 the number of Megabytes/second passed in write requests by clients (`MBcw/s`),
+the number of network requests handled via TCP (`nettcp'), 
+the number of network requests handled via UDP (`netudp'),
 the number of reply cache hits (`rchits'),
 the number of reply cache misses (`rcmiss') and
 the number of uncached requests (`rcnoca').
 Furthermore some error counters indicating the number of requests
 with a bad format (`badfmt') or a bad authorization (`badaut'), and a
 counter indicating the number of bad clients (`badcln').
-and the number of authorization refreshes (`autref').
 .PP
 .TP 5
 .B NET
@@ -980,6 +1096,32 @@ If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
 .br
 The number of lines showing the network interfaces can be limited.
+.PP
+.TP 5
+.B IFB
+Infiniband utilization.
+.br
+For every active Infiniband port one line is shown,
+sorted on activity.
+Such line shows the name of the port and its busy percentage
+in the first column.
+The busy percentage is determined by taking the
+highest of either the transmitted or the received bits during the interval,
+multiplying that value by the number of lanes and comparing it against the
+maximum port speed.
+.br
+Furthermore the number of received packets divided by the
+number of lanes (`pcki'),
+the number of transmitted packets divided by the number of lanes (`pcko'),
+the maximum line speed (`sp'),
+the effective amount of bits received per second (`si'),
+the effective amount of bits transmitted per second (`so'), and
+the number of lanes (`lanes').
+.br
+If the screen-width does not allow all of these counters,
+only a relevant subset is shown.
+.br
+The number of lines showing the Infiniband ports can be limited.
 .SH OUTPUT DESCRIPTION \- PROCESS LEVEL
 Following the system level information, the processes are shown from which the
 resource utilization has changed during the last interval. These processes
@@ -1088,6 +1230,32 @@ Filesystem group-id under which this process executes.
 Filesystem user-id under which this process executes.
 .PP
 .TP 9
+.B GPU
+When the
+.B pmdanvidia
+daemon does not run with root privileges, the GPU percentage
+reflects the GPU memory occupation percentage (memory of all GPUs is 100%).
+.br
+When the
+.B pmdanvidia
+daemon runs with root privileges, the GPU percentage
+reflects the GPU busy percentage.
+.PP
+.TP 9
+.B GPUBUSY
+Busy percentage on all GPUs (one GPU is 100%).
+.br
+When the
+.B pmdanvidia
+daemon does not run with root privileges, this value is not available.
+.PP
+.TP 9
+.B GPUNUMS
+Comma-separated list of GPUs used by the process 
+during the interval. When the comma-separated list exceeds
+the width of the column, a hexadecimal value is shown.
+.PP
+.TP 9
 .B MAJFLT
 The number of page faults issued by this process that have been solved
 by creating/loading the requested memory page.
@@ -1096,6 +1264,23 @@ by creating/loading the requested memory page.
 .B MEM
 The occupation percentage of this process related to the available capacity
 for this resource on system level.
+.PP
+.TP 9
+.B MEMAVG
+Average memory occupation during the interval on all used GPUs.
+.PP
+.TP 9
+.B MEMBUSY
+Busy percentage of memory on all GPUs (one GPU is 100%), i.e.
+the time needed for read and write accesses on memory.
+.br
+When the
+.B pmdanvidia
+daemon does not run with root privileges, this value is not available.
+.PP
+.TP 9
+.B MEMNOW
+Memory occupation at the moment of the sample on all used GPUs.
 .PP
 .TP 9
 .B MINFLT
@@ -1384,13 +1569,12 @@ parseable output is produced for each sample.
 The labels that can be specified for system-level statistics
 correspond to the labels (first verb of each line)
 that can be found in the interactive output:
-"CPU", "cpu" "CPL" "MEM", "SWP", "PAG", "LVM", "MDD", "DSK", "NFM",
-"NFC", "NFS" and "NET".
+"CPU", "cpu", "CPL", "GPU", "MEM", "SWP", "PAG", "PSI", "LVM", "MDD",
+"DSK", "NFM", "NFC", "NFS", "NET" and "IFB".
 .br
 For process-level statistics special labels are introduced:
-"PRG" (general), "PRC" (cpu), "PRM" (memory), "PRD" (disk, only if
-"storage accounting" is active) and "PRN" (network, only if
-the kernel module 'netatop' has been installed). 
+"PRG" (general), "PRC" (cpu), "PRE" (GPU), "PRM" (memory), "PRD"
+(disk, only if "storage accounting" is active).
 .br
 With the label "ALL", all system and process level statistics are shown.
 .PP
@@ -1449,7 +1633,8 @@ consumption for this CPU in irq mode (clock-ticks),
 consumption for this CPU in softirq mode (clock-ticks),
 consumption for this CPU in steal mode (clock-ticks),
 consumption for this CPU in guest mode (clock-ticks) overlapping user mode,
-frequency of this CPU and frequency percentage of this CPU.
+frequency of all CPUs, frequency percentage of all CPUs,
+instructions executed by all CPUs and cycles for all CPUs.
 .TP 9
 .B CPL
 Subsequent fields:
@@ -1459,6 +1644,22 @@ load average for last five minutes,
 load average for last fifteen minutes,
 number of context-switches, and
 number of device interrupts.
+.TP 9
+.B GPU
+Subsequent fields:
+GPU number, bus-id string, type of GPU string, 
+GPU busy percentage during last second (-1 if not available),
+memory busy percentage during last second (-1 if not available),
+total memory size (KiB), used memory (KiB) at this moment,
+number of samples taken during interval,
+cumulative GPU busy percentage during the interval (to be divided
+by the number of samples for the average busy percentage,
+-1 if not available),
+cumulative memory busy percentage during the interval (to be divided
+by the number of samples for the average busy percentage,
+-1 if not available), and
+cumulative memory occupation during the interval (to be divided
+by the number of samples for the average occupation).
 .TP 9
 .B MEM
 Subsequent fields:
@@ -1495,6 +1696,20 @@ number of allocstalls,
 0 (future use),
 number of swapins, and 
 number of swapouts.
+.TP 9
+.B PSI
+Subsequent fields:
+PSI statistics present on this system (n or y),
+CPU some avg10, CPU some avg60, CPU some avg300,
+CPU some accumulated microseconds during interval,
+memory some avg10, memory some avg60, memory some avg300,
+memory some accumulated microseconds during interval,
+memory full avg10, memory full avg60, memory full avg300,
+memory full accumulated microseconds during interval,
+I/O some avg10, I/O some avg60, I/O some avg300, 
+I/O some accumulated microseconds during interval,
+I/O full avg10, I/O full avg60, I/O full avg300, and
+I/O full accumulated microseconds during interval.
 .TP 9
 .B LVM/MDD/DSK
 For every logical volume/multiple device/hard disk one line is shown.
@@ -1570,6 +1785,15 @@ number of bytes transmitted by the interface,
 interface speed, and
 duplex mode (0=half, 1=full).
 .TP 9
+.B IFB
+Subsequent fields:
+name of the InfiniBand interface, port number,
+number of lanes, maximum rate (Mbps), 
+number of bytes received,
+number of bytes transmitted,
+number of packets received, and
+number of packets transmitted.
+.TP 9
 .B PRG
 For every process one line is shown.
 .br
@@ -1577,7 +1801,7 @@ Subsequent fields:
 PID (unique ID of task), name (between brackets), state,
 real uid, real gid, TGID (group number of related tasks/threads),
 total number of threads,
-exit code, start time (epoch),
+exit code (in case of fatal signal: signal number + 256), start time (epoch),
 full command line (between brackets), PPID,
 number of threads in state 'running' (R),
 number of threads in state 'interruptible sleeping' (S),
@@ -1599,6 +1823,20 @@ CPU-consumption in system mode (clockticks),
 nice value, priority, realtime priority,
 scheduling policy, current CPU, sleep average,
 TGID (group number of related tasks/threads) and is_process (y/n).
+.TP 9
+.B PRE
+For every process one line is shown.
+.br
+Subsequent fields:
+PID, name (between brackets), process state,
+GPU state (A for active, E for exited, N for no GPU user),
+number of GPUs used by this process,
+bitlist reflecting used GPUs,
+GPU busy percentage during interval,
+memory busy percentage during interval,
+memory occupation (KiB) at this moment 
+cumulative memory occupation (KiB) during interval, and
+number of samples taken during interval.
 .TP 9
 .B PRM
 For every process one line is shown.
@@ -1656,6 +1894,18 @@ cumulative size of UDP-packets transmitted,
 number of raw packets transmitted (obsolete, always 0),
 number of raw packets received (obsolete, always 0),
 TGID (group number of related tasks/threads) and is_process (y/n).
+.SH SIGNALS
+By sending the SIGUSR1 signal to
+.B pcp-atop
+a new sample will be forced, even if the current timer interval
+has not exceeded yet. The behavior is similar to pressing the `t` key
+in an interactive session.
+.PP
+By sending the SIGUSR2 signal to
+.B pcp-atop
+a final sample will be forced after which
+.B pcp-atop
+will terminate.
 .SH EXAMPLES
 To monitor the current system load interactively with an interval of 5 seconds:
 .PP
@@ -1713,7 +1963,8 @@ See related man-page.
 is based on the source code of the
 .BR atop (1)
 command from
-.I http://atoptool.nl
+.IR https://atoptool.nl ,
+maintained by Gerlof Langeveld (gerlof.langeveld@atoptool.nl),
 and aims to be command line and output compatible with it
 as much as possible.
 Some features of that
@@ -1723,18 +1974,24 @@ command are not available in
 .PP
 Some features of
 .BR pcp-atop
-(such as reporting on the Apache HTTP daemon, and NFS client mounts)
-are only activated if the corresonding PCP metrics are available.
+(such as reporting on the Apache HTTP daemon, Infiniband, NFS
+client mounts, hardware event counts and GPU statistics) are
+only activated if the corresonding PCP metrics are available.
 Refer to the documentation for
-.BR pmdaapache (1)
+.BR pmdaapache (1),
+.BR pmdainfiniband (1),
+.BR pmdanfsclient (1),
+.BR pmdanvidia (1)
 and
-.BR pmdanfsclient (1)
+.BR pmdaperfevent (1)
 for further details on activating these metrics.
 .SH SEE ALSO
 .BR pcp (1),
 .BR pcp-atopsar (1),
 .BR pmdaapache (1),
+.BR pmdainfiniband (1),
 .BR pmdanfsclient (1),
+.BR pmdanvidia (1),
 .BR pmdaproc (1),
 .BR mkaf (1),
 .BR pmlogger (1),

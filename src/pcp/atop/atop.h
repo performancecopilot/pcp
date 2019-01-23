@@ -7,7 +7,7 @@
 ** Include-file describing miscellaneous constants and function-prototypes.
 **
 ** Copyright (C) 1996-2014 Gerlof Langeveld
-** Copyright (C) 2015-2017 Red Hat.
+** Copyright (C) 2015-2019 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -21,9 +21,6 @@
 */
 #define	EQ		0
 #define SECSDAY		86400
-#define RAWNAMESZ	256
-#define	PROCCHUNK	100	/* process-entries for future expansion  */
-#define	PROCMIN		256     /* minimum number of processes allocated */
 
 /*
 ** memory-size formatting possibilities
@@ -105,6 +102,7 @@ extern unsigned int	pidmax;
 extern unsigned int	pagesize;
 extern unsigned int	hinv_nrcpus;
 extern unsigned int	hinv_nrdisk;
+extern unsigned int	hinv_nrgpus;
 extern unsigned int	hinv_nrintf;
 
 extern int		supportflags;
@@ -128,6 +126,7 @@ extern int		almostcrit;
 #define	NETATOP		0x00000010
 #define	NETATOPD	0x00000020
 #define	DOCKSTAT	0x00000040
+#define	GPUSTAT		0x00000080
 
 /*
 ** structure containing the start-addresses of functions for visualization
@@ -157,13 +156,16 @@ int		compcpu(const void *, const void *);
 int		compdsk(const void *, const void *);
 int		compmem(const void *, const void *);
 int		compnet(const void *, const void *);
+int		compgpu(const void *, const void *);
 int		compusr(const void *, const void *);
 int		compnam(const void *, const void *);
 int		compcon(const void *, const void *);
 
 int		cpucompar (const void *, const void *);
+int		gpucompar (const void *, const void *);
 int		diskcompar(const void *, const void *);
 int		intfcompar(const void *, const void *);
+int		ifbcompar(const void *, const void *);
 int		nfsmcompar(const void *, const void *);
 int		contcompar(const void *, const void *);
 
@@ -208,6 +210,7 @@ count_t		extract_count_t_index(struct pmResult *, struct pmDesc *, int, int);
 char *		extract_string(struct pmResult *, struct pmDesc *, int, char *, int);
 char *		extract_string_inst(struct pmResult *, struct pmDesc *, int, char *, int, int);
 char *		extract_string_index(struct pmResult *, struct pmDesc *, int, char *, int, int);
+int		present_metric_value(struct pmResult *, int);
 
 /*
 ** Optional netatop module interfaces

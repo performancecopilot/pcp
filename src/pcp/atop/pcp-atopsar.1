@@ -182,6 +182,10 @@ Show all possible reports.
 Report about CPU utilization (in total and per cpu).
 .PP
 .TP 5
+.B \-g
+Report about GPU utilization (per GPU).
+.PP
+.TP 5
 .B \-p
 Report about processor-related matters, like load-averages and
 hardware interrupts.
@@ -197,6 +201,10 @@ Current memory- and swap-occupation.
 .TP 5
 .B \-s
 Report about paging- and swapping-activity, and overcommitment.
+.PP
+.TP 5
+.B \-B
+Report about Pressure Stall Information (PSI).
 .PP
 .TP 5
 .B \-l
@@ -279,6 +287,10 @@ Report about TCP network traffic.
 Report about errors for TCP-traffic.
 .PP
 .TP 5
+.B \-h
+Report about Infiniband utilization.
+.PP
+.TP 5
 .B \-O
 Report about top-3 processes consuming most processor capacity.
 This report is only available when using a log file (not when specifying
@@ -348,6 +360,32 @@ at least one of the processes in wait-state awaits completion of disk I/O.
 .B idle%
 Percentage of unused cpu time because all processes are in a wait-state
 but not waiting for disk-I/O.
+.PP
+The output for the flag
+.B \-g
+contains the following columns per GPU:
+.TP 12
+.B busaddr
+GPU number and bus-ID (separated by '/').
+.TP 12
+.B gpubusy
+GPU busy percentage during interval.
+.TP 12
+.B membusy
+GPU memory busy percentage during interval,
+i.e. time to issue read and write accesses on memory.
+.TP 12
+.B memocc
+Percentage of memory occupation at this moment.
+.TP 12
+.B memtot
+Total memory available.
+.TP 12
+.B memuse
+Used GPU memory at this moment.
+.TP 12
+.B gputype
+Type of GPU.
 .PP
 The output for the flag
 .B \-p
@@ -460,6 +498,30 @@ The maximum limit for the committed space, which is by default swap size
 plus 50% of memory size.
 The kernel only verifies whether the committed space exceeds the limit
 if strict overcommit handling is configured (vm.overcommit_memory is 2).
+.PP
+The output for the flag
+.B \-B
+contains the Pressure Stall Information (PSI):
+.TP 12
+.B cs_10_60_300
+Average pressure percentage over the last 10, 60 and 300 seconds for the
+category 'CPU some'.
+.TP 12
+.B ms_10_60_300
+Average pressure percentage over the last 10, 60 and 300 seconds for the
+category 'memory some'.
+.TP 12
+.B mf_10_60_300
+Average pressure percentage over the last 10, 60 and 300 seconds for the
+category 'memory full'.
+.TP 12
+.B is_10_60_300
+Average pressure percentage over the last 10, 60 and 300 seconds for the
+category 'I/O some'.
+.TP 12
+.B if_10_60_300
+Average pressure percentage over the last 10, 60 and 300 seconds for the
+category 'I/O full'.
 .PP
 The output for the flags
 .B \-l
@@ -1011,6 +1073,37 @@ Number of transmitted segments per second containing the RST flag
 (tcpOutRsts).
 .PP
 The output for the flag
+.B \-h
+provides information about utilization of Infiniband ports:
+.TP 12
+.B controller
+Name of controller.
+.TP 12
+.B port
+Controller port.
+.TP 12
+.B busy
+Busy percentage for this port.
+.TP 12
+.B ipack/s
+Number of packets received from this port per second.
+.TP 12
+.B opack/s
+Number of packets transmitted to this port per second.
+.TP 12
+.B igbps/s
+Effective number of gigabits received per second.
+.TP 12
+.B ogbps/s
+Effective number of gigabits transmitted per second.
+.TP 12
+.B maxgbps/s
+Maximum rate as number of gigabits per second.
+.TP 12
+.B lanes
+Number of lanes.
+.PP
+The output for the flag
 .B \-O
 provides information about the top-3 of processes with the highest
 processor consumption:
@@ -1084,23 +1177,23 @@ is logging in the background):
 .TP 12
 .B \  pcp-atopsar
 .PP
-To see the memory occupation for June 5, 2012 between 10:00 and 12:30
+To see the memory occupation for June 5, 2018 between 10:00 and 12:30
 (supposed that
 .B pmlogger
 has been logging daily in the background on host acme.com):
 .PP
 .TP 12
-.B \  pcp-atopsar \-m \-r $PCP_LOG_DIR/pmlogger/acme.com/20120605 \-b 10:00 \-e 12:30
+.B \  pcp-atopsar \-m \-r $PCP_LOG_DIR/pmlogger/acme.com/20180605 \-b 10:00 \-e 12:30
 .br
 \ 
 .br
     or
 .TP 12
-.B \  pcp-atopsar \-m \-r 20120605 \-b 10:00 \-e 12:30
+.B \  pcp-atopsar \-m \-r 20180605 \-b 10:00 \-e 12:30
 .br
 \ 
 .br
-    or, suppose it is June 8, 2012 at this moment
+    or, suppose it is June 8, 2018 at this moment
 .TP 12
 .B \  pcp-atopsar \-m \-r yyy \-b 10:00 \-e 12:30
 .PP

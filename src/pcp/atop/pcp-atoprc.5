@@ -32,7 +32,7 @@ A list of default flags for
 .B pcp-atop
 can be defined here. The flags which are allowed
 are 'g', 'm', 'd', 'n', 'u', 'p', 's', 'c', 'v', 'C', 'M', 'D', 'N', 'A',
-\&'a', 'y', 'f', 'F', 'G', 'R', '1' and 'x'.
+\&'a', 'y', 'f', 'F', 'G', 'R', '1', 'e', 'E' and 'x'.
 .PP
 .TP 4
 .B interval
@@ -53,7 +53,11 @@ The default regular expression for the process names to be shown.
 .PP
 .TP 4
 .B maxlinecpu
-The maximum number of active CPU's that will be shown.
+The maximum number of active CPUs that will be shown.
+.PP
+.TP 4
+.B maxlinegpu
+The maximum number of active GPUs that will be shown.
 .PP
 .TP 4
 .B maxlinelvm
@@ -258,7 +262,7 @@ The following definition can be specified for process information:
 .PP
 .TP 4
 .B ownprocline
-The columnid's are the names of the columns that are shown in the
+The columnids are the names of the columns that are shown in the
 normal output of the process-related lines that are shown by
 .I pcp-atop
 such as 'PID', 'CMD', 'S', ....

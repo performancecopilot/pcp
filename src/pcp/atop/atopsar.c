@@ -8,7 +8,7 @@
 ** of the 'atop'-framework.
 ** 
 ** Copyright (C) 2007-2010 Gerlof Langeveld
-** Copyright (C) 2015-2017 Red Hat.
+** Copyright (C) 2015-2019 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -32,6 +32,7 @@
 #include "ifprop.h"
 #include "photosyst.h"
 #include "photoproc.h"
+#include "gpucom.h"
 
 #define	MAXFL		64      /* maximum number of command-line flags  */
 #define	sarflags	"b:e:SxCMh:Hr:R:aA"
@@ -1128,6 +1129,105 @@ cpuline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 	return nlines;
 }
 
+
+/*
+** GPU statistics
+*/
+static void
+gpuhead(int osvers, int osrel, int ossub)
+{
+	printf("   busaddr   gpubusy  membusy  memocc  memtot memuse  gputype"
+	       "   _gpu_");
+}
+
+static int
+gpuline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
+        time_t deltasec, time_t deltatic, time_t hz,
+        int osvers, int osrel, int ossub, char *tstamp,
+        int ppres,  int ntrun, int ntslpi, int ntslpu, int pexit, int pzombie)
+{
+	static char	firstcall = 1;
+	register long	i, nlines = 0;
+	char		fmt1[16], fmt2[16];
+	count_t		avgmemuse;
+
+	for (i=0; i < ss->gpu.nrgpus; i++)	/* per GPU */
+	{
+		/*
+		** determine whether or not the GPU has been active
+		** during interval
+		*/
+		int wasactive;
+
+		wasactive = ss->gpu.gpu[i].gpuperccum +
+		            ss->gpu.gpu[i].memperccum;
+
+		if (wasactive == -2)      // metrics not available?
+			wasactive = 0;
+
+		if (ss->gpu.gpu[i].samples == 0)
+			avgmemuse = ss->gpu.gpu[i].memusenow;
+		else
+			avgmemuse = ss->gpu.gpu[i].memusecum /
+			            ss->gpu.gpu[i].samples;
+
+		// memusage > 512 MiB (rather arbitrary)?
+		//
+		if (avgmemuse > 512*1024)
+			wasactive = 1;
+
+		/*
+		** print for the first sample all GPUs that are found;
+		** afterwards print only info about the GPUs
+		** that were really active during the interval
+		*/
+		if (!firstcall && !allresources && !wasactive)
+			continue;
+
+		if (nlines++)
+			printf("%s  ", tstamp);
+
+		if (ss->gpu.gpu[i].samples == 0)
+			ss->gpu.gpu[i].samples = 1;
+
+		if (ss->gpu.gpu[i].gpuperccum == -1)
+			strcpy(fmt1, "N/A");
+		else
+			pmsprintf(fmt1, sizeof fmt1, "%lld%%",
+			   ss->gpu.gpu[i].gpuperccum / ss->gpu.gpu[i].samples);
+
+		if (ss->gpu.gpu[i].memperccum == -1)
+			strcpy(fmt2, "N/A");
+		else
+			pmsprintf(fmt2, sizeof fmt2, "%lld%%",
+			   ss->gpu.gpu[i].memperccum / ss->gpu.gpu[i].samples);
+
+		if (ss->gpu.gpu[i].memtotnow == 0)
+			ss->gpu.gpu[i].memtotnow = 1;
+
+		printf("%2ld/%9.9s %7s  %7s  %5lld%%  %5lldM %5lldM  %s\n",
+			i, ss->gpu.gpu[i].busid,
+			fmt1, fmt2,
+			ss->gpu.gpu[i].memusenow*100/ss->gpu.gpu[i].memtotnow,
+			ss->gpu.gpu[i].memtotnow / 1024,
+			ss->gpu.gpu[i].memusenow / 1024,
+			ss->gpu.gpu[i].type);
+	}
+
+	if (nlines == 0)
+	{
+		printf("\n");
+		nlines++;
+	}
+
+	firstcall = 0;
+	return nlines;
+}
+
+ /*
+ ** other processor statistics
+ */
+
 /*
 ** other processor statistics
 */
@@ -1290,6 +1390,46 @@ swapline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 
 	return 1;
 }
+
+/*
+** Pressure Stall Information statistics
+*/
+static void
+psihead(int osvers, int osrel, int ossub)
+{
+	printf("cs_10_60_300   ms_10_60_300 mf_10_60_300   "
+	       "is_10_60_300 if_10_60_300");
+}
+
+static int
+psiline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
+        time_t deltasec, time_t deltatic, time_t hz,
+        int osvers, int osrel, int ossub, char *tstamp,
+        int ppres,  int ntrun, int ntslpi, int ntslpu, int pexit, int pzombie)
+{
+	if (!ss->psi.present)
+	{
+		printf("no PSI stats available for this system .....\n");
+		return 0;
+	}
+
+	printf("%3.0f%%%3.0f%%%3.0f%%   %3.0f%%%3.0f%%%3.0f%% "
+	       "%3.0f%%%3.0f%%%3.0f%%   %3.0f%%%3.0f%%%3.0f%% "
+	       "%3.0f%%%3.0f%%%3.0f%%\n",
+		ss->psi.cpusome.avg10, ss->psi.cpusome.avg60,
+		ss->psi.cpusome.avg300,
+		ss->psi.memsome.avg10, ss->psi.memsome.avg60,
+		ss->psi.memsome.avg300,
+		ss->psi.memfull.avg10, ss->psi.memfull.avg60,
+		ss->psi.memfull.avg300,
+		ss->psi.iosome.avg10, ss->psi.iosome.avg60,
+		ss->psi.iosome.avg300,
+		ss->psi.iofull.avg10, ss->psi.iofull.avg60,
+		ss->psi.iofull.avg300);
+
+	return 1;
+}
+
 
 /*
 ** disk statistics
@@ -1545,6 +1685,86 @@ nfsline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 		(double)ss->nfs.server.netudpcnt / deltasec);
 
 	return 1;
+}
+
+/*
+** Infiniband statistics
+*/
+static void
+ibhead(int osvers, int osrel, int ossub)
+{
+	printf("controller port  busy ipack/s opack/s "
+	       "igbps ogbps maxgbps lanes  _ib_");
+}
+
+static int
+ibline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
+        time_t deltasec, time_t deltatic, time_t hz,
+        int osvers, int osrel, int ossub, char *tstamp,
+        int ppres,  int ntrun, int ntslpi, int ntslpu, int pexit, int pzombie)
+{
+	static char	firstcall = 1;
+	register long	i, nlines = 0;
+	double		busy;
+	unsigned int	badness;
+
+	for (i=0; i < ss->ifb.nrports; i++)	/* per interface */
+	{
+		count_t ival, oval;
+
+		/*
+		** print for the first sample all ports that
+		** are found; afterwards print only the ports
+		** that were really active during the interval
+		*/
+		if (!firstcall && !allresources &&
+		    !ss->ifb.ifb[i].rcvb && !ss->ifb.ifb[i].sndb)
+			continue;
+
+		/*
+		** convert byte-transfers to bit-transfers     (*       8)
+		** convert bit-transfers  to megabit-transfers (/ 1000000)
+		** per second
+		*/
+		ival = ss->ifb.ifb[i].rcvb*ss->ifb.ifb[i].lanes/125000/deltasec;
+		oval = ss->ifb.ifb[i].sndb*ss->ifb.ifb[i].lanes/125000/deltasec;
+
+		/*
+		** calculate busy-percentage for port
+		*/
+		busy = (ival > oval ? ival*100 : oval*100)/ss->ifb.ifb[i].rate;
+
+		if (nlines++)
+			printf("%s  ", tstamp);
+
+		if (netbadness)
+			badness = busy * 100 / netbadness;
+		else
+			badness = 0;
+
+		preprint(badness);
+
+		printf("%-10s %4hd %4.0f%% %7.1lf %7.1lf %5lld %5lld %7lld %5d", 
+			ss->ifb.ifb[i].ibname,
+			ss->ifb.ifb[i].portnr,
+			busy,
+			(double)ss->ifb.ifb[i].rcvp / deltasec,
+			(double)ss->ifb.ifb[i].sndp / deltasec,
+			ival, oval,
+			ss->ifb.ifb[i].rate / 1000,
+			ss->ifb.ifb[i].lanes);
+
+		postprint(badness);
+	}
+
+	if (nlines == 0)
+	{
+		printf("\n");
+		nlines++;
+	}
+
+	firstcall = 0;
+	return nlines;
 }
 
 /*
@@ -2405,11 +2625,14 @@ struct pridef pridef[] =
    {0,  "c",  'c',  cpuhead,	cpuline,  	"cpu utilization",        },
    {0,  "c",  'p',  prochead,	procline,  	"process(or) load",       },
    {0,  "c",  'P',  taskhead,	taskline,  	"processes & threads",    },
+   {0,  "c",  'g',  gpuhead,	gpuline,  	"gpu utilization",        },
    {0,  "m",  'm',  memhead,	memline,	"memory & swapspace",     },
    {0,  "m",  's',  swaphead,	swapline,	"swap rate",              },
+   {0,  "cmd",'B',  psihead,	psiline,	"pressure stall info (PSI)",},
    {0,  "cd", 'l',  lvmhead,	lvmline,	"logical volume activity", },
    {0,  "cd", 'f',  mddhead,	mddline,	"multiple device activity",},
    {0,  "cd", 'd',  dskhead,	dskline,	"disk activity",          },
+   {0,  "n",  'h',  ibhead,	ibline,		"infiniband utilization", },
    {0,  "n",  'n',  nfmhead,	nfmline,	"NFS client mounts",      },
    {0,  "n",  'j',  nfchead,	nfcline,	"NFS client activity",    },
    {0,  "n",  'J',  nfshead,	nfsline,	"NFS server activity",    },

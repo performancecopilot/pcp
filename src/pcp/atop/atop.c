@@ -11,8 +11,8 @@
 ** process-level counters and the deviations are calculated and
 ** visualized for the user.
 ** 
-** Copyright (C) 2000-2012 Gerlof Langeveld
-** Copyright (C) 2015-2017 Red Hat.
+** Copyright (C) 2000-2018 Gerlof Langeveld
+** Copyright (C) 2015-2019 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -118,6 +118,7 @@
 #include "photosyst.h"
 #include "showgeneric.h"
 #include "parseable.h"
+#include "gpucom.h"
 
 #define	allflags  "ab:cde:fghijklmnopqr:stuvw:xyz1ABCDEFGHIJKL:MNOP:QRSTUVWXYZ?"
 #define	MAXFL	64      /* maximum number of command-line flags  */
@@ -150,6 +151,7 @@ unsigned int	pidmax;
 unsigned int	pagesize;
 unsigned int	hinv_nrcpus;
 unsigned int	hinv_nrdisk;
+unsigned int	hinv_nrgpus;
 unsigned int	hinv_nrintf;
 int 		osrel;
 int 		osvers;
@@ -183,9 +185,11 @@ void do_linelength(char *, char *);
 void do_username(char *, char *);
 void do_procname(char *, char *);
 void do_maxcpu(char *, char *);
+void do_maxgpu(char *, char *);
 void do_maxdisk(char *, char *);
 void do_maxmdd(char *, char *);
 void do_maxlvm(char *, char *);
+void do_maxifb(char *, char *);
 void do_maxintf(char *, char *);
 void do_maxnfsm(char *, char *);
 void do_maxcont(char *, char *);
@@ -204,8 +208,10 @@ void do_owndskline(char *, char *);
 void do_ownnettransportline(char *, char *);
 void do_ownnetnetline(char *, char *);
 void do_ownnetinterfaceline(char *, char *);
+void do_owninfinibandline(char *, char *);
 void do_ownprocline(char *, char *);
 void do_cpucritperc(char *, char *);
+void do_gpucritperc(char *, char *);
 void do_memcritperc(char *, char *);
 void do_swpcritperc(char *, char *);
 void do_dskcritperc(char *, char *);
@@ -226,10 +232,12 @@ static struct {
 	{	"username",		do_username,		0, },
 	{	"procname",		do_procname,		0, },
 	{	"maxlinecpu",		do_maxcpu,		0, },
+	{	"maxlinegpu",		do_maxgpu,		0, },
 	{	"maxlinedisk",		do_maxdisk,		0, },
 	{	"maxlinemdd",		do_maxmdd,		0, },
 	{	"maxlinelvm",		do_maxlvm,		0, },
 	{	"maxlineintf",		do_maxintf,		0, },
+	{	"maxlineifb",		do_maxifb,		0, },
 	{	"maxlinenfsm",		do_maxnfsm,		0, },
 	{	"maxlinecont",		do_maxcont,		0, },
 	{	"colorinfo",		do_colinfo,		0, },
@@ -246,10 +254,12 @@ static struct {
 	{	"ownnettrline",		do_ownnettransportline,	0, },
 	{	"ownnetnetline",	do_ownnetnetline,	0, },
 	{	"ownnetifline",	        do_ownnetinterfaceline,	0, },
+	{	"ownifbline",	        do_owninfinibandline,	0, },
 	{	"ownprocline",		do_ownprocline,		0, },
 	{	"ownsysprcline",	do_ownsysprcline,	0, },
 	{	"owndskline",	        do_owndskline,		0, },
 	{	"cpucritperc",		do_cpucritperc,		0, },
+	{	"gpucritperc",		do_gpucritperc,		0, },
 	{	"memcritperc",		do_memcritperc,		0, },
 	{	"swpcritperc",		do_swpcritperc,		0, },
 	{	"dskcritperc",		do_dskcritperc,		0, },
@@ -491,17 +501,20 @@ engine(void)
 	** reserve space for task-level statistics
 	*/
 	static struct tstat	*curtpres;	/* current present list      */
-	static int		 curtlen;	/* size of present list      */
+	static unsigned int	curtlen;	/* size of present list      */
 	struct tstat		*curpexit;	/* exited process list	     */
 
 	static struct devtstat	devtstat;	/* deviation info	     */
 
-	unsigned int		ntaskpres;	/* number of tasks present   */
-	unsigned int		nprocexit;	/* number of exited procs    */
-	unsigned int		nprocexitnet;	/* number of exited procs    */
+	unsigned long		ntaskpres;	/* number of tasks present   */
+	unsigned long		nprocexit;	/* number of exited procs    */
+	unsigned long		nprocexitnet;	/* number of exited procs    */
 						/* via netatopd daemon       */
 
-	unsigned int		noverflow;
+	unsigned long		noverflow;
+
+	unsigned int		nrgpuproc = 0;	/* number of GPU processes   */
+	struct gpupidstat	*gp = NULL;
 
 	/*
 	** initialization: allocate required memory dynamically
@@ -509,10 +522,6 @@ engine(void)
 	cursstat = sstat_alloc("current sysstats");
 	presstat = sstat_alloc("prev    sysstats");
 	devsstat = sstat_alloc("deviate sysstats");
-
-	curtlen  = PROCMIN * 3 / 2;	/* add 50% for threads */
-	curtpres = calloc(curtlen, sizeof(struct tstat));
-	ptrverify(curtpres, "Malloc failed for %d procstats\n", curtlen);
 
 	/*
 	** install the signal-handler for ALARM, USR1 and USR2 (triggers
@@ -532,6 +541,9 @@ engine(void)
 
 	if (interval.tv_sec || interval.tv_usec)
 		setalarm(&interval);
+
+	if (hinv_nrgpus > 0)
+		supportflags |= GPUSTAT;
 
 	/*
 	** MAIN-LOOP:
@@ -577,7 +589,6 @@ engine(void)
 		**      only extended when needed
 		*/
 		memset(curtpres, 0, curtlen * sizeof(struct tstat));
-
 		ntaskpres = photoproc(&curtpres, &curtlen);
 
 		/*
@@ -615,7 +626,7 @@ engine(void)
 			curpexit = malloc(nprocexit * sizeof(struct tstat));
 
 			ptrverify(curpexit,
-			          "Malloc failed for %d exited processes\n",
+			          "Malloc failed for %lu exited processes\n",
 			          nprocexit);
 
 			memset(curpexit, 0, nprocexit * sizeof(struct tstat));
@@ -648,6 +659,11 @@ engine(void)
 
 		deviatsyst(cursstat, presstat, devsstat, delta);
 
+		if (hinv_nrgpus && nrgpuproc)
+			gpumergeproc(curtpres, ntaskpres,
+				     curpexit, nprocexit,
+				     gp,       nrgpuproc);
+
 		deviattask(curtpres, ntaskpres, curpexit,  nprocexit,
 		           	     &devtstat, devsstat);
 
@@ -672,6 +688,9 @@ engine(void)
 		if (nprocexitnet > 0)
 			netatop_exiterase();
 
+		if (gp)
+			free(gp);
+
 		if (lastcmd == 'r')	/* reset requested ? */
 		{
 			sampcnt = -1;
@@ -679,7 +698,6 @@ engine(void)
 			curtime = origin;
 
 			/* set current (will be 'previous') counters to 0 */
-			memset(curtpres, 0, curtlen * sizeof(struct tstat));
 			sstat_reset(cursstat);
 
 			/* remove all tasks in database */

@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015-2017 Red Hat.
+** Copyright (C) 2015-2017,2019 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -32,7 +32,6 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp)
 	strncpy(task->gen.cmdline, nametail ? nametail : name, CMDLEN);
 	task->gen.cmdline[CMDLEN] = '\0';
 	task->gen.isproc = 1;		/* thread/process marker */
-	task->gen.nthr = 1;		/* for compat with 2.4 */
 
 	/* accumulate Pss from smaps (optional, relatively expensive) */
 	task->mem.pmem = (unsigned long long)-1LL;
@@ -121,15 +120,16 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp)
 	task->dsk.cwsz /= 512;		    /* sectors */
 }
 
-int
-photoproc(struct tstat **tasks, int *taskslen)
+unsigned long
+photoproc(struct tstat **tasks, unsigned int *taskslen)
 {
 	static int	setup;
 	static pmID	pmids[TASK_NMETRICS];
 	static pmDesc	descs[TASK_NMETRICS];
 	pmResult	*result;
 	char		**insts;
-	int		*pids, count, i;
+	int		*pids;
+	unsigned long	count, i;
 
 	if (!setup)
 	{
@@ -146,16 +146,11 @@ photoproc(struct tstat **tasks, int *taskslen)
 	count = get_instances("task", TASK_GEN_NAME, descs, &pids, &insts);
 	if (count > *taskslen)
 	{
-		size_t	size;
-		int	ents = (*taskslen + PROCCHUNK);
+		size_t	size = count * sizeof(struct tstat);
 
-		if (count > ents)
-			ents = count;
-		size = ents * sizeof(struct tstat);
 		*tasks = (struct tstat *)realloc(*tasks, size);
 		ptrverify(*tasks, "photoproc [%ld]\n", (long)size);
-
-		*taskslen = ents;
+		*taskslen = count;
 	}
 
 	supportflags &= ~DOCKSTAT;
@@ -168,7 +163,7 @@ photoproc(struct tstat **tasks, int *taskslen)
 		update_task(&(*tasks)[i], pids[i], insts[i], result, descs);
 	}
 	if (pmDebugOptions.appl0)
-		fprintf(stderr, "%s: done %d processes\n", pmGetProgname(), count);
+		fprintf(stderr, "%s: done %lu processes\n", pmGetProgname(), count);
 
 	pmFreeResult(result);
 	free(insts);

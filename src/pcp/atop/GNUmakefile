@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015,2019 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -28,6 +28,7 @@ CFILES = \
 	atop.c \
 	atopsar.c \
 	deviate.c \
+	gpucom.c \
 	ifprop.c \
 	parseable.c \
 	photoproc.c \
@@ -43,6 +44,7 @@ CFILES = \
 
 HFILES = \
 	atop.h \
+	gpucom.h \
 	ifprop.h \
 	netstats.h \
 	parseable.h \

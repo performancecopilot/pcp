@@ -7,9 +7,9 @@
 ** This source-file contains the Linux-specific functions to calculate
 ** figures to be visualized.
 **
+** Copyright (C) 2015,2019 Red Hat.
 ** Copyright (C) 2009 JC van Winkel
 ** Copyright (C) 2000-2010 Gerlof Langeveld
-** Copyright (C) 2015 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -43,6 +43,7 @@ static void	format_bandw(char *, size_t, count_t);
 static char     *columnhead[] = {
 	[MSORTCPU]= "CPU", [MSORTMEM]= "MEM",
 	[MSORTDSK]= "DSK", [MSORTNET]= "NET",
+	[MSORTGPU]= "GPU",
 };
 
 
@@ -1141,6 +1142,7 @@ proc_printdef procprt_TSLPU =
 #define SCHED_BATCH	3
 #define SCHED_ISO	4
 #define SCHED_IDLE	5
+#define SCHED_DEADLINE	6
 
 char *
 procprt_POLI_a(struct tstat *curstat, int avgval, int nsecs)
@@ -1164,6 +1166,9 @@ procprt_POLI_a(struct tstat *curstat, int avgval, int nsecs)
                         break;
                 case SCHED_IDLE:
                         return "idle";
+                        break;
+                case SCHED_DEADLINE:
+                        return "dead";
                         break;
         }
         return "?   ";
@@ -1571,7 +1576,6 @@ procprt_TCPSASZ_e(struct tstat *curstat, int avgval, int nsecs)
         	return "      -";
 }
 
-
 proc_printdef procprt_TCPSASZ = 
    { "TCPSASZ", "TCPSASZ", procprt_TCPSASZ_a, procprt_TCPSASZ_e, 7 };
 /***************************************************************/
@@ -1841,6 +1845,114 @@ format_bandw(char *buf, size_t buflen, count_t kbps)
 
         pmsprintf(buf, buflen-1, "%4lld %cbps", kbps, c);
 }
+/***************************************************************/
+char *
+procprt_GPULIST_ae(struct tstat *curstat, int avgval, int nsecs)
+{
+        static char	buf[64];
+        char		tmp[64], *p=tmp;
+	int		i;
+
+	if (!curstat->gpu.state)
+		return "       -";
+
+	if (!curstat->gpu.gpulist)
+		return "       -";
+
+	for (i=0; i < hinv_nrgpus; i++)
+	{
+		if (curstat->gpu.gpulist & 1<<i)
+		{
+			if (tmp == p)	// first?
+				p += pmsprintf(p, sizeof tmp, "%d", i);
+			else
+				p += pmsprintf(p, sizeof tmp - (p-tmp), ",%d", i);
+
+			if (p - tmp > 8)
+			{
+				pmsprintf(tmp, sizeof tmp, "0x%06x",
+						curstat->gpu.gpulist);
+				break;
+			}
+		}
+	}
+
+	pmsprintf(buf, sizeof buf, "%8.8s", tmp);
+        return buf;
+}
+
+proc_printdef procprt_GPULIST = 
+   { " GPUNUMS", "GPULIST", procprt_GPULIST_ae, procprt_GPULIST_ae, 8};
+/***************************************************************/
+char *
+procprt_GPUMEMNOW_ae(struct tstat *curstat, int avgval, int nsecs)
+{
+        static char buf[10];
+
+	if (!curstat->gpu.state)
+		return "     -";
+
+        val2memstr(curstat->gpu.memnow*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+        return buf;
+}
+
+proc_printdef procprt_GPUMEMNOW = 
+   { "MEMNOW", "GPUMEM", procprt_GPUMEMNOW_ae, procprt_GPUMEMNOW_ae, 6};
+/***************************************************************/
+char *
+procprt_GPUMEMAVG_ae(struct tstat *curstat, int avgval, int nsecs)
+{
+        static char buf[10];
+
+	if (!curstat->gpu.state)
+		return "     -";
+
+	if (curstat->gpu.sample == 0)
+		return("    0K");
+
+       	val2memstr(curstat->gpu.nrgpus * curstat->gpu.memcum /
+	           curstat->gpu.sample*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+       	return buf;
+}
+
+proc_printdef procprt_GPUMEMAVG = 
+   { "MEMAVG", "GPUMEMAVG", procprt_GPUMEMAVG_ae, procprt_GPUMEMAVG_ae, 6};
+/***************************************************************/
+char *
+procprt_GPUGPUBUSY_ae(struct tstat *curstat, int avgval, int nsecs)
+{
+        static char 	buf[16];
+
+	if (!curstat->gpu.state)
+		return "      -";
+
+	if (curstat->gpu.gpubusy == -1)
+		return "    N/A";
+
+       	pmsprintf(buf, sizeof buf, "%6d%%", curstat->gpu.gpubusy);
+       	return buf;
+}
+
+proc_printdef procprt_GPUGPUBUSY = 
+   { "GPUBUSY", "GPUGPUBUSY", procprt_GPUGPUBUSY_ae, procprt_GPUGPUBUSY_ae, 7};
+/***************************************************************/
+char *
+procprt_GPUMEMBUSY_ae(struct tstat *curstat, int avgval, int nsecs)
+{
+        static char 	buf[16];
+
+	if (!curstat->gpu.state)
+		return "      -";
+
+	if (curstat->gpu.membusy == -1)
+		return "    N/A";
+
+        pmsprintf(buf, sizeof buf, "%6d%%", curstat->gpu.membusy);
+        return buf;
+}
+
+proc_printdef procprt_GPUMEMBUSY = 
+   { "MEMBUSY", "GPUMEMBUSY", procprt_GPUMEMBUSY_ae, procprt_GPUMEMBUSY_ae, 7};
 /***************************************************************/
 char *
 procprt_SORTITEM_ae(struct tstat *curstat, int avgval, int nsecs)

@@ -7,7 +7,7 @@
 ** This source-file contains functions to calculate the differences for
 ** the system-level and process-level counters since the previous sample.
 **
-** Copyright (C) 2015,2017 Red Hat.
+** Copyright (C) 2015,2017,2019 Red Hat.
 ** Copyright (C) 2000-2010 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -37,14 +37,14 @@ static void calcdiff(struct tstat *, struct tstat *, struct tstat *,
 ** calculate the process-activity during the last sample
 */
 void
-deviattask(struct tstat    *curtpres, int ntaskpres,
-           struct tstat    *curpexit, int nprocexit,
+deviattask(struct tstat    *curtpres, unsigned long ntaskpres,
+           struct tstat    *curpexit, unsigned long nprocexit,
 	   struct devtstat *devtstat,
 	   struct sstat    *devsstat)
 {
 	register int		c, d, pall=0, pact=0;
 	register struct tstat	*curstat, *devstat, *thisproc;
-	struct tstat		prestat;
+	struct tstat		prestat = {0};
 	struct pinfo		*pinfo;
 	count_t			totusedcpu;
 	char			hashtype = 'p';
@@ -84,7 +84,7 @@ deviattask(struct tstat    *curtpres, int ntaskpres,
  	devtstat->ntaskall = ntaskpres + nprocexit;
 	devtstat->taskall  = malloc(devtstat->ntaskall * sizeof(struct tstat));
 
-	ptrverify(devtstat->taskall, "Malloc failed for %d deviated tasks\n",
+	ptrverify(devtstat->taskall, "Malloc failed for %lu deviated tasks\n",
                                   devtstat->ntaskall);
 
 	/*
@@ -328,6 +328,33 @@ deviattask(struct tstat    *curtpres, int ntaskpres,
 			netatop_exitfind(val, devstat, &prestat);
 		}
 
+		/*
+		** handle the gpu counters
+		*/
+		if (curstat->gpu.state || prestat.gpu.state) // GPU use?
+		{
+			if (curstat->gpu.state)
+				devstat->gpu.state = curstat->gpu.state;
+			else
+				devstat->gpu.state = prestat.gpu.state;
+
+			devstat->gpu.nrgpus	= curstat->gpu.nrgpus;
+			devstat->gpu.gpulist	= curstat->gpu.gpulist;
+			devstat->gpu.gpubusy 	= curstat->gpu.gpubusy;
+			devstat->gpu.membusy	= curstat->gpu.membusy;
+			devstat->gpu.timems	= curstat->gpu.timems;
+
+			devstat->gpu.memnow	= curstat->gpu.memnow;
+			devstat->gpu.memcum	= curstat->gpu.memcum -
+						  prestat.gpu.memcum;
+			devstat->gpu.sample	= curstat->gpu.sample -
+						  prestat.gpu.sample;
+		}
+		else
+		{
+			devstat->gpu.state = '\0';
+		}
+
 		if (prestat.gen.pid > 0)
 			pdb_deltask(prestat.gen.pid, prestat.gen.isproc);
 
@@ -404,6 +431,25 @@ calcdiff(struct tstat *devstat, struct tstat *curstat, struct tstat *prestat,
 	devstat->mem.vstack   = curstat->mem.vstack;
 	devstat->mem.vlibs    = curstat->mem.vlibs;
 	devstat->mem.vswap    = curstat->mem.vswap;
+
+	if (curstat->gpu.state || prestat->gpu.state) // GPU use?
+	{
+		if (curstat->gpu.state)
+			devstat->gpu.state = curstat->gpu.state;
+		else
+			devstat->gpu.state = prestat->gpu.state;
+
+		devstat->gpu.nrgpus  = curstat->gpu.nrgpus;
+		devstat->gpu.gpulist = curstat->gpu.gpulist;
+		devstat->gpu.gpubusy = curstat->gpu.gpubusy;
+		devstat->gpu.membusy = curstat->gpu.membusy;
+		devstat->gpu.memnow  = curstat->gpu.memnow;
+		devstat->gpu.timems  = curstat->gpu.timems;
+	}
+	else
+	{
+		devstat->gpu.state = '\0';
+	}
 
 	/*
  	** for inactive tasks, only the static values had to be copied, while
@@ -502,6 +548,13 @@ calcdiff(struct tstat *devstat, struct tstat *curstat, struct tstat *prestat,
 			subcount(curstat->net.udprsz, prestat->net.udprsz);
 	else
 		devstat->net.udprsz = curstat->net.udprsz;
+
+
+	if (curstat->gpu.state)
+	{
+		devstat->gpu.memcum = curstat->gpu.memcum - prestat->gpu.memcum;
+		devstat->gpu.sample = curstat->gpu.sample - prestat->gpu.sample;
+	}
 }
 
 /*
@@ -545,6 +598,9 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 	dev->cpu.all.steal = subcount(cur->cpu.all.steal, pre->cpu.all.steal);
 	dev->cpu.all.guest = subcount(cur->cpu.all.guest, pre->cpu.all.guest);
 
+	dev->cpu.all.instr = subcount(cur->cpu.all.instr, pre->cpu.all.instr);
+	dev->cpu.all.cycle = subcount(cur->cpu.all.cycle, pre->cpu.all.cycle);
+
 	for (i=0; i < dev->cpu.nrcpu; i++)
 	{
 		count_t 	ticks;
@@ -569,6 +625,11 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 					         pre->cpu.cpu[i].steal);
 		dev->cpu.cpu[i].guest = subcount(cur->cpu.cpu[i].guest,
 					         pre->cpu.cpu[i].guest);
+
+		dev->cpu.cpu[i].instr = subcount(cur->cpu.cpu[i].instr,
+						 pre->cpu.cpu[i].instr);
+		dev->cpu.cpu[i].cycle = subcount(cur->cpu.cpu[i].cycle,
+						 pre->cpu.cpu[i].cycle);
 
 		ticks 		      = cur->cpu.cpu[i].freqcnt.ticks;
 
@@ -617,6 +678,22 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 	dev->mem.pgsteal	= subcount(cur->mem.pgsteal, pre->mem.pgsteal);
 	dev->mem.allocstall	= subcount(cur->mem.allocstall,
 				                         pre->mem.allocstall);
+
+	dev->psi          	= cur->psi;
+
+	if (cur->psi.present)
+	{
+		dev->psi.cpusome.total 	= cur->psi.cpusome.total -
+					  pre->psi.cpusome.total;
+		dev->psi.memsome.total 	= cur->psi.memsome.total -
+					  pre->psi.memsome.total;
+		dev->psi.memfull.total 	= cur->psi.memfull.total -
+					  pre->psi.memfull.total;
+		dev->psi.iosome.total 	= cur->psi.iosome.total -
+					  pre->psi.iosome.total;
+		dev->psi.iofull.total 	= cur->psi.iofull.total -
+					  pre->psi.iofull.total;
+	}
 
 	/*
 	** structures with network-related counters are considered
@@ -1199,6 +1276,72 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 	}
 
 	dev->cfs.nrcontainer = cur->cfs.nrcontainer;
+
+ 	/*
+	** application-specific counters
+	** calculate deviations for GPUs
+	*/
+	for (i=0; i < cur->gpu.nrgpus; i++)
+	{
+	    dev->gpu.gpu[i].gpunr      = i;
+
+	    strcpy(dev->gpu.gpu[i].type,  cur->gpu.gpu[i].type);
+	    strcpy(dev->gpu.gpu[i].busid, cur->gpu.gpu[i].busid);
+
+	    dev->gpu.gpu[i].taskstats  = cur->gpu.gpu[i].taskstats;
+	    dev->gpu.gpu[i].nrprocs    = cur->gpu.gpu[i].nrprocs;
+
+	    dev->gpu.gpu[i].gpupercnow = cur->gpu.gpu[i].gpupercnow;
+	    dev->gpu.gpu[i].mempercnow = cur->gpu.gpu[i].mempercnow;
+	    dev->gpu.gpu[i].memtotnow  = cur->gpu.gpu[i].memtotnow;
+	    dev->gpu.gpu[i].memusenow  = cur->gpu.gpu[i].memusenow;
+
+	    dev->gpu.gpu[i].samples    = subcount(cur->gpu.gpu[i].samples,
+	                                          pre->gpu.gpu[i].samples);
+
+	    if (cur->gpu.gpu[i].gpuperccum >= 0)
+	     dev->gpu.gpu[i].gpuperccum = subcount(cur->gpu.gpu[i].gpuperccum,
+	                                           pre->gpu.gpu[i].gpuperccum);
+	    else
+	     dev->gpu.gpu[i].gpuperccum = -1;
+
+	    if (cur->gpu.gpu[i].memusecum >= 0)
+	     dev->gpu.gpu[i].memusecum  = subcount(cur->gpu.gpu[i].memusecum,
+	                                           pre->gpu.gpu[i].memusecum);
+	    else
+	     dev->gpu.gpu[i].memusecum  = -1;
+
+	    if (cur->gpu.gpu[i].memperccum >= 0)
+	     dev->gpu.gpu[i].memperccum = subcount(cur->gpu.gpu[i].memperccum,
+	                                           pre->gpu.gpu[i].memperccum);
+	    else
+	     dev->gpu.gpu[i].memperccum = -1;
+	}
+
+	dev->gpu.nrgpus = cur->gpu.nrgpus;
+
+	/*
+	** calculate deviations for InfiniBand
+	*/
+	for (i=0; i < cur->ifb.nrports; i++)
+	{
+		strcpy(dev->ifb.ifb[i].ibname, cur->ifb.ifb[i].ibname);
+
+		dev->ifb.ifb[i].portnr = cur->ifb.ifb[i].portnr;
+		dev->ifb.ifb[i].lanes  = cur->ifb.ifb[i].lanes;
+		dev->ifb.ifb[i].rate   = cur->ifb.ifb[i].rate;
+
+		dev->ifb.ifb[i].rcvb   = cur->ifb.ifb[i].rcvb -
+		                         pre->ifb.ifb[i].rcvb;
+		dev->ifb.ifb[i].sndb   = cur->ifb.ifb[i].sndb -
+		                         pre->ifb.ifb[i].sndb;
+		dev->ifb.ifb[i].rcvp   = cur->ifb.ifb[i].rcvp -
+		                         pre->ifb.ifb[i].rcvp;
+		dev->ifb.ifb[i].sndp   = cur->ifb.ifb[i].sndp -
+		                         pre->ifb.ifb[i].sndp;
+	}
+
+	dev->ifb.nrports = cur->ifb.nrports;
 
 	/*
 	** application-specific counters
