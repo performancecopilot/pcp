@@ -187,7 +187,9 @@ void
 __pmDebugLock(int op, void *lock, const char *file, int line)
 {
     int			report = 0;
+#ifdef PM_MULTI_THREAD_DEBUG
     int			ctx;
+#endif
     static __pmHashCtl	hashctl = { 0, 0, NULL };
     __pmHashNode	*hp = NULL;
     lockdbg_t		*ldp;

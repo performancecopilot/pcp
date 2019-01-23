@@ -64,7 +64,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 1 metric
@@ -76,7 +75,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 1 metric
@@ -88,7 +86,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 1 metric
@@ -100,7 +97,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 1 metric
@@ -112,7 +108,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 5 metrics
@@ -195,7 +190,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 1 metric
@@ -207,7 +201,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 1 metric
@@ -219,7 +212,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 1 metric
@@ -231,7 +223,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 1 metric
@@ -243,7 +234,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 5 metrics
@@ -326,7 +316,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 1 metric
@@ -338,7 +327,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 1 metric
@@ -350,7 +338,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 1 metric
@@ -362,7 +349,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 1 metric
@@ -374,7 +360,6 @@ TIMESTAMP 1 metric
         inst [29 or "sample"] value INTEGER
         inst [30 or "sampledso"] value INTEGER
         inst [70 or "mmv"] value INTEGER
-        inst [122 or "jbd2"] value INTEGER
         inst [253 or "simple"] value INTEGER
 
 TIMESTAMP 5 metrics
