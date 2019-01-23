@@ -1617,8 +1617,8 @@ _remove_cron()
     then
 	:
     else
-	# error, make sure the backup is empty so no changes are made
-	echo >$rc_backup
+	# error, remove the backup file so no changes are made
+	rm -f $rc_backup
     fi
 
     if [ -s $rc_backup ]
