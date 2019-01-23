@@ -19,11 +19,26 @@ that updates to new atop versions are simplified.  The process
 used to merge new changes into pcp-atop[sar] is:
 
 - generate a patch showing the new atop differences, e.g.
-  $ diff -Naurp atop-2.3.0 atop-2.4.0 > /tmp/atop.patch
+  $ git clone https://github.com/Atoptool/atop.git && cd atop
+  $ git diff v2.3.0 v2.4.0
 
-- audit the differences, and map any newly introduced metrics
-  to their PCP counterparts (possibly updating existing PMDAs
-  in the process)
+- discard from the patch any atopconvert.c changes, as well as
+  any/all changes to files below prev/ - we use self-contained
+  PCP archives, without these back-compat issues and we do not
+  need a conversion tool as a result.
+
+- similarly discard all rawlog.c changes, we use PCP archives.
+
+- discard atopgpud and related files, we use pmdanvidia(1).
+
+- discard all systemd files, cron files, shell scripts, and so
+  on - we're using the PCP archive maintenance regime instead.
+
+- discard version.[ch] changes, we report the PCP version.
+
+- audit remaining differences which often will require mapping
+  of any newly introduced metrics to their PCP counterparts -
+  possibly updating existing PMDAs in the process.
 
 - any new use of sprintf and snprintf use must be switched to
   pmsprintf(3) which guarantees string null termination.
