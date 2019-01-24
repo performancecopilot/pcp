@@ -20,22 +20,35 @@
 #-- ArchLinux
 # we're using python3
 ArchLinux    -        -       python2-.* .*-python2
+#-- Centos
+# we're using python2
+CentOS       6\.10    -       .*-python3 python3-.* python3[0-9]-.*
+CentOS       7\.[56]  -       .*-python3 python3-.* python3[0-9]-.*
 #-- Fedora
 # observed on vm22
 # 389-ds is available but cannot be installed because nothing provides
 # 389-admin and 389-ds-base and 389-dsgw needed by 389-ds
 Fedora       29       i.86    389-ds
+# we're using python3 from Fedora26 onwards
+Fedora       2[6-9]   -       python-.* python2-.* 
 #-- Gentoo
 # observed on vm05
 # I cannot figure out how to remake this package with USE=utils so that
 # avahi-browse is built and installed (Ken)
-Gentoo       2.4.2    -       net-dns/avahi
+Gentoo       2\.4\.2  -       net-dns/avahi
 #-- LinuxMint
 # observed on vm18
 # libsoqt-dev -> libsoqt4-dev and all the other Qt pieces are Qt 5
-LinuxMint    17.3     -       libsoqt-dev
+LinuxMint    17\.3    -       libsoqt-dev
 # observed on vm36 ... ditto
-LinuxMint    18.3     -       libsoqt-dev
+LinuxMint    18\.3    -       libsoqt-dev
+# we're using python3
+LinuxMint    17\..*   -       python-.*
+LinuxMint    18\..*   -       python-.*
+#-- NetBSD
+# we're using python3
+NetBSD       6\.1\.5  -       py27-.*
+NetBSD       8\.0     -       py27-.*
 #-- OpenBSD
 # observed on vm37
 # qtbase is Qt5 and gcc++ here is too old to compile Qt5 headers ... revisit
@@ -43,14 +56,22 @@ LinuxMint    18.3     -       libsoqt-dev
 # qtsvg is not needed without Qt5
 # valgrind is available, but segv's
 # we're using python3
-OpenBSD      6.[34]   -       qtbase qtsvg valgrind python-.* .*-python
+OpenBSD      6\.[34]  -       qtbase qtsvg valgrind python-.* .*-python
+#-- RedHat
+# we're using python2
+RHEL         6\.10    -       .*-python3 python3-.* python3[0-9]-.*
+RHEL         7\.[56]  -       .*-python3 python3-.* python3[0-9]-.*
 #-- Slackware
 # we're using python2
-Slackware    14.2     -       python3-.*
+Slackware    14\.2    -       python3-.*
 #-- SuSE SLES
 # we're using python3
 SUSE         12-SP.*  -       python-.*
 #-- Ubuntu
 # observed on vm01
 # python3-bpfcc : Depends: libbpfcc (>= 0.5.0-5ubuntu1) but it is not installable
-Ubuntu       18.04    i.86    python3-bpfcc
+Ubuntu       18\.04   i.86    python3-bpfcc
+# we're using python3 from 14.04 on
+Ubuntu       1[45]\..* -       python-.*
+Ubuntu       1[67]\..* -       python-.*
+Ubuntu       1[89]\..* -       python-.*

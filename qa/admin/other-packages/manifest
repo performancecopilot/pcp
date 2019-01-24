@@ -7,9 +7,9 @@
 #   ignored ... if the guard starts with ! then negate the test ...
 #   guards are usually one of the packaging tools (see pkgtools assignment
 #   in check-vm)
-# - test ... we expect the package to install this "test" thing and if
+# - target ... we expect the package to install this "target" thing and if
 #   if cannot be found then we assume the package is not installed ...
-#   tests items can:
+#   target items can:
 #	start with a /		test for existence of file or directory
 #                               (alternates separated by |)
 #				Note that some package managers don't return
