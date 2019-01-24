@@ -1,0 +1,11 @@
+[Unit]
+Description=Check pmlogger instances are running
+Documentation=man:pmlogger(1)
+ConditionPathExists=!@CRONTAB_PATH@
+
+[Service]
+Type=oneshot
+Environment=PMLOGGER_DAILY_CHECK_PARAMS="-C"
+EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
+ExecStart=@PCP_BINADM_DIR@/pmlogger_daily ${PMLOGGER_DAILY_CHECK_PARAMS}
+User=@PCP_USER@

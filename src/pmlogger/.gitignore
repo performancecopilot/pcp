@@ -4,3 +4,8 @@ crontab.daily_report
 gram.tab.h
 pmlogger
 pmlogger.service
+pmlogger_daily.service
+pmlogger_daily_check.service
+pmlogger_daily_poll.service
+pmlogger_daily_report.service
+pmlogger_daily_report_poll.service

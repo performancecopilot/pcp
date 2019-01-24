@@ -1,0 +1,8 @@
+[Unit]
+Description=Hourly polling of system activity report generation
+
+[Timer]
+OnCalendar=*-*-* *:30:00
+
+[Install]
+WantedBy=timers.target

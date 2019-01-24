@@ -1,0 +1,10 @@
+[Unit]
+Description=Half-hourly check of PMIE instances
+
+[Timer]
+OnCalendar=*-*-* *:28:00
+OnCalendar=*-*-* *:58:00
+
+[Install]
+WantedBy=timers.target
+
