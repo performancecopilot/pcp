@@ -907,7 +907,7 @@ class DstatTool(object):
         return paths
 
     def show_plugins(self):
-        sys.stdout.write("internal:\n\t")
+        sys.stdout.write("timestamp plugins:\n\t")
         sep = ''
         for i, name in enumerate(sorted(self.timeplugins)):
             if i != 0:
@@ -927,7 +927,7 @@ class DstatTool(object):
         config.optionxform = str
         try:
             config.read(files)
-            sys.stdout.write("%s:\n\t" % path)
+            sys.stdout.write("%s plugins:\n\t" % path)
             self.show_config_plugins(config, columns)
         except:
             sys.stderr.write("%s: failed to read configuration file(s)" % path)

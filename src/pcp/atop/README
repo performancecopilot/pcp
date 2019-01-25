@@ -1,0 +1,64 @@
+pcp-atop(1) and pcp-atopsar(1)
+==============================
+
+These utilities are Performance Co-Pilot PMAPI versions of the
+atop tools by Gerlof Langeveld <gerlof.langeveld@atoptool.nl>,
+from https://atoptool.nl and https://github.com/Atoptool/atop/
+
+They uses PCP metrics and libraries exclusively instead of the
+original metric access mechanisms - this allows any privileged
+operations to be handled by PMDAs, provides the stable on-disk
+format of the PCP LOGARCHIVE(3), while still providing most of
+the functionality of the original tools.  The primary area not
+(yet) provided is the process accounting support of atop.  New
+PMDA code could be written to provide this, however, if demand
+emerges.
+
+Wherever possible the source is kept directly comparable, such
+that updates to new atop versions are simplified.  The process
+used to merge new changes into pcp-atop[sar] is:
+
+- generate a patch showing the new atop differences, e.g.
+  $ git clone https://github.com/Atoptool/atop.git && cd atop
+  $ git diff v2.3.0 v2.4.0
+
+- discard from the patch any atopconvert.c changes, as well as
+  any/all changes to files below prev/ - we use self-contained
+  PCP archives, without these back-compat issues and we do not
+  need a conversion tool as a result.
+
+- similarly discard all rawlog.c changes, we use PCP archives.
+
+- discard atopgpud and related files, we use pmdanvidia(1).
+
+- discard all systemd files, cron files, shell scripts, and so
+  on - we're using the PCP archive maintenance regime instead.
+
+- discard version.[ch] changes, we report the PCP version.
+
+- audit remaining differences which often will require mapping
+  of any newly introduced metrics to their PCP counterparts -
+  possibly updating existing PMDAs in the process.
+
+- any new use of sprintf and snprintf use must be switched to
+  pmsprintf(3) which guarantees string null termination.
+
+- PCP metrics are defined using pmgenmap(1) - see *.map files
+  - and then referenced symbolically in the code.
+
+- the metric extraction code in photosyst.c, photoproc.c, and
+  gpucom.c is by necessity totally different (with PCP we are
+  using the metrics namespace and pmFetch(3) of course).
+
+- various.c is a grab-bag of PCP helper code used throughout.
+
+- note slight differences in the man page styles between both
+  toolkits - we follow PCP style here, particularly with all
+  command names in bold not underlined.
+
+- where new metrics are added from non-default PMDAs, add in
+  SEE ALSO references to these in pcp-atop(1).
+
+- please pass any bug fixes found in atop[sar] code to Gerlof,
+  via: https://github.com/Atoptool/atop/
+

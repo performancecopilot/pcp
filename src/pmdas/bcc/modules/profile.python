@@ -264,7 +264,7 @@ class PCPBCCModule(PCPBCCBase):
 
         # Check missing
         if missing_stacks > 0:
-            enomem_str = "" if not has_enomem else " Consider increasing --stack-storage-size."
+            enomem_str = "" if not has_enomem else " Consider increasing stack_storage_size."
             self.log("WARNING: %d stack traces could not be displayed.%s" %
                      (missing_stacks, enomem_str))
 

@@ -9,7 +9,7 @@
 **
 ** Copyright (C) 2009 JC van Winkel
 ** Copyright (C) 2000-2012 Gerlof Langeveld
-** Copyright (C) 2015 Red Hat.
+** Copyright (C) 2015,2019 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -299,7 +299,7 @@ sysprt_PRCNPROC(void *notused, void *q, int badness, int *color)
 {
         extraparam *as=q;
         static char buf[16]="#proc     ";
-        val2valstr(as->nproc, buf+6, sizeof buf-6, 6, 0, 0);
+        val2valstr(as->nproc - as->nexit, buf+6, sizeof buf-6, 6, 0, 0);
         return buf;
 }
 
@@ -786,6 +786,126 @@ sysprt_CPUIGUEST(void *p, void *q, int badness, int *color)
 sys_printdef syspdef_CPUIGUEST = {"CPUIGUEST", sysprt_CPUIGUEST};
 /*******************************************************************/
 char *
+sysprt_CPUIPC(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[15];
+        float ipc = 0.0;
+
+	switch (sstat->cpu.all.cycle)
+	{
+	   case 0:
+		*color = COLORINFO;
+        	pmsprintf(buf, sizeof buf, "ipc notavail");
+		break;
+
+	   case 1:
+		*color = COLORINFO;
+        	pmsprintf(buf, sizeof buf, "ipc  initial");
+		break;
+
+	   default:
+		ipc = sstat->cpu.all.instr * 100 / sstat->cpu.all.cycle / 100.0;
+        	pmsprintf(buf, sizeof buf, "ipc %8.2f", ipc);
+	}
+
+        return buf;
+}
+
+sys_printdef syspdef_CPUIPC = {"CPUIPC", sysprt_CPUIPC};
+/*******************************************************************/
+char *
+sysprt_CPUIIPC(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        static char buf[15];
+        float ipc = 0.0;
+
+	switch (sstat->cpu.all.cycle)
+	{
+	   case 0:
+		*color = COLORINFO;
+        	pmsprintf(buf, sizeof buf, "ipc notavail");
+		break;
+
+	   case 1:
+		*color = COLORINFO;
+        	pmsprintf(buf, sizeof buf, "ipc  initial");
+		break;
+
+	   default:
+		if (sstat->cpu.cpu[as->index].cycle)
+			ipc = sstat->cpu.cpu[as->index].instr * 100 /
+				sstat->cpu.cpu[as->index].cycle / 100.0;
+
+        	pmsprintf(buf, sizeof buf, "ipc %8.2f", ipc);
+	}
+
+        return buf;
+}
+
+sys_printdef syspdef_CPUIIPC = {"CPUIIPC", sysprt_CPUIIPC};
+/*******************************************************************/
+char *
+sysprt_CPUCYCLE(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        static char buf[15] = "cycl ";
+
+	switch (sstat->cpu.all.cycle)
+	{
+	   case 0:
+		*color = COLORINFO;
+        	pmsprintf(buf+5, sizeof buf-5, "unknown");
+		break;
+
+	   case 1:
+		*color = COLORINFO;
+        	pmsprintf(buf+5, sizeof buf-5, "initial");
+		break;
+
+	   default:
+        	val2Hzstr(sstat->cpu.all.cycle/1000000/as->nsecs/
+					sstat->cpu.nrcpu, buf+5, sizeof buf-5);
+	}
+
+        return buf;
+}
+
+sys_printdef syspdef_CPUCYCLE = {"CPUCYCLE", sysprt_CPUCYCLE};
+/*******************************************************************/
+char *
+sysprt_CPUICYCLE(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        static char buf[15] = "cycl ";
+
+	switch (sstat->cpu.all.cycle)
+	{
+	   case 0:
+		*color = COLORINFO;
+        	pmsprintf(buf+5, sizeof buf-5, "unknown");
+		break;
+
+	   case 1:
+		*color = COLORINFO;
+        	pmsprintf(buf+5, sizeof buf-5, "initial");
+		break;
+
+	   default:
+        	val2Hzstr(sstat->cpu.cpu[as->index].cycle/1000000/
+						as->nsecs, buf+5, sizeof buf-5);
+	}
+
+        return buf;
+}
+
+sys_printdef syspdef_CPUICYCLE = {"CPUICYCLE", sysprt_CPUICYCLE};
+/*******************************************************************/
+char *
 sysprt_CPLAVG1(void *p, void *notused, int badness, int *color) 
 {
         struct sstat *sstat=p;
@@ -896,6 +1016,185 @@ sysprt_CPLINTR(void *p, void *q, int badness, int *color)
 }
 
 sys_printdef syspdef_CPLINTR = {"CPLINTR", sysprt_CPLINTR};
+/*******************************************************************/
+char *
+sysprt_GPUBUS(void *p, void *q, int badness, int *color) 
+{
+        struct sstat 	*sstat=p;
+        extraparam  	*as=q;
+        static char 	buf[16];
+	char		*pn;
+	int		len;
+
+        if ( (len = strlen(sstat->gpu.gpu[as->index].busid)) > 9)
+		pn = sstat->gpu.gpu[as->index].busid + len - 9;
+	else
+		pn = sstat->gpu.gpu[as->index].busid;
+
+        pmsprintf(buf, sizeof buf, "%9.9s %2d", pn, sstat->gpu.gpu[as->index].gpunr);
+        return buf;
+}
+
+sys_printdef syspdef_GPUBUS = {"GPUBUS", sysprt_GPUBUS};
+/*******************************************************************/
+char *
+sysprt_GPUTYPE(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        static char 	buf[16];
+	char		*pn;
+	int		len;
+
+        if ( (len = strlen(sstat->gpu.gpu[as->index].type)) > 12)
+		pn = sstat->gpu.gpu[as->index].type + len - 12;
+	else
+		pn = sstat->gpu.gpu[as->index].type;
+
+        pmsprintf(buf, sizeof buf, "%12.12s", pn);
+        return buf;
+}
+
+sys_printdef syspdef_GPUTYPE = {"GPUTYPE", sysprt_GPUTYPE};
+/*******************************************************************/
+char *
+sysprt_GPUNRPROC(void *p, void *q, int badness, int *color)
+{
+	struct sstat *sstat=p;
+	extraparam *as=q;
+	static char buf[16] = "#proc    ";
+
+	val2valstr(sstat->gpu.gpu[as->index].nrprocs, buf+6, sizeof buf-6, 6, 0, 0);
+	return buf;
+}
+
+sys_printdef syspdef_GPUNRPROC = {"GPUNRPROC", sysprt_GPUNRPROC};
+/*******************************************************************/
+char *
+sysprt_GPUMEMPERC(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        static char buf[16]="membusy   ";
+	int perc = sstat->gpu.gpu[as->index].mempercnow;
+
+	if (perc == -1)
+	{
+        	pmsprintf(buf+8, sizeof buf-8, " N/A");
+	}
+	else
+	{
+		// preferably take the average percentage over sample
+		if (sstat->gpu.gpu[as->index].samples)
+			perc = sstat->gpu.gpu[as->index].memperccum /
+			       sstat->gpu.gpu[as->index].samples;
+
+		if (perc >= 40)
+			*color = COLORALMOST;
+
+        	pmsprintf(buf+8, sizeof buf-8, "%3d%%", perc);
+	}
+
+        return buf;
+}
+
+sys_printdef syspdef_GPUMEMPERC = {"GPUMEMPERC", sysprt_GPUMEMPERC};
+/*******************************************************************/
+char *
+sysprt_GPUGPUPERC(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        static char buf[16]="gpubusy   ";
+	int perc = sstat->gpu.gpu[as->index].gpupercnow;
+
+	if (perc == -1)		// metric not available?
+	{
+        	pmsprintf(buf+8, sizeof buf-8, " N/A");
+	}
+	else
+	{
+		// preferably take the average percentage over sample
+		if (sstat->gpu.gpu[as->index].samples)
+			perc = sstat->gpu.gpu[as->index].gpuperccum /
+			       sstat->gpu.gpu[as->index].samples;
+
+		if (perc >= 90)
+			*color = COLORALMOST;
+
+        	pmsprintf(buf+8, sizeof buf-8, "%3d%%", perc);
+	}
+
+        return buf;
+}
+
+sys_printdef syspdef_GPUGPUPERC = {"GPUGPUPERC", sysprt_GPUGPUPERC};
+/*******************************************************************/
+char *
+sysprt_GPUMEMOCC(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        static char buf[16]="memocc   ";
+	int perc;
+
+	perc = sstat->gpu.gpu[as->index].memusenow * 100 /
+	      (sstat->gpu.gpu[as->index].memtotnow ?
+	       sstat->gpu.gpu[as->index].memtotnow : 1);
+
+        pmsprintf(buf+7, sizeof buf-7, "%4d%%", perc);
+
+        return buf;
+}
+
+sys_printdef syspdef_GPUMEMOCC = {"GPUMEMOCC", sysprt_GPUMEMOCC};
+/*******************************************************************/
+char *
+sysprt_GPUMEMTOT(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        static char buf[16] = "total   ";
+
+        val2memstr(sstat->gpu.gpu[as->index].memtotnow * 1024, buf+6,
+						sizeof buf-6, MBFORMAT, 0, 0);
+        return buf;
+}
+
+sys_printdef syspdef_GPUMEMTOT = {"GPUMEMTOT", sysprt_GPUMEMTOT};
+/*******************************************************************/
+char *
+sysprt_GPUMEMUSE(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        static char buf[16] = "used    ";
+
+        val2memstr(sstat->gpu.gpu[as->index].memusenow * 1024,
+				buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+        return buf;
+}
+
+sys_printdef syspdef_GPUMEMUSE = {"GPUMEMUSE", sysprt_GPUMEMUSE};
+/*******************************************************************/
+char *
+sysprt_GPUMEMAVG(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        static char buf[16] = "usavg   ";
+
+	if (sstat->gpu.gpu[as->index].samples)
+		val2memstr(sstat->gpu.gpu[as->index].memusecum * 1024 /
+		      	   sstat->gpu.gpu[as->index].samples,
+				buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+	else
+		return "usavg ?";
+
+        return buf;
+}
+
+sys_printdef syspdef_GPUMEMAVG = {"GPUMEMAVG", sysprt_GPUMEMAVG};
 /*******************************************************************/
 char *
 sysprt_MEMTOT(void *p, void *notused, int badness, int *color) 
@@ -1185,6 +1484,85 @@ sysprt_PAGSWOUT(void *p, void *q, int badness, int *color)
 }
 
 sys_printdef syspdef_PAGSWOUT = {"PAGSWOUT", sysprt_PAGSWOUT};
+/*******************************************************************/
+// general formatting of PSI field
+void
+psiformat(struct psi *p, char *head, char *buf, int bufsize)
+{
+	static char	formats[] = "%.0f/%.0f/%.0f";
+	char		tmpbuf[32];
+
+	pmsprintf(tmpbuf, sizeof tmpbuf, formats, p->avg10, p->avg60, p->avg300);
+
+	if (strlen(tmpbuf) > 9)	// reformat needed?
+	{
+		float avg10  = p->avg10;
+		float avg60  = p->avg60;
+		float avg300 = p->avg300;
+
+		if (avg10 > 99.0)
+			avg10 = 99.0;
+		if (avg60 > 99.0)
+			avg60 = 99.0;
+		if (avg300 > 99.0)
+			avg300 = 99.0;
+
+		pmsprintf(tmpbuf, sizeof tmpbuf, formats, avg10, avg60, avg300);
+	}
+
+	pmsprintf(buf, bufsize, "%s %9s", head, tmpbuf);
+}
+
+char *
+sysprt_PSICPUS(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[16];
+	psiformat(&(sstat->psi.cpusome), "cs", buf, sizeof buf);
+        return buf;
+}
+sys_printdef syspdef_PSICPUS = {"PSICPUS", sysprt_PSICPUS};
+
+char *
+sysprt_PSIMEMS(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[16];
+	psiformat(&(sstat->psi.memsome), "ms", buf, sizeof buf);
+        return buf;
+}
+sys_printdef syspdef_PSIMEMS = {"PSIMEMS", sysprt_PSIMEMS};
+
+char *
+sysprt_PSIMEMF(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[16];
+	psiformat(&(sstat->psi.memfull), "mf", buf, sizeof buf);
+        return buf;
+}
+sys_printdef syspdef_PSIMEMF = {"PSIMEMF", sysprt_PSIMEMF};
+
+char *
+sysprt_PSIIOS(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[16];
+	psiformat(&(sstat->psi.iosome), "is", buf, sizeof buf);
+        return buf;
+}
+sys_printdef syspdef_PSIIOS = {"PSIIOS", sysprt_PSIIOS};
+
+char *
+sysprt_PSIIOF(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        static char buf[16];
+	psiformat(&(sstat->psi.iosome), "if", buf, sizeof buf);
+        return buf;
+}
+sys_printdef syspdef_PSIIOF = {"PSIIOF", sysprt_PSIIOF};
+
 /*******************************************************************/
 char *
 sysprt_CONTNAME(void *p, void *q, int badness, int *color) 
@@ -1927,6 +2305,140 @@ sysprt_NETSNDDROP(void *p, void *q, int badness, int *color)
 }
 
 sys_printdef syspdef_NETSNDDROP = {"NETSNDDROP", sysprt_NETSNDDROP};
+/*******************************************************************/
+char *
+sysprt_IFBNAME(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        count_t busy;
+        count_t ival = sstat->ifb.ifb[as->index].rcvb/125/as->nsecs;
+        count_t oval = sstat->ifb.ifb[as->index].sndb/125/as->nsecs;
+	int     len;
+        static char buf[16] = "ethxxxx ----", tmp[32], *ps=tmp;
+                      //       012345678901
+
+	*color = -1;
+
+	busy = (ival > oval ? ival : oval) * sstat->ifb.ifb[as->index].lanes /
+                               (sstat->ifb.ifb[as->index].rate * 10);
+
+	pmsprintf(tmp, sizeof tmp, "%s/%d",
+                 sstat->ifb.ifb[as->index].ibname,
+	         sstat->ifb.ifb[as->index].portnr);
+
+	len = strlen(ps);
+        if (len > 7)
+		ps = ps + len - 7;
+
+	pmsprintf(buf, sizeof buf, "%-7.7s %3lld%%", ps, busy);
+        return buf;
+}
+
+sys_printdef syspdef_IFBNAME = {"IFBNAME", sysprt_IFBNAME};
+/*******************************************************************/
+char *
+sysprt_IFBPCKI(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        static char buf[16]="pcki  ";
+
+	*color = -1;
+
+        val2valstr(sstat->ifb.ifb[as->index].rcvp, 
+                   buf+5, sizeof buf-5, 7, as->avgval, as->nsecs);
+        return buf;
+}
+
+sys_printdef syspdef_IFBPCKI = {"IFBPCKI", sysprt_IFBPCKI};
+/*******************************************************************/
+char *
+sysprt_IFBPCKO(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+        static char buf[16]="pcko  ";
+
+	*color = -1;
+
+        val2valstr(sstat->ifb.ifb[as->index].sndp, 
+                   buf+5, sizeof buf-5, 7, as->avgval, as->nsecs);
+        return buf;
+}
+
+sys_printdef syspdef_IFBPCKO = {"IFBPCKO", sysprt_IFBPCKO};
+/*******************************************************************/
+char *
+sysprt_IFBSPEEDMAX(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat = p;
+        extraparam *as = q;
+        static char buf[16];
+        count_t rate = sstat->ifb.ifb[as->index].rate;
+
+	*color = -1;
+
+	if (rate < 10000)
+	{
+        	pmsprintf(buf, sizeof buf, "sp %4lld Mbps", rate);
+	}
+	else
+	{
+		rate /= 1000;
+        	pmsprintf(buf, sizeof buf, "sp %4lld Gbps", rate);
+	}
+
+        return buf;
+}
+
+sys_printdef syspdef_IFBSPEEDMAX = {"IFBSPEEDMAX", sysprt_IFBSPEEDMAX};
+/*******************************************************************/
+char *
+sysprt_IFBLANES(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat = p;
+        extraparam *as = q;
+        static char buf[16]="lanes   ";
+        val2valstr(sstat->ifb.ifb[as->index].lanes, buf+6, sizeof buf-6, 6, 0, 0);
+        return buf;
+}
+
+sys_printdef syspdef_IFBLANES = {"IFBLANES", sysprt_IFBLANES};
+/*******************************************************************/
+char *
+sysprt_IFBSPEEDIN(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+
+	*color = -1;
+
+        char *ps=makenetspeed(sstat->ifb.ifb[as->index].rcvb *
+	                      sstat->ifb.ifb[as->index].lanes, as->nsecs);
+        ps[0]='s';
+        ps[1]='i';
+        return ps;
+}
+
+sys_printdef syspdef_IFBSPEEDIN = {"IFBSPEEDIN", sysprt_IFBSPEEDIN};
+/*******************************************************************/
+char *
+sysprt_IFBSPEEDOUT(void *p, void *q, int badness, int *color) 
+{
+        struct sstat *sstat=p;
+        extraparam *as=q;
+
+	*color = -1;
+
+	char *ps=makenetspeed(sstat->ifb.ifb[as->index].sndb *
+	                      sstat->ifb.ifb[as->index].lanes, as->nsecs);
+        ps[0]='s';
+        ps[1]='o';
+        return ps;
+}
+
+sys_printdef syspdef_IFBSPEEDOUT = {"IFBSPEEDOUT", sysprt_IFBSPEEDOUT};
 /*******************************************************************/
 char *
 sysprt_NFMSERVER(void *p, void *q, int badness, int *color) 

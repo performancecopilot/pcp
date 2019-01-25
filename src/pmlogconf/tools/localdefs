@@ -5,6 +5,8 @@ FILES = \
 	atop-httpstats \
 	atop-nfsclient \
 	atop-hotproc \
+	atop-gpustats \
+	atop-infiniband \
 	collectl \
 	collectl-summary \
 	collectl-interrupts \

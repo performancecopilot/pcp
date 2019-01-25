@@ -8,6 +8,7 @@
 ** to access the process-database.
 **
 ** Copyright (C) 1996-2014 Gerlof Langeveld
+** Copyright (C) 2015,2019 Red Hat
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -110,7 +111,25 @@ struct tstat {
 		count_t	udprcv;		/* number of UDP-packets recved	*/
 		count_t udprsz;		/* cumulative size packets sent	*/
 	} net;
+
+	struct gpu {
+		char	state;		// A - active, E - Exit, '\0' - no use
+		char	cfuture[3];	//
+		short	nrgpus;		// number of GPUs for this process
+		int32_t	gpulist;	// bitlist with GPU numbers
+
+		int	gpubusy;	// gpu busy perc process lifetime      -1 = n/a
+		int	membusy;	// memory busy perc process lifetime   -1 = n/a
+		count_t	timems;		// milliseconds accounting   -1 = n/a
+					// value 0   for active process,
+					// value > 0 after termination
+
+		count_t	memnow;		// current    memory consumption in KiB
+		count_t	memcum;		// cumulative memory consumption in KiB
+		count_t	sample;		// number of samples
+	} gpu;
 };
+
 
 struct pinfo {
 	struct pinfo	*phnext;	/* next process in hash    chain */
@@ -149,9 +168,8 @@ int		pdb_srchresidue(struct tstat *, struct pinfo **);
 /*
 ** prototypes for raw process-statistics functions
 */
-void		deviattask(struct tstat *, int,
-			   struct tstat *, int,
+void		deviattask(struct tstat *, unsigned long,
+			   struct tstat *, unsigned long,
 			   struct devtstat *, struct sstat *);
 
-int		photoproc(struct tstat **, int *);
-unsigned int	countprocs(void);
+unsigned long	photoproc(struct tstat **, unsigned int *);

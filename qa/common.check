@@ -1600,30 +1600,46 @@ EOF
   fi
 }
 
-# comment pmlogger_check and pmsnap entries in the crontab file
-# (also cron.pmcheck and cron.pmsnap entries for backwards compatibility)
-# Usage: _remove_cron backup sudo
+# disable systemd timers and / or comment pmlogger_check and pmsnap entries in
+# the crontab file (also cron.pmcheck and cron.pmsnap entries for backwards
+# compatibility)
+# Usage: _remove_job_scheduler cron_backup systemd_state sudo
 #
-# backup - where to keep the old crontab file
+# cron_backup - where to keep the old crontab file
+# systemd_state - where to keep systemd timer state
 # sudo - location of sudo
 #
-_remove_cron()
+_remove_job_scheduler()
 {
-    rc_backup=${1:-crontab}
-    rc_sudo=${2:-sudo}
+    rc_cron_backup=${1:-crontab}
+    rc_systemd_state=${2:-systemd.state}
+    rc_sudo=${3:-sudo}
 
-    $rc_sudo rm -f $rc_backup
-    if $rc_sudo crontab -l 2>/dev/null >$rc_backup
+    $rc_sudo rm -f $rc_cron_backup $rc_systemd_state
+
+    if systemctl cat pmie_daily.timer >/dev/null 2>&1; then
+	for i in pmie_daily.timer pmie_check.timer pmlogger_daily.timer \
+		pmlogger_daily_poll.timer pmlogger_daily_check.timer \
+		pmlogger_daily_report.timer pmlogger_daily_report_poll.timer; do
+	    $rc_sudo systemctl is-active "$i" > /dev/null || continue
+	    $rc_sudo systemctl stop $i >/dev/null
+	    echo "$i" >> $rc_systemd_state
+	done
+    fi
+
+    which crontab >/dev/null 2>&1 || return	# systemd timers only
+
+    if $rc_sudo crontab -l 2>/dev/null >$rc_cron_backup
     then
 	:
     else
-	# error, make sure the backup is empty so no changes are made
-	echo >$rc_backup
+	# error, remove the backup file so no changes are made
+	rm -f $rc_cron_backup
     fi
 
-    if [ -s $rc_backup ]
+    if [ -s $rc_cron_backup ]
     then
-	$rc_sudo cat $rc_backup \
+	$rc_sudo cat $rc_cron_backup \
 	| sed \
 	    -e 's/^[^#].*pmlogger_check/#&/' \
 	    -e 's/^[^#].*pmsnap/#&/' \
@@ -1633,34 +1649,43 @@ _remove_cron()
     fi
 }
 
-# restore crontab back to original state
-# Usage: _restore_cron backup sudo
+# restore systemd timers and / or crontab back to original state
+# Usage: _restore_job_scheduler cron_backup systemd_state sudo
 #
-# backup - where to keep the old crontab file
+# cron_backup - where to keep the old crontab file
+# systemd_state - where to keep systemd timer state
 # sudo - location of sudo
 #
-_restore_cron()
+_restore_job_scheduler()
 {
-    rc_backup=${1:-crontab}
-    rc_sudo=${2:-sudo}
+    rc_cron_backup=${1:-crontab}
+    rc_systemd_state=${2:-systemd.state}
+    rc_sudo=${3:-sudo}
 
-    if [ -s $rc_backup ]
+    if [ -s $rc_systemd_state ]; then
+	for i in $(cat $rc_systemd_state); do
+	    $rc_sudo systemctl start $i >/dev/null
+	done
+	rm -f $rc_systemd_state
+    fi
+
+    if [ -s $rc_cron_backup ]
     then
 	$rc_sudo rm -f rc_cron_out rc_cron_check rc_cron_diff
-	if $rc_sudo crontab $rc_backup >rc_cron_out 2>&1
+	if $rc_sudo crontab $rc_cron_backup >rc_cron_out 2>&1
 	then
 	    # check everything is OK
 	    #
 	    $rc_sudo crontab -l >rc_cron_check
-	    sed -e '/^#/d' $rc_backup >$rc_backup.clean
+	    sed -e '/^#/d' $rc_cron_backup >$rc_cron_backup.clean
 	    sed -e '/^#/d' rc_cron_check >rc_cron_check.clean
-	    if diff -u $rc_backup.clean rc_cron_check.clean >rc_cron_diff 2>&1
+	    if diff -u $rc_cron_backup.clean rc_cron_check.clean >rc_cron_diff 2>&1
 	    then
 		:
 	    else
 		echo "_restore_cron: Warning: could not restore crontab to original state"
 		echo "               Unexpected differences ..."
-		diff -u $rc_backup rc_cron_check
+		diff -u $rc_cron_backup rc_cron_check
 	    fi
 	    $rc_sudo rm -f rc_cron_check rc_cron_check.clean rc_cron_diff
 	else
@@ -1673,11 +1698,12 @@ _restore_cron()
 }
 
 # running QA within a container can mean no crontab setup;
-# _check_cron is a convenience routine checking the external
-# dependencies of _remove_cron() and _restore_cron()
+# _check_job_scheduler() is a convenience routine checking the external
+# dependencies of _remove_job_scheduler() and _restore_job_scheduler()
 #
-_check_cron()
+_check_job_scheduler()
 {
+    systemctl cat pmie_daily.timer >/dev/null 2>&1 && return
     which crontab >/dev/null 2>&1 || _notrun "No crontab binary found"
 }
 

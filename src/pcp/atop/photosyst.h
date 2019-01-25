@@ -24,6 +24,9 @@
 #define	MAXDKNAM	32
 #define	MAXIFNAM	32
 #define MAXMNTNAME	128
+#define MAXGPUBUS	12
+#define MAXGPUTYPE	12
+#define	MAXIBNAME	12
 
 /************************************************************************/
 
@@ -95,6 +98,8 @@ struct percpu {
 	count_t		steal;	/* steal   time in clock ticks		*/
 	count_t		guest;	/* guest   time in clock ticks		*/
         struct freqcnt	freqcnt;/* frequency scaling info  		*/
+	count_t		instr;	/* CPU instructions 			*/
+	count_t		cycle;	/* CPU cycles 				*/
 };
 
 struct	cpustat {
@@ -220,6 +225,24 @@ struct nfsstat {
 };
 
 /************************************************************************/
+struct	psi {
+	float	avg10;		// average pressure last 10 seconds
+	float	avg60;		// average pressure last 60 seconds
+	float	avg300;		// average pressure last 300 seconds
+	count_t	total;		// total number of milliseconds
+};
+
+struct	pressure {
+	char	   present;	/* pressure stats supported?	*/
+	char       future[3];
+	struct psi cpusome;	/* pressure stall info 'some'   */
+	struct psi memsome;	/* pressure stall info 'some'   */
+	struct psi memfull;	/* pressure stall info 'full'   */
+	struct psi iosome;	/* pressure stall info 'some'   */
+	struct psi iofull;	/* pressure stall info 'full'   */
+};
+
+/************************************************************************/
 
 struct  percontainer {
         unsigned long	ctid;		/* container id			*/
@@ -252,6 +275,49 @@ struct wwwstat {
 };
 
 /************************************************************************/
+struct pergpu {
+	char	taskstats;		// GPU task statistics supported?
+	unsigned char   nrprocs;	// number of processes using GPU
+	char	type[MAXGPUTYPE+1];	// GPU type
+	char	busid[MAXGPUBUS+1];	// GPU bus identification
+	int	gpunr;			// GPU number
+	int	gpupercnow;		// processor percentage last second
+					// -1 if not supported
+	int	mempercnow;		// memory    percentage last second
+					// -1 if not supported
+	count_t	memtotnow;		// total memory in KiB
+	count_t	memusenow;		// used  memory in KiB
+	count_t	samples;		// number of samples
+	count_t	gpuperccum;		// cumulative processor busy percentage
+					// -1 if not supported
+	count_t	memperccum;		// cumulative memory percentage 
+					// -1 if not supported
+	count_t	memusecum;		// cumulative used memory in KiB
+};
+
+struct gpustat {
+	int		nrgpus;		// total number of GPUs
+	struct pergpu   *gpu;
+};
+
+/************************************************************************/
+struct perifb {
+	char	ibname[MAXIBNAME];	// InfiniBand controller
+	short	portnr;			// InfiniBand controller port
+
+	short	lanes;			// number of lanes (traffic factor)
+	count_t	rate;			// transfer rate in megabits/sec
+	count_t	rcvb;   	    	// bytes received
+	count_t	sndb;       		// bytes transmitted
+	count_t	rcvp;   	    	// packets received
+	count_t	sndp;       		// packets transmitted
+};
+
+struct ifbstat {
+	int		nrports;	// total number of IB ports
+	struct perifb   *ifb;
+};
+/************************************************************************/
 
 struct	sstat {
 	struct timeval	stamp;
@@ -263,6 +329,9 @@ struct	sstat {
 	struct dskstat  dsk;
 	struct nfsstat	nfs;
 	struct contstat	cfs;
+	struct pressure	psi;
+	struct gpustat	gpu;
+	struct ifbstat	ifb;
 
 	struct wwwstat	www;
 };

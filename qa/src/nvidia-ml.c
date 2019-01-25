@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,6 +31,8 @@
 struct gputab {
     char	name[NVML_DEVICE_NAME_BUFFER_SIZE];
     nvmlPciInfo_t	pciinfo;
+    unsigned int	persistence;
+    unsigned int	accounting;
     unsigned int	fanspeed;
     unsigned int	temperature;
     nvmlUtilization_t	util;
@@ -85,6 +87,40 @@ struct gputab {
     }
 };
 
+/*
+ * Table of the per-process hardware stats we'll be faking.
+ * Using a combination of known-to-be-running processes with
+ * static values here so that tests can be made deterministic.
+ */
+enum { MYSELF0 = 0, MYSELF1, PARENT0, NENTRIES };
+
+struct proctab {
+    struct gputab		*gpu;
+    nvmlProcessInfo_t		pinfo;
+    nvmlAccountingStats_t	*stats;
+} proc_table[NENTRIES];
+
+nvmlAccountingStats_t stats_table[] = {
+    {	/* MYSELF0 */
+	.gpuUtilization = 40,
+	.isRunning = 1,
+	.maxMemoryUse = 2ULL * 1024 * 1024 * 1024,
+	.memoryUtilization = 25,
+    },
+    {	/* MYSELF1 */
+	.gpuUtilization = 20,
+	.isRunning = 1,
+	.maxMemoryUse = 100 * 1024 * 1024,
+	.memoryUtilization = 12,
+    },
+    {	/* PARENT0 */
+	.gpuUtilization = 60,
+	.isRunning = 1,
+	.maxMemoryUse = 4ULL * 1024 * 1024 * 1024,
+	.memoryUtilization = 50,
+    },
+};
+
 static int refcount;
 
 int
@@ -94,7 +130,23 @@ nvmlInit(void)
     if (pmDebugOptions.appl0)
 	fprintf(stderr, "qa-nvidia-ml: nvmlInit [%d - %d]\n",
 		refcount - 1, refcount);
-    return 0;
+
+    proc_table[MYSELF0].pinfo.pid = getpid();
+    proc_table[MYSELF0].pinfo.usedGpuMemory = stats_table[MYSELF0].maxMemoryUse;
+    proc_table[MYSELF0].stats = &stats_table[MYSELF0];
+    proc_table[MYSELF0].gpu = &gpu_table[1];
+
+    proc_table[MYSELF1].pinfo.pid = getpid();
+    proc_table[MYSELF1].pinfo.usedGpuMemory = stats_table[MYSELF1].maxMemoryUse;
+    proc_table[MYSELF1].stats = &stats_table[MYSELF1];
+    proc_table[MYSELF1].gpu = &gpu_table[0];
+
+    proc_table[PARENT0].pinfo.pid = getppid();
+    proc_table[PARENT0].pinfo.usedGpuMemory = stats_table[PARENT0].maxMemoryUse;
+    proc_table[PARENT0].stats = &stats_table[PARENT0];
+    proc_table[PARENT0].gpu = &gpu_table[1];
+
+    return NVML_SUCCESS;
 }
 
 int
@@ -211,4 +263,97 @@ nvmlDeviceGetPerformanceState(nvmlDevice_t device, nvmlPstates_t *state)
     CHECK_DEVICE(dev);
     *state = dev->state;
     return NVML_SUCCESS;
+}
+
+int
+nvmlDeviceSetAccountingMode(nvmlDevice_t device, nvmlEnableState_t state)
+{
+    struct gputab *dev = (struct gputab *)device;
+    if (pmDebugOptions.appl0)
+	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceSetAccountingMode\n");
+    CHECK_DEVICE(dev);
+    dev->accounting = state;
+    return NVML_SUCCESS;
+}
+
+int
+nvmlDeviceSetPersistenceMode(nvmlDevice_t device, nvmlEnableState_t state)
+{
+    struct gputab *dev = (struct gputab *)device;
+    if (pmDebugOptions.appl0)
+	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceSetPersistenceMode\n");
+    CHECK_DEVICE(dev);
+    dev->persistence = state;
+    return NVML_SUCCESS;
+}
+
+int
+nvmlDeviceGetComputeRunningProcesses(nvmlDevice_t device, unsigned int *count, nvmlProcessInfo_t *infos)
+{
+    struct gputab *dev = (struct gputab *)device;
+    int i, n = 0, sts = NVML_SUCCESS;
+
+    if (pmDebugOptions.appl0)
+	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceGetComputeRunningProcesses\n");
+    CHECK_DEVICE(dev);
+
+    for (i = 0; i < sizeof(proc_table)/sizeof(proc_table[0]); i++) {
+	if (proc_table[i].gpu != dev)
+	    continue;
+	if (n >= *count)
+	    sts = NVML_ERROR_INSUFFICIENT_SIZE;
+	else
+	    infos[n] = proc_table[i].pinfo;
+	n++;
+    }
+    *count = n;
+    return sts;
+}
+
+int
+nvmlDeviceGetAccountingPids(nvmlDevice_t device, unsigned int *count, unsigned int *pids)
+{
+    struct gputab *dev = (struct gputab *)device;
+    int i, n = 0, sts = NVML_SUCCESS;
+
+    if (pmDebugOptions.appl0)
+	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceGetAccountingPids\n");
+    CHECK_DEVICE(dev);
+
+    for (i = 0; i < sizeof(proc_table)/sizeof(proc_table[0]); i++) {
+	if (dev->accounting == 0)
+	    continue;
+	if (proc_table[i].gpu != dev)
+	    continue;
+	if (n >= *count)
+	    sts = NVML_ERROR_INSUFFICIENT_SIZE;
+	else
+	    pids[n] = proc_table[i].pinfo.pid;
+	n++;
+    }
+    *count = n;
+    return sts;
+}
+
+int
+nvmlDeviceGetAccountingStats(nvmlDevice_t device, unsigned int pid, nvmlAccountingStats_t *stats)
+{
+    struct gputab *dev = (struct gputab *)device;
+    int i;
+
+    if (pmDebugOptions.appl0)
+	fprintf(stderr, "qa-nvidia-ml: nvmlDeviceGetAccountingStats\n");
+    CHECK_DEVICE(dev);
+
+    for (i = 0; i < sizeof(proc_table)/sizeof(proc_table[0]); i++) {
+	if (proc_table[i].gpu != dev)
+	    continue;
+	if (proc_table[i].pinfo.pid != pid)
+	    continue;
+	if (dev->accounting == 0)
+	    return NVML_ERROR_NOT_SUPPORTED;
+	memcpy(stats, proc_table[i].stats, sizeof(nvmlAccountingStats_t));
+	return NVML_SUCCESS;
+    }
+    return NVML_ERROR_NOT_FOUND;
 }

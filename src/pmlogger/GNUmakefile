@@ -20,7 +20,10 @@ SUBDIRS = src
 OTHERS	= pmnewlog.sh control rc_pmlogger \
 	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh pmlogmv.sh \
 	  pmlogger_daily_report.sh pmlogger_rewrite.sh
-LDIRT	= crontab crontab.docker crontab.daily_report pmlogger.service
+LDIRT	= crontab crontab.docker crontab.daily_report pmlogger.service \
+	  pmlogger_daily.service pmlogger_daily_poll.service \
+	  pmlogger_daily_check.service pmlogger_daily_report.service \
+	  pmlogger_daily_report_poll.service
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
@@ -31,7 +34,7 @@ CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmlogger/crontab
 endif
 CRONTAB_DAILY_REPORT_PATH = $(CRONTAB_PATH)-daily-report
 
-default:: crontab crontab.docker pmlogger.service crontab.daily_report
+default:: $(LDIRT)
 
 default:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -57,6 +60,21 @@ endif
 	$(INSTALL) -m 755 rc_pmlogger $(PCP_RC_DIR)/pmlogger
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmlogger.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger.service
+	$(INSTALL) -m 644 pmlogger_daily.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily.timer
+	$(INSTALL) -m 644 pmlogger_daily.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily.service
+	$(INSTALL) -m 644 pmlogger_daily_poll.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_poll.timer
+	$(INSTALL) -m 644 pmlogger_daily_poll.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_poll.service
+	$(INSTALL) -m 644 pmlogger_daily_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_check.timer
+	$(INSTALL) -m 644 pmlogger_daily_check.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_check.service
+	$(INSTALL) -m 644 pmlogger_daily_report.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report.timer
+	$(INSTALL) -m 644 pmlogger_daily_report.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report.service
+	$(INSTALL) -m 644 pmlogger_daily_report_poll.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report_poll.timer
+	$(INSTALL) -m 644 pmlogger_daily_report_poll.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report_poll.service
+	$(INSTALL) -m 644 pmlogger_timers.sysconfig $(PCP_SYSCONFIG_DIR)/pmlogger_timers
+else
+	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
+	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
+	$(INSTALL) -m 644 crontab.daily_report $(CRONTAB_DAILY_REPORT_PATH)
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmlogger
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmlogger
@@ -64,12 +82,9 @@ ifeq ($(TARGET_OS),linux)
 	# In a container environment, the rc_pmlogger script installs the
 	# Docker version of the crontab into the hosts cron.d directory.
 	$(INSTALL) -m 644 crontab.docker $(PCP_VAR_DIR)/config/pmlogger/crontab.docker
-	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 endif
-	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
 	$(INSTALL) -m 644 utilproc.sh $(PCP_SHARE_DIR)/lib/utilproc.sh
 	$(INSTALL) -m 755 pmlogger_daily_report.sh $(PCP_BINADM_DIR)/pmlogger_daily_report$(SHELLSUFFIX)
-	$(INSTALL) -m 644 crontab.daily_report $(CRONTAB_DAILY_REPORT_PATH)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SA_DIR)
 
 include $(BUILDRULES)
@@ -82,6 +97,48 @@ pmlogger.service : pmlogger.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@PCP_RC_DIR@;'$(PCP_RC_DIR)';' \
 	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
+	# END
+
+pmlogger_daily.service : pmlogger_daily.service.in
+	$(SED) <$< >$@ \
+	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
+	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
+	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
+	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	# END
+
+pmlogger_daily_poll.service : pmlogger_daily_poll.service.in
+	$(SED) <$< >$@ \
+	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
+	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
+	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
+	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	# END
+
+pmlogger_daily_check.service : pmlogger_daily_check.service.in
+	$(SED) <$< >$@ \
+	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
+	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
+	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
+	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	# END
+
+pmlogger_daily_report.service : pmlogger_daily_report.service.in
+	$(SED) <$< >$@ \
+	    -e 's;@CRONTAB_DAILY_REPORT_PATH@;'$(CRONTAB_DAILY_REPORT_PATH)';' \
+	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
+	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
+	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	    -e 's;@PCP_SA_DIR@;'$(PCP_SA_DIR)';' \
+	# END
+
+pmlogger_daily_report_poll.service : pmlogger_daily_report_poll.service.in
+	$(SED) <$< >$@ \
+	    -e 's;@CRONTAB_DAILY_REPORT_PATH@;'$(CRONTAB_DAILY_REPORT_PATH)';' \
+	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
+	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
+	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	    -e 's;@PCP_SA_DIR@;'$(PCP_SA_DIR)';' \
 	# END
 
 crontab : crontab.in

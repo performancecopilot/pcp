@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,6 +38,11 @@ struct {
     { .symbol = "nvmlDeviceGetUtilizationRates" },
     { .symbol = "nvmlDeviceGetMemoryInfo" },
     { .symbol = "nvmlDeviceGetPerformanceState" },
+    { .symbol = "nvmlDeviceSetAccountingMode" },
+    { .symbol = "nvmlDeviceSetPersistenceMode" },
+    { .symbol = "nvmlDeviceGetComputeRunningProcesses" },
+    { .symbol = "nvmlDeviceGetAccountingPids" },
+    { .symbol = "nvmlDeviceGetAccountingStats" },
 };
 enum {
     NVML_INIT,
@@ -51,6 +56,11 @@ enum {
     NVML_DEVICE_GET_UTILIZATIONRATES,
     NVML_DEVICE_GET_MEMORYINFO,
     NVML_DEVICE_GET_PERFORMANCESTATE,
+    NVML_DEVICE_SET_ACCOUNTINGMODE,
+    NVML_DEVICE_SET_PERSISTENCEMODE,
+    NVML_DEVICE_GET_COMPUTERUNNINGPROCESSES,
+    NVML_DEVICE_GET_ACCOUNTINGPIDS,
+    NVML_DEVICE_GET_ACCOUNTINGSTATS,
     NVML_SYMBOL_COUNT
 };
 typedef int (*local_init_t)(void);
@@ -64,6 +74,11 @@ typedef int (*local_dev_get_temperature_t)(nvmlDevice_t, nvmlTemperatureSensors_
 typedef int (*local_dev_get_utilizationrates_t)(nvmlDevice_t, nvmlUtilization_t *);
 typedef int (*local_dev_get_memoryinfo_t)(nvmlDevice_t, nvmlMemory_t *);
 typedef int (*local_dev_get_performancestate_t)(nvmlDevice_t, nvmlPstates_t *);
+typedef int (*local_dev_set_accountingmode_t)(nvmlDevice_t, nvmlEnableState_t);
+typedef int (*local_dev_set_persistencemode_t)(nvmlDevice_t, nvmlEnableState_t);
+typedef int (*local_dev_get_computerunningprocesses_t)(nvmlDevice_t, unsigned int *, nvmlProcessInfo_t *);
+typedef int (*local_dev_get_accountingpids_t)(nvmlDevice_t, unsigned int *, unsigned int *);
+typedef int (*local_dev_get_accountingstats_t)(nvmlDevice_t, unsigned int, nvmlAccountingStats_t *);
 
 static int
 resolve_symbols(void)
@@ -216,6 +231,66 @@ localNvmlDeviceGetPerformanceState(nvmlDevice_t device, nvmlPstates_t *state)
     return dev_get_performancestate(device, state);
 }
 
+int
+localNvmlDeviceSetAccountingMode(nvmlDevice_t device, nvmlEnableState_t state)
+{
+    local_dev_set_accountingmode_t dev_set_accountingmode;
+    void *func = nvml_symtab[NVML_DEVICE_SET_ACCOUNTINGMODE].handle;
+
+    if (!func)
+	return NVML_ERROR_FUNCTION_NOT_FOUND;
+    dev_set_accountingmode = (local_dev_set_accountingmode_t)func;
+    return dev_set_accountingmode(device, state);
+}
+
+int
+localNvmlDeviceSetPersistenceMode(nvmlDevice_t device, nvmlEnableState_t state)
+{
+    local_dev_set_persistencemode_t dev_set_persistencemode;
+    void *func = nvml_symtab[NVML_DEVICE_SET_PERSISTENCEMODE].handle;
+
+    if (!func)
+        return NVML_ERROR_FUNCTION_NOT_FOUND;
+    dev_set_persistencemode = (local_dev_set_persistencemode_t)func;
+    return dev_set_persistencemode(device, state);
+}
+
+int
+localNvmlDeviceGetComputeRunningProcesses(nvmlDevice_t device, unsigned int *count, nvmlProcessInfo_t *infos)
+{
+    local_dev_get_computerunningprocesses_t dev_get_computerunningprocesses;
+    void *func = nvml_symtab[NVML_DEVICE_GET_COMPUTERUNNINGPROCESSES].handle;
+
+    if (!func)
+	return NVML_ERROR_FUNCTION_NOT_FOUND;
+    dev_get_computerunningprocesses = (local_dev_get_computerunningprocesses_t)func;
+    return dev_get_computerunningprocesses(device, count, infos);
+}
+
+int
+localNvmlDeviceGetAccountingPids(nvmlDevice_t device, unsigned int *count, unsigned int *pids)
+{
+    local_dev_get_accountingpids_t dev_get_accountingpids;
+    void *func = nvml_symtab[NVML_DEVICE_GET_ACCOUNTINGPIDS].handle;
+
+    if (!func)
+	return NVML_ERROR_FUNCTION_NOT_FOUND;
+    dev_get_accountingpids = (local_dev_get_accountingpids_t)func;
+    return dev_get_accountingpids(device, count, pids);
+}
+
+int
+localNvmlDeviceGetAccountingStats(nvmlDevice_t device, unsigned int pid, nvmlAccountingStats_t *stats)
+{
+    local_dev_get_accountingstats_t dev_get_accountingstats;
+    void *func = nvml_symtab[NVML_DEVICE_GET_ACCOUNTINGSTATS].handle;
+
+    if (!func)
+	return NVML_ERROR_FUNCTION_NOT_FOUND;
+    dev_get_accountingstats = (local_dev_get_accountingstats_t)func;
+    return dev_get_accountingstats(device, pid, stats);
+}
+
 const char *
 localNvmlErrStr(nvmlReturn_t sts)
 {
@@ -257,6 +332,12 @@ localNvmlErrStr(nvmlReturn_t sts)
 "infoROM is corrupted" }, {
 	NVML_ERROR_GPU_IS_LOST,
 "The GPU has fallen off the bus or has otherwise become inaccessible" }, {
+	NVML_ERROR_RESET_REQUIRED,
+"The GPU requires a reset before it can be used again." }, {
+	NVML_ERROR_OPERATING_SYSTEM,
+"The GPU control device has been blocked by the operating system/cgroups." }, {
+	NVML_ERROR_LIB_RM_VERSION_MISMATCH,
+"RM detects a driver/library version mismatch." }, {
 	NVML_ERROR_UNKNOWN,
 "An internal driver error occurred"
     } };

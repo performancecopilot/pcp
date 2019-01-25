@@ -159,16 +159,16 @@ Processors: 8
 Pagesize: 4096
 Clock ticks per second: 100
 
-internal:
-/etc/pcp/dstat:
+timestamp plugins:
+/etc/pcp/dstat plugins:
 
 === std err
 === done
 
 Plugins
 === std out
-internal:
-/etc/pcp/dstat:
+timestamp plugins:
+/etc/pcp/dstat plugins:
 
 === std err
 === done
