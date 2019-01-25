@@ -1,7 +1,7 @@
 /*
  * Metrics for nvidia GPU PMDA
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2019 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,4 +27,14 @@ nvidia {
     memused			NVML:0:9
     memtotal			NVML:0:10
     memfree			NVML:0:11
+    proc
+}
+
+nvidia.proc {
+    samples			NVML:1:12
+    memused			NVML:1:13
+    memaccum			NVML:1:14
+    gpuactive			NVML:1:15
+    memactive			NVML:1:16
+    time			NVML:1:17
 }
