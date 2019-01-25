@@ -36,7 +36,10 @@ done
 
 _filter()
 {
-    sed -e 's/.* pminfo\(.*\) Info:/pminfo[PID] Info:/g'
+    sed \
+	-e 's/.* pminfo\(.*\) Info:/pminfo[PID] Info:/g' \
+	-e "s/::[0-9][0-9]* /::PID /g" \
+    #end
 }
 
 pmns=$PCP_PMDAS_DIR/nvidia/root

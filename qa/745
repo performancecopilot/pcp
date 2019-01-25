@@ -41,6 +41,7 @@ _filter()
 	-e "s,$PCP_PMDAS_DIR/,,g" \
 	-e "s/\.$DSO_SUFFIX,/.DSO,/g" \
 	-e 's/.* pminfo\(.*\) Info:/pminfo[PID] Info:/g' \
+	-e "s/::[0-9][0-9]* /::PID /g" \
     # end
 }
 
