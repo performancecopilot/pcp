@@ -1,4 +1,4 @@
-#compdef pcp pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pminfo pmiostat pmlogcheck pmlogextract pmlogger pmloglabel pmlogsummary pmprobe pmrep pmstat pmstore pmval
+#compdef pcp pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pminfo pmiostat pmlogcheck pmlogextract pmlogger pmloglabel pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval
 #
 # PCP <https://pcp.io> completions for zsh <http://zsh.sf.net>.
 #
@@ -666,6 +666,27 @@ _pcp () {
       '*:metric:->metrics' \
       && return 0
   ;;
+  pmseries)
+    _arguments -A "-*" -C -S -s \
+      "$common_help[@]" \
+      "($exargs)"{-h+,--host=}'[specify Redis host]:host:_hosts' \
+      "($exargs)"{-p+,--port=}'[specify Redis port]:port:' \
+      "($exargs)"{-L,--load}'[load metadata and data into Redis]' \
+      "($exargs)"{-q,--query}'[perform timeseries query]' \
+      "($exargs)"{-a,--all}'[report all metadata, same as -dilms]' \
+      "($exargs)"{-d,--desc}'[report metric descriptions]' \
+      "($exargs)"{-I,--fullindom}'[print verbose InDom]' \
+      "($exargs)"{-i,--instances}'[report instance names]' \
+      "($exargs)"{-F,--fast}'[request metadata only]' \
+      "($exargs)"{-l,--labels}'[report label values]' \
+      "($exargs)"{-M,--fullpmid}'[print verbose PMID]' \
+      "($exargs)"{-m,--metrics}'[report metric names]' \
+      "($exargs)"{-n,--names}'[report label names]' \
+      "($exargs)"{-S,--sources}'[report context for timeseries sources]' \
+      "($exargs)"{-s,--series}'[report timeseries identifiers]' \
+      '1:series:->ts_metrics' \
+      && return 0
+  ;;
   pmstat)
     _arguments -C -S -s \
       "$common_help[@]" \
@@ -839,6 +860,14 @@ _pcp () {
       done
       _wanted metricsets expl metricset compadd -a sets && ret=0
     fi
+  ;;
+  ts_metrics)
+    local host=${~opt_args[-h]:-${~opt_args[--host]}}
+    local h=${host:+-h}
+    local port=${~opt_args[-p]:-${~opt_args[--port]}}
+    local p=${port:+-p}
+    _wanted ts_metrics expl metric compadd -M 'r:|.=* r:|=*' \
+      $(pmseries $h ${(e)host} $p ${(e)port} -m 2>/dev/null) && ret=0
   ;;
   pcp_commands)
     _wanted commands expl 'pcp command' compadd -a _cache_pcp_cmds && ret=0

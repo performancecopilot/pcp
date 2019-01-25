@@ -71,6 +71,12 @@ if [ $? -ne 0 ]
 then
     skip_pmdumptext=true
 fi
+skip_pmseries=false
+which pmseries > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    skip_pmseries=true
+fi
 
 # sources
 share_dir=`dirname $PCP_SHARE_DIR`
@@ -94,6 +100,7 @@ _check_completion_bash()
     $skip_pmchart && [ "$cmd" = pmchart ] && continue
     $skip_pmdumptext && [ "$cmd" = pmdumptext ] && continue
     $skip_pmrep && [ "$cmd" = pmrep ] && continue
+    $skip_pmseries && [ "$cmd" = pmseries ] && continue
     comps=$(grep -A 1 "  $cmd)" $bash_comp | tail -n 1 | sed -e 's,all_args=",,' -e 's,",,')
     # Need $tmp.err and PCP_STDERR for pmchart ...
     #
@@ -140,6 +147,7 @@ _check_completion_zsh()
     $skip_pmchart && [ "$cmd" = pmchart ] && continue
     $skip_pmdumptext && [ "$cmd" = pmdumptext ] && continue
     $skip_pmrep && [ "$cmd" = pmrep ] && continue
+    $skip_pmseries && [ "$cmd" = pmseries ] && continue
     echo $cmd | grep = > /dev/null 2>&1 && continue
     common=$(awk "/common_most=/,/  \)/" $zsh_comp)
     pytool=$(awk "/common_python=/,/  \)/" $zsh_comp)

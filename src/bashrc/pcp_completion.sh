@@ -80,9 +80,17 @@ _pcp_complete()
         all_args="01234589AaBbCcdEeFfGgHhIiJjKkLlNnOoPpQqRrSsTtUuVvWwXxYyZz"
         arg_regex="-[0489ABabcEeFfhiJKlNOoPQqSsTtWwXYyZ]"
     ;;
+    pmseries)
+        all_args="adFhIiLlMmnpqSsV"
+        arg_regex="-[hp]"
+    ;;
     pmstore)
         all_args="FfhiKLnV"
         arg_regex="-[hiKn]"
+    ;;
+    pmstat)
+        all_args="AagHhLlnOPpSsTtVxZz"
+        arg_regex="-[AaHhnOpSsTtZ]"
     ;;
     pmval)
         all_args="AadfghiKLnOprSsTtUvVwxZz"
@@ -122,12 +130,15 @@ _pcp_complete()
         done < $conf
         [[ "$cur" == : ]] && cur=
         COMPREPLY=( $(compgen -W "${sets[*]}" -- "$cur") )
+    elif [[ $cmd == pmseries && ! "${COMP_WORDS[$((COMP_CWORD-1))]}" =~ $arg_regex ]]; then
+        # pmseries(1) metric names
+        COMPREPLY=( $(compgen -W '$(command pmseries -m 2> /dev/null)' -- "$cur") )
     elif [[ ! "${COMP_WORDS[$((COMP_CWORD-1))]}" =~ $arg_regex ]]; then
-        # Metrics
-        if [[ $cmd != pmlogsummary || \
+        # Metric names
+        if [[ ($cmd != pmlogsummary && $cmd != pmstat) || \
             ( $COMP_CWORD > 1 && ${COMP_WORDS[$((COMP_CWORD-1))]} != -* && ${COMP_WORDS[$((COMP_CWORD-2))]} != -* ) ]]; then
             COMPREPLY=( $(compgen -W '$(command pminfo 2> /dev/null)' -- "$cur") )
         fi
     fi
 }
-complete -F _pcp_complete -o default pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmdumplog pmdumptext pmevent pminfo pmlogcheck pmlogextract pmlogsummary pmprobe pmrep pmstore pmval
+complete -F _pcp_complete -o default pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2spark pcp2xlsx pcp2xml pcp2zabbix pmdumplog pmdumptext pmevent pminfo pmlogcheck pmlogextract pmlogsummary pmprobe pmrep pmseries pmstat pmstore pmval
