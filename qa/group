@@ -1482,6 +1482,7 @@ BAD
 1101 libpcp_web local valgrind
 1102 pmda.prometheus local python
 1103 derive local
+1104 kernel local
 1105 derive local kernel
 1106 libpcp local
 1108 logutil local folio pmlogextract
