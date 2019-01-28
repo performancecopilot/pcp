@@ -555,8 +555,8 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		}
 		else {
 		    fprintf(stderr, "Error: %s: sysctl(%s) datalen=%d not %d (long) or %d (int)!\n",
-			mp->m_pcpname, mp->m_name, sts, (int)CPUSTATES*sizeof(__uint64_t), 
-			(int)CPUSTATES*sizeof(__uint32_t)); 
+			mp->m_pcpname, mp->m_name, sts, (int)(CPUSTATES*sizeof(__uint64_t)), 
+			(int)(CPUSTATES*sizeof(__uint32_t))); 
 		    sts = 0;
 		}
 		break;
