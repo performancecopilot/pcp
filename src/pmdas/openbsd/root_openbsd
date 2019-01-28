@@ -68,6 +68,7 @@ kernel.all.cpu {
     user	OPENBSD:0:3
     nice	OPENBSD:0:4
     sys		OPENBSD:0:5
+    spin	OPENBSD:0:8
     intr	OPENBSD:0:6
     idle	OPENBSD:0:7
 }
@@ -80,6 +81,7 @@ kernel.percpu.cpu {
     user	OPENBSD:6:3
     nice	OPENBSD:6:4
     sys		OPENBSD:6:5
+    spin	OPENBSD:6:8
     intr	OPENBSD:6:6
     idle	OPENBSD:6:7
 }

@@ -537,20 +537,20 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 * CP_IDLE
 		 */
 		sts = do_sysctl(mp, 0);
-		if (sts == CPUSTATES*sizeof(long)) {
+		if (sts == CPUSTATES*sizeof(__uint64_t)) {
 		    /* 64-bit values from sysctl() */
-		    atom->ull = 1000*((__uint64_t)((long *)mp->m_data)[item-3])/cpuhz;
+		    atom->ull = 1000*((__uint64_t)((__uint64_t *)mp->m_data)[item-3])/cpuhz;
 		    sts = 1;
 		}
-		else if (sts == CPUSTATES*sizeof(int)) {
+		else if (sts == CPUSTATES*sizeof(__uint32_t)) {
 		    /* 32-bit values from sysctl() */
-		    atom->ull = 1000*((__uint64_t)((int *)mp->m_data)[item-3])/cpuhz;
+		    atom->ull = 1000*((__uint64_t)((__uint32_t *)mp->m_data)[item-3])/cpuhz;
 		    sts = 1;
 		}
 		else {
 		    fprintf(stderr, "Error: %s: sysctl(%s) datalen=%d not %d (long) or %d (int)!\n",
-			mp->m_pcpname, mp->m_name, sts, (int)CPUSTATES*sizeof(long), 
-			(int)CPUSTATES*sizeof(int)); 
+			mp->m_pcpname, mp->m_name, sts, (int)(CPUSTATES*sizeof(__uint64_t)), 
+			(int)(CPUSTATES*sizeof(__uint32_t))); 
 		    sts = 0;
 		}
 		break;
@@ -570,20 +570,20 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 * the system.
 		 */
 		sts = do_sysctl(mp, 0);
-		if (sts == ncpu*CPUSTATES*sizeof(long)) {
+		if (sts == ncpu*CPUSTATES*sizeof(__uint64_t)) {
 		    /* 64-bit values from sysctl() */
-		    atom->ull = 1000*((__uint64_t)((long *)mp->m_data)[inst*CPUSTATES+item-8])/cpuhz;
+		    atom->ull = 1000*((__uint64_t)((__uint64_t *)mp->m_data)[inst*CPUSTATES+item-8])/cpuhz;
 		    sts = 1;
 		}
-		else if (sts == ncpu*CPUSTATES*sizeof(int)) {
+		else if (sts == ncpu*CPUSTATES*sizeof(__uint32_t)) {
 		    /* 32-bit values from sysctl() */
-		    atom->ull = 1000*((__uint64_t)((int *)mp->m_data)[inst*CPUSTATES+item-8])/cpuhz;
+		    atom->ull = 1000*((__uint64_t)((__uint32_t *)mp->m_data)[inst*CPUSTATES+item-8])/cpuhz;
 		    sts = 1;
 		}
 		else {
 		    fprintf(stderr, "Error: %s: sysctl(%s) datalen=%d not %d (long) or %d (int)!\n",
-			mp->m_pcpname, mp->m_name, sts, (int)ncpu*CPUSTATES*sizeof(long), 
-			(int)ncpu*CPUSTATES*sizeof(int)); 
+			mp->m_pcpname, mp->m_name, sts, (int)(ncpu*CPUSTATES*sizeof(__uint64_t)), 
+			(int)(ncpu*CPUSTATES*sizeof(__uint32_t))); 
 		    sts = 0;
 		}
 		break;

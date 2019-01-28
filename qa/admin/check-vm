@@ -30,6 +30,7 @@ fi
 _getnetworkaddr()
 {
     __verbose=false
+    $very_verbose && __verbose=true
     if `which hostname >/dev/null 2>&1`
     then
 	host=`hostname`
@@ -46,8 +47,20 @@ _getnetworkaddr()
 		    # inet 192.168.1.100  netmask 255.255.255.0  ...
 		    # or
 		    # inet addr:192.168.1.224  Bcast:192.168.1.255  Mask:255.255.255.0
+		    # or
+		    # inet 192.168.1.238/24 broadcast 192.168.1.255 flags 0x0
 		    #
-		    mask=`ifconfig | grep "[ :]$addr " | sed -e 's/.*ask[ :]\([^ ][^ ]*\).*/\1/'`
+		    __config=`ifconfig | grep "[ :]$addr[ /]"`
+		    if echo "$__config" | grep '[Mm]ask' >/dev/null
+		    then
+			mask=`echo "$__config" | sed -e 's/.*ask[ :]\([^ ][^ ]*\).*/\1/'`
+		    elif echo "$__config" | grep " $addr/" >/dev/null
+		    then
+			mask=`echo "$__config" | sed -e '/\/24/s/.*/255.255.255.0/'`
+		    else
+			echo "_getnetworkaddr: botched config line: $__config" >&2
+			mask=''
+		    fi
 		    $__verbose && echo "_getnetworkaddr: ifconfig -> mask=$mask" >&2
 		    case "$mask"
 		    in
@@ -368,7 +381,7 @@ _find_installer_cmd()
 	    ;;
 
 	*NetBSD*)
-	    installcmd="pkgin install"
+	    installcmd="pkgin -y install"
 	    ;;
 
 	*FreeBSD*)
@@ -756,11 +769,19 @@ else
 	    if [ -z "$_version" ]
 	    then
 		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
-s;\[[^]]*];[N/A on '"$_distro"'];
+s/\([[ ]\)'"$_pkg"'\([] ]\)/\1 \2/
+s/\(\[.*\) or/\1/g
+s/\(\[.*\) ([^)]*)/\1/g
+s/  */ /g
+s;\[  *\([](]\);[N/A on '"$_distro"' \1;
+s/  *]/]/
 }'
 	    else
 		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
-s;\[[^]]*];[N/A on '"$_distro"' '"$_version"'];
+s/\([[ ]\)'"$_pkg"'\([] ]\)/\1 \2/
+s/  */ /g
+s;\[  *\([](]\);[N/A on '"$_distro"' '"$_version"' \1;
+s/  *]/]/
 }'
 	    fi
 	    mv $tmp.tmp $tmp.manifest
@@ -1361,7 +1382,7 @@ p
 	-e '/ inet /s/\/.*/ /' \
     | awk '
 /^[^ 	]/	{ iface = $1; next }
-/inet addr:'$ipaddr' / || /inet '$ipaddr' / {
+/inet addr:'$ipaddr' / || /inet '$ipaddr'[ \/]/ {
 			  if (iface == "lo")
 			    print "Warning: '$1' associated with loopback network interface"
 			  found = 1
@@ -1432,12 +1453,18 @@ fi
 case "`sed <$tmp.whatami -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
 in
     *OpenBSD*)
-	allowkmem=`sysctl kern.allowkmem | sed -e 's/.*=//'`
-	if [ "$allowkmem" != 1 ]
+	if false
 	then
-	    echo "Warning: kern.allowkmem is \"$allowkmem\" not 1 and so openbsd PMDA will not be able"
-	    echo "         to access /dev/kmem"
-	    echo "         Suggest adding kern.allowkmem=1 to etc/sysctl.conf and rebooting."
+	    # redundant now the openbsd PMDA no longer reads /dev/mem
+	    # directly
+	    #
+	    allowkmem=`sysctl kern.allowkmem | sed -e 's/.*=//'`
+	    if [ "$allowkmem" != 1 ]
+	    then
+		echo "Warning: kern.allowkmem is \"$allowkmem\" not 1 and so openbsd PMDA will not be able"
+		echo "         to access /dev/kmem"
+		echo "         Suggest adding kern.allowkmem=1 to etc/sysctl.conf and rebooting."
+	    fi
 	fi
 	;;
 

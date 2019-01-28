@@ -1,0 +1,85 @@
+#!/bin/sh
+# PCP QA Test No. 1104
+# Check kernel.all.cpu.* against kernel.percpu.cpu.*
+#
+# Copyright (c) 2019 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+ncpu=`pmprobe -v hinv.ncpu | $PCP_AWK_PROG '{print $3}'`
+
+_check()
+{
+    echo "$1" "$ncpu" "$2" "$3" | $PCP_AWK_PROG '
+function _abs(x) { if (x > 0) return x; else return -x }
+    { if ($3 - 10*$2 < $4 && $4 < $3 + 10*$2) {
+	# OK
+      }
+      else {
+	print "Error: " $1 " all=" $3 " sum(percpu)=" $4 " diff=" _abs($3-$4) " not +/- " 10*$2
+      }
+    }'
+}
+
+# real QA test starts here
+echo "Silence is golden"
+
+pmprobe -v kernel.all.cpu kernel.percpu.cpu >$tmp.raw
+cat $tmp.raw >$here/$seq.full
+
+grep '^kernel\.all\.cpu' $tmp.raw \
+| while read all_metric all_numval all_value
+do
+    echo $all_metric $all_value >>$here/$seq.full
+    percpu_metric=`echo "$all_metric" | sed -e 's/all/percpu/'`
+    percpu_numval=`grep "^$percpu_metric " $tmp.raw | $PCP_AWK_PROG '{ print $2 }'`
+    ok=true
+    if [ "$percpu_numval" -eq 0 ]
+    then
+	if [ "$all_numval" -eq 0 ]
+	then
+	    # No values available for both, this is OK
+	    continue
+	else
+	    ok=false
+	fi
+    elif [ "$all_numval" -lt 0 ]
+    then
+	ok=false
+    elif [ "$percpu_numval" -lt 0 ]
+    then
+	ok=false
+    fi
+
+    if $ok
+    then
+	sum_value=`grep "^$percpu_metric " $tmp.raw \
+		   | $PCP_AWK_PROG '
+    { s = $3; for (i = 4; i <= NF; i++) s += $i; print s }'`
+	echo $percpu_metric $sum_value >>$here/$seq.full
+	_check $all_metric $all_value $sum_value
+    else
+	echo "Error: $all_metric numval=$all_numval, $percpu_metric numval=$percpu_numval !"
+    fi
+done
+
+# success, all done
+status=0
+exit
