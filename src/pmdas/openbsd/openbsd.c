@@ -497,6 +497,7 @@ openbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     mib_t		*mp;
     int			i;
+    int			pick;
     struct timespec	now;
 
     mp = (mib_t *)mdesc->m_user;
@@ -534,41 +535,37 @@ openbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    /* structs and aggregates */
 	    case 3:		/* kernel.all.cpu.user */
+		pick = CP_USER;
+		goto xtract;
 	    case 4:		/* kernel.all.cpu.nice */
+		pick = CP_NICE;
+		goto xtract;
 	    case 5:		/* kernel.all.cpu.sys */
+		pick = CP_SYS;
+		goto xtract;
 	    case 6:		/* kernel.all.cpu.intr */
+		pick = CP_INTR;
+		goto xtract;
 	    case 7:		/* kernel.all.cpu.idle */
-#ifdef HAVE_32BIT_LONG
-		/*
-		 * for 32-bit kernels, fetch as 32-bit, and
-		 * promote to 64-bit metric values
-		 */
-		sts = do_sysctl(mp, CPUSTATES*sizeof(atom->ul));
-		if (sts > 0) {
-		    /*
-		     * PMID assignment is important in the "-3" below so
-		     * that metrics map to consecutive elements of the
-		     * returned value in the order defined for CPUSTATES,
-		     * i.e. CP_USER, CP_NICE, CP_SYS, CP_INTR and
-		     * CP_IDLE
-		     */
-		    atom->ull = 1000*((__uint32_t *)mp->m_data)[item-3]/cpuhz;
+		pick = CP_IDLE;
+xtract:
+		sts = do_sysctl(mp, 0);
+		if (sts == CPUSTATES*sizeof(__uint64_t)) {
+		    /* 64-bit values from sysctl() */
+		    atom->ull = ncpu*1000*((__uint64_t)((__uint64_t *)mp->m_data)[pick])/cpuhz;
 		    sts = 1;
 		}
-#else
-		sts = do_sysctl(mp, CPUSTATES*sizeof(atom->ull));
-		if (sts > 0) {
-		    /*
-		     * PMID assignment is important in the "-3" below so
-		     * that metrics map to consecutive elements of the
-		     * returned value in the order defined for CPUSTATES,
-		     * i.e. CP_USER, CP_NICE, CP_SYS, CP_INTR and
-		     * CP_IDLE
-		     */
-		    atom->ull = 1000*((__uint64_t *)mp->m_data)[item-3]/cpuhz;
+		else if (sts == CPUSTATES*sizeof(__uint32_t)) {
+		    /* 32-bit values from sysctl() */
+		    atom->ull = ncpu*1000*((__uint64_t)((__uint32_t *)mp->m_data)[pick])/cpuhz;
 		    sts = 1;
 		}
-#endif
+		else {
+		    fprintf(stderr, "Error: %s: sysctl(%s) datalen=%d not %d (long) or %d (int)!\n",
+			mp->m_pcpname, mp->m_name, sts, (int)(CPUSTATES*sizeof(__uint64_t)), 
+			(int)(CPUSTATES*sizeof(__uint32_t))); 
+		    sts = 0;
+		}
 		break;
 
 	    case 13:		/* kernel.all.hz */
