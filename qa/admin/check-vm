@@ -1069,8 +1069,12 @@ do
 		    fi
 		done
 	    done
+	elif echo "$apps" | grep '\[SKIP' >/dev/null
+	then
+	    # nothing to report
+	    :
 	else
-	    echo "Missing: `echo $apps \
+	    echo "Missing: `echo "$apps" \
 		| sed \
 		    -e 's/[ 	][ 	]*/ /g' \
 		    -e '/ /{

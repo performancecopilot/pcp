@@ -81,7 +81,7 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CL_SYSCTL,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0,0,0,0,0,0) } },
     { (void *)"hinv.physmem",
-      { PMDA_PMID(CL_SYSCTL,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      { PMDA_PMID(CL_SYSCTL,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_MBYTE,0,0) } },
     { NULL,	/* kernel.all.load */
       { PMDA_PMID(CL_SPECIAL,2), PM_TYPE_FLOAT, LOADAV_INDOM, PM_SEM_INSTANT,
@@ -482,7 +482,6 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     mib_t		*mp;
     int			i;
-    struct timespec	now;
 
     mp = (mib_t *)mdesc->m_user;
     if (cluster == CL_SYSCTL) {
@@ -497,13 +496,25 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		}
 		break;
 
-	    /* 64-bit integer values */
+	    /* 32-bit or 64-bit integer values, depends on kernel */
 	    case 1:		/* hinv.physmem */
-		sts = do_sysctl(mp, sizeof(atom->ull));
-		if (sts > 0) {
-		    /* sysctl returns bytes, convert to Mbytes */
-		    atom->ul = (*((long *)mp->m_data))/(1024*1024);
+		sts = do_sysctl(mp, 0);
+		/* sysctl returns bytes, convert to Mbytes */
+		if (sts == sizeof(__uint64_t)) {
+		    /* 64-bit values from sysctl() */
+		    atom->ull = (__uint64_t)((__uint64_t *)mp->m_data)[0]/(1024*1024);
 		    sts = 1;
+		}
+		else if (sts == CPUSTATES*sizeof(__uint32_t)) {
+		    /* 32-bit values from sysctl() */
+		    atom->ull = (__uint64_t)((__uint32_t *)mp->m_data)[0]/(1024*1024);
+		    sts = 1;
+		}
+		else {
+		    fprintf(stderr, "Error: %s: sysctl(%s) datalen=%d not %d (long) or %d (int)!\n",
+			mp->m_pcpname, mp->m_name, sts, (int)sizeof(__uint64_t), 
+			(int)sizeof(__uint32_t)); 
+		    sts = 0;
 		}
 		break;
 
@@ -524,37 +535,30 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 5:		/* kernel.all.cpu.sys */
 	    case 6:		/* kernel.all.cpu.intr */
 	    case 7:		/* kernel.all.cpu.idle */
-#ifdef HAVE_32BIT_LONG
 		/*
-		 * for 32-bit kernels, fetch as 32-bit, and
-		 * promote to 64-bit metric values
+		 * PMID assignment is important in the "-3" below so
+		 * that metrics map to consecutive elements of the
+		 * returned value in the order defined for CPUSTATES,
+		 * i.e. CP_USER, CP_NICE, CP_SYS, CP_INTR and
+		 * CP_IDLE
 		 */
-		sts = do_sysctl(mp, CPUSTATES*sizeof(atom->ul));
-		if (sts > 0) {
-		    /*
-		     * PMID assignment is important in the "-3" below so
-		     * that metrics map to consecutive elements of the
-		     * returned value in the order defined for CPUSTATES,
-		     * i.e. CP_USER, CP_NICE, CP_SYS, CP_INTR and
-		     * CP_IDLE
-		     */
-		    atom->ull = 1000*((__uint32_t *)mp->m_data)[item-3]/cpuhz;
+		sts = do_sysctl(mp, 0);
+		if (sts == CPUSTATES*sizeof(__uint64_t)) {
+		    /* 64-bit values from sysctl() */
+		    atom->ull = 1000*((__uint64_t)((__uint64_t *)mp->m_data)[item-3])/cpuhz;
 		    sts = 1;
 		}
-#else
-		sts = do_sysctl(mp, CPUSTATES*sizeof(atom->ull));
-		if (sts > 0) {
-		    /*
-		     * PMID assignment is important in the "-3" below so
-		     * that metrics map to consecutive elements of the
-		     * returned value in the order defined for CPUSTATES,
-		     * i.e. CP_USER, CP_NICE, CP_SYS, CP_INTR and
-		     * CP_IDLE
-		     */
-		    atom->ull = 1000*((__uint64_t *)mp->m_data)[item-3]/cpuhz;
+		else if (sts == CPUSTATES*sizeof(__uint32_t)) {
+		    /* 32-bit values from sysctl() */
+		    atom->ull = 1000*((__uint64_t)((__uint32_t *)mp->m_data)[item-3])/cpuhz;
 		    sts = 1;
 		}
-#endif
+		else {
+		    fprintf(stderr, "Error: %s: sysctl(%s) datalen=%d not %d (long) or %d (int)!\n",
+			mp->m_pcpname, mp->m_name, sts, (int)CPUSTATES*sizeof(__uint64_t), 
+			(int)CPUSTATES*sizeof(__uint32_t)); 
+		    sts = 0;
+		}
 		break;
 
 	    case 13:		/* kernel.all.hz */
