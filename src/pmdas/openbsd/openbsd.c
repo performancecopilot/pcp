@@ -101,6 +101,9 @@ static pmdaMetric metrictab[] = {
     { (void *)"kernel.all.cpu.idle",
       { PMDA_PMID(CL_SYSCTL,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
+    { (void *)"kernel.all.cpu.spin",
+      { PMDA_PMID(CL_SYSCTL,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
     { NULL, 	/* kernel.percpu.cpu.user */
       { PMDA_PMID(CL_CPUTIME,3), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
@@ -115,6 +118,9 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
     { NULL, 	/* kernel.percpu.cpu.idle */
       { PMDA_PMID(CL_CPUTIME,7), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
+    { NULL, 	/* kernel.percpu.cpu.spin */
+      { PMDA_PMID(CL_CPUTIME,8), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
     { (void *)"kernel.all.hz",
       { PMDA_PMID(CL_SYSCTL,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
@@ -548,6 +554,16 @@ openbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		goto xtract;
 	    case 7:		/* kernel.all.cpu.idle */
 		pick = CP_IDLE;
+		goto xtract;
+	    case 8:		/* kernel.all.cpu.spin */
+#ifdef CP_SPIN
+		pick = CP_SPIN;
+		goto xtract;
+#else
+		sts = 0;
+		break;
+#endif
+
 xtract:
 		sts = do_sysctl(mp, 0);
 		if (sts == CPUSTATES*sizeof(__uint64_t)) {

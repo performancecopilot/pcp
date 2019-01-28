@@ -134,6 +134,15 @@ do_percpu_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		atom->ull = 1000 * stats[inst*CPUSTATES+CP_IDLE] / cpuhz;
 		break;
 
+	    case 8:		/* kernel.percpu.cpu.spin */
+#ifdef CP_SPIN
+		atom->ull = 1000 * stats[inst*CPUSTATES+CP_SPIN] / cpuhz;
+#else
+		sts = 0;
+#endif
+		break;
+
+
 	    default:
 		sts = PM_ERR_PMID;
 		break;
