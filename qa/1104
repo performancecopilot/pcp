@@ -49,11 +49,35 @@ grep '^kernel\.all\.cpu' $tmp.raw \
 do
     echo $all_metric $all_value >>$here/$seq.full
     percpu_metric=`echo "$all_metric" | sed -e 's/all/percpu/'`
-    sum_value=`grep "^$percpu_metric" $tmp.raw \
-    	       | $PCP_AWK_PROG '
+    percpu_numval=`grep "^$percpu_metric " $tmp.raw | $PCP_AWK_PROG '{ print $2 }'`
+    ok=true
+    if [ "$percpu_numval" -eq 0 ]
+    then
+	if [ "$all_numval" -eq 0 ]
+	then
+	    # No values available for both, this is OK
+	    continue
+	else
+	    ok=false
+	fi
+    elif [ "$all_numval" -lt 0 ]
+    then
+	ok=false
+    elif [ "$percpu_numval" -lt 0 ]
+    then
+	ok=false
+    fi
+
+    if $ok
+    then
+	sum_value=`grep "^$percpu_metric " $tmp.raw \
+		   | $PCP_AWK_PROG '
     { s = $3; for (i = 4; i <= NF; i++) s += $i; print s }'`
-    echo $percpu_metric $sum_value >>$here/$seq.full
-    _check $all_metric $all_value $sum_value
+	echo $percpu_metric $sum_value >>$here/$seq.full
+	_check $all_metric $all_value $sum_value
+    else
+	echo "Error: $all_metric numval=$all_numval, $percpu_metric numval=$percpu_numval !"
+    fi
 done
 
 # success, all done
