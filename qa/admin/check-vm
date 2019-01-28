@@ -1453,12 +1453,18 @@ fi
 case "`sed <$tmp.whatami -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
 in
     *OpenBSD*)
-	allowkmem=`sysctl kern.allowkmem | sed -e 's/.*=//'`
-	if [ "$allowkmem" != 1 ]
+	if false
 	then
-	    echo "Warning: kern.allowkmem is \"$allowkmem\" not 1 and so openbsd PMDA will not be able"
-	    echo "         to access /dev/kmem"
-	    echo "         Suggest adding kern.allowkmem=1 to etc/sysctl.conf and rebooting."
+	    # redundant now the openbsd PMDA no longer reads /dev/mem
+	    # directly
+	    #
+	    allowkmem=`sysctl kern.allowkmem | sed -e 's/.*=//'`
+	    if [ "$allowkmem" != 1 ]
+	    then
+		echo "Warning: kern.allowkmem is \"$allowkmem\" not 1 and so openbsd PMDA will not be able"
+		echo "         to access /dev/kmem"
+		echo "         Suggest adding kern.allowkmem=1 to etc/sysctl.conf and rebooting."
+	    fi
 	fi
 	;;
 
