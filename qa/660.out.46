@@ -62,9 +62,6 @@ PMWEBD error, XXX
 +++ should pass, feed this very script
 file service ok
 +++ should not fail after patch from GH PR594
-*   Trying LOCALADDR...
-* TCP_NODELAY set
-* Connected to LOCALHOST (LOCALADDR) port 44323 (####)
 > GET /pmapi/1/metrics HTTP/1.1
 > Host: LOCALHOST:44323
 > Accept: */*
