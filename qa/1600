@@ -2,7 +2,7 @@
 # PCP QA Test No. 1600
 # Exercise log discovery, pmproxy and pmseries.
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 #
 
 seq=`basename $0`
@@ -26,6 +26,7 @@ _cleanup()
 	need_restore=false
 	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
 	_restore_config $PCP_ETC_DIR/pcp/labels
+        _restore_config $PCP_SYSCONF_DIR/pmseries
 	_sighup_pmcd
     fi
     $sudo rm -rf $tmp $tmp.*
@@ -79,6 +80,8 @@ _filter_values()
 
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/labels
+_save_config $PCP_SYSCONF_DIR/pmseries
+$sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
 $sudo rm -f $PCP_ETC_DIR/pcp/labels/*
 need_restore=true
 echo '{"latitude": -25.28496, "longitude": 152.87886}' > $tmp.labels

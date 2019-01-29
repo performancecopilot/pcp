@@ -20,3 +20,5 @@ libpcp_web.dylib
 libpcp_web.1.dylib
 libpcp_web.so
 libpcp_web.so.1
+ini.h
+ini.c

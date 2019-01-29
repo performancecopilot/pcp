@@ -15,3 +15,6 @@ hash (portable performant hash function)
 
 sha1, crc16, dict, sds (hash and string helpers)
     - https://github.com/antirez/redis/blob/5.0/src
+
+Lightweight .ini file parser
+    - https://github.com/benhoyt/inih/
