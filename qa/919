@@ -37,11 +37,15 @@ _filter()
 }
 
 # real QA test starts here
-pmlogger -c $PCP_VAR_DIR/config/pmlogger/config.pmstat -t 1 -s 3 -l $tmp.log $tmp
+
+# 5 samples @ 0.55 sec should be enough to get 2 results @ 1 sec from
+# pmstat
+#
+pmlogger -c $PCP_VAR_DIR/config/pmlogger/config.pmstat -t 0.55 -s 5 -l $tmp.log $tmp
 cat $tmp.log >>$seq.full
 pmdumplog -dilmst $tmp >>$seq.full
 
-pmstat -t 1 -a $tmp | _filter
+pmstat -t 1 -a $tmp | tee -a $seq.full | _filter
 
 # success, all done
 status=0
