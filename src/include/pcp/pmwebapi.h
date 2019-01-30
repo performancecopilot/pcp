@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -192,7 +192,7 @@ extern int pmDiscoverSetEventLoop(pmDiscoverModule *, void *);
 extern int pmDiscoverSetMetricRegistry(pmDiscoverModule *, void *);
 extern void pmDiscoverClose(pmDiscoverModule *);
 
-extern int pmini_parse(sds, ini_handler, void *);
+extern int pmIniFileParse(sds, ini_handler, void *);
 
 #ifdef __cplusplus
 }
