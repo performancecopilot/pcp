@@ -47,7 +47,7 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 %endif
 
 # libvarlink and pmdapodman
-%if 0%{?fedora} >= 28 || 0%{?rhel} >= 7
+%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
 %global disable_podman 0
 %else
 %global disable_podman 1
@@ -86,15 +86,11 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenligh
 %endif
 
 # support for pmdabcc
-%if 0%{?fedora} >= 25 || 0%{?rhel} > 7
+%if 0%{?fedora} >= 25 || 0%{?rhel} > 6
 %ifarch s390 s390x armv7hl aarch64 i686
 %global disable_bcc 1
 %else
-%if !%{disable_python3}
 %global disable_bcc 0
-%else
-%global disable_bcc 1
-%endif
 %endif
 %else
 %global disable_bcc 1
