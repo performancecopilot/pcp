@@ -9,6 +9,7 @@ echo "QA output created by $seq"
 
 . ./common.webapi
 
+_check_pmwebd
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 
 $sudo rm -fr $tmp.dir
