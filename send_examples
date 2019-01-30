@@ -1,0 +1,12 @@
+i=0
+while true; do
+  let i=i+1
+  echo "example.counter:1|c" | nc -w 1 -u 0.0.0.0 8125
+  echo "example.counter_tens:10|c" | nc -w 1 -u 0.0.0.0 8125
+  echo "example.counter_random:$RANDOM|c" | nc -w 1 -u 0.0.0.0 8125
+  echo "example.timer:$RANDOM|ms" | nc -w 1 -u 0.0.0.0 8125
+  echo "example.gauge:$RANDOM|g" | nc -w 1 -u 0.0.0.0 8125
+  echo "example.gauge:+$i|g" | nc -w 1 -u 0.0.0.0 8125
+  echo "example.gauge:-$i|g" | nc -w 1 -u 0.0.0.0 8125
+  sleep 1
+done
