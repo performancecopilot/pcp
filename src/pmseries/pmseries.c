@@ -966,6 +966,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Connection Options"),
     { "host", 1, 'h', "HOST", "connect to Redis using given host name" },
     { "port", 1, 'p', "PORT", "connect to Redis using given TCP/IP port" },
+    { "config", 1, 'c', "config", "configuration file path"},
     PMAPI_OPTIONS_HEADER("General Options"),
     { "load", 0, 'L', 0, "load time series values and metadata" },
     { "query", 0, 'q', 0, "perform a time series query (default)" },
@@ -989,11 +990,32 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_BOUNDARIES,
-    .short_options = "adD:Fh:iIlLmMnqp:sSV?",
+    .short_options = "ac:dD:Fh:iIlLmMnqp:sSV?",
     .long_options = longopts,
     .short_usage = "[options] [query ... | series ... | source ...]",
     .override = pmseries_overrides,
 };
+
+typedef struct
+{
+    sds hostname;
+    unsigned int port;
+} config;
+
+static int handler(void* configuration, const char* section, const char* name,
+                   const char* value)
+{
+    config* userconfig = (config*)configuration;
+    #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+    if (MATCH("pmseries", "port")) {
+        userconfig->port = atoi(value);
+    } else if (MATCH("pmseries", "hostname")) {
+        userconfig->hostname = strdup(value);
+    } else {
+        return 0;  /* unknown section/name, error */
+    }
+    return 1;
+}
 
 int
 main(int argc, char *argv[])
@@ -1002,10 +1024,13 @@ main(int argc, char *argv[])
     int			c, sts;
     const char		*split = ",";
     const char		*space = " ";
-    char		*hostname = "localhost";
-    unsigned int	port = 6379;
+    config userconfig;
+    userconfig.hostname = sdsnew("localhost");
+    userconfig.port = 6379;
     series_flags	flags = 0;
     series_data		*dp;
+
+    pmIniFileParse("pmseries", handler, &userconfig);
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -1013,7 +1038,12 @@ main(int argc, char *argv[])
 	case 'a':	/* command line contains series identifiers */
 	    flags |= (PMSERIES_OPT_ALL | PMSERIES_SERIESID);
 	    break;
-
+        case 'c':
+            if (ini_parse(opts.optarg, handler, &userconfig) < 0) {
+                fprintf(stderr, "couldn't open config file: %s\n", opts.optarg);
+                return 1;
+            }
+            break;
 	case 'd':	/* command line contains series identifiers */
 	    flags |= PMSERIES_OPT_DESC;
 	    break;
@@ -1023,7 +1053,7 @@ main(int argc, char *argv[])
 	    break;
 
         case 'h':
-	    hostname = opts.optarg;
+	    userconfig.hostname = sdsdup(opts.optarg);
 	    break;
 
 	case 'i':	/* command line contains series identifiers */
@@ -1056,7 +1086,7 @@ main(int argc, char *argv[])
 	    break;
 
         case 'p':	/* Redis port to connect to */
-	    port = (unsigned int)strtol(opts.optarg, NULL, 10);
+	    userconfig.port = (unsigned int)strtol(opts.optarg, NULL, 10);
 	    break;
 
 	case 'q':	/* command line contains query string */
@@ -1172,8 +1202,8 @@ main(int argc, char *argv[])
     dp->settings.module.on_setup = on_series_setup;
 
     pmSeriesSetEventLoop(&dp->settings.module, dp->loop);
-    pmSeriesSetHostSpec(&dp->settings.module, 
-		sdscatprintf(sdsempty(), "%s:%u", hostname, port));
+    pmSeriesSetHostSpec(&dp->settings.module,
+		sdscatprintf(sdsempty(), "%s:%u", userconfig.hostname, userconfig.port));
 
     return pmseries_execute(dp);
 }

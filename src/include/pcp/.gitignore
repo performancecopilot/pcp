@@ -3,3 +3,4 @@ platformsz.h
 configsz.h
 config.h
 sds.h
+ini.h

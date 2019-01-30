@@ -37,6 +37,7 @@ pkg_upload()
     curl \
 	-T ${file} -u ${user}:${apikey} \
 	-H "X-GPG-PASSPHRASE: ${gpgpass}" \
+        -H "X-Bintray-Publish: 1" \
 	"${url};bt_package=pcp;bt_version=${vers};publish=1"
     echo
 }
@@ -53,6 +54,7 @@ deb_upload()
 	-H "X-GPG-PASSPHRASE: ${gpgpass}" \
 	-H "X-Bintray-Debian-Distribution: ${distro}" \
 	-H "X-Bintray-Debian-Component: main" \
+        -H "X-Bintray-Publish: 1" \
 	"${url};${deb};bt_package=pcp;bt_version=${vers};publish=1"
     echo
 }

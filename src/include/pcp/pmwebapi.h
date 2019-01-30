@@ -20,6 +20,7 @@ extern "C" {
 
 #include <pcp/pmapi.h>
 #include <pcp/sds.h>
+#include <pcp/ini.h>
 
 /*
  * Generalised asynchronous logging facilities.
@@ -190,6 +191,8 @@ extern int pmDiscoverSetHostSpec(pmDiscoverModule *, sds);
 extern int pmDiscoverSetEventLoop(pmDiscoverModule *, void *);
 extern int pmDiscoverSetMetricRegistry(pmDiscoverModule *, void *);
 extern void pmDiscoverClose(pmDiscoverModule *);
+
+extern int pmini_parse(sds, ini_handler, void *);
 
 #ifdef __cplusplus
 }
