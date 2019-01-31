@@ -1485,6 +1485,7 @@ BAD
 1104 kernel local
 1105 derive local kernel
 1106 libpcp local
+1107 pmie local
 1108 logutil local folio pmlogextract
 1109 pmlogger valgrind local pmdumplog
 1110 pmda.haproxy local python
@@ -1617,6 +1618,7 @@ BAD
 1367 labels pmda.simple local python
 1368 labels help pmlogger pmdumplog local sanity
 1369 labels pmcd pmlogger pmdumplog local
+1372 pmie local
 1383 pmlogrewrite labels pmdumplog local
 1385 pmda.prometheus local python
 1388 pmwebd local
