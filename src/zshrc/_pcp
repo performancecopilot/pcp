@@ -667,23 +667,24 @@ _pcp () {
       && return 0
   ;;
   pmseries)
-    _arguments -A "-*" -C -S -s \
+    _arguments -C -S -s \
       "$common_help[@]" \
-      "($exargs)"{-h+,--host=}'[specify Redis host]:host:_hosts' \
-      "($exargs)"{-p+,--port=}'[specify Redis port]:port:' \
-      "($exargs)"{-L,--load}'[load metadata and data into Redis]' \
-      "($exargs)"{-q,--query}'[perform timeseries query]' \
-      "($exargs)"{-a,--all}'[report all metadata, same as -dilms]' \
-      "($exargs)"{-d,--desc}'[report metric descriptions]' \
-      "($exargs)"{-I,--fullindom}'[print verbose InDom]' \
-      "($exargs)"{-i,--instances}'[report instance names]' \
-      "($exargs)"{-F,--fast}'[request metadata only]' \
-      "($exargs)"{-l,--labels}'[report label values]' \
-      "($exargs)"{-M,--fullpmid}'[print verbose PMID]' \
-      "($exargs)"{-m,--metrics}'[report metric names]' \
-      "($exargs)"{-n,--names}'[report label names]' \
-      "($exargs)"{-S,--sources}'[report context for timeseries sources]' \
-      "($exargs)"{-s,--series}'[report timeseries identifiers]' \
+      "(-h --host $exargs)"{-h+,--host=}'[specify Redis host]:host:_hosts' \
+      "(-p --port $exargs)"{-p+,--port=}'[specify Redis port]:port:' \
+      "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files'
+      "(-L --load $exargs)"{-L,--load}'[load metadata and data into Redis]' \
+      "(-q --query $exargs)"{-q,--query}'[perform timeseries query]' \
+      "(-a --all $exargs)"{-a,--all}'[report all metadata, same as -dilms]' \
+      "(-d --desc $exargs)"{-d,--desc}'[report metric descriptions]' \
+      "(-I --fullindom $exargs)"{-I,--fullindom}'[print verbose InDom]' \
+      "(-i --instances $exargs)"{-i,--instances}'[report instance names]' \
+      "(-F --fast $exargs)"{-F,--fast}'[request metadata only]' \
+      "(-l --labels $exargs)"{-l,--labels}'[report label values]' \
+      "(-M --fullpmid $exargs)"{-M,--fullpmid}'[print verbose PMID]' \
+      "(-m --metrics $exargs)"{-m,--metrics}'[report metric names]' \
+      "(-n --names $exargs)"{-n,--names}'[report label names]' \
+      "(-S --sources $exargs)"{-S,--sources}'[report context for timeseries sources]' \
+      "(-s --series $exargs)"{-s,--series}'[report timeseries identifiers]' \
       '1:series:->ts_metrics' \
       && return 0
   ;;
