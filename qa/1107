@@ -2,6 +2,8 @@
 # PCP QA Test No. 1107
 # pmie - #'instname' matching tests
 #
+# See also qa/1142 for live pmcd version.
+#
 # Copyright (c) 2019 Ken McDonell.  All Rights Reserved.
 #
 
