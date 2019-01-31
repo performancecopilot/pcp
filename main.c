@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdarg.h>
+#include <unistd.h>
 
 static int verbose = 0;
 static int debug = 0;
@@ -20,14 +21,16 @@ static uint64_t max_udp_packet_size = 1472; // 1472 - Ethernet MTU
 const int32_t MAX_UNPROCESSED_PACKETS = 2048;
 const int32_t TCP_READ_SIZE = 4096; // MTU
 
+
+// <Namespace> . <ValStr> _ <Modifier> : <ValFlt> | <Metric>
 struct StatsDDatagram
 {
-    char *Modifier;
-    char *Metric;
-    char *ValStr;
     char *Namespace;
+    char *ValStr;
+    char *Modifier;
     double ValFlt;
-    float Sampling;
+    char *Metric;
+    char *Sampling; // ? FLOAT
 };
 
 /* https://www.lemoda.net/c/die/ */
@@ -43,7 +46,62 @@ static void die (int line_number, const char * format, ...)
     exit (1);
 }
 
-void parse_arguments(int argc, char **argv) {
+void parse_file_arguments() {
+    char line_buffer[256];
+    int line_index = 0;
+    if (access("config", F_OK) == -1) {
+        printf("No config file found. Command line arguments only. \n");
+        return;
+    } else {
+        printf("Config file found. Command line arguments take precedence. \n");
+    }
+    FILE *config = fopen("config", "r");
+    char* option = new char [256]();
+    char* value = new char [256]();
+    const char MAX_UDP_PACKET_SIZE_OPTION[] = "max_udp_packet_size";
+    const char PORT_OPTION[] = "port";
+    const char TCP_ADDRESS_OPTION[] = "tcp_address";
+    const char VERSION_OPTION[] = "version";
+    const char VERBOSE_OPTION[] = "verbose";
+    const char TRACE_OPTION[] = "trace";
+    const char DEBUG_OPTION[] = "debug";
+    while (fgets(line_buffer, 256, config) != NULL) {
+        if (sscanf(line_buffer, "%s %s", option, value) != 2) {
+            die(__LINE__, "Syntax error in config file on line %d", line_index + 1);
+        }
+        if (strcmp(option, MAX_UDP_PACKET_SIZE_OPTION) == 0) {
+            max_udp_packet_size = strtoull(value, NULL, 10);
+        } else if (strcmp(option, PORT_OPTION) == 0) {
+            port = (char *) malloc(strlen(value));
+            if (port == NULL) {
+                die(__LINE__, "Unable to assing memory for port number.");
+            }
+            strncat(port, value, strlen(value));
+        } else if (strcmp(option, TCP_ADDRESS_OPTION) == 0) {
+            tcp_address = (char *) malloc(strlen(value));
+            if (tcp_address == NULL) {
+                die(__LINE__, "Unable to assing memory for tcp address.");
+            }
+            strncat(tcp_address, value, strlen(value));
+        } else if (strcmp(option, VERBOSE_OPTION) == 0) {
+            verbose = atoi(value);
+        } else if (strcmp(option, DEBUG_OPTION) == 0) {
+            debug = atoi(value);
+        } else if (strcmp(option, VERSION_OPTION) == 0) {
+            show_version = atoi(value);
+        } else if (strcmp(option, TRACE_OPTION) == 0) {
+            trace = atoi(value);
+        }
+        line_index++;
+        memset(option, '\0', 256);
+        memset(value, '\0', 256);
+    }
+    free(value);
+    free(option);
+    fclose(config);
+}
+
+void parse_cmd_arguments(int argc, char **argv) {
     int c;
     while(1) {
         static struct option long_options[] = {
@@ -84,26 +142,88 @@ void parse_arguments(int argc, char **argv) {
 
 void handle_datagram(char buffer[], ssize_t count) {
     struct StatsDDatagram* datagram = (struct StatsDDatagram *) malloc(sizeof(struct StatsDDatagram));
-    char delimiters[5] = "._:|";
-    int delimiter_index = 0;
     int current_segment_length = 0;
     int i;
-    for (i = 0; i < count; i++, current_segment_length++) {
-        char current_delimiter = delimiters[delimiter_index];
-        if (buffer[i] == current_delimiter) {
-            if (current_delimiter == '.' || current_delimiter == '_' || current_delimiter == '|' ||
-                current_delimiter == ':') {
-                char *attr = (char *) malloc(sizeof(char) * current_segment_length);
-                if (attr == NULL) {
-                    die(__LINE__, "Not enough memory to parse StatsD datagram");
-                }
-                // TODO: parse char val
-            } else {
-                // TODO: parse float val
-            }       
-            current_segment_length = 0;
-        }
+    char previous_delimiter = ' ';
+    char *segment = (char *) malloc(sizeof(char) * 549);
+    if (segment == NULL) {
+        die(__LINE__, "Unable to assign memory for StatsD datagram message parsing");
     }
+    for (i = 0; i < count; i++) {
+        segment[current_segment_length] = buffer[i];
+        if (buffer[i] == '.' ||
+            buffer[i] == '_' ||
+            buffer[i] == ':' ||
+            buffer[i] == '|' ||
+            buffer[i] == '\n') 
+        {
+            char* attr = (char *) malloc(current_segment_length + 1);
+            strncpy(attr, segment, current_segment_length);
+            attr[current_segment_length] = '\0';
+            if (attr == NULL) {
+                die(__LINE__, "Not enough memory to parse StatsD datagram segment");
+            }
+            if (buffer[i] == '.') {
+                datagram->Namespace = (char *) malloc(current_segment_length + 1);
+                if (datagram->Namespace == NULL) {
+                    die(__LINE__, "Not enough memory to save Namespace attribute.");
+                }
+                memcpy(datagram->Namespace, attr, current_segment_length + 1);
+                previous_delimiter = '.';
+            } else if (buffer[i] == '_') {
+                datagram->ValStr = (char *) malloc(current_segment_length + 1);
+                if (datagram->ValStr == NULL) {
+                    die(__LINE__, "Not enough memory to save ValStr attribute.");
+                }
+                memcpy(datagram->ValStr, attr, current_segment_length + 1);
+                previous_delimiter = '_';
+            } else if (buffer[i] == ':') {
+                if (previous_delimiter == '_') {
+                    datagram->Modifier = (char *) malloc(current_segment_length + 1);
+                    if (datagram->Modifier == NULL) {
+                        die(__LINE__, "Not enough memory to save Modifier attribute.");
+                    }
+                    memcpy(datagram->Modifier, attr, current_segment_length + 1);
+                } else {
+                    datagram->ValStr = (char *) malloc(current_segment_length + 1);
+                    if (datagram->ValStr == NULL) {
+                        die(__LINE__, "Not enough memory to save ValStr attribute.");
+                    }
+                    memcpy(datagram->ValStr, attr, current_segment_length + 1);
+                }
+                previous_delimiter = ':';
+            } else if (buffer[i] == '|') {
+                double result;
+                if (sscanf(attr, "%lf", &result) != 1) {
+                    // not a double
+                    die(__LINE__, "Unable to parse metric double value");
+                } else {
+                    // a double
+                    datagram->ValFlt = result;
+                }
+                previous_delimiter = '|';
+            } else if (buffer[i] == '\n') {
+                datagram->Metric = (char *) malloc(current_segment_length + 1);
+                if (datagram->Metric == NULL) {
+                    die(__LINE__, "Not enough memory to save Metric attribute.");
+                }
+                memcpy(datagram->Metric, attr, current_segment_length + 1);
+            }
+            free(attr);
+            memset(segment, '\0', 549);
+            current_segment_length = 0;
+            continue;
+        }
+        current_segment_length++;
+    }
+    printf("Namespace: %s \n", datagram->Namespace);
+    printf("ValStr: %s \n", datagram->ValStr);
+    printf("Modifier: %s \n", datagram->Modifier);
+    printf("ValFlt: %f \n", datagram->ValFlt);
+    printf("Metric: %s \n", datagram->Metric);
+    printf("------------------------------ \n");
+    free(datagram);
+    free(segment);
 }
 
 void udpListen() {
@@ -175,9 +295,12 @@ void print_arguments() {
 int main(int argc, char **argv)
 {
     /* save into scoped variables parsed program arguments */
-    parse_arguments(argc, argv);
+    parse_cmd_arguments(argc, argv);
+    parse_file_arguments();
+    
     /* print those arguments */
     print_arguments();
+    
     /* start listening on udp for pcp datagrams */    
     udpListen();
     return 1;
