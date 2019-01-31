@@ -1,0 +1,4 @@
+max_udp_packet_size 1472
+port 8125
+tcp_address 0.0.0.0
+version 0
