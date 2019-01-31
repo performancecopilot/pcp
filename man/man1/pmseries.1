@@ -19,8 +19,9 @@
 .SH SYNOPSIS
 \fBpmseries\fR
 [\fB\-adFiIlLmMnqsSV\fR]
-[\fB\-p\fR \fIport\fR]
+[\fB\-c\fR \fIconfig\fR]
 [\fB\-h\fR \fIhost\fR]
+[\fB\-p\fR \fIport\fR]
 [\fIquery\fR | \fIseries\fR ... | \fIsource\fR ... ]
 .SH DESCRIPTION
 .de SAMPLE
@@ -383,6 +384,10 @@ of the query language.
 The available command line options, in addition to timeseries
 metadata and sources options described above, are:
 .TP 5
+\fB\-c\fR \fIconfig\fR, \fB\-\-config\fR=\fIconfig\fR
+Specify the
+.IR config
+file to use.
 .TP
 \fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
 Connect Redis server at
