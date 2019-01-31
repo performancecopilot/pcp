@@ -497,7 +497,7 @@ showConst(Expr *x)
 		break;
 	    }
 	    else if (x->sem == PM_SEM_INSTANT || x->sem == PM_SEM_DISCRETE) {
-		if (x->metrics != NULL && x->metrics->desc.type == PM_TYPE_STRING)
+		if (x->op == CND_FETCH && x->metrics != NULL && x->metrics->desc.type == PM_TYPE_STRING)
 		    length = showStringValue(x, i, length, &string);
 		else
 		    length = showNum(x, i, length, &string);

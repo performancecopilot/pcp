@@ -59,7 +59,7 @@ gramerr(char *phrase, char *pos, char *op)
  * yacc token and operator declarations
  ***********************************************************************/
 
-%expect     192
+%expect     204
 %start      stmnt
 
 %token      ARROW
@@ -547,6 +547,9 @@ aggr	: SUM_AGGR dom aexp
 		    $$ = NULL; }
 	| MIN_AGGR dom error
 		{   gramerr(aexp_str, follow, aggr_str);
+		    $$ = NULL; }
+	| COUNT_AGGR dom error
+		{   gramerr(bexp_str, follow, aggr_str);
 		    $$ = NULL; }
 	;
 
