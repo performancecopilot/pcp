@@ -571,6 +571,22 @@ domainExpr(int op, int dom, Expr *arg)
 	dom = 2;
     }
 
+    /*
+     * the sum_* and avg_* operators require an arithmetic expression
+     */
+    if (op == CND_SUM_HOST || op == CND_AVG_HOST) {
+	if (arg->metrics->desc.type != PM_TYPE_32 && arg->metrics->desc.type != PM_TYPE_U32 &&
+	    arg->metrics->desc.type != PM_TYPE_64 && arg->metrics->desc.type != PM_TYPE_U64 &&
+	    arg->metrics->desc.type != PM_TYPE_FLOAT &&
+	    arg->metrics->desc.type != PM_TYPE_DOUBLE) {
+            synerr();
+	    fprintf(stderr, "arithmetic (not %s) operand required for aggregate operator\n",
+		pmTypeStr(arg->metrics->desc.type));
+	    freeExpr(arg);
+	    return NULL;
+	}
+    }
+
     if (op == CND_COUNT_HOST) {
 	x = newExpr(op + dom, arg, NULL, hdom, idom, tdom, abs(tdom), PM_SEM_INSTANT);
 	newRingBfr(x);

@@ -125,34 +125,59 @@ newContext(Symbol *host, const char *hconn, int is_temp)
  * instance profile
  ***********************************************************************/
 
-/* equality (not symmetric) of instance names */
+/*
+ * equality of external instance names
+ * - try full match first, else
+ * - match up to first space of myname and indomname
+ */
 static int
-eqinst(char *i1, char *i2)
+eqinst(char *myname, char *indomname)
 {
-    int		n1 = (int) strlen(i1);
-    int		n2 = (int) strlen(i2);
+    char	*p;
+    int		mylen;
+    int		indomlen;
 
-    /* test equality of first word */
-    if ((strncmp(i1, i2, n1) == 0) && ((n1 == n2) || isspace((int)i2[n1])))
+    if (strcmp(myname, indomname) == 0) {
+	/* full match */
 	return 1;
+    }
 
-    do {	/* skip over first word */
-	i2++;
-	n2--;
-	if (n2 < n1)
-	    return 0;
-    } while (! isspace((int)*i2));
+    p = index(myname, ' ');
+    if (p == NULL) {
+	/* no space */
+	mylen = 0;
+    }
+    else {
+	mylen = p - myname;
+    }
 
-    do {	/* skip over spaces */
-	i2++;
-	n2--;
-	if (n2 < n1)
-	    return 0;
-    } while (isspace((int)*i2));
+    p = index(indomname, ' ');
+    if (p == NULL) {
+	/* no space */
+	indomlen = 0;
+    }
+    else {
+	indomlen = p - indomname;
+    }
 
-    /* test equality of second word */
-    if ((strncmp(i1, i2, n1) == 0) && ((n1 == n2) || isspace((int)i2[n1])))
+    if (mylen == 0 && indomlen == 0) {
+	/* no spaces in either */
+	return 0;
+    }
+
+    if (indomlen == 0) indomlen = strlen(indomname);
+    if (mylen == 0) mylen = strlen(myname);
+
+    if (mylen != indomlen) {
+	/* lengths to first space or end of string not equal */
+	return 0;
+    }
+
+    if (strncmp(myname, indomname, mylen) == 0) {
+	/* prefix match to first space */
 	return 1;
+    }
+
     return 0;
 }
 

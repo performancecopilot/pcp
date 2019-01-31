@@ -1200,7 +1200,7 @@ __dumpExpr(int level, Expr *x)
 			if (k == 0)
 			    fprintf(stderr, "\"%s\"", (char *)x->smpls[j].ptr);
 		    }
-		    else if (x->metrics != NULL && x->metrics->desc.type == PM_TYPE_STRING) {
+		    else if (x->op == CND_FETCH && x->metrics != NULL && x->metrics->desc.type == PM_TYPE_STRING) {
 			/* string-valued metric */
 			fprintf(stderr, "\"%s\"", getStringValue(x, k));
 		    }
