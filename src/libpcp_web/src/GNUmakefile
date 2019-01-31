@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018 Red Hat.
+# Copyright (c) 2015-2019 Red Hat.
 #
 # This library is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
@@ -22,10 +22,10 @@ CFILES = jsmn.c http_client.c http_parser.c sds.c siphash.c \
 HFILES = jsmn.h http_client.h http_parser.h sdsalloc.h zmalloc.h \
 	 query.h schema.h load.h crc16.h sha1.h util.h slots.h \
 	 redis.h net.h dict.h maps.h batons.h \
-	 discover.h private.h libuv.h ini.h
+	 discover.h private.h libuv.h
 YFILES = query_parser.y
 XFILES = jsmn.c jsmn.h http_parser.c http_parser.h crc16.c crc16.h \
-	 sha1.c sha1.h sds.c siphash.c dict.c dict.h ini.c ini.h
+	 sha1.c sha1.h sds.c siphash.c dict.c dict.h ini.c
 
 LLDLIBS = $(PCPLIB) $(PCP_PMDALIB) $(LIB_FOR_MATH)
 ifeq "$(TARGET_OS)" "mingw"
