@@ -33,7 +33,7 @@ static pmDiscover *discover_hashtable[PM_DISCOVER_HASHTAB_SIZE];
 static unsigned int
 strhash(const char *s, unsigned int limit)
 {
-    unsigned int	h = 2166136261; /* FNV offset_basis */
+    unsigned int	h = 2166136261LL; /* FNV offset_basis */
     unsigned char	*us = (unsigned char *)s;
 
     for (; *us != '\0'; us++) {
