@@ -1521,6 +1521,7 @@ BAD
 1140 pidstat local python pcp pmlogrewrite
 1141 selinux local
 1142 pmie local kernel
+1143 pmie local
 1144 pmda.proc local
 1150 pmda.bcc local python
 1151 pmda.bcc local python
