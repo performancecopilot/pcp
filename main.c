@@ -56,8 +56,14 @@ void parse_file_arguments() {
         printf("Config file found. Command line arguments take precedence. \n");
     }
     FILE *config = fopen("config", "r");
-    char* option = new char [256]();
-    char* value = new char [256]();
+    char* option = (char *) malloc(256);
+    if (option == NULL) {
+        die(__LINE__, "Unable to assign memory for parsing options file");
+    }
+    char* value = (char *) malloc(256);
+    if (value == NULL) {
+        die(__LINE__, "Unable to assign memory for parsing options file.");
+    }
     const char MAX_UDP_PACKET_SIZE_OPTION[] = "max_udp_packet_size";
     const char PORT_OPTION[] = "port";
     const char TCP_ADDRESS_OPTION[] = "tcp_address";
@@ -74,13 +80,13 @@ void parse_file_arguments() {
         } else if (strcmp(option, PORT_OPTION) == 0) {
             port = (char *) malloc(strlen(value));
             if (port == NULL) {
-                die(__LINE__, "Unable to assing memory for port number.");
+                die(__LINE__, "Unable to assign memory for port number.");
             }
             strncat(port, value, strlen(value));
         } else if (strcmp(option, TCP_ADDRESS_OPTION) == 0) {
             tcp_address = (char *) malloc(strlen(value));
             if (tcp_address == NULL) {
-                die(__LINE__, "Unable to assing memory for tcp address.");
+                die(__LINE__, "Unable to assign memory for tcp address.");
             }
             strncat(tcp_address, value, strlen(value));
         } else if (strcmp(option, VERBOSE_OPTION) == 0) {
@@ -166,7 +172,7 @@ void handle_datagram(char buffer[], ssize_t count) {
             if (buffer[i] == '.') {
                 datagram->Namespace = (char *) malloc(current_segment_length + 1);
                 if (datagram->Namespace == NULL) {
-                    die(__LINE__, "Not enough memory to save Namespace attribute.");
+                    die(__LINE__, "Not enough memory to save Namespace attribute");
                 }
                 memcpy(datagram->Namespace, attr, current_segment_length + 1);
                 previous_delimiter = '.';

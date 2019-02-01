@@ -4,5 +4,17 @@ PCP PMDA for StatsD in C
 compile with:
 
 ```
-gcc -o -Wall -Wextra
+make
+```
+
+run with: 
+
+```
+make
+```
+
+clean with:
+
+```
+make clean
 ```
