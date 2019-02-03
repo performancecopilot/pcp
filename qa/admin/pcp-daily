@@ -247,6 +247,8 @@ sed -e 's/^/ /' <Logs/pcp \
     -e '/QtCore\/qvector.h:.* memcpy(/d' \
     -e '/libpython.* warning: warning: tmpnam() possibly used unsafely/d' \
     -e '/libpython.* warning: warning: tempnam() possibly used unsafely/d' \
+    -e '/WARNING: missing directory entry for <.*pcp/s/WARNING/Warning/' \
+    -e '/WARNING: missing directory entry for </d' \
 # end
 if [ -s $tmp.err ]
 then

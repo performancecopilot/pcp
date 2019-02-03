@@ -33,6 +33,9 @@
 #if defined(HAVE_IEEEFP_H)
 #include <ieeefp.h>
 #endif
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 extern char	*clientid;
 
