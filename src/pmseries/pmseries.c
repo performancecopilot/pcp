@@ -92,6 +92,11 @@ typedef struct series_data {
     pmSID		*iseries;	/* series identifiers for instances */
 } series_data;
 
+typedef struct series_config {
+    sds			hostname;	/* hostname for initial Redis socket */
+    unsigned int	port;		/* port number for that Redis socket */
+} series_config;
+
 static void on_series_done(int, void *);
 
 static series_data *
@@ -996,25 +1001,28 @@ static pmOptions opts = {
     .override = pmseries_overrides,
 };
 
-typedef struct
+static int
+series_ini_handler(void *configuration, const char *section, const char *name,
+		const char *value)
 {
-    sds hostname;
-    unsigned int port;
-} config;
+    series_config	*config = (series_config *)configuration;
+    char		*endnum;
 
-static int handler(void* configuration, const char* section, const char* name,
-                   const char* value)
-{
-    config* userconfig = (config*)configuration;
-    #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-    if (MATCH("pmseries", "port")) {
-        userconfig->port = atoi(value);
-    } else if (MATCH("pmseries", "hostname")) {
-        userconfig->hostname = strdup(value);
+    if (strcmp(section, "pmseries") != 0)
+	return 1;	/* unknown section, error */
+
+    if (strcmp(name, "port") == 0) {
+	config->port = (int)strtol(value, &endnum, 10);
+	if (*endnum != '\0' || config->port < 0)
+	    return 0;  /* bad port number, error */
+    } else if (strcmp(name, "hostname") == 0) {
+	config->hostname = sdscpy(config->hostname, value);
+	if (!config->hostname)
+	    return 0;  /* out of memory, error */
     } else {
-        return 0;  /* unknown section/name, error */
+	return 0;  /* unknown name, error */
     }
-    return 1;
+    return 1;	/* success */
 }
 
 int
@@ -1024,13 +1032,13 @@ main(int argc, char *argv[])
     int			c, sts;
     const char		*split = ",";
     const char		*space = " ";
-    config userconfig;
-    userconfig.hostname = sdsnew("localhost");
-    userconfig.port = 6379;
+    series_config	config;
     series_flags	flags = 0;
     series_data		*dp;
 
-    pmIniFileParse("pmseries", handler, &userconfig);
+    config.port	= 6379;	/* default Redis port */
+    config.hostname	= sdsnew("localhost");
+    pmIniFileParse("pmseries", series_ini_handler, &config);
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -1039,7 +1047,7 @@ main(int argc, char *argv[])
 	    flags |= (PMSERIES_OPT_ALL | PMSERIES_SERIESID);
 	    break;
         case 'c':
-            if (ini_parse(opts.optarg, handler, &userconfig) < 0) {
+            if (ini_parse(opts.optarg, series_ini_handler, &config) < 0) {
                 fprintf(stderr, "couldn't open config file: %s\n", opts.optarg);
                 return 1;
             }
@@ -1053,7 +1061,7 @@ main(int argc, char *argv[])
 	    break;
 
         case 'h':
-	    userconfig.hostname = sdsdup(opts.optarg);
+	    config.hostname = sdsdup(opts.optarg);
 	    break;
 
 	case 'i':	/* command line contains series identifiers */
@@ -1086,7 +1094,7 @@ main(int argc, char *argv[])
 	    break;
 
         case 'p':	/* Redis port to connect to */
-	    userconfig.port = (unsigned int)strtol(opts.optarg, NULL, 10);
+	    config.port = (unsigned int)strtol(opts.optarg, NULL, 10);
 	    break;
 
 	case 'q':	/* command line contains query string */
@@ -1203,7 +1211,8 @@ main(int argc, char *argv[])
 
     pmSeriesSetEventLoop(&dp->settings.module, dp->loop);
     pmSeriesSetHostSpec(&dp->settings.module,
-		sdscatprintf(sdsempty(), "%s:%u", userconfig.hostname, userconfig.port));
+		sdscatprintf(sdsempty(), "%s:%u", config.hostname, config.port));
+    sdsfree(config.hostname);
 
     return pmseries_execute(dp);
 }
