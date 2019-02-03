@@ -2231,12 +2231,18 @@ vector<float> round_linear (float& ymin, float& ymax, unsigned nticks)
 {
     vector<float> ticks;
 
-    // make some space between min & max
-    float epsilon = 0.5;
+    // make some space between min & max, even if both are initially
+    // close to each other or to zero; FLT_EPSILON would be less
+    // arbitrary, except y axis labeling is limited to precision(5),
+    // so use that.
+
+    // clog << "round min=" << ymin << " max=" << ymax << endl;
+    float epsilon = 0.0001 * (fabs(ymax) + 1.);
     if ((ymax - ymin) < epsilon) {
         ymin -= epsilon;
         ymax += epsilon;
     }
+    // clog << "round epsilon=" << epsilon << " newmin=" << ymin << " newmax=" << ymax << endl;
 
     if (nticks <= 1) {
         nticks = 3;
@@ -2738,7 +2744,9 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     if (params["graphOnly"] != "true") {
         // Shrink the graph to make room for axis labels; match apprx. layout to
         // grafana's javascript-side rendering engine
-        graphxlow = 5 * 8.0; // some digits of axis-label width
+        graphxlow = 8 * 8.0;
+        // some digits of axis-label width
+        // incl. scientific notation exponents; see also round_linear()
         graphxhigh = width * 0.96;
         graphyhigh -= 10.;
 
@@ -2772,6 +2780,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
                 cairo_stroke (cr);
 
                 stringstream label;
+                // precision(5) => practical limit on round_linear epsilon
                 label << setprecision(5) << yticks[i];
                 string lstr = label.str ();
                 cairo_text_extents_t ext;

@@ -2,7 +2,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" Copyright (c) 2015-2016,2018 Red Hat.
+.\" Copyright (c) 2015-2016,2018-2019 Red Hat.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -421,14 +421,14 @@ filesys.free #'/dev/usr' /
 .fi
 .ft 1
 .P
-The following rule requires a machine that supports the PCP environment metrics.
+The following rule requires a machine that supports the lmsensors metrics.
 If the machine environment temperature rises more than 2 degrees over a
 10 minute interval, write an entry in the system log:
 .P
 .ft CW
 .nf
 .in +0.5i
-environ.temp @0 - environ.temp @1 > 2
+lmsensors.coretemp_isa.temp1 @0 - lmsensors.coretemp_isa.temp1 @1 > 2
 -> alarm "temperature rising fast" &
    syslog "machine room temperature rise alarm";
 .in
