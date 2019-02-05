@@ -1523,6 +1523,7 @@ BAD
 1142 pmie local kernel
 1143 pmie local
 1144 pmda.proc local
+1145 fault libpcp local
 1150 pmda.bcc local python
 1151 pmda.bcc local python
 1152 pmda.bcc local python
