@@ -56,6 +56,7 @@
 
 #include "pmapi.h"
 #include "libpcp.h"
+#include "fault.h"
 #include "deprecated.h"
 #include "pmdbg.h"
 #include "internal.h"
@@ -1641,12 +1642,14 @@ vpmprintf(const char *fmt, va_list arg)
     PM_LOCK(util_lock);
     if (msgbuf == NULL) {
 	/* initial 4K allocation */
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	msgbuf = malloc(MSGCHUNK);
 	if (msgbuf == NULL) {
+	    PM_UNLOCK(util_lock);
 	    pmNoMem("vmprintf malloc", MSGCHUNK, PM_RECOV_ERR);
 	    vfprintf(stderr, fmt, arg);
+	    fputc('\n', stderr);
 	    fflush(stderr);
-	    PM_UNLOCK(util_lock);
 	    return -ENOMEM;
 	}
 	msgbuflen = MSGCHUNK;
@@ -1664,22 +1667,28 @@ vpmprintf(const char *fmt, va_list arg)
 	    va_copy(arg, save_arg);	/* will need to call vsnprintf() again */
 	}
 	msgbuflen += MSGCHUNK;
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	msgbuf_tmp = realloc(msgbuf, msgbuflen);
 	if (msgbuf_tmp == NULL) {
-	    pmNoMem("vmprintf realloc", msgbuflen, PM_RECOV_ERR);
+	    int		msgbuflen_tmp = msgbuflen;
+	    msgbuf[msgbuflen - MSGCHUNK] = '\0';
 	    fprintf(stderr, "%s", msgbuf);
 	    vfprintf(stderr, fmt, arg);
+	    fputc('\n', stderr);
 	    fflush(stderr);
 	    free(msgbuf);
 	    msgbuf = NULL;
 	    msgbuflen = 0;
 	    msgsize = 0;
 	    PM_UNLOCK(util_lock);
+	    pmNoMem("vmprintf realloc", msgbuflen_tmp, PM_RECOV_ERR);
+	    va_end(save_arg);
 	    return -ENOMEM;
 	}
 	msgbuf = msgbuf_tmp;
 	avail = msgbuflen - msgsize - 1;
     }
+    va_end(save_arg);
     msgsize += bytes;
 
     PM_UNLOCK(util_lock);
