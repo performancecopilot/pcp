@@ -252,7 +252,7 @@ do
     else
 	# empty output but non-zero exit status?
 	#
-	echo "Warning: $base: bad archive (pmlogcheck exit status=$sts), rewriting skipped"
+	echo "Warning: $base: bad archive (pmlogcheck exit status=$?), rewriting skipped"
 	continue
     fi
     if `which sum >/dev/null 2>&1`
