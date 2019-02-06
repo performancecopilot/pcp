@@ -229,6 +229,17 @@ void PmView::quit()
 	pmtime->quit();
 }
 
+void PmView::setValueText(QString &string)
+{
+    my.statusBar->setValueText(string);
+    QTimer::singleShot(PmView::defaultTimeout(), this, SLOT(timeout()));
+}
+
+void PmView::timeout()
+{
+    my.statusBar->clearValueText();
+}
+
 void PmView::closeEvent(QCloseEvent *)
 {
     quit();

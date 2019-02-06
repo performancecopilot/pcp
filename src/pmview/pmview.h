@@ -85,6 +85,7 @@ public:
     virtual void step(bool livemode, QmcTime::Packet *pmtime);
     virtual void VCRMode(bool livemode, QmcTime::Packet *pmtime, bool drag);
     virtual void timeZone(bool livemode, QmcTime::Packet *pmtime, char *tzdata);
+    virtual void setValueText(QString &text);
     virtual void setDateLabel(QString label);
     virtual void setDateLabel(time_t seconds, QString tz);
     virtual void setButtonState(QedTimeButton::State state);
@@ -126,6 +127,7 @@ public slots:
     virtual void recordQuery();
     virtual void recordStop();
     virtual void recordDetach();
+    virtual void timeout();
     virtual void updateToolbarOrientation(Qt::Orientation);
 
 protected slots:
