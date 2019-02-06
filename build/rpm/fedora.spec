@@ -371,14 +371,6 @@ then
 fi
 }
 
-# force upgrade of PMDAs starting in "notready" state
-%global pmda_notready() %{expand:
-if grep -q ^%2 "%{_confdir}/pmcd/pmcd.conf" 2>/dev/null
-then
-    touch %{_pmdasdir}/%2/.NeedInstall
-fi
-}
-
 %global selinux_handle_policy() %{expand:
 if [ %1 -ge 1 ]
 then
@@ -2017,7 +2009,7 @@ Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-summary
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about other installed pmdas.
+collecting metrics about other installed PMDAs.
 # end pcp-pmda-summary
 
 %if !%{disable_systemd}
@@ -2820,9 +2812,13 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %post zeroconf
 PCP_PMDAS_DIR=%{_pmdasdir}
 PCP_SYSCONFIG_DIR=%{_sysconfdir}/sysconfig
-# auto-install important PMDAs for RH Support
+PCP_PMCDCONF_PATH=%{_confdir}/pmcd/pmcd.conf
+# auto-install important PMDAs for RH Support (if not present already)
 for PMDA in dm nfsclient ; do
-    touch "$PCP_PMDAS_DIR/$PMDA/.NeedInstall"
+    if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
+    then
+	touch "$PCP_PMDAS_DIR/$PMDA/.NeedInstall"
+    fi
 done
 # increase default pmlogger recording frequency
 sed -i 's/^\#\ PMLOGGER_INTERVAL.*/PMLOGGER_INTERVAL=10/g' "$PCP_SYSCONFIG_DIR/pmlogger"
@@ -2856,14 +2852,6 @@ pmieconf -c enable dmthin
 %triggerin selinux -- container-selinux
 %{selinux_handle_policy "$1" "pcpupstream-container"}
 %endif
-
-%if !%{disable_bcc}
-%post pmda-bcc
-%{pmda_notready "$1" "bcc"}
-%endif
-
-%post pmda-prometheus
-%{pmda_notready "$1" "prometheus"}
 
 %post
 PCP_LOG_DIR=%{_logsdir}

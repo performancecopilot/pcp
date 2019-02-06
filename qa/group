@@ -1634,6 +1634,10 @@ BAD
 1415 pmda.mmv labels local
 1422 pmda.mmv local valgrind
 1423 pcp2spark python pcp2xxx local
+1434 pmda.nfsclient local
+1435 pmda.elasticsearch local
+1436 pmda.postgresql local
+1437 pmda.kvm local
 1455 pmlogrewrite labels pmdumplog local
 1480 pmda.lmsensors local
 1495 pmlogrewrite labels pmdumplog local

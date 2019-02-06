@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2018 Red Hat.
+# Copyright (c) 2012-2019 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -108,6 +108,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@have_python@|$(HAVE_PYTHON)|g' \
 	    -e's|@have_webapps@|$(HAVE_WEBAPPS)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \
+	    -e's|@pcp_pmcdconf_path@|$(PCP_PMCDCONF_PATH)|g' \
 	    -e's|@pcp_sysconfig_dir@|$(PCP_SYSCONFIG_DIR)|g' \
 	    -e's|@pcp_sysconf_dir@|$(PCP_SYSCONF_DIR)|g' \
 	    -e's|@pcp_share_dir@|$(PCP_SHARE_DIR)|g' \

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018 Red Hat.
+# Copyright (c) 2015-2019 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -35,7 +35,7 @@ LLDLIBS		+= $(LIB_FOR_DEVMAPPER)
 LCFLAGS		+= -DHAVE_DEVMAPPER=1
 endif
 
-SCRIPTS		= Install Remove
+SCRIPTS		= Install Remove Upgrade
 VERSION_SCRIPT	= exports
 LDIRT		= domain.h $(IAM).log $(VERSION_SCRIPT)
 

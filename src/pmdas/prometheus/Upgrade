@@ -1,0 +1,29 @@
+#! /bin/sh
+#
+# Copyright (c) 2019 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Upgrade an older Prometheus PMDA install with missing 'notready' keyword
+#
+
+. $PCP_DIR/etc/pcp.env
+
+if grep -q ^prometheus "$PCP_PMCDCONF_PATH" 2>/dev/null
+then
+    if grep ^prometheus "$PCP_PMCDCONF_PATH" | grep -q notready 2>/dev/null
+    then
+	:	# already has the keyword, so nothing to update here
+    else
+	sed -i -e "s,^\(prometheus.*binary\),\1 notready,g" $PCP_PMCDCONF_PATH
+    fi
+fi
+exit 0

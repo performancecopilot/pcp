@@ -153,21 +153,11 @@ Requires: initscripts
 if [ %1 -eq 0 ]
 then
     PCP_PMDAS_DIR=@pcp_pmdas_dir@
-    PCP_ETC_DIR=@pcp_etc_dir@
-    if [ -f "$PCP_ETC_DIR/pcp/pmcd/pmcd.conf" -a -f "$PCP_PMDAS_DIR/%2/domain.h" ]
+    PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
+    if [ -f "$PCP_PMCDCONF_PATH" -a -f "$PCP_PMDAS_DIR/%2/domain.h" ]
     then
 	(cd $PCP_PMDAS_DIR/%2/ && ./Remove >/dev/null 2>&1)
     fi
-fi
-}
-
-# force upgrade of PMDAs starting in "notready" state
-%global pmda_notready() %{expand:
-PCP_PMDAS_DIR=@pcp_pmdas_dir@
-PCP_ETC_DIR=@pcp_etc_dir@
-if grep -q ^%2 "$PCP_ETC_DIR/pcp/pmcd/pmcd.conf" 2>/dev/null
-then
-    touch $PCP_PMDAS_DIR/%2/.NeedInstall
 fi
 }
 
@@ -2046,7 +2036,7 @@ URL: https://pcp.io
 Requires: pcp = @package_version@
 %description pmda-summary
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about other installed pmdas.
+collecting metrics about other installed PMDAs.
 # end pcp-pmda-summary
 
 %if "@pmda_systemd@" == "true"
@@ -2803,16 +2793,6 @@ PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 PCP_LOG_DIR=@pcp_log_dir@
 PCP_ETC_DIR=@pcp_etc_dir@
 
-# transition pmdadmcache over to pmdadm (device mapper)
-PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
-PCP_PMDAS_DIR=@pcp_pmdas_dir@
-if grep -q ^dmcache "$PCP_PMCDCONF_PATH" 2>/dev/null
-then
-    mkdir -p -m 755 "$PCP_PMDAS_DIR/dm"
-    touch "$PCP_PMDAS_DIR/dm/.NeedInstall"
-    touch "$PCP_PMDAS_DIR/dmcache/.NeedRemove"
-fi
-
 # rename crontab files to align with current Fedora packaging guidelines
 for crontab in pmlogger pmie
 do
@@ -2910,9 +2890,13 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
 %post zeroconf
 PCP_PMDAS_DIR=@pcp_pmdas_dir@
 PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
-# auto-install important PMDAs for RH Support
+PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
+# auto-install important PMDAs for RH Support (if not present already)
 for PMDA in dm nfsclient ; do
-    touch "$PCP_PMDAS_DIR/$PMDA/.NeedInstall"
+    if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
+    then
+	touch "$PCP_PMDAS_DIR/$PMDA/.NeedInstall"
+    fi
 done
 # increase default pmlogger recording frequency
 sed -i 's/^\#\ PMLOGGER_INTERVAL.*/PMLOGGER_INTERVAL=10/g' "$PCP_SYSCONFIG_DIR/pmlogger"
@@ -3264,16 +3248,6 @@ cd
 
 %triggerun selinux -- container-selinux
 %{selinux_handle_policy "$1" "pcpupstream-container"}
-%endif
-
-%if "@pmda_bcc@" == "true"
-%post pmda-bcc
-%{pmda_notready "$1" "bcc"}
-%endif
-
-%if "@pmda_prometheus@" == "true"
-%post pmda-prometheus
-%{pmda_notready "$1" "prometheus"}
 %endif
 
 %files -f base_files.rpm

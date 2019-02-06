@@ -1,0 +1,5 @@
+QA output created by 1436
+== Upgrade test case 1
+postgresql 110 pipe binary python PCP_PMDAS_DIR/postgresql/pmdapostgresql.python
+== Upgrade test case 2
+postgresql 110 pipe binary python PCP_PMDAS_DIR/postgresql/pmdapostgresql.python

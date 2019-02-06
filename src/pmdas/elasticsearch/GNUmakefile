@@ -1,6 +1,6 @@
 #
+# Copyright (c) 2018-2019 Red Hat.
 # Copyright (c) 2011 Aconex.  All Rights Reserved.
-# Copyright (c) 2018 Red Hat.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ ifeq "$(PMDA_ELASTICSEARCH)" "true"
 build-me:	check_domain
 install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove Upgrade $(PYSCRIPT) $(PMDADIR)
 	$(INSTALL) -m 755 -d $(LOGCONF)
 	$(INSTALL) -m 644 pmlogconf.summary $(LOGCONF)/summary
 	@$(INSTALL_MAN)

@@ -26,7 +26,7 @@ CONF_LINE  = "kvm	95	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 95"
 
 CFILES	   = kvmstat.c
 HFILES	   = kvmstat.h
-SCRIPTS	   = Install Remove
+SCRIPTS	   = Install Remove Upgrade
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag

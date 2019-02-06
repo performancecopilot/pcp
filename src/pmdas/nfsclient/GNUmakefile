@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 # Copyright (c) 2011 SGI.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -36,7 +36,7 @@ ifeq "$(HAVE_PYTHON)" "true"
 build-me: check_domain
 install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove Upgrade $(PYSCRIPT) $(PMDADIR)
 	$(INSTALL) -m 644 migrate.conf $(REWRITEDIR)/nfsclient_migrate.conf
 	@$(INSTALL_MAN)
 else

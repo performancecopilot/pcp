@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2017 Ronak Jain.
-# Copyright (c) 2017 Red Hat, Inc.
+# Copyright (c) 2017,2019 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -45,7 +45,7 @@ install_pcp install :: $(SUBDIRS)
 install_pcp install :: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 -d $(PMDADIR)/config.d
-	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove Upgrade $(PYSCRIPT) $(PMDADIR)
 	@$(INSTALL_MAN)
 else
 build-me:

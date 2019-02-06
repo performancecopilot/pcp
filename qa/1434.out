@@ -1,0 +1,5 @@
+QA output created by 1434
+== Upgrade test case 1
+nfsclient 62 pipe binary python PCP_PMDAS_DIR/nfsclient/pmdanfsclient.python
+== Upgrade test case 2
+nfsclient 62 pipe binary python PCP_PMDAS_DIR/nfsclient/pmdanfsclient.python
