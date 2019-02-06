@@ -583,6 +583,27 @@ followed by a call to
 Further information is contained in the
 .IR $PCP_SHARE_DIR /lib/pmdaproc.sh
 file and the following section.
+.PP
+Optionally, a PMDA may provide an
+.I Upgrade
+script alongside
+.I Install
+and
+.IR Remove .
+If present this script will be used by the
+.B pmcd
+startup process to ensure corrections to an installation
+have been made before starting the PMDA.
+Examples of such corrections include: updates to
+.I pmcd.conf
+when a PMDA script or binary has been renamed, when the
+PMDA supports a new format of its configuration file, or
+if there is some latent problem from an earlier install
+(e.g. some PMDAs may need to introduce use of the
+.B notready
+keyword in
+.IR pmcd.conf ,
+as described below).
 .SH INSTALLATION REFINEMENTS
 As outlined below
 there are a number of variables that can be set in a PMDA's
