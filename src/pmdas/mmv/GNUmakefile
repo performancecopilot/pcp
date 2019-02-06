@@ -24,7 +24,6 @@ SUBDIRS = src
 
 LCFILES = acme.c
 LTARGET = acme$(EXECSUFFIX)
-LSRCFILES = $(LCFILES) README.demos Makefile.demos
 TARGETS = $(CMDTARGET) $(LTARGET)
 
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_mmv/src -L$(TOPDIR)/src/libpcp/src
@@ -34,15 +33,19 @@ LDIRT = mmvdump acme
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 DEMODIR = $(PCP_DEMOS_DIR)/$(IAM)
 DEMOFILES = README.demos Makefile.demos
-CONF_LINE = "mmv	70	dso	mmv_init	$(PCP_PMDAS_DIR)/mmv/pmda_mmv.$(DSOSUFFIX)"
+CONF_LINE_MMV = "mmv	70	dso	mmv_init	$(PCP_PMDAS_DIR)/mmv/pmda_mmv.$(DSOSUFFIX)"
+CONF_LINE_PMPROXY = "pmproxy	4	dso	pmproxy_init	$(PCP_PMDAS_DIR)/mmv/pmda_mmv.$(DSOSUFFIX)"
 
 default_pcp default :: $(TARGETS)
 
 default_pcp default :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	    if [ `grep -c $(CONF_LINE_PMPROXY) ../pmcd.conf` -eq 0 ]; then \
+		echo $(CONF_LINE_PMPROXY) >> ../pmcd.conf ; \
+	    fi; \
+	    if [ `grep -c $(CONF_LINE_MMV) ../pmcd.conf` -eq 0 ]; then \
+		echo $(CONF_LINE_MMV) >> ../pmcd.conf ; \
 	    fi; \
 	fi
 

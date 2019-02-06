@@ -1,0 +1,40 @@
+#!/bin/sh
+# PCP QA Test No. 1301
+# Exercise pmproxy metrics functionality via MMV PMDA.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    _restore_config "$PCP_TMP_DIR/pmproxy"
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_save_config "$PCP_TMP_DIR/pmproxy"
+$sudo rm -rf "$PCP_TMP_DIR/pmproxy/test"
+
+echo "Creating test metrics"
+$sudo $here/src/mmv_simple $PCP_TMP_DIR/pmproxy/test
+echo Done; echo
+
+echo "Fetching test metrics"
+pminfo -df pmproxy.test
+
+# success, all done
+status=0
+exit

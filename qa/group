@@ -1597,6 +1597,7 @@ BAD
 1294 mmv labels local valgrind
 1297 other local
 1299 libpcp pminfo local
+1301 pmda.pmproxy pmda.mmv local
 1304 pmstat context local_context local
 1306 pmda.prometheus labels local python
 1318 pmprobe pmlogconf local kernel

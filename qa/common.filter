@@ -383,6 +383,7 @@ _filter_top_pmns()
 	-e '/^    pdns /d' \
 	-e '/^    perfevent /d' \
 	-e '/^    pipe /d' \
+	-e '/^    pmproxy /d' \
 	-e '/^    podman /d' \
 	-e '/^    postfix /d' \
 	-e '/^    postgresql /d' \

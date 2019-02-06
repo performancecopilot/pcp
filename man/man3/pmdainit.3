@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013,2018 Red Hat.
+.\" Copyright (c) 2013,2018,2019 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,9 @@
 .SH NAME
 \f3pmdaInit\f1,
 \f3pmdaRehash\f1,
+\f3pmdaSetData\f1,
+\f3pmdaExtGetData\f1,
+\f3pmdaExtSetData\f1,
 \f3pmdaSetFlags\f1,
 \f3pmdaSetCommFlags\f1,
 \f3pmdaExtSetFlags\f1 \- initialize a PMDA
@@ -32,10 +35,10 @@
 .in +8n
 .ti -8n
 void pmdaInit(pmdaInterface *\fIdispatch\fP, pmdaIndom *\fIindoms\fP, int\ \fInindoms\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetrics\fP);
-.br
+.sp
 .ti -8n
 void pmdaRehash(pmdaExt *\fIpmda\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetrics\fP);
-.br
+.sp
 .ti -8n
 void pmdaSetFlags(pmdaInterface *\fIdispatch\fP, int \fIflags\fP);
 .br
@@ -44,6 +47,15 @@ void pmdaSetCommFlags(pmdaInterface *\fIdispatch\fP, int \fIflags\fP);
 .br
 .ti -8n
 void pmdaExtSetFlags(pmdaExt *\fIpmda\fP, int \fIflags\fP);
+.sp
+.ti -8n
+void pmdaSetData(pmdaInterface *\fIdispatch\fP, void *\fIdata\fP);
+.br
+.ti -8n
+void pmdaExtSetData(pmdaExt *\fIpmda\fP, void *\fIdata\fP);
+.br
+.ti -8n
+void *pmdaExtGetData(pmdaExt *\fIpmda\fP);
 .sp
 .in
 .hy
@@ -272,6 +284,21 @@ or local context client.
 Valid flags are PMDA_FLAG_AUTHORIZE (for authentication related
 attributes) and PMDA_FLAG_CONTAINER (for container name related
 attributes).
+.SH "PRIVATE DATA"
+A facility for associating private PMDA data with the
+.B pmdaExt
+structure is available.
+This allows a PMDA to associate an arbitrary (and typically not
+global) pointer with the
+.B pmdaExt
+such that it can be later obtained during callbacks.
+The interfaces for setting this pointer are
+.B pmdaSetData
+and
+.BR pmdaExtSetData ,
+and
+.B pmdaExtGetData
+for subsequently retrieving it.
 .SH DIAGNOSTICS
 .B pmdaInit
 will set

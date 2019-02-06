@@ -42,8 +42,11 @@ mmv_stats_path(const char *fname, char *fullpath, size_t pathlen)
 {
     int sep = pmPathSeparator();
 
-    pmsprintf(fullpath, pathlen, "%s%c" "mmv" "%c%s",
+    if (fname[0] != sep)
+	pmsprintf(fullpath, pathlen, "%s%c" "mmv" "%c%s",
 		pmGetConfig("PCP_TMP_DIR"), sep, sep, fname);
+    else /* full path given - use it directly */
+	pmsprintf(fullpath, pathlen, "%s", fname);
 }
 
 static void *

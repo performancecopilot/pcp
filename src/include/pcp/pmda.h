@@ -420,6 +420,10 @@ typedef struct pmdaOptions {
  *      flags involving early setup (such as metric table hashing), otherwise
  *      can be called at any time (such as for namespace change notification).
  *
+ * pmdaSetData / pmdaExtSetData / pmdaExtGetData
+ *	Private data hook get/set for (esp. DSO) PMDAs that is accessible via
+ *	the callbacks through the pmdaExt structure.
+ *
  * pmdaInit
  *      Further initialises the pmdaExt structure with the instance domain and
  *      metric structures. Unique identifiers are applied to each instance 
@@ -479,6 +483,9 @@ PMDA_CALL extern void pmdaUsageMessage(pmdaOptions *);
 PMDA_CALL extern void pmdaDaemon(pmdaInterface *, int, const char *, int , const char *, const char *);
 PMDA_CALL extern void pmdaDSO(pmdaInterface *, int, char *, char *);
 PMDA_CALL extern void pmdaOpenLog(pmdaInterface *);
+PMDA_CALL extern void *pmdaExtGetData(pmdaExt *);
+PMDA_CALL extern void pmdaExtSetData(pmdaExt *, void *);
+PMDA_CALL extern void pmdaSetData(pmdaInterface *, void *);
 PMDA_CALL extern void pmdaExtSetFlags(pmdaExt *, int);
 PMDA_CALL extern void pmdaSetFlags(pmdaInterface *, int);
 PMDA_CALL extern void pmdaSetCommFlags(pmdaInterface *, int);
