@@ -41,7 +41,8 @@ main(int argc, char *argv[])
 
     for (i = 1; i < argc; i++) {
 	if ((sts = pmprintf("%s ", argv[i])) < 0) {
-	    fprintf(stderr, "pmprintf: %s\n", pmErrStr(sts));
+	    fprintf(stderr, "pmprintf: argv[%d]: \"%s\": %s\n", i, argv[i],  pmErrStr(sts));
+	    break;
 	}
     }
 
