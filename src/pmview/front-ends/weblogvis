@@ -127,7 +127,7 @@ then
     shift `expr $OPTIND - 1`
     [ $# -gt 0 ] && serverList_sp=$* && serverList=`echo $* | sed -e 's/ /,/g'`
 fi
-[ -z "$titleArg" ] && titleArg="SGI PCP : Web Log Activity"
+[ -z "$titleArg" ] && titleArg="PCP: Web Log Activity"
 
 
 if [ $max = 0 ]

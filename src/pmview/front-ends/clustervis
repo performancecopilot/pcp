@@ -168,7 +168,7 @@ $debug && echo hostcols=$hostcols
 #
 if [ -z "$titleArg" ]
 then
-    titleArg="SGI PCP : Cluster Node Activity"
+    titleArg="PCP: Cluster Node Activity"
 fi
 
 

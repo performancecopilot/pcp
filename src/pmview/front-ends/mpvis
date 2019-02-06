@@ -150,7 +150,7 @@ then
     [ $# -gt 0 ] && cpuargs=$@
 fi
 
-[ -z "$titleArg" ] && titleArg="SGI PCP : CPU Utilization for Host $host"
+[ -z "$titleArg" ] && titleArg="PCP: CPU Utilization for Host $host"
 
 _pmview_cache_fetch -I kernel.percpu.cpu.user
 _pmview_cache_fetch -v kernel.percpu.cpu.idle \

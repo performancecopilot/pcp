@@ -32,7 +32,7 @@ pmview(1) options:'
 
     _pmview_usage >> $tmp.msg
     echo >> $tmp.msg
-    echo 'Default title is: SGI PCP: Web PING Performance for Host' >> $tmp.msg
+    echo 'Default title is: PCP: Web PING Performance for Host' >> $tmp.msg
     echo '
   The "max" parameter (used with -m) should be set to the maximum
   expected ping response time for all URLs being monitored. The default
@@ -179,7 +179,7 @@ then
 	esac
     done
 fi
-[ -z "$titleArg" ] && titleArg="SGI PCP: Web PING Performance for Host $host"
+[ -z "$titleArg" ] && titleArg="PCP: Web PING Performance for Host $host"
 
 
 # check that webping metrics are available from metrics source
