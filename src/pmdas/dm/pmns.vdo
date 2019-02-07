@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018-2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,6 +54,8 @@ vdo.dev {
 	available		DM:5:151
 	used_percentage		DM:5:152
 	savings_percentage	DM:5:153
+	hash_lock
+	index
 }
 
 vdo.dev.allocator {
@@ -301,4 +303,23 @@ vdo.dev.slab.journal {
 
 vdo.dev.slab.summary {
 	blocks_written		DM:5:143
+}
+
+vdo.dev.hash_lock {
+	concurrent_data_matches	DM:5:154
+	concurrent_hash_collisions DM:5:155
+	dedupe_advice_stale	DM:5:156
+	dedupe_advice_valid	DM:5:157
+}
+
+vdo.dev.index {
+	curr_dedupe_queries	DM:5:158
+	entries_indexed		DM:5:159
+	max_dedupe_queries	DM:5:160
+	posts_found		DM:5:161
+	posts_not_found		DM:5:162
+	queries_found		DM:5:163
+	queries_not_found	DM:5:164
+	updates_found		DM:5:165
+	updates_not_found	DM:5:166
 }

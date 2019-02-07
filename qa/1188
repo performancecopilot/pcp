@@ -2,7 +2,7 @@
 # PCP QA Test No. 1188
 # Test pmdadm VDO (Virtual Data Optimizer) metrics with valgrind.
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 #
 
 seq=`basename $0`

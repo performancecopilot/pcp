@@ -1,6 +1,7 @@
 /*
  * Device Mapper PMDA - DM (device-mapper) Stats with dmstats API
  *
+ * Copyright (c) 2018-2019 Red Hat.
  * Copyright (c) 2017 Fumiya Shigemitsu.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,7 +30,7 @@ int
 pm_dm_stats_fetch(int item, struct pm_wrap *pw, pmAtomValue *atom)
 {
     if (item < 0 || item >= PM_DM_STATS_NR_COUNTERS)
-	return  PM_ERR_PMID;
+	return PM_ERR_PMID;
 
     switch (item) {
 	case PM_DM_STATS_READS:
@@ -74,7 +75,7 @@ pm_dm_stats_fetch(int item, struct pm_wrap *pw, pmAtomValue *atom)
 	    atom->ull = pw->dmsc->pm_total_write_nsecs;
 	    break;
     }
-    return 1;
+    return PMDA_FETCH_STATIC;
 }
 
 int
@@ -96,7 +97,7 @@ pm_dm_histogram_fetch(int item, struct pm_wrap *pw, pmAtomValue *atom)
 	    atom->ull = pw->pdmh->pm_bin;
 	    break;
     }
-    return 1;
+    return PMDA_FETCH_STATIC;
 }
 
 #define SUM_COUNTER(pw, STATS_COUNTER) \

@@ -1,7 +1,7 @@
 /*
  * Device Mapper PMDA - VDO (Virtual Data Optimizer) stats
  *
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018-2019 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -166,6 +166,19 @@ enum {
     VDODEV_AVAILABLE				= 151,
     VDODEV_USED_PERCENTAGE			= 152,
     VDODEV_SAVINGS_PERCENTAGE			= 153,
+    VDODEV_HASH_LOCK_CONCURRENT_DATA_MATCHES	= 154,
+    VDODEV_HASH_LOCK_CONCURRENT_HASH_COLLISIONS	= 155,
+    VDODEV_HASH_LOCK_DEDUPE_ADVICE_STALE	= 156,
+    VDODEV_HASH_LOCK_DEDUPE_ADVICE_VALID	= 157,
+    VDODEV_INDEX_CURR_DEDUPE_QUERIES		= 158,
+    VDODEV_INDEX_ENTRIES_INDEXED		= 159,
+    VDODEV_INDEX_MAX_DEDUPE_QUERIES		= 160,
+    VDODEV_INDEX_POSTS_FOUND			= 161,
+    VDODEV_INDEX_POSTS_NOT_FOUND		= 162,
+    VDODEV_INDEX_QUERIES_FOUND			= 163,
+    VDODEV_INDEX_QUERIES_NOT_FOUND		= 164,
+    VDODEV_INDEX_UPDATES_FOUND			= 165,
+    VDODEV_INDEX_UPDATES_NOT_FOUND		= 166,
 };
 
 extern int dm_vdodev_fetch(pmdaMetric *, const char *, pmAtomValue *);

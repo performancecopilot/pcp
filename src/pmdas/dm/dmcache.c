@@ -1,7 +1,7 @@
 /*
  * Device Mapper PMDA - Cache (dm-cache) Stats
  *
- * Copyright (c) 2015 Red Hat.
+ * Copyright (c) 2015,2019 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,7 +35,7 @@ dm_cache_fetch(int item, struct cache_stats *cache_stats, pmAtomValue *atom)
     if (item < 0 || item >= NUM_CACHE_STATS)
 	return PM_ERR_PMID;
 
-    switch(item) {
+    switch (item) {
         case CACHE_SIZE:
             atom->ull = cache_stats->size;
             break;
@@ -85,7 +85,7 @@ dm_cache_fetch(int item, struct cache_stats *cache_stats, pmAtomValue *atom)
             atom->cp = cache_stats->io_mode;
             break;
     }
-    return 1;
+    return PMDA_FETCH_STATIC;
 }
 
 /*
