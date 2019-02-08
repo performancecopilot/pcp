@@ -82,7 +82,7 @@ PmView::PmView() : QMainWindow(NULL)
     toolbarAction->setChecked(globalSettings.initialToolbar);
     my.consoleHidden = true;
     if (somedebug)
-	consoleAction->setVisible(false);
+	consoleAction->setVisible(true);
     consoleAction->setChecked(false);
 
     // Build Scene Graph
@@ -400,15 +400,13 @@ void PmView::optionsMenubar()
 
 void PmView::optionsConsole()
 {
-#if 0
-    if (pmDebug) {
+    if (somedebug) {
 	if (my.consoleHidden)
 	    console->show();
 	else
 	    console->hide();
 	my.consoleHidden = !my.consoleHidden;
     }
-#endif
 }
 
 void PmView::optionsNewPmchart()
