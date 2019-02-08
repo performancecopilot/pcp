@@ -1848,13 +1848,13 @@ __pmIsLogCtlLock(void *lock)
 	    }
 	    else {
 		char	*result_new;
-		reslen += strlen(number)+1;
+		reslen += 1 + strlen(number) + 1;
 		if ((result_new = (char *)realloc(result, reslen)) == NULL) {
 		    pmNoMem("__pmIsLogCtlLock: realloc", reslen, PM_FATAL_ERR);
 		    /* NOTREACHED */
 		}
 		result = result_new;
-		strncat(result, ",", 1);
+		strncat(result, ",", 2);
 		strncat(result, number, strlen(number)+1);
 	    }
 	}
