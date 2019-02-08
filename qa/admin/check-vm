@@ -313,8 +313,9 @@ s/CentOS\([0-9]\)/CentOS \1/
 	-e 's/+_/ _/' \
 	-e 's/$/"/' \
     | tr ' ' '\012' >$tmp.eval
-    $very_verbose && echo >&2 "_parse_file: vars: `tr '\012' ' ' <$tmp.eval`"
+    $very_verbose && echo >&2 "_parse_file($1): vars: `tr '\012' ' ' <$tmp.eval`"
     eval `cat $tmp.eval`
+    rm -f $tmp.matches
     sed <$1 \
 	-e 's/#.*//' \
 	-e '/^[ 	]*$/d' \
@@ -353,10 +354,16 @@ s/CentOS\([0-9]\)/CentOS \1/
 	    fi
 	    if $_match
 	    then
-		echo "$packages"
+		echo "$packages" >>$tmp.matches
 	    fi
 	fi
     done
+    if [ -s $tmp.matches ]
+    then
+	tr '\012' ' ' <$tmp.matches
+    else
+	$very_verbose && echo >&2 "_parse_file: $1: no matches"
+    fi
 }
 
 _find_installer_cmd()
@@ -738,6 +745,7 @@ require_pkg=''
 _parse_file $require >$tmp.pkgs
 if [ -s $tmp.pkgs ]
 then
+    $very_verbose && echo >&2 "require: `cat $tmp.pkgs`"
     for _need in `cat $tmp.pkgs`
     do
 	if grep "^$_need\$" $tmp.installed >/dev/null
@@ -752,7 +760,15 @@ then
 	    fi
 	fi
     done
-    $very_verbose && echo >&2 "require: $require_pkg"
+    if $very_verbose
+    then
+	if [ -n "$require_pkg" ]
+	then
+	    echo >&2 "require and not installed: $require_pkg"
+	else
+	    echo >&2 "require and not installed: <none>"
+	fi
+    fi
 fi
 
 if $pkglist
@@ -803,16 +819,16 @@ then
     $verbose && echo >&2 "Processing $skipbase.`hostname -s` ..."
     skip_pkg=`sed <$skipbase.$_hostname \
 	    -e 's/#.*//' \
-	    -e '/^[ 	]*$/d'`
-    if [ -n "$unavail_pkg" ]
+	    -e '/^[ 	]*$/d' | tr '\012' ' '`
+    if [ -n "$skip_pkg" ]
     then
+	$very_verbose && echo >&2 "skip on host: $skip_pkg"
 	for _pkg in $skip_pkg
 	do
 	    sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
 s;\[[^]]*];[SKIP on host '"$_hostname"'];
 }'
 	    mv $tmp.tmp $tmp.manifest
-	    $very_verbose && echo >&2 "skip on host: $_pkg"
 	done
     fi
 fi
@@ -823,6 +839,7 @@ fi
 _parse_file $skip >$tmp.pkgs
 if [ -s $tmp.pkgs ]
 then
+    $very_verbose && echo >&2 "skip: `cat $tmp.pkgs`"
     skip_pkg="$skip_pkg `cat $tmp.pkgs`"
     for _pkg in `cat $tmp.pkgs`
     do
@@ -830,7 +847,6 @@ then
 s;\[[^]]*];[SKIP];
 }'
 	mv $tmp.tmp $tmp.manifest
-	$very_verbose && echo >&2 "skip: $_pkg"
     done
 fi
 
