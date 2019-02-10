@@ -98,7 +98,7 @@ PmView::PmView() : QMainWindow(NULL)
     my.root->addChild(my.drawStyle);
 
 #if 0
-    // TODO is this needed?
+    // TODO : support image dump from command line?
     if (outfile)
 	QTimer::singleShot(0, this, SLOT(exportFile()));
     else
@@ -114,7 +114,19 @@ void PmView::languageChange()
 
 void PmView::init(void)
 {
+    View *view = new View;
+    view->init(activeGroup, createPopupMenu(),
+		    activeGroup->isArchiveSource()? "Archive" : "Live");
+    pmview->addActiveView(view);
+
     my.statusBar->init();
+
+    connect(pmtime, SIGNAL(step(bool, QmcTime::Packet *)),
+		this, SLOT(step(bool, QmcTime::Packet *)));
+    connect(pmtime, SIGNAL(VCRMode(bool, QmcTime::Packet *, bool)),
+		this, SLOT(VCRMode(bool, QmcTime::Packet *, bool)));
+    connect(pmtime, SIGNAL(timeZone(bool, QmcTime::Packet *, char *)),
+		this, SLOT(timeZone(bool, QmcTime::Packet *, char *)));
 }
 
 void
@@ -227,6 +239,12 @@ void PmView::quit()
     // End any processes we may have started and close any open dialogs
     if (pmtime)
 	pmtime->quit();
+#ifdef HAVE_UNSETENV
+    unsetenv("PCP_STDERR");
+#else
+    putenv("PCP_STDERR=");
+#endif
+    pmflush();
 }
 
 void PmView::setValueText(QString &string)
