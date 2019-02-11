@@ -827,8 +827,8 @@ QTFIX = $(AWK) '$$1 == "LIBS" { printf $$1; for (i=2;i<=NF;i++) { if ($$i~/^-L\/
 
 # Qt magic for build/installs across all the supported platforms
 # because qmake does not always get it right, e.g. omitting -fPIC for
-# static libraries in Qt5 on Ubuntu x86_64, we need to push our CFLAGS
-# and CXXFLAGS down
+# static libraries in Qt5 on Ubuntu x86_64, we need to push our CFLAGS, CXXFLAGS
+# (usually empty) and LDFLAGS down
 #
 QTMAKE = CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(QMAKE) CONFIG=$(QT_RELEASE) && $(QTFIX) <Makefile >Makefile.fix && mv Makefile.fix Makefile && $(MAKE) $(MAKEOPTS) -f Makefile
 ifeq ($(PCP_PLATFORM),darwin)
