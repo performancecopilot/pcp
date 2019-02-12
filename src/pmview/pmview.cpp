@@ -97,6 +97,8 @@ PmView::PmView() : QMainWindow(NULL)
     my.drawStyle->style.setValue(SoDrawStyle::FILLED);
     my.root->addChild(my.drawStyle);
 
+    my.activeView = 0;
+
 #if 0
     // TODO : support image dump from command line?
     if (outfile)
@@ -297,6 +299,10 @@ void PmView::setButtonState(QedTimeButton::State state)
 
 void PmView::step(bool live, QmcTime::Packet *packet)
 {
+    if (pmDebugOptions.timecontrol) {
+	console->post("pmView::step(live=%d)", live);
+	console->post("Packet: %s", QmcTime::packetStr(packet));
+    }
     if (live)
 	liveGroup->step(packet);
     else
@@ -305,6 +311,10 @@ void PmView::step(bool live, QmcTime::Packet *packet)
 
 void PmView::VCRMode(bool live, QmcTime::Packet *packet, bool drag)
 {
+    if (pmDebugOptions.timecontrol) {
+	console->post("pmView::VCRMode(live=%d, ..., drag=%d", live, drag);
+	console->post("Packet: %s", QmcTime::packetStr(packet));
+    }
     if (live)
 	liveGroup->VCRMode(packet, drag);
     else
@@ -313,6 +323,10 @@ void PmView::VCRMode(bool live, QmcTime::Packet *packet, bool drag)
 
 void PmView::timeZone(bool live, QmcTime::Packet *packet, char *tzdata)
 {
+    if (pmDebugOptions.timecontrol) {
+	console->post("pmView::timeZone(live=%d, ..., tzdata=%s)", live, tzdata);
+	console->post("Packet: %s", QmcTime::packetStr(packet));
+    }
     if (live)
 	liveGroup->setTimezone(packet, tzdata);
     else
