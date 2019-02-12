@@ -116,6 +116,8 @@ public:
     static double secondsToUnits(double value, DeltaUnits units);
     static QString deltaString(double value, DeltaUnits units);
     static double deltaValue(QString delta, DeltaUnits units);
+
+    static char *packetStr(QmcTime::Packet *packet);
 };
 
 #endif	// QMC_TIME_H
