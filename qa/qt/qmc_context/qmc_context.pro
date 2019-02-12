@@ -4,8 +4,12 @@ SOURCES         = qmc_context.cpp
 CONFIG          += qt console warn_on
 INCLUDEPATH     += ../../../src/include
 INCLUDEPATH     += ../../../src/libpcp_qmc/src
-release:DESTDIR = build/release
-debug:DESTDIR   = build/debug
+CONFIG(release) {
+DESTDIR = build/release
+}
+config(debug) {
+DESTDIR   = build/debug
+}
 LIBS            += -L../../../src/libpcp/src
 LIBS            += -L../../../src/libpcp_qmc/src
 LIBS            += -L../../../src/libpcp_qmc/src/$$DESTDIR

@@ -3,8 +3,12 @@ TEMPLATE	= lib
 VERSION		= 1.0.0
 CONFIG		+= qt staticlib warn_on
 INCLUDEPATH	+= ../../include ../../libpcp_qmc/src
-release:DESTDIR = build/release
-debug:DESTDIR   = build/debug
+CONFIG(release) {
+DESTDIR = build/release
+}
+CONFIG(debug) {
+DESTDIR   = build/debug
+}
 QT		= core gui network printsupport svg widgets
 QMAKE_CFLAGS	+= $$(CFLAGS)
 QMAKE_CXXFLAGS	+= $$(CFLAGS) $$(CXXFLAGS)

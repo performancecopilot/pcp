@@ -33,8 +33,12 @@ RESOURCES	= pmchart.qrc
 INCLUDEPATH	+= ../include
 INCLUDEPATH	+= ../libpcp_qed/src ../libpcp_qmc/src ../libpcp_qwt/src
 CONFIG		+= qt warn_on
-release:DESTDIR	= build/release
-debug:DESTDIR	= build/debug
+CONFIG(release) {
+DESTDIR	= build/release
+}
+CONFIG(debug) {
+DESTDIR	= build/debug
+}
 LIBS		+= -L../libpcp/src
 LIBS		+= -L../libpcp_qed/src -L../libpcp_qed/src/$$DESTDIR
 LIBS		+= -L../libpcp_qmc/src -L../libpcp_qmc/src/$$DESTDIR

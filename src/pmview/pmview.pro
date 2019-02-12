@@ -25,8 +25,12 @@ RESOURCES	= pmview.qrc
 INCLUDEPATH	+= /usr/include/Coin3
 INCLUDEPATH	+= ../include ../libpcp_qmc/src ../libpcp_qed/src
 CONFIG		+= qt warn_on
-release:DESTDIR	= build/release
-debug:DESTDIR	= build/debug
+CONFIG(release) {
+DESTDIR	= build/release
+}
+CONFIG(debug) {
+DESTDIR	= build/debug
+}
 LIBS		+= -L../libpcp/src
 LIBS		+= -L../libpcp_qmc/src -L../libpcp_qmc/src/$$DESTDIR
 LIBS		+= -L../libpcp_qed/src -L../libpcp_qed/src/$$DESTDIR
