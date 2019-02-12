@@ -23,6 +23,7 @@ static int Dflag;
 static pmOptions opts;
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
     PMOPT_GUIPORT,
     PMOPT_VERSION,
     PMOPT_HELP,
