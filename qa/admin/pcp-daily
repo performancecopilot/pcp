@@ -249,6 +249,7 @@ sed -e 's/^/ /' <Logs/pcp \
     -e '/libpython.* warning: warning: tempnam() possibly used unsafely/d' \
     -e '/WARNING: missing directory entry for <.*pcp/s/WARNING/Warning/' \
     -e '/WARNING: missing directory entry for </d' \
+    -e '/Project WARNING: CONFIG-=import_qpa_plugin is deprecated./d' \
 # end
 if [ -s $tmp.err ]
 then

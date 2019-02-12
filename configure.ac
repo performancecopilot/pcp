@@ -1214,6 +1214,9 @@ AS_IF([test "x$do_qt" != "xno"], [
     if test -z "$QMAKE"
     then
 	dnl default to qmake from qtchooser whenever it is available
+	dnl ... unfortunately this is not always correct, as when more
+	dnl than one Qt version is installed, the default may not be our
+	dnl preferred version, which is Qt5
 	AC_PATH_PROGS(QMAKE, [qmake qmake-qt5 qmake-qt4],, [$QTDIR/bin:/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
 	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
@@ -1222,34 +1225,56 @@ AS_IF([test "x$do_qt" != "xno"], [
     then
 	enable_qt=false
     else
-	AC_MSG_CHECKING([Qt version])
-	if test ! -z "$QT_SELECT"; then
-	    # fallback to Qt v4 if given preference is not successful
+	if test -n "$QT_SELECT"
+	then
+	    AC_MSG_CHECKING([Qt version, QT_SELECT=$QT_SELECT])
+	    dnl QT_SELECT set, check and fallback to Qt4 if given
+	    dnl preference is not successful
+	    export QT_SELECT
 	    $qmake --version 2>&1 >/dev/null
 	    if test $? -eq 1; then
 		export QT_SELECT=4
 	    fi
-	fi
-	eval `$qmake --version 2>&1 | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
-	AC_MSG_RESULT([$QT_MAJOR.$QT_MINOR.$QT_POINT])
-	if test -z "$QT_MAJOR" -o -z "$QT_MINOR"; then
-	    echo WARNING: cannot extract Qt version number from ...
-	    $qmake --version
-	    echo Cannot include the Qt components in the build.
-	    enable_qt=false
-	    qt_version=0
-	elif test "$QT_MAJOR" -lt 4; then
-	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
-	    echo Cannot proceed with the Qt $QT_MAJOR installation found.
-	    enable_qt=false
-	    qt_version=0
-	elif test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
-	    echo WARNING: Qt version 4.$QT_MINOR is too old.
-	    echo Qt version 4.4 or later is required for Qt builds.
-	    enable_qt=false
-	    qt_version=0
 	else
-	    qt_version=$QT_MAJOR
+	    dnl QT_SELECT not set, if we have qtchooser use that to see
+	    dnl if Qt5 is available, otherwise we fallthrough to the 
+	    dnl qmake default version
+	    qtchooser=`$which "qtchooser"`
+	    if test -n "$qtchooser"
+	    then
+		AC_MSG_CHECKING([Qt version, using qtchooser])
+		dnl if Qt5 appears to be present, pick that one, else Qt4
+		if $qtchooser -l | grep '^5$' >/dev/null
+		then
+		    export QT_SELECT=5
+		else
+		    export QT_SELECT
+		fi
+	    else
+		AC_MSG_CHECKING([Qt version])
+		unset QT_SELECT
+	    fi
+	    eval `$qmake --version 2>&1 | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
+	    AC_MSG_RESULT([$QT_MAJOR.$QT_MINOR.$QT_POINT])
+	    if test -z "$QT_MAJOR" -o -z "$QT_MINOR"; then
+		echo WARNING: cannot extract Qt version number from ...
+		$qmake --version
+		echo Cannot include the Qt components in the build.
+		enable_qt=false
+		qt_version=0
+	    elif test "$QT_MAJOR" -lt 4; then
+		echo WARNING: Qt version 4.4 or later does not seem to be installed.
+		echo Cannot proceed with the Qt $QT_MAJOR installation found.
+		enable_qt=false
+		qt_version=0
+	    elif test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
+		echo WARNING: Qt version 4.$QT_MINOR is too old.
+		echo Qt version 4.4 or later is required for Qt builds.
+		enable_qt=false
+		qt_version=0
+	    else
+		qt_version=$QT_MAJOR
+	    fi
 	fi
     fi
 

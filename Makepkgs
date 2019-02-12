@@ -629,25 +629,6 @@ configure_pcp()
     echo
     echo "== Configuring pcp, log is in $LOGDIR/pcp ($configopts)"
 
-    # If we have qtchooser, then force a Qt5 build if Qt5 is installed
-    # ... setting QT_SELECT is only for the configure below, logic similar
-    # to this has to be done again:
-    # (a) in the real build if it does not inherit $QT_SELECT from
-    #     here before running configure again, and
-    # (b) from builddefs so that builds in the source tree also
-    #     work correctly
-    #
-    unset QT_SELECT
-    if which qtchooser >/dev/null 2>&1
-    then
-	if qtchooser -list-versions | grep '^5$' >/dev/null
-	then
-	    export QT_SELECT=5
-	else
-	    export QT_SELECT=4
-	fi
-    fi
-
     rm -f $tmp/failed
     if $verbose
     then
