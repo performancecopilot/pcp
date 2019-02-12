@@ -825,6 +825,7 @@ enable_qt
 qt_version
 qt_release
 QMAKE
+QTCHOOSER
 PMDA_LIBVIRT
 PMDA_PROMETHEUS
 PMDA_LIO
@@ -8122,7 +8123,53 @@ if test "x$do_qt" != "xno"; then :
 
     if test -z "$QMAKE"
     then
-					for ac_prog in qmake qmake-qt5 qmake-qt4
+					for ac_prog in qtchooser
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_QTCHOOSER+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $QTCHOOSER in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_QTCHOOSER="$QTCHOOSER" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="$QTDIR/bin:/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_QTCHOOSER="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+QTCHOOSER=$ac_cv_path_QTCHOOSER
+if test -n "$QTCHOOSER"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $QTCHOOSER" >&5
+$as_echo "$QTCHOOSER" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$QTCHOOSER" && break
+done
+
+	for ac_prog in qmake qmake-qt5 qmake-qt4
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -8185,12 +8232,11 @@ $as_echo_n "checking Qt version, QT_SELECT=$QT_SELECT... " >&6; }
 		export QT_SELECT=4
 	    fi
 	else
-	    	    	    	    qtchooser=`$which "qtchooser"`
-	    if test -n "$qtchooser"
+	    	    	    	    if test -n "$QTCHOOSER"
 	    then
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Qt version, using qtchooser" >&5
 $as_echo_n "checking Qt version, using qtchooser... " >&6; }
-				if $qtchooser -l | grep '^5$' >/dev/null
+				if $QTCHOOSER -l | grep '^5$' >/dev/null
 		then
 		    export QT_SELECT=5
 		else

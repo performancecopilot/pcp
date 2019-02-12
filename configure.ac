@@ -1217,6 +1217,7 @@ AS_IF([test "x$do_qt" != "xno"], [
 	dnl ... unfortunately this is not always correct, as when more
 	dnl than one Qt version is installed, the default may not be our
 	dnl preferred version, which is Qt5
+	AC_PATH_PROGS(QTCHOOSER, [qtchooser],, [$QTDIR/bin:/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
 	AC_PATH_PROGS(QMAKE, [qmake qmake-qt5 qmake-qt4],, [$QTDIR/bin:/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
 	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
@@ -1239,12 +1240,11 @@ AS_IF([test "x$do_qt" != "xno"], [
 	    dnl QT_SELECT not set, if we have qtchooser use that to see
 	    dnl if Qt5 is available, otherwise we fallthrough to the 
 	    dnl qmake default version
-	    qtchooser=`$which "qtchooser"`
-	    if test -n "$qtchooser"
+	    if test -n "$QTCHOOSER"
 	    then
 		AC_MSG_CHECKING([Qt version, using qtchooser])
 		dnl if Qt5 appears to be present, pick that one, else Qt4
-		if $qtchooser -l | grep '^5$' >/dev/null
+		if $QTCHOOSER -l | grep '^5$' >/dev/null
 		then
 		    export QT_SELECT=5
 		else
