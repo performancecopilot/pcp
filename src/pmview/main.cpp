@@ -94,48 +94,6 @@ int warningMsg(const char *file, int line, const char *msg, ...)
     return sts;
 }
 
-double QmcTime::secondsToUnits(double value, QmcTime::DeltaUnits units)
-{
-    switch (units) {
-    case Milliseconds:
-	value = value * 1000.0;
-	break;
-    case Minutes:
-	value = value / 60.0;
-	break;
-    case Hours:
-	value = value / (60.0 * 60.0);
-	break;
-    case Days:
-	value = value / (60.0 * 60.0 * 24.0);
-	break;
-    case Weeks:
-	value = value / (60.0 * 60.0 * 24.0 * 7.0);
-	break;
-    case Seconds:
-    default:
-	break;
-    }
-    return value;
-}
-
-double QmcTime::deltaValue(QString delta, QmcTime::DeltaUnits units)
-{
-    return QmcTime::secondsToUnits(delta.trimmed().toDouble(), units);
-}
-
-QString QmcTime::deltaString(double value, QmcTime::DeltaUnits units)
-{
-    QString delta;
-
-    value = QmcTime::secondsToUnits(value, units);
-    if ((double)(int)value == value)
-	delta.sprintf("%.2f", value);
-    else
-	delta.sprintf("%.6f", value);
-    return delta;
-}
-
 void writeSettings(void)
 {
     QSettings userSettings;
