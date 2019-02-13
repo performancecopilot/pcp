@@ -2,6 +2,7 @@ module pcpupstream @PACKAGE_VERSION@;
 
 require {
         attribute domain;
+        attribute userdomain;
         attribute file_type;
         attribute pcp_domain;
 	type pcp_pmcd_t;
@@ -481,6 +482,8 @@ allow pcp_domain file_type:fifo_file read_fifo_file_perms;
 # allow pcp_pmcd_t domain to read shared memory and semaphores of all domain on system
 allow pcp_domain domain:shm r_sem_perms;
 allow pcp_domain domain:sem r_shm_perms;
+allow pcp_domain userdomain:shm r_sem_perms;
+allow pcp_domain userdomain:sem r_shm_perms;
 
 # allow pcp_domain stream connect to all domains
 allow pcp_domain domain:unix_stream_socket connectto;
