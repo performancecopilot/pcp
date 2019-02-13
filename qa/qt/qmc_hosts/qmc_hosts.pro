@@ -2,10 +2,10 @@ TEMPLATE        = app
 LANGUAGE        = C++
 SOURCES         = qmc_hosts.cpp
 CONFIG          += qt warn_on
-CONFIG(release) {
+CONFIG(release, release|debug) {
 DESTDIR	= build/release
 }
-CONFIG(debug) {
+CONFIG(debug, release|debug) {
 DESTDIR	= build/debug
 }
 INCLUDEPATH     += ../../../src/include

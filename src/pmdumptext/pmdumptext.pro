@@ -3,10 +3,10 @@ LANGUAGE	= C++
 SOURCES		= pmdumptext.cpp
 CONFIG		+= qt console warn_on
 INCLUDEPATH	+= ../include ../include/pcp ../libpcp_qmc/src
-CONFIG(release) {
+CONFIG(release, release|debug) {
 DESTDIR	= build/release
 }
-CONFIG(debug) {
+CONFIG(debug, release|debug) {
 DESTDIR	= build/debug
 }
 LIBS		+= -L../libpcp/src

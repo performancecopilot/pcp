@@ -6,10 +6,10 @@ ICON		= pmquery.icns
 RESOURCES	= pmquery.qrc
 CONFIG		+= qt warn_on
 QT		+= widgets
-CONFIG(release) {
+CONFIG(release, release|debug) {
 DESTDIR	= build/release
 }
-CONFIG(debug) {
+CONFIG(debug, release|debug) {
 DESTDIR	= build/debug
 }
 QMAKE_CFLAGS	+= $$(CFLAGS)

@@ -13,10 +13,10 @@ RC_FILE		= pmtime.rc
 RESOURCES	= pmtime.qrc
 CONFIG		+= qt warn_on
 INCLUDEPATH	+= ../include ../libpcp_qwt/src ../libpcp_qmc/src
-CONFIG(release) {
+CONFIG(release, release|debug) {
 DESTDIR	= build/release
 }
-CONFIG(debug) {
+CONFIG(debug, release|debug) {
 DESTDIR	= build/debug
 }
 LIBS		+= -L../libpcp/src

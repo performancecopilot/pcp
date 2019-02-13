@@ -3,10 +3,10 @@ TEMPLATE	= lib
 VERSION		= 1.0.0
 CONFIG		+= qt staticlib warn_on
 INCLUDEPATH	+= ../../include
-CONFIG(release) {
+CONFIG(release, release|debug) {
 DESTDIR = build/release
 }
-CONFIG(debug) {
+CONFIG(debug, release|debug) {
 DESTDIR   = build/debug
 }
 QMAKE_CFLAGS	+= $$(CFLAGS)

@@ -16,10 +16,10 @@ QMAKE_EXTRA_COMPILERS += flex
 QMAKE_CFLAGS	+= $$(CFLAGS)
 QMAKE_CXXFLAGS	+= $$(CFLAGS) $$(CXXFLAGS)
 QMAKE_LFLAGS	+= $$(LDFLAGS)
-CONFIG(release) {
+CONFIG(release, release|debug) {
 DESTDIR = build/release
 }
-CONFIG(debug) {
+CONFIG(debug, release|debug) {
 DESTDIR   = build/debug
 }
 

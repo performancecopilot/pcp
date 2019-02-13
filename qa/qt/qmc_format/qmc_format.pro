@@ -4,10 +4,10 @@ SOURCES         = qmc_format.cpp
 CONFIG          += qt warn_on
 INCLUDEPATH     += ../../../src/include
 INCLUDEPATH     += ../../../src/libpcp_qmc/src
-CONFIG(release) {
+CONFIG(release, release|debug) {
 DESTDIR	= build/release
 }
-CONFIG(debug) {
+CONFIG(debug, release|debug) {
 DESTDIR	= build/debug
 }
 LIBS            += -L../../../src/libpcp/src
