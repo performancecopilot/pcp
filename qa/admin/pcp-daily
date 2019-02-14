@@ -251,6 +251,8 @@ sed -e 's/^/ /' <Logs/pcp \
     -e '/WARNING: missing directory entry for <.*pcp/s/WARNING/Warning/' \
     -e '/WARNING: missing directory entry for </d' \
     -e '/^Project WARNING: CONFIG-=import_qpa_plugin is deprecated./d' \
+    -e '/^Project MESSAGE: Warning: unknown QT: widgets/d' \
+    -e '/^Project MESSAGE: Warning: unknown QT: printsupport/d' \
     -e '/ldconfig: Warning: ignoring configuration file that cannot be opened: .*pcp.*BUILDROOT/d' \
     -e '/<stdout>:.* warning: comparison between signed and unsigned/d' \
 # end
