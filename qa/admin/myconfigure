@@ -162,6 +162,11 @@ in
 	#
 	configopts="$configopts --without-optimization"
 	;;
+    bozo-vm|bozo-vm.localdomain)
+	# trying to build pmview here ...
+	#
+	configopts="$configopts --with-qt=debug --without-optimization"
+	;;
 esac
 
 echo "Using: $configtools configure $configopts ..."

@@ -33,6 +33,7 @@ QedApp::QedApp(int &argc, char **argv) : QApplication(argc, argv)
     my.zflag = 0;
     my.tz = NULL;
     my.port = -1;
+    my.delta.tv_sec = my.delta.tv_usec = 0;
 
     QCoreApplication::setOrganizationName("PCP");
     QCoreApplication::setApplicationName(pmGetProgname());
