@@ -1040,95 +1040,101 @@ Help:
 Count of blocks written
     inst [0 or "vdo1"] value 1018
 
-vdo.dev.hash_lock.concurrent_data_matches PMID: 129.5.154 [Concurrent hash lock data matches ]
+vdo.dev.hash_lock.concurrent_data_matches PMID: 129.5.154 [Concurrent write data matches ]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Concurrent hash lock data matches 
+The number of writes with the same data as another in-flight write.
 Error: Metric not supported by this version of monitored application
 
-vdo.dev.hash_lock.concurrent_hash_collisions PMID: 129.5.155 [Concurrent hash collisions]
+vdo.dev.hash_lock.concurrent_hash_collisions PMID: 129.5.155 [Concurrent write hash collisions]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Concurrent hash collisions
+The number of writes whose hash collided with an in-flight write.
 Error: Metric not supported by this version of monitored application
 
-vdo.dev.hash_lock.dedupe_advice_stale PMID: 129.5.156 [Correct hash lock deduplication advice]
+vdo.dev.hash_lock.dedupe_advice_stale PMID: 129.5.156 [Number of times deduplication advice was incorrect.]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Correct hash lock deduplication advice
+Number of times deduplication advice was incorrect.
 Error: Metric not supported by this version of monitored application
 
-vdo.dev.hash_lock.dedupe_advice_valid PMID: 129.5.157 [Incorrect hash lock deduplication advice]
+vdo.dev.hash_lock.dedupe_advice_valid PMID: 129.5.157 [Number of times deduplication advice was correct]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Incorrect hash lock deduplication advice
+Number of times deduplication advice was correct
 Error: Metric not supported by this version of monitored application
 
-vdo.dev.index.curr_dedupe_queries PMID: 129.5.158 [Current index deduplication queries]
+vdo.dev.index.curr_dedupe_queries PMID: 129.5.158 [Current deduplication queries currently in-flight]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: instant  Units: count
 Help:
-Current index deduplication queries
+Current deduplication queries currently in-flight
 Error: Metric not supported by this version of monitored application
 
-vdo.dev.index.entries_indexed PMID: 129.5.159 [Count of indexed entries]
+vdo.dev.index.entries_indexed PMID: 129.5.159 [Total number of chunk names stored in the index]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Count of indexed entries
+Total number of chunk names stored in the index
 Error: Metric not supported by this version of monitored application
 
-vdo.dev.index.max_dedupe_queries PMID: 129.5.160 [Maximum index deduplication queries]
+vdo.dev.index.max_dedupe_queries PMID: 129.5.160 [Maximum number of in-flight deduplication queries]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: instant  Units: count
 Help:
-Maximum index deduplication queries
+Maximum number of in-flight deduplication queries
 Error: Metric not supported by this version of monitored application
 
-vdo.dev.index.posts_found PMID: 129.5.161 [Index posts found]
+vdo.dev.index.posts_found PMID: 129.5.161 [Post calls where entry found]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Index posts found
+The number of post calls since context statistics were last reset that
+found an existing entry.
 Error: Metric not supported by this version of monitored application
 
-vdo.dev.index.posts_not_found PMID: 129.5.162 [Index posts not found]
+vdo.dev.index.posts_not_found PMID: 129.5.162 [Posts calls where entry not found]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Index posts not found
+The number of post calls since context statistics were last reset that
+added a new entry.
 Error: Metric not supported by this version of monitored application
 
-vdo.dev.index.queries_found PMID: 129.5.163 [Index queries found]
+vdo.dev.index.queries_found PMID: 129.5.163 [Query calls where entry found]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Index queries found
+The number of query calls since context statistics were last reset that
+found an existing entry.
 Error: Metric not supported by this version of monitored application
 
-vdo.dev.index.queries_not_found PMID: 129.5.164 [Index queries not found]
+vdo.dev.index.queries_not_found PMID: 129.5.164 [Query calls where entry not found]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Index queries not found
+The number of query calls since context statistics were last reset that
+did not find an entry.
 Error: Metric not supported by this version of monitored application
 
-vdo.dev.index.updates_found PMID: 129.5.165 [Index updates found]
+vdo.dev.index.updates_found PMID: 129.5.165 [Update calls where entry found]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Index updates found
+The number of update calls since context statistics were last reset that
+updated an existing entry.
 Error: Metric not supported by this version of monitored application
 
-vdo.dev.index.updates_not_found PMID: 129.5.166 [Index updates not found]
+vdo.dev.index.updates_not_found PMID: 129.5.166 [Update calls where entry not found]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Index updates not found
+The number of update calls since context statistics were last reset that
+added a new entry.
 Error: Metric not supported by this version of monitored application
 === std err ===
 === filtered valgrind report ===
@@ -2180,95 +2186,101 @@ Help:
 Count of blocks written
     inst [0 or "vdotest"] value 101
 
-vdo.dev.hash_lock.concurrent_data_matches PMID: 129.5.154 [Concurrent hash lock data matches ]
+vdo.dev.hash_lock.concurrent_data_matches PMID: 129.5.154 [Concurrent write data matches ]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Concurrent hash lock data matches 
+The number of writes with the same data as another in-flight write.
     inst [0 or "vdotest"] value 0
 
-vdo.dev.hash_lock.concurrent_hash_collisions PMID: 129.5.155 [Concurrent hash collisions]
+vdo.dev.hash_lock.concurrent_hash_collisions PMID: 129.5.155 [Concurrent write hash collisions]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Concurrent hash collisions
+The number of writes whose hash collided with an in-flight write.
     inst [0 or "vdotest"] value 0
 
-vdo.dev.hash_lock.dedupe_advice_stale PMID: 129.5.156 [Correct hash lock deduplication advice]
+vdo.dev.hash_lock.dedupe_advice_stale PMID: 129.5.156 [Number of times deduplication advice was incorrect.]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Correct hash lock deduplication advice
+Number of times deduplication advice was incorrect.
     inst [0 or "vdotest"] value 0
 
-vdo.dev.hash_lock.dedupe_advice_valid PMID: 129.5.157 [Incorrect hash lock deduplication advice]
+vdo.dev.hash_lock.dedupe_advice_valid PMID: 129.5.157 [Number of times deduplication advice was correct]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Incorrect hash lock deduplication advice
+Number of times deduplication advice was correct
     inst [0 or "vdotest"] value 0
 
-vdo.dev.index.curr_dedupe_queries PMID: 129.5.158 [Current index deduplication queries]
+vdo.dev.index.curr_dedupe_queries PMID: 129.5.158 [Current deduplication queries currently in-flight]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: instant  Units: count
 Help:
-Current index deduplication queries
+Current deduplication queries currently in-flight
     inst [0 or "vdotest"] value 0
 
-vdo.dev.index.entries_indexed PMID: 129.5.159 [Count of indexed entries]
+vdo.dev.index.entries_indexed PMID: 129.5.159 [Total number of chunk names stored in the index]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Count of indexed entries
+Total number of chunk names stored in the index
     inst [0 or "vdotest"] value 131104
 
-vdo.dev.index.max_dedupe_queries PMID: 129.5.160 [Maximum index deduplication queries]
+vdo.dev.index.max_dedupe_queries PMID: 129.5.160 [Maximum number of in-flight deduplication queries]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: instant  Units: count
 Help:
-Maximum index deduplication queries
+Maximum number of in-flight deduplication queries
     inst [0 or "vdotest"] value 323
 
-vdo.dev.index.posts_found PMID: 129.5.161 [Index posts found]
+vdo.dev.index.posts_found PMID: 129.5.161 [Post calls where entry found]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Index posts found
+The number of post calls since context statistics were last reset that
+found an existing entry.
     inst [0 or "vdotest"] value 0
 
-vdo.dev.index.posts_not_found PMID: 129.5.162 [Index posts not found]
+vdo.dev.index.posts_not_found PMID: 129.5.162 [Posts calls where entry not found]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Index posts not found
+The number of post calls since context statistics were last reset that
+added a new entry.
     inst [0 or "vdotest"] value 131104
 
-vdo.dev.index.queries_found PMID: 129.5.163 [Index queries found]
+vdo.dev.index.queries_found PMID: 129.5.163 [Query calls where entry found]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Index queries found
+The number of query calls since context statistics were last reset that
+found an existing entry.
     inst [0 or "vdotest"] value 0
 
-vdo.dev.index.queries_not_found PMID: 129.5.164 [Index queries not found]
+vdo.dev.index.queries_not_found PMID: 129.5.164 [Query calls where entry not found]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Index queries not found
+The number of query calls since context statistics were last reset that
+did not find an entry.
     inst [0 or "vdotest"] value 0
 
-vdo.dev.index.updates_found PMID: 129.5.165 [Index updates found]
+vdo.dev.index.updates_found PMID: 129.5.165 [Update calls where entry found]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Index updates found
+The number of update calls since context statistics were last reset that
+updated an existing entry.
     inst [0 or "vdotest"] value 117250
 
-vdo.dev.index.updates_not_found PMID: 129.5.166 [Index updates not found]
+vdo.dev.index.updates_not_found PMID: 129.5.166 [Update calls where entry not found]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
 Help:
-Index updates not found
+The number of update calls since context statistics were last reset that
+added a new entry.
     inst [0 or "vdotest"] value 0
 === std err ===
 === filtered valgrind report ===
