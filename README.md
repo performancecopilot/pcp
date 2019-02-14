@@ -10,7 +10,7 @@ make
 run with: 
 
 ```
-make
+make run
 ```
 
 clean with:
