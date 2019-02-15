@@ -342,6 +342,8 @@ do
     elif [ "$PCP_PLATFORM" = openbsd ]
     then
 	sed <$tmp.tmp \
+	    -e "/kernel\.all\.cpu\.spin: $unavailable/d" \
+	    -e "/kernel\.percpu\.cpu\.spin: $unavailable/d" \
 	    -e "/mem\.util\.anonpages: $unavailable/d" \
 	# end
     fi
