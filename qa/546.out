@@ -13,3 +13,4 @@ pmcd config[line 6]: Error: connection limit already specified
 pmcd config[line 7]: Error: maximum connection limit must be a positive number
 pmcd config[line 4]: Error: ',' or ';' expected in permission list
 pmcd config[line 4]: Error: ',' or ':' expected after "nosuchgroup"
+access config[line 2]: Error: ',' or ':' expected after "nosuchuser"

@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2012-2017 Red Hat.
+.\" Copyright (c) 2012-2017,2019 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -647,6 +647,16 @@ The access control section of the file must start with a line of the form:
 .TP
 .B [access]
 .PP
+In addition to (or instead of) the access section in the
+.B pmcd
+configuration file, access control specifications are also
+read from a file having the same name as the
+.B pmcd
+configuration file, but with '.access' appended to the name.
+This optional file must not contain the
+.B [access]
+keyword.
+.PP
 Leading and trailing whitespace may appear around and within the brackets and
 the case of the
 .B access
@@ -1155,6 +1165,9 @@ for details).
 .TP 10
 .I $PCP_PMCDCONF_PATH
 default configuration file
+.TP
+.I $PCP_PMCDCONF_PATH.access
+optional access control specification file
 .TP
 .I $PCP_PMCDOPTIONS_PATH
 command line options to

@@ -607,7 +607,7 @@ _need_metric()
 #
 _wait_for_pmcd()
 {
-    # 20 seconds default seems like a reasonble max time to get going
+    # 20 seconds default seems like a reasonable max time to get going
     #debug# set -x
     _can_wait=${1-20}
     if [ $# -eq 2 -a -n "$2" ]
@@ -2634,7 +2634,7 @@ _sighup_pmcd()
     _signal_delay=0.05
     _sighups_before=-1
 
-    eval `pmprobe -v pmcd.sighups 2>/dev/null \
+    eval `pmprobe $@ -v pmcd.sighups 2>/dev/null \
 	  | $PCP_AWK_PROG '{ printf "_sighups_before=%d\n", $3 }'`
     if [ $_sighups_before -lt 0 ]
     then
@@ -2651,7 +2651,7 @@ _sighup_pmcd()
     do
 	$PCP_BINADM_DIR/pmsleep $_delay
 	_sighups=-1
-	eval `pmprobe -v pmcd.sighups 2>/dev/null | \
+	eval `pmprobe $@ -v pmcd.sighups 2>/dev/null | \
 	    $PCP_AWK_PROG '{ printf "_sighups=%d\n", $3 }'`
 	if [ $_sighups -gt $_sighups_before ]
 	then
