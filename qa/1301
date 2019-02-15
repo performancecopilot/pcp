@@ -13,6 +13,18 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+#
+# pmproxy is default installed, but may be blocked by
+# package upgrades choosing to not override existing
+# pmcd.conf files that have local modifications.  In
+# this case, not much we can do - prefer to not have
+# to add Install/Remove scripts for this (core) PMDA.
+#
+pminfo pmproxy >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "pmproxy names not in the namespace"
+grep -q ^pmproxy "$PCP_PMCDCONF_PATH" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "pmproxy not configured in pmcd.conf"
+
 _cleanup()
 {
     _restore_config "$PCP_TMP_DIR/pmproxy"
