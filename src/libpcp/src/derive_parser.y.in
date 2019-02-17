@@ -1886,13 +1886,12 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 	     * this one in the current context ... if this fails we
 	     * will skip the metric
 	     */
-	    if (ctxp != NULL && cp->mlist[i].bind == 0) {
+	    if (cp->mlist[i].bind == 0) {
 		__dmbind(PM_LOCKED, ctxp, i);
 	    }
 	    /* skip invalid derived metrics, e.g. due to missing operands */
 	    if (!cp->mlist[i].anon) {
-		if (ctxp == NULL ||
-		   (cp->mlist[i].bind == 1 && cp->mlist[i].expr == NULL)) {
+		if (cp->mlist[i].bind == 1 && cp->mlist[i].expr == NULL) {
 		    if (pmDebugOptions.derive) {
 			fprintf(stderr, "__dmtraverse: name=\"%s\", omitting invalid child \"%s\"\n",
 			    name, cp->mlist[i].name);
