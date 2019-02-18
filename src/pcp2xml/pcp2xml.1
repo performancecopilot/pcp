@@ -332,8 +332,10 @@ non-leaf nodes of the PMNS tree for reporting.
 Perform instance live filtering.
 This allows capturing all filtered instances even if processes
 are restarted at some point (unlike without live filtering).
-Doing live filtering over a huge amount of instances naturally
-comes with some overhead so a bit of user caution is advised.
+Performing live filtering over a huge amount of instances will add
+some internal overhead so a bit of user caution is advised.
+See also
+.BR \-n .
 .TP
 \fB\-J\fR \fIrank\fR, \fB\-\-rank\fR=\fIrank\fR
 Limit results to highest/lowest
@@ -367,7 +369,7 @@ See also
 .TP
 \fB\-n\fR, \fB\-\-invert\-filter\fR
 Perform ranking before live filtering.
-By default instance live filter filtering (when requested, see
+By default instance live filtering (when requested, see
 .BR \-j )
 happens before instance ranking (when requested, see
 .BR \-J ).
@@ -381,24 +383,24 @@ filter reference metrics.
 By default ranking (see
 .BR \-J )
 happens for each metric individually.
-With predicate filter reference metrics, ranking is done only for the
-specified metrics.
-When reporting, the rest of the metrics sharing the same
+With predicates, ranking is done only for the
+specified predicate metrics.
+When reporting, rest of the metrics sharing the same
 .I instance domain
 (see
 .BR PCPIntro (1))
-as the predicates will include only the highest/lowest ranking
-instances of the corresponding predicates.
+as the predicate will include only the highest/lowest ranking
+instances of the corresponding predicate.
 .RS
 .PP
-So for example, when the using \fBproc.memory.rss\fP
-(resident size of process)
+So for example, using \fBproc.memory.rss\fP
+(resident memory size of process)
 as the
 .I predicate
-and including \fBproc.io.total_bytes\fP and \fBmem.util.used\fP as metrics
-to be reported, only the processes using most/least memory (as per
+metric together with \fBproc.io.total_bytes\fP and \fBmem.util.used\fP as
+metrics to be reported, only the processes using most/least (as per
 .BR \-J )
-will be included when reporting total bytes written by processes.
+memory will be included when reporting total bytes written by processes.
 Since \fBmem.util.used\fP is a single-valued metric (thus not sharing the
 same instance domain as the process-related metrics),
 it will be reported as usual.
