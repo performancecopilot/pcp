@@ -54,9 +54,11 @@ skipv == 2			{ next }
 _filter_pmdas()
 {
     sed \
+	-e '/inst \[4 or "pmproxy"]/d' \
 	-e '/inst \[10 or "trace"]/d' \
 	-e '/inst \[15 or "sendmail"]/d' \
 	-e '/inst \[24 or "redis"]/d' \
+	-e '/inst \[28 or "news"]/d' \
 	-e '/inst \[33 or "podman"]/d' \
 	-e '/inst \[60 or "linux"]/d' \
 	-e '/inst \[62 or "nfsclient"]/d' \
