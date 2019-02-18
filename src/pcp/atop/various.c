@@ -729,7 +729,7 @@ setup_globals(pmOptions *opts)
 	if ((hinv_nrcpus = extract_integer(result, descs, NRCPUS)) <= 0)
 		hinv_nrcpus = 1;
 	if ((hinv_nrgpus = extract_integer(result, descs, NRGPUS)) <= 0)
-		hinv_nrcpus = 1;
+		hinv_nrgpus = 1;
 	if ((hinv_nrdisk = extract_integer(result, descs, NRDISK)) <= 0)
 		hinv_nrdisk = 1;
 	if ((hinv_nrintf = extract_integer(result, descs, NRINTF)) <= 0)

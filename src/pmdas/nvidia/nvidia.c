@@ -227,10 +227,10 @@ refresh_proc(nvmlDevice_t device, pmInDom indom, const char *name,
 	return;
     for (i = 0; i < count; i++) {
 	/* extract the per-process stats now if available */
-	if (nvinfo->flags & ACCOUNT) {
-	    memset(&stats, 0, sizeof(stats));
+	memset(&stats, 0, sizeof(stats));
+	if (nvinfo->flags & ACCOUNT)
 	    localNvmlDeviceGetAccountingStats(device, infos[i].pid, &stats);
-	}
+
 	/* build instance name (device + PID) */
 	pmsprintf(pname, sizeof(pname), "%u::%u %s", cardid, infos[i].pid, name);
 
