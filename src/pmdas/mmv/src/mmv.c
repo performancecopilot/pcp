@@ -916,6 +916,8 @@ mmv_lookup_stat_metric(agent_t *agent, pmID pmid, unsigned int inst,
 	sts = (s->version == MMV_VERSION1) ?
 	    mmv_lookup_item1(pmID_item(pmid), inst, s, value, shorttext, helptext):
 	    mmv_lookup_item2(pmID_item(pmid), inst, s, value, shorttext, helptext);
+	if (sts == MMV_TYPE_NOSUPPORT)
+	    sts = PM_ERR_APPVERSION;
 	if (sts >= 0) {
 	    *stats = s;
 	    break;
@@ -1017,8 +1019,6 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		atom->cp = ap->buffer;
 		break;
 	    }
-	    case MMV_TYPE_NOSUPPORT:
-		return PM_ERR_APPVERSION;
 	}
 	return PMDA_FETCH_STATIC;
     }
