@@ -957,18 +957,14 @@ class pmConfig(object):
                 sys.stderr.write("Predicate metric %s filtered out.\n" % predicate)
                 sys.exit(1)
 
-            index = len(self.util.metrics) # Sentinel
-            for i, metric in enumerate(self.util.metrics):
-                if metric == predicate:
-                    index = i
-                    self._pred_indom.append(self.descs[i].contents.indom)
-                    break
+            i = list(self.util.metrics.keys()).index(predicate)
+            self._pred_indom.append(self.descs[i].contents.indom)
 
-            if self.insts[index][0][0] == pmapi.c_api.PM_IN_NULL:
+            if self.insts[i][0][0] == pmapi.c_api.PM_IN_NULL:
                 sys.stderr.write("Predicate metric must have instances.\n")
                 sys.exit(1)
 
-            if self.descs[index].contents.type == pmapi.c_api.PM_TYPE_STRING:
+            if self.descs[i].contents.type == pmapi.c_api.PM_TYPE_STRING:
                 sys.stderr.write("Predicate metric values must be numeric.\n")
                 sys.exit(1)
 
