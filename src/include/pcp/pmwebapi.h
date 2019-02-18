@@ -44,6 +44,12 @@ extern void pmLogLevelPrint(FILE *, pmLogLevel, sds, int);
 extern const char *pmLogLevelStr(pmLogLevel);
 
 /*
+ * Generalised .ini file parsing facilities.
+ */
+
+extern int pmIniFileParse(sds, ini_handler, void *);
+
+/*
  * Fast, scalable time series querying services
  */
 
@@ -190,8 +196,6 @@ extern int pmDiscoverSetHostSpec(pmDiscoverModule *, sds);
 extern int pmDiscoverSetEventLoop(pmDiscoverModule *, void *);
 extern int pmDiscoverSetMetricRegistry(pmDiscoverModule *, void *);
 extern void pmDiscoverClose(pmDiscoverModule *);
-
-extern int pmIniFileParse(sds, ini_handler, void *);
 
 #ifdef __cplusplus
 }
