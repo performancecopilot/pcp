@@ -1185,7 +1185,7 @@ class PMReporter(object):
             self.found_insts = []
             for sort_metric in self.sort_metric.split(","):
                 revs = True if sort_metric[:1] != "-" else False
-                sort_metric = sort_metric[1:] if sort_metric[:1] == "-" else sort_metric
+                sort_metric = sort_metric if revs else sort_metric[1:]
                 for r in sorted(results[sort_metric], key=lambda value: value[2], reverse=revs):
                     if r[1] not in self.found_insts:
                         self.found_insts.append(r[1])
