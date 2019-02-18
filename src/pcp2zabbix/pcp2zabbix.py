@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
 # Copyright (C) 2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -524,7 +524,7 @@ class PCP2Zabbix(object):
         if self.zabbix_prevsend is None:
             self.zabbix_prevsend = ts
 
-        results = self.pmconfig.get_sorted_results(valid_only=True)
+        results = self.pmconfig.get_ranked_results(valid_only=True)
 
         # Collect the results
         for metric in results:

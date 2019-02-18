@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -972,7 +972,12 @@ class pmConfig(object):
                 sys.stderr.write("Predicate metric values must be numeric.\n")
                 sys.exit(1)
 
+    # Deprecated, use get_ranked_results() below instead
     def get_sorted_results(self, valid_only=False):
+        """ Deprecated, use get_ranked_results() instead """
+        return self.get_ranked_results(valid_only)
+
+    def get_ranked_results(self, valid_only=False):
         """ Get filtered and ranked results """
         results = OrderedDict()
         if hasattr(self.util, 'predicate') and self.util.predicate:

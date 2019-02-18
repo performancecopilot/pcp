@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 #
 # Copyright (C) 2014-2017 Red Hat
-# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -403,7 +403,7 @@ class PCP2Graphite(object):
             """ Sanitize the instance domain string for Carbon/Graphite """
             return "_" + re.sub('[^a-zA-Z_0-9-]', '_', string)
 
-        results = self.pmconfig.get_sorted_results(valid_only=True)
+        results = self.pmconfig.get_ranked_results(valid_only=True)
 
         # Prepare data for easier processing below
         miv_tuples = []

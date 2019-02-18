@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2018 Red Hat.
+# Copyright (C) 2018-2019 Red Hat.
 # Copyright (C) 2004-2016 Dag Wieers <dag@wieers.com>
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -1499,7 +1499,7 @@ class DstatTool(object):
         # Note that some plugins (time-based) will not have
         # any corresponding entry in the results.
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_ranked_results()
         for i, plugin in enumerate(self.totlist):
             if i == 0:
                 sep = ''

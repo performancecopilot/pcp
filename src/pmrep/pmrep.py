@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -498,7 +498,7 @@ class PMReporter(object):
                 refresh_metrics = 0
                 self.pmconfig.update_metrics(curr_insts=not self.live_filter)
 
-            # Repeat static header if needed
+            # Repeat header if needed
             if self.output == OUTPUT_STDOUT and not self.dynamic_header:
                 if self.lines > 0 and self.repeat_header == self.lines:
                     self.write_header(True)
@@ -906,7 +906,7 @@ class PMReporter(object):
         # NB. We use valid_only=False to make sure that for every metric
         # requested their metadata will be recorded in the archive even
         # if their values are not available for whatever reason.
-        results = self.pmconfig.get_sorted_results(valid_only=False)
+        results = self.pmconfig.get_ranked_results(valid_only=False)
         for i, metric in enumerate(results):
             if metric not in self.recorded:
                 record_metric_info(metric, i)
@@ -1014,7 +1014,7 @@ class PMReporter(object):
         if self.extcsv:
             line += self.csv_tz
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_ranked_results()
 
         if self.dynamic_header:
             self.dynamic_header_update(results)
@@ -1024,7 +1024,7 @@ class PMReporter(object):
             for inst, _, value in results[metric]:
                 res[metric + "+" + str(inst)] = value
 
-        # Add corresponding values for each column in the static header
+        # Add corresponding values for each header column
         for i, metric in enumerate(self.metrics):
             fmt = "." + str(self.metrics[metric][6]) + "f"
             for j, n in self.get_results_iter(i, metric, results):
@@ -1102,7 +1102,7 @@ class PMReporter(object):
             line.append(timestamp)
         line.append(self.delimiter)
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_ranked_results()
 
         if self.dynamic_header:
             self.dynamic_header_update(results, line)
@@ -1115,7 +1115,7 @@ class PMReporter(object):
             for inst, _, value in results[metric]:
                 res[metric + "+" + str(inst)] = value
 
-        # Add corresponding values for each column in the static header
+        # Add corresponding values for each header column
         k = 0
         for i, metric in enumerate(self.metrics):
             for j, n in self.get_results_iter(i, metric, results):
@@ -1150,7 +1150,7 @@ class PMReporter(object):
         # Avoid per-line I/O
         output = ""
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_ranked_results()
 
         res = {}
         for i, metric in enumerate(results):
@@ -1291,7 +1291,7 @@ class PMReporter(object):
                     self.writer.write(output.format(*alt_line) + "\n")
             return
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_ranked_results()
 
         if self.prev_insts is None:
             for i, metric in enumerate(results):

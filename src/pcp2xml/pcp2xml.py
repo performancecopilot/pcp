@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -439,7 +439,7 @@ class PCP2XML(object):
                 return None
             return string.replace("&", "&amp;").replace("<", "&lt;")
 
-        results = self.pmconfig.get_sorted_results(valid_only=True)
+        results = self.pmconfig.get_ranked_results(valid_only=True)
 
         for metric in results:
             # Install value into dict in key1{key2{key3=value}} style:
