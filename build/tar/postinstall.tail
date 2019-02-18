@@ -301,8 +301,8 @@ for dir in "$PCP_LOG_DIR" \
 	   "$PCP_LOG_DIR"/pmproxy "$PCP_LOG_DIR"/pmlogger "$PCP_LOG_DIR"/pmmgr \
 	   "$PCP_SA_DIR" \
 	   "$PCP_RUN_DIR" \
-	   "$PCP_VAR_DIR"/tmp "$PCP_VAR_DIR"/tmp/pmie "$PCP_VAR_DIR"/tmp/pmlogger \
-	   "$PCP_VAR_DIR"/tmp/mmv \
+	   "$PCP_TMP_DIR" "$PCP_TMP_DIR"/pmie "$PCP_TMP_DIR"/pmlogger \
+	   "$PCP_TMP_DIR"/mmv "$PCP_TMP_DIR"/pmproxy \
 	   "$PCP_VAR_DIR"/config/pmda \
 	   "$PCP_VAR_DIR"/config/pmie "$PCP_VAR_DIR"/config/pmlogger \
 	   "$PCP_NSSDB_DIR"

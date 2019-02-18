@@ -103,12 +103,15 @@ NotifyEndLocalContext: DSO PMDA $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX (3
 
 sorted stripped lines ...
 ADDR [N] domain=30 name=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX init=sample_init handle=(nil)
+ADDR [N] domain=4 name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX init=pmproxy_init handle=(nil)
 ADDR [N] domain=70 name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX init=mmv_init handle=(nil)
 ADDR [N] domain=N name=OS_PMDA, ...
 Local Context PMDA Table
 [N] domain=30, name=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX, init=sample_init
+[N] domain=4, name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX, init=pmproxy_init
 [N] domain=70, name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX, init=mmv_init
 [N] domain=N, name=OS_PMDA, ...
 __pmLocalPMDA(op=ADD, domain=30, name=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX, init=sample_init)
+__pmLocalPMDA(op=ADD, domain=4, name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX, init=pmproxy_init)
 __pmLocalPMDA(op=ADD, domain=70, name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX, init=mmv_init)
 __pmLocalPMDA(op=ADD, domain=N, name=OS_PMDA, ...)
