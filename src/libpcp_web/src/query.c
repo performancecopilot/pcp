@@ -50,6 +50,7 @@ typedef struct seriesGetLabelMap {
 typedef struct seriesGetLookup {
     redisMap		*map;
     pmSeriesStringCallBack func;
+    sds			pattern;
     unsigned int	nseries;
     seriesGetSID	series[0];
 } seriesGetLookup;
@@ -162,12 +163,16 @@ initSeriesQueryBaton(seriesQueryBaton *baton,
 }
 
 static void
-initSeriesGetLookup(seriesQueryBaton *baton, int nseries, pmSID *series,
+initSeriesGetLookup(seriesQueryBaton *baton, int nseries, sds *series,
 		pmSeriesStringCallBack func, redisMap *map)
 {
     seriesGetSID	*sid;
     unsigned int	i;
 
+    /* pattern matching parameter, optional */
+    if (nseries == 0 && series != NULL)
+	baton->u.lookup.pattern = *series;
+    /* else lookup array of individual sids */
     for (i = 0; i < nseries; i++) {
 	sid = &baton->u.lookup.series[i];
 	initSeriesGetSID(sid, series[i], 0, baton);
@@ -1167,7 +1172,6 @@ series_report_set(seriesQueryBaton *baton, series_set_t *set)
     }
     if (sid)
 	sdsfree(sid);
-    baton->callbacks->on_match_done(set->nseries, baton->userdata);
 }
 
 static void
@@ -1393,8 +1397,11 @@ series_map_keys_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 	for (i = 0; i < reply->elements; i++) {
 	    child = reply->element[i];
 	    if (child->type == REDIS_REPLY_STRING) {
-		    val = sdscpylen(val, child->str, child->len);
-		    baton->u.lookup.func(NULL, val, baton->userdata);
+		if (baton->u.lookup.pattern != NULL &&
+		    fnmatch(baton->u.lookup.pattern, child->str, 0) != 0)
+		    continue;
+		val = sdscpylen(val, child->str, child->len);
+		baton->u.lookup.func(NULL, val, baton->userdata);
 	    } else {
 		infofmt(msg, "bad response for string map %s (%s)",
 			HVALS, redis_reply_type(child));
@@ -2113,7 +2120,7 @@ series_lookup_metrics(void *arg)
 }
 
 int
-pmSeriesMetrics(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg)
+pmSeriesMetrics(pmSeriesSettings *settings, int nseries, sds *series, void *arg)
 {
     seriesQueryBaton	*baton;
     size_t		bytes;

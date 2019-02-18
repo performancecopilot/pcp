@@ -94,7 +94,6 @@ typedef void (*pmSeriesDoneCallBack)(int, void *);
 
 typedef struct pmSeriesCallBacks {
     pmSeriesMatchCallBack	on_match;	/* one series identifier */
-    pmSeriesDoneCallBack	on_match_done;	/* last identifier send back */
     pmSeriesDescCallBack	on_desc;	/* metric descriptor */
     pmSeriesInstCallBack	on_inst;	/* instance details */
     pmSeriesLabelCallBack	on_labelmap;	/* label name value pair */
@@ -124,11 +123,11 @@ extern int pmSeriesSetEventLoop(pmSeriesModule *, void *);
 extern int pmSeriesSetMetricRegistry(pmSeriesModule *, void *);
 extern void pmSeriesClose(pmSeriesModule *);
 
-extern int pmSeriesDescs(pmSeriesSettings *, int, pmSID *, void *);
-extern int pmSeriesLabels(pmSeriesSettings *, int, pmSID *, void *);
-extern int pmSeriesInstances(pmSeriesSettings *, int, pmSID *, void *);
-extern int pmSeriesMetrics(pmSeriesSettings *, int, pmSID *, void *);
-extern int pmSeriesSources(pmSeriesSettings *, int, pmSID *, void *);
+extern int pmSeriesDescs(pmSeriesSettings *, int, sds *, void *);
+extern int pmSeriesLabels(pmSeriesSettings *, int, sds *, void *);
+extern int pmSeriesInstances(pmSeriesSettings *, int, sds *, void *);
+extern int pmSeriesMetrics(pmSeriesSettings *, int, sds *, void *);
+extern int pmSeriesSources(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesQuery(pmSeriesSettings *, sds, pmSeriesFlags, void *);
 extern int pmSeriesLoad(pmSeriesSettings *, sds, pmSeriesFlags, void *);
 

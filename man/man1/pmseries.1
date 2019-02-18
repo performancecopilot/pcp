@@ -20,6 +20,7 @@
 \fBpmseries\fR
 [\fB\-adFiIlLmMnqsSV\fR]
 [\fB\-c\fR \fIconfig\fR]
+[\fB\-g\fR \fIpattern\fR]
 [\fB\-h\fR \fIhost\fR]
 [\fB\-p\fR \fIport\fR]
 [\fIquery\fR | \fIseries\fR ... | \fIsource\fR ... ]
@@ -308,6 +309,13 @@ equivalent to \fB\-dilms\fR.
 Metric descriptions detailing the PMID, data type, data semantics, units,
 scale and associated instance domain.
 This option has a direct \fBpminfo\fR(1) equivalent.
+.TP
+\fB\-g\fR \fIpattern, \fB\-\-glob\fR=\fIpattern\fR
+Provide a
+.BR glob (3)
+.I pattern
+to restrict the report provided by the \fB\-i\fR, \fB\-l\fR, \fB\-m\fR,
+and \fB\-S\fR.
 .TP
 \fB\-i\fR, \fB\-\-instances\fR
 Metric descriptions detailing the PMID, data type, data semantics, units,

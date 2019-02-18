@@ -55,6 +55,7 @@ typedef struct series_command {
     int			nsource;
     sds			*series;
     sds			*source;
+    sds			pattern;	/* glob pattern for string matches */
 } series_command;
 
 typedef struct series_label {
@@ -186,11 +187,12 @@ series_data_free(series_data *dp)
 	series_free(dp->args.nsource, dp->args.source);
     if (dp->args.nseries)
 	series_free(dp->args.nseries, dp->args.series);
-
     sdsfree(dp->series);
     sdsfree(dp->source);
     if (dp->type)
 	sdsfree(dp->type);
+    if (dp->args.pattern)
+	sdsfree(dp->args.pattern);
     series_del_insts(dp);
 }
 
@@ -304,15 +306,6 @@ on_series_match(pmSID sid, void *arg)
     if (series_next(dp, sid))
 	printf("%s\n", sid);
     return 0;
-}
-
-static void
-on_series_match_done(int sts, void *arg)
-{
-    series_data		*dp = (series_data *)arg;
-
-    (void)dp;
-    (void)sts;
 }
 
 static int
@@ -677,8 +670,12 @@ series_source(series_data *dp)
 	fprintf(stderr, "%s: cannot find source identifiers in '%s': %s\n",
 		pmGetProgname(), dp->query, pmErrStr_r(sts, msg, sizeof(msg)));
     } else {
-	dp->args.nsource = nsources;
-	dp->args.source = sources;
+	if (nsources) {
+	    dp->args.nsource = nsources;
+	    dp->args.source = sources;
+	} else {
+	    sources = &dp->args.pattern;
+	}
 	if ((sts = pmSeriesSources(&dp->settings, nsources, sources, dp)) < 0)
 	    on_series_done(sts, dp);
     }
@@ -775,43 +772,52 @@ series_desc_report(series_data *dp, void *arg)
 	on_series_done(sts, dp);
 }
 
+/* pass series identifier (one count) or pattern (zero count) */
+#define SERIES_PARAMS(dp, arg, count, param) \
+	if (arg) { count = 1; param = arg; } \
+	else { count = 0; param = dp->args.pattern; }
+
 static void
 series_source_report(series_data *dp, void *arg)
 {
-    pmSID	sid = (pmSID)arg;
-    int		sts;
+    sds		param;
+    int		sts, count;
 
-    if ((sts = pmSeriesSources(&dp->settings, sid? 1 : 0, &sid, dp)) < 0)
+    SERIES_PARAMS(dp, arg, count, param);
+    if ((sts = pmSeriesSources(&dp->settings, count, &param, dp)) < 0)
 	on_series_done(sts, dp);
 }
 
 static void
 series_metric_report(series_data *dp, void *arg)
 {
-    pmSID	sid = (pmSID)arg;
-    int		sts;
+    sds		param;
+    int		sts, count;
 
-    if ((sts = pmSeriesMetrics(&dp->settings, sid? 1 : 0, &sid, dp)) < 0)
+    SERIES_PARAMS(dp, arg, count, param);
+    if ((sts = pmSeriesMetrics(&dp->settings, count, &param, dp)) < 0)
 	on_series_done(sts, dp);
 }
 
 static void
 series_labels_report(series_data *dp, void *arg)
 {
-    pmSID	sid = (pmSID)arg;
-    int		sts;
+    sds		param;
+    int		sts, count;
 
-    if ((sts = pmSeriesLabels(&dp->settings, sid? 1 : 0, &sid, dp)) < 0)
+    SERIES_PARAMS(dp, arg, count, param);
+    if ((sts = pmSeriesLabels(&dp->settings, count, &param, dp)) < 0)
 	on_series_done(sts, dp);
 }
 
 static void
 series_instances_report(series_data *dp, void *arg)
 {
-    pmSID	sid = (pmSID)arg;
-    int		sts;
+    sds		param;
+    int		sts, count;
 
-    if ((sts = pmSeriesInstances(&dp->settings, sid? 1 : 0, &sid, dp)) < 0)
+    SERIES_PARAMS(dp, arg, count, param);
+    if ((sts = pmSeriesInstances(&dp->settings, count, &param, dp)) < 0)
 	on_series_done(sts, dp);
 }
 
@@ -957,6 +963,7 @@ pmseries_overrides(int opt, pmOptions *opts)
     switch (opt) {
     case 'a':
     case 'h':
+    case 'g':
     case 'L':
     case 's':
     case 'S':
@@ -984,6 +991,7 @@ static pmLongOptions longopts[] = {
     { "fullindom", 0, 'I', 0, "print InDom in verbose format" },
     { "instances", 0, 'i', 0, "report names for time series instances" },
     { "fast", 0, 'F', 0, "query or load series metadata, not values" },
+    { "glob", 0, 'g', 0, "glob pattern to restrict matches" },
     { "labels", 0, 'l', 0, "list all labels for time series" },
     { "fullpmid", 0, 'M', 0, "print PMID in verbose format" },
     { "metrics", 0, 'm', 0, "report names for time series metrics" },
@@ -995,7 +1003,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_BOUNDARIES,
-    .short_options = "ac:dD:Fh:iIlLmMnqp:sSV?",
+    .short_options = "ac:dD:Fg:h:iIlLmMnqp:sSV?",
     .long_options = longopts,
     .short_usage = "[options] [query ... | series ... | source ...]",
     .override = pmseries_overrides,
@@ -1028,7 +1036,7 @@ series_ini_handler(void *configuration, const char *section, const char *name,
 int
 main(int argc, char *argv[])
 {
-    sds			query;
+    sds			query, match = NULL;
     int			c, sts;
     const char		*split = ",";
     const char		*space = " ";
@@ -1058,6 +1066,10 @@ main(int argc, char *argv[])
 
 	case 'F':	/* perform metadata-only --load, or --query */
 	    flags |= PMSERIES_FAST;
+	    break;
+
+        case 'g':
+	    match = sdsnew(opts.optarg);
 	    break;
 
         case 'h':
@@ -1193,9 +1205,9 @@ main(int argc, char *argv[])
 
     dp = series_data_init(flags, query);
     dp->loop = uv_default_loop();
+    dp->args.pattern = match;
 
     dp->settings.callbacks.on_match = on_series_match;
-    dp->settings.callbacks.on_match_done = on_series_match_done;
     dp->settings.callbacks.on_desc = on_series_desc;
     dp->settings.callbacks.on_inst = on_series_inst;
     dp->settings.callbacks.on_labelmap = on_series_labelmap;

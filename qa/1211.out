@@ -232,11 +232,34 @@ proc.schedstat.cpu_time
 proc.schedstat.pcount
 proc.schedstat.run_delay
 
+List some metric names ...
+hinv.cpu.bogomips
+hinv.cpu.cache
+hinv.cpu.clock
+hinv.cpu.model
+hinv.cpu.stepping
+hinv.cpu.vendor
+hinv.machine
+hinv.map.cpu_node
+hinv.map.cpu_num
+hinv.map.scsi
+hinv.ncpu
+hinv.ndisk
+hinv.nfilesys
+hinv.pagesize
+hinv.physmem
+
 List all label names ...
+hostname
+
+List some label names ...
 hostname
 
 List all context names ...
 PATH/archives/proc
+bozo-laptop
+
+List some context names ...
 bozo-laptop
 
 List all instance names ...
@@ -257,6 +280,15 @@ sda4
 sda5
 sda6
 sr0
+
+List some instance names ...
+sda
+sda1
+sda2
+sda3
+sda4
+sda5
+sda6
 
 Perform simple name-based query ...
 d51624d12da45900bfee2fd73f1e23f3ccabb784

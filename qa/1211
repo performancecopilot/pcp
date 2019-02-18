@@ -89,16 +89,32 @@ echo "List all metric names ..."
 pmseries $options -m | LC_COLLATE=POSIX sort
 echo
 
+echo "List some metric names ..."
+pmseries $options -m -g 'hinv*' | LC_COLLATE=POSIX sort
+echo
+
 echo "List all label names ..."
 pmseries $options -l | LC_COLLATE=POSIX sort
+echo
+
+echo "List some label names ..."
+pmseries $options -l -g 'h*' | LC_COLLATE=POSIX sort
 echo
 
 echo "List all context names ..."
 pmseries $options -S | _filter_source | LC_COLLATE=POSIX sort
 echo
 
+echo "List some context names ..."
+pmseries $options -S -g 'bozo*' | _filter_source | LC_COLLATE=POSIX sort
+echo
+
 echo "List all instance names ..."
 pmseries $options -i | LC_COLLATE=POSIX sort
+echo
+
+echo "List some instance names ..."
+pmseries $options -i -g 'sda*' | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform simple name-based query ..."
