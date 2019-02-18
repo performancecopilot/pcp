@@ -679,6 +679,7 @@ _pcp () {
       "(-I --fullindom $exargs)"{-I,--fullindom}'[print verbose InDom]' \
       "(-i --instances $exargs)"{-i,--instances}'[report instance names]' \
       "(-F --fast $exargs)"{-F,--fast}'[request metadata only]' \
+      "(-g --glob $exargs)"{-g,--glob}'[glob pattern to restrict matches]' \
       "(-l --labels $exargs)"{-l,--labels}'[report label values]' \
       "(-M --fullpmid $exargs)"{-M,--fullpmid}'[print verbose PMID]' \
       "(-m --metrics $exargs)"{-m,--metrics}'[report metric names]' \

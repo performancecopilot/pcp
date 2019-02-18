@@ -81,8 +81,8 @@ _pcp_complete()
         arg_regex="-[0489ABabcEeFfhiJKlNOoPQqSsTtWwXYyZ]"
     ;;
     pmseries)
-        all_args="acdFhIiLlMmnpqSsV"
-        arg_regex="-[chp]"
+        all_args="acdFghIiLlMmnpqSsV"
+        arg_regex="-[cghp]"
     ;;
     pmstore)
         all_args="FfhiKLnV"
