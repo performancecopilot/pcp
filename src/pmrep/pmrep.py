@@ -77,7 +77,7 @@ class PMReporter(object):
                      'timestamp', 'unitinfo', 'colxrow', 'separate_header',
                      'delay', 'width', 'delimiter', 'extcsv', 'width_force',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
-                     'dynamic_header', 'overall_rank', 'overall_rank_alt',
+                     'dynamic_header', 'overall_rank', 'overall_rank_alt', 'sort_metric',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
@@ -117,6 +117,7 @@ class PMReporter(object):
         self.limit_filter_force = 0
         self.invert_filter = 0
         self.predicate = None
+        self.sort_metric = None
         self.omit_flat = 0
         self.colxrow = None
         self.width = 0
@@ -172,7 +173,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:jJ:234:58:9:nN:vX:W:w:P:0:l:kxE:1gf:uq:b:y:Q:B:Y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrRIi:jJ:234:58:9:nN:6:vX:W:w:P:0:l:kxE:1gf:uq:b:y:Q:B:Y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -220,6 +221,7 @@ class PMReporter(object):
         opts.pmSetLongOption("limit-filter-force", 1, "9", "LIMIT", "forced limit for value filtering")
         opts.pmSetLongOption("invert-filter", 0, "n", "", "perform ranking before live filtering")
         opts.pmSetLongOption("predicate", 1, "N", "METRIC", "set predicate filter reference metric")
+        opts.pmSetLongOption("sort-metric", 1, "6", "METRIC", "set sort reference metric for colxrow output")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
         opts.pmSetLongOption("colxrow", 1, "X", "STR", "swap stdout columns and rows using STR as header label")
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
@@ -324,6 +326,8 @@ class PMReporter(object):
             self.invert_filter = 1
         elif opt == 'N':
             self.predicate = optarg
+        elif opt == '6':
+            self.sort_metric = optarg
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'X':
@@ -430,6 +434,19 @@ class PMReporter(object):
 
         self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
+
+        if self.sort_metric:
+            for sort_metric in self.sort_metric.split(","):
+                sort_metric = sort_metric[1:] if sort_metric[:1] == "-" else sort_metric
+                if sort_metric not in self.metrics:
+                    sys.stderr.write("Sort reference metric %s not part of metrics.\n" % sort_metric)
+                    sys.exit(1)
+
+                i = list(self.metrics.keys()).index(sort_metric)
+
+                if self.pmconfig.insts[i][0][0] == pmapi.c_api.PM_IN_NULL:
+                    sys.stderr.write("Sort reference metric must have instances.\n")
+                    sys.exit(1)
 
     def execute(self):
         """ Fetch and report """
@@ -1162,6 +1179,17 @@ class PMReporter(object):
 
         if self.dynamic_header:
             self.dynamic_header_update(results)
+
+        if self.sort_metric:
+            found_insts = self.found_insts
+            self.found_insts = []
+            for sort_metric in self.sort_metric.split(","):
+                revs = True if sort_metric[:1] != "-" else False
+                sort_metric = sort_metric[1:] if sort_metric[:1] == "-" else sort_metric
+                for r in sorted(results[sort_metric], key=lambda value: value[2], reverse=revs):
+                    if r[1] not in self.found_insts:
+                        self.found_insts.append(r[1])
+            self.found_insts.extend([i for i in found_insts if i not in self.found_insts])
 
         # We need to construct each line independently
         for instance in self.found_insts:

@@ -652,6 +652,7 @@ _pcp () {
       "(-J --rank $exargs)"{-J+,--rank=}'[set limit for results of valued instances]' \
       "(-2 --overall-rank -3 --overall-rank-alt -N --predicate $exargs)"{-2,--overall-rank}'[perform overall ranking from archive]' \
       "(-3 --overall-rank-alt -2 --overall-rank -N --predicate $exargs)"{-3,--overall-rank-alt}'[perform overall ranking using pmrep format]' \
+      "(-6 --sort-metric $exargs)"{-6+,--sort-metric}'[specify sort metric]' \
       "(-8 --limit-filter -9 --limit-filter-force $exargs)"{-8+,--limit-filter=}'[set default limit filter]' \
       "(-9 --limit-filter-force -8 --limit-filter $exargs)"{-9+,--limit-filter-force=}'[set forced limit filter]' \
       "(-n --invert-filter $exargs)"{-n,--invert-filter}'[perform ranking before live filtering]' \

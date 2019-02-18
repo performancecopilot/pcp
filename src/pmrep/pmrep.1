@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2016-2018 Red Hat.
-.\" Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 \fBpmrep\fP
 [\fB\-1235CdgGHIjkLnprRuUvVxz?\fP]
 [\fB\-4\fP \fIaction\fP]
+[\fB\-6\fP \fIsort-metric\fP]
 [\fB\-8\fP|\fB\-9\fP \fIlimit\fP]
 [\fB\-a\fP \fIarchive\fP]
 [\fB\-\-archive\-folio\fP \fIfolio\fP]
@@ -297,9 +298,18 @@ are \fBupdate\fP (refresh metrics being sampled),
 and \fBabort\fP (exit the program if such an event happens).
 \fIupdate\fP implies \fB\-\-dynamic\-header\fP.
 .TP
-\fB\-5\fR, \fI\-\-ignore\-unknown\fR
+\fB\-5\fR, \fB\-\-ignore\-unknown\fR
 Silently ignore any metric name that cannot be resolved.
 At least one metric must be found for the tool to start.
+.TP
+\fB\-6\fR, \fB\-\-sort\-metric\fR=\fIsort-metric\fR
+Specify a sort reference metric to sort output by values with
+.BR \-X .
+By default sorting order is descending, prepending the metric
+name with the minus sign (``-'') will change the order to be ascending.
+See also
+.BR \-J " and "
+.BR \-N .
 .TP
 \fB\-8\fR \fIlimit\fR, \fB\-\-limit\-filter\fR=\fIlimit\fR
 Limit results to instances with values above/below
@@ -545,7 +555,8 @@ A positive integer will include highest valued instances in reporting.
 A negative integer will include lowest valued instances in reporting.
 A value of zero performs no ranking.
 See also
-.BR \-2 " and "
+.BR \-2 ,
+.BR \-6 " and "
 .BR \-8 .
 .TP
 \fB\-k\fR, \fB\-\-extended\-csv\fR
@@ -859,7 +870,8 @@ This is convenient to allow easily using
 .BR grep (1)
 to filter results or to more closely mimic other utilities.
 See also
-.BR \-i .
+.BR \-i " and "
+.BR \-6 .
 .TP
 \fB\-y\fR \fIscale\fR, \fB\-\-time\-scale\fR=\fIscale\fR
 .I Unit/scale

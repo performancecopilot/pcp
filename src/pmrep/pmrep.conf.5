@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -305,6 +305,13 @@ predicate (string)
 .RS 4
 Indicates the metrics to be used as predicate metrics.
 Corresponding command line option is \fB\-N\fP.
+Undefined by default.
+.RE
+.PP
+sort_metric (string)
+.RS 4
+Indicates the metrics to be used as sort reference metrics.
+Corresponding command line option is \fB\-6\fP.
 Undefined by default.
 .RE
 .PP
