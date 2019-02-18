@@ -7,4 +7,4 @@ OnCalendar=*-*-* *:58:00
 
 [Install]
 WantedBy=timers.target
-
+RequiredBy=pmie.service

@@ -6,3 +6,4 @@ OnCalendar=*-*-* 00:10:00
 
 [Install]
 WantedBy=timers.target
+RequiredBy=pmlogger.service
