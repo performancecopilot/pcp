@@ -976,9 +976,9 @@ pmseries_overrides(int opt, pmOptions *opts)
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Connection Options"),
+    { "config", 1, 'c', "FILE", "configuration file path"},
     { "host", 1, 'h', "HOST", "connect to Redis using given host name" },
     { "port", 1, 'p', "PORT", "connect to Redis using given TCP/IP port" },
-    { "config", 1, 'c', "config", "configuration file path"},
     PMAPI_OPTIONS_HEADER("General Options"),
     { "load", 0, 'L', 0, "load time series values and metadata" },
     { "query", 0, 'q', 0, "perform a time series query (default)" },
@@ -991,7 +991,7 @@ static pmLongOptions longopts[] = {
     { "fullindom", 0, 'I', 0, "print InDom in verbose format" },
     { "instances", 0, 'i', 0, "report names for time series instances" },
     { "fast", 0, 'F', 0, "query or load series metadata, not values" },
-    { "glob", 0, 'g', 0, "glob pattern to restrict matches" },
+    { "glob", 1, 'g', "PATTERN", "glob pattern to restrict matches" },
     { "labels", 0, 'l', 0, "list all labels for time series" },
     { "fullpmid", 0, 'M', 0, "print PMID in verbose format" },
     { "metrics", 0, 'm', 0, "report names for time series metrics" },

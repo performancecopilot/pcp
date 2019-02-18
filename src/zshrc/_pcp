@@ -670,9 +670,9 @@ _pcp () {
   pmseries)
     _arguments -C -S -s \
       "$common_help[@]" \
+      "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files'
       "(-h --host $exargs)"{-h+,--host=}'[specify Redis host]:host:_hosts' \
       "(-p --port $exargs)"{-p+,--port=}'[specify Redis port]:port:' \
-      "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files'
       "(-L --load $exargs)"{-L,--load}'[load metadata and data into Redis]' \
       "(-q --query $exargs)"{-q,--query}'[perform timeseries query]' \
       "(-a --all $exargs)"{-a,--all}'[report all metadata, same as -dilms]' \
@@ -680,7 +680,7 @@ _pcp () {
       "(-I --fullindom $exargs)"{-I,--fullindom}'[print verbose InDom]' \
       "(-i --instances $exargs)"{-i,--instances}'[report instance names]' \
       "(-F --fast $exargs)"{-F,--fast}'[request metadata only]' \
-      "(-g --glob $exargs)"{-g,--glob}'[glob pattern to restrict matches]' \
+      "(-g --glob $exargs)"{-g+,--glob}'[glob pattern to restrict matches]' \
       "(-l --labels $exargs)"{-l,--labels}'[report label values]' \
       "(-M --fullpmid $exargs)"{-M,--fullpmid}'[print verbose PMID]' \
       "(-m --metrics $exargs)"{-m,--metrics}'[report metric names]' \
