@@ -1073,7 +1073,7 @@ main(int argc, char *argv[])
 	    break;
 
         case 'h':
-	    config.hostname = sdsdup(opts.optarg);
+	    config.hostname = sdsnew(opts.optarg);
 	    break;
 
 	case 'i':	/* command line contains series identifiers */
