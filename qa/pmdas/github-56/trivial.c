@@ -3,6 +3,19 @@
 #include <pcp/pmda.h>
 #include "./domain.h"
 
+
+static pmLongOptions longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_LOGFILE,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
+static pmdaOptions opts = {
+    .short_options = "D:l:?",
+    .long_options = longopts,
+};
+
 /*
  * callback for pmdaChildren()
  */
@@ -54,9 +67,17 @@ trivial_fetch(pmdaMetric * mdesc, unsigned int inst, pmAtomValue * atom)
 int
 main(int argc, char **argv)
 {
-    pmSetProgname(argv[0]);
     pmdaInterface desc;
+
+    pmSetProgname(argv[0]);
     pmdaDaemon(&desc, PMDA_INTERFACE_4, pmGetProgname(), TRIVIAL, NULL, NULL);
+
+    pmdaGetOptions(argc, argv, &opts, &desc);
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
+    }
+
     desc.version.four.children = trivial_children;
     pmdaSetFetchCallBack(&desc, trivial_fetch);
     pmdaInit(&desc, NULL, 0, NULL, 0);
