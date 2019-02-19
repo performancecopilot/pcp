@@ -130,8 +130,8 @@ pmdaversion(void)
 	    fprintf(stderr, "__pmGetPDU(%d): %s\n", fromPMDA, pmErrStr(sts));
 	else
 	    fprintf(stderr, "pmdaversion: expecting PDU_CREDS, got PDU type %d\n", sts);
-	fprintf(stderr, "Warning: no version exchange with PMDA %s\n",
-			myPmdaName);
+	fprintf(stderr, "Warning: no version exchange with PMDA %s after %d secs\n",
+			myPmdaName, _creds_timeout);
     }
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(ack);
