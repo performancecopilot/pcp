@@ -906,7 +906,7 @@ ParseAccessSpec(const char *source, int allow, int *specOps, int *denyOps, int *
 		FindNextToken(source);
 		if (!TokenIsNumber() || TokenNumVal() <= 0) {
 		    fprintf(stderr,
-				 "%s pmcd config[line %d]: Error: maximum connection limit must be a positive number\n",
+				 "%s config[line %d]: Error: maximum connection limit must be a positive number\n",
 				 source, nLines);
 		    return -1;
 		}
