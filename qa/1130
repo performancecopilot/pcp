@@ -2,7 +2,7 @@
 # PCP QA Test No. 1130
 # checks basic pcp2elasticsearch functionality
 #
-# Copyright (c) 2017 Red Hat, Inc.
+# Copyright (c) 2017-2019 Red Hat.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -38,6 +38,8 @@ _full_stash()
     cat $tmp.socat.out >>$seq.full
     echo "--- socket cat stderr --" >>$seq.full
     cat $tmp.socat.err >>$seq.full
+    echo "--- socket cat logfile --" >>$seq.full
+    cat $tmp.socat.log >>$seq.full
 }
 
 ncpu=`pmprobe -v hinv.ncpu | awk '{print $3}'`
@@ -45,7 +47,7 @@ pcp2elasticsearch="$python `which pcp2elasticsearch`"
 
 echo | tee -a $seq.full
 echo "=== 1. pcp2elasticsearch one-shot one-metric ===" | tee -a $seq.full
-socat -vv -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
+socat -lf $tmp.socat.log -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
 $pcp2elasticsearch -t 1 -s 1 hinv.ncpu >$tmp.p2e.out 2>$tmp.p2e.err
@@ -59,7 +61,7 @@ egrep -q '"hinv": {"ncpu": '$ncpu'}' $tmp.socat.err
 _full_stash
 
 echo "=== 2. pcp2elasticsearch non-default targets ===" | tee -a $seq.full
-socat -vv -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
+socat -lf $tmp.socat.log -s -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
 $pcp2elasticsearch -t 1 -s 1 -X QAHOST -x INDEX hinv.ncpu >$tmp.p2e.out 2>$tmp.p2e.err
@@ -73,7 +75,7 @@ egrep -q '"@host-id": "QAHOST"' $tmp.socat.err
 _full_stash
 
 echo "=== 3. pcp2elasticsearch full-blown archive replay session ===" | tee -a $seq.full
-socat -vv -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
+socat -lf $tmp.socat.log -s -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
 $pcp2elasticsearch -a $here/archives/rep -I "" >$tmp.p2e.out 2>$tmp.p2e.err
@@ -90,7 +92,7 @@ echo "--- End of received data ---"
 _full_stash
 
 echo "=== 4. pcp2elasticsearch with custom --es-search-type ===" | tee -a $seq.full
-socat -vv -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
+socat -lf $tmp.socat.log -s -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
 $pcp2elasticsearch -t 1 -s 1 -X QAHOST -x INDEX hinv.ncpu --es-search-type=test_search_type >$tmp.p2e.out 2>$tmp.p2e.err
