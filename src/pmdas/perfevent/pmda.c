@@ -2,7 +2,7 @@
  * perfevent PMDA
  *
  * Copyright (c) 2013 Joe White
- * Copyright (c) 2012,2016,2018 Red Hat.
+ * Copyright (c) 2012,2016,2018,2019 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -174,6 +174,12 @@ static const char *dynamic_derived_helptab[] =
     "The values of the derived events"
 };
 
+static const char *dynamic_indom_helptab[] =
+{
+    /* per-CPU instance domains */
+    "set of all processors"
+};
+
 static char mypath[MAXPATHLEN];
 static int	isDSO = 1;		/* =0 I am a daemon */
 static char	*username;
@@ -336,6 +342,14 @@ static int perfevent_text(int ident, int type, char **buffer, pmdaExt *pmda)
             *buffer = (char *)pinfo->help_text;
             return 0;
         }
+    }
+
+    if ((type & PM_TEXT_INDOM) == PM_TEXT_INDOM)
+    {
+	if ((pmInDom)ident != PM_INDOM_NULL) {
+	    *buffer = (char *)dynamic_indom_helptab[0];
+	    return 0;
+	}
     }
 
     return pmdaText(ident, type, buffer, pmda);
@@ -628,7 +642,7 @@ perfevent_init(pmdaInterface *dp)
     {
         int sep = pmPathSeparator();
         pmsprintf(mypath, sizeof(mypath), "%s%c" PMDANAME "%c" "help", pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-        pmdaDSO(dp, PMDA_INTERFACE_5, PMDANAME " DSO", mypath);
+        pmdaDSO(dp, PMDA_INTERFACE_7, PMDANAME " DSO", mypath);
     }
 
     if (dp->status != 0)
@@ -653,12 +667,12 @@ perfevent_init(pmdaInterface *dp)
         return;
     }
 
-    dp->version.five.profile = perfevent_profile;
-    dp->version.five.fetch = perfevent_fetch;
-    dp->version.five.text = perfevent_text;
-    dp->version.five.pmid = perfevent_pmid;
-    dp->version.five.name = perfevent_name;
-    dp->version.five.children = perfevent_children;
+    dp->version.seven.profile = perfevent_profile;
+    dp->version.seven.fetch = perfevent_fetch;
+    dp->version.seven.text = perfevent_text;
+    dp->version.seven.pmid = perfevent_pmid;
+    dp->version.seven.name = perfevent_name;
+    dp->version.seven.children = perfevent_children;
 
     pmdaSetFetchCallBack(dp, perfevent_fetchCallBack);
     pmdaSetEndContextCallBack(dp, perfevent_end_contextCallBack);
@@ -705,7 +719,7 @@ int main(int argc, char **argv)
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "perfevent" "%c" "help",
              pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmGetProgname(), PERFEVENT,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), PERFEVENT,
                "perfevent.log", mypath);
 
     while ((c = pmdaGetOpt(argc, argv, "CD:d:i:l:pu:U:6:?", &dispatch, &err)) != EOF)
