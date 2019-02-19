@@ -42,7 +42,7 @@ in
     2.[0-2].*)
     		ln $seq.out.0 $seq.out
 		;;
-    2.4.*|3.*)
+    2.4.*|3.*|4.*)
     		ln $seq.out.1 $seq.out
     		;;
     *)		echo "Botch: need to know what output to expect for zabbix_agent version $version"
@@ -69,6 +69,8 @@ need_derived=false
 control=$PCP_PMDAS_DIR/sample/dynamic.indom
 derived=/etc/zabbix/zbxpcp-derived-metrics.conf
 $sudo rm -rf $tmp $tmp.* $seq.full
+
+echo "zabbix_agentd version: $version" >>$here/$seq.full
 
 _cleanup()
 {
