@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -33,7 +33,7 @@ redisSlotsInit(sds hostspec, void *events)
 	return NULL;
 
     slots->events = events;
-    slots->keymap = dictCreate(&sdsDictCallBacks, "command keymap");
+    slots->keymap = dictCreate(&sdsKeyDictCallBacks, "command keymap");
     slots->control.hostspec = sdsdup(hostspec);
     slots->control.redis = redisAttach(slots, hostspec);
     return slots;
@@ -102,7 +102,6 @@ redisSlotsFree(redisSlots *pool)
 	tdelete(range, &root, slotsCompare);
 	redisSlotRangeFree(pool, range);
     }
-    redisAsyncDisconnect(pool->control.redis);
     redisAsyncFree(pool->control.redis);
     sdsfree(pool->control.hostspec);
     dictRelease(pool->keymap);

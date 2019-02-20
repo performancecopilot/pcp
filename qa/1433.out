@@ -1,0 +1,14 @@
+QA output created by 1433
+Starting pmproxy ... 
+Log for pmproxy on HOST started DATE
+
+pmproxy: PID = PID
+pmproxy request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD 44322 inet INADDR_ANY
+ok FD 44322 ipv6 INADDR_ANY
+[DATE] pmproxy(PID) Info: pmproxy caught SIGTERM
+[DATE] pmproxy(PID) Info: pmproxy Shutdown
+
+Log finished DATE

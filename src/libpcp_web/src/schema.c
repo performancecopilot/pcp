@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -83,7 +83,7 @@ checkStatusReplyOK(redisInfoCallBack info, void *userdata,
 {
     va_list		argp;
 
-    if (reply->type == REDIS_REPLY_STATUS &&
+    if (reply && reply->type == REDIS_REPLY_STATUS &&
 	(strcmp("OK", reply->str) == 0 || strcmp("QUEUED", reply->str) == 0))
 	return 0;
     va_start(argp, format);
@@ -98,7 +98,7 @@ checkStreamReplyString(redisInfoCallBack info, void *userdata,
 {
     va_list		argp;
 
-    if (reply->type == REDIS_REPLY_STRING && strcmp(s, reply->str) == 0)
+    if (reply && reply->type == REDIS_REPLY_STRING && strcmp(s, reply->str) == 0)
 	return 0;
     va_start(argp, format);
     reportReplyError(info, userdata, reply, format, argp);

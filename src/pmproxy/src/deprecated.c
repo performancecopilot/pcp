@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2019 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -43,6 +43,69 @@ typedef struct {
 
 #define FDNAMELEN		40	/* maximum length of a fd description */
 #define MIN_CLIENTS_ALLOC	8
+
+static int	timeToDie;		/* for SIGINT handling */
+#ifdef HAVE_SA_SIGINFO
+static pid_t    killer_pid;
+static uid_t    killer_uid;
+#endif
+static int      killer_sig;
+
+static void
+SignalShutdown(void)
+{
+#ifdef HAVE_SA_SIGINFO
+#if DESPERATE
+    char	buf[256];
+#endif
+    if (killer_pid != 0) {
+	pmNotifyErr(LOG_INFO, "pmproxy caught %s from pid=%" FMT_PID " uid=%d\n",
+	    killer_sig == SIGINT ? "SIGINT" : "SIGTERM", killer_pid, killer_uid);
+#if DESPERATE
+	pmNotifyErr(LOG_INFO, "Try to find process in ps output ...\n");
+	pmsprintf(buf, sizeof(buf), "sh -c \". \\$PCP_DIR/etc/pcp.env; ( \\$PCP_PS_PROG \\$PCP_PS_ALL_FLAGS | \\$PCP_AWK_PROG 'NR==1 {print} \\$2==%" FMT_PID " {print}' )\"", pid);
+	system(buf);
+#endif
+    }
+    else {
+	pmNotifyErr(LOG_INFO, "pmproxy caught %s from unknown process\n",
+			killer_sig == SIGINT ? "SIGINT" : "SIGTERM");
+    }
+#else
+    pmNotifyErr(LOG_INFO, "pmproxy caught %s\n",
+		killer_sig == SIGINT ? "SIGINT" : "SIGTERM");
+#endif
+    Shutdown();
+    exit(0);
+}
+
+#ifdef HAVE_SA_SIGINFO
+static void
+SigIntProc(int sig, siginfo_t *sip, void *x)
+{
+    killer_sig = sig;
+    if (sip != NULL) {
+	killer_pid = sip->si_pid;
+	killer_uid = sip->si_uid;
+    }
+    timeToDie = 1;
+}
+#elif IS_MINGW
+static void
+SigIntProc(int sig)
+{
+    SignalShutdown();
+}
+#else
+static void
+SigIntProc(int sig)
+{
+    killer_sig = sig;
+    signal(SIGINT, SigIntProc);
+    signal(SIGTERM, SigIntProc);
+    timeToDie = 1;
+}
+#endif
 
 static int
 NewClient(ServerInfo *sp)
@@ -579,6 +642,22 @@ OpenRequestPorts(const char *path, int maxpending)
 {
     ServerInfo	*sp;
     int		sts;
+#ifdef HAVE_SA_SIGINFO
+    static struct sigaction act;
+#endif
+
+#ifdef HAVE_SA_SIGINFO
+    act.sa_sigaction = SigIntProc;
+    act.sa_flags = SA_SIGINFO;
+    sigaction(SIGINT, &act, NULL);
+    sigaction(SIGTERM, &act, NULL);
+#else
+    __pmSetSignalHandler(SIGINT, SigIntProc);
+    __pmSetSignalHandler(SIGTERM, SigIntProc);
+#endif
+    __pmSetSignalHandler(SIGHUP, SIG_IGN);
+    __pmSetSignalHandler(SIGBUS, SignalPanic);
+    __pmSetSignalHandler(SIGSEGV, SignalPanic);
 
     (void)path;
 
