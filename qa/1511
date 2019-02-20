@@ -71,7 +71,7 @@ $sudo cp $tmp.access $PCP_PMCDCONF_PATH.access
 _service pmcd start
 _wait_for_pmcd 10 unix:
 
-cat $PCP_LOG_DIR/pmcd/pmcd.log >> $seq.dull
+cat $PCP_LOG_DIR/pmcd/pmcd.log >> $seq.full
 
 echo "Attempting disallowed store access (expect failure)"
 pmstore -h unix: sample.write_me 2
