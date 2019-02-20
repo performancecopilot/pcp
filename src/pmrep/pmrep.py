@@ -867,7 +867,8 @@ class PMReporter(object):
             labels.append(self.metrics[metric][0])
         for i, metric in enumerate(self.metrics):
             if self.colxrow is not None:
-                if self.metrics[metric][0] in labels:
+                if self.metrics[metric][0] in labels or \
+                   (self.dynamic_header and results and not results[metric]):
                     continue
                 add_header_items(metric, None)
                 continue
@@ -965,8 +966,7 @@ class PMReporter(object):
         """ Update dynamic header as needed """
         if self.rank:
             for metric in results:
-                for _ in results[metric]:
-                    results[metric] = sorted(results[metric], key=lambda x: x[0])
+                results[metric] = sorted(results[metric], key=lambda x: x[0])
         insts = [i[0] for metric in results for i in results[metric]]
         if insts and (self.repeat_header == self.lines or insts != self.prev_insts):
             if self.output == OUTPUT_CSV:
@@ -1186,7 +1186,7 @@ class PMReporter(object):
             for sort_metric in self.sort_metric.split(","):
                 revs = True if sort_metric[:1] != "-" else False
                 sort_metric = sort_metric if revs else sort_metric[1:]
-                for r in sorted(results[sort_metric], key=lambda value: value[2], reverse=revs):
+                for r in sorted(results[sort_metric], key=lambda x: x[2], reverse=revs):
                     if r[1] not in self.found_insts:
                         self.found_insts.append(r[1])
             self.found_insts.extend([i for i in found_insts if i not in self.found_insts])
@@ -1334,7 +1334,7 @@ class PMReporter(object):
                 continue
             rank = abs(self.rank) if self.pmconfig.descs[i].contents.indom != PM_IN_NULL else 1
             c, r, t = (0, [], [])
-            for j in sorted(results[metric] + self.all_ranked[metric], key=lambda value: value[2], reverse=revs):
+            for j in sorted(results[metric] + self.all_ranked[metric], key=lambda x: x[2], reverse=revs):
                 if j[0] not in t and c < rank:
                     c += 1
                     r.append(j)

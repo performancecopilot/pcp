@@ -2,7 +2,7 @@
 # PCP QA Test No. 1169
 # pmrep dynamic header tests.
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 #
 
 seq=`basename $0`
@@ -65,6 +65,14 @@ pmrep $log -p -u -X test -1 -g         disk.dev.read disk.dev.write mem.util.use
 
 echo "== stdout/colxrow test with extended/repeating/separate header"
 pmrep $log -p -u -X test -1 -x -E 3 -g disk.dev.read disk.dev.write mem.util.used | _archive_filter
+
+echo "== stdout/colxrow test with derived metric missing values using rate"
+pmrep $log -p -u -X test -1 -S @00:00:02 -s 2 -J 3 -e 'a = 100 * rate(disk.dev.read)' \
+                                      disk.dev.read disk.dev.write a mem.util.used | _archive_filter
+
+echo "== stdout/colxrow test with derived metric missing values using raw values"
+pmrep $log -p -u -X test -1 -S @00:00:02 -s 2 -J 3 -e 'a = 100 * rate(disk.dev.read)' -r \
+                                      disk.dev.read disk.dev.write a mem.util.used | _archive_filter
 
 
 echo "== csv test"
