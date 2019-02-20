@@ -86,7 +86,7 @@ state==1 && / \(actions=/	{ if ($3 == $5 && $5 == $9) {
 				  }
 				}
 state==1 && / rule\)/		{ want = 0 }
-state==1 && /`hostname`:/	{ want = 0 }
+state==1 && /'"`hostname`"':/	{ want = 0 }
 want==1		{ print }' \
 | tee $tmp.dbg.2 \
 | sed \

@@ -4,14 +4,14 @@ Start badpmda PMDA: ./src/badpmda -c 0
 [DATE] badpmda(PID) Critical: pmdaConnect: need to call pmdaDaemon() or pmdaDSO() first
 pmdaConnect: Error: Generic error, already reported above
 pmdaversion: expecting PDU_CREDS, got PDU type 0
-Warning: no version exchange with PMDA ./src/badpmda
+Warning: no version exchange with PMDA ./src/badpmda after 3 secs
 
 Start badpmda PMDA: ./src/badpmda -c 1
 --- case 1 pmdaExt alloc + pmdaConnect() ---
 [DATE] badpmda(PID) Critical: pmdaConnect: need to call pmdaDaemon() or pmdaDSO() first
 pmdaConnect: Error: Generic error, already reported above
 pmdaversion: expecting PDU_CREDS, got PDU type 0
-Warning: no version exchange with PMDA ./src/badpmda
+Warning: no version exchange with PMDA ./src/badpmda after 3 secs
 
 --- case 2 pmdaDaemon() + pmdaInet + pmdaConnect() ---
 pmdaDaemon: OK
