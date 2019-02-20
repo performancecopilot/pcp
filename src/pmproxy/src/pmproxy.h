@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013,2018 Red Hat.
+ * Copyright (c) 2012-2013,2018-2019 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -31,10 +31,9 @@ extern struct pmproxy libpcp_pmproxy;
 extern struct pmproxy libuv_pmproxy;
 
 extern void *GetServerInfo(void);
-extern void SignalShutdown(void);
+extern void SignalPanic(int);
 extern void Shutdown(void);
 
-extern int timeToDie;		/* for SIGINT handling */
 extern int redis_port;		/* connect to Redis on this port */
 extern char *redis_host;	/* connect to Redis on this host */
 

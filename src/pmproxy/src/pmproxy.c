@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2019 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -20,7 +20,6 @@
 #define STRINGIFY(s)    #s
 #define TO_STRING(s)    STRINGIFY(s)
 
-int		timeToDie;		/* for SIGINT handling */
 int		redis_port = 6379;	/* connect to Redis on this port */
 char		*redis_host;		/* connect to Redis on this host */
 
@@ -35,12 +34,6 @@ static char	*certdb;		/* certificate DB path (NSS) */
 static char	*dbpassfile;		/* certificate DB password file */
 static char     *cert_nickname;         /* Alternate nickname for server certificate */
 static char	sockpath[MAXPATHLEN];	/* local unix domain socket path */
-
-#ifdef HAVE_SA_SIGINFO
-static pid_t    killer_pid;
-static uid_t    killer_uid;
-#endif
-static int      killer_sig;
 
 static void
 DontStart(void)
@@ -84,7 +77,7 @@ static pmLongOptions longopts[] = {
     { "port", 1, 'p', "N", "accept connections on this port" },
     { "socket", 1, 's', "PATH", "Unix domain socket file [default $PCP_RUN_DIR/pmproxy.socket]" },
     { "port", 1, 'r', "N", "Connect to Redis instance on this TCP/IP port" },
-    { "timeseries", 1, 't', 0, "Enable automatic scalable timeseries loading" },
+    { "timeseries", 0, 't', 0, "Enable automatic scalable timeseries loading" },
     { "host", 1, 'h', "HOST", "Connect to Redis instance on this host name" },
     PMAPI_OPTIONS_HEADER("Diagnostic options"),
     { "log", 1, 'l', "PATH", "redirect diagnostics and trace output" },
@@ -243,64 +236,9 @@ Shutdown(void)
     fflush(stderr);
 }
 
+/* Called to shutdown pmproxy in a disorderly manner */
 void
-SignalShutdown(void)
-{
-#ifdef HAVE_SA_SIGINFO
-#if DESPERATE
-    char	buf[256];
-#endif
-    if (killer_pid != 0) {
-	pmNotifyErr(LOG_INFO, "pmproxy caught %s from pid=%" FMT_PID " uid=%d\n",
-	    killer_sig == SIGINT ? "SIGINT" : "SIGTERM", killer_pid, killer_uid);
-#if DESPERATE
-	pmNotifyErr(LOG_INFO, "Try to find process in ps output ...\n");
-	pmsprintf(buf, sizeof(buf), "sh -c \". \\$PCP_DIR/etc/pcp.env; ( \\$PCP_PS_PROG \\$PCP_PS_ALL_FLAGS | \\$PCP_AWK_PROG 'NR==1 {print} \\$2==%" FMT_PID " {print}' )\"", killer_pid);
-	system(buf);
-#endif
-    }
-    else {
-	pmNotifyErr(LOG_INFO, "pmproxy caught %s from unknown process\n",
-			killer_sig == SIGINT ? "SIGINT" : "SIGTERM");
-    }
-#else
-    pmNotifyErr(LOG_INFO, "pmproxy caught %s\n",
-		killer_sig == SIGINT ? "SIGINT" : "SIGTERM");
-#endif
-    Shutdown();
-    exit(0);
-}
-
-#ifdef HAVE_SA_SIGINFO
-static void
-SigIntProc(int sig, siginfo_t *sip, void *x)
-{
-    killer_sig = sig;
-    if (sip != NULL) {
-	killer_pid = sip->si_pid;
-	killer_uid = sip->si_uid;
-    }
-    timeToDie = 1;
-}
-#elif IS_MINGW
-static void
-SigIntProc(int sig)
-{
-    SignalShutdown();
-}
-#else
-static void
-SigIntProc(int sig)
-{
-    killer_sig = sig;
-    signal(SIGINT, SigIntProc);
-    signal(SIGTERM, SigIntProc);
-    timeToDie = 1;
-}
-#endif
-
-static void
-SigBad(int sig)
+SignalPanic(int sig)
 {
     if (pmDebugOptions.desperate) {
 	pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
@@ -330,9 +268,6 @@ main(int argc, char *argv[])
     int		maxpending = MAXPENDING;
     int		env_warn = 0;
     char	*envstr;
-#ifdef HAVE_SA_SIGINFO
-    static struct sigaction act;
-#endif
 
     umask(022);
     pmGetUsername(&username);
@@ -372,19 +307,6 @@ main(int argc, char *argv[])
 
     if (run_daemon)
 	__pmServerStart(argc, argv, 1);
-
-#ifdef HAVE_SA_SIGINFO
-    act.sa_sigaction = SigIntProc;
-    act.sa_flags = SA_SIGINFO;
-    sigaction(SIGINT, &act, NULL);
-    sigaction(SIGTERM, &act, NULL);
-#else
-    __pmSetSignalHandler(SIGINT, SigIntProc);
-    __pmSetSignalHandler(SIGTERM, SigIntProc);
-#endif
-    __pmSetSignalHandler(SIGHUP, SIG_IGN);
-    __pmSetSignalHandler(SIGBUS, SigBad);
-    __pmSetSignalHandler(SIGSEGV, SigBad);
 
     /* Open non-blocking request ports for client connections */
     if ((info = server->openports(sockpath, maxpending)) == NULL)

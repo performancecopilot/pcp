@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018-2019 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -76,6 +76,56 @@ server_init(int portcount, const char *localpath)
     proxy->events = uv_default_loop();
     uv_loop_init(proxy->events);
     return proxy;
+}
+
+static void
+signal_panic(uv_signal_t *sighandle, int signum)
+{
+    uv_handle_t		*handle = (uv_handle_t *)sighandle;
+    struct proxy	*proxy = (struct proxy *)handle->data;
+    uv_loop_t		*loop = proxy->events;
+
+    uv_signal_stop(sighandle);
+    uv_stop(loop);
+
+    SignalPanic(signum);
+}
+
+static void
+signal_handler(uv_signal_t *sighandle, int signum)
+{
+    uv_handle_t		*handle = (uv_handle_t *)sighandle;
+    struct proxy	*proxy = (struct proxy *)handle->data;
+    uv_loop_t		*loop = proxy->events;
+
+    if (signum == SIGHUP)
+	return;
+    pmNotifyErr(LOG_INFO, "pmproxy caught %s\n",
+		signum == SIGINT ? "SIGINT" : "SIGTERM");
+    uv_signal_stop(sighandle);
+    uv_stop(loop);
+}
+
+static void
+signal_init(struct proxy *proxy)
+{
+    static uv_signal_t	sighup, sigint, sigterm;
+    static uv_signal_t	sigbus, sigsegv;
+    uv_loop_t		*loop = proxy->events;
+
+    uv_signal_init(loop, &sighup);
+    uv_signal_init(loop, &sigint);
+    uv_signal_init(loop, &sigterm);
+    sighup.data = sigint.data = sigterm.data = (void *)proxy;
+    uv_signal_start(&sighup, signal_handler, SIGHUP);
+    uv_signal_start(&sigint, signal_handler, SIGINT);
+    uv_signal_start(&sigterm, signal_handler, SIGTERM);
+
+    uv_signal_init(loop, &sigbus);
+    uv_signal_init(loop, &sigsegv);
+    sigbus.data = sigsegv.data = (void *)proxy;
+    uv_signal_start(&sigbus, signal_panic, SIGBUS);
+    uv_signal_start(&sigsegv, signal_panic, SIGSEGV);
 }
 
 void
@@ -401,6 +451,8 @@ open_request_ports(const char *localpath, int maxpending)
     if ((proxy = server_init(total, localpath)) == NULL)
 	goto fail;
 
+    signal_init(proxy);
+
     count = n = 0;
     if (*localpath) {
 	server = &proxy->servers[n++];
@@ -450,7 +502,6 @@ shutdown_ports(void *arg)
 	stream = &server->stream;
 	if (stream->active == 0)
 	    continue;
-	uv_close((uv_handle_t *)&stream, NULL);
 	if (server->presence)
 	    __pmServerUnadvertisePresence(server->presence);
     }

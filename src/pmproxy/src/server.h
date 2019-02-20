@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018-2019 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -90,8 +90,8 @@ typedef struct server {
 typedef struct proxy {
     struct client	*first;		/* doubly linked list of clients */
     struct server	*servers;	/* array of tcp/pipe socket servers */
-    int			nservers;	/* count of entries in server array */
-    int			redisetup;	/* is Redis slots information setup */
+    unsigned int	nservers;	/* count of entries in server array */
+    unsigned int	redisetup;	/* is Redis slots information setup */
     sds			redishost;	/* initial Redis host specification */
     mmv_registry_t	*metrics;
     uv_loop_t		*events;
