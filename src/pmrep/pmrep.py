@@ -867,7 +867,8 @@ class PMReporter(object):
             labels.append(self.metrics[metric][0])
         for i, metric in enumerate(self.metrics):
             if self.colxrow is not None:
-                if self.metrics[metric][0] in labels:
+                if self.metrics[metric][0] in labels or \
+                   (self.dynamic_header and results and not results[metric]):
                     continue
                 add_header_items(metric, None)
                 continue
