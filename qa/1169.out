@@ -910,6 +910,31 @@ QA output created by 1169
 
                        1         2
 00:00:19   sdb     1.000     1.000
+== stdout/colxrow test with derived metric missing values using rate
+          test  m.u.used
+                   Kbyte
+00:00:02     =         2
+
+          test  d.d.read  d.d.write    a  m.u.used
+                 count/s    count/s  cou     Kbyte
+00:00:03   sda     1.000      1.000  100         ~
+00:00:03   sdb     1.000      1.000  100         ~
+00:00:03   sdc     1.000      1.000  100         ~
+00:00:03     =         ~          ~    ~         3
+== stdout/colxrow test with derived metric missing values using raw values
+          test  d.d.read  d.d.write  m.u.used
+                   count      count     Kbyte
+00:00:02   sda         2          2         ~
+00:00:02   sdb         2          2         ~
+00:00:02   sdc         2          2         ~
+00:00:02     =         ~          ~         2
+
+          test  d.d.read  d.d.write    a  m.u.used
+                   count      count  cou     Kbyte
+00:00:03   sda         3          3  100         ~
+00:00:03   sdb         3          3  100         ~
+00:00:03   sdc         3          3  100         ~
+00:00:03     =         ~          ~    ~         3
 == csv test
 1970-01-01 00:00:00
 Time,"disk.dev.read-sda","disk.dev.read-sdb","disk.dev.write-sda","disk.dev.write-sdb"
