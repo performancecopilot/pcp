@@ -146,3 +146,12 @@ http://equivocation.org/node/27
 http://equivocation.org/node/42
 http://equivocation.org/node/51
 http://equivocation.org/node/52
+
+== Debugging Policy Package Notes ==
+
+In instances where a policy package fails to load and produces an error related to the cil file,
+you can use the following command to extract the policy package to an equivalent state to debug:
+
+# /usr/libexec/selinux/hll/pp /path/to/pcpupstream.pp /tmp/pcpupstream.cil
+
+It is then possible to inspect the offending cil file to determine the missing context/class/type.
