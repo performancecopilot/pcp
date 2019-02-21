@@ -1,6 +1,6 @@
 [Unit]
 Description=Check PMIE instances are running
-Documentation=man:pmie(1)
+Documentation=man:pmie_check(1)
 ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]

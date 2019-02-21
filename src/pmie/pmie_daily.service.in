@@ -1,6 +1,6 @@
 [Unit]
 Description=Process PMIE logs
-Documentation=man:pmie(1)
+Documentation=man:pmie_daily(1)
 ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
