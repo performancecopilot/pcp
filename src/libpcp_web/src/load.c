@@ -1001,7 +1001,7 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 
     case PM_LABEL_DOMAIN:
 	domain = pmwebapi_add_domain(cp, ident);
-	if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+	if (domain && (labels = pmwebapi_labelsetdup(sets)) != NULL) {
 	    if (domain->labelset)
 		pmFreeLabelSets(domain->labelset, 1);
 	    domain->labelset = labels;
@@ -1015,7 +1015,7 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
     case PM_LABEL_CLUSTER:
 	domain = pmwebapi_add_domain(cp, pmID_domain(ident));
 	cluster = pmwebapi_add_cluster(cp, domain, pmID_cluster(ident));
-	if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+	if (cluster && (labels = pmwebapi_labelsetdup(sets)) != NULL) {
 	    if (cluster->labelset)
 		pmFreeLabelSets(cluster->labelset, 1);
 	    cluster->labelset = labels;
@@ -1028,7 +1028,7 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 
     case PM_LABEL_ITEM:
 	metric = pmwebapi_new_pmid(cp, ident, event->module->on_info, arg);
-	if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+	if (metric && (labels = pmwebapi_labelsetdup(sets)) != NULL) {
 	    if (metric->labelset)
 		pmFreeLabelSets(metric->labelset, 1);
 	    metric->labelset = labels;
@@ -1042,7 +1042,7 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
     case PM_LABEL_INDOM:
 	domain = pmwebapi_add_domain(cp, pmInDom_domain(ident));
 	indom = pmwebapi_add_indom(cp, domain, ident);
-	if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+	if (indom && (labels = pmwebapi_labelsetdup(sets)) != NULL) {
 	    if (indom->labelset)
 		pmFreeLabelSets(indom->labelset, 1);
 		    indom->labelset = labels;
@@ -1056,7 +1056,7 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
     case PM_LABEL_INSTANCES:
 	domain = pmwebapi_add_domain(cp, pmInDom_domain(ident));
 	indom = pmwebapi_add_indom(cp, domain, ident);
-	for (i = 0; i < nsets; i++) {
+	for (i = 0; indom && i < nsets; i++) {
 	    id = sets[i].inst;
 	    if ((instance = dictFetchValue(indom->insts, &id)) == NULL)
 		continue;

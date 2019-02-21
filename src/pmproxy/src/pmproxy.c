@@ -236,19 +236,6 @@ Shutdown(void)
     fflush(stderr);
 }
 
-/* Called to shutdown pmproxy in a disorderly manner */
-void
-SignalPanic(int sig)
-{
-    if (pmDebugOptions.desperate) {
-	pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
-	fprintf(stderr, "\nDumping to core ...\n");
-	__pmDumpStack(stderr);
-	fflush(stderr);
-    }
-    _exit(sig);
-}
-
 void *
 GetServerInfo(void)
 {

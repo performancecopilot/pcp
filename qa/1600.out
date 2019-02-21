@@ -4,8 +4,41 @@ PING
 PONG
 
 == verify metric names
+TIMESERIES
+TIMESERIES
 == verify metric descs
+
+TIMESERIES
+    PMID: 29.0.11
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
 == verify metric insts
+
+TIMESERIES
+    inst [100 or "bin-100"] series TIMESERIES
+    inst [200 or "bin-200"] series TIMESERIES
+    inst [300 or "bin-300"] series TIMESERIES
+    inst [400 or "bin-400"] series TIMESERIES
+    inst [500 or "bin-500"] series TIMESERIES
+    inst [600 or "bin-600"] series TIMESERIES
+    inst [700 or "bin-700"] series TIMESERIES
+    inst [800 or "bin-800"] series TIMESERIES
+    inst [900 or "bin-900"] series TIMESERIES
 == verify metric labels
+
+TIMESERIES
+    inst [100 or "bin-100"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
+    inst [200 or "bin-200"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
+    inst [300 or "bin-300"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
+    inst [400 or "bin-400"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
+    inst [500 or "bin-500"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
+    inst [600 or "bin-600"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
+    inst [700 or "bin-700"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
+    inst [800 or "bin-800"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
+    inst [900 or "bin-900"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
 == verify metric values
+
+TIMESERIES
+    [TIMESTAMP] VALUE
+    [TIMESTAMP] VALUE
 == all done

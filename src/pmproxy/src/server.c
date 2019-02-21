@@ -79,19 +79,6 @@ server_init(int portcount, const char *localpath)
 }
 
 static void
-signal_panic(uv_signal_t *sighandle, int signum)
-{
-    uv_handle_t		*handle = (uv_handle_t *)sighandle;
-    struct proxy	*proxy = (struct proxy *)handle->data;
-    uv_loop_t		*loop = proxy->events;
-
-    uv_signal_stop(sighandle);
-    uv_stop(loop);
-
-    SignalPanic(signum);
-}
-
-static void
 signal_handler(uv_signal_t *sighandle, int signum)
 {
     uv_handle_t		*handle = (uv_handle_t *)sighandle;
@@ -110,7 +97,6 @@ static void
 signal_init(struct proxy *proxy)
 {
     static uv_signal_t	sighup, sigint, sigterm;
-    static uv_signal_t	sigbus, sigsegv;
     uv_loop_t		*loop = proxy->events;
 
     uv_signal_init(loop, &sighup);
@@ -120,12 +106,6 @@ signal_init(struct proxy *proxy)
     uv_signal_start(&sighup, signal_handler, SIGHUP);
     uv_signal_start(&sigint, signal_handler, SIGINT);
     uv_signal_start(&sigterm, signal_handler, SIGTERM);
-
-    uv_signal_init(loop, &sigbus);
-    uv_signal_init(loop, &sigsegv);
-    sigbus.data = sigsegv.data = (void *)proxy;
-    uv_signal_start(&sigbus, signal_panic, SIGBUS);
-    uv_signal_start(&sigsegv, signal_panic, SIGSEGV);
 }
 
 void

@@ -31,7 +31,6 @@ extern struct pmproxy libpcp_pmproxy;
 extern struct pmproxy libuv_pmproxy;
 
 extern void *GetServerInfo(void);
-extern void SignalPanic(int);
 extern void Shutdown(void);
 
 extern int redis_port;		/* connect to Redis on this port */

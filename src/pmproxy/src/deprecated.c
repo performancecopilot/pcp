@@ -107,6 +107,18 @@ SigIntProc(int sig)
 }
 #endif
 
+void
+SigBad(int sig)
+{
+    if (pmDebugOptions.desperate) {
+	pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
+	fprintf(stderr, "\nDumping to core ...\n");
+	__pmDumpStack(stderr);
+	fflush(stderr);
+    }
+    _exit(sig);
+}
+
 static int
 NewClient(ServerInfo *sp)
 {
@@ -656,8 +668,8 @@ OpenRequestPorts(const char *path, int maxpending)
     __pmSetSignalHandler(SIGTERM, SigIntProc);
 #endif
     __pmSetSignalHandler(SIGHUP, SIG_IGN);
-    __pmSetSignalHandler(SIGBUS, SignalPanic);
-    __pmSetSignalHandler(SIGSEGV, SignalPanic);
+    __pmSetSignalHandler(SIGBUS, SigBad);
+    __pmSetSignalHandler(SIGSEGV, SigBad);
 
     (void)path;
 
