@@ -5,9 +5,7 @@ ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
 Type=oneshot
-Environment=PMIE_DAILY_PARAMS="-X xz -x 3"
-EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmie_timers
-ExecStart=@PCP_BINADM_DIR@/pmie_daily ${PMIE_DAILY_PARAMS}
+ExecStart=@PCP_BINADM_DIR@/pmie_daily -X xz -x 3
 User=@PCP_USER@
 
 [Install]

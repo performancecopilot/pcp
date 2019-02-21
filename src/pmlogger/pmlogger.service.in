@@ -3,6 +3,7 @@ Description=Performance Metrics Archive Logger
 Documentation=man:pmlogger(1)
 After=network-online.target pmcd.service
 BindsTo=pmlogger_daily.timer pmlogger_daily_check.timer pmlogger_daily_poll.timer
+BindsTo=pmlogger_daily_report.timer pmlogger_daily_report_poll.timer
 
 [Service]
 Type=forking
