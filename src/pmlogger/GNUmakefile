@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2018 Red Hat.
+# Copyright (c) 2013-2019 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -21,9 +21,9 @@ OTHERS	= pmnewlog.sh control rc_pmlogger \
 	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh pmlogmv.sh \
 	  pmlogger_daily_report.sh pmlogger_rewrite.sh
 LDIRT	= crontab crontab.docker crontab.daily_report pmlogger.service \
-	  pmlogger_daily.service pmlogger_daily_poll.service \
-	  pmlogger_daily_check.service pmlogger_daily_report.service \
-	  pmlogger_daily_report_poll.service
+	  pmlogger_daily.service pmlogger_daily-poll.service \
+	  pmlogger_check.service pmlogger_daily_report.service \
+	  pmlogger_daily_report-poll.service
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
@@ -62,14 +62,14 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmlogger.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger.service
 	$(INSTALL) -m 644 pmlogger_daily.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily.timer
 	$(INSTALL) -m 644 pmlogger_daily.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily.service
-	$(INSTALL) -m 644 pmlogger_daily_poll.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_poll.timer
-	$(INSTALL) -m 644 pmlogger_daily_poll.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_poll.service
-	$(INSTALL) -m 644 pmlogger_daily_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_check.timer
-	$(INSTALL) -m 644 pmlogger_daily_check.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_check.service
+	$(INSTALL) -m 644 pmlogger_daily-poll.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily-poll.timer
+	$(INSTALL) -m 644 pmlogger_daily-poll.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily-poll.service
+	$(INSTALL) -m 644 pmlogger_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_check.timer
+	$(INSTALL) -m 644 pmlogger_check.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_check.service
 	$(INSTALL) -m 644 pmlogger_daily_report.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report.timer
 	$(INSTALL) -m 644 pmlogger_daily_report.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report.service
-	$(INSTALL) -m 644 pmlogger_daily_report_poll.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report_poll.timer
-	$(INSTALL) -m 644 pmlogger_daily_report_poll.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report_poll.service
+	$(INSTALL) -m 644 pmlogger_daily_report-poll.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report-poll.timer
+	$(INSTALL) -m 644 pmlogger_daily_report-poll.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report-poll.service
 else
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
@@ -106,7 +106,7 @@ pmlogger_daily.service : pmlogger_daily.service.in
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
 
-pmlogger_daily_poll.service : pmlogger_daily_poll.service.in
+pmlogger_daily-poll.service : pmlogger_daily-poll.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
@@ -114,7 +114,7 @@ pmlogger_daily_poll.service : pmlogger_daily_poll.service.in
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	# END
 
-pmlogger_daily_check.service : pmlogger_daily_check.service.in
+pmlogger_check.service : pmlogger_check.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
@@ -131,7 +131,7 @@ pmlogger_daily_report.service : pmlogger_daily_report.service.in
 	    -e 's;@PCP_SA_DIR@;'$(PCP_SA_DIR)';' \
 	# END
 
-pmlogger_daily_report_poll.service : pmlogger_daily_report_poll.service.in
+pmlogger_daily_report-poll.service : pmlogger_daily_report-poll.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@CRONTAB_DAILY_REPORT_PATH@;'$(CRONTAB_DAILY_REPORT_PATH)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
