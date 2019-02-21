@@ -4,7 +4,7 @@
 # Run the pmlogger_daily binary, via pmlogger_daily.service, with the
 # following parameters.
 #
-PMLOGGER_DAILY_PARAMS=""
+#PMLOGGER_DAILY_PARAMS=""
 
 ## Type:        string
 ## Default:	"-C"
@@ -12,7 +12,7 @@ PMLOGGER_DAILY_PARAMS=""
 # Run the pmlogger_daily binary, via pmlogger_daily_check.service, with the
 # following parameters.
 #
-PMLOGGER_DAILY_CHECK_PARAMS="-C"
+#PMLOGGER_DAILY_CHECK_PARAMS=""
 
 ## Type:        string
 ## Default:	"-p"
@@ -20,7 +20,7 @@ PMLOGGER_DAILY_CHECK_PARAMS="-C"
 # Run the pmlogger_daily binary, via pmlogger_daily_poll.service, with the
 # following parameters.
 #
-PMLOGGER_DAILY_POLL_PARAMS="-p"
+#PMLOGGER_DAILY_POLL_PARAMS=""
 
 
 ## Type:        string
@@ -29,7 +29,7 @@ PMLOGGER_DAILY_POLL_PARAMS="-p"
 # Run the pmlogger_daily_report binary, via pmlogger_daily_report.service, with
 # the following parameters.
 #
-PMLOGGER_DAILY_REPORT_PARAMS="-o /var/log/pcp/sa/"
+#PMLOGGER_DAILY_REPORT_PARAMS=""
 
 ## Type:        string
 ## Default:	"-o /var/log/pcp/sa/ -p"
@@ -37,4 +37,4 @@ PMLOGGER_DAILY_REPORT_PARAMS="-o /var/log/pcp/sa/"
 # Run the pmlogger_daily_report binary, via pmlogger_daily_report_poll.service,
 # with the following parameters.
 #
-PMLOGGER_DAILY_REPORT_POLL_PARAMS="-o /var/log/pcp/sa/ -p"
+#PMLOGGER_DAILY_REPORT_POLL_PARAMS=""
