@@ -1526,6 +1526,7 @@ BAD
 1145 fault libpcp local
 1146 logutil local
 1147 logutil local
+1148 logutil local
 1150 pmda.bcc local python
 1151 pmda.bcc local python
 1152 pmda.bcc local python
