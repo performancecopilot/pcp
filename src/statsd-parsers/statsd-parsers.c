@@ -47,7 +47,7 @@ void statsd_parser_listen(agent_config* config, int parser_type, void (*callback
         printf("Waiting for datagrams. \n");
     }
     freeaddrinfo(res);
-    char buffer[549];
+    char buffer[1472];
     struct sockaddr_storage src_addr;
     socklen_t src_addr_len = sizeof(src_addr);
     while(1) {
@@ -59,16 +59,18 @@ void statsd_parser_listen(agent_config* config, int parser_type, void (*callback
         } else {
             handle_datagram(buffer, count, callback);
         }
-        memset(buffer, 0, 549);
+        memset(buffer, 0, 1472);
     }
 }
 
 void print_out_datagram(statsd_datagram* datagram) {
     printf("DATAGRAM: \n");
     printf("data_namespace: %s \n", datagram->data_namespace);
-    printf("val_str: %s \n", datagram->val_str);
-    printf("val_float: %f \n", datagram->val_float);
     printf("metric: %s \n", datagram->metric);
+    printf("instance: %s \n", datagram->instance);
+    printf("tags: %s \n", datagram->tags);
+    printf("value: %f \n", datagram->value);
+    printf("type: %s \n", datagram->type);
     printf("sampling: %s \n", datagram->sampling);
     printf("------------------------------ \n");
 }

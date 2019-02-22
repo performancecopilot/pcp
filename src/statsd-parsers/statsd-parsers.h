@@ -9,10 +9,12 @@ const int PARSER_RAGEL;
 typedef struct statsd_datagram
 {
     char *data_namespace;
-    char *val_str;
+    char *type;
     char *modifier;
-    double val_float;
+    char *tags;
+    double value;
     char *metric;
+    char *instance;
     char *sampling;
 } statsd_datagram;
 
