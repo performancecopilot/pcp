@@ -1,6 +1,6 @@
 [Unit]
 Description=Poll log processing
-Documentation=man:pmlogger(1)
+Documentation=man:pmlogger_daily(1)
 ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
