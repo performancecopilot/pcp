@@ -43,9 +43,9 @@ done
 wait
 _wait_for_pmlogger
 
-# Warnings about ...log.prev are unavoidable as saving the "previous"
-# log is done outside the per-logging-directory locking that is used
-# to ensure mutex
+# Warnings about ...log and ...log.prev are unavoidable as saving the
+# "previous" log is done outside the per-logging-directory locking that
+# is used to ensure mutual exclusion
 #
 for i in 1 2 3 4
 do
@@ -53,6 +53,7 @@ do
     _filter_pcp_start <$tmp.$i \
     | sed \
 	-e '/^cp: cannot create .*\/pmlogger_check.log.prev/d' \
+	-e '/^cp: cannot stat .*\/pmlogger_check.log/d' \
 	-e '/^_save_prev_filename: .*\/pmlogger_check.log.prev" failed/d' \
     # end
 done
