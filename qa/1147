@@ -1,0 +1,70 @@
+#!/bin/sh
+# PCP QA Test No. 1146
+# mutual exclusion for pmlogger init script?
+# this version is using systemctl (see 1146 for dual)
+#
+# Copyright (c) 2019 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if which systemctl >/dev/null
+then
+    :
+else
+    _notrun no systemctl executable
+fi
+
+unset PCPQA_SYSTEMD
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+    _service pmlogger start | _filter_pcp_start
+    _wait_for_pmlogger
+    _restore_auto_restart pmlogger
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# make sure systemctl thinks pmlogger is running
+#
+_service pmlogger start >>$here/$seq.full 2>&1
+
+pid=`_get_primary_logger_pid`
+echo "+++ at the start primary pmlogger pid = $pid" >>$here/$seq.full
+_stop_auto_restart pmlogger
+_service pmlogger stop | _filter_pcp_stop
+_wait_pmlogger_end $pid
+
+# real QA test starts here
+for i in 1 2 3 4
+do
+    _service -v pmlogger start >$tmp.$i 2>&1 &
+done
+
+wait
+_wait_for_pmlogger
+
+for i in 1 2 3 4
+do
+    echo "== $i ==="
+    _filter_pcp_start <$tmp.$i
+done
+
+./870 --check
+
+echo "+++ at the end primary pmlogger pid = `_get_primary_logger_pid`" >>$here/$seq.full
+
+# success, all done
+status=0
+exit
