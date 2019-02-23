@@ -1,0 +1,67 @@
+#!/bin/sh
+# PCP QA Test No. 1148
+# mutual exclusion for pmlogger_check?
+# see also qa/1146 and qa/1147 for the versions testing the init
+# scripts and systemctl above the pmlogger_check level
+#
+# Copyright (c) 2019 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+    _service pmlogger start | _filter_pcp_start
+    _wait_for_pmlogger
+    _restore_auto_restart pmlogger
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+pid=`_get_primary_logger_pid`
+echo "+++ at the start primary pmlogger pid = $pid" >>$here/$seq.full
+_stop_auto_restart pmlogger
+_service pmlogger stop | _filter_pcp_stop
+_wait_pmlogger_end $pid
+
+# real QA test starts here
+for i in 1 2 3 4
+do
+    $sudo $PCP_BINADM_DIR/pmlogger_check >$tmp.$i 2>&1 &
+done
+
+wait
+_wait_for_pmlogger
+
+# Warnings about ...log and ...log.prev are unavoidable as saving the
+# "previous" log is done outside the per-logging-directory locking that
+# is used to ensure mutual exclusion
+#
+for i in 1 2 3 4
+do
+    echo "== $i ==="
+    _filter_pcp_start <$tmp.$i \
+    | sed \
+	-e '/^cp: cannot create .*\/pmlogger_check.log.prev/d' \
+	-e '/^cp: cannot stat .*\/pmlogger_check.log/d' \
+	-e '/^_save_prev_filename: .*\/pmlogger_check.log.prev" failed/d' \
+    # end
+done
+
+./870 --check
+
+echo "+++ at the end primary pmlogger pid = `_get_primary_logger_pid`" >>$here/$seq.full
+
+# success, all done
+status=0
+exit

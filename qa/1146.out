@@ -1,0 +1,18 @@
+QA output created by 1146
+== 1 ===
+_service: no systemctl, PCPQA_SYSTEMD=no
+_service: using $PCP_RC_DIR/pmlogger start
+Starting pmlogger ... 
+== 2 ===
+_service: no systemctl, PCPQA_SYSTEMD=no
+_service: using $PCP_RC_DIR/pmlogger start
+Starting pmlogger ... 
+== 3 ===
+_service: no systemctl, PCPQA_SYSTEMD=no
+_service: using $PCP_RC_DIR/pmlogger start
+Starting pmlogger ... 
+== 4 ===
+_service: no systemctl, PCPQA_SYSTEMD=no
+_service: using $PCP_RC_DIR/pmlogger start
+Starting pmlogger ... 
+Starting pmlogger ... 
