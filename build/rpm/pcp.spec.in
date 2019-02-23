@@ -2909,6 +2909,8 @@ pmieconf -c enable dmthin
     systemctl restart pmie >/dev/null 2>&1
     systemctl enable pmcd >/dev/null 2>&1
     systemctl enable pmlogger >/dev/null 2>&1
+    systemctl enable pmlogger_daily_report >/dev/null 2>&1
+    systemctl enable pmlogger_daily_report-poll >/dev/null 2>&1
     systemctl enable pmie >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
@@ -3165,6 +3167,17 @@ pmieconf -c enable dmthin
 
 %preun pmda-weblog
 %{pmda_remove "$1" "weblog"}
+
+%if "@enable_systemd@" == "true"
+%preun zeroconf
+if [ "$1" -eq 0 ]
+then
+    %systemd_preun pmlogger_daily_report.timer
+    %systemd_preun pmlogger_daily_report.service
+    %systemd_preun pmlogger_daily_report-poll.timer
+    %systemd_preun pmlogger_daily_report-poll.service
+fi
+%endif
 
 %preun
 if [ "$1" -eq 0 ]

@@ -1,6 +1,6 @@
 [Unit]
 Description=Poll system activity report generation
-Documentation=man:pmlogger(1)
+Documentation=man:pmlogger_daily_report(1)
 ConditionPathExists=!@CRONTAB_DAILY_REPORT_PATH@
 
 [Service]
@@ -9,4 +9,5 @@ ExecStart=@PCP_BINADM_DIR@/pmlogger_daily_report -o @PCP_SA_DIR@ -p
 User=@PCP_USER@
 
 [Install]
-RequiredBy=pmlogger.service
+WantedBy=pmlogger.service
+RequiredBy=pmlogger_daily_report.service

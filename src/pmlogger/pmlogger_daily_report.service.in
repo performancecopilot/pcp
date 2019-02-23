@@ -9,4 +9,4 @@ ExecStart=@PCP_BINADM_DIR@/pmlogger_daily_report -o @PCP_SA_DIR@
 User=@PCP_USER@
 
 [Install]
-RequiredBy=pmlogger.service
+WantedBy=pmlogger.service
