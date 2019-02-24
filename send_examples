@@ -12,5 +12,7 @@ while true; do
   echo "example.gauge,x=10,y=20:-$i|g" | nc -w 1 -u 0.0.0.0 8125
   echo "example.gauge,x=10,y=20,instance=bazinga:-$i|g" | nc -w 1 -u 0.0.0.0 8125
   echo "example.gauge,instance=bazinga:-$i|g" | nc -w 1 -u 0.0.0.0 8125
-  sleep 10
+  # Invalid characters test case - may not contain any of statsd defined delimters such as "=,|:"
+  echo "example.g a-u/g e,instance=bazinga:-$i|g" | nc -w 1 -u 0.0.0.0 8125  
+  sleep 5
 done

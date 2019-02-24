@@ -44,6 +44,7 @@ void basic_parser_parse(char buffer[], ssize_t count, void (*callback)(statsd_da
                 if (datagram->data_namespace == NULL) {
                     die(__LINE__, "Not enough memory to save data_namespace attribute");
                 }
+                sanitize_string(attr);
                 memcpy(datagram->data_namespace, attr, current_segment_length + 1);
                 previous_delimiter = '.';
             } else if (buffer[i] == ':' && (previous_delimiter == ' ' || previous_delimiter == '.')) {
@@ -51,6 +52,7 @@ void basic_parser_parse(char buffer[], ssize_t count, void (*callback)(statsd_da
                 if (datagram->metric == NULL) {
                     die(__LINE__, "Not enough memory to save metric attribute.");
                 }
+                sanitize_string(attr);
                 memcpy(datagram->metric, attr, current_segment_length + 1);
             } else if ((buffer[i] == ',' || buffer[i] == ':') && previous_delimiter == '=') {
                 json_value = (char *) realloc(json_value, current_segment_length + 1);
@@ -112,6 +114,7 @@ void basic_parser_parse(char buffer[], ssize_t count, void (*callback)(statsd_da
                 if (datagram->metric == NULL) {
                     die(__LINE__, "Not enough memory to save metric attribute.");
                 }
+                sanitize_string(attr);
                 memcpy(datagram->metric, attr, current_segment_length + 1);
                 previous_delimiter = ',';
             } else if (buffer[i] == '|') {
