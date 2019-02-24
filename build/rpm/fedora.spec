@@ -3418,8 +3418,11 @@ cd
 %endif
 
 %changelog
-* Fri Feb 22 2019 Lukas Berk <lberk@redhat.com> - 4.3.1-1
-- Work-in-progress, see https://pcp.io/roadmap
+* Tue Feb 26 2019 Lukas Berk <lberk@redhat.com> - 4.3.1-1
+- Fixes pcp-dstat in --full (all instances) mode (BZ 1661912)
+- Remove package dependencies on initscripts (BZ 1592380)
+- Set include directory for cppcheck use (BZ 1663372)
+- Update to latest PCP sources.
 
 * Fri Dec 21 2018 Nathan Scott <nathans@redhat.com> - 4.3.0-1
 - Add the dstat -f/--full option to expand instances (BZ 1651536)

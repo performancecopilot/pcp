@@ -1,5 +1,77 @@
-pcp-4.3.1 (22 February 2019)
-    - Work-in-progress, see https://pcp.io/roadmap
+pcp-4.3.1 (26 February 2019)
+    - Client tools and utilities:
+	pcp-dstat: improve --time option handling with no other arguments
+	pcp-dstat: handle complete instance removal with --full mode
+	pcp-atop: update to v2.4.0 atoptool.nl sources
+        . reporting pressure stall information
+        . reporting infiniband statistics
+        . reporting perf_event statistics
+        . reporting nvidia GPU stats 
+	pmseries: error handling improvements when parsing fails
+	pmseries: ensure commas separate labels in metadata reporting
+	pmseries: improve user friendliness of option handling
+	pmseries: shell completions added
+	pmseries: install a pmseries.conf
+	pmseries: globbing support on global name lookups too
+	pmrep: add support for sorting -X output by values
+	pmrep: fix a dynamic header corner case with missing values
+	pmlogger: add systemd timers as cron alternative
+	pmie: add systemd timers as cron alternative
+	pmie: re-implement #'instancename' indom lookup
+	pmie: fix for segv and bad sum_inst() use
+	pmview: fix a missing timeout slot connection
+	pmview: add in the step() signal/slot connections
+    - PMDA additions, enhancements and bug fixes:
+	linux: add support for pressure-stall information metrics
+	openbsd: remove remaining /dev/kmem reading
+	openbsd: fixes for 32 bit kernels
+	openbsd: add kernel.all.uptime
+	openbsd: fix cpu time metrics - SMP and CP_SPIN support
+	netbsd: fixes for 32 bit kernels
+	netbsd: add kernel.all.uptime
+	bcc: handle gone processes in ustat module
+	bcc: adjust biolatency module tracepoints
+	dm: new VDO device metrics
+	dm: fix mishandling of missing VDO kernel stats
+	nvidia: add support for per-process nvidia metrics
+	pmproxy: extend MMV to support new pmproxy metrics
+    - Server-side utilities and log management scripts:
+	pmcd: allow use of an optional pmcd.conf.access file
+	rc_pmcd: optional PMDA ./Upgrade to resolve upgrade issues
+	pmproxy: fix shutdown issues in --timeseries mode
+	pmlogger_check: make pmlogconf check optional
+	pmlogconf: add per-CPU interrupts metrics to the zeroconf set
+	pmlogconf: additional /proc/vmstat metrics to default set
+	pmwebd: tweak y-axis labels in png output
+	pmwebd: fix an open file descriptor leak
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	libpcp: fix compilation for --with-threads=no configure
+	libpcp: exclude indom instances level labels in result from pmLookupLabels
+	libpcp: the big libpcp lock is no longer recursive
+	libpcp: refactor registered.mutex use
+	libpcp_web: add .ini configuration file parsing
+	python pmapi: add __str__ handler for class pmLabelSet
+	python api: Rename pmconfig.py helper function - get_sorted_results()
+    - Misc build, infrastructure and packaging updates:
+	python: fix Python installations flags for DIST_ROOT=
+	Revert "pmlogger_daily: use whole day granularity for PCP_COMPRESSAFTER"
+	Wider use of automated builds through Vagrant for QA and releases
+	build: add -I paths for cppcheck, fix travis-ci checking
+	build: add conditional BuildRequires libuv-devel in fedora.spec`
+	travis-ci: tweak service timeouts
+	pmns: don't package .NeedRebuild for SUSE distros
+	pmns/Rebuild: add warning (with -v) for skipped root_foo file
+	Qt: correctly insert compiler flags, release vs debug build fixups
+	configure, Makepkgs, et al: move Qt version detection into configure
+    - Security Enhanced Linux:
+	Update shm,sem permissions for userdomains
+	Reduce size of policy package (now that we have overarching rules)
+    - Documentation and QA infrastructure:
+	qa/admin/check-vm: refactoring and customization for all platforms
+	qa/common.check: improvements for pmlogger and pmie tests
+	build: add fedora/rhel testsuite dep on redhat-rpm-config
+	docs: update pmLookupLabels(3) and pmseries(1)
+	qa: pervasive NetBSD, OpenBSD and OpenIndiana changes
 
 pcp-4.3.0 (21 December 2018)
     - Client tools and utilities:
