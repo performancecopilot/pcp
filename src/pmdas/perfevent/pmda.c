@@ -296,6 +296,23 @@ static int perfevent_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaEx
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
+static int perfevent_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
+{
+    if (indom == PM_INDOM_NULL)
+	return 0;
+    return pmdaAddLabels(lp, "{\"cpu\":%u}", inst);
+}
+
+static int perfevent_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
+{
+    if (type == PM_LABEL_INDOM && ident != PM_INDOM_NULL) {
+	pmdaAddLabels(lpp, "{\"device_type\":\"cpu\"}");
+	pmdaAddLabels(lpp, "{\"indom_name\":\"per cpu\"}");
+    }
+    pmdaEventNewClient(pmda->e_context);
+    return pmdaLabel(ident, type, lpp, pmda);
+}
+
 static void perfevent_end_contextCallBack(int context)
 {
     pmdaEventEndClient(context);
@@ -669,12 +686,14 @@ perfevent_init(pmdaInterface *dp)
 
     dp->version.seven.profile = perfevent_profile;
     dp->version.seven.fetch = perfevent_fetch;
+    dp->version.seven.label = perfevent_label;
     dp->version.seven.text = perfevent_text;
     dp->version.seven.pmid = perfevent_pmid;
     dp->version.seven.name = perfevent_name;
     dp->version.seven.children = perfevent_children;
 
     pmdaSetFetchCallBack(dp, perfevent_fetchCallBack);
+    pmdaSetLabelCallBack(dp, perfevent_labelCallBack);
     pmdaSetEndContextCallBack(dp, perfevent_end_contextCallBack);
 
     pmdaInit(dp, indomtab, nhwcounters + nderivedcounters, metrictab, nummetrics);

@@ -92,6 +92,9 @@ else
 fi
 cat $tmp.info $tmp.err | _filter_perfevent
 
+# Verify label extraction doesn't crash PMDA
+pminfo --labels perfevent >$here/$seq.full
+
 # Check that the correct metrics are present
 pminfo perfevent
 
