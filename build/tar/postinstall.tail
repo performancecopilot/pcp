@@ -267,7 +267,7 @@ fi
 
 # all the /etc/cron.d PCP files MUST be owned my root
 #
-for file in /etc/crond./pcp-*
+for file in /etc/cron.d/pcp-*
 do
     [ -f "$file" ] && chown "root:$grp" "$file"
 done
