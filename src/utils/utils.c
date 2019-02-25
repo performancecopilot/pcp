@@ -26,8 +26,7 @@ void sanitize_string(char *src) {
             (int) current_char == (int) '.' ||
             (int) current_char == (int) '_') {
             continue;
-        }
-        else if ((int) current_char == (int) '/' || 
+        } else if ((int) current_char == (int) '/' || 
                  (int) current_char == (int) '-' ||
                  (int) current_char == (int) ' ') {
             src[i] = '_';

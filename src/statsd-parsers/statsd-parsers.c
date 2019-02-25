@@ -47,20 +47,24 @@ void statsd_parser_listen(agent_config* config, int parser_type, void (*callback
         printf("Waiting for datagrams. \n");
     }
     freeaddrinfo(res);
-    char buffer[1472];
+    int max_udp_packet_size = config->max_udp_packet_size;
+    char *buffer = (char *) malloc(max_udp_packet_size);
     struct sockaddr_storage src_addr;
     socklen_t src_addr_len = sizeof(src_addr);
     while(1) {
-        ssize_t count = recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr*)&src_addr, &src_addr_len);
+        ssize_t count = recvfrom(fd, buffer, max_udp_packet_size, 0, (struct sockaddr*)&src_addr, &src_addr_len);
         if (count == -1) {
             die(__LINE__, "%s", strerror(errno));
-        } else if (count == sizeof(buffer)) {
+        } 
+        // since we checked for -1
+        else if ((signed int)count == max_udp_packet_size) { 
             die(__LINE__, "datagram too large for buffer: truncated");
         } else {
             handle_datagram(buffer, count, callback);
         }
-        memset(buffer, 0, 1472);
+        memset(buffer, 0, max_udp_packet_size);
     }
+    free(buffer);
 }
 
 void print_out_datagram(statsd_datagram* datagram) {
@@ -73,4 +77,14 @@ void print_out_datagram(statsd_datagram* datagram) {
     printf("type: %s \n", datagram->type);
     printf("sampling: %s \n", datagram->sampling);
     printf("------------------------------ \n");
+}
+
+void free_datagram(statsd_datagram* datagram) {
+    free(datagram->data_namespace);
+    free(datagram->metric);
+    free(datagram->instance);
+    free(datagram->tags);
+    free(datagram->type);
+    free(datagram->sampling);
+    free(datagram);
 }
