@@ -5,7 +5,7 @@ ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
 Type=oneshot
-Environment=PMIE_CHECK_PARAMS="-C"
+Environment="PMIE_CHECK_PARAMS=-C"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmie_timers
-ExecStart=@PCP_BINADM_DIR@/pmie_check ${PMIE_CHECK_PARAMS}
+ExecStart=@PCP_BINADM_DIR@/pmie_check $PMIE_CHECK_PARAMS
 User=@PCP_USER@
