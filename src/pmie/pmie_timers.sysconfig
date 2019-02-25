@@ -1,0 +1,15 @@
+## Type:        string
+## Default:	"-C"
+#
+# Run the pmie_check binary, via pmie_check.service, with the following
+# parameters.
+#
+#PMIE_CHECK_PARAMS=""
+
+## Type:        string
+## Default:	"-X xz -x 3"
+#
+# Run the pmie_daily binary, via pmie_daily.service, with the following
+# parameters.
+#
+#PMIE_DAILY_PARAMS=""

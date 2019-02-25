@@ -70,6 +70,7 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmlogger_daily_report.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report.service
 	$(INSTALL) -m 644 pmlogger_daily_report-poll.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report-poll.timer
 	$(INSTALL) -m 644 pmlogger_daily_report-poll.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report-poll.service
+	$(INSTALL) -m 644 pmlogger_timers.sysconfig $(PCP_SYSCONFIG_DIR)/pmlogger_timers
 else
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)

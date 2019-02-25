@@ -5,7 +5,8 @@ ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
 Type=oneshot
-ExecStart=@PCP_BINADM_DIR@/pmlogger_daily
+EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
+ExecStart=@PCP_BINADM_DIR@/pmlogger_daily ${PMLOGGER_DAILY_PARAMS}
 User=@PCP_USER@
 
 [Install]

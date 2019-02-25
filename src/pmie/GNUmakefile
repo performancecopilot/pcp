@@ -54,6 +54,7 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmie_daily.service $(PCP_SYSTEMDUNIT_DIR)/pmie_daily.service
 	$(INSTALL) -m 644 pmie_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmie_check.timer
 	$(INSTALL) -m 644 pmie_check.service $(PCP_SYSTEMDUNIT_DIR)/pmie_check.service
+	$(INSTALL) -m 644 pmie_timers.sysconfig $(PCP_SYSCONFIG_DIR)/pmie_timers
 else
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)

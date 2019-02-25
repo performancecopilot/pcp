@@ -5,7 +5,9 @@ ConditionPathExists=!@CRONTAB_DAILY_REPORT_PATH@
 
 [Service]
 Type=oneshot
-ExecStart=@PCP_BINADM_DIR@/pmlogger_daily_report -o @PCP_SA_DIR@ -p
+Environment=PMLOGGER_DAILY_REPORT_POLL_PARAMS="-o @PCP_SA_DIR@ -p"
+EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
+ExecStart=@PCP_BINADM_DIR@/pmlogger_daily_report ${PMLOGGER_DAILY_REPORT_POLL_PARAMS}
 User=@PCP_USER@
 
 [Install]
