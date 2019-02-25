@@ -26,4 +26,6 @@ void statsd_parser_listen(agent_config* config, int parser_type, void (*callback
 
 void print_out_datagram(statsd_datagram* datagram);
 
+void free_datagram(statsd_datagram* datagram);
+
 #endif

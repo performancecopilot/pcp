@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "config-reader/config-reader.h"
 #include "statsd-parsers/statsd-parsers.h"
+
+struct hdr_histogram* histogram;
 
 int main(int argc, char **argv)
 {

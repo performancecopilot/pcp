@@ -6,21 +6,24 @@
 #include "../statsd-parsers.h"
 #include "../../utils/utils.h"
 
-void basic_parser_parse(char buffer[], ssize_t count, void (*callback)(statsd_datagram*)) {
+#define JSON_BUFFER_SIZE 4096
+
+void basic_parser_parse(char* buffer, ssize_t count, void (*callback)(statsd_datagram*)) {
     struct statsd_datagram* datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
     // memset 0 doesnt work here for some reason
     *datagram = (struct statsd_datagram) {0};
     int current_segment_length = 0;
     int i = 0;
     char previous_delimiter = ' ';
-    char *segment = (char *) malloc(sizeof(char) * 1472);
+    char *segment = (char *) malloc(count); // cannot overflow since whole segment is count anyway
     if (segment == NULL) {
         die(__LINE__, "Unable to assign memory for StatsD datagram message parsing");
     }
     const char INSTANCE_TAG_IDENTIFIER[] = "instance";
     char *json_key = NULL;
     char *json_value = NULL;
-    char *tags_json_buffer = NULL;
+    char tags_json_buffer[JSON_BUFFER_SIZE];
+    memset(tags_json_buffer, '\0', JSON_BUFFER_SIZE);
     int any_tags = 0;
     int current_json_buffer_position = 0;
     for (i = 0; i < count; i++) {
@@ -69,29 +72,28 @@ void basic_parser_parse(char buffer[], ssize_t count, void (*callback)(statsd_da
                 } else {
                     if (any_tags == 0) {
                         // 4kb should be enough
-                        tags_json_buffer = (char *) malloc(4096); 
-                        if (tags_json_buffer == NULL) {
-                            die(__LINE__, "Not enough memory for tag json buffer.");
-                        }
-                        memset(tags_json_buffer, '\0', 4096);
                         tags_json_buffer[0] = '{';
                         current_json_buffer_position++;
                         any_tags = 1;
                     } 
-                    // save key
-                    tags_json_buffer[current_json_buffer_position++] = '"';
                     int key_len = strlen(json_key);
-                    memcpy(tags_json_buffer + current_json_buffer_position, json_key, key_len);
-                    current_json_buffer_position += key_len;
-                    tags_json_buffer[current_json_buffer_position++] = '"';
-                    tags_json_buffer[current_json_buffer_position++] = ':';
-                    // save value
-                    tags_json_buffer[current_json_buffer_position++] = '"';
                     int value_len = strlen(json_value);
-                    memcpy(tags_json_buffer + current_json_buffer_position, json_value, value_len);
-                    current_json_buffer_position += value_len;
-                    tags_json_buffer[current_json_buffer_position++] = '"';
-                    tags_json_buffer[current_json_buffer_position++] = ',';
+                    // 6 equal to length of  "":"",
+                    // JSON_BUFFER_SIZE -1 because we want to have space for '\0'
+                    if (!(current_json_buffer_position + key_len + value_len + 6 < JSON_BUFFER_SIZE - 1)) {
+                        tags_json_buffer[current_json_buffer_position++] = '"';
+                        memcpy(tags_json_buffer + current_json_buffer_position, json_key, key_len);
+                        current_json_buffer_position += key_len;
+                        tags_json_buffer[current_json_buffer_position++] = '"';
+                        tags_json_buffer[current_json_buffer_position++] = ':';
+                        // save value
+                        tags_json_buffer[current_json_buffer_position++] = '"';
+                        memcpy(tags_json_buffer + current_json_buffer_position, json_value, value_len);
+                        current_json_buffer_position += value_len;
+                        tags_json_buffer[current_json_buffer_position++] = '"';
+                        tags_json_buffer[current_json_buffer_position++] = ',';
+                    }
+                    // save key
                 }
                 free(json_key);
                 json_key = NULL;
@@ -150,7 +152,7 @@ void basic_parser_parse(char buffer[], ssize_t count, void (*callback)(statsd_da
                 }
             }
             free(attr);
-            memset(segment, '\0', 1472);
+            memset(segment, '\0', count);
             current_segment_length = 0;
             continue;
         }
@@ -165,9 +167,8 @@ void basic_parser_parse(char buffer[], ssize_t count, void (*callback)(statsd_da
         }
         memcpy(datagram->tags, tags_json_buffer, json_len);
         datagram->tags[json_len] = '\0';
-        free(tags_json_buffer);
     }
     callback(datagram);
-    free(datagram);
+    free_datagram(datagram);
     free(segment);
 }
