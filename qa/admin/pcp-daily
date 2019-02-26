@@ -1094,7 +1094,7 @@ End-of-File
 		rm -f $HOME/Logs/by-vm/$domain/qa
 		mkdir -p $HOME/Logs/by-vm/$domain/qa
 		( cd $HOME/Logs/by-vm/$domain/qa;
-		    for file in common* group show-me localconfig
+		    for file in common common.rc common.check common.setup group show-me localconfig
 		    do
 		    	ln -s $HOME/src/pcp/qa/$file* .
 		    done
