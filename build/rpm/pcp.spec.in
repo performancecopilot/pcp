@@ -2279,7 +2279,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2zabbix' >export_pcp2zabbix_files
 %endif
 awk '{print $NF}' $DIST_MANIFEST | egrep 'zabbix|zbxpcp' | grep -v pcp2zabbix >export_zabbix_agent_files
 %if "@pmda_infiniband@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
 %endif
 %if "@pmda_papi@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/papi' >pmda_papi_files
@@ -2288,7 +2288,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/papi' >pmda_papi_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/podman' > pmda_podman_files
 %endif
 %if "@pmda_perfevent@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'perfevent|perfalloc.1' > pmda_perfevent_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/perfevent|perfalloc.1' > pmda_perfevent_files
 %endif
 %if "@pmda_systemd@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/systemd' > pmda_systemd_files
