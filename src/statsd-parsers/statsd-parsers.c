@@ -58,7 +58,7 @@ void statsd_parser_listen(agent_config* config, int parser_type, void (*callback
         } 
         // since we checked for -1
         else if ((signed int)count == max_udp_packet_size) { 
-            die(__LINE__, "datagram too large for buffer: truncated");
+            warn(__LINE__, "datagram too large for buffer: truncated and skipped");
         } else {
             handle_datagram(buffer, count, callback);
         }

@@ -25,7 +25,7 @@ void basic_parser_parse(char* buffer, ssize_t count, void (*callback)(statsd_dat
     char tags_json_buffer[JSON_BUFFER_SIZE];
     memset(tags_json_buffer, '\0', JSON_BUFFER_SIZE);
     int any_tags = 0;
-    int current_json_buffer_position = 0;
+    int json_buffer_index = 0;
     for (i = 0; i < count; i++) {
         segment[current_segment_length] = buffer[i];
         if (buffer[i] == '.' ||
@@ -73,25 +73,25 @@ void basic_parser_parse(char* buffer, ssize_t count, void (*callback)(statsd_dat
                     if (any_tags == 0) {
                         // 4kb should be enough
                         tags_json_buffer[0] = '{';
-                        current_json_buffer_position++;
+                        json_buffer_index++;
                         any_tags = 1;
                     } 
                     int key_len = strlen(json_key);
                     int value_len = strlen(json_value);
                     // 6 equal to length of  "":"",
                     // JSON_BUFFER_SIZE -1 because we want to have space for '\0'
-                    if (!(current_json_buffer_position + key_len + value_len + 6 < JSON_BUFFER_SIZE - 1)) {
-                        tags_json_buffer[current_json_buffer_position++] = '"';
-                        memcpy(tags_json_buffer + current_json_buffer_position, json_key, key_len);
-                        current_json_buffer_position += key_len;
-                        tags_json_buffer[current_json_buffer_position++] = '"';
-                        tags_json_buffer[current_json_buffer_position++] = ':';
+                    if (json_buffer_index + key_len + value_len + 6 < JSON_BUFFER_SIZE - 1) {
+                        tags_json_buffer[json_buffer_index++] = '"';
+                        memcpy(tags_json_buffer + json_buffer_index, json_key, key_len);
+                        json_buffer_index += key_len;
+                        tags_json_buffer[json_buffer_index++] = '"';
+                        tags_json_buffer[json_buffer_index++] = ':';
                         // save value
-                        tags_json_buffer[current_json_buffer_position++] = '"';
-                        memcpy(tags_json_buffer + current_json_buffer_position, json_value, value_len);
-                        current_json_buffer_position += value_len;
-                        tags_json_buffer[current_json_buffer_position++] = '"';
-                        tags_json_buffer[current_json_buffer_position++] = ',';
+                        tags_json_buffer[json_buffer_index++] = '"';
+                        memcpy(tags_json_buffer + json_buffer_index, json_value, value_len);
+                        json_buffer_index += value_len;
+                        tags_json_buffer[json_buffer_index++] = '"';
+                        tags_json_buffer[json_buffer_index++] = ',';
                     }
                     // save key
                 }
