@@ -3418,7 +3418,7 @@ cd
 %endif
 
 %changelog
-* Tue Feb 26 2019 Lukas Berk <lberk@redhat.com> - 4.3.1-1
+* Wed Feb 27 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.1-1
 - Fixes pcp-dstat in --full (all instances) mode (BZ 1661912)
 - Remove package dependencies on initscripts (BZ 1592380)
 - Set include directory for cppcheck use (BZ 1663372)
