@@ -42,8 +42,6 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	kernel.percpu.cpu.guest
 
 	hinv.cpu.clock
-	perfevent.hwcounters.INSTRUCTIONS_RETIRED.value
-	perfevent.hwcounters.UNHALTED_REFERENCE_CYCLES.value
 
 	mem.vmstat.pgscan_direct_dma
 	mem.vmstat.pgscan_direct_dma32

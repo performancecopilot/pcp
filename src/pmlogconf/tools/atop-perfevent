@@ -1,0 +1,6 @@
+#pmlogconf-setup 2.0
+ident   perfevent metrics sampled by the atop command
+probe	perfevent.active values ? include : exclude
+
+	perfevent.hwcounters.INSTRUCTIONS_RETIRED.value
+	perfevent.hwcounters.UNHALTED_REFERENCE_CYCLES.value
