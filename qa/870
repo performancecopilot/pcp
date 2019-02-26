@@ -181,20 +181,33 @@ $2 == '"$pid"'	{ print }'
 		# OK
 		:
 	    else
-		echo "Error: no matching pmlogger process for ..."
-		ls -l $PCP_TMP_DIR/pmlogger/$file
-		if $check
+		# Need to new snapshot of ps in case some pmlogger
+		# has been started since the last snapshot ...
+		# and check again
+		#
+		$PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps.out
+		$PCP_AWK_PROG <$tmp.ps.out >$tmp.ps.pid '
+$2 == '"$pid"'	{ print }'
+		if [ -s $tmp.ps.pid ]
 		then
-		    $sudo rm -f $PCP_TMP_DIR/pmlogger/$file
-		    echo "File removed."
-		    touch $tmp.err
+		    # OK
+		    :
+		else
+		    echo "Error: no matching pmlogger process for ..."
+		    ls -l $PCP_TMP_DIR/pmlogger/$file
+		    if $check
+		    then
+			$sudo rm -f $PCP_TMP_DIR/pmlogger/$file
+			echo "File removed."
+			touch $tmp.err
+		    fi
 		fi
 	    fi
-	done
-    else
-	echo "Error: directory $PCP_TMP_DIR/pmlogger missing!"
-	$check && touch $tmp.err
-    fi
+	    done
+	else
+	    echo "Error: directory $PCP_TMP_DIR/pmlogger missing!"
+	    $check && touch $tmp.err
+	fi
 
     # Check for dead run files with no pmlogger attached
     #
@@ -223,19 +236,32 @@ $2 == '"$pid"'	{ print }'
 		# OK
 		:
 	    else
-		echo "Error: no matching pmlogger process for ..."
-		ls -l $PCP_RUN_DIR/$file
-		if $check
+		# Need to new snapshot of ps in case some pmlogger
+		# has been started since the last snapshot ...
+		# and check again
+		#
+		$PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps.out
+		$PCP_AWK_PROG <$tmp.ps.out >$tmp.ps.pid '
+$2 == '"$pid"'	{ print }'
+		if [ -s $tmp.ps.pid ]
 		then
-		    $sudo rm -f $PCP_RUN_DIR/$file
-		    case "$file"
-		    in
-			*.socket)	echo "Socket removed."
-				    ;;
-			*)		echo "File removed."
-				    ;;
-		    esac
-		    touch $tmp.err
+		    # OK
+		    :
+		else
+		    echo "Error: no matching pmlogger process for ..."
+		    ls -l $PCP_RUN_DIR/$file
+		    if $check
+		    then
+			$sudo rm -f $PCP_RUN_DIR/$file
+			case "$file"
+			in
+			    *.socket)	echo "Socket removed."
+					;;
+			    *)		echo "File removed."
+					;;
+			esac
+			touch $tmp.err
+		    fi
 		fi
 	    fi
 	done
