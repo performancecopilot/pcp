@@ -273,7 +273,7 @@ QmcIndom::genProfile()
 
     if (pmDebugOptions.pmc || pmDebugOptions.indom || pmDebugOptions.profile) {
 	QTextStream cerr(stderr);
-	cerr << "QmcIndom::genProfile: id = " << my.id << ", count = " 
+	cerr << "QmcIndom::genProfile: indom = " << pmInDomStr(my.id) << ", count = " 
 	     << my.count << ", numInsts = " << numInsts() << ", active = "
 	     << my.numActive << ", activeRef = " << my.numActiveRef
 	     << ": " << action << " ptr = " << ptr;

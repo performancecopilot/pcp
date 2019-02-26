@@ -19,7 +19,7 @@ sample.seconds = Missing metric value(s)
 
 *** Group Fetch 0 ***
 QmcGroup::fetch: 1 contexts
-QmcIndom::genProfile: id = NNN, count = 2, numInsts = 2, active = 2, activeRef = 2: ALL ptr = 0x0
+QmcIndom::genProfile: indom = NN.NN, count = 2, numInsts = 2, active = 2, activeRef = 2: ALL ptr = 0x0
 QmcContext::fetch: fetching context host "HOST" has 2 metrics
 QmcContext::lookupDesc: Add descriptor for <pmid for sample.event.param_string>
 QmcContext::lookupDesc: Reusing descriptor <pmid for sample.event.param_string>
