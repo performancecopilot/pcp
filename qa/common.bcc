@@ -68,13 +68,37 @@ _pmdabcc_install()
 
 _pmdabcc_wait_for_metric()
 {
-    # Wait for the PMDA to compile the bcc modules and become ready, 30s max
-    for i in `seq 1 30`; do grep -q 'Ready to process requests' $PCP_LOG_DIR/pmcd/bcc.log && break; sleep 1; done
+    # Wait for the PMDA to compile the bcc modules and become ready, 60s max
+    _canwait=60
+    i=0
+    while [ $i -lt $_canwait ]
+    do
+	grep -q 'Ready to process requests' $PCP_LOG_DIR/pmcd/bcc.log && break
+	sleep 1
+	i=`expr $i + 1`
+    done
     sed -n '/Error:/,$p' $PCP_LOG_DIR/pmcd/bcc.log
-    if [ $i -ge 30 ]; then
-        echo PMDA was not ready in 30 seconds, test failed
-        exit
+    if [ $i -eq $_canwait ]; then
+        echo PMDA was not ready in $_canwait seconds, test failed
+        return 1
     fi
+    echo "=== _pmdabcc_wait_for_metric should be available ===" >>$here/$seq.full
+    rm -f $tmp.bad
+    pmprobe bcc \
+    | while read metric numval foo
+    do
+	if [ "$numval" -lt 0 ]
+	then
+	    echo "Botch: bcc PMDA ready but metric $metric returns numval $numval (`pmerr $numval`)"
+	    echo "Here's the PMDA log ..."
+	    cat $PCP_LOG_DIR/pmcd/bcc.log
+	    touch $tmp.bad
+	    break
+	fi
+    done
+    [ -f $tmp.bad ] && return 1
+
+    return 0
 }
 
 _pmdabcc_wait_for_value()

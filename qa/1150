@@ -49,10 +49,15 @@ cluster = 101
 process = pmcd
 usdts = $PCP_BINADM_DIR/pmcd:PMCD,$PCP_BINADM_DIR/pmcd:PMCD_PDU
 EOF
-_pmdabcc_wait_for_metric
+if _pmdabcc_wait_for_metric
+then
+    echo "back from _pmdabcc_wait_for_metric: `date`" >>$here/$seq.full
+else
+    exit
+fi
 
 # Generate system activity for the BCC uprobe hits module
-pminfo -f bcc > /dev/null
+pminfo -f bcc >>$here/$seq.full
 pminfo -f mem > /dev/null
 
 echo "=== report metric values ==="
