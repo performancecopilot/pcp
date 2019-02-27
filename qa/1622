@@ -13,7 +13,11 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-command -v audit2allow || _notrun No support for audit2allow
+command -v audit2allow || _notrun "No support for audit2allow"
+policy_name="pcpupstream"
+policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
+[ -f "$policy_file" ] || _notrun "upstream policy package not installed"
+$sudo semodule -l 2>&1 | grep -q $policy_name || _notrun "upstream policy package not loaded"
 
 _cleanup()
 {
