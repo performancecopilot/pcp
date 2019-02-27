@@ -81,11 +81,11 @@ class PCPBCCModule(PCPBCCBase):
             if uprobe not in found:
                 found.append(uprobe)
                 self.insts[uprobe.replace(":", "::")] = c_int(1)
-        self.uprobe = found
+        self.uprobes = found
 
-        if not self.uprobe:
+        if not self.uprobes:
             raise RuntimeError("No matching uprobes found.")
-        self.log("Found %s uprobes: %s." % (str(len(self.uprobes)), str(self.uprobes)))
+        self.log("Trying %s uprobes: %s." % (str(len(self.uprobes)), str(self.uprobes)))
 
         self.log("Initialized.")
 
@@ -123,7 +123,7 @@ class PCPBCCModule(PCPBCCBase):
                     if self.debug:
                         self.log("Generated function:\n%s" % probe)
                     self.bpf_text += probe
-                self.bpf_text = self.bpf_text.replace("UPROBE_COUNT", str(len(self.uprobe)))
+                self.bpf_text = self.bpf_text.replace("UPROBE_COUNT", str(len(self.uprobes)))
 
             if not self.pids and self.proc_filter and self.proc_refresh:
                 self.log("No process to attach found, activation postponed.")

@@ -2,7 +2,7 @@
 # PCP QA Test No. 1176
 # Exercise the BCC PMDA cachestat module - install, remove and values.
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 #
 
 seq=`basename $0`
@@ -13,10 +13,10 @@ echo "QA output created by $seq"
 _pmdabcc_check
 _bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
 
-# btrfs currently not fully supported
+# Only ext4 seems to be working currently:
 # https://github.com/iovisor/bcc/issues/1993
 fstype=$(df --output=fstype $(dirname $tmp) | grep -v Type)
-[ $fstype = btrfs ] && _notrun "btrfs not fully supported by cachestat"
+[ $fstype != ext4 ] && _notrun "only ext4 works reliably with cachestat"
 
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
 out_file=$tmp.tmpfile

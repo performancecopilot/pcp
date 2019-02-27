@@ -238,7 +238,7 @@ allow pcp_pmcd_t sysctl_fs_t:file write;
 # @PCP_MOCK_VAR_LIB_RULE@
 
 #type=AVC msg=audit(...): avc:  denied  { map } for  pid=NNN comm="ldconfig" path="/usr/sbin/ldconfig" dev="dm-1" ino=1052382 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:ldconfig_exec_t:s0 tclass=file permissive=1
-# @PCP_LDCONFIG_EXEC_MAP_RULE@
+@PCP_LDCONFIG_EXEC_MAP_RULE@
 
 #RHBZ1488116
 #type=AVC msg=audit(XXX.21): avc:  denied  { unix_read associate getattr } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:httpd_t:s0 tclass=shm permissive=0
@@ -475,8 +475,8 @@ allow pcp_pmie_t proc_net_t:file read;
 allow pcp_pmie_t unconfined_t:process signal;
 
 #RHBZ1635394
-#type=AVC msg=audit(YYY.66): avc:  denied  { sys_ptrace } for  pid=15683 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=capability permissive=0
-allow pcp_pmie_t self:capability { sys_ptrace };
+#type=AVC msg=audit(YYY.66): avc:  denied  { sys_ptrace } for  pid=15683 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=cap_userns permissive=0
+allow pcp_pmie_t self:cap_userns { sys_ptrace };
 
 #============= pmda-lio ==============
 #type=AVC msg=audit(XXX.55): avc:  denied  { open read search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0

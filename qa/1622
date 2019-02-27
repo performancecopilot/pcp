@@ -13,7 +13,11 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-command -v audit2allow || _notrun No support for audit2allow
+command -v audit2allow || _notrun "No support for audit2allow"
+policy_name="pcpupstream"
+policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
+[ -f "$policy_file" ] || _notrun "upstream policy package not installed"
+$sudo semodule -l 2>&1 | grep -q $policy_name || _notrun "upstream policy package not loaded"
 
 _cleanup()
 {
@@ -26,7 +30,7 @@ _filter()
 $PCP_AWK_PROG '
 BEGIN           { allowed = -1 }
 /type=AVC/      { if (allowed == 1) print line ": OK"
-                 if (allowed == 0) print avc ": BAD"
+                 if (allowed == 0) print avc
                  line = NR
                  allowed = 0
                  avc = $0
@@ -107,7 +111,7 @@ type=AVC msg=audit(YYY.62): avc:  denied  { getattr } for  pid=13079 comm="which
 type=AVC msg=audit(YYY.63): avc:  denied  { connectto } for  pid=12589 comm="pmie" path="/run/pcp/pmcd.socket" scontext=system_u:system_r:pcp_pmie_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=unix_stream_socket permissive=0
 #audit: type=1400 audit(YYY.64): avc:  denied  { execute_no_trans } for  pid=3703 comm=pmie_check path=/usr/bin/pmie dev=dm-0 ino=2506240 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:pcp_pmie_exec_t:s0 tclass=file permissive=0
 type=AVC msg=audit(YYY.65): avc:  denied  { signal } for  pid=3106 comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process permissive=1
-type=AVC msg=audit(YYY.66): avc:  denied  { sys_ptrace } for  pid=15683 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=capability permissive=0
+type=AVC msg=audit(YYY.66): avc:  denied  { sys_ptrace } for  pid=15683 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=cap_userns permissive=0
 type=AVC msg=audit(YYY.67) : avc: denied { net_admin } for pid=6669 comm=pmproxy capability=net_admin scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:system_r:pcp_pmproxy_t:s0 tclass=capability
 type=AVC msg=audit(YYY.68) : avc: denied { read } for pid=6669 comm=pmproxy name=disable_ipv6 dev="proc" ino=9994 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
 type=AVC msg=audit(YYY.69) : avc: denied { open } for pid=9669 comm=pmproxy path=/proc/sys/net/ipv6/conf/all/disable_ipv6 dev="proc" ino=9994 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file

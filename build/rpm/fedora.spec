@@ -3418,6 +3418,9 @@ cd
 %endif
 
 %changelog
+* Fri Apr 26 2019 Nathan Scott <nathans@redhat.com> 4.3.2-1
+- Work in progress, see https://pcp.io.roadmap
+
 * Wed Feb 27 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.1-1
 - Fixes pcp-dstat in --full (all instances) mode (BZ 1661912)
 - Remove package dependencies on initscripts (BZ 1592380)
