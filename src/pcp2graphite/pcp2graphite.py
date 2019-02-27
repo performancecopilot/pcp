@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2014-2017 Red Hat
 # Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2014-2017 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
