@@ -9,10 +9,10 @@
 ## Type:        string
 ## Default:	"-C"
 #
-# Run the pmlogger_daily binary, via pmlogger_daily_check.service, with the
+# Run the pmlogger_check binary, via pmlogger_check.service, with the
 # following parameters.
 #
-#PMLOGGER_DAILY_CHECK_PARAMS=""
+#PMLOGGER_CHECK_PARAMS=""
 
 ## Type:        string
 ## Default:	"-p"
