@@ -6,7 +6,7 @@
 label = net/%I
 width = 5
 printtype = b
-cullinsts = ^(?:lo|bond\d+|face|.+\.\d+)$
+cullinsts = ^(?:lo|bond\d+|team\d+|face|.+\.\d+)$
 bits_in.label = recv
 bits_in = network.interface.in.bytes
 bits_out.label = send
@@ -16,7 +16,7 @@ bits_out = network.interface.out.bytes
 width = 5
 printtype = d
 pkts_in.label = #recv
-cullinsts = ^(?:lo|bond\d+|face|.+\.\d+)$
+cullinsts = ^(?:lo|bond\d+|team\d+|face|.+\.\d+)$
 pkts_in = network.interface.in.packets
 pkts_out.label = #send
 pkts_out = network.interface.out.packets
