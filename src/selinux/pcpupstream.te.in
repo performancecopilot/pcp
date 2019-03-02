@@ -476,7 +476,7 @@ allow pcp_pmie_t unconfined_t:process signal;
 
 #RHBZ1635394
 #type=AVC msg=audit(YYY.66): avc:  denied  { sys_ptrace } for  pid=15683 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=cap_userns permissive=0
-allow pcp_pmie_t self:cap_userns { sys_ptrace };
+###disable for Ubuntu### allow pcp_pmie_t self:cap_userns { sys_ptrace };
 
 #============= pmda-lio ==============
 #type=AVC msg=audit(XXX.55): avc:  denied  { open read search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0
