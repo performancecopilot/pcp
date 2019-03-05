@@ -14,6 +14,7 @@
 # Comments prefixed by #
 #
 #Distro      Version  Arch    Required Packages
+CentOS       7\.[5,6] -       python-devel
 Debian       -        -       python-setuptools python-all python-all-dev
 LinuxMint    -        -       python-setuptools python-all python-all-dev
 NetBSD       -        -       py27-setuptools
