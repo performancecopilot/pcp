@@ -461,8 +461,10 @@ allow pcp_pmie_t proc_net_t:file read;
 #type=AVC msg=audit(XXX.52): avc:  denied  { getattr } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:init_exec_t:s0 tclass=file permissive=0
 # allow pcp_pmie_t init_exec_t:file getattr;
 
+#RHBZ1635394
+#type=AVC msg=audit(YYY.66): avc:  denied  { sys_ptrace } for  pid=15683 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=cap_userns permissive=0
+@PCP_CAPUSERNS_PTRACE_RULE_PMIE@
 
-# @PCP_CAPUSERNS_PTRACE_RULE_PMIE@
 #type=AVC msg=audit(XXX.53): avc:  denied  { search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:user_home_dir_t:s0 tclass=dir permissive=0
 # allow pcp_pmie_t user_home_dir_t:dir search;
 
@@ -473,10 +475,6 @@ allow pcp_pmie_t proc_net_t:file read;
 #RHBZ1623988
 #type=AVC msg=audit(YYY.65): avc:  denied  { signal } for  pid=3106 comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process permissive=1
 allow pcp_pmie_t unconfined_t:process signal;
-
-#RHBZ1635394
-#type=AVC msg=audit(YYY.66): avc:  denied  { sys_ptrace } for  pid=15683 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=cap_userns permissive=0
-###disable for Ubuntu### allow pcp_pmie_t self:cap_userns { sys_ptrace };
 
 #============= pmda-lio ==============
 #type=AVC msg=audit(XXX.55): avc:  denied  { open read search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0
@@ -560,7 +558,7 @@ allow pcp_pmcd_t self:capability sys_rawio;
 # allow pcp_pmcd_t redis_port_t:tcp_socket name_connect;
 
 # allow pcp_pmcd_t domain to read all dirs,files and fifo_file in attribute file_type
-# @PCP_SELINUX_MACRO_RULE@
+@PCP_SELINUX_MACRO_RULE@
 files_read_all_files(pcp_pmcd_t)
 files_read_all_files(pcp_pmie_t)
 files_read_all_files(pcp_pmlogger_t)

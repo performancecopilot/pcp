@@ -85,7 +85,7 @@ class PCPBCCModule(PCPBCCBase):
 
         if not self.uprobes:
             raise RuntimeError("No matching uprobes found.")
-        self.log("Trying %s uprobes: %s." % (str(len(self.uprobes)), str(self.uprobes)))
+        self.log("Found %s uprobes: %s." % (str(len(self.uprobes)), str(self.uprobes)))
 
         self.log("Initialized.")
 

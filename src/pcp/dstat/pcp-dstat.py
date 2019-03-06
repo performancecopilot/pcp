@@ -62,7 +62,7 @@ COLOR = {
     'darkcyan': '\033[0;36m',
     'gray': '\033[0;37m',
 
-    'darkgray': '\033[1;30m',
+    'darkgray': '\033[90m',
     'red': '\033[1;31m',
     'green': '\033[1;32m',
     'yellow': '\033[1;33m',
