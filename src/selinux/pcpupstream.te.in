@@ -8,6 +8,7 @@ require {
 	type pcp_pmcd_t;
 	type tmp_t;
 	type init_t;
+	type default_t;
 	type pcp_pmlogger_t;
 	type pcp_pmlogger_exec_t;
 	type pcp_var_lib_t;
@@ -549,6 +550,11 @@ allow pcp_pmmgr_t ldconfig_exec_t:file { execute execute_no_trans open read geta
 allow pcp_pmcd_t fsadm_exec_t:file { execute execute_no_trans getattr open read };
 @PCP_FSADM_EXEC_MAP_RULE@
  
+#============= pmda-nvidia ==============
+#type=AVC msg=audit(YYY.83): avc: denied { map } for pid=7034 comm="pmdanvidia" path="/usr/lib64/libnvidia-ml.so" dev="dm-2" ino=16267329 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0
+#type=AVC msg=audit(YYY.84): avc: denied { execute } for pid=19828 comm="pmdanvidia" path="//usr/lib64/libnvidia-ml.so" dev="dm-2" ino=16267329 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0
+@PCP_DEFAULT_T_MAP@
+
 #type=AVC msg=audit(XXX.66): avc:  denied  { sys_rawio } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=capability permissive=0
 allow pcp_pmcd_t self:capability sys_rawio;
 
