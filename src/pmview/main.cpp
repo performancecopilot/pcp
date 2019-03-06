@@ -381,6 +381,11 @@ main(int argc, char **argv)
     console->post("Metric group setup complete (%d hosts, %d archives)",
 			a.my.hosts.size(), a.my.archives.size());
 
+    if (a.my.delta.tv_sec == 0 && a.my.delta.tv_usec == 0) {
+	/* no -t on command line, so set default delta */
+	a.my.delta.tv_sec = PmView::defaultViewDelta();
+    }
+
     if (a.my.zflag) {
 	if (a.my.archives.size() > 0)
 	    archiveGroup->useTZ();
