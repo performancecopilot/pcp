@@ -238,13 +238,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
        config.vm.provision :shell, path: "provisioning/#{options[:script]}"
 
        # Run QA and copy results back to host
-       if pcp_mode == "qa"
-         config.vm.provision :shell, path: "provisioning/qa.sh", args: [ qa_groups ]
-       elsif pcp_mode == "release"
+       config.vm.provision :shell, path: "provisioning/qa.sh", args: [ qa_groups ]
+       if pcp_mode == "release"
          config.vm.provision :shell, path: "provisioning/release.sh", args: [ "#{ options[:distro_name] }" ]
        elsif pcp_mode == "nightly"
          config.vm.provision :shell, path: "provisioning/release.sh", args: [ "#{ options[:distro_name] }".concat("-testing") ]
-      end
+       end
     end
   end
 end
