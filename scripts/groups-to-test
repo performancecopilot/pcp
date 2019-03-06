@@ -323,7 +323,6 @@ _hunt_qa()
        |src/int2pmid.c\
        |src/iohack.c\
        |src/mmv_ondisk.c\
-       |src/papi.c\
        |src/pcp_lite_crash.c\
        |src/pmid2int.c\
        |src/qa_test.c\
