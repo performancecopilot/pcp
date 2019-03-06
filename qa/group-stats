@@ -16,8 +16,9 @@ NF == 0		{ next }
 		    if (f[$i] == "") {
 			if ($i == "remote" || $i == "local" || $i == "sanity" ||
 			    $i == "ostest" ||
-			    $i ~ /^\#/ || $i ~ /patch/) {
-			    # control "groups" or sgi bug numbers
+			    $i ~ /^\#/ || $i ~ /patch/ || $i ~ /^@/) {
+			    # control "groups" or sgi bug numbers or BAD group
+			    # annotation
 			    continue
 			}
 			printf "Warning[%d]: test %s: group \"%s\" not declared\n",NR,$1,$i

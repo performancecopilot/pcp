@@ -53,9 +53,9 @@ cd $PCP_PMDAS_DIR/dm
 $sudo ./Install </dev/null >$tmp.out 2>&1
 cat $tmp.out >> $here/$seq.full
 
-for tgz in $here/linux/vdo-*.tgz
+for tgz in $here/linux/vdo-root-*.tgz
 do
-    [ $tgz = "linux/vdo-*" ] && continue
+    [ $tgz = "linux/vdo-root-*" ] && continue
 
     $sudo rm -fr $root
     mkdir $root || _fail "root in use when processing $tgz"
