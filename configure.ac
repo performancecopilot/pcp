@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2018 Red Hat.
+dnl Copyright (c) 2012-2019 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl
@@ -131,14 +131,6 @@ AC_ARG_WITH([books-brand],
                     [choose the docbook brand when building the PCP books (default is common)])],
     [do_books_brand=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books-brand=$withval"],
     [do_books_brand=common])
-
-AC_ARG_WITH([papi],
-    [AC_HELP_STRING([--with-papi@<:@=DIR|=MODULE@:>@],
-		   [enable performance api counter pmda (default is on)
-		   The optional argument may be a full path of a PAPI installation prefix,
-		   or a pkgconfig module name.])],
-    [do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"],
-    [do_papi=check])
 
 AC_ARG_WITH([perfevent],
     [AC_HELP_STRING([--with-perfevent],
@@ -1775,74 +1767,6 @@ AS_IF([test "x$do_infiniband" != "xno"], [
 AC_MSG_CHECKING([if the infiniband PMDA should be included])
 AC_SUBST(PMDA_INFINIBAND, $pmda_infiniband)
 if $pmda_infiniband; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
-
-pmda_papi=false
-AS_IF([test "x$do_papi" != "xno"], [
-    enable_papi=true
-
-    saved_LDFLAGS="$LDFLAGS"
-    saved_CFLAGS="$CFLAGS"
-    savedLIBS=$LIBS
-
-    dnl potentially from the environment, else empty
-    CFLAGS="$papi_CFLAGS"
-    LDFLAGS="$papi_LIBS"
-
-    case "$do_papi" in
-	yes|no|check)
-	    ;;
-	*/*)
-	    PAPI_ROOTDIR=$do_papi;
-	    CFLAGS="-I$PAPI_ROOTDIR/include"
-	    LDFLAGS="-L$PAPI_ROOTDIR/lib"
-	    ;;
-	 *)
-	    PKG_CHECK_MODULES(papi,[$do_papi],[
-		  CFLAGS="$papi_CFLAGS"
-		  LDFLAGS="$papi_LIBS"])
-	    ;;
-    esac
-
-    # $papi_LIBS may include -lpapi harmlessly redundantly with AC_CHECK_LIB
-    AC_CHECK_LIB([papi], [PAPI_library_init],
-		 [papi_libs="$LDFLAGS -lpapi"],
-		 [enable_papi=false])
-    AC_CHECK_HEADERS([papi.h], [papi_cflags="$CFLAGS"], [enable_papi=false])
-    if test "$do_papi" != "check" -a "$enable_papi" != "true"
-    then
-	AC_MSG_ERROR([PAPI is not installed, cannot enable the PAPI PMDA])
-    else
-	pmda_papi=$enable_papi
-    fi
-    LIBS=$savedLIBS
-    CFLAGS="$saved_CFLAGS"
-    LDFLAGS="$saved_LDFLAGS"
-    AC_SUBST(PAPI_CFLAGS, $papi_cflags)
-    AC_SUBST(PAPI_LIBS, $papi_libs)
-])
-AC_MSG_CHECKING([if the papi PMDA should be included])
-AC_SUBST(PMDA_PAPI, $pmda_papi)
-if $pmda_papi; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
-
-AS_IF([test "x$pmda_papi" = "xtrue"], [
-    	dnl check if struct PAPI_component_info_t has a disabled field
-	AC_MSG_CHECKING([whether struct PAPI_component_info_t has a disabled field])
-cat <<End-of-File >conftest.c
-#include <papi.h>
-int main() { PAPI_component_info_t *c; c->disabled = 0; }
-End-of-File
-	(eval $ac_compile) 2>conftest.out
-	cat conftest.out >&5
-    	if test -s conftest.out
-    	then
-	   AC_MSG_RESULT(no)
-    	else
-    	   AC_DEFINE(HAVE_PAPI_DISABLED_COMP, [1], [PAPI_component_info_t field])
-    	   AC_MSG_RESULT(yes)
-
-    	fi
-    	rm -f conftest.*
-])
 
 pmda_perfevent=false
 AS_IF([test "x$do_perfevent" = "xyes"], [

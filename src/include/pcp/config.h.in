@@ -301,12 +301,6 @@
 /* Define to 1 if you have the <nss/nss.h> header file. */
 #undef HAVE_NSS_NSS_H
 
-/* PAPI_component_info_t field */
-#undef HAVE_PAPI_DISABLED_COMP
-
-/* Define to 1 if you have the <papi.h> header file. */
-#undef HAVE_PAPI_H
-
 /* Define to 1 if you have the <perfmon/pfmlib_perf_event.h> header file. */
 #undef HAVE_PERFMON_PFMLIB_PERF_EVENT_H
 

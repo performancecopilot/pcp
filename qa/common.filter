@@ -300,7 +300,6 @@ _filter_optional_pmdas()
 	-e '/pmdaprometheus/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
-	-e '/pmdapapi/d' \
 	-e '/pmdapdns/d' \
 	-e '/pmdapmcd/d' \
 	-e '/pmdaproc/d' \
@@ -400,7 +399,6 @@ _filter_top_pmns()
 	-e '/^    nvidia /d' \
 	-e '/^    oracle /d' \
 	-e '/^    oraping /d' \
-	-e '/^    papi /d' \
 	-e '/^    pdns /d' \
 	-e '/^    perfevent /d' \
 	-e '/^    pipe /d' \

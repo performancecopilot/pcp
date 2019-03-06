@@ -24,7 +24,7 @@ CPMDAS = root pmcd \
 	apache cisco trace shping mounts weblog \
 	mmv lmsensors process roomtemp summary etw \
 	lustrecomm infiniband logger bash systemd \
-	gfs2 jbd2 cifs rpm nvidia papi perfevent \
+	gfs2 jbd2 cifs rpm nvidia perfevent \
 	dm pipe openbsd docker smart podman
 
 PLPMDAS = bonding netfilter zimbra postgresql \

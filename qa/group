@@ -202,7 +202,6 @@ pmda.news
 pmda.nutcracker
 pmda.nvidia
 pmda.oracle
-pmda.papi
 pmda.perfevent
 pmda.pmcd
 pmda.postfix
@@ -1167,7 +1166,6 @@ BAD
 786 context context_local libpcp local
 787 archive local pmie pmlogrewrite pmdumplog pmval flakey kernel
 788 pmda.nginx pmda.install local
-789 pmda.papi local
 790 pmlogextract local
 791 pmlogextract valgrind local pmdumplog
 792 libpcp local
@@ -1177,7 +1175,6 @@ BAD
 796 pmda.elasticsearch local
 797 pmlogrewrite local pmdumplog
 798 pmda.nfsclient local python
-799:retired pmda.papi local pmstore
 800 pmda.proc pmda.hotproc local
 801 pmda.netfilter local
 802 pmda valgrind dbpmda local
@@ -1191,7 +1188,6 @@ BAD
 810 pmiostat archive multi-archive local pmlogextract pcp python
 811 pmlogger pmcpp local kernel
 812 pmlogextract local pmdumplog
-813 pmda.papi local
 814 pmprobe archive multi-archive local pmlogextract
 815 pmie local
 816 libpcp local
@@ -1281,7 +1277,6 @@ BAD
 900 libpcp sanity local timezone
 901 libpcp event local
 902 libpcp mem_leak valgrind event local
-903 pmda.papi local
 904 python local
 905 oldversion remote
 906 pmda.sample indom help pmda pminfo local
@@ -1292,7 +1287,6 @@ BAD
 911 pmda.linux local
 912 pmda.nutcracker local
 913 pmda.redis local
-914 pmda.papi local pmstore
 915 pmcd pmlogger pmproxy libpcp local pmlc
 916 pmlogextract pmlogcheck local kernel
 917 selinux local
@@ -1345,7 +1339,6 @@ BAD
 964 pmcd local pmda.xfs pmda.dm
 965 derive local kernel
 966 secure local kernel
-967 pmda.papi local
 968 python local derive kernel
 969 derive local kernel
 970 pmclient archive multi-archive local sanity pmlogextract python
@@ -1653,4 +1646,5 @@ BAD
 1547 pmrep python local
 1600 pmseries pmcd pmproxy pmlogger local
 1622 selinux local
+1644 pmda.perfevent local
 4751 libpcp threads valgrind local pcp python

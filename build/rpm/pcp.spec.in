@@ -73,9 +73,6 @@ BuildRequires: initscripts man /bin/hostname
 %if "@pmda_rpm@" == "true"
 BuildRequires: rpm-devel
 %endif
-%if "@pmda_papi@" == "true"
-BuildRequires: papi-devel
-%endif
 %if "@pmda_podman@" == "true"
 BuildRequires: libvarlink-devel
 %endif
@@ -874,7 +871,7 @@ Requires: pcp-libs = @package_version@
 # https://fedoraproject.org/wiki/Packaging:Guidelines "Renaming/Replacing Existing Packages"
 Provides: dstat = @package_version@
 Provides: /usr/bin/dstat
-Obsoletes: dstat <= 0.7.3-5
+Obsoletes: dstat <= 0.8
 %endif
 
 %description system-tools
@@ -957,25 +954,6 @@ interface rules, type enforcement and file context adjustments for an
 updated policy package.
 %endif
 
-%if "@pmda_papi@" == "true"
-#
-# pcp-pmda-papi
-#
-%package pmda-papi
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for Performance API and hardware counters
-URL: https://pcp.io
-Requires: pcp-libs = @package_version@
-
-BuildRequires: papi-devel
-
-%description pmda-papi
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting hardware counters statistics through PAPI (Perforamance API).
-#end pcp-pmda-papi
-%endif
-
 %if "@pmda_infiniband@" == "true"
 #
 # pcp-pmda-infiniband
@@ -1037,6 +1015,7 @@ Requires: libpfm4 >= 4.4
 Requires: libpfm >= 4.4
 %endif
 BuildRequires: libpfm-devel >= 4.4
+Obsoletes: pcp-pmda-papi
 
 %description pmda-perfevent
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -2281,9 +2260,6 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'zabbix|zbxpcp' | grep -v pcp2zabbix >e
 %if "@pmda_infiniband@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
 %endif
-%if "@pmda_papi@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/papi' >pmda_papi_files
-%endif
 %if "@pmda_podman@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/podman' > pmda_podman_files
 %endif
@@ -2395,7 +2371,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/weblog' > pmda_weblog_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zeroconf|daily[-_]report|/sa$' > zeroconf_files
 
 touch gui_files webapi_files manager_files pmda_infiniband_files \
-      pmda_papi_files pmda_perfevent_files pmda_podman_files \
+      pmda_perfevent_files pmda_podman_files \
       pmda_bonding_files pmda_dbping_files pmda_pdns_files \
       pmda_ds389_files pmda_ds389log_files pmda_gpfs_files \
       pmda_gpsd_files pmda_lustre_files pmda_lustrecomm_files \
@@ -2473,7 +2449,6 @@ BEGIN {
     while( getline < "manager_files") manager[$0]=1;
     while( getline < "testsuite_files") testsuite[$0]=1;
     while( getline < "pmda_infiniband_files") pmda_infiniband[$0]=1;
-    while( getline < "pmda_papi_files") pmda_papi[$0]=1;
     while( getline < "pmda_podman_files") pmda_podman[$0]=1;
     while( getline < "pmda_perfevent_files") pmda_perfevent[$0]=1;
 %if "@pmda_activemq@" == "true"
@@ -2611,7 +2586,6 @@ BEGIN {
     else if (manager[$NF]) f="manager_files.rpm";
     else if (testsuite[$NF]) f="testsuite_files.rpm";
     else if (pmda_infiniband[$NF]) f="pmda_infiniband_files.rpm";
-    else if (pmda_papi[$NF]) f="pmda_papi_files.rpm";
     else if (pmda_podman[$NF]) f="pmda_podman_files.rpm";
     else if (pmda_perfevent[$NF]) f="pmda_perfevent_files.rpm";
 %if "@pmda_activemq@" == "true"
@@ -2936,11 +2910,6 @@ pmieconf -c enable dmthin
 %preun pmda-rpm
 %{pmda_remove "$1" "rpm"}
 %endif #preun pmda-rpm
-
-%if "@pmda_papi@" == "true"
-%preun pmda-papi
-%{pmda_remove "$1" "papi"}
-%endif #preun pmda-papi
 
 %if "@pmda_systemd@" == "true"
 %preun pmda-systemd
@@ -3326,10 +3295,6 @@ cd
 
 %if "@pmda_infiniband@" == "true"
 %files pmda-infiniband -f pmda_infiniband_files.rpm
-%endif
-
-%if "@pmda_papi@" == "true"
-%files pmda-papi -f pmda_papi_files.rpm
 %endif
 
 %if "@pmda_podman@" == "true"

@@ -61,13 +61,6 @@ fi
 
 eval `egrep '^(ENABLE_|PMDA_|HAVE_|QT_)' ../src/include/builddefs | sed -e 's/ //g'`
 
-if $PMDA_PAPI
-then
-    echo "s/?{libpapi-dev}/libpapi-dev [!s390x],/" >>$tmp.sed
-else
-    echo "s/?{libpapi-dev}//" >>$tmp.sed
-fi
-
 if $PMDA_PERFEVENT
 then
     echo "s/?{libpfm4-dev}/libpfm4-dev,/" >>$tmp.sed

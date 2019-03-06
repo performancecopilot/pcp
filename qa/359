@@ -45,7 +45,6 @@ _filter()
 	-e '/^proc\.fd.*: No permission/d' \
 	-e '/^proc\.io.*: /d' \
 	-e '/^proc\.namespaces.*: /d' \
-	-e '/^papi\..*: No permission/d' \
 	-e '/^pipe\..*: Not Connected/d' \
 	-e '/^prometheus: pmLookupDesc: Unknown or illegal metric identifier/d' \
 	-e '/^libvirt\..*: Not Connected/d' \

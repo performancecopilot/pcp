@@ -17,7 +17,6 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 CONFFILES = builddefs pcp.conf
-LDIRT = builddefs.install pcp.conf.install
 
 SUBDIRS = pcp
 

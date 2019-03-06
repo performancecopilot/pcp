@@ -31,7 +31,6 @@ _filter()
 	-e '/^cgroup.groups: pmLookupName: Unknown metric name/d' \
 	-e '/^proc.id.container: No data available/d' \
 	-e '/^proc.psinfo.cgroups: No data available/d' \
-	-e '/^papi.*: No permission to perform requested operation/d' \
 	-e '/^elasticsearch.*: Try again. Information not currently /d' \
 	-e '/^apache.*: Try again. Information not currently available/d' \
 	-e '/^oracle.*: Try again. Information not currently available/d' \
