@@ -891,12 +891,12 @@ text_lookup(int type, int ident)
     if ((type & PM_TEXT_PMID)) {
 	if ((type & PM_TEXT_ONELINE))
 	    hp = __pmHashSearch(ident, &rpmidoneline);
-	else if ((type && PM_TEXT_HELP))
+	else if ((type & PM_TEXT_HELP))
 	    hp = __pmHashSearch(ident, &rpmidtext);
     } else if ((type & PM_TEXT_INDOM)) {
 	if ((type & PM_TEXT_ONELINE))
 	    hp = __pmHashSearch(ident, &rindomoneline);
-	else if ((type && PM_TEXT_HELP))
+	else if ((type & PM_TEXT_HELP))
 	    hp = __pmHashSearch(ident, &rindomtext);
     }
     if (hp == NULL)

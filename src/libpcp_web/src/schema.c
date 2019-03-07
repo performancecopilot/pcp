@@ -1663,7 +1663,7 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
     const char		*logdir = pmGetOptionalConfig("PCP_LOG_DIR");
     char		path[MAXPATHLEN];
     char		sep = pmPathSeparator();
-    int			i, count = 0;
+    int			i, sts, count = 0;
 
     if (data == NULL)
 	return -ENOMEM;
@@ -1679,9 +1679,9 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
 	pmsprintf(path, sizeof(path), "%s%c%s", logdir, sep, paths[i]);
 	if (access(path, F_OK) != 0)
 	    continue;
-	if ((data->handle = pmDiscoverRegister(path, module, cbs, arg)) < 0)
+	if ((sts = pmDiscoverRegister(path, module, cbs, arg)) < 0)
 	    continue;
-	/* coverity[DEADCODE] -- this is reached when HAVE_LIBUV is set */
+	data->handle = sts;
 	count++;
 	break;
     }

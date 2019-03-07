@@ -44,10 +44,12 @@ deviattask(struct tstat    *curtpres, unsigned long ntaskpres,
 {
 	register int		c, d, pall=0, pact=0;
 	register struct tstat	*curstat, *devstat, *thisproc;
-	struct tstat		prestat = {0};
+	struct tstat		prestat;
 	struct pinfo		*pinfo;
 	count_t			totusedcpu;
 	char			hashtype = 'p';
+
+	memset(&prestat, 0, sizeof prestat);
 
 	/*
 	** needed for sanity check later on...
