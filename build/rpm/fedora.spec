@@ -2925,10 +2925,23 @@ cd
 %{_unitdir}/pmlogger.service
 %{_unitdir}/pmie.service
 %{_unitdir}/pmproxy.service
-%endif
-%config(noreplace) %{_sysconfdir}/sasl2/pmcd.conf
+# services and timers replacing the old cron scripts
+%{_unitdir}/pmlogger_check.service
+%{_unitdir}/pmlogger_check.timer
+%{_unitdir}/pmlogger_daily.service
+%{_unitdir}/pmlogger_daily.timer
+%{_unitdir}/pmlogger_daily-poll.service
+%{_unitdir}/pmlogger_daily-poll.timer
+%{_unitdir}/pmie_check.service
+%{_unitdir}/pmie_check.timer
+%{_unitdir}/pmie_daily.service
+%{_unitdir}/pmie_daily.timer
+%else
+# cron scripts
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmie
+%endif
+%config(noreplace) %{_sysconfdir}/sasl2/pmcd.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/pmlogger
 %config(noreplace) %{_sysconfdir}/sysconfig/pmproxy
 %config(noreplace) %{_sysconfdir}/sysconfig/pmcd
@@ -2951,6 +2964,8 @@ cd
 %dir %attr(0775,pcp,pcp) %{_confdir}/nssdb
 %dir %{_confdir}/discover
 %config(noreplace) %{_confdir}/discover/pcp-kube-pods.conf
+%dir %{_confdir}/pmseries
+%config(noreplace) %{_confdir}/pmseries/pmseries.conf
 
 %ghost %dir %attr(0775,pcp,pcp) %{_localstatedir}/run/pcp
 %{_localstatedir}/lib/pcp/config/pmafm
@@ -2971,7 +2986,15 @@ cd
 
 %files zeroconf
 %{_libexecdir}/pcp/bin/pmlogger_daily_report
+%if !%{disable_systemd}
+# systemd services for pmlogger_daily_report to replace the cron script
+%{_unitdir}/pmlogger_daily_report.service
+%{_unitdir}/pmlogger_daily_report.timer
+%{_unitdir}/pmlogger_daily_report-poll.service
+%{_unitdir}/pmlogger_daily_report-poll.timer
+%else
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger-daily-report
+%endif
 %{_localstatedir}/lib/pcp/config/pmlogconf/zeroconf
 
 #additional pmlogger config files
