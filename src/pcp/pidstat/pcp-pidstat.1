@@ -18,48 +18,58 @@
 [\f3\-z\f1 \f3--hostzone\f1]
 [\f3\-l\f2]
 [\f3\-?\f1]
-
 .SH DESCRIPTION
 .B pcp-pidstat
-command is used for monitoring individual tasks currently being managed by the Linux kernel. Using various options it helps user to see useful information related with the processes. This information can include percentage CPU, memory and stack usages, scheduling and priority information. By default pcp-pidstat reports live
-data for the local host but can also report for a remote host (--host) or from a previously captured PCP archive (-a).
-.BR pcp-pidstat
-fetches the data to be analysed from PMCD unless provided \-a option. (See below)
-
+command is used for monitoring individual tasks currently being managed
+by the Linux kernel.
+Using various options it helps user to see useful information related to
+the processes.
+This information includes percentage CPU, memory and stack usage,
+scheduling and priority.
+By default
+.B pcp-pidstat
+reports live data for the local host.
+.PP
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-a /\c
+.BR \-\-archive ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-s /\c
+.BR \-\-samples ,
+.BR \-t /\c
+.BR \-\-interval ,
+.BR \-Z /\c
+.BR \-\-timezone
+and several other
+.I pcp options
+become indirectly available.
 .SH OPTIONS
 Output control options:
 .TP
 .BR \-s \ N ", " \fB\-\-samples =\fIN\fR
 Set the number of samples to be displayed.
-Since the first sample is used for the rate conversion of some of the metrics, the total number of samples reported are one less that N. Default is continous.
-
+Since the first sample is used for the rate conversion of some of the
+metrics, the total number of samples reported are one less that N.
+Default is continous.
 .TP
 .BR \-t \ DELTA ", " \fB\-\-interval =\fIDELTA\fR
 Set the interval between two samples.
 Default is one second.
-
 .PP
 General Options:
-
 .TP
 .BR \-I \fR
-In  an  SMP environment, indicates that tasks CPU usage should be divided by the total number of processors.
-
-.TP
-.BR \-a \ FILE ", " \fB\-\-archive =\fIFILE\fR
-Causes pcp\-pidstat to use the specified archive than connecting to PMCD. The argument to -a is a comma-separated
-list of names, each of which may be the base name of an archive or the name of a directory containing one or more archives. Archives can be created using
-.BR pmlogger (1)\.
-
-.TP
-.B \--host
-Current performance metric values are retrieved from the nominated
-.I host
-machine.
-
+In an SMP environment, indicates that tasks CPU usage should be divided
+by the total number of processors.
 .TP
 .BR \-B \fR
-Report process states. The argument to -B is one of the following:
+Report process states.
+The argument to -B is one of the following:
 
 \fBdetail\fP
        Show total time processes have spent in each of the 5 different states
@@ -68,16 +78,21 @@ Report process states. The argument to -B is one of the following:
        Show total time processes spent in their current state 
 
 [\fBR\fP,\fBS\fP,\fBT\fP,\fBD\fP,\fBZ\fP]
-       A comma separated list of states which can be any or all of [\fBR\fP,\fBS\fP,\fBT\fP,\fBZ\fP,\fBD\fP]. For example, \fB-B R,S\fP will report processes currently in either \fBR\fP or \fBS\fP states and not report processes currently in any other states.
-
+       A comma separated list of process states.  For example, \fB-B R,S\fP will report processes currently in either \fBR\fP or \fBS\fP states and not report processes currently in any other states.
 .TP
 .BR \-f \fR
-Use the format string for formatting the timestamp. The format will be used with Python's datetime.strftime method which is mostly the same as that described
-in strftime(3). An empty format string(i.e,"") will remove the timestamps from the output. The default with stdout is %H:%M:%S.
-
+Use the format string for formatting the timestamp.
+The format will be used with the
+.BR python (1)
+datetime.strftime method which is similar to that described
+in
+.BR strftime (3).
+An empty format string (i.e, "") will remove the timestamps from the output.
+The default with stdout is %H:%M:%S.
 .TP
 .BR \-R \fR
-Report realtime priority and scheduling policy information.  The following values may be displayed:
+Report realtime priority and scheduling policy information.
+The following values may be displayed:
 
 UID
        The real user identification number of the task being monitored.
@@ -96,10 +111,10 @@ policy
 
 Command
        The command name of the task.
-
 .TP
 .BR \-r \fR
-Report page faults and memory utilization. The following values may be displayed:
+Report page faults and memory utilization.
+The following values may be displayed:
 
 UID
        The real user identification number of the task being monitored.
@@ -123,14 +138,15 @@ RSS
        Resident Set Size: The non-swapped physical memory used by the task in kilobytes.
 
 %MEM
-       The tasks's currently used share of available physical memory.
+       The tasks currently used share of available physical memory.
 
 Command
        The command name of the task.
 
 .TP
 .BR \-k \fR
-Report stack utilization.  The following values may be displayed:
+Report stack utilization.
+The following values may be displayed:
 
 UID
       The real user identification number of the task being monitored.
@@ -149,17 +165,14 @@ StkRef
 
 Command
       The command name of the task.
-
 .TP
 .BR \-V \fR
-Display version and exit
-
+Display version information and exit.
 .TP
 .B \-Z
 By default,
 .B pcp-pidstat
-reports the time of day according to the local timezone on the
-system where
+reports the time of day according to the local timezone on the system where
 .B pcp-pidstat
 is run.
 The
@@ -170,54 +183,46 @@ in the format of the environment variable
 .B TZ
 as described in
 .BR environ (7).
-
 .TP
 .B \-z
 Change the reporting timezone to the local timezone at the host that is
-the source of the performance metrics, as identified via either the
-.B \-h
-or
-.B \-a
-options.
+the source of the performance metrics.
 When replaying a PCP archive that was captured in a foreign timezone, the
 .B \-z
-option would almost always be used (the default reporting timezone is the local timezone,
-which may not be the same as the timezone of the PCP archive).
-
+option would almost always be used (the default reporting timezone is the
+local timezone, which may not be the same as the timezone of the PCP archive).
 .TP
 .BR \-l \fR
 Display the process command name and all its arguments.
-
 .TP
 .BR \-? " , " \fB\-\-help\fR
-Display help and exit
-
+Display usage message and exit.
 .PP
 Ouput Filter Options
-
 .TP
 .BR \-G \ NAME ", " \fB\-\-process-name =\fINAME\fR
-Display only processes whose command name includes the string \fINAME\fR.  This string can be a regular expression.
-
+Display only processes whose command name includes the string \fINAME\fR.
+This string can be a regular expression.
 .TP
-.BR \-U\fI[USERNAME] ", " \fB\-\-user\-name =\fI[USERNAME]\fR
-Display  the real user name of the tasks being monitored instead of the UID.  If \fIusername\fR is specified, then only tasks belonging to the specified user are displayed.
-
+.BR \-U \ \fI[USERNAME] ", " \fB\-\-user\-name =\fI[USERNAME]\fR
+Display  the real user name of the tasks being monitored instead of the UID.
+If \fIusername\fR is specified, then only tasks belonging to the specified
+user are displayed.
 .TP
 .BR \-p \ \fIPID1,PID2 .. " , " \fB\-\-pid-list =\fIPID1,PID2 ..\fR
 Display only processes whose PID belongs to the given Pid List.
-
 .SH NOTES
 .B pcp-pidstat
 is inspired by the
 .BR pidstat (1)
 command and aims to be command line and output compatible with it.
-
 .PP
 .SH "SEE ALSO"
 .BR pcp (1),
-.BR pidstat(1),
+.BR pidstat (1),
+.BR python (1),
 .BR PCPIntro (1),
-.BR pmParseInterval (3)
+.BR pmParseInterval (3),
+.BR strftime (3)
 and
 .BR environ (7).

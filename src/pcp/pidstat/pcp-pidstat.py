@@ -781,7 +781,6 @@ class PidstatOptions(pmapi.pmOptions):
         self.pmSetOverrideCallback(self.override)
         self.pmSetLongOptionHeader("General options")
         self.pmSetLongOptionArchive()
-        self.pmSetLongOptionHost()         # --host for remote monitoring
         self.pmSetLongOptionSamples()
         self.pmSetLongOptionInterval()
         self.pmSetLongOption("process-name",1,"G","NAME","Select process names using regular expression.")
