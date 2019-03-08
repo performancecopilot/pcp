@@ -99,6 +99,8 @@ signal_init(struct proxy *proxy)
     static uv_signal_t	sighup, sigint, sigterm;
     uv_loop_t		*loop = proxy->events;
 
+    signal(SIGPIPE, SIG_IGN);
+
     uv_signal_init(loop, &sighup);
     uv_signal_init(loop, &sigint);
     uv_signal_init(loop, &sigterm);
@@ -134,6 +136,9 @@ on_client_close(uv_handle_t *handle)
     case STREAM_PCP:
 	on_pcp_client_close(client);
 	break;
+    case STREAM_HTTP:
+	on_http_client_close(client);
+	break;
     case STREAM_REDIS:
 	on_redis_client_close(client);
 	break;
@@ -155,13 +160,24 @@ on_client_write(uv_write_t *writer, int status)
     struct client	*client = (struct client *)writer->handle;
     stream_write_baton	*request = (stream_write_baton *)writer;
 
+    if (pmDebugOptions.af)
+	fprintf(stderr, "%s: completed write [sts=%d] to client %p\n",
+			"on_client_write", status, client);
+
     sdsfree(request->buffer[0].base);
-    if (request->buffer[1].base)	/* optional second buffer */
+    request->buffer[0].base = NULL;
+    if (request->buffer[1].base) {	/* optional second buffer */
 	sdsfree(request->buffer[1].base);
+	request->buffer[1].base = NULL;
+    }
     free(request);
 
-    if (status != 0)
-	uv_close((uv_handle_t *)&client->stream, on_client_close);
+    if (status == 0)
+	return;
+
+    if (pmDebugOptions.af)
+	fprintf(stderr, "%s: %s\n", "on_client_write", uv_strerror(status));
+    uv_close((uv_handle_t *)&client->stream, on_client_close);
 }
 
 void
@@ -171,12 +187,16 @@ client_write(struct client *client, sds buffer, sds suffix)
     unsigned int	nbuffers = 0;
 
     if (request) {
-	if (pmDebugOptions.pdu)
-	    fprintf(stderr, "%s: sending %ld bytes to client %p\n",
+	if (pmDebugOptions.af)
+	    fprintf(stderr, "%s: sending %ld bytes [0] to client %p\n",
 			"client_write", (long)sdslen(buffer), client);
 	request->buffer[nbuffers++] = uv_buf_init(buffer, sdslen(buffer));
-	if (suffix != NULL)
+	if (suffix != NULL) {
+	    if (pmDebugOptions.af)
+		fprintf(stderr, "%s: sending %ld bytes [1] to client %p\n",
+			"client_write", (long)sdslen(suffix), client);
 	    request->buffer[nbuffers++] = uv_buf_init(suffix, sdslen(suffix));
+	}
 	uv_write(&request->writer, (uv_stream_t *)&client->stream,
 		 request->buffer, nbuffers, on_client_write);
     } else {
@@ -190,6 +210,14 @@ client_protocol(int key)
     switch (key) {
     case 'p':	/* PCP pmproxy */
 	return STREAM_PCP;
+    case 'G':	/* HTTP GET */
+    case 'H':	/* HTTP HEAD */
+    case 'P':	/* HTTP POST, PUT, PATCH */
+    case 'D':	/* HTTP DELETE */
+    case 'T':	/* HTTP TRACE */
+    case 'O':	/* HTTP OPTIONS */
+    case 'C':	/* HTTP CONNECT */
+	return STREAM_HTTP;
     case '-':	/* RESP error */
     case '+':	/* RESP status */
     case ':':	/* RESP integer */
@@ -220,6 +248,8 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 	switch (client->protocol) {
 	case STREAM_PCP:
 	    return on_pcp_client_read(proxy, client, nread, buf);
+	case STREAM_HTTP:
+	    return on_http_client_read(proxy, client, nread, buf);
 	case STREAM_REDIS:
 	    return on_redis_client_read(proxy, client, nread, buf);
 	case STREAM_SECURE:
@@ -228,19 +258,13 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 	default:
 	    break;
 	}
-	if (pmDebugOptions.pdu)
+	if (pmDebugOptions.af)
 	    fprintf(stderr, "%s: unknown protocol key '%c' (0x%x) - disconnecting"
 			"client %p\n", "on_client_read", *buf->base, (unsigned int)*buf->base, proxy);
     } else {
-	if (pmDebugOptions.pdu && nread < 0)
+	if (pmDebugOptions.af && nread < 0)
 	    fprintf(stderr, "%s: read error %ld - disconnecting client %p\n",
 			"on_client_read", (long)nread, client);
-#if 0
-	if (buf->base != NULL)
-	    sdsfree(buf->base);
-	buf->base = NULL;
-	buf->len = 0;
-#endif
 	uv_close((uv_handle_t *)stream, on_client_close);
     }
 }
@@ -263,7 +287,7 @@ on_client_connection(uv_stream_t *stream, int status)
 			pmGetProgname());
 	return;
     }
-    if (pmDebugOptions.context | pmDebugOptions.pdu)
+    if (pmDebugOptions.context | pmDebugOptions.af)
 	fprintf(stderr, "%s: accept new client %p\n",
 			"on_client_connection", client);
 
@@ -536,6 +560,7 @@ setup_proxy(uv_timer_t *arg)
     struct proxy	*proxy = (struct proxy *)handle->data;
 
     setup_redis_modules(proxy);
+    setup_http_modules(proxy);
     setup_pcp_modules(proxy);
 }
 

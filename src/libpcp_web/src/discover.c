@@ -110,9 +110,12 @@ pmDiscoverDelete(sds path)
 	    if (h->fd >= 0)
 		close(h->fd);
 
-	    sdsfree(h->context.name);
-	    sdsfree(h->context.source);
-	    pmFreeLabelSets(h->context.labelset, 1);
+	    if (h->context.name)
+		sdsfree(h->context.name);
+	    if (h->context.source)
+		sdsfree(h->context.source);
+	    if (h->context.labelset)
+		pmFreeLabelSets(h->context.labelset, 1);
 	    memset(h, 0, sizeof(pmDiscover));
 	    free(h);
 	    break;

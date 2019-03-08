@@ -1667,6 +1667,7 @@ BAD
 1546 pmrep python local
 1547 pmrep python local
 1600 pmseries pmcd pmproxy pmlogger local
+1601 pmseries pmproxy local
 1622 selinux local
 1644 pmda.perfevent local
 4751 libpcp threads valgrind local pcp python

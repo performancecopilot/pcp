@@ -21,6 +21,7 @@
 #include "pmproxy.h"
 #include "libpcp.h"
 #include "slots.h"
+#include "http.h"
 #include "pcp.h"
 
 typedef struct stream_write_baton {
@@ -58,6 +59,17 @@ typedef struct redis_client {
     redisReader		*reader;	/* RESP request handling state */
 } redis_client;
 
+typedef struct http_client {
+    http_parser		parser;		/* HTTP request parsing state */
+    struct servlet	*servlet;	/* servicing current request */
+    struct dict		*parameters;	/* URL parameters dictionary */
+    struct dict		*headers;	/* request header dictionary */
+    void		*privdata;	/* private HTTP parsing state */
+    void		*data;		/* opaque servlet information */
+    unsigned int	type : 16;	/* HTTP response content type */
+    unsigned int	flags : 16;	/* request status flags field */
+} http_client;
+
 typedef struct pcp_client {
     pcp_proxy_state	state;
     sds			hostname;
@@ -74,6 +86,7 @@ typedef struct client {
     stream_protocol	protocol;
     union {
 	redis_client	redis;
+	http_client	http;
 	pcp_client	pcp;
     } u;
     struct proxy	*proxy;
@@ -92,6 +105,7 @@ typedef struct proxy {
     struct server	*servers;	/* array of tcp/pipe socket servers */
     unsigned int	nservers;	/* count of entries in server array */
     unsigned int	redisetup;	/* is Redis slots information setup */
+    struct servlet	*servlets;	/* linked list of http URL handlers */
     sds			redishost;	/* initial Redis host specification */
     mmv_registry_t	*metrics;
     uv_loop_t		*events;
@@ -107,11 +121,16 @@ extern void on_redis_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
 extern void on_redis_client_close(struct client *);
 
+extern void on_http_client_read(struct proxy *, struct client *,
+				ssize_t, const uv_buf_t *);
+extern void on_http_client_close(struct client *);
+
 extern void on_pcp_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
 extern void on_pcp_client_close(struct client *);
 
 extern void setup_redis_modules(struct proxy *);
+extern void setup_http_modules(struct proxy *);
 extern void setup_pcp_modules(struct proxy *);
 extern void setup_modules(struct proxy *);
 

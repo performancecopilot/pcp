@@ -1,0 +1,126 @@
+#!/bin/sh
+# PCP QA Test No. 1601
+# Exercise pmseries REST API endpoints using curl(1).
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+
+_cleanup()
+{
+    cd $here
+    [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
+    [ -n "$options" ] && redis-cli $options shutdown
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+
+userid=`id -u`
+groupid=`id -g`
+username=`id -u -n`
+hostname=`hostname`
+machineid=`_machine_id`
+if which domainname >/dev/null 2>&1
+then
+    domainname=`domainname`
+else
+    domainname=`hostname -d`
+fi
+[ -z "$domainname" ] && domainname=localdomain
+[ "$domainname" = "(none)" ] && domainname=localdomain
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_source()
+{
+    sed \
+        -e "s,$here,PATH,g" \
+        -e "s,$hostname,QAHOST,g" \
+    #end
+}
+
+# real QA test starts here
+echo "Start test Redis server ..."
+redisport=`_find_free_port`
+redis-server --port $redisport > $tmp.redis 2>&1 &
+echo "PING"
+pmsleep 0.125
+options="-p $redisport"
+redis-cli $options ping
+echo
+
+# import some well-known test data into Redis
+pmseries $options --load "{source.path: \"$here/archives/proc\"}" | _filter_source
+
+# start pmproxy 
+proxyport=`_find_free_port`
+proxyopts="-p $proxyport -r $redisport"  # -Dseries,http,af
+pmproxy -f -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
+pmproxy_pid=$!
+
+# check pmproxy has started and is available for requests
+pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
+
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmproxy >> $seq.full
+redis-cli $options keys pcp:* >> $seq.full
+cat $tmp.pmproxy.log >> $seq.full
+
+series1=`pmseries $options disk.all.read`
+[ -z "$series1" ] && _fail "Cannot find any timeseries matching disk.all.read"
+echo "Using series $series1 for disk.all.read"
+
+series2=`pmseries $options disk.dev.read`
+[ -z "$series2" ] && _fail "Cannot find any timeseries matching disk.dev.read"
+echo "Using series $series2 for disk.dev.read"
+
+series3=`pmseries $options kernel.all.uptime`
+[ -z "$series3" ] && _fail "Cannot find any timeseries matching kernel.all.uptime"
+echo "Using series $series3 for kernel.all.uptime"
+
+
+echo "== verify series query" | tee -a $seq.full
+url="http://localhost:$proxyport/series/query?expr=disk.all.read*"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | pmjson
+
+echo "== verify metric descs" | tee -a $seq.full
+url="http://localhost:$proxyport/series/descs?series=$series1"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | pmjson
+
+echo "== verify metric names" | tee -a $seq.full
+url="http://localhost:$proxyport/series/metrics?series=$series1"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | pmjson
+
+echo "== verify metric insts" | tee -a $seq.full
+url="http://localhost:$proxyport/series/instances?series=$series2"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | pmjson
+
+echo "== verify metric labels" | tee -a $seq.full
+url="http://localhost:$proxyport/series/labels?series=$series3"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | pmjson
+
+echo "== verify metric values" | tee -a  $seq.full
+url="http://localhost:$proxyport/series/query?expr=disk.dev.read[samples:2]"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | pmjson
+
+
+echo "== all done" | tee -a $seq.full
+status=0
+exit

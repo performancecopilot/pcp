@@ -118,3 +118,12 @@ PCP_WEB_1.7 {
     ini_parse;
     pmIniFileParse;
 } PCP_WEB_1.6;
+
+PCP_WEB_1.8 {
+  global:
+    http_errno_name;
+    http_errno_description;
+    http_should_keep_alive;
+    http_parser_execute;
+    http_parser_init;
+} PCP_WEB_1.7;

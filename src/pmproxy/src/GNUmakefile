@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -25,8 +25,9 @@ LLDLIBS	= $(PCP_WEBLIB)
 
 ifeq "$(HAVE_LIBUV)" "true"
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1 -I$(TOPDIR)/src/libpcp_web/src
-CFILES += server.c redis.c pcp.c
-HFILES += server.h pcp.h
+SERVLETS = series.c grafana.c
+CFILES += server.c http.c pcp.c redis.c $(SERVLETS)
+HFILES += server.h http.h pcp.h
 endif
 CFILES += deprecated.c
 

@@ -720,7 +720,6 @@ redis_series_metric(redisSlots *slots, metric_t *metric,
     seriesLoadBaton		*baton = (seriesLoadBaton *)arg;
     instance_t			*instance;
     value_t			*value;
-    sds				msg;
     int				i;
 
     /*
@@ -747,9 +746,9 @@ redis_series_metric(redisSlots *slots, metric_t *metric,
 	for (i = 0; i < metric->u.vlist->listcount; i++) {
 	    value = &metric->u.vlist->value[i];
 	    if ((instance = dictFetchValue(metric->indom->insts, &value->inst)) == NULL) {
-		infofmt(msg, "indom lookup failure for %s instance %u",
+		if (pmDebugOptions.series)
+		    fprintf(stderr, "indom lookup failure for %s instance %u",
 				pmInDomStr(metric->indom->indom), value->inst);
-		batoninfo(baton, PMLOG_ERROR, msg);
 		continue;
 	    }
 	    assert(instance->name.sds != NULL);
