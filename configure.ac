@@ -1203,6 +1203,11 @@ qt_version=0
 AS_IF([test "x$do_qt" != "xno"], [
     enable_qt=true
 
+    # Allow specifying the QT directory using --with-qt=/the/qt/dir
+    case "$do_qt" in
+    /*) export QTDIR="$do_qt" ; do_qt="check" ;;
+    esac
+
     if test -z "$QMAKE"
     then
 	dnl default to qmake from qtchooser whenever it is available

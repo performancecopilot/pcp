@@ -8086,6 +8086,11 @@ if test "x$do_qt" != "xno"; then :
 
     enable_qt=true
 
+    # Allow specifying the QT directory using --with-qt=/the/qt/dir
+    case "$do_qt" in
+    /*) export QTDIR="$do_qt" ; do_qt="check" ;;
+    esac
+
     if test -z "$QMAKE"
     then
 					for ac_prog in qtchooser
