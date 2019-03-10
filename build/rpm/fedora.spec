@@ -940,7 +940,7 @@ URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: libpfm >= 4
 BuildRequires: libpfm-devel >= 4
-Obsoletes: pcp-pmda-papi
+Obsoletes: pcp-pmda-papi pcp-pmda-papi-debuginfo
 
 %description pmda-perfevent
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
