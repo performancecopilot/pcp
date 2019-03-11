@@ -1265,7 +1265,7 @@ class PMReporter(object):
 
         if not output:
             line = [""] if self.timestamp == 0 else [timestamp]
-            self.format = "{0:}{1}{2:>" + str(self.width) + "}"
+            self.format = "{0:}{1}{2:>" + str(len(self.colxrow)) + "}"
             line.extend([self.delimiter, NO_VAL, self.delimiter])
             output = self.format.format(*line) + "\n"
 
