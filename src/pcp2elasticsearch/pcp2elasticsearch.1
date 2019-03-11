@@ -23,8 +23,8 @@
 [\fB\-4\fP \fIaction\fP]
 [\fB\-8\fP|\fB\-9\fP \fIlimit\fP]
 [\fB\-a\fP \fIarchive\fP]
-[\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\fB\-A\fP \fIalign\fP]
+[\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\fB\-b\fP|\fB\-B\fP \fIspace-scale\fP]
 [\fB\-c\fP \fIconfig\fP]
 [\fB\-\-container\fP \fIcontainer\fP]
@@ -210,14 +210,6 @@ which is a comma-separated list of names, each
 of which may be the base name of an archive or the name of
 a directory containing one or more archives.
 .TP
-\fB\-\-archive\-folio\fR=\fIfolio\fR
-Read metric source archives from the PCP archive
-.I folio
-created by tools like
-.BR pmchart (1)
-or, less often, manually with
-.BR mkaf (1).
-.TP
 \fB\-A\fR \fIalign\fR, \fB\-\-align\fR=\fIalign\fR
 Force the initial sample to be
 aligned on the boundary of a natural time unit
@@ -226,6 +218,14 @@ Refer to
 .BR PCPIntro (1)
 for a complete description of the syntax for
 .IR align .
+.TP
+\fB\-\-archive\-folio\fR=\fIfolio\fR
+Read metric source archives from the PCP archive
+.I folio
+created by tools like
+.BR pmchart (1)
+or, less often, manually with
+.BR mkaf (1).
 .TP
 \fB\-b\fR \fIscale\fR, \fB\-\-space\-scale\fR=\fIscale\fR
 .I Unit/scale
