@@ -97,8 +97,6 @@ install_pcp:	install
 Makefile.demos:	Makefile.proto
 	rm -f $@
 	sed \
-		-e 's@PCP_INC_DIR@$(subst /pcp,,$(PCP_INC_DIR))@' \
-		-e 's@LD_FLAGS@-Wl,-rpath=$(PCP_LIB_DIR) -L$(PCP_LIB_DIR)@' \
 		-e 's@PTHREAD_LIB@$(LIB_FOR_PTHREADS)@' \
 		-e 's@DLOPEN_LIB@$(LIB_FOR_DLOPEN)@' \
 		-e 's@MATH_LIB@$(LIB_FOR_MATH)@' \
