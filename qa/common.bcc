@@ -193,7 +193,7 @@ _java_check()
     for tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
     do
         which $tplistcmd >/dev/null 2>&1 && \
-            probes=$($tplistcmd -l $java_path 2>/dev/null | grep thread__start)
+            probes=$($tplistcmd -l $jvm_path 2>/dev/null | grep thread__start)
         [ -n "$probes" ] && return 0
     done
     _notrun "No Java USDT probes available"
