@@ -379,7 +379,7 @@ class PCP2XLSX(object):
         def write_cell(col, row, value=None, bold=False, align=right):
             """ Write value to cell """
             if value is None:
-                self.ws.cell(col, self.row)
+                self.ws[cell_str(col, self.row)]
                 return
             if bold:
                 self.ws[cell_str(col, row)].font = openpyxl.styles.Font(bold=True)
