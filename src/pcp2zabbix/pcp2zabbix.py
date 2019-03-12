@@ -507,6 +507,8 @@ class PCP2Zabbix(object):
         except socket.timeout as err:
             sys.stderr.write("Zabbix connection timed out: %s\n" % str(err))
             return False
+        except KeyboardInterrupt as err:
+            sys.exit(1)
         finally:
             zabbix.close()
 
@@ -520,9 +522,6 @@ class PCP2Zabbix(object):
             return
 
         ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
-
-        if self.zabbix_prevsend is None:
-            self.zabbix_prevsend = ts
 
         results = self.pmconfig.get_ranked_results(valid_only=True)
 
@@ -571,7 +570,7 @@ class PCP2Zabbix(object):
             if len(self.zabbix_metrics) >= self.zabbix_interval:
                 self.send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
                 self.zabbix_metrics = []
-        elif ts - self.zabbix_prevsend > self.zabbix_interval:
+        elif not self.zabbix_prevsend or ts - self.zabbix_prevsend > self.zabbix_interval:
             self.send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
             self.zabbix_metrics = []
             self.zabbix_prevsend = ts
