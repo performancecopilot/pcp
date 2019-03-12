@@ -1627,6 +1627,7 @@ BAD
 1330 pmda.prometheus local python
 1331 verify local
 1338 pmlogrewrite labels pmdumplog local
+1340 pmcd pmda.pmcd pmstore local
 1342 pmda.prometheus local python
 1343 pmmgr local pmlogrewrite
 1344 pmmgr local

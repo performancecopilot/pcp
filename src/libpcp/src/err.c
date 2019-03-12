@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Red Hat.
+ * Copyright (c) 2013-2019 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -185,6 +185,8 @@ static const struct {
 	"Derived metric definition failed" },
     { PM_ERR_NOLABELS,		"PM_ERR_NOLABELS",
 	"No support for metric label metadata" },
+    { PM_ERR_PMDAFENCED,	"PM_ERR_PMDAFENCED",
+	"PMDA is currently fenced and unable to respond to requests" },
     /* insert new libpcp error codes here */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },

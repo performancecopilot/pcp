@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013,2015-2018 Red Hat.
+ * Copyright (c) 2012-2013,2015-2019 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -54,19 +54,6 @@ short_delay(int milliseconds)
     delay.tv_sec = 0;
     delay.tv_nsec = milliseconds * 1000000;
     (void)nanosleep(&delay, NULL);
-}
-
-/* Return a pointer to the agent that is reposible for a given domain.
- * Note that the agent may not be in a connected state!
- */
-AgentInfo *
-FindDomainAgent(int domain)
-{
-    int i;
-    for (i = 0; i < nAgents; i++)
-	if (agent[i].pmDomainId == domain)
-	    return &agent[i];
-    return NULL;
 }
 
 void
@@ -179,6 +166,7 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
     aPtr->status.connected = 0;
     aPtr->status.busy = 0;
     aPtr->status.notReady = 0;
+    aPtr->status.fenced = 0;
     aPtr->status.flags = 0;
     AgentDied = 1;
 

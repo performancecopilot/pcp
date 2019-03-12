@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014,2017-2018 Red Hat.
+ * Copyright (c) 2012-2014,2017-2019 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -65,10 +65,12 @@ DoText(ClientInfo *cp, __pmPDU* pb)
     if ((sts = __pmDecodeTextReq(pb, &ident, &type)) < 0)
 	return sts;
 
-    if ((ap = FindDomainAgent(((__pmID_int *)&ident)->domain)) == NULL)
+    if ((ap = pmcd_agent(((__pmID_int *)&ident)->domain)) == NULL)
 	return PM_ERR_PMID;
-    else if (!ap->status.connected)
+    if (!ap->status.connected)
 	return PM_ERR_NOAGENT;
+    if (ap->status.fenced)
+	return PM_ERR_PMDAFENCED;
 
     if (ap->ipcType == AGENT_DSO) {
 	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
@@ -177,10 +179,12 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
     if ((sts = __pmDecodeDescReq(pb, &pmid)) < 0)
 	return sts;
 
-    if ((ap = FindDomainAgent(((__pmID_int *)&pmid)->domain)) == NULL)
+    if ((ap = pmcd_agent(((__pmID_int *)&pmid)->domain)) == NULL)
 	return PM_ERR_PMID;
-    else if (!ap->status.connected)
+    if (!ap->status.connected)
 	return PM_ERR_NOAGENT;
+    if (ap->status.fenced)
+	return PM_ERR_PMDAFENCED;
 
     if (ap->ipcType == AGENT_DSO) {
 	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
@@ -258,13 +262,17 @@ DoInstance(ClientInfo *cp, __pmPDU *pb)
 	if (name != NULL) free(name);
 	return PM_ERR_IPC;
     }
-    if ((ap = FindDomainAgent(((__pmInDom_int *)&indom)->domain)) == NULL) {
+    if ((ap = pmcd_agent(((__pmInDom_int *)&indom)->domain)) == NULL) {
 	if (name != NULL) free(name);
 	return PM_ERR_INDOM;
     }
-    else if (!ap->status.connected) {
+    if (!ap->status.connected) {
 	if (name != NULL) free(name);
 	return PM_ERR_NOAGENT;
+    }
+    if (ap->status.fenced) {
+	if (name != NULL) free(name);
+	return PM_ERR_PMDAFENCED;
     }
 
     if (ap->ipcType == AGENT_DSO) {
@@ -459,17 +467,17 @@ DoLabel(ClientInfo *cp, __pmPDU *pb)
 	    nsets = sts = GetContextLabels(cp, &sets);
 	    goto response;
 	case PM_LABEL_DOMAIN:
-	    if (!(ap = FindDomainAgent(ident)))
+	    if (!(ap = pmcd_agent(ident)))
 		return PM_ERR_NOAGENT;
 	    break;
 	case PM_LABEL_INDOM:
-	    if (!(ap = FindDomainAgent(((__pmInDom_int *)&ident)->domain)))
+	    if (!(ap = pmcd_agent(((__pmInDom_int *)&ident)->domain)))
 		return PM_ERR_INDOM;
 	    break;
 	case PM_LABEL_CLUSTER:
 	case PM_LABEL_ITEM:
 	case PM_LABEL_INSTANCES:
-	    if (!(ap = FindDomainAgent(((__pmID_int *)&ident)->domain)))
+	    if (!(ap = pmcd_agent(((__pmID_int *)&ident)->domain)))
 		return PM_ERR_PMID;
 	    break;
 	default:
@@ -478,6 +486,8 @@ DoLabel(ClientInfo *cp, __pmPDU *pb)
 
     if (!ap->status.connected)
 	return PM_ERR_NOAGENT;
+    if (ap->status.fenced)
+	return PM_ERR_PMDAFENCED;
 
     if (ap->ipcType == AGENT_DSO) {
 	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
@@ -577,12 +587,16 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
 	 * failure may be a real failure, or could be a metric within a
 	 * dynamic sutree of the PMNS
 	 */
-	if ((ap = FindDomainAgent(((__pmID_int *)&idlist[0])->domain)) == NULL) {
+	if ((ap = pmcd_agent(((__pmID_int *)&idlist[0])->domain)) == NULL) {
 	    sts = PM_ERR_NOAGENT;
 	    goto fail;
 	}
 	if (!ap->status.connected) {
 	    sts = PM_ERR_NOAGENT;
+	    goto fail;
+	}
+	if (ap->status.fenced) {
+	    sts = PM_ERR_PMDAFENCED;
 	    goto fail;
 	}
 	if (ap->ipcType == AGENT_DSO) {
@@ -692,11 +706,14 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 	 * an error via lsts
 	 */
 	idlist[i] = PM_ID_NULL;	/* default case if cannot translate */
-	if ((ap = FindDomainAgent(domain)) == NULL) {
+	if ((ap = pmcd_agent(domain)) == NULL) {
 	    lsts = PM_ERR_NOAGENT;
 	}
 	else if (!ap->status.connected) {
 	    lsts = PM_ERR_NOAGENT;
+	}
+	else if (ap->status.fenced) {
+	    lsts = PM_ERR_PMDAFENCED;
 	}
 	else {
 	    if (ap->ipcType == AGENT_DSO) {
@@ -813,12 +830,16 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
     if (sts == 1 && IS_DYNAMIC_ROOT(idlist[0])) {
 	int		domain = pmID_cluster(idlist[0]);
 	AgentInfo	*ap = NULL;
-	if ((ap = FindDomainAgent(domain)) == NULL) {
+	if ((ap = pmcd_agent(domain)) == NULL) {
 	    sts = PM_ERR_NOAGENT;
 	    goto done;
 	}
 	if (!ap->status.connected) {
 	    sts = PM_ERR_NOAGENT;
+	    goto done;
+	}
+	if (ap->status.fenced) {
+	    sts = PM_ERR_PMDAFENCED;
 	    goto done;
 	}
 	if (ap->ipcType == AGENT_DSO) {
@@ -990,9 +1011,11 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 	if (IS_DYNAMIC_ROOT(idlist[0])) {
 	    int		domain = pmID_cluster(idlist[0]);
 	    AgentInfo	*ap;
-	    if ((ap = FindDomainAgent(domain)) == NULL)
+	    if ((ap = pmcd_agent(domain)) == NULL)
 		continue;
 	    if (!ap->status.connected)
+		continue;
+	    if (ap->status.fenced)
 		continue;
 	    if (ap->ipcType == AGENT_DSO) {
 		if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)

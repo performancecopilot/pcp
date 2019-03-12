@@ -114,6 +114,7 @@ pmcd.pmlogger {
 pmcd.agent {
     type		PMCD:4:0
     status		PMCD:4:1
+    fenced		PMCD:4:2
 }
 
 pmcd.pmie {
