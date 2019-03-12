@@ -46,6 +46,7 @@ require {
 	type kernel_t;
 	type kmsg_device_t;
         type proc_kcore_t;
+        type su_exec_t;
         class sem { unix_read associate getattr read };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
@@ -354,6 +355,10 @@ allow pcp_pmcd_t kernel_t:process signull;
 #allow pcp_pmcd_t cache_home_t:dir search;
 
 # @PCP_WAP_PORT_RULE@
+
+# type=AVC msg=audit(YYY.83): avc: denied { execute } for pid=19060 comm="zimbraprobe" name="su" dev="dm-0" ino=26416761 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:su_exec_t:s0 tclass=file permissive=0
+#pmdazimbra
+allow pcp_pmcd_t su_exec_t:file { execute };
 
 #============= pcp_pmlogger_t ==============
 #type=AVC msg=audit(XXX.44): avc:  denied  { open write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:kmsg_device_t:s0 tclass=chr_file permissive=0
