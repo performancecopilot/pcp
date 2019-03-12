@@ -590,7 +590,10 @@ if __name__ == '__main__':
         P.execute()
         P.finalize()
     except pmapi.pmErr as error:
-        sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
+        sys.stderr.write("%s: %s" % (error.progname(), error.message()))
+        if error.message() == "Connection refused":
+            sys.stderr.write("; is pmcd running?")
+        sys.stderr.write("\n")
         sys.exit(1)
     except pmapi.pmUsageErr as usage:
         usage.message()
