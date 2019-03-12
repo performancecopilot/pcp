@@ -382,7 +382,7 @@ class PCP2Spark(object):
             duration = (self.samples - 1) * float(self.interval)
             sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), duration))
         else:
-            sys.stdout.write("...\n\n(Ctrl-C to stop)\n")
+            sys.stdout.write("...\n(Ctrl-C to stop)\n")
 
     def write_spark(self, timestamp):
         """ Write (send) metrics to socket for Spark server to pick up """
