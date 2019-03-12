@@ -1,0 +1,42 @@
+#!/bin/sh
+# PCP QA Test No. 1390
+# Testing pcp atopsar --archive foo -A flag
+#
+# Copyright (c) 2019 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_BINADM_DIR/pcp-atopsar ] || _notrun "system monitoring tools not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s/^slick  3.19.0-rc7-nathans+.*/HOST-SUMMARY-LINE/g" \
+    #end
+}
+
+allopts="-t1 -z"
+echo; echo == All Metrics
+pcp $allopts atopsar -r $here/archives/pcp-atop -A | _filter
+
+# success, all done
+echo; echo "== Done"
+status=0
+exit

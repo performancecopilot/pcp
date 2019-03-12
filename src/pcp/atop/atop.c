@@ -165,7 +165,8 @@ int		fetchstep;
 
 
 struct visualize vis = {generic_samp, generic_error,
-			generic_end,  generic_usage};
+			generic_end,  generic_usage,
+                       generic_prep, generic_next};
 
 /*
 ** argument values
@@ -579,7 +580,18 @@ engine(void)
 		cursstat = presstat;
 		presstat = hlpsstat;
 
-		photosyst(cursstat);	/* obtain new counters     */
+		lastcmd = photosyst(cursstat);	/* obtain new counters     */
+               if (lastcmd == 'r')
+               {
+                   // reset to zero
+                   if( ((*vis.next)()) >= 0)
+                   {
+                       lastcmd = '\0';
+                       goto reset;
+                   }
+                   else
+                       cleanstop(1);
+               }
 
 		/*
 		** take a snapshot of the current task-level statistics 
@@ -675,6 +687,9 @@ engine(void)
 				     delta > 1.0 ? delta : 1.0,
 		           	     &devtstat, devsstat,
 		                     nprocexit, noverflow, sampcnt==0);
+                /*
+                 */
+                (*vis.prep)();
 
 		if (rawreadflag)
 			pmtimevalInc(&curtime, &interval);
@@ -693,6 +708,7 @@ engine(void)
 
 		if (lastcmd == 'r')	/* reset requested ? */
 		{
+               reset:
 			sampcnt = -1;
 
 			curtime = origin;
@@ -725,7 +741,7 @@ prusage(char *myname, pmOptions *opts)
 	printf("\t  -%c  show version information\n", MVERSION);
 	printf("\t  -%c  show or log all processes (i.s.o. active processes "
 	                "only)\n", MALLPROC);
-	printf("\t  -%c  calculate proportional set size (PSS) per process\n", 
+	printf("\t  -%c  calculate proportional set size (PSS) per process\n",
 	                MCALCPSS);
 	printf("\t  -P  generate parseable output for specified label(s)\n");
 	printf("\t  -L  alternate line length (default 80) in case of "
