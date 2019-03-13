@@ -165,7 +165,7 @@ class PCPBCCModule(PCPBCCBase):
                 return [0, 1]
             else:
                 # BCC module isn't ready yet
-		return [PMDA_FETCH_NOVALUES, 0]
+                return [PMDA_FETCH_NOVALUES, 0]
         except Exception: # pylint: disable=broad-except
             return [PMDA_FETCH_NOVALUES, 0]
 
