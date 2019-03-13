@@ -502,11 +502,11 @@ $home/whatami >$tmp.whatami
 #
 $PCP_AWK_PROG 'NF > 0 { print $0 " :" NR }' <$manifest >$tmp.manifest
 
-if which python >/dev/null 2>&1
+if which $PCP_PYTHON_PROG >/dev/null 2>&1
 then
     # For python-ctypes, check for python before 2.5 ... expect something like
     # Python 2.7.3
-    eval `python -V 2>&1 | sed -e 's/Python //' -e 's/^/maj=/' -e 's/\./ min=/' -e 's/\..*//'`
+    eval `$PCP_PYTHON_PROG -V 2>&1 | sed -e 's/Python //' -e 's/^/maj=/' -e 's/\./ min=/' -e 's/\..*//'`
     if [ -n "$maj" -a -n "$min" ]
     then
 	rm -f $tmp.need
