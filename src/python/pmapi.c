@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2018 Red Hat.
+ * Copyright (C) 2012-2019 Red Hat.
  * Copyright (C) 2009-2012 Michael T. Werner
  *
  * This file is part of the "pcp" module, the python interfaces for the
@@ -1675,9 +1675,10 @@ MOD_INIT(cpmapi)
     edict_add(dict, edict, "PM_ERR_LOGCHANGEINDOM", PM_ERR_LOGCHANGEINDOM);
     edict_add(dict, edict, "PM_ERR_LOGCHANGEUNITS", PM_ERR_LOGCHANGEUNITS);
     edict_add(dict, edict, "PM_ERR_NEEDCLIENTCERT", PM_ERR_NEEDCLIENTCERT);
+    edict_add(dict, edict, "PM_ERR_BADDERIVE", PM_ERR_BADDERIVE);
     edict_add(dict, edict, "PM_ERR_NOLABELS", PM_ERR_NOLABELS);
+    edict_add(dict, edict, "PM_ERR_PMDAFENCED", PM_ERR_PMDAFENCED);
     edict_add(dict, edict, "PM_ERR_NYI", PM_ERR_NYI);
-    edict_add(dict, edict, "PM_ERR_NOLABELS", PM_ERR_NOLABELS);
 
     return MOD_SUCCESS_VAL(module);
 }
