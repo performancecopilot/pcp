@@ -1,0 +1,24 @@
+QA output created by 789
+
+=== default zimbra agent installation ===
+Culling the Performance Metrics Name Space ...
+zimbra ... not found in Name Space, this is OK
+Updating the PMCD control file, and notifying PMCD ...
+Check zimbra metrics have gone away ... OK
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check zimbra metrics have appeared ... N metrics and X values
+
+=== validate values ===
+zimbra.fd_count: OK
+zimbra.mailboxd_fd_count: OK
+zimbra.mailboxd.lmtp.rcvd_msgs: OK
+zimbra.mailboxd.heap.free: OK
+
+=== remove zimbra agent ===
+Culling the Performance Metrics Name Space ...
+zimbra ... done
+Updating the PMCD control file, and notifying PMCD ...
+Check zimbra metrics have gone away ... OK

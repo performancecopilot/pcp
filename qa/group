@@ -1188,6 +1188,7 @@ BAD
 786 context context_local libpcp local
 787 archive local pmie pmlogrewrite pmdumplog pmval flakey kernel
 788 pmda.nginx pmda.install local
+789 pmda.zimbra local
 790 pmlogextract local
 791 pmlogextract valgrind local pmdumplog
 792 libpcp local

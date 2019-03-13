@@ -1,0 +1,132 @@
+#!/bin/sh
+# PCP QA Test No. 789
+# Basic zimbra PMDA checkout
+#
+# Copyright (c) 2019 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+zimbra_home=/opt/zimbra
+
+[ -d $zimbra_home ] || _notrun "Zimbra not installed"
+
+_cleanup()
+{
+    cd $here
+    if $install_on_cleanup
+    then
+	( cd $PCP_PMDAS_DIR/zimbra; $sudo ./Install </dev/null >/dev/null 2>&1 )
+    else
+	( cd $PCP_PMDAS_DIR/zimbra; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+    fi
+
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_check_values()
+{
+    cat <<End-of-File | while read metric table regex
+zimbra.fd_count			fd.csv		fd_count
+zimbra.mailboxd_fd_count	fd.csv		mailboxd_fd_count
+zimbra.mailboxd.lmtp.rcvd_msgs	mailboxd.csv	lmtp_rcvd_msgs
+zimbra.mailboxd.heap.free	mailboxd.csv	heap_free
+End-of-File
+    do
+	echo "--- $metric ---" >>$here/$seq.full
+	$sudo head -1 $zimbra_home/zmstat/$table >$tmp.head
+	$sudo tail -1 $zimbra_home/zmstat/$table >$tmp.tail
+	eval `pmprobe -v $metric \
+	      | tee -a $here/$seq.full \
+	      | $PCP_AWK_PROG '{ print "numval=" $2
+	      			 print "pcp_value=" $3
+			       }'
+	      `
+	cat $tmp.head >>$here/$seq.full
+	cat $tmp.tail >>$here/$seq.full
+	if [ "$numval" -lt 1 ]
+	then
+	    echo "Warning: $metric: numval=$numval"
+	else
+	    column=''
+	    eval `$PCP_AWK_PROG -F, <$tmp.head '
+    { for (i = 1; i <= NF; i++) {
+          if ($i ~ /^ *'$regex'$/) { print "column=" i; exit }
+      }
+    }' \
+		  | sed -e 's/=  */=/'`
+	    if [ -z "$column" ]
+	    then
+		echo "Error: $metric: failed to match column /^ *$regex\$/ from ..."
+		cat $tmp.head
+	    else
+		eval `$PCP_AWK_PROG -F, <$tmp.tail '{ print "csv_value=" $'$column' }' \
+		      | sed -e 's/=  */=/'`
+		echo "pcp_value=\"$pcp_value\" column=$column csv_value=\"$csv_value\"" >>$here/$seq.full
+		if [ "$pcp_value" = "$csv_value" ]
+		then
+		    echo "$metric: OK"
+		else
+		    echo "Error: $metric: PCP value: \"$pcp_value\" CSV value: \"csv_value\" field $column from ..."
+		    cat $tmp.tail
+		fi
+	    fi
+	fi
+    done
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+install_on_cleanup=false
+pminfo zimbra >/dev/null 2>&1 && install_on_cleanup=true
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+home=$PCP_PMDAS_DIR
+iam=zimbra
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit
+fi
+cd $home/$iam
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+echo
+echo "=== default $iam agent installation ==="
+$sudo ./Remove >$tmp.out 2>&1
+$sudo ./Install </dev/null >>$tmp.out 2>&1
+_filter_pmda_install <$tmp.out \
+| $PCP_AWK_PROG '
+/Check zimbra metrics have appeared/ { if ($7 >= 0 && $7 <= 200) $7 = "N"
+                                         if ($10 >= 10 && $10 <= 200) $10 = "X"
+                                       }
+                                       { print }'
+
+# CSV files only updated every 30 seconds, so need to wait a while to
+# reduce chances of seeing "No values available"
+#
+sleep 30
+
+echo
+echo "=== validate values ==="
+_check_values
+
+echo
+echo "=== remove $iam agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_install <$tmp.out
+
+# success, all done
+status=0
+exit
