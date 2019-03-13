@@ -128,7 +128,7 @@ type=AVC msg=audit(YYY.79): avc:  denied  { getattr } for  pid=4770 comm="sh" pa
 type=AVC msg=audit(YYY.80): avc:  denied  { map } for  pid=8678 comm="smartctl" path="/usr/sbin/smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
 type=AVC msg=audit(YYY.81): avc:  denied  { sys_rawio } for  pid=8678 comm="smartctl" capability=17  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
 type=AVC msg=audit(YYY.82): avc:  denied  { name_connect } for  pid=15299 comm="pmdaredis" dest=6379 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:redis_port_t:s0 tclass=tcp_socket permissive=0
-
+type=AVC msg=audit(YYY.83): avc: denied { execute } for pid=19060 comm="zimbraprobe" name="su" dev="dm-0" ino=26416761 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:su_exec_t:s0 tclass=file permissive=0
 
 #Synthesized AVC's
 type=AVC msg=audit(XXX.1): avc:  denied  { open read search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:svirt_sandbox_file_t:s0 tclass=dir permissive=0

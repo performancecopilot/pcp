@@ -251,7 +251,7 @@ update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp)
 	mp->pagesmwrite = extract_count_t_inst(rp, dp, PERNFS_WRPAGES, id);
 }
 
-void
+char
 photosyst(struct sstat *si)
 {
 	static int	setup;
@@ -273,7 +273,8 @@ photosyst(struct sstat *si)
 		setup = 1;
 	}
 
-	fetch_metrics("system", SYST_NMETRICS, pmids, &result);
+	if ((i = fetch_metrics("system", SYST_NMETRICS, pmids, &result)) < 0)
+            return 'r';
 
 	onrcpu  = si->cpu.nrcpu;
 	onrintf = si->intf.nrintf;
@@ -573,7 +574,7 @@ photosyst(struct sstat *si)
 				pmGetProgname(), ids[i], insts[i]);
 		update_lvm(&si->dsk.lvm[i], ids[i], insts[i], result, descs);
 	}
-	si->dsk.lvm[nrlvm].name[0] = '\0'; 
+	si->dsk.lvm[nrlvm].name[0] = '\0';
 	si->dsk.nlvm = nrlvm;
 	free(insts);
 	free(ids);
@@ -713,4 +714,5 @@ photosyst(struct sstat *si)
 	si->www.iworkers  = extract_integer(result, descs, WWW_IWORKERS);
 
 	pmFreeResult(result);
+       return '\0';
 }

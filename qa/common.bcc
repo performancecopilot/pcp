@@ -200,16 +200,15 @@ _java_check()
     for tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
     do
         which $tplistcmd >/dev/null 2>&1 && \
-            probes=$($tplistcmd -l $java_path 2>/dev/null | grep thread__start)
-        echo "tplistcmd=$tplistcmd java_path=$java_path probes=$probes"
-	[ -n "$probes" ] && return 0
+            probes=$($tplistcmd -l $jvm_path 2>/dev/null | grep thread__start)
+        [ -n "$probes" ] && return 0
     done
     _notrun "No Java USDT probes available"
 }
 
 _python_probe_check()
 {
-    python -c 'import time;time.sleep(5)' > /dev/null 2>&1 &
+    $python -c 'import time;time.sleep(5)' > /dev/null 2>&1 &
     pypid=$!
     probes=
     for tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist

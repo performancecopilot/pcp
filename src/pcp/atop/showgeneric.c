@@ -2822,6 +2822,16 @@ generic_end(void)
 	endwin();
 }
 
+void
+generic_prep(void)
+{
+}
+
+int
+generic_next(void)
+{
+    return -1;
+}
 /*
 ** function to be called when usage-info is required
 */

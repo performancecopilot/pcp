@@ -91,6 +91,8 @@ static char	reportlive(double, double,
 static char	reportraw (double, double,
 		           struct devtstat *, struct sstat *,
 		           int, unsigned int, int);
+static void    prep(void);
+static int     next_prinow(void);
 static void	reportheader(struct sysname *, time_t);
 static time_t	daylimit(time_t);
 
@@ -312,15 +314,9 @@ atopsar(int argc, char *argv[])
 	if (rawreadflag)
 	{
 		vis.show_samp = reportraw;
-
-		for (i=0; i < pricnt; i++)
-		{
-			if ( pridef[i].wanted )
-			{
-				prinow    = i;
-				daylim    = 0;
-			}
-		}
+               vis.prep = prep;
+               vis.next = next_prinow;
+               prinow = 0;
 	}
 	else
 		vis.show_samp = reportlive;
@@ -524,6 +520,37 @@ reportlive(double curtime, double numsecs,
 	}
 
 	return '\0';
+}
+
+static int
+next_prinow()
+{
+    if (rawreadflag)
+    {
+        for (int i=0; i < pricnt; i++)
+        {
+            if ( pridef[i].wanted ) {
+                pridef[i].wanted = 0;
+                prinow    = i+1;
+                return 1;
+            }
+        }
+    }
+    return -1;
+}
+static void
+prep()
+{
+    if (rawreadflag)
+    {
+        for (int i=0; i < pricnt; i++)
+        {
+            if ( pridef[i].wanted ) {
+                prinow    = i;
+                break;
+            }
+        }
+    }
 }
 
 /*

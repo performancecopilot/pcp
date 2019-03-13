@@ -61,6 +61,8 @@ struct visualize {
 	void	(*show_error) (const char *, ...);
 	void	(*show_end)   (void);
 	void	(*show_usage) (void);
+       void    (*prep)       (void);
+       int     (*next)       (void);
 };
 
 struct sysname {
@@ -137,6 +139,8 @@ char		generic_samp (double, double,
 void		generic_error(const char *, ...);
 void		generic_end  (void);
 void		generic_usage(void);
+void		generic_prep (void);
+int            generic_next (void);
 
 /*
 ** miscellaneous prototypes

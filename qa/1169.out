@@ -385,7 +385,7 @@ QA output created by 1169
                  1         2
 00:00:19     1.000     1.000
 == stdout/colxrow test
-00:00:00  N/A
+00:00:00   N/A
 
           test  d.d.read  d.d.write
                  count/s    count/s
@@ -468,7 +468,7 @@ QA output created by 1169
 00:00:14   sda     1.000      1.000         ~
 00:00:14   sdc     1.000      1.000         ~
 00:00:14     =         ~          ~        14
-00:00:17  N/A
+00:00:17   N/A
 
           test  d.d.read
                  count/s
@@ -490,7 +490,7 @@ QA output created by 1169
  duration: 00:00:19
 
 == stdout/colxrow test with repeating header
-00:00:00  N/A
+00:00:00   N/A
 
           test  d.d.read  d.d.write
                  count/s    count/s
@@ -576,7 +576,7 @@ QA output created by 1169
 00:00:14   sda     1.000      1.000         ~
 00:00:14   sdc     1.000      1.000         ~
 00:00:14     =         ~          ~        14
-00:00:17  N/A
+00:00:17   N/A
 
           test  d.d.read
                  count/s
@@ -586,7 +586,7 @@ QA output created by 1169
                  count/s    count/s
 00:00:19   sdb     1.000      1.000
 == stdout/colxrow test with separate header
-00:00:00       N/A
+00:00:00   N/A
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 1] - disk.dev.read["sdb"] - count/s
@@ -723,7 +723,7 @@ QA output created by 1169
 00:00:14   sda     1.000     1.000         ~
 00:00:14   sdc     1.000     1.000         ~
 00:00:14     =         ~         ~        14
-00:00:17       N/A
+00:00:17   N/A
 
 [ 1] - disk.dev.read["sdb"] - count/s
 
@@ -747,7 +747,7 @@ QA output created by 1169
  interval: N/A
  duration: 00:00:19
 
-00:00:00       N/A
+00:00:00   N/A
 
 [ 1] - disk.dev.read["sda"] - count/s
 [ 1] - disk.dev.read["sdb"] - count/s
@@ -898,7 +898,7 @@ QA output created by 1169
 00:00:14   sda     1.000     1.000         ~
 00:00:14   sdc     1.000     1.000         ~
 00:00:14     =         ~         ~        14
-00:00:17       N/A
+00:00:17   N/A
 
 [ 1] - disk.dev.read["sdb"] - count/s
 

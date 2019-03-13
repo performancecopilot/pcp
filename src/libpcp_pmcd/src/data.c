@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012,2015 Red Hat.
+ * Copyright (c) 2012,2015,2018-2019 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -33,6 +33,21 @@ PMCD_DATA char *pmcd_hostname;		/* Explicitly requested hostname */
 PMCD_DATA char *pmcd_labels;		/* Current set of context labels */
 
 PMCD_DATA unsigned pmcd_sighups;	/* Count of SIGHUPS responded to */
+
+
+/*
+ * Return a pointer to the agent that is responsible for the given domain.
+ */
+AgentInfo *
+pmcd_agent(int domain)
+{
+    int	i;
+
+    for (i = 0; i < nAgents; i++)
+	if (agent[i].pmDomainId == domain)
+	    return &agent[i];
+    return NULL;
+}
 
 /*
  * File descriptors are used as an internal index with the advent

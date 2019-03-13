@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013,2017 Red Hat.
+# Copyright (c) 2013,2017,2019 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -444,6 +444,16 @@ bits 15..8
 
 bits 23..16
         the number of the signal that terminated the PMDA
+
+@ pmcd.agent.fenced PMDA status of pmcd fetch operation fencing
+A value of zero indicates not enabled, one indicates that operations
+requiring fetch-level access controls are currently being denied and
+PM_ERR_PMDAFENCED error code returned, for each PMDA.
+
+The fence status is initially zero for all PMDAs, but may be subsequently
+modified to start and stop fencing using pmStore(3) or pmstore(1).  Note:
+only root may store to this metric and the PMCD PMDA cannot be fenced (it
+will be silently ignored if attempted).
 
 @ pmcd.services running PCP services on the local host
 A space-separated string representing all running PCP services with PID

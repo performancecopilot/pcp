@@ -10,9 +10,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
 
 _cleanup()
 {
@@ -29,7 +27,7 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
 
-python -c 'from pcp import pmda' 2>/dev/null
+$python -c 'from pcp import pmda' 2>/dev/null
 test $? -eq 0 || _notrun 'Python pcp pmda module is not installed'
 
 cd pmdas/slow_python

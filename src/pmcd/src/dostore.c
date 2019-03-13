@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2013,2019 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -153,7 +153,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
     __pmFD_ZERO(&waitFds);
     for (i = 0; dResult[i]->numpmid > 0; i++) {
 	int fd;
-	ap = FindDomainAgent(((__pmID_int *)&dResult[i]->vset[0]->pmid)->domain);
+	ap = pmcd_agent(((__pmID_int *)&dResult[i]->vset[0]->pmid)->domain);
 	/* If it's in a "good" list, pmID has agent that is connected */
 	assert(ap != NULL);
 

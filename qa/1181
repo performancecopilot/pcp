@@ -1,0 +1,51 @@
+#!/usr/bin/sh
+# PCP QA Test No. 1181
+# Exercise the BCC PMDA kprobe hits module - install, remove and values.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bcc
+
+_pmdabcc_check
+_pmdabcc_require_kernel_version 4 6
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+_value_filter()
+{
+    awk '/sched_exec/ && /value [1-9]\d*/ {print "OK"; exit}'
+}
+
+_prepare_pmda bcc
+trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+cat <<EOF | _pmdabcc_install
+[pmda]
+modules = kprobe_hits
+prefix = bcc.
+[kprobe_hits]
+module = kprobe_hits
+cluster = 103
+kprobes = kprobe:sched_exec
+EOF
+_pmdabcc_wait_for_metric
+
+# Generate system activity for the BCC kprobe hits module
+for i in 0 1 2 3 4 5 6 7 8 9 ; do ls /var/empty > /dev/null 2>&1 ; done
+
+echo "=== report metric values ==="
+pminfo -dfmtT bcc.kprobe.hits.count 2>&1 | tee -a $here/$seq.full \
+| _value_filter
+sleep 10
+_pmdabcc_remove
+
+status=0
+exit

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2019 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -92,7 +92,8 @@ typedef struct {
 	    restartKeep : 1,		/* Keep agent if set during restart */
 	    notReady : 1,		/* Agent not ready to process PDUs */
 	    startNotReady : 1,		/* Agent starts in non-ready state */
-	    unused : 8,			/* Zero-padded, unused space */
+	    fenced : 1,			/* Agent fenced; no sampling */
+	    unused : 7,			/* Zero-padded, unused space */
 	    flags : 16;			/* Agent-supplied connection flags */
     } status;
     int		reason;			/* if ! connected */
@@ -144,7 +145,7 @@ extern int		AgentDied;	/* for updating mapdom[] */
 #define REASON_NOSTART	4
 #define REASON_PROTOCOL	8
 
-extern AgentInfo *FindDomainAgent(int);
+PMCD_CALL extern AgentInfo *pmcd_agent(int);
 extern void CleanupAgent(AgentInfo *, int, int);
 extern int HarvestAgents(unsigned int);
 
@@ -254,5 +255,8 @@ PMCD_DATA extern pid_t pmcd_pid;
  * incremented each time a PMDA is started or restarted
  */
 PMCD_DATA extern int pmcd_seqnum;
+
+/* Flag indicating whether agents are currently fenced */
+PMCD_DATA extern int pmcd_fenced;
 
 #endif /* _PMCD_H */

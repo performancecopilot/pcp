@@ -1016,6 +1016,39 @@ However,
 reconfiguration (see the next section) re-evaluates all the connection counts
 and will cause client connections to be dropped where connection limits have
 been exceeded.
+.SH "AGENT FENCING"
+Preventing sampling during the life of a PMDA is sometimes desirable, for
+example if that sampling impacts on sensitive phases of a scheduled job.
+A temporary ``fence'' can be raised to block all PMAPI client access to
+one or more agents in this situation.
+This functionality is provided by the built-in PMCD PMDA and the
+.B pmstore (1)
+command, as in
+.PP
+.CS
+# pmstore \-i nfsclient,kvm pmcd.agent.fenced 1
+.CE
+.PP
+If the optional comma-separated list of agent names is omitted, all agents
+will be fenced.
+To resume normal operation, the ``fence'' can be lowered as follows
+.PP
+.CS
+# pmstore \-i nfsclient,kvm pmcd.agent.fenced 0
+.CE
+.PP
+Lowering the fence for all PMDAs at once is performed using
+.PP
+.CS
+# pmstore pmcd.agent.fenced 0
+.CE
+.PP
+Elevated privileges are required to store to the
+.I pmcd.agent.fenced
+metric.
+For additional information, see the help text associated with this metric,
+which can be accessed using the fI\-T\fB, \fB\-\-helptext\fR option to
+.BR pminfo (1).
 .SH "RECONFIGURING PMCD"
 If the configuration file has been changed or if an agent is not responding
 because it has terminated or the PMNS has been changed,

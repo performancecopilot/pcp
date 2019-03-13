@@ -948,9 +948,12 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 	if ((sts = pmFetch(nmetrics, pmids, result)) < 0)
 	{
 		if (sts != PM_ERR_EOL)
+                {
 			fprintf(stderr, "%s: %s query: %s\n",
 				pmGetProgname(), purpose, pmErrStr(sts));
-		cleanstop(1);
+                        cleanstop(1);
+                }
+                return sts;
 	}
 	if (pmDebugOptions.appl1)
 	{

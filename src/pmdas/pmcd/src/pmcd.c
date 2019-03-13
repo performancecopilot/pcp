@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 Red Hat.
+ * Copyright (c) 2013-2019 Red Hat.
  * Copyright (c) 1995-2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -183,6 +183,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(4,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* agent.status */
     { PMDA_PMID(4,1), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* agent.fenced */
+    { PMDA_PMID(4,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* pmie.configfile */
     { PMDA_PMID(5,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
@@ -300,6 +302,7 @@ typedef struct {
 typedef struct {
     int			id;		/* index into client[] */
     int			seq;
+    int			uid;
     int			state;
     pmcd_container_t	container;
     pmcd_whoami_t	whoami;
@@ -332,11 +335,13 @@ grow_ctxtab(int ctx)
 	memset(&ctxtab[num_ctx], 0, sizeof(perctx_t));
 	ctxtab[num_ctx].id = -1;
 	ctxtab[num_ctx].seq = -1;
+	ctxtab[num_ctx].uid = -1;
 	num_ctx++;
     }
     memset(&ctxtab[ctx], 0, sizeof(perctx_t));
     ctxtab[ctx].id = -1;
     ctxtab[ctx].seq = -1;
+    ctxtab[ctx].uid = -1;
 }
 
 /*
@@ -1641,6 +1646,9 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			    else
 				atom.l = agent[j].reason;
 			    break;
+			case 2:		/* agent.fenced */
+			    atom.ul = agent[j].status.fenced;
+			    break;
 			default:
 			    sts = atom.l = PM_ERR_PMID;
 			    break;
@@ -1828,12 +1836,13 @@ pmcd_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 static int
 pmcd_store(pmResult *result, pmdaExt *pmda)
 {
-    int		i, j, val;
+    int		i, j, k, val;
     int		sts = 0;
     int		ctx = pmda->e_context;
     char	*cp;
 
     for (i = 0; i < result->numpmid; i++) {
+	AgentInfo	*ap;
 	pmValueSet	*vsp;
 	unsigned int	cluster;
 	unsigned int	item;
@@ -1935,6 +1944,36 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		break;
 	    }
 	}
+	else if (cluster == 4) {
+	    if (item == 2) { /* pmcd.agent.fenced */
+		if (ctx >= num_ctx)
+		    grow_ctxtab(ctx);
+		if (ctxtab[ctx].uid != 0) {
+		    sts = PM_ERR_PERMISSION;
+		    break;
+		}
+		for (j = 0; j < vsp->numval; j++) {
+		    val = vsp->vlist[j].value.lval;
+		    if (val != 0 && val != 1) {
+		        sts = PM_ERR_BADSTORE;
+			break;
+		    }
+		    if (vsp->vlist[j].inst == PM_IN_NULL) {
+			for (k = 0; k < nAgents; k++)
+			    if (agent[k].pmDomainId != pmda->e_domain)
+				agent[k].status.fenced = val;
+			continue;
+		    }
+		    ap = pmcd_agent(vsp->vlist[j].inst);
+		    if (ap == NULL) {
+			sts = PM_ERR_INST;
+			break;
+		    }
+		    if (ap->pmDomainId != pmda->e_domain)
+			ap->status.fenced = val;
+		}
+	    }
+	}
 	else if (cluster == 6) {
 	    if (item == 0 ||	/* pmcd.client.whoami */
 		item == 2) {	/* pmcd.client.container */
@@ -1989,6 +2028,8 @@ pmcd_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 {
     if (ctx >= num_ctx)
 	grow_ctxtab(ctx);
+    if (attr == PMDA_ATTR_USERID)
+	ctxtab[ctx].uid = atoi(value);
     if (attr == PMDA_ATTR_CONTAINER) {
 	char	*name = len > 1 ? strndup(value, len) : NULL;
 

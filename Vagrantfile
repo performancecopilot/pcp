@@ -47,14 +47,6 @@ pcp_hosts = {
                 :qa => "-g sanity -g pmda.linux -x flakey",
                 :distro_name => "xenial"
         },
-        :ubuntu1404 => {
-                :hostname => "ubuntu1404",
-                :ipaddress => "10.100.10.22",
-                :box => "generic/ubuntu1404",
-                :script => "ubuntu.sh",
-                :qa => "-g sanity -g pmda.linux -x flakey",
-                :distro_name => "trusty"
-        },
         :centos7 => {
                 :hostname => "centos7",
                 :ipaddress => "10.100.10.20",
@@ -90,7 +82,7 @@ pcp_hosts = {
         :debian9 => {
                 :hostname => "debian9",
                 :ipaddress => "10.100.10.14",
-                :box => "performancecopilot/debian9",
+                :box => "generic/debian9",
                 :script => "debian.sh",
                 :qa => "-g sanity -g pmda.linux -x flakey",
                 :distro_name => "stretch"
@@ -102,14 +94,6 @@ pcp_hosts = {
                 :script => "debian.sh",
                 :qa => "-g sanity -g pmda.linux -x flakey",
                 :distro_name => "jessie"
-        },
-        :debian7 => {
-                :hostname => "debian7",
-                :ipaddress => "10.100.10.12",
-                :box => "generic/debian7",
-                :script => "debian.sh",
-                :qa => "-g sanity -g pmda.linux -x flakey",
-                :distro_name => "wheezy"
         },
         :freebsd12 => {
                 :hostname => "freebsd12",
@@ -130,7 +114,7 @@ pcp_hosts = {
         :openbsd6 => {
                 :hostname => "openbsd6",
                 :ipaddress => "10.100.10.9",
-                :box => "performancecopilot/openbsd6",
+                :box => "generic/openbsd6",
                 :script => "openbsd.sh",
                 :qa => "-g sanity -x flakey",
                 :distro_name => "openbsd6"

@@ -107,7 +107,7 @@ class PCPBCCModule(PCPBCCBase):
         self.proc_refresh = proc_refresh
 
         self.errno = 0
-        self.ret_chk = None
+        self.ret_chk = "!= 0"
         self.details = False
         self.latency = False
 
@@ -154,7 +154,7 @@ class PCPBCCModule(PCPBCCBase):
 
         if not self.kprobes:
             raise RuntimeError("No matching kprobes found.")
-        self.log("Trying %s kprobes: %s." % (str(len(self.kprobes)), str(self.kprobes)))
+        self.log("Found %s kprobes: %s." % (str(len(self.kprobes)), str(self.kprobes)))
 
         self.log("Initialized.")
 
