@@ -290,7 +290,7 @@ sub refresh {
         unless (defined $refh_bind_stats) {
             $pmda->err("HTTP GET from '$cfg{loaded}{uri}' failed");
 
-            return (PM_ERR_AGAIN, 0)
+            return (PM_ERR_INST, 0)
         }
 
         $current_data{timestamp} = $cur_date;
@@ -358,7 +358,7 @@ sub fetch_callback {
             unless (defined $inst_name) {
                 myerror("Assertion error - unknown inst '$inst' should be defined for metric '$metric_name'");
 
-                return (PM_ERR_AGAIN, 0);
+                return (PM_ERR_INST, 0);
             }
 
             mydebug("For metric: '$metric_name', indom_id: '$indom_id', instance: '$inst_name' returning: $current_data{values}{$metric_name}{$inst_name} with success");
@@ -376,7 +376,7 @@ sub fetch_callback {
         # Return error if the atom value was not succesfully retrieved
         mydebug("Required metric '$metric_name' was not found in Bind stats or was undefined");
 
-        return (PM_ERR_AGAIN, 0)
+        return (PMDA_FETCH_NOVALUES, 0)
     }
 
     myerror("Assertion Error fetch_callback() finished - this line should never be reached");
