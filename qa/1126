@@ -35,6 +35,7 @@ _mount_filesystem ext4
 
 # real QA test starts here
 cat <<EOF | _pmdabcc_install
+# Installed by PCP QA test $seq on `date`
 [pmda]
 modules = ext4dist
 prefix = bcc.

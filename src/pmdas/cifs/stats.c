@@ -32,11 +32,11 @@ cifs_global_stats_fetch(int item, pmAtomValue *atom)
 
     /* check for bounds */
     if (item < 0 || item >= NUM_GLOBAL_STATS)
-        return 0;
+        return PMDA_FETCH_NOVALUES;
 
     /* if cifs kernel module not loaded array will be UNIT64_MAX */
     if (global_data[item] == UINT64_MAX)
-        return 0;
+        return PMDA_FETCH_NOVALUES;
 
     switch(item) {
     case GLOBAL_VERSION:
@@ -47,7 +47,7 @@ cifs_global_stats_fetch(int item, pmAtomValue *atom)
 	atom->ull = global_data[item];
 	break;
     }
-    return 1;
+    return PMDA_FETCH_STATIC;
 }
 
 int
@@ -56,7 +56,7 @@ cifs_fs_stats_fetch(int item, struct fs_stats *fs_stats, pmAtomValue *atom)
 
     /* check for bounds */
     if (item < 0 || item >= NUM_FS_STATS)
-        return 0;
+        return PMDA_FETCH_NOVALUES;
 
     if (global_version_major >= 2 &&
 	item < FS_READ_FAILS &&
@@ -72,7 +72,7 @@ cifs_fs_stats_fetch(int item, struct fs_stats *fs_stats, pmAtomValue *atom)
 	return PM_ERR_APPVERSION;
 
     atom->ull = fs_stats->values[item];
-    return 1;
+    return PMDA_FETCH_STATIC;
 }
 
 int

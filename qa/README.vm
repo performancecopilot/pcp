@@ -389,3 +389,13 @@ are commonly installed and are not needed for PCP builds nor QA.
     wqy-zenhei-fonts julietaula-montserrat-fonts naver-nanum-fonts-common
     naver-nanum-gothic-fonts gnome-orca ndiswrapper* libhangul* libpinyin*
     libzhuyin*
+
+=== Miscellaneous Hints ===
+
+--- expanding root fs volume with lvm ---
+
+Most succinct recipe is here
+https://rbgeek.wordpress.com/2013/01/27/how-to-extend-the-root-partition-in-lvm/
+
+Just remember that if you're using XFS, you need xfs_growfs instead of
+resize2fs.

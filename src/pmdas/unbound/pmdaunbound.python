@@ -78,7 +78,7 @@ class UnboundPMDA(PMDA):
         elif cluster != 0:
             return [c_api.PM_ERR_PMID, 0]
         if item >= 0 and item < self.nmetrics and self.patherrors == 1:
-            return [c_api.PM_ERR_AGAIN, 0]
+            return [pcp.pmda.PMDA_FETCH_NOVALUES, 0]
 
         if item == 0:
             return [self.values['total.num.queries'], 1]

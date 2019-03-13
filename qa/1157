@@ -48,6 +48,7 @@ trap "_revert_network_troubles; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 cat <<EOF | _pmdabcc_install
+# Installed by PCP QA test $seq on `date`
 [pmda]
 modules = tcpretrans
 prefix = bcc.

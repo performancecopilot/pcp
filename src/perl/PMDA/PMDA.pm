@@ -36,6 +36,7 @@ require DynaLoader;
 	PM_ERR_LOGCHANGETYPE PM_ERR_LOGCHANGESEM PM_ERR_LOGCHANGEINDOM
 	PM_ERR_LOGCHANGEUNITS PM_ERR_NEEDCLIENTCERT
 	PM_ERR_NYI
+	PMDA_FETCH_NOVALUES PMDA_FETCH_STATIC PMDA_FETCH_DYNAMIC
 );
 @EXPORT_OK = qw();
 $VERSION = '1.17';
@@ -142,6 +143,11 @@ sub PM_ERR_THREAD	{ -12398; }	# Operation not supported for multi-threaded appli
 sub PM_ERR_NOCONTAINER	{ -12399; }	# Container not found 
 sub PM_ERR_BADSTORE	{ -12400; }	# Bad input to pmstore
 sub PM_ERR_NYI		{ -21344; }	# Functionality not yet implemented
+
+# constants from pmda.h
+sub PMDA_FETCH_NOVALUES	{ 0; } 		# fetch call back result
+sub PMDA_FETCH_STATIC	{ 1; } 		# fetch call back result
+sub PMDA_FETCH_DYNAMIC	{ 2; } 		# fetch call back result
 
 
 bootstrap PCP::PMDA $VERSION;

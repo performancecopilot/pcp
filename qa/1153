@@ -34,6 +34,7 @@ _stop_auto_restart pmcd
 _mount_filesystem xfs
 
 cat <<EOF | _pmdabcc_install
+# Installed by PCP QA test $seq on `date`
 [pmda]
 modules = xfsdist
 prefix = bcc.

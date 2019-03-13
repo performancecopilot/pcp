@@ -25,6 +25,9 @@ ArchLinux    -        -       python2-.* .*-python2
 CentOS       6\.10    -       .*-python3 python3-.* python3[0-9]-.*
 # we're using python3
 CentOS       7\.[56]  -       .*-python2 python2-.* python2[0-9]-.*
+# we're using python3 from Debian 9 on
+Debian       9\..*    -       python-.*
+Debian       buster   -       python-.*
 #-- Fedora
 # observed on vm22
 # 389-ds is available but cannot be installed because nothing provides

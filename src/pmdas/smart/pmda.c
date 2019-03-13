@@ -1225,7 +1225,7 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			return PM_ERR_PMID;
 	}
 
-	return 1;
+	return PMDA_FETCH_STATIC;
 }
 
 void

@@ -34,7 +34,8 @@ from cpmapi import PM_INDOM_NULL
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING
 from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
 from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_TIME_MSEC
-from cpmapi import PM_ERR_AGAIN, PM_ERR_PMID, PM_ERR_APPVERSION
+from cpmapi import PM_ERR_PMID, PM_ERR_APPVERSION
+from cpmda import PMDA_FETCH_NOVALUES
 
 DEFAULT_PORT = 9200
 DEFAULT_URL = "http://localhost:%s/" % DEFAULT_PORT
@@ -450,7 +451,7 @@ class elasticsearchPMDA(PMDA):
         """ Fetch Callback """
         if cluster == self.cluster_cluster:
             if not self.cluster:
-                return [PM_ERR_AGAIN, 0]
+                return [PMDA_FETCH_NOVALUES, 0]
             try:
                 if item == 0:
                     return [str(self.cluster['cluster_name']), 1]
@@ -484,7 +485,7 @@ class elasticsearchPMDA(PMDA):
 
         if cluster == self.nodes_cluster:
             if not self.nodes:
-                return [PM_ERR_AGAIN, 0]
+                return [PMDA_FETCH_NOVALUES, 0]
             try:
                 node = self.nodes_insts.inst_name_lookup(inst)
                 if item == 0:
@@ -622,7 +623,7 @@ class elasticsearchPMDA(PMDA):
 
         if cluster == self.node_info_cluster:
             if not self.node_info:
-                return [PM_ERR_AGAIN, 0]
+                return [PMDA_FETCH_NOVALUES, 0]
             try:
                 node = self.node_info_insts.inst_name_lookup(inst)
                 if item == 0:
@@ -648,7 +649,7 @@ class elasticsearchPMDA(PMDA):
 
         if cluster == self.version_cluster:
             if not self.info:
-                return [PM_ERR_AGAIN, 0]
+                return [PMDA_FETCH_NOVALUES, 0]
             try:
                 return [str(self.info['version']['number']), 1]
             except Exception:
@@ -656,7 +657,7 @@ class elasticsearchPMDA(PMDA):
 
         if cluster == self.search_cluster:
             if not self.search:
-                return [PM_ERR_AGAIN, 0]
+                return [PMDA_FETCH_NOVALUES, 0]
             try:
                 if item == 0:
                     return [self.search['_shards']['total'], 1]
@@ -683,7 +684,7 @@ class elasticsearchPMDA(PMDA):
 
         if cluster == self.perindex_cluster:
             if not self.search:
-                return [PM_ERR_AGAIN, 0]
+                return [PMDA_FETCH_NOVALUES, 0]
             try:
                 index = self.perindex_insts.inst_name_lookup(inst)
                 if item == 0:
@@ -707,7 +708,7 @@ class elasticsearchPMDA(PMDA):
 
         if cluster == self.master_node_cluster:
             if not self.master_node:
-                return [PM_ERR_AGAIN, 0]
+                return [PMDA_FETCH_NOVALUES, 0]
             try:
                 if item == 0:
                     return [str(self.master_node['master_node']), 1]
@@ -716,7 +717,7 @@ class elasticsearchPMDA(PMDA):
 
         if cluster == self.index_cluster:
             if not self.index:
-                return [PM_ERR_AGAIN, 0]
+                return [PMDA_FETCH_NOVALUES, 0]
             try:
                 index = self.index_insts.inst_name_lookup(inst)
                 if item == 0:
