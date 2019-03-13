@@ -145,7 +145,7 @@ txmon_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
     }
 
-    return 0;
+    return PMDA_FETCH_STATIC;
 }
 
 /*
@@ -215,7 +215,7 @@ txmon_init(pmdaInterface *dp)
 
     pmSetProcessIdentity(username);
 
-    dp->version.two.store = txmon_store;
+    dp->version.seven.store = txmon_store;
 
     pmdaSetFetchCallBack(dp, txmon_fetchCallBack);
     if (pmDebugOptions.appl0) {
@@ -274,7 +274,7 @@ main(int argc, char **argv)
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "txmon" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmGetProgname(), TXMON,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), TXMON,
 		"txmon.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
