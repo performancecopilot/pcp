@@ -56,7 +56,7 @@ _pmdabcc_install()
     cat $tmp.config >> $here/$seq.full
 
     [ -f $PCP_PMDAS_DIR/bcc/bcc.conf ] && \
-    $sudo cp $PCP_PMDAS_DIR/bcc/bcc.conf $tmp.backup
+    $sudo cp $PCP_PMDAS_DIR/bcc/bcc.conf $PCP_PMDAS_DIR/bcc/bcc.conf.$seq
     $sudo cp $tmp.config $PCP_PMDAS_DIR/bcc/bcc.conf
 
     echo
@@ -95,7 +95,12 @@ _pmdabcc_wait_for_metric()
 	pmprobe bcc \
 	| while read metric numval foo
 	do
-	    if [ "$numval" -lt 0 ]
+	    if [ "$numval" -eq -12389 ]
+	    then
+		# PM_ERR_AGAIN ... this is expected (apparently)
+		#
+		:
+	    elif [ "$numval" -lt 0 ]
 	    then
 		rm -f $tmp.ok
 		if [ $i -eq $_canwait ]
@@ -111,6 +116,7 @@ _pmdabcc_wait_for_metric()
 	    # goodness
 	    #
 	    echo "=== _pmdabcc_wait_for_metric: after another $i secs, values are available ===" >>$here/$seq.full
+	    pminfo -f bcc >>$here/$seq.full
 	    return 0
 	fi
 	sleep 1
@@ -119,6 +125,7 @@ _pmdabcc_wait_for_metric()
 
     # badness ...
     #
+    pminfo -f bcc
     echo "Here's the PMDA log ..."
     cat $PCP_LOG_DIR/pmcd/bcc.log
 
@@ -150,9 +157,9 @@ _pmdabcc_remove()
 _pmdabcc_cleanup()
 {
     cat $PCP_LOG_DIR/pmcd/bcc.log >> $here/$seq.full
-    if [ -f $tmp.backup ]; then
-        $sudo cp $tmp.backup $PCP_PMDAS_DIR/bcc/bcc.conf
-        $sudo rm $tmp.backup
+    if [ -f $PCP_PMDAS_DIR/bcc/bcc.conf.$seq ]; then
+        $sudo cp $PCP_PMDAS_DIR/bcc/bcc.conf.$seq $PCP_PMDAS_DIR/bcc/bcc.conf
+        $sudo rm $PCP_PMDAS_DIR/bcc/bcc.conf.$seq
     else
         $sudo rm -f $PCP_PMDAS_DIR/bcc/bcc.conf
     fi
@@ -194,7 +201,8 @@ _java_check()
     do
         which $tplistcmd >/dev/null 2>&1 && \
             probes=$($tplistcmd -l $java_path 2>/dev/null | grep thread__start)
-        [ -n "$probes" ] && return 0
+        echo "tplistcmd=$tplistcmd java_path=$java_path probes=$probes"
+	[ -n "$probes" ] && return 0
     done
     _notrun "No Java USDT probes available"
 }
