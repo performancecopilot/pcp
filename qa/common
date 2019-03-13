@@ -673,9 +673,15 @@ p
 	    range=true
 	    ;;
 
-	*)
+	[0-9][0-9][0-9]|[0-9][0-9][0-9][0-9])
 	    start=$r
 	    end=$r
+	    ;;
+
+	*)
+	    echo "Error: \"$r\" is not a valid QA test number" >&2
+	    status=1
+	    exit $status
 	    ;;
 
     esac
