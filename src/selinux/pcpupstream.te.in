@@ -38,6 +38,7 @@ require {
         type glusterd_log_t;
         type sysctl_irq_t; #pmda.bcc
         type unconfined_t; #RHBZ1443632
+        type unconfined_service_t;
         type configfs_t; #pcp.lio
         type ldconfig_exec_t;
         type sysctl_net_t;
@@ -382,6 +383,9 @@ allow pcp_pmlogger_t self:capability { sys_ptrace fowner fsetid };
 ## type=AVC msg=audit(YYY.44) : avc:  denied  { signal } for  pid=28414 comm=pmsignal scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process
 allow pcp_pmlogger_t unconfined_t:process signal;
 
+## type=AVC msg=audit(YYY.85): avc: denied { signal } for pid=31205 comm="pmsignal" scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=process permissive=0
+allow pcp_pmlogger_t unconfined_service_t:process signal;
+
 #type=AVC msg=audit(YYY.45): avc:  denied  { execute_no_trans } for  pid=6760 comm="pmlogger_check" path="/usr/bin/pmlogger" dev="dm-1" ino=1051023 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:pcp_pmlogger_exec_t:s0 tclass=file permissive=0
 # allow pcp_pmlogger_t pcp_pmlogger_exec_t:file execute_no_trans;
 
@@ -481,6 +485,9 @@ allow pcp_pmie_t proc_net_t:file read;
 #RHBZ1623988
 #type=AVC msg=audit(YYY.65): avc:  denied  { signal } for  pid=3106 comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process permissive=1
 allow pcp_pmie_t unconfined_t:process signal;
+
+## type=AVC msg=audit(YYY.86): avc: denied { signal } for pid=23951 comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=process permissive=0
+allow pcp_pmie_t unconfined_service_t:process signal;
 
 #============= pmda-lio ==============
 #type=AVC msg=audit(XXX.55): avc:  denied  { open read search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0
