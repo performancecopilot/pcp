@@ -28,7 +28,7 @@ from bcc import BPF
 
 from pcp.pmapi import pmUnits
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_STRING, PM_SEM_INSTANT
-from cpmapi import PM_ERR_AGAIN
+from cpmda import PMDA_FETCH_NOVALUES
 
 from modules.pcpbcc import PCPBCCBase
 
@@ -212,4 +212,4 @@ class PCPBCCModule(PCPBCCBase):
             return [value, 1]
         except Exception: # pylint: disable=broad-except
             self.lock.release()
-            return [PM_ERR_AGAIN, 0]
+            return [PMDA_FETCH_NOVALUES, 0]
