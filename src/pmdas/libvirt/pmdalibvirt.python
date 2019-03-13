@@ -46,7 +46,8 @@ from cpmapi import PM_INDOM_NULL
 from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING
 from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
 from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_SPACE_KBYTE, PM_TIME_SEC, PM_TIME_NSEC
-from cpmapi import PM_ERR_AGAIN, PM_ERR_INST, PM_ERR_NYI, PM_ERR_PMID, PM_ERR_VALUE
+from cpmapi import PM_ERR_INST, PM_ERR_NYI, PM_ERR_PMID, PM_ERR_VALUE
+from cpmda import PMDA_FETCH_NOVALUES
 
 if sys.version_info[0] >= 3:
     long = int # pylint: disable=redefined-builtin
@@ -682,7 +683,7 @@ class LibvirtPMDA(PMDA):
     def libvirt_fetch_callback(self, cluster, item, inst):
         """ Fetch callback """
         if not self.conn:
-            return [PM_ERR_AGAIN, 0]
+            return [PMDA_FETCH_NOVALUES, 0]
 
         if cluster == self.hv_cluster:
             try:
@@ -697,7 +698,7 @@ class LibvirtPMDA(PMDA):
                 return [PM_ERR_VALUE, 0]
 
         if not self.doms:
-            return [PM_ERR_AGAIN, 0]
+            return [PMDA_FETCH_NOVALUES, 0]
 
         if cluster == self.vm_cluster:
             try:
@@ -719,7 +720,7 @@ class LibvirtPMDA(PMDA):
                     if self.vm_metrics[item][0] == 'dominfo.vcpu.current':
                         value = doc.xpath("/domain/vcpu")
                     else:
-                        return [PM_ERR_AGAIN, 0]
+                        return [PMDA_FETCH_NOVALUES, 0]
 
                 # Extract and scale if needed
                 if isinstance(value, list):
@@ -803,7 +804,7 @@ class LibvirtPMDA(PMDA):
                     if key in res[pos][1]:
                         return [res[pos][1][key], 1]
                     else:
-                        return [PM_ERR_AGAIN, 0]
+                        return [PMDA_FETCH_NOVALUES, 0]
 
                 # Non-combined values in dynamic clusters
                 if key == 'vcpu.current' or key == 'vcpu.maximum' or \
@@ -824,7 +825,7 @@ class LibvirtPMDA(PMDA):
                     if key in res[pos][1]:
                         return [res[pos][1][key], 1]
                     else:
-                        return [PM_ERR_AGAIN, 0]
+                        return [PMDA_FETCH_NOVALUES, 0]
 
                 # Combine N values for dynamic metrics
                 if 'vcpu' in mtx[item][0]:
