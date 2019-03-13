@@ -133,6 +133,7 @@ struct timeval	pretime;	/* timing info				*/
 struct timeval	curtime;	/* timing info				*/
 struct timeval	interval = { 10, 0 };
 unsigned long 	sampcnt;
+unsigned long 	sampflags;
 int		linelen  = 80;
 char		screen;
 char		acctreason;	/* accounting not active (return val) 	*/
@@ -581,16 +582,12 @@ engine(void)
 		presstat = hlpsstat;
 
 		lastcmd = photosyst(cursstat);	/* obtain new counters     */
-               if (lastcmd == 'r')
-               {
-                   // reset to zero
-                   if( ((*vis.next)()) >= 0)
-                   {
-                       lastcmd = '\0';
-                       goto reset;
-                   }
-                   else
-                       cleanstop(1);
+		if (lastcmd == 'r')
+		{
+			/* reset to zero */
+			if ((*vis.next)() < 0)
+				cleanstop(1);
+			goto reset;
                }
 
 		/*
@@ -679,6 +676,9 @@ engine(void)
 		deviattask(curtpres, ntaskpres, curpexit,  nprocexit,
 		           	     &devtstat, devsstat);
 
+		if (sampcnt==0)
+			sampflags |= RRBOOT;
+
 		/*
 		** activate the installed print-function to visualize
 		** the deviations
@@ -686,7 +686,7 @@ engine(void)
 		lastcmd = (vis.show_samp)(timed,
 				     delta > 1.0 ? delta : 1.0,
 		           	     &devtstat, devsstat,
-		                     nprocexit, noverflow, sampcnt==0);
+		                     nprocexit, noverflow, sampflags);
                 /*
                  */
                 (*vis.prep)();
@@ -706,9 +706,9 @@ engine(void)
 		if (gp)
 			free(gp);
 
+reset:
 		if (lastcmd == 'r')	/* reset requested ? */
 		{
-               reset:
 			sampcnt = -1;
 
 			curtime = origin;
@@ -720,6 +720,8 @@ engine(void)
 			pdb_makeresidue();
 			pdb_cleanresidue();
 		}
+
+		sampflags = 0;
 	} /* end of main-loop */
 }
 

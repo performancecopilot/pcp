@@ -48,9 +48,7 @@ struct sstat;
 */
 #define RRBOOT		0x0001
 #define RRLAST  	0x0002
-#define RRNETATOP	0x0004
-#define RRNETATOPD	0x0008
-#define RRACCTACTIVE	0x0010
+#define RRMARK		0x0004
 #define RRIOSTAT	0x0020
 #define RRDOCKSTAT	0x0040
 
@@ -82,6 +80,7 @@ extern struct timeval   pretime;
 extern struct timeval   curtime;
 extern struct timeval   interval;
 extern unsigned long	sampcnt;
+extern unsigned long	sampflags;
 extern char      	screen;
 extern int      	linelen;
 extern char      	acctreason;

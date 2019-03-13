@@ -235,7 +235,7 @@ static void
 update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp)
 {
 	/* use local client mount unless server export is available */
-	strncpy(mp->mountdev, name, sizeof(mp->mountdev));
+	strncpy(mp->mountdev, name, sizeof(mp->mountdev)-1);
 	extract_string_inst(rp, dp, PERNFS_EXPORT, &mp->mountdev[0],
 				sizeof(mp->mountdev)-1, id);
 	mp->mountdev[sizeof(mp->mountdev)-1] = '\0';
@@ -273,8 +273,8 @@ photosyst(struct sstat *si)
 		setup = 1;
 	}
 
-	if ((i = fetch_metrics("system", SYST_NMETRICS, pmids, &result)) < 0)
-            return 'r';
+	if (fetch_metrics("system", SYST_NMETRICS, pmids, &result) < 0)
+		return 'r';
 
 	onrcpu  = si->cpu.nrcpu;
 	onrintf = si->intf.nrintf;
@@ -714,5 +714,5 @@ photosyst(struct sstat *si)
 	si->www.iworkers  = extract_integer(result, descs, WWW_IWORKERS);
 
 	pmFreeResult(result);
-       return '\0';
+	return '\0';
 }
