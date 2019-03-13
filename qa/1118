@@ -32,6 +32,7 @@ _stop_auto_restart pmcd
 
 # real QA test starts here
 cat <<EOF | _pmdabcc_install
+# Installed by PCP QA test $seq on `date`
 [pmda]
 modules = runqlat
 prefix = bcc.

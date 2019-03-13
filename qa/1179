@@ -30,6 +30,7 @@ cd $here
 
 # real QA test starts here
 cat <<EOF | _pmdabcc_install | _pmdabcc_install_filter
+# Installed by PCP QA test $seq on `date`
 [pmda]
 modules = ustat
 prefix = bcc.
