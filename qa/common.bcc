@@ -201,7 +201,7 @@ _java_check()
 
 _python_probe_check()
 {
-    python -c 'import time;time.sleep(5)' > /dev/null 2>&1 &
+    $python -c 'import time;time.sleep(5)' > /dev/null 2>&1 &
     pypid=$!
     probes=
     for tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
