@@ -444,7 +444,8 @@ cifs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return PM_ERR_PMID;
     }
 
-    return 1;
+    /* NOTREACHED */
+    return PMDA_FETCH_NOVALUES;
 }
 
 static int
