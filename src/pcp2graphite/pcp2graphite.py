@@ -51,6 +51,7 @@ DEFAULT_CONFIG = ["./pcp2graphite.conf", "$HOME/.pcp2graphite.conf", "$HOME/.pcp
 # Defaults
 CONFVER = 1
 SERVER = "localhost"
+PORT = 2004
 PREFIX = "pcp."
 
 class PCP2Graphite(object):
@@ -114,7 +115,7 @@ class PCP2Graphite(object):
         self.time_scale_force = None
 
         self.graphite_host = SERVER
-        self.graphite_port = 2004
+        self.graphite_port = PORT
         self.pickle = 1
         self.pickle_protocol = 0
         self.prefix = PREFIX
@@ -193,7 +194,7 @@ class PCP2Graphite(object):
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
         opts.pmSetLongOption("graphite-host", 1, "g", "SERVER", "Graphite server (default: " + SERVER + ")")
-        opts.pmSetLongOption("pickle-port", 1, "p", "PICKLE-PORT", "Graphite pickle port (default: 2004)")
+        opts.pmSetLongOption("pickle-port", 1, "p", "PICKLE-PORT", "Graphite pickle port (default: " + str(PORT) + ")")
         opts.pmSetLongOption("pickle-protocol", 1, "X", "PROTOCOL", "pickle protocol version (default: 0)")
         opts.pmSetLongOption("text-port", 1, "E", "TEXT-PORT", "Graphite plaintext port (usually: 2003)")
         opts.pmSetLongOption("prefix", 1, "x", "PREFIX", "prefix for metric names (default: " + PREFIX + ")")
