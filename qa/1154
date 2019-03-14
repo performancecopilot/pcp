@@ -39,15 +39,15 @@ _mount_zfs()
 
 _unmount_zfs()
 {
-    $sudo zpool destroy $zfs_pool
+    $sudo zpool destroy -f $zfs_pool > /dev/null 2>&1 || :
 }
 
 _prepare_pmda bcc
-trap "_unmount_zfs; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+trap "_unmount_zfs; _pmdabcc_cleanup; _unmount_zfs; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
-# mount zfs before installing the PMDA, as mounting
-# zfs may trigger loading the zfs kernel module
+# clean up any possible leftovers and get ready for a new test
+_unmount_zfs
 _mount_zfs
 
 cat <<EOF | _pmdabcc_install
