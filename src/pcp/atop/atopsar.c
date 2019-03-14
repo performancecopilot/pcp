@@ -527,7 +527,8 @@ next_prinow()
 {
     if (rawreadflag)
     {
-        for (int i=0; i < pricnt; i++)
+	int	i;
+        for (i=0; i < pricnt; i++)
         {
             if ( pridef[i].wanted ) {
                 pridef[i].wanted = 0;
@@ -543,7 +544,8 @@ prep()
 {
     if (rawreadflag)
     {
-        for (int i=0; i < pricnt; i++)
+	int	i;
+        for (i=0; i < pricnt; i++)
         {
             if ( pridef[i].wanted ) {
                 prinow    = i;
