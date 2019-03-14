@@ -659,8 +659,9 @@ _pcp () {
       "(-N --predicate -2 --overall-rank -3 --overall-rank-alt $exargs)"{-N+,--predicate=}'[specify predicate metric]:metric:->metrics' \
       "(-k --extended-csv $exargs)"{-k,--extended-csv}'[write extended CSV]' \
       "(-x --extended-header $exargs)"{-x,--extended-header}'[print extended header]' \
+      "(-7 --fixed-header -1 --dynamic-header -4 --names-change $exargs)"{-7,--fixed-header}'[use fixed header with colxrow]' \
       "(-E --repeat-header $exargs)"{-E+,--repeat-header=}'[set header repeat frequency]:samples:' \
-      "(-1 --dynamic-header $exargs)"{-1,--dynamic-header}'[update header dynamically]:samples:' \
+      "(-1 --dynamic-header -7 --fixed-header $exargs)"{-1,--dynamic-header}'[update header dynamically]' \
       "(-g --separate-header $exargs)"{-g,--separate-header}'[print separate header]' \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format=}'[set time format string]:format:' \
       "(-u --no-interpol --container -d --delay -h --host -L --local-PMDA -K --spec-local -t --interval $exargs)"{-u,--no-interpol}'[disable interpolation]' \

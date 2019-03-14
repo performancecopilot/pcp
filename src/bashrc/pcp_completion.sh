@@ -77,7 +77,7 @@ _pcp_complete()
         arg_regex="-[abhKnOZ]"
     ;;
     pmrep)
-        all_args="012345689AaBbCcdEeFfGgHhIiJjKkLlNnOoPpQqRrSsTtUuVvWwXxYyZz"
+        all_args="0123456789AaBbCcdEeFfGgHhIiJjKkLlNnOoPpQqRrSsTtUuVvWwXxYyZz"
         arg_regex="-[04689ABabcEeFfhiJKlNOoPQqSsTtWwXYyZ]"
     ;;
     pmseries)
