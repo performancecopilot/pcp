@@ -44,7 +44,7 @@ bcc.usdt.jvm.threads.start PMID: 149.110.0 [thread starts]
     Semantics: counter  Units: count
 Help:
 thread starts
-Error: Try again. Information not currently available
+No value(s) available!
 === start test program ===
 === validate ok metrics ===
 OK

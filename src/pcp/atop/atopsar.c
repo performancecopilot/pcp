@@ -528,6 +528,7 @@ next_prinow()
     if (rawreadflag)
     {
 	int	i;
+
         for (i=0; i < pricnt; i++)
         {
             if ( pridef[i].wanted ) {
@@ -545,6 +546,7 @@ prep()
     if (rawreadflag)
     {
 	int	i;
+
         for (i=0; i < pricnt; i++)
         {
             if ( pridef[i].wanted ) {
@@ -653,7 +655,7 @@ reportraw(double curtime, double numsecs,
 	** when current record contains log-restart indicator,
 	** print message and reinitialize variables
 	*/
-	if (flags & RRBOOT)
+	if (flags & (RRBOOT | RRMARK))
 	{
 		/*
 		** when accumulating counters, print results upto
@@ -688,11 +690,13 @@ reportraw(double curtime, double numsecs,
 		/*
 		** print restart-line in case of logging restarted
 		*/
-		printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
+		if (flags & RRMARK)
+		{
+			printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
 
-		printf("......................... logging restarted "
-		       ".........................\n");
-
+			printf("......................... logging restarted "
+			       ".........................\n");
+		}
 		pmtimevalFromReal(curtime, &pretime);
 		curline++;
 

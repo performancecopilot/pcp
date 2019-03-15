@@ -942,22 +942,26 @@ setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
 int
 fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 {
-	int	sts;
+	pmResult	*rp;
+	int		sts;
 
 	pmSetMode(fetchmode, &curtime, fetchstep);
 	if ((sts = pmFetch(nmetrics, pmids, result)) < 0)
 	{
-		if (sts != PM_ERR_EOL)
-                {
-			fprintf(stderr, "%s: %s query: %s\n",
-				pmGetProgname(), purpose, pmErrStr(sts));
-                        cleanstop(1);
-                }
-                return sts;
+		if (sts == PM_ERR_EOL)
+		{
+			sampflags |= (RRLAST | RRMARK);
+			return sts;
+		}
+		fprintf(stderr, "%s: %s query: %s\n",
+			pmGetProgname(), purpose, pmErrStr(sts));
+		cleanstop(1);
 	}
+	rp = *result;
+	if (rp->numpmid == 0)	/* mark record */
+		sampflags |= RRMARK;
 	if (pmDebugOptions.appl1)
 	{
-		pmResult	*rp = *result;
 		struct tm	tmp;
 		time_t		sec;
 

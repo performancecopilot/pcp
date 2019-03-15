@@ -62,7 +62,7 @@ QA output created by 1169
                sdb        sdb
            count/s    count/s
 00:00:19     1.000      1.000
-== stdout/std test for extended header
+== stdout/std test with extended header
 
   archive: QAPATH/archives/dyninsts
      host: localhost
@@ -477,7 +477,7 @@ QA output created by 1169
           test  d.d.read  d.d.write
                  count/s    count/s
 00:00:19   sdb     1.000      1.000
-== stdout/colxrow test for extended header
+== stdout/colxrow test with extended header
 
   archive: QAPATH/archives/dyninsts
      host: localhost
@@ -965,7 +965,7 @@ Time,"disk.dev.read-sdb"
 1970-01-01 00:00:18,1.000
 Time,"disk.dev.read-sdb","disk.dev.write-sdb"
 1970-01-01 00:00:19,1.000,1.000
-== csv test for extended header
+== csv test with extended header
 #
 #  archive: QAPATH/archives/dyninsts
 #     host: localhost
@@ -1050,3 +1050,355 @@ Time,"disk.dev.read-sdb"
 1970-01-01 00:00:18,1.000
 Time,"disk.dev.read-sdb","disk.dev.write-sdb"
 1970-01-01 00:00:19,1.000,1.000
+== fixed header test
+          test  d.d.read  d.d.write  m.u.used
+                 count/s    count/s     Kbyte
+00:00:00   N/A         ~          ~         ~
+00:00:01   sda     1.000      1.000         ~
+00:00:01   sdb     1.000      1.000         ~
+00:00:02   sda     1.000      1.000         ~
+00:00:02   sdb     1.000      1.000         ~
+00:00:02     =         ~          ~         2
+00:00:03   sda     1.000      1.000         ~
+00:00:03   sdb     1.000      1.000         ~
+00:00:03   sdc     1.000      1.000         ~
+00:00:03   sdd     1.000      1.000         ~
+00:00:03     =         ~          ~         3
+00:00:04   sdb     1.000      1.000         ~
+00:00:04   sdd     1.000      1.000         ~
+00:00:04     =         ~          ~         4
+00:00:05   sdb     1.000      1.000         ~
+00:00:05   sdd     1.000      1.000         ~
+00:00:05     =         ~          ~         5
+00:00:06   sdb     1.000      1.000         ~
+00:00:06   sdd     1.000      1.000         ~
+00:00:07   sdb     1.000      1.000         ~
+00:00:07   sdd     1.000      1.000         ~
+00:00:07   sde     1.000          ~         ~
+00:00:08   sdb     1.000      1.000         ~
+00:00:08   sdd     1.000      1.000         ~
+00:00:08   sde     1.000          ~         ~
+00:00:08     =         ~          ~         8
+00:00:09   sda     1.000      1.000         ~
+00:00:09   sdb     1.000      1.000         ~
+00:00:09   sdc     1.000      1.000         ~
+00:00:09   sdd     1.000      1.000         ~
+00:00:09   sde     1.000      1.000         ~
+00:00:09     =         ~          ~         9
+00:00:10   sda     1.000      1.000         ~
+00:00:10   sdb     1.000      1.000         ~
+00:00:10   sdc     1.000      1.000         ~
+00:00:10   sdd     1.000      1.000         ~
+00:00:10   sde     1.000      1.000         ~
+00:00:10     =         ~          ~        10
+00:00:11   sda     1.000      1.000         ~
+00:00:11   sdb     1.000      1.000         ~
+00:00:11   sdc     1.000      1.000         ~
+00:00:11   sdd     1.000      1.000         ~
+00:00:11   sde     1.000      1.000         ~
+00:00:11     =         ~          ~        11
+00:00:12   sda     1.000      1.000         ~
+00:00:12   sdb     1.000      1.000         ~
+00:00:12   sdc     1.000      1.000         ~
+00:00:12   sdd     1.000      1.000         ~
+00:00:12   sde     1.000      1.000         ~
+00:00:12     =         ~          ~        12
+00:00:13   sda     1.000      1.000         ~
+00:00:13   sdc     1.000      1.000         ~
+00:00:13     =         ~          ~        13
+00:00:14   sda     1.000      1.000         ~
+00:00:14   sdc     1.000      1.000         ~
+00:00:14     =         ~          ~        14
+00:00:17   N/A         ~          ~         ~
+00:00:18   sdb     1.000          ~         ~
+00:00:19   sdb     1.000      1.000         ~
+== fixed header test with extended header
+
+  archive: QAPATH/archives/dyninsts
+     host: localhost
+ timezone: UTC+0
+    start: Thu Jan  1 00:00:00 1970
+      end: Thu Jan  1 00:00:19 1970
+  metrics: 3 (11 instances present in archive)
+  samples: N/A
+ interval: N/A
+ duration: 00:00:19
+
+          test  d.d.read  d.d.write  m.u.used
+                 count/s    count/s     Kbyte
+== fixed header test with repeating header
+          test  d.d.read  d.d.write  m.u.used
+                 count/s    count/s     Kbyte
+00:00:00   N/A         ~          ~         ~
+00:00:01   sda     1.000      1.000         ~
+00:00:01   sdb     1.000      1.000         ~
+00:00:02   sda     1.000      1.000         ~
+00:00:02   sdb     1.000      1.000         ~
+00:00:02     =         ~          ~         2
+
+          test  d.d.read  d.d.write  m.u.used
+                 count/s    count/s     Kbyte
+00:00:03   sda     1.000      1.000         ~
+00:00:03   sdb     1.000      1.000         ~
+00:00:03   sdc     1.000      1.000         ~
+00:00:03   sdd     1.000      1.000         ~
+00:00:03     =         ~          ~         3
+00:00:04   sdb     1.000      1.000         ~
+00:00:04   sdd     1.000      1.000         ~
+00:00:04     =         ~          ~         4
+00:00:05   sdb     1.000      1.000         ~
+00:00:05   sdd     1.000      1.000         ~
+00:00:05     =         ~          ~         5
+
+          test  d.d.read  d.d.write  m.u.used
+                 count/s    count/s     Kbyte
+00:00:06   sdb     1.000      1.000         ~
+00:00:06   sdd     1.000      1.000         ~
+00:00:07   sdb     1.000      1.000         ~
+00:00:07   sdd     1.000      1.000         ~
+00:00:07   sde     1.000          ~         ~
+00:00:08   sdb     1.000      1.000         ~
+00:00:08   sdd     1.000      1.000         ~
+00:00:08   sde     1.000          ~         ~
+00:00:08     =         ~          ~         8
+
+          test  d.d.read  d.d.write  m.u.used
+                 count/s    count/s     Kbyte
+00:00:09   sda     1.000      1.000         ~
+00:00:09   sdb     1.000      1.000         ~
+00:00:09   sdc     1.000      1.000         ~
+00:00:09   sdd     1.000      1.000         ~
+00:00:09   sde     1.000      1.000         ~
+00:00:09     =         ~          ~         9
+00:00:10   sda     1.000      1.000         ~
+00:00:10   sdb     1.000      1.000         ~
+00:00:10   sdc     1.000      1.000         ~
+00:00:10   sdd     1.000      1.000         ~
+00:00:10   sde     1.000      1.000         ~
+00:00:10     =         ~          ~        10
+00:00:11   sda     1.000      1.000         ~
+00:00:11   sdb     1.000      1.000         ~
+00:00:11   sdc     1.000      1.000         ~
+00:00:11   sdd     1.000      1.000         ~
+00:00:11   sde     1.000      1.000         ~
+00:00:11     =         ~          ~        11
+
+          test  d.d.read  d.d.write  m.u.used
+                 count/s    count/s     Kbyte
+00:00:12   sda     1.000      1.000         ~
+00:00:12   sdb     1.000      1.000         ~
+00:00:12   sdc     1.000      1.000         ~
+00:00:12   sdd     1.000      1.000         ~
+00:00:12   sde     1.000      1.000         ~
+00:00:12     =         ~          ~        12
+00:00:13   sda     1.000      1.000         ~
+00:00:13   sdc     1.000      1.000         ~
+00:00:13     =         ~          ~        13
+00:00:14   sda     1.000      1.000         ~
+00:00:14   sdc     1.000      1.000         ~
+00:00:14     =         ~          ~        14
+
+          test  d.d.read  d.d.write  m.u.used
+                 count/s    count/s     Kbyte
+00:00:17   N/A         ~          ~         ~
+00:00:18   sdb     1.000          ~         ~
+00:00:19   sdb     1.000      1.000         ~
+
+          test  d.d.read  d.d.write  m.u.used
+                 count/s    count/s     Kbyte
+== fixed header test with separate header
+[ 1] - disk.dev.read - count/s
+[ 2] - disk.dev.write - count/s
+[ 3] - mem.util.used - Kbyte
+
+                       1         2         3
+00:00:00   N/A         ~         ~         ~
+00:00:01   sda     1.000     1.000         ~
+00:00:01   sdb     1.000     1.000         ~
+00:00:02   sda     1.000     1.000         ~
+00:00:02   sdb     1.000     1.000         ~
+00:00:02     =         ~         ~         2
+00:00:03   sda     1.000     1.000         ~
+00:00:03   sdb     1.000     1.000         ~
+00:00:03   sdc     1.000     1.000         ~
+00:00:03   sdd     1.000     1.000         ~
+00:00:03     =         ~         ~         3
+00:00:04   sdb     1.000     1.000         ~
+00:00:04   sdd     1.000     1.000         ~
+00:00:04     =         ~         ~         4
+00:00:05   sdb     1.000     1.000         ~
+00:00:05   sdd     1.000     1.000         ~
+00:00:05     =         ~         ~         5
+00:00:06   sdb     1.000     1.000         ~
+00:00:06   sdd     1.000     1.000         ~
+00:00:07   sdb     1.000     1.000         ~
+00:00:07   sdd     1.000     1.000         ~
+00:00:07   sde     1.000         ~         ~
+00:00:08   sdb     1.000     1.000         ~
+00:00:08   sdd     1.000     1.000         ~
+00:00:08   sde     1.000         ~         ~
+00:00:08     =         ~         ~         8
+00:00:09   sda     1.000     1.000         ~
+00:00:09   sdb     1.000     1.000         ~
+00:00:09   sdc     1.000     1.000         ~
+00:00:09   sdd     1.000     1.000         ~
+00:00:09   sde     1.000     1.000         ~
+00:00:09     =         ~         ~         9
+00:00:10   sda     1.000     1.000         ~
+00:00:10   sdb     1.000     1.000         ~
+00:00:10   sdc     1.000     1.000         ~
+00:00:10   sdd     1.000     1.000         ~
+00:00:10   sde     1.000     1.000         ~
+00:00:10     =         ~         ~        10
+00:00:11   sda     1.000     1.000         ~
+00:00:11   sdb     1.000     1.000         ~
+00:00:11   sdc     1.000     1.000         ~
+00:00:11   sdd     1.000     1.000         ~
+00:00:11   sde     1.000     1.000         ~
+00:00:11     =         ~         ~        11
+00:00:12   sda     1.000     1.000         ~
+00:00:12   sdb     1.000     1.000         ~
+00:00:12   sdc     1.000     1.000         ~
+00:00:12   sdd     1.000     1.000         ~
+00:00:12   sde     1.000     1.000         ~
+00:00:12     =         ~         ~        12
+00:00:13   sda     1.000     1.000         ~
+00:00:13   sdc     1.000     1.000         ~
+00:00:13     =         ~         ~        13
+00:00:14   sda     1.000     1.000         ~
+00:00:14   sdc     1.000     1.000         ~
+00:00:14     =         ~         ~        14
+00:00:17   N/A         ~         ~         ~
+00:00:18   sdb     1.000         ~         ~
+00:00:19   sdb     1.000     1.000         ~
+== fixed header test with extended/repeating/separate header
+
+  archive: QAPATH/archives/dyninsts
+     host: localhost
+ timezone: UTC+0
+    start: Thu Jan  1 00:00:00 1970
+      end: Thu Jan  1 00:00:19 1970
+  metrics: 3 (11 instances present in archive)
+  samples: N/A
+ interval: N/A
+ duration: 00:00:19
+
+[ 1] - disk.dev.read - count/s
+[ 2] - disk.dev.write - count/s
+[ 3] - mem.util.used - Kbyte
+
+                       1         2         3
+00:00:00   N/A         ~         ~         ~
+00:00:01   sda     1.000     1.000         ~
+00:00:01   sdb     1.000     1.000         ~
+00:00:02   sda     1.000     1.000         ~
+00:00:02   sdb     1.000     1.000         ~
+00:00:02     =         ~         ~         2
+
+[ 1] - disk.dev.read - count/s
+[ 2] - disk.dev.write - count/s
+[ 3] - mem.util.used - Kbyte
+
+                       1         2         3
+00:00:03   sda     1.000     1.000         ~
+00:00:03   sdb     1.000     1.000         ~
+00:00:03   sdc     1.000     1.000         ~
+00:00:03   sdd     1.000     1.000         ~
+00:00:03     =         ~         ~         3
+00:00:04   sdb     1.000     1.000         ~
+00:00:04   sdd     1.000     1.000         ~
+00:00:04     =         ~         ~         4
+00:00:05   sdb     1.000     1.000         ~
+00:00:05   sdd     1.000     1.000         ~
+00:00:05     =         ~         ~         5
+
+[ 1] - disk.dev.read - count/s
+[ 2] - disk.dev.write - count/s
+[ 3] - mem.util.used - Kbyte
+
+                       1         2         3
+00:00:06   sdb     1.000     1.000         ~
+00:00:06   sdd     1.000     1.000         ~
+00:00:07   sdb     1.000     1.000         ~
+00:00:07   sdd     1.000     1.000         ~
+00:00:07   sde     1.000         ~         ~
+00:00:08   sdb     1.000     1.000         ~
+00:00:08   sdd     1.000     1.000         ~
+00:00:08   sde     1.000         ~         ~
+00:00:08     =         ~         ~         8
+
+[ 1] - disk.dev.read - count/s
+[ 2] - disk.dev.write - count/s
+[ 3] - mem.util.used - Kbyte
+
+                       1         2         3
+00:00:09   sda     1.000     1.000         ~
+00:00:09   sdb     1.000     1.000         ~
+00:00:09   sdc     1.000     1.000         ~
+00:00:09   sdd     1.000     1.000         ~
+00:00:09   sde     1.000     1.000         ~
+00:00:09     =         ~         ~         9
+00:00:10   sda     1.000     1.000         ~
+00:00:10   sdb     1.000     1.000         ~
+00:00:10   sdc     1.000     1.000         ~
+00:00:10   sdd     1.000     1.000         ~
+00:00:10   sde     1.000     1.000         ~
+00:00:10     =         ~         ~        10
+00:00:11   sda     1.000     1.000         ~
+00:00:11   sdb     1.000     1.000         ~
+00:00:11   sdc     1.000     1.000         ~
+00:00:11   sdd     1.000     1.000         ~
+00:00:11   sde     1.000     1.000         ~
+00:00:11     =         ~         ~        11
+
+[ 1] - disk.dev.read - count/s
+[ 2] - disk.dev.write - count/s
+[ 3] - mem.util.used - Kbyte
+
+                       1         2         3
+00:00:12   sda     1.000     1.000         ~
+00:00:12   sdb     1.000     1.000         ~
+00:00:12   sdc     1.000     1.000         ~
+00:00:12   sdd     1.000     1.000         ~
+00:00:12   sde     1.000     1.000         ~
+00:00:12     =         ~         ~        12
+00:00:13   sda     1.000     1.000         ~
+00:00:13   sdc     1.000     1.000         ~
+00:00:13     =         ~         ~        13
+00:00:14   sda     1.000     1.000         ~
+00:00:14   sdc     1.000     1.000         ~
+00:00:14     =         ~         ~        14
+
+[ 1] - disk.dev.read - count/s
+[ 2] - disk.dev.write - count/s
+[ 3] - mem.util.used - Kbyte
+
+                       1         2         3
+00:00:17   N/A         ~         ~         ~
+00:00:18   sdb     1.000         ~         ~
+00:00:19   sdb     1.000     1.000         ~
+
+[ 1] - disk.dev.read - count/s
+[ 2] - disk.dev.write - count/s
+[ 3] - mem.util.used - Kbyte
+
+                       1         2         3
+== fixed header test with derived metric missing values using rate
+          test  d.d.read  d.d.write    a  m.u.used
+                 count/s    count/s  cou     Kbyte
+00:00:02     =         ~          ~    ~         2
+00:00:03   sda     1.000      1.000  100         ~
+00:00:03   sdb     1.000      1.000  100         ~
+00:00:03   sdc     1.000      1.000  100         ~
+00:00:03     =         ~          ~    ~         3
+== fixed header test with derived metric missing values using raw values
+          test  d.d.read  d.d.write    a  m.u.used
+                   count      count  cou     Kbyte
+00:00:02   sda         2          2    ~         ~
+00:00:02   sdb         2          2    ~         ~
+00:00:02   sdc         2          2    ~         ~
+00:00:02     =         ~          ~    ~         2
+00:00:03   sda         3          3  100         ~
+00:00:03   sdb         3          3  100         ~
+00:00:03   sdc         3          3  100         ~
+00:00:03     =         ~          ~    ~         3

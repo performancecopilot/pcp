@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 1181
 # Exercise the BCC PMDA kprobe hits module - install, remove and values.
 #

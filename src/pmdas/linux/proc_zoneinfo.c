@@ -1,7 +1,7 @@
 /*
  * Linux zoneinfo Cluster
  *
- * Copyright (c) 2016-2017 Fujitsu.
+ * Copyright (c) 2016-2017,2019 Fujitsu.
  * Copyright (c) 2017-2018 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -70,7 +70,7 @@ refresh_proc_zoneinfo(pmInDom indom, pmInDom protection_indom)
     if ((fp = linux_statsfile("/proc/zoneinfo", buf, sizeof(buf))) == NULL)
 	return -oserror();
 
-    while (fgets(buf, sizeof(buf), fp) != NULL) {
+    while ((!feof(fp)) && fgets(buf, sizeof(buf), fp) != NULL) {
 	if (strncmp(buf, "Node", 4) != 0)
 	    continue;
 	if (sscanf(buf, "Node %d, zone   %s", &node, zonetype) != 2)
@@ -87,9 +87,12 @@ refresh_proc_zoneinfo(pmInDom indom, pmInDom protection_indom)
 	info->node = node;
 	pmsprintf(info->zone, ZONE_NAMELEN, "%s", zonetype);
 	/* inner loop to extract all values for this node */
-	while (values < ZONE_VALUES + 1 && fgets(buf, sizeof(buf), fp) != NULL) {
-	 
-   if ((sscanf(buf, "  pages free %llu", &value)) == 1) {
+        while ((!feof(fp)) && values < ZONE_VALUES + 1 && fgets(buf, sizeof(buf), fp) != NULL) {
+            if (strncmp(buf, "Node", 4) == 0){
+                fseek(fp, -(long)(strlen(buf)), 1);
+                break;
+            }            
+            if ((sscanf(buf, "  pages free %llu", &value)) == 1) {
 		info->values[ZONE_FREE] = (value << _pm_pageshift) / 1024;
 		values++;
 		continue;
