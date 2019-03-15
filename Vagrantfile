@@ -122,7 +122,7 @@ pcp_hosts = {
         :opensuse42 => {
                 :hostname => "opensuse42",
                 :ipaddress => "10.100.10.8",
-                :box => "performancecopilot/opensuse42",
+                :box => "generic/opensuse42",
                 :script => "opensuse.sh",
                 :qa => "-g sanity -g pmda.linux -x flakey",
                 :distro_name => "opensuse42"
@@ -194,7 +194,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
   end
 
   # Global shared folder for pcp source.  Copy it so we have our own to muck around in
-  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: false, :rsync__exclude => ["qaresults/", "./pcp-*/" ], :rsync__args => ["--verbose", "--archive", "--delete", "-z", "--no-owner", "--no-group" ]
+  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: true, :rsync__exclude => ["qaresults/", "./pcp-*/" ], :rsync__args => ["--verbose", "--archive", "--delete", "-z", "--no-owner", "--no-group" ]
 
   pcp_hosts.each_pair do |name, options|
     global_config.vm.define name do |config|

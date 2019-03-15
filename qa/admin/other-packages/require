@@ -20,3 +20,4 @@ LinuxMint    -        -       python-setuptools python-all python-all-dev
 NetBSD       -        -       py27-setuptools
 SUSE         -        -       python-setuptools
 Ubuntu       -        -       python-setuptools python-all python-all-dev
+OpenBSD      6.4      -       autoconf-- python-2.7.15p0 python-3.6.6p1
