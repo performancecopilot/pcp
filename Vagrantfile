@@ -24,6 +24,13 @@ end
 
 # to be used for determining groups to test
 # based on the git diff
+def change_range
+  if ENV.has_key?("PCP_CHANGE_RANGE")
+    return ENV['PCP_CHANGE_RANGE']
+  else
+    return ""
+  end
+end
 #env['PCP_CHANGE_RANGE']
 
 ############################################################
@@ -222,7 +229,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
        config.vm.provision :shell, path: "provisioning/#{options[:script]}"
 
        # Run QA and copy results back to host
-       config.vm.provision :shell, path: "provisioning/qa.sh", args: [ qa_groups ]
+       config.vm.provision :shell, path: "provisioning/qa.sh", args: [ qa_groups, change_range ]
        if pcp_mode == "release"
          config.vm.provision :shell, path: "provisioning/release.sh", args: [ "#{ options[:distro_name] }" ]
        elsif pcp_mode == "nightly"
