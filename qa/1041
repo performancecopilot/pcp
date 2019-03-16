@@ -72,6 +72,7 @@ EOF
     _filter_pmda_install <$tmp.out \
     | sed \
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+	-e "\\;Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/.*: empty file?;d" \
     | $PCP_AWK_PROG '
 /Check libvirt metrics have appeared/  { if ($7 >= 67 && $7 <= 250) $7 = "X"
                                           if ($10 >= 14 && $10 <= 5000) $10 = "Y"
