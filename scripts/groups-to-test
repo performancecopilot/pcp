@@ -60,6 +60,7 @@ _hunt_qa()
 	    ;;
 	[0-9][0-9][0-9][-.]*\
        |[0-9][0-9][0-9][0-9][-.]*)	# not used in any QA test scripts
+	    _tests="`echo $qa_file | sed -e 's/[-.].*//'`"
 	    ;;
 	archives/*.[0-9]*\
        |archives/*.index*\
