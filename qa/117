@@ -16,9 +16,8 @@ echo "QA output created by $seq"
 if [ $PCP_PLATFORM = linux ]
 then
     _notrun "network.ip checks for linux done in test 216"
-elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
-then
-    _notrun "no network.ip metrics for $PCP_PLATFORM"
+else
+    _need_metric network.ip.total
 fi
 
 compare=`pwd`/src/compare

@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # typical usage:
-# groups-to-test -b master -t pcp -r 6bad98e4b0537c2e99b3906ca7a36f4998ea3419..HEAD
+# test-from-commits -b master -t pcp -r 6bad98e4b0537c2e99b3906ca7a36f4998ea3419..HEAD
 #
 
 tmp=/var/tmp/$$
@@ -60,6 +60,7 @@ _hunt_qa()
 	    ;;
 	[0-9][0-9][0-9][-.]*\
        |[0-9][0-9][0-9][0-9][-.]*)	# not used in any QA test scripts
+	    _tests="`echo $qa_file | sed -e 's/[-.].*//'`"
 	    ;;
 	archives/*.[0-9]*\
        |archives/*.index*\
@@ -732,6 +733,35 @@ _map()
     done
 }
 
+# expand -g groupname into the corresponding list of tests
+#
+_expand()
+{
+
+    cd $topdir/qa
+
+    while read line
+    do
+	case "$line"
+	in
+	    [0-9][0-9][0-9]|[0-9][0-9][0-9][0-9])
+		echo "$line"
+		;;
+
+	    -g\ *)
+		./check -n $line
+		;;
+
+	    *)
+		echo >&2 "_expand: botch: $line: unexpected"
+		;;
+	esac
+    done
+
+    cd $here
+}
+
+
 _usage()
 {
     echo >&2 "Usage: groups-to-test [options]"
@@ -800,6 +830,8 @@ git diff --name-only $range \
 | _map \
 | sort \
 | uniq \
-| sort -n
+| _expand \
+| sort -n \
+| uniq
 
 exit

@@ -30,12 +30,16 @@ then
 else
     range=''
 fi
-while getopts "b:nr:s?" c
+mail=true
+while getopts "b:mnr:s?" c
 do
     case $c
     in
 	b)
 	    branch="$OPTARG"
+	    ;;
+	m)	# don't launch mail client
+	    mail=false
 	    ;;
 	n)
 	    dryrun=true
@@ -209,16 +213,21 @@ then
     echo "+ echo $sha >pushed.sha"
 else
     echo "$sha" >pushed.sha
-    case `id -un`
-    in
-	kenj)
-	    echo "And now send commit mail ..."
-	    if [ `hostname` = bozo ]
-	    then
-		sendcommitmail
-	    else
-		echo "cut-n-paste from /tmp/msg into mail program and send to pcp@group.io"
-	    fi
-	    ;;
-    esac
+    if $mail
+    then
+	case `id -un`
+	in
+	    kenj)
+		echo "And now send commit mail ..."
+		if [ `hostname` = bozo ]
+		then
+		    sendcommitmail
+		else
+		    echo "cut-n-paste from /tmp/msg into mail program and send to pcp@group.io"
+		fi
+		;;
+	esac
+    else
+	echo "cut-n-paste from /tmp/msg into mail program and send to pcp@group.io"
+    fi
 fi

@@ -17,6 +17,24 @@ _pmdabcc_require_kernel_version 4 7
 _get_libpcp_config
 $static_probes || _notrun "No static probe support available in PCP build"
 
+if [ -f /etc/lsb-release ]
+then
+    . /etc/lsb-release
+    if [ "$DISTRIB_ID" = Ubuntu ]
+    then
+	case "$DISTRIB_RELEASE"
+	in
+	    16.*|17.*|18.*)
+		_notrun "bcc USDT does not work on Ubuntu $DISTRIB_RELEASE"
+		;;
+	    *)
+		echo "Need analysis for Ubuntu $DISTRIB_RELEASE ... does bcc USDT work?"
+		exit 1
+		;;
+	esac
+    fi
+fi
+
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full

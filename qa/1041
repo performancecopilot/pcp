@@ -33,6 +33,7 @@ $python -c "import libvirt" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python libvirt module not installed"
 $python -c "import lxml" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python lxml module not installed"
+[ -e /var/run/libvirt/libvirt-sock-ro ] || _notrun "no socket, libvirtd not running?"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
