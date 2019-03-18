@@ -118,7 +118,7 @@ __pmSquashTZ(char *tzbuffer)
 	char tzoffset[6]; /* +1200\0 */
 
 	strftime (tzoffset, sizeof (tzoffset), "%z", t);
-	offset = -strtol (tzoffset, NULL, 10);
+	offset = strtol (tzoffset, NULL, 10);
 	offset = ((offset/100) * 3600) + ((offset%100) * 60);
     }
 #else
