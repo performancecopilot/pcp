@@ -1,6 +1,7 @@
 pcp (4.3.2-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Remove anibal from uploaders, MIA team request (closes: #925090)
 
  -- Nathan Scott <nathans@debian.org>  Fri, 26 Apr 2019 17:35:59 +1100
 
