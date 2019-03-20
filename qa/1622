@@ -198,6 +198,7 @@ type=AVC msg=audit(XXX.63): avc:  denied  { connectto } for  pid=YYYY comm="pmda
 type=AVC msg=audit(XXX.64): avc:  denied  { execute execute_no_trans open read getattr } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmmgr_t:s0 tcontext=system_u:object_r:ldconfig_exec_t:s0 tclass=file permissive=0
 type=AVC msg=audit(XXX.65): avc:  denied  { name_connect } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmmgr_t:s0 tcontext=system_u:object_r:zabbix_port_t:s0 tclass=tcp_socket permissive=0
 type=AVC msg=audit(XXX.66): avc:  denied  { sys_rawio } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=capability permissive=0
+type=AVC msg=audit(XXX.67): avc:  denied  { module_request } for pid=YYYY comm="pmdalinux" kmod="netdev-tun0" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=system permissive=0
 EOF
 
 ( audit2allow -i $tmp.avcdenials -w; echo "type=AVC" ) 2>&1 | _filter
