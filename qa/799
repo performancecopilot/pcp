@@ -39,7 +39,7 @@ pmdumplog $tmp \
 | grep ' value ' \
 | wc -l >>$seq.full
 
-pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite -Dappl0,appl3 -q -i $tmp
+pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite -Dappl0,appl3 -q -i $tmp 2>&1
 
 # success, all done
 status=0
