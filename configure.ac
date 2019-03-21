@@ -3310,6 +3310,12 @@ AC_ARG_WITH(rcdir,[AC_HELP_STRING([--with-rcdir],[rc directory [SYSCONFDIR/rc.d]
 if $enable_systemd
 then
     pcp_rc_dir="$pcp_share_dir/lib"
+elif test $target_os = freebsd
+then
+    pcp_rc_dir="/usr/local/etc/rc.d"
+elif test $target_os = netbsd -o $target_os = openbsd
+then
+    pcp_rc_dir="/etc/rc.d"
 else
     pcp_rc_dir="$pcp_etc_dir/init.d"
 fi])
