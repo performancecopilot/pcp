@@ -204,4 +204,33 @@ Comparing before to after
  
  cgroup.blkio.dev.io_serviced.read
      Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
+@@ -305,23 +305,23 @@
+ 
+ cgroup.blkio.all.io_service_bytes.read
+     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.blkio.all.io_service_bytes.write
+     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.blkio.all.io_service_bytes.sync
+     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.blkio.all.io_service_bytes.async
+     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.blkio.all.io_service_bytes.total
+     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.blkio.all.io_serviced.read
+     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
 Verify cgroup metrics help

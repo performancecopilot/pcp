@@ -220,35 +220,35 @@ cgroup.blkio.all.io_queued.write
 
 cgroup.blkio.all.io_service_bytes.async
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 409065984
     inst [N or "/libvirt"] value 0
     inst [N or "/libvirt/lxc"] value 0
 
 cgroup.blkio.all.io_service_bytes.read
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 1054750208
     inst [N or "/libvirt"] value 0
     inst [N or "/libvirt/lxc"] value 0
 
 cgroup.blkio.all.io_service_bytes.sync
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 1184346624
     inst [N or "/libvirt"] value 0
     inst [N or "/libvirt/lxc"] value 0
 
 cgroup.blkio.all.io_service_bytes.total
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 1593412608
     inst [N or "/libvirt"] value 0
     inst [N or "/libvirt/lxc"] value 0
 
 cgroup.blkio.all.io_service_bytes.write
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 538662400
     inst [N or "/libvirt"] value 0
     inst [N or "/libvirt/lxc"] value 0
@@ -367,35 +367,35 @@ cgroup.blkio.all.sectors
 
 cgroup.blkio.all.throttle.io_service_bytes.async
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 3211584000
     inst [N or "/libvirt"] value 0
     inst [N or "/libvirt/lxc"] value 0
 
 cgroup.blkio.all.throttle.io_service_bytes.read
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 2095242240
     inst [N or "/libvirt"] value 0
     inst [N or "/libvirt/lxc"] value 0
 
 cgroup.blkio.all.throttle.io_service_bytes.sync
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 0
     inst [N or "/libvirt"] value 0
     inst [N or "/libvirt/lxc"] value 0
 
 cgroup.blkio.all.throttle.io_service_bytes.total
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 3211584000
     inst [N or "/libvirt"] value 0
     inst [N or "/libvirt/lxc"] value 0
 
 cgroup.blkio.all.throttle.io_service_bytes.write
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 1116341760
     inst [N or "/libvirt"] value 0
     inst [N or "/libvirt/lxc"] value 0
@@ -554,7 +554,7 @@ cgroup.blkio.dev.io_queued.write
 
 cgroup.blkio.dev.io_service_bytes.async
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::dm-1"] value 0
     inst [N or "/::dm-2"] value 0
@@ -565,7 +565,7 @@ cgroup.blkio.dev.io_service_bytes.async
 
 cgroup.blkio.dev.io_service_bytes.read
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::dm-1"] value 0
     inst [N or "/::dm-2"] value 0
@@ -576,7 +576,7 @@ cgroup.blkio.dev.io_service_bytes.read
 
 cgroup.blkio.dev.io_service_bytes.sync
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::dm-1"] value 0
     inst [N or "/::dm-2"] value 0
@@ -587,7 +587,7 @@ cgroup.blkio.dev.io_service_bytes.sync
 
 cgroup.blkio.dev.io_service_bytes.total
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::dm-1"] value 0
     inst [N or "/::dm-2"] value 0
@@ -598,7 +598,7 @@ cgroup.blkio.dev.io_service_bytes.total
 
 cgroup.blkio.dev.io_service_bytes.write
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::dm-1"] value 0
     inst [N or "/::dm-2"] value 0
@@ -785,7 +785,7 @@ cgroup.blkio.dev.sectors
 
 cgroup.blkio.dev.throttle.io_service_bytes.async
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 967549952
     inst [N or "/::dm-1"] value 1318912
     inst [N or "/::dm-2"] value 367479296
@@ -796,7 +796,7 @@ cgroup.blkio.dev.throttle.io_service_bytes.async
 
 cgroup.blkio.dev.throttle.io_service_bytes.read
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 693777408
     inst [N or "/::dm-1"] value 1318912
     inst [N or "/::dm-2"] value 118300672
@@ -807,7 +807,7 @@ cgroup.blkio.dev.throttle.io_service_bytes.read
 
 cgroup.blkio.dev.throttle.io_service_bytes.sync
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::dm-1"] value 0
     inst [N or "/::dm-2"] value 0
@@ -818,7 +818,7 @@ cgroup.blkio.dev.throttle.io_service_bytes.sync
 
 cgroup.blkio.dev.throttle.io_service_bytes.total
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 967549952
     inst [N or "/::dm-1"] value 1318912
     inst [N or "/::dm-2"] value 367479296
@@ -829,7 +829,7 @@ cgroup.blkio.dev.throttle.io_service_bytes.total
 
 cgroup.blkio.dev.throttle.io_service_bytes.write
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 273772544
     inst [N or "/::dm-1"] value 0
     inst [N or "/::dm-2"] value 249178624
@@ -1601,27 +1601,27 @@ cgroup.blkio.all.io_queued.write
 
 cgroup.blkio.all.io_service_bytes.async
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 30122435584
 
 cgroup.blkio.all.io_service_bytes.read
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 1938551808
 
 cgroup.blkio.all.io_service_bytes.sync
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 1949011968
 
 cgroup.blkio.all.io_service_bytes.total
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 32071447552
 
 cgroup.blkio.all.io_service_bytes.write
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 30132895744
 
 cgroup.blkio.all.io_service_time.async
@@ -1706,27 +1706,27 @@ cgroup.blkio.all.sectors
 
 cgroup.blkio.all.throttle.io_service_bytes.async
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 28772984832
 
 cgroup.blkio.all.throttle.io_service_bytes.read
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 1956128768
 
 cgroup.blkio.all.throttle.io_service_bytes.sync
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 2068295680
 
 cgroup.blkio.all.throttle.io_service_bytes.total
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 30841280512
 
 cgroup.blkio.all.throttle.io_service_bytes.write
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 28885151744
 
 cgroup.blkio.all.throttle.io_serviced.async
@@ -1831,35 +1831,35 @@ cgroup.blkio.dev.io_queued.write
 
 cgroup.blkio.dev.io_service_bytes.async
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::sda"] value 30122435584
     inst [N or "/::sr0"] value 0
 
 cgroup.blkio.dev.io_service_bytes.read
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::sda"] value 1938551808
     inst [N or "/::sr0"] value 0
 
 cgroup.blkio.dev.io_service_bytes.sync
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::sda"] value 1949011968
     inst [N or "/::sr0"] value 0
 
 cgroup.blkio.dev.io_service_bytes.total
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::sda"] value 32071447552
     inst [N or "/::sr0"] value 0
 
 cgroup.blkio.dev.io_service_bytes.write
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::sda"] value 30132895744
     inst [N or "/::sr0"] value 0
@@ -1978,35 +1978,35 @@ cgroup.blkio.dev.sectors
 
 cgroup.blkio.dev.throttle.io_service_bytes.async
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 17896448
     inst [N or "/::sda"] value 28755088384
     inst [N or "/::sr0"] value 0
 
 cgroup.blkio.dev.throttle.io_service_bytes.read
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 17536000
     inst [N or "/::sda"] value 1938592768
     inst [N or "/::sr0"] value 0
 
 cgroup.blkio.dev.throttle.io_service_bytes.sync
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 544768
     inst [N or "/::sda"] value 2067750912
     inst [N or "/::sr0"] value 0
 
 cgroup.blkio.dev.throttle.io_service_bytes.total
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 18441216
     inst [N or "/::sda"] value 30822839296
     inst [N or "/::sr0"] value 0
 
 cgroup.blkio.dev.throttle.io_service_bytes.write
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 905216
     inst [N or "/::sda"] value 28884246528
     inst [N or "/::sr0"] value 0
@@ -3381,7 +3381,7 @@ cgroup.blkio.all.io_queued.write
 
 cgroup.blkio.all.io_service_bytes.async
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 30138164224
     inst [N or "/system.slice"] value 319488
     inst [N or "/system.slice/-.mount"] value 0
@@ -3463,7 +3463,7 @@ cgroup.blkio.all.io_service_bytes.async
 
 cgroup.blkio.all.io_service_bytes.read
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 1944835072
     inst [N or "/system.slice"] value 319488
     inst [N or "/system.slice/-.mount"] value 0
@@ -3545,7 +3545,7 @@ cgroup.blkio.all.io_service_bytes.read
 
 cgroup.blkio.all.io_service_bytes.sync
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 1953562624
     inst [N or "/system.slice"] value 4096
     inst [N or "/system.slice/-.mount"] value 0
@@ -3627,7 +3627,7 @@ cgroup.blkio.all.io_service_bytes.sync
 
 cgroup.blkio.all.io_service_bytes.total
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 32091726848
     inst [N or "/system.slice"] value 323584
     inst [N or "/system.slice/-.mount"] value 0
@@ -3709,7 +3709,7 @@ cgroup.blkio.all.io_service_bytes.total
 
 cgroup.blkio.all.io_service_bytes.write
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 30146891776
     inst [N or "/system.slice"] value 4096
     inst [N or "/system.slice/-.mount"] value 0
@@ -5103,7 +5103,7 @@ cgroup.blkio.all.sectors
 
 cgroup.blkio.all.throttle.io_service_bytes.async
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 28793937920
     inst [N or "/system.slice"] value 188416
     inst [N or "/system.slice/-.mount"] value 0
@@ -5185,7 +5185,7 @@ cgroup.blkio.all.throttle.io_service_bytes.async
 
 cgroup.blkio.all.throttle.io_service_bytes.read
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 1967489024
     inst [N or "/system.slice"] value 188416
     inst [N or "/system.slice/-.mount"] value 0
@@ -5267,7 +5267,7 @@ cgroup.blkio.all.throttle.io_service_bytes.read
 
 cgroup.blkio.all.throttle.io_service_bytes.sync
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 2073251840
     inst [N or "/system.slice"] value 4096
     inst [N or "/system.slice/-.mount"] value 0
@@ -5349,7 +5349,7 @@ cgroup.blkio.all.throttle.io_service_bytes.sync
 
 cgroup.blkio.all.throttle.io_service_bytes.total
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 30867189760
     inst [N or "/system.slice"] value 192512
     inst [N or "/system.slice/-.mount"] value 0
@@ -5431,7 +5431,7 @@ cgroup.blkio.all.throttle.io_service_bytes.total
 
 cgroup.blkio.all.throttle.io_service_bytes.write
     Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/"] value 28899700736
     inst [N or "/system.slice"] value 4096
     inst [N or "/system.slice/-.mount"] value 0
@@ -6205,7 +6205,7 @@ cgroup.blkio.dev.io_queued.write
 
 cgroup.blkio.dev.io_service_bytes.async
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::dm-1"] value 0
     inst [N or "/::sda"] value 30138164224
@@ -6225,7 +6225,7 @@ cgroup.blkio.dev.io_service_bytes.async
 
 cgroup.blkio.dev.io_service_bytes.read
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::dm-1"] value 0
     inst [N or "/::sda"] value 1944835072
@@ -6245,7 +6245,7 @@ cgroup.blkio.dev.io_service_bytes.read
 
 cgroup.blkio.dev.io_service_bytes.sync
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::dm-1"] value 0
     inst [N or "/::sda"] value 1953562624
@@ -6265,7 +6265,7 @@ cgroup.blkio.dev.io_service_bytes.sync
 
 cgroup.blkio.dev.io_service_bytes.total
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::dm-1"] value 0
     inst [N or "/::sda"] value 32091726848
@@ -6285,7 +6285,7 @@ cgroup.blkio.dev.io_service_bytes.total
 
 cgroup.blkio.dev.io_service_bytes.write
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 0
     inst [N or "/::dm-1"] value 0
     inst [N or "/::sda"] value 30146891776
@@ -6625,7 +6625,7 @@ cgroup.blkio.dev.sectors
 
 cgroup.blkio.dev.throttle.io_service_bytes.async
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 22292480
     inst [N or "/::dm-1"] value 840704
     inst [N or "/::sda"] value 28770804736
@@ -6645,7 +6645,7 @@ cgroup.blkio.dev.throttle.io_service_bytes.async
 
 cgroup.blkio.dev.throttle.io_service_bytes.read
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 21854208
     inst [N or "/::dm-1"] value 758784
     inst [N or "/::sda"] value 1944876032
@@ -6665,7 +6665,7 @@ cgroup.blkio.dev.throttle.io_service_bytes.read
 
 cgroup.blkio.dev.throttle.io_service_bytes.sync
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 643072
     inst [N or "/::dm-1"] value 98304
     inst [N or "/::sda"] value 2072510464
@@ -6685,7 +6685,7 @@ cgroup.blkio.dev.throttle.io_service_bytes.sync
 
 cgroup.blkio.dev.throttle.io_service_bytes.total
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 22935552
     inst [N or "/::dm-1"] value 939008
     inst [N or "/::sda"] value 30843315200
@@ -6705,7 +6705,7 @@ cgroup.blkio.dev.throttle.io_service_bytes.total
 
 cgroup.blkio.dev.throttle.io_service_bytes.write
     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [N or "/::dm-0"] value 1081344
     inst [N or "/::dm-1"] value 180224
     inst [N or "/::sda"] value 28898439168
