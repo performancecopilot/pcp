@@ -66,6 +66,7 @@ _filter_pmdas()
 	-e '/inst \[74 or "lmsensors"]/d' \
 	-e '/inst \[78 or "darwin"]/d' \
 	-e '/inst \[95 or "kvm"]/d' \
+        -e '/inst \[98 or "zimbra"]/d' \
 	-e '/inst \[106 or "logger"]/d' \
 	-e '/inst \[110 or "postgresql"]/d' \
 	-e '/inst \[114 or "systemd"]/d' \
