@@ -12,8 +12,7 @@ sudo -H -u vagrant ./Makepkgs
 # install pcp
 . ./VERSION.pcp
 version="$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION"
-rpm -Uvh --force
-"pcp-$version/build/rpm/*.rpm"
+rpm -Uvh --force "pcp-$version/build/rpm/*.rpm"
 
 # setup pcpqa
 sed -i '/requiretty/d' /etc/sudoers	# for sudo to work from a script

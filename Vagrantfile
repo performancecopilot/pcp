@@ -24,6 +24,13 @@ end
 
 # to be used for determining groups to test
 # based on the git diff
+def change_range
+  if ENV.has_key?("PCP_CHANGE_RANGE")
+    return ENV['PCP_CHANGE_RANGE']
+  else
+    return ""
+  end
+end
 #env['PCP_CHANGE_RANGE']
 
 ############################################################
@@ -122,7 +129,7 @@ pcp_hosts = {
         :opensuse42 => {
                 :hostname => "opensuse42",
                 :ipaddress => "10.100.10.8",
-                :box => "performancecopilot/opensuse42",
+                :box => "generic/opensuse42",
                 :script => "opensuse.sh",
                 :qa => "-g sanity -g pmda.linux -x flakey",
                 :distro_name => "opensuse42"
@@ -194,7 +201,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
   end
 
   # Global shared folder for pcp source.  Copy it so we have our own to muck around in
-  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: false, :rsync__exclude => ["qaresults/", "./pcp-*/" ], :rsync__args => ["--verbose", "--archive", "--delete", "-z", "--no-owner", "--no-group" ]
+  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: true, :rsync__exclude => ["qaresults/", "./pcp-*/" ], :rsync__args => ["--verbose", "--archive", "--delete", "-z", "--no-owner", "--no-group" ]
 
   pcp_hosts.each_pair do |name, options|
     global_config.vm.define name do |config|
@@ -222,7 +229,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
        config.vm.provision :shell, path: "provisioning/#{options[:script]}"
 
        # Run QA and copy results back to host
-       config.vm.provision :shell, path: "provisioning/qa.sh", args: [ qa_groups ]
+       config.vm.provision :shell, path: "provisioning/qa.sh", args: [ qa_groups, change_range ]
        if pcp_mode == "release"
          config.vm.provision :shell, path: "provisioning/release.sh", args: [ "#{ options[:distro_name] }" ]
        elsif pcp_mode == "nightly"
