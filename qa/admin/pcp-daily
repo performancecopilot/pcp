@@ -186,6 +186,19 @@ $1 == "PACKAGE_BUILD"	{ print "PACKAGE_BUILD",$2+1; next }
     fi
 fi
 cp VERSION.pcp.daily VERSION.pcp
+# if we're using systemctl, then need to stop PCP services
+# to prevent autorestart banging its head against the wall
+# once the libraries are removed and the packages are being
+# built (and installed)
+#
+if which systemctl >/dev/null 2>&1
+then
+    echo "Info: stopping PCP services" | tee -a $HOME/daily.log
+    for svc in pmie pmlogger pmmgr pmproxy pmcd
+    do
+	sudo systemctl stop $svc
+    done
+fi
 # simulate a first-time build
 sudo rm -rf /usr/include/pcp
 sudo rm -f /usr/lib*/libpcp[_.]*
@@ -519,6 +532,21 @@ then
     echo "Info: QA \$qa_restrict done" | tee -a \$HOME/daily.qa.log
 else
     echo "Error: QA \$qa_restrict failed!" | tee -a \$HOME/daily.qa.log
+fi
+# if we're using systemctl, then need to start enabled PCP
+# services so we leave things in a good state
+#
+if which systemctl >/dev/null 2>&1
+then
+    systemctl list-unit-files >\$tmp.systemctl
+    for svc in pmcd pmproxy pmie pmlogger pmmgr
+    do
+	if grep "\$svc.service[ 	]*enabled" <\$tmp.systemctl >/dev/null
+	then
+	    echo "Info: Restarting \$svc" | tee -a \$HOME/daily.qa.log
+	    sudo systemctl restart \$svc
+	fi
+    done
 fi
 date >>\$HOME/daily.qa.log
 End-of-File
