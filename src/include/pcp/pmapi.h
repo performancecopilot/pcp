@@ -1133,6 +1133,9 @@ typedef struct {
     int labels;		/* Metric label metadata operations */
     int series;		/* Time series tracing */
     int	libweb;		/* Trace services from libpcp_web */
+    int	appl3;		/* Application-specific flag 3 */
+    int	appl4;		/* Application-specific flag 4 */
+    int	appl5;		/* Application-specific flag 5 */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;
