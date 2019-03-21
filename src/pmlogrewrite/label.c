@@ -29,7 +29,7 @@ start_label(int type, int id, int instance, const char *instance_name, char *lab
     labelspec_t	*lp;
     char	buf[64];
 
-    if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
+    if (pmDebugOptions.appl4) {
 	fprintf(stderr, "start_label(%s)",
 		__pmLabelIdentString(id, type, buf, sizeof(buf)));
     }
@@ -77,7 +77,7 @@ start_label(int type, int id, int instance, const char *instance_name, char *lab
 			 (lp->old_label != NULL && strcmp (label, lp->old_label) == 0)) &&
 			(value == NULL ||
 			 (lp->old_value != NULL && strcmp (value, lp->old_value) == 0))) {
-			if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
+			if (pmDebugOptions.appl4) {
 			    fprintf(stderr, " -> %s",
 				    __pmLabelIdentString(lp->new_id, lp->new_type,
 							 buf, sizeof(buf)));
@@ -121,7 +121,7 @@ create_label(int type, int id, int instance, char *label, char *value)
     lp->flags = 0;
     lp->ip = NULL;
 
-    if (pmDebugOptions.appl0 && pmDebugOptions.appl1)
+    if (pmDebugOptions.appl4)
 	fprintf(stderr, " -> [new entry]\n");
 
     return lp;

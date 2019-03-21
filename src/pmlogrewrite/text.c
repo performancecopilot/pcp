@@ -31,7 +31,7 @@ start_text(int type, int id, char *text)
     textspec_t	*tp;
     int		sts;
 
-    if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
+    if (pmDebugOptions.appl4) {
 	if ((type & PM_TEXT_PMID))
 	    fprintf(stderr, "start_text(%s)", pmIDStr(id));
 	else
@@ -48,7 +48,7 @@ start_text(int type, int id, char *text)
 	    if (id == tp->old_id) {
 		if (text == NULL ||
 		    (tp->old_text != NULL && strcmp(text, tp->old_text) == 0)) {
-		    if (pmDebugOptions.appl0 && pmDebugOptions.appl1) {
+		    if (pmDebugOptions.appl4) {
 			if ((type & PM_TEXT_PMID))
 			    fprintf(stderr, " -> %s", pmIDStr(tp->new_id));
 			else
@@ -106,7 +106,7 @@ start_text(int type, int id, char *text)
     tp->flags = 0;
     tp->ip = NULL;
 
-    if (pmDebugOptions.appl0 && pmDebugOptions.appl1)
+    if (pmDebugOptions.appl4)
 	fprintf(stderr, " -> [new entry]\n");
 
     return tp;

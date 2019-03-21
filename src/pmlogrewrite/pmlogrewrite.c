@@ -14,6 +14,13 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ *
+ * Debug flags
+ * appl0	I/O
+ * appl1	metdata changes
+ * appl2	pmResult changes
+ * appl3	-q and reason for not taking quick exit
+ * appl4	config parser
  */
 
 #include <math.h>
@@ -708,27 +715,65 @@ anychange(void)
     const labelspec_t	*lp;
     int			i;
 
-    if (global.flags != 0)
+    if (global.flags != 0) {
+	if (pmDebugOptions.appl3) {
+	    fprintf(stderr, "anychange: global.flags (%d) != 0\n", global.flags);
+	}
 	return 1;
+    }
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
-	if (ip->new_indom != ip->old_indom)
+	if (ip->new_indom != ip->old_indom) {
+	    if (pmDebugOptions.appl3) {
+		fprintf(stderr, "anychange: indom %s changed\n", pmInDomStr(ip->old_indom));
+	    }
 	    return 1;
+	}
 	for (i = 0; i < ip->numinst; i++) {
-	    if (ip->inst_flags[i])
+	    if (ip->inst_flags[i]) {
+		if (pmDebugOptions.appl3) {
+		    fprintf(stderr, "anychange: indom %s inst %d flags (%d) != 0\n", pmInDomStr(ip->old_indom), i, ip->inst_flags[i]);
+		}
 		return 1;
+	    }
 	}
     }
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
-	if (mp->flags != 0 || mp->ip != NULL)
+	if (mp->flags != 0 || mp->ip != NULL) {
+	    if (pmDebugOptions.appl3) {
+		if (mp->flags != 0)
+		    fprintf(stderr, "anychange: metric %s flags (%d) != 0\n", mp->old_name, mp->flags);
+		if (mp->ip != NULL)
+		    fprintf(stderr, "anychange: metric %s ip NULL\n", mp->old_name);
+	    }
 	    return 1;
+	}
     }
     for (lp = label_root; lp != NULL; lp = lp->l_next) {
-	if (lp->flags != 0 || lp->ip != NULL)
+	if (lp->flags != 0 || lp->ip != NULL) {
+	    if (pmDebugOptions.appl3) {
+		if (lp->flags != 0)
+		    fprintf(stderr, "anychange: label %s flags (%d) != 0\n", lp->old_label, lp->flags);
+		if (lp->ip != NULL)
+		    fprintf(stderr, "anychange: label %s ip NULL\n", lp->old_label);
+	    }
 	    return 1;
+	}
     }
     for (tp = text_root; tp != NULL; tp = tp->t_next) {
-	if (tp->flags != 0 || tp->ip != NULL)
+	if (tp->flags != 0 || tp->ip != NULL) {
+	    if (pmDebugOptions.appl3) {
+		if (tp->flags != 0)
+		    fprintf(stderr, "anychange: %s %s text flags (%d) != 0\n",
+		       (tp->old_type & PM_TEXT_PMID) ? "pmID" : "pmInDom",
+		       (tp->old_type & PM_TEXT_PMID) ? pmIDStr(tp->old_id) : pmInDomStr(tp->old_id),
+		       tp->flags);
+		if (lp->ip != NULL)
+		    fprintf(stderr, "anychange: %s %s text ip NULL\n",
+		       (tp->old_type & PM_TEXT_PMID) ? "pmID" : "pmInDom",
+		       (tp->old_type & PM_TEXT_PMID) ? pmIDStr(tp->old_id) : pmInDomStr(tp->old_id));
+	    }
 	    return 1;
+	}
     }
     
     return 0;
@@ -1566,8 +1611,12 @@ main(int argc, char **argv)
     if (Cflag)
 	exit(0);
 
-    if (qflag && anychange() == 0)
+    if (qflag && anychange() == 0) {
+	if (pmDebugOptions.appl3) {
+	    fprintf(stderr, "Done, no rewriting required\n");
+	}
 	exit(0);
+    }
 
     /* create output log - must be done before writing label */
     outarch.archctl.ac_log = &outarch.logctl;
