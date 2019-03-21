@@ -1198,6 +1198,7 @@ BAD
 796 pmda.elasticsearch local
 797 pmlogrewrite local pmdumplog
 798 pmda.nfsclient local python
+799 pmlogrewrite local
 800 pmda.proc pmda.hotproc local
 801 pmda.netfilter local
 802 pmda valgrind dbpmda local
