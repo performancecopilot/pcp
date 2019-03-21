@@ -25,7 +25,7 @@ ArchLinux    -        -       python2-.* .*-python2
 CentOS       6\.10    -       .*-python3 python3-.* python3[0-9]-.*
 # we're using python3
 CentOS       7\.[56]  -       .*-python2 python2-.* python2[0-9]-.*
-# we're using python3 from Debian 9 on
+# we're using python3 from Debian 9 onwards
 Debian       9\..*    -       python-.*
 Debian       buster   -       python-.*
 #-- Fedora
@@ -42,7 +42,7 @@ Fedora       2[6-9]   -       python-.* python2-.*
 Gentoo       2\.4\.2  -       net-dns/avahi
 #-- LinuxMint
 # observed on vm18
-# libsoqt-dev -> libsoqt4-dev and all the other Qt pieces are Qt 5
+# libsoqt-dev -> libsoqt4-dev and all the other Qt pieces are Qt5
 LinuxMint    17\.3    -       libsoqt-dev
 # observed on vm36 ... ditto
 LinuxMint    18\.3    -       libsoqt-dev
@@ -80,6 +80,7 @@ Ubuntu       18\.04   i.86    python3-bpfcc
 # libsoqt-dev, libsoqt-dev-common and libcoin-dev are all for Qt4, but we're
 # using Qt5 for the other bits we need for pmview
 Ubuntu       18\.04   -       libcoin-dev libsoqt-dev libsoqt-dev-common
+Ubuntu       18\.10   -       libcoin-dev libsoqt-dev libsoqt-dev-common
 # we're using python3 from 14.04 on
 Ubuntu       1[45]\.. -       python-.*
 Ubuntu       1[67]\.. -       python-.*
