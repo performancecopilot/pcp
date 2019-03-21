@@ -5,7 +5,7 @@
 # Run from check after each test completes, but you need to ensure
 # the script is called check.callback and it is executable.
 #
-# Usage: check.callback [seq#]
+# Usage: check.callback [--precheck] [seq#]
 #
 # Note: This is a SAMPLE script, you should either
 #	(a) $ ln check.callback.sample check.callback
@@ -42,7 +42,7 @@ in
     # CONFIGURE-ME
     # - may need to add extra hosts here to enable this test
     #
-    bozo)
+    bozo|bozo-vm)
 	    if [ ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta.xz -a ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta ]
 	    then
 		echo "check.callback: fail: pmlogger.daily not well!"
@@ -55,6 +55,15 @@ esac
 status=0
 tmp=/var/tmp/check.callback-$$
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+if [ "$1" = "--precheck" ]
+then
+    shift
+    echo "--- start pre-check ---"
+    ./941 --check $1
+    ./870 --check $1
+    echo "--- end pre-check ---"
+fi
 
 # CONFIGURE-ME
 # Set abort to true if you want to stop QA as soon as a problem is
