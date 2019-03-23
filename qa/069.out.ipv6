@@ -1,6 +1,4 @@
 QA output created by 069
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
 should be OK
 
 pmcd.numclients

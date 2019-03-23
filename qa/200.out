@@ -1,37 +1,27 @@
 QA output created by 200
 
 PMCD_RECONNECT_TIMEOUT=""
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
 pmFetch failed: IPC protocol failure
 pmReconnectContext: success
 delay: 5-7 secs
 
 PMCD_RECONNECT_TIMEOUT="1,1,2,2"
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
 pmFetch failed: IPC protocol failure
 pmReconnectContext: success
 delay: 2-4 secs
 
 PMCD_RECONNECT_TIMEOUT="2"
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
 pmFetch failed: IPC protocol failure
 pmReconnectContext: success
 delay: 2-4 secs
 
 PMCD_RECONNECT_TIMEOUT="1-2"
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
 pmFetch failed: IPC protocol failure
 [DATE] recon(PID) Warning: pmReconnectContext: ignored bad PMCD_RECONNECT_TIMEOUT = '1-2'
 pmReconnectContext: success
 delay: 5-7 secs
 
 PMCD_RECONNECT_TIMEOUT="1,2,foo"
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
 pmFetch failed: IPC protocol failure
 [DATE] recon(PID) Warning: pmReconnectContext: ignored bad PMCD_RECONNECT_TIMEOUT = '1,2,foo'
 pmReconnectContext: success

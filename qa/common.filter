@@ -510,24 +510,13 @@ s/\.\.\.[. ]*failed/.../
 s/Performance Co-Pilot starting PMCD (logfile is [^)]*) .../Starting pmcd ... /
 s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
 }' \
-	-e '/^Starting pmcd/{
-s/\.\.\. \.\.done/... /
-}' \
-	-e '/^Starting pmlogger/{
-s/\.\.\. \.\.done/... /
-}' \
+	-e '/^Starting pmcd/d' \
+	-e '/^Starting pmlogger/d' \
+	-e '/^Waiting for PMCD/d' \
+	-e '/^Waiting for pmcd/d' \
 	-e '/^Performance Co-Pilot installing/s//Installing/' \
         -e '/^\.[. ]*done$/d' \
         -e '/^\.[. ]*failed$/d' \
-	-e '/^Waiting for PMCD/{
-s/PMCD/pmcd/
-s/\.\.\.[. ]*done/.../
-s/\.\.\.\.*/.../
-}' \
-	-e '/^Waiting for pmcd/{
-s/\.\.\.[. ]*done/.../
-s/\.\.\.\.*/.../
-}' \
 	-e 's/^\(Waiting .*\.\.\.\)\(\$PCP_RC_DIR\)/\1\
 \2/' \
 	-e '/^[ 	]*$/d' \
@@ -544,19 +533,11 @@ _filter_pcp_stop()
 {
     sed \
 	-e '/^Stopping pmlogger/d' \
+	-e '/^Waiting for PMCD/s/PMCD/pmcd/' \
+	-e '/^Waiting for pmcd/d' \
 	-e '/^Waiting for PMIE/s/PMIE/pmie/' \
-	-e '/^Waiting for pmie/s/\.\.\.[. ]*done/.../' \
-	-e '/^Waiting for PMCD/{
-s/\.\.\.[. ]*done/.../
-s/PMCD/pmcd/
-s/\.\.\.\.*/.../
-}' \
-	-e '/^Waiting for pmcd/{
-s/\.\.\.[. ]*done/.../
-s/\.\.\.\.*/.../
-}' \
+	-e '/^Waiting for pmie/d' \
 	-e '/Warning: Forcing PMCD to terminate!/s/PMCD/pmcd/' \
-	-e '/^Waiting for pmie/s/\.\.\. *$/.../' \
 	-e '/^Performance Co-Pilot/s/\.\.\. *$/.../' \
         -e '/^\.[. ]*done$/d' \
 	-e '/is not a native service, redirecting to .*chkconfig/d' \
@@ -577,8 +558,10 @@ _filterall_pcp_start()
 _filter_pmie_start()
 {
     sed \
-	-e '/^Waiting for PMIE/s/PMIE/pmie/' \
-	-e '/^Waiting for pmie process(es) to terminate/d' \
+	-e 's/PMIE/pmie/g' \
+	-e '/^Stopping pmie/d' \
+	-e '/^Starting pmie/d' \
+	-e '/^Waiting for pmie/d' \
 	-e "s;$PCP_RC_DIR/pmie;\$PCP_RC_DIR/pmie;g" \
 	-e '/(pmie) is disabled/d' \
 	-e '/To enable/d' \
@@ -609,7 +592,9 @@ _filter_pmie_stop()
 _filter_pmproxy_start()
 {
     sed \
-	-e '/^Waiting for pmproxy to terminate/d' \
+	-e '/^Stopping pmproxy/d' \
+	-e '/^Starting pmproxy/d' \
+	-e '/^Waiting for pmproxy/d' \
 	-e "s;$PCP_RC_DIR/pmproxy;\$PCP_RC_DIR/pmproxy;g" \
 	-e '/(pmproxy) is disabled/d' \
 	-e '/To enable/d' \
@@ -632,6 +617,24 @@ _filter_pmproxy_stop()
 	-e "s;$PCP_RC_DIR/pmproxy;\$PCP_RC_DIR/pmproxy;g" \
 	-e '/^Waiting for pmproxy/s/\.\.\.[. ]*done/.../' \
 	-e '/^Waiting for pmproxy/s/\.\.\. *$/.../' \
+    | _filter_init_distro
+}
+
+_filter_pmwebd_start()
+{
+    sed \
+	-e '/^Stopping pmwebd/d' \
+	-e '/^Starting pmwebd/d' \
+	-e '/^Waiting for pmwebd/d' \
+	-e "s;$PCP_RC_DIR/pmwebd;\$PCP_RC_DIR/pmwebd;g" \
+    | _filter_init_distro
+}
+
+_filter_pmwebd_stop()
+{
+    sed \
+	-e '/^Waiting for pmwebd/d' \
+	-e "s;$PCP_RC_DIR/pmwebd;\$PCP_RC_DIR/pmwebd;g" \
     | _filter_init_distro
 }
 
@@ -667,7 +670,8 @@ Updating the PMCD control file, and notifying PMCD ...
 Installing files ...\
 [...install files, make output...]\
 Updating the Performance Metrics Name Space (PMNS) ...
-'
+' \
+    | _filter_pcp_start
 }
 
 _filter_pmda_remove()

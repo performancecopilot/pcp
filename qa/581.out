@@ -1,22 +1,16 @@
 QA output created by 581
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
 
 sample.dynamic.instant
     inst [10 or "ten"] value N
     inst [20 or "twenty"] value N
     inst [30 or "thirty"] value N
 
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
 
 sample.dynamic.instant
     inst [10 or "ten"] value N
     inst [20 or "twenty"] value N
     inst [30 or "thirty"] value N
 
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
 
 sample.dynamic.instant
     inst [20 or "twenty"] value N
@@ -28,8 +22,6 @@ sample.dynamic.instant
     inst [58 or "fifty-eight"] value N
     inst [106 or "one-hundred-and-six"] value N
 
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
 
 sample.dynamic.instant
     inst [7 or "seven"] value N
@@ -39,8 +31,6 @@ sample.dynamic.instant
     inst [30 or "thirty-*"] value N
     inst [100 or "one-hundred"] value N
 
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
 
 sample.dynamic.instant
 No value(s) available!
@@ -68,6 +58,3 @@ DATE: DYN_INSTANT seven eight ten twenty thirty-* one-hundred
 [TIMESTAMP] pmie(PID) Error: pmFetch from HOST failed: IPC protocol failure
 [TIMESTAMP] pmie(PID) Info: Lost connection to pmcd HOST
 [TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd HOST
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
-Starting pmlogger ... 

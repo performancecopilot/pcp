@@ -177,7 +177,7 @@ then
 fi
 
 # and we're starting a new pmcd ...
-_service pmcd stop
+_service pmcd stop | _filter_pcp_stop
 
 # Build simple agent
 #

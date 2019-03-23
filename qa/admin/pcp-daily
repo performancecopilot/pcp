@@ -123,7 +123,7 @@ then
     echo "Warning: modified pcp files ..." | tee -a \$HOME/daily.log
     sed -e 's/.*M  */    /' \$tmp.status | tee -a \$HOME/daily.log
 else
-    echo "Info: No modified pcp files" | tee -a \$HOME/daily.log
+    echo "Info: no modified pcp files" | tee -a \$HOME/daily.log
 fi
 End-of-File
 }
@@ -543,7 +543,7 @@ then
     do
 	if grep "\$svc.service[ 	]*enabled" <\$tmp.systemctl >/dev/null
 	then
-	    echo "Info: Restarting \$svc" | tee -a \$HOME/daily.qa.log
+	    echo "Info: restarting \$svc" | tee -a \$HOME/daily.qa.log
 	    sudo systemctl restart \$svc
 	fi
     done
@@ -798,7 +798,7 @@ do
     count=`wc -l <$tmp.domain | sed -e 's/ //g'`
     if [ $count != 1 ]
     then
-	echo "Warning: More than one domain matches \"$target\" ... the matches I have are ..."
+	echo "Warning: more than one domain matches \"$target\" ... the matches I have are ..."
 	cat $tmp.domain
 	echo "... using the first one."
     fi
@@ -1183,9 +1183,9 @@ End-of-File
 	    then
 		if $work
 		then
-		    echo "Warning: Already shutdown"  | tee -a $HOME/daily.log
+		    echo "Warning: already shutdown"  | tee -a $HOME/daily.log
 		else
-		    echo "Warning: Already shutdown"
+		    echo "Warning: already shutdown"
 		fi
 	    else
 		ssh -f -t -q $build_user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; ( sudo poweroff || sudo halt )" </dev/null &
@@ -1198,17 +1198,17 @@ End-of-File
 		sudo virsh destroy $domain
 		if $work
 		then
-		    echo "Info: Shutdown"  | tee -a $HOME/daily.log
+		    echo "Info: shutdown"  | tee -a $HOME/daily.log
 		else
-		    echo "Info: Shutdown"
+		    echo "Info: shutdown"
 		fi
 	    fi
 	else
 	    if $work
 	    then
-		echo "Warning: Shutdown skipped"  | tee -a $HOME/daily.log
+		echo "Warning: shutdown skipped"  | tee -a $HOME/daily.log
 	    else
-		echo "Warning: Shutdown skipped"
+		echo "Warning: shutdown skipped"
 	    fi
 	fi
     fi
