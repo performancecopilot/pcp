@@ -9,10 +9,8 @@ Check txmon metrics have gone away ... OK
 Welcome to the Install script for the demonstration "txmon" PMDA.
 This PMDA will establish a shared memory segment with one statistics
 structure per transaction type.
-
 You must define the names of the transaction types (the names are
 arbitrary strings with no embedded white space, e.g. mytx#1).
-
 Installing files ...
 [...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...

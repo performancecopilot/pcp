@@ -1,16 +1,13 @@
 QA output created by 461
 Possible configuration files to choose from:
-[1] PCP_VAR_DIR/config/logger/logger.conf
+[1] $PCP_VAR_DIR/config/logger/logger.conf
 [2] Specify your own configuration file.
 [3] None of the above (abandon configuration file selection).
 Which configuration file do you want to use ? [1] 
 Contents of the selected configuration file:
---------------- start PCP_VAR_DIR/config/logger/logger.conf ---------------
-
+--------------- start $PCP_VAR_DIR/config/logger/logger.conf ---------------
 reg	y	TMPFILE.reg
-
---------------- end PCP_VAR_DIR/config/logger/logger.conf ---------------
-
+--------------- end $PCP_VAR_DIR/config/logger/logger.conf ---------------
 Use this configuration file? [y] Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
