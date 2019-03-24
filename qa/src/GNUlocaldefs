@@ -48,7 +48,8 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	archctl_segfault.c debug.c int2pmid.c int2indom.c exectest.c \
 	unpickargs.c hanoi.c progname.c countmark.c \
 	indom2int.c pmid2int.c scanmeta.c traverse_return_codes.c \
-	timeshift.c checkstructs.c bcc_profile.c sha1int2ext.c
+	timeshift.c checkstructs.c bcc_profile.c sha1int2ext.c \
+	getdomainname.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -313,7 +314,7 @@ template:	template.c
 
 exercise:	exercise.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ exercise.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ exercise.c $(LDLIBS)
 
 chkacc1:	chkacc1.c
 	rm -f $@
@@ -329,7 +330,7 @@ chkacc3:	chkacc3.c
 
 ipc:	ipc.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ ipc.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ ipc.c $(LDLIBS)
 
 chk_memleak:	chk_memleak.c
 	rm -f $@
@@ -337,11 +338,11 @@ chk_memleak:	chk_memleak.c
 
 chknumval:	chknumval.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ chknumval.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ chknumval.c $(LDLIBS)
 
 logcontrol:	logcontrol.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ logcontrol.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ logcontrol.c $(LDLIBS)
 
 numberstr: numberstr.c
 	rm -f $@
@@ -349,11 +350,11 @@ numberstr: numberstr.c
 
 pmcdgone:	pmcdgone.c localconfig.h
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pmcdgone.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pmcdgone.c $(LDLIBS)
 
 slow_af:	slow_af.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ slow_af.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ slow_af.c $(LDLIBS)
 
 mmv_poke:	mmv_poke.c
 	rm -f $@
@@ -361,19 +362,23 @@ mmv_poke:	mmv_poke.c
 
 labels:	labels.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ labels.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ labels.c $(LDLIBS)
 
 mergelabels:	mergelabels.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ mergelabels.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ mergelabels.c $(LDLIBS)
 
 mergelabelsets:	mergelabelsets.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ mergelabelsets.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ mergelabelsets.c $(LDLIBS)
 
 traverse_return_codes:	traverse_return_codes.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ traverse_return_codes.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ traverse_return_codes.c $(LDLIBS)
+
+getdomainname:	getdomainname.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ getdomainname.c $(LDLIBS)
 
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
@@ -474,15 +479,15 @@ mmv%:	mmv%.o
 #
 pducheck:	pducheck.o 
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pducheck.o  $(TRACELIB) $(LDLIBS) -lpcp_pmda
+	$(CCF) $(CDEFS) -o $@ pducheck.o $(TRACELIB) $(LDLIBS) -lpcp_pmda
 
 pducrash:	pducrash.o 
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pducrash.o  $(TRACELIB) $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pducrash.o $(TRACELIB) $(LDLIBS)
 
 pdu-server:	pdu-server.o
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pdu-server.o  $(TRACELIB) $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pdu-server.o $(TRACELIB) $(LDLIBS)
 
 obs:	obs.c
 	rm -f $@
