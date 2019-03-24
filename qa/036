@@ -22,12 +22,19 @@ _cleanup()
 # filter pid's in lines like ...
 # __pmProcessExec: pid=1965 wait_pid=1965
 #
+# and for some *BSD systems, the /bin/sh -c " ...; kill -TERM $$; ..." test
+# returns an exit code of 143 (0x8f00) which is the real status shifted
+# left by 8 bits (!) ... so map 0x8f00 -> 0x8f (so exit 143 -> signal 15)
+# and the return value 143 -> 1015 (1000 + signal 15).
+#
 _filter()
 {
     tee -a $here/$seq.full \
     | sed \
 	-e 's/pid=[0-9][0-9]*/pid=PID/g' \
 	-e "s@$tmp@TMP@g" \
+	-e 's/PID exit=143/PID signal=15/' \
+	-e 's/-> 143 exit=143/-> 1015 signal=15/' \
     #end
 }
 
