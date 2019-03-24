@@ -182,24 +182,57 @@ It is strongly recommended that you run the script:
 ```
 $ qa/admin/check-vm
 ```
-and review the output before commencing a build.
+and review the output before commencing a build.  It is is generally
+safe to ignore packages marked as "N/A" (not available), "build
+optional" or "QA optional".  Alternatively use:
+```
+$ qa/admin/check-vm -bfp
+```
+(-b for basic packages, -f to **not** try to guess Python, Perl, ...
+version and -p to output just package names) to produce a minimal
+list of packages that should be installed.
 
 ### 1. Configure, build and install the package
 
 The pcp package uses autoconf/configure and expects a GNU build
 environment (your platform must at least have gmake).
 
-If you just want to build a .RPM, .DEB, .DMG, .MSI[*] and/or tar
-file, use the "Makepkgs" script in the top level directory.
-This will configure and build the package for your platform and
-leave binary and src packages in the build/<pkg-type> directory.
-It will also leave binary and source tar file in the build/tar
-directory.
+If you just want to build a .rpm, .deb, .dmg, .msi[*] and/or
+tar file, use the "Makepkgs" script in the top level directory.
+This will configure and build the package for your platform and leave
+binary and src packages in either the build/<pkg-type> directory
+or the pcp-<version>/build/<pkg-type> directory.  It will also
+leave a source tar file in either the build/tar directory or the
+pcp-<version>/build/tar directory.
 ```
 $ ./Makepkgs --verbose
 $ ./Makepkgs --verbose --target mingw64
 ```
+Once "Makepkgs" completes you will have package binaries that will
+need to be installed.  The recipe depends on the packaging flavour,
+but the following should provide guidance:
 
+**dkg install** (Debian and derivative distributions)
+```
+$ cd build/deb
+$ dpkg -i *.deb
+```
+**rpm install** (RedHat, SuSE and their derivative distributions)
+```
+$ cd pcp-<version>/build/rpm
+$ sudo rpm -U `echo *.rpm | sed -e '/\.src\.rpm$/d'`
+```
+**tarball install** (where we don't have native packaging working yet)
+```
+$ cd pcp-<version>/build/tar
+$ here=`pwd`
+$ tarball=$here/pcp-[0-9]*[0-9].tar.gz
+$ sudo ./preinstall
+$ cd /
+$ sudo tar -zxpf $tarball
+$ cd $here
+$ sudo ./postinstall
+```
 [*] Windows builds require https://fedoraproject.org/wiki/MinGW
 cross-compilation.  Currently packaging is no longer performed,
 although previously MSI builds were possible.  Work on tackling
