@@ -16,11 +16,11 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # optfetch routines use hashing on PMID and so the exact configuration
 # of the pmFetch groups is sensitive to endian-ness ... hence the
-# filter for a range of computed costs.
+# filter for a range of number of groups and computed costs.
 src/chkoptfetch \
 | tee $seq.full \
 | $PCP_AWK_PROG '
-/re-arrangement/	{ if ($5 == "1," || $5 == "2,") $5="1 or 2,"
-			  if ($NF >= 55 && $NF <= 85) $NF = "[in range]"
+/re-arrangement/	{ if ($5 == "1," || $5 == "2," || $5 == "3,") $5="1-3,"
+			  if ($NF >= 50 && $NF <= 85) $NF = "[in range]"
 			}
 			{ print }'
