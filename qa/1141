@@ -79,17 +79,42 @@ if [ "x$error_line" = "x" ]
 then
     _semodule_remove
     status=0
-    exit
 else
     if [ "x$semodule_x_option" = "x" ]
     then
 	echo "Error from type: $error_line"
     else
-	/usr/libexec/selinux/hll/pp 2>/dev/null $tmp/selinux/$policy_name.pp $tmp/selinux/$policy_name.cil
 	echo "Error on line: $error_line from $policy_name.cil"
-	awk -v error_line="$error_line" \
-	    'FNR==error_line' $tmp/selinux/$policy_name.cil
+	# places where hll/pp is hiding
+	#
+	SEARCH="/usr/libexec/selinux /usr/lib/selinux"
+	pp_path=''
+	for dir in $SEARCH
+	do
+	    if [ -f $dir/hll/pp ]
+	    then
+		pp_path=$dir/hll/pp
+		break
+	    fi
+	done
+	if [ -z "$pp_path" ]
+	then
+	    # no pretty printing for us ...
+	    #
+	    echo "Arrgh: cannot find hll/pp in SEARCH paths \"$SEARCH\""
+	else
+	    $pp_path >$tmp.out 2>&1 $tmp/selinux/$policy_name.pp $tmp/selinux/$policy_name.cil
+	    if [ ! -f $tmp/selinux/$policy_name.cil ]
+	    then
+		cat $tmp.out
+		echo "Arrgh: failed to create $tmp/selinux/$policy_name.cil"
+	    else
+		awk -v error_line="$error_line" \
+			'FNR==error_line' $tmp/selinux/$policy_name.cil
+	    fi
+	fi
     fi
-    exit
 fi
+
+exit
 

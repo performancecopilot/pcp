@@ -13,6 +13,7 @@
  */
 
 #include <QtGui>
+#include <QMessageBox>
 #include "pmgadgets.h"
 #include "qed_led.h"
 #include "qed_line.h"

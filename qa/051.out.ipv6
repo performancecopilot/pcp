@@ -47,7 +47,6 @@ Make sure all the config files are there
 051.work/die.045
 051.work/kill.001
 terminating pmcd...
-Waiting for pmcd to terminate ...
 
 Running the scanner/parser tests (die.\*)
 
@@ -1002,5 +1001,3 @@ Cannot open x "y" z: No such file or directory
 Cannot open #abc: No such file or directory
 kill.001 endlog ----------------
 Restarting pmcd
-Starting pmcd ... 
-Starting pmlogger ... 

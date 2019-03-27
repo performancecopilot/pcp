@@ -74,6 +74,7 @@ fetchrate_lite
 fetchrate_lite.c
 getconfig
 getcontexthost
+getdomainname
 getoptions
 getversion
 github-50

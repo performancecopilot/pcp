@@ -37,7 +37,7 @@ pmdamemcache_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/memcache
     $sudo ./Remove >/dev/null 2>&1
-    _service pmcd stop
+    _service pmcd stop | _filter_pcp_stop
 
     cat <<EOF >$tmp.config
 \$memcache_delay = 1;

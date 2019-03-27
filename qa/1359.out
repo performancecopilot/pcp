@@ -59,14 +59,14 @@ Warning: deprecated __pmSetDebugBits() called
 arg: all
 pmSetDebug("all") ...
 pmDebug:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate
-pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate,deprecated,exec,labels,series,libweb
+pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate,deprecated,exec,labels,series,libweb,appl3,appl4,appl5
 pmClearDebug("all") ...
 pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
 __pmParseDebug("all") ...
 __pmParseDebug -> 2147483647
 pmDebug:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate
-pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate,deprecated,exec,labels,series,libweb
+pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate,deprecated,exec,labels,series,libweb,appl3,appl4,appl5
 pmClearDebug("all") ...
 pmDebug:	Nothing set
 pmDebugOptions:	Nothing set

@@ -20,9 +20,11 @@
     -c (config), -zoom (factor), ... rest through to pmgadgets.
 """
 
+from __future__ import print_function
 from sys import argv
 from pcp import pmapi
-from math import sqrt
+#from math import sqrt
+import math
 from cpmapi import PM_TYPE_U32
 
 PCPARGS = ""	# for pmgadgets-launched child processes to use
@@ -69,7 +71,7 @@ class Machine(object):
         descs = self.context.pmLookupDescs(pmids)
         result = self.context.pmFetch(pmids)
         hardware = [0, 0, 0, 0]
-        for x in xrange(4):
+        for x in range(4):
             atom = self.context.pmExtractValue(
                                 result.contents.get_valfmt(x),
                                 result.contents.get_vlist(x, 0),
@@ -97,14 +99,14 @@ class Machine(object):
         (inst, self.ifaces) = self.context.pmGetInDom(descs[3])
 
     def details(self):
-        print "CPUs: ", self.ncpu
-        print "CPU names: ", self.cpus
-        print "Disks: ", self.ndisk
-        print "Disk names: ", self.disks
-        print "Partition names: ", self.parts
-        print "Interfaces: ", self.niface
-        print "Interface names: ", self.ifaces
-        print "Memory: ", self.memory
+        print("CPUs: ", self.ncpu)
+        print("CPU names: ", self.cpus)
+        print("Disks: ", self.ndisk)
+        print("Disk names: ", self.disks)
+        print("Partition names: ", self.parts)
+        print("Interfaces: ", self.niface)
+        print("Interface names: ", self.ifaces)
+        print("Memory: ", self.memory)
 
     def get_diskmaps(self):
         """ Produce disk -> partition mappings
@@ -125,10 +127,10 @@ class Machine(object):
     def gadgetize(self):
         """ Generate a pmgadgets configuration for this host
         """
-        print "pmgadgets 1",	# follow with command line
+        print("pmgadgets 1", end=' ')	# follow with command line
         for arg in argv:
-            print "\"%s\"" % (arg),
-        print
+            print("\"%s\"" % (arg), end=' ')
+        print("")
 
         rows = 1
         ctiles = int((self.ncpu - 1) / 4 + 1)   # always at least one cpu
@@ -146,25 +148,25 @@ class Machine(object):
         if DOLABEL == 1:
             y = FONTASCENT + VSPACE
             hostname = self.context.pmGetContextHostName()
-            print "_label %d %d \"%s\"" % (HSPACE, y, hostname)
+            print("_label %d %d \"%s\"" % (HSPACE, y, hostname))
             baseY += y
         baseX = maxX = HSPACE
         maxY = baseY
 
-        print "_actions cpuActions ("
-        print "    \"pmchart\"\t\t\"pmchart -c CPU%s\"" % (PCPARGS)
-        print "    \"mpvis *\"\t\t\"mpvis%s\" _default" % (PCPARGS)
+        print("_actions cpuActions (")
+        print("    \"pmchart\"\t\t\"pmchart -c CPU%s\"" % (PCPARGS))
+        print("    \"mpvis *\"\t\t\"mpvis%s\" _default" % (PCPARGS))
         # original had IRIX gr_top and gr_osview tools next;
         # perhaps some fine day we could implement these as
         # pmgadgets front-end tools (certainly the latter)
-        print ")"
+        print(")")
 
         y = baseY + FONTASCENT
         x = baseX
-        print "_label %d %d \"CPU\"" % (x, y)
-        print "    _actions cpuActions\n"
+        print("_label %d %d \"CPU\"" % (x, y))
+        print("    _actions cpuActions\n")
         # original: "these should match the colours in mpvis"
-        print "_colourlist cpuColours (blue3 red3 yellow3 cyan3 green3)"
+        print("_colourlist cpuColours (blue3 red3 yellow3 cyan3 green3)")
 
         # place the CPU bars
         y += VSPACE
@@ -175,18 +177,18 @@ class Machine(object):
             for ct in range(0, ccols):
                 tc = 0
                 while (cpu < self.ncpu and tc < 4):
-                    print "_multibar %d %d %d %d" % (x, y, CPUWIDTH, CPUHEIGHT)
-                    print("    _update %f" % (CPUDELTA)).rstrip('0').rstrip('.')
-                    print "    _metrics ("
-                    print "\tkernel.percpu.cpu.user[\"%s\"]" % (self.cpus[cpu])
-                    print "\tkernel.percpu.cpu.sys[\"%s\"]" % (self.cpus[cpu])
-                    print "\tkernel.percpu.cpu.intr[\"%s\"]" % (self.cpus[cpu])
-                    print "\tkernel.percpu.cpu.wait.total[\"%s\"]" % (self.cpus[cpu])
-                    print "\tkernel.percpu.cpu.idle[\"%s\"]" % (self.cpus[cpu])
-                    print "    )"
-                    print "    _maximum 0.0\n"
-                    print "    _colourlist cpuColours"
-                    print "    _actions cpuActions\n"
+                    print("_multibar %d %d %d %d" % (x, y, CPUWIDTH, CPUHEIGHT))
+                    print("    _update %f" % CPUDELTA)
+                    print("    _metrics (")
+                    print("\tkernel.percpu.cpu.user[\"%s\"]" % (self.cpus[cpu]))
+                    print("\tkernel.percpu.cpu.sys[\"%s\"]" % (self.cpus[cpu]))
+                    print("\tkernel.percpu.cpu.intr[\"%s\"]" % (self.cpus[cpu]))
+                    print("\tkernel.percpu.cpu.wait.total[\"%s\"]" % (self.cpus[cpu]))
+                    print("\tkernel.percpu.cpu.idle[\"%s\"]" % (self.cpus[cpu]))
+                    print("    )")
+                    print("    _maximum 0.0\n")
+                    print("    _colourlist cpuColours")
+                    print("    _actions cpuActions\n")
                     cpu += 1
                     tc += 1
                     y += VSPACE + CPUHEIGHT
@@ -204,13 +206,13 @@ class Machine(object):
         baseX += (HSPACE + CPUWIDTH) * ccols
 
         # The load gadget and its label
-        print "_actions loadActions ("
-        print "    \"pmchart *\"",
-        print "\t\"pmchart -c LoadAvg%s\" _default" % (PCPARGS)
+        print("_actions loadActions (")
+        print("    \"pmchart *\"",)
+        print("\t\"pmchart -c LoadAvg%s\" _default" % (PCPARGS))
         # original had IRIX gr_top here
-        print ")"
-        print "_label %d %d \"Load\"" % (baseX, baseY + FONTASCENT)
-        print "    _actions loadActions"
+        print(")")
+        print("_label %d %d \"Load\"" % (baseX, baseY + FONTASCENT))
+        print("    _actions loadActions")
         print
 
         y = VSPACE + baseY + FONTASCENT
@@ -219,11 +221,11 @@ class Machine(object):
         if (i > maxY):
             maxY = i
 
-        print "_bargraph %d %d %d %d" % (baseX, y, LOADWIDTH, LOADHEIGHT)
-        print("    _update %f" % (LOADDELTA)).rstrip('0').rstrip('.')
-        print "    _metric kernel.all.load[\"1 minute\"]"
-        print "    _max 1.0"
-        print "    _actions loadActions"
+        print("_bargraph %d %d %d %d" % (baseX, y, LOADWIDTH, LOADHEIGHT))
+        print("    _update %f" % LOADDELTA)
+        print("    _metric kernel.all.load[\"1 minute\"]")
+        print("    _max 1.0")
+        print("    _actions loadActions")
 
         # For more than one row, stack LoadAvg on top of Memory.
         #
@@ -241,22 +243,22 @@ class Machine(object):
         # The memory gadgets and their label (platform-specific!)
         x = baseX - LOADWIDTH - HSPACE
         y += FONTASCENT
-        print "_label %d %d \"Mem\"\n" % (x, y)
-        print "_colourlist memColours (cyan1 red yellow green)\n"
+        print("_label %d %d \"Mem\"\n" % (x, y))
+        print("_colourlist memColours (cyan1 red yellow green)\n")
         y += VSPACE
-        print "_multibar %d %d %d %d" % (x, y, MEMWIDTH, MEMHEIGHT)
-        print "    _update 0.5"
-        print "    _metrics ("
-        print "\tmem.util.cached"
-        print "\tmem.util.bufmem"
-        print "\tmem.util.other"
-        print "\tmem.util.free"
-        print "    )"
-        print "    _colourlist memColours"
+        print("_multibar %d %d %d %d" % (x, y, MEMWIDTH, MEMHEIGHT))
+        print("    _update 0.5")
+        print("    _metrics (")
+        print("\tmem.util.cached")
+        print("\tmem.util.bufmem")
+        print("\tmem.util.other")
+        print("\tmem.util.free")
+        print("    )")
+        print("    _colourlist memColours")
         x += HSPACE + MEMWIDTH
-        print "_bar %d %d %d %d" % (x, y, MEMWIDTH, MEMHEIGHT)
-        print "    _metric swap.pagesout"
-        print "    _vertical"
+        print("_bar %d %d %d %d" % (x, y, MEMWIDTH, MEMHEIGHT))
+        print("    _metric swap.pagesout")
+        print("    _vertical")
 
         # Check for the max horizontal offset
         i = y + MEMHEIGHT
@@ -264,20 +266,20 @@ class Machine(object):
             maxY = i
 
         # The network bars and their label
-        print "_colourlist netColours (aquamarine orange)"
-        print "_actions netActions ("
-        print "    \"pmchart-packets *\"",
-        print "\t\"pmchart -c NetPackets%s\" _default" % (PCPARGS)
-        print "    \"pmchart-bytes\"",
-        print "\t\t\"pmchart -c NetBytes%s\"" % (PCPARGS)
+        print("_colourlist netColours (aquamarine orange)")
+        print("_actions netActions (")
+        print("    \"pmchart-packets *\"",)
+        print("\t\"pmchart -c NetPackets%s\" _default" % (PCPARGS))
+        print("    \"pmchart-bytes\"",)
+        print("\t\t\"pmchart -c NetBytes%s\"" % (PCPARGS))
         # original had netstat within an xterm here, next
-        print ")"
+        print(")")
 
         y = baseY + FONTASCENT
         x = baseX
 
-        print "_label %d %d \"Net\"" % (x, y)
-        print "    _actions netActions\n"
+        print("_label %d %d \"Net\"" % (x, y))
+        print("    _actions netActions\n")
 
         y += VSPACE
 
@@ -288,13 +290,13 @@ class Machine(object):
             for nt in range(0, ncols):
                 tc = 0
                 while ni < self.niface and tc < 4:
-                    print "_multibar %d %d %d %d" % (x, y, NETWIDTH, NETHEIGHT)
-                    print "    _metrics ("
-                    print "\tnetwork.interface.in.bytes[\"%s\"]" % (self.ifaces[ni])
-                    print "\tnetwork.interface.out.bytes[\"%s\"]" % (self.ifaces[ni])
-                    print "    )"
-                    print "_colourlist netColours"
-                    print "    _actions netActions"
+                    print("_multibar %d %d %d %d" % (x, y, NETWIDTH, NETHEIGHT))
+                    print("    _metrics (")
+                    print("\tnetwork.interface.in.bytes[\"%s\"]" % (self.ifaces[ni]))
+                    print("\tnetwork.interface.out.bytes[\"%s\"]" % (self.ifaces[ni]))
+                    print("    )")
+                    print("_colourlist netColours")
+                    print("    _actions netActions")
                     y += NETHEIGHT + VSPACE
 
                     tc += 1
@@ -313,23 +315,23 @@ class Machine(object):
         # Disks
         dir = 1
 
-        print "_actions diskActions ("
-        print "    \"pmchart\"",
-        print "\t\t\"pmchart -c Disk%s\"" % (PCPARGS)
-        print "    \"dkvis *\"",
-        print "\t\t\"dkvis%s\" _default" % (PCPARGS)
-        print ")"
+        print("_actions diskActions (")
+        print("    \"pmchart\"",)
+        print("\t\t\"pmchart -c Disk%s\"" % (PCPARGS))
+        print("    \"dkvis *\"",)
+        print("\t\t\"dkvis%s\" _default" % (PCPARGS))
+        print(")")
 
         x = HSPACE
         y = maxY + FONTASCENT + 2 * VSPACE
-        print "_label %d %d \"Disk\"" % (x, y)
-        print "    _actions diskActions\n"
-        print "_legend diskLegend ("
-        print "    _default green3"
-        print "    15       yellow"
-        print "    40       orange"
-        print "    75       red"
-        print ")"
+        print("_label %d %d \"Disk\"" % (x, y))
+        print("    _actions diskActions\n")
+        print("_legend diskLegend (")
+        print("    _default green3")
+        print("    15       yellow")
+        print("    40       orange")
+        print("    75       red")
+        print(")")
 
         x += CPUWIDTH + HSPACE
         # this only works if FONTASCENT >= ledSize
@@ -356,11 +358,11 @@ class Machine(object):
                         ly = oldY + DISKSIZE - 1
                         lw = thickness
                         lh = VSPACE + 2
-                    print "_line %d %d %d %d" % (lx, ly, lw, lh)
-                print "_led %d %d %d %d" % (x, y, DISKSIZE, DISKSIZE)
-                print "    _metric disk.dev.total[\"%s\"]" % (mapping.name())
-                print "    _legend diskLegend"
-                print "    _actions diskActions"
+                    print("_line %d %d %d %d" % (lx, ly, lw, lh))
+                print("_led %d %d %d %d" % (x, y, DISKSIZE, DISKSIZE))
+                print("    _metric disk.dev.total[\"%s\"]" % (mapping.name()))
+                print("    _legend diskLegend")
+                print("    _actions diskActions")
                 oldX = x
                 oldY = y
                 xStep = dir * (DISKSIZE + VSPACE)	# use VSPACE (tighter packing)

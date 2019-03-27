@@ -68,7 +68,7 @@ disallow user $username : store;
 End-of-File
 $sudo cp $tmp.access $PCP_PMCDCONF_PATH.access
 
-_service pmcd start
+_service pmcd start | _filter_pcp_start
 _wait_for_pmcd 10 unix:
 
 cat $PCP_LOG_DIR/pmcd/pmcd.log >> $seq.full

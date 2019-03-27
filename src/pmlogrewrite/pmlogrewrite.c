@@ -767,7 +767,7 @@ anychange(void)
 		       (tp->old_type & PM_TEXT_PMID) ? "pmID" : "pmInDom",
 		       (tp->old_type & PM_TEXT_PMID) ? pmIDStr(tp->old_id) : pmInDomStr(tp->old_id),
 		       tp->flags);
-		if (lp->ip != NULL)
+		if (tp->ip != NULL)
 		    fprintf(stderr, "anychange: %s %s text ip NULL\n",
 		       (tp->old_type & PM_TEXT_PMID) ? "pmID" : "pmInDom",
 		       (tp->old_type & PM_TEXT_PMID) ? pmIDStr(tp->old_id) : pmInDomStr(tp->old_id));

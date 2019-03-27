@@ -20,4 +20,3 @@ sample.long.one
 
 sample.long.one
     labels {"TWO":1369,"agent":"sample","domainname":"DOMAINNAME","groupid":GID,"hostname":"HOSTNAME","machineid":"MACHINEID","role":"testing","userid":UID}
-Starting pmlogger ... 

@@ -1,26 +1,20 @@
 QA output created by 462
-Waiting for pmcd to terminate ...
 *** test 1 ***
 
 pmcd_wait succeeded as expected for running pmcd
 
-Starting pmcd ... 
 *** test 2 ***
 pmcd_wait: Failed to connect to PMCD on host "LOCALHOST" in 10 seconds
 
 pmcd_wait failed as expected for dead pmcd
 
-Waiting for pmcd to terminate ...
 *** test 4 ***
 
 pmcd_wait succeeded as expected for sleeping pmcd - under timeout
 
 $PCP_RC_DIR/pmcd: pmcd not running
-Starting pmcd ... 
 *** test 5 ***
 pmcd_wait: Failed to connect to PMCD on host "LOCALHOST" in 10 seconds
 
 pmcd_wait failed as expected for sleeping pmcd - over timeout
 
-Waiting for pmcd to terminate ...
-Starting pmcd ... 

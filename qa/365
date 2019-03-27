@@ -150,7 +150,7 @@ echo "=== pmcd restarting ===" >>$seq.full
 # (expected) error messages.
 #
 $sudo $PCP_RC_DIR/pmcd restart 2>>$seq.full | _filter_pcp_start
-$sudo $PCP_RC_DIR/pmlogger restart 2>>$seq.full
+$sudo $PCP_RC_DIR/pmlogger restart 2>>$seq.full | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 echo "=== pmcd restarted ===" >>$seq.full

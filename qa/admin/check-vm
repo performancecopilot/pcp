@@ -111,6 +111,7 @@ _getnetworkaddr()
 _usage()
 {
     echo "Usage: $0 [options]"
+    echo "  -b           base package set, skip the N/A and optional ones"
     echo "  -f           force, don't try to guess the version of Python, Qt, ..."
     echo "  -m manifest  use alternative manifest file"
     echo "  -o otherdir  use alternative other-packages directory"
@@ -136,6 +137,7 @@ then
     exit 1
 fi
 
+basic=false
 force=false
 pkglist=false
 pkgcmd=false
@@ -149,10 +151,13 @@ require="$home"/other-packages/require			# default, see -r
 skip="$home"/other-packages/skip			# default, see -s
 skipbase="$home"/other-packages/skip			# default, see -S
 unavailable="$home"/other-packages/unavailable		# default, see -u
-while getopts 'cfm:o:pPr:s:S:u:v?' p
+while getopts 'bcfm:o:pPr:s:S:u:v?' p
 do
     case "$p"
     in
+	b)
+		basic=true
+		;;
 	c)	# exec check-manifest when manifest has been build
 		# ... expert only, so not even mentioned in Usage
 		#
@@ -658,7 +663,6 @@ fi
 # Strip the distro-dependent lines that do not apply ...
 # this is an optimization remove checks from the main loop below
 #
-
 if [ -n "$PCP_PLATFORM" ]
 then
     iam="$PCP_PLATFORM"
@@ -912,6 +916,15 @@ then
     done
     echo "Handing off to $home/check-manifest ..."
     exec $home/check-manifest $check_manifest_args $tmp
+fi
+
+# skip "optional" and N/A packages for -b
+#
+if $basic
+then
+    $very_verbose && echo >&2 "exclude \"optional\" package lines"
+    sed -e '/ optional)/d' -e '/N\/A/d' <$tmp.manifest >$tmp.tmp
+    mv $tmp.tmp $tmp.manifest
 fi
 
 # main loop
