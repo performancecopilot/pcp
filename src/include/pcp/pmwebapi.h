@@ -23,11 +23,10 @@ extern "C" {
 
 /*
  * Opaque structures - forward declarations.
- * (see also <uv/uv.h>, <pcp/dict.h>, <pcp/mmv_stats.h>).
+ * (see also <pcp/dict.h> <pcp/mmv_stats.h>)
  */
 
 struct dict;
-struct uv_loop_s;
 struct mmv_registry;
 
 /*
@@ -135,7 +134,7 @@ typedef struct pmSeriesSettings {
 
 extern int pmSeriesSetup(pmSeriesModule *, void *);
 extern int pmSeriesSetSlots(pmSeriesModule *, void *);
-extern int pmSeriesSetEventLoop(pmSeriesModule *, struct uv_loop_s *);
+extern int pmSeriesSetEventLoop(pmSeriesModule *, void *);
 extern int pmSeriesSetConfiguration(pmSeriesModule *, struct dict *);
 extern int pmSeriesSetMetricRegistry(pmSeriesModule *, struct mmv_registry *);
 extern void pmSeriesClose(pmSeriesModule *);
@@ -203,7 +202,7 @@ typedef struct pmDiscoverSettings {
 
 extern int pmDiscoverSetup(pmDiscoverModule *, pmDiscoverCallBacks *, void *);
 extern int pmDiscoverSetSlots(pmDiscoverModule *, void *);
-extern int pmDiscoverSetEventLoop(pmDiscoverModule *, struct uv_loop_s *);
+extern int pmDiscoverSetEventLoop(pmDiscoverModule *, void *);
 extern int pmDiscoverSetConfiguration(pmDiscoverModule *, struct dict *);
 extern int pmDiscoverSetMetricRegistry(pmDiscoverModule *, struct mmv_registry *);
 extern void pmDiscoverClose(pmDiscoverModule *);

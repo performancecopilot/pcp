@@ -1530,12 +1530,12 @@ pmSeriesSetConfiguration(pmSeriesModule *module, dict *config)
 }
 
 int
-pmSeriesSetEventLoop(pmSeriesModule *module, uv_loop_t *events)
+pmSeriesSetEventLoop(pmSeriesModule *module, void *events)
 {
     seriesModuleData	*data = getSeriesModuleData(module);
 
     if (data) {
-	data->events = events;
+	data->events = (uv_loop_t *)events;
 	return 0;
     }
     return -ENOMEM;
@@ -1657,12 +1657,12 @@ pmDiscoverSetConfiguration(pmDiscoverModule *module, dict *config)
 }
 
 int
-pmDiscoverSetEventLoop(pmDiscoverModule *module, uv_loop_t *events)
+pmDiscoverSetEventLoop(pmDiscoverModule *module, void *events)
 {
     discoverModuleData	*data = getDiscoverModuleData(module);
 
     if (data) {
-	data->events = events;
+	data->events = (uv_loop_t *)events;
 	return 0;
     }
     return -ENOMEM;
