@@ -24,6 +24,10 @@
 #define SCHEMA_VERSION	2
 #define SHA1SZ		20
 
+extern sds		cursorcount;
+static sds		maxstreamlen;
+static sds		streamexpire;
+
 typedef struct redisScript {
     sds			hash;
     const char		*text;
@@ -1084,9 +1088,9 @@ redis_series_stream(redisSlots *slots, sds stamp, metric_t *metric,
     cmd = redis_command(count);
     cmd = redis_param_str(cmd, XADD, XADD_LEN);
     cmd = redis_param_sds(cmd, key);
-    cmd = redis_param_str(cmd, "MAXLEN", 6);	/* TODO: config file */
+    cmd = redis_param_str(cmd, "MAXLEN", sizeof("MAXLEN")-1);
     cmd = redis_param_str(cmd, "~", 1);
-    cmd = redis_param_str(cmd, "8640", 4);	/* 1 day, ~10 second delta */
+    cmd = redis_param_sds(cmd, maxstreamlen);
     cmd = redis_param_sds(cmd, stamp);
     cmd = redis_param_raw(cmd, stream);
     sdsfree(stream);
@@ -1098,7 +1102,7 @@ redis_series_stream(redisSlots *slots, sds stamp, metric_t *metric,
     cmd = redis_command(3);	/* EXPIRE key timer */
     cmd = redis_param_str(cmd, EXPIRE, EXPIRE_LEN);
     cmd = redis_param_sds(cmd, key);
-    cmd = redis_param_str(cmd, "86400", 5);	/* 1 day, TODO: config file */
+    cmd = redis_param_sds(cmd, streamexpire);
 
     redisSlotsRequest(slots, EXPIRE, key, cmd, redis_series_timer_callback, load);
 }
@@ -1403,37 +1407,16 @@ static void
 redis_load_slots_callback(redisAsyncContext *c, redisReply *reply, void *arg)
 {
     redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
-    redisSlotServer	*servers;
-    redisSlotRange	*slots;
-    sds			msg;
 
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_load_slots_callback");
 
-    /* Case of a single Redis instance or loosely cooperating instances */
-    if (testReplyError(reply, REDIS_ENOCLUSTER)) {
-	/* TODO: allow setup of multiple servers via configuration file */
-	if ((servers = calloc(1, sizeof(redisSlotServer))) != NULL) {
-	    if ((slots = calloc(1, sizeof(redisSlotRange))) != NULL) {
-		servers->hostspec = baton->slots->control.hostspec;
-		servers->redis = baton->slots->control.redis;
-		slots->nreplicas = 0;
-		slots->start = 0;
-		slots->end = MAXSLOTS;
-		slots->master = *servers;
-		redisSlotRangeInsert(baton->slots, slots);
-	    } else {
-		infofmt(msg, "failed to allocate Redis slots memory");
-		batoninfo(baton, PMLOG_ERROR, msg);
-		free(servers);
-		baton->version = -1;
-	    }
-	}
-    }
-    /* Case of a cluster of Redis instances, following the cluster spec */
-    else {
+    if (testReplyError(reply, REDIS_ENOCLUSTER) == 0) {
+	/* cluster of Redis instances, following the cluster spec */
 	if (checkArrayReply(baton->info, baton->userdata,
-				reply, "%s %s", CLUSTER, "SLOTS") == 0)
+				reply, "%s %s", CLUSTER, "SLOTS") == 0) {
+	    redisSlotsClear(baton->slots);
 	    decodeRedisSlots(baton, reply);
+	}
     }
 
     if (baton->flags & SLOTS_KEYMAP)
@@ -1481,7 +1464,7 @@ doneRedisSlotsBaton(redisSlotsBaton *baton)
 }
 
 redisSlots *
-redisSlotsConnect(sds server, redisSlotsFlags flags,
+redisSlotsConnect(dict *config, redisSlotsFlags flags,
 		redisInfoCallBack info, redisDoneCallBack done,
 		void *userdata, void *events, void *arg)
 {
@@ -1490,7 +1473,7 @@ redisSlotsConnect(sds server, redisSlotsFlags flags,
     sds				msg;
 
     if ((baton = (redisSlotsBaton *)calloc(1, sizeof(redisSlotsBaton))) != NULL) {
-	if ((slots = redisSlotsInit(server, events)) != NULL) {
+	if ((slots = redisSlotsInit(config, events)) != NULL) {
 	    initRedisSlotsBaton(baton, flags, info, done, userdata, events, arg);
 	    baton->slots = slots;
 	    redis_load_slots(baton);
@@ -1529,37 +1512,72 @@ pmSeriesSetSlots(pmSeriesModule *module, void *slots)
 int
 pmSeriesSetHostSpec(pmSeriesModule *module, sds hostspec)
 {
+    (void)module;
+    (void)hostspec;
+    return -ENOTSUP;	/* deprecated, use pmSeriesSetConfiguration */
+}
+
+int
+pmSeriesSetConfiguration(pmSeriesModule *module, dict *config)
+{
     seriesModuleData	*data = getSeriesModuleData(module);
 
     if (data) {
-	data->hostspec = hostspec;
+	data->config = config;
 	return 0;
     }
     return -ENOMEM;
 }
 
 int
-pmSeriesSetEventLoop(pmSeriesModule *module, void *events)
+pmSeriesSetEventLoop(pmSeriesModule *module, uv_loop_t *events)
 {
     seriesModuleData	*data = getSeriesModuleData(module);
 
     if (data) {
-	data->events = (uv_loop_t *)events;
+	data->events = events;
 	return 0;
     }
     return -ENOMEM;
 }
 
 int
-pmSeriesSetMetricRegistry(pmSeriesModule *module, void *registry)
+pmSeriesSetMetricRegistry(pmSeriesModule *module, mmv_registry_t *registry)
 {
     seriesModuleData	*data = getSeriesModuleData(module);
 
     if (data) {
-	data->metrics = (mmv_registry_t *)registry;
+	data->metrics = registry;
 	return 0;
     }
     return -ENOMEM;
+}
+
+static void
+redisGlobalsInit(struct dict *config)
+{
+    sds		option;
+
+    if (!cursorcount) {
+	if ((option = pmIniFileLookup(config, "pmseries", "cursor.count")))
+	    cursorcount = option;
+	else
+	    cursorcount = sdsnew("256");
+    }
+
+    if (!maxstreamlen) {
+	if ((option = pmIniFileLookup(config, "pmseries", "stream.maxlen")))
+	    maxstreamlen = option;
+	else
+	    maxstreamlen = sdsnew("8640");	/* 1 day, ~10 second delta */
+    }
+
+    if (!streamexpire) {
+	if ((option = pmIniFileLookup(config, "pmseries", "stream.expire")))
+	    streamexpire = option;
+	else
+	    streamexpire = sdsnew("86400");	/* 1 day (without changes) */
+    }
 }
 
 int
@@ -1568,6 +1586,7 @@ pmSeriesSetup(pmSeriesModule *module, void *arg)
     seriesModuleData	*data = getSeriesModuleData(module);
 
     /* create global EVAL hashes and string map caches */
+    redisGlobalsInit(data->config);
     redisScriptsInit();
     redisMapsInit();
 
@@ -1577,9 +1596,9 @@ pmSeriesSetup(pmSeriesModule *module, void *arg)
     } else if (data->slots) {
 	module->on_setup(arg);
     } else {
-	/* establish initial basic connection to Redis instances */
+	/* establish an initial connection to Redis instance(s) */
 	data->slots = redisSlotsConnect(
-			data->hostspec, SLOTS_VERSION, module->on_info,
+			data->config, SLOTS_VERSION, module->on_info,
 			module->on_setup, arg, data->events, arg);
     }
     return 0;
@@ -1620,34 +1639,42 @@ pmDiscoverSetSlots(pmDiscoverModule *module, void *slots)
 int
 pmDiscoverSetHostSpec(pmDiscoverModule *module, sds hostspec)
 {
+    (void)module;
+    (void)hostspec;
+    return -ENOTSUP;	/* deprecated, use pmDiscoverSetConfiguration */
+}
+
+int
+pmDiscoverSetConfiguration(pmDiscoverModule *module, dict *config)
+{
     discoverModuleData	*data = getDiscoverModuleData(module);
 
     if (data) {
-	data->hostspec = hostspec;
+	data->config = config;
 	return 0;
     }
     return -ENOMEM;
 }
 
 int
-pmDiscoverSetEventLoop(pmDiscoverModule *module, void *events)
+pmDiscoverSetEventLoop(pmDiscoverModule *module, uv_loop_t *events)
 {
     discoverModuleData	*data = getDiscoverModuleData(module);
 
     if (data) {
-	data->events = (uv_loop_t *)events;
+	data->events = events;
 	return 0;
     }
     return -ENOMEM;
 }
 
 int
-pmDiscoverSetMetricRegistry(pmDiscoverModule *module, void *registry)
+pmDiscoverSetMetricRegistry(pmDiscoverModule *module, mmv_registry_t *registry)
 {
     discoverModuleData	*data = getDiscoverModuleData(module);
 
     if (data) {
-	data->metrics = (mmv_registry_t *)registry;
+	data->metrics = registry;
 	return 0;
     }
     return -ENOMEM;
@@ -1668,6 +1695,7 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
 	return -ENOMEM;
 
     /* create global EVAL hashes and string map caches */
+    redisGlobalsInit(data->config);
     redisScriptsInit();
     redisMapsInit();
 

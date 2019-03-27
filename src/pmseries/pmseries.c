@@ -93,11 +93,6 @@ typedef struct series_data {
     pmSID		*iseries;	/* series identifiers for instances */
 } series_data;
 
-typedef struct series_config {
-    sds			hostname;	/* hostname for initial Redis socket */
-    unsigned int	port;		/* port number for that Redis socket */
-} series_config;
-
 static void on_series_done(int, void *);
 
 static series_data *
@@ -1009,44 +1004,19 @@ static pmOptions opts = {
     .override = pmseries_overrides,
 };
 
-static int
-series_ini_handler(void *configuration, const char *section, const char *name,
-		const char *value)
-{
-    series_config	*config = (series_config *)configuration;
-    char		*endnum;
-
-    if (strcmp(section, "pmseries") != 0)
-	return 1;	/* unknown section, error */
-
-    if (strcmp(name, "port") == 0) {
-	config->port = (int)strtol(value, &endnum, 10);
-	if (*endnum != '\0' || config->port < 0)
-	    return 0;  /* bad port number, error */
-    } else if (strcmp(name, "hostname") == 0) {
-	config->hostname = sdscpy(config->hostname, value);
-	if (!config->hostname)
-	    return 0;  /* out of memory, error */
-    } else {
-	return 0;  /* unknown name, error */
-    }
-    return 1;	/* success */
-}
-
 int
 main(int argc, char *argv[])
 {
-    sds			query, match = NULL;
+    sds			option, query, match = NULL;
     int			c, sts;
     const char		*split = ",";
     const char		*space = " ";
-    series_config	config;
+    const char		*inifile = NULL;
+    const char		*redis_host = NULL;
+    unsigned int	redis_port = 6379;	/* default Redis port */
+    struct dict		*config;
     series_flags	flags = 0;
     series_data		*dp;
-
-    config.port	= 6379;	/* default Redis port */
-    config.hostname	= sdsnew("localhost");
-    pmIniFileParse("pmseries", series_ini_handler, &config);
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -1054,12 +1024,11 @@ main(int argc, char *argv[])
 	case 'a':	/* command line contains series identifiers */
 	    flags |= (PMSERIES_OPT_ALL | PMSERIES_SERIESID);
 	    break;
-        case 'c':
-            if (ini_parse(opts.optarg, series_ini_handler, &config) < 0) {
-                fprintf(stderr, "couldn't open config file: %s\n", opts.optarg);
-                return 1;
-            }
-            break;
+
+	case 'c':	/* path to .ini configuration file */
+	    inifile = opts.optarg;
+	    break;
+
 	case 'd':	/* command line contains series identifiers */
 	    flags |= PMSERIES_OPT_DESC;
 	    break;
@@ -1072,8 +1041,8 @@ main(int argc, char *argv[])
 	    match = sdsnew(opts.optarg);
 	    break;
 
-        case 'h':
-	    config.hostname = sdsnew(opts.optarg);
+        case 'h':	/* Redis host to connect to */
+	    redis_host = opts.optarg;
 	    break;
 
 	case 'i':	/* command line contains series identifiers */
@@ -1106,7 +1075,7 @@ main(int argc, char *argv[])
 	    break;
 
         case 'p':	/* Redis port to connect to */
-	    config.port = (unsigned int)strtol(opts.optarg, NULL, 10);
+	    redis_port = (unsigned int)strtol(opts.optarg, NULL, 10);
 	    break;
 
 	case 'q':	/* command line contains query string */
@@ -1126,6 +1095,32 @@ main(int argc, char *argv[])
 	    opts.errors++;
 	    break;
 	}
+    }
+
+    /*
+     * Parse the configuration file, extracting a dictionary of key/value
+     * pairs.  Each key is "section.name" and values are always strings.
+     * If no config given, default is /etc/pcp/pmproxy.conf (in addition,
+     * local user path settings in $HOME/.pcp/pmproxy.conf are merged) -
+     * pmseries(1) uses only keys from the [pmseries] section, but share
+     * the main pmproxy.conf file(s) (via symlink) for user convenience.
+     */
+    if ((config = pmIniFileSetup(inifile)) == NULL) {
+	pmprintf("%s: cannot setup from configuration file %s\n",
+			pmGetProgname(), inifile? inifile : "pmseries.conf");
+	opts.errors++;
+    } else {
+	/*
+	 * Push command line options into the configuration, and ensure
+	 * we have some default for attemping Redis server connections.
+	 */
+	if ((option = pmIniFileLookup(config, "pmseries", "servers")) == NULL ||
+            (redis_host != NULL || redis_port != 6379)) {
+            option = sdscatfmt(sdsempty(), "%s:%u",
+                    redis_host? redis_host : "localhost", redis_port);
+            pmIniFileUpdate(config, "pmseries", "servers", option);
+        }
+
     }
 
     if (flags & PMSERIES_OPT_ALL)
@@ -1222,9 +1217,7 @@ main(int argc, char *argv[])
     dp->settings.module.on_setup = on_series_setup;
 
     pmSeriesSetEventLoop(&dp->settings.module, dp->loop);
-    pmSeriesSetHostSpec(&dp->settings.module,
-		sdscatprintf(sdsempty(), "%s:%u", config.hostname, config.port));
-    sdsfree(config.hostname);
+    pmSeriesSetConfiguration(&dp->settings.module, config);
 
     return pmseries_execute(dp);
 }

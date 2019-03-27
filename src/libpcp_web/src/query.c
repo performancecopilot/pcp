@@ -83,6 +83,8 @@ static void series_lookup_services(void *);
 static void series_lookup_mapping(void *);
 static void series_lookup_finished(void *);
 
+sds	cursorcount;	/* number of elements in each SCAN call */
+
 static void
 initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
 {
@@ -870,7 +872,7 @@ series_pattern_match(seriesQueryBaton *baton, node_t *np)
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_sds(cmd, cur);	/* cursor */
     cmd = redis_param_str(cmd, "COUNT", sizeof("COUNT")-1);
-    cmd = redis_param_str(cmd, "256", sizeof("256")-1); /* TODO: config file */
+    cmd = redis_param_sds(cmd, cursorcount);
     sdsfree(cur);
     redisSlotsRequest(baton->slots, HSCAN, key, cmd,
 				series_prepare_maps_pattern_reply, np);
@@ -1268,7 +1270,7 @@ series_query_services(void *arg)
     } else {
 	baton->slots = data->slots =
 	    redisSlotsConnect(
-		data->hostspec, 1, baton->info,
+		data->config, 1, baton->info,
 		series_query_end_phase, baton->userdata,
 		data->events, (void *)baton);
     }
@@ -2013,7 +2015,7 @@ series_lookup_services(void *arg)
     } else {
 	baton->slots = data->slots =
 	    redisSlotsConnect(
-		data->hostspec, 1, baton->info,
+		data->config, 1, baton->info,
 		series_query_end_phase, baton->userdata,
 		data->events, (void *)baton);
     }

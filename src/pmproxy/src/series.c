@@ -666,8 +666,8 @@ pmseries_servlet_setup(struct proxy *proxy)
 	PARAM_SOURCE = sdsnew("source");
 
     pmSeriesSetSlots(&pmseries_settings.module, proxy->slots);
-    pmSeriesSetHostSpec(&pmseries_settings.module, proxy->redishost);
     pmSeriesSetEventLoop(&pmseries_settings.module, proxy->events);
+    pmSeriesSetConfiguration(&pmseries_settings.module, proxy->config);
     pmSeriesSetMetricRegistry(&pmseries_settings.module, proxy->metrics);
 }
 

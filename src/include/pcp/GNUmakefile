@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2018 Red Hat.
+# Copyright (c) 2013-2019 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -20,11 +20,11 @@ include $(TOPDIR)/src/include/builddefs
 HFILES = pmapi.h impl.h pmda.h pmtime.h pmdaroot.h pmafm.h \
 	 trace.h trace_dev.h mmv_stats.h mmv_dev.h import.h \
 	 config32.h config64.h platform32.h platform64.h \
-	 pmjson.h pmhttp.h pmdbg.h pmwebapi.h sds.h \
-	 deprecated.h ini.h
+	 pmjson.h pmhttp.h pmdbg.h pmwebapi.h sds.h dict.h \
+	 deprecated.h
 INFILES = config.h.in configsz.h.in platform_defs.h.in platformsz.h.in
 CONFFILES = config.h configsz.h platform_defs.h platformsz.h
-EXTERNAL_HFILES = sds.h ini.h
+EXTERNAL_HFILES = sds.h dict.h
 GENERATED_HFILES = $(CONFFILES)
 NOSHIP_HFILES = libpcp.h
 

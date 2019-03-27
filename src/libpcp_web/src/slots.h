@@ -42,7 +42,8 @@ typedef struct redisSlotRange {
 } redisSlotRange;
 
 typedef struct redisSlots {
-    redisSlotServer	control;	/* control socket/host specification */
+    unsigned int	counter;
+    unsigned int	nslots;
     redisSlotRange	*slots;		/* all instances; e.g. CLUSTER SLOTS */
     redisMap		*keymap;	/* map command names to key position */
     void		*events;
@@ -50,15 +51,16 @@ typedef struct redisSlots {
 
 typedef void (*redisPhase)(redisSlots *, void *);	/* phased operations */
 
-extern redisSlots *redisSlotsInit(sds, void *);
+extern redisSlots *redisSlotsInit(dict *, void *);
 extern int redisSlotRangeInsert(redisSlots *, redisSlotRange *);
 extern redisAsyncContext *redisAttach(redisSlots *, const char *);
 extern redisAsyncContext *redisGetAsyncContext(redisSlots *, const char *, sds);
 
-extern redisSlots *redisSlotsConnect(sds, redisSlotsFlags,
+extern redisSlots *redisSlotsConnect(dict *, redisSlotsFlags,
 		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
 extern int redisSlotsRequest(redisSlots *, const char *, sds, sds,
 		redisAsyncCallBack *, void *);
+extern void redisSlotsClear(redisSlots *);
 extern void redisSlotsFree(redisSlots *);
 
 extern int redisSlotsProxyConnect(redisSlots *,

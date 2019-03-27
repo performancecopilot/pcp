@@ -1,5 +1,6 @@
 sds.c
 ini.c
+ini.h
 dict.c
 dict.h
 jsmn.c

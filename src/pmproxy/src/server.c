@@ -71,8 +71,7 @@ server_init(int portcount, const char *localpath)
 	return NULL;
     }
 
-    proxy->redishost = sdscatfmt(sdsempty(), "%s:%u",
-		    redis_host ? redis_host : "localhost", redis_port);
+    proxy->config = config;
     proxy->events = uv_default_loop();
     uv_loop_init(proxy->events);
     return proxy;
@@ -331,7 +330,11 @@ open_request_port(struct proxy *proxy, struct server *server, stream_family fami
 {
     struct stream	*stream = &server->stream;
     uv_handle_t		*handle;
-    int			sts, flags = 0;
+    sds			option;
+    int			sts, flags = 0, keepalive = 45;
+
+    if ((option = pmIniFileLookup(proxy->config, "pmproxy", "keepalive")))
+	keepalive = atoi(option);
 
     stream->family = family;
     if (family == STREAM_TCP6)
@@ -344,7 +347,7 @@ open_request_port(struct proxy *proxy, struct server *server, stream_family fami
 
     uv_tcp_bind(&stream->u.tcp, addr, flags);
     uv_tcp_nodelay(&stream->u.tcp, 1);
-    uv_tcp_keepalive(&stream->u.tcp, 1, 50);	/* TODO: config file */
+    uv_tcp_keepalive(&stream->u.tcp, keepalive > 0, keepalive);
 
     sts = uv_listen((uv_stream_t *)&stream->u.tcp, maxpending, on_client_connection);
     if (sts != 0) {
@@ -517,7 +520,11 @@ shutdown_ports(void *arg)
 	redisSlotsFree(proxy->slots);
 	proxy->slots = NULL;
     }
-    sdsfree(proxy->redishost);
+
+    if (proxy->config) {
+	pmIniFileFree(proxy->config);
+	proxy->config = NULL;
+    }
 }
 
 static void

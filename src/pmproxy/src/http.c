@@ -16,8 +16,8 @@
 #include "dict.h"
 #include "util.h"
 
-static int chunked_transfer_size = 4096;	/* TODO: config file */
-static int smallest_buffer_size = 128;		/* TODO: config file */
+static int chunked_transfer_size; /* pmproxy.chunksize, pagesize by default */
+static int smallest_buffer_size = 128;
 
 static inline int
 ishex(int x)
@@ -657,6 +657,12 @@ setup_http_modules(struct proxy *proxy)
 {
     extern struct servlet pmseries_servlet;
     extern struct servlet grafana_servlet;
+    sds			option;
+
+    if ((option = pmIniFileLookup(config, "pmproxy", "chunksize")) != NULL)
+	chunked_transfer_size = atoi(option);
+    else
+	chunked_transfer_size = getpagesize();
 
     register_servlet(proxy, &pmseries_servlet);
     register_servlet(proxy, &grafana_servlet);

@@ -17,15 +17,15 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = jsmn.c http_client.c http_parser.c sds.c siphash.c \
 	 query.c schema.c load.c crc16.c sha1.c util.c slots.c \
-	 redis.c net.c dict.c maps.c batons.c \
-	 json_helpers.c config.c ini.c
+	 redis.c net.c dict.c ini.c maps.c batons.c \
+	 json_helpers.c config.c
 HFILES = jsmn.h http_client.h http_parser.h sdsalloc.h zmalloc.h \
 	 query.h schema.h load.h crc16.h sha1.h util.h slots.h \
-	 redis.h net.h dict.h maps.h batons.h \
+	 redis.h net.h dict.h ini.h maps.h batons.h \
 	 discover.h private.h libuv.h
 YFILES = query_parser.y
 XFILES = jsmn.c jsmn.h http_parser.c http_parser.h crc16.c crc16.h \
-	 sha1.c sha1.h sds.c siphash.c dict.c dict.h ini.c
+	 sha1.c sha1.h sds.c siphash.c dict.c dict.h ini.c ini.h
 
 LLDLIBS = $(PCPLIB) $(PCP_PMDALIB) $(LIB_FOR_MATH)
 ifeq "$(TARGET_OS)" "mingw"

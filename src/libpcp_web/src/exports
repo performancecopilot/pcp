@@ -126,4 +126,12 @@ PCP_WEB_1.8 {
     http_should_keep_alive;
     http_parser_execute;
     http_parser_init;
+
+    pmIniFileSetup;
+    pmIniFileLookup;
+    pmIniFileUpdate;
+    pmIniFileFree;
+
+    pmSeriesSetConfiguration;
+    pmDiscoverSetConfiguration;
 } PCP_WEB_1.7;

@@ -2856,6 +2856,8 @@ cd
 %dir %attr(0775,pcp,pcp) %{_confdir}/nssdb
 %dir %{_confdir}/discover
 %config(noreplace) %{_confdir}/discover/pcp-kube-pods.conf
+%dir %{_confdir}/pmproxy
+%config(noreplace) %{_confdir}/pmproxy/pmproxy.conf
 %dir %{_confdir}/pmseries
 %config(noreplace) %{_confdir}/pmseries/pmseries.conf
 

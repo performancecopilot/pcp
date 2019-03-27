@@ -33,7 +33,6 @@ extern struct pmproxy libuv_pmproxy;
 extern void *GetServerInfo(void);
 extern void Shutdown(void);
 
-extern int redis_port;		/* connect to Redis on this port */
-extern char *redis_host;	/* connect to Redis on this host */
+extern struct dict *config;
 
 #endif /* PMPROXY_H */

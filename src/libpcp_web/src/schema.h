@@ -152,8 +152,8 @@ typedef struct seriesLoadBaton {
  * Module internal (private) data structures and accessors
  */
 typedef struct seriesModuleData {
-    sds			hostspec;
     mmv_registry_t	*metrics;
+    struct dict		*config;
     uv_loop_t		*events;
     redisSlots		*slots;
 } seriesModuleData;

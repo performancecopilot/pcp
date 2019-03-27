@@ -15,16 +15,15 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "pmproxy.h"
+#include "pmwebapi.h"
 
 #define MAXPENDING	128	/* maximum number of pending connections */
 #define STRINGIFY(s)    #s
 #define TO_STRING(s)    STRINGIFY(s)
 
-int		redis_port = 6379;	/* connect to Redis on this port */
-char		*redis_host;		/* connect to Redis on this host */
-
 static void	*info;			/* opaque server information */
 static pmproxy	*server;		/* proxy server implementation */
+struct dict	*config;		/* configuration file settings */
 
 static char	*logfile = "pmproxy.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
@@ -69,6 +68,7 @@ static pmLongOptions longopts[] = {
     { "foreground", 0, 'f', 0, "run in the foreground" },
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     PMAPI_OPTIONS_HEADER("Configuration options"),
+    { "config", 1, 'c', "PATH", "path to configuration file"},
     { "certdb", 1, 'C', "PATH", "path to NSS certificate database" },
     { "passfile", 1, 'P', "PATH", "password file for certificate database access" },
     { "", 1, 'L', "BYTES", "maximum size for PDUs from clients [default 65536]" },
@@ -86,23 +86,31 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "A:C:D:fh:i:l:L:M:p:P:r:s:tU:x:?",
+    .short_options = "A:c:C:D:fh:i:l:L:M:p:P:r:s:tU:x:?",
     .long_options = longopts,
 };
 
 static void
-ParseOptions(int argc, char *argv[], int *nports)
+ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 {
     int		c;
     int		sts;
     int		usage = 0;
     int		timeseries = 0;
+    int		redis_port = 6379;
+    char	*redis_host = NULL;
+    const char	*inifile = NULL;
+    sds		option;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'A':   /* disable pmproxy service advertising */
 	    __pmServerClearFeature(PM_SERVER_FEATURE_DISCOVERY);
+	    break;
+
+	case 'c':	/* path to .ini configuration file */
+	    inifile = opts.optarg;
 	    break;
 
 	case 'C':	/* path to NSS certificate database */
@@ -206,6 +214,36 @@ ParseOptions(int argc, char *argv[], int *nports)
 	}
     }
 
+    /*
+     * Parse the configuration file, extracting a dictionary of key/value
+     * pairs.  Each key is "section.name" and values are always strings.
+     * If no config given, default is /etc/pcp/pmproxy.conf (in addition,
+     * local user path settings in $HOME/.pcp/pmproxy.conf are merged).
+     */
+    if ((config = pmIniFileSetup(inifile)) == NULL) {
+	pmprintf("%s: cannot setup from configuration file %s\n",
+			pmGetProgname(), inifile? inifile : "pmproxy.conf");
+	opts.errors++;
+    } else {
+	/* Extract pmproxy configuration information needed immediately */
+	if ((option = pmIniFileLookup(config, "pmproxy", "discover")) &&
+	    (strncmp(option, "true", sdslen(option)) == 0))
+	    timeseries = 1;
+	if ((option = pmIniFileLookup(config, "pmproxy", "maxpending")))
+	    *maxpending = atoi(option);
+
+	/*
+	 * Push command line options into the configuration, and ensure
+	 * we have some default for attemping Redis server connections.
+	 */
+	if ((option = pmIniFileLookup(config, "pmseries", "servers")) == NULL ||
+	    (redis_host != NULL || redis_port != 6379)) {
+	    option = sdscatfmt(sdsempty(), "%s:%u",
+		    redis_host? redis_host : "localhost", redis_port);
+	    pmIniFileUpdate(config, "pmseries", "servers", option);
+	}
+    }
+
 #if !defined(HAVE_LIBUV)
     if (timeseries) {
 	pmprintf("%s: -t/--timeseries requires libuv support (missing)\n",
@@ -274,7 +312,7 @@ main(int argc, char *argv[])
 	maxpending = atoi(envstr);
 	env_warn |= ENV_WARN_MAXPENDING;
     }
-    ParseOptions(argc, argv, &nport);
+    ParseOptions(argc, argv, &nport, &maxpending);
 
     pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */

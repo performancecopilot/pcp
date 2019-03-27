@@ -634,8 +634,8 @@ grafana_servlet_setup(struct proxy *proxy)
 	PARAM_MAXVALUES = sdsnew("maxdatapoints");
 
     pmSeriesSetSlots(&grafana_settings.module, proxy->slots);
-    pmSeriesSetHostSpec(&grafana_settings.module, proxy->redishost);
     pmSeriesSetEventLoop(&grafana_settings.module, proxy->events);
+    pmSeriesSetConfiguration(&grafana_settings.module, proxy->config);
     pmSeriesSetMetricRegistry(&grafana_settings.module, proxy->metrics);
 }
 

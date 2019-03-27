@@ -25,18 +25,61 @@
 static char default_server[] = "localhost:6379";
 
 redisSlots *
-redisSlotsInit(sds hostspec, void *events)
+redisSlotsInit(dict *config, void *events)
 {
+    redisSlotRange	*range;
     redisSlots		*slots;
+    int			i = 0, start, space, nservers = 0;
+    sds			servers, *specs = NULL;
 
     if ((slots = (redisSlots *)calloc(1, sizeof(redisSlots))) == NULL)
 	return NULL;
 
     slots->events = events;
     slots->keymap = dictCreate(&sdsKeyDictCallBacks, "command keymap");
-    slots->control.hostspec = sdsdup(hostspec);
-    slots->control.redis = redisAttach(slots, hostspec);
+
+    servers = pmIniFileLookup(config, "pmseries", "servers");
+    if ((servers == NULL) ||
+	!(specs = sdssplitlen(servers, sdslen(servers), ",", 1, &nservers))) {
+	if ((range = calloc(1, sizeof(redisSlotRange))) == NULL)
+	    goto fail;
+
+	/* use the default Redis server if none specified */
+	range->master.hostspec = sdsnew(default_server);
+	range->start = 0;
+	range->end = MAXSLOTS;
+	redisSlotRangeInsert(slots, range);
+
+	slots->nslots = 1;
+	return slots;
+    }
+
+    /* given a list of one or more servers, share the slot range */
+    start = 0;
+    space = MAXSLOTS / nservers;
+
+    for (i = 0; i < nservers; i++) {
+	if ((range = calloc(1, sizeof(redisSlotRange))) == NULL)
+	    goto fail;
+
+	range->master.hostspec = specs[i];
+	range->start = start;
+	range->end = (i == nservers - 1) ? MAXSLOTS : space * i;
+	redisSlotRangeInsert(slots, range);
+
+	start += space + 1;	/* prepare for next iteration */
+    }
+    free(specs);
+
+    slots->nslots = nservers;
     return slots;
+
+fail:
+    while (i < nservers)
+	sdsfree(specs[i++]);
+    free(specs);
+    redisSlotsFree(slots);
+    return NULL;
 }
 
 static int
@@ -72,15 +115,15 @@ redisSlotRangeInsert(redisSlots *redis, redisSlotRange *range)
 static void
 redisSlotServerFree(redisSlots *pool, redisSlotServer *server)
 {
-    if (server->redis != pool->control.redis)
+    if (server->redis)
 	redisAsyncDisconnect(server->redis);
-    if (server->hostspec != pool->control.hostspec)
+    if (server->hostspec)
 	sdsfree(server->hostspec);
     memset(server, 0, sizeof(*server));
 }
 
-static void
-redisSlotRangeFree(redisSlots *pool, redisSlotRange *range)
+void
+redisSlotRangeClear(redisSlots *pool, redisSlotRange *range)
 {
     int			i;
 
@@ -92,7 +135,7 @@ redisSlotRangeFree(redisSlots *pool, redisSlotRange *range)
 }
 
 void
-redisSlotsFree(redisSlots *pool)
+redisSlotsClear(redisSlots *pool)
 {
     void		*root = pool->slots;
     redisSlotRange	*range;
@@ -100,10 +143,14 @@ redisSlotsFree(redisSlots *pool)
     while (root != NULL) {
 	range = *(redisSlotRange **)root;
 	tdelete(range, &root, slotsCompare);
-	redisSlotRangeFree(pool, range);
+	redisSlotRangeClear(pool, range);
     }
-    redisAsyncFree(pool->control.redis);
-    sdsfree(pool->control.hostspec);
+}
+
+void
+redisSlotsFree(redisSlots *pool)
+{
+    redisSlotsClear(pool);
     dictRelease(pool->keymap);
     memset(pool, 0, sizeof(*pool));
 }
@@ -219,10 +266,11 @@ redisGetAsyncContext(redisSlots *slots, const char *command, sds key)
     unsigned int	slot;
     void		*p;
 
-    if (key == NULL)
-	return slots->control.redis;
+    if (LIKELY(key))
+	slot = keySlot(key, sdslen(key));	/* cluster specification */
+    else
+	slot = slots->counter++ % slots->nslots;	/* round-robin */
 
-    slot = keySlot(key, sdslen(key));
     if (UNLIKELY(pmDebugOptions.series))
 	fprintf(stderr, "Redis [slot=%05u] %s %s\n", slot, command, key);
     s.start = s.end = slot;

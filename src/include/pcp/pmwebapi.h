@@ -20,7 +20,15 @@ extern "C" {
 
 #include <pcp/pmapi.h>
 #include <pcp/sds.h>
-#include <pcp/ini.h>
+
+/*
+ * Opaque structures - forward declarations.
+ * (see also <uv/uv.h>, <pcp/dict.h>, <pcp/mmv_stats.h>).
+ */
+
+struct dict;
+struct uv_loop_s;
+struct mmv_registry;
 
 /*
  * Generalised asynchronous logging facilities.
@@ -44,10 +52,13 @@ extern void pmLogLevelPrint(FILE *, pmLogLevel, sds, int);
 extern const char *pmLogLevelStr(pmLogLevel);
 
 /*
- * Generalised .ini file parsing facilities.
+ * Configuration file services
  */
 
-extern int pmIniFileParse(sds, ini_handler, void *);
+extern struct dict *pmIniFileSetup(const char *);
+extern void pmIniFileUpdate(struct dict *, const char *, const char *, sds);
+extern sds pmIniFileLookup(struct dict *, const char *, const char *);
+extern void pmIniFileFree(struct dict *);
 
 /*
  * Fast, scalable time series querying services
@@ -124,9 +135,9 @@ typedef struct pmSeriesSettings {
 
 extern int pmSeriesSetup(pmSeriesModule *, void *);
 extern int pmSeriesSetSlots(pmSeriesModule *, void *);
-extern int pmSeriesSetHostSpec(pmSeriesModule *, sds);
-extern int pmSeriesSetEventLoop(pmSeriesModule *, void *);
-extern int pmSeriesSetMetricRegistry(pmSeriesModule *, void *);
+extern int pmSeriesSetEventLoop(pmSeriesModule *, struct uv_loop_s *);
+extern int pmSeriesSetConfiguration(pmSeriesModule *, struct dict *);
+extern int pmSeriesSetMetricRegistry(pmSeriesModule *, struct mmv_registry *);
 extern void pmSeriesClose(pmSeriesModule *);
 
 extern int pmSeriesDescs(pmSeriesSettings *, int, sds *, void *);
@@ -192,9 +203,9 @@ typedef struct pmDiscoverSettings {
 
 extern int pmDiscoverSetup(pmDiscoverModule *, pmDiscoverCallBacks *, void *);
 extern int pmDiscoverSetSlots(pmDiscoverModule *, void *);
-extern int pmDiscoverSetHostSpec(pmDiscoverModule *, sds);
-extern int pmDiscoverSetEventLoop(pmDiscoverModule *, void *);
-extern int pmDiscoverSetMetricRegistry(pmDiscoverModule *, void *);
+extern int pmDiscoverSetEventLoop(pmDiscoverModule *, struct uv_loop_s *);
+extern int pmDiscoverSetConfiguration(pmDiscoverModule *, struct dict *);
+extern int pmDiscoverSetMetricRegistry(pmDiscoverModule *, struct mmv_registry *);
 extern void pmDiscoverClose(pmDiscoverModule *);
 
 #ifdef __cplusplus

@@ -105,11 +105,11 @@ typedef struct proxy {
     struct server	*servers;	/* array of tcp/pipe socket servers */
     unsigned int	nservers;	/* count of entries in server array */
     unsigned int	redisetup;	/* is Redis slots information setup */
+    redisSlots		*slots;		/* mapping of Redis keys to servers */
     struct servlet	*servlets;	/* linked list of http URL handlers */
-    sds			redishost;	/* initial Redis host specification */
-    mmv_registry_t	*metrics;
-    uv_loop_t		*events;
-    redisSlots		*slots;
+    struct mmv_registry	*metrics;	/* internal performance metrics */
+    struct dict		*config;	/* configuration dictionary */
+    uv_loop_t		*events;	/* global, async event loop */
 } proxy;
 
 extern void on_client_close(uv_handle_t *);

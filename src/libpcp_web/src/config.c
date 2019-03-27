@@ -12,30 +12,94 @@
  * for more details.
  */
 
-#include "pmapi.h"
-#include "sds.h"
+#include "pmwebapi.h"
+#include "util.h"
 #include "ini.h"
 
-int pmIniFileParse(sds tool, ini_handler handler, void* user)
+int
+pmIniFileParse(const char *progname, ini_handler handler, void *data)
 {
-    int sts;
-    sds cwd_config = sdscatprintf(sdsempty(), "./%s.conf", tool);
-    sds homedir_config = sdscatprintf(sdsempty(), "%s/.%s.conf", getenv("HOME"), tool); /* threadsafe */
-    sds homedir_pcp_config = sdscatprintf(sdsempty(), "%s/.pcp/%s.conf", getenv("HOME"), tool); /* threadsafe */
-    sds sysconf_dir_config = sdscatprintf(sdsempty(), "%s/%s/%s.conf", pmGetConfig("PCP_SYSCONF_DIR"), tool, tool);
+    char	*dirname;
+    char	path[MAXPATHLEN];
+    int		sts, sep = pmPathSeparator();
 
-    sts = ini_parse(sysconf_dir_config, handler, user);
-    if (sts >= 0)
-	sts = ini_parse(homedir_pcp_config, handler, user);
-    if (sts >= 0)
-	sts = ini_parse(homedir_config, handler, user);
-    if (sts >= 0)
-	sts = ini_parse(cwd_config, handler, user);
+    if (progname == NULL)
+	progname = pmGetProgname();
 
-    sdsfree(cwd_config);
-    sdsfree(homedir_config);
-    sdsfree(homedir_pcp_config);
-    sdsfree(sysconf_dir_config);
+    if ((dirname = pmGetOptionalConfig("PCP_SYSCONF_DIR")) != NULL) {
+	pmsprintf(path, sizeof(path), "%s%c%s%c%s.conf", dirname, sep,
+			progname, sep, progname);
+	if ((sts = ini_parse(path, handler, data)) == -2)
+	    return -ENOMEM;
+    }
+    if ((dirname = getenv("HOME")) != NULL) {
+	pmsprintf(path, sizeof(path), "%s%c.%s.conf", dirname, sep, progname);
+	if ((sts = ini_parse(path, handler, data)) == -2)
+	    return -ENOMEM;
+	pmsprintf(path, sizeof(path), "%s%c.pcp%c%s.conf", dirname, sep, sep, progname);
+	if ((sts = ini_parse(path, handler, data)) == -2)
+	    return -ENOMEM;
+    }
+    pmsprintf(path, sizeof(path), ".%c/%s.conf", sep, progname);
+    if ((sts = ini_parse(path, handler, data)) == -2)
+	return -ENOMEM;
 
-    return sts;
+    return 0;
+}
+
+static int
+dict_handler(void *arg, const char *group, const char *key, const char *value)
+{
+    dict	*config = (dict *)arg;
+    sds		name = sdsempty();
+
+    name = sdscatfmt(name, "%s.%s", group ? group : pmGetProgname(), key);
+    if (pmDebugOptions.libweb)
+	fprintf(stderr, "pmIniFileParse set %s = %s\n", name, value);
+    return dictReplace(config, name, sdsnew(value)) != DICT_OK;
+}
+
+dict *
+pmIniFileSetup(const char *progname)
+{
+    dict	*config;
+
+    if ((config = dictCreate(&sdsDictCallBacks, "pmIniFileSetup")) == NULL)
+	return NULL;
+    if (pmIniFileParse(progname, dict_handler, config) == 0)
+	return config;
+    dictRelease(config);
+    return NULL;
+}
+
+void
+pmIniFileUpdate(dict *config, const char *group, const char *key, sds value)
+{
+    sds		name = sdsempty();
+
+    name = sdscatfmt(name, "%s.%s", group ? group : pmGetProgname(), key);
+    if (pmDebugOptions.libweb)
+	fprintf(stderr, "pmIniFileUpdate set %s = %s\n", name, value);
+    dictReplace(config, name, value);
+    sdsfree(name);
+}
+
+sds
+pmIniFileLookup(dict *config, const char *group, const char *key)
+{
+    dictEntry	*entry;
+    sds		name = sdsempty();
+
+    name = sdscatfmt(name, "%s.%s", group ? group : pmGetProgname(), key);
+    entry = dictFind(config, name);
+    sdsfree(name);
+    if (entry)
+	return (sds)dictGetVal(entry);
+    return NULL;
+}
+
+void
+pmIniFileFree(dict *config)
+{
+    dictRelease(config);
 }

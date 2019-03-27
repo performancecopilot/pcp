@@ -16,7 +16,6 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmseries.c
-CONFIG = pmseries.conf
 CMDTARGET = pmseries$(EXECSUFFIX)
 LLDLIBS	= $(PCP_WEBLIB)
 LCFLAGS = $(LIBUVCFLAGS)
@@ -30,9 +29,9 @@ ifeq "$(HAVE_LIBUV)" "true"
 build-me:	$(CMDTARGET)
 
 install:	default
-	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
-	$(INSTALL) -m 755 -d $(PCP_ETC_DIR)/pcp/pmseries
-	$(INSTALL) -m 644 pmseries.conf $(PCP_ETC_DIR)/pcp/pmseries/pmseries.conf
+	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmseries
+	# compatibility symlink (share pmproxy config Redis server list)
+	$(INSTALL) -S $(PCP_SYSCONF_DIR)/pmproxy/pmproxy.conf $(PCP_SYSCONF_DIR)/pmseries/pmseries.conf
 else
 build-me:
 install:

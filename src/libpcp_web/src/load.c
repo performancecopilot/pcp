@@ -770,7 +770,7 @@ connect_redis_source_service(seriesLoadBaton *baton)
     } else {
 	baton->slots = data->slots =
 	    redisSlotsConnect(
-		data->hostspec, 1, baton->info,
+		data->config, 1, baton->info,
 		series_load_end_phase, baton->userdata,
 		data->events, (void *)baton);
     }

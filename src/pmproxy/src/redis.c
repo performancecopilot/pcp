@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018-2019 Red Hat.
  * Copyright (c) 2018 Challa Venkata Naga Prajwal <cvnprajwal at gmail dot com>
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -15,9 +15,9 @@
 #include "server.h"
 #include "discover.h"
 
-static int series_queries = 1;		/* TODO: config file */
-static int redis_protocol = 1;		/* TODO: config file */
-static int archive_discovery = 1;	/* TODO: config file */
+static int series_queries;
+static int redis_protocol;
+static int archive_discovery;
 
 static pmDiscoverSettings redis_discover = {
     .callbacks.on_source	= pmSeriesDiscoverSource,
@@ -95,7 +95,7 @@ on_redis_connected(void *arg)
     struct proxy	*proxy = (struct proxy *)arg;
     sds			message;
 
-    pmNotifyErr(LOG_INFO, "connected to %s redis-server\n", proxy->redishost);
+    pmNotifyErr(LOG_INFO, "connected to redis server(s)\n");
 
     message = sdsnew("slots");
     if (redis_protocol)
@@ -112,19 +112,28 @@ void
 setup_redis_modules(struct proxy *proxy)
 {
     redisSlotsFlags	flags = SLOTS_NONE;
+    sds			option;
+
+    if ((option = pmIniFileLookup(config, "pmproxy", "redis.enabled")))
+	redis_protocol = strncmp(option, "true", sdslen(option));
+    if ((option = pmIniFileLookup(config, "pmseries", "enabled")))
+	series_queries = strncmp(option, "true", sdslen(option));
+    if ((option = pmIniFileLookup(config, "discover", "enabled")))
+	archive_discovery = strncmp(option, "true", sdslen(option));
 
     if (proxy->slots == NULL) {
 	if (redis_protocol)
 	    flags |= SLOTS_KEYMAP;
 	if (archive_discovery | series_queries)
 	    flags |= SLOTS_VERSION;
-	proxy->slots = redisSlotsConnect(proxy->redishost,
+	proxy->slots = redisSlotsConnect(proxy->config,
 			flags, proxylog, on_redis_connected,
 			proxy, proxy->events, proxy);
+	pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
     }
-    pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
-    pmDiscoverSetHostSpec(&redis_discover.module, proxy->redishost);
+
     pmDiscoverSetEventLoop(&redis_discover.module, proxy->events);
+    pmDiscoverSetConfiguration(&redis_discover.module, proxy->config);
     pmDiscoverSetMetricRegistry(&redis_discover.module, proxy->metrics);
     pmDiscoverSetup(&redis_discover.module, &redis_discover.callbacks, proxy);
 }
