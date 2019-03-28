@@ -70,6 +70,7 @@ _filter_pmdas()
 	-e '/inst \[106 or "logger"]/d' \
 	-e '/inst \[110 or "postgresql"]/d' \
 	-e '/inst \[114 or "systemd"]/d' \
+        -e '/inst \[120 or "nvidia"]/d' \
         -e '/inst \[122 or "jbd2"]/d' \
 	-e '/inst \[123 or "rpm"]/d' \
 	-e '/inst \[127 or "perfevent"]/d' \
