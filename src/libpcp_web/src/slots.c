@@ -153,6 +153,7 @@ redisSlotsFree(redisSlots *pool)
     redisSlotsClear(pool);
     dictRelease(pool->keymap);
     memset(pool, 0, sizeof(*pool));
+    free(pool);
 }
 
 /*

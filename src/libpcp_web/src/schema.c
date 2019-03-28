@@ -1585,15 +1585,16 @@ pmSeriesSetup(pmSeriesModule *module, void *arg)
 {
     seriesModuleData	*data = getSeriesModuleData(module);
 
+    if (data == NULL)
+	return -ENOMEM;
+
     /* create global EVAL hashes and string map caches */
     redisGlobalsInit(data->config);
     redisScriptsInit();
     redisMapsInit();
 
     /* fast path for when Redis has been setup already */
-    if (data == NULL) {
-	return -ENOMEM;
-    } else if (data->slots) {
+    if (data->slots) {
 	module->on_setup(arg);
     } else {
 	/* establish an initial connection to Redis instance(s) */
