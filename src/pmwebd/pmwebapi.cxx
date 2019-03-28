@@ -1659,7 +1659,14 @@ pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
     /* All other calls use $CTX/command, so we parse $CTX
        generally and map it to the webcontext* */
     if (url.size () != 4) {
-	connstamp (cerr, connection) << "url.size() " << url.size() << " not 4, url[2]=" << url[2] << ", new_contexts_p=" << new_contexts_p << endl;
+	if (pmDebugOptions.libweb) {
+	    if (url.size() == 3)
+		connstamp (cerr, connection) << "url.size() " << url.size() << " not 4" << " url[1]=\"" << url[1] << "\" url[2]=\"" << url[2] << "\", new_contexts_p=" << new_contexts_p << endl;
+	    else if (url.size() == 2)
+		connstamp (cerr, connection) << "url.size() " << url.size() << " not 4" << " url[1]=\"" << url[1] << "\", new_contexts_p=" << new_contexts_p << endl;
+	    else
+		connstamp (cerr, connection) << "url.size() " << url.size() << " not 4" << ", new_contexts_p=" << new_contexts_p << endl;
+	}
         rc = -EINVAL;
         goto out;
     }
@@ -1757,8 +1764,10 @@ pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
     else
 	rc = pmUseContext (c->context);
     if (rc) {
-        char pmmsg[PM_MAXERRMSGLEN];
-	connstamp (cerr, connection) << "pmUseContext(" << c->context << ") failed: " << pmErrStr_r (rc, pmmsg, sizeof (pmmsg)) << endl;
+	if (pmDebugOptions.libweb) {
+	    char pmmsg[PM_MAXERRMSGLEN];
+	    connstamp (cerr, connection) << "pmUseContext(" << c->context << ") failed: " << pmErrStr_r (rc, pmmsg, sizeof (pmmsg)) << endl;
+	}
         goto out;
     }
     /* -------------------------------------------------------------------- */
@@ -1786,7 +1795,7 @@ pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
         return pmwebapi_respond_prometheus (connection, params, c);
     }
     
-    connstamp (cerr, connection) << "unknown context command " << context_command << endl;
+    connstamp (cerr, connection) << "unknown context command \"" << context_command << "\"" << endl;
 
     rc = -EINVAL;
 out:
