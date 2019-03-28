@@ -272,7 +272,7 @@ on_pmseries_label(pmSID sid, sds label, void *arg)
 	prefix = ",";
     }
     if (sid)
-	result = sdscatfmt(result, "%s{\"series\":\"%S\",\"labels\":%S}",
+	result = sdscatfmt(result, "%s{\"series\":\"%S\",\"label\":\"%S\"}",
 			prefix,	sid, label);
     baton->values++;	/* count of labels for this series */
 
