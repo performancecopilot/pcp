@@ -100,7 +100,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     /*
      * if defined, callback once per PDU to check availability, etc.
      */
-    if (pmda->e_checkCallBack) {
+    if (pmda->e_checkCallBack != NULL) {
 	op_sts = (*(pmda->e_checkCallBack))();
 	if (op_sts < 0) {
 	    if (sts != PDU_PROFILE && sts != PDU_ATTR)
@@ -173,7 +173,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	} else {
 	    __pmSendResult(pmda->e_outfd, FROM_ANON, result);
-	    if (pmda->e_resultCallBack)
+	    if (pmda->e_resultCallBack != NULL)
 		pmda->e_resultCallBack(result);
 	}
 	break;
@@ -383,7 +383,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
      * if defined, callback once per PDU to do termination checks,
      * stats, etc
      */
-    if (pmda->e_doneCallBack)
+    if (pmda->e_doneCallBack != NULL)
 	(*(pmda->e_doneCallBack))();
 
     return 0;
