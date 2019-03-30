@@ -890,11 +890,13 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	    }
 	    memset(lp, 0, sizeof(*lp));
 
-	    if ((sts = (*(pmda->e_labelCallBack))(ident, inst, &lp)) < 0) {
-		pmInDomStr_r(ident, idbuf, sizeof(idbuf));
-		pmErrStr_r(sts, errbuf, sizeof(errbuf));
-		pmNotifyErr(LOG_DEBUG, "pmdaLabel: "
-				"InDom %s[%d]: %s\n", idbuf, inst, errbuf);
+	    if (pmda->e_labelCallBack != NULL) {
+		if ((sts = (*(pmda->e_labelCallBack))(ident, inst, &lp)) < 0) {
+		    pmInDomStr_r(ident, idbuf, sizeof(idbuf));
+		    pmErrStr_r(sts, errbuf, sizeof(errbuf));
+		    pmNotifyErr(LOG_DEBUG, "pmdaLabel: "
+				    "InDom %s[%d]: %s\n", idbuf, inst, errbuf);
+		}
 	    }
 	    if ((lp->nlabels = sts) > 0)
 		pmdaAddLabelFlags(lp, type);
