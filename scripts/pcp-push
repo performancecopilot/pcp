@@ -13,6 +13,7 @@ _usage()
     echo >&2
     echo >&2 "options:"
     echo >&2 "  -b branch           [defaults to master]"
+    echo >&2 "  -m                  don't launch mail client"
     echo >&2 "  -n                  dryrun"
     echo >&2 "  -r range            [defaults to \$(cat pushed.sha)..)]"
     echo >&2 "  -s                  short format, do not include commit messages"
