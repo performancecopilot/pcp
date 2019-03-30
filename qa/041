@@ -143,7 +143,7 @@ pminfo -f sample.long.million >$tmp.tmp 2>&1 &
 
 _expect "Forcing termination"
 ps $PCP_PS_ALL_FLAGS | egrep "PID|$pid" >>$seq.full
-_service pcp restart >$tmp.two 2>&1
+( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) >$tmp.two 2>&1
 _wait_for_pmcd
 _wait_for_pmlogger
 wait
