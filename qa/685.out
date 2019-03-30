@@ -1,5 +1,4 @@
 QA output created by 685
-Rebuilding PMNS ... 
 Error: qa: Unknown metric name
 pmnsdel: Error: metricpath "qa" not defined in the PMNS
 Error: qa: Unknown metric name
