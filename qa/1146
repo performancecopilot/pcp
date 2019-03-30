@@ -33,6 +33,8 @@ _stop_auto_restart pmlogger
 _service pmlogger stop | _filter_pcp_stop
 _wait_pmlogger_end $pid
 
+export PCPQA_SYSTEMD=no
+
 # real QA test starts here
 for i in 1 2 3 4
 do
