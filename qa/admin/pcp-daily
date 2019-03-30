@@ -544,6 +544,7 @@ then
 	if grep "\$svc.service[ 	]*enabled" <\$tmp.systemctl >/dev/null
 	then
 	    echo "Info: restarting \$svc" | tee -a \$HOME/daily.qa.log
+	    sudo systemctl reset-failed \$svc
 	    sudo systemctl restart \$svc
 	fi
     done
@@ -597,7 +598,7 @@ sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24 vm26 vm28 vm30 vm32 vm34"
-list_2="vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23 vm25 vm27 vm29 vm31 vm33"
+list_2="bozo vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23 vm25 vm27 vm29 vm31 vm33 vm37 vm38"
 
 args="$*"
 pcp_branch=master
