@@ -517,6 +517,7 @@ s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
 }' \
 	-e '/^Starting pmcd/d' \
 	-e '/^pmcd\.service: Succeeded/d' \
+	-e '/^Rebuilding PMNS /d' \
 	-e '/^Starting pmlogger/d' \
 	-e '/^Waiting for PMCD/d' \
 	-e '/^Waiting for pmcd/d' \
