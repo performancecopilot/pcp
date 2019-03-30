@@ -90,7 +90,7 @@ PMWEBD error, XXX
 { [data not shown]
 * Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
-[DATE] pmwebd(PID): [127.0.0.1:PORT] url.size() 2 not 4 url[1]="pmapi", new_contexts_p=0
+[DATE] pmwebd(PID): [HOST:PORT] url.size() 2 not 4 url[1]="pmapi", new_contexts_p=0
 
 +++ should fail with incomplete pmapi request url.size=3
 > GET /pmapi/12345 HTTP/1.1
@@ -106,7 +106,7 @@ PMWEBD error, XXX
 { [data not shown]
 * Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
-[DATE] pmwebd(PID): [127.0.0.1:PORT] url.size() 3 not 4 url[1]="pmapi" url[2]="12345", new_contexts_p=0
+[DATE] pmwebd(PID): [HOST:PORT] url.size() 3 not 4 url[1]="pmapi" url[2]="12345", new_contexts_p=0
 
 no fd leak
 redirected file ok

@@ -82,6 +82,7 @@ _filter()
 	-e '/WARNING: gnome-keyring::/d' \
 	-e '/^\* TCP_NODELAY set/d' \
 	-e '/^\* Curl_http_done: called premature == 0/d' \
+	-e '/^\* Expire in /d' \
 	-e '/^\*$/d' \
 	-e '/^[ 	]*$/d'
 }
@@ -95,6 +96,7 @@ _filter_log_url()
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
 	-e 's/pmwebd([0-9][0-9]*)/pmwebd(PID)/' \
 	-e 's/:[0-9][0-9]*]/:PORT]/' \
+	-e 's/ \[.*:PORT/ [HOST:PORT/' \
     # end
 }
 
