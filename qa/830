@@ -17,10 +17,18 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+_filter()
+{
+    sed \
+	-e 's/Connection timed out/No route to host/' \
+    # end
+}
+
 # real QA test starts here
 export PMCD_CONNECT_TIMEOUT=1
 echo "Live mode failure:"
-pcp --host no.such.host.pcp.io
+pcp --host no.such.host.pcp.io 2>&1 \
+| _filter
 
 echo "Archive mode failure:"
 pcp --archive /no/such/file
