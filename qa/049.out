@@ -1,52 +1,52 @@
 QA output created by 049
 
-=== tmparch/mv-bigbin ===
-__pmFopen("tmparch/mv-bigbin.SUFF, "r"): no decompress
-__pmFopen("tmparch/mv-bigbin.SUFF, "r"): no decompress
-__pmFopen("tmparch/mv-bigbin.SUFF, "r"): no decompress
+=== archives/ok-mv-bigbin ===
+__pmFopen("archives/ok-mv-bigbin.SUFF, "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.SUFF, "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.SUFF, "r"): no decompress
 chkLabel: fd=<n1> vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 0
 chkLabel: fd=<n2> vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOSTNAME
 chkLabel: fd=<n3> vol=-1 [magic=50052602 version=2 vol=-1 pid=PID host=HOSTNAME
 __pmLogSetTime(0) TIME delta=0 before start ti@TIME vol=0 posn=OFFSET serial=1
-__pmFopen("tmparch/mv-bigbin.0", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 __pmLogChangeVol: change to volume 0
-__pmFopen("tmparch/mv-bigbin.0", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 __pmLogChangeVol: change to volume 0
 __pmLogSetTime(1) TIME delta=0 before start ti@TIME vol=0 posn=OFFSET serial=1
-__pmFopen("tmparch/mv-bigbin.1", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.1", "r"): no decompress
 chkLabel: fd=<n5> vol=1 [magic=50052602 version=2 vol=1 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 1
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.2", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.2", "r"): no decompress
 chkLabel: fd=<n5> vol=2 [magic=50052602 version=2 vol=2 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 2
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.3", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.3", "r"): no decompress
 chkLabel: fd=<n5> vol=3 [magic=50052602 version=2 vol=3 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 3
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.4", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.4", "r"): no decompress
 chkLabel: fd=<n5> vol=4 [magic=50052602 version=2 vol=4 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 4
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.5", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.5", "r"): no decompress
 chkLabel: fd=<n5> vol=5 [magic=50052602 version=2 vol=5 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 5
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.6", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.6", "r"): no decompress
 chkLabel: fd=<n5> vol=6 [magic=50052602 version=2 vol=6 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 6
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.7", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.7", "r"): no decompress
 chkLabel: fd=<n5> vol=7 [magic=50052602 version=2 vol=7 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 7
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.8", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.8", "r"): no decompress
 chkLabel: fd=<n5> vol=8 [magic=50052602 version=2 vol=8 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 8
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.9", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.9", "r"): no decompress
 chkLabel: fd=<n5> vol=9 [magic=50052602 version=2 vol=9 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 9
 @TIME len=header+484+trailer
@@ -55,286 +55,282 @@ Pass 1: forward scan
 Found 1000 samples
 __pmLogSetTime(0) TIME delta=0 after end ti@TIME vol=9 posn=OFFSET serial=0
 __pmLogSetTime(0) TIME delta=0 after end ti@TIME vol=9 posn=OFFSET serial=0
-__pmLogFetch: ctx=0 skip reverse 1 to unknown time, found=0
-__pmFopen("tmparch/mv-bigbin.8", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.8", "r"): no decompress
 __pmLogChangeVol: change to volume 8
 vol=8 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.7", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.7", "r"): no decompress
 __pmLogChangeVol: change to volume 7
 vol=7 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.6", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.6", "r"): no decompress
 __pmLogChangeVol: change to volume 6
 vol=6 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.5", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.5", "r"): no decompress
 __pmLogChangeVol: change to volume 5
 vol=5 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.4", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.4", "r"): no decompress
 __pmLogChangeVol: change to volume 4
 vol=4 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.3", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.3", "r"): no decompress
 __pmLogChangeVol: change to volume 3
 vol=3 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.2", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.2", "r"): no decompress
 __pmLogChangeVol: change to volume 2
 vol=2 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.1", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.1", "r"): no decompress
 __pmLogChangeVol: change to volume 1
 vol=1 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.0", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 __pmLogChangeVol: change to volume 0
 vol=0 posn=OFFSET @TIME len=header+484+trailer
 
 Pass 2: backwards scan
 Found 1000 samples
 __pmLogSetTime(0) TIME delta=0 before start ti@TIME vol=0 posn=OFFSET serial=1
-__pmLogSetTime(1) TIME delta=0__pmFopen("tmparch/mv-bigbin.9", "r"): no decompress
+__pmLogSetTime(1) TIME delta=0__pmFopen("archives/ok-mv-bigbin.9", "r"): no decompress
 __pmLogChangeVol: change to volume 9
  after end ti@TIME vol=9 posn=OFFSET serial=0
 __pmLogSetTime(1) TIME delta=0 after end ti@TIME vol=9 posn=OFFSET serial=0
-__pmLogFetch: ctx=1 skip reverse 1 to unknown time, found=0
-__pmFopen("tmparch/mv-bigbin.8", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.8", "r"): no decompress
 __pmLogChangeVol: change to volume 8
 vol=8 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.1", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.1", "r"): no decompress
 __pmLogChangeVol: change to volume 1
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.7", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.7", "r"): no decompress
 __pmLogChangeVol: change to volume 7
 vol=7 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.2", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.2", "r"): no decompress
 __pmLogChangeVol: change to volume 2
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.6", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.6", "r"): no decompress
 __pmLogChangeVol: change to volume 6
 vol=6 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.3", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.3", "r"): no decompress
 __pmLogChangeVol: change to volume 3
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.5", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.5", "r"): no decompress
 __pmLogChangeVol: change to volume 5
 vol=5 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.4", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.4", "r"): no decompress
 __pmLogChangeVol: change to volume 4
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.4", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.4", "r"): no decompress
 __pmLogChangeVol: change to volume 4
 vol=4 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.5", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.5", "r"): no decompress
 __pmLogChangeVol: change to volume 5
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.3", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.3", "r"): no decompress
 __pmLogChangeVol: change to volume 3
 vol=3 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.6", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.6", "r"): no decompress
 __pmLogChangeVol: change to volume 6
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.2", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.2", "r"): no decompress
 __pmLogChangeVol: change to volume 2
 vol=2 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.7", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.7", "r"): no decompress
 __pmLogChangeVol: change to volume 7
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.1", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.1", "r"): no decompress
 __pmLogChangeVol: change to volume 1
 vol=1 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.8", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.8", "r"): no decompress
 __pmLogChangeVol: change to volume 8
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.0", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 __pmLogChangeVol: change to volume 0
 vol=0 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.9", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.9", "r"): no decompress
 __pmLogChangeVol: change to volume 9
 @TIME len=header+484+trailer
 
 Pass 3: concurrent forwards and backwards scans
 Found 2000 samples
-__pmLogSetTime(0) TIME delta=0__pmFopen("tmparch/mv-bigbin.0", "r"): no decompress
+__pmLogSetTime(0) TIME delta=0__pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 __pmLogChangeVol: change to volume 0
  before ti[1]@TIME vol=0 posn=OFFSET serial=0
 __pmLogSetTime(0) TIME delta=0 before ti[1]@TIME vol=0 posn=OFFSET serial=0
 __pmLogFetch: ctx=0 skip reverse 1 to TIME, found=0
 __pmLogFetch: ctx=0 skip 1 to TIME
-__pmFopen("tmparch/mv-bigbin.1", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.1", "r"): no decompress
 __pmLogChangeVol: change to volume 1
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.2", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.2", "r"): no decompress
 __pmLogChangeVol: change to volume 2
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.3", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.3", "r"): no decompress
 __pmLogChangeVol: change to volume 3
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.4", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.4", "r"): no decompress
 __pmLogChangeVol: change to volume 4
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.5", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.5", "r"): no decompress
 __pmLogChangeVol: change to volume 5
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.6", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.6", "r"): no decompress
 __pmLogChangeVol: change to volume 6
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.7", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.7", "r"): no decompress
 __pmLogChangeVol: change to volume 7
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.8", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.8", "r"): no decompress
 __pmLogChangeVol: change to volume 8
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.9", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.9", "r"): no decompress
 __pmLogChangeVol: change to volume 9
 @TIME len=header+484+trailer
 
 Pass 4: cascading forward scan, 100%, 75%, 50%, 25%, 0%
 Found 1000 samples
 __pmLogSetTime ...
-__pmFopen("tmparch/mv-bigbin.3", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.3", "r"): no decompress
 __pmLogChangeVol: change to volume 3
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.4", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.4", "r"): no decompress
 __pmLogChangeVol: change to volume 4
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.5", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.5", "r"): no decompress
 __pmLogChangeVol: change to volume 5
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.6", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.6", "r"): no decompress
 __pmLogChangeVol: change to volume 6
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.7", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.7", "r"): no decompress
 __pmLogChangeVol: change to volume 7
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.8", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.8", "r"): no decompress
 __pmLogChangeVol: change to volume 8
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.9", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.9", "r"): no decompress
 __pmLogChangeVol: change to volume 9
 @TIME len=header+484+trailer
 Found 750 samples
 __pmLogSetTime ...
 __pmLogSetTime ...
-__pmFopen("tmparch/mv-bigbin.5", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.5", "r"): no decompress
 __pmLogChangeVol: change to volume 5
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.6", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.6", "r"): no decompress
 __pmLogChangeVol: change to volume 6
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.7", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.7", "r"): no decompress
 __pmLogChangeVol: change to volume 7
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.8", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.8", "r"): no decompress
 __pmLogChangeVol: change to volume 8
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.9", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.9", "r"): no decompress
 __pmLogChangeVol: change to volume 9
 @TIME len=header+484+trailer
 Found 500 samples
-__pmLogSetTime(0) TIME delta=0__pmFopen("tmparch/mv-bigbin.7", "r"): no decompress
+__pmLogSetTime(0) TIME delta=0__pmFopen("archives/ok-mv-bigbin.7", "r"): no decompress
 __pmLogChangeVol: change to volume 7
  after ti[8]@TIME back up ...
-__pmFopen("tmparch/mv-bigbin.6", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.6", "r"): no decompress
 __pmLogChangeVol: change to volume 6
 vol=6 posn=OFFSET @TIME len=header+484+trailer
 ... vol=6 posn=OFFSET serial=1
-__pmFopen("tmparch/mv-bigbin.7", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.7", "r"): no decompress
 __pmLogChangeVol: change to volume 7
 @TIME len=header+484+trailer
 __pmLogFetch: ctx=0 skip 44 to TIME
-__pmFopen("tmparch/mv-bigbin.8", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.8", "r"): no decompress
 __pmLogChangeVol: change to volume 8
 @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.9", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.9", "r"): no decompress
 __pmLogChangeVol: change to volume 9
 @TIME len=header+484+trailer
 Found 250 samples
-__pmLogSetTime(0) TIME delta=0 before ti[11]@TIME vol=9 posn=OFFSET serial=0
-__pmLogSetTime(0) TIME delta=0 before ti[11]@TIME vol=9 posn=OFFSET serial=0
-__pmLogFetch: ctx=0 skip reverse 1 to TIME, found=0
-__pmLogFetch: ctx=0 skip 1 to TIME
+__pmLogSetTime(0) TIME delta=0 after end ti@TIME vol=9 posn=OFFSET serial=1
 Found 0 samples
-__pmLogSetTime(0) TIME delta=0 before ti[11]@TIME vol=9 posn=OFFSET serial=1
-__pmFopen("tmparch/mv-bigbin.8", "r"): no decompress
+__pmLogSetTime(0) TIME delta=0 after end ti@TIME vol=9 posn=OFFSET serial=0
+__pmLogSetTime(0) TIME delta=0 after end ti@TIME vol=9 posn=OFFSET serial=0
+__pmFopen("archives/ok-mv-bigbin.8", "r"): no decompress
 __pmLogChangeVol: change to volume 8
 vol=8 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.7", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.7", "r"): no decompress
 __pmLogChangeVol: change to volume 7
 vol=7 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.6", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.6", "r"): no decompress
 __pmLogChangeVol: change to volume 6
 vol=6 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.5", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.5", "r"): no decompress
 __pmLogChangeVol: change to volume 5
 vol=5 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.4", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.4", "r"): no decompress
 __pmLogChangeVol: change to volume 4
 vol=4 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.3", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.3", "r"): no decompress
 __pmLogChangeVol: change to volume 3
 vol=3 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.2", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.2", "r"): no decompress
 __pmLogChangeVol: change to volume 2
 vol=2 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.1", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.1", "r"): no decompress
 __pmLogChangeVol: change to volume 1
 vol=1 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.0", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 __pmLogChangeVol: change to volume 0
 vol=0 posn=OFFSET @TIME len=header+484+trailer
 
 Pass 5: cascading backward scan, 100%, 75%, 50%, 25%, 0%
 Found 1000 samples
-__pmLogSetTime(0) TIME delta=0__pmFopen("tmparch/mv-bigbin.7", "r"): no decompress
+__pmLogSetTime(0) TIME delta=0__pmFopen("archives/ok-mv-bigbin.7", "r"): no decompress
 __pmLogChangeVol: change to volume 7
  after ti[8]@TIME vol=7 posn=OFFSET serial=0
 __pmLogSetTime(0) TIME delta=0 after ti[8]@TIME vol=7 posn=OFFSET serial=0
 __pmLogFetch: ctx=0 skip reverse 44 to TIME, found=0
 __pmLogFetch: ctx=0 skip 1 to TIME
-__pmFopen("tmparch/mv-bigbin.6", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.6", "r"): no decompress
 __pmLogChangeVol: change to volume 6
 vol=6 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.5", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.5", "r"): no decompress
 __pmLogChangeVol: change to volume 5
 vol=5 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.4", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.4", "r"): no decompress
 __pmLogChangeVol: change to volume 4
 vol=4 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.3", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.3", "r"): no decompress
 __pmLogChangeVol: change to volume 3
 vol=3 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.2", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.2", "r"): no decompress
 __pmLogChangeVol: change to volume 2
 vol=2 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.1", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.1", "r"): no decompress
 __pmLogChangeVol: change to volume 1
 vol=1 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.0", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 __pmLogChangeVol: change to volume 0
 vol=0 posn=OFFSET @TIME len=header+484+trailer
 Found 750 samples
 __pmLogSetTime ...
-__pmFopen("tmparch/mv-bigbin.3", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.3", "r"): no decompress
 __pmLogChangeVol: change to volume 3
 vol=3 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.2", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.2", "r"): no decompress
 __pmLogChangeVol: change to volume 2
 vol=2 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.1", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.1", "r"): no decompress
 __pmLogChangeVol: change to volume 1
 vol=1 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.0", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 __pmLogChangeVol: change to volume 0
 vol=0 posn=OFFSET @TIME len=header+484+trailer
 Found 500 samples
 __pmLogSetTime ...
 __pmLogSetTime ...
-__pmFopen("tmparch/mv-bigbin.1", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.1", "r"): no decompress
 __pmLogChangeVol: change to volume 1
 vol=1 posn=OFFSET @TIME len=header+484+trailer
-__pmFopen("tmparch/mv-bigbin.0", "r"): no decompress
+__pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 __pmLogChangeVol: change to volume 0
 vol=0 posn=OFFSET @TIME len=header+484+trailer
 Found 250 samples
 __pmLogSetTime(0) TIME delta=0 before ti[1]@TIME vol=0 posn=OFFSET serial=1
 Found 0 samples
 __pmLogSetTime(0) TIME delta=0 before start ti@TIME vol=0 posn=OFFSET serial=1
-__pmLogSetTime(0) TIME delta=0__pmFopen("tmparch/mv-bigbin.9", "r"): no decompress
+__pmLogSetTime(0) TIME delta=0__pmFopen("archives/ok-mv-bigbin.9", "r"): no decompress
 __pmLogChangeVol: change to volume 9
  after end ti@TIME vol=9 posn=OFFSET serial=1
 
