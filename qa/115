@@ -77,6 +77,8 @@ echo "remote=$remote" >>$here/$seq.full
 # like:
 # Job for pmie.service failed because the service did not take the steps required by its unit configuration.
 # See "systemctl status pmie.service" and "journalctl -xe" for details.
+# or
+# Job for pmie.service failed because of unavailable resources or another system error.
 #
 _filter()
 {
@@ -101,6 +103,7 @@ _filter()
 	-e 's/\.\.failed/failed (status=1)/' \
 	-e '/^Job for pmie.service failed because .* take the steps required/d' \
 	-e '/^See "systemctl status pmie.service" and/d' \
+	-e '/^Job for pmie.service failed because of unavailable resources/d' \
     # end
 }
 
