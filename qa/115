@@ -102,7 +102,7 @@ _filter()
 	-e 's/^[ 	]*//' \
 	-e 's/\.\.failed/failed (status=1)/' \
 	-e '/^Job for pmie.service failed because .* take the steps required/d' \
-	-e '/^See "systemctl status pmie.service" and/d' \
+	-e '/^See "systemctl  *status pmie.service" and/d' \
 	-e '/^Job for pmie.service failed because of unavailable resources/d' \
     # end
 }
