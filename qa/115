@@ -73,6 +73,11 @@ echo "remote=$remote" >>$here/$seq.full
 # mkdir: error lines ... not consistency in format, so cull 'em
 # ditto for cd errors reported from pmie_check
 #
+# and if systemctl in the mix, then the error cases produce chatter
+# like:
+# Job for pmie.service failed because the service did not take the steps required by its unit configuration.
+# See "systemctl status pmie.service" and "journalctl -xe" for details.
+#
 _filter()
 {
     tee -a $here/$seq.full \
@@ -94,6 +99,8 @@ _filter()
 	-e 's/[ 	]*$//' \
 	-e 's/^[ 	]*//' \
 	-e 's/\.\.failed/failed (status=1)/' \
+	-e '/^Job for pmie.service failed because .* take the steps required/d' \
+	-e '/^See "systemctl status pmie.service" and/d' \
     # end
 }
 

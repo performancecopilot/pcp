@@ -75,5 +75,37 @@ file service ok
 * Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
 
++++ should fail with incomplete pmapi request url.size=2
+> GET /pmapi HTTP/1.1
+> Host: LOCALHOST:44323
+> Accept: */*
+>
+< HTTP/1.1 400 Bad Request
+< Content-Length: 40
+< Access-Control-Allow-Origin: *
+< Content-Type: text/plain
+< Date: DATE
+<
+{ [data not shown]
+* Connection #### to host LOCALHOST left intact
+PMWEBD error, XXX
+[DATE] pmwebd(PID): [HOST:PORT] url.size() 2 not 4 url[1]="pmapi", new_contexts_p=0
+
++++ should fail with incomplete pmapi request url.size=3
+> GET /pmapi/12345 HTTP/1.1
+> Host: LOCALHOST:44323
+> Accept: */*
+>
+< HTTP/1.1 400 Bad Request
+< Content-Length: 40
+< Access-Control-Allow-Origin: *
+< Content-Type: text/plain
+< Date: DATE
+<
+{ [data not shown]
+* Connection #### to host LOCALHOST left intact
+PMWEBD error, XXX
+[DATE] pmwebd(PID): [HOST:PORT] url.size() 3 not 4 url[1]="pmapi" url[2]="12345", new_contexts_p=0
+
 no fd leak
 redirected file ok

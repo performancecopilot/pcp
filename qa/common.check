@@ -13,12 +13,14 @@ fi
 # need to know what version we're running
 . ./localconfig
 
-# systemctl is not proving sufficiently reliable to enable for
-# all platforms, and the resulting test failures are confusing
-# for new folk.  For now unilaterally disable its use and rely
-# on the traditional daemon management methods.
+# if systemctl is present, then use this to start and stop services
 #
-export PCPQA_SYSTEMD=no
+if `which systemctl >/dev/null 2>&1`
+then
+    export PCPQA_SYSTEMD=yes
+else
+    export PCPQA_SYSTEMD=no
+fi
 
 # common routine for preventing a test from running on some platforms
 # use: _notrun "Reason for not running this test is ..."
@@ -168,8 +170,8 @@ _restore_auto_restart()
 # else run the PCP scripts directly
 #
 # Based on similar logic in the $PCP_RC_DIR/pcp script, but note this
-# one has to do the $sudo and the journal dredging and handle "pcp" as
-# the special non-service case ...
+# one has to do the $sudo and handle "pcp" as the special non-service
+# case ...
 #
 # Usage: _service [-v] <service> [on|off|restart|...]
 #
@@ -221,105 +223,35 @@ _service()
     then
 	# smells like systemctl is the go ...
 	#
-	# need to extract relevant journal entries, like
-	# Jan 28 13:48:39 vm31.localdomain pmcd[24352]: Starting pmcd ...
-	# but not these
-	# -- Logs begin at Tue 2016-11-15 02:41:52 AEDT, end at Sun 2017-01-29 07:01:06 AEDT. --
-	# Jan 28 13:48:39 vm31.localdomain systemd[1]: Starting Performance Metrics Collector Daemon...
-	#
 	case "$1"
 	in
 	    pcp)
 		# not a systemd service but a wrapper for the pmcd and pmlogger
 		# services, so a little different ...
 		#
-		if `which journalctl >/dev/null 2>&1`
-		then
-		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
-		    | egrep " (pmcd)|(pmlogger)\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
-		elif `which systemd-journalctl >/dev/null 2>&1`
-		then
-		    $sudo systemd-journalctl -a -q -n 100 \
-		    | egrep " (pmcd)|(pmlogger)\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
-		fi
 		$_verbose && echo "_service: using $PCP_RC_DIR/pcp $2"
-		$sudo $PCP_RC_DIR/pcp $2
-		sleep 2
-		if `which journalctl >/dev/null 2>&1`
+		if [ "$2" = start -o "$2" = restart ]
 		then
-		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
-		    | egrep " (pmcd)|(pmlogger)\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.post
-		elif `which systemd-journalctl >/dev/null 2>&1`
-		then
-		    $sudo systemd-journalctl -a -q -n 100 \
-		    | egrep " (pmcd)|(pmlogger)\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.post
+		    $_verbose && echo "_service: using systemctl $2 $pmcd.service then pmlogger.service"
+		    $sudo systemctl reset-failed pmcd.service
+		    $sudo systemctl $2 pmcd.service
+		    $sudo systemctl reset-failed pmlogger.service
+		    $sudo systemctl $2 pmlogger.service
+		else
+		    $_verbose && echo "_service: using systemctl $2 pmlogger.service then pmcd.service"
+		    $sudo systemctl $2 pmlogger.service
+		    $sudo systemctl $2 pmcd.service
 		fi
 		;;
 	    *)
-		if `which journalctl >/dev/null 2>&1`
-		then
-		    $sudo journalctl -n 10 -u $1 \
-		    | grep " $1\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
-		elif `which systemd-journalctl >/dev/null 2>&1`
-		then
-		    $sudo systemd-journalctl -a -q -n 100 \
-		    | egrep " $1\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
-		fi
 		$_verbose && echo "_service: using systemctl $2 $1.service"
-		$sudo systemctl $2 $1.service
-		sleep 2
-		if `which journalctl >/dev/null 2>&1`
+		if [ "$2" = start -o "$2" = restart ]
 		then
-		    $sudo journalctl -n 10 -u $1 \
-		    | grep " $1\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.post
-		elif `which systemd-journalctl >/dev/null 2>&1`
-		then
-		    $sudo systemd-journalctl -a -q -n 100 \
-		    | egrep " $1\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.post
+		    $sudo systemctl reset-failed $1.service
 		fi
+		$sudo systemctl $2 $1.service
 		;;
 	esac
-	# logic copied from pmdaproc.sh ...
-	#
-	# diff the pre and post journal lines to find those most recently
-	# added:
-	#	- lines beginning with a digit are ed(1) commands, ignore
-	#	- --- lines are diff fluff
-	#	- lines beginnning < are only in journal.pre, ignore
-	#	- strip journal datestamp and process id info
-	#	- add trailing space for some output lines to match
-	#	  non-systemd output and QA *.out files
-	#	- bizarro (on vm19) the .post file may contain lines
-	#	  _before_ the start of a non-empty .pre file, so any
-	#	  > lines after 0a? are nonsense, but need to make sure
-	#	  the .pre file is not empty (sigh)
-	#
-	echo "--- journal _service $1 $2 pre ---" >>$here/$seq.full
-	[ -s $tmp.journal.pre ] || echo "-- added by _service() --" >$tmp.journal.pre
-	cat $tmp.journal.pre >>$here/$seq.full
-	echo "--- journal _service $1 $2 post ---" >>$here/$seq.full
-	cat $tmp.journal.post >>$here/$seq.full
-	diff $tmp.journal.pre $tmp.journal.post \
-	| $PCP_AWK_PROG '
-BEGIN		{ skip = 0 }
-$1 ~ /^0a/	{ skip = 1; next }
-skip == 1 && $1 != ">"	{ skip = 0 }
-skip == 0	{ print }' \
-	| sed \
-	    -e '/^[<0-9]/d' \
-	    -e '/^---$/d' \
-	    -e "s/^.*\\[[0-9]*]: //" \
-	    -e '/^Starting p.*[^ ]$/s/$/ /' \
-	    -e '/^Stopping p.*[^ ]$/s/$/ /' \
-	# end
     elif [ -f $PCP_RC_DIR/$1 ]
     then
 	$_verbose && echo "_service: using $PCP_RC_DIR/$1 $2"

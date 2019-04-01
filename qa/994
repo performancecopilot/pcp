@@ -25,6 +25,39 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+_fixmode()
+{
+    if [ -L "$2" ]
+    then
+	: do nothing
+    else
+	$sudo chmod "$1" "$2"
+    fi
+    echo "Fixed."
+}
+
+_fixown()
+{
+    if [ -L "$2" ]
+    then
+	$sudo chown -h "$1" "$2"
+    else
+	$sudo chown "$1" "$2"
+    fi
+    echo "Fixed."
+}
+
+_fixgrp()
+{
+    if [ -L "$2" ]
+    then
+	$sudo chgrp -h "$1" "$2"
+    else
+	$sudo chgrp "$1" "$2"
+    fi
+    echo "Fixed."
+}
+
 if [ ! -f src/permslist ]
 then
     echo "Arrgh .. src/permslist is missing.  Need to"
@@ -118,19 +151,20 @@ p
 	then
 	    echo "$target: wrong mode: expected $mode (from $makefile), found $_mode"
 	    ls -ld $target
-	    $fix && ( $sudo chmod $mode $target ; echo "Fixed." )
+	    $fix && _fixmod "$mode" "$target"
 	fi
 	if [ "$_owner" != "$owner" ]
 	then
 	    echo "$target: wrong owner: expected $owner (from $makefile), found $_owner"
 	    ls -ld $target
-	    $fix && ( $sudo chown $owner $target ; echo "Fixed." )
+	    $fix && _fixown "$owner" "$target"
+
 	fi
 	if [ "$_group" != "$group" ]
 	then
 	    echo "$target: wrong group: expected $group (from $makefile), found $_group"
 	    ls -ld $target
-	    $fix && ( $sudo chgrp $group $target ; echo "Fixed." )
+	    $fix && _fixgrp "$group" "$target"
 	fi
     fi
 done
@@ -146,7 +180,14 @@ if [ -s $tmp.out ]
 then
     echo "Arrgh ... these files should be owned by root"
     cat $tmp.out | xargs ls -ld
-    $fix && ( ( cat $tmp.out | xargs $sudo chown root:$root_group ) ; echo "Fixed." )
+    if $fix
+    then
+	cat $tmp.out \
+	| while read file
+	do
+	    _fixown "root:$root_group" "$file"
+	done
+    fi
 fi
 
 # success, all done

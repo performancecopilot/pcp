@@ -480,6 +480,11 @@ _filter_cron_scripts()
 	-e 's/cron\.pmsnap/pmsnap/g'
 }
 
+# besides rewriting platform-specific paths, we need to ensure that
+# any chatter from the pcp/pmcd/pmlogger start scripts is removed ...
+# this may come from the PCP scripts or the infrastructure that runs
+# them, e.g. systemctl
+#
 _filter_pcp_start()
 {
     sed \
@@ -511,6 +516,8 @@ s/Performance Co-Pilot starting PMCD (logfile is [^)]*) .../Starting pmcd ... /
 s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
 }' \
 	-e '/^Starting pmcd/d' \
+	-e '/^pmcd\.service: Succeeded/d' \
+	-e '/^Rebuilding PMNS /d' \
 	-e '/^Starting pmlogger/d' \
 	-e '/^Waiting for PMCD/d' \
 	-e '/^Waiting for pmcd/d' \
@@ -535,6 +542,7 @@ _filter_pcp_stop()
 	-e '/^Stopping pmlogger/d' \
 	-e '/^Waiting for PMCD/s/PMCD/pmcd/' \
 	-e '/^Waiting for pmcd/d' \
+	-e '/^pmcd\.service: Succeeded/d' \
 	-e '/^Waiting for PMIE/s/PMIE/pmie/' \
 	-e '/^Waiting for pmie/d' \
 	-e '/Warning: Forcing PMCD to terminate!/s/PMCD/pmcd/' \

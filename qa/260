@@ -53,12 +53,12 @@ $1 ~ /^debug_/		{ next }
 NF == 0			{ sample++ }
 $2 == "?"		{ print; next }
 $1 == "r_xpect_one_quarter:"	{ if ($2 >= 0.246 && $2 <= 0.254) $2 = "0.25"; else $0 = $0 " !bad" }
-$1 == "pmie_xpect_120:"	{ if ($2 >= 115.0 && $2 <= 122.0) $2 = "120"; else $0 = $0 " !bad" }
-$1 == "pmie_xpect_360:"	{ if ($2 >= 355.0 && $2 <= 363.0) $2 = "360"; else $0 = $0 " !bad" }
+$1 == "pmie_xpect_120:"	{ if ($2 >= 110.0 && $2 <= 130.0) $2 = "120"; else $0 = $0 " !bad" }
+$1 == "pmie_xpect_360:"	{ if ($2 >= 330.0 && $2 <= 390.0) $2 = "360"; else $0 = $0 " !bad" }
 $1 == "derived_xpect_120:"	{ if (sample < 3) $2 = "<skipped>"
-				  else if ($2 >= 115.0 && $2 <= 122.0) $2 = "120"; else $0 = $0 " !bad" }
+				  else if ($2 >= 110.0 && $2 <= 130.0) $2 = "120"; else $0 = $0 " !bad" }
 $1 == "derived_xpect_360:"	{ if (sample < 3) $2 = "<skipped>"
-				  else if ($2 >= 355.0 && $2 <= 363.0) $2 = "360"; else $0 = $0 " !bad" }
+				  else if ($2 >= 330.0 && $2 <= 390.0) $2 = "360"; else $0 = $0 " !bad" }
 			{ print }'
 }
 

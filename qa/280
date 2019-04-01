@@ -138,10 +138,13 @@ echo
 echo "Expect this to get a mutex failure ..." | tee -a $seq.full
 $sudo touch $LOGGING_DIR/$LOCALHOST/lock
 $sudo $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
-$sudo cat $tmp.log | tee -a $seq.full | _filter \
-| $PCP_AWK_PROG '
+if [ -f $tmp.log ]
+then
+    $sudo cat $tmp.log | tee -a $seq.full | _filter \
+    | $PCP_AWK_PROG '
 /-r.-r.-r.-/	{ $3 = "USER"; $4 = "GROUP"; $6 = "Mmm"; $7 = "D"; $8 = "YYYY" }
 		{ print }'
+fi
 
 echo
 echo "Expect this to cleanup an old lock file ..." | tee -a $seq.full
