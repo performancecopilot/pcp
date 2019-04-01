@@ -75,8 +75,8 @@
 <P>Here we enable the Performance Metrics Collector Daemon (<a href="http://man7.org/linux/man-pages/man1/pmcd.1.html">pmcd(1)</a>) on the host which then in turn will control and request metrics on behalf of clients from various Performance Metrics Domain Agents (PMDAs). The PMDAs provide the actual data from different components (domains) in the system, for example from the Linux Kernel PMDA or the NFS Client PMDA. The default configuration includes over 1000 metrics with negligible overall overhead when queried. If no queries for metrics are sent to the agent, it doesn't do anything at all. Local PCP archive logs will also be enabled on the host for convenience with <a href="http://man7.org/linux/man-pages/man1/pmlogger.1.html">pmlogger(1)</a>.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable PMDAs which are not enabled by default, for example the Postfix PMDA, run the corresponding Install script:<br><B>
-<br> # cd /var/lib/pcp/pmdas/postfix
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable PMDAs which are not enabled by default, for example the PostgreSQL database PMDA, run the corresponding Install script:<br><B>
+<br> # cd /var/lib/pcp/pmdas/postgresql
 <BR> # ./Install
 </B></TD></TR>
 </TABLE>
