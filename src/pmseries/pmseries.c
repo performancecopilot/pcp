@@ -1120,7 +1120,6 @@ main(int argc, char *argv[])
                     redis_host? redis_host : "localhost", redis_port);
             pmIniFileUpdate(config, "pmseries", "servers", option);
         }
-
     }
 
     if (flags & PMSERIES_OPT_ALL)

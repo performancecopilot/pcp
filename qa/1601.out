@@ -46,7 +46,9 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
 [
     {
         "series": "01d8bc7fa75aaff98a08aa0b1c0f2394368d5183",
-        "label": "hostname"
+        "labels": {
+            "hostname": "bozo-laptop"
+        }
     }
 ]
 == verify metric values

@@ -41,6 +41,7 @@ typedef struct pmSeriesBaton {
     pmSID		*sids;
     pmSID		sid;
     sds			match;
+    sds			suffix;
     unsigned int	series;
     unsigned int	values;
     sds			info;
@@ -94,6 +95,8 @@ pmseries_free_baton(struct client *client, pmSeriesBaton *baton)
 	sdsfree(baton->info);
     if (baton->query)
 	sdsfree(baton->query);
+    if (baton->suffix)
+	sdsfree(baton->suffix);
     memset(baton, 0, sizeof(*baton));
 }
 
@@ -106,9 +109,14 @@ on_pmseries_match(pmSID sid, void *arg)
     sds			result = http_get_buffer(baton->client);
 
     if (baton->sid == NULL || sdscmp(baton->sid, sid) != 0) {
-	prefix = (baton->series++ == 0) ? "[" : ",";
+	if (baton->series++ == 0) {
+	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	    prefix = "[";
+	} else {
+	    prefix = ",";
+	}
 	result = sdscatfmt(result, "%s\"%S\"", prefix, sid);
-	http_set_buffer(client, result, HTTP_FLAG_JSON | HTTP_FLAG_ARRAY);
+	http_set_buffer(client, result, HTTP_FLAG_JSON);
 	http_transfer(client);
     }
     return 0;
@@ -120,21 +128,27 @@ on_pmseries_value(pmSID sid, pmSeriesValue *value, void *arg)
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
     struct client	*client = baton->client;
     const char		*prefix;
-    sds			timestamp, series, data;
+    sds			timestamp, series, quoted;
     sds			result = http_get_buffer(baton->client);
 
     timestamp = value->timestamp;
     series = value->series;
-    data = value->data;
+    quoted = sdscatrepr(sdsempty(), value->data, sdslen(value->data));
 
-    prefix = (baton->values++ == 0) ? "[" : ",";
+    if (baton->series++ == 0) {
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	prefix = "[";
+    } else {
+	prefix = ",";
+    }
     result = sdscatfmt(result, "%s{\"series\":\"%S\",", prefix, sid);
     if (sdscmp(sid, series) != 0)	/* an instance of a metric */
 	result = sdscatfmt(result, "\"instance\":\"%S\",", series);
     result = sdscatfmt(result, "\"timestamp\":%S,", timestamp);
-    result = sdscatfmt(result, "\"value\":\"%S\"}", data);
+    result = sdscatfmt(result, "\"value\":%S}", quoted);
+    sdsfree(quoted);
 
-    http_set_buffer(client, result, HTTP_FLAG_JSON | HTTP_FLAG_ARRAY);
+    http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);
     return 0;
 }
@@ -148,6 +162,7 @@ on_pmseries_desc(pmSID sid, pmSeriesDesc *desc, void *arg)
     sds			s, result = http_get_buffer(baton->client);
 
     if ((s = baton->sid) == NULL) {
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
 	baton->sid = sdsdup(sid);
 	prefix = "[";
     }
@@ -166,7 +181,7 @@ on_pmseries_desc(pmSID sid, pmSeriesDesc *desc, void *arg)
 		desc->semantics, desc->type, desc->units);
     baton->series++;
 
-    http_set_buffer(client, result, HTTP_FLAG_JSON | HTTP_FLAG_ARRAY);
+    http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);
     return 0;
 }
@@ -179,32 +194,36 @@ on_pmseries_metric(pmSID sid, sds name, void *arg)
     const char		*prefix;
     sds			s, result = http_get_buffer(client);
 
-    if (sid == NULL) {	/* all metric names */
-	prefix = (baton->values == 0) ? "[" : ",";
-	result = sdscatfmt(result, "%s\"%S\"", prefix);
-    }
-    else if ((s = baton->sid) == NULL) {
-	baton->sid = sdsdup(sid);
-	baton->series++;
-	assert(baton->values == 0);
-	prefix = "[";
-    }
-    else {
-	if (sdscmp(s, sid) != 0) {
-	    assert(sdslen(s) == sdslen(sid));
-	    baton->sid = sdscpylen(s, sid, sdslen(sid));
-	    baton->series++;
-	    baton->values = 0;
+    if (sid == NULL) {	/* request for all metric names globally */
+	if (baton->values == 0) {
+	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	    prefix = "[";
+	} else {
+	    prefix = ",";
 	}
-	prefix = ",";
-    }
-
-    if (sid)
+	result = sdscatfmt(result, "%s\"%S\"", prefix, name);
+    } else {
+	if ((s = baton->sid) == NULL) {	/* first series seem */
+	    baton->sid = sdsdup(sid);
+	    baton->series++;
+	    assert(baton->values == 0);
+	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	    prefix = "[";
+	} else {
+	    if (sdscmp(s, sid) != 0) {
+		assert(sdslen(s) == sdslen(sid));
+		baton->sid = sdscpylen(s, sid, sdslen(sid));
+		baton->series++;
+		baton->values = 0;
+	    }
+	    prefix = ",";
+	}
 	result = sdscatfmt(result, "%s{\"series\":\"%S\",\"name\":\"%S\"}",
 				prefix, sid, name);
-    baton->values++;	/* count of names in this request */
+    }
+    baton->values++;	/* count of names for this series/request */
 
-    http_set_buffer(client, result, HTTP_FLAG_JSON | HTTP_FLAG_ARRAY);
+    http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);
     return 0;
 }
@@ -215,32 +234,39 @@ on_pmseries_context(pmSID sid, sds name, void *arg)
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
     struct client	*client = baton->client;
     const char		*prefix;
-    sds			s, result = http_get_buffer(client);
+    sds			s, quoted, result = http_get_buffer(client);
 
-    if (sid == NULL) {	/* all source names */
-	prefix = (baton->values == 0) ? "[" : ",";
-	result = sdscatfmt(result, "%s\"%S\"", prefix, name);
-    }
-    else if ((s = baton->sid) == NULL) {
-	baton->sid = sdsdup(sid);
-	baton->series++;
-	prefix = "[";
-    }
-    else {
-	if (sdscmp(s, sid) != 0) {
-	    assert(sdslen(s) == sdslen(sid));
-	    baton->sid = sdscpylen(s, sid, sdslen(sid));
-	    baton->series++;
-	    baton->values = 0;
+    quoted = sdscatrepr(sdsempty(), name, sdslen(name));
+    if (sid == NULL) {	/* request for all source names */
+	if (baton->values == 0) {
+	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	    prefix = "[";
+	} else {
+	    prefix = ",";
 	}
-	prefix = ",";
+	result = sdscatfmt(result, "%s%S", prefix, quoted);
+    } else {
+	if ((s = baton->sid) == NULL) {
+	    baton->sid = sdsdup(sid);
+	    baton->series++;
+	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	    prefix = "[";
+	} else {
+	    if (sdscmp(s, sid) != 0) {
+		assert(sdslen(s) == sdslen(sid));
+		baton->sid = sdscpylen(s, sid, sdslen(sid));
+		baton->series++;
+		baton->values = 0;
+	    }
+	    prefix = ",";
+	}
+	result = sdscatfmt(result, "%s{\"source\":\"%S\",\"name\":%S}",
+		    prefix, sid, quoted);
     }
-    if (sid)
-	result = sdscatfmt(result, "%s{\"source\":\"%S\",\"name\":\"%S\"}",
-		    prefix, sid, name);
+    sdsfree(quoted);
     baton->values++;	/* count of names for this source */
 
-    http_set_buffer(client, result, HTTP_FLAG_JSON | HTTP_FLAG_ARRAY);
+    http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);
     return 0;
 }
@@ -253,30 +279,39 @@ on_pmseries_label(pmSID sid, sds label, void *arg)
     const char		*prefix;
     sds			s, result = http_get_buffer(client);
 
-    if (sid == NULL) {	/* all labels */
-	prefix = (baton->values == 0) ? "[" : ",";
+    if (baton->nsids != 0)
+	return 0;
+
+    if (sid == NULL) {	/* all labels globally requested */
+	if (baton->values == 0) {
+	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	    prefix = "[";
+	} else {
+	    prefix = ",";
+	}
 	result = sdscatfmt(result, "%s\"%S\"", prefix, label);
     }
     else if ((s = baton->sid) == NULL) {
 	baton->sid = sdsdup(sid);
 	baton->series++;
-	prefix = "[";
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
+	result = sdscatfmt(result, "[{\"series\":\"%S\",\"labels\":[\"%S\"",
+			sid, label);
     }
-    else {
-	if (sdscmp(s, sid) != 0) {
-	    assert(sdslen(s) == sdslen(sid));
-	    baton->sid = sdscpylen(s, sid, sdslen(sid));
-	    baton->series++;
-	    baton->values = 0;
-	}
-	prefix = ",";
+    else if (sdscmp(s, sid) != 0) {
+	assert(sdslen(s) == sdslen(sid));
+	baton->sid = sdscpylen(s, sid, sdslen(sid));
+	baton->series++;
+	baton->values = 0;
+	result = sdscatfmt(result, "]},{\"series\":\"%S\",\"labels\":[\"%S\"}",
+			sid, label);
+    } else {
+	result = sdscatfmt(result, ",\"%S\"", label);
     }
-    if (sid)
-	result = sdscatfmt(result, "%s{\"series\":\"%S\",\"label\":\"%S\"}",
-			prefix,	sid, label);
     baton->values++;	/* count of labels for this series */
 
-    http_set_buffer(client, result, HTTP_FLAG_JSON | HTTP_FLAG_ARRAY);
+    http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);
     return 0;
 }
@@ -285,9 +320,39 @@ static int
 on_pmseries_labelmap(pmSID sid, pmSeriesLabel *label, void *arg)
 {
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
+    struct client	*client = baton->client;
+    const char		*prefix;
+    sds			s, name, value, result = http_get_buffer(client);
 
-    /* TODO: handle like in the pmseries command */
-    (void)baton; (void)sid; (void)label;
+    if (baton->nsids == 0)
+	return 0;
+
+    name = label->name;
+    value = label->value;
+
+    if ((s = baton->sid) == NULL) {
+	baton->sid = sdsdup(sid);
+	baton->series++;
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
+	result = sdscatfmt(result, "[{\"series\":\"%S\",\"labels\":", sid);
+	prefix = "{";
+    } else if (sdscmp(s, sid) != 0) {
+	assert(sdslen(s) == sdslen(sid));
+	baton->series++;
+	baton->values = 0;
+	baton->sid = sdscpylen(s, sid, sdslen(sid));
+	result = sdscatfmt(result, "}},{\"series\":\"%S\",\"labels\":", sid);
+	prefix = "{";
+    } else {
+	prefix = ",";
+    }
+    result = sdscatfmt(result, "%s\"%S\":%S", prefix, name, value);
+    baton->values++;
+
+    http_set_buffer(client, result, HTTP_FLAG_JSON);
+    http_transfer(client);
     return 0;
 }
 
@@ -297,33 +362,42 @@ on_pmseries_instance(pmSID sid, sds name, void *arg)
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
     struct client	*client = baton->client;
     const char		*prefix;
-    sds			s, result = http_get_buffer(client);
+    sds			s, quoted, result = http_get_buffer(client);
 
-    if (sid == NULL) {	/* all instances */
-	prefix = (baton->values == 0) ? "[" : ",";
-	result = sdscatfmt(result, "%s\"%S\"", prefix, name);
+    quoted = sdscatrepr(sdsempty(), name, sdslen(name));
+    if (sid == NULL) {	/* all instances globally requested */
+	if (baton->values == 0) {
+	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	    prefix = "[";
+	} else {
+	    prefix = ",";
+	}
+	result = sdscatfmt(result, "%s%S", prefix, quoted);
     }
-    else if ((s = baton->sid) == NULL) {
+    else if ((s = baton->sid) == NULL) {	/* first series seen */
 	baton->sid = sdsdup(sid);
 	baton->series++;
 	assert(baton->values == 0);
-	prefix = "[";
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	result = sdscatfmt(result, "[{\"series\":\"%S\",\"instances\":[%S",
+			sid, quoted);
     }
-    else {
-	if (sdscmp(s, sid) != 0) {
-	    assert(sdslen(s) == sdslen(sid));
-	    baton->sid = sdscpylen(s, sid, sdslen(sid));
-	    baton->series++;
-	    baton->values = 0;
-	}
-	prefix = ",";
+    else if (sdscmp(s, sid) != 0) {		/* different series */
+	assert(sdslen(s) == sdslen(sid));
+	baton->sid = sdscpylen(s, sid, sdslen(sid));
+	baton->series++;
+	baton->values = 0;
+	result = sdscatfmt(result, "]},{\"series\":\"%S\",\"instances\":[%S",
+			sid, name);
+    } else {				/* repeating series */
+	result = sdscatfmt(result, ",%S", quoted);
     }
-    if (sid)
-	result = sdscatfmt(result, "%s{\"series\":\"%S\",\"instance\":%S}",
-			prefix, sid, name);
     baton->values++;	/* count of instances for this series */
+    sdsfree(quoted);
 
-    http_set_buffer(client, result, HTTP_FLAG_JSON | HTTP_FLAG_ARRAY);
+    http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);
     return 0;
 }
@@ -334,21 +408,27 @@ on_pmseries_inst(pmSID sid, pmSeriesInst *inst, void *arg)
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
     struct client	*client = baton->client;
     const char		*prefix;
-    sds			source, series, instid, name;
+    sds			source, series, instid, quoted;
     sds			result = http_get_buffer(baton->client);
 
     series = inst->series;
     source = inst->source;
     instid = inst->instid;
-    name = inst->name;
+    quoted = sdscatrepr(sdsempty(), inst->name, sdslen(inst->name));
 
-    prefix = (baton->values++ == 0) ? "[" : ",";
+    if (baton->values++ == 0) {
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	prefix = "[";
+    } else {
+	prefix = ",";
+    }
     result = sdscatfmt(result,
 		    "%s{\"series\":\"%S\",\"source\":\"%S\","
-		    "\"instance\":\"%S\",\"id\":%S,\"name\":\"%S\"}",
-		    prefix, sid, source, series, instid, name);
+		    "\"instance\":\"%S\",\"id\":%S,\"name\":%S}",
+		    prefix, sid, source, series, instid, quoted);
+    sdsfree(quoted);
 
-    http_set_buffer(client, result, HTTP_FLAG_JSON | HTTP_FLAG_ARRAY);
+    http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);
     return 0;
 }
@@ -364,13 +444,10 @@ on_pmseries_done(int status, void *arg)
 
     if (status == 0) {
 	code = HTTP_STATUS_OK;
-	/* complete current response */
-	if (flags & HTTP_FLAG_OBJECT)
-	    msg = sdsnewlen("}\r\n", 3);
-	else if (flags & HTTP_FLAG_ARRAY)
-	    msg = sdsnewlen("]\r\n", 3);
-	else
+	/* complete current response with JSON suffix if needed */
+	if ((msg = baton->suffix) == NULL)	/* empty OK response */
 	    msg = sdsnewlen(pmseries_success, sizeof(pmseries_success) - 1);
+	baton->suffix = NULL;
     } else {
 	if (((code = client->u.http.parser.status_code)) == 0)
 	    code = HTTP_STATUS_NOT_FOUND;

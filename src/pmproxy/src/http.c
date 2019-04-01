@@ -19,6 +19,45 @@
 static int chunked_transfer_size; /* pmproxy.chunksize, pagesize by default */
 static int smallest_buffer_size = 128;
 
+/*
+ * Simple helpers to manage the cumlative addition of JSON
+ * (arrays and/or objects) to a buffer.
+ */
+sds
+json_push_suffix(sds suffix, json_flags type)
+{
+    size_t	length;
+
+    if (type != JSON_FLAG_ARRAY && type != JSON_FLAG_OBJECT)
+	return suffix;
+
+    if (suffix == NULL) {
+	if (type == JSON_FLAG_ARRAY)
+	    return sdsnewlen("]\r\n", 3);
+	return sdsnewlen("}\r\n", 3);
+    }
+
+    /* prepend to existing string */
+    length = sdslen(suffix);
+    suffix = sdsgrowzero(suffix, length + 1);
+    memmove(suffix+1, suffix, length);
+    suffix[0] = (type == JSON_FLAG_ARRAY)? ']' : '}';
+    return suffix;
+}
+
+sds
+json_pop_suffix(sds suffix)
+{
+    size_t	length;
+
+    /* chop first character - no resize, pad with null terminators */
+    if (suffix) {
+	length = sdslen(suffix);
+	memmove(suffix, suffix+1, length-1);
+    }
+    return suffix;
+}
+
 static inline int
 ishex(int x)
 {

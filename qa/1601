@@ -20,6 +20,12 @@ _cleanup()
     cd $here
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
     [ -n "$options" ] && redis-cli $options shutdown
+    if $need_restore
+    then
+	need_restore=false
+        _restore_config $PCP_SYSCONF_DIR/pmproxy
+        _restore_config $PCP_SYSCONF_DIR/pmseries
+    fi
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -40,6 +46,7 @@ fi
 [ -z "$domainname" ] && domainname=localdomain
 [ "$domainname" = "(none)" ] && domainname=localdomain
 
+need_restore=false
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -52,6 +59,12 @@ _filter_source()
 }
 
 # real QA test starts here
+_save_config $PCP_SYSCONF_DIR/pmproxy
+_save_config $PCP_SYSCONF_DIR/pmseries
+$sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
+$sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
+need_restore=true
+
 echo "Start test Redis server ..."
 redisport=`_find_free_port`
 redis-server --port $redisport > $tmp.redis 2>&1 &

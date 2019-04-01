@@ -39,6 +39,7 @@ typedef struct GrafanaBaton {
     sds			refId;
     sds			panelId;
     sds			dashboardId;
+    sds			suffix;
     sds			query;
     sds			target;
     sds			start;
@@ -104,6 +105,8 @@ grafana_free_baton(struct client *client, GrafanaBaton *baton)
 	sdsfree(baton->panelId);
     if (baton->dashboardId)
 	sdsfree(baton->dashboardId);
+    if (baton->suffix)
+	sdsfree(baton->suffix);
     if (baton->query)
 	sdsfree(baton->query);
     if (baton->target)
@@ -140,7 +143,7 @@ on_grafana_value(pmSID sid, pmSeriesValue *value, void *arg)
     GrafanaBaton	*baton = (GrafanaBaton *)arg;
     struct client	*client = baton->client;
     char		*prefix, *s;
-    sds			result, timestamp, series, data;
+    sds			result, timestamp, series, quoted;
 
     if (pmDebugOptions.series)
 	fprintf(stderr, "%s: client=%p %s\n", "on_grafana_value", client, sid);
@@ -148,28 +151,33 @@ on_grafana_value(pmSID sid, pmSeriesValue *value, void *arg)
     assert(client != NULL);
     result = http_get_buffer(client);
 
-    data = value->data;
+    quoted = sdscatrepr(sdsempty(), value->data, sdslen(value->data));
     series = value->series;
     timestamp = value->timestamp;
     /* chop off the sub-millisecond component of timestamp */
-    if ((s = strchr(timestamp, '.')) == NULL)
-	return 1;	/* bad timestamp */
-    *s = '\0';
+    if ((s = strchr(timestamp, '.')) != NULL)
+	*s = '\0';
 
     baton->values++;
 
     if (baton->sid == NULL) {
 	baton->sid = sdsnewlen(series, sdslen(series));
 	baton->series = 0;
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
 	prefix = "[";
     } else {
 	prefix = ",";
     }
     if (baton->series == 0 || sdscmp(baton->sid, series) != 0) {
 	baton->sid = sdscpylen(baton->sid, series, sdslen(series));
-	baton->series++;
+	if (baton->series++ != 0) {
+	    baton->suffix = json_pop_suffix(baton->suffix);
+	    baton->suffix = json_pop_suffix(baton->suffix);
+	    result = sdscat(result, "]}");
+	}
 	baton->values = 0;
 
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
 	result = sdscatfmt(result, "%s{\"target\":\"%S\",\"series\":\"%S\"",
 				prefix, baton->target, series);
 	if (baton->refId)
@@ -180,14 +188,15 @@ on_grafana_value(pmSID sid, pmSeriesValue *value, void *arg)
 	    result = sdscatfmt(result, ",\"dashboardId\":\"%S\"",
 				baton->dashboardId);
 	result = sdscat(result, ",\"datapoints\":");
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
 	prefix = "[";
     } else {
 	prefix = ",";
     }
     baton->values++;
-    result = sdscatfmt(result, "%s[%S,%s]", prefix, data, timestamp);
+    result = sdscatfmt(result, "%s[%S,%s]", prefix, quoted, timestamp);
 
-    http_set_buffer(client, result, HTTP_FLAG_JSON | HTTP_FLAG_ARRAY);
+    http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);
     return 0;
 }
@@ -209,6 +218,7 @@ on_grafana_metric(pmSID sid, sds name, void *arg)
 {
     GrafanaBaton	*baton = (GrafanaBaton *)arg;
     struct client	*client = baton->client;
+    const char		*prefix;
     sds			result = http_get_buffer(client);
 
     if (pmDebugOptions.series)
@@ -216,9 +226,15 @@ on_grafana_metric(pmSID sid, sds name, void *arg)
 			client, name);
 
     /* append search query result */
-    result = sdscatfmt(result, "%s\"%S\"",
-			(baton->values++ == 0) ? "[" : ",", name);
-    http_set_buffer(client, result, HTTP_FLAG_JSON | HTTP_FLAG_ARRAY);
+    if (baton->values++ == 0) {
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	prefix = "[";
+    } else {
+	prefix = ",";
+    }
+    result = sdscatfmt(result, "%s\"%S\"", prefix, name);
+
+    http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);
     return 0;
 }
@@ -296,14 +312,10 @@ on_grafana_done(int status, void *arg)
 
     if (status == 0) {
 	code = HTTP_STATUS_OK;
-	if (flags & (HTTP_FLAG_OBJECT|HTTP_FLAG_ARRAY))
-	    msg = baton->series ? sdsnewlen("]}", 2) : sdsempty();
-	else
+	/* complete current response with JSON suffix if needed */
+	if ((msg = baton->suffix) == NULL)	/* empty OK response */
 	    msg = sdsnewlen(grafana_success, sizeof(grafana_success) - 1);
-	if (flags & HTTP_FLAG_OBJECT)
-	    msg = sdscatlen(msg, "}\r\n", 3);
-	else if (flags & HTTP_FLAG_ARRAY)
-	    msg = sdscatlen(msg, "]\r\n", 3);
+	baton->suffix = NULL;
     } else {
 	if (((code = client->u.http.parser.status_code)) == 0)
 	    code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
