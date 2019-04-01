@@ -522,6 +522,8 @@ s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
 	-e '/^Waiting for PMCD/d' \
 	-e '/^Waiting for pmcd/d' \
 	-e '/^Performance Co-Pilot installing/s//Installing/' \
+	-e '/Installing .* PMDA/d' \
+	-e '/Removing .* PMDA/d' \
         -e '/^\.[. ]*done$/d' \
         -e '/^\.[. ]*failed$/d' \
 	-e 's/^\(Waiting .*\.\.\.\)\(\$PCP_RC_DIR\)/\1\
