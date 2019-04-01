@@ -291,7 +291,14 @@ _do_dir "root:$grp" 755 "$PCP_SHARE_DIR"/webapps
 find "$PCP_SYSCONF_DIR" ! -user root \
 | while read f
 do
-    chown "root:$grp" "$f"
+    if [ -L "$f" ]
+    then
+	# change the symlink, not what it points to
+	#
+	chown -h "root:$grp" "$f"
+    else
+	chown "root:$grp" "$f"
+    fi
 done
 
 # pcp:pcp and mode 775 directories
