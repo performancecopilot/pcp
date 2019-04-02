@@ -73,6 +73,12 @@ echo "remote=$remote" >>$here/$seq.full
 # mkdir: error lines ... not consistency in format, so cull 'em
 # ditto for cd errors reported from pmie_check
 #
+# and these ones (w/out systemctl) ...
+# $PCP_RC_DIR/pmie:
+# Error: PCP inference engine control file $PCP_PMIECONTROL_PATH
+# is missing!  Cannot start any Performance Co-Pilot inference engine(s).
+# failed (status=1)
+#
 # and if systemctl in the mix, then the error cases produce chatter
 # like:
 # Job for pmie.service failed because the service did not take the steps required by its unit configuration.
@@ -100,7 +106,10 @@ _filter()
 	-e '/\/pmie_check:.*cd:/d' \
 	-e 's/[ 	]*$//' \
 	-e 's/^[ 	]*//' \
-	-e 's/\.\.failed/failed (status=1)/' \
+	-e '/\$PCP_RC_DIR\/pmie:/d' \
+	-e '/^Error: PCP inference engine control file/d' \
+	-e '/^is missing! /d' \
+	-e '/^failed /d' \
 	-e '/^Job for pmie.service failed because /d' \
 	-e '/^See "systemctl  *status pmie.service" and/d' \
     # end
