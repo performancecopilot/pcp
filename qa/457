@@ -31,6 +31,7 @@ _cleanup()
     fi
     $sudo rm -fr $tmp.dir
     $sudo rm -f $tmp.*
+    $sudo rm -f $here/$seq.pipe $here/$seq.pipe.pid	
     exit $status
 }
 
@@ -46,6 +47,7 @@ _filter()
 {
     sed \
 	-e "s,$tmp,TMPFILE,g" \
+	-e "s,$here,HERE,g" \
 	-e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \
 	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g'
 }
@@ -70,7 +72,7 @@ fifo	n	$tmp.fifo
 none	n	$tmp.none
 empty	n	$tmp.empty
 dir	n	$tmp.dir
-pipe	n	$tmp.pipe|
+pipe	n	$here/$seq.pipe|
 " >$tmp.conf
 
 # and PMDA Install script
@@ -95,11 +97,11 @@ mkdir $tmp.dir
 mkfifo $tmp.fifo
 touch $tmp.empty
 $PCP_ECHO_PROG $PCP_ECHO_N "#!/bin/sh
-echo \$\$ > $tmp.pipe.pid
+echo \$\$ > \$here/\$seq.pipe.pid
 trap \"echo child\" USR1
 read book
-""$PCP_ECHO_C" > $tmp.pipe	# i.e. print something when sigusr1 delivered
-chmod 755 $tmp.pipe
+""$PCP_ECHO_C" > $here/$seq.pipe	# i.e. print something when sigusr1 delivered
+chmod 755 $here/$seq.pipe
 
 [ -d $PCP_VAR_DIR/config/logger ] || $sudo mkdir -p $PCP_VAR_DIR/config/logger
 [ -f $PCP_VAR_DIR/config/logger/logger.conf ] && \
@@ -172,8 +174,8 @@ pminfo -f logger.perfile.dir | _filter_dir
 
 echo
 echo "=== 7. command pipe ===" | tee -a $here/$seq.full
-[ -f $tmp.pipe.pid ] || _fail "PID file from command pipe not found"
-pid=`cat $tmp.pipe.pid`
+[ -f $here/$seq.pipe.pid ] || _fail "PID file from command pipe not found"
+pid=`cat $here/$seq.pipe.pid`
 $PCP_ECHO_PROG $PCP_ECHO_N "Check a piped command""$PCP_ECHO_C"
 pminfo -f logger.perfile.pipe | _filter
 $PCP_ECHO_PROG $PCP_ECHO_N "Signal the command""$PCP_ECHO_C"
