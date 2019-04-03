@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-command -v audit2allow || _notrun "No support for audit2allow"
+which audit2allow >/dev/null 2>&1 || _notrun "audit2allow executable not installed"
 policy_name="pcpupstream"
 policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
 [ -f "$policy_file" ] || _notrun "upstream policy package not installed"
@@ -43,7 +43,7 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-cat > $tmp.avcdenials << EOF
+cat <<EOF >$tmp.avc
 #Actual AVC's reported
 
 type=AVC msg=audit(YYY.1): avc:  denied  { read } for  pid=21999 comm="pmcd" name="pmcd" dev="dm-1" ino=936441 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:pcp_log_t:s0 tclass=dir permissive=0
@@ -53,13 +53,16 @@ type=AVC msg=audit(YYY.4): avc:  denied  { open } for  pid=21901 comm="pmcd" pat
 type=USER_AVC msg=audit(YYY.5): pid=775 uid=81 auid=4294967295 ses=4294967295 subj=system_u:system_r:system_dbusd_t:s0-s0:c0.c1023 msg='avc:  denied  { send_msg } for msgtype=method_return dest=:1.14778 spid=1 tpid=19555 scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:system_cronjob_t:s0-s0:c0.c1023 tclass=dbus permissive=0  exe="/usr/bin/dbus-daemon" sauid=81 hostname=? addr=? terminal=?'
 type=AVC msg=audit(YYY.6): avc:  denied  { net_admin } for  pid=2335 comm="pmcd" capability=12  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
 type=AVC msg=audit(YYY.7): avc:  denied  { sys_ptrace } for  pid=15205 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
-type=AVC msg=audit(YYY.8): avc:  denied  { ipc_owner } for  pid=21341 comm="pmdalinux" capability=15  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
+# matching allow rule removed from pcpupstream.te.in by commit 276eb0fe 2019-02-22
+#type=AVC msg=audit(YYY.8): avc:  denied  { ipc_owner } for  pid=21341 comm="pmdalinux" capability=15  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
 type=AVC msg=audit(YYY.9): avc:  denied  { getattr } for  pid=9375 comm="pmdaproc" path="/run/systemd/initctl/fifo" dev="tmpfs" ino=13290 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:initctl_t:s0 tclass=fifo_file permissive=1
-type=AVC msg=audit(YYY.10): avc:  denied  { sys_ptrace } for  pid=9375 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=cap_userns permissive=1
+# matching allow rule removed from pcpupstream.te.in by commit 276eb0fe 2019-02-22
+#type=AVC msg=audit(YYY.10): avc:  denied  { sys_ptrace } for  pid=9375 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=cap_userns permissive=1
 type=AVC msg=audit(YYY.11): avc:  denied  { sys_chroot kill sys_resource } for  pid=25873 comm="pmdalinux" capability=18  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
 type=AVC msg=audit(YYY.12): avc:  denied  { read } for  pid=29112 comm="pmdalinux" dev="nsfs" ino=4026532454 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:nsfs_t:s0 tclass=file permissive=1
 type=AVC msg=audit(YYY.13): avc:  denied  { name_bind } for  pid=7079 comm="pmdasimple" src=5650 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
 type=AVC msg=audit(YYY.14): avc:  denied  { name_connect } for  pid=29238 comm="pmcd" dest=5650 scontex =system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+type=AVC msg=audit(YYY.87): avc:  denied  { chown } for  pid=8999 comm="pmdasimple" capability=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
 type=AVC msg=audit(YYY.15): avc:  denied  { name_connect } for  pid=13816 comm="python3" dest=9090 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:websm_port_t:s0 tclass=tcp_socket permissive=0
 type=AVC msg=audit(YYY.16): avc:  denied  { unix_read } for  pid=14552 comm="pmdalinux" key=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=shm permissive=0
 type=AVC msg=audit(YYY.17): avc:  denied  { getattr associate } for  pid=8128 comm="pmdalinux" key=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=shm permissive=0
@@ -74,11 +77,16 @@ type=AVC msg=audit(YYY.25): avc:  denied  { read } for  pid=8656 comm="sh" name=
 type=AVC msg=audit(YYY.26): avc:  denied  { open } for  pid=8657 comm="sh" path="/usr/bin/hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
 type=AVC msg=audit(YYY.27): avc:  denied  { execute_no_trans } for  pid=8657 comm="sh" path="/usr/bin/hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
 type=AVC msg=audit(YYY.28): avc:  denied  { mount } for  pid=22090 comm="pmdaperfevent" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=filesystem permissive=0
-type=AVC msg=audit(YYY.29): avc:  denied  { search } for  pid=22090 comm="pmdaperfevent" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
-type=AVC msg=audit(YYY.30): avc:  denied  { read } for  pid=22090 comm="pmdaperfevent" name="events" dev="tracefs" ino=176 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
-type=AVC msg=audit(YYY.31): avc:  denied  { open } for  pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events" dev="tracefs" ino=176 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
-type=AVC msg=audit(YYY.32): avc:  denied  { read } for  pid=22090 comm="pmdaperfevent" name="id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
-type=AVC msg=audit(YYY.33): avc:  denied  { open } for  pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_state_change/id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
+# matching allow rule removed from pcpupstream.te.in by commit 276eb0fe 2019-02-22
+#type=AVC msg=audit(YYY.29): avc:  denied  { search } for  pid=22090 comm="pmdaperfevent" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
+# matching allow rule removed from pcpupstream.te.in by commit 276eb0fe 2019-02-22
+#type=AVC msg=audit(YYY.30): avc:  denied  { read } for  pid=22090 comm="pmdaperfevent" name="events" dev="tracefs" ino=176 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
+# matching allow rule removed from pcpupstream.te.in by commit 276eb0fe 2019-02-22
+#type=AVC msg=audit(YYY.31): avc:  denied  { open } for  pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events" dev="tracefs" ino=176 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
+# matching allow rule removed from pcpupstream.te.in by commit 276eb0fe 2019-02-22
+#type=AVC msg=audit(YYY.32): avc:  denied  { read } for  pid=22090 comm="pmdaperfevent" name="id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
+# matching allow rule removed from pcpupstream.te.in by commit 276eb0fe 2019-02-22
+#type=AVC msg=audit(YYY.33): avc:  denied  { open } for  pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_state_change/id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
 type=AVC msg=audit(YYY.34): avc:  denied  { write } for  pid=2967 comm="pmdaxfs" name="stats_clear" dev="proc" ino=87731 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sysctl_fs_t:s0 tclass=file
 type=AVC msg=audit(YYY.35): avc:  denied  { unix_read } for  pid=1423 comm="pmdalinux" key=-559038737  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
 type=AVC msg=audit(YYY.36): avc:  denied  { unix_read } for  pid=1423 comm="pmdalinux" key=-559038737  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
@@ -96,7 +104,8 @@ type=AVC msg=audit(YYY.47): avc:  denied  { connectto } for  pid=18025 comm="pmp
 type=AVC msg=audit(YYY.48): avc:  denied  { search } for  pid=18056 comm="ps" name="testuser" dev="dm-0" ino=539096275 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_home_dir_t:s0 tclass=dir
 type=AVC msg=audit(YYY.49): avc:  denied  { search } for  pid=8613 comm="ps" name=".cache" dev="dm-0" ino=1277884 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:cache_home_t:s0 tclass=dir permissive=0
 type=AVC msg=audit(YYY.50): avc:  denied  { sys_ptrace } for  pid=30881 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=capability permissive=0
-type=AVC msg=audit(YYY.51) : avc: denied { connectto } for pid=8941 comm=systemctl path=/run/systemd/private scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:init_t:s0 tclass=unix_stream_socket
+# matching allow rule removed from pcpupstream.te.in by commit 276eb0fe 2019-02-22
+#type=AVC msg=audit(YYY.51) : avc: denied { connectto } for pid=8941 comm=systemctl path=/run/systemd/private scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:init_t:s0 tclass=unix_stream_socket
 type=AVC msg=audit(YYY.52) : avc: denied { open } for pid=8939 comm=runlevel path=/run/utmp dev="tmpfs" ino=12392 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_var_run_t:s0 tclass=file
 type=AVC msg=audit(YYY.53) : avc: denied { read } for pid=8939 comm=runlevel name=utmp dev="tmpfs" ino=12392 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_var_run_t:s0 tclass=file
 type=AVC msg=audit(YYY.54) : avc: denied { lock } for pid=8939 comm=runlevel path=/run/utmp dev="tmpfs" ino=12392 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_var_run_t:s0 tclass=file
@@ -182,7 +191,8 @@ type=AVC msg=audit(XXX.47): avc:  denied  { sendto } for  pid=YYYY comm="pmdaX" 
 type=AVC msg=audit(XXX.48): avc:  denied  { search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:home_bin_t:s0 tclass=dir permissive=0
 type=AVC msg=audit(XXX.49): avc:  denied  { execute execute_no_trans getattr open read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
 type=AVC msg=audit(XXX.50): avc:  denied  { read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:proc_net_t:s0 tclass=file permissive=0
-type=AVC msg=audit(XXX.51): avc:  denied  { signal } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=process permissive=0
+# matching allow rule removed from pcpupstream.te.in by commit 276eb0fe 2019-02-22
+#type=AVC msg=audit(XXX.51): avc:  denied  { signal } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=process permissive=0
 type=AVC msg=audit(XXX.52): avc:  denied  { getattr } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:init_exec_t:s0 tclass=file permissive=0
 type=AVC msg=audit(XXX.53): avc:  denied  { search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:user_home_dir_t:s0 tclass=dir permissive=0
 type=AVC msg=audit(XXX.54): avc:  denied  { read open } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:user_home_t:s0 tclass=file permissive=0
@@ -201,7 +211,28 @@ type=AVC msg=audit(XXX.66): avc:  denied  { sys_rawio } for  pid=YYYY comm="pmda
 type=AVC msg=audit(XXX.67): avc:  denied  { module_request } for pid=YYYY comm="pmdalinux" kmod="netdev-tun0" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=system permissive=0
 EOF
 
-( audit2allow -i $tmp.avcdenials -w; echo "type=AVC" ) 2>&1 | _filter
+echo "Silence is golden ... all AVC's are allowed by active policy"
+echo
+
+audit2allow -w -i $tmp.avc >$tmp.out 2>>$here/$seq.full
+
+( cat $tmp.out; echo "type=AVC" ) \
+| $PCP_AWK_PROG >$tmp.sed '
+BEGIN		{ allowed = 0 }
+/^type=AVC/	{ if (allowed) print start "," NR-1 "d"
+		  start = NR
+		  allowed = 0
+		  next
+		}
+/Unknown - would be allowed by active policy/	{ allowed = 1 }'
+
+if [ -s $tmp.sed ]
+then
+    sed -f $tmp.sed $tmp.out
+else
+    cat $tmp.out
+fi
+
 # success, all done
 status=0
 exit
