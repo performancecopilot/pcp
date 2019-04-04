@@ -278,11 +278,11 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
     if (flags & HTTP_FLAG_STREAMING) {
 	buffer = sdsempty();
 	if (client->buffer == NULL) {
-	    pmsprintf(length, sizeof(length), "%lX", sdslen(message));
+	    pmsprintf(length, sizeof(length), "%lX", (unsigned long)sdslen(message));
 	    buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, message);
 	} else {
 	    pmsprintf(length, sizeof(length), "%lX",
-				sdslen(client->buffer) + sdslen(message));
+				(unsigned long)sdslen(client->buffer) + sdslen(message));
 	    buffer = sdscatfmt(buffer, "%s\r\n%S%S\r\n",
 				length, client->buffer, message);
 	    client->buffer = NULL;
@@ -366,7 +366,7 @@ http_transfer(struct client *client)
 		buffer = sdsempty();
 	    }
 	    /* prepend a chunked transfer encoding message length (hex) */
-	    buffer = sdscatprintf(buffer, "%lX\r\n", sdslen(client->buffer));
+	    buffer = sdscatprintf(buffer, "%lX\r\n", (unsigned long)sdslen(client->buffer));
 	    suffix = sdscatfmt(client->buffer, "\r\n");
 	    /* reset for next call, original released on I/O completion */
 	    client->buffer = NULL;
@@ -648,7 +648,7 @@ on_http_client_read(struct proxy *proxy, struct client *client,
     size_t		bytes;
 
     if (pmDebugOptions.http) {
-	fprintf(stderr, "read %ld bytes from HTTP client %p\n", nread, client);
+	fprintf(stderr, "read %ld bytes from HTTP client %p\n", (long)nread, client);
 	fprintf(stderr, "%.*s", (int)nread, buf->base);
     }
 

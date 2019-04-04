@@ -40,7 +40,7 @@ _cleanup()
 	done_clean=true
     fi
     cd $here
-    $sudo rm -rf $tmp $tmp.*
+    $sudo rm -rf $tmp $tmp.* $here/$seq.dir
     exit $status
 }
 
@@ -52,7 +52,7 @@ _fixup()
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
+$sudo rm -rf $tmp $tmp.* $seq.full $here/$seq.dir
 trap "_cleanup; exit \$status" 0 1 2 3 15
 done_clean=false
 _save_config $PCP_PMCDCONF_PATH
@@ -83,16 +83,15 @@ s/\[[0-9][0-9]*]/[N]/
     # end
 }
 
-if mkdir -p $tmp/pmdas/whacko
+if mkdir -p $here/$seq.dir/pmdas/whacko
 then
     :
 else
-    echo "Arrgh: cannot mkdir $tmp/pmdas/whacko"
-    ls -ld $tmp
+    echo "Arrgh: cannot mkdir $here/$seq.dir/pmdas/whacko"
     exit
 fi
-cp pmdas/whacko/* $tmp/pmdas/whacko
-cd $tmp/pmdas/whacko
+cp pmdas/whacko/* $here/$seq.dir/pmdas/whacko
+cd $here/$seq.dir/pmdas/whacko
 if [ -f GNUmakefile.install ]
 then
     # running from a git tree, not the testsuite directory, so use

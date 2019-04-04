@@ -8,13 +8,67 @@ Ok ok, AVC denials are logged in /var/log/audit/audit.log Pull out the
 relevant errors, and either, forward that along with the bug/pull
 request for us to add/fix, or run:
 
-cat /var/log/audit/audit.log | audit2allow -w
+sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \
+| audit2allow -w
 
 which will verify that the avc is not already covered in the pcp
 policy file, and then:
 
-cat /var/log/audit/audit.log | audit2allow -M mypolicy
-semodule -i mypolicy.pp
+Now there are two options ... create and load your own module policy
+(good for testing)
+
+    $ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \
+    | audit2allow -M mypolicy
+    $ sudo semodule -i mypolicy.pp
+
+Else merge the new rules into the PCP package rules, probably in
+src/selinux/pcpupstream.te.in.
+
+    $ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \
+    | audit2allow -m myrules
+
+this will produce output something like
+
+    module myrules 1.0;
+
+    require {
+    	type pcp_pmcd_t;
+	class capability chown;
+    }
+
+    #============= pcp_pmcd_t ==============
+
+    allow pcp_pmcd_t self:capability chown;
+
+
+at which point you need to make sure all the "types" (pcp_pmcd_t
+above), "classes" (capability chown above) and other elements in
+the requ
+
+ire { ... } clause are already mentioned in the require {
+... } clause in src/selinux/pcpupstream.te.in.  If they are missing,
+add them here.  Note that classes may be sets, hence the form
+
+    class capability { kill ... chown ... };
+
+than the singular form
+
+    class capability chown;
+
+as reported by audit2allow -m.
+
+Now go further down src/selinux/pcpupstream.te.in and add the
+"allow" clause from audit2allow -m, prefixed by the full text of
+the matching AVC line from audit.log as a comment, so something like:
+
+    # type=AVC msg=audit(1554197433.052:5607): avc: denied { chown } for pid=8999 comm="pmdasimple" capability=0 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
+    allow pcp_pmcd_t self:capability chown;
+
+For documentation, it will help to replace the msg=audit(...) part with
+msg=audit(XXX.<N>) (or YYY.<N>) provided the <N> (number) part is chosen
+to make the line unique across all type=AVC comments ... the
+src/selinux/next-xxx-yyy script will report the next avaliable unique
+ids for both XXX.<N> and YYY.<N>.
 
 Be careful you understand what context accesses you're allowing with
 this policy, and that they *should* be allowed.
@@ -25,15 +79,39 @@ updated policy package.
 
 == Building ==
 
-make -f /usr/share/selinux/devel/Makefile
+In the src/selinux directory
+
+    $ make clean
+    $ make
+
+Ignore any errors off in other people's rules, like
+
+    /usr/share/selinux/devel/include/contrib/container.if:242: Error: duplicate definition of container_systemctl(). Original definition on 324.
+
+there's not much we can do about those.
 
 == Installing ==
 
-# semodule -X 400 -i pcpupstream.pp
+    $ sudo semodule -X 400 -i pcpupstream.pp
 
 verify installation with:
 
-# semodule --list=full 
+   $ sudo semodule --list=full | grep pcpupstream
+
+== QA ==
+
+Next go over to qa and modify test 1622
+
+Add/delete/modify the matching AVC line changes from
+src/selinux/pcpupstream.te.in (without the comment # prefix) to the
+end of the here-is document in qa/1622.
+
+If you add, edit or remove "allow" lines in
+src/selinux/pcpupstream.te.in then you need to review the corresponding
+type=AVC line in qa/1622 and make sure they are consistent.
+
+And test 917.out.in may need some adjustment if you've added or deleted
+or amended the allow rules.
 
 == Bugs ==
 https://bugzilla.redhat.com/show_bug.cgi?id=1337968

@@ -104,7 +104,7 @@ sleep 10
 
 echo "Expect this to re-start the primary logger ..." | tee -a $seq.full
 $sudo $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log
-$sudo cat $tmp.log | tee -a $seq.full | _filter
+[ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
 pid=`_get_primary_logger_pid`
@@ -151,10 +151,14 @@ echo "Expect this to cleanup an old lock file ..." | tee -a $seq.full
 $sudo rm -f $LOGGING_DIR/$LOCALHOST/lock
 $sudo touch -t 199701020304.00 $LOGGING_DIR/$LOCALHOST/lock
 $sudo $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
-$sudo cat $tmp.log | tee -a $seq.full | _filter \
+if [ -f $tmp.log ]
+then
+    $sudo cat $tmp.log | tee -a $seq.full | _filter \
 | $PCP_AWK_PROG '
 /-r.-r.-r.-/	{ $3 = "USER"; $4 = "GROUP" }
 		{ print }'
+fi
+
 $sudo rm -f $LOGGING_DIR/$LOCALHOST/lock
 
 # success, all done

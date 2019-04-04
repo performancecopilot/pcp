@@ -1541,7 +1541,7 @@ pacman?		sensors		[lm_sensors (QA optional)]
 brew?		sensors		[N/A (QA optional)]
 # -- mkfs.xfs (bcc PMDA QA)
 dpkg?		mkfs.xfs	[xfsprogs (QA optional)]
-rpm?		mkfs.xfs	[xfsprogs (QA optional)]]
+rpm?		mkfs.xfs	[xfsprogs (QA optional)]
 urpmi?		mkfs.xfs	[xfsprogs (QA optional)]
 emerge?		mkfs.xfs	[? (QA optional)]
 pkgin?		mkfs.xfs	[N/A (QA optional)]
@@ -1554,7 +1554,7 @@ brew?		mkfs.xfs	[N/A (QA optional)]
 # -- zpool (bcc PMDA QA)
 				# may need contrib & non-free repos enabled
 dpkg?		zpool		[zfsutils-linux (QA optional)]
-rpm?		zpool		[zfs-fuse (QA optional)]]
+rpm?		zpool		[zfs-fuse (QA optional)]
 urpmi?		zpool		[zfs-fuse (QA optional)]
 emerge?		zpool		[? (QA optional)]
 pkgin?		zpool		[N/A (QA optional)]

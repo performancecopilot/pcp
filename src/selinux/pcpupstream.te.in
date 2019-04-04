@@ -156,6 +156,10 @@ allow pcp_pmcd_t self:capability { sys_chroot kill sys_resource };
 #type=AVC msg=audit(YYY.14): avc:  denied  { name_connect } for  pid=29238 comm="pmcd" dest=5650 scontex =system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
 @PCP_UNRESERVED_PORT_RULE@
 
+# simple PMDA with Unix domain socket
+#type=AVC msg=audit(YYY.87): avc:  denied  { chown } for  pid=8999 comm="pmdasimple" capability=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
+allow pcp_pmcd_t self:capability chown;
+
 #type=AVC msg=audit(YYY.15): avc:  denied  { name_connect } for  pid=13816 comm="python3" dest=9090 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:websm_port_t:s0 tclass=tcp_socket permissive=0
 allow pcp_pmcd_t websm_port_t:tcp_socket name_connect; # pmda.prometheus
 
