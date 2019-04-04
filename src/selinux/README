@@ -11,8 +11,8 @@ request for us to add/fix, or run:
 sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \
 | audit2allow -w
 
-which will verify that the avc is not already covered in the pcp
-policy file, and then:
+which will verify that the AVC is not already covered in the pcp
+policy file.
 
 Now there are two options ... create and load your own module policy
 (good for testing)
@@ -43,15 +43,13 @@ this will produce output something like
 
 at which point you need to make sure all the "types" (pcp_pmcd_t
 above), "classes" (capability chown above) and other elements in
-the requ
-
-ire { ... } clause are already mentioned in the require {
+the require { ... } clause are already mentioned in the require {
 ... } clause in src/selinux/pcpupstream.te.in.  If they are missing,
 add them here.  Note that classes may be sets, hence the form
 
     class capability { kill ... chown ... };
 
-than the singular form
+rather than the singular form
 
     class capability chown;
 
@@ -68,13 +66,13 @@ For documentation, it will help to replace the msg=audit(...) part with
 msg=audit(XXX.<N>) (or YYY.<N>) provided the <N> (number) part is chosen
 to make the line unique across all type=AVC comments ... the
 src/selinux/next-xxx-yyy script will report the next avaliable unique
-ids for both XXX.<N> and YYY.<N>.
+IDs for both XXX.<N> and YYY.<N>.
 
 Be careful you understand what context accesses you're allowing with
 this policy, and that they *should* be allowed.
 
 If you choose the latter, please be a good samaritan and forward the
-relevant avc denials upstream for the community to apply and ship the
+relevant AVC denials upstream for the community to apply and ship the
 updated policy package.
 
 == Building ==
