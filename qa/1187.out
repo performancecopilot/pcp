@@ -1,4 +1,16 @@
 QA output created by 1187
+All defaults to EOL
+=== std out
+You did not select any stats, using -cdngy by default.
+----system---- ----total-usage---- -dsk/total- -net/total- ---paging-- ---system--
+     time     |usr sys idl wai stl| read  writ| recv  send|  in   out | int   csw 
+25-07 16:08:19|                   |           |           |           |           
+25-07 16:08:20|  6   1  93   0   0|   0     0 |2146  1653 |   0     0 |1753  7008 
+25-07 16:08:21| 11   1  88   0   0|   0     0 |  12k 1009 |   0     0 |2775  2736 
+
+=== std err
+=== done
+
 Per CPU
 === std out
 ----system---- -----cpu1-usage---- -----cpu2-usage---- ----total-usage---- ---------per-cpu-usage---------
