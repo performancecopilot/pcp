@@ -91,17 +91,18 @@ then
 fi
 
 echo
-echo "Kill off primary logger ..."
+echo "Kill off primary logger ..." | tee -a $here/$seq.full
 $sudo $signal -s TERM $pid
-sleep 2
-echo 'connect primary' | pmlc 2>&1 | _filter
+_wait_pmlogger_end $pid
+echo 'connect primary' | pmlc 2>&1 | tee -a $here/$seq.full | _filter
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 
-# delay to minimize risk of name clash
+# delay to minimize risk of archive name clash
 #
-sleep 10
+sleep 2
 
+echo
 echo "Expect this to re-start the primary logger ..." | tee -a $seq.full
 $sudo $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
@@ -117,16 +118,16 @@ then
 fi
 
 echo
-echo "Kill off primary logger ..."
+echo "Kill off primary logger ..." | tee -a $here/$seq.full
 $sudo $signal -s TERM $pid
-sleep 2
-echo 'connect primary' | pmlc 2>&1 | _filter
+_wait_pmlogger_end $pid
+echo 'connect primary' | pmlc 2>&1 | tee -a $here/$seq.full | _filter
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 
-# delay to minimize risk of name clash
+# delay to minimize risk of archive name clash
 #
-sleep 10
+sleep 2
 
 echo
 echo "Expect this to quietly re-start the primary logger ..." | tee -a $seq.full
