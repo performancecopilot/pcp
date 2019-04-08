@@ -1082,17 +1082,13 @@ redisGetReply(redisContext *c, void **reply)
     return REDIS_OK;
 }
 
-/*
- * Write a formatted command to the output buffer. When this family
- * is used, you need to call redisGetReply yourself to retrieve
- * the reply (or replies in pub/sub).
- */
+/* Write a formatted command to the output buffer. */
 int
-__redisAppendCommand(redisContext *c, const char *cmd, size_t len)
+__redisAppendCommand(redisContext *c, const sds cmd)
 {
     sds			newbuf;
 
-    if ((newbuf = sdscatlen(c->obuf, cmd, len)) == NULL) {
+    if ((newbuf = sdscatsds(c->obuf, cmd)) == NULL) {
 	__redisSetError(c, REDIS_ERR_OOM, "Out of memory");
 	return REDIS_ERR;
     }
@@ -1334,7 +1330,7 @@ __redisRunCallBack(redisAsyncContext *ac, redisCallBack *cb, redisReply *reply)
 
     if (cb->func) {
         c->flags |= REDIS_IN_CALLBACK;
-        cb->func(ac, reply, cb->privdata);
+        cb->func(ac, reply, cb->command, cb->privdata);
         c->flags &= ~REDIS_IN_CALLBACK;
     }
 }
@@ -1702,7 +1698,7 @@ nextArgument(const char *start, const char **str, size_t *len)
  */
 static int
 __redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
-		void *privdata, const char *cmd, size_t len)
+		const sds cmd, void *privdata)
 {
     redisContext	*c = &(ac->c);
     redisCallBack	cb;
@@ -1719,6 +1715,7 @@ __redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
 
     /* Setup callback */
     cb.func = func;
+    cb.command = (sds)cmd;
     cb.privdata = privdata;
 
     /* Find out which command will be appended. */
@@ -1734,7 +1731,7 @@ __redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
 
 	/* Add every channel/pattern to the list of subscription callbacks. */
 	while ((p = nextArgument(p, &astr, &alen)) != NULL) {
-            sname = sdsnewlen(astr,alen);
+            sname = sdsnewlen(astr, alen);
             if (pvariant)
                 sts = dictReplace(ac->sub.patterns, sname, &cb);
             else
@@ -1770,7 +1767,7 @@ __redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
             __redisPushCallBack(&ac->replies, &cb);
     }
 
-    __redisAppendCommand(c, cmd, len);
+    __redisAppendCommand(c, cmd);
 
     /* Always schedule a write when the write buffer is non-empty */
     REDIS_EV_ADD_WRITE(ac);
@@ -1780,7 +1777,7 @@ __redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
 
 int
 redisAsyncFormattedCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
-		void *data, const char *cmd, size_t len)
+		const sds command, void *privdata)
 {
-    return __redisAsyncCommand(ac, func, data, cmd, len);
+    return __redisAsyncCommand(ac, func, command, privdata);
 }

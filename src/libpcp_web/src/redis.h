@@ -95,7 +95,7 @@ typedef struct redisReader {
     int			err;       /* Error flags, 0 when there is no error */
     char		errstr[128]; /* TODO: string representation of error */
 
-    char		*buf;      /* Read buffer */
+    sds			buf;       /* Read buffer */
     size_t		pos;       /* Buffer cursor */
     size_t		len;       /* Buffer length */
     size_t		maxbuf;    /* Max length of unused buffer */
@@ -239,10 +239,12 @@ extern int redisGetReplyFromReader(redisContext *, void **);
 struct redisAsyncContext;
 struct dict;
 
-typedef void (redisAsyncCallBack)(struct redisAsyncContext *, redisReply *, void *);
+typedef void (redisAsyncCallBack)(struct redisAsyncContext *,
+				  struct redisReply *, const sds, void *);
 typedef struct redisCallBack {
     struct redisCallBack	*next; /* simple singly linked list */
     redisAsyncCallBack		*func;
+    sds				command; /* copy of original command */
     void			*privdata;
 } redisCallBack;
 
@@ -313,6 +315,6 @@ extern void redisAsyncHandleWrite(redisAsyncContext *);
  * Command function for an async context.
  * Write the command to the output buffer and register the provided callback.
  */
-extern int redisAsyncFormattedCommand(redisAsyncContext *, redisAsyncCallBack *, void *, const char *, size_t);
+extern int redisAsyncFormattedCommand(redisAsyncContext *, redisAsyncCallBack *, const sds, void *);
 
 #endif /* SERIES_REDIS_H */

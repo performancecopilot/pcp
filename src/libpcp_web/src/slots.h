@@ -46,22 +46,28 @@ typedef struct redisSlots {
     unsigned int	nslots;
     redisSlotRange	*slots;		/* all instances; e.g. CLUSTER SLOTS */
     redisMap		*keymap;	/* map command names to key position */
+    dict		*contexts;	/* async contexts access by hostspec */
+    unsigned int	refresh;	/* do slot refresh whenever possible */
     void		*events;
 } redisSlots;
 
 typedef void (*redisPhase)(redisSlots *, void *);	/* phased operations */
 
 extern redisSlots *redisSlotsInit(dict *, void *);
-extern int redisSlotRangeInsert(redisSlots *, redisSlotRange *);
-extern redisAsyncContext *redisAttach(redisSlots *, const char *);
-extern redisAsyncContext *redisGetAsyncContext(redisSlots *, const char *, sds);
+extern redisAsyncContext *redisGetSlotContext(redisSlots *, unsigned int, const char *);
+extern redisAsyncContext *redisGetAsyncContextBySlot(redisSlots *, unsigned int);
+extern redisAsyncContext *redisGetAsyncContextByHost(redisSlots *, sds);
 
 extern redisSlots *redisSlotsConnect(dict *, redisSlotsFlags,
 		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
+extern int redisSlotRangeInsert(redisSlots *, redisSlotRange *);
 extern int redisSlotsRequest(redisSlots *, const char *, sds, sds,
 		redisAsyncCallBack *, void *);
 extern void redisSlotsClear(redisSlots *);
 extern void redisSlotsFree(redisSlots *);
+
+extern int redisSlotsRedirect(redisSlots *, redisReply *, void *,
+		redisInfoCallBack, const sds, redisAsyncCallBack, void *);
 
 extern int redisSlotsProxyConnect(redisSlots *,
 		redisInfoCallBack, redisReader **, const char *, ssize_t,

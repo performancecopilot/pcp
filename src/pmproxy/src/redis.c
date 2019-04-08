@@ -63,11 +63,13 @@ redisfmt(redisReply *reply)
 }
 
 static void
-on_redis_server_reply(redisAsyncContext *c, redisReply *reply, void *arg)
+on_redis_server_reply(
+	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
 {
     struct client	*client = (struct client *)arg;
 
     (void)c;
+    sdsfree(cmd);
     client_write(client, redisfmt(reply), NULL);
 }
 
