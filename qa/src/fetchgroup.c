@@ -223,7 +223,7 @@ test_events(const char *event_metric_name)
 	    /* the sole literals; not from [bogus] */
 	    assert(strcmp(values2[j].cp, "6") == 0 ||
 		    strcmp(values2[j].cp, "twelve") == 0 ||
-		    strcmp(values2[j].cp, "thirteen"));
+		    strcmp(values2[j].cp, "thirteen") == 0);
 	    assert(times2[j].tv_sec > 0);
 	    if (j > 0) /* assert time ordering */
 		assert(times2[j-1].tv_sec < times2[j].tv_sec ||
