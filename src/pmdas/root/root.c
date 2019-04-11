@@ -1,7 +1,7 @@
 /*
  * PMCD privileged co-process (root) PMDA.
  *
- * Copyright (c) 2014-2018 Red Hat.
+ * Copyright (c) 2014-2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -772,6 +772,7 @@ root_main(pmdaInterface *dp)
 	readable_fds = connected_fds;
 	maxfd = root_maximum_fd + 1;
 
+	root_agent_wait(&sts);
 	setoserror(0);
 	sts = __pmSelectRead(maxfd, &readable_fds, NULL);
 	if (sts > 0) {

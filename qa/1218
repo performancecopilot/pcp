@@ -1,0 +1,52 @@
+#!/bin/sh
+# PCP QA Test No. 1218
+# Exercise fix for pmdaroot cleaning up zombies.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+test -x "$PCP_PMDAS_DIR/root/pmdaroot" || _notrun "No pmdaroot support"
+
+_cleanup()
+{
+    cd $here
+    _service pmcd restart >>$here/$seq.full 2>&1
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pid=`_get_pids_by_name "$PCP_PMDAS_DIR/sample/pmdasample"`
+[ -z "$pid" ] && _fail "No running pmdasample process found"
+
+echo "Forcing pmdasample to exit unexpectedly"
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mdas' > $tmp.before
+$sudo $PCP_BINADM_DIR/pmsignal -a pmdasample
+pmsleep 0.25
+pminfo -f containers > /dev/null 2>&1	# touch pmdaroot asap
+pmsleep 0.25
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mdas' > $tmp.after
+
+# diagnostics
+(echo; echo == Before:) >> $here/$seq.full
+cat $tmp.before >> $here/$seq.full
+(echo; echo == After:) >> $here/$seq.full
+cat $tmp.after >> $here/$seq.full
+
+echo "Looking for zombie pmdasample processes"
+grep '[z]ombie' $tmp.after
+
+# success, all done
+status=0
+exit

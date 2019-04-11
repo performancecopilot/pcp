@@ -1587,6 +1587,7 @@ BAD
 1211 pmseries local kernel
 1212 pmseries local
 1217 pmrep python local
+1218 pmda.root local
 1219 pcp local
 1220 pmda.proc local
 1221 labels pmda.prometheus local python
