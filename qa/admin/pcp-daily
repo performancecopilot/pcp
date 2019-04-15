@@ -539,7 +539,7 @@ fi
 if which systemctl >/dev/null 2>&1
 then
     systemctl list-unit-files >\$tmp.systemctl
-    for svc in pmcd pmproxy pmie pmlogger pmmgr
+    for svc in pmcd pmproxy pmie pmlogger_daily_report pmlogger pmmgr
     do
 	if grep "\$svc.service[ 	]*enabled" <\$tmp.systemctl >/dev/null
 	then
@@ -975,7 +975,7 @@ do
 	max_wait=300
 	while [ $wait -lt $max_wait ]
 	do
-	    if ssh $build_user@$host true
+	    if ssh $build_user@$host true >/dev/null 2>&1
 	    then
 		$debug && echo host $host up and ssh for $build_user ok
 		if [ "$build_user" != "$qa_user" ]
