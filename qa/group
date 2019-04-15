@@ -408,7 +408,7 @@ BAD
 006 libpcp local ostest
 007 fetch local ostest sanity
 008 pmda kernel ostest local
-009 pmda kernel local ostest
+009:retired kernel local ostest
 010 libpcp local ostest sanity
 011 mem_leak local ostest
 012 archive local
@@ -547,7 +547,7 @@ BAD
 145 pmns local
 146 pmns libpcp local sanity
 147 dbpmda local
-148 kernel local
+148:retired kernel local
 149 kernel local kernel
 150 pmlogreduce local pmval kernel
 151 logutil local pmlogextract

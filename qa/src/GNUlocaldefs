@@ -170,7 +170,7 @@ MYFILES += \
 	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c \
 	qa_libpcp_compat.c
 
-MYSCRIPTS = grind-tools ipcs_clear show-args fixhosts mkpermslist \
+MYSCRIPTS = grind-tools show-args fixhosts mkpermslist \
 	memcachestats.pl
 
 PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
@@ -220,8 +220,7 @@ LDIRT	+= *.log domain.h help.pag help.dir \
 default default_pcp: \
 	$(CFILES_TARGETS) $(TARGETS) \
 	$(SRCARCHPART) \
-	$(PLFILES) $(PYFILES) \
-	ipcs_clear
+	$(PLFILES) $(PYFILES)
 
 setup: default $(XTRATARGETS)
 
