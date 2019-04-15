@@ -1,0 +1,71 @@
+#!/bin/sh
+# PCP QA Test No. 1403
+# Exercise Linux kernel SVSV IPC metrics.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Test uses Linux SYSV IPC metrics"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    $here/src/sortinst | \
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+    #end
+}
+
+# real QA test starts here
+pmda="$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init"
+shms="ipc.shm.key ipc.shm.owner ipc.shm.perms ipc.shm.segsz ipc.shm.nattch ipc.shm.status ipc.shm.creator_pid ipc.shm.last_access_pid"
+msgs="ipc.msg.key ipc.msg.owner ipc.msg.perms ipc.msg.msgsz ipc.msg.messages ipc.msg.last_send_pid ipc.msg.last_recv_pid"
+sems="ipc.sem.key ipc.sem.owner ipc.sem.perms ipc.sem.nsems"
+root=$tmp.root
+export LINUX_STATSPATH=$root
+
+for tgz in $here/linux/sysvipc-root-*.tgz
+do
+    $sudo rm -f $PCP_VAR_DIR/config/pmda/60.*
+    $sudo rm -fr $root
+    mkdir -p $root || _fail "root in use when processing $tgz"
+
+    cd $root
+    $sudo tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Checking shared memory metric values - $base"
+    _run_valgrind pminfo --fetch -L -K clear -K add,60,$pmda $shms | _filter
+    echo && echo "== done" && echo
+
+    echo "== Checking semaphore metric values - $base"
+    _run_valgrind pminfo --fetch -L -K clear -K add,60,$pmda $msgs | _filter
+    echo && echo "== done" && echo
+
+    echo "== Checking message queue metric values - $base"
+    _run_valgrind pminfo --fetch -L -K clear -K add,60,$pmda $sems | _filter
+    echo && echo "== done" && echo
+
+    cd $here
+done
+
+# success, all done
+status=0
+exit

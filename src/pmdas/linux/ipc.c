@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Red Hat.
+ * Copyright (c) 2015-2016,2019 Red Hat.
  * Copyright (c) 2002 International Business Machines Corp.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,307 +34,290 @@ typedef union {
 } shmctl_buf_t;
 
 int
-refresh_shm_info(shm_info_t *_shm_info)
+refresh_shm_info(shm_info_t *shmp)
 {
-    static shmctl_buf_t buf;
+    shmctl_buf_t buf = {0};
 
     if (shmctl(0, SHM_INFO, &buf.shmid_ds) < 0)
 	return -oserror();
 
-    _shm_info->shm_tot = buf.shm_info.shm_tot << _pm_pageshift;
-    _shm_info->shm_rss = buf.shm_info.shm_rss << _pm_pageshift;
-    _shm_info->shm_swp = buf.shm_info.shm_swp << _pm_pageshift;
-    _shm_info->used_ids = buf.shm_info.used_ids;
-    _shm_info->swap_attempts = buf.shm_info.swap_attempts;
-    _shm_info->swap_successes = buf.shm_info.swap_successes;
+    shmp->shm_tot = buf.shm_info.shm_tot << _pm_pageshift;
+    shmp->shm_rss = buf.shm_info.shm_rss << _pm_pageshift;
+    shmp->shm_swp = buf.shm_info.shm_swp << _pm_pageshift;
+    shmp->used_ids = buf.shm_info.used_ids;
+    shmp->swap_attempts = buf.shm_info.swap_attempts;
+    shmp->swap_successes = buf.shm_info.swap_successes;
     return 0;
 }
 
 int
-refresh_shm_limits(shm_limits_t *shm_limits)
+refresh_shm_limits(shm_limits_t *shmp)
 {
     static shmctl_buf_t buf;
 
     if (shmctl(0, IPC_INFO, &buf.shmid_ds) < 0)
-    	return -oserror();
+	return -oserror();
 
-    shm_limits->shmmax = buf.shminfo.shmmax;
-    shm_limits->shmmin = buf.shminfo.shmmin;
-    shm_limits->shmmni = buf.shminfo.shmmni;
-    shm_limits->shmseg = buf.shminfo.shmseg;
-    shm_limits->shmall = buf.shminfo.shmall;
+    shmp->shmmax = buf.shminfo.shmmax;
+    shmp->shmmin = buf.shminfo.shmmin;
+    shmp->shmmni = buf.shminfo.shmmni;
+    shmp->shmseg = buf.shminfo.shmseg;
+    shmp->shmall = buf.shminfo.shmall;
     return 0;
 }
 
 int
-refresh_sem_info(sem_info_t *sem_info)
+refresh_sem_info(sem_info_t *semp)
 {
-    static struct seminfo seminfo;
-    static union semun arg;
+    struct seminfo seminfo = {0};
+    union semun arg = {0};
 
     arg.__buf = &seminfo;
     if (semctl(0, 0, SEM_INFO, arg) < 0)
-    	return -oserror();
+	return -oserror();
 
-    sem_info->semusz = seminfo.semusz;
-    sem_info->semaem = seminfo.semaem;
+    semp->semusz = seminfo.semusz;
+    semp->semaem = seminfo.semaem;
     return 0;
 }
 
 int
-refresh_sem_limits(sem_limits_t *sem_limits)
+refresh_sem_limits(sem_limits_t *semp)
 {
-    static struct seminfo seminfo;
-    static union semun arg;
+    struct seminfo seminfo = {0};
+    union semun arg = {0};
 
-    arg.array = (unsigned short *) &seminfo;
+    arg.array = (unsigned short *)&seminfo;
     if (semctl(0, 0, IPC_INFO, arg) < 0)
-    	return -oserror();
+	return -oserror();
 
-    sem_limits->semmap = seminfo.semmap;
-    sem_limits->semmni = seminfo.semmni;
-    sem_limits->semmns = seminfo.semmns;
-    sem_limits->semmnu = seminfo.semmnu;
-    sem_limits->semmsl = seminfo.semmsl;
-    sem_limits->semopm = seminfo.semopm;
-    sem_limits->semume = seminfo.semume;
-    sem_limits->semusz = seminfo.semusz;
-    sem_limits->semvmx = seminfo.semvmx;
-    sem_limits->semaem = seminfo.semaem;
+    semp->semmap = seminfo.semmap;
+    semp->semmni = seminfo.semmni;
+    semp->semmns = seminfo.semmns;
+    semp->semmnu = seminfo.semmnu;
+    semp->semmsl = seminfo.semmsl;
+    semp->semopm = seminfo.semopm;
+    semp->semume = seminfo.semume;
+    semp->semusz = seminfo.semusz;
+    semp->semvmx = seminfo.semvmx;
+    semp->semaem = seminfo.semaem;
     return 0;
 }
 
 int
-refresh_msg_info(msg_info_t *msg_info)
+refresh_msg_info(msg_info_t *msgp)
 {
-    static struct msginfo msginfo;
+    struct msginfo msginfo = {0};
 
     if (msgctl(0, MSG_INFO, (struct msqid_ds *) &msginfo) < 0)
-    	return -oserror();
+	return -oserror();
 
-    msg_info->msgpool = msginfo.msgpool;
-    msg_info->msgmap = msginfo.msgmap;
-    msg_info->msgtql = msginfo.msgtql;
+    msgp->msgpool = msginfo.msgpool;
+    msgp->msgmap = msginfo.msgmap;
+    msgp->msgtql = msginfo.msgtql;
     return 0;
 }
 
 int
-refresh_msg_limits(msg_limits_t *msg_limits)
+refresh_msg_limits(msg_limits_t *msgp)
 {
-    static struct msginfo msginfo;
+    struct msginfo msginfo = {0};
 
     if (msgctl(0, IPC_INFO, (struct msqid_ds *) &msginfo) < 0)
-    	return -oserror();
+	return -oserror();
 
-    msg_limits->msgpool = msginfo.msgpool;
-    msg_limits->msgmap = msginfo.msgmap;
-    msg_limits->msgmax = msginfo.msgmax;
-    msg_limits->msgmnb = msginfo.msgmnb;
-    msg_limits->msgmni = msginfo.msgmni;
-    msg_limits->msgssz = msginfo.msgssz;
-    msg_limits->msgtql = msginfo.msgtql;
-    msg_limits->msgseg = msginfo.msgseg;
+    msgp->msgpool = msginfo.msgpool;
+    msgp->msgmap = msginfo.msgmap;
+    msgp->msgmax = msginfo.msgmax;
+    msgp->msgmnb = msginfo.msgmnb;
+    msgp->msgmni = msginfo.msgmni;
+    msgp->msgssz = msginfo.msgssz;
+    msgp->msgtql = msginfo.msgtql;
+    msgp->msgseg = msginfo.msgseg;
     return 0;
 }
 
-int 
+/* obtain username for uid, with fallback */
+static void
+extract_owner(unsigned int uid, char *owner)
+{
+    struct passwd	*pw = NULL;
+
+    if ((pw = getpwuid(uid)) != NULL)
+	pmsprintf(owner, IPC_OWNERLEN, "%s", pw->pw_name);
+    else
+	pmsprintf(owner, IPC_OWNERLEN, "%u", uid);
+}
+
+/* convert octal to decimal after masking */
+static void
+extract_perms(unsigned int imode, unsigned int *omode)
+{
+    char		buf[32];
+
+    pmsprintf(buf, sizeof(buf), "%o", imode & 0777);
+    *omode = atoi(buf);
+}
+
+int
 refresh_shm_stat(pmInDom shm_indom)
 {
-    struct passwd *pw = NULL;
-    char shmid[16]; 
-    char perms[16];
-    int i = 0, maxid = 0;
-    int sts = 0;
-    shm_stat_t *shm_stat = NULL;
-    shmctl_buf_t buf;
+    shm_stat_t		*shmp, sbuf = {0};
+    unsigned long long	unusedll;
+    unsigned int	unused;
+    char		shmid[IPC_KEYLEN]; 
+    char		buf[512];
+    FILE		*fp;
+    int			sts, needsave = 0;
 
     pmdaCacheOp(shm_indom, PMDA_CACHE_INACTIVE);
-    maxid = shmctl(0, SHM_INFO, &buf.shmid_ds);
-    if (maxid < 0)
-	return -1;
- 
-    while (i <= maxid) {
-	int shmid_o;
-	struct ipc_perm *ipcp = &buf.shmid_ds.shm_perm; 
 
-	if ((shmid_o = shmctl(i++, SHM_STAT, &buf.shmid_ds)) < 0)
-	    continue;
+    if ((fp = linux_statsfile("/proc/sysvipc/shm", buf, sizeof(buf))) == NULL)
+	return -oserror();
 
-	pmsprintf(shmid, sizeof(shmid), "%d", shmid_o);
-	shmid[sizeof(shmid)-1] = '\0';
-	sts = pmdaCacheLookupName(shm_indom, shmid, NULL, (void **)&shm_stat);
-	if (sts == PMDA_CACHE_ACTIVE)
-	    continue;
-
-	if (sts == PMDA_CACHE_INACTIVE) {
-	    pmdaCacheStore(shm_indom, PMDA_CACHE_ADD, shmid, shm_stat);
-	}
-	else {
-	    if ((shm_stat = (shm_stat_t *)malloc(sizeof(shm_stat_t))) == NULL)
+    /* skip header, then iterate over shared memory segments adding to cache */
+    if (fgets(buf, sizeof(buf), fp) != NULL) {
+	/* key shmid perms size cpid lpid nattch uid gid cuid cgid atime dtime ctime [rss swap] */
+	while ((sts = fscanf(fp, "%d %u %o %llu %u %u %u %u %u %u %u %llu %llu %llu %llu %llu",
+			&sbuf.key, &sbuf.id, &sbuf.perms, &sbuf.bytes,
+			&sbuf.cpid, &sbuf.lpid, &sbuf.nattach,
+			&sbuf.uid, &unused, &unused, &unused, &unusedll,
+			&unusedll, &unusedll, &unusedll, &unusedll)) >= 8) {
+	    pmsprintf(shmid, sizeof(shmid), "%d", sbuf.id);
+	    sts = pmdaCacheLookupName(shm_indom, shmid, NULL, (void **)&shmp);
+	    if (sts == PMDA_CACHE_ACTIVE)
 		continue;
-	    memset(shm_stat, 0, sizeof(shm_stat_t));
+	    if (sts != PMDA_CACHE_INACTIVE)
+		needsave = 1;
+	    if (sts != PMDA_CACHE_INACTIVE &&
+		(shmp = (shm_stat_t *)calloc(1, sizeof(shm_stat_t))) == NULL)
+		continue;
 
-	    pmsprintf(shm_stat->shm_key, IPC_KEYLEN, "0x%08x", ipcp->KEY); 
-	    shm_stat->shm_key[IPC_KEYLEN-1] = '\0';
-	    if ((pw = getpwuid(ipcp->uid)) != NULL)
-		strncpy(shm_stat->shm_owner, pw->pw_name, IPC_OWNERLEN);
-	    else
-		pmsprintf(shm_stat->shm_owner, IPC_OWNERLEN, "%d", ipcp->uid);
-	    shm_stat->shm_owner[IPC_OWNERLEN-1] = '\0';
-	    /* convert to octal number */
-	    pmsprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
-	    perms[sizeof(perms)-1] = '\0';
-	    shm_stat->shm_perms      = atoi(perms);
-	    shm_stat->shm_bytes      = buf.shmid_ds.shm_segsz;
-	    shm_stat->shm_nattch     = buf.shmid_ds.shm_nattch;
-	    if ((ipcp->mode & SHM_DEST))
-		shm_stat->shm_status = "dest";
-	    else if ((ipcp->mode & SHM_LOCKED))
-		shm_stat->shm_status = "locked";
-	    else
-		shm_stat->shm_status = " ";
-	    sts = pmdaCacheStore(shm_indom, PMDA_CACHE_ADD, shmid, (void *)shm_stat);
+	    sbuf.dest = (sbuf.perms & SHM_DEST) ? 1 : 0;
+	    sbuf.locked = (sbuf.perms & SHM_LOCKED) ? 1 : 0;
+	    extract_owner(sbuf.uid, &sbuf.owner[0]);
+	    extract_perms(sbuf.perms, &sbuf.perms);
+	    pmsprintf(sbuf.keyid, IPC_KEYLEN, "0x%08x", sbuf.key); 
+	    memcpy(shmp, &sbuf, sizeof(shm_stat_t));
+
+	    sts = pmdaCacheStore(shm_indom, PMDA_CACHE_ADD, shmid, (void *)shmp);
 	    if (sts < 0) {
 		fprintf(stderr, "Warning: %s: pmdaCacheStore(%s, %s): %s\n",
-			__FUNCTION__, shmid, shm_stat->shm_key, pmErrStr(sts));
-		free(shm_stat);
+			__FUNCTION__, shmid, shmp->keyid, pmErrStr(sts));
+		free(shmp);
 	    }	
 	}
     }
-    pmdaCacheOp(shm_indom, PMDA_CACHE_SAVE);
+    fclose(fp);
+
+    if (needsave)
+	pmdaCacheOp(shm_indom, PMDA_CACHE_SAVE);
     return 0;
 }
 
 int 
-refresh_msg_que(pmInDom msg_indom)
+refresh_msg_queue(pmInDom msg_indom)
 {
-    struct passwd *pw = NULL;
-    char msgid[IPC_KEYLEN]; 
-    char perms[IPC_KEYLEN];
-    int i = 0, maxid = 0;
-    int sts = 0;
-    msg_que_t *msg_que = NULL;
-    struct msqid_ds dummy;
-    struct msqid_ds msgseg;  
+    msg_queue_t		*mqp, mbuf = {0};
+    unsigned long long	unusedll;
+    unsigned int	unused;
+    char		msgid[IPC_KEYLEN]; 
+    char		buf[512];
+    FILE		*fp;
+    int			sts, needsave = 0;
 
     pmdaCacheOp(msg_indom, PMDA_CACHE_INACTIVE);
 
-    maxid = msgctl(0, MSG_STAT, &dummy);
-    if (maxid < 0)
-	return -1;
- 
-    while (i <= maxid) {
-	int msgid_o;
-        struct ipc_perm *ipcp = &msgseg.msg_perm; 
+    if ((fp = linux_statsfile("/proc/sysvipc/msg", buf, sizeof(buf))) == NULL)
+	return -oserror();
 
-	if ((msgid_o = msgctl(i++, MSG_STAT, &msgseg)) < 0)
-	    continue;
-
-	pmsprintf(msgid, sizeof(msgid), "%d", msgid_o);
-	msgid[sizeof(msgid)-1] = '\0';
-	sts = pmdaCacheLookupName(msg_indom, msgid, NULL, (void **)&msg_que);
-	if (sts == PMDA_CACHE_ACTIVE)
-	    continue;
-
-	if (sts == PMDA_CACHE_INACTIVE) {
-	    pmdaCacheStore(msg_indom, PMDA_CACHE_ADD, msgid, msg_que);
-	}
-	else {
-	    if ((msg_que = (msg_que_t *)malloc(sizeof(msg_que_t))) == NULL)
+    /* skip header, then iterate over each message queue line adding to cache */
+    if (fgets(buf, sizeof(buf), fp) != NULL) {
+	/* key msqid perms cbytes qnum lspid lrpid uid gid cuid cgid stime rtime ctime */
+	while (fscanf(fp, "%d %u %o %u %u %u %u %u %u %u %u %llu %llu %llu",
+			&mbuf.key, &mbuf.id, &mbuf.perms, &mbuf.bytes,
+			&mbuf.messages, &mbuf.lspid, &mbuf.lrpid,
+			&mbuf.uid, &unused, &unused, &unused,
+			&unusedll, &unusedll, &unusedll) >= 8) {
+	    pmsprintf(msgid, sizeof(msgid), "%d", mbuf.id);
+	    sts = pmdaCacheLookupName(msg_indom, msgid, NULL, (void **)&mqp);
+	    if (sts == PMDA_CACHE_ACTIVE)
 		continue;
-	    memset(msg_que, 0, sizeof(msg_que_t));
+	    if (sts != PMDA_CACHE_INACTIVE)
+		needsave = 1;
+	    if (sts != PMDA_CACHE_INACTIVE &&
+		(mqp = (msg_queue_t *)calloc(1, sizeof(msg_queue_t))) == NULL)
+		continue;
 
-	    pmsprintf(msg_que->msg_key, IPC_KEYLEN, "0x%08x", ipcp->KEY); 
-	    msg_que->msg_key[IPC_KEYLEN-1] = '\0';
-	    if ((pw = getpwuid(ipcp->uid)) != NULL)
-		strncpy(msg_que->msg_owner, pw->pw_name, IPC_OWNERLEN);
-	    else
-		pmsprintf(msg_que->msg_owner, IPC_OWNERLEN, "%d", ipcp->uid);
-	    msg_que->msg_owner[IPC_OWNERLEN-1] = '\0';
+	    extract_owner(mbuf.uid, &mbuf.owner[0]);
+	    extract_perms(mbuf.perms, &mbuf.perms);
+	    pmsprintf(mbuf.keyid, IPC_KEYLEN, "0x%08x", mbuf.key); 
+	    memcpy(mqp, &mbuf, sizeof(msg_queue_t));
 
-	    /* convert to octal number */
-	    pmsprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
-	    perms[sizeof(perms)-1] = '\0';
-	    msg_que->msg_perms     = atoi(perms);
-	    msg_que->msg_bytes     = msgseg.msg_cbytes;
-	    msg_que->messages      = msgseg.msg_qnum;
-
-	    sts = pmdaCacheStore(msg_indom, PMDA_CACHE_ADD, msgid, (void *)msg_que);
+	    sts = pmdaCacheStore(msg_indom, PMDA_CACHE_ADD, msgid, (void *)mqp);
 	    if (sts < 0) {
 		fprintf(stderr, "Warning: %s: pmdaCacheStore(%s, %s): %s\n",
-			__FUNCTION__, msgid, msg_que->msg_key, pmErrStr(sts));
-		free(msg_que);
+			__FUNCTION__, msgid, mqp->keyid, pmErrStr(sts));
+		free(mqp);
 	    }	
 	}
     }
-    pmdaCacheOp(msg_indom, PMDA_CACHE_SAVE);
+    fclose(fp);
+
+    if (needsave)
+	pmdaCacheOp(msg_indom, PMDA_CACHE_SAVE);
     return 0;
 }
 
 int
 refresh_sem_array(pmInDom sem_indom)
 {
-    struct passwd *pw = NULL;
-    char semid[IPC_KEYLEN];
-    char perms[IPC_KEYLEN];
-    int i = 0, maxid = 0;
-    int sts = 0;
-    sem_array_t *sem_arr = NULL;
-    struct seminfo dummy;
-    static union semun arg;
-    struct semid_ds semseg;
+    sem_array_t		*semp, sbuf = {0};
+    unsigned long long	unusedll;
+    unsigned int	unused;
+    char		semid[IPC_KEYLEN]; 
+    char		buf[512];
+    FILE		*fp;
+    int			sts, needsave = 0;
 
     pmdaCacheOp(sem_indom, PMDA_CACHE_INACTIVE);
 
-    arg.__buf = &dummy;
-    maxid = semctl(0, 0, SEM_INFO, arg);
-    if (maxid < 0)
-	return -1;
- 
-    while (i <= maxid) {
-	int semid_o;
-        struct ipc_perm *ipcp = &semseg.sem_perm;
-        arg.buf = (struct semid_ds *)&semseg;
+    if ((fp = linux_statsfile("/proc/sysvipc/sem", buf, sizeof(buf))) == NULL)
+	return -oserror();
 
-	if ((semid_o = semctl(i++, 0, SEM_STAT, arg)) < 0)
-	    continue;
-
-	pmsprintf(semid, sizeof(semid), "%d", semid_o);
-	semid[sizeof(semid)-1] = '\0';
-	sts = pmdaCacheLookupName(sem_indom, semid, NULL, (void **)&sem_arr);
-	if (sts == PMDA_CACHE_ACTIVE)
-	    continue;
-
-	if (sts == PMDA_CACHE_INACTIVE) {
-	    pmdaCacheStore(sem_indom, PMDA_CACHE_ADD, semid, sem_arr);
-	}
-	else {
-	    if ((sem_arr = (sem_array_t *)malloc(sizeof(sem_array_t))) == NULL)
+    /* skip header, then iterate over each semaphore line adding to cache */
+    if (fgets(buf, sizeof(buf), fp) != NULL) {
+	/* key semid perms nsems uid gid cuid cgid [otime ctime] */
+	while (fscanf(fp, "%d %u %o %u %u %u %u %u %llu %llu",
+			&sbuf.key, &sbuf.id, &sbuf.perms, &sbuf.nsems,
+			&sbuf.uid, &unused, &unused, &unused,
+			&unusedll, &unusedll) >= 5) {
+	    pmsprintf(semid, sizeof(semid), "%d", sbuf.id);
+	    sts = pmdaCacheLookupName(sem_indom, semid, NULL, (void **)&semp);
+	    if (sts == PMDA_CACHE_ACTIVE)
 		continue;
-	    memset(sem_arr, 0, sizeof(sem_array_t));
+	    if (sts != PMDA_CACHE_INACTIVE)
+		needsave = 1;
+	    if (sts != PMDA_CACHE_INACTIVE &&
+		(semp = (sem_array_t *)calloc(1, sizeof(sem_array_t))) == NULL)
+		continue;
 
-	    pmsprintf(sem_arr->sem_key, IPC_KEYLEN, "0x%08x", ipcp->KEY);
-	    sem_arr->sem_key[IPC_KEYLEN-1] = '\0';
-	    if ((pw = getpwuid(ipcp->uid)) != NULL)
-		strncpy(sem_arr->sem_owner, pw->pw_name, IPC_OWNERLEN);
-	    else
-		pmsprintf(sem_arr->sem_owner, IPC_OWNERLEN, "%d", ipcp->uid);
-	    sem_arr->sem_owner[IPC_OWNERLEN-1] = '\0';
+	    extract_owner(sbuf.uid, &sbuf.owner[0]);
+	    extract_perms(sbuf.perms, &sbuf.perms);
+	    pmsprintf(sbuf.keyid, IPC_KEYLEN, "0x%08x", sbuf.key); 
+	    memcpy(semp, &sbuf, sizeof(sem_array_t));
 
-	    /* convert to octal number */
-	    pmsprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
-	    perms[sizeof(perms)-1] = '\0';
-	    sem_arr->sem_perms     = atoi(perms);
-	    sem_arr->nsems      = semseg.sem_nsems;
-
-	    sts = pmdaCacheStore(sem_indom, PMDA_CACHE_ADD, semid, (void *)sem_arr);
+	    sts = pmdaCacheStore(sem_indom, PMDA_CACHE_ADD, semid, (void *)semp);
 	    if (sts < 0) {
 		fprintf(stderr, "Warning: %s: pmdaCacheStore(%s, %s): %s\n",
-			__FUNCTION__, semid, sem_arr->sem_key, pmErrStr(sts));
-		free(sem_arr);
-	    }
+			__FUNCTION__, semid, semp->keyid, pmErrStr(sts));
+		free(semp);
+	    }	
 	}
     }
-    pmdaCacheOp(sem_indom, PMDA_CACHE_SAVE);
+    fclose(fp);
+
+    if (needsave)
+	pmdaCacheOp(sem_indom, PMDA_CACHE_SAVE);
     return 0;
 }
