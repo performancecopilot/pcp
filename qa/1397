@@ -60,7 +60,7 @@ do
     $sudo rm -fr $root
     mkdir $root || _fail "root in use when processing $tgz"
     cd $root
-    sudo tar xzf $tgz
+    $sudo tar xzf $tgz
     base=`basename $tgz`
     count=`echo $base | sed -e 's,.*-root-,,g' -e 's,.tgz$,,g'`
     cd $count/smart

@@ -31,8 +31,8 @@ signal=$PCP_BINADM_DIR/pmsignal
 
 _cleanup()
 {
-    [ -z "$pmcd_pid" ] || sudo $signal $pmcd_pid
-    [ -z "$socat_pid" ] || sudo $signal $socat_pid
+    [ -z "$pmcd_pid" ] || $sudo $signal $pmcd_pid
+    [ -z "$socat_pid" ] || $sudo $signal $socat_pid
     _wait_pmcd_end
     _service pcp restart 2>&1 \
     | _filter_pcp_start \
@@ -114,5 +114,4 @@ cat $tmp.socat >> $seq.full
 
 # success, all done
 status=0
-
 exit

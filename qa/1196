@@ -36,7 +36,7 @@ _cleanup()
 	# reinstall the sample PMDA ... the PMNS will have been trashed
 	#
 	cd $PCP_VAR_DIR/pmdas/sample
-	sudo ./Install </dev/null >>$here/$seq.full
+	$sudo ./Install </dev/null >>$here/$seq.full
 	done_clean=true
     fi
     cd $here

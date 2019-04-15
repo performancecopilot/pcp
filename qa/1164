@@ -47,7 +47,7 @@ do
     $sudo rm -fr $root
     mkdir $root || _fail "root in use when processing $tgz"
     cd $root
-    sudo tar xzf $tgz
+    $sudo tar xzf $tgz
     base=`basename $tgz`
 
     echo "== Valgrind checking rawconn metric descriptors and values - $base"

@@ -65,7 +65,7 @@ p
 }' \
 | while read pid
 do
-    sudo kill -TERM $pid
+    $sudo kill -TERM $pid
 done
 
 # real QA test starts here

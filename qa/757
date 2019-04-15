@@ -22,7 +22,7 @@ perfevent_remove()
 {
     echo
     echo "=== remove perfevent agent ==="
-    sudo ./Remove >$tmp.out 2>&1
+    $sudo ./Remove >$tmp.out 2>&1
     _filter_pmda_remove <$tmp.out
 }
 
