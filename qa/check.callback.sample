@@ -33,6 +33,9 @@ then
     fi
 fi
 
+# Security Enhanced Linux log messages
+audit=/var/log/audit/audit.log
+
 # Did pmlogger.daily get run as expected?
 #
 yesterday=`pmdate -1d %Y%m%d`
@@ -62,6 +65,7 @@ then
     echo "--- start pre-check ---"
     ./941 --check $1
     ./870 --check $1
+    $sudo test -f $audit && $sudo cp /dev/null $audit
     echo "--- end pre-check ---"
 fi
 
@@ -72,7 +76,7 @@ fi
 # Aborting is good for hard problems, because you'd like to know which
 # QA test is breaking things and there is no point continuing.
 # Not aborting is good for transient problems, because the breakage may
-# be repaired autonomously (usually timeing related) or by a later QA
+# be repaired autonomously (usually timing related) or by a later QA
 # test.
 #
 abort=false
@@ -185,6 +189,18 @@ then
     echo "check.callback: fail: PMNS not well!"
     cat $tmp.out
     $abort && status=1
+fi
+
+# Check audit log for any Security Enhanced Linux access denials
+if $sudo test -f $audit
+then
+    $sudo egrep '^type=(AVC|SELINUX)' $audit |
+    while read __line
+    do
+	__time=`echo $line | sed 's/.*audit(\([0-9]*\).*/\1/'`;
+	echo `date -d @$__time` $__line;
+    done
+    $sudo cp /dev/null $audit	# clear for subsequent tests
 fi
 
 exit

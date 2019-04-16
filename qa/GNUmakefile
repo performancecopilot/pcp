@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2015-2018 Red Hat.
+# Copyright (c) 2015-2019 Red Hat.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # NB: this GNUmakefile is only for use from within the PCP build tree.  It governs
@@ -53,7 +53,7 @@ LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
 SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
 	  new check recheck remake findmetric group-stats changeversion \
 	  check-gitignore check-group chk.setup show-me disk-work \
-	  xlate_2_new_pmns common setup.051 mk.logfarm
+	  xlate_2_new_pmns common setup.051 mk.logfarm check.callback.sample
 
 COMMON_SCRIPTS = common.install.cisco common.pcpweb
 COMMON = common.check common.config common.filter \

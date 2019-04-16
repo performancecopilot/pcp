@@ -114,7 +114,7 @@ END	{ if (NR > 0) {
     fi
 }
 
-_addfiles ()
+_addfiles()
 {
     af=$1
     [ "$af" = "" ] && return 1
@@ -130,7 +130,8 @@ _addfiles ()
     return 0
 }
 
-_check_lock() {
+_check_lock()
+{
     #  Check that a check process of that process ID found in
     #  $CHECKLOCK exists, and if not, release the lock.
 
@@ -388,8 +389,8 @@ do
 	    fi
 	fi
 
-    	# remove the lock
-    	_release_lock
+	# remove the lock
+	_release_lock
 
 	if [ -f core ]
 	then
