@@ -57,7 +57,7 @@ require {
 	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
 	class fifo_file { getattr read open unlink lock ioctl }; # qa/455
-	class process { signull signal execmem setrlimit }; #RHBZ1443632
+	class process { signull signal execmem setrlimit ptrace }; #RHBZ1443632
 	class sock_file write; #RHBZ1449671
 	@PCP_SOCK_FILE_GETATTR@
 	@PCP_CLASS_STATUS@
@@ -125,12 +125,6 @@ allow pcp_pmcd_t pcp_pmie_exec_t:file { execute execute_no_trans open read };
 #type=AVC msg=audit(XXX.8): avc:  denied  { getattr open read unlink } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_var_lib_t:s0 tclass=fifo_file permissive=0
 allow pcp_pmcd_t pcp_var_lib_t:fifo_file { getattr open read unlink }; #RHBZ1460131
 
-
-#type=AVC msg=audit(YYY.6): avc:  denied  { net_admin } for  pid=2335 comm="pmcd" capability=12  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
-#type=AVC msg=audit(YYY.7): avc:  denied  { sys_ptrace } for  pid=15205 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
-#type=AVC msg=audit(YYY.8): avc:  denied  { ipc_owner } for  pid=21341 comm="pmdalinux" capability=15  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
-#allow pcp_pmcd_t self:capability { net_admin sys_ptrace ipc_lock ipc_owner chown kill sys_resource };
-
 #type=AVC msg=audit(YYY.9): avc:  denied  { getattr } for  pid=9375 comm="pmdaproc" path="/run/systemd/initctl/fifo" dev="tmpfs" ino=13290 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:initctl_t:s0 tclass=fifo_file permissive=1
 #allow pcp_pmcd_t initctl_t:fifo_file getattr;
 
@@ -141,8 +135,14 @@ allow pcp_pmcd_t proc_kcore_t:file getattr;
 #type=AVC msg=audit(YYY.10): avc:  denied  { sys_ptrace } for  pid=9375 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=cap_userns permissive=1
 #@PCP_CAPUSERNS_PTRACE_RULE@
 
+
+#type=AVC msg=audit(YYY.6): avc:  denied  { net_admin } for  pid=2335 comm="pmcd" capability=12  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
+#type=AVC msg=audit(YYY.7): avc:  denied  { sys_ptrace } for  pid=15205 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
+#type=AVC msg=audit(YYY.8): avc:  denied  { ipc_owner } for  pid=21341 comm="pmdalinux" capability=15  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
+#allow pcp_pmcd_t self:capability { net_admin sys_ptrace ipc_lock ipc_owner chown kill sys_resource };
 #type=AVC msg=audit(YYY.11): avc:  denied  { sys_chroot kill sys_resource } for  pid=25873 comm="pmdalinux" capability=18  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
-allow pcp_pmcd_t self:capability { sys_chroot kill sys_resource };
+#type=AVC msg=audit(YYY.87): avc:  denied  { chown } for  pid=8999 comm="pmdasimple" capability=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
+allow pcp_pmcd_t self:capability { sys_chroot kill sys_resource ipc_lock chown };
 
 
 #type=AVC msg=audit(YYY.12): avc:  denied  { read } for  pid=29112 comm="pmdalinux" dev="nsfs" ino=4026532454 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:nsfs_t:s0 tclass=file permissive=1
@@ -155,10 +155,6 @@ allow pcp_pmcd_t self:capability { sys_chroot kill sys_resource };
 #type=AVC msg=audit(YYY.13): avc:  denied  { name_bind } for  pid=7079 comm="pmdasimple" src=5650 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
 #type=AVC msg=audit(YYY.14): avc:  denied  { name_connect } for  pid=29238 comm="pmcd" dest=5650 scontex =system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
 @PCP_UNRESERVED_PORT_RULE@
-
-# simple PMDA with Unix domain socket
-#type=AVC msg=audit(YYY.87): avc:  denied  { chown } for  pid=8999 comm="pmdasimple" capability=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
-allow pcp_pmcd_t self:capability chown;
 
 #type=AVC msg=audit(YYY.15): avc:  denied  { name_connect } for  pid=13816 comm="python3" dest=9090 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:websm_port_t:s0 tclass=tcp_socket permissive=0
 allow pcp_pmcd_t websm_port_t:tcp_socket name_connect; # pmda.prometheus
@@ -194,7 +190,7 @@ allow pcp_pmcd_t hostname_exec_t:file { getattr execute read open execute_no_tra
 
 #type=AVC msg=audit(YYY.32): avc:  denied  { read } for  pid=22090 comm="pmdaperfevent" name="id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
 #type=AVC msg=audit(YYY.33): avc:  denied  { open } for  pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_state_change/id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
-# @PCP_TRACEFS_FILE_RULE@
+@PCP_TRACEFS_FILE_RULE@
 
 #type=AVC msg=audit(XXX.11): avc:  denied  { getattr open read search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:gconf_home_t:s0 tclass=dir permissive=0
 # allow pcp_pmcd_t gconf_home_t:dir { getattr open read search };
@@ -301,8 +297,8 @@ allow pcp_pmcd_t glusterd_log_t:file { open read write };
 
 
 #pmda.bcc
-#type=AVC msg=audit(XXX.34): avc:  denied  { execmem setrlimit } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=process permissive=0
-allow pcp_pmcd_t self:process { execmem setrlimit };
+#type=AVC msg=audit(XXX.34): avc:  denied  { execmem setrlimit ptrace } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=process permissive=0
+allow pcp_pmcd_t self:process { execmem setrlimit ptrace };
 
 #type=AVC msg=audit(YYY.37): avc:  denied  { read } for pid=16334 comm="python3" name="kallsyms" dev="proc" ino=4026532064 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:system_map_t:s0 tclass=file permissive=1
 #allow pcp_pmcd_t system_map_t:file { ioctl open read };
@@ -343,8 +339,8 @@ allow pcp_pmcd_t sysctl_irq_t:dir { search };
 #type=AVC msg=audit(...): avc:  denied  { connectto } for  pid=NNN comm="python" path="/run/postgresql/.s.PGSQL.5432" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:postgresql_t:s0 tclass=unix_stream_socket
 #allow pcp_pmcd_t postgresql_t:unix_stream_socket connectto;
 
-#RHBZ1633211
-# @PCP_BPF_STATUS_RULE@
+#RHBZ1633211, RHBZ1693332
+@PCP_BPF_STATUS_RULE@
 
 #type=AVC msg=audit(XXX.41): avc:  denied  { signull } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kernel_t:s0 tclass=process permissive=0
 allow pcp_pmcd_t kernel_t:process signull;
