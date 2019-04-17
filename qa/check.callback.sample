@@ -192,15 +192,12 @@ then
 fi
 
 # Check audit log for any Security Enhanced Linux access denials
-if $sudo test -f $audit
+$sudo egrep '^type=(AVC|SELINUX)' $audit > $tmp.out 2>/dev/null
+if [ -s $tmp.out ]
 then
-    $sudo egrep '^type=(AVC|SELINUX)' $audit |
-    while read __line
-    do
-	__time=`echo $line | sed 's/.*audit(\([0-9]*\).*/\1/'`;
-	echo `date -d @$__time` $__line;
-    done
-    $sudo cp /dev/null $audit	# clear for subsequent tests
+    echo "check.callback: fail: SELinux/AVC denials"
+    cat $tmp.out
+    $abort && status=1
 fi
 
 exit
