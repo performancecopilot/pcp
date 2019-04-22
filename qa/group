@@ -856,7 +856,7 @@ BAD
 454 pmcd local
 455 pmda.rsyslog local flakey pmda.install
 456 logutil local #591459 pmlogextract
-457 pmda.logger pmda.install event local flakey
+457 pmda.logger pmda.install event local
 458 pmda.logger pmda.install event local
 459 pmlogreduce local valgrind
 460 pmlogextract local #598265 pmdumplog
