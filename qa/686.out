@@ -103,6 +103,10 @@ Specification error in configuration file (TMP/myhost/pmlogrewrite)
 [line 2] syntax error
 pmlogger_daily: Warning: rewrite for YESTERDAY.00.10 failed using  -c TMP/myhost/pmlogrewrite failed
 [TMP.control:3] ... skip log merging and compressing for host "localhost"
+Specification error in configuration file (TMP/myhost/pmlogrewrite)
+[line 2] syntax error
+pmlogger_daily: Warning: rewrite for YESTERDAY.12.10 failed using  -c TMP/myhost/pmlogrewrite failed
+[TMP.control:3] ... skip log merging and compressing for host "localhost"
 
 After ...
 YESTERDAY.00.10.0 YESTERDAY.00.10.index YESTERDAY.00.10.meta
