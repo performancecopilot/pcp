@@ -192,7 +192,9 @@ then
 fi
 
 # Check audit log for any Security Enhanced Linux access denials
-$sudo egrep '^type=(AVC|SELINUX)' $audit > $tmp.out 2>/dev/null
+# related to PCP ...
+#
+$sudo egrep '^type=(AVC|SELINUX).*pcp' $audit > $tmp.out 2>/dev/null
 if [ -s $tmp.out ]
 then
     echo "check.callback: fail: SELinux/AVC denials"
