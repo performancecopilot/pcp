@@ -8,7 +8,7 @@ Contents of the selected configuration file:
 --------------- start $PCP_VAR_DIR/config/logger/logger.conf ---------------
 # from PCP QA 457
 reg	n	TMPFILE.reg
-fifo	n	TMPFILE.fifo
+fifo	n	HERE/457.fifo
 none	n	TMPFILE.none
 empty	n	TMPFILE.empty
 dir	n	TMPFILE.dir
@@ -76,7 +76,7 @@ logger.perfile.fifo.numclients
     value 1
 
 logger.perfile.fifo.path
-    value "TMPFILE.fifo"
+    value "HERE/457.fifo"
 
 logger.perfile.fifo.size
     value 0
@@ -97,7 +97,7 @@ logger.perfile.fifo.numclients
     value 1
 
 logger.perfile.fifo.path
-    value "TMPFILE.fifo"
+    value "HERE/457.fifo"
 
 logger.perfile.fifo.size
     value 0
@@ -118,7 +118,7 @@ logger.perfile.fifo.numclients
     value 1
 
 logger.perfile.fifo.path
-    value "TMPFILE.fifo"
+    value "HERE/457.fifo"
 
 logger.perfile.fifo.size
     value 0
