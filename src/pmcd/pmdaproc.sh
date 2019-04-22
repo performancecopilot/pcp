@@ -1037,6 +1037,14 @@ _install()
     then
 	__choose_ipc $pmda_dir
 	__args="-d $domain $__args"
+	# Optionally use $PCP_DEBUG from the environment to set -D options
+	# in pmcd.conf for command line args
+	#
+	if [ -n "$PCP_DEBUG" ]
+	then
+	    __args="-D$PCP_DEBUG $__args"
+	fi
+
     elif [ "$pmda_type" = perl ]
     then
 	type="pipe	$ipc_prot		perl $perl_name"
