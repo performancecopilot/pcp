@@ -252,3 +252,99 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 == done
 
+== Checking shared memory metric values - sysvipc-root-002.tgz
+=== std out ===
+
+ipc.shm.key
+    inst [0 or "0"] value "0x00000457"
+
+ipc.shm.owner
+    inst [0 or "0"] value "root"
+
+ipc.shm.perms
+    inst [0 or "0"] value 570
+
+ipc.shm.segsz
+    inst [0 or "0"] value 666
+
+ipc.shm.nattch
+    inst [0 or "0"] value 777
+
+ipc.shm.status
+    inst [0 or "0"] value "dest"
+
+ipc.shm.creator_pid
+    inst [0 or "0"] value 29440
+
+ipc.shm.last_access_pid
+    inst [0 or "0"] value 4383
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo --fetch -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init ipc.shm.key ipc.shm.owner ipc.shm.perms ipc.shm.segsz ipc.shm.nattch ipc.shm.status ipc.shm.creator_pid ipc.shm.last_access_pid
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking semaphore metric values - sysvipc-root-002.tgz
+=== std out ===
+
+ipc.msg.key
+    inst [0 or "0"] value "0x00000457"
+
+ipc.msg.owner
+    inst [0 or "0"] value "root"
+
+ipc.msg.perms
+    inst [0 or "0"] value 570
+
+ipc.msg.msgsz
+    inst [0 or "0"] value 666
+
+ipc.msg.messages
+    inst [0 or "0"] value 777
+
+ipc.msg.last_send_pid
+    inst [0 or "0"] value 0
+
+ipc.msg.last_recv_pid
+    inst [0 or "0"] value 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo --fetch -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init ipc.msg.key ipc.msg.owner ipc.msg.perms ipc.msg.msgsz ipc.msg.messages ipc.msg.last_send_pid ipc.msg.last_recv_pid
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking message queue metric values - sysvipc-root-002.tgz
+=== std out ===
+
+ipc.sem.key
+    inst [0 or "0"] value "0x00000457"
+
+ipc.sem.owner
+    inst [0 or "0"] value "root"
+
+ipc.sem.perms
+    inst [0 or "0"] value 570
+
+ipc.sem.nsems
+    inst [0 or "0"] value 999
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo --fetch -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init ipc.sem.key ipc.sem.owner ipc.sem.perms ipc.sem.nsems
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
