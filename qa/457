@@ -48,6 +48,7 @@ _filter()
     sed \
 	-e "s,$tmp,TMPFILE,g" \
 	-e "s,$here,HERE,g" \
+	-e "s,\$PCP_VAR_DIR/testsuite,HERE,g" \
 	-e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \
 	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g'
 }
