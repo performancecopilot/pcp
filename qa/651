@@ -50,6 +50,7 @@ _cleanup()
     _wait_for_stop
     echo "final pmproxy log ..." >>$here/$seq.full
     cat $tmp.log >>$here/$seq.full
+    _service pmproxy start
     _restore_auto_restart pmproxy
     $sudo rm -f $tmp.*
 }
@@ -119,7 +120,8 @@ export PMPROXY_HOST=$hostname
 export PMPROXY_PORT=44322
 
 _stop_auto_restart pmproxy
-$sudo $signal -a pmproxy
+_service pmproxy stop
+# $sudo $signal -a pmproxy
 _wait_for_stop
 
 proxyargs="-l $tmp.log"
