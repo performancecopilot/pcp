@@ -176,6 +176,7 @@ do
 	    -e "/hw\.hub\..*: $unavailable/d" \
 	    -e "/hw\.router\..*: $unavailable/d" \
 	    -e "/ipc\.msg\.key: $unavailable/d" \
+	    -e "/ipc\.msg\.last_.*: $unavailable/d" \
 	    -e "/ipc\.msg\.messages: $unavailable/d" \
 	    -e "/ipc\.msg\.msgsz: $unavailable/d" \
 	    -e "/ipc\.msg\.owner: $unavailable/d" \
@@ -184,7 +185,9 @@ do
 	    -e "/ipc\.sem\.nsems: $unavailable/d" \
 	    -e "/ipc\.sem\.owner: $unavailable/d" \
 	    -e "/ipc\.sem\.perms: $unavailable/d" \
+	    -e "/ipc\.shm\.creator_.*: $unavailable/d" \
 	    -e "/ipc\.shm\.key: $unavailable/d" \
+	    -e "/ipc\.shm\.last_.*: $unavailable/d" \
 	    -e "/ipc\.shm\.nattch: $unavailable/d" \
 	    -e "/ipc\.shm\.owner: $unavailable/d" \
 	    -e "/ipc\.shm\.perms: $unavailable/d" \
