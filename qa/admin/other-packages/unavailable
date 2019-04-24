@@ -18,7 +18,7 @@ ArchLinux    -        -       python-bcc qtchooser
 CentOS       6\.10    -       Coin-devel cppcheck docker docker-common docker-io kubectl kubernetes-client kubernetes-node libpfm-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libuv-devel libvarlink-devel Net::SNMP pylint python2-elasticsearch python2-openpyxl python2-pylint python-elasticsearch python-openpyxl python-prometheus_client python-pylint qt5-qtbase-devel qt5-qtsvg-devel qtchooser socat SoQt-devel systemd-devel system-python-libs uic zabbix22-agent zabbix-agent
 CentOS       7\.[56]  -       libvarlink-devel libvirt-python3 python2-openpyxl python3-bcc python3-elasticsearch python3-jsonpointer python3-libvirt python3-libvirt-python python3-lxml python3-openpyxl python3-pillow python3-Pillow python3-prometheus_client python3-psycopg2 python3-requests python3-rtslib python3-rtslib-fb python-openpyxl python-prometheus_client python-pylint qtchooser system-python-libs
 #-- Debian
-Debian       9\.[4-6] -       docker.io libsoqt5-dev libuv-dev python3-bpfcc
+Debian       9\.[4-6] -       docker.io libsoqt5-dev libuv-dev libuv0.10-dev python3-bpfcc
 Debian       8\.[11]  - docker.io avahi-tools cpan(Spreadsheet::ReadSXC) cpan(Text::CSV_XS) libcoin-dev libsoqt5-dev libspreadsheet-readsxc-perl libuv1-dev mariadb-client-core mysql-client-core python3-bpfcc python3-openpyxl python3-prometheus-client python-prometheus-client
 #-- Fedora
 Fedora       26       -       kubectl kubernetes-client kubernetes-node libvarlink-devel python3-bcc python3-prometheus_client
@@ -51,6 +51,7 @@ SUSE         12-SP4   -       389-ds 389-ds-base Coin-devel cppcheck gfs2-utils 
 RHEL         6\.10    -       Coin-devel device-mapper-devel docker-common kubectl kubernetes-client kubernetes-node libicu-devel libpfm-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libvarlink-devel Net::SNMP pylint python2-elasticsearch python2-openpyxl python2-pylint python-openpyxl python-prometheus_client python-pylint qtchooser realpath systemd-devel system-python-libs uic
 RHEL         7\.[56]  -       Coin-devel cppcheck device-mapper-devel libuv-devel libvarlink-devel 'perl(Net::SNMP)' perl-Net-SNMP 'perl(YAML::LibYAML)' perl-YAML-LibYAML pylint python2-elasticsearch python2-openpyxl python2-prometheus_client python2-pylint qtchooser SoQt-devel system-python-libs zabbix22-agent zabbix-agent
 #-- Ubuntu
-Ubuntu       14\.04   -       libsoqt5-dev libsoqt-dev libspreadsheet-readsxc-perl libuv1-dev python3-bpfcc python3-elasticsearch python3-libvirt python3-openpyxl python3-prometheus-client
-Ubuntu       16\.04   -       libsoqt5-dev libsoqt-dev libspreadsheet-readsxc-perl libuv1-dev python3-bpfcc
-Ubuntu       18\.04   -       libsoqt5-dev libuv-dev
+Ubuntu       14\.04   -       libsoqt5-dev libsoqt-dev libsoqt-dev-common libspreadsheet-readsxc-perl libuv1-dev python3-bpfcc python3-elasticsearch python3-libvirt python3-openpyxl python3-prometheus-client
+Ubuntu       16\.04   -       libsoqt5-dev libsoqt-dev libsoqt-dev-common libspreadsheet-readsxc-perl libuv1-dev python3-bpfcc
+Ubuntu       18\.04   -       libsoqt5-dev libsoqt-dev libsoqt-dev-common libuv-dev libuv0.10-dev
+Ubuntu       19\.04   -       libsoqt5-dev libsoqt-dev libsoqt-dev-common libuv-dev libuv0.10-dev
