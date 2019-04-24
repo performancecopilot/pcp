@@ -116,7 +116,7 @@ startXvfb()
     cookie=`mcookie`
     XAUTHORITY=$tmp/xauth xauth add ":$server" . "$cookie" >/dev/null 2>&1
     XAUTHORITY=$tmp/xauth /usr/bin/Xvfb ":$server" $args >/dev/null 2>&1 &
-    pid=$?
+    pid=$!
     pmsleep 0.2
     kill -0 $pid 2>/dev/null || return
     export XAUTHORITY=$tmp/xauth
