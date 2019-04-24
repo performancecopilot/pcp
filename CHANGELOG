@@ -1,5 +1,68 @@
 pcp-4.3.2 (26 April 2019)
-    - Work in progress, see https://pcp.io/roadmap
+    - Client tools and utilities:
+	pcp-dstat: fix invisible gray coloring ansi escape code
+	pcp-dstat: GH#624 handle the end-of-archive condition correctly
+	pcp-pidstat: drop unused -h/--host option
+	pcp-atopsar: RHBZ1673996 fix -A for replying from archive
+	pcp-atopsar: improve handling of mark records and log end
+	pcp2spark: minor output tweak
+	pcp2zabbix: send first metrics without waiting
+	pcp2template: aid to creating new pcp2xxx tools
+	pmlogrewite: diagnostic changes to use new flags
+	pmrep: tweak output in case of no values available with -X
+	pmrep: introduce fixed header (-7, --fixed-header option)
+	pmrep/pcp2xxx: more helpful error message when pmcd not running
+	pmsnap: fix leak of Xvfb processes
+	pmgadgets pmgsys.py: make this work with Python2 and Python3
+	pmgadgets: fixes so it builds again with Qt5
+	pmview: set correct default time if no -t on command line
+    - PMDA additions, enhancements and bug fixes:
+	pmdalinux: fixes to parsing of /proc/zoneinfo
+	pmdalinux: fix two metrics with no values on some kernel versions
+	pmdalinux: updates to SYSV IPC metrics
+	pmdaproc: fix Linux cgroup *service_bytes.* metric metadata
+	pmdabcc: uprobe_hits: fix use of wrong variable
+	pmdabcc: make cachestat module currently working with ext4 only
+	pmdabcc: add kprobe hit count BPF/Python module
+	pmdabcc: keep uprobes_hits logging consistent with other hit modules
+	several pmdas: remove PM_ERR_AGAIN uses, correct PMDA_FETCH_* macros
+	txmon: update from PMDA_INTERFACE_2 to PMDA_INTERFACE_7
+	pmdaperfevent: deprecate pmdapapi, upgrade to perfevent
+	pmdanvidia: fix up indom help text macro name typo
+	pmdazimbra: major overhaul
+    - Server-side utilities and log management scripts:
+	systemd: fix Environment parameter usage
+	pmdaroot: ensure zombie PMDA processes are reaped
+	pmproxy: initial pmseries and grafana datasource REST APIs
+	pmproxy, libpcp_web: support for pmproxy configuration file
+	pmcd: RHBZ1641161 add support for PMDA suspend and resume (fencing)
+	pmlogger_daily.sh: try harder in the presence of errors
+	pmwebd: fix a broken diagnostic causing crashes
+    - Security Enhanced Linux:
+	RHBZ1693332 update BPF permissions for pmdabcc
+	fix some fallout from the systemd timer transition
+	allow pcp_pmcd_t module_request access from class system
+	allow the nvidia pmda to dlopen libnvidia-ml
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	perl PMDA.pm: expose PMDA_FETCH_* macros
+	pmapi.h: add appl3, appl4 and appl5 debug flags
+	libpcp_web: refactoring and support for Redis cluster protocol
+    - Misc build, infrastructure and packaging updates:
+	builddefs: rework qmake recipe
+	replace libdbd-pg-perl Debian dep with python3-psycopg2
+	add python-devel (v2) explicitly for el7 vagrants
+	update generated rpm spec to drop 'Group' keyword
+	vagrant: various fixes, improvements to provisioning scripts
+	configure: set pcp_rc_dir correctly for FreeBSD
+	configure: allow --with-qt=DIR to specify QT installation dir
+    - Documentation and QA infrastructure:
+	qa: adjust for Python 3 only systems
+	qa: massive change to remove init script chatter
+	qa/check et al: rework callback workflow
+	qa/common.check: change to using systemctl if available
+	qa/check.callback captures the before+after state of pmcd and pmlogger
+	qa/check.callback captures any new selinux AVC denials from each test
+	INSTALL.md: update and clarify a few things
 
 pcp-4.3.1 (27 February 2019)
     - Client tools and utilities:
