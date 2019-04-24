@@ -1,0 +1,130 @@
+#!/bin/sh
+# PCP QA Test No. 160f
+# Exercise Redis protocol proxying using redis-cli(1).
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+
+_cleanup()
+{
+    cd $here
+    [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
+    [ -n "$options" ] && redis-cli $options shutdown
+    if $need_restore
+    then
+	need_restore=false
+        _restore_config $PCP_SYSCONF_DIR/pmproxy
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+
+userid=`id -u`
+groupid=`id -g`
+username=`id -u -n`
+hostname=`hostname`
+machineid=`_machine_id`
+if which domainname >/dev/null 2>&1
+then
+    domainname=`domainname`
+else
+    domainname=`hostname -d`
+fi
+[ -z "$domainname" ] && domainname=localdomain
+[ "$domainname" = "(none)" ] && domainname=localdomain
+
+need_restore=false
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_redis()
+{
+    sed \
+        -e "s,:$port1>,:PORT1>,g" \
+        -e "s,:$port2>,:PORT2>,g" \
+    #end
+}
+
+# real QA test starts here
+_save_config $PCP_SYSCONF_DIR/pmproxy
+$sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
+need_restore=true
+
+echo "== start two test Redis servers"
+redisport1=`_find_free_port`
+redis-server --port $redisport1 > $tmp.redis1 2>&1 &
+echo "PING1"
+pmsleep 0.125
+options1="-h localhost -p $redisport1"
+redis-cli $options1 ping
+echo
+redisport2=`_find_free_port`
+redis-server --port $redisport2 > $tmp.redis2 2>&1 &
+echo "PING2"
+pmsleep 0.125
+options2="-h localhost -p $redisport2"
+redis-cli $options2 ping
+echo
+
+# start pmproxy 
+cat >$tmp.conf <<EOF
+[pmproxy]
+pcp.enabled = true
+redis.enabled = true
+[pmseries]
+servers = localhost:$redisport1,localhost:$redisport2
+EOF
+proxyport=`_find_free_port`
+proxyopts="-p $proxyport -c $tmp.conf"
+pmproxy -f -t -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
+pmproxy_pid=$!
+
+# check pmproxy has started and is available for requests
+pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
+
+# check redis protocol proxying
+echo "== redis-cli set two keys"
+redis-cli -p $proxyport set pcpqa:$seq:one 1
+redis-cli -p $proxyport set pcpqa:$seq:ten 10
+echo
+
+# check pcp protocol proxying
+echo "== pminfo get two metrics"
+pminfo -f -h localhost@localhost:$proxyport sample.long.one sample.long.ten
+echo
+
+# check redis protocol proxying
+echo "== redis-cli get two keys"
+redis-cli -p $proxyport get pcpqa:$seq:one
+redis-cli -p $proxyport get pcpqa:$seq:ten
+echo
+
+# check redis protocol error handling
+echo "== redis-cli empty key set"
+redis-cli -p $proxyport keys no-such-key
+echo
+echo "== redis-cli handle errors"
+redis-cli -p $proxyport get foo bar
+echo
+
+cat $tmp.conf >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmproxy >> $seq.full
+redis-cli $options1 keys pcpqa:* >> $seq.full
+redis-cli $options2 keys pcpqa:* >> $seq.full
+cat $tmp.pmproxy.log >> $seq.full
+
+echo "== all done" | tee -a $seq.full
+status=0
+exit

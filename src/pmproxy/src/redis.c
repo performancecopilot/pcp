@@ -117,11 +117,11 @@ setup_redis_modules(struct proxy *proxy)
     sds			option;
 
     if ((option = pmIniFileLookup(config, "pmproxy", "redis.enabled")))
-	redis_protocol = strncmp(option, "true", sdslen(option));
+	redis_protocol = (strncmp(option, "true", sdslen(option)) == 0);
     if ((option = pmIniFileLookup(config, "pmseries", "enabled")))
-	series_queries = strncmp(option, "true", sdslen(option));
+	series_queries = (strncmp(option, "true", sdslen(option)) == 0);
     if ((option = pmIniFileLookup(config, "discover", "enabled")))
-	archive_discovery = strncmp(option, "true", sdslen(option));
+	archive_discovery = (strncmp(option, "true", sdslen(option)) == 0);
 
     if (proxy->slots == NULL) {
 	if (redis_protocol)

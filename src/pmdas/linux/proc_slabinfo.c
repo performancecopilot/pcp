@@ -210,7 +210,7 @@ proc_slabinfo_fetch(pmInDom indom, int item, unsigned int inst, pmAtomValue *ap)
 	    ap->ul = slab_cache->pages_per_slab;
 	    break;
 	case 6:	/* mem.slabinfo.slabs.objects_per_slab */
-	    if (slab_cache->seen != 20)	/* version 2.0 only */
+	    if (slab_cache->seen != 20 && slab_cache->seen != 21)	/* version 2.0 or 2.1 only */
 		return 0;
 	    ap->ul = slab_cache->objects_per_slab;
 	    break;

@@ -3297,6 +3297,9 @@ cd
 %changelog
 * Fri Apr 26 2019 Nathan Scott <nathans@redhat.com> 4.3.2-1
 - Work in progress, see https://pcp.io.roadmap
+- Resolve selinux policy issues for BPF permissions (BZ 1693332)
+- Further improvements to daily archive processing (BZ 1647390)
+- Update to latest PCP sources.
 
 * Wed Feb 27 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.1-1
 - Fixes pcp-dstat in --full (all instances) mode (BZ 1661912)

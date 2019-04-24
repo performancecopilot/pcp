@@ -79,7 +79,7 @@ pmseries $options --load "{source.path: \"$here/archives/proc\"}" | _filter_sour
 
 # start pmproxy 
 proxyport=`_find_free_port`
-proxyopts="-p $proxyport -r $redisport"  # -Dseries,http,af
+proxyopts="-p $proxyport -r $redisport -t"  # -Dseries,http,af
 pmproxy -f -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
 

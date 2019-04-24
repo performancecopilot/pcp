@@ -1,0 +1,31 @@
+QA output created by 1602
+
+== start two test Redis servers
+PING1
+PONG
+
+PING2
+PONG
+
+== redis-cli set two keys
+OK
+OK
+
+== pminfo get two metrics
+sample.long.one
+    value 1
+
+sample.long.ten
+    value 10
+
+== redis-cli get two keys
+"1"
+"10"
+
+== redis-cli empty key set
+(empty list or set)
+
+== redis-cli handle errors
+(error) ERR wrong number of arguments for 'get' command
+
+== all done
