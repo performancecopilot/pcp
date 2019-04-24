@@ -455,8 +455,8 @@ redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
 		key = sdsnew(reply->element[position]->str);
 	}
 	context = redisGetAsyncContext(slots, key, cmd);
-	if (key)
-	    sdsfree(key);
+	sdsfree(key);
+	sdsfree(cmd);
 	cmd = sdsdup(reader->buf);
 	sts = redisAsyncFormattedCommand(context, callback, cmd, arg);
 	if (sts != REDIS_OK)
@@ -468,5 +468,6 @@ redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
 void
 redisSlotsProxyFree(redisReader *reader)
 {
-    redisReaderFree(reader);
+    if (reader)
+	redisReaderFree(reader);
 }
