@@ -29,8 +29,8 @@ localconfig.h: ../localconfig
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 644 $(CFILES) $(MYFILES) $(PSCRIPTS) $(TESTDIR)
-	$(INSTALL) -m 755 $(MYSCRIPTS) $(TESTDIR)
+	$(INSTALL) -m 644 $(CFILES) $(MYFILES) $(TESTDIR)
+	$(INSTALL) -m 755 $(PSCRIPTS) $(MYSCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 755 $(NVIDIAQALIB) $(TESTDIR)/$(NVIDIAQALIB)
 	$(INSTALL) -m 644 GNUlocaldefs $(TESTDIR)/GNUlocaldefs
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
