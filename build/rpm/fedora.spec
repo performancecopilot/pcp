@@ -14,7 +14,6 @@ Source2: %{github}/pcp-webapp-grafana/archive/1.9.1-2/pcp-webapp-grafana-1.9.1-2
 Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
 Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenlights-1.0.1.tar.gz
 Patch0: pmcd-pmlogger-local-context.patch
-Patch1: selinux-policy-updates.patch
 
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %global __python2 python2
@@ -2094,7 +2093,6 @@ updated policy package.
 %setup -q -T -D -a 4 -c -n blinkenlights
 %setup -q
 %patch0 -p1
-%patch1 -p1
 
 %build
 %if !%{disable_python2} && 0%{?default_python} != 3
