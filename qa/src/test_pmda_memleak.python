@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env pmpython
 
 from cpmapi import PM_TYPE_U32, PM_TYPE_FLOAT, PM_TYPE_STRING, PM_TYPE_U64
 from pcp import pmapi
