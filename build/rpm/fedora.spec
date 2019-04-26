@@ -2843,6 +2843,7 @@ cd
 %config(noreplace) %{_confdir}/pmcd/rc.local
 %dir %{_confdir}/pmproxy
 %config(noreplace) %{_confdir}/pmproxy/pmproxy.options
+%config(noreplace) %{_confdir}/pmproxy/pmproxy.conf
 %dir %{_confdir}/pmie
 %dir %{_confdir}/pmie/control.d
 %config(noreplace) %{_confdir}/pmie/control
@@ -2854,8 +2855,6 @@ cd
 %dir %attr(0775,pcp,pcp) %{_confdir}/nssdb
 %dir %{_confdir}/discover
 %config(noreplace) %{_confdir}/discover/pcp-kube-pods.conf
-%dir %{_confdir}/pmproxy
-%config(noreplace) %{_confdir}/pmproxy/pmproxy.conf
 %dir %{_confdir}/pmseries
 %config(noreplace) %{_confdir}/pmseries/pmseries.conf
 

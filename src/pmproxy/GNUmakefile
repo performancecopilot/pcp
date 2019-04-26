@@ -17,7 +17,6 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = src
-CONFIGS = pmproxy.conf pmproxy.options pmproxy.defaults
 LDIRT = *.log pmproxy.service
 
 default: $(SUBDIRS) pmproxy.service
@@ -26,7 +25,8 @@ default: $(SUBDIRS) pmproxy.service
 install: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmproxy
-	$(INSTALL) -m 644 $(CONFIGS) $(PCP_SYSCONF_DIR)/pmproxy
+	$(INSTALL) -m 644 pmproxy.conf pmproxy.options $(PCP_SYSCONF_DIR)/pmproxy
+	$(INSTALL) -m 644 pmproxy.defaults $(PCP_SYSCONFIG_DIR)/pmproxy
 	$(INSTALL) -m 755 rc_pmproxy $(PCP_RC_DIR)/pmproxy
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmproxy.service $(PCP_SYSTEMDUNIT_DIR)/pmproxy.service
