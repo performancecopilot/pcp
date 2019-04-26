@@ -29,7 +29,7 @@ _check()
 {
     echo "$1" "$ncpu" "$2" "$3" | $PCP_AWK_PROG '
 function _abs(x) { if (x > 0) return x; else return -x }
-    { if ($3 - 10*$2 < $4 && $4 < $3 + 10*$2) {
+    { if ($3 - 10*$2 <= $4 && $4 <= $3 + 10*$2) {
 	# OK
       }
       else {
