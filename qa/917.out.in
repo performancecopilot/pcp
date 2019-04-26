@@ -47,6 +47,7 @@ decl 1:
   allow [pcp_pmlogger_t] self : [capability] { sys_ptrace fowner fsetid };
   allow [pcp_pmlogger_t] [unconfined_t] : [process] { signal };
   allow [pcp_pmlogger_t] [unconfined_service_t] : [process] { signal };
+  allow [pcp_pmlogger_t] [user_tmp_t] : [file] { setattr unlink };
   allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read map };
   allow [pcp_pmie_t] self : [capability] { kill dac_override sys_ptrace net_admin chown fowner };
   allow [pcp_pmie_t] [proc_net_t] : [file] { read };

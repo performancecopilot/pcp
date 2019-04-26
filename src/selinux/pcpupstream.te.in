@@ -22,6 +22,7 @@ require {
 	type websm_port_t; # pmda.prometheus
         type system_cronjob_t;
         type user_home_t;
+        type user_tmp_t;
         type debugfs_t;
         @PCP_NSFS_T@
         @PCP_UNRESERVED_PORT@
@@ -50,7 +51,7 @@ require {
         type su_exec_t;
         class sem { unix_read associate getattr read };
 	class lnk_file { read getattr };
-	class file { append create execute execute_no_trans getattr ioctl lock open read write @PCP_HOSTNAME_EXEC_MAP@ };
+	class file { append create execute execute_no_trans getattr setattr ioctl lock open read write unlink @PCP_HOSTNAME_EXEC_MAP@ };
 	class dir { add_name open read search write getattr lock ioctl };
 	class unix_stream_socket connectto;
 	class capability { kill dac_override sys_ptrace net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
@@ -406,15 +407,15 @@ allow pcp_pmlogger_t unconfined_service_t:process signal;
 #type=AVC msg=audit(XXX.46): avc:  denied  { read open } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:user_home_t:s0 tclass=file permissive=0
 # allow pcp_pmlogger_t user_home_t:file { read open };
 
+#type=AVC msg=audit(XXX.68): avc: denied { setattr unlink } for pid=29153 comm="mv" name="pmlogger_check.log" dev="dm-0" ino=926794 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=file permissive=0
+allow pcp_pmlogger_t user_tmp_t:file { setattr unlink };
 
 #RHBZ1547066
 #type=AVC msg=audit(XXX.47): avc:  denied  { sendto } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:kernel_t:s0 tclass=unix_dgram_socket permissive=0
 # allow pcp_pmlogger_t kernel_t:unix_dgram_socket sendto;
 
-
 #type=AVC msg=audit(XXX.48): avc:  denied  { search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:home_bin_t:s0 tclass=dir permissive=0
 # allow pcp_pmlogger_t home_bin_t:dir search;
-
 
 #RHBZ1634205
 #type=AVC msg=audit(YYY.49): avc:  denied  { search } for  pid=8613 comm="ps" name=".cache" dev="dm-0" ino=1277884 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:cache_home_t:s0 tclass=dir permissive=0
