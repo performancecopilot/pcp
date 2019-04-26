@@ -2826,6 +2826,8 @@ cd
 %{_unitdir}/pmie_check.timer
 %{_unitdir}/pmie_daily.service
 %{_unitdir}/pmie_daily.timer
+%config(noreplace) %{_sysconfdir}/sysconfig/pmie_timers
+%config(noreplace) %{_sysconfdir}/sysconfig/pmlogger_timers
 %else
 # cron scripts
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger
