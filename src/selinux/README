@@ -55,6 +55,22 @@ rather than the singular form
 
 as reported by audit2allow -m.
 
+Also, some of the "require" elements may be optional (not supported
+on all versions of selinux), so watch out for things like
+
+    @PCP_TRACEFS@
+
+which becomes
+
+    type tracefs_t;
+
+or
+
+    <nothing>
+
+and the corresponding conditional rules, like @PCP_TRACEFS_FS_RULE@,
+@PCP_TRACEFS_DIR_RULE@ and @PCP_TRACEFS_FILE_RULE@
+
 Now go further down src/selinux/pcpupstream.te.in and add the
 "allow" clause from audit2allow -m, prefixed by the full text of
 the matching AVC line from audit.log as a comment, so something like:
