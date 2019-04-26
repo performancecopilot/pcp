@@ -119,12 +119,12 @@ N=`grep '^  Fetch group' $tmp.log | tee -a $here/$seq.full | wc -l | sed -e 's/ 
 # So the upper bound is 61*N records.
 #
 # On really slow VMs we struggle to keep up with the number of metrics and
-# the 100msec sampling rate, so 50*N is the lower bound ... this is OK,
+# the 100msec sampling rate, so 45*N is the lower bound ... this is OK,
 # because if pmlogger is going to behave badly we'll miss the 60*N target
 # by a mile!
 #
 max_nrec=`expr $N \* 61 + 2`
-min_nrec=`expr \( $N \) \* 50 + 2`
+min_nrec=`expr \( $N \) \* 45 + 2`
 echo "N(fetch groups)=$N max_nrec=$max_nrec min_nrec=$min_nrec" >>$here/$seq.full
 nrec=`pmdumplog $tmp | grep '^[0-9]' | grep -v '<mark>' | wc -l | sed -e 's/ //g'`
 echo "nrec=$nrec log records" >>$here/$seq.full
