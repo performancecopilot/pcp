@@ -35,6 +35,13 @@ _report()
     # Note: some versions of ls(1), e.g. OS X, don't report directory
     # names from the command line (so no pmlogger: line below)
     #
+    if [ ! -d $tmp ]
+    then
+	echo "Arrgh: directory $tmp not created"
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger'
+	return
+    fi
+
     (cd $tmp; ls -lR pmlogger ) | $PCP_AWK_PROG '
 $1 == "pmlogger:"	{ next }
 NF < 4		{ print; next }
@@ -70,7 +77,19 @@ End-of-File
 $sudo cp $tmp.tmp ${PCP_PMLOGGERCONTROL_PATH}.d/qa-$seq
 
 _service pmlogger restart | _filter_pcp_start
-_wait_for_pmlogger
+
+# wait up to 20 seconds for our pmlogger to start
+#
+i=0
+while [ $i -lt 20 ]
+do
+    if $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger.* -c /dev/null -L' >/dev/null
+    then
+	break
+    fi
+    sleep 1
+    i=`expr $i + 1`
+done
 
 _report
 echo
