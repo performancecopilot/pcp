@@ -2857,8 +2857,10 @@ cd
 %dir %attr(0775,pcp,pcp) %{_confdir}/nssdb
 %dir %{_confdir}/discover
 %config(noreplace) %{_confdir}/discover/pcp-kube-pods.conf
+%if !%{disable_libuv}
 %dir %{_confdir}/pmseries
 %config(noreplace) %{_confdir}/pmseries/pmseries.conf
+endif
 
 %ghost %dir %attr(0775,pcp,pcp) %{_localstatedir}/run/pcp
 %{_localstatedir}/lib/pcp/config/pmafm
@@ -3294,7 +3296,10 @@ cd
 %endif
 
 %changelog
-* Fri Apr 26 2019 Mark Goodwin <mgoodwin@redhat.com> 4.3.2-1
+* Fri Jun 28 2019 Nathan Scott <nathans@redhat.com> - 4.3.3-1
+- Work in progress, see https://pcp.io/roadmap
+
+* Fri Apr 26 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.2-1
 - Resolve selinux policy issues for pmie daemon mode (BZ 1702589)
 - Resolve selinux policy issues for BPF permissions (BZ 1693332)
 - Further improvements to daily archive processing (BZ 1647390)
