@@ -3293,8 +3293,8 @@ cd
 %endif
 
 %changelog
-* Fri Apr 26 2019 Nathan Scott <nathans@redhat.com> 4.3.2-1
-- Work in progress, see https://pcp.io.roadmap
+* Fri Apr 26 2019 Mark Goodwin <mgoodwin@redhat.com> 4.3.2-1
+- Resolve selinux policy issues for pmie daemon mode (BZ 1702589)
 - Resolve selinux policy issues for BPF permissions (BZ 1693332)
 - Further improvements to daily archive processing (BZ 1647390)
 - Update to latest PCP sources.
