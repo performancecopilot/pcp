@@ -35,6 +35,7 @@ fi
 
 # Security Enhanced Linux log messages
 audit=/var/log/audit/audit.log
+sudo=`which sudo`
 
 # Did pmlogger.daily get run as expected?
 #
