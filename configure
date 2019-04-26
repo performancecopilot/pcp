@@ -5112,7 +5112,11 @@ yacc=`$which "$yacc"`
 if test ! -x "$yacc"; then
     as_fn_error $? "cannot find a valid 'yacc'/'bison' command." "$LINENO" 5
 fi
-yacc=$YACC
+yacc=`echo $YACC | sed -e '/^bison /{
+s/$/ /
+s/ -y / /
+s/ $//
+}'`
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking where unix-like sort(1) lives" >&5
