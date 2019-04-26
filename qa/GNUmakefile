@@ -24,13 +24,15 @@ ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure mic haproxy lio prometheus
 endif
 
+ifeq "$(ENABLE_SELINUX)" "true"
+SELINUX_PCPQA = pcpqa.pp
+else
+SELINUX_PCPQA =
+endif
+
 # No implicit rules here, thank you
 #
 .SUFFIXES:
-
-# and do nothing if NNN.out is older than NNN
-#
-%.out: %
 
 default_pcp default: qa_outfiles localconfig $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -45,7 +47,8 @@ LDIRT += 051.work 134.full.* \
 	 *.bak *.bad *.core *.full *.notrun *.raw *.o core a.out core.* \
 	 *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
 	 *.full.ok *.new rc_cron_check.clean \
-	  make.out qa_hosts qa_outfiles stap_*.ko localconfig check.time
+	 make.out qa_hosts qa_outfiles stap_*.ko localconfig check.time \
+	 pcpqa.pp pcpqa.fc pcpqa.if
 	# these ones are links to the real files created when the associated
 	# test is run
 LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
@@ -65,6 +68,10 @@ COMMON = common.check common.config common.filter \
 
 OTHERS = group qa_hosts.master README sanity.coverage \
 	 $(shell echo valgrind-suppress* helgrind-suppress*)
+
+ifeq "$(ENABLE_SELINUX)" "true"
+OTHERS += pcpqa.te pcpqa.pp
+endif
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|work)' | tee qa_outfiles)
 
@@ -90,8 +97,18 @@ endif
 
 include $(BUILDRULES)
 
+# and do nothing if NNN.out is older than NNN
+#
+%.out: %
+
 debug-me:
 	@echo TESTS=$(TESTS)
 	@echo SRCFILES=$(SRCFILES)
 	@echo CONFFILES=$(CONFFILES)
 	@echo SUBDIRS=$(SUBDIRS)
+	@echo SELINUX_PCPQA=$(SELINUX_PCPQA)
+
+default_pcp default setup:	$(SELINUX_PCPQA)
+pcpqa.pp:	pcpqa.te
+	make -f /usr/share/selinux/devel/Makefile pcpqa.pp
+
