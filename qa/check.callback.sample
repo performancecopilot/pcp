@@ -66,8 +66,10 @@ then
     echo "--- start pre-check ---"
     ./941 --check $1
     ./870 --check $1
-    $sudo test -f $audit && $sudo cp /dev/null $audit
+    $sudo egrep '^type=(AVC|SELINUX).*pcp' $audit >$1.pre-avc 2>/dev/null
+    echo "before `wc -l <$1.pre-avc` AVC errors"
     echo "--- end pre-check ---"
+    exit
 fi
 
 # CONFIGURE-ME
@@ -195,12 +197,16 @@ fi
 # Check audit log for any Security Enhanced Linux access denials
 # related to PCP ...
 #
-$sudo egrep '^type=(AVC|SELINUX).*pcp' $audit > $tmp.out 2>/dev/null
+$sudo egrep '^type=(AVC|SELINUX).*pcp' $audit 2>/dev/null >$1.post-avc
+diff $1.pre-avc $1.post-avc \
+| sed -n -e '/> /s///p' >$tmp.out
 if [ -s $tmp.out ]
 then
-    echo "check.callback: fail: SELinux/AVC denials"
+    echo "check.callback: fail: new SELinux/AVC denials"
     cat $tmp.out
+    echo "after `wc -l <$1.post-avc` AVC errors"
     $abort && status=1
 fi
+rm -f $1.pre-avc $1.post-avc
 
 exit

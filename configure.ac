@@ -588,7 +588,12 @@ yacc=`$which "$yacc"`
 if test ! -x "$yacc"; then
     AC_MSG_ERROR([cannot find a valid 'yacc'/'bison' command.])
 fi
-yacc=$YACC
+dnl if this is bison, don't use the -y option
+yacc=`echo $YACC | sed -e '/^bison /{
+s/$/ /
+s/ -y / /
+s/ $//
+}'`
 AC_SUBST(yacc)
 
 dnl check we don't get the Windows sort ...
