@@ -36,8 +36,9 @@ typedef union {
 int
 refresh_shm_info(shm_info_t *shmp)
 {
-    shmctl_buf_t buf = {0};
+    shmctl_buf_t buf;
 
+    memset(&buf, 0, sizeof(buf));
     if (shmctl(0, SHM_INFO, &buf.shmid_ds) < 0)
 	return -oserror();
 
@@ -53,8 +54,9 @@ refresh_shm_info(shm_info_t *shmp)
 int
 refresh_shm_limits(shm_limits_t *shmp)
 {
-    static shmctl_buf_t buf;
+    shmctl_buf_t buf;
 
+    memset(&buf, 0, sizeof(buf));
     if (shmctl(0, IPC_INFO, &buf.shmid_ds) < 0)
 	return -oserror();
 
@@ -69,71 +71,77 @@ refresh_shm_limits(shm_limits_t *shmp)
 int
 refresh_sem_info(sem_info_t *semp)
 {
-    struct seminfo seminfo = {0};
-    union semun arg = {0};
+    struct seminfo buf;
+    union semun arg;
 
-    arg.__buf = &seminfo;
+    memset(&buf, 0, sizeof(buf));
+    memset(&arg, 0, sizeof(arg));
+    arg.__buf = &buf;
     if (semctl(0, 0, SEM_INFO, arg) < 0)
 	return -oserror();
 
-    semp->semusz = seminfo.semusz;
-    semp->semaem = seminfo.semaem;
+    semp->semusz = buf.semusz;
+    semp->semaem = buf.semaem;
     return 0;
 }
 
 int
 refresh_sem_limits(sem_limits_t *semp)
 {
-    struct seminfo seminfo = {0};
+    struct seminfo buf;
     union semun arg = {0};
 
-    arg.array = (unsigned short *)&seminfo;
+    memset(&buf, 0, sizeof(buf));
+    memset(&arg, 0, sizeof(arg));
+    arg.array = (unsigned short *)&buf;
     if (semctl(0, 0, IPC_INFO, arg) < 0)
 	return -oserror();
 
-    semp->semmap = seminfo.semmap;
-    semp->semmni = seminfo.semmni;
-    semp->semmns = seminfo.semmns;
-    semp->semmnu = seminfo.semmnu;
-    semp->semmsl = seminfo.semmsl;
-    semp->semopm = seminfo.semopm;
-    semp->semume = seminfo.semume;
-    semp->semusz = seminfo.semusz;
-    semp->semvmx = seminfo.semvmx;
-    semp->semaem = seminfo.semaem;
+    semp->semmap = buf.semmap;
+    semp->semmni = buf.semmni;
+    semp->semmns = buf.semmns;
+    semp->semmnu = buf.semmnu;
+    semp->semmsl = buf.semmsl;
+    semp->semopm = buf.semopm;
+    semp->semume = buf.semume;
+    semp->semusz = buf.semusz;
+    semp->semvmx = buf.semvmx;
+    semp->semaem = buf.semaem;
     return 0;
 }
 
 int
 refresh_msg_info(msg_info_t *msgp)
 {
-    struct msginfo msginfo = {0};
+    struct msginfo buf;
 
-    if (msgctl(0, MSG_INFO, (struct msqid_ds *) &msginfo) < 0)
+    memset(&buf, 0, sizeof(buf));
+    if (msgctl(0, MSG_INFO, (struct msqid_ds *)&buf) < 0)
 	return -oserror();
 
-    msgp->msgpool = msginfo.msgpool;
-    msgp->msgmap = msginfo.msgmap;
-    msgp->msgtql = msginfo.msgtql;
+    msgp->msgpool = buf.msgpool;
+    msgp->msgmap = buf.msgmap;
+    msgp->msgtql = buf.msgtql;
     return 0;
 }
 
 int
 refresh_msg_limits(msg_limits_t *msgp)
 {
-    struct msginfo msginfo = {0};
+    struct msginfo buf;
 
-    if (msgctl(0, IPC_INFO, (struct msqid_ds *) &msginfo) < 0)
+    memset(&buf, 0, sizeof(buf));
+    if (msgctl(0, IPC_INFO, (struct msqid_ds *)&buf) < 0)
 	return -oserror();
 
-    msgp->msgpool = msginfo.msgpool;
-    msgp->msgmap = msginfo.msgmap;
-    msgp->msgmax = msginfo.msgmax;
-    msgp->msgmnb = msginfo.msgmnb;
-    msgp->msgmni = msginfo.msgmni;
-    msgp->msgssz = msginfo.msgssz;
-    msgp->msgtql = msginfo.msgtql;
-    msgp->msgseg = msginfo.msgseg;
+    msgp->msgpool = buf.msgpool;
+    msgp->msgmap = buf.msgmap;
+    msgp->msgmax = buf.msgmax;
+    msgp->msgmnb = buf.msgmnb;
+    msgp->msgmni = buf.msgmni;
+    msgp->msgssz = buf.msgssz;
+    msgp->msgtql = buf.msgtql;
+    msgp->msgseg = buf.msgseg;
     return 0;
 }
 
@@ -162,7 +170,7 @@ extract_perms(unsigned int imode, unsigned int *omode)
 int
 refresh_shm_stat(pmInDom shm_indom)
 {
-    shm_stat_t		*shmp, sbuf = {0};
+    shm_stat_t		*shmp, sbuf;
     unsigned long long	unusedll;
     unsigned int	unused;
     char		shmid[IPC_KEYLEN]; 
@@ -174,6 +182,7 @@ refresh_shm_stat(pmInDom shm_indom)
 
     if ((fp = linux_statsfile("/proc/sysvipc/shm", buf, sizeof(buf))) == NULL)
 	return -oserror();
+    memset(&sbuf, 0, sizeof(sbuf));
 
     /* skip header, then iterate over shared memory segments adding to cache */
     if (fgets(buf, sizeof(buf), fp) != NULL) {
@@ -218,7 +227,7 @@ refresh_shm_stat(pmInDom shm_indom)
 int 
 refresh_msg_queue(pmInDom msg_indom)
 {
-    msg_queue_t		*mqp, mbuf = {0};
+    msg_queue_t		*mqp, mbuf;
     unsigned long long	unusedll;
     unsigned int	unused;
     char		msgid[IPC_KEYLEN]; 
@@ -230,6 +239,7 @@ refresh_msg_queue(pmInDom msg_indom)
 
     if ((fp = linux_statsfile("/proc/sysvipc/msg", buf, sizeof(buf))) == NULL)
 	return -oserror();
+    memset(&mbuf, 0, sizeof(mbuf));
 
     /* skip header, then iterate over each message queue line adding to cache */
     if (fgets(buf, sizeof(buf), fp) != NULL) {
@@ -272,7 +282,7 @@ refresh_msg_queue(pmInDom msg_indom)
 int
 refresh_sem_array(pmInDom sem_indom)
 {
-    sem_array_t		*semp, sbuf = {0};
+    sem_array_t		*semp, sbuf;
     unsigned long long	unusedll;
     unsigned int	unused;
     char		semid[IPC_KEYLEN]; 
@@ -284,6 +294,7 @@ refresh_sem_array(pmInDom sem_indom)
 
     if ((fp = linux_statsfile("/proc/sysvipc/sem", buf, sizeof(buf))) == NULL)
 	return -oserror();
+    memset(&sbuf, 0, sizeof(sbuf));
 
     /* skip header, then iterate over each semaphore line adding to cache */
     if (fgets(buf, sizeof(buf), fp) != NULL) {
