@@ -14,7 +14,7 @@ decl 1:
   allow [init_t] [system_cronjob_t] : [dbus] { send_msg };
   allow [pcp_pmcd_t] [user_home_t] : [file] { execute execute_no_trans };
   allow [pcp_pmcd_t] [debugfs_t] : [file] { append getattr ioctl open read write };
-  allow [pcp_pmcd_t] [pcp_pmie_exec_t] : [file] { execute execute_no_trans open read };
+  allow [pcp_pmcd_t] [pcp_pmie_exec_t] : [file] { execute execute_no_trans open read map };
   allow [pcp_pmcd_t] [pcp_var_lib_t] : [fifo_file] { getattr read open unlink };
   allow [pcp_pmcd_t] [proc_kcore_t] : [file] { getattr };
   allow [pcp_pmcd_t] self : [capability] { kill chown sys_chroot ipc_lock sys_resource };
@@ -93,6 +93,7 @@ decl 1:
   allow [pcp_domain] [userdomain] : [sem] { unix_read associate getattr read };
   allow [pcp_domain] [domain] : [unix_stream_socket] { connectto };
   allow [pcp_domain] [port_type] : [tcp_socket] { name_connect };
+  allow [pcp_domain] [file_type] : [file] { map };
 --- begin avrule block ---
 decl 2:
   allow [pcp_pmcd_t] [etc_t] : [dir] { open read search getattr lock ioctl };

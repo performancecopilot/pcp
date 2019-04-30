@@ -604,3 +604,6 @@ allow pcp_domain domain:unix_stream_socket connectto;
 
 # allow pcp_domain to connect to all ports.
 corenet_tcp_connect_all_ports(pcp_domain)
+
+# all pcp_domain read access to all maps
+@PCP_MMAP_ALL@

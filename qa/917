@@ -134,11 +134,16 @@ _filter_outfile()
            !/pcp_tmp_t/ ;
         else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /fsadm_exec_t/ && /map/)
            !/fsadm_exec_t/ ;
+        else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /pcp_domain/ && /map/)
+           !/pcp_domain] [file_type] \: [file]/ ;
 	else if (numad_context == "" && /numda_t/)
 	   !/numad_t/ ;
 	else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /hostname_exec_t/ && /pcp_pmie_t/) {
 	     printf("  allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };\n")
 	   }
+	else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /pcp_pmcd_t/ && /pcp_pmie_exec_t/) {
+             printf("  allow [pcp_pmcd_t] [pcp_pmie_exec_t] : [file] { execute execute_no_trans open read };\n")
+           }
         else if (bpf_class == "" && /bpf/)
             !/bpf/ ;
         else if (wap_port_type == "" && /wap_wsp_port_t/)

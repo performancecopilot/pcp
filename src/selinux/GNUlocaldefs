@@ -71,6 +71,7 @@ PCP_TMP_T_MAP_RULE="allow pcp_pmcd_t pcp_tmp_t:file map\;"
 PCP_LDCONFIG_EXEC_MAP_RULE="allow pcp_pmcd_t ldconfig_exec_t:file map\;"
 PCP_FSADM_EXEC_MAP_RULE="allow pcp_pmcd_t fsadm_exec_t:file map\;"
 PCP_DEFAULT_T_MAP="allow pcp_pmcd_t default_t:file { map execute }\;"
+PCP_MMAP_ALL="files_mmap_all_files(pcp_domain)\;"
 endif
 
 ifeq "$(PCP_SELINUX_MOCK)" "true"
