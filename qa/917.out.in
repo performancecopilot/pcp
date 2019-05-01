@@ -3,6 +3,17 @@ full policy modules list on the system
 Checking that pcpupstream policy module has been properly installed
 pcpupstream
 Checking policies.
+# Notes
+# - lines begining # are comments for PCP QA developers and will be
+#   stripped when creating 917.out from this file
+# - lines beginning ! in the block below are places where the rules
+#   are conditional, and the 917 script needs to mimic the configuration
+#   changes that are driven from configure.ac (see the pcp_selinux_*
+#   macro settings), and src/selinux/GNUlocaldefs (see the PCP_* macro 
+#   settings)
+# - otherwise lines in the block below come from
+#   src/selinux/pcpupstream.te.in (after macro substitution)
+#   
 --- begin avrule block ---
 decl 1:
   allow [init_t] [pcp_log_t] : [dir] { read };
@@ -14,31 +25,31 @@ decl 1:
   allow [init_t] [system_cronjob_t] : [dbus] { send_msg };
   allow [pcp_pmcd_t] [user_home_t] : [file] { execute execute_no_trans };
   allow [pcp_pmcd_t] [debugfs_t] : [file] { append getattr ioctl open read write };
-  allow [pcp_pmcd_t] [pcp_pmie_exec_t] : [file] { execute execute_no_trans open read map };
+! allow [pcp_pmcd_t] [pcp_pmie_exec_t] : [file] { execute execute_no_trans open read map };
   allow [pcp_pmcd_t] [pcp_var_lib_t] : [fifo_file] { getattr read open unlink };
   allow [pcp_pmcd_t] [proc_kcore_t] : [file] { getattr };
   allow [pcp_pmcd_t] self : [capability] { kill chown sys_chroot ipc_lock sys_resource };
-  allow [pcp_pmcd_t] [nsfs_t] : [file] { open read };
-  allow [pcp_pmcd_t] [unreserved_port_t] : [tcp_socket] { name_bind name_connect };
-  allow [pcp_pmcd_t] [svirt_lxc_net_t] : [dir] { open read search };
+! allow [pcp_pmcd_t] [nsfs_t] : [file] { open read };
+! allow [pcp_pmcd_t] [unreserved_port_t] : [tcp_socket] { name_bind name_connect };
+! allow [pcp_pmcd_t] [svirt_lxc_net_t] : [dir] { open read search };
   allow [pcp_pmcd_t] [websm_port_t] : [tcp_socket] { name_connect };
-  allow [pcp_pmcd_t] [pcp_tmp_t] : [file] { execute execute_no_trans };
-  allow [pcp_pmcd_t] [pcp_tmp_t] : [file] { map };
+! allow [pcp_pmcd_t] [pcp_tmp_t] : [file] { execute execute_no_trans map };
   allow [pcp_pmcd_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };
-  allow [pcp_pmcd_t] [tracefs_t] : [filesystem] { mount };
-  allow [pcp_pmcd_t] [tracefs_t] : [file] { append getattr open read write };
+! allow [pcp_pmcd_t] [tracefs_t] : [filesystem] { mount };
+! allow [pcp_pmcd_t] [tracefs_t] : [dir] { open read search };
+! allow [pcp_pmcd_t] [tracefs_t] : [file] { append getattr open read write };
   allow [pcp_pmcd_t] [haproxy_var_lib_t] : [sock_file] { write };
   allow [pcp_pmcd_t] [sysctl_fs_t] : [file] { write };
-  allow [pcp_pmcd_t] [ldconfig_exec_t] : [file] { map };
+! allow [pcp_pmcd_t] [ldconfig_exec_t] : [file] { map };
   allow [pcp_pmcd_t] [sysfs_t] : [dir] { write };
   allow [pcp_pmcd_t] [modules_object_t] : [lnk_file] { read };
   allow [pcp_pmcd_t] [mdadm_exec_t] : [file] { execute execute_no_trans open read };
   allow [pcp_pmcd_t] [proc_mdstat_t] : [file] { getattr open read };
-  allow [pcp_pmcd_t] [numad_t] : [msgq] { unix_read };
+! allow [pcp_pmcd_t] [numad_t] : [msgq] { unix_read };
   allow [pcp_pmcd_t] [glusterd_log_t] : [file] { open read write };
   allow [pcp_pmcd_t] self : [process] { execmem setrlimit ptrace };
   allow [pcp_pmcd_t] [sysctl_irq_t] : [dir] { search };
-  allow [pcp_pmcd_t] self : [bpf] { map_create map_read map_write prog_load prog_run };
+! allow [pcp_pmcd_t] self : [bpf] { map_create map_read map_write prog_load prog_run };
   allow [pcp_pmcd_t] [kernel_t] : [process] { signull };
   allow [pcp_pmcd_t] [kernel_t] : [system] { module_request };
   allow [pcp_pmcd_t] [su_exec_t] : [file] { execute };
@@ -48,10 +59,10 @@ decl 1:
   allow [pcp_pmlogger_t] [unconfined_t] : [process] { signal };
   allow [pcp_pmlogger_t] [unconfined_service_t] : [process] { signal };
   allow [pcp_pmlogger_t] [user_tmp_t] : [file] { setattr unlink };
-  allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read map };
+! allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read map };
   allow [pcp_pmie_t] self : [capability] { kill dac_override sys_ptrace net_admin chown fowner };
   allow [pcp_pmie_t] [proc_net_t] : [file] { read };
-  allow [pcp_pmie_t] self : [cap_userns] { sys_ptrace };
+! allow [pcp_pmie_t] self : [cap_userns] { sys_ptrace };
   allow [pcp_pmie_t] [unconfined_t] : [process] { signal };
   allow [pcp_pmie_t] [unconfined_service_t] : [process] { signal };
   allow [pcp_pmcd_t] [configfs_t] : [dir] { open read search };
@@ -61,13 +72,13 @@ decl 1:
   allow [pcp_pmproxy_t] self : [capability] { dac_override net_admin };
   allow [pcp_pmproxy_t] [sysctl_net_t] : [file] { getattr open read };
   allow [pcp_pmproxy_t] [proc_net_t] : [file] { read };
-  allow [pcp_pmmgr_t] [unreserved_port_t] : [tcp_socket] { name_bind };
+! allow [pcp_pmmgr_t] [unreserved_port_t] : [tcp_socket] { name_bind };
   allow [pcp_pmmgr_t] [ldconfig_exec_t] : [file] { execute execute_no_trans getattr open read };
-  allow [pcp_pmcd_t] [fsadm_exec_t] : [file] { execute execute_no_trans getattr open read };
-  allow [pcp_pmcd_t] [fsadm_exec_t] : [file] { map };
-  allow [pcp_pmcd_t] [default_t] : [file] { execute map };
+! allow [pcp_pmcd_t] [fsadm_exec_t] : [file] { execute execute_no_trans getattr open read map };
+! allow [pcp_pmcd_t] [default_t] : [file] { execute map };
   allow [pcp_pmcd_t] self : [capability] { sys_rawio };
-  allow [pcp_domain] [non_auth_file_type] : [dir] { open read search getattr lock ioctl };
+! allow [pcp_pmcd_t] [rpm_var_lib_t] : [file] { map };
+! allow [pcp_domain] [non_auth_file_type] : [dir] { open read search getattr lock ioctl };
   allow [pcp_pmcd_t] [file_type] : [dir] { open read search getattr lock ioctl };
   allow [pcp_pmcd_t] [file_type] : [dir] { open search getattr };
   allow [pcp_pmcd_t] [file_type] : [file] { getattr ioctl lock open read };

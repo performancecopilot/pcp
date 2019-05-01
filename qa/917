@@ -29,30 +29,6 @@ then
 else
     common_flag=""
 fi
-nsfs_t=`seinfo -t | grep 'nsfs_t$'`
-docker_var_lib_t=""
-svirt_lxc_net_t=`seinfo -t | grep "svirt_lxc_net_t$"`
-systemd_systemctl_exec_t=`seinfo -t | grep "systemd_systemctl_exec_t$"`
-systemd_systemctl_unit_file_t=`seinfo -t | grep "systemd_unit_file_t$"`
-systemd_systemctl_unit_dir_t=`seinfo -t | grep "systemd_unit_dir_t$"`
-devlog_t=`seinfo -t | grep "devlog_t$"`
-init_t=`seinfo -t | grep "init_t$"`
-cap_userns_ptrace=`seinfo --class=cap_userns $common_flag -x 2>&1 | grep "sys_ptrace$"`
-unreserved_port_t=`seinfo -t | grep "unreserved_port_t$"`
-tracefs_t=`seinfo -t | grep "tracefs_t$"`
-class_status=`seinfo -x --class=system $common_flag | grep "status$"`
-sock_file_getattr=`seinfo -x --class=sock_file $common_flag | grep "getattr$"`
-hostname_exec_map_a=`seinfo -x --class=file $common_flag | grep "map$"`
-hostname_exec_map_b=`seinfo -x --common=file 2>/dev/null | grep "map$"`
-#container_runtime_tmpfs_t=`seinfo -t | grep "container_runtime_tmpfs_t$"`
-container_runtime_tmpfs_t=""
-unconfined_service=`seinfo -t | grep "unconfined_service_t$"`
-mock_var_lib=`seinfo -t | grep "mock_var_lib_t$"`
-numad_context=`seinfo -t | grep "numad_t$"`
-bpf_class=`seinfo -x --class=bpf $common_flag 2>/dev/null | grep "class bpf"`
-wap_port_type=`seinfo -t | grep "wap_wsp_port_t$"`
-non_auth_type=`seinfo -a | grep "non_auth_file_type$"`
-non_security_type=`seinfo -a | grep "non_security_file_type$"`
 
 _filter_semodule()
 {
@@ -69,87 +45,31 @@ _filter_sedismod1()
 }
 _filter_outfile()
 {
-    awk -v container_t="$container_runtime_t" \
+    sed -f $tmp.sed \
+    | awk \
 	-v container_tmpfs_t="$container_runtime_tmpfs_t" \
-	-v nsfs_t="$nsfs_t" \
-	-v docker_var_lib_t="$docker_var_lib_t" \
-	-v svirt_lxc_net_t="$svirt_lxc_net_t" \
 	-v class_status="$class_status" \
-	-v systemd_systemctl_exec_t="$systemd_systemctl_exec_t" \
 	-v systemd_systemctl_unit_file_t="$systemd_systemctl_unit_file_t" \
-	-v systemd_systemctl_unit_dir_t="$systemd_systemctl_unit_dir_t" \
 	-v devlog_t="$devlog_t" \
 	-v init_t="$init_t" \
-	-v cap_userns_ptrace="$cap_userns_ptrace" \
-	-v unreserved_port_t="$unreserved_port_t" \
-	-v tracefs_t="$tracefs_t" \
 	-v sock_file_getattr="$sock_file_getattr" \
-	-v hostname_exec_map_a="$hostname_exec_map_a" \
-	-v hostname_exec_map_b="$hostname_exec_map_b" \
 	-v unconfined_service="$unconfined_service" \
 	-v mock_var_lib="$mock_var_lib" \
-	-v numad_context="$numad_context" \
-        -v bpf_class="$bpf_class" \
-        -v wap_port_type="$wap_port_type" \
         -v non_auth_type="$non_auth_type" \
         -v non_security_type="$non_security_type" \
     '{
-    	if (container_t == "" && /container_runtime_t /)
-	   !/container_runtime_t / ;
-	else if (container_tmpfs_t == "" && /container_runtime_tmpfs_t/)
+	if (container_tmpfs_t == "" && /container_runtime_tmpfs_t/)
 	   !/container_runtime_tmpfs_t/ ;
-	else if (nsfs_t == "" && /nsfs_t/)
-	   !/nsfs_t/ ;
-    	else if (docker_var_lib_t == "" && /docker_var_lib_t/)
-	   !/docker_var_lib_t/ ;
-    	else if (svirt_lxc_net_t == "" && /svirt_lxc_net_t/)
-	   !/svirt_lxc_net_t/ ;
-    	else if (systemd_systemctl_exec_t == "" && /systemd_systemctl_exec_t/)
-	   !/systemd_systemctl_exec_t/ ;
-    	else if (systemd_systemctl_unit_file_t == "" && /systemd_unit_file_t/)
-	   !/systemd_unit_file_t/ ;
     	else if (systemd_systemctl_unit_dir_t == "" && /systemd_unit_dir_t/)
 	   !/systemd_unit_dir_t/ ;
 	else if (devlog_t == "" && /devlog_t/)
 	   !/devlog_t/ ;
 	else if (init_t == "" && /init_t/)
 	   !/init_t/ ;
-	else if (cap_userns_ptrace == "" && /cap_userns/)
-	   !/cap_userns/ ;
-	else if (unreserved_port_t == "" && /unreserved_port_t/)
-	   !/unreserved_port_t/ ;
-	else if (tracefs_t == "" && /tracefs_t/)
-	   !/tracefs_t/ ;
         else if (class_status == "" && /system.*status/)
            !/system.*status/ ;
 	else if (sock_file_getattr == "" && /gpmctl_t/)
 	   !/gpmctl_t/ ;
-	else if (unconfined_service == "" && /unconfined_service_t/)
-	   !/unconfined_service_t/ ;
-	else if (mock_var_lib == "" && /mock_var_lib_t/)
-	   !/mock_var_lib_t/ ;
-        else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /ldconfig_exec_t/ && /map/)
-           !/ldconfig_exec_t/ ;
-        else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /pcp_tmp_t/ && /map/)
-           !/pcp_tmp_t/ ;
-        else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /fsadm_exec_t/ && /map/)
-           !/fsadm_exec_t/ ;
-        else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /pcp_domain/ && /map/)
-           !/pcp_domain] [file_type] \: [file]/ ;
-	else if (numad_context == "" && /numda_t/)
-	   !/numad_t/ ;
-	else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /hostname_exec_t/ && /pcp_pmie_t/) {
-	     printf("  allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };\n")
-	   }
-	else if (hostname_exec_map_a == "" && hostname_exec_map_b == "" && /pcp_pmcd_t/ && /pcp_pmie_exec_t/) {
-             printf("  allow [pcp_pmcd_t] [pcp_pmie_exec_t] : [file] { execute execute_no_trans open read };\n")
-           }
-        else if (bpf_class == "" && /bpf/)
-            !/bpf/ ;
-        else if (wap_port_type == "" && /wap_wsp_port_t/)
-            !/wap_wsp_port_t/ ;
-        else if (non_auth_type == "" && /non_auth_file_type/)
-            !/non_auth_file_type/ ;
         else if (non_auth_type != "" && /non_security_file_type/)
             !/non_security_file_type/ ;
 	else
@@ -160,7 +80,124 @@ _filter_outfile()
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
-echo > $seq.full
+
+# use logic from configure.ac to build list of optional types that are
+# not present on this system and need to be culled from $seq.out.in
+#
+seinfo -t >$tmp.types
+echo '/^#/d' >$tmp.sed
+echo '/^!/s// /' >>$tmp.sed
+for type in container_runtime_t nsfs_t docker_var_lib_t svirt_lxc_net_t \
+	    systemd_unit_file_t systemd_systemctl_exec_t unreserved_port_t \
+	    tracefs_t mock_var_lib_t unconfined_service_t numad_t \
+	    wap_wsp_port_t rpm_var_lib_t
+do
+    if grep "^[ 	][ 	]*$type\$" $tmp.types >/dev/null
+    then
+	:
+    else
+	echo "/^  *$type\$/d" >>$tmp.sed
+	# and some missing types => rules to be culled
+	#
+	case "$type"
+	in
+	    nsfs_t)
+		echo '/allow \[pcp_pmcd_t] \[nsfs_t]/d' >>$tmp.sed
+		;;
+	    unreserved_port_t)
+		echo '/allow \[pcp_pmcd_t] \[unreserved_port_t]/d' >>$tmp.sed
+		echo '/allow \[pcp_pmmgr_t] \[unreserved_port_t]/d' >>$tmp.sed
+		;;
+	    tracefs_t)
+		echo '/allow \[pcp_pmcd_t] \[tracefs_t]/d' >>$tmp.sed
+		;;
+	    numad_t)
+		echo '/allow \[pcp_pmcd_t] \[numad_t]/d' >>$tmp.sed
+		;;
+	    rpm_var_lib_t)
+		echo '/allow \[pcp_pmcd_t] \[rpm_var_lib_t]/d' >>$tmp.sed
+		;;
+	esac
+    fi
+done
+
+# now the class ones ... also from configure.ac
+if seinfo -x --class=system $common_flag 2>&1 \
+   | grep '^[ 	][ 	]*status$' >/dev/null
+then
+    :
+else
+    # in configure.ac and src/selinux/GNUlocadefs but no longer used in any
+    # rules in src/selinux/pcpupstream.te.in, so we can ignore it here
+    #
+    :
+fi
+
+if seinfo -x --class=sock $common_flag 2>&1 \
+   | grep '^[ 	][ 	]*status$' >/dev/null
+then
+    :
+else
+    # in configure.ac and src/selinux/GNUlocadefs but no longer used in any
+    # rules in src/selinux/pcpupstream.te.in, so we can ignore it here
+    #
+    :
+fi
+
+if seinfo -x --class=cap_userns $common_flag 2>&1 \
+   | grep '^[ 	][ 	]*sys_ptrace$' >/dev/null
+then
+    :
+else
+    echo '/allow \[pcp_pmie_t] .* \[cap_userns]/d' >>$tmp.sed
+fi
+
+if seinfo -x --class=file $common_flag 2>&1 \
+   | grep '^[ 	][ 	]*map$' >/dev/null
+then
+    :
+elif seinfo -x --common file 2>&1 \
+   | grep '^[ 	][ 	]*map$' >/dev/null
+then
+    :
+else
+    echo '/\[pcp_pmie_exec_t] .* \[file]/s/ map / /' >>$tmp.sed
+    echo '/\[pcp_pmcd_t] .* \[file]/s/ map / /' >>$tmp.sed
+    echo '/\[pcp_pmie_t] .* \[hostname_exec_t]/s/ map / /' >>$tmp.sed
+    echo '/\[pcp_pmcd_t] \[fsadm_exec_t]/s/ map / /' >>$tmp.sed
+    echo '/\[pcp_pmcd_t] \[default_t]/s/ map / /' >>$tmp.sed
+    echo '/\[pcp_pmcd_t] \[pcp_pmie_exec_t]/s/ map / /' >>$tmp.sed
+    echo '/\[pcp_pmcd_t] \[pcp_tmp_t]/s/ map / /' >>$tmp.sed
+    echo '/allow \[pcp_pmcd_t] \[ldconfig_exec_t]/d' >>$tmp.sed
+    echo '/allow \[pcp_domain] \[file_type] : \[file]/d' >>$tmp.sed
+fi
+
+if seinfo -x --class=bpf $common_flag 2>&1 \
+   | grep '^[ 	][ 	]*bpf$' >/dev/null
+then
+    :
+else
+    echo '/allow \[pcp_pmcd_t] .* \[bpf]/d' >>$tmp.sed
+fi
+
+if seinfo -a 2>&1 \
+   | grep '^[ 	][ 	]*non_auth_file_type$' >/dev/null
+then
+    :
+else
+    echo '/allow \[pcp_domain] \[non_auth_file_type]/d' >>$tmp.sed
+fi
+
+cat $tmp.sed >>$seq.full
+
+devlog_t=`seinfo -t | grep "devlog_t$"`
+init_t=`seinfo -t | grep "init_t$"`
+class_status=`seinfo -x --class=system $common_flag | grep "status$"`
+sock_file_getattr=`seinfo -x --class=sock_file $common_flag | grep "getattr$"`
+#container_runtime_tmpfs_t=`seinfo -t | grep "container_runtime_tmpfs_t$"`
+container_runtime_tmpfs_t=""
+non_auth_type=`seinfo -a | grep "non_auth_file_type$"`
+non_security_type=`seinfo -a | grep "non_security_file_type$"`
 
 cat $seq.out.in | _filter_outfile > $seq.out
 
