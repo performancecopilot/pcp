@@ -1954,112 +1954,77 @@ pcp_selinux_numad=false
 pcp_selinux_bpf_class=false
 pcp_selinux_wap_port=false
 pcp_selinux_files_list_non_auth_dirs=false
+pcp_selinux_rpm_var_lib=false
 
 AS_IF([test "x$enable_selinux" != "xfalse"], [
-for policy_file in /etc/selinux/targeted/policy/policy.*
-do
+
+    dnl new-style optional type tests ... seinfo once, then grep
+    dnl note [[...]] needed to escape m4 handling of [...]
+    seinfo -t >conftest.out
+    grep '^[[ 	]][[ 	]]*container_runtime_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_container_runtime=true
+    grep '^[[ 	]][[ 	]]*nsfs_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_nsfs=true
+    grep '^[[ 	]][[ 	]]*docker_var_lib_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_docker_var_lib=true
+    grep '^[[ 	]][[ 	]]*svirt_lxc_net_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_svirt_lxc_net=true
+    grep '^[[ 	]][[ 	]]*systemd_unit_file_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_systemd_unit_file=true
+    grep '^[[ 	]][[ 	]]*systemd_systemctl_exec_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_systemd_exec=true
+    grep '^[[ 	]][[ 	]]*unreserved_port_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_unreserved_port=true
+    grep '^[[ 	]][[ 	]]*tracefs_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_tracefs=true
+    grep '^[[ 	]][[ 	]]*mock_var_lib_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_mock=true
+    grep '^[[ 	]][[ 	]]*unconfined_service_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_unconfined=true
+    grep '^[[ 	]][[ 	]]*numad_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_numad=true
+    grep '^[[ 	]][[ 	]]*wap_wsp_port_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_wap_port=true
+    grep '^[[ 	]][[ 	]]*rpm_var_lib_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_rpm_var_lib=true
+    rm -f conftest.out
+
     seinfo --common >/dev/null 2>&1
     if test $? -eq 0
     then
         seinfo_common_flag="--common"
     else
-        seinfo_common_flag="--class"
+        seinfo_common_flag=""
     fi
-    if test -f "$policy_file"
-    then
-        class_status=`eval seinfo -x --class=system $seinfo_common_flag  -- $policy_file | grep status | awk '{ print $1 }'`
-    	if test "x$class_status" != "x"
-	then
-	    pcp_selinux_class_status=true
-	fi
-	container_runtime=`eval seinfo -t -- $policy_file | grep container_runtime_t | awk '{ print $1 }'`
-	if test "x$container_runtime" != "x"
-	then
-	    pcp_selinux_container_runtime=true
-	fi
-	nsfs=`eval seinfo -t -- $policy_file | grep nsfs_t | awk '{ print $1 }'`
-	if test "x$nsfs" != "x"
-	then
-	    pcp_selinux_nsfs=true
-	fi
-	docker_var_lib=`eval seinfo -t -- $policy_file | grep docker_var_lib_t | awk '{ print $1 }'`
-	if test "x$docker_var_lib" != "x"
-	then
-	    pcp_selinux_docker_var_lib=true
-	fi
-	svirt_lxc_net=`eval seinfo -t -- $policy_file | grep svirt_lxc_net_t | awk '{ print $1 }'`
-	if test "x$svirt_lxc_net" != "x"
-	then
-	    pcp_selinux_svirt_lxc_net=true
-	fi
-	systemd_unit_file=`eval seinfo -t -- $policy_file | grep systemd_unit_file_t | awk '{ print $1 }'`
-	if test "x$systemd_unit_file" != "x"
-	then
-	    pcp_selinux_systemd_unit_file=true
-	fi
-	systemd_exec=`eval seinfo -t -- $policy_file | grep systemd_systemctl_exec_t | awk '{ print $1 }'`
-	if test "x$systemd_exec" != "x"
-	then
-	    pcp_selinux_systemd_exec=true
-	fi
-	cap_userns_ptrace=`eval seinfo -x --class=cap_userns $seinfo_common_flag -- $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
-    	if test "x$cap_userns_ptrace" != "x"
-	then
-	    pcp_selinux_cap_userns_ptrace=true
-	fi
-	unreserved_port=`eval seinfo -t -- $policy_file | grep unreserved_port_t | awk '{ print $1 }'`
-	if test "x$unreserved_port" != "x"
-	then
-	    pcp_selinux_unreserved_port=true
-	fi
-	tracefs=`eval seinfo -t -- $policy_file | grep tracefs_t | awk '{ print $1 }'`
-	if test "x$tracefs" != "x"
-	then
-	    pcp_selinux_tracefs=true
-	fi
-	sock_file_getattr=`eval seinfo -x --class=sock_file $seinfo_common_flag -- $policy_file | grep getattr | awk '{ print $1 }'`
-	if test "x$sock_file_getattr" != "x"
-	then
-	    pcp_selinux_sock_file_getattr=true
-	fi
-	hostname_exec_map_a=`eval seinfo -x --class=file $seinfo_common_flag -- $policy_file | grep map | awk '{ print $1 }'`
-	hostname_exec_map_b=`eval seinfo -x --common file -- $policy_file 2>/dev/null | grep map | awk '{ print $1 }'`
-	if test "x$hostname_exec_map_a" != "x" -o "x$hostname_exec_map_b" != "x"
-	then
-	    pcp_selinux_hostname_exec_map=true
-	fi
-	mock_var_lib=`eval seinfo -t -- $policy_file | grep mock_var_lib_t | awk '{ print $1 }'`
-	if test "x$mock_var_lib" != "x"
-	then
-	    pcp_selinux_mock=true
-	fi
-       unconfined=`eval seinfo -t -- $policy_file | grep unconfined_service_t | awk '{ print $1 }'`
-       if test "x$unconfined" != "x"
-       then
-           pcp_selinux_unconfined=true
-       fi
-       numad=`eval seinfo -t -- $policy_file | grep numad_t | awk '{ print $1 }'`
-       if test "x$numad" != "x"
-       then
-           pcp_selinux_numad=true
-       fi
-       bpf_class=`eval seinfo -x --class=bpf -- $policy_file 2>/dev/null | grep bpf | awk '{ print $1 }'`
-       if test "x$bpf_class" != "x"
-       then
-	    pcp_selinux_bpf_status=true
-       fi
-       wap_port=`eval seinfo -t -- $policy_file | grep wap_wsp_port_t | awk '{ print $1 }'`
-       if test "x$wap_port" != "x"
-       then
-            pcp_selinux_wap_port=true
-       fi
-       auth_file_type=`eval seinfo -a -- $policy_file | grep non_auth_file_type | awk '{ print $1 }'`
-       if test "x$auth_file_type" != "x"
-       then
-           pcp_selinux_files_list_non_auth_dirs=true
-       fi
-    fi
-done
+
+    dnl classes need to be done one at a time
+    seinfo -x --class=system $seinfo_common_flag 2>&1 \
+    | grep '[[ 	]][[ 	]]*status$' >/dev/null \
+    && pcp_selinux_class_status=true
+
+    seinfo -x --class=sock_file $seinfo_common_flag 2>&1 \
+    | grep '[[ 	]][[ 	]]*getattr$' >/dev/null \
+    && pcp_selinux_sock_file_getattr=true
+
+    seinfo -x --class=cap_userns $seinfo_common_flag 2>&1 \
+    | grep '[[ 	]][[ 	]]*sys_ptrace$' >/dev/null \
+    && pcp_selinux_cap_userns_ptrace=true
+
+    dnl need to look in two places for this one?
+    seinfo -x --class=file $seinfo_common_flag 2>&1 \
+    | grep '[[ 	]][[ 	]]*map$' >/dev/null \
+    && pcp_selinux_hostname_exec_map=true
+    seinfo -x --common file 2>&1 \
+    | grep '[[ 	]][[ 	]]*map$' >/dev/null \
+    && pcp_selinux_hostname_exec_map=true
+
+    seinfo -x --class=bpf $seinfo_common_flag 2>&1 \
+    | grep '[[ 	]][[ 	]]*bpf$' >/dev/null \
+    && pcp_selinux_bpf_status=true
+
+    seinfo -a 2>&1 \
+    | grep '[[ 	]][[ 	]]*non_auth_file_type$' >/dev/null \
+    && pcp_selinux_files_list_non_auth_dirs=true
 ])
 AC_SUBST(pcp_selinux_class_status)
 AC_SUBST(pcp_selinux_cap_userns_ptrace)
@@ -2079,6 +2044,7 @@ AC_SUBST(pcp_selinux_numad)
 AC_SUBST(pcp_selinux_bpf_status)
 AC_SUBST(pcp_selinux_wap_port)
 AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
+AC_SUBST(pcp_selinux_rpm_var_lib)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
