@@ -2019,7 +2019,7 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     && pcp_selinux_hostname_exec_map=true
 
     seinfo -x --class=bpf $seinfo_common_flag 2>&1 \
-    | grep '[[ 	]][[ 	]]*bpf$' >/dev/null \
+    | grep '[[ 	]][[ 	]]*class bpf$' >/dev/null \
     && pcp_selinux_bpf_status=true
 
     seinfo -a 2>&1 \
