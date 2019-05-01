@@ -187,21 +187,20 @@ here=`pwd`
 #
 cd src/include; $PCP_MAKE_PROG; cd $here
 cd src/pmns; $PCP_MAKE_PROG; cd $here
-cd src/libpcp_qmc; $PCP_MAKE_PROG; cd $here
 
 if $quick
 then
     echo "== Configured pcp ($configopts)"
-    exit 0
+else
+    # build some useful libs ...
+    #
+    cd src/libpcp; $PCP_MAKE_PROG; cd $here
+    cd src/libpcp_static; $PCP_MAKE_PROG; cd $here
+    cd src/libpcp_pmda; $PCP_MAKE_PROG; cd $here
+    cd src/libpcp_qmc; $PCP_MAKE_PROG; cd $here
+    cd src/pmcpp; $PCP_MAKE_PROG; cd $here
+    cd src/newhelp; $PCP_MAKE_PROG; cd $here
 fi
-
-# build some useful libs ...
-#
-cd src/libpcp; $PCP_MAKE_PROG; cd $here
-cd src/libpcp_static; $PCP_MAKE_PROG; cd $here
-cd src/libpcp_pmda; $PCP_MAKE_PROG; cd $here
-cd src/pmcpp; $PCP_MAKE_PROG; cd $here
-cd src/newhelp; $PCP_MAKE_PROG; cd $here
 
 # check expected files are the same
 #
