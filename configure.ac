@@ -2046,6 +2046,31 @@ AC_SUBST(pcp_selinux_wap_port)
 AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
 AC_SUBST(pcp_selinux_rpm_var_lib)
 
+pcp_selinux_files_mmap_all_files=false
+if test "x$enable_selinux" != "xfalse"
+then
+    dnl more work to do, files_mmap_all_files() macro is not always
+    dnl supported
+    AC_MSG_CHECKING([for selinux files_mmap_all_files() macro])
+    cat <<End-of-File >conftest.te
+module conftest 1.0;
+require {
+	attribute file_type;
+	attribute pcp_domain;
+	class file { append create execute open read write unlink map };
+}
+files_mmap_all_files(pcp_domain);
+End-of-File
+    if make -f /usr/share/selinux/devel/Makefile conftest.pp >/dev/null 2>&1
+    then
+	pcp_selinux_files_mmap_all_files=true
+	AC_MSG_RESULT(yes)
+    else
+	AC_MSG_RESULT(no)
+    fi
+fi
+AC_SUBST(pcp_selinux_files_mmap_all_files)
+
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_FUNC_WAIT3

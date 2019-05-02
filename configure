@@ -709,6 +709,7 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+pcp_selinux_files_mmap_all_files
 pcp_selinux_rpm_var_lib
 pcp_selinux_files_list_non_auth_dirs
 pcp_selinux_wap_port
@@ -11934,6 +11935,32 @@ fi
 
 
 
+
+
+pcp_selinux_files_mmap_all_files=false
+if test "x$enable_selinux" != "xfalse"
+then
+            { $as_echo "$as_me:${as_lineno-$LINENO}: checking for selinux files_mmap_all_files() macro" >&5
+$as_echo_n "checking for selinux files_mmap_all_files() macro... " >&6; }
+    cat <<End-of-File >conftest.te
+module conftest 1.0;
+require {
+	attribute file_type;
+	attribute pcp_domain;
+	class file { append create execute open read write unlink map };
+}
+files_mmap_all_files(pcp_domain);
+End-of-File
+    if make -f /usr/share/selinux/devel/Makefile conftest.pp >/dev/null 2>&1
+    then
+	pcp_selinux_files_mmap_all_files=true
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+    fi
+fi
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking return type of signal handlers" >&5
