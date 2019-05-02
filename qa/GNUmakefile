@@ -48,9 +48,10 @@ LDIRT += 051.work 134.full.* \
 	 *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
 	 *.full.ok *.new rc_cron_check.clean \
 	 make.out qa_hosts qa_outfiles stap_*.ko localconfig check.time \
-	 pcpqa.pp pcpqa.fc pcpqa.if
-	# these ones are links to the real files created when the associated
-	# test is run
+	 pcpqa.pp pcpqa.fc pcpqa.if pcpqa.te
+
+# these ones are links to the real files created when the associated
+# test is run
 LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
 
 SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
@@ -109,6 +110,14 @@ debug-me:
 	@echo SELINUX_PCPQA=$(SELINUX_PCPQA)
 
 default_pcp default setup:	$(SELINUX_PCPQA)
+
+pcpqa.te:	pcpqa.te.in
+ifeq "$(PCP_SELINUX_HOSTNAME_EXEC_MAP)" "true"
+	cat <pcpqa.te.in >pcpqa.te
+else
+	sed -e '/^[^#].* map;/d' -e '/^[^#].*{ map };/d' -e '/^[^#].* map /s/ map / /' <pcpqa.te.in >pcpqa.te
+endif
+
 pcpqa.pp:	pcpqa.te
 	make -f /usr/share/selinux/devel/Makefile pcpqa.pp
 

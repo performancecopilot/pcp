@@ -26,6 +26,7 @@ localconfig.h
 pcpqa.fc
 pcpqa.if
 pcpqa.pp
+pcpqa.te
 qa_hosts
 qa_outfiles
 rc_cron_check.clean
