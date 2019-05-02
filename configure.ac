@@ -1951,7 +1951,7 @@ pcp_selinux_hostname_exec_map=false
 pcp_selinux_mock=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
-pcp_selinux_bpf_class=false
+pcp_selinux_bpf_status=false
 pcp_selinux_wap_port=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_rpm_var_lib=false
@@ -1998,32 +1998,32 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     fi
 
     dnl classes need to be done one at a time
-    seinfo -x --class=system $seinfo_common_flag 2>&1 \
-    | grep '[[ 	]][[ 	]]*status$' >/dev/null \
+    seinfo -x --class=system $seinfo_common_flag 2>/dev/null \
+    | grep '^[[ 	]][[ 	]]*status$' >/dev/null \
     && pcp_selinux_class_status=true
 
-    seinfo -x --class=sock_file $seinfo_common_flag 2>&1 \
-    | grep '[[ 	]][[ 	]]*getattr$' >/dev/null \
+    seinfo -x --class=sock_file $seinfo_common_flag 2>/dev/null \
+    | grep '^[[ 	]][[ 	]]*getattr$' >/dev/null \
     && pcp_selinux_sock_file_getattr=true
 
-    seinfo -x --class=cap_userns $seinfo_common_flag 2>&1 \
-    | grep '[[ 	]][[ 	]]*sys_ptrace$' >/dev/null \
+    seinfo -x --class=cap_userns $seinfo_common_flag 2>/dev/null \
+    | grep '^[[ 	]][[ 	]]*sys_ptrace$' >/dev/null \
     && pcp_selinux_cap_userns_ptrace=true
 
     dnl need to look in two places for this one?
-    seinfo -x --class=file $seinfo_common_flag 2>&1 \
-    | grep '[[ 	]][[ 	]]*map$' >/dev/null \
+    seinfo -x --class=file $seinfo_common_flag 2>/dev/null \
+    | grep '^[[ 	]][[ 	]]*map$' >/dev/null \
     && pcp_selinux_hostname_exec_map=true
-    seinfo -x --common file 2>&1 \
-    | grep '[[ 	]][[ 	]]*map$' >/dev/null \
+    seinfo -x --common file 2>/dev/null \
+    | grep '^[[ 	]][[ 	]]*map$' >/dev/null \
     && pcp_selinux_hostname_exec_map=true
 
-    seinfo -x --class=bpf $seinfo_common_flag 2>&1 \
-    | grep '[[ 	]][[ 	]]*class bpf$' >/dev/null \
+    seinfo -x --class=bpf $seinfo_common_flag 2>/dev/null \
+    | grep '^[[ 	]][[ 	]]*class bpf$' >/dev/null \
     && pcp_selinux_bpf_status=true
 
-    seinfo -a 2>&1 \
-    | grep '[[ 	]][[ 	]]*non_auth_file_type$' >/dev/null \
+    seinfo -a 2>/dev/null \
+    | grep '^[[ 	]][[ 	]]*non_auth_file_type$' >/dev/null \
     && pcp_selinux_files_list_non_auth_dirs=true
 ])
 AC_SUBST(pcp_selinux_class_status)
