@@ -954,7 +954,7 @@ else
 		#
 		for bool in pcp_read_generic_logs
 		do
-		    if $sudo getsebool $bool | grep ' --> off' >/dev/null
+		    if $sudo getsebool $bool 2>/dev/null | grep ' --> off' >/dev/null
 		    then
 			$sudo setsebool $bool true
 		    fi
