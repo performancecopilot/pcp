@@ -21,6 +21,7 @@ which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
 ( seinfo -t 2>&1 | grep 'Default policy search failed: No such file or directory' >/dev/null ) && _notrun "seinfo version bad: can't load default policy"
 [ -f "$policy_file" ] || _notrun "upstream policy package not installed"
 $sudo semodule -l 2>&1 | grep -q $policy_name || _notrun "upstream policy package not loaded"
+[ -f $PCP_INC_DIR/builddefs ] || _notrun "No $PCP_INC_DIR/builddefs"
 
 seinfo --common >/dev/null 2>&1
 if [ $? -eq 0 ]
@@ -152,7 +153,6 @@ else
     # if no map, need to cull these one as map is the only permission
     #
     echo '/allow \[pcp_pmcd_t] \[ldconfig_exec_t] : \[file].* map/d' >>$tmp.sed
-    echo '/allow \[pcp_domain] \[file_type] : \[file].* map/d' >>$tmp.sed
     echo '/allow \[pcp_pmcd_t] \[rpm_var_lib_t] : \[file].* map/d' >>$tmp.sed
     echo '/allow \[pcp_pmcd_t] \[default_t] : \[file].* map/d' >>$tmp.sed
     # strip "map" from permissions for others
@@ -180,6 +180,13 @@ then
     echo '/allow \[pcp_domain] \[non_security_file_type]/d' >>$tmp.sed
 else
     echo '/allow \[pcp_domain] \[non_auth_file_type]/d' >>$tmp.sed
+fi
+
+if grep 'PCP_SELINUX_FILES_MMAP_ALL_FILES[ 	]*=[ 	]*true' $PCP_INC_DIR/builddefs >/dev/null 2>&1
+then
+    :
+else
+    echo '/allow \[pcp_domain] \[file_type] : \[file].* map/d' >>$tmp.sed
 fi
 
 cat $tmp.sed >>$seq.full
