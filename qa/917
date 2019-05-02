@@ -45,36 +45,7 @@ _filter_sedismod1()
 }
 _filter_outfile()
 {
-    sed -f $tmp.sed \
-    | awk \
-	-v container_tmpfs_t="$container_runtime_tmpfs_t" \
-	-v class_status="$class_status" \
-	-v systemd_systemctl_unit_file_t="$systemd_systemctl_unit_file_t" \
-	-v devlog_t="$devlog_t" \
-	-v init_t="$init_t" \
-	-v sock_file_getattr="$sock_file_getattr" \
-	-v unconfined_service="$unconfined_service" \
-	-v mock_var_lib="$mock_var_lib" \
-        -v non_auth_type="$non_auth_type" \
-        -v non_security_type="$non_security_type" \
-    '{
-	if (container_tmpfs_t == "" && /container_runtime_tmpfs_t/)
-	   !/container_runtime_tmpfs_t/ ;
-    	else if (systemd_systemctl_unit_dir_t == "" && /systemd_unit_dir_t/)
-	   !/systemd_unit_dir_t/ ;
-	else if (devlog_t == "" && /devlog_t/)
-	   !/devlog_t/ ;
-	else if (init_t == "" && /init_t/)
-	   !/init_t/ ;
-        else if (class_status == "" && /system.*status/)
-           !/system.*status/ ;
-	else if (sock_file_getattr == "" && /gpmctl_t/)
-	   !/gpmctl_t/ ;
-        else if (non_auth_type != "" && /non_security_file_type/)
-            !/non_security_file_type/ ;
-	else
-	   print;
-    }'
+    sed -f $tmp.sed
 }
 
 status=1	# failure is the default!
@@ -97,7 +68,8 @@ do
 	:
     else
 	echo "/^  *$type\$/d" >>$tmp.sed
-	# and some missing types => rules to be culled
+	# and some missing types => associated rules need to be culled or
+	# edited
 	#
 	case "$type"
 	in
@@ -107,12 +79,24 @@ do
 	    svirt_lxc_net_t)
 		echo '/allow \[pcp_pmcd_t] \[svirt_lxc_net_t]/d' >>$tmp.sed
 		;;
+	    systemd_unit_file_t)
+		# pcp_systemctl_unit_file_rule and pcp_systemctl_unit_dir_rule
+		# in configure.ac and src/selinux/GNUlocadefs but no longer
+		# used in any rules in src/selinux/pcpupstream.te.in, so we
+		# can ignore them here
+		#
+		:
+		;;
 	    unreserved_port_t)
 		echo '/allow \[pcp_pmcd_t] \[unreserved_port_t]/d' >>$tmp.sed
 		echo '/allow \[pcp_pmmgr_t] \[unreserved_port_t]/d' >>$tmp.sed
 		;;
 	    tracefs_t)
 		echo '/allow \[pcp_pmcd_t] \[tracefs_t]/d' >>$tmp.sed
+		;;
+	    unconfined_service_t)
+		echo '/allow \[pcp_pmlogger_t] \[unconfined_service_t]/d' >>$tmp.sed
+		echo '/allow \[pcp_pmie_t] \[unconfined_service_t]/d' >>$tmp.sed
 		;;
 	    numad_t)
 		echo '/allow \[pcp_pmcd_t] \[numad_t]/d' >>$tmp.sed
@@ -124,7 +108,8 @@ do
     fi
 done
 
-# now the class ones ... also from configure.ac
+# now the class ones ... also using logic from configure.ac
+#
 if seinfo -x --class=system $common_flag 2>&1 \
    | grep '^[ 	][ 	]*status$' >/dev/null
 then
@@ -152,7 +137,7 @@ if seinfo -x --class=cap_userns $common_flag 2>&1 \
 then
     :
 else
-    echo '/allow \[pcp_pmie_t] .* \[cap_userns]/d' >>$tmp.sed
+    echo '/allow \[pcp_pmie_t] .*\[cap_userns]/d' >>$tmp.sed
 fi
 
 if seinfo -x --class=file $common_flag 2>&1 \
@@ -164,15 +149,21 @@ elif seinfo -x --common file 2>&1 \
 then
     :
 else
-    echo '/\[pcp_pmie_exec_t] .* \[file]/s/ map / /' >>$tmp.sed
-    echo '/\[pcp_pmcd_t] .* \[file]/s/ map / /' >>$tmp.sed
-    echo '/\[pcp_pmie_t] .* \[hostname_exec_t]/s/ map / /' >>$tmp.sed
+    # if no map, need to cull these one as map is the only permission
+    #
+    echo '/allow \[pcp_pmcd_t] \[ldconfig_exec_t] : \[file].* map/d' >>$tmp.sed
+    echo '/allow \[pcp_domain] \[file_type] : \[file].* map/d' >>$tmp.sed
+    echo '/allow \[pcp_pmcd_t] \[rpm_var_lib_t] : \[file].* map/d' >>$tmp.sed
+    echo '/allow \[pcp_pmcd_t] \[default_t] : \[file].* map/d' >>$tmp.sed
+    # strip "map" from permissions for others
+    #
+    echo '/\[pcp_pmie_exec_t] .*\[file]/s/ map / /' >>$tmp.sed
+    echo '/\[pcp_pmcd_t] .*\[file]/s/ map / /' >>$tmp.sed
+    echo '/\[pcp_pmie_t] .*\[hostname_exec_t]/s/ map / /' >>$tmp.sed
     echo '/\[pcp_pmcd_t] \[fsadm_exec_t]/s/ map / /' >>$tmp.sed
     echo '/\[pcp_pmcd_t] \[default_t]/s/ map / /' >>$tmp.sed
     echo '/\[pcp_pmcd_t] \[pcp_pmie_exec_t]/s/ map / /' >>$tmp.sed
     echo '/\[pcp_pmcd_t] \[pcp_tmp_t]/s/ map / /' >>$tmp.sed
-    echo '/allow \[pcp_pmcd_t] \[ldconfig_exec_t]/d' >>$tmp.sed
-    echo '/allow \[pcp_domain] \[file_type] : \[file]/d' >>$tmp.sed
 fi
 
 if seinfo -x --class=bpf $common_flag 2>&1 \
@@ -180,32 +171,23 @@ if seinfo -x --class=bpf $common_flag 2>&1 \
 then
     :
 else
-    echo '/allow \[pcp_pmcd_t] .* \[bpf]/d' >>$tmp.sed
+    echo '/allow \[pcp_pmcd_t] .*\[bpf]/d' >>$tmp.sed
 fi
 
 if seinfo -a 2>&1 \
    | grep '^[ 	][ 	]*non_auth_file_type$' >/dev/null
 then
-    :
+    echo '/allow \[pcp_domain] \[non_security_file_type]/d' >>$tmp.sed
 else
     echo '/allow \[pcp_domain] \[non_auth_file_type]/d' >>$tmp.sed
 fi
 
 cat $tmp.sed >>$seq.full
 
-devlog_t=`seinfo -t | grep "devlog_t$"`
-init_t=`seinfo -t | grep "init_t$"`
-class_status=`seinfo -x --class=system $common_flag | grep "status$"`
-sock_file_getattr=`seinfo -x --class=sock_file $common_flag | grep "getattr$"`
-#container_runtime_tmpfs_t=`seinfo -t | grep "container_runtime_tmpfs_t$"`
-container_runtime_tmpfs_t=""
-non_auth_type=`seinfo -a | grep "non_auth_file_type$"`
-non_security_type=`seinfo -a | grep "non_security_file_type$"`
-
-cat $seq.out.in | _filter_outfile > $seq.out
+cat $seq.out.in | _filter_outfile >$seq.out
 
 echo "full policy modules list on the system"
-$sudo semodule -l >> $seq.full
+$sudo semodule -l >>$seq.full
 echo "Checking that pcpupstream policy module has been properly installed"
 awk '{ print $1 }' $seq.full | grep "pcpupstream$"  | _filter_semodule
 # real QA test starts here
