@@ -2068,6 +2068,8 @@ End-of-File
     else
 	AC_MSG_RESULT(no)
     fi
+    dnl cleanup turds from selinux Makefile
+    rm -f tmp/all_interfaces.conf tmp/conftest.* tmp/iferror.m4
 fi
 AC_SUBST(pcp_selinux_files_mmap_all_files)
 

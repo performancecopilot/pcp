@@ -11960,6 +11960,7 @@ $as_echo "yes" >&6; }
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
     fi
+        rm -f tmp/all_interfaces.conf tmp/conftest.* tmp/iferror.m4
 fi
 
 
