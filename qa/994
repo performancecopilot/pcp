@@ -151,7 +151,7 @@ p
 	then
 	    echo "$target: wrong mode: expected $mode (from $makefile), found $_mode"
 	    ls -ld $target
-	    $fix && _fixmod "$mode" "$target"
+	    $fix && _fixmode "$mode" "$target"
 	fi
 	if [ "$_owner" != "$owner" ]
 	then
