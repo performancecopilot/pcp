@@ -712,23 +712,16 @@ rdynamic_flag
 pcp_selinux_files_mmap_all_files
 pcp_selinux_rpm_var_lib
 pcp_selinux_files_list_non_auth_dirs
-pcp_selinux_wap_port
 pcp_selinux_bpf_status
 pcp_selinux_numad
 pcp_selinux_unconfined
-pcp_selinux_mock
 pcp_selinux_hostname_exec_map
-pcp_selinux_sock_file_getattr
 pcp_selinux_tracefs
 pcp_selinux_unreserved_port
-pcp_selinux_systemd_exec
-pcp_selinux_systemd_unit_file
-pcp_selinux_svirt_lxc_net
 pcp_selinux_docker_var_lib
 pcp_selinux_nsfs
 pcp_selinux_container_runtime
 pcp_selinux_cap_userns_ptrace
-pcp_selinux_class_status
 pcp_selinux_dir
 enable_selinux
 SEINFO
@@ -11829,23 +11822,16 @@ $as_echo "no" >&6; }
 
 
 
-pcp_selinux_class_status=false
 pcp_selinux_cap_userns_ptrace=false
 pcp_selinux_container_runtime=false
 pcp_selinux_nsfs=false
 pcp_selinux_docker_var_lib=false
-pcp_selinux_svirt_lxc_net=false
-pcp_selinux_systemd_unit_file=false
-pcp_selinux_systemd_exec=false
 pcp_selinux_tracefs=false
 pcp_selinux_unreserved_port=false
-pcp_selinux_sock_file_getattr=false
 pcp_selinux_hostname_exec_map=false
-pcp_selinux_mock=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
 pcp_selinux_bpf_status=false
-pcp_selinux_wap_port=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_rpm_var_lib=false
 
@@ -11859,24 +11845,14 @@ if test "x$enable_selinux" != "xfalse"; then :
 	&& pcp_selinux_nsfs=true
     grep '^[ 	][ 	]*docker_var_lib_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_docker_var_lib=true
-    grep '^[ 	][ 	]*svirt_lxc_net_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_svirt_lxc_net=true
-    grep '^[ 	][ 	]*systemd_unit_file_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_systemd_unit_file=true
-    grep '^[ 	][ 	]*systemd_systemctl_exec_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_systemd_exec=true
     grep '^[ 	][ 	]*unreserved_port_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_unreserved_port=true
     grep '^[ 	][ 	]*tracefs_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_tracefs=true
-    grep '^[ 	][ 	]*mock_var_lib_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_mock=true
     grep '^[ 	][ 	]*unconfined_service_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_unconfined=true
     grep '^[ 	][ 	]*numad_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_numad=true
-    grep '^[ 	][ 	]*wap_wsp_port_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_wap_port=true
     grep '^[ 	][ 	]*rpm_var_lib_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_rpm_var_lib=true
     rm -f conftest.out
@@ -11889,15 +11865,7 @@ if test "x$enable_selinux" != "xfalse"; then :
         seinfo_common_flag=""
     fi
 
-        seinfo -x --class=system $seinfo_common_flag 2>/dev/null \
-    | grep '^[ 	][ 	]*status$' >/dev/null \
-    && pcp_selinux_class_status=true
-
-    seinfo -x --class=sock_file $seinfo_common_flag 2>/dev/null \
-    | grep '^[ 	][ 	]*getattr$' >/dev/null \
-    && pcp_selinux_sock_file_getattr=true
-
-    seinfo -x --class=cap_userns $seinfo_common_flag 2>/dev/null \
+        seinfo -x --class=cap_userns $seinfo_common_flag 2>/dev/null \
     | grep '^[ 	][ 	]*sys_ptrace$' >/dev/null \
     && pcp_selinux_cap_userns_ptrace=true
 
@@ -11917,13 +11885,6 @@ if test "x$enable_selinux" != "xfalse"; then :
     && pcp_selinux_files_list_non_auth_dirs=true
 
 fi
-
-
-
-
-
-
-
 
 
 

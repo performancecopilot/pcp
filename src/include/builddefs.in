@@ -264,23 +264,16 @@ ENABLE_LZMA = @enable_lzma@
 
 # selinux configuration bits
 PCP_SELINUX_FILES_LIST_NON_AUTH_DIRS = @pcp_selinux_files_list_non_auth_dirs@
-PCP_SELINUX_CLASS_STATUS = @pcp_selinux_class_status@
 PCP_SELINUX_CAP_USERNS_PTRACE = @pcp_selinux_cap_userns_ptrace@
 PCP_SELINUX_CONTAINER_RUNTIME = @pcp_selinux_container_runtime@
 PCP_SELINUX_NSFS = @pcp_selinux_nsfs@
 PCP_SELINUX_DOCKER_VAR_LIB = @pcp_selinux_docker_var_lib@
-PCP_SELINUX_SVIRT_LXC_NET = @pcp_selinux_svirt_lxc_net@
-PCP_SELINUX_SYSTEMD_UNIT_FILE = @pcp_selinux_systemd_unit_file@
-PCP_SELINUX_SYSTEMD_EXEC = @pcp_selinux_systemd_exec@
 PCP_SELINUX_UNRESERVED_PORT = @pcp_selinux_unreserved_port@
 PCP_SELINUX_TRACEFS = @pcp_selinux_tracefs@
-PCP_SELINUX_SOCK_FILE_GETATTR = @pcp_selinux_sock_file_getattr@
 PCP_SELINUX_HOSTNAME_EXEC_MAP = @pcp_selinux_hostname_exec_map@
-PCP_SELINUX_MOCK = @pcp_selinux_mock@
 PCP_SELINUX_UNCONFINED = @pcp_selinux_unconfined@
 PCP_SELINUX_NUMAD = @pcp_selinux_numad@
 PCP_SELINUX_BPF_STATUS = @pcp_selinux_bpf_status@
-PCP_SELINUX_WAP_PORT = @pcp_selinux_wap_port@
 PCP_SELINUX_RPM_VAR_LIB = @pcp_selinux_rpm_var_lib@
 PCP_SELINUX_FILES_MMAP_ALL_FILES = @pcp_selinux_files_mmap_all_files@
 
