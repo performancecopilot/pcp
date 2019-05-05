@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 1146
+# PCP QA Test No. 1147
 # mutual exclusion for pmlogger init script?
 # this version is using systemctl (see 1146 for dual)
 #
@@ -38,7 +38,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # make sure systemctl thinks pmlogger is running
 #
-_service pmlogger start >>$here/$seq.full 2>&1
+_service pmlogger restart >>$here/$seq.full 2>&1
 
 pid=`_get_primary_logger_pid`
 echo "+++ at the start primary pmlogger pid = $pid" >>$here/$seq.full
