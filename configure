@@ -710,6 +710,7 @@ fmt_int64
 fmt_pid
 rdynamic_flag
 pcp_selinux_files_mmap_all_files
+pcp_selinux_virt_var_run
 pcp_selinux_rpm_var_lib
 pcp_selinux_files_list_non_auth_dirs
 pcp_selinux_bpf_status
@@ -11834,6 +11835,7 @@ pcp_selinux_numad=false
 pcp_selinux_bpf_status=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_rpm_var_lib=false
+pcp_selinux_virt_var_run=false
 
 if test "x$enable_selinux" != "xfalse"; then :
 
@@ -11855,6 +11857,8 @@ if test "x$enable_selinux" != "xfalse"; then :
 	&& pcp_selinux_numad=true
     grep '^[ 	][ 	]*rpm_var_lib_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_rpm_var_lib=true
+    grep '^[ 	][ 	]*virt_var_run_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_virt_var_run=true
     rm -f conftest.out
 
     seinfo --common >/dev/null 2>&1
@@ -11885,6 +11889,7 @@ if test "x$enable_selinux" != "xfalse"; then :
     && pcp_selinux_files_list_non_auth_dirs=true
 
 fi
+
 
 
 

@@ -1,48 +1,48 @@
 ifeq "$(PCP_SELINUX_CONTAINER_RUNTIME)" "true"
-PCP_CONTAINER_RUNTIME_T="type container_runtime_t\;"
-PCP_CONTAINER_RUNTIME_RULE="allow pcp_pmcd_t container_runtime_t:unix_stream_socket connectto\;"
+PCP_CONTAINER_RUNTIME_T="type container_runtime_t;"
+PCP_CONTAINER_RUNTIME_RULE="allow pcp_pmcd_t container_runtime_t:unix_stream_socket connectto;"
 else
 PCP_CONTAINER_RUNTIME_RULE=""
 PCP_CONTAINER_RUNTIME_T=""
 endif
 
 ifeq "$(PCP_SELINUX_NSFS)" "true"
-PCP_NSFS_T="type nsfs_t\; \# filesys.used"
-PCP_NSFS_RULE="allow pcp_pmcd_t nsfs_t:file { read open }\;"
+PCP_NSFS_T="type nsfs_t; \# filesys.used"
+PCP_NSFS_RULE="allow pcp_pmcd_t nsfs_t:file { read open };"
 endif
 
 ifeq "$(PCP_SELINUX_DOCKER_VAR_LIB)" "true"
-PCP_DOCKER_VAR_LIB_T="type docker_var_lib_t\;"
-PCP_DOCKER_VAR_LIB_RULE="allow pcp_pmcd_t docker_var_lib_t:dir search\;"
+PCP_DOCKER_VAR_LIB_T="type docker_var_lib_t;"
+PCP_DOCKER_VAR_LIB_RULE="allow pcp_pmcd_t docker_var_lib_t:dir search;"
 else
 PCP_DOCKER_VAR_LIB_T=""
 PCP_DOCKER_VAR_LIB_RULE=""
 endif
 
 ifeq "$(PCP_SELINUX_CAP_USERNS_PTRACE)" "true"
-PCP_CAPUSERNS_PTRACE="class cap_userns sys_ptrace\; \#pmdaproc"
-PCP_CAPUSERNS_PTRACE_RULE_PMIE="allow pcp_pmie_t self:cap_userns sys_ptrace\;"
+PCP_CAPUSERNS_PTRACE="class cap_userns sys_ptrace; \# pmdaproc"
+PCP_CAPUSERNS_PTRACE_RULE_PMIE="allow pcp_pmie_t self:cap_userns sys_ptrace;"
 endif
 
 ifeq "$(PCP_SELINUX_UNRESERVED_PORT)" "true"
-PCP_UNRESERVED_PORT="type unreserved_port_t\;"
-PCP_UNRESERVED_PORT_RULE="allow pcp_pmcd_t unreserved_port_t:tcp_socket { name_bind name_connect }\;"
-PCP_UNRESERVED_PORT_RULE_PMMGR="allow pcp_pmmgr_t unreserved_port_t:tcp_socket name_bind\;"
+PCP_UNRESERVED_PORT="type unreserved_port_t;"
+PCP_UNRESERVED_PORT_RULE="allow pcp_pmcd_t unreserved_port_t:tcp_socket { name_bind name_connect };"
+PCP_UNRESERVED_PORT_RULE_PMMGR="allow pcp_pmmgr_t unreserved_port_t:tcp_socket name_bind;"
 endif
 
 ifeq "$(PCP_SELINUX_TRACEFS)" "true"
-PCP_TRACEFS="type tracefs_t\;"
-PCP_TRACEFS_FS_RULE="allow pcp_pmcd_t tracefs_t:filesystem mount\;"
-PCP_TRACEFS_DIR_RULE="allow pcp_pmcd_t tracefs_t:dir { search read open }\;"
-PCP_TRACEFS_FILE_RULE="allow pcp_pmcd_t tracefs_t:file { getattr read open append write }\;"
+PCP_TRACEFS="type tracefs_t;"
+PCP_TRACEFS_FS_RULE="allow pcp_pmcd_t tracefs_t:filesystem mount;"
+PCP_TRACEFS_DIR_RULE="allow pcp_pmcd_t tracefs_t:dir { search read open };"
+PCP_TRACEFS_FILE_RULE="allow pcp_pmcd_t tracefs_t:file { getattr read open append write };"
 endif
 
 ifeq "$(PCP_SELINUX_HOSTNAME_EXEC_MAP)" "true"
 PCP_HOSTNAME_EXEC_MAP="map"
 PCP_TMP_MAP="map"
 PCP_FSADM_EXEC_MAP="map"
-PCP_LDCONFIG_EXEC_MAP_RULE="allow pcp_pmcd_t ldconfig_exec_t:file map\;"
-PCP_DEFAULT_MAP_RULE="allow pcp_pmcd_t default_t:file { map execute }\;"
+PCP_LDCONFIG_EXEC_MAP_RULE="allow pcp_pmcd_t ldconfig_exec_t:file map;"
+PCP_DEFAULT_MAP_RULE="allow pcp_pmcd_t default_t:file { map execute };"
 endif
 
 ifeq "$(PCP_SELINUX_FILES_MMAP_ALL_FILES)" "true"
@@ -50,19 +50,19 @@ PCP_MMAP_ALL="files_mmap_all_files(pcp_domain);"
 endif
 
 ifeq "$(PCP_SELINUX_UNCONFINED)" "true"
-PCP_UNCONFINED_SERVICE="type unconfined_service_t\;"
-PCP_PMLOGGER_UNCONFINED_SERVICE_RULE="allow pcp_pmlogger_t unconfined_service_t:process signal\;"
-PCP_PMIE_UNCONFINED_SERVICE_RULE="allow pcp_pmie_t unconfined_service_t:process signal\;"
+PCP_UNCONFINED_SERVICE="type unconfined_service_t;"
+PCP_PMLOGGER_UNCONFINED_SERVICE_RULE="allow pcp_pmlogger_t unconfined_service_t:process signal;"
+PCP_PMIE_UNCONFINED_SERVICE_RULE="allow pcp_pmie_t unconfined_service_t:process signal;"
 endif
 
 ifeq "$(PCP_SELINUX_NUMAD)" "true"
-PCP_NUMAD_CONTEXT="type numad_t\;"
-PCP_NUMAD_RULE="allow pcp_pmcd_t numad_t:msgq unix_read\;"
+PCP_NUMAD_CONTEXT="type numad_t;"
+PCP_NUMAD_RULE="allow pcp_pmcd_t numad_t:msgq unix_read;"
 endif
 
 ifeq "$(PCP_SELINUX_BPF_STATUS)" "true"
-PCP_BPF_STATUS_CLASS="class bpf { map_create map_read map_write prog_load prog_run }\;"
-PCP_BPF_STATUS_RULE="allow pcp_pmcd_t self:bpf { map_create map_read map_write prog_load prog_run }\;"
+PCP_BPF_STATUS_CLASS="class bpf { map_create map_read map_write prog_load prog_run };"
+PCP_BPF_STATUS_RULE="allow pcp_pmcd_t self:bpf { map_create map_read map_write prog_load prog_run };"
 endif
 
 ifeq "$(PCP_SELINUX_FILES_LIST_NON_AUTH_DIRS)" "true"
@@ -77,7 +77,13 @@ PCP_RPM_VAR_LIB_T=""
 PCP_RPM_VAR_LIB_RULE=""
 ifeq "$(PCP_SELINUX_RPM_VAR_LIB)" "true"
 ifeq "$(PCP_SELINUX_HOSTNAME_EXEC_MAP)" "true"
-PCP_RPM_VAR_LIB_T="type rpm_var_lib_t\;"
-PCP_RPM_VAR_LIB_RULE="allow pcp_pmcd_t rpm_var_lib_t:file map\;"
+PCP_RPM_VAR_LIB_T="type rpm_var_lib_t; \# pmdarpm"
+PCP_RPM_VAR_LIB_RULE="allow pcp_pmcd_t rpm_var_lib_t:file map;"
 endif
 endif
+
+ifeq "$(PCP_SELINUX_VIRT_VAR_RUN)" "true"
+PCP_VIRT_VAR_RUN_T="type virt_var_run_t; \# pmdalibvirt"
+PCP_VIRT_VAR_RUN_RULE="allow pcp_pmcd_t virt_var_run_t:sock_file write;"
+endif
+

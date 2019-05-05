@@ -1948,6 +1948,7 @@ pcp_selinux_numad=false
 pcp_selinux_bpf_status=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_rpm_var_lib=false
+pcp_selinux_virt_var_run=false
 
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 
@@ -1970,6 +1971,8 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_numad=true
     grep '^[[ 	]][[ 	]]*rpm_var_lib_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_rpm_var_lib=true
+    grep '^[[ 	]][[ 	]]*virt_var_run_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_virt_var_run=true
     rm -f conftest.out
 
     seinfo --common >/dev/null 2>&1
@@ -2013,6 +2016,7 @@ AC_SUBST(pcp_selinux_numad)
 AC_SUBST(pcp_selinux_bpf_status)
 AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
 AC_SUBST(pcp_selinux_rpm_var_lib)
+AC_SUBST(pcp_selinux_virt_var_run)
 
 pcp_selinux_files_mmap_all_files=false
 if test "x$enable_selinux" != "xfalse"

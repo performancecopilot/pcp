@@ -50,6 +50,7 @@ require {
         type proc_kcore_t;
         type su_exec_t;
 	@PCP_RPM_VAR_LIB_T@
+	@PCP_VIRT_VAR_RUN_T@
         class sem { unix_read associate getattr read };
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr setattr ioctl lock open read write unlink @PCP_HOSTNAME_EXEC_MAP@ };
@@ -283,6 +284,9 @@ allow pcp_pmproxy_t proc_net_t:file read;
 #type=AVC msg=audit(XXX.64): avc:  denied  { execute execute_no_trans open read getattr } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmmgr_t:s0 tcontext=system_u:object_r:ldconfig_exec_t:s0 tclass=file permissive=0
 allow pcp_pmmgr_t ldconfig_exec_t:file { execute execute_no_trans open read getattr };
 
+#type=AVC msg=audit(XXX.69): avc:  denied  { dac_override } for  pid=3767 comm="pmmgr" capability=1  scontext=system_u:system_r:pcp_pmmgr_t:s0 tcontext=system_u:system_r:pcp_pmmgr_t:s0 tclass=capability permissive=0
+allow pcp_pmmgr_t self:capability dac_override;
+
 #============= pmda-smart ==============
 
 #type=AVC msg=audit(YYY.75): avc:  denied  { read } for  pid=8678 comm="sh" name="smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
@@ -306,6 +310,10 @@ allow pcp_pmcd_t self:capability sys_rawio;
 #============= pmda-rpm ==============
 #type=AVC msg=audit(YYY.89): avc:  denied  { map } for  pid=4969 comm="pmdarpm" path="/var/lib/rpm/Name" dev="dm-0" ino=519186 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:rpm_var_lib_t:s0 tclass=file permissive=0
 @PCP_RPM_VAR_LIB_RULE@
+
+#============= pmda-libvirt ==============
+#type=AVC msg=audit(YYY.90): avc:  denied  { write } for  pid=30922 comm="python3" name="libvirt-sock-ro" dev="tmpfs" ino=25845 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:virt_var_run_t:s0 tclass=sock_file permissive=0
+@PCP_VIRT_VAR_RUN_RULE@
 
 # permit pcp_pmcd_t domain to read all dirs,files and fifo_file in attribute file_type
 @PCP_SELINUX_MACRO_RULE@
