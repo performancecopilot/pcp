@@ -1936,23 +1936,16 @@ AC_SUBST(enable_selinux)
 AC_SUBST(pcp_selinux_dir)
 
 
-pcp_selinux_class_status=false
 pcp_selinux_cap_userns_ptrace=false
 pcp_selinux_container_runtime=false
 pcp_selinux_nsfs=false
 pcp_selinux_docker_var_lib=false
-pcp_selinux_svirt_lxc_net=false
-pcp_selinux_systemd_unit_file=false
-pcp_selinux_systemd_exec=false
 pcp_selinux_tracefs=false
 pcp_selinux_unreserved_port=false
-pcp_selinux_sock_file_getattr=false
 pcp_selinux_hostname_exec_map=false
-pcp_selinux_mock=false
 pcp_selinux_unconfined=false
 pcp_selinux_numad=false
 pcp_selinux_bpf_status=false
-pcp_selinux_wap_port=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_rpm_var_lib=false
 
@@ -1967,24 +1960,14 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_nsfs=true
     grep '^[[ 	]][[ 	]]*docker_var_lib_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_docker_var_lib=true
-    grep '^[[ 	]][[ 	]]*svirt_lxc_net_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_svirt_lxc_net=true
-    grep '^[[ 	]][[ 	]]*systemd_unit_file_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_systemd_unit_file=true
-    grep '^[[ 	]][[ 	]]*systemd_systemctl_exec_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_systemd_exec=true
     grep '^[[ 	]][[ 	]]*unreserved_port_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_unreserved_port=true
     grep '^[[ 	]][[ 	]]*tracefs_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_tracefs=true
-    grep '^[[ 	]][[ 	]]*mock_var_lib_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_mock=true
     grep '^[[ 	]][[ 	]]*unconfined_service_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_unconfined=true
     grep '^[[ 	]][[ 	]]*numad_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_numad=true
-    grep '^[[ 	]][[ 	]]*wap_wsp_port_t$' <conftest.out >/dev/null \
-	&& pcp_selinux_wap_port=true
     grep '^[[ 	]][[ 	]]*rpm_var_lib_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_rpm_var_lib=true
     rm -f conftest.out
@@ -1998,14 +1981,6 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     fi
 
     dnl classes need to be done one at a time
-    seinfo -x --class=system $seinfo_common_flag 2>/dev/null \
-    | grep '^[[ 	]][[ 	]]*status$' >/dev/null \
-    && pcp_selinux_class_status=true
-
-    seinfo -x --class=sock_file $seinfo_common_flag 2>/dev/null \
-    | grep '^[[ 	]][[ 	]]*getattr$' >/dev/null \
-    && pcp_selinux_sock_file_getattr=true
-
     seinfo -x --class=cap_userns $seinfo_common_flag 2>/dev/null \
     | grep '^[[ 	]][[ 	]]*sys_ptrace$' >/dev/null \
     && pcp_selinux_cap_userns_ptrace=true
@@ -2026,23 +2001,16 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     | grep '^[[ 	]][[ 	]]*non_auth_file_type$' >/dev/null \
     && pcp_selinux_files_list_non_auth_dirs=true
 ])
-AC_SUBST(pcp_selinux_class_status)
 AC_SUBST(pcp_selinux_cap_userns_ptrace)
 AC_SUBST(pcp_selinux_container_runtime)
 AC_SUBST(pcp_selinux_nsfs)
 AC_SUBST(pcp_selinux_docker_var_lib)
-AC_SUBST(pcp_selinux_svirt_lxc_net)
-AC_SUBST(pcp_selinux_systemd_unit_file)
-AC_SUBST(pcp_selinux_systemd_exec)
 AC_SUBST(pcp_selinux_unreserved_port)
 AC_SUBST(pcp_selinux_tracefs)
-AC_SUBST(pcp_selinux_sock_file_getattr)
 AC_SUBST(pcp_selinux_hostname_exec_map)
-AC_SUBST(pcp_selinux_mock)
 AC_SUBST(pcp_selinux_unconfined)
 AC_SUBST(pcp_selinux_numad)
 AC_SUBST(pcp_selinux_bpf_status)
-AC_SUBST(pcp_selinux_wap_port)
 AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
 AC_SUBST(pcp_selinux_rpm_var_lib)
 
@@ -2068,6 +2036,8 @@ End-of-File
     else
 	AC_MSG_RESULT(no)
     fi
+    dnl cleanup turds from selinux Makefile
+    rm -f tmp/all_interfaces.conf tmp/conftest.* tmp/iferror.m4
 fi
 AC_SUBST(pcp_selinux_files_mmap_all_files)
 

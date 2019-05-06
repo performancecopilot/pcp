@@ -59,10 +59,8 @@ trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 seinfo -t >$tmp.types
 echo '/^#/d' >$tmp.sed
 echo '/^!/s// /' >>$tmp.sed
-for type in container_runtime_t nsfs_t docker_var_lib_t svirt_lxc_net_t \
-	    systemd_unit_file_t systemd_systemctl_exec_t unreserved_port_t \
-	    tracefs_t mock_var_lib_t unconfined_service_t numad_t \
-	    wap_wsp_port_t rpm_var_lib_t
+for type in container_runtime_t nsfs_t docker_var_lib_t unreserved_port_t \
+	    tracefs_t unconfined_service_t numad_t rpm_var_lib_t
 do
     if grep "^[ 	][ 	]*$type\$" $tmp.types >/dev/null
     then
@@ -76,17 +74,6 @@ do
 	in
 	    nsfs_t)
 		echo '/allow \[pcp_pmcd_t] \[nsfs_t]/d' >>$tmp.sed
-		;;
-	    svirt_lxc_net_t)
-		echo '/allow \[pcp_pmcd_t] \[svirt_lxc_net_t]/d' >>$tmp.sed
-		;;
-	    systemd_unit_file_t)
-		# pcp_systemctl_unit_file_rule and pcp_systemctl_unit_dir_rule
-		# in configure.ac and src/selinux/GNUlocadefs but no longer
-		# used in any rules in src/selinux/pcpupstream.te.in, so we
-		# can ignore them here
-		#
-		:
 		;;
 	    unreserved_port_t)
 		echo '/allow \[pcp_pmcd_t] \[unreserved_port_t]/d' >>$tmp.sed
@@ -111,28 +98,6 @@ done
 
 # now the class ones ... also using logic from configure.ac
 #
-if seinfo -x --class=system $common_flag 2>&1 \
-   | grep '^[ 	][ 	]*status$' >/dev/null
-then
-    :
-else
-    # in configure.ac and src/selinux/GNUlocadefs but no longer used in any
-    # rules in src/selinux/pcpupstream.te.in, so we can ignore it here
-    #
-    :
-fi
-
-if seinfo -x --class=sock $common_flag 2>&1 \
-   | grep '^[ 	][ 	]*status$' >/dev/null
-then
-    :
-else
-    # in configure.ac and src/selinux/GNUlocadefs but no longer used in any
-    # rules in src/selinux/pcpupstream.te.in, so we can ignore it here
-    #
-    :
-fi
-
 if seinfo -x --class=cap_userns $common_flag 2>&1 \
    | grep '^[ 	][ 	]*sys_ptrace$' >/dev/null
 then
