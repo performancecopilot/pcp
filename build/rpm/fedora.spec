@@ -2860,7 +2860,7 @@ cd
 %if !%{disable_libuv}
 %dir %{_confdir}/pmseries
 %config(noreplace) %{_confdir}/pmseries/pmseries.conf
-endif
+%endif
 
 %ghost %dir %attr(0775,pcp,pcp) %{_localstatedir}/run/pcp
 %{_localstatedir}/lib/pcp/config/pmafm
