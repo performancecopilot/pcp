@@ -35,7 +35,7 @@ UNITS_BYTES = pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)
 
 if sizeof(c_long) == 4:
     CTYPES_ULONG = c_uint
-    PMDA_ULONG = c_api.PM_TYPE_32
+    PMDA_ULONG = c_api.PM_TYPE_U32
 elif sizeof(c_long) == 8:
     CTYPES_ULONG = c_ulonglong
     PMDA_ULONG = c_api.PM_TYPE_U64
