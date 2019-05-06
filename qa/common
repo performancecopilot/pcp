@@ -952,7 +952,7 @@ else
 		fi
 		# and now any selinux booleans that help
 		#
-		for bool in pcp_read_generic_logs
+		for bool in pcp_read_generic_logs pcp_bind_all_unreserved_ports
 		do
 		    if $sudo getsebool $bool 2>/dev/null | grep ' --> off' >/dev/null
 		    then
