@@ -924,7 +924,7 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 			    }
 			}
 			else {
-			    strncpy(global.hostname, $3, sizeof(global.hostname));
+			    strncpy(global.hostname, $3, sizeof(global.hostname)-1);
 			    global.flags |= GLOBAL_CHANGE_HOSTNAME;
 			}
 			free($3);
@@ -943,7 +943,7 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 			    }
 			}
 			else {
-			    strncpy(global.tz, $3, sizeof(global.tz));
+			    strncpy(global.tz, $3, sizeof(global.tz)-1);
 			    global.flags |= GLOBAL_CHANGE_TZ;
 			}
 			free($3);

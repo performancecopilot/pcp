@@ -717,7 +717,14 @@ anychange(void)
 
     if (global.flags != 0) {
 	if (pmDebugOptions.appl3) {
-	    fprintf(stderr, "anychange: global.flags (%d) != 0\n", global.flags);
+	    fprintf(stderr, "anychange: global.flags (%d,", global.flags);
+	    if (global.flags & GLOBAL_CHANGE_TIME)
+		fprintf(stderr, " CHANGE_TIME");
+	    if (global.flags & GLOBAL_CHANGE_HOSTNAME)
+		fprintf(stderr, " CHANGE_HOSTNAME");
+	    if (global.flags & GLOBAL_CHANGE_TZ)
+		fprintf(stderr, " CHANGE_TZ");
+	    fprintf(stderr, ") != 0\n");
 	}
 	return 1;
     }
@@ -731,7 +738,15 @@ anychange(void)
 	for (i = 0; i < ip->numinst; i++) {
 	    if (ip->inst_flags[i]) {
 		if (pmDebugOptions.appl3) {
-		    fprintf(stderr, "anychange: indom %s inst %d flags (%d) != 0\n", pmInDomStr(ip->old_indom), i, ip->inst_flags[i]);
+		    fprintf(stderr, "anychange: indom %s inst %d flags (%d,",
+			pmInDomStr(ip->old_indom), i, ip->inst_flags[i]);
+		    if (ip->inst_flags[i] & INST_CHANGE_INST)
+			fprintf(stderr, " CHANGE_INST");
+		    if (ip->inst_flags[i] & INST_CHANGE_INAME)
+			fprintf(stderr, " CHANGE_INAME");
+		    if (ip->inst_flags[i] & INST_DELETE)
+			fprintf(stderr, " DELETE");
+		    fprintf(stderr, ") != 0\n");
 		}
 		return 1;
 	    }
@@ -740,8 +755,27 @@ anychange(void)
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
 	if (mp->flags != 0 || mp->ip != NULL) {
 	    if (pmDebugOptions.appl3) {
-		if (mp->flags != 0)
-		    fprintf(stderr, "anychange: metric %s flags (%d) != 0\n", mp->old_name, mp->flags);
+		if (mp->flags != 0) {
+		    fprintf(stderr, "anychange: metric %s flags (%d,",
+			mp->old_name, mp->flags);
+		    if (mp->flags & METRIC_CHANGE_PMID)
+			fprintf(stderr, " CHANGE_PMID");
+		    if (mp->flags & METRIC_CHANGE_NAME)
+			fprintf(stderr, " CHANGE_NAME");
+		    if (mp->flags & METRIC_CHANGE_TYPE)
+			fprintf(stderr, " CHANGE_TYPE");
+		    if (mp->flags & METRIC_CHANGE_INDOM)
+			fprintf(stderr, " CHANGE_INDOM");
+		    if (mp->flags & METRIC_CHANGE_SEM)
+			fprintf(stderr, " CHANGE_SEM");
+		    if (mp->flags & METRIC_CHANGE_UNITS)
+			fprintf(stderr, " CHANGE_UNITS");
+		    if (mp->flags & METRIC_DELETE)
+			fprintf(stderr, " DELETE");
+		    if (mp->flags & METRIC_RESCALE)
+			fprintf(stderr, " RESCALE");
+		    fprintf(stderr, ") != 0\n");
+		}
 		if (mp->ip != NULL)
 		    fprintf(stderr, "anychange: metric %s ip NULL\n", mp->old_name);
 	    }
@@ -751,8 +785,23 @@ anychange(void)
     for (lp = label_root; lp != NULL; lp = lp->l_next) {
 	if (lp->flags != 0 || lp->ip != NULL) {
 	    if (pmDebugOptions.appl3) {
-		if (lp->flags != 0)
-		    fprintf(stderr, "anychange: label %s flags (%d) != 0\n", lp->old_label, lp->flags);
+		if (lp->flags != 0) {
+		    fprintf(stderr, "anychange: label %s flags (%d,",
+			lp->old_label, lp->flags);
+		    if (lp->flags & LABEL_ACTIVE)
+			fprintf(stderr, " ACTIVE");
+		    if (lp->flags & LABEL_CHANGE_ID)
+			fprintf(stderr, " CHANGE_ID");
+		    if (lp->flags & LABEL_CHANGE_LABEL)
+			fprintf(stderr, " CHANGE_LABEL");
+		    if (lp->flags & LABEL_CHANGE_INSTANCE)
+			fprintf(stderr, " CHANGE_INSTANCE");
+		    if (lp->flags & LABEL_DELETE)
+			fprintf(stderr, " DELETE");
+		    if (lp->flags & LABEL_NEW)
+			fprintf(stderr, " NEW");
+		    fprintf(stderr, ") != 0\n");
+		}
 		if (lp->ip != NULL)
 		    fprintf(stderr, "anychange: label %s ip NULL\n", lp->old_label);
 	    }
