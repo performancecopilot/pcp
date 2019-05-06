@@ -1318,7 +1318,7 @@ class DstatTool(object):
         #sys.stderr.write("colorstep: %s\n" % str(colorstep))
 
         ### Convert value to string given base and field-length
-        if op.integer and printtype in ('b', 'd', 'p' 'f'):
+        if op.integer and printtype in ('b', 'd', 'p', 'f'):
             ret, c = self.dchg(value, width, base)
         elif op.float and printtype in ('b', 'd', 'p', 'f'):
             ret, c = self.fchg(value, width, base)
