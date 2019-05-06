@@ -74,8 +74,7 @@ void SceneGroup::updateTimeAxis(void)
     }
 
     if (console->logLevel(QedApp::DebugProtocol)) {
-	console->post(QedApp::DebugProtocol,
-		"SceneGroup::updateTimeAxis: tz=%s",
+	console->post("SceneGroup::updateTimeAxis: tz=%s",
 		(const char *)tz.toLatin1());
     }
 }
@@ -96,7 +95,7 @@ void SceneGroup::adjustLiveWorldViewForward(QmcTime::Packet *packet)
 {
     double position = timePosition();
 
-    console->post("Fetching data at %s", QedApp::timeString(position));
+    console->post("SceneGroup::adjustLiveWorldViewForward: Fetching data at %s", QedApp::timeString(position));
     fetch();
 
     setTimeState(packet->state == QmcTime::StoppedState ?
@@ -124,7 +123,7 @@ void SceneGroup::adjustArchiveWorldViewForward(QmcTime::Packet *packet, bool set
     double position = timePosition();
     QedApp::timevalFromSeconds(timePosition(), &timeval);
     setArchiveMode(setmode, &timeval, delta);
-    console->post("Fetching data at %s", QedApp::timeString(position));
+    console->post("SceneGroup::adjustArchiveWorldViewForward: Fetching data at %s", QedApp::timeString(position));
     fetch();
 
     QedGroupControl::adjustArchiveWorldViewForward(packet, setup);
@@ -149,7 +148,7 @@ void SceneGroup::adjustArchiveWorldViewBackward(QmcTime::Packet *packet, bool se
     double position = timePosition();
     QedApp::timevalFromSeconds(timePosition(), &timeval);
     setArchiveMode(setmode, &timeval, delta);
-    console->post("Fetching data at %s", QedApp::timeString(position));
+    console->post("SceneGroup::adjustArchiveWorldViewBackward: Fetching data at %s", QedApp::timeString(position));
     fetch();
 
     QedGroupControl::adjustArchiveWorldViewBackward(packet, setup);
@@ -166,6 +165,7 @@ void SceneGroup::adjustStep(QmcTime::Packet *packet)
 
 void SceneGroup::step(QmcTime::Packet *packet)
 {
+    console->post("SceneGroup::step");
     QedGroupControl::step(packet);
     pmview->render(PmView::inventor, 0);
 }
