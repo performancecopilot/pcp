@@ -189,8 +189,7 @@ void QedGroupControl::step(QmcTime::Packet *packet)
 {
     double stepPosition = QedApp::timevalToSeconds(packet->position);
 
-    console->post(QedApp::DebugProtocol,
-	"GroupControl::step: stepping to time %.2f, delta=%.2f, state=%s",
+    console->post("QedGroupControl::step: stepping to time %.2f, delta=%.2f, state=%s",
 	stepPosition, my.realDelta, timeState());
 
     if ((packet->source == QmcTime::ArchiveSource &&
@@ -198,8 +197,10 @@ void QedGroupControl::step(QmcTime::Packet *packet)
 		my.timeState != ForwardState) ||
 	 (packet->state == QmcTime::BackwardState &&
 		my.timeState != BackwardState))) ||
-	 sideStep(stepPosition, my.realPosition, my.realDelta))
+	 sideStep(stepPosition, my.realPosition, my.realDelta)) {
+	console->post("QedGroupControl::step: no fetch");
 	return adjustWorldView(packet, false);
+    }
 
     my.pmtimeState = packet->state;
     my.position = packet->position;
@@ -220,7 +221,7 @@ void QedGroupControl::VCRMode(QmcTime::Packet *packet, bool dragMode)
 
 void QedGroupControl::setTimezone(QmcTime::Packet *packet, char *tz)
 {
-    console->post(QedApp::DebugProtocol, "GroupControl::setTimezone %s", tz);
+    console->post("QedGroupControl::setTimezone %s", tz);
     useTZ(QString(tz));
     (void)packet;
 }
