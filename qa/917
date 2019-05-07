@@ -60,7 +60,8 @@ seinfo -t >$tmp.types
 echo '/^#/d' >$tmp.sed
 echo '/^!/s// /' >>$tmp.sed
 for type in container_runtime_t nsfs_t docker_var_lib_t unreserved_port_t \
-	    tracefs_t unconfined_service_t numad_t rpm_var_lib_t
+	    tracefs_t unconfined_service_t numad_t rpm_var_lib_t \
+	    virt_var_run_t
 do
     if grep "^[ 	][ 	]*$type\$" $tmp.types >/dev/null
     then
@@ -91,6 +92,9 @@ do
 		;;
 	    rpm_var_lib_t)
 		echo '/allow \[pcp_pmcd_t] \[rpm_var_lib_t]/d' >>$tmp.sed
+		;;
+	    virt_var_run_t)
+		echo '/allow \[pcp_pmcd_t] \[virt_var_run_t]/d' >>$tmp.sed
 		;;
 	esac
     fi
