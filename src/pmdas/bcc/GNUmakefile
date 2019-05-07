@@ -38,7 +38,7 @@ build-me:	check_domain
 install_pcp install ::	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove Upgrade $(PYSCRIPT) $(PMDADIR)
-	$(INSTALL) -m 644 README $(CONFIGS) $(PMDADIR)
+	$(INSTALL) -m 644 README.md $(CONFIGS) $(PMDADIR)
 	$(INSTALL) -m 644 pmdautil.python $(PMDADIR)/pmdautil.python
 	@$(INSTALL_MAN)
 
