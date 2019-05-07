@@ -1,4 +1,5 @@
 max_udp_packet_size 1472
 port 8125
+max_unprocessed_packets 1024
 tcp_address 0.0.0.0
 parser_type 0

@@ -8,17 +8,15 @@
 
 #define JSON_BUFFER_SIZE 4096
 
-void basic_parser_parse(char* buffer, ssize_t count, void (*callback)(statsd_datagram*)) {
+statsd_datagram* basic_parser_parse(char* buffer) {
     struct statsd_datagram* datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
-    // memset 0 doesnt work here for some reason
     *datagram = (struct statsd_datagram) {0};
     int current_segment_length = 0;
     int i = 0;
     char previous_delimiter = ' ';
+    int count = strlen(buffer);
     char *segment = (char *) malloc(count); // cannot overflow since whole segment is count anyway
-    if (segment == NULL) {
-        die(__LINE__, "Unable to assign memory for StatsD datagram message parsing");
-    }
+    ALLOC_CHECK("Unable to assign memory for StatsD datagram message parsing.");
     const char INSTANCE_TAG_IDENTIFIER[] = "instance";
     char *json_key = NULL;
     char *json_value = NULL;
@@ -39,35 +37,25 @@ void basic_parser_parse(char* buffer, ssize_t count, void (*callback)(statsd_dat
             char* attr = (char *) malloc(current_segment_length + 1);
             strncpy(attr, segment, current_segment_length);
             attr[current_segment_length] = '\0';
-            if (attr == NULL) {
-                die(__LINE__, "Not enough memory to parse StatsD datagram segment");
-            }
+            ALLOC_CHECK("Not enough memory to parse StatsD datagram segment.");
             if (buffer[i] == '.') {
                 datagram->data_namespace = (char *) malloc(current_segment_length + 1);
-                if (datagram->data_namespace == NULL) {
-                    die(__LINE__, "Not enough memory to save data_namespace attribute");
-                }
+                ALLOC_CHECK("Not enough memory to save data_namespace attribute.");
                 sanitize_string(attr);
                 memcpy(datagram->data_namespace, attr, current_segment_length + 1);
                 previous_delimiter = '.';
             } else if (buffer[i] == ':' && (previous_delimiter == ' ' || previous_delimiter == '.')) {
                 datagram->metric = (char *) malloc(current_segment_length + 1);
-                if (datagram->metric == NULL) {
-                    die(__LINE__, "Not enough memory to save metric attribute.");
-                }
+                ALLOC_CHECK("Not enough memory to save metric attribute.");
                 sanitize_string(attr);
                 memcpy(datagram->metric, attr, current_segment_length + 1);
             } else if ((buffer[i] == ',' || buffer[i] == ':') && previous_delimiter == '=') {
                 json_value = (char *) realloc(json_value, current_segment_length + 1);
-                if (json_value == NULL) {
-                    die(__LINE__, "Not enough memory for tag value buffer.");
-                }
+                ALLOC_CHECK("Not enough memory fot tag value buffer.");
                 memcpy(json_value, attr, current_segment_length + 1);
                 if (strcmp(json_key, INSTANCE_TAG_IDENTIFIER) == 0) {
                     datagram->instance = (char *) malloc(current_segment_length + 1);
-                    if (datagram->instance == NULL) {
-                        die(__LINE__, "Not enough memory for instance identifier");
-                    }
+                    ALLOC_CHECK("Not enough memory for instance identifiers.");
                     memcpy(datagram->instance, attr, current_segment_length + 1);
                 } else {
                     if (any_tags == 0) {
@@ -106,16 +94,12 @@ void basic_parser_parse(char* buffer, ssize_t count, void (*callback)(statsd_dat
                 }
             } else if (buffer[i] == '=' && previous_delimiter == ',') {
                 json_key = (char *) realloc(json_key, current_segment_length + 1);
-                if (json_key == NULL) {
-                    die(__LINE__, "Not enough memory for tag key buffer.");
-                }
+                ALLOC_CHECK("Not enough memory for tag key buffer.");
                 memcpy(json_key, attr, current_segment_length + 1);
                 previous_delimiter = '=';
             } else if (buffer[i] == ',') {
                 datagram->metric = (char *) malloc(current_segment_length + 1);
-                if (datagram->metric == NULL) {
-                    die(__LINE__, "Not enough memory to save metric attribute.");
-                }
+                ALLOC_CHECK("Not enough memory to save metric attribute.");
                 sanitize_string(attr);
                 memcpy(datagram->metric, attr, current_segment_length + 1);
                 previous_delimiter = ',';
@@ -131,23 +115,17 @@ void basic_parser_parse(char* buffer, ssize_t count, void (*callback)(statsd_dat
                 previous_delimiter = '|';
             } else if (buffer[i] == '@') {
                 datagram->type = (char *) malloc(current_segment_length + 1);
-                if (datagram->type == NULL) {
-                    die(__LINE__, "Not enough memory to save type attribute.");
-                }
+                ALLOC_CHECK("Not enough memory to save type attribute.");
                 memcpy(datagram->type, attr, current_segment_length + 1);
                 previous_delimiter = '@';
             } else if (buffer[i] == '\n') {
                 if (previous_delimiter == '@') {
                     datagram->sampling = (char *) malloc(current_segment_length + 1);
-                    if (datagram->sampling == NULL) {
-                        die(__LINE__, "Not enough memory to save sampling attribute.");
-                    }
+                    ALLOC_CHECK("Not enough memory for datagram sampling.");
                     memcpy(datagram->sampling, attr, current_segment_length + 1);
                 } else {
                     datagram->type = (char *) malloc(current_segment_length + 1);
-                    if (datagram->type == NULL) {
-                        die(__LINE__, "Not enough memory to save type attribute.");
-                    }
+                    ALLOC_CHECK("Not enough memory to save type attribute.");
                     memcpy(datagram->type, attr, current_segment_length + 1);
                 }
             }
@@ -162,13 +140,10 @@ void basic_parser_parse(char* buffer, ssize_t count, void (*callback)(statsd_dat
         int json_len = strlen(tags_json_buffer);
         tags_json_buffer[json_len - 1] = '}';
         datagram->tags = (char *) malloc(json_len + 1);
-        if (datagram->tags == NULL) {
-            die(__LINE__, "Not enough memory to save tags JSON");
-        }
+        ALLOC_CHECK("Not enough memory to save tags JSON.");
         memcpy(datagram->tags, tags_json_buffer, json_len);
         datagram->tags[json_len] = '\0';
     }
-    callback(datagram);
-    free_datagram(datagram);
     free(segment);
+    return datagram;
 }

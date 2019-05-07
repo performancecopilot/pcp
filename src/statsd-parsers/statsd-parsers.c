@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <string.h>
 #include <netdb.h>
+#include <chan.h>
 #include "statsd-parsers.h"
 #include "basic/basic.h"
 #include "ragel/ragel.h"
@@ -13,16 +14,10 @@
 const int PARSER_TRIVIAL = 0;
 const int PARSER_RAGEL = 1;
 
-void statsd_parser_listen(agent_config* config, int parser_type, void (*callback)(statsd_datagram*)) {
-    if (!(parser_type == PARSER_TRIVIAL || parser_type == PARSER_RAGEL)) {
-        die(__LINE__, "Incorrect parser type given.");
-    }
-    void (*handle_datagram)(char[], ssize_t, void (statsd_datagram*));
-    if (parser_type == PARSER_TRIVIAL) {
-        handle_datagram = &basic_parser_parse;
-    } else {
-        // handle_datagram = &ragel_parses_parse;
-    }
+void* statsd_network_listen(void* args) {
+    agent_config* config = ((statsd_listener_args*)args)->config;
+    chan_t* unprocessed_datagrams = ((statsd_listener_args*)args)->unprocessed_datagrams;
+    
     const char* hostname = 0;
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
@@ -42,10 +37,8 @@ void statsd_parser_listen(agent_config* config, int parser_type, void (*callback
     if (bind(fd, res->ai_addr, res->ai_addrlen) == -1) {
         die(__LINE__, "failed binding socket (err=%s)", strerror(errno));
     }
-    if (config->verbose == 1) {
-        printf("Socket enstablished. \n");
-        printf("Waiting for datagrams. \n");
-    }
+    verbose_log("Socket enstablished.");
+    verbose_log("Waiting for datagrams.");
     freeaddrinfo(res);
     int max_udp_packet_size = config->max_udp_packet_size;
     char *buffer = (char *) malloc(max_udp_packet_size);
@@ -58,13 +51,52 @@ void statsd_parser_listen(agent_config* config, int parser_type, void (*callback
         } 
         // since we checked for -1
         else if ((signed int)count == max_udp_packet_size) { 
-            warn(__LINE__, "datagram too large for buffer: truncated and skipped");
+            warn(__LINE__, "Datagram too large for buffer: truncated and skipped");
         } else {
-            handle_datagram(buffer, count, callback);
+            unprocessed_statsd_datagram* datagram = (unprocessed_statsd_datagram*) malloc(sizeof(unprocessed_statsd_datagram));
+            ALLOC_CHECK("Unable to assign memory for struct representing unprocessed datagrams.");
+            datagram->value = (char*) malloc(sizeof(char) * (count + 1));
+            ALLOC_CHECK("Unable to assign memory for datagram value.");
+            strncpy(datagram->value, buffer, count);
+            datagram->value[count + 1] = '\0';
+            chan_send(unprocessed_datagrams, datagram);
         }
         memset(buffer, 0, max_udp_packet_size);
     }
     free(buffer);
+    return NULL;
+}
+
+
+statsd_listener_args* create_listener_args(agent_config* config, chan_t* unprocessed_channel) {
+    struct statsd_listener_args* listener_args = (struct statsd_listener_args*) malloc(sizeof(struct statsd_listener_args));
+    ALLOC_CHECK("Unable to assign memory for listener arguments.");
+    listener_args->config = (agent_config*) malloc(sizeof(agent_config));
+    ALLOC_CHECK("Unable to assign memory for listener config.");
+    listener_args->config = config;
+    listener_args->unprocessed_datagrams = unprocessed_channel;
+    return listener_args;
+}
+
+statsd_parser_args* create_parser_args(agent_config* config, chan_t* unprocessed_channel, chan_t* parsed_channel) {
+    struct statsd_parser_args* parser_args = (struct statsd_parser_args*) malloc(sizeof(struct statsd_parser_args));
+    ALLOC_CHECK("Unable to assign memory for parser arguments.");
+    parser_args->config = (agent_config*) malloc(sizeof(agent_config*));
+    ALLOC_CHECK("Unable to assign memory for parser config.");
+    parser_args->config = config;
+    parser_args->unprocessed_datagrams = unprocessed_channel;
+    parser_args->parsed_datagrams = parsed_channel;
+    return parser_args;
+}
+
+consumer_args* create_consumer_args(agent_config* config, chan_t* parsed_channel) {
+    struct consumer_args* consumer_args = (struct consumer_args*) malloc(sizeof(struct consumer_args));
+    ALLOC_CHECK("Unable to assign memory for parser aguments.");
+    consumer_args->config = (agent_config*) malloc(sizeof(agent_config*));
+    ALLOC_CHECK("Unable to assign memory for parser config.");
+    consumer_args->config = config;
+    consumer_args->parsed_datagrams = parsed_channel;
+    return consumer_args;
 }
 
 void print_out_datagram(statsd_datagram* datagram) {
@@ -87,4 +119,24 @@ void free_datagram(statsd_datagram* datagram) {
     free(datagram->type);
     free(datagram->sampling);
     free(datagram);
+}
+
+void* statsd_parser_consume(void* args) {
+    chan_t* unprocessed_channel = ((statsd_parser_args*)args)->unprocessed_datagrams;
+    chan_t* parsed_channel = ((statsd_parser_args*)args)->parsed_datagrams;
+    agent_config* config = ((statsd_parser_args*)args)->config;
+    statsd_datagram* (*parse_datagram)(char*);
+    if (config->parser_type == PARSER_TRIVIAL) {
+        parse_datagram = &basic_parser_parse;
+    } else {
+        // parse_datagram = &ragel_parser_parse;
+        return NULL;
+    }
+    unprocessed_statsd_datagram* datagram = (unprocessed_statsd_datagram*) malloc(sizeof(unprocessed_statsd_datagram));
+    ALLOC_CHECK("Unable to allocate space for unprocessed statsd datagram.");
+    while(1) {
+        *datagram = (unprocessed_statsd_datagram) { 0 };
+        chan_recv(unprocessed_channel, (void *)&datagram);
+        chan_send(parsed_channel, parse_datagram(datagram->value));
+    }
 }

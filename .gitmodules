@@ -1,0 +1,6 @@
+[submodule "vendor/chan"]
+	path = vendor/chan
+	url = https://github.com/tylertreat/chan.git
+[submodule "vendor/HdrHistogram_c"]
+	path = vendor/HdrHistogram_c
+	url = https://github.com/HdrHistogram/HdrHistogram_c.git

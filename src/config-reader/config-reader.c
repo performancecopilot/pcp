@@ -46,13 +46,9 @@ void read_agent_config_file(agent_config** dest, char* path) {
     }
     FILE *config = fopen(path, "r");
     char* option = (char *) malloc(256);
-    if (option == NULL) {
-        die(__LINE__, "Unable to assign memory for parsing options file");
-    }
+    ALLOC_CHECK("Unable to assign memory for parsing options file.");
     char* value = (char *) malloc(256);
-    if (value == NULL) {
-        die(__LINE__, "Unable to assign memory for parsing options file.");
-    }
+    ALLOC_CHECK("Unable to assing memory fo parsing options files.");
     const char MAX_UDP_PACKET_SIZE_OPTION[] = "max_udp_packet_size";
     const char PORT_OPTION[] = "port";
     const char TCP_ADDRESS_OPTION[] = "tcp_address";
@@ -69,15 +65,11 @@ void read_agent_config_file(agent_config** dest, char* path) {
             (*dest)->max_udp_packet_size = strtoull(value, NULL, 10);
         } else if (strcmp(option, PORT_OPTION) == 0) {
             (*dest)->port = (char *) malloc(strlen(value));
-            if (&(*dest)->port == NULL) {
-                die(__LINE__, "Unable to assign memory for port number.");
-            }
+            ALLOC_CHECK("Unable to assign memory for port number.");
             strncat((*dest)->port, value, strlen(value));
         } else if (strcmp(option, TCP_ADDRESS_OPTION) == 0) {
             (*dest)->tcp_address = (char *) malloc(strlen(value));
-            if (&(*dest)->tcp_address == NULL) {
-                die(__LINE__, "Unable to assign memory for tcp address.");
-            }
+            ALLOC_CHECK("Unable to assign memory for tcp address.");
             strncat((*dest)->tcp_address, value, strlen(value));
         } else if (strcmp(option, VERBOSE_OPTION) == 0) {
             (*dest)->verbose = atoi(value);
@@ -121,10 +113,9 @@ void read_agent_config_cmd(agent_config** dest, int argc, char **argv) {
                 /* If this option set a flag, do nothing else now. */
                 if (long_options[option_index].flag != 0)
                     break;
-                printf("option %s", long_options[option_index].name);
+                verbose_log("option %s:", long_options[option_index].name);
                 if (optarg)
-                    printf(" with arg %s", optarg);
-                printf("\n");
+                    verbose_log(" with arg %s", optarg);
                 break;
             case 'u':
                 (*dest)->max_udp_packet_size = strtoll(optarg, NULL, 10);
