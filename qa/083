@@ -165,15 +165,13 @@ echo "Running the access tests"
 eval `./getpmcdhosts -L -n2 -v 'pcp>=3' | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 if [ -z "$other1" ]
 then
-    echo "Cannot find first remote host running pmcd v2.x" >$seq.notrun
-    status=1
-    exit
+    _notrun "Cannot find first remote host running pmcd v2.x"
+    # NOTREACHED
 fi
 if [ -z "$other2" ]
 then
-    echo "Cannot find second remote host running pmcd v2.x" >$seq.notrun
-    status=1
-    exit
+    _notrun "Cannot find second remote host running pmcd v2.x"
+    # NOTREACHED
 fi
 echo "other1=$other1" >>$here/$seq.full
 echo "other2=$other2" >>$here/$seq.full

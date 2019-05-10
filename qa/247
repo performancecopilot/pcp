@@ -18,9 +18,8 @@ if grep -q 'pmRegisterDerived' $PCP_INC_DIR/pmapi.h
 then
     :
 else
-    echo "No derived metric support" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "No derived metric support"
+    # NOTREACHED
 fi
 
 # For this test, don't load any global derived metric configs by default. 

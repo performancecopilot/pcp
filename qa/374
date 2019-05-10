@@ -194,9 +194,9 @@ do
     host=`eval $cmd`
     if [ -z "$host" ]
     then
-	echo "Cannot find a 64-bit host running PCP" >$seq.notrun
 	need_clean=false
-	exit
+	_notrun "Cannot find a 64-bit host running PCP"
+	# NOTREACHED
     else
 	echo
 	echo "=== pmlogger host type: $type ===" | sed 's/\\>//'

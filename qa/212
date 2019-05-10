@@ -16,9 +16,8 @@ echo "QA output created by $seq"
 case $PCP_PLATFORM
 in
     *)
-	echo "This version of cisco PMDA does not use sprocs" >$seq.notrun
-	echo "$seq: [not run] `cat $seq.notrun`"
-	exit 0
+	_notrun "This version of cisco PMDA does not use sprocs"
+	# NOTREACHED
 	;;
 esac
 

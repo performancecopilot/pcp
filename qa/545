@@ -11,9 +11,8 @@ echo "QA output created by $seq"
 
 if [ "`pmsocks echo ok 2>&1`" != ok ]
 then
-    echo "pmsocks is not installed and/or not configured" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "pmsocks is not installed and/or not configured"
+    # NOTREACHED
 fi
 
 # get standard environment, filters and checks

@@ -26,8 +26,8 @@ _filter()
 host=`./getpmcdhosts -p single -n 1 -v 'pcp>=2' 2>$tmp.out`
 if [ -z "$host" ]
 then
-    cat $tmp.out >$seq.notrun
-    exit
+    _notrun "`cat $tmp.out`"
+    # NOTREACHED
 fi
 
 # real QA test starts here

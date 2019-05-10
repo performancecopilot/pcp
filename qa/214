@@ -17,8 +17,8 @@ if pmlogextract -\? 2>&1 | grep -q .-f
 then
     :
 else
-    echo "No -f option for pmlogextract to select output timezone" >$seq.notrun
-    exit
+    _notrun "No -f option for pmlogextract to select output timezone"
+    # NOTREACHED
 fi
 
 status=0	# success is the default!

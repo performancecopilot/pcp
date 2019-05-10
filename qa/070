@@ -19,8 +19,8 @@ prog=src/template
 remote=`./getpmcdhosts -L -n 1 2>$tmp.out`
 if [ -z "$remote" ]
 then
-    cat $tmp.out >$seq.notrun
-    exit
+    _notrun "`cat $tmp.out`"
+    # NOTREACHED
 fi
 
 _cleanup()
