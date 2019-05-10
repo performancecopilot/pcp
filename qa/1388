@@ -48,6 +48,7 @@ _cleanup()
     _service pcp start 2>&1 | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
+    _service pmwebd start 2>&1 | _filter_pmwebd_start
 
     $sudo rm -f $tmp.*
 }
@@ -90,6 +91,7 @@ _wait_for_pmcd
 _wait_for_pmlogger
 
 echo "Start pmwebd with mandatory authentication"
+_service pmwebd stop 2>&1 | _filter_pmwebd_stop
 $PCP_BINADM_DIR/pmwebd $webargs -p $webport -l $tmp.out -v -t5 -C &
 webpid=$!
 echo "pid=$webpid" >>$seq.full
