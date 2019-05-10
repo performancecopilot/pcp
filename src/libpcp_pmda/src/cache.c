@@ -743,7 +743,7 @@ load_cache(hdr_t *h)
 	pmNotifyErr(LOG_ERR, 
 	     "pmdaCacheOp: %s: empty file?", filename);
 	fclose(fp);
-	return PM_ERR_GENERIC;
+	return 0;
     }
     /* First grab the file version. */
     s = sscanf(buf, "%d ", &x);

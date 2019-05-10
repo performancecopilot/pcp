@@ -372,7 +372,11 @@ load tests ...
 -- empty file --
 Load the instance domain ...
 [DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/251.13: empty file?
-PMDA_CACHE_LOAD failed: Generic error, already reported above
+PMDA_CACHE_HIDE failed for "fubar-001": Unknown or illegal instance identifier
+PMDA_CACHE_CULL failed for "fubar-003": Unknown or illegal instance identifier
+pmdaCacheDump: indom 251.13: nentry=2 ins_mode=0 hstate=3 hsize=16
+          0    active (nil) fubar-002
+          1    active (nil) fubar-009
 -- short header --
 Load the instance domain ...
 [DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/251.13: illegal cache header record: 1
