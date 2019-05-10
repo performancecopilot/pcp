@@ -38,22 +38,30 @@ audit=/var/log/audit/audit.log
 sudo=`which sudo`
 
 # Did pmlogger.daily get run as expected?
+# But don't bother if it is just after midnight!
 #
-yesterday=`pmdate -1d %Y%m%d`
-host=`hostname`
-case $host
+case `pmdate %H:%M`
 in
-    # CONFIGURE-ME
-    # - may need to add extra hosts here to enable this test
-    #
-    bozo|bozo-vm)
-	    if [ ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta.xz -a ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta ]
-	    then
-		echo "check.callback: fail: pmlogger.daily not well!"
-		echo "Missing $yesterday archive ..."
-		ls -l $PCP_LOG_DIR/pmlogger/$host/$yesterday.*
-	    fi
-	    ;;
+    00:[012]*)
+	;;
+    *)
+	yesterday=`pmdate -1d %Y%m%d`
+	host=`hostname`
+	case $host
+	in
+	    # CONFIGURE-ME
+	    # - may need to add extra hosts here to enable this test
+	    #
+	    bozo|bozo-vm|vm01|vm03|vm36)
+		    if [ ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta.xz -a ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta ]
+		    then
+			echo "check.callback: fail: pmlogger.daily not well!"
+			echo "Missing $yesterday archive ..."
+			ls -l $PCP_LOG_DIR/pmlogger/$host/$yesterday.*
+		    fi
+		    ;;
+	esac
+	;;
 esac
 
 status=0
