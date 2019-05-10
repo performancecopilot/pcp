@@ -73,5 +73,10 @@ do
     | _filter
 done
 
+# this calls abort() on the error paths, so we may have core files ...
+# this is not cause for failing the test
+#
+rm -f core
+
 # success, all done
 exit
