@@ -98,7 +98,7 @@ fi
 
 echo
 echo "Kill off primary logger ..." | tee -a $here/$seq.full
-_service pmlogger stop
+_service pmlogger stop 2>&1 | _filter_pcp_stop
 _wait_pmlogger_end $pid
 echo 'connect primary' | pmlc 2>&1 | tee -a $here/$seq.full | _filter
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
@@ -116,7 +116,7 @@ echo 'connect primary' | pmlc
 
 # if it is present, get systemctl on the same page ...
 #
-_service pmlogger start
+_service pmlogger start 2>&1 | _filter_pcp_start
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 
 pid=`_get_primary_logger_pid`
@@ -130,7 +130,7 @@ fi
 
 echo
 echo "Kill off primary logger ..." | tee -a $here/$seq.full
-_service pmlogger stop
+_service pmlogger stop 2>&1 | _filter_pcp_stop
 _wait_pmlogger_end $pid
 echo 'connect primary' | pmlc 2>&1 | tee -a $here/$seq.full | _filter
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
