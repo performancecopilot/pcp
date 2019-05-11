@@ -90,9 +90,14 @@ _service pcp restart 2>&1 | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger
 
+if which systemctl >/dev/null
+then
+    $sudo systemctl daemon-reload
+fi
+
 echo "Start pmwebd with mandatory authentication"
 _service pmwebd stop 2>&1 | _filter_pmwebd_stop
-$PCP_BINADM_DIR/pmwebd $webargs -p $webport -l $tmp.out -v -t5 -C &
+$PCP_BINADM_DIR/pmwebd $webargs -p $webport -vvv -l $tmp.out -v -t5 -C &
 webpid=$!
 echo "pid=$webpid" >>$seq.full
 echo "webport=$webport" >>$seq.full
@@ -111,6 +116,11 @@ echo
 echo && echo "=== pmwebd with authentication (expect success) ==="
 curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fusername%3D$username%26password%3Dy" 2>&1 | _filter_context
 echo
+curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fpassword%3Dy%26username%3D$username" 2>&1 | _filter_context
+echo
+
+echo "=== pmwebd log ===" >>$seq.full
+cat $tmp.out >>$seq.full
 
 status=0
 exit
