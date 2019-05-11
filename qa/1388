@@ -24,6 +24,18 @@ test $? -eq 0 || _notrun 'No client support for plain authentication'
 $pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1
 test $? -eq 0 || _notrun 'No server support for plain authentication'
 
+if which pkg-config >/dev/null 2>&1
+then
+    ver="`pkg-config --modversion libmicrohttpd`"
+    case $ver
+    in
+	0.9.62)
+		_notrun "pmwebd does not work with version $ver of libmicrohttpd"
+		# NOTREACHED
+		;;
+    esac
+fi
+
 $sudo rm -f $tmp.* $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
@@ -90,7 +102,7 @@ _service pcp restart 2>&1 | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger
 
-if which systemctl >/dev/null
+if which systemctl >/dev/null 2>&1
 then
     $sudo systemctl daemon-reload
 fi
