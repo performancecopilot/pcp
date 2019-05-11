@@ -108,6 +108,9 @@ mhd_get_iterator (void *cls, enum MHD_ValueKind kind, const char *key, const cha
     (void) kind;
     http_params *c = (http_params *) cls;
     assert (c);
+    if (verbosity > 2) {
+	cerr << "Debug: mhd_get_iterator: kind=" << kind << " key=" << key << " value=\"" << value << "\"" << endl;
+    }
     c->insert (make_pair (string (key), string (value ? value : "")));
     return MHD_YES;
 }
@@ -223,9 +226,10 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
             stringstream str;
             str << version << " " << method << " " << url;
             if (verbosity > 1) {
+		int	i = 0;
                 for (http_params::iterator it = mhd_cc->params.begin (); it != mhd_cc->params.end ();
-                        it++) {
-                    str << " " << it->first << "=" << it->second;
+                        it++, i++) {
+                    str << " [" << i << "]" << it->first << "=" << it->second;
                 }
             }
             connstamp (clog, connection) << str.str () << endl;
