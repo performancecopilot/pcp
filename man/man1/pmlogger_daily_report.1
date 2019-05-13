@@ -30,11 +30,8 @@
 .SH DESCRIPTION
 .B pmlogger_daily_report
 and the associated
-.BR crontab (5)
-entry (depending on local platform, either 
-.I $PCP_ETC_DIR/cron.d/pcp-pmlogger-daily-report
-or
-.IR $PCP_SYSCONF_DIR/pmlogger/crontab-daily-report )
+.BR systemd (1)
+services
 write daily performance summary reports, much like those produced by 
 .BR sadc (1)
 and the
@@ -43,10 +40,11 @@ utility.
 .PP
 All of the command line arguments are optional and intended to be self
 explanatory.
-If no arguments are specified,
+The service is not enabled by default.
+If the service is enabled and no arguments are specified,
 .B pmlogger_daily_report
 will be run by
-.BR cron (8)
+.BR systemd
 at 2am each morning and write a performance summary report named
 .BI sar XX
 (where
@@ -64,11 +62,6 @@ directory by default, but this may be changed with the
 .B \-o
 option to a different
 .IR directory .
-Note the default
-.BR crontab (5)
-entry currently specifies
-.B $PCP_LOG_DIR/sa
-as the output directory; this may be changed in the future.
 .PP
 If the
 .B \-a
@@ -101,9 +94,6 @@ Note that there are suffciently flexible command line options for
 to be used to read any
 .B archivefile
 and write the report to any output directory.
-As such, this tool can be configured by editing the crontab entry,
-.B $PCP_ETC_DIR/cron.d/pcp-pmlogger-daily-report
-and adding whatever command line options are required.
 .PP
 If the
 .B \-p
@@ -157,8 +147,8 @@ capture the required archives needed by
 .BR pmlogger_daily_report .
 .PP
 In order to ensure that mail is not unintentionally sent when this
-script is run from
-.BR cron (8)
+script is run by
+.BR systemd (1),
 diagnostics are always sent to a log file.
 By default, this file is
 .B $PCP_LOG_DIR/pmlogger/pmlogger_daily_report.log
@@ -171,9 +161,7 @@ renamed with a
 suffix (overwriting any log file saved earlier) before diagnostics
 are generated to the log file.
 .PP
-The output from the
-.BR cron (8)
-execution of the script may be extended using the
+The output from the execution of the script may be extended using the
 .B \-V
 option which enables verbose tracing of activity.
 By default the script generates no log output unless some error or
@@ -198,7 +186,6 @@ as described in
 .BR pmlogger (1),
 .BR pmrep (1),
 .BR sadc (1),
-.BR crontab (5),
 .BR sa2 (8)
 and
-.BR cron (8).
+.BR systemd (1).

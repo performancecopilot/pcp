@@ -2698,8 +2698,6 @@ pmieconf -c enable dmthin
     systemctl restart pmie >/dev/null 2>&1
     systemctl enable pmcd >/dev/null 2>&1
     systemctl enable pmlogger >/dev/null 2>&1
-    systemctl enable pmlogger_daily_report >/dev/null 2>&1
-    systemctl enable pmlogger_daily_report-poll >/dev/null 2>&1
     systemctl enable pmie >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
