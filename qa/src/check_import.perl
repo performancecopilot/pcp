@@ -139,11 +139,11 @@ check($_, "pmiPutLabel");
 $_ = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 3,
 		  "NewInstancesLabel245_1__3", "NewInstancesLabel245_1__3Content");
 check($_, "pmiPutLabel");
-$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "True" );
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "true" );
 check($_, "pmiPutLabel");
-$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "False" );
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "false" );
 check($_, "pmiPutLabel");
-$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextNull", "Null" );
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextNull", "null" );
 check($_, "pmiPutLabel");
 
 # These are duplicates - which are ok.
@@ -167,11 +167,11 @@ check($_, "pmiPutLabel");
 $_ = pmiPutLabel(PM_LABEL_INSTANCES, pmInDom_build(245,1), 3,
 		  "NewInstancesLabel245_1__3", "NewInstancesLabel245_1__3Content");
 check($_, "pmiPutLabel");
-$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "True" );
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "true" );
 check($_, "pmiPutLabel");
-$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "False" );
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "false" );
 check($_, "pmiPutLabel");
-$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextNull", "Null" );
+$_ = pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "ContextNull", "null" );
 check($_, "pmiPutLabel");
 
 # These are replacements - which are ok.

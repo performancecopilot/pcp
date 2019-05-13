@@ -326,7 +326,14 @@ ipc.o
     __pmLastUsedFd		# guarded by ipc_lock mutex
     ipcentrysize		# guarded by ipc_lock mutex
     ipctablecount		# guarded by ipc_lock mutex
-jsmn.o
+jsonsl.o
+    Allowed_Escapes		# const
+    Allowed_Whitespace		# const
+    Escape_Equivs		# const
+    Special_Endings		# const
+    Special_Table		# const
+    String_No_Passthrough	# const
+
 labels.o
 lock.o
     ?lock_lock			# local mutex

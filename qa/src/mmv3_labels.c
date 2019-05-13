@@ -99,7 +99,9 @@ main(int argc, char **argv)
     mmv_stats_add_instance_label(registry, 1, 1,
 		    "item_label2", "[1,2,3,4,5]", MMV_ARRAY_TYPE, 0);
     mmv_stats_add_instance_label(registry, 1, 2,
-		    "item_label3", "{\"a\":1,\"b\":2}", MMV_MAP_TYPE, 1);
+		    "item_label3", "{\"a\":1}", MMV_MAP_TYPE, 1);
+    mmv_stats_add_instance_label(registry, 1, 2,
+		    "item_label3", "{\"b\":2}", MMV_MAP_TYPE, 1);
 
     map = mmv_stats_start(registry);
     if (!map) {

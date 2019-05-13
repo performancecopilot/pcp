@@ -124,7 +124,7 @@ Full help text for my.metric.foo
   text[2] indom=245.1 [One line text for indom 'eek']
   text[3] indom=245.1 
 Full help text for indom 'eek'
-  label[0] context     Context labels (111 bytes): {"ContextFalse":False,"ContextNull":Null,"ContextTrue":True,"NewContextLabel":"ReplacementContextLabelContent"}
+  label[0] context     Context labels (111 bytes): {"ContextFalse":false,"ContextNull":null,"ContextTrue":true,"NewContextLabel":"ReplacementContextLabelContent"}
         [0] name(2,12) : value(16,5) [context]
         [1] name(23,11) : value(36,4) [context]
         [2] name(42,11) : value(55,4) [context]
@@ -589,7 +589,7 @@ Full help text for my.metric.foo
   text[2] indom=245.1 [One line text for indom 'eek']
   text[3] indom=245.1 
 Full help text for indom 'eek'
-  label[0] context     Context labels (111 bytes): {"ContextFalse":False,"ContextNull":Null,"ContextTrue":True,"NewContextLabel":"ReplacementContextLabelContent"}
+  label[0] context     Context labels (111 bytes): {"ContextFalse":false,"ContextNull":null,"ContextTrue":true,"NewContextLabel":"ReplacementContextLabelContent"}
         [0] name(2,12) : value(16,5) [context]
         [1] name(23,11) : value(36,4) [context]
         [2] name(42,11) : value(55,4) [context]

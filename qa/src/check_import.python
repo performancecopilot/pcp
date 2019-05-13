@@ -78,9 +78,9 @@ def check_import(archive, hostname, timezone):
 		      "NewInstancesLabel245_1__1", "NewInstancesLabel245_1__1Content");
     log.pmiPutLabel(cpmapi.PM_LABEL_INSTANCES, indom, 3,
 		      "NewInstancesLabel245_1__3", "NewInstancesLabel245_1__3Content");
-    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "True");
-    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "False");
-    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextNull", "Null");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "true");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "false");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextNull", "null");
 
     # These are duplicates - which are ok.
     log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "NewContextLabel", "NewContextLabelContent" );
@@ -96,9 +96,9 @@ def check_import(archive, hostname, timezone):
 		      "NewInstancesLabel245_1__1", "NewInstancesLabel245_1__1Content");
     log.pmiPutLabel(cpmapi.PM_LABEL_INSTANCES, indom, 3,
 		      "NewInstancesLabel245_1__3", "NewInstancesLabel245_1__3Content");
-    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "True");
-    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "False");
-    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextNull", "Null");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextTrue", "true");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextFalse", "false");
+    log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "ContextNull", "null");
 
     # These are replacements - which are ok. */
     log.pmiPutLabel(cpmapi.PM_LABEL_CONTEXT, 0, 0, "NewContextLabel", "ReplacementContextLabelContent" );

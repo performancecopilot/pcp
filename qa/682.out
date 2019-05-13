@@ -71,24 +71,27 @@ TOC[4]: offset 104, string offset 576 (15 entries)
   [14/3904] indom shorttext2
   [15/4160] indom helptext2
 
-TOC[5]: offset 120, labels offset 4416 (6 entries)
+TOC[5]: offset 120, labels offset 4416 (7 entries)
   [1/4416] {"registry_label":"string"}
-        flags=0x8, identity=0x142
+        flags=0x48, identity=0x142
         internal=0xffffffff
   [2/4672] {"metric_label":null}
-        flags=0x90, identity=0x1
+        flags=0xd0, identity=0x1
         internal=0xffffffff
   [3/4928] {"indom_label":42.001}
-        flags=0x4, identity=0x1
+        flags=0x44, identity=0x1
         internal=0xffffffff
   [4/5184] {"item_label1":true}
-        flags=0xa0, identity=0x1
+        flags=0xe0, identity=0x1
         internal=0x0
   [5/5440] {"item_label2":[1,2,3,4,5]}
-        flags=0x20, identity=0x1
+        flags=0x60, identity=0x1
         internal=0x1
-  [6/5696] {"item_label3":{"a":1,"b":2}}
-        flags=0xa0, identity=0x1
+  [6/5696] {"item_label3":{"a":1}}
+        flags=0xe0, identity=0x1
+        internal=0x2
+  [7/5952] {"item_label3":{"b":2}}
+        flags=0xe0, identity=0x1
         internal=0x2
 === std err ===
 === filtered valgrind report ===
@@ -119,7 +122,7 @@ mmv.labels3.labels3.u32.counter PMID: 70.322.1 = 293931009 = 0x11850801
     inst [2 or "cpu3"] value 0
     inst [0 or "cpu0"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","indom_label":42.001,"item_label1":true,"machineid":"MACHINE","metric_label":null,"registry_label":"string"}
     inst [1 or "cpu1"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","indom_label":42.001,"item_label2":[1,2,3,4,5],"machineid":"MACHINE","metric_label":null,"registry_label":"string"}
-    inst [2 or "cpu3"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","indom_label":42.001,"item_label3":{"a":1,"b":2},"machineid":"MACHINE","metric_label":null,"registry_label":"string"}
+    inst [2 or "cpu3"] labels {"agent":"mmv","domainname":"DOMAIN","hostname":"HOSTNAME","indom_label":42.001,"item_label3.a":1,"item_label3.b":2,"machineid":"MACHINE","metric_label":null,"registry_label":"string"}
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector

@@ -12,8 +12,11 @@ failed number - "12": Invalid argument
 failed number - 12.13.13: Invalid argument
 failed array - 1,2,3]: Invalid argument
 failed array - [1,2,3: Invalid argument
+failed array - [1,2 3: Invalid argument
 failed map - "a":1,"b":2}: Invalid argument
 failed map - {"a":1,"b":2: Invalid argument
+failed map - {a":1,"b":2}: Invalid argument
+failed map - {a:1,"b":2}: Invalid argument
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: QAPATH/src/mmv3_bad_labels

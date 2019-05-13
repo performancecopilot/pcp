@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 Red Hat.
+ * Copyright (c) 2016-2019 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -18,18 +18,158 @@
 #include "libpcp.h"
 #include "pmda.h"
 #include "internal.h"
+#include "jsonsl.h"
 #include "sort_r.h"
 #include "fault.h"
-#include "jsmn.h"
 
 #define MAXLABELSET		(PM_MAXLABELS * 6)	/* 6 hierarchy levels */
 #define INC_TOKENS		64	/* parser tokens allocation increment */
 
-#define label_name(lp, json)	(json+(lp)->name)
-#define label_value(lp, json)	(json+(lp)->value)
+static int __pmMergeLabels(const char *, const char *, char *, int, int);
+static int __pmParseLabels(const char *, int, pmLabel *, int, __pmHashCtl *, int, char *, int *);
 
-static int __pmMergeLabels(const char *, const char *, char *, int);
-static int __pmParseLabels(const char *, int, pmLabel *, int, char *, int *);
+/*
+ * Parse JSONB labels string, building up the array index as we go.
+ * This simplified format is parsed:
+ * {
+ *    "name1": value,
+ *    "name2": [1,2],
+ *    "name3": "str",
+ *    "name4": {"a":1,"b":"2"},
+ *    [...]
+ * }
+ *
+ * As we parse the original string, we remove any whitespace and
+ * produce "clean" JSONB form into the given buffer.  The labels
+ * array indexes into this sanitized buffer.
+ *
+ * We manage label name parsing using a 'stack' to help with any
+ * compound JSON structures (maps, which can contain maps, ...)
+ *   e.g.  { "a": 1, "b": {"c": 3, "d": [4,5]} }
+ * This string contains three labels - "a", "b.c" and "b.d".
+ */
+
+enum parse_state { PARSE_START, PARSE_NAME, PARSE_VALUE,
+		   PARSE_ARRAY_VALUE, PARSE_OBJECT_VALUE };
+enum stack_style { STACK_DIRECT, STACK_COMPOUND };
+
+typedef struct parser {
+    enum parse_state	state;
+    int			error;
+    unsigned int	nlabels;
+    unsigned int	maxlabels;
+    __pmHashCtl		*compound;	/* offset-keyed compound-name hash */
+    pmLabel		*labels;
+    char		*buffer;	/* current offset in output buffer */
+    unsigned int	buflen;		/* remaining bytes in output buffer */
+    unsigned int	comma;
+    const char		*start;		/* start of input buffer */
+    const char		*token;		/* start of name/value (input buffer) */
+    const char		*array;		/* start of list/array (input buffer) */
+    const char		*jsonb;		/* start of output buffer */
+    unsigned int	name;		/* active label name (output buffer) */
+    unsigned int	namelen;	/* active name length (output buffer) */
+    unsigned int	namelevel;	/* active name jsonsl-parsing-level */
+    enum stack_style	stackstyle;	/* direct/compound name style */
+    unsigned int	stackdepth;	/* compound name depth */
+    unsigned int	stacklen;	/* length of compound name 'stack' */
+    unsigned int	stackseq;	/* number of 'stack' name changes */
+    unsigned int	nested;		/* indicates names already compounded */
+    char		*stack;		/* accumulated compound label name */
+} parser_t;
+
+#define MAX_RECURSION_DEPTH	256
+#define MAX_DESCENT_LEVEL	64
+
+static const char *
+action_string(jsonsl_action_t action)
+{
+    if (action == JSONSL_ACTION_PUSH) return "push";
+    if (action == JSONSL_ACTION_POP) return "pop";
+    if (action == JSONSL_ACTION_ERROR) return "error";
+    if (action == JSONSL_ACTION_UESCAPE) return "uescape";
+    return "?";
+}
+
+static const char *
+state_string(struct jsonsl_state_st *state)
+{
+    if (state->type == JSONSL_T_STRING) return "string";
+    if (state->type == JSONSL_T_HKEY) return "hkey";
+    if (state->type == JSONSL_T_OBJECT) return "object";
+    if (state->type == JSONSL_T_LIST) return "list";
+    if (state->type == JSONSL_T_SPECIAL) return "special";
+    if (state->type == JSONSL_T_UESCAPE) return "uescape";
+    return "?";
+}
+
+static const char *
+label_name(const pmLabel *lp, const char *json, __pmHashCtl *lc)
+{
+    __pmHashNode	*hp;
+
+    if (!(lp->flags & PM_LABEL_COMPOUND) || lc == NULL ||
+	(hp = __pmHashSearch(lp->name, lc)) == NULL)
+	return json + lp->name;
+    /* compound "a.b.c" style label name */
+    return (const char *)hp->data;
+}
+
+static void
+label_name_length(const pmLabel *lp, const char *json, __pmHashCtl *lc,
+		const char **name, int *length)
+{
+    __pmHashNode	*hp;
+
+    if (!(lp->flags & PM_LABEL_COMPOUND) || lc == NULL ||
+	(hp = __pmHashSearch(lp->name, lc)) == NULL) {
+	*name = json + lp->name;
+	*length = lp->namelen;
+    } else {
+	*name = hp->data;	/* compound "a.b.c" style label name */
+	*length = strlen(hp->data);
+    }
+}
+
+static inline const char *
+label_value(const pmLabel *lp, const char *json)
+{
+    return json + lp->value;
+}
+
+static __pmHashWalkState
+labels_hash_destroy_callback(const __pmHashNode *tp, void *cp)
+{
+    (void)cp;
+    free(tp->data);
+    return PM_HASH_WALK_DELETE_NEXT;
+}
+
+static void
+labels_hash_destroy(__pmHashCtl *compound)
+{
+    if (compound) {
+	__pmHashWalkCB(labels_hash_destroy_callback, NULL, compound);
+	__pmHashClear(compound);
+    }
+}
+
+static __pmHashWalkState
+labels_hash_duplicate_callback(const __pmHashNode *sp, void *cp)
+{
+    char	*name = strdup(sp->data);
+
+    if (name)
+	__pmHashAdd(sp->key, name, (__pmHashCtl *)cp);
+    return PM_HASH_WALK_NEXT;
+}
+
+static void
+labels_hash_duplicate(__pmHashCtl *source, void **target)
+{
+    if ((*target = calloc(1, sizeof(__pmHashCtl))) != NULL)
+	__pmHashWalkCB(labels_hash_duplicate_callback, *target, source);
+}
 
 /* coverity[+free] : arg-0 */
 void
@@ -42,6 +182,12 @@ pmFreeLabelSets(pmLabelSet *sets, int nsets)
 	    free(sets[i].labels);
 	if (sets[i].json)
 	    free(sets[i].json);
+	if (sets[i].compound && sets[i].hash) {
+	    sets[i].compound = 0;
+	    labels_hash_destroy(sets[i].hash);
+	    free(sets[i].hash);
+	    sets[i].hash = NULL;
+	}
     }
     if (sets != NULL) {
 	assert(nsets > 0);
@@ -78,6 +224,8 @@ __pmDupLabelSets(pmLabelSet *source, int nsets)
 	if ((target->labels = malloc(size)) == NULL)
 	    break;
 	memcpy(target->labels, source->labels, size);
+	if (source->compound && source->hash)
+	    labels_hash_duplicate(source->hash, &target->hash);
     }
     if (i == nsets)
 	return sets;
@@ -89,60 +237,78 @@ __pmDupLabelSets(pmLabelSet *source, int nsets)
 int
 __pmAddLabels(pmLabelSet **lspp, const char *extras, int flags)
 {
-    pmLabelSet	*lsp = *lspp;
-    pmLabel	labels[PM_MAXLABELS], *lp = NULL;
-    char	*json = NULL;
-    char	buffer[PM_MAXLABELJSONLEN];
-    char	result[PM_MAXLABELJSONLEN];
-    int		bytes, size, sts, i;
-
-    if (lsp)
-	json = lsp->json;
-
-    if ((sts = __pmMergeLabels(json, extras, buffer, sizeof(buffer))) < 0)
-	return sts;
-    bytes = sts;
+    __pmHashCtl		compound = {0};
+    pmLabelSet		*lsp = *lspp;
+    pmLabel		labels[PM_MAXLABELS], *lp = NULL;
+    char		*json = NULL;
+    char		buffer[PM_MAXLABELJSONLEN];
+    char		result[PM_MAXLABELJSONLEN];
+    int			bytes, size, sts, i;
 
     if (lsp) {
+	json = lsp->json;
+	sts = __pmMergeLabels(json, extras, buffer, sizeof(buffer), flags);
+	if (sts < 0)
+	    return sts;
+	bytes = sts;
+
 	if (lsp->json) free(lsp->json);
 	if (lsp->labels) free(lsp->labels);
+	if (lsp->compound && lsp->hash) {
+	    lsp->compound = 0;
+	    labels_hash_destroy(lsp->hash);
+	    free(lsp->hash);
+	}
+    } else {
+	if ((bytes = strlen(extras)) + 1 >= PM_MAXLABELJSONLEN)
+	    return -E2BIG;
+	strncpy(buffer, extras, bytes + 1);
     }
 
     size = sizeof(result);
-    if ((sts = __pmParseLabels(buffer, bytes,
-                                labels, PM_MAXLABELS, result, &size)) < 0) {
+    if ((sts = __pmParseLabels(buffer, bytes, labels, PM_MAXLABELS, &compound,
+				flags, result, &size)) < 0) {
 	if (lsp) memset(lsp, 0, sizeof(*lsp));
+	labels_hash_destroy(&compound);
 	return sts;
     }
 
     if (sts > 0) {
 	bytes = sts * sizeof(pmLabel);
-	if ((lp = malloc(bytes)) == NULL)
+	if ((lp = malloc(bytes)) == NULL) {
+	    labels_hash_destroy(&compound);
 	    return -ENOMEM;
+	}
 	memcpy(lp, labels, bytes);
 	for (i = 0; i < sts; i++)
 	    lp[i].flags |= flags;
     }
 
     if ((json = strndup(result, size + 1)) == NULL) {
+	labels_hash_destroy(&compound);
 	if (lsp) memset(lsp, 0, sizeof(*lsp));
 	if (lp) free(lp);
 	return -ENOMEM;
     }
 
     if (!lsp) {
-	if ((lsp = malloc(sizeof(pmLabelSet))) == NULL) {
+	if ((lsp = calloc(1, sizeof(pmLabelSet))) == NULL) {
+	    labels_hash_destroy(&compound);
 	    if (lp) free(lp);
 	    free(json);
 	    return -ENOMEM;
 	}
 	lsp->inst = PM_IN_NULL;
-	lsp->padding = 0;
     }
     lsp->nlabels = sts;
     lsp->jsonlen = size;
     lsp->json = json;
     lsp->labels = lp;
+    if (compound.hsize > 0 && compound.nodes > 0) {
+	lsp->compound = 1;
+	labels_hash_duplicate(&compound, &lsp->hash);
+    }
+    labels_hash_destroy(&compound);
 
     *lspp = lsp;
     return sts;
@@ -151,31 +317,39 @@ __pmAddLabels(pmLabelSet **lspp, const char *extras, int flags)
 int
 __pmParseLabelSet(const char *json, int jlen, int flags, pmLabelSet **set)
 {
-    pmLabelSet	*result;
-    pmLabel	*lp, labels[MAXLABELSET];
-    char	*bp, buf[PM_MAXLABELJSONLEN];
-    int		i, sts, nlabels, bsz = PM_MAXLABELJSONLEN;
+    __pmHashCtl		jh = {0};
+    pmLabelSet		*result;
+    pmLabel		*lp, labels[MAXLABELSET];
+    char		*bp, buf[PM_MAXLABELJSONLEN];
+    int			i, sts, nlabels, bsz = PM_MAXLABELJSONLEN;
 
     sts = nlabels = (!jlen || !json) ? 0 :
-	__pmParseLabels(json, jlen, labels, MAXLABELSET, buf, &bsz);
-    if (sts < 0)
+	__pmParseLabels(json, jlen, labels, MAXLABELSET, &jh, flags, buf, &bsz);
+    if (sts < 0) {
+	labels_hash_destroy(&jh);
 	return sts;
+    }
 
     if (nlabels > 0) {
-	if ((lp = calloc(nlabels, sizeof(*lp))) == NULL)
+	if ((lp = calloc(nlabels, sizeof(*lp))) == NULL) {
+	    labels_hash_destroy(&jh);
 	    return -ENOMEM;
+	}
+	flags = flags & ~(PM_LABEL_COMPOUND);
 	for (i = 0; i < nlabels; i++)
 	    labels[i].flags |= flags;
     } else {
 	lp = NULL;
     }
 
-    if ((result = (pmLabelSet *)malloc(sizeof(*result))) == NULL) {
+    if ((result = (pmLabelSet *)calloc(1, sizeof(*result))) == NULL) {
+	labels_hash_destroy(&jh);
 	if (lp) free(lp);
 	return -ENOMEM;
     }
     if (nlabels > 0) {
 	if ((bp = strndup(buf, bsz + 1)) == NULL) {
+	    labels_hash_destroy(&jh);
 	    free(result);
 	    if (lp) free(lp);
 	    return -ENOMEM;
@@ -191,30 +365,39 @@ __pmParseLabelSet(const char *json, int jlen, int flags, pmLabelSet **set)
 	memcpy(lp, labels, nlabels * sizeof(pmLabel));
     result->json = (char *)bp;
     result->jsonlen = bsz;
-    result->padding = 0;
     result->labels = lp;
+    if (jh.hsize > 0 && jh.nodes > 0) {
+	labels_hash_duplicate(&jh, &result->hash);
+	result->compound = 1;
+    }
+    labels_hash_destroy(&jh);
 
     *set = result;
     return 1;
 }
 
 static int
-namecmp4(const pmLabel *ap, const char *as, const pmLabel *bp, const char *bs)
+namecmp6(const pmLabel *ap, const char *as, __pmHashCtl *ac,
+	 const pmLabel *bp, const char *bs, __pmHashCtl *bc)
 {
-    int		sts;
+    const char	*name;
+    int		sts, length;
 
     if (ap->namelen > bp->namelen) {
-	if ((sts = strncmp(label_name(ap, as), label_name(bp, bs), bp->namelen)))
+	label_name_length(bp, bs, bc, &name, &length);
+	if ((sts = strncmp(label_name(ap, as, ac), name, length)))
 	    return sts;
 	return 1;	/* ap longer, so remainder sorts larger */
     }
     if (ap->namelen < bp->namelen) {
-	if ((sts = strncmp(label_name(ap, as), label_name(bp, bs), ap->namelen)))
+	label_name_length(ap, as, ac, &name, &length);
+	if ((sts = strncmp(name, label_name(bp, bs, bc), length)))
 	    return sts;
 	return -1;	/* bp longer, so remainder sorts larger */
     }
     /* (ap->namelen == bp->namelen) */
-    return strncmp(label_name(ap, as), label_name(bp, bs), ap->namelen);
+    label_name_length(ap, as, ac, &name, &length);
+    return strncmp(name, label_name(bp, bs, bc), length);
 }
 
 static int
@@ -222,16 +405,17 @@ namecmp(const void *a, const void *b, void *arg)
 {
     const pmLabel	*ap = (const pmLabel *)a;
     const pmLabel	*bp = (const pmLabel *)b;
-    const char		*json = (const char *)arg;
+    struct parser	*parser = (struct parser *)arg;
 
-    return namecmp4(ap, json, bp, json);
+    return namecmp6(ap, parser->jsonb, parser->compound,
+		    bp, parser->jsonb, parser->compound);
 }
 
 static int
-stash_chars(const char *s, int slen, char **buffer, int *buflen)
+stash_chars(const char *s, int slen, char **buffer, unsigned int *buflen)
 {
-    int		bytes = *buflen;
-    char	*bp = *buffer;
+    unsigned int	bytes = *buflen;
+    char		*bp = *buffer;
 
     if (slen >= bytes)
 	return -E2BIG;
@@ -245,29 +429,29 @@ stash_chars(const char *s, int slen, char **buffer, int *buflen)
 }
 
 static int
-stash_label(const pmLabel *lp, const char *json,
+stash_label(const pmLabel *lp, const char *json, __pmHashCtl *lc,
 	    pmLabel *olabel, const char *obuffer, int *no,
 	    char **buffer, int *buflen,
 	    int (*filter)(const pmLabel *, const char *, void *), void *arg)
 {
-    char	*bp = *buffer;
-    int		bytes = *buflen;
-    int		valuelen;
+    const char		*name;
+    char		*bp = *buffer;
+    int			bytes = *buflen;
+    int			valuelen, namelen;
 
     if (filter != NULL && filter(lp, json, arg) == 0)
 	return 0;
 
-    if ((lp->namelen + 2 + 1 + lp->valuelen + 1) >= bytes)
+    label_name_length(lp, json, lc, &name, &namelen);
+    if ((namelen + 2 + 1 + lp->valuelen + 1) >= bytes)
 	return -E2BIG;
 
     if (lp->valuelen) {
-	bytes = pmsprintf(bp, bytes, "\"%.*s\":%.*s,",
-			(int)lp->namelen, label_name(lp, json),
-			(int)lp->valuelen, label_value(lp, json));
+	bytes = pmsprintf(bp, bytes, "\"%.*s\":%.*s,", namelen, name,
+				(int)lp->valuelen, label_value(lp, json));
 	valuelen = lp->valuelen;
     } else {
-	bytes = pmsprintf(bp, bytes, "\"%.*s\":null,",
-			(int)lp->namelen, label_name(lp, json));
+	bytes = pmsprintf(bp, bytes, "\"%.*s\":null,", namelen, name);
 	valuelen = 4;
     }
 
@@ -287,261 +471,376 @@ stash_label(const pmLabel *lp, const char *json,
     return bytes;
 }
 
+/*
+ * Check length and characters in a given label meet the PCP naming rules.
+ * Return code is negative for invalid name, else zero or one indicating
+ * whether a compound name was detected.  Compound names may appear here
+ * only when the nested flag is set, indicating we're merging an already
+ * parsed and decoded label string.
+ */
 static int
-verify_label_name(pmLabel *lp, const char *json)
+verify_label_name(const char *name, size_t length, int nested)
 {
-    const char	*sp = json + lp->name;
-    const char	*start = sp;
-    size_t	length = lp->namelen;
+    const char		*start = name;
+    int			sts = 0;
 
     if (length == 0)
 	return -EINVAL;
-    if (!isalpha((int)*sp))	/* first character must be alphanumeric */
+    if (length >= MAXLABELNAMELEN)
+	return -E2BIG;
+    if (!isalpha((int)*name))	/* first character must be alphanumeric */
 	return -EINVAL;
-    while (++sp < (start + length)) {
-	if (isalnum((int)*sp) || *sp == '_')
+    while (++name < (start + length)) {
+	if (isalnum((int)*name) || *name == '_')	/* all the rest */
 	    continue;
+	if (*name == '.' && nested) {
+	    sts = 1;
+	    continue;
+	}
 	return -EINVAL;
     }
-    return 0;
-}
-
-/*
- * Sort and verify labels in the set - no (internal) duplicate
- * names are allowed, and the naming rules must be satisfied.
- */
-static int
-sort_labels(pmLabel *lp, int nlabels, const char *json)
-{
-    void	*data = (void *)json;
-    int		i;
-
-    if (nlabels > 1)
-	sort_r(lp, nlabels, sizeof(pmLabel), namecmp, data);
-
-    for (i = 0; i < nlabels-1; i++) {
-	if (namecmp(&lp[i], &lp[i+1], data) == 0) {
-	    if (pmDebugOptions.labels)
-		pmNotifyErr(LOG_ERR, "Label name duplicated %.*s",
-				(int)lp[i].namelen, label_name(&lp[i], json));
-	    return -EINVAL;
-	}
-	if (verify_label_name(&lp[i], json) < 0) {
-	    if (pmDebugOptions.labels)
-		pmNotifyErr(LOG_ERR, "Label name is invalid %.*s",
-			    (int)lp[i].namelen, label_name(&lp[i], json));
-	    return -EINVAL;
-	}
-    }
-
-    /* Verify the name of the final label */
-    assert(nlabels > 0); /* not called otherwise */
-    assert(i == nlabels - 1);
-    if (verify_label_name(&lp[i], json) < 0) {
-	if (pmDebugOptions.labels)
-	    pmNotifyErr(LOG_ERR, "Label name is invalid %.*s",
-			    (int)lp[i].namelen, label_name(&lp[i], json));
-	return -EINVAL;
-    }
-    return 0;
-}
-
-/*
- * Parse JSONB labels string, building up the array index as we go.
- * This simplified format is parsed:
- * {
- *    "name1": value,
- *    "name2": [1,2],
- *    "name3": "str",
- *    "name4": {"a":1,"b":"2"},
- *    [...]
- * }
- *
- * As we parse the original string, we remove any whitespace and
- * produce "clean" JSONB form into the given buffer.  The labels
- * array indexes into this sanitized buffer.
- */
-static int
-__pmParseLabels(const char *s, int slen,
-		pmLabel *labels, int maxlabels, char *buffer, int *buflen)
-{
-    enum { START, NAME, VALUE, ARRAY_VALUE, OBJECT_VALUE } state;
-    jsmn_parser parser;
-    jsmntok_t	*token, *tokens = NULL;
-    char	*json = buffer;
-    int		namelen = 0, jlen = *buflen;
-    int		ntokens = 0, nlabels = 0;
-    int		i, j, sz, sts, stack = 0;
-
-    state = START;
-    for (;;) {
-	ntokens += INC_TOKENS;
-	tokens = (jsmntok_t *)realloc(tokens, sizeof(jsmntok_t) * ntokens);
-	if (!tokens)
-	    return -ENOMEM;
-	jsmn_init(&parser);
-	sts = jsmn_parse(&parser, s, slen, tokens, ntokens);
-	if (sts == JSMN_ERROR_NOMEM && ntokens < MAXLABELSET)
-	    continue;	/* try again, larger buffer */
-	if (sts == JSMN_ERROR_INVAL || sts == JSMN_ERROR_PART) {
-	    sts = -EINVAL;
-	    goto done;
-	}
-	break;
-    }
-
-    for (i = 0, j = 1; j > 0; i++, j--) {
-	token = &tokens[i];
-	assert(token->start != -1 && token->end != -1);
-
-	if (token->type == JSMN_ARRAY || token->type == JSMN_OBJECT)
-	    j += token->size;
-
-	switch (state) {
-	case START:
-	    if (token->type != JSMN_OBJECT) {
-		if (pmDebugOptions.labels)
-		    pmNotifyErr(LOG_ERR, "Root element must be JSON object");
-		sts = -EINVAL;
-		goto done;
-	    }
-	    stash_chars("{", 1, &json, &jlen);
-	    /* Keys are odd-numbered tokens within the object */
-	    state = NAME;
-	    break;
-
-	case NAME:
-	    namelen = token->end - token->start;
-	    if (token->type != JSMN_STRING) {
-		if (pmDebugOptions.labels)
-		    pmNotifyErr(LOG_ERR, "Label name must be JSON string not type %d %.*s", token->type, (int)namelen, s + token->start);
-		sts = -EINVAL;
-		goto done;
-	    }
-
-	    if (namelen >= MAXLABELNAMELEN) {	/* will the name fit too? */
-		if (pmDebugOptions.labels)
-		    pmNotifyErr(LOG_ERR, "Label name is too long %.*s",
-				(int)namelen, s + token->start);
-		sts = -E2BIG;
-		goto done;
-	    }
-
-	    if (nlabels >= maxlabels) {	/* will this one fit in the given array? */
-		if (pmDebugOptions.labels)
-		    pmNotifyErr(LOG_ERR, "Too many labels (%d)", nlabels);
-		sts = -E2BIG;
-		goto done;
-	    }
-	    memset(&labels[nlabels], 0, sizeof(pmLabel));
-
-	    if (nlabels > 0)
-		stash_chars(",", 1, &json, &jlen);
-
-	    stash_chars("\"", 1, &json, &jlen);
-	    labels[nlabels].name = json - buffer;
-	    labels[nlabels].namelen = namelen;
-	    stash_chars(s + token->start, namelen, &json, &jlen);
-	    stash_chars("\":", 2, &json, &jlen);
-
-	    if (!token->size) {
-		stash_chars("null", 4, &json, &jlen);	/* valid JSON */
-		nlabels++;	/* no value given, move to next label */
-	    } else {
-		state = VALUE;
-		stack = 0;	/* value stack, for compound elements */
-		j += token->size;
-	    }
-	    break;
-
-	case VALUE:
-	case ARRAY_VALUE:
-	case OBJECT_VALUE:
-	    sz = token->end - token->start;
-	    if (labels[nlabels].value == 0)
-		labels[nlabels].value = json - buffer;
-	    if (token->type == JSMN_PRIMITIVE) {
-		sts = stash_chars(s + token->start, sz, &json, &jlen);
-	    } else if (token->type == JSMN_STRING) {
-		stash_chars("\"", 1, &json, &jlen);
-		sts = stash_chars(s + token->start, sz, &json, &jlen);
-		stash_chars("\"", 1, &json, &jlen);
-		sts += 2;	/* include double quotes */
-	    } else if (token->type == JSMN_ARRAY && !stack) {
-		state = ARRAY_VALUE;
-		sts = stash_chars("[", 1, &json, &jlen);
-	    } else if (token->type == JSMN_OBJECT && !stack) {
-		state = OBJECT_VALUE;
-		sts = stash_chars("{", 1, &json, &jlen);
-	    } else {	/* deeper nesting in values is disallowed */
-		sts = -EINVAL;
-		goto done;
-	    }
-	    labels[nlabels].valuelen += sts;
-
-	    if (state != VALUE && stack > 0) {
-		if (--stack + token->size > 0) {
-		    if (state == OBJECT_VALUE && token->size > 0)
-			stash_chars(":", 1, &json, &jlen);
-		    else
-			stash_chars(",", 1, &json, &jlen);
-		    labels[nlabels].valuelen++;
-		    j += token->size;
-		}
-	    }
-
-	    stack += token->size + 1;	/* +1 for current token */
-	    if (--stack == 0) {	/* completely parsed the value component */
-		if (state != VALUE) {
-		    if (state == OBJECT_VALUE)
-			stash_chars("}", 1, &json, &jlen);
-		    else
-			stash_chars("]", 1, &json, &jlen);
-		    labels[nlabels].valuelen++;
-		}
-		state = NAME;
-		nlabels++;
-	    }
-	    break;
-	}
-    }
-    if (nlabels == 0) {
-	/*
-	 * Zero labels. Happens if we are passed an empty labelset string.
-	 * Argument buffer is set to a zero length string and we return 0
-	 */
-	sts = nlabels;
-	*buflen = 0;
-	buffer[0] = '\0';
-	goto done;
-    }
-    if (sts < 0)
-	goto done;
-
-    if (json - buffer > 0)
-	stash_chars("}", 2, &json, &jlen);
-
-    if ((sts = sort_labels(labels, nlabels, (void *)buffer)) < 0)
-	goto done;
-
-    /* pass out JSONB buffer space used and pmLabel entries consumed */
-    *buflen = json - buffer;
-    sts = nlabels;
-
-done:
-    if (tokens)
-	free(tokens);
     return sts;
 }
 
+/*
+ * Sort and verify labels in the set - no duplicate names are allowed.
+ */
+static int
+sort_labels(pmLabel *lp, int nlabels, struct parser *parser)
+{
+    const char		*name;
+    int			i, namelen;
+
+    if (nlabels > 1)
+	sort_r(lp, nlabels, sizeof(pmLabel), namecmp, parser);
+
+    for (i = 0; i < nlabels - 1; i++) {
+	if (namecmp(&lp[i], &lp[i+1], parser) == 0) {
+	    if (pmDebugOptions.labels) {
+		label_name_length(&lp[i], parser->jsonb, parser->compound,
+				&name, &namelen);
+		fprintf(stderr, "Label name duplicated %.*s", namelen, name);
+	    }
+	    return -EINVAL;
+	}
+    }
+    return 0;
+}
+
+static void
+pop_label_name(parser_t *parser)
+{
+    char		*dot;
+
+    if (parser->stackdepth > 1) {
+	parser->stackstyle = STACK_COMPOUND;
+	parser->stackdepth--;
+    } else {
+	parser->stackstyle = STACK_DIRECT;
+	parser->stackdepth = 0;
+    }
+    parser->stackseq++;
+
+    if (parser->stack == NULL)
+	return;
+
+    /* handle '{ "a": { "b": { "c":1 } }' situations (label "a.b.c") */
+    if ((dot = strrchr(parser->stack, '.')) != NULL) {
+	*dot = '\0';
+	parser->stacklen = (dot - parser->stack);
+    } else {
+	free(parser->stack);
+	parser->stack = NULL;
+	parser->stacklen = 0;
+    }
+}
+
+static void
+push_label_name(parser_t *parser)
+{
+    char		*stack;	/* dot-separated accumulated 'stack' */
+    size_t		bytes;
+
+    if (parser->name) {
+	bytes = parser->namelen + 1;
+	if (parser->stack)
+	    bytes += parser->stacklen + 1;
+	if ((stack = realloc(parser->stack, bytes)) == NULL)
+	    return;
+	if (parser->stack == NULL)
+	    pmsprintf(stack, bytes, "%.*s",
+			parser->namelen, parser->jsonb + parser->name);
+	else
+	    pmsprintf(stack, bytes, "%s.%.*s", parser->stack,
+			parser->namelen, parser->jsonb + parser->name);
+	parser->stack = stack;
+	parser->stacklen = bytes;
+	parser->stackstyle = STACK_COMPOUND;
+	parser->stackdepth++;
+	parser->stackseq++;
+    } else {
+	parser->stackstyle = STACK_DIRECT;
+    }
+}
+
+static void
+add_label_value(parser_t *parser, unsigned int valuelen, int noop)
+{
+    unsigned int	value = (parser->buffer - parser->jsonb) - valuelen;
+    char		*stack;
+    int			bytes, index = parser->nlabels;
+
+    if (index >= parser->maxlabels) {
+	if (pmDebugOptions.labels)
+	    fprintf(stderr, "Too many labels (%d)", parser->nlabels);
+	parser->error = -E2BIG;
+    } else {
+	/* insert into name hash for later lookups if compound */
+	if (!noop && parser->compound && parser->stackstyle == STACK_COMPOUND) {
+	    bytes = parser->stacklen + 1 + parser->namelen + 1;
+	    if ((stack = malloc(bytes)) == NULL)
+		return;
+	    pmsprintf(stack, bytes, "%s.%.*s", parser->stack,
+			parser->namelen, parser->jsonb + parser->name);
+	    if (__pmHashAdd(parser->name, stack, parser->compound) < 0) {
+		free(stack);
+		return;
+	    }
+	}
+	/* insert into label array for later sorting+searching */
+	memset(&parser->labels[index], 0, sizeof(pmLabel));
+	parser->labels[index].name = parser->name;
+	parser->labels[index].namelen = parser->namelen;
+	parser->labels[index].value = value;
+	parser->labels[index].valuelen = valuelen;
+	if (parser->stackstyle == STACK_COMPOUND)
+	    parser->labels[index].flags = PM_LABEL_COMPOUND;
+	parser->nlabels++;
+    }
+
+    parser->name = parser->namelen = 0;	/* reset for further parsing */
+}
+
+static void
+labels_token_callback(jsonsl_t json, jsonsl_action_t action,
+		struct jsonsl_state_st *state, const char *at)
+{
+    struct parser	*parser = (struct parser *)json->data;
+    const char		*string;
+    char		*name;
+    int			length, sts;
+
+    if (pmDebugOptions.labels && pmDebugOptions.desperate) {
+	fprintf(stderr, "\n== %s\n", "labels_token_callback");
+	fprintf(stderr, "action: %s\n", action_string(action));
+	fprintf(stderr, "state type: %s offset: %ld level: %d nelem: %lu\n",
+		state_string(state), (long)state->pos_begin,
+		state->level, (unsigned long)state->nelem);
+	fprintf(stderr, "at: %p (%c)\n", at, *at);
+	fprintf(stderr, "pos: %llu\n", (unsigned long long)json->pos);
+    }
+
+    /*
+     * First part of producing JSONB form: no redundant whitespace.
+     * We also do sanity checking here - number of labels must not
+     * exceed the maximum, and name validity; finally building up
+     * the labelset data structure as we go.
+     */
+    if (action == JSONSL_ACTION_PUSH) {
+	switch (state->type) {
+	case JSONSL_T_OBJECT:
+	    if (parser->comma)
+		stash_chars(",", 1, &parser->buffer, &parser->buflen);
+	    stash_chars("{", 1, &parser->buffer, &parser->buflen);
+	    push_label_name(parser);
+	    parser->comma = 0;
+	    break;
+
+	case JSONSL_T_LIST:
+	    if (parser->comma)
+		stash_chars(",", 1, &parser->buffer, &parser->buflen);
+	    stash_chars("[", 1, &parser->buffer, &parser->buflen);
+	    parser->array = parser->start + json->pos;
+	    parser->comma = 0;
+	    break;
+
+	case JSONSL_T_HKEY:
+	    if (parser->comma)
+		stash_chars(",", 1, &parser->buffer, &parser->buflen);
+	    parser->token = parser->start + json->pos;
+	    parser->comma = 0;
+	    break;
+
+	case JSONSL_T_STRING:
+	case JSONSL_T_SPECIAL:
+	    if (parser->comma)
+		stash_chars(",", 1, &parser->buffer, &parser->buflen);
+	    parser->token = parser->start + json->pos;
+	    parser->comma = 1;
+	    break;
+
+	default:
+	    break;
+	}
+    }
+    else if (action == JSONSL_ACTION_POP) {
+	switch (state->type) {
+	case JSONSL_T_OBJECT:
+	    stash_chars("}", 1, &parser->buffer, &parser->buflen);
+	    if (parser->namelevel == state->level && parser->name != 0)
+		add_label_value(parser, 2, 1);	/* empty map */
+	    pop_label_name(parser);
+	    parser->comma = 1;
+	    break;
+
+	case JSONSL_T_LIST:
+	    stash_chars("]", 1, &parser->buffer, &parser->buflen);
+	    string = parser->array;
+	    length = (at - string) + 1;
+	    if (parser->namelevel == state->level && parser->name != 0)
+		add_label_value(parser, length, 0);
+	    parser->array = NULL;
+	    parser->comma = 1;
+	    break;
+
+	case JSONSL_T_HKEY:
+	    string = parser->token + 1;
+	    length = at - string;
+	    if ((sts = verify_label_name(string, length, parser->nested)) < 0) {
+		if (pmDebugOptions.labels)
+		    fprintf(stderr, "Label name is invalid %.*s", length, string);
+		parser->error = sts;
+	    }
+	    parser->name = (parser->buffer - parser->jsonb) + 1;
+	    if (sts > 0 && parser->compound) {
+		if ((name = strndup(string, length)) != NULL)
+		    if (__pmHashAdd(parser->name, name, parser->compound) < 0)
+			free(name);
+	    }
+	    parser->namelen = length;
+	    parser->namelevel = state->level;
+	    stash_chars(parser->token, length+1, &parser->buffer, &parser->buflen);
+	    stash_chars("\":", 2, &parser->buffer, &parser->buflen);
+	    parser->token = NULL;
+	    break;
+
+	case JSONSL_T_STRING:
+	case JSONSL_T_SPECIAL:
+	    string = parser->token;
+	    length = at - string;
+	    if (state->type == JSONSL_T_STRING)
+		length++;	/* include closing quote */
+	    stash_chars(string, length, &parser->buffer, &parser->buflen);
+	    if (parser->namelevel == state->level && parser->name != 0)
+		add_label_value(parser, length, 0);
+	    parser->token = NULL;
+	    break;
+
+	default:
+	    string = parser->token;
+	    length = at - string;
+	    stash_chars(string, length, &parser->buffer, &parser->buflen);
+	    break;
+	}
+    }
+
+    if (pmDebugOptions.labels && pmDebugOptions.desperate)
+	fprintf(stderr, "json: %s\n", parser->jsonb);
+}
+
+static int
+labels_error_callback(jsonsl_t json, jsonsl_error_t error,
+		struct jsonsl_state_st *state, char *at)
+{
+    struct parser	*parser = (struct parser *)json->data;
+
+    (void)at; (void)state;
+    if (pmDebugOptions.labels)
+	pmNotifyErr(LOG_ERR, "Error parsing labels at offset %lu: %s\n",
+			(unsigned long)json->pos, jsonsl_strerror(error));
+    parser->error = -EINVAL;
+    return 0;
+}
+
+static int
+__pmParseLabels(const char *s, int slen,
+		pmLabel *labels, int maxlabels, __pmHashCtl *compound, int flags,
+		char *buffer, int *buflen)
+{
+    parser_t		parser = {0};
+    jsonsl_t		json;
+    int			sts = 0;
+
+    parser.state = PARSE_START;
+    parser.maxlabels = maxlabels;
+    parser.start = s;
+    parser.jsonb = buffer;
+    parser.labels = labels;
+    parser.buffer = buffer;
+    parser.buflen = *buflen;
+    parser.nested = (flags & PM_LABEL_COMPOUND);
+    parser.compound = compound;
+
+    if ((json = jsonsl_new(MAX_RECURSION_DEPTH)) == NULL)
+	return -ENOMEM;
+    jsonsl_enable_all_callbacks(json);
+    json->action_callback = labels_token_callback;
+    json->error_callback = labels_error_callback;
+    json->max_callback_level = MAX_DESCENT_LEVEL;
+    json->data = &parser;
+
+    jsonsl_feed(json, s, slen);
+    jsonsl_destroy(json);
+    if (parser.stack) free(parser.stack);
+
+    if (parser.error) {
+	labels_hash_destroy(compound);
+	return parser.error;
+    }
+
+    if (parser.nlabels == 0) {
+	/*
+	 * Zero labels happens if we are passed an empty labelset string.
+	 * Argument buffer is set to a zero length string and 0 returned.
+	 */
+	*buflen = 0;
+	buffer[0] = '\0';
+	labels_hash_destroy(compound);
+	return 0;
+    }
+
+    if (pmDebugOptions.labels && pmDebugOptions.desperate) {
+	char	flbuf[PM_MAXLABELJSONLEN];
+	char	*fls;
+	int	i;
+
+	for (i = 0; i < parser.nlabels; i++) {
+	    fls = __pmLabelFlagString(labels[i].flags, flbuf, sizeof(flbuf));
+	    fprintf(stderr, "    [%d] name(%d,%d) : value(%d,%d) [%s]\n", i,
+			    labels[i].name, labels[i].namelen,
+			    labels[i].value, labels[i].valuelen, fls);
+	}
+    }
+
+    /* sorting will fail if duplicate names are found (invalid JSONB) */
+    if ((sts = sort_labels(labels, parser.nlabels, &parser)) < 0) {
+	labels_hash_destroy(compound);
+  	return sts;
+    }
+
+    /* pass out JSONB buffer space used and pmLabel entries consumed */
+    *buflen -= parser.buflen;
+    return parser.nlabels;
+}
+
 int
-__pmMergeLabelSets(pmLabel *alabels, const char *abuf, int na,
-		   pmLabel *blabels, const char *bbuf, int nb,
+__pmMergeLabelSets(pmLabel *alabels, const char *abuf, __pmHashCtl *ac, int na,
+		   pmLabel *blabels, const char *bbuf, __pmHashCtl *bc, int nb,
 		   pmLabel *olabels, char *output, int *no, int buflen,
 	int (*filter)(const pmLabel *, const char *, void *), void *arg)
 {
-    char	*bp = output;
-    int		sts, i, j;
+    char		*bp = output;
+    int			sts, i, j;
 
     if (no)
 	*no = 0;	/* number of output labels */
@@ -559,23 +858,26 @@ __pmMergeLabelSets(pmLabel *alabels, const char *abuf, int na,
      * As we go, check for duplicates between a-group & b-group (since
      * thats invalid and we'd generate invalid output - JSONB format).
      */
-    if ((sts = stash_chars("{", 1, &bp, &buflen)) < 0)
+    if ((sts = stash_chars("{", 1, &bp, (unsigned int *)&buflen)) < 0)
 	goto done;
     i = j = 0;
     do {
 	if (i < na) {
 	    /* use this a-group label? - compare to current b-group name */
 	    if (j >= nb) {	/* reached end of b-group, so use it */
-		if (j && namecmp4(&alabels[i], abuf, &blabels[j-1], bbuf) == 0)
+		if (j && namecmp6(&alabels[i], abuf, ac,
+				  &blabels[j-1], bbuf, bc) == 0)
 		    i++;	/* but skip if its a duplicate name */
-		else if ((sts = stash_label(&alabels[i++], abuf,
+		else if ((sts = stash_label(&alabels[i++], abuf, ac,
 					    olabels, output, no,
 					    &bp, &buflen, filter, arg)) < 0)
 		    goto done;
-	    } else if (namecmp4(&alabels[i], abuf, &blabels[j], bbuf) < 0) {
-		if (j && namecmp4(&alabels[i], abuf, &blabels[j-1], bbuf) == 0) /* dup */
+	    } else if (namecmp6(&alabels[i], abuf, ac,
+				&blabels[j], bbuf, bc) < 0) {
+		if (j && namecmp6(&alabels[i], abuf, ac,
+				  &blabels[j-1], bbuf, bc) == 0) /* dup */
 		    i++;
-		else if ((sts = stash_label(&alabels[i++], abuf,
+		else if ((sts = stash_label(&alabels[i++], abuf, ac,
 					    olabels, output, no,
 					    &bp, &buflen, filter, arg)) < 0)
 		    goto done;
@@ -584,12 +886,13 @@ __pmMergeLabelSets(pmLabel *alabels, const char *abuf, int na,
 	if (j < nb) {
 	    /* use this b-group label? - compare to current a-group name */
 	    if (i >= na) {	/* reached end of a-group, so use it */
-		if ((sts = stash_label(&blabels[j++], bbuf,
+		if ((sts = stash_label(&blabels[j++], bbuf, bc,
 					olabels, output, no,
 					&bp, &buflen, filter, arg)) < 0)
 		    goto done;
-	    } else if (namecmp4(&alabels[i], abuf, &blabels[j], bbuf) >= 0) {
-		if ((sts = stash_label(&blabels[j++], bbuf,
+	    } else if (namecmp6(&alabels[i], abuf, ac,
+				&blabels[j], bbuf, bc) >= 0) {
+		if ((sts = stash_label(&blabels[j++], bbuf, bc,
 					olabels, output, no,
 					&bp, &buflen, filter, arg)) < 0)
 		    goto done;
@@ -601,7 +904,7 @@ __pmMergeLabelSets(pmLabel *alabels, const char *abuf, int na,
 	bp--;
 	buflen--;
     }
-    if ((sts = stash_chars("}", 2, &bp, &buflen)) < 0)
+    if ((sts = stash_chars("}", 2, &bp, (unsigned int *)&buflen)) < 0)
 	goto done;
     sts = bp - output;
 
@@ -610,30 +913,42 @@ done:
 }
 
 static int
-__pmMergeLabels(const char *a, const char *b, char *buffer, int buflen)
+__pmMergeLabels(const char *a, const char *b, char *buffer, int buflen, int flags)
 {
-    pmLabel	alabels[MAXLABELSET], blabels[MAXLABELSET];
-    char	abuf[PM_MAXLABELJSONLEN], bbuf[PM_MAXLABELJSONLEN];
-    int		abufsz = PM_MAXLABELJSONLEN, bbufsz = PM_MAXLABELJSONLEN;
-    int		sts, na = 0, nb = 0;
+    __pmHashCtl		acompound = {0}, bcompound = {0};
+    pmLabel		alabels[MAXLABELSET], blabels[MAXLABELSET];
+    char		abuf[PM_MAXLABELJSONLEN], bbuf[PM_MAXLABELJSONLEN];
+    int			abufsz, bbufsz;
+    int			sts, na = 0, nb = 0;
 
+    abufsz = bbufsz = PM_MAXLABELJSONLEN;
     if (!a || (na = strlen(a)) == 0)
 	abufsz = 0;
     else if ((sts = na = __pmParseLabels(a, na,
-				alabels, MAXLABELSET, abuf, &abufsz)) < 0)
+				alabels, MAXLABELSET, &acompound, flags,
+				abuf, &abufsz)) < 0) {
+	labels_hash_destroy(&acompound);
 	return sts;
+    }
 
     if (!b || (nb = strlen(b)) == 0)
 	bbufsz = 0;
     else if ((sts = nb = __pmParseLabels(b, strlen(b),
-				blabels, MAXLABELSET, bbuf, &bbufsz)) < 0)
+				blabels, MAXLABELSET, &bcompound, flags,
+				bbuf, &bbufsz)) < 0) {
+	labels_hash_destroy(&bcompound);
 	return sts;
+    }
 
     if (!abufsz && !bbufsz)
 	return 0;
 
-    return __pmMergeLabelSets(alabels, abuf, na, blabels, bbuf, nb,
-				NULL, buffer, NULL, buflen, NULL, NULL);
+    sts = __pmMergeLabelSets(alabels, abuf, &acompound, na,
+			     blabels, bbuf, &bcompound, nb,
+			     NULL, buffer, NULL, buflen, NULL, NULL);
+    labels_hash_destroy(&acompound);
+    labels_hash_destroy(&bcompound);
+    return sts;
 }
 
 /*
@@ -646,11 +961,12 @@ int
 pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen,
 	int (*filter)(const pmLabel *, const char *, void *), void *arg)
 {
-    pmLabel	olabels[MAXLABELSET];
-    pmLabel	blabels[MAXLABELSET];
-    char	buf[PM_MAXLABELJSONLEN];
-    int		nlabels = 0;
-    int		i, sts = 0;
+    __pmHashCtl		*compound, bhash = {0};
+    pmLabel		olabels[MAXLABELSET];
+    pmLabel		blabels[MAXLABELSET];
+    char		buf[PM_MAXLABELJSONLEN];
+    int			nlabels = 0;
+    int			i, sts = 0;
 
     if (!sets || nsets < 1)
 	return -EINVAL;
@@ -673,14 +989,22 @@ pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen,
 	    __pmDumpLabelSet(stderr, sets[i]);
 	}
 
+	if (sets[i]->compound)
+	    compound = (__pmHashCtl *)sets[i]->hash;
+	else
+	    compound = NULL;
+
 	/*
 	 * Merge sets[i] with blabels into olabels. Any duplicate label
 	 * names in sets[i] prevail over those in blabels.
 	 */
-	if ((sts = __pmMergeLabelSets(blabels, buf, nlabels,
-				sets[i]->labels, sets[i]->json, sets[i]->nlabels,
+	sts = __pmMergeLabelSets(blabels, buf, &bhash, nlabels,
+				sets[i]->labels, sets[i]->json,
+				compound, sets[i]->nlabels,
 				olabels, buffer, &nlabels, buflen,
-				filter, arg)) < 0)
+				filter, arg);
+	labels_hash_destroy(&bhash);
+	if (sts < 0)
 	    return sts;
 	if (sts >= buflen || sts >= PM_MAXLABELJSONLEN)
 	    return -E2BIG;
@@ -696,9 +1020,10 @@ pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen,
 int
 pmMergeLabels(char **sets, int nsets, char *buffer, int buflen)
 {
-    char	buf[PM_MAXLABELJSONLEN];
-    int		bytes = 0;
-    int		i, sts;
+    char		buf[PM_MAXLABELJSONLEN];
+    int			bytes = 0;
+    int			i, sts;
+    int			flags = PM_LABEL_COMPOUND;
 
     if (!sets || nsets < 1)
 	return -EINVAL;
@@ -707,8 +1032,9 @@ pmMergeLabels(char **sets, int nsets, char *buffer, int buflen)
     for (i = 0; i < nsets; i++) {
 	if (bytes)
 	    memcpy(buf, buffer, bytes);
-	if ((sts = bytes = __pmMergeLabels(buf, sets[i], buffer, buflen)) < 0)
+	if ((sts = __pmMergeLabels(buf, sets[i], buffer, buflen, flags)) < 0)
 	    return sts;
+	bytes = sts;
 	if (bytes >= buflen || bytes >= PM_MAXLABELJSONLEN)
 	    return -E2BIG;
     }
@@ -741,6 +1067,7 @@ __pmGetContextLabels(pmLabelSet **set)
     char		path[MAXPATHLEN];
     char		buf[PM_MAXLABELJSONLEN];
     size_t		length;
+    int			flags = PM_LABEL_CONTEXT | PM_LABEL_COMPOUND;
     int			i, num, sts = 0;
 
     pmsprintf(path, MAXPATHLEN, "%s%clabels",
@@ -774,7 +1101,7 @@ __pmGetContextLabels(pmLabelSet **set)
     if (sts <= 0)
 	return sts;
 
-    return __pmParseLabelSet(buf, sts, PM_LABEL_CONTEXT, set);
+    return __pmParseLabelSet(buf, sts, flags, set);
 }
 
 static char *
@@ -799,10 +1126,10 @@ archive_context_labels(__pmContext *ctxp, pmLabelSet **sets)
     pmLabelSet	*lp = NULL;
     char	buf[PM_MAXLABELJSONLEN];
     char	*hostp;
-    int		sts;
+    int		sts, flags = PM_LABEL_CONTEXT|PM_LABEL_COMPOUND;
 
     hostp = archive_host_labels(ctxp, buf, sizeof(buf));
-    if ((sts = __pmAddLabels(&lp, hostp, PM_LABEL_CONTEXT)) < 0)
+    if ((sts = __pmAddLabels(&lp, hostp, flags)) < 0)
 	return sts;
     *sets = lp;
     return 1;
@@ -839,12 +1166,12 @@ local_context_labels(pmLabelSet **sets)
     pmLabelSet	*lp = NULL;
     char	buf[PM_MAXLABELJSONLEN];
     char	*hostp;
-    int		sts;
+    int		sts, flags = PM_LABEL_CONTEXT|PM_LABEL_COMPOUND;
 
     if ((sts = __pmGetContextLabels(&lp)) < 0)
 	return sts;
     hostp = local_host_labels(buf, sizeof(buf));
-    if ((sts = __pmAddLabels(&lp, hostp, PM_LABEL_CONTEXT)) > 0) {
+    if ((sts = __pmAddLabels(&lp, hostp, flags)) > 0) {
 	*sets = lp;
 	return 1;
     }

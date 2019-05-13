@@ -27,13 +27,13 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
-	connectlocal.c derive_fetch.c events.c lock.c hash.c jsmn.c \
+	connectlocal.c derive_fetch.c events.c lock.c hash.c jsonsl.c \
 	fault.c access.c getopt.c io.c io_stdio.c exec.c \
 	shellprobe.c subnetprobe.c \
 	deprecated.c
-HFILES = derive.h internal.h compiler.h pmdbg.h \
+HFILES = derive.h internal.h compiler.h pmdbg.h jsonsl.h sort_r.h \
 	avahi.h subnetprobe.h shellprobe.h
-EXT_FILES = jsmn.h jsmn.c sort_r.h
+EXT_FILES = jsonsl.h jsonsl.c sort_r.h
 YFILES = getdate.y derive_parser.y
 GENERATED_HFILES = pmdbg.h
 
@@ -83,11 +83,11 @@ base default : $(HFILES) $(CFILES) $(EXT_FILES) $(VERSION_SCRIPT) $(INFILES) \
 include $(BUILDRULES)
 
 *.o: internal.h compiler.h derive.h
-jsmn.o: jsmn.c jsmn.h
+jsonsl.o: jsonsl.c jsonsl.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h
-labels.o:	sort_r.h
+labels.o: jsonsl.o sort_r.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 	$(TOPDIR)/src/include/pcp/platform_defs.h

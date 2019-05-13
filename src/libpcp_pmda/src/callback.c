@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014,2017-2018 Red Hat.
+ * Copyright (c) 2013-2014,2017-2019 Red Hat.
  * Copyright (c) 1995-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -843,7 +843,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 
     case PM_LABEL_ITEM:
 	if (pmDebugOptions.labels)
-	    fprintf(stderr, "pmdaLabel: cluster %s labels request\n",
+	    fprintf(stderr, "pmdaLabel: item %s labels request\n",
 			    pmIDStr_r(ident, idbuf, sizeof(idbuf)));
 	if ((lp = *lpp) == NULL)	/* no default handler */
 	    return 0;
@@ -866,8 +866,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	    return 0;
 
 	/* allocate minimally-sized chunk of contiguous memory upfront */
-	size = numinst * sizeof(pmLabelSet);
-	if ((lp = (pmLabelSet *)malloc(size)) == NULL)
+	if ((lp = (pmLabelSet *)calloc(numinst, sizeof(pmLabelSet))) == NULL)
 	    return -oserror();
 	*lpp = lp;
 
@@ -938,6 +937,7 @@ pmdaAddLabels(pmLabelSet **lsp, const char *fmt, ...)
     char		buf[PM_MAXLABELJSONLEN];
     va_list		arg;
     int			sts;
+    int			flags = PM_LABEL_COMPOUND;
 
     va_start(arg, fmt);
     sts = vsnprintf(buf, sizeof(buf), fmt, arg);
@@ -950,7 +950,7 @@ pmdaAddLabels(pmLabelSet **lsp, const char *fmt, ...)
     if (pmDebugOptions.labels)
 	fprintf(stderr, "pmdaAddLabels: %s\n", buf);
 
-    if ((sts = __pmAddLabels(lsp, buf, 0)) < 0) {
+    if ((sts = __pmAddLabels(lsp, buf, flags)) < 0) {
 	pmNotifyErr(LOG_ERR, "pmdaAddLabels: %s (%s)\n", buf,
 		pmErrStr_r(sts, errbuf, sizeof(errbuf)));
     }
@@ -967,6 +967,7 @@ pmdaAddNotes(pmLabelSet **lsp, const char *fmt, ...)
     char		errbuf[PM_MAXERRMSGLEN];
     char		buf[PM_MAXLABELJSONLEN];
     va_list		arg;
+    int			flags = PM_LABEL_COMPOUND | PM_LABEL_OPTIONAL;
     int			sts;
 
     va_start(arg, fmt);
@@ -980,7 +981,7 @@ pmdaAddNotes(pmLabelSet **lsp, const char *fmt, ...)
     if (pmDebugOptions.labels)
 	fprintf(stderr, "pmdaAddNotes: %s\n", buf);
 
-    if ((sts = __pmAddLabels(lsp, buf, PM_LABEL_OPTIONAL)) < 0) {
+    if ((sts = __pmAddLabels(lsp, buf, flags)) < 0) {
 	pmNotifyErr(LOG_ERR, "pmdaAddNotes: %s (%s)\n", buf,
 		pmErrStr_r(sts, errbuf, sizeof(errbuf)));
     }

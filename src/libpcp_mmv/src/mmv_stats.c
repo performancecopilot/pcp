@@ -1022,7 +1022,7 @@ mmv_stats_add_registry_label(mmv_registry_t *registry,
     size_t bytes;
     char buffer[MMV_LABELMAX];
     int buflen;
-    int flags = PM_LABEL_CLUSTER;
+    int flags = PM_LABEL_CLUSTER | PM_LABEL_COMPOUND;
 
     if (registry == NULL) {
 	setoserror(EFAULT);
@@ -1065,7 +1065,7 @@ mmv_stats_add_indom_label(mmv_registry_t *registry, int serial,
     size_t bytes;
     char buffer[MMV_LABELMAX];
     int buflen;
-    int flags = PM_LABEL_INDOM;
+    int flags = PM_LABEL_INDOM | PM_LABEL_COMPOUND;
 
     if (registry == NULL) {
 	setoserror(EFAULT);
@@ -1108,7 +1108,7 @@ mmv_stats_add_metric_label(mmv_registry_t *registry, int item,
     size_t bytes;
     char buffer[MMV_LABELMAX];
     int buflen;
-    int flags = PM_LABEL_ITEM;
+    int flags = PM_LABEL_ITEM | PM_LABEL_COMPOUND;
 
     if (registry == NULL) {
 	setoserror(EFAULT);
@@ -1151,7 +1151,7 @@ mmv_stats_add_instance_label(mmv_registry_t *registry, int serial, int instid,
     size_t bytes;
     char buffer[MMV_LABELMAX];
     int buflen;
-    int flags = PM_LABEL_INSTANCES;
+    int flags = PM_LABEL_INSTANCES | PM_LABEL_COMPOUND;
 
     if (registry == NULL) {
 	setoserror(EFAULT);

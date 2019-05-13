@@ -27,7 +27,7 @@ mmv.labels3.labels3.u32.counter PMID: 70.322.1 = 293931009 = 0x11850801
     inst [2 or "cpu3"] value 0
     inst [0 or "cpu0"] labels {"agent":"mmv","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","indom_label":42.001,"item_label1":true,"machineid":"MACHINE","metric_label":null,"registry_label":"string","userid":UID}
     inst [1 or "cpu1"] labels {"agent":"mmv","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","indom_label":42.001,"item_label2":[1,2,3,4,5],"machineid":"MACHINE","metric_label":null,"registry_label":"string","userid":UID}
-    inst [2 or "cpu3"] labels {"agent":"mmv","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","indom_label":42.001,"item_label3":{"a":1,"b":2},"machineid":"MACHINE","metric_label":null,"registry_label":"string","userid":UID}
+    inst [2 or "cpu3"] labels {"agent":"mmv","domainname":"DOMAIN","groupid":GID,"hostname":"HOSTNAME","indom_label":42.001,"item_label3.a":1,"item_label3.b":2,"machineid":"MACHINE","metric_label":null,"registry_label":"string","userid":UID}
 
 === remove mmv agent ===
 Culling the Performance Metrics Name Space ...
