@@ -64,6 +64,10 @@ End-of-File
 	cat <<End-of-File
 rm -f \$HOME/$1.log
 echo "--- starting $1 on \`date\` ---" >\$HOME/$1.log
+if [ -x ./freespace ] 
+then
+    ./freespace -l >>\$HOME/$1.log
+fi
 End-of-File
     fi
     if [ "$1" = daily ]

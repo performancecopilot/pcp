@@ -12,3 +12,4 @@ credentials required
 
 === pmwebd with authentication (expect success) ===
 { "context": CTX }
+{ "context": CTX }

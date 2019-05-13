@@ -13,13 +13,13 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-host=`./getpmcdhosts -L -n 1 2>$seq.notrun`
+host=`./getpmcdhosts -L -n 1 2>$tmp.tmp`
 if [ -z "$host" ]
 then
-    cat $seq.notrun
-    exit
+    _notrun "`cat $tmp.tmp`"
+    # NOTREACHED
 fi
-rm -f $seq.notrun
+rm -f $tmp.tmp
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

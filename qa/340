@@ -90,8 +90,8 @@ other=`./getpmcdhosts -n 1 -L -v 'pcp>=2' 2>$tmp.err`
 if [ -z "$other" ]
 then
     # Unable to find remote PCP 2.x host
-    cat $tmp.err >$seq.notrun
-    exit
+    _notrun "`cat $tmp.err`"
+    # NOTREACHED
 fi
 
 echo "me=$me" >>$seq.full

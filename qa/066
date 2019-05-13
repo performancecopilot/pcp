@@ -180,9 +180,8 @@ eval `./getpmcdhosts -L -n 2 \
 
 if [ -z "$other1" -o -z "$other2" ]
 then
-    echo "Cannot find two remote hosts running pmcd" >$seq.notrun
-    status=1
-    exit
+    _notrun "Cannot find two remote hosts running pmcd"
+    # NOTREACHED
 fi
 
 _save_config $PCP_PMCDCONF_PATH

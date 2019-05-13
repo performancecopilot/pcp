@@ -17,13 +17,13 @@ echo "QA output created by $seq"
 eval `./getpmcdhosts -n 2 -L | sed -e 's/ / other2=/' -e 's/^/other1=/'`
 if [ -z "$other1" ]
 then
-    echo "Cannot find first remote host running pmcd" >$seq.notrun
-    exit
+    _notrun "Cannot find first remote host running pmcd"
+    # NOTREACHED
 fi
 if [ -z "$other2" ]
 then
-    echo "Cannot find second remote host running pmcd" >$seq.notrun
-    exit
+    _notrun "Cannot find second remote host running pmcd"
+    # NOTREACHED
 fi
 echo "other1=$other1" >>$here/$seq.full
 echo "other2=$other2" >>$here/$seq.full

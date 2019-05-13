@@ -574,6 +574,7 @@ _filter_pmie_start()
 	-e '/^Waiting for pmie/d' \
 	-e "s;$PCP_RC_DIR/pmie;\$PCP_RC_DIR/pmie;g" \
 	-e '/(pmie) is disabled/d' \
+	-e '/(pmie) not permanently enabled/d' \
 	-e '/To enable/d' \
 	-e '/update-rc.d -f pmie remove/d' \
 	-e '/update-rc.d pmie defaults/d' \
@@ -625,8 +626,7 @@ _filter_pmproxy_stop()
 {
     sed \
 	-e "s;$PCP_RC_DIR/pmproxy;\$PCP_RC_DIR/pmproxy;g" \
-	-e '/^Waiting for pmproxy/s/\.\.\.[. ]*done/.../' \
-	-e '/^Waiting for pmproxy/s/\.\.\. *$/.../' \
+	-e '/^Waiting for pmproxy/d' \
     | _filter_init_distro
 }
 

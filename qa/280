@@ -52,10 +52,16 @@ LOCALHOST=`hostname`
 trap "_cleanup; $sudo rm -f $tmp.* $LOGGING_DIR/$LOCALHOST/lock; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 
 _cleanup()
 {
+    _service pmcd restart 2>&1 | _filter_pcp_start
+    _wait_for_pmcd
     _restore_auto_restart pmcd
+    _service pmlogger restart 2>&1 | _filter_pcp_start
+    _wait_for_pmlogger
+    _restore_auto_restart pmlogger
 }
 
 rm -f $seq.full
@@ -92,7 +98,7 @@ fi
 
 echo
 echo "Kill off primary logger ..." | tee -a $here/$seq.full
-$sudo $signal -s TERM $pid
+_service pmlogger stop 2>&1 | _filter_pcp_stop
 _wait_pmlogger_end $pid
 echo 'connect primary' | pmlc 2>&1 | tee -a $here/$seq.full | _filter
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
@@ -108,6 +114,11 @@ $sudo $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
+# if it is present, get systemctl on the same page ...
+#
+_service pmlogger start 2>&1 | _filter_pcp_start
+_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
+
 pid=`_get_primary_logger_pid`
 if [ -z "$pid" ]
 then
@@ -119,7 +130,7 @@ fi
 
 echo
 echo "Kill off primary logger ..." | tee -a $here/$seq.full
-$sudo $signal -s TERM $pid
+_service pmlogger stop 2>&1 | _filter_pcp_stop
 _wait_pmlogger_end $pid
 echo 'connect primary' | pmlc 2>&1 | tee -a $here/$seq.full | _filter
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \

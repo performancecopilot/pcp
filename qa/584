@@ -17,9 +17,8 @@ echo "QA output created by $seq"
 #
 if elfdump -cr $PCP_BIN_DIR/pmie 2>&1 | head -5 | grep "No compact relocation" >/dev/null
 then
-  echo "pmie is stripped: can't purify" >$seq.notrun
-  echo "$seq: [not run] `cat $seq.notrun`"
-  exit 0
+  _notrun "pmie is stripped: can't purify"
+  # NOTREACHED
 fi
 
 # check for a working purify - note purify no longer works on 7.3

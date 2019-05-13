@@ -9,17 +9,16 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-if [ "`pmsocks echo ok 2>&1`" != ok ]
-then
-    echo "pmsocks is not installed and/or not configured" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+if [ "`pmsocks echo ok 2>&1`" != ok ]
+then
+    _notrun "pmsocks is not installed and/or not configured"
+    # NOTREACHED
+fi
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

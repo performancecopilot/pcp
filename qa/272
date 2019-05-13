@@ -8,19 +8,19 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# preliminary check
-#
-./getpmcdhosts -n 2 -L -a sample -v 'pcp>=2' -s IRIX64 2>$seq.notrun >/dev/null
-if [ $? -eq 1 ]; then
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit
-fi
-rm -f $seq.notrun
-
-# get standard filters
+# get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+# preliminary check
+#
+./getpmcdhosts -n 2 -L -a sample -v 'pcp>=2' -s IRIX64 >$tmp.tmp 2>&1
+if [ $? -ne 0 ]; then
+    _notrun "`cat $tmp.tmp`"
+    # NOTREACHED
+fi
+rm -f $seq.tmp
 
 rsignal=pmsignal
 status=1	# failure is the default!

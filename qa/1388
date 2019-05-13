@@ -24,6 +24,18 @@ test $? -eq 0 || _notrun 'No client support for plain authentication'
 $pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1
 test $? -eq 0 || _notrun 'No server support for plain authentication'
 
+if which pkg-config >/dev/null 2>&1
+then
+    ver="`pkg-config --modversion libmicrohttpd`"
+    case $ver
+    in
+	0.9.62)
+		_notrun "pmwebd does not work with version $ver of libmicrohttpd"
+		# NOTREACHED
+		;;
+    esac
+fi
+
 $sudo rm -f $tmp.* $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
@@ -48,6 +60,7 @@ _cleanup()
     _service pcp start 2>&1 | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
+    _service pmwebd start 2>&1 | _filter_pmwebd_start
 
     $sudo rm -f $tmp.*
 }
@@ -89,8 +102,14 @@ _service pcp restart 2>&1 | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger
 
+if which systemctl >/dev/null 2>&1
+then
+    $sudo systemctl daemon-reload
+fi
+
 echo "Start pmwebd with mandatory authentication"
-$PCP_BINADM_DIR/pmwebd $webargs -p $webport -l $tmp.out -v -t5 -C &
+_service pmwebd stop 2>&1 | _filter_pmwebd_stop
+$PCP_BINADM_DIR/pmwebd $webargs -p $webport -vvv -l $tmp.out -v -t5 -C &
 webpid=$!
 echo "pid=$webpid" >>$seq.full
 echo "webport=$webport" >>$seq.full
@@ -109,6 +128,11 @@ echo
 echo && echo "=== pmwebd with authentication (expect success) ==="
 curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fusername%3D$username%26password%3Dy" 2>&1 | _filter_context
 echo
+curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fpassword%3Dy%26username%3D$username" 2>&1 | _filter_context
+echo
+
+echo "=== pmwebd log ===" >>$seq.full
+cat $tmp.out >>$seq.full
 
 status=0
 exit

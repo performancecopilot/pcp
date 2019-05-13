@@ -13,9 +13,13 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rem_host=`./getpmcdhosts -L -n 1 -P -a sample 2>$seq.notrun`
-[ -z "$rem_host" ] && _notrun `cat $seq.notrun`
-rm -f $seq.notrun $seq.full
+rem_host=`./getpmcdhosts -L -n 1 -P -a sample 2>$tmp.tmp`
+if [ -z "$rem_host" ]
+then
+    _notrun `cat $tmp.tmp`
+    # NOTREACHED
+fi
+rm -f $tmp.tmp $seq.full
 
 _filter()
 {
