@@ -542,13 +542,13 @@ network.icmp6.outgroupmembqueries
     value 0
 
 network.icmp6.outgroupmembreductions
-    value 39
+    value 0
 
 network.icmp6.outgroupmembresponses
     value 0
 
 network.icmp6.outmldv2reports
-    value 0
+    value 28
 
 network.icmp6.outmsgs
     value 80
@@ -557,7 +557,7 @@ network.icmp6.outneighboradvertisements
     value 0
 
 network.icmp6.outneighborsolicits
-    value 0
+    value 13
 
 network.icmp6.outparmproblems
     value 0
@@ -566,13 +566,13 @@ network.icmp6.outpkttoobigs
     value 0
 
 network.icmp6.outredirects
-    value 28
+    value 0
 
 network.icmp6.outrouteradvertisements
-    value 13
+    value 0
 
 network.icmp6.outroutersolicits
-    value 0
+    value 39
 
 network.icmp6.outtimeexcds
     value 0
@@ -792,13 +792,13 @@ network.icmp6.outgroupmembqueries
     value 0
 
 network.icmp6.outgroupmembreductions
-    value 499671
+    value 0
 
 network.icmp6.outgroupmembresponses
     value 0
 
 network.icmp6.outmldv2reports
-    value 0
+    value 306
 
 network.icmp6.outmsgs
     value 502234
@@ -807,7 +807,7 @@ network.icmp6.outneighboradvertisements
     value 0
 
 network.icmp6.outneighborsolicits
-    value 0
+    value 1065
 
 network.icmp6.outparmproblems
     value 0
@@ -816,13 +816,13 @@ network.icmp6.outpkttoobigs
     value 0
 
 network.icmp6.outredirects
-    value 306
+    value 0
 
 network.icmp6.outrouteradvertisements
-    value 1065
+    value 0
 
 network.icmp6.outroutersolicits
-    value 0
+    value 499671
 
 network.icmp6.outtimeexcds
     value 0
