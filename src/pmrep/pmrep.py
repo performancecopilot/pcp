@@ -1206,7 +1206,7 @@ class PMReporter(object):
             found_insts = self.found_insts
             self.found_insts = []
             for sort_metric in self.sort_metric.split(","):
-                revs = True if sort_metric[:1] != "-" else False
+                revs = sort_metric[:1] != "-"
                 sort_metric = sort_metric if revs else sort_metric[1:]
                 for r in sorted(results[sort_metric], key=lambda x: x[2], reverse=revs):
                     if r[1] not in self.found_insts:
@@ -1354,7 +1354,7 @@ class PMReporter(object):
                     self.all_ranked[metric] = results[metric]
             self.prev_insts = []
 
-        revs = True if self.rank > 0 else False
+        revs = self.rank > 0
 
         for i, metric in enumerate(results):
             if self.pmconfig.descs[i].contents.type == PM_TYPE_STRING:
