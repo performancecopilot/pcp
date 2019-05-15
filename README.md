@@ -1,6 +1,6 @@
 ![PCP](images/pcpicon.png)
 
-[![Build Status](https://travis-ci.org/performancecopilot/pcp.svg?branch=master)](https://travis-ci.org/performancecopilot/pcp)
+[![Build Status](https://dev.azure.com/performancecopilot/pcp/_apis/build/status/performancecopilot.pcp?branchName=master)](https://dev.azure.com/performancecopilot/pcp/_build/latest?definitionId=1&branchName=master)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/15853/badge.svg)](https://scan.coverity.com/projects/15853)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1872/badge)](https://bestpractices.coreinfrastructure.org/projects/1872)
 [![Github Release](https://img.shields.io/github/release/performancecopilot/pcp.svg)](https://github.com/performancecopilot/pcp/releases/latest)
