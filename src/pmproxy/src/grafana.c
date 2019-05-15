@@ -195,6 +195,7 @@ on_grafana_value(pmSID sid, pmSeriesValue *value, void *arg)
     }
     baton->values++;
     result = sdscatfmt(result, "%s[%S,%s]", prefix, quoted, timestamp);
+    sdsfree(quoted);
 
     http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);

@@ -546,14 +546,14 @@ static int
 on_header_field(http_parser *request, const char *offset, size_t length)
 {
     struct client	*client = (struct client *)request->data;
-    sds			field = sdsnewlen(offset, length);
-
-    if (pmDebugOptions.http)
-	fprintf(stderr, "Header field: %s (client=%p)\n", field, client);
+    sds			field;
 
     if (client->u.http.parser.status_code || !client->u.http.headers)
 	return 0;	/* already in process of failing connection */
 
+    field = sdsnewlen(offset, length);
+    if (pmDebugOptions.http)
+	fprintf(stderr, "Header field: %s (client=%p)\n", field, client);
     /*
      * Insert this header into the dictionary (name only so far);
      * track this header for associating the value to it (below).
@@ -566,13 +566,14 @@ static int
 on_header_value(http_parser *request, const char *offset, size_t length)
 {
     struct client	*client = (struct client *)request->data;
-    sds			value = sdsnewlen(offset, length);
+    sds			value;
 
-    if (pmDebugOptions.http)
-	fprintf(stderr, "Header value: %s (client=%p)\n", value, client);
     if (client->u.http.parser.status_code || !client->u.http.headers)
 	return 0;	/* already in process of failing connection */
 
+    value = sdsnewlen(offset, length);
+    if (pmDebugOptions.http)
+	fprintf(stderr, "Header value: %s (client=%p)\n", value, client);
     dictSetVal(client->u.http.headers, (dictEntry *)client->u.http.privdata, value);
     return 0;
 }

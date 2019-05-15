@@ -106,9 +106,10 @@ on_pmseries_match(pmSID sid, void *arg)
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
     struct client	*client = baton->client;
     const char		*prefix;
-    sds			result = http_get_buffer(baton->client);
+    sds			result;
 
     if (baton->sid == NULL || sdscmp(baton->sid, sid) != 0) {
+	result = http_get_buffer(baton->client);
 	if (baton->series++ == 0) {
 	    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
 	    prefix = "[";
@@ -277,10 +278,12 @@ on_pmseries_label(pmSID sid, sds label, void *arg)
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
     struct client	*client = baton->client;
     const char		*prefix;
-    sds			s, result = http_get_buffer(client);
+    sds			s, result;
 
     if (baton->nsids != 0)
 	return 0;
+
+    result = http_get_buffer(client);
 
     if (sid == NULL) {	/* all labels globally requested */
 	if (baton->values == 0) {
@@ -322,13 +325,14 @@ on_pmseries_labelmap(pmSID sid, pmSeriesLabel *label, void *arg)
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
     struct client	*client = baton->client;
     const char		*prefix;
-    sds			s, name, value, result = http_get_buffer(client);
+    sds			s, name, value, result;
 
     if (baton->nsids == 0)
 	return 0;
 
     name = label->name;
     value = label->value;
+    result = http_get_buffer(client);
 
     if ((s = baton->sid) == NULL) {
 	baton->sid = sdsdup(sid);
