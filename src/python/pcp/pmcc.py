@@ -1,6 +1,6 @@
 """ Convenience Classes building on the base PMAPI extension module """
 #
-# Copyright (C) 2013-2016 Red Hat
+# Copyright (C) 2013-2016,2019 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -443,7 +443,10 @@ class MetricGroup(dict):
             self._pmidArray[x] = c_uint(self[key].pmid)
 
     def mgFetch(self):
-        """ Fetch the list of Metric values.  Save the old value.  """
+        """
+        Fetch the list of Metric values.  Save the old value.
+        Return the result timestamp.
+        """
         try:
             self.result = self._ctx.pmFetch(self._pmidArray)
             # update the result entries in each metric
@@ -459,6 +462,8 @@ class MetricGroup(dict):
             fail = "%s: pmFetch: %s" % (error.progname(), error.message())
             print >> stderr, fail
             raise SystemExit(1)
+
+        return result.timestamp # timeval
 
     def mgDelta(self):
         """
@@ -564,8 +569,15 @@ class MetricGroupManager(dict, MetricCache):
     ##
     # methods
 
+    def _tv2float(self, tv):
+        """ convert timeval to epoch seconds as a float """
+        if tv is None:
+            return 0.0
+        return float(tv.tv_sec) + float(tv.tv_usec) / 1e6
+
     def _computeSamples(self):
-        """ Calculate the number of samples we are to take.
+        """ Return the number of samples we are to take and the
+            finish time, or 0,0 if --finish is not specified.
             This is based on command line options --samples but also
             must consider --start, --finish and --interval.  If none
             of these were presented, a zero return means "infinite".
@@ -574,26 +586,25 @@ class MetricGroupManager(dict, MetricCache):
             when counters metrics are present.
         """
         if self._options == None:
-            return 0	# loop until interrupted or PM_ERR_EOL
+            return 0, None	# loop until interrupted or PM_ERR_EOL
         extra = 1       # extra sample needed if rate converting
         for group in self.keys():
             if self[group].nonCounters:
                 extra = 0
         samples = self._options.pmGetOptionSamples()
         if samples != None:
-            return samples + extra
+            return samples + extra, None
         if self._options.pmGetOptionFinishOptarg() == None:
-            return 0	# loop until interrupted or PM_ERR_EOL
+            return 0, None # loop until interrupted or PM_ERR_EOL
         origin = self._options.pmGetOptionOrigin()
         finish = self._options.pmGetOptionFinish()
         delta = self._options.pmGetOptionInterval()
         if delta == None:
             delta = self._default_delta
-        period = (delta.tv_sec * 1.0e6 + delta.tv_usec) / 1e6
-        window = float(finish.tv_sec - origin.tv_sec)
-        window += float((finish.tv_usec - origin.tv_usec) / 1e6)
-        window /= period
-        return int(window + 0.5) + extra    # roundup to positive number
+        period = self._tv2float(delta)
+        window = (self._tv2float(finish) - self._tv2float(origin)) / period
+        # return samples rounded to positive number and the finish time as a float
+        return int(window + 0.5) + extra, finish
 
     def _computePauseTime(self):
         """ Figure out how long to sleep between samples.
@@ -644,8 +655,14 @@ class MetricGroupManager(dict, MetricCache):
 
     def fetch(self):
         """ Perform fetch operation on all of the groups. """
+        fetchtime = None
+        rmax = 0.0
         for group in self.keys():
-            self[group].mgFetch()
+            stamp = self[group].mgFetch()
+            if fetchtime is None or self._tv2float(stamp) > rmax:
+                fetchtime = stamp
+                rmax = self._tv2float(stamp)
+        return fetchtime
 
     def run(self):
         """ Using options specification, loop fetching and reporting,
@@ -655,18 +672,20 @@ class MetricGroupManager(dict, MetricCache):
             in archive mode, but is usually the same as the sampling
             interval in live mode.
         """
-        samples = self._computeSamples()
+        samples, finish = self._computeSamples()
+        # print("DEBUG samples=" + str(samples) + " finish=" + str(self._tv2float(finish)))
         timer = self._computePauseTime()
         try:
-            self.fetch()
+            curtime = self.fetch()
             while True:
-                self._counter += 1
-                if samples == 0 or self._counter <= samples:
-                    self._printer.report(self)
-                if self._counter == samples:
+                if samples > 0 and self._counter >= samples:
                     break
+                if finish is not None and self._tv2float(curtime) >= self._tv2float(finish):
+                    break
+                self._printer.report(self)
                 timer.sleep()
-                self.fetch()
+                curtime = self.fetch()
+                self._counter += 1
         except SystemExit as code:
             return code
         except KeyboardInterrupt:
