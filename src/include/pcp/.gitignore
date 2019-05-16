@@ -2,5 +2,6 @@ platform_defs.h
 platformsz.h
 configsz.h
 config.h
+dict.h
 sds.h
 ini.h
