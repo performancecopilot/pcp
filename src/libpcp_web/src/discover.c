@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018-2019 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -170,7 +170,7 @@ pmDiscoverArchives(const char *dir, pmDiscoverModule *module, void *arg)
     a->flags |= PM_DISCOVER_FLAGS_DIRECTORY;
 
     while (uv_fs_scandir_next(&req, &dent) != UV_EOF) {
-	snprintf(path, sizeof(path), "%s%c%s", dir, sep, dent.name);
+	pmsprintf(path, sizeof(path), "%s%c%s", dir, sep, dent.name);
 	if (uv_fs_stat(NULL, &sreq, path, NULL) < 0)
 	    continue;
 	s = &sreq.statbuf;
@@ -356,7 +356,7 @@ pmDiscoverFlagsStr(pmDiscover *p)
     unsigned int	i;
     static char		buf[128];
 
-    snprintf(buf, sizeof(buf), "flags: 0x%04x |", p->flags);
+    pmsprintf(buf, sizeof(buf), "flags: 0x%04x |", p->flags);
     for (i=0; flags_str[i].name; i++) {
     	if (p->flags & flags_str[i].flag)
 	    strncat(buf, flags_str[i].name, sizeof(buf)-1);
