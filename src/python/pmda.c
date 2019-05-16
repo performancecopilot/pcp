@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015,2017-2018 Red Hat.
+ * Copyright (C) 2013-2015,2017-2019 Red Hat.
  *
  * This file is part of the "pcp" module, the python interfaces for the
  * Performance Co-Pilot toolkit.
@@ -566,7 +566,7 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     Py_DECREF(arglist);
     if (result == NULL)
 	return callback_error("fetch_callback");
-    else if (PyTuple_Check(result)) {
+    else if (result == Py_None || PyTuple_Check(result)) {
 	/* non-tuple returned from fetch callback, e.g. None - no values */
 	Py_DECREF(result);
 	return PMDA_FETCH_NOVALUES;
