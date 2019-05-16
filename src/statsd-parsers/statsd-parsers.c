@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <string.h>
 #include <netdb.h>
-#include <chan.h>
+#include <chan/chan.h>
 #include "statsd-parsers.h"
 #include "basic/basic.h"
 #include "ragel/ragel.h"

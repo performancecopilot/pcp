@@ -1,2 +1,1 @@
 language: C
-script: make dependencies && make

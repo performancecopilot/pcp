@@ -2,14 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <chan.h>
+#include <chan/chan.h>
 
 #include "config-reader/config-reader.h"
 #include "statsd-parsers/statsd-parsers.h"
 #include "consumers/consumers.h"
 #include "utils/utils.h"
-
-
 
 int main(int argc, char **argv)
 {

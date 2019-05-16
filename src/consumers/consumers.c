@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <chan.h>
+#include <chan/chan.h>
 
 #include "../statsd-parsers.h"
 #include "../../utils/utils.h"

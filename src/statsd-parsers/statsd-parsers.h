@@ -1,4 +1,4 @@
-#include <chan.h>
+#include <chan/chan.h>
 
 #include "../config-reader/config-reader.h"
 
