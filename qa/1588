@@ -1,0 +1,55 @@
+#!/bin/sh
+# PCP QA Test No. 1588
+# test pmcc.py time window --finish -u --samples handling
+# see BZ 1671818 - "pcp ignores --finish=time option"
+#
+# Copyright (c) 2019 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# requires python2 or python3 or both
+which "$PCP_PYTHON_PROG" >/dev/null 2>&1 || _notrun "No python binary named \"$PCP_PYTHON_PROG\" found"
+which pmiostat >/dev/null 2>&1 || _notrun "pmiostat not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+archive=archives/pmiostat_mark
+cmd="pmiostat -a $archive -xt -z"
+origin="@Tue Dec  1 17:56:41 2015"
+finish="@Tue Dec  1 18:00:00 2015"
+
+echo;echo == with time window and interpolation origin=$origin finish=$finish
+$cmd --origin="$origin" --finish="$finish" -t1m || status=1
+
+echo;echo == with time window and no interpolation origin=$origin finish=$finish
+$cmd --origin="$origin" --finish="$finish" -u || status=1
+
+echo;echo == with origin and samples and interpolation origin=$origin samples=5
+$cmd --origin="$origin" --samples=5 -t1m || status=1
+
+echo;echo == with origin and samples no interpolation origin=$origin samples=5
+$cmd --origin="$origin" --samples=5 -u || status=1
+
+echo;echo == no time window with interpolation
+$cmd -t1m || status=1
+
+echo;echo == no time window and no interpolation
+$cmd -u || status=1
+
+echo exiting with status=$status
+exit

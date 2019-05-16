@@ -1673,6 +1673,7 @@ BAD
 1545 pcp2xml python pcp2xxx local
 1546 pmrep python local
 1547 pmrep python local
+1588 python pmiostat local
 1600 pmseries pmcd pmproxy pmlogger local
 1601 pmseries pmproxy local
 1602 pmproxy local
