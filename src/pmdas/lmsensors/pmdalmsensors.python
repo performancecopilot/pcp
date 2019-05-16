@@ -58,7 +58,7 @@ def lmsensors_get():
             if args.debug == 2:
                 print("  inputline:", outline2)
 
-        # We get 4 levels of variables from the sensors output, 
+        # We get 4 levels of variables from the sensors output,
         # and construct a hirachy of metrics.
         # For example:
         #
@@ -75,7 +75,7 @@ def lmsensors_get():
         #   temp2_crit: 100.000
         #   temp2_crit_alarm: 0.000
         #
-        # ..will become: 
+        # ..will become:
         # coretemp_isa.isa_adapter.package_id_0.temp1
         # coretemp_isa.isa_adapter.core_0.temp2
 
@@ -103,8 +103,8 @@ def lmsensors_get():
                     print("    assigned level2:", level2)
             continue
 
-        # From the lines left now, we are just interested in m/_input/.  
-        # Everything else, for example lines with temp1_max_hyst: or 
+        # From the lines left now, we are just interested in m/_input/.
+        # Everything else, for example lines with temp1_max_hyst: or
         # temp1_emergency:, should be ignored.
         if not re.search(r'_input: .*', outline2):
             continue
