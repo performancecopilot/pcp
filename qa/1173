@@ -11,7 +11,7 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
-_pmdabcc_require_kernel_version 4 7
+_pmdabcc_require_kernel_version 4 18
 _python_probe_check
 
 status=1       # failure is the default!
