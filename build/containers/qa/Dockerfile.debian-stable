@@ -13,7 +13,8 @@ RUN apt-get update && apt-get install -y \
         zlib1g-dev libclass-dbi-perl libdbd-mysql-perl python3-psycopg2 libcairo2-dev \
         libextutils-autoinstall-perl libxml-tokeparser-perl librrds-perl libjson-perl \
         libwww-perl libnet-snmp-perl libnss3-tools \
-        python3-requests libspreadsheet-read-perl libdata-peek-perl time libncurses5-dev
+        python3-requests libspreadsheet-read-perl libdata-peek-perl time libncurses5-dev \
+        libuv1-dev libssl-dev
 
 RUN useradd -c "Performance Co-Pilot" -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
 COPY . /pcp

@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
         libextutils-autoinstall-perl libxml-tokeparser-perl librrds-perl libjson-perl \
         libwww-perl libnet-snmp-perl libnss3-tools \
         python3-requests libspreadsheet-read-perl libdata-peek-perl time \
-        python3-bpfcc
+        python3-bpfcc libuv1-dev libssl-dev
 
 RUN useradd -c "Performance Co-Pilot" -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
 COPY . /pcp
