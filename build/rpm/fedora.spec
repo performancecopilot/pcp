@@ -157,6 +157,8 @@ Patch0: pmcd-pmlogger-local-context.patch
 %global disable_libuv 1
 %endif
 
+%global disable_openssl 0
+
 # rpm producing "noarch" packages
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_noarch 0
@@ -218,6 +220,9 @@ BuildRequires: boost-devel
 %endif
 %if !%{disable_libuv}
 BuildRequires: libuv-devel >= 1.16
+%endif
+%if !%{disable_openssl}
+BuildRequires: openssl-devel >= 1.0.1
 %endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 7
 BuildRequires: perl-generators

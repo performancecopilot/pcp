@@ -93,7 +93,7 @@ typedef struct redisReplyObjectFunctions {
 
 typedef struct redisReader {
     int			err;       /* Error flags, 0 when there is no error */
-    char		errstr[128]; /* TODO: string representation of error */
+    char		errstr[128]; /* string representation of error */
 
     sds			buf;       /* Read buffer */
     size_t		pos;       /* Buffer cursor */
@@ -148,13 +148,17 @@ int redisReaderGetReply(redisReader *r, void **reply);
 /* Flag that is set when we should set SO_REUSEADDR before calling bind() */
 #define REDIS_REUSEADDR		0x80
 
+/* Flag that is set when this connection is done through SSL */
+#define REDIS_SSL		0x100
+
+/* Flag that indicates the context should not be freed upon an error */
+#define REDIS_NO_AUTO_FREE	0x200
+
 #define REDIS_KEEPALIVE_INTERVAL 15 /* seconds */
 
 /* number of times we retry to connect in the case of EADDRNOTAVAIL and
  * SO_REUSEADDR is being used. */
 #define REDIS_CONNECT_RETRIES  10
-
-#define __redis_strerror_r(errno, buf, len) pmErrStr_r(-(errno), (buf), (len))
 
 /* This is the reply object returned by redisCommand() */
 typedef struct redisReply {
@@ -177,10 +181,28 @@ enum redisConnectionType {
     REDIS_CONN_UNIX
 };
 
+struct redisSsl;
+
+/* In Unix systems a file descriptor is a regular signed int, with -1
+ * representing an invalid descriptor. In Windows it is a SOCKET
+ * (32- or 64-bit unsigned integer depending on the architecture), where
+ * all bits set (~0) is INVALID_SOCKET.  */
+#ifndef _WIN32
+typedef int redisFD;
+#define REDIS_INVALID_FD -1
+#else
+#ifdef _WIN64
+typedef unsigned long long redisFD; /* SOCKET = 64-bit UINT_PTR */
+#else
+typedef unsigned long redisFD;      /* SOCKET = 32-bit UINT_PTR */
+#endif
+#define REDIS_INVALID_FD ((redisFD)(~0)) /* INVALID_SOCKET */
+#endif
+
 /* Context for a connection to Redis */
 typedef struct redisContext {
     int			err;
-    char		errstr[128]; /* TODO: string representation of error */
+    char		errstr[128]; /* string representation of error */
     int			fd;
     int			flags;
     char		*obuf;       /* Write buffer */
@@ -189,15 +211,22 @@ typedef struct redisContext {
     enum redisConnectionType connection_type;
     struct timeval	*timeout;
 
-    /* TODO: union */
     struct {
         char		*host;
         char		*source_addr;
         int		port;
     } tcp;
+
     struct {
         char		*path;
     } unix_sock;
+
+    /* For non-blocking connect */
+    struct sockaddr *saddr;
+    size_t addrlen;
+
+    /* For SSL communication */
+    struct redisSsl *ssl;
 } redisContext;
 
 /* figure out and reduce this this set of functions - async */
@@ -210,6 +239,13 @@ extern redisContext *redisConnectBindNonBlockWithReuse(const char *, int, const 
 extern redisContext *redisConnectUnix(const char *);
 extern redisContext *redisConnectUnixWithTimeout(const char *, const struct timeval);
 extern redisContext *redisConnectUnixNonBlock(const char *);
+
+/*
+ * Secure the connection using SSL.
+ * This should be done before any command is executed on the connection.
+ */
+extern int redisSecureConnection(redisContext *,
+		const char *, const char *, const char *, const char *);
 
 /*
  * Reconnect the given context using the saved information.
@@ -226,6 +262,10 @@ extern int redisSetTimeout(redisContext *, const struct timeval);
 extern void redisFree(redisContext *);
 extern int redisBufferRead(redisContext *);
 extern int redisBufferWrite(redisContext *, int *);
+
+/* internal error handling interfaces */
+#define __redis_strerror_r(errno, buf, len) pmErrStr_r(-(errno), (buf), (len))
+extern void __redisSetError(redisContext *, int, const char *);
 
 /*
  * In a blocking context, this function first checks if there are unconsumed
@@ -244,6 +284,7 @@ typedef void (redisAsyncCallBack)(struct redisAsyncContext *,
 typedef struct redisCallBack {
     struct redisCallBack	*next; /* simple singly linked list */
     redisAsyncCallBack		*func;
+    unsigned int		pending_subs;
     sds				command; /* copy of original command */
     void			*privdata;
 } redisCallBack;

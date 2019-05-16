@@ -206,9 +206,10 @@ redis_connect_callback(const redisAsyncContext *redis, int status)
 {
     if (status == REDIS_OK) {
 	if (pmDebugOptions.series)
-	    fprintf(stderr, "Connected to redis on %s:%d\n",
+	    fprintf(stderr, "Connected to Redis on %s:%d\n",
 			redis->c.tcp.host, redis->c.tcp.port);
 	redisAsyncEnableKeepAlive((redisAsyncContext *)redis);
+	/* TODO: if SSL inject redisSecureConnection() here */
     } else if (pmDebugOptions.series) {
 	if (redis->c.connection_type == REDIS_CONN_UNIX)
 	    fprintf(stderr, "Connecting to %s failed - %s\n",

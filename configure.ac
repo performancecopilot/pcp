@@ -1697,6 +1697,9 @@ then
 fi
 AC_SUBST(lib_for_regex)
 
+PKG_CHECK_MODULES([openssl], [openssl >= 1.1.0], [have_openssl=true], [have_openssl=false])
+AC_SUBST(HAVE_OPENSSL, [$have_openssl])
+
 PKG_CHECK_MODULES([libuv], [libuv >= 1.16], [have_libuv=true], [have_libuv=false])
 AC_SUBST(HAVE_LIBUV, [$have_libuv])
 

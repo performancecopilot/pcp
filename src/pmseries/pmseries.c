@@ -1037,11 +1037,11 @@ main(int argc, char *argv[])
 	    flags |= PMSERIES_FAST;
 	    break;
 
-        case 'g':
+	case 'g':
 	    match = sdsnew(opts.optarg);
 	    break;
 
-        case 'h':	/* Redis host to connect to */
+	case 'h':	/* Redis host to connect to */
 	    redis_host = opts.optarg;
 	    break;
 
@@ -1074,7 +1074,7 @@ main(int argc, char *argv[])
 	    flags |= (PMSERIES_OPT_LABELS|PMSERIES_ONLY_NAMES);
 	    break;
 
-        case 'p':	/* Redis port to connect to */
+	case 'p':	/* Redis port to connect to */
 	    redis_port = (unsigned int)strtol(opts.optarg, NULL, 10);
 	    break;
 
@@ -1115,11 +1115,11 @@ main(int argc, char *argv[])
 	 * we have some default for attemping Redis server connections.
 	 */
 	if ((option = pmIniFileLookup(config, "pmseries", "servers")) == NULL ||
-            (redis_host != NULL || redis_port != 6379)) {
-            option = sdscatfmt(sdsempty(), "%s:%u",
-                    redis_host? redis_host : "localhost", redis_port);
-            pmIniFileUpdate(config, "pmseries", "servers", option);
-        }
+	    (redis_host != NULL || redis_port != 6379)) {
+	    option = sdscatfmt(sdsempty(), "%s:%u",
+			redis_host? redis_host : "localhost", redis_port);
+	    pmIniFileUpdate(config, "pmseries", "servers", option);
+	}
     }
 
     if (flags & PMSERIES_OPT_ALL)

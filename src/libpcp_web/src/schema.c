@@ -1563,7 +1563,7 @@ redis_load_slots_callback(
     /* no cluster redirection checking is needed for this callback */
     sdsfree(cmd);
 
-    if (testReplyError(reply, REDIS_ENOCLUSTER) == 0) {
+    if (reply && testReplyError(reply, REDIS_ENOCLUSTER) == 0) {
 	/* cluster of Redis instances, following the cluster spec */
 	if (checkArrayReply(baton->info, baton->userdata,
 				reply, "%s %s", CLUSTER, "SLOTS") == 0) {

@@ -33,6 +33,7 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "redis.h"
+#include "sslio.h"
 #include "dict.h"
 #include "net.h"
 #include "sds.h"
@@ -57,22 +58,22 @@ const char *
 redis_reply_type(redisReply *reply)
 {
     if (reply == NULL)
-	return "none";
+        return "none";
     switch (reply->type) {
     case REDIS_REPLY_STRING:
-	return "string";
+        return "string";
     case REDIS_REPLY_ARRAY:
-	return "array";
+        return "array";
     case REDIS_REPLY_INTEGER:
-	return "integer";
+        return "integer";
     case REDIS_REPLY_NIL:
-	return "nil";
+        return "nil";
     case REDIS_REPLY_STATUS:
-	return "status";
+        return "status";
     case REDIS_REPLY_ERROR:
-	return "error";
+        return "error";
     default:
-	break;
+        break;
     }
     return "unknown";
 }
@@ -135,7 +136,7 @@ __redisReaderSetErrorProtocolByte(redisReader *r, char byte)
 
     chrtos(cbuf, sizeof(cbuf), byte);
     pmsprintf(sbuf, sizeof(sbuf), "Protocol error, got %s as reply type byte",
-	     cbuf);
+             cbuf);
     __redisReaderSetError(r, REDIS_ERR_PROTOCOL, sbuf);
 }
 
@@ -173,7 +174,7 @@ seekNewline(char *s, size_t len)
      */
     while (pos < _len) {
         while (pos < _len && s[pos] != '\r')
-	    pos++;
+            pos++;
         if (pos == _len) {
             /* Not found. */
             return NULL;
@@ -235,7 +236,7 @@ readLine(redisReader *r, int *_len)
         len = s - (r->buf + r->pos);
         r->pos += len + 2; /* skip \r\n */
         if (_len)
-	    *_len = len;
+            *_len = len;
         return p;
     }
     return NULL;
@@ -298,7 +299,7 @@ processLineItem(redisReader *r)
 
         /* Set reply if this is the root object. */
         if (r->ridx == 0)
-	    r->reply = obj;
+            r->reply = obj;
         moveToNextTask(r);
         return REDIS_OK;
     }
@@ -353,7 +354,7 @@ processBulkItem(redisReader *r)
 
             /* Set reply if this is the root object. */
             if (r->ridx == 0)
-		r->reply = obj;
+                r->reply = obj;
             moveToNextTask(r);
             return REDIS_OK;
         }
@@ -423,7 +424,7 @@ processMultiBulkItem(redisReader *r)
 
         /* Set reply if this is the root object. */
         if (root)
-	    r->reply = obj;
+            r->reply = obj;
         return REDIS_OK;
     }
 
@@ -617,7 +618,7 @@ createReplyObject(enum redisReplyType type)
     redisReply		*reply;
 
     if ((reply = calloc(1, sizeof(redisReply))) != NULL)
-	reply->type = type;
+        reply->type = type;
     return reply;
 }
 
@@ -628,7 +629,7 @@ freeReplyObject(void *r)
     size_t		j;
 
     if ((reply = (redisReply *)r) == NULL)
-	return;
+        return;
 
     switch (reply->type) {
     case REDIS_REPLY_ARRAY:
@@ -649,7 +650,7 @@ freeReplyObject(void *r)
 
     case REDIS_REPLY_INTEGER:
     default:
-	break;
+        break;
     }
 
     free(reply);
@@ -662,11 +663,11 @@ createStringObject(const redisReadTask *task, char *str, size_t len)
     char		*buf;
 
     if ((reply = createReplyObject(task->type)) == NULL)
-	return NULL;
+        return NULL;
 
     if ((buf = malloc(len + 1)) == NULL) {
-	freeReplyObject(reply);
-	return NULL;
+        freeReplyObject(reply);
+        return NULL;
     }
 
     assert(task->type == REDIS_REPLY_ERROR  ||
@@ -680,9 +681,9 @@ createStringObject(const redisReadTask *task, char *str, size_t len)
     reply->len = len;
 
     if (task->parent) {
-	parent = task->parent->obj;
-	assert(parent->type == REDIS_REPLY_ARRAY);
-	parent->element[task->idx] = reply;
+        parent = task->parent->obj;
+        assert(parent->type == REDIS_REPLY_ARRAY);
+        parent->element[task->idx] = reply;
     }
     return reply;
 }
@@ -693,22 +694,22 @@ createArrayObject(const redisReadTask *task, int elements)
     redisReply		*reply, *parent;
 
     if ((reply = createReplyObject(REDIS_REPLY_ARRAY)) == NULL)
-	return NULL;
+        return NULL;
 
     if (elements > 0) {
-	reply->element = calloc(elements,sizeof(redisReply*));
-	if (reply->element == NULL) {
-	    freeReplyObject(reply);
-	    return NULL;
-	}
+        reply->element = calloc(elements,sizeof(redisReply*));
+        if (reply->element == NULL) {
+            freeReplyObject(reply);
+            return NULL;
+        }
     }
 
     reply->elements = elements;
 
     if (task->parent) {
-	parent = task->parent->obj;
-	assert(parent->type == REDIS_REPLY_ARRAY);
-	parent->element[task->idx] = reply;
+        parent = task->parent->obj;
+        assert(parent->type == REDIS_REPLY_ARRAY);
+        parent->element[task->idx] = reply;
     }
     return reply;
 }
@@ -719,14 +720,14 @@ createIntegerObject(const redisReadTask *task, long long value)
     redisReply		*reply, *parent;
 
     if ((reply = createReplyObject(REDIS_REPLY_INTEGER)) == NULL)
-	return NULL;
+        return NULL;
 
     reply->integer = value;
 
     if (task->parent) {
-	parent = task->parent->obj;
-	assert(parent->type == REDIS_REPLY_ARRAY);
-	parent->element[task->idx] = reply;
+        parent = task->parent->obj;
+        assert(parent->type == REDIS_REPLY_ARRAY);
+        parent->element[task->idx] = reply;
     }
     return reply;
 }
@@ -737,18 +738,18 @@ createNilObject(const redisReadTask *task)
     redisReply		*reply, *parent;
 
     if ((reply = createReplyObject(REDIS_REPLY_NIL)) == NULL)
-	return NULL;
+        return NULL;
 
     if (task->parent) {
-	parent = task->parent->obj;
-	assert(parent->type == REDIS_REPLY_ARRAY);
-	parent->element[task->idx] = reply;
+        parent = task->parent->obj;
+        assert(parent->type == REDIS_REPLY_ARRAY);
+        parent->element[task->idx] = reply;
     }
     return reply;
 }
 
 void
-__redisSetError(redisContext *c, int type, const char *str)	/* TODO */
+__redisSetError(redisContext *c, int type, const char *str)
 {
     size_t		len;
 
@@ -793,10 +794,9 @@ redisFree(redisContext *c)
 {
     if (c == NULL)
         return;
-    if (c->fd > 0)
-        close(c->fd);
-    if (c->obuf != NULL)
-        sdsfree(c->obuf);
+    redisNetClose(c);
+
+    sdsfree(c->obuf);
     if (c->reader != NULL)
         redisReaderFree(c->reader);
     if (c->tcp.host)
@@ -807,6 +807,9 @@ redisFree(redisContext *c)
         free(c->unix_sock.path);
     if (c->timeout)
         free(c->timeout);
+    if (c->ssl)
+        redisFreeSsl(c->ssl);
+    memset(c, 0, sizeof(*c));
     free(c);
 }
 
@@ -938,12 +941,21 @@ redisConnectUnixNonBlock(const char *path)
     return c;
 }
 
+int
+redisSecureConnection(redisContext *c, const char *caPath,
+	const char *certPath, const char *keyPath, const char *servername)
+{
+    return redisSslCreate(c, caPath, certPath, keyPath, servername);
+}
+
+/* Set read/write timeout on a blocking socket. */
+
 /* Set read/write timeout on a blocking socket. */
 int
 redisSetTimeout(redisContext *c, const struct timeval tv)
 {
     if (c->flags & REDIS_BLOCK)
-	return redisContextSetTimeout(c, tv);
+        return redisContextSetTimeout(c, tv);
     return REDIS_ERR;
 }
 
@@ -973,22 +985,15 @@ redisBufferRead(redisContext *c)
     if (c->err)
         return REDIS_ERR;
 
-    nread = read(c->fd, buf, sizeof(buf));
-    if (nread == -1) {
-        if ((errno == EAGAIN && !(c->flags & REDIS_BLOCK)) || (errno == EINTR)) {
-            /* Try again later */
-        } else {
-            __redisSetError(c, REDIS_ERR_IO, NULL);
-            return REDIS_ERR;
-        }
-    } else if (nread == 0) {
-        __redisSetError(c, REDIS_ERR_EOF, "Server closed the connection");
-        return REDIS_ERR;
-    } else {
+    nread = c->flags & REDIS_SSL ?
+        redisSslRead(c, buf, sizeof(buf)) : redisNetRead(c, buf, sizeof(buf));
+    if (nread > 0) {
         if (redisReaderFeed(c->reader, buf, nread) != REDIS_OK) {
             __redisSetError(c, c->reader->err, c->reader->errstr);
             return REDIS_ERR;
         }
+    } else if (nread < 0) {
+        return REDIS_ERR;
     }
     return REDIS_OK;
 }
@@ -1013,14 +1018,9 @@ redisBufferWrite(redisContext *c, int *done)
         return REDIS_ERR;
 
     if (sdslen(c->obuf) > 0) {
-        nwritten = write(c->fd, c->obuf, sdslen(c->obuf));
-        if (nwritten == -1) {
-            if ((errno == EAGAIN && !(c->flags & REDIS_BLOCK)) || (errno == EINTR)) {
-                /* Try again later */
-            } else {
-                __redisSetError(c, REDIS_ERR_IO, NULL);
-                return REDIS_ERR;
-            }
+        nwritten = (c->flags & REDIS_SSL) ? redisSslWrite(c) : redisNetWrite(c);
+        if (nwritten < 0) {
+            return REDIS_ERR;
         } else if (nwritten > 0) {
             if (nwritten == (signed)sdslen(c->obuf)) {
                 sdsfree(c->obuf);
@@ -1031,7 +1031,7 @@ redisBufferWrite(redisContext *c, int *done)
         }
     }
     if (done != NULL)
-	*done = (sdslen(c->obuf) == 0);
+        *done = (sdslen(c->obuf) == 0);
     return REDIS_OK;
 }
 
@@ -1078,7 +1078,7 @@ redisGetReply(redisContext *c, void **reply)
 
     /* Set reply object */
     if (reply != NULL)
-	*reply = aux;
+        *reply = aux;
     return REDIS_OK;
 }
 
@@ -1089,8 +1089,8 @@ __redisAppendCommand(redisContext *c, const sds cmd)
     sds			newbuf;
 
     if ((newbuf = sdscatsds(c->obuf, cmd)) == NULL) {
-	__redisSetError(c, REDIS_ERR_OOM, "Out of memory");
-	return REDIS_ERR;
+        __redisSetError(c, REDIS_ERR_OOM, "Out of memory");
+        return REDIS_ERR;
     }
     c->obuf = newbuf;
     return REDIS_OK;
@@ -1124,7 +1124,7 @@ callbackKeyCompare(void *privdata, const void *key1, const void *key2)
     l1 = sdslen((const sds)key1);
     l2 = sdslen((const sds)key2);
     if (l1 != l2)
-	return 0;
+        return 0;
     return memcmp(key1, key2, l1) == 0;
 }
 
@@ -1260,10 +1260,10 @@ redisAsyncSetConnectCallBack(redisAsyncContext *ac, redisConnectCallBack *func)
     if (ac->onConnect == NULL) {
         ac->onConnect = func;
         /*
-	 * The common way to detect an established connection is to wait for
+         * The common way to detect an established connection is to wait for
          * the first write event to be fired. This assumes the related event
          * library functions are already set.
-	 */
+         */
         REDIS_EV_ADD_WRITE(ac);
         return REDIS_OK;
     }
@@ -1422,7 +1422,9 @@ __redisAsyncDisconnect(redisAsyncContext *ac)
 
     /* For non-clean disconnects, __redisAsyncFree() will execute pending
      * callbacks with a NULL-reply. */
-    __redisAsyncFree(ac);
+    if (!(c->flags & REDIS_NO_AUTO_FREE)) {
+        __redisAsyncFree(ac);
+    }
 }
 
 /*
@@ -1439,6 +1441,9 @@ redisAsyncDisconnect(redisAsyncContext *ac)
     redisContext	*c = &(ac->c);
 
     c->flags |= REDIS_DISCONNECTING;
+    /* unset the auto-free flag here, because disconnect undoes this */
+    c->flags &= ~REDIS_NO_AUTO_FREE;
+
     if (!(c->flags & REDIS_IN_CALLBACK) && ac->replies.head == NULL)
         __redisAsyncDisconnect(ac);
 }
@@ -1448,6 +1453,7 @@ __redisGetSubscribeCallBack(redisAsyncContext *ac, redisReply *reply, redisCallB
 {
     redisContext	*c = &(ac->c);
     dict		*callbacks;
+    redisCallBack	*cb;
     dictEntry		*de;
     int			pvariant;
     char		*stype;
@@ -1473,23 +1479,31 @@ __redisGetSubscribeCallBack(redisAsyncContext *ac, redisReply *reply, redisCallB
         sname = sdsnewlen(reply->element[1]->str, reply->element[1]->len);
         de = dictFind(callbacks, sname);
         if (de != NULL) {
+            cb = dictGetVal(de);
+
+            /* If this is an subscribe reply decrease pending counter. */
+            if (strcasecmp(stype+pvariant,"subscribe") == 0) {
+                cb->pending_subs -= 1;
+            }
+
             memcpy(dstcb, dictGetVal(de), sizeof(*dstcb));
 
             /* If this is an unsubscribe message, remove it. */
             if (strcasecmp(stype+pvariant, "unsubscribe") == 0) {
-                dictDelete(callbacks, sname);
+                if (cb->pending_subs == 0)
+                    dictDelete(callbacks, sname);
 
                 /*
-		 * If this was the last unsubscribe message, revert to
+                 * If this was the last unsubscribe message, revert to
                  * non-subscribe mode.
-		 */
+                 */
                 assert(reply->element[2]->type == REDIS_REPLY_INTEGER);
                 if (reply->element[2]->integer == 0)
                     c->flags &= ~REDIS_SUBSCRIBED;
             }
         }
         sdsfree(sname);
-	return REDIS_OK;
+        return REDIS_OK;
     }
     /* Shift callback for invalid commands. */
     return __redisShiftCallBack(&ac->sub.invalid, dstcb);
@@ -1499,21 +1513,22 @@ void
 redisProcessCallBacks(redisAsyncContext *ac)
 {
     redisContext	*c = &(ac->c);
-    redisCallBack	cb = {NULL, NULL, NULL};
+    redisCallBack	cb;
     void		*reply = NULL;
     int			status;
 
+    memset(&cb, 0, sizeof(cb));
     while ((status = redisGetReply(c, &reply)) == REDIS_OK) {
         if (reply == NULL) {
             /*
-	     * When the connection is being disconnected and there are
+             * When the connection is being disconnected and there are
              * no more replies, this is the cue to really disconnect.
-	     */
+             */
             if (c->flags & REDIS_DISCONNECTING &&
-		sdslen(c->obuf) == 0 &&
-		ac->replies.head == NULL) {
-		__redisAsyncDisconnect(ac);
-		return;
+        	sdslen(c->obuf) == 0 &&
+        	ac->replies.head == NULL) {
+        	__redisAsyncDisconnect(ac);
+        	return;
             }
 
             /* If monitor mode, repush callback */
@@ -1521,16 +1536,16 @@ redisProcessCallBacks(redisAsyncContext *ac)
                 __redisPushCallBack(&ac->replies, &cb);
 
             /*
-	     * When the connection is not being disconnected, simply stop
+             * When the connection is not being disconnected, simply stop
              * trying to get replies and wait for the next loop tick.
-	     */
+             */
             break;
         }
 
         /*
-	 * Even if the context is subscribed, pending regular callbacks will
+         * Even if the context is subscribed, pending regular callbacks will
          * get a reply before pub/sub messages arrive.
-	 */
+         */
         if (__redisShiftCallBack(&ac->replies, &cb) != REDIS_OK) {
             /*
              * A spontaneous reply in a not-subscribed context can be the error
@@ -1571,11 +1586,11 @@ redisProcessCallBacks(redisAsyncContext *ac)
             }
         } else {
             /*
-	     * No callback for this reply. This can either be a NULL callback,
+             * No callback for this reply. This can either be a NULL callback,
              * or there were no callbacks to begin with. Either way, don't
              * abort with an error, but simply ignore it because the client
              * doesn't know what the server will spit out over the wire.
-	     */
+             */
             c->reader->fn->freeObject(reply);
         }
     }
@@ -1593,24 +1608,96 @@ redisProcessCallBacks(redisAsyncContext *ac)
 static int
 __redisAsyncHandleConnect(redisAsyncContext *ac)
 {
+    int			completed = 0;
     redisContext	*c = &(ac->c);
 
-    if (redisCheckSocketError(c) == REDIS_ERR) {
-        /* Try again later when connect(2) is still in progress. */
-        if (errno == EINPROGRESS)
-            return REDIS_OK;
-
-        if (ac->onConnect)
-	    ac->onConnect(ac, REDIS_ERR);
+    if (redisCheckConnectDone(c, &completed) == REDIS_ERR) {
+        /* Error! */
+        redisCheckSocketError(c);
+        if (ac->onConnect) ac->onConnect(ac, REDIS_ERR);
         __redisAsyncDisconnect(ac);
         return REDIS_ERR;
+    } else if (completed == 1) {
+        /* connected! */
+        if (ac->onConnect) ac->onConnect(ac, REDIS_OK);
+        c->flags |= REDIS_CONNECTED;
+        return REDIS_OK;
+    } else {
+        return REDIS_OK;
+    }
+}
+
+/**
+ * Handle SSL when socket becomes available for reading. This also handles
+ * read-while-write and write-while-read.
+ *
+ * These functions will not work properly unless `HIREDIS_SSL` is defined
+ * (however, they will compile)
+ */
+static void
+asyncSslRead(redisAsyncContext *ac)
+{
+    int			sts, done;
+    redisSsl		*ssl = ac->c.ssl;
+    redisContext	*c = &ac->c;
+
+    ssl->wantRead = 0;
+
+    if (ssl->pendingWrite) {
+        /* This is probably just a write event */
+        ssl->pendingWrite = 0;
+        done = 0;
+        sts = redisBufferWrite(c, &done);
+        if (sts == REDIS_ERR) {
+            __redisAsyncDisconnect(ac);
+            return;
+        } else if (!done) {
+            REDIS_EV_ADD_WRITE(ac);
+        }
     }
 
-    /* Mark context as connected. */
-    c->flags |= REDIS_CONNECTED;
-    if (ac->onConnect)
-	ac->onConnect(ac, REDIS_OK);
-    return REDIS_OK;
+    sts = redisBufferRead(c);
+    if (sts == REDIS_ERR) {
+        __redisAsyncDisconnect(ac);
+    } else {
+        REDIS_EV_ADD_READ(ac);
+        redisProcessCallBacks(ac);
+    }
+}
+
+/**
+ * Handle SSL when socket becomes available for writing
+ */
+static void
+asyncSslWrite(redisAsyncContext *ac)
+{
+    int			sts, done = 0;
+    redisSsl		*ssl = ac->c.ssl;
+    redisContext	*c = &ac->c;
+
+    ssl->pendingWrite = 0;
+    sts = redisBufferWrite(c, &done);
+    if (sts == REDIS_ERR) {
+        __redisAsyncDisconnect(ac);
+        return;
+    }
+
+    if (!done) {
+        if (ssl->wantRead) {
+            /* Need to read-before-write */
+            ssl->pendingWrite = 1;
+            REDIS_EV_DEL_WRITE(ac);
+        } else {
+            /* No extra reads needed, just need to write more */
+            REDIS_EV_ADD_WRITE(ac);
+        }
+    } else {
+        /* Already done! */
+        REDIS_EV_DEL_WRITE(ac);
+    }
+
+    /* Always reschedule a read */
+    REDIS_EV_ADD_READ(ac);
 }
 
 /*
@@ -1629,6 +1716,11 @@ redisAsyncHandleRead(redisAsyncContext *ac)
         /* Try again later when the context is still not connected. */
         if (!(c->flags & REDIS_CONNECTED))
             return;
+    }
+
+    if (c->flags & REDIS_SSL) {
+        asyncSslRead(ac);
+        return;
     }
 
     if (redisBufferRead(c) == REDIS_ERR) {
@@ -1653,6 +1745,11 @@ redisAsyncHandleWrite(redisAsyncContext *ac)
         /* Try again later when the context is still not connected. */
         if (!(c->flags & REDIS_CONNECTED))
             return;
+    }
+
+    if (c->flags & REDIS_SSL) {
+        asyncSslWrite(ac);
+        return;
     }
 
     if (redisBufferWrite(c, &done) == REDIS_ERR) {
@@ -1681,7 +1778,7 @@ nextArgument(const char *start, const char **str, size_t *len)
     if (p[0] != '$') {
         p = strchr(p, '$');
         if (p == NULL)
-	    return NULL;
+            return NULL;
     }
 
     *len = (int)strtol(p+1, NULL, 10);
@@ -1698,10 +1795,13 @@ nextArgument(const char *start, const char **str, size_t *len)
  */
 static int
 __redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
-		const sds cmd, void *privdata)
+               const sds cmd, void *privdata)
 {
     redisContext	*c = &(ac->c);
     redisCallBack	cb;
+    struct dict		*cbdict;
+    dictEntry		*de;
+    redisCallBack	*existcb;
     int			pvariant, hasnext;
     const char		*cstr, *astr;
     size_t		clen, alen;
@@ -1711,12 +1811,13 @@ __redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
 
     /* Don't accept new commands when the connection is about to be closed. */
     if (c->flags & (REDIS_DISCONNECTING | REDIS_FREEING))
-	return REDIS_ERR;
+        return REDIS_ERR;
 
     /* Setup callback */
     cb.func = func;
-    cb.command = (sds)cmd;
     cb.privdata = privdata;
+    cb.command = (sds)cmd;
+    cb.pending_subs = 1;
 
     /* Find out which command will be appended. */
     p = nextArgument(cmd, &cstr, &clen);
@@ -1729,29 +1830,37 @@ __redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
     if (hasnext && strncasecmp(cstr, "subscribe\r\n", 11) == 0) {
         c->flags |= REDIS_SUBSCRIBED;
 
-	/* Add every channel/pattern to the list of subscription callbacks. */
-	while ((p = nextArgument(p, &astr, &alen)) != NULL) {
+        /* Add every channel/pattern to the list of subscription callbacks. */
+        while ((p = nextArgument(p, &astr, &alen)) != NULL) {
             sname = sdsnewlen(astr, alen);
             if (pvariant)
-                sts = dictReplace(ac->sub.patterns, sname, &cb);
+                cbdict = ac->sub.patterns;
             else
-                sts = dictReplace(ac->sub.channels, sname, &cb);
+                cbdict = ac->sub.channels;
+
+            de = dictFind(cbdict,sname);
+            if (de != NULL) {
+                existcb = dictGetVal(de);
+        	cb.pending_subs = existcb->pending_subs + 1;
+            }
+
+            sts = dictReplace(cbdict, sname, &cb);
             if (sts == 0)
                 sdsfree(sname);
         }
     } else if (strncasecmp(cstr, "unsubscribe\r\n", 13) == 0) {
         /*
-	 * It is only useful to call (P)UNSUBSCRIBE when the context is
+         * It is only useful to call (P)UNSUBSCRIBE when the context is
          * subscribed to one or more channels or patterns.
-	 */
+         */
         if (!(c->flags & REDIS_SUBSCRIBED))
-	    return REDIS_ERR;
+            return REDIS_ERR;
 
         /*
-	 * (P)UNSUBSCRIBE does not have its own response: every channel or
+         * (P)UNSUBSCRIBE does not have its own response: every channel or
          * pattern that is unsubscribed will receive a message. This means
          * we should not append a callback function for this command.
-	 */
+         */
     } else if (strncasecmp(cstr, "monitor\r\n", 9) == 0) {
         /* Set monitor flag and push callback */
         c->flags |= REDIS_MONITORING;
@@ -1759,9 +1868,9 @@ __redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
     } else {
         if (c->flags & REDIS_SUBSCRIBED)
             /*
-	     * This will likely result in an error reply, but it needs to be
+             * This will likely result in an error reply, but it needs to be
              * received and passed to the callback.
-	     */
+             */
             __redisPushCallBack(&ac->sub.invalid, &cb);
         else
             __redisPushCallBack(&ac->replies, &cb);
@@ -1777,7 +1886,7 @@ __redisAsyncCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
 
 int
 redisAsyncFormattedCommand(redisAsyncContext *ac, redisAsyncCallBack *func,
-		const sds command, void *privdata)
+                const sds command, void *privdata)
 {
     return __redisAsyncCommand(ac, func, command, privdata);
 }
