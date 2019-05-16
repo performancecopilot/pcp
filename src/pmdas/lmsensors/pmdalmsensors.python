@@ -1,6 +1,6 @@
-#!/usr/bin/env pmpython
+#!/usr/bin/pmpython
 #
-# Copyright (c) 2012,2018 Red Hat.
+# Copyright (c) 2012,2018-2019 Red Hat.
 # Copyright (c) 2008,2012 Aconex.  All Rights Reserved.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -58,46 +58,68 @@ def lmsensors_get():
             if args.debug == 2:
                 print("  inputline:", outline2)
 
+        # We get 4 levels of variables from the sensors output, 
+        # and construct a hirachy of metrics.
+        # For example:
+        #
+        # coretemp-isa-0000                 # level0
+        # Adapter: ISA adapter              # level1
+        # Package id 0:                     # level2
+        #   temp1_input: 43.000             # level3
+        #   temp1_max: 100.000
+        #   temp1_crit: 100.000
+        #   temp1_crit_alarm: 0.000
+        # Core 0:                           # level2
+        #   temp2_input: 41.000             # level3
+        #   temp2_max: 100.000
+        #   temp2_crit: 100.000
+        #   temp2_crit_alarm: 0.000
+        #
+        # ..will become: 
+        # coretemp_isa.isa_adapter.package_id_0.temp1
+        # coretemp_isa.isa_adapter.core_0.temp2
+
         if re.search(r'^[a-z0-9-_]*[^:]$', outline2):
-            temp = outline2.lower()                     # i.e. thinkpad-isa-0000
-            devname0 = re.sub(r'-[0-9]+', "", temp)
+            tmp = outline2.lower()                   # i.e. coretemp-isa-0000
+            level0 = re.sub(r'-[0-9]+', "", tmp)
             if args.debug:
                 if args.debug == 2:
-                    print("    assigned devname0:", devname0)
+                    print("    assigned level0:", level0)
             continue
         if re.search(r'^Adapter:', outline2):
-            temp = re.sub(r'Adapter: ', "", outline2)
-            temp2 = temp.lower()
-            devname1 = re.sub(r'\s', "-", temp2, 5)     # i.e. ISA-adapter
+            tmp = re.sub(r'Adapter: ', "", outline2)
+            tmp2 = tmp.lower()
+            level1 = re.sub(r'\s', "-", tmp2, 5)     # i.e. isa-adapter
             if args.debug:
                 if args.debug == 2:
-                    print("    assigned devname1:", devname1)
+                    print("    assigned level1:", level1)
             continue
-        if re.search(r'^([a-zA-Z0-9-\s]*):', outline2):
-            temp = re.sub(r':', "", outline2)
-            temp2 = temp.lower()
-            devname2 = re.sub(r'\s', "-", temp2, 5)     # i.e. fan1
+        if re.search(r'^[a-zA-Z0-9-][a-zA-Z0-9-_\s]*:', outline2):
+            tmp = re.sub(r':', "", outline2)
+            tmp2 = tmp.lower()
+            level2 = re.sub(r'\s', "-", tmp2, 5)     # i.e. package_id_0
             if args.debug:
                 if args.debug == 2:
-                    print("    assigned devname2:", devname2)
+                    print("    assigned level2:", level2)
             continue
 
-        # We are just interested in m/_input/.  Everything else, for example
-        # lines with temp1_max_hyst: or temp1_emergency:, should be ignored.
+        # From the lines left now, we are just interested in m/_input/.  
+        # Everything else, for example lines with temp1_max_hyst: or 
+        # temp1_emergency:, should be ignored.
         if not re.search(r'_input: .*', outline2):
             continue
 
-        temp = re.sub(r'_input: .*', "", outline2)
-        devname3 = re.sub(r'\s+', "", temp)             # i.e. temp1_input or fan1_input
+        tmp = re.sub(r'_input: .*', "", outline2)
+        level3 = re.sub(r'\s+', "", tmp)             # i.e. temp1
         if args.debug:
             if args.debug == 2:
-                print("    assigned devname3:", devname3)
+                print("    assigned level3:", level3)
 
-        temp = re.sub(r'.*: ', "", outline2)
-        sensorvalue = re.sub(r'\..*', "", temp)         # i.e. 42, actual sensor value
+        tmp = re.sub(r'.*: ', "", outline2)
+        sensorvalue = re.sub(r'\..*', "", tmp)       # i.e. 42, actual sensor value
         sensorvalue.rstrip()
 
-        final_name = (devname0 + "." + devname1 + "." + devname2 + "." + devname3).replace('-', '_')
+        final_name = (level0 + "." + level1 + "." + level2 + "." + level3).replace('-', '_')
         sensorvalues[final_name] = sensorvalue
 
 
@@ -109,6 +131,18 @@ class LmsensorsPMDA(PMDA):
 
         lmsensors_get()
         if cluster == 0:
+            # sanity checking: sort out temperatures below -127.
+            # some sensors report -128 in error, from time to time.
+            if re.search(r'temp', sensornames[item]):
+                if int(sensorvalues[sensornames[item]]) < -127:
+                    return None
+
+            # sanity checking: sort out negative values from fans
+            if re.search(r'fan', sensornames[item]):
+                if int(sensorvalues[sensornames[item]]) < 0:
+                    return None
+
+            # if we made it until here, plainly return the read value
             return [int(sensorvalues[sensornames[item]]), 1]
             # return [42, 1]
         return [c_api.PM_ERR_PMID, 0]
