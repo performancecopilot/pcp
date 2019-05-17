@@ -24,6 +24,7 @@
 char		sep;
 int		vflag;		/* verbose off by default */
 int		nowrap;		/* suppress wrap check */
+int		mflag;		/* check metadata only, suppress pass3 */
 int		index_state = STATE_MISSING;
 int		meta_state = STATE_MISSING;
 int		log_state = STATE_MISSING;
@@ -37,6 +38,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
     { "label", 0, 'l', 0, "print the archive label" },
+    { "metadataonly", 0, 'm', 0, "skip checking log data volumes" },
     PMOPT_NAMESPACE,
     PMOPT_START,
     PMOPT_FINISH,
@@ -50,7 +52,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "D:ln:S:T:zvwZ:?",
+    .short_options = "D:lmn:S:T:zvwZ:?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
@@ -174,6 +176,9 @@ main(int argc, char *argv[])
 	switch (c) {
 	case 'l':	/* display the archive label */
 	    lflag = 1;
+	    break;
+	case 'm':	/* only check metadata */
+	    mflag = 1;
 	    break;
 	case 'v':	/* bump verbosity */
 	    vflag++;
@@ -315,7 +320,8 @@ main(int argc, char *argv[])
 
     sts = pass2(ctxp, archname);
 
-    sts = pass3(ctxp, archname, &opts);
+    if (!mflag)
+	sts = pass3(ctxp, archname, &opts);
 
     if (vflag) {
 	if (result_count > 0)
