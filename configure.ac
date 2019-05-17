@@ -1698,6 +1698,13 @@ fi
 AC_SUBST(lib_for_regex)
 
 PKG_CHECK_MODULES([openssl], [openssl >= 1.1.0], [have_openssl=true], [have_openssl=false])
+if $have_openssl
+then
+    :
+else
+    dnl try ssl (Debian)
+    PKG_CHECK_MODULES([ssl], [ssl >= 1.1.0], [have_openssl=true], [have_openssl=false])
+fi
 AC_SUBST(HAVE_OPENSSL, [$have_openssl])
 
 PKG_CHECK_MODULES([libuv], [libuv >= 1.16], [have_libuv=true], [have_libuv=false])
