@@ -153,7 +153,7 @@ on_client_close(uv_handle_t *handle)
     free(client);
 }
 
-static void
+void
 on_client_write(uv_write_t *writer, int status)
 {
     struct client	*client = (struct client *)writer->handle;
@@ -196,8 +196,11 @@ client_write(struct client *client, sds buffer, sds suffix)
 			"client_write", (long)sdslen(suffix), client);
 	    request->buffer[nbuffers++] = uv_buf_init(suffix, sdslen(suffix));
 	}
-	uv_write(&request->writer, (uv_stream_t *)&client->stream,
-		 request->buffer, nbuffers, on_client_write);
+	if (client->stream.secure)
+	    secure_client_write(client, &request->writer, nbuffers);
+	else
+	    uv_write(&request->writer, (uv_stream_t *)&client->stream,
+			request->buffer, nbuffers, on_client_write);
     } else {
 	uv_close((uv_handle_t *)&client->stream, on_client_close);
     }
@@ -235,7 +238,7 @@ client_protocol(int key)
     return STREAM_UNKNOWN;
 }
 
-static void
+void
 on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 {
     struct proxy	*proxy = (struct proxy *)stream->data;
@@ -252,8 +255,7 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 	case STREAM_REDIS:
 	    return on_redis_client_read(proxy, client, nread, buf);
 	case STREAM_SECURE:
-	    fprintf(stderr, "%s: SSL/TLS connection initiated by client %p\n",
-			"client_protocol", client);
+	    return on_secure_client_read(proxy, client, nread, buf);
 	default:
 	    break;
 	}
@@ -497,6 +499,15 @@ fail:
 }
 
 static void
+close_proxy(struct proxy *proxy)
+{
+    close_pcp_module(proxy);
+    close_http_module(proxy);
+    close_redis_module(proxy);
+    close_secure_module(proxy);
+}
+
+static void
 shutdown_ports(void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
@@ -516,10 +527,7 @@ shutdown_ports(void *arg)
     free(proxy->servers);
     proxy->servers = NULL;
 
-    if (proxy->slots) {
-	redisSlotsFree(proxy->slots);
-	proxy->slots = NULL;
-    }
+    close_proxy(proxy);
 
     if (proxy->config) {
 	pmIniFileFree(proxy->config);
@@ -555,10 +563,10 @@ dump_request_ports(FILE *output, void *arg)
 }
 
 /*
- * Attempt to establish a Redis connection straight away;
- * this is achieved via a timer that expires immediately.
- * Once the connection is established (async) modules are
- * again informed via the setup routines.
+ * Initial setup for each of the major sub-systems modules,
+ * which is achieved via a timer that expires immediately.
+ * Once any connections are established (async) modules are
+ * again informed via their individual setup routines.
  */
 static void
 setup_proxy(uv_timer_t *arg)
@@ -566,22 +574,53 @@ setup_proxy(uv_timer_t *arg)
     uv_handle_t		*handle = (uv_handle_t *)arg;
     struct proxy	*proxy = (struct proxy *)handle->data;
 
-    setup_redis_modules(proxy);
-    setup_http_modules(proxy);
-    setup_pcp_modules(proxy);
+    setup_secure_module(proxy);
+    setup_redis_module(proxy);
+    setup_http_module(proxy);
+    setup_pcp_module(proxy);
+}
+
+static void
+prepare_proxy(uv_prepare_t *arg)
+{
+    uv_handle_t		*handle = (uv_handle_t *)arg;
+    struct proxy	*proxy = (struct proxy *)handle->data;
+
+    flush_secure_module(proxy);
+}
+
+static void
+check_proxy(uv_check_t *arg)
+{
+    uv_handle_t		*handle = (uv_handle_t *)arg;
+    struct proxy	*proxy = (struct proxy *)handle->data;
+
+    flush_secure_module(proxy);
 }
 
 static void
 main_loop(void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
-    uv_timer_t		attempt;
+    uv_timer_t		initial_io;
+    uv_prepare_t	before_io;
+    uv_check_t		after_io;
     uv_handle_t		*handle;
 
-    uv_timer_init(proxy->events, &attempt);
-    handle = (uv_handle_t *)&attempt;
+    uv_timer_init(proxy->events, &initial_io);
+    handle = (uv_handle_t *)&initial_io;
     handle->data = (void *)proxy;
-    uv_timer_start(&attempt, setup_proxy, 0, 0);
+    uv_timer_start(&initial_io, setup_proxy, 0, 0);
+
+    uv_prepare_init(proxy->events, &before_io);
+    handle = (uv_handle_t *)&before_io;
+    handle->data = (void *)proxy;
+    uv_prepare_start(&before_io, prepare_proxy);
+
+    uv_check_init(proxy->events, &after_io);
+    handle = (uv_handle_t *)&after_io;
+    handle->data = (void *)proxy;
+    uv_check_start(&after_io, check_proxy);
 
     uv_run(proxy->events, UV_RUN_DEFAULT);
 }

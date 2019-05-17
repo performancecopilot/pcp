@@ -99,30 +99,18 @@ grafana_free_baton(struct client *client, GrafanaBaton *baton)
 
     client->u.http.data = NULL;	/* remove baton link for this client */
 
-    if (baton->refId)
-	sdsfree(baton->refId);
-    if (baton->panelId)
-	sdsfree(baton->panelId);
-    if (baton->dashboardId)
-	sdsfree(baton->dashboardId);
-    if (baton->suffix)
-	sdsfree(baton->suffix);
-    if (baton->query)
-	sdsfree(baton->query);
-    if (baton->target)
-	sdsfree(baton->target);
-    if (baton->start)
-	sdsfree(baton->start);
-    if (baton->finish)
-	sdsfree(baton->finish);
-    if (baton->interval)
-	sdsfree(baton->interval);
-    if (baton->timezone)
-	sdsfree(baton->timezone);
-    if (baton->maxvalues)
-	sdsfree(baton->maxvalues);
-    if (baton->maxseries)
-	sdsfree(baton->maxseries);
+    sdsfree(baton->refId);
+    sdsfree(baton->panelId);
+    sdsfree(baton->dashboardId);
+    sdsfree(baton->suffix);
+    sdsfree(baton->query);
+    sdsfree(baton->target);
+    sdsfree(baton->start);
+    sdsfree(baton->finish);
+    sdsfree(baton->interval);
+    sdsfree(baton->timezone);
+    sdsfree(baton->maxvalues);
+    sdsfree(baton->maxseries);
     memset(baton, 0, sizeof(*baton));
 }
 
@@ -325,10 +313,6 @@ on_grafana_done(int status, void *arg)
     }
     http_reply(client, msg, code, flags);
 
-    /* close connection if requested or if HTTP 1.0 and keepalive not set */
-    if (http_should_keep_alive(&client->u.http.parser) == 0)
-	http_close(client);
-
     grafana_free_baton(client, baton);
 }
 
@@ -494,8 +478,7 @@ grafana_request_body(struct client *client, const char *content, size_t length)
 
     switch (baton->restkey) {
     case RESTKEY_QUERY:
-	if (baton->target)
-	    sdsfree(baton->target);
+	sdsfree(baton->target);
 	baton->target = sdsnewlen(content, length);
 	break;
 
@@ -623,28 +606,17 @@ grafana_request_done(struct client *client)
 static void
 grafana_servlet_setup(struct proxy *proxy)
 {
-    if (PARAM_REFID == NULL)
-	PARAM_REFID = sdsnew("refId");
-    if (PARAM_PANELID == NULL)
-	PARAM_PANELID = sdsnew("panelId");
-    if (PARAM_DASHBOARDID == NULL)
-	PARAM_DASHBOARDID = sdsnew("dashboardId");
-    if (PARAM_TARGET == NULL)
-	PARAM_TARGET = sdsnew("target");
-    if (PARAM_EXPR == NULL)
-	PARAM_EXPR = sdsnew("expr");
-    if (PARAM_START == NULL)
-	PARAM_START = sdsnew("start");
-    if (PARAM_FINISH == NULL)
-	PARAM_FINISH = sdsnew("finish");
-    if (PARAM_INTERVAL == NULL)
-	PARAM_INTERVAL = sdsnew("interval");
-    if (PARAM_TIMEZONE == NULL)
-	PARAM_TIMEZONE = sdsnew("timezone");
-    if (PARAM_MAXSERIES == NULL)
-	PARAM_MAXSERIES = sdsnew("maxseries");
-    if (PARAM_MAXVALUES == NULL)
-	PARAM_MAXVALUES = sdsnew("maxdatapoints");
+    PARAM_REFID = sdsnew("refId");
+    PARAM_PANELID = sdsnew("panelId");
+    PARAM_DASHBOARDID = sdsnew("dashboardId");
+    PARAM_TARGET = sdsnew("target");
+    PARAM_EXPR = sdsnew("expr");
+    PARAM_START = sdsnew("start");
+    PARAM_FINISH = sdsnew("finish");
+    PARAM_INTERVAL = sdsnew("interval");
+    PARAM_TIMEZONE = sdsnew("timezone");
+    PARAM_MAXSERIES = sdsnew("maxseries");
+    PARAM_MAXVALUES = sdsnew("maxdatapoints");
 
     pmSeriesSetSlots(&grafana_settings.module, proxy->slots);
     pmSeriesSetEventLoop(&grafana_settings.module, proxy->events);
@@ -652,9 +624,26 @@ grafana_servlet_setup(struct proxy *proxy)
     pmSeriesSetMetricRegistry(&grafana_settings.module, proxy->metrics);
 }
 
+static void
+grafana_servlet_close(void)
+{
+    sdsfree(PARAM_REFID);
+    sdsfree(PARAM_PANELID);
+    sdsfree(PARAM_DASHBOARDID);
+    sdsfree(PARAM_TARGET);
+    sdsfree(PARAM_EXPR);
+    sdsfree(PARAM_START);
+    sdsfree(PARAM_FINISH);
+    sdsfree(PARAM_INTERVAL);
+    sdsfree(PARAM_TIMEZONE);
+    sdsfree(PARAM_MAXSERIES);
+    sdsfree(PARAM_MAXVALUES);
+}
+
 struct servlet grafana_servlet = {
     .name		= "grafana",
     .setup 		= grafana_servlet_setup,
+    .close 		= grafana_servlet_close,
     .on_url		= grafana_request_url,
     .on_headers		= grafana_request_headers,
     .on_body		= grafana_request_body,

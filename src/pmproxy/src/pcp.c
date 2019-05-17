@@ -275,7 +275,15 @@ on_pcp_client_read(struct proxy *proxy, struct client *client,
 }
 
 void
-setup_pcp_modules(struct proxy *proxy)
+setup_pcp_module(struct proxy *proxy)
 {
-    /* no PCP protocol modules */
+    /* no extra PCP protocol setup steps needed */
+    (void)proxy;
+}
+
+void
+close_pcp_module(struct proxy *proxy)
+{
+    /* no extra PCP protocol shutdown steps needed */
+    (void)proxy;
 }

@@ -110,8 +110,13 @@ on_redis_connected(void *arg)
     pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
 }
 
+/*
+ * Attempt to establish a Redis connection straight away;
+ * which is achieved via a timer that expires immediately
+ * during the startup process.
+ */
 void
-setup_redis_modules(struct proxy *proxy)
+setup_redis_module(struct proxy *proxy)
 {
     redisSlotsFlags	flags = SLOTS_NONE;
     sds			option;
@@ -138,4 +143,13 @@ setup_redis_modules(struct proxy *proxy)
     pmDiscoverSetConfiguration(&redis_discover.module, proxy->config);
     pmDiscoverSetMetricRegistry(&redis_discover.module, proxy->metrics);
     pmDiscoverSetup(&redis_discover.module, &redis_discover.callbacks, proxy);
+}
+
+void
+close_redis_module(struct proxy *proxy)
+{
+    if (proxy->slots) {
+	redisSlotsFree(proxy->slots);
+	proxy->slots = NULL;
+    }
 }

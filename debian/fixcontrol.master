@@ -144,4 +144,11 @@ else
     echo "s/?{qt-dev}//" >>$tmp.sed
 fi
 
+if $HAVE_OPENSSL
+then
+    echo "s/?{libssl-dev}/libssl-dev,/" >>$tmp.sed
+else
+    echo "s/?{libssl-dev}//" >>$tmp.sed
+fi
+
 sed -f $tmp.sed <control.master
