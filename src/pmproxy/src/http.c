@@ -305,6 +305,9 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
 			client, buffer, suffix);
     }
     client_write(client, buffer, suffix);
+
+    if (http_should_keep_alive(&client->u.http.parser) == 0)
+	http_close(client);
 }
 
 void
@@ -315,10 +318,8 @@ http_error(struct client *client, http_code status, const char *errstr)
     sds			message;
 
     /* on error, we must first discard any accumulated partial result */
-    if (client->buffer != NULL) {
-	sdsfree(client->buffer);
-	client->buffer = NULL;
-    }
+    sdsfree(client->buffer);
+    client->buffer = NULL;
 
     message = sdscatfmt(sdsempty(),
 		"<html>\r\n"
@@ -648,10 +649,9 @@ on_http_client_read(struct proxy *proxy, struct client *client,
     http_parser		*parser = &client->u.http.parser;
     size_t		bytes;
 
-    if (pmDebugOptions.http) {
-	fprintf(stderr, "read %ld bytes from HTTP client %p\n", (long)nread, client);
-	fprintf(stderr, "%.*s", (int)nread, buf->base);
-    }
+    if (pmDebugOptions.http)
+	fprintf(stderr, "read %ld bytes from HTTP client %p\n%.*s",
+			(long)nread, client, (int)nread, buf->base);
 
     if (nread <= 0)
 	return;
@@ -693,17 +693,24 @@ setup:
 }
 
 void
-setup_http_modules(struct proxy *proxy)
+setup_http_module(struct proxy *proxy)
 {
-    extern struct servlet pmseries_servlet;
-    extern struct servlet grafana_servlet;
     sds			option;
 
     if ((option = pmIniFileLookup(config, "pmproxy", "chunksize")) != NULL)
 	chunked_transfer_size = atoi(option);
     else
 	chunked_transfer_size = getpagesize();
+    if (chunked_transfer_size < smallest_buffer_size)
+	chunked_transfer_size = smallest_buffer_size;
 
     register_servlet(proxy, &pmseries_servlet);
     register_servlet(proxy, &grafana_servlet);
+}
+
+void
+close_http_module(struct proxy *proxy)
+{
+    /* no extra HTTP shutdown steps needed */
+    (void)proxy;
 }

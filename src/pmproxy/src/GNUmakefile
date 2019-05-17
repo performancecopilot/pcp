@@ -19,14 +19,14 @@ CMDTARGET = pmproxy$(EXECSUFFIX)
 HFILES = pmproxy.h
 CFILES = pmproxy.c
 
-LCFLAGS = $(PIECFLAGS)
+LCFLAGS = $(PIECFLAGS) -I$(TOPDIR)/src/libpcp_web/src
 LLDFLAGS = $(PIELDFLAGS)
 LLDLIBS	= $(PCP_WEBLIB)
 
-ifeq "$(HAVE_LIBUV)" "true"
-LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1 -I$(TOPDIR)/src/libpcp_web/src
+ifeq "$(HAVE_LIBUV) and $(HAVE_OPENSSL)" "true and true"
+LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1 $(OPENSSLCFLAGS) -DHAVE_OPENSSL=1
 SERVLETS = series.c grafana.c
-CFILES += server.c http.c pcp.c redis.c $(SERVLETS)
+CFILES += server.c http.c pcp.c redis.c secure.c $(SERVLETS)
 HFILES += server.h http.h pcp.h
 endif
 CFILES += deprecated.c
