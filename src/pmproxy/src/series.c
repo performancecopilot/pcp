@@ -89,14 +89,10 @@ pmseries_free_baton(struct client *client, pmSeriesBaton *baton)
     if (pmDebugOptions.http)
 	fprintf(stderr, "pmseries_free_baton %p for client %p\n", baton, client);
 
-    if (baton->sid)
-	sdsfree(baton->sid);
-    if (baton->info)
-	sdsfree(baton->info);
-    if (baton->query)
-	sdsfree(baton->query);
-    if (baton->suffix)
-	sdsfree(baton->suffix);
+    sdsfree(baton->sid);
+    sdsfree(baton->info);
+    sdsfree(baton->query);
+    sdsfree(baton->suffix);
     memset(baton, 0, sizeof(*baton));
 }
 
@@ -460,10 +456,6 @@ on_pmseries_done(int status, void *arg)
     }
     http_reply(client, msg, code, flags);
 
-    /* close connection if requested or if HTTP 1.0 and keepalive not set */
-    if (http_should_keep_alive(&client->u.http.parser) == 0)
-	http_close(client);
-
     pmseries_free_baton(client, baton);
 }
 
@@ -616,8 +608,7 @@ pmseries_request_body(struct client *client, const char *content, size_t length)
     switch (baton->restkey) {
     case RESTKEY_LOAD:
     case RESTKEY_QUERY:
-	if (baton->query)
-	    sdsfree(baton->query);
+	sdsfree(baton->query);
 	baton->query = sdsnewlen(content, length);
 	break;
 
@@ -737,14 +728,10 @@ pmseries_request_done(struct client *client)
 static void
 pmseries_servlet_setup(struct proxy *proxy)
 {
-    if (PARAM_EXPR == NULL)
-	PARAM_EXPR = sdsnew("expr");
-    if (PARAM_MATCH == NULL)
-	PARAM_MATCH = sdsnew("match");
-    if (PARAM_SERIES == NULL)
-	PARAM_SERIES = sdsnew("series");
-    if (PARAM_SOURCE == NULL)
-	PARAM_SOURCE = sdsnew("source");
+    PARAM_EXPR = sdsnew("expr");
+    PARAM_MATCH = sdsnew("match");
+    PARAM_SERIES = sdsnew("series");
+    PARAM_SOURCE = sdsnew("source");
 
     pmSeriesSetSlots(&pmseries_settings.module, proxy->slots);
     pmSeriesSetEventLoop(&pmseries_settings.module, proxy->events);

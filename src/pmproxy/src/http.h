@@ -79,4 +79,7 @@ typedef struct servlet {
     httpDoneCallBack	on_done;
 } servlet;
 
+extern struct servlet pmseries_servlet;
+extern struct servlet grafana_servlet;
+
 #endif /* PMPROXY_HTTP_H */

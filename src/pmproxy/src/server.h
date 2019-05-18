@@ -15,6 +15,8 @@
 #define PROXY_SERVER_H
 
 #include <uv.h>
+#include <openssl/ssl.h>
+
 #include "pmapi.h"
 #include "mmv_stats.h"
 #include "pmwebapi.h"
@@ -42,7 +44,8 @@ typedef struct stream {
     } u;
     stream_family	family;
     unsigned int	active: 1;
-    unsigned int	zero : 15;
+    unsigned int	secure: 1;
+    unsigned int	zero : 14;
     unsigned int	port : 16;
     const char		*address;
 } stream;
@@ -81,9 +84,24 @@ typedef struct pcp_client {
     uv_tcp_t		socket;
 } pcp_client;
 
+typedef struct secure_client {
+    SSL			*ssl;
+    BIO			*read;
+    BIO			*write;
+    struct {
+	struct client	*next;
+	struct client	**prev;
+	unsigned int	queued;
+	size_t		writes_count;
+	uv_buf_t	*writes_buffer;
+    } pending;
+} secure_client;
+
+
 typedef struct client {
     struct stream	stream;
     stream_protocol	protocol;
+    secure_client	secure;
     union {
 	redis_client	redis;
 	http_client	http;
@@ -105,6 +123,8 @@ typedef struct proxy {
     struct server	*servers;	/* array of tcp/pipe socket servers */
     unsigned int	nservers;	/* count of entries in server array */
     unsigned int	redisetup;	/* is Redis slots information setup */
+    struct client	*pending_writes;
+    SSL_CTX		*ssl;
     redisSlots		*slots;		/* mapping of Redis keys to servers */
     struct servlet	*servlets;	/* linked list of http URL handlers */
     struct mmv_registry	*metrics;	/* internal performance metrics */
@@ -112,10 +132,19 @@ typedef struct proxy {
     uv_loop_t		*events;	/* global, async event loop */
 } proxy;
 
+extern void proxylog(pmLogLevel, sds, void *);
+
+extern void on_proxy_flush(uv_handle_t *);
+extern void on_client_read(uv_stream_t *, ssize_t, const uv_buf_t *);
+extern void on_client_write(uv_write_t *, int);
 extern void on_client_close(uv_handle_t *);
 extern void on_buffer_alloc(uv_handle_t *, size_t, uv_buf_t *);
 extern void client_write(struct client *, sds, sds);
-extern void proxylog(pmLogLevel, sds, void *);
+extern void secure_client_write(struct client *, uv_write_t *, unsigned int);
+
+extern void on_secure_client_read(struct proxy *, struct client *,
+				ssize_t, const uv_buf_t *);
+extern void on_secure_client_close(struct client *);
 
 extern void on_redis_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
@@ -129,9 +158,19 @@ extern void on_pcp_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
 extern void on_pcp_client_close(struct client *);
 
-extern void setup_redis_modules(struct proxy *);
-extern void setup_http_modules(struct proxy *);
-extern void setup_pcp_modules(struct proxy *);
+extern void flush_secure_module(struct proxy *);
+extern void setup_secure_module(struct proxy *);
+extern void close_secure_module(struct proxy *);
+
+extern void setup_redis_module(struct proxy *);
+extern void close_redis_module(struct proxy *);
+
+extern void setup_http_module(struct proxy *);
+extern void close_http_module(struct proxy *);
+
+extern void setup_pcp_module(struct proxy *);
+extern void close_pcp_module(struct proxy *);
+
 extern void setup_modules(struct proxy *);
 
 #endif	/* PROXY_SERVER_H */
