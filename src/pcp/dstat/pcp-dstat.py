@@ -1294,12 +1294,12 @@ class DstatTool(object):
             else:
                 return THEME['error'] + '-'.rjust(width) + THEME['default']
 
-        if base != 1024:
-            units = (CHAR['space'], 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
-        elif op.bits and printtype in ('b', ):
+        if op.bits and printtype in ('b', ):
             units = ('b', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
             base = 1000
             value = value * 8.0
+        elif base != 1024:
+            units = (CHAR['space'], 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
         else:
             units = ('B', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
 
