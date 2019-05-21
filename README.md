@@ -7,7 +7,7 @@ You need to have **chan** [repo](https://github.com/tylertreat/chan) and **HdrHi
 
 ## Installing **chan**
 ```
-autoconf
+./autogen.sh
 ./configure
 sudo make install
 ```
