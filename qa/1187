@@ -73,6 +73,7 @@ dstat "Disk" --io
 dstat "Kernel" --ipc --sys --utmp
 dstat "Memory" --mem-adv --swap
 dstat "Per Interface" --net -N enp0s25,wlp3s0,tun0
+dstat "Per Interface in bits" --net -N enp0s25 --bits
 dstat "All Interfaces" --net --full
 dstat "Network" --socket --tcp
 dstat "Processes" --proc
