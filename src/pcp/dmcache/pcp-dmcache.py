@@ -139,7 +139,7 @@ class DmCachePrinter(pmcc.MetricGroupPrinter):
         group = manager['dmcache']
         max_lv = max_lv_length(group)
         padding = " "*max_lv
-        if manager.counter % REPEAT == 1:
+        if manager.counter % REPEAT == 0:
             if not self.hostname:
                 self.hostname = group.contextCache.pmGetContextHostName()
             stamp = group.contextCache.pmCtime(long(group.timestamp))
