@@ -18,7 +18,7 @@
 \f3pmlogcheck\f1 \- checks for invalid data in a PCP archive
 .SH SYNOPSIS
 \f3pmlogcheck\f1
-[\f3\-lwz\f1]
+[\f3\-lmwz\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-S\f1 \f2start\f1]
 [\f3\-T\f1 \f2finish\f1]
@@ -59,6 +59,16 @@ The
 option prints the archive label, showing the log format version,
 the time and date for the start and (current) end of the archive, and
 the host from which the performance metrics values were collected.
+.PP
+The
+.B \-m
+option skips
+.B "Pass 3"
+(see below) and only checks the archive meta data.
+This can run substantially faster in cases where the volume data
+doesn't need to be checked, especially on archives with compressed
+data volume(s).
+.B 
 .PP
 By default,
 .B pmlogcheck
