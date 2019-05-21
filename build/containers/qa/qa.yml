@@ -13,20 +13,22 @@ steps:
     docker exec pcp-qa bash -c 'systemctl restart pmcd || journalctl -xe'
     docker exec pcp-qa bash -c 'mkdir /artifacts/{test-logs,pcp-logs}'
   displayName: 'Build Performance Co-Pilot'
-- script: docker exec pcp-qa bash -c 'cd /var/lib/pcp/testsuite && ./check -g sanity | tee /artifacts/test-logs/sanity.log'
+- script: docker exec pcp-qa bash -o pipefail -c 'cd /var/lib/pcp/testsuite && ./check -g sanity | tee /artifacts/test-logs/sanity.log >(/pcp/build/containers/qa/gen_junit_report.py > /artifacts/test-logs/sanity.xml)'
+  continueOnError: true
   displayName: 'Run tests: Sanity'
-- script: docker exec pcp-qa bash -c 'cd /var/lib/pcp/testsuite && ./check -g pmda.bcc | tee /artifacts/test-logs/pmda.bcc.log'
+- script: docker exec pcp-qa bash -o pipefail -c 'cd /var/lib/pcp/testsuite && ./check -g pmda.bcc | tee /artifacts/test-logs/pmda.bcc.log >(/pcp/build/containers/qa/gen_junit_report.py > /artifacts/test-logs/pmda.bcc.xml)'
+  continueOnError: true
   displayName: 'Run tests: BCC PMDA'
 - script: |
     docker exec pcp-qa bash -c 'cp -r /var/log/pcp/* /artifacts/pcp-logs'
     docker exec pcp-qa bash -c 'cp -r /packages /artifacts'
-    docker exec pcp-qa bash -c 'python /pcp/build/containers/qa/gen_junit_report.py /artifacts/test-logs /var/lib/pcp/testsuite > /artifacts/test-logs/test.xml'
   displayName: 'Copy artifacts'
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: JUnit
     testResultsFiles: '*.xml'
     searchFolder: '$(Build.ArtifactStagingDirectory)/test-logs'
+    mergeTestResults: true
     failTaskOnFailedTests: true
     testRunTitle: ${{ parameters.distribution }}
 - task: PublishBuildArtifacts@1
