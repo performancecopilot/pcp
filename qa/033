@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_PLATFORM = solaris ] && _notrun "No filesys metrics for Solaris"
+_need_metric filesys.capacity
 
 rm -f $seq.out
 if [ $PCP_PLATFORM = darwin ]
