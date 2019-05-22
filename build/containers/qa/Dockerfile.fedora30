@@ -1,6 +1,6 @@
 FROM fedora:30
 
-RUN dnf -y install \
+RUN dnf -y -v install \
         pkg-config make gcc flex bison \
         which sudo hostname findutils bc git cppcheck \
         rpm-build redhat-rpm-config initscripts man procps \
