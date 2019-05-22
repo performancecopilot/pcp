@@ -97,12 +97,10 @@ on_redis_connected(void *arg)
     struct proxy	*proxy = (struct proxy *)arg;
     sds			message;
 
-    pmNotifyErr(LOG_INFO, "connected to redis server(s)\n");
-
-    message = sdsnew("slots");
+    message = sdsnew("Redis slots");
     if (redis_protocol)
 	message = sdscat(message, ", command keys");
-    if (archive_discovery | series_queries)
+    if (archive_discovery || series_queries)
 	message = sdscat(message, ", schema version");
     pmNotifyErr(LOG_INFO, "%s setup\n", message);
     sdsfree(message);

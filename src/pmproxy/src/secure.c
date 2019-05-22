@@ -246,8 +246,9 @@ setup_secure_module(struct proxy *proxy)
     const char		*cipher_list = NULL, *cipher_suites = NULL;
     const char		*authority = NULL;
     SSL_CTX		*context;
+    char		version[] = OPENSSL_VERSION_TEXT;
     sds			option;
-    int			verify_mode = SSL_VERIFY_PEER;
+    int			verify_mode = SSL_VERIFY_PEER, length;
     int			flags = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 |
 				SSL_OP_NO_TLSv1 |SSL_OP_NO_TLSv1_1;
 
@@ -317,8 +318,13 @@ setup_secure_module(struct proxy *proxy)
 	abort_secure_module_setup();
     }
 
-    /* TLS setup complete - log openssl version and ciphers in use */
-    pmNotifyErr(LOG_INFO, "'%s' setup\n", OPENSSL_VERSION_TEXT);
+    /*
+     * OpenSSL setup complete - log openssl version and ciphers in use
+     * Version format expected: "OpenSSL 1.1.1b FIPS  26 Feb 2019".
+     */
+    if ((length = strlen(version)) > 20)
+	version[length - 13] = '\0';
+    pmNotifyErr(LOG_INFO, "%s setup\n", version);
     if (cipher_suites)
 	pmNotifyErr(LOG_INFO, "Using cipher suites: %s\n", cipher_suites);
     if (cipher_list)
