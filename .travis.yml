@@ -1,9 +1,5 @@
 language: C
 compiler: gcc
-branches:
-  only:
-    - master
-    - travis-fix
 before_install:
   - wget https://github.com/tylertreat/chan/archive/master.zip -O /tmp/chan.zip
   - unzip /tmp/chan -d /tmp/chan
