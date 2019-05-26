@@ -1,5 +1,6 @@
 language: C
-before_install:
+compiler: gcc
+install:
   - wget https://github.com/tylertreat/chan/archive/master.zip -O /tmp/chan.zip
   - unzip /tmp/chan -d /tmp/chan
   - /tmp/chan/chan-master/autogen.sh && /tmp/chan/chan-master/configure && cd /tmp/chan/chan-master/ && sudo make install
