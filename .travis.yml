@@ -9,4 +9,5 @@ before_install:
   - cd /tmp/HdrHistogram_c/HdrHistogram_c-master && cmake . && sudo make install
   - sudo ldconfig
 script:
+  - cd $TRAVIS_BUILD_DIR
   - make

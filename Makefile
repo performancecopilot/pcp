@@ -1,4 +1,5 @@
-  
+$(info Running PCP-STATSD makefile)
+
 TARGET_EXEC ?= a.out
 
 BUILD_DIR ?= ./build
