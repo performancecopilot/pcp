@@ -7,6 +7,6 @@ before_install:
   - wget https://github.com/HdrHistogram/HdrHistogram_c/archive/master.zip -O /tmp/HdrHistogram_c.zip
   - unzip /tmp/HdrHistogram_c.zip -d /tmp/HdrHistogram_c
   - cd /tmp/HdrHistogram_c/HdrHistogram_c-master && cmake . && sudo make install
-  - ldconfig
+  - sudo ldconfig
 install:
   - make
