@@ -2080,6 +2080,7 @@ pmie/control
 pmie/stomp
 pmlogger/control
 pmproxy/pmproxy.options
+pmproxy/pmproxy.conf
 EOF
 %if "@enable_manager@" == "true"
 cat >>conf_files <<MGREOF
