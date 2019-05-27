@@ -1,0 +1,98 @@
+#!/usr/bin/env python
+#
+# Copyright (c) 2018 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import os
+import time
+import ctypes
+from collections import OrderedDict
+from ctypes import c_int, POINTER, cast
+import cpmapi as c_api
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
+from pcp.pmapi import pmUnits, pmContext as PCP
+from bpftrace import BPFTrace
+
+class BPFtracePMDA(PMDA):
+
+    def __init__(self, name, domain):
+        PMDA.__init__(self, name, domain)
+
+        self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        self.configfile += '/' + name + '/' + name + '.conf'
+        self.connect_pmcd()
+
+        self.bpftrace_instances = {}
+        self.bpftrace_indom_id = self.indom(0)
+        self.bpftrace_indom = pmdaIndom(self.bpftrace_indom_id, {})
+        self.update_bpftrace_instances()
+        self.add_indom(self.bpftrace_indom)
+
+        self.add_metric(name, pmdaMetric(
+            self.pmid(0, 0), c_api.PM_TYPE_STRING, self.bpftrace_indom_id, c_api.PM_SEM_INSTANT, pmUnits()
+        ))
+
+        self.set_refresh(self.refresh_callback)
+        self.set_fetch_callback(self.fetch_callback)
+        self.set_store_callback(self.store_callback)
+
+        #self.start_bpftrace_instance("tracepoint:syscalls:sys_enter_read { @[probe] = count(); }")
+
+    def update_bpftrace_instances(self):
+        insts = OrderedDict({"0": c_int(1)})
+        insts.update({str(pid):c_int(1) for pid in self.bpftrace_instances})
+        self.bpftrace_indom.set_instances(self.bpftrace_indom_id, insts)
+        self.log("insts "+str(insts.keys()))
+
+    def start_bpftrace_instance(self, script):
+        bpftrace = BPFTrace(self.log, script)
+        bpftrace.start()
+        self.bpftrace_instances[bpftrace.pid] = bpftrace
+        self.update_bpftrace_instances()
+        self.log("new script "+str(script))
+
+    def stop_bpftrace_instance(self, pid):
+        self.bpftrace_instances[pid].stop()
+        # maybe wait until process is finished? Proces#join()
+        del self.bpftrace_instances[pid]
+        self.update_bpftrace_instances()
+
+    def store_callback(self, cluster, item, inst, val):
+        pid = int(self.bpftrace_indom.inst_name_lookup(inst))
+
+        if pid == 0:
+            self.start_bpftrace_instance(val)
+            return 0
+        elif val == 'stop':
+            self.stop_bpftrace_instance(pid)
+            return 0
+        else:
+            return c_api.PM_ERR_PMID
+
+    def refresh_callback(self, cluster):
+        for bpftrace in self.bpftrace_instances.values():
+            self.log(bpftrace.data())
+
+    def fetch_callback(self, cluster, item, inst):
+        if item == 0:
+            pid = int(self.bpftrace_indom.inst_name_lookup(inst))
+
+            if pid == 0:
+                return ["<master>", 1]
+            else:
+                return [self.bpftrace_instances[pid].script, 1]
+        else:
+            return [c_api.PM_ERR_PMID, 0]
+
+if __name__ == '__main__':
+    BPFtracePMDA('bpftrace', 151).run()
