@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2019 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,87 +12,222 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
+"""bpftrace PMDA"""
 
 import os
-import time
-import ctypes
-from collections import OrderedDict
-from ctypes import c_int, POINTER, cast
+import re
+import atexit
+from ctypes import c_int
+
 import cpmapi as c_api
-from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
+from cpmda import PMDA_FETCH_NOVALUES
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 from pcp.pmapi import pmUnits, pmContext as PCP
-from bpftrace import BPFTrace
+
+from bpftrace import BPFtrace, BPFtraceError
+
+
+class Consts: # pylint: disable=too-few-public-methods
+    """PMDA constants"""
+    class Control:
+        """constants of control cluster"""
+        Cluster = 0
+        Register = 0
+        Deregister = 1
+        Scripts = 2
+    class Script:
+        """constants of script clusters"""
+        Pid = 0
+        Probes = 1
+        Data = 2
+
+
+class BPFtraceScript(BPFtrace):
+    """manage metrics for a bpftrace instance"""
+
+    def __init__(self, pmda, cluster, name, script):
+        super(BPFtraceScript, self).__init__(pmda.log, script)
+        self.pmda = pmda
+        self.cluster = cluster
+        self.name = name
+
+    def register_metrics(self):
+        """register metrics for this bpftrace instance"""
+        self.pid_metric = pmdaMetric(
+            self.pmda.pmid(self.cluster, Consts.Script.Pid), c_api.PM_TYPE_U32,
+            c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
+        )
+        self.pmda.add_metric('bpftrace.{}.pid'.format(self.name), self.pid_metric)
+
+        self.probes_metric = pmdaMetric(
+            self.pmda.pmid(self.cluster, Consts.Script.Probes), c_api.PM_TYPE_U32,
+            c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
+        )
+        self.pmda.add_metric('bpftrace.{}.probes'.format(self.name), self.probes_metric)
+
+        self.data_instances = {}
+        self.data_indom_id = self.pmda.indom(self.cluster)
+        self.data_indom = pmdaIndom(self.data_indom_id, self.data_instances)
+        self.pmda.add_indom(self.data_indom)
+        self.data_metric = pmdaMetric(
+            self.pmda.pmid(self.cluster, Consts.Script.Data), c_api.PM_TYPE_U64,
+            self.data_indom_id, c_api.PM_SEM_INSTANT, pmUnits()
+        )
+        self.pmda.add_metric('bpftrace.{}.data'.format(self.name), self.data_metric)
+
+    def deregister_metrics(self):
+        """remove bpftrace metrics for this bpftrace instance"""
+        self.pmda.remove_metric('bpftrace.{}.pid'.format(self.name), self.pid_metric)
+        self.pmda.remove_metric('bpftrace.{}.probes'.format(self.name), self.probes_metric)
+        self.pmda.remove_metric('bpftrace.{}.data'.format(self.name), self.data_metric)
+
+    def refresh_callback(self):
+        """PMDA refresh callback for this bpftrace instance"""
+        if not self.started:
+            return
+
+        for line in self.data().splitlines():
+            # TODO: histograms
+            m = re.match(r'@\[(.+)\]: (\d+)', line)
+            if m:
+                self.data_instances[m.group(1)] = int(m.group(2))
+
+        self.data_indom.set_instances(self.data_indom_id,
+                                      {key:c_int(1) for key in self.data_instances})
+
+    def fetch_callback(self, item, inst):
+        """PMDA fetch callback for this bpftrace instance"""
+        if not self.started:
+            return [PMDA_FETCH_NOVALUES, 0]
+
+        if item == Consts.Script.Pid:
+            if self.pid:
+                return [self.pid, 1]
+            else:
+                return [PMDA_FETCH_NOVALUES, 0]
+        elif item == Consts.Script.Probes:
+            if self.probes:
+                return [self.probes, 1]
+            else:
+                return [PMDA_FETCH_NOVALUES, 0]
+        elif item == Consts.Script.Data:
+            key = self.data_indom.inst_name_lookup(inst)
+            return [self.data_instances[key], 1]
+        return [c_api.PM_ERR_PMID, 0]
+
 
 class BPFtracePMDA(PMDA):
+    """bpftrace PMDA"""
 
     def __init__(self, name, domain):
-        PMDA.__init__(self, name, domain)
+        super(BPFtracePMDA, self).__init__(name, domain)
 
         self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
         self.configfile += '/' + name + '/' + name + '.conf'
+
         self.connect_pmcd()
-
-        self.bpftrace_instances = {}
-        self.bpftrace_indom_id = self.indom(0)
-        self.bpftrace_indom = pmdaIndom(self.bpftrace_indom_id, {})
-        self.update_bpftrace_instances()
-        self.add_indom(self.bpftrace_indom)
-
-        self.add_metric(name, pmdaMetric(
-            self.pmid(0, 0), c_api.PM_TYPE_STRING, self.bpftrace_indom_id, c_api.PM_SEM_INSTANT, pmUnits()
-        ))
+        self.register_metrics()
 
         self.set_refresh(self.refresh_callback)
         self.set_fetch_callback(self.fetch_callback)
         self.set_store_callback(self.store_callback)
 
-        #self.start_bpftrace_instance("tracepoint:syscalls:sys_enter_read { @[probe] = count(); }")
+        @atexit.register
+        def cleanup(): # pylint: disable=unused-variable
+            """Cleanup"""
+            if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
+                for script in self.script_instances.values():
+                    script.stop()
 
-    def update_bpftrace_instances(self):
-        insts = OrderedDict({"0": c_int(1)})
-        insts.update({str(pid):c_int(1) for pid in self.bpftrace_instances})
-        self.bpftrace_indom.set_instances(self.bpftrace_indom_id, insts)
-        self.log("insts "+str(insts.keys()))
+    def register_metrics(self):
+        """register control metrics"""
+        self.register_value = ''
+        self.add_metric('bpftrace.control.register', pmdaMetric(
+            self.pmid(Consts.Control.Cluster, Consts.Control.Register), c_api.PM_TYPE_STRING,
+            c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
+        ))
 
-    def start_bpftrace_instance(self, script):
-        bpftrace = BPFTrace(self.log, script)
-        bpftrace.start()
-        self.bpftrace_instances[bpftrace.pid] = bpftrace
-        self.update_bpftrace_instances()
-        self.log("new script "+str(script))
+        self.deregister_value = ''
+        self.add_metric('bpftrace.control.deregister', pmdaMetric(
+            self.pmid(Consts.Control.Cluster, Consts.Control.Deregister), c_api.PM_TYPE_STRING,
+            c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
+        ))
 
-    def stop_bpftrace_instance(self, pid):
-        self.bpftrace_instances[pid].stop()
-        # maybe wait until process is finished? Proces#join()
-        del self.bpftrace_instances[pid]
-        self.update_bpftrace_instances()
+        self.script_instances = {}
+        self.script_indom_id = self.indom(0)
+        self.script_indom = pmdaIndom(self.script_indom_id, self.script_instances)
+        self.add_indom(self.script_indom)
+        self.add_metric('bpftrace.control.scripts', pmdaMetric(
+            self.pmid(Consts.Control.Cluster, Consts.Control.Scripts), c_api.PM_TYPE_STRING,
+            self.script_indom_id, c_api.PM_SEM_INSTANT, pmUnits()
+        ))
+
+    def get_script_name(self):
+        """returns next free script name and number"""
+        for i in range(1, 1000):
+            if 'script{}'.format(i) not in self.script_instances:
+                return i, 'script{}'.format(i)
+        return None
+
+    def refresh_script_instances(self):
+        """update bpftrace scripts indom"""
+        self.script_indom.set_instances(self.script_indom_id,
+                                        {name:c_int(1) for name in self.script_instances})
 
     def store_callback(self, cluster, item, inst, val):
-        pid = int(self.bpftrace_indom.inst_name_lookup(inst))
+        """PMDA store callback"""
+        if cluster == Consts.Control.Cluster:
+            if item == Consts.Control.Register:
+                # TODO: check for existing scripts with same content
+                no, name = self.get_script_name()
+                script = BPFtraceScript(self, no, name, val)
 
-        if pid == 0:
-            self.start_bpftrace_instance(val)
-            return 0
-        elif val == 'stop':
-            self.stop_bpftrace_instance(pid)
-            return 0
-        else:
-            return c_api.PM_ERR_PMID
+                try:
+                    script.start()
+                except BPFtraceError as e:
+                    self.register_value = str(e)
+                    return 0
+
+                script.register_metrics()
+                self.script_instances[name] = script
+                self.refresh_script_instances()
+                self.register_value = name
+                return 0
+            elif item == Consts.Control.Deregister:
+                self.script_instances[val].deregister_metrics()
+                self.script_instances[val].stop()
+                del self.script_instances[val]
+                self.refresh_script_instances()
+                self.deregister_value = 'success'
+                return 0
+
+        return c_api.PM_ERR_PMID
 
     def refresh_callback(self, cluster):
-        for bpftrace in self.bpftrace_instances.values():
-            self.log(bpftrace.data())
+        """PMDA refresh callback"""
+        script_name = 'script{}'.format(cluster)
+        if script_name in self.script_instances:
+            return self.script_instances[script_name].refresh_callback()
 
     def fetch_callback(self, cluster, item, inst):
-        if item == 0:
-            pid = int(self.bpftrace_indom.inst_name_lookup(inst))
-
-            if pid == 0:
-                return ["<master>", 1]
-            else:
-                return [self.bpftrace_instances[pid].script, 1]
+        """PMDA fetch callback"""
+        if cluster == Consts.Control.Cluster:
+            if item == Consts.Control.Register:
+                val = self.register_value
+                self.register_value = ''
+                return [val, 1]
+            elif item == Consts.Control.Deregister:
+                val = self.deregister_value
+                self.deregister_value = ''
+                return [val, 1]
+            elif item == Consts.Control.Scripts:
+                name = self.script_indom.inst_name_lookup(inst)
+                return [self.script_instances[name].script, 1]
         else:
-            return [c_api.PM_ERR_PMID, 0]
+            script_name = 'script{}'.format(cluster)
+            if script_name in self.script_instances:
+                return self.script_instances[script_name].fetch_callback(item, inst)
+        return [c_api.PM_ERR_PMID, 0]
 
 if __name__ == '__main__':
     BPFtracePMDA('bpftrace', 151).run()
