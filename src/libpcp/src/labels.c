@@ -952,7 +952,7 @@ __pmMergeLabels(const char *a, const char *b, char *buffer, int buflen, int flag
 }
 
 /*
- * Walk the "sets" array left to right (increasing precendence)
+ * Walk the "sets" array left to right (increasing precedence)
  * and produce the merged set into the supplied buffer.
  * An optional user-supplied callback routine allows fine-tuning
  * of the resulting set of labels.
