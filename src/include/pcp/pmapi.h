@@ -1069,7 +1069,7 @@ PCP_CALL extern void pmFreeHighResEventResult(pmHighResResult **);
 /* Service discovery, for clients. */
 #define PM_SERVER_SERVICE_SPEC	"pmcd"
 #define PM_SERVER_PROXY_SPEC	"pmproxy"
-#define PM_SERVER_WEBD_SPEC	"pmwebd"
+#define PM_SERVER_WEBAPI_SPEC	"pmwebapi"
 
 PCP_CALL extern int pmDiscoverServices(const char *, const char *, char ***);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2019 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -317,7 +317,7 @@ extern char *__pmServiceDiscoveryParseTimeout(const char *s,
 extern int __pmServiceAddPorts(const char *, int **, int) _PCP_HIDDEN;
 extern int __pmPMCDAddPorts(int **, int) _PCP_HIDDEN;
 extern int __pmProxyAddPorts(int **, int) _PCP_HIDDEN;
-extern int __pmWebdAddPorts(int **, int) _PCP_HIDDEN;
+extern int __pmWebAPIAddPorts(int **, int) _PCP_HIDDEN;
 extern int __pmAddPorts(const char *, int **, int) _PCP_HIDDEN;
 
 /*

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014,2018 Red Hat.
+ * Copyright (c) 2014,2018-2019 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -171,8 +171,8 @@ attemptConnections(void *arg)
 		serviceInfo.protocol = SERVER_PROTOCOL;
 	    else if (strcmp(context->service, PM_SERVER_PROXY_SPEC) == 0)
 		serviceInfo.protocol = PROXY_PROTOCOL;
-	    else if (strcmp(context->service, PM_SERVER_WEBD_SPEC) == 0)
-		serviceInfo.protocol = PMWEBD_PROTOCOL;
+	    else if (strcmp(context->service, PM_SERVER_WEBAPI_SPEC) == 0)
+		serviceInfo.protocol = WEBAPI_PROTOCOL;
 
 	    PM_LOCK(context->urlLock);
 	    *context->numUrls =

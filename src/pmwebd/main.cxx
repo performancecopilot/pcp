@@ -16,6 +16,8 @@
 
 #define _XOPEN_SOURCE 600
 #include "pmwebapi.h"
+#define PMWEBD_PORT WEBAPI_PORT
+#define PM_SERVER_WEBD_SPEC "pmwebd"
 
 #include <string>
 #include <iostream>

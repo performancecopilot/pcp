@@ -1115,7 +1115,7 @@ services(void)
     static char	servicelist[32];
     struct stat	statbuf;
     char	*path;
-    char	*services[] = { PM_SERVER_PROXY_SPEC, PM_SERVER_WEBD_SPEC };
+    char	*services[] = { PM_SERVER_PROXY_SPEC, "pmwebd" /*back-compat*/};
 
     path = pmGetConfig("PCP_RUN_DIR");
     if (stat(path, &statbuf) == 0) {
