@@ -777,68 +777,78 @@ class DstatTool(object):
             return 1
         return 0
 
+    def append_plugins(self, plugins):
+        """ Activate a list of plugins, checking if already active first """
+        for plugin in plugins:
+            self.append_plugin(plugin)
+
+    def append_plugin(self, plugin):
+        """ Activate a single plugin, checking if already active first """
+        if plugin not in self.plugins:
+            self.plugins.append(plugin)
+
     def option(self, opt, arg, index):
         """ Perform setup for an individual command line option """
         if opt in ['dbg']:
             self.debug = True
         elif opt in ['c']:
-            self.plugins.append('cpu')
+            self.append_plugin('cpu')
         elif opt in ['C']:
             insts = arg.split(',')
             self.cpulist = sorted(['cpu' + str(x) for x in insts if x != 'total'])
             if 'total' in insts:
                 self.cpulist.append('total')
         elif opt in ['d']:
-            self.plugins.append('disk')
+            self.append_plugin('disk')
         elif opt in ['D']:
             insts = arg.split(',')
             self.disklist = sorted([x for x in insts if x != 'total'])
             if 'total' in insts:
                 self.disklist.append('total')
         elif opt in ['--filesystem']:
-            self.plugins.append('fs')
+            self.append_plugin('fs')
         elif opt in ['g']:
-            self.plugins.append('page')
+            self.append_plugin('page')
         elif opt in ['i']:
-            self.plugins.append('int')
+            self.append_plugin('int')
         elif opt in ['I']:
             insts = arg.split(',')
             self.intlist = sorted(['line' + str(x) for x in insts if x != 'total'])
             if 'total' in insts:
                 self.intlist.append('total')
         elif opt in ['l']:
-            self.plugins.append('load')
+            self.append_plugin('load')
         elif opt in ['m']:
-            self.plugins.append('mem')
+            self.append_plugin('mem')
         elif opt in ['n']:
-            self.plugins.append('net')
+            self.append_plugin('net')
         elif opt in ['N']:
             insts = arg.split(',')
             self.netlist = sorted([x for x in insts if x != 'total'])
             if 'total' in insts:
                 self.netlist.append('total')
         elif opt in ['p']:
-            self.plugins.append('proc')
+            self.append_plugin('proc')
         elif opt in ['r']:
-            self.plugins.append('io')
+            self.append_plugin('io')
         elif opt in ['s']:
-            self.plugins.append('swap')
+            self.append_plugin('swap')
         elif opt in ['S']:
             self.swaplist = list(['/dev/' + str(x) for x in arg.split(',')])
         elif opt in ['t']:
-            self.plugins.append('time')
+            self.append_plugin('time')
         elif opt in ['T']:
-            self.plugins.append('epoch')
+            self.append_plugin('epoch')
         elif opt in ['y']:
-            self.plugins.append('sys')
+            self.append_plugin('sys')
         elif opt in ['a', 'all']:
-            self.plugins += ['cpu', 'disk', 'net', 'page', 'sys']
+            self.append_plugins(['cpu', 'disk', 'net', 'page', 'sys'])
         elif opt in ['v', 'vmstat']:
-            self.plugins += ['proc', 'mem', 'page', 'disk', 'sys', 'cpu']
+            self.append_plugins(['proc', 'mem', 'page', 'disk', 'sys', 'cpu'])
         elif opt in ['f', 'full']:
             self.full = True
         elif opt in ['all-plugins']:
-            self.plugins += self.allplugins
+            self.append_plugins(self.allplugins)
         elif opt in ['bits']:
             self.bits = True
         elif opt in ['bw', 'black-on-white', 'blackonwhite']:
@@ -874,7 +884,7 @@ class DstatTool(object):
             self.show_plugins()
             sys.exit(0)
         elif opt != '':
-            self.plugins.append(opt)
+            self.append_plugin(opt)
         else:
             raise pmapi.pmUsageErr()
 

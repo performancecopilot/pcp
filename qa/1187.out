@@ -165,6 +165,28 @@ Filesystem
 === std err
 === done
 
+Duplicate arguments
+=== std out
+----system---- -dsk/total-
+     time     | read  writ
+25-07 16:08:19|           
+25-07 16:08:20|   0     0 
+25-07 16:08:21|   0     0 
+
+=== std err
+=== done
+
+Overlapping arguments
+=== std out
+----system---- -dsk/total- ----total-usage---- -net/total- ---paging-- ---system-- ------memory-usage-----
+     time     | read  writ|usr sys idl wai stl| recv  send|  in   out | int   csw | used  free  buf   cach
+25-07 16:08:19|           |                   |           |           |           |6463M 5065M  820M 4078M
+25-07 16:08:20|   0     0 |  6   1  93   0   0|2146  1653 |   0     0 |1753  7008 |6481M 5047M  820M 4095M
+25-07 16:08:21|   0     0 | 11   1  88   0   0|  12k 1009 |   0     0 |2775  2736 |6502M 5026M  820M 4094M
+
+=== std err
+=== done
+
 Version
 === std out
 pcp-dstat VERSION

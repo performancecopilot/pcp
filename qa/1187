@@ -78,6 +78,8 @@ dstat "All Interfaces" --net --full
 dstat "Network" --socket --tcp
 dstat "Processes" --proc
 dstat "Filesystem" --aio --fs --lock
+dstat "Duplicate arguments" -ddd
+dstat "Overlapping arguments" -dam
 
 dstat "Version" --version | filter_info
 dstat "Plugins" --list | filter_info
