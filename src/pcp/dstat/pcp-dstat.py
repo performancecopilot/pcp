@@ -349,7 +349,7 @@ class DstatPlugin(object):
 
     def csvtitle(self):
         if self.grouptype is None:
-            label = '"' + self.label + '"'
+            label = '"' + self.label + '"' + CHAR['sep'] * (len(self.names) - 1)
             return label
         ret = ''
         ilist = self.instlist()
@@ -373,8 +373,6 @@ class DstatPlugin(object):
             return ret
         ilist = self.instlist()
         for i, name in enumerate(ilist):
-            if i > 0:
-                ret = ret + CHAR['sep']
             name = self.label.replace('%I', name)
             for j, nick in enumerate(self.names):
                 if j > 0 or i > 0:
@@ -1404,7 +1402,7 @@ class DstatTool(object):
         for o in visible:
             line += o.csvtitle()
             if o is not visible[-1]:
-                line += CHAR['sep'] * len(o.names)
+                line += CHAR['sep']
             elif self.totlist != visible:
                 pass #line += THEME['title'] + CHAR['gt']
         line += '\n'
