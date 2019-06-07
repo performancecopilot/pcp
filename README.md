@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/Erbenos/pcp-statsd-c.svg?branch=master)](https://travis-ci.com/Erbenos/pcp-statsd-c)
+[![Build Status](https://travis-ci.com/Erbenos/pcp-statsd-c.svg?branch=aggregating-values)](https://travis-ci.com/Erbenos/pcp-statsd-c)
 
 # pcp-statsd-c
 PCP PMDA for StatsD in C

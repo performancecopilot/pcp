@@ -1,6 +1,6 @@
 $(info Running PCP-STATSD makefile)
 
-TARGET_EXEC ?= a.out
+TARGET_EXEC ?= pcp-statsd
 
 BUILD_DIR ?= ./build
 SRC_DIRS ?= ./src
@@ -21,7 +21,7 @@ $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 # c source
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@ 
+	$(CC) $(CFLAGS) -g -c $< -o $@ 
 
 .PHONY: clean
 
@@ -29,7 +29,7 @@ clean:
 	$(RM) -r $(BUILD_DIR)
 
 run: 
-	./build/a.out
+	./build/pcp-statsd
 
 -include $(DEPS)
 

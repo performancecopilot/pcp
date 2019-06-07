@@ -17,7 +17,6 @@ const int PARSER_RAGEL = 1;
 void* statsd_network_listen(void* args) {
     agent_config* config = ((statsd_listener_args*)args)->config;
     chan_t* unprocessed_datagrams = ((statsd_listener_args*)args)->unprocessed_datagrams;
-    
     const char* hostname = 0;
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
@@ -89,54 +88,89 @@ statsd_parser_args* create_parser_args(agent_config* config, chan_t* unprocessed
     return parser_args;
 }
 
-consumer_args* create_consumer_args(agent_config* config, chan_t* parsed_channel) {
+consumer_args* create_consumer_args(agent_config* config, chan_t* parsed_channel, metrics* m) {
     struct consumer_args* consumer_args = (struct consumer_args*) malloc(sizeof(struct consumer_args));
     ALLOC_CHECK("Unable to assign memory for parser aguments.");
     consumer_args->config = (agent_config*) malloc(sizeof(agent_config*));
     ALLOC_CHECK("Unable to assign memory for parser config.");
     consumer_args->config = config;
     consumer_args->parsed_datagrams = parsed_channel;
+    consumer_args->metrics_wrapper = m;
     return consumer_args;
 }
 
 void print_out_datagram(statsd_datagram* datagram) {
     printf("DATAGRAM: \n");
-    printf("data_namespace: %s \n", datagram->data_namespace);
     printf("metric: %s \n", datagram->metric);
     printf("instance: %s \n", datagram->instance);
-    printf("tags: %s \n", datagram->tags);
-    printf("value: %f \n", datagram->value);
+    if (datagram->tags != NULL) {
+        print_out_datagram_tags(datagram->tags);
+    }
+    printf("value: %s \n", datagram->value);
     printf("type: %s \n", datagram->type);
     printf("sampling: %s \n", datagram->sampling);
     printf("------------------------------ \n");
 }
 
+void print_out_datagram_tags(tag_collection* collection) {
+    printf("tags: \n");
+    int i;
+    for (i = 0; i < collection->length; i++) {
+        printf("\t %s: %s \n", collection->values[i]->key, collection->values[i]->value);
+    }
+}
+
 void free_datagram(statsd_datagram* datagram) {
-    free(datagram->data_namespace);
-    free(datagram->metric);
-    free(datagram->instance);
-    free(datagram->tags);
-    free(datagram->type);
-    free(datagram->sampling);
-    free(datagram);
+    if (datagram->metric != NULL) {
+        free(datagram->metric);
+    }
+    if (datagram->instance != NULL) {
+        free(datagram->instance);
+    }
+    if (datagram->tags != NULL) {
+        free_datagram_tags(datagram->tags);
+    }
+    if (datagram->type != NULL) {
+        free(datagram->type);
+    }
+    if (datagram->sampling != NULL) {
+        free(datagram->sampling);
+    }
+    if (datagram != NULL) {
+        free(datagram);
+    }
+}
+
+void free_datagram_tags(tag_collection* tags) {
+    int i;
+    for (i = 0; i < tags->length; i++) {
+        free(tags->values[i]->key);
+        free(tags->values[i]->value);
+    }
+    free(tags->values);
+    free(tags);
 }
 
 void* statsd_parser_consume(void* args) {
     chan_t* unprocessed_channel = ((statsd_parser_args*)args)->unprocessed_datagrams;
     chan_t* parsed_channel = ((statsd_parser_args*)args)->parsed_datagrams;
     agent_config* config = ((statsd_parser_args*)args)->config;
-    statsd_datagram* (*parse_datagram)(char*);
+    int (*parse_datagram)(char*, statsd_datagram**);
     if (config->parser_type == PARSER_TRIVIAL) {
         parse_datagram = &basic_parser_parse;
     } else {
         // parse_datagram = &ragel_parser_parse;
-        return NULL;
+        parse_datagram = &basic_parser_parse;
     }
     unprocessed_statsd_datagram* datagram = (unprocessed_statsd_datagram*) malloc(sizeof(unprocessed_statsd_datagram));
     ALLOC_CHECK("Unable to allocate space for unprocessed statsd datagram.");
     while(1) {
         *datagram = (unprocessed_statsd_datagram) { 0 };
         chan_recv(unprocessed_channel, (void *)&datagram);
-        chan_send(parsed_channel, parse_datagram(datagram->value));
+        statsd_datagram* parsed;
+        int success = parse_datagram(datagram->value, &parsed);
+        if (success) {
+            chan_send(parsed_channel, parsed);
+        }
     }
 }

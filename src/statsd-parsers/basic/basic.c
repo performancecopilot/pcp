@@ -3,130 +3,179 @@
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
-#include "../statsd-parsers.h"
 #include "../../utils/utils.h"
+#include "../statsd-parsers.h"
+#include "basic.h"
 
 #define JSON_BUFFER_SIZE 4096
 
-statsd_datagram* basic_parser_parse(char* buffer) {
-    struct statsd_datagram* datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
-    *datagram = (struct statsd_datagram) {0};
+int basic_parser_parse(char* buffer, statsd_datagram** datagram) {
+    *datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
+    *(*datagram) = (struct statsd_datagram) {0};
+    if (parse(buffer, datagram)) {
+        buffer[strcspn(buffer, "\n")] = 0;
+        verbose_log("Parsed: %s", buffer);
+        return 1;
+    }
+    free(*datagram);
+    buffer[strcspn(buffer, "\n")] = 0;
+    verbose_log("Thrown away. REASON: unable to parse: %s", buffer);
+    return 0;
+};
+
+int parse(char* buffer, statsd_datagram** datagram) {
     int current_segment_length = 0;
     int i = 0;
     char previous_delimiter = ' ';
     int count = strlen(buffer);
-    char *segment = (char *) malloc(count); // cannot overflow since whole segment is count anyway
+    char* segment = (char *) malloc(count); // cannot overflow since whole segment is count anyway
     ALLOC_CHECK("Unable to assign memory for StatsD datagram message parsing.");
     const char INSTANCE_TAG_IDENTIFIER[] = "instance";
-    char *json_key = NULL;
-    char *json_value = NULL;
+    char* tag_key = NULL;
+    char* tag_value = NULL;
+    char* attr;
     char tags_json_buffer[JSON_BUFFER_SIZE];
     memset(tags_json_buffer, '\0', JSON_BUFFER_SIZE);
     int any_tags = 0;
-    int json_buffer_index = 0;
+    /* Flag field used to determine which memory to free in stats_datagram should data parsing fail, bits in this order
+     * tags
+     * metric
+     * type
+     * value
+     * instance
+     * sampling
+     * */
+    char field_allocated_flags = 0b00000000;
+    /* Flag field for required datagram fields */
+    char required_fields_flags = 0b00001110;
+    /* Flag field used to determine which json vars to free
+     * key
+     * value
+     * */
+    char tag_allocated_flags = 0b00000000;
     for (i = 0; i < count; i++) {
         segment[current_segment_length] = buffer[i];
-        if (buffer[i] == '.' ||
-            buffer[i] == ':' ||
+        if (buffer[i] == ':' ||
             buffer[i] == ',' ||
             buffer[i] == '=' ||
             buffer[i] == '|' ||
             buffer[i] == '@' ||
             buffer[i] == '\n')
         {
-            char* attr = (char *) malloc(current_segment_length + 1);
+            attr = (char *) malloc(current_segment_length + 1);
             strncpy(attr, segment, current_segment_length);
             attr[current_segment_length] = '\0';
             ALLOC_CHECK("Not enough memory to parse StatsD datagram segment.");
-            if (buffer[i] == '.') {
-                datagram->data_namespace = (char *) malloc(current_segment_length + 1);
-                ALLOC_CHECK("Not enough memory to save data_namespace attribute.");
-                sanitize_string(attr);
-                memcpy(datagram->data_namespace, attr, current_segment_length + 1);
-                previous_delimiter = '.';
-            } else if (buffer[i] == ':' && (previous_delimiter == ' ' || previous_delimiter == '.')) {
-                datagram->metric = (char *) malloc(current_segment_length + 1);
-                ALLOC_CHECK("Not enough memory to save metric attribute.");
-                sanitize_string(attr);
-                memcpy(datagram->metric, attr, current_segment_length + 1);
-            } else if ((buffer[i] == ',' || buffer[i] == ':') && previous_delimiter == '=') {
-                json_value = (char *) realloc(json_value, current_segment_length + 1);
-                ALLOC_CHECK("Not enough memory fot tag value buffer.");
-                memcpy(json_value, attr, current_segment_length + 1);
-                if (strcmp(json_key, INSTANCE_TAG_IDENTIFIER) == 0) {
-                    datagram->instance = (char *) malloc(current_segment_length + 1);
-                    ALLOC_CHECK("Not enough memory for instance identifiers.");
-                    memcpy(datagram->instance, attr, current_segment_length + 1);
-                } else {
-                    if (any_tags == 0) {
-                        // 4kb should be enough
-                        tags_json_buffer[0] = '{';
-                        json_buffer_index++;
-                        any_tags = 1;
-                    } 
-                    int key_len = strlen(json_key);
-                    int value_len = strlen(json_value);
-                    // 6 equal to length of  "":"",
-                    // JSON_BUFFER_SIZE -1 because we want to have space for '\0'
-                    if (json_buffer_index + key_len + value_len + 6 < JSON_BUFFER_SIZE - 1) {
-                        tags_json_buffer[json_buffer_index++] = '"';
-                        memcpy(tags_json_buffer + json_buffer_index, json_key, key_len);
-                        json_buffer_index += key_len;
-                        tags_json_buffer[json_buffer_index++] = '"';
-                        tags_json_buffer[json_buffer_index++] = ':';
-                        // save value
-                        tags_json_buffer[json_buffer_index++] = '"';
-                        memcpy(tags_json_buffer + json_buffer_index, json_value, value_len);
-                        json_buffer_index += value_len;
-                        tags_json_buffer[json_buffer_index++] = '"';
-                        tags_json_buffer[json_buffer_index++] = ',';
-                    }
-                    // save key
+            if (buffer[i] == ':' && previous_delimiter == ' ') {
+                if (!sanitize_string(attr)) {
+                    goto error_clean_up;
                 }
-                free(json_key);
-                json_key = NULL;
-                free(json_value);
-                json_value = NULL;
+                (*datagram)->metric = (char *) malloc(current_segment_length + 1);
+                ALLOC_CHECK("Not enough memory to save metric attribute.");
+                field_allocated_flags = field_allocated_flags | 1 << 1;
+                memcpy((*datagram)->metric, attr, current_segment_length + 1);
+                previous_delimiter = ':';
+            } else if ((buffer[i] == ',' || buffer[i] == ':') && previous_delimiter == '=') {
+                tag_value = (char *) realloc(tag_value, current_segment_length + 1);
+                ALLOC_CHECK("Not enough memory for tag value buffer.");
+                tag_allocated_flags = tag_allocated_flags | 1 << 1;
+                memcpy(tag_value, attr, current_segment_length + 1);
+                if (strcmp(tag_key, INSTANCE_TAG_IDENTIFIER) == 0) {
+                    if (!sanitize_string(attr)) {
+                        goto error_clean_up;
+                    }
+                    (*datagram)->instance = (char *) malloc(current_segment_length + 1);
+                    ALLOC_CHECK("Not enough memory for instance identifiers.");
+                    field_allocated_flags = field_allocated_flags | 1 << 4;
+                    memcpy((*datagram)->instance, attr, current_segment_length + 1);
+                } else {                    
+                    if (!sanitize_string(tag_key) ||
+                        !sanitize_string(tag_value)) {
+                        goto error_clean_up;
+                    }
+                    int key_len = strlen(tag_key);
+                    int value_len = strlen(tag_value);
+                    if (key_len > 0 && value_len > 0) {
+                        tag* t = (tag*) malloc(sizeof(tag));
+                        ALLOC_CHECK("Unable to allocate memory for tag.");
+                        t->key = (char*) malloc(key_len);
+                        ALLOC_CHECK("Unable to allocate memory for tag key.");
+                        t->value = (char*) malloc(value_len);
+                        ALLOC_CHECK("Unable to allocate memory for tag value.");
+                        memcpy(t->key, tag_key, key_len);
+                        memcpy(t->value, tag_value, value_len);
+                        if (any_tags == 0) {
+                            (*datagram)->tags = (tag_collection*) malloc(sizeof(tag_collection));
+                            ALLOC_CHECK("Unable to allocate memory for tag collection.");
+                            field_allocated_flags = field_allocated_flags | 1 << 0;
+                            *(*datagram)->tags = (tag_collection) { 0 };
+                            any_tags = 1;
+                        }
+                        (*datagram)->tags->values = (tag**) realloc((*datagram)->tags->values, sizeof(tag*) * ((*datagram)->tags->length + 1));
+                        (*datagram)->tags->values[(*datagram)->tags->length] = t;
+                        (*datagram)->tags->length++;
+                    }
+                }
+                free(tag_key);
+                free(tag_value);
+                tag_allocated_flags = 0;
+                tag_key = NULL;
+                tag_value = NULL;
                 if (buffer[i] == ',') {
                     previous_delimiter = ',';
                 } else {
                     previous_delimiter = ':';
                 }
             } else if (buffer[i] == '=' && previous_delimiter == ',') {
-                json_key = (char *) realloc(json_key, current_segment_length + 1);
+                tag_key = (char *) realloc(tag_key, current_segment_length + 1);
                 ALLOC_CHECK("Not enough memory for tag key buffer.");
-                memcpy(json_key, attr, current_segment_length + 1);
+                tag_allocated_flags = tag_allocated_flags | 1 << 2;
+                memcpy(tag_key, attr, current_segment_length + 1);
                 previous_delimiter = '=';
             } else if (buffer[i] == ',') {
-                datagram->metric = (char *) malloc(current_segment_length + 1);
+                if (!sanitize_string(attr)) {
+                    goto error_clean_up;
+                }
+                (*datagram)->metric = (char *) malloc(current_segment_length + 1);
                 ALLOC_CHECK("Not enough memory to save metric attribute.");
-                sanitize_string(attr);
-                memcpy(datagram->metric, attr, current_segment_length + 1);
+                field_allocated_flags = field_allocated_flags | 1 << 1;
+                memcpy((*datagram)->metric, attr, current_segment_length + 1);
                 previous_delimiter = ',';
             } else if (buffer[i] == '|') {
-                double result;
-                if (sscanf(attr, "%lf", &result) != 1) {
-                    // not a double
-                    die(__LINE__, "Unable to parse metric double value");
-                } else {
-                    // a double
-                    datagram->value = result;
+                if (!sanitize_metric_val_string(attr)) {
+                    goto error_clean_up;
                 }
+                (*datagram)->value = (char *) malloc(current_segment_length + 1);
+                ALLOC_CHECK("Not enough memory to save value attribute.");
+                field_allocated_flags = field_allocated_flags | 1 << 3;
+                memcpy((*datagram)->value, attr, current_segment_length + 1);
                 previous_delimiter = '|';
             } else if (buffer[i] == '@') {
-                datagram->type = (char *) malloc(current_segment_length + 1);
+                if (!sanitize_sampling_val_string(attr)) {
+                    goto error_clean_up;
+                }
+                (*datagram)->type = (char *) malloc(current_segment_length + 1);
                 ALLOC_CHECK("Not enough memory to save type attribute.");
-                memcpy(datagram->type, attr, current_segment_length + 1);
+                field_allocated_flags = field_allocated_flags | 1 << 2;
+                memcpy((*datagram)->type, attr, current_segment_length + 1);
                 previous_delimiter = '@';
             } else if (buffer[i] == '\n') {
                 if (previous_delimiter == '@') {
-                    datagram->sampling = (char *) malloc(current_segment_length + 1);
+                    if (!sanitize_sampling_val_string(attr)) {
+                        goto error_clean_up;
+                    }
+                    (*datagram)->sampling = (char *) malloc(current_segment_length + 1);
                     ALLOC_CHECK("Not enough memory for datagram sampling.");
-                    memcpy(datagram->sampling, attr, current_segment_length + 1);
+                    field_allocated_flags = field_allocated_flags | 1 << 4;
+                    memcpy((*datagram)->sampling, attr, current_segment_length + 1);
                 } else {
-                    datagram->type = (char *) malloc(current_segment_length + 1);
+                    if (!sanitize_type_val_string(attr)) {
+                        goto error_clean_up;
+                    }
+                    (*datagram)->type = (char *) malloc(current_segment_length + 1);
                     ALLOC_CHECK("Not enough memory to save type attribute.");
-                    memcpy(datagram->type, attr, current_segment_length + 1);
+                    field_allocated_flags = field_allocated_flags | 1 << 2;
+                    memcpy((*datagram)->type, attr, current_segment_length + 1);
                 }
             }
             free(attr);
@@ -136,14 +185,40 @@ statsd_datagram* basic_parser_parse(char* buffer) {
         }
         current_segment_length++;
     }
-    if (any_tags == 1) {
-        int json_len = strlen(tags_json_buffer);
-        tags_json_buffer[json_len - 1] = '}';
-        datagram->tags = (char *) malloc(json_len + 1);
-        ALLOC_CHECK("Not enough memory to save tags JSON.");
-        memcpy(datagram->tags, tags_json_buffer, json_len);
-        datagram->tags[json_len] = '\0';
-    }
     free(segment);
-    return datagram;
+    if ((required_fields_flags & field_allocated_flags) != required_fields_flags)  {
+        goto error_clean_up_end;
+    }
+    return 1;
+
+    error_clean_up:
+    free(attr);
+    free(segment);
+
+    error_clean_up_end:
+    if (field_allocated_flags & 1) {
+        free_datagram_tags((*datagram)->tags);
+    }
+    if (field_allocated_flags & 1 << 1) {
+        free((*datagram)->metric);
+    }
+    if (field_allocated_flags & 1 << 2) {
+        free((*datagram)->type);
+    }
+    if (field_allocated_flags & 1 << 3) {
+        free((*datagram)->value);
+    }
+    if (field_allocated_flags & 1 << 4) {
+        free((*datagram)->instance);
+    }
+    if (field_allocated_flags & 1 << 5) {
+        free((*datagram)->sampling);
+    }
+    if (tag_allocated_flags & 1) {
+        free(tag_key);
+    }
+    if (tag_allocated_flags & 2) {
+        free(tag_value);
+    }
+    return 0;
 }

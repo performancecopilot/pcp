@@ -3,8 +3,8 @@
 #ifndef BASIC_
 #define BASIC_
 
-statsd_datagram* basic_parser_parse(char *buffer);
+int basic_parser_parse(char *buffer, statsd_datagram** datagram);
 
-void sanitize_datagram_segments(char **unsanitized_segment_string);
+int parse(char* buffer, statsd_datagram** datagram);
 
 #endif

@@ -14,6 +14,7 @@ typedef struct agent_config {
     int32_t max_unprocessed_packets;
     int verbose;
     int debug;
+    char* debug_output_filename;
     int trace;
     int parser_type;
     int show_version;
