@@ -13,6 +13,7 @@
  */
 #include <assert.h>
 #include "server.h"
+#include "base64.h"
 #include "dict.h"
 #include "util.h"
 
@@ -243,6 +244,10 @@ http_response_header(struct client *client, unsigned int length, http_code sts, 
 		parser->http_major, parser->http_minor,
 		sts, http_status_mapping(sts));
 
+    if (sts == HTTP_STATUS_UNAUTHORIZED && client->u.http.realm)
+	header = sdscatfmt(header, "WWW-Authenticate: Basic realm=\"%S\"\r\n",
+				client->u.http.realm);
+
     if ((flags & HTTP_FLAG_STREAMING))
 	header = sdscatfmt(header, "Transfer-encoding: %s\r\n", "chunked");
 
@@ -280,22 +285,27 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
 	if (client->buffer == NULL) {
 	    pmsprintf(length, sizeof(length), "%lX", (unsigned long)sdslen(message));
 	    buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, message);
-	} else {
+	} else if (message != NULL) {
 	    pmsprintf(length, sizeof(length), "%lX",
 				(unsigned long)sdslen(client->buffer) + sdslen(message));
 	    buffer = sdscatfmt(buffer, "%s\r\n%S%S\r\n",
 				length, client->buffer, message);
 	    client->buffer = NULL;
+	} else {
+	    message = buffer;
+	    buffer = NULL;
 	}
 	sdsfree(message);
 	suffix = sdsnewlen("0\r\n\r\n", 5);		/* chunked suffix */
     } else {	/* regular non-chunked response - headers + response body */
 	if (client->buffer == NULL) {
 	    suffix = message;
-	} else {
+	} else if (message != NULL) {
 	    suffix = sdscatsds(client->buffer, message);
 	    sdsfree(message);
 	    client->buffer = NULL;
+	} else {
+	    suffix = sdsempty();
 	}
 	buffer = http_response_header(client, sdslen(suffix), sts, type);
     }
@@ -567,7 +577,9 @@ static int
 on_header_value(http_parser *request, const char *offset, size_t length)
 {
     struct client	*client = (struct client *)request->data;
-    sds			value;
+    dictEntry		*entry;
+    char		*colon;
+    sds			field, value, decoded;
 
     if (client->u.http.parser.status_code || !client->u.http.headers)
 	return 0;	/* already in process of failing connection */
@@ -575,7 +587,30 @@ on_header_value(http_parser *request, const char *offset, size_t length)
     value = sdsnewlen(offset, length);
     if (pmDebugOptions.http)
 	fprintf(stderr, "Header value: %s (client=%p)\n", value, client);
-    dictSetVal(client->u.http.headers, (dictEntry *)client->u.http.privdata, value);
+    entry = (dictEntry *)client->u.http.privdata;
+    dictSetVal(client->u.http.headers, entry, value);
+    field = (sds)dictGetVal(entry);
+
+    /* HTTP Basic Auth for all servlets */
+    if (strncmp(field, "Authorization", 14) == 0 &&
+	strncmp(value, "Basic ", 6) == 0) {
+	decoded = base64_decode(value + 6, sdslen(value) - 6);
+	if (decoded) {
+	    /* extract username:password details */
+	    if ((colon = strchr(decoded, ':')) != NULL) {
+		length = colon - decoded;
+		client->u.http.username = sdsnewlen(decoded, length - 1);
+		length = sdslen(decoded) - length;
+		client->u.http.password = sdsnewlen(colon + 1, length - 1);
+	    } else {
+		client->u.http.parser.status_code = HTTP_STATUS_UNAUTHORIZED;
+	    }
+	    sdsfree(decoded);
+	} else {
+	    client->u.http.parser.status_code = HTTP_STATUS_UNAUTHORIZED;
+	}
+    }
+
     return 0;
 }
 
@@ -593,6 +628,15 @@ on_headers_complete(http_parser *request)
     client->u.http.privdata = NULL;
     if (servlet->on_headers)
 	return servlet->on_headers(client, client->u.http.headers);
+
+    /* HTTP Basic Auth for all servlets */
+    if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) {
+	if (!client->u.http.username || !client->u.http.password) {
+	    /* request should be resubmitted with authentication */
+	    client->u.http.parser.status_code = HTTP_STATUS_FORBIDDEN;
+	}
+    }
+
     return 0;
 }
 
@@ -705,6 +749,7 @@ setup_http_module(struct proxy *proxy)
 	chunked_transfer_size = smallest_buffer_size;
 
     register_servlet(proxy, &pmseries_servlet);
+    register_servlet(proxy, &pmwebapi_servlet);
     register_servlet(proxy, &grafana_servlet);
 }
 

@@ -121,6 +121,13 @@ PCP_WEB_1.7 {
 
 PCP_WEB_1.8 {
   global:
+    base64_decode;
+    base64_encode;
+
+    dictEmpty;
+    dictReplace;
+    dictScan;
+
     http_errno_name;
     http_errno_description;
     http_should_keep_alive;
@@ -134,4 +141,17 @@ PCP_WEB_1.8 {
 
     pmSeriesSetConfiguration;
     pmDiscoverSetConfiguration;
+    pmWebGroupSetConfiguration;
+
+    pmWebGroupSetup;
+    pmWebGroupContext;
+    pmWebGroupFetch;
+    pmWebGroupInDom;
+    pmWebGroupMetric;
+    pmWebGroupStore;
+    pmWebGroupDerive;
+    pmWebGroupProfile;
+    pmWebGroupScrape;
+    pmWebGroupSetEventLoop;
+    pmWebGroupSetMetricRegistry;
 } PCP_WEB_1.7;

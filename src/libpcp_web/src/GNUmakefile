@@ -17,11 +17,11 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = jsmn.c http_client.c http_parser.c sds.c siphash.c \
 	 query.c schema.c load.c crc16.c sha1.c util.c slots.c \
-	 redis.c net.c dict.c ini.c maps.c batons.c \
+	 redis.c net.c dict.c ini.c maps.c batons.c base64.c \
 	 json_helpers.c config.c
 HFILES = jsmn.h http_client.h http_parser.h sdsalloc.h zmalloc.h \
 	 query.h schema.h load.h crc16.h sha1.h util.h slots.h \
-	 redis.h net.h dict.h ini.h maps.h batons.h \
+	 redis.h net.h dict.h ini.h maps.h batons.h base64.h \
 	 discover.h private.h libuv.h sslio.h
 YFILES = query_parser.y
 XFILES = jsmn.c jsmn.h http_parser.c http_parser.h crc16.c crc16.h \
@@ -36,8 +36,9 @@ LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
 LCFLAGS += -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0
 
 ifeq "$(HAVE_LIBUV) and $(HAVE_OPENSSL)" "true and true"
-CFILES += sslio.c libuv.c discover.c
+CFILES += sslio.c libuv.c discover.c webgroup.c
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1 $(LIBOPENSSLCFLAGS) -DHAVE_OPENSSL=1
+LLDLIBS += $(LIB_FOR_LIBUV) $(LIB_FOR_OPENSSL)
 endif
 
 STATICLIBTARGET = libpcp_web.a

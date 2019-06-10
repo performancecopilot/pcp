@@ -129,25 +129,29 @@ setup_redis_module(struct proxy *proxy)
     if (proxy->slots == NULL) {
 	if (redis_protocol)
 	    flags |= SLOTS_KEYMAP;
-	if (archive_discovery | series_queries)
+	if (archive_discovery || series_queries)
 	    flags |= SLOTS_VERSION;
 	proxy->slots = redisSlotsConnect(proxy->config,
 			flags, proxylog, on_redis_connected,
 			proxy, proxy->events, proxy);
-	pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
+	if (archive_discovery)
+	    pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
     }
 
-    pmDiscoverSetEventLoop(&redis_discover.module, proxy->events);
-    pmDiscoverSetConfiguration(&redis_discover.module, proxy->config);
-    pmDiscoverSetMetricRegistry(&redis_discover.module, proxy->metrics);
-    pmDiscoverSetup(&redis_discover.module, &redis_discover.callbacks, proxy);
+    if (archive_discovery) {
+	pmDiscoverSetEventLoop(&redis_discover.module, proxy->events);
+	pmDiscoverSetConfiguration(&redis_discover.module, proxy->config);
+	pmDiscoverSetMetricRegistry(&redis_discover.module, proxy->metrics);
+	pmDiscoverSetup(&redis_discover.module, &redis_discover.callbacks, proxy);
+    }
 }
 
 void
 close_redis_module(struct proxy *proxy)
 {
-    if (proxy->slots) {
+    if (proxy->slots)
 	redisSlotsFree(proxy->slots);
-	proxy->slots = NULL;
-    }
+    proxy->slots = NULL;
+    if (archive_discovery)
+	pmDiscoverClose(&redis_discover.module);
 }

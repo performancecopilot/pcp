@@ -249,25 +249,31 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 	    client->protocol = client_protocol(*buf->base);
 	switch (client->protocol) {
 	case STREAM_PCP:
-	    return on_pcp_client_read(proxy, client, nread, buf);
+	    on_pcp_client_read(proxy, client, nread, buf);
+	    break;
 	case STREAM_HTTP:
-	    return on_http_client_read(proxy, client, nread, buf);
+	    on_http_client_read(proxy, client, nread, buf);
+	    break;
 	case STREAM_REDIS:
-	    return on_redis_client_read(proxy, client, nread, buf);
+	    on_redis_client_read(proxy, client, nread, buf);
+	    break;
 	case STREAM_SECURE:
-	    return on_secure_client_read(proxy, client, nread, buf);
+	    on_secure_client_read(proxy, client, nread, buf);
+	    break;
 	default:
+	    if (pmDebugOptions.af)
+		fprintf(stderr, "%s: unknown protocol key '%c' (0x%x) - disconnecting"
+			"client %p\n", "on_client_read", *buf->base,
+			(unsigned int)*buf->base, proxy);
 	    break;
 	}
-	if (pmDebugOptions.af)
-	    fprintf(stderr, "%s: unknown protocol key '%c' (0x%x) - disconnecting"
-			"client %p\n", "on_client_read", *buf->base, (unsigned int)*buf->base, proxy);
     } else {
 	if (pmDebugOptions.af && nread < 0)
 	    fprintf(stderr, "%s: read error %ld - disconnecting client %p\n",
 			"on_client_read", (long)nread, client);
 	uv_close((uv_handle_t *)stream, on_client_close);
     }
+    sdsfree(buf->base);
 }
 
 static void

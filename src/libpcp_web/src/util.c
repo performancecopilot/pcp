@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -200,7 +200,8 @@ pmwebapi_units_str(metric_t *metric, char *buffer, int buflen)
     units = pmUnitsStr_r(&metric->desc.units, buffer, buflen);
     if (units && units[0] != '\0')
 	return units;
-    return "none";
+    pmsprintf(buffer, buflen, "none");
+    return (const char *)buffer;
 }
 
 const char *
@@ -671,12 +672,13 @@ pmwebapi_free_context(context_t *cp)
     if (cp->context >= 0)
 	pmDestroyContext(cp->context);
 
-    if (cp->name.sds)
-	sdsfree(cp->name.sds);
-    if (cp->origin)
-	sdsfree(cp->origin);
-    if (cp->host)
-	sdsfree(cp->host);
+    sdsfree(cp->name.sds);
+    sdsfree(cp->origin);
+    sdsfree(cp->host);
+
+    sdsfree(cp->username);
+    sdsfree(cp->password);
+    sdsfree(cp->realm);
 
     if (cp->pmids)
 	dictRelease(cp->pmids);

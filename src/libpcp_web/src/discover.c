@@ -263,7 +263,7 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
     }
 
     if (p && p->changed && path_changed)
-    	p->changed(p);
+	p->changed(p);
 
     sdsfree(path);
 }

@@ -1,0 +1,691 @@
+QA output created by 1543
+
+*****   GET /pmapi/context   *****
+
+== Check default context creation ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+== Check hostname parameter ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+== Check hostspec parameter ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+== Pinging active context via URL ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+Context ping success
+== Check polltimeout parameters ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+== Pinging now-expired context via URL ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+Context successfully expired
+== Pinging now-expired context via parameter ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+Context successfully expired
+
+*****   GET /pmapi/metric   *****
+
+== metric name ==
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmID": "29.0.11",
+            "indom": "PM_INDOM_NULL",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "",
+            "text-helptext": ""
+        }
+    ]
+}
+== metric prefix ==
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.one",
+            "series": "SERIES"
+            "pmID": "29.0.10",
+            "indom": "PM_INDOM_NULL",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "",
+            "text-helptext": ""
+        },
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmID": "29.0.11",
+            "indom": "PM_INDOM_NULL",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "",
+            "text-helptext": ""
+        },
+        {
+            "name": "sample.long.hundred",
+            "series": "SERIES"
+            "pmID": "29.0.12",
+            "indom": "PM_INDOM_NULL",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "",
+            "text-helptext": ""
+        },
+        {
+            "name": "sample.long.million",
+            "series": "SERIES"
+            "pmID": "29.0.13",
+            "indom": "PM_INDOM_NULL",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "",
+            "text-helptext": ""
+        },
+        {
+            "name": "sample.long.write_me",
+            "series": "SERIES"
+            "pmID": "29.0.14",
+            "indom": "PM_INDOM_NULL",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "",
+            "text-helptext": ""
+        },
+        {
+            "name": "sample.long.bin",
+            "series": "SERIES"
+            "pmID": "29.0.103",
+            "indom": "29.2",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "",
+            "text-helptext": ""
+        },
+        {
+            "name": "sample.long.bin_ctr",
+            "series": "SERIES"
+            "pmID": "29.0.104",
+            "indom": "29.2",
+            "type": "32",
+            "sem": "counter",
+            "units": "Kbyte",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "",
+            "text-helptext": ""
+        }
+    ]
+}
+== bad metric name ==
+{
+    "success": false,
+    "message": "bad.metric - Unknown metric name"
+}
+
+*****   GET /pmapi/fetch   *****
+
+== fetch by name ==
+{
+    "context": "CONTEXT"
+    "timestamp": {
+        "sec": SECONDS,
+        "nsec": NANOSECONDS
+    },
+    "values": [
+        {
+            "pmid": "29.0.10",
+            "name": "sample.long.one",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 1
+                }
+            ]
+        }
+    ]
+}
+== fetch by names ==
+{
+    "context": "CONTEXT"
+    "timestamp": {
+        "sec": SECONDS,
+        "nsec": NANOSECONDS
+    },
+    "values": [
+        {
+            "pmid": "29.0.10",
+            "name": "sample.long.one",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 1
+                }
+            ]
+        }
+    ]
+}
+== fetch by pmid ==
+{
+    "context": "CONTEXT"
+    "timestamp": {
+        "sec": SECONDS,
+        "nsec": NANOSECONDS
+    },
+    "values": [
+        {
+            "pmid": "29.0.10",
+            "name": "sample.long.one",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 1
+                }
+            ]
+        }
+    ]
+}
+== fetch by pmids ==
+{
+    "context": "CONTEXT"
+    "timestamp": {
+        "sec": SECONDS,
+        "nsec": NANOSECONDS
+    },
+    "values": [
+        {
+            "pmid": "29.0.10",
+            "name": "sample.long.one",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 1
+                }
+            ]
+        },
+        {
+            "pmid": "29.0.11",
+            "name": "sample.long.ten",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 10
+                }
+            ]
+        }
+    ]
+}
+== bad name fetch ==
+{
+    "context": "CONTEXT"
+    "timestamp": {
+        "sec": SECONDS,
+        "nsec": NANOSECONDS
+    },
+    "values": [    ]
+}
+== bad pmid fetch ==
+{
+    "context": "CONTEXT"
+    "timestamp": {
+        "sec": SECONDS,
+        "nsec": NANOSECONDS
+    },
+    "values": [    ]
+}
+== some good some bad names fetch ==
+{
+    "context": "CONTEXT"
+    "timestamp": {
+        "sec": SECONDS,
+        "nsec": NANOSECONDS
+    },
+    "values": [
+        {
+            "pmid": "29.0.10",
+            "name": "sample.long.one",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 1
+                }
+            ]
+        }
+    ]
+}
+== some good some bad pmids fetch ==
+{
+    "context": "CONTEXT"
+    "timestamp": {
+        "sec": SECONDS,
+        "nsec": NANOSECONDS
+    },
+    "values": [
+        {
+            "pmid": "29.0.11",
+            "name": "sample.long.ten",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 10
+                }
+            ]
+        }
+    ]
+}
+
+*****   GET /pmapi/indom   *****
+
+== instances by name ==
+{
+    "context": "CONTEXT"
+    "indom": "29.2",
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    },
+    "instances": [
+        {
+            "instance": 900,
+            "name": "bin-900",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 100,
+            "name": "bin-100",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 800,
+            "name": "bin-800",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 400,
+            "name": "bin-400",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 500,
+            "name": "bin-500",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 300,
+            "name": "bin-300",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 200,
+            "name": "bin-200",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 600,
+            "name": "bin-600",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 700,
+            "name": "bin-700",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        }
+    ]
+}
+== instances by indom ==
+{
+    "context": "CONTEXT"
+    "indom": "29.2",
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    },
+    "instances": [
+        {
+            "instance": 900,
+            "name": "bin-900",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 100,
+            "name": "bin-100",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 800,
+            "name": "bin-800",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 400,
+            "name": "bin-400",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 500,
+            "name": "bin-500",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 300,
+            "name": "bin-300",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 200,
+            "name": "bin-200",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 600,
+            "name": "bin-600",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 700,
+            "name": "bin-700",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        }
+    ]
+}
+== bad indom name parameter ==
+{
+    "success": false,
+    "message": "no.such.metric - failed to lookup metric"
+}
+== bad indom parameter ==
+{
+    "context": "CONTEXT"
+    "indom": "0.0",
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    },
+    "instances": [    ]
+}
+== no indom parameters ==
+<html>
+<head><title>400 Bad Request</title></head>
+<body>
+<h1>400 Bad Request</h1>
+<p><b>webapi servlet</b>: failed to process URL</p><hr>
+<p><small><i>pmproxy/VERSION</i></small></p>
+</body>
+</html>
+== individual instances ==
+{
+    "context": "CONTEXT"
+    "indom": "29.2",
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    },
+    "instances": [
+        {
+            "instance": 900,
+            "name": "bin-900",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 800,
+            "name": "bin-800",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 400,
+            "name": "bin-400",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 500,
+            "name": "bin-500",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 300,
+            "name": "bin-300",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 600,
+            "name": "bin-600",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 700,
+            "name": "bin-700",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        }
+    ]
+}
+
+*****   Generic errors - no handler, bad URLs   *****
+
+== no servlet ==
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<h1>404 Not Found</h1>
+<p><b>unknown servlet</b>: no handler for URL</p><hr>
+<p><small><i>pmproxy/VERSION</i></small></p>
+</body>
+</html>
+== no command ==
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<h1>404 Not Found</h1>
+<p><b>unknown servlet</b>: no handler for URL</p><hr>
+<p><small><i>pmproxy/VERSION</i></small></p>
+</body>
+</html>
+== bad command ==
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<h1>404 Not Found</h1>
+<p><b>unknown servlet</b>: no handler for URL</p><hr>
+<p><small><i>pmproxy/VERSION</i></small></p>
+</body>
+</html>
+== bad servlet ==
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<h1>404 Not Found</h1>
+<p><b>unknown servlet</b>: no handler for URL</p><hr>
+<p><small><i>pmproxy/VERSION</i></small></p>
+</body>
+</html>

@@ -67,6 +67,9 @@ typedef struct http_client {
     struct servlet	*servlet;	/* servicing current request */
     struct dict		*parameters;	/* URL parameters dictionary */
     struct dict		*headers;	/* request header dictionary */
+    sds			username;	/* HTTP Basic Auth user name */
+    sds			password;	/* HTTP Basic Auth passphrase */
+    sds			realm;		/* optional Basic Auth realm */
     void		*privdata;	/* private HTTP parsing state */
     void		*data;		/* opaque servlet information */
     unsigned int	type : 16;	/* HTTP response content type */

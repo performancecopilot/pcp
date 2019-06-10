@@ -25,9 +25,10 @@ LLDLIBS	= $(PCP_WEBLIB)
 
 ifeq "$(HAVE_LIBUV) and $(HAVE_OPENSSL)" "true and true"
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1 $(OPENSSLCFLAGS) -DHAVE_OPENSSL=1
-SERVLETS = series.c grafana.c
-CFILES += server.c http.c pcp.c redis.c secure.c $(SERVLETS)
-HFILES += server.h http.h pcp.h
+LDFLAGS += $(LIB_FOR_OPENSSL)
+SERVLETS = series.c webapi.c grafana.c
+CFILES += openmetrics.c server.c http.c pcp.c redis.c secure.c $(SERVLETS)
+HFILES += openmetrics.h server.h http.h pcp.h
 endif
 CFILES += deprecated.c
 

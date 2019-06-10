@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -19,6 +19,8 @@
 
 #ifdef HAVE_LIBUV
 #include <uv.h>
+#else
+typedef void *uv_timer_t;
 #endif
 
 typedef struct seriesname {
@@ -31,6 +33,9 @@ typedef struct context {
     seriesname_t	name;		/* source archive or hostspec */
     sds			host;		/* hostname from archive/host */
     sds			origin;		/* host where series loaded in */
+    sds			username;	/* authentication information */
+    sds			password;	/* authentication information */
+    sds			realm;		/* authentication information */
     unsigned char	hostid[20];	/* SHA1 of host identifier */
     double		location[2];	/* latitude and longitude */
     unsigned int	type	: 7;	/* PMAPI context type */
@@ -40,9 +45,7 @@ typedef struct context {
     unsigned int	updated : 1;	/* context labels are updated */
     unsigned int	padding : 21;	/* zero-filled struct padding */
     unsigned int	timeout;	/* context timeout in milliseconds */
-#ifdef HAVE_LIBUV
     uv_timer_t		timer;
-#endif
     int			context;	/* PMAPI context handle */
     int			randomid;	/* random number identifier */
     struct dict		*pmids;		/* metric pmID to metric struct */
@@ -52,6 +55,7 @@ typedef struct context {
     struct dict		*clusters;	/* domain+cluster to cluster struct */
     sds			labels;		/* context labelset as string */
     pmLabelSet		*labelset;	/* labelset at context level */
+    void		*privdata;
 } context_t;
 
 typedef struct domain {
