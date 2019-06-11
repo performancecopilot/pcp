@@ -608,9 +608,9 @@ main(int argc, char ** argv)
 			opts.nhosts, opts.narchives);
 
     if (opts.tzflag) {
-	if (opts.narchives > 0)
+	if (archiveGroup->numContexts() > 0)
 	    archiveGroup->useTZ();
-	if (opts.nhosts > 0)
+	if (liveGroup->numContexts() > 0)
 	    liveGroup->useTZ();
     }
     else if (opts.timezone != NULL) {
