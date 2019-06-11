@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2012-2013 Red Hat.
+.\" Copyright (c) 2012-2013, 2019 Red Hat.
 .\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -47,6 +47,15 @@ around the \s-1PCP\s0 \fIlibpcp_import\fR
 library, and as such could be used as an example to develop new
 tools to import other types of performance data and create \s-1PCP\s0 archives.
 A Python wrapper module is also available.
+.SH "NOTES"
+.IX Header "NOTES"
+As of \fBsysstat\fR version 12.0.5, \fBsadc\fR(1) has added functionality to
+directly write \s-1PCP\s0 archive files.  To produce archive files from sar run:
+.sp
+.nf
+$ sadf -l -O pcparchive=ARCHIVE_NAME sar.dat -- -A
+.fi
+.sp
 .SH "CAVEATS"
 .IX Header "CAVEATS"
 When not using the \s-1XML\s0 input option, \fBsar2pcp\fR requires \fIinfile\fR to
