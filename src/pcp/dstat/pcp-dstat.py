@@ -1080,6 +1080,18 @@ class DstatTool(object):
         return ret, c
 
     @staticmethod
+    def showtime(plugin, stamp):
+        "Format a sample time stamp"
+        value = ''
+        if plugin.name in ['epoch', 'epoch-adv']:    # time in seconds
+            value = str(int(stamp.value))
+        elif plugin.name in ['time', 'time-adv']:    # formatted time
+            value = stamp().strftime(TIMEFMT)
+        if plugin.name in ['epoch-adv', 'time-adv']: # with milliseconds
+            value = value + '.' + str(stamp.value.tv_usec * 1000)[:3]
+        return value
+
+    @staticmethod
     def tchg(var, width):
         "Convert time string to given length"
         ret = '%2dh%02d' % (var / 60, var % 60)
@@ -1093,14 +1105,9 @@ class DstatTool(object):
 
     def tshow(self, plugin, stamp):
         "Display sample time stamp"
-        if plugin.name in ['epoch', 'epoch-adv']:    # time in seconds
-            value = str(int(stamp.value))
-        elif plugin.name in ['time', 'time-adv']:    # formatted time
-            value = stamp().strftime(TIMEFMT)
-        if plugin.name in ['epoch-adv', 'time-adv']: # with milliseconds
-            value = value + '.' + str(stamp.value.tv_usec * 1000)[:3]
+        value = self.showtime(plugin, stamp)
         line = self.cprint(value, NOUNITS, 's', None, plugin.width, None)
-        #sys.stderr.write("tshow result line:\n%s%s\n" % (line, THEME['default']))
+        #sys.stderr.write("tshow result:\n%s%s\n" % (line, THEME['default']))
         return line
 
     def mshow(self, plugin, index, result):
@@ -1146,7 +1153,13 @@ class DstatTool(object):
                 line = line + sep
             line = line + self.roundcsv(value)
             count += 1
-        #sys.stderr.write("mshow result line:\n%s%s\n" % (line, THEME['default']))
+        #sys.stderr.write("mshowcsv result:\n%s%s\n" % (line, THEME['default']))
+        return line
+
+    def tshowcsv(self, plugin, stamp):
+        value = self.showtime(plugin, stamp)
+        line = value.ljust(plugin.width)
+        #sys.stderr.write("tshowcsv result:\n%s%s\n" % (line, THEME['default']))
         return line
 
     @staticmethod
