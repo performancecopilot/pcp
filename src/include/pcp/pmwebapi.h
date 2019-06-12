@@ -99,6 +99,17 @@ typedef struct pmSeriesLabel {
     sds		value;		/* value of this label */
 } pmSeriesLabel;
 
+typedef struct pmSeriesTimeWindow {
+    sds		delta;		/* sample interval */
+    sds		align;		/* alignment for sample start */
+    sds		start;		/* start time */
+    sds		end;		/* end time */
+    sds		range;		/* sample time range */
+    sds		count;		/* number of samples */
+    sds		offset;		/* offset from sample start */
+    sds		zone;		/* timezone of time strings */
+} pmSeriesTimeWindow;
+
 typedef void (*pmSeriesSetupCallBack)(void *);
 typedef int (*pmSeriesMatchCallBack)(pmSID, void *);
 typedef int (*pmSeriesStringCallBack)(pmSID, sds, void *);
@@ -144,6 +155,7 @@ extern int pmSeriesLabels(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesInstances(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesMetrics(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesSources(pmSeriesSettings *, int, sds *, void *);
+extern int pmSeriesValues(pmSeriesSettings *, pmSeriesTimeWindow *, int, sds *, void *);
 extern int pmSeriesQuery(pmSeriesSettings *, sds, pmSeriesFlags, void *);
 extern int pmSeriesLoad(pmSeriesSettings *, sds, pmSeriesFlags, void *);
 

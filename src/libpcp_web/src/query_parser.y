@@ -581,7 +581,7 @@ newinterval(PARSER *lp, const char *string)
 		"Cannot parse time delta with pmParseInterval:\n%s", error);
 	free(error);
     } else {
-	tp->deltas = sdsnew(string);
+	tp->window.delta = sdsnew(string);
     }
 }
 
@@ -608,7 +608,7 @@ newstarttime(PARSER *lp, const char *string)
 
     parsetime(lp, &tp->start, string);
     if (!lp->yy_error)
-	tp->starts = sdsnew(string);
+	tp->window.start = sdsnew(string);
 #if 0
     if (!lp->yy_error)
 fprintf(stderr, "START: %.64g\n", pmtimevalToReal(result));
@@ -624,7 +624,7 @@ newendtime(PARSER *lp, const char *string)
 
     parsetime(lp, &tp->end, string);
     if (!lp->yy_error)
-	tp->ends = sdsnew(string);
+	tp->window.end = sdsnew(string);
 #if 0
     if (!lp->yy_error)
 fprintf(stderr, "END: %.64g\n", pmtimevalToReal(result));
@@ -652,7 +652,7 @@ newrange(PARSER *lp, const char *string)
 	tsub(&offset, &tp->start);
 	tp->start = offset;
 	tp->end.tv_sec = INT_MAX;
-	tp->ranges = sdsnew(string);
+	tp->window.range = sdsnew(string);
     }
 }
 
@@ -663,7 +663,7 @@ newaligntime(PARSER *lp, const char *string)
 
     parsetime(lp, &tp->align, string);
     if (!lp->yy_error)
-	tp->aligns = sdsnew(string);
+	tp->window.align = sdsnew(string);
 #if 0
     if (!lp->yy_error)
 fprintf(stderr, "ALIGN: %.64g\n", pmtimevalToReal(result));
@@ -686,7 +686,7 @@ newtimezone(PARSER *lp, const char *string)
 		string, pmErrStr_r(sts, e, sizeof(e)));
     } else {
 	tp->zone = sts;
-	tp->zones = sdsnew(string);
+	tp->window.zone = sdsnew(string);
     }
 }
 
@@ -702,7 +702,7 @@ newsamples(PARSER *lp, const char *string)
 		"Invalid sample count requested - \"%s\"", string);
     } else {
 	tp->count = sts;
-	tp->counts = sdsnew(string);
+	tp->window.count = sdsnew(string);
     }
 }
 
@@ -718,7 +718,7 @@ newoffset(PARSER *lp, const char *string)
 		"Invalid sample offset requested - \"%s\"", string);
     } else {
 	tp->offset = sts;
-	tp->offsets = sdsnew(string);
+	tp->window.offset = sdsnew(string);
     }
 }
 

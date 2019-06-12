@@ -26,6 +26,8 @@ void freeSeriesLoadBaton(seriesLoadBaton *);
 void initSeriesGetContext(seriesGetContext *, void *);
 void freeSeriesGetContext(seriesGetContext *, int);
 
+static void server_cache_window(void *);
+
 /* cache information about this metric source (host/archive) */
 static void
 server_cache_source(seriesLoadBaton *baton)
@@ -364,8 +366,6 @@ out:
     /* drop reference taken in server_cache_window */
     doneSeriesGetContext(context, "series_cache_update");
 }
-
-static void server_cache_window(void *);	/* TODO */
 
 static int
 server_cache_series(seriesLoadBaton *baton)

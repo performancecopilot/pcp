@@ -33,9 +33,7 @@ on_server_write(uv_write_t *writer, int status)
     struct client	*client = (struct client *)writer->handle;
     stream_write_baton	*request = (stream_write_baton *)writer;
 
-    sdsfree(request->buffer[0].base);
     free(request);
-
     if (status != 0)
 	uv_close((uv_handle_t *)&client->stream, on_client_close);
 }

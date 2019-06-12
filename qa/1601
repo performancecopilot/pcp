@@ -129,6 +129,11 @@ echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson
 
 echo "== verify metric values" | tee -a  $seq.full
+url="http://localhost:$proxyport/series/values?series=$series2&samples=2"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | pmjson
+
+echo "== verify metric values by query" | tee -a  $seq.full
 url="http://localhost:$proxyport/series/query?expr=disk.dev.read[samples:2]"
 echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson

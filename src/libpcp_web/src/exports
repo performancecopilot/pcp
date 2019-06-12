@@ -154,4 +154,6 @@ PCP_WEB_1.8 {
     pmWebGroupScrape;
     pmWebGroupSetEventLoop;
     pmWebGroupSetMetricRegistry;
+
+    pmSeriesValues;
 } PCP_WEB_1.7;

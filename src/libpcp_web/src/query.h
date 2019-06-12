@@ -110,14 +110,7 @@ typedef struct node {
 
 typedef struct timing {
     /* input string */
-    sds			deltas;
-    sds			aligns;
-    sds			starts;
-    sds			ends;
-    sds			ranges;
-    sds			counts;
-    sds			offsets;
-    sds			zones;
+    pmSeriesTimeWindow	window;
 
     /* parsed inputs */
     struct timeval	delta;	

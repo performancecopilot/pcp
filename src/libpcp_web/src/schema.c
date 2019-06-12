@@ -22,7 +22,6 @@
 #define STRINGIFY(s)	#s
 #define TO_STRING(s)	STRINGIFY(s)
 #define SCHEMA_VERSION	2
-#define SHA1SZ		20
 
 extern sds		cursorcount;
 static sds		maxstreamlen;

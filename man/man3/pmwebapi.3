@@ -217,6 +217,47 @@ $ curl -s http://localhost:44322/series/query?expr=disk.dev.read*[samples:1] | p
   }
 ]
 .ESAMPLE
+.SS GET \fI/series/values\fR \- \fBpmSeriesValues\fR(3)
+.TS
+box,left;
+c | c | cw(2.4i)
+lf(CW) | l | l.
+Parameters	Type	Explanation
+_
+series	string	Comma-separated list of series identifiers
+_
+count	number	Count of samples, time window specification
+samples	number	Synonym for the 'count' parameter
+delta	string	Sample interval, time window specification
+interval	string	Synonym for the 'delta' parameter
+start	string	Sample window start time
+begin	string	Synonym for the 'start' parameter
+end	string	Sample window end time
+finish	string	Synonym for the 'end' parameter
+offset	string	Sampling offset
+align	string	Sample time alignment
+zone	string	Time window timezone
+.TE
+.P
+Performs values retrievals for one or more time series
+identifiers.
+The JSON response contains the same information as the
+\fBpmseries\fR \-\fBq\fR/\-\-\fBquery\fR option using
+any of the time window parameters described on
+.BR pmseries (1).
+If no time window parameters are specified, the single
+most recent value observed is retrieved.
+.P
+.SAMPLE
+$ curl -s http://localhost:44322/series/values?series=605f[...]0dd12 | pmjson
+[
+  {
+    "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+    "timestamp": 1317633022959.959241041,
+    "value": "71660"
+  }
+]
+.ESAMPLE
 .SS GET \fI/series/descs\fR \- \fBpmSeriesDescs\fR(3)
 .TS
 box,left;

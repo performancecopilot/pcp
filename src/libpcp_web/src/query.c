@@ -1160,6 +1160,7 @@ series_prepare_time(seriesQueryBaton *baton, series_set_t *result)
     for (i = 0; i < result->nseries; i++, series += SHA1SZ) {
 	sid = calloc(1, sizeof(seriesGetSID));
 	pmwebapi_hash_str(series, buffer, sizeof(buffer));
+
 	initSeriesGetSID(sid, buffer, 1, baton);
 	seriesBatonReference(baton, "series_prepare_time");
 
@@ -1268,7 +1269,7 @@ series_query_report_values(void *arg)
 static int
 series_time_window(timing_t *tp)
 {
-    if (tp->ranges || tp->starts || tp->ends || tp->counts)
+    if (tp->window.range || tp->window.start || tp->window.end || tp->window.count)
 	return 1;
     return 0;
 }
@@ -2228,6 +2229,169 @@ pmSeriesMetrics(pmSeriesSettings *settings, int nseries, sds *series, void *arg)
     baton->phases[i++].func = series_lookup_services;
     baton->phases[i++].func = series_lookup_mapping;
     baton->phases[i++].func = series_lookup_metrics;
+    baton->phases[i++].func = series_lookup_finished;
+    assert(i <= QUERY_PHASES);
+    seriesBatonPhases(baton->current, i, baton);
+    return 0;
+}
+
+static void
+parsedelta(seriesQueryBaton *baton, sds string, struct timeval *result, const char *source)
+{
+    char		*error;
+    sds			msg;
+    int			sts;
+
+    if ((sts = pmParseInterval(string, result, &error)) < 0) {
+	infofmt(msg, "Cannot parse time %s with pmParseInterval:\n%s",
+		source, error);
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = sts;
+	free(error);
+    }
+}
+
+static void
+parsetime(seriesQueryBaton *baton, sds string, struct timeval *result, const char *source)
+{
+    struct timeval	start = { 0, 0 };
+    struct timeval	end = { INT_MAX, 0 };
+    char		*error;
+    sds			msg;
+    int			sts;
+
+    if ((sts = __pmParseTime(string, &start, &end, result, &error)) < 0) {
+	infofmt(msg, "Cannot parse %s time with __pmParseTime:\n%s",
+		source, error);
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = sts;
+	free(error);
+    }
+}
+
+static void
+parseint(seriesQueryBaton *baton, sds string, int *count, const char *source)
+{
+    sds			msg;
+    int			sts;
+
+    if ((sts = atoi(string)) < 0) {
+	infofmt(msg, "Invalid sample %s requested - %s", source, string);
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = sts;
+    } else {
+	*count = sts;
+    }
+}
+
+static void
+parsezone(seriesQueryBaton *baton, sds string, int *zone, const char *source)
+{
+    char		error[PM_MAXERRMSGLEN];
+    sds			msg;
+    int			sts;
+
+    if ((sts = pmNewZone(string)) < 0) {
+	infofmt(msg, "Cannot parse %s with pmNewZone:\n%s - %s",
+		source, string, pmErrStr_r(sts, error, sizeof(error)));
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = sts;
+    } else {
+	*zone = sts;
+    }
+}
+
+static void
+parseseries(seriesQueryBaton *baton, sds series, unsigned char *result)
+{
+    unsigned int	i, off;
+    char		*endptr, tuple[3] = {0};
+    sds			msg;
+
+    for (i = 0; i < 20; i++) {
+	off = i * 2;
+	tuple[0] = series[off];
+	tuple[1] = series[off+1];
+	result[i] = (unsigned char)strtoul(tuple, &endptr, 16);
+	if (endptr != &tuple[2]) {
+	    infofmt(msg, "Invalid SID %s near offset %u", series, off);
+	    batoninfo(baton, PMLOG_ERROR, msg);
+	    baton->error = -EINVAL;
+	}
+    }
+}
+
+static void
+initSeriesGetValues(seriesQueryBaton *baton, int nseries, sds *series,
+		pmSeriesTimeWindow *window)
+{
+    struct series_set	*result = &baton->u.query.root.result;
+    struct timing	*timing = &baton->u.query.timing;
+    struct timeval	offset;
+    int			i;
+
+    /* validate and convert 40-byte (ASCII) SIDs to internal 20-byte form */
+    result->nseries = nseries;
+    if ((result->series = calloc(nseries, 20)) == NULL) {
+	baton->error = -ENOMEM;
+    } else {
+	for (i = 0; i < nseries; i++)
+	    parseseries(baton, series[i], result->series + (i * 20));
+    }
+    if (baton->error) {
+	if (result->series)
+	    free(result->series);
+	return;
+    }
+
+    /* validate and convert time window specification to internal struct */
+    timing->window = *window;
+    if (window->delta)
+	parsedelta(baton, window->delta, &timing->delta, "delta");
+    if (window->align)
+	parsetime(baton, window->align, &timing->align, "align");
+    if (window->start)
+	parsetime(baton, window->start, &timing->start, "start");
+    if (window->end)
+	parsetime(baton, window->end, &timing->end, "end");
+    if (window->range) {
+	parsedelta(baton, window->range, &timing->start, "range");
+	gettimeofday(&offset, NULL);
+	tsub(&offset, &timing->start);
+	timing->start = offset;
+	timing->end.tv_sec = INT_MAX;
+    }
+    if (window->count)
+	parseint(baton, window->count, &timing->count, "count");
+    if (window->offset)
+	parseint(baton, window->offset, &timing->offset, "offset");
+    if (window->zone)
+	parsezone(baton, window->zone, &timing->zone, "timezone");
+
+    /* if no time window parameters passed, default to latest value */
+    if (!series_time_window(timing))
+	timing->count = 1;
+}
+
+int
+pmSeriesValues(pmSeriesSettings *settings, pmSeriesTimeWindow *timing,
+		int nseries, sds *series, void *arg)
+{
+    seriesQueryBaton	*baton;
+    size_t		bytes;
+    unsigned int	i = 0;
+
+    if (nseries <= 0)
+	return -EINVAL;
+    bytes = sizeof(seriesQueryBaton) + (nseries * sizeof(seriesGetSID));
+    if ((baton = calloc(1, bytes)) == NULL)
+	return -ENOMEM;
+    initSeriesQueryBaton(baton, settings, arg);
+    initSeriesGetValues(baton, nseries, series, timing);
+
+    baton->current = &baton->phases[0];
+    baton->phases[i++].func = series_lookup_services;
+    baton->phases[i++].func = series_query_report_values;
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);

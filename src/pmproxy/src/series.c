@@ -21,6 +21,7 @@ typedef enum pmSeriesRestKey {
     RESTKEY_INSTS,
     RESTKEY_LABELS,
     RESTKEY_METRIC,
+    RESTKEY_VALUES,
     RESTKEY_LOAD,
     RESTKEY_QUERY,
 } pmSeriesRestKey;
@@ -35,6 +36,7 @@ typedef struct pmSeriesBaton {
     struct client	*client;
     pmSeriesRestKey	restkey;
     pmSeriesFlags	flags;
+    pmSeriesTimeWindow	window;
     uv_work_t		loading;
     unsigned int	working;
     int			nsids;
@@ -55,12 +57,16 @@ static pmSeriesRestCommand commands[] = {
     { .key = RESTKEY_LABELS, .name = "labels", .size = sizeof("labels")-1 },
     { .key = RESTKEY_METRIC, .name = "metrics", .size = sizeof("metrics")-1 },
     { .key = RESTKEY_SOURCE, .name = "sources", .size = sizeof("sources")-1 },
+    { .key = RESTKEY_VALUES, .name = "values", .size = sizeof("values")-1 },
     { .key = RESTKEY_LOAD,  .name = "load",  .size = sizeof("load")-1 },
     { .key = RESTKEY_NONE }
 };
 
 /* constant string keys (initialized during servlet setup) */
 static sds PARAM_EXPR, PARAM_MATCH, PARAM_SERIES, PARAM_SOURCE;
+static sds PARAM_ALIGN, PARAM_COUNT, PARAM_DELTA, PARAM_OFFSET,
+	   PARAM_SAMPLES, PARAM_INTERVAL, PARAM_START, PARAM_FINISH,
+	   PARAM_BEGIN, PARAM_END, PARAM_RANGE, PARAM_ZONE;
 
 /* constant global strings (read-only) */
 static const char pmseries_success[] = "{\"success\":true}\r\n";
@@ -490,6 +496,29 @@ pmseries_setup_request_parameters(struct client *client,
     size_t		length;
     sds			series;
 
+    if (parameters && baton->restkey == RESTKEY_VALUES) {
+	if ((entry = dictFind(parameters, PARAM_ALIGN)) != NULL)
+	    baton->window.align = dictGetVal(entry);
+	if ((entry = dictFind(parameters, PARAM_SAMPLES)) != NULL ||
+	    (entry = dictFind(parameters, PARAM_COUNT)) != NULL)
+	    baton->window.count = dictGetVal(entry);
+	if ((entry = dictFind(parameters, PARAM_INTERVAL)) != NULL ||
+	    (entry = dictFind(parameters, PARAM_DELTA)) != NULL)
+	    baton->window.delta = dictGetVal(entry);
+	if ((entry = dictFind(parameters, PARAM_START)) != NULL ||
+	    (entry = dictFind(parameters, PARAM_BEGIN)) != NULL)
+	    baton->window.start = dictGetVal(entry);
+	if ((entry = dictFind(parameters, PARAM_FINISH)) != NULL ||
+	    (entry = dictFind(parameters, PARAM_END)) != NULL)
+	    baton->window.end = dictGetVal(entry);
+	if ((entry = dictFind(parameters, PARAM_RANGE)) != NULL)
+	    baton->window.range = dictGetVal(entry);
+	if ((entry = dictFind(parameters, PARAM_OFFSET)) != NULL)
+	    baton->window.offset = dictGetVal(entry);
+	if ((entry = dictFind(parameters, PARAM_ZONE)) != NULL)
+	    baton->window.zone = dictGetVal(entry);
+    }
+
     switch (baton->restkey) {
     case RESTKEY_QUERY:
     case RESTKEY_LOAD:
@@ -522,6 +551,7 @@ pmseries_setup_request_parameters(struct client *client,
     case RESTKEY_INSTS:
     case RESTKEY_LABELS:
     case RESTKEY_METRIC:
+    case RESTKEY_VALUES:
 	/* optional comma-separated series identifier(s) for these commands */
 	if (parameters != NULL) {
 	    if ((entry = dictFind(parameters, PARAM_SERIES)) != NULL) {
@@ -617,6 +647,7 @@ pmseries_request_body(struct client *client, const char *content, size_t length)
     case RESTKEY_LABELS:
     case RESTKEY_METRIC:
     case RESTKEY_SOURCE:
+    case RESTKEY_VALUES:
 	series = sdsnewlen(content, length);
 	baton->sids = sdssplitlen(series, length, "\n", 1, &baton->nsids);
 	sdsfree(series);
@@ -717,6 +748,12 @@ pmseries_request_done(struct client *client)
 	    on_pmseries_done(sts, baton);
 	break;
 
+    case RESTKEY_VALUES:
+	if ((sts = pmSeriesValues(&pmseries_settings, &baton->window,
+					baton->nsids, baton->sids, baton)) < 0)
+	    on_pmseries_done(sts, baton);
+	break;
+
     case RESTKEY_LOAD:
     default:
 	pmseries_request_load(client, baton);
@@ -733,10 +770,25 @@ pmseries_servlet_setup(struct proxy *proxy)
     PARAM_SERIES = sdsnew("series");
     PARAM_SOURCE = sdsnew("source");
 
+    PARAM_ALIGN = sdsnew("align");
+    PARAM_BEGIN = sdsnew("begin");
+    PARAM_COUNT = sdsnew("count");
+    PARAM_DELTA = sdsnew("delta");
+    PARAM_END = sdsnew("end");
+    PARAM_INTERVAL = sdsnew("interval");
+    PARAM_OFFSET = sdsnew("offset");
+    PARAM_RANGE = sdsnew("range");
+    PARAM_SAMPLES = sdsnew("samples");
+    PARAM_START = sdsnew("start");
+    PARAM_FINISH = sdsnew("finish");
+    PARAM_ZONE = sdsnew("zone");
+
     pmSeriesSetSlots(&pmseries_settings.module, proxy->slots);
     pmSeriesSetEventLoop(&pmseries_settings.module, proxy->events);
     pmSeriesSetConfiguration(&pmseries_settings.module, proxy->config);
     pmSeriesSetMetricRegistry(&pmseries_settings.module, proxy->metrics);
+
+    pmSeriesSetup(&pmseries_settings.module, proxy);
 }
 
 static void
@@ -746,6 +798,19 @@ pmseries_servlet_close(void)
     sdsfree(PARAM_MATCH);
     sdsfree(PARAM_SERIES);
     sdsfree(PARAM_SOURCE);
+
+    sdsfree(PARAM_ALIGN);
+    sdsfree(PARAM_BEGIN);
+    sdsfree(PARAM_COUNT);
+    sdsfree(PARAM_DELTA);
+    sdsfree(PARAM_END);
+    sdsfree(PARAM_FINISH);
+    sdsfree(PARAM_INTERVAL);
+    sdsfree(PARAM_OFFSET);
+    sdsfree(PARAM_RANGE);
+    sdsfree(PARAM_SAMPLES);
+    sdsfree(PARAM_START);
+    sdsfree(PARAM_ZONE);
 }
 
 struct servlet pmseries_servlet = {
