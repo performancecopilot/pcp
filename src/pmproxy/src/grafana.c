@@ -42,12 +42,9 @@ typedef struct GrafanaBaton {
     sds			suffix;
     sds			query;
     sds			target;
-    sds			start;
-    sds			finish;
     sds			maxvalues;
     sds			maxseries;
-    sds			interval;
-    sds			timezone;
+    pmSeriesTimeWindow	window;
 } GrafanaBaton;
 
 static GrafanaRestCommand commands[] = {
@@ -105,12 +102,12 @@ grafana_free_baton(struct client *client, GrafanaBaton *baton)
     sdsfree(baton->suffix);
     sdsfree(baton->query);
     sdsfree(baton->target);
-    sdsfree(baton->start);
-    sdsfree(baton->finish);
-    sdsfree(baton->interval);
-    sdsfree(baton->timezone);
     sdsfree(baton->maxvalues);
     sdsfree(baton->maxseries);
+    sdsfree(baton->window.start);
+    sdsfree(baton->window.end);
+    sdsfree(baton->window.delta);
+    sdsfree(baton->window.zone);
     memset(baton, 0, sizeof(*baton));
 }
 
@@ -385,21 +382,21 @@ grafana_setup_request_parameters(struct client *client,
 		dictSetVal(parameters, entry, NULL);
 	    }
 	    if ((entry = dictFind(parameters, PARAM_START)) != NULL) {
-		baton->start = dictGetVal(entry);
+		baton->window.start = dictGetVal(entry);
 		dictSetVal(parameters, entry, NULL);
 	    } else {
-		baton->start = sdsnew("-6hours");	/* default */
+		baton->window.start = sdsnew("-6hours");	/* default */
 	    }
 	    if ((entry = dictFind(parameters, PARAM_FINISH)) != NULL) {
-		baton->finish = dictGetVal(entry);
+		baton->window.end = dictGetVal(entry);
 		dictSetVal(parameters, entry, NULL);
 	    }
 	    if ((entry = dictFind(parameters, PARAM_INTERVAL)) != NULL) {
-		baton->interval = dictGetVal(entry);
+		baton->window.delta = dictGetVal(entry);
 		dictSetVal(parameters, entry, NULL);
 	    }
 	    if ((entry = dictFind(parameters, PARAM_TIMEZONE)) != NULL) {
-		baton->timezone = dictGetVal(entry);
+		baton->window.zone = dictGetVal(entry);
 		dictSetVal(parameters, entry, NULL);
 	    }
 	    if ((entry = dictFind(parameters, PARAM_MAXSERIES)) != NULL) {
@@ -526,19 +523,19 @@ grafana_request_query(struct client *client, GrafanaBaton *baton)
     sds			query = sdsdup(baton->target);
     int			sts;
 
-    query = sdscatfmt(query, "[start:\"%S\"", baton->start);
-    if (baton->finish)
-	query = sdscatfmt(query, ",finish:\"%S\"", baton->finish);
-    if (baton->interval)
-	query = sdscatfmt(query, ",interval:\"%S\"", baton->interval);
-    if (baton->timezone)
-	query = sdscatfmt(query, ",timezone:\"%S\"", baton->timezone);
+    query = sdscatfmt(query, "[start:\"%S\"", baton->window.start);
+    if (baton->window.end)
+	query = sdscatfmt(query, ",finish:\"%S\"", baton->window.end);
+    if (baton->window.delta)
+	query = sdscatfmt(query, ",interval:\"%S\"", baton->window.delta);
+    if (baton->window.zone)
+	query = sdscatfmt(query, ",timezone:\"%S\"", baton->window.zone);
     else
 	query = sdscatfmt(query, ",timezone:\"UTC\"");
-    if (baton->maxvalues)
-	query = sdscatfmt(query, ",samples:%S", baton->maxvalues);
-    if (baton->maxseries)
-	query = sdscatfmt(query, ",maxseries:%S", baton->maxseries);
+    if (baton->window.count)
+	query = sdscatfmt(query, ",samples:%S", baton->window.count);
+    if (baton->window.range)
+	query = sdscatfmt(query, ",range:%S", baton->window.range);
     baton->query = sdscatlen(query, "]", 1);
 
     if ((sts = pmSeriesQuery(&grafana_settings, baton->query, 0, baton)) < 0)
