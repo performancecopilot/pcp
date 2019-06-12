@@ -13,6 +13,7 @@
  */
 
 #include "pmwebapi.h"
+#include "libpcp.h"
 #include "util.h"
 #include "ini.h"
 
@@ -23,8 +24,14 @@ pmIniFileParse(const char *progname, ini_handler handler, void *data)
     char	path[MAXPATHLEN];
     int		sts, sep = pmPathSeparator();
 
-    if (progname == NULL)
+    if (progname == NULL) {
 	progname = pmGetProgname();
+    } else if (__pmAbsolutePath((char *)progname)) {
+	/* use user-supplied path in preferance to all else */
+	if ((sts = ini_parse(progname, handler, data)) == -2)
+	    return -ENOMEM;
+	return 0;
+    }
 
     if ((dirname = pmGetOptionalConfig("PCP_SYSCONF_DIR")) != NULL) {
 	pmsprintf(path, sizeof(path), "%s%c%s%c%s.conf", dirname, sep,

@@ -112,6 +112,12 @@ log mandatory on default {
     sample
 }
 End-Of-File
+cat >$tmp.pmproxy.conf << End-Of-File
+[discover]
+enabled = true
+[pmseries]
+enabled = true
+End-Of-File
 
 # start long-running pmlogger actively writing archives
 pmlogger -t 0.25 -c $tmp.pmlogger.conf -l $tmp.pmlogger.log $base/archive &
@@ -120,9 +126,10 @@ pmsleep 0.5
 
 # start pmproxy 
 proxyport=`_find_free_port`
-proxyopts="-p $proxyport -r $redisport -t"  # -Dseries,discovery
-pmproxy -f -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
+proxyopts="-f -A -p $proxyport -r $redisport -U $username -t -Dseries,discovery"
+pmproxy -c $tmp.pmproxy.conf -x $seq.full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
+#echo pid=$pmproxy_pid
 
 # check pmproxy has started and is discovering timeseries
 pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec

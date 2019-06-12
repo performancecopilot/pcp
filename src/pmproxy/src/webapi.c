@@ -229,7 +229,7 @@ on_pmwebapi_fetch(sds context, pmWebResult *fetch, void *arg)
     baton->numvsets = baton->numinsts = 0;
     if (baton->compat == 0)
 	result = sdscatfmt(result,
-		"{\"context\":%S,\"timestamp\":{\"sec\":%I,\"nsec\":%I},",
+			"{\"context\":%S,\"timestamp\":%I.%I,",
 			context, fetch->seconds, fetch->nanoseconds);
     else
 	result = sdscatfmt(result, "{\"timestamp\":{\"s\":%I,\"us\":%I},",

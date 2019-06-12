@@ -183,7 +183,8 @@ options are specified and matching series identifiers are
 returned in a JSON array.
 .P
 .SAMPLE
-$ curl -s http://localhost:44322/series/query?expr=disk.dev.read* | pmjson
+$ curl -s http://localhost:44322/series/query?\\
+	expr=disk.dev.read* | pmjson
 [
   "9d8c7fb51ce160eb82e3669aac74ba675dfa8900",
   "ddff1bfe286a3b18cebcbadc1678a68a964fbe9d",
@@ -197,7 +198,8 @@ The simplest form is to just request the most recent
 sample.
 .P
 .SAMPLE
-$ curl -s http://localhost:44322/series/query?expr=disk.dev.read*[samples:1] | pmjson
+$ curl -s http://localhost:44322/series/query?\\
+	expr=disk.dev.read*[samples:1] | pmjson
 [
   {
     "series": "9d8c7fb51ce160eb82e3669aac74ba675dfa8900",
@@ -226,15 +228,11 @@ Parameters	Type	Explanation
 _
 series	string	Comma-separated list of series identifiers
 _
-count	number	Count of samples, time window specification
-samples	number	Synonym for the 'count' parameter
-delta	string	Sample interval, time window specification
-interval	string	Synonym for the 'delta' parameter
+samples	number	Count of samples to return
+interval	string	Time between successive samples
 start	string	Sample window start time
-begin	string	Synonym for the 'start' parameter
-end	string	Sample window end time
-finish	string	Synonym for the 'end' parameter
-offset	string	Sampling offset
+finish string	Sample window end time
+offset	string	Sample window offset
 align	string	Sample time alignment
 zone	string	Time window timezone
 .TE
@@ -249,7 +247,8 @@ If no time window parameters are specified, the single
 most recent value observed is retrieved.
 .P
 .SAMPLE
-$ curl -s http://localhost:44322/series/values?series=605f[...]0dd12 | pmjson
+$ curl -s http://localhost:44322/series/values?\\
+	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
 [
   {
     "series": "605fc77742cd0317597291329561ac4e50c0dd12",
@@ -274,7 +273,8 @@ The JSON response contains the same information as the
 \fBpmseries\fR \-\fBd\fR/\-\-\fBdesc\fR option.
 .P
 .SAMPLE
-$ curl -s http://localhost:44322/series/descs?series=605f[...]0dd12 | pmjson
+$ curl -s http://localhost:44322/series/descs?\\
+	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
 [
   {
     "series": "605fc77742cd0317597291329561ac4e50c0dd12",
@@ -304,7 +304,8 @@ The JSON response contains the same information as the
 \fBpmseries\fR \-\fBl\fR/\-\-\fBlabels\fR option.
 .P
 .SAMPLE
-$ curl -s http://localhost:44322/series/labels?series=605f[...]dd12 | pmjson
+$ curl -s http://localhost:44322/series/labels?\\
+	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
 [
   {
     "series": "605fc77742cd0317597291329561ac4e50c0dd12",
@@ -361,7 +362,8 @@ The JSON response contains the same information as the
 \fBpmseries\fR \-\fBm\fR/\-\-\fBmetrics\fR option.
 .P
 .SAMPLE
-$ curl -s http://localhost:44322/series/metrics?series=605f[...]dd12 | pmjson
+$ curl -s http://localhost:44322/series/metrics?\\
+	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
 [
   {
     "series": "605fc77742cd0317597291329561ac4e50c0dd12",
@@ -404,7 +406,8 @@ The JSON response contains the same information as the
 \fBpmseries\fR \-\fBS\fR/\-\-\fBsource\fR option.
 .P
 .SAMPLE
-$ curl -s http://localhost:44322/series/sources?series=2cd6[...]def6 | pmjson
+$ curl -s http://localhost:44322/series/sources?\\
+	source=2cd6a38f9339f2dd1f0b4775bda89a9e7244def6 | pmjson
 [
   {
     "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
@@ -432,7 +435,8 @@ The JSON response contains the same information as the
 \fBpmseries\fR \-\fBi\fR/\-\-\fBinstance\fR option.
 .P
 .SAMPLE
-$ curl -s http://localhost:44322/series/instances?series=605f[...]dd12 | pmjson
+$ curl -s http://localhost:44322/series/instances?\\
+	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
 [
   {
     "series": "605fc77742cd0317597291329561ac4e50c0dd12",
@@ -490,9 +494,10 @@ This request is equivalent to the \fBpmseries\fR \-\fBl\fR/\-\-\fBload\fR
 option.
 .P
 .SAMPLE
-$ curl -s http://localhost:44322/series/load&expr={source.name:"/var/log/pcp/pmlogger/acme"}
+$ curl -s http://localhost:44322/series/load&\\
+	expr={source.name:"/var/log/pcp/pmlogger/acme"}
 {
-  "result": "success"
+  "success": true
 }
 .ESAMPLE
 .P
@@ -563,9 +568,19 @@ and JSON message body of the form:
 .P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/context?\\
-		hostspec=www.acme.com&polltime=500 | pmjson
+	hostspec=www.acme.com&polltime=500 | pmjson
 {
-  "context": 348734
+  "context": 348734,
+  "source": "05af7f3eb840277fd3cfa91f90ef0067199743c",
+  "hostspec": "www.acme.com",
+  "labels": {
+    "domainname": "acme.com",
+    "groupid": 1000,
+    "hostname": "www.acme.com",
+    "machineid": "295b7623b6074cc8bdbda8bf96f6930a"
+    "platform": "dev",
+    "userid": 1000
+  }
 }
 .ESAMPLE
 .PP
@@ -620,7 +635,7 @@ metadata as an array.
 .P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/metric?\\
-		names=kernel.all.load,disk.all.read | pmjson
+	names=kernel.all.load,disk.all.read | pmjson
 {
   "context": 348734,
   "metrics": [
@@ -703,13 +718,10 @@ profiles below).
 .P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/fetch?\\
-		names=kernel.all.load,disk.all.read | pmjson
+	names=kernel.all.load,disk.all.read | pmjson
 {
   "context": 348734,
-  "timestamp": {
-    "s": 1547483646,
-    "us": 2147431
-  },
+  "timestamp": 1547483646.2147431,
   "values": [
     {
       "pmid": "60.2.0",
@@ -738,6 +750,10 @@ Numeric metric types are represented as JSON integer or floating-point
 values.
 Strings are passed verbatim, except that non-ASCII values are replaced
 with a Unicode 0xFFFD replacement character code.
+.PP
+In backward compatibility mode the timestamp is presented as a JSON
+map with second (sec) and microsecond (us) fields, instead of using
+the more compact floating point representation shown above.
 .SS GET \fI/pmapi/indom\fR \- \fBpmGetInDom\fR(3), \fBpmNameInDom\fR(3), \fBpmLookupInDom\fR(3)
 .TS
 box,left;
@@ -757,8 +773,9 @@ polltimeout	number	Seconds of inactivity before context closed
 .TE
 .P
 This request lists the current instances of an instance domain.
-The instance domain is either specified directly (in numeric or string
-form) or indirectly, by association with the specified metric.
+The instance domain is either specified directly (in numeric or
+string form) or indirectly, by association with the specified
+metric.
 .PP
 The request can be further qualified with a comma-separated list
 of the instances to report on, either by name or number, using the
@@ -777,22 +794,33 @@ metadata as an array.
 .P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/indom?\\
-		name=kernel.all.load | pmjson
+	name=kernel.all.load | pmjson
 {
   "context": 348734,
   "indom": "60.2",
+  "labels": {
+    "domainname": "acme.com",
+    "groupid": 1000,
+    "hostname": "www.acme.com",
+    "machineid": "295b7623b6074cc8bdbda8bf96f6930a"
+    "platform": "dev",
+    "userid": 1000
+  },
   "instances": [
     {
       "instance": 1,
       "name": "1 minute"
+      "labels": { ... },
     },
     {
       "instance": 5,
       "name": "5 minute"
+      "labels": { ... },
     },
     {
       "instance": 15,
       "name": "15 minute"
+      "labels": { ...  },
     }
   ]
 }
@@ -821,7 +849,7 @@ instances returned, as described on
 .P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/profile?\\
-		mode=add,indom=60.2,iname=1%20minute 
+	mode=add,indom=60.2,iname=1%20minute 
 { "context": 348734, "success": true }
 .ESAMPLE
 .SS GET \fI/pmapi/store\fR \- \fBpmStore\fR(3)
@@ -859,7 +887,7 @@ If successful, the response from these requests is a JSON document of the form:
 .P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/store?\\
-		name=pmcd.control.timeout,value=10
+	name=pmcd.control.timeout,value=10
 {
   "context": 348734,
   "success": true
@@ -904,10 +932,7 @@ $ curl -s http://localhost:44322/pmapi/fetch?\\
 	context=348734&name=blkio.avgsz&samples=2 | pmjson
 {
   "context": 348734,
-  "timestamp": {
-    "s": 1547483648,
-    "us": 2147428
-  },
+  "timestamp": 1547483648.2147428,
   "values": [
     {
       "pmid": "511.0.27",
