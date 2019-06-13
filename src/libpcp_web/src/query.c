@@ -1599,7 +1599,6 @@ series_label_reply(seriesQueryBaton *baton, sds series,
 
     sdsfree(nmapID);
     sdsfree(vmapID);
-    sdsfree(vkey);
     return sts;
 }
 
