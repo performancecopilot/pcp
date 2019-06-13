@@ -29,7 +29,7 @@ extern redisMap *namesmap;
 extern redisMap *labelsmap;
 extern redisMap *contextmap;
 
-extern redisMap *redisMapCreate(const char *);
+extern redisMap *redisMapCreate(sds);
 extern redisMapEntry *redisMapLookup(redisMap *, sds);
 extern sds redisMapValue(redisMapEntry *);
 extern void redisMapInsert(redisMap *, sds, sds);
@@ -38,7 +38,7 @@ extern void redisMapInsert(redisMap *, sds, sds);
  * Helper utilities and data structures
  */
 extern void redisMapsInit(void);
-extern const char *redisMapName(redisMap *);
+extern sds redisMapName(redisMap *);
 extern void redisMapRelease(redisMap *);
 
 /*

@@ -1554,7 +1554,6 @@ series_label_reply(seriesQueryBaton *baton, sds series,
 
     nmapID = sdsnewlen(SDS_NOINIT, 20);
     vmapID = sdsnewlen(SDS_NOINIT, 20);
-    vkey = sdsempty();
 
     /* perform the label value reverse lookup */
     nelements /= 2;
@@ -1567,9 +1566,8 @@ series_label_reply(seriesQueryBaton *baton, sds series,
 	vmapID = sdscatlen(vmapID, elements[index+1]->str, elements[index+1]->len);
 
 	if ((entry = redisMapLookup(baton->u.lookup.map, nmapID)) != NULL) {
-	    sdsclear(vkey);
 	    pmwebapi_hash_str((unsigned char *)nmapID, hashbuf, sizeof(hashbuf));
-	    vkey = sdscatfmt(vkey, "label.%s.value", hashbuf);
+	    vkey = sdscatfmt(sdsempty(), "label.%s.value", hashbuf);
 	    vmap = redisMapCreate(vkey);
 	    name = redisMapValue(entry);
 
