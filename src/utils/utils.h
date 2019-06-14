@@ -12,20 +12,20 @@
  */
 #define ALLOC_CHECK(desc, ...) \
     if (errno == ENOMEM) { \
-        die(__LINE__, desc, ## __VA_ARGS__); \
+        die(__FILE__, __LINE__, desc, ## __VA_ARGS__); \
     } \
 
 // M/C/R-alloc can still return NULL when the address space is full.
 #define PTHREAD_CHECK(ret) \
     if (ret != 0) { \
         if (ret == EAGAIN) { \
-            die(__LINE__, "Insufficient resources to create another thread."); \
+            die(__FILE__, __LINE__, "Insufficient resources to create another thread."); \
         } \
         if (ret == EINVAL) { \
-            die(__LINE__, "Invalid settings in attr."); \
+            die(__FILE__, __LINE__, "Invalid settings in attr."); \
         } \
         if (ret == EPERM) { \
-            die(__LINE__, "No permission to set the scheduling policy and parameters specified in attr."); \
+            die(__FILE__, __LINE__, "No permission to set the scheduling policy and parameters specified in attr."); \
         } \
     } \
 
@@ -35,7 +35,7 @@
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void die(int line_number, const char* format, ...);
+void die(char* filename, int line_number, const char* format, ...);
 
 /**
  * Prints warning message
@@ -43,7 +43,7 @@ void die(int line_number, const char* format, ...);
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void warn(int line_number, const char* format, ...);
+void warn(char* filename, int line_number, const char* format, ...);
 
 /**
  * Sanitizes string

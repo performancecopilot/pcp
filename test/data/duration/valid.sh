@@ -14,7 +14,13 @@ echo "cpu_busy:100|ms"  | call_endpoint
 echo "cpu_busy:10|ms"   | call_endpoint
 echo "cpu_busy:20|ms"   | call_endpoint
 
-## Results:
+i=0
+while [ $i -lt 100 ]; do
+    let i=i+1
+    echo "percentile:$i|ms" | call_endpoint
+done  
+
+## Results (HDR_HISTOGRAM):
 ## cpu_wait
 ###[Mean    =      166.667, StdDeviation   =       47.140]
 ###[Max     =      200.000, Total count    =            6]

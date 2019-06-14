@@ -7,7 +7,6 @@ call_endpoint() {
 i=0
 echo "example:1|g" | call_endpoint
 echo "example:2|c" | call_endpoint
-
 echo "example:$i|g" | call_endpoint
 echo "example:-$i|g" | call_endpoint
 echo "example.counter:1|c" | call_endpoint
@@ -26,3 +25,6 @@ echo "example.counter,tagY=Y,tagX=X,instance=1:1|c" | call_endpoint
 echo "example.gauge,i=30,b=10,instance=1:$RANDOM|g" | call_endpoint
 echo "example.gauge,x=10,y=20,instance=bazinga:-$i|g" | call_endpoint
 echo "example.g a-u/g e,instance=bazinga:-$i|g" | call_endpoint
+echo "example.xd,c=20,b=10,a=20,d=10,e=20:100|c" | call_endpoint
+echo "example.xd,a=20,b=10,c=20,d=10,e=20:10|c" | call_endpoint
+echo "example.xd,b=20,a=10,d=20,c=10,e=20:10|c" | call_endpoint

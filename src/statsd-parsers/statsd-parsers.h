@@ -1,9 +1,9 @@
 #ifndef STATSD_PARSERS_
 #define STATSD_PARSERS_
 
+#include <pcp/dict.h>
 #include <chan/chan.h>
 
-#include "../utils/dict.h"
 #include "../config-reader/config-reader.h"
 
 typedef dict metrics;
@@ -25,7 +25,7 @@ typedef struct statsd_datagram
 {
     char* metric;
     char* type;
-    tag_collection* tags;
+    char* tags;
     char* value;
     char* instance;
     char* sampling;
@@ -66,12 +66,8 @@ consumer_args* create_consumer_args(agent_config* config, chan_t* parsed_channel
 
 void* statsd_parser_consume(void* args);
 
-void print_out_datagram_tags(tag_collection* tags);
-
 void print_out_datagram(statsd_datagram* datagram);
 
 void free_datagram(statsd_datagram* datagram);
-
-void free_datagram_tags(tag_collection* tags);
 
 #endif

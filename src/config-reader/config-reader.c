@@ -1,20 +1,16 @@
-#include "config-reader.h"
-#include "../utils/utils.h"
 #include <getopt.h>
 #include <string.h>
 #include <unistd.h>
+
+#include "config-reader.h"
+#include "../utils/utils.h"
+#include "../utils/ini.h"
 
 /**
  * Flags for available config source
  */
 #define READ_FROM_FILE 0
 #define READ_FROM_CMD 1
-
-/**
- * Flags for available parser types
- */
-#define PARSER_TRIVIAL 0
-#define PARSER_RAGEL 1
 
 /**
  * Returns default program config
@@ -31,7 +27,8 @@ static agent_config* get_default_config() {
     config->show_version = 0;
     config->port = (char *) "8125";
     config->tcp_address = (char *) "0.0.0.0";
-    config->parser_type = PARSER_TRIVIAL;
+    config->parser_type = TRIVIAL;
+    config->duration_aggregation_type = HDR_HISTOGRAM; 
     return config;
 }
 
@@ -44,7 +41,7 @@ static agent_config* get_default_config() {
 agent_config* read_agent_config(int src_flag, char* config_path, int argc, char **argv) {
     agent_config* config = get_default_config();
     if (!(src_flag == READ_FROM_CMD || src_flag == READ_FROM_FILE)) {
-        die(__LINE__, "Incorrect source flag for agent_config source.");
+        die(__FILE__, __LINE__, "Incorrect source flag for agent_config source.");
     }
     if (src_flag == READ_FROM_FILE) {
         read_agent_config_file(&config, config_path);
@@ -54,67 +51,57 @@ agent_config* read_agent_config(int src_flag, char* config_path, int argc, char 
     return config;
 }
 
+static int ini_line_handler(void* user, const char* section, const char* name, const char* value) {
+    (void)section;
+    agent_config* dest = *(agent_config**) user;
+    size_t length = strlen(value) + 1; 
+    #define MATCH(x) strcmp(x, name) == 0
+    if (MATCH("max_udp_packet_size")) {
+        dest->max_udp_packet_size = strtoull(value, NULL, 10);
+    } else if (MATCH("tcp_address")) {
+        dest->tcp_address = (char*) malloc(length);
+        ALLOC_CHECK("Unable to assign memory for config tcp address.");
+        memcpy(dest->tcp_address, value, length);
+    } else if (MATCH("port")) {
+        dest->port = (char*) malloc(length);
+        ALLOC_CHECK("Unable to allocate memory for config port number.");
+        memcpy(dest->port, value, length);
+    } else if (MATCH("verbose")) {
+        dest->verbose = atoi(value);
+    } else if (MATCH("debug")) {
+        dest->debug = atoi(value);
+    } else if (MATCH("debug_output_filename")) {
+        dest->debug_output_filename = (char*) malloc(length);
+        ALLOC_CHECK("Unable to asssing memory for config debug_output_filename");
+        memcpy(dest->debug_output_filename, value, length);
+    } else if (MATCH("version")) {
+        dest->show_version = atoi(value);
+    } else if (MATCH("trace")) {
+        dest->trace = atoi(value);
+    } else if (MATCH("parser_type")) {
+        dest->parser_type = atoi(value);
+    } else if (MATCH("duration_aggregation_type")) {
+        dest->duration_aggregation_type = atoi(value);
+    } else {
+        return 0;
+    }
+    return 1;
+}
+
 /**
  * Reads program config from given path
  * @arg agent_config - Placeholder config to write what was read to
  * @arg path - Path to read file from
  */
 void read_agent_config_file(agent_config** dest, char* path) {
-    char line_buffer[256];
-    int line_index = 0;
     if (access(path, F_OK) == -1) {
-        die(__LINE__, "No config file found on given path");
+        die(__FILE__, __LINE__, "No config file found on given path");
     }
-    FILE *config = fopen(path, "r");
-    char* option = (char *) malloc(256);
-    ALLOC_CHECK("Unable to assign memory for parsing options file.");
-    char* value = (char *) malloc(256);
-    ALLOC_CHECK("Unable to assing memory fo parsing options files.");
-    const char MAX_UDP_PACKET_SIZE_OPTION[] = "max_udp_packet_size";
-    const char PORT_OPTION[] = "port";
-    const char TCP_ADDRESS_OPTION[] = "tcp_address";
-    const char VERSION_OPTION[] = "version";
-    const char VERBOSE_OPTION[] = "verbose";
-    const char TRACE_OPTION[] = "trace";
-    const char DEBUG_OPTION[] = "debug";
-    const char DEBUG_OUTPUT_FILENAME[] = "debug_output_filename";
-    const char PARSER_TYPE_OPTION[] = "parser_type";
-    while (fgets(line_buffer, 256, config) != NULL) {
-        if (sscanf(line_buffer, "%s %s", option, value) != 2) {
-            die(__LINE__, "Syntax error in config file on line %d", line_index + 1);
-        }
-        if (strcmp(option, MAX_UDP_PACKET_SIZE_OPTION) == 0) {
-            (*dest)->max_udp_packet_size = strtoull(value, NULL, 10);
-        } else if (strcmp(option, PORT_OPTION) == 0) {
-            (*dest)->port = (char *) malloc(strlen(value));
-            ALLOC_CHECK("Unable to assign memory for port number.");
-            strncat((*dest)->port, value, strlen(value));
-        } else if (strcmp(option, TCP_ADDRESS_OPTION) == 0) {
-            (*dest)->tcp_address = (char *) malloc(strlen(value));
-            ALLOC_CHECK("Unable to assign memory for tcp address.");
-            strncat((*dest)->tcp_address, value, strlen(value));
-        } else if (strcmp(option, VERBOSE_OPTION) == 0) {
-            (*dest)->verbose = atoi(value);
-        } else if (strcmp(option, DEBUG_OPTION) == 0) {
-            (*dest)->debug = atoi(value);
-        } else if (strcmp(option, DEBUG_OUTPUT_FILENAME) == 0) {
-            (*dest)->debug_output_filename = (char *) malloc(strlen(value));
-            ALLOC_CHECK("Unable to assign memory for debug output path.");
-            strncat((*dest)->debug_output_filename, value, strlen(value));
-        } else if (strcmp(option, VERSION_OPTION) == 0) {
-            (*dest)->show_version = atoi(value);
-        } else if (strcmp(option, TRACE_OPTION) == 0) {
-            (*dest)->trace = atoi(value);
-        } else if (strcmp(option, PARSER_TYPE_OPTION) == 0) {
-            (*dest)->parser_type = atoi(value);
-        }
-        line_index++;
-        memset(option, '\0', 256);
-        memset(value, '\0', 256);
+    if (ini_parse(path, ini_line_handler, dest) < 0) {
+        die(__FILE__, __LINE__, "Can't load config file");
+        return;
     }
-    free(value);
-    free(option);
-    fclose(config);
+    verbose_log("Config loaded from %s.", path);
 }
 
 /**
@@ -129,15 +116,16 @@ void read_agent_config_cmd(agent_config** dest, int argc, char **argv) {
             { "debug", no_argument, 0, 1 },
             { "version", no_argument, 0, 1 },
             { "trace", no_argument, 0, 1 },
-            { "debug_output_filename", required_argument, 0, 'o' },
+            { "debug-output-filename", required_argument, 0, 'o' },
             { "max-udp", required_argument, 0, 'u' },
             { "tcpaddr", required_argument, 0, 't' },
             { "port", required_argument, 0, 'a' },
             { "parser-type", required_argument, 0, 'p'},
+            { "duration-aggregation-type", required_argument, 0, 'd'},
             { 0, 0, 0, 0 }
         };
         int option_index = 0;
-        c = getopt_long_only(argc, argv, "o::u::t::a::p::", long_options, &option_index);
+        c = getopt_long_only(argc, argv, "o::u::t::a::p::d::", long_options, &option_index);
         if (c == -1) break;
         switch (c) {
             case 0:
@@ -163,6 +151,9 @@ void read_agent_config_cmd(agent_config** dest, int argc, char **argv) {
             case 'p':
                 (*dest)->parser_type = atoi(optarg);
                 break;
+            case 'd':
+                (*dest)->duration_aggregation_type = atoi(optarg);
+                break;
         }
     }
 }
@@ -184,5 +175,6 @@ void print_agent_config(agent_config* config) {
     printf("tcpaddr: %s \n", config->tcp_address);
     printf("port: %s \n", config->port);
     printf("parser_type: %s \n", config->parser_type == 0 ? "TRIVIAL" : "RAGEL");
+    printf("duration_aggregation_type: %s\n", config->duration_aggregation_type == 0 ? "HDR_HISTOGRAM" : "BASIC");
     printf("---------------------------\n");
 }

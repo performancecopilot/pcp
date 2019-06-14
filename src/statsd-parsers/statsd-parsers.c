@@ -27,14 +27,14 @@ void* statsd_network_listen(void* args) {
     struct addrinfo* res = 0;
     int err = getaddrinfo(hostname, config->port, &hints, &res);
     if (err != 0) {
-        die(__LINE__, "failed to resolve local socket address (err=%s)", gai_strerror(err));
+        die(__FILE__, __LINE__, "failed to resolve local socket address (err=%s)", gai_strerror(err));
     }
     int fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if (fd == -1) {
-        die(__LINE__, "failed creating socket (err=%s)", strerror(errno));
+        die(__FILE__, __LINE__, "failed creating socket (err=%s)", strerror(errno));
     }
     if (bind(fd, res->ai_addr, res->ai_addrlen) == -1) {
-        die(__LINE__, "failed binding socket (err=%s)", strerror(errno));
+        die(__FILE__, __LINE__, "failed binding socket (err=%s)", strerror(errno));
     }
     verbose_log("Socket enstablished.");
     verbose_log("Waiting for datagrams.");
@@ -46,11 +46,11 @@ void* statsd_network_listen(void* args) {
     while(1) {
         ssize_t count = recvfrom(fd, buffer, max_udp_packet_size, 0, (struct sockaddr*)&src_addr, &src_addr_len);
         if (count == -1) {
-            die(__LINE__, "%s", strerror(errno));
+            die(__FILE__, __LINE__, "%s", strerror(errno));
         } 
         // since we checked for -1
         else if ((signed int)count == max_udp_packet_size) { 
-            warn(__LINE__, "Datagram too large for buffer: truncated and skipped");
+            warn(__FILE__, __LINE__, "Datagram too large for buffer: truncated and skipped");
         } else {
             unprocessed_statsd_datagram* datagram = (unprocessed_statsd_datagram*) malloc(sizeof(unprocessed_statsd_datagram));
             ALLOC_CHECK("Unable to assign memory for struct representing unprocessed datagrams.");
@@ -103,21 +103,11 @@ void print_out_datagram(statsd_datagram* datagram) {
     printf("DATAGRAM: \n");
     printf("metric: %s \n", datagram->metric);
     printf("instance: %s \n", datagram->instance);
-    if (datagram->tags != NULL) {
-        print_out_datagram_tags(datagram->tags);
-    }
+    printf("tags: %s \n", datagram->tags);
     printf("value: %s \n", datagram->value);
     printf("type: %s \n", datagram->type);
     printf("sampling: %s \n", datagram->sampling);
     printf("------------------------------ \n");
-}
-
-void print_out_datagram_tags(tag_collection* collection) {
-    printf("tags: \n");
-    int i;
-    for (i = 0; i < collection->length; i++) {
-        printf("\t %s: %s \n", collection->values[i]->key, collection->values[i]->value);
-    }
 }
 
 void free_datagram(statsd_datagram* datagram) {
@@ -128,7 +118,7 @@ void free_datagram(statsd_datagram* datagram) {
         free(datagram->instance);
     }
     if (datagram->tags != NULL) {
-        free_datagram_tags(datagram->tags);
+        free(datagram->tags);
     }
     if (datagram->type != NULL) {
         free(datagram->type);
@@ -141,22 +131,12 @@ void free_datagram(statsd_datagram* datagram) {
     }
 }
 
-void free_datagram_tags(tag_collection* tags) {
-    int i;
-    for (i = 0; i < tags->length; i++) {
-        free(tags->values[i]->key);
-        free(tags->values[i]->value);
-    }
-    free(tags->values);
-    free(tags);
-}
-
 void* statsd_parser_consume(void* args) {
     chan_t* unprocessed_channel = ((statsd_parser_args*)args)->unprocessed_datagrams;
     chan_t* parsed_channel = ((statsd_parser_args*)args)->parsed_datagrams;
     agent_config* config = ((statsd_parser_args*)args)->config;
     int (*parse_datagram)(char*, statsd_datagram**);
-    if (config->parser_type == PARSER_TRIVIAL) {
+    if ((int)config->parser_type == (int)PARSER_TRIVIAL) {
         parse_datagram = &basic_parser_parse;
     } else {
         // parse_datagram = &ragel_parser_parse;

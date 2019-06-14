@@ -35,15 +35,16 @@ static int g_debug_flag = 0;
 
 /**
  * Kills application with given message
+ * @arg filename - Current filename
  * @arg line_number - Current line number
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void die(int line_number, const char* format, ...)
+void die(char* filename, int line_number, const char* format, ...)
 {
     va_list vargs;
     va_start(vargs, format);
-    fprintf(stderr, "%d: ", line_number);
+    fprintf(stderr, "%s@%d: ", filename, line_number);
     vfprintf(stderr, format, vargs);
     fprintf(stderr, "\n");
     va_end(vargs);
@@ -52,14 +53,15 @@ void die(int line_number, const char* format, ...)
 
 /**
  * Prints warning message
+ * @arg filename - Current filename
  * @arg line_number - Current line number
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void warn(int line_number, const char* format, ...) {
+void warn(char* filename, int line_number, const char* format, ...) {
     va_list vargs;
     va_start(vargs, format);
-    fprintf(stderr, YEL "WARNING on line %d: " RESET, line_number);
+    fprintf(stderr, YEL "WARNING on line %s@%d: " RESET, filename, line_number);
     vfprintf(stderr, format, vargs);
     fprintf(stderr, "\n");
     va_end(vargs);

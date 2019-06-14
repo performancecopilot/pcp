@@ -17,7 +17,7 @@ int basic_parser_parse(char* buffer, statsd_datagram** datagram) {
         verbose_log("Parsed: %s", buffer);
         return 1;
     }
-    free(*datagram);
+    free_datagram(*datagram);
     buffer[strcspn(buffer, "\n")] = 0;
     verbose_log("Thrown away. REASON: unable to parse: %s", buffer);
     return 0;
@@ -31,6 +31,7 @@ int parse(char* buffer, statsd_datagram** datagram) {
     char* segment = (char *) malloc(count); // cannot overflow since whole segment is count anyway
     ALLOC_CHECK("Unable to assign memory for StatsD datagram message parsing.");
     const char INSTANCE_TAG_IDENTIFIER[] = "instance";
+    tag_collection* tags;
     char* tag_key = NULL;
     char* tag_value = NULL;
     char* attr;
@@ -48,10 +49,6 @@ int parse(char* buffer, statsd_datagram** datagram) {
     char field_allocated_flags = 0b00000000;
     /* Flag field for required datagram fields */
     char required_fields_flags = 0b00001110;
-    /* Flag field used to determine which json vars to free
-     * key
-     * value
-     * */
     char tag_allocated_flags = 0b00000000;
     for (i = 0; i < count; i++) {
         segment[current_segment_length] = buffer[i];
@@ -105,15 +102,15 @@ int parse(char* buffer, statsd_datagram** datagram) {
                         memcpy(t->key, tag_key, key_len);
                         memcpy(t->value, tag_value, value_len);
                         if (any_tags == 0) {
-                            (*datagram)->tags = (tag_collection*) malloc(sizeof(tag_collection));
+                            tags = (tag_collection*) malloc(sizeof(tag_collection));
                             ALLOC_CHECK("Unable to allocate memory for tag collection.");
                             field_allocated_flags = field_allocated_flags | 1 << 0;
-                            *(*datagram)->tags = (tag_collection) { 0 };
+                            *tags = (tag_collection) { 0 };
                             any_tags = 1;
                         }
-                        (*datagram)->tags->values = (tag**) realloc((*datagram)->tags->values, sizeof(tag*) * ((*datagram)->tags->length + 1));
-                        (*datagram)->tags->values[(*datagram)->tags->length] = t;
-                        (*datagram)->tags->length++;
+                        tags->values = (tag**) realloc(tags->values, sizeof(tag*) * (tags->length + 1));
+                        tags->values[tags->length] = t;
+                        tags->length++;
                     }
                 }
                 free(tag_key);
@@ -185,7 +182,21 @@ int parse(char* buffer, statsd_datagram** datagram) {
         }
         current_segment_length++;
     }
-    free(segment);
+    if (any_tags == 1) {
+        char* json = tag_collection_to_json(tags);
+        if (json != NULL) {
+            (*datagram)->tags = malloc(strlen(json) + 1);
+            (*datagram)->tags = json;
+        }
+        free(tags);
+        if (tag_allocated_flags & 1) {
+            free(tag_key);
+        }
+        if (tag_allocated_flags & 2) {
+            free(tag_value);
+        }
+    }
+    free(segment);    
     if ((required_fields_flags & field_allocated_flags) != required_fields_flags)  {
         goto error_clean_up_end;
     }
@@ -194,31 +205,45 @@ int parse(char* buffer, statsd_datagram** datagram) {
     error_clean_up:
     free(attr);
     free(segment);
-
-    error_clean_up_end:
-    if (field_allocated_flags & 1) {
-        free_datagram_tags((*datagram)->tags);
-    }
-    if (field_allocated_flags & 1 << 1) {
-        free((*datagram)->metric);
-    }
-    if (field_allocated_flags & 1 << 2) {
-        free((*datagram)->type);
-    }
-    if (field_allocated_flags & 1 << 3) {
-        free((*datagram)->value);
-    }
-    if (field_allocated_flags & 1 << 4) {
-        free((*datagram)->instance);
-    }
-    if (field_allocated_flags & 1 << 5) {
-        free((*datagram)->sampling);
-    }
     if (tag_allocated_flags & 1) {
         free(tag_key);
     }
     if (tag_allocated_flags & 2) {
         free(tag_value);
     }
+    error_clean_up_end:
     return 0;
+}
+
+static int tag_comparator(const void* x, const void* y) {
+    int res = strcmp((*(tag**)x)->key, (*(tag**)y)->key);
+    return res;
+}
+
+/**
+ * Converts tag_collection* struct to JSON string that is sorted by keys
+ */
+char* tag_collection_to_json(tag_collection* tags) {
+    char buffer[JSON_BUFFER_SIZE];
+    memset(buffer, '\0', JSON_BUFFER_SIZE);
+    qsort(tags->values, tags->length, sizeof(tag*), tag_comparator);
+    buffer[0] = '{';
+    int i;
+    int current_size;
+    for (i = 0; i < tags->length; i++) {
+        current_size = strlen(buffer);
+        if (i == 0) {
+            snprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, "\"%s\":\"%s\"",
+                tags->values[i]->key, tags->values[i]->value);
+        } else {
+            snprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, ",\"%s\":\"%s\"",
+                tags->values[i]->key, tags->values[i]->value);
+        }
+    }
+    current_size = strlen(buffer);
+    buffer[current_size] = '}';
+    char* result = malloc(sizeof(char) * (current_size + 2));
+    ALLOC_CHECK("Unable to allocate memory for tags json.");
+    memcpy(result, buffer, current_size + 2);
+    return result;
 }

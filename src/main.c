@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     agent_config* config = (agent_config*) malloc(sizeof(agent_config));
     ALLOC_CHECK(NULL, "Unable to asssign memory for agent config.");
     int config_src_type = argc >= 2 ? READ_FROM_CMD : READ_FROM_FILE;
-    config = read_agent_config(config_src_type, "pcp-statsd-pmda.conf", argc, argv);
+    config = read_agent_config(config_src_type, "config.ini", argc, argv);
     init_loggers(config);
     print_agent_config(config);
 
@@ -48,13 +48,13 @@ int main(int argc, char **argv)
     PTHREAD_CHECK(pthread_errno);
 
     if (pthread_join(network_listener, NULL) != 0) {
-        die(__LINE__, "Error joining network listener thread.");
+        die(__FILE__, __LINE__, "Error joining network listener thread.");
     }
     if (pthread_join(datagram_parser, NULL) != 0) {
-        die(__LINE__, "Error joining datagram parser thread.");
+        die(__FILE__, __LINE__, "Error joining datagram parser thread.");
     }
     if (pthread_join(datagram_consumer, NULL) != 0) {
-        die(__LINE__, "Error joining datagram consumer thread.");
+        die(__FILE__, __LINE__, "Error joining datagram consumer thread.");
     }
 
     chan_close(unprocessed_datagrams_q);
