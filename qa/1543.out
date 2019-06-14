@@ -245,10 +245,7 @@ Context successfully expired
 == fetch by name ==
 {
     "context": "CONTEXT"
-    "timestamp": {
-        "sec": SECONDS,
-        "nsec": NANOSECONDS
-    },
+    "timestamp": TIME,
     "values": [
         {
             "pmid": "29.0.10",
@@ -265,10 +262,7 @@ Context successfully expired
 == fetch by names ==
 {
     "context": "CONTEXT"
-    "timestamp": {
-        "sec": SECONDS,
-        "nsec": NANOSECONDS
-    },
+    "timestamp": TIME,
     "values": [
         {
             "pmid": "29.0.10",
@@ -285,10 +279,7 @@ Context successfully expired
 == fetch by pmid ==
 {
     "context": "CONTEXT"
-    "timestamp": {
-        "sec": SECONDS,
-        "nsec": NANOSECONDS
-    },
+    "timestamp": TIME,
     "values": [
         {
             "pmid": "29.0.10",
@@ -305,10 +296,7 @@ Context successfully expired
 == fetch by pmids ==
 {
     "context": "CONTEXT"
-    "timestamp": {
-        "sec": SECONDS,
-        "nsec": NANOSECONDS
-    },
+    "timestamp": TIME,
     "values": [
         {
             "pmid": "29.0.10",
@@ -335,28 +323,19 @@ Context successfully expired
 == bad name fetch ==
 {
     "context": "CONTEXT"
-    "timestamp": {
-        "sec": SECONDS,
-        "nsec": NANOSECONDS
-    },
+    "timestamp": TIME,
     "values": [    ]
 }
 == bad pmid fetch ==
 {
     "context": "CONTEXT"
-    "timestamp": {
-        "sec": SECONDS,
-        "nsec": NANOSECONDS
-    },
+    "timestamp": TIME,
     "values": [    ]
 }
 == some good some bad names fetch ==
 {
     "context": "CONTEXT"
-    "timestamp": {
-        "sec": SECONDS,
-        "nsec": NANOSECONDS
-    },
+    "timestamp": TIME,
     "values": [
         {
             "pmid": "29.0.10",
@@ -373,10 +352,7 @@ Context successfully expired
 == some good some bad pmids fetch ==
 {
     "context": "CONTEXT"
-    "timestamp": {
-        "sec": SECONDS,
-        "nsec": NANOSECONDS
-    },
+    "timestamp": TIME,
     "values": [
         {
             "pmid": "29.0.11",

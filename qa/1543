@@ -51,6 +51,7 @@ _filter_json()
 	    -e 's,"hostname": .*,"hostname": "HOSTNAME",g' \
 	    -e 's,"hostspec": .*,"hostname": "HOSTNAME",g' \
 	    -e 's,"domainname": .*,"domainname": "DOMAINNAME",g' \
+	    -e 's,"timestamp": [0-9][0-9]*.[0-9][0-9]*,"timestamp": TIME,g' \
 	    -e 's,"msec": [0-9][0-9]*,"msec": MILLISECONDS,g' \
 	    -e 's,"usec": [0-9][0-9]*,"usec": MICROSECONDS,g' \
 	    -e 's,"nsec": [0-9][0-9]*,"nsec": NANOSECONDS,g' \
