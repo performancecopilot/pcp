@@ -109,8 +109,11 @@ PCP_WEB_1.6 {
     dictAddRaw;
     dictCreate;
     dictFind;
+    dictGenCaseHashFunction;
+    dictGetSafeIterator;
+    dictNext;
     dictRelease;
-
+    dictReleaseIterator;
 } PCP_WEB_1.5;
 
 PCP_WEB_1.7 {
