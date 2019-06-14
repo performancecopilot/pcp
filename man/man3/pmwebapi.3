@@ -134,6 +134,7 @@ flattened PCP metric hierarchy being presented with each value.
 .SAMPLE
 $ curl -s http://localhost:44322/metrics?\\
 	names=proc.nprocs,kernel.pernode.cpu.intr,filesys.blocksize
+
 # PCP proc.nprocs 3.8.99 u32 PM_INDOM_NULL instant none
 # HELP proc:nprocs instantaneous number of processes
 # TYPE proc:nprocs gauge
@@ -159,6 +160,13 @@ These queries provide access to performance data
 (metric metadata and values) from multiple hosts
 simultaneously, and in a fashion suited to efficient
 retrieval by any number of web applications.
+.PP
+All requests in this group can be accompanied by an optional
+.IR client
+parameter.
+The value passed in the request will be sent back in the
+response \- all responses will be in JSON object form in
+this case, with top level "client" and "result" fields.
 .SS GET \fI/series/query\fR \- \fBpmSeriesQuery\fR(3)
 .TS
 box,left;
@@ -167,6 +175,7 @@ lf(CW) | l | l.
 Parameters	Type	Explanation
 _
 expr	string	Query string in \f(CBpmseries\fR(1) format
+client	string	Request identifier sent back with response
 .TE
 .PP
 Performs a time series query for either matching identifiers,
@@ -227,6 +236,7 @@ lf(CW) | l | l.
 Parameters	Type	Explanation
 _
 series	string	Comma-separated list of series identifiers
+client	string	Request identifier sent back with response
 _
 samples	number	Count of samples to return
 interval	string	Time between successive samples
@@ -265,6 +275,7 @@ lf(CW) | l | l.
 Parameters	Type	Explanation
 _
 series	string	Comma-separated list of series identifiers
+client	string	Request identifier sent back with response
 .TE
 .P
 Performs a descriptor lookup for one or more time series
@@ -296,6 +307,7 @@ Parameters	Type	Explanation
 _
 series	string	Comma-separated list of series identifiers
 target	string	Glob pattern string to match on all labels
+client	string	Request identifier sent back with response
 .TE
 .P
 Performs a label set lookup for one or more time series
@@ -354,6 +366,7 @@ Parameters	Type	Explanation
 _
 series	string	Comma-separated list of series identifiers
 target	string	Glob pattern string to match on all names
+client	string	Request identifier sent back with response
 .TE
 .P
 Performs a metric name lookup for one or more time series
@@ -397,6 +410,7 @@ Parameters	Type	Explanation
 _
 series	string	Comma-separated list of source identifiers
 target	string	Glob pattern string to match on all sources
+client	string	Request identifier sent back with response
 .TE
 .P
 Performs a lookup for one or more time series sources,
@@ -427,6 +441,7 @@ Parameters	Type	Explanation
 _
 series	string	Comma-separated list of series identifiers
 target	string	Glob pattern string to match on all instances
+client	string	Request identifier sent back with response
 .TE
 .P
 Provide instance identifiers and names for one or more
@@ -484,6 +499,7 @@ lf(CW) | l | l.
 Parameters	Type	Explanation
 _
 expr	string	Source load string in \f(CBpmseries\fR(1) format
+client	string	Request identifier sent back with response
 .TE
 .PP
 Load time series performance data from the specified source
@@ -546,6 +562,7 @@ Parameters	Type	Explanation
 _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
 polltimeout	number	Seconds of inactivity before closing context
+client	string	Request identifier sent back with response
 .TE
 .P
 To create a context for live sampling, a web client can access any
@@ -610,6 +627,7 @@ _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
 context	number	Web context identifier (optional like hostspec)
 polltimeout	number	Seconds of inactivity before context closed
+client	string	Request identifier sent back with response
 .TE
 .P
 The
@@ -707,6 +725,7 @@ _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
 context	number	Web context identifier (optional like hostspec)
 polltimeout	number	Seconds of inactivity before context closed
+client	string	Request identifier sent back with response
 .TE
 .P
 This request fetches (samples) current values for given metrics.
@@ -770,6 +789,7 @@ _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
 context	number	Web context identifier (optional like hostspec)
 polltimeout	number	Seconds of inactivity before context closed
+client	string	Request identifier sent back with response
 .TE
 .P
 This request lists the current instances of an instance domain.
@@ -840,6 +860,7 @@ _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
 context	number	Web context identifier (optional like hostspec)
 polltimeout	number	Seconds of inactivity before context closed
+client	string	Request identifier sent back with response
 .TE
 .P
 Some PMAPI operations can be performed with an active instance
@@ -906,6 +927,7 @@ _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
 context	number	Web context identifier (optional like hostspec)
 polltimeout	number	Seconds of inactivity before context closed
+client	string	Request identifier sent back with response
 .TE
 .P
 Associated a new derived metric with either the given
@@ -960,6 +982,7 @@ _
 context	number	Web context identifier (optional like hostspec)
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
 polltimeout	number	Seconds of inactivity before context closed
+client	string	Request identifier sent back with response
 .TE
 .P
 This request is a subset of the style described in the

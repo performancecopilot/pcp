@@ -13,6 +13,14 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
     "87570f1b9335781c7942879bb14a254f116ce75b",
     "1440b8b8bfe69465340eb934e9086ae8212f3cff"
 ]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        "57460677841d3142f67f327393e42713640cace4",
+        "87570f1b9335781c7942879bb14a254f116ce75b",
+        "1440b8b8bfe69465340eb934e9086ae8212f3cff"
+    ]
+}
 == verify metric descs
 [
     {
@@ -25,6 +33,20 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
         "units": "count"
     }
 ]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        {
+            "series": "1440b8b8bfe69465340eb934e9086ae8212f3cff",
+            "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+            "pmid": "60.0.24",
+            "indom": "none",
+            "semantics": "counter",
+            "type": "u64",
+            "units": "count"
+        }
+    ]
+}
 == verify metric names
 [
     {
@@ -32,6 +54,15 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
         "name": "disk.all.read"
     }
 ]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        {
+            "series": "1440b8b8bfe69465340eb934e9086ae8212f3cff",
+            "name": "disk.all.read"
+        }
+    ]
+}
 == verify metric insts
 [
     {
@@ -42,6 +73,18 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
         "name": "sda"
     }
 ]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        {
+            "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+            "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+            "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+            "id": 0,
+            "name": "sda"
+        }
+    ]
+}
 == verify metric labels
 [
     {
@@ -51,6 +94,17 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
         }
     }
 ]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        {
+            "series": "01d8bc7fa75aaff98a08aa0b1c0f2394368d5183",
+            "labels": {
+                "hostname": "bozo-laptop"
+            }
+        }
+    ]
+}
 == verify metric values
 [
     {
@@ -66,6 +120,23 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
         "value": "71661"
     }
 ]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        {
+            "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+            "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+            "timestamp": 1317633023300.300459700,
+            "value": "71661"
+        },
+        {
+            "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+            "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+            "timestamp": 1317633023802.802929198,
+            "value": "71661"
+        }
+    ]
+}
 == verify metric values by query
 [
     {
@@ -81,4 +152,29 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
         "value": "71661"
     }
 ]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        {
+            "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+            "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+            "timestamp": 1317633023300.300459700,
+            "value": "71661"
+        },
+        {
+            "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+            "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+            "timestamp": 1317633023802.802929198,
+            "value": "71661"
+        }
+    ]
+}
+== verify ping response
+{
+    "success": true
+}
+{
+    "client": "pcp-qa-1601",
+    "success": true
+}
 == all done

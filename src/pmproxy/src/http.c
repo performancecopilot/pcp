@@ -750,7 +750,6 @@ setup_http_module(struct proxy *proxy)
 
     register_servlet(proxy, &pmseries_servlet);
     register_servlet(proxy, &pmwebapi_servlet);
-    register_servlet(proxy, &grafana_servlet);
 }
 
 void

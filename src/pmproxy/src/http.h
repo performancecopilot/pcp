@@ -81,6 +81,5 @@ typedef struct servlet {
 
 extern struct servlet pmseries_servlet;
 extern struct servlet pmwebapi_servlet;
-extern struct servlet grafana_servlet;
 
 #endif /* PMPROXY_HTTP_H */

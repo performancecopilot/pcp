@@ -43,6 +43,7 @@ typedef struct pmWebGroupBaton {
     dict		*params;
     dict		*labels;
     sds			suffix;		/* response trailer (stack) */
+    sds			clientid;	/* user-supplied identifier */
     sds			username;	/* from basic auth header */
     sds			password;	/* from basic auth header */
     unsigned int	ctxnum;
@@ -77,7 +78,7 @@ static pmWebRestCommand openmetrics[] = {
 
 static sds PARAM_NAMES, PARAM_NAME, PARAM_PMIDS, PARAM_PMID,
 	   PARAM_INDOM, PARAM_EXPR, PARAM_VALUE, PARAM_TIMES,
-	   PARAM_CONTEXT;
+	   PARAM_CONTEXT, PARAM_CLIENT;
 
 
 static pmWebRestKey
@@ -118,6 +119,7 @@ pmwebapi_free_baton(pmWebGroupBaton *baton)
 {
     sdsfree(baton->suffix);
     sdsfree(baton->context);
+    sdsfree(baton->clientid);
     /* baton->params freed in http.c */
     if (baton->labels)
 	dictRelease(baton->labels);
@@ -149,6 +151,8 @@ on_pmwebapi_context(sds context, pmWebSource *source, void *arg)
     result = sdscatfmt(result, "{\"context\":%S", context);
     baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
     if (baton->compat == 0) {
+	if (baton->clientid)
+	    result = sdscatfmt(result, ",\"client\":%S", baton->clientid);
 	result = sdscatfmt(result,
 			",\"source\":\"%S\",\"hostspec\":\"%S\",\"labels\":",
 			source->source, source->hostspec);
@@ -175,7 +179,10 @@ on_pmwebapi_metric(sds context, pmWebMetric *metric, void *arg)
     if (first) {
 	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
 	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
-	result = sdscatfmt(result, "{\"context\":%S,\"metrics\":[", context);
+	result = sdscatfmt(result, "{\"context\":%S", context);
+	if (baton->clientid)
+	    result = sdscatfmt(result, ",\"client\":%S", baton->clientid);
+	result = sdscatlen(result, ",\"metrics\":[", 12);
     } else { /* next metric */
 	result = sdscatlen(result, ",", 1);
     }
@@ -227,13 +234,16 @@ on_pmwebapi_fetch(sds context, pmWebResult *fetch, void *arg)
     pmwebapi_set_context(baton, context);
 
     baton->numvsets = baton->numinsts = 0;
-    if (baton->compat == 0)
-	result = sdscatfmt(result,
-			"{\"context\":%S,\"timestamp\":%I.%I,",
-			context, fetch->seconds, fetch->nanoseconds);
-    else
+    if (baton->compat == 0) {
+	result = sdscatfmt(result, "{\"context\":%S", context);
+	if (baton->clientid)
+	    result = sdscatfmt(result, ",\"client\":%S", baton->clientid);
+	result = sdscatfmt(result, ",\"timestamp\":%I.%I,",
+			fetch->seconds, fetch->nanoseconds);
+    } else {
 	result = sdscatfmt(result, "{\"timestamp\":{\"s\":%I,\"us\":%I},",
 			fetch->seconds, fetch->nanoseconds / 1000);
+    }
     baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
     result = sdscatfmt(result, "\"values\":[");
     baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
@@ -330,8 +340,10 @@ on_pmwebapi_indom(sds context, pmWebInDom *indom, void *arg)
     baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
     if (baton->compat == 0) {
 	pmInDomStr_r(indom->indom, indomstr, sizeof(indomstr));
-	result = sdscatfmt(result, "{\"context\":%S,\"indom\":\"%s\"",
-			context, indomstr);
+	result = sdscatfmt(result, "{\"context\":%S", context);
+	if (baton->clientid)
+	    result = sdscatfmt(result, ",\"client\":%S", baton->clientid);
+	result = sdscatfmt(result, ",\"indom\":\"%s\"", indomstr);
     } else {
 	result = sdscatfmt(result, "{\"indom\":%u", indom->indom);
     }
@@ -596,10 +608,17 @@ pmwebapi_setup_request_parameters(struct client *client,
 		pmWebGroupBaton *baton, dict *parameters)
 {
     dictEntry	*entry;
+    sds		value;
 
-    if ((parameters != NULL) && (baton->context == NULL) &&
-	(entry = dictFind(parameters, PARAM_CONTEXT)) != NULL) {
-	pmwebapi_set_context(baton, dictGetVal(entry));
+    if (parameters) {
+	/* allow all APIs to pass(-through) a 'client' parameter */
+	if ((entry = dictFind(parameters, PARAM_CLIENT)) != NULL) {
+	    value = dictGetVal(entry);   /* leave sds value, dup'd below */
+	    baton->clientid = sdscatrepr(sdsempty(), value, sdslen(value));
+	}
+	/* allow all APIs to request specific context via params */
+	if (baton && (entry = dictFind(parameters, PARAM_CONTEXT)) != NULL)
+	    pmwebapi_set_context(baton, dictGetVal(entry));
     }
 
     switch (baton->restkey) {
@@ -849,6 +868,7 @@ pmwebapi_servlet_setup(struct proxy *proxy)
     PARAM_EXPR = sdsnew("expr");
     PARAM_VALUE = sdsnew("value");
     PARAM_TIMES = sdsnew("times");
+    PARAM_CLIENT = sdsnew("client");
     PARAM_CONTEXT = sdsnew("context");
 
     pmWebGroupSetup(&pmwebapi_settings.module);
@@ -868,6 +888,7 @@ pmwebapi_servlet_close(void)
     sdsfree(PARAM_EXPR);
     sdsfree(PARAM_VALUE);
     sdsfree(PARAM_TIMES);
+    sdsfree(PARAM_CLIENT);
     sdsfree(PARAM_CONTEXT);
 }
 

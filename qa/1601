@@ -107,37 +107,49 @@ echo "== verify series query" | tee -a $seq.full
 url="http://localhost:$proxyport/series/query?expr=disk.all.read*"
 echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson
+curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
 
 echo "== verify metric descs" | tee -a $seq.full
 url="http://localhost:$proxyport/series/descs?series=$series1"
 echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson
+curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
 
 echo "== verify metric names" | tee -a $seq.full
 url="http://localhost:$proxyport/series/metrics?series=$series1"
 echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson
+curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
 
 echo "== verify metric insts" | tee -a $seq.full
 url="http://localhost:$proxyport/series/instances?series=$series2"
 echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson
+curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
 
 echo "== verify metric labels" | tee -a $seq.full
 url="http://localhost:$proxyport/series/labels?series=$series3"
 echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson
+curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
 
 echo "== verify metric values" | tee -a  $seq.full
 url="http://localhost:$proxyport/series/values?series=$series2&samples=2"
 echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson
+curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
 
 echo "== verify metric values by query" | tee -a  $seq.full
 url="http://localhost:$proxyport/series/query?expr=disk.dev.read[samples:2]"
 echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson
+curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
 
+echo "== verify ping response" | tee -a  $seq.full
+url="http://localhost:$proxyport/series/ping"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | pmjson
+curl --get --silent "$url?client=pcp-qa-$seq" | tee -a $seq.full | pmjson
 
 echo "== all done" | tee -a $seq.full
 status=0

@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 160f
+# PCP QA Test No. 1602
 # Exercise Redis protocol proxying using redis-cli(1).
 #
 # Copyright (c) 2019 Red Hat.
