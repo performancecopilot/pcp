@@ -139,14 +139,14 @@ void process_datagram(agent_config* config, metrics* m, statsd_datagram* datagra
     metric* item;
     char* key = create_metric_dict_key(datagram);
     if (key == NULL) {
-        verbose_log("Throwing away datagram, unable to create hashtable key for metric record.");
+        verbose_log("Throwing away datagram. REASON: unable to create hashtable key for metric record.");
         return;
     }
     int metric_exists = find_metric_by_name(m, key, &item);
     if (metric_exists) {
         int res = update_metric(config, item, datagram);
         if (res == 0) {
-            verbose_log("Throwing away datagram, semantically incorrect values.");
+            verbose_log("Throwing away datagram. REASON: semantically incorrect values.");
         }
     } else {
         int name_available = check_metric_name_available(m, key);
@@ -155,7 +155,7 @@ void process_datagram(agent_config* config, metrics* m, statsd_datagram* datagra
             if (correct_semantics) {
                 add_metric(m, key, item);
             } else {
-                verbose_log("Throwing away datagram, semantically incorrect values.");
+                verbose_log("Throwing away datagram. REASON: semantically incorrect values.");
             }
         }
     }
@@ -415,11 +415,15 @@ static int update_gauge_metric(agent_config* config, metric* item, statsd_datagr
     double old_value = *(double*)(item->value);
     if (add || substract) {
         if (add) {
-            if (old_value + value >= DBL_MAX) return 0;
+            if (old_value + value >= DBL_MAX) {
+                return 0;
+            }
             *(double*)(item->value) += value;
         }
         if (substract) {
-            if (old_value - value <= DBL_MIN) return 0;
+            if (old_value - value <= -DBL_MAX) {
+                return 0;
+            }
             *(double*)(item->value) -= value;
         }
     } else {

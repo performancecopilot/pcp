@@ -61,7 +61,7 @@ void die(char* filename, int line_number, const char* format, ...)
 void warn(char* filename, int line_number, const char* format, ...) {
     va_list vargs;
     va_start(vargs, format);
-    fprintf(stderr, YEL "WARNING on line %s@%d: " RESET, filename, line_number);
+    fprintf(stderr, YEL "WARNING: %s@%d: " RESET, filename, line_number);
     vfprintf(stderr, format, vargs);
     fprintf(stderr, "\n");
     va_end(vargs);

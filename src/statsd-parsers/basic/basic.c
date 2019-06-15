@@ -19,7 +19,7 @@ int basic_parser_parse(char* buffer, statsd_datagram** datagram) {
     }
     free_datagram(*datagram);
     buffer[strcspn(buffer, "\n")] = 0;
-    verbose_log("Thrown away. REASON: unable to parse: %s", buffer);
+    verbose_log("Throwing away datagram. REASON: unable to parse: %s", buffer);
     return 0;
 };
 
@@ -35,8 +35,6 @@ int parse(char* buffer, statsd_datagram** datagram) {
     char* tag_key = NULL;
     char* tag_value = NULL;
     char* attr;
-    char tags_json_buffer[JSON_BUFFER_SIZE];
-    memset(tags_json_buffer, '\0', JSON_BUFFER_SIZE);
     int any_tags = 0;
     /* Flag field used to determine which memory to free in stats_datagram should data parsing fail, bits in this order
      * tags
@@ -176,7 +174,6 @@ int parse(char* buffer, statsd_datagram** datagram) {
                 }
             }
             free(attr);
-            memset(segment, '\0', count);
             current_segment_length = 0;
             continue;
         }
@@ -225,23 +222,21 @@ static int tag_comparator(const void* x, const void* y) {
  */
 char* tag_collection_to_json(tag_collection* tags) {
     char buffer[JSON_BUFFER_SIZE];
-    memset(buffer, '\0', JSON_BUFFER_SIZE);
     qsort(tags->values, tags->length, sizeof(tag*), tag_comparator);
     buffer[0] = '{';
     int i;
-    int current_size;
+    int current_size = 1;
     for (i = 0; i < tags->length; i++) {
-        current_size = strlen(buffer);
         if (i == 0) {
-            snprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, "\"%s\":\"%s\"",
+            current_size += snprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, "\"%s\":\"%s\"",
                 tags->values[i]->key, tags->values[i]->value);
         } else {
-            snprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, ",\"%s\":\"%s\"",
+            current_size += snprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, ",\"%s\":\"%s\"",
                 tags->values[i]->key, tags->values[i]->value);
         }
     }
-    current_size = strlen(buffer);
     buffer[current_size] = '}';
+    buffer[current_size + 1] = '\0';
     char* result = malloc(sizeof(char) * (current_size + 2));
     ALLOC_CHECK("Unable to allocate memory for tags json.");
     memcpy(result, buffer, current_size + 2);
