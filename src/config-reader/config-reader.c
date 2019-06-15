@@ -27,8 +27,8 @@ static agent_config* get_default_config() {
     config->show_version = 0;
     config->port = (char *) "8125";
     config->tcp_address = (char *) "0.0.0.0";
-    config->parser_type = TRIVIAL;
-    config->duration_aggregation_type = HDR_HISTOGRAM; 
+    config->parser_type = PARSER_TYPE_BASIC;
+    config->duration_aggregation_type = DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM; 
     return config;
 }
 
@@ -174,7 +174,8 @@ void print_agent_config(agent_config* config) {
     printf("maxudp: %lu \n", config->max_udp_packet_size);
     printf("tcpaddr: %s \n", config->tcp_address);
     printf("port: %s \n", config->port);
-    printf("parser_type: %s \n", config->parser_type == 0 ? "TRIVIAL" : "RAGEL");
-    printf("duration_aggregation_type: %s\n", config->duration_aggregation_type == 0 ? "HDR_HISTOGRAM" : "BASIC");
+    printf("parser_type: %s \n", config->parser_type == PARSER_TYPE_BASIC ? "BASIC" : "RAGEL");
+    printf("duration_aggregation_type: %s\n", 
+        config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM ? "HDR_HISTOGRAM" : "BASIC");
     printf("---------------------------\n");
 }

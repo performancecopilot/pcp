@@ -10,9 +10,7 @@
 #include "basic/basic.h"
 #include "ragel/ragel.h"
 #include "../utils/utils.h"
-
-const int PARSER_TRIVIAL = 0;
-const int PARSER_RAGEL = 1;
+#include "../config-reader/config-reader.h"
 
 void* statsd_network_listen(void* args) {
     agent_config* config = ((statsd_listener_args*)args)->config;
@@ -136,7 +134,7 @@ void* statsd_parser_consume(void* args) {
     chan_t* parsed_channel = ((statsd_parser_args*)args)->parsed_datagrams;
     agent_config* config = ((statsd_parser_args*)args)->config;
     int (*parse_datagram)(char*, statsd_datagram**);
-    if ((int)config->parser_type == (int)PARSER_TRIVIAL) {
+    if ((int)config->parser_type == (int)PARSER_TYPE_BASIC) {
         parse_datagram = &basic_parser_parse;
     } else {
         // parse_datagram = &ragel_parser_parse;

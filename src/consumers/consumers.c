@@ -243,7 +243,7 @@ void print_metrics(agent_config* config, metrics* m) {
                 fprintf(f, "name = %s\n", item->name);
                 fprintf(f, "value = (duration)\n");
                 print_metric_meta(f, item->meta);
-                if (config->duration_aggregation_type == HDR_HISTOGRAM) {
+                if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM) {
                     hdr_percentiles_print(
                         (struct hdr_histogram*)item->value,
                         f,
@@ -290,7 +290,7 @@ static int create_duration_metric(agent_config* config, statsd_datagram* datagra
     if (errno == ERANGE) {
         return 0;
     }
-    if (config->duration_aggregation_type == HDR_HISTOGRAM) {
+    if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM) {
         struct hdr_histogram* histogram;
         hdr_init(1, INT64_C(3600000000), 3, &histogram);
         ALLOC_CHECK("Unable to allocate memory for histogram");
@@ -436,7 +436,7 @@ static int update_duration_metric(agent_config* config, metric* item, statsd_dat
     if (errno == ERANGE) {
         return 0;
     }
-    if (config->duration_aggregation_type == HDR_HISTOGRAM) {
+    if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM) {
         hdr_record_value((struct hdr_histogram*)item->value, value);
     } else {
         add_bduration_item((bduration_collection*)item->value, value);
