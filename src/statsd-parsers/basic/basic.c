@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <pcp/pmapi.h>
 #include <sys/types.h>
 #include "../../utils/utils.h"
 #include "../statsd-parsers.h"
@@ -228,10 +229,10 @@ char* tag_collection_to_json(tag_collection* tags) {
     int current_size = 1;
     for (i = 0; i < tags->length; i++) {
         if (i == 0) {
-            current_size += snprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, "\"%s\":\"%s\"",
+            current_size += pmsprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, "\"%s\":\"%s\"",
                 tags->values[i]->key, tags->values[i]->value);
         } else {
-            current_size += snprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, ",\"%s\":\"%s\"",
+            current_size += pmsprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, ",\"%s\":\"%s\"",
                 tags->values[i]->key, tags->values[i]->value);
         }
     }

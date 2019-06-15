@@ -11,7 +11,7 @@ DEPS := $(OBJS:.o=.d)
 
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
-LDLIBS := -lhdr_histogram_static -lchan -lm -lpthread -lpcp_web
+LDLIBS := -lhdr_histogram_static -lchan -lm -lpthread -lpcp_web -lpcp
 
 CFLAGS ?=-Wall -Wextra $(INC_FLAGS) -MMD -MP
 

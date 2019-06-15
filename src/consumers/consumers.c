@@ -5,6 +5,7 @@
 #include <float.h>
 #include <math.h>
 #include <pcp/dict.h>
+#include <pcp/pmapi.h>
 
 #include "../../statsd-parsers/statsd-parsers.h"
 #include "../../config-reader/config-reader.h"
@@ -103,29 +104,20 @@ void consumer_request_output() {
 }
 
 static char* create_metric_dict_key(statsd_datagram* datagram) {
-    int key_size = snprintf(
-        NULL,
-        0,
+    int maximum_key_size = 4096;
+    char buffer[maximum_key_size]; // maximum key size
+    int key_size = pmsprintf(
+        buffer,
+        maximum_key_size,
         "%s&%s&%s&%s",
         datagram->metric,
         datagram->tags != NULL ? datagram->tags : "-",
         datagram->instance != NULL ? datagram->instance : "-",
         datagram->type
     );
-    if (key_size > 4095) {
-        return NULL;
-    }
     char* result = malloc(key_size + 1);
     ALLOC_CHECK("Unable to allocate memory for hashtable key");
-    snprintf(
-        result,
-        4096,
-        "%s&%s&%s&%s",
-        datagram->metric,
-        datagram->tags != NULL ? datagram->tags : "-",
-        datagram->instance != NULL ? datagram->instance : "-",
-        datagram->type
-    );
+    memcpy(result, &buffer, key_size + 1);
     return result;
 }
 
