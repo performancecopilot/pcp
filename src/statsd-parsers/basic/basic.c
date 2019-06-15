@@ -236,6 +236,9 @@ char* tag_collection_to_json(tag_collection* tags) {
                 tags->values[i]->key, tags->values[i]->value);
         }
     }
+    if (current_size >= JSON_BUFFER_SIZE - 2) {
+        return NULL;
+    }
     buffer[current_size] = '}';
     buffer[current_size + 1] = '\0';
     char* result = malloc(sizeof(char) * (current_size + 2));
