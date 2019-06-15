@@ -27,14 +27,14 @@ void* statsd_network_listen(void* args) {
     struct addrinfo* res = 0;
     int err = getaddrinfo(hostname, config->port, &hints, &res);
     if (err != 0) {
-        die(__FILE__, __LINE__, "failed to resolve local socket address (err=%s)", gai_strerror(err));
+        DIE("failed to resolve local socket address (err=%s)", gai_strerror(err));
     }
     int fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if (fd == -1) {
-        die(__FILE__, __LINE__, "failed creating socket (err=%s)", strerror(errno));
+        DIE("failed creating socket (err=%s)", strerror(errno));
     }
     if (bind(fd, res->ai_addr, res->ai_addrlen) == -1) {
-        die(__FILE__, __LINE__, "failed binding socket (err=%s)", strerror(errno));
+        DIE("failed binding socket (err=%s)", strerror(errno));
     }
     verbose_log("Socket enstablished.");
     verbose_log("Waiting for datagrams.");
@@ -46,7 +46,7 @@ void* statsd_network_listen(void* args) {
     while(1) {
         ssize_t count = recvfrom(fd, buffer, max_udp_packet_size, 0, (struct sockaddr*)&src_addr, &src_addr_len);
         if (count == -1) {
-            die(__FILE__, __LINE__, "%s", strerror(errno));
+            DIE("%s", strerror(errno));
         } 
         // since we checked for -1
         else if ((signed int)count == max_udp_packet_size) { 

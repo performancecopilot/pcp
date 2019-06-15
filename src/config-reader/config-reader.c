@@ -41,7 +41,7 @@ static agent_config* get_default_config() {
 agent_config* read_agent_config(int src_flag, char* config_path, int argc, char **argv) {
     agent_config* config = get_default_config();
     if (!(src_flag == READ_FROM_CMD || src_flag == READ_FROM_FILE)) {
-        die(__FILE__, __LINE__, "Incorrect source flag for agent_config source.");
+        DIE("Incorrect source flag for agent_config source.");
     }
     if (src_flag == READ_FROM_FILE) {
         read_agent_config_file(&config, config_path);
@@ -95,10 +95,10 @@ static int ini_line_handler(void* user, const char* section, const char* name, c
  */
 void read_agent_config_file(agent_config** dest, char* path) {
     if (access(path, F_OK) == -1) {
-        die(__FILE__, __LINE__, "No config file found on given path");
+        DIE("No config file found on given path");
     }
     if (ini_parse(path, ini_line_handler, dest) < 0) {
-        die(__FILE__, __LINE__, "Can't load config file");
+        DIE("Can't load config file");
         return;
     }
     verbose_log("Config loaded from %s.", path);

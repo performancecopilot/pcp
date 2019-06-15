@@ -48,13 +48,13 @@ int main(int argc, char **argv)
     PTHREAD_CHECK(pthread_errno);
 
     if (pthread_join(network_listener, NULL) != 0) {
-        die(__FILE__, __LINE__, "Error joining network listener thread.");
+        DIE("Error joining network listener thread.");
     }
     if (pthread_join(datagram_parser, NULL) != 0) {
-        die(__FILE__, __LINE__, "Error joining datagram parser thread.");
+        DIE("Error joining datagram parser thread.");
     }
     if (pthread_join(datagram_consumer, NULL) != 0) {
-        die(__FILE__, __LINE__, "Error joining datagram consumer thread.");
+        DIE("Error joining datagram consumer thread.");
     }
 
     chan_close(unprocessed_datagrams_q);
