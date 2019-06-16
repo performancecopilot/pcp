@@ -1,7 +1,7 @@
 language: C
 compiler: gcc
 before_install:
-  - apt-get install pcp-dev
+  - sudo apt-get install pcp-dev
   - wget https://github.com/tylertreat/chan/archive/master.zip -O /tmp/chan.zip
   - unzip /tmp/chan -d /tmp/chan
   - cd /tmp/chan/chan-master && ./autogen.sh && autoreconf -f -i && ./configure && sudo make install
