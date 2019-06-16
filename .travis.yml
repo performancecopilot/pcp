@@ -6,6 +6,7 @@ before_install:
   - sudo groupadd -r pcp
   - sudo useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
   - cd /tmp/pcp
+  - sudo chmod +x configure
   - ./configure --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d
   - sudo make
   - sudo make install
