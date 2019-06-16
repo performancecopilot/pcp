@@ -138,34 +138,4 @@ typedef struct duration_values_meta {
     double std_deviation;
 } duration_values_meta;
 
-/**
- * Adds item to duration collection, no ordering happens on add
- * @arg collection - Collection to which value should be added
- * @arg value - New value
- */
-void add_bduration_item(bduration_collection* collection, double value);
-
-/**
- * Removes item from duration collection
- * @arg collection - Target collection
- * @arg value - Value to be removed, assuming primitive type
- * @return 0 on success
- */
-int remove_bduration_item(bduration_collection* collection, double value);
-
-/**
- * Prints duration collection metadata in human readable way
- * @arg f - Opened file handle, doesn't close it when finished
- * @arg collection - Target collection
- */
-void print_bdurations(FILE* f, bduration_collection* collection);
-
-/**
- * Gets duration values meta data from given collection, as a sideeffect it sorts the values
- * @arg collection - Target collection
- * @arg out - Placeholder for data population
- * @return 1 on success
- */
-int get_bduration_values_meta(bduration_collection* collection, duration_values_meta* out);
-
 #endif
