@@ -5,8 +5,8 @@ before_install:
   - unzip /tmp/pcp -d /tmp/pcp
   - sudo groupadd -r pcp
   - sudo useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
-  - ./configure --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d
   - cd /tmp/pcp
+  - ./configure --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d
   - sudo make
   - sudo make install
   - cd /tmp/chan/chan-master && ./autogen.sh && autoreconf -f -i && ./configure && sudo make install
