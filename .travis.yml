@@ -9,7 +9,6 @@ before_install:
   - ./configure --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d
   - sudo make
   - sudo make install
-  - cd /tmp/chan/chan-master && ./autogen.sh && autoreconf -f -i && ./configure && sudo make install
   - wget https://github.com/tylertreat/chan/archive/master.zip -O /tmp/chan.zip
   - unzip /tmp/chan -d /tmp/chan
   - cd /tmp/chan/chan-master && ./autogen.sh && autoreconf -f -i && ./configure && sudo make install
