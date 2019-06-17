@@ -510,6 +510,7 @@ _pcp () {
     _arguments -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
       "(-l --label $exargs)"{-l,--label}'[print archive label]' \
+      "(-m,--metadataonly $exargs)"{-m,--metadataonly}'[skip checking log data volumes]' \
       "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
       "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
