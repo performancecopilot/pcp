@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 # Copyright (c) 2011 SGI.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -240,6 +240,7 @@ class NFSOPSTATS(Structure):
         ('queue', c_ulonglong),
         ('rtt', c_ulonglong),
         ('execute', c_ulonglong),
+        ('errors', CTYPES_ULONG),
     ]
     def __init__(self):
         Structure.__init__(self)
@@ -251,6 +252,7 @@ class NFSOPSTATS(Structure):
         self.queue = NOVAL
         self.rtt = NOVAL
         self.execute = NOVAL
+        self.errors = NOVAL
 
 class NFSOPS(Structure):
     _fields_ = [(op, NFSOPSTATS) for op in COMMON_OPS + V3ONLY_OPS + V4_OPS + V41_OPS + V42_OPS]
@@ -623,6 +625,7 @@ class NFSCLIENTPMDA(PMDA):
                             op.queue = self.longs(m.group(7))
                             op.rtt = self.longs(m.group(8))
                             op.execute = self.longs(m.group(9))
+                            op.errors = self.longs(m.group(10))
                             setattr(client.ops, opname, op)
                         except:
                             # self.log("Unrecognised op: %s" % (line))
@@ -1352,6 +1355,13 @@ class NFSCLIENTPMDA(PMDA):
                     self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_MSECS),
                     'milliseconds for rpc execution',
 'The total time the request spent from init to release in milliseconds.')
+            opitem += 1
+
+            self.add_metric(name + '.ops.' + opname + '.errors',
+                    pmdaMetric(self.pmid(8, opitem), PMDA_ULONG,
+                    self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                    'count of completions with an error',
+'Cumulative count of rpc operations completing with erors')
             opitem += 1
 
         self.nfsclient_refresh()

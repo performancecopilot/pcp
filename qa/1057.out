@@ -1,21 +1,21 @@
 QA output created by 1057
 
 === size 32 ===
-Warning [TMP.config, line 2]
+Warning [TMP.config, line 3]
 Metric: nfsclient.age (62.2.1): type: PM_TYPE_32: No conditional change to PM_TYPE_U64
-Warning [TMP.config, line 7]
+Warning [TMP.config, line 8]
 Metric: nfsclient.bytes.read.normal (62.6.1): type: PM_TYPE_32: No conditional change to PM_TYPE_U64
-Warning [TMP.config, line 12]
+Warning [TMP.config, line 13]
 Metric: nfsclient.xprt.read_chunks (62.7.11): type: PM_TYPE_32: No conditional change to PM_TYPE_U64
-Warning [TMP.config, line 17]
+Warning [TMP.config, line 18]
 Metric: nfsclient.xprt.write_chunks (62.7.12): type: PM_TYPE_32: No conditional change to PM_TYPE_U64
-Warning [TMP.config, line 22]
+Warning [TMP.config, line 23]
 Metric: nfsclient.xprt.reply_chunks (62.7.13): type: PM_TYPE_32: No conditional change to PM_TYPE_U64
-Warning [TMP.config, line 27]
+Warning [TMP.config, line 28]
 Metric: nfsclient.xprt.hardway (62.7.18): type: PM_TYPE_32: No conditional change to PM_TYPE_U64
-Warning [TMP.config, line 32]
+Warning [TMP.config, line 33]
 Metric: nfsclient.xprt.failed_marshal (62.7.19): type: PM_TYPE_32: No conditional change to PM_TYPE_U64
-Warning [TMP.config, line 37]
+Warning [TMP.config, line 38]
 Metric: nfsclient.xprt.bad_reply (62.7.20): type: PM_TYPE_32: No conditional change to PM_TYPE_U64
 Warning [TMP.config, line 43]
 Metric: nfsclient.ops.symlink.rtt (62.8.79): type: PM_TYPE_U64: No conditional change to PM_TYPE_U64
@@ -1603,6 +1603,86 @@ Warning [TMP.config, line 44]
 Metric: nfsclient.ops.symlink.execute (62.8.80): type: PM_TYPE_U64: No conditional change to PM_TYPE_U32
 Warning [TMP.config, line 44]
 Metric: nfsclient.ops.open_confirm.execute (62.8.320): type: PM_TYPE_U64: No conditional change to PM_TYPE_U32
+Warning [TMP.config, line 71]
+Metric: nfsclient.ops.clone.bytes_recv: Unknown metric name
+Warning [TMP.config, line 72]
+Metric: nfsclient.ops.clone.bytes_sent: Unknown metric name
+Warning [TMP.config, line 73]
+Metric: nfsclient.ops.clone.execute: Unknown metric name
+Warning [TMP.config, line 74]
+Metric: nfsclient.ops.clone.ntrans: Unknown metric name
+Warning [TMP.config, line 75]
+Metric: nfsclient.ops.clone.ops: Unknown metric name
+Warning [TMP.config, line 76]
+Metric: nfsclient.ops.clone.queue: Unknown metric name
+Warning [TMP.config, line 77]
+Metric: nfsclient.ops.clone.rtt: Unknown metric name
+Warning [TMP.config, line 78]
+Metric: nfsclient.ops.clone.timeouts: Unknown metric name
+Warning [TMP.config, line 95]
+Metric: nfsclient.ops.copy.bytes_recv: Unknown metric name
+Warning [TMP.config, line 96]
+Metric: nfsclient.ops.copy.bytes_sent: Unknown metric name
+Warning [TMP.config, line 97]
+Metric: nfsclient.ops.copy.execute: Unknown metric name
+Warning [TMP.config, line 98]
+Metric: nfsclient.ops.copy.ntrans: Unknown metric name
+Warning [TMP.config, line 99]
+Metric: nfsclient.ops.copy.ops: Unknown metric name
+Warning [TMP.config, line 100]
+Metric: nfsclient.ops.copy.queue: Unknown metric name
+Warning [TMP.config, line 101]
+Metric: nfsclient.ops.copy.rtt: Unknown metric name
+Warning [TMP.config, line 102]
+Metric: nfsclient.ops.copy.timeouts: Unknown metric name
+Warning [TMP.config, line 167]
+Metric: nfsclient.ops.fsid_present.bytes_recv: Unknown metric name
+Warning [TMP.config, line 168]
+Metric: nfsclient.ops.fsid_present.bytes_sent: Unknown metric name
+Warning [TMP.config, line 169]
+Metric: nfsclient.ops.fsid_present.execute: Unknown metric name
+Warning [TMP.config, line 170]
+Metric: nfsclient.ops.fsid_present.ntrans: Unknown metric name
+Warning [TMP.config, line 171]
+Metric: nfsclient.ops.fsid_present.ops: Unknown metric name
+Warning [TMP.config, line 172]
+Metric: nfsclient.ops.fsid_present.queue: Unknown metric name
+Warning [TMP.config, line 173]
+Metric: nfsclient.ops.fsid_present.rtt: Unknown metric name
+Warning [TMP.config, line 174]
+Metric: nfsclient.ops.fsid_present.timeouts: Unknown metric name
+Warning [TMP.config, line 263]
+Metric: nfsclient.ops.layoutstats.bytes_recv: Unknown metric name
+Warning [TMP.config, line 264]
+Metric: nfsclient.ops.layoutstats.bytes_sent: Unknown metric name
+Warning [TMP.config, line 265]
+Metric: nfsclient.ops.layoutstats.execute: Unknown metric name
+Warning [TMP.config, line 266]
+Metric: nfsclient.ops.layoutstats.ntrans: Unknown metric name
+Warning [TMP.config, line 267]
+Metric: nfsclient.ops.layoutstats.ops: Unknown metric name
+Warning [TMP.config, line 268]
+Metric: nfsclient.ops.layoutstats.queue: Unknown metric name
+Warning [TMP.config, line 269]
+Metric: nfsclient.ops.layoutstats.rtt: Unknown metric name
+Warning [TMP.config, line 270]
+Metric: nfsclient.ops.layoutstats.timeouts: Unknown metric name
+Warning [TMP.config, line 335]
+Metric: nfsclient.ops.null.bytes_recv (62.8.5): pmid: No change
+Warning [TMP.config, line 336]
+Metric: nfsclient.ops.null.bytes_sent (62.8.4): pmid: No change
+Warning [TMP.config, line 337]
+Metric: nfsclient.ops.null.execute (62.8.8): pmid: No change
+Warning [TMP.config, line 338]
+Metric: nfsclient.ops.null.ntrans (62.8.2): pmid: No change
+Warning [TMP.config, line 339]
+Metric: nfsclient.ops.null.ops (62.8.1): pmid: No change
+Warning [TMP.config, line 340]
+Metric: nfsclient.ops.null.queue (62.8.6): pmid: No change
+Warning [TMP.config, line 341]
+Metric: nfsclient.ops.null.rtt (62.8.7): pmid: No change
+Warning [TMP.config, line 342]
+Metric: nfsclient.ops.null.timeouts (62.8.3): pmid: No change
 --- input archive
 +++ output archive
 @@ -156,7 +156,7 @@
@@ -2818,21 +2898,21 @@ Metric: nfsclient.ops.open_confirm.execute (62.8.320): type: PM_TYPE_U64: No con
  nfsclient.ops.deallocate.bytes_sent
 
 === size 64 ===
-Warning [TMP.config, line 3]
+Warning [TMP.config, line 4]
 Metric: nfsclient.age (62.2.1): type: PM_TYPE_64: No conditional change to PM_TYPE_U32
-Warning [TMP.config, line 8]
+Warning [TMP.config, line 9]
 Metric: nfsclient.bytes.read.normal (62.6.1): type: PM_TYPE_64: No conditional change to PM_TYPE_U32
-Warning [TMP.config, line 13]
+Warning [TMP.config, line 14]
 Metric: nfsclient.xprt.read_chunks (62.7.11): type: PM_TYPE_64: No conditional change to PM_TYPE_U32
-Warning [TMP.config, line 18]
+Warning [TMP.config, line 19]
 Metric: nfsclient.xprt.write_chunks (62.7.12): type: PM_TYPE_64: No conditional change to PM_TYPE_U32
-Warning [TMP.config, line 23]
+Warning [TMP.config, line 24]
 Metric: nfsclient.xprt.reply_chunks (62.7.13): type: PM_TYPE_64: No conditional change to PM_TYPE_U32
-Warning [TMP.config, line 28]
+Warning [TMP.config, line 29]
 Metric: nfsclient.xprt.hardway (62.7.18): type: PM_TYPE_64: No conditional change to PM_TYPE_U32
-Warning [TMP.config, line 33]
+Warning [TMP.config, line 34]
 Metric: nfsclient.xprt.failed_marshal (62.7.19): type: PM_TYPE_64: No conditional change to PM_TYPE_U32
-Warning [TMP.config, line 38]
+Warning [TMP.config, line 39]
 Metric: nfsclient.xprt.bad_reply (62.7.20): type: PM_TYPE_64: No conditional change to PM_TYPE_U32
 Warning [TMP.config, line 43]
 Metric: nfsclient.ops.symlink.rtt (62.8.79): type: PM_TYPE_U64: No conditional change to PM_TYPE_U64
@@ -4420,6 +4500,86 @@ Warning [TMP.config, line 44]
 Metric: nfsclient.ops.symlink.execute (62.8.80): type: PM_TYPE_U64: No conditional change to PM_TYPE_U32
 Warning [TMP.config, line 44]
 Metric: nfsclient.ops.open_confirm.execute (62.8.320): type: PM_TYPE_U64: No conditional change to PM_TYPE_U32
+Warning [TMP.config, line 71]
+Metric: nfsclient.ops.clone.bytes_recv: Unknown metric name
+Warning [TMP.config, line 72]
+Metric: nfsclient.ops.clone.bytes_sent: Unknown metric name
+Warning [TMP.config, line 73]
+Metric: nfsclient.ops.clone.execute: Unknown metric name
+Warning [TMP.config, line 74]
+Metric: nfsclient.ops.clone.ntrans: Unknown metric name
+Warning [TMP.config, line 75]
+Metric: nfsclient.ops.clone.ops: Unknown metric name
+Warning [TMP.config, line 76]
+Metric: nfsclient.ops.clone.queue: Unknown metric name
+Warning [TMP.config, line 77]
+Metric: nfsclient.ops.clone.rtt: Unknown metric name
+Warning [TMP.config, line 78]
+Metric: nfsclient.ops.clone.timeouts: Unknown metric name
+Warning [TMP.config, line 95]
+Metric: nfsclient.ops.copy.bytes_recv: Unknown metric name
+Warning [TMP.config, line 96]
+Metric: nfsclient.ops.copy.bytes_sent: Unknown metric name
+Warning [TMP.config, line 97]
+Metric: nfsclient.ops.copy.execute: Unknown metric name
+Warning [TMP.config, line 98]
+Metric: nfsclient.ops.copy.ntrans: Unknown metric name
+Warning [TMP.config, line 99]
+Metric: nfsclient.ops.copy.ops: Unknown metric name
+Warning [TMP.config, line 100]
+Metric: nfsclient.ops.copy.queue: Unknown metric name
+Warning [TMP.config, line 101]
+Metric: nfsclient.ops.copy.rtt: Unknown metric name
+Warning [TMP.config, line 102]
+Metric: nfsclient.ops.copy.timeouts: Unknown metric name
+Warning [TMP.config, line 167]
+Metric: nfsclient.ops.fsid_present.bytes_recv: Unknown metric name
+Warning [TMP.config, line 168]
+Metric: nfsclient.ops.fsid_present.bytes_sent: Unknown metric name
+Warning [TMP.config, line 169]
+Metric: nfsclient.ops.fsid_present.execute: Unknown metric name
+Warning [TMP.config, line 170]
+Metric: nfsclient.ops.fsid_present.ntrans: Unknown metric name
+Warning [TMP.config, line 171]
+Metric: nfsclient.ops.fsid_present.ops: Unknown metric name
+Warning [TMP.config, line 172]
+Metric: nfsclient.ops.fsid_present.queue: Unknown metric name
+Warning [TMP.config, line 173]
+Metric: nfsclient.ops.fsid_present.rtt: Unknown metric name
+Warning [TMP.config, line 174]
+Metric: nfsclient.ops.fsid_present.timeouts: Unknown metric name
+Warning [TMP.config, line 263]
+Metric: nfsclient.ops.layoutstats.bytes_recv: Unknown metric name
+Warning [TMP.config, line 264]
+Metric: nfsclient.ops.layoutstats.bytes_sent: Unknown metric name
+Warning [TMP.config, line 265]
+Metric: nfsclient.ops.layoutstats.execute: Unknown metric name
+Warning [TMP.config, line 266]
+Metric: nfsclient.ops.layoutstats.ntrans: Unknown metric name
+Warning [TMP.config, line 267]
+Metric: nfsclient.ops.layoutstats.ops: Unknown metric name
+Warning [TMP.config, line 268]
+Metric: nfsclient.ops.layoutstats.queue: Unknown metric name
+Warning [TMP.config, line 269]
+Metric: nfsclient.ops.layoutstats.rtt: Unknown metric name
+Warning [TMP.config, line 270]
+Metric: nfsclient.ops.layoutstats.timeouts: Unknown metric name
+Warning [TMP.config, line 335]
+Metric: nfsclient.ops.null.bytes_recv (62.8.5): pmid: No change
+Warning [TMP.config, line 336]
+Metric: nfsclient.ops.null.bytes_sent (62.8.4): pmid: No change
+Warning [TMP.config, line 337]
+Metric: nfsclient.ops.null.execute (62.8.8): pmid: No change
+Warning [TMP.config, line 338]
+Metric: nfsclient.ops.null.ntrans (62.8.2): pmid: No change
+Warning [TMP.config, line 339]
+Metric: nfsclient.ops.null.ops (62.8.1): pmid: No change
+Warning [TMP.config, line 340]
+Metric: nfsclient.ops.null.queue (62.8.6): pmid: No change
+Warning [TMP.config, line 341]
+Metric: nfsclient.ops.null.rtt (62.8.7): pmid: No change
+Warning [TMP.config, line 342]
+Metric: nfsclient.ops.null.timeouts (62.8.3): pmid: No change
 --- input archive
 +++ output archive
 @@ -156,7 +156,7 @@
