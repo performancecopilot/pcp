@@ -1,10 +1,8 @@
 #include <getopt.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "config-reader.h"
-#include "../utils/utils.h"
-#include "../utils/ini.h"
+#include "utils.h"
+#include "ini.h"
 
 /**
  * Flags for available config source

@@ -3,8 +3,7 @@
 
 #include <pcp/dict.h>
 #include <chan/chan.h>
-
-#include "../config-reader/config-reader.h"
+#include "config-reader.h"
 
 typedef dict metrics;
 

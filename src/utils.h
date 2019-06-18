@@ -5,7 +5,7 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include "../config-reader/config-reader.h"
+#include "config-reader.h"
 
 /**
  * Checks if last allocation was OK 

@@ -1,14 +1,14 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <chan/chan.h>
 #include <signal.h>
+#include "config-reader.h"
+#include "statsd-parsers.h"
+#include "consumers.h"
+#include "utils.h"
 
-#include "config-reader/config-reader.h"
-#include "statsd-parsers/statsd-parsers.h"
-#include "consumers/consumers.h"
-#include "utils/utils.h"
+#if _TEST_TARGET == 0
 
 void signal_handler(int num) {
     if (num == SIGUSR1) {
@@ -63,3 +63,5 @@ int main(int argc, char **argv)
     chan_dispose(parsed_datagrams_q);
     return 1;
 }
+
+#endif

@@ -6,10 +6,9 @@
 #include <math.h>
 #include <pcp/dict.h>
 #include <pcp/pmapi.h>
-
-#include "../../statsd-parsers/statsd-parsers.h"
-#include "../../config-reader/config-reader.h"
-#include "../../utils/utils.h"
+#include "statsd-parsers.h"
+#include "config-reader.h"
+#include "utils.h"
 #include "consumers.h"
 
 /**

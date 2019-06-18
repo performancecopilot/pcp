@@ -31,6 +31,12 @@ run with:
 make run
 ```
 
+run tests with:
+
+```
+make test
+```
+
 clean with:
 
 ```

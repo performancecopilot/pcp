@@ -7,10 +7,10 @@
 #include <netdb.h>
 #include <chan/chan.h>
 #include "statsd-parsers.h"
-#include "basic/basic.h"
-#include "ragel/ragel.h"
-#include "../utils/utils.h"
-#include "../config-reader/config-reader.h"
+#include "basic-parser.h"
+#include "ragel-parser.h"
+#include "utils.h"
+#include "config-reader.h"
 
 void* statsd_network_listen(void* args) {
     agent_config* config = ((statsd_listener_args*)args)->config;

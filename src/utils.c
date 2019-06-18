@@ -3,7 +3,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "../config-reader/config-reader.h"
+#include "config-reader.h"
 
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
@@ -69,7 +69,7 @@ void warn(char* filename, int line_number, const char* format, ...) {
 
 /**
  * Sanitizes string
- * Swaps '/', '-', ' ' characters with '-'. Should the message contain any other characters then a-z, A-Z, 0-9 and specified above, fails.
+ * Swaps '/', '-', ' ' characters with '_'. Should the message contain any other characters then a-z, A-Z, 0-9 and specified above, fails.
  * @arg src - String to be sanitized
  * @return 1 on success
  */
