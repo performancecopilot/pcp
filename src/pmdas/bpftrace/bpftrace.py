@@ -18,6 +18,7 @@ import signal
 import re
 from threading import Thread, Lock
 from queue import Queue
+from copy import deepcopy
 
 
 class BPFtraceError(Exception):
@@ -34,12 +35,68 @@ class BPFtrace:
 
         self.info_q = Queue()
         self.lock = Lock()
-        self._data = []
+        self._data = {}
 
     @property
     def started(self):
         """returns true if bpftrace was started"""
         return bool(self.pid)
+
+    @classmethod
+    def parse_histogram(cls, lines_it):
+        """parse a histogram"""
+        multipliers = {
+            '': 1,
+            'K': 1024,
+            'M': 1024 * 1024
+        }
+
+        histogram = {}
+        for hist_line in lines_it:
+            hist_negative = re.match(r'\(..., 0\)\s+(\d+)', hist_line)
+            hist_single = re.match(r'\[(\d+)]\s+(\d+)', hist_line)
+            hist_m = re.match(r'\[(\d+)(.?), (\d+)(.?)\)\s+(\d+)', hist_line)
+            if hist_negative:
+                histogram['-1'] = hist_negative.group(1)
+            elif hist_single:
+                bucket, val = hist_single.groups()
+                if bucket in ['0', '1']:
+                    histogram['0-1'] = histogram.get('0-1', 0) + int(val)
+                else:
+                    raise BPFtraceError("can't parse histogram output")
+            elif hist_m:
+                low, low_u, high, high_u, val = hist_m.groups()
+                low = int(low) * multipliers[low_u]
+                high = int(high) * multipliers[high_u] - 1
+
+                histogram['{}-{}'.format(low, high)] = int(val)                            
+            else:
+                break
+        return histogram
+                
+    @classmethod
+    def parse_variables(cls, lines):
+        """parse variables from bpftrace output"""
+        variables = {}
+        lines_it = iter(lines)
+        for line in lines_it:
+            var_m = re.match(r'(@.*?)(\[.+?\])?: (.*)', line)
+            if var_m:
+                name, key, val = var_m.groups()
+                if val:
+                    if val.isnumeric():
+                        val = int(val)
+                    if key:
+                        key = key[1:-1]
+                        if name not in variables:
+                            variables[name] = {}
+                        variables[name][key] = val
+                    else:
+                        variables[name] = val
+                else:
+                    variables[name] = cls.parse_histogram(lines_it)
+                    
+        return variables
 
     def process_output(self):
         """process stdout and stderr of running bpftrace process"""
@@ -59,22 +116,22 @@ class BPFtrace:
         # parse data lines
         for line in self.process.stdout:
             line = line.decode('utf-8')
-            if line != '\n':
+            if line != '###\n':
                 data_lines.append(line)
-            elif data_lines:
+            else:
                 with self.lock:
-                    self._data = ''.join(data_lines)
+                    self._data = self.parse_variables(data_lines)
                 data_lines = []
 
     def prepare_script(self):
         """prepares bpftrace script (add continuous output)"""
-        if not re.match(r'interval:s:1\s*{.*print(@.*).*}', self.script):
-            variables = re.findall(r'(@.*)(\[.+\]?)\s*=', self.script)
-            if len(variables) == 1:
-                self.script = self.script + ' interval:s:1 {{ print({}); }}'.format(variables[0][0])
-            else:
-                raise BPFtraceError("multiple bpftrace variables found, please include "
-                                    "'interval:s:1 { print(@var); }' in your script")
+        variables = re.findall(r'(@.*?)(\[.+?\])?\s*=', self.script)
+        if variables:
+            print_st = ' '.join(['print({});'.format(var) for var, key in variables])
+            self.script = self.script + ' interval:s:1 {{ {} printf("###\\n"); }}'.format(print_st)
+        else:
+            raise BPFtraceError("no global bpftrace variable found, please include "
+                                "at least one global variable in your script")
 
     def start(self):
         """starts bpftrace in the background, waits until first data arrives or an error occurs"""

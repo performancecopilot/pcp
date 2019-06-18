@@ -39,8 +39,55 @@ class Consts: # pylint: disable=too-few-public-methods
         """constants of script clusters"""
         Pid = 0
         Probes = 1
-        Data = 2
 
+
+class BPFtraceMetric:
+    def __init__(self, pmda, cluster, name, item_no, single, var_name):
+        self.pmda = pmda
+        self.cluster = cluster
+        self.name = name
+        self.item_no = item_no
+        self.single = single
+        self.var_name = var_name
+
+        if single:
+            self.instance = None
+        else:
+            self.instances = {}
+
+    def register(self):
+        if self.single:
+            self.indom_id = c_api.PM_INDOM_NULL
+        else:
+            self.indom_id = self.pmda.indom(self.item_no)
+            self.indom = pmdaIndom(self.indom_id, self.instances)
+            self.pmda.add_indom(self.indom)
+
+        self.metric = pmdaMetric(
+            self.pmda.pmid(self.cluster, self.item_no), c_api.PM_TYPE_U64,
+            self.indom_id, c_api.PM_SEM_INSTANT, pmUnits()
+        )
+        self.pmda.add_metric('bpftrace.scripts.{}.data.{}'.format(self.name, self.var_name), self.metric)
+
+    def deregister(self):
+        self.pmda.remove_metric('bpftrace.scripts.{}.data.{}'.format(self.name, self.var_name), self.metric)
+
+    def update(self, val):
+        if self.single:
+            self.instance = val
+        else:
+            self.instances = val
+            for key in val:
+                self.pmda.log("logger "+str(key))
+            self.indom.set_instances(self.indom_id,
+                                    {key:c_int(1) for key in self.instances})
+
+    def fetch(self, inst):
+        if self.single:
+            return [self.instance, 1]
+        else:
+            key = self.indom.inst_name_lookup(inst)
+            return [self.instances[key], 1]
 
 class BPFtraceScript(BPFtrace):
     """manage metrics for a bpftrace instance"""
@@ -50,6 +97,8 @@ class BPFtraceScript(BPFtrace):
         self.pmda = pmda
         self.cluster = cluster
         self.name = name
+        self.metrics = {}
+        self.item_to_metric = {}
 
     def register_metrics(self):
         """register metrics for this bpftrace instance"""
@@ -57,43 +106,39 @@ class BPFtraceScript(BPFtrace):
             self.pmda.pmid(self.cluster, Consts.Script.Pid), c_api.PM_TYPE_U32,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         )
-        self.pmda.add_metric('bpftrace.{}.pid'.format(self.name), self.pid_metric)
+        self.pmda.add_metric('bpftrace.scripts.{}.pid'.format(self.name), self.pid_metric)
 
         self.probes_metric = pmdaMetric(
             self.pmda.pmid(self.cluster, Consts.Script.Probes), c_api.PM_TYPE_U32,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         )
-        self.pmda.add_metric('bpftrace.{}.probes'.format(self.name), self.probes_metric)
-
-        self.data_instances = {}
-        self.data_indom_id = self.pmda.indom(self.cluster)
-        self.data_indom = pmdaIndom(self.data_indom_id, self.data_instances)
-        self.pmda.add_indom(self.data_indom)
-        self.data_metric = pmdaMetric(
-            self.pmda.pmid(self.cluster, Consts.Script.Data), c_api.PM_TYPE_U64,
-            self.data_indom_id, c_api.PM_SEM_INSTANT, pmUnits()
-        )
-        self.pmda.add_metric('bpftrace.{}.data'.format(self.name), self.data_metric)
+        self.pmda.add_metric('bpftrace.scripts.{}.probes'.format(self.name), self.probes_metric)
 
     def deregister_metrics(self):
         """remove bpftrace metrics for this bpftrace instance"""
         self.pmda.remove_metric('bpftrace.{}.pid'.format(self.name), self.pid_metric)
         self.pmda.remove_metric('bpftrace.{}.probes'.format(self.name), self.probes_metric)
-        self.pmda.remove_metric('bpftrace.{}.data'.format(self.name), self.data_metric)
+        for metric in self.metrics:
+            metric.deregister()
 
     def refresh_callback(self):
         """PMDA refresh callback for this bpftrace instance"""
         if not self.started:
             return
 
-        for line in self.data().splitlines():
-            # TODO: histograms
-            m = re.match(r'@\[(.+)\]: (\d+)', line)
-            if m:
-                self.data_instances[m.group(1)] = int(m.group(2))
-
-        self.data_indom.set_instances(self.data_indom_id,
-                                      {key:c_int(1) for key in self.data_instances})
+        for var, val in self.data().items():
+            if var in self.metrics:
+                self.metrics[var].update(val)
+            else:
+                item_no = 10 + len(self.metrics)
+                metric_name = var[1:]
+                if not metric_name:
+                    metric_name = 'root'
+                metric = BPFtraceMetric(self.pmda, self.cluster, self.name, item_no, not isinstance(val, dict), metric_name)
+                metric.register()
+                metric.update(val)
+                self.metrics[var] = metric
+                self.item_to_metric[item_no] = metric
 
     def fetch_callback(self, item, inst):
         """PMDA fetch callback for this bpftrace instance"""
@@ -110,9 +155,9 @@ class BPFtraceScript(BPFtrace):
                 return [self.probes, 1]
             else:
                 return [PMDA_FETCH_NOVALUES, 0]
-        elif item == Consts.Script.Data:
-            key = self.data_indom.inst_name_lookup(inst)
-            return [self.data_instances[key], 1]
+        elif item in self.item_to_metric:
+            metric = self.item_to_metric[item]
+            return metric.fetch(inst)
         return [c_api.PM_ERR_PMID, 0]
 
 
@@ -189,6 +234,7 @@ class BPFtracePMDA(PMDA):
                     return 0
 
                 script.register_metrics()
+                script.refresh_callback()
                 self.script_instances[name] = script
                 self.refresh_script_instances()
                 self.register_value = name
@@ -211,6 +257,7 @@ class BPFtracePMDA(PMDA):
 
     def fetch_callback(self, cluster, item, inst):
         """PMDA fetch callback"""
+        self.log("type "+str(type(cluster)))
         if cluster == Consts.Control.Cluster:
             if item == Consts.Control.Register:
                 val = self.register_value
