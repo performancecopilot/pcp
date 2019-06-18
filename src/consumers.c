@@ -1,15 +1,20 @@
 #include <stdio.h>
 #include <string.h>
+#include <stddef.h>
 #include <chan/chan.h>
 #include <hdr/hdr_histogram.h>
-#include <float.h>
-#include <math.h>
 #include <pcp/dict.h>
 #include <pcp/pmapi.h>
-#include "statsd-parsers.h"
+
 #include "config-reader.h"
+#include "statsd-parsers.h"
 #include "utils.h"
 #include "consumers.h"
+#include "consumer-duration-exact.h"
+#include "consumer-duration-hdr.h"
+#include "consumer-duration.h"
+#include "consumer-counter.h"
+#include "consumer-gauge.h"
 
 /**
  * Flag to capture USR1 signal event, which is supposed mark request to output currently recorded data in debug file 
@@ -19,8 +24,8 @@ pthread_mutex_t g_output_requested_lock;
 
 static void metricFreeCallBack(void *privdata, void *val)
 {
-    (void)privdata;
-    free_metric((metric*)val);
+    agent_config* config = (agent_config*)privdata;
+    free_metric(config, (metric*)val);
 }
 
 static void * metricKeyDupCallBack(void *privdata, const void *key)
@@ -59,7 +64,7 @@ dictType metricDictCallBacks = {
  */
 metrics* init_metrics(agent_config* config) {
     (void)config;
-    metrics* m = dictCreate(&metricDictCallBacks, "metrics");
+    metrics* m = dictCreate(&metricDictCallBacks, config);
     return m;
 }
 
@@ -154,9 +159,10 @@ void process_datagram(agent_config* config, metrics* m, statsd_datagram* datagra
 
 /**
  * Frees metric
+ * @arg config
  * @arg metric - Metric to be freed
  */
-void free_metric(metric* item) {
+void free_metric(agent_config* config, metric* item) {
     if (item->name != NULL) {
         free(item->name);
     }
@@ -166,15 +172,13 @@ void free_metric(metric* item) {
     if (item->type != NULL) {
         switch (*(item->type)) {
             case COUNTER:
+                free_counter_value(config, item);
+                break;
             case GAUGE:
-                if (item->value != NULL) {
-                    free(item->value);
-                }
+                free_gauge_value(config, item);
                 break;
             case DURATION:
-                if (item->value != NULL) {
-                    hdr_close((struct hdr_histogram*)item->value);
-                }
+                free_duration_value(config, item);
                 break;
         }
         free(item->type);
@@ -184,7 +188,12 @@ void free_metric(metric* item) {
     }
 }
 
-static void print_metric_meta(FILE* f, metric_metadata* meta) {
+/**
+ * Prints metadata 
+ * @arg f - Opened file handle, doesn't close it after finishing
+ * @arg meta - Metric metadata
+ */
+void print_metric_meta(FILE* f, metric_metadata* meta) {
     if (meta != NULL) {
         if (meta->tags != NULL) {
             fprintf(f, "tags = %s\n", meta->tags);
@@ -196,123 +205,6 @@ static void print_metric_meta(FILE* f, metric_metadata* meta) {
             fprintf(f, "instance = %s\n", meta->instance);
         }
     }
-}
-
-/**
- * Adds item to duration collection, no ordering happens on add
- * @arg collection - Collection to which value should be added
- * @arg value - New value
- */
-static void add_bduration_item(bduration_collection* collection, double value) {
-    long int new_length = collection->length + 1;
-    collection->values = realloc(collection->values, sizeof(double*) * new_length);
-    ALLOC_CHECK("Unable to allocate memory for collection value.");
-    collection->values[collection->length] = malloc(sizeof(double*));
-    *(collection->values[collection->length]) = value;
-    collection->length = new_length;
-}
-
-/**
- * Removes item from duration collection
- * @arg collection - Target collection
- * @arg value - Value to be removed, assuming primitive type
- * @return 1 on success
- */
-/*
-static int remove_bduration_item(bduration_collection* collection, double value) {
-    if (collection == NULL || collection->length == 0 || collection->values == NULL) {
-        return 0;
-    }
-    int removed = 0;
-    long int i;
-    for (i = 0; i < collection->length; i++) {
-        if (removed) {
-            collection->values[i - 1] = collection->values[i];
-        } else {
-            if (*(collection->values[i]) == value) {
-                free(collection->values[i]);
-                removed = 1;
-            }
-        }
-    }
-    if (!removed) {
-        return 0;
-    }
-    collection = realloc(collection, sizeof(double*) * collection->length - 1);
-    ALLOC_CHECK("Unable to resize bduration collection.");
-    collection->length -= 1;
-    return 1;
-}
-*/
-
-static int bduration_values_comparator(const void* x, const void* y) {
-    int res = **(double**)x > **(double**)y;
-    return res;
-}
-
-/**
- * Gets duration values meta data from given collection, as a sideeffect it sorts the values
- * @arg collection - Target collection
- * @arg out - Placeholder for data population
- * @return 1 on success
- */
-static int get_bduration_values_meta(bduration_collection* collection, duration_values_meta* out) {
-    if (collection == NULL || collection->length == 0 || collection->values == NULL) {
-        return 0;
-    }
-    qsort(collection->values, collection->length, sizeof(double*), bduration_values_comparator);
-    double accumulator = 0;
-    double min;
-    double max;
-    long int i;
-    for (i = 0; i < collection->length; i++) {
-        double current = *(collection->values[i]);
-        if (i == 0) {
-            min = current;
-            max = current;            
-        }
-        if (current > max) {
-            max = current;
-        }
-        if (current < min) {
-            min = current;
-        }
-        accumulator += current;
-    }
-    out->min = min;
-    out->max = max;
-    out->median = *(collection->values[(int)ceil((collection->length / 2.0) - 1)]);
-    out->average = accumulator / collection->length;
-    out->percentile90 = *(collection->values[((int)round((90.0 / 100.0) * (double)collection->length)) - 1]);
-    out->percentile95 = *(collection->values[((int)round((95.0 / 100.0) * (double)collection->length)) - 1]);
-    out->percentile99 = *(collection->values[((int)round((99.0 / 100.0) * (double)collection->length)) - 1]);
-    out->count = collection->length;
-    accumulator = 0;
-    for (i = 0; i < collection->length; i++) {
-        double x = *(collection->values[i]) - out->average;
-        accumulator += x * x; 
-    }
-    out->std_deviation = sqrt(accumulator / out->count);
-    return 1;
-}
-
-/**
- * Prints duration collection metadata in human readable way
- * @arg f - Opened file handle, doesn't close it when finished
- * @arg collection - Target collection
- */
-static void print_bdurations(FILE* f, bduration_collection* collection) {
-    duration_values_meta meta = { 0 };
-    get_bduration_values_meta(collection, &meta);
-    fprintf(f, "min             = %lf\n", meta.min);
-    fprintf(f, "max             = %lf\n", meta.max);
-    fprintf(f, "median          = %lf\n", meta.median);
-    fprintf(f, "average         = %lf\n", meta.average);
-    fprintf(f, "percentile90    = %lf\n", meta.percentile90);
-    fprintf(f, "percentile95    = %lf\n", meta.percentile95);
-    fprintf(f, "percentile99    = %lf\n", meta.percentile99);
-    fprintf(f, "count           = %lf\n", meta.count);
-    fprintf(f, "std deviation   = %lf\n", meta.std_deviation);
 }
 
 /**
@@ -334,34 +226,14 @@ void print_metrics(agent_config* config, metrics* m) {
         metric* item = (metric*)current->v.val;
         switch (*(item->type)) {
             case COUNTER:
-                fprintf(f, "-----------------\n");
-                fprintf(f, "name = %s\n", item->name);
-                fprintf(f, "value = %llu (counter)\n", *(unsigned long long int*)(item->value));
-                print_metric_meta(f, item->meta);
+                print_counter_metric(config, f, item);
                 break;
             case GAUGE:
-                fprintf(f, "-----------------\n");
-                fprintf(f, "name = %s\n", item->name);
-                fprintf(f, "value = %f (gauge)\n", *(double*)(item->value));
-                print_metric_meta(f, item->meta);
+                print_gauge_metric(config, f, item);
                 break;
             case DURATION:
-                fprintf(f, "-----------------\n");
-                fprintf(f, "name = %s\n", item->name);
-                fprintf(f, "value = (duration)\n");
-                print_metric_meta(f, item->meta);
-                if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM) {
-                    hdr_percentiles_print(
-                        (struct hdr_histogram*)item->value,
-                        f,
-                        5,
-                        1.0,
-                        CLASSIC
-                    );
-                } else {
-                    print_bdurations(f, (bduration_collection*)item->value);
-                }
-                fprintf(f, "\n");
+                print_duration_metric(config, f, item);
+                break;
         }
         count++;
     }
@@ -386,73 +258,6 @@ int find_metric_by_name(metrics* m, char* name, metric** out) {
         metric* item = (metric*)result->v.val;
         *out = item;
     }
-    return 1;
-}
-
-static int create_duration_metric(agent_config* config, statsd_datagram* datagram, metric** out) {
-    if (datagram->value[0] == '-' || datagram->value[0] == '+') {
-        return 0;
-    }
-    long long unsigned int value = strtoull(datagram->value, NULL, 10);
-    if (errno == ERANGE) {
-        return 0;
-    }
-    if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM) {
-        struct hdr_histogram* histogram;
-        hdr_init(1, INT64_C(3600000000), 3, &histogram);
-        ALLOC_CHECK("Unable to allocate memory for histogram");
-        hdr_record_value(histogram, value);
-        (*out)->value = histogram;
-    } else {
-        bduration_collection* collection = (bduration_collection*) malloc(sizeof(bduration_collection));
-        ALLOC_CHECK("Unable to assign memory for duration values collection.");
-        *collection = (bduration_collection) { 0 };
-        add_bduration_item(collection, value);
-        (*out)->value = collection;
-    }
-    (*out)->name = malloc(strlen(datagram->metric));
-    strcpy((*out)->name, datagram->metric);
-    (*out)->type = (METRIC_TYPE*) malloc(sizeof(METRIC_TYPE));
-    *((*out)->type) = 4;
-    (*out)->meta = create_metric_meta(datagram);
-    return 1;
-}
-
-static int create_gauge_metric(agent_config* config, statsd_datagram* datagram, metric** out) {
-    (void)config;
-    if (datagram->metric == NULL) {
-        return 0;
-    }
-    double value = strtod(datagram->value, NULL);
-    if (errno == ERANGE) {
-        return 0;
-    }
-    (*out)->name = malloc(strlen(datagram->metric));
-    strcpy((*out)->name, datagram->metric);
-    (*out)->type = (METRIC_TYPE*) malloc(sizeof(METRIC_TYPE));
-    *((*out)->type) = 2;
-    (*out)->value = (double*) malloc(sizeof(double));
-    *((double*)(*out)->value) = value;
-    (*out)->meta = create_metric_meta(datagram);
-    return 1;
-}
-
-static int create_counter_metric(agent_config* config, statsd_datagram* datagram, metric** out) {
-    (void)config;
-    if (datagram->value[0] == '-' || datagram->value[0] == '+') {
-        return 0;
-    }
-    long long unsigned int value = strtoull(datagram->value, NULL, 10);
-    if (errno == ERANGE) {
-        return 0;
-    }
-    (*out)->name = malloc(strlen(datagram->metric));
-    strcpy((*out)->name, datagram->metric);
-    (*out)->type = (METRIC_TYPE*) malloc(sizeof(METRIC_TYPE));
-    *((*out)->type) = 1;
-    (*out)->value = (unsigned long long int*) malloc(sizeof(unsigned long long int));
-    *((long long unsigned int*)(*out)->value) = value;
-    (*out)->meta = create_metric_meta(datagram);
     return 1;
 }
 
@@ -484,75 +289,6 @@ int create_metric(agent_config* config, statsd_datagram* datagram, metric** out)
  */
 void add_metric(metrics* m, char* key, metric* item) {
     dictAdd(m, key, item);
-}
-
-static int update_counter_metric(agent_config* config, metric* item, statsd_datagram* datagram) {
-    (void)config;
-    if (datagram->value[0] == '-' || datagram->value[0] == '+') {
-        return 0;
-    }
-    long long unsigned int value = strtoull(datagram->value, NULL, 10);
-    if (errno == ERANGE) {
-        return 0;
-    }
-    *(long long unsigned int*)(item->value) += value;
-    return 1;
-}
-
-static int update_gauge_metric(agent_config* config, metric* item, statsd_datagram* datagram) {
-    (void)config;
-    int substract = 0;
-    int add = 0;
-    if (datagram->value[0] == '+') {
-        add = 1;
-    }
-    if (datagram->value[0] == '-') {
-        substract = 1; 
-    }
-    double value;
-    if (substract || add) {
-        char* substr = &(datagram->value[1]);
-        value = strtod(substr, NULL);
-    } else {
-        value = strtod(datagram->value, NULL);
-    }
-    if (errno == ERANGE) {
-        return 0;
-    }
-    double old_value = *(double*)(item->value);
-    if (add || substract) {
-        if (add) {
-            if (old_value + value >= DBL_MAX) {
-                return 0;
-            }
-            *(double*)(item->value) += value;
-        }
-        if (substract) {
-            if (old_value - value <= -DBL_MAX) {
-                return 0;
-            }
-            *(double*)(item->value) -= value;
-        }
-    } else {
-        *(double*)(item->value) = value;
-    }
-    return 1;
-}
-
-static int update_duration_metric(agent_config* config, metric* item, statsd_datagram* datagram) {
-    if (datagram->value[0] == '-' || datagram->value[0] == '+') {
-        return 0;
-    }
-    long long unsigned int value = strtoull(datagram->value, NULL, 10);
-    if (errno == ERANGE) {
-        return 0;
-    }
-    if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM) {
-        hdr_record_value((struct hdr_histogram*)item->value, value);
-    } else {
-        add_bduration_item((bduration_collection*)item->value, value);
-    }
-    return 1;
 }
 
 /**

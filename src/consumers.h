@@ -1,7 +1,11 @@
 #ifndef CONSUMERS_
 #define CONSUMERS_
 
+#include <stddef.h>
 #include <pcp/dict.h>
+
+#include "config-reader.h"
+#include "statsd-parsers.h"
 
 typedef struct metric_metadata {
     char* tags;
@@ -51,9 +55,10 @@ void process_datagram(agent_config* config, metrics* m, statsd_datagram* datagra
 
 /**
  * Frees metric
+ * @arg config
  * @arg metric - Metric to be freed
  */
-void free_metric(metric* metric);
+void free_metric(agent_config* config, metric* metric);
 
 /**
  * Writes information about recorded metrics into file
@@ -116,26 +121,10 @@ metric_metadata* create_metric_meta(statsd_datagram* datagram);
 void free_metric_metadata(metric_metadata* meta);
 
 /**
- * Represents basic duration aggregation unit
+ * Prints metadata 
+ * @arg f - Opened file handle, doesn't close it after finishing
+ * @arg meta - Metric metadata
  */
-typedef struct bduration_collection {
-    double** values;
-    long int length;
-} bduration_collection;
-
-/**
- * Collection of metadata of some duration collection 
- */
-typedef struct duration_values_meta {
-    double min;
-    double max;
-    double median;
-    double average;
-    double percentile90;
-    double percentile95;
-    double percentile99;
-    double count;
-    double std_deviation;
-} duration_values_meta;
+void print_metric_meta(FILE* f, metric_metadata* meta);
 
 #endif
