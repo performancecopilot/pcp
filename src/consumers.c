@@ -631,4 +631,3 @@ void free_metric_metadata(metric_metadata* meta) {
         free(meta);
     }
 }
-

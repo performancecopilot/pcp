@@ -22,7 +22,7 @@ LDLIBS := -lhdr_histogram_static -lchan -lm -lpthread -lpcp_web -lpcp
 
 CFLAGS ?=-Wall -Wextra $(INC_FLAGS) -MMD -MP
 
-all: $(MAIN_BUILD_DIR)/$(TARGET_EXEC) $(TEST_BUILD_DIR)/$(TEST_EXEC)
+all: $(MAIN_BUILD_DIR)/$(TARGET_EXEC)
 
 $(MAIN_BUILD_DIR)/$(TARGET_EXEC): CFLAGS += -D_TEST_TARGET=0
 $(MAIN_BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
@@ -49,7 +49,7 @@ clean:
 run: 
 	$(MAIN_BUILD_DIR)/$(TARGET_EXEC)
 
-test:
-	$(TEST_BUILD_DIR)/$(TEST_EXEC)
+test: $(TEST_BUILD_DIR)/$(TEST_EXEC)
+	$^
 
 MKDIR_P ?= mkdir -p
