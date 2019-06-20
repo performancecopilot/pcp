@@ -4,13 +4,34 @@
 #include <string.h>
 #include <pcp/pmapi.h>
 #include <sys/types.h>
+
 #include "utils.h"
-#include "statsd-parsers.h"
-#include "basic-parser.h"
+#include "network-listener.h"
+#include "parser-basic.h"
 #include "string.h"
 
 #define JSON_BUFFER_SIZE 4096
 
+typedef struct tag {
+    char* key;
+    char* value;
+} tag;
+
+typedef struct tag_collection {
+    tag** values;
+    long int length;
+} tag_collection;
+
+static char* tag_collection_to_json(tag_collection* tags);
+static int parse(char* buffer, statsd_datagram** datagram);
+
+/**
+ * Basic parser entry point
+ * Parsers given buffer and populates datagram with parsed data if they are valid
+ * @arg buffer - Buffer to be parsed
+ * @arg datagram - Placeholder for parsed data
+ * @return 1 on success, 0 on fail 
+ */
 int basic_parser_parse(char* buffer, statsd_datagram** datagram) {
     *datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
     *(*datagram) = (struct statsd_datagram) {0};
@@ -26,7 +47,7 @@ int basic_parser_parse(char* buffer, statsd_datagram** datagram) {
     return 0;
 };
 
-int parse(char* buffer, statsd_datagram** datagram) {
+static int parse(char* buffer, statsd_datagram** datagram) {
     int current_segment_length = 0;
     int i = 0;
     char previous_delimiter = ' ';
@@ -225,7 +246,7 @@ static int tag_comparator(const void* x, const void* y) {
 /**
  * Converts tag_collection* struct to JSON string that is sorted by keys
  */
-char* tag_collection_to_json(tag_collection* tags) {
+static char* tag_collection_to_json(tag_collection* tags) {
     char buffer[JSON_BUFFER_SIZE];
     qsort(tags->values, tags->length, sizeof(tag*), tag_comparator);
     buffer[0] = '{';

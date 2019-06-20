@@ -3,8 +3,9 @@
 #include <pthread.h>
 #include <chan/chan.h>
 #include <signal.h>
+
 #include "config-reader.h"
-#include "statsd-parsers.h"
+#include "network-listener.h"
 #include "aggregators.h"
 #include "pcp.h"
 #include "utils.h"
@@ -43,19 +44,19 @@ int main(int argc, char **argv)
     if (pcp_to_aggregator == NULL) DIE("Unable to create channel pcp -> aggregator.");
 
     metrics* m = init_metrics(config);
-    statsd_listener_args* listener_args = create_listener_args(config, unprocessed_datagrams_q);
-    statsd_parser_args* parser_args = create_parser_args(config, unprocessed_datagrams_q, parsed_datagrams_q);
+    network_listener_args* listener_args = create_listener_args(config, unprocessed_datagrams_q);
+    parser_args* parser_args = create_parser_args(config, unprocessed_datagrams_q, parsed_datagrams_q);
     aggregator_args* aggregator_args = create_aggregator_args(config, parsed_datagrams_q, aggregator_to_pcp, pcp_to_aggregator, m);
     pcp_args* pcp_args = create_pcp_args(config, pcp_to_aggregator, aggregator_to_pcp);
 
     int pthread_errno = 0; 
-    pthread_errno = pthread_create(&network_listener, NULL, statsd_network_listen, listener_args);
+    pthread_errno = pthread_create(&network_listener, NULL, network_listener_exec, listener_args);
     PTHREAD_CHECK(pthread_errno);
-    pthread_errno = pthread_create(&parser, NULL, statsd_parser_consume, parser_args);
+    pthread_errno = pthread_create(&parser, NULL, parser_exec, parser_args);
     PTHREAD_CHECK(pthread_errno);
-    pthread_errno = pthread_create(&aggregator, NULL, consume_datagram, aggregator_args);
+    pthread_errno = pthread_create(&aggregator, NULL, aggregator_exec, aggregator_args);
     PTHREAD_CHECK(pthread_errno);
-    pthread_errno = pthread_create(&pcp, NULL, pcp_pmda, pcp_args);
+    pthread_errno = pthread_create(&pcp, NULL, pcp_pmda_exec, pcp_args);
     PTHREAD_CHECK(pthread_errno);
 
     if (pthread_join(network_listener, NULL) != 0) {

@@ -7,7 +7,8 @@
 #include <pcp/pmapi.h>
 
 #include "config-reader.h"
-#include "statsd-parsers.h"
+#include "parsers.h"
+#include "network-listener.h"
 #include "utils.h"
 #include "aggregators.h"
 #include "aggregator-duration-exact.h"
@@ -71,9 +72,9 @@ metrics* init_metrics(agent_config* config) {
 
 /**
  * Thread startpoint - passes down given datagram to aggregator to record value it contains
- * @arg args - (aggregator_args), see ~/statsd-parsers/statsd-parsers.h
+ * @arg args - (aggregator_args), see ~/network-listener.h
  */
-void* consume_datagram(void* args) {
+void* aggregator_exec(void* args) {
     agent_config* config = ((aggregator_args*)args)->config;
     chan_t* parsed = ((aggregator_args*)args)->parsed_datagrams;
     chan_t* pcp_to_aggregator = ((aggregator_args*)args)->pcp_request_channel;
@@ -387,4 +388,25 @@ void free_metric_metadata(metric_metadata* meta) {
     if (meta != NULL) {
         free(meta);
     }
+}
+
+/**
+ * Creates arguments for Agregator thread
+ * @arg config - Application config
+ * @arg parsed_channel - Parser -> Aggregator channel
+ * @arg pcp_request_channel - PCP -> Aggregator channel
+ * @arg pcp_response_channel - Aggregator -> PCP channel
+ * @return aggregator_args
+ */
+aggregator_args* create_aggregator_args(agent_config* config, chan_t* parsed_channel, chan_t* pcp_request_channel, chan_t* pcp_response_channel, metrics* m) {
+    struct aggregator_args* aggregator_args = (struct aggregator_args*) malloc(sizeof(struct aggregator_args));
+    ALLOC_CHECK("Unable to assign memory for parser aguments.");
+    aggregator_args->config = (agent_config*) malloc(sizeof(agent_config*));
+    ALLOC_CHECK("Unable to assign memory for parser config.");
+    aggregator_args->config = config;
+    aggregator_args->parsed_datagrams = parsed_channel;
+    aggregator_args->pcp_request_channel = pcp_request_channel;
+    aggregator_args->pcp_response_channel = pcp_response_channel;
+    aggregator_args->metrics_wrapper = m;
+    return aggregator_args;
 }

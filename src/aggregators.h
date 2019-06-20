@@ -3,10 +3,14 @@
 
 #include <stddef.h>
 #include <pcp/dict.h>
+#include <chan/chan.h>
 
 #include "config-reader.h"
-#include "statsd-parsers.h"
+#include "parsers.h"
+#include "network-listener.h"
 #include "pcp.h"
+
+typedef dict metrics;
 
 typedef struct metric_metadata {
     char* tags;
@@ -27,6 +31,15 @@ typedef struct metric {
     void* value;
 } metric;
 
+typedef struct aggregator_args
+{
+    agent_config* config;
+    chan_t* parsed_datagrams;
+    chan_t* pcp_request_channel;
+    chan_t* pcp_response_channel;
+    metrics* metrics_wrapper;
+} aggregator_args;
+
 typedef dict metrics;
 
 /**
@@ -37,9 +50,9 @@ metrics* init_metrics(agent_config* config);
 
 /**
  * Thread startpoint - passes down given datagram to aggregator to record value it contains
- * @arg args - (aggregator_args), see ~/src/statsd-parsers.h
+ * @arg args - (aggregator_args), see ~/src/network-listener.h
  */
-void* consume_datagram(void* args);
+void* aggregator_exec(void* args);
 
 /**
  * Sets flag notifying that output was requested
@@ -137,5 +150,15 @@ void free_metric_metadata(metric_metadata* meta);
  * @arg meta - Metric metadata
  */
 void print_metric_meta(FILE* f, metric_metadata* meta);
+
+/**
+ * Creates arguments for Agregator thread
+ * @arg config - Application config
+ * @arg parsed_channel - Parser -> Aggregator channel
+ * @arg pcp_request_channel - PCP -> Aggregator channel
+ * @arg pcp_response_channel - Aggregator -> PCP channel
+ * @return aggregator_args
+ */
+aggregator_args* create_aggregator_args(agent_config* config, chan_t* parsed_channel, chan_t* pcp_request_channel, chan_t* pcp_response_channel, metrics* m);
 
 #endif
