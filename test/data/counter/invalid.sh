@@ -12,7 +12,7 @@ echo "cache_cleared:-4|c"   | call_endpoint
 echo "cache_cleared:-1|c"   | call_endpoint
 
 ## Results:
-## This will successfuly get parsed but will be thrown away at later time when trying to update / create metric value in consumer
+## This will successfuly get parsed but will be thrown away at later time when trying to update / create metric value in aggregator
 ############################
 
 ############################

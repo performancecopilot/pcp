@@ -1,7 +1,12 @@
-#ifndef CONSUMERS_
-#define CONSUMERS_
+#ifndef AGGREGATORS_
+#define AGGREGATORS_
 
+#include <stddef.h>
 #include <pcp/dict.h>
+
+#include "config-reader.h"
+#include "statsd-parsers.h"
+#include "pcp.h"
 
 typedef struct metric_metadata {
     char* tags;
@@ -31,15 +36,15 @@ typedef dict metrics;
 metrics* init_metrics(agent_config* config);
 
 /**
- * Thread startpoint - passes down given datagram to consumer to record value it contains
- * @arg args - (consumer_args), see ~/statsd-parsers/statsd-parsers.h
+ * Thread startpoint - passes down given datagram to aggregator to record value it contains
+ * @arg args - (aggregator_args), see ~/src/statsd-parsers.h
  */
 void* consume_datagram(void* args);
 
 /**
  * Sets flag notifying that output was requested
  */
-void consumer_request_output();
+void aggregator_request_output();
 
 /**
  * Processes datagram struct into metric 
@@ -50,10 +55,21 @@ void consumer_request_output();
 void process_datagram(agent_config* config, metrics* m, statsd_datagram* datagram);
 
 /**
+ * NOT IMPLEMENTED
+ * Processes PCP PMDA request
+ * @arg config - Agent config
+ * @arg m - Metric struct acting as metrics wrapper
+ * @arg request - PCP PMDA request to be processed
+ * @arg out - Channel over which to send request response
+ */
+void process_pcp_request(agent_config* config, metrics* m, pcp_request* request, chan_t* out);
+
+/**
  * Frees metric
+ * @arg config
  * @arg metric - Metric to be freed
  */
-void free_metric(metric* metric);
+void free_metric(agent_config* config, metric* metric);
 
 /**
  * Writes information about recorded metrics into file
@@ -116,56 +132,10 @@ metric_metadata* create_metric_meta(statsd_datagram* datagram);
 void free_metric_metadata(metric_metadata* meta);
 
 /**
- * Represents basic duration aggregation unit
+ * Prints metadata 
+ * @arg f - Opened file handle, doesn't close it after finishing
+ * @arg meta - Metric metadata
  */
-typedef struct bduration_collection {
-    double** values;
-    long int length;
-} bduration_collection;
-
-/**
- * Collection of metadata of some duration collection 
- */
-typedef struct duration_values_meta {
-    double min;
-    double max;
-    double median;
-    double average;
-    double percentile90;
-    double percentile95;
-    double percentile99;
-    double count;
-    double std_deviation;
-} duration_values_meta;
-
-/**
- * Adds item to duration collection, no ordering happens on add
- * @arg collection - Collection to which value should be added
- * @arg value - New value
- */
-void add_bduration_item(bduration_collection* collection, double value);
-
-/**
- * Removes item from duration collection
- * @arg collection - Target collection
- * @arg value - Value to be removed, assuming primitive type
- * @return 0 on success
- */
-int remove_bduration_item(bduration_collection* collection, double value);
-
-/**
- * Prints duration collection metadata in human readable way
- * @arg f - Opened file handle, doesn't close it when finished
- * @arg collection - Target collection
- */
-void print_bdurations(FILE* f, bduration_collection* collection);
-
-/**
- * Gets duration values meta data from given collection, as a sideeffect it sorts the values
- * @arg collection - Target collection
- * @arg out - Placeholder for data population
- * @return 1 on success
- */
-int get_bduration_values_meta(bduration_collection* collection, duration_values_meta* out);
+void print_metric_meta(FILE* f, metric_metadata* meta);
 
 #endif

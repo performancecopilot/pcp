@@ -5,29 +5,41 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include "../config-reader/config-reader.h"
+#include "config-reader.h"
 
 /**
  * Checks if last allocation was OK 
  */
 #define ALLOC_CHECK(desc, ...) \
     if (errno == ENOMEM) { \
-        die(__FILE__, __LINE__, desc, ## __VA_ARGS__); \
+        DIE(desc, ## __VA_ARGS__); \
     } \
 
-// M/C/R-alloc can still return NULL when the address space is full.
+/**
+ * Checks if thread was OK
+ */
 #define PTHREAD_CHECK(ret) \
     if (ret != 0) { \
         if (ret == EAGAIN) { \
-            die(__FILE__, __LINE__, "Insufficient resources to create another thread."); \
+            DIE("Insufficient resources to create another thread."); \
         } \
         if (ret == EINVAL) { \
-            die(__FILE__, __LINE__, "Invalid settings in attr."); \
+            DIE("Invalid settings in attr."); \
         } \
         if (ret == EPERM) { \
-            die(__FILE__, __LINE__, "No permission to set the scheduling policy and parameters specified in attr."); \
+            DIE("No permission to set the scheduling policy and parameters specified in attr."); \
         } \
     } \
+
+/**
+ * Exists program
+ */
+#define DIE(format, ...)  die(__FILE__, __LINE__, format, ## __VA_ARGS__)
+
+/**
+ * Prints warning message
+ */
+#define WARN(format, ...) warn(__FILE__, __LINE__, format, ## __VA_ARGS__)
 
 /**
  * Kills application with given message

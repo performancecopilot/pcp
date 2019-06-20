@@ -7,12 +7,10 @@
 #include <netdb.h>
 #include <chan/chan.h>
 #include "statsd-parsers.h"
-#include "basic/basic.h"
-#include "ragel/ragel.h"
-#include "../utils/utils.h"
-
-const int PARSER_TRIVIAL = 0;
-const int PARSER_RAGEL = 1;
+#include "basic-parser.h"
+#include "ragel-parser.h"
+#include "utils.h"
+#include "config-reader.h"
 
 void* statsd_network_listen(void* args) {
     agent_config* config = ((statsd_listener_args*)args)->config;
@@ -27,14 +25,14 @@ void* statsd_network_listen(void* args) {
     struct addrinfo* res = 0;
     int err = getaddrinfo(hostname, config->port, &hints, &res);
     if (err != 0) {
-        die(__FILE__, __LINE__, "failed to resolve local socket address (err=%s)", gai_strerror(err));
+        DIE("failed to resolve local socket address (err=%s)", gai_strerror(err));
     }
     int fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if (fd == -1) {
-        die(__FILE__, __LINE__, "failed creating socket (err=%s)", strerror(errno));
+        DIE("failed creating socket (err=%s)", strerror(errno));
     }
     if (bind(fd, res->ai_addr, res->ai_addrlen) == -1) {
-        die(__FILE__, __LINE__, "failed binding socket (err=%s)", strerror(errno));
+        DIE("failed binding socket (err=%s)", strerror(errno));
     }
     verbose_log("Socket enstablished.");
     verbose_log("Waiting for datagrams.");
@@ -46,7 +44,7 @@ void* statsd_network_listen(void* args) {
     while(1) {
         ssize_t count = recvfrom(fd, buffer, max_udp_packet_size, 0, (struct sockaddr*)&src_addr, &src_addr_len);
         if (count == -1) {
-            die(__FILE__, __LINE__, "%s", strerror(errno));
+            DIE("%s", strerror(errno));
         } 
         // since we checked for -1
         else if ((signed int)count == max_udp_packet_size) { 
@@ -88,15 +86,28 @@ statsd_parser_args* create_parser_args(agent_config* config, chan_t* unprocessed
     return parser_args;
 }
 
-consumer_args* create_consumer_args(agent_config* config, chan_t* parsed_channel, metrics* m) {
-    struct consumer_args* consumer_args = (struct consumer_args*) malloc(sizeof(struct consumer_args));
+aggregator_args* create_aggregator_args(agent_config* config, chan_t* parsed_channel, chan_t* pcp_request_channel, chan_t* pcp_response_channel, metrics* m) {
+    struct aggregator_args* aggregator_args = (struct aggregator_args*) malloc(sizeof(struct aggregator_args));
     ALLOC_CHECK("Unable to assign memory for parser aguments.");
-    consumer_args->config = (agent_config*) malloc(sizeof(agent_config*));
+    aggregator_args->config = (agent_config*) malloc(sizeof(agent_config*));
     ALLOC_CHECK("Unable to assign memory for parser config.");
-    consumer_args->config = config;
-    consumer_args->parsed_datagrams = parsed_channel;
-    consumer_args->metrics_wrapper = m;
-    return consumer_args;
+    aggregator_args->config = config;
+    aggregator_args->parsed_datagrams = parsed_channel;
+    aggregator_args->pcp_request_channel = pcp_request_channel;
+    aggregator_args->pcp_response_channel = pcp_response_channel;
+    aggregator_args->metrics_wrapper = m;
+    return aggregator_args;
+}
+
+pcp_args* create_pcp_args(agent_config* config, chan_t* aggregator_request_channel, chan_t* aggregator_response_channel) {
+    struct pcp_args* pcp_args = (struct pcp_args*) malloc(sizeof(struct aggregator_args));
+    ALLOC_CHECK("Unable to assign memory for pcp thread arguments.");
+    pcp_args->config = (agent_config*) malloc(sizeof(agent_config*));
+    ALLOC_CHECK("Unable to assign memory for pcp thread config.");
+    pcp_args->config = config;
+    pcp_args->aggregator_request_channel = aggregator_request_channel;
+    pcp_args->aggregator_response_channel = aggregator_response_channel;
+    return pcp_args;
 }
 
 void print_out_datagram(statsd_datagram* datagram) {
@@ -136,7 +147,7 @@ void* statsd_parser_consume(void* args) {
     chan_t* parsed_channel = ((statsd_parser_args*)args)->parsed_datagrams;
     agent_config* config = ((statsd_parser_args*)args)->config;
     int (*parse_datagram)(char*, statsd_datagram**);
-    if ((int)config->parser_type == (int)PARSER_TRIVIAL) {
+    if ((int)config->parser_type == (int)PARSER_TYPE_BASIC) {
         parse_datagram = &basic_parser_parse;
     } else {
         // parse_datagram = &ragel_parser_parse;

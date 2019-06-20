@@ -1,36 +1,55 @@
 $(info Running PCP-STATSD makefile)
 
 TARGET_EXEC ?= pcp-statsd
+TEST_EXEC ?= basic-parser
 
-BUILD_DIR ?= ./build
+ROOT_BUILD_DIR ?= ./build
+MAIN_BUILD_DIR ?= $(ROOT_BUILD_DIR)/$(TARGET_EXEC)
+TEST_BUILD_DIR ?= $(ROOT_BUILD_DIR)/$(TEST_EXEC)
+
 SRC_DIRS ?= ./src
 
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
-OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+OBJS := $(SRCS:%=$(MAIN_BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
+
+TEST_OBJS := $(SRCS:%=$(TEST_BUILD_DIR)/%.o)
+TEST_DEPS := $(OBJS:.o=.d)
 
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
-LDLIBS := -lhdr_histogram_static -lchan -lm -lpthread -lpcp_web
+LDLIBS := -lhdr_histogram_static -lchan -lm -lpthread -lpcp_web -lpcp
 
 CFLAGS ?=-Wall -Wextra $(INC_FLAGS) -MMD -MP
 
-$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+all: $(MAIN_BUILD_DIR)/$(TARGET_EXEC)
+
+$(MAIN_BUILD_DIR)/$(TARGET_EXEC): CFLAGS += -D_TEST_TARGET=0
+$(MAIN_BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDLIBS)
 
+$(TEST_BUILD_DIR)/$(TEST_EXEC): CFLAGS += -D_TEST_TARGET=1
+$(TEST_BUILD_DIR)/$(TEST_EXEC): $(TEST_OBJS)
+	$(CC) $(TEST_OBJS) -o $@ $(LDLIBS)
+
 # c source
-$(BUILD_DIR)/%.c.o: %.c
+$(MAIN_BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
 	$(CC) $(CFLAGS) -g -c $< -o $@ 
 
-.PHONY: clean
+$(TEST_BUILD_DIR)/%.c.o: %.c
+	$(MKDIR_P) $(dir $@)
+	$(CC) $(CFLAGS) -g -c $< -o $@ 
+
+.PHONY: test
 
 clean:
-	$(RM) -r $(BUILD_DIR)
+	$(RM) -r $(ROOT_BUILD_DIR)
 
 run: 
-	./build/pcp-statsd
+	$(MAIN_BUILD_DIR)/$(TARGET_EXEC)
 
--include $(DEPS)
+test: $(TEST_BUILD_DIR)/$(TEST_EXEC)
+	$^
 
 MKDIR_P ?= mkdir -p

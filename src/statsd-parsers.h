@@ -3,8 +3,7 @@
 
 #include <pcp/dict.h>
 #include <chan/chan.h>
-
-#include "../config-reader/config-reader.h"
+#include "config-reader.h"
 
 typedef dict metrics;
 
@@ -55,14 +54,25 @@ typedef struct statsd_parser_args
 
 statsd_parser_args* create_parser_args(agent_config* config, chan_t* unprocessed_channel, chan_t* parsed_channel);
 
-typedef struct consumer_args
+typedef struct aggregator_args
 {
     agent_config* config;
     chan_t* parsed_datagrams;
+    chan_t* pcp_request_channel;
+    chan_t* pcp_response_channel;
     metrics* metrics_wrapper;
-} consumer_args;
+} aggregator_args;
 
-consumer_args* create_consumer_args(agent_config* config, chan_t* parsed_channel, metrics* m);
+aggregator_args* create_aggregator_args(agent_config* config, chan_t* parsed_channel, chan_t* pcp_request_channel, chan_t* pcp_response_channel, metrics* m);
+
+typedef struct pcp_args
+{
+    agent_config* config;
+    chan_t* aggregator_request_channel;
+    chan_t* aggregator_response_channel;
+} pcp_args;
+
+pcp_args* create_pcp_args(agent_config* config, chan_t* aggregator_request_channel, chan_t* aggregator_response_channel);
 
 void* statsd_parser_consume(void* args);
 

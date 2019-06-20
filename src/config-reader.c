@@ -1,10 +1,8 @@
 #include <getopt.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "config-reader.h"
-#include "../utils/utils.h"
-#include "../utils/ini.h"
+#include "utils.h"
+#include "ini.h"
 
 /**
  * Flags for available config source
@@ -27,8 +25,8 @@ static agent_config* get_default_config() {
     config->show_version = 0;
     config->port = (char *) "8125";
     config->tcp_address = (char *) "0.0.0.0";
-    config->parser_type = TRIVIAL;
-    config->duration_aggregation_type = HDR_HISTOGRAM; 
+    config->parser_type = PARSER_TYPE_BASIC;
+    config->duration_aggregation_type = DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM; 
     return config;
 }
 
@@ -41,7 +39,7 @@ static agent_config* get_default_config() {
 agent_config* read_agent_config(int src_flag, char* config_path, int argc, char **argv) {
     agent_config* config = get_default_config();
     if (!(src_flag == READ_FROM_CMD || src_flag == READ_FROM_FILE)) {
-        die(__FILE__, __LINE__, "Incorrect source flag for agent_config source.");
+        DIE("Incorrect source flag for agent_config source.");
     }
     if (src_flag == READ_FROM_FILE) {
         read_agent_config_file(&config, config_path);
@@ -95,10 +93,10 @@ static int ini_line_handler(void* user, const char* section, const char* name, c
  */
 void read_agent_config_file(agent_config** dest, char* path) {
     if (access(path, F_OK) == -1) {
-        die(__FILE__, __LINE__, "No config file found on given path");
+        DIE("No config file found on given path");
     }
     if (ini_parse(path, ini_line_handler, dest) < 0) {
-        die(__FILE__, __LINE__, "Can't load config file");
+        DIE("Can't load config file");
         return;
     }
     verbose_log("Config loaded from %s.", path);
@@ -174,7 +172,8 @@ void print_agent_config(agent_config* config) {
     printf("maxudp: %lu \n", config->max_udp_packet_size);
     printf("tcpaddr: %s \n", config->tcp_address);
     printf("port: %s \n", config->port);
-    printf("parser_type: %s \n", config->parser_type == 0 ? "TRIVIAL" : "RAGEL");
-    printf("duration_aggregation_type: %s\n", config->duration_aggregation_type == 0 ? "HDR_HISTOGRAM" : "BASIC");
+    printf("parser_type: %s \n", config->parser_type == PARSER_TYPE_BASIC ? "BASIC" : "RAGEL");
+    printf("duration_aggregation_type: %s\n", 
+        config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM ? "HDR_HISTOGRAM" : "BASIC");
     printf("---------------------------\n");
 }
