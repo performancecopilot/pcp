@@ -2,8 +2,8 @@
 #include <stdio.h>
 
 #include "utils.h"
-#include "consumers.h"
-#include "consumer-duration-hdr.h"
+#include "aggregators.h"
+#include "aggregator-duration-hdr.h"
 #include "config-reader.h"
 
 /**

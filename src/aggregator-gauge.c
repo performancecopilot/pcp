@@ -3,8 +3,8 @@
 
 #include "config-reader.h"
 #include "statsd-parsers.h"
-#include "consumers.h"
-#include "consumer-gauge.h"
+#include "aggregators.h"
+#include "aggregator-gauge.h"
 #include "errno.h"
 
 /**

@@ -1,5 +1,5 @@
-#ifndef CONSUMER_DURATION_HDR_
-#define CONSUMER_DURATION_HDR_
+#ifndef AGGREGATOR_DURATION_HDR_
+#define AGGREGATOR_DURATION_HDR_
 
 #include <hdr/hdr_histogram.h>
 #include <stdio.h>

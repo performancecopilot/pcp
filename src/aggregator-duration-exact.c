@@ -1,8 +1,8 @@
 #include <math.h>
 
 #include "utils.h"
-#include "consumers.h"
-#include "consumer-duration-exact.h"
+#include "aggregators.h"
+#include "aggregator-duration-exact.h"
 #include "config-reader.h"
 
 /**

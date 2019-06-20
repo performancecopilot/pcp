@@ -1,10 +1,10 @@
-#ifndef CONSUMER_COUNTER_
-#define CONSUMER_COUNTER_
+#ifndef AGGREGATOR_COUNTER_
+#define AGGREGATOR_COUNTER_
 
 #include <stdio.h>
 #include "config-reader.h"
 #include "statsd-parsers.h"
-#include "consumers.h"
+#include "aggregators.h"
 
 /**
  * Creates counter metric record

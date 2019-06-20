@@ -9,12 +9,13 @@
 #include "config-reader.h"
 #include "statsd-parsers.h"
 #include "utils.h"
-#include "consumers.h"
-#include "consumer-duration-exact.h"
-#include "consumer-duration-hdr.h"
-#include "consumer-duration.h"
-#include "consumer-counter.h"
-#include "consumer-gauge.h"
+#include "aggregators.h"
+#include "aggregator-duration-exact.h"
+#include "aggregator-duration-hdr.h"
+#include "aggregator-duration.h"
+#include "aggregator-counter.h"
+#include "aggregator-gauge.h"
+#include "pcp.h"
 
 /**
  * Flag to capture USR1 signal event, which is supposed mark request to output currently recorded data in debug file 
@@ -69,31 +70,36 @@ metrics* init_metrics(agent_config* config) {
 }
 
 /**
- * Thread startpoint - passes down given datagram to consumer to record value it contains
- * @arg args - (consumer_args), see ~/statsd-parsers/statsd-parsers.h
+ * Thread startpoint - passes down given datagram to aggregator to record value it contains
+ * @arg args - (aggregator_args), see ~/statsd-parsers/statsd-parsers.h
  */
 void* consume_datagram(void* args) {
-    chan_t* parsed = ((consumer_args*)args)->parsed_datagrams;
-    agent_config* config = ((consumer_args*)args)->config;
-    metrics* m = ((consumer_args*)args)->metrics_wrapper;
-    statsd_datagram *datagram = (statsd_datagram*) malloc(sizeof(statsd_datagram));
+    agent_config* config = ((aggregator_args*)args)->config;
+    chan_t* parsed = ((aggregator_args*)args)->parsed_datagrams;
+    chan_t* pcp_to_aggregator = ((aggregator_args*)args)->pcp_request_channel;
+    chan_t* aggregator_to_pcp = ((aggregator_args*)args)->pcp_response_channel;
+    metrics* m = ((aggregator_args*)args)->metrics_wrapper;
+    statsd_datagram* datagram = (statsd_datagram*) malloc(sizeof(statsd_datagram));
+    pcp_request* request = (pcp_request*) malloc(sizeof(pcp_request));
     while(1) {
         switch(chan_select(&parsed, 1, (void *)&datagram, NULL, 0, NULL)) {
             case 0:
                 process_datagram(config, m, datagram);
                 break;
-            default:
-                {
-                    pthread_mutex_lock(&g_output_requested_lock);
-                    if (g_output_requested) {
-                        verbose_log("Output of recorded values request caught.");
-                        print_metrics(config, m);
-                        verbose_log("Recorded values output.");
-                        g_output_requested = 0;
-                    }
-                    pthread_mutex_unlock(&g_output_requested_lock);
-                }
         }
+        switch(chan_select(&pcp_to_aggregator, 1, (void *)&request, NULL, 0, NULL)) {
+            case 0:
+                process_pcp_request(config, m, request, aggregator_to_pcp);
+                break;
+        }
+        pthread_mutex_lock(&g_output_requested_lock);
+        if (g_output_requested) {
+            verbose_log("Output of recorded values request caught.");
+            print_metrics(config, m);
+            verbose_log("Recorded values output.");
+            g_output_requested = 0;
+        }
+        pthread_mutex_unlock(&g_output_requested_lock);
     }
     free_datagram(datagram);
 }
@@ -101,7 +107,7 @@ void* consume_datagram(void* args) {
 /**
  * Sets flag notifying that output was requested
  */
-void consumer_request_output() {
+void aggregator_request_output() {
     pthread_mutex_lock(&g_output_requested_lock);
     g_output_requested = 1;
     pthread_mutex_unlock(&g_output_requested_lock);
@@ -155,6 +161,21 @@ void process_datagram(agent_config* config, metrics* m, statsd_datagram* datagra
             }
         }
     }
+}
+
+/**
+ * NOT IMPLEMENTED
+ * Processes PCP PMDA request
+ * @arg config - Agent config
+ * @arg m - Metric struct acting as metrics wrapper
+ * @arg request - PCP PMDA request to be processed
+ * @arg out - Channel over which to send request response
+ */
+void process_pcp_request(agent_config* config, metrics* m, pcp_request* request, chan_t* out) {
+    (void)config;
+    (void)m;
+    (void)request;
+    (void)out;
 }
 
 /**

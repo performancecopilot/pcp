@@ -1,12 +1,12 @@
-#ifndef CONSUMER_DURATION_
-#define CONSUMER_DURATION_
+#ifndef AGGREGATOR_DURATION_
+#define AGGREGATOR_DURATION_
 
 #include "config-reader.h"
 #include "statsd-parsers.h"
-#include "consumers.h"
-#include "consumer-duration.h"
-#include "consumer-duration-exact.h"
-#include "consumer-duration-hdr.h"
+#include "aggregators.h"
+#include "aggregator-duration.h"
+#include "aggregator-duration-exact.h"
+#include "aggregator-duration-hdr.h"
 #include "errno.h"
 
 /**

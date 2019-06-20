@@ -2,8 +2,8 @@
 
 #include "config-reader.h"
 #include "statsd-parsers.h"
-#include "consumers.h"
-#include "consumer-counter.h"
+#include "aggregators.h"
+#include "aggregator-counter.h"
 #include "errno.h"
 
 /**

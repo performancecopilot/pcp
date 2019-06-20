@@ -363,10 +363,11 @@ int main() {
 
     if (error_count == 0) {
         fprintf(stdout, GRN "TEST PASSED. " RESET "0 errors. \n"); \
+        return EXIT_SUCCESS;
     } else {
         fprintf(stdout, RED "TEST FAILED. " RESET "%ld errors. \n", error_count); \
+        return EXIT_FAILURE; // test failed
     }
-    return 0;
 }
 
 #endif

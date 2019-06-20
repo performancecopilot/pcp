@@ -1,11 +1,12 @@
-#ifndef CONSUMERS_
-#define CONSUMERS_
+#ifndef AGGREGATORS_
+#define AGGREGATORS_
 
 #include <stddef.h>
 #include <pcp/dict.h>
 
 #include "config-reader.h"
 #include "statsd-parsers.h"
+#include "pcp.h"
 
 typedef struct metric_metadata {
     char* tags;
@@ -35,15 +36,15 @@ typedef dict metrics;
 metrics* init_metrics(agent_config* config);
 
 /**
- * Thread startpoint - passes down given datagram to consumer to record value it contains
- * @arg args - (consumer_args), see ~/statsd-parsers/statsd-parsers.h
+ * Thread startpoint - passes down given datagram to aggregator to record value it contains
+ * @arg args - (aggregator_args), see ~/src/statsd-parsers.h
  */
 void* consume_datagram(void* args);
 
 /**
  * Sets flag notifying that output was requested
  */
-void consumer_request_output();
+void aggregator_request_output();
 
 /**
  * Processes datagram struct into metric 
@@ -52,6 +53,16 @@ void consumer_request_output();
  * @arg datagram - Datagram to be processed
  */
 void process_datagram(agent_config* config, metrics* m, statsd_datagram* datagram);
+
+/**
+ * NOT IMPLEMENTED
+ * Processes PCP PMDA request
+ * @arg config - Agent config
+ * @arg m - Metric struct acting as metrics wrapper
+ * @arg request - PCP PMDA request to be processed
+ * @arg out - Channel over which to send request response
+ */
+void process_pcp_request(agent_config* config, metrics* m, pcp_request* request, chan_t* out);
 
 /**
  * Frees metric

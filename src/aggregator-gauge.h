@@ -1,10 +1,10 @@
-#ifndef CONSUMER_GAUGE_
-#define CONSUMER_GAUGE_
+#ifndef AGGREGATOR_GAUGE_
+#define AGGREGATOR_GAUGE_
 
 #include <stdio.h>
 #include "config-reader.h"
 #include "statsd-parsers.h"
-#include "consumers.h"
+#include "aggregators.h"
 
 /**
  * Creates gauge metric record
