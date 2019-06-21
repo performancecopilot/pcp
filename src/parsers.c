@@ -20,8 +20,7 @@ void* parser_exec(void* args) {
     if ((int)config->parser_type == (int)PARSER_TYPE_BASIC) {
         parse_datagram = &basic_parser_parse;
     } else {
-        // parse_datagram = &ragel_parser_parse;
-        parse_datagram = &basic_parser_parse;
+        parse_datagram = &ragel_parser_parse;
     }
     unprocessed_statsd_datagram* datagram = (unprocessed_statsd_datagram*) malloc(sizeof(unprocessed_statsd_datagram));
     ALLOC_CHECK("Unable to allocate space for unprocessed statsd datagram.");

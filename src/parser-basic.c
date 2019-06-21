@@ -2,27 +2,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <pcp/pmapi.h>
 #include <sys/types.h>
 
 #include "utils.h"
-#include "network-listener.h"
 #include "parser-basic.h"
+#include "parsers-utils.h"
 #include "string.h"
 
-#define JSON_BUFFER_SIZE 4096
-
-typedef struct tag {
-    char* key;
-    char* value;
-} tag;
-
-typedef struct tag_collection {
-    tag** values;
-    long int length;
-} tag_collection;
-
-static char* tag_collection_to_json(tag_collection* tags);
 static int parse(char* buffer, statsd_datagram** datagram);
 
 /**
@@ -87,7 +73,7 @@ static int parse(char* buffer, statsd_datagram** datagram) {
             attr[current_segment_length] = '\0';
             ALLOC_CHECK("Not enough memory to parse StatsD datagram segment.");
             if (buffer[i] == ':' && previous_delimiter == ' ') {
-                if (!sanitize_string(attr)) {
+                if (!sanitize_string(attr, current_segment_length)) {
                     goto error_clean_up;
                 }
                 (*datagram)->metric = (char *) malloc(current_segment_length + 1);
@@ -101,7 +87,7 @@ static int parse(char* buffer, statsd_datagram** datagram) {
                 tag_allocated_flags = tag_allocated_flags | 1 << 1;
                 memcpy(tag_value, attr, current_segment_length + 1);
                 if (strcmp(tag_key, INSTANCE_TAG_IDENTIFIER) == 0) {
-                    if (!sanitize_string(attr)) {
+                    if (!sanitize_string(attr, current_segment_length)) {
                         goto error_clean_up;
                     }
                     (*datagram)->instance = (char *) malloc(current_segment_length + 1);
@@ -109,8 +95,8 @@ static int parse(char* buffer, statsd_datagram** datagram) {
                     field_allocated_flags = field_allocated_flags | 1 << 4;
                     memcpy((*datagram)->instance, attr, current_segment_length + 1);
                 } else {                    
-                    if (!sanitize_string(tag_key) ||
-                        !sanitize_string(tag_value)) {
+                    if (!sanitize_string(tag_key, current_segment_length) ||
+                        !sanitize_string(tag_value, current_segment_length)) {
                         goto error_clean_up;
                     }
                     int key_len = strlen(tag_key);
@@ -153,7 +139,7 @@ static int parse(char* buffer, statsd_datagram** datagram) {
                 memcpy(tag_key, attr, current_segment_length + 1);
                 previous_delimiter = '=';
             } else if (buffer[i] == ',') {
-                if (!sanitize_string(attr)) {
+                if (!sanitize_string(attr, current_segment_length)) {
                     goto error_clean_up;
                 }
                 (*datagram)->metric = (char *) malloc(current_segment_length + 1);
@@ -238,40 +224,6 @@ static int parse(char* buffer, statsd_datagram** datagram) {
     return 0;
 }
 
-static int tag_comparator(const void* x, const void* y) {
-    int res = strcmp((*(tag**)x)->key, (*(tag**)y)->key);
-    return res;
-}
-
-/**
- * Converts tag_collection* struct to JSON string that is sorted by keys
- */
-static char* tag_collection_to_json(tag_collection* tags) {
-    char buffer[JSON_BUFFER_SIZE];
-    qsort(tags->values, tags->length, sizeof(tag*), tag_comparator);
-    buffer[0] = '{';
-    int i;
-    int current_size = 1;
-    for (i = 0; i < tags->length; i++) {
-        if (i == 0) {
-            current_size += pmsprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, "\"%s\":\"%s\"",
-                tags->values[i]->key, tags->values[i]->value);
-        } else {
-            current_size += pmsprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, ",\"%s\":\"%s\"",
-                tags->values[i]->key, tags->values[i]->value);
-        }
-    }
-    if (current_size >= JSON_BUFFER_SIZE - 2) {
-        return NULL;
-    }
-    buffer[current_size] = '}';
-    buffer[current_size + 1] = '\0';
-    char* result = malloc(sizeof(char) * (current_size + 2));
-    ALLOC_CHECK("Unable to allocate memory for tags json.");
-    memcpy(result, buffer, current_size + 2);
-    return result;
-}
-
 /**
  * --------------------------------------
  * |                                    |
@@ -302,50 +254,6 @@ static char* tag_collection_to_json(tag_collection* tags) {
     } \
 
 #define SUITE_HEADER(format, ...) fprintf(stdout, CYN format RESET "\n", ## __VA_ARGS__);
-
-#define CHECK_DISCREPANCY(field, string)    (field != NULL && string != NULL && strcmp(field, string) != 0) || \
-                                            (field != NULL && string == NULL) || \
-                                            (field == NULL && string != NULL) \
-
-/**
- * Compares statsd_datagram with given metric paramaters
- * @return 0 on success, else mismatch count
- */
-static int assert_statsd_datagram_eq(
-    statsd_datagram** datagram,
-    char* metric,
-    char* tags,
-    char* instance,
-    char* value,
-    char* type,
-    char* sampling) {
-    long int err_count = 0;
-    if (CHECK_DISCREPANCY((*datagram)->metric, metric)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Metric name doesn't match! %s =/= %s \n", (*datagram)->metric, metric);
-    }
-    if (CHECK_DISCREPANCY((*datagram)->tags, tags)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Tags don't match! %s =/= %s \n", (*datagram)->tags, tags);
-    }
-    if (CHECK_DISCREPANCY((*datagram)->instance, instance)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Instance doesn't match! %s =/= %s \n", (*datagram)->instance, instance);
-    }
-    if (CHECK_DISCREPANCY((*datagram)->value, value)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Value doesn't match! %s =/= %s \n", (*datagram)->value, value);
-    }
-    if (CHECK_DISCREPANCY((*datagram)->type, type)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Type doesn't match! %s =/= %s \n", (*datagram)->type, type);
-    }
-    if (CHECK_DISCREPANCY((*datagram)->sampling, sampling)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Sampling doesn't match! %s =/= %s \n", (*datagram)->sampling, sampling);
-    }
-    return err_count;
-}
 
 int main() {
     fprintf(stdout, YEL "Running tests for basic statsd parser: " RESET "\n");

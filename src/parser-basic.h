@@ -1,5 +1,5 @@
-#ifndef BASIC_
-#define BASIC_
+#ifndef PARSER_BASIC_
+#define PARSER_BASIC_
 
 #include "parsers.h"
 

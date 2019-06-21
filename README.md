@@ -3,7 +3,7 @@
 # pcp-statsd-c
 PCP PMDA for StatsD in C
 
-You need to have **chan** [repo](https://github.com/tylertreat/chan) and **HdrHistogram_c** [repo](https://github.com/HdrHistogram/HdrHistogram_c) installed in your /usr/local dir.
+You need to have **chan** [repo](https://github.com/tylertreat/chan) and **HdrHistogram_c** [repo](https://github.com/HdrHistogram/HdrHistogram_c) installed in your /usr/local dir. You also need to have **Ragel** installed. 
 
 ## Installing **chan**
 ```
@@ -16,6 +16,11 @@ sudo make install
 ```
 cmake .
 sudo make install
+```
+
+# Installing **Ragel** (Fedora 30)
+```
+dnf install ragel
 ```
 
 ## Running pcp-statsd-c

@@ -73,12 +73,15 @@ void warn(char* filename, int line_number, const char* format, ...) {
  * @arg src - String to be sanitized
  * @return 1 on success
  */
-int sanitize_string(char *src) {
-    int segment_length = strlen(src);
+int sanitize_string(char *src, size_t num) {
+    size_t segment_length = strlen(src);
     if (segment_length == 0) {
         return 0;
     }
-    int i;
+    if (segment_length > num) {
+        segment_length = num;
+    }
+    size_t i;
     for (i = 0; i < segment_length; i++) {
         char current_char = src[i];
         if (((int) current_char >= (int) 'a' && (int) current_char <= (int) 'z') ||

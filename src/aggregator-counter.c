@@ -63,7 +63,7 @@ void print_counter_metric(agent_config* config, FILE* f, metric* item) {
     fprintf(f, "-----------------\n");
     fprintf(f, "name = %s\n", item->name);
     fprintf(f, "type = counter\n");
-    fprintf(f, "value = %f\n", *(double*)(item->value));
+    fprintf(f, "value = %lld\n", *(long long unsigned int*)(item->value));
     print_metric_meta(f, item->meta);
     fprintf(f, "\n");
 }

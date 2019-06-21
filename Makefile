@@ -9,6 +9,7 @@ TEST_BUILD_DIR ?= $(ROOT_BUILD_DIR)/$(TEST_EXEC)
 
 SRC_DIRS ?= ./src
 
+RAGEL_SRCS := $(shell find $(SRC_DIRS) -name *.rl)
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
 OBJS := $(SRCS:%=$(MAIN_BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
@@ -26,18 +27,22 @@ all: $(MAIN_BUILD_DIR)/$(TARGET_EXEC)
 
 $(MAIN_BUILD_DIR)/$(TARGET_EXEC): CFLAGS += -D_TEST_TARGET=0
 $(MAIN_BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+	ragel -C $(RAGEL_SRCS)
 	$(CC) $(OBJS) -o $@ $(LDLIBS)
 
 $(TEST_BUILD_DIR)/$(TEST_EXEC): CFLAGS += -D_TEST_TARGET=1
 $(TEST_BUILD_DIR)/$(TEST_EXEC): $(TEST_OBJS)
+	ragel -C $(RAGEL_SRCS)
 	$(CC) $(TEST_OBJS) -o $@ $(LDLIBS)
 
 # c source
 $(MAIN_BUILD_DIR)/%.c.o: %.c
+	ragel -C $(RAGEL_SRCS)
 	$(MKDIR_P) $(dir $@)
 	$(CC) $(CFLAGS) -g -c $< -o $@ 
 
 $(TEST_BUILD_DIR)/%.c.o: %.c
+	ragel -C $(RAGEL_SRCS)
 	$(MKDIR_P) $(dir $@)
 	$(CC) $(CFLAGS) -g -c $< -o $@ 
 

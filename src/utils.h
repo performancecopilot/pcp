@@ -63,7 +63,7 @@ void warn(char* filename, int line_number, const char* format, ...);
  * @arg src - String to be sanitized
  * @return 1 on success
  */
-int sanitize_string(char* src);
+int sanitize_string(char* src, size_t num);
 
 /**
  * Validates string
