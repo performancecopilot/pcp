@@ -120,7 +120,7 @@ int get_exact_duration_values_meta(exact_duration_collection* collection, durati
  * @arg collection - Target collection
  */
 void print_exact_durations(FILE* f, exact_duration_collection* collection) {
-    duration_values_meta meta = { 0 };
+    duration_values_meta meta = (duration_values_meta) { 0 };
     get_exact_duration_values_meta(collection, &meta);
     fprintf(f, "min             = %lf\n", meta.min);
     fprintf(f, "max             = %lf\n", meta.max);

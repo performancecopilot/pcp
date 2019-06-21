@@ -205,19 +205,6 @@ int ragel_parser_parse(char* str, statsd_datagram** datagram) {
 
 	}%%
 
-	// Cleaning any unused Ragel generated vars for no warning while compiling
-	(void)statsd_en_main;
-	(void)statsd_error;
-	(void)statsd_first_final;
-	(void)_statsd_nfa_pop_trans;
-	(void)_statsd_nfa_push_actions;
-	(void)_statsd_nfa_offsets;
-	(void)_statsd_nfa_targs;
-	(void)_statsd_cond_keys;
-	(void)_statsd_trans_lengths;
-	(void)_statsd_trans_offsets;
-	(void)_statsd_trans_cond_spaces;
-
 	if (any_tags) {
 		char* json = tag_collection_to_json(tags);
 		if (json != NULL) {
