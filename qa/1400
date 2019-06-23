@@ -1,0 +1,39 @@
+#!/bin/sh
+# PCP QA Test No. 1400
+# Exercise the pcp-free(1) command's -r/--terabytes which displays amount of memory 
+# in terabytes using an archive
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_free="$PCP_BINADM_DIR/pcp-free"
+test -x $pcp_free || _notrun "No pcp-free(1) installed"
+pcp_free="$python $pcp_free"
+
+# real QA test starts here
+echo && echo pcp-free output : Display the memory in kilobytes
+PCP_ARCHIVE="archives/pcp-free-tera" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_free
+
+archive_first="-a archives/pcp-free-tera -z -O +1"
+
+echo && echo pcp-free output : Display the memory in terabytes using -r flag
+pcp $archive_first free -r
+
+echo && echo pcp-free output : Display the memory in terabytes using --terabytes flag
+pcp $archive_first free --terabytes
+
+echo && echo pcp-free output : Display the memory in terabytes along with other flags
+pcp $archive_first free -r -c 2 -s 2.5
+
+pcp $archive_first free --terabytes -c 2 -s 2.5
+status=0
+exit

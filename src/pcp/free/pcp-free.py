@@ -49,12 +49,13 @@ class Free(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.override)
-        opts.pmSetShortOptions("bc:gklmots:V?")
+        opts.pmSetShortOptions("bc:gklmrots:V?")
         opts.pmSetLongOptionHeader("Options")
         opts.pmSetLongOption("bytes", 0, 'b', '', "show output in bytes")
         opts.pmSetLongOption("kilobytes", 0, 'k', '', "show output in KB")
         opts.pmSetLongOption("megabytes", 0, 'm', '', "show output in MB")
         opts.pmSetLongOption("gigabytes", 0, 'g', '', "show output in GB")
+        opts.pmSetLongOption("terabytes", 0, 'r', '', "show output in TB")
         opts.pmSetLongOption("", 0, 'o', '',
                              "use old format (no -/+buffers/cache line)")
         opts.pmSetLongOption("", 0, 'l', '',
@@ -85,6 +86,8 @@ class Free(object):
             self.shift = 20
         elif opt == 'g':
             self.shift = 30
+        elif opt == 'r':
+            self.shift = 40
         elif opt == 'o':
             self.show_compat = 1
         elif opt == 'l':

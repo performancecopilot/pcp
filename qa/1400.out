@@ -1,0 +1,41 @@
+QA output created by 1400
+
+pcp-free output : Display the memory in kilobytes
+             total       used       free     shared    buffers     cached
+Mem:    4144381172   29524816 4114856356          0       2260    3639464
+-/+ buffers/cache:   25883092 4118498080
+Swap       4194300          0    4194300
+
+pcp-free output : Display the memory in terabytes using -r flag
+             total       used       free     shared    buffers     cached
+Mem:             3          0          3          0          0          0
+-/+ buffers/cache:          0          3
+Swap             0          0          0
+
+pcp-free output : Display the memory in terabytes using --terabytes flag
+             total       used       free     shared    buffers     cached
+Mem:             3          0          3          0          0          0
+-/+ buffers/cache:          0          3
+Swap             0          0          0
+
+pcp-free output : Display the memory in terabytes along with other flags
+             total       used       free     shared    buffers     cached
+Mem:             3          0          3          0          0          0
+-/+ buffers/cache:          0          3
+Swap             0          0          0
+
+             total       used       free     shared    buffers     cached
+Mem:             3          0          3          0          0          0
+-/+ buffers/cache:          0          3
+Swap             0          0          0
+
+             total       used       free     shared    buffers     cached
+Mem:             3          0          3          0          0          0
+-/+ buffers/cache:          0          3
+Swap             0          0          0
+
+             total       used       free     shared    buffers     cached
+Mem:             3          0          3          0          0          0
+-/+ buffers/cache:          0          3
+Swap             0          0          0
+
