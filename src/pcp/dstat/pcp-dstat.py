@@ -1593,7 +1593,10 @@ class DstatTool(object):
             line = newline
         else:
             line = newline + line
-        oline = newoline + oline
+        if self.novalues:
+            oline = newoline
+        else:
+            oline = newoline + oline
 
         # Print stats
         sys.stdout.write(line + THEME['input'])
@@ -1615,7 +1618,7 @@ class DstatTool(object):
         # Finish the line
         if not op.update and self.novalues is False:
             sys.stdout.write('\n')
-        if self.output and step == self.delay:
+        if self.output and step == self.delay and self.novalues is False:
             outputfile.write('\n')
 
     def execute(self):
