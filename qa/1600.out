@@ -41,4 +41,5 @@ TIMESERIES
 TIMESERIES
     [TIMESTAMP] VALUE
     [TIMESTAMP] VALUE
+== verify archive removal
 == all done

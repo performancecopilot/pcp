@@ -163,6 +163,14 @@ pmseries $options -l $series | _filter_labels | _filter_series
 echo "== verify metric values" | tee -a  $seq.full
 pmseries $options sample.ulong.million[samples:2] | _filter_values | _filter_series
 
+#
+# verify discovery handling of archive deletion
+#
+echo "== verify archive removal" | tee -a  $seq.full
+rm -fr $base
+pmsleep 0.5	# allow filesystem event some time to arrive
+pmcd_wait -h localhost@localhost:$proxyport -v -t 1sec	# pmproxy still up?
+
 echo "== all done" | tee -a $seq.full
 
 # success, all done
