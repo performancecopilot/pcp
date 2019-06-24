@@ -761,8 +761,6 @@ HAVE_LIBUV
 libuv_LIBS
 libuv_CFLAGS
 HAVE_OPENSSL
-ssl_LIBS
-ssl_CFLAGS
 openssl_LIBS
 openssl_CFLAGS
 lib_for_regex
@@ -962,7 +960,6 @@ infodir
 docdir
 oldincludedir
 includedir
-runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -1056,8 +1053,6 @@ avahi_LIBS
 SYSTEMD_SYSTEMUNITDIR
 openssl_CFLAGS
 openssl_LIBS
-ssl_CFLAGS
-ssl_LIBS
 libuv_CFLAGS
 libuv_LIBS
 libvarlink_CFLAGS
@@ -1116,7 +1111,6 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
-runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1369,15 +1363,6 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
-  -runstatedir | --runstatedir | --runstatedi | --runstated \
-  | --runstate | --runstat | --runsta | --runst | --runs \
-  | --run | --ru | --r)
-    ac_prev=runstatedir ;;
-  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
-  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
-  | --run=* | --ru=* | --r=*)
-    runstatedir=$ac_optarg ;;
-
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1515,7 +1500,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir runstatedir
+		libdir localedir mandir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1668,7 +1653,6 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
-  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1806,8 +1790,6 @@ Some influential environment variables:
               C compiler flags for openssl, overriding pkg-config
   openssl_LIBS
               linker flags for openssl, overriding pkg-config
-  ssl_CFLAGS  C compiler flags for ssl, overriding pkg-config
-  ssl_LIBS    linker flags for ssl, overriding pkg-config
   libuv_CFLAGS
               C compiler flags for libuv, overriding pkg-config
   libuv_LIBS  linker flags for libuv, overriding pkg-config
@@ -10503,12 +10485,12 @@ if test -n "$openssl_CFLAGS"; then
     pkg_cv_openssl_CFLAGS="$openssl_CFLAGS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"openssl >= 1.1.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "openssl >= 1.1.0") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"openssl >= 1.1.1\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "openssl >= 1.1.1") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_openssl_CFLAGS=`$PKG_CONFIG --cflags "openssl >= 1.1.0" 2>/dev/null`
+  pkg_cv_openssl_CFLAGS=`$PKG_CONFIG --cflags "openssl >= 1.1.1" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -10520,12 +10502,12 @@ if test -n "$openssl_LIBS"; then
     pkg_cv_openssl_LIBS="$openssl_LIBS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"openssl >= 1.1.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "openssl >= 1.1.0") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"openssl >= 1.1.1\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "openssl >= 1.1.1") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_openssl_LIBS=`$PKG_CONFIG --libs "openssl >= 1.1.0" 2>/dev/null`
+  pkg_cv_openssl_LIBS=`$PKG_CONFIG --libs "openssl >= 1.1.1" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -10546,9 +10528,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        openssl_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "openssl >= 1.1.0" 2>&1`
+	        openssl_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "openssl >= 1.1.1" 2>&1`
         else
-	        openssl_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "openssl >= 1.1.0" 2>&1`
+	        openssl_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "openssl >= 1.1.1" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$openssl_PKG_ERRORS" >&5
@@ -10564,82 +10546,6 @@ else
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 	have_openssl=true
-fi
-if $have_openssl
-then
-    :
-else
-
-pkg_failed=no
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ssl" >&5
-$as_echo_n "checking for ssl... " >&6; }
-
-if test -n "$ssl_CFLAGS"; then
-    pkg_cv_ssl_CFLAGS="$ssl_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ssl >= 1.1.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "ssl >= 1.1.0") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_ssl_CFLAGS=`$PKG_CONFIG --cflags "ssl >= 1.1.0" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-if test -n "$ssl_LIBS"; then
-    pkg_cv_ssl_LIBS="$ssl_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ssl >= 1.1.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "ssl >= 1.1.0") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_ssl_LIBS=`$PKG_CONFIG --libs "ssl >= 1.1.0" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-
-
-
-if test $pkg_failed = yes; then
-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-
-if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-        _pkg_short_errors_supported=yes
-else
-        _pkg_short_errors_supported=no
-fi
-        if test $_pkg_short_errors_supported = yes; then
-	        ssl_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ssl >= 1.1.0" 2>&1`
-        else
-	        ssl_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ssl >= 1.1.0" 2>&1`
-        fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$ssl_PKG_ERRORS" >&5
-
-	have_openssl=false
-elif test $pkg_failed = untried; then
-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-	have_openssl=false
-else
-	ssl_CFLAGS=$pkg_cv_ssl_CFLAGS
-	ssl_LIBS=$pkg_cv_ssl_LIBS
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-	have_openssl=true
-fi
 fi
 HAVE_OPENSSL=$have_openssl
 

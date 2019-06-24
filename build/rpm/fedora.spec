@@ -222,7 +222,7 @@ BuildRequires: boost-devel
 BuildRequires: libuv-devel >= 1.16
 %endif
 %if !%{disable_openssl}
-BuildRequires: openssl-devel >= 1.0.1
+BuildRequires: openssl-devel >= 1.1.1
 %endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 7
 BuildRequires: perl-generators
