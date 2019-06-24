@@ -25,12 +25,34 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+hostname=`hostname`
+machineid=`_machine_id`
+if which domainname >/dev/null 2>&1
+then
+    domainname=`domainname`
+else
+    domainname=`hostname -d`
+fi
+[ -z "$domainname" ] && domainname=localdomain
+[ "$domainname" = "(none)" ] && domainname=localdomain
+
 _filter_html()
 {
     echo "== $@ ==" | tee -a $here/$seq.full
     tee -a $seq.full | \
     sed \
 	-e "s,pmproxy/$PCP_VERSION,pmproxy/VERSION,g" \
+    #end
+}
+
+_filter_text()
+{
+    echo "== $@ ==" | tee -a $here/$seq.full
+    tee -a $seq.full | \
+    sed \
+	-e "s/hostname=\"$hostname\"/hostname=\"HOSTNAME\"/g" \
+	-e "s/machineid=\"$machineid\"/machineid=\"MACHINEID\"/g" \
+	-e "s/domainname=\"$domainname\"/domainname=\"DOMAINNAME\"/g" \
     #end
 }
 
@@ -227,18 +249,19 @@ curl -s "http://localhost:$port/pmapi/indom?name=sample.bin&iname=bin-100,bin-20
 #curl -s "http://localhost:$port/pmapi/derive?expr=hinv.ncpu*42" \
 #	| _filter_json "missing derive name parameter"
 
+section "GET /metrics"
+# optional params: names, times
 
-#section "GET /metrics"
-## optional params: names, times
-#
-#curl -s "http://localhost:$port/pmapi/metrics&target=sample.long" \
-#	| _filter_json "scrape one metric tree"
-#curl -s "http://localhost:$port/pmapi/metrics&target=sample.bin" \
-#	| _filter_json "scrape metric instances"
-#curl -s "http://localhost:$port/metrics&names=sample.long.one,sample.long.ten" \
-#	| _filter_json "scrape two metrics"
-#curl -s "http://localhost:$port/metrics&name=no.such.metric" \
-#	| _filter_json "scrape bad metric name"
+curl -s "http://localhost:$port/pmapi/metrics?target=sample.long.one" \
+	| _filter_text "scrape one metric"
+curl -s "http://localhost:$port/metrics?names=sample.long.one,sample.long.ten" \
+	| _filter_text "scrape two metrics"
+curl -s "http://localhost:$port/metrics?names=no.such.metric" \
+	| _filter_json "scrape bad metric name"
+#curl -s "http://localhost:$port/pmapi/metrics?target=sample.long" \
+#	| _filter_text "scrape one metric tree"
+#curl -s "http://localhost:$port/pmapi/metrics?target=sample.bin" \
+#	| _filter_text "scrape metric instances"
 
 
 section "Generic errors - no handler, bad URLs"

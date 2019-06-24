@@ -89,6 +89,7 @@ void
 on_redis_client_close(struct client *client)
 {
     redisSlotsProxyFree(client->u.redis.reader);
+    free(client);
 }
 
 static void

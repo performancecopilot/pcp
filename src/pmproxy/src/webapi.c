@@ -424,7 +424,7 @@ on_pmwebapi_scrape(sds context, pmWebScrape *scrape, void *arg)
 	return 0;
     semantics = open_metrics_semantics(metric->sem);
     result = http_get_buffer(baton->client);
-    name = open_metrics_name(metric->name);
+    name = open_metrics_name(metric->name, baton->compat);
 
     if (baton->compat == 0) {	/* include pmid, indom and type */
 	pmIDStr_r(metric->pmid, pmidstr, sizeof(pmidstr));
@@ -452,7 +452,7 @@ on_pmwebapi_scrape(sds context, pmWebScrape *scrape, void *arg)
 	    quoted = sdscatrepr(quoted, instance->name, sdslen(instance->name));
 	    if (baton->compat == 0)
 		result = sdscatfmt(result,
-				"{instance.name=%S,instance.id=\"%u\"",
+				"{instance.name=%S,instance.id=%u",
 				quoted, instance->inst);
 	    else
 		result = sdscatfmt(result, "{instance=%S", quoted);

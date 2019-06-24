@@ -110,14 +110,15 @@ open_metrics_type_check(sds type)
 
 /* convert PCP metric name to Open Metrics form */
 sds
-open_metrics_name(sds metric)
+open_metrics_name(sds metric, int compat)
 {
     sds		p, name = sdsdup(metric);
+    char	sep = compat ? ':' : '_';
 
     for (p = name; p && *p; p++) {
-	/* swap dots with colons in name */
+	/* swap dots with underscores in name */
 	if (*p == '.')
-	    *p = ':';
+	    *p = sep;
     }
     return name;
 }

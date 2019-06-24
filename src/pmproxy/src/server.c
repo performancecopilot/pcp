@@ -131,6 +131,11 @@ on_client_close(uv_handle_t *handle)
 	fprintf(stderr, "%s: client %p connection closed\n",
 			"on_client_close", client);
 
+    /* remove client from the doubly-linked list */
+    if (client->next != NULL)
+	client->next->prev = client->prev;
+    *client->prev = client->next;
+
     switch (client->protocol) {
     case STREAM_PCP:
 	on_pcp_client_close(client);
@@ -144,13 +149,6 @@ on_client_close(uv_handle_t *handle)
     default:
 	break;
     }
-
-    /* remove client from the doubly-linked list */
-    if (client->next != NULL)
-	client->next->prev = client->prev;
-    *client->prev = client->next;
-
-    free(client);
 }
 
 void

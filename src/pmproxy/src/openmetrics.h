@@ -21,7 +21,7 @@
 extern int open_metrics_type_check(sds);
 
 /* convert PCP metric name to Open Metrics form */
-extern sds open_metrics_name(sds);
+extern sds open_metrics_name(sds, int);
 
 /* convert PCP metric type to Open Metrics form */
 extern sds open_metrics_semantics(sds);

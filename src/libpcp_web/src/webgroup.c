@@ -1297,7 +1297,7 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
     sdsfree(series);
     sdsfree(labels.buffer);
 
-    return sts;
+    return sts < 0 ? sts : 0;
 }
 
 static int
@@ -1332,6 +1332,9 @@ webgroup_scrape_batch(const char *name, void *arg)
     struct webscrape	*scrape = (struct webscrape *)arg;
     int			i, sts;
 
+    /* make sure we use the original caller supplied arg now */
+    arg = scrape->arg;
+
     if (scrape->names == NULL) {
 	scrape->names = calloc(DEFAULT_BATCHSIZE, sizeof(sds));
 	scrape->mplist = calloc(DEFAULT_BATCHSIZE, sizeof(metric_t *));
@@ -1354,70 +1357,67 @@ webgroup_scrape_batch(const char *name, void *arg)
     }
 }
 
+static int
+webgroup_scrape_tree(const char *prefix, struct webscrape *scrape, sds *msg)
+{
+    int			i, sts;
+    char		err[PM_MAXERRMSGLEN];
+
+    sts = pmTraversePMNS_r(prefix, webgroup_scrape_batch, scrape);
+    if (sts >= 0 && scrape->status >= 0 && scrape->numnames) {
+	/* complete any remaining (sub-batchsize) leftovers */
+	sts = webgroup_scrape_names(scrape->settings, scrape->context,
+				    scrape->numnames, scrape->names,
+				    &scrape->mplist, scrape->pmidlist,
+				    scrape->arg);
+	for (i = 0; i < scrape->numnames; i++)
+	    sdsfree(scrape->names[i]);
+	scrape->numnames = 0;
+    }
+    if (sts < 0)
+	infofmt(*msg, "'%s' - %s", prefix, pmErrStr_r(sts, err, sizeof(err)));
+    else {
+	sts = (scrape->status < 0) ? scrape->status : 0;
+    }
+    return sts;
+}
+
 void
 pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
+    struct webscrape	scrape = {0};
     struct context	*cp;
-    struct metric	*mplist;
-    const char		*root;
     size_t		length;
-    pmID		*pmidlist;
-    char		err[PM_MAXERRMSGLEN];
-    int			sts = 0, numnames = 0, i;
-    sds			msg = NULL, *names = NULL, metrics, prefix;
+    int			sts = 0, i, numnames = 0;
+    sds			msg = NULL, *names = NULL, metrics;
 
     if (params) {
 	if ((metrics = dictFetchValue(params, PARAM_MNAMES)) == NULL)
-	     metrics = dictFetchValue(params, PARAM_MNAME);
-	if ((prefix = dictFetchValue(params, PARAM_PREFIX)) == NULL)
-	    prefix = dictFetchValue(params, PARAM_TARGET);
+	     if ((metrics = dictFetchValue(params, PARAM_MNAME)) == NULL)
+		if ((metrics = dictFetchValue(params, PARAM_PREFIX)) == NULL)
+		    metrics = dictFetchValue(params, PARAM_TARGET);
     } else {
-	metrics = prefix = NULL;
+	metrics = NULL;
     }
 
     if (!(cp = webgroup_lookup_context(settings, &id, params, &sts, &msg, arg)))
 	goto done;
     id = cp->origin;
 
-    /* handle scrape via metric name list */
+    scrape.settings = settings;
+    scrape.context = cp;
+    scrape.arg = arg;
+
+    /* handle scrape via metric name list traversal (else entire namespace) */
     if (metrics && sdslen(metrics)) {
 	length = sdslen(metrics);
-	if ((names = sdssplitlen(metrics, length, ",", 1, &numnames)) == NULL ||
-	    webgroup_fetch_arrays(settings,
-				numnames, &mplist, &pmidlist, arg) < 0) {
-	    infofmt(msg, "out-of-memory on allocation");
-	    sts = -ENOMEM;
-	} else {
-	    webgroup_scrape_names(settings, cp,
-				numnames, names, &mplist, pmidlist, arg);
-	}
+	if ((names = sdssplitlen(metrics, length, ",", 1, &numnames)) == NULL)
+	    sts = webgroup_scrape_tree("", &scrape, &msg);
+	for (i = 0; i < numnames; i++)
+	    sts = webgroup_scrape_tree(names[i], &scrape, &msg);
+    } else {
+	sts = webgroup_scrape_tree("", &scrape, &msg);
     }
-    /* handle scrape via PMNS traversal */
-    else {
-	webscrape_t	scrape = {0};
-
-	scrape.settings = settings;
-	scrape.context = cp;
-	scrape.arg = arg;
-
-	if ((root = (const char *)prefix) == NULL)
-	    root = "";
-	sts = pmTraversePMNS_r(root, webgroup_scrape_batch, &scrape);
-	if (sts >= 0 && scrape.status >= 0 && scrape.numnames) {
-	    /* complete any remaining (sub-batchsize) leftovers */
-	    sts = webgroup_scrape_names(scrape.settings, cp,
-				scrape.numnames, scrape.names,
-				&scrape.mplist, scrape.pmidlist, arg);
-	    for (i = 0; i < scrape.numnames; i++)
-		sdsfree(scrape.names[i]);
-	    scrape.numnames = 0;
-	}
-	if (sts >= 0)
-	    sts = (scrape.status < 0) ? scrape.status : 0;
-	else
-	    infofmt(msg, "'%s' - %s", root, pmErrStr_r(sts, err, sizeof(err)));
-    }
-    sdsfreesplitres(names, numnames);
 
 done:
     settings->callbacks.on_done(id, sts, msg, arg);

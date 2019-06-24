@@ -627,6 +627,25 @@ Context successfully expired
     ]
 }
 
+*****   GET /metrics   *****
+
+== scrape one metric ==
+# PCP sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# TYPE sample_long_one gauge
+sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1
+== scrape two metrics ==
+# PCP sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# TYPE sample_long_one gauge
+sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1
+# PCP sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
+# TYPE sample_long_ten gauge
+sample_long_ten{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 10
+== scrape bad metric name ==
+{
+    "success": false,
+    "message": "'no.such.metric' - Unknown metric name"
+}
+
 *****   Generic errors - no handler, bad URLs   *****
 
 == no servlet ==

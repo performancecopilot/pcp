@@ -674,6 +674,7 @@ on_http_client_close(struct client *client)
     if (client->u.http.parameters)
 	dictRelease(client->u.http.parameters);
     memset(&client->u.http, 0, sizeof(client->u.http));
+    free(client);
 }
 
 static const http_parser_settings settings = {

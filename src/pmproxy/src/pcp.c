@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018-2019 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -19,12 +19,21 @@
 #define PDU_MAXLENGTH	(MAXHOSTNAMELEN + HEADER_LENGTH + sizeof("65536")-1)
 
 static void
+client_free(struct client *client)
+{
+    if (client->buffer)
+	sdsfree(client->buffer);
+    free(client);
+}
+
+static void
 on_server_close(uv_handle_t *handle)
 {
     struct client	*client = (struct client *)handle;
 
     if (pmDebugOptions.pdu)
 	fprintf(stderr, "client %p pmcd connection closed\n", client);
+    client_free(client);
 }
 
 static void
@@ -67,18 +76,21 @@ on_server_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 			"on_server_read", client, (long)nread);
 
     /* proxy data through to the client */
-    buffer = sdsnewlen(buf->base, nread);
-    client_write(client, buffer, NULL);
+    if (nread > 0) {
+	buffer = sdsnewlen(buf->base, nread);
+	client_write(client, buffer, NULL);
+    }
 }
 
 void
 on_pcp_client_close(struct client *client)
 {
-    if (client->u.pcp.connected)
+    if (client->u.pcp.connected) {
 	uv_close((uv_handle_t *)&client->u.pcp.socket, on_server_close);
-    if (client->buffer)
-	sdsfree(client->buffer);
-    memset(&client->u.pcp, 0, sizeof(client->u.pcp));
+	memset(&client->u.pcp, 0, sizeof(client->u.pcp));
+    } else {
+	client_free(client);
+    }
 }
 
 static void
