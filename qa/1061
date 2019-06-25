@@ -19,7 +19,7 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
 $python -c "import rtslib_fb" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "python rtslib module not installed"
+[ $? -eq 0 ] || _notrun "python rtslib_fb module not installed"
 
 which targetcli >/dev/null 2>&1 || _notrun "targetcli not installed"
 status=1	# failure is the default!
@@ -58,7 +58,7 @@ _prepare_pmda lio
 
 pmdalio_install
 
-$sudo python lio/lio_test.py 2>&1 | LC_COLLATE=POSIX sort | pmdalio_filter
+$sudo $python lio/lio_test.py 2>&1 | LC_COLLATE=POSIX sort | pmdalio_filter
 
 pmdalio_remove
 
