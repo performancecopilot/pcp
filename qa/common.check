@@ -1371,13 +1371,15 @@ fi
 
 _run_helgrind()
 {
-    rm -f $tmp.valgrind.err $tmp.valgrind.out $tmp.valgrind.log
-    touch $tmp.valgrind.err $tmp.valgrind.out $tmp.valgrind.log
+    $sudo rm -f $tmp.valgrind.err $tmp.valgrind.out $tmp.valgrind.log
+    touch $tmp.valgrind.err $tmp.valgrind.out
     if [ x"$1" = "x--sudo" ]
     then
+	$sudo touch $tmp.valgrind.log
 	_helgrind_prefix=$sudo
 	shift
     else
+	touch $tmp.valgrind.log
 	_helgrind_prefix=''
     fi
     __version=`valgrind --version | sed -e 's/valgrind-//'`
