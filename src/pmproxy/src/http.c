@@ -619,6 +619,7 @@ on_headers_complete(http_parser *request)
 {
     struct client	*client = (struct client *)request->data;
     struct servlet	*servlet = client->u.http.servlet;
+    int			sts = 0;
 
     if (pmDebugOptions.http)
 	fprintf(stderr, "HTTP headers complete (client=%p)\n", client);
@@ -627,7 +628,7 @@ on_headers_complete(http_parser *request)
 
     client->u.http.privdata = NULL;
     if (servlet->on_headers)
-	return servlet->on_headers(client, client->u.http.headers);
+	sts = servlet->on_headers(client, client->u.http.headers);
 
     /* HTTP Basic Auth for all servlets */
     if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) {
@@ -637,7 +638,7 @@ on_headers_complete(http_parser *request)
 	}
     }
 
-    return 0;
+    return sts;
 }
 
 static int

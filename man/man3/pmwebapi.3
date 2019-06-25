@@ -928,17 +928,15 @@ _
 expr	string	Derived metric expression
 name	string	New derived metric name
 _
-hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
-context	number	Web context identifier (optional like hostspec)
-polltimeout	number	Seconds of inactivity before context closed
 client	string	Request identifier sent back with response
 .TE
 .P
-Associated a new derived metric with either the given
-.IR context ,
-or a new context created with the given
-.IR hostspec .
-These derived metrics persist for the lifetime of the context.
+Create a new derived metric, as defined by the
+.BR pmRegisterDerived (3)
+metric interface.
+Derived metrics are not associated with any particular
+context and must be registered before creation (or reconnect)
+of any context wishing to use the new metric.
 .PP
 This interface is one of the few that allows a POST to be used
 in place of a GET.
@@ -950,12 +948,11 @@ multiple lines, as a convenience).
 $ curl -s http://localhost:44322/pmapi/derive?\\
 	name=blkio.avgsz&expr=disk.all.blktotal/disk.all.total | pmjson
 {
-  "context": 348734,
   "success": true
 }
 
 $ curl -s http://localhost:44322/pmapi/fetch?\\
-	context=348734&name=blkio.avgsz&samples=2 | pmjson
+	name=blkio.avgsz&samples=2 | pmjson
 {
   "context": 348734,
   "timestamp": 1547483648.2147428,

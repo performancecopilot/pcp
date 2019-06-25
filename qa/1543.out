@@ -646,6 +646,27 @@ sample_long_ten{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME
     "message": "'no.such.metric' - Unknown metric name"
 }
 
+*****   GET and POST /pmapi/derive   *****
+
+== derive by GET ==
+{
+    "success": true
+}
+== derive by POST ==
+{
+    "success": true
+}
+== missing derive expr parameter ==
+{
+    "message": "invalid derive parameters",
+    "success": false
+}
+== missing derive name parameter ==
+{
+    "message": "failed to parse derived metric \"hinv.ncpu*42\" on line 0 - incomplete expression\n",
+    "success": false
+}
+
 *****   Generic errors - no handler, bad URLs   *****
 
 == no servlet ==

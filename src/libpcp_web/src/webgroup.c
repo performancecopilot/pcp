@@ -320,6 +320,12 @@ pmWebGroupDestroy(pmWebGroupSettings *settings, sds id, void *arg)
 }
 
 static int
+ismarker(int c)
+{
+    return (c == '\r' || c == '\n' || c == '&' || c == ';');
+}
+
+static int
 webgroup_derived_metrics(sds config, sds *errmsg)
 {
     unsigned int	line = 0;
@@ -340,7 +346,7 @@ webgroup_derived_metrics(sds config, sds *errmsg)
 	    continue;
 	}
 	if (*p == '#') {
-	    while (*p != '\n' && p < end)
+	    while (!ismarker(*p) && p < end)
 	        p++;
 	    if (p == end)
 		break;
@@ -355,12 +361,12 @@ webgroup_derived_metrics(sds config, sds *errmsg)
 	if (p == end)
 	    break;
 	*p++ = '\0';
-	while ((isspace(*p) && *p != '\n') || *p == '=')
+	while ((isspace(*p) && !ismarker(*p)) || *p == '=')
 	    p++;
 
 	/* metric name is prepared - move onto the expression */
 	expr = p;
-	while (*p != '\n' && p < end)
+	while (!ismarker(*p) && p < end)
 	    p++;
 	if (p == end)
 	    break;
@@ -380,7 +386,7 @@ webgroup_derived_metrics(sds config, sds *errmsg)
     if (name) {
 	/* parsing error - incomplete specification */
 	infofmt(*errmsg, "failed to parse derived metric \"%s\""
-			"on line %u - incomplete expression\n", name, line);
+			" on line %u - incomplete expression\n", name, line);
 	return -EINVAL;
     }
 
@@ -388,12 +394,11 @@ webgroup_derived_metrics(sds config, sds *errmsg)
 }
 
 /*
- * Associate a derived metric expression with this web group context
+ * Register a derived metric expression for use with webgroup contexts
  */
 extern void
 pmWebGroupDerive(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
-    struct context	*cp;
     sds			msg = NULL, expr, metric, message;
     int			sts = 0;
 
@@ -404,10 +409,6 @@ pmWebGroupDerive(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	metric = expr = NULL;
     }
 
-    if (!(cp = webgroup_lookup_context(settings, &id, params, &sts, &msg, arg)))
-	goto done;
-
-    id = cp->origin;
     if (expr && !metric) {	/* configuration file mode */
 	sts = webgroup_derived_metrics(expr, &msg);
     } else if (expr && metric) {
@@ -420,8 +421,7 @@ pmWebGroupDerive(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	sts = -EINVAL;
     }
 
-done:
-    settings->callbacks.on_done(id, sts, msg, arg);
+    settings->callbacks.on_done(NULL, sts, msg, arg);
     sdsfree(msg);
 }
 

@@ -79,10 +79,20 @@ _filter_json()
 	    -e 's,"nsec": [0-9][0-9]*,"nsec": NANOSECONDS,g' \
 	    -e 's,"sec": [0-9][0-9]*,"sec": SECONDS,g' \
 	#end
+	last_context=`context < $tmp.filtered`
     else
 	echo "Invalid JSON: $status"
 	cat $tmp.unfiltered
     fi
+}
+
+context()
+{
+    grep '"context"' | \
+    sed \
+	-e 's/.*context\": //g' \
+	-e 's/,$//g' \
+    #end
 }
 
 section()
@@ -90,16 +100,6 @@ section()
     echo | tee -a $here/$seq.full
     echo "*****   $@   *****" | tee -a $here/$seq.full
     echo | tee -a $here/$seq.full
-}
-
-get_context()
-{
-    pmjson | \
-    grep '"context"' | \
-    sed \
-	-e 's/.*context\": //g' \
-	-e 's/,$//g' \
-    #end
 }
 
 # real QA test starts here
@@ -116,45 +116,37 @@ curl -s "http://localhost:$port/pmapi/context?hostname=localhost" \
 	| _filter_json "Check hostname parameter"
 
 curl -s "http://localhost:$port/pmapi/context?hostspec=localhost" \
-	| tee $tmp.json \
 	| _filter_json "Check hostspec parameter"
-context=`cat $tmp.json | get_context`
-echo "Using context: $context" >> $seq.full
-curl -s "http://localhost:$port/pmapi/$context/context" \
-	| tee $tmp.json \
+oldcontext="$last_context"
+echo "Using context: $oldcontext" >> $seq.full
+curl -s "http://localhost:$port/pmapi/$last_context/context" \
 	| _filter_json "Pinging active context via URL"
-urlcontext=`cat $tmp.json | get_context`
-if [ "$context" != "$urlcontext" ]; then
-	echo "Context mismatch (URL): \"$context\" not equal to \"$urlcontext\""
-	cat $tmp.json
+urlcontext="$last_context"
+if [ "$oldcontext" != "$urlcontext" ]; then
+	echo "Context mismatch (URL): \"$oldcontext\" not equal to \"$urlcontext\""
 else
 	echo "Context ping success"
 fi
 
 curl -s "http://localhost:$port/pmapi/context?polltimeout=250" \
-	| tee $tmp.json \
 	| _filter_json "Check polltimeout parameters"
-context=`cat $tmp.json | get_context`
-echo "Using context: $context" >> $seq.full
+oldcontext="$last_context"
+echo "Using context: $oldcontext" >> $seq.full
 pmsleep 250msec	# timeout this context
 pmsleep 100msec	# extra for slow test machines
-curl -s "http://localhost:$port/pmapi/$context/context" \
-	| tee $tmp.json \
+curl -s "http://localhost:$port/pmapi/$oldcontext/context" \
 	| _filter_json "Pinging now-expired context via URL"
-urlcontext=`cat $tmp.json | get_context`
-if [ "$context" != "$urlcontext" ]; then
-	echo "Context mismatch (URL): \"$context\" not equal to \"$urlcontext\""
-	cat $tmp.json
+urlcontext="$last_context"
+if [ "$oldcontext" != "$urlcontext" ]; then
+	echo "Context mismatch (URL): \"$oldcontext\" not equal to \"$urlcontext\""
 else
 	echo "Context successfully expired"
 fi
 curl -s "http://localhost:$port/pmapi/context?context=$urlcontext" \
-	| tee $tmp.json \
 	| _filter_json "Pinging now-expired context via parameter"
-paramctx=`cat $tmp.json | get_context`
-if [ "$context" != "$paramctx" ]; then
-	echo "Context mismatch (param): \"$context\" not equal to \"$paramctx\""
-	cat $tmp.json
+paramctx="$last_context"
+if [ "$oldcontext" != "$paramctx" ]; then
+	echo "Context mismatch (param): \"$oldcontext\" not equal to \"$paramctx\""
 else
 	echo "Context successfully expired"
 fi
@@ -234,21 +226,6 @@ curl -s "http://localhost:$port/pmapi/indom?name=sample.bin&iname=bin-100,bin-20
 #	| _filter_json "store value by pmid"
 
 
-#section "GET /pmapi/derive"
-## mandatory params: name, expr (or POST body)
-#curl -s "http://localhost:$port/pmapi/derive?name=a.new.metric&expr=hinv.ncpu*2" \
-#	| _filter_json "derive by GET"
-#cat > $tmp.out <<EOF
-#one.metric = hinv.ncpu
-#two.metric = hinv.ncpu * 2
-#EOF
-#curl -s "http://localhost:$port/pmapi/derive" -d @$tmp.out \
-#	| _filter_json "derive by POST"
-#curl -s "http://localhost:$port/pmapi/derive?name=a.new.metric" \
-#	| _filter_json "missing derive expr parameter"
-#curl -s "http://localhost:$port/pmapi/derive?expr=hinv.ncpu*42" \
-#	| _filter_json "missing derive name parameter"
-
 section "GET /metrics"
 # optional params: names, times
 
@@ -262,6 +239,22 @@ curl -s "http://localhost:$port/metrics?names=no.such.metric" \
 #	| _filter_text "scrape one metric tree"
 #curl -s "http://localhost:$port/pmapi/metrics?target=sample.bin" \
 #	| _filter_text "scrape metric instances"
+
+
+section "GET and POST /pmapi/derive"
+## mandatory params: name, expr (or POST body)
+curl -s "http://localhost:$port/pmapi/derive?name=qa.metric&expr=hinv.ncpu*2" \
+	| _filter_json "derive by GET"
+cat > $tmp.out <<EOF
+qa.one.metric = hinv.ncpu;
+qa.two.metric = hinv.ncpu * 2;
+EOF
+curl -s "http://localhost:$port/pmapi/derive" -d @$tmp.out \
+	| _filter_json "derive by POST"
+curl -s "http://localhost:$port/pmapi/derive?name=a.new.metric" \
+	| _filter_json "missing derive expr parameter"
+curl -s "http://localhost:$port/pmapi/derive?expr=hinv.ncpu*42" \
+	| _filter_json "missing derive name parameter"
 
 
 section "Generic errors - no handler, bad URLs"

@@ -556,14 +556,18 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
 	code = HTTP_STATUS_OK;
 	/* complete current response with JSON suffix if needed */
 	if ((msg = baton->suffix) == NULL) {	/* empty OK response */
-	    if (flags & HTTP_FLAG_JSON)
-		msg = sdsnew("{\"success\":true}\r\n");
-	    else
+	    if (flags & HTTP_FLAG_JSON) {
+		msg = sdsnewlen("{", 1);
+		if (context)
+		    msg = sdscatfmt(msg, "\"context\":%S,", context);
+		msg = sdscat(msg, "\"success\":true}\r\n");
+	    } else {
 		msg = sdsempty();
+	    }
 	}
 	baton->suffix = NULL;
     } else {
-	flags |= HTTP_FLAG_JSON;
+	flags |= HTTP_FLAG_JSON;	/* all errors in JSON */
 	if (((code = client->u.http.parser.status_code)) == 0) {
 	    if (status == -EPERM)
 		code = HTTP_STATUS_FORBIDDEN;
@@ -576,8 +580,11 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
 	    quoted = sdscatrepr(sdsempty(), message, sdslen(message));
 	else
 	    quoted = sdsnew("\"(none)\"");
-	msg = sdsempty();
-	msg = sdscatfmt(msg, "{\"success\":false,\"message\":%S}\r\n", quoted);
+	msg = sdsnewlen("{", 1);
+	if (context)
+	    msg = sdscatfmt(msg, "\"context\":%S,", context);
+	msg = sdscatfmt(msg, "\"message\":%S,", quoted);
+	msg = sdscat(msg, "\"success\":false}\r\n");
 	sdsfree(quoted);
     }
     http_reply(client, msg, code, flags);
@@ -624,12 +631,13 @@ pmwebapi_setup_request_parameters(struct client *client,
     switch (baton->restkey) {
     case RESTKEY_CONTEXT:
     case RESTKEY_METRIC:
-	/* no mandatory parameters to check */
+	client->u.http.flags |= HTTP_FLAG_JSON;
 	break;
 
     case RESTKEY_SCRAPE:
 	if (parameters && (entry = dictFind(parameters, PARAM_TIMES)))
 	     baton->times = (strcmp(dictGetVal(entry), "true") == 0);
+	client->u.http.flags |= HTTP_FLAG_TEXT;
 	break;
 
     case RESTKEY_FETCH:
@@ -639,6 +647,7 @@ pmwebapi_setup_request_parameters(struct client *client,
 	     dictFind(parameters, PARAM_PMID) == NULL &&
 	     dictFind(parameters, PARAM_PMIDS) == NULL))
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	client->u.http.flags |= HTTP_FLAG_JSON;
 	break;
 
     case RESTKEY_INDOM:
@@ -646,12 +655,14 @@ pmwebapi_setup_request_parameters(struct client *client,
 	    (dictFind(parameters, PARAM_INDOM) == NULL &&
 	     dictFind(parameters, PARAM_NAME) == NULL))
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	client->u.http.flags |= HTTP_FLAG_JSON;
 	break;
 
     case RESTKEY_PROFILE:
 	if (parameters == NULL ||
 	    dictFind(parameters, PARAM_INDOM) == NULL)
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	client->u.http.flags |= HTTP_FLAG_JSON;
 	break;
 
     case RESTKEY_STORE:
@@ -662,6 +673,7 @@ pmwebapi_setup_request_parameters(struct client *client,
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	else if (dictFind(parameters, PARAM_VALUE) == NULL)
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	client->u.http.flags |= HTTP_FLAG_JSON;
 	break;
 
     case RESTKEY_DERIVE:
@@ -676,6 +688,7 @@ pmwebapi_setup_request_parameters(struct client *client,
 	    dictFind(parameters, PARAM_NAME) == NULL &&
 	    dictFind(parameters, PARAM_EXPR) == NULL)
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	client->u.http.flags |= HTTP_FLAG_JSON;
 	break;
 
     case RESTKEY_NONE:
