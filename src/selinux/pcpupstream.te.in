@@ -251,11 +251,11 @@ allow pcp_pmie_t unconfined_t:process signal;
 @PCP_PMIE_UNCONFINED_SERVICE_RULE@
 
 #============= pmda-lio ==============
-#type=AVC msg=audit(XXX.55): avc:  denied  { open read search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0
-allow pcp_pmcd_t configfs_t:dir { open read search };
+#type=AVC msg=audit(XXX.55): avc:  denied  { open read search write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0
+allow pcp_pmcd_t configfs_t:dir { open read search write };
 
-#type=AVC msg=audit(XXX.56): avc:  denied  { getattr open read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=file permissive=0
-allow pcp_pmcd_t configfs_t:file { getattr open read };
+#type=AVC msg=audit(XXX.56): avc:  denied  { getattr ioctl open read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t configfs_t:file { getattr ioctl open read };
 
 #type=AVC msg=audit(XXX.57): avc:  denied  { getattr read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=lnk_file permissive=0
 allow pcp_pmcd_t configfs_t:lnk_file { getattr read };
