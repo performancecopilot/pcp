@@ -323,6 +323,11 @@ class PCPBCCBase(object):
             else:
                 return "0.5.0"
 
+    @staticmethod
+    def bcc_version_tuple():
+        """ Returns BCC version as an int tuple (for comparisons) """
+        return tuple(map(int, PCPBCCBase.bcc_version().split('.')))
+
     def perf_buffer_poller(self):
         """ BPF poller """
         try:
