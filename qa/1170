@@ -41,7 +41,7 @@ _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC tcptop module
 echo Started curl at $(date) >> $here/$seq.full
-curl -s http://${target_ip}
+curl -s http://${target_ip} > /dev/null
 
 # wait until PMDA refreshes BPF table containing curl
 _pmdabcc_wait_for_value bcc.proc.io.net.tcptop.daddr '"'${target_ip}'"'
