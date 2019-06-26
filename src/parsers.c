@@ -1,5 +1,6 @@
 
 #include <chan/chan.h>
+#include <string.h>
 
 #include "config-reader.h"
 #include "network-listener.h"
@@ -28,9 +29,14 @@ void* parser_exec(void* args) {
         *datagram = (unprocessed_statsd_datagram) { 0 };
         chan_recv(unprocessed_channel, (void *)&datagram);
         statsd_datagram* parsed;
-        int success = parse_datagram(datagram->value, &parsed);
-        if (success) {
-            chan_send(parsed_channel, parsed);
+        char delim[] = "\n";
+        char* tok = strtok(datagram->value, delim);
+        while (tok != NULL) {
+            int success = parse_datagram(tok, &parsed);
+            if (success) {            
+                chan_send(parsed_channel, parsed);
+            }
+            tok = strtok(NULL, delim);
         }
     }
 }
