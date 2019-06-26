@@ -20,4 +20,5 @@ before_install:
 script:
   - cd $TRAVIS_BUILD_DIR
   - make
-  - make test
+  - make test-ragel
+  - make test-basic

@@ -39,7 +39,8 @@ make run
 run tests with:
 
 ```
-make test
+make test-basic
+make test-ragel
 ```
 
 clean with:
