@@ -79,10 +79,11 @@ _filter_json()
 	    -e 's,"nsec": [0-9][0-9]*,"nsec": NANOSECONDS,g' \
 	    -e 's,"sec": [0-9][0-9]*,"sec": SECONDS,g' \
 	#end
-	last_context=`context < $tmp.filtered`
+	context < $tmp.filtered > $tmp.context
     else
 	echo "Invalid JSON: $status"
 	cat $tmp.unfiltered
+	rm -f $tmp.context
     fi
 }
 
@@ -117,11 +118,13 @@ curl -s "http://localhost:$port/pmapi/context?hostname=localhost" \
 
 curl -s "http://localhost:$port/pmapi/context?hostspec=localhost" \
 	| _filter_json "Check hostspec parameter"
-oldcontext="$last_context"
+oldcontext=`cat $tmp.context`
+
 echo "Using context: $oldcontext" >> $seq.full
-curl -s "http://localhost:$port/pmapi/$last_context/context" \
+curl -s "http://localhost:$port/pmapi/$oldcontext/context" \
 	| _filter_json "Pinging active context via URL"
-urlcontext="$last_context"
+urlcontext=`cat $tmp.context`
+
 if [ "$oldcontext" != "$urlcontext" ]; then
 	echo "Context mismatch (URL): \"$oldcontext\" not equal to \"$urlcontext\""
 else
@@ -130,13 +133,13 @@ fi
 
 curl -s "http://localhost:$port/pmapi/context?polltimeout=250" \
 	| _filter_json "Check polltimeout parameters"
-oldcontext="$last_context"
+oldcontext=`cat $tmp.context`
 echo "Using context: $oldcontext" >> $seq.full
 pmsleep 250msec	# timeout this context
 pmsleep 100msec	# extra for slow test machines
 curl -s "http://localhost:$port/pmapi/$oldcontext/context" \
 	| _filter_json "Pinging now-expired context via URL"
-urlcontext="$last_context"
+urlcontext=`cat $tmp.context`
 if [ "$oldcontext" != "$urlcontext" ]; then
 	echo "Context mismatch (URL): \"$oldcontext\" not equal to \"$urlcontext\""
 else
@@ -144,7 +147,7 @@ else
 fi
 curl -s "http://localhost:$port/pmapi/context?context=$urlcontext" \
 	| _filter_json "Pinging now-expired context via parameter"
-paramctx="$last_context"
+paramctx=`cat $tmp.context`
 if [ "$oldcontext" != "$paramctx" ]; then
 	echo "Context mismatch (param): \"$oldcontext\" not equal to \"$paramctx\""
 else

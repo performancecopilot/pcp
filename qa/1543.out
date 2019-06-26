@@ -236,8 +236,9 @@ Context successfully expired
 }
 == bad metric name ==
 {
-    "success": false,
-    "message": "bad.metric - Unknown metric name"
+    "context": "CONTEXT"
+    "message": "bad.metric - Unknown metric name",
+    "success": false
 }
 
 *****   GET /pmapi/fetch   *****
@@ -537,8 +538,9 @@ Context successfully expired
 }
 == bad indom name parameter ==
 {
-    "success": false,
-    "message": "no.such.metric - failed to lookup metric"
+    "context": "CONTEXT"
+    "message": "no.such.metric - failed to lookup metric",
+    "success": false
 }
 == bad indom parameter ==
 {
@@ -642,8 +644,9 @@ sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME
 sample_long_ten{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 10
 == scrape bad metric name ==
 {
-    "success": false,
-    "message": "'no.such.metric' - Unknown metric name"
+    "context": "CONTEXT"
+    "message": "'no.such.metric' - Unknown metric name",
+    "success": false
 }
 
 *****   GET and POST /pmapi/derive   *****

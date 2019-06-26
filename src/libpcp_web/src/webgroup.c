@@ -1288,7 +1288,6 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 	}
 	pmFreeResult(result);
     }
-    free(pmidlist);
 
     sdsfree(v);
     sdsfree(sems);
@@ -1417,6 +1416,12 @@ pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	    sts = webgroup_scrape_tree(names[i], &scrape, &msg);
     } else {
 	sts = webgroup_scrape_tree("", &scrape, &msg);
+    }
+
+    if (scrape.names) {
+	free(scrape.names);
+	free(scrape.mplist);
+	free(scrape.pmidlist);
     }
 
 done:
