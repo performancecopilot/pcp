@@ -1,5 +1,98 @@
 pcp-4.3.3 (28 June 2019)
-    - Work in progress, see https://pcp.io/roadmap
+    - Client tools and utilities:
+        pcp-dstat: prevent comma-only lines from being added to csv output
+        shell completions: add support for new -m option to pmlogcheck
+        pcp-free: Adding support for -r/ --terabytes flag.
+        pmproxy: consolidate the pmseries/grafana REST API
+        pmproxy: removed Grafana code to prepare for new API
+        pmseries: add a value retrieval API by series identifier
+        pmchart: fix handling of -z timezone option with no source
+        pcp-dstat: refactor time printing code for csv output
+        pmproxy: add new, async PMWEBAPI(3) REST API implementation
+        pcp-dstat: fix misaligned headers in CSV output
+        pmproxy.conf: comment out tls pki file paths by default
+        pcp-dstat: ensure duplicate columns collapse to just one
+        pmproxy: small improvements to messages logged at startup
+        pcp-dstat: fix handling of --bits command line option
+        pmproxy: initial secure socket connection code for pmproxy
+        pmproxy: fix memory leaks picked up by coverity scanning
+        pcp-dstat: fix typo in printtype detection
+    - PMDA additions, enhancements and bug fixes:
+        pmdabcc: fix tracepoints module for bcc 0.10.0 and later
+        pmdanfsclient: add per-op, per-mount rpc errors metrics
+        pmdalmsensors: improvements in name parsing and error handling
+        pmdalinux: add active and total slabs to slabinfo v2 parsing
+        pmdalinux: fix several unix socket and icmp6 metrics
+        pmdabcc: fix install (due to README rename)
+        nfsclient PMDA: fix some 32 -> U32 metadata types
+        pmdalinux: code re-factoring to reduce coverity scan noise
+    - Server-side utilities and log management scripts:
+        pmie_check: add systemctl pmie service dependency
+        logutil: add -m option to pmlogcheck to skip log volume checking
+        logutil: change pmlogger_daily_report to be an opt-in service
+        pmlogrewrite: fix compiler warnings, other small changes
+    - Security Enhanced Linux:
+        selinux: Fedora 29 changes for libvirt PMDA and pmmgr
+        selinux: remove old rules that have been superceded
+        selinux: conditionally re-introduce files_mmap_all_files() in policy
+        selinux: more unconfined_service_t (conditional) changes
+        src/selinux: more tweaking for unconfined_service_t (conditional)
+        configure.ac: more selinux changes
+        selinux/build: replace files_mmap_all_files() with explicit policy rule
+        configure.ac: fix bpf conditional test for selinux
+        selinux: Add pcp_domain level read access to maps
+        src/selinux/pcpupstream.te.in: changes from QA on vm26 (Fedora 27)
+        src/selinux/README: explain @FOO@ meta-syntax elements
+        selinux: allow a pmlogger_check.log file unlink/rename
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+        libpcp_web: resolve memory leak in map handling, from coverity scan
+        libpcp: prepare for the new async pmwebapi(3) implementation
+        python: fix pmcc time window handling
+        libpcp_web: add some pmDebug diags to discovery
+        python api: add explicit Py_None test on callback results
+        libpcp_web: update a couple of snprintf calls to pmsprintf
+        libpcp_web: update Redis client code with TLS/SSL support
+        libpcp: rework labels code to correct handle maps
+        libpcp_pmda: change semantics for empty indom cache file
+    - Misc build, infrastructure and packaging updates:
+        build: update openssl package checks in configure.ac
+        build: pmproxy.conf should be config(noreplace)
+        debian build: couple of packaging changes
+        Debian builds and libssl et al
+        build: update gitignore file to skip over a header symlink
+        build: add libuv-devel dep for pcp-testsuite building sources
+        configure.ac: need some more care with cleanup in selinux land
+        build: add provisioning/release.sh script for vagrantfiles
+        build: drop -y for bison
+        build: bump version numbers for next planned release
+        build: ensure new systemd timer configs are packaged
+        build: correct install locations of pmproxy configs
+        build: update fedora rpm changelog with another bz
+        build: remove selinux-policy-updates.patch from fedora.spec
+        build/qa: add new deps to dockerfiles, 
+	build: rename libopenssl-dev to libssl-dev in debian/control.master
+    - Documentation and QA infrastructure:
+        qa, pmproxy: fixes to derived metrics registration
+        qa: add minimal valgrind 3.15.0 suppressions (f30+)
+        qa: improve filtering of new service discovery names
+        docs: use same preamble for all api man pages
+        docs: Mention pcp archive support in sysstat 12.0.5 in sar2pcp manpage
+        qa: start simple test to trigger test setup in build phase
+        qa: include test durations
+        qa/admin/check-vm et al: changes for OpenSUSE Leap 15.0
+        qa: improve test report generation
+        qa: use travis only for coverity scan
+        qa: increase min kernel version for ucalls test 1173
+        qa: update slabinfo verification test to check PMDA changes
+        qa: replace travis with Azure Pipelines
+        qa: update tests for correct unix socket and icmp6 values
+        qa: additional filtering for latest valgrind versions
+        qa: fix incorrect (always null) diagnostic in derived.c
+        qa: many: purge explicit $seq.notrun uses and replace by _notrun()
+        qa/common.check: add $here prefix to $seq.pre-avc for rm in _notrun()
+        qa/admin/pcp-daily: conditionally run freespace
+        docs: all OSX instructions are in INSTALL.md now
+        docs: Tweak copyright years
 
 pcp-4.3.2 (26 April 2019)
     - Client tools and utilities:
