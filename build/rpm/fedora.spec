@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.3.2
+Version: 4.3.3
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -3302,8 +3302,9 @@ cd
 %endif
 
 %changelog
-* Fri Jun 28 2019 Nathan Scott <nathans@redhat.com> - 4.3.3-1
-- Work in progress, see https://pcp.io/roadmap
+* Fri Jun 28 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.3-1
+- Resolve segv running pmchart with bogus timezone (BZ 1718948)
+- Update to latest PCP sources.
 
 * Fri Apr 26 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.2-1
 - Resolve selinux policy issues for pmie daemon mode (BZ 1702589)
