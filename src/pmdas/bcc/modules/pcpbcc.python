@@ -370,7 +370,10 @@ class PCPBCCBase(object):
         Compat: bcc < 0.6.0
         source: https://github.com/iovisor/bcc/blame/master/src/python/bcc/__init__.py
         """
-        return self.get_syscall_prefix() + name
+        if hasattr(self.bpf, 'get_syscall_fnname'):
+            return self.bpf.get_syscall_fnname(name)
+        else:
+            return self.get_syscall_prefix() + name
 
     def get_kprobe_functions(self, event_re):
         """

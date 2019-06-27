@@ -57,6 +57,7 @@ require {
 	class dir { add_name open read search write getattr lock ioctl };
 	class unix_stream_socket connectto;
 	class capability { kill dac_override sys_ptrace net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
+	class capability2 { syslog };
 	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
 	class fifo_file { getattr read open unlink lock ioctl }; # qa/455
@@ -198,6 +199,9 @@ allow pcp_pmcd_t sysctl_irq_t:dir { search };
 
 #type=AVC msg=audit(XXX.41): avc:  denied  { signull } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kernel_t:s0 tclass=process permissive=0
 allow pcp_pmcd_t kernel_t:process signull;
+
+# pmda-bcc needs the ability to read addresses in /proc/kallsyms
+allow pcp_pmcd_t self:capability2 syslog;
 
 #RHBZ1690542
 #type=AVC msg=audit(XXX.67): avc:  denied  { module_request } for pid=YYYY comm="pmdalinux" kmod="netdev-tun0" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=system permissive=0
