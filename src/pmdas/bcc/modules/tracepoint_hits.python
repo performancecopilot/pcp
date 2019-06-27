@@ -81,7 +81,14 @@ class PCPBCCModule(PCPBCCBase):
 
         found = []
         for item in self.tracepoints:
-            tps = BPF.get_tracepoints(item + "$")
+            # commit https://github.com/iovisor/bcc/commit/d2a4626 changed
+            # signature of BPF.get_tracepoints to require a bytes object
+            # instead of a string
+            if self.bcc_version_tuple() >= (0, 10, 0):
+                tps = BPF.get_tracepoints(item.encode('utf-8') + b"$")
+            else:
+                tps = BPF.get_tracepoints(item + "$")
+
             if not tps:
                 self.log("Warning: ignoring unknown tracepoint '%s'." % item)
             for tp in tps:

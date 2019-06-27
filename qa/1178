@@ -46,7 +46,7 @@ EOF
 _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC tcpperpid module
-curl -s http://${target_ip} &
+curl -s http://${target_ip} > /dev/null &
 curlpid=$!
 
 pmsleep 3
