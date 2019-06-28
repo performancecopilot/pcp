@@ -1,99 +1,98 @@
 pcp-4.3.3 (28 June 2019)
     - Client tools and utilities:
+	pcp-dstat: prevent comma-only lines from being added to csv output
+	pcp-dstat: refactor time printing code for csv output
+	pcp-dstat: fix misaligned headers in CSV output
+	pcp-dstat: ensure duplicate columns collapse to just one
+	pcp-dstat: fix handling of --bits command line option
+	pcp-dstat: fix typo in printtype detection
+	pcp-free: Adding support for -r/ --terabytes flag.
+	pmchart: fix handling of -z timezone option with no source
 	pmrep: fix wait.formula for collectl-dm-sD and collectl-sD
-        pcp-dstat: prevent comma-only lines from being added to csv output
-        shell completions: add support for new -m option to pmlogcheck
-        pcp-free: Adding support for -r/ --terabytes flag.
-        pmproxy: consolidate the pmseries/grafana REST API
-        pmproxy: removed Grafana code to prepare for new API
-        pmseries: add a value retrieval API by series identifier
-        pmchart: fix handling of -z timezone option with no source
-        pcp-dstat: refactor time printing code for csv output
-        pmproxy: add new, async PMWEBAPI(3) REST API implementation
-        pcp-dstat: fix misaligned headers in CSV output
-        pmproxy.conf: comment out tls pki file paths by default
-        pcp-dstat: ensure duplicate columns collapse to just one
-        pmproxy: small improvements to messages logged at startup
-        pcp-dstat: fix handling of --bits command line option
-        pmproxy: initial secure socket connection code for pmproxy
-        pmproxy: fix memory leaks picked up by coverity scanning
-        pcp-dstat: fix typo in printtype detection
+	pmproxy: consolidate the pmseries/grafana REST API
+	pmproxy: removed Grafana code to prepare for new API
+	pmseries: add a value retrieval API by series identifier
+	pmproxy: add new, async PMWEBAPI(3) REST API implementation
+	pmproxy: small improvements to messages logged at startup
+	pmproxy: initial secure socket connection code for pmproxy
+	pmproxy: fix memory leaks picked up by coverity scanning
+	shell completions: add support for new -m option to pmlogcheck
     - PMDA additions, enhancements and bug fixes:
-        pmdabcc: fix tracepoints module for bcc 0.10.0 and later
-        pmdanfsclient: add per-op, per-mount rpc errors metrics
-        pmdalmsensors: improvements in name parsing and error handling
-        pmdalinux: add active and total slabs to slabinfo v2 parsing
-        pmdalinux: fix several unix socket and icmp6 metrics
-        pmdabcc: fix install (due to README rename)
-        nfsclient PMDA: fix some 32 -> U32 metadata types
-        pmdalinux: code re-factoring to reduce coverity scan noise
+	pmdabcc: fix tracepoints module for bcc 0.10.0 and later
+	pmdanfsclient: add per-op, per-mount rpc errors metrics
+	pmdalmsensors: improvements in name parsing and error handling
+	pmdalinux: add active and total slabs to slabinfo v2 parsing
+	pmdalinux: fix several unix socket and icmp6 metrics
+	pmdabcc: fix install (due to README rename)
+	nfsclient PMDA: fix some 32 -> U32 metadata types
+	pmdalinux: code re-factoring to reduce coverity scan noise
     - Server-side utilities and log management scripts:
-        pmie_check: add systemctl pmie service dependency
-        logutil: add -m option to pmlogcheck to skip log volume checking
-        logutil: change pmlogger_daily_report to be an opt-in service
-        pmlogrewrite: fix compiler warnings, other small changes
+	pmie_check: add systemctl pmie service dependency
+	logutil: add -m option to pmlogcheck to skip log volume checking
+	logutil: change pmlogger_daily_report to be an opt-in service
+	pmlogrewrite: fix compiler warnings, other small changes
     - Security Enhanced Linux:
-        selinux: Fedora 29 changes for libvirt PMDA and pmmgr
-        selinux: remove old rules that have been superceded
-        selinux: conditionally re-introduce files_mmap_all_files() in policy
-        selinux: more unconfined_service_t (conditional) changes
-        src/selinux: more tweaking for unconfined_service_t (conditional)
-        configure.ac: more selinux changes
-        selinux/build: replace files_mmap_all_files() with explicit policy rule
-        configure.ac: fix bpf conditional test for selinux
-        selinux: Add pcp_domain level read access to maps
-        src/selinux/pcpupstream.te.in: changes from QA on vm26 (Fedora 27)
-        src/selinux/README: explain @FOO@ meta-syntax elements
-        selinux: allow a pmlogger_check.log file unlink/rename
+	selinux: Fedora 29 changes for libvirt PMDA and pmmgr
+	selinux: remove old rules that have been superceded
+	selinux: conditionally re-introduce files_mmap_all_files() in policy
+	selinux: more unconfined_service_t (conditional) changes
+	src/selinux: more tweaking for unconfined_service_t (conditional)
+	configure.ac: more selinux changes
+	selinux/build: replace files_mmap_all_files() with explicit policy rule
+	configure.ac: fix bpf conditional test for selinux
+	selinux: Add pcp_domain level read access to maps
+	src/selinux/pcpupstream.te.in: changes from QA on vm26 (Fedora 27)
+	src/selinux/README: explain @FOO@ meta-syntax elements
+	selinux: allow a pmlogger_check.log file unlink/rename
     - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
-        libpcp_web: resolve memory leak in map handling, from coverity scan
-        libpcp: prepare for the new async pmwebapi(3) implementation
-        python: fix pmcc time window handling
-        libpcp_web: add some pmDebug diags to discovery
-        python api: add explicit Py_None test on callback results
-        libpcp_web: update a couple of snprintf calls to pmsprintf
-        libpcp_web: update Redis client code with TLS/SSL support
-        libpcp: rework labels code to correct handle maps
-        libpcp_pmda: change semantics for empty indom cache file
+	libpcp_web: resolve memory leak in map handling, from coverity scan
+	libpcp: prepare for the new async pmwebapi(3) implementation
+	python: fix pmcc time window handling
+	libpcp_web: add some pmDebug diags to discovery
+	python api: add explicit Py_None test on callback results
+	libpcp_web: update a couple of snprintf calls to pmsprintf
+	libpcp_web: update Redis client code with TLS/SSL support
+	libpcp: rework labels code to correct handle maps
+	libpcp_pmda: change semantics for empty indom cache file
     - Misc build, infrastructure and packaging updates:
-        build: update openssl package checks in configure.ac
-        build: pmproxy.conf should be config(noreplace)
-        debian build: couple of packaging changes
-        Debian builds and libssl et al
-        build: update gitignore file to skip over a header symlink
-        build: add libuv-devel dep for pcp-testsuite building sources
-        configure.ac: need some more care with cleanup in selinux land
-        build: add provisioning/release.sh script for vagrantfiles
-        build: drop -y for bison
-        build: bump version numbers for next planned release
-        build: ensure new systemd timer configs are packaged
-        build: correct install locations of pmproxy configs
-        build: update fedora rpm changelog with another bz
-        build: remove selinux-policy-updates.patch from fedora.spec
-        build/qa: add new deps to dockerfiles, 
+	build: update openssl package checks in configure.ac
+	build: pmproxy.conf should be config(noreplace)
+	debian build: couple of packaging changes
+	Debian builds and libssl et al
+	build: update gitignore file to skip over a header symlink
+	build: add libuv-devel dep for pcp-testsuite building sources
+	configure.ac: need some more care with cleanup in selinux land
+	build: add provisioning/release.sh script for vagrantfiles
+	build: drop -y for bison
+	build: bump version numbers for next planned release
+	build: ensure new systemd timer configs are packaged
+	build: correct install locations of pmproxy configs
+	build: update fedora rpm changelog with another bz
+	build: remove selinux-policy-updates.patch from fedora.spec
+	build/qa: add new deps to dockerfiles, 
 	build: rename libopenssl-dev to libssl-dev in debian/control.master
     - Documentation and QA infrastructure:
-        qa, pmproxy: fixes to derived metrics registration
-        qa: add minimal valgrind 3.15.0 suppressions (f30+)
-        qa: improve filtering of new service discovery names
-        docs: use same preamble for all api man pages
-        docs: Mention pcp archive support in sysstat 12.0.5 in sar2pcp manpage
-        qa: start simple test to trigger test setup in build phase
-        qa: include test durations
-        qa/admin/check-vm et al: changes for OpenSUSE Leap 15.0
-        qa: improve test report generation
-        qa: use travis only for coverity scan
-        qa: increase min kernel version for ucalls test 1173
-        qa: update slabinfo verification test to check PMDA changes
-        qa: replace travis with Azure Pipelines
-        qa: update tests for correct unix socket and icmp6 values
-        qa: additional filtering for latest valgrind versions
-        qa: fix incorrect (always null) diagnostic in derived.c
-        qa: many: purge explicit $seq.notrun uses and replace by _notrun()
-        qa/common.check: add $here prefix to $seq.pre-avc for rm in _notrun()
-        qa/admin/pcp-daily: conditionally run freespace
-        docs: all OSX instructions are in INSTALL.md now
-        docs: Tweak copyright years
+	qa, pmproxy: fixes to derived metrics registration
+	qa: add minimal valgrind 3.15.0 suppressions (f30+)
+	qa: improve filtering of new service discovery names
+	docs: use same preamble for all api man pages
+	docs: Mention pcp archive support in sysstat 12.0.5 in sar2pcp manpage
+	qa: start simple test to trigger test setup in build phase
+	qa: include test durations
+	qa/admin/check-vm et al: changes for OpenSUSE Leap 15.0
+	qa: improve test report generation
+	qa: use travis only for coverity scan
+	qa: increase min kernel version for ucalls test 1173
+	qa: update slabinfo verification test to check PMDA changes
+	qa: replace travis with Azure Pipelines
+	qa: update tests for correct unix socket and icmp6 values
+	qa: additional filtering for latest valgrind versions
+	qa: fix incorrect (always null) diagnostic in derived.c
+	qa: many: purge explicit $seq.notrun uses and replace by _notrun()
+	qa/common.check: add $here prefix to $seq.pre-avc for rm in _notrun()
+	qa/admin/pcp-daily: conditionally run freespace
+	docs: all OSX instructions are in INSTALL.md now
+	docs: Tweak copyright years
 
 pcp-4.3.2 (26 April 2019)
     - Client tools and utilities:
@@ -166,10 +165,10 @@ pcp-4.3.1 (27 February 2019)
 	pcp-dstat: improve --time option handling with no other arguments
 	pcp-dstat: handle complete instance removal with --full mode
 	pcp-atop: update to v2.4.0 atoptool.nl sources
-        . reporting pressure stall information
-        . reporting infiniband statistics
-        . reporting perf_event statistics
-        . reporting nvidia GPU stats 
+	. reporting pressure stall information
+	. reporting infiniband statistics
+	. reporting perf_event statistics
+	. reporting nvidia GPU stats 
 	pmseries: error handling improvements when parsing fails
 	pmseries: ensure commas separate labels in metadata reporting
 	pmseries: improve user friendliness of option handling
@@ -346,8 +345,8 @@ pcp-4.2.0 (16 November 2018)
 	- selinux: RHBZ1626487 unix_read on gpsd_t:shm
 	- selinux: RHBZ1633211 bpf class & inheritence issues
 	- selinux: RHBZ1634205 add pmlogger/cache_home context dir:search
-        - selinux: RHBZ1635394 fix configure glue to trigger existing rule inclusion
-        - selinux: RHBZ1535522 add pmcd/cache_home context dir:search
+	- selinux: RHBZ1635394 fix configure glue to trigger existing rule inclusion
+	- selinux: RHBZ1535522 add pmcd/cache_home context dir:search
     - Misc build, infrastructure and packaging updates:
 	- build: Fix FreeBSD Qt builds
 	- build: fix a number of Debian packaging issues
@@ -379,7 +378,7 @@ pcp-4.1.3 (21 September 2018)
 	- docs Improve pcp2spark man page, add readme and examples
 	- pcp2spark: add bash/zsh completions
     - PMDA additions, enhancements and bug fixes:
-        - provide trivial-pmda perl and python versions as well
+	- provide trivial-pmda perl and python versions as well
 	- pmdakvm: fix checks for running without perf_event support
 	- pmdaperfevent: return correct CPU numbers in lower SMT levels
 	- pmdapostgresql: support postgresql v10, implement reconnection
@@ -872,39 +871,39 @@ pcp-4.0.1 (29 March 2018)
 
 pcp-4.0.0 (16 February 2018)
     - Support metric labels as first class PCP metadata
-        - libpcp: over-the-wire protocol support for labels
-        - libpcp: store metric labels in archives
-        - dbpmda: new commands for exercising metric labels
-        - pmdaproc: add proc.* and cgroup.* metric labels
-        - pmdalinux: add disk, CPU, NUMA node and other labels
-        - pmdapmcd: add pmcd.labels metric (/etc/pcp/labels)
-        - pmdaprometheus: add support for Prometheus labels
-        - pmcd: support label PDUs between clients and PMDAs
-        - pminfo: add new -l/--labels option
-        - pmlogger: support storing labels in archives
-        - pmdumplog: support for dumping labels in archives
-        - pmlogextract: support for labels in input archives
-        - pmlogrewrite: support for changing labels in archives
-        - libpcp_pmda: support for metric label PDUs
-        - libpcp_pmda: new pmdaLabel(3), pmdaSetLabelCallBack(3) APIs
-        - docs: upate pmlogger on-disk format docs for labels
+	- libpcp: over-the-wire protocol support for labels
+	- libpcp: store metric labels in archives
+	- dbpmda: new commands for exercising metric labels
+	- pmdaproc: add proc.* and cgroup.* metric labels
+	- pmdalinux: add disk, CPU, NUMA node and other labels
+	- pmdapmcd: add pmcd.labels metric (/etc/pcp/labels)
+	- pmdaprometheus: add support for Prometheus labels
+	- pmcd: support label PDUs between clients and PMDAs
+	- pminfo: add new -l/--labels option
+	- pmlogger: support storing labels in archives
+	- pmdumplog: support for dumping labels in archives
+	- pmlogextract: support for labels in input archives
+	- pmlogrewrite: support for changing labels in archives
+	- libpcp_pmda: support for metric label PDUs
+	- libpcp_pmda: new pmdaLabel(3), pmdaSetLabelCallBack(3) APIs
+	- docs: upate pmlogger on-disk format docs for labels
     - libpcp: store metric help text in archives for pmLookupText(3)
     - PMAPI and PMDA API refactoring, promotion and deprecation
-        - libpcp: pmapi.h, impl.h, libpcp.h header refactoring
-        - libpcp: several impl.h data structures made internal
-        - libpcp: several impl.h interfaces cleaned, documented and
-          promoted into new PMAPI routines - e.g. pmGetProgname(3),
-          pmSetProgname(3), pmID_build(3), pmInDom_build(3),
-          pmOpenLog(3), pmGetAPIConfig(3), pmNoMem(3), pmSyslog(3),
-          pmNotifyErr(3), pmPrintStamp(3), pmPathSeparator(3),
-          pmGetUsername(3), pmSpecLocalPMDA(3).
-        - libpcp: hide details of pmlc/pmlogger communication
-        - libpcp: hide all internal PDU and PDUbuf details
+	- libpcp: pmapi.h, impl.h, libpcp.h header refactoring
+	- libpcp: several impl.h data structures made internal
+	- libpcp: several impl.h interfaces cleaned, documented and
+	  promoted into new PMAPI routines - e.g. pmGetProgname(3),
+	  pmSetProgname(3), pmID_build(3), pmInDom_build(3),
+	  pmOpenLog(3), pmGetAPIConfig(3), pmNoMem(3), pmSyslog(3),
+	  pmNotifyErr(3), pmPrintStamp(3), pmPathSeparator(3),
+	  pmGetUsername(3), pmSpecLocalPMDA(3).
+	- libpcp: hide details of pmlc/pmlogger communication
+	- libpcp: hide all internal PDU and PDUbuf details
     - Asynchronous notification of metric name changes
-        - libpcp: fetch protocol support for async name changes
-        - pmlogger: dynamic reevaluation of metric name changes
-        - libpcp_pmda: support for PMDAs with dynamic name changes
-        - docs: describe async name change protocol on pmFetch(3)
+	- libpcp: fetch protocol support for async name changes
+	- pmlogger: dynamic reevaluation of metric name changes
+	- libpcp_pmda: support for PMDAs with dynamic name changes
+	- docs: describe async name change protocol on pmFetch(3)
     - pmdadm: add new VDO (virtual data optimizer) metrics
     - pmdabcc: new PMDA exporting BCC/eBPF trace instrumentation
     - pmdaproc: fix issue with resolving ttynames below /dev
@@ -3710,98 +3709,98 @@ pcp-2.3.0-10 (16 December 2002)
       include the following:
 
       (new) Total idle time since boot
-            kernel.all.idletime
+	    kernel.all.idletime
       
       (new) current # of user sessions
-            kernel.all.nusers
+	    kernel.all.nusers
       
       (new) Last pid used
-            kernel.all.lastpid
+	    kernel.all.lastpid
       
       (new) Filesystem blocksize from statfs()
-            filesys.blocksize
+	    filesys.blocksize
       
       (new) Filesystem free space available to non-superusers from statfs()
-            filesys.avail
+	    filesys.avail
       
       (modified) Per process command name
-            proc.psinfo.cmd
+	    proc.psinfo.cmd
       
       (new) Per process command line from /proc/<pid>/cmdline
-            proc.psinfo.psargs
+	    proc.psinfo.psargs
       
       (new) Per process CPU number from /proc/<pid>/stat
-            proc.psinfo.processor
+	    proc.psinfo.processor
       
       (new) Per process wait channel symbol name
-            proc.psinfo.wchan_s
+	    proc.psinfo.wchan_s
       
       (new) Per process signal info from /proc/<pid>/status
-            proc.psinfo.signal_s
-            proc.psinfo.blocked_s
-            proc.psinfo.sigignore_s
-            proc.psinfo.sigcatch_s
+	    proc.psinfo.signal_s
+	    proc.psinfo.blocked_s
+	    proc.psinfo.sigignore_s
+	    proc.psinfo.sigcatch_s
       
       (new) Per process map info from /proc/<pid>/maps
-            proc.memory.maps
+	    proc.memory.maps
       
       (new) Per process memory info from /proc/<pid>/status
-            proc.memory.vmsize
-            proc.memory.vmlock
-            proc.memory.vmrss
-            proc.memory.vmdata
-            proc.memory.vmstack
-            proc.memory.vmexe
-            proc.memory.vmlib
+	    proc.memory.vmsize
+	    proc.memory.vmlock
+	    proc.memory.vmrss
+	    proc.memory.vmdata
+	    proc.memory.vmstack
+	    proc.memory.vmexe
+	    proc.memory.vmlib
       
       (new) Per process user and group ids from /proc/<pid>/status
-            proc.id.uid
-            proc.id.euid
-            proc.id.suid
-            proc.id.fsuid
-            proc.id.gid
-            proc.id.egid
-            proc.id.sgid
-            proc.id.fsgid
+	    proc.id.uid
+	    proc.id.euid
+	    proc.id.suid
+	    proc.id.fsuid
+	    proc.id.gid
+	    proc.id.egid
+	    proc.id.sgid
+	    proc.id.fsgid
       
       (new) Per process user and group ids converted to names
-            proc.id.uid_nm
-            proc.id.euid_nm
-            proc.id.suid_nm
-            proc.id.fsuid_nm
-            proc.id.gid_nm
-            proc.id.egid_nm
-            proc.id.sgid_nm
-            proc.id.fsgid_nm
+	    proc.id.uid_nm
+	    proc.id.euid_nm
+	    proc.id.suid_nm
+	    proc.id.fsuid_nm
+	    proc.id.gid_nm
+	    proc.id.egid_nm
+	    proc.id.sgid_nm
+	    proc.id.fsgid_nm
       
       (new) Semaphore limits from semctl()(needed by libgtop)
-            ipc.sem.max_semmap
-            ipc.sem.max_semid
-            ipc.sem.max_sem
-            ipc.sem.num_undo
-            ipc.sem.max_perid
-            ipc.sem.max_ops
-            ipc.sem.max_undoent
-            ipc.sem.sz_semundo
-            ipc.sem.max_semval
-            ipc.sem.max_exit
+	    ipc.sem.max_semmap
+	    ipc.sem.max_semid
+	    ipc.sem.max_sem
+	    ipc.sem.num_undo
+	    ipc.sem.max_perid
+	    ipc.sem.max_ops
+	    ipc.sem.max_undoent
+	    ipc.sem.sz_semundo
+	    ipc.sem.max_semval
+	    ipc.sem.max_exit
       
       (new) Message queue limits from msgctl()(needed by libgtop)
-            ipc.msg.sz_pool
-            ipc.msg.mapent
-            ipc.msg.max_msgsz
-            ipc.msg.max_defmsgq
-            ipc.msg.max_msgqid
-            ipc.msg.max_msgseg
-            ipc.msg.num_smsghdr
-            ipc.msg.max_seg
+	    ipc.msg.sz_pool
+	    ipc.msg.mapent
+	    ipc.msg.max_msgsz
+	    ipc.msg.max_defmsgq
+	    ipc.msg.max_msgqid
+	    ipc.msg.max_msgseg
+	    ipc.msg.num_smsghdr
+	    ipc.msg.max_seg
       
       (new) Shared memory limits from shmctl() (needed by libgtop)
-            ipc.shm.max_segsz
-            ipc.shm.min_segsz
-            ipc.shm.max_seg
-            ipc.shm.max_segproc
-            ipc.shm.max_shmsys
+	    ipc.shm.max_segsz
+	    ipc.shm.min_segsz
+	    ipc.shm.max_seg
+	    ipc.shm.max_segproc
+	    ipc.shm.max_shmsys
 
     - fix libpcp_trace stub library does not build on ia64
     - fix make clean doesn't remove all that it should
