@@ -1952,6 +1952,7 @@ pcp_selinux_bpf_status=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_rpm_var_lib=false
 pcp_selinux_virt_var_run=false
+pcp_selinux_cap2_syslog=false
 
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 
@@ -2006,6 +2007,10 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     seinfo -a 2>/dev/null \
     | grep '^[[ 	]][[ 	]]*non_auth_file_type$' >/dev/null \
     && pcp_selinux_files_list_non_auth_dirs=true
+
+    seinfo -x --class=capability2 $seinfo_common_flag 2>/dev/null \
+    | grep '^[[ 	]][[ 	]]*syslog$' >/dev/null \
+    && pcp_selinux_cap2_syslog=true
 ])
 AC_SUBST(pcp_selinux_cap_userns_ptrace)
 AC_SUBST(pcp_selinux_container_runtime)
@@ -2020,6 +2025,7 @@ AC_SUBST(pcp_selinux_bpf_status)
 AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
 AC_SUBST(pcp_selinux_rpm_var_lib)
 AC_SUBST(pcp_selinux_virt_var_run)
+AC_SUBST(pcp_selinux_cap2_syslog)
 
 pcp_selinux_files_mmap_all_files=false
 if test "x$enable_selinux" != "xfalse"
