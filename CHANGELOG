@@ -1,5 +1,6 @@
 pcp-4.3.3 (28 June 2019)
     - Client tools and utilities:
+	pmrep: fix wait.formula for collectl-dm-sD and collectl-sD
         pcp-dstat: prevent comma-only lines from being added to csv output
         shell completions: add support for new -m option to pmlogcheck
         pcp-free: Adding support for -r/ --terabytes flag.

@@ -3304,6 +3304,7 @@ cd
 %changelog
 * Fri Jun 28 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.3-1
 - Resolve segv running pmchart with bogus timezone (BZ 1718948)
+- Resolve pmrep wait.formula for collectl-dm-sD and collectl-sD (BZ 1724288)
 - Update to latest PCP sources.
 
 * Fri Apr 26 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.2-1
