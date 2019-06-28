@@ -186,7 +186,7 @@ __pmWebAPIAddPorts(int **ports, int nports)
      * error.
      */
     if (new_nports <= nports)
-	new_nports = __pmAddPorts(TO_STRING(PMWEBAPI_PORT), ports, nports);
+	new_nports = __pmAddPorts(TO_STRING(WEBAPI_PORT), ports, nports);
 
     return new_nports;
 }
