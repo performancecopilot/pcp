@@ -1,3 +1,6 @@
+pcp-4.3.4 (16 August 2019)
+    - Work in progress: https://github.com/performancecopilot/pcp/projects/1
+
 pcp-4.3.3 (28 June 2019)
     - Client tools and utilities:
 	pcp-dstat: prevent comma-only lines from being added to csv output

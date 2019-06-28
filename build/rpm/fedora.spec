@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.3.3
+Version: 4.3.4
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -3302,6 +3302,9 @@ cd
 %endif
 
 %changelog
+* Fri Aug 16 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.4-1
+- Work in progress: https://github.com/performancecopilot/pcp/projects/1
+
 * Fri Jun 28 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.3-1
 - Resolve segv running pmchart with bogus timezone (BZ 1718948)
 - Resolve pmrep wait.formula for collectl-dm-sD and collectl-sD (BZ 1724288)
