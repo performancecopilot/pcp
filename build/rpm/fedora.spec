@@ -3310,6 +3310,15 @@ cd
 - Resolve pmrep wait.formula for collectl-dm-sD and collectl-sD (BZ 1724288)
 - Update to latest PCP sources.
 
+* Mon Jun 10 22:13:21 CET 2019 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.3.2-4
+- Rebuild for RPM 4.15
+
+* Mon Jun 10 15:42:04 CET 2019 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.3.2-3
+- Rebuild for RPM 4.15
+
+* Fri May 31 2019 Jitka Plesnikova <jplesnik@redhat.com> - 4.3.2-2
+- Perl 5.30 rebuild
+
 * Fri Apr 26 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.2-1
 - Resolve selinux policy issues for pmie daemon mode (BZ 1702589)
 - Resolve selinux policy issues for BPF permissions (BZ 1693332)
