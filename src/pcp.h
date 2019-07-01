@@ -5,13 +5,13 @@
 
 #include "config-reader.h"
 
-typedef struct pcp_request {
+struct pcp_request {
     // not sure what to put here yet
 } pcp_request;
 
-typedef struct pcp_args
+struct pcp_args
 {
-    agent_config* config;
+    struct agent_config* config;
     chan_t* aggregator_request_channel;
     chan_t* aggregator_response_channel;
 } pcp_args;
@@ -21,7 +21,8 @@ typedef struct pcp_args
  * Main loop handling incoming responses from aggregators
  * @arg args - Arguments passed to the thread
  */
-void* pcp_pmda_exec(void* args);
+void*
+pcp_pmda_exec(void* args);
 
 /**
  * Creates arguments for PCP thread
@@ -30,6 +31,7 @@ void* pcp_pmda_exec(void* args);
  * @arg aggregator_response_channel - PCP -> Aggregator channel
  * @return pcp_args
  */
-pcp_args* create_pcp_args(agent_config* config, chan_t* aggregator_request_channel, chan_t* aggregator_response_channel);
+struct pcp_args*
+create_pcp_args(struct agent_config* config, chan_t* aggregator_request_channel, chan_t* aggregator_response_channel);
 
 #endif

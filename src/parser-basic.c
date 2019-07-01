@@ -9,7 +9,8 @@
 #include "parsers-utils.h"
 #include "string.h"
 
-static int parse(char* buffer, statsd_datagram** datagram);
+static int
+parse(char* buffer, struct statsd_datagram** datagram);
 
 /**
  * Basic parser entry point
@@ -18,7 +19,8 @@ static int parse(char* buffer, statsd_datagram** datagram);
  * @arg datagram - Placeholder for parsed data
  * @return 1 on success, 0 on fail 
  */
-int basic_parser_parse(char* buffer, statsd_datagram** datagram) {
+int
+basic_parser_parse(char* buffer, struct statsd_datagram** datagram) {
     *datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
     *(*datagram) = (struct statsd_datagram) {0};
     int length = strlen(buffer);
@@ -33,15 +35,16 @@ int basic_parser_parse(char* buffer, statsd_datagram** datagram) {
     return 0;
 };
 
-static int parse(char* buffer, statsd_datagram** datagram) {
-    int current_segment_length = 0;
-    int i = 0;
+static int
+parse(char* buffer, struct statsd_datagram** datagram) {
+    size_t current_segment_length = 0;
+    size_t i = 0;
     char previous_delimiter = ' ';
-    int count = strlen(buffer) + 1;
+    size_t count = strlen(buffer) + 1;
     char* segment = (char *) malloc(count); // cannot overflow since whole segment is count anyway
     ALLOC_CHECK("Unable to assign memory for StatsD datagram message parsing.");
     const char INSTANCE_TAG_IDENTIFIER[] = "instance";
-    tag_collection* tags;
+    struct tag_collection* tags;
     char* tag_key = NULL;
     char* tag_value = NULL;
     char* attr;
@@ -101,10 +104,10 @@ static int parse(char* buffer, statsd_datagram** datagram) {
                         !sanitize_string(tag_value, current_segment_length)) {
                         goto error_clean_up;
                     }
-                    int key_len = strlen(tag_key);
-                    int value_len = strlen(tag_value);
+                    size_t key_len = strlen(tag_key);
+                    size_t value_len = strlen(tag_value);
                     if (key_len > 0 && value_len > 0) {
-                        tag* t = (tag*) malloc(sizeof(tag));
+                        struct tag* t = (struct tag*) malloc(sizeof(struct tag));
                         ALLOC_CHECK("Unable to allocate memory for tag.");
                         t->key = (char*) malloc(key_len);
                         ALLOC_CHECK("Unable to allocate memory for tag key.");
@@ -113,13 +116,13 @@ static int parse(char* buffer, statsd_datagram** datagram) {
                         memcpy(t->key, tag_key, key_len);
                         memcpy(t->value, tag_value, value_len);
                         if (any_tags == 0) {
-                            tags = (tag_collection*) malloc(sizeof(tag_collection));
+                            tags = (struct tag_collection*) malloc(sizeof(struct tag_collection));
                             ALLOC_CHECK("Unable to allocate memory for tag collection.");
                             field_allocated_flags = field_allocated_flags | 1 << 0;
-                            *tags = (tag_collection) { 0 };
+                            *tags = (struct tag_collection) { 0 };
                             any_tags = 1;
                         }
-                        tags->values = (tag**) realloc(tags->values, sizeof(tag*) * (tags->length + 1));
+                        tags->values = (struct tag**) realloc(tags->values, sizeof(struct tag*) * (tags->length + 1));
                         tags->values[tags->length] = t;
                         tags->length++;
                     }
@@ -235,7 +238,8 @@ static int parse(char* buffer, statsd_datagram** datagram) {
  */
 #if _TEST_TARGET == 1
 
-int main() {
+int
+main() {
     INIT_TEST("Running tests for basic statsd parser:", basic_parser_parse);
     SUITE_HEADER("Unparsable values")
     CHECK_ERROR("", NULL, NULL, NULL, NULL, NULL, NULL);

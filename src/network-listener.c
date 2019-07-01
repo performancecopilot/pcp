@@ -18,9 +18,10 @@
  * for UDP/TCP containing StatsD payload and then sends it over to parser thread for parsing
  * @arg args - network_listener_args
  */
-void* network_listener_exec(void* args) {
-    agent_config* config = ((network_listener_args*)args)->config;
-    chan_t* unprocessed_datagrams = ((network_listener_args*)args)->unprocessed_datagrams;
+void*
+network_listener_exec(void* args) {
+    struct agent_config* config = ((struct network_listener_args*)args)->config;
+    chan_t* unprocessed_datagrams = ((struct network_listener_args*)args)->unprocessed_datagrams;
     const char* hostname = 0;
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
@@ -56,7 +57,7 @@ void* network_listener_exec(void* args) {
         else if ((signed int)count == max_udp_packet_size) { 
             warn(__FILE__, __LINE__, "Datagram too large for buffer: truncated and skipped");
         } else {
-            unprocessed_statsd_datagram* datagram = (unprocessed_statsd_datagram*) malloc(sizeof(unprocessed_statsd_datagram));
+            struct unprocessed_statsd_datagram* datagram = (struct unprocessed_statsd_datagram*) malloc(sizeof(struct unprocessed_statsd_datagram));
             ALLOC_CHECK("Unable to assign memory for struct representing unprocessed datagrams.");
             datagram->value = (char*) malloc(sizeof(char) * (count + 1));
             ALLOC_CHECK("Unable to assign memory for datagram value.");
@@ -71,13 +72,15 @@ void* network_listener_exec(void* args) {
 }
 
 /**
- * Packs up its arguments into struct so that we can pass it via single reference to the network listener thread
+ * Creates arguments for network listener thread
+ * @arg config - Application config
+ * @arg unprocessed_channel - Network listener -> Parser
+ * @return network_listener_args
  */
-network_listener_args* create_listener_args(agent_config* config, chan_t* unprocessed_channel) {
+struct network_listener_args*
+create_listener_args(struct agent_config* config, chan_t* unprocessed_channel) {
     struct network_listener_args* listener_args = (struct network_listener_args*) malloc(sizeof(struct network_listener_args));
     ALLOC_CHECK("Unable to assign memory for listener arguments.");
-    listener_args->config = (agent_config*) malloc(sizeof(agent_config));
-    ALLOC_CHECK("Unable to assign memory for listener config.");
     listener_args->config = config;
     listener_args->unprocessed_datagrams = unprocessed_channel;
     return listener_args;

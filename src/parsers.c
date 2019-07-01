@@ -13,22 +13,24 @@
  * Thread entrypoint - listens to incoming payload on a unprocessed channel and sends over successfully parsed data over to Aggregator thread via processed channel
  * @arg args - parser_args
  */
-void* parser_exec(void* args) {
-    chan_t* unprocessed_channel = ((parser_args*)args)->unprocessed_datagrams;
-    chan_t* parsed_channel = ((parser_args*)args)->parsed_datagrams;
-    agent_config* config = ((parser_args*)args)->config;
-    int (*parse_datagram)(char*, statsd_datagram**);
+void*
+parser_exec(void* args) {
+    chan_t* unprocessed_channel = ((struct parser_args*)args)->unprocessed_datagrams;
+    chan_t* parsed_channel = ((struct parser_args*)args)->parsed_datagrams;
+    struct agent_config* config = ((struct parser_args*)args)->config;
+    datagram_parse_callback parse_datagram;
     if ((int)config->parser_type == (int)PARSER_TYPE_BASIC) {
         parse_datagram = &basic_parser_parse;
     } else {
         parse_datagram = &ragel_parser_parse;
     }
-    unprocessed_statsd_datagram* datagram = (unprocessed_statsd_datagram*) malloc(sizeof(unprocessed_statsd_datagram));
+    struct unprocessed_statsd_datagram* datagram =
+        (struct unprocessed_statsd_datagram*) malloc(sizeof(struct unprocessed_statsd_datagram));
     ALLOC_CHECK("Unable to allocate space for unprocessed statsd datagram.");
     while(1) {
-        *datagram = (unprocessed_statsd_datagram) { 0 };
+        *datagram = (struct unprocessed_statsd_datagram) { 0 };
         chan_recv(unprocessed_channel, (void *)&datagram);
-        statsd_datagram* parsed;
+        struct statsd_datagram* parsed;
         char delim[] = "\n";
         char* tok = strtok(datagram->value, delim);
         while (tok != NULL) {
@@ -42,13 +44,16 @@ void* parser_exec(void* args) {
 }
 
 /**
- * Packs up its arguments into struct so that we can pass it via single reference to the parser thread
+ * Creates arguments for parser thread
+ * @arg config - Application config
+ * @arg unprocessed_channel - Network listener -> Parser
+ * @arg parsed_channel - Parser -> Aggregator
+ * @return parser_args
  */
-parser_args* create_parser_args(agent_config* config, chan_t* unprocessed_channel, chan_t* parsed_channel) {
+struct parser_args*
+create_parser_args(struct agent_config* config, chan_t* unprocessed_channel, chan_t* parsed_channel) {
     struct parser_args* parser_args = (struct parser_args*) malloc(sizeof(struct parser_args));
     ALLOC_CHECK("Unable to assign memory for parser arguments.");
-    parser_args->config = (agent_config*) malloc(sizeof(agent_config*));
-    ALLOC_CHECK("Unable to assign memory for parser config.");
     parser_args->config = config;
     parser_args->unprocessed_datagrams = unprocessed_channel;
     parser_args->parsed_datagrams = parsed_channel;
@@ -58,7 +63,8 @@ parser_args* create_parser_args(agent_config* config, chan_t* unprocessed_channe
 /**
  * Prints out parsed datagram structure in human readable form.
  */
-void print_out_datagram(statsd_datagram* datagram) {
+void
+print_out_datagram(struct statsd_datagram* datagram) {
     printf("DATAGRAM: \n");
     printf("metric: %s \n", datagram->metric);
     printf("instance: %s \n", datagram->instance);
@@ -72,7 +78,8 @@ void print_out_datagram(statsd_datagram* datagram) {
 /**
  * Frees datagram
  */
-void free_datagram(statsd_datagram* datagram) {
+void
+free_datagram(struct statsd_datagram* datagram) {
     if (datagram->metric != NULL) {
         free(datagram->metric);
     }

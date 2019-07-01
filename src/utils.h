@@ -47,7 +47,8 @@
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void die(char* filename, int line_number, const char* format, ...);
+void
+die(char* filename, int line_number, const char* format, ...);
 
 /**
  * Prints warning message
@@ -55,7 +56,8 @@ void die(char* filename, int line_number, const char* format, ...);
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void warn(char* filename, int line_number, const char* format, ...);
+void
+warn(char* filename, int line_number, const char* format, ...);
 
 /**
  * Sanitizes string
@@ -63,7 +65,8 @@ void warn(char* filename, int line_number, const char* format, ...);
  * @arg src - String to be sanitized
  * @return 1 on success
  */
-int sanitize_string(char* src, size_t num);
+int
+sanitize_string(char* src, size_t num);
 
 /**
  * Validates string
@@ -71,7 +74,8 @@ int sanitize_string(char* src, size_t num);
  * @arg src - String to be validated
  * @return 1 on success
  */
-int sanitize_metric_val_string(char* src);
+int
+sanitize_metric_val_string(char* src);
 
 /**
  * Validates string
@@ -79,7 +83,8 @@ int sanitize_metric_val_string(char* src);
  * @arg src - String to be validated
  * @return 1 on success
  */
-int sanitize_sampling_val_string(char* src);
+int
+sanitize_sampling_val_string(char* src);
 
 /**
  * Validates string
@@ -87,33 +92,38 @@ int sanitize_sampling_val_string(char* src);
  * @arg src - String to be validated
  * @return 1 on success
  */
-int sanitize_type_val_string(char* src);
+int
+sanitize_type_val_string(char* src);
 
 /**
  * Logs VERBOSE message - if config settings allows it
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void verbose_log(const char* format, ...);
+void
+verbose_log(const char* format, ...);
 
 /**
  * Logs DEBUG message - if config settings allows it
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void debug_log(const char* format, ...);
+void
+debug_log(const char* format, ...);
 
 /**
  * Logs TRACE message - if config settings allows it
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void trace_log(const char* format, ...);
+void
+trace_log(const char* format, ...);
 
 /**
  * Initializes debugging/verbose/tracing flags based on given config
  * @arg config - Config to check against
  */
-void init_loggers(agent_config* config);
+void
+init_loggers(struct agent_config* config);
 
 #endif

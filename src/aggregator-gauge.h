@@ -14,7 +14,8 @@
  * @arg out - Placeholder metric
  * @return 1 on success, 0 on fail
  */
-int create_gauge_metric(agent_config* config, statsd_datagram* datagram, metric** out);
+int
+create_gauge_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out);
 
 /**
  * Updates gauge metric record of value subtype
@@ -23,7 +24,8 @@ int create_gauge_metric(agent_config* config, statsd_datagram* datagram, metric*
  * @arg datagram - Data to update the item with
  * @return 1 on success, 0 on fail
  */
-int update_gauge_metric(agent_config* config, metric* item, statsd_datagram* datagram);
+int
+update_gauge_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram);
 
 /**
  * Prints gauge metric information
@@ -31,13 +33,15 @@ int update_gauge_metric(agent_config* config, metric* item, statsd_datagram* dat
  * @arg f - Opened file handle
  * @arg item - Metric to print out
  */
-void print_gauge_metric(agent_config* config, FILE* f, metric* item);
+void
+print_gauge_metric(struct agent_config* config, FILE* f, struct metric* item);
 
 /**
  * Frees gauge metric value
  * @arg config
  * @arg metric - Metric value to be freed
  */
-void free_gauge_value(agent_config* config, metric* item);
+void
+free_gauge_value(struct agent_config* config, struct metric* item);
 
 #endif

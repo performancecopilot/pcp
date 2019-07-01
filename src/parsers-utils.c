@@ -12,20 +12,22 @@
                                             (field != NULL && string == NULL) || \
                                             (field == NULL && string != NULL) \
 
-static int tag_comparator(const void* x, const void* y) {
-    int res = strcmp((*(tag**)x)->key, (*(tag**)y)->key);
+static int
+tag_comparator(const void* x, const void* y) {
+    int res = strcmp((*(struct tag**)x)->key, (*(struct tag**)y)->key);
     return res;
 }
 
 /**
  * Converts tag_collection* struct to JSON string that is sorted by keys
  */
-char* tag_collection_to_json(tag_collection* tags) {
+char*
+tag_collection_to_json(struct tag_collection* tags) {
     char buffer[JSON_BUFFER_SIZE];
-    qsort(tags->values, tags->length, sizeof(tag*), tag_comparator);
+    qsort(tags->values, tags->length, sizeof(struct tag*), tag_comparator);
     buffer[0] = '{';
-    int i;
-    int current_size = 1;
+    size_t i;
+    size_t current_size = 1;
     for (i = 0; i < tags->length; i++) {
         if (i == 0) {
             current_size += pmsprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, "\"%s\":\"%s\"",
@@ -46,8 +48,9 @@ char* tag_collection_to_json(tag_collection* tags) {
     return result;
 }
 
-int assert_statsd_datagram_eq(
-    statsd_datagram** datagram,
+int
+assert_statsd_datagram_eq(
+    struct statsd_datagram** datagram,
     char* metric,
     char* tags,
     char* instance,

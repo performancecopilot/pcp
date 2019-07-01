@@ -16,7 +16,8 @@
  * @arg out - Placeholder metric
  * @return 1 on success, 0 on fail
  */
-int create_duration_metric(agent_config* config, statsd_datagram* datagram, metric** out) {
+int
+create_duration_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out) {
     if (datagram->value[0] == '-' || datagram->value[0] == '+') {
         return 0;
     }
@@ -31,8 +32,7 @@ int create_duration_metric(agent_config* config, statsd_datagram* datagram, metr
     }
     (*out)->name = malloc(strlen(datagram->metric));
     strcpy((*out)->name, datagram->metric);
-    (*out)->type = (METRIC_TYPE*) malloc(sizeof(METRIC_TYPE));
-    *((*out)->type) = 4;
+    (*out)->type = METRIC_TYPE_DURATION;
     (*out)->meta = create_metric_meta(datagram);
     return 1;
 }
@@ -44,7 +44,8 @@ int create_duration_metric(agent_config* config, statsd_datagram* datagram, metr
  * @arg datagram - Data to update the item with
  * @return 1 on success, 0 on fail
  */
-int update_duration_metric(agent_config* config, metric* item, statsd_datagram* datagram) {
+int
+update_duration_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram) {
     if (datagram->value[0] == '-' || datagram->value[0] == '+') {
         return 0;
     }
@@ -55,7 +56,7 @@ int update_duration_metric(agent_config* config, metric* item, statsd_datagram* 
     if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM) {
         update_hdr_duration_value((struct hdr_histogram*)item->value, value);
     } else {
-        update_exact_duration_value((exact_duration_collection*)item->value, value);
+        update_exact_duration_value((struct exact_duration_collection*)item->value, value);
     }
     return 1;
 }
@@ -66,14 +67,15 @@ int update_duration_metric(agent_config* config, metric* item, statsd_datagram* 
  * @arg f - Opened file handle
  * @arg item - Metric to print out
  */
-void print_duration_metric(agent_config* config, FILE* f, metric* item) {
+void
+print_duration_metric(struct agent_config* config, FILE* f, struct metric* item) {
     fprintf(f, "-----------------\n");
     fprintf(f, "name = %s\n", item->name);
     fprintf(f, "type = duration\n");
     print_metric_meta(f, item->meta);
     switch (config->duration_aggregation_type) {
         case DURATION_AGGREGATION_TYPE_BASIC:
-            print_exact_durations(f, (exact_duration_collection*)item->value);
+            print_exact_durations(f, (struct exact_duration_collection*)item->value);
             break;
         case DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM:
             print_hdr_durations(f, (struct hdr_histogram*)item->value);
@@ -86,7 +88,8 @@ void print_duration_metric(agent_config* config, FILE* f, metric* item) {
  * @arg config
  * @arg metric - Metric value to be freed
  */
-void free_duration_value(agent_config* config, metric* item) {
+void
+free_duration_value(struct agent_config* config, struct metric* item) {
     switch (config->duration_aggregation_type) {
         case DURATION_AGGREGATION_TYPE_BASIC:
             free_exact_duration_value(config, item);

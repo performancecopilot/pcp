@@ -12,52 +12,53 @@
 
 typedef dict metrics;
 
-typedef struct metric_metadata {
+struct metric_metadata {
     char* tags;
     char* instance;
     char* sampling;
 } metric_metadata;
 
-typedef enum METRIC_TYPE { 
-    COUNTER = 0b001,
-    GAUGE = 0b010,
-    DURATION = 0b100
+enum METRIC_TYPE { 
+    METRIC_TYPE_COUNTER = 0b001,
+    METRIC_TYPE_GAUGE = 0b010,
+    METRIC_TYPE_DURATION = 0b100
 } METRIC_TYPE;
 
-typedef struct metric {
+struct metric {
     char* name;
-    METRIC_TYPE* type;
-    metric_metadata* meta;
+    struct metric_metadata* meta;
     void* value;
+    enum METRIC_TYPE type;
 } metric;
 
-typedef struct aggregator_args
+struct aggregator_args
 {
-    agent_config* config;
+    struct agent_config* config;
     chan_t* parsed_datagrams;
     chan_t* pcp_request_channel;
     chan_t* pcp_response_channel;
     metrics* metrics_wrapper;
 } aggregator_args;
 
-typedef dict metrics;
-
 /**
  * Initializes metrics struct to empty values
  * @arg config - Config (should there be need to pass detailed info into metrics)
  */
-metrics* init_metrics(agent_config* config);
+metrics*
+init_metrics(struct agent_config* config);
 
 /**
  * Thread startpoint - passes down given datagram to aggregator to record value it contains
  * @arg args - (aggregator_args), see ~/src/network-listener.h
  */
-void* aggregator_exec(void* args);
+void*
+aggregator_exec(void* args);
 
 /**
  * Sets flag notifying that output was requested
  */
-void aggregator_request_output();
+void
+aggregator_request_output();
 
 /**
  * Processes datagram struct into metric 
@@ -65,7 +66,8 @@ void aggregator_request_output();
  * @arg m - Metrics struct acting as metrics wrapper
  * @arg datagram - Datagram to be processed
  */
-void process_datagram(agent_config* config, metrics* m, statsd_datagram* datagram);
+void
+process_datagram(struct agent_config* config, metrics* m, struct statsd_datagram* datagram);
 
 /**
  * NOT IMPLEMENTED
@@ -75,21 +77,24 @@ void process_datagram(agent_config* config, metrics* m, statsd_datagram* datagra
  * @arg request - PCP PMDA request to be processed
  * @arg out - Channel over which to send request response
  */
-void process_pcp_request(agent_config* config, metrics* m, pcp_request* request, chan_t* out);
+void
+process_pcp_request(struct agent_config* config, metrics* m, struct pcp_request* request, chan_t* out);
 
 /**
  * Frees metric
  * @arg config
  * @arg metric - Metric to be freed
  */
-void free_metric(agent_config* config, metric* metric);
+void
+free_metric(struct agent_config* config, struct metric* metric);
 
 /**
  * Writes information about recorded metrics into file
  * @arg config - Config containing information about where to output
  * @arg m - Metrics struct (what values to print)
  */
-void print_metrics(agent_config* config, metrics* m);
+void
+print_metrics(struct agent_config* config, metrics* m);
 
 /**
  * Finds metric by name
@@ -97,7 +102,8 @@ void print_metrics(agent_config* config, metrics* m);
  * @arg out - Placeholder metric
  * @return 1 when any found
  */
-int find_metric_by_name(metrics* m, char* name, metric** out);
+int
+find_metric_by_name(metrics* m, char* name, struct metric** out);
 
 /**
  * Creates metric
@@ -106,13 +112,15 @@ int find_metric_by_name(metrics* m, char* name, metric** out);
  * @arg out - Placeholder metric
  * @return 1 on success
  */
-int create_metric(agent_config* config, statsd_datagram* datagram, metric** out);
+int
+create_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out);
 
 /**
  * Adds metric to hashtable
  * @arg counter - Metric to be saved
  */
-void add_metric(metrics* m, char* key, metric* item);
+void
+add_metric(metrics* m, char* key, struct metric* item);
 
 /**
  * Updates counter record
@@ -121,7 +129,8 @@ void add_metric(metrics* m, char* key, metric* item);
  * @arg datagram - Data with which to update
  * @return 1 on success
  */
-int update_metric(agent_config* config, metric* item, statsd_datagram* datagram);
+int
+update_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram);
 
 /**
  * Checks if given metric name is available (it isn't recorded yet)
@@ -129,27 +138,31 @@ int update_metric(agent_config* config, metric* item, statsd_datagram* datagram)
  * @arg name - Name to be checked
  * @return 1 on success else 0
  */
-int check_metric_name_available(metrics* m, char* name);
+int
+check_metric_name_available(metrics* m, char* name);
 
 /**
  * Creates metric metadata
  * @arg datagram - Datagram from which to build metadata
  * @return metric metadata
  */
-metric_metadata* create_metric_meta(statsd_datagram* datagram);
+struct metric_metadata*
+create_metric_meta(struct statsd_datagram* datagram);
 
 /**
  * Frees metric metadata
  * @arg metadata - Metadata to be freed
  */ 
-void free_metric_metadata(metric_metadata* meta);
+void
+free_metric_metadata(struct metric_metadata* meta);
 
 /**
  * Prints metadata 
  * @arg f - Opened file handle, doesn't close it after finishing
  * @arg meta - Metric metadata
  */
-void print_metric_meta(FILE* f, metric_metadata* meta);
+void
+print_metric_meta(FILE* f, struct metric_metadata* meta);
 
 /**
  * Creates arguments for Agregator thread
@@ -159,6 +172,12 @@ void print_metric_meta(FILE* f, metric_metadata* meta);
  * @arg pcp_response_channel - Aggregator -> PCP channel
  * @return aggregator_args
  */
-aggregator_args* create_aggregator_args(agent_config* config, chan_t* parsed_channel, chan_t* pcp_request_channel, chan_t* pcp_response_channel, metrics* m);
+struct aggregator_args* create_aggregator_args(
+    struct agent_config* config,
+    chan_t* parsed_channel,
+    chan_t* pcp_request_channel,
+    chan_t* pcp_response_channel,
+    metrics* m
+);
 
 #endif

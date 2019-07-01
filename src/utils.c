@@ -40,7 +40,8 @@ static int g_debug_flag = 0;
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void die(char* filename, int line_number, const char* format, ...)
+void
+die(char* filename, int line_number, const char* format, ...)
 {
     va_list vargs;
     va_start(vargs, format);
@@ -58,7 +59,8 @@ void die(char* filename, int line_number, const char* format, ...)
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void warn(char* filename, int line_number, const char* format, ...) {
+void
+warn(char* filename, int line_number, const char* format, ...) {
     va_list vargs;
     va_start(vargs, format);
     fprintf(stderr, YEL "WARNING: %s@%d: " RESET, filename, line_number);
@@ -73,7 +75,8 @@ void warn(char* filename, int line_number, const char* format, ...) {
  * @arg src - String to be sanitized
  * @return 1 on success
  */
-int sanitize_string(char *src, size_t num) {
+int
+sanitize_string(char *src, size_t num) {
     size_t segment_length = strlen(src);
     if (segment_length == 0) {
         return 0;
@@ -107,12 +110,13 @@ int sanitize_string(char *src, size_t num) {
  * @arg src - String to be validated
  * @return 1 on success
  */
-int sanitize_metric_val_string(char* src) {
-    int segment_length = strlen(src);
+int
+sanitize_metric_val_string(char* src) {
+    size_t segment_length = strlen(src);
     if (segment_length == 0) {
         return 0;
     }
-    int i;
+    size_t i;
     for (i = 0; i < segment_length; i++) {
         char current_char = src[i];
         if (i == 0) {
@@ -140,8 +144,9 @@ int sanitize_metric_val_string(char* src) {
  * @arg src - String to be validated
  * @return 1 on success
  */
-int sanitize_sampling_val_string(char* src) {
-    int segment_length = strlen(src);
+int
+sanitize_sampling_val_string(char* src) {
+    size_t segment_length = strlen(src);
     if (segment_length == 0) {
         return 0;
     }
@@ -159,7 +164,8 @@ int sanitize_sampling_val_string(char* src) {
  * @arg src - String to be validated
  * @return 1 on success
  */
-int sanitize_type_val_string(char* src) {
+int
+sanitize_type_val_string(char* src) {
     if (strcmp(src, GAUGE_METRIC) == 0 ||
         strcmp(src, COUNTER_METRIC) == 0 ||
         strcmp(src, DURATION_METRIC) == 0) {
@@ -173,7 +179,8 @@ int sanitize_type_val_string(char* src) {
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void verbose_log(const char* format, ...) {
+void
+verbose_log(const char* format, ...) {
     if (g_verbose_flag) {
         va_list vargs;
         va_start(vargs, format);
@@ -189,7 +196,8 @@ void verbose_log(const char* format, ...) {
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void debug_log(const char* format, ...) {
+void
+debug_log(const char* format, ...) {
     if (g_debug_flag) {
         va_list vargs;
         va_start(vargs, format);
@@ -205,7 +213,8 @@ void debug_log(const char* format, ...) {
  * @arg format - Format string
  * @arg ... - variables to print
  */
-void trace_log(const char* format, ...) {
+void
+trace_log(const char* format, ...) {
     if (g_trace_flag) {
         va_list vargs;
         va_start(vargs, format);
@@ -220,7 +229,8 @@ void trace_log(const char* format, ...) {
  * Initializes debugging/verbose/tracing flags based on given config
  * @arg config - Config to check against
  */
-void init_loggers(agent_config* config) {
+void
+init_loggers(struct agent_config* config) {
     g_verbose_flag = config->verbose;
     g_trace_flag = config->trace;
     g_debug_flag = config->debug;

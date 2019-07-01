@@ -13,7 +13,8 @@
  * @arg out - Placeholder metric
  * @return 1 on success, 0 on fail
  */
-int create_counter_metric(agent_config* config, statsd_datagram* datagram, metric** out) {
+int
+create_counter_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out) {
     (void)config;
     if (datagram->value[0] == '-' || datagram->value[0] == '+') {
         return 0;
@@ -24,8 +25,7 @@ int create_counter_metric(agent_config* config, statsd_datagram* datagram, metri
     }
     (*out)->name = malloc(strlen(datagram->metric));
     strcpy((*out)->name, datagram->metric);
-    (*out)->type = (METRIC_TYPE*) malloc(sizeof(METRIC_TYPE));
-    *((*out)->type) = 1;
+    (*out)->type = METRIC_TYPE_COUNTER;
     (*out)->value = (unsigned long long int*) malloc(sizeof(unsigned long long int));
     *((long long unsigned int*)(*out)->value) = value;
     (*out)->meta = create_metric_meta(datagram);
@@ -39,7 +39,8 @@ int create_counter_metric(agent_config* config, statsd_datagram* datagram, metri
  * @arg datagram - Date to update item
  * @return 1 on success, 0 on fail
  */
-int update_counter_metric(agent_config* config, metric* item, statsd_datagram* datagram) {
+int
+update_counter_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram) {
     (void)config;
     if (datagram->value[0] == '-' || datagram->value[0] == '+') {
         return 0;
@@ -58,7 +59,8 @@ int update_counter_metric(agent_config* config, metric* item, statsd_datagram* d
  * @arg f - Opened file handle
  * @arg item - Metric to print out
  */
-void print_counter_metric(agent_config* config, FILE* f, metric* item) {
+void
+print_counter_metric(struct agent_config* config, FILE* f, struct metric* item) {
     (void)config;
     fprintf(f, "-----------------\n");
     fprintf(f, "name = %s\n", item->name);
@@ -73,7 +75,8 @@ void print_counter_metric(agent_config* config, FILE* f, metric* item) {
  * @arg config
  * @arg metric - Metric value to be freed
  */
-void free_counter_value(agent_config* config, metric* item) {
+void
+free_counter_value(struct agent_config* config, struct metric* item) {
     (void)config;
     if (item->value != NULL) {
         free(item->value);

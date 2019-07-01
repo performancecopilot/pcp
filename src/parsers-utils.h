@@ -32,9 +32,9 @@
     struct timeval t0, t1; \
     fprintf(stdout, YEL name RESET "\n"); \
     long int error_count = 0; \
-    statsd_datagram** datagram = (struct statsd_datagram**) malloc(sizeof(struct statsd_datagram*)); \
+    struct statsd_datagram** datagram = (struct statsd_datagram**) malloc(sizeof(struct statsd_datagram*)); \
     *datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram)); \
-    int (*parse)(char*, statsd_datagram**); \
+    int (*parse)(char*, struct statsd_datagram**); \
     parse = &fn; \
     gettimeofday(&t0, NULL); \
 
@@ -49,21 +49,23 @@
         return EXIT_FAILURE; \
     } \
 
-typedef struct tag {
+struct tag {
     char* key;
     char* value;
 } tag;
 
-typedef struct tag_collection {
-    tag** values;
-    long int length;
+struct tag_collection {
+    struct tag** values;
+    size_t length;
 } tag_collection;
 
 /**
  * Converts tag_collection* struct to JSON string that is sorted by keys
  */
-char* tag_collection_to_json(tag_collection* tags);
+char*
+tag_collection_to_json(struct tag_collection* tags);
 
-int assert_statsd_datagram_eq(statsd_datagram** datagram, char* metric, char* tags, char* instance, char* value, char* type, char* sampling);
+int
+assert_statsd_datagram_eq(struct statsd_datagram** datagram, char* metric, char* tags, char* instance, char* value, char* type, char* sampling);
 
 #endif

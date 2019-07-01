@@ -10,6 +10,7 @@
  * @arg datagram - Placeholder for parsed data
  * @return 1 on success, 0 on fail 
  */
-int ragel_parser_parse(char* str, statsd_datagram** datagram);
+int
+ragel_parser_parse(char* str, struct statsd_datagram** datagram);
 
 #endif

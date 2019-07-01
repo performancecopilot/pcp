@@ -10,6 +10,7 @@
  * @arg datagram - Placeholder for parsed data
  * @return 1 on success, 0 on fail 
  */
-int basic_parser_parse(char *buffer, statsd_datagram** datagram);
+int
+basic_parser_parse(char *buffer, struct statsd_datagram** datagram);
 
 #endif

@@ -10,10 +10,11 @@
  * @arg value - initial value
  * @return hdr_histogram
  */
-exact_duration_collection* create_exact_duration_value(long long unsigned int value) {
-    exact_duration_collection* collection = (exact_duration_collection*) malloc(sizeof(exact_duration_collection));
+struct exact_duration_collection*
+create_exact_duration_value(long long unsigned int value) {
+    struct exact_duration_collection* collection = (struct exact_duration_collection*) malloc(sizeof(struct exact_duration_collection));
     ALLOC_CHECK("Unable to assign memory for duration values collection.");
-    *collection = (exact_duration_collection) { 0 };
+    *collection = (struct exact_duration_collection) { 0 };
     update_exact_duration_value(collection, value);
     return collection;
 }
@@ -23,7 +24,8 @@ exact_duration_collection* create_exact_duration_value(long long unsigned int va
  * @arg collection - Collection to which value should be added
  * @arg value - New value
  */
-void update_exact_duration_value(exact_duration_collection* collection, double value) {
+void
+update_exact_duration_value(struct exact_duration_collection* collection, double value) {
     long int new_length = collection->length + 1;
     collection->values = realloc(collection->values, sizeof(double*) * new_length);
     ALLOC_CHECK("Unable to allocate memory for collection value.");
@@ -38,12 +40,13 @@ void update_exact_duration_value(exact_duration_collection* collection, double v
  * @arg value - Value to be removed, assuming primitive type
  * @return 1 on success
  */
-int remove_exact_duration_item(exact_duration_collection* collection, double value) {
+int
+remove_exact_duration_item(struct exact_duration_collection* collection, double value) {
     if (collection == NULL || collection->length == 0 || collection->values == NULL) {
         return 0;
     }
     int removed = 0;
-    long int i;
+    size_t i;
     for (i = 0; i < collection->length; i++) {
         if (removed) {
             collection->values[i - 1] = collection->values[i];
@@ -63,7 +66,8 @@ int remove_exact_duration_item(exact_duration_collection* collection, double val
     return 1;
 }
 
-static int exact_duration_values_comparator(const void* x, const void* y) {
+static int
+exact_duration_values_comparator(const void* x, const void* y) {
     int res = **(double**)x > **(double**)y;
     return res;
 }
@@ -74,7 +78,8 @@ static int exact_duration_values_comparator(const void* x, const void* y) {
  * @arg out - Placeholder for data population
  * @return 1 on success
  */
-int get_exact_duration_values_meta(exact_duration_collection* collection, duration_values_meta* out) {
+int
+get_exact_duration_values_meta(struct exact_duration_collection* collection, struct duration_values_meta* out) {
     if (collection == NULL || collection->length == 0 || collection->values == NULL) {
         return 0;
     }
@@ -82,7 +87,7 @@ int get_exact_duration_values_meta(exact_duration_collection* collection, durati
     double accumulator = 0;
     double min;
     double max;
-    long int i;
+    size_t i;
     for (i = 0; i < collection->length; i++) {
         double current = *(collection->values[i]);
         if (i == 0) {
@@ -119,8 +124,9 @@ int get_exact_duration_values_meta(exact_duration_collection* collection, durati
  * @arg f - Opened file handle, doesn't close it when finished
  * @arg collection - Target collection
  */
-void print_exact_durations(FILE* f, exact_duration_collection* collection) {
-    duration_values_meta meta = (duration_values_meta) { 0 };
+void
+print_exact_durations(FILE* f, struct exact_duration_collection* collection) {
+    struct duration_values_meta meta = (struct duration_values_meta) { 0 };
     get_exact_duration_values_meta(collection, &meta);
     fprintf(f, "min             = %lf\n", meta.min);
     fprintf(f, "max             = %lf\n", meta.max);
@@ -138,11 +144,12 @@ void print_exact_durations(FILE* f, exact_duration_collection* collection) {
  * @arg config
  * @arg metric - Metric value to be freed
  */
-void free_exact_duration_value(agent_config* config, metric* item) {
+void
+free_exact_duration_value(struct agent_config* config, struct metric* item) {
     (void)config;
-    exact_duration_collection* collection = (exact_duration_collection*)item->value;
+    struct exact_duration_collection* collection = (struct exact_duration_collection*)item->value;
     if (collection != NULL) {
-        long int i;
+        size_t i;
         for (i = 0; i < collection->length; i++) {
             if (collection->values[i] != NULL) {
                 free(collection->values[i]);

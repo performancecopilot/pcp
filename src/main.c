@@ -12,13 +12,15 @@
 
 #if _TEST_TARGET == 0
 
-void signal_handler(int num) {
+void
+signal_handler(int num) {
     if (num == SIGUSR1) {
         aggregator_request_output();
     }
 }
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
     signal(SIGUSR1, signal_handler);
 
@@ -27,7 +29,7 @@ int main(int argc, char **argv)
     pthread_t aggregator;
     pthread_t pcp;
 
-    agent_config* config = (agent_config*) malloc(sizeof(agent_config));
+    struct agent_config* config = (struct agent_config*) malloc(sizeof(struct agent_config));
     ALLOC_CHECK(NULL, "Unable to asssign memory for agent config.");
     int config_src_type = argc >= 2 ? READ_FROM_CMD : READ_FROM_FILE;
     config = read_agent_config(config_src_type, "statsd-pmda.ini", argc, argv);
@@ -44,10 +46,10 @@ int main(int argc, char **argv)
     if (pcp_to_aggregator == NULL) DIE("Unable to create channel pcp -> aggregator.");
 
     metrics* m = init_metrics(config);
-    network_listener_args* listener_args = create_listener_args(config, unprocessed_datagrams_q);
-    parser_args* parser_args = create_parser_args(config, unprocessed_datagrams_q, parsed_datagrams_q);
-    aggregator_args* aggregator_args = create_aggregator_args(config, parsed_datagrams_q, aggregator_to_pcp, pcp_to_aggregator, m);
-    pcp_args* pcp_args = create_pcp_args(config, pcp_to_aggregator, aggregator_to_pcp);
+    struct network_listener_args* listener_args = create_listener_args(config, unprocessed_datagrams_q);
+    struct parser_args* parser_args = create_parser_args(config, unprocessed_datagrams_q, parsed_datagrams_q);
+    struct aggregator_args* aggregator_args = create_aggregator_args(config, parsed_datagrams_q, aggregator_to_pcp, pcp_to_aggregator, m);
+    struct pcp_args* pcp_args = create_pcp_args(config, pcp_to_aggregator, aggregator_to_pcp);
 
     int pthread_errno = 0; 
     pthread_errno = pthread_create(&network_listener, NULL, network_listener_exec, listener_args);

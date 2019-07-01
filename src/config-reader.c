@@ -1,20 +1,17 @@
 #include <getopt.h>
 #include <string.h>
 #include <unistd.h>
+
 #include "utils.h"
 #include "ini.h"
 
 /**
- * Flags for available config source
- */
-#define READ_FROM_FILE 0
-#define READ_FROM_CMD 1
-
-/**
  * Returns default program config
  */
-static agent_config* get_default_config() {
-    agent_config* config = (agent_config*) malloc(sizeof(agent_config));
+static struct agent_config*
+get_default_config() {
+    struct agent_config* config = (struct agent_config*) malloc(sizeof(struct agent_config));
+    ALLOC_CHECK("Unable to allocate memory PMDA settings.");
     config->max_udp_packet_size = 1472;
     config->tcp_read_size = 4096;
     config->max_unprocessed_packets = 2048;
@@ -36,22 +33,23 @@ static agent_config* get_default_config() {
  * @arg config_path - Path to config file
  * @return Program configuration
  */
-agent_config* read_agent_config(int src_flag, char* config_path, int argc, char **argv) {
-    agent_config* config = get_default_config();
-    if (!(src_flag == READ_FROM_CMD || src_flag == READ_FROM_FILE)) {
-        DIE("Incorrect source flag for agent_config source.");
-    }
+struct agent_config*
+read_agent_config(int src_flag, char* config_path, int argc, char **argv) {
+    struct agent_config* config = get_default_config();
     if (src_flag == READ_FROM_FILE) {
         read_agent_config_file(&config, config_path);
-    } else {
+    } else if (src_flag == READ_FROM_CMD) {
         read_agent_config_cmd(&config, argc, argv);
+    } else {
+        DIE("Incorrect source flag for agent_config source.");
     }
     return config;
 }
 
-static int ini_line_handler(void* user, const char* section, const char* name, const char* value) {
+static int
+ini_line_handler(void* user, const char* section, const char* name, const char* value) {
     (void)section;
-    agent_config* dest = *(agent_config**) user;
+    struct agent_config* dest = *(struct agent_config**) user;
     size_t length = strlen(value) + 1; 
     #define MATCH(x) strcmp(x, name) == 0
     if (MATCH("max_udp_packet_size")) {
@@ -91,13 +89,13 @@ static int ini_line_handler(void* user, const char* section, const char* name, c
  * @arg agent_config - Placeholder config to write what was read to
  * @arg path - Path to read file from
  */
-void read_agent_config_file(agent_config** dest, char* path) {
+void
+read_agent_config_file(struct agent_config** dest, char* path) {
     if (access(path, F_OK) == -1) {
         DIE("No config file found on given path");
     }
     if (ini_parse(path, ini_line_handler, dest) < 0) {
         DIE("Can't load config file");
-        return;
     }
     verbose_log("Config loaded from %s.", path);
 }
@@ -106,7 +104,8 @@ void read_agent_config_file(agent_config** dest, char* path) {
  * Reads program config from command line arguments
  * @arg agent_config - Placeholder config to write what was read to
  */
-void read_agent_config_cmd(agent_config** dest, int argc, char **argv) {
+void
+read_agent_config_cmd(struct agent_config** dest, int argc, char **argv) {
     int c;
     while(1) {
         static struct option long_options[] = {
@@ -160,7 +159,8 @@ void read_agent_config_cmd(agent_config** dest, int argc, char **argv) {
  * Print out agent config to STDOUT
  * @arg config - Config to print out
  */
-void print_agent_config(agent_config* config) {
+void
+print_agent_config(struct agent_config* config) {
     printf("---------------------------\n");
     if (config->verbose)
         puts("verbose flag is set");

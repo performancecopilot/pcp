@@ -14,7 +14,8 @@
  * @arg out - Placeholder metric
  * @return 1 on success, 0 on fail
  */
-int create_gauge_metric(agent_config* config, statsd_datagram* datagram, metric** out) {
+int
+create_gauge_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out) {
     (void)config;
     if (datagram->metric == NULL) {
         return 0;
@@ -25,8 +26,7 @@ int create_gauge_metric(agent_config* config, statsd_datagram* datagram, metric*
     }
     (*out)->name = malloc(strlen(datagram->metric));
     strcpy((*out)->name, datagram->metric);
-    (*out)->type = (METRIC_TYPE*) malloc(sizeof(METRIC_TYPE));
-    *((*out)->type) = 2;
+    (*out)->type = METRIC_TYPE_GAUGE;
     (*out)->value = (double*) malloc(sizeof(double));
     *((double*)(*out)->value) = value;
     (*out)->meta = create_metric_meta(datagram);
@@ -40,7 +40,8 @@ int create_gauge_metric(agent_config* config, statsd_datagram* datagram, metric*
  * @arg datagram - Data to update the item with
  * @return 1 on success, 0 on fail
  */
-int update_gauge_metric(agent_config* config, metric* item, statsd_datagram* datagram) {
+int
+update_gauge_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram) {
     (void)config;
     int substract = 0;
     int add = 0;
@@ -87,7 +88,8 @@ int update_gauge_metric(agent_config* config, metric* item, statsd_datagram* dat
  * @arg f - Opened file handle
  * @arg item - Metric to print out
  */
-void print_gauge_metric(agent_config* config, FILE* f, metric* item) {
+void
+print_gauge_metric(struct agent_config* config, FILE* f, struct metric* item) {
     (void)config;
     fprintf(f, "-----------------\n");
     fprintf(f, "name = %s\n", item->name);
@@ -102,7 +104,8 @@ void print_gauge_metric(agent_config* config, FILE* f, metric* item) {
  * @arg config
  * @arg metric - Metric value to be freed
  */
-void free_gauge_value(agent_config* config, metric* item) {
+void
+free_gauge_value(struct agent_config* config, struct metric* item) {
     (void)config;
     if (item->value != NULL) {
         free(item->value);
