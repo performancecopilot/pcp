@@ -273,7 +273,12 @@ if test $target_os = linux
 then
     AC_DEFINE(IS_LINUX, [1], [Platform is Linux])
     test -f /etc/SuSE-release && target_distro=suse
-    grep -q 'ID_LIKE="suse"' /etc/os-release 2> /dev/null && target_distro=suse
+    target_distro_variant=''
+    if test -f /etc/os-release
+    then
+	grep -q 'ID_LIKE="suse"' /etc/os-release 2>/dev/null && target_distro=suse
+	grep -qi 'opensuse"' /etc/os-release 2>/dev/null && target_distro_variant=opensuse
+    fi
     test -f /etc/fedora-release && target_distro=fedora
     test -f /etc/redhat-release && target_distro=redhat
     test -f /etc/debian_version && target_distro=debian
@@ -1697,7 +1702,17 @@ then
 fi
 AC_SUBST(lib_for_regex)
 
-PKG_CHECK_MODULES([openssl], [openssl >= 1.1.1], [have_openssl=true], [have_openssl=false])
+if test $target_distro_variant = "opensuse"
+then
+    dnl On openSUSE openssl 2.8.0 does not have some of the methods we
+    dnl need in particular SSL_read_ex() and SSL_CTX_set_cipher_list().
+    dnl Picking 3.0.0 is a pure guess until we know, but it
+    dnl allows the build to proceed without openssl on the older
+    dnl openSUSE platforms like Leap 15.0.
+    PKG_CHECK_MODULES([openssl], [openssl >= 3.0.0], [have_openssl=true], [have_openssl=false])
+else
+    PKG_CHECK_MODULES([openssl], [openssl >= 1.1.1], [have_openssl=true], [have_openssl=false])
+fi
 AC_SUBST(HAVE_OPENSSL, [$have_openssl])
 
 PKG_CHECK_MODULES([libuv], [libuv >= 1.16], [have_libuv=true], [have_libuv=false])
