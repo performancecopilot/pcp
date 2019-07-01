@@ -1,4 +1,5 @@
 build
+src/parser-ragel.c
 .vscode
 debug
 autom4te.cache

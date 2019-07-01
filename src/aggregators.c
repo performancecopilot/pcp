@@ -7,7 +7,8 @@
 #include <pcp/pmapi.h>
 
 #include "config-reader.h"
-#include "statsd-parsers.h"
+#include "parsers.h"
+#include "network-listener.h"
 #include "utils.h"
 #include "aggregators.h"
 #include "aggregator-duration-exact.h"
@@ -23,13 +24,15 @@
 static int g_output_requested = 0;
 pthread_mutex_t g_output_requested_lock;
 
-static void metricFreeCallBack(void *privdata, void *val)
+static void
+metricFreeCallBack(void *privdata, void *val)
 {
-    agent_config* config = (agent_config*)privdata;
-    free_metric(config, (metric*)val);
+    struct agent_config* config = (struct agent_config*)privdata;
+    free_metric(config, (struct metric*)val);
 }
 
-static void * metricKeyDupCallBack(void *privdata, const void *key)
+static void*
+metricKeyDupCallBack(void *privdata, const void *key)
 {
     (void)privdata;
     char* duplicate = malloc(strlen(key));
@@ -37,19 +40,21 @@ static void * metricKeyDupCallBack(void *privdata, const void *key)
     return duplicate;
 }
 
-static int metricCompareCallBack(void* privdata, const void* key1, const void* key2)
+static int
+metricCompareCallBack(void* privdata, const void* key1, const void* key2)
 {
     (void)privdata;
     return strcmp((char*)key1, (char*)key2) == 0;
 }
 
-static uint64_t metricHashCallBack(const void *key)
+static uint64_t
+metricHashCallBack(const void *key)
 {
     return dictGenCaseHashFunction((unsigned char *)key, strlen((char *)key));
 }
 
 /**
- * Callbacks for counter hashtable
+ * Callbacks for metrics hashtable
  */
 dictType metricDictCallBacks = {
     .hashFunction	= metricHashCallBack,
@@ -63,7 +68,8 @@ dictType metricDictCallBacks = {
  * Initializes metrics struct to empty values
  * @arg config - Config (should there be need to pass detailed info into metrics)
  */
-metrics* init_metrics(agent_config* config) {
+metrics*
+init_metrics(struct agent_config* config) {
     (void)config;
     metrics* m = dictCreate(&metricDictCallBacks, config);
     return m;
@@ -71,16 +77,17 @@ metrics* init_metrics(agent_config* config) {
 
 /**
  * Thread startpoint - passes down given datagram to aggregator to record value it contains
- * @arg args - (aggregator_args), see ~/statsd-parsers/statsd-parsers.h
+ * @arg args - (aggregator_args), see ~/network-listener.h
  */
-void* consume_datagram(void* args) {
-    agent_config* config = ((aggregator_args*)args)->config;
-    chan_t* parsed = ((aggregator_args*)args)->parsed_datagrams;
-    chan_t* pcp_to_aggregator = ((aggregator_args*)args)->pcp_request_channel;
-    chan_t* aggregator_to_pcp = ((aggregator_args*)args)->pcp_response_channel;
-    metrics* m = ((aggregator_args*)args)->metrics_wrapper;
-    statsd_datagram* datagram = (statsd_datagram*) malloc(sizeof(statsd_datagram));
-    pcp_request* request = (pcp_request*) malloc(sizeof(pcp_request));
+void*
+aggregator_exec(void* args) {
+    struct agent_config* config = ((struct aggregator_args*)args)->config;
+    chan_t* parsed = ((struct aggregator_args*)args)->parsed_datagrams;
+    chan_t* pcp_to_aggregator = ((struct aggregator_args*)args)->pcp_request_channel;
+    chan_t* aggregator_to_pcp = ((struct aggregator_args*)args)->pcp_response_channel;
+    metrics* m = ((struct aggregator_args*)args)->metrics_wrapper;
+    struct statsd_datagram* datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
+    struct pcp_request* request = (struct pcp_request*) malloc(sizeof(struct pcp_request));
     while(1) {
         switch(chan_select(&parsed, 1, (void *)&datagram, NULL, 0, NULL)) {
             case 0:
@@ -107,13 +114,15 @@ void* consume_datagram(void* args) {
 /**
  * Sets flag notifying that output was requested
  */
-void aggregator_request_output() {
+void
+aggregator_request_output() {
     pthread_mutex_lock(&g_output_requested_lock);
     g_output_requested = 1;
     pthread_mutex_unlock(&g_output_requested_lock);
 }
 
-static char* create_metric_dict_key(statsd_datagram* datagram) {
+static char*
+create_metric_dict_key(struct statsd_datagram* datagram) {
     int maximum_key_size = 4096;
     char buffer[maximum_key_size]; // maximum key size
     int key_size = pmsprintf(
@@ -137,8 +146,9 @@ static char* create_metric_dict_key(statsd_datagram* datagram) {
  * @arg m - Metrics struct acting as metrics wrapper
  * @arg datagram - Datagram to be processed
  */
-void process_datagram(agent_config* config, metrics* m, statsd_datagram* datagram) {
-    metric* item;
+void
+process_datagram(struct agent_config* config, metrics* m, struct statsd_datagram* datagram) {
+    struct metric* item;
     char* key = create_metric_dict_key(datagram);
     if (key == NULL) {
         verbose_log("Throwing away datagram. REASON: unable to create hashtable key for metric record.");
@@ -164,14 +174,15 @@ void process_datagram(agent_config* config, metrics* m, statsd_datagram* datagra
 }
 
 /**
- * NOT IMPLEMENTED
+ * NOT IMPLEMENTED YET
  * Processes PCP PMDA request
  * @arg config - Agent config
  * @arg m - Metric struct acting as metrics wrapper
  * @arg request - PCP PMDA request to be processed
  * @arg out - Channel over which to send request response
  */
-void process_pcp_request(agent_config* config, metrics* m, pcp_request* request, chan_t* out) {
+void
+process_pcp_request(struct agent_config* config, metrics* m, struct pcp_request* request, chan_t* out) {
     (void)config;
     (void)m;
     (void)request;
@@ -183,26 +194,24 @@ void process_pcp_request(agent_config* config, metrics* m, pcp_request* request,
  * @arg config
  * @arg metric - Metric to be freed
  */
-void free_metric(agent_config* config, metric* item) {
+void
+free_metric(struct agent_config* config, struct metric* item) {
     if (item->name != NULL) {
         free(item->name);
     }
     if (item->meta != NULL) {
         free_metric_metadata(item->meta);
     }
-    if (item->type != NULL) {
-        switch (*(item->type)) {
-            case COUNTER:
-                free_counter_value(config, item);
-                break;
-            case GAUGE:
-                free_gauge_value(config, item);
-                break;
-            case DURATION:
-                free_duration_value(config, item);
-                break;
-        }
-        free(item->type);
+    switch (item->type) {
+        case METRIC_TYPE_COUNTER:
+            free_counter_value(config, item);
+            break;
+        case METRIC_TYPE_GAUGE:
+            free_gauge_value(config, item);
+            break;
+        case METRIC_TYPE_DURATION:
+            free_duration_value(config, item);
+            break;
     }
     if (item != NULL) {
         free(item);
@@ -214,7 +223,8 @@ void free_metric(agent_config* config, metric* item) {
  * @arg f - Opened file handle, doesn't close it after finishing
  * @arg meta - Metric metadata
  */
-void print_metric_meta(FILE* f, metric_metadata* meta) {
+void
+print_metric_meta(FILE* f, struct metric_metadata* meta) {
     if (meta != NULL) {
         if (meta->tags != NULL) {
             fprintf(f, "tags = %s\n", meta->tags);
@@ -233,7 +243,8 @@ void print_metric_meta(FILE* f, metric_metadata* meta) {
  * @arg config - Config containing information about where to output
  * @arg m - Metrics struct (what values to print)
  */
-void print_metrics(agent_config* config, metrics* m) {
+void
+print_metrics(struct agent_config* config, metrics* m) {
     if (strlen(config->debug_output_filename) == 0) return; 
     FILE* f;
     f = fopen(config->debug_output_filename, "a+");
@@ -244,15 +255,15 @@ void print_metrics(agent_config* config, metrics* m) {
     dictEntry* current;
     long int count = 0;
     while ((current = dictNext(iterator)) != NULL) {
-        metric* item = (metric*)current->v.val;
-        switch (*(item->type)) {
-            case COUNTER:
+        struct metric* item = (struct metric*)current->v.val;
+        switch (item->type) {
+            case METRIC_TYPE_COUNTER:
                 print_counter_metric(config, f, item);
                 break;
-            case GAUGE:
+            case METRIC_TYPE_GAUGE:
                 print_gauge_metric(config, f, item);
                 break;
-            case DURATION:
+            case METRIC_TYPE_DURATION:
                 print_duration_metric(config, f, item);
                 break;
         }
@@ -270,13 +281,14 @@ void print_metrics(agent_config* config, metrics* m) {
  * @arg out - Placeholder metric
  * @return 1 when any found
  */
-int find_metric_by_name(metrics* m, char* name, metric** out) {
+int
+find_metric_by_name(metrics* m, char* name, struct metric** out) {
     dictEntry* result = dictFind(m, name);
     if (result == NULL) {
         return 0;
     }
     if (out != NULL) {
-        metric* item = (metric*)result->v.val;
+        struct metric* item = (struct metric*)result->v.val;
         *out = item;
     }
     return 1;
@@ -289,8 +301,9 @@ int find_metric_by_name(metrics* m, char* name, metric** out) {
  * @arg out - Placeholder metric
  * @return 1 on success, 0 on fail - fails before allocating anything to "out"
  */
-int create_metric(agent_config* config, statsd_datagram* datagram, metric** out) {
-    metric* item = (struct metric*) malloc(sizeof(metric));
+int
+create_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out) {
+    struct metric* item = (struct metric*) malloc(sizeof(struct metric));
     ALLOC_CHECK("Unable to allocate memory for metric.");
     *out = item;
     if (strcmp(datagram->type, "ms") == 0) {
@@ -308,7 +321,8 @@ int create_metric(agent_config* config, statsd_datagram* datagram, metric** out)
  * @arg gauge - Gauge metric to me added
  * @return all gauges
  */
-void add_metric(metrics* m, char* key, metric* item) {
+void
+add_metric(metrics* m, char* key, struct metric* item) {
     dictAdd(m, key, item);
 }
 
@@ -319,13 +333,14 @@ void add_metric(metrics* m, char* key, metric* item) {
  * @arg datagram - Data with which to update
  * @return 1 on success
  */
-int update_metric(agent_config* config, metric* item, statsd_datagram* datagram) {
-    switch (*(item->type)) {
-        case COUNTER:
+int
+update_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram) {
+    switch (item->type) {
+        case METRIC_TYPE_COUNTER:
             return update_counter_metric(config, item, datagram);
-        case GAUGE:
+        case METRIC_TYPE_GAUGE:
             return update_gauge_metric(config, item, datagram);
-        case DURATION:
+        case METRIC_TYPE_DURATION:
             return update_duration_metric(config, item, datagram);
     }
     return 0;
@@ -337,7 +352,8 @@ int update_metric(agent_config* config, metric* item, statsd_datagram* datagram)
  * @arg name - Name to be checked
  * @return 1 on success else 0
  */
-int check_metric_name_available(metrics* m, char* name) {
+int
+check_metric_name_available(metrics* m, char* name) {
     if (!find_metric_by_name(m, name, NULL)) {
         return 1;
     }
@@ -349,12 +365,13 @@ int check_metric_name_available(metrics* m, char* name) {
  * @arg datagram - Datagram from which to build metadata
  * @return metric metadata
  */
-metric_metadata* create_metric_meta(statsd_datagram* datagram) {
+struct metric_metadata*
+create_metric_meta(struct statsd_datagram* datagram) {
     if (datagram->sampling == NULL && datagram->tags == NULL && datagram->instance == NULL) {
         return NULL;
     }
-    metric_metadata* meta = (metric_metadata*) malloc(sizeof(metric_metadata));
-    *meta = (metric_metadata) { 0 };
+    struct metric_metadata* meta = (struct metric_metadata*) malloc(sizeof(struct metric_metadata));
+    *meta = (struct metric_metadata) { 0 };
     if (datagram->sampling != NULL) {
         meta->sampling = (char*) malloc(strlen(datagram->sampling) + 1);
         memcpy(meta->sampling, datagram->sampling, strlen(datagram->sampling) + 1);
@@ -374,7 +391,8 @@ metric_metadata* create_metric_meta(statsd_datagram* datagram) {
  * Frees metric metadata
  * @arg metadata - Metadata to be freed
  */ 
-void free_metric_metadata(metric_metadata* meta) {
+void
+free_metric_metadata(struct metric_metadata* meta) {
     if (meta->sampling != NULL) {
         free(meta->sampling);
     }
@@ -387,4 +405,30 @@ void free_metric_metadata(metric_metadata* meta) {
     if (meta != NULL) {
         free(meta);
     }
+}
+
+/**
+ * Creates arguments for Agregator thread
+ * @arg config - Application config
+ * @arg parsed_channel - Parser -> Aggregator channel
+ * @arg pcp_request_channel - PCP -> Aggregator channel
+ * @arg pcp_response_channel - Aggregator -> PCP channel
+ * @return aggregator_args
+ */
+struct aggregator_args*
+create_aggregator_args(
+    struct agent_config* config,
+    chan_t* parsed_channel,
+    chan_t* pcp_request_channel,
+    chan_t* pcp_response_channel,
+    metrics* m
+) {
+    struct aggregator_args* aggregator_args = (struct aggregator_args*) malloc(sizeof(struct aggregator_args));
+    ALLOC_CHECK("Unable to assign memory for parser aguments.");
+    aggregator_args->config = config;
+    aggregator_args->parsed_datagrams = parsed_channel;
+    aggregator_args->pcp_request_channel = pcp_request_channel;
+    aggregator_args->pcp_response_channel = pcp_response_channel;
+    aggregator_args->metrics_wrapper = m;
+    return aggregator_args;
 }

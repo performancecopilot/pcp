@@ -2,7 +2,7 @@
 #define AGGREGATOR_DURATION_
 
 #include "config-reader.h"
-#include "statsd-parsers.h"
+#include "network-listener.h"
 #include "aggregators.h"
 #include "aggregator-duration.h"
 #include "aggregator-duration-exact.h"
@@ -16,7 +16,8 @@
  * @arg out - Placeholder metric
  * @return 1 on success, 0 on fail
  */
-int create_duration_metric(agent_config* config, statsd_datagram* datagram, metric** out);
+int
+create_duration_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out);
 
 /**
  * Updates duration metric record of value subtype
@@ -25,7 +26,8 @@ int create_duration_metric(agent_config* config, statsd_datagram* datagram, metr
  * @arg datagram - Data to update the item with
  * @return 1 on success, 0 on fail
  */
-int update_duration_metric(agent_config* config, metric* item, statsd_datagram* datagram);
+int
+update_duration_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram);
 
 /**
  * Prints duration metric information
@@ -33,13 +35,15 @@ int update_duration_metric(agent_config* config, metric* item, statsd_datagram* 
  * @arg f - Opened file handle
  * @arg item - Metric to print out
  */
-void print_duration_metric(agent_config* config, FILE* f, metric* item);
+void
+print_duration_metric(struct agent_config* config, FILE* f, struct metric* item);
 
 /**
  * Frees duration metric value
  * @arg config
  * @arg metric - Metric value to be freed
  */
-void free_duration_value(agent_config* config, metric* item);
+void
+free_duration_value(struct agent_config* config, struct metric* item);
 
 #endif

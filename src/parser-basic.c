@@ -2,16 +2,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <pcp/pmapi.h>
 #include <sys/types.h>
+
 #include "utils.h"
-#include "statsd-parsers.h"
-#include "basic-parser.h"
+#include "parser-basic.h"
+#include "parsers-utils.h"
 #include "string.h"
 
-#define JSON_BUFFER_SIZE 4096
+static int
+parse(char* buffer, struct statsd_datagram** datagram);
 
-int basic_parser_parse(char* buffer, statsd_datagram** datagram) {
+/**
+ * Basic parser entry point
+ * Parsers given buffer and populates datagram with parsed data if they are valid
+ * @arg buffer - Buffer to be parsed
+ * @arg datagram - Placeholder for parsed data
+ * @return 1 on success, 0 on fail 
+ */
+int
+basic_parser_parse(char* buffer, struct statsd_datagram** datagram) {
     *datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
     *(*datagram) = (struct statsd_datagram) {0};
     int length = strlen(buffer);
@@ -26,15 +35,16 @@ int basic_parser_parse(char* buffer, statsd_datagram** datagram) {
     return 0;
 };
 
-int parse(char* buffer, statsd_datagram** datagram) {
-    int current_segment_length = 0;
-    int i = 0;
+static int
+parse(char* buffer, struct statsd_datagram** datagram) {
+    size_t current_segment_length = 0;
+    size_t i = 0;
     char previous_delimiter = ' ';
-    int count = strlen(buffer) + 1;
+    size_t count = strlen(buffer) + 1;
     char* segment = (char *) malloc(count); // cannot overflow since whole segment is count anyway
     ALLOC_CHECK("Unable to assign memory for StatsD datagram message parsing.");
     const char INSTANCE_TAG_IDENTIFIER[] = "instance";
-    tag_collection* tags;
+    struct tag_collection* tags;
     char* tag_key = NULL;
     char* tag_value = NULL;
     char* attr;
@@ -66,7 +76,7 @@ int parse(char* buffer, statsd_datagram** datagram) {
             attr[current_segment_length] = '\0';
             ALLOC_CHECK("Not enough memory to parse StatsD datagram segment.");
             if (buffer[i] == ':' && previous_delimiter == ' ') {
-                if (!sanitize_string(attr)) {
+                if (!sanitize_string(attr, current_segment_length)) {
                     goto error_clean_up;
                 }
                 (*datagram)->metric = (char *) malloc(current_segment_length + 1);
@@ -74,13 +84,15 @@ int parse(char* buffer, statsd_datagram** datagram) {
                 field_allocated_flags = field_allocated_flags | 1 << 1;
                 memcpy((*datagram)->metric, attr, current_segment_length + 1);
                 previous_delimiter = ':';
+            } else if (buffer[i] == '=' && previous_delimiter == '=') {
+                goto error_clean_up;
             } else if ((buffer[i] == ',' || buffer[i] == ':') && previous_delimiter == '=') {
                 tag_value = (char *) realloc(tag_value, current_segment_length + 1);
                 ALLOC_CHECK("Not enough memory for tag value buffer.");
                 tag_allocated_flags = tag_allocated_flags | 1 << 1;
                 memcpy(tag_value, attr, current_segment_length + 1);
                 if (strcmp(tag_key, INSTANCE_TAG_IDENTIFIER) == 0) {
-                    if (!sanitize_string(attr)) {
+                    if (!sanitize_string(attr, current_segment_length)) {
                         goto error_clean_up;
                     }
                     (*datagram)->instance = (char *) malloc(current_segment_length + 1);
@@ -88,14 +100,14 @@ int parse(char* buffer, statsd_datagram** datagram) {
                     field_allocated_flags = field_allocated_flags | 1 << 4;
                     memcpy((*datagram)->instance, attr, current_segment_length + 1);
                 } else {                    
-                    if (!sanitize_string(tag_key) ||
-                        !sanitize_string(tag_value)) {
+                    if (!sanitize_string(tag_key, current_segment_length) ||
+                        !sanitize_string(tag_value, current_segment_length)) {
                         goto error_clean_up;
                     }
-                    int key_len = strlen(tag_key);
-                    int value_len = strlen(tag_value);
+                    size_t key_len = strlen(tag_key);
+                    size_t value_len = strlen(tag_value);
                     if (key_len > 0 && value_len > 0) {
-                        tag* t = (tag*) malloc(sizeof(tag));
+                        struct tag* t = (struct tag*) malloc(sizeof(struct tag));
                         ALLOC_CHECK("Unable to allocate memory for tag.");
                         t->key = (char*) malloc(key_len);
                         ALLOC_CHECK("Unable to allocate memory for tag key.");
@@ -104,13 +116,13 @@ int parse(char* buffer, statsd_datagram** datagram) {
                         memcpy(t->key, tag_key, key_len);
                         memcpy(t->value, tag_value, value_len);
                         if (any_tags == 0) {
-                            tags = (tag_collection*) malloc(sizeof(tag_collection));
+                            tags = (struct tag_collection*) malloc(sizeof(struct tag_collection));
                             ALLOC_CHECK("Unable to allocate memory for tag collection.");
                             field_allocated_flags = field_allocated_flags | 1 << 0;
-                            *tags = (tag_collection) { 0 };
+                            *tags = (struct tag_collection) { 0 };
                             any_tags = 1;
                         }
-                        tags->values = (tag**) realloc(tags->values, sizeof(tag*) * (tags->length + 1));
+                        tags->values = (struct tag**) realloc(tags->values, sizeof(struct tag*) * (tags->length + 1));
                         tags->values[tags->length] = t;
                         tags->length++;
                     }
@@ -132,7 +144,7 @@ int parse(char* buffer, statsd_datagram** datagram) {
                 memcpy(tag_key, attr, current_segment_length + 1);
                 previous_delimiter = '=';
             } else if (buffer[i] == ',') {
-                if (!sanitize_string(attr)) {
+                if (!sanitize_string(attr, current_segment_length)) {
                     goto error_clean_up;
                 }
                 (*datagram)->metric = (char *) malloc(current_segment_length + 1);
@@ -217,40 +229,6 @@ int parse(char* buffer, statsd_datagram** datagram) {
     return 0;
 }
 
-static int tag_comparator(const void* x, const void* y) {
-    int res = strcmp((*(tag**)x)->key, (*(tag**)y)->key);
-    return res;
-}
-
-/**
- * Converts tag_collection* struct to JSON string that is sorted by keys
- */
-char* tag_collection_to_json(tag_collection* tags) {
-    char buffer[JSON_BUFFER_SIZE];
-    qsort(tags->values, tags->length, sizeof(tag*), tag_comparator);
-    buffer[0] = '{';
-    int i;
-    int current_size = 1;
-    for (i = 0; i < tags->length; i++) {
-        if (i == 0) {
-            current_size += pmsprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, "\"%s\":\"%s\"",
-                tags->values[i]->key, tags->values[i]->value);
-        } else {
-            current_size += pmsprintf(buffer + current_size, JSON_BUFFER_SIZE - current_size, ",\"%s\":\"%s\"",
-                tags->values[i]->key, tags->values[i]->value);
-        }
-    }
-    if (current_size >= JSON_BUFFER_SIZE - 2) {
-        return NULL;
-    }
-    buffer[current_size] = '}';
-    buffer[current_size + 1] = '\0';
-    char* result = malloc(sizeof(char) * (current_size + 2));
-    ALLOC_CHECK("Unable to allocate memory for tags json.");
-    memcpy(result, buffer, current_size + 2);
-    return result;
-}
-
 /**
  * --------------------------------------
  * |                                    |
@@ -260,78 +238,9 @@ char* tag_collection_to_json(tag_collection* tags) {
  */
 #if _TEST_TARGET == 1
 
-#define RED   "\x1B[31m"
-#define GRN   "\x1B[32m"
-#define YEL   "\x1B[33m"
-#define MAG   "\x1B[35m"
-#define CYN   "\x1B[36m"
-#define RESET "\x1B[0m"
-
-#define CHECK_ERROR(string, metric, tags, instance, value, type, sampling) \
-    fprintf(stdout, MAG "CASE: %s " RESET "\n", string); \
-    if (basic_parser_parse(string, datagram)) { \
-        int local_err = 0; \
-        local_err += assert_statsd_datagram_eq(datagram, metric, tags, instance, value, type, sampling); \
-        error_count += local_err; \
-    } else { \
-        if (metric != NULL || tags != NULL || instance != NULL || value != NULL || type != NULL || sampling != NULL) { \
-            fprintf(stdout, RED "ERROR: " RESET "Should have failed parsing. \n"); \
-            error_count += 1; \
-        } \
-    } \
-
-#define SUITE_HEADER(format, ...) fprintf(stdout, CYN format RESET "\n", ## __VA_ARGS__);
-
-#define CHECK_DISCREPANCY(field, string)    (field != NULL && string != NULL && strcmp(field, string) != 0) || \
-                                            (field != NULL && string == NULL) || \
-                                            (field == NULL && string != NULL) \
-
-/**
- * Compares statsd_datagram with given metric paramaters
- * @return 0 on success, else mismatch count
- */
-static int assert_statsd_datagram_eq(
-    statsd_datagram** datagram,
-    char* metric,
-    char* tags,
-    char* instance,
-    char* value,
-    char* type,
-    char* sampling) {
-    long int err_count = 0;
-    if (CHECK_DISCREPANCY((*datagram)->metric, metric)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Metric name doesn't match! %s =/= %s \n", (*datagram)->metric, metric);
-    }
-    if (CHECK_DISCREPANCY((*datagram)->tags, tags)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Tags don't match! %s =/= %s \n", (*datagram)->tags, tags);
-    }
-    if (CHECK_DISCREPANCY((*datagram)->instance, instance)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Instance doesn't match! %s =/= %s \n", (*datagram)->instance, instance);
-    }
-    if (CHECK_DISCREPANCY((*datagram)->value, value)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Value doesn't match! %s =/= %s \n", (*datagram)->value, value);
-    }
-    if (CHECK_DISCREPANCY((*datagram)->type, type)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Type doesn't match! %s =/= %s \n", (*datagram)->type, type);
-    }
-    if (CHECK_DISCREPANCY((*datagram)->sampling, sampling)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Sampling doesn't match! %s =/= %s \n", (*datagram)->sampling, sampling);
-    }
-    return err_count;
-}
-
-int main() {
-    fprintf(stdout, YEL "Running tests for basic statsd parser: " RESET "\n");
-    long int error_count = 0;
-    statsd_datagram** datagram = (struct statsd_datagram**) malloc(sizeof(struct statsd_datagram*));
-    *datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
-    
+int
+main() {
+    INIT_TEST("Running tests for basic statsd parser:", basic_parser_parse);
     SUITE_HEADER("Unparsable values")
     CHECK_ERROR("", NULL, NULL, NULL, NULL, NULL, NULL);
     CHECK_ERROR("wow", NULL, NULL, NULL, NULL, NULL, NULL);
@@ -354,20 +263,13 @@ int main() {
     SUITE_HEADER("Tag descriptors")
     CHECK_ERROR("example,tagY=20,tagX=10:10|c", "example", "{\"tagX\":\"10\",\"tagY\":\"20\"}", NULL, "10", "c", NULL);
     SUITE_HEADER("Malformed tags")
-    CHECK_ERROR("example,tags=dwq=qwddqwd=qwd:10|c", "example", "{\"tags\":\"qwd\"}", NULL, "10", "c", NULL);
+    CHECK_ERROR("example,tags=dwq=qwddqwd=qwd:10|c", NULL, NULL, NULL, NULL, NULL, NULL);
     SUITE_HEADER("Too long tag descriptor (gets thrown away)")
     CHECK_ERROR("example,tags=IhTicIzMhKsYSTiamskyBePkjZhgAFW6Gt97AAq3hbKrfs2Qrcf57NPMrjn3dzCaOcslkO8SU4hEQRDdlXFWs8foWCHJOMqbgoiSZlrKFHeO1sxNOimc5PqLswhWCxuF7M8v4ivySmHdIPxUxTk5Pq0PHtzIPnuJyYlrsT1jG2ZyF7Y5k2XIq5ZbSSQDxICPr6WvqsDVLEZofPXZydVpJ17nN7Xwb1whud6sniTGTelC8Y2hiXLB6GpA3oNPkSWrtwGP7mEm3FcLjPiKoQtTLWJd47X3krHs79cV0MduDmvCsPT9t6ojTDlg8u3emrv69DDLGLMNZpXTeorA5Yuiwqia5EHVPFGvZvXMGpRzkmBT1Jqu9J9PQj4ffkGTncZS3WDBmUoV7a2miMMLeEQbeTGG3F8b2OkALCSnARkBLePRVgsd3gOpPtFC4JcaiYrHKtpf4yb0QkWL0uSHBPV0GsJztlE4OmmVuCJwY6Lr8fVcG0V8iXkkRJPBcnKJu3Aim22y97jETteaveB8fnqZVt2WrF0ElyaMe5IkDpExwKCn09OMxSf8cDWwu00P8n06rbUmrcUh41r0ibAptOim1kxuV6SyYPnyBjqxT3QTM04kHZ0t0cww9uuxLdaGpyTi9Wzq5kmDnKBrX35jxvIkBIx53uFCzHfqDQc7EzoYEWuinaWghLtudErOPxd3YGKAeXa2R1hTRfEOBsgq05ldrDM4KkaAqOD4YimkHuIso1r5qS1KzFYiXCvwLZfxMdQK5x1JIiD9KIg4RTjQJgnTbC8OXgBfzI6GSkv03fNhtMYj2SYn6txhJL8yzzAQhbIdVLsiWJgCa0hAu9mocd98gGhYTqpWHJRp6E9F7Nt3ANWYSvOtaCYLdAgSGXWtSgcy74okd5si8dYcnSTY3BF3BJFxP8zOdO9Sp7EDkfVxrod5J7AIovdfTTlgY31qP0irJ1MCgxr3ZZToEknUFbnpVBFA0niWo721uyinVlVZH2ExzqmFUS1HsPqKUHt6YFNiJGOp3Y1QPC9jNmrUu35ssDt3W86RwTCq3VYqscvsd6NRDXoCEI1XQXH8RngdanNNSXnFwOFcSTKkM84WHy68e6GBsy5w4jVq7s1UoHxQfADOsO6RDkK6J3nR2dcQL0HCZ2tGoexgRVpxtAxiOI33njTcDUy5zYhJPutsbxFQgf7Nh0cqTwKTd8q8T3wScLfTp84jmQvEpyxNf0Ums6cgN4ttY8G5O1ilegsSYmxWA7Mq9mwmRtMymm1s7OkPL4TblkSmzrPDPdDgp2sRf7ETDAC2CzZv4cJMIyENHfi0N2zgSf5cmIW0a1W5mJlKUjuAoG7dxC8QxpkewEQt9B0ygxnA7MT67rpWblZcVqYz4jtpcMa15BeWExtY15UvkuZEneAC4TChMy3DJqzJujisFLKFnJKmRH5qsDRZDmYjN8UAkz3WQI4qR7PwPLOHr64qvumDmzXODlo7nPKH5mht5NsqSc1FMQ2J7oerZnz63sNC7Otnu2kzp9uVmbZqnEYZDyqtVCNUMG8utFQtFIPNgO1TjlexQuwgz1pSGP1ipsS1KYpFTEjlbYH1NJF3hYBDrCHZgeXAULmDLjWsUdKrtsnYTmisixoL4ovOp9NmWbMlYjW1sVC4GOKy9Ah2A8UHf5LzFsiBwo0hnS1B43WZ0lCn1e5vpE5EoOg94uysQpv1z4li15fXR9qNWKsc3cLR2JTLz4gIzrgwkdUtzdZ2oRCqAyT5TJg3JhaBNiBaodK4q3fjiiusQxFFDb5U5ptiNiDNTUiYKED1i9N5Ek3F962jv53Kbkcy7Ebi5Fu795RZz2vPigrqtHhUCe9V6qMRkGD5nmLFMxrgfHk4z4BMV1PDQdnz2ILlgHRFCsdHMjwhIxJxqS657heMpSmnq482Yxxb4NOmx0QopYTkwqZTv2FMN7M6Shr3yLYrkYxgCLuX7st59PfCORtU6L6IYe1sJpw7s1vfJcGh7mePmhVrEvc4AnXGMPYImOgXYTHhtxPxUFgfvXPpObhz1z8O74eo0Psdh3xVAOsatA4Sf2ufLNmwTWutaWyqeKiqrSDgxRtQ2gGEX0ZCZb0ZXvfycw06TQwECdu5XaTSKXSbV7VXO0Hg4b964uiziBEfmjB7EmDkpSTPIhFZJCktQyEfCRr4TYvPLY3RlAehHjR55XZvci2mtYBczVCfTKLfJvxj9XlfjYbth31RtpekbupV3AWL02PXkga7Md3MuLO7yLEKp8YNMpq5O0XNl2pdc4vhehy7sK4XEeViOslfWDRlDqeFMGPLnwHxgw4QFyu51DUrV8KCeo5sQ8CNiOKYstAd8Zb0ayfS6osmL5R2SLdWNECpgszhsa8g3NWYWvLVH2MzFzVHFx3JLTIzqCLJ0AwX070aNBCIezjdVtP44xn9JvfPJwU25lYfL3SvA154ElLvPUKmA1k4BeY7GfQY6rTD8P0jU8B4tPVK4k1wUc1nssslvFJ4fRbreGRVORLSeUiCDrD69IrjaJmAh0wIiFOCOuWMqU3NYdYT7Yr4fcpSmgpECnZQwv5HWzEk88DxakLaKGWPGp6zzAgt6D8MpxsN0O4kl6G7FATm52aW5tRnimbExpjLfRLrKOK656DvU6x2AOLGFr88x4Zg0xloSRZvGzuPkTWkjPrwKxUVfM8vGX6UrjkU8nxiP2TbspbPkiIoN0MgZxQFvrsYHqgFP4jxSO71IO6YaH1a6zj61d2hNJSWtx0nkwxoNTPdk061Sz2NSvKkYJLMmw5reeen5BMboRQHXBXMKeIgrwhjeQSQfQT6IJhNAeiDYZ9qM1DRGLiIakocwxQFNAd0qFeDcukkHkdviz4rbqaslcXQgrW6HCpeLd0LCD3MpftY7bJcBjlyOag9mD6I7apCWLUtm8jo5Wdv6bATUXwKFTxmeYgfjonoka4ynLjKw0K8olRmOZTBFuQeiTIUUAVW9yv9piqkKj6y2tmNxYRrdDLFwfHF361wln3v7EF5qDOtza1BLiGqwXfbugVqs9GcMQITtqP7T6Ysq1It5qz9QfUJ5nPC634FhYgfkpp8nGI94XsBmVSfDN6enWJWHz8E8nhSbqqRB75pisTQACU1dP49V0e2svcljkIa7T74i5EarkJJirLhFt7pK4ddNYN33J5MgHiIvFuEdJCZBX6sS6cVwMyO0QIBRVKq828BgoZ164JcFGXFKvBqdhy7WOFrg1ioYEJABTwOy4YxRhyJRAY9u1zDAy9F0j2FAk1Lx81V3CZLlsXGn1G16xQD9eYQn1tlvth9aKWO6SkecYkSk9Oj6ul9EUu19zSewmzWyv4ujWzPfHOEM0JFsj5mzAT4wN74swMJuu0ktdegItCooEopSPGPMfhnhw8vl3xxgQQLEe1B54WSiUtEWmOoQ3K7VncyNcLQPr1QhOHuOi4wziJ6dz5LsN06SngfNMcWcN1qouW5gjOxAzaXbO0oloHl5Y500Dc01YDRQbJjY8t33Co4fPE5vwS9kKpz2wpxnww2K89iVYQACL83FQu9jvS4PIWdgpLrLCRfBGjYmU1Qpgg5k0plUpDUUc36cI0U2XLeZrScvPL3jjc6tF1IRRuUALSniAwsyxjqr2UfWrsR0VzlFROVzydOh8VcGUGY03MUQEk1yMMMqg51lGsU0kFfVzrYfbjn3UjESDRnEBB4GUDqwHTdU8TQaOrFSBO0H0CyKiutq4WMPpVaZ1LQEmNx0WmCHX9QxyWb2woKKG5jFIpt3Bp6UmHwUBCYYalK5zRg0pKEHk3VOecAUj6sq0qaoCjdesbLnY9pm7ozi0GmAFftkucDpRX9NZZvjNvV6qbmLyM9oC3b2bezfZlMV41smqr0W1vOvgG4BMfC5ZMvUDXOM1wRknyeOyOFSxTcMpSuljO2vUUjOxg7rYiy9BK6MjJnbwaKyO5JZ8MidPWpvMJb16iAv8FwpTJr8xYSdg3EdSfQBPCrC9LmyBXJDIqxa0V9Qcm9Ee2r1lmfIsYH2uagRkcIJ4P8Ub0nJfEbG2WGPwN8q9YnPWpV1sZ2F0Gh6VI7yzp2rQYZL6rXh8j4jiSLGl1vaxj7:10|c", "example", NULL, NULL, "10", "c", NULL);
     SUITE_HEADER("Sampling")
     CHECK_ERROR("example:20|c@0.5", "example", NULL, NULL, "20", "c", "0.5");
     CHECK_ERROR("example:20|c@15", "example", NULL, NULL, "20", "c", "15");
-
-    if (error_count == 0) {
-        fprintf(stdout, GRN "TEST PASSED. " RESET "0 errors. \n"); \
-        return EXIT_SUCCESS;
-    } else {
-        fprintf(stdout, RED "TEST FAILED. " RESET "%ld errors. \n", error_count); \
-        return EXIT_FAILURE; // test failed
-    }
+    END_TEST();
 }
 
 #endif

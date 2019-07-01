@@ -1,6 +1,7 @@
 language: C
 compiler: gcc
 before_install:
+  - sudo apt-get install ragel
   - wget https://github.com/performancecopilot/pcp/archive/master.zip -O /tmp/pcp.zip
   - unzip /tmp/pcp -d /tmp/pcp
   - sudo groupadd -r pcp
@@ -19,4 +20,5 @@ before_install:
 script:
   - cd $TRAVIS_BUILD_DIR
   - make
-  - make test
+  - make test-ragel
+  - make test-basic
