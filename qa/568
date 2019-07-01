@@ -26,9 +26,12 @@ else
 fi
 [ -z "$domainname" ] && domainname=localdomain
 [ "$domainname" = "(none)" ] && domainname=localdomain
+[ "$domainname" = "(null)" ] && domainname=localdomain
 need_restore=true
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+echo "domainname=$domainname" >>$here/$seq.full
 
 _cleanup()
 {
