@@ -1535,7 +1535,7 @@ BAD
 1137 derive pmrep local python kernel
 1138 archive pmval multi-archive decompress-xz local pmlogextract kernel
 1139 pmrep python local kernel
-1140 pidstat local python pcp pmlogrewrite
+1140 pidstat local python pcp pmlogrewrite pmrep derive
 1141 selinux local
 1142 pmie local kernel
 1143 pmie local
