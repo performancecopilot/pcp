@@ -17,165 +17,151 @@ import subprocess
 import signal
 import re
 from threading import Thread, Lock
-from queue import Queue
 from copy import deepcopy
+import json
+from cpmapi import PM_SEM_INSTANT, PM_SEM_COUNTER
 
 
 class BPFtraceError(Exception):
     """BPFtrace general error"""
 
+class BPFtraceState: # pylint: disable=too-few-public-methods
+    """BPFtrace state"""
+    def __init__(self, status='idle', pid=None, exit_code=None, output='', probes=None, maps=None): # pylint: disable=too-many-arguments
+        self.status = status # idle|running|exited
+        self.pid = pid
+        self.exit_code = exit_code
+        self.output = output
+        self.probes = probes
+        self.maps = maps or {}
+
+class BPFtraceVarDef: # pylint: disable=too-few-public-methods
+    """BPFtrace variable definitions"""
+    def __init__(self, single, semantics):
+        self.single = single
+        self.semantics = semantics
+
 class BPFtrace:
     """class for interacting with bpftrace"""
     def __init__(self, log, script):
         self.log = log
-        self.script = script
+        self.script = script # contains the modified script (added continuous output)
 
-        self.pid = None
-        self.probes = None
-
-        self.info_q = Queue()
+        self.var_defs = {}
         self.lock = Lock()
-        self._data = {}
+        self._state = BPFtraceState()
+
+    def state(self):
+        """returns latest state"""
+        with self.lock:
+            return deepcopy(self._state)
 
     @property
-    def started(self):
-        """returns true if bpftrace was started"""
-        return bool(self.pid)
+    def status(self):
+        """returns the status of bpftrace"""
+        with self.lock:
+            return self._state.status
 
-    @classmethod
-    def parse_histogram(cls, lines_it):
-        """parse a histogram"""
-        multipliers = {
-            '': 1,
-            'K': 1024,
-            'M': 1024 * 1024
-        }
+    def process_output_obj(self, obj):
+        """process a single JSON object from bpftrace output"""
+        with self.lock:
+            if obj['type'] == 'attached_probes':
+                self._state.probes = obj['probes']
+            elif obj['type'] == 'map':
+                self._state.maps.update(obj['data'])
+            elif obj['type'] == 'hist':
+                for k, v in obj['data'].items():
+                    self._state.maps[k] = {
+                        '{}-{}'.format(bucket.get('min', 'inf'), bucket.get('max', 'inf'))
+                        :bucket['count']
+                        for bucket in v
+                    }
 
-        histogram = {}
-        for hist_line in lines_it:
-            hist_negative = re.match(r'\(..., 0\)\s+(\d+)', hist_line)
-            hist_single = re.match(r'\[(\d+)]\s+(\d+)', hist_line)
-            hist_m = re.match(r'\[(\d+)(.?), (\d+)(.?)\)\s+(\d+)', hist_line)
-            if hist_negative:
-                histogram['-1'] = hist_negative.group(1)
-            elif hist_single:
-                bucket, val = hist_single.groups()
-                if bucket in ['0', '1']:
-                    histogram['0-1'] = histogram.get('0-1', 0) + int(val)
-                else:
-                    raise BPFtraceError("can't parse histogram output")
-            elif hist_m:
-                low, low_u, high, high_u, val = hist_m.groups()
-                low = int(low) * multipliers[low_u]
-                high = int(high) * multipliers[high_u] - 1
+    def process_output_objs(self, json_objs):
+        """process multiple JSON objects"""
+        if not json_objs:
+            return
 
-                histogram['{}-{}'.format(low, high)] = int(val)                            
-            else:
-                break
-        return histogram
-                
-    @classmethod
-    def parse_variables(cls, lines):
-        """parse variables from bpftrace output"""
-        variables = {}
-        lines_it = iter(lines)
-        for line in lines_it:
-            var_m = re.match(r'(@.*?)(\[.+?\])?: (.*)', line)
-            if var_m:
-                name, key, val = var_m.groups()
-                if val:
-                    if val.isnumeric():
-                        val = int(val)
-                    if key:
-                        key = key[1:-1]
-                        if name not in variables:
-                            variables[name] = {}
-                        variables[name][key] = val
-                    else:
-                        variables[name] = val
-                else:
-                    variables[name] = cls.parse_histogram(lines_it)
-                    
-        return variables
+        for json_obj in json_objs:
+            json_obj = json_obj.strip()
+            if json_obj:
+                try:
+                    obj = json.loads(json_obj)
+                    self.process_output_obj(obj)
+                except ValueError:
+                    with self.lock:
+                        self._state.output += json_obj
 
     def process_output(self):
         """process stdout and stderr of running bpftrace process"""
-        info_lines = []
-        data_lines = []
-
-        # parse info lines (Attaching X probes, error messages)
+        buf = ''
         for line in self.process.stdout:
-            line = line.decode('utf-8')
-            if '@' in line:
-                data_lines.append(line)
-                break
-            else:
-                info_lines.append(line)
-        self.info_q.put(info_lines)
+            buf += line
+            json_objs = buf.split('\n\n')
+            buf = json_objs.pop()
+            self.process_output_objs(json_objs)
 
-        # parse data lines
-        for line in self.process.stdout:
-            line = line.decode('utf-8')
-            if line != '###\n':
-                data_lines.append(line)
-            else:
-                with self.lock:
-                    self._data = self.parse_variables(data_lines)
-                data_lines = []
+        # process has exited, set returncode
+        self.process.poll()
+        with self.lock:
+            self._state.status = 'exited'
+            self._state.exit_code = self.process.returncode
+            self._state.output += buf
 
-    def prepare_script(self):
-        """prepares bpftrace script (add continuous output)"""
-        variables = re.findall(r'(@.*?)(\[.+?\])?\s*=', self.script)
+    def parse_script(self):
+        """parse bpftrace script (read variable semantics, add continuous output)"""
+        variables = re.findall(r'(@.*?)(\[.+?\])?\s*=\s*(count|hist)?', self.script)
         if variables:
-            print_st = ' '.join(['print({});'.format(var) for var, key in variables])
-            self.script = self.script + ' interval:s:1 {{ {} printf("###\\n"); }}'.format(print_st)
+            print_st = ' '.join(['print({});'.format(var) for var, key, func in variables])
+            self.script = self.script + ' interval:s:1 {{ {} }}'.format(print_st)
+
+            self.var_defs = {}
+            for var, key, func in variables:
+                vardef = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT)
+                if func in ['hist', 'lhist']:
+                    vardef.single = False
+                elif key:
+                    vardef.single = False
+                if func == 'count':
+                    vardef.semantics = PM_SEM_COUNTER
+                self.var_defs[var] = vardef
         else:
             raise BPFtraceError("no global bpftrace variable found, please include "
                                 "at least one global variable in your script")
 
     def start(self):
         """starts bpftrace in the background, waits until first data arrives or an error occurs"""
-        if self.started:
+        if self.status != 'idle':
             raise Exception("bpftrace already started")
 
-        self.prepare_script()
-        self.process = subprocess.Popen(['bpftrace', '-e', self.script],
-                                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        self.pid = self.process.pid
+        self.parse_script()
+        self.process = subprocess.Popen(['bpftrace', '-f', 'json', '-e', self.script],
+                                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                        encoding='utf8')
+        with self.lock:
+            self._state.status = 'running'
+            self._state.pid = self.process.pid
 
         # with daemon=False, atexit doesn't work
         self.process_output_thread = Thread(target=self.process_output, daemon=True)
         self.process_output_thread.start()
 
-        # block until we get the first data output or an error
-        info_lines = self.info_q.get()
-
-        if len(info_lines) == 1 and 'Attaching' in info_lines[0]:
-            match = re.match(r'Attaching (\d+) probes?\.\.\.', info_lines[0])
-            if match:
-                self.probes = int(match.group(1))
-                self.log("started bpftrace -e '{}', "
-                         "PID: {}, #probes: {}".format(self.script, self.pid, self.probes))
-        else:
-            raise BPFtraceError("bpftrace error: {}".format(''.join(info_lines).rstrip()))
-
-    def data(self):
-        """returns latest output"""
-        if not self.started:
-            raise Exception("bpftrace is not started")
-
-        with self.lock:
-            return self._data
+        self.log("started bpftrace -e '{}', PID: {}".format(self.script, self.process.pid))
 
     def stop(self, wait=False):
         """stop bpftrace process"""
-        if not self.started:
-            raise Exception("bpftrace is not started")
+        if self.status != 'running':
+            return
 
         self.log("send stop signal to bpftrace process {}, "
-                 "wait for termination: {}".format(self.pid, wait))
+                 "wait for termination: {}".format(self.process.pid, wait))
         self.process.send_signal(signal.SIGINT)
+
         if wait:
-            # wait until process terminates
             self.process.communicate()
-            self.log("process stopped")
+        else:
+            self.process.poll()
+
+        with self.lock:
+            self._state.status = 'exited'
+            self._state.exit_code = self.process.returncode
