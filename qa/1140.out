@@ -18,100 +18,99 @@ Timestamp        UID	PID	usr	system	guest	%CPU	CPU	Command
 07:35:07         999	1243	0.0	0.0	0.0	0.0	3	pmdasimple
 
 === testing pcp-pidstat on pcp-zeroconf archive
-Linux  4.10.13-200.fc25.x86_64  (foobar)  05/24/17  x86_64    (4 CPU)
+Linux  4.20.16-200.fc29.x86_64  (shack)  07/01/19  x86_64    (8 CPU)
 Timestamp        UID	PID	usr	system	guest	%CPU	CPU	Command
-11:34:42         0	2607	0.0	0.0	0.0	0.0	2	pmdaroot
-11:34:42         981	2608	0.1	0.1	0.0	0.2	2	pmdaproc
-11:34:42         0	2610	0.0	0.0	0.0	0.0	2	pmdaxfs
-11:34:42         981	2611	0.0	0.0	0.0	0.0	2	pmdasample
-11:34:42         0	2612	0.1	0.0	0.0	0.1	3	pmdalinux
-11:34:42         0	2614	0.0	0.0	0.0	0.0	2	pmdadm
-11:34:42         981	2616	0.0	0.0	0.0	0.0	2	pmdatrivial
-11:34:42         981	2617	0.0	0.0	0.0	0.0	2	pmdasimple
+08:59:53         0	21979	0.0	0.0	0.0	0.0	2	pmdaroot
+08:59:53         386	21980	0.48	0.8	0.0	1.28	2	pmdaproc
+08:59:53         0	21981	0.04	0.0	0.0	0.04	7	pmdaxfs
+08:59:53         386	21982	0.0	0.0	0.0	0.0	1	pmdaredis
+08:59:53         386	21983	0.0	0.0	0.0	0.0	6	pmdasample
+08:59:53         0	21984	0.1	0.14	0.0	0.24	7	pmdalinux
+08:59:53         0	21997	0.0	0.0	0.0	0.0	6	pmdakvm
+08:59:53         0	22002	0.0	0.0	0.0	0.0	5	pmdadm
+08:59:53         386	22008	0.0	0.0	0.0	0.0	1	pmdatrivial
+08:59:53         386	22009	0.0	0.0	0.0	0.0	3	pmdasimple
 Timestamp        UID	PID	usr	system	guest	%CPU	CPU	Command
-11:34:47         0	2607	0.0	0.0	0.0	0.0	2	pmdaroot
-11:34:47         981	2608	0.1	0.1	0.0	0.2	2	pmdaproc
-11:34:47         0	2610	0.0	0.0	0.0	0.0	2	pmdaxfs
-11:34:47         981	2611	0.0	0.0	0.0	0.0	2	pmdasample
-11:34:47         0	2612	0.1	0.0	0.0	0.1	3	pmdalinux
-11:34:47         0	2614	0.0	0.0	0.0	0.0	2	pmdadm
-11:34:47         981	2616	0.0	0.0	0.0	0.0	2	pmdatrivial
-11:34:47         981	2617	0.0	0.0	0.0	0.0	2	pmdasimple
+08:59:58         0	21979	0.0	0.0	0.0	0.0	2	pmdaroot
+08:59:58         386	21980	0.48	0.78	0.0	1.26	2	pmdaproc
+08:59:58         0	21981	0.04	0.0	0.0	0.04	7	pmdaxfs
+08:59:58         386	21982	0.0	0.0	0.0	0.0	1	pmdaredis
+08:59:58         386	21983	0.0	0.0	0.0	0.0	6	pmdasample
+08:59:58         0	21984	0.12	0.14	0.0	0.26	7	pmdalinux
+08:59:58         0	21997	0.0	0.0	0.0	0.0	6	pmdakvm
+08:59:58         0	22002	0.0	0.0	0.0	0.0	5	pmdadm
+08:59:58         386	22008	0.0	0.0	0.0	0.0	1	pmdatrivial
+08:59:58         386	22009	0.0	0.0	0.0	0.0	3	pmdasimple
 
 === testing pcp-iostat on pcp-zeroconf archive
 # Device      rrqm/s  wrqm/s     r/s    w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await   %util
-sda             0.00   22.20    3.00 122.20    23.80  2355.60   19.005    0.523    4.18    0.60    4.26    1.48
-sdb             0.00    0.00    0.00   0.00     0.00     0.00    0.000    0.000    0.00    0.00    0.00    0.00
-sda             0.00   22.60    3.00 123.20    23.60  2365.80   18.933    0.527    4.18    0.60    4.26    1.50
-sdb             0.00    0.00    0.00   0.00     0.00     0.00    0.000    0.000    0.00    0.00    0.00    0.00
-sda             0.00    2.20    0.60  22.20     4.80   523.80   23.184    0.052    2.28    1.00    2.32    0.98
-sdb             0.00    0.00    0.00   0.00     0.00     0.00    0.000    0.000    0.00    0.00    0.00    0.00
-
-=== testing pcp-tapestat on pcp-zeroconf archive
-# Device         r/s     w/s  kb_r/s  kb_w/s   r_pct   w_pct   o_pct    Rs/s   o_cnt
-st0             0.00    0.00       0       0    0.00    0.00    0.00    0.00    0.00
-st0             0.00    0.00       0       0    0.00    0.00    0.00    0.00    0.00
+nvme0n1         0.00    0.00  194.40  10.40   936.40    93.20    5.027    0.030    0.15    0.13    0.54   97.04
+sda             0.00    0.00    0.00   0.00     0.00     0.00    0.000    0.000    0.00    0.00    0.00    0.00
+nvme0n1         0.00    0.00  177.80  10.20   740.00    91.00    4.420    0.028    0.15    0.12    0.55   97.24
+sda             0.00    0.00    0.00   0.00     0.00     0.00    0.000    0.000    0.00    0.00    0.00    0.00
+nvme0n1         0.00   15.00   95.40 183.20  1022.20  2687.20   13.314    0.041    0.15    0.17    0.14   92.50
+sda             0.00    0.00    0.00   0.00     0.00     0.00    0.000    0.000    0.00    0.00    0.00    0.00
 
 === testing pcp-numastat on pcp-zeroconf archive
                            node0
-numa_hit              2260653672
+numa_hit             19929522553
 numa_miss                      0
 numa_foreign                   0
-interleave_hit             27766
-local_node            2260653672
+interleave_hit             25237
+local_node           19929522553
 other_node                     0
 
 === testing pcp-uptime on pcp-zeroconf archive
- 11:34:37 up 14 days, 23:57, 1 user,  load average: 1.21, 0.89, 0.61
+ 08:59:48 up 88 days, 21:35, 1 user,  load average: 3.42, 3.04, 3.32
 
 === testing pcp-free on pcp-zeroconf archive
              total       used       free     shared    buffers     cached
-Mem:      32567420   32198752     368668          0       6456   17862896
--/+ buffers/cache:   14329400   18238020
-Swap      16777212      16364   16760848
+Mem:      16064800   15386252     678548          0        120    1983312
+-/+ buffers/cache:   13402820    2661980
+Swap      16773116   10526772    6246344
 
 === testing pcp-vmstat on pcp-zeroconf archive
-Note: timezone set to local timezone of host "foobar" from archive
+Note: timezone set to local timezone of host "shack" from archive
 
-@ Wed May 24 11:34:37 2017
+@ Mon Jul  1 08:59:48 2019
  loadavg                      memory      swap        io    system                 cpu
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id  wa  st
-    1.21  16364 707408   6456 17386m    0    0   48 4710 1615 4928   6   8  87   0   0
-    1.21  16364 707408   6456 17386m    0    0   47 4731 1605 4881   6   8  87   0   0
-    1.03  16364 731956   6456 17357m    0    0    9 1047 1012 4649   6   8  86   0   0
+    3.42  9762m 956272    120  1929m  188    0 1895  184 8116  10K  14   6  80   0   0
+    3.42  9762m 956272    120  1929m  175    0 1476  183 8021 9930  13   6  81   0   0
+    3.20  9756m 947080    120  1934m   47    0 2049 5386 8646 9006  15   5  80   0   0
 
 === testing pmrep with :collectl-sc config on pcp-zeroconf archive
            cpu   sys  intr/s  cswch/s
-11:34:37   N/A   N/A     N/A      N/A
-11:34:38  6.10  6.15 1656.00  5115.00
-11:34:39  5.65  6.25 1606.00  4881.00
+08:59:48   N/A   N/A     N/A      N/A
+08:59:49 15.24  4.55 8495.00 11695.00
+08:59:50 13.34  3.44 8022.00  9930.00
 
 === testing pmrep with :collectl-sm config on pcp-zeroconf archive
    Free   Buff   Cach   Inac   Slab    Map
      GB     GB     GB     GB     GB     GB
-  0.352  0.006  17.04  15.65  0.781  1.300
-  0.675  0.006  16.98  15.59  0.781  1.242
-  0.675  0.006  16.98  15.59  0.781  1.242
+  0.647  0.000  1.891  2.470  1.782  0.539
+  0.912  0.000  1.884  2.303  1.778  0.556
+  0.912  0.000  1.884  2.303  1.778  0.556
 
 === testing pmrep with :collectl-sd config on pcp-zeroconf archive
   KBRead   Reads  KBWrit  Writes
     KB/s  count/    KB/s  count/
      N/A     N/A     N/A     N/A
-  25.000   3.000  2314.0  119.00
-  24.000   3.000  2366.0  123.00
+  1723.0  260.00  102.00  11.000
+  740.00  178.00  91.000  10.000
 
 === testing pmrep with :collectl-sD config on pcp-zeroconf archive
                Device     rkB/s   rrqm/s     r/s rareq-sz r_await     wkB/s   wrqm/s     w/s wareq-sz w_await    wait aqu-sz  svctm  %util
-11:34:37          sda       N/A      N/A     N/A      N/A     N/A       N/A      N/A     N/A      N/A     N/A     N/A    N/A    N/A    N/A
-11:34:37          sdb       N/A      N/A     N/A      N/A     N/A       N/A      N/A     N/A      N/A     N/A     N/A    N/A    N/A    N/A
-11:34:38          sda     25.00     0.00    3.00     8.33    0.67   2314.00    21.00  119.00    19.45    4.24    4.90   0.51   0.12   1.50
-11:34:38          sdb      0.00     0.00    0.00     0.00    0.00      0.00     0.00    0.00     0.00    0.00    0.00   0.00   0.00   0.00
-11:34:39          sda     24.00     0.00    3.00     8.00    0.33   2366.00    23.00  123.00    19.24    4.27    4.60   0.53   0.12   1.50
-11:34:39          sdb      0.00     0.00    0.00     0.00    0.00      0.00     0.00    0.00     0.00    0.00    0.00   0.00   0.00   0.00
+08:59:48      nvme0n1       N/A      N/A     N/A      N/A     N/A       N/A      N/A     N/A      N/A     N/A     N/A    N/A    N/A    N/A
+08:59:48          sda       N/A      N/A     N/A      N/A     N/A       N/A      N/A     N/A      N/A     N/A     N/A    N/A    N/A    N/A
+08:59:49      nvme0n1   1723.00     0.00  260.00     6.63    0.13    102.00     0.00   11.00     9.27    0.55    0.14   0.04   3.35  96.20
+08:59:49          sda      0.00     0.00    0.00     0.00    0.00      0.00     0.00    0.00     0.00    0.00    0.00   0.00   0.00   0.00
+08:59:50      nvme0n1    740.00     0.00  178.00     4.16    0.12     91.00     0.00   10.00     9.10    0.60    0.14   0.03   5.18  97.30
+08:59:50          sda      0.00     0.00    0.00     0.00    0.00      0.00     0.00    0.00     0.00    0.00    0.00   0.00   0.00   0.00
 
 === testing pmrep with :collectl-sn config on pcp-zeroconf archive
     KBIn   PktIn   KBOut  PktOut
     KB/s  count/    KB/s  count/
      N/A     N/A     N/A     N/A
-  964.65  721.00  38.170  389.00
-  962.54  721.00  37.856  390.00
+  202.80  94.000  202.89  94.000
+  222.84  91.000  222.92  92.000
