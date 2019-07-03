@@ -27,19 +27,29 @@ class BPFtraceError(Exception):
 
 class BPFtraceState: # pylint: disable=too-few-public-methods
     """BPFtrace state"""
-    def __init__(self, status='idle', pid=None, exit_code=None, output='', probes=None, maps=None): # pylint: disable=too-many-arguments
-        self.status = status # idle|running|exited
-        self.pid = pid
-        self.exit_code = exit_code
-        self.output = output
-        self.probes = probes
-        self.maps = maps or {}
+    def __init__(self):
+        self.status = 'stopped' # stopped|starting|started|stopping
+        self.reset()
+
+    def reset(self):
+        """reset state"""
+        self.pid = None
+        self.exit_code = None
+        self.output = ''
+        self.probes = 0
+        self.maps = {}
+
+    def __str__(self):
+        return str(self.__dict__)
 
 class BPFtraceVarDef: # pylint: disable=too-few-public-methods
     """BPFtrace variable definitions"""
     def __init__(self, single, semantics):
         self.single = single
         self.semantics = semantics
+
+    def __str__(self):
+        return str(self.__dict__)
 
 class BPFtrace:
     """class for interacting with bpftrace"""
@@ -55,12 +65,6 @@ class BPFtrace:
         """returns latest state"""
         with self.lock:
             return deepcopy(self._state)
-
-    @property
-    def status(self):
-        """returns the status of bpftrace"""
-        with self.lock:
-            return self._state.status
 
     def process_output_obj(self, obj):
         """process a single JSON object from bpftrace output"""
@@ -104,7 +108,7 @@ class BPFtrace:
         # process has exited, set returncode
         self.process.poll()
         with self.lock:
-            self._state.status = 'exited'
+            self._state.status = 'stopped'
             self._state.exit_code = self.process.returncode
             self._state.output += buf
 
@@ -130,28 +134,35 @@ class BPFtrace:
                                 "at least one global variable in your script")
 
     def start(self):
-        """starts bpftrace in the background, waits until first data arrives or an error occurs"""
-        if self.status != 'idle':
-            raise Exception("bpftrace already started")
+        """starts bpftrace in the background and reads its stdout in a new thread"""
+        with self.lock:
+            if self._state.status != 'stopped':
+                raise BPFtraceError("cannot start bpftrace, current status: {}".format(
+                    self._state.status))
+            self._state.reset()
+            self._state.status = 'starting'
 
         self.parse_script()
         self.process = subprocess.Popen(['bpftrace', '-f', 'json', '-e', self.script],
                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                         encoding='utf8')
-        with self.lock:
-            self._state.status = 'running'
-            self._state.pid = self.process.pid
 
         # with daemon=False, atexit doesn't work
         self.process_output_thread = Thread(target=self.process_output, daemon=True)
         self.process_output_thread.start()
 
         self.log("started bpftrace -e '{}', PID: {}".format(self.script, self.process.pid))
+        with self.lock:
+            self._state.status = 'started'
+            self._state.pid = self.process.pid
 
     def stop(self, wait=False):
         """stop bpftrace process"""
-        if self.status != 'running':
-            return
+        with self.lock:
+            if self._state.status != 'started':
+                raise BPFtraceError("cannot stop bpftrace, current status: {}".format(
+                    self._state.status))
+            self._state.status = 'stopping'
 
         self.log("send stop signal to bpftrace process {}, "
                  "wait for termination: {}".format(self.process.pid, wait))
@@ -163,5 +174,5 @@ class BPFtrace:
             self.process.poll()
 
         with self.lock:
-            self._state.status = 'exited'
+            self._state.status = 'stopped'
             self._state.exit_code = self.process.returncode
