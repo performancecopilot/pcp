@@ -74,6 +74,12 @@ _pmdabcc_wait_for_metric()
     i=0
     while [ $i -lt $_canwait ]
     do
+	grep -q 'Failed to compile BPF text' $PCP_LOG_DIR/pmcd/bcc.log
+	if [ $? -eq 0 ]; then
+	    echo BPF compilation error, test failed
+	    exit
+	fi
+
 	grep -q 'Ready to process requests' $PCP_LOG_DIR/pmcd/bcc.log && break
 	sleep 1
 	i=`expr $i + 1`
@@ -81,7 +87,7 @@ _pmdabcc_wait_for_metric()
     sed -n '/Error:/,$p' $PCP_LOG_DIR/pmcd/bcc.log
     if [ $i -eq $_canwait ]; then
         echo PMDA was not ready in $_canwait seconds, test failed
-        return 1
+        exit
     fi
     echo "=== _pmdabcc_wait_for_metric: after $i secs, metrics should be available ===" >>$here/$seq.full
     # "should" be available, but now wait up to 20 seconds for values
