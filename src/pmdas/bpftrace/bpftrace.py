@@ -57,9 +57,12 @@ class BPFtrace:
         self.log = log
         self.script = script # contains the modified script (added continuous output)
 
+        self.metadata = {}
         self.var_defs = {}
         self.lock = Lock()
         self._state = BPFtraceState()
+
+        self.parse_script()
 
     def state(self):
         """returns latest state"""
@@ -133,6 +136,16 @@ class BPFtrace:
             raise BPFtraceError("no global bpftrace variable found, please include "
                                 "at least one global variable in your script")
 
+        metadata = re.findall(r'^// (\w+): (.+)$', self.script, re.MULTILINE)
+        for key, val in metadata:
+            if key == 'name':
+                if re.match(r'^[a-zA-Z_]\w+$', val):
+                    self.metadata['name'] = val
+                else:
+                    raise BPFtraceError("invalid value '{}' for script name: must contain only "
+                                        "alphanumeric characters and start with a letter".format(
+                                            val))
+
     def start(self):
         """starts bpftrace in the background and reads its stdout in a new thread"""
         with self.lock:
@@ -142,7 +155,6 @@ class BPFtrace:
             self._state.reset()
             self._state.status = 'starting'
 
-        self.parse_script()
         self.process = subprocess.Popen(['bpftrace', '-f', 'json', '-e', self.script],
                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                         encoding='utf8')
@@ -164,8 +176,7 @@ class BPFtrace:
                     self._state.status))
             self._state.status = 'stopping'
 
-        self.log("send stop signal to bpftrace process {}, "
-                 "wait for termination: {}".format(self.process.pid, wait))
+        self.log("stopped bpftrace PID {}, wait for termination: {}".format(self.process.pid, wait))
         self.process.send_signal(signal.SIGINT)
 
         if wait:

@@ -48,12 +48,12 @@ class Consts: # pylint: disable=too-few-public-methods
 class BPFtraceScript:
     """manage metrics for a bpftrace instance"""
 
-    def __init__(self, pmda, cluster, name, script):
+    def __init__(self, pmda, cluster, script):
         self.pmda = pmda
         self.cluster = cluster
-        self.name = name
         self.script = script # contains the unmodified script
         self.bpftrace = BPFtrace(pmda.log, script)
+        self.name = self.bpftrace.metadata.get('name', 'script{}'.format(cluster))
         self.state = self.bpftrace.state()
 
         self.item_to_var = {}
@@ -282,11 +282,10 @@ class BPFtracePMDA(PMDA):
                 return 0
 
         script_cluster = self.next_script_no
-        name = 'script{}'.format(script_cluster)
-        script = BPFtraceScript(self, script_cluster, name, code)
         self.next_script_no += 1
 
         try:
+            script = BPFtraceScript(self, script_cluster, code)
             script.start()
         except BPFtraceError as e:
             self.register_value = str(e)
@@ -295,7 +294,7 @@ class BPFtracePMDA(PMDA):
         script.register_metrics()
         self.script_instances[script_cluster] = script
         self.refresh_script_instances()
-        self.register_value = name
+        self.register_value = script.name
         return 0
 
     def deregister_script(self, name):
