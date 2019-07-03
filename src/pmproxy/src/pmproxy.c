@@ -246,7 +246,7 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 
 #if !defined(HAVE_LIBUV)
     if (timeseries) {
-	pmprintf("%s: -t/--timeseries requires libuv support (missing)\n",
+	pmprintf("%s: -t/--timeseries requires libuv and openssl support (missing)\n",
 			pmGetProgname());
 	opts.errors++;
     } else {
