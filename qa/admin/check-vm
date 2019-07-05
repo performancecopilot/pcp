@@ -787,25 +787,24 @@ else
     then
 	for _pkg in $unavail_pkg
 	do
-	    if [ -z "$_version" ]
-	    then
-		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
+	    sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
 s/\([[ ]\)'"$_pkg"'\([] ]\)/\1 \2/
 s/\(\[.*\) or/\1/g
 s/\(\[.*\) ([^)]*)/\1/g
 s/  */ /g
-s;\[  *\([](]\);[N/A on '"$_distro"' \1;
-s/  *]/]/
 }'
+	    if [ -z "$_version" ]
+	    then
+		sed <$tmp.tmp >$tmp.manifest \
+		    -e 's;\[  *\([](]\);[N/A on '"$_distro"' \1;' \
+		    -e 's/  *]/]/' \
+		#end
 	    else
-		sed <$tmp.manifest >$tmp.tmp -e "/[[ ]$_pkg[] ]/"'{
-s/\([[ ]\)'"$_pkg"'\([] ]\)/\1 \2/
-s/  */ /g
-s;\[  *\([](]\);[N/A on '"$_distro"' '"$_version"' \1;
-s/  *]/]/
-}'
+		sed <$tmp.tmp >$tmp.manifest \
+		    -e 's;\[  *\([](]\);[N/A on '"$_distro"' '"$_version"' \1;' \
+		    -e 's/  *]/]/' \
+		#end
 	    fi
-	    mv $tmp.tmp $tmp.manifest
 	    $very_verbose && echo >&2 "unavailable: $_pkg"
 	done
     fi

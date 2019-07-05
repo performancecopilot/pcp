@@ -22,7 +22,10 @@ then
     exit
 fi
 
-qa/admin/myconfigure
+# -q so we don't build after configure ... all the building is prescriptive
+# in this script in the following sections
+#
+qa/admin/myconfigure -q
 if [ -f src/include/pcp.conf ]
 then
     . src/include/pcp.conf
@@ -49,11 +52,17 @@ fi
 # others that could be added to the list below ...
 # src/libapp src/libpcp_qed src/libpcp_qwt
 #
+
 here=`pwd`
 for dir in src/libpcp src/libpcp_pmda src/libpcp_pmcd src/libpcp_gui \
 	src/libpcp_web src/libpcp_mmv src/libpcp_import src/libpcp_trace \
-	src/libpcp_qmc src/libpcp_fault
+	src/libpcp_qmc src/libpcp_fault src/libpcp_static
 do
+    if [ ! -d "$dir" ]
+    then
+	echo "Arrgh! dir \"$dir\" does not exist"
+	exit
+    fi
     echo "=== $dir ==="
     cd $dir
     [ -d src ] && cd src
@@ -69,7 +78,17 @@ do
 done
 
 echo "=== qa ==="
+if [ ! -d qa ]
+then
+    echo "Arrgh! dir \"qa\" does not exist"
+    exit
+fi
 cd qa
+if [ ! -d src ]
+then
+    echo "Arrgh! dir \"qa/src\" does not exist"
+    exit
+fi
 cd src
 $PCP_MAKE_PROG clean-exec
 cd ..
