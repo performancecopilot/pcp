@@ -248,7 +248,7 @@ then
 		    echo "---- 8< ----"
 		    cat $tmp.pr
 		else
-		    hub pull-request -m $tmp.pr
+		    hub pull-request -F $tmp.pr
 		fi
 	    fi
 	    ;;
