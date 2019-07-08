@@ -2,11 +2,16 @@
 # PCP QA Test No. 600
 # Test __pmTimezone
 #
-# Bizarre Note:
+# Bizarre Note (observations based on machines in the Melbourne
+# timezone)
 #
 # Looks like this test starts to fail towards the end of the last
 # week of December, but starts passing again on 1 Jan.
 # Observed 2014/2015.
+#
+# The same thing appears to happen with failures starting 1 Jul,
+# and passing resumes around 7 Jul.
+# Observed 2019.
 #
 # This test looks like its tripping genuine bugs in Linux:
 # 1. for glibc-2.2.4 or earlier, Linux seems to invert the sense of the
