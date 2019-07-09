@@ -95,25 +95,23 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
 	    /* based on domain, unknown PMDA */
 	    sts = PM_ERR_NOAGENT;
 	else {
-	    if (ctxp->c_sent != dp->domain) {
-		/*
-		 * current profile is _not_ already cached at other end of
-		 * IPC, so send get current profile ...
-		 * Note: trickier than the non-local case, as no per-PMDA
-		 *	 caching at the PMCD end, so need to remember the
-		 *	 last domain to receive a profile
-		 */
-		if (pmDebugOptions.fetch)
-		    fprintf(stderr, 
-			    "__pmFetchLocal: calling ???_profile(domain: %d), "
-			    "context: %d\n", dp->domain, ctx);
-		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
-		    dp->dispatch.version.four.ext->e_context = ctx;
-		sts = dp->dispatch.version.any.profile(ctxp->c_instprof,
-						dp->dispatch.version.any.ext);
-		if (sts >= 0)
-		    ctxp->c_sent = dp->domain;
-	    }
+	    /*
+	     * current profile is _not_ already cached at other end of
+	     * IPC, so send get current profile ...
+	     * Note: trickier than the non-local case, as no per-PMDA
+	     *       caching at the PMCD end, so need to remember the
+	     *       last domain to receive a profile
+	     */
+	    if (pmDebugOptions.fetch)
+	        fprintf(stderr, 
+	                "__pmFetchLocal: calling ???_profile(domain: %d), "
+	                "context: %d\n", dp->domain, ctx);
+	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+	        dp->dispatch.version.four.ext->e_context = ctx;
+	    sts = dp->dispatch.version.any.profile(ctxp->c_instprof,
+	                                    dp->dispatch.version.any.ext);
+	    if (sts >= 0)
+	        ctxp->c_sent = dp->domain;
 	}
 
 	/* Copy all pmID for the current domain into the temp. list */
