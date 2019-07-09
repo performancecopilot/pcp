@@ -13,7 +13,7 @@ _usage()
     echo >&2
     echo >&2 "options:"
     echo >&2 "  -b branch           [defaults to master]"
-    echo >&2 "  -m                  don't launch mail client"
+    echo >&2 "  -m                  don't launch mail client or create pull request"
     echo >&2 "  -n                  dryrun"
     echo >&2 "  -r range            [defaults to \$(cat pushed.sha)..)]"
     echo >&2 "  -s                  short format, do not include commit messages"
@@ -39,7 +39,7 @@ do
 	b)
 	    branch="$OPTARG"
 	    ;;
-	m)	# don't launch mail client
+	m)	# don't launch mail client or generate pull request
 	    mail=false
 	    ;;
 	n)
@@ -214,21 +214,45 @@ then
     echo "+ echo $sha >pushed.sha"
 else
     echo "$sha" >pushed.sha
-    if $mail
-    then
-	case `id -un`
-	in
-	    kenj)
-		echo "And now send commit mail ..."
-		if [ `hostname` = bozo ]
+fi
+
+if $mail
+then
+    case `id -un`
+    in
+	kenj)
+	    # using hub(1) to generate a pull request
+	    #
+	    while true
+	    do
+		echo -n "Pull request title: [title|q] "
+		read ans </dev/tty
+		if [ "$ans" = q ]
 		then
-		    sendcommitmail
+		    echo "Quitting ... no github pull request generated"
+		    exit
+		elif [ -n "$ans" ]
+		then
+		    echo "$ans" >$tmp.pr
+		    cat /tmp/msg >>$tmp.pr
+		    break
 		else
-		    echo "cut-n-paste from /tmp/msg into mail program and send to pcp@group.io"
+		    echo "Answer the question, bozo!"
 		fi
-		;;
-	esac
-    else
-	echo "cut-n-paste from /tmp/msg into mail program and send to pcp@group.io"
-    fi
+	    done
+	    if [ -f $tmp.pr ]
+	    then
+		if $dryrun
+		then
+		    echo + hub pull-request -m $tmp.pr
+		    echo "---- 8< ----"
+		    cat $tmp.pr
+		else
+		    hub pull-request -F $tmp.pr
+		fi
+	    fi
+	    ;;
+    esac
+else
+    echo "cut-n-paste from /tmp/msg into mail program and send to pcp@group.io"
 fi
