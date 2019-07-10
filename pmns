@@ -1,0 +1,9 @@
+statsd {
+    pmda
+}
+
+statsd.pmda {
+    received        STATSD:0:0
+    parsed          STATSD:0:1
+    thrown_away     STATSD:0:2
+}

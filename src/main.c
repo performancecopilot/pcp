@@ -34,7 +34,9 @@ main(int argc, char **argv)
     int config_src_type = argc >= 2 ? READ_FROM_CMD : READ_FROM_FILE;
     config = read_agent_config(config_src_type, "statsd-pmda.ini", argc, argv);
     init_loggers(config);
-    print_agent_config(config);
+    if (config->debug) {
+        print_agent_config(config);
+    }
 
     chan_t* unprocessed_datagrams_q = chan_init(config->max_unprocessed_packets);
     if (unprocessed_datagrams_q == NULL) DIE("Unable to create channel network listener -> parser.");
@@ -44,12 +46,14 @@ main(int argc, char **argv)
     if (aggregator_to_pcp == NULL) DIE("Unable to create channel aggregator -> pcp.");
     chan_t* pcp_to_aggregator = chan_init(0);    
     if (pcp_to_aggregator == NULL) DIE("Unable to create channel pcp -> aggregator.");
+    chan_t* stats_sink = chan_init(0);
+    if (stats_sink == NULL) DIE("Unable to create stats sink channel.");
 
     metrics* m = init_metrics(config);
-    struct network_listener_args* listener_args = create_listener_args(config, unprocessed_datagrams_q);
-    struct parser_args* parser_args = create_parser_args(config, unprocessed_datagrams_q, parsed_datagrams_q);
-    struct aggregator_args* aggregator_args = create_aggregator_args(config, parsed_datagrams_q, aggregator_to_pcp, pcp_to_aggregator, m);
-    struct pcp_args* pcp_args = create_pcp_args(config, pcp_to_aggregator, aggregator_to_pcp);
+    struct network_listener_args* listener_args = create_listener_args(config, unprocessed_datagrams_q, stats_sink);
+    struct parser_args* parser_args = create_parser_args(config, unprocessed_datagrams_q, parsed_datagrams_q, stats_sink);
+    struct aggregator_args* aggregator_args = create_aggregator_args(config, parsed_datagrams_q, aggregator_to_pcp, pcp_to_aggregator, stats_sink, m);
+    struct pcp_args* pcp_args = create_pcp_args(config, pcp_to_aggregator, aggregator_to_pcp, stats_sink, argc, argv);
 
     int pthread_errno = 0; 
     pthread_errno = pthread_create(&network_listener, NULL, network_listener_exec, listener_args);
@@ -78,10 +82,12 @@ main(int argc, char **argv)
     chan_close(parsed_datagrams_q);
     chan_close(aggregator_to_pcp);
     chan_close(pcp_to_aggregator);
+    chan_close(stats_sink);
     chan_dispose(unprocessed_datagrams_q);
     chan_dispose(parsed_datagrams_q);
     chan_dispose(aggregator_to_pcp);
     chan_dispose(pcp_to_aggregator);
+    chan_dispose(stats_sink);
     return EXIT_SUCCESS;
 }
 

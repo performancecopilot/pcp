@@ -13,6 +13,7 @@
 	write data;
 }%%
 
+
 /**
  * Ragel parser entry point
  * Parsers given buffer and populates datagram with parsed data if they are valid

@@ -10,6 +10,7 @@ struct parser_args
     struct agent_config* config;
     chan_t* unprocessed_datagrams;
     chan_t* parsed_datagrams;
+    chan_t* stats_sink;
 } parser_args;
 
 struct statsd_datagram
@@ -36,10 +37,11 @@ parser_exec(void* args);
  * @arg config - Application config
  * @arg unprocessed_channel - Network listener -> Parser
  * @arg parsed_channel - Parser -> Aggregator
+ * @arg stats_sink - Channel for sending stats about PMDA itself
  * @return parser_args
  */
 struct parser_args*
-create_parser_args(struct agent_config* config, chan_t* unprocessed_channel, chan_t* parsed_channel);
+create_parser_args(struct agent_config* config, chan_t* unprocessed_channel, chan_t* parsed_channel, chan_t* stats_sink);
 
 /**
  * Prints out parsed datagram structure in human readable form.

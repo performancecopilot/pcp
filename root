@@ -1,0 +1,5 @@
+#include <stdpmid>
+
+root { statsd }
+
+#include "pmns"

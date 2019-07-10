@@ -5,6 +5,7 @@
 #include <hdr/hdr_histogram.h>
 #include <pcp/dict.h>
 #include <pcp/pmapi.h>
+#include <pthread.h>
 
 #include "config-reader.h"
 #include "parsers.h"
@@ -85,14 +86,22 @@ aggregator_exec(void* args) {
     chan_t* parsed = ((struct aggregator_args*)args)->parsed_datagrams;
     chan_t* pcp_to_aggregator = ((struct aggregator_args*)args)->pcp_request_channel;
     chan_t* aggregator_to_pcp = ((struct aggregator_args*)args)->pcp_response_channel;
+    chan_t* stats_sink = ((struct aggregator_args*)args)->stats_sink;
     metrics* m = ((struct aggregator_args*)args)->metrics_wrapper;
     struct statsd_datagram* datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
     struct pcp_request* request = (struct pcp_request*) malloc(sizeof(struct pcp_request));
     while(1) {
         switch(chan_select(&parsed, 1, (void *)&datagram, NULL, 0, NULL)) {
             case 0:
-                process_datagram(config, m, datagram);
-                break;
+            {
+                int status = process_datagram(config, m, datagram);
+                if (status == 0) {
+                    chan_send(stats_sink, create_stat_message(STAT_THROWN_AWAY_INC, NULL));
+                } else {
+                    chan_send(stats_sink, create_stat_message(STAT_AGGREGATED_INC, NULL));
+                }
+            }
+            break;
         }
         switch(chan_select(&pcp_to_aggregator, 1, (void *)&request, NULL, 0, NULL)) {
             case 0:
@@ -109,6 +118,7 @@ aggregator_exec(void* args) {
         pthread_mutex_unlock(&g_output_requested_lock);
     }
     free_datagram(datagram);
+    pthread_exit(NULL);
 }
 
 /**
@@ -145,29 +155,34 @@ create_metric_dict_key(struct statsd_datagram* datagram) {
  * @arg config - Agent config
  * @arg m - Metrics struct acting as metrics wrapper
  * @arg datagram - Datagram to be processed
+ * @return status - 1 when successfully saved or updated, 0 when thrown away
  */
-void
+int
 process_datagram(struct agent_config* config, metrics* m, struct statsd_datagram* datagram) {
     struct metric* item;
     char* key = create_metric_dict_key(datagram);
     if (key == NULL) {
-        verbose_log("Throwing away datagram. REASON: unable to create hashtable key for metric record.");
-        return;
+        verbose_log("Throwing away datagram. REASON: unable to create hashtable key for metric record.");        
+        return 0;
     }
     int metric_exists = find_metric_by_name(m, key, &item);
     if (metric_exists) {
         int res = update_metric(config, item, datagram);
         if (res == 0) {
             verbose_log("Throwing away datagram. REASON: semantically incorrect values.");
+            return 0;
         }
+        return 1;
     } else {
         int name_available = check_metric_name_available(m, key);
         if (name_available) {
             int correct_semantics = create_metric(config, datagram, &item);
             if (correct_semantics) {
                 add_metric(m, key, item);
+                return 1;
             } else {
                 verbose_log("Throwing away datagram. REASON: semantically incorrect values.");
+                return 0;
             }
         }
     }
@@ -413,6 +428,7 @@ free_metric_metadata(struct metric_metadata* meta) {
  * @arg parsed_channel - Parser -> Aggregator channel
  * @arg pcp_request_channel - PCP -> Aggregator channel
  * @arg pcp_response_channel - Aggregator -> PCP channel
+ * @arg stats_sink - Channel for sending stats about PMDA itself
  * @return aggregator_args
  */
 struct aggregator_args*
@@ -421,6 +437,7 @@ create_aggregator_args(
     chan_t* parsed_channel,
     chan_t* pcp_request_channel,
     chan_t* pcp_response_channel,
+    chan_t* stats_sink,
     metrics* m
 ) {
     struct aggregator_args* aggregator_args = (struct aggregator_args*) malloc(sizeof(struct aggregator_args));
@@ -429,6 +446,7 @@ create_aggregator_args(
     aggregator_args->parsed_datagrams = parsed_channel;
     aggregator_args->pcp_request_channel = pcp_request_channel;
     aggregator_args->pcp_response_channel = pcp_response_channel;
+    aggregator_args->stats_sink = stats_sink;
     aggregator_args->metrics_wrapper = m;
     return aggregator_args;
 }

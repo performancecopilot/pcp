@@ -37,6 +37,7 @@ struct aggregator_args
     chan_t* parsed_datagrams;
     chan_t* pcp_request_channel;
     chan_t* pcp_response_channel;
+    chan_t* stats_sink;
     metrics* metrics_wrapper;
 } aggregator_args;
 
@@ -66,7 +67,7 @@ aggregator_request_output();
  * @arg m - Metrics struct acting as metrics wrapper
  * @arg datagram - Datagram to be processed
  */
-void
+int
 process_datagram(struct agent_config* config, metrics* m, struct statsd_datagram* datagram);
 
 /**
@@ -170,6 +171,7 @@ print_metric_meta(FILE* f, struct metric_metadata* meta);
  * @arg parsed_channel - Parser -> Aggregator channel
  * @arg pcp_request_channel - PCP -> Aggregator channel
  * @arg pcp_response_channel - Aggregator -> PCP channel
+ * @arg stats_sink - Channel for sending stats about PMDA itself
  * @return aggregator_args
  */
 struct aggregator_args* create_aggregator_args(
@@ -177,6 +179,7 @@ struct aggregator_args* create_aggregator_args(
     chan_t* parsed_channel,
     chan_t* pcp_request_channel,
     chan_t* pcp_response_channel,
+    chan_t* aggregator_args,
     metrics* m
 );
 

@@ -8,16 +8,19 @@
 #include "parser-basic.h"
 #include "parser-ragel.h"
 #include "utils.h"
+#include "pcp.h"
 
 /**
- * Thread entrypoint - listens to incoming payload on a unprocessed channel and sends over successfully parsed data over to Aggregator thread via processed channel
+ * Thread entrypoint - listens to incoming payload on a unprocessed channel
+ * and sends over successfully parsed data over to Aggregator thread via processed channel
  * @arg args - parser_args
  */
 void*
 parser_exec(void* args) {
+    struct agent_config* config = ((struct parser_args*)args)->config;
     chan_t* unprocessed_channel = ((struct parser_args*)args)->unprocessed_datagrams;
     chan_t* parsed_channel = ((struct parser_args*)args)->parsed_datagrams;
-    struct agent_config* config = ((struct parser_args*)args)->config;
+    chan_t* stats_sink = ((struct parser_args*)args)->stats_sink;
     datagram_parse_callback parse_datagram;
     if ((int)config->parser_type == (int)PARSER_TYPE_BASIC) {
         parse_datagram = &basic_parser_parse;
@@ -35,12 +38,16 @@ parser_exec(void* args) {
         char* tok = strtok(datagram->value, delim);
         while (tok != NULL) {
             int success = parse_datagram(tok, &parsed);
-            if (success) {            
+            if (success) {
+                chan_send(stats_sink, create_stat_message(STAT_PARSED_INC, NULL));
                 chan_send(parsed_channel, parsed);
+            } else {
+                chan_send(stats_sink, create_stat_message(STAT_THROWN_AWAY_INC, NULL));
             }
             tok = strtok(NULL, delim);
         }
     }
+    pthread_exit(NULL);
 }
 
 /**
@@ -48,15 +55,17 @@ parser_exec(void* args) {
  * @arg config - Application config
  * @arg unprocessed_channel - Network listener -> Parser
  * @arg parsed_channel - Parser -> Aggregator
+ * @arg stats_sink - Channel for sending stats about PMDA itself
  * @return parser_args
  */
 struct parser_args*
-create_parser_args(struct agent_config* config, chan_t* unprocessed_channel, chan_t* parsed_channel) {
+create_parser_args(struct agent_config* config, chan_t* unprocessed_channel, chan_t* parsed_channel, chan_t* stats_sink) {
     struct parser_args* parser_args = (struct parser_args*) malloc(sizeof(struct parser_args));
     ALLOC_CHECK("Unable to assign memory for parser arguments.");
     parser_args->config = config;
     parser_args->unprocessed_datagrams = unprocessed_channel;
     parser_args->parsed_datagrams = parsed_channel;
+    parser_args->stats_sink = stats_sink;
     return parser_args;
 }
 

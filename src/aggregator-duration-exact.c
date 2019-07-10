@@ -85,8 +85,8 @@ get_exact_duration_values_meta(struct exact_duration_collection* collection, str
     }
     qsort(collection->values, collection->length, sizeof(double*), exact_duration_values_comparator);
     double accumulator = 0;
-    double min;
-    double max;
+    double min = *(collection->values[0]);
+    double max = *(collection->values[0]);
     size_t i;
     for (i = 0; i < collection->length; i++) {
         double current = *(collection->values[i]);
