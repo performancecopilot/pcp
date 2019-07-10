@@ -15,6 +15,7 @@
 """bpftrace PMDA"""
 
 import os
+import json
 import atexit
 from ctypes import c_int
 
@@ -77,6 +78,11 @@ class BPFtraceScript:
             metric_name = 'root'
         return metric_name
 
+    @property
+    def exported_variables(self):
+        """returns a list of all exported variables by this bpftrace script"""
+        return map(self.normalize_variable_name, self.bpftrace.var_defs.keys())
+
     def register_metrics(self):
         """register metrics for this bpftrace instance"""
         self.status_metric = pmdaMetric(
@@ -131,9 +137,10 @@ class BPFtraceScript:
                 self.pmda.pmid(self.cluster, item_no), c_api.PM_TYPE_U64,
                 indom_id, var_def.semantics, pmUnits()
             )
-            self.pmda.add_metric('bpftrace.scripts.{}.data.{}'.format(
-                self.name, self.normalize_variable_name(var_name)), metric)
-            self.metrics[var_name] = metric
+            metric_name = 'bpftrace.scripts.{}.data.{}'.format(
+                self.name, self.normalize_variable_name(var_name))
+            self.pmda.add_metric(metric_name, metric)
+            self.metrics[metric_name] = metric
             self.item_to_var[item_no] = var_name
 
     def deregister_metrics(self):
@@ -145,9 +152,8 @@ class BPFtraceScript:
         self.pmda.remove_metric('bpftrace.scripts.{}.output'.format(self.name), self.output_metric)
         self.pmda.remove_metric('bpftrace.scripts.{}.probes'.format(self.name), self.probes_metric)
         self.pmda.remove_metric('bpftrace.scripts.{}.script'.format(self.name), self.script_metric)
-        for var_name in self.bpftrace.var_defs:
-            self.pmda.remove_metric('bpftrace.scripts.{}.data.{}'.format(
-                self.name, self.normalize_variable_name(var_name)), self.metrics[var_name])
+        for metric_name, metric in self.metrics.items():
+            self.pmda.remove_metric(metric_name, metric)
 
     def refresh_state(self):
         """refreshes state from bpftrace application"""
@@ -228,7 +234,7 @@ class BPFtracePMDA(PMDA):
 
     def register_metrics(self):
         """register control metrics"""
-        self.register_value = ''
+        self.register_value = {}
         self.add_metric('bpftrace.control.register', pmdaMetric(
             self.pmid(Consts.Control.Cluster, Consts.Control.Register), c_api.PM_TYPE_STRING,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
@@ -275,10 +281,15 @@ class BPFtracePMDA(PMDA):
 
     def register_script(self, code):
         """register a new bpftrace script"""
+        uuid, code = code.split('#', 1)
+
         # check for an identical script
         for script in self.script_instances.values():
             if script.script == code:
-                self.register_value = script.name
+                self.register_value[uuid] = {
+                    "name": script.name,
+                    "vars": list(script.exported_variables)
+                }
                 return 0
 
         script_cluster = self.next_script_no
@@ -288,13 +299,20 @@ class BPFtracePMDA(PMDA):
             script = BPFtraceScript(self, script_cluster, code)
             script.start()
         except BPFtraceError as e:
-            self.register_value = str(e)
+            self.register_value[uuid] = {
+                "name": "",
+                "vars": [],
+                "error": str(e)
+            }
             return 0
 
         script.register_metrics()
         self.script_instances[script_cluster] = script
         self.refresh_script_instances()
-        self.register_value = script.name
+        self.register_value[uuid] = {
+            "name": script.name,
+            "vars": list(script.exported_variables)
+        }
         return 0
 
     def deregister_script(self, name):
@@ -356,9 +374,7 @@ class BPFtracePMDA(PMDA):
         """PMDA fetch callback"""
         if cluster == Consts.Control.Cluster:
             if item == Consts.Control.Register:
-                val = self.register_value
-                self.register_value = ''
-                return [val, 1]
+                return [json.dumps(self.register_value), 1]
             elif item == Consts.Control.Deregister:
                 val = self.deregister_value
                 self.deregister_value = ''

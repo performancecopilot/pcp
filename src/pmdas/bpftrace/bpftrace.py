@@ -84,36 +84,23 @@ class BPFtrace:
                         for bucket in v
                     }
 
-    def process_output_objs(self, json_objs):
-        """process multiple JSON objects"""
-        if not json_objs:
-            return
-
-        for json_obj in json_objs:
-            json_obj = json_obj.strip()
-            if json_obj:
-                try:
-                    obj = json.loads(json_obj)
-                    self.process_output_obj(obj)
-                except ValueError:
-                    with self.lock:
-                        self._state.output += json_obj
-
     def process_output(self):
         """process stdout and stderr of running bpftrace process"""
-        buf = ''
         for line in self.process.stdout:
-            buf += line
-            json_objs = buf.split('\n\n')
-            buf = json_objs.pop()
-            self.process_output_objs(json_objs)
+            if not line or line.isspace():
+                continue
+            try:
+                obj = json.loads(line)
+                self.process_output_obj(obj)
+            except ValueError:
+                with self.lock:
+                    self._state.output += line
 
         # process has exited, set returncode
         self.process.poll()
         with self.lock:
             self._state.status = 'stopped'
             self._state.exit_code = self.process.returncode
-            self._state.output += buf
 
     def parse_script(self):
         """parse bpftrace script (read variable semantics, add continuous output)"""
