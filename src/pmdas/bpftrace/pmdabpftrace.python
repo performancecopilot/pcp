@@ -45,6 +45,7 @@ class Consts: # pylint: disable=too-few-public-methods
         Output = 3
         Probes = 4
         Script = 5
+        # bpftrace variables start at item no 10
 
 class BPFtraceScript:
     """manage metrics for a bpftrace instance"""
@@ -122,12 +123,12 @@ class BPFtraceScript:
         )
         self.pmda.add_metric('bpftrace.scripts.{}.script'.format(self.name), self.script_metric)
 
-        # bpftrace needs to be started
-        for item_no, (var_name, var_def) in enumerate(self.bpftrace.var_defs.items(), 100):
+        for item_no, (var_name, var_def) in enumerate(self.bpftrace.var_defs.items(), 10):
             if var_def.single:
                 indom_id = c_api.PM_INDOM_NULL
             else:
-                indom_id = self.pmda.indom(item_no)
+                # serial needs to be unique across PMDA
+                indom_id = self.pmda.indom(self.cluster * 1000 + item_no)
                 indom = pmdaIndom(indom_id, {})
                 self.pmda.add_indom(indom)
                 self.indom_ids[var_name] = indom_id
@@ -185,7 +186,7 @@ class BPFtraceScript:
                 return [self.state.exit_code, 1]
             return [PMDA_FETCH_NOVALUES, 0]
         elif item == Consts.Script.Output:
-            return [self.state.output, 1]
+            return [self.state.output.strip(), 1]
         elif item == Consts.Script.Probes:
             return [self.state.probes, 1]
         elif item == Consts.Script.Script:
@@ -283,13 +284,22 @@ class BPFtracePMDA(PMDA):
         """register a new bpftrace script"""
         uuid, code = code.split('#', 1)
 
+        def response(script):
+            script.refresh_state()
+            return {
+                "name": script.name,
+                "vars": list(script.exported_variables),
+                "status": script.state.status,
+                "output": script.state.output
+            }
+
         # check for an identical script
         for script in self.script_instances.values():
             if script.script == code:
-                self.register_value[uuid] = {
-                    "name": script.name,
-                    "vars": list(script.exported_variables)
-                }
+                script.refresh_state()
+                if script.state.status == 'stopped' and script.state.exit_code == 0:
+                    script.start()
+                self.register_value[uuid] = response(script)
                 return 0
 
         script_cluster = self.next_script_no
@@ -302,17 +312,15 @@ class BPFtracePMDA(PMDA):
             self.register_value[uuid] = {
                 "name": "",
                 "vars": [],
-                "error": str(e)
+                "status": "stopped",
+                "output": str(e)
             }
             return 0
 
         script.register_metrics()
         self.script_instances[script_cluster] = script
         self.refresh_script_instances()
-        self.register_value[uuid] = {
-            "name": script.name,
-            "vars": list(script.exported_variables)
-        }
+        self.register_value[uuid] = response(script)
         return 0
 
     def deregister_script(self, name):

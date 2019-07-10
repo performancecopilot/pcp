@@ -72,6 +72,9 @@ class BPFtrace:
     def process_output_obj(self, obj):
         """process a single JSON object from bpftrace output"""
         with self.lock:
+            if self._state.status == 'starting':
+                self._state.status = 'started'
+
             if obj['type'] == 'attached_probes':
                 self._state.probes = obj['probes']
             elif obj['type'] == 'map':
@@ -152,7 +155,7 @@ class BPFtrace:
 
         self.log("started bpftrace -e '{}', PID: {}".format(self.script, self.process.pid))
         with self.lock:
-            self._state.status = 'started'
+            # status will be set to 'started' once the first data arrives
             self._state.pid = self.process.pid
 
     def stop(self, wait=False):
