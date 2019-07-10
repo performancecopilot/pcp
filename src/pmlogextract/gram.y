@@ -81,7 +81,6 @@ metricspec	: NAME { name = strdup($1); numinst = 0; } optinst
 
 			    if ((sts = pmTraversePMNS (name, dometric)) >= 0) {
 				found = 1;
-				break;
 			    }
 			}
 
@@ -125,10 +124,6 @@ dometric(const char *name)
     pmID	pmid;
     pmDesc	*dp = NULL;
 
-    if ((dp = (pmDesc *)malloc(sizeof(pmDesc))) == NULL) {
-	goto nomem;
-    }
-
     /*
      * Cast away const, pmLookUpName should not modify name
      */
@@ -140,6 +135,19 @@ dometric(const char *name)
 	 */
 	pmsprintf(emess, sizeof(emess), "Metric \"%s\" is unknown ... not extracted", name);
 	goto bad;
+    }
+
+    /*
+     * As we traverse the PMNS for every input archive, make sure the pmid
+     * is not one we've seen before ...
+     */
+    for (j=0; j<ml_numpmid; j++) {
+	if (pmid == ml[j].desc->pmid)
+	    return;
+    }
+
+    if ((dp = (pmDesc *)malloc(sizeof(pmDesc))) == NULL) {
+	goto nomem;
     }
 
     if ((sts = pmLookupDesc(pmid, dp)) < 0) {
@@ -165,8 +173,7 @@ dometric(const char *name)
     }
 
     ml[ml_numpmid].name = NULL;
-    ml[ml_numpmid].idesc = NULL;
-    ml[ml_numpmid].odesc = NULL;
+    ml[ml_numpmid].desc = NULL;
     ml[ml_numpmid].numinst = 0;
     ml[ml_numpmid].instlist = NULL;
 
@@ -179,13 +186,11 @@ dometric(const char *name)
     if (ml[ml_numpmid].name == NULL) {
 	goto nomem;
     }
+    if (pmDebugOptions.appl0) {
+	fprintf(stderr, "configfile: select metric %s (PMID %s)\n", name, pmIDStr(pmid));
+    }
 
-    /*
-     * input descriptor (idesc) and output descriptor (odesc) are initially
-     * pointed at the same descriptor
-     */
-    ml[ml_numpmid].idesc = dp;
-    ml[ml_numpmid].odesc = dp;
+    ml[ml_numpmid].desc = dp;
     ml[ml_numpmid].numinst = numinst;
 
     skip = 0;
@@ -255,6 +260,9 @@ dometric(const char *name)
 	     */
 	    if (inst > -1) {
 		ml[ml_numpmid].instlist[j] = inst;
+		if (pmDebugOptions.appl0) {
+		    fprintf(stderr, "configfile: select instance \"%s\" (%d) for metric %s (PMID %s)\n", extlist[i], inst, name, pmIDStr(pmid));
+		}
 		++j;
 	    }
 	} /* for(i) */

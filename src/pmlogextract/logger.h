@@ -56,17 +56,12 @@ extern inarch_t	*inarch;	/* input archive control(s) */
 extern int	inarchnum;	/* number of input archives */
 
 /*
- *  metric [instance] list
+ *  metric [instance] selection list
  */
 typedef struct {
     char	*name;		/* metric name */
-    /* normally idesc and odesc will point to the same descriptor ...
-     * however, if the "-t" flag is specified, then in the case of
-     * counters and instantaneous values, odesc will be different
-     */
-    pmDesc	*idesc;		/* input  metric descriptor - pmid, pmindom */
-    pmDesc	*odesc;		/* output metric descriptor - pmid, pmindom */
-    int		numinst;	/* number of instances (0 means all) */
+    pmDesc	*desc;		/* metric descriptor - pmid, indom, etc. */
+    int		numinst;	/* number of instances (0 means all, -1 means skip) */
     int		*instlist;	/* instance ids */
 } mlist_t;
 
@@ -80,13 +75,24 @@ typedef struct __rlist_t {
 } rlist_t;
 
 
+/*
+ * metrics explicitly requested via the -c configfile option ...
+ * ml is NULL if no -c on the command line
+ */
 extern int	ml_numpmid;		/* num pmid in ml list */
 extern int	ml_size;		/* actual size of ml array */
 extern mlist_t	*ml;			/* list of pmids with indoms */
 extern rlist_t	*rl;			/* list of pmResults */
 
-extern int	ilog;
+/*
+ * metrics with mismatched metadata across archives that are to be
+ * skipped if -x is used on the command line
+ * skip_ml is NULL if no -x on the command line
+ */
+extern int	skip_ml_numpmid;
+extern pmID	*skip_ml;
 
+extern int	ilog;
 
 /* config file parser states */
 #define GLOBAL	0
@@ -118,6 +124,9 @@ extern pmUnits ntoh_pmUnits(pmUnits);
 extern void insertresult(rlist_t **, pmResult *);
 extern pmResult *searchmlist(pmResult *);
 extern void abandon_extract(void);
+
+/* command line args needed across source files */
+extern int	xarg;
 
 
 #endif /* PCP_LOGGER_H */
