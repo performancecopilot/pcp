@@ -21,7 +21,7 @@ from ctypes import c_int
 
 import cpmapi as c_api
 from cpmda import PMDA_FETCH_NOVALUES
-from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaGetContext
 from pcp.pmapi import pmUnits, pmContext as PCP
 
 from bpftrace import BPFtrace, BPFtraceError
@@ -215,6 +215,7 @@ class BPFtracePMDA(PMDA):
         self.connect_pmcd()
 
         self.next_script_no = 1 # same as cluster
+        self.ctxtab = {}
         self.script_instances = {}
         self.script_indom_id = None
         self.script_indom = None
@@ -235,25 +236,21 @@ class BPFtracePMDA(PMDA):
 
     def register_metrics(self):
         """register control metrics"""
-        self.register_value = {}
         self.add_metric('bpftrace.control.register', pmdaMetric(
             self.pmid(Consts.Control.Cluster, Consts.Control.Register), c_api.PM_TYPE_STRING,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         ))
 
-        self.deregister_value = ''
         self.add_metric('bpftrace.control.deregister', pmdaMetric(
             self.pmid(Consts.Control.Cluster, Consts.Control.Deregister), c_api.PM_TYPE_STRING,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         ))
 
-        self.start_value = ''
         self.add_metric('bpftrace.control.start', pmdaMetric(
             self.pmid(Consts.Control.Cluster, Consts.Control.Start), c_api.PM_TYPE_STRING,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         ))
 
-        self.stop_value = ''
         self.add_metric('bpftrace.control.stop', pmdaMetric(
             self.pmid(Consts.Control.Cluster, Consts.Control.Stop), c_api.PM_TYPE_STRING,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
@@ -266,6 +263,23 @@ class BPFtracePMDA(PMDA):
             self.pmid(Consts.Control.Cluster, Consts.Control.Scripts), c_api.PM_TYPE_STRING,
             self.script_indom_id, c_api.PM_SEM_INSTANT, pmUnits()
         ))
+
+    def set_ctx_state(self, key, value):
+        """set per-context state"""
+        ctx = pmdaGetContext()
+        if ctx not in self.ctxtab:
+            self.ctxtab[ctx] = {}
+        self.ctxtab[ctx][key] = value
+
+    def get_ctx_state(self, key):
+        """get (and delete) per-context state"""
+        ctx = pmdaGetContext()
+        if ctx not in self.ctxtab or key not in self.ctxtab[ctx]:
+            return {}
+
+        val = self.ctxtab[ctx][key]
+        self.ctxtab[ctx][key] = {}
+        return val
 
     def refresh_script_instances(self):
         """update bpftrace scripts indom"""
@@ -282,8 +296,6 @@ class BPFtracePMDA(PMDA):
 
     def register_script(self, code):
         """register a new bpftrace script"""
-        uuid, code = code.split('#', 1)
-
         def response(script):
             script.refresh_state()
             return {
@@ -299,7 +311,7 @@ class BPFtracePMDA(PMDA):
                 script.refresh_state()
                 if script.state.status == 'stopped' and script.state.exit_code == 0:
                     script.start()
-                self.register_value[uuid] = response(script)
+                self.set_ctx_state('register', response(script))
                 return 0
 
         script_cluster = self.next_script_no
@@ -309,26 +321,26 @@ class BPFtracePMDA(PMDA):
             script = BPFtraceScript(self, script_cluster, code)
             script.start()
         except BPFtraceError as e:
-            self.register_value[uuid] = {
+            self.set_ctx_state('register', {
                 "name": "",
                 "vars": [],
                 "status": "stopped",
                 "output": str(e)
-            }
-            return 0
+            })
+            return c_api.PM_ERR_BADSTORE
 
         script.register_metrics()
         self.script_instances[script_cluster] = script
         self.refresh_script_instances()
-        self.register_value[uuid] = response(script)
+        self.set_ctx_state('register', response(script))
         return 0
 
     def deregister_script(self, name):
         """deregister a bpftrace script"""
         script = self.find_script_by_name(name)
         if not script:
-            self.deregister_value = 'script not found'
-            return 0
+            self.set_ctx_state('deregister', {"error": "script not found"})
+            return c_api.PM_ERR_BADSTORE
 
         script.deregister_metrics()
         script.refresh_state()
@@ -336,7 +348,7 @@ class BPFtracePMDA(PMDA):
             script.stop()
         del self.script_instances[script.cluster]
         self.refresh_script_instances()
-        self.deregister_value = 'success'
+        self.set_ctx_state('deregister', {"success": "true"})
         return 0
 
     def store_callback(self, cluster, item, inst, val): # pylint: disable=too-many-return-statements
@@ -349,25 +361,29 @@ class BPFtracePMDA(PMDA):
             elif item == Consts.Control.Start:
                 script = self.find_script_by_name(val)
                 if not script:
-                    self.start_value = 'script not found'
-                    return 0
+                    self.set_ctx_state('start', {"error": "script not found"})
+                    return c_api.PM_ERR_BADSTORE
+
                 try:
                     script.start()
-                    self.start_value = 'success'
+                    self.set_ctx_state('start', {"success": "true"})
+                    return 0
                 except BPFtraceError as e:
-                    self.start_value = str(e)
-                return 0
+                    self.set_ctx_state('start', {"error": str(e)})
+                    return c_api.PM_ERR_BADSTORE
             elif item == Consts.Control.Stop:
                 script = self.find_script_by_name(val)
                 if not script:
-                    self.stop_value = 'script not found'
-                    return 0
+                    self.set_ctx_state('stop', {"error": "script not found"})
+                    return c_api.PM_ERR_BADSTORE
+
                 try:
                     script.stop()
-                    self.stop_value = 'success'
+                    self.set_ctx_state('stop', {"success": "true"})
+                    return 0
                 except BPFtraceError as e:
-                    self.stop_value = str(e)
-                return 0
+                    self.set_ctx_state('stop', {"error": str(e)})
+                    return c_api.PM_ERR_BADSTORE
 
         return c_api.PM_ERR_PMID
 
@@ -382,19 +398,13 @@ class BPFtracePMDA(PMDA):
         """PMDA fetch callback"""
         if cluster == Consts.Control.Cluster:
             if item == Consts.Control.Register:
-                return [json.dumps(self.register_value), 1]
+                return [json.dumps(self.get_ctx_state('register')), 1]
             elif item == Consts.Control.Deregister:
-                val = self.deregister_value
-                self.deregister_value = ''
-                return [val, 1]
+                return [json.dumps(self.get_ctx_state('deregister')), 1]
             elif item == Consts.Control.Start:
-                val = self.start_value
-                self.start_value = ''
-                return [val, 1]
+                return [json.dumps(self.get_ctx_state('start')), 1]
             elif item == Consts.Control.Stop:
-                val = self.stop_value
-                self.stop_value = ''
-                return [val, 1]
+                return [json.dumps(self.get_ctx_state('stop')), 1]
             elif item == Consts.Control.Scripts:
                 name = self.script_indom.inst_name_lookup(inst)
                 script = self.find_script_by_name(name)

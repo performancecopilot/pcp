@@ -117,10 +117,11 @@ class BPFtrace:
                 vardef = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT)
                 if func in ['hist', 'lhist']:
                     vardef.single = False
-                elif key:
-                    vardef.single = False
+                    vardef.semantics = PM_SEM_COUNTER
                 if func == 'count':
                     vardef.semantics = PM_SEM_COUNTER
+                if key:
+                    vardef.single = False
                 self.var_defs[var] = vardef
         else:
             raise BPFtraceError("no global bpftrace variable found, please include "
