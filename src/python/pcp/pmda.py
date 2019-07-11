@@ -66,6 +66,9 @@ LIBPCP_PMDA.pmdaAddLabels.argtypes = [POINTER(POINTER(pmLabelSet)), c_char_p]
 LIBPCP_PMDA.pmdaAddLabelFlags.restype = c_int
 LIBPCP_PMDA.pmdaAddLabelFlags.argtypes = [POINTER(pmLabelSet), c_int]
 
+LIBPCP_PMDA.pmdaGetContext.restype = c_int
+LIBPCP_PMDA.pmdaGetContext.argtypes = []
+
 def pmdaAddLabels(label):
     result_p = POINTER(pmLabelSet)()
     status = LIBPCP_PMDA.pmdaAddLabels(byref(result_p), label)
@@ -75,6 +78,12 @@ def pmdaAddLabels(label):
 
 def pmdaAddLabelFlags(labels, flags):
     status = LIBPCP_PMDA.pmdaAddLabelFlags(labels, flags)
+    if status < 0:
+        raise pmErr(status)
+    return status
+
+def pmdaGetContext():
+    status = LIBPCP_PMDA.pmdaGetContext()
     if status < 0:
         raise pmErr(status)
     return status
