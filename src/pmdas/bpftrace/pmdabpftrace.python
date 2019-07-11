@@ -16,6 +16,7 @@
 
 import os
 import json
+import time
 import atexit
 from ctypes import c_int
 
@@ -55,13 +56,19 @@ class BPFtraceScript:
         self.cluster = cluster
         self.script = script # contains the unmodified script
         self.bpftrace = BPFtrace(pmda.log, script)
-        self.name = self.bpftrace.metadata.get('name', 'script{}'.format(cluster))
+        if 'name' in self.bpftrace.metadata:
+            self.name = self.bpftrace.metadata['name']
+            self.persistent = True
+        else:
+            self.name = 'script{}'.format(cluster)
+            self.persistent = False
         self.state = self.bpftrace.state()
 
         self.item_to_var = {}
         self.indom_ids = {}
         self.indoms = {}
         self.metrics = {}
+        self.last_refresh = time.time()
 
     def start(self):
         """start bpftrace"""
@@ -172,6 +179,7 @@ class BPFtraceScript:
                 self.indoms[var_name].set_instances(self.indom_ids[var_name], {
                     key:c_int(1) for key in self.state.maps[var_name]
                 })
+        self.last_refresh = time.time()
 
     def fetch_callback(self, item, inst): # pylint: disable=too-many-return-statements
         """PMDA fetch callback for this bpftrace instance"""
@@ -212,11 +220,14 @@ class BPFtracePMDA(PMDA):
         self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
         self.configfile += '/' + name + '/' + name + '.conf'
 
+        # TODO: read from config
+        self.max_idle_time = 5 * 60
+
         self.connect_pmcd()
 
         self.next_script_no = 1 # same as cluster
         self.ctxtab = {}
-        self.script_instances = {}
+        self.scripts = {}
         self.script_indom_id = None
         self.script_indom = None
         self.register_metrics()
@@ -229,7 +240,7 @@ class BPFtracePMDA(PMDA):
         def cleanup(): # pylint: disable=unused-variable
             """Cleanup"""
             if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
-                for script in self.script_instances.values():
+                for script in self.scripts.values():
                     script.refresh_state()
                     if script.state.status == 'started':
                         script.stop()
@@ -281,15 +292,25 @@ class BPFtracePMDA(PMDA):
         self.ctxtab[ctx][key] = {}
         return val
 
-    def refresh_script_instances(self):
+    def cleanup_idle_scripts(self):
+        """cleanup scripts which got not requested in a specified time period"""
+        script_expiry = time.time() - self.max_idle_time
+        # copy list of scripts here as we're modifying it during iteration
+        for script in list(self.scripts.values()):
+            if not script.persistent and script.last_refresh < script_expiry:
+                self.log("deregistering script {} (wasn't requested "
+                         "in the last {} seconds)".format(script.name, self.max_idle_time))
+                self.deregister_script(script.name, False)
+
+    def refresh_script_indom(self):
         """update bpftrace scripts indom"""
         self.script_indom.set_instances(self.script_indom_id, {
-            script.name:c_int(1) for script in self.script_instances.values()
+            script.name:c_int(1) for script in self.scripts.values()
         })
 
     def find_script_by_name(self, name):
         """find script by name"""
-        for script in self.script_instances.values():
+        for script in self.scripts.values():
             if script.name == name:
                 return script
         return None
@@ -306,7 +327,7 @@ class BPFtracePMDA(PMDA):
             }
 
         # check for an identical script
-        for script in self.script_instances.values():
+        for script in self.scripts.values():
             if script.script == code:
                 script.refresh_state()
                 if script.state.status == 'stopped' and script.state.exit_code == 0:
@@ -330,25 +351,27 @@ class BPFtracePMDA(PMDA):
             return c_api.PM_ERR_BADSTORE
 
         script.register_metrics()
-        self.script_instances[script_cluster] = script
-        self.refresh_script_instances()
+        self.scripts[script_cluster] = script
+        self.refresh_script_indom()
         self.set_ctx_state('register', response(script))
         return 0
 
-    def deregister_script(self, name):
+    def deregister_script(self, name, set_ctx=True):
         """deregister a bpftrace script"""
         script = self.find_script_by_name(name)
         if not script:
-            self.set_ctx_state('deregister', {"error": "script not found"})
+            if set_ctx:
+                self.set_ctx_state('deregister', {"error": "script not found"})
             return c_api.PM_ERR_BADSTORE
 
         script.deregister_metrics()
         script.refresh_state()
         if script.state.status == 'started':
             script.stop()
-        del self.script_instances[script.cluster]
-        self.refresh_script_instances()
-        self.set_ctx_state('deregister', {"success": "true"})
+        del self.scripts[script.cluster]
+        self.refresh_script_indom()
+        if set_ctx:
+            self.set_ctx_state('deregister', {"success": "true"})
         return 0
 
     def store_callback(self, cluster, item, inst, val): # pylint: disable=too-many-return-statements
@@ -389,10 +412,12 @@ class BPFtracePMDA(PMDA):
 
     def refresh_callback(self, cluster):
         """PMDA refresh callback"""
+        self.cleanup_idle_scripts()
+
         if cluster == Consts.Control.Cluster:
             return None
         else:
-            return self.script_instances[cluster].refresh_callback()
+            return self.scripts[cluster].refresh_callback()
 
     def fetch_callback(self, cluster, item, inst): # pylint: disable=too-many-return-statements
         """PMDA fetch callback"""
@@ -412,7 +437,7 @@ class BPFtracePMDA(PMDA):
                     return [script.script, 1]
                 return [PMDA_FETCH_NOVALUES, 0]
         else:
-            return self.script_instances[cluster].fetch_callback(item, inst)
+            return self.scripts[cluster].fetch_callback(item, inst)
         return [c_api.PM_ERR_PMID, 0]
 
 if __name__ == '__main__':
