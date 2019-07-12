@@ -110,11 +110,25 @@ class BPFtrace:
 
     def parse_script(self):
         """parse bpftrace script (read variable semantics, add continuous output)"""
-        self.var_defs = {}
+        metadata = re.findall(r'^// (\w+): (.+)$', self.script, re.MULTILINE)
+        for key, val in metadata:
+            if key == 'name':
+                if re.match(r'^[a-zA-Z_]\w+$', val):
+                    self.metadata['name'] = val
+                else:
+                    raise BPFtraceError("invalid value '{}' for script name: must contain only "
+                                        "alphanumeric characters and start with a letter".format(
+                                            val))
+            elif key == 'include':
+                self.metadata['include'] = val.split(',')
 
+        self.var_defs = {}
         variables = re.findall(r'(@.*?)(\[.+?\])?\s*=\s*(count|hist)?', self.script)
         if variables:
             for var, key, func in variables:
+                if 'include' in self.metadata and var not in self.metadata['include']:
+                    continue
+
                 vardef = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT, datatype=PM_TYPE_U64)
                 if func in ['hist', 'lhist']:
                     vardef.single = False
@@ -129,22 +143,13 @@ class BPFtrace:
             self.script = self.script + ' interval:s:1 {{ {} }}'.format(print_st)
 
         printfs = re.search(r'printf\s*\(', self.script)
-        if printfs:
-            self.var_defs['@printf'] = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT, datatype=PM_TYPE_STRING)
+        if printfs and ('include' not in self.metadata or '@printf' in self.metadata['include']):
+            self.var_defs['@printf'] = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT,
+                                                      datatype=PM_TYPE_STRING)
 
         if not self.var_defs:
             raise BPFtraceError("no bpftrace variables or printf statements found, please include "
                                 "at least one variable or print statement in your script")
-
-        metadata = re.findall(r'^// (\w+): (.+)$', self.script, re.MULTILINE)
-        for key, val in metadata:
-            if key == 'name':
-                if re.match(r'^[a-zA-Z_]\w+$', val):
-                    self.metadata['name'] = val
-                else:
-                    raise BPFtraceError("invalid value '{}' for script name: must contain only "
-                                        "alphanumeric characters and start with a letter".format(
-                                            val))
 
     def start(self):
         """starts bpftrace in the background and reads its stdout in a new thread"""
