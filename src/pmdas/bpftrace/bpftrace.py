@@ -19,7 +19,7 @@ import re
 from threading import Thread, Lock
 from copy import deepcopy
 import json
-from cpmapi import PM_SEM_INSTANT, PM_SEM_COUNTER
+from cpmapi import PM_SEM_INSTANT, PM_SEM_COUNTER, PM_TYPE_U64, PM_TYPE_STRING
 
 
 class BPFtraceError(Exception):
@@ -44,9 +44,10 @@ class BPFtraceState: # pylint: disable=too-few-public-methods
 
 class BPFtraceVarDef: # pylint: disable=too-few-public-methods
     """BPFtrace variable definitions"""
-    def __init__(self, single, semantics):
+    def __init__(self, single, semantics, datatype):
         self.single = single
         self.semantics = semantics
+        self.datatype = datatype
 
     def __str__(self):
         return str(self.__dict__)
@@ -86,6 +87,8 @@ class BPFtrace:
                         :bucket['count']
                         for bucket in v
                     }
+            elif obj['type'] in ['printf', 'time']:
+                self._state.maps['@printf'] = self._state.maps.get('@printf', '') + obj['msg']
 
     def process_output(self):
         """process stdout and stderr of running bpftrace process"""
@@ -107,14 +110,12 @@ class BPFtrace:
 
     def parse_script(self):
         """parse bpftrace script (read variable semantics, add continuous output)"""
+        self.var_defs = {}
+
         variables = re.findall(r'(@.*?)(\[.+?\])?\s*=\s*(count|hist)?', self.script)
         if variables:
-            print_st = ' '.join(['print({});'.format(var) for var, key, func in variables])
-            self.script = self.script + ' interval:s:1 {{ {} }}'.format(print_st)
-
-            self.var_defs = {}
             for var, key, func in variables:
-                vardef = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT)
+                vardef = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT, datatype=PM_TYPE_U64)
                 if func in ['hist', 'lhist']:
                     vardef.single = False
                     vardef.semantics = PM_SEM_COUNTER
@@ -123,9 +124,17 @@ class BPFtrace:
                 if key:
                     vardef.single = False
                 self.var_defs[var] = vardef
-        else:
-            raise BPFtraceError("no global bpftrace variable found, please include "
-                                "at least one global variable in your script")
+
+            print_st = ' '.join(['print({});'.format(var) for var in self.var_defs])
+            self.script = self.script + ' interval:s:1 {{ {} }}'.format(print_st)
+
+        printfs = re.search(r'printf\s*\(', self.script)
+        if printfs:
+            self.var_defs['@printf'] = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT, datatype=PM_TYPE_STRING)
+
+        if not self.var_defs:
+            raise BPFtraceError("no bpftrace variables or printf statements found, please include "
+                                "at least one variable or print statement in your script")
 
         metadata = re.findall(r'^// (\w+): (.+)$', self.script, re.MULTILINE)
         for key, val in metadata:

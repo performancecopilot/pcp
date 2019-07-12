@@ -144,7 +144,7 @@ class BPFtraceScript:
                 self.indoms[var_name] = indom
 
             metric = pmdaMetric(
-                self.pmda.pmid(self.cluster, item_no), c_api.PM_TYPE_U64,
+                self.pmda.pmid(self.cluster, item_no), var_def.datatype,
                 indom_id, var_def.semantics, pmUnits()
             )
             metric_name = 'bpftrace.scripts.{}.data.{}'.format(
