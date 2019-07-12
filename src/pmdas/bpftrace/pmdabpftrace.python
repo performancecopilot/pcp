@@ -15,8 +15,10 @@
 """bpftrace PMDA"""
 
 import os
+import sys
 import json
 import time
+import configparser
 import atexit
 from ctypes import c_int
 
@@ -217,11 +219,8 @@ class BPFtracePMDA(PMDA):
     def __init__(self, name, domain):
         super(BPFtracePMDA, self).__init__(name, domain)
 
-        self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
-        self.configfile += '/' + name + '/' + name + '.conf'
-
-        # TODO: read from config
-        self.max_idle_time = 5 * 60
+        self.script_expiry_time = 10 * 60 # in seconds, default to 10 min
+        self.read_config()
 
         self.connect_pmcd()
 
@@ -244,6 +243,27 @@ class BPFtracePMDA(PMDA):
                     script.refresh_state()
                     if script.state.status == 'started':
                         script.stop()
+
+    def read_config(self):
+        """read PMDA configuration file"""
+        configfile = '{}/{}/{}.conf'.format(PCP.pmGetConfig('PCP_PMDAS_DIR'), self.name, self.name)
+
+        # Python < 3.2 compat #
+        if sys.version_info >= (3, 2):
+            config = configparser.ConfigParser()
+        else:
+            config = configparser.SafeConfigParser()
+
+        # read() will skip missing files
+        config.read(configfile)
+
+        if config.has_section('pmda'):
+            for opt in config.options('pmda'):
+                if opt == 'script_expiry_time':
+                    self.script_expiry_time = config.getint('pmda', opt)
+                else:
+                    self.err("Invalid directive '{}' in {}, aborting.".format(opt, configfile))
+                    sys.exit(1)
 
     def register_metrics(self):
         """register control metrics"""
@@ -294,12 +314,12 @@ class BPFtracePMDA(PMDA):
 
     def cleanup_idle_scripts(self):
         """cleanup scripts which got not requested in a specified time period"""
-        script_expiry = time.time() - self.max_idle_time
+        script_expiry = time.time() - self.script_expiry_time
         # copy list of scripts here as we're modifying it during iteration
         for script in list(self.scripts.values()):
             if not script.persistent and script.last_refresh < script_expiry:
                 self.log("deregistering script {} (wasn't requested "
-                         "in the last {} seconds)".format(script.name, self.max_idle_time))
+                         "in the last {} seconds)".format(script.name, self.script_expiry_time))
                 self.deregister_script(script.name, False)
 
     def refresh_script_indom(self):
