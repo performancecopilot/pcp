@@ -1,6 +1,5 @@
 build
 src/parser-ragel.c
 .vscode
-.dbpmdarc
 debug
 autom4te.cache
