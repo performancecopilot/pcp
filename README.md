@@ -40,6 +40,8 @@ Move to PCP_PMDAS_DIRECTORY with:
 sudo make install
 ```
 
+First make sure you have "STATSD" namespace set to "510" in stdpmid file. [How-to](https://pcp.io/books/PCP_PG/html/id5189538.html)
+
 Run PMDA with:
 
 ```
