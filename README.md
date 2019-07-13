@@ -5,48 +5,57 @@ PCP PMDA for StatsD in C
 
 You need to have **chan** [repo](https://github.com/tylertreat/chan) and **HdrHistogram_c** [repo](https://github.com/HdrHistogram/HdrHistogram_c) installed in your /usr/local dir. You also need to have **Ragel** installed. 
 
-## Installing **chan**
-```
-./autogen.sh
-./configure
-sudo make install
-```
-
-## Installing **HdrHistogram_c**
-```
-cmake .
-sudo make install
-```
-
-# Installing **Ragel** (Fedora 30)
-```
-dnf install ragel
-```
-
 ## Running pcp-statsd-c
-compile with:
+Compile with:
 
 ```
 make
 ```
 
-run with: 
+run with:
+You might need right priviledges to do this. 
 
 ```
 make run
 ```
 
-run tests with:
+Run tests with:
 
 ```
 make test-basic
 make test-ragel
 ```
 
-clean with:
+Clean with:
 
 ```
 make clean
+```
+
+### These commands require right priviledges, they have no other dependencies in Makefile other then themselves.
+
+Move to PCP_PMDAS_DIRECTORY with:
+
+```
+sudo make install
+```
+
+Run PMDA with:
+
+```
+sudo make activate
+```
+
+Remove from PCP_PMDAS_DIRECTORY with:
+
+```
+sudo make uninstall
+```
+
+Stop PMDA with:
+
+```
+sudo make deactivate
 ```
 
 ## FAQ/Troubleshooting

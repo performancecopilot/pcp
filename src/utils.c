@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <pthread.h>
 
 #include "config-reader.h"
 
@@ -181,13 +182,18 @@ sanitize_type_val_string(char* src) {
  */
 void
 verbose_log(const char* format, ...) {
+    static pthread_mutex_t verbose_log_lock;
+    static char pthread_name_buf[16];
     if (g_verbose_flag) {
+        pthread_mutex_lock(&verbose_log_lock);
+        pthread_getname_np(pthread_self(), pthread_name_buf, 16);
         va_list vargs;
         va_start(vargs, format);
-        fprintf(stdout, YEL "VERBOSE LOG: " RESET);
+        fprintf(stdout, YEL "VERBOSE LOG: " GRN "THREAD: %-18s" RESET " - ", pthread_name_buf);
         vfprintf(stdout, format, vargs);
         fprintf(stdout, "\n");
         va_end(vargs);
+        pthread_mutex_unlock(&verbose_log_lock);
     }
 }
 
@@ -198,13 +204,18 @@ verbose_log(const char* format, ...) {
  */
 void
 debug_log(const char* format, ...) {
+    static pthread_mutex_t debug_log_lock;
+    static char pthread_name_buf[16];
     if (g_debug_flag) {
+        pthread_mutex_lock(&debug_log_lock);
+        pthread_getname_np(pthread_self(), pthread_name_buf, 16);
         va_list vargs;
         va_start(vargs, format);
-        fprintf(stdout, MAG "DEBUG LOG: " RESET);
+        fprintf(stdout, MAG "DEBUG LOG: " GRN "THREAD: %-18s" RESET " - ", pthread_name_buf);
         vfprintf(stdout, format, vargs);
         fprintf(stdout, "\n");
         va_end(vargs);
+        pthread_mutex_unlock(&debug_log_lock);
     }
 }
 
@@ -215,13 +226,19 @@ debug_log(const char* format, ...) {
  */
 void
 trace_log(const char* format, ...) {
+    static pthread_mutex_t trace_log_lock;
+    static char pthread_name_buf[16];
     if (g_trace_flag) {
+        pthread_mutex_lock(&trace_log_lock);
+        pthread_getname_np(pthread_self(), pthread_name_buf, 16);
+        pthread_mutex_unlock(&trace_log_lock);
         va_list vargs;
         va_start(vargs, format);
-        fprintf(stdout, CYN "TRACE LOG: " RESET);
+        fprintf(stdout, CYN "TRACE LOG: " GRN "THREAD: %-18s" RESET " - ", pthread_name_buf);
         vfprintf(stdout, format, vargs);
         fprintf(stdout, "\n");
         va_end(vargs);
+        pthread_mutex_unlock(&trace_log_lock);
     }
 }
 

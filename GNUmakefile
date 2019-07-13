@@ -10,7 +10,6 @@ else
 include $(PCP_DIR)/etc/pcp.conf
 endif
 
-$(info $(PCP_INC_DIR))
 include $(PCP_INC_DIR)/builddefs
 
 TARGET_EXEC ?= pmda$(IAM)
@@ -55,7 +54,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 LDLIBS := -lhdr_histogram_static -lchan -lm -lpthread -lpcp_web -lpcp -lpcp_pmda
 
-CFLAGS ?=-Wall -Wextra $(INC_FLAGS) -MMD -MP
+CFLAGS ?=-Wall -Wextra $(INC_FLAGS) -MMD -MP -D_GNU_SOURCE -g
 
 DFILES	= README.md
 
@@ -67,15 +66,15 @@ $(RAGEL_TARGET): $(RAGEL_SRCS)
 
 $(MAIN_BUILD_DIR)/$(TARGET_EXEC): CFLAGS += -D_TEST_TARGET=0
 $(MAIN_BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -o $@ $(LDLIBS)
+	$(CC) $(OBJS) -g -o $@ $(LDLIBS)
 
 $(TEST_BASIC_BUILD_DIR)/$(TEST_BASIC_EXEC): CFLAGS += -D_TEST_TARGET=1
 $(TEST_BASIC_BUILD_DIR)/$(TEST_BASIC_EXEC): $(TEST_BASIC_OBJS)
-	$(CC) $(TEST_BASIC_OBJS) -o $@ $(LDLIBS)
+	$(CC) $(TEST_BASIC_OBJS) -g -o $@ $(LDLIBS)
 
 $(TEST_RAGEL_BUILD_DIR)/$(TEST_RAGEL_EXEC): CFLAGS += -D_TEST_TARGET=2
 $(TEST_RAGEL_BUILD_DIR)/$(TEST_RAGEL_EXEC): $(TEST_RAGEL_OBJS)
-	$(CC) $(TEST_RAGEL_OBJS) -o $@ $(LDLIBS)
+	$(CC) $(TEST_RAGEL_OBJS) -g -o $@ $(LDLIBS)
 
 # c source
 $(MAIN_BUILD_DIR)/%.c.o: %.c
@@ -98,8 +97,8 @@ clean:
 	$(RM) -r $(TARGET_EXEC)
 	$(RM) -r statsd.log
 
-run: 
-	$(MAIN_BUILD_DIR)/$(TARGET_EXEC)
+run:
+	./$(TARGET_EXEC)
 
 test-basic: $(TEST_BASIC_BUILD_DIR)/$(TEST_BASIC_EXEC)
 	$^
@@ -107,20 +106,20 @@ test-basic: $(TEST_BASIC_BUILD_DIR)/$(TEST_BASIC_EXEC)
 test-ragel: $(TEST_RAGEL_BUILD_DIR)/$(TEST_RAGEL_EXEC) 
 	$^
 
-install install_pcp: $(MAIN_BUILD_DIR)/$(TARGET_EXEC) domain.h
+install install_pcp:
 	$(INSTALL) -m 755 -d $(PMDA_DIR)
 	$(INSTALL) -m 755 Install Remove $(PMDA_DIR)
 	$(INSTALL) -m 755 $(MAIN_BUILD_DIR)/$(TARGET_EXEC) $(PMDA_DIR)/$(TARGET_EXEC)
-	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h statsd-pmda.ini .dbpmdarc $(PMDA_DIR)
+	$(INSTALL) -m 644 $(DFILES) help root root_statsd domain.h statsd-pmda.ini .dbpmdarc $(PMDA_DIR)
 
 uninstall:
 	rm -r -f $(PMDA_DIR)			
 
 activate: install
-	cd $(PMDA_DIR) && $(PMDA_DIR)/Install
+	cd $(PMDA_DIR) && ./Install
 
 remove:
-	cd $(PMDA_DIR) && $(PMDA_DIR)/Remove
+	cd $(PMDA_DIR) && ./Remove
 
 deactivate: remove uninstall
 

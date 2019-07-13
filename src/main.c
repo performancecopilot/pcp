@@ -1,3 +1,7 @@
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -20,14 +24,14 @@ signal_handler(int num) {
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char** argv)
 {
     signal(SIGUSR1, signal_handler);
 
     pthread_t network_listener;
     pthread_t parser;
     pthread_t aggregator;
-    pthread_t pcp;
+    pthread_t pcp;    
 
     struct agent_config* config = (struct agent_config*) malloc(sizeof(struct agent_config));
     ALLOC_CHECK(NULL, "Unable to asssign memory for agent config.");
@@ -53,7 +57,7 @@ main(int argc, char **argv)
     struct network_listener_args* listener_args = create_listener_args(config, unprocessed_datagrams_q, stats_sink);
     struct parser_args* parser_args = create_parser_args(config, unprocessed_datagrams_q, parsed_datagrams_q, stats_sink);
     struct aggregator_args* aggregator_args = create_aggregator_args(config, parsed_datagrams_q, aggregator_to_pcp, pcp_to_aggregator, stats_sink, m);
-    struct pcp_args* pcp_args = create_pcp_args(config, pcp_to_aggregator, aggregator_to_pcp, stats_sink, argc, argv);
+    struct pcp_args* pmda_args = create_pcp_args(config, pcp_to_aggregator, aggregator_to_pcp, stats_sink, argc, argv);
 
     int pthread_errno = 0; 
     pthread_errno = pthread_create(&network_listener, NULL, network_listener_exec, listener_args);
@@ -62,7 +66,7 @@ main(int argc, char **argv)
     PTHREAD_CHECK(pthread_errno);
     pthread_errno = pthread_create(&aggregator, NULL, aggregator_exec, aggregator_args);
     PTHREAD_CHECK(pthread_errno);
-    pthread_errno = pthread_create(&pcp, NULL, pcp_pmda_exec, pcp_args);
+    pthread_errno = pthread_create(&pcp, NULL, pcp_pmda_exec, pmda_args);
     PTHREAD_CHECK(pthread_errno);
 
     if (pthread_join(network_listener, NULL) != 0) {

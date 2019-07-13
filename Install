@@ -4,6 +4,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=statsd
+pmns_source=root_statsd
 
 pmdaSetup
 pmdaInstall

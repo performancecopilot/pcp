@@ -39,12 +39,12 @@ read_agent_config(int src_flag, char* config_path, int argc, char **argv) {
     if (src_flag == READ_FROM_FILE) {
         read_agent_config_file(&config, config_path);
     } else if (src_flag == READ_FROM_CMD) {
-        read_agent_config_cmd(&config, argc, argv);
+        // read_agent_config_cmd(&config, argc, argv);
     } else {
         DIE("Incorrect source flag for agent_config source.");
     }
     return config;
-}
+}           
 
 static int
 ini_line_handler(void* user, const char* section, const char* name, const char* value) {
@@ -118,11 +118,11 @@ read_agent_config_cmd(struct agent_config** dest, int argc, char **argv) {
             { "tcpaddr", required_argument, 0, 't' },
             { "port", required_argument, 0, 'a' },
             { "parser-type", required_argument, 0, 'p'},
-            { "duration-aggregation-type", required_argument, 0, 'd'},
+            { "duration-aggregation-type", required_argument, 0, 'g'},
             { 0, 0, 0, 0 }
         };
         int option_index = 0;
-        c = getopt_long_only(argc, argv, "o::u::t::a::p::d::", long_options, &option_index);
+        c = getopt_long_only(argc, argv, "o::u::t::a::p::g::", long_options, &option_index);
         if (c == -1) break;
         switch (c) {
             case 0:
@@ -148,7 +148,7 @@ read_agent_config_cmd(struct agent_config** dest, int argc, char **argv) {
             case 'p':
                 (*dest)->parser_type = atoi(optarg);
                 break;
-            case 'd':
+            case 'g':
                 (*dest)->duration_aggregation_type = atoi(optarg);
                 break;
         }

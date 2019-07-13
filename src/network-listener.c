@@ -1,3 +1,7 @@
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -13,7 +17,7 @@
 #include "parser-ragel.h"
 #include "utils.h"
 #include "config-reader.h"
-#include "pcp.h"
+#include "pmda-stats-collector.h"
 
 /**
  * Thread entrypoint - listens on address and port specified in config 
@@ -22,6 +26,7 @@
  */
 void*
 network_listener_exec(void* args) {
+    pthread_setname_np(pthread_self(), "Net. Listener");
     struct agent_config* config = ((struct network_listener_args*)args)->config;
     chan_t* unprocessed_datagrams = ((struct network_listener_args*)args)->unprocessed_datagrams;
     chan_t* stats_sink = ((struct network_listener_args*)args)->stats_sink;
@@ -63,10 +68,10 @@ network_listener_exec(void* args) {
             chan_send(stats_sink, create_stat_message(STAT_RECEIVED_INC, NULL));
             struct unprocessed_statsd_datagram* datagram = (struct unprocessed_statsd_datagram*) malloc(sizeof(struct unprocessed_statsd_datagram));
             ALLOC_CHECK("Unable to assign memory for struct representing unprocessed datagrams.");
-            datagram->value = (char*) malloc(sizeof(char) * (count + 1));
+            datagram->value = (char*) malloc(sizeof(char) * count);
             ALLOC_CHECK("Unable to assign memory for datagram value.");
             strncpy(datagram->value, buffer, count);
-            datagram->value[count + 1] = '\0';
+            datagram->value[count] = '\0';
             chan_send(unprocessed_datagrams, datagram);
         }
         memset(buffer, 0, max_udp_packet_size);

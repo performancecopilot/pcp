@@ -1,3 +1,7 @@
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <stddef.h>
@@ -17,7 +21,7 @@
 #include "aggregator-duration.h"
 #include "aggregator-counter.h"
 #include "aggregator-gauge.h"
-#include "pcp.h"
+#include "pmda-stats-collector.h"
 
 /**
  * Flag to capture USR1 signal event, which is supposed mark request to output currently recorded data in debug file 
@@ -82,6 +86,7 @@ init_metrics(struct agent_config* config) {
  */
 void*
 aggregator_exec(void* args) {
+    pthread_setname_np(pthread_self(), "Aggregator");
     struct agent_config* config = ((struct aggregator_args*)args)->config;
     chan_t* parsed = ((struct aggregator_args*)args)->parsed_datagrams;
     chan_t* pcp_to_aggregator = ((struct aggregator_args*)args)->pcp_request_channel;
@@ -90,16 +95,20 @@ aggregator_exec(void* args) {
     metrics* m = ((struct aggregator_args*)args)->metrics_wrapper;
     struct statsd_datagram* datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
     struct pcp_request* request = (struct pcp_request*) malloc(sizeof(struct pcp_request));
+    struct timeval t0, t1;
     while(1) {
         switch(chan_select(&parsed, 1, (void *)&datagram, NULL, 0, NULL)) {
             case 0:
             {
+                gettimeofday(&t0, NULL);
                 int status = process_datagram(config, m, datagram);
+                gettimeofday(&t1, NULL);
                 if (status == 0) {
                     chan_send(stats_sink, create_stat_message(STAT_THROWN_AWAY_INC, NULL));
                 } else {
                     chan_send(stats_sink, create_stat_message(STAT_AGGREGATED_INC, NULL));
                 }
+                chan_send(stats_sink, create_stat_message(STAT_TIME_SPENT_AGGREGATING_ADD, (void*) (uintptr_t) (t1.tv_usec - t0.tv_usec)));
             }
             break;
         }
@@ -184,6 +193,9 @@ process_datagram(struct agent_config* config, metrics* m, struct statsd_datagram
                 verbose_log("Throwing away datagram. REASON: semantically incorrect values.");
                 return 0;
             }
+        } else {
+            verbose_log("Throwing away datagram. REASON: semantically incorrect values.");
+            return 0;
         }
     }
 }

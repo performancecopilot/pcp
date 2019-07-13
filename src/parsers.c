@@ -1,6 +1,11 @@
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 
 #include <chan/chan.h>
+#include <sys/time.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "config-reader.h"
 #include "network-listener.h"
@@ -8,7 +13,7 @@
 #include "parser-basic.h"
 #include "parser-ragel.h"
 #include "utils.h"
-#include "pcp.h"
+#include "pmda-stats-collector.h"
 
 /**
  * Thread entrypoint - listens to incoming payload on a unprocessed channel
@@ -17,6 +22,7 @@
  */
 void*
 parser_exec(void* args) {
+    pthread_setname_np(pthread_self(), "Parser");
     struct agent_config* config = ((struct parser_args*)args)->config;
     chan_t* unprocessed_channel = ((struct parser_args*)args)->unprocessed_datagrams;
     chan_t* parsed_channel = ((struct parser_args*)args)->parsed_datagrams;
@@ -30,20 +36,24 @@ parser_exec(void* args) {
     struct unprocessed_statsd_datagram* datagram =
         (struct unprocessed_statsd_datagram*) malloc(sizeof(struct unprocessed_statsd_datagram));
     ALLOC_CHECK("Unable to allocate space for unprocessed statsd datagram.");
+    char delim[] = "\n";
+    struct timeval t0, t1;
     while(1) {
         *datagram = (struct unprocessed_statsd_datagram) { 0 };
         chan_recv(unprocessed_channel, (void *)&datagram);
         struct statsd_datagram* parsed;
-        char delim[] = "\n";
         char* tok = strtok(datagram->value, delim);
         while (tok != NULL) {
+            gettimeofday(&t0, NULL);
             int success = parse_datagram(tok, &parsed);
+            gettimeofday(&t1, NULL);
             if (success) {
                 chan_send(stats_sink, create_stat_message(STAT_PARSED_INC, NULL));
                 chan_send(parsed_channel, parsed);
             } else {
                 chan_send(stats_sink, create_stat_message(STAT_THROWN_AWAY_INC, NULL));
             }
+            chan_send(stats_sink, create_stat_message(STAT_TIME_SPENT_PARSING_ADD, (void*) (uintptr_t) (t1.tv_usec - t0.tv_usec)));
             tok = strtok(NULL, delim);
         }
     }

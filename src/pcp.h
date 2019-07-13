@@ -2,6 +2,8 @@
 #define PCP_
 
 #include <chan/chan.h>
+#include <pcp/pmapi.h>
+#include <pcp/pmda.h>
 
 #include "config-reader.h"
 
@@ -18,40 +20,41 @@ struct pcp_args {
     char** argv;
 } pcp_args;
 
-enum STAT_MESSAGE_TYPE {
-    STAT_RECEIVED_INC,
-    STAT_RECEIVED_RESET,
-    STAT_PARSED_INC,
-    STAT_PARSED_RESET,
-    STAT_THROWN_AWAY_INC,
-    STAT_THROWN_AWAY_RESET,
-    STAT_AGGREGATED_INC,
-    STAT_AGGREGATED_RESET,
-} STAT_MESSAGE_TYPE;
+struct pmda_stats {
+    unsigned long int received;
+    unsigned long int parsed;
+    unsigned long int thrown_away;
+    unsigned long int aggregated;
+    unsigned long int time_spent_parsing;
+    unsigned long int time_spent_aggregating;
+    pthread_mutex_t received_lock;
+    pthread_mutex_t parsed_lock;
+    pthread_mutex_t thrown_away_lock;
+    pthread_mutex_t aggregated_lock;
+    pthread_mutex_t time_spent_parsing_lock;
+    pthread_mutex_t time_spent_aggregating_lock;
+} pmda_stats;
 
-struct stat_message {
-    enum STAT_MESSAGE_TYPE type;
-    void* data;
-} stat_message;
+struct pmda_data_extension {
+    struct agent_config* config;
+    chan_t* pcp_to_aggregator;
+    chan_t* aggregator_to_pcp;
+    chan_t* stats_sink;
+    char** argv;
+    char* username;
+    struct pmda_stats* stats;
+    size_t hardcoded_metrics_count;
+    size_t total_metric_count;
+    pmdaMetric* metrics;
+    pmdaIndom* instance_domains;
+    pmdaNameSpace* pmns;
+    int argc;
+    pmdaOptions opts;
+    pmLongOptions longopts;
+    char helpfile_path[MAXPATHLEN];
+} pmda_data_extension;
 
 /**
- * Create Stat message
- * @arg type - Type of stat message
- * @arg data - Arbitrary user data which kind is defined by the type of stat message
- * @return new stat message construct 
- */
-struct stat_message*
-create_stat_message(enum STAT_MESSAGE_TYPE type, void* data);
-
-/**
- * Frees up stat message
- * @arg stat - Stat message to be freed
- */
-void
-free_stat_message(struct stat_message* stat);
-
-/**
- * NOT IMPLEMENTED
  * Main loop handling incoming responses from aggregators
  * @arg args - Arguments passed to the thread
  */

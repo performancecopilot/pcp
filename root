@@ -2,4 +2,4 @@
 
 root { statsd }
 
-#include "pmns"
+#include "root_statsd"
