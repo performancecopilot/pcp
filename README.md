@@ -12,7 +12,7 @@ Compile with:
 make
 ```
 
-run with:
+Run with:
 You might need right priviledges to do this. 
 
 ```
