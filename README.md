@@ -13,6 +13,7 @@ make
 ```
 
 Run with:
+
 You might need right priviledges to do this. 
 
 ```
@@ -32,7 +33,7 @@ Clean with:
 make clean
 ```
 
-### These commands require right priviledges, they have no other dependencies in Makefile other then themselves.
+### These commands require right priviledges, they have no other dependencies in Makefile other than themselves.
 
 Move to PCP_PMDAS_DIRECTORY with:
 
