@@ -1361,7 +1361,7 @@ class NFSCLIENTPMDA(PMDA):
                     pmdaMetric(self.pmid(8, opitem), PMDA_ULONG,
                     self.NFSCLIENT_INDOM, c_api.PM_SEM_COUNTER, UNITS_COUNT),
                     'count of completions with an error',
-'Cumulative count of rpc operations completing with erors')
+'Cumulative count of rpc operations completing with errors')
             opitem += 1
 
         self.nfsclient_refresh()
