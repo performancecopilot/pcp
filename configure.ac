@@ -1702,16 +1702,18 @@ then
 fi
 AC_SUBST(lib_for_regex)
 
-if test $target_distro_variant = "opensuse"
+PKG_CHECK_MODULES([openssl], [openssl >= 1.1.1], [have_openssl=true], [have_openssl=false])
+if $have_openssl
 then
-    dnl On openSUSE openssl 2.8.0 does not have some of the methods we
-    dnl need in particular SSL_read_ex() and SSL_CTX_set_cipher_list().
-    dnl Picking 3.0.0 is a pure guess until we know, but it
-    dnl allows the build to proceed without openssl on the older
-    dnl openSUSE platforms like Leap 15.0.
-    PKG_CHECK_MODULES([openssl], [openssl >= 3.0.0], [have_openssl=true], [have_openssl=false])
-else
-    PKG_CHECK_MODULES([openssl], [openssl >= 1.1.1], [have_openssl=true], [have_openssl=false])
+    AC_MSG_CHECKING([for SSL_read_ex])
+    savedLIBS=$LIBS
+    LIBS="$openssl_LIBS"
+    AC_TRY_LINK_FUNC(SSL_read_ex,
+	have_openssl=true
+	AC_MSG_RESULT(yes),
+	have_openssl=false
+	AC_MSG_RESULT(no))
+    LIBS=$savedLIBS
 fi
 AC_SUBST(HAVE_OPENSSL, [$have_openssl])
 
