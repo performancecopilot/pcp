@@ -71,6 +71,7 @@ pcp_pmda_exec(void* args)
     create_statsd_hardcoded_metrics(&dispatch, data);;
     register_pmda_interface_v7_callbacks(&dispatch);
     pmdaSetData(&dispatch, (void*) data);
+    pmdaSetFlags(&dispatch, PMDA_EXT_FLAG_HASHED);
     pmdaInit(&dispatch, NULL, 0, data->metrics, data->hardcoded_metrics_count);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

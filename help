@@ -1,17 +1,17 @@
-@ statsd.received
+@ statsd.pmda.received
 Number of datagrams/packets that the agent has received
 
-@ statsd.parsed
+@ statsd.pmda.parsed
 Number of datagrams/packets that were successfully parsed
 
-@ statsd.thrown_away Datagrams/packets thrown away count
+@ statsd.pmda.thrown_away Datagrams/packets thrown away count
 Number of datagrams/packets that were thrown away
 
-@ statsd.aggregated
+@ statsd.pmda.aggregated
 Number of StatsD metrics that were aggregated
 
-@ statsd.time_spent_parsing
+@ statsd.pmda.time_spent_parsing
 Total time in microseconds spent parsing metrics
 
-@ statsd.time_spent_aggregating
+@ statsd.pmda.time_spent_aggregating
 Total time in microseconds spent aggregating metrics
