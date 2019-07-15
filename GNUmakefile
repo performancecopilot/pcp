@@ -121,6 +121,9 @@ activate: install
 remove:
 	cd $(PMDA_DIR) && ./Remove
 
+debug:
+	dbpmda -n root
+
 deactivate: remove uninstall
 
 default_pcp: install

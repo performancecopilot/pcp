@@ -33,7 +33,12 @@ Clean with:
 make clean
 ```
 
-### These commands require right priviledges, they have no other dependencies in Makefile other than themselves.
+### These commands require right priviledges, they have no other dependencies in Makefile other than themselves (so they expect you already ran Make to produce some binary builds).
+
+Debug local binary with dbpmda:
+```
+sudo make debug
+```
 
 Move to PCP_PMDAS_DIRECTORY with:
 
