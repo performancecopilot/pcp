@@ -20,7 +20,7 @@
 and merge Performance Co-Pilot archives
 .SH SYNOPSIS
 \f3pmlogextract\f1
-[\f3\-dfmwz\f1]
+[\f3\-dfmwxz\f1]
 [\f3\-c\f1 \f2configfile\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-s\f1 \f2samples\f1]
@@ -223,6 +223,29 @@ archive log will contain
 records to indicate the temporal
 discontinuity between the end of one time window and the start of
 the next.
+.PP
+.TP 7
+.B \-x
+It is expected that the metadata
+(name, PMID, type, semantics and units)
+for each metric
+will be consistent across all of the 
+.I input
+PCP archive log(s) in which that metric appears.
+In rare cases, e.g. in development, in QA and when a PMDA is upgraded, this may not be the case
+and
+.B pmlogextract
+will report the issue and abort without creating the
+.I output
+archive log.
+This is done so the problem can be fixed with
+.BR pmlogrewrite (1)
+before retrying the merge.
+In unattended or QA environments it may be preferable to force the
+merge and omit the metrics with the mismatched metadata.
+The
+.B \-x
+option does this.
 .PP
 .TP 7
 .BI \-Z " timezone"

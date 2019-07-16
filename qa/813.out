@@ -1,0 +1,272 @@
+QA output created by 813
+=== default behaviour with metadata changed ===
+pmlogextract: Error: metric PMID 70.1.1: name changed from mmv.mymmv.export_value to mmv.test.counter!
+Archive "TMP" not created.
+
+=== same with -x ===
+pmlogextract: Warning: metric PMID 70.1.1: name changed from mmv.mymmv.export_value to mmv.test.counter!
+pmlogextract: Warning: metric mmv.mymmv.export_value: type changed from U64 to U32!
+pmlogextract: Warning: metric mmv.mymmv.export_value: semantics changed from instant to counter!
+pmlogextract: Warning: metric mmv.mymmv.export_value: units changed from  to count!
+Warning: the metrics below will be missing from the output archive
+	PMID: 70.1.1
+Note: timezone set to local timezone of host "vm03.localdomain" from archive
+
+
+04:03:46.467124 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:03:56.441157 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:04:06.443007 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:04:21.039790 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:04:28.108031 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:04:36.443440 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:04:50.301865 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:04:57.353121 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:05:06.442743 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:05:16.442698 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:05:26.441240 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:05:36.486749 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 1
+
+04:05:46.452464 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+06:31:17.983738 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+06:31:27.945172 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+06:31:37.944593 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+06:31:47.948537 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 1
+
+06:31:57.931604 5 metrics
+    70.1.2 (mmv.test.discrete): value 42
+    70.1.3 (mmv.test.indom):
+        inst [0 or "zero"] value 43
+        inst [1 or "hero"] value 0
+    70.1.4 (mmv.test.interval):
+        inst [0 or "bird"] value 0
+        inst [1 or "tree"] value 0
+        inst [2 or "eggs"] value 2410666
+    70.1.5 (mmv.test.string): value "g'day world"
+    70.1.6 (mmv.test.strings):
+        inst [0 or "zero"] value "00oo00"
+        inst [1 or "hero"] value ""
+
+06:31:57.946088 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 1
+
+06:32:07.931414 5 metrics
+    70.1.2 (mmv.test.discrete): Unknown or illegal metric identifier
+    70.1.3 (mmv.test.indom): Unknown or illegal metric identifier
+    70.1.4 (mmv.test.interval): Unknown or illegal metric identifier
+    70.1.5 (mmv.test.string): Unknown or illegal metric identifier
+    70.1.6 (mmv.test.strings): Unknown or illegal metric identifier
+
+06:32:07.947567 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+PMID: 70.0.0 (mmv.control.reload)
+PMID: 70.0.1 (mmv.control.debug)
+PMID: 70.0.2 (mmv.control.files)
+PMID: 70.1.2 (mmv.test.discrete)
+PMID: 70.1.3 (mmv.test.indom)
+PMID: 70.1.4 (mmv.test.interval)
+PMID: 70.1.5 (mmv.test.string)
+PMID: 70.1.6 (mmv.test.strings)
+
+=== same with -x and -c ===
+pmlogextract: Warning: metric PMID 70.1.1: name changed from mmv.mymmv.export_value to mmv.test.counter!
+pmlogextract: Warning: metric mmv.mymmv.export_value: type changed from U64 to U32!
+pmlogextract: Warning: metric mmv.mymmv.export_value: semantics changed from instant to counter!
+pmlogextract: Warning: metric mmv.mymmv.export_value: units changed from  to count!
+Warning: the metrics below will be missing from the output archive
+	PMID: 70.1.1
+Note: timezone set to local timezone of host "vm03.localdomain" from archive
+
+
+04:03:46.467124 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:03:56.441157 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:04:06.443007 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:04:21.039790 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:04:28.108031 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:04:36.443440 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:04:50.301865 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:04:57.353121 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:05:06.442743 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:05:16.442698 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:05:26.441240 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+04:05:36.486749 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 1
+
+04:05:46.452464 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+06:31:17.983738 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+06:31:27.945172 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+06:31:37.944593 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+
+06:31:47.948537 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 1
+
+06:31:57.931604 5 metrics
+    70.1.2 (mmv.test.discrete): value 42
+    70.1.3 (mmv.test.indom):
+        inst [0 or "zero"] value 43
+        inst [1 or "hero"] value 0
+    70.1.4 (mmv.test.interval):
+        inst [0 or "bird"] value 0
+        inst [1 or "tree"] value 0
+        inst [2 or "eggs"] value 2410666
+    70.1.5 (mmv.test.string): value "g'day world"
+    70.1.6 (mmv.test.strings):
+        inst [0 or "zero"] value "00oo00"
+        inst [1 or "hero"] value ""
+
+06:31:57.946088 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 1
+
+06:32:07.931414 5 metrics
+    70.1.2 (mmv.test.discrete): Unknown or illegal metric identifier
+    70.1.3 (mmv.test.indom): Unknown or illegal metric identifier
+    70.1.4 (mmv.test.interval): Unknown or illegal metric identifier
+    70.1.5 (mmv.test.string): Unknown or illegal metric identifier
+    70.1.6 (mmv.test.strings): Unknown or illegal metric identifier
+
+06:32:07.947567 3 metrics
+    70.0.0 (mmv.control.reload): value 0
+    70.0.1 (mmv.control.debug): value 0
+    70.0.2 (mmv.control.files): value 0
+PMID: 70.0.2 (mmv.control.files)
+PMID: 70.1.4 (mmv.test.interval)
+PMID: 70.1.5 (mmv.test.string)
+PMID: 70.1.6 (mmv.test.strings)
+PMID: 70.1.2 (mmv.test.discrete)
+PMID: 70.0.0 (mmv.control.reload)
+PMID: 70.0.1 (mmv.control.debug)
+PMID: 70.1.3 (mmv.test.indom)
