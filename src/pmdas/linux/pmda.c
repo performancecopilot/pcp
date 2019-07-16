@@ -6483,18 +6483,18 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 0: /* mem.physmem (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.MemTotal))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.MemTotal >> 10;
+	    atom->ull = proc_meminfo.MemTotal;
 	    break;
 	case 1: /* mem.util.used (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.MemTotal) ||
 	        !MEMINFO_VALID_VALUE(proc_meminfo.MemFree))
 		return 0; /* no values available */
-	    atom->ull = (proc_meminfo.MemTotal - proc_meminfo.MemFree) >> 10;
+	    atom->ull = proc_meminfo.MemTotal - proc_meminfo.MemFree;
 	    break;
 	case 2: /* mem.util.free (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.MemFree))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.MemFree >> 10;
+	    atom->ull = proc_meminfo.MemFree;
 	    break;
 	case 3: /* mem.util.shared (in kbytes) */
 	    /*
@@ -6504,43 +6504,43 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	     */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.MemShared))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.MemShared >> 10;
+	    atom->ull = proc_meminfo.MemShared;
 	    break;
 	case 4: /* mem.util.bufmem (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Buffers))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.Buffers >> 10;
+	    atom->ull = proc_meminfo.Buffers;
 	    break;
 	case 5: /* mem.util.cached (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Cached))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.Cached >> 10;
+	    atom->ull = proc_meminfo.Cached;
 	    break;
 	case 6: /* swap.length (in bytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.SwapTotal))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.SwapTotal;
+	    atom->ull = proc_meminfo.SwapTotal << 10;
 	    break;
 	case 7: /* swap.used (in bytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.SwapTotal) ||
 	        !MEMINFO_VALID_VALUE(proc_meminfo.SwapFree))
 		return 0; /* no values available */
-	    atom->ull = proc_meminfo.SwapTotal - proc_meminfo.SwapFree;
+	    atom->ull = (proc_meminfo.SwapTotal - proc_meminfo.SwapFree) << 10;
 	    break;
 	case 8: /* swap.free (in bytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.SwapFree))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.SwapFree;
+	    atom->ull = proc_meminfo.SwapFree << 10;
 	    break;
 	case 9: /* hinv.physmem (in mbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.MemTotal))
 	    	return 0; /* no values available */
-	    atom->ul = proc_meminfo.MemTotal >> 20;
+	    atom->ul = proc_meminfo.MemTotal >> 10;
 	    break;
 	case 10: /* mem.freemem (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.MemFree))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.MemFree >> 10;
+	    atom->ull = proc_meminfo.MemFree;
 	    break;
 	case 11: /* hinv.pagesize (in bytes) */
 	    atom->ul = 1 << _pm_pageshift;
@@ -6552,91 +6552,91 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	        !MEMINFO_VALID_VALUE(proc_meminfo.Cached) ||
 	        !MEMINFO_VALID_VALUE(proc_meminfo.Buffers))
 		return 0; /* no values available */
-	    sl = (proc_meminfo.MemTotal -
+	    sl = proc_meminfo.MemTotal -
 		 proc_meminfo.MemFree -
 		 proc_meminfo.Cached -
-		 proc_meminfo.Buffers) >> 10;
+		 proc_meminfo.Buffers;
 	    atom->ull = sl >= 0 ? sl : 0;
 	    break;
 	case 13: /* mem.util.swapCached (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.SwapCached))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.SwapCached >> 10;
+	    atom->ull = proc_meminfo.SwapCached;
 	    break;
 	case 14: /* mem.util.active (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Active))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.Active >> 10;
+	    atom->ull = proc_meminfo.Active;
 	    break;
 	case 15: /* mem.util.inactive (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Inactive))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.Inactive >> 10;
+	    atom->ull = proc_meminfo.Inactive;
 	    break;
 	case 16: /* mem.util.highTotal (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.HighTotal))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.HighTotal >> 10;
+	    atom->ull = proc_meminfo.HighTotal;
 	    break;
 	case 17: /* mem.util.highFree (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.HighFree))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.HighFree >> 10;
+	    atom->ull = proc_meminfo.HighFree;
 	    break;
 	case 18: /* mem.util.lowTotal (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.LowTotal))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.LowTotal >> 10;
+	    atom->ull = proc_meminfo.LowTotal;
 	    break;
 	case 19: /* mem.util.lowFree (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.LowFree))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.LowFree >> 10;
+	    atom->ull = proc_meminfo.LowFree;
 	    break;
 	case 20: /* mem.util.swapTotal (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.SwapTotal))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.SwapTotal >> 10;
+	    atom->ull = proc_meminfo.SwapTotal;
 	    break;
 	case 21: /* mem.util.swapFree (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.SwapFree))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.SwapFree >> 10;
+	    atom->ull = proc_meminfo.SwapFree;
 	    break;
 	case 22: /* mem.util.dirty (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Dirty))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.Dirty >> 10;
+	    atom->ull = proc_meminfo.Dirty;
 	    break;
 	case 23: /* mem.util.writeback (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Writeback))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.Writeback >> 10;
+	    atom->ull = proc_meminfo.Writeback;
 	    break;
 	case 24: /* mem.util.mapped (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Mapped))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.Mapped >> 10;
+	    atom->ull = proc_meminfo.Mapped;
 	    break;
 	case 25: /* mem.util.slab (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Slab))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.Slab >> 10;
+	    atom->ull = proc_meminfo.Slab;
 	    break;
 	case 26: /* mem.util.committed_AS (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Committed_AS))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.Committed_AS >> 10;
+	    atom->ull = proc_meminfo.Committed_AS;
 	    break;
 	case 27: /* mem.util.pageTables (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.PageTables))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.PageTables >> 10;
+	    atom->ull = proc_meminfo.PageTables;
 	    break;
 	case 28: /* mem.util.reverseMaps (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.ReverseMaps))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.ReverseMaps >> 10;
+	    atom->ull = proc_meminfo.ReverseMaps;
 	    break;
 	case 29: /* mem.util.cache_clean (in kbytes) */
 	    /* clean=cached-(dirty+writeback) */
@@ -6644,180 +6644,184 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	        !MEMINFO_VALID_VALUE(proc_meminfo.Dirty) ||
 	        !MEMINFO_VALID_VALUE(proc_meminfo.Writeback))
 	    	return 0; /* no values available */
-	    sl = (proc_meminfo.Cached -
+	    sl = proc_meminfo.Cached -
 	    	 proc_meminfo.Dirty -
-	    	 proc_meminfo.Writeback) >> 10;
+	    	 proc_meminfo.Writeback;
 	    atom->ull = sl >= 0 ? sl : 0;
 	    break;
 	case 30: /* mem.util.anonpages */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.AnonPages))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.AnonPages >> 10;
+	   atom->ull = proc_meminfo.AnonPages;
 	   break;
 	case 31: /* mem.util.commitLimit (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.CommitLimit))
 	    	return 0; /* no values available */
-	    atom->ull = proc_meminfo.CommitLimit >> 10;
+	    atom->ull = proc_meminfo.CommitLimit;
 	    break;
 	case 32: /* mem.util.bounce */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.Bounce))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.Bounce >> 10;
+	   atom->ull = proc_meminfo.Bounce;
 	   break;
 	case 33: /* mem.util.NFS_Unstable */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.NFS_Unstable))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.NFS_Unstable >> 10;
+	   atom->ull = proc_meminfo.NFS_Unstable;
 	   break;
 	case 34: /* mem.util.slabReclaimable */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.SlabReclaimable))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.SlabReclaimable >> 10;
+	   atom->ull = proc_meminfo.SlabReclaimable;
 	   break;
 	case 35: /* mem.util.slabUnreclaimable */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.SlabUnreclaimable))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.SlabUnreclaimable >> 10;
+	   atom->ull = proc_meminfo.SlabUnreclaimable;
 	   break;
 	case 36: /* mem.util.active_anon */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.Active_anon))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.Active_anon >> 10;
+	   atom->ull = proc_meminfo.Active_anon;
 	   break;
 	case 37: /* mem.util.inactive_anon */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.Inactive_anon))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.Inactive_anon >> 10;
+	   atom->ull = proc_meminfo.Inactive_anon;
 	   break;
 	case 38: /* mem.util.active_file */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.Active_file))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.Active_file >> 10;
+	   atom->ull = proc_meminfo.Active_file;
 	   break;
 	case 39: /* mem.util.inactive_file */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.Inactive_file))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.Inactive_file >> 10;
+	   atom->ull = proc_meminfo.Inactive_file;
 	   break;
 	case 40: /* mem.util.unevictable */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.Unevictable))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.Unevictable >> 10;
+	   atom->ull = proc_meminfo.Unevictable;
 	   break;
 	case 41: /* mem.util.mlocked */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.Mlocked))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.Mlocked >> 10;
+	   atom->ull = proc_meminfo.Mlocked;
 	   break;
 	case 42: /* mem.util.shmem */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.Shmem))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.Shmem >> 10;
+	   atom->ull = proc_meminfo.Shmem;
 	   break;
 	case 43: /* mem.util.kernelStack */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.KernelStack))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.KernelStack >> 10;
+	   atom->ull = proc_meminfo.KernelStack;
 	   break;
-	case 44: /* mem.util.hugepagesTotal */
+	case 44: /* mem.util.hugepagesTotal (in pages) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesTotal))
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.HugepagesTotal;
 	   break;
-	case 45: /* mem.util.hugepagesFree */
+	case 45: /* mem.util.hugepagesFree (in pages) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesFree))
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.HugepagesFree;
 	   break;
-	case 46: /* mem.util.hugepagesRsvd */
+	case 46: /* mem.util.hugepagesRsvd (in pages) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesRsvd))
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.HugepagesRsvd;
 	   break;
-	case 47: /* mem.util.hugepagesSurp */
+	case 47: /* mem.util.hugepagesSurp (in pages) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesSurp))
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.HugepagesSurp;
 	   break;
-	case 48: /* mem.util.directMap4k */
+	case 48: /* mem.util.directMap4k (in pages) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.directMap4k))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.directMap4k >> 10;
+	   atom->ull = proc_meminfo.directMap4k;
 	   break;
-	case 49: /* mem.util.directMap2M */
+	case 49: /* mem.util.directMap2M (in pages) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.directMap2M))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.directMap2M >> 10;
+	   atom->ull = proc_meminfo.directMap2M;
 	   break;
-	case 50: /* mem.util.vmallocTotal */
+	case 50: /* mem.util.vmallocTotal (in kbytes) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.VmallocTotal))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.VmallocTotal >> 10;
+	   atom->ull = proc_meminfo.VmallocTotal;
 	   break;
-	case 51: /* mem.util.vmallocUsed */
+	case 51: /* mem.util.vmallocUsed (in kbytes) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.VmallocUsed))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.VmallocUsed >> 10;
+	   atom->ull = proc_meminfo.VmallocUsed;
 	   break;
-	case 52: /* mem.util.vmallocChunk */
+	case 52: /* mem.util.vmallocChunk (in kbytes) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.VmallocChunk))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.VmallocChunk >> 10;
+	   atom->ull = proc_meminfo.VmallocChunk;
 	   break;
-	case 53: /* mem.util.mmap_copy */
+	case 53: /* mem.util.mmap_copy (in kbytes) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.MmapCopy))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.MmapCopy >> 10;
+	   atom->ull = proc_meminfo.MmapCopy;
 	   break;
-	case 54: /* mem.util.quicklists */
+	case 54: /* mem.util.quicklists (in kbytes) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.Quicklists))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.Quicklists >> 10;
+	   atom->ull = proc_meminfo.Quicklists;
 	   break;
-	case 55: /* mem.util.corrupthardware */
+	case 55: /* mem.util.corrupthardware (in pages) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HardwareCorrupted))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.HardwareCorrupted >> 10;
+	   atom->ull = proc_meminfo.HardwareCorrupted;
 	   break;
-	case 56: /* mem.util.anonhugepages */
+	case 56: /* mem.util.anonhugepages (in pages) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.AnonHugePages))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.AnonHugePages >> 10;
+	   atom->ull = proc_meminfo.AnonHugePages;
 	   break;
-	case 57: /* mem.util.directMap1G */
+	case 57: /* mem.util.directMap1G (in pages) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.directMap1G))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.directMap1G >> 10;
+	   atom->ull = proc_meminfo.directMap1G;
 	   break;
-	case 58: /* mem.util.available */
+	case 58: /* mem.util.available (in kbytes) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.MemAvailable))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.MemAvailable >> 10;
+	   atom->ull = proc_meminfo.MemAvailable;
 	   break;
 	case 59: /* hinv.hugepagesize (in bytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
 	    	return 0; /* no values available */
-	    atom->ul = proc_meminfo.Hugepagesize;
+	    atom->ul = (proc_meminfo.Hugepagesize << 10);
 	    break;
-	case 60: /* mem.util.hugepagesTotalBytes */
+	case 60: /* mem.util.hugepagesTotalBytes (in bytes) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesTotal))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.HugepagesTotal * proc_meminfo.Hugepagesize;
+	   atom->ull = proc_meminfo.HugepagesTotal *
+			(proc_meminfo.Hugepagesize << 10);
 	   break;
-	case 61: /* mem.util.hugepagesFreeBytes */
+	case 61: /* mem.util.hugepagesFreeBytes (in bytes) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesFree))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.HugepagesFree * proc_meminfo.Hugepagesize;
+	   atom->ull = proc_meminfo.HugepagesFree *
+			(proc_meminfo.Hugepagesize << 10);
 	   break;
-	case 62: /* mem.util.hugepagesRsvdBytes */
+	case 62: /* mem.util.hugepagesRsvdBytes (in bytes) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesRsvd))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.HugepagesRsvd * proc_meminfo.Hugepagesize;
+	   atom->ull = proc_meminfo.HugepagesRsvd *
+			(proc_meminfo.Hugepagesize << 10);
 	   break;
-	case 63: /* mem.util.hugepagesSurpBytes */
+	case 63: /* mem.util.hugepagesSurpBytes (in bytes) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesSurp))
 		return 0; /* no values available */
-	   atom->ull = proc_meminfo.HugepagesSurp * proc_meminfo.Hugepagesize;
+	   atom->ull = proc_meminfo.HugepagesSurp *
+			(proc_meminfo.Hugepagesize << 10);
 	   break;
 	default:
 	    return PM_ERR_PMID;
@@ -7825,19 +7829,19 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
 	    	return 0; /* no values available */
 	    sts = linux_table_lookup("HugePages_Total:", np->meminfo, &atom->ull);
-	    atom->ull *= proc_meminfo.Hugepagesize;
+	    atom->ull *= (proc_meminfo.Hugepagesize << 10);
 	    break;
 	case 40: /* mem.numa.util.hugepagesFreeBytes */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
 	    	return 0; /* no values available */
 	    sts = linux_table_lookup("HugePages_Free:", np->meminfo, &atom->ull);
-	    atom->ull *= proc_meminfo.Hugepagesize;
+	    atom->ull *= (proc_meminfo.Hugepagesize << 10);
 	    break;
 	case 41: /* mem.numa.util.hugepagesSurpBytes */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
 	    	return 0; /* no values available */
 	    sts = linux_table_lookup("HugePages_Surp:", np->meminfo, &atom->ull);
-	    atom->ull *= proc_meminfo.Hugepagesize;
+	    atom->ull *= (proc_meminfo.Hugepagesize << 10);
 	    break;
 
 	default:

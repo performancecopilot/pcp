@@ -5360,28 +5360,28 @@ mem.util.highTotal
 No value(s) available!
 
 mem.util.hugepagesFree
-    value 185344
+    value 181
 
 mem.util.hugepagesFreeBytes
-    value 388694540288
+    value 379584512
 
 mem.util.hugepagesRsvd
-    value 11264
+    value 11
 
 mem.util.hugepagesRsvdBytes
-    value 23622320128
+    value 23068672
 
 mem.util.hugepagesSurp
-    value 8192
+    value 8
 
 mem.util.hugepagesSurpBytes
-    value 17179869184
+    value 16777216
 
 mem.util.hugepagesTotal
-    value 204800
+    value 200
 
 mem.util.hugepagesTotalBytes
-    value 429496729600
+    value 419430400
 
 mem.util.inactive
     value 17315560
