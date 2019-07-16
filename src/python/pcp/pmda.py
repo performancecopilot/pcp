@@ -558,6 +558,10 @@ class PMDA(MetricDispatch):
         return cpmda.pmid_build(domain, cluster, item)
 
     @staticmethod
+    def pmid_cluster(cluster):
+        return cpmda.pmid_cluster(cluster)
+
+    @staticmethod
     def indom(serial):
         return cpmda.pmda_indom(serial)
 
