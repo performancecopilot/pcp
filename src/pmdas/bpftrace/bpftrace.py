@@ -25,6 +25,14 @@ from cpmapi import PM_SEM_INSTANT, PM_SEM_COUNTER, PM_TYPE_U64, PM_TYPE_STRING
 class BPFtraceError(Exception):
     """BPFtrace general error"""
 
+class BPFtraceMessageType: # pylint: disable=too-few-public-methods
+    """BPFtrace JSON output types"""
+    AttachedProbes = 'attached_probes'
+    Map = 'map'
+    Hist = 'hist'
+    Printf = 'printf'
+    Time = 'time'
+
 class BPFtraceState: # pylint: disable=too-few-public-methods
     """BPFtrace state"""
     def __init__(self):
@@ -44,10 +52,16 @@ class BPFtraceState: # pylint: disable=too-few-public-methods
 
 class BPFtraceVarDef: # pylint: disable=too-few-public-methods
     """BPFtrace variable definitions"""
-    def __init__(self, single, semantics, datatype):
+    class MetricType:
+        """BPFtrace variable types"""
+        Histogram = 'histogram'
+        Output = 'output'
+
+    def __init__(self, single, semantics, datatype, metrictype):
         self.single = single
         self.semantics = semantics
         self.datatype = datatype
+        self.metrictype = metrictype
 
     def __str__(self):
         return str(self.__dict__)
@@ -76,19 +90,19 @@ class BPFtrace:
             if self._state.status == 'starting':
                 self._state.status = 'started'
 
-            if obj['type'] == 'attached_probes':
+            if obj['type'] == BPFtraceMessageType.AttachedProbes:
                 self._state.probes = obj['probes']
-            elif obj['type'] == 'map':
+            elif obj['type'] == BPFtraceMessageType.Map:
                 self._state.maps.update(obj['data'])
-            elif obj['type'] == 'hist':
+            elif obj['type'] == BPFtraceMessageType.Hist:
                 for k, v in obj['data'].items():
                     self._state.maps[k] = {
                         '{}-{}'.format(bucket.get('min', 'inf'), bucket.get('max', 'inf'))
                         :bucket['count']
                         for bucket in v
                     }
-            elif obj['type'] in ['printf', 'time']:
-                self._state.maps['@printf'] = self._state.maps.get('@printf', '') + obj['msg']
+            elif obj['type'] in [BPFtraceMessageType.Printf, BPFtraceMessageType.Time]:
+                self._state.maps['@output'] = self._state.maps.get('@output', '') + obj['msg']
 
     def process_output(self):
         """process stdout and stderr of running bpftrace process"""
@@ -129,10 +143,12 @@ class BPFtrace:
                 if 'include' in self.metadata and var not in self.metadata['include']:
                     continue
 
-                vardef = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT, datatype=PM_TYPE_U64)
+                vardef = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT, datatype=PM_TYPE_U64,
+                                        metrictype=None)
                 if func in ['hist', 'lhist']:
                     vardef.single = False
                     vardef.semantics = PM_SEM_COUNTER
+                    vardef.metrictype = BPFtraceVarDef.MetricType.Histogram
                 if func == 'count':
                     vardef.semantics = PM_SEM_COUNTER
                 if key:
@@ -142,10 +158,15 @@ class BPFtrace:
             print_st = ' '.join(['print({});'.format(var) for var in self.var_defs])
             self.script = self.script + ' interval:s:1 {{ {} }}'.format(print_st)
 
-        printfs = re.search(r'printf\s*\(', self.script)
-        if printfs and ('include' not in self.metadata or '@printf' in self.metadata['include']):
-            self.var_defs['@printf'] = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT,
-                                                      datatype=PM_TYPE_STRING)
+        output_fns = re.search(r'(printf|time)\s*\(', self.script)
+        if output_fns and ('include' not in self.metadata or '@output' in self.metadata['include']):
+            if '@output' in self.var_defs:
+                raise BPFtraceError("output from printf(), time() etc. will be stored in @output. "
+                                    "please rename the existing @output variable or remove any "
+                                    "calls to any function which produces output")
+            self.var_defs['@output'] = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT,
+                                                      datatype=PM_TYPE_STRING,
+                                                      metrictype=BPFtraceVarDef.MetricType.Output)
 
         if not self.var_defs:
             raise BPFtraceError("no bpftrace variables or printf statements found, please include "
