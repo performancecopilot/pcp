@@ -133,12 +133,12 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 {
     struct webgroups	*groups = webgroups_lookup(&sp->module);
     struct context	*cp;
-    unsigned int	polltime;
+    unsigned int	polltime = DEFAULT_TIMEOUT;
     uv_handle_t		*handle;
     pmWebAccess		access;
     double		seconds;
     char		*endptr;
-    sds			hostspec, timeout;
+    sds			hostspec = NULL, timeout;
 
     if (params) {
 	if ((hostspec = dictFetchValue(params, PARAM_HOSTSPEC)) == NULL)
@@ -153,9 +153,6 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 	    }
 	    polltime = (unsigned int)(seconds * 1000.0);
 	}
-    } else {
-	hostspec = NULL;
-	polltime = DEFAULT_TIMEOUT;
     }
 
     if ((cp = (context_t *)calloc(1, sizeof(context_t))) == NULL) {
@@ -567,26 +564,19 @@ webgroup_fetch(pmWebGroupSettings *settings, context_t *cp,
 
 /*
  * Parse possible PMID forms: dotted notation or unsigned integer.
- * Return canonical preferred form (dotted notation) and the pmID.
  */
-static sds
-webgroup_parse_pmid(sds name, pmID *pmid)
+static pmID
+webgroup_parse_pmid(const sds name)
 {
     unsigned int	cluster, domain, item;
-    char		buf[20];
     int			sts;
 
     sts = sscanf(name, "%u.%u.%u", &domain, &cluster, &item);
-    if (sts == 3) {
-	*pmid = pmID_build(domain, cluster, item);
-	return sdscatfmt(sdsempty(), "%u.%u.%u", domain, cluster, item);
-    }
-    if (sts == 1) {
-	*pmid = domain;
-	return sdscatfmt(sdsempty(), pmIDStr_r(domain, buf, sizeof(buf)));
-    }
-    *pmid = PM_ID_NULL;
-    return NULL;
+    if (sts == 3)
+	return pmID_build(domain, cluster, item);
+    if (sts == 1)
+	return domain;
+    return PM_ID_NULL;
 }
 
 static struct metric *
@@ -596,7 +586,7 @@ webgroup_lookup_pmid(pmWebGroupSettings *settings, context_t *cp, sds name, void
     pmID		pmid;
     sds			msg;
 
-    if ((name = webgroup_parse_pmid(name, &pmid)) == NULL) {
+    if ((pmid = webgroup_parse_pmid(name)) == PM_ID_NULL) {
 	infofmt(msg, "failed to parse PMID %s", name);
 	moduleinfo(&settings->module, PMLOG_WARNING, msg, arg);
 	return NULL;
@@ -717,25 +707,19 @@ done:
 
 /*
  * Parse possible InDom forms: dotted notation or unsigned integer.
- * Return canonical preferred form (dotted notation) and a pmInDom.
  */
-static sds
-webgroup_parse_indom(sds name, pmInDom *indom)
+static pmInDom
+webgroup_parse_indom(const sds name)
 {
     unsigned int	domain, serial;
-    char		buf[20];
     int			sts;
 
     sts = sscanf(name, "%u.%u", &domain, &serial);
-    if (sts == 2) {
-	*indom = pmInDom_build(domain, serial);
-	return sdscatfmt(sdsempty(), "%u.%u", domain, serial);
-    }
-    if (sts == 1) {
-	*indom = domain;
-	return sdscatfmt(sdsempty(), pmInDomStr_r(domain, buf, sizeof(buf)));
-    }
-    return NULL;
+    if (sts == 2)
+	return pmInDom_build(domain, serial);
+    if (sts == 1)
+	return domain;
+    return PM_INDOM_NULL;
 }
 
 static struct indom *
@@ -746,7 +730,7 @@ webgroup_lookup_indom(pmWebGroupSettings *settings, context_t *cp, sds name, voi
     pmInDom		indom;
     sds			msg;
 
-    if ((name = webgroup_parse_indom(name, &indom)) == NULL) {
+    if ((indom = webgroup_parse_indom(name)) == PM_INDOM_NULL) {
 	infofmt(msg, "failed to parse InDom %s", name);
 	moduleinfo(&settings->module, PMLOG_WARNING, msg, arg);
 	return NULL;
@@ -892,7 +876,7 @@ pmWebGroupInDom(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     size_t		length;
     sds			msg = NULL, match, metric, indomid, instids, instnames;
     sds			*ids = NULL, *names = NULL;
-    int			sts = 0, count, numids = 0, numnames = 0;
+    int			sts = 0, count = 0, numids = 0, numnames = 0;
 
     if (params) {
 	metric = dictFetchValue(params, PARAM_MNAME);
@@ -1487,8 +1471,8 @@ webgroup_store(struct metric *metric, int numnames, sds *names,
     if ((sts = __pmStringValue(value, &atom, metric->desc.type)) < 0)
 	return sts;
 
-    indom = metric->indom;
-    if (indom->updated == 0)
+    if ((indom = metric->indom) != NULL &&
+	(indom->updated == 0))
 	pmwebapi_add_indom_instances(indom);
 
     if (metric->desc.indom == PM_INDOM_NULL)
@@ -1497,7 +1481,7 @@ webgroup_store(struct metric *metric, int numnames, sds *names,
 	count = numids;
     else if (numnames > 0)
 	count = numnames;
-    else if ((count = dictSize(indom->insts)) < 1)
+    else if (indom == NULL || (count = dictSize(indom->insts)) < 1)
 	count = 1;
 
     bytes = sizeof(pmValueSet) + sizeof(pmValue) * (count - 1);
@@ -1564,7 +1548,7 @@ pmWebGroupStore(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     size_t		length;
     char		err[PM_MAXERRMSGLEN];
     sds			metric, value, pmid, instids, instnames;
-    sds			msg = NULL, *names, *ids;
+    sds			msg = NULL, *names = NULL, *ids = NULL;
     int			sts = 0, numids = 0, numnames = 0;
 
     if (params) {
@@ -1594,7 +1578,7 @@ pmWebGroupStore(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	mp = webgroup_lookup_metric(settings, cp, metric, arg);
     /* handle store via numeric/dotted-form PMIDs */
     else if (pmid)
-	mp = webgroup_lookup_pmid(settings, cp, metric, arg);
+	mp = webgroup_lookup_pmid(settings, cp, pmid, arg);
     else {
 	infofmt(msg, "bad parameters passed");
 	sts = -EINVAL;

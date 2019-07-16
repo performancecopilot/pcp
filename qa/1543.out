@@ -629,6 +629,63 @@ Context successfully expired
     ]
 }
 
+*****   GET /pmapi/store   *****
+
+== store value by name ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== check stored value by name ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.14",
+            "name": "sample.long.write_me",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 42
+                }
+            ]
+        }
+    ]
+}
+== store value by pmid ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== check stored value by pmid ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.14",
+            "name": "sample.long.write_me",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 2
+                }
+            ]
+        }
+    ]
+}
+== instance store by name and iname ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== instance store by name and instance ID ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+
 *****   GET /metrics   *****
 
 == scrape one metric ==

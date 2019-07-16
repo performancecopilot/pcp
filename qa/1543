@@ -221,12 +221,24 @@ curl -s "http://localhost:$port/pmapi/indom?name=sample.bin&iname=bin-100,bin-20
 #	| _filter_json "del specific instance"
 
 
-#section "GET /pmapi/store"
-## mandatory params: name or pmid, value
-#curl -s "http://localhost:$port/pmapi/store?name=sample.write_me&value=42" \
-#	| _filter_json "store value by name"
-#curl -s "http://localhost:$port/pmapi/store?pmid=29.0.36&value=2" \
-#	| _filter_json "store value by pmid"
+section "GET /pmapi/store"
+# mandatory params: name or pmid, value
+# optional params: iname, instance
+
+curl -s "http://localhost:$port/pmapi/store?name=sample.long.write_me&value=42" \
+	| _filter_json "store value by name"
+context=`cat $tmp.context`
+curl -s "http://localhost:$port/pmapi/$context/fetch?name=sample.long.write_me" \
+	| _filter_json "check stored value by name"
+curl -s "http://localhost:$port/pmapi/store?pmid=29.0.14&value=2" \
+	| _filter_json "store value by pmid"
+context=`cat $tmp.context`
+curl -s "http://localhost:$port/pmapi/$context/fetch?pmid=29.0.14" \
+	| _filter_json "check stored value by pmid"
+curl -s "http://localhost:$port/pmapi/store?name=sample.colour&value=42&iname=red,blue" \
+	| _filter_json "instance store by name and iname"
+curl -s "http://localhost:$port/pmapi/store?name=sample.colour&value=42&instance=0,1" \
+	| _filter_json "instance store by name and instance ID"
 
 
 section "GET /metrics"
