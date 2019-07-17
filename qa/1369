@@ -44,6 +44,10 @@ _filter_labels()
 	-e 's/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/[TIMESTAMP]/' \
 	-e 's/Context labels ([0-9][0-9]* bytes)/Context labels (N bytes)/' \
 	-e '/.*name.* : value.*\[context]$/d' \
+	-e '/\[[1-6]].*context,compound/{
+s/name([0-9][0-9]*,[0-9][0-9]*/name(I,J)/
+s/value([0-9][0-9]*,[0-9][0-9]*/value(K,L)/
+}' \
     #end
 }
 
