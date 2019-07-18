@@ -11,13 +11,14 @@
 #include "config-reader.h"
 #include "network-listener.h"
 #include "aggregators.h"
+#include "aggregator-metrics.h"
+#include "aggregator-stats.h"
 #include "pcp.h"
 #include "utils.h"
 
 #if _TEST_TARGET == 0
 
-void
-signal_handler(int num) {
+void signal_handler(int num) {
     if (num == SIGUSR1) {
         aggregator_request_output();
     }
@@ -42,22 +43,18 @@ main(int argc, char** argv)
         print_agent_config(config);
     }
 
-    chan_t* unprocessed_datagrams_q = chan_init(config->max_unprocessed_packets);
-    if (unprocessed_datagrams_q == NULL) DIE("Unable to create channel network listener -> parser.");
-    chan_t* parsed_datagrams_q = chan_init(config->max_unprocessed_packets);
-    if (parsed_datagrams_q == NULL) DIE("Unable to create channel parser -> aggregator.");
-    chan_t* aggregator_to_pcp = chan_init(0);
-    if (aggregator_to_pcp == NULL) DIE("Unable to create channel aggregator -> pcp.");
-    chan_t* pcp_to_aggregator = chan_init(0);    
-    if (pcp_to_aggregator == NULL) DIE("Unable to create channel pcp -> aggregator.");
-    chan_t* stats_sink = chan_init(0);
-    if (stats_sink == NULL) DIE("Unable to create stats sink channel.");
+    chan_t* network_listener_to_parser = chan_init(config->max_unprocessed_packets);
+    if (network_listener_to_parser == NULL) DIE("Unable to create channel network listener -> parser.");
+    chan_t* parser_to_aggregator = chan_init(config->max_unprocessed_packets);
+    if (parser_to_aggregator == NULL) DIE("Unable to create channel parser -> aggregator.");
+    
+    struct pmda_metrics_container* m = init_pmda_metrics(config);
+    struct pmda_stats_container* s = init_pmda_stats(config);
 
-    metrics* m = init_metrics(config);
-    struct network_listener_args* listener_args = create_listener_args(config, unprocessed_datagrams_q, stats_sink);
-    struct parser_args* parser_args = create_parser_args(config, unprocessed_datagrams_q, parsed_datagrams_q, stats_sink);
-    struct aggregator_args* aggregator_args = create_aggregator_args(config, parsed_datagrams_q, aggregator_to_pcp, pcp_to_aggregator, stats_sink, m);
-    struct pcp_args* pmda_args = create_pcp_args(config, pcp_to_aggregator, aggregator_to_pcp, stats_sink, argc, argv);
+    struct network_listener_args* listener_args = create_listener_args(config, network_listener_to_parser);
+    struct parser_args* parser_args = create_parser_args(config, network_listener_to_parser, parser_to_aggregator);
+    struct aggregator_args* aggregator_args = create_aggregator_args(config, parser_to_aggregator, m, s);
+    struct pcp_args* pmda_args = create_pcp_args(config, m, s, argc, argv);
 
     int pthread_errno = 0; 
     pthread_errno = pthread_create(&network_listener, NULL, network_listener_exec, listener_args);
@@ -66,8 +63,8 @@ main(int argc, char** argv)
     PTHREAD_CHECK(pthread_errno);
     pthread_errno = pthread_create(&aggregator, NULL, aggregator_exec, aggregator_args);
     PTHREAD_CHECK(pthread_errno);
-    pthread_errno = pthread_create(&pcp, NULL, pcp_pmda_exec, pmda_args);
-    PTHREAD_CHECK(pthread_errno);
+    // pthread_errno = pthread_create(&pcp, NULL, pcp_pmda_exec, pmda_args);
+    // PTHREAD_CHECK(pthread_errno);
 
     if (pthread_join(network_listener, NULL) != 0) {
         DIE("Error joining network network listener thread.");
@@ -82,16 +79,10 @@ main(int argc, char** argv)
         DIE("Error joinging pcp thread.");
     }
 
-    chan_close(unprocessed_datagrams_q);
-    chan_close(parsed_datagrams_q);
-    chan_close(aggregator_to_pcp);
-    chan_close(pcp_to_aggregator);
-    chan_close(stats_sink);
-    chan_dispose(unprocessed_datagrams_q);
-    chan_dispose(parsed_datagrams_q);
-    chan_dispose(aggregator_to_pcp);
-    chan_dispose(pcp_to_aggregator);
-    chan_dispose(stats_sink);
+    chan_close(network_listener_to_parser);
+    chan_close(parser_to_aggregator);
+    chan_dispose(network_listener_to_parser);
+    chan_dispose(parser_to_aggregator);
     return EXIT_SUCCESS;
 }
 

@@ -14,10 +14,8 @@ make
 
 Run with:
 
-You might need right priviledges to do this. 
-
 ```
-make run
+sudo make run
 ```
 
 Run tests with:
@@ -66,6 +64,7 @@ Stop PMDA with:
 sudo make deactivate
 ```
 
+##
 ## FAQ/Troubleshooting
 
 ### I installed both **chan** and **HdrHistogram_c** yet the program won't run... there seem to be .so missing.

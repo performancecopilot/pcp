@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stddef.h>
 
+#include "aggregator-metrics.h"
 #include "config-reader.h"
 
 /**

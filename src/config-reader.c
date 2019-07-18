@@ -2,6 +2,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "config-reader.h"
 #include "utils.h"
 #include "ini.h"
 
@@ -39,7 +40,7 @@ read_agent_config(int src_flag, char* config_path, int argc, char **argv) {
     if (src_flag == READ_FROM_FILE) {
         read_agent_config_file(&config, config_path);
     } else if (src_flag == READ_FROM_CMD) {
-        // read_agent_config_cmd(&config, argc, argv);
+        read_agent_config_cmd(&config, argc, argv);
     } else {
         DIE("Incorrect source flag for agent_config source.");
     }

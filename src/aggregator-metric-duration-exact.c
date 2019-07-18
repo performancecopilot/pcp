@@ -2,7 +2,7 @@
 
 #include "utils.h"
 #include "aggregators.h"
-#include "aggregator-duration-exact.h"
+#include "aggregator-metric-duration-exact.h"
 #include "config-reader.h"
 
 /**

@@ -5,6 +5,7 @@
 #include <pthread.h>
 
 #include "config-reader.h"
+#include "parsers.h"
 
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
@@ -160,19 +161,26 @@ sanitize_sampling_val_string(char* src) {
 }
 
 /**
- * Validates string
+ * Validates type string
  * Checks if string is matching one of metric identifiers ("ms" = duration, "g" = gauge, "c" = counter)
  * @arg src - String to be validated
+ * @arg out - What metric string contained
  * @return 1 on success
  */
 int
-sanitize_type_val_string(char* src) {
-    if (strcmp(src, GAUGE_METRIC) == 0 ||
-        strcmp(src, COUNTER_METRIC) == 0 ||
-        strcmp(src, DURATION_METRIC) == 0) {
-            return 1;
-        }
-    return 0;
+sanitize_type_val_string(char* src, enum METRIC_TYPE* out) {
+    if (strcmp(src, GAUGE_METRIC) == 0) {
+        *out = METRIC_TYPE_GAUGE;
+        return 1;
+    } else if (strcmp(src, COUNTER_METRIC) == 0) {
+        *out = METRIC_TYPE_COUNTER;
+        return 1;
+    } else if (strcmp(src, DURATION_METRIC) == 0) {
+        *out = METRIC_TYPE_DURATION;
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 /**

@@ -54,7 +54,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 LDLIBS := -lhdr_histogram_static -lchan -lm -lpthread -lpcp_web -lpcp -lpcp_pmda
 
-CFLAGS ?=-Wall -Wextra $(INC_FLAGS) -MMD -MP -D_GNU_SOURCE -g
+CFLAGS += -Wextra $(INC_FLAGS) -MMD -MP -g
 
 DFILES	= README.md
 
@@ -79,15 +79,16 @@ $(TEST_RAGEL_BUILD_DIR)/$(TEST_RAGEL_EXEC): $(TEST_RAGEL_OBJS)
 # c source
 $(MAIN_BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@ 
+	$(CC) $(CFLAGS) -O0 -c $< -o $@ 
 
+# Tests dont work with optimization ON
 $(TEST_BASIC_BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@ 
+	$(CC) $(CFLAGS) -O0 -c $< -o $@ 
 
 $(TEST_RAGEL_BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@ 
+	$(CC) $(CFLAGS) -O0 -c $< -o $@ 
 
 .PHONY: test
 

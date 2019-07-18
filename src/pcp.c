@@ -11,13 +11,13 @@
 #include <string.h>
 
 #include "pcp.h"
-#include "pmda-stats-collector.h"
+#include "aggregator-metrics.h"
+#include "aggregator-stats.h"
 #include "utils.h"
 #include "config-reader.h"
 #include "../domain.h"
 
 static struct pmda_data_extension* create_statsd_pmda_data_ext(struct pcp_args* args);
-static struct pmda_stats* create_statsd_pmda_stats();
 static void create_statsd_hardcoded_metrics(pmdaInterface* pi, struct pmda_data_extension* data);
 static void statsd_possible_reload(pmdaExt* pmda);
 static int statsd_desc(pmID pm_id, pmDesc* desc, pmdaExt* pmda);
@@ -39,18 +39,8 @@ pcp_pmda_exec(void* args)
     pthread_setname_np(pthread_self(), "PCP exchange");
     struct pcp_args* pcp_args = (struct pcp_args*)args;
 
-    // Create another thread that will handle incoming messages in stats_channel 
-    // which serves as sink that handles all changes to StatsD PMDA related metrics (metric about agent itself) 
-    pthread_t pmda_stats_collector;
-
     // Initializes data extension which will serve as private data available accross all PCP callbacks
     struct pmda_data_extension* data = create_statsd_pmda_data_ext(pcp_args);
-
-    // Engage stat collector thread
-    struct pmda_stats_collector_args* collector = create_pmda_stats_collector_args(data);
-    int pthread_errno = 0;
-    pthread_errno = pthread_create(&pmda_stats_collector, NULL, pmda_stats_collector_exec, collector);
-    PTHREAD_CHECK(pthread_errno);
 
     pmdaInterface dispatch;
     pmSetProgname(data->argv[0]);
@@ -72,13 +62,9 @@ pcp_pmda_exec(void* args)
     register_pmda_interface_v7_callbacks(&dispatch);
     pmdaSetData(&dispatch, (void*) data);
     pmdaSetFlags(&dispatch, PMDA_EXT_FLAG_HASHED);
-    pmdaInit(&dispatch, NULL, 0, data->metrics, data->hardcoded_metrics_count);
+    pmdaInit(&dispatch, NULL, 0, data->pcp_metrics, data->hardcoded_metrics_count);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
-
-    if (pthread_join(pmda_stats_collector, NULL) != 0) {
-        DIE("Error joining pcp listener thread.");
-    }
 
     /* Exit pthread. */
     pthread_exit(NULL);
@@ -93,12 +79,11 @@ create_statsd_pmda_data_ext(struct pcp_args* args) {
     struct pmda_data_extension* data = (struct pmda_data_extension*) malloc(sizeof(struct pmda_data_extension));
     ALLOC_CHECK("Unable to allocate memory for private PMDA procedures data.");
     data->config = args->config;
-    data->pcp_to_aggregator = args->aggregator_request_channel;
-    data->aggregator_to_pcp = args->aggregator_response_channel;
-    data->stats_sink = args->stats_sink;
     data->argc = args->argc;
     data->argv = args->argv;
     data->total_metric_count = 0;
+    data->metrics_container = args->metrics_container;
+    data->stats_container = args->stats_container;
     pmGetUsername(&(data->username));
     pmLongOptions long_opts[] = {
         PMDA_OPTIONS_HEADER("Options"),
@@ -121,31 +106,7 @@ create_statsd_pmda_data_ext(struct pcp_args* args) {
         "%s%c" "statsd" "%c" "help",
         pmGetConfig("PCP_PMDAS_DIR"),
         sep, sep);
-    data->stats = create_statsd_pmda_stats();
     return data;
-}
-
-/**
- * Creates pmda_stats structure that carries all metrics' values about PMDA itself
- * @return new pmda_stats struct
- */
-static struct pmda_stats*
-create_statsd_pmda_stats() {
-    struct pmda_stats* stats = (struct pmda_stats*) malloc(sizeof(struct pmda_stats));
-    ALLOC_CHECK("Unable to allocate memory for PMDA stats.");
-    stats->received = 0;
-    stats->parsed = 0;
-    stats->thrown_away = 0;
-    stats->aggregated = 0;
-    stats->time_spent_parsing = 0;
-    stats->time_spent_aggregating = 0;
-    pthread_mutex_init(&(stats->aggregated_lock), NULL);
-    pthread_mutex_init(&(stats->parsed_lock), NULL);
-    pthread_mutex_init(&(stats->received_lock), NULL);
-    pthread_mutex_init(&(stats->aggregated_lock), NULL);
-    pthread_mutex_init(&(stats->time_spent_parsing_lock), NULL);
-    pthread_mutex_init(&(stats->time_spent_aggregating_lock), NULL);
-    return stats;
 }
 
 /**
@@ -299,7 +260,9 @@ statsd_label_callback(pmInDom in_dom, unsigned int inst, pmLabelSet** lp) {
  */
 static int
 statsd_fetch_callback(pmdaMetric* mdesc, unsigned int inst, pmAtomValue* atom) {
-    struct pmda_stats* stats = ((struct pmda_data_extension*)mdesc->m_user)->stats;
+    struct pmda_data_extension* data = (struct pmda_data_extension*) mdesc->m_user;
+    struct agent_config* config = data->config;
+    struct pmda_stats_container* stats = data->stats_container;
     unsigned int cluster = pmID_cluster(mdesc->m_desc.pmid);
     unsigned int item = pmID_item(mdesc->m_desc.pmid);
     if (inst != PM_IN_NULL) {
@@ -311,39 +274,27 @@ statsd_fetch_callback(pmdaMetric* mdesc, unsigned int inst, pmAtomValue* atom) {
             switch (item) {
                 /* received */
                 case 0:
-                    pthread_mutex_lock(&stats->received_lock);
-                    atom->ull = stats->received;
-                    pthread_mutex_unlock(&stats->received_lock);
+                    atom->ull = get_agent_stat(config, stats, STAT_RECEIVED);
                     break;
                 /* parsed */
                 case 1:
-                    pthread_mutex_lock(&stats->parsed_lock);
-                    atom->ull = stats->parsed;
-                    pthread_mutex_unlock(&stats->parsed_lock);
+                    atom->ull = get_agent_stat(config, stats, STAT_PARSED);
                     break;
-                case 2:
                 /* thrown away */
-                    pthread_mutex_lock(&stats->thrown_away_lock);
-                    atom->ull = stats->thrown_away;
-                    pthread_mutex_unlock(&stats->thrown_away_lock);
+                case 2:
+                    atom->ull = get_agent_stat(config, stats, STAT_THROWN_AWAY);
                     break;
                 /* aggregated */
                 case 3:
-                    pthread_mutex_lock(&stats->aggregated_lock);
-                    atom->ull = stats->aggregated;
-                    pthread_mutex_unlock(&stats->aggregated_lock);
+                    atom->ull = get_agent_stat(config, stats, STAT_AGGREGATED);
                     break;
                 /* time_spent_parsing */
                 case 4:
-                    pthread_mutex_lock(&stats->time_spent_parsing_lock);
-                    atom->ull = stats->time_spent_parsing;
-                    pthread_mutex_unlock(&stats->time_spent_parsing_lock);
+                    atom->ull = get_agent_stat(config, stats, STAT_TIME_SPENT_PARSING);
                     break;
                 /* time_spent_aggregating */
                 case 5:
-                    pthread_mutex_lock(&stats->time_spent_aggregating_lock);
-                    atom->ull = stats->time_spent_aggregating;
-                    pthread_mutex_unlock(&stats->time_spent_aggregating_lock);
+                    atom->ull = get_agent_stat(config, stats, STAT_TIME_SPENT_AGGREGATING);
                     break;
                 default:
                     return PM_ERR_PMID;
@@ -363,17 +314,28 @@ statsd_fetch_callback(pmdaMetric* mdesc, unsigned int inst, pmAtomValue* atom) {
 static void
 create_statsd_hardcoded_metrics(pmdaInterface* pi, struct pmda_data_extension* data) {
     data->hardcoded_metrics_count = 6;
-    data->metrics = malloc(data->hardcoded_metrics_count * sizeof(pmdaMetric));
+    data->pcp_metrics = malloc(data->hardcoded_metrics_count * sizeof(pmdaMetric));
     ALLOC_CHECK("Unable to allocate space for static PMDA metrics.");
     size_t i;
     size_t max = data->hardcoded_metrics_count;
     for (i = 0; i < max; i++) {
-        data->metrics[i].m_user = data;
-        data->metrics[i].m_desc.pmid = pmID_build(pi->domain, 0, i);
-        data->metrics[i].m_desc.type = PM_TYPE_U64;
-        data->metrics[i].m_desc.indom = PM_INDOM_NULL;
-        data->metrics[i].m_desc.sem = PM_SEM_INSTANT;
-        memset(&data->metrics[i].m_desc.units, 0, sizeof(pmUnits));
+        data->pcp_metrics[i].m_user = data;
+        data->pcp_metrics[i].m_desc.pmid = pmID_build(pi->domain, 0, i);
+        data->pcp_metrics[i].m_desc.type = PM_TYPE_U64;
+        data->pcp_metrics[i].m_desc.indom = PM_INDOM_NULL;
+        data->pcp_metrics[i].m_desc.sem = PM_SEM_INSTANT;
+        if (i < 4) {
+            memset(&data->pcp_metrics[i].m_desc.units, 0, sizeof(pmUnits));
+        } else {
+            // time_spent_parsing / time_spent_aggregating
+            data->pcp_metrics[i].m_desc.units.dimSpace = 0;
+            data->pcp_metrics[i].m_desc.units.dimTime = 0;
+            data->pcp_metrics[i].m_desc.units.dimCount = 0;
+            data->pcp_metrics[i].m_desc.units.pad = 0;
+            data->pcp_metrics[i].m_desc.units.scaleSpace = 0;
+            data->pcp_metrics[i].m_desc.units.scaleTime = PM_TIME_NSEC;
+            data->pcp_metrics[i].m_desc.units.scaleCount = 1;
+        }
         data->total_metric_count++;
     }
 
@@ -410,9 +372,8 @@ register_pmda_interface_v7_callbacks(pmdaInterface* dispatch) {
 struct pcp_args*
 create_pcp_args(
     struct agent_config* config,
-    chan_t* aggregator_request_channel,
-    chan_t* aggregator_response_channel,
-    chan_t* stats_sink,
+    struct pmda_metrics_container* metrics_container,
+    struct pmda_stats_container* stats_container,
     int argc,
     char** argv
 ) {
@@ -420,9 +381,8 @@ create_pcp_args(
     *args = (struct pcp_args) { 0 };
     ALLOC_CHECK("Unable to assign memory for pcp thread arguments.");
     args->config = config;
-    args->aggregator_request_channel = aggregator_request_channel;
-    args->aggregator_response_channel = aggregator_response_channel;
-    args->stats_sink = stats_sink;
+    args->metrics_container = metrics_container;
+    args->stats_container = stats_container;
     args->argc = argc;
     args->argv = argv;
     return args;

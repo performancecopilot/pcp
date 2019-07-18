@@ -4,10 +4,9 @@
 #include "config-reader.h"
 #include "network-listener.h"
 #include "aggregators.h"
-#include "aggregator-duration.h"
-#include "aggregator-duration-exact.h"
-#include "aggregator-duration-hdr.h"
-#include "errno.h"
+#include "aggregator-metrics.h"
+#include "aggregator-metric-duration-exact.h"
+#include "aggregator-metric-duration-hdr.h"
 
 /**
  * Creates duration metric record of value subtype

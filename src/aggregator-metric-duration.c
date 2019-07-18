@@ -1,13 +1,15 @@
 #include <hdr/hdr_histogram.h>
 #include <string.h>
+#include <float.h>
 
 #include "config-reader.h"
 #include "network-listener.h"
 #include "aggregators.h"
-#include "aggregator-duration.h"
-#include "aggregator-duration-exact.h"
-#include "aggregator-duration-hdr.h"
+#include "aggregator-metric-duration.h"
+#include "aggregator-metric-duration-exact.h"
+#include "aggregator-metric-duration-hdr.h"
 #include "errno.h"
+#include "utils.h"
 
 /**
  * Creates duration metric record of value subtype
@@ -18,20 +20,26 @@
  */
 int
 create_duration_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out) {
-    if (datagram->value[0] == '-' || datagram->value[0] == '+') {
-        return 0;
+    double new_value;
+    switch (datagram->explicit_sign) {
+        case SIGN_MINUS:
+            new_value = -1.0 * datagram->value;
+            break;
+        default:
+            new_value = datagram->value;
     }
-    long long unsigned int value = strtoull(datagram->value, NULL, 10);
-    if (errno == ERANGE) {
+    if (new_value < 0 || new_value >= DBL_MAX) {
         return 0;
     }
     if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM) {
-        (*out)->value = create_hdr_duration_value(value);
+        (*out)->value = create_hdr_duration_value((unsigned long long) new_value);
     } else {
-        (*out)->value = create_exact_duration_value(value);
+        (*out)->value = create_exact_duration_value((unsigned long long) new_value);
     }
-    (*out)->name = malloc(strlen(datagram->metric));
-    strcpy((*out)->name, datagram->metric);
+    size_t len = strlen(datagram->name) + 1;
+    (*out)->name = (char*) malloc(len);
+    ALLOC_CHECK("Unable to allocate memory for copy of metric name.");
+    strncpy((*out)->name, datagram->name, len);
     (*out)->type = METRIC_TYPE_DURATION;
     (*out)->meta = create_metric_meta(datagram);
     return 1;
@@ -46,17 +54,21 @@ create_duration_metric(struct agent_config* config, struct statsd_datagram* data
  */
 int
 update_duration_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram) {
-    if (datagram->value[0] == '-' || datagram->value[0] == '+') {
-        return 0;
+    double new_value;
+    switch (datagram->explicit_sign) {
+        case SIGN_MINUS:
+            new_value = -1.0 * datagram->value;
+            break;
+        default:
+            new_value = datagram->value;
     }
-    long long unsigned int value = strtoull(datagram->value, NULL, 10);
-    if (errno == ERANGE) {
+    if (new_value < 0) {
         return 0;
     }
     if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM) {
-        update_hdr_duration_value((struct hdr_histogram*)item->value, value);
+        update_hdr_duration_value((struct hdr_histogram*)item->value, (unsigned long long) new_value);
     } else {
-        update_exact_duration_value((struct exact_duration_collection*)item->value, value);
+        update_exact_duration_value((struct exact_duration_collection*)item->value, (unsigned long long) new_value);
     }
     return 1;
 }

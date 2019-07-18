@@ -3,7 +3,7 @@
 
 #include "utils.h"
 #include "aggregators.h"
-#include "aggregator-duration-hdr.h"
+#include "aggregator-metric-duration-hdr.h"
 #include "config-reader.h"
 
 /**

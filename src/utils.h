@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <errno.h>
 
+#include "aggregator-metrics.h"
 #include "config-reader.h"
 
 /**
@@ -87,13 +88,14 @@ int
 sanitize_sampling_val_string(char* src);
 
 /**
- * Validates string
+ * Validates type string
  * Checks if string is matching one of metric identifiers ("ms" = duration, "g" = gauge, "c" = counter)
  * @arg src - String to be validated
+ * @arg out - What metric string contained
  * @return 1 on success
  */
 int
-sanitize_type_val_string(char* src);
+sanitize_type_val_string(char* src, enum METRIC_TYPE* out);
 
 /**
  * Logs VERBOSE message - if config settings allows it

@@ -4,8 +4,9 @@
 #include "config-reader.h"
 #include "network-listener.h"
 #include "aggregators.h"
-#include "aggregator-gauge.h"
+#include "aggregator-metric-gauge.h"
 #include "errno.h"
+#include "utils.h"
 
 /**
  * Creates gauge metric record
@@ -16,19 +17,26 @@
  */
 int
 create_gauge_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out) {
-    (void)config;
-    if (datagram->metric == NULL) {
+    (void)config;   
+    double new_value;
+    switch (datagram->explicit_sign) {
+        case SIGN_MINUS:
+            new_value = -1.0 * datagram->value;
+            break;
+        default:
+            new_value = datagram->value;
+    }
+    if (new_value < 0) {
         return 0;
     }
-    double value = strtod(datagram->value, NULL);
-    if (errno == ERANGE) {
-        return 0;
-    }
-    (*out)->name = malloc(strlen(datagram->metric));
-    strcpy((*out)->name, datagram->metric);
+    size_t len = strlen(datagram->name) + 1;
+    (*out)->name = (char*) malloc(len);
+    ALLOC_CHECK("Unable to allocate memory for copy of metric name.");
+    strncpy((*out)->name, datagram->name, len);
     (*out)->type = METRIC_TYPE_GAUGE;
     (*out)->value = (double*) malloc(sizeof(double));
-    *((double*)(*out)->value) = value;
+    ALLOC_CHECK("Unable to allocate memory for copy of metric name.");
+    *(double*)(*out)->value = new_value;
     (*out)->meta = create_metric_meta(datagram);
     return 1;
 }
@@ -43,40 +51,21 @@ create_gauge_metric(struct agent_config* config, struct statsd_datagram* datagra
 int
 update_gauge_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram) {
     (void)config;
-    int substract = 0;
-    int add = 0;
-    if (datagram->value[0] == '+') {
-        add = 1;
+    double old = *((double*) item->value);
+    double new_value;
+    switch (datagram->explicit_sign) {
+        case SIGN_MINUS:
+            new_value = -1.0 * datagram->value;
+            break;
+        default:
+            new_value = datagram->value;
     }
-    if (datagram->value[0] == '-') {
-        substract = 1; 
-    }
-    double value;
-    if (substract || add) {
-        char* substr = &(datagram->value[1]);
-        value = strtod(substr, NULL);
-    } else {
-        value = strtod(datagram->value, NULL);
-    }
-    if (errno == ERANGE) {
-        return 0;
-    }
-    double old_value = *(double*)(item->value);
-    if (add || substract) {
-        if (add) {
-            if (old_value + value >= DBL_MAX) {
-                return 0;
-            }
-            *(double*)(item->value) += value;
+    if ((old + new_value <= DBL_MAX) || (old - new_value >= -DBL_MAX)) {
+        if (datagram->explicit_sign == SIGN_NONE) {
+            *(double*)(item->value) = new_value;
+        } else {
+            *(double*)(item->value) += new_value;
         }
-        if (substract) {
-            if (old_value - value <= -DBL_MAX) {
-                return 0;
-            }
-            *(double*)(item->value) -= value;
-        }
-    } else {
-        *(double*)(item->value) = value;
     }
     return 1;
 }

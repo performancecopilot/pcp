@@ -14,8 +14,7 @@ struct unprocessed_statsd_datagram
 struct network_listener_args
 {
     struct agent_config* config;
-    chan_t* unprocessed_datagrams;
-    chan_t* stats_sink;
+    chan_t* network_listener_to_parser;
 } network_listener_args;
 
 /**
@@ -27,17 +26,12 @@ void*
 network_listener_exec(void* args);
 
 /**
- * Packs up its arguments into struct so that we can pass it via single reference to the network listener thread
- */
-
-/**
  * Creates arguments for network listener thread
  * @arg config - Application config
- * @arg unprocessed_channel - Network listener -> Parser
- * @arg stats_sink - Channel for sending stats about PMDA itself
+ * @arg network_listener_to_parser - Network listener -> Parser
  * @return network_listener_args
  */
 struct network_listener_args*
-create_listener_args(struct agent_config* config, chan_t* unprocessed_channel, chan_t* stats_sink);
+create_listener_args(struct agent_config* config, chan_t* network_listener_to_parser);
 
 #endif

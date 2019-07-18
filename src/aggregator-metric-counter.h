@@ -6,6 +6,7 @@
 #include "config-reader.h"
 #include "network-listener.h"
 #include "aggregators.h"
+#include "aggregator-metrics.h"
 
 /**
  * Creates counter metric record
