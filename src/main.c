@@ -63,8 +63,8 @@ main(int argc, char** argv)
     PTHREAD_CHECK(pthread_errno);
     pthread_errno = pthread_create(&aggregator, NULL, aggregator_exec, aggregator_args);
     PTHREAD_CHECK(pthread_errno);
-    // pthread_errno = pthread_create(&pcp, NULL, pcp_pmda_exec, pmda_args);
-    // PTHREAD_CHECK(pthread_errno);
+    pthread_errno = pthread_create(&pcp, NULL, pcp_pmda_exec, pmda_args);
+    PTHREAD_CHECK(pthread_errno);
 
     if (pthread_join(network_listener, NULL) != 0) {
         DIE("Error joining network network listener thread.");

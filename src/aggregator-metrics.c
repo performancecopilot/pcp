@@ -359,7 +359,10 @@ int
 check_metric_name_available(struct pmda_metrics_container* container, char* name) {    
     size_t i;
     for (i = 0; i < sizeof(g_blacklist) / sizeof(g_blacklist[0]); i++) {
-        if (strcmp(name, g_blacklist[i]) == 0) return 0;
+        const char* ampptr = strchr(name, '&');
+        if (ampptr) {
+            if (strncmp(name, g_blacklist[i], ampptr - name) == 0) return 0;
+        }
     }
     if (!find_metric_by_name(container, name, NULL)) {
         return 1;
