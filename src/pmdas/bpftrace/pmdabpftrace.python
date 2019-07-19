@@ -353,6 +353,7 @@ class BPFtracePMDA(PMDA):
                 "name": script.name,
                 "vars": list(script.exported_variables),
                 "status": script.state.status,
+                "exit_code": script.status.exit_code,
                 "output": script.state.output
             }
 
@@ -376,6 +377,7 @@ class BPFtracePMDA(PMDA):
                 "name": "",
                 "vars": [],
                 "status": "stopped",
+                "exit_code": 1,
                 "output": str(e)
             })
             return c_api.PM_ERR_BADSTORE
