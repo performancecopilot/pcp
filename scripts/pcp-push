@@ -12,7 +12,7 @@ _usage()
     echo >&2 "Usage: pcp-push [options]"
     echo >&2
     echo >&2 "options:"
-    echo >&2 "  -b branch           [defaults to master]"
+    echo >&2 "  -b branch           [defaults to current branch]"
     echo >&2 "  -m                  don't launch mail client or create pull request"
     echo >&2 "  -n                  dryrun"
     echo >&2 "  -r range            [defaults to \$(cat pushed.sha)..)]"
@@ -22,7 +22,7 @@ _usage()
 
 dryrun=false
 GIT=git
-branch=master
+branch=`git branch --list | sed -n -e 's/^\* //p'`
 tree=origin
 short=false
 if [ -f pushed.sha ]
@@ -69,61 +69,60 @@ fi
 
 
 unset GIT_EXTERNAL_DIFF
-pull=`git config remote.origin.url`
-case "$pull"
+push=`git config remote.origin.url`
+case "$push"
 in
-    *oss.sgi.com*|*git.pcp.io*)
-	# old school ... does not work any more
-	#
-	push=`echo "$pull" | sed -e 's/^git:/ssh:/' -e "s;/git.pcp.io/;/git.pcp.io/oss/git/;"`
-	;;
-
     *github*)
 	# new school ...
 	#
-	push=''
 	;;
 
     *)
-	echo "Sorry, no recipe to handle repo: $pull"
+	echo "Sorry, no recipe to handle repo: $push"
 	exit 1
 	;;
 esac
 
-echo "Changes committed to $pull $branch" >/tmp/msg
+changes=true
+echo "Changes committed to $push $branch" >/tmp/msg
 echo >>/tmp/msg
 git shortlog --no-merges --numbered $range >$tmp.tmp
 if [ -s $tmp.tmp ]
 then
     cat $tmp.tmp >>/tmp/msg
 else
-    echo "Nothing to push ... bye."
+    echo "Nothing to push ..."
+    changes=false
     rm -f /tmp/msg
-    exit
-fi
-git log --no-merges -p $range | diffstat -p1 >>/tmp/msg
-if $short
-then
-    :
-else
-    echo >>/tmp/msg
-    echo "Details ..." >>/tmp/msg
-    echo >>/tmp/msg
-    git log --no-merges $range >>/tmp/msg
 fi
 
-xclip -sel clip < /tmp/msg
-cat /tmp/msg
-echo "(all of this for email is in /tmp/msg)"
+if $changes
+then
+    git log --no-merges -p $range | diffstat -p1 >>/tmp/msg
+    if $short
+    then
+	:
+    else
+	echo >>/tmp/msg
+	echo "Details ..." >>/tmp/msg
+	echo >>/tmp/msg
+	git log --no-merges $range >>/tmp/msg
+    fi
+
+    xclip -sel clip < /tmp/msg
+    cat /tmp/msg
+    echo "(all of this for email is in /tmp/msg)"
+fi
+
+# even if no changes locally, still push to remote, e.g.
+# after git-refresh to pull commits from the remote official
+# repo, then these need to go back to the origin for this
+# repo
+#
 rm -f $tmp.y
 while true
 do
-    if [ -z "$push" ]
-    then
-	echo -n "Push to $pull [y|n|q] (or ctrl+C to abort) "
-    else
-	echo -n "Push to $push? [y|n|q] (or ctrl+C to abort) "
-    fi
+    echo -n "Push to $push $branch [y|n|q] (or ctrl+C to abort) "
     read ans </dev/tty
     if [ -z "$ans" ]
     then
@@ -134,7 +133,7 @@ do
 	break
     elif [ "$ans" = n ]
     then
-    	break
+	break
     elif [ "$ans" = q ]
     then
 	echo "Quitting ... pushed.sha not updated"
@@ -144,36 +143,18 @@ do
 done
 if [ -f $tmp.y ]
 then
-    $GIT push $push
-    $GIT push --tags $push
-    # may have local git mirror that needs to be updated ...
-    #
-    if [ -d $HOME/git-mirror ]
+    if [ "$branch" != master ]
     then
-	here=`pwd`
-	cd $HOME/git-mirror
-	for dir in *
-	do
-	    [ -d "$dir" ] || continue
-	    [ -f "$dir/config" ] || continue
-	    if grep "url = $pull" "$dir/config" >/dev/null 2>&1
-	    then
-		# found repo with url matching the one we've just pushed to
-		#
-		cd $dir
-		echo "Update local $dir git mirror ..."
-		git fetch
-		cd ..
-	    fi
-	done
-	cd $here
+	$GIT push -u origin $branch
+    else
+	$GIT push $push
     fi
 fi
 
 rm -f $tmp.y
 while true
 do
-    echo -n "Push to github mirror? [y|n|q] (or ctrl+C to abort) "
+    echo -n "Push to official github repo? [y|n|q] (or ctrl+C to abort) "
     read ans </dev/tty
     if [ -z "$ans" ]
     then
@@ -225,9 +206,14 @@ then
 	    #
 	    while true
 	    do
-		echo -n "Pull request title: [title|q] "
+		rm -f $tmp.pr
+		echo -n "Pull request title: [n|q|title] "
 		read ans </dev/tty
-		if [ "$ans" = q ]
+		if [ "$ans" = n ]
+		then
+		    echo "Skipping ... github pull request"
+		    break
+		elif [ "$ans" = q ]
 		then
 		    echo "Quitting ... no github pull request generated"
 		    exit
@@ -244,7 +230,7 @@ then
 	    then
 		if $dryrun
 		then
-		    echo + hub pull-request -m $tmp.pr
+		    echo + hub pull-request -F $tmp.pr
 		    echo "---- 8< ----"
 		    cat $tmp.pr
 		else
@@ -254,5 +240,67 @@ then
 	    ;;
     esac
 else
-    echo "cut-n-paste from /tmp/msg into mail program and send to pcp@group.io"
+    if $changes
+    then
+	echo "cut-n-paste from /tmp/msg into mail program and send to pcp@group.io"
+    fi
+fi
+
+if [ "$branch" != master ]
+then
+    rm -f $tmp.y
+    while true
+    do
+	echo -n "Merge local branch $branch back to local master branch? [y|n|q] "
+	read ans </dev/tty
+	if [ -z "$ans" ]
+	then
+	    :
+	elif [ "$ans" = y ]
+	then
+	    touch $tmp.y
+	    break
+	elif [ "$ans" = n ]
+	then
+	    break
+	elif [ "$ans" = q ]
+	then
+	    echo "Quitting ... no github merge done"
+	    exit
+	else
+	    echo "Answer the question, bozo!"
+	fi
+    done
+    if [ -f $tmp.y ]
+    then
+	$GIT checkout master
+	$GIT pull . $branch
+	branch=master
+    fi
+fi
+
+if [ "$branch" = master ]
+then
+    # may have local git mirror that needs to be updated ...
+    #
+    if [ -d $HOME/git-mirror ]
+    then
+	here=`pwd`
+	cd $HOME/git-mirror
+	for dir in *
+	do
+	    [ -d "$dir" ] || continue
+	    [ -f "$dir/config" ] || continue
+	    if grep "url = $push" "$dir/config" >/dev/null 2>&1
+	    then
+		# found repo with url matching the one we've just pushed to
+		#
+		cd $dir
+		echo "Update local $dir git mirror ..."
+		$GIT fetch
+		cd ..
+	    fi
+	done
+	cd $here
+    fi
 fi

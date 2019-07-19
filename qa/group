@@ -1212,6 +1212,7 @@ BAD
 810 pmiostat archive multi-archive local pmlogextract pcp python
 811 pmlogger pmcpp local kernel
 812 pmlogextract local pmdumplog
+813 pmlogextract local
 814 pmprobe archive multi-archive local pmlogextract
 815 pmie local
 816 libpcp local

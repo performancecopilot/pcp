@@ -41,13 +41,14 @@ static pmLongOptions longopts[] = {
     PMOPT_FINISH,
     { "", 1, 'v', "SAMPLES", "switch log volumes after this many samples" },
     { "", 0, 'w', 0, "ignore day/month/year" },
+    { "", 0, 'x', 0, "skip metrics with mismatched metadata" },
     PMOPT_TIMEZONE,
     PMOPT_HOSTZONE,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
-    .short_options = "c:D:dfmS:s:T:v:wZ:z?",
+    .short_options = "c:D:dfmS:s:T:v:wxZ:z?",
     .long_options = longopts,
     .short_usage = "[options] input-archive output-archive",
 };
@@ -276,6 +277,8 @@ int		ml_numpmid;			/* num pmid in ml list */
 int		ml_size;			/* actual size of ml array */
 mlist_t		*ml;				/* list of pmids with indoms */
 rlist_t		*rl;				/* list of pmResults */
+int		skip_ml_numpmid;		/* num entries in skip_ml list */
+pmID		*skip_ml;
 
 
 off_t		new_log_offset;			/* new log offset */
@@ -324,6 +327,7 @@ char	*Sarg;				/* -S arg - window start */
 char	*Targ;				/* -T arg - window end */
 int	varg = -1;			/* -v arg - switch log vol every X */
 int	warg;				/* -w arg - ignore day/month/year */
+int	xarg;				/* -x arg - skip metrics with mismatched metadata */
 int	zarg;				/* -z arg - use archive timezone */
 char	*tz;				/* -Z arg - use timezone from user */
 
@@ -364,6 +368,34 @@ abandon_extract(void)
     exit(1);
 }
 
+/*
+ * -x and found something inconsistent in the metadata, add this pmid to
+ * skip_ml so it is omitted from the output archive
+ */
+void
+skip_metric(pmID pmid)
+{
+    pmID	*skip_ml_tmp;
+    int		j;
+
+    /* avoid dups */
+    for (j=0; j<skip_ml_numpmid; j++) {
+	if (pmid == skip_ml[j])
+	    break;
+    }
+    if (j == skip_ml_numpmid) {
+	/* not already on the list, append it */
+	skip_ml_numpmid++;
+	skip_ml_tmp = realloc(skip_ml, skip_ml_numpmid*sizeof(pmID));
+	if (skip_ml_tmp == NULL) {
+	    fprintf(stderr, "skip_metric: Error: cannot realloc %ld bytes for skip_ml[]\n",
+		    (long)skip_ml_numpmid*sizeof(pmID));
+	    abandon_extract();
+	}
+	skip_ml = skip_ml_tmp;
+	skip_ml[skip_ml_numpmid-1] = pmid;
+    }
+}
 
 /*
  *  report that archive is corrupted
@@ -559,7 +591,7 @@ mk_reclist_t(void)
 		pmGetProgname());
 	abandon_extract();
     }
-    if (pmDebugOptions.appl0) {
+    if (pmDebugOptions.appl1) {
         totalmalloc += sizeof(reclist_t);
         fprintf(stderr, "mk_reclist_t: allocated %d\n", (int)sizeof(reclist_t));
     }
@@ -585,7 +617,7 @@ add_reclist_t(reclist_t *rec)
 		pmGetProgname());
 	abandon_extract();
     }
-    if (pmDebugOptions.appl0) {
+    if (pmDebugOptions.appl1) {
 	totalmalloc += sizeof(reclist_t);
 	fprintf(stderr, "add_reclist_t: allocated %d\n",
 			(int)(rec->nrecs ? sizeof(reclist_t) : 2*sizeof(reclist_t)));
@@ -653,11 +685,15 @@ update_descreclist(int indx)
 	curr = (reclist_t *)hp->data;
 	if (curr->pdu != NULL) {
 	    if (matchnames(curr->pdu, iap->pb[META]) != MATCH_NONE) {
-		fprintf(stderr, "%s: Error: metric ", pmGetProgname());
+		fprintf(stderr, "%s: %s: metric ",
+		    pmGetProgname(), xarg == 0 ? "Error" : "Warning");
 		printmetricnames(stderr, curr->pdu);
 		fprintf(stderr, ": PMID changed from %s", pmIDStr(curr->desc.pmid));
 		fprintf(stderr, " to %s!\n", pmIDStr(pmid));
-		abandon_extract();
+		if (xarg == 0)
+		    abandon_extract();
+		else
+		    skip_metric(curr->desc.pmid);
 	    }
 	    if (pmDebugOptions.appl1) {
 		fprintf(stderr, "update_descreclist: nomatch ");
@@ -706,32 +742,46 @@ update_descreclist(int indx)
 	    fputc('\n', stderr);
 	}
 	if (matchnames(curr->pdu, iap->pb[META]) != MATCH_EQUAL) {
-	    fprintf(stderr, "%s: Error: metric PMID %s", pmGetProgname(), pmIDStr(curr->desc.pmid));
+	    fprintf(stderr, "%s: %s: metric PMID %s",
+		pmGetProgname(), xarg == 0 ? "Error" : "Warning",
+		pmIDStr(curr->desc.pmid));
 	    fprintf(stderr, ": name changed from ");
 	    printmetricnames(stderr, curr->pdu);
 	    fprintf(stderr, " to ");
 	    printmetricnames(stderr, iap->pb[META]);
 	    fprintf(stderr, "!\n");
-	    abandon_extract();
+	    if (xarg == 0)
+		abandon_extract();
+	    else
+		skip_metric(curr->desc.pmid);
 	}
 	if (curr->desc.type != ntohl(iap->pb[META][3])) {
-	    fprintf(stderr, "%s: Error: metric ", pmGetProgname());
+	    fprintf(stderr, "%s: %s: metric ",
+		pmGetProgname(), xarg == 0 ? "Error" : "Warning");
 	    printmetricnames(stderr, curr->pdu);
 	    fprintf(stderr, ": type changed from");
 	    fprintf(stderr, " %s", pmTypeStr(curr->desc.type));
 	    fprintf(stderr, " to %s!\n", pmTypeStr(ntohl(iap->pb[META][3])));
-	    abandon_extract();
+	    if (xarg == 0)
+		abandon_extract();
+	    else
+		skip_metric(curr->desc.pmid);
 	}
 	if (curr->desc.indom != ntoh_pmInDom(iap->pb[META][4])) {
-	    fprintf(stderr, "%s: Error: metric ", pmGetProgname());
+	    fprintf(stderr, "%s: %s: metric ",
+		pmGetProgname(), xarg == 0 ? "Error" : "Warning");
 	    printmetricnames(stderr, curr->pdu);
 	    fprintf(stderr, ": indom changed from");
 	    fprintf(stderr, " %s", pmInDomStr(curr->desc.indom));
 	    fprintf(stderr, " to %s!\n", pmInDomStr(ntoh_pmInDom(iap->pb[META][4])));
-	    abandon_extract();
+	    if (xarg == 0)
+		abandon_extract();
+	    else
+		skip_metric(curr->desc.pmid);
 	}
 	if (curr->desc.sem != ntohl(iap->pb[META][5])) {
-	    fprintf(stderr, "%s: Error: metric ", pmGetProgname());
+	    fprintf(stderr, "%s: %s: metric ",
+		pmGetProgname(), xarg == 0 ? "Error" : "Warning");
 	    printmetricnames(stderr, curr->pdu);
 	    fprintf(stderr, ": semantics changed from");
 	    fprintf(stderr, " ");
@@ -739,7 +789,10 @@ update_descreclist(int indx)
 	    fprintf(stderr, " to ");
 	    printsem(stderr, (int)ntohl(iap->pb[META][5]));
 	    fprintf(stderr, "!\n");
-	    abandon_extract();
+	    if (xarg == 0)
+		abandon_extract();
+	    else
+		skip_metric(curr->desc.pmid);
 	}
 	pmup = (pmUnits *)&iap->pb[META][6];
 	pmu = ntoh_pmUnits(*pmup);
@@ -749,12 +802,16 @@ update_descreclist(int indx)
 	    curr->desc.units.scaleSpace != pmu.scaleSpace ||
 	    curr->desc.units.scaleTime != pmu.scaleTime ||
 	    curr->desc.units.scaleCount != pmu.scaleCount) {
-	    fprintf(stderr, "%s: Error: metric ", pmGetProgname());
+	    fprintf(stderr, "%s: %s: metric ",
+		pmGetProgname(), xarg == 0 ? "Error" : "Warning");
 	    printmetricnames(stderr, curr->pdu);
 	    fprintf(stderr, ": units changed from");
 	    fprintf(stderr, " %s", pmUnitsStr(&curr->desc.units));
 	    fprintf(stderr, " to %s!\n", pmUnitsStr(&pmu));
-	    abandon_extract();
+	    if (xarg == 0)
+		abandon_extract();
+	    else
+		skip_metric(curr->desc.pmid);
 	}
 	/* not adding, so META: discard new record */
 	free(iap->pb[META]);
@@ -1445,7 +1502,7 @@ _createmark(void)
 		pmGetProgname(), osstrerror());
 	abandon_extract();
     }
-    if (pmDebugOptions.appl0) {
+    if (pmDebugOptions.appl1) {
         totalmalloc += sizeof(mark_t);
         fprintf(stderr, "_createmark : allocated %d\n", (int)sizeof(mark_t));
     }
@@ -1517,6 +1574,15 @@ nextmeta(void)
 
 	lcp = ctxp->c_archctl->ac_log;
 
+	/* Note related to ml_skip[]
+	 *   We try do some culling below if ml_skip[] is not empty,
+	 *   but the order of metadata across archives means we may
+	 *   emit some metadata and LATER ON determine the associated
+	 *   pmid needs to be added to ml_skip[].  This is unfortunate
+	 *   but not catastrophic, provided the corresponding pmid never
+	 *   appears in an output pmResult.
+	 */
+
 againmeta:
 	/* get next meta record */
 
@@ -1550,9 +1616,21 @@ againmeta:
 	    if (ml == NULL)
 		want = 1;
 	    else {
+		/* check merics from configfile */
 		for (j=0; j<ml_numpmid; j++) {
-		    if (pmid == ml[j].idesc->pmid)
+		    if (pmid == ml[j].desc->pmid) {
 			want = 1;
+			break;
+		    }
+		}
+	    }
+	    if (want && skip_ml != NULL) {
+		/* check not on skip list */
+		for (j=0; j<skip_ml_numpmid; j++) {
+		    if (pmid == skip_ml[j]) {
+			want = 0;
+			break;
+		    }
 		}
 	    }
 
@@ -1582,7 +1660,7 @@ againmeta:
 	        want = 1;
 	    else {
 	        for (j=0; j<ml_numpmid; j++) {
-		    if (indom == ml[j].idesc->indom)
+		    if (indom == ml[j].desc->indom)
 		        want = 1;
 	        }
 	    }
@@ -1628,7 +1706,7 @@ againmeta:
 		    pmid = ntoh_pmID(iap->pb[META][5]);
 		    pmid = pmID_domain(pmid); /* Extract the domain */
 		    for (j=0; j<ml_numpmid; j++) {
-			if (pmid == pmID_domain(ml[j].idesc->pmid))
+			if (pmid == pmID_domain(ml[j].desc->pmid))
 			    want = 1;
 		    }
 		    break;
@@ -1639,8 +1717,8 @@ againmeta:
 		    pmid = ntoh_pmID(iap->pb[META][5]);
 		    pmid = pmID_build(pmID_domain(pmid), pmID_cluster(pmid), 0);
 		    for (j=0; j<ml_numpmid; j++) {
-			if (pmid == pmID_build(pmID_domain(ml[j].idesc->pmid),
-					       pmID_cluster(ml[j].idesc->pmid), 0))
+			if (pmid == pmID_build(pmID_domain(ml[j].desc->pmid),
+					       pmID_cluster(ml[j].desc->pmid), 0))
 			    want = 1;
 		    }
 		    break;
@@ -1650,7 +1728,7 @@ againmeta:
 		     */
 		    pmid = ntoh_pmID(iap->pb[META][5]);
 		    for (j=0; j<ml_numpmid; j++) {
-			if (pmid == ml[j].idesc->pmid)
+			if (pmid == ml[j].desc->pmid)
 			    want = 1;
 		    }
 		    break;
@@ -1662,7 +1740,7 @@ againmeta:
 		     */
 		    indom = ntoh_pmInDom(iap->pb[META][5]);
 		    for (j=0; j<ml_numpmid; j++) {
-			if (indom == ml[j].idesc->indom)
+			if (indom == ml[j].desc->indom)
 			    want = 1;
 		    }
 		    break;
@@ -1704,7 +1782,7 @@ againmeta:
 		     */
 		    pmid = ntoh_pmID(iap->pb[META][3]);
 		    for (j=0; j<ml_numpmid; j++) {
-			if (pmid == ml[j].idesc->pmid)
+			if (pmid == ml[j].desc->pmid)
 			    want = 1;
 		    }
 		}
@@ -1715,7 +1793,7 @@ againmeta:
 		     */
 		    indom = ntoh_pmInDom(iap->pb[META][3]);
 		    for (j=0; j<ml_numpmid; j++) {
-			if (indom == ml[j].idesc->indom)
+			if (indom == ml[j].desc->indom)
 			    want = 1;
 		    }
 		}
@@ -1903,14 +1981,18 @@ againlog:
 		/* mark record, process this one as is */
                 iap->_Nresult = iap->_result;
 	    }
-            else if (ml == NULL) {
-                /* ml is NOT defined, we want everything */
+            else if (ml == NULL && skip_ml == NULL) {
+                /*
+		 * ml is NOT defined and skip_ml[] is empty so, we want
+		 * everything => use the input pmResult
+		 */
                 iap->_Nresult = iap->_result;
             }
             else {
                 /*
-		 * ml is defined, need to search metric list for wanted pmid's
-                 *   (searchmlist may return a NULL pointer - this is fine)
+		 * need to search metric list for wanted pmid's and to
+		 * omit any skipped pmid's
+                 * searchmlist() may pick no metrics, this is OK
                  */
                 iap->_Nresult = searchmlist(iap->_result);
             }
@@ -2005,6 +2087,10 @@ parseargs(int argc, char *argv[])
 
 	case 'w':	/* ignore day/month/year */
 	    warg++;
+	    break;
+
+	case 'x':	/* ignore metrics with mismatched metadata */
+	    xarg++;
 	    break;
 
 	case 'Z':	/* use timezone from command line */
@@ -2438,7 +2524,7 @@ main(int argc, char **argv)
 		pmGetProgname(), osstrerror());
 	exit(1);
     }
-    if (pmDebugOptions.appl0) {
+    if (pmDebugOptions.appl1) {
         totalmalloc += (inarchnum * sizeof(inarch_t));
         fprintf(stderr, "main        : allocated %d\n",
 			(int)(inarchnum * sizeof(inarch_t)));
@@ -2617,6 +2703,12 @@ main(int argc, char **argv)
 	stsmeta = nextmeta();
     } while (stsmeta >= 0);
 
+    if (skip_ml_numpmid > 0) {
+	fprintf(stderr, "Warning: the metrics below will be missing from the output archive\n");
+	for (j=0; j<skip_ml_numpmid; j++) {
+	    fprintf(stderr, "\tPMID: %s\n", pmIDStr(skip_ml[j]));
+	}
+    }
 
     /*
      * get log record - choose one with earliest timestamp
@@ -2793,7 +2885,7 @@ cleanup:
 	/* need to fix up label with new start-time */
 	writelabel_metati(1);
     }
-    if (pmDebugOptions.appl0) {
+    if (pmDebugOptions.appl1) {
         fprintf(stderr, "main        : total allocated %ld\n", totalmalloc);
     }
 
