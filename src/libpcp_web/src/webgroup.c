@@ -38,6 +38,7 @@ static sds AUTH_USERNAME, AUTH_PASSWORD;
 static sds LOCALHOST, TIMEOUT, BATCHSIZE;
 
 enum matches { MATCH_EXACT, MATCH_GLOB, MATCH_REGEX };
+enum profile { PROFILE_ADD, PROFILE_DEL };
 
 typedef struct webgroups {
     struct dict		*contexts;
@@ -593,8 +594,7 @@ webgroup_lookup_pmid(pmWebGroupSettings *settings, context_t *cp, sds name, void
     }
     if ((mp = (struct metric *)dictFetchValue(cp->pmids, &pmid)) != NULL)
 	return mp;
-    mp = pmwebapi_new_pmid(cp, pmid, settings->module.on_info, arg);
-    return mp;
+    return pmwebapi_new_pmid(cp, pmid, settings->module.on_info, arg);
 }
 
 static struct metric *
@@ -612,8 +612,7 @@ webgroup_lookup_metric(pmWebGroupSettings *settings, context_t *cp, sds name, vo
 	moduleinfo(&settings->module, PMLOG_WARNING, msg, arg);
 	return NULL;
     }
-    mp = pmwebapi_new_pmid(cp, pmid, settings->module.on_info, arg);
-    return mp;
+    return pmwebapi_new_pmid(cp, pmid, settings->module.on_info, arg);
 }
 
 static void
@@ -723,10 +722,20 @@ webgroup_parse_indom(const sds name)
 }
 
 static struct indom *
-webgroup_lookup_indom(pmWebGroupSettings *settings, context_t *cp, sds name, void *arg)
+webgroup_cache_indom(struct context *cp, pmInDom indom)
 {
     struct domain	*dp;
     struct indom	*ip;
+
+    if ((ip = (struct indom *)dictFetchValue(cp->indoms, &indom)) != NULL)
+	return ip;
+    dp = pmwebapi_add_domain(cp, pmInDom_domain(indom));
+    return pmwebapi_new_indom(cp, dp, indom);
+}
+
+static struct indom *
+webgroup_lookup_indom(pmWebGroupSettings *settings, context_t *cp, sds name, void *arg)
+{
     pmInDom		indom;
     sds			msg;
 
@@ -735,21 +744,101 @@ webgroup_lookup_indom(pmWebGroupSettings *settings, context_t *cp, sds name, voi
 	moduleinfo(&settings->module, PMLOG_WARNING, msg, arg);
 	return NULL;
     }
-    if ((ip = (struct indom *)dictFetchValue(cp->indoms, &indom)) != NULL)
-	return ip;
-    dp = pmwebapi_add_domain(cp, pmInDom_domain(indom));
-    return pmwebapi_new_indom(cp, dp, indom);
+    return webgroup_cache_indom(cp, indom);
 }
 
 static int
-webgroup_profile(struct indom *indom, sds expr, sds inames, sds instids)
+webgroup_profile(struct indom *ip, enum profile profile, enum matches match,
+		sds instnames, sds instids)
 {
-    /* TODO: pmAddProfile, pmDelProfile - expr == "add", "del" */
-    (void)indom;
-    (void)expr;
-    (void)inames;
-    (void)instids;
-    return 0;
+    struct instance	*instance;
+    dictIterator	*iterator;
+    dictEntry		*entry;
+    pmInDom		indom;
+    regex_t		*regex = NULL;
+    size_t		length;
+    sds			*ids = NULL, *names = NULL;
+    int			*insts = NULL;
+    int			i, r = 0, sts = 0, count = 0, numids = 0, numnames = 0;
+
+    if (ip == NULL) {
+	indom = PM_INDOM_NULL;
+	goto profile;
+    }
+    indom = ip->indom;
+    if (instnames) {
+	pmwebapi_add_indom_instances(ip);
+	length = sdslen(instnames);
+	names = sdssplitlen(instnames, length, ",", 1, &numnames);
+	insts = calloc(numnames, sizeof(int));
+    } else if (instids) {
+	pmwebapi_add_indom_instances(ip);
+	length = sdslen(instids);
+	ids = sdssplitlen(instids, length, ",", 1, &numids);
+	insts = calloc(numids, sizeof(int));
+    }
+
+    if (match == MATCH_REGEX && numnames > 0) {
+	if ((regex = calloc(numnames, sizeof(*regex))) == NULL)
+	    return -ENOMEM;
+	for (r = 0; r < numnames; r++) {
+	    if (regcomp(&regex[r], names[r], REG_EXTENDED|REG_NOSUB) < 0) {
+		sts = -EINVAL;
+		goto done;
+	    }
+	}
+    }
+
+    iterator = dictGetIterator(ip->insts);
+    while ((entry = dictNext(iterator)) != NULL) {
+	instance = (instance_t *)dictGetVal(entry);
+	if (instance->updated == 0)
+	    continue;
+
+	for (i = 0; i < numnames; i++) {
+	    if (match == MATCH_EXACT &&
+		strcmp(names[i], instance->name.sds) == 0)
+		goto inst;
+	    if (match == MATCH_REGEX &&
+		regexec(&regex[i], instance->name.sds, 0, NULL, 0) == 0)
+		goto inst;
+	    if (match == MATCH_GLOB &&
+		fnmatch(names[i], instance->name.sds, 0) == 0)
+		goto inst;
+	}
+	if (i != numnames)	/* skip this instance based on name */
+	    continue;
+	for (i = 0; i < numids; i++) {
+	    if (instance->inst == atoi(ids[i]))
+		goto inst;
+	}
+	if (i == numids)	/* skip this instance based on ID */
+	    continue;
+inst:
+	/* add instance identifier to list */
+	insts[count] = instance->inst;
+	count++;
+    }
+    dictReleaseIterator(iterator);
+
+done:
+    if (regex) {
+	while (r--)
+	    regfree(&regex[r]);
+	free(regex);
+    }
+
+    sdsfreesplitres(names, numnames);
+    sdsfreesplitres(ids, numids);
+
+profile:
+    sts = (profile == PROFILE_ADD) ?
+	    pmAddProfile(indom, count, insts) :
+	    pmDelProfile(indom, count, insts);
+
+    if (count)
+	free(insts);
+    return sts;
 }
 
 /*
@@ -759,35 +848,76 @@ extern void
 pmWebGroupProfile(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
     struct context	*cp;
+    struct metric	*mp;
     struct indom	*ip;
+    enum profile	profile = PROFILE_DEL;
+    enum matches	matches = MATCH_EXACT;
     char		err[PM_MAXERRMSGLEN];
-    sds			msg = NULL, expr, indom, inames, instids;
+    sds			expr, match, metric, indomid, inames, instids;
+    sds			msg = NULL;
     int			sts = 0;
 
     if (params) {
-	expr = dictFetchValue(params, PARAM_EXPR);
-	indom = dictFetchValue(params, PARAM_INDOM);
+	metric = dictFetchValue(params, PARAM_MNAME);
+	indomid = dictFetchValue(params, PARAM_INDOM);
 	inames = dictFetchValue(params, PARAM_INAME);
 	instids = dictFetchValue(params, PARAM_INSTANCE);
+	if ((expr = dictFetchValue(params, PARAM_EXPR)) != NULL) {
+	    if (strcmp(expr, "add") == 0)
+		profile = PROFILE_ADD;
+	    else if (strcmp(expr, "del") != 0) {
+		infofmt(msg, "%s - invalid 'expr' parameter value", expr);
+		sts = -EINVAL;
+		goto done;
+	    }
+	}
+	if ((match = dictFetchValue(params, PARAM_MATCH)) != NULL) {
+	    if (strcmp(match, "regex") == 0)
+		matches = MATCH_REGEX;
+	    else if (strcmp(match, "glob") == 0)
+		matches = MATCH_GLOB;
+	    else if (strcmp(match, "exact") != 0) {
+		infofmt(msg, "%s - invalid 'match' parameter value", match);
+		sts = -EINVAL;
+		goto done;
+	    }
+	}
     } else {
-	expr = indom = inames = instids = NULL;
+	expr = indomid = inames = instids = metric = NULL;
     }
 
     if (!(cp = webgroup_lookup_context(settings, &id, params, &sts, &msg, arg)))
 	goto done;
     id = cp->origin;
 
-    if (indom && expr) {
-	if ((ip = webgroup_lookup_indom(settings, cp, indom, arg)) == NULL) {
-	    infofmt(msg, "invalid profile parameters");
-	    sts = -EINVAL;
-	} else if ((sts = webgroup_profile(ip, expr, inames, instids)) < 0) {
-	    infofmt(msg, "%s - %s", expr, pmErrStr_r(sts, err, sizeof(err)));
-	}
-    } else {
+    if (expr == NULL) {
 	infofmt(msg, "invalid profile parameters");
 	sts = -EINVAL;
+	goto done;
     }
+    if (metric) {
+	if ((mp = webgroup_lookup_metric(settings, cp, metric, arg)) == NULL) {
+	    infofmt(msg, "%s - failed to lookup metric", metric);
+	    sts = -EINVAL;
+	    goto done;
+	}
+	if (mp->desc.indom == PM_INDOM_NULL) {
+	    infofmt(msg, "%s - metric has null indom", metric);
+	    sts = -EINVAL;
+	    goto done;
+	}
+	ip = webgroup_cache_indom(cp, mp->desc.indom);
+    }
+    else if (indomid == NULL)
+	ip = NULL;
+    else if ((ip = webgroup_lookup_indom(settings, cp, indomid, arg)) == NULL) {
+	infofmt(msg, "invalid profile parameters");
+	sts = -EINVAL;
+	goto done;
+    }
+
+    if ((sts = webgroup_profile(ip, profile, matches, inames, instids)) < 0)
+	infofmt(msg, "%s - %s", expr, pmErrStr_r(sts, err, sizeof(err)));
 
 done:
     settings->callbacks.on_done(id, sts, msg, arg);
@@ -1017,15 +1147,11 @@ webmetric_lookup(const char *name, void *arg)
 
     metric->name = sdscat(metric->name, name);
     mp = webgroup_lookup_metric(settings, cp, metric->name, arg);
-    if (mp == NULL) {
-	lookup->status = -ENOMEM;
+    if (mp == NULL)
 	return;
-    }
     snp = webgroup_lookup_series(mp->numnames, mp->names, name);
-    if (snp == NULL) {
-	lookup->status = -ENOMEM;
+    if (snp == NULL)
 	return;
-    }
 
     if (mp->cluster) {
 	if (mp->cluster->domain)
@@ -1063,16 +1189,19 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     struct weblookup	lookup = {0};
     struct context	*cp;
     pmWebMetric		*metric = &lookup.metric;
+    size_t		length;
     char		errmsg[PM_MAXERRMSGLEN];
-    sds			msg = NULL, prefix;
-    int			sts = 0;
+    sds			msg = NULL, prefix = NULL, *names = NULL;
+    int			i, sts = 0, numnames = 0;
 
     if (params) {
 	if ((prefix = dictFetchValue(params, PARAM_PREFIX)) == NULL &&
 	    (prefix = dictFetchValue(params, PARAM_MNAMES)) == NULL)
 	     prefix = dictFetchValue(params, PARAM_MNAME);
-    } else {
-	prefix = NULL;
+	if (prefix) {
+	    length = sdslen(prefix);
+	    names = sdssplitlen(prefix, length, ",", 1, &numnames);
+	}
     }
 
     if (!(cp = webgroup_lookup_context(settings, &id, params, &sts, &msg, arg)))
@@ -1093,13 +1222,21 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     metric->oneline = sdsnewlen(SDS_NOINIT, 128); sdsclear(metric->oneline);
     metric->helptext = sdsnewlen(SDS_NOINIT, 128); sdsclear(metric->helptext);
 
-    sts = pmTraversePMNS_r(prefix, webmetric_lookup, &lookup);
-    if (sts >= 0)
-	sts = (lookup.status < 0) ? lookup.status : 0;
-    else {
-	if (prefix == NULL || *prefix == '\0')
-	    prefix = "''";
-	infofmt(msg, "%s - %s", prefix, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+    if (prefix == NULL || *prefix == '\0') {
+	sts = pmTraversePMNS_r("", webmetric_lookup, &lookup);
+	if (sts >= 0)
+	    sts = (lookup.status < 0) ? lookup.status : 0;
+	else
+	    infofmt(msg, "namespace traversal failed - %s",
+			    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+    }
+    for (i = 0; i < numnames; i++) {
+	sts = pmTraversePMNS_r(names[i], webmetric_lookup, &lookup);
+	if (sts >= 0)
+	    sts = (lookup.status < 0) ? lookup.status : 0;
+	else
+	    infofmt(msg, "%s traversal failed - %s", names[i],
+			    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     }
 
     sdsfree(metric->name);
@@ -1111,6 +1248,7 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     sdsfree(metric->helptext);
 
 done:
+    sdsfreesplitres(names, numnames);
     settings->callbacks.on_done(id, sts, msg, arg);
     sdsfree(msg);
 }

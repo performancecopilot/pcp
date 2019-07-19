@@ -629,7 +629,7 @@ pmids	string	Comma-separated numeric or \f(CBpmIDStr\fR(3) pmIDs
 prefix	string	Metric namespace component as in \f(CBPMNS\fR(5)
 _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
-context	number	Web context identifier (optional like hostspec)
+context	number	Web context number (optional like hostspec)
 polltimeout	number	Seconds of inactivity before context closed
 client	string	Request identifier sent back with response
 .TE
@@ -727,7 +727,7 @@ pmid	pmID	Numeric or \f(CBpmIDStr\fR(3) metric identifier
 pmids	string	Comma-separated numeric or \f(CBpmIDStr\fR(3) pmIDs
 _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
-context	number	Web context identifier (optional like hostspec)
+context	number	Web context number (optional like hostspec)
 polltimeout	number	Seconds of inactivity before context closed
 client	string	Request identifier sent back with response
 .TE
@@ -787,11 +787,11 @@ _
 iname	string	Comma-separated list of instance names
 indom	pmInDom	Numeric or \f(CBpmInDomStr\fR(3) instance domain
 instance	number	Comma-separated list of instance numbers
-match	string	Name pattern matching style (exact, glob or regex)
+match	string	Pattern matching style (exact, glob or regex)
 name	string	An individual metric name
 _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
-context	number	Web context identifier (optional like hostspec)
+context	number	Web context number (optional like hostspec)
 polltimeout	number	Seconds of inactivity before context closed
 client	string	Request identifier sent back with response
 .TE
@@ -859,10 +859,11 @@ _
 iname	string	Comma-separated list of instance names
 indom	pmInDom	Numeric or \f(CBpmInDomStr\fR(3) instance domain
 instance	number	Comma-separated list of instance numbers
-mode	string	One of "add", "del" or "clear" (mandatory).
+expr	string	One of "add" or "del" (mandatory).
+match	string	Pattern matching style (exact, glob or regex)
 _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
-context	number	Web context identifier (optional like hostspec)
+context	number	Web context number (optional like hostspec)
 polltimeout	number	Seconds of inactivity before context closed
 client	string	Request identifier sent back with response
 .TE
@@ -874,7 +875,7 @@ instances returned, as described on
 .P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/profile?\\
-	mode=add,indom=60.2,iname=1%20minute 
+	expr=add,indom=60.2,iname=1%20minute 
 { "context": 348734, "success": true }
 .ESAMPLE
 .SS GET \fI/pmapi/store\fR \- \fBpmStore\fR(3)
@@ -890,7 +891,7 @@ name	string	An individual metric name
 value	(any)	New value for the given metric instance(s)
 _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
-context	number	Web context identifier (optional like hostspec)
+context	number	Web context number optional like hostspec)
 polltimeout	number	Seconds of inactivity before context closed
 .TE
 .P
@@ -980,7 +981,7 @@ _
 names	string	Comma-separated list of metric names
 times	boolean	Append sample times (milliseconds since epoch)
 _
-context	number	Web context identifier (optional like hostspec)
+context	number	Web context number (optional like hostspec)
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
 polltimeout	number	Seconds of inactivity before context closed
 client	string	Request identifier sent back with response

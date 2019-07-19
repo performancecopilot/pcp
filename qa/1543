@@ -56,6 +56,13 @@ _filter_text()
     #end
 }
 
+_filter_value()
+{
+    sed \
+	-e 's/"value": .*/"value": VALUE/g'
+    #end
+}
+
 _filter_json()
 {
     echo "== $@ ==" | tee -a $here/$seq.full
@@ -204,21 +211,29 @@ curl -s "http://localhost:$port/pmapi/indom?name=sample.bin&iname=bin-100,bin-20
 	| _filter_json "individual instances"
 
 
-#section "GET /pmapi/profile"
-## mandatory params: indom
-#
-#curl -s "http://localhost:$port/pmapi/profile?expr=del&name=sample.bin&iname=bin-100,bin-200" \
-#	| _filter_json "del instance by name"
-#curl -s "http://localhost:$port/pmapi/profile?expr=add" \
-#	| _filter_json "add all instances"
-#curl -s "http://localhost:$port/pmapi/profile?expr=add&indom=29.2&iname=bin-100" \
-#	| _filter_json "add specific instance"
-#curl -s "http://localhost:$port/pmapi/profile?expr=del" \
-#	| _filter_json "del all instances"
-#curl -s "http://localhost:$port/pmapi/profile?expr=add&name=sample.bin&iname=bin-100,bin-200" \
-#	| _filter_json "add instance by name"
-#curl -s "http://localhost:$port/pmapi/profile?expr=del&indom=29.2&iname=bin-900" \
-#	| _filter_json "del specific instance"
+section "GET /pmapi/profile"
+# mandatory params: expr (add/del)
+# optional params: indom, insts, instances
+
+curl -s "http://localhost:$port/pmapi/profile?expr=add&name=sample.colour" \
+	| _filter_json "add all sample.colour instances"
+context=`cat $tmp.context`
+curl -s "http://localhost:$port/pmapi/$context/profile?expr=del&name=sample.colour&iname=red,green" \
+	| _filter_json "del instances by name"
+curl -s "http://localhost:$port/pmapi/$context/fetch?name=sample.colour" \
+	| _filter_json "check restricted context profile" | _filter_value
+curl -s "http://localhost:$port/pmapi/$context/profile?expr=add" \
+	| _filter_json "add all instances"
+curl -s "http://localhost:$port/pmapi/$context/fetch?name=sample.colour" \
+	| _filter_json "check unrestricted context profile" | _filter_value
+curl -s "http://localhost:$port/pmapi/$context/profile?expr=add&indom=29.1&iname=red" \
+	| _filter_json "add specific instance"
+curl -s "http://localhost:$port/pmapi/$context/profile?expr=del" \
+	| _filter_json "del all instances"
+curl -s "http://localhost:$port/pmapi/$context/profile?expr=add&name=sample.colour&iname=green,blue" \
+	| _filter_json "add instances by name"
+curl -s "http://localhost:$port/pmapi/$context/profile?expr=del&indom=29.1&iname=green" \
+	| _filter_json "del specific instance"
 
 
 section "GET /pmapi/store"

@@ -237,7 +237,7 @@ Context successfully expired
 == bad metric name ==
 {
     "context": "CONTEXT"
-    "message": "bad.metric - Unknown metric name",
+    "message": "bad.metric traversal failed - Unknown metric name",
     "success": false
 }
 
@@ -627,6 +627,86 @@ Context successfully expired
             }
         }
     ]
+}
+
+*****   GET /pmapi/profile   *****
+
+== add all sample.colour instances ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== del instances by name ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== check restricted context profile ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.5",
+            "name": "sample.colour",
+            "instances": [
+                {
+                    "instance": 2,
+                    "value": VALUE
+                }
+            ]
+        }
+    ]
+}
+== add all instances ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== check unrestricted context profile ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.5",
+            "name": "sample.colour",
+            "instances": [
+                {
+                    "instance": 2,
+                    "value": VALUE
+                },
+                {
+                    "instance": 0,
+                    "value": VALUE
+                },
+                {
+                    "instance": 1,
+                    "value": VALUE
+                }
+            ]
+        }
+    ]
+}
+== add specific instance ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== del all instances ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== add instances by name ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== del specific instance ==
+{
+    "context": "CONTEXT"
+    "success": true
 }
 
 *****   GET /pmapi/store   *****

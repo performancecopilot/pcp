@@ -660,7 +660,7 @@ pmwebapi_setup_request_parameters(struct client *client,
 
     case RESTKEY_PROFILE:
 	if (parameters == NULL ||
-	    dictFind(parameters, PARAM_INDOM) == NULL)
+	    dictFind(parameters, PARAM_EXPR) == NULL)
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	client->u.http.flags |= HTTP_FLAG_JSON;
 	break;
