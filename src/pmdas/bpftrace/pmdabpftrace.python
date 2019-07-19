@@ -171,7 +171,8 @@ class BPFtraceScript:
 
     def label(self, ident, type_):
         """PMDA label"""
-        if type_ == c_api.PM_LABEL_ITEM:
+        # pmid could be one of status, pid, exit_code, ...
+        if type_ == c_api.PM_LABEL_ITEM and ident in self.pmid_to_var:
             var_name = self.pmid_to_var[ident]
             metrictype = self.bpftrace.var_defs[var_name].metrictype
             if metrictype:
@@ -353,7 +354,7 @@ class BPFtracePMDA(PMDA):
                 "name": script.name,
                 "vars": list(script.exported_variables),
                 "status": script.state.status,
-                "exit_code": script.status.exit_code,
+                "exit_code": script.state.exit_code,
                 "output": script.state.output
             }
 
@@ -458,9 +459,10 @@ class BPFtracePMDA(PMDA):
         self.cleanup_idle_scripts()
 
         if cluster == Consts.Control.Cluster:
-            return None
-        else:
+            pass
+        elif cluster in self.scripts:
             return self.scripts[cluster].refresh_callback()
+        return None
 
     def fetch_callback(self, cluster, item, inst): # pylint: disable=too-many-return-statements
         """PMDA fetch callback"""
@@ -479,7 +481,7 @@ class BPFtracePMDA(PMDA):
                 if script:
                     return [script.script, 1]
                 return [PMDA_FETCH_NOVALUES, 0]
-        else:
+        elif cluster in self.scripts:
             return self.scripts[cluster].fetch_callback(item, inst)
         return [c_api.PM_ERR_PMID, 0]
 

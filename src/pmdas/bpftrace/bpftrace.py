@@ -71,6 +71,7 @@ class BPFtrace:
     def __init__(self, log, script):
         self.log = log
         self.script = script # contains the modified script (added continuous output)
+        self.process = None
 
         self.metadata = {}
         self.var_defs = {}
@@ -97,7 +98,7 @@ class BPFtrace:
             elif obj['type'] == BPFtraceMessageType.Hist:
                 for k, v in obj['data'].items():
                     self._state.maps[k] = {
-                        '{}-{}'.format(bucket.get('min', 'inf'), bucket.get('max', 'inf'))
+                        '{}-{}'.format(bucket.get('min', '-inf'), bucket.get('max', 'inf'))
                         :bucket['count']
                         for bucket in v
                     }
@@ -189,7 +190,7 @@ class BPFtrace:
         self.process_output_thread = Thread(target=self.process_output, daemon=True)
         self.process_output_thread.start()
 
-        self.log("started bpftrace -e '{}', PID: {}".format(self.script, self.process.pid))
+        self.log("started {}".format(self))
         with self.lock:
             # status will be set to 'started' once the first data arrives
             self._state.pid = self.process.pid
@@ -202,7 +203,7 @@ class BPFtrace:
                     self._state.status))
             self._state.status = 'stopping'
 
-        self.log("stopped bpftrace PID {}, wait for termination: {}".format(self.process.pid, wait))
+        self.log("stopped {}, wait for termination: {}".format(self, wait))
         self.process.send_signal(signal.SIGINT)
 
         if wait:
@@ -213,3 +214,11 @@ class BPFtrace:
         with self.lock:
             self._state.status = 'stopped'
             self._state.exit_code = self.process.returncode
+
+    def __str__(self):
+        script_output = self.script
+        if len(script_output) > 80:
+            script_output = script_output[:80-6] + ' [...]'
+        script_output = script_output.replace('\n', '\\n')
+        pid = self.process.pid if self.process else None
+        return "BPFtrace (script='{}', PID={})".format(script_output, pid)

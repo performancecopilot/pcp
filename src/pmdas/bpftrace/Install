@@ -18,6 +18,11 @@
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
+if ! bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
+    echo "The currently installed version of bpftrace doesn't support JSON output, which is required by this PMDA."
+    exit 1
+fi
+
 iam=bpftrace
 domain=151
 python_opt=true
