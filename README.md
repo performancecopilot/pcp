@@ -3,52 +3,19 @@
 # pcp-statsd-c
 PCP PMDA for StatsD in C
 
-Dependencies:
+## Dependencies:
 - **chan** [repo](https://github.com/tylertreat/chan)
 - **HdrHistogram_c** [repo](https://github.com/HdrHistogram/HdrHistogram_c) installed in your /usr/local dir
 - **Ragel**
 - PCP version >= 4.3.3 (on Fedora: dnf install --enablerepo=updates-testing pcp) 
 
-   +------------------+                                                           
-   |                  |                                                           
-   |     Listener     |                                                           
-   |                  |                                                           
-   +------------------+                                                           
-             |                                                                    
-             |                                                                    
-             v                                                                    
-   +------------------+                                                           
-   |                  |                                                           
-   |      Parser      |                                                           
-   |                  |                                                           
-   +------------------+                                                           
-             |                                                                    
-             |                                                                    
-             v                                                                    
-   +------------------+                                                           
-   |                  |                                                           
-   |    Aggregator    |                                                           
-   |                  |                                                           
-   +------------------+                                                           
-             |                                                                    
-             |                                                                    
-             v                                                                    
-                                                                                  
-    Shared data structures                                                           
-    - one for PMDA stats                                                             
-    - one for STATSD metrics                                                         
-    each guarded by mutex                                                            
-                                                                                  
-             |                                                                    
-             |                                                                    
-             |                                                                    
-             v                                                                    
-   +------------------+                                                           
-   |                  |                                                           
-   |       PCP        |                                                           
-   |                  |                                                           
-   +------------------+                                                           
+## Simplified logic flow:
 
+Listener -> Parser -> Aggregator => Data structures (PMDA stats and StatsD metrics) guarded by locks <= PCP
+
+Legend:
+"->" = channel
+"=>" = shared data structures
 
 ## Running pcp-statsd-c
 Compile with:
