@@ -14,8 +14,8 @@ PCP PMDA for StatsD in C
 Listener -> Parser -> Aggregator => Data structures (PMDA stats and StatsD metrics) guarded by locks <= PCP
 
 Legend:
-"->" = channel
-"=>" = shared data structures
+- "->" = channel
+- "=>" = shared data structures
 
 ## Running pcp-statsd-c
 Compile with:
