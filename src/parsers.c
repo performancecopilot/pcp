@@ -56,7 +56,7 @@ parser_exec(void* args) {
                 chan_send(parser_to_aggregator, message);
             } else {
                 message->data = NULL;
-                message->type = PARSER_RESULT_THROWN_AWAY;
+                message->type = PARSER_RESULT_DROPPED;
                 chan_send(parser_to_aggregator, message);
             }
             tok = strtok(NULL, delim);

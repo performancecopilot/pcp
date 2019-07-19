@@ -9,7 +9,7 @@
 enum STAT_TYPE {
     STAT_RECEIVED,
     STAT_PARSED,
-    STAT_THROWN_AWAY,
+    STAT_DROPPED,
     STAT_AGGREGATED,
     STAT_TIME_SPENT_PARSING,
     STAT_TIME_SPENT_AGGREGATING,
@@ -18,7 +18,7 @@ enum STAT_TYPE {
 struct pmda_stats {
     unsigned long int received;
     unsigned long int parsed;
-    unsigned long int thrown_away;
+    unsigned long int dropped;
     unsigned long int aggregated;
     unsigned long int time_spent_parsing;
     unsigned long int time_spent_aggregating;    

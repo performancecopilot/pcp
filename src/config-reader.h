@@ -30,7 +30,6 @@ struct agent_config {
     int debug;
     int trace;
     int show_version;
-    int32_t tcp_read_size;
     int32_t max_unprocessed_packets;
     uint64_t max_udp_packet_size;
     char* debug_output_filename;

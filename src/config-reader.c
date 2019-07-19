@@ -14,7 +14,6 @@ get_default_config() {
     struct agent_config* config = (struct agent_config*) malloc(sizeof(struct agent_config));
     ALLOC_CHECK("Unable to allocate memory PMDA settings.");
     config->max_udp_packet_size = 1472;
-    config->tcp_read_size = 4096;
     config->max_unprocessed_packets = 2048;
     config->verbose = 0;
     config->debug = 0;
@@ -108,49 +107,68 @@ read_agent_config_file(struct agent_config** dest, char* path) {
 void
 read_agent_config_cmd(struct agent_config** dest, int argc, char **argv) {
     int c;
+    int digit_optind = 0;
+
+    static struct option long_options[] = {
+        { "verbose", no_argument, 0, 0 },
+        { "debug", no_argument, 0, 0 },
+        { "version", no_argument, 0, 0 },
+        { "trace", no_argument, 0, 0 },
+        { "debug-output-filename", required_argument, 0, 1 },
+        { "max-udp", required_argument, 0, 1 },
+        { "tcp-address", required_argument, 0, 1 },
+        { "port", required_argument, 0, 1 },
+        { "parser-type", required_argument, 0, 1 },
+        { "duration-aggregation-type", required_argument, 0, 1 },
+        { "max-unprocessed-packets-size:", required_argument, 0, 1 },
+        { 0, 0, 0, 0 }
+    };
     while(1) {
-        static struct option long_options[] = {
-            { "verbose", no_argument, 0, 1 },
-            { "debug", no_argument, 0, 1 },
-            { "version", no_argument, 0, 1 },
-            { "trace", no_argument, 0, 1 },
-            { "debug-output-filename", required_argument, 0, 'o' },
-            { "max-udp", required_argument, 0, 'u' },
-            { "tcpaddr", required_argument, 0, 't' },
-            { "port", required_argument, 0, 'a' },
-            { "parser-type", required_argument, 0, 'p'},
-            { "duration-aggregation-type", required_argument, 0, 'g'},
-            { 0, 0, 0, 0 }
-        };
+        int this_option_optind = optind ? optind : 1;
         int option_index = 0;
-        c = getopt_long_only(argc, argv, "o::u::t::a::p::g::", long_options, &option_index);
+        c = getopt_long_only(argc, argv, "01::", long_options, &option_index);
         if (c == -1) break;
         switch (c) {
             case 0:
-                /* If this option set a flag, do nothing else now. */
-                if (long_options[option_index].flag != 0)
-                    break;
-                verbose_log("option %s:", long_options[option_index].name);
-                if (optarg)
-                    verbose_log(" with arg %s", optarg);
+                switch (option_index) {
+                    case 0:
+                        (*dest)->verbose = 1;
+                        break;
+                    case 1:
+                        (*dest)->debug = 1;
+                        break;
+                    case 2:
+                        (*dest)->show_version = 1;
+                        break;
+                    case 3:
+                        (*dest)->trace = 1;
+                        break;
+                }
                 break;
-            case 'u':
-                (*dest)->max_udp_packet_size = strtoll(optarg, NULL, 10);
-                break;
-            case 't':
-                (*dest)->tcp_address = optarg;
-                break;
-            case 'a':
-                (*dest)->port = optarg;
-                break;
-            case 'o':
-                (*dest)->debug_output_filename = optarg;
-                break;
-            case 'p':
-                (*dest)->parser_type = atoi(optarg);
-                break;
-            case 'g':
-                (*dest)->duration_aggregation_type = atoi(optarg);
+            case 1:
+                switch (option_index) {
+                    case 4:
+                        (*dest)->debug_output_filename = optarg;
+                        break;
+                    case 5:
+                        (*dest)->max_udp_packet_size = strtoll(optarg, NULL, 10);
+                        break;
+                    case 6:
+                        (*dest)->tcp_address = optarg;
+                        break;
+                    case 7:
+                        (*dest)->port = optarg;
+                        break;
+                    case 8:
+                        (*dest)->parser_type = atoi(optarg);
+                        break;
+                    case 9:
+                        (*dest)->duration_aggregation_type = atoi(optarg);
+                        break;
+                    case 10:
+                        (*dest)->max_unprocessed_packets = atoi(optarg);
+                        break;
+                }
                 break;
         }
     }
@@ -174,6 +192,8 @@ print_agent_config(struct agent_config* config) {
     printf("tcpaddr: %s \n", config->tcp_address);
     printf("port: %s \n", config->port);
     printf("parser_type: %s \n", config->parser_type == PARSER_TYPE_BASIC ? "BASIC" : "RAGEL");
+    printf("maximum of unprocessed packets: %d \n", config->max_unprocessed_packets);
+    printf("maximum udp packet size: %ld \n", config->max_udp_packet_size);
     printf("duration_aggregation_type: %s\n", 
         config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM ? "HDR_HISTOGRAM" : "BASIC");
     printf("---------------------------\n");

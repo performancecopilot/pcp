@@ -24,8 +24,6 @@ struct pmda_data_extension {
     pmdaMetric* pcp_metrics;
     pmdaIndom* pcp_instance_domains;
     pmdaNameSpace* pcp_pmns;
-    pmLongOptions longopts;
-    pmdaOptions opts;
     size_t hardcoded_metrics_count;
     size_t total_metric_count;
     int argc;

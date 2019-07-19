@@ -42,8 +42,8 @@ process_stat(struct agent_config* config, struct pmda_stats_container* s, enum S
         case STAT_AGGREGATED:
             s->stats->received += 1;
             break;
-        case STAT_THROWN_AWAY:
-            s->stats->thrown_away += 1;
+        case STAT_DROPPED:
+            s->stats->dropped += 1;
             break;
         case STAT_TIME_SPENT_AGGREGATING:
             s->stats->time_spent_aggregating += *((long*) data);
@@ -70,7 +70,7 @@ print_agent_stats(struct agent_config* config, FILE* f, struct pmda_stats_contai
     fprintf(f, "PMDA STATS: \n");
     fprintf(f, "received: %lu \n", stats->stats->received);
     fprintf(f, "parsed: %lu \n", stats->stats->parsed);
-    fprintf(f, "thrown away: %lu \n", stats->stats->thrown_away);
+    fprintf(f, "thrown away: %lu \n", stats->stats->dropped);
     fprintf(f, "aggregated: %lu \n", stats->stats->aggregated);
     fprintf(f, "time spent parsing: %lu ns \n", stats->stats->time_spent_parsing);
     fprintf(f, "time spent aggregating: %lu ns \n", stats->stats->time_spent_aggregating);
@@ -97,8 +97,8 @@ get_agent_stat(struct agent_config* config, struct pmda_stats_container* stats, 
         case STAT_PARSED:
             result = stats->stats->parsed;
             break;
-        case STAT_THROWN_AWAY:
-            result = stats->stats->thrown_away;
+        case STAT_DROPPED:
+            result = stats->stats->dropped;
             break;
         case STAT_AGGREGATED:
             result = stats->stats->aggregated;

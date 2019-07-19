@@ -41,6 +41,14 @@ struct pmda_metrics_container*
 init_pmda_metrics(struct agent_config* config);
 
 /**
+ * Creates STATSD metric hashtable key for use in hashtable related functions (find_metric_by_name, check_metric_name_available)
+ * @arg datagram - Source datagram
+ * @return new key
+ */
+char*
+create_metric_dict_key(struct statsd_datagram* datagram);
+
+/**
  * Processes datagram struct into metric 
  * @arg config - Agent config
  * @arg container - Metrics struct acting as metrics wrapper
@@ -74,14 +82,14 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
 /**
  * Finds metric by name
  * @arg container - Metrics container
- * @arg name - Metric name to search for
+ * @arg key - Metric key to find
  * @arg out - Placeholder metric
  * @return 1 when any found
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
 int
-find_metric_by_name(struct pmda_metrics_container* container, char* name, struct metric** out);
+find_metric_by_name(struct pmda_metrics_container* container, char* key, struct metric** out);
 
 /**
  * Creates metric
@@ -124,11 +132,11 @@ update_metric(
 /**
  * Checks if given metric name is available (it isn't recorded yet or is blacklisted)
  * @arg container - Metrics container
- * @arg name - Name to be checked
+ * @arg key - Key of metric
  * @return 1 on success else 0
  */
 int
-check_metric_name_available(struct pmda_metrics_container* container, char* name);
+check_metric_name_available(struct pmda_metrics_container* container, char* key);
 
 /**
  * Creates metric metadata

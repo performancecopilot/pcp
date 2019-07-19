@@ -3,7 +3,52 @@
 # pcp-statsd-c
 PCP PMDA for StatsD in C
 
-You need to have **chan** [repo](https://github.com/tylertreat/chan) and **HdrHistogram_c** [repo](https://github.com/HdrHistogram/HdrHistogram_c) installed in your /usr/local dir. You also need to have **Ragel** installed. 
+Dependencies:
+- **chan** [repo](https://github.com/tylertreat/chan)
+- **HdrHistogram_c** [repo](https://github.com/HdrHistogram/HdrHistogram_c) installed in your /usr/local dir
+- **Ragel**
+- PCP version >= 4.3.3 (on Fedora: dnf install --enablerepo=updates-testing pcp) 
+
+   +------------------+                                                           
+   |                  |                                                           
+   |     Listener     |                                                           
+   |                  |                                                           
+   +------------------+                                                           
+             |                                                                    
+             |                                                                    
+             v                                                                    
+   +------------------+                                                           
+   |                  |                                                           
+   |      Parser      |                                                           
+   |                  |                                                           
+   +------------------+                                                           
+             |                                                                    
+             |                                                                    
+             v                                                                    
+   +------------------+                                                           
+   |                  |                                                           
+   |    Aggregator    |                                                           
+   |                  |                                                           
+   +------------------+                                                           
+             |                                                                    
+             |                                                                    
+             v                                                                    
+                                                                                  
+    Shared data structures                                                           
+    - one for PMDA stats                                                             
+    - one for STATSD metrics                                                         
+    each guarded by mutex                                                            
+                                                                                  
+             |                                                                    
+             |                                                                    
+             |                                                                    
+             v                                                                    
+   +------------------+                                                           
+   |                  |                                                           
+   |       PCP        |                                                           
+   |                  |                                                           
+   +------------------+                                                           
+
 
 ## Running pcp-statsd-c
 Compile with:

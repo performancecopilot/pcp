@@ -58,11 +58,11 @@ aggregator_exec(void* args) {
                             process_stat(config, stats_container, STAT_AGGREGATED, NULL);
                             process_stat(config, stats_container, STAT_TIME_SPENT_AGGREGATING, &time_spent_aggregating);
                         } else {
-                            process_stat(config, stats_container, STAT_THROWN_AWAY, NULL);
+                            process_stat(config, stats_container, STAT_DROPPED, NULL);
                         }
                         break;
-                    case PARSER_RESULT_THROWN_AWAY:
-                        process_stat(config, stats_container, STAT_THROWN_AWAY, NULL);
+                    case PARSER_RESULT_DROPPED:
+                        process_stat(config, stats_container, STAT_DROPPED, NULL);
                         process_stat(config, stats_container, STAT_TIME_SPENT_PARSING, &message->time);
                         break;
                 }

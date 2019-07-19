@@ -19,7 +19,7 @@ static const char* const g_blacklist[] = {
     "pmda.received",
     "pmda.parsed",
     "pmda.aggregated",
-    "pmda.thrown_away",
+    "pmda.dropped",
     "pmda.time_spent_aggregating",
     "pmda.time_spent_parsing"
 };
@@ -83,18 +83,23 @@ init_pmda_metrics(struct agent_config* config) {
     return container;
 }
 
-static char*
+
+/**
+ * Creates STATSD metric hashtable key for use in hashtable related functions (find_metric_by_name, check_metric_name_available)
+ * @arg datagram - Source datagram
+ * @return new key
+ */
+char*
 create_metric_dict_key(struct statsd_datagram* datagram) {
     int maximum_key_size = 4096;
     char buffer[maximum_key_size]; // maximum key size
     int key_size = pmsprintf(
         buffer,
         maximum_key_size,
-        "%s&%s&%s&%d",
+        "%s&%s&%s",
         datagram->name,
         datagram->tags != NULL ? datagram->tags : "-",
-        datagram->instance != NULL ? datagram->instance : "-",
-        datagram->type
+        datagram->instance != NULL ? datagram->instance : "-"
     );
     char* result = malloc(key_size + 1);
     ALLOC_CHECK("Unable to allocate memory for hashtable key");
@@ -122,6 +127,9 @@ process_datagram(struct agent_config* config, struct pmda_metrics_container* con
         int res = update_metric(config, container, item, datagram);
         if (res == 0) {
             verbose_log("Throwing away datagram. REASON: semantically incorrect values.");
+            return 0;
+        } else if (res == -1) {
+            verbose_log("Throwing away datagram. REASON: metric of same name but different type is already recorded.");
             return 0;
         }
         return 1;
@@ -250,17 +258,17 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
 /**
  * Finds metric by name
  * @arg container - Metrics container
- * @arg name - Metric name to search for
+ * @arg key - Metric key to find
  * @arg out - Placeholder metric
  * @return 1 when any found
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
 int
-find_metric_by_name(struct pmda_metrics_container* container, char* name, struct metric** out) {
+find_metric_by_name(struct pmda_metrics_container* container, char* key, struct metric** out) {
     pthread_mutex_lock(&container->mutex);
     metrics* m = container->metrics;
-    dictEntry* result = dictFind(m, name);
+    dictEntry* result = dictFind(m, key);
     if (result == NULL) {
         pthread_mutex_unlock(&container->mutex);
         return 0;
@@ -318,7 +326,7 @@ add_metric(struct pmda_metrics_container* container, char* key, struct metric* i
  * @arg container - Metrics container
  * @arg counter - Metric to be updated
  * @arg datagram - Data with which to update
- * @return 1 on success
+ * @return 1 on success, 0 when update itself fails, -1 when metric with same name but different type is already recorded
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
@@ -331,19 +339,23 @@ update_metric(
 ) {
     pthread_mutex_lock(&container->mutex);
     int status = 0;
-    switch (item->type) {
-        case METRIC_TYPE_COUNTER:
-            status = update_counter_metric(config, item, datagram);
-            break;
-        case METRIC_TYPE_GAUGE:
-            status = update_gauge_metric(config, item, datagram);
-            break;
-        case METRIC_TYPE_DURATION:
-            status = update_duration_metric(config, item, datagram);
-            break;
-        case METRIC_TYPE_NONE:
-            status = 0;
-            break;
+    if (datagram->type != item->type) {
+        status = -1;
+    } else {
+        switch (item->type) {
+            case METRIC_TYPE_COUNTER:
+                status = update_counter_metric(config, item, datagram);
+                break;
+            case METRIC_TYPE_GAUGE:
+                status = update_gauge_metric(config, item, datagram);
+                break;
+            case METRIC_TYPE_DURATION:
+                status = update_duration_metric(config, item, datagram);
+                break;
+            case METRIC_TYPE_NONE:
+                status = 0;
+                break;
+        }
     }
     pthread_mutex_unlock(&container->mutex);
     return status;
@@ -352,19 +364,19 @@ update_metric(
 /**
  * Checks if given metric name is available (it isn't recorded yet or is blacklisted)
  * @arg container - Metrics container
- * @arg name - Name to be checked
+ * @arg key - Key of metric
  * @return 1 on success else 0
  */
 int
-check_metric_name_available(struct pmda_metrics_container* container, char* name) {    
+check_metric_name_available(struct pmda_metrics_container* container, char* key) {    
     size_t i;
     for (i = 0; i < sizeof(g_blacklist) / sizeof(g_blacklist[0]); i++) {
-        const char* ampptr = strchr(name, '&');
+        const char* ampptr = strchr(key, '&');
         if (ampptr) {
-            if (strncmp(name, g_blacklist[i], ampptr - name) == 0) return 0;
+            if (strncmp(key, g_blacklist[i], ampptr - key) == 0) return 0;
         }
     }
-    if (!find_metric_by_name(container, name, NULL)) {
+    if (!find_metric_by_name(container, key, NULL)) {
         return 1;
     }
     return 0;

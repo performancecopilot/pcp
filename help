@@ -4,8 +4,8 @@ Number of datagrams/packets that the agent has received
 @ statsd.pmda.parsed
 Number of datagrams/packets that were successfully parsed
 
-@ statsd.pmda.thrown_away Datagrams/packets thrown away count
-Number of datagrams/packets that were thrown away
+@ statsd.pmda.dropped Datagrams/packets dropped count
+Number of datagrams/packets that were dropped
 
 @ statsd.pmda.aggregated
 Number of StatsD metrics that were aggregated

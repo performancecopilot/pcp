@@ -17,6 +17,20 @@
 #include "config-reader.h"
 #include "../domain.h"
 
+static pmLongOptions longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    PMDAOPT_USERNAME,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
+static pmdaOptions opts = {
+    .short_options = "D:d:l:U:?",
+    .long_options = longopts,
+};
+
 static struct pmda_data_extension* create_statsd_pmda_data_ext(struct pcp_args* args);
 static void create_statsd_hardcoded_metrics(pmdaInterface* pi, struct pmda_data_extension* data);
 static void statsd_possible_reload(pmdaExt* pmda);
@@ -45,13 +59,13 @@ pcp_pmda_exec(void* args)
     pmdaInterface dispatch;
     pmSetProgname(data->argv[0]);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), STATSD, "statsd.log", data->helpfile_path);
-    pmdaGetOptions(data->argc, data->argv, &(data->opts), &dispatch);
-    if (data->opts.errors) {
-        pmdaUsageMessage(&(data->opts));
+    pmdaGetOptions(data->argc, data->argv, &opts, &dispatch);
+    if (opts.errors) {
+        pmdaUsageMessage(&opts);
         exit(1);
     }
-    if (data->opts.username) {
-        data->username = data->opts.username;
+    if (opts.username) {
+        data->username = opts.username;
     }
     pmdaOpenLog(&dispatch);
     pmSetProcessIdentity(data->username);
@@ -85,20 +99,6 @@ create_statsd_pmda_data_ext(struct pcp_args* args) {
     data->metrics_container = args->metrics_container;
     data->stats_container = args->stats_container;
     pmGetUsername(&(data->username));
-    pmLongOptions long_opts[] = {
-        PMDA_OPTIONS_HEADER("Options"),
-        PMOPT_DEBUG,
-        PMDAOPT_DOMAIN,
-        PMDAOPT_LOGFILE,
-        PMDAOPT_USERNAME,
-        PMOPT_HELP,
-        PMDA_OPTIONS_END
-    };
-    pmdaOptions opts = {
-        .short_options = "D:d:l:U:?",
-        .long_options = long_opts,
-    };
-    data->opts = opts;
     int sep = pmPathSeparator();
     pmsprintf(
         data->helpfile_path,
@@ -282,7 +282,7 @@ statsd_fetch_callback(pmdaMetric* mdesc, unsigned int inst, pmAtomValue* atom) {
                     break;
                 /* thrown away */
                 case 2:
-                    atom->ull = get_agent_stat(config, stats, STAT_THROWN_AWAY);
+                    atom->ull = get_agent_stat(config, stats, STAT_DROPPED);
                     break;
                 /* aggregated */
                 case 3:
