@@ -1,6 +1,9 @@
 #include <stddef.h>
+#include <pcp/pmapi.h>
+#include <pcp/pmda.h>
 #include <pcp/dict.h>
 #include <chan/chan.h>
+#include <string.h>
 
 #include "utils.h"
 #include "config-reader.h"

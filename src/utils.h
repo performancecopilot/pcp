@@ -114,14 +114,6 @@ void
 debug_log(const char* format, ...);
 
 /**
- * Logs TRACE message - if config settings allows it
- * @arg format - Format string
- * @arg ... - variables to print
- */
-void
-trace_log(const char* format, ...);
-
-/**
  * Initializes debugging/verbose/tracing flags based on given config
  * @arg config - Config to check against
  */

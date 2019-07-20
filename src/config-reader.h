@@ -28,7 +28,6 @@ struct agent_config {
     enum PARSER_TYPE parser_type;
     int verbose;
     int debug;
-    int trace;
     int show_version;
     int32_t max_unprocessed_packets;
     uint64_t max_udp_packet_size;

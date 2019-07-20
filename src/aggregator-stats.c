@@ -40,7 +40,7 @@ process_stat(struct agent_config* config, struct pmda_stats_container* s, enum S
             s->stats->parsed += 1;
             break;
         case STAT_AGGREGATED:
-            s->stats->received += 1;
+            s->stats->aggregated += 1;
             break;
         case STAT_DROPPED:
             s->stats->dropped += 1;

@@ -18,7 +18,6 @@ get_default_config() {
     config->verbose = 0;
     config->debug = 0;
     config->debug_output_filename = "debug";
-    config->trace = 0;
     config->show_version = 0;
     config->port = (char *) "8125";
     config->tcp_address = (char *) "0.0.0.0";
@@ -36,13 +35,16 @@ get_default_config() {
 struct agent_config*
 read_agent_config(int src_flag, char* config_path, int argc, char **argv) {
     struct agent_config* config = get_default_config();
-    if (src_flag == READ_FROM_FILE) {
-        read_agent_config_file(&config, config_path);
-    } else if (src_flag == READ_FROM_CMD) {
-        read_agent_config_cmd(&config, argc, argv);
-    } else {
-        DIE("Incorrect source flag for agent_config source.");
-    }
+    // if (src_flag == READ_FROM_FILE) {
+    read_agent_config_file(&config, config_path);
+    (void)src_flag;
+    (void)argc;
+    (void)argv;
+    // } else if (src_flag == READ_FROM_CMD) {
+    //     read_agent_config_cmd(&config, argc, argv);
+    // } else {
+    //     DIE("Incorrect source flag for agent_config source.");
+    // }
     return config;
 }           
 
@@ -72,8 +74,6 @@ ini_line_handler(void* user, const char* section, const char* name, const char* 
         memcpy(dest->debug_output_filename, value, length);
     } else if (MATCH("version")) {
         dest->show_version = atoi(value);
-    } else if (MATCH("trace")) {
-        dest->trace = atoi(value);
     } else if (MATCH("parser_type")) {
         dest->parser_type = atoi(value);
     } else if (MATCH("duration_aggregation_type")) {
@@ -107,13 +107,11 @@ read_agent_config_file(struct agent_config** dest, char* path) {
 void
 read_agent_config_cmd(struct agent_config** dest, int argc, char **argv) {
     int c;
-    int digit_optind = 0;
 
     static struct option long_options[] = {
         { "verbose", no_argument, 0, 0 },
         { "debug", no_argument, 0, 0 },
         { "version", no_argument, 0, 0 },
-        { "trace", no_argument, 0, 0 },
         { "debug-output-filename", required_argument, 0, 1 },
         { "max-udp", required_argument, 0, 1 },
         { "tcp-address", required_argument, 0, 1 },
@@ -124,7 +122,6 @@ read_agent_config_cmd(struct agent_config** dest, int argc, char **argv) {
         { 0, 0, 0, 0 }
     };
     while(1) {
-        int this_option_optind = optind ? optind : 1;
         int option_index = 0;
         c = getopt_long_only(argc, argv, "01::", long_options, &option_index);
         if (c == -1) break;
@@ -140,32 +137,29 @@ read_agent_config_cmd(struct agent_config** dest, int argc, char **argv) {
                     case 2:
                         (*dest)->show_version = 1;
                         break;
-                    case 3:
-                        (*dest)->trace = 1;
-                        break;
                 }
                 break;
             case 1:
                 switch (option_index) {
-                    case 4:
+                    case 3:
                         (*dest)->debug_output_filename = optarg;
                         break;
-                    case 5:
+                    case 4:
                         (*dest)->max_udp_packet_size = strtoll(optarg, NULL, 10);
                         break;
-                    case 6:
+                    case 5:
                         (*dest)->tcp_address = optarg;
                         break;
-                    case 7:
+                    case 6:
                         (*dest)->port = optarg;
                         break;
-                    case 8:
+                    case 7:
                         (*dest)->parser_type = atoi(optarg);
                         break;
-                    case 9:
+                    case 8:
                         (*dest)->duration_aggregation_type = atoi(optarg);
                         break;
-                    case 10:
+                    case 9:
                         (*dest)->max_unprocessed_packets = atoi(optarg);
                         break;
                 }

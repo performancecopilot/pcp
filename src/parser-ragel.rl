@@ -117,7 +117,6 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 		}
 
 		action value_parsed {
-			size_t current_segment_length = current_index - current_segment_start_index;
 			char* startptr;
 			char* endptr;
 			if (str[current_segment_start_index] == '+') {
@@ -139,7 +138,6 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 		}
 
 		action type_parsed {
-			size_t current_segment_length = current_index - current_segment_start_index;
 			if (str[current_segment_start_index] == 'c') {
 				(*datagram)->type = METRIC_TYPE_COUNTER;
 			} else if (str[current_segment_start_index] == 'g') {

@@ -1,8 +1,14 @@
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <pthread.h>
+#include <pcp/pmapi.h>
+#include <pcp/pmda.h>
 
 #include "config-reader.h"
 #include "parsers.h"
@@ -20,15 +26,12 @@
 #define COUNTER_METRIC "c"
 #define GAUGE_METRIC "g"
 
+#define VERBOSE_LOG(level, format, ...) pmNotifyErr(LOG_INFO, format, __VA_ARGS__);
+
 /**
  * Flag used to determine if VERBOSE output is allowed to be printed
  */
 static int g_verbose_flag = 0;
-
-/**
- * Flag used to determine if TRACE output is allowed to be printed
- */
-static int g_trace_flag = 0;
 
 /**
  * Flag used to determine if DEBUG output is allowed to be printed
@@ -197,9 +200,7 @@ verbose_log(const char* format, ...) {
         pthread_getname_np(pthread_self(), pthread_name_buf, 16);
         va_list vargs;
         va_start(vargs, format);
-        fprintf(stdout, YEL "VERBOSE LOG: " GRN "THREAD: %-18s" RESET " - ", pthread_name_buf);
-        vfprintf(stdout, format, vargs);
-        fprintf(stdout, "\n");
+        pmNotifyErr(LOG_INFO, format, vargs);
         va_end(vargs);
         pthread_mutex_unlock(&verbose_log_lock);
     }
@@ -219,34 +220,9 @@ debug_log(const char* format, ...) {
         pthread_getname_np(pthread_self(), pthread_name_buf, 16);
         va_list vargs;
         va_start(vargs, format);
-        fprintf(stdout, MAG "DEBUG LOG: " GRN "THREAD: %-18s" RESET " - ", pthread_name_buf);
-        vfprintf(stdout, format, vargs);
-        fprintf(stdout, "\n");
+        pmNotifyErr(LOG_INFO, format, vargs);
         va_end(vargs);
         pthread_mutex_unlock(&debug_log_lock);
-    }
-}
-
-/**
- * Logs TRACE message - if config settings allows it
- * @arg format - Format string
- * @arg ... - variables to print
- */
-void
-trace_log(const char* format, ...) {
-    static pthread_mutex_t trace_log_lock;
-    static char pthread_name_buf[16];
-    if (g_trace_flag) {
-        pthread_mutex_lock(&trace_log_lock);
-        pthread_getname_np(pthread_self(), pthread_name_buf, 16);
-        pthread_mutex_unlock(&trace_log_lock);
-        va_list vargs;
-        va_start(vargs, format);
-        fprintf(stdout, CYN "TRACE LOG: " GRN "THREAD: %-18s" RESET " - ", pthread_name_buf);
-        vfprintf(stdout, format, vargs);
-        fprintf(stdout, "\n");
-        va_end(vargs);
-        pthread_mutex_unlock(&trace_log_lock);
     }
 }
 
@@ -257,6 +233,5 @@ trace_log(const char* format, ...) {
 void
 init_loggers(struct agent_config* config) {
     g_verbose_flag = config->verbose;
-    g_trace_flag = config->trace;
     g_debug_flag = config->debug;
 }

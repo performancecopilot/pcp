@@ -64,7 +64,6 @@ all default default_pcp: $(MAIN_BUILD_DIR)/$(TARGET_EXEC)
 $(RAGEL_TARGET): $(RAGEL_SRCS)
 	ragel -C $<
 
-$(MAIN_BUILD_DIR)/$(TARGET_EXEC): CFLAGS += -D_TEST_TARGET=0
 $(MAIN_BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -g -o $@ $(LDLIBS)
 
@@ -105,28 +104,17 @@ test-basic: $(TEST_BASIC_BUILD_DIR)/$(TEST_BASIC_EXEC)
 	$^
 
 test-ragel: $(TEST_RAGEL_BUILD_DIR)/$(TEST_RAGEL_EXEC) 
-	$^
+	$^		
 
-install install_pcp:
-	$(INSTALL) -m 755 -d $(PMDA_DIR)
-	$(INSTALL) -m 755 Install Remove $(PMDA_DIR)
-	$(INSTALL) -m 755 $(MAIN_BUILD_DIR)/$(TARGET_EXEC) $(PMDA_DIR)/$(TARGET_EXEC)
-	$(INSTALL) -m 644 $(DFILES) help root root_statsd domain.h statsd-pmda.ini .dbpmdarc $(PMDA_DIR)
+install: all
 
-uninstall:
-	rm -r -f $(PMDA_DIR)			
+activate: 
+	./Install
 
-activate: install
-	cd $(PMDA_DIR) && ./Install
-
-remove:
-	cd $(PMDA_DIR) && ./Remove
+deactivate:
+	./Remove
 
 debug:
 	dbpmda -n root
-
-deactivate: remove uninstall
-
-default_pcp: install
 
 MKDIR_P ?= mkdir -p

@@ -1946,7 +1946,6 @@ _match:
 	case 6:
 #line 119 "src/parser-ragel.rl"
 	{
-			size_t current_segment_length = current_index - current_segment_start_index;
 			char* startptr;
 			char* endptr;
 			if (str[current_segment_start_index] == '+') {
@@ -1968,9 +1967,8 @@ _match:
 		}
 	break;
 	case 7:
-#line 141 "src/parser-ragel.rl"
+#line 140 "src/parser-ragel.rl"
 	{
-			size_t current_segment_length = current_index - current_segment_start_index;
 			if (str[current_segment_start_index] == 'c') {
 				(*datagram)->type = METRIC_TYPE_COUNTER;
 			} else if (str[current_segment_start_index] == 'g') {
@@ -1982,7 +1980,7 @@ _match:
 		}
 	break;
 	case 8:
-#line 153 "src/parser-ragel.rl"
+#line 151 "src/parser-ragel.rl"
 	{
 			char* startptr = &str[current_segment_start_index];
 			char* endptr = &str[current_index];
@@ -1995,7 +1993,7 @@ _match:
 		}
 	break;
 	case 9:
-#line 164 "src/parser-ragel.rl"
+#line 162 "src/parser-ragel.rl"
 	{
 			size_t current_segment_length = current_index - current_segment_start_index;
 			tag_key = (char *) realloc(tag_key, current_segment_length + 1);
@@ -2014,7 +2012,7 @@ _match:
 		}
 	break;
 	case 10:
-#line 181 "src/parser-ragel.rl"
+#line 179 "src/parser-ragel.rl"
 	{
 			size_t current_segment_length = current_index - current_segment_start_index;
 			tag_value = (char *) realloc(tag_value, current_segment_length + 1);
@@ -2032,7 +2030,7 @@ _match:
 			current_segment_start_index = current_index + 1;
 		}
 	break;
-#line 2036 "src/parser-ragel.c"
+#line 2034 "src/parser-ragel.c"
 		}
 	}
 
@@ -2047,7 +2045,7 @@ _again:
 			current_index++;
 		}
 	break;
-#line 2051 "src/parser-ragel.c"
+#line 2049 "src/parser-ragel.c"
 		}
 	}
 
@@ -2074,7 +2072,7 @@ _again:
 			goto error_clean_up;
 		}
 	break;
-#line 2078 "src/parser-ragel.c"
+#line 2076 "src/parser-ragel.c"
 		}
 	}
 	}
@@ -2082,7 +2080,7 @@ _again:
 	_out: {}
 	}
 
-#line 214 "src/parser-ragel.rl"
+#line 212 "src/parser-ragel.rl"
 
 	if (any_tags) {
 		char* json = tag_collection_to_json(tags);

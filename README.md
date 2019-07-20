@@ -17,6 +17,9 @@ Legend:
 - "->" = channel
 - "=>" = shared data structures
 
+# Pre-run steps:
+- move all contents to $PCP_PMDAS_DIRECTORY/statsd (sourced from /etc/pcp.conf)
+
 ## Running pcp-statsd-c
 Compile with:
 
@@ -48,12 +51,6 @@ make clean
 Debug local binary with dbpmda:
 ```
 sudo make debug
-```
-
-Move to PCP_PMDAS_DIRECTORY with:
-
-```
-sudo make install
 ```
 
 First make sure you have "STATSD" namespace set to "510" in stdpmid file. [How-to](https://pcp.io/books/PCP_PG/html/id5189538.html)

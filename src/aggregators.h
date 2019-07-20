@@ -8,7 +8,6 @@
 #include "config-reader.h"
 #include "parsers.h"
 #include "network-listener.h"
-#include "pcp.h"
 
 struct aggregator_args
 {
