@@ -19,6 +19,9 @@ before_install:
   - sudo ldconfig
 script:
   - cd $TRAVIS_BUILD_DIR
+  - sudo mkdir $PCP_PMDAS_DIR/statsd
+  - sudo mv . $PCP_PMDAS_DIR/statsd
+  - cd $PCP_PMDAS_DIR/statsd
   - make
   - make test-ragel
   - make test-basic
