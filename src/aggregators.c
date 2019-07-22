@@ -72,9 +72,9 @@ aggregator_exec(void* args) {
         }
         pthread_mutex_lock(&g_output_requested_lock);
         if (g_output_requested) {
-            verbose_log("Output of recorded values request caught.");
+            VERBOSE_LOG("Output of recorded values request caught.");
             write_metrics_to_file(config, metrics_container);
-            verbose_log("Recorded values output.");
+            VERBOSE_LOG("Recorded values output.");
             g_output_requested = 0;
         }
         pthread_mutex_unlock(&g_output_requested_lock);

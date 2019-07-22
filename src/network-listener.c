@@ -47,8 +47,8 @@ network_listener_exec(void* args) {
     if (bind(fd, res->ai_addr, res->ai_addrlen) == -1) {
         DIE("failed binding socket (err=%s)", strerror(errno));
     }
-    verbose_log("Socket enstablished.");
-    verbose_log("Waiting for datagrams.");
+    VERBOSE_LOG("Socket enstablished.");
+    VERBOSE_LOG("Waiting for datagrams.");
     freeaddrinfo(res);
     int max_udp_packet_size = config->max_udp_packet_size;
     char *buffer = (char *) malloc(max_udp_packet_size);
@@ -61,7 +61,7 @@ network_listener_exec(void* args) {
         } 
         // since we checked for -1
         else if ((signed int)count == max_udp_packet_size) { 
-            warn(__FILE__, __LINE__, "Datagram too large for buffer: truncated and skipped");
+            WARN("Datagram too large for buffer: truncated and skipped");
         } else {
             struct unprocessed_statsd_datagram* datagram = (struct unprocessed_statsd_datagram*) malloc(sizeof(struct unprocessed_statsd_datagram));
             ALLOC_CHECK("Unable to assign memory for struct representing unprocessed datagrams.");

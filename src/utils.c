@@ -7,11 +7,10 @@
 #include <stdarg.h>
 #include <string.h>
 #include <pthread.h>
-#include <pcp/pmapi.h>
-#include <pcp/pmda.h>
 
 #include "config-reader.h"
 #include "parsers.h"
+#include "utils.h"
 
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
@@ -26,8 +25,6 @@
 #define COUNTER_METRIC "c"
 #define GAUGE_METRIC "g"
 
-#define VERBOSE_LOG(level, format, ...) pmNotifyErr(LOG_INFO, format, __VA_ARGS__);
-
 /**
  * Flag used to determine if VERBOSE output is allowed to be printed
  */
@@ -37,42 +34,6 @@ static int g_verbose_flag = 0;
  * Flag used to determine if DEBUG output is allowed to be printed
  */
 static int g_debug_flag = 0;
-
-/**
- * Kills application with given message
- * @arg filename - Current filename
- * @arg line_number - Current line number
- * @arg format - Format string
- * @arg ... - variables to print
- */
-void
-die(char* filename, int line_number, const char* format, ...)
-{
-    va_list vargs;
-    va_start(vargs, format);
-    fprintf(stderr, "%s@%d: ", filename, line_number);
-    vfprintf(stderr, format, vargs);
-    fprintf(stderr, "\n");
-    va_end(vargs);
-    exit(1);
-}
-
-/**
- * Prints warning message
- * @arg filename - Current filename
- * @arg line_number - Current line number
- * @arg format - Format string
- * @arg ... - variables to print
- */
-void
-warn(char* filename, int line_number, const char* format, ...) {
-    va_list vargs;
-    va_start(vargs, format);
-    fprintf(stderr, YEL "WARNING: %s@%d: " RESET, filename, line_number);
-    vfprintf(stderr, format, vargs);
-    fprintf(stderr, "\n");
-    va_end(vargs);
-}
 
 /**
  * Sanitizes string
@@ -187,43 +148,19 @@ sanitize_type_val_string(char* src, enum METRIC_TYPE* out) {
 }
 
 /**
- * Logs VERBOSE message - if config settings allows it
- * @arg format - Format string
- * @arg ... - variables to print
+ * Check *verbose* flag
+ * @return verbose flag
  */
-void
-verbose_log(const char* format, ...) {
-    static pthread_mutex_t verbose_log_lock;
-    static char pthread_name_buf[16];
-    if (g_verbose_flag) {
-        pthread_mutex_lock(&verbose_log_lock);
-        pthread_getname_np(pthread_self(), pthread_name_buf, 16);
-        va_list vargs;
-        va_start(vargs, format);
-        pmNotifyErr(LOG_INFO, format, vargs);
-        va_end(vargs);
-        pthread_mutex_unlock(&verbose_log_lock);
-    }
+int is_verbose() {
+    return g_verbose_flag;
 }
 
 /**
- * Logs DEBUG message - if config settings allows it
- * @arg format - Format string
- * @arg ... - variables to print
+ * Check *debug* flag
+ * @return debug flag
  */
-void
-debug_log(const char* format, ...) {
-    static pthread_mutex_t debug_log_lock;
-    static char pthread_name_buf[16];
-    if (g_debug_flag) {
-        pthread_mutex_lock(&debug_log_lock);
-        pthread_getname_np(pthread_self(), pthread_name_buf, 16);
-        va_list vargs;
-        va_start(vargs, format);
-        pmNotifyErr(LOG_INFO, format, vargs);
-        va_end(vargs);
-        pthread_mutex_unlock(&debug_log_lock);
-    }
+int is_debug() {
+    return g_debug_flag;
 }
 
 /**

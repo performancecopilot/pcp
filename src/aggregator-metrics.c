@@ -122,17 +122,17 @@ process_datagram(struct agent_config* config, struct pmda_metrics_container* con
     struct metric* item;
     char* key = create_metric_dict_key(datagram);
     if (key == NULL) {
-        verbose_log("Throwing away datagram. REASON: unable to create hashtable key for metric record.");        
+        VERBOSE_LOG("Throwing away datagram. REASON: unable to create hashtable key for metric record.");        
         return 0;
     }
     int metric_exists = find_metric_by_name(container, key, &item);
     if (metric_exists) {
         int res = update_metric(config, container, item, datagram);
         if (res == 0) {
-            verbose_log("Throwing away datagram. REASON: semantically incorrect values.");
+            VERBOSE_LOG("Throwing away datagram. REASON: semantically incorrect values.");
             return 0;
         } else if (res == -1) {
-            verbose_log("Throwing away datagram. REASON: metric of same name but different type is already recorded.");
+            VERBOSE_LOG("Throwing away datagram. REASON: metric of same name but different type is already recorded.");
             return 0;
         }
         return 1;
@@ -144,11 +144,11 @@ process_datagram(struct agent_config* config, struct pmda_metrics_container* con
                 add_metric(container, key, item);
                 return 1;
             } else {
-                verbose_log("Throwing away datagram. REASON: semantically incorrect values.");
+                VERBOSE_LOG("Throwing away datagram. REASON: semantically incorrect values.");
                 return 0;
             }
         } else {
-            verbose_log("Throwing away datagram. REASON: name is not available. (blacklisted?)");
+            VERBOSE_LOG("Throwing away datagram. REASON: name is not available. (blacklisted?)");
             return 0;
         }
     }

@@ -6,11 +6,11 @@
 #include <pthread.h>
 #include <string.h>
 
+#include "statsd.h"
 #include "aggregator-metrics.h"
 #include "aggregator-stats.h"
 #include "utils.h"
 #include "config-reader.h"
-#include "pmda-pcp-init.h"
 #include "pmda-callbacks.h"
 #include "../domain.h"
 

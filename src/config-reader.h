@@ -1,17 +1,11 @@
 #ifndef CONFIG_READER_
 #define CONFIG_READER_
 
+#include <pcp/pmapi.h>
+#include <pcp/pmda.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-
-/**
- * Flags for available config source
- */
-enum READ_SOURCE_TYPE {
-    READ_FROM_FILE = 0,
-    READ_FROM_CMD = 1,
-} READ_SOURCE_TYPE;
 
 enum PARSER_TYPE {
     PARSER_TYPE_BASIC = 0,
@@ -33,6 +27,7 @@ struct agent_config {
     uint64_t max_udp_packet_size;
     char* debug_output_filename;
     char* port;
+    char* username;
     char* tcp_address;
 } agent_config;
 
@@ -40,10 +35,9 @@ struct agent_config {
  * Read agent config from either file or command line arguments
  * @arg src_flag - Specifies config source, 0 = READ_FROM_FILE, 1 = READ_FROM_CMD
  * @arg config_path - Path to config file
- * @return Program configuration
  */
-struct agent_config*
-read_agent_config(int src_flag, char* config_path, int argc, char **argv);
+void
+read_agent_config(struct agent_config* config, pmdaInterface* dispatch, char* config_path, int argc, char **argv);
 
 /**
  * Reads program config from given path
@@ -51,14 +45,14 @@ read_agent_config(int src_flag, char* config_path, int argc, char **argv);
  * @arg path - Path to read file from
  */
 void
-read_agent_config_file(struct agent_config** dest, char* path);
+read_agent_config_file(struct agent_config* dest, char* path);
 
 /**
  * Reads program config from command line arguments
  * @arg agent_config - Placeholder config to write what was read to
  */
 void
-read_agent_config_cmd(struct agent_config** dest, int argc, char **argv);
+read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int argc, char **argv);
 
 /**
  * Print out agent config to STDOUT

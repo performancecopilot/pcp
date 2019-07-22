@@ -1,6 +1,7 @@
-#include <getopt.h>
 #include <string.h>
 #include <unistd.h>
+#include <pcp/pmapi.h>
+#include <pcp/pmda.h>
 
 #include "config-reader.h"
 #include "utils.h"
@@ -9,10 +10,8 @@
 /**
  * Returns default program config
  */
-static struct agent_config*
-get_default_config() {
-    struct agent_config* config = (struct agent_config*) malloc(sizeof(struct agent_config));
-    ALLOC_CHECK("Unable to allocate memory PMDA settings.");
+static void
+set_default_config(struct agent_config* config) {
     config->max_udp_packet_size = 1472;
     config->max_unprocessed_packets = 2048;
     config->verbose = 0;
@@ -22,36 +21,26 @@ get_default_config() {
     config->port = (char *) "8125";
     config->tcp_address = (char *) "0.0.0.0";
     config->parser_type = PARSER_TYPE_BASIC;
-    config->duration_aggregation_type = DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM; 
-    return config;
+    config->duration_aggregation_type = DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM;
+    pmGetUsername(&(config->username));
 }
 
 /**
  * Read agent config from either file or command line arguments
  * @arg src_flag - Specifies config source, 0 = READ_FROM_FILE, 1 = READ_FROM_CMD
  * @arg config_path - Path to config file
- * @return Program configuration
  */
-struct agent_config*
-read_agent_config(int src_flag, char* config_path, int argc, char **argv) {
-    struct agent_config* config = get_default_config();
-    // if (src_flag == READ_FROM_FILE) {
-    read_agent_config_file(&config, config_path);
-    (void)src_flag;
-    (void)argc;
-    (void)argv;
-    // } else if (src_flag == READ_FROM_CMD) {
-    //     read_agent_config_cmd(&config, argc, argv);
-    // } else {
-    //     DIE("Incorrect source flag for agent_config source.");
-    // }
-    return config;
+void
+read_agent_config(struct agent_config* config, pmdaInterface* dispatch, char* config_path, int argc, char **argv) {
+    set_default_config(config);
+    read_agent_config_file(config, config_path);
+    read_agent_config_cmd(dispatch, config, argc, argv);
 }           
 
 static int
 ini_line_handler(void* user, const char* section, const char* name, const char* value) {
     (void)section;
-    struct agent_config* dest = *(struct agent_config**) user;
+    struct agent_config* dest = (struct agent_config*) user;
     size_t length = strlen(value) + 1; 
     #define MATCH(x) strcmp(x, name) == 0
     if (MATCH("max_udp_packet_size")) {
@@ -90,14 +79,14 @@ ini_line_handler(void* user, const char* section, const char* name, const char* 
  * @arg path - Path to read file from
  */
 void
-read_agent_config_file(struct agent_config** dest, char* path) {
+read_agent_config_file(struct agent_config* dest, char* path) {
     if (access(path, F_OK) == -1) {
         DIE("No config file found on given path");
     }
     if (ini_parse(path, ini_line_handler, dest) < 0) {
         DIE("Can't load config file");
     }
-    verbose_log("Config loaded from %s.", path);
+    VERBOSE_LOG("Config loaded from %s.", path);
 }
 
 /**
@@ -105,66 +94,76 @@ read_agent_config_file(struct agent_config** dest, char* path) {
  * @arg agent_config - Placeholder config to write what was read to
  */
 void
-read_agent_config_cmd(struct agent_config** dest, int argc, char **argv) {
+read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int argc, char **argv) {
     int c;
+    static pmLongOptions longopts[] = {
+        PMDA_OPTIONS_HEADER("Options"),
+        PMOPT_DEBUG,
+        PMDAOPT_DOMAIN,
+        PMDAOPT_LOGFILE,
+        PMDAOPT_USERNAME,
+        PMOPT_HELP,
+        { "verbose", 0, 'v', "VERBOSE", "Verbose logging" },
+        { "debug", 0, 'g', "DEBUG", "Debug logging" },
+        { "version", 0, 's', "VERSION", "Display version" },
+        { "debug-output-filename", 1, 'o', "DEBUG-OUTPUT-FILENAME", "Debug file output path" },
+        { "max-udp", 1, 'Z', "MAX-UDP", "Maximum size of UDP datagram" },
+        { "tcp-address", 1, 't', "TCP-ADDRESS", "TCP address to listen to" },
+        { "port", 1, 'P', "PORT", "Port to listen to" },
+        { "parser-type", 1, 'r', "PARSER-TYPE", "Parser type to use (ragel = 1, basic = 0)" },
+        { "duration-aggregation-type", 1, 'a', "DURATION-AGGREGATION-TYPE", "Aggregation type for duration metric to use (hdr_histogram = 1, basic histogram = 0)" },
+        { "max-unprocessed-packets-size:", 1, 'z', "MAX-UNPROCESSED-PACKETS-SIZE", "Maximum count of unprocessed packets." },
+        PMDA_OPTIONS_END
+    };
 
-    static struct option long_options[] = {
-        { "verbose", no_argument, 0, 0 },
-        { "debug", no_argument, 0, 0 },
-        { "version", no_argument, 0, 0 },
-        { "debug-output-filename", required_argument, 0, 1 },
-        { "max-udp", required_argument, 0, 1 },
-        { "tcp-address", required_argument, 0, 1 },
-        { "port", required_argument, 0, 1 },
-        { "parser-type", required_argument, 0, 1 },
-        { "duration-aggregation-type", required_argument, 0, 1 },
-        { "max-unprocessed-packets-size:", required_argument, 0, 1 },
-        { 0, 0, 0, 0 }
+    static pmdaOptions opts = {
+        .short_options = "D:d:l:U:vgso:Z:t:P:r:a:z:?",
+        .long_options = longopts,
     };
     while(1) {
-        int option_index = 0;
-        c = getopt_long_only(argc, argv, "01::", long_options, &option_index);
+        c = pmdaGetOptions(argc, argv, &opts, dispatch);
         if (c == -1) break;
         switch (c) {
-            case 0:
-                switch (option_index) {
-                    case 0:
-                        (*dest)->verbose = 1;
-                        break;
-                    case 1:
-                        (*dest)->debug = 1;
-                        break;
-                    case 2:
-                        (*dest)->show_version = 1;
-                        break;
-                }
+            case 'v':
+                dest->verbose = 1;
                 break;
-            case 1:
-                switch (option_index) {
-                    case 3:
-                        (*dest)->debug_output_filename = optarg;
-                        break;
-                    case 4:
-                        (*dest)->max_udp_packet_size = strtoll(optarg, NULL, 10);
-                        break;
-                    case 5:
-                        (*dest)->tcp_address = optarg;
-                        break;
-                    case 6:
-                        (*dest)->port = optarg;
-                        break;
-                    case 7:
-                        (*dest)->parser_type = atoi(optarg);
-                        break;
-                    case 8:
-                        (*dest)->duration_aggregation_type = atoi(optarg);
-                        break;
-                    case 9:
-                        (*dest)->max_unprocessed_packets = atoi(optarg);
-                        break;
-                }
+            case 'g':
+                dest->debug = 1;
+                break;
+            case 's':
+                dest->show_version = 1;
+                break;
+            case 'o':
+                printf("output: %s \n", opts.optarg);
+                dest->debug_output_filename = opts.optarg;
+                break;
+            case 'Z':
+                printf("output: %s \n", opts.optarg);
+                dest->max_udp_packet_size = strtoll(opts.optarg, NULL, 10);
+                break;
+            case 't':
+                dest->tcp_address = opts.optarg;
+                break;
+            case 'P':
+                dest->port = opts.optarg;
+                break;
+            case 'r':
+                dest->parser_type = atoi(opts.optarg);
+                break;
+            case 'a':
+                dest->duration_aggregation_type = atoi(opts.optarg);
+                break;
+            case 'z':
+                dest->max_unprocessed_packets = atoi(opts.optarg);
                 break;
         }
+    }
+    if (opts.errors) {
+        pmdaUsageMessage(&opts);
+        exit(1);
+    }
+    if (opts.username) {
+        dest->username = opts.username;
     }
 }
 
@@ -182,7 +181,6 @@ print_agent_config(struct agent_config* config) {
     if (config->show_version)
         puts("version flag is set");
     printf("debug_output_filename: %s \n", config->debug_output_filename);
-    printf("maxudp: %lu \n", config->max_udp_packet_size);
     printf("tcpaddr: %s \n", config->tcp_address);
     printf("port: %s \n", config->port);
     printf("parser_type: %s \n", config->parser_type == PARSER_TYPE_BASIC ? "BASIC" : "RAGEL");

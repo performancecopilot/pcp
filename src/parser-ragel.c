@@ -2094,7 +2094,7 @@ _again:
 	}
 	if (str[length - 1] == '\n')
         str[length - 1] = 0;
-	verbose_log("Parsed: %s", str);
+	VERBOSE_LOG("Parsed: %s", str);
 	return 1;
 
 	error_clean_up:
@@ -2103,7 +2103,7 @@ _again:
 	if (str[length - 1] == '\n')
         str[length - 1] = 0;
 	free_datagram(*datagram);
-	verbose_log("Throwing away datagram. REASON: unable to parse: %s", str);
+	VERBOSE_LOG("Throwing away datagram. REASON: unable to parse: %s", str);
 	return 0;
 };
 
