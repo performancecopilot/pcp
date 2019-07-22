@@ -18,6 +18,7 @@ before_install:
   - cd /tmp/HdrHistogram_c/HdrHistogram_c-master && cmake . && sudo make install
   - sudo ldconfig
 script:
+  - source /etc/pcp.conf
   - cd $TRAVIS_BUILD_DIR
   - sudo mkdir $PCP_PMDAS_DIR/statsd
   - sudo mv . $PCP_PMDAS_DIR/statsd
