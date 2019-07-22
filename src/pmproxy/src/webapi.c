@@ -119,7 +119,8 @@ pmwebapi_free_baton(pmWebGroupBaton *baton)
 {
     sdsfree(baton->suffix);
     sdsfree(baton->context);
-    sdsfree(baton->clientid);
+    if (baton->clientid)
+	sdsfree(baton->clientid);
     /* baton->params freed in http.c */
     if (baton->labels)
 	dictRelease(baton->labels);
@@ -823,8 +824,8 @@ pmwebapi_done(uv_work_t *work, int status)
 	fprintf(stderr, "%s: client=%p (sts=%d)\n", "pmwebapi_done",
 			baton->client, status);
 
-    baton->working = 0;
-    baton->worker.data = NULL;
+    /* avoid double-free - client->baton reverse pointer is going away */
+    baton->client->u.http.data = NULL;
     pmwebapi_free_baton(baton);
 }
 
