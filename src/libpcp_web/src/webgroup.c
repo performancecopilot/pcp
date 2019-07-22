@@ -1712,12 +1712,19 @@ pmWebGroupStore(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     }
 
     /* handle store via metric name list */
-    if (metric)
-	mp = webgroup_lookup_metric(settings, cp, metric, arg);
+    if (metric) {
+	if ((mp = webgroup_lookup_metric(settings, cp, metric, arg)) == NULL) {
+	    infofmt(msg, "%s - failed to lookup metric", metric);
+	    sts = -EINVAL;
+	}
+    }
     /* handle store via numeric/dotted-form PMIDs */
-    else if (pmid)
-	mp = webgroup_lookup_pmid(settings, cp, pmid, arg);
-    else {
+    else if (pmid) {
+	if ((mp = webgroup_lookup_pmid(settings, cp, pmid, arg)) == NULL) {
+	    infofmt(msg, "%s - failed to lookup PMID", pmid);
+	    sts = -EINVAL;
+	}
+    } else {
 	infofmt(msg, "bad parameters passed");
 	sts = -EINVAL;
     }

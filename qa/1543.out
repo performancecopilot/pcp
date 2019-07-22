@@ -765,6 +765,12 @@ Context successfully expired
     "context": "CONTEXT"
     "success": true
 }
+== store to invalid metric name ==
+{
+    "context": "CONTEXT"
+    "message": "no.such.metric - failed to lookup metric",
+    "success": false
+}
 
 *****   GET /metrics   *****
 

@@ -254,6 +254,8 @@ curl -s "http://localhost:$port/pmapi/store?name=sample.colour&value=42&iname=re
 	| _filter_json "instance store by name and iname"
 curl -s "http://localhost:$port/pmapi/store?name=sample.colour&value=42&instance=0,1" \
 	| _filter_json "instance store by name and instance ID"
+curl -s "http://localhost:$port/pmapi/store?name=no.such.metric&value=42" \
+	| _filter_json "store to invalid metric name"
 
 
 section "GET /metrics"
