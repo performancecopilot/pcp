@@ -629,6 +629,35 @@ Context successfully expired
     ]
 }
 
+*****   GET /pmapi/children   *****
+
+== PMNS children of a nonleaf node ==
+{
+    "context": "CONTEXT"
+    "name": "sample.dynamic",
+    "leaf": [
+        "counter",
+        "discrete",
+        "instant"
+    ],
+    "nonleaf": [
+        "meta"
+    ]
+}
+== PMNS children of a leaf node ==
+{
+    "context": "CONTEXT"
+    "name": "sample.long.one",
+    "leaf": [    ],
+    "nonleaf": [    ]
+}
+== PMNS children of non-existent node ==
+{
+    "context": "CONTEXT"
+    "message": "child traversal failed - Unknown metric name",
+    "success": false
+}
+
 *****   GET /pmapi/profile   *****
 
 == add all sample.colour instances ==

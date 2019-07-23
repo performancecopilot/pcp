@@ -282,6 +282,14 @@ typedef struct pmWebInstance {
     sds			name;
 } pmWebInstance;
 
+typedef struct pmWebChildren {
+    sds			name;
+    unsigned int	numleaf;
+    unsigned int	numnonleaf;
+    sds			*leaf;
+    sds			*nonleaf;
+} pmWebChildren;
+
 typedef struct pmWebScrape {
     pmWebMetric		metric;
     pmWebInstance	instance;
@@ -304,6 +312,7 @@ typedef int (*pmWebFetchValueSetCallBack)(sds, pmWebValueSet *, void *);
 typedef int (*pmWebFetchValueCallBack)(sds, pmWebValue *, void *);
 typedef int (*pmWebInDomCallBack)(sds, pmWebInDom *, void *);
 typedef int (*pmWebInDomInstanceCallBack)(sds, pmWebInstance *, void *);
+typedef int (*pmWebChildrenCallBack)(sds, pmWebChildren *, void *);
 typedef int (*pmWebScrapeCallBack)(sds, pmWebScrape *, void *);
 typedef void (*pmWebScrapeLabelSetCallBack)(sds, pmWebLabelSet *, void *);
 typedef void (*pmWebStatusCallBack)(sds, int, sds, void *);
@@ -316,6 +325,7 @@ typedef struct pmWebGroupCallBacks {
     pmWebFetchValueCallBack	on_fetch_value;
     pmWebInDomCallBack		on_indom;
     pmWebInDomInstanceCallBack	on_instance;
+    pmWebChildrenCallBack	on_children;
     pmWebScrapeCallBack		on_scrape;
     pmWebScrapeLabelSetCallBack	on_scrape_labels;
     pmWebAccessCallBack		on_check;	/* general access check call */
@@ -338,6 +348,7 @@ extern void pmWebGroupDerive(pmWebGroupSettings *, sds, struct dict *, void *);
 extern void pmWebGroupFetch(pmWebGroupSettings *, sds, struct dict *, void *);
 extern void pmWebGroupInDom(pmWebGroupSettings *, sds, struct dict *, void *);
 extern void pmWebGroupMetric(pmWebGroupSettings *, sds, struct dict *, void *);
+extern void pmWebGroupChildren(pmWebGroupSettings *, sds, struct dict *, void *);
 extern void pmWebGroupProfile(pmWebGroupSettings *, sds, struct dict *, void *);
 extern void pmWebGroupScrape(pmWebGroupSettings *, sds, struct dict *, void *);
 extern void pmWebGroupStore(pmWebGroupSettings *, sds, struct dict *, void *);

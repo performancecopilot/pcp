@@ -35,7 +35,7 @@ static sds PARAM_HOSTNAME, PARAM_HOSTSPEC, PARAM_CTXNUM, PARAM_CTXID,
            PARAM_PMIDS, PARAM_PMID, PARAM_INDOM, PARAM_INSTANCE,
            PARAM_INAME, PARAM_MVALUE, PARAM_TARGET, PARAM_EXPR, PARAM_MATCH;
 static sds AUTH_USERNAME, AUTH_PASSWORD;
-static sds LOCALHOST, TIMEOUT, BATCHSIZE;
+static sds EMPTYSTRING, LOCALHOST, TIMEOUT, BATCHSIZE;
 
 enum matches { MATCH_EXACT, MATCH_GLOB, MATCH_REGEX };
 enum profile { PROFILE_ADD, PROFILE_DEL };
@@ -924,6 +924,74 @@ done:
     sdsfree(msg);
 }
 
+void
+pmWebGroupChildren(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
+{
+    struct context	*cp;
+    pmWebChildren	children = {0};
+    char		errmsg[PM_MAXERRMSGLEN];
+    char		**offspring;
+    sds			msg = NULL, prefix = NULL;
+    int			i, l, n, sts = 0, *status;
+
+    if (params) {
+	if ((prefix = dictFetchValue(params, PARAM_PREFIX)) == NULL)
+	     prefix = dictFetchValue(params, PARAM_MNAME);
+    }
+
+    if (!(cp = webgroup_lookup_context(settings, &id, params, &sts, &msg, arg)))
+	goto done;
+    id = cp->origin;
+
+    if (prefix == NULL || *prefix == '\0')
+	prefix = EMPTYSTRING;
+
+    if ((sts = pmGetChildrenStatus(prefix, &offspring, &status)) < 0) {
+	infofmt(msg, "child traversal failed - %s",
+		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+    } else {
+	children.name = prefix;
+
+	/* zero or more children must be reported from this point onward */
+	for (i = 0; i < sts; i++) {
+	    if (status[i] == PMNS_NONLEAF_STATUS)
+	        children.numnonleaf++;
+	    else /* PMNS_LEAF_STATUS */
+	        children.numleaf++;
+	}
+	if (children.numleaf)
+	    children.leaf = calloc(children.numleaf, sizeof(sds));
+	if (children.numnonleaf)
+	    children.nonleaf = calloc(children.numnonleaf, sizeof(sds));
+	for (i = l = n = 0; i < sts; i++) {
+	    if (status[i] == PMNS_NONLEAF_STATUS)
+	        children.nonleaf[n++] = sdsnew(offspring[i]);
+	    else /* PMNS_LEAF_STATUS */
+	        children.leaf[l++] = sdsnew(offspring[i]);
+	}
+	if (sts > 0) {
+	    free(offspring);
+	    sts = 0;
+	}
+
+	settings->callbacks.on_children(id, &children, arg);
+
+	/* free up locally allocated array space */
+	for (i = 0; i < children.numnonleaf; i++)
+	    sdsfree(children.nonleaf[i]);
+	if (children.nonleaf)
+	    free(children.nonleaf);
+	for (i = 0; i < children.numleaf; i++)
+	    sdsfree(children.leaf[i]);
+	if (children.leaf)
+	    free(children.leaf);
+    }
+
+done:
+    settings->callbacks.on_done(id, sts, msg, arg);
+    sdsfree(msg);
+}
+
 static int
 webgroup_instances(pmWebGroupSettings *settings,
 		struct context *cp, struct indom *ip, enum matches match,
@@ -1773,6 +1841,7 @@ pmWebGroupSetup(pmWebGroupModule *module)
     PARAM_MATCH = sdsnew("match");
 
     /* generally needed strings, error messages */
+    EMPTYSTRING = sdsnew("");
     LOCALHOST = sdsnew("localhost");
     TIMEOUT = sdsnew("pmwebapi.timeout");
     BATCHSIZE = sdsnew("pmwebapi.batchsize");

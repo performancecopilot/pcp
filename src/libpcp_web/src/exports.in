@@ -160,3 +160,8 @@ PCP_WEB_1.8 {
 
     pmSeriesValues;
 } PCP_WEB_1.7;
+
+PCP_WEB_1.9 {
+  global:
+    pmWebGroupChildren;
+} PCP_WEB_1.8;

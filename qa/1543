@@ -211,6 +211,17 @@ curl -s "http://localhost:$port/pmapi/indom?name=sample.bin&iname=bin-100,bin-20
 	| _filter_json "individual instances"
 
 
+section "GET /pmapi/children"
+# optional params: prefix
+
+curl -s "http://localhost:$port/pmapi/children?prefix=sample.dynamic" \
+	| _filter_json "PMNS children of a nonleaf node"
+curl -s "http://localhost:$port/pmapi/children?prefix=sample.long.one" \
+        | _filter_json "PMNS children of a leaf node"
+curl -s "http://localhost:$port/pmapi/children?prefix=no.such.path" \
+        | _filter_json "PMNS children of non-existent node"
+
+
 section "GET /pmapi/profile"
 # mandatory params: expr (add/del)
 # optional params: indom, insts, instances

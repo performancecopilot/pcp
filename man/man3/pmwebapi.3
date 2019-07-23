@@ -777,6 +777,56 @@ with a Unicode 0xFFFD replacement character code.
 In backward compatibility mode the timestamp is presented as a JSON
 map with second (sec) and microsecond (us) fields, instead of using
 the more compact floating point representation shown above.
+.SS GET \fI/pmapi/children\fR \- \fBpmGetChildren\fR(3), \fBpmGetChildrenStatus\fR(3)
+.TS
+box,left;
+c | c | cw(2.4i)
+lf(CW) | l | l.
+Parameters	Type	Explanation
+_
+prefix	string	Metric namespace component as in \f(CBPMNS\fR(5)
+_
+hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
+context	number	Web context number (optional like hostspec)
+polltimeout	number	Seconds of inactivity before context closed
+client	string	Request identifier sent back with response
+.TE
+.P
+The
+.I children
+endpoint provides iterative namespace traversal for a context.
+If no parameters are supplied, the response will describe the
+direct descendants of the Performance Metrics Name Space (PMNS) root.
+.PP
+The
+.I prefix
+parameter can be used to specify a subtree of the PMNS for
+traversal.
+.PP
+The server response is a JSON document that provides the set
+of leaf and non-leaf nodes below the given namespace node or
+root.
+.P
+.SAMPLE
+$ curl -s http://localhost:44322/pmapi/children?prefix=mem | pmjson
+{
+  "context": 348734,
+  "name": "mem",
+  "leaf": [
+    "physmem",
+    "freemem"
+  ],
+  "nonleaf": [
+    "util",
+    "numa",
+    "vmstat",
+    "buddyinfo",
+    "slabinfo",
+    "zoneinfo",
+    "ksm"
+  ]
+}
+.ESAMPLE
 .SS GET \fI/pmapi/indom\fR \- \fBpmGetInDom\fR(3), \fBpmNameInDom\fR(3), \fBpmLookupInDom\fR(3)
 .TS
 box,left;
