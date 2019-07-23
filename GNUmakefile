@@ -54,7 +54,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 LDLIBS := -lhdr_histogram_static -lchan -lm -lpthread -lpcp_web -lpcp -lpcp_pmda
 
-CFLAGS += -Wextra $(INC_FLAGS) -MMD -MP -g
+CFLAGS = -Wextra $(INC_FLAGS) -MMD -MP -g
 
 DFILES	= README.md
 

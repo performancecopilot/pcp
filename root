@@ -1,5 +1,0 @@
-#include <stdpmid>
-
-root { statsd }
-
-#include "root_statsd"

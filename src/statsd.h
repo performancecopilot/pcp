@@ -14,7 +14,10 @@ struct pmda_data_extension {
     pmdaMetric* pcp_metrics;
     pmdaIndom* pcp_instance_domains;
     pmdaNameSpace* pcp_pmns;
-    int pcp_metric_count;
+    size_t pcp_instance_domain_count;
+    size_t pcp_metric_count;
+    int reload;
+    int notify;
 } pmda_data_extension;
 
 #endif

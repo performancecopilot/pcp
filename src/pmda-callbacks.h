@@ -53,6 +53,35 @@ int
 statsd_store(pmResult* result, pmdaExt* pmda);
 
 /**
+ * Wrapper around pmdaTreePMID, called before control is passed to pmdaTreePMID
+ * @arg name -
+ * @arg pm_id - Instance domain
+ * @arg pmda - PMDA extension structure (contains agent-specific private data)
+ */
+int
+statsd_pmid(const char* name, pmID* pm_id, pmdaExt* pmda);
+
+/**
+ * Wrapper around pmdaTreeName, called before control is passed to pmdaTreeName
+ * @arg pm_id - Instance domain
+ * @arg nameset -
+ * @arg pmda - PMDA extension structure (contains agent-specific private data)
+ */
+int
+statsd_name(pmID pm_id, char*** nameset, pmdaExt* pmda);
+
+/**
+ * Wrapper around pmdaTreeChildren, called before control is passed to pmdaTreeChildren
+ * @arg name - 
+ * @arg traverse -
+ * @arg children - 
+ * @arg status -
+ * @arg pmda - PMDA extension structure (contains agent-specific private data)
+ */
+int
+statsd_children(const char* name, int traverse, char*** children, int** status, pmdaExt* pmda);
+
+/**
  * Wrapper around pmdaLabel, called before control is passed to pmdaLabel
  * @arg ident - 
  * @arg type - 

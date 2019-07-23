@@ -40,8 +40,11 @@ init_data_ext(
 ) {
     data->config = config;
     data->pcp_metric_count = 0;
+    data->pcp_instance_domain_count = 0;
     data->metrics_storage = metrics_storage;
-    data->stats_storage =stats_storage;
+    data->stats_storage = stats_storage;
+    data->reload = 0;
+    data->notify = 0;
 }
 
 /**
@@ -82,12 +85,12 @@ main(int argc, char** argv)
 {
     signal(SIGUSR1, signal_handler);
 
-    struct agent_config config;
-    struct pmda_data_extension data;
+    struct agent_config config = { 0 };
+    struct pmda_data_extension data = { 0 };
     pthread_t network_listener;
     pthread_t parser;
     pthread_t aggregator;
-    pmdaInterface dispatch;
+    pmdaInterface dispatch = { 0 };
 
     int sep = pmPathSeparator();
     char config_file_path[MAXPATHLEN];
@@ -137,6 +140,8 @@ main(int argc, char** argv)
 
     pmdaOpenLog(&dispatch);
     pmSetProcessIdentity(config.username);
+    create_statsd_hardcoded_metrics(&dispatch, &data);
+
     if (dispatch.status != 0) {
         pthread_exit(NULL);
     }
@@ -145,18 +150,23 @@ main(int argc, char** argv)
 	dispatch.version.seven.desc = statsd_desc;
 	dispatch.version.seven.text = statsd_text;
 	dispatch.version.seven.instance = statsd_instance;
-	// dispatch.version.seven.pmid = statsd_pmid;
-	// dispatch.version.seven.name = statsd_name;
-	// dispatch.version.seven.children = statsd_children;
+	dispatch.version.seven.pmid = statsd_pmid;
+	dispatch.version.seven.name = statsd_name;
+	dispatch.version.seven.children = statsd_children;
 	dispatch.version.seven.label = statsd_label;
     // Callbacks
 	pmdaSetFetchCallBack(&dispatch, statsd_fetch_callback);
     pmdaSetLabelCallBack(&dispatch, statsd_label_callback);
 
-    create_statsd_hardcoded_metrics(&dispatch, &data);
     pmdaSetData(&dispatch, (void*) &data);
     pmdaSetFlags(&dispatch, PMDA_EXT_FLAG_HASHED);
-    pmdaInit(&dispatch, NULL, 0, data.pcp_metrics, data.pcp_metric_count);
+    pmdaInit(
+        &dispatch,
+        data.pcp_instance_domains,
+        data.pcp_instance_domain_count,
+        data.pcp_metrics,
+        data.pcp_metric_count
+    );
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
 

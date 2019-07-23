@@ -14,6 +14,49 @@
 #include "pmda-callbacks.h"
 #include "../domain.h"
 
+
+static void
+statsd_map_stats(pmdaExt* pmda) {
+    struct pmda_data_extension* data = (struct pmda_data_extension*) pmdaExtGetData(pmda);
+    int need_reload = 0;
+    char name[64];
+    int status = 0;
+    if (data->pcp_pmns) {
+        pmdaTreeRelease(data->pcp_pmns);
+        data->notify |= PMDA_EXT_NAMES_CHANGE; 
+    }
+    status = pmdaTreeCreate(&data->pcp_pmns);
+    if (status < 0) {
+        pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n", pmGetProgname(), pmErrStr(status));
+        data->pcp_pmns = NULL;
+        return;
+    }
+    pmsprintf(name, sizeof(name), "statsd.pmda.received");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 0), name);
+    pmsprintf(name, sizeof(name), "statsd.pmda.parsed");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 1), name);
+    pmsprintf(name, sizeof(name), "statsd.pmda.dropped");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 2), name);
+    pmsprintf(name, sizeof(name), "statsd.pmda.aggregated");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 3), name);
+    pmsprintf(name, sizeof(name), "statsd.pmda.time_spent_parsing");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 4), name);
+    pmsprintf(name, sizeof(name), "statsd.pmda.time_spent_aggregating");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 5), name);
+    data->pcp_metric_count = 6;
+    if (data->pcp_instance_domains != NULL) {
+        size_t i;
+        for (i = 0; i < data->pcp_instance_domain_count; i++) {
+            free(data->pcp_instance_domains[i].it_set);
+        }
+        free(data->pcp_instance_domains);
+        data->pcp_instance_domains = NULL;
+        data->pcp_instance_domain_count = 0;
+    }
+    pmdaTreeRebuildHash(data->pcp_pmns, data->pcp_metric_count);
+    data->reload = need_reload;    
+}
+
 /**
  * Checks if we need to reload metric namespace. Possible causes:
  * - yet unmapped metric received
@@ -21,7 +64,26 @@
  */
 static void
 statsd_possible_reload(pmdaExt* pmda) {
-    (void)pmda;
+    struct pmda_data_extension* data = (struct pmda_data_extension*) pmdaExtGetData(pmda);
+    // if (need_reload) {
+        if (pmDebugOptions.appl0) {
+            DEBUG_LOG("statsd: %s: reloading", pmGetProgname());
+        } else {
+            VERBOSE_LOG("statsd: %s: reloading", pmGetProgname());
+        }
+        statsd_map_stats(pmda);
+        pmda->e_indoms = data->pcp_instance_domains;
+        pmda->e_nindoms = data->pcp_instance_domain_count;
+        pmdaRehash(pmda, data->pcp_metrics, data->pcp_metric_count);
+        if (pmDebugOptions.appl0) {
+            DEBUG_LOG(
+                "statsd: %s: %lu metrics and %lu instance domains after reload",
+                pmGetProgname(),
+                data->pcp_metric_count,
+                data->pcp_instance_domain_count
+            );
+        }
+    // }
 }
 
 /**
@@ -38,15 +100,78 @@ statsd_desc(pmID pm_id, pmDesc* desc, pmdaExt* pmda) {
 
 /**
  * Wrapper around pmdaText, called before control is passed to pmdaText
- * @arg ident -
+ * @arg ident - Identifier
  * @arg type - Base data type
- * @arg buffer - 
+ * @arg buffer - Buffer where to write description
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
 int
 statsd_text(int ident, int type, char** buffer, pmdaExt* pmda) {
+    if (type & PM_TEXT_INDOM) {
+        return PM_ERR_TEXT;
+    }
     statsd_possible_reload(pmda);
-    return pmdaText(ident, type, buffer, pmda);
+    if (pmID_cluster(ident) == 0) {
+        switch (pmID_item(ident)) {
+            case 0: 
+            {
+                static char oneliner[] = "Received datagrams count";
+                static char full_description[] = 
+                    "Number of datagrams/packets that the agent has received\n"
+                    "during its lifetime.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+            case 1:
+            {
+                static char oneliner[] = "Parsed datagrams count";
+                static char full_description[] = 
+                    "Number of datagrams/packets that the agent has parsed\n"
+                    "successfuly during its lifetime.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+            case 2:
+            {
+                static char oneliner[] = "Dropped datagrams count";
+                static char full_description[] = 
+                    "Number of datagrams/packets that the agent has dropped\n"
+                    "during its lifetime, due to either being unable to parse the data \n"
+                    "or semantically incorrect values.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+            case 3:
+            {
+                static char oneliner[] = "Aggregated datagrams count";
+                static char full_description[] = 
+                    "Number of datagrams/packets that the agent has aggregated\n"
+                    "during its lifetime (that is, that were processed fully).\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+            case 4:
+            {
+                static char oneliner[] = "Total time in microseconds spent parsing metrics";
+                static char full_description[] = 
+                    "Total time in microseconds spent parsing metrics. Includes time spent parsing a datagram and failing midway.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+            case 5:
+            {
+                static char oneliner[] = "Total time in microseconds spent aggregating metrics";
+                static char full_description[] = 
+                    "Total time in microseconds spent aggregating metrics. Includes time spent aggregating a metric and failing midway.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+        }
+        return PM_ERR_PMID;
+    }
+    return PM_ERR_TEXT;
+    // this could be some mechanism that resolves metric help text
+    // return pmdaText(ident, type, buffer, pmda);
 }
 
 /**
@@ -72,7 +197,13 @@ statsd_instance(pmInDom in_dom, int inst, char* name, pmInResult** result, pmdaE
  */
 int
 statsd_fetch(int num_pm_id, pmID pm_id_list[], pmResult** resp, pmdaExt* pmda) {
+    VERBOSE_LOG("statsd fetch");
+    struct pmda_data_extension* data = (struct pmda_data_extension*) pmdaExtGetData(pmda);
     statsd_possible_reload(pmda);
+    if (data->notify) {
+        pmdaExtSetFlags(pmda, data->notify);
+        data->notify = 0;
+    }
     return pmdaFetch(num_pm_id, pm_id_list, resp, pmda);
 }
 
@@ -89,7 +220,6 @@ statsd_store(pmResult* result, pmdaExt* pmda) {
 }
 
 /**
- * NOT IMPLEMENTED
  * Wrapper around pmdaTreePMID, called before control is passed to pmdaTreePMID
  * @arg name -
  * @arg pm_id - Instance domain
@@ -117,7 +247,6 @@ statsd_name(pmID pm_id, char*** nameset, pmdaExt* pmda) {
 } 
 
 /**
- * NOT IMPLEMENTED
  * Wrapper around pmdaTreeChildren, called before control is passed to pmdaTreeChildren
  * @arg name - 
  * @arg traverse -

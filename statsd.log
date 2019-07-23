@@ -1,0 +1,8 @@
+Log for pmdastatsd on laptop started Tue Jul 23 19:49:02 2019
+
+[Tue Jul 23 19:49:02] pmdastatsd(25086) Alert: failed binding socket (err=Address already in use)
+[Tue Jul 23 19:49:02] pmdastatsd(25086) Info: Socket enstablished.
+[Tue Jul 23 19:49:02] pmdastatsd(25086) Info: Waiting for datagrams.
+[Tue Jul 23 19:49:08] pmdastatsd(25086) Info: statsd: pmdastatsd: reloading
+[Tue Jul 23 19:49:08] pmdastatsd(25086) Info: statsd fetch
+[Tue Jul 23 19:49:08] pmdastatsd(25086) Info: statsd: pmdastatsd: reloading

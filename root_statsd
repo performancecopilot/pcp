@@ -1,12 +1,11 @@
-statsd {
-    pmda
+#include <stdpmid>
+
+#ifndef STATSD
+#define STATSD 510
+#endif
+
+root {
+    statsd  STATSD:*:*
 }
 
-statsd.pmda {
-    received                510:0:0
-    parsed                  510:0:1
-    dropped                 510:0:2
-    aggregated              510:0:3
-    time_spent_parsing      510:0:4
-    time_spent_aggregating  510:0:5
-}
+#undef STATSD
