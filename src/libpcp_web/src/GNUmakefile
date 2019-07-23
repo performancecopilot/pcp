@@ -32,13 +32,15 @@ ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lws2_32
 endif
 
-LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?) exports exports.*
+LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
 LCFLAGS += -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0
 
 ifeq "$(HAVE_LIBUV) and $(HAVE_OPENSSL)" "true and true"
 CFILES += sslio.c libuv.c discover.c webgroup.c
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1 $(LIBOPENSSLCFLAGS) -DHAVE_OPENSSL=1
 LLDLIBS += $(LIB_FOR_LIBUV) $(LIB_FOR_OPENSSL)
+else
+CFILES += stubs.c
 endif
 
 STATICLIBTARGET = libpcp_web.a
@@ -109,10 +111,3 @@ http_client.o load.o query.o query_parser.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
 check:: $(CFILES) $(HFILES) $(XFILES)
 	$(CLINT) $^
-
-exports:	exports.in
-ifeq "$(HAVE_LIBUV) and $(HAVE_OPENSSL)" "true and true"
-	cp exports.in exports
-else
-	sed -e '/^  *pmWebGroup/d' <exports.in >exports
-endif
