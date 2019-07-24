@@ -1,4 +1,4 @@
-
+#!/bin/sh
 # PCP QA Test No. 813
 # pmlogextract -x exereciser
 #
