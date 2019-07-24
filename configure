@@ -856,6 +856,7 @@ enable_python2
 PYTHON3
 PYTHON
 PYLINT
+CPPCHECK_POSIX_OPT
 CPPCHECK
 GIT
 LTLIBOBJS
@@ -7284,6 +7285,13 @@ fi
 done
 test -n "$CPPCHECK" || CPPCHECK="/bin/true"
 
+
+if $CPPCHECK --help | grep -- --library >/dev/null
+then
+    export CPPCHECK_POSIX_OPT="--library=posix"
+else
+    export CPPCHECK_POSIX_OPT="--std=posix"
+fi
 
 
 for ac_prog in pylint
