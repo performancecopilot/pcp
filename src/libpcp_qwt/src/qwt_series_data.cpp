@@ -9,6 +9,7 @@
 
 #include "qwt_series_data.h"
 #include "qwt_math.h"
+#include "qnumeric.h"
 
 static inline QRectF qwtBoundingRect( const QPointF &sample )
 {
