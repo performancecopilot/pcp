@@ -47,6 +47,7 @@ public:
 
     bool operator==( const QwtPoint3D & ) const;
     bool operator!=( const QwtPoint3D & ) const;
+    constexpr QwtPoint3D& operator=( const QwtPoint3D & ) = default;
 
 private:
     double d_x;
