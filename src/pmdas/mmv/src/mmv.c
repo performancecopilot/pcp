@@ -556,7 +556,7 @@ map_stats(pmdaExt *pmda)
 	ap->scnt = 0;
     }
 
-    num = scandir(ap->statsdir, &files, NULL, NULL);
+    num = scandir(ap->statsdir, &files, NULL, alphasort);
     for (i = 0; i < num; i++) {
 	if (files[i]->d_name[0] == '.')
 	    continue;

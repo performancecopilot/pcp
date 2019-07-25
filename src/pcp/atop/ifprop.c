@@ -71,6 +71,7 @@ initifprop(void)
 	char		**insts;
 	int		sts, i;
 	int		*ids, count;
+	struct ifprop	*new_ifprops;
 
 	if (!setup)
 	{
@@ -84,13 +85,17 @@ initifprop(void)
 	count = get_instances("ifprop", IF_SPEED, descs, &ids, &insts);
 
 	propsize = (count + 1) * sizeof(ifprops[0]);
-	if ((ifprops = realloc(ifprops, propsize)) == NULL)
+	if ((new_ifprops = realloc(ifprops, propsize)) == NULL)
 	{
 		fprintf(stderr,
 			"%s: allocating interface table: %s [%ld bytes]\n",
 			pmGetProgname(), strerror(errno), (long)propsize);
+		if (ifprops)
+		    free(ifprops);
 		cleanstop(1);
+		/* NOTREACHED */
 	}
+	ifprops = new_ifprops;
 
 	for (i=0; i < count; i++)
 	{
