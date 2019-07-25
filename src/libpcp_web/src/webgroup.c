@@ -1230,6 +1230,7 @@ webmetric_lookup(const char *name, void *arg)
 	pmwebapi_add_indom_labels(mp->indom);
     pmwebapi_add_item_labels(mp);
     pmwebapi_metric_hash(mp);
+    pmwebapi_metric_help(mp);
 
     metric->pmid = mp->desc.pmid;
     metric->indom = mp->desc.indom;
@@ -1410,6 +1411,8 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 		continue;
 	    if (metric->labelset == NULL)
 		pmwebapi_add_item_labels(metric);
+	    pmwebapi_metric_help(metric);
+
 	    type = metric->desc.type;
 	    indom = metric->indom;
 	    if (indom && indom->updated == 0 &&
