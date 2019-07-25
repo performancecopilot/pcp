@@ -18,10 +18,18 @@ _check_series
 _cleanup()
 {
     cd $here
+    if $need_restore
+    then
+	need_restore=false
+	_restore_config $PCP_SYSCONF_DIR/labels
+        _restore_config $PCP_SYSCONF_DIR/pmproxy
+	_sighup_pmcd
+    fi
     $sudo rm -rf $tmp $tmp.*
 }
 
 status=1	# failure is the default!
+need_restore=false
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -111,8 +119,25 @@ section()
 }
 
 # real QA test starts here
-port=44322
+_save_config $PCP_SYSCONF_DIR/labels
+_save_config $PCP_SYSCONF_DIR/pmproxy
+need_restore=true
+
+$sudo rm -f $PCP_SYSCONF_DIR/labels/*
+_sighup_pmcd
+
+$sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
+echo "--timeseries" >> $tmp.options
+$sudo cp $tmp.options $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
+echo "[pmproxy]" >> $tmp.conf
+echo "pcp.enabled = true" >> $tmp.conf
+echo "http.enabled = true" >> $tmp.conf
+$sudo cp $tmp.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+
+_service pmproxy stop >/dev/null
 _service pmproxy start >>$here/$seq.full 2>&1
+
+port=44322
 
 section "GET /pmapi/context"
 # optional params: hostname, hostspec, polltimeout
@@ -278,10 +303,22 @@ curl -s "http://localhost:$port/metrics?names=sample.long.one,sample.long.ten" \
 	| _filter_text "scrape two metrics"
 curl -s "http://localhost:$port/metrics?names=no.such.metric" \
 	| _filter_json "scrape bad metric name"
-#curl -s "http://localhost:$port/pmapi/metrics?target=sample.long" \
-#	| _filter_text "scrape one metric tree"
-#curl -s "http://localhost:$port/pmapi/metrics?target=sample.bin" \
-#	| _filter_text "scrape metric instances"
+curl -s "http://localhost:$port/pmapi/metrics?target=sample.long" \
+	| _filter_text "scrape one metric tree"
+curl -s "http://localhost:$port/pmapi/metrics?target=sample.colour" \
+	| _filter_text "scrape metric instances"
+echo "== scrape all metrics =="
+curl -s "http://localhost:$port/metrics" \
+	> /dev/null	# checking pmproxy remains up here (too much to filter)
+echo "done full scrape"
+echo "== check pmproxy is running =="
+pminfo -v -h localhost@localhost:$port hinv.ncpu
+if [ $? -eq 0 ]; then
+    echo "pmproxy check passed"
+else
+    echo "pmproxy check failed"
+fi
+
 
 
 section "GET and POST /pmapi/derive"

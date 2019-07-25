@@ -1508,7 +1508,7 @@ typedef struct webscrape {
     struct context	*context;
     unsigned int	numnames;	/* current count of metric names */
     sds			*names;		/* metric names for batched up scrape */
-    struct metric	*mplist;
+    struct metric	**mplist;
     pmID		*pmidlist;
     int			status;
     void		*arg;
@@ -1520,9 +1520,6 @@ webgroup_scrape_batch(const char *name, void *arg)
 {
     struct webscrape	*scrape = (struct webscrape *)arg;
     int			i, sts;
-
-    /* make sure we use the original caller supplied arg now */
-    arg = scrape->arg;
 
     if (scrape->names == NULL) {
 	scrape->names = calloc(DEFAULT_BATCHSIZE, sizeof(sds));
@@ -1537,7 +1534,7 @@ webgroup_scrape_batch(const char *name, void *arg)
     if (scrape->numnames == DEFAULT_BATCHSIZE) {
 	sts = webgroup_scrape_names(scrape->settings, scrape->context,
 			scrape->numnames, scrape->names,
-			&scrape->mplist, scrape->pmidlist, arg);
+			scrape->mplist, scrape->pmidlist, scrape->arg);
 	for (i = 0; i < scrape->numnames; i++)
 	    sdsfree(scrape->names[i]);
 	scrape->numnames = 0;
@@ -1557,7 +1554,7 @@ webgroup_scrape_tree(const char *prefix, struct webscrape *scrape, sds *msg)
 	/* complete any remaining (sub-batchsize) leftovers */
 	sts = webgroup_scrape_names(scrape->settings, scrape->context,
 				    scrape->numnames, scrape->names,
-				    &scrape->mplist, scrape->pmidlist,
+				    scrape->mplist, scrape->pmidlist,
 				    scrape->arg);
 	for (i = 0; i < scrape->numnames; i++)
 	    sdsfree(scrape->names[i]);

@@ -820,6 +820,90 @@ sample_long_ten{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME
     "message": "'no.such.metric' - Unknown metric name",
     "success": false
 }
+== scrape one metric tree ==
+# PCP sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# TYPE sample_long_one gauge
+sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1
+# PCP sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
+# TYPE sample_long_ten gauge
+sample_long_ten{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 10
+# PCP sample.long.hundred 29.0.12 32 PM_INDOM_NULL instant none
+# TYPE sample_long_hundred gauge
+sample_long_hundred{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 100
+# PCP sample.long.million 29.0.13 32 PM_INDOM_NULL instant none
+# TYPE sample_long_million gauge
+sample_long_million{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1000000
+# PCP sample.long.write_me 29.0.14 32 PM_INDOM_NULL instant none
+# TYPE sample_long_write_me gauge
+sample_long_write_me{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",changed="true"} 2
+# PCP sample.long.bin 29.0.103 32 29.2 instant none
+# TYPE sample_long_bin gauge
+sample_long_bin{instance.name="bin-100",instance.id=100,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="100"} 100
+# PCP sample.long.bin 29.0.103 32 29.2 instant none
+# TYPE sample_long_bin gauge
+sample_long_bin{instance.name="bin-200",instance.id=200,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="200"} 200
+# PCP sample.long.bin 29.0.103 32 29.2 instant none
+# TYPE sample_long_bin gauge
+sample_long_bin{instance.name="bin-300",instance.id=300,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="300"} 300
+# PCP sample.long.bin 29.0.103 32 29.2 instant none
+# TYPE sample_long_bin gauge
+sample_long_bin{instance.name="bin-400",instance.id=400,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="400"} 400
+# PCP sample.long.bin 29.0.103 32 29.2 instant none
+# TYPE sample_long_bin gauge
+sample_long_bin{instance.name="bin-500",instance.id=500,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="500"} 500
+# PCP sample.long.bin 29.0.103 32 29.2 instant none
+# TYPE sample_long_bin gauge
+sample_long_bin{instance.name="bin-600",instance.id=600,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="600"} 600
+# PCP sample.long.bin 29.0.103 32 29.2 instant none
+# TYPE sample_long_bin gauge
+sample_long_bin{instance.name="bin-700",instance.id=700,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="700"} 700
+# PCP sample.long.bin 29.0.103 32 29.2 instant none
+# TYPE sample_long_bin gauge
+sample_long_bin{instance.name="bin-800",instance.id=800,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="800"} 800
+# PCP sample.long.bin 29.0.103 32 29.2 instant none
+# TYPE sample_long_bin gauge
+sample_long_bin{instance.name="bin-900",instance.id=900,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="900"} 900
+# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
+# TYPE sample_long_bin_ctr counter
+sample_long_bin_ctr{instance.name="bin-100",instance.id=100,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="100"} 100
+# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
+# TYPE sample_long_bin_ctr counter
+sample_long_bin_ctr{instance.name="bin-200",instance.id=200,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="200"} 200
+# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
+# TYPE sample_long_bin_ctr counter
+sample_long_bin_ctr{instance.name="bin-300",instance.id=300,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="300"} 300
+# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
+# TYPE sample_long_bin_ctr counter
+sample_long_bin_ctr{instance.name="bin-400",instance.id=400,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="400"} 400
+# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
+# TYPE sample_long_bin_ctr counter
+sample_long_bin_ctr{instance.name="bin-500",instance.id=500,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="500"} 500
+# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
+# TYPE sample_long_bin_ctr counter
+sample_long_bin_ctr{instance.name="bin-600",instance.id=600,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="600"} 600
+# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
+# TYPE sample_long_bin_ctr counter
+sample_long_bin_ctr{instance.name="bin-700",instance.id=700,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="700"} 700
+# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
+# TYPE sample_long_bin_ctr counter
+sample_long_bin_ctr{instance.name="bin-800",instance.id=800,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="800"} 800
+# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
+# TYPE sample_long_bin_ctr counter
+sample_long_bin_ctr{instance.name="bin-900",instance.id=900,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="900"} 900
+== scrape metric instances ==
+# PCP sample.colour 29.0.5 32 29.1 instant none
+# TYPE sample_colour gauge
+sample_colour{instance.name="red",instance.id=0,model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 143
+# PCP sample.colour 29.0.5 32 29.1 instant none
+# TYPE sample_colour gauge
+sample_colour{instance.name="green",instance.id=1,model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 244
+# PCP sample.colour 29.0.5 32 29.1 instant none
+# TYPE sample_colour gauge
+sample_colour{instance.name="blue",instance.id=2,model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 345
+== scrape all metrics ==
+done full scrape
+== check pmproxy is running ==
+pmproxy check passed
 
 *****   GET and POST /pmapi/derive   *****
 
