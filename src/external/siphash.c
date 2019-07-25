@@ -164,6 +164,7 @@ uint64_t siphash(const uint8_t *in, const size_t inlen, const uint8_t *k) {
 
     b = v0 ^ v1 ^ v2 ^ v3;
 #ifndef UNALIGNED_LE_CPU
+    // cppcheck-suppress objectIndex
     U64TO8_LE(out, b);
     return hash;
 #else
@@ -224,6 +225,7 @@ uint64_t siphash_nocase(const uint8_t *in, const size_t inlen, const uint8_t *k)
 
     b = v0 ^ v1 ^ v2 ^ v3;
 #ifndef UNALIGNED_LE_CPU
+    // cppcheck-suppress objectIndex
     U64TO8_LE(out, b);
     return hash;
 #else
