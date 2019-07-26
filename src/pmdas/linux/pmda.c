@@ -5780,42 +5780,6 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	refresh_proc_fs_nfsd(&proc_fs_nfsd);
     }
 
-    if (need_refresh[CLUSTER_NET_SOCKSTAT])
-	refresh_proc_net_sockstat(&proc_net_sockstat);
-
-    if (need_refresh[CLUSTER_NET_SOCKSTAT6])
-	refresh_proc_net_sockstat6(&proc_net_sockstat6);
-
-    if (need_refresh[CLUSTER_NET_SNMP])
-	refresh_proc_net_snmp(&_pm_proc_net_snmp);
-
-    if (need_refresh[CLUSTER_NET_SNMP6])
-	refresh_proc_net_snmp6(_pm_proc_net_snmp6);
-
-    if (need_refresh[CLUSTER_NET_RAW])
-	refresh_proc_net_raw(&proc_net_raw);
-
-    if (need_refresh[CLUSTER_NET_RAW6])
-	refresh_proc_net_raw6(&proc_net_raw6);
-
-    if (need_refresh[CLUSTER_NET_TCP])
-	refresh_proc_net_tcp(&proc_net_tcp);
-
-    if (need_refresh[CLUSTER_NET_TCP6])
-	refresh_proc_net_tcp6(&proc_net_tcp6);
-
-    if (need_refresh[CLUSTER_NET_UDP])
-	refresh_proc_net_udp(&proc_net_udp);
-
-    if (need_refresh[CLUSTER_NET_UDP6])
-	refresh_proc_net_udp6(&proc_net_udp6);
-
-    if (need_refresh[CLUSTER_NET_UNIX])
-	refresh_proc_net_unix(&proc_net_unix);
-
-    if (need_refresh[CLUSTER_NET_NETSTAT])
-	refresh_proc_net_netstat(&_pm_proc_net_netstat);
-
     /*
      * Network interface metrics and namespaces are complicated by a
      * need to be in the right namespace at the right time (for /sys
@@ -5827,6 +5791,18 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
      */
     if (need_refresh[CLUSTER_NET_DEV] ||
 	need_refresh[CLUSTER_NET_ADDR] ||
+	need_refresh[CLUSTER_NET_SOCKSTAT] ||
+	need_refresh[CLUSTER_NET_SOCKSTAT6] ||
+	need_refresh[CLUSTER_NET_SNMP] ||
+	need_refresh[CLUSTER_NET_SNMP6] ||
+	need_refresh[CLUSTER_NET_RAW] ||
+	need_refresh[CLUSTER_NET_RAW6] ||
+	need_refresh[CLUSTER_NET_TCP] ||
+	need_refresh[CLUSTER_NET_TCP6] ||
+	need_refresh[CLUSTER_NET_UDP] ||
+	need_refresh[CLUSTER_NET_UDP6] ||
+	need_refresh[CLUSTER_NET_UNIX] ||
+	need_refresh[CLUSTER_NET_NETSTAT] ||
 	need_refresh[CLUSTER_FILESYS] ||
 	need_refresh[CLUSTER_TMPFS] ||
 	need_refresh[REFRESH_NET_MTU] ||
@@ -5849,20 +5825,89 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	if (need_refresh[REFRESH_NETADDR_IPV6])
 	    need_net_ioctl = 1;
 
-	if (need_refresh[CLUSTER_NET_DEV]) {
+	if (need_refresh[CLUSTER_NET_DEV] ||
+	    need_refresh[CLUSTER_NET_SOCKSTAT] ||
+	    need_refresh[CLUSTER_NET_SOCKSTAT6] ||
+	    need_refresh[CLUSTER_NET_SNMP] ||
+	    need_refresh[CLUSTER_NET_SNMP6] ||
+	    need_refresh[CLUSTER_NET_RAW] ||
+	    need_refresh[CLUSTER_NET_RAW6] ||
+	    need_refresh[CLUSTER_NET_TCP] ||
+	    need_refresh[CLUSTER_NET_TCP6] ||
+	    need_refresh[CLUSTER_NET_UDP] ||
+	    need_refresh[CLUSTER_NET_UDP6] ||
+	    need_refresh[CLUSTER_NET_UNIX] ||
+	    need_refresh[CLUSTER_NET_NETSTAT]) {
+
 	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0)
 		goto done;
-	    refresh_proc_net_dev(netdev, cp);
+
+	    if (need_refresh[CLUSTER_NET_DEV])
+		refresh_proc_net_dev(netdev, cp);
+
+	    if (need_refresh[CLUSTER_NET_SOCKSTAT])
+		refresh_proc_net_sockstat(&proc_net_sockstat);
+
+	    if (need_refresh[CLUSTER_NET_SOCKSTAT6])
+		refresh_proc_net_sockstat6(&proc_net_sockstat6);
+
+	    if (need_refresh[CLUSTER_NET_SNMP])
+		refresh_proc_net_snmp(&_pm_proc_net_snmp);
+
+	    if (need_refresh[CLUSTER_NET_SNMP6])
+		refresh_proc_net_snmp6(_pm_proc_net_snmp6);
+
+	    if (need_refresh[CLUSTER_NET_RAW])
+		refresh_proc_net_raw(&proc_net_raw);
+
+	    if (need_refresh[CLUSTER_NET_RAW6])
+		refresh_proc_net_raw6(&proc_net_raw6);
+
+	    if (need_refresh[CLUSTER_NET_TCP])
+		refresh_proc_net_tcp(&proc_net_tcp);
+
+	    if (need_refresh[CLUSTER_NET_TCP6])
+		refresh_proc_net_tcp6(&proc_net_tcp6);
+
+	    if (need_refresh[CLUSTER_NET_UDP])
+		refresh_proc_net_udp(&proc_net_udp);
+
+	    if (need_refresh[CLUSTER_NET_UDP6])
+		refresh_proc_net_udp6(&proc_net_udp6);
+
+	    if (need_refresh[CLUSTER_NET_UNIX])
+		refresh_proc_net_unix(&proc_net_unix);
+
+	    if (need_refresh[CLUSTER_NET_NETSTAT])
+		refresh_proc_net_netstat(&_pm_proc_net_netstat);
+
 	    container_nsleave(cp, LINUX_NAMESPACE_NET);
 	}
 
-	if ((sts = container_nsenter(cp, LINUX_NAMESPACE_MNT, &ns_fds)) < 0)
-	    goto done;
-	refresh_net_addr_sysfs(netaddr, need_refresh);
-	need_net_ioctl |= refresh_net_sysfs(netdev, need_refresh);
-	if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_TMPFS])
-	    refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM), cp);
-	container_nsleave(cp, LINUX_NAMESPACE_MNT);
+	if (need_refresh[CLUSTER_NET_DEV] ||
+	    need_refresh[CLUSTER_FILESYS] ||
+	    need_refresh[CLUSTER_TMPFS] ||
+	    need_refresh[REFRESH_NET_MTU] ||
+	    need_refresh[REFRESH_NET_TYPE] ||
+	    need_refresh[REFRESH_NET_SPEED] ||
+	    need_refresh[REFRESH_NET_DUPLEX] ||
+	    need_refresh[REFRESH_NET_LINKUP] ||
+	    need_refresh[REFRESH_NET_RUNNING] ||
+	    need_refresh[REFRESH_NET_WIRELESS] ||
+	    need_refresh[REFRESH_NETADDR_INET] ||
+	    need_refresh[REFRESH_NETADDR_IPV6] ||
+	    need_refresh[REFRESH_NETADDR_HW]) {
+
+	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_MNT, &ns_fds)) < 0)
+		goto done;
+
+	    refresh_net_addr_sysfs(netaddr, need_refresh);
+	    need_net_ioctl |= refresh_net_sysfs(netdev, need_refresh);
+	    if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_TMPFS])
+		refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM), cp);
+
+	    container_nsleave(cp, LINUX_NAMESPACE_MNT);
+	}
 
 	if (need_net_ioctl) {
 	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0)

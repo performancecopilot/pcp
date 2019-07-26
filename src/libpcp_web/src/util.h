@@ -92,6 +92,7 @@ extern struct metric *pmwebapi_add_metric(struct context *,
 		pmDesc *, int, char **);
 extern void pmwebapi_add_item_labels(struct metric *);
 extern int pmwebapi_add_valueset(struct metric *, pmValueSet *);
+extern void pmwebapi_metric_help(struct metric *);
 
 /*
  * Generally useful sds buffer formatting and diagnostics callback macros

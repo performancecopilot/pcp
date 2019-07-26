@@ -375,7 +375,7 @@ class PCP2Spark(object):
             sys.stdout.write("Sending %d archived metrics to Spark %s:%d...\n(Ctrl-C to stop)\n" % (len(self.metrics), self.spark_server, self.spark_port))
             return
 
-        sys.stdout.write("Sending %d metrics to Spark %s:%d every %d sec" % (len(self.metrics), self.spark_server, self.spark_port, self.interval))
+        sys.stdout.write("Sending %d metrics to Spark %s:%d every %.1f sec" % (len(self.metrics), self.spark_server, self.spark_port, float(self.interval)))
         if self.runtime != -1:
             sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), self.runtime))
         elif self.samples:

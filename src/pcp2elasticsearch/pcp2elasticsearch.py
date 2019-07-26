@@ -372,7 +372,7 @@ class pcp2elasticsearch(object):
             sys.stdout.write("Sending %d archived metrics to Elasticsearch at %s...\n(Ctrl-C to stop)\n" % (len(self.metrics), self.es_server))
             return
 
-        sys.stdout.write("Sending %d metrics to Elasticsearch at %s every %d sec" % (len(self.metrics), self.es_server, self.interval))
+        sys.stdout.write("Sending %d metrics to Elasticsearch at %s every %.1f sec" % (len(self.metrics), self.es_server, float(self.interval)))
         if self.runtime != -1:
             sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), self.runtime))
         elif self.samples:

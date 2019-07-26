@@ -24,6 +24,7 @@ typedef enum pmWebRestKey {
     RESTKEY_FETCH,
     RESTKEY_INDOM,
     RESTKEY_PROFILE,
+    RESTKEY_CHILD,
     RESTKEY_STORE,
     RESTKEY_DERIVE,
     RESTKEY_SCRAPE,
@@ -68,6 +69,7 @@ static pmWebRestCommand commands[] = {
     { .key = RESTKEY_FETCH, .name = "fetch", .size = sizeof("fetch")-1 },
     { .key = RESTKEY_INDOM, .name = "indom", .size = sizeof("indom")-1 },
     { .key = RESTKEY_STORE, .name = "store", .size = sizeof("store")-1 },
+    { .key = RESTKEY_CHILD, .name = "children", .size = sizeof("children")-1 },
     { .key = RESTKEY_NONE }
 };
 
@@ -401,6 +403,35 @@ on_pmwebapi_instance(sds context, pmWebInstance *instance, void *arg)
     return 0;
 }
 
+static int
+on_pmwebapi_children(sds context, pmWebChildren *children, void *arg)
+{
+    pmWebGroupBaton	*baton = (pmWebGroupBaton *)arg;
+    sds			result = http_get_buffer(baton->client);
+    unsigned int	i;
+
+    pmwebapi_set_context(baton, context);
+
+    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
+    result = sdscatfmt(result, "{\"context\":%S", context);
+    if (baton->clientid)
+	result = sdscatfmt(result, ",\"client\":%S", baton->clientid);
+    result = sdscatfmt(result, ",\"name\":\"%S\"", children->name);
+    result = sdscatlen(result, ",\"leaf\":[", 9);
+    for (i = 0; i < children->numleaf; i++)
+	result = (i > 0) ? sdscatfmt(result, ",\"%S\"", children->leaf[i]):
+			    sdscatfmt(result, "\"%S\"", children->leaf[i]);
+    result = sdscatlen(result, "],\"nonleaf\":[", 13);
+    for (i = 0; i < children->numnonleaf; i++)
+	result = (i > 0) ? sdscatfmt(result, ",\"%S\"", children->nonleaf[i]):
+			    sdscatfmt(result, "\"%S\"", children->nonleaf[i]);
+    result = sdscatlen(result, "]", 1);
+
+    http_set_buffer(baton->client, result, HTTP_FLAG_JSON);
+    http_transfer(baton->client);
+    return 0;
+}
+
 /*
  * https://openmetrics.io/
  * https://github.com/prometheus/docs/blob/master/content/docs/instrumenting/exposition_formats.md
@@ -600,6 +631,7 @@ static pmWebGroupSettings pmwebapi_settings = {
     .callbacks.on_fetch_value	= on_pmwebapi_fetch_value,
     .callbacks.on_indom		= on_pmwebapi_indom,
     .callbacks.on_instance	= on_pmwebapi_instance,
+    .callbacks.on_children	= on_pmwebapi_children,
     .callbacks.on_scrape	= on_pmwebapi_scrape,
     .callbacks.on_scrape_labels	= on_pmwebapi_scrape_labels,
     .callbacks.on_check		= on_pmwebapi_check,
@@ -632,6 +664,7 @@ pmwebapi_setup_request_parameters(struct client *client,
     switch (baton->restkey) {
     case RESTKEY_CONTEXT:
     case RESTKEY_METRIC:
+    case RESTKEY_CHILD:
 	client->u.http.flags |= HTTP_FLAG_JSON;
 	break;
 
@@ -776,6 +809,15 @@ pmwebapi_metric(uv_work_t *work)
 }
 
 static void
+pmwebapi_children(uv_work_t *work)
+{
+    pmWebGroupBaton	*baton = (pmWebGroupBaton *)work->data;
+
+    pmWebGroupChildren(&pmwebapi_settings, baton->context, baton->params, baton);
+}
+
+
+static void
 pmwebapi_store(uv_work_t *work)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)work->data;
@@ -853,6 +895,9 @@ pmwebapi_request_done(struct client *client)
 	break;
     case RESTKEY_INDOM:
 	uv_queue_work(loop, &baton->worker, pmwebapi_indom, pmwebapi_done);
+	break;
+    case RESTKEY_CHILD:
+	uv_queue_work(loop, &baton->worker, pmwebapi_children, pmwebapi_done);
 	break;
     case RESTKEY_STORE:
 	uv_queue_work(loop, &baton->worker, pmwebapi_store, pmwebapi_done);

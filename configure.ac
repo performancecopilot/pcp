@@ -799,6 +799,13 @@ AC_SUBST(GIT)
 
 AC_CHECK_PROGS(CPPCHECK, cppcheck, /bin/true)
 AC_SUBST(CPPCHECK)
+if $CPPCHECK --help | grep -- --library >/dev/null
+then
+    export CPPCHECK_POSIX_OPT="--library=posix"
+else
+    export CPPCHECK_POSIX_OPT="--std=posix"
+fi
+AC_SUBST(CPPCHECK_POSIX_OPT)
 
 AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
 AC_SUBST(PYLINT)

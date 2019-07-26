@@ -1069,3 +1069,21 @@ pmwebapi_add_item_labels(struct metric *metric)
 	metric->labelset = NULL;
     }
 }
+
+void
+pmwebapi_metric_help(struct metric *metric)
+{
+    pmID		pmid = metric->desc.pmid;
+    char		*text;
+
+    if (metric->oneline == NULL &&
+	pmLookupText(pmid, PM_TEXT_ONELINE | PM_TEXT_DIRECT, &text) == 0) {
+	metric->oneline = sdsnew(text);
+	free(text);
+    }
+    if (metric->helptext == NULL &&
+	pmLookupText(pmid, PM_TEXT_HELP | PM_TEXT_DIRECT, &text) == 0) {
+	metric->helptext = sdsnew(text);
+	free(text);
+    }
+}
