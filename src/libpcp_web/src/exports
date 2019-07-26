@@ -1,0 +1,167 @@
+PCP_WEB_1.0 {
+  global:
+    pmjsonInitIndom;
+    pmjsonInit;
+
+  local:
+    *;
+};
+
+PCP_WEB_1.1 {
+  global:
+    pmhttpNewClient;
+    pmhttpClientSetTimeout;
+    pmhttpClientSetProtocol;
+    pmhttpClientSetUserAgent;
+    pmhttpClientFetch;
+    pmhttpFreeClient;
+} PCP_WEB_1.0;
+
+PCP_WEB_1.2 {
+  global:
+    pmjsonGet;
+} PCP_WEB_1.1;
+
+PCP_WEB_1.3 {
+  global:
+    pmSeriesQuery;
+    pmSeriesLoad;
+    pmjsonPrint;
+} PCP_WEB_1.2;
+
+PCP_WEB_1.4 {
+  global:
+    sdsnewlen;
+    sdsnew;
+    sdsempty;
+    sdsdup;
+    sdsfree;
+    sdsgrowzero;
+    sdscatlen;
+    sdscat;
+    sdscatsds;
+    sdscpylen;
+    sdscpy;
+    sdscatvprintf;
+    sdscatprintf;
+    sdscatfmt;
+    sdstrim;
+    sdsrange;
+    sdsupdatelen;
+    sdsclear;
+    sdscmp;
+    sdssplitlen;
+    sdsfreesplitres;
+    sdstolower;
+    sdstoupper;
+    sdsfromlonglong;
+    sdscatrepr;
+    sdssplitargs;
+    sdsmapchars;
+    sdsjoin;
+    sdsjoinsds;
+} PCP_WEB_1.3;
+
+PCP_WEB_1.5 {
+  global:
+    pmSeriesDescs;
+    pmSeriesLabels;
+    pmSeriesMetrics;
+    pmSeriesSources;
+    pmSeriesInstances;
+
+    pmLogLevelIsTTY;
+    pmLogLevelPrint;
+    pmLogLevelStr;
+} PCP_WEB_1.4;
+
+PCP_WEB_1.6 {
+  global:
+    pmDiscoverSetup;
+    pmDiscoverSetSlots;
+    pmDiscoverSetHostSpec;
+    pmDiscoverSetEventLoop;
+    pmDiscoverSetMetricRegistry;
+    pmDiscoverClose;
+
+    pmSeriesSetup;
+    pmSeriesSetSlots;
+    pmSeriesSetHostSpec;
+    pmSeriesSetEventLoop;
+    pmSeriesSetMetricRegistry;
+    pmSeriesClose;
+
+    pmSeriesDiscoverSource;
+    pmSeriesDiscoverClosed;
+    pmSeriesDiscoverLabels;
+    pmSeriesDiscoverMetric;
+    pmSeriesDiscoverValues;
+    pmSeriesDiscoverInDom;
+    pmSeriesDiscoverText;
+
+    redisSlotsConnect;
+    redisSlotsFree;
+    redisSlotsProxyConnect;
+    redisSlotsProxyFree;
+    sdsDictCallBacks;
+
+    dictAdd;
+    dictAddRaw;
+    dictCreate;
+    dictFind;
+    dictGenCaseHashFunction;
+    dictGetSafeIterator;
+    dictNext;
+    dictRelease;
+    dictReleaseIterator;
+} PCP_WEB_1.5;
+
+PCP_WEB_1.7 {
+  global:
+    ini_parse;
+    pmIniFileParse;
+} PCP_WEB_1.6;
+
+PCP_WEB_1.8 {
+  global:
+    base64_decode;
+    base64_encode;
+
+    dictEmpty;
+    dictReplace;
+    dictScan;
+
+    http_errno_name;
+    http_errno_description;
+    http_should_keep_alive;
+    http_parser_execute;
+    http_parser_init;
+
+    pmIniFileSetup;
+    pmIniFileLookup;
+    pmIniFileUpdate;
+    pmIniFileFree;
+
+    pmSeriesSetConfiguration;
+    pmDiscoverSetConfiguration;
+    pmWebGroupSetConfiguration;
+
+    pmWebGroupSetup;
+    pmWebGroupContext;
+    pmWebGroupFetch;
+    pmWebGroupInDom;
+    pmWebGroupMetric;
+    pmWebGroupStore;
+    pmWebGroupDerive;
+    pmWebGroupProfile;
+    pmWebGroupScrape;
+    pmWebGroupSetEventLoop;
+    pmWebGroupSetMetricRegistry;
+
+    pmSeriesValues;
+} PCP_WEB_1.7;
+
+PCP_WEB_1.9 {
+  global:
+    pmWebGroupChildren;
+} PCP_WEB_1.8;
