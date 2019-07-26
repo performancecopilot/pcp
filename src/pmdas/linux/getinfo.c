@@ -66,8 +66,10 @@ get_distro_info(void)
 	 */
 	distro_name = (char *)malloc(len + (int)sbuf.st_size + 1);
 	if (distro_name != NULL) {
-	    if (len)
-		strncpy(distro_name, prefix, len);
+	    if (len) {
+		strncpy(distro_name, prefix, len + sbuf.st_size);
+		distro_name[len + sbuf.st_size] = '\0';	/* buffer overrun guard */
+	    }
 	    sts = read(fd, distro_name + len, (int)sbuf.st_size);
 	    if (sts <= 0) {
 		free(distro_name);

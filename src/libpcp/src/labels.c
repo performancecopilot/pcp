@@ -262,7 +262,8 @@ __pmAddLabels(pmLabelSet **lspp, const char *extras, int flags)
     } else {
 	if ((bytes = strlen(extras)) + 1 >= PM_MAXLABELJSONLEN)
 	    return -E2BIG;
-	strncpy(buffer, extras, bytes + 1);
+	strncpy(buffer, extras, PM_MAXLABELJSONLEN-1);
+	buffer[PM_MAXLABELJSONLEN-1] = '\0';	/* buffer overrun guard */
     }
 
     size = sizeof(result);
