@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "aggregators.h"
 #include "aggregator-metric-duration-exact.h"
+#include "aggregator-metric-duration.h"
 #include "config-reader.h"
 
 /**
@@ -79,7 +80,7 @@ exact_duration_values_comparator(const void* x, const void* y) {
  * @return 1 on success
  */
 int
-get_exact_duration_values_meta(struct exact_duration_collection* collection, struct duration_values_meta* out) {
+get_exact_duration_values_meta(struct exact_duration_collection* collection, struct duration_values_meta** out) {
     if (collection == NULL || collection->length == 0 || collection->values == NULL) {
         return 0;
     }
@@ -102,20 +103,20 @@ get_exact_duration_values_meta(struct exact_duration_collection* collection, str
         }
         accumulator += current;
     }
-    out->min = min;
-    out->max = max;
-    out->median = *(collection->values[(int)ceil((collection->length / 2.0) - 1)]);
-    out->average = accumulator / collection->length;
-    out->percentile90 = *(collection->values[((int)round((90.0 / 100.0) * (double)collection->length)) - 1]);
-    out->percentile95 = *(collection->values[((int)round((95.0 / 100.0) * (double)collection->length)) - 1]);
-    out->percentile99 = *(collection->values[((int)round((99.0 / 100.0) * (double)collection->length)) - 1]);
-    out->count = collection->length;
+    (*out)->min = min;
+    (*out)->max = max;
+    (*out)->median = *(collection->values[(int)ceil((collection->length / 2.0) - 1)]);
+    (*out)->average = accumulator / collection->length;
+    (*out)->percentile90 = *(collection->values[((int)round((90.0 / 100.0) * (double)collection->length)) - 1]);
+    (*out)->percentile95 = *(collection->values[((int)round((95.0 / 100.0) * (double)collection->length)) - 1]);
+    (*out)->percentile99 = *(collection->values[((int)round((99.0 / 100.0) * (double)collection->length)) - 1]);
+    (*out)->count = collection->length;
     accumulator = 0;
     for (i = 0; i < collection->length; i++) {
-        double x = *(collection->values[i]) - out->average;
+        double x = *(collection->values[i]) - (*out)->average;
         accumulator += x * x; 
     }
-    out->std_deviation = sqrt(accumulator / out->count);
+    (*out)->std_deviation = sqrt(accumulator / (*out)->count);
     return 1;
 }
 
@@ -126,17 +127,18 @@ get_exact_duration_values_meta(struct exact_duration_collection* collection, str
  */
 void
 print_exact_durations(FILE* f, struct exact_duration_collection* collection) {
-    struct duration_values_meta meta = (struct duration_values_meta) { 0 };
+    struct duration_values_meta* meta = 
+        (struct duration_values_meta*) malloc(sizeof(struct duration_values_meta));
     get_exact_duration_values_meta(collection, &meta);
-    fprintf(f, "min             = %lf\n", meta.min);
-    fprintf(f, "max             = %lf\n", meta.max);
-    fprintf(f, "median          = %lf\n", meta.median);
-    fprintf(f, "average         = %lf\n", meta.average);
-    fprintf(f, "percentile90    = %lf\n", meta.percentile90);
-    fprintf(f, "percentile95    = %lf\n", meta.percentile95);
-    fprintf(f, "percentile99    = %lf\n", meta.percentile99);
-    fprintf(f, "count           = %lf\n", meta.count);
-    fprintf(f, "std deviation   = %lf\n", meta.std_deviation);
+    fprintf(f, "min             = %lf\n", meta->min);
+    fprintf(f, "max             = %lf\n", meta->max);
+    fprintf(f, "median          = %lf\n", meta->median);
+    fprintf(f, "average         = %lf\n", meta->average);
+    fprintf(f, "percentile90    = %lf\n", meta->percentile90);
+    fprintf(f, "percentile95    = %lf\n", meta->percentile95);
+    fprintf(f, "percentile99    = %lf\n", meta->percentile99);
+    fprintf(f, "count           = %lf\n", meta->count);
+    fprintf(f, "std deviation   = %lf\n", meta->std_deviation);
 }
 
 /**

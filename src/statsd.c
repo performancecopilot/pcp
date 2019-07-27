@@ -21,46 +21,121 @@
 #include "utils.h"
 #include "../domain.h"
 
+static pmdaInstid g_duration[] = {
+    { 0, "min" },
+    { 1, "max" },
+    { 2, "median" },
+    { 3, "average" },
+    { 4, "percentile90" },
+    { 5, "percentile95" },
+    { 6, "percentile99" },
+    { 7, "count" },
+    { 8, "std_derivation" }
+};
+
+static pmdaIndom g_instance_domains[] = {
+    { 0, sizeof(g_duration) / sizeof(g_duration[0]), g_duration }
+};
+
 void signal_handler(int num) {
     if (num == SIGUSR1) {
         aggregator_request_output();
     }
 }
 
-/**
- * Initializes structure which is used as private data container accross all PCP related callbacks
- * @arg args - All args passed to 'PCP exchange' thread
- */
 static void
-init_data_ext(
-    struct pmda_data_extension* data,
-    struct agent_config* config,
-    struct pmda_metrics_container* metrics_storage,
-    struct pmda_stats_container* stats_storage
-) {
-    data->config = config;
-    data->pcp_metric_count = 0;
-    data->pcp_instance_domain_count = 0;
-    data->metrics_storage = metrics_storage;
-    data->stats_storage = stats_storage;
-    data->reload = 0;
-    data->notify = 0;
+free_metric_reverse_lookup_record(struct pcp_reverse_lookup_record* item) {
+    if (item != NULL) {
+        if (item->name != NULL) {
+            free(item->name);
+        }
+        free(item);
+    }
+}
+
+static void
+metric_reverse_lookup_free_callback(void *privdata, void *val)
+{
+    free_metric_reverse_lookup_record((struct pcp_reverse_lookup_record*)val);
+}
+
+static void*
+metric_reverse_lookup_key_duplicate_callback(void *privdata, const void *key)
+{
+    (void)privdata;
+    char* duplicate = malloc(strlen(key));
+    ALLOC_CHECK("Unable to duplicate key.");
+    strcpy(duplicate, key);
+    return duplicate;
+}
+
+static int
+metric_reverse_lookup_compare_callback(void* privdata, const void* key1, const void* key2)
+{
+    (void)privdata;
+    return strcmp((char*)key1, (char*)key2) == 0;
+}
+
+static uint64_t
+metric_reverse_lookup_hash_callback(const void *key)
+{
+    return dictGenCaseHashFunction((unsigned char *)key, strlen((char *)key));
+}
+
+/**
+ * Callbacks for metrics hashtable
+ */
+static dictType metric_reverse_lookup_callbacks = {
+    .hashFunction	= metric_reverse_lookup_hash_callback,
+    .keyCompare		= metric_reverse_lookup_compare_callback,
+    .keyDup		    = metric_reverse_lookup_key_duplicate_callback,
+    .keyDestructor	= metric_reverse_lookup_free_callback,
+    .valDestructor	= metric_reverse_lookup_free_callback,
+};
+
+#define SET_INST_NAME(name, index) \
+    duration_instances[index].i_inst = index; \
+    len = pmsprintf(buff, 20, "%s", name); \
+    duration_instances[index].i_name = (char*) malloc(sizeof(char) * len); \
+    ALLOC_CHECK("Unable to allocate memory for static PMDA instance descriptor."); \
+    memcpy(duration_instances[index].i_name, buff, len + 1);
+
+static void
+create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
+    data->pcp_instance_domains = (pmdaIndom*) malloc(sizeof(pmdaIndom));
+    ALLOC_CHECK("Unable to allocate memory for static PMDA instances.");
+    data->pcp_instance_domains->it_indom = 0;
+    data->pcp_instance_domains->it_numinst = 9;
+    pmdaInstid* duration_instances = (pmdaInstid*) malloc(sizeof(pmdaInstid) * 9);
+    ALLOC_CHECK("Unable to allocate memory for static PMDA instance descriptors.");
+    size_t len = 0;
+    char buff[20];
+    SET_INST_NAME("min", 0);
+    SET_INST_NAME("max", 1);
+    SET_INST_NAME("median", 2);
+    SET_INST_NAME("average", 3);
+    SET_INST_NAME("percentile90", 4);
+    SET_INST_NAME("percentile95", 5);
+    SET_INST_NAME("percentile99", 6);
+    SET_INST_NAME("count", 7);
+    SET_INST_NAME("std_derivation", 8);
+    data->pcp_instance_domains->it_set = duration_instances;
+    data->pcp_instance_domain_count = 1;
 }
 
 /**
  * Registers hardcoded metrics that are registered before PMDA agent initializes itself fully
- * @arg pi - pmdaInterface carries all PCP stuff
- * @arg data - 
+ * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
 static void
-create_statsd_hardcoded_metrics(pmdaInterface* pi, struct pmda_data_extension* data) {
+create_statsd_hardcoded_metrics(struct pmda_data_extension* data) {
     size_t i;
     size_t hardcoded_count = 6;
     data->pcp_metrics = malloc(hardcoded_count * sizeof(pmdaMetric));
     ALLOC_CHECK("Unable to allocate space for static PMDA metrics.");
     for (i = 0; i < hardcoded_count; i++) {
         data->pcp_metrics[i].m_user = data;
-        data->pcp_metrics[i].m_desc.pmid = pmID_build(pi->domain, 0, i);
+        data->pcp_metrics[i].m_desc.pmid = pmID_build(STATSD, 0, i);
         data->pcp_metrics[i].m_desc.type = PM_TYPE_U64;
         data->pcp_metrics[i].m_desc.indom = PM_INDOM_NULL;
         data->pcp_metrics[i].m_desc.sem = PM_SEM_INSTANT;
@@ -78,6 +153,29 @@ create_statsd_hardcoded_metrics(pmdaInterface* pi, struct pmda_data_extension* d
         }
     }
     data->pcp_metric_count = 6;
+}
+
+/**
+ * Initializes structure which is used as private data container accross all PCP related callbacks
+ * @arg args - All args passed to 'PCP exchange' thread
+ */
+static void
+init_data_ext(
+    struct pmda_data_extension* data,
+    struct agent_config* config,
+    struct pmda_metrics_container* metrics_storage,
+    struct pmda_stats_container* stats_storage
+) {
+    data->config = config;
+    create_statsd_hardcoded_metrics(data);
+    create_statsd_hardcoded_instances(data);
+    data->metrics_storage = metrics_storage;
+    data->stats_storage = stats_storage;
+    data->pcp_metric_reverse_lookup = dictCreate(&metric_reverse_lookup_callbacks, NULL);
+    data->generation = -1; // trigger first mapping of metrics for PMNS 
+    data->next_cluster_id = 1;
+    data->next_item_id = 0;
+    data->notify = 0;
 }
 
 int
@@ -112,13 +210,14 @@ main(int argc, char** argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), STATSD, "statsd.log", help_file_path);
 
     read_agent_config(&config, &dispatch, config_file_path, argc, argv);
+    init_loggers(&config);
+    pmdaOpenLog(&dispatch);
     if (config.debug) {
         print_agent_config(&config);
     }
 
     struct pmda_metrics_container* metrics = init_pmda_metrics(&config);
     struct pmda_stats_container* stats = init_pmda_stats(&config);
-    init_loggers(&config);
     init_data_ext(&data, &config, metrics, stats);
 
     chan_t* network_listener_to_parser = chan_init(config.max_unprocessed_packets);
@@ -138,9 +237,7 @@ main(int argc, char** argv)
     pthread_errno = pthread_create(&aggregator, NULL, aggregator_exec, aggregator_args);
     PTHREAD_CHECK(pthread_errno);
 
-    pmdaOpenLog(&dispatch);
     pmSetProcessIdentity(config.username);
-    create_statsd_hardcoded_metrics(&dispatch, &data);
 
     if (dispatch.status != 0) {
         pthread_exit(NULL);

@@ -3,6 +3,7 @@
 
 #include "utils.h"
 #include "aggregators.h"
+#include "aggregator-metric-duration.h"
 #include "aggregator-metric-duration-hdr.h"
 #include "config-reader.h"
 
@@ -28,6 +29,29 @@ create_hdr_duration_value(long long unsigned int value) {
 void
 update_hdr_duration_value(struct hdr_histogram* histogram, long long unsigned int value) {
     hdr_record_value(histogram, value);
+}
+
+/**
+ * Gets duration values meta data from given collection, as a sideeffect it sorts the values
+ * @arg collection - Target collection
+ * @arg out - Placeholder for data population
+ * @return 1 on success
+ */
+int
+get_hdr_duration_values_meta(struct hdr_histogram* histogram, struct duration_values_meta** out) {
+    if (histogram == NULL) {
+        return 0;
+    }
+    (*out)->min = hdr_min(histogram);
+    (*out)->max = hdr_max(histogram);
+    (*out)->count = histogram->total_count;
+    (*out)->average = hdr_mean(histogram);
+    (*out)->median = hdr_value_at_percentile(histogram, 50);
+    (*out)->percentile90 = hdr_value_at_percentile(histogram, 90);
+    (*out)->percentile95 = hdr_value_at_percentile(histogram, 95);
+    (*out)->percentile99 = hdr_value_at_percentile(histogram, 99);
+    (*out)->std_deviation = hdr_stddev(histogram);
+    return 1;
 }
 
 /**

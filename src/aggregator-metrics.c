@@ -40,6 +40,7 @@ metric_key_duplicate_callback(void *privdata, const void *key)
 {
     (void)privdata;
     char* duplicate = malloc(strlen(key));
+    ALLOC_CHECK("Unable to duplicate key.");
     strcpy(duplicate, key);
     return duplicate;
 }
@@ -79,30 +80,30 @@ init_pmda_metrics(struct agent_config* config) {
     pthread_mutex_init(&container->mutex, NULL);
     struct pmda_metrics_dict_privdata* dict_data = 
         (struct pmda_metrics_dict_privdata*) malloc(sizeof(struct pmda_metrics_dict_privdata));    
+    ALLOC_CHECK("Unable to create priv PMDA metrics container data.");
     dict_data->config = config;
     dict_data->container = container;
-    metrics* m = dictCreate(&metric_dict_callbacks, NULL);
+    metrics* m = dictCreate(&metric_dict_callbacks, dict_data);
     container->metrics = m;
+    container->generation = 0;
     return container;
 }
 
 
 /**
  * Creates STATSD metric hashtable key for use in hashtable related functions (find_metric_by_name, check_metric_name_available)
- * @arg datagram - Source datagram
  * @return new key
  */
 char*
-create_metric_dict_key(struct statsd_datagram* datagram) {
+create_metric_dict_key(char* name, char* tags) {
     int maximum_key_size = 4096;
     char buffer[maximum_key_size]; // maximum key size
     int key_size = pmsprintf(
         buffer,
         maximum_key_size,
-        "%s&%s&%s",
-        datagram->name,
-        datagram->tags != NULL ? datagram->tags : "-",
-        datagram->instance != NULL ? datagram->instance : "-"
+        "%s&%s",
+        name,
+        tags != NULL ? tags : "-"
     );
     char* result = malloc(key_size + 1);
     ALLOC_CHECK("Unable to allocate memory for hashtable key");
@@ -120,7 +121,7 @@ create_metric_dict_key(struct statsd_datagram* datagram) {
 int
 process_datagram(struct agent_config* config, struct pmda_metrics_container* container, struct statsd_datagram* datagram) {
     struct metric* item;
-    char* key = create_metric_dict_key(datagram);
+    char* key = create_metric_dict_key(datagram->name, datagram->tags);
     if (key == NULL) {
         VERBOSE_LOG("Throwing away datagram. REASON: unable to create hashtable key for metric record.");        
         return 0;
@@ -207,9 +208,6 @@ print_metric_meta(FILE* f, struct metric_metadata* meta) {
             fprintf(f, "tags = %s\n", meta->tags);
         }
         fprintf(f, "sampling = %f\n", meta->sampling);
-        if (meta->instance != NULL) {
-            fprintf(f, "instance = %s\n", meta->instance);
-        }
     }
 }
 
@@ -255,6 +253,28 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
     fprintf(f, "-----------------\n");
     fprintf(f, "Total number of records: %lu \n", count);
     fclose(f);
+    pthread_mutex_unlock(&container->mutex);
+}
+
+/**
+ * Iterate over metrics via custom callback
+ * @arg container - Metrics container
+ * @arg callback - Callback called for every item
+ * @arg privdata - Private data passed to callback along the metric
+ * 
+ * Synchronized by mutex on pmda_metrics_container
+ */
+void
+iterate_over_metrics(struct pmda_metrics_container* container, void(*callback)(struct metric*, void*), void* privdata) {
+    pthread_mutex_lock(&container->mutex);
+    metrics* m = container->metrics;
+    dictIterator* iterator = dictGetSafeIterator(m);
+    dictEntry* current;
+    while ((current = dictNext(iterator)) != NULL) {
+        struct metric* item = (struct metric*)current->v.val;
+        callback(item, privdata);
+    }
+    dictReleaseIterator(iterator);
     pthread_mutex_unlock(&container->mutex);
 }
 
@@ -320,6 +340,7 @@ void
 add_metric(struct pmda_metrics_container* container, char* key, struct metric* item) {
     pthread_mutex_lock(&container->mutex);
     dictAdd(container->metrics, key, item);
+    container->generation += 1;
     pthread_mutex_unlock(&container->mutex);
 }
 
@@ -392,9 +413,6 @@ check_metric_name_available(struct pmda_metrics_container* container, char* key)
  */
 struct metric_metadata*
 create_metric_meta(struct statsd_datagram* datagram) {
-    if (datagram->tags == NULL && datagram->instance == NULL) {
-        return NULL;
-    }
     struct metric_metadata* meta = (struct metric_metadata*) malloc(sizeof(struct metric_metadata));
     *meta = (struct metric_metadata) { 0 };
     meta->sampling = datagram->sampling;
@@ -402,10 +420,7 @@ create_metric_meta(struct statsd_datagram* datagram) {
         meta->tags = (char*) malloc(strlen(datagram->tags) + 1);
         memcpy(meta->tags, datagram->tags, strlen(datagram->tags) + 1);
     }
-    if (datagram->instance != NULL) {
-        meta->instance = (char*) malloc(strlen(datagram->instance) + 1);
-        memcpy(meta->instance, datagram->instance, strlen(datagram->instance) + 1);
-    }
+    meta->pmid = PM_ID_NULL;
     return meta;
 }
 
@@ -417,9 +432,6 @@ void
 free_metric_metadata(struct metric_metadata* meta) {
     if (meta->tags != NULL) {
         free(meta->tags);
-    }
-    if (meta->instance != NULL) {
-        free(meta->instance);
     }
     if (meta != NULL) {
         free(meta);

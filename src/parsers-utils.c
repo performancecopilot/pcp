@@ -73,7 +73,6 @@ assert_statsd_datagram_eq(
     struct statsd_datagram** datagram,
     char* name,
     char* tags,
-    char* instance,
     double value,
     enum METRIC_TYPE type,
     double sampling
@@ -86,10 +85,6 @@ assert_statsd_datagram_eq(
     if (CHECK_DISCREPANCY((*datagram)->tags, tags)) {
         err_count++;
         fprintf(stdout, RED "FAIL: " RESET "Tags don't match! %s =/= %s \n", (*datagram)->tags, tags);
-    }
-    if (CHECK_DISCREPANCY((*datagram)->instance, instance)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Instance doesn't match! %s =/= %s \n", (*datagram)->instance, instance);
     }
     if (CHECK_DISCREPANCY_VALUE((*datagram)->value, value)) {
         err_count++;

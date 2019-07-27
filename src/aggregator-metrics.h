@@ -13,8 +13,8 @@ typedef dict metrics;
 
 struct metric_metadata {
     char* tags;
-    char* instance;
     double sampling;
+    pmID pmid;
 } metric_metadata;
 
 struct metric {
@@ -24,8 +24,24 @@ struct metric {
     enum METRIC_TYPE type;
 } metric;
 
+/**
+ * Collection of metadata of some duration collection 
+ */
+struct duration_values_meta {
+    double min;
+    double max;
+    double median;
+    double average;
+    double percentile90;
+    double percentile95;
+    double percentile99;
+    double count;
+    double std_deviation;
+} duration_values_meta;
+
 struct pmda_metrics_container {
     metrics* metrics;
+    size_t generation;
     pthread_mutex_t mutex;
 } pmda_metrics_container;
 
@@ -42,11 +58,10 @@ init_pmda_metrics(struct agent_config* config);
 
 /**
  * Creates STATSD metric hashtable key for use in hashtable related functions (find_metric_by_name, check_metric_name_available)
- * @arg datagram - Source datagram
  * @return new key
  */
 char*
-create_metric_dict_key(struct statsd_datagram* datagram);
+create_metric_dict_key(char* name, char* tags);
 
 /**
  * Processes datagram struct into metric 
@@ -78,6 +93,17 @@ free_metric(struct agent_config* config, struct pmda_metrics_container* containe
  */
 void
 write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container* container);
+
+/**
+ * Iterate over metrics via custom callback
+ * @arg container - Metrics container
+ * @arg callback - Callback called for every item
+ * @arg privdata - Private data passed to callback along the metric
+ * 
+ * Synchronized by mutex on pmda_metrics_container
+ */
+void
+iterate_over_metrics(struct pmda_metrics_container* container, void(*callback)(struct metric*, void*), void* privdata);
 
 /**
  * Finds metric by name

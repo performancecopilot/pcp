@@ -15,14 +15,14 @@
 
 #define SUITE_HEADER(format, ...) fprintf(stdout, CYN format RESET "\n", ## __VA_ARGS__);
 
-#define CHECK_ERROR(string, name, tags, instance, value, type, sampling) \
+#define CHECK_ERROR(string, name, tags, value, type, sampling) \
     fprintf(stdout, MAG "CASE: %s " RESET "\n", string); \
     if (parse(string, datagram)) { \
         int local_err = 0; \
-        local_err += assert_statsd_datagram_eq(datagram, name, tags, instance, value, type, sampling); \
+        local_err += assert_statsd_datagram_eq(datagram, name, tags, value, type, sampling); \
         error_count += local_err; \
     } else { \
-        if (name != NULL || tags != NULL || instance != NULL || value != 0 || type != METRIC_TYPE_NONE || sampling != 0) { \
+        if (name != NULL || tags != NULL || value != 0 || type != METRIC_TYPE_NONE || sampling != 0) { \
             fprintf(stdout, RED "ERROR: " RESET "Should have failed parsing. \n"); \
             error_count += 1; \
         } \
@@ -70,7 +70,6 @@ assert_statsd_datagram_eq(
     struct statsd_datagram** datagram,
     char* name,
     char* tags,
-    char* instance,
     double value,
     enum METRIC_TYPE type,
     double sampling

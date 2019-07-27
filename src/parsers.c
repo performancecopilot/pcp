@@ -89,7 +89,6 @@ void
 print_out_datagram(struct statsd_datagram* datagram) {
     printf("DATAGRAM: \n");
     printf("name: %s \n", datagram->name);
-    printf("instance: %s \n", datagram->instance);
     printf("tags: %s \n", datagram->tags);
     printf("value: %lf \n", datagram->value);
     switch (datagram->type) {
@@ -116,9 +115,6 @@ void
 free_datagram(struct statsd_datagram* datagram) {
     if (datagram->name != NULL) {
         free(datagram->name);
-    }
-    if (datagram->instance != NULL) {
-        free(datagram->instance);
     }
     if (datagram->tags != NULL) {
         free(datagram->tags);

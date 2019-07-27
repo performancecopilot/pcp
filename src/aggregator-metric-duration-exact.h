@@ -5,6 +5,7 @@
 #include <stddef.h>
 
 #include "aggregator-metrics.h"
+#include "aggregator-metric-duration.h"
 #include "config-reader.h"
 
 /**
@@ -14,21 +15,6 @@ struct exact_duration_collection {
     double** values;
     size_t length;
 } exact_duration_collection;
-
-/**
- * Collection of metadata of some duration collection 
- */
-struct duration_values_meta {
-    double min;
-    double max;
-    double median;
-    double average;
-    double percentile90;
-    double percentile95;
-    double percentile99;
-    double count;
-    double std_deviation;
-} duration_values_meta;
 
 /**
  * Creates exact duration value
@@ -62,7 +48,7 @@ remove_exact_duration_item(struct exact_duration_collection* collection, double 
  * @return 1 on success
  */
 int
-get_exact_duration_values_meta(struct exact_duration_collection* collection, struct duration_values_meta* out);
+get_exact_duration_values_meta(struct exact_duration_collection* collection, struct duration_values_meta** out);
 
 /**
  * Prints duration collection metadata in human readable way

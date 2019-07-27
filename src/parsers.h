@@ -44,7 +44,6 @@ struct statsd_datagram
     char* tags;
     enum SIGN explicit_sign;
     double value;
-    char* instance;
     double sampling;
 } statsd_datagram;
 

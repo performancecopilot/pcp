@@ -173,20 +173,20 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
  */
 void
 print_agent_config(struct agent_config* config) {
-    printf("---------------------------\n");
+    pmNotifyErr(LOG_DEBUG, "---------------------------\n");
     if (config->verbose)
-        puts("verbose flag is set");
+        pmNotifyErr(LOG_DEBUG, "verbose flag is set");
     if (config->debug)
-        puts("debug flag is set");
+        pmNotifyErr(LOG_DEBUG, "debug flag is set");
     if (config->show_version)
-        puts("version flag is set");
-    printf("debug_output_filename: %s \n", config->debug_output_filename);
-    printf("tcpaddr: %s \n", config->tcp_address);
-    printf("port: %s \n", config->port);
-    printf("parser_type: %s \n", config->parser_type == PARSER_TYPE_BASIC ? "BASIC" : "RAGEL");
-    printf("maximum of unprocessed packets: %d \n", config->max_unprocessed_packets);
-    printf("maximum udp packet size: %ld \n", config->max_udp_packet_size);
-    printf("duration_aggregation_type: %s\n", 
+        pmNotifyErr(LOG_DEBUG, "version flag is set");
+    pmNotifyErr(LOG_DEBUG, "debug_output_filename: %s \n", config->debug_output_filename);
+    pmNotifyErr(LOG_DEBUG, "tcpaddr: %s \n", config->tcp_address);
+    pmNotifyErr(LOG_DEBUG, "port: %s \n", config->port);
+    pmNotifyErr(LOG_DEBUG, "parser_type: %s \n", config->parser_type == PARSER_TYPE_BASIC ? "BASIC" : "RAGEL");
+    pmNotifyErr(LOG_DEBUG, "maximum of unprocessed packets: %d \n", config->max_unprocessed_packets);
+    pmNotifyErr(LOG_DEBUG, "maximum udp packet size: %ld \n", config->max_udp_packet_size);
+    pmNotifyErr(LOG_DEBUG, "duration_aggregation_type: %s\n", 
         config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM ? "HDR_HISTOGRAM" : "BASIC");
-    printf("---------------------------\n");
+    pmNotifyErr(LOG_DEBUG, "---------------------------\n");
 }
