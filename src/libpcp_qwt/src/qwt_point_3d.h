@@ -49,7 +49,7 @@ public:
     bool operator!=( const QwtPoint3D & ) const;
 #if __cplusplus >= 201103L
     // C++11 feature needed here ...
-    constexpr QwtPoint3D& operator=( const QwtPoint3D & ) = default;
+    QwtPoint3D& operator=( const QwtPoint3D & ) = default;
 #endif
 
 private:
