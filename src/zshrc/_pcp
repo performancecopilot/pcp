@@ -534,6 +534,7 @@ _pcp () {
       "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
       "(-v $exargs)"-v+'[switch log volumes after this many samples]' \
       "(-w $exargs)"-w'[ignore day/month/year]' \
+      "(-x $exargs)"-x'[skip metrics with mismatched metadata]' \
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       '*:archive:->archives' \
