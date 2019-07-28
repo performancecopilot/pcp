@@ -173,7 +173,7 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
  */
 void
 print_agent_config(struct agent_config* config) {
-    pmNotifyErr(LOG_DEBUG, "---------------------------\n");
+    pmNotifyErr(LOG_DEBUG, "<settings>\n");
     if (config->verbose)
         pmNotifyErr(LOG_DEBUG, "verbose flag is set");
     if (config->debug)
@@ -188,5 +188,5 @@ print_agent_config(struct agent_config* config) {
     pmNotifyErr(LOG_DEBUG, "maximum udp packet size: %ld \n", config->max_udp_packet_size);
     pmNotifyErr(LOG_DEBUG, "duration_aggregation_type: %s\n", 
         config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM ? "HDR_HISTOGRAM" : "BASIC");
-    pmNotifyErr(LOG_DEBUG, "---------------------------\n");
+    pmNotifyErr(LOG_DEBUG, "</settings>\n");
 }

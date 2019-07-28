@@ -32,11 +32,11 @@ update_duration_metric(struct agent_config* config, struct metric* item, struct 
  * Extracts duration metric meta values from duration metric record
  * @arg config - Config which contains info on which duration aggregating type we are using
  * @arg item - Metric item from which to extract duration values
- * @arg out - Dest to populate with data
- * @return duration values
+ * @arg out - Dest to populate with data, allocates memory
+ * @return 1 on success
  */
-struct duration_values_meta*
-get_duration_values_meta(struct agent_config* config, struct metric* item, struct duration_values_meta** out);
+int
+get_duration_values_meta(struct agent_config* config, struct metric* item, struct duration_values_meta* out);
 
 /**
  * Prints duration metric information

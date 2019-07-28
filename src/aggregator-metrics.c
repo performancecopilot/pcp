@@ -14,19 +14,6 @@
 #include "aggregator-metric-gauge.h"
 #include "aggregator-metric-duration.h"
 
-/**
- * Metric names that won't be saved into hashtable 
- * - these names are already taken by metric stats
- */
-static const char* const g_blacklist[] = {
-    "pmda.received",
-    "pmda.parsed",
-    "pmda.aggregated",
-    "pmda.dropped",
-    "pmda.time_spent_aggregating",
-    "pmda.time_spent_parsing"
-};
-
 static void
 metric_free_callback(void *privdata, void *val)
 {
@@ -59,21 +46,20 @@ metric_hash_callback(const void *key)
 }
 
 /**
- * Callbacks for metrics hashtable
- */
-static dictType metric_dict_callbacks = {
-    .hashFunction	= metric_hash_callback,
-    .keyCompare		= metric_compare_callback,
-    .keyDup		    = metric_key_duplicate_callback,
-    .keyDestructor	= metric_free_callback,
-    .valDestructor	= metric_free_callback,
-};
-
-/**
  * Creates new pmda_metrics_container structure, initializes all stats to 0
  */
 struct pmda_metrics_container*
 init_pmda_metrics(struct agent_config* config) {
+    /**
+     * Callbacks for metrics hashtable
+     */
+    static dictType metric_dict_callbacks = {
+        .hashFunction	= metric_hash_callback,
+        .keyCompare		= metric_compare_callback,
+        .keyDup		    = metric_key_duplicate_callback,
+        .keyDestructor	= metric_free_callback,
+        .valDestructor	= metric_free_callback,
+    };
     struct pmda_metrics_container* container =
         (struct pmda_metrics_container*) malloc(sizeof(struct pmda_metrics_container));
     ALLOC_CHECK("Unable to create PMDA metrics container.");
@@ -392,7 +378,19 @@ update_metric(
  * @return 1 on success else 0
  */
 int
-check_metric_name_available(struct pmda_metrics_container* container, char* key) {    
+check_metric_name_available(struct pmda_metrics_container* container, char* key) {
+    /**
+     * Metric names that won't be saved into hashtable 
+     * - these names are already taken by metric stats
+     */
+    static const char* const g_blacklist[] = {
+        "pmda.received",
+        "pmda.parsed",
+        "pmda.aggregated",
+        "pmda.dropped",
+        "pmda.time_spent_aggregating",
+        "pmda.time_spent_parsing"
+    };
     size_t i;
     for (i = 0; i < sizeof(g_blacklist) / sizeof(g_blacklist[0]); i++) {
         const char* ampptr = strchr(key, '&');

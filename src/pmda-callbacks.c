@@ -15,20 +15,17 @@
 #include "pmda-callbacks.h"
 #include "../domain.h"
 
-#define STATSD_MAX_COUNT 10000
-#define STATSD_MAX_CLUSTER ((1<<12)-1)
-
-static int g_cluster_num = 1;
-static int g_item_num = 0;
-
-/*
- * Check cluster number validity (must be in range 0 .. 1<<12).
+/**
+ * Gets next valid pmID
+ * - used for getting pmIDs for yet unrecorded metrics
+ * @arg data - PMDA extension structure (contains agent-specific private data)
+ * @return new valid pmID
  */
 static pmID
 get_next_pmID(struct pmda_data_extension* data) {
     pmID next = pmID_build(STATSD, data->next_cluster_id, data->next_item_id);
     if (data->next_cluster_id >= (1 << 12)) {
-        DIE("Run out of cluster ids.");
+        DIE("Agent ran out of metric ids.");
     }
     if (data->next_item_id == 1000) {
         data->next_item_id = 0;
@@ -39,70 +36,93 @@ get_next_pmID(struct pmda_data_extension* data) {
     return next;
 }
 
+/**
+ * Resets internal counters that track current id's
+ * @arg data - PMDA extension structure (contains agent-specific private data)
+ */
 static void
 reset_pmID_counters(struct pmda_data_extension* data) {
     data->next_item_id = 0;
     data->next_cluster_id = 1;
 }
 
+/**
+ * Adds new metric to pcp metric table and pcp pmns and then increments total metric count 
+ * @arg item - StatsD Metric from which to extract what PCP Metric to create 
+ * @arg data - PMDA extension structure (contains agent-specific private data)
+ */
 static void
-create_metric_iteration_callback(struct metric* item, void* pmda) {
-    // this prevents creating of metrics that have tags or sampling as we don't deal with those yet
-    if (item->meta != NULL) return;
-
+add_pcp_metric(struct metric* item, pmdaExt* pmda) {
     struct pmda_data_extension* data = (struct pmda_data_extension*)pmdaExtGetData((pmdaExt*)pmda);
-    dictEntry* result = dictFind(data->pcp_metric_reverse_lookup, item->name);
-
-    // return if record of metric exists
-    if (result != NULL) return;
-
-    // setup new pmID
-    pmID pmid = get_next_pmID(data); 
-    // setup new reverse lookup record
-    struct pcp_reverse_lookup_record* new_record =
-        (struct pcp_reverse_lookup_record*) malloc(sizeof(pcp_reverse_lookup_record));
-    ALLOC_CHECK("Unable to create new reverse lookup record.");
-    new_record->name = item->name;
-    const char* new_key = pmIDStr(pmid);
-    if (dictAdd(data->pcp_metric_reverse_lookup, (void*)new_key, new_record) != 0) {
-        DEBUG_LOG("Unable to create new reverse lookup record.");
-    }
-
     // setup new metric name    
     char name[64];
     pmsprintf(name, 64, "statsd.%s", item->name);
-    DEBUG_LOG("statsd: create_metric: %s - %s", name, pmIDStr(pmid));
-
+    DEBUG_LOG("statsd: create_metric: %s - %s", name, pmIDStr(item->meta->pmid));
     // extend current pcp_metrics
     data->pcp_metrics = realloc(data->pcp_metrics, sizeof(pmdaMetric) * (data->pcp_metric_count + 1));
     ALLOC_CHECK("Cannot grow statsd metric list");
     // .. with new metric description 
-    size_t new_item_index = data->pcp_metric_count;
-    pmdaMetric* new_metric = &data->pcp_metrics[new_item_index];
+    size_t i = data->pcp_metric_count;
+    pmdaMetric* new_metric = &data->pcp_metrics[i];
     new_metric->m_user = data;
-    new_metric->m_desc.pmid = pmid;
+    new_metric->m_desc.pmid = item->meta->pmid;
+    new_metric->m_desc.type = PM_TYPE_DOUBLE;
     if (item->type == METRIC_TYPE_DURATION) {
-        new_metric->m_desc.type = PM_TYPE_DOUBLE;
         new_metric->m_desc.indom = pmInDom_build(((pmdaExt*)pmda)->e_domain, DURATION_INDOM);
     } else {
-        new_metric->m_desc.type = PM_TYPE_DOUBLE;
         new_metric->m_desc.indom = PM_INDOM_NULL;
     }
     new_metric->m_desc.sem = PM_SEM_INSTANT;
     memset(&new_metric->m_desc.units, 0, sizeof(pmUnits));
     DEBUG_LOG(
-        "STATSD: adding metric[%lu] %s %s from %s\n",
-        data->pcp_metric_count, name, pmIDStr(pmid), name
+        "STATSD: adding metric %s %s from %s\n",  name, pmIDStr(item->meta->pmid), name
     );
-
     // now add the new pmid into pmdaTree
-    pmdaTreeInsert(data->pcp_pmns, pmid, name);
-
-    // debugging
-    g_item_num += 1;
     data->pcp_metric_count += 1;
+    pmdaTreeInsert(data->pcp_pmns, item->meta->pmid, name);
 }
 
+/**
+ * This gets called for every StatsD metric that has been aggregated already,
+ * registers it within PCP space and while doing that assigns it unique PMID and
+ * sets up reverse lookup record so that we can recover metric via PMID in fetch callbacks in constant time
+ * @arg item - Metric that is to be processed
+ * @arg pmda - pmdaExt
+ */
+static void
+metric_foreach_callback(struct metric* item, void* pmda) {
+    // this prevents creating of metrics/labels that have tags as we don't deal with those yet
+    if (item->meta->tags != NULL || item->meta->sampling) return;
+    struct pmda_data_extension* data = (struct pmda_data_extension*)pmdaExtGetData((pmdaExt*)pmda);
+    // lets check if metric already has pmid assigned
+    // if it does, check if we have it in reverse lookup table
+    if (item->meta->pmid != PM_ID_NULL) {
+        // reinsert record into PMNS
+        dictEntry* result = dictFind(data->pmid_reverse_lookup, pmIDStr(item->meta->pmid));
+        struct pmid_reverse_lookup_record* record = (struct pmid_reverse_lookup_record*)result->v.val;
+        pmdaTreeInsert(data->pcp_pmns, item->meta->pmid, record->name);
+        data->pcp_metric_count += 1;
+    } 
+    // else create new one, set it in original metric record, create reverse lookup record and add it to list of pcp metrics
+    else {
+        // assign it, so that we can reuse it if need be
+        item->meta->pmid = get_next_pmID(data);
+        // create new reverse lookup record for it, so that we can easily get metric name from pmID
+        struct pmid_reverse_lookup_record* record =
+            (struct pmid_reverse_lookup_record*) malloc(sizeof(pmid_reverse_lookup_record));
+        ALLOC_CHECK("Unable to create new reverse lookup record.");
+        record->name = item->name;
+        if (dictAdd(data->pmid_reverse_lookup, (void*)pmIDStr(item->meta->pmid), record) != 0) {
+            DEBUG_LOG("Unable to create new reverse lookup record.");
+        }
+        // add metric to pcp metrics and insert record about it into PMNS
+        add_pcp_metric(item, (pmdaExt*)pmda);
+    }
+}
+
+/**
+ * Maps all stats (both hardcoded and the ones aggregated from StatsD datagrams) to 
+ */
 static void
 statsd_map_stats(pmdaExt* pmda) {
     struct pmda_data_extension* data = (struct pmda_data_extension*) pmdaExtGetData(pmda);
@@ -131,7 +151,7 @@ statsd_map_stats(pmdaExt* pmda) {
     pmsprintf(name, 64, "statsd.pmda.time_spent_aggregating");
     pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 5), name);
     data->pcp_metric_count = 6;    
-    iterate_over_metrics(data->metrics_storage, create_metric_iteration_callback, pmda);
+    iterate_over_metrics(data->metrics_storage, metric_foreach_callback, pmda);
     pmdaTreeRebuildHash(data->pcp_pmns, data->pcp_metric_count);
     pthread_mutex_lock(&data->metrics_storage->mutex);
     data->generation = data->metrics_storage->generation;
@@ -245,8 +265,6 @@ statsd_text(int ident, int type, char** buffer, pmdaExt* pmda) {
         return PM_ERR_PMID;
     }
     return PM_ERR_TEXT;
-    // this could be some mechanism that resolves metric help text
-    // return pmdaText(ident, type, buffer, pmda);
 }
 
 /**
@@ -321,10 +339,10 @@ statsd_name(pmID pm_id, char*** nameset, pmdaExt* pmda) {
 
 /**
  * Wrapper around pmdaTreeChildren, called before control is passed to pmdaTreeChildren
- * @arg name - 
- * @arg traverse -
- * @arg children - 
- * @arg status -
+ * @arg name - metric name
+ * @arg traverse - traverse flag
+ * @arg children - descendant metrics
+ * @arg status - descendant status
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
 int
@@ -374,6 +392,79 @@ statsd_label_callback(pmInDom in_dom, unsigned int inst, pmLabelSet** lp) {
     return 0;
 }
 
+static int
+statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmAtomValue** atom) {
+    struct pmda_data_extension* data = (struct pmda_data_extension*) mdesc->m_user;
+    struct agent_config* config = data->config;
+    // look for metric name in reverse lookup table
+    dictEntry* entry = dictFind(data->pmid_reverse_lookup, pmIDStr(mdesc->m_desc.pmid));
+    // if there is no record, request must be incorrect 
+    if (entry == NULL) {
+        return PM_ERR_PMID;
+    }
+    char* metric_name = ((struct pmid_reverse_lookup_record*)entry->v.val)->name;
+    char* metric_storage_key = create_metric_dict_key(metric_name, NULL);
+    struct metric* result;
+    // fetch statsd metric record
+    if (find_metric_by_name(data->metrics_storage, metric_storage_key, &result) == 0) {
+        DEBUG_LOG("pmid reverse lookup and statsd metric storage mismatch.");
+        return PM_ERR_GENERIC;
+    }
+    int status;
+    static struct duration_values_meta meta;
+    // now return response based on metric type
+    switch (result->type) {
+        // counter and gauge simply pass value to PCP
+        case METRIC_TYPE_COUNTER:
+        case METRIC_TYPE_GAUGE:
+            pthread_mutex_lock(&data->metrics_storage->mutex);
+            (*atom)->d = *(double*)result->value;
+            status = PMDA_FETCH_STATIC;
+            pthread_mutex_unlock(&data->metrics_storage->mutex);
+            break;
+        // duration passes values trough instances
+        case METRIC_TYPE_DURATION:
+            pthread_mutex_lock(&data->metrics_storage->mutex);
+            if (get_duration_values_meta(data->config, result, &meta) != 1) {
+                return PM_ERR_GENERIC;
+            }
+            status = PMDA_FETCH_STATIC;
+            switch (instance) {
+                case 0:
+                    (*atom)->d = meta.min;
+                    break;
+                case 1:
+                    (*atom)->d = meta.max;
+                    break;
+                case 2:
+                    (*atom)->d = meta.median;
+                    break;
+                case 3:
+                    (*atom)->d = meta.average;
+                    break;
+                case 4:
+                    (*atom)->d = meta.percentile90;
+                    break;
+                case 5:
+                    (*atom)->d = meta.percentile95;
+                    break;
+                case 6:
+                    (*atom)->d = meta.percentile99;
+                    break;
+                case 7:
+                    (*atom)->d = meta.count;
+                    break;
+                case 8:
+                    (*atom)->d = meta.std_deviation;
+                    break;
+                default:
+                    status = PM_ERR_INST;
+            }
+            pthread_mutex_unlock(&data->metrics_storage->mutex);            
+    }
+    return status;
+}
+
 /**
  * This callback deals with one request unit which may be part of larger request of PDU_FETCH
  * @arg pmdaMetric - requested metric, along with user data, in out case PMDA extension structure (contains agent-specific private data)
@@ -387,12 +478,15 @@ statsd_fetch_callback(pmdaMetric* mdesc, unsigned int instance, pmAtomValue* ato
     struct agent_config* config = data->config;
     struct pmda_stats_container* stats = data->stats_storage;
     struct pmda_metrics_container* metrics = data->metrics_storage;
-    dict* reverse_lookup_table = data->pcp_metric_reverse_lookup;
+    dict* reverse_lookup_table = data->pmid_reverse_lookup;
     unsigned int cluster = pmID_cluster(mdesc->m_desc.pmid);
     unsigned int item = pmID_item(mdesc->m_desc.pmid);
+    int status;
     switch (cluster) {
-        /* stats - info about agent itself */
+        /* cluster 0 is reserved for stats - info about agent itself */
         case 0:
+        {
+            status = PMDA_FETCH_STATIC;
             switch (item) {
                 /* received */
                 case 0:
@@ -419,74 +513,12 @@ statsd_fetch_callback(pmdaMetric* mdesc, unsigned int instance, pmAtomValue* ato
                     atom->ull = get_agent_stat(config, stats, STAT_TIME_SPENT_AGGREGATING);
                     break;
                 default:
-                    return PM_ERR_PMID;
-            }
-            break;
-        case 1:
-        {
-            const char* reverse_lookup_key = pmIDStr(mdesc->m_desc.pmid);
-            dictEntry* entry = dictFind(reverse_lookup_table, reverse_lookup_key);
-            if (entry == NULL) {
-                return PM_ERR_PMID;
-            }
-            char* metric_name = ((struct pcp_reverse_lookup_record*)entry->v.val)->name;
-            char* metric_hashtable_key = create_metric_dict_key(metric_name, NULL);
-            struct metric* result;
-            if (find_metric_by_name(metrics, metric_hashtable_key, &result)) {
-                switch (result->type) {
-                    case METRIC_TYPE_COUNTER:
-                    case METRIC_TYPE_GAUGE:
-                        atom->d = *(double*)result->value;
-                        break;
-                    case METRIC_TYPE_DURATION: {
-                        struct duration_values_meta* meta =
-                            (struct duration_values_meta*) malloc(sizeof(struct duration_values_meta));
-                        get_duration_values_meta(data->config, result, &meta);
-                        switch (instance) {
-                            case 0:
-                                atom->d = meta->min;
-                                break;
-                            case 1:
-                                atom->d = meta->max;
-                                break;
-                            case 2:
-                                atom->d = meta->median;
-                                break;
-                            case 3:
-                                atom->d = meta->average;
-                                break;
-                            case 4:
-                                atom->d = meta->percentile90;
-                                break;
-                            case 5:
-                                atom->d = meta->percentile95;
-                                break;
-                            case 6:
-                                atom->d = meta->percentile99;
-                                break;
-                            case 7:
-                                atom->d = meta->count;
-                                break;
-                            case 8:
-                                atom->d = meta->std_deviation;
-                                break;
-                            default:
-                                free(meta);
-                                return PM_ERR_INST;
-                        }
-                        free(meta);
-                        break;
-                    }
-                    default:
-                        return PM_ERR_PMID;
-                }
-            } else {
-                return PM_ERR_PMID;
+                    status = PM_ERR_PMID;
             }
             break;
         }
         default:
-            return PM_ERR_PMID;
+            status = statsd_resolve_dynamic_metric_fetch(mdesc, instance, &atom);
     }
-    return PMDA_FETCH_STATIC;
+    return status;
 }

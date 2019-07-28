@@ -1,129 +1,303 @@
-Log for pmdastatsd on laptop started Sat Jul 27 19:54:12 2019
+Log for pmdastatsd on laptop started Sun Jul 28 18:15:35 2019
 
-[Sat Jul 27 19:54:12] pmdastatsd(10630) Debug: ---------------------------
-[Sat Jul 27 19:54:12] pmdastatsd(10630) Debug: verbose flag is set
-[Sat Jul 27 19:54:12] pmdastatsd(10630) Debug: debug flag is set
-[Sat Jul 27 19:54:12] pmdastatsd(10630) Debug: debug_output_filename: debug 
-[Sat Jul 27 19:54:12] pmdastatsd(10630) Debug: tcpaddr: 0.0.0.0 
-[Sat Jul 27 19:54:12] pmdastatsd(10630) Debug: port: 8125 
-[Sat Jul 27 19:54:12] pmdastatsd(10630) Debug: parser_type: BASIC 
-[Sat Jul 27 19:54:12] pmdastatsd(10630) Debug: maximum of unprocessed packets: 2048 
-[Sat Jul 27 19:54:12] pmdastatsd(10630) Debug: maximum udp packet size: 1472 
-[Sat Jul 27 19:54:12] pmdastatsd(10630) Debug: duration_aggregation_type: BASIC
-[Sat Jul 27 19:54:12] pmdastatsd(10630) Debug: ---------------------------
-[Sat Jul 27 19:54:12] pmdastatsd(10630) Info: Socket enstablished.
-[Sat Jul 27 19:54:12] pmdastatsd(10630) Info: Waiting for datagrams.
-[Sat Jul 27 19:54:15] pmdastatsd(10630) Info: Parsed: cpu_wait:200|ms
-[Sat Jul 27 19:54:15] pmdastatsd(10630) Info: Parsed: cpu_wait:100|ms
-[Sat Jul 27 19:54:15] pmdastatsd(10630) Info: Parsed: cpu_wait:200|ms
-[Sat Jul 27 19:54:15] pmdastatsd(10630) Info: Parsed: cpu_busy:100|ms
-[Sat Jul 27 19:54:15] pmdastatsd(10630) Info: Parsed: cpu_busy:10|ms
-[Sat Jul 27 19:54:15] pmdastatsd(10630) Info: Parsed: cpu_busy:20|ms
-[Sat Jul 27 19:54:15] pmdastatsd(10630) Info: Parsed: percentile:1|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:2|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:3|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:4|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:5|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:6|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:7|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:8|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:9|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:10|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:11|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:12|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:13|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:14|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:15|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:16|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:17|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:18|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:19|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:20|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:21|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:22|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:23|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:24|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:25|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:26|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:27|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:28|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:29|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:30|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:31|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:32|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:33|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:34|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:35|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:36|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:37|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:38|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:39|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:40|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:41|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:42|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:43|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:44|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:45|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:46|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:47|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:48|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:49|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:50|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:51|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:52|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:53|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:54|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:55|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:56|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:57|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:58|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:59|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:60|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:61|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:62|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:63|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:64|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:65|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:66|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:67|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:68|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:69|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:70|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:71|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:72|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:73|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:74|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:75|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:76|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:77|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:78|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:79|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:80|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:81|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:82|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:83|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:84|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:85|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:86|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:87|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:88|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:89|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:90|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:91|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:92|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:93|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:94|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:95|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:96|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:97|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:98|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:99|ms
-[Sat Jul 27 19:54:16] pmdastatsd(10630) Info: Parsed: percentile:100|ms
-[Sat Jul 27 19:54:21] pmdastatsd(10630) Debug: statsd: pmdastatsd: reloading
-[Sat Jul 27 19:54:21] pmdastatsd(10630) Debug: statsd: create_metric: statsd.cpu_busy - 510.1.0
-[Sat Jul 27 19:54:21] pmdastatsd(10630) Debug: STATSD: adding metric[6] statsd.cpu_busy 510.1.0 from statsd.cpu_busy
-[Sat Jul 27 19:54:21] pmdastatsd(10630) Debug: statsd: create_metric: statsd.cpu_wait - 510.1.1
-[Sat Jul 27 19:54:21] pmdastatsd(10630) Debug: STATSD: adding metric[7] statsd.cpu_wait 510.1.1 from statsd.cpu_wait
-[Sat Jul 27 19:54:21] pmdastatsd(10630) Debug: statsd: create_metric: statsd.percentile - 510.1.2
-[Sat Jul 27 19:54:21] pmdastatsd(10630) Debug: STATSD: adding metric[8] statsd.percentile 510.1.2 from statsd.percentile
-[Sat Jul 27 19:54:21] pmdastatsd(10630) Debug: statsd: pmdastatsd: 9 metrics and 1 instance domains after reload
+[Sun Jul 28 18:15:35] pmdastatsd(1947) Debug: <settings>
+[Sun Jul 28 18:15:35] pmdastatsd(1947) Debug: verbose flag is set
+[Sun Jul 28 18:15:35] pmdastatsd(1947) Debug: debug flag is set
+[Sun Jul 28 18:15:35] pmdastatsd(1947) Debug: debug_output_filename: debug 
+[Sun Jul 28 18:15:35] pmdastatsd(1947) Debug: tcpaddr: 0.0.0.0 
+[Sun Jul 28 18:15:35] pmdastatsd(1947) Debug: port: 8125 
+[Sun Jul 28 18:15:35] pmdastatsd(1947) Debug: parser_type: BASIC 
+[Sun Jul 28 18:15:35] pmdastatsd(1947) Debug: maximum of unprocessed packets: 2048 
+[Sun Jul 28 18:15:35] pmdastatsd(1947) Debug: maximum udp packet size: 1472 
+[Sun Jul 28 18:15:35] pmdastatsd(1947) Debug: duration_aggregation_type: BASIC
+[Sun Jul 28 18:15:35] pmdastatsd(1947) Debug: </settings>
+[Sun Jul 28 18:15:35] pmdastatsd(1947) Info: Socket enstablished.
+[Sun Jul 28 18:15:35] pmdastatsd(1947) Info: Waiting for datagrams.
+[Sun Jul 28 18:19:28] pmdastatsd(1947) Info: Parsed: login:1|c
+[Sun Jul 28 18:19:28] pmdastatsd(1947) Info: Parsed: login:3|c
+[Sun Jul 28 18:19:28] pmdastatsd(1947) Info: Parsed: login:5|c
+[Sun Jul 28 18:19:28] pmdastatsd(1947) Info: Parsed: logout:4|c
+[Sun Jul 28 18:19:28] pmdastatsd(1947) Info: Parsed: logout:2|c
+[Sun Jul 28 18:19:28] pmdastatsd(1947) Info: Parsed: logout:2|c
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: login:1|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: login:3|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: login:5|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: logout:4|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: logout:2|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: logout:2|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: login:+0.5|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: login:-0.12|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: logout:0.128|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: success:0|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: success:+5|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: success:-12|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: error:0|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: error:+9|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: error:-0|g
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: cpu_wait:200|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: cpu_wait:100|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: cpu_wait:200|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: cpu_busy:100|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: cpu_busy:10|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: cpu_busy:20|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:1|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:2|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:3|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:4|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:5|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:6|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:7|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:8|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:9|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:10|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:11|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:12|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:13|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:14|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:15|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:16|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:17|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:18|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:19|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:20|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:21|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:22|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:23|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:24|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:25|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:26|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:27|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:28|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:29|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:30|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:31|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:32|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:33|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:34|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:35|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:36|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:37|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:38|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:39|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:40|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:41|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:42|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:43|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:44|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:45|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:46|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:47|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:48|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:49|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:50|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:51|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:52|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:53|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:54|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:55|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:56|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:57|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:58|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:59|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:60|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:61|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:62|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:63|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:64|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:65|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:66|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:67|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:68|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:69|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:70|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:71|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:72|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:73|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:74|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:75|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:76|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:77|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:78|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:79|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:80|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:81|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:82|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:83|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:84|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:85|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:86|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:87|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:88|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:89|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:90|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:91|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:92|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:93|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:94|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:95|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:96|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:97|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:98|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:99|ms
+[Sun Jul 28 18:19:29] pmdastatsd(1947) Info: Parsed: percentile:100|ms
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: statsd: pmdastatsd: reloading
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: statsd: create_metric: statsd.cpu_busy - 510.1.0
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: STATSD: adding metric statsd.cpu_busy 510.1.0 from statsd.cpu_busy
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: statsd: create_metric: statsd.success - 510.1.1
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: STATSD: adding metric statsd.success 510.1.1 from statsd.success
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: statsd: create_metric: statsd.error - 510.1.2
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: STATSD: adding metric statsd.error 510.1.2 from statsd.error
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: statsd: create_metric: statsd.login - 510.1.3
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: STATSD: adding metric statsd.login 510.1.3 from statsd.login
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: statsd: create_metric: statsd.cpu_wait - 510.1.4
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: STATSD: adding metric statsd.cpu_wait 510.1.4 from statsd.cpu_wait
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: statsd: create_metric: statsd.percentile - 510.1.5
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: STATSD: adding metric statsd.percentile 510.1.5 from statsd.percentile
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: statsd: create_metric: statsd.logout - 510.1.6
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: STATSD: adding metric statsd.logout 510.1.6 from statsd.logout
+[Sun Jul 28 18:19:34] pmdastatsd(1947) Debug: statsd: pmdastatsd: 13 metrics and 1 instance domains after reload
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: login:1|c
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: login:3|c
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: login:5|c
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: logout:4|c
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: logout:2|c
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: logout:2|c
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: login:1|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: login:3|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: login:5|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: logout:4|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: logout:2|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: logout:2|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: login:+0.5|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: login:-0.12|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: logout:0.128|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Throwing away datagram. REASON: metric of same name but different type is already recorded.
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: success:0|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: success:+5|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: success:-12|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: error:0|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: error:+9|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: error:-0|g
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: cpu_wait:200|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: cpu_wait:100|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: cpu_wait:200|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: cpu_busy:100|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: cpu_busy:10|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: cpu_busy:20|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:1|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:2|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:3|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:4|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:5|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:6|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:7|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:8|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:9|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:10|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:11|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:12|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:13|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:14|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:15|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:16|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:17|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:18|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:19|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:20|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:21|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:22|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:23|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:24|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:25|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:26|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:27|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:28|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:29|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:30|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:31|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:32|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:33|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:34|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:35|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:36|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:37|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:38|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:39|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:40|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:41|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:42|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:43|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:44|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:45|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:46|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:47|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:48|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:49|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:50|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:51|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:52|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:53|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:54|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:55|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:56|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:57|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:58|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:59|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:60|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:61|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:62|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:63|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:64|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:65|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:66|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:67|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:68|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:69|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:70|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:71|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:72|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:73|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:74|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:75|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:76|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:77|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:78|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:79|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:80|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:81|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:82|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:83|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:84|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:85|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:86|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:87|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:88|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:89|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:90|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:91|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:92|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:93|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:94|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:95|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:96|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:97|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:98|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:99|ms
+[Sun Jul 28 18:20:17] pmdastatsd(1947) Info: Parsed: percentile:100|ms

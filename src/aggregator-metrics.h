@@ -14,7 +14,7 @@ typedef dict metrics;
 struct metric_metadata {
     char* tags;
     double sampling;
-    pmID pmid;
+    pmID pmid; // this could be saved as char* as we convert it most of the time we access it
 } metric_metadata;
 
 struct metric {

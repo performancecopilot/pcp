@@ -21,22 +21,6 @@
 #include "utils.h"
 #include "../domain.h"
 
-static pmdaInstid g_duration[] = {
-    { 0, "min" },
-    { 1, "max" },
-    { 2, "median" },
-    { 3, "average" },
-    { 4, "percentile90" },
-    { 5, "percentile95" },
-    { 6, "percentile99" },
-    { 7, "count" },
-    { 8, "std_derivation" }
-};
-
-static pmdaIndom g_instance_domains[] = {
-    { 0, sizeof(g_duration) / sizeof(g_duration[0]), g_duration }
-};
-
 void signal_handler(int num) {
     if (num == SIGUSR1) {
         aggregator_request_output();
@@ -44,7 +28,7 @@ void signal_handler(int num) {
 }
 
 static void
-free_metric_reverse_lookup_record(struct pcp_reverse_lookup_record* item) {
+free_metric_reverse_lookup_record(struct pmid_reverse_lookup_record* item) {
     if (item != NULL) {
         if (item->name != NULL) {
             free(item->name);
@@ -56,7 +40,7 @@ free_metric_reverse_lookup_record(struct pcp_reverse_lookup_record* item) {
 static void
 metric_reverse_lookup_free_callback(void *privdata, void *val)
 {
-    free_metric_reverse_lookup_record((struct pcp_reverse_lookup_record*)val);
+    free_metric_reverse_lookup_record((struct pmid_reverse_lookup_record*)val);
 }
 
 static void*
@@ -82,17 +66,6 @@ metric_reverse_lookup_hash_callback(const void *key)
     return dictGenCaseHashFunction((unsigned char *)key, strlen((char *)key));
 }
 
-/**
- * Callbacks for metrics hashtable
- */
-static dictType metric_reverse_lookup_callbacks = {
-    .hashFunction	= metric_reverse_lookup_hash_callback,
-    .keyCompare		= metric_reverse_lookup_compare_callback,
-    .keyDup		    = metric_reverse_lookup_key_duplicate_callback,
-    .keyDestructor	= metric_reverse_lookup_free_callback,
-    .valDestructor	= metric_reverse_lookup_free_callback,
-};
-
 #define SET_INST_NAME(name, index) \
     duration_instances[index].i_inst = index; \
     len = pmsprintf(buff, 20, "%s", name); \
@@ -100,6 +73,10 @@ static dictType metric_reverse_lookup_callbacks = {
     ALLOC_CHECK("Unable to allocate memory for static PMDA instance descriptor."); \
     memcpy(duration_instances[index].i_name, buff, len + 1);
 
+/**
+ * Registers hardcoded instances before PMDA initializes itself fully
+ * @arg pmda - PMDA extension structure (contains agent-specific private data)
+ */
 static void
 create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
     data->pcp_instance_domains = (pmdaIndom*) malloc(sizeof(pmdaIndom));
@@ -124,7 +101,7 @@ create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
 }
 
 /**
- * Registers hardcoded metrics that are registered before PMDA agent initializes itself fully
+ * Registers hardcoded metrics before PMDA initializes itself fully
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
 static void
@@ -166,12 +143,22 @@ init_data_ext(
     struct pmda_metrics_container* metrics_storage,
     struct pmda_stats_container* stats_storage
 ) {
+    /**
+     * Callbacks for metrics hashtable
+     */
+    static dictType metric_reverse_lookup_callbacks = {
+        .hashFunction	= metric_reverse_lookup_hash_callback,
+        .keyCompare		= metric_reverse_lookup_compare_callback,
+        .keyDup		    = metric_reverse_lookup_key_duplicate_callback,
+        .keyDestructor	= metric_reverse_lookup_free_callback,
+        .valDestructor	= metric_reverse_lookup_free_callback,
+    };
     data->config = config;
     create_statsd_hardcoded_metrics(data);
     create_statsd_hardcoded_instances(data);
     data->metrics_storage = metrics_storage;
     data->stats_storage = stats_storage;
-    data->pcp_metric_reverse_lookup = dictCreate(&metric_reverse_lookup_callbacks, NULL);
+    data->pmid_reverse_lookup = dictCreate(&metric_reverse_lookup_callbacks, NULL);
     data->generation = -1; // trigger first mapping of metrics for PMNS 
     data->next_cluster_id = 1;
     data->next_item_id = 0;
