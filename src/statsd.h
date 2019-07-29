@@ -4,15 +4,17 @@
 #include <chan/chan.h>
 #include <pcp/pmapi.h>
 #include <pcp/pmda.h>
-#include <pcp/dict.h>
 
 #include "config-reader.h"
+#include "aggregator-metrics.h"
 
 #define DURATION_INDOM 0
 
-struct pmid_reverse_lookup_record {
-    char* name;
-} pmid_reverse_lookup_record;
+struct pmda_metric_helper {
+    struct pmda_data_extension* data;
+    const char* key;
+    struct metric* item;
+} pmda_metric_helper;
 
 struct pmda_data_extension {
     struct agent_config* config;
@@ -21,7 +23,6 @@ struct pmda_data_extension {
     pmdaMetric* pcp_metrics;
     pmdaIndom* pcp_instance_domains;
     pmdaNameSpace* pcp_pmns;
-    dict* pmid_reverse_lookup;
     size_t pcp_instance_domain_count;
     size_t pcp_metric_count;
     size_t generation;

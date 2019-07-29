@@ -251,14 +251,15 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
  * Synchronized by mutex on pmda_metrics_container
  */
 void
-iterate_over_metrics(struct pmda_metrics_container* container, void(*callback)(struct metric*, void*), void* privdata) {
+iterate_over_metrics(struct pmda_metrics_container* container, void(*callback)(char* key, struct metric*, void*), void* privdata) {
     pthread_mutex_lock(&container->mutex);
     metrics* m = container->metrics;
     dictIterator* iterator = dictGetSafeIterator(m);
     dictEntry* current;
     while ((current = dictNext(iterator)) != NULL) {
         struct metric* item = (struct metric*)current->v.val;
-        callback(item, privdata);
+        char* key = (char*)current->key;
+        callback(key, item, privdata);
     }
     dictReleaseIterator(iterator);
     pthread_mutex_unlock(&container->mutex);
@@ -419,6 +420,7 @@ create_metric_meta(struct statsd_datagram* datagram) {
         memcpy(meta->tags, datagram->tags, strlen(datagram->tags) + 1);
     }
     meta->pmid = PM_ID_NULL;
+    meta->pcp_name = NULL;
     return meta;
 }
 
@@ -430,6 +432,9 @@ void
 free_metric_metadata(struct metric_metadata* meta) {
     if (meta->tags != NULL) {
         free(meta->tags);
+    }
+    if (meta->pcp_name != NULL) {
+        free((char*)meta->pcp_name);
     }
     if (meta != NULL) {
         free(meta);

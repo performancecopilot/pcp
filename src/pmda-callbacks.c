@@ -47,24 +47,35 @@ reset_pmID_counters(struct pmda_data_extension* data) {
 }
 
 /**
- * Adds new metric to pcp metric table and pcp pmns and then increments total metric count 
+ * Adds new metric to pcp metric table and pcp pmns and then increments total metric count
+ * @arg key  - Key under which metric is saved in hashtable
  * @arg item - StatsD Metric from which to extract what PCP Metric to create 
  * @arg data - PMDA extension structure (contains agent-specific private data)
  */
 static void
-add_pcp_metric(struct metric* item, pmdaExt* pmda) {
+add_pcp_metric(char* key, struct metric* item, pmdaExt* pmda) {
     struct pmda_data_extension* data = (struct pmda_data_extension*)pmdaExtGetData((pmdaExt*)pmda);
-    // setup new metric name    
+    // set pmid to metric
+    item->meta->pmid = get_next_pmID(data);
+    // set pcp_name to metric
     char name[64];
-    pmsprintf(name, 64, "statsd.%s", item->name);
-    DEBUG_LOG("statsd: create_metric: %s - %s", name, pmIDStr(item->meta->pmid));
+    size_t len = pmsprintf(name, 64, "statsd.%s", item->name);
+    item->meta->pcp_name = (char*) malloc(sizeof(char) * len);
+    ALLOC_CHECK("Unable to allocate mem for PCP metric name for StatsD metric.");
+    item->meta->pcp_name = name;
+    DEBUG_LOG("statsd: create_metric: %s - %s", item->meta->pcp_name, pmIDStr(item->meta->pmid));
     // extend current pcp_metrics
     data->pcp_metrics = realloc(data->pcp_metrics, sizeof(pmdaMetric) * (data->pcp_metric_count + 1));
     ALLOC_CHECK("Cannot grow statsd metric list");
     // .. with new metric description 
     size_t i = data->pcp_metric_count;
     pmdaMetric* new_metric = &data->pcp_metrics[i];
-    new_metric->m_user = data;
+    struct pmda_metric_helper* helper = (struct pmda_metric_helper*) malloc(sizeof(struct pmda_metric_helper));
+    ALLOC_CHECK("Unable to allocate mem for metric helper struct.");
+    helper->key = key;
+    helper->item = item;
+    helper->data = data;
+    new_metric->m_user = helper;
     new_metric->m_desc.pmid = item->meta->pmid;
     new_metric->m_desc.type = PM_TYPE_DOUBLE;
     if (item->type == METRIC_TYPE_DURATION) {
@@ -75,7 +86,7 @@ add_pcp_metric(struct metric* item, pmdaExt* pmda) {
     new_metric->m_desc.sem = PM_SEM_INSTANT;
     memset(&new_metric->m_desc.units, 0, sizeof(pmUnits));
     DEBUG_LOG(
-        "STATSD: adding metric %s %s from %s\n",  name, pmIDStr(item->meta->pmid), name
+        "STATSD: adding metric %s %s from %s\n", item->meta->pcp_name, pmIDStr(item->meta->pmid), item->name
     );
     // now add the new pmid into pmdaTree
     data->pcp_metric_count += 1;
@@ -84,39 +95,26 @@ add_pcp_metric(struct metric* item, pmdaExt* pmda) {
 
 /**
  * This gets called for every StatsD metric that has been aggregated already,
- * registers it within PCP space and while doing that assigns it unique PMID and
- * sets up reverse lookup record so that we can recover metric via PMID in fetch callbacks in constant time
+ * registers it within PCP space and while doing that assigns it unique PMID and PCP metric name 
+ * @arg key  - Key under which metric is saved in hashtable
  * @arg item - Metric that is to be processed
  * @arg pmda - pmdaExt
+ * 
+ * Synchronized - Metric collection is locked while this is ongoing
  */
 static void
-metric_foreach_callback(struct metric* item, void* pmda) {
+metric_foreach_callback(char* key, struct metric* item, void* pmda) {
     // this prevents creating of metrics/labels that have tags as we don't deal with those yet
     if (item->meta->tags != NULL || item->meta->sampling) return;
     struct pmda_data_extension* data = (struct pmda_data_extension*)pmdaExtGetData((pmdaExt*)pmda);
-    // lets check if metric already has pmid assigned
-    // if it does, check if we have it in reverse lookup table
+    // lets check if metric already has pmid assigned, if so it has PCP name as well, then just insert it into tree
     if (item->meta->pmid != PM_ID_NULL) {
-        // reinsert record into PMNS
-        dictEntry* result = dictFind(data->pmid_reverse_lookup, pmIDStr(item->meta->pmid));
-        struct pmid_reverse_lookup_record* record = (struct pmid_reverse_lookup_record*)result->v.val;
-        pmdaTreeInsert(data->pcp_pmns, item->meta->pmid, record->name);
+        pmdaTreeInsert(data->pcp_pmns, item->meta->pmid, item->meta->pcp_name);
         data->pcp_metric_count += 1;
     } 
-    // else create new one, set it in original metric record, create reverse lookup record and add it to list of pcp metrics
+    // else create new one, set it in original metric record, create new PCP metric record
     else {
-        // assign it, so that we can reuse it if need be
-        item->meta->pmid = get_next_pmID(data);
-        // create new reverse lookup record for it, so that we can easily get metric name from pmID
-        struct pmid_reverse_lookup_record* record =
-            (struct pmid_reverse_lookup_record*) malloc(sizeof(pmid_reverse_lookup_record));
-        ALLOC_CHECK("Unable to create new reverse lookup record.");
-        record->name = item->name;
-        if (dictAdd(data->pmid_reverse_lookup, (void*)pmIDStr(item->meta->pmid), record) != 0) {
-            DEBUG_LOG("Unable to create new reverse lookup record.");
-        }
-        // add metric to pcp metrics and insert record about it into PMNS
-        add_pcp_metric(item, (pmdaExt*)pmda);
+        add_pcp_metric(key, item, (pmdaExt*)pmda);
     }
 }
 
@@ -394,22 +392,10 @@ statsd_label_callback(pmInDom in_dom, unsigned int inst, pmLabelSet** lp) {
 
 static int
 statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmAtomValue** atom) {
-    struct pmda_data_extension* data = (struct pmda_data_extension*) mdesc->m_user;
+    struct pmda_metric_helper* helper = (struct pmda_metric_helper*) mdesc->m_user;
+    struct pmda_data_extension* data = helper->data;
     struct agent_config* config = data->config;
-    // look for metric name in reverse lookup table
-    dictEntry* entry = dictFind(data->pmid_reverse_lookup, pmIDStr(mdesc->m_desc.pmid));
-    // if there is no record, request must be incorrect 
-    if (entry == NULL) {
-        return PM_ERR_PMID;
-    }
-    char* metric_name = ((struct pmid_reverse_lookup_record*)entry->v.val)->name;
-    char* metric_storage_key = create_metric_dict_key(metric_name, NULL);
-    struct metric* result;
-    // fetch statsd metric record
-    if (find_metric_by_name(data->metrics_storage, metric_storage_key, &result) == 0) {
-        DEBUG_LOG("pmid reverse lookup and statsd metric storage mismatch.");
-        return PM_ERR_GENERIC;
-    }
+    struct metric* result = helper->item;
     int status;
     static struct duration_values_meta meta;
     // now return response based on metric type
@@ -474,11 +460,11 @@ statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pm
  */
 int
 statsd_fetch_callback(pmdaMetric* mdesc, unsigned int instance, pmAtomValue* atom) {
-    struct pmda_data_extension* data = (struct pmda_data_extension*) mdesc->m_user;
+    struct pmda_metric_helper* helper = (struct pmda_metric_helper*) mdesc->m_user;
+    struct pmda_data_extension* data = helper->data;
     struct agent_config* config = data->config;
     struct pmda_stats_container* stats = data->stats_storage;
     struct pmda_metrics_container* metrics = data->metrics_storage;
-    dict* reverse_lookup_table = data->pmid_reverse_lookup;
     unsigned int cluster = pmID_cluster(mdesc->m_desc.pmid);
     unsigned int item = pmID_item(mdesc->m_desc.pmid);
     int status;

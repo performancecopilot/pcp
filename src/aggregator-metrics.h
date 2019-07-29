@@ -15,6 +15,7 @@ struct metric_metadata {
     char* tags;
     double sampling;
     pmID pmid; // this could be saved as char* as we convert it most of the time we access it
+    const char* pcp_name; // name within pcp pmns
 } metric_metadata;
 
 struct metric {
@@ -103,7 +104,7 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
  * Synchronized by mutex on pmda_metrics_container
  */
 void
-iterate_over_metrics(struct pmda_metrics_container* container, void(*callback)(struct metric*, void*), void* privdata);
+iterate_over_metrics(struct pmda_metrics_container* container, void(*callback)(char* key, struct metric*, void*), void* privdata);
 
 /**
  * Finds metric by name

@@ -1,5 +1,5 @@
 #!/bin/bash
 
-./data/counter/valid.sh
-./data/gauge/valid.sh
-./data/duration/valid.sh
+./counter/valid.sh
+./gauge/valid.sh
+./duration/valid.sh
