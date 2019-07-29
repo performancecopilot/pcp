@@ -23,6 +23,6 @@ script:
   - sudo mkdir $PCP_PMDAS_DIR/statsd
   - sudo mv $TRAVIS_BUILD_DIR/* $PCP_PMDAS_DIR/statsd
   - cd $PCP_PMDAS_DIR/statsd
-  - make
-  - make test-ragel
-  - make test-basic
+  - sudo make
+  - sudo make test-ragel
+  - sudo make test-basic
