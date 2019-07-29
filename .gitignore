@@ -1,6 +1,8 @@
 build
 src/parser-ragel.c
 .vscode
+help.dir
+help.dag
 debug
 autom4te.cache
 pmdastatsd
