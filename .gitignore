@@ -6,3 +6,4 @@ help.dag
 debug
 autom4te.cache
 pmdastatsd
+statsd.log
