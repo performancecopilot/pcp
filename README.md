@@ -154,7 +154,7 @@ Where value can be in a form of:
 - **'+{value}'**, when positive value with leading plus sign is supplied agent will add passed value to the value stored
 - **'{value}'**, when value without any leading sign is supplied, agent will set the metric to the passed value 
 
-Initial value for metric gauge is at 0.
+Initial value for metric of gauge type is 0.
 
 ### Example
 
@@ -208,7 +208,7 @@ std_derivation: 5
 ```
 
 ## Note
-Once you send given _metricname_ with specified _type_, agent will no longer aggregate any messages with same _metricname__ but different _type_ and will throw them away.
+Once you send given _metricname_ with specified _type_, agent will no longer aggregate any messages with same _metricname_ but different _type_ and will throw them away.
 
 ## Hardcoded stats
 Agent also exports metrics about itself:
