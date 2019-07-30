@@ -277,7 +277,8 @@ persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
     	if (read(fd, path, sizeof(path)-1) > 0) {
 	    if ((p = strchr(path, '\n')) != NULL)
 	    	*p = '\0';
-	    strncpy(namebuf, path, MIN((sizeof(path)-1), namelen));
+	    strncpy(namebuf, path, namelen-1);
+	    namebuf[namelen-1] = '\0';	/* buffer overrun guard */
 	    found = 1;
 	}
     	close(fd);
@@ -296,7 +297,8 @@ persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
 		if (stat(path, &sb) != 0 || !S_ISBLK(sb.st_mode))
 		    continue; /* only interested in block devices */
 		if (devmajor == major(sb.st_rdev) && devminor == minor(sb.st_rdev)) {
-		    strncpy(namebuf, dentry->d_name, namelen);
+		    strncpy(namebuf, dentry->d_name, namelen-1);
+		    namebuf[namelen-1] = '\0';	/* buffer overrun guard */
 		    found = 1;
 		    break;
 		}

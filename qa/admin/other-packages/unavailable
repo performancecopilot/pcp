@@ -24,6 +24,7 @@ Debian       8\.[11]  - docker.io avahi-tools cpan(Spreadsheet::ReadSXC) cpan(Te
 Fedora       26       -       kubectl kubernetes-client kubernetes-node libvarlink-devel python3-bcc python3-prometheus_client
 Fedora       27       -       libvarlink-devel python3-prometheus_client
 Fedora       2[89]    i.86    389-ds-base kubectl kubernetes-client kubernetes-node python3-bcc
+Fedora       30       -       apache2 avahi-utils kubectl libavahi-devel libboost-devel mariadb-client mozilla-nspr-devel mozilla-nss-devel mozilla-nss-tools perl-ldap perl-Spreadsheet-Read perl-Spreadsheet-ReadSXC python3-Pillow python3-rtslib-fb sensors zabbix22-agent
 #-- FreeBSD
 FreeBSD      10\.4    -       lm_sensors
 FreeBSD      11\.[12] -       libibmad libibumad lm_sensors

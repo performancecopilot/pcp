@@ -33,7 +33,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	deprecated.c
 HFILES = derive.h internal.h compiler.h pmdbg.h jsonsl.h sort_r.h \
 	avahi.h subnetprobe.h shellprobe.h
-EXT_FILES = jsonsl.h jsonsl.c sort_r.h
+EXT_FILES =
 YFILES = getdate.y derive_parser.y
 GENERATED_HFILES = pmdbg.h
 

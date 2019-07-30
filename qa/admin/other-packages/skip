@@ -35,6 +35,9 @@ Debian       buster   -       python-.*
 Fedora       29       i.86    389-ds
 # we're using python3 from Fedora26 onwards
 Fedora       2[6-9]   -       python-.* python2-.* 
+Fedora       3[0-9]   -       python-.* python2-.* 
+# and prefer mariadb over mysql
+Fedora       3[0-9]   -       community-mysql mysql
 #-- Gentoo
 # observed on vm05
 # I cannot figure out how to remake this package with USE=utils so that
