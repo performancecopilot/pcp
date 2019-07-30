@@ -23,7 +23,6 @@ import atexit
 from ctypes import c_int
 
 import cpmapi as c_api
-from cpmda import PMDA_FETCH_NOVALUES
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaGetContext
 from pcp.pmapi import pmUnits, pmContext as PCP
 
@@ -33,15 +32,15 @@ from bpftrace import BPFtrace, BPFtraceError
 class Consts: # pylint: disable=too-few-public-methods
     """PMDA constants"""
     class Control:
-        """constants of control cluster"""
-        Cluster = 0
-        Register = 0
+        """cluster number and items of control cluster"""
+        Cluster = 0 # cluster number
+        Register = 0 # items
         Deregister = 1
         Start = 2
         Stop = 3
         Scripts = 4
     class Script:
-        """constants of script clusters"""
+        """items of script clusters"""
         Status = 0
         Pid = 1
         ExitCode = 2
@@ -171,12 +170,15 @@ class BPFtraceScript:
 
     def label(self, ident, type_):
         """PMDA label"""
-        # pmid could be one of status, pid, exit_code, ...
-        if type_ == c_api.PM_LABEL_ITEM and ident in self.pmid_to_var:
-            var_name = self.pmid_to_var[ident]
-            metrictype = self.bpftrace.var_defs[var_name].metrictype
-            if metrictype:
-                return '{{"metrictype":"{}"}}'.format(metrictype)
+        if type_ == c_api.PM_LABEL_ITEM:
+            if ident in [Consts.Script.Status, Consts.Script.Pid, Consts.Script.ExitCode,
+                         Consts.Script.Output, Consts.Script.Probes, Consts.Script.Script]:
+                return '{"metrictype":"control"}'
+            elif ident in self.pmid_to_var:
+                var_name = self.pmid_to_var[ident]
+                metrictype = self.bpftrace.var_defs[var_name].metrictype
+                if metrictype:
+                    return '{{"metrictype":"{}"}}'.format(metrictype)
         return '{}'
 
     def refresh_callback(self):
@@ -200,26 +202,29 @@ class BPFtraceScript:
         elif item == Consts.Script.Pid:
             if self.state.pid:
                 return [self.state.pid, 1]
-            return [PMDA_FETCH_NOVALUES, 0]
+            return [c_api.PM_ERR_VALUE, 0]
         elif item == Consts.Script.ExitCode:
             if self.state.exit_code:
                 return [self.state.exit_code, 1]
-            return [PMDA_FETCH_NOVALUES, 0]
+            return [c_api.PM_ERR_VALUE, 0]
         elif item == Consts.Script.Output:
             return [self.state.output.strip(), 1]
         elif item == Consts.Script.Probes:
             return [self.state.probes, 1]
         elif item == Consts.Script.Script:
             return [self.bpftrace.script, 1]
-        else:
+        elif item in self.item_to_var:
             var_name = self.item_to_var[item]
             if var_name not in self.state.maps:
-                return [PMDA_FETCH_NOVALUES, 0]
+                return [c_api.PM_ERR_VALUE, 0]
+
             if self.bpftrace.var_defs[var_name].single:
                 return [self.state.maps[var_name], 1]
             else:
                 key = self.indoms[var_name].inst_name_lookup(inst)
-                return [self.state.maps[var_name][key], 1]
+                if key and key in self.state.maps[var_name]:
+                    return [self.state.maps[var_name][key], 1]
+                return [c_api.PM_ERR_INST, 0]
         return [c_api.PM_ERR_PMID, 0]
 
 
@@ -477,10 +482,13 @@ class BPFtracePMDA(PMDA):
                 return [json.dumps(self.get_ctx_state('stop')), 1]
             elif item == Consts.Control.Scripts:
                 name = self.script_indom.inst_name_lookup(inst)
+                if not name:
+                    return [c_api.PM_ERR_INST, 0]
+
                 script = self.find_script_by_name(name)
                 if script:
                     return [script.script, 1]
-                return [PMDA_FETCH_NOVALUES, 0]
+                return [c_api.PM_ERR_INST, 0]
         elif cluster in self.scripts:
             return self.scripts[cluster].fetch_callback(item, inst)
         return [c_api.PM_ERR_PMID, 0]
