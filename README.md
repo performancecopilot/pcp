@@ -53,7 +53,7 @@ This repository contains an agent that collects [StatsD](https://github.com/stat
 ## Uninstallation steps
 
 1. Run **sudo make deactivate** within $PCP_PMDAS_DIR/statsd/ directory
-2. Remove the stats folder
+2. Remove the statsd folder
 
 # Configuration
 
