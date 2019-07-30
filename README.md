@@ -135,7 +135,7 @@ metric:10|c
 metric:3.3|c
 ```
 
-Then value available to PCP will be:
+Value available to PCP will be:
 
 ```
 pmval statsd.metric
@@ -166,7 +166,7 @@ metric:+10|g
 metric:-3.3|g
 ```
 
-Then value available to PCP will be:
+Value available to PCP will be:
 
 ```
 pmval statsd.metric
@@ -191,7 +191,7 @@ metric:10|ms
 metric:20|ms
 ```
 
-Then values available to PCP will be:
+Values available to PCP will be:
 
 ```
 pmval statsd.metric
