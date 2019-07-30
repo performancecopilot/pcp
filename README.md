@@ -66,7 +66,7 @@ It accepts following parameters:
 - **tcp_address** - On which IP is agent listening for incoming trafic <br>default: _0.0.0.0_
 - **port** - On which port is agent listening for incoming trafic <br>default: _8125_
 - **verbose** - Flag controlling whether or not to allow verbose logging <br>default: _0_
-- **debug** - Flag controlling whether or now to allow debug logging <br>default: _0_
+- **debug** - Flag controlling whether or not to allow debug logging <br>default: _0_
 - **debug_output_filename** - You can send USR1 signal that 'asks' agent to output basic information about all aggregated metric into a file with this name <br>default: _debug_
 - **version** - Flag controlling whether or not to log current agent version on start <br>default: _0_
 - **parser_type** - Flag specifying which algorithm to use for parsing incoming datagrams, 0 = basic, 1 = Ragel <br>default: _0_
