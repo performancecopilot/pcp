@@ -11,6 +11,18 @@
 
 typedef dict metrics;
 
+enum DURATION_INSTANCE {
+    DURATION_MIN,
+    DURATION_MAX,
+    DURATION_MEDIAN,
+    DURATION_AVERAGE,
+    DURATION_PERCENTILE90,
+    DURATION_PERCENTILE95,
+    DURATION_PERCENTILE99,
+    DURATION_COUNT,
+    DURATION_STANDARD_DEVIATION
+} DURATION_INSTANCE;
+
 struct metric_metadata {
     char* tags;
     double sampling;

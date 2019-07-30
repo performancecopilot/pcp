@@ -77,22 +77,18 @@ update_duration_metric(struct agent_config* config, struct metric* item, struct 
  * Extracts duration metric meta values from duration metric record
  * @arg config - Config which contains info on which duration aggregating type we are using
  * @arg item - Metric item from which to extract duration values
- * @arg out - Dest to populate with data, allocates memory
- * @return 1 on success
+ * @arg instance - What information to extract
+ * @return duration instance value
  */
-int
-get_duration_values_meta(struct agent_config* config, struct metric* item, struct duration_values_meta* out) {
-    ALLOC_CHECK("Unable to allocate memory for duration values.");
-    int status = 0;
+double
+get_duration_instance(struct agent_config* config, struct metric* item, enum DURATION_INSTANCE instance) {
+    double result = 0;
     if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_BASIC) {
-        status = get_exact_duration_values_meta((struct exact_duration_collection*)item->value, &out);
+        result = get_exact_duration_instance((struct exact_duration_collection*)item->value, instance);
     } else {
-        status = get_hdr_duration_values_meta((struct hdr_histogram*)item->value, &out);
+        result = get_hdr_histogram_duration_instance((struct hdr_histogram*)item->value, instance);
     }
-    if (status != 1) {
-        VERBOSE_LOG("Failed to correctly extract duration values.");
-    }
-    return status;
+    return result;
 }
 
 /**

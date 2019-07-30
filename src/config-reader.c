@@ -45,6 +45,8 @@ ini_line_handler(void* user, const char* section, const char* name, const char* 
     #define MATCH(x) strcmp(x, name) == 0
     if (MATCH("max_udp_packet_size")) {
         dest->max_udp_packet_size = strtoull(value, NULL, 10);
+    } else if(MATCH("max_unprocessed_packets")) {
+        dest->max_unprocessed_packets = atoi(value);
     } else if (MATCH("tcp_address")) {
         dest->tcp_address = (char*) malloc(length);
         ALLOC_CHECK("Unable to assign memory for config tcp address.");

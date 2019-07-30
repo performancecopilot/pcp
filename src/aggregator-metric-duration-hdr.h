@@ -24,13 +24,13 @@ void
 update_hdr_duration_value(struct hdr_histogram* histogram, long long unsigned int value);
 
 /**
- * Gets duration values meta data from given collection, as a sideeffect it sorts the values
+ * Gets duration values meta data histogram
  * @arg collection - Target collection
- * @arg out - Placeholder for data population
- * @return 1 on success
+ * @arg instance - Placeholder for data population
+ * @return duration instance value
  */
-int
-get_hdr_duration_values_meta(struct hdr_histogram* histogram, struct duration_values_meta** out);
+double
+get_hdr_histogram_duration_instance(struct hdr_histogram* histogram, enum DURATION_INSTANCE instance);
 
 /**
  * Prints duration collection metadata in human readable way

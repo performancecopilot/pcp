@@ -5,8 +5,9 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <string.h>
+#include <hdr/hdr_histogram.h>
 
-#include "statsd.h"
+#include "pmdastatsd.h"
 #include "aggregator-metrics.h"
 #include "aggregator-stats.h"
 #include "aggregator-metric-duration-exact.h"
@@ -411,37 +412,34 @@ statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pm
         // duration passes values trough instances
         case METRIC_TYPE_DURATION:
             pthread_mutex_lock(&data->metrics_storage->mutex);
-            if (get_duration_values_meta(data->config, result, &meta) != 1) {
-                return PM_ERR_GENERIC;
-            }
             status = PMDA_FETCH_STATIC;
             switch (instance) {
                 case 0:
-                    (*atom)->d = meta.min;
+                    (*atom)->d = get_duration_instance(config, result, DURATION_MIN);
                     break;
                 case 1:
-                    (*atom)->d = meta.max;
+                    (*atom)->d = get_duration_instance(config, result, DURATION_MAX);
                     break;
                 case 2:
-                    (*atom)->d = meta.median;
+                    (*atom)->d = get_duration_instance(config, result, DURATION_MEDIAN);
                     break;
                 case 3:
-                    (*atom)->d = meta.average;
+                    (*atom)->d = get_duration_instance(config, result, DURATION_AVERAGE);
                     break;
                 case 4:
-                    (*atom)->d = meta.percentile90;
+                    (*atom)->d = get_duration_instance(config, result, DURATION_PERCENTILE90);
                     break;
                 case 5:
-                    (*atom)->d = meta.percentile95;
+                    (*atom)->d = get_duration_instance(config, result, DURATION_PERCENTILE95);
                     break;
                 case 6:
-                    (*atom)->d = meta.percentile99;
+                    (*atom)->d = get_duration_instance(config, result, DURATION_PERCENTILE99);
                     break;
                 case 7:
-                    (*atom)->d = meta.count;
+                    (*atom)->d = get_duration_instance(config, result, DURATION_COUNT);
                     break;
                 case 8:
-                    (*atom)->d = meta.std_deviation;
+                    (*atom)->d = get_duration_instance(config, result, DURATION_STANDARD_DEVIATION);
                     break;
                 default:
                     status = PM_ERR_INST;

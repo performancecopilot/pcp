@@ -11,7 +11,7 @@
 #include <signal.h>
 #include <pcp/pmapi.h>
 
-#include "statsd.h"
+#include "pmdastatsd.h"
 #include "config-reader.h"
 #include "network-listener.h"
 #include "aggregators.h"
@@ -20,6 +20,8 @@
 #include "pmda-callbacks.h"
 #include "utils.h"
 #include "../domain.h"
+
+#define VERSION 0.9
 
 void signal_handler(int num) {
     if (num == SIGUSR1) {
@@ -136,7 +138,7 @@ main(int argc, char** argv)
     pmsprintf(
         config_file_path,
         MAXPATHLEN,
-        "%s" "%c" "statsd" "%c" "statsd-pmda.ini",
+        "%s" "%c" "statsd" "%c" "pmdastatsd.ini",
         pmGetConfig("PCP_PMDAS_DIR"),
         sep, sep);
     pmsprintf(
@@ -154,6 +156,9 @@ main(int argc, char** argv)
     pmdaOpenLog(&dispatch);
     if (config.debug) {
         print_agent_config(&config);
+    }
+    if (config.show_version) {
+        pmNotifyErr(LOG_INFO, "Version: %f", VERSION);
     }
 
     struct pmda_metrics_container* metrics = init_pmda_metrics(&config);

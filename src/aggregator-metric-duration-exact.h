@@ -44,11 +44,11 @@ remove_exact_duration_item(struct exact_duration_collection* collection, double 
 /**
  * Gets duration values meta data from given collection, as a sideeffect it sorts the values
  * @arg collection - Target collection
- * @arg out - Placeholder for data population
- * @return 1 on success
+ * @arg instance - What information to extract
+ * @return duration instance value
  */
-int
-get_exact_duration_values_meta(struct exact_duration_collection* collection, struct duration_values_meta** out);
+double
+get_exact_duration_instance(struct exact_duration_collection* collection, enum DURATION_INSTANCE instance);
 
 /**
  * Prints duration collection metadata in human readable way

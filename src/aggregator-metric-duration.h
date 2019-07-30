@@ -23,7 +23,7 @@ create_duration_metric(struct agent_config* config, struct statsd_datagram* data
  * @arg config - Config from which we know what duration type is, either HDR or exact
  * @arg item - Item to be updated
  * @arg datagram - Data to update the item with
- * @return 1 on success, 0 on fail
+ * @return duration instance value
  */
 int
 update_duration_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram);
@@ -32,11 +32,11 @@ update_duration_metric(struct agent_config* config, struct metric* item, struct 
  * Extracts duration metric meta values from duration metric record
  * @arg config - Config which contains info on which duration aggregating type we are using
  * @arg item - Metric item from which to extract duration values
- * @arg out - Dest to populate with data, allocates memory
+ * @arg instance - What information to extract
  * @return 1 on success
  */
-int
-get_duration_values_meta(struct agent_config* config, struct metric* item, struct duration_values_meta* out);
+double
+get_duration_instance(struct agent_config* config, struct metric* item, enum DURATION_INSTANCE instance);
 
 /**
  * Prints duration metric information

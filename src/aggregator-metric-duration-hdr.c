@@ -32,26 +32,38 @@ update_hdr_duration_value(struct hdr_histogram* histogram, long long unsigned in
 }
 
 /**
- * Gets duration values meta data from given collection, as a sideeffect it sorts the values
+ * Gets duration values meta data histogram
  * @arg collection - Target collection
- * @arg out - Placeholder for data population
- * @return 1 on success
+ * @arg instance - Placeholder for data population
+ * @return duration instance value
  */
-int
-get_hdr_duration_values_meta(struct hdr_histogram* histogram, struct duration_values_meta** out) {
+double
+get_hdr_histogram_duration_instance(struct hdr_histogram* histogram, enum DURATION_INSTANCE instance) {
     if (histogram == NULL) {
         return 0;
     }
-    (*out)->min = hdr_min(histogram);
-    (*out)->max = hdr_max(histogram);
-    (*out)->count = histogram->total_count;
-    (*out)->average = hdr_mean(histogram);
-    (*out)->median = hdr_value_at_percentile(histogram, 50);
-    (*out)->percentile90 = hdr_value_at_percentile(histogram, 90);
-    (*out)->percentile95 = hdr_value_at_percentile(histogram, 95);
-    (*out)->percentile99 = hdr_value_at_percentile(histogram, 99);
-    (*out)->std_deviation = hdr_stddev(histogram);
-    return 1;
+    switch (instance) {
+        case DURATION_MIN:
+            return hdr_min(histogram);
+        case DURATION_MAX:
+            return hdr_max(histogram);     
+        case DURATION_COUNT:
+            return histogram->total_count;
+        case DURATION_AVERAGE:
+            return hdr_mean(histogram);
+        case DURATION_MEDIAN:
+            return hdr_value_at_percentile(histogram, 50);
+        case DURATION_PERCENTILE90:
+            return hdr_value_at_percentile(histogram, 90);
+        case DURATION_PERCENTILE95:
+            return hdr_value_at_percentile(histogram, 95);
+        case DURATION_PERCENTILE99:
+            return hdr_value_at_percentile(histogram, 99);
+        case DURATION_STANDARD_DEVIATION:
+            return hdr_stddev(histogram);
+        default:
+            return 0;
+    }
 }
 
 /**
