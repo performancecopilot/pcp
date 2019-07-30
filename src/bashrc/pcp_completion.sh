@@ -65,7 +65,7 @@ _pcp_complete()
         arg_regex="-[nSTZ]"
     ;;
     pmlogextract)
-        all_args="cdfmSsTvwZz"
+        all_args="cdfmSsTvwxZz"
         arg_regex="-[cSsTvZ]"
     ;;
     pmlogsummary)
