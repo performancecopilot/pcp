@@ -64,7 +64,22 @@ char *getoptions(int argc, char **argv, char *arg)
 {
     int length = strlen(arg) + 1;
     char *string = (char *)malloc(length);
+#ifdef __GNUC__
+#if __GNUC__ >= 8
+    /*
+     * gcc 8 on Fedora 30 emits warnings for this strncpy() call
+     * ... it is clearly safe
+     */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+#endif
     strncpy(string, arg, length);
+#ifdef __GNUC__
+#if __GNUC__ >= 8
+#pragma GCC diagnostic pop
+#endif
+#endif
     while (string && (arg = getoption(argc, argv)) != NULL) {
 	length += 1 + strlen(arg) + 1;
 	string = catoption(string, arg, length);

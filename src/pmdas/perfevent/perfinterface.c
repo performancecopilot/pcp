@@ -232,7 +232,8 @@ static int search_for_config(char *device_path, uint64_t config, char *event_fil
             break;
         }
         if (parsed_config == config) {
-            strncpy(event_file, entry->d_name, strlen(entry->d_name)+1);
+            strncpy(event_file, entry->d_name, MAX_EVENT_NAME-1);
+            event_file[MAX_EVENT_NAME-1] = '\0';	/* buffer overrun guard */
             ret = 0;
             break;
         }

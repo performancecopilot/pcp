@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 #
 # Exercise libpcp_import "batching" extensions in Perl import API
 #

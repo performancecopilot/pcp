@@ -657,8 +657,8 @@ do
 done
 if [ ! -f $tmp.ok ]
 then
-    echo "Warning: don't understand what packing is being used here ..."
-    echo "         it is none of: $pkgtypes"
+    echo >&2 "Warning: don't understand what packing is being used here ..."
+    echo >&2 "         it is none of: $pkgtypes"
 fi
 
 # Strip the distro-dependent lines that do not apply ...
@@ -868,7 +868,7 @@ else
 	    pyver=`$PCP_PYTHON_PROG --version 2>&1 | sed -e 's/^[^0-9]*//' -e 's/\..*//'`
 	    if [ -z "$pyver" ]
 	    then
-		echo "Warning: cannot get Python version from: `$PCP_PYTHON_PROG --version`"
+		echo >&2 "Warning: cannot get Python version from: `$PCP_PYTHON_PROG --version`"
 	    else
 		#debug# echo "pyver=$pyver"
 		sed <$tmp.manifest >$tmp.tmp -e '/\/python[0-9]/{
@@ -1263,7 +1263,7 @@ End-of-File
 	    then
 		$verbose && echo >&2 "$pkg: version installed $version, need $relop $ctlversion, OK"
 	    else
-		echo "Warning: $pkg version installed $version, need $relop $ctlversion"
+		echo >&2 "Warning: $pkg version installed $version, need $relop $ctlversion"
 	    fi
 	fi
     done
@@ -1304,7 +1304,7 @@ End-of-File
 	    if grep 'is not installed' $tmp.tmp >/dev/null 2>&1
 	    then
 		$verbose && echo >&2 "$rpm: not installed, need $relop $specversion$pcp_pkg, OK"
-		echo "Warning: $rpm not installed, need $relop $specversion$pcp_pkg" >>$tmp.notfound
+		echo >&2 "Warning: $rpm not installed, need $relop $specversion$pcp_pkg" >>$tmp.notfound
 	    else
 		touch $tmp.found
 		version=`sed <$tmp.tmp -e "s/^$rpm-//" -e 's/-.*//'`
@@ -1313,7 +1313,7 @@ End-of-File
 		then
 		    $verbose && echo >&2 "$rpm: version installed $version, need $relop $specversion$pcp_pkg, OK"
 		else
-		    echo "Warning: $rpm version installed $version, need $relop $specversion$pcp_pkg"
+		    echo >&2 "Warning: $rpm version installed $version, need $relop $specversion$pcp_pkg"
 		fi
 	    fi
 	done
@@ -1347,14 +1347,14 @@ End-of-File
 	libversion=`pkg-config --modversion "$lib" 2>/dev/null`
 	if [ -z "$libversion" ]
 	then
-	    echo "Warning: Package $lib not known to pkg-config , need $relop $version$pcp_pkg"
+	    echo >&2 "Warning: Package $lib not known to pkg-config , need $relop $version$pcp_pkg"
 	else
 	    ( echo $libversion; echo $version ) | _compare $relop
 	    if [ $? = 0 ]
 	    then
 		$verbose && echo >&2 "$lib: version installed $libversion, need $relop $version$pcp_pkg, OK"
 	    else
-		echo "Warning: $lib version installed $libversion, need $relop $version$pcp_pkg"
+		echo >&2 "Warning: $lib version installed $libversion, need $relop $version$pcp_pkg"
 	    fi
 	fi
     done
@@ -1409,7 +1409,7 @@ p
 	-e 's/^[0-9][0-9]*: //' \
 	-e 's/: / /g' \
 	-e '/ inet /s/\/.*/ /' \
-    | awk '
+    | awk >&2 '
 /^[^ 	]/	{ iface = $1; next }
 /inet addr:'$ipaddr' / || /inet '$ipaddr'[ \/]/ {
 			  if (iface == "lo")
@@ -1429,14 +1429,14 @@ then
     pmhost=`pmhostname`
     if [ -z "$pmhost" ]
     then
-	echo "Warning: pmhostname returns nothing!"
+	echo >&2 "Warning: pmhostname returns nothing!"
     else
 	case $pmhost
 	in
 	    $host|$host.*)
 		    ;;
 	    *)
-		    echo "Warning: hostname ($host) is not a prefix of pmhostname ($pmhost)"
+		    echo >&2 "Warning: hostname ($host) is not a prefix of pmhostname ($pmhost)"
 		    ;;
 	esac
 	_check_host $pmhost
@@ -1460,14 +1460,14 @@ then
 		echo "Use \"$ sudo -E .../qa/admin/allow-pmlc-access\" to fix this."
 	    fi
 	else
-	    echo "Warning: \"$PCP_VAR_DIR/config/pcp/pmlogger/config.default\" is missing"
+	    echo >&2 "Warning: \"$PCP_VAR_DIR/config/pcp/pmlogger/config.default\" is missing"
 	fi
     else
-	echo "Please ignore Warnings from _getnetworkaddr unless you wish to run the"
-	echo "full PCP QA suite."
+	echo >&2 "Please ignore Warnings from _getnetworkaddr unless you wish to run the"
+	echo >&2 "full PCP QA suite."
     fi
 else
-    echo "Warning: \"/etc/pcp.conf\" is missing"
+    echo >&2 "Warning: \"/etc/pcp.conf\" is missing"
 fi
 
 if sudo -u pcp id >/dev/null
@@ -1490,7 +1490,7 @@ in
 	    allowkmem=`sysctl kern.allowkmem | sed -e 's/.*=//'`
 	    if [ "$allowkmem" != 1 ]
 	    then
-		echo "Warning: kern.allowkmem is \"$allowkmem\" not 1 and so openbsd PMDA will not be able"
+		echo >&2 "Warning: kern.allowkmem is \"$allowkmem\" not 1 and so openbsd PMDA will not be able"
 		echo "         to access /dev/kmem"
 		echo "         Suggest adding kern.allowkmem=1 to etc/sysctl.conf and rebooting."
 	    fi

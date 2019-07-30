@@ -20,8 +20,8 @@
 typedef struct {
     int		id;
     char	id_name[128];
-    char	node_name[64];
-    char	zone_name[64];
+    char	node_name[128];
+    char	zone_name[128];
     int		order;
     int		value;
 } buddyinfo_t;

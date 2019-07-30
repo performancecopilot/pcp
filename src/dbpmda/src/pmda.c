@@ -206,7 +206,8 @@ open_unix_socket(char *fname)
 
     memset(&s_un, 0, sizeof(s_un));
     s_un.sun_family = AF_UNIX;
-    strncpy(s_un.sun_path, fname, strlen(fname));
+    strncpy(s_un.sun_path, fname, sizeof(s_un.sun_path)-1);
+    s_un.sun_path[sizeof(s_un.sun_path)-1] = '\0';	/* buffer overrun guard */
     len = (int)offsetof(struct sockaddr_un, sun_path) + (int)strlen(s_un.sun_path)+1;
 
     closepmda();
