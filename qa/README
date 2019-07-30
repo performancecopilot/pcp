@@ -63,21 +63,33 @@ Basic getting started
     set up:
 
     (a) PCP installed from packages,
+
     (b) pmcd(1) running,
+
     (c) a login for the user "pcpqa" needs to be created, and then set
         up in such a way that ssh/scp will work without the need for any
         password, i.e. these sorts of commands
 	    $ ssh pcpqa@pcp-qa-host some-command
 	    $ scp some-file pcpqa@pcp-qa-host:some-dir
-        must work correctly when run from the local host.  The "pcpqa"
-        user's environment must also be initialized so that their shell's
-        path includes all of the PCP binary directories (identify these
-        with $ grep BIN /etc/pcp.conf), so that all PCP commands are
-        executable without full pathnames.  Of most concern would be
-        auxilliary directory (usually /usr/pcp/bin, /usr/share/pcp/bin or
-        /usr/libexec/pcp/bin) where commands like pmlogger(1), pmhostname(1),
-        mkaf(1), etc.) are installed. And finally, the "pcpqa" user needs
-	to be included in the group "pcp".
+	must work correctly when run from the local host with no
+	interactive input and no Password: prompt
+
+	On systems enforcing selinux it may be necessary to execute
+	the following command to make this work:
+	    $ sudo chcon -R unconfined_u:object_r:ssh_home_t:s0 ~pcpqa/.ssh
+	so that the ssh_home_t attribute is set on ~pcpqa/.ssh and
+	all the files below there.
+
+	The "pcpqa" user's environment must also be initialized so that
+	their shell's path includes all of the PCP binary directories
+	(identify these with $ grep BIN /etc/pcp.conf), so that all
+	PCP commands are executable without full pathnames.  Of most
+	concern would be auxilliary directory (usually /usr/pcp/bin,
+	/usr/share/pcp/bin or /usr/libexec/pcp/bin) where commands like
+	pmlogger(1), pmhostname(1), mkaf(1), etc.) are installed.
+	
+	And finally, the "pcpqa" user needs to be included in the group
+	"pcp".
 
     Once you've modified common.config and qa_hosts.master, then run
     "chk.setup" to validate the settings.
