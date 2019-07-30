@@ -20,7 +20,7 @@ echo "INVALID CASES:"
 ./data/duration/invalid.sh
 echo "<TEST DATA SEND END>"
 
-pid=$(pgrep pcp-statsd)
+pid=$(pgrep pmdastatsd)
 kill -USR1 $pid
 # I have no idea how to watch output of parallel task and block until given text is found
 sleep 5

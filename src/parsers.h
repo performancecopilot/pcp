@@ -8,18 +8,43 @@
 struct parser_args
 {
     struct agent_config* config;
-    chan_t* unprocessed_datagrams;
-    chan_t* parsed_datagrams;
+    chan_t* network_listener_to_parser;
+    chan_t* parser_to_aggregator;
 } parser_args;
+
+enum METRIC_TYPE { 
+    METRIC_TYPE_COUNTER = 0b00,
+    METRIC_TYPE_GAUGE = 0b01,
+    METRIC_TYPE_DURATION = 0b10,
+    METRIC_TYPE_NONE = 0b11,
+} METRIC_TYPE;
+
+enum PARSER_RESULT_TYPE {
+    PARSER_RESULT_PARSED = 0b00,
+    PARSER_RESULT_DROPPED = 0b01,
+} PARSER_RESULT;
+
+enum SIGN {
+    SIGN_NONE,
+    SIGN_PLUS,
+    SIGN_MINUS,
+} SIGN;
+
+struct parser_to_aggregator_message
+{
+    struct statsd_datagram* data;
+    enum PARSER_RESULT_TYPE type;
+    unsigned long time;
+} parser_to_aggregator_message;
 
 struct statsd_datagram
 {
-    char* metric;
-    char* type;
+    char* name;
+    enum METRIC_TYPE type;
     char* tags;
-    char* value;
-    char* instance;
-    char* sampling;
+    enum SIGN explicit_sign;
+    double value;
+    double sampling;
 } statsd_datagram;
 
 typedef int (*datagram_parse_callback)(char*, struct statsd_datagram**);
@@ -34,12 +59,12 @@ parser_exec(void* args);
 /**
  * Creates arguments for parser thread
  * @arg config - Application config
- * @arg unprocessed_channel - Network listener -> Parser
- * @arg parsed_channel - Parser -> Aggregator
+ * @arg network_listener_to_parser - Network listener -> Parser
+ * @arg parser_to_aggregator - Parser -> Aggregator
  * @return parser_args
  */
 struct parser_args*
-create_parser_args(struct agent_config* config, chan_t* unprocessed_channel, chan_t* parsed_channel);
+create_parser_args(struct agent_config* config, chan_t* network_listener_to_parser, chan_t* parser_to_aggregator);
 
 /**
  * Prints out parsed datagram structure in human readable form.

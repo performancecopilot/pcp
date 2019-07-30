@@ -1,0 +1,17 @@
+@ statsd.pmda.received
+Number of datagrams that the agent has received
+
+@ statsd.pmda.parsed
+Number of datagrams that were successfully parsed
+
+@ statsd.pmda.dropped Datagrams dropped count
+Number of datagrams that were dropped
+
+@ statsd.pmda.aggregated
+Number of datagrams that were aggregated
+
+@ statsd.pmda.time_spent_parsing
+Total time in nanoseconds spent parsing metrics
+
+@ statsd.pmda.time_spent_aggregating
+Total time in nanoseconds spent aggregating metrics

@@ -1,9 +1,16 @@
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <pthread.h>
 
 #include "config-reader.h"
+#include "parsers.h"
+#include "utils.h"
 
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
@@ -24,50 +31,9 @@
 static int g_verbose_flag = 0;
 
 /**
- * Flag used to determine if TRACE output is allowed to be printed
- */
-static int g_trace_flag = 0;
-
-/**
  * Flag used to determine if DEBUG output is allowed to be printed
  */
 static int g_debug_flag = 0;
-
-/**
- * Kills application with given message
- * @arg filename - Current filename
- * @arg line_number - Current line number
- * @arg format - Format string
- * @arg ... - variables to print
- */
-void
-die(char* filename, int line_number, const char* format, ...)
-{
-    va_list vargs;
-    va_start(vargs, format);
-    fprintf(stderr, "%s@%d: ", filename, line_number);
-    vfprintf(stderr, format, vargs);
-    fprintf(stderr, "\n");
-    va_end(vargs);
-    exit(1);
-}
-
-/**
- * Prints warning message
- * @arg filename - Current filename
- * @arg line_number - Current line number
- * @arg format - Format string
- * @arg ... - variables to print
- */
-void
-warn(char* filename, int line_number, const char* format, ...) {
-    va_list vargs;
-    va_start(vargs, format);
-    fprintf(stderr, YEL "WARNING: %s@%d: " RESET, filename, line_number);
-    vfprintf(stderr, format, vargs);
-    fprintf(stderr, "\n");
-    va_end(vargs);
-}
 
 /**
  * Sanitizes string
@@ -159,70 +125,42 @@ sanitize_sampling_val_string(char* src) {
 }
 
 /**
- * Validates string
+ * Validates type string
  * Checks if string is matching one of metric identifiers ("ms" = duration, "g" = gauge, "c" = counter)
  * @arg src - String to be validated
+ * @arg out - What metric string contained
  * @return 1 on success
  */
 int
-sanitize_type_val_string(char* src) {
-    if (strcmp(src, GAUGE_METRIC) == 0 ||
-        strcmp(src, COUNTER_METRIC) == 0 ||
-        strcmp(src, DURATION_METRIC) == 0) {
-            return 1;
-        }
-    return 0;
-}
-
-/**
- * Logs VERBOSE message - if config settings allows it
- * @arg format - Format string
- * @arg ... - variables to print
- */
-void
-verbose_log(const char* format, ...) {
-    if (g_verbose_flag) {
-        va_list vargs;
-        va_start(vargs, format);
-        fprintf(stdout, YEL "VERBOSE LOG: " RESET);
-        vfprintf(stdout, format, vargs);
-        fprintf(stdout, "\n");
-        va_end(vargs);
+sanitize_type_val_string(char* src, enum METRIC_TYPE* out) {
+    if (strcmp(src, GAUGE_METRIC) == 0) {
+        *out = METRIC_TYPE_GAUGE;
+        return 1;
+    } else if (strcmp(src, COUNTER_METRIC) == 0) {
+        *out = METRIC_TYPE_COUNTER;
+        return 1;
+    } else if (strcmp(src, DURATION_METRIC) == 0) {
+        *out = METRIC_TYPE_DURATION;
+        return 1;
+    } else {
+        return 0;
     }
 }
 
 /**
- * Logs DEBUG message - if config settings allows it
- * @arg format - Format string
- * @arg ... - variables to print
+ * Check *verbose* flag
+ * @return verbose flag
  */
-void
-debug_log(const char* format, ...) {
-    if (g_debug_flag) {
-        va_list vargs;
-        va_start(vargs, format);
-        fprintf(stdout, MAG "DEBUG LOG: " RESET);
-        vfprintf(stdout, format, vargs);
-        fprintf(stdout, "\n");
-        va_end(vargs);
-    }
+int is_verbose() {
+    return g_verbose_flag;
 }
 
 /**
- * Logs TRACE message - if config settings allows it
- * @arg format - Format string
- * @arg ... - variables to print
+ * Check *debug* flag
+ * @return debug flag
  */
-void
-trace_log(const char* format, ...) {
-    if (g_trace_flag) {
-        va_list vargs;
-        va_start(vargs, format);
-        fprintf(stdout, CYN "TRACE LOG: " RESET);
-        vfprintf(stdout, format, vargs);
-        fprintf(stdout, "\n");
-        va_end(vargs);
-    }
+int is_debug() {
+    return g_debug_flag;
 }
 
 /**
@@ -232,6 +170,5 @@ trace_log(const char* format, ...) {
 void
 init_loggers(struct agent_config* config) {
     g_verbose_flag = config->verbose;
-    g_trace_flag = config->trace;
     g_debug_flag = config->debug;
 }

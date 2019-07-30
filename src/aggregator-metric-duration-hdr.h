@@ -4,6 +4,7 @@
 #include <hdr/hdr_histogram.h>
 #include <stdio.h>
 
+#include "aggregator-metric-duration.h"
 #include "config-reader.h"
 
 /**
@@ -21,6 +22,15 @@ create_hdr_duration_value(long long unsigned int value);
  */
 void
 update_hdr_duration_value(struct hdr_histogram* histogram, long long unsigned int value);
+
+/**
+ * Gets duration values meta data histogram
+ * @arg collection - Target collection
+ * @arg instance - Placeholder for data population
+ * @return duration instance value
+ */
+double
+get_hdr_histogram_duration_instance(struct hdr_histogram* histogram, enum DURATION_INSTANCE instance);
 
 /**
  * Prints duration collection metadata in human readable way

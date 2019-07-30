@@ -1,0 +1,11 @@
+#include <stdpmid>
+
+#ifndef STATSD
+#define STATSD 510
+#endif
+
+root {
+    statsd  STATSD:*:*
+}
+
+#undef STATSD

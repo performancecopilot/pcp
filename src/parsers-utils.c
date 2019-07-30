@@ -4,6 +4,7 @@
 #include "parsers.h"
 #include "string.h"
 #include "utils.h"
+#include "aggregator-metrics.h"
 
 #define RED   "\x1B[31m"
 #define RESET "\x1B[0m"
@@ -11,6 +12,8 @@
 #define CHECK_DISCREPANCY(field, string)    (field != NULL && string != NULL && strcmp(field, string) != 0) || \
                                             (field != NULL && string == NULL) || \
                                             (field == NULL && string != NULL) \
+
+#define CHECK_DISCREPANCY_VALUE(field, value) (field != value)
 
 static int
 tag_comparator(const void* x, const void* y) {
@@ -48,39 +51,52 @@ tag_collection_to_json(struct tag_collection* tags) {
     return result;
 }
 
+static const char*
+metric_enum_to_str(enum METRIC_TYPE type) {
+    const char* counter = "counter";
+    const char* gauge = "gauge";
+    const char* duration = "duration";
+    switch(type) {
+        case METRIC_TYPE_COUNTER:
+            return counter;
+        case METRIC_TYPE_GAUGE:
+            return gauge;
+        case METRIC_TYPE_DURATION:
+            return duration;
+        default:
+            return NULL;
+    }
+}
+
 int
 assert_statsd_datagram_eq(
     struct statsd_datagram** datagram,
-    char* metric,
+    char* name,
     char* tags,
-    char* instance,
-    char* value,
-    char* type,
-    char* sampling) {
+    double value,
+    enum METRIC_TYPE type,
+    double sampling
+) {
     long int err_count = 0;
-    if (CHECK_DISCREPANCY((*datagram)->metric, metric)) {
+    if (CHECK_DISCREPANCY((*datagram)->name, name)) {
         err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Metric name doesn't match! %s =/= %s \n", (*datagram)->metric, metric);
+        fprintf(stdout, RED "FAIL: " RESET "Metric name doesn't match! %s =/= %s \n", (*datagram)->name, name);
     }
     if (CHECK_DISCREPANCY((*datagram)->tags, tags)) {
         err_count++;
         fprintf(stdout, RED "FAIL: " RESET "Tags don't match! %s =/= %s \n", (*datagram)->tags, tags);
     }
-    if (CHECK_DISCREPANCY((*datagram)->instance, instance)) {
+    if (CHECK_DISCREPANCY_VALUE((*datagram)->value, value)) {
         err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Instance doesn't match! %s =/= %s \n", (*datagram)->instance, instance);
+        fprintf(stdout, RED "FAIL: " RESET "Value doesn't match! %f =/= %f \n", (*datagram)->value, value);
     }
-    if (CHECK_DISCREPANCY((*datagram)->value, value)) {
+    if (CHECK_DISCREPANCY_VALUE((*datagram)->type, type)) {
         err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Value doesn't match! %s =/= %s \n", (*datagram)->value, value);
+        fprintf(stdout, RED "FAIL: " RESET "Type doesn't match! %s =/= %s \n", metric_enum_to_str((*datagram)->type), metric_enum_to_str(type));
     }
-    if (CHECK_DISCREPANCY((*datagram)->type, type)) {
+    if (CHECK_DISCREPANCY_VALUE((*datagram)->sampling, sampling)) {
         err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Type doesn't match! %s =/= %s \n", (*datagram)->type, type);
-    }
-    if (CHECK_DISCREPANCY((*datagram)->sampling, sampling)) {
-        err_count++;
-        fprintf(stdout, RED "FAIL: " RESET "Sampling doesn't match! %s =/= %s \n", (*datagram)->sampling, sampling);
+        fprintf(stdout, RED "FAIL: " RESET "Sampling doesn't match! %f =/= %f \n", (*datagram)->sampling, sampling);
     }
     return err_count;
 }

@@ -15,14 +15,14 @@
 
 #define SUITE_HEADER(format, ...) fprintf(stdout, CYN format RESET "\n", ## __VA_ARGS__);
 
-#define CHECK_ERROR(string, metric, tags, instance, value, type, sampling) \
+#define CHECK_ERROR(string, name, tags, value, type, sampling) \
     fprintf(stdout, MAG "CASE: %s " RESET "\n", string); \
     if (parse(string, datagram)) { \
         int local_err = 0; \
-        local_err += assert_statsd_datagram_eq(datagram, metric, tags, instance, value, type, sampling); \
+        local_err += assert_statsd_datagram_eq(datagram, name, tags, value, type, sampling); \
         error_count += local_err; \
     } else { \
-        if (metric != NULL || tags != NULL || instance != NULL || value != NULL || type != NULL || sampling != NULL) { \
+        if (name != NULL || tags != NULL || value != 0 || type != METRIC_TYPE_NONE || sampling != 0) { \
             fprintf(stdout, RED "ERROR: " RESET "Should have failed parsing. \n"); \
             error_count += 1; \
         } \
@@ -66,6 +66,13 @@ char*
 tag_collection_to_json(struct tag_collection* tags);
 
 int
-assert_statsd_datagram_eq(struct statsd_datagram** datagram, char* metric, char* tags, char* instance, char* value, char* type, char* sampling);
+assert_statsd_datagram_eq(
+    struct statsd_datagram** datagram,
+    char* name,
+    char* tags,
+    double value,
+    enum METRIC_TYPE type,
+    double sampling
+);
 
 #endif

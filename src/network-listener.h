@@ -14,7 +14,7 @@ struct unprocessed_statsd_datagram
 struct network_listener_args
 {
     struct agent_config* config;
-    chan_t* unprocessed_datagrams;
+    chan_t* network_listener_to_parser;
 } network_listener_args;
 
 /**
@@ -26,16 +26,12 @@ void*
 network_listener_exec(void* args);
 
 /**
- * Packs up its arguments into struct so that we can pass it via single reference to the network listener thread
- */
-
-/**
  * Creates arguments for network listener thread
  * @arg config - Application config
- * @arg unprocessed_channel - Network listener -> Parser
+ * @arg network_listener_to_parser - Network listener -> Parser
  * @return network_listener_args
  */
 struct network_listener_args*
-create_listener_args(struct agent_config* config, chan_t* unprocessed_channel);
+create_listener_args(struct agent_config* config, chan_t* network_listener_to_parser);
 
 #endif

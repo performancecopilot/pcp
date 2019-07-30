@@ -1,10 +1,12 @@
 #include <string.h>
+#include <float.h>
 
 #include "config-reader.h"
 #include "network-listener.h"
 #include "aggregators.h"
-#include "aggregator-counter.h"
+#include "aggregator-metric-counter.h"
 #include "errno.h"
+#include "utils.h"
 
 /**
  * Creates counter metric record
@@ -16,18 +18,25 @@
 int
 create_counter_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out) {
     (void)config;
-    if (datagram->value[0] == '-' || datagram->value[0] == '+') {
+    double new_value;
+    switch (datagram->explicit_sign) {
+        case SIGN_MINUS:
+            new_value = -1.0 * datagram->value;
+            break;
+        default:
+            new_value = datagram->value;
+    }
+    if (new_value < 0 || new_value >= DBL_MAX) {
         return 0;
     }
-    long long unsigned int value = strtoull(datagram->value, NULL, 10);
-    if (errno == ERANGE) {
-        return 0;
-    }
-    (*out)->name = malloc(strlen(datagram->metric));
-    strcpy((*out)->name, datagram->metric);
+    size_t len = strlen(datagram->name) + 1;
+    (*out)->name = (char*) malloc(len);
+    ALLOC_CHECK("Unable to allocate memory for copy of metric name.");
+    strncpy((*out)->name, datagram->name, len);
     (*out)->type = METRIC_TYPE_COUNTER;
-    (*out)->value = (unsigned long long int*) malloc(sizeof(unsigned long long int));
-    *((long long unsigned int*)(*out)->value) = value;
+    (*out)->value = (double*) malloc(sizeof(double));
+    ALLOC_CHECK("Unable to allocate memory for copy of metric value.");
+    memcpy((*out)->value, &new_value, sizeof(double));
     (*out)->meta = create_metric_meta(datagram);
     return 1;
 }
@@ -42,14 +51,18 @@ create_counter_metric(struct agent_config* config, struct statsd_datagram* datag
 int
 update_counter_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram) {
     (void)config;
-    if (datagram->value[0] == '-' || datagram->value[0] == '+') {
+    double new_value;
+    switch (datagram->explicit_sign) {
+        case SIGN_MINUS:
+            new_value = -1.0 * datagram->value;
+            break;
+        default:
+            new_value = datagram->value;
+    }
+    if (new_value < 0) {
         return 0;
     }
-    long long unsigned int value = strtoull(datagram->value, NULL, 10);
-    if (errno == ERANGE) {
-        return 0;
-    }
-    *(long long unsigned int*)(item->value) += value;
+    *(double*)(item->value) += new_value;
     return 1;
 }
 
@@ -65,7 +78,7 @@ print_counter_metric(struct agent_config* config, FILE* f, struct metric* item) 
     fprintf(f, "-----------------\n");
     fprintf(f, "name = %s\n", item->name);
     fprintf(f, "type = counter\n");
-    fprintf(f, "value = %lld\n", *(long long unsigned int*)(item->value));
+    fprintf(f, "value = %f\n", *(double*)(item->value));
     print_metric_meta(f, item->meta);
     fprintf(f, "\n");
 }

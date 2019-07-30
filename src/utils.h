@@ -4,8 +4,21 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <errno.h>
+#include <pcp/pmapi.h>
+#include <pcp/pmda.h>
 
+#include "aggregator-metrics.h"
 #include "config-reader.h"
+
+#define VERBOSE_LOG(format, ...) \
+    if (is_verbose()) { \
+        pmNotifyErr(LOG_INFO, format, ## __VA_ARGS__); \
+    } \
+
+#define DEBUG_LOG(format, ...) \
+    if (is_debug()) { \
+        pmNotifyErr(LOG_DEBUG, format, ## __VA_ARGS__); \
+    } \
 
 /**
  * Checks if last allocation was OK 
@@ -34,30 +47,14 @@
 /**
  * Exists program
  */
-#define DIE(format, ...)  die(__FILE__, __LINE__, format, ## __VA_ARGS__)
+#define DIE(format, ...) \
+    pmNotifyErr(LOG_ALERT, format, ## __VA_ARGS__);
 
 /**
  * Prints warning message
  */
-#define WARN(format, ...) warn(__FILE__, __LINE__, format, ## __VA_ARGS__)
-
-/**
- * Kills application with given message
- * @arg line_number - Current line number
- * @arg format - Format string
- * @arg ... - variables to print
- */
-void
-die(char* filename, int line_number, const char* format, ...);
-
-/**
- * Prints warning message
- * @arg line_number - Current line number
- * @arg format - Format string
- * @arg ... - variables to print
- */
-void
-warn(char* filename, int line_number, const char* format, ...);
+#define WARN(format, ...) \
+    pmNotifyErr(LOG_WARNING, format, ## __VA_ARGS__);
 
 /**
  * Sanitizes string
@@ -87,37 +84,28 @@ int
 sanitize_sampling_val_string(char* src);
 
 /**
- * Validates string
+ * Validates type string
  * Checks if string is matching one of metric identifiers ("ms" = duration, "g" = gauge, "c" = counter)
  * @arg src - String to be validated
+ * @arg out - What metric string contained
  * @return 1 on success
  */
 int
-sanitize_type_val_string(char* src);
+sanitize_type_val_string(char* src, enum METRIC_TYPE* out);
 
 /**
- * Logs VERBOSE message - if config settings allows it
- * @arg format - Format string
- * @arg ... - variables to print
+ * Check *verbose* flag
+ * @return verbose flag
  */
-void
-verbose_log(const char* format, ...);
+int
+is_verbose();
 
 /**
- * Logs DEBUG message - if config settings allows it
- * @arg format - Format string
- * @arg ... - variables to print
+ * Check *debug* flag
+ * @return debug flag
  */
-void
-debug_log(const char* format, ...);
-
-/**
- * Logs TRACE message - if config settings allows it
- * @arg format - Format string
- * @arg ... - variables to print
- */
-void
-trace_log(const char* format, ...);
+int
+is_debug();
 
 /**
  * Initializes debugging/verbose/tracing flags based on given config
