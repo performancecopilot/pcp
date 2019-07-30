@@ -1,0 +1,50 @@
+#!/bin/sh
+# PCP QA Test No. 1266
+# Ensure pcp-atop(1) writes correct pmlogger configurations.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_BINADM_DIR/pcp-atop ] || _notrun "system monitoring tools not installed"
+
+_cleanup()
+{
+    cd $here
+    rm -fr $here/atoplog$seq
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+rm -fr $here/atoplog
+pcp atop -w atoplog$seq 1 2
+pminfo -a atoplog$seq proc hotproc >$tmp.out 2>$tmp.err
+echo "== Expect no hotproc metrics logged by default"
+if test -s $tmp.err; then
+    cat $tmp.err >> $seq.full
+    echo "passed"
+else
+    echo "failed"
+fi
+echo "== Expect some proc metrics logged by default"
+if test -s $tmp.out; then
+    cat $tmp.out >> $seq.full
+    echo "passed"
+else
+    echo "failed"
+fi
+
+# success, all done
+status=0
+exit

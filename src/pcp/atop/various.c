@@ -1166,7 +1166,7 @@ static void
 rawconfig(FILE *fp, double interval)
 {
 	char		**p;
-	unsigned int	delta;
+	unsigned int	delta, offset;
 	extern char	*hostmetrics[];
 	extern char	*ifpropmetrics[];
 	extern char	*systmetrics[];
@@ -1183,8 +1183,9 @@ rawconfig(FILE *fp, double interval)
 	fprintf(fp, "log mandatory on every %u milliseconds {\n", delta);
 	for (p = systmetrics; (*p)[0] != '.'; p++)
 		fprintf(fp, "    %s\n", *p);
+	offset = hotprocflag ? 0 : 3;
 	for (p = procmetrics; (*p)[0] != '.'; p++)
-		fprintf(fp, "    %s\n", *p);
+		fprintf(fp, "    %s\n", *p + offset);
 	fputs("}\n", fp);
 }
 
