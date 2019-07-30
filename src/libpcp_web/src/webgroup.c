@@ -23,7 +23,7 @@
 #endif
 #include <fnmatch.h>
 
-#define DEFAULT_TIMEOUT 2000
+#define DEFAULT_TIMEOUT 5000
 static unsigned int default_timeout;	/* timeout in milliseconds */
 
 #define DEFAULT_BATCHSIZE 256
@@ -289,6 +289,10 @@ pmWebGroupContext(pmWebGroupSettings *sp, sds id, dict *params, void *arg)
 	context.source = pmwebapi_hash_sds(NULL, cp->name.hash);
 	context.hostspec = cp->host;
 	context.labels = cp->labels;
+
+	if (pmDebugOptions.libweb)
+	    fprintf(stderr, "%s: new context %p\n", "pmWebGroupContext", cp);
+
 	sp->callbacks.on_context(id, &context, arg);
 	sdsfree(context.source);
     } else {
@@ -312,6 +316,10 @@ pmWebGroupDestroy(pmWebGroupSettings *settings, sds id, void *arg)
 	(cp = webgroup_lookup_context(settings, &id, NULL,
 				      &sts, &msg, arg)) != NULL) {
 	gp = settings->module.privdata;
+
+	if (pmDebugOptions.libweb)
+	    fprintf(stderr, "%s: destroy context %p\n", "pmWebGroupDestroy", cp);
+
 	webgroup_destroy_context(cp, gp);
     }
     sdsfree(msg);
@@ -408,8 +416,14 @@ pmWebGroupDerive(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     }
 
     if (expr && !metric) {	/* configuration file mode */
+	if (pmDebugOptions.libweb)
+	    fprintf(stderr, "%s: register metric group\n",
+			    "pmWebGroupDerive");
 	sts = webgroup_derived_metrics(expr, &msg);
     } else if (expr && metric) {
+	if (pmDebugOptions.libweb)
+	    fprintf(stderr, "%s: register metric %s\n",
+			    "pmWebGroupDerive", metric);
 	if ((sts = pmRegisterDerivedMetric(metric, expr, &message)) < 0) {
 	    infofmt(msg, "%s", message);
 	    free(message);
@@ -425,14 +439,19 @@ pmWebGroupDerive(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 
 static int
 webgroup_fetch_arrays(pmWebGroupSettings *settings, int numnames,
-		struct metric **mplist, pmID **pmidlist, void *arg)
+		struct metric ***mplistp, pmID **idlistp, void *arg)
 {
-    if ((*mplist = calloc(numnames, sizeof(struct metric *))) == NULL)
+    struct metric       **mplist;
+    pmID		*idlist;
+
+    if ((mplist = calloc(numnames, sizeof(struct metric *))) == NULL)
 	return -ENOMEM;
-    if ((*pmidlist = calloc(numnames, sizeof(pmID))) == NULL) {
-	free(*mplist);
+    if ((idlist = calloc(numnames, sizeof(pmID))) == NULL) {
+	free(mplist);
 	return -ENOMEM;
     }
+    *mplistp = mplist;
+    *idlistp = idlist;
     return 0;
 }
 
@@ -549,7 +568,6 @@ webgroup_fetch(pmWebGroupSettings *settings, context_t *cp,
 	}
 	pmFreeResult(result);
     }
-    free(pmidlist);
 
     sdsfree(v);
     sdsfree(series);
@@ -648,9 +666,9 @@ void
 pmWebGroupFetch(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
     struct context	*cp;
-    struct metric	*mplist;
+    struct metric	**mplist = NULL;
     size_t		length;
-    pmID		*pmidlist;
+    pmID		*pmidlist = NULL;
     sds			msg = NULL, metrics, pmids = NULL, *names = NULL;
     int			sts = 0, numnames = 0;
 
@@ -676,8 +694,11 @@ pmWebGroupFetch(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	    infofmt(msg, "out-of-memory on allocation");
 	    sts = -ENOMEM;
 	} else {
+	    if (pmDebugOptions.libweb)
+		fprintf(stderr, "%s: fetch %d names (%s,...)\n",
+				"pmWebGroupFetch", numnames, names[0]);
 	    webgroup_fetch_names(settings, cp,
-				numnames, names, &mplist, pmidlist, arg);
+				numnames, names, mplist, pmidlist, arg);
 	}
     }
     /* handle fetch via numeric/dotted-form PMIDs */
@@ -689,8 +710,11 @@ pmWebGroupFetch(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	    infofmt(msg, "out-of-memory on allocation");
 	    sts = -ENOMEM;
 	} else {
+	    if (pmDebugOptions.libweb)
+		fprintf(stderr, "%s: fetch %d pmids (%s,...)\n",
+				"pmWebGroupFetch", numnames, names[0]);
 	    webgroup_fetch_pmids(settings, cp,
-				numnames, names, &mplist, pmidlist, arg);
+				numnames, names, mplist, pmidlist, arg);
 	}
     }
     else {
@@ -698,6 +722,10 @@ pmWebGroupFetch(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	sts = -EINVAL;
     }
     sdsfreesplitres(names, numnames);
+    if (pmidlist)
+	free(pmidlist);
+    if (mplist)
+	free(mplist);
 
 done:
     settings->callbacks.on_done(id, sts, msg, arg);
@@ -916,6 +944,11 @@ pmWebGroupProfile(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	goto done;
     }
 
+    if (pmDebugOptions.libweb)
+	fprintf(stderr, "%s: indom %s profile %s\n",
+			"pmWebGroupProfile", ip == NULL? "null" :
+			pmInDomStr_r(ip->indom, err, sizeof(err)), expr);
+
     if ((sts = webgroup_profile(ip, profile, matches, inames, instids)) < 0)
 	infofmt(msg, "%s - %s", expr, pmErrStr_r(sts, err, sizeof(err)));
 
@@ -945,6 +978,10 @@ pmWebGroupChildren(pmWebGroupSettings *settings, sds id, dict *params, void *arg
 
     if (prefix == NULL || *prefix == '\0')
 	prefix = EMPTYSTRING;
+
+    if (pmDebugOptions.libweb)
+	fprintf(stderr, "%s: children for prefix \"%s\"\n",
+			"pmWebGroupChildren", prefix);
 
     if ((sts = pmGetChildrenStatus(prefix, &offspring, &status)) < 0) {
 	infofmt(msg, "child traversal failed - %s",
@@ -1100,6 +1137,10 @@ pmWebGroupInDom(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     if (!(cp = webgroup_lookup_context(settings, &id, params, &sts, &msg, arg)))
 	goto done;
     id = cp->origin;
+
+    if (pmDebugOptions.libweb)
+	fprintf(stderr, "%s: %s indom\n",
+			"pmWebGroupInDom", metric? metric : indomid);
 
     if (metric) {
 	if ((mp = webgroup_lookup_metric(settings, cp, metric, arg)) == NULL) {
@@ -1276,6 +1317,11 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     if (!(cp = webgroup_lookup_context(settings, &id, params, &sts, &msg, arg)))
 	goto done;
     id = cp->origin;
+
+    if (pmDebugOptions.libweb)
+	fprintf(stderr, "%s: metadata for %d metrics (%s,...)\n",
+			"pmWebGroupMetric", prefix ? numnames : 0,
+			names? names[0] : "(all)");
 
     lookup.settings = settings;
     lookup.context = cp;
@@ -1552,6 +1598,10 @@ webgroup_scrape_tree(const char *prefix, struct webscrape *scrape, sds *msg)
     int			i, sts;
     char		err[PM_MAXERRMSGLEN];
 
+    if (pmDebugOptions.libweb)
+	fprintf(stderr, "%s: scraping namespace prefix \"%s\"\n",
+			"pmWebGroupScrape", prefix);
+
     sts = pmTraversePMNS_r(prefix, webgroup_scrape_batch, scrape);
     if (sts >= 0 && scrape->status >= 0 && scrape->numnames) {
 	/* complete any remaining (sub-batchsize) leftovers */
@@ -1781,6 +1831,9 @@ pmWebGroupStore(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 
     /* handle store via metric name list */
     if (metric) {
+	if (pmDebugOptions.libweb)
+	    fprintf(stderr, "%s: by metric %s\n", "pmWebGroupStore", metric);
+
 	if ((mp = webgroup_lookup_metric(settings, cp, metric, arg)) == NULL) {
 	    infofmt(msg, "%s - failed to lookup metric", metric);
 	    sts = -EINVAL;
@@ -1788,6 +1841,9 @@ pmWebGroupStore(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     }
     /* handle store via numeric/dotted-form PMIDs */
     else if (pmid) {
+	if (pmDebugOptions.libweb)
+	    fprintf(stderr, "%s: by pmid %s\n", "pmWebGroupStore", pmid);
+
 	if ((mp = webgroup_lookup_pmid(settings, cp, pmid, arg)) == NULL) {
 	    infofmt(msg, "%s - failed to lookup PMID", pmid);
 	    sts = -EINVAL;

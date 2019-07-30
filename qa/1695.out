@@ -1,4 +1,6 @@
 QA output created by 1695
+=== checking metric scrape operation ===
+=== checking metric fetch operation ===
 === check pmproxy is running ===
 pmproxy check passed
 === valgrind stdout ===
