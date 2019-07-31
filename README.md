@@ -221,7 +221,7 @@ Agent also exports metrics about itself:
     - **counter** - Number of tracked counter metrics
     - **gauge** - Number of tracked gauge metrics
     - **duration** - Number of tracked duration metrics
-    - **total** - Number of tracked total metrics
+    - **total** - Number of tracked metrics total
 - **statsd.pmda.time_spent_parsing** <br>Total time in nanoseconds spent parsing metrics
 - **statsd.pmda.time_spent_aggregating** <br>Total time in nanoseconds spent aggregating metrics
 
