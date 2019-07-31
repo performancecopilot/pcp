@@ -50,11 +50,11 @@ reset_pmID_counters(struct pmda_data_extension* data) {
 /**
  * Adds new metric to pcp metric table and pcp pmns and then increments total metric count
  * @arg key  - Key under which metric is saved in hashtable
- * @arg item - StatsD Metric from which to extract what PCP Metric to create 
+ * @arg item - StatsD Metric from which to extract what PCP Metric to create, assigns PMID and PCP name to metric as a side-effect
  * @arg data - PMDA extension structure (contains agent-specific private data)
  */
 static void
-add_pcp_metric(char* key, struct metric* item, pmdaExt* pmda) {
+create_pcp_metric(char* key, struct metric* item, pmdaExt* pmda) {
     struct pmda_data_extension* data = (struct pmda_data_extension*)pmdaExtGetData((pmdaExt*)pmda);
     // set pmid to metric
     item->meta->pmid = get_next_pmID(data);
@@ -109,14 +109,12 @@ metric_foreach_callback(char* key, struct metric* item, void* pmda) {
     if (item->meta->tags != NULL || item->meta->sampling) return;
     struct pmda_data_extension* data = (struct pmda_data_extension*)pmdaExtGetData((pmdaExt*)pmda);
     // lets check if metric already has pmid assigned, if so it has PCP name as well, then just insert it into tree
-    if (item->meta->pmid != PM_ID_NULL) {
-        pmdaTreeInsert(data->pcp_pmns, item->meta->pmid, item->meta->pcp_name);
-        data->pcp_metric_count += 1;
-    } 
-    // else create new one, set it in original metric record, create new PCP metric record
-    else {
-        add_pcp_metric(key, item, (pmdaExt*)pmda);
+    if (item->meta->pmid == PM_ID_NULL) {
+        create_pcp_metric(key, item, (pmdaExt*)pmda);
     }
+    pmdaTreeInsert(data->pcp_pmns, item->meta->pmid, item->meta->pcp_name);
+    process_stat(data->config, data->stats_storage, STAT_TRACKED_METRIC, (void*)item->type);
+    data->pcp_metric_count += 1;
 }
 
 /**
@@ -136,6 +134,8 @@ statsd_map_stats(pmdaExt* pmda) {
         pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n", pmGetProgname(), pmErrStr(status));
         data->pcp_pmns = NULL;
         return;
+    } else {
+        reset_stat(data->config, data->stats_storage, STAT_TRACKED_METRIC);
     }
     pmsprintf(name, 64, "statsd.pmda.received");
     pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 0), name);
@@ -145,11 +145,13 @@ statsd_map_stats(pmdaExt* pmda) {
     pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 2), name);
     pmsprintf(name, 64, "statsd.pmda.aggregated");
     pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 3), name);
-    pmsprintf(name, 64, "statsd.pmda.time_spent_parsing");
+    pmsprintf(name, 64, "statsd.pmda.metrics_tracked");
     pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 4), name);
-    pmsprintf(name, 64, "statsd.pmda.time_spent_aggregating");
+    pmsprintf(name, 64, "statsd.pmda.time_spent_parsing");
     pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 5), name);
-    data->pcp_metric_count = 6;    
+    pmsprintf(name, 64, "statsd.pmda.time_spent_aggregating");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 6), name);
+    data->pcp_metric_count = 7;    
     iterate_over_metrics(data->metrics_storage, metric_foreach_callback, pmda);
     pmdaTreeRebuildHash(data->pcp_pmns, data->pcp_metric_count);
     pthread_mutex_lock(&data->metrics_storage->mutex);
@@ -246,13 +248,21 @@ statsd_text(int ident, int type, char** buffer, pmdaExt* pmda) {
             }
             case 4:
             {
+                static char oneliner[] = "Number of tracked metrics";
+                static char full_description[] = 
+                    "Number of tracked metrics.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+            case 5:
+            {
                 static char oneliner[] = "Total time in microseconds spent parsing metrics";
                 static char full_description[] = 
                     "Total time in microseconds spent parsing metrics. Includes time spent parsing a datagram and failing midway.\n";
                 *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
                 return 0;
             }
-            case 5:
+            case 6:
             {
                 static char oneliner[] = "Total time in microseconds spent aggregating metrics";
                 static char full_description[] = 
@@ -474,27 +484,48 @@ statsd_fetch_callback(pmdaMetric* mdesc, unsigned int instance, pmAtomValue* ato
             switch (item) {
                 /* received */
                 case 0:
-                    atom->ull = get_agent_stat(config, stats, STAT_RECEIVED);
+                    atom->ull = get_agent_stat(config, stats, STAT_RECEIVED, NULL);
                     break;
                 /* parsed */
                 case 1:
-                    atom->ull = get_agent_stat(config, stats, STAT_PARSED);
+                    atom->ull = get_agent_stat(config, stats, STAT_PARSED, NULL);
                     break;
                 /* thrown away */
                 case 2:
-                    atom->ull = get_agent_stat(config, stats, STAT_DROPPED);
+                    atom->ull = get_agent_stat(config, stats, STAT_DROPPED, NULL);
                     break;
                 /* aggregated */
                 case 3:
-                    atom->ull = get_agent_stat(config, stats, STAT_AGGREGATED);
+                    atom->ull = get_agent_stat(config, stats, STAT_AGGREGATED, NULL);
                     break;
-                /* time_spent_parsing */
                 case 4:
-                    atom->ull = get_agent_stat(config, stats, STAT_TIME_SPENT_PARSING);
+                {
+                    if (instance == 0) {
+                        atom->ull = get_agent_stat(config, stats, STAT_TRACKED_METRIC, (void*)METRIC_TYPE_COUNTER);
+                        break;
+                    }
+                    if (instance == 1) {
+                        atom->ull = get_agent_stat(config, stats, STAT_TRACKED_METRIC, (void*)METRIC_TYPE_GAUGE);
+                        break;
+                    }
+                    if (instance == 2) {
+                        atom->ull = get_agent_stat(config, stats, STAT_TRACKED_METRIC, (void*)METRIC_TYPE_DURATION);
+                        break;
+                    }
+                    if (instance == 3) {
+                        atom->ull = get_agent_stat(config, stats, STAT_TRACKED_METRIC, NULL);
+                        break;
+                    }
+                    status = PM_ERR_INST;
+                    break;
+                }
+                /* time_spent_parsing */
+                case 5:
+                    atom->ull = get_agent_stat(config, stats, STAT_TIME_SPENT_PARSING, NULL);
                     break;
                 /* time_spent_aggregating */
-                case 5:
-                    atom->ull = get_agent_stat(config, stats, STAT_TIME_SPENT_AGGREGATING);
+                case 6:
+                    atom->ull = get_agent_stat(config, stats, STAT_TIME_SPENT_AGGREGATING, NULL);
                     break;
                 default:
                     status = PM_ERR_PMID;

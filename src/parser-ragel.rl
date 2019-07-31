@@ -202,7 +202,7 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 	}
 	if (str[length - 1] == '\n')
         str[length - 1] = 0;
-	VERBOSE_LOG("Parsed: %s", str);
+	DEBUG_LOG("Parsed: %s", str);
 	return 1;
 
 	error_clean_up:

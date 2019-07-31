@@ -28,7 +28,7 @@ basic_parser_parse(char* buffer, struct statsd_datagram** datagram) {
     if (buffer[length - 1] == '\n')
         buffer[length - 1] = 0;
     if (parse(buffer, datagram)) {
-        VERBOSE_LOG("Parsed: %s", buffer);
+        DEBUG_LOG("Parsed: %s", buffer);
         return 1;
     }
     free_datagram(*datagram);

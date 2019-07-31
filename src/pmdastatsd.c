@@ -30,11 +30,11 @@ void signal_handler(int num) {
 }
 
 #define SET_INST_NAME(name, index) \
-    duration_instances[index].i_inst = index; \
+    instance[index].i_inst = index; \
     len = pmsprintf(buff, 20, "%s", name); \
-    duration_instances[index].i_name = (char*) malloc(sizeof(char) * len); \
+    instance[index].i_name = (char*) malloc(sizeof(char) * len); \
     ALLOC_CHECK("Unable to allocate memory for static PMDA instance descriptor."); \
-    memcpy(duration_instances[index].i_name, buff, len + 1);
+    memcpy(instance[index].i_name, buff, len + 1);
 
 /**
  * Registers hardcoded instances before PMDA initializes itself fully
@@ -42,14 +42,20 @@ void signal_handler(int num) {
  */
 static void
 create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
-    data->pcp_instance_domains = (pmdaIndom*) malloc(sizeof(pmdaIndom));
-    ALLOC_CHECK("Unable to allocate memory for static PMDA instances.");
-    data->pcp_instance_domains->it_indom = 0;
-    data->pcp_instance_domains->it_numinst = 9;
-    pmdaInstid* duration_instances = (pmdaInstid*) malloc(sizeof(pmdaInstid) * 9);
-    ALLOC_CHECK("Unable to allocate memory for static PMDA instance descriptors.");
     size_t len = 0;
     char buff[20];
+    size_t hardcoded_count = 2;
+
+    data->pcp_instance_domains = (pmdaIndom*) malloc(hardcoded_count * sizeof(pmdaIndom));
+    ALLOC_CHECK("Unable to allocate memory for static PMDA instances.");
+    
+    pmdaInstid* instance;
+
+    instance = (pmdaInstid*) malloc(sizeof(pmdaInstid) * 9);
+    ALLOC_CHECK("Unable to allocate memory for static PMDA instance descriptors.");
+    data->pcp_instance_domains[0].it_indom = DURATION_INDOM;
+    data->pcp_instance_domains[0].it_numinst = 9;
+    data->pcp_instance_domains[0].it_set = instance;
     SET_INST_NAME("min", 0);
     SET_INST_NAME("max", 1);
     SET_INST_NAME("median", 2);
@@ -59,8 +65,18 @@ create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
     SET_INST_NAME("percentile99", 6);
     SET_INST_NAME("count", 7);
     SET_INST_NAME("std_derivation", 8);
-    data->pcp_instance_domains->it_set = duration_instances;
-    data->pcp_instance_domain_count = 1;
+
+    instance = (pmdaInstid*) malloc(sizeof(pmdaInstid) * 4);
+    ALLOC_CHECK("Unable to allocate memory for static PMDA instance descriptor.");
+    data->pcp_instance_domains[1].it_indom = METRIC_COUNTERS_INDOM;
+    data->pcp_instance_domains[1].it_numinst = 4;
+    data->pcp_instance_domains[1].it_set = instance;
+    SET_INST_NAME("counter", 0);
+    SET_INST_NAME("gauge", 1);
+    SET_INST_NAME("duration", 2);
+    SET_INST_NAME("total", 3);
+
+    data->pcp_instance_domain_count = hardcoded_count;
 }
 
 /**
@@ -70,8 +86,8 @@ create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
 static void
 create_statsd_hardcoded_metrics(struct pmda_data_extension* data) {
     size_t i;
-    size_t hardcoded_count = 6;
-    data->pcp_metrics = malloc(hardcoded_count * sizeof(pmdaMetric));
+    size_t hardcoded_count = 7;
+    data->pcp_metrics = (pmdaMetric*) malloc(hardcoded_count * sizeof(pmdaMetric));
     ALLOC_CHECK("Unable to allocate space for static PMDA metrics.");
     // helper containing only reference to priv data same for all hardcoded metrics
     static struct pmda_metric_helper helper;
@@ -80,11 +96,13 @@ create_statsd_hardcoded_metrics(struct pmda_data_extension* data) {
         data->pcp_metrics[i].m_user = &helper;
         data->pcp_metrics[i].m_desc.pmid = pmID_build(STATSD, 0, i);
         data->pcp_metrics[i].m_desc.type = PM_TYPE_U64;
-        data->pcp_metrics[i].m_desc.indom = PM_INDOM_NULL;
         data->pcp_metrics[i].m_desc.sem = PM_SEM_INSTANT;
-        if (i < 4) {
-            memset(&data->pcp_metrics[i].m_desc.units, 0, sizeof(pmUnits));
+        if (i == 4) {
+            data->pcp_metrics[i].m_desc.indom = METRIC_COUNTERS_INDOM;
         } else {
+            data->pcp_metrics[i].m_desc.indom = PM_INDOM_NULL;
+        }
+        if (i == 5 || i == 6) {
             // time_spent_parsing / time_spent_aggregating
             data->pcp_metrics[i].m_desc.units.dimSpace = 0;
             data->pcp_metrics[i].m_desc.units.dimTime = 0;
@@ -93,9 +111,12 @@ create_statsd_hardcoded_metrics(struct pmda_data_extension* data) {
             data->pcp_metrics[i].m_desc.units.scaleSpace = 0;
             data->pcp_metrics[i].m_desc.units.scaleTime = PM_TIME_NSEC;
             data->pcp_metrics[i].m_desc.units.scaleCount = 1;
+        } else {
+            // rest
+            memset(&data->pcp_metrics[i].m_desc.units, 0, sizeof(pmUnits));
         }
     }
-    data->pcp_metric_count = 6;
+    data->pcp_metric_count = hardcoded_count;
 }
 
 /**

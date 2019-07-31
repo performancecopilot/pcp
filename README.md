@@ -217,6 +217,11 @@ Agent also exports metrics about itself:
 - **statsd.pmda.parsed** <br>Number of datagrams that were successfully parsed
 - **statsd.pmda.dropped** <br>Number of datagrams that were dropped
 - **statsd.pmda.aggregated** <br>Number of datagrams that were aggregated
+- **statsd.pmda.metrics_tracked**
+    - **counter** - Number of tracked counter metrics
+    - **gauge** - Number of tracked gauge metrics
+    - **duration** - Number of tracked duration metrics
+    - **total** - Number of tracked total metrics
 - **statsd.pmda.time_spent_parsing** <br>Total time in nanoseconds spent parsing metrics
 - **statsd.pmda.time_spent_aggregating** <br>Total time in nanoseconds spent aggregating metrics
 

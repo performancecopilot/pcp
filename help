@@ -10,6 +10,9 @@ Number of datagrams that were dropped
 @ statsd.pmda.aggregated
 Number of datagrams that were aggregated
 
+@ statsd.pmda.metrics_tracked
+Number of tracked metrics
+
 @ statsd.pmda.time_spent_parsing
 Total time in nanoseconds spent parsing metrics
 

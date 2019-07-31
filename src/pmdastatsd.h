@@ -9,6 +9,7 @@
 #include "aggregator-metrics.h"
 
 #define DURATION_INDOM 0
+#define METRIC_COUNTERS_INDOM 1
 
 struct pmda_metric_helper {
     struct pmda_data_extension* data;

@@ -13,15 +13,23 @@ enum STAT_TYPE {
     STAT_AGGREGATED,
     STAT_TIME_SPENT_PARSING,
     STAT_TIME_SPENT_AGGREGATING,
+    STAT_TRACKED_METRIC
 } STAT_TYPE;
 
+struct metric_counters {
+    size_t counter;
+    size_t gauge;
+    size_t duration;
+} metric_counters;
+
 struct pmda_stats {
-    unsigned long int received;
-    unsigned long int parsed;
-    unsigned long int dropped;
-    unsigned long int aggregated;
-    unsigned long int time_spent_parsing;
-    unsigned long int time_spent_aggregating;    
+    size_t received;
+    size_t parsed;
+    size_t dropped;
+    size_t aggregated;
+    size_t time_spent_parsing;
+    size_t time_spent_aggregating;
+    struct metric_counters* metrics_recorded;
 } pmda_stats;
 
 struct pmda_stats_container {
@@ -34,6 +42,17 @@ struct pmda_stats_container {
  */
 struct pmda_stats_container*
 init_pmda_stats(struct agent_config* config);
+
+/**
+ * Resets stat_message
+ * @arg config
+ * @arg s - Data structure shared with PCP thread containing all PMDA statistics data
+ * @arg type - Type of message
+ * 
+ * Synchronized by mutex on pmda_stats_container
+ */
+void
+reset_stat(struct agent_config* config, struct pmda_stats_container* s, enum STAT_TYPE type);
 
 /**
  * Processes given stat_message
@@ -63,10 +82,11 @@ print_agent_stats(struct agent_config* config, FILE* f, struct pmda_stats_contai
  * @arg config
  * @arg stats - Data structure shared with PCP thread containing all PMDA statistics data
  * @arg type - what stat to return
- * 
+ * @arg data - optional params for stat query
+ *
  * Synchronized by mutex on pmda_stats_container
  */
 unsigned long int
-get_agent_stat(struct agent_config* config, struct pmda_stats_container* stats, enum STAT_TYPE type);
+get_agent_stat(struct agent_config* config, struct pmda_stats_container* stats, enum STAT_TYPE type, void* data);
 
 #endif
