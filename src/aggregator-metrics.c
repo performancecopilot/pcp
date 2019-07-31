@@ -389,8 +389,9 @@ check_metric_name_available(struct pmda_metrics_container* container, char* key)
         "pmda.parsed",
         "pmda.aggregated",
         "pmda.dropped",
+        "pmda.metrics_tracked",
         "pmda.time_spent_aggregating",
-        "pmda.time_spent_parsing"
+        "pmda.time_spent_parsing",
     };
     size_t i;
     for (i = 0; i < sizeof(g_blacklist) / sizeof(g_blacklist[0]); i++) {
