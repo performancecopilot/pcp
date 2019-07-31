@@ -31,10 +31,10 @@ void signal_handler(int num) {
 
 #define SET_INST_NAME(name, index) \
     instance[index].i_inst = index; \
-    len = pmsprintf(buff, 20, "%s", name); \
+    len = pmsprintf(buff, 20, "%s", name) + 1; \
     instance[index].i_name = (char*) malloc(sizeof(char) * len); \
     ALLOC_CHECK("Unable to allocate memory for static PMDA instance descriptor."); \
-    memcpy(instance[index].i_name, buff, len + 1);
+    memcpy(instance[index].i_name, buff, len);
 
 /**
  * Registers hardcoded instances before PMDA initializes itself fully

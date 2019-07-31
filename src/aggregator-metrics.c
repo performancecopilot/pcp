@@ -90,10 +90,10 @@ create_metric_dict_key(char* name, char* tags) {
         "%s&%s",
         name,
         tags != NULL ? tags : "-"
-    );
-    char* result = malloc(key_size + 1);
+    ) + 1;
+    char* result = malloc(key_size);
     ALLOC_CHECK("Unable to allocate memory for hashtable key");
-    memcpy(result, &buffer, key_size + 1);
+    memcpy(result, &buffer, key_size);
     return result;
 }
 

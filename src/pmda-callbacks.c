@@ -60,11 +60,11 @@ create_pcp_metric(char* key, struct metric* item, pmdaExt* pmda) {
     item->meta->pmid = get_next_pmID(data);
     // set pcp_name to metric
     char name[64];
-    size_t len = pmsprintf(name, 64, "statsd.%s", item->name);
+    size_t len = pmsprintf(name, 64, "statsd.%s", item->name) + 1;
     item->meta->pcp_name = (char*) malloc(sizeof(char) * len);
     ALLOC_CHECK("Unable to allocate mem for PCP metric name for StatsD metric.");
-    item->meta->pcp_name = name;
-    DEBUG_LOG("statsd: create_metric: %s - %s", item->meta->pcp_name, pmIDStr(item->meta->pmid));
+    memcpy((char*)item->meta->pcp_name, name, len);
+    VERBOSE_LOG("statsd: create_metric: %s - %s", item->meta->pcp_name, pmIDStr(item->meta->pmid));
     // extend current pcp_metrics
     data->pcp_metrics = realloc(data->pcp_metrics, sizeof(pmdaMetric) * (data->pcp_metric_count + 1));
     ALLOC_CHECK("Cannot grow statsd metric list");
@@ -89,9 +89,6 @@ create_pcp_metric(char* key, struct metric* item, pmdaExt* pmda) {
     DEBUG_LOG(
         "STATSD: adding metric %s %s from %s\n", item->meta->pcp_name, pmIDStr(item->meta->pmid), item->name
     );
-    // now add the new pmid into pmdaTree
-    data->pcp_metric_count += 1;
-    pmdaTreeInsert(data->pcp_pmns, item->meta->pmid, name);
 }
 
 /**
