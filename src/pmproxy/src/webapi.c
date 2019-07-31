@@ -196,9 +196,9 @@ on_pmwebapi_metric(sds context, pmWebMetric *metric, void *arg)
 			metric->name, metric->series);
     if (baton->compat == 0) {
 	pmIDStr_r(metric->pmid, pmidstr, sizeof(pmidstr));
-	result = sdscatfmt(result, ",\"pmID\":\"%s\"", pmidstr);
+	result = sdscatfmt(result, ",\"pmid\":\"%s\"", pmidstr);
     } else {
-	result = sdscatfmt(result, ",\"pmID\":%u", metric->pmid);
+	result = sdscatfmt(result, ",\"pmid\":%u", metric->pmid);
     }
     if (metric->indom != PM_INDOM_NULL) {
 	if (baton->compat == 0) {
@@ -221,10 +221,12 @@ on_pmwebapi_metric(sds context, pmWebMetric *metric, void *arg)
 	result = sdscatfmt(result, ",\"text-oneline\":%S", quoted);
 	sdsfree(quoted);
     }
-    if (metric->helptext &&
-		(quoted = sdscatrepr(sdsempty(), metric->helptext,
-			sdslen(metric->helptext))) != NULL) {
-	result = sdscatfmt(result, ",\"text-helptext\":%S", quoted);
+    quoted = (metric->helptext && metric->helptext[0] != '\0') ?
+		metric->helptext : metric->oneline;
+    if (quoted &&
+		(quoted = sdscatrepr(sdsempty(), quoted,
+			sdslen(quoted))) != NULL) {
+	result = sdscatfmt(result, ",\"text-help\":%S", quoted);
 	sdsfree(quoted);
     }
     result = sdscatlen(result, "}", 1);
@@ -313,9 +315,9 @@ on_pmwebapi_fetch_value(sds context, pmWebValue *value, void *arg)
 	result = sdscatlen(result, ",", 1);
     baton->numinsts++;
 
-    if (baton->compat == 0 && value->inst == PM_IN_NULL) {
-	result = sdscatfmt(result, "{\"instance\":null,\"value\":%S}",
-			    value->value);
+    if (value->inst == PM_IN_NULL) {
+	result = sdscatfmt(result, "{\"instance\":%s,\"value\":%S}",
+				baton->compat ? "-1" : "null", value->value);
     } else {
 	result = sdscatfmt(result, "{\"instance\":%u,\"value\":%S}",
 			    value->inst, value->value);
@@ -366,10 +368,10 @@ on_pmwebapi_indom(sds context, pmWebInDom *indom, void *arg)
 	result = sdscatfmt(result, ",\"text-oneline\":%S", quoted);
 	sdsfree(quoted);
     }
-    if (indom->helptext &&
-		(quoted = sdscatrepr(sdsempty(),
-			indom->helptext, sdslen(indom->helptext)))) {
-	result = sdscatfmt(result, ",\"text-helptext\":%S", quoted);
+    quoted = (indom->helptext && indom->helptext[0] != '\0') ?
+		indom->helptext : indom->oneline;
+    if (quoted && (quoted = sdscatrepr(sdsempty(), quoted, sdslen(quoted)))) {
+	result = sdscatfmt(result, ",\"text-help\":%S", quoted);
 	sdsfree(quoted);
     }
     result = sdscatfmt(result, ",\"instances\":[");

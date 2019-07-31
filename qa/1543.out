@@ -85,7 +85,7 @@ Context successfully expired
         {
             "name": "sample.long.ten",
             "series": "SERIES"
-            "pmID": "29.0.11",
+            "pmid": "29.0.11",
             "type": "32",
             "sem": "instant",
             "units": "none",
@@ -97,7 +97,7 @@ Context successfully expired
                 "role": "testing"
             },
             "text-oneline": "10 as a 32-bit integer",
-            "text-helptext": ""
+            "text-help": "10 as a 32-bit integer"
         }
     ]
 }
@@ -108,7 +108,7 @@ Context successfully expired
         {
             "name": "sample.long.one",
             "series": "SERIES"
-            "pmID": "29.0.10",
+            "pmid": "29.0.10",
             "type": "32",
             "sem": "instant",
             "units": "none",
@@ -120,12 +120,12 @@ Context successfully expired
                 "role": "testing"
             },
             "text-oneline": "1 as a 32-bit integer",
-            "text-helptext": ""
+            "text-help": "1 as a 32-bit integer"
         },
         {
             "name": "sample.long.ten",
             "series": "SERIES"
-            "pmID": "29.0.11",
+            "pmid": "29.0.11",
             "type": "32",
             "sem": "instant",
             "units": "none",
@@ -137,12 +137,12 @@ Context successfully expired
                 "role": "testing"
             },
             "text-oneline": "10 as a 32-bit integer",
-            "text-helptext": ""
+            "text-help": "10 as a 32-bit integer"
         },
         {
             "name": "sample.long.hundred",
             "series": "SERIES"
-            "pmID": "29.0.12",
+            "pmid": "29.0.12",
             "type": "32",
             "sem": "instant",
             "units": "none",
@@ -154,12 +154,12 @@ Context successfully expired
                 "role": "testing"
             },
             "text-oneline": "100 as a 32-bit integer",
-            "text-helptext": ""
+            "text-help": "100 as a 32-bit integer"
         },
         {
             "name": "sample.long.million",
             "series": "SERIES"
-            "pmID": "29.0.13",
+            "pmid": "29.0.13",
             "type": "32",
             "sem": "instant",
             "units": "none",
@@ -171,12 +171,12 @@ Context successfully expired
                 "role": "testing"
             },
             "text-oneline": "1000000 as a 32-bit integer",
-            "text-helptext": ""
+            "text-help": "1000000 as a 32-bit integer"
         },
         {
             "name": "sample.long.write_me",
             "series": "SERIES"
-            "pmID": "29.0.14",
+            "pmid": "29.0.14",
             "type": "32",
             "sem": "instant",
             "units": "none",
@@ -188,12 +188,12 @@ Context successfully expired
                 "role": "testing"
             },
             "text-oneline": "a 32-bit integer that can be modified",
-            "text-helptext": ""
+            "text-help": "a 32-bit integer that can be modified"
         },
         {
             "name": "sample.long.bin",
             "series": "SERIES"
-            "pmID": "29.0.103",
+            "pmid": "29.0.103",
             "indom": "29.2",
             "type": "32",
             "sem": "instant",
@@ -206,12 +206,12 @@ Context successfully expired
                 "role": "testing"
             },
             "text-oneline": "like sample.bin but type 32",
-            "text-helptext": ""
+            "text-help": "like sample.bin but type 32"
         },
         {
             "name": "sample.long.bin_ctr",
             "series": "SERIES"
-            "pmID": "29.0.104",
+            "pmid": "29.0.104",
             "indom": "29.2",
             "type": "32",
             "sem": "counter",
@@ -224,7 +224,7 @@ Context successfully expired
                 "role": "testing"
             },
             "text-oneline": "like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE",
-            "text-helptext": ""
+            "text-help": "like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE"
         }
     ]
 }
@@ -372,6 +372,8 @@ Context successfully expired
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
     },
+    "text-oneline": "Instance domain \"bin\" for sample PMDA",
+    "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\n\"bin-100\" .. \"bin-900\"",
     "instances": [
         {
             "instance": 900,
@@ -455,6 +457,8 @@ Context successfully expired
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
     },
+    "text-oneline": "Instance domain \"bin\" for sample PMDA",
+    "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\n\"bin-100\" .. \"bin-900\"",
     "instances": [
         {
             "instance": 900,
@@ -563,6 +567,8 @@ Context successfully expired
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
     },
+    "text-oneline": "Instance domain \"bin\" for sample PMDA",
+    "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\n\"bin-100\" .. \"bin-900\"",
     "instances": [
         {
             "instance": 900,

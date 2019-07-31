@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -76,6 +76,7 @@ extern struct indom *pmwebapi_new_indom(struct context *,
 extern struct indom *pmwebapi_add_indom(struct context *,
 		struct domain *, pmInDom);
 extern void pmwebapi_add_indom_labels(struct indom *);
+extern void pmwebapi_indom_help(struct indom *);
 
 extern unsigned int pmwebapi_add_indom_instances(struct indom *);
 extern void pmwebapi_add_instances_labels(struct indom *);

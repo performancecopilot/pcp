@@ -1178,6 +1178,7 @@ pmWebGroupInDom(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	count = pmwebapi_add_indom_instances(ip);
 	pmwebapi_add_instances_labels(ip);
     }
+    pmwebapi_indom_help(ip);
 
     if (instnames) {
 	length = sdslen(instnames);
