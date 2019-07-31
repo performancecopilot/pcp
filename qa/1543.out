@@ -86,7 +86,6 @@ Context successfully expired
             "name": "sample.long.ten",
             "series": "SERIES"
             "pmID": "29.0.11",
-            "indom": "PM_INDOM_NULL",
             "type": "32",
             "sem": "instant",
             "units": "none",
@@ -110,7 +109,6 @@ Context successfully expired
             "name": "sample.long.one",
             "series": "SERIES"
             "pmID": "29.0.10",
-            "indom": "PM_INDOM_NULL",
             "type": "32",
             "sem": "instant",
             "units": "none",
@@ -128,7 +126,6 @@ Context successfully expired
             "name": "sample.long.ten",
             "series": "SERIES"
             "pmID": "29.0.11",
-            "indom": "PM_INDOM_NULL",
             "type": "32",
             "sem": "instant",
             "units": "none",
@@ -146,7 +143,6 @@ Context successfully expired
             "name": "sample.long.hundred",
             "series": "SERIES"
             "pmID": "29.0.12",
-            "indom": "PM_INDOM_NULL",
             "type": "32",
             "sem": "instant",
             "units": "none",
@@ -164,7 +160,6 @@ Context successfully expired
             "name": "sample.long.million",
             "series": "SERIES"
             "pmID": "29.0.13",
-            "indom": "PM_INDOM_NULL",
             "type": "32",
             "sem": "instant",
             "units": "none",
@@ -182,7 +177,6 @@ Context successfully expired
             "name": "sample.long.write_me",
             "series": "SERIES"
             "pmID": "29.0.14",
-            "indom": "PM_INDOM_NULL",
             "type": "32",
             "sem": "instant",
             "units": "none",

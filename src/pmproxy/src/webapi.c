@@ -196,12 +196,17 @@ on_pmwebapi_metric(sds context, pmWebMetric *metric, void *arg)
 			metric->name, metric->series);
     if (baton->compat == 0) {
 	pmIDStr_r(metric->pmid, pmidstr, sizeof(pmidstr));
-	pmInDomStr_r(metric->indom, indomstr, sizeof(indomstr));
-	result = sdscatfmt(result, ",\"pmID\":\"%s\",\"indom\":\"%s\"",
-				pmidstr, indomstr);
+	result = sdscatfmt(result, ",\"pmID\":\"%s\"", pmidstr);
     } else {
-	result = sdscatfmt(result, ",\"pmID\":%u,\"indom\":%u",
-				metric->pmid, metric->indom);
+	result = sdscatfmt(result, ",\"pmID\":%u", metric->pmid);
+    }
+    if (metric->indom != PM_INDOM_NULL) {
+	if (baton->compat == 0) {
+	    pmInDomStr_r(metric->indom, indomstr, sizeof(indomstr));
+	    result = sdscatfmt(result, ",\"indom\":\"%s\"", indomstr);
+	} else {
+	    result = sdscatfmt(result, ",\"indom\":%u", metric->indom);
+	}
     }
     result = sdscatfmt(result,
 		",\"type\":\"%s\",\"sem\":\"%s\",\"units\":\"%s\",\"labels\":",
