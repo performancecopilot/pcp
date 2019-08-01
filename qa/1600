@@ -171,6 +171,9 @@ rm -fr $base
 pmsleep 0.5	# allow filesystem event some time to arrive
 pmcd_wait -h localhost@localhost:$proxyport -v -t 1sec	# pmproxy still up?
 
+echo "== log " >> $seq.full
+cat $tmp.pmproxy.log >> $seq.full
+
 echo "== all done" | tee -a $seq.full
 
 # success, all done

@@ -143,6 +143,14 @@ else
     echo '/allow \[pcp_pmcd_t] .*\[bpf]/d' >>$tmp.sed
 fi
 
+if seinfo -x --class=capability2 $common_flag 2>&1 \
+   | grep '^[ 	][ 	]*syslog$' >/dev/null
+then
+    :
+else
+    echo '/allow \[pcp_pmcd_t\] .*\[capability2\]/d' >>$tmp.sed
+fi
+
 if seinfo -a 2>&1 \
    | grep '^[ 	][ 	]*non_auth_file_type$' >/dev/null
 then
