@@ -262,7 +262,7 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
 	uv_fs_req_cleanup(&sreq);
     }
 
-    if (p && p->changed && path_changed)
+    if (p && p->changed && path_changed && !(p->flags & PM_DISCOVER_FLAGS_DELETED))
 	p->changed(p);
 
     sdsfree(path);
@@ -884,21 +884,21 @@ changed_callback(pmDiscover *p)
 	fprintf(stderr, "CHANGED %s (%s)\n", p->context.name,
 			pmDiscoverFlagsStr(p));
 
-    if (p->flags & PM_DISCOVER_FLAGS_DIRECTORY) {
+    if (p->flags & PM_DISCOVER_FLAGS_DELETED) {
+	/* path or directory has been deleted - remove from hash table */
+	deleted_callback(p);
+    }
+    else if (p->flags & PM_DISCOVER_FLAGS_DIRECTORY) {
 	/*
 	 * A changed directory path means a new archive or subdirectory
-	 * has been created, or an existing path has been deleted.
+	 * has been created - traverse and update the hash table.
 	 */
 	pmDiscoverArchives(p->context.name, p->module, p->data);
 	pmDiscoverTraverse(PM_DISCOVER_FLAGS_NEW, created_callback);
-	pmDiscoverTraverse(PM_DISCOVER_FLAGS_DELETED, deleted_callback);
-    }
-    else if (p->flags & PM_DISCOVER_FLAGS_DELETED) {
-	/* path has been deleted - cleanup and remove */
-	deleted_callback(p);
+	// pmDiscoverTraverse(PM_DISCOVER_FLAGS_DELETED, deleted_callback);
     }
     else if (p->flags & PM_DISCOVER_FLAGS_COMPRESSED) {
-    	/* we do not monitor any compressed files - do nothing */
+    	/* we do not monitor compressed files - do nothing */
 	; /**/
     }
     else if (p->flags & (PM_DISCOVER_FLAGS_DATAVOL|PM_DISCOVER_FLAGS_META)) {
