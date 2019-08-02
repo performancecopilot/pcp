@@ -1178,6 +1178,7 @@ pmWebGroupInDom(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	count = pmwebapi_add_indom_instances(ip);
 	pmwebapi_add_instances_labels(ip);
     }
+    pmwebapi_indom_help(ip);
 
     if (instnames) {
 	length = sdslen(instnames);
@@ -1677,6 +1678,7 @@ struct instore {
     unsigned int	count;
     unsigned int	maximum;
     unsigned int	type;
+    pmInDom		indom;
     int			status;
 };
 
@@ -1685,13 +1687,16 @@ store_found_insts(void *arg, const struct dictEntry *entry)
 {
     struct instore	*store = (struct instore *)arg;
     pmValue		*value;
-    int			i;
+    int			i, id, sts;
 
     if (store->count < store->maximum) {
+	id = *(int *)entry->key;
+	if ((sts = pmAddProfile(store->indom, 1, &id)) < 0)
+	    store->status = sts;
 	i = store->count++;	/* current position */
 	value = &store->vset->vlist[i];
 	store->status = __pmStuffValue(store->atom, value, store->type);
-	value->inst = *(int *)entry->key;
+	value->inst = id;
     } else {
 	store->status = -E2BIG;
     }
@@ -1722,7 +1727,7 @@ webgroup_store(struct metric *metric, int numnames, sds *names,
     pmResult		*result = NULL;
     size_t		bytes;
     long		cursor = 0;
-    int			i, sts, count;
+    int			i, id, sts, count;
 
     if ((sts = __pmStringValue(value, &atom, metric->desc.type)) < 0)
 	return sts;
@@ -1737,7 +1742,7 @@ webgroup_store(struct metric *metric, int numnames, sds *names,
 	count = numids;
     else if (numnames > 0)
 	count = numnames;
-    else if (indom == NULL || (count = dictSize(indom->insts)) < 1)
+    else
 	count = 1;
 
     bytes = sizeof(pmValueSet) + sizeof(pmValue) * (count - 1);
@@ -1750,20 +1755,25 @@ webgroup_store(struct metric *metric, int numnames, sds *names,
     result->vset[0] = valueset;
     result->numpmid = 1;
 
-    if (metric->desc.indom == PM_INDOM_NULL ||
-	indom == NULL || dictSize(indom->insts) < 1) {
+    if (metric->desc.indom == PM_INDOM_NULL || indom == NULL) {
 	valueset->vlist[0].inst = PM_IN_NULL;
         sts = __pmStuffValue(&atom, &valueset->vlist[0], metric->desc.type);
     } else if (numids > 0) {
+	pmDelProfile(indom->indom, 0, NULL);
 	for (i = 0; i < numids && sts >= 0; i++) {
-	    valueset->vlist[i].inst = atoi(ids[i]);
+	    id = atoi(ids[i]);
+	    if ((sts = pmAddProfile(indom->indom, 1, &id)) < 0)
+		continue;
+	    valueset->vlist[i].inst = id;
 	    sts = __pmStuffValue(&atom, &valueset->vlist[i], metric->desc.type);
 	}
     } else if (numnames > 0) {
+	pmDelProfile(indom->indom, 0, NULL);
 	/* walk instances dictionary adding named instances */
 	store.atom = &atom;
 	store.vset = valueset;
 	store.type = metric->desc.type;
+	store.indom = metric->desc.indom;
 	store.names = names;
 	store.maximum = count;
 	store.numnames = numnames;
@@ -1773,16 +1783,8 @@ webgroup_store(struct metric *metric, int numnames, sds *names,
 	} while (cursor && store.status >= 0);
 	sts = store.status;
     } else {
-	/* walk instances dictionary adding all instances */
-	store.atom = &atom;
-	store.vset = valueset;
-	store.type = metric->desc.type;
-	store.maximum = count;
-	do {
-	    cursor = dictScan(indom->insts, cursor,
-				store_found_insts, NULL, &store);
-	} while (cursor && store.status >= 0);
-	sts = store.status;
+	valueset->vlist[0].inst = PM_IN_NULL;
+        sts = __pmStuffValue(&atom, &valueset->vlist[0], metric->desc.type);
     }
     if (atom.cp && metric->desc.type == PM_TYPE_STRING)
 	free(atom.cp);

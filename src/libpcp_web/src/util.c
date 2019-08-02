@@ -1087,3 +1087,21 @@ pmwebapi_metric_help(struct metric *metric)
 	free(text);
     }
 }
+
+void
+pmwebapi_indom_help(struct indom *indom)
+{
+    pmInDom		id = indom->indom;
+    char		*text;
+
+    if (indom->oneline == NULL &&
+	pmLookupInDomText(id, PM_TEXT_ONELINE | PM_TEXT_DIRECT, &text) == 0) {
+	indom->oneline = sdsnew(text);
+	free(text);
+    }
+    if (indom->helptext == NULL &&
+	pmLookupInDomText(id, PM_TEXT_HELP | PM_TEXT_DIRECT, &text) == 0) {
+	indom->helptext = sdsnew(text);
+	free(text);
+    }
+}

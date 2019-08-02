@@ -90,6 +90,7 @@ $1 == "y" && $2 = "y" && $8 == "localhost" {
     | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../' \
     | _filter_me \
     | sed -e '/MY_HOSTNAME A_PID/{
+s/^9 /N-OK /
 s/^16 /N-OK /
 s/^17 /N-OK /
 s/^18 /N-OK /
