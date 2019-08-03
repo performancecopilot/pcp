@@ -112,6 +112,7 @@ PCP_WEB_1.6 {
     dictGenCaseHashFunction;
     dictGetSafeIterator;
     dictNext;
+    dictDelete;
     dictRelease;
     dictReleaseIterator;
 } PCP_WEB_1.5;
