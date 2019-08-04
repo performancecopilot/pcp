@@ -8,8 +8,9 @@
 #include "config-reader.h"
 #include "aggregator-metrics.h"
 
-#define DURATION_INDOM 0
-#define METRIC_COUNTERS_INDOM 1
+#define STATS_METRIC_COUNTERS_INDOM 0
+#define STATSD_METRIC_DEFAULT_DURATION_INDOM 1
+#define STATSD_METRIC_DEFAULT_INDOM 2
 
 struct pmda_metric_helper {
     struct pmda_data_extension* data;
@@ -29,6 +30,7 @@ struct pmda_data_extension {
     size_t generation;
     int next_cluster_id;
     int next_item_id;
+    pmInDom next_pmindom;
     int notify;
 } pmda_data_extension;
 

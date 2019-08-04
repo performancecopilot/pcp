@@ -1,32 +1,36 @@
 #ifndef AGGREGATOR_COUNTER_
 #define AGGREGATOR_COUNTER_
 
-#include <stdio.h>
-
 #include "config-reader.h"
 #include "network-listener.h"
 #include "aggregators.h"
 #include "aggregator-metrics.h"
 
 /**
- * Creates counter metric record
- * @arg config - / (safe to null)
- * @arg datagram - Datagram with source data
- * @arg out - Placeholder metric
- * @return 1 on success, 0 on fail
+ * Creates counter value in given dest
+ * @arg
  */
 int
-create_counter_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out);
+create_counter_value(struct agent_config* config, struct statsd_datagram* datagram, void** out);
 
 /**
  * Update counter metric record
  * @arg config - / (safe to null)
- * @arg item - Item to update
- * @arg datagram - Date to update item
+ * @arg Value - Value to update
+ * @arg datagram - Data to update item
  * @return 1 on success, 0 on fail
  */
 int
-update_counter_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram);
+update_counter_value(struct agent_config* config, struct statsd_datagram* datagram, void* value);
+
+/**
+ * Print counter metric value
+ * @arg config
+ * @arg f - Opened file handle
+ * @arg value
+ */
+void
+print_counter_metric_value(struct agent_config* config, FILE* f, void* value);
 
 /**
  * Prints counter metric information

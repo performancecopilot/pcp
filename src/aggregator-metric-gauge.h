@@ -1,23 +1,17 @@
 #ifndef AGGREGATOR_GAUGE_
 #define AGGREGATOR_GAUGE_
 
-#include <stdio.h>
-
 #include "config-reader.h"
 #include "network-listener.h"
 #include "aggregators.h"
 #include "aggregator-metrics.h"
 
-
 /**
- * Creates gauge metric record
- * @arg config - Config from in which gauge type is specified
- * @arg datagram - Datagram with source data
- * @arg out - Placeholder metric
- * @return 1 on success, 0 on fail
+ * Creates gauge value in given dest
+ * @arg
  */
 int
-create_gauge_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out);
+create_gauge_value(struct agent_config* config, struct statsd_datagram* datagram, void** out);
 
 /**
  * Updates gauge metric record of value subtype
@@ -27,7 +21,16 @@ create_gauge_metric(struct agent_config* config, struct statsd_datagram* datagra
  * @return 1 on success, 0 on fail
  */
 int
-update_gauge_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram);
+update_gauge_value(struct agent_config* config, struct statsd_datagram* datagram, void* value);
+
+/**
+ * Print gauge metric value
+ * @arg config
+ * @arg f - Opened file handle
+ * @arg value
+ */
+void
+print_gauge_metric_value(struct agent_config* config, FILE* f, void* value);
 
 /**
  * Prints gauge metric information

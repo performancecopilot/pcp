@@ -10,40 +10,11 @@
 #include "parsers.h"
 #include "network-listener.h"
 #include "aggregator-metrics.h"
+#include "aggregator-metric-labels.h"
 #include "aggregator-metric-counter.h"
 #include "aggregator-metric-gauge.h"
 #include "aggregator-metric-duration.h"
-
-static void
-metric_free_callback(void *privdata, void *val)
-{
-    struct agent_config* config = ((struct pmda_metrics_dict_privdata*)privdata)->config;
-    struct pmda_metrics_container* container = ((struct pmda_metrics_dict_privdata*)privdata)->container;
-    free_metric(config, container, (struct metric*)val);
-}
-
-static void*
-metric_key_duplicate_callback(void *privdata, const void *key)
-{
-    (void)privdata;
-    char* duplicate = malloc(strlen(key));
-    ALLOC_CHECK("Unable to duplicate key.");
-    strcpy(duplicate, key);
-    return duplicate;
-}
-
-static int
-metric_compare_callback(void* privdata, const void* key1, const void* key2)
-{
-    (void)privdata;
-    return strcmp((char*)key1, (char*)key2) == 0;
-}
-
-static uint64_t
-metric_hash_callback(const void *key)
-{
-    return dictGenCaseHashFunction((unsigned char *)key, strlen((char *)key));
-}
+#include "aggregator-metric-dict-callbacks.h"
 
 /**
  * Creates new pmda_metrics_container structure, initializes all stats to 0
@@ -54,9 +25,9 @@ init_pmda_metrics(struct agent_config* config) {
      * Callbacks for metrics hashtable
      */
     static dictType metric_dict_callbacks = {
-        .hashFunction	= metric_hash_callback,
-        .keyCompare		= metric_compare_callback,
-        .keyDup		    = metric_key_duplicate_callback,
+        .hashFunction	= str_hash_callback,
+        .keyCompare		= str_compare_callback,
+        .keyDup		    = str_duplicate_callback,
         .keyDestructor	= metric_free_callback,
         .valDestructor	= metric_free_callback,
     };
@@ -75,21 +46,19 @@ init_pmda_metrics(struct agent_config* config) {
     return container;
 }
 
-
 /**
  * Creates STATSD metric hashtable key for use in hashtable related functions (find_metric_by_name, check_metric_name_available)
  * @return new key
  */
 char*
-create_metric_dict_key(char* name, char* tags) {
-    int maximum_key_size = 4096;
+create_metric_dict_key(char* key) {
+    size_t maximum_key_size = 4096;
     char buffer[maximum_key_size]; // maximum key size
     int key_size = pmsprintf(
         buffer,
         maximum_key_size,
-        "%s&%s",
-        name,
-        tags != NULL ? tags : "-"
+        "%s",
+        key
     ) + 1;
     char* result = malloc(key_size);
     ALLOC_CHECK("Unable to allocate memory for hashtable key");
@@ -105,37 +74,56 @@ create_metric_dict_key(char* name, char* tags) {
  * @return status - 1 when successfully saved or updated, 0 when thrown away
  */
 int
-process_datagram(struct agent_config* config, struct pmda_metrics_container* container, struct statsd_datagram* datagram) {
+process_metric(struct agent_config* config, struct pmda_metrics_container* container, struct statsd_datagram* datagram) {
     struct metric* item;
-    char* key = create_metric_dict_key(datagram->name, datagram->tags);
+    char throwing_away_msg[] = "Throwing away datagram.";
+    char* key = create_metric_dict_key(datagram->name);
     if (key == NULL) {
-        VERBOSE_LOG("Throwing away datagram. REASON: unable to create hashtable key for metric record.");        
+        VERBOSE_LOG("%s REASON: unable to create hashtable key for metric record.", throwing_away_msg);
         return 0;
     }
     int metric_exists = find_metric_by_name(container, key, &item);
     if (metric_exists) {
-        int res = update_metric(config, container, item, datagram);
-        if (res == 0) {
-            VERBOSE_LOG("Throwing away datagram. REASON: semantically incorrect values.");
-            return 0;
-        } else if (res == -1) {
-            VERBOSE_LOG("Throwing away datagram. REASON: metric of same name but different type is already recorded.");
-            return 0;
+        int datagram_contains_tags = datagram->tags != NULL;
+        if (!datagram_contains_tags) {
+            int res = update_metric(config, container, item, datagram);
+            if (res == 0) {
+                VERBOSE_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
+                return 0;
+            } else if (res == -1) {
+                VERBOSE_LOG("%s REASON: metric of same name but different type is already recorded.", throwing_away_msg);
+                return 0;
+            }
+            return 1;
         }
-        return 1;
+        int label_success = process_labeled_datagram(config, container, item, datagram);
+        return label_success;
     } else {
         int name_available = check_metric_name_available(container, key);
         if (name_available) {
             int correct_semantics = create_metric(config, datagram, &item);
             if (correct_semantics) {
                 add_metric(container, key, item);
-                return 1;
-            } else {
-                VERBOSE_LOG("Throwing away datagram. REASON: semantically incorrect values.");
-                return 0;
+                int datagram_contains_tags = datagram->tags != NULL;
+                int complete = 1;
+                if (datagram_contains_tags) {
+                    complete = 0;
+                    int label_success = process_labeled_datagram(config, container, item, datagram);
+                    if (!label_success) {
+                        remove_metric(container, key);
+                    } else {
+                        mark_metric_as_pernament(container, item);
+                        complete = 1;
+                    }
+                } else {
+                    mark_metric_as_pernament(container, item);
+                }
+                return complete;
             }
+            VERBOSE_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
+            return 0;
         } else {
-            VERBOSE_LOG("Throwing away datagram. REASON: name is not available. (blacklisted?)");
+            VERBOSE_LOG("%s REASON: name is not available. (blacklisted?)", throwing_away_msg);
             return 0;
         }
     }
@@ -144,16 +132,10 @@ process_datagram(struct agent_config* config, struct pmda_metrics_container* con
 /**
  * Frees metric
  * @arg config - Agent config
- * @arg container - Metrics struct acting as metrics wrapper (optional)
  * @arg metric - Metric to be freed
- * 
- * Synchronized by mutex on pmda_metrics_container (if any passed)
  */
 void
-free_metric(struct agent_config* config, struct pmda_metrics_container* container, struct metric* item) {
-    if (container != NULL) {
-        pthread_mutex_lock(&container->mutex);
-    }
+free_metric(struct agent_config* config, struct metric* item) {
     if (item->name != NULL) {
         free(item->name);
     }
@@ -177,9 +159,6 @@ free_metric(struct agent_config* config, struct pmda_metrics_container* containe
     if (item != NULL) {
         free(item);
     }
-    if (container != NULL) {
-        pthread_mutex_unlock(&container->mutex);
-    }
 }
 
 /**
@@ -189,11 +168,12 @@ free_metric(struct agent_config* config, struct pmda_metrics_container* containe
  */
 void
 print_metric_meta(FILE* f, struct metric_metadata* meta) {
-    if (meta != NULL) {
-        if (meta->tags != NULL) {
-            fprintf(f, "tags = %s\n", meta->tags);
-        }
+    if (meta != NULL) {        
         fprintf(f, "sampling = %f\n", meta->sampling);
+        if (meta->pcp_name) {
+            fprintf(f, "pcp_name = %s\n", meta->pcp_name);
+        }
+        fprintf(f, "pmid = %u\n", meta->pmid);
     }
 }
 
@@ -270,7 +250,7 @@ iterate_over_metrics(struct pmda_metrics_container* container, void(*callback)(c
  * @arg container - Metrics container
  * @arg key - Metric key to find
  * @arg out - Placeholder metric
- * @return 1 when any found
+ * @return 1 when any found, 0 when not
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
@@ -303,23 +283,39 @@ create_metric(struct agent_config* config, struct statsd_datagram* datagram, str
     struct metric* item = (struct metric*) malloc(sizeof(struct metric));
     ALLOC_CHECK("Unable to allocate memory for metric.");
     *out = item;
+    size_t len = strlen(datagram->name) + 1;
+    (*out)->name = (char*) malloc(len);
+    ALLOC_CHECK("Unable to allocate memory for copy of metric name.");
+    strncpy((*out)->name, datagram->name, len);
+    (*out)->meta = create_metric_meta(datagram);
+    (*out)->children = NULL;
+    int status = 0; 
     switch (datagram->type) {
         case METRIC_TYPE_COUNTER:
-            return create_counter_metric(config, datagram, out);
+            (*out)->type = METRIC_TYPE_COUNTER;
+            status = create_counter_value(config, datagram, &(*out)->value);
+            break;
         case METRIC_TYPE_GAUGE:
-            return create_gauge_metric(config, datagram, out);
+            (*out)->type = METRIC_TYPE_GAUGE;
+            status = create_gauge_value(config, datagram, &(*out)->value);
+            break;
         case METRIC_TYPE_DURATION:
-            return create_duration_metric(config, datagram, out);
+            (*out)->type = METRIC_TYPE_DURATION;
+            status = create_duration_value(config, datagram, &(*out)->value);
+            break;
         default:
-            return 0;
+            status = 0;
     }
+    if (!status) {
+        free_metric(config, item);
+    }
+    return status;
 }
 
 /**
- * Adds gauge record
- * @arg container - Metrics container
- * @arg gauge - Gauge metric to me added
- * @return all gauges
+ * Adds metric to hashtable
+ * @arg container - Metrics container 
+ * @arg item - Metric to be saved
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
@@ -332,10 +328,25 @@ add_metric(struct pmda_metrics_container* container, char* key, struct metric* i
 }
 
 /**
- * Updates counter record
+ * Removes metric from hashtable
+ * @arg container - Metrics container
+ * @arg key - Metric's hashtable key
+ * 
+ * Synchronized by mutex on pmda_metrics_container
+ */
+void
+remove_metric(struct pmda_metrics_container* container, char* key) {
+    pthread_mutex_lock(&container->mutex);
+    // dictDelete(container->metrics, key);
+    container->generation += 1;
+    pthread_mutex_unlock(&container->mutex);
+}
+
+/**
+ * Updates metric record
  * @arg config - Agent config
  * @arg container - Metrics container
- * @arg counter - Metric to be updated
+ * @arg metric - Metric to be updated
  * @arg datagram - Data with which to update
  * @return 1 on success, 0 when update itself fails, -1 when metric with same name but different type is already recorded
  * 
@@ -355,13 +366,13 @@ update_metric(
     } else {
         switch (item->type) {
             case METRIC_TYPE_COUNTER:
-                status = update_counter_metric(config, item, datagram);
+                status = update_counter_value(config, datagram, item->value);
                 break;
             case METRIC_TYPE_GAUGE:
-                status = update_gauge_metric(config, item, datagram);
+                status = update_gauge_value(config, datagram, item->value);
                 break;
             case METRIC_TYPE_DURATION:
-                status = update_duration_metric(config, item, datagram);
+                status = update_duration_value(config, datagram, item->value);
                 break;
             case METRIC_TYPE_NONE:
                 status = 0;
@@ -415,12 +426,9 @@ struct metric_metadata*
 create_metric_meta(struct statsd_datagram* datagram) {
     struct metric_metadata* meta = (struct metric_metadata*) malloc(sizeof(struct metric_metadata));
     *meta = (struct metric_metadata) { 0 };
-    meta->sampling = datagram->sampling;
-    if (datagram->tags != NULL) {
-        meta->tags = (char*) malloc(strlen(datagram->tags) + 1);
-        memcpy(meta->tags, datagram->tags, strlen(datagram->tags) + 1);
-    }
+    meta->sampling = datagram->sampling;   
     meta->pmid = PM_ID_NULL;
+    meta->pmindom = PM_INDOM_NULL;
     meta->pcp_name = NULL;
     return meta;
 }
@@ -431,13 +439,24 @@ create_metric_meta(struct statsd_datagram* datagram) {
  */ 
 void
 free_metric_metadata(struct metric_metadata* meta) {
-    if (meta->tags != NULL) {
-        free(meta->tags);
-    }
-    if (meta->pcp_name != NULL) {
-        free((char*)meta->pcp_name);
-    }
     if (meta != NULL) {
+        if (meta->pcp_name != NULL) {
+            free((char*)meta->pcp_name);
+        }
         free(meta);
     }
+}
+
+/**
+ * Special case handling - this confirms that label was also added to metric before it actually is processed
+ * @arg container - Metrics container
+ * @arg item - Metric to be updated
+ * 
+ * Synchronized by mutex on pmda_metrics_container struct
+ */
+void
+mark_metric_as_pernament(struct pmda_metrics_container* container, struct metric* item) {
+    pthread_mutex_lock(&container->mutex);
+    item->pernament = 1;
+    pthread_mutex_unlock(&container->mutex);
 }

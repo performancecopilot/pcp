@@ -10,6 +10,7 @@
 #include "network-listener.h"
 
 typedef dict metrics;
+typedef dict labels;
 
 enum DURATION_INSTANCE {
     DURATION_MIN,
@@ -24,17 +25,30 @@ enum DURATION_INSTANCE {
 } DURATION_INSTANCE;
 
 struct metric_metadata {
-    char* tags;
-    double sampling;
+    double sampling; // not used for anything as of right now
     pmID pmid; // this could be saved as char* as we convert it most of the time we access it
+    pmInDom pmindom;
     const char* pcp_name; // name within pcp pmns
 } metric_metadata;
 
+struct metric_label_metadata {
+    char* instance_label_segment_str;
+} metric_label_metadata;
+
+struct metric_label {
+    char* labels;
+    struct metric_label_metadata* meta;
+    enum METRIC_TYPE type; // either this or parent reference, so that we know how to free void* value
+    void* value;
+} metric_label;
+
 struct metric {
     char* name;
+    int pernament;
     struct metric_metadata* meta;
-    void* value;
+    labels* children;
     enum METRIC_TYPE type;
+    void* value;
 } metric;
 
 /**
@@ -74,7 +88,7 @@ init_pmda_metrics(struct agent_config* config);
  * @return new key
  */
 char*
-create_metric_dict_key(char* name, char* tags);
+create_metric_dict_key(char* key);
 
 /**
  * Processes datagram struct into metric 
@@ -84,18 +98,15 @@ create_metric_dict_key(char* name, char* tags);
  * @return status - 1 when successfully saved or updated, 0 when thrown away
  */
 int
-process_datagram(struct agent_config* config, struct pmda_metrics_container* container, struct statsd_datagram* datagram);
+process_metric(struct agent_config* config, struct pmda_metrics_container* container, struct statsd_datagram* datagram);
 
 /**
  * Frees metric
  * @arg config - Agent config
- * @arg m - Metrics struct acting as metrics wrapper (optional)
  * @arg metric - Metric to be freed
- * 
- * Synchronized by mutex on pmda_metrics_container (if any passed)
  */
 void
-free_metric(struct agent_config* config, struct pmda_metrics_container* container, struct metric* item);
+free_metric(struct agent_config* config, struct metric* item);
 
 /**
  * Writes information about recorded metrics into file
@@ -123,7 +134,7 @@ iterate_over_metrics(struct pmda_metrics_container* container, void(*callback)(c
  * @arg container - Metrics container
  * @arg key - Metric key to find
  * @arg out - Placeholder metric
- * @return 1 when any found
+ * @return 1 when any found, 0 when not
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
@@ -143,7 +154,7 @@ create_metric(struct agent_config* config, struct statsd_datagram* datagram, str
 /**
  * Adds metric to hashtable
  * @arg container - Metrics container 
- * @arg counter - Metric to be saved
+ * @arg item - Metric to be saved
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
@@ -151,12 +162,22 @@ void
 add_metric(struct pmda_metrics_container* container, char* key, struct metric* item);
 
 /**
- * Updates counter record
+ * Removes metric from hashtable
+ * @arg container - Metrics container
+ * @arg key - Metric's hashtable key
+ * 
+ * Synchronized by mutex on pmda_metrics_container
+ */
+void
+remove_metric(struct pmda_metrics_container* container, char* key);
+
+/**
+ * Updates metric record
  * @arg config - Agent config
  * @arg container - Metrics container
- * @arg counter - Metric to be updated
+ * @arg metric - Metric to be updated
  * @arg datagram - Data with which to update
- * @return 1 on success
+ * @return 1 on success, 0 when update itself fails, -1 when metric with same name but different type is already recorded
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
@@ -199,5 +220,15 @@ free_metric_metadata(struct metric_metadata* meta);
  */
 void
 print_metric_meta(FILE* f, struct metric_metadata* meta);
+
+/**
+ * Special case handling - this confirms that label was also added to metric before it actually is processed
+ * @arg container - Metrics container
+ * @arg item - Metric to be updated
+ * 
+ * Synchronized by mutex on pmda_metrics_container struct
+ */
+void
+mark_metric_as_pernament(struct pmda_metrics_container* container, struct metric* item);
 
 #endif

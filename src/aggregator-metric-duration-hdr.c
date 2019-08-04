@@ -12,13 +12,13 @@
  * @arg value - Initial value
  * @return hdr_histogram
  */
-struct hdr_histogram*
-create_hdr_duration_value(long long unsigned int value) {
+void
+create_hdr_duration_value(long long unsigned int value, void** out) {
     struct hdr_histogram* histogram;
     hdr_init(1, INT64_C(3600000000), 3, &histogram);
     ALLOC_CHECK("Unable to allocate memory for histogram");
     hdr_record_value(histogram, value);
-    return histogram;
+    *out = histogram;
 }
 
 /**
@@ -27,7 +27,7 @@ create_hdr_duration_value(long long unsigned int value) {
  * @arg value - Value to record
  */
 void
-update_hdr_duration_value(struct hdr_histogram* histogram, long long unsigned int value) {
+update_hdr_duration_value(long long unsigned int value, struct hdr_histogram* histogram) {
     hdr_record_value(histogram, value);
 }
 
@@ -72,7 +72,7 @@ get_hdr_histogram_duration_instance(struct hdr_histogram* histogram, enum DURATI
  * @arg collection - Target collection
  */
 void
-print_hdr_durations(FILE* f, struct hdr_histogram* histogram) {
+print_hdr_duration_value(FILE* f, struct hdr_histogram* histogram) {
     hdr_percentiles_print(
         histogram,
         f,

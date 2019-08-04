@@ -38,13 +38,18 @@ get_next_pmID(struct pmda_data_extension* data) {
 }
 
 /**
- * Resets internal counters that track current id's
- * @arg data - PMDA extension structure (contains agent-specific private data)
+ * Gets next valid pmInDom
+ * - used for getting pmInDoms for yet unrecorded metrics
+ * @arg data - 
  */
-static void
-reset_pmID_counters(struct pmda_data_extension* data) {
-    data->next_item_id = 0;
-    data->next_cluster_id = 1;
+static pmInDom
+get_next_pmInDom(struct pmda_data_extension* data) {
+    pmInDom next = pmInDom_build(STATSD, data->next_pmindom);
+    if (data->next_pmindom - 1 == (1 << 22)) {
+        DIE("Agent ran out of metric instance domains.");
+    }
+    data->next_pmindom += 1;
+    return next;
 }
 
 /**
@@ -80,9 +85,9 @@ create_pcp_metric(char* key, struct metric* item, pmdaExt* pmda) {
     new_metric->m_desc.pmid = item->meta->pmid;
     new_metric->m_desc.type = PM_TYPE_DOUBLE;
     if (item->type == METRIC_TYPE_DURATION) {
-        new_metric->m_desc.indom = pmInDom_build(((pmdaExt*)pmda)->e_domain, DURATION_INDOM);
+        new_metric->m_desc.indom = pmInDom_build(STATSD, STATSD_METRIC_DEFAULT_DURATION_INDOM);
     } else {
-        new_metric->m_desc.indom = PM_INDOM_NULL;
+        new_metric->m_desc.indom = pmInDom_build(STATSD, STATSD_METRIC_DEFAULT_INDOM);
     }
     new_metric->m_desc.sem = PM_SEM_INSTANT;
     memset(&new_metric->m_desc.units, 0, sizeof(pmUnits));
@@ -102,8 +107,9 @@ create_pcp_metric(char* key, struct metric* item, pmdaExt* pmda) {
  */
 static void
 metric_foreach_callback(char* key, struct metric* item, void* pmda) {
+    // skip metric if its still being processed (case when new metric gets added and datagram has only label, but metric addition and label appending are 2 separate actions)
+    if (item->pernament == 0) return;
     // this prevents creating of metrics/labels that have tags as we don't deal with those yet
-    if (item->meta->tags != NULL || item->meta->sampling) return;
     struct pmda_data_extension* data = (struct pmda_data_extension*)pmdaExtGetData((pmdaExt*)pmda);
     // lets check if metric already has pmid assigned, if so it has PCP name as well, then just insert it into tree
     if (item->meta->pmid == PM_ID_NULL) {
@@ -399,6 +405,66 @@ statsd_label_callback(pmInDom in_dom, unsigned int inst, pmLabelSet** lp) {
 }
 
 static int
+statsd_resolve_static_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmAtomValue** atom) {
+    struct pmda_metric_helper* helper = (struct pmda_metric_helper*) mdesc->m_user;
+    struct pmda_data_extension* data = helper->data;
+    struct agent_config* config = data->config;
+    struct pmda_stats_container* stats = data->stats_storage;
+    unsigned int item = pmID_item(mdesc->m_desc.pmid);
+    int status = PMDA_FETCH_STATIC; 
+    switch (item) {
+        /* received */
+        case 0:
+            (*atom)->ull = get_agent_stat(config, stats, STAT_RECEIVED, NULL);
+            break;
+        /* parsed */
+        case 1:
+            (*atom)->ull = get_agent_stat(config, stats, STAT_PARSED, NULL);
+            break;
+        /* thrown away */
+        case 2:
+            (*atom)->ull = get_agent_stat(config, stats, STAT_DROPPED, NULL);
+            break;
+        /* aggregated */
+        case 3:
+            (*atom)->ull = get_agent_stat(config, stats, STAT_AGGREGATED, NULL);
+            break;
+        case 4:
+        {
+            if (instance == 0) {
+                (*atom)->ull = get_agent_stat(config, stats, STAT_TRACKED_METRIC, (void*)METRIC_TYPE_COUNTER);
+                break;
+            }
+            if (instance == 1) {
+                (*atom)->ull = get_agent_stat(config, stats, STAT_TRACKED_METRIC, (void*)METRIC_TYPE_GAUGE);
+                break;
+            }
+            if (instance == 2) {
+                (*atom)->ull = get_agent_stat(config, stats, STAT_TRACKED_METRIC, (void*)METRIC_TYPE_DURATION);
+                break;
+            }
+            if (instance == 3) {
+                (*atom)->ull = get_agent_stat(config, stats, STAT_TRACKED_METRIC, NULL);
+                break;
+            }
+            status = PM_ERR_INST;
+            break;
+        }
+        /* time_spent_parsing */
+        case 5:
+            (*atom)->ull = get_agent_stat(config, stats, STAT_TIME_SPENT_PARSING, NULL);
+            break;
+        /* time_spent_aggregating */
+        case 6:
+            (*atom)->ull = get_agent_stat(config, stats, STAT_TIME_SPENT_AGGREGATING, NULL);
+            break;
+        default:
+            status = PM_ERR_PMID;
+    }
+    return status;
+}
+
+static int
 statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmAtomValue** atom) {
     struct pmda_metric_helper* helper = (struct pmda_metric_helper*) mdesc->m_user;
     struct pmda_data_extension* data = helper->data;
@@ -411,10 +477,16 @@ statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pm
         // counter and gauge simply pass value to PCP
         case METRIC_TYPE_COUNTER:
         case METRIC_TYPE_GAUGE:
-            pthread_mutex_lock(&data->metrics_storage->mutex);
-            (*atom)->d = *(double*)result->value;
-            status = PMDA_FETCH_STATIC;
-            pthread_mutex_unlock(&data->metrics_storage->mutex);
+            status = PM_ERR_INST;
+            // this needs to be casted to __pmInDom_int, but I don't know how right now
+            if ((mdesc->m_desc.indom & 0x2FFFFF) == STATSD_METRIC_DEFAULT_INDOM) {
+                if (instance == 0) {
+                    pthread_mutex_lock(&data->metrics_storage->mutex);
+                    (*atom)->d = *(double*)result->value;
+                    status = PMDA_FETCH_STATIC;
+                    pthread_mutex_unlock(&data->metrics_storage->mutex);
+                }
+            } 
             break;
         // duration passes values trough instances
         case METRIC_TYPE_DURATION:
@@ -476,59 +548,8 @@ statsd_fetch_callback(pmdaMetric* mdesc, unsigned int instance, pmAtomValue* ato
     switch (cluster) {
         /* cluster 0 is reserved for stats - info about agent itself */
         case 0:
-        {
-            status = PMDA_FETCH_STATIC;
-            switch (item) {
-                /* received */
-                case 0:
-                    atom->ull = get_agent_stat(config, stats, STAT_RECEIVED, NULL);
-                    break;
-                /* parsed */
-                case 1:
-                    atom->ull = get_agent_stat(config, stats, STAT_PARSED, NULL);
-                    break;
-                /* thrown away */
-                case 2:
-                    atom->ull = get_agent_stat(config, stats, STAT_DROPPED, NULL);
-                    break;
-                /* aggregated */
-                case 3:
-                    atom->ull = get_agent_stat(config, stats, STAT_AGGREGATED, NULL);
-                    break;
-                case 4:
-                {
-                    if (instance == 0) {
-                        atom->ull = get_agent_stat(config, stats, STAT_TRACKED_METRIC, (void*)METRIC_TYPE_COUNTER);
-                        break;
-                    }
-                    if (instance == 1) {
-                        atom->ull = get_agent_stat(config, stats, STAT_TRACKED_METRIC, (void*)METRIC_TYPE_GAUGE);
-                        break;
-                    }
-                    if (instance == 2) {
-                        atom->ull = get_agent_stat(config, stats, STAT_TRACKED_METRIC, (void*)METRIC_TYPE_DURATION);
-                        break;
-                    }
-                    if (instance == 3) {
-                        atom->ull = get_agent_stat(config, stats, STAT_TRACKED_METRIC, NULL);
-                        break;
-                    }
-                    status = PM_ERR_INST;
-                    break;
-                }
-                /* time_spent_parsing */
-                case 5:
-                    atom->ull = get_agent_stat(config, stats, STAT_TIME_SPENT_PARSING, NULL);
-                    break;
-                /* time_spent_aggregating */
-                case 6:
-                    atom->ull = get_agent_stat(config, stats, STAT_TIME_SPENT_AGGREGATING, NULL);
-                    break;
-                default:
-                    status = PM_ERR_PMID;
-            }
+            status = statsd_resolve_static_metric_fetch(mdesc, instance, &atom);
             break;
-        }
         default:
             status = statsd_resolve_dynamic_metric_fetch(mdesc, instance, &atom);
     }
