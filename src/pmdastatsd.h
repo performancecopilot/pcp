@@ -28,9 +28,6 @@ struct pmda_data_extension {
     size_t pcp_instance_domain_count;
     size_t pcp_metric_count;
     size_t generation;
-    int next_cluster_id;
-    int next_item_id;
-    pmInDom next_pmindom;
     int notify;
 } pmda_data_extension;
 

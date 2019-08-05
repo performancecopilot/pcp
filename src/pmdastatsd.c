@@ -47,12 +47,12 @@ create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
     size_t hardcoded_count = 3;
 
     data->pcp_instance_domains = (pmdaIndom*) malloc(hardcoded_count * sizeof(pmdaIndom));
-    ALLOC_CHECK("Unable to allocate memory for static PMDA instances.");
+    ALLOC_CHECK("Unable to allocate memory for static PMDA instance domains.");
     
     pmdaInstid* instance;
 
     instance = (pmdaInstid*) malloc(sizeof(pmdaInstid) * 4);
-    ALLOC_CHECK("Unable to allocate memory for static PMDA instance descriptor.");
+    ALLOC_CHECK("Unable to allocate memory for static PMDA instance domain descriptor.");
     data->pcp_instance_domains[0].it_indom = STATS_METRIC_COUNTERS_INDOM;
     data->pcp_instance_domains[0].it_numinst = 4;
     data->pcp_instance_domains[0].it_set = instance;
@@ -62,7 +62,7 @@ create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
     SET_INST_NAME("total", 3);
 
     instance = (pmdaInstid*) malloc(sizeof(pmdaInstid) * 9);
-    ALLOC_CHECK("Unable to allocate memory for static PMDA instance descriptors.");
+    ALLOC_CHECK("Unable to allocate memory for static PMDA instance domain descriptors.");
     data->pcp_instance_domains[1].it_indom = STATSD_METRIC_DEFAULT_DURATION_INDOM;
     data->pcp_instance_domains[1].it_numinst = 9;
     data->pcp_instance_domains[1].it_set = instance;
@@ -74,10 +74,10 @@ create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
     SET_INST_NAME("/percentile95", 5);
     SET_INST_NAME("/percentile99", 6);
     SET_INST_NAME("/count", 7);
-    SET_INST_NAME("/std_derivation", 8);
+    SET_INST_NAME("/std_deviation", 8);
 
     instance = (pmdaInstid*) malloc(sizeof(pmdaInstid));
-    ALLOC_CHECK("Unable to allocate memory for default dynamic metric instance descriptior");
+    ALLOC_CHECK("Unable to allocate memory for default dynamic metric instance domain descriptior");
     data->pcp_instance_domains[2].it_indom = STATSD_METRIC_DEFAULT_INDOM;
     data->pcp_instance_domains[2].it_numinst = 1;
     data->pcp_instance_domains[2].it_set = instance;
@@ -143,9 +143,6 @@ init_data_ext(
     data->metrics_storage = metrics_storage;
     data->stats_storage = stats_storage;
     data->generation = -1; // trigger first mapping of metrics for PMNS 
-    data->next_cluster_id = 1;
-    data->next_item_id = 0;
-    data->next_pmindom = 3; // because we have 3 hardcoded instances
     data->notify = 0;
 }
 

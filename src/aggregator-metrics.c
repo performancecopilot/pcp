@@ -15,6 +15,32 @@
 #include "aggregator-metric-gauge.h"
 #include "aggregator-metric-duration.h"
 #include "aggregator-metric-dict-callbacks.h"
+#include "pmdastatsd.h"
+#include "../domain.h"
+
+/**
+ * Gets next valid pmID
+ * - used for getting pmIDs for yet unrecorded metrics
+ * - we start from cluster #1, because #0 is reserved for agent stats
+ * @arg data - PMDA extension structure (contains agent-specific private data)
+ * @return new valid pmID
+ */
+static pmID
+get_next_pmID() {
+    static int next_cluster_id = 1;
+    static int next_item_id = 0;
+    pmID next = pmID_build(STATSD, next_cluster_id, next_item_id);
+    if (next_cluster_id >= (1 << 12)) {
+        DIE("Agent ran out of metric ids.");
+    }
+    if (next_item_id == 1000) {
+        next_item_id = 0;
+        next_cluster_id += 1;
+    } else {
+        next_item_id += 1;
+    }
+    return next;
+}
 
 /**
  * Creates new pmda_metrics_container structure, initializes all stats to 0
@@ -425,11 +451,25 @@ check_metric_name_available(struct pmda_metrics_container* container, char* key)
 struct metric_metadata*
 create_metric_meta(struct statsd_datagram* datagram) {
     struct metric_metadata* meta = (struct metric_metadata*) malloc(sizeof(struct metric_metadata));
+    ALLOC_CHECK("Unable to allocate memory for metric metadata.");
     *meta = (struct metric_metadata) { 0 };
     meta->sampling = datagram->sampling;   
-    meta->pmid = PM_ID_NULL;
-    meta->pmindom = PM_INDOM_NULL;
-    meta->pcp_name = NULL;
+    meta->pmid = get_next_pmID();
+    if (datagram->type == METRIC_TYPE_DURATION) {
+        meta->pmindom = pmInDom_build(STATSD, STATSD_METRIC_DEFAULT_DURATION_INDOM);
+    } else {
+        meta->pmindom = pmInDom_build(STATSD, STATSD_METRIC_DEFAULT_INDOM);
+    }
+    char name[100];
+    size_t len = pmsprintf(name, 100, "statsd.%s", datagram->name) + 1;
+    meta->pcp_name = (char*) malloc(sizeof(char) * len);
+    ALLOC_CHECK("Unable to allocate memory for metric pcp name");
+    memcpy((char*)meta->pcp_name, name, len);
+    meta->pcp_instance_domain = NULL;
+    meta->pcp_metric_created = 0;
+    meta->pcp_metric_index = 0;
+    meta->pcp_instance_map = NULL;
+    meta->pcp_instance_change_requested = 0;
     return meta;
 }
 

@@ -229,6 +229,7 @@ add_label(struct pmda_metrics_container* container, struct metric* item, char* k
     pthread_mutex_lock(&container->mutex);
     dictAdd(item->children, key, label);
     container->generation += 1;
+    item->meta->pcp_instance_change_requested = 1;
     pthread_mutex_unlock(&container->mutex);
 }
 

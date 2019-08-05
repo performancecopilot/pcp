@@ -24,11 +24,21 @@ enum DURATION_INSTANCE {
     DURATION_STANDARD_DEVIATION
 } DURATION_INSTANCE;
 
+struct pmdaInstid_map {
+    char** labels;
+    size_t length;
+} pmdaInstid_map;
+
 struct metric_metadata {
+    char* pcp_name; // name within pcp pmns
+    struct pmdaInstid_map* pcp_instance_map; 
     double sampling; // not used for anything as of right now
     pmID pmid; // this could be saved as char* as we convert it most of the time we access it
     pmInDom pmindom;
-    const char* pcp_name; // name within pcp pmns
+    size_t pcp_instance_domain_index;
+    size_t pcp_metric_index;
+    int pcp_metric_created; // flag signaling to pcp, that it should create pcp metric equivalent
+    int pcp_instance_change_requested; // flag signaling to pcp that change to instance is requested
 } metric_metadata;
 
 struct metric_label_metadata {
