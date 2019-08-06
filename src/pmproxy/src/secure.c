@@ -100,8 +100,6 @@ on_secure_client_read(struct proxy *proxy, struct client *client,
 	    uv_close((uv_handle_t *)&client->stream, on_client_close);
 	break;
     } while (1);
-
-    sdsfree(buf->base);
 }
 
 static void
