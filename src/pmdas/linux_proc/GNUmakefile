@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013-2016 Red Hat.
+# Copyright (c) 2013-2016,2019 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -26,10 +26,10 @@ PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "proc	3	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 3"
 
 CFILES		= pmda.c cgroups.c proc_pid.c proc_runq.c proc_dynamic.c\
-		  ksym.c getinfo.c contexts.c gram_node.c config.c error.c hotproc.c
+		  getinfo.c contexts.c gram_node.c config.c error.c hotproc.c
 
 HFILES		= clusters.h indom.h \
-		  cgroups.h proc_pid.h proc_runq.h ksym.h getinfo.h contexts.h hotproc.h gram_node.h config.h
+		  cgroups.h proc_pid.h proc_runq.h getinfo.h contexts.h hotproc.h gram_node.h config.h
 
 LFILES		= lex.l
 YFILES		= gram.y
@@ -109,7 +109,6 @@ cgroups.o pmda.o proc_pid.o proc_runq.o proc_dynamic.o:	proc_pid.h
 proc_dynamic.o:	help_text.h
 pmda.o proc_runq.o:	proc_runq.h
 indom.o pmda.o:	indom.h
-ksym.o pmda.o:		ksym.h
 pmda.o:	domain.h
 pmda.o:	getinfo.h
 pmda.o:	$(VERSION_SCRIPT)
