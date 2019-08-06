@@ -10,6 +10,7 @@
 #include "pmdastatsd.h"
 #include "aggregator-metrics.h"
 #include "aggregator-stats.h"
+#include "aggregator-metric-labels.h"
 #include "aggregator-metric-duration-exact.h"
 #include "utils.h"
 #include "config-reader.h"
@@ -65,102 +66,158 @@ create_pcp_metric(char* key, struct metric* item, void* pmda) {
 }
 
 static void
-create_new_instance(char* key, struct metric* item, void* pmda) {
-    // struct pmda_data_extension* data = (struct pmda_data_extension*)pmdaExtGetData((pmdaExt*)pmda);
-    // // get new pmInDom
-    // pmInDom next_pmindom = get_next_pmInDom();
-    // // add new pmdaIndom to domain list
-    // data->pcp_instance_domains = 
-    //     (pmdaIndom*) realloc(
-    //         data->pcp_instance_domains,
-    //         (data->pcp_instance_domain_count + 1) * sizeof(pmdaIndom)
-    //     );
-    // ALLOC_CHECK("Unable to resize memory for PMDA instance domains");
-    // // build new pmdaInstid
-    // size_t indom_i = data->pcp_instance_domain_count;
-    // size_t labels_count = item->children->ht[0].size; // this is never 0
-    // size_t indom_i_inst_cnt;
-    // if (item->type == METRIC_TYPE_DURATION) {
-    //     // because duration has 9 instances per metric/metric_label record
-    //     indom_i_inst_cnt = (labels_count + 1) * 9;
-    // } else {
-    //     // because counter/gauge have 1 instance per metric/metric_label record
-    //     indom_i_inst_cnt = (labels_count + 1);
-    // }
-    // pmdaInstid* instances =
-    //     (pmdaInstid*) malloc(sizeof(pmdaInstid) * indom_i_inst_cnt);
-    // ALLOC_CHECK("Unable to allocate memory for new PMDA instance domain instances.");
-    // if (item->type == METRIC_TYPE_DURATION) {
-    //     // reuse static pmdaInstid* instances from STATSD_METRIC_DEFAULT_DURATION_INDOM domain
-    //     pmdaInstid* static_instances = data->pcp_instance_domains[STATSD_METRIC_DEFAULT_DURATION_INDOM];
-    //     size_t hardcoded_inst_desc_cnt = 9;
-    //     size_t i;
-    //     for (i = 0; i < hardcoded_inst_desc_cnt; i++) {
-    //         instances[i] = static_instances[i];
-    //     }
-    // } else {
-    //     // reuse static pmdaInstid* instances from STATSD_METRIC_DEFAULT_INDOM domain
-    //     instances[0] = data->pcp_instance_domains[STATSD_METRIC_DEFAULT_INDOM].it_set;
-    // }
-    // // iterate over metric labels and fill remaining instances, recorded order in map on metric struct which will contain references to equivalent metric_label hashtable keys
-    // size_t label_index = 0;
-    // // - prepare map
-    // item->meta->pcp_instance_map =
-    //     (struct pmdaInstid_map*) malloc(sizeof(pmdaInstid_map));
-    // ALLOC_CHECK("Unable to allocate memory for new instance domain map.");
-    // item->meta->pcp_instance_map->length = labels_count;
-    // item->meta->pcp_instance_map->labels = (char**) malloc(sizeof(char*) * labels_count);
-    // ALLOC_CHECK("Unable to allocate memory for new instance domain map label references.");
-    // // - prepare for iteration
-    // char buffer[100];
-    // size_t instance_name_length;
-    // //   - prepare format strings for duration instances
-    // static char* duration_metric_instance_keywords[] = {
-    //     "/min::%s",
-    //     "/max::%s",
-    //     "/median::%s",
-    //     "/average::%s",
-    //     "/percentile90::%s",
-    //     "/percentile95::%s",
-    //     "/percentile99::%s",
-    //     "/count::%s",
-    //     "/std_deviation::%s"
-    // }
-    // static size_t keywords_count = 9;
-    // // - iterate
-    // dictIterator* iterator = dictGetSafeIterator(item->children);
-    // dictEntry* current;
-    // while ((current = dictNext(iterator)) != NULL) {
-    //     struct metric_label* label = (struct metric_label*)current->v.val;
-    //     // store on which instance domain instance index we find current label
-    //     item->meta->pcp_instance_map->labels[label_index] = label->labels;
-    //     if (label->type == METRIC_TYPE_DURATION) {
-    //         // duration metric has 9 instances per single metric_label, formatted with premade label string segments
-    //         size_t i = 0;
-    //         int label_offset = (label_index + 1) * 9;
-    //         for (i = 0; i < keywords_count; i++) {
-    //             instances[label_offset + i].i_inst = label_offset + i;
-    //             instance_name_length = pmsprintf(buffer, 100, duration_metric_instance_keywords[i], label->meta->instance_label_segment_str);
-    //             memcpy(instances[label_offset + i].i_name, buffer, instance_name_length);
-    //         }
-    //     } else {
-    //         // counter/gauge has 1 instance per single metric_label, just add / to premade label string
-    //         instances[label_index + 1].i_inst = label_index + 1;
-    //         instance_name_length = pmsprintf(buffer, 100, "/%s", label->meta->instance_label_segment_str);
-    //         memcpy(instances[label_index + 1].i_name, buffer, instance_name_length);
-    //     }
-    //     label_index++;
-    // }
-    // // populate new instance domain
-    // data->pcp_instance_domains[indom_i].it_indom = next_pmindom;
-    // data->pcp_instance_domains[indom_i].it_numinst = indom_i_inst_cnt;
-    // data->pcp_instance_domains[indom_i].it_set = instances;
-    // // current metric instance domain has changed
-    // item->meta->pmindom = next_pmindom;
-    // // save on which index instance domain for current metric is stored
-    // item->meta->pcp_instance_domain_index = indom_i;
-    // // we added new instance domain
-    // data->pcp_instance_domain_count += 1;
+map_labels_to_instances(struct metric* item, struct pmda_data_extension* data, size_t indom_i) {
+    size_t indom_i_inst_cnt = 0;
+    int has_root_value = item->value != NULL;
+    int root_offset = 0;
+    if (has_root_value) {
+        indom_i_inst_cnt += 1;
+        root_offset = 1;
+    }
+    size_t labels_count = dictSize(item->children); // this is never 0
+    if (item->type == METRIC_TYPE_DURATION) {
+        // because duration has 9 instances per metric/metric_label record
+        indom_i_inst_cnt += labels_count * 9;
+    } else {
+        // because counter/gauge have 1 instance per metric/metric_label record
+        indom_i_inst_cnt += labels_count;
+    }
+    pmdaInstid* instances =
+        (pmdaInstid*) malloc(sizeof(pmdaInstid) * indom_i_inst_cnt);
+    ALLOC_CHECK("Unable to allocate memory for new PMDA instance domain instances.");
+    if (has_root_value) {
+        if (item->type == METRIC_TYPE_DURATION) {
+            // reuse static pmdaInstid* instances from STATSD_METRIC_DEFAULT_DURATION_INDOM domain
+            pmdaInstid* static_instances = data->pcp_instance_domains[STATSD_METRIC_DEFAULT_DURATION_INDOM].it_set;
+            size_t hardcoded_inst_desc_cnt = 9;
+            size_t i;
+            for (i = 0; i < hardcoded_inst_desc_cnt; i++) {
+                instances[i] = static_instances[i];
+            }
+        } else {
+            // reuse static pmdaInstid* instances from STATSD_METRIC_DEFAULT_INDOM domain
+            instances[0] = data->pcp_instance_domains[STATSD_METRIC_DEFAULT_INDOM].it_set[0];
+        }
+    }
+    // - prepare map
+    item->meta->pcp_instance_map =
+        (struct pmdaInstid_map*) malloc(sizeof(pmdaInstid_map));
+    ALLOC_CHECK("Unable to allocate memory for new instance domain map.");
+    item->meta->pcp_instance_map->length = labels_count;
+    item->meta->pcp_instance_map->labels = (char**) malloc(sizeof(char*) * labels_count);
+    ALLOC_CHECK("Unable to allocate memory for new instance domain map label references.");
+    // - prepare for iteration
+    char buffer[100];
+    size_t instance_name_length;
+    //   - prepare format strings for duration instances
+    static char* duration_metric_instance_keywords[] = {
+        "/min::%s",
+        "/max::%s",
+        "/median::%s",
+        "/average::%s",
+        "/percentile90::%s",
+        "/percentile95::%s",
+        "/percentile99::%s",
+        "/count::%s",
+        "/std_deviation::%s"
+    };
+    // iterate over metric labels and fill remaining instances, recorded order in map on metric struct which will contain references to equivalent metric_label hashtable keys
+    size_t label_index = 0;
+    static size_t keywords_count = 9;
+    // - iterate
+    dictIterator* iterator = dictGetSafeIterator(item->children);
+    dictEntry* current;    
+    while ((current = dictNext(iterator)) != NULL) {
+        struct metric_label* label = (struct metric_label*)current->v.val;
+        // store on which instance domain instance index we find current label
+        item->meta->pcp_instance_map->labels[label_index] = label->labels;
+        if (label->type == METRIC_TYPE_DURATION) {
+            // duration metric has 9 instances per single metric_label, formatted with premade label string segments
+            size_t i = 0;
+            int label_offset = (label_index + root_offset) * 9;
+            for (i = 0; i < keywords_count; i++) {
+                instances[label_offset + i].i_inst = label_offset + i;
+                instance_name_length = 
+                    pmsprintf(
+                        buffer,
+                        100,
+                        duration_metric_instance_keywords[i],
+                        label->meta->instance_label_segment_str
+                    ) + 1;
+                instances[label_index + 1].i_name = (char*) malloc(sizeof(char) * instance_name_length);
+                ALLOC_CHECK("Unable to allocate memory for instance description.");
+                memcpy(instances[label_offset + i].i_name, buffer, instance_name_length);
+            }
+        } else {
+            int label_offset = (label_index + root_offset);
+            // counter/gauge has 1 instance per single metric_label, just add / to premade label string
+            instances[label_offset].i_inst = label_offset;
+            instance_name_length = pmsprintf(buffer, 100, "/%s", label->meta->instance_label_segment_str) + 1;
+            instances[label_offset].i_name = (char*) malloc(sizeof(char) * instance_name_length);
+            ALLOC_CHECK("Unable to allocate memory for instance description.");
+            memcpy(instances[label_offset].i_name, buffer, instance_name_length);
+        }
+        label_index++;
+    }
+    data->pcp_instance_domains[indom_i].it_numinst = indom_i_inst_cnt;
+    data->pcp_instance_domains[indom_i].it_set = instances;
+}
+
+static void
+create_instance(char* key, struct metric* item, void* pmda) {
+    (void)key;
+    struct pmda_data_extension* data = (struct pmda_data_extension*)pmdaExtGetData((pmdaExt*)pmda);
+    // get new pmInDom
+    pmInDom next_pmindom = get_next_pmInDom();
+    // add new pmdaIndom to domain list
+    data->pcp_instance_domains = 
+        (pmdaIndom*) realloc(
+            data->pcp_instance_domains,
+            (data->pcp_instance_domain_count + 1) * sizeof(pmdaIndom)
+        );
+    ALLOC_CHECK("Unable to resize memory for PMDA instance domains");
+    size_t indom_i = data->pcp_instance_domain_count;
+    // build new pmdaInstid
+    map_labels_to_instances(item, data, indom_i);    
+    // populate new instance domain
+    data->pcp_instance_domains[indom_i].it_indom = next_pmindom;
+    // current metric instance domain has changed
+    item->meta->pmindom = next_pmindom;
+    // save on which index instance domain for current metric is stored
+    item->meta->pcp_instance_domain_index = indom_i;
+    // update instance in pcp metric_record
+    data->pcp_metrics[item->meta->pcp_metric_index].m_desc.indom = next_pmindom;
+    // we added new instance domain 
+    data->pcp_instance_domain_count += 1;
+    // (and since the metric record couldnt be updated while we did it)
+    item->meta->pcp_instance_change_requested = 0;
+}
+
+static void
+update_instance(char* key, struct metric* item, void* pmda) {
+    struct pmda_data_extension* data = (struct pmda_data_extension*)pmdaExtGetData((pmdaExt*)pmda);
+    size_t indom_i = item->meta->pcp_instance_domain_index;
+    pmdaIndom domain = data->pcp_instance_domains[indom_i];
+    int i;
+    for (i = 0; i < domain.it_numinst; i++) {
+        if (item->type == METRIC_TYPE_DURATION) {
+            // skip these names as they are shared between all duration intances
+            if (i > 8) {
+                free(domain.it_set[i].i_name);
+            }
+        } else {
+            // skip these names as they are shared between all counter/gauge instances
+            if (i > 0) {
+                free(domain.it_set[i].i_name);
+            }
+        }
+    }
+    free(domain.it_set);
+    free(item->meta->pcp_instance_map->labels);
+    free(item->meta->pcp_instance_map);
+    map_labels_to_instances(item, data, indom_i);
+    // (and since the metric record couldnt be updated while we did it)
+    item->meta->pcp_instance_change_requested = 0;
 }
 
 static void
@@ -173,13 +230,10 @@ update_pcp_metric_instance_domain(char* key, struct metric* item, void* pmda) {
     pmInDom statsd_metric_default_indom = pmInDom_build(STATSD, STATSD_METRIC_DEFAULT_INDOM);
     if (item->meta->pmindom == statsd_metric_default_duration_indom ||
         item->meta->pmindom == statsd_metric_default_indom) {
-        create_new_instance(key, item, pmda);
+        create_instance(key, item, pmda);
     } else {
-        // TODO: we need to update existing instance domain record
-
+        update_instance(key, item, pmda);
     }
-    // Change request was processed
-    item->meta->pcp_instance_change_requested = 0;
 }
 
 /**
@@ -199,15 +253,17 @@ metric_foreach_callback(char* key, struct metric* item, void* pmda) {
     struct pmda_data_extension* data = (struct pmda_data_extension*)pmdaExtGetData((pmdaExt*)pmda);
     // lets check if metric already has pmid assigned, if so it has PCP name as well, then just insert it into tree
     if (item->meta->pcp_metric_created == 0) {
-        create_pcp_metric(key, item, (pmdaExt*)pmda);
+        create_pcp_metric(key, item, pmda);
     }
     // pcp_instance_change_requested flag is set, when metric gets new metric_label
     // if (item->meta->pcp_instance_change_requested == 1) {
     //     update_pcp_metric_instance_domain(key, item, (pmdaExt*)pmda);
     // }
-    pmdaTreeInsert(data->pcp_pmns, item->meta->pmid, item->meta->pcp_name);
-    process_stat(data->config, data->stats_storage, STAT_TRACKED_METRIC, (void*)item->type);
     data->pcp_metric_count += 1;
+    process_stat(data->config, data->stats_storage, STAT_TRACKED_METRIC, (void*)item->type);
+    DEBUG_LOG("New pmns: %u, %s", item->meta->pmid, item->meta->pcp_name);
+    pmdaTreeInsert(data->pcp_pmns, item->meta->pmid, item->meta->pcp_name);
+    data->generation = data->metrics_storage->generation;
 }
 
 /**
@@ -247,9 +303,9 @@ statsd_map_stats(pmdaExt* pmda) {
     data->pcp_metric_count = 7;    
     iterate_over_metrics(data->metrics_storage, metric_foreach_callback, pmda);
     pmdaTreeRebuildHash(data->pcp_pmns, data->pcp_metric_count);
-    pthread_mutex_lock(&data->metrics_storage->mutex);
-    data->generation = data->metrics_storage->generation;
-    pthread_mutex_unlock(&data->metrics_storage->mutex);
+    // pthread_mutex_lock(&data->metrics_storage->mutex);
+    // data->generation = data->metrics_storage->generation;
+    // pthread_mutex_unlock(&data->metrics_storage->mutex);
 }
 
 /**
@@ -554,12 +610,41 @@ statsd_resolve_static_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmA
     return status;
 }
 
+static enum DURATION_INSTANCE
+map_to_duration_instance(int instance) {
+    int i = instance % 9;
+    switch (i) {
+        case 0:
+            return DURATION_MIN;
+        case 1:
+            return DURATION_MAX;
+        case 2:
+            return DURATION_MEDIAN;
+        case 3:
+            return DURATION_AVERAGE;
+        case 4:
+            return DURATION_PERCENTILE90;
+        case 5:
+            return DURATION_PERCENTILE95;
+        case 6:
+            return DURATION_PERCENTILE99;
+        case 7:
+            return DURATION_COUNT;
+        case 8:
+            return DURATION_STANDARD_DEVIATION;
+    }
+}
+
 static int
 statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmAtomValue** atom) {
     struct pmda_metric_helper* helper = (struct pmda_metric_helper*) mdesc->m_user;
     struct pmda_data_extension* data = helper->data;
     struct agent_config* config = data->config;
     struct metric* result = helper->item;
+    unsigned int instance_serial = pmInDom_serial(mdesc->m_desc.indom);
+    int is_default_domain = (instance_serial == STATSD_METRIC_DEFAULT_INDOM) ||
+                            (instance_serial == STATSD_METRIC_DEFAULT_DURATION_INDOM);
+    int metric_has_root_value = result->value != NULL;
     int status;
     static struct duration_values_meta meta;
     // now return response based on metric type
@@ -567,53 +652,66 @@ statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pm
         // counter and gauge simply pass value to PCP
         case METRIC_TYPE_COUNTER:
         case METRIC_TYPE_GAUGE:
+        {
             status = PM_ERR_INST;
-            // this needs to be casted to __pmInDom_int, but I don't know how right now
-            if ((mdesc->m_desc.indom & 0x2FFFFF) == STATSD_METRIC_DEFAULT_INDOM) {
-                if (instance == 0) {
+            int instance_label_offset = metric_has_root_value ? instance - 1 : instance;
+            if (metric_has_root_value && instance == 0) {
+                pthread_mutex_lock(&data->metrics_storage->mutex);
+                (*atom)->d = *(double*)result->value;
+                status = PMDA_FETCH_STATIC;
+                pthread_mutex_unlock(&data->metrics_storage->mutex);
+                break;
+            }
+            if (!is_default_domain) {
+                char* label_key = result->meta->pcp_instance_map->labels[instance_label_offset];
+                struct metric_label* label;
+                int found = find_label_by_name(
+                    helper->data->metrics_storage,
+                    result,
+                    label_key,
+                    &label
+                );
+                if (found) {
                     pthread_mutex_lock(&data->metrics_storage->mutex);
-                    (*atom)->d = *(double*)result->value;
+                    (*atom)->d = *(double*)label->value;
                     status = PMDA_FETCH_STATIC;
                     pthread_mutex_unlock(&data->metrics_storage->mutex);
                 }
-            } 
+            }
             break;
+        }
         // duration passes values trough instances
         case METRIC_TYPE_DURATION:
-            pthread_mutex_lock(&data->metrics_storage->mutex);
-            status = PMDA_FETCH_STATIC;
-            switch (instance) {
-                case 0:
-                    (*atom)->d = get_duration_instance(config, result, DURATION_MIN);
-                    break;
-                case 1:
-                    (*atom)->d = get_duration_instance(config, result, DURATION_MAX);
-                    break;
-                case 2:
-                    (*atom)->d = get_duration_instance(config, result, DURATION_MEDIAN);
-                    break;
-                case 3:
-                    (*atom)->d = get_duration_instance(config, result, DURATION_AVERAGE);
-                    break;
-                case 4:
-                    (*atom)->d = get_duration_instance(config, result, DURATION_PERCENTILE90);
-                    break;
-                case 5:
-                    (*atom)->d = get_duration_instance(config, result, DURATION_PERCENTILE95);
-                    break;
-                case 6:
-                    (*atom)->d = get_duration_instance(config, result, DURATION_PERCENTILE99);
-                    break;
-                case 7:
-                    (*atom)->d = get_duration_instance(config, result, DURATION_COUNT);
-                    break;
-                case 8:
-                    (*atom)->d = get_duration_instance(config, result, DURATION_STANDARD_DEVIATION);
-                    break;
-                default:
-                    status = PM_ERR_INST;
+        {
+            int instance_group = instance / 9;
+            enum DURATION_INSTANCE duration_stat = map_to_duration_instance(instance);
+            int instance_label_group_offset = metric_has_root_value ? instance_group - 1 : instance_group;
+            if (metric_has_root_value && instance_group == 0) {
+                pthread_mutex_lock(&data->metrics_storage->mutex);
+                (*atom)->d = get_duration_instance(config, result->value, duration_stat);
+                pthread_mutex_unlock(&data->metrics_storage->mutex);
+                status = PMDA_FETCH_STATIC;
+                break;
             }
-            pthread_mutex_unlock(&data->metrics_storage->mutex);            
+            if (!is_default_domain) {
+                char* label_key = result->meta->pcp_instance_map->labels[instance_label_group_offset];
+                struct metric_label* label;
+                int found = find_label_by_name(
+                    helper->data->metrics_storage,
+                    result,
+                    label_key,
+                    &label
+                );
+                if (found) {
+                    pthread_mutex_lock(&data->metrics_storage->mutex);
+                    (*atom)->d = *(double*)label->value;
+                    status = PMDA_FETCH_STATIC;
+                    pthread_mutex_unlock(&data->metrics_storage->mutex);
+                }
+
+            }
+            break;
+        }
     }
     return status;
 }
@@ -635,6 +733,7 @@ statsd_fetch_callback(pmdaMetric* mdesc, unsigned int instance, pmAtomValue* ato
     unsigned int cluster = pmID_cluster(mdesc->m_desc.pmid);
     unsigned int item = pmID_item(mdesc->m_desc.pmid);
     int status;
+    DEBUG_LOG("Fetch callback: cluster=%d, item=%d", cluster, item);
     switch (cluster) {
         /* cluster 0 is reserved for stats - info about agent itself */
         case 0:

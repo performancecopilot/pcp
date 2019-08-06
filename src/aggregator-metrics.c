@@ -112,7 +112,7 @@ process_metric(struct agent_config* config, struct pmda_metrics_container* conta
     if (metric_exists) {
         int datagram_contains_tags = datagram->tags != NULL;
         if (!datagram_contains_tags) {
-            int res = update_metric(config, container, item, datagram);
+            int res = update_metric_value(config, container, item->type, datagram, &item->value);
             if (res == 0) {
                 VERBOSE_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
                 return 0;
@@ -212,9 +212,18 @@ print_metric_meta(FILE* f, struct metric_metadata* meta) {
  */
 void
 write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container* container) {
+    DEBUG_LOG("Writing metrics to file...");
     pthread_mutex_lock(&container->mutex);
     metrics* m = container->metrics;
     if (strlen(config->debug_output_filename) == 0) return; 
+    int sep = pmPathSeparator();
+    char debug_output[MAXPATHLEN];
+    pmsprintf(
+        debug_output,
+        MAXPATHLEN,
+        "%s" "%c" "statsd" "%c" "%s",
+        pmGetConfig("PCP_PMDAS_DIR"),
+        sep, sep, config->debug_output_filename);
     FILE* f;
     f = fopen(config->debug_output_filename, "a+");
     if (f == NULL) {
@@ -245,6 +254,7 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
     fprintf(f, "-----------------\n");
     fprintf(f, "Total number of records: %lu \n", count);
     fclose(f);
+    
     pthread_mutex_unlock(&container->mutex);
 }
 
@@ -316,21 +326,25 @@ create_metric(struct agent_config* config, struct statsd_datagram* datagram, str
     (*out)->meta = create_metric_meta(datagram);
     (*out)->children = NULL;
     int status = 0; 
-    switch (datagram->type) {
-        case METRIC_TYPE_COUNTER:
-            (*out)->type = METRIC_TYPE_COUNTER;
-            status = create_counter_value(config, datagram, &(*out)->value);
-            break;
-        case METRIC_TYPE_GAUGE:
-            (*out)->type = METRIC_TYPE_GAUGE;
-            status = create_gauge_value(config, datagram, &(*out)->value);
-            break;
-        case METRIC_TYPE_DURATION:
-            (*out)->type = METRIC_TYPE_DURATION;
-            status = create_duration_value(config, datagram, &(*out)->value);
-            break;
-        default:
-            status = 0;
+    (*out)->type = datagram->type;
+    // this metric doesn't have root value
+    if (datagram->tags != NULL) {
+        (*out)->value = NULL;
+        status = 1;
+    } else {
+        switch (datagram->type) {
+            case METRIC_TYPE_COUNTER:
+                status = create_counter_value(config, datagram, &(*out)->value);
+                break;
+            case METRIC_TYPE_GAUGE:
+                status = create_gauge_value(config, datagram, &(*out)->value);
+                break;
+            case METRIC_TYPE_DURATION:
+                status = create_duration_value(config, datagram, &(*out)->value);
+                break;
+            default:
+                status = 0;
+        }
     }
     if (!status) {
         free_metric(config, item);
@@ -372,33 +386,47 @@ remove_metric(struct pmda_metrics_container* container, char* key) {
  * Updates metric record
  * @arg config - Agent config
  * @arg container - Metrics container
- * @arg metric - Metric to be updated
+ * @arg type - What type the metric value is
  * @arg datagram - Data with which to update
+ * @arg value - Dest value
  * @return 1 on success, 0 when update itself fails, -1 when metric with same name but different type is already recorded
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
 int
-update_metric(
+update_metric_value(
     struct agent_config* config,
     struct pmda_metrics_container* container,
-    struct metric* item,
-    struct statsd_datagram* datagram
+    enum METRIC_TYPE type,
+    struct statsd_datagram* datagram,
+    void** value
 ) {
     pthread_mutex_lock(&container->mutex);
     int status = 0;
-    if (datagram->type != item->type) {
+    if (datagram->type != type) {
         status = -1;
     } else {
-        switch (item->type) {
+        switch (type) {
             case METRIC_TYPE_COUNTER:
-                status = update_counter_value(config, datagram, item->value);
+                if (*value == NULL) {
+                    status = create_counter_value(config, datagram, value);
+                } else {
+                    status = update_counter_value(config, datagram, *value);
+                }
                 break;
             case METRIC_TYPE_GAUGE:
-                status = update_gauge_value(config, datagram, item->value);
+                if (*value == NULL) {
+                    status = create_gauge_value(config, datagram, value);
+                } else {
+                    status = update_gauge_value(config, datagram, *value);
+                }
                 break;
             case METRIC_TYPE_DURATION:
-                status = update_duration_value(config, datagram, item->value);
+                if (*value == NULL) {
+                    status = create_duration_value(config, datagram, value);
+                } else {
+                    status = update_duration_value(config, datagram, *value);
+                }
                 break;
             case METRIC_TYPE_NONE:
                 status = 0;
@@ -465,7 +493,6 @@ create_metric_meta(struct statsd_datagram* datagram) {
     meta->pcp_name = (char*) malloc(sizeof(char) * len);
     ALLOC_CHECK("Unable to allocate memory for metric pcp name");
     memcpy((char*)meta->pcp_name, name, len);
-    meta->pcp_instance_domain = NULL;
     meta->pcp_metric_created = 0;
     meta->pcp_metric_index = 0;
     meta->pcp_instance_map = NULL;

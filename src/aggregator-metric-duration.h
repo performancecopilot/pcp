@@ -28,12 +28,12 @@ update_duration_value(struct agent_config* config, struct statsd_datagram* datag
 /**
  * Extracts duration metric meta values from duration metric record
  * @arg config - Config which contains info on which duration aggregating type we are using
- * @arg item - Metric item from which to extract duration values
+ * @arg value - Either "struct exact_duration_collection*" or "struct hdr_histogram*", basically value from metric that has type of "duration"
  * @arg instance - What information to extract
- * @return 1 on success
+ * @return duration instance value
  */
 double
-get_duration_instance(struct agent_config* config, struct metric* item, enum DURATION_INSTANCE instance);
+get_duration_instance(struct agent_config* config, void* value, enum DURATION_INSTANCE instance);
 
 /**
  * Print duration metric value

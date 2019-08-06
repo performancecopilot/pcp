@@ -79,17 +79,17 @@ update_duration_value(struct agent_config* config, struct statsd_datagram* datag
 /**
  * Extracts duration metric meta values from duration metric record
  * @arg config - Config which contains info on which duration aggregating type we are using
- * @arg item - Metric item from which to extract duration values
+ * @arg value - Either "struct exact_duration_collection*" or "struct hdr_histogram*", basically value from metric that has type of "duration"
  * @arg instance - What information to extract
  * @return duration instance value
  */
 double
-get_duration_instance(struct agent_config* config, struct metric* item, enum DURATION_INSTANCE instance) {
+get_duration_instance(struct agent_config* config, void* value, enum DURATION_INSTANCE instance) {
     double result = 0;
     if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_BASIC) {
-        result = get_exact_duration_instance((struct exact_duration_collection*)item->value, instance);
+        result = get_exact_duration_instance((struct exact_duration_collection*)value, instance);
     } else {
-        result = get_hdr_histogram_duration_instance((struct hdr_histogram*)item->value, instance);
+        result = get_hdr_histogram_duration_instance((struct hdr_histogram*)value, instance);
     }
     return result;
 }
@@ -102,13 +102,15 @@ get_duration_instance(struct agent_config* config, struct metric* item, enum DUR
  */
 void
 print_duration_metric_value(struct agent_config* config, FILE* f, void* value) {
-    switch (config->duration_aggregation_type) {
-        case DURATION_AGGREGATION_TYPE_BASIC:
-            print_exact_duration_value(f, (struct exact_duration_collection*)value);
-            break;
-        case DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM:
-            print_hdr_duration_value(f, (struct hdr_histogram*)value);
-            break;
+    if (value != NULL) {
+        switch (config->duration_aggregation_type) {
+            case DURATION_AGGREGATION_TYPE_BASIC:
+                print_exact_duration_value(f, (struct exact_duration_collection*)value);
+                break;
+            case DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM:
+                print_hdr_duration_value(f, (struct hdr_histogram*)value);
+                break;
+        }
     }
 }
 

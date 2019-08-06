@@ -70,7 +70,9 @@ update_gauge_value(struct agent_config* config, struct statsd_datagram* datagram
 void
 print_gauge_metric_value(struct agent_config* config, FILE* f, void* value) {
     (void)config;
-    fprintf(f, "value = %f\n", *(double*)(value));
+    if (value != NULL) {
+        fprintf(f, "value = %f\n", *(double*)(value));
+    }
 }
 
 /**

@@ -76,7 +76,7 @@ process_labeled_datagram(
     struct metric_label* label;
     int label_exists = find_label_by_name(container, item, label_key, &label);
     if (label_exists) {
-        int update_success = update_label_value(config, container, item, label, datagram);
+        int update_success = update_metric_value(config, container, label->type, datagram, &label->value);
         if (update_success != 1) {
             VERBOSE_LOG("%s REASON: sematically incorrect values.", throwing_away_msg);
             free(label_key);
@@ -231,49 +231,6 @@ add_label(struct pmda_metrics_container* container, struct metric* item, char* k
     container->generation += 1;
     item->meta->pcp_instance_change_requested = 1;
     pthread_mutex_unlock(&container->mutex);
-}
-
-/**
- * Updates label record
- * @arg config - Agent config
- * @arg container - Metrics container
- * @arg item - Metric to be updated
- * @arg label - Label to be updated
- * @arg datagram - Data with which to update
- * @return 1 on success, 0 when update itself fails, -1 when metric with same name but different type is already recorded
- * 
- * Synchronized by mutex on pmda_metrics_container
- */
-int
-update_label_value(
-    struct agent_config* config,
-    struct pmda_metrics_container* container,
-    struct metric* item,
-    struct metric_label* label,
-    struct statsd_datagram* datagram
-) {
-    pthread_mutex_lock(&container->mutex);
-    int status = 0;
-    if (datagram->type != item->type) {
-        status = -1;
-    } else {
-        switch (item->type) {
-            case METRIC_TYPE_COUNTER:
-                status = update_counter_value(config, label->value, datagram);
-                break;
-            case METRIC_TYPE_GAUGE:
-                status = update_gauge_value(config, label->value, datagram);
-                break;
-            case METRIC_TYPE_DURATION:
-                status = update_duration_value(config, label->value, datagram);
-                break;
-            case METRIC_TYPE_NONE:
-                status = 0;
-                break;
-        }
-    }
-    pthread_mutex_unlock(&container->mutex);
-    return status;
 }
 
 /**

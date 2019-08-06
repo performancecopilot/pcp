@@ -65,7 +65,9 @@ update_counter_value(struct agent_config* config, struct statsd_datagram* datagr
 void
 print_counter_metric_value(struct agent_config* config, FILE* f, void* value) {
     (void)config;
-    fprintf(f, "value = %f\n", *(double*)(value));
+    if (value != NULL) {
+        fprintf(f, "value = %f\n", *(double*)(value));
+    }
 }
 
 /**

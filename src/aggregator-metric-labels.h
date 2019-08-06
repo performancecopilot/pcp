@@ -68,26 +68,6 @@ void
 add_label(struct pmda_metrics_container* container, struct metric* item, char* key, struct metric_label* label);
 
 /**
- * Updates label record
- * @arg config - Agent config
- * @arg container - Metrics container
- * @arg metric - Metric to be updated
- * @arg label - Label to be updated
- * @arg datagram - Data with which to update
- * @return 1 on success, 0 when update itself fails, -1 when metric with same name but different type is already recorded
- * 
- * Synchronized by mutex on pmda_metrics_container
- */
-int
-update_label_value(
-    struct agent_config* config,
-    struct pmda_metrics_container* container,
-    struct metric* item,
-    struct metric_label* label,
-    struct statsd_datagram* datagram
-);
-
-/**
  * Prints metric label information
  * @arg config - Config where duration subtype is specified
  * @arg f - Opened file handle

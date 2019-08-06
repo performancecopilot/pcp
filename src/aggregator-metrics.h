@@ -185,18 +185,20 @@ remove_metric(struct pmda_metrics_container* container, char* key);
  * Updates metric record
  * @arg config - Agent config
  * @arg container - Metrics container
- * @arg metric - Metric to be updated
+ * @arg type - What type the metric value is
  * @arg datagram - Data with which to update
+ * @arg value - Dest value
  * @return 1 on success, 0 when update itself fails, -1 when metric with same name but different type is already recorded
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
 int
-update_metric(
+update_metric_value(
     struct agent_config* config,
     struct pmda_metrics_container* container,
-    struct metric* item,
-    struct statsd_datagram* datagram
+    enum METRIC_TYPE type,
+    struct statsd_datagram* datagram,
+    void** value
 );
 
 /**
