@@ -331,7 +331,7 @@ add_metric(struct pmda_metrics_container* container, char* key, struct metric* i
 void
 remove_metric(struct pmda_metrics_container* container, char* key) {
     pthread_mutex_lock(&container->mutex);
-    // dictDelete(container->metrics, key);
+    dictDelete(container->metrics, key);
     container->generation += 1;
     pthread_mutex_unlock(&container->mutex);
 }

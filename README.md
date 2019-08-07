@@ -39,7 +39,7 @@ This repository contains an agent that collects [StatsD](https://github.com/stat
 
 ## Dependencies
 
-- PCP version >= 4.3.3
+- PCP version 4.3.4-1
 - [chan](https://github.com/tylertreat/chan)
 - [HdrHistogram_c](https://github.com/HdrHistogram/HdrHistogram_c) installed in your /usr/local dir
 - [Ragel](http://www.colm.net/open-source/ragel/)
