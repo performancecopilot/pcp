@@ -68,7 +68,8 @@ class BPFtraceVarDef: # pylint: disable=too-few-public-methods
 
 class BPFtrace:
     """class for interacting with bpftrace"""
-    def __init__(self, log, script):
+    def __init__(self, bpftrace_path, log, script):
+        self.bpftrace_path = bpftrace_path
         self.log = log
         self.script = script # contains the modified script (added continuous output)
         self.process = None
@@ -182,7 +183,7 @@ class BPFtrace:
             self._state.reset()
             self._state.status = 'starting'
 
-        self.process = subprocess.Popen(['bpftrace', '-f', 'json', '-e', self.script],
+        self.process = subprocess.Popen([self.bpftrace_path, '-f', 'json', '-e', self.script],
                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                         encoding='utf8')
 

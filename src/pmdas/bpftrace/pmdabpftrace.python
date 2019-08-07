@@ -19,6 +19,7 @@ import sys
 import json
 import time
 import configparser
+import subprocess
 import atexit
 from ctypes import c_int
 
@@ -38,9 +39,14 @@ class Consts: # pylint: disable=too-few-public-methods
         Deregister = 1
         Start = 2
         Stop = 3
-        Scripts = 4
+    class Info:
+        """cluster number and items of info cluster"""
+        Cluster = 1 # cluster number
+        Scripts = 0 # items
+        Tracepoints = 1
     class Script:
         """items of script clusters"""
+        Cluster = 100 # cluster number of first script
         Status = 0
         Pid = 1
         ExitCode = 2
@@ -56,7 +62,7 @@ class BPFtraceScript:
         self.pmda = pmda
         self.cluster = cluster
         self.script = script # contains the unmodified script
-        self.bpftrace = BPFtrace(pmda.log, script)
+        self.bpftrace = BPFtrace(pmda.bpftrace_path, pmda.log, script)
         if 'name' in self.bpftrace.metadata:
             self.name = self.bpftrace.metadata['name']
             self.persistent = True
@@ -234,17 +240,21 @@ class BPFtracePMDA(PMDA):
     def __init__(self, name, domain):
         super(BPFtracePMDA, self).__init__(name, domain)
 
+        self.bpftrace_path = 'bpftrace' # path to bpftrace
         self.script_expiry_time = 10 * 60 # in seconds, default to 10 min
         self.read_config()
 
         self.connect_pmcd()
 
-        self.next_script_no = 1 # same as cluster
+        self.next_script_no = Consts.Script.Cluster
         self.ctxtab = {}
         self.scripts = {}
         self.script_indom_id = None
         self.script_indom = None
+        self.tracepoints_indom_id = None
+        self.tracepoints_indom = None
         self.register_metrics()
+        self.read_tracepoints()
 
         self.set_store_callback(self.store_callback)
         self.set_label(self.label)
@@ -275,7 +285,9 @@ class BPFtracePMDA(PMDA):
 
         if config.has_section('pmda'):
             for opt in config.options('pmda'):
-                if opt == 'script_expiry_time':
+                if opt == 'bpftrace_path':
+                    self.bpftrace_path = config.get('pmda', opt)
+                elif opt == 'script_expiry_time':
                     self.script_expiry_time = config.getint('pmda', opt)
                 else:
                     self.err("Invalid directive '{}' in {}, aborting.".format(opt, configfile))
@@ -306,10 +318,32 @@ class BPFtracePMDA(PMDA):
         self.script_indom_id = self.indom(0)
         self.script_indom = pmdaIndom(self.script_indom_id, {})
         self.add_indom(self.script_indom)
-        self.add_metric('bpftrace.control.scripts', pmdaMetric(
-            self.pmid(Consts.Control.Cluster, Consts.Control.Scripts), c_api.PM_TYPE_STRING,
+        self.add_metric('bpftrace.info.scripts', pmdaMetric(
+            self.pmid(Consts.Info.Cluster, Consts.Info.Scripts), c_api.PM_TYPE_STRING,
             self.script_indom_id, c_api.PM_SEM_INSTANT, pmUnits()
         ))
+
+        self.tracepoints_indom_id = self.indom(1)
+        self.tracepoints_indom = pmdaIndom(self.tracepoints_indom_id, {})
+        self.add_indom(self.tracepoints_indom)
+        self.add_metric('bpftrace.info.tracepoints', pmdaMetric(
+            self.pmid(Consts.Info.Cluster, Consts.Info.Tracepoints), c_api.PM_TYPE_U32,
+            self.tracepoints_indom_id, c_api.PM_SEM_INSTANT, pmUnits()
+        ))
+
+    def read_tracepoints(self):
+        """on startup, read list of all available bpftrace tracepoints"""
+        try:
+            tracepoints = subprocess.check_output([self.bpftrace_path, '-l'], encoding='utf8')
+        except OSError as e:
+            self.err("Cannot start bpftrace: {}".format(e))
+            sys.exit(1)
+
+        tracepoints = tracepoints.strip().split('\n')
+        tracepoints = tracepoints[:20] # TODO: remove once PMDA can handle indoms with 56340 instances
+        self.tracepoints_indom.set_instances(self.tracepoints_indom_id, {
+            tracepoint:c_int(1) for tracepoint in tracepoints
+        })
 
     def set_ctx_state(self, key, value):
         """set per-context state"""
@@ -451,11 +485,11 @@ class BPFtracePMDA(PMDA):
     def label(self, ident, type_):
         """PMDA label"""
         if type_ == c_api.PM_LABEL_CLUSTER:
-            if ident != Consts.Control.Cluster:
+            if ident not in [Consts.Control.Cluster, Consts.Info.Cluster]:
                 return self.scripts[ident].label(ident, type_)
         elif type_ == c_api.PM_LABEL_ITEM:
             cluster = self.pmid_cluster(ident)
-            if cluster != Consts.Control.Cluster:
+            if cluster not in [Consts.Control.Cluster, Consts.Info.Cluster]:
                 return self.scripts[cluster].label(ident, type_)
         return '{}'
 
@@ -463,7 +497,7 @@ class BPFtracePMDA(PMDA):
         """PMDA refresh callback"""
         self.cleanup_idle_scripts()
 
-        if cluster == Consts.Control.Cluster:
+        if cluster in [Consts.Control.Cluster, Consts.Info.Cluster]:
             pass
         elif cluster in self.scripts:
             return self.scripts[cluster].refresh_callback()
@@ -480,7 +514,8 @@ class BPFtracePMDA(PMDA):
                 return [json.dumps(self.get_ctx_state('start')), 1]
             elif item == Consts.Control.Stop:
                 return [json.dumps(self.get_ctx_state('stop')), 1]
-            elif item == Consts.Control.Scripts:
+        elif cluster == Consts.Info.Cluster:
+            if item == Consts.Info.Scripts:
                 name = self.script_indom.inst_name_lookup(inst)
                 if not name:
                     return [c_api.PM_ERR_INST, 0]
@@ -489,6 +524,9 @@ class BPFtracePMDA(PMDA):
                 if script:
                     return [script.script, 1]
                 return [c_api.PM_ERR_INST, 0]
+            elif item == Consts.Info.Tracepoints:
+                key = self.tracepoints_indom.inst_name_lookup(inst)
+                return [1, 1] if key else [c_api.PM_ERR_INST, 0]
         elif cluster in self.scripts:
             return self.scripts[cluster].fetch_callback(item, inst)
         return [c_api.PM_ERR_PMID, 0]
