@@ -42,6 +42,7 @@ struct statsd_datagram
     char* name;
     enum METRIC_TYPE type;
     char* tags;
+    int tags_pair_count;
     enum SIGN explicit_sign;
     double value;
     double sampling;

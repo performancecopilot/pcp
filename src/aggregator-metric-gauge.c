@@ -15,16 +15,13 @@
 int
 create_gauge_value(struct agent_config* config, struct statsd_datagram* datagram, void** out) {
     (void)config;   
-    double new_value;
+    double new_value = 0;
     switch (datagram->explicit_sign) {
         case SIGN_MINUS:
             new_value = -1.0 * datagram->value;
             break;
         default:
             new_value = datagram->value;
-    }
-    if (new_value < 0) {
-        return 0;
     }
     *out = (double*) malloc(sizeof(double));
     ALLOC_CHECK("Unable to allocate memory for copy of metric value.");

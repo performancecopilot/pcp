@@ -18,6 +18,7 @@
 #include "aggregator-metrics.h"
 #include "aggregator-stats.h"
 #include "pmda-callbacks.h"
+#include "dict-callbacks.h"
 #include "utils.h"
 #include "../domain.h"
 
@@ -28,6 +29,7 @@ void signal_handler(int num) {
         aggregator_request_output();
     }
 }
+
 
 #define SET_INST_NAME(name, index) \
     instance[index].i_inst = index; \
@@ -137,11 +139,18 @@ init_data_ext(
     struct pmda_metrics_container* metrics_storage,
     struct pmda_stats_container* stats_storage
 ) {
+    static dictType instance_map_callbacks = {
+        .hashFunction	= str_hash_callback,
+        .keyCompare		= str_compare_callback,
+        .keyDup		    = str_duplicate_callback,
+        .keyDestructor	= str_hash_free_callback,
+    };
     data->config = config;
     create_statsd_hardcoded_metrics(data);
     create_statsd_hardcoded_instances(data);
     data->metrics_storage = metrics_storage;
     data->stats_storage = stats_storage;
+    data->instance_map = dictCreate(&instance_map_callbacks, NULL);
     data->generation = -1; // trigger first mapping of metrics for PMNS 
     data->notify = 0;
 }
@@ -150,7 +159,7 @@ int
 main(int argc, char** argv)
 {
     signal(SIGUSR1, signal_handler);
-
+    
     struct agent_config config = { 0 };
     struct pmda_data_extension data = { 0 };
     pthread_t network_listener;

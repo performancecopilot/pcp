@@ -207,6 +207,7 @@ parse(char* buffer, struct statsd_datagram** datagram) {
         if (json != NULL) {
             (*datagram)->tags = malloc(strlen(json) + 1);
             (*datagram)->tags = json;
+            (*datagram)->tags_pair_count = tags->length;
         }
         free(tags);
         if (tag_allocated_flags & 1) {

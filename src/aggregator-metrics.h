@@ -46,6 +46,7 @@ struct metric_label_metadata {
 
 struct metric_label {
     char* labels;
+    int pair_count;
     struct metric_label_metadata* meta;
     enum METRIC_TYPE type; // either this or parent reference, so that we know how to free void* value
     void* value;

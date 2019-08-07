@@ -1,7 +1,7 @@
 #include "aggregators.h"
 #include "aggregator-metrics.h"
 #include "aggregator-metric-labels.h"
-#include "aggregator-metric-dict-callbacks.h"
+#include "dict-callbacks.h"
 #include "aggregator-metric-counter.h"
 #include "aggregator-metric-gauge.h"
 #include "aggregator-metric-duration.h"
@@ -29,7 +29,7 @@ create_labels_dict(
         .hashFunction	= str_hash_callback,
         .keyCompare		= str_compare_callback,
         .keyDup		    = str_duplicate_callback,
-        .keyDestructor	= metric_label_free_callback,
+        .keyDestructor	= str_hash_free_callback,
         .valDestructor	= metric_label_free_callback,
     };
     struct pmda_metrics_dict_privdata* dict_data = 
@@ -195,6 +195,7 @@ create_label(
     meta->instance_label_segment_str = label_segment_identifier;
     (*out)->meta = meta;
     (*out)->type = item->type;
+    (*out)->pair_count = datagram->tags_pair_count;
     (*out)->value = NULL;
     int status = 0;
     switch (item->type) {
@@ -297,15 +298,16 @@ print_labels(struct agent_config* config, FILE* f, labels* l) {
     long int count = 1;
     while ((current = dictNext(iterator)) != NULL) {
         struct metric_label* item = (struct metric_label*)current->v.val;
+        fprintf(f, "---\n");
         fprintf(f, "#%ld Label: \n", count);
         if (item->labels != NULL) {
             fprintf(f, "-> desc = %s\n", item->labels);
         }
         fprintf(f, "-> ");
         print_label_meta(config, f, item->meta);
+        fprintf(f, "-> pair count = %d\n", item->pair_count);
         if (item->type != METRIC_TYPE_NONE) {
-            fprintf(f, "-> ");
-            fprintf(f, "---\n");
+            fprintf(f, "->\n");
             switch (item->type) {
                 case METRIC_TYPE_COUNTER:
                     print_counter_metric_value(config, f, item->value);
@@ -320,10 +322,10 @@ print_labels(struct agent_config* config, FILE* f, labels* l) {
                     // not an actualy metric error case
                     break;
             }
-            fprintf(f, "---\n");
         }
         count++;
     }
+    fprintf(f, "---\n");
     dictReleaseIterator(iterator);
 }
 

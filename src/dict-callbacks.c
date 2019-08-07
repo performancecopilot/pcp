@@ -1,7 +1,7 @@
 #include "aggregators.h"
 #include "aggregator-metrics.h"
 #include "aggregator-metric-labels.h"
-#include "aggregator-metric-dict-callbacks.h"
+#include "dict-callbacks.h"
 #include "utils.h"
 
 void
@@ -22,6 +22,13 @@ metric_free_callback(void* privdata, void* val)
     pthread_mutex_lock(&container->mutex);
     free_metric(config, (struct metric*)val);
     pthread_mutex_unlock(&container->mutex);
+}
+
+void
+str_hash_free_callback(void* privdata, void* key) {
+    if (key != NULL) {
+        free(key);
+    }
 }
 
 void*

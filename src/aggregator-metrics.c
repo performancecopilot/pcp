@@ -14,7 +14,7 @@
 #include "aggregator-metric-counter.h"
 #include "aggregator-metric-gauge.h"
 #include "aggregator-metric-duration.h"
-#include "aggregator-metric-dict-callbacks.h"
+#include "dict-callbacks.h"
 #include "pmdastatsd.h"
 #include "../domain.h"
 
@@ -30,7 +30,7 @@ init_pmda_metrics(struct agent_config* config) {
         .hashFunction	= str_hash_callback,
         .keyCompare		= str_compare_callback,
         .keyDup		    = str_duplicate_callback,
-        .keyDestructor	= metric_free_callback,
+        .keyDestructor	= str_hash_free_callback,
         .valDestructor	= metric_free_callback,
     };
     struct pmda_metrics_container* container =

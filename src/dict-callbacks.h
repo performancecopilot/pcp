@@ -7,6 +7,9 @@ metric_label_free_callback(void* privdata, void* val);
 void
 metric_free_callback(void* privdata, void* val);
 
+void
+str_hash_free_callback(void* privdata, void* key);
+
 void*
 str_duplicate_callback(void* privdata, const void* key);
 

@@ -195,6 +195,7 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 		if (json != NULL) {
 			(*datagram)->tags = malloc(strlen(json) + 1);
 			(*datagram)->tags = json;
+			(*datagram)->tags_pair_count = tags->length;
 		}
 		free(tags);
 		if (tag_key_allocated) free(tag_key);

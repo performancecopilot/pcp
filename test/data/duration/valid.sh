@@ -28,9 +28,9 @@ echo "cpu_wait,target=cpu1:20|ms"       | call_endpoint
 echo "cpu_wait,target=cpu1:200|ms"      | call_endpoint
 echo "cpu_wait,target=cpu1:2000|ms"     | call_endpoint
 
-echo "cpu_wait:100|ms"                  | call_endpoint
-echo "cpu_wait:1000|ms"                 | call_endpoint
-echo "cpu_wait:10000|ms"                | call_endpoint
+# echo "cpu_wait:100|ms"                  | call_endpoint
+# echo "cpu_wait:1000|ms"                 | call_endpoint
+# echo "cpu_wait:10000|ms"                | call_endpoint
 
 
 ## Results (HDR_HISTOGRAM):
