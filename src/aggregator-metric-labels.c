@@ -62,7 +62,7 @@ process_labeled_datagram(
     char throwing_away_msg[] = "Throwing away datagram.";
     int correct_semantics = item->type == datagram->type;
     if (!correct_semantics) {
-        VERBOSE_LOG("%s REASON: metric type doesn't match with root record.", throwing_away_msg);
+        DEBUG_LOG("%s REASON: metric type doesn't match with root record.", throwing_away_msg);
         return 0;
     }
     int labeled_children_dict_exists = item->children != NULL;
@@ -71,14 +71,14 @@ process_labeled_datagram(
     }
     char* label_key = create_metric_dict_key(datagram->tags);
     if (label_key == NULL) {
-        VERBOSE_LOG("%s REASON: unable to create hashtable key for labeled child.", throwing_away_msg);
+        DEBUG_LOG("%s REASON: unable to create hashtable key for labeled child.", throwing_away_msg);
     }
     struct metric_label* label;
     int label_exists = find_label_by_name(container, item, label_key, &label);
     if (label_exists) {
         int update_success = update_metric_value(config, container, label->type, datagram, &label->value);
         if (update_success != 1) {
-            VERBOSE_LOG("%s REASON: sematically incorrect values.", throwing_away_msg);
+            DEBUG_LOG("%s REASON: sematically incorrect values.", throwing_away_msg);
             free(label_key);
             return 0;
         }
@@ -89,7 +89,7 @@ process_labeled_datagram(
             add_label(container, item, label_key, label);
             return 1;
         }
-        VERBOSE_LOG("%s REASON: unable to create label.", throwing_away_msg);
+        DEBUG_LOG("%s REASON: unable to create label.", throwing_away_msg);
         free(label_key);
         return 0;
     }
@@ -195,6 +195,7 @@ create_label(
     meta->instance_label_segment_str = label_segment_identifier;
     (*out)->meta = meta;
     (*out)->type = item->type;
+    (*out)->value = NULL;
     int status = 0;
     switch (item->type) {
         case METRIC_TYPE_COUNTER:
@@ -304,20 +305,22 @@ print_labels(struct agent_config* config, FILE* f, labels* l) {
         print_label_meta(config, f, item->meta);
         if (item->type != METRIC_TYPE_NONE) {
             fprintf(f, "-> ");
-        }
-        switch (item->type) {
-            case METRIC_TYPE_COUNTER:
-                print_counter_metric_value(config, f, item->value);
-                break;
-            case METRIC_TYPE_GAUGE:
-                print_gauge_metric_value(config, f, item->value);
-                break;
-            case METRIC_TYPE_DURATION:
-                print_duration_metric_value(config, f, item->value);
-                break;
-            case METRIC_TYPE_NONE:
-                // not an actualy metric error case
-                break;
+            fprintf(f, "---\n");
+            switch (item->type) {
+                case METRIC_TYPE_COUNTER:
+                    print_counter_metric_value(config, f, item->value);
+                    break;
+                case METRIC_TYPE_GAUGE:
+                    print_gauge_metric_value(config, f, item->value);
+                    break;
+                case METRIC_TYPE_DURATION:
+                    print_duration_metric_value(config, f, item->value);
+                    break;
+                case METRIC_TYPE_NONE:
+                    // not an actualy metric error case
+                    break;
+            }
+            fprintf(f, "---\n");
         }
         count++;
     }

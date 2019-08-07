@@ -44,9 +44,9 @@ print_counter_metric(struct agent_config* config, FILE* f, struct metric* item);
 /**
  * Frees counter metric value
  * @arg config
- * @arg metric - Metric value to be freed
+ * @arg value - Metric value to be freed
  */
 void
-free_counter_value(struct agent_config* config, struct metric* item);
+free_counter_value(struct agent_config* config, void* value);
 
 #endif

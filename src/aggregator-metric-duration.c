@@ -134,16 +134,16 @@ print_duration_metric(struct agent_config* config, FILE* f, struct metric* item)
 /**
  * Frees duration metric value
  * @arg config
- * @arg metric - Metric value to be freed
+ * @arg value - value to be freed
  */
 void
-free_duration_value(struct agent_config* config, struct metric* item) {
+free_duration_value(struct agent_config* config, void* value) {
     switch (config->duration_aggregation_type) {
         case DURATION_AGGREGATION_TYPE_BASIC:
-            free_exact_duration_value(config, item);
+            free_exact_duration_value(config, value);
             break;
         case DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM:
-            free_hdr_duration_value(config, item);
+            free_hdr_duration_value(config, value);
             break;
     }
 }

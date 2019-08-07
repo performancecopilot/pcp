@@ -37,7 +37,6 @@ struct metric_metadata {
     pmInDom pmindom;
     size_t pcp_instance_domain_index;
     size_t pcp_metric_index;
-    int pcp_metric_created; // flag signaling to pcp, that it should create pcp metric equivalent
     int pcp_instance_change_requested; // flag signaling to pcp that change to instance is requested
 } metric_metadata;
 
@@ -127,17 +126,6 @@ free_metric(struct agent_config* config, struct metric* item);
  */
 void
 write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container* container);
-
-/**
- * Iterate over metrics via custom callback
- * @arg container - Metrics container
- * @arg callback - Callback called for every item
- * @arg privdata - Private data passed to callback along the metric
- * 
- * Synchronized by mutex on pmda_metrics_container
- */
-void
-iterate_over_metrics(struct pmda_metrics_container* container, void(*callback)(char* key, struct metric*, void*), void* privdata);
 
 /**
  * Finds metric by name

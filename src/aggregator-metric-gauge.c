@@ -96,12 +96,12 @@ print_gauge_metric(struct agent_config* config, FILE* f, struct metric* item) {
 /**
  * Frees gauge metric value
  * @arg config
- * @arg metric - Metric value to be freed
+ * @arg value - value value to be freed
  */
 void
-free_gauge_value(struct agent_config* config, struct metric* item) {
+free_gauge_value(struct agent_config* config, void* value) {
     (void)config;
-    if (item->value != NULL) {
-        free(item->value);
+    if (value != NULL) {
+        free(value);
     }
 }

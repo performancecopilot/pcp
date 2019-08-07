@@ -61,9 +61,9 @@ print_exact_duration_value(FILE* f, struct exact_duration_collection* collection
 /**
  * Frees exact duration metric value
  * @arg config
- * @arg metric - Metric value to be freed
+ * @arg value - value to be freed
  */
 void
-free_exact_duration_value(struct agent_config* config, struct metric* item);
+free_exact_duration_value(struct agent_config* config, void* value);
 
 #endif

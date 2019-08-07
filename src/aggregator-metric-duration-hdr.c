@@ -85,12 +85,12 @@ print_hdr_duration_value(FILE* f, struct hdr_histogram* histogram) {
 /**
  * Frees exact duration metric value
  * @arg config
- * @arg metric - Metric value to be freed
+ * @arg value - value value to be freed
  */
 void
-free_hdr_duration_value(struct agent_config* config, struct metric* item) {
+free_hdr_duration_value(struct agent_config* config, void* value) {
     (void)config;
-    if (item->value != NULL) {
-        hdr_close((struct hdr_histogram*)item->value);
+    if (value != NULL) {
+        hdr_close((struct hdr_histogram*)value);
     }
 }

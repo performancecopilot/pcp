@@ -175,20 +175,20 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
  */
 void
 print_agent_config(struct agent_config* config) {
-    pmNotifyErr(LOG_DEBUG, "<settings>\n");
+    pmNotifyErr(LOG_INFO, "<settings>\n");
     if (config->verbose)
-        pmNotifyErr(LOG_DEBUG, "verbose flag is set");
+        pmNotifyErr(LOG_INFO, "verbose flag is set");
     if (config->debug)
-        pmNotifyErr(LOG_DEBUG, "debug flag is set");
+        pmNotifyErr(LOG_INFO, "debug flag is set");
     if (config->show_version)
-        pmNotifyErr(LOG_DEBUG, "version flag is set");
-    pmNotifyErr(LOG_DEBUG, "debug_output_filename: %s \n", config->debug_output_filename);
-    pmNotifyErr(LOG_DEBUG, "tcpaddr: %s \n", config->tcp_address);
-    pmNotifyErr(LOG_DEBUG, "port: %s \n", config->port);
-    pmNotifyErr(LOG_DEBUG, "parser_type: %s \n", config->parser_type == PARSER_TYPE_BASIC ? "BASIC" : "RAGEL");
-    pmNotifyErr(LOG_DEBUG, "maximum of unprocessed packets: %d \n", config->max_unprocessed_packets);
-    pmNotifyErr(LOG_DEBUG, "maximum udp packet size: %ld \n", config->max_udp_packet_size);
-    pmNotifyErr(LOG_DEBUG, "duration_aggregation_type: %s\n", 
+        pmNotifyErr(LOG_INFO, "version flag is set");
+    pmNotifyErr(LOG_INFO, "debug_output_filename: %s \n", config->debug_output_filename);
+    pmNotifyErr(LOG_INFO, "tcpaddr: %s \n", config->tcp_address);
+    pmNotifyErr(LOG_INFO, "port: %s \n", config->port);
+    pmNotifyErr(LOG_INFO, "parser_type: %s \n", config->parser_type == PARSER_TYPE_BASIC ? "BASIC" : "RAGEL");
+    pmNotifyErr(LOG_INFO, "maximum of unprocessed packets: %d \n", config->max_unprocessed_packets);
+    pmNotifyErr(LOG_INFO, "maximum udp packet size: %ld \n", config->max_udp_packet_size);
+    pmNotifyErr(LOG_INFO, "duration_aggregation_type: %s\n", 
         config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM ? "HDR_HISTOGRAM" : "BASIC");
-    pmNotifyErr(LOG_DEBUG, "</settings>\n");
+    pmNotifyErr(LOG_INFO, "</settings>\n");
 }

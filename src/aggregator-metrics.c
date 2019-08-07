@@ -19,30 +19,6 @@
 #include "../domain.h"
 
 /**
- * Gets next valid pmID
- * - used for getting pmIDs for yet unrecorded metrics
- * - we start from cluster #1, because #0 is reserved for agent stats
- * @arg data - PMDA extension structure (contains agent-specific private data)
- * @return new valid pmID
- */
-static pmID
-get_next_pmID() {
-    static int next_cluster_id = 1;
-    static int next_item_id = 0;
-    pmID next = pmID_build(STATSD, next_cluster_id, next_item_id);
-    if (next_cluster_id >= (1 << 12)) {
-        DIE("Agent ran out of metric ids.");
-    }
-    if (next_item_id == 1000) {
-        next_item_id = 0;
-        next_cluster_id += 1;
-    } else {
-        next_item_id += 1;
-    }
-    return next;
-}
-
-/**
  * Creates new pmda_metrics_container structure, initializes all stats to 0
  */
 struct pmda_metrics_container*
@@ -105,7 +81,7 @@ process_metric(struct agent_config* config, struct pmda_metrics_container* conta
     char throwing_away_msg[] = "Throwing away datagram.";
     char* key = create_metric_dict_key(datagram->name);
     if (key == NULL) {
-        VERBOSE_LOG("%s REASON: unable to create hashtable key for metric record.", throwing_away_msg);
+        DEBUG_LOG("%s REASON: unable to create hashtable key for metric record.", throwing_away_msg);
         return 0;
     }
     int metric_exists = find_metric_by_name(container, key, &item);
@@ -114,10 +90,10 @@ process_metric(struct agent_config* config, struct pmda_metrics_container* conta
         if (!datagram_contains_tags) {
             int res = update_metric_value(config, container, item->type, datagram, &item->value);
             if (res == 0) {
-                VERBOSE_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
+                DEBUG_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
                 return 0;
             } else if (res == -1) {
-                VERBOSE_LOG("%s REASON: metric of same name but different type is already recorded.", throwing_away_msg);
+                DEBUG_LOG("%s REASON: metric of same name but different type is already recorded.", throwing_away_msg);
                 return 0;
             }
             return 1;
@@ -146,10 +122,10 @@ process_metric(struct agent_config* config, struct pmda_metrics_container* conta
                 }
                 return complete;
             }
-            VERBOSE_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
+            DEBUG_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
             return 0;
         } else {
-            VERBOSE_LOG("%s REASON: name is not available. (blacklisted?)", throwing_away_msg);
+            DEBUG_LOG("%s REASON: name is not available. (blacklisted?)", throwing_away_msg);
             return 0;
         }
     }
@@ -199,7 +175,7 @@ print_metric_meta(FILE* f, struct metric_metadata* meta) {
         if (meta->pcp_name) {
             fprintf(f, "pcp_name = %s\n", meta->pcp_name);
         }
-        fprintf(f, "pmid = %u\n", meta->pmid);
+        fprintf(f, "pmid = %s\n", pmIDStr(meta->pmid));
     }
 }
 
@@ -225,7 +201,7 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
         pmGetConfig("PCP_PMDAS_DIR"),
         sep, sep, config->debug_output_filename);
     FILE* f;
-    f = fopen(config->debug_output_filename, "a+");
+    f = fopen(config->debug_output_filename, "w+");
     if (f == NULL) {
         return;
     }
@@ -255,29 +231,6 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
     fprintf(f, "Total number of records: %lu \n", count);
     fclose(f);
     
-    pthread_mutex_unlock(&container->mutex);
-}
-
-/**
- * Iterate over metrics via custom callback
- * @arg container - Metrics container
- * @arg callback - Callback called for every item
- * @arg privdata - Private data passed to callback along the metric
- * 
- * Synchronized by mutex on pmda_metrics_container
- */
-void
-iterate_over_metrics(struct pmda_metrics_container* container, void(*callback)(char* key, struct metric*, void*), void* privdata) {
-    pthread_mutex_lock(&container->mutex);
-    metrics* m = container->metrics;
-    dictIterator* iterator = dictGetSafeIterator(m);
-    dictEntry* current;
-    while ((current = dictNext(iterator)) != NULL) {
-        struct metric* item = (struct metric*)current->v.val;
-        char* key = (char*)current->key;
-        callback(key, item, privdata);
-    }
-    dictReleaseIterator(iterator);
     pthread_mutex_unlock(&container->mutex);
 }
 
@@ -327,6 +280,7 @@ create_metric(struct agent_config* config, struct statsd_datagram* datagram, str
     (*out)->children = NULL;
     int status = 0; 
     (*out)->type = datagram->type;
+    (*out)->value = NULL;
     // this metric doesn't have root value
     if (datagram->tags != NULL) {
         (*out)->value = NULL;
@@ -482,7 +436,7 @@ create_metric_meta(struct statsd_datagram* datagram) {
     ALLOC_CHECK("Unable to allocate memory for metric metadata.");
     *meta = (struct metric_metadata) { 0 };
     meta->sampling = datagram->sampling;   
-    meta->pmid = get_next_pmID();
+    meta->pmid = PM_ID_NULL;
     if (datagram->type == METRIC_TYPE_DURATION) {
         meta->pmindom = pmInDom_build(STATSD, STATSD_METRIC_DEFAULT_DURATION_INDOM);
     } else {
@@ -493,7 +447,6 @@ create_metric_meta(struct statsd_datagram* datagram) {
     meta->pcp_name = (char*) malloc(sizeof(char) * len);
     ALLOC_CHECK("Unable to allocate memory for metric pcp name");
     memcpy((char*)meta->pcp_name, name, len);
-    meta->pcp_metric_created = 0;
     meta->pcp_metric_index = 0;
     meta->pcp_instance_map = NULL;
     meta->pcp_instance_change_requested = 0;

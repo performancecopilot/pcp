@@ -20,6 +20,19 @@ while [ $i -lt 100 ]; do
     echo "percentile:$i|ms" | call_endpoint
 done  
 
+echo "cpu_wait,target=cpu0:10|ms"       | call_endpoint
+echo "cpu_wait,target=cpu0:100|ms"      | call_endpoint
+echo "cpu_wait,target=cpu0:1000|ms"     | call_endpoint
+
+echo "cpu_wait,target=cpu1:20|ms"       | call_endpoint
+echo "cpu_wait,target=cpu1:200|ms"      | call_endpoint
+echo "cpu_wait,target=cpu1:2000|ms"     | call_endpoint
+
+echo "cpu_wait:100|ms"                  | call_endpoint
+echo "cpu_wait:1000|ms"                 | call_endpoint
+echo "cpu_wait:10000|ms"                | call_endpoint
+
+
 ## Results (HDR_HISTOGRAM):
 ## cpu_wait
 ###[Mean    =      166.667, StdDeviation   =       47.140]

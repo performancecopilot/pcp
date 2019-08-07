@@ -214,7 +214,6 @@ main(int argc, char** argv)
         pthread_exit(NULL);
     }
     dispatch.version.seven.fetch = statsd_fetch;
-	dispatch.version.seven.store = statsd_store;
 	dispatch.version.seven.desc = statsd_desc;
 	dispatch.version.seven.text = statsd_text;
 	dispatch.version.seven.instance = statsd_instance;
