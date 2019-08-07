@@ -212,7 +212,7 @@ inst [8 or "/std_deviation"] value 5
 Once you send given _metricname_ with specified _type_, agent will no longer aggregate any messages with same _metricname_ but different _type_ and will throw them away.
 
 # Labels
-StatsD datagram may also contain _key:value_ pairs separated by commas like so:
+StatsD datagrams may also contain _key:value_ pairs separated by commas like so:
 
 ```
 metric,tagX=X,tagW=W:5|c
