@@ -12,8 +12,8 @@
  * @arg value - Initial value
  * @return hdr_histogram
  */
-struct hdr_histogram*
-create_hdr_duration_value(long long unsigned int value);
+void
+create_hdr_duration_value(long long unsigned int value, void** out);
 
 /**
  * Updates hdr duration value
@@ -21,7 +21,7 @@ create_hdr_duration_value(long long unsigned int value);
  * @arg value - Value to record
  */
 void
-update_hdr_duration_value(struct hdr_histogram* histogram, long long unsigned int value);
+update_hdr_duration_value(long long unsigned int value, struct hdr_histogram* histogram);
 
 /**
  * Gets duration values meta data histogram
@@ -38,14 +38,14 @@ get_hdr_histogram_duration_instance(struct hdr_histogram* histogram, enum DURATI
  * @arg collection - Target collection
  */
 void
-print_hdr_durations(FILE* f, struct hdr_histogram* histogram);
+print_hdr_duration_value(FILE* f, struct hdr_histogram* histogram);
 
 /**
  * Frees exact duration metric value
  * @arg config
- * @arg metric - Metric value to be freed
+ * @arg value - value value to be freed
  */
 void
-free_hdr_duration_value(struct agent_config* config, struct metric* item);
+free_hdr_duration_value(struct agent_config* config, void* value);
 
 #endif

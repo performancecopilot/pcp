@@ -28,7 +28,7 @@ basic_parser_parse(char* buffer, struct statsd_datagram** datagram) {
     if (buffer[length - 1] == '\n')
         buffer[length - 1] = 0;
     if (parse(buffer, datagram)) {
-        VERBOSE_LOG("Parsed: %s", buffer);
+        DEBUG_LOG("Parsed: %s", buffer);
         return 1;
     }
     free_datagram(*datagram);
@@ -207,6 +207,7 @@ parse(char* buffer, struct statsd_datagram** datagram) {
         if (json != NULL) {
             (*datagram)->tags = malloc(strlen(json) + 1);
             (*datagram)->tags = json;
+            (*datagram)->tags_pair_count = tags->length;
         }
         free(tags);
         if (tag_allocated_flags & 1) {

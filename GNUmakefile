@@ -95,7 +95,7 @@ clean:
 	$(RM) -r $(ROOT_BUILD_DIR)
 	$(RM) -r $(RAGEL_TARGET)
 	$(RM) -r $(TARGET_EXEC)
-	$(RM) -r statsd.log
+	$(RM) -r statsd.log help.dir help.pag debug
 
 run:
 	./$(TARGET_EXEC)

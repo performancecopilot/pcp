@@ -49,7 +49,7 @@ aggregator_exec(void* args) {
                 switch (message->type) {
                     case PARSER_RESULT_PARSED:
                         clock_gettime(CLOCK_MONOTONIC, &t0);
-                        int status = process_datagram(config, metrics_container, (struct statsd_datagram*) message->data);
+                        int status = process_metric(config, metrics_container, (struct statsd_datagram*) message->data);
                         clock_gettime(CLOCK_MONOTONIC, &t1);
                         time_spent_aggregating = t1.tv_nsec - t0.tv_nsec;
                         process_stat(config, stats_container, STAT_PARSED, NULL);

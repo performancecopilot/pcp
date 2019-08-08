@@ -16,9 +16,53 @@ init_pmda_stats(struct agent_config* config) {
     pthread_mutex_init(&container->mutex, NULL);
     struct pmda_stats* stats = (struct pmda_stats*) malloc(sizeof(struct pmda_stats));
     ALLOC_CHECK("Unable to initialize PMDA stats.");
+    struct metric_counters* counters = (struct metric_counters*) malloc(sizeof(struct metric_counters));
+    ALLOC_CHECK("Unable to initialize metric counters stat structure.");
+    *counters = (struct metric_counters) { 0 };
     *stats = (struct pmda_stats) { 0 };
+    stats->metrics_recorded = counters;
     container->stats = stats;
     return container;
+}
+
+/**
+ * Resets stat_message
+ * @arg config
+ * @arg s - Data structure shared with PCP thread containing all PMDA statistics data
+ * @arg type - Type of message
+ * 
+ * Synchronized by mutex on pmda_stats_container
+ */
+void
+reset_stat(struct agent_config* config, struct pmda_stats_container* s, enum STAT_TYPE type) {
+    (void)config;
+    pthread_mutex_lock(&s->mutex);
+    switch (type) {
+        case STAT_RECEIVED:
+            s->stats->received = 0;
+            break;
+        case STAT_PARSED:
+            s->stats->parsed = 0;
+            break;
+        case STAT_AGGREGATED:
+            s->stats->aggregated = 0;
+            break;
+        case STAT_DROPPED:
+            s->stats->dropped = 0;
+            break;
+        case STAT_TIME_SPENT_AGGREGATING:
+            s->stats->time_spent_aggregating = 0;
+            break;
+        case STAT_TIME_SPENT_PARSING:
+            s->stats->time_spent_parsing = 0;
+            break;
+        case STAT_TRACKED_METRIC:
+            s->stats->metrics_recorded->counter = 0;
+            s->stats->metrics_recorded->gauge = 0;
+            s->stats->metrics_recorded->duration = 0;
+            break;
+    }
+    pthread_mutex_unlock(&s->mutex);
 }
 
 /**
@@ -32,7 +76,7 @@ void
 process_stat(struct agent_config* config, struct pmda_stats_container* s, enum STAT_TYPE type, void* data) {
     (void)config;
     pthread_mutex_lock(&s->mutex);
-    switch(type) {
+    switch (type) {
         case STAT_RECEIVED:
             s->stats->received += 1;
             break;
@@ -51,6 +95,22 @@ process_stat(struct agent_config* config, struct pmda_stats_container* s, enum S
         case STAT_TIME_SPENT_PARSING:
             s->stats->time_spent_parsing += *((long*) data);
             break;
+        case STAT_TRACKED_METRIC:
+        {
+            enum METRIC_TYPE metric = (enum METRIC_TYPE)data;
+            switch (metric) {
+                case METRIC_TYPE_COUNTER:
+                    s->stats->metrics_recorded->counter += 1;
+                    break;
+                case METRIC_TYPE_GAUGE:
+                    s->stats->metrics_recorded->gauge += 1;
+                    break;
+                case METRIC_TYPE_DURATION:
+                    s->stats->metrics_recorded->duration += 1;
+                    break;
+            }
+            break;
+        }
     }
     pthread_mutex_unlock(&s->mutex);
 }
@@ -74,6 +134,13 @@ print_agent_stats(struct agent_config* config, FILE* f, struct pmda_stats_contai
     fprintf(f, "aggregated: %lu \n", stats->stats->aggregated);
     fprintf(f, "time spent parsing: %lu ns \n", stats->stats->time_spent_parsing);
     fprintf(f, "time spent aggregating: %lu ns \n", stats->stats->time_spent_aggregating);
+    fprintf(
+        f,
+        "metrics tracked: counters: %lu, gauges: %lu, durations: %lu \n",
+        stats->stats->metrics_recorded->counter,
+        stats->stats->metrics_recorded->gauge,
+        stats->stats->metrics_recorded->duration
+    );
     pthread_mutex_unlock(&stats->mutex);
 }
 
@@ -82,11 +149,12 @@ print_agent_stats(struct agent_config* config, FILE* f, struct pmda_stats_contai
  * @arg config
  * @arg stats - Data structure shared with PCP thread containing all PMDA statistics data
  * @arg type - what stat to return
+ * @arg data - optional params for stat query
  * 
  * Synchronized by mutex on pmda_stats_container
  */
 unsigned long int
-get_agent_stat(struct agent_config* config, struct pmda_stats_container* stats, enum STAT_TYPE type) {
+get_agent_stat(struct agent_config* config, struct pmda_stats_container* stats, enum STAT_TYPE type, void* data) {
     (void)config;
     pthread_mutex_lock(&stats->mutex);
     long result;
@@ -109,6 +177,30 @@ get_agent_stat(struct agent_config* config, struct pmda_stats_container* stats, 
         case STAT_TIME_SPENT_AGGREGATING:
             result = stats->stats->time_spent_aggregating;
             break;
+        case STAT_TRACKED_METRIC:
+        {
+            if (data != NULL) {
+                enum METRIC_TYPE type = (enum METRIC_TYPE)data;
+                if (type == METRIC_TYPE_COUNTER) {
+                    result = stats->stats->metrics_recorded->counter;
+                    break;
+                }
+                if (type == METRIC_TYPE_GAUGE) {
+                    result = stats->stats->metrics_recorded->gauge;
+                    break;
+                }
+                if (type == METRIC_TYPE_DURATION) {
+                    result = stats->stats->metrics_recorded->duration;
+                    break;
+                }
+            }
+            size_t total = 0;
+            total += stats->stats->metrics_recorded->counter;
+            total += stats->stats->metrics_recorded->gauge;
+            total += stats->stats->metrics_recorded->duration;
+            result = total;
+            break;
+        }
         default:
             result = 0;
             break;

@@ -4,20 +4,16 @@
 #include "config-reader.h"
 #include "network-listener.h"
 #include "aggregators.h"
+#include "aggregator-metric-labels.h"
 #include "aggregator-metric-counter.h"
 #include "errno.h"
 #include "utils.h"
 
 /**
- * Creates counter metric record
- * @arg config - / (safe to null)
- * @arg datagram - Datagram with source data
- * @arg out - Placeholder metric
- * @return 1 on success, 0 on fail
+ * Creates counter value in given dest
  */
 int
-create_counter_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out) {
-    (void)config;
+create_counter_value(struct agent_config* config, struct statsd_datagram* datagram, void** out) {
     double new_value;
     switch (datagram->explicit_sign) {
         case SIGN_MINUS:
@@ -29,27 +25,21 @@ create_counter_metric(struct agent_config* config, struct statsd_datagram* datag
     if (new_value < 0 || new_value >= DBL_MAX) {
         return 0;
     }
-    size_t len = strlen(datagram->name) + 1;
-    (*out)->name = (char*) malloc(len);
-    ALLOC_CHECK("Unable to allocate memory for copy of metric name.");
-    strncpy((*out)->name, datagram->name, len);
-    (*out)->type = METRIC_TYPE_COUNTER;
-    (*out)->value = (double*) malloc(sizeof(double));
+    *out = (double*) malloc(sizeof(double));
     ALLOC_CHECK("Unable to allocate memory for copy of metric value.");
-    memcpy((*out)->value, &new_value, sizeof(double));
-    (*out)->meta = create_metric_meta(datagram);
+    *(double*)*out = new_value;
     return 1;
 }
 
 /**
  * Update counter metric record
  * @arg config - / (safe to null)
- * @arg item - Item to update
- * @arg datagram - Date to update item
+ * @arg Value - Value to update
+ * @arg datagram - Data to update item
  * @return 1 on success, 0 on fail
  */
 int
-update_counter_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram) {
+update_counter_value(struct agent_config* config, struct statsd_datagram* datagram, void* value) {
     (void)config;
     double new_value;
     switch (datagram->explicit_sign) {
@@ -62,8 +52,22 @@ update_counter_metric(struct agent_config* config, struct metric* item, struct s
     if (new_value < 0) {
         return 0;
     }
-    *(double*)(item->value) += new_value;
+    *(double*)(value) += new_value;
     return 1;
+}
+
+/**
+ * Print counter metric value
+ * @arg config
+ * @arg f - Opened file handle
+ * @arg value
+ */
+void
+print_counter_metric_value(struct agent_config* config, FILE* f, void* value) {
+    (void)config;
+    if (value != NULL) {
+        fprintf(f, "value = %f\n", *(double*)(value));
+    }
 }
 
 /**
@@ -78,20 +82,22 @@ print_counter_metric(struct agent_config* config, FILE* f, struct metric* item) 
     fprintf(f, "-----------------\n");
     fprintf(f, "name = %s\n", item->name);
     fprintf(f, "type = counter\n");
-    fprintf(f, "value = %f\n", *(double*)(item->value));
+    print_counter_metric_value(config, f, item->value);
     print_metric_meta(f, item->meta);
+    print_labels(config, f, item->children);
     fprintf(f, "\n");
 }
+
 
 /**
  * Frees counter metric value
  * @arg config
- * @arg metric - Metric value to be freed
+ * @arg value - value to be freed
  */
 void
-free_counter_value(struct agent_config* config, struct metric* item) {
+free_counter_value(struct agent_config* config, void* value) {
     (void)config;
-    if (item->value != NULL) {
-        free(item->value);
+    if (value != NULL) {
+        free(value);
     }
 }

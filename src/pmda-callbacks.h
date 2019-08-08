@@ -45,14 +45,6 @@ int
 statsd_fetch(int num_pm_id, pmID pm_id_list[], pmResult** resp, pmdaExt* pmda);
 
 /**
- * Wrapper around pmdaStore, called before control is passed to pmdaStore
- * @arg result - Result to me populated
- * @arg pmda - PMDA extension structure (contains agent-specific private data)
- */
-int
-statsd_store(pmResult* result, pmdaExt* pmda);
-
-/**
  * Wrapper around pmdaTreePMID, called before control is passed to pmdaTreePMID
  * @arg name -
  * @arg pm_id - Instance domain

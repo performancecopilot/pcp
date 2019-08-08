@@ -5,6 +5,7 @@
 #include "config-reader.h"
 #include "network-listener.h"
 #include "aggregators.h"
+#include "aggregator-metric-labels.h"
 #include "aggregator-metric-duration.h"
 #include "aggregator-metric-duration-exact.h"
 #include "aggregator-metric-duration-hdr.h"
@@ -12,14 +13,10 @@
 #include "utils.h"
 
 /**
- * Creates duration metric record of value subtype
- * @arg config - Config from in which duration type is specified
- * @arg datagram - Datagram with source data
- * @arg out - Placeholder metric
- * @return 1 on success, 0 on fail
+ * Creates duration value in given dest
  */
-int
-create_duration_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out) {
+int 
+create_duration_value(struct agent_config* config, struct statsd_datagram* datagram, void** out) {
     double new_value;
     switch (datagram->explicit_sign) {
         case SIGN_MINUS:
@@ -32,16 +29,16 @@ create_duration_metric(struct agent_config* config, struct statsd_datagram* data
         return 0;
     }
     if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM) {
-        (*out)->value = create_hdr_duration_value((unsigned long long) new_value);
+        create_hdr_duration_value(
+            (unsigned long long) new_value, 
+            out
+        );
     } else {
-        (*out)->value = create_exact_duration_value((unsigned long long) new_value);
+        create_exact_duration_value(
+            (unsigned long long) new_value,
+            out
+        );
     }
-    size_t len = strlen(datagram->name) + 1;
-    (*out)->name = (char*) malloc(len);
-    ALLOC_CHECK("Unable to allocate memory for copy of metric name.");
-    strncpy((*out)->name, datagram->name, len);
-    (*out)->type = METRIC_TYPE_DURATION;
-    (*out)->meta = create_metric_meta(datagram);
     return 1;
 }
 
@@ -53,7 +50,7 @@ create_duration_metric(struct agent_config* config, struct statsd_datagram* data
  * @return 1 on success, 0 on fail
  */
 int
-update_duration_metric(struct agent_config* config, struct metric* item, struct statsd_datagram* datagram) {
+update_duration_value(struct agent_config* config, struct statsd_datagram* datagram, void* value) {
     double new_value;
     switch (datagram->explicit_sign) {
         case SIGN_MINUS:
@@ -66,9 +63,15 @@ update_duration_metric(struct agent_config* config, struct metric* item, struct 
         return 0;
     }
     if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM) {
-        update_hdr_duration_value((struct hdr_histogram*)item->value, (unsigned long long) new_value);
+        update_hdr_duration_value(
+            (unsigned long long) new_value,
+            (struct hdr_histogram*) value
+        );
     } else {
-        update_exact_duration_value((struct exact_duration_collection*)item->value, (unsigned long long) new_value);
+        update_exact_duration_value(
+            (unsigned long long) new_value,
+            (struct exact_duration_collection*) value
+        );
     }
     return 1;
 }
@@ -76,19 +79,39 @@ update_duration_metric(struct agent_config* config, struct metric* item, struct 
 /**
  * Extracts duration metric meta values from duration metric record
  * @arg config - Config which contains info on which duration aggregating type we are using
- * @arg item - Metric item from which to extract duration values
+ * @arg value - Either "struct exact_duration_collection*" or "struct hdr_histogram*", basically value from metric that has type of "duration"
  * @arg instance - What information to extract
  * @return duration instance value
  */
 double
-get_duration_instance(struct agent_config* config, struct metric* item, enum DURATION_INSTANCE instance) {
+get_duration_instance(struct agent_config* config, void* value, enum DURATION_INSTANCE instance) {
     double result = 0;
     if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_BASIC) {
-        result = get_exact_duration_instance((struct exact_duration_collection*)item->value, instance);
+        result = get_exact_duration_instance((struct exact_duration_collection*)value, instance);
     } else {
-        result = get_hdr_histogram_duration_instance((struct hdr_histogram*)item->value, instance);
+        result = get_hdr_histogram_duration_instance((struct hdr_histogram*)value, instance);
     }
     return result;
+}
+
+/**
+ * Print duration metric value
+ * @arg config - Config where duration subtype is specified
+ * @arg f - Opened file handle
+ * @arg value
+ */
+void
+print_duration_metric_value(struct agent_config* config, FILE* f, void* value) {
+    if (value != NULL) {
+        switch (config->duration_aggregation_type) {
+            case DURATION_AGGREGATION_TYPE_BASIC:
+                print_exact_duration_value(f, (struct exact_duration_collection*)value);
+                break;
+            case DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM:
+                print_hdr_duration_value(f, (struct hdr_histogram*)value);
+                break;
+        }
+    }
 }
 
 /**
@@ -102,30 +125,25 @@ print_duration_metric(struct agent_config* config, FILE* f, struct metric* item)
     fprintf(f, "-----------------\n");
     fprintf(f, "name = %s\n", item->name);
     fprintf(f, "type = duration\n");
+    print_duration_metric_value(config, f, item->value);
+    print_labels(config, f, item->children);
     print_metric_meta(f, item->meta);
-    switch (config->duration_aggregation_type) {
-        case DURATION_AGGREGATION_TYPE_BASIC:
-            print_exact_durations(f, (struct exact_duration_collection*)item->value);
-            break;
-        case DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM:
-            print_hdr_durations(f, (struct hdr_histogram*)item->value);
-    }
     fprintf(f, "\n");
 }
 
 /**
  * Frees duration metric value
  * @arg config
- * @arg metric - Metric value to be freed
+ * @arg value - value to be freed
  */
 void
-free_duration_value(struct agent_config* config, struct metric* item) {
+free_duration_value(struct agent_config* config, void* value) {
     switch (config->duration_aggregation_type) {
         case DURATION_AGGREGATION_TYPE_BASIC:
-            free_exact_duration_value(config, item);
+            free_exact_duration_value(config, value);
             break;
         case DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM:
-            free_hdr_duration_value(config, item);
+            free_hdr_duration_value(config, value);
             break;
     }
 }

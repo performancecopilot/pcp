@@ -21,8 +21,8 @@ struct exact_duration_collection {
  * @arg value - initial value
  * @return hdr_histogram
  */
-struct exact_duration_collection*
-create_exact_duration_value(long long unsigned int value);
+void
+create_exact_duration_value(long long unsigned int value, void** out);
 
 /**
  * Adds item to duration collection, no ordering happens on add
@@ -30,7 +30,7 @@ create_exact_duration_value(long long unsigned int value);
  * @arg value - New value
  */
 void
-update_exact_duration_value(struct exact_duration_collection* collection, double value);
+update_exact_duration_value(double value, struct exact_duration_collection* collection);
  
 /**
  * Removes item from duration collection
@@ -56,14 +56,14 @@ get_exact_duration_instance(struct exact_duration_collection* collection, enum D
  * @arg collection - Target collection
  */
 void
-print_exact_durations(FILE* f, struct exact_duration_collection* collection);
+print_exact_duration_value(FILE* f, struct exact_duration_collection* collection);
 
 /**
  * Frees exact duration metric value
  * @arg config
- * @arg metric - Metric value to be freed
+ * @arg value - value to be freed
  */
 void
-free_exact_duration_value(struct agent_config* config, struct metric* item);
+free_exact_duration_value(struct agent_config* config, void* value);
 
 #endif

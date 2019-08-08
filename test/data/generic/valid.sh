@@ -6,16 +6,16 @@ call_endpoint() {
 
 i=0
 
-printf "example:1|g\nexample:20|g" | call_endpoint
-echo "example:2|c" | call_endpoint
-echo "example:$i|g" | call_endpoint
-echo "example:-$i|g" | call_endpoint
-echo "example.counter:1|c" | call_endpoint
-echo "example.counter:$i|c" | call_endpoint
-echo "example.counter_tens:10|c" | call_endpoint
-echo "example.counter_random:$RANDOM|c" | call_endpoint
-echo "example.timer:$RANDOM|ms" | call_endpoint
-echo "example.gauge:-$i|g" | call_endpoint
+# printf "example:1|g\nexample:20|g" | call_endpoint
+# echo "example:2|c" | call_endpoint
+# echo "example:$i|g" | call_endpoint
+# echo "example:-$i|g" | call_endpoint
+# echo "example.counter:1|c" | call_endpoint
+# echo "example.counter:$i|c" | call_endpoint
+# echo "example.counter_tens:10|c" | call_endpoint
+# echo "example.counter_random:$RANDOM|c" | call_endpoint
+# echo "example.timer:$RANDOM|ms" | call_endpoint
+# echo "example.gauge:-$i|g" | call_endpoint
 echo "example.counter,instance=1:1|c" | call_endpoint
 echo "example.gauge,instance=0:+$i|g" | call_endpoint
 echo "example.gauge,instance=bazinga:-$i|g" | call_endpoint

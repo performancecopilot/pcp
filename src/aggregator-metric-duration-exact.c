@@ -12,13 +12,13 @@
  * @arg value - initial value
  * @return hdr_histogram
  */
-struct exact_duration_collection*
-create_exact_duration_value(long long unsigned int value) {
+void
+create_exact_duration_value(long long unsigned int value, void** out) {
     struct exact_duration_collection* collection = (struct exact_duration_collection*) malloc(sizeof(struct exact_duration_collection));
     ALLOC_CHECK("Unable to assign memory for duration values collection.");
     *collection = (struct exact_duration_collection) { 0 };
-    update_exact_duration_value(collection, value);
-    return collection;
+    update_exact_duration_value(value, collection);
+    *out = collection;
 }
 
 /**
@@ -27,7 +27,7 @@ create_exact_duration_value(long long unsigned int value) {
  * @arg value - New value
  */
 void
-update_exact_duration_value(struct exact_duration_collection* collection, double value) {
+update_exact_duration_value(double value, struct exact_duration_collection* collection) {
     long int new_length = collection->length + 1;
     collection->values = realloc(collection->values, sizeof(double*) * new_length);
     ALLOC_CHECK("Unable to allocate memory for collection value.");
@@ -164,7 +164,7 @@ get_exact_duration_instance(struct exact_duration_collection* collection, enum D
  * @arg collection - Target collection
  */
 void
-print_exact_durations(FILE* f, struct exact_duration_collection* collection) {
+print_exact_duration_value(FILE* f, struct exact_duration_collection* collection) {
     fprintf(f, "min             = %lf\n", get_exact_duration_instance(collection, DURATION_MIN));
     fprintf(f, "max             = %lf\n", get_exact_duration_instance(collection, DURATION_MAX));
     fprintf(f, "median          = %lf\n", get_exact_duration_instance(collection, DURATION_MEDIAN));
@@ -179,12 +179,12 @@ print_exact_durations(FILE* f, struct exact_duration_collection* collection) {
 /**
  * Frees exact duration metric value
  * @arg config
- * @arg metric - Metric value to be freed
+ * @arg value - value value to be freed
  */
 void
-free_exact_duration_value(struct agent_config* config, struct metric* item) {
+free_exact_duration_value(struct agent_config* config, void* value) {
     (void)config;
-    struct exact_duration_collection* collection = (struct exact_duration_collection*)item->value;
+    struct exact_duration_collection* collection = (struct exact_duration_collection*)value;
     if (collection != NULL) {
         size_t i;
         for (i = 0; i < collection->length; i++) {
