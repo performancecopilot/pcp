@@ -74,6 +74,7 @@ aggregator_exec(void* args) {
         if (g_output_requested) {
             VERBOSE_LOG("Output of recorded values request caught.");
             write_metrics_to_file(config, metrics_container);
+            write_stats_to_file(config, stats_container);
             VERBOSE_LOG("Recorded values output.");
             g_output_requested = 0;
         }

@@ -116,17 +116,30 @@ process_stat(struct agent_config* config, struct pmda_stats_container* s, enum S
 }
 
 /**
- * Prints PMDA stats
- * @arg config
- * @arg f - Opened file handle, doesn't close it when finished
+ * Write PMDA stats
+ * @arg config - config specifies where to write
  * @arg stats - Data structure shared with PCP thread containing all PMDA statistics data
  * 
  * Synchronized by mutex on pmda_stats_container
  */
 void
-print_agent_stats(struct agent_config* config, FILE* f, struct pmda_stats_container* stats) {
-    (void)config;
+write_stats_to_file(struct agent_config* config, struct pmda_stats_container* stats) {
+    DEBUG_LOG("Writing stats to file...");
     pthread_mutex_lock(&stats->mutex);
+    if (strlen(config->debug_output_filename) == 0) return; 
+    int sep = pmPathSeparator();
+    char debug_output[MAXPATHLEN];
+    pmsprintf(
+        debug_output,
+        MAXPATHLEN,
+        "%s" "%c" "statsd" "%c" "%s",
+        pmGetConfig("PCP_PMDAS_DIR"),
+        sep, sep, config->debug_output_filename);
+    FILE* f;
+    f = fopen(config->debug_output_filename, "a+");
+    if (f == NULL) {
+        return;
+    }
     fprintf(f, "PMDA STATS: \n");
     fprintf(f, "received: %lu \n", stats->stats->received);
     fprintf(f, "parsed: %lu \n", stats->stats->parsed);
@@ -142,6 +155,8 @@ print_agent_stats(struct agent_config* config, FILE* f, struct pmda_stats_contai
         stats->stats->metrics_recorded->duration
     );
     pthread_mutex_unlock(&stats->mutex);
+    fprintf(f, "-----------------\n");
+    fclose(f);
 }
 
 /**

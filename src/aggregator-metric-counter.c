@@ -49,7 +49,7 @@ update_counter_value(struct agent_config* config, struct statsd_datagram* datagr
         default:
             new_value = datagram->value;
     }
-    if (new_value < 0) {
+    if (new_value < 0 || new_value >= DBL_MAX) {
         return 0;
     }
     *(double*)(value) += new_value;

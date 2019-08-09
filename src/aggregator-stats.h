@@ -67,15 +67,14 @@ void
 process_stat(struct agent_config* config, struct pmda_stats_container* s, enum STAT_TYPE type, void* data);
 
 /**
- * Prints PMDA stats
- * @arg config
- * @arg f - Opened file handle, doesn't close it when finished
+ * Write PMDA stats
+ * @arg config - config specifies where to write
  * @arg stats - Data structure shared with PCP thread containing all PMDA statistics data
  * 
  * Synchronized by mutex on pmda_stats_container
  */
 void
-print_agent_stats(struct agent_config* config, FILE* f, struct pmda_stats_container* stats);
+write_stats_to_file(struct agent_config* config, struct pmda_stats_container* stats);
 
 /**
  * Returns specified stat from pmda_stats_container
