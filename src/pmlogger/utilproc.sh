@@ -167,7 +167,7 @@ _is_archive()
 	    			;;
 	    *)			cat "$1"
 	    			;;
-	esac \
+	esac 2>/dev/null \
 	| dd ibs=1 count=7 2>/dev/null \
 	| od -X \
 	| $PCP_AWK_PROG '
