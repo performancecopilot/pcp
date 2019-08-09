@@ -108,6 +108,8 @@ test-ragel: $(TEST_RAGEL_BUILD_DIR)/$(TEST_RAGEL_EXEC)
 
 install: all
 
+clobber:
+
 activate: 
 	./Install
 

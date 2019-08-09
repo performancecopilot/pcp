@@ -146,13 +146,13 @@ free_metric(struct agent_config* config, struct metric* item) {
     }
     switch (item->type) {
         case METRIC_TYPE_COUNTER:
-            free_counter_value(config, item);
+            free_counter_value(config, item->value);
             break;
         case METRIC_TYPE_GAUGE:
-            free_gauge_value(config, item);
+            free_gauge_value(config, item->value);
             break;
         case METRIC_TYPE_DURATION:
-            free_duration_value(config, item);
+            free_duration_value(config, item->value);
             break;
         case METRIC_TYPE_NONE:
             // not an actualy metric
@@ -201,7 +201,7 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
         pmGetConfig("PCP_PMDAS_DIR"),
         sep, sep, config->debug_output_filename);
     FILE* f;
-    f = fopen(config->debug_output_filename, "w+");
+    f = fopen(config->debug_output_filename, "a+");
     if (f == NULL) {
         return;
     }
