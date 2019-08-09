@@ -138,12 +138,13 @@ typedef struct proxy {
 extern void proxylog(pmLogLevel, sds, void *);
 
 extern void on_proxy_flush(uv_handle_t *);
-extern void on_client_read(uv_stream_t *, ssize_t, const uv_buf_t *);
 extern void on_client_write(uv_write_t *, int);
 extern void on_client_close(uv_handle_t *);
 extern void on_buffer_alloc(uv_handle_t *, size_t, uv_buf_t *);
 extern void client_write(struct client *, sds, sds);
 extern void secure_client_write(struct client *, uv_write_t *, unsigned int);
+
+extern void on_protocol_read(uv_stream_t *, ssize_t, const uv_buf_t *);
 
 extern void on_secure_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);

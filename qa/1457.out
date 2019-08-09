@@ -1,0 +1,39 @@
+QA output created by 1457
+=== checking TLS operation ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== check pmproxy is running ===
+pmproxy check passed
+=== valgrind stdout ===
+=== valgrind stderr ===
+Log for pmproxy on HOST started DATE
+
+pmproxy: PID = PID
+pmproxy request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD PORT inet INADDR_ANY
+[DATE] pmproxy(PID) Info: pmproxy caught SIGTERM
+[DATE] pmproxy(PID) Info: pmproxy Shutdown
+
+Log finished DATE

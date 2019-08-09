@@ -237,6 +237,33 @@ client_protocol(int key)
 }
 
 void
+on_protocol_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
+{
+    struct proxy	*proxy = (struct proxy *)stream->data;
+    struct client	*client = (struct client *)stream;
+
+    if (nread < 0)
+	return;
+
+    if ((client->protocol & (STREAM_PCP|STREAM_HTTP|STREAM_REDIS)) == 0)
+	client->protocol |= client_protocol(*buf->base);
+
+    if (client->protocol & STREAM_PCP)
+	on_pcp_client_read(proxy, client, nread, buf);
+    else if (client->protocol & STREAM_HTTP)
+	on_http_client_read(proxy, client, nread, buf);
+    else if (client->protocol & STREAM_REDIS)
+	on_redis_client_read(proxy, client, nread, buf);
+    else {
+	if (pmDebugOptions.af)
+	    fprintf(stderr, "%s: unknown protocol key '%c' (0x%x)"
+			    " - disconnecting client %p\n", "on_protocol_read",
+		    *buf->base, (unsigned int)*buf->base, proxy);
+	uv_close((uv_handle_t *)client, on_client_close);
+    }
+}
+
+static void
 on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 {
     struct proxy	*proxy = (struct proxy *)stream->data;
@@ -244,31 +271,16 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 
     if (nread > 0) {
 	if (client->protocol == STREAM_UNKNOWN)
-	    client->protocol = client_protocol(*buf->base);
-	switch (client->protocol) {
-	case STREAM_PCP:
-	    on_pcp_client_read(proxy, client, nread, buf);
-	    break;
-	case STREAM_HTTP:
-	    on_http_client_read(proxy, client, nread, buf);
-	    break;
-	case STREAM_REDIS:
-	    on_redis_client_read(proxy, client, nread, buf);
-	    break;
-	case STREAM_SECURE:
+	    client->protocol |= client_protocol(*buf->base);
+	if (client->protocol & STREAM_SECURE)
 	    on_secure_client_read(proxy, client, nread, buf);
-	    break;
-	default:
-	    if (pmDebugOptions.af)
-		fprintf(stderr, "%s: unknown protocol key '%c' (0x%x) - disconnecting"
-			"client %p\n", "on_client_read", *buf->base,
-			(unsigned int)*buf->base, proxy);
-	    break;
-	}
-    } else {
-	if (pmDebugOptions.af && nread < 0)
-	    fprintf(stderr, "%s: read error %ld - disconnecting client %p\n",
-			"on_client_read", (long)nread, client);
+	else
+	    on_protocol_read(stream, nread, buf);
+    } else if (nread < 0) {
+	if (pmDebugOptions.af)
+	    fprintf(stderr, "%s: read error %ld "
+		    "- disconnecting client %p\n", "on_client_read",
+		    (long)nread, client);
 	uv_close((uv_handle_t *)stream, on_client_close);
     }
     sdsfree(buf->base);
