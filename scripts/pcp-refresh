@@ -1,0 +1,90 @@
+#!/bin/sh
+#
+# resync a local git repo with the master branch of the official
+# PCP repo at github.com/performancecopilot/pcp.git
+#
+
+# cd to the base of the current PCP repo
+#
+_here=`pwd`
+_cwd="$_here"
+while true
+do
+    # looks like git repo
+    #
+    if [ -d .git ]
+    then
+	# now is the origin a clone of the official PCP repo?
+	#
+	if git config --get remote.origin.url | grep '.*@github.com:.*/pcp.git' >/dev/null
+	then
+	    break
+	fi
+    fi
+    cd ..
+    _next_cwd=`pwd`
+    if [ "$_next_cwd" = "$_cwd" ]
+    then
+	# back to / and no luck
+	echo >&2 "Error: no PCP git repo between cwd and /"
+	cd "$_here"
+	exit
+    fi
+    _cwd="$_next_cwd"
+done
+origin_url=`git config --get remote.origin.url`
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+git status -sb >$tmp.out
+branch=`sed -n <$tmp.out -e '/^##/{
+s/^## //
+s/\..*//
+p
+}'`
+if [ -z "$branch" ]
+then
+    echo "Arrgh ... cannot get branch from git status -sb"
+    head -2 $tmp.out
+    exit 1
+fi
+
+if [ "$branch" != master ]
+then
+    echo "Warning: current branch $branch is not master"
+fi
+
+head=`git log -1 | sed -n '/^commit /s///p'`
+if [ -f pushed.sha ]
+then
+    if echo $head | diff - pushed.sha >/dev/null
+    then
+	# all pushed to ken's repo, ok
+	:
+    else
+	git log `cat pushed.sha`..HEAD
+	echo "Error: Local commits (from `sed -e 's/^\(........\).*/\1/' pushed.sha`) not pushed to $origin_url ..."
+	exit 1
+    fi
+else
+    echo "Error: pushed.sha does not exist"
+    exit 1
+fi
+
+grep '^ *M ' $tmp.out >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    cat $tmp.tmp
+    echo "Modified files ..."
+    echo -n "ok? [y] "
+    read ans </dev/tty
+else
+    ans=y
+fi
+if [ -z "$ans" -o "$ans" = y ]
+then
+    official_url=git://github.com/performancecopilot/pcp.git
+    git fetch --tags --prune $official_url
+    git pull $official_url $branch
+fi
