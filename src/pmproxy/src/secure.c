@@ -93,15 +93,13 @@ on_secure_client_read(struct proxy *proxy, struct client *client,
     do {
 	sts = SSL_read_ex(client->secure.ssl, buf->base, buf->len, &bytes);
 	if (sts > 0)
-	    on_client_read((uv_stream_t *)&client->stream, bytes, buf);
+	    on_protocol_read((uv_stream_t *)&client->stream, bytes, buf);
 	else if (SSL_get_error(client->secure.ssl, sts) == SSL_ERROR_WANT_READ)
 	    maybe_flush_ssl(proxy, client); /* defer to libuv if more to read */
 	else
 	    uv_close((uv_handle_t *)&client->stream, on_client_close);
 	break;
     } while (1);
-
-    sdsfree(buf->base);
 }
 
 static void
@@ -111,7 +109,7 @@ flush_ssl_buffer(struct client *client)
     ssize_t		bytes;
 
     if ((bytes = BIO_pending(client->secure.write)) > 0) {
-	request->buffer[0] = uv_buf_init(malloc(bytes), bytes);
+	request->buffer[0] = uv_buf_init(sdsnewlen(SDS_NOINIT, bytes), bytes);
 	BIO_read(client->secure.write, request->buffer[0].base, bytes);
 	uv_write(&request->writer, (uv_stream_t *)&client->stream,
 			request->buffer, 1, on_client_write);

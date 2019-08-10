@@ -4,7 +4,7 @@
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2002 International Business Machines Corp.
  * Portions Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
- * Portions Copyright (c) 2012-2018 Red Hat.
+ * Portions Copyright (c) 2012-2019 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,7 +42,6 @@
 #include "proc_pid.h"
 #include "proc_runq.h"
 #include "proc_dynamic.h"
-#include "ksym.h"
 #include "cgroups.h"
 
 /* globals */
@@ -50,7 +49,6 @@ static int			_isDSO = 1;	/* =0 I am a daemon */
 static int			rootfd = -1;	/* af_unix pmdaroot */
 static proc_pid_t		proc_pid;
 static proc_pid_t		hotproc_pid;
-static struct utsname		kernel_uname;
 static proc_runq_t		proc_runq;
 static int			all_access;	/* =1 no access checks */
 static int			have_access;	/* =1 recvd uid/gid */
@@ -2069,30 +2067,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	    case PROC_PID_STAT_WCHAN_SYMBOL: /* proc.psinfo.wchan_s */
-		if (entry->wchan_buf)	/* 2.6 kernel, /proc/<pid>/wchan */
+		if (entry->wchan_buf)	/* 2.6+ kernels, /proc/<pid>/wchan */
 		    atom->cp = entry->wchan_buf;
-		else {		/* old school (2.4 kernels, at least) */
-		    char *wc;
-		    /*
-		     * Convert address to symbol name if requested
-		     * Added by Mike Mason <mmlnx@us.ibm.com>
-		     */
-		    f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_WCHAN);
-		    if (f == NULL)
-			return 0;
-		    _pm_assign_ulong(atom, (__pm_kernel_ulong_t)strtoull(f, &tail, 0));
-#if defined(HAVE_64BIT_LONG)
-		    if ((wc = wchan(atom->ull)))
-			atom->cp = wc;
-		    else
-			atom->cp = atom->ull ? f : "";
-#else
-		    if ((wc = wchan((__psint_t)atom->ul)))
-			atom->cp = wc;
-		    else
-			atom->cp = atom->ul ? f : "";
-#endif
-		}
 		break;
 
 	    /* The following 2 case groups need to be here since the #defines don't match the index into the buffer */
@@ -3534,13 +3510,6 @@ proc_init(pmdaInterface *dp)
 
     hotproc_init();
     init_hotproc_pid(&hotproc_pid);
- 
-    /* 
-     * Read System.map and /proc/ksyms. Used to translate wait channel
-     * addresses to symbol names. 
-     * Added by Mike Mason <mmlnx@us.ibm.com>
-     */
-    read_ksym_sources(kernel_uname.release);
 
     proc_ctx_init();
     proc_dynamic_init(metrictab, nmetrics);
