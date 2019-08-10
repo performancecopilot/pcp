@@ -1,0 +1,89 @@
+A Possible github Workflow
+--------------------------
+
+These notes describe how Ken does development and integration with
+the PCP repos on github.
+
+It may work for others, or perhaps someone with a deeper knowledge
+of git and github can suggest a better way.
+
+First, a long time ago, I forked https://github.com/performancecopilot/pcp
+on github to make my PCP tree at https://github.com/kmcdonell/pcp.
+
+Then on my main local machine (bozo) I cloned my github PCP tree into
+~kenj/src/pcp and this is where all my development and git commits
+are done [actually there is another machine bozo-vm that is sort of
+a mirror of bozo, but that's not relevant for this discussion].
+
+And finally a cloned my github PCP tree to make a bare git tree at
+~kenj/git-mirror/pcp.git on bozo and all the VMs in the QA Farm git
+pull from there (this one is a local git cache to conserve my internet
+traffic between my home and github).
+
+So there are 4 repos in play:
+[0] https://github.com/performancecopilot/pcp (the official one)
+[1] https://github.com/kmcdonell/pcp (my staging area for new commits)
+[2] ~kenj/src/pcp on bozo
+[3] ~kenj/git-mirror/pcp.git on bozo
+
+Task 1: updating my trees to pull changes from the official PCP repo
+--------------------------------------------------------------------
+
+So, we want all the latest commits from [0] included in [1], [2] and
+[3].
+
+First we need to pull from [0] into [2], but only if [2] is on the
+master baranch and contains no commits that have not already been
+pushed to [1] and [3].  The script below does this after ensuring
+the preconditions are met.
+
+    $ scripts/pcp-refresh
+
+Now do Task 2 (below) to push any new commits from [2] to [1] and [3].
+
+Task 2: pushing commits from my staging area into my other repos
+----------------------------------------------------------------
+
+Because [2] and [3] drive the QA, I need/want to test changes before
+asking others to review and merge.  So, I make changes in the master
+branch and commit in [2], and then these commits need to be pushed to
+[3] and this is done via [1].
+
+    $ scripts/pcp-push -m
+    Push to git@github.com:.../pcp.git master [y|n|q] (or ctrl+C to abort)
+    [reply y]
+
+the -m is important for pcp-push, because we don't want to do any of
+the github pull request steps yet.
+
+Task 3: pushing my commits to the official repo
+-----------------------------------------------
+
+First, make sure my repos are up to date, see Task 1 above.
+
+Next make a new branch as the base for a batch of changes.
+
+    $ scripts/new-branch
+
+although the new branch <datestamp> has been created, we end up back
+on the master branch where all the commits are done.
+
+After some amount of changes, debugging, QA and committing (on the
+master branch) we're ready to initiate a github pull request.
+
+    $ git checkout <datestamp> 	# <datestamp> from earlier scripts/new-branch
+    $ git pull . master
+    $ scripts/pcp-push
+    Push to git@github.com:.../pcp.git <datestamp> [y|n|q] (or ctrl+C to abort)
+    [reply y]
+    Pull request title: [n|q|title]
+    [reply with a meaningful title for your pull request]
+
+This will also (silently), update [3] if it exists, checkout the
+master branch and delete the <datestamp> branch.
+
+Bells and Whistles
+------------------
+
+scripts/pcp-push and scripts/new-branch have a -n option for a dry
+run to see what would be done, without changing anything.
