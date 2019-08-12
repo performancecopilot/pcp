@@ -96,7 +96,7 @@ redisSlotsInit(dict *config, void *events)
 
 	range->master.hostspec = specs[i];
 	range->start = start;
-	range->end = (i == nservers - 1) ? MAXSLOTS : space * i;
+	range->end = (i == nservers - 1) ? MAXSLOTS : space * (i + 1);
 	redisSlotRangeInsert(slots, range);
 
 	start += space + 1;	/* prepare for next iteration */
@@ -297,8 +297,9 @@ redisGetAsyncContextBySlot(redisSlots *slots, unsigned int slot)
     void		*p;
 
     p = tfind((const void *)&s, (void **)&slots->slots, slotsCompare);
-    if ((range = *(redisSlotRange **)p) == NULL)
+    if (p == NULL)
 	return NULL;
+    range = *(redisSlotRange **)p;
 
 #if 1
     server = &range->master;
