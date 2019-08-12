@@ -4,6 +4,36 @@
 # push-pcp -b master -t pcp -r 6bad98e4b0537c2e99b3906ca7a36f4998ea3419..
 #
 
+# cd to the base of the current PCP repo
+#
+_here=`pwd`
+_cwd="$_here"
+while true
+do
+    # looks like git repo
+    #
+    if [ -d .git ]
+    then
+	# now is the origin a clone of the official PCP repo?
+	#
+	if git config --get remote.origin.url | grep '.*@github.com:.*/pcp.git' >/dev/null
+	then
+	    break
+	fi
+    fi
+    cd ..
+    _next_cwd=`pwd`
+    if [ "$_next_cwd" = "$_cwd" ]
+    then
+	# back to / and no luck
+	echo >&2 "Error: no PCP git repo between cwd and /"
+	cd "$_here"
+	exit
+    fi
+    _cwd="$_next_cwd"
+done
+origin_url=`git config --get remote.origin.url`
+
 tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
@@ -15,7 +45,7 @@ _usage()
     echo >&2 "  -b branch           [defaults to current branch]"
     echo >&2 "  -m                  don't launch mail client or create pull request"
     echo >&2 "  -n                  dryrun"
-    echo >&2 "  -r range            [defaults to \$(cat pushed.sha)..)]"
+    echo >&2 "  -r range            [defaults to \$(cat $pushed_sha)..)]"
     echo >&2 "  -s                  short format, do not include commit messages"
     exit 1
 }
@@ -25,9 +55,14 @@ GIT=git
 branch=`git branch --list | sed -n -e 's/^\* //p'`
 tree=origin
 short=false
-if [ -f pushed.sha ]
+if [ -f $branch.sha ]
+then
+    range=$(cat $branch.sha)..
+    pushed_sha=$branch.sha
+elif [ -f pushed.sha ]
 then
     range=$(cat pushed.sha)..
+    pushed_sha=pushed.sha
 else
     range=''
 fi
@@ -63,7 +98,7 @@ shift `expr $OPTIND - 1`
 
 if [ -z "$range" ]
 then
-    echo "Error: no range from pushed.sha, so need -r range"
+    echo "Error: no range from $pushed_sha, so need -r range"
     exit 1
 fi
 
@@ -136,7 +171,7 @@ do
 	break
     elif [ "$ans" = q ]
     then
-	echo "Quitting ... pushed.sha not updated"
+	echo "Quitting ... $pushed_sha not updated"
 	exit
     fi
     echo "Answer the question, bozo!"
@@ -151,40 +186,48 @@ then
     fi
 fi
 
-rm -f $tmp.y
-while true
-do
-    echo -n "Push to official github repo? [y|n|q] (or ctrl+C to abort) "
-    read ans </dev/tty
-    if [ -z "$ans" ]
-    then
-	:
-    elif [ "$ans" = y ]
-    then
-	touch $tmp.y
-	break
-    elif [ "$ans" = n ]
-    then
-    	break
-    elif [ "$ans" = q ]
-    then
-	echo "Quitting ... pushed.sha not updated"
-	exit
-    fi
-    echo "Answer the question, bozo!"
-done
-if [ -f $tmp.y ]
+# This is no longer necessary ... pushing to the official github
+# repo is done via the pull request process on github.
+# This logic has been made inactive, but left until I'm sure it is
+# no longer needed.
+#
+if false
 then
-    case `id -un`
-    in
-	kenj)
-	    echo "You're not trusted to do this ..."
-	    ;;
-	*)
-	    push="ssh://git@github.com/performancecopilot/pcp.git"
-	    $GIT push $push
-	    ;;
-    esac
+    rm -f $tmp.y
+    while true
+    do
+	echo -n "Push to official github repo? [y|n|q] (or ctrl+C to abort) "
+	read ans </dev/tty
+	if [ -z "$ans" ]
+	then
+	    :
+	elif [ "$ans" = y ]
+	then
+	    touch $tmp.y
+	    break
+	elif [ "$ans" = n ]
+	then
+	    break
+	elif [ "$ans" = q ]
+	then
+	    echo "Quitting ... $pushed_sha not updated"
+	    exit
+	fi
+	echo "Answer the question, bozo!"
+    done
+    if [ -f $tmp.y ]
+    then
+	case `id -un`
+	in
+	    kenj)
+		echo "You're not trusted to do this ..."
+		;;
+	    *)
+		push="ssh://git@github.com/performancecopilot/pcp.git"
+		$GIT push $push
+		;;
+	esac
+    fi
 fi
 
 # remember last commit that was pushed ...
@@ -192,9 +235,9 @@ fi
 sha=`git log | sed -e 's/commit //' -e 1q`
 if $dryrun
 then
-    echo "+ echo $sha >pushed.sha"
+    echo "+ echo $sha >$pushed_sha"
 else
-    echo "$sha" >pushed.sha
+    echo "$sha" >$pushed_sha
 fi
 
 if $mail
@@ -248,59 +291,31 @@ fi
 
 if [ "$branch" != master ]
 then
-    rm -f $tmp.y
-    while true
-    do
-	echo -n "Merge local branch $branch back to local master branch? [y|n|q] "
-	read ans </dev/tty
-	if [ -z "$ans" ]
-	then
-	    :
-	elif [ "$ans" = y ]
-	then
-	    touch $tmp.y
-	    break
-	elif [ "$ans" = n ]
-	then
-	    break
-	elif [ "$ans" = q ]
-	then
-	    echo "Quitting ... no github merge done"
-	    exit
-	else
-	    echo "Answer the question, bozo!"
-	fi
-    done
-    if [ -f $tmp.y ]
-    then
-	$GIT checkout master
-	$GIT pull . $branch
-	branch=master
-    fi
+    # back to the master branch, and delete the temporary branch
+    #
+    $GIT checkout master
+    $GIT branch -d $branch
 fi
 
-if [ "$branch" = master ]
+# may have local git mirror that needs to be updated ...
+#
+if [ -d $HOME/git-mirror ]
 then
-    # may have local git mirror that needs to be updated ...
-    #
-    if [ -d $HOME/git-mirror ]
-    then
-	here=`pwd`
-	cd $HOME/git-mirror
-	for dir in *
-	do
-	    [ -d "$dir" ] || continue
-	    [ -f "$dir/config" ] || continue
-	    if grep "url = $push" "$dir/config" >/dev/null 2>&1
-	    then
-		# found repo with url matching the one we've just pushed to
-		#
-		cd $dir
-		echo "Update local $dir git mirror ..."
-		$GIT fetch
-		cd ..
-	    fi
-	done
-	cd $here
-    fi
+    here=`pwd`
+    cd $HOME/git-mirror
+    for dir in *
+    do
+	[ -d "$dir" ] || continue
+	[ -f "$dir/config" ] || continue
+	if grep "url = $push" "$dir/config" >/dev/null 2>&1
+	then
+	    # found repo with url matching the one we've just pushed to
+	    #
+	    cd $dir
+	    echo "Update local $dir git mirror ..."
+	    $GIT fetch
+	    cd ..
+	fi
+    done
+    cd $here
 fi
