@@ -27,6 +27,7 @@ typedef enum series_flags {
     PMSERIES_ONLY_NAMES	= (1<<8),	/* report on label names only */
     PMSERIES_NEED_DESCS	= (1<<9),	/* output requires descs lookup */
     PMSERIES_NEED_INSTS	= (1<<10),	/* output requires insts lookup */
+    PMSERIES_NEED_RESET	= (1<<11),	/* need to reset for next series */
 
     PMSERIES_OPT_ALL	= (1<<16),	/* -a, --all option */
     PMSERIES_OPT_SOURCE = (1<<17),	/* -S, --source option */
@@ -145,13 +146,35 @@ series_add_inst(series_data *dp, pmSID series, sds instid, sds instname)
 }
 
 static void
+labels_free(series_label *labels, unsigned int nlabels)
+{
+    series_label	*lp;
+    unsigned int	i;
+
+    for (i = 0; i < nlabels; i++) {
+	lp = &labels[i];
+	sdsfree(lp->name);
+	sdsfree(lp->value);
+    }
+}
+
+static void
+series_del_labels(series_data *dp)
+{
+    labels_free(dp->labels, dp->nlabels);
+    dp->labels = NULL;
+    dp->nlabels = 0;
+}
+
+static void
 series_del_insts(series_data *dp)
 {
     series_inst		*ip;
-    int			i;
+    unsigned int	i;
 
     for (i = 0; i < dp->ninsts; i++) {
 	ip = &dp->insts[i];
+	labels_free(ip->labels, ip->nlabels);
 	sdsfree(ip->series);
 	sdsfree(ip->instid);
 	sdsfree(ip->name);
@@ -174,21 +197,35 @@ series_free(int nseries, pmSID *series)
 }
 
 static void
+series_data_reset(series_data *dp)
+{
+    sdsclear(dp->series);
+    sdsclear(dp->source);
+
+    if (dp->type)
+	sdsfree(dp->type);
+    dp->type = NULL;
+
+    dp->flags &= ~PMSERIES_INSTLABELS;
+    series_del_labels(dp);
+    series_del_insts(dp);
+}
+
+static void
 series_data_free(series_data *dp)
 {
-    sdsfree(dp->query);
-
     if (dp->args.nsource)
 	series_free(dp->args.nsource, dp->args.source);
     if (dp->args.nseries)
 	series_free(dp->args.nseries, dp->args.series);
-    sdsfree(dp->series);
-    sdsfree(dp->source);
-    if (dp->type)
-	sdsfree(dp->type);
     if (dp->args.pattern)
 	sdsfree(dp->args.pattern);
-    series_del_insts(dp);
+
+    series_data_reset(dp);
+
+    sdsfree(dp->series);
+    sdsfree(dp->source);
+    sdsfree(dp->query);
 }
 
 static int
@@ -223,7 +260,7 @@ static int
 series_next(series_data *dp, sds sid)
 {
     if (sdscmp(dp->series, sid) != 0) {
-	dp->flags &= ~PMSERIES_NEED_COMMA;
+	dp->flags &= ~(PMSERIES_NEED_COMMA|PMSERIES_NEED_RESET);
 	if (dp->flags & PMSERIES_NEED_EOL) {
 	    dp->flags &= ~PMSERIES_NEED_EOL;
 	    putc('\n', stdout);
@@ -233,6 +270,7 @@ series_next(series_data *dp, sds sid)
 	    sdsclear(dp->source);
 	if (dp->type)
 	    sdsclear(dp->type);
+	series_del_labels(dp);
 	series_del_insts(dp);
 	return 1;
     }
@@ -688,6 +726,10 @@ on_series_done(int sts, void *arg)
     series_data		*dp = (series_data *)arg;
     char		msg[PM_MAXERRMSGLEN];
 
+    if (dp->flags & PMSERIES_NEED_RESET) {
+	dp->flags &= ~PMSERIES_NEED_RESET;
+	series_data_reset(dp);
+    }
     if (dp->flags & PMSERIES_NEED_EOL) {
 	dp->flags &= ~PMSERIES_NEED_EOL;
 	putc('\n', stdout);
@@ -754,6 +796,14 @@ series_report_footer(series_data *dp, void *arg)
 {
     (void)arg;
     dp->flags &= ~PMSERIES_NEED_EOL;
+    on_series_done(0, dp);
+}
+
+static void
+series_report_reset(series_data *dp, void *arg)
+{
+    (void)arg;
+    dp->flags |= PMSERIES_NEED_RESET;
     on_series_done(0, dp);
 }
 
@@ -899,8 +949,10 @@ series_report(series_data *dp)
 
 	if (nseries == 0)	/* report all names, instances, labels, ... */
 	    series_data_report(dp, 0, NULL);
-	for (i = 0; i < nseries; i++)
+	for (i = 0; i < nseries; i++) {
 	    series_data_report(dp, 1, series[i]);
+	    series_link_report(dp, series_report_reset, series);
+	}
 	entry = dp->head;
 	entry->func(dp, entry->arg);
     }
