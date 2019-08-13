@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """Wrapper module for libpcp_import - Performace Co-Pilot Log Import API
 #
-# Copyright (C) 2012-2018 Red Hat.
+# Copyright (C) 2012-2019 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -10,11 +10,14 @@
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
+#
+# pylint: disable=missing-docstring,line-too-long,bad-continuation
+# pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
 #
 
 # Example use of this module for creating a PCP archive:
@@ -390,4 +393,3 @@ class pmiLogImport(object):
         if status < 0:
             raise pmiErr(status)
         return status
-
