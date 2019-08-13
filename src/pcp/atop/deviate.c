@@ -84,7 +84,7 @@ deviattask(struct tstat    *curtpres, unsigned long ntaskpres,
 	** create list for the sample deviations of all tasks
 	*/
  	devtstat->ntaskall = ntaskpres + nprocexit;
-	devtstat->taskall  = malloc(devtstat->ntaskall * sizeof(struct tstat));
+	devtstat->taskall  = calloc(devtstat->ntaskall, sizeof(struct tstat));
 
 	ptrverify(devtstat->taskall, "Malloc failed for %lu deviated tasks\n",
                                   devtstat->ntaskall);
@@ -371,9 +371,9 @@ deviattask(struct tstat    *curtpres, unsigned long ntaskpres,
 	/*
 	** create and fill other pointer lists
 	*/
-	devtstat->procall    = malloc(devtstat->nprocall *
+	devtstat->procall    = calloc(devtstat->nprocall,
 						sizeof(struct tstat *));
-	devtstat->procactive = malloc(devtstat->nprocactive *
+	devtstat->procactive = calloc(devtstat->nprocactive,
 						sizeof(struct tstat *));
 
 	ptrverify(devtstat->procall, "Malloc failed for %d processes\n",

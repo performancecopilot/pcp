@@ -160,6 +160,8 @@ PmQuery::PmQuery(bool inputflag, bool printflag, bool noframeflag,
     QHBoxLayout *hboxLayout1;
     QSpacerItem *spacerItem2;
 
+    my.status = 0;
+
     QString filename;
     if (iconic == HOST_ICON)
 	filename = tr(":images/dialog-host.png");

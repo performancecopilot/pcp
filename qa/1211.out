@@ -379,6 +379,16 @@ fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
     inst [5 or "5 minute"] labels {"hostname":"bozo-laptop"}
     inst [15 or "15 minute"] labels {"hostname":"bozo-laptop"}
 
+Labels lookup for two given SeriesIDs ...
+
+d51624d12da45900bfee2fd73f1e23f3ccabb784
+    labels {"hostname":"bozo-laptop"}
+
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
+    inst [1 or "1 minute"] labels {"hostname":"bozo-laptop"}
+    inst [5 or "5 minute"] labels {"hostname":"bozo-laptop"}
+    inst [15 or "15 minute"] labels {"hostname":"bozo-laptop"}
+
 Values fetch for a single-valued query ...
 
 d51624d12da45900bfee2fd73f1e23f3ccabb784

@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """Wrapper module for libpcp_pmda - Performace Co-Pilot Domain Agent API
 #
-# Copyright (C) 2013-2015,2017-2018 Red Hat.
+# Copyright (C) 2013-2015,2017-2019 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -15,6 +15,9 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
+#
+# pylint: disable=missing-docstring,line-too-long,bad-continuation
+# pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
 #
 
 # See pmdasimple.py for an example use of this module.
@@ -392,7 +395,7 @@ class MetricDispatch(object):
         Lookup the name associated with a performance metric identifier.
         """
         try:
-            name = self._metric_names[self.pmid(cluster, item)]
+            name = self._metric_names[cpmda.pmda_pmid(cluster, item)]
         except KeyError:
             name = None
         return name

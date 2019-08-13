@@ -25,7 +25,6 @@ _cleanup()
 }
 
 status=1	# failure is the default!
-series=unknown
 hostname=`hostname`
 redisport=`_find_free_port`
 
@@ -76,6 +75,7 @@ pminfo -smd --archive $here/archives/proc kernel.all.load
 echo "=> pmseries"
 loaded=`pmseries $options "kernel.all.load{source.name:\"$here/archives/proc\"}"`
 series=fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
+second=d51624d12da45900bfee2fd73f1e23f3ccabb784
 source=2cd6a38f9339f2dd1f0b4775bda89a9e7244def6
 if [ "$loaded" != "$series" ]
 then
@@ -189,6 +189,10 @@ echo
 
 echo "All lookups for a given SeriesID ..."
 pmseries $options --all $series
+echo
+
+echo "Labels lookup for two given SeriesIDs ..."
+pmseries $options --labels $second $series
 echo
 
 echo "Values fetch for a single-valued query ..."
