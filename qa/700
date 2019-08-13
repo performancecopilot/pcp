@@ -29,6 +29,9 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 rpm -qa | egrep '(pcp-|-pcp)' >$tmp.rpms
 [ -s $tmp.rpms ] || _notrun "No PCP rpms installed"
 
+# filter packages that are known to not be part of PCP
+sed -i '/^grafana-pcp/d' $tmp.rpms
+
 # real QA test starts here
 echo "Silence is golden ..."
 sed <$tmp.rpms >$tmp.list \
