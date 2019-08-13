@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """Wrapper module for libpcp_mmv - PCP Memory Mapped Values library
 #
-# Copyright (C) 2013-2016 Red Hat.
+# Copyright (C) 2013-2016,2019 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -15,6 +15,9 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
+#
+# pylint: disable=missing-docstring,line-too-long,bad-continuation
+# pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
 #
 # Example use of this module for instrumenting a python application:
 

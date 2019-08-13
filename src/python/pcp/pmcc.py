@@ -10,11 +10,14 @@
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
+#
+# pylint: disable=missing-docstring,line-too-long,bad-continuation
+# pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
 #
 
 from sys import stderr
@@ -86,13 +89,13 @@ class Metric(object):
         return self._core.help
 
     def get_vlist(self, vset, vlist_idx):
-        """ Return the vlist[vlist_idx] of vset[vset_idx] """
+        """ Return the vlist[vlist_idx] of vset """
         listptr = cast(vset.contents.vlist, POINTER(pmValue))
         return listptr[vlist_idx]
 
     def get_inst(self, vset, vlist_idx):
-        """ Return the inst for vlist[vlist_idx] of vset[vset_idx] """
-        return self.get_vlist(vset, vset_idx, vlist_idx).inst
+        """ Return the inst for vlist[vlist_idx] of vset """
+        return self.get_vlist(vset, vlist_idx).inst
 
     def computeValues(self, inValues):
         """ Extract the value for a singleton or list of instances

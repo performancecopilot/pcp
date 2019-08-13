@@ -166,8 +166,10 @@ photoproc(struct tstat **tasks, unsigned int *taskslen)
 		fprintf(stderr, "%s: done %lu processes\n", pmGetProgname(), count);
 
 	pmFreeResult(result);
-	free(insts);
-	free(pids);
+	if (count > 0) {
+	    free(insts);
+	    free(pids);
+	}
 
 	return count;
 }

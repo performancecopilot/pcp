@@ -632,13 +632,11 @@ engine(void)
 		*/
 		if (nprocexit > 0)
 		{
-			curpexit = malloc(nprocexit * sizeof(struct tstat));
+			curpexit = calloc(nprocexit, sizeof(struct tstat));
 
 			ptrverify(curpexit,
 			          "Malloc failed for %lu exited processes\n",
 			          nprocexit);
-
-			memset(curpexit, 0, nprocexit * sizeof(struct tstat));
 
 			nprocexit = acctphotoproc(curpexit, nprocexit);
 

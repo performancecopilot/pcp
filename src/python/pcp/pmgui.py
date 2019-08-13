@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """ Wrapper module for libpcp_gui - PCP Graphical User Interface clients """
 #
-# Copyright (C) 2012-2015 Red Hat Inc.
+# Copyright (C) 2012-2015,2019 Red Hat.
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -16,6 +16,9 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
+#
+# pylint: disable=missing-docstring,line-too-long,bad-continuation
+# pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
 #
 
 

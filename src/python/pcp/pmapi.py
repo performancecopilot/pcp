@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """ Wrapper module for LIBPCP - the core Performace Co-Pilot API """
 #
-# Copyright (C) 2012-2018 Red Hat
+# Copyright (C) 2012-2019 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -16,6 +16,9 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
+#
+# pylint: disable=missing-docstring,line-too-long,bad-continuation
+# pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
 #
 
 # Additional Information:
@@ -969,13 +972,6 @@ class pmOptions(object):
     # Deprecated, use pmGetOperands() above instead
     def pmNonOptionsFromList(self, argv):
         return c_api.pmGetNonOptionsFromList(argv)
-
-    def pmSetCallbackObject(self, them):
-        """ When options are being parsed from within an object, the
-            caller will want the "self" of the other object ("them")
-            passed as the first parameter to the callback function.
-        """
-        return c_api.pmSetCallbackObject(them)
 
     def pmSetOptionCallback(self, func):
         """ Handle individual command line options, outside of the PCP
