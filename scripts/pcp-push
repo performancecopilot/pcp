@@ -52,6 +52,7 @@ _usage()
 
 dryrun=false
 GIT=git
+RM=rm
 branch=`git branch --list | sed -n -e 's/^\* //p'`
 tree=origin
 short=false
@@ -80,6 +81,7 @@ do
 	n)
 	    dryrun=true
 	    GIT="echo + git"
+	    RM="echo + rm"
 	    ;;
 	r)
 	    range="$OPTARG"
@@ -235,9 +237,9 @@ fi
 sha=`git log | sed -e 's/commit //' -e 1q`
 if $dryrun
 then
-    echo "+ echo $sha >$pushed_sha"
+    echo "+ echo $sha >pushed.sha"
 else
-    echo "$sha" >$pushed_sha
+    echo "$sha" >pushed.sha
 fi
 
 if $mail
@@ -295,6 +297,7 @@ then
     #
     $GIT checkout master
     $GIT branch -d $branch
+    $RM -f $pushed_sha
 fi
 
 # may have local git mirror that needs to be updated ...
