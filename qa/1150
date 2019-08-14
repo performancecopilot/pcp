@@ -22,16 +22,15 @@ then
     . /etc/lsb-release
     if [ "$DISTRIB_ID" = Ubuntu ]
     then
-	case "$DISTRIB_RELEASE"
-	in
-	    16.*|17.*|18.*)
-		_notrun "bcc USDT does not work on Ubuntu $DISTRIB_RELEASE"
-		;;
-	    *)
-		echo "Need analysis for Ubuntu $DISTRIB_RELEASE ... does bcc USDT work?"
-		exit 1
-		;;
-	esac
+	# This test failed for Ubuntu 16.*, 17.* and 18.* but it
+	# appears to work for 19.04, so assume others beyond this
+	# release are also OK
+	#
+	version=`echo $DISTRIB_RELEASE | sed -e 's/\..*//'`
+	if [ $version -lt 19 ]
+	then
+	    _notrun "bcc USDT does not work on Ubuntu $DISTRIB_RELEASE"
+	fi
     fi
 fi
 
