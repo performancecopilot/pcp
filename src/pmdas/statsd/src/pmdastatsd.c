@@ -1,15 +1,19 @@
-#ifndef _TEST_TARGET
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
+/*
+ * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
 #include <chan/chan.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <pthread.h>
-#include <signal.h>
 #include <pcp/pmapi.h>
+#include <pthread.h>
 
 #include "pmdastatsd.h"
 #include "config-reader.h"
@@ -21,8 +25,6 @@
 #include "dict-callbacks.h"
 #include "utils.h"
 #include "domain.h"
-
-#define VERSION 0.9
 
 void signal_handler(int num) {
     if (num == SIGUSR1) {
@@ -96,7 +98,7 @@ static void
 create_statsd_hardcoded_metrics(struct pmda_data_extension* data) {
     size_t i;
     size_t hardcoded_count = 7;
-    data->pcp_metrics = (pmdaMetric*) malloc(hardcoded_count * sizeof(pmdaMetric));
+    data->pcp_metrics = (pmdaMetric*) calloc(hardcoded_count, sizeof(pmdaMetric));
     ALLOC_CHECK("Unable to allocate space for static PMDA metrics.");
     // helper containing only reference to priv data same for all hardcoded metrics
     static struct pmda_metric_helper helper;
@@ -113,23 +115,15 @@ create_statsd_hardcoded_metrics(struct pmda_data_extension* data) {
         }
         if (i == 5 || i == 6) {
             // time_spent_parsing / time_spent_aggregating
-            data->pcp_metrics[i].m_desc.units.dimSpace = 0;
-            data->pcp_metrics[i].m_desc.units.dimTime = 0;
-            data->pcp_metrics[i].m_desc.units.dimCount = 0;
-            data->pcp_metrics[i].m_desc.units.pad = 0;
-            data->pcp_metrics[i].m_desc.units.scaleSpace = 0;
             data->pcp_metrics[i].m_desc.units.scaleTime = PM_TIME_NSEC;
             data->pcp_metrics[i].m_desc.units.scaleCount = 1;
-        } else {
-            // rest
-            memset(&data->pcp_metrics[i].m_desc.units, 0, sizeof(pmUnits));
         }
     }
     data->pcp_metric_count = hardcoded_count;
 }
 
 /**
- * Initializes structure which is used as private data container accross all PCP related callbacks
+ * Initializes structure which is used as private data container across all PCP related callbacks
  * @arg args - All args passed to 'PCP exchange' thread
  */
 static void
@@ -193,7 +187,7 @@ main(int argc, char** argv)
         print_agent_config(&config);
     }
     if (config.show_version) {
-        pmNotifyErr(LOG_INFO, "Version: %f", VERSION);
+        pmNotifyErr(LOG_INFO, "Version: %f", PCP_VERSION);
     }
 
     struct pmda_metrics_container* metrics = init_pmda_metrics(&config);
@@ -223,15 +217,15 @@ main(int argc, char** argv)
         pthread_exit(NULL);
     }
     dispatch.version.seven.fetch = statsd_fetch;
-	dispatch.version.seven.desc = statsd_desc;
-	dispatch.version.seven.text = statsd_text;
-	dispatch.version.seven.instance = statsd_instance;
-	dispatch.version.seven.pmid = statsd_pmid;
-	dispatch.version.seven.name = statsd_name;
-	dispatch.version.seven.children = statsd_children;
-	dispatch.version.seven.label = statsd_label;
+    dispatch.version.seven.desc = statsd_desc;
+    dispatch.version.seven.text = statsd_text;
+    dispatch.version.seven.instance = statsd_instance;
+    dispatch.version.seven.pmid = statsd_pmid;
+    dispatch.version.seven.name = statsd_name;
+    dispatch.version.seven.children = statsd_children;
+    dispatch.version.seven.label = statsd_label;
     // Callbacks
-	pmdaSetFetchCallBack(&dispatch, statsd_fetch_callback);
+    pmdaSetFetchCallBack(&dispatch, statsd_fetch_callback);
     pmdaSetLabelCallBack(&dispatch, statsd_label_callback);
 
     pmdaSetData(&dispatch, (void*) &data);
@@ -262,5 +256,3 @@ main(int argc, char** argv)
     chan_dispose(parser_to_aggregator);
     return EXIT_SUCCESS;
 }
-
-#endif

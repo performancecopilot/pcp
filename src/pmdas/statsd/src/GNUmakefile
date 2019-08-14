@@ -34,7 +34,6 @@ CFILES = \
 	aggregator-stats.c \
 	config-reader.c	\
 	dict-callbacks.c \
-	ini.c \
 	network-listener.c \
 	parsers.c \
 	parsers-utils.c \
