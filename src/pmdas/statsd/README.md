@@ -1,10 +1,6 @@
-[![Build Status](https://travis-ci.com/Erbenos/pcp-statsd-c.svg?branch=pcp)](https://travis-ci.com/Erbenos/pcp-statsd-c)
-
 # pmdastatsd - Performance Metric Domain Agent for StatsD
 
-_(under development, not yet recommended for production use)_
-
-This repository contains an agent that collects [StatsD](https://github.com/statsd/statsd) data, aggregates them and makes them available to any Performance Co-Pilot client, which is ideal for easily tracking stats in your application.
+This agent collects [StatsD](https://github.com/statsd/statsd) data, aggregates them and makes them available to any Performance Co-Pilot client, which is ideal for easily tracking stats in your application.
 
 - [Features](#features)
 - [Installation](#installation)
@@ -39,22 +35,9 @@ This repository contains an agent that collects [StatsD](https://github.com/stat
 
 ## Dependencies
 
-- PCP version 4.3.4-1
 - [chan](https://github.com/tylertreat/chan)
 - [HdrHistogram_c](https://github.com/HdrHistogram/HdrHistogram_c) installed in your /usr/local dir
 - [Ragel](http://www.colm.net/open-source/ragel/)
-
-## Installation steps
-
-1. Put contents of this repo into $PCP_PMDAS_DIR/statsd/ ($PCP_PMDAS_DIR is sourced from /etc/pcp.conf, which should be available if you have PCP installed)
-2. First make sure you have "STATSD" namespace set to "510" in stdpmid file. [How-to](https://pcp.io/books/PCP_PG/html/id5189538.html)
-3. Compile with **make**
-4. Activate agent with **sudo make activate**
-
-## Uninstallation steps
-
-1. Run **sudo make deactivate** within $PCP_PMDAS_DIR/statsd/ directory
-2. Remove the statsd folder
 
 # Configuration
 
@@ -297,11 +280,6 @@ Agent also exports metrics about itself:
 - **statsd.pmda.time_spent_aggregating** <br>Total time in nanoseconds spent aggregating metrics
 
 These names are blacklisted for user usage. No messages with these names will processed. While not yet reserved, whole <strong>statsd.pmda.*</strong> namespace is not recommended to use for user metrics.
-
-# Roadmap
-- Make sure code is optimized
-- Add more tests
-- Allow _value_ to be expressed in _e_ notation
 
 # FAQ
 

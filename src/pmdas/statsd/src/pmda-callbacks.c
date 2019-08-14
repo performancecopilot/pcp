@@ -15,7 +15,7 @@
 #include "utils.h"
 #include "config-reader.h"
 #include "pmda-callbacks.h"
-#include "../domain.h"
+#include "domain.h"
 
 /**
  * Gets next valid pmID

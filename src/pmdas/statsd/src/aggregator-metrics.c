@@ -16,7 +16,7 @@
 #include "aggregator-metric-duration.h"
 #include "dict-callbacks.h"
 #include "pmdastatsd.h"
-#include "../domain.h"
+#include "domain.h"
 
 /**
  * Creates new pmda_metrics_container structure, initializes all stats to 0

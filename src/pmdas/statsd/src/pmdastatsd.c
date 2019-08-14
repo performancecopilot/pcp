@@ -20,7 +20,7 @@
 #include "pmda-callbacks.h"
 #include "dict-callbacks.h"
 #include "utils.h"
-#include "../domain.h"
+#include "domain.h"
 
 #define VERSION 0.9
 

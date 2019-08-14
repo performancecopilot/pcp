@@ -138,6 +138,12 @@ AC_ARG_WITH([perfevent],
     [do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"],
     [do_perfevent=check])
 
+AC_ARG_WITH([pmdastatsd],
+    [AC_HELP_STRING([--with-pmdastatsd],
+		   [enable statds pmda (default is on)])],
+    [do_pmdastatsd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdastatsd=$withval"],
+    [do_pmdastatsd=check])
+
 AC_ARG_WITH([pmdapodman],
     [AC_HELP_STRING([--with-pmdapodman],
 		   [enable podman pmda (default is on)])],
@@ -600,6 +606,9 @@ s/ -y / /
 s/ $//
 }'`
 AC_SUBST(yacc)
+
+AC_CHECK_PROGS(RAGEL, ragel, [])
+AC_SUBST(RAGEL)
 
 dnl check we don't get the Windows sort ...
 AC_MSG_CHECKING([where unix-like sort(1) lives])
@@ -1830,6 +1839,23 @@ AS_IF([test "x$do_perfevent" = "xyes"], [
 AC_MSG_CHECKING([if the perfevent PMDA should be included])
 AC_SUBST(PMDA_PERFEVENT, $pmda_perfevent)
 if $pmda_perfevent; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_CHECK_LIB(hdr_histogram, hdr_init, [lib_for_hdr_histogram="-lhdr_histogram"])
+AC_SUBST(lib_for_hdr_histogram)
+
+AC_CHECK_LIB(chan, chan_init, [lib_for_chan="-lchan"])
+AC_SUBST(lib_for_chan)
+
+dnl Do you have ragel, hdr_histogram and chan libraries for pmdastatsd?
+AC_MSG_CHECKING([if the statsd PMDA should be included])
+pmda_statsd=false
+AS_IF([test "x$do_pmdastatsd" = "xyes"], [pmda_statsd=true])
+AS_IF([test "x$do_pmdastatsd" = "xcheck"], [
+       if test -n "$RAGEL" -a "x$lib_for_hdr_histogram" != "x" -a "x$lib_for_chan" != "x"; then
+	pmda_statsd=true
+       fi])
+AC_SUBST(PMDA_STATSD, $pmda_statsd)
+if $pmda_statsd; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 dnl Do you have varlink libraries for pmdapodman?
 AC_MSG_CHECKING([if the podman PMDA should be included])

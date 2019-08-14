@@ -1,9 +1,6 @@
-build
-src/parser-ragel.c
 .vscode
-help.dir
-help.pag
-debug
-autom4te.cache
 pmdastatsd
-statsd.log
+parser-ragel.c
+domain.h
+*.log
+*.d
