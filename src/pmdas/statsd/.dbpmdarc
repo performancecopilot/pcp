@@ -1,0 +1,4 @@
+debug libpmda
+open pipe pmdastatsd
+namespace root_statsd
+status
