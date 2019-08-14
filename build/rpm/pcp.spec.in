@@ -75,6 +75,9 @@ BuildRequires: rpm-devel
 %if "@pmda_podman@" == "true"
 BuildRequires: libvarlink-devel
 %endif
+%if "@pmda_statsd@" == "true"
+#BuildRequires: ragel libchan-devel libhdr_histogram-devel
+%endif
 %if "@pmda_perfevent@" == "true"
 BuildRequires: libpfm-devel >= 4
 %endif
@@ -268,6 +271,9 @@ Requires: pcp-pmda-haproxy pcp-pmda-nfsclient pcp-pmda-lmsensors
 %endif
 %if "@pmda_podman@" == "true"
 Requires: pcp-pmda-podman
+%endif
+%if "@pmda_statsd@" == "true"
+Requires: pcp-pmda-statsd
 %endif
 %if "@pmda_bcc@" == "true"
 Requires: pcp-pmda-bcc
@@ -958,6 +964,23 @@ BuildRequires: libvarlink-devel
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting podman container and pod statistics through libvarlink.
 #end pcp-pmda-podman
+%endif
+
+%if "@pmda_statsd@" == "true"
+#
+# pcp-pmda-statsd
+#
+%package pmda-statsd
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics from statsd
+URL: https://pcp.io
+#Requires: libchan libhdr_histogram
+#BuildRequires: libchan-devel libhdr_histogram
+
+%description pmda-statsd
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting statistics available the statsd daemon.
+#end pcp-pmda-statsd
 %endif
 
 %if "@pmda_perfevent@" == "true"
@@ -2161,6 +2184,9 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/infiniband|pmdaib|pmdas/ib' >pmd
 %if "@pmda_podman@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/podman' > pmda_podman_files
 %endif
+%if "@pmda_statsd@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/statsd' > pmda_statsd_files
+%endif
 %if "@pmda_perfevent@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/perfevent|perfalloc.1' > pmda_perfevent_files
 %endif
@@ -2269,7 +2295,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/weblog' > pmda_weblog_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zeroconf|daily[-_]report|/sa$' > zeroconf_files
 
 touch gui_files webapi_files manager_files pmda_infiniband_files \
-      pmda_perfevent_files pmda_podman_files \
+      pmda_perfevent_files pmda_podman_files pmda_statsd_files \
       pmda_bonding_files pmda_dbping_files pmda_pdns_files \
       pmda_ds389_files pmda_ds389log_files pmda_gpfs_files \
       pmda_gpsd_files pmda_lustre_files pmda_lustrecomm_files \
@@ -2348,6 +2374,7 @@ BEGIN {
     while( getline < "testsuite_files") testsuite[$0]=1;
     while( getline < "pmda_infiniband_files") pmda_infiniband[$0]=1;
     while( getline < "pmda_podman_files") pmda_podman[$0]=1;
+    while( getline < "pmda_statsd_files") pmda_statsd[$0]=1;
     while( getline < "pmda_perfevent_files") pmda_perfevent[$0]=1;
 %if "@pmda_activemq@" == "true"
     while( getline < "pmda_activemq_files") pmda_activemq[$0]=1;
@@ -2485,6 +2512,7 @@ BEGIN {
     else if (testsuite[$NF]) f="testsuite_files.rpm";
     else if (pmda_infiniband[$NF]) f="pmda_infiniband_files.rpm";
     else if (pmda_podman[$NF]) f="pmda_podman_files.rpm";
+    else if (pmda_statsd[$NF]) f="pmda_statsd_files.rpm";
     else if (pmda_perfevent[$NF]) f="pmda_perfevent_files.rpm";
 %if "@pmda_activemq@" == "true"
     else if (pmda_activemq[$NF]) f="pmda_activemq_files.rpm";
@@ -2826,6 +2854,11 @@ pmieconf -c enable dmthin
 %preun pmda-podman
 %{pmda_remove "$1" "podman"}
 %endif #preun pmda-podman
+
+%if "@pmda_statsd@" == "true"
+%preun pmda-statsd
+%{pmda_remove "$1" "statsd"}
+%endif #preun pmda-statsd
 
 %if "@pmda_json@" == "true"
 %preun pmda-json
@@ -3195,6 +3228,10 @@ cd
 
 %if "@pmda_podman@" == "true"
 %files pmda-podman -f pmda_podman_files.rpm
+%endif
+
+%if "@pmda_statsd@" == "true"
+%files pmda-statsd -f pmda_statsd_files.rpm
 %endif
 
 %if "@pmda_perfevent@" == "true"

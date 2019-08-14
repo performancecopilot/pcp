@@ -69,6 +69,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_bcc@|$(PMDA_BCC)|g' \
 	    -e's|@pmda_rpm@|$(PMDA_RPM)|g' \
 	    -e's|@pmda_podman@|$(PMDA_PODMAN)|g' \
+	    -e's|@pmda_statsd@|$(PMDA_STATSD)|g' \
 	    -e's|@pmda_systemd@|$(PMDA_SYSTEMD)|g' \
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
 	    -e's|@pmda_perfevent@|$(PMDA_PERFEVENT)|g' \
