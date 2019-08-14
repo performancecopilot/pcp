@@ -246,6 +246,28 @@ pmwebapi_clear_metric_updated(metric_t *metric)
 	metric->u.vlist->value[i].updated = 0;
 }
 
+static int
+pmwebapi_extract_value(int valfmt, const pmValue *vp, int type, pmAtomValue *ap)
+{
+    unsigned int	length;
+
+    /*
+     * Handle special cases like aggregate and string values up-front;
+     * avoid the need for multiple allocations and using sds directly.
+     */
+    switch (type) {
+    case PM_TYPE_STRING:
+    case PM_TYPE_AGGREGATE:
+    case PM_TYPE_AGGREGATE_STATIC:
+	length = vp->value.pval->vlen - PM_VAL_HDR_SIZE;
+	ap->cp = sdscatrepr(sdsempty(), vp->value.pval->vbuf, length);
+	return 0;
+    default:
+	break;
+    }
+    return pmExtractValue(valfmt, vp, type, ap, type);
+}
+
 int
 pmwebapi_add_valueset(metric_t *metric, pmValueSet *vsp)
 {
@@ -262,7 +284,8 @@ pmwebapi_add_valueset(metric_t *metric, pmValueSet *vsp)
     type = metric->desc.type;
     if (metric->desc.indom == PM_INDOM_NULL) {
 	vp = &vsp->vlist[0];
-	pmExtractValue(vsp->valfmt, vp, type, &metric->u.atom, type);
+	if (pmwebapi_extract_value(vsp->valfmt, vp, type, &metric->u.atom) < 0)
+	    metric->updated = 0;
 	return 1;
     }
 
@@ -292,8 +315,9 @@ pmwebapi_add_valueset(metric_t *metric, pmValueSet *vsp)
 	    k = j;		/* successful direct mapping */
 	}
 	value = &metric->u.vlist->value[k];
-	pmExtractValue(vsp->valfmt, vp, type, &value->atom, type);
 	value->updated = 1;
+	if (pmwebapi_extract_value(vsp->valfmt, vp, type, &value->atom) < 0)
+	    value->updated = 0;
     }
 
     if (metric->u.vlist)

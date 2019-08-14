@@ -1063,8 +1063,6 @@ series_stream_append(sds cmd, sds name, sds value)
 static sds
 series_stream_value(sds cmd, sds name, int type, pmAtomValue *avp)
 {
-    unsigned int	bytes;
-    const char		*string;
     sds			value;
 
     if (!avp) {
@@ -1094,21 +1092,9 @@ series_stream_value(sds cmd, sds name, int type, pmAtomValue *avp)
 	break;
 
     case PM_TYPE_STRING:
-	if ((string = avp->cp) == NULL)
-	    string = "<null>";
-	value = sdsnew(string);
-	break;
-
     case PM_TYPE_AGGREGATE:
     case PM_TYPE_AGGREGATE_STATIC:
-	if (avp->vbp != NULL) {
-	    string = avp->vbp->vbuf;
-	    bytes = avp->vbp->vlen - PM_VAL_HDR_SIZE;
-	} else {
-	    string = "<null>";
-	    bytes = strlen(string);
-	}
-	value = sdsnewlen(string, bytes);
+	value = sdsdup(avp->cp);
 	break;
 
     default:
