@@ -19,8 +19,11 @@ include $(TOPDIR)/src/include/builddefs
 IAM = statsd
 DOMAIN = STATSD
 CMDTARGET = pmda$(IAM)$(EXECSUFFIX)
-RAGELTARGET = parser-ragel
+LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
+PMDAINIT = $(IAM)_init
+PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 
+RAGELTARGET = parser-ragel
 RFILES = $(RAGELTARGET).c
 CFILES = \
 	aggregators.c \
@@ -52,20 +55,20 @@ LCFLAGS = $(INVISIBILITY)
 #LCFLAGS += -Wextra -MMD -MP
 LDIRT = domain.h *.log $(RFILES)
 
-PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
+VERSION_SCRIPT = export
 
 default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(PMDA_STATSD)" "true"
-build-me: $(CMDTARGET)
+build-me: $(CMDTARGET) $(LIBTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 	$(INSTALL) -m 644 root_statsd $(PMDADIR)/root_statsd
-	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 else
 build-me:
 install:
@@ -80,8 +83,11 @@ $(OBJECTS): domain.h $(RFILES)
 $(RFILES): $(RAGELTARGET).rl
 	$(RAGEL) -C $<
 
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
+
 domain.h: $(TOPDIR)/src/pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-check:: $(CFILES)
+check:: $(CFILES) $(HFILES)
 	$(CLINT) $^

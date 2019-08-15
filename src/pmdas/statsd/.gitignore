@@ -2,5 +2,7 @@
 pmdastatsd
 parser-ragel.c
 domain.h
+export
 *.log
+*.so
 *.d

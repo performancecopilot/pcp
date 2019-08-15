@@ -149,61 +149,66 @@ init_data_ext(
     data->notify = 0;
 }
 
-int
-main(int argc, char** argv)
-{
-    signal(SIGUSR1, signal_handler);
-    
-    struct agent_config config = { 0 };
-    struct pmda_data_extension data = { 0 };
-    pthread_t network_listener;
-    pthread_t parser;
-    pthread_t aggregator;
-    pmdaInterface dispatch = { 0 };
+static int _isDSO = 1; /* for local contexts */
+static pthread_t network_listener;
+static pthread_t aggregator;
+static pthread_t parser;
+static chan_t* network_listener_to_parser;
+static chan_t* parser_to_aggregator;
+static struct agent_config config;
 
-    int sep = pmPathSeparator();
+void
+__PMDA_INIT_CALL
+statsd_init(pmdaInterface *dispatch)
+{
+    struct pmda_metrics_container* metrics;
+    struct pmda_stats_container* stats;
+    struct pmda_data_extension data = { 0 };
+    struct network_listener_args* listener_args;
+    struct aggregator_args* aggregator_args;
+    struct parser_args* parser_args;
     char config_file_path[MAXPATHLEN];
     char help_file_path[MAXPATHLEN];
+    int pthread_errno, sep = pmPathSeparator();
+
     pmsprintf(
         config_file_path,
         MAXPATHLEN,
         "%s" "%c" "statsd" "%c" "pmdastatsd.ini",
         pmGetConfig("PCP_PMDAS_DIR"),
         sep, sep);
-    pmsprintf(
-        help_file_path,
-        MAXPATHLEN,
-        "%s%c" "statsd" "%c" "help",
-        pmGetConfig("PCP_PMDAS_DIR"),
-        sep, sep);
 
-    pmSetProgname(argv[0]);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), STATSD, "statsd.log", help_file_path);
-
-    read_agent_config(&config, &dispatch, config_file_path, argc, argv);
-    init_loggers(&config);
-    pmdaOpenLog(&dispatch);
-    if (config.debug) {
-        print_agent_config(&config);
-    }
-    if (config.show_version) {
-        pmNotifyErr(LOG_INFO, "Version: %f", PCP_VERSION);
+    if (_isDSO) {
+        pmsprintf(
+            help_file_path,
+            MAXPATHLEN,
+            "%s%c" "statsd" "%c" "help",
+            pmGetConfig("PCP_PMDAS_DIR"),
+            sep, sep);
+	pmdaDSO(dispatch, PMDA_INTERFACE_7, "statsd DSO", help_file_path);
+        read_agent_config(&config, dispatch, config_file_path, 0, NULL);
+    } else {
+        pmSetProcessIdentity(config.username);
     }
 
-    struct pmda_metrics_container* metrics = init_pmda_metrics(&config);
-    struct pmda_stats_container* stats = init_pmda_stats(&config);
+    signal(SIGUSR1, signal_handler);
+
+    metrics = init_pmda_metrics(&config);
+    stats = init_pmda_stats(&config);
     init_data_ext(&data, &config, metrics, stats);
 
-    chan_t* network_listener_to_parser = chan_init(config.max_unprocessed_packets);
-    if (network_listener_to_parser == NULL) DIE("Unable to create channel network listener -> parser.");
-    chan_t* parser_to_aggregator = chan_init(config.max_unprocessed_packets);
-    if (parser_to_aggregator == NULL) DIE("Unable to create channel parser -> aggregator.");
+    network_listener_to_parser = chan_init(config.max_unprocessed_packets);
+    if (network_listener_to_parser == NULL)
+	DIE("Unable to create channel network listener -> parser.");
+    parser_to_aggregator = chan_init(config.max_unprocessed_packets);
+    if (parser_to_aggregator == NULL)
+	DIE("Unable to create channel parser -> aggregator.");
 
-    struct network_listener_args* listener_args = create_listener_args(&config, network_listener_to_parser);
-    struct parser_args* parser_args = create_parser_args(&config, network_listener_to_parser, parser_to_aggregator);
-    struct aggregator_args* aggregator_args = create_aggregator_args(&config, parser_to_aggregator, metrics, stats);
+    listener_args = create_listener_args(&config, network_listener_to_parser);
+    parser_args = create_parser_args(&config, network_listener_to_parser, parser_to_aggregator);
+    aggregator_args = create_aggregator_args(&config, parser_to_aggregator, metrics, stats);
 
-    int pthread_errno = 0; 
+    pthread_errno = 0; 
     pthread_errno = pthread_create(&network_listener, NULL, network_listener_exec, listener_args);
     PTHREAD_CHECK(pthread_errno);
     pthread_errno = pthread_create(&parser, NULL, parser_exec, parser_args);
@@ -211,35 +216,35 @@ main(int argc, char** argv)
     pthread_errno = pthread_create(&aggregator, NULL, aggregator_exec, aggregator_args);
     PTHREAD_CHECK(pthread_errno);
 
-    pmSetProcessIdentity(config.username);
-
-    if (dispatch.status != 0) {
+    if (dispatch->status != 0) {
         pthread_exit(NULL);
     }
-    dispatch.version.seven.fetch = statsd_fetch;
-    dispatch.version.seven.desc = statsd_desc;
-    dispatch.version.seven.text = statsd_text;
-    dispatch.version.seven.instance = statsd_instance;
-    dispatch.version.seven.pmid = statsd_pmid;
-    dispatch.version.seven.name = statsd_name;
-    dispatch.version.seven.children = statsd_children;
-    dispatch.version.seven.label = statsd_label;
+    dispatch->version.seven.fetch = statsd_fetch;
+    dispatch->version.seven.desc = statsd_desc;
+    dispatch->version.seven.text = statsd_text;
+    dispatch->version.seven.instance = statsd_instance;
+    dispatch->version.seven.pmid = statsd_pmid;
+    dispatch->version.seven.name = statsd_name;
+    dispatch->version.seven.children = statsd_children;
+    dispatch->version.seven.label = statsd_label;
     // Callbacks
-    pmdaSetFetchCallBack(&dispatch, statsd_fetch_callback);
-    pmdaSetLabelCallBack(&dispatch, statsd_label_callback);
+    pmdaSetFetchCallBack(dispatch, statsd_fetch_callback);
+    pmdaSetLabelCallBack(dispatch, statsd_label_callback);
 
-    pmdaSetData(&dispatch, (void*) &data);
-    pmdaSetFlags(&dispatch, PMDA_EXT_FLAG_HASHED);
+    pmdaSetData(dispatch, (void*) &data);
+    pmdaSetFlags(dispatch, PMDA_EXT_FLAG_HASHED);
     pmdaInit(
-        &dispatch,
+        dispatch,
         data.pcp_instance_domains,
         data.pcp_instance_domain_count,
         data.pcp_metrics,
         data.pcp_metric_count
     );
-    pmdaConnect(&dispatch);
-    pmdaMain(&dispatch);
+}
 
+static void
+stats_done(void)
+{
     if (pthread_join(network_listener, NULL) != 0) {
         DIE("Error joining network network listener thread.");
     }
@@ -254,5 +259,42 @@ main(int argc, char** argv)
     chan_close(parser_to_aggregator);
     chan_dispose(network_listener_to_parser);
     chan_dispose(parser_to_aggregator);
+}
+
+int
+main(int argc, char** argv)
+{
+    int sep = pmPathSeparator();
+    pmdaInterface dispatch = { 0 };
+    char help_file_path[MAXPATHLEN];
+    char config_file_path[MAXPATHLEN];
+
+    _isDSO = 0;
+    pmSetProgname(argv[0]);
+
+    pmsprintf(
+        config_file_path,
+        MAXPATHLEN,
+        "%s" "%c" "statsd" "%c" "pmdastatsd.ini",
+        pmGetConfig("PCP_PMDAS_DIR"),
+        sep, sep);
+
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), STATSD, "statsd.log", help_file_path);
+
+    read_agent_config(&config, &dispatch, config_file_path, argc, argv);
+    init_loggers(&config);
+    pmdaOpenLog(&dispatch);
+    if (config.debug) {
+        print_agent_config(&config);
+    }
+    if (config.show_version) {
+        pmNotifyErr(LOG_INFO, "Version: %s", PCP_VERSION);
+    }
+
+    statsd_init(&dispatch);
+    pmdaConnect(&dispatch);
+    pmdaMain(&dispatch);
+    stats_done();
+
     return EXIT_SUCCESS;
 }
