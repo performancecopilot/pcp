@@ -21,10 +21,10 @@ HFILES = pmapi.h impl.h pmda.h pmtime.h pmdaroot.h pmafm.h \
 	 trace.h trace_dev.h mmv_stats.h mmv_dev.h import.h \
 	 config32.h config64.h platform32.h platform64.h \
 	 pmjson.h pmhttp.h pmdbg.h pmwebapi.h sds.h dict.h \
-	 deprecated.h
+	 ini.h deprecated.h
 INFILES = config.h.in configsz.h.in platform_defs.h.in platformsz.h.in
 CONFFILES = config.h configsz.h platform_defs.h platformsz.h
-EXTERNAL_HFILES = sds.h dict.h
+EXTERNAL_HFILES = sds.h dict.h ini.h
 GENERATED_HFILES = $(CONFFILES)
 NOSHIP_HFILES = libpcp.h
 
