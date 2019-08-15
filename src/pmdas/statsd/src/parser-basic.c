@@ -57,7 +57,7 @@ parse(char* buffer, struct statsd_datagram** datagram) {
     size_t count = strlen(buffer) + 1;
     char* segment = (char *) malloc(count); // cannot overflow since whole segment is count anyway
     ALLOC_CHECK("Unable to assign memory for StatsD datagram message parsing.");
-    struct tag_collection* tags;
+    struct tag_collection* tags = NULL;
     char* tag_key = NULL;
     char* tag_value = NULL;
     char* attr;

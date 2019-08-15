@@ -306,7 +306,6 @@ static void
 update_pcp_metric_instance_domain(char* key, struct metric* item, pmdaExt* pmda) {
     // no reason to update if metric has no labels
     if (item->children == NULL) return;
-    struct pmda_data_extension* data = (struct pmda_data_extension*)pmdaExtGetData(pmda);
     // these are only for comparison
     if (pmInDom_serial(item->meta->pmindom) == STATSD_METRIC_DEFAULT_DURATION_INDOM ||
         pmInDom_serial(item->meta->pmindom) == STATSD_METRIC_DEFAULT_INDOM) {
@@ -449,7 +448,10 @@ map_to_duration_instance(int instance) {
             return DURATION_COUNT;
         case 8:
             return DURATION_STANDARD_DEVIATION;
+	default:
+	    break;
     }
+    return 0;
 }
 
 /**
@@ -774,7 +776,7 @@ statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pm
     int is_default_domain = (serial == STATSD_METRIC_DEFAULT_INDOM) ||
                             (serial == STATSD_METRIC_DEFAULT_DURATION_INDOM);
     int status = PM_ERR_INST;
-    enum DURATION_INSTANCE duration_stat;
+    enum DURATION_INSTANCE duration_stat = 0;
     // metrics without any labels
     if (is_default_domain) {
         pthread_mutex_lock(&data->metrics_storage->mutex);
@@ -845,13 +847,7 @@ statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pm
  */
 int
 statsd_fetch_callback(pmdaMetric* mdesc, unsigned int instance, pmAtomValue* atom) {
-    struct pmda_metric_helper* helper = (struct pmda_metric_helper*) mdesc->m_user;
-    struct pmda_data_extension* data = helper->data;
-    struct agent_config* config = data->config;
-    struct pmda_stats_container* stats = data->stats_storage;
-    struct pmda_metrics_container* metrics = data->metrics_storage;
     unsigned int cluster = pmID_cluster(mdesc->m_desc.pmid);
-    unsigned int item = pmID_item(mdesc->m_desc.pmid);
     int status;
     switch (cluster) {
         /* cluster 0 is reserved for stats - info about agent itself */

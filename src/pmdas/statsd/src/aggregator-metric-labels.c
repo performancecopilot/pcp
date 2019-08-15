@@ -143,12 +143,12 @@ static char*
 create_instance_label_segment_str(char* tags) {
     char buffer[100];
     size_t tags_length = strlen(tags) + 1;
+    size_t tag_char_index;
+    size_t buffer_char_index = 0;
     if (tags_length > 100) { // this is just estimate
         return NULL;
     }
-    size_t tag_char_index = 0;
-    size_t buffer_char_index = 0;
-    for (tag_char_index; tag_char_index < tags_length; tag_char_index++) {
+    for (tag_char_index = 0; tag_char_index < tags_length; tag_char_index++) {
         if (tags[tag_char_index] == '{' ||
             tags[tag_char_index] == '}' ||
             tags[tag_char_index] == '"') {

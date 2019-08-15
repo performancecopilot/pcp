@@ -121,6 +121,8 @@ process_stat(struct agent_config* config, struct pmda_stats_container* s, enum S
                 case METRIC_TYPE_DURATION:
                     s->stats->metrics_recorded->duration += 1;
                     break;
+                case METRIC_TYPE_NONE:
+                    break;
             }
             break;
         }
