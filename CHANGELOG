@@ -1,5 +1,53 @@
 pcp-4.3.4 (16 August 2019)
-    - Work in progress: https://github.com/performancecopilot/pcp/projects/1
+    - Client tools and utilities:
+	pmchart: fix chart auto-scaling under fetch error conditions
+	pmseries: fix label reporting state bug with multiple series
+	pcp-atop: fix write mode (-w) handling of proc vs hotproc metrics
+	pcp-atop: resolve intermittent qa/1080 valgrind failure
+    - PMDA additions, enhancements and bug fixes:
+	pmdalinux: fix hugepage metric value calculations
+	pmdalinux: fetch more network metrics in --container namespace
+	pmdaproc: fix memory leak in pidlist refresh
+	pmdaproc: remove legacy /proc/ksyms and System.map readers
+    - Server-side utilities and log management scripts:
+	pmproxy: complete REST API pmStore support
+	pmproxy: complete the secure TLS connection support
+	pmproxy: add indom profile support to the async API
+	pmproxy: /pmapi/children REST API for pmGetChildrenStatus(3)
+	pmproxy: fix a double-free memory corruption
+	pmproxy: do not report indom for metric if null
+	pmproxy: indom help text API support, other small compat tweaks
+	pmlogextract: add -x option for more resilient merging
+	logutil: fix broken pipe errors from utilproc.sh _is_archive()
+	logutil: fix pmlogger and pmlogger_daily systemd services
+	pmiectl: reflect changes to pmlogger start process in that of pmie
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	libpcp_pmda: close help files after mmap'ing contents
+	libpcp_web: fix memory corruption on fetch code path
+	libpcp_web: fix memory corruption during metric scrape
+	libpcp_web: add support for metric help text extraction
+	libpcp_web: fix discovery segfaults deleting monitored paths
+	libpcp_web: fix valgrind bad memory accesses for aggregate metrics
+	libpcp_web: make the dictDelete function available
+    - Misc build, infrastructure and packaging updates:
+	configure.ac: changes for OpenSSL on OpenSUSE
+	build: rework libpcp_web exports file exposed-symbols
+	build: fix warnings from Qwt code with recent compilers
+	build: ensure Qt qIsNaN macro available where its needed
+	build: assorted strncpy() changes for gcc 8 warnings
+	build: pylint work for missing parts of the pcp modules
+    - Documentation and QA infrastructure:
+	docs: add a deprecation note for pcp-collectl in its man page
+	docs: add a deprecation note for pmwebd in its man page
+	BCC QA: Detect BPF compilation failures early
+	azure CI: fail on first error when building PCP
+	CI: change cppcheck --std=posix (deprecated) to --library=posix
+	CI: cppcheck: temporary suppress objectIndex error in siphash.c
+	build: fix some small make check failures on f30 and rawhide
+	docs: fix new NFS client per-op error count help text typo
+	docs: correct pattern match parameter name in series REST API
+	qa/README: add notes for ssh access to pcpqa login with selinux
+	README.github: document the github workflow
 
 pcp-4.3.3 (28 June 2019)
     - Client tools and utilities:
