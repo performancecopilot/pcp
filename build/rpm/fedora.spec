@@ -2764,7 +2764,12 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 cd $PCP_PMNS_DIR && ./Rebuild -s && rm -f .NeedRebuild
 cd
 
+%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %ldconfig_scriptlets libs
+%else
+%post libs -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
+%endif
 
 %if !%{disable_selinux}
 %preun selinux
@@ -3306,6 +3311,9 @@ cd
 - Resolve bootup issues with pmlogger service (BZ 1737091, BZ 1721223)
 - Resolve selinux policy issues in PCP tools (BZ 1721644, BZ 1711547)
 - Update to latest PCP sources.
+
+* Fri Jul 26 2019 Fedora Release Engineering <releng@fedoraproject.org> - 4.3.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
 * Fri Jun 28 2019 Mark Goodwin <mgoodwin@redhat.com> - 4.3.3-1
 - Resolve segv running pmchart with bogus timezone (BZ 1718948)
