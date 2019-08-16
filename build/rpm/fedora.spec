@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 4.3.4
+Version: 5.0.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -3307,6 +3307,9 @@ cd
 %endif
 
 %changelog
+* Fri Oct 11 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.0-1
+- Work in progress: https://github.com/performancecopilot/pcp/projects/1
+
 * Fri Aug 16 2019 Nathan Scott <nathans@redhat.com> - 4.3.4-1
 - Resolve bootup issues with pmlogger service (BZ 1737091, BZ 1721223)
 - Resolve selinux policy issues in PCP tools (BZ 1721644, BZ 1711547)
