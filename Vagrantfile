@@ -38,6 +38,14 @@ end
 ############################################################
 
 pcp_hosts = {
+        :fedora30 => {
+                :hostname => "fedora30",
+                :ipaddress => "10.100.10.25",
+                :box => "fedora/30-cloud-base",
+                :script => "fedora.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey",
+                :distro_name => "f30"
+        },
         :ubuntu1804 => {
                 :hostname => "ubuntu1804",
                 :ipaddress => "10.100.10.24",

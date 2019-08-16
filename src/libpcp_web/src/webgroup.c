@@ -468,14 +468,13 @@ webgroup_encode_value(sds value, int type, pmAtomValue *atom)
 	return sdscatfmt(value, "%I", atom->ll);
     case PM_TYPE_U64:
 	return sdscatfmt(value, "%U", atom->ull);
-    case PM_TYPE_STRING:
-	return sdscatrepr(value, atom->cp, strlen(atom->cp));
-    case PM_TYPE_AGGREGATE:
-	return sdscatrepr(value, atom->vbp->vbuf, atom->vbp->vlen);
     case PM_TYPE_FLOAT:
 	return sdscatprintf(value, "%.8g", (double)atom->f);
     case PM_TYPE_DOUBLE:
 	return sdscatprintf(value, "%.16g", atom->d);
+    case PM_TYPE_STRING:
+    case PM_TYPE_AGGREGATE:
+	return sdsdup(atom->cp);
 
     case PM_TYPE_EVENT:
     case PM_TYPE_HIGHRES_EVENT:

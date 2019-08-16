@@ -17,7 +17,6 @@ _check_series
 
 _cleanup()
 {
-    [ -n "$pmlogger_pid" ] && $signal -s TERM $pmlogger_pid
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
     [ -n "$options" ] && redis-cli $options shutdown
     cd $here
@@ -120,16 +119,18 @@ enabled = true
 End-Of-File
 
 # start long-running pmlogger actively writing archives
-pmlogger -t 0.25 -c $tmp.pmlogger.conf -l $tmp.pmlogger.log $base/archive &
+pmlogger -t 0.25 -T 3sec -c $tmp.pmlogger.conf -l $tmp.pmlogger.log $base/archive &
 pmlogger_pid=$!
+#echo pmlogger=$pmlogger_pid
 pmsleep 0.5
 
 # start pmproxy 
 proxyport=`_find_free_port`
-proxyopts="-f -A -p $proxyport -r $redisport -U $username -t -Dseries,discovery"
+proxyopts="-f -A -p $proxyport -r $redisport -U $username"
+#proxyopts="$pmproxyopts -Dseries,discovery"
 pmproxy -c $tmp.pmproxy.conf -x $seq.full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
-#echo pid=$pmproxy_pid
+#echo pmproxy=$pmproxy_pid
 
 # check pmproxy has started and is discovering timeseries
 pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
@@ -162,6 +163,9 @@ pmseries $options -l $series | _filter_labels | _filter_series
 
 echo "== verify metric values" | tee -a  $seq.full
 pmseries $options sample.ulong.million[samples:2] | _filter_values | _filter_series
+
+# pause until pmlogger exits to prevent confusion when removing archives
+wait $pmlogger_pid
 
 #
 # verify discovery handling of archive deletion
