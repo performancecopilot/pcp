@@ -5,21 +5,37 @@ Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check statsd metrics have appeared ... 1 warnings, 1 metrics and 0 values
-/usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require': cannot load such file -- colorize (LoadError)
-	from /usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require'
-	from check_hardcoded_stats_init.rb:3:in `<main>'
-/usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require': cannot load such file -- colorize (LoadError)
-	from /usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require'
-	from check_hardcoded_stats_updates.rb:3:in `<main>'
-/usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require': cannot load such file -- colorize (LoadError)
-	from /usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require'
-	from counter_metric.rb:3:in `<main>'
-/usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require': cannot load such file -- colorize (LoadError)
-	from /usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require'
-	from duration_metric.rb:3:in `<main>'
-/usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require': cannot load such file -- colorize (LoadError)
-	from /usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require'
-	from gauge_metric.rb:3:in `<main>'
+Check statsd metrics have appeared ... 7 metrics and 10 values
+⧖ Checking initial state for hardcoded stats...[0;32;49m✔[0m Hardcoded stats are set to 0 on startup                  
+- [0;32;49m✔[0m statsd.pmda.received is 0
+- [0;32;49m✔[0m statsd.pmda.parsed is 0
+- [0;32;49m✔[0m statsd.pmda.aggregated is 0
+- [0;32;49m✔[0m statsd.pmda.dropped is 0
+- [0;32;49m✔[0m statsd.pmda.time_spent_aggregating is 0
+- [0;32;49m✔[0m statsd.pmda.time_spent_parsing is 0
+- [0;32;49m✔[0m statsd.pmda.metrics_tracked 'counter' is 0
+- [0;32;49m✔[0m statsd.pmda.metrics_tracked 'gauge' is 0
+- [0;32;49m✔[0m statsd.pmda.metrics_tracked 'duration' is 0
+- [0;32;49m✔[0m statsd.pmda.metrics_tracked 'total' is 0
+⧖ Checking if hardcoded stats update accordingly...[0;31;49m✖[0m Hardcoded stats are not updated_accordingly: 10
+- [0;31;49m✖[0m statsd.pmda.received is not 79
+- [0;31;49m✖[0m statsd.pmda.parsed is not 50
+- [0;31;49m✖[0m statsd.pmda.aggregated is not 035
+- [0;31;49m✖[0m statsd.pmda.dropped is not 44
+- [0;31;49m✖[0m statsd.pmda.time_spent_aggregating is 0 
+- [0;31;49m✖[0m statsd.pmda.time_spent_parsing is 0 
+- [0;31;49m✖[0m statsd.pmda.metrics_tracked 'counter' is not 4
+- [0;31;49m✖[0m statsd.pmda.metrics_tracked 'gauge' is not 4
+- [0;31;49m✖[0m statsd.pmda.metrics_tracked 'duration' is not 2
+- [0;31;49m✖[0m statsd.pmda.metrics_tracked 'total' is not 10
+⧖ Checking counter metric functionality...[0;32;49m✔[0m Counter stat updating accordingly                 
+⧖ Checking duration metric functionality...[0;31;49m✖[0m Duration stat wasn't updated as expected: 1
+- [0;31;49m✖[0mUnable to get statsd.test_duration
+⧖ Checking gauge metric functionality...[0;32;49m✔[0m Gauge stat updating accordingly                 
 
 === remove statsd agent ===
+Culling the Performance Metrics Name Space ...
+statsd ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check statsd metrics have gone away ... OK
