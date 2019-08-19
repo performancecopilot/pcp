@@ -24,7 +24,7 @@ import atexit
 from ctypes import c_int
 
 import cpmapi as c_api
-from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaGetContext
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid, pmdaGetContext
 from pcp.pmapi import pmUnits, pmContext as PCP
 
 from bpftrace import BPFtrace, BPFtraceError
@@ -323,8 +323,11 @@ class BPFtracePMDA(PMDA):
             self.script_indom_id, c_api.PM_SEM_INSTANT, pmUnits()
         ))
 
+        tracepoint_insts = [
+            pmdaInstid(i, tracepoint) for i, tracepoint in enumerate(self.read_tracepoints())
+        ]
         self.tracepoints_indom_id = self.indom(1)
-        self.tracepoints_indom = pmdaIndom(self.tracepoints_indom_id, {})
+        self.tracepoints_indom = pmdaIndom(self.tracepoints_indom_id, tracepoint_insts)
         self.add_indom(self.tracepoints_indom)
         self.add_metric('bpftrace.info.tracepoints', pmdaMetric(
             self.pmid(Consts.Info.Cluster, Consts.Info.Tracepoints), c_api.PM_TYPE_U32,
@@ -340,10 +343,8 @@ class BPFtracePMDA(PMDA):
             sys.exit(1)
 
         tracepoints = tracepoints.strip().split('\n')
-        tracepoints = tracepoints[:20] # TODO: remove once PMDA can handle indoms with 56340 instances
-        self.tracepoints_indom.set_instances(self.tracepoints_indom_id, {
-            tracepoint:c_int(1) for tracepoint in tracepoints
-        })
+        tracepoints = tracepoints[:1] # TODO: remove once PMDA can handle indoms with 56340 instances
+        return tracepoints
 
     def set_ctx_state(self, key, value):
         """set per-context state"""

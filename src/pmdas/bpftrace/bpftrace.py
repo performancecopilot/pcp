@@ -35,8 +35,15 @@ class BPFtraceMessageType: # pylint: disable=too-few-public-methods
 
 class BPFtraceState: # pylint: disable=too-few-public-methods
     """BPFtrace state"""
+    class Status:
+        """BPFtrace status"""
+        Stopped = 'stopped'
+        Starting = 'starting'
+        Started = 'started'
+        Stopping = 'stopping'
+
     def __init__(self):
-        self.status = 'stopped' # stopped|starting|started|stopping
+        self.status = BPFtraceState.Status.Stopped
         self.reset()
 
     def reset(self):
@@ -89,8 +96,8 @@ class BPFtrace:
     def process_output_obj(self, obj):
         """process a single JSON object from bpftrace output"""
         with self.lock:
-            if self._state.status == 'starting':
-                self._state.status = 'started'
+            if self._state.status == BPFtraceState.Status.Starting:
+                self._state.status = BPFtraceState.Status.Started
 
             if obj['type'] == BPFtraceMessageType.AttachedProbes:
                 self._state.probes = obj['probes']
@@ -121,7 +128,7 @@ class BPFtrace:
         # process has exited, set returncode
         self.process.poll()
         with self.lock:
-            self._state.status = 'stopped'
+            self._state.status = BPFtraceState.Status.Stopped
             self._state.exit_code = self.process.returncode
 
     def parse_script(self):
@@ -177,11 +184,11 @@ class BPFtrace:
     def start(self):
         """starts bpftrace in the background and reads its stdout in a new thread"""
         with self.lock:
-            if self._state.status != 'stopped':
+            if self._state.status != BPFtraceState.Status.Stopped:
                 raise BPFtraceError("cannot start bpftrace, current status: {}".format(
                     self._state.status))
             self._state.reset()
-            self._state.status = 'starting'
+            self._state.status = BPFtraceState.Status.Starting
 
         self.process = subprocess.Popen([self.bpftrace_path, '-f', 'json', '-e', self.script],
                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -199,10 +206,10 @@ class BPFtrace:
     def stop(self, wait=False):
         """stop bpftrace process"""
         with self.lock:
-            if self._state.status != 'started':
+            if self._state.status != BPFtraceState.Status.Started:
                 raise BPFtraceError("cannot stop bpftrace, current status: {}".format(
                     self._state.status))
-            self._state.status = 'stopping'
+            self._state.status = BPFtraceState.Status.Stopping
 
         self.log("stopped {}, wait for termination: {}".format(self, wait))
         self.process.send_signal(signal.SIGINT)
@@ -213,7 +220,7 @@ class BPFtrace:
             self.process.poll()
 
         with self.lock:
-            self._state.status = 'stopped'
+            self._state.status = BPFtraceState.Status.Stopped
             self._state.exit_code = self.process.returncode
 
     def __str__(self):
