@@ -19,6 +19,10 @@ IAM = statsd
 SUBDIRS = src
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+
 default_pcp default :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
@@ -32,4 +36,5 @@ ifeq "$(PMDA_STATSD)" "true"
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmda$(IAM).ini README.md $(PMDADIR)
+	@$(INSTALL_MAN)
 endif

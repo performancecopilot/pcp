@@ -57,10 +57,6 @@ LDIRT = domain.h *.log $(RFILES)
 
 VERSION_SCRIPT = export
 
-MAN_SECTION = 1
-MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
-MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
-
 default:	build-me
 
 include $(BUILDRULES)
@@ -72,8 +68,7 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 	$(INSTALL) -m 644 root_statsd $(PMDADIR)/root_statsd
-	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
-	@$(INSTALL_MAN)
+	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 else
 build-me:
 install:
