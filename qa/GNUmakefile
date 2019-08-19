@@ -20,6 +20,9 @@ SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
 ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif
+ifeq "$(PMDA_STATSD)" "true"
+SUBDIRS += statsd
+endif
 ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure mic haproxy lio prometheus
 endif

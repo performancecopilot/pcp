@@ -1,0 +1,25 @@
+QA output created by 1599
+
+=== statsd agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check statsd metrics have appeared ... 1 warnings, 1 metrics and 0 values
+/usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require': cannot load such file -- colorize (LoadError)
+	from /usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require'
+	from check_hardcoded_stats_init.rb:3:in `<main>'
+/usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require': cannot load such file -- colorize (LoadError)
+	from /usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require'
+	from check_hardcoded_stats_updates.rb:3:in `<main>'
+/usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require': cannot load such file -- colorize (LoadError)
+	from /usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require'
+	from counter_metric.rb:3:in `<main>'
+/usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require': cannot load such file -- colorize (LoadError)
+	from /usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require'
+	from duration_metric.rb:3:in `<main>'
+/usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require': cannot load such file -- colorize (LoadError)
+	from /usr/share/rubygems/rubygems/core_ext/kernel_require.rb:54:in `require'
+	from gauge_metric.rb:3:in `<main>'
+
+=== remove statsd agent ===
