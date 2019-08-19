@@ -1,0 +1,32 @@
+QA output created by 1702
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 6 metrics and 5 values
+
+=== start bpftrace script ===
+bpftrace.control.register old value="{}" new value="{"name": "testscript", "vars": ["bytes"], "status": "starting", "exit_code": null, "output": ""}"
+=== check metrics ===
+OK
+=== stop bpftrace script ===
+bpftrace.control.stop old value="{}" new value="{"success": "true"}"
+=== verify script is stopped ===
+OK
+=== start script again ===
+bpftrace.control.start old value="{}" new value="{"success": "true"}"
+=== verify current bpftrace PID is different than last PID ===
+Success: Second PID is different than first PID.
+=== deregister bpftrace script ===
+bpftrace.control.deregister old value="{}" new value="{"success": "true"}"
+=== check metric has disappeared ===
+Error: bpftrace.scripts.testscript.data.bytes: Unknown metric name
+
+=== remove bpftrace agent ===
+Culling the Performance Metrics Name Space ...
+bpftrace ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bpftrace metrics have gone away ... OK

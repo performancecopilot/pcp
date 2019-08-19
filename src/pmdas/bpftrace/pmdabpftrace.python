@@ -18,6 +18,8 @@ import os
 import sys
 import json
 import time
+import re
+from collections import OrderedDict
 import configparser
 import subprocess
 import atexit
@@ -27,7 +29,7 @@ import cpmapi as c_api
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid, pmdaGetContext
 from pcp.pmapi import pmUnits, pmContext as PCP
 
-from bpftrace import BPFtrace, BPFtraceError
+from bpftrace import BPFtrace, BPFtraceError, BPFtraceVarDef
 
 
 class Consts: # pylint: disable=too-few-public-methods
@@ -105,38 +107,43 @@ class BPFtraceScript:
             self.pmda.pmid(self.cluster, Consts.Script.Status), c_api.PM_TYPE_STRING,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         )
-        self.pmda.add_metric('bpftrace.scripts.{}.status'.format(self.name), self.status_metric)
+        self.pmda.add_metric('bpftrace.scripts.{}.status'.format(self.name), self.status_metric,
+                             "status of bpftrace script")
 
         self.pid_metric = pmdaMetric(
             self.pmda.pmid(self.cluster, Consts.Script.Pid), c_api.PM_TYPE_U32,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         )
-        self.pmda.add_metric('bpftrace.scripts.{}.pid'.format(self.name), self.pid_metric)
+        self.pmda.add_metric('bpftrace.scripts.{}.pid'.format(self.name), self.pid_metric,
+                             "pid of bpftrace process")
 
         self.exit_code_metric = pmdaMetric(
             self.pmda.pmid(self.cluster, Consts.Script.ExitCode), c_api.PM_TYPE_U32,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         )
         self.pmda.add_metric('bpftrace.scripts.{}.exit_code'.format(self.name),
-                             self.exit_code_metric)
+                             self.exit_code_metric, "exit code of bpftrace process")
 
         self.output_metric = pmdaMetric(
             self.pmda.pmid(self.cluster, Consts.Script.Output), c_api.PM_TYPE_STRING,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         )
-        self.pmda.add_metric('bpftrace.scripts.{}.output'.format(self.name), self.output_metric)
+        self.pmda.add_metric('bpftrace.scripts.{}.output'.format(self.name), self.output_metric,
+                             "output of the bpftrace executable")
 
         self.probes_metric = pmdaMetric(
             self.pmda.pmid(self.cluster, Consts.Script.Probes), c_api.PM_TYPE_U32,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         )
-        self.pmda.add_metric('bpftrace.scripts.{}.probes'.format(self.name), self.probes_metric)
+        self.pmda.add_metric('bpftrace.scripts.{}.probes'.format(self.name), self.probes_metric,
+                             "number of attached probes")
 
         self.script_metric = pmdaMetric(
             self.pmda.pmid(self.cluster, Consts.Script.Script), c_api.PM_TYPE_STRING,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         )
-        self.pmda.add_metric('bpftrace.scripts.{}.script'.format(self.name), self.script_metric)
+        self.pmda.add_metric('bpftrace.scripts.{}.script'.format(self.name), self.script_metric,
+                             "bpftrace script")
 
         for item_no, (var_name, var_def) in enumerate(self.bpftrace.var_defs.items(), 10):
             if var_def.single:
@@ -153,7 +160,8 @@ class BPFtraceScript:
             metric = pmdaMetric(pmid, var_def.datatype, indom_id, var_def.semantics, pmUnits())
             metric_name = 'bpftrace.scripts.{}.data.{}'.format(
                 self.name, self.normalize_variable_name(var_name))
-            self.pmda.add_metric(metric_name, metric)
+            self.pmda.add_metric(metric_name, metric,
+                                 "{} variable of bpftrace script".format(var_name))
             self.metrics[metric_name] = metric
             self.pmid_to_var[pmid] = var_name
             self.item_to_var[item_no] = var_name
@@ -179,13 +187,26 @@ class BPFtraceScript:
         if type_ == c_api.PM_LABEL_ITEM:
             if ident in [Consts.Script.Status, Consts.Script.Pid, Consts.Script.ExitCode,
                          Consts.Script.Output, Consts.Script.Probes, Consts.Script.Script]:
-                return '{"metrictype":"control"}'
+                return '{{"metrictype":"{}"}}'.format(BPFtraceVarDef.MetricType.Control)
             elif ident in self.pmid_to_var:
                 var_name = self.pmid_to_var[ident]
                 metrictype = self.bpftrace.var_defs[var_name].metrictype
                 if metrictype:
                     return '{{"metrictype":"{}"}}'.format(metrictype)
         return '{}'
+
+    @classmethod
+    def instance_name_sorting_key(cls, var_def):
+        """returns appropriate sorting fn based on variable type"""
+        if var_def.metrictype == BPFtraceVarDef.MetricType.Histogram:
+            regex = re.compile(r'^(.+?)\-(.+?)$')
+            def sort_key(val):
+                m = regex.match(val)
+                # float('-inf') returns negative infinity, int('-inf') doesn't
+                return float(m.group(1)) if m else val
+            return sort_key
+        else:
+            return lambda x: x
 
     def refresh_callback(self):
         """PMDA refresh callback for this bpftrace instance"""
@@ -196,9 +217,10 @@ class BPFtraceScript:
             # parser found variable definition in script, but variable
             # doesn't exist in bpftrace output due to an error
             if not var_def.single and var_name in self.state.maps:
-                self.indoms[var_name].set_instances(self.indom_ids[var_name], {
-                    key:c_int(1) for key in self.state.maps[var_name]
-                })
+                sorted_keys = sorted(self.state.maps[var_name].keys(),
+                                     key=self.instance_name_sorting_key(var_def))
+                self.indoms[var_name].set_instances(
+                    self.indom_ids[var_name], OrderedDict([(key, c_int(1)) for key in sorted_keys]))
         self.last_refresh = time.time()
 
     def fetch_callback(self, item, inst): # pylint: disable=too-many-return-statements
@@ -298,22 +320,22 @@ class BPFtracePMDA(PMDA):
         self.add_metric('bpftrace.control.register', pmdaMetric(
             self.pmid(Consts.Control.Cluster, Consts.Control.Register), c_api.PM_TYPE_STRING,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
-        ))
+        ), "register a new bpftrace script")
 
         self.add_metric('bpftrace.control.deregister', pmdaMetric(
             self.pmid(Consts.Control.Cluster, Consts.Control.Deregister), c_api.PM_TYPE_STRING,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
-        ))
+        ), "deregister a bpftrace script")
 
         self.add_metric('bpftrace.control.start', pmdaMetric(
             self.pmid(Consts.Control.Cluster, Consts.Control.Start), c_api.PM_TYPE_STRING,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
-        ))
+        ), "start a stopped bpftrace script")
 
         self.add_metric('bpftrace.control.stop', pmdaMetric(
             self.pmid(Consts.Control.Cluster, Consts.Control.Stop), c_api.PM_TYPE_STRING,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
-        ))
+        ), "stop a running bpftrace script")
 
         self.script_indom_id = self.indom(0)
         self.script_indom = pmdaIndom(self.script_indom_id, {})
@@ -321,7 +343,7 @@ class BPFtracePMDA(PMDA):
         self.add_metric('bpftrace.info.scripts', pmdaMetric(
             self.pmid(Consts.Info.Cluster, Consts.Info.Scripts), c_api.PM_TYPE_STRING,
             self.script_indom_id, c_api.PM_SEM_INSTANT, pmUnits()
-        ))
+        ), "list of all registered bpftrace scripts")
 
         tracepoint_insts = [
             pmdaInstid(i, tracepoint) for i, tracepoint in enumerate(self.read_tracepoints())
@@ -332,7 +354,7 @@ class BPFtracePMDA(PMDA):
         self.add_metric('bpftrace.info.tracepoints', pmdaMetric(
             self.pmid(Consts.Info.Cluster, Consts.Info.Tracepoints), c_api.PM_TYPE_U32,
             self.tracepoints_indom_id, c_api.PM_SEM_INSTANT, pmUnits()
-        ))
+        ), "list of all available tracepoints")
 
     def read_tracepoints(self):
         """on startup, read list of all available bpftrace tracepoints"""
@@ -343,7 +365,8 @@ class BPFtracePMDA(PMDA):
             sys.exit(1)
 
         tracepoints = tracepoints.strip().split('\n')
-        tracepoints = tracepoints[:1] # TODO: remove once PMDA can handle indoms with 56340 instances
+        # TODO: remove once PMDA can handle indoms with 56340 instances
+        tracepoints = tracepoints[:1]
         return tracepoints
 
     def set_ctx_state(self, key, value):

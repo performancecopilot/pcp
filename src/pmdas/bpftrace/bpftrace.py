@@ -63,6 +63,7 @@ class BPFtraceVarDef: # pylint: disable=too-few-public-methods
         """BPFtrace variable types"""
         Histogram = 'histogram'
         Output = 'output'
+        Control = 'control'
 
     def __init__(self, single, semantics, datatype, metrictype):
         self.single = single
