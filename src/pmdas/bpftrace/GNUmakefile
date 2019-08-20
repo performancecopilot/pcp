@@ -17,6 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM      = bpftrace
 PYSCRIPT = pmda$(IAM).python
+PYFILES  = $(shell echo *.py)
 LDIRT    = domain.h root pmns $(IAM).log
 CONFIGS  = bpftrace.conf
 
@@ -36,8 +37,8 @@ build-me:	check_domain
 
 install_pcp install ::	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) *.py $(PMDADIR)
-	$(INSTALL) -m 644 README.md $(CONFIGS) $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
+	$(INSTALL) -m 644 $(PYFILES) README.md $(CONFIGS) $(PMDADIR)
 	@$(INSTALL_MAN)
 else
 build-me:

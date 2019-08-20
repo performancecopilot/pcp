@@ -163,6 +163,8 @@ class BPFtrace:
                     vardef.semantics = PM_SEM_COUNTER
                 if key:
                     vardef.single = False
+                    if vardef.metrictype == BPFtraceVarDef.MetricType.Histogram:
+                        raise BPFtraceError("every histogram needs to be in a separate variable")
                 self.var_defs[var] = vardef
 
             print_st = ' '.join(['print({});'.format(var) for var in self.var_defs])
