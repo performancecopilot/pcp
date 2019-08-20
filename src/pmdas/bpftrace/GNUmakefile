@@ -36,7 +36,7 @@ build-me:	check_domain
 
 install_pcp install ::	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) *.py $(PMDADIR)
 	$(INSTALL) -m 644 README.md $(CONFIGS) $(PMDADIR)
 	@$(INSTALL_MAN)
 else

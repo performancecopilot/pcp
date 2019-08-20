@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
 RUN useradd -c "Performance Co-Pilot" -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
 COPY . /pcp
 
-RUN cd /pcp && ./Makepkgs
+RUN cd /pcp && ./Makepkgs --with-pmdabpftrace
 RUN mkdir /packages && cd /packages && mv /pcp/build/deb/*.deb . && dpkg -i *.deb
 RUN sed -ie '/\[Service\]/aTimeoutSec=120' /lib/systemd/system/{pmcd,pmlogger,pmie,pmproxy}.service
 CMD ["/sbin/init"]

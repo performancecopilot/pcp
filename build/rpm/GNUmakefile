@@ -67,6 +67,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@package_configure@|$(PACKAGE_CONFIGURE)|g' \
 	    -e's|@package_distribution@|$(PACKAGE_DISTRIBUTION)|g' \
 	    -e's|@pmda_bcc@|$(PMDA_BCC)|g' \
+	    -e's|@pmda_bpftrace@|$(PMDA_BPFTRACE)|g' \
 	    -e's|@pmda_rpm@|$(PMDA_RPM)|g' \
 	    -e's|@pmda_podman@|$(PMDA_PODMAN)|g' \
 	    -e's|@pmda_statsd@|$(PMDA_STATSD)|g' \
