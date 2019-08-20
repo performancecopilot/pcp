@@ -361,6 +361,23 @@ Context successfully expired
         }
     ]
 }
+== fetch string by name ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.31",
+            "name": "sample.string.hullo",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": "hullo world!"
+                }
+            ]
+        }
+    ]
+}
 
 *****   GET /pmapi/indom   *****
 

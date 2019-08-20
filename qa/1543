@@ -217,6 +217,8 @@ curl -s "http://localhost:$port/pmapi/fetch?names=sample.long.one,no.such.metric
 	| _filter_json "some good some bad names fetch"
 curl -s "http://localhost:$port/pmapi/fetch?pmids=0.0.0,29.0.11" \
 	| _filter_json "some good some bad pmids fetch"
+curl -s "http://localhost:$port/pmapi/fetch?name=sample.string.hullo" \
+	| _filter_json "fetch string by name"
 
 
 section "GET /pmapi/indom"
