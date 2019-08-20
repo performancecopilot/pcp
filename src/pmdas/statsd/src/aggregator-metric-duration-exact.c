@@ -42,9 +42,11 @@ create_exact_duration_value(long long unsigned int value, void** out) {
 void
 update_exact_duration_value(double value, struct exact_duration_collection* collection) {
     long int new_length = collection->length + 1;
-    collection->values = realloc(collection->values, sizeof(double*) * new_length);
+    double** new_values = realloc(collection->values, sizeof(double*) * new_length);
     ALLOC_CHECK("Unable to allocate memory for collection value.");
-    collection->values[collection->length] = malloc(sizeof(double*));
+    collection->values = new_values;
+    collection->values[collection->length] = (double*) malloc(sizeof(double*));
+    ALLOC_CHECK("Unable to allocate memory for duration collection value.");
     *(collection->values[collection->length]) = value;
     collection->length = new_length;
 }
@@ -124,7 +126,7 @@ get_exact_duration_instance(struct exact_duration_collection* collection, enum D
         }
         case DURATION_AVERAGE:
         {
-            double accumulator = 0;
+            long double accumulator = 0;
             for (i = 0; i < collection->length; i++) {
                 accumulator += *(collection->values[i]);
             }
@@ -199,11 +201,14 @@ free_exact_duration_value(struct agent_config* config, void* value) {
     (void)config;
     struct exact_duration_collection* collection = (struct exact_duration_collection*)value;
     if (collection != NULL) {
-        size_t i;
-        for (i = 0; i < collection->length; i++) {
-            if (collection->values[i] != NULL) {
-                free(collection->values[i]);
+        if (collection->values != NULL) {
+            size_t i;
+            for (i = 0; i < collection->length; i++) {
+                if (collection->values[i] != NULL) {
+                    free(collection->values[i]);
+                }
             }
+            free(collection->values);
         }
         free(collection);
     }

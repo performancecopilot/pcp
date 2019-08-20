@@ -21,20 +21,14 @@ void
 metric_label_free_callback(void* privdata, void* val) 
 {
     struct agent_config* config = ((struct pmda_metrics_dict_privdata*)privdata)->config;
-    struct pmda_metrics_container* container = ((struct pmda_metrics_dict_privdata*)privdata)->container;
-    pthread_mutex_lock(&container->mutex);
     free_metric_label(config, (struct metric_label*)val);
-    pthread_mutex_unlock(&container->mutex);
 }
 
 void
 metric_free_callback(void* privdata, void* val)
 {
     struct agent_config* config = ((struct pmda_metrics_dict_privdata*)privdata)->config;
-    struct pmda_metrics_container* container = ((struct pmda_metrics_dict_privdata*)privdata)->container;
-    pthread_mutex_lock(&container->mutex);
     free_metric(config, (struct metric*)val);
-    pthread_mutex_unlock(&container->mutex);
 }
 
 void
@@ -48,9 +42,10 @@ void*
 str_duplicate_callback(void* privdata, const void* key)
 {
     (void)privdata;
-    char* duplicate = malloc(strlen(key));
+    size_t length = strlen(key) + 1;
+    char* duplicate = malloc(length);
     ALLOC_CHECK("Unable to duplicate key.");
-    strcpy(duplicate, key);
+    memcpy(duplicate, key, length);
     return duplicate;
 }
 

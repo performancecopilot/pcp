@@ -25,12 +25,16 @@
 
 #define VERBOSE_LOG(format, ...) \
     if (is_verbose()) { \
+        log_mutex_lock(); \
         pmNotifyErr(LOG_INFO, format, ## __VA_ARGS__); \
+        log_mutex_unlock(); \
     } \
 
 #define DEBUG_LOG(format, ...) \
     if (is_debug()) { \
+        log_mutex_lock(); \
         pmNotifyErr(LOG_DEBUG, format, ## __VA_ARGS__); \
+        log_mutex_unlock(); \
     } \
 
 /**
@@ -61,17 +65,33 @@
  * Exists program
  */
 #define DIE(format, ...) \
-    pmNotifyErr(LOG_ALERT, format, ## __VA_ARGS__);
+    log_mutex_lock(); \
+    pmNotifyErr(LOG_ALERT, format, ## __VA_ARGS__); \
+    log_mutex_unlock(); \
+    exit(1) \
 
 /**
  * Prints warning message
  */
 #define WARN(format, ...) \
-    pmNotifyErr(LOG_WARNING, format, ## __VA_ARGS__);
+    log_mutex_lock(); \
+    pmNotifyErr(LOG_WARNING, format, ## __VA_ARGS__); \
+    log_mutex_unlock(); \
+
+/**
+ * Validates valid metric name string
+ * Checks if string starts with [a-zA-Z] and that rest is [a-zA-Z0-9._]
+ * @arg src - String to be sanitized
+ * @arg num - Boundary
+ * @return 1 on success
+ */
+int
+validate_metric_name_string(char* src, size_t num);
 
 /**
  * Sanitizes string
- * Swaps '/', '-', ' ' characters with '-'. Should the message contain any other characters then a-z, A-Z, 0-9 and specified above, fails.
+ * Swaps '/', '-', ' ' characters with '_'. Should the message contain any other characters then a-z, A-Z, 0-9 and specified above, fails. 
+ * First character needs to be in a-zA-Z
  * @arg src - String to be sanitized
  * @return 1 on success
  */
@@ -86,15 +106,6 @@ sanitize_string(char* src, size_t num);
  */
 int
 sanitize_metric_val_string(char* src);
-
-/**
- * Validates string
- * Checks if string is convertible to double and is not empty.
- * @arg src - String to be validated
- * @return 1 on success
- */
-int
-sanitize_sampling_val_string(char* src);
 
 /**
  * Validates type string
@@ -119,6 +130,18 @@ is_verbose();
  */
 int
 is_debug();
+
+void
+log_mutex_lock();
+
+void
+log_mutex_unlock();
+
+void
+set_exit_flag();
+
+int
+check_exit_flag();
 
 /**
  * Initializes debugging/verbose/tracing flags based on given config

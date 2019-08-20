@@ -44,6 +44,18 @@ void
 aggregator_request_output();
 
 /**
+ * Sets flag which is checked in main aggregator loop.
+ * If its true, after the channel will become completely empty the thread will exit.
+ */
+void
+set_aggregator_exit();
+
+/**
+ * Gets exit flag
+ */
+int 
+get_aggregator_exit();
+/**
  * Frees pointer to aggregator message
  * @arg message - Message to be freed
  */

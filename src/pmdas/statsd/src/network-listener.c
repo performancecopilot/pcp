@@ -39,13 +39,16 @@ network_listener_exec(void* args) {
     chan_t* network_listener_to_parser = ((struct network_listener_args*)args)->network_listener_to_parser;
     const char* hostname = 0;
     struct addrinfo hints;
+    fd_set readfds;
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = 0;
     hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG;
     struct addrinfo* res = 0;
-    int err = getaddrinfo(hostname, config->port, &hints, &res);
+    char port_buffer[6];
+    pmsprintf(port_buffer, 6, "%d", config->port);
+    int err = getaddrinfo(hostname, port_buffer, &hints, &res);
     if (err != 0) {
         DIE("failed to resolve local socket address (err=%s)", gai_strerror(err));
     }
@@ -58,32 +61,63 @@ network_listener_exec(void* args) {
     }
     VERBOSE_LOG("Socket enstablished.");
     VERBOSE_LOG("Waiting for datagrams.");
+    fcntl(fd, F_SETFL, O_NONBLOCK);
+    struct timeval tv;
     freeaddrinfo(res);
     int max_udp_packet_size = config->max_udp_packet_size;
-    char *buffer = (char *) malloc(max_udp_packet_size);
+    char *buffer = (char *) malloc(max_udp_packet_size * sizeof(char*));
     struct sockaddr_storage src_addr;
     socklen_t src_addr_len = sizeof(src_addr);
+    int rv;
     while(1) {
-        ssize_t count = recvfrom(fd, buffer, max_udp_packet_size, 0, (struct sockaddr*)&src_addr, &src_addr_len);
-        if (count == -1) {
-            DIE("%s", strerror(errno));
-        } 
-        // since we checked for -1
-        else if ((signed int)count == max_udp_packet_size) { 
-            WARN("Datagram too large for buffer: truncated and skipped");
+        FD_ZERO(&readfds);
+        FD_SET(fd, &readfds);
+        tv.tv_sec = 0;
+        tv.tv_usec = 0;
+        rv = select(fd + 1, &readfds, NULL, NULL, &tv);
+        if (rv == 1) {
+            ssize_t count = recvfrom(fd, buffer, max_udp_packet_size, 0, (struct sockaddr*)&src_addr, &src_addr_len);
+            if (count == -1) {
+                DIE("%s", strerror(errno));
+            } 
+            // since we checked for -1
+            else if ((signed int)count == max_udp_packet_size) { 
+                WARN("Datagram too large for buffer: truncated and skipped");
+            } else {
+                struct unprocessed_statsd_datagram* datagram = (struct unprocessed_statsd_datagram*) malloc(sizeof(struct unprocessed_statsd_datagram));
+                ALLOC_CHECK("Unable to assign memory for struct representing unprocessed datagrams.");
+                datagram->value = (char*) malloc(sizeof(char) * (count + 1));
+                ALLOC_CHECK("Unable to assign memory for datagram value.");
+                memcpy(datagram->value, buffer, count);
+                datagram->value[count] = '\0';
+                chan_send(network_listener_to_parser, datagram);
+            }
+            memset(buffer, 0, max_udp_packet_size);
+            rv = 0;
         } else {
-            struct unprocessed_statsd_datagram* datagram = (struct unprocessed_statsd_datagram*) malloc(sizeof(struct unprocessed_statsd_datagram));
-            ALLOC_CHECK("Unable to assign memory for struct representing unprocessed datagrams.");
-            datagram->value = (char*) malloc(sizeof(char) * count);
-            ALLOC_CHECK("Unable to assign memory for datagram value.");
-            strncpy(datagram->value, buffer, count);
-            datagram->value[count] = '\0';
-            chan_send(network_listener_to_parser, datagram);
+            int exit_flag = check_exit_flag();
+            if (exit_flag) {
+                break;
+            }
         }
-        memset(buffer, 0, max_udp_packet_size);
     }
     free(buffer);
+    VERBOSE_LOG("Network listener thread exiting.");
     pthread_exit(NULL);
+}
+
+/**
+ * Frees unprocessed datagram
+ * @arg datagram
+ */
+void
+free_unprocessed_datagram(struct unprocessed_statsd_datagram* datagram) {
+    if (datagram != NULL) {
+        if (datagram->value != NULL) {
+            free(datagram->value);
+        }
+        free(datagram);
+    }
 }
 
 /**

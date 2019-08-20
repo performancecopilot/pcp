@@ -31,8 +31,7 @@ set_default_config(struct agent_config* config) {
     config->debug = 0;
     config->debug_output_filename = "debug";
     config->show_version = 0;
-    config->port = (char *) "8125";
-    config->tcp_address = (char *) "0.0.0.0";
+    config->port = 8125;
     config->parser_type = PARSER_TYPE_BASIC;
     config->duration_aggregation_type = DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM;
     pmGetUsername(&(config->username));
@@ -57,31 +56,49 @@ ini_line_handler(void* user, const char* section, const char* name, const char* 
     size_t length = strlen(value) + 1; 
     #define MATCH(x) strcmp(x, name) == 0
     if (MATCH("max_udp_packet_size")) {
-        dest->max_udp_packet_size = strtoull(value, NULL, 10);
+        long unsigned int param = strtoul(value, NULL, 10);
+        if (param < UINT32_MAX) {
+            dest->max_udp_packet_size = (unsigned int) param;
+        }
     } else if(MATCH("max_unprocessed_packets")) {
-        dest->max_unprocessed_packets = atoi(value);
-    } else if (MATCH("tcp_address")) {
-        dest->tcp_address = (char*) malloc(length);
-        ALLOC_CHECK("Unable to assign memory for config tcp address.");
-        memcpy(dest->tcp_address, value, length);
+        long unsigned int param = strtoul(value, NULL, 10);
+        if (param < UINT32_MAX) {
+            dest->max_unprocessed_packets = (unsigned int) param;
+        }
     } else if (MATCH("port")) {
-        dest->port = (char*) malloc(length);
-        ALLOC_CHECK("Unable to allocate memory for config port number.");
-        memcpy(dest->port, value, length);
+        long unsigned int param = strtoul(value, NULL, 10);
+        if (param < UINT32_MAX) {
+            dest->port = (unsigned int) param;
+        }
     } else if (MATCH("verbose")) {
-        dest->verbose = atoi(value);
+        long unsigned int param = strtoul(value, NULL, 10);
+        if (param < UINT32_MAX) {
+            dest->verbose = (unsigned int) param;
+        }
     } else if (MATCH("debug")) {
-        dest->debug = atoi(value);
+        long unsigned int param = strtoul(value, NULL, 10);
+        if (param < UINT32_MAX) {
+            dest->debug = (unsigned int) param;
+        }    
     } else if (MATCH("debug_output_filename")) {
         dest->debug_output_filename = (char*) malloc(length);
         ALLOC_CHECK("Unable to asssing memory for config debug_output_filename");
         memcpy(dest->debug_output_filename, value, length);
     } else if (MATCH("version")) {
-        dest->show_version = atoi(value);
+        long unsigned int param = strtoul(value, NULL, 10);
+        if (param < UINT32_MAX) {
+            dest->show_version = (unsigned int) param;
+        }
     } else if (MATCH("parser_type")) {
-        dest->parser_type = atoi(value);
+        long unsigned int param = strtoul(value, NULL, 10);
+        if (param < UINT32_MAX) {
+            dest->parser_type = (unsigned int) param;
+        }  
     } else if (MATCH("duration_aggregation_type")) {
-        dest->duration_aggregation_type = atoi(value);
+        long unsigned int param = strtoul(value, NULL, 10);
+        if (param < UINT32_MAX) {
+            dest->duration_aggregation_type = (unsigned int) param;
+        }  
     } else {
         return 0;
     }
@@ -123,7 +140,6 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
         { "version", 0, 's', "VERSION", "Display version" },
         { "debug-output-filename", 1, 'o', "DEBUG-OUTPUT-FILENAME", "Debug file output path" },
         { "max-udp", 1, 'Z', "MAX-UDP", "Maximum size of UDP datagram" },
-        { "tcp-address", 1, 't', "TCP-ADDRESS", "TCP address to listen to" },
         { "port", 1, 'P', "PORT", "Port to listen to" },
         { "parser-type", 1, 'r', "PARSER-TYPE", "Parser type to use (ragel = 1, basic = 0)" },
         { "duration-aggregation-type", 1, 'a', "DURATION-AGGREGATION-TYPE", "Aggregation type for duration metric to use (hdr_histogram = 1, basic histogram = 0)" },
@@ -132,7 +148,7 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
     };
 
     static pmdaOptions opts = {
-        .short_options = "D:d:l:U:vgso:Z:t:P:r:a:z:?",
+        .short_options = "D:d:l:U:vgso:Z:P:r:a:z:?",
         .long_options = longopts,
     };
     while(1) {
@@ -149,28 +165,43 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
                 dest->show_version = 1;
                 break;
             case 'o':
-                printf("output: %s \n", opts.optarg);
                 dest->debug_output_filename = opts.optarg;
                 break;
             case 'Z':
-                printf("output: %s \n", opts.optarg);
                 dest->max_udp_packet_size = strtoll(opts.optarg, NULL, 10);
                 break;
-            case 't':
-                dest->tcp_address = opts.optarg;
-                break;
             case 'P':
-                dest->port = opts.optarg;
+            {
+                long unsigned int param = strtoul(opts.optarg, NULL, 10);		
+                if (param < 65535) {		
+                    dest->port = (unsigned int) param;		
+                }		
                 break;
+            }
             case 'r':
-                dest->parser_type = atoi(opts.optarg);
+            {
+                long unsigned int param = strtoul(opts.optarg, NULL, 10);		
+                if (param < UINT32_MAX) {		
+                    dest->parser_type = (unsigned int) param;		
+                }		
                 break;
+            }
             case 'a':
-                dest->duration_aggregation_type = atoi(opts.optarg);
+            {
+                long unsigned int param = strtoul(opts.optarg, NULL, 10);		
+                if (param < UINT32_MAX) {		
+                    dest->duration_aggregation_type = (unsigned int) param;		
+                }		
                 break;
+            }
             case 'z':
-                dest->max_unprocessed_packets = atoi(opts.optarg);
+            {
+                long unsigned int param = strtoul(opts.optarg, NULL, 10);		
+                if (param < UINT32_MAX) {		
+                    dest->max_unprocessed_packets = (unsigned int) param;		
+                }		
                 break;
+            }
         }
     }
     if (opts.errors) {
@@ -196,8 +227,7 @@ print_agent_config(struct agent_config* config) {
     if (config->show_version)
         pmNotifyErr(LOG_INFO, "version flag is set");
     pmNotifyErr(LOG_INFO, "debug_output_filename: %s \n", config->debug_output_filename);
-    pmNotifyErr(LOG_INFO, "tcpaddr: %s \n", config->tcp_address);
-    pmNotifyErr(LOG_INFO, "port: %s \n", config->port);
+    pmNotifyErr(LOG_INFO, "port: %d \n", config->port);
     pmNotifyErr(LOG_INFO, "parser_type: %s \n", config->parser_type == PARSER_TYPE_BASIC ? "BASIC" : "RAGEL");
     pmNotifyErr(LOG_INFO, "maximum of unprocessed packets: %d \n", config->max_unprocessed_packets);
     pmNotifyErr(LOG_INFO, "maximum udp packet size: %ld \n", config->max_udp_packet_size);

@@ -28,14 +28,14 @@
 
 #define SUITE_HEADER(format, ...) fprintf(stdout, CYN format RESET "\n", ## __VA_ARGS__);
 
-#define CHECK_ERROR(string, name, tags, value, type, sampling) \
+#define CHECK_ERROR(string, name, tags, value, type, explicit_sign) \
     fprintf(stdout, MAG "CASE: %s " RESET "\n", string); \
     if (parse(string, datagram)) { \
         int local_err = 0; \
-        local_err += assert_statsd_datagram_eq(datagram, name, tags, value, type, sampling); \
+        local_err += assert_statsd_datagram_eq(datagram, name, tags, value, type, explicit_sign); \
         error_count += local_err; \
     } else { \
-        if (name != NULL || tags != NULL || value != 0 || type != METRIC_TYPE_NONE || sampling != 0) { \
+        if (name != NULL || tags != NULL || value != 0 || type != METRIC_TYPE_NONE || explicit_sign != SIGN_NONE) { \
             fprintf(stdout, RED "ERROR: " RESET "Should have failed parsing. \n"); \
             error_count += 1; \
         } \
@@ -73,10 +73,13 @@ struct tag_collection {
 } tag_collection;
 
 /**
- * Converts tag_collection* struct to JSON string that is sorted by keys
+ * Converts tag_collection* struct to JSON string that is sorted by keys and contains no duplicities (right-most wins) 
  */
 char*
 tag_collection_to_json(struct tag_collection* tags);
+
+void
+free_tag_collection(struct tag_collection* tags);
 
 int
 assert_statsd_datagram_eq(
@@ -85,7 +88,7 @@ assert_statsd_datagram_eq(
     char* tags,
     double value,
     enum METRIC_TYPE type,
-    double sampling
+    enum SIGN explicit_sign
 );
 
 #endif

@@ -12,6 +12,7 @@
  * for more details.
  */
 #include "aggregators.h"
+#include "parsers-utils.h"
 #include "aggregator-metrics.h"
 #include "aggregator-metric-labels.h"
 #include "dict-callbacks.h"
@@ -45,12 +46,7 @@ create_labels_dict(
         .keyDestructor	= str_hash_free_callback,
         .valDestructor	= metric_label_free_callback,
     };
-    struct pmda_metrics_dict_privdata* dict_data = 
-        (struct pmda_metrics_dict_privdata*) malloc(sizeof(struct pmda_metrics_dict_privdata));    
-    ALLOC_CHECK("Unable to create priv PMDA metrics container data.");
-    dict_data->config = config;
-    dict_data->container = container;
-    labels* children = dictCreate(&metric_label_dict_callbacks, dict_data);
+    labels* children = dictCreate(&metric_label_dict_callbacks, container->metrics_privdata);
     item->children = children;
     pthread_mutex_unlock(&container->mutex);
 }
@@ -88,24 +84,27 @@ process_labeled_datagram(
     }
     struct metric_label* label;
     int label_exists = find_label_by_name(container, item, label_key, &label);
+    int status = 0;
     if (label_exists) {
         int update_success = update_metric_value(config, container, label->type, datagram, &label->value);
         if (update_success != 1) {
             DEBUG_LOG("%s REASON: sematically incorrect values.", throwing_away_msg);
-            free(label_key);
-            return 0;
+            status = 0;
+        } else {
+            status = update_success;
         }
-        return update_success;
     } else {
         int create_success = create_label(config, item, datagram, &label);
         if (create_success) {
             add_label(container, item, label_key, label);
-            return 1;
+            status = create_success;
+        } else {
+            DEBUG_LOG("%s REASON: unable to create label.", throwing_away_msg);
+            status = 0;
         }
-        DEBUG_LOG("%s REASON: unable to create label.", throwing_away_msg);
-        free(label_key);
-        return 0;
     }
+    free(label_key);
+    return status;
 }
 
 /**
@@ -141,13 +140,13 @@ find_label_by_name(
 
 static char*
 create_instance_label_segment_str(char* tags) {
-    char buffer[100];
+    char buffer[JSON_BUFFER_SIZE];
     size_t tags_length = strlen(tags) + 1;
-    size_t tag_char_index;
-    size_t buffer_char_index = 0;
-    if (tags_length > 100) { // this is just estimate
+    if (tags_length > JSON_BUFFER_SIZE) {
         return NULL;
     }
+    size_t tag_char_index;
+    size_t buffer_char_index = 0;
     for (tag_char_index = 0; tag_char_index < tags_length; tag_char_index++) {
         if (tags[tag_char_index] == '{' ||
             tags[tag_char_index] == '}' ||
@@ -200,16 +199,16 @@ create_label(
     struct metric_label_metadata* meta = 
         (struct metric_label_metadata*) malloc(sizeof(struct metric_label_metadata*));
     ALLOC_CHECK("Unable to allocate memory for metric label metadata.");
+    (*out)->meta = meta;
+    (*out)->type = METRIC_TYPE_NONE;
+    meta->instance_label_segment_str = NULL;
     char* label_segment_identifier = create_instance_label_segment_str(datagram->tags);
     if (label_segment_identifier == NULL) {
         free_metric_label(config, label);
         return 0;
     }
     meta->instance_label_segment_str = label_segment_identifier;
-    (*out)->meta = meta;
-    (*out)->type = item->type;
     (*out)->pair_count = datagram->tags_pair_count;
-    (*out)->value = NULL;
     int status = 0;
     switch (item->type) {
         case METRIC_TYPE_COUNTER:
@@ -224,6 +223,7 @@ create_label(
         default:
             status = 0;
     }
+    (*out)->type = item->type;
     if (!status) {
         free_metric_label(config, label);
     }    

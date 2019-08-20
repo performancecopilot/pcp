@@ -16,6 +16,7 @@
 
 #include <chan/chan.h>
 
+#include "network-listener.h"
 #include "config-reader.h"
 
 struct parser_args
@@ -58,7 +59,6 @@ struct statsd_datagram
     int tags_pair_count;
     enum SIGN explicit_sign;
     double value;
-    double sampling;
 } statsd_datagram;
 
 typedef int (*datagram_parse_callback)(char*, struct statsd_datagram**);
@@ -69,6 +69,19 @@ typedef int (*datagram_parse_callback)(char*, struct statsd_datagram**);
  */
 void*
 parser_exec(void* args);
+
+/**
+ * Sets flag which is checked in main parser loop. 
+ * If is true, parser loop stops sending messages trought channel and will free incoming messages.  
+ */
+void
+set_parser_exit();
+
+/**
+ * Gets exit flag w
+ */
+int
+get_parser_exit();
 
 /**
  * Creates arguments for parser thread
@@ -85,6 +98,12 @@ create_parser_args(struct agent_config* config, chan_t* network_listener_to_pars
  */
 void
 print_out_datagram(struct statsd_datagram* datagram);
+
+/**
+ * 
+ */
+void
+free_unprocessed_datagram(struct unprocessed_statsd_datagram* datagram);
 
 /**
  * Frees datagram

@@ -33,15 +33,14 @@ enum DURATION_AGGREGATION_TYPE {
 struct agent_config {
     enum DURATION_AGGREGATION_TYPE duration_aggregation_type;
     enum PARSER_TYPE parser_type;
-    int verbose;
-    int debug;
-    int show_version;
-    int32_t max_unprocessed_packets;
-    uint64_t max_udp_packet_size;
+    unsigned long int max_udp_packet_size;
+    unsigned int verbose;
+    unsigned int debug;
+    unsigned int show_version;
+    unsigned int max_unprocessed_packets;
+    unsigned int port;
     char* debug_output_filename;
-    char* port;
     char* username;
-    char* tcp_address;
 } agent_config;
 
 /**

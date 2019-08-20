@@ -91,6 +91,7 @@ struct duration_values_meta {
 
 struct pmda_metrics_container {
     metrics* metrics;
+    struct pmda_metrics_dict_privdata* metrics_privdata;
     size_t generation;
     pthread_mutex_t mutex;
 } pmda_metrics_container;
@@ -222,8 +223,10 @@ create_metric_meta(struct statsd_datagram* datagram);
 
 /**
  * Frees metric metadata
- * @arg metadata - Metadata to be freed
- */ 
+ * Doesn't free individual pointers of meta->pcp_instance_map->labels as those are also pointed at
+ * by metric_label* labels field
+ * @arg meta - Metadata to be freed
+ */
 void
 free_metric_metadata(struct metric_metadata* meta);
 

@@ -14,6 +14,9 @@
 #include <chan/chan.h>
 #include <pcp/pmapi.h>
 #include <pthread.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <signal.h>
 
 #include "pmdastatsd.h"
 #include "config-reader.h"
@@ -26,20 +29,26 @@
 #include "utils.h"
 #include "domain.h"
 
+#define VERSION 1
+
 void signal_handler(int num) {
     if (num == SIGUSR1) {
+        DEBUG_LOG("Handling SIGUSR1.");
         aggregator_request_output();
+    }
+    if (num == SIGINT) {
+        DEBUG_LOG("Handling SIGINT.");
+        set_exit_flag();
     }
 }
 
 
-#define SET_INST_NAME(name, index) \
+#define SET_INST_NAME(instance, name, index) \
     instance[index].i_inst = index; \
     len = pmsprintf(buff, 20, "%s", name) + 1; \
     instance[index].i_name = (char*) malloc(sizeof(char) * len); \
     ALLOC_CHECK("Unable to allocate memory for static PMDA instance descriptor."); \
     memcpy(instance[index].i_name, buff, len);
-
 /**
  * Registers hardcoded instances before PMDA initializes itself fully
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
@@ -53,41 +62,40 @@ create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
     data->pcp_instance_domains = (pmdaIndom*) malloc(hardcoded_count * sizeof(pmdaIndom));
     ALLOC_CHECK("Unable to allocate memory for static PMDA instance domains.");
     
-    pmdaInstid* instance;
-
-    instance = (pmdaInstid*) malloc(sizeof(pmdaInstid) * 4);
+    pmdaInstid* stats_metric_counters_indom = (pmdaInstid*) malloc(sizeof(pmdaInstid) * 4);
     ALLOC_CHECK("Unable to allocate memory for static PMDA instance domain descriptor.");
     data->pcp_instance_domains[0].it_indom = STATS_METRIC_COUNTERS_INDOM;
     data->pcp_instance_domains[0].it_numinst = 4;
-    data->pcp_instance_domains[0].it_set = instance;
-    SET_INST_NAME("counter", 0);
-    SET_INST_NAME("gauge", 1);
-    SET_INST_NAME("duration", 2);
-    SET_INST_NAME("total", 3);
+    data->pcp_instance_domains[0].it_set = stats_metric_counters_indom;
+    SET_INST_NAME(stats_metric_counters_indom, "counter", 0);
+    SET_INST_NAME(stats_metric_counters_indom, "gauge", 1);
+    SET_INST_NAME(stats_metric_counters_indom, "duration", 2);
+    SET_INST_NAME(stats_metric_counters_indom, "total", 3);
 
-    instance = (pmdaInstid*) malloc(sizeof(pmdaInstid) * 9);
+    pmdaInstid* statsd_metric_default_duration_indom = (pmdaInstid*) malloc(sizeof(pmdaInstid) * 9);
     ALLOC_CHECK("Unable to allocate memory for static PMDA instance domain descriptors.");
     data->pcp_instance_domains[1].it_indom = STATSD_METRIC_DEFAULT_DURATION_INDOM;
     data->pcp_instance_domains[1].it_numinst = 9;
-    data->pcp_instance_domains[1].it_set = instance;
-    SET_INST_NAME("/min", 0);
-    SET_INST_NAME("/max", 1);
-    SET_INST_NAME("/median", 2);
-    SET_INST_NAME("/average", 3);
-    SET_INST_NAME("/percentile90", 4);
-    SET_INST_NAME("/percentile95", 5);
-    SET_INST_NAME("/percentile99", 6);
-    SET_INST_NAME("/count", 7);
-    SET_INST_NAME("/std_deviation", 8);
+    data->pcp_instance_domains[1].it_set = statsd_metric_default_duration_indom;
+    SET_INST_NAME(statsd_metric_default_duration_indom, "/min", 0);
+    SET_INST_NAME(statsd_metric_default_duration_indom, "/max", 1);
+    SET_INST_NAME(statsd_metric_default_duration_indom, "/median", 2);
+    SET_INST_NAME(statsd_metric_default_duration_indom, "/average", 3);
+    SET_INST_NAME(statsd_metric_default_duration_indom, "/percentile90", 4);
+    SET_INST_NAME(statsd_metric_default_duration_indom, "/percentile95", 5);
+    SET_INST_NAME(statsd_metric_default_duration_indom, "/percentile99", 6);
+    SET_INST_NAME(statsd_metric_default_duration_indom, "/count", 7);
+    SET_INST_NAME(statsd_metric_default_duration_indom, "/std_deviation", 8);
 
-    instance = (pmdaInstid*) malloc(sizeof(pmdaInstid));
+    pmdaInstid* statsd_metric_default_indom = (pmdaInstid*) malloc(sizeof(pmdaInstid));
     ALLOC_CHECK("Unable to allocate memory for default dynamic metric instance domain descriptior");
     data->pcp_instance_domains[2].it_indom = STATSD_METRIC_DEFAULT_INDOM;
     data->pcp_instance_domains[2].it_numinst = 1;
-    data->pcp_instance_domains[2].it_set = instance;
-    SET_INST_NAME("/", 0);
+    data->pcp_instance_domains[2].it_set = statsd_metric_default_indom;
+    SET_INST_NAME(statsd_metric_default_indom, "/", 0);
 
     data->pcp_instance_domain_count = hardcoded_count;
+    data->pcp_hardcoded_instance_domain_count = hardcoded_count;
 }
 
 /**
@@ -97,33 +105,93 @@ create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
 static void
 create_statsd_hardcoded_metrics(struct pmda_data_extension* data) {
     size_t i;
-    size_t hardcoded_count = 7;
-    data->pcp_metrics = (pmdaMetric*) calloc(hardcoded_count, sizeof(pmdaMetric));
+    size_t hardcoded_count = 15;
+    data->pcp_metrics = (pmdaMetric*) malloc(hardcoded_count * sizeof(pmdaMetric));
     ALLOC_CHECK("Unable to allocate space for static PMDA metrics.");
     // helper containing only reference to priv data same for all hardcoded metrics
     static struct pmda_metric_helper helper;
+    size_t agent_stat_count = 7;
     helper.data = data;
     for (i = 0; i < hardcoded_count; i++) {
         data->pcp_metrics[i].m_user = &helper;
         data->pcp_metrics[i].m_desc.pmid = pmID_build(STATSD, 0, i);
-        data->pcp_metrics[i].m_desc.type = PM_TYPE_U64;
         data->pcp_metrics[i].m_desc.sem = PM_SEM_INSTANT;
-        if (i == 4) {
-            data->pcp_metrics[i].m_desc.indom = STATS_METRIC_COUNTERS_INDOM;
+        if (i < agent_stat_count) {
+            data->pcp_metrics[i].m_desc.type = PM_TYPE_U64;
+            if (i == 4) {
+                data->pcp_metrics[i].m_desc.indom = STATS_METRIC_COUNTERS_INDOM;
+            } else {
+                data->pcp_metrics[i].m_desc.indom = PM_INDOM_NULL;
+            }            
         } else {
+            if (i == 7) {
+                data->pcp_metrics[i].m_desc.type = PM_TYPE_U64;
+            } else if (i < 11 || i == 12) {
+                data->pcp_metrics[i].m_desc.type = PM_TYPE_U32;
+            } else {
+                data->pcp_metrics[i].m_desc.type = PM_TYPE_STRING;
+            }
             data->pcp_metrics[i].m_desc.indom = PM_INDOM_NULL;
         }
         if (i == 5 || i == 6) {
             // time_spent_parsing / time_spent_aggregating
+            data->pcp_metrics[i].m_desc.units.dimSpace = 0;
+            data->pcp_metrics[i].m_desc.units.dimTime = 0;
+            data->pcp_metrics[i].m_desc.units.dimCount = 0;
+            data->pcp_metrics[i].m_desc.units.pad = 0;
+            data->pcp_metrics[i].m_desc.units.scaleSpace = 0;
             data->pcp_metrics[i].m_desc.units.scaleTime = PM_TIME_NSEC;
             data->pcp_metrics[i].m_desc.units.scaleCount = 1;
+        } else {
+            // rest
+            memset(&data->pcp_metrics[i].m_desc.units, 0, sizeof(pmUnits));
         }
     }
     data->pcp_metric_count = hardcoded_count;
+    data->pcp_hardcoded_metric_count = hardcoded_count;
+}
+
+static void
+free_shared_data(struct agent_config* config, struct pmda_data_extension* data) {
+    // frees config
+    free(config->debug_output_filename);
+    // remove metrics dictionary and related
+    dictRelease(data->metrics_storage->metrics);
+    // privdata will be left behind, need to remove manually
+    free(data->metrics_storage->metrics_privdata);
+    pthread_mutex_destroy(&data->metrics_storage->mutex);
+    free(data->metrics_storage);
+    // remove stats dictionary and related
+    free(data->stats_storage->stats->metrics_recorded);
+    free(data->stats_storage->stats);
+    pthread_mutex_destroy(&data->stats_storage->mutex);
+    free(data->stats_storage);
+    // free instance map
+    dictRelease(data->instance_map);
+    // clear PCP metric table
+    size_t i;
+    for (i = 0; i < data->pcp_metric_count; i++) {
+        size_t j = data->pcp_hardcoded_metric_count;
+        if (!(i < j)) {
+            free(data->pcp_metrics[i].m_user);
+        }
+    }
+    free(data->pcp_metrics);
+    // clear PCP instance domains
+    for (i = 0; i < data->pcp_instance_domain_count; i++) {
+        int j;
+        for (j = 0; j < data->pcp_instance_domains[i].it_numinst; j++) {
+            free(data->pcp_instance_domains[i].it_set[j].i_name);
+        }
+        free(data->pcp_instance_domains[i].it_set);
+    }
+    free(data->pcp_instance_domains);
+    // Release PMNS tree
+    pmdaTreeRelease(data->pcp_pmns);
 }
 
 /**
- * Initializes structure which is used as private data container across all PCP related callbacks
+ * Initializes structure which is used as private data container accross all PCP related callbacks
  * @arg args - All args passed to 'PCP exchange' thread
  */
 static void
@@ -149,13 +217,25 @@ init_data_ext(
     data->notify = 0;
 }
 
+static void
+main_PDU_loop(pmdaInterface* dispatch) {
+    for(;;) {
+        if (check_exit_flag() != 0) break;
+        if (__pmdaMainPDU(dispatch) < 0) break;
+    }
+}
+
 static int _isDSO = 1; /* for local contexts */
 static pthread_t network_listener;
 static pthread_t aggregator;
 static pthread_t parser;
 static chan_t* network_listener_to_parser;
 static chan_t* parser_to_aggregator;
+static struct network_listener_args* listener_thread_args;
+static struct aggregator_args* aggregator_thread_args;
+static struct parser_args* parser_thread_args;
 static struct agent_config config;
+static struct pmda_data_extension data = { 0 };
 
 void
 __PMDA_INIT_CALL
@@ -163,10 +243,6 @@ statsd_init(pmdaInterface *dispatch)
 {
     struct pmda_metrics_container* metrics;
     struct pmda_stats_container* stats;
-    struct pmda_data_extension data = { 0 };
-    struct network_listener_args* listener_args;
-    struct aggregator_args* aggregator_args;
-    struct parser_args* parser_args;
     char config_file_path[MAXPATHLEN];
     char help_file_path[MAXPATHLEN];
     int pthread_errno, sep = pmPathSeparator();
@@ -198,22 +274,24 @@ statsd_init(pmdaInterface *dispatch)
     init_data_ext(&data, &config, metrics, stats);
 
     network_listener_to_parser = chan_init(config.max_unprocessed_packets);
-    if (network_listener_to_parser == NULL)
-	DIE("Unable to create channel network listener -> parser.");
+    if (network_listener_to_parser == NULL) {
+	    DIE("Unable to create channel network listener -> parser.");
+    }
     parser_to_aggregator = chan_init(config.max_unprocessed_packets);
-    if (parser_to_aggregator == NULL)
-	DIE("Unable to create channel parser -> aggregator.");
+    if (parser_to_aggregator == NULL) {
+	    DIE("Unable to create channel parser -> aggregator.");
+    }
 
-    listener_args = create_listener_args(&config, network_listener_to_parser);
-    parser_args = create_parser_args(&config, network_listener_to_parser, parser_to_aggregator);
-    aggregator_args = create_aggregator_args(&config, parser_to_aggregator, metrics, stats);
+    listener_thread_args = create_listener_args(&config, network_listener_to_parser);
+    parser_thread_args = create_parser_args(&config, network_listener_to_parser, parser_to_aggregator);
+    aggregator_thread_args = create_aggregator_args(&config, parser_to_aggregator, metrics, stats);
 
     pthread_errno = 0; 
-    pthread_errno = pthread_create(&network_listener, NULL, network_listener_exec, listener_args);
+    pthread_errno = pthread_create(&network_listener, NULL, network_listener_exec, listener_thread_args);
     PTHREAD_CHECK(pthread_errno);
-    pthread_errno = pthread_create(&parser, NULL, parser_exec, parser_args);
+    pthread_errno = pthread_create(&parser, NULL, parser_exec, parser_thread_args);
     PTHREAD_CHECK(pthread_errno);
-    pthread_errno = pthread_create(&aggregator, NULL, aggregator_exec, aggregator_args);
+    pthread_errno = pthread_create(&aggregator, NULL, aggregator_exec, aggregator_thread_args);
     PTHREAD_CHECK(pthread_errno);
 
     if (dispatch->status != 0) {
@@ -243,18 +321,30 @@ statsd_init(pmdaInterface *dispatch)
 }
 
 static void
-stats_done(void)
-{
+statsd_done(void) {    
     if (pthread_join(network_listener, NULL) != 0) {
         DIE("Error joining network network listener thread.");
+    } else {
+        VERBOSE_LOG("Network listener thread joined.");
+        set_parser_exit();
     }
     if (pthread_join(parser, NULL) != 0) {
         DIE("Error joining datagram parser thread.");
+    } else {
+        VERBOSE_LOG("Parser thread joined.");
+        set_aggregator_exit();
     }
-    if (pthread_join(aggregator, NULL) != 0) {
+    if (pthread_join(aggregator, NULL) != 0) {    
         DIE("Error joining datagram aggregator thread.");
+    } else {
+        VERBOSE_LOG("Aggregator thread joined.");
     }
 
+    free_shared_data(&config, &data);
+    free(listener_thread_args);
+    free(parser_thread_args);
+    free(aggregator_thread_args);
+    
     chan_close(network_listener_to_parser);
     chan_close(parser_to_aggregator);
     chan_dispose(network_listener_to_parser);
@@ -264,6 +354,22 @@ stats_done(void)
 int
 main(int argc, char** argv)
 {
+    struct sigaction new_action, old_action;
+
+    /* Set up the structure to specify the new action. */
+    new_action.sa_handler = signal_handler;
+    sigemptyset(&new_action.sa_mask);
+    new_action.sa_flags = SA_INTERRUPT;
+
+    sigaction (SIGUSR1, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN) {
+        sigaction (SIGUSR1, &new_action, NULL);
+    }
+    sigaction (SIGINT, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN) {
+        sigaction (SIGINT, &new_action, NULL);
+    }
+
     int sep = pmPathSeparator();
     pmdaInterface dispatch = { 0 };
     char help_file_path[MAXPATHLEN];
@@ -288,13 +394,13 @@ main(int argc, char** argv)
         print_agent_config(&config);
     }
     if (config.show_version) {
-        pmNotifyErr(LOG_INFO, "Version: %s", PCP_VERSION);
+        pmNotifyErr(LOG_INFO, "Version: %d", VERSION);
     }
 
     statsd_init(&dispatch);
     pmdaConnect(&dispatch);
-    pmdaMain(&dispatch);
-    stats_done();
+    main_PDU_loop(&dispatch);
+    statsd_done();
 
     return EXIT_SUCCESS;
 }
