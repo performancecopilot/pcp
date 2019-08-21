@@ -49,7 +49,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	unpickargs.c hanoi.c progname.c countmark.c \
 	indom2int.c pmid2int.c scanmeta.c traverse_return_codes.c \
 	timeshift.c checkstructs.c bcc_profile.c sha1int2ext.c \
-	getdomainname.c
+	getdomainname.c profilecrash.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -65,18 +65,18 @@ ifeq ($(shell test $(PCP_VER) -ge 3600 && echo 1), 1)
 CFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
 	multithread4.c multithread5.c multithread6.c multithread7.c \
 	multithread8.c multithread9.c multithread10.c multithread11.c \
-	multithread12.c \
+	multithread12.c multithread13.c \
 	exerlock.c
 else
 MYFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
 	multithread4.c multithread5.c multithread6.c multithread7.c \
 	multithread8.c multithread9.c multithread10.c multithread11.c \
-	multithread12.c \
+	multithread12.c multithread13.c \
 	exerlock.c
 LDIRT += multithread0 multithread1 multithread2 multithread3 \
 	multithread4 multithread5 multithread6 multithread7 \
 	multithread8 multithread9 multithread10 multithread11 \
-	multithread12 \
+	multithread12 multithread13 \
 	exerlock
 endif
 
@@ -607,6 +607,10 @@ multithread12:	multithread12.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 
+multithread13:	multithread13.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
 exerlock:	exerlock.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
@@ -720,6 +724,7 @@ multithread3.o:	libpcp.h
 multithread4.o:	libpcp.h
 multithread8.o:	libpcp.h
 multithread9.o:	libpcp.h
+multithread10.o:	libpcp.h
 nameall.o:	libpcp.h
 parsehostattrs.o:	libpcp.h
 parsehostspec.o:	libpcp.h

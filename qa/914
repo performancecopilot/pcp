@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 914
+# Exercise fetch profile handling in a multithreaded environment ...
+# this one exposes the bug that variously is mentioned at:
+# https://github.com/cockpit-project/cockpit/issues/6108 and
+# https://bugzilla.redhat.com/show_bug.cgi?id=1235962
+# and most recently associated with
+# https://github.com/performancecopilot/pcp/pull/693
+#
+# Copyright (c) 2019 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_need_metric nfs.server.reqs
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+for src in "-h localhost" "-a archives/pcp-pidstat-process-args" -L
+do
+    echo | tee -a $here/$seq.full
+    echo "=== $src ===" | tee -a $here/$seq.full
+    src/profilecrash -v $src -s 100 >$tmp.out 2>$tmp.err
+    cat $tmp.err $tmp.out >>$here/$seq.full
+    cat $tmp.err $tmp.out \
+    | egrep -v 'include|exclude| numpmid=1 '
+done
+
+# success, all done
+status=0
+exit
