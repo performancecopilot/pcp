@@ -19,9 +19,14 @@ IAM = statsd
 SUBDIRS = src
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 
+ifneq ($(POD2MAN),)
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+endif
+
+pmda$(IAM).1: pmda$(IAM).pod
+	$(POD_MAKERULE)
 
 default_pcp default :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

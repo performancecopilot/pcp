@@ -6,3 +6,4 @@ export
 *.log
 *.so
 *.d
+*.1
