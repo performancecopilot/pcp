@@ -21,7 +21,10 @@
 
 /**
  * Creates gauge value in given dest
- * @arg
+ * @arg config - Config from which we know what gauge
+ * @arg datagram - Data to extract value from
+ * @arg out - Dest pointer
+ * @return 1 on success, 0 on fail
  */
 int
 create_gauge_value(struct agent_config* config, struct statsd_datagram* datagram, void** out);
@@ -57,7 +60,7 @@ print_gauge_metric(struct agent_config* config, FILE* f, struct metric* item);
 /**
  * Frees gauge metric value
  * @arg config
- * @arg value - value value to be freed
+ * @arg value - value to be freed
  */
 void
 free_gauge_value(struct agent_config* config, void* value);

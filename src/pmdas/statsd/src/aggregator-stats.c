@@ -151,10 +151,12 @@ write_stats_to_file(struct agent_config* config, struct pmda_stats_container* st
         pmGetConfig("PCP_PMDAS_DIR"),
         sep, sep, config->debug_output_filename);
     FILE* f;
-    f = fopen(config->debug_output_filename, "a+");
+    f = fopen(debug_output, "a+");
     if (f == NULL) {
+        VERBOSE_LOG("Unable to open file for output.");
         return;
     }
+    fprintf(f, "----------------\n");
     fprintf(f, "PMDA STATS: \n");
     fprintf(f, "received: %lu \n", stats->stats->received);
     fprintf(f, "parsed: %lu \n", stats->stats->parsed);

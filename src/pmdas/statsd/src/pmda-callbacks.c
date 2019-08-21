@@ -21,6 +21,7 @@
 #include <hdr/hdr_histogram.h>
 
 #include "pmdastatsd.h"
+#include "parsers-utils.h"
 #include "aggregator-metrics.h"
 #include "aggregator-stats.h"
 #include "aggregator-metric-labels.h"
@@ -78,8 +79,8 @@ get_next_pmInDom(pmdaExt* pmda) {
  */
 static char*
 create_instance_map_key(pmInDom indom) {
-    char buffer[100];
-    int l = pmsprintf(buffer, 100, "%s", pmInDomStr(indom)) + 1;
+    char buffer[JSON_BUFFER_SIZE];
+    int l = pmsprintf(buffer, JSON_BUFFER_SIZE, "%s", pmInDomStr(indom)) + 1;
     char* key = malloc(sizeof(char) * l);
     ALLOC_CHECK("Unable to allocate memory for instance key");
     memcpy(key, buffer, l);
@@ -110,7 +111,11 @@ create_pcp_metric(char* key, struct metric* item, pmdaExt* pmda) {
     new_metric->m_desc.pmid = newpmid;
     new_metric->m_desc.type = PM_TYPE_DOUBLE;
     new_metric->m_desc.indom = item->meta->pmindom;
-    new_metric->m_desc.sem = PM_SEM_INSTANT;
+    if (item->type == METRIC_TYPE_COUNTER) {
+        new_metric->m_desc.sem = PM_SEM_COUNTER;
+    } else {
+        new_metric->m_desc.sem = PM_SEM_INSTANT;
+    }
     memset(&new_metric->m_desc.units, 0, sizeof(pmUnits));
     item->meta->pmid = newpmid;
     DEBUG_LOG(
@@ -166,7 +171,7 @@ map_labels_to_instances(struct metric* item, struct pmda_data_extension* data, s
     item->meta->pcp_instance_map->labels = (char**) malloc(sizeof(char*) * labels_count);
     ALLOC_CHECK("Unable to allocate memory for new instance domain map label references.");
     // - prepare for iteration
-    char buffer[100];
+    char buffer[JSON_BUFFER_SIZE];
     size_t instance_name_length;
     //   - prepare format strings for duration instances
     static char* duration_metric_instance_keywords[] = {
@@ -188,7 +193,7 @@ map_labels_to_instances(struct metric* item, struct pmda_data_extension* data, s
     dictEntry* current;    
     while ((current = dictNext(iterator)) != NULL) {
         struct metric_label* label = (struct metric_label*)current->v.val;
-        // store on which instance domain instance index we find current label
+        // store on which instance domain instance index we find current label,
         item->meta->pcp_instance_map->labels[label_index] = label->labels;
         if (label->type == METRIC_TYPE_DURATION) {
             // duration metric has 9 instances per single metric_label, formatted with premade label string segments
@@ -199,7 +204,7 @@ map_labels_to_instances(struct metric* item, struct pmda_data_extension* data, s
                 instance_name_length = 
                     pmsprintf(
                         buffer,
-                        100,
+                        JSON_BUFFER_SIZE,
                         duration_metric_instance_keywords[i],
                         label->meta->instance_label_segment_str
                     ) + 1;
@@ -211,13 +216,14 @@ map_labels_to_instances(struct metric* item, struct pmda_data_extension* data, s
             int label_offset = (label_index + root_offset);
             // counter/gauge has 1 instance per single metric_label, just add / to premade label string
             instances[label_offset].i_inst = label_offset;
-            instance_name_length = pmsprintf(buffer, 100, "/%s", label->meta->instance_label_segment_str) + 1;
+            instance_name_length = pmsprintf(buffer, JSON_BUFFER_SIZE, "/%s", label->meta->instance_label_segment_str) + 1;
             instances[label_offset].i_name = (char*) malloc(sizeof(char) * instance_name_length);
             ALLOC_CHECK("Unable to allocate memory for instance description.");
             memcpy(instances[label_offset].i_name, buffer, instance_name_length);
         }
         label_index++;
     }
+    dictReleaseIterator(iterator);
     data->pcp_instance_domains[indom_i].it_numinst = indom_i_inst_cnt;
     data->pcp_instance_domains[indom_i].it_set = instances;
 }
@@ -243,6 +249,7 @@ create_instance(char* key, struct metric* item, pmdaExt* pmda) {
     ALLOC_CHECK("Unable to resize memory for PMDA instance domains");
     char* instance_key = create_instance_map_key(next_pmindom);
     dictAdd(data->instance_map, instance_key, item->name);
+    free(instance_key);
     size_t indom_i = data->pcp_instance_domain_count;
     // build new pmdaInstid
     map_labels_to_instances(item, data, indom_i);    
@@ -343,25 +350,10 @@ map_metric(char* key, struct metric* item, void* pmda) {
     pmdaTreeInsert(data->pcp_pmns, item->meta->pmid, item->meta->pcp_name);
 }
 
-/**
- * Maps all stats (both hardcoded and the ones aggregated from StatsD datagrams) to 
- */
 static void
-statsd_map_stats(pmdaExt* pmda) {
+insert_hardcoded_metrics(pmdaExt* pmda) {
     struct pmda_data_extension* data = (struct pmda_data_extension*) pmdaExtGetData(pmda);
     char name[64];
-    int status = 0;
-    if (data->pcp_pmns) {
-        pmdaTreeRelease(data->pcp_pmns);
-        data->notify |= PMDA_EXT_NAMES_CHANGE; 
-    }
-    status = pmdaTreeCreate(&data->pcp_pmns);
-    if (status < 0) {
-        pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n", pmGetProgname(), pmErrStr(status));
-        data->pcp_pmns = NULL;
-        return;
-    } 
-    reset_stat(data->config, data->stats_storage, STAT_TRACKED_METRIC);
     pmsprintf(name, 64, "statsd.pmda.received");
     pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 0), name);
     pmsprintf(name, 64, "statsd.pmda.parsed");
@@ -376,7 +368,43 @@ statsd_map_stats(pmdaExt* pmda) {
     pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 5), name);
     pmsprintf(name, 64, "statsd.pmda.time_spent_aggregating");
     pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 6), name);
+    pmsprintf(name, 64, "statsd.pmda.settings.max_udp_packet_size");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 7), name);
+    pmsprintf(name, 64, "statsd.pmda.settings.max_unprocessed_packets");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 8), name);
+    pmsprintf(name, 64, "statsd.pmda.settings.verbose");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 9), name);
+    pmsprintf(name, 64, "statsd.pmda.settings.debug");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 10), name);
+    pmsprintf(name, 64, "statsd.pmda.settings.debug_output_filename");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 11), name);
+    pmsprintf(name, 64, "statsd.pmda.settings.port");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 12), name);
+    pmsprintf(name, 64, "statsd.pmda.settings.parser_type");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 13), name);
+    pmsprintf(name, 64, "statsd.pmda.settings.duration_aggregation_type");
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 14), name);
+}
 
+/**
+ * Maps all stats (both hardcoded and the ones aggregated from StatsD datagrams) to 
+ */
+static void
+statsd_map_stats(pmdaExt* pmda) {
+    struct pmda_data_extension* data = (struct pmda_data_extension*) pmdaExtGetData(pmda);
+    int status = 0;
+    if (data->pcp_pmns) {
+        pmdaTreeRelease(data->pcp_pmns);
+        data->notify |= PMDA_EXT_NAMES_CHANGE; 
+    }
+    status = pmdaTreeCreate(&data->pcp_pmns);
+    if (status < 0) {
+        DEBUG_LOG("%s: failed to create new pmns: %s\n", pmGetProgname(), pmErrStr(status));
+        data->pcp_pmns = NULL;
+        return;
+    } 
+    reset_stat(data->config, data->stats_storage, STAT_TRACKED_METRIC);
+    insert_hardcoded_metrics(pmda);
     struct pmda_metrics_container* container = data->metrics_storage;
     pthread_mutex_lock(&container->mutex);
     metrics* m = container->metrics;
@@ -400,7 +428,7 @@ statsd_map_stats(pmdaExt* pmda) {
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
 static void
-statsd_possible_reload(pmdaExt* pmda) {
+statsd_possible_reload(pmdaExt* pmda) {    
     struct pmda_data_extension* data = (struct pmda_data_extension*) pmdaExtGetData(pmda);
     pthread_mutex_lock(&data->metrics_storage->mutex);
     int need_reload = data->metrics_storage->generation != data->generation ? 1 : 0;
@@ -448,10 +476,8 @@ map_to_duration_instance(int instance) {
             return DURATION_COUNT;
         case 8:
             return DURATION_STANDARD_DEVIATION;
-	default:
-	    break;
     }
-    return 0;
+    return DURATION_COUNT;
 }
 
 /**
@@ -536,6 +562,71 @@ statsd_text(int ident, int type, char** buffer, pmdaExt* pmda) {
                 static char oneliner[] = "Total time in microseconds spent aggregating metrics";
                 static char full_description[] = 
                     "Total time in microseconds spent aggregating metrics. Includes time spent aggregating a metric and failing midway.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+            case 7:
+            {
+                static char oneliner[] = "Maximum UDP packet size";
+                static char full_description[] = 
+                    "Maximum UDP packet size. This shows current setting.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+            case 8:
+            {
+                static char oneliner[] = "Maximum size of unprocessed packets Q";
+                static char full_description[] = 
+                    "Maximum size of unprocessed packets Q. This shows current setting.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+            case 9:
+            {
+                static char oneliner[] = "Verbosity flag.";
+                static char full_description[] = 
+                    "Verbosity flag. This shows current setting.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+            case 10:
+            {
+                static char oneliner[] = "Debug flag.";
+                static char full_description[] = 
+                    "Debug flag. This shows current setting.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+            case 11:
+            {
+                static char oneliner[] = "Debug output filename.";
+                static char full_description[] = 
+                    "Debug output filename. This shows current setting.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+            case 12:
+            {
+                static char oneliner[] = "Port that is listened to.";
+                static char full_description[] = 
+                    "Port that is listened to. This shows current setting.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+            }
+            case 13:
+            {
+                static char oneliner[] = "Used parser type.";
+                static char full_description[] = 
+                    "Used parser type. This shows current setting.\n";
+                *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
+                return 0;
+                return 0;
+            }
+            case 14: 
+            {
+                static char oneliner[] = "Used duration aggregation type.";
+                static char full_description[] = 
+                    "Used duration aggregation type. This shows current setting.\n";
                 *buffer = (type & PM_TEXT_ONELINE) ? oneliner : full_description;
                 return 0;
             }
@@ -631,7 +722,6 @@ int
 statsd_label(int ident, int type, pmLabelSet** lp, pmdaExt* pmda) {
     g_ext_reference = pmda;
     statsd_possible_reload(pmda);
-    DEBUG_LOG("statsd_label: ident: %d, type: %d.", ident, type);    
     return pmdaLabel(ident, type, lp, pmda);
 }
 
@@ -706,7 +796,7 @@ statsd_resolve_static_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmA
     struct agent_config* config = data->config;
     struct pmda_stats_container* stats = data->stats_storage;
     unsigned int item = pmID_item(mdesc->m_desc.pmid);
-    int status = PMDA_FETCH_STATIC; 
+    int status = PMDA_FETCH_STATIC;
     switch (item) {
         /* received */
         case 0:
@@ -753,6 +843,71 @@ statsd_resolve_static_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmA
         case 6:
             (*atom)->ull = get_agent_stat(config, stats, STAT_TIME_SPENT_AGGREGATING, NULL);
             break;
+
+        /* settings.max_udp_packet_size */
+        case 7:
+            (*atom)->ull = (__uint64_t) config->max_udp_packet_size;
+            break;
+        /* settings.max_unprocessed_packets */
+        case 8:
+            (*atom)->ul = config->max_unprocessed_packets;
+            break;
+        /* settings.verbose */
+        case 9:
+            (*atom)->ul = config->verbose;
+            break;
+        /* settings.debug */
+        case 10:
+            (*atom)->ul = config->debug;
+            break;
+        /* settings.debug_output_filename */
+        case 11:
+        {
+            size_t length = strlen(config->debug_output_filename) + 1;
+            char* result = (char*) malloc(sizeof(char) * length);
+            ALLOC_CHECK("Unable to allocate memory for port value.");
+            memcpy(result, config->debug_output_filename, length);
+            (*atom)->cp = result;
+            break;
+        }
+        /* settings.port */
+        case 12:
+            (*atom)->ul = config->port;
+            break;
+        /* settings.parser_type */
+        case 13:
+        {   
+            size_t length = 6;
+            char* result = (char*) malloc(sizeof(char) * length);
+            ALLOC_CHECK("Unable to allocate memory for parser type value.");
+            char* basic = "Basic";
+            char* ragel = "Ragel";
+            if (config->parser_type == PARSER_TYPE_BASIC) {
+                memcpy(result, basic, length);
+            } else {
+                memcpy(result, ragel, length);
+            }
+            (*atom)->cp = result;
+            break;
+        }
+        /* settings.duration_aggregation_type */
+        case 14:
+        {
+            char* result;
+            char* basic = "Basic";
+            char* ragel = "HDR histogram";
+            if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_BASIC) {
+                result = (char*) malloc(sizeof(char) * 6);
+                ALLOC_CHECK("Unable to allocate memory for duration aggregation type value.");
+                memcpy(result, basic, 6);
+            } else {
+                result = (char*) malloc(sizeof(char) * 14);
+                ALLOC_CHECK("Unable to allocate memory for duration aggregation type value.");
+                memcpy(result, ragel, 14);
+            }
+            (*atom)->cp = result;
+            break;
+        }
         default:
             status = PM_ERR_PMID;
     }
@@ -776,7 +931,7 @@ statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pm
     int is_default_domain = (serial == STATSD_METRIC_DEFAULT_INDOM) ||
                             (serial == STATSD_METRIC_DEFAULT_DURATION_INDOM);
     int status = PM_ERR_INST;
-    enum DURATION_INSTANCE duration_stat = 0;
+    enum DURATION_INSTANCE duration_stat;
     // metrics without any labels
     if (is_default_domain) {
         pthread_mutex_lock(&data->metrics_storage->mutex);
@@ -810,7 +965,6 @@ statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pm
             int instance_label_offset;
             if (result->type == METRIC_TYPE_DURATION) {
                 int instance_group = instance / 9;
-                duration_stat = map_to_duration_instance(instance);
                 instance_label_offset = metric_has_root_value ? instance_group - 1 : instance_group;
             } else {
                 instance_label_offset = metric_has_root_value ? instance - 1 : instance;
@@ -826,6 +980,7 @@ statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pm
             if (found) {
                 pthread_mutex_lock(&data->metrics_storage->mutex);
                 if (result->type == METRIC_TYPE_DURATION) {
+                    duration_stat = map_to_duration_instance(instance);
                     (*atom)->d = get_duration_instance(config, label->value, duration_stat);
                 } else {
                     (*atom)->d = *(double*)label->value;

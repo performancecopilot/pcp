@@ -35,6 +35,16 @@
 #define GAUGE_METRIC "g"
 
 /**
+ * Used to prevent racing between pmErrLog function calls in different threads 
+ */
+static pthread_mutex_t g_log_mutex;
+
+/**
+ * Used to signal threads that its time to go home
+ */
+static int g_exit_flag = 0;
+
+/**
  * Flag used to determine if VERBOSE output is allowed to be printed
  */
 static int g_verbose_flag = 0;
@@ -45,13 +55,55 @@ static int g_verbose_flag = 0;
 static int g_debug_flag = 0;
 
 /**
- * Sanitizes string
- * Swaps '/', '-', ' ' characters with '_'. Should the message contain any other characters then a-z, A-Z, 0-9 and specified above, fails.
+ * Validates valid metric name string
+ * Checks if string starts with [a-zA-Z] and that rest is [a-zA-Z0-9._]
  * @arg src - String to be sanitized
+ * @arg num - Boundary
  * @return 1 on success
  */
 int
-sanitize_string(char *src, size_t num) {
+validate_metric_name_string(char* src, size_t num) {
+    size_t segment_length = strlen(src);
+    if (segment_length == 0) {
+        return 0;
+    }
+    if (segment_length > num) {
+        segment_length = num;
+    }
+    size_t i;
+    for (i = 0; i < segment_length; i++) {
+        char current_char = src[i];
+        if (i == 0) {
+            if (((int) current_char >= (int) 'a' && (int) current_char <= (int) 'z') ||
+                ((int) current_char >= (int) 'A' && (int) current_char <= (int) 'Z')) {
+                continue;
+            } else {
+                return 0;
+            }
+        }
+        if (((int) current_char >= (int) 'a' && (int) current_char <= (int) 'z') ||
+            ((int) current_char >= (int) 'A' && (int) current_char <= (int) 'Z') ||
+            ((int) current_char >= (int) '0' && (int) current_char <= (int) '9') ||
+            (int) current_char == (int) '.' ||
+            (int) current_char == (int) '_') {
+            continue;
+        } else {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/**
+ * Sanitizes string
+ * Swaps '/', '-', ' ' characters with '_'. Should the message contain any other characters then a-z, A-Z, 0-9 and specified above, fails. 
+ * First character needs to be in a-zA-Z
+ * @arg src - String to be sanitized
+ * @arg num - Boundary
+ * @return 1 on success
+ */
+int
+sanitize_string(char* src, size_t num) {
     size_t segment_length = strlen(src);
     if (segment_length == 0) {
         return 0;
@@ -80,7 +132,7 @@ sanitize_string(char *src, size_t num) {
 }
 
 /**
- * Validates string
+ * Validates metric val string
  * Checks if there are any non numerical characters (0-9), excluding '+' and '-' on first position and is not empty.
  * @arg src - String to be validated
  * @return 1 on success
@@ -114,26 +166,6 @@ sanitize_metric_val_string(char* src) {
 }
 
 /**
- * Validates string
- * Checks if string is convertible to double and is not empty.
- * @arg src - String to be validated
- * @return 1 on success
- */
-int
-sanitize_sampling_val_string(char* src) {
-    size_t segment_length = strlen(src);
-    if (segment_length == 0) {
-        return 0;
-    }
-    char* end;
-    strtod(src, &end);
-    if (src == end || *end != '\0') {
-        return 0;
-    }
-    return 1;
-}
-
-/**
  * Validates type string
  * Checks if string is matching one of metric identifiers ("ms" = duration, "g" = gauge, "c" = counter)
  * @arg src - String to be validated
@@ -160,7 +192,8 @@ sanitize_type_val_string(char* src, enum METRIC_TYPE* out) {
  * Check *verbose* flag
  * @return verbose flag
  */
-int is_verbose() {
+int 
+is_verbose() {
     return g_verbose_flag;
 }
 
@@ -168,8 +201,29 @@ int is_verbose() {
  * Check *debug* flag
  * @return debug flag
  */
-int is_debug() {
+int 
+is_debug() {
     return g_debug_flag;
+}
+
+void
+log_mutex_lock() {
+    pthread_mutex_lock(&g_log_mutex);
+}
+
+void
+log_mutex_unlock() {
+    pthread_mutex_unlock(&g_log_mutex);
+}
+
+void
+set_exit_flag() {
+    __sync_add_and_fetch(&g_exit_flag, 1);
+}
+
+int
+check_exit_flag() {
+    return g_exit_flag;
 }
 
 /**

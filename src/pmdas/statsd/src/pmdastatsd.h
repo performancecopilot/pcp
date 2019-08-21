@@ -42,6 +42,8 @@ struct pmda_data_extension {
     dict* instance_map;
     size_t pcp_instance_domain_count;
     size_t pcp_metric_count;
+    size_t pcp_hardcoded_metric_count;
+    size_t pcp_hardcoded_instance_domain_count;
     size_t generation;
     int notify;
 } pmda_data_extension;
