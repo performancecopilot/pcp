@@ -21,7 +21,11 @@ _stop_auto_restart pmcd
 _pmdabpftrace_install
 
 echo "=== start bpftrace script ==="
-pmstore -F bpftrace.control.register $'// name: testscript\nkretprobe:vfs_read\n{\n    @bytes = hist(retval);\n}'
+pmstore -F bpftrace.control.register "// name: testscript
+kretprobe:vfs_read
+{
+    @bytes = hist(retval);
+}"
 
 echo "=== check metrics ==="
 _pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.bytes

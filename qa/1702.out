@@ -8,7 +8,7 @@ Updating the PMCD control file, and notifying PMCD ...
 Check bpftrace metrics have appeared ... 6 metrics and 5 values
 
 === start bpftrace script ===
-bpftrace.control.register old value="{}" new value="{"name": "testscript", "vars": ["bytes"], "status": "starting", "exit_code": null, "output": ""}"
+bpftrace.control.register old value="{}" new value="{"name": "testscript", "vars": ["bytes"], "status": "starting", "exit_code": 0, "output": ""}"
 === check metrics ===
 OK
 === stop bpftrace script ===

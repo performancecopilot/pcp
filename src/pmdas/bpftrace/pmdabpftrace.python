@@ -228,13 +228,9 @@ class BPFtraceScript:
         if item == Consts.Script.Status:
             return [self.state.status, 1]
         elif item == Consts.Script.Pid:
-            if self.state.pid:
-                return [self.state.pid, 1]
-            return [c_api.PM_ERR_VALUE, 0]
+            return [self.state.pid, 1]
         elif item == Consts.Script.ExitCode:
-            if self.state.exit_code:
-                return [self.state.exit_code, 1]
-            return [c_api.PM_ERR_VALUE, 0]
+            return [self.state.exit_code, 1]
         elif item == Consts.Script.Output:
             return [self.state.output.strip(), 1]
         elif item == Consts.Script.Probes:

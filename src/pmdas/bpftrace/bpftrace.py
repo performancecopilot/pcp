@@ -48,8 +48,8 @@ class BPFtraceState: # pylint: disable=too-few-public-methods
 
     def reset(self):
         """reset state"""
-        self.pid = None
-        self.exit_code = None
+        self.pid = -1
+        self.exit_code = 0
         self.output = ''
         self.probes = 0
         self.maps = {}
