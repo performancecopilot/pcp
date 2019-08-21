@@ -541,11 +541,11 @@ webgroup_fetch(pmWebGroupSettings *settings, context_t *cp,
 		}
 
 		indom = metric->indom;
-		pmwebapi_add_indom_labels(indom);
 		if (indom->updated == 0) {
-		    pmwebapi_add_indom_instances(indom);
-		    pmwebapi_add_instances_labels(indom);
+		    pmwebapi_add_indom_instances(cp, indom);
+		    pmwebapi_add_instances_labels(cp, indom);
 		}
+		pmwebapi_add_indom_labels(indom);
 
 		if (metric->u.vlist == NULL)
 		    continue;
@@ -566,6 +566,8 @@ webgroup_fetch(pmWebGroupSettings *settings, context_t *cp,
 	    }
 	}
 	pmFreeResult(result);
+    } else if (sts == PM_ERR_IPC) {
+	cp->setup = 0;
     }
 
     sdsfree(v);
@@ -625,6 +627,8 @@ webgroup_lookup_metric(pmWebGroupSettings *settings, context_t *cp, sds name, vo
     if ((mp = dictFetchValue(cp->metrics, name)) != NULL)
 	return mp;
     if ((sts = pmLookupName(1, &name, &pmid)) < 0) {
+	if (sts == PM_ERR_IPC)
+	    cp->setup = 0;
 	infofmt(msg, "failed to lookup name %s", name);
 	moduleinfo(&settings->module, PMLOG_WARNING, msg, arg);
 	return NULL;
@@ -775,7 +779,8 @@ webgroup_lookup_indom(pmWebGroupSettings *settings, context_t *cp, sds name, voi
 }
 
 static int
-webgroup_profile(struct indom *ip, enum profile profile, enum matches match,
+webgroup_profile(struct context *cp, struct indom *ip,
+		enum profile profile, enum matches match,
 		sds instnames, sds instids)
 {
     struct instance	*instance;
@@ -794,12 +799,12 @@ webgroup_profile(struct indom *ip, enum profile profile, enum matches match,
     }
     indom = ip->indom;
     if (instnames) {
-	pmwebapi_add_indom_instances(ip);
+	pmwebapi_add_indom_instances(cp, ip);
 	length = sdslen(instnames);
 	names = sdssplitlen(instnames, length, ",", 1, &numnames);
 	insts = calloc(numnames, sizeof(int));
     } else if (instids) {
-	pmwebapi_add_indom_instances(ip);
+	pmwebapi_add_indom_instances(cp, ip);
 	length = sdslen(instids);
 	ids = sdssplitlen(instids, length, ",", 1, &numids);
 	insts = calloc(numids, sizeof(int));
@@ -948,7 +953,7 @@ pmWebGroupProfile(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 			"pmWebGroupProfile", ip == NULL? "null" :
 			pmInDomStr_r(ip->indom, err, sizeof(err)), expr);
 
-    if ((sts = webgroup_profile(ip, profile, matches, inames, instids)) < 0)
+    if ((sts = webgroup_profile(cp, ip, profile, matches, inames, instids)) < 0)
 	infofmt(msg, "%s - %s", expr, pmErrStr_r(sts, err, sizeof(err)));
 
 done:
@@ -983,6 +988,8 @@ pmWebGroupChildren(pmWebGroupSettings *settings, sds id, dict *params, void *arg
 			"pmWebGroupChildren", prefix);
 
     if ((sts = pmGetChildrenStatus(prefix, &offspring, &status)) < 0) {
+	if (sts == PM_ERR_IPC)
+	    cp->setup = 0;
 	infofmt(msg, "child traversal failed - %s",
 		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     } else {
@@ -1172,12 +1179,12 @@ pmWebGroupInDom(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	sts = -EINVAL;
 	goto done;
     }
-    pmwebapi_add_indom_labels(ip);
     if (ip->updated == 0) {
-	count = pmwebapi_add_indom_instances(ip);
-	pmwebapi_add_instances_labels(ip);
+	count = pmwebapi_add_indom_instances(cp, ip);
+	pmwebapi_add_instances_labels(cp, ip);
     }
-    pmwebapi_indom_help(ip);
+    pmwebapi_add_indom_labels(ip);
+    pmwebapi_indom_help(cp, ip);
 
     if (instnames) {
 	length = sdslen(instnames);
@@ -1264,14 +1271,14 @@ webmetric_lookup(const char *name, void *arg)
 
     if (mp->cluster) {
 	if (mp->cluster->domain)
-	    pmwebapi_add_domain_labels(mp->cluster->domain);
-	pmwebapi_add_cluster_labels(mp->cluster);
+	    pmwebapi_add_domain_labels(cp, mp->cluster->domain);
+	pmwebapi_add_cluster_labels(cp, mp->cluster);
     }
     if (mp->indom)
 	pmwebapi_add_indom_labels(mp->indom);
-    pmwebapi_add_item_labels(mp);
+    pmwebapi_add_item_labels(cp, mp);
     pmwebapi_metric_hash(mp);
-    pmwebapi_metric_help(mp);
+    pmwebapi_metric_help(cp, mp);
 
     metric->pmid = mp->desc.pmid;
     metric->indom = mp->desc.indom;
@@ -1339,19 +1346,25 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 
     if (prefix == NULL || *prefix == '\0') {
 	sts = pmTraversePMNS_r("", webmetric_lookup, &lookup);
-	if (sts >= 0)
+	if (sts >= 0) {
 	    sts = (lookup.status < 0) ? lookup.status : 0;
-	else
+	} else {
+	    if (sts == PM_ERR_IPC)
+		cp->setup = 0;
 	    infofmt(msg, "namespace traversal failed - %s",
 			    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
     }
     for (i = 0; i < numnames; i++) {
 	sts = pmTraversePMNS_r(names[i], webmetric_lookup, &lookup);
-	if (sts >= 0)
+	if (sts >= 0) {
 	    sts = (lookup.status < 0) ? lookup.status : 0;
-	else
+	} else {
+	    if (sts == PM_ERR_IPC)
+		cp->setup = 0;
 	    infofmt(msg, "%s traversal failed - %s", names[i],
 			    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
     }
 
     sdsfree(metric->name);
@@ -1456,14 +1469,14 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 	    if (metric->updated == 0)
 		continue;
 	    if (metric->labelset == NULL)
-		pmwebapi_add_item_labels(metric);
-	    pmwebapi_metric_help(metric);
+		pmwebapi_add_item_labels(cp, metric);
+	    pmwebapi_metric_help(cp, metric);
 
 	    type = metric->desc.type;
 	    indom = metric->indom;
 	    if (indom && indom->updated == 0 &&
-		pmwebapi_add_indom_instances(indom) > 0)
-		pmwebapi_add_instances_labels(indom);
+		pmwebapi_add_indom_instances(cp, indom) > 0)
+		pmwebapi_add_instances_labels(cp, indom);
 
 	    for (j = 0; j < metric->numnames; j++) {
 		series = pmwebapi_hash_sds(series, metric->names[j].hash);
@@ -1526,6 +1539,8 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 	    }
 	}
 	pmFreeResult(result);
+    } else if (sts == PM_ERR_IPC) {
+	cp->setup = 0;
     }
 
     sdsfree(v);
@@ -1716,7 +1731,8 @@ store_named_insts(void *arg, const struct dictEntry *entry)
 }
 
 static int
-webgroup_store(struct metric *metric, int numnames, sds *names,
+webgroup_store(struct context *context, struct metric *metric,
+		int numnames, sds *names,
 		int numids, sds *ids, sds value)
 {
     struct instore	store = {0};
@@ -1733,7 +1749,7 @@ webgroup_store(struct metric *metric, int numnames, sds *names,
 
     if ((indom = metric->indom) != NULL &&
 	(indom->updated == 0))
-	pmwebapi_add_indom_instances(indom);
+	pmwebapi_add_indom_instances(context, indom);
 
     if (metric->desc.indom == PM_INDOM_NULL)
 	count = 1;
@@ -1855,7 +1871,7 @@ pmWebGroupStore(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     }
 
     if ((sts >= 0) &&
-	(sts = webgroup_store(mp, numnames, names, numids, ids, value)) < 0) {
+	(sts = webgroup_store(cp, mp, numnames, names, numids, ids, value)) < 0) {
 	infofmt(msg, "failed to store value to metric %s: %s",
 		metric ? metric : pmid, pmErrStr_r(sts, err, sizeof(err)));
     }

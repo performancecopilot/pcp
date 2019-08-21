@@ -63,23 +63,24 @@ extern char *pmwebapi_hash_str(const unsigned char *, char *, int);
 
 extern struct domain *pmwebapi_new_domain(struct context *, unsigned int);
 extern struct domain *pmwebapi_add_domain(struct context *, unsigned int);
-extern void pmwebapi_add_domain_labels(struct domain *);
+extern void pmwebapi_add_domain_labels(struct context *, struct domain *);
 
 extern struct cluster *pmwebapi_new_cluster(struct context *,
 		struct domain *, pmID);
 extern struct cluster *pmwebapi_add_cluster(struct context *,
 		struct domain *, pmID);
-extern void pmwebapi_add_cluster_labels(struct cluster *);
+extern void pmwebapi_add_cluster_labels(struct context *, struct cluster *);
 
 extern struct indom *pmwebapi_new_indom(struct context *,
 		struct domain *, pmInDom);
 extern struct indom *pmwebapi_add_indom(struct context *,
 		struct domain *, pmInDom);
 extern void pmwebapi_add_indom_labels(struct indom *);
-extern void pmwebapi_indom_help(struct indom *);
+extern void pmwebapi_indom_help(struct context *, struct indom *);
 
-extern unsigned int pmwebapi_add_indom_instances(struct indom *);
-extern void pmwebapi_add_instances_labels(struct indom *);
+extern unsigned int pmwebapi_add_indom_instances(struct context *,
+		struct indom *);
+extern void pmwebapi_add_instances_labels(struct context *, struct indom *);
 extern struct instance *pmwebapi_lookup_instance(struct indom *, int);
 
 extern struct instance *pmwebapi_new_instance(struct indom *, int, sds);
@@ -91,9 +92,9 @@ extern struct metric *pmwebapi_new_metric(struct context *,
 		pmDesc *, int, char **);
 extern struct metric *pmwebapi_add_metric(struct context *,
 		pmDesc *, int, char **);
-extern void pmwebapi_add_item_labels(struct metric *);
+extern void pmwebapi_add_item_labels(struct context *, struct metric *);
 extern int pmwebapi_add_valueset(struct metric *, pmValueSet *);
-extern void pmwebapi_metric_help(struct metric *);
+extern void pmwebapi_metric_help(struct context *, struct metric *);
 
 /*
  * Generally useful sds buffer formatting and diagnostics callback macros
