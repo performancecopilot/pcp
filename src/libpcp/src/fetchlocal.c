@@ -95,7 +95,7 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
 	    /* based on domain, unknown PMDA */
 	    sts = PM_ERR_NOAGENT;
 	else {
-	    if (dp->ctx_last_prof != ctx) {
+	    if (ctxp->c_sent == 0 || dp->ctx_last_prof != ctx) {
 		/*
 		 * current profile for this context is _not_ already cached
 		 * at the DSO PMDA, so send current profile ...
@@ -110,8 +110,10 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
 		    dp->dispatch.version.four.ext->e_context = ctx;
 		sts = dp->dispatch.version.any.profile(ctxp->c_instprof,
 						dp->dispatch.version.any.ext);
-		if (sts >= 0)
+		if (sts >= 0) {
+		    ctxp->c_sent = 1;
 		    dp->ctx_last_prof = ctx;
+		}
 	    }
 	}
 

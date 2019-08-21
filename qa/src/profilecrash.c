@@ -111,50 +111,56 @@ do_inner(void)
     pmResult	*resp;
     int		ok;
     int		state;		/* 0 to include instances, 1 to exclude */
+    static int	ff = 0;		/* flip-flop */
 
-    /*
-     * First, fetch fixed instances using ctx1
-     */
-    if ((sts = pmUseContext(ctx1)) < 0) {
-	fprintf(stderr, "[%d] pmUseContext: %s\n", ctx1, pmErrStr(sts));
-	exit(EXIT_FAILURE);
-    }
-    if ((sts = pmFetch(1, &pmid, &resp)) < 0) {
-	fprintf(stderr, "[%d] pmFetch: %s\n", ctx1, pmErrStr(sts));
-	exit(EXIT_FAILURE);
-    }
-    if (verbose) {
-	fprintf(stderr, "[%d] numpmid=%d numval[0]=%d:", ctx1, resp->numpmid, resp->vset[0]->numval);
-	for (j = 0; j < resp->vset[0]->numval; j++) {
-	    fprintf(stderr, " %d", resp->vset[0]->vlist[j].inst);
+    if (ff) {
+	/*
+	 * Every second time we're called ...
+	 *
+	 * First, fetch fixed instances using ctx1
+	 */
+	if ((sts = pmUseContext(ctx1)) < 0) {
+	    fprintf(stderr, "[%d] pmUseContext: %s\n", ctx1, pmErrStr(sts));
+	    exit(EXIT_FAILURE);
 	}
-	fputc('\n', stderr);
-    }
-    ok = 1;
-    if (resp->numpmid != 1) {
-	fprintf(stderr, "Error [%d] numpmid=%d not 1 as expected\n", ctx1, resp->numpmid);
-	ok = 0;
-    }
-    else {
-	if (resp->vset[0]->numval != 2) {
-	    fprintf(stderr, "Error [%d] numval=%d not 2 as expected\n", ctx1, resp->vset[0]->numval);
+	if ((sts = pmFetch(1, &pmid, &resp)) < 0) {
+	    fprintf(stderr, "[%d] pmFetch: %s\n", ctx1, pmErrStr(sts));
+	    exit(EXIT_FAILURE);
+	}
+	if (verbose) {
+	    fprintf(stderr, "[%d] numpmid=%d numval[0]=%d:", ctx1, resp->numpmid, resp->vset[0]->numval);
+	    for (j = 0; j < resp->vset[0]->numval; j++) {
+		fprintf(stderr, " %d", resp->vset[0]->vlist[j].inst);
+	    }
+	    fputc('\n', stderr);
+	}
+	ok = 1;
+	if (resp->numpmid != 1) {
+	    fprintf(stderr, "Error [%d] numpmid=%d not 1 as expected\n", ctx1, resp->numpmid);
 	    ok = 0;
 	}
-	for (j = 0; j < resp->vset[0]->numval; j++) {
-	    int	i = resp->vset[0]->vlist[j].inst;
-	    if (i == 0 || i == 17) {
-		;
-	    }
-	    else {
-		fprintf(stderr, "Error [%d] inst=%d is bogus\n", ctx1, i);
+	else {
+	    if (resp->vset[0]->numval != 2) {
+		fprintf(stderr, "Error [%d] numval=%d not 2 as expected\n", ctx1, resp->vset[0]->numval);
 		ok = 0;
 	    }
+	    for (j = 0; j < resp->vset[0]->numval; j++) {
+		int	i = resp->vset[0]->vlist[j].inst;
+		if (i == 0 || i == 17) {
+		    ;
+		}
+		else {
+		    fprintf(stderr, "Error [%d] inst=%d is bogus\n", ctx1, i);
+		    ok = 0;
+		}
+	    }
 	}
-    }
 
-    if (ok && verbose)
-	fprintf(stderr, "[%d] ok\n", ctx1);
-    pmFreeResult(resp);
+	if (ok && verbose)
+	    fprintf(stderr, "[%d] ok\n", ctx1);
+	pmFreeResult(resp);
+    }
+    ff = 1 - ff;	/* update flip-flop ready for next call */
 
     /*
      * Second, fetch some instances using ctx2 and a dynamic (changing)
