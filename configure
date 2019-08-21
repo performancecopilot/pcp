@@ -742,6 +742,9 @@ PMDA_POSTFIX
 QSHAPE
 PMDA_RPM
 PMDA_PODMAN
+PMDA_STATSD
+lib_for_chan
+lib_for_hdr_histogram
 PMDA_PERFEVENT
 PFM_LIBS
 PMDA_INFINIBAND
@@ -884,6 +887,7 @@ GREP
 echo_c
 echo_n
 sort
+RAGEL
 yacc
 YFLAGS
 YACC
@@ -1003,6 +1007,7 @@ with_dstat_symlink
 with_books
 with_books_brand
 with_perfevent
+with_pmdastatsd
 with_pmdapodman
 with_pmdabcc
 with_pmdajson
@@ -1729,6 +1734,7 @@ Optional Packages:
                           choose the docbook brand when building the PCP books
                           (default is common)
   --with-perfevent        enable perfevent pmda (default is on)
+  --with-pmdastatsd       enable statds pmda (default is on)
   --with-pmdapodman       enable podman pmda (default is on)
   --with-pmdabcc          enable BCC pmda (default is on)
   --with-pmdajson         enable JSON pmda (default is on)
@@ -2992,6 +2998,15 @@ if test "${with_perfevent+set}" = set; then :
   withval=$with_perfevent; do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"
 else
   do_perfevent=check
+fi
+
+
+
+# Check whether --with-pmdastatsd was given.
+if test "${with_pmdastatsd+set}" = set; then :
+  withval=$with_pmdastatsd; do_pmdastatsd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdastatsd=$withval"
+else
+  do_pmdastatsd=check
 fi
 
 
@@ -5117,6 +5132,50 @@ s/$/ /
 s/ -y / /
 s/ $//
 }'`
+
+
+for ac_prog in ragel
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_RAGEL+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$RAGEL"; then
+  ac_cv_prog_RAGEL="$RAGEL" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_RAGEL="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+RAGEL=$ac_cv_prog_RAGEL
+if test -n "$RAGEL"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $RAGEL" >&5
+$as_echo "$RAGEL" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$RAGEL" && break
+done
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking where unix-like sort(1) lives" >&5
@@ -11379,6 +11438,108 @@ $as_echo_n "checking if the perfevent PMDA should be included... " >&6; }
 PMDA_PERFEVENT=$pmda_perfevent
 
 if $pmda_perfevent; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for hdr_init in -lhdr_histogram" >&5
+$as_echo_n "checking for hdr_init in -lhdr_histogram... " >&6; }
+if ${ac_cv_lib_hdr_histogram_hdr_init+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lhdr_histogram  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char hdr_init ();
+int
+main ()
+{
+return hdr_init ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_hdr_histogram_hdr_init=yes
+else
+  ac_cv_lib_hdr_histogram_hdr_init=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_hdr_histogram_hdr_init" >&5
+$as_echo "$ac_cv_lib_hdr_histogram_hdr_init" >&6; }
+if test "x$ac_cv_lib_hdr_histogram_hdr_init" = xyes; then :
+  lib_for_hdr_histogram="-lhdr_histogram"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for chan_init in -lchan" >&5
+$as_echo_n "checking for chan_init in -lchan... " >&6; }
+if ${ac_cv_lib_chan_chan_init+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lchan  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char chan_init ();
+int
+main ()
+{
+return chan_init ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_chan_chan_init=yes
+else
+  ac_cv_lib_chan_chan_init=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_chan_chan_init" >&5
+$as_echo "$ac_cv_lib_chan_chan_init" >&6; }
+if test "x$ac_cv_lib_chan_chan_init" = xyes; then :
+  lib_for_chan="-lchan"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the statsd PMDA should be included" >&5
+$as_echo_n "checking if the statsd PMDA should be included... " >&6; }
+pmda_statsd=false
+if test "x$do_pmdastatsd" = "xyes"; then :
+  pmda_statsd=true
+fi
+if test "x$do_pmdastatsd" = "xcheck"; then :
+
+       if test -n "$RAGEL" -a "x$lib_for_hdr_histogram" != "x" -a "x$lib_for_chan" != "x"; then
+	pmda_statsd=true
+       fi
+fi
+PMDA_STATSD=$pmda_statsd
+
+if $pmda_statsd; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 

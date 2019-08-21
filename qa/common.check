@@ -1017,6 +1017,46 @@ p
     done
 }
 
+# Wait for pmproxy to start up on given port
+# Usage: _wait_for_pmproxy port [logfile]
+#
+_wait_for_pmproxy()
+{
+    __port=$1
+
+    if [ -z "$__port" ]
+    then
+	echo "Must specify a pmproxy port (default: 44322 and/or 44323)"
+	status=1
+	exit
+    fi
+
+    count=0
+    while ! $PCP_BINADM_DIR/telnet-probe -c localhost $__port
+    do
+	count=`expr $count + 1`
+	if [ $count -ge 20 ]
+	then
+	    echo "pmproxy failed to start on port $__port"
+	    echo "likely looking processes ..."
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy'
+	    if [ -n "$2" ]
+	    then
+		if [ -f "$2" ]
+		then
+		    echo "pmproxy logfile ($2) ..."
+		    cat "$2"
+		else
+		    echo "pmproxy logfile ($2) not created"
+		fi
+	    fi
+	    status=1
+	    exit
+	fi
+	pmsleep 0.1
+    done
+}
+
 # ensure primary logger allows pmlc state changes
 #
 _writable_primary_logger()

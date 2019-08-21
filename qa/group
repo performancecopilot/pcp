@@ -1486,7 +1486,7 @@ BAD
 1087 pmda.bind2 local
 1088 pmmgr local
 1089 atop local folio
-1090 pmwebd local context
+1090 pmproxy local context
 1091 pmns libpcp context local kernel
 1092 libpcp local
 1093 pmcpp local
@@ -1679,6 +1679,8 @@ BAD
 1546 pmrep python local
 1547 pmrep python local
 1588 python pmiostat local
+1598 pmda.statsd local
+1599 pmda.statsd local
 1600 pmseries pmcd pmproxy pmlogger local
 1601 pmseries pmproxy local
 1602 pmproxy local

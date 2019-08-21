@@ -1596,6 +1596,11 @@ S_pkg?		libdevmapper.h		[N/A (build optional)]
 slackpkg?	libdevmapper.h		[N/A (build optional)]
 pacman?	/usr/include/libdevmapper.h	[device-mapper (build optional)]
 brew?		libdevmapper.h		[N/A (build optional)]
+# -- ruby and devel packages for pmdastatsd
+rpm?	ruby				[ruby (QA optional)]
+rpm?	statsd				[statsd (QA optional)]
+rpm?	/usr/include/chan/chan.h	[chan-devel (build optional)]
+rpm?	/usr/include/hdr/hdr_thread.h	[HdrHistogram_c-devel (build optional)]
 
 # misc
 #

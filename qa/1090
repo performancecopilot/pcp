@@ -1,38 +1,39 @@
 #!/bin/sh
 # PCP QA Test No. 1090
 # Reproduce https://github.com/performancecopilot/pcp/issues/14
+# originally, but since then exercises context re-connection in
+# the PMWEBAPI.
 #
 # Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2019 Red Hat.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get webapi glue (includes standard environment, filters and checks)
-. ./common.webapi
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
 
+_check_series
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
-[ -f ${PCP_BINADM_DIR}/pmwebd ] || _notrun "pmwebd package not installed"
 
-# only restart pmwebd if it was running before the QA test starts
-#
-if [ -n "`_get_pids_by_name pmwebd`" ]
-then
-    restart_pmwebd=true
-else
-    restart_pmwebd=false
-fi
+# only restart pmproxy if it was running before the QA test starts
+restart_pmproxy=false
+[ -n "`_get_pids_by_name pmproxy`" ] && restart_pmproxy=true
 
 _cleanup()
 {
     cd $here
-    _service pmwebd stop >/dev/null 2>&1
-    _restore_auto_restart pmwebd
-    $restart_pmwebd && _service pmwebd restart >/dev/null 2>&1
+    _service pmproxy stop >/dev/null 2>&1
+    _restore_auto_restart pmproxy
+    $restart_pmproxy && _service pmproxy restart >/dev/null 2>&1
     rm -rf $tmp.*
 }
 
 status=1	# failure is the default!
+port=44322
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -47,41 +48,48 @@ _dump_curl()
 
 _get_context()
 {
-    # get a pmapi context reference from pmwebd
-    #
-    curl -s http://localhost:44323/pmapi/context?hostspec=localhost >$tmp.out 2>$tmp.err
+    # get a pmapi context reference from pmwebapi
+    curl -s "http://localhost:$port/pmapi/context?hostspec=localhost&polltimeout=50000" >$tmp.out 2>$tmp.err
     _dump_curl context
-    # get context from a line like in $tmp.out
-    # { "context": 2062287553 }
-    ( cat $tmp.out; echo ) | $PCP_AWK_PROG '$2 == "\"context\":" { print $3 }'
+    # { [...,] "context": 2062287553 [,...] }
+    pmjson < $tmp.out \
+	    | $PCP_AWK_PROG '$1 == "\"context\":" { print $2 }' \
+	    | sed -e 's/,//g' \
+    #end
 }
 
 _get_metrics()
 {
     # fetch metrics from context $1
     #
-    curl -s http://localhost:44323/pmapi/"$1"/_metric?prefix=sample.long >$tmp.out 2>$tmp.err
+    curl -s http://localhost:$port/pmapi/"$1"/_metric?prefix=sample.long >$tmp.out 2>$tmp.err
     _dump_curl metrics
     # metrics are in lines like  ...
-    # {"name":"sample.long.one","text-oneline":"1 as a 32-bit integer","text-help":"1 as a 32-bit integer","pmid":121634826,"sem":"instant","units":"","type":"32"},
-    ( cat $tmp.out; echo ) \
-    | grep '^{"name":' $tmp.out | sed -e 's/"text-help".*/.../' >$tmp.metrics
+    # { [...,] "name": "sample.long.one" [,...] }
+    pmjson < $tmp.out \
+	| grep '"name"' \
+	| sed -e 's/^ *//g' \
+	| sed -e 's/,$//g' \
+	> $tmp.metrics
     if [ -s $tmp.metrics ]
     then
 	echo "Got these metrics ..."
 	cat $tmp.metrics
     else
 	echo "Failed to get metrics ..."
-	cat $tmp.out; echo
+	pmjson < $tmp.out \
+	    | sed -e '/"context":/d' \
+	    > $tmp.nometrics
+	cat $tmp.nometrics
     fi
+    #cat $PCP_LOG_DIR/pmproxy/pmproxy.log
 }
 
-_stop_auto_restart pmwebd # see GH #394
-_service pmwebd stop >/dev/null 2>&1
-$sudo $signal -a pmwebd >/dev/null 2>&1
+_stop_auto_restart pmproxy
+_service pmproxy stop >/dev/null 2>&1
 
-_service pmwebd start | _filter_pmwebd_start
-_wait_for_pmwebd 44323
+_service pmproxy start | _filter_pmproxy_start
+_wait_for_pmproxy $port
 
 # real QA test starts here
 ctx1=`_get_context`
@@ -137,5 +145,4 @@ _get_metrics $ctx1
 
 # success, all done
 status=0
-
 exit

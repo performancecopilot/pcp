@@ -47,6 +47,13 @@ Patch0: pmcd-pmlogger-local-context.patch
 %global disable_podman 1
 %endif
 
+# libchan, libhdr_historgram and pmdastatsd
+%if 0%{?fedora} > 31 || 0%{?rhel} > 8
+%global disable_statsd 0
+%else
+%global disable_statsd 1
+%endif
+
 %global disable_microhttpd 0
 %global disable_webapps 0
 %global disable_cairo 0
@@ -203,6 +210,9 @@ BuildRequires: cyrus-sasl-devel
 %if !%{disable_podman}
 BuildRequires: libvarlink-devel
 %endif
+%if !%{disable_statsd}
+BuildRequires: ragel libchan-devel libhdr_histogram-devel
+%endif
 %if !%{disable_perfevent}
 BuildRequires: libpfm-devel >= 4
 %endif
@@ -321,6 +331,12 @@ Requires: pcp-libs = %{version}-%{release}
 %global _with_podman --with-podman=no
 %else
 %global _with_podman --with-podman=yes
+%endif
+
+%if %{disable_statsd}
+%global _with_statsd --with-statsd=no
+%else
+%global _with_statsd --with-statsd=yes
 %endif
 
 %if %{disable_bcc}
@@ -461,6 +477,9 @@ Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shpin
 Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
 %if !%{disable_podman}
 Requires: pcp-pmda-podman
+%endif
+%if !%{disable_statsd}
+Requires: pcp-pmda-statsd
 %endif
 %if !%{disable_nutcracker}
 Requires: pcp-pmda-nutcracker
@@ -934,6 +953,23 @@ BuildRequires: libvarlink-devel
 %description pmda-podman
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting podman container and pod statistics through libvarlink.
+%endif
+
+%if !%{disable_statsd}
+#
+# pcp-pmda-statsd
+#
+%package pmda-statsd
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics from statsd
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: libchan libhdr_histogram
+BuildRequires: libchan-devel libhdr_histogram-devel
+
+%description pmda-statsd
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting statistics from the statsd daemon.
 %endif
 
 %if !%{disable_perfevent}
@@ -2106,7 +2142,7 @@ updated policy package.
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_podman} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps} %{?_with_python2}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_podman} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps} %{?_with_python2}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2206,6 +2242,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^samba' |\
   grep -E -v '^slurm' |\
   grep -E -v '^snmp' |\
+  grep -E -v '^statsd' |\
   grep -E -v '^vmware' |\
   grep -E -v '^zimbra' |\
   grep -E -v '^dm' |\
@@ -2437,6 +2474,11 @@ fi
 %preun pmda-podman
 %{pmda_remove "$1" "podman"}
 %endif #preun pmda-podman
+
+%if !%{disable_statsd}
+%preun pmda-statsd
+%{pmda_remove "$1" "statsd"}
+%endif #preun pmda-statsd
 
 %if !%{disable_json}
 %preun pmda-json
@@ -3022,6 +3064,12 @@ cd
 %if !%{disable_podman}
 %files pmda-podman
 %{_pmdasdir}/podman
+%endif
+
+%if !%{disable_statsd}
+%files pmda-statsd
+%{_pmdasdir}/statsd
+%config(noreplace) %{_pmdasdir}/statsd/statsd.ini
 %endif
 
 %if !%{disable_perfevent}

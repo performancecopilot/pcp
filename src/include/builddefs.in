@@ -159,6 +159,7 @@ OBJECTS = $(ASFILES:.s=.o) \
           $(CXXFILES:.cxx=.o) \
           $(FFILES:.f=.o) \
           $(LFILES:.l=.o) \
+          $(RLFILES:.rl=.o) \
           $(YFILES:%.y=%.tab.o)
 
 #NB: don't override $(MAKE); gnumake sets it well, propagating -j etc.
@@ -171,6 +172,7 @@ SED	= @sed@
 CPP	= @cpp@
 LEX	= @lex@
 YACC	= @yacc@
+RAGEL	= @RAGEL@
 ECHO	= @echo@
 LN_S	= @LN_S@
 GREP    = @grep@
@@ -303,21 +305,23 @@ HAVE_WEBAPPS = @have_webapps@
 HAVE_HICOLOR_ICONS = @have_hicolor_icons@
 
 # additional libraries needed for particular functions
+LIB_FOR_ATOMIC = @lib_for_atomic@
+LIB_FOR_AVAHI = @lib_for_avahi@
 LIB_FOR_BASENAME = @lib_for_basename@
-LIB_FOR_DLOPEN = @lib_for_dlopen@
-LIB_FOR_REGEX = @lib_for_regex@
-LIB_FOR_MATH = @lib_for_math@
-LIB_FOR_READLINE = @lib_for_readline@
+LIB_FOR_CHAN = @lib_for_chan@
 LIB_FOR_CURSES = @lib_for_curses@
-LIB_FOR_PTHREADS = @lib_for_pthreads@
-LIB_FOR_RT = @lib_for_rt@
+LIB_FOR_DLOPEN = @lib_for_dlopen@
+LIB_FOR_HDR_HISTOGRAM = @lib_for_hdr_histogram@
+LIB_FOR_LZMA = @lib_for_lzma@
+LIB_FOR_MATH = @lib_for_math@
 LIB_FOR_NSS = @lib_for_nss@
 LIB_FOR_NSPR = @lib_for_nspr@
+LIB_FOR_PTHREADS = @lib_for_pthreads@
+LIB_FOR_READLINE = @lib_for_readline@
+LIB_FOR_REGEX = @lib_for_regex@
+LIB_FOR_RT = @lib_for_rt@
 LIB_FOR_SASL = @lib_for_sasl@
 LIB_FOR_SSL = @lib_for_ssl@
-LIB_FOR_AVAHI = @lib_for_avahi@
-LIB_FOR_ATOMIC = @lib_for_atomic@
-LIB_FOR_LZMA = @lib_for_lzma@
 
 HAVE_LIBUV = @HAVE_LIBUV@
 LIB_FOR_LIBUV = @libuv_LIBS@
@@ -348,6 +352,7 @@ PMDA_BCC = @PMDA_BCC@
 PMDA_RPM = @PMDA_RPM@
 PMDA_JSON = @PMDA_JSON@
 PMDA_PODMAN = @PMDA_PODMAN@
+PMDA_STATSD = @PMDA_STATSD@
 PMDA_LIBVIRT = @PMDA_LIBVIRT@
 PMDA_SYSTEMD = @PMDA_SYSTEMD@
 PMDA_PERFEVENT = @PMDA_PERFEVENT@

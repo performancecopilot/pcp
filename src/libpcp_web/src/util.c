@@ -322,10 +322,15 @@ pmwebapi_source_meta(context_t *c, char *buffer, int length)
     char	host[MAXHOSTNAMELEN];
     int		sts;
 
-    if ((pmGetContextHostName_r(c->context, host, sizeof(host))) == NULL)
+    if ((pmGetContextHostName_r(c->context, host, sizeof(host))) == NULL) {
+	c->setup = 0;
 	return PM_ERR_GENERIC;
+    }
     c->host = sdsnew(host);
-    if ((sts = pmGetContextLabels(set)) <= 0 && default_labelset(c, set) < 0)
+    sts = pmGetContextLabels(set);
+    if (sts == PM_ERR_IPC)
+	c->setup = 0;
+    if (sts <= 0 && default_labelset(c, set) < 0)
 	return sts;
     return pmMergeLabelSets(set, 1, buffer, length, labels, NULL);
 }
@@ -716,17 +721,22 @@ pmwebapi_add_domain(context_t *context, unsigned int key)
 }
 
 void
-pmwebapi_add_domain_labels(struct domain *domain)
+pmwebapi_add_domain_labels(struct context *context, struct domain *domain)
 {
     char		errmsg[PM_MAXERRMSGLEN];
     int			sts;
 
-    if ((domain->labelset == NULL) &&
-	(sts = pmGetDomainLabels(domain->domain, &domain->labelset)) < 0) {
-	if (pmDebugOptions.series)
-	    fprintf(stderr, "failed to get domain (%d) labels: %s\n",
-		    domain->domain, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	domain->labelset = NULL;
+    if (domain->labelset == NULL) {
+	sts = pmGetDomainLabels(domain->domain, &domain->labelset);
+	if (sts == PM_ERR_IPC)
+	    context->setup = 0;
+	if (sts < 0) {
+	    if (pmDebugOptions.series)
+		fprintf(stderr, "failed to get domain (%d) labels: %s\n",
+			domain->domain,
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    domain->labelset = NULL;
+	}
     }
 }
 
@@ -758,17 +768,22 @@ pmwebapi_add_cluster(context_t *context, domain_t *domain, pmID pmid)
 }
 
 void
-pmwebapi_add_cluster_labels(struct cluster *cluster)
+pmwebapi_add_cluster_labels(struct context *context, struct cluster *cluster)
 {
     char		errmsg[PM_MAXERRMSGLEN];
     int			sts;
 
-    if ((cluster->labelset == NULL) &&
-	(sts = pmGetClusterLabels(cluster->cluster, &cluster->labelset)) < 0) {
-	if (pmDebugOptions.series)
-	    fprintf(stderr, "failed to get cluster (%u) labels: %s\n",
-		    cluster->cluster, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	cluster->labelset = NULL;
+    if (cluster->labelset == NULL) {
+	sts = pmGetClusterLabels(cluster->cluster, &cluster->labelset);
+	if (sts == PM_ERR_IPC)
+	    context->setup = 0;
+	if (sts < 0) {
+	    if (pmDebugOptions.series)
+		fprintf(stderr, "failed to get cluster (%u) labels: %s\n",
+			cluster->cluster,
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    cluster->labelset = NULL;
+	}
     }
 }
 
@@ -832,7 +847,7 @@ pmwebapi_labelsetdup(pmLabelSet *lp)
 }
 
 void
-pmwebapi_add_instances_labels(struct indom *indom)
+pmwebapi_add_instances_labels(struct context *context, struct indom *indom)
 {
     struct instance	*instance;
     pmLabelSet		*labels, *labelsets = NULL;
@@ -840,18 +855,24 @@ pmwebapi_add_instances_labels(struct indom *indom)
     char		errmsg[PM_MAXERRMSGLEN], buffer[64];
     int			i, inst, sts = 0, nsets = 0;
 
-    if ((indom->labelset == NULL) &&
-	(sts = pmGetInDomLabels(indom->indom, &indom->labelset)) < 0) {
-	if (pmDebugOptions.series)
-	    fprintf(stderr, "failed to get indom (%s) labels: %s\n",
-		    pmInDomStr_r(indom->indom, buffer, sizeof(buffer)),
-		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	indom->labelset = NULL;
-	indom->updated = sts = 0;
+    if (indom->labelset == NULL) {
+	sts = pmGetInDomLabels(indom->indom, &indom->labelset);
+	if (sts == PM_ERR_IPC)
+	    context->setup = 0;
+	if (sts < 0) {
+	    if (pmDebugOptions.series)
+		fprintf(stderr, "failed to get indom (%s) labels: %s\n",
+			pmInDomStr_r(indom->indom, buffer, sizeof(buffer)),
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    indom->labelset = NULL;
+	    indom->updated = sts = 0;
+	}
     }
 
-    if ((indom->updated == 0) &&
-	(sts = nsets = pmGetInstancesLabels(indom->indom, &labelsets)) > 0) {
+    if (indom->updated == 0) {
+	sts = nsets = pmGetInstancesLabels(indom->indom, &labelsets);
+	if (sts == PM_ERR_IPC)
+	    context->setup = 0;
 	for (i = 0; i < nsets; i++) {
 	    labels = &labelsets[i];
 	    if ((length = labelsetlen(labels)) == 0)
@@ -878,9 +899,10 @@ pmwebapi_add_instances_labels(struct indom *indom)
 		fprintf(stderr, "\nSHA1=%s\n", buffer);
 	    }
 	}
-	indom->updated = 1;
+	if (sts >= 0)
+	    indom->updated = 1;
     } else {
-	if (sts == 0)
+	if (sts >= 0)
 	    indom->updated = 1;
 	else if (sts < 0 && pmDebugOptions.series)
 	    fprintf(stderr, "failed to get indom (%s) instance labels: %s\n",
@@ -929,7 +951,7 @@ pmwebapi_add_instance(struct indom *indom, int inst, char *name)
 }
 
 unsigned int
-pmwebapi_add_indom_instances(struct indom *indom)
+pmwebapi_add_indom_instances(struct context *context, struct indom *indom)
 {
     struct instance	*instance;
     unsigned int	count = 0;
@@ -953,6 +975,8 @@ pmwebapi_add_indom_instances(struct indom *indom)
 	    count++;
 	}
     } else {
+	if (sts == PM_ERR_IPC)
+	    context->setup = 0;
 	if (pmDebugOptions.series)
 	    fprintf(stderr, "failed to get indom (%s) instances: %s\n",
 		    pmInDomStr_r(indom->indom, buffer, sizeof(buffer)),
@@ -1036,6 +1060,8 @@ pmwebapi_new_pmid(context_t *cp, pmID pmid, pmLogInfoCallBack info, void *arg)
 	info(PMLOG_WARNING, msg, arg);
 	sdsfree(msg);
     } else if ((sts = pmLookupDesc(pmid, &desc)) < 0) {
+	if (sts == PM_ERR_IPC)
+	    cp->setup = 0;
 	infofmt(msg, "failed to lookup metric %s descriptor: %s",
 		pmIDStr_r(pmid, buffer, sizeof(buffer)),
 		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -1055,53 +1081,75 @@ pmwebapi_new_pmid(context_t *cp, pmID pmid, pmLogInfoCallBack info, void *arg)
 
 
 void
-pmwebapi_add_item_labels(struct metric *metric)
+pmwebapi_add_item_labels(struct context *context, struct metric *metric)
 {
     char		errmsg[PM_MAXERRMSGLEN];
     int			sts;
 
-    if ((metric->labelset == NULL) &&
-	(sts = pmGetItemLabels(metric->desc.pmid, &metric->labelset)) < 0) {
-	if (pmDebugOptions.series)
-	    fprintf(stderr, "failed to get metric item (%u) labels: %s\n",
-		    pmID_item(metric->desc.pmid),
-		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	metric->labelset = NULL;
+    if (metric->labelset == NULL) {
+	sts = pmGetItemLabels(metric->desc.pmid, &metric->labelset);
+	if (sts == PM_ERR_IPC)
+	    context->setup = 0;
+	if (sts < 0) {
+	    if (pmDebugOptions.series)
+		fprintf(stderr, "failed to get metric item (%u) labels: %s\n",
+			pmID_item(metric->desc.pmid),
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    metric->labelset = NULL;
+	}
     }
 }
 
 void
-pmwebapi_metric_help(struct metric *metric)
+pmwebapi_metric_help(struct context *context, struct metric *metric)
 {
     pmID		pmid = metric->desc.pmid;
     char		*text;
+    int			sts;
 
-    if (metric->oneline == NULL &&
-	pmLookupText(pmid, PM_TEXT_ONELINE | PM_TEXT_DIRECT, &text) == 0) {
-	metric->oneline = sdsnew(text);
-	free(text);
+    if (metric->oneline == NULL) {
+	sts = pmLookupText(pmid, PM_TEXT_ONELINE | PM_TEXT_DIRECT, &text);
+	if (sts == 0) {
+	    metric->oneline = sdsnew(text);
+	    free(text);
+	} else if (sts == PM_ERR_IPC) {
+	    context->setup = 0;
+	}
     }
-    if (metric->helptext == NULL &&
-	pmLookupText(pmid, PM_TEXT_HELP | PM_TEXT_DIRECT, &text) == 0) {
-	metric->helptext = sdsnew(text);
-	free(text);
+    if (metric->helptext == NULL) {
+	sts = pmLookupText(pmid, PM_TEXT_HELP | PM_TEXT_DIRECT, &text);
+	if (sts == 0) {
+	    metric->helptext = sdsnew(text);
+	    free(text);
+	} else if (sts == PM_ERR_IPC) {
+	    context->setup = 0;
+	}
     }
 }
 
 void
-pmwebapi_indom_help(struct indom *indom)
+pmwebapi_indom_help(struct context *context, struct indom *indom)
 {
     pmInDom		id = indom->indom;
     char		*text;
+    int			sts;
 
-    if (indom->oneline == NULL &&
-	pmLookupInDomText(id, PM_TEXT_ONELINE | PM_TEXT_DIRECT, &text) == 0) {
-	indom->oneline = sdsnew(text);
-	free(text);
+    if (indom->oneline == NULL) {
+	sts = pmLookupInDomText(id, PM_TEXT_ONELINE | PM_TEXT_DIRECT, &text);
+	if (sts == 0) {
+	    indom->oneline = sdsnew(text);
+	    free(text);
+	} else if (sts == PM_ERR_IPC) {
+	    context->setup = 0;
+	}
     }
-    if (indom->helptext == NULL &&
-	pmLookupInDomText(id, PM_TEXT_HELP | PM_TEXT_DIRECT, &text) == 0) {
-	indom->helptext = sdsnew(text);
-	free(text);
+    if (indom->helptext == NULL) {
+	sts = pmLookupInDomText(id, PM_TEXT_HELP | PM_TEXT_DIRECT, &text);
+	if (sts == 0) {
+	    indom->helptext = sdsnew(text);
+	    free(text);
+	} else if (sts == PM_ERR_IPC) {
+	    context->setup = 0;
+	}
     }
 }
