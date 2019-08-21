@@ -1477,7 +1477,7 @@ extracting performance metrics from eBPF/BCC Python modules.
 License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics from bpftrace scripts
 URL: https://pcp.io
-Requires: bpftrace
+Requires: bpftrace >= 0.9.2
 Requires: python3-pcp
 %description pmda-bpftrace
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
