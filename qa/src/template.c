@@ -175,7 +175,7 @@ main(int argc, char **argv)
     if (opts.Lflag)
 	printf("Got -L\n");
 
-    /* non-flag args are argv[optind] ... argv[argc-1] */
+    /* non-flag args are argv[opts.optind] ... argv[argc-1] */
     while (opts.optind < argc) {
 	printf("extra argument[%d]: %s\n", opts.optind, argv[opts.optind]);
 	opts.optind++;
