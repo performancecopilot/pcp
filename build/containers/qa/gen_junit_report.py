@@ -17,9 +17,10 @@ def parse_testouput_tests():
     """parse tests from testoutput"""
     tests = []
     for line in sys.stdin:
-        success_m = re.match(r'^\[\d+%\] (\d+)$', line)
-        notrun_m = re.match(r'^\[\d+%\] (\d+) \[not run\] (.+)$', line)
-        failed_m = re.match(r'^\[\d+%\] (\d+) (.+)$', line)
+        # [xx%] will only be displayed if there are more than 9 tests
+        success_m = re.match(r'^(?:\[\d+%\] )?(\d+)$', line)
+        notrun_m = re.match(r'^(?:\[\d+%\] )?(\d+) \[not run\] (.+)$', line)
+        failed_m = re.match(r'^(?:\[\d+%\] )?(\d+) (.+)$', line)
         if success_m:
             tests.append({
                 "no": success_m.group(1),

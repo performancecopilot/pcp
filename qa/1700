@@ -1,0 +1,41 @@
+#!/bin/sh
+# PCP QA Test No. 1700
+# Exercise the bpftrace PMDA - single values
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bpftrace
+
+_pmdabpftrace_check
+
+status=1       # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_prepare_pmda bpftrace
+trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+_pmdabpftrace_install
+
+echo "=== start bpftrace script ==="
+pmstore -F bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
+
+echo "=== check metrics ==="
+_pmdabpftrace_wait_for_value bpftrace.scripts.script100.data.root
+pminfo -dfmtT bpftrace.scripts.script100.status
+pminfo -dfmtT bpftrace.scripts.script100.pid | _value_filter_nonzero
+pminfo -dfmtT bpftrace.scripts.script100.exit_code
+pminfo -dfmtT bpftrace.scripts.script100.output
+pminfo -dfmtT bpftrace.scripts.script100.probes | _value_filter_nonzero
+pminfo -dfmtT bpftrace.scripts.script100.script
+
+pminfo -dfmtT bpftrace.scripts.script100.data.root | _value_filter_nonzero
+pminfo -dfmtT bpftrace.scripts.script100.data.scalar
+
+
+_pmdabpftrace_remove
+status=0
+exit

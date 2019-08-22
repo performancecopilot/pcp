@@ -278,6 +278,9 @@ Requires: pcp-pmda-statsd
 %if "@pmda_bcc@" == "true"
 Requires: pcp-pmda-bcc
 %endif
+%if "@pmda_bpftrace@" == "true"
+Requires: pcp-pmda-bpftrace
+%endif
 %if "@pmda_json@" == "true"
 Requires: pcp-pmda-json
 %endif
@@ -1466,6 +1469,22 @@ extracting performance metrics from eBPF/BCC Python modules.
 # end pcp-pmda-bcc
 %endif
 
+%if "@pmda_bpftrace@" == "true"
+#
+# pcp-pmda-bpftrace
+#
+%package pmda-bpftrace
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics from bpftrace scripts
+URL: https://pcp.io
+Requires: bpftrace >= 0.9.2
+Requires: python3-pcp
+%description pmda-bpftrace
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting performance metrics from bpftrace scripts.
+# end pcp-pmda-bpftrace
+%endif
+
 %if "@have_python@" == "true"
 #
 # pcp-pmda-gluster
@@ -2259,6 +2278,9 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/prometheus' > pmda_prometheus
 %if "@pmda_bcc@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bcc' > pmda_bcc_files
 %endif
+%if "@pmda_bpftrace@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bpftrace' > pmda_bpftrace_files
+%endif
 %if "@have_python@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
@@ -2316,6 +2338,9 @@ touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
 %endif
 %if "@pmda_bcc@" == "true"
 touch pmda_bcc_files
+%endif
+%if "@pmda_bpftrace@" == "true"
+touch pmda_bpftrace_files
 %endif
 %if "@pmda_json@" == "true"
 touch pmda_json_files
@@ -2429,6 +2454,9 @@ BEGIN {
     while( getline < "pmda_dm_files") pmda_dm[$0]=1;
 %if "@pmda_bcc@" == "true"
     while( getline < "pmda_bcc_files") pmda_bcc[$0]=1;
+%endif
+%if "@pmda_bpftrace@" == "true"
+    while( getline < "pmda_bpftrace_files") pmda_bpftrace[$0]=1;
 %endif
 %if "@have_python@" == "true"
     while( getline < "system_tools_files") system_tools[$0]=1;
@@ -2567,6 +2595,9 @@ BEGIN {
     else if (pmda_dm[$NF]) f="pmda_dm_files.rpm";
 %if "@pmda_bcc@" == "true"
     else if (pmda_bcc[$NF]) f="pmda_bcc_files.rpm";
+%endif
+%if "@pmda_bpftrace@" == "true"
+    else if (pmda_bpftrace[$NF]) f="pmda_bpftrace_files.rpm";
 %endif
 %if "@have_python@" == "true"
     else if (system_tools[$NF]) f="system_tools_files.rpm";
@@ -2995,6 +3026,11 @@ pmieconf -c enable dmthin
 %{pmda_remove "$1" "bcc"}
 %endif
 
+%if "@pmda_bpftrace@" == "true"
+%preun pmda-bpftrace
+%{pmda_remove "$1" "bpftrace"}
+%endif
+
 %if "@have_python@" == "true"
 %preun pmda-gluster
 %{pmda_remove "$1" "gluster"}
@@ -3322,6 +3358,10 @@ cd
 
 %if "@pmda_bcc@" == "true"
 %files pmda-bcc -f pmda_bcc_files.rpm
+%endif
+
+%if "@pmda_bpftrace@" == "true"
+%files pmda-bpftrace -f pmda_bpftrace_files.rpm
 %endif
 
 %if "@have_python@" == "true"

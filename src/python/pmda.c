@@ -1255,6 +1255,21 @@ pmid_build(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+pmid_cluster(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int result;
+    int pmid;
+    char *keyword_list[] = {"pmid", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"i:pmid_cluster", keyword_list,
+			&pmid))
+	return NULL;
+    result = pmID_cluster(pmid);
+    return Py_BuildValue("i", result);
+}
+
+static PyObject *
 pmda_indom(PyObject *self, PyObject *args, PyObject *keywords)
 {
     int result;
@@ -1429,6 +1444,8 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmda_pmid", .ml_meth = (PyCFunction)pmda_pmid,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmid_build", .ml_meth = (PyCFunction)pmid_build,
+	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmid_cluster", .ml_meth = (PyCFunction)pmid_cluster,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_indom", .ml_meth = (PyCFunction)pmda_indom,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
