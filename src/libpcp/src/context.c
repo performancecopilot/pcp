@@ -1662,6 +1662,13 @@ pmDestroyContext(int handle)
 	PM_TPD(curr_ctxp) = NULL;
     }
 
+    if (ctxp->c_type == PM_CONTEXT_LOCAL) {
+	/*
+	 * for local context, may need to clear the profile flag in the
+	 * associated DSO table entry
+	 */
+	__pmClearDSOProfile(handle);
+    }
     __pmFreeProfile(ctxp->c_instprof);
     ctxp->c_instprof = NULL;
     /* Note: __dmclosecontext sets ctxp->c_dm = NULL */

@@ -306,6 +306,7 @@ typedef struct __pmDSO {
     char		*name;
     char		*init;
     void		*handle;
+    int			ctx_last_prof;	/* ctx that sent last profile */
     pmdaInterface	dispatch;
 } __pmDSO;
 
