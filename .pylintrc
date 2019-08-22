@@ -249,8 +249,8 @@ redefining-builtins-modules=six.moves,past.builtins,future.builtins
 
 # List of note tags to take in consideration, separated by a comma.
 notes=FIXME,
-      XXX,
-      TODO
+      XXX
+#      TODO
 
 
 [BASIC]

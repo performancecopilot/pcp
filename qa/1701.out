@@ -1,0 +1,37 @@
+QA output created by 1701
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 6 metrics and 5 values
+
+=== start bpftrace script ===
+bpftrace.control.register old value="{}" new value="{"name": "script100", "vars": ["h"], "status": "starting", "exit_code": 0, "output": ""}"
+=== check metrics ===
+
+bpftrace.scripts.script100.data.h PMID: 151.100.10 [@h variable of bpftrace script]
+    Data Type: 64-bit unsigned int  InDom: 151.100010 0x25c186aa
+    Semantics: counter  Units: none
+Help:
+@h variable of bpftrace script
+    inst [0 or "-inf--1"] value 1
+    inst [1 or "0-0"] value 0
+    inst [2 or "1-1"] value 1
+    inst [3 or "2-3"] value 0
+    inst [4 or "4-7"] value 0
+    inst [5 or "8-15"] value 0
+    inst [6 or "16-31"] value 0
+    inst [7 or "32-63"] value 0
+    inst [8 or "64-127"] value 1
+    inst [9 or "128-255"] value 0
+    inst [10 or "256-511"] value 0
+    inst [11 or "512-1023"] value 1
+
+=== remove bpftrace agent ===
+Culling the Performance Metrics Name Space ...
+bpftrace ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bpftrace metrics have gone away ... OK

@@ -156,6 +156,12 @@ AC_ARG_WITH([pmdabcc],
     [do_pmdabcc=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabcc=$withval"],
     [do_pmdabcc=check])
 
+AC_ARG_WITH([pmdabpftrace],
+    [AC_HELP_STRING([--with-pmdabpftrace],
+		   [enable bpftrace pmda (default is off)])],
+    [do_pmdabpftrace=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpftrace=$withval"],
+    [do_pmdabpftrace=no])
+
 AC_ARG_WITH([pmdajson],
     [AC_HELP_STRING([--with-pmdajson],
 		   [enable JSON pmda (default is on)])],
@@ -1010,6 +1016,22 @@ AS_IF([test "x$do_pmdabcc" = "xcheck"], [
 ])
 AC_SUBST(PMDA_BCC, $pmda_bcc)
 if $pmda_bcc; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the bpftrace PMDA should be included])
+pmda_bpftrace=false
+AS_IF([test "x$do_pmdabpftrace" = "xyes"], [pmda_bpftrace=true])
+AS_IF([test "x$do_pmdabpftrace" = "xcheck"], [
+    dnl bpftrace PMDA needs python3, and OrderedDict and bpftrace with JSON support
+    if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
+        have_bpftrace=true
+    else
+        have_bpftrace=false
+    fi
+    $enable_python3 && $have_python_BPF && \
+	$have_python_OrderedDict && $have_bpftrace && pmda_bpftrace=true
+])
+AC_SUBST(PMDA_BPFTRACE, $pmda_bpftrace)
+if $pmda_bpftrace; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 dnl check if perl available for the build and runtime
 AC_CHECK_PROGS(PERL, perl)

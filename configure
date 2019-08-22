@@ -840,6 +840,7 @@ have_perl
 enable_perl
 pcp_perl_prog
 PERL
+PMDA_BPFTRACE
 PMDA_BCC
 PMDA_JSON
 have_python_influxdb
@@ -1010,6 +1011,7 @@ with_perfevent
 with_pmdastatsd
 with_pmdapodman
 with_pmdabcc
+with_pmdabpftrace
 with_pmdajson
 with_pmdanutcracker
 with_pmdasnmp
@@ -1737,6 +1739,7 @@ Optional Packages:
   --with-pmdastatsd       enable statds pmda (default is on)
   --with-pmdapodman       enable podman pmda (default is on)
   --with-pmdabcc          enable BCC pmda (default is on)
+  --with-pmdabpftrace     enable bpftrace pmda (default is off)
   --with-pmdajson         enable JSON pmda (default is on)
   --with-pmdanutcracker   enable nutcracker pmda (default is on)
   --with-pmdasnmp         enable SNMP pmda (default is on)
@@ -3025,6 +3028,15 @@ if test "${with_pmdabcc+set}" = set; then :
   withval=$with_pmdabcc; do_pmdabcc=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabcc=$withval"
 else
   do_pmdabcc=check
+fi
+
+
+
+# Check whether --with-pmdabpftrace was given.
+if test "${with_pmdabpftrace+set}" = set; then :
+  withval=$with_pmdabpftrace; do_pmdabpftrace=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpftrace=$withval"
+else
+  do_pmdabpftrace=no
 fi
 
 
@@ -7856,6 +7868,29 @@ fi
 PMDA_BCC=$pmda_bcc
 
 if $pmda_bcc; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the bpftrace PMDA should be included" >&5
+$as_echo_n "checking if the bpftrace PMDA should be included... " >&6; }
+pmda_bpftrace=false
+if test "x$do_pmdabpftrace" = "xyes"; then :
+  pmda_bpftrace=true
+fi
+if test "x$do_pmdabpftrace" = "xcheck"; then :
+
+        if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
+        have_bpftrace=true
+    else
+        have_bpftrace=false
+    fi
+    $enable_python3 && $have_python_BPF && \
+	$have_python_OrderedDict && $have_bpftrace && pmda_bpftrace=true
+
+fi
+PMDA_BPFTRACE=$pmda_bpftrace
+
+if $pmda_bpftrace; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 

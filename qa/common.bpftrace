@@ -1,0 +1,61 @@
+#
+# Common shell routines for testing pmdabpftrace
+#
+
+# get standard environment, filters and checks
+. ./common.python
+
+_pmdabpftrace_check()
+{
+    $python -c "from pcp import pmda" >/dev/null 2>&1
+    [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+    which bpftrace > /dev/null || _notrun "bpftrace not installed"
+    bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null || _notrun "current bpftrace version doesn't support JSON output, please upgrade"
+
+    [ -f $PCP_PMDAS_DIR/bpftrace/pmdabpftrace.python ] || _notrun "bpftrace PMDA not installed"
+}
+
+_pmdabpftrace_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/bpftrace
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== bpftrace agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out | _filter_pmda_install
+
+    echo
+}
+
+_pmdabpftrace_remove()
+{
+    cd $PCP_PMDAS_DIR/bpftrace
+
+    echo
+    echo "=== remove bpftrace agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+_pmdabpftrace_cleanup()
+{
+    # note: _restore_auto_restart pmcd done in _cleanup_pmda()
+    _cleanup_pmda bpftrace
+}
+
+_pmdabpftrace_wait_for_value()
+{
+    for i in $(seq 1 10);
+    do
+        pminfo -f $1 2>&1 | grep -q 'value .*' && break
+        sleep 1
+    done
+
+    if [ $i -ge 30 ]; then
+        echo Timeout while waiting for metric $1.
+        exit
+    fi
+}

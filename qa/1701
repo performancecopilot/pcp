@@ -1,0 +1,33 @@
+#!/bin/sh
+# PCP QA Test No. 1701
+# Exercise the bpftrace PMDA - histograms
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bpftrace
+
+_pmdabpftrace_check
+
+status=1       # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_prepare_pmda bpftrace
+trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+_pmdabpftrace_install
+
+echo "=== start bpftrace script ==="
+pmstore -F bpftrace.control.register "BEGIN { @h = hist(-2); @h = hist(1); @h = hist(100); @h = hist(1000); exit(); }"
+
+echo "=== check metrics ==="
+_pmdabpftrace_wait_for_value bpftrace.scripts.script100.data.h
+pminfo -dfmtT bpftrace.scripts.script100.data.h 2>&1
+
+
+_pmdabpftrace_remove
+status=0
+exit
