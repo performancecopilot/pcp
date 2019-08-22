@@ -37,10 +37,11 @@ echo "=== stop bpftrace script ==="
 pmstore -F bpftrace.control.stop testscript
 
 echo "=== verify script is stopped ==="
-for i in $(seq 1 10);
+for i in $(seq 1 30);
 do
     if ! ps -p $pid1 > /dev/null; then
         echo OK
+        echo "took $i seconds for the bpftrace script to stop" >> $here/$seq.full
         break
     fi
     sleep 1
