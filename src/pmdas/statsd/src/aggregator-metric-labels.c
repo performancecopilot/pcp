@@ -68,10 +68,10 @@ process_labeled_datagram(
     struct metric* item,
     struct statsd_datagram* datagram
 ) {
-    char throwing_away_msg[] = "Throwing away datagram.";
+    char throwing_away_msg[] = "Throwing away parsed datagram.";
     int correct_semantics = item->type == datagram->type;
     if (!correct_semantics) {
-        DEBUG_LOG("%s REASON: metric type doesn't match with root record.", throwing_away_msg);
+        METRIC_PROCESSING_ERR_LOG("%s REASON: metric type doesn't match with root record.", throwing_away_msg);
         return 0;
     }
     int labeled_children_dict_exists = item->children != NULL;
@@ -80,7 +80,7 @@ process_labeled_datagram(
     }
     char* label_key = create_metric_dict_key(datagram->tags);
     if (label_key == NULL) {
-        DEBUG_LOG("%s REASON: unable to create hashtable key for labeled child.", throwing_away_msg);
+        METRIC_PROCESSING_ERR_LOG("%s REASON: unable to create hashtable key for labeled child.", throwing_away_msg);
     }
     struct metric_label* label;
     int label_exists = find_label_by_name(container, item, label_key, &label);
@@ -88,7 +88,7 @@ process_labeled_datagram(
     if (label_exists) {
         int update_success = update_metric_value(config, container, label->type, datagram, &label->value);
         if (update_success != 1) {
-            DEBUG_LOG("%s REASON: sematically incorrect values.", throwing_away_msg);
+            METRIC_PROCESSING_ERR_LOG("%s REASON: sematically incorrect values.", throwing_away_msg);
             status = 0;
         } else {
             status = update_success;
@@ -99,7 +99,7 @@ process_labeled_datagram(
             add_label(container, item, label_key, label);
             status = create_success;
         } else {
-            DEBUG_LOG("%s REASON: unable to create label.", throwing_away_msg);
+            METRIC_PROCESSING_ERR_LOG("%s REASON: unable to create label.", throwing_away_msg);
             status = 0;
         }
     }

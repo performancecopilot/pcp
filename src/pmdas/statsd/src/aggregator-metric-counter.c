@@ -68,7 +68,7 @@ update_counter_value(struct agent_config* config, struct statsd_datagram* datagr
     }
     // check for overflow
     if (new_value > DBL_MAX - *(double*)value) {
-        WARN("Caught double overflow.");
+        VERBOSE_LOG(2, "Caught double overflow.");
         return 0;
     }
     *(double*)(value) += new_value;

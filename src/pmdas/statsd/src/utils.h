@@ -23,19 +23,29 @@
 #include "aggregator-metrics.h"
 #include "config-reader.h"
 
-#define VERBOSE_LOG(format, ...) \
-    if (is_verbose()) { \
+#define VERBOSE_LOG(level, format, ...) \
+    if (check_verbosity(level)) { \
         log_mutex_lock(); \
         pmNotifyErr(LOG_INFO, format, ## __VA_ARGS__); \
         log_mutex_unlock(); \
     } \
 
-#define DEBUG_LOG(format, ...) \
-    if (is_debug()) { \
-        log_mutex_lock(); \
-        pmNotifyErr(LOG_DEBUG, format, ## __VA_ARGS__); \
-        log_mutex_unlock(); \
+// There may be small race condition here,
+// but an issue of printing few more errors then is needed is not critical enough to create mutex.
+/**
+ * Logs metric processing related error. Ignores any after such error count passes threshold. In verbose=2 no errors are ignored.
+ */
+#define METRIC_PROCESSING_ERR_LOG(format, ...) \
+    log_mutex_lock(); \
+    if (is_metric_err_below_threshold()) { \
+        pmNotifyErr(LOG_ERR, format, ## __VA_ARGS__); \
+        if (!check_verbosity(2)) { \
+            increment_metric_err_count(); \
+        } \
+    } else { \
+        maybe_print_metric_err_msg(); \
     } \
+    log_mutex_unlock(); \
 
 /**
  * Checks if last allocation was OK 
@@ -62,21 +72,13 @@
     } \
 
 /**
- * Exists program
+ * Exits program, with a message
  */
 #define DIE(format, ...) \
     log_mutex_lock(); \
     pmNotifyErr(LOG_ALERT, format, ## __VA_ARGS__); \
     log_mutex_unlock(); \
     exit(1) \
-
-/**
- * Prints warning message
- */
-#define WARN(format, ...) \
-    log_mutex_lock(); \
-    pmNotifyErr(LOG_WARNING, format, ## __VA_ARGS__); \
-    log_mutex_unlock(); \
 
 /**
  * Validates valid metric name string
@@ -119,10 +121,29 @@ sanitize_type_val_string(char* src, enum METRIC_TYPE* out);
 
 /**
  * Check *verbose* flag
- * @return verbose flag
+ * @return 1 if below or equal, else 0
+ */
+int 
+check_verbosity(int level);
+
+/**
+ * Checks that error count for metrics is below threshold
+ * @return if passes
  */
 int
-is_verbose();
+is_metric_err_below_threshold();
+
+/**
+ * Increments error count for metrics
+ */
+void
+increment_metric_err_count();
+
+/**
+ * Prints error message about reaching metric error message count threshold - only once, subsequent calls dont do anything.
+ */
+void
+maybe_print_metric_err_msg();
 
 /**
  * Check *debug* flag

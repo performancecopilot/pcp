@@ -139,7 +139,7 @@ process_stat(struct agent_config* config, struct pmda_stats_container* s, enum S
  */
 void
 write_stats_to_file(struct agent_config* config, struct pmda_stats_container* stats) {
-    DEBUG_LOG("Writing stats to file...");
+    VERBOSE_LOG(0, "Writing stats to file...");
     pthread_mutex_lock(&stats->mutex);
     if (strlen(config->debug_output_filename) == 0) return; 
     int sep = pmPathSeparator();
@@ -147,13 +147,14 @@ write_stats_to_file(struct agent_config* config, struct pmda_stats_container* st
     pmsprintf(
         debug_output,
         MAXPATHLEN,
-        "%s" "%c" "statsd" "%c" "%s",
-        pmGetConfig("PCP_PMDAS_DIR"),
+        "%s" "%c" "pmcd" "%c" "statsd_%s",
+        pmGetConfig("PCP_LOG_DIR"),
         sep, sep, config->debug_output_filename);
     FILE* f;
     f = fopen(debug_output, "a+");
     if (f == NULL) {
-        VERBOSE_LOG("Unable to open file for output.");
+        pthread_mutex_unlock(&stats->mutex);
+        VERBOSE_LOG(0, "Unable to open file for output.");
         return;
     }
     fprintf(f, "----------------\n");
@@ -171,9 +172,10 @@ write_stats_to_file(struct agent_config* config, struct pmda_stats_container* st
         stats->stats->metrics_recorded->gauge,
         stats->stats->metrics_recorded->duration
     );
-    pthread_mutex_unlock(&stats->mutex);
     fprintf(f, "-----------------\n");
     fclose(f);
+    VERBOSE_LOG(0, "Wrote stats to debug file.");
+    pthread_mutex_unlock(&stats->mutex);
 }
 
 /**

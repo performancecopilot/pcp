@@ -118,7 +118,8 @@ create_pcp_metric(char* key, struct metric* item, pmdaExt* pmda) {
     }
     memset(&new_metric->m_desc.units, 0, sizeof(pmUnits));
     item->meta->pmid = newpmid;
-    DEBUG_LOG(
+    VERBOSE_LOG(
+        1,
         "STATSD: adding metric %s %s from %s\n", item->meta->pcp_name, pmIDStr(item->meta->pmid), item->name
     );
     item->meta->pcp_metric_index = i;
@@ -226,6 +227,10 @@ map_labels_to_instances(struct metric* item, struct pmda_data_extension* data, s
     dictReleaseIterator(iterator);
     data->pcp_instance_domains[indom_i].it_numinst = indom_i_inst_cnt;
     data->pcp_instance_domains[indom_i].it_set = instances;
+    VERBOSE_LOG(
+        1,
+        "STATSD: mapped labels to instances for metric %s %s from %s", item->meta->pcp_name, pmIDStr(item->meta->pmid), item->name
+    );
 }
 
 /***
@@ -320,6 +325,11 @@ update_pcp_metric_instance_domain(char* key, struct metric* item, pmdaExt* pmda)
     } else {
         update_instance(key, item, pmda);
     }
+    VERBOSE_LOG(
+        1,
+        "Updated instance domain for metric %s %s from %s\n",
+        item->meta->pcp_name, pmIDStr(item->meta->pmid), item->name
+    );
 }
 
 /**
@@ -347,6 +357,7 @@ map_metric(char* key, struct metric* item, void* pmda) {
     }
     data->pcp_metric_count += 1;
     process_stat(data->config, data->stats_storage, STAT_TRACKED_METRIC, (void*)item->type);
+    VERBOSE_LOG(1, "Populated PMNS with %d, %s .", item->meta->pmid, item->meta->pcp_name);
     pmdaTreeInsert(data->pcp_pmns, item->meta->pmid, item->meta->pcp_name);
 }
 
@@ -374,16 +385,15 @@ insert_hardcoded_metrics(pmdaExt* pmda) {
     pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 8), name);
     pmsprintf(name, 64, "statsd.pmda.settings.verbose");
     pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 9), name);
-    pmsprintf(name, 64, "statsd.pmda.settings.debug");
-    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 10), name);
     pmsprintf(name, 64, "statsd.pmda.settings.debug_output_filename");
-    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 11), name);
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 10), name);
     pmsprintf(name, 64, "statsd.pmda.settings.port");
-    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 12), name);
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 11), name);
     pmsprintf(name, 64, "statsd.pmda.settings.parser_type");
-    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 13), name);
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 12), name);
     pmsprintf(name, 64, "statsd.pmda.settings.duration_aggregation_type");
-    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 14), name);
+    pmdaTreeInsert(data->pcp_pmns, pmID_build(pmda->e_domain, 0, 13), name);
+    VERBOSE_LOG(1, "Populated PMNS with hardcoded metrics.");
 }
 
 /**
@@ -395,11 +405,12 @@ statsd_map_stats(pmdaExt* pmda) {
     int status = 0;
     if (data->pcp_pmns) {
         pmdaTreeRelease(data->pcp_pmns);
+        VERBOSE_LOG(1, "Released PMNS.");
         data->notify |= PMDA_EXT_NAMES_CHANGE; 
     }
     status = pmdaTreeCreate(&data->pcp_pmns);
     if (status < 0) {
-        DEBUG_LOG("%s: failed to create new pmns: %s\n", pmGetProgname(), pmErrStr(status));
+        VERBOSE_LOG(1, "%s: failed to create new pmns: %s\n", pmGetProgname(), pmErrStr(status));
         data->pcp_pmns = NULL;
         return;
     } 
@@ -434,12 +445,13 @@ statsd_possible_reload(pmdaExt* pmda) {
     int need_reload = data->metrics_storage->generation != data->generation ? 1 : 0;
     pthread_mutex_unlock(&data->metrics_storage->mutex);
     if (need_reload) {
-        DEBUG_LOG("statsd: %s: reloading", pmGetProgname());
+        VERBOSE_LOG(1, "statsd: %s: reloading", pmGetProgname());
         statsd_map_stats(pmda);
         pmda->e_indoms = data->pcp_instance_domains;
         pmda->e_nindoms = data->pcp_instance_domain_count;
         pmdaRehash(pmda, data->pcp_metrics, data->pcp_metric_count);
-        DEBUG_LOG(
+        VERBOSE_LOG(
+            1,
             "statsd: %s: %lu metrics and %lu instance domains after reload",
             pmGetProgname(),
             data->pcp_metric_count,
@@ -856,12 +868,8 @@ statsd_resolve_static_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmA
         case 9:
             (*atom)->ul = config->verbose;
             break;
-        /* settings.debug */
-        case 10:
-            (*atom)->ul = config->debug;
-            break;
         /* settings.debug_output_filename */
-        case 11:
+        case 10:
         {
             size_t length = strlen(config->debug_output_filename) + 1;
             char* result = (char*) malloc(sizeof(char) * length);
@@ -871,11 +879,11 @@ statsd_resolve_static_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmA
             break;
         }
         /* settings.port */
-        case 12:
+        case 11:
             (*atom)->ul = config->port;
             break;
         /* settings.parser_type */
-        case 13:
+        case 12:
         {   
             size_t length = 6;
             char* result = (char*) malloc(sizeof(char) * length);
@@ -891,7 +899,7 @@ statsd_resolve_static_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmA
             break;
         }
         /* settings.duration_aggregation_type */
-        case 14:
+        case 13:
         {
             char* result;
             char* basic = "Basic";

@@ -92,10 +92,10 @@ create_metric_dict_key(char* key) {
 int
 process_metric(struct agent_config* config, struct pmda_metrics_container* container, struct statsd_datagram* datagram) {
     struct metric* item;
-    char throwing_away_msg[] = "Throwing away datagram.";
+    char throwing_away_msg[] = "Throwing away parsed datagram.";
     char* metric_key = create_metric_dict_key(datagram->name);
     if (metric_key == NULL) {
-        DEBUG_LOG("%s REASON: unable to create hashtable key for metric record.", throwing_away_msg);
+        METRIC_PROCESSING_ERR_LOG("%s REASON: unable to create hashtable key for metric record.", throwing_away_msg);
         return 0;
     }
     int status = 0;
@@ -105,10 +105,10 @@ process_metric(struct agent_config* config, struct pmda_metrics_container* conta
         if (!datagram_contains_tags) {
             int res = update_metric_value(config, container, item->type, datagram, &item->value);
             if (res == 0) {
-                DEBUG_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
+                METRIC_PROCESSING_ERR_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
                 status = 0;
             } else if (res == -1) {
-                DEBUG_LOG("%s REASON: metric of same name but different type is already recorded.", throwing_away_msg);
+                METRIC_PROCESSING_ERR_LOG("%s REASON: metric of same name but different type is already recorded.", throwing_away_msg);
                 status = 0;
             } else {
                 status = 1;
@@ -138,11 +138,11 @@ process_metric(struct agent_config* config, struct pmda_metrics_container* conta
                     mark_metric_as_pernament(container, item);
                 }
             } else {
-                DEBUG_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
+                METRIC_PROCESSING_ERR_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
                 status = 0;
             }
         } else {
-            DEBUG_LOG("%s REASON: name is not available. (blacklisted?)", throwing_away_msg);
+            METRIC_PROCESSING_ERR_LOG("%s REASON: name is not available. (blacklisted?)", throwing_away_msg);
             status = 0;
         }
     }
@@ -209,7 +209,7 @@ print_metric_meta(FILE* f, struct metric_metadata* meta) {
  */
 void
 write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container* container) {
-    DEBUG_LOG("Writing metrics to file...");
+    VERBOSE_LOG(0, "Writing metrics to file...");
     pthread_mutex_lock(&container->mutex);
     metrics* m = container->metrics;
     if (strlen(config->debug_output_filename) == 0) return; 
@@ -218,13 +218,14 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
     pmsprintf(
         debug_output,
         MAXPATHLEN,
-        "%s" "%c" "statsd" "%c" "%s",
-        pmGetConfig("PCP_PMDAS_DIR"),
+        "%s" "%c" "pmcd" "%c" "statsd_%s",
+        pmGetConfig("PCP_LOG_DIR"),
         sep, sep, config->debug_output_filename);
     FILE* f;
     f = fopen(debug_output, "a+");
     if (f == NULL) {
-        VERBOSE_LOG("Unable to open file for output.");
+        pthread_mutex_unlock(&container->mutex);
+        VERBOSE_LOG(0, "Unable to open file for output.");
         return;
     }
     dictIterator* iterator = dictGetSafeIterator(m);
@@ -251,9 +252,9 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
     dictReleaseIterator(iterator);
     fprintf(f, "-----------------\n");
     fprintf(f, "Total number of records: %lu \n", count);
-    fclose(f);
-    
+    fclose(f);    
     pthread_mutex_unlock(&container->mutex);
+    VERBOSE_LOG(0, "Wrote metrics to debug file.");
 }
 
 /**
@@ -492,7 +493,6 @@ void
 free_metric_metadata(struct metric_metadata* meta) {
     if (meta != NULL) {
         if (meta->pcp_instance_map != NULL) {
-            size_t i;
             if (meta->pcp_instance_map->labels != NULL) {
                 free(meta->pcp_instance_map->labels);
             }
