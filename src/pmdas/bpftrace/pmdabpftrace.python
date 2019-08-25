@@ -26,7 +26,7 @@ import atexit
 from ctypes import c_int
 
 import cpmapi as c_api
-from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid, pmdaGetContext
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaGetContext
 from pcp.pmapi import pmUnits, pmContext as PCP
 
 from bpftrace import BPFtrace, BPFtraceError, BPFtraceVarDef
@@ -65,8 +65,8 @@ class BPFtraceScript:
         self.cluster = cluster
         self.script = script # contains the unmodified script
         self.bpftrace = BPFtrace(pmda.bpftrace_path, pmda.log, script)
-        if 'name' in self.bpftrace.metadata:
-            self.name = self.bpftrace.metadata['name']
+        if self.bpftrace.metadata.name:
+            self.name = self.bpftrace.metadata.name
             self.persistent = True
         else:
             self.name = 'script{}'.format(cluster)
@@ -269,10 +269,8 @@ class BPFtracePMDA(PMDA):
         self.scripts = {}
         self.script_indom_id = None
         self.script_indom = None
-        self.tracepoints_indom_id = None
-        self.tracepoints_indom = None
+        self.tracepoints_csv = '' if self.is_pmda_setup() else self.read_tracepoints_csv()
         self.register_metrics()
-        self.read_tracepoints()
 
         self.set_store_callback(self.store_callback)
         self.set_label(self.label)
@@ -282,11 +280,15 @@ class BPFtracePMDA(PMDA):
         @atexit.register
         def cleanup(): # pylint: disable=unused-variable
             """Cleanup"""
-            if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
+            if not self.is_pmda_setup:
                 for script in self.scripts.values():
                     script.refresh_state()
                     if script.state.status == 'started':
                         script.stop()
+
+    def is_pmda_setup(self):
+        """checks if PMDA is in setup state"""
+        return os.environ.get('PCP_PYTHON_DOMAIN') or os.environ.get('PCP_PYTHON_PMNS')
 
     def read_config(self):
         """read PMDA configuration file"""
@@ -341,29 +343,19 @@ class BPFtracePMDA(PMDA):
             self.script_indom_id, c_api.PM_SEM_INSTANT, pmUnits()
         ), "list of all registered bpftrace scripts")
 
-        tracepoint_insts = [
-            pmdaInstid(i, tracepoint) for i, tracepoint in enumerate(self.read_tracepoints())
-        ]
-        self.tracepoints_indom_id = self.indom(1)
-        self.tracepoints_indom = pmdaIndom(self.tracepoints_indom_id, tracepoint_insts)
-        self.add_indom(self.tracepoints_indom)
         self.add_metric('bpftrace.info.tracepoints', pmdaMetric(
-            self.pmid(Consts.Info.Cluster, Consts.Info.Tracepoints), c_api.PM_TYPE_U32,
-            self.tracepoints_indom_id, c_api.PM_SEM_INSTANT, pmUnits()
+            self.pmid(Consts.Info.Cluster, Consts.Info.Tracepoints), c_api.PM_TYPE_STRING,
+            c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         ), "list of all available tracepoints")
 
-    def read_tracepoints(self):
+    def read_tracepoints_csv(self):
         """on startup, read list of all available bpftrace tracepoints"""
         try:
             tracepoints = subprocess.check_output([self.bpftrace_path, '-l'], encoding='utf8')
         except OSError as e:
             self.err("Cannot start bpftrace: {}".format(e))
             sys.exit(1)
-
-        tracepoints = tracepoints.strip().split('\n')
-        # TODO: remove once PMDA can handle indoms with 56340 instances
-        tracepoints = tracepoints[:1]
-        return tracepoints
+        return tracepoints.strip().replace('\n', ',')
 
     def set_ctx_state(self, key, value):
         """set per-context state"""
@@ -545,8 +537,7 @@ class BPFtracePMDA(PMDA):
                     return [script.script, 1]
                 return [c_api.PM_ERR_INST, 0]
             elif item == Consts.Info.Tracepoints:
-                key = self.tracepoints_indom.inst_name_lookup(inst)
-                return [1, 1] if key else [c_api.PM_ERR_INST, 0]
+                return [self.tracepoints_csv, 1]
         elif cluster in self.scripts:
             return self.scripts[cluster].fetch_callback(item, inst)
         return [c_api.PM_ERR_PMID, 0]
