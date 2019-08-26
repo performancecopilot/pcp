@@ -2056,7 +2056,7 @@ the <literal>telnet</literal> session, increase the PMAPI time out by setting
 the <literal>PMCD_CONNECT_TIMEOUT</literal> environment variable to some number
 of seconds (60 for instance), and try the PCP client tool again.</para>
 <para>Verify that PMCD is not running in local-only mode, by looking for an enabled value (one) from: <literallayout class="monospaced"><userinput>pminfo -f pmcd.feature.local</userinput></literallayout></para>
-<para>This setting is controlled from the <literal>PMCD_LOCAL</literal> environment variable usually set via <filename>${PCP_SYSCONFIG_PATH}/pmcd</filename>.</para>
+<para>This setting is controlled from the <literal>PMCD_LOCAL</literal> environment variable usually set via <filename>${PCP_SYSCONFIG_DIR}/pmcd</filename>.</para>
 <para>If these techniques are ineffective, it is likely an intermediary firewall is blocking the client from accessing the PMCD port - resolving such issues is firewall-host platform-specific and cannot practically be covered here.</para>
 </listitem></varlistentry>
 </variablelist>

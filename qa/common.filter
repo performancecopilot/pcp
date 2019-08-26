@@ -893,3 +893,23 @@ _filter_views()
 	-e '/Failed to connect to socket .*dbus.*: Connection refused/d' \
 	-e '/^$/d'
 }
+
+_value_filter_nonzero()
+{
+    sed -e "s/value [1-9][0-9]*/value OK/g"
+}
+
+_instances_filter_any()
+{
+    awk '/value .+/ {print "OK"; exit}'
+}
+
+_instances_filter_nonzero()
+{
+    awk '/value [1-9]\d*/ {print "OK"; exit}'
+}
+
+_instances_filter_exact()
+{
+    grep "value $1" > /dev/null && echo OK
+}

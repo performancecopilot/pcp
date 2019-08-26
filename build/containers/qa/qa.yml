@@ -21,6 +21,9 @@ steps:
 - script: docker exec pcp-qa bash -o pipefail -c 'cd /var/lib/pcp/testsuite && ./check -g pmda.bcc | tee /artifacts/test-logs/pmda.bcc.log >(/pcp/build/containers/qa/gen_junit_report.py > /artifacts/test-logs/pmda.bcc.xml)'
   continueOnError: true
   displayName: 'Run tests: BCC PMDA'
+- script: docker exec pcp-qa bash -o pipefail -c 'cd /var/lib/pcp/testsuite && ./check -g pmda.bpftrace | tee /artifacts/test-logs/pmda.bpftrace.log >(/pcp/build/containers/qa/gen_junit_report.py > /artifacts/test-logs/pmda.bpftrace.xml)'
+  continueOnError: true
+  displayName: 'Run tests: bpftrace PMDA'
 - script: |
     docker exec pcp-qa bash -c 'cp -r /var/log/pcp/* /artifacts/pcp-logs'
     docker exec pcp-qa bash -c 'cp -r /packages /artifacts'

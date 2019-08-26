@@ -179,6 +179,7 @@ pmda.apache
 pmda.bash
 pmda.bcc
 pmda.bind2
+pmda.bpftrace
 pmda.cifs
 pmda.cisco
 pmda.dm
@@ -1302,6 +1303,7 @@ BAD
 900 libpcp sanity local timezone
 901 libpcp event local
 902 libpcp mem_leak valgrind event local
+903 libpcp threads local context_local context
 904 python local
 905 oldversion remote
 906 pmda.sample indom help pmda pminfo local
@@ -1312,6 +1314,7 @@ BAD
 911 pmda.linux local
 912 pmda.nutcracker local
 913 pmda.redis local
+914 libpcp threads local context_local context
 915 pmcd pmlogger pmproxy libpcp local pmlc
 916 pmlogextract pmlogcheck local kernel
 917 selinux local
@@ -1687,4 +1690,7 @@ BAD
 1622 selinux local
 1644 pmda.perfevent local
 1695 pmproxy valgrind local
+1700 pmda.bpftrace local python
+1701 pmda.bpftrace local python
+1702 pmda.bpftrace local python
 4751 libpcp threads valgrind local pcp python

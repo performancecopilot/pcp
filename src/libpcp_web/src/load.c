@@ -267,7 +267,7 @@ pmwebapi_extract_value(int valfmt, const pmValue *vp, int type, pmAtomValue *ap)
     case PM_TYPE_AGGREGATE:
     case PM_TYPE_AGGREGATE_STATIC:
 	length = vp->value.pval->vlen - PM_VAL_HDR_SIZE;
-	if (type == PM_TYPE_STRING && length > 1)
+	if (type == PM_TYPE_STRING && length > 0)
 	    length--;	/* do not escape the terminating null byte */
 	ap->cp = sdscatrepr(sdsempty(), vp->value.pval->vbuf, length);
 	return 0;

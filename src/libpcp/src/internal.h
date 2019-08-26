@@ -417,6 +417,7 @@ extern int __pmLogChangeToPreviousArchive(__pmLogCtl **) _PCP_HIDDEN;
 /* DSO PMDA helpers */
 struct __pmDSO;			/* opaque, real definition in pmda.h */
 extern struct __pmDSO *__pmLookupDSO(int) _PCP_HIDDEN;
+extern void __pmClearDSOProfile(int) _PCP_HIDDEN;
 /*
  * Adding/deleting/clearing the list of DSO PMDAs supported for
  * PM_CONTEXT_LOCAL contexts

@@ -1,0 +1,71 @@
+#!/bin/sh
+# PCP QA Test No. 1702
+# Exercise the bpftrace PMDA - register, start, stop and deregister named scripts
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bpftrace
+
+_pmdabpftrace_check
+
+status=1       # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_prepare_pmda bpftrace
+trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+_pmdabpftrace_install
+
+echo "=== start bpftrace script ==="
+pmstore -F bpftrace.control.register "// name: testscript
+kretprobe:vfs_read
+{
+    @bytes = hist(retval);
+}"
+
+echo "=== check metrics ==="
+_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.bytes
+pminfo -dfmtT bpftrace.scripts.testscript.data.bytes 2>&1 | tee -a $here/$seq.full \
+| _instances_filter_any
+pid1=$(pminfo -f bpftrace.scripts.testscript.pid | grep value | sed -En 's/.*value ([0-9]*)/\1/gp')
+
+echo "=== stop bpftrace script ==="
+pmstore -F bpftrace.control.stop testscript
+
+echo "=== verify script is stopped ==="
+for i in $(seq 1 30);
+do
+    if ! ps -p $pid1 > /dev/null; then
+        echo OK
+        echo "took $i seconds for the bpftrace script to stop" >> $here/$seq.full
+        break
+    fi
+    sleep 1
+done
+
+echo "=== start script again ==="
+pmstore -F bpftrace.control.start testscript
+_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.counter
+
+echo "=== verify current bpftrace PID is different than last PID ==="
+pid2=$(pminfo -f bpftrace.scripts.testscript.pid | grep value | sed -En 's/.*value ([0-9]*)/\1/gp')
+
+echo "check PID $pid2 != $pid1" >> $here/$seq.full
+if [ "$pid2" -ne "$pid1" ]; then
+    echo "Success: Second PID is different than first PID."
+fi
+
+echo "=== deregister bpftrace script ==="
+pmstore -F bpftrace.control.deregister testscript
+
+echo "=== check metric has disappeared ==="
+pminfo bpftrace.scripts.testscript.data.bytes
+
+
+_pmdabpftrace_remove
+status=0
+exit
