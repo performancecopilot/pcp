@@ -69,11 +69,11 @@ basic_parser_parse(char* buffer, struct statsd_datagram** datagram) {
     if (buffer[length - 1] == '\n')
         buffer[length - 1] = 0;
     if (parse(buffer, datagram)) {
-        DEBUG_LOG("Parsed: %s", buffer);
+        VERBOSE_LOG(2, "Parsed: %s", buffer);
         return 1;
     }
     free_datagram(*datagram);
-    DEBUG_LOG("Throwing away datagram. REASON: unable to parse: %s", buffer);
+    METRIC_PROCESSING_ERR_LOG("Throwing away datagram. REASON: unable to parse: %s", buffer);
     return 0;
 };
 

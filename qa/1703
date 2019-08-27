@@ -1,0 +1,20 @@
+#!/bin/sh
+# PCP QA Test No. 1703
+# Exercise the bpftrace PMDA - run unittests
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bpftrace
+
+_pmdabpftrace_check
+
+status=1       # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+PYTHONPATH="$PCP_PMDAS_DIR/bpftrace" $python $here/bpftrace/tests.py
+
+
+status=0
+exit

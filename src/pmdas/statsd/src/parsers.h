@@ -36,6 +36,7 @@ enum METRIC_TYPE {
 enum PARSER_RESULT_TYPE {
     PARSER_RESULT_PARSED = 0b00,
     PARSER_RESULT_DROPPED = 0b01,
+    PARSER_RESULT_END = 0b11,
 } PARSER_RESULT;
 
 enum SIGN {
@@ -71,19 +72,6 @@ void*
 parser_exec(void* args);
 
 /**
- * Sets flag which is checked in main parser loop. 
- * If is true, parser loop stops sending messages trought channel and will free incoming messages.  
- */
-void
-set_parser_exit();
-
-/**
- * Gets exit flag w
- */
-int
-get_parser_exit();
-
-/**
  * Creates arguments for parser thread
  * @arg config - Application config
  * @arg network_listener_to_parser - Network listener -> Parser
@@ -92,12 +80,6 @@ get_parser_exit();
  */
 struct parser_args*
 create_parser_args(struct agent_config* config, chan_t* network_listener_to_parser, chan_t* parser_to_aggregator);
-
-/**
- * Prints out parsed datagram structure in human readable form.
- */
-void
-print_out_datagram(struct statsd_datagram* datagram);
 
 /**
  * 

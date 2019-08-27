@@ -67,12 +67,12 @@ update_gauge_value(struct agent_config* config, struct statsd_datagram* datagram
     }
     // check for overflow
     if (old > 0 && new_value > DBL_MAX - old) {
-        WARN("Caught double overflow.");
+        VERBOSE_LOG(2, "Caught double overflow.");
         return 0;
     }
     // check for underflow
     if (old < 0 && new_value < DBL_MAX - old) {
-        WARN("Caught double underflow.");
+        VERBOSE_LOG(2, "Caught double underflow.");
         return 0;
     }
     if (datagram->explicit_sign == SIGN_NONE) {

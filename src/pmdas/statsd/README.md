@@ -62,9 +62,9 @@ It accepts following parameters:
 
 - **max_udp_packet_size** - Maximum allowed packet size <br>default: _1472_
 - **port** - On which port is agent listening for incoming trafic <br>default: _8125_
-- **verbose** - Flag controlling whether or not to allow verbose logging <br>default: _1_
-- **debug** - Flag controlling whether or not to allow debug logging <br>default: _0_
-- **debug_output_filename** - You can send USR1 signal that 'asks' agent to output basic information about all aggregated metric into a file with this name <br>default: _debug_
+- **verbose** - Verbosity level. Prints info about agent execution into logfile. Valid values are 0-2. 0 = Default value, shows config information, read socket state, and first 100 dropped messages. 1 = Shows PMNS and related information. 2 = Most detailed verbosity level, also shows dropped messages above 100 <br>default: _0_
+All levels include those belows.
+- **debug_output_filename** - You can send USR1 signal that 'asks' agent to output basic information about all aggregated metric into a $PCP\_LOG\_DIR/pmcd/statsd\_{name} file. <br>default: _debug_
 - **version** - Flag controlling whether or not to log current agent version on start <br>default: _0_
 - **parser_type** - Flag specifying which algorithm to use for parsing incoming datagrams, 0 = basic, 1 = Ragel <br>default: _0_
 - **duration_aggregation_type** - Flag specifying which aggregation scheme to use for duration metrics, 0 = basic, 1 = hdr histogram <br>default: _1_

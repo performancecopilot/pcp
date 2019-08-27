@@ -45,13 +45,12 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 	int cs;
 	size_t current_index = 0;
 	size_t current_segment_start_index = 0;
-	struct tag_collection* tags;
+	struct tag_collection* tags = NULL;
 	char* tag_key = NULL;
 	char* tag_value = NULL;
 	int tag_key_allocated = 0;
 	int tag_value_allocated = 0;
 	int any_tags = 0;
-	int name_start = 0;
 
 	%%{
 
@@ -106,9 +105,11 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 				struct tag** new_tags =
 					(struct tag**) realloc(tags->values, sizeof(struct tag*) * (tags->length + 1));
 				ALLOC_CHECK("Unable to allocate memory for tags");
-				tags->values = new_tags;
-				tags->values[tags->length] = t;
-				tags->length++;
+				if (tags != NULL) {
+					tags->values = new_tags;
+					tags->values[tags->length] = t;
+					tags->length++;
+				}
 			}
 			free(tag_key);
 			free(tag_value);
@@ -193,6 +194,11 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 		write exec;
 
 	}%%
+	(void)statsd_en_main;
+	(void)statsd_error;
+	(void)statsd_first_final;
+	(void)_statsd_eof_actions;
+
 	if (any_tags) {
 		char* json = tag_collection_to_json(tags);
 		if (json != NULL) {
@@ -205,7 +211,7 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 	}
 	if (str[length - 1] == '\n')
         str[length - 1] = 0;
-	DEBUG_LOG("Parsed: %s", str);
+	VERBOSE_LOG(2, "Parsed: %s", str);
 	return 1;
 
 	error_clean_up:
@@ -217,7 +223,7 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 	if (str[length - 1] == '\n')
         str[length - 1] = 0;
 	free_datagram(*datagram);
-	DEBUG_LOG("Throwing away datagram. REASON: unable to parse: %s", str);
+	METRIC_PROCESSING_ERR_LOG("Throwing away datagram. REASON: unable to parse: %s", str);
 	return 0;
 };
 

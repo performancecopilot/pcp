@@ -28,7 +28,6 @@ set_default_config(struct agent_config* config) {
     config->max_udp_packet_size = 1472;
     config->max_unprocessed_packets = 2048;
     config->verbose = 0;
-    config->debug = 0;
     config->debug_output_filename = "debug";
     config->show_version = 0;
     config->port = 8125;
@@ -72,14 +71,9 @@ ini_line_handler(void* user, const char* section, const char* name, const char* 
         }
     } else if (MATCH("verbose")) {
         long unsigned int param = strtoul(value, NULL, 10);
-        if (param < UINT32_MAX) {
-            dest->verbose = (unsigned int) param;
+        if (param < 3) {
+            dest->verbose = param;
         }
-    } else if (MATCH("debug")) {
-        long unsigned int param = strtoul(value, NULL, 10);
-        if (param < UINT32_MAX) {
-            dest->debug = (unsigned int) param;
-        }    
     } else if (MATCH("debug_output_filename")) {
         dest->debug_output_filename = (char*) malloc(length);
         ALLOC_CHECK("Unable to asssing memory for config debug_output_filename");
@@ -93,12 +87,12 @@ ini_line_handler(void* user, const char* section, const char* name, const char* 
         long unsigned int param = strtoul(value, NULL, 10);
         if (param < UINT32_MAX) {
             dest->parser_type = (unsigned int) param;
-        }  
+        }
     } else if (MATCH("duration_aggregation_type")) {
         long unsigned int param = strtoul(value, NULL, 10);
         if (param < UINT32_MAX) {
             dest->duration_aggregation_type = (unsigned int) param;
-        }  
+        }
     } else {
         return 0;
     }
@@ -118,7 +112,7 @@ read_agent_config_file(struct agent_config* dest, char* path) {
     if (ini_parse(path, ini_line_handler, dest) < 0) {
         DIE("Can't load config file");
     }
-    VERBOSE_LOG("Config loaded from %s.", path);
+    pmNotifyErr(LOG_INFO, "Config loaded from %s.", path);
 }
 
 /**
@@ -135,8 +129,7 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
         PMDAOPT_LOGFILE,
         PMDAOPT_USERNAME,
         PMOPT_HELP,
-        { "verbose", 0, 'v', "VERBOSE", "Verbose logging" },
-        { "debug", 0, 'g', "DEBUG", "Debug logging" },
+        { "verbose", 1, 'v', "VERBOSE", "Verbose logging" },
         { "version", 0, 's', "VERSION", "Display version" },
         { "debug-output-filename", 1, 'o', "DEBUG-OUTPUT-FILENAME", "Debug file output path" },
         { "max-udp", 1, 'Z', "MAX-UDP", "Maximum size of UDP datagram" },
@@ -148,7 +141,7 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
     };
 
     static pmdaOptions opts = {
-        .short_options = "D:d:l:U:vgso:Z:P:r:a:z:?",
+        .short_options = "D:d:l:U:v:so:Z:P:r:a:z:?",
         .long_options = longopts,
     };
     while(1) {
@@ -156,11 +149,15 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
         if (c == -1) break;
         switch (c) {
             case 'v':
-                dest->verbose = 1;
+            {
+                long unsigned int param = strtoul(opts.optarg, NULL, 10);
+                if (param < 3) {
+                    dest->verbose = (unsigned int) param;
+                } else {
+                    pmNotifyErr(LOG_INFO, "verbose option value is out of bounds.");
+                }
                 break;
-            case 'g':
-                dest->debug = 1;
-                break;
+            }
             case 's':
                 dest->show_version = 1;
                 break;
@@ -168,14 +165,23 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
                 dest->debug_output_filename = opts.optarg;
                 break;
             case 'Z':
-                dest->max_udp_packet_size = strtoll(opts.optarg, NULL, 10);
+            {
+                long unsigned int param = strtoul(opts.optarg, NULL, 10);
+                if (param < UINT32_MAX) {
+                    dest->max_udp_packet_size = param;
+                } else {
+                    pmNotifyErr(LOG_INFO, "max_udp_packet_size option value is out of bounds.");
+                }
                 break;
+            }
             case 'P':
             {
                 long unsigned int param = strtoul(opts.optarg, NULL, 10);		
                 if (param < 65535) {		
                     dest->port = (unsigned int) param;		
-                }		
+                } else {
+                    pmNotifyErr(LOG_INFO, "port option value is out of bounds.");
+                }
                 break;
             }
             case 'r':
@@ -183,7 +189,9 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
                 long unsigned int param = strtoul(opts.optarg, NULL, 10);		
                 if (param < UINT32_MAX) {		
                     dest->parser_type = (unsigned int) param;		
-                }		
+                } else {
+                    pmNotifyErr(LOG_INFO, "parser_type option value is out of bounds.");
+                }
                 break;
             }
             case 'a':
@@ -191,7 +199,9 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
                 long unsigned int param = strtoul(opts.optarg, NULL, 10);		
                 if (param < UINT32_MAX) {		
                     dest->duration_aggregation_type = (unsigned int) param;		
-                }		
+                } else {
+                    pmNotifyErr(LOG_INFO, "duration_aggregation_type option value is out of bounds.");
+                }
                 break;
             }
             case 'z':
@@ -199,7 +209,9 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
                 long unsigned int param = strtoul(opts.optarg, NULL, 10);		
                 if (param < UINT32_MAX) {		
                     dest->max_unprocessed_packets = (unsigned int) param;		
-                }		
+                } else {
+                    pmNotifyErr(LOG_INFO, "max_unprocessed_packets option value is out of bounds.");
+                }
                 break;
             }
         }
@@ -220,10 +232,7 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
 void
 print_agent_config(struct agent_config* config) {
     pmNotifyErr(LOG_INFO, "<settings>\n");
-    if (config->verbose)
-        pmNotifyErr(LOG_INFO, "verbose flag is set");
-    if (config->debug)
-        pmNotifyErr(LOG_INFO, "debug flag is set");
+    pmNotifyErr(LOG_INFO, "verbosity: %d", config->verbose);
     if (config->show_version)
         pmNotifyErr(LOG_INFO, "version flag is set");
     pmNotifyErr(LOG_INFO, "debug_output_filename: %s \n", config->debug_output_filename);

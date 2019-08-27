@@ -23,6 +23,9 @@ endif
 ifeq "$(PMDA_STATSD)" "true"
 SUBDIRS += statsd
 endif
+ifeq "$(PMDA_BPFTRACE)" "true"
+SUBDIRS += bpftrace
+endif
 ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure mic haproxy lio prometheus
 endif

@@ -20,6 +20,8 @@
 #include <netdb.h>
 #include <chan/chan.h>
 #include <pthread.h>
+#include <sys/types.h>
+#include <signal.h>
 
 #include "network-listener.h"
 #include "parser-basic.h"
@@ -35,6 +37,7 @@
 void*
 network_listener_exec(void* args) {
     pthread_setname_np(pthread_self(), "Net. Listener");
+    static char* end_message = "PMDASTATSD_EXIT"; 
     struct agent_config* config = ((struct network_listener_args*)args)->config;
     chan_t* network_listener_to_parser = ((struct network_listener_args*)args)->network_listener_to_parser;
     const char* hostname = 0;
@@ -59,8 +62,8 @@ network_listener_exec(void* args) {
     if (bind(fd, res->ai_addr, res->ai_addrlen) == -1) {
         DIE("failed binding socket (err=%s)", strerror(errno));
     }
-    VERBOSE_LOG("Socket enstablished.");
-    VERBOSE_LOG("Waiting for datagrams.");
+    VERBOSE_LOG(0, "Socket enstablished.");
+    VERBOSE_LOG(0, "Waiting for datagrams.");
     fcntl(fd, F_SETFL, O_NONBLOCK);
     struct timeval tv;
     freeaddrinfo(res);
@@ -72,7 +75,7 @@ network_listener_exec(void* args) {
     while(1) {
         FD_ZERO(&readfds);
         FD_SET(fd, &readfds);
-        tv.tv_sec = 0;
+        tv.tv_sec = 1;
         tv.tv_usec = 0;
         rv = select(fd + 1, &readfds, NULL, NULL, &tv);
         if (rv == 1) {
@@ -82,7 +85,7 @@ network_listener_exec(void* args) {
             } 
             // since we checked for -1
             else if ((signed int)count == max_udp_packet_size) { 
-                WARN("Datagram too large for buffer: truncated and skipped");
+                VERBOSE_LOG(2, "Datagram too large for buffer: truncated and skipped");
             } else {
                 struct unprocessed_statsd_datagram* datagram = (struct unprocessed_statsd_datagram*) malloc(sizeof(struct unprocessed_statsd_datagram));
                 ALLOC_CHECK("Unable to assign memory for struct representing unprocessed datagrams.");
@@ -90,19 +93,30 @@ network_listener_exec(void* args) {
                 ALLOC_CHECK("Unable to assign memory for datagram value.");
                 memcpy(datagram->value, buffer, count);
                 datagram->value[count] = '\0';
+                if (strcmp(end_message, datagram->value) == 0) {
+                    free_unprocessed_datagram(datagram);
+                    kill(getpid(), SIGINT);
+                    break;
+                }
                 chan_send(network_listener_to_parser, datagram);
             }
             memset(buffer, 0, max_udp_packet_size);
             rv = 0;
         } else {
             int exit_flag = check_exit_flag();
-            if (exit_flag) {
+            if (exit_flag) {        
                 break;
             }
         }
     }
+    VERBOSE_LOG(2, "Network listener thread exiting.");
+    struct unprocessed_statsd_datagram* datagram = (struct unprocessed_statsd_datagram*) malloc(sizeof(struct unprocessed_statsd_datagram));
+    ALLOC_CHECK("Unable to assign memory for struct representing unprocessed datagrams.");
+    size_t length = strlen(end_message) + 1;
+    datagram->value = (char*) malloc(sizeof(char) * length);
+    memcpy(datagram->value, end_message, length);
+    chan_send(network_listener_to_parser, datagram);
     free(buffer);
-    VERBOSE_LOG("Network listener thread exiting.");
     pthread_exit(NULL);
 }
 

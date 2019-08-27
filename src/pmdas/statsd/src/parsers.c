@@ -27,11 +27,6 @@
 #include "utils.h"
 
 /**
- * Used to signal pthread that its time to go home
- */
-static int g_parser_exit = 0;
-
-/**
  * Thread entrypoint - listens to incoming payload on a unprocessed channel
  * and sends over successfully parsed data over to Aggregator thread via processed channel
  * @arg args - parser_args
@@ -39,6 +34,7 @@ static int g_parser_exit = 0;
 void*
 parser_exec(void* args) {
     pthread_setname_np(pthread_self(), "Parser");
+    static char* network_end_message = "PMDASTATSD_EXIT";
     struct agent_config* config = ((struct parser_args*)args)->config;
     chan_t* network_listener_to_parser = ((struct parser_args*)args)->network_listener_to_parser;
     chan_t* parser_to_aggregator = ((struct parser_args*)args)->parser_to_aggregator;
@@ -54,69 +50,56 @@ parser_exec(void* args) {
     struct timespec t0, t1;
     unsigned long time_spent_parsing;
     int should_exit;
-    int exit_loop = 0; 
-    while(1 && !exit_loop) {
+    while(1) {
         should_exit = check_exit_flag();
-        switch (chan_select(&network_listener_to_parser, 1, (void *)&datagram, NULL, 0, NULL)) {
-            case 0:
-            {
-                if (should_exit) {
-                    VERBOSE_LOG("FREEING DATAGRAMS after exit");
-                    free_unprocessed_datagram(datagram);
-                    break;
-                }
-                struct statsd_datagram* parsed;
-                char* tok = strtok(datagram->value, delim);
-                while (tok != NULL) {
-                    clock_gettime(CLOCK_MONOTONIC, &t0);
-                    int success = parse_datagram(tok, &parsed);
-                    clock_gettime(CLOCK_MONOTONIC, &t1);
-                    struct parser_to_aggregator_message* message =
-                        (struct parser_to_aggregator_message*) malloc(sizeof(struct parser_to_aggregator_message));
-                    time_spent_parsing = (t1.tv_nsec) - (t0.tv_nsec);
-                    message->time = time_spent_parsing;
-                    if (success) {
-                        message->data = parsed;
-                        message->type = PARSER_RESULT_PARSED;
-                        chan_send(parser_to_aggregator, message);
-                    } else {
-                        message->data = NULL;
-                        message->type = PARSER_RESULT_DROPPED;
-                        chan_send(parser_to_aggregator, message);
-                    }
-                    tok = strtok(NULL, delim);
-                }
-                free_unprocessed_datagram(datagram);
-                break;
-            }
-            default:
-            {
-                if (get_parser_exit()) {
-                    exit_loop = 1;
-                    break;
-                }
-            }
+        int success_recv = chan_recv(network_listener_to_parser, (void *)&datagram);
+        if (success_recv == -1) {
+            VERBOSE_LOG(2, "Error receiving message from network listener.");
+            break;
         }
+        if (strcmp(datagram->value, network_end_message) == 0) {
+            VERBOSE_LOG(2, "Got network end message.");
+            free_unprocessed_datagram(datagram);
+            break;
+        }
+        if (should_exit) {
+            VERBOSE_LOG(2, "Freeing datagrams after exit.");
+            free_unprocessed_datagram(datagram);
+            continue;
+        }
+        struct statsd_datagram* parsed;
+        char* tok = strtok(datagram->value, delim);
+        while (tok != NULL) {
+            clock_gettime(CLOCK_MONOTONIC, &t0);
+            int success = parse_datagram(tok, &parsed);
+            clock_gettime(CLOCK_MONOTONIC, &t1);
+            struct parser_to_aggregator_message* message =
+                (struct parser_to_aggregator_message*) malloc(sizeof(struct parser_to_aggregator_message));
+            ALLOC_CHECK("Unable to assign memory for parser to aggregator message.");
+            time_spent_parsing = (t1.tv_nsec) - (t0.tv_nsec);
+            message->time = time_spent_parsing;
+            if (success) {
+                message->data = parsed;
+                message->type = PARSER_RESULT_PARSED;
+                chan_send(parser_to_aggregator, message);
+            } else {
+                message->data = NULL;
+                message->type = PARSER_RESULT_DROPPED;
+                chan_send(parser_to_aggregator, message);
+            }
+            tok = strtok(NULL, delim);
+        }
+        free_unprocessed_datagram(datagram);
     }
-    VERBOSE_LOG("Parser exiting.");
+    VERBOSE_LOG(2, "Parser exiting.");
+    struct parser_to_aggregator_message* message =
+        (struct parser_to_aggregator_message*) malloc(sizeof(struct parser_to_aggregator_message));
+    ALLOC_CHECK("Unable to assign memory for parser to aggregator message.");
+    message->type = PARSER_RESULT_END;
+    message->time = 0;
+    message->data = NULL;
+    chan_send(parser_to_aggregator, message);
     pthread_exit(NULL);
-}
-
-/**
- * Sets flag which is checked in main parser loop. 
- * If is true, parser loop stops sending messages trought channel and will free incoming messages.  
- */
-void
-set_parser_exit() {
-    __sync_add_and_fetch(&g_parser_exit, 1);
-}
-
-/**
- * Gets exit flag 
- */
-int
-get_parser_exit() {
-    return g_parser_exit;
 }
 
 /**
@@ -134,31 +117,6 @@ create_parser_args(struct agent_config* config, chan_t* network_listener_to_pars
     parser_args->network_listener_to_parser = network_listener_to_parser;
     parser_args->parser_to_aggregator = parser_to_aggregator;
     return parser_args;
-}
-
-/**
- * Prints out parsed datagram structure in human readable form.
- */
-void
-print_out_datagram(struct statsd_datagram* datagram) {
-    printf("DATAGRAM: \n");
-    printf("name: %s \n", datagram->name);
-    printf("tags: %s \n", datagram->tags);
-    printf("value: %lf \n", datagram->value);
-    switch (datagram->type) {
-        case METRIC_TYPE_COUNTER:
-            printf("type: COUNTER \n");
-            break;
-        case METRIC_TYPE_GAUGE:
-            printf("type: GAUGE \n");
-            break;
-        case METRIC_TYPE_DURATION:
-            printf("type: DURATION \n");
-            break;
-        default:
-            printf("type: null \n");
-    }
-    printf("------------------------------ \n");
 }
 
 /**

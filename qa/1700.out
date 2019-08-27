@@ -51,7 +51,8 @@ bpftrace.scripts.script100.script PMID: 151.100.5 [bpftrace script]
     Semantics: instant  Units: none
 Help:
 bpftrace script
-    value "tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; } interval:s:1 { print(@); print(@scalar); }"
+    value "tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }
+interval:s:1 { print(@); print(@scalar); }"
 
 bpftrace.scripts.script100.data.root PMID: 151.100.10 [@ variable of bpftrace script]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
