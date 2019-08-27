@@ -42,13 +42,24 @@ This PMDA supports the following metadata annotations, to be included in the bpf
 ```
 // name: script_name
 ```
-This annotation sets the name of a script. Metrics will be exported in the `bpftrace.scripts.scriptname` namespace. Named scripts will never be removed, even if their value isn't requested in a long time period.
+This annotation sets the name of a script.
+Metrics will be exported in the `bpftrace.scripts.scriptname` namespace.
+Named scripts will never be removed, even if their value isn't requested in a long time period.
 
 #### Only export specific variables
 ```
 // include: @bytes,@count
 ```
-By default all bpftrace variables get exported as metrics. This annotation changes the default behavior and specifies which bpftrace variables should be exported. All other bpftrace variables will be ignored.
+By default all bpftrace variables get exported as metrics.
+This annotation changes the default behavior and specifies which bpftrace variables should be exported.
+All other bpftrace variables will be ignored.
+
+#### Tables
+```
+// table-retain-lines: 10
+```
+A common use case is to print tables in CSV format (using `printf()`), and display them as a table in Grafana.
+This setting controls how many data lines should be retained. The table header (the first line) will be preserved.
 
 ## Thanks
 Thanks to Alastair Robertson and all contributors of [bpftrace](https://github.com/iovisor/bpftrace/graphs/contributors).

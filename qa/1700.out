@@ -30,7 +30,7 @@ bpftrace.scripts.script100.exit_code PMID: 151.100.2 [exit code of bpftrace proc
     Semantics: instant  Units: none
 Help:
 exit code of bpftrace process
-Error: Missing metric value(s)
+    value 0
 
 bpftrace.scripts.script100.output PMID: 151.100.3 [output of the bpftrace executable]
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
@@ -51,7 +51,8 @@ bpftrace.scripts.script100.script PMID: 151.100.5 [bpftrace script]
     Semantics: instant  Units: none
 Help:
 bpftrace script
-    value "tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; } interval:s:1 { print(@); print(@scalar); }"
+    value "tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }
+interval:s:1 { print(@); print(@scalar); }"
 
 bpftrace.scripts.script100.data.root PMID: 151.100.10 [@ variable of bpftrace script]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff

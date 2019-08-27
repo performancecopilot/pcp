@@ -61,9 +61,9 @@ class BPFtraceVarDef: # pylint: disable=too-few-public-methods
     """BPFtrace variable definitions"""
     class MetricType:
         """BPFtrace variable types"""
+        Control = 'control'
         Histogram = 'histogram'
         Output = 'output'
-        Control = 'control'
 
     def __init__(self, single, semantics, datatype, metrictype):
         self.single = single
@@ -74,6 +74,13 @@ class BPFtraceVarDef: # pylint: disable=too-few-public-methods
     def __str__(self):
         return str(self.__dict__)
 
+class ScriptMetadata: # pylint: disable=too-few-public-methods
+    """metadata for bpftrace scripts"""
+    def __init__(self):
+        self.name = None
+        self.include = None
+        self.table_retain_lines = None
+
 class BPFtrace:
     """class for interacting with bpftrace"""
     def __init__(self, bpftrace_path, log, script):
@@ -82,7 +89,7 @@ class BPFtrace:
         self.script = script # contains the modified script (added continuous output)
         self.process = None
 
-        self.metadata = {}
+        self.metadata = ScriptMetadata()
         self.var_defs = {}
         self.lock = Lock()
         self._state = BPFtraceState()
@@ -93,6 +100,22 @@ class BPFtrace:
         """returns latest state"""
         with self.lock:
             return deepcopy(self._state)
+
+    def table_retain_lines(self):
+        """cut table lines and keep first line (header)"""
+        output = self._state.maps['@output']
+        newlines = []
+        for i, c in enumerate(output):
+            if c == '\n':
+                newlines.append(i + 1)
+
+        # e.g. if we found one NL, we have 2 lines
+        if len(newlines) + 1 > 1 + self.metadata.table_retain_lines:
+            # special handling if last character is a NL
+            ignore_last_nl = 1 if output[-1] == '\n' else 0
+            # pylint: disable=invalid-unary-operand-type
+            start_content_at = newlines[-self.metadata.table_retain_lines - ignore_last_nl]
+            self._state.maps['@output'] = output[:newlines[0]] + output[start_content_at:]
 
     def process_output_obj(self, obj):
         """process a single JSON object from bpftrace output"""
@@ -113,6 +136,8 @@ class BPFtrace:
                     }
             elif obj['type'] in [BPFtraceMessageType.Printf, BPFtraceMessageType.Time]:
                 self._state.maps['@output'] = self._state.maps.get('@output', '') + obj['msg']
+                if self.metadata.table_retain_lines is not None:
+                    self.table_retain_lines()
 
     def process_output(self):
         """process stdout and stderr of running bpftrace process"""
@@ -134,23 +159,34 @@ class BPFtrace:
 
     def parse_script(self):
         """parse bpftrace script (read variable semantics, add continuous output)"""
-        metadata = re.findall(r'^// (\w+): (.+)$', self.script, re.MULTILINE)
-        for key, val in metadata:
+        found_metadata = re.findall(r'^//\s*([\w\-]+)' + # key
+                                    r'(?:\s*:\s*(.+?)\s*)?$', # optional value
+                                    self.script, re.MULTILINE)
+        for key, val in found_metadata:
             if key == 'name':
                 if re.match(r'^[a-zA-Z_]\w+$', val):
-                    self.metadata['name'] = val
+                    self.metadata.name = val
                 else:
-                    raise BPFtraceError("invalid value '{}' for script name: must contain only "
-                                        "alphanumeric characters and start with a letter".format(
-                                            val))
+                    raise BPFtraceError("invalid value '{}' for {}: "
+                                        "must contain only alphanumeric characters and "
+                                        "start with a letter".format(val, key))
             elif key == 'include':
-                self.metadata['include'] = val.split(',')
+                self.metadata.include = val.split(',')
+            elif key == 'table-retain-lines':
+                if val.isdigit():
+                    self.metadata.table_retain_lines = int(val)
+                else:
+                    raise BPFtraceError("invalid value '{}' for {}, "
+                                        "must be numeric".format(val, key))
 
-        self.var_defs = {}
-        variables = re.findall(r'(@.*?)(\[.+?\])?\s*=\s*(count|hist)?', self.script)
+        variables = re.findall(r'(@.*?)' + # variable
+                               r'(\[.+?\])?' + # optional map key
+                               r'\s*=\s*' + # assignment
+                               r'(?:([a-zA-Z]\w*)\s*\()?', # optional function
+                               self.script)
         if variables:
             for var, key, func in variables:
-                if 'include' in self.metadata and var not in self.metadata['include']:
+                if self.metadata.include is not None and var not in self.metadata.include:
                     continue
 
                 vardef = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT, datatype=PM_TYPE_U64,
@@ -168,10 +204,10 @@ class BPFtrace:
                 self.var_defs[var] = vardef
 
             print_st = ' '.join(['print({});'.format(var) for var in self.var_defs])
-            self.script = self.script + ' interval:s:1 {{ {} }}'.format(print_st)
+            self.script = self.script + '\ninterval:s:1 {{ {} }}'.format(print_st)
 
         output_fns = re.search(r'(printf|time)\s*\(', self.script)
-        if output_fns and ('include' not in self.metadata or '@output' in self.metadata['include']):
+        if output_fns and (self.metadata.include is None or '@output' in self.metadata.include):
             if '@output' in self.var_defs:
                 raise BPFtraceError("output from printf(), time() etc. will be stored in @output. "
                                     "please rename the existing @output variable or remove any "
