@@ -31,30 +31,18 @@ struct aggregator_args
 } aggregator_args;
 
 /**
- * Thread startpoint - passes down given datagram to aggregator to record value it contains
- * @arg args - (aggregator_args), see ~/src/network-listener.h
+ * Thread startpoint - passes down given datagram to aggregator to record value it contains (should be used for a single new thread)
+ * @arg args - aggregator_args
  */
 void*
 aggregator_exec(void* args);
 
 /**
- * Sets flag notifying that output was requested
+ * Outputs debug info
  */
 void
-aggregator_request_output();
+aggregator_debug_output();
 
-/**
- * Sets flag which is checked in main aggregator loop.
- * If its true, after the channel will become completely empty the thread will exit.
- */
-void
-set_aggregator_exit();
-
-/**
- * Gets exit flag
- */
-int 
-get_aggregator_exit();
 /**
  * Frees pointer to aggregator message
  * @arg message - Message to be freed

@@ -45,14 +45,20 @@ static pthread_mutex_t g_log_mutex;
 static int g_exit_flag = 0;
 
 /**
- * Flag used to determine if VERBOSE output is allowed to be printed
+ * Verbosity level
  */
-static int g_verbose_flag = 0;
+static int g_verbosity = 0;
 
 /**
- * Flag used to determine if DEBUG output is allowed to be printed
+ * Metric processing error counter,
+ * in non verbose=2 serves as maximum for count of shown metric processing errors
  */
-static int g_debug_flag = 0;
+static long unsigned int g_metric_error_counter = 0; 
+
+/**
+ * Metric error count threshold
+ */
+static long unsigned int g_metric_error_threshold = 1000;
 
 /**
  * Validates valid metric name string
@@ -190,20 +196,46 @@ sanitize_type_val_string(char* src, enum METRIC_TYPE* out) {
 
 /**
  * Check *verbose* flag
- * @return verbose flag
+ * @return 1 if below or equal, else 0
  */
 int 
-is_verbose() {
-    return g_verbose_flag;
+check_verbosity(int level) {
+    if (level <= g_verbosity) {
+        return 1;
+    }
+    return 0;
 }
 
 /**
- * Check *debug* flag
- * @return debug flag
+ * Checks that error count for metrics is below threshold
+ * @return if passes
  */
-int 
-is_debug() {
-    return g_debug_flag;
+int
+is_metric_err_below_threshold() {
+    if (g_metric_error_counter < g_metric_error_threshold) {
+        return 1;
+    }
+    return 0;
+}
+
+/**
+ * Increments error count for metrics
+ */
+void
+increment_metric_err_count() {
+    __sync_add_and_fetch(&g_metric_error_counter, 1);
+}
+
+/**
+ * Prints error message about reaching metric error message count threshold - only once, subsequent calls dont do anything.
+ */
+void
+maybe_print_metric_err_msg() {
+    static int i = 0;
+    if (i == 0) {
+        pmNotifyErr(LOG_ERR, "Too many dropped messages, ignoring until next restart.");
+        i++;
+    }
 }
 
 void
@@ -232,6 +264,5 @@ check_exit_flag() {
  */
 void
 init_loggers(struct agent_config* config) {
-    g_verbose_flag = config->verbose;
-    g_debug_flag = config->debug;
+    g_verbosity = config->verbose;
 }

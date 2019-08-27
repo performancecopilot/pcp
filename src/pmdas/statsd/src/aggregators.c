@@ -30,27 +30,23 @@
 #include "aggregator-stats.h"
 
 /**
- * Flag to capture USR1 signal event, which is supposed mark request to output currently recorded data in debug file 
+ * Mutex guarding aggregator proccesing, so there are no race condiditions if we request debug output.
  */
-static int g_output_requested = 0;
+static pthread_mutex_t g_aggregator_processing_lock;
 
 /**
- * Mutex guarding g_output_requested
+ * This is shared with a function thats called from signal handler, should debug data be requested
  */
-static pthread_mutex_t g_output_requested_lock;
+static struct aggregator_args* g_aggregator_args = NULL;
 
 /**
- * Used to signal aggregator pthread that its time to go home
- */
-static int g_aggregator_exit = 0;
-
-/**
- * Thread startpoint - passes down given datagram to aggregator to record value it contains
- * @arg args - (aggregator_args), see ~/network-listener.h
+ * Thread startpoint - passes down given datagram to aggregator to record value it contains (should be used for a single new thread)
+ * @arg args - aggregator_args
  */
 void*
 aggregator_exec(void* args) {
     pthread_setname_np(pthread_self(), "Aggregator");
+    g_aggregator_args = (struct aggregator_args*)args;
     struct agent_config* config = ((struct aggregator_args*)args)->config;
     struct pmda_metrics_container* metrics_container = ((struct aggregator_args*)args)->metrics_container;
     struct pmda_stats_container* stats_container = ((struct aggregator_args*)args)->stats_container;
@@ -60,88 +56,59 @@ aggregator_exec(void* args) {
     struct timespec t0, t1;
     unsigned long time_spent_aggregating;
     int should_exit;
-    int exit_loop = 0;
-    while(1 && !exit_loop) {
+    while(1) {
         should_exit = check_exit_flag();
-        switch(chan_select(&parser_to_aggregator, 1, (void *)&message, NULL, 0, NULL)) {
-            case 0:
-            {
-                if (should_exit) {
-                    free_parser_to_aggregator_message(message);
-                    break;
-                }
-                process_stat(config, stats_container, STAT_RECEIVED, NULL);
-                switch (message->type) {
-                    case PARSER_RESULT_PARSED:
-                        clock_gettime(CLOCK_MONOTONIC, &t0);
-                        int status = process_metric(config, metrics_container, (struct statsd_datagram*) message->data);
-                        clock_gettime(CLOCK_MONOTONIC, &t1);
-                        time_spent_aggregating = t1.tv_nsec - t0.tv_nsec;
-                        process_stat(config, stats_container, STAT_PARSED, NULL);
-                        process_stat(config, stats_container, STAT_TIME_SPENT_PARSING, &message->time);
-                        if (status) {
-                            process_stat(config, stats_container, STAT_AGGREGATED, NULL);
-                            process_stat(config, stats_container, STAT_TIME_SPENT_AGGREGATING, &time_spent_aggregating);
-                        } else {
-                            process_stat(config, stats_container, STAT_DROPPED, NULL);
-                        }
-                        break;
-                    case PARSER_RESULT_DROPPED:
-                        process_stat(config, stats_container, STAT_DROPPED, NULL);
-                        process_stat(config, stats_container, STAT_TIME_SPENT_PARSING, &message->time);
-                        break;
-                }
-                free_parser_to_aggregator_message(message);
-                break;
-            }
-            default: 
-            {
-                if (get_aggregator_exit()) {
-                    exit_loop = 1;
-                    break;
-                }
-                pthread_mutex_lock(&g_output_requested_lock);
-                if (g_output_requested) {
-                    VERBOSE_LOG("Output of recorded values request caught.");
-                    write_metrics_to_file(config, metrics_container);
-                    write_stats_to_file(config, stats_container);
-                    VERBOSE_LOG("Recorded values output.");
-                    g_output_requested = 0;
-                }
-                pthread_mutex_unlock(&g_output_requested_lock);
-                break;
-            }
+        int success_recv = chan_recv(parser_to_aggregator, (void*)&message);
+        if (success_recv == -1) {
+            VERBOSE_LOG(2, "Error received message from parser.");
+            break;
         }
+        if (message->type == PARSER_RESULT_END) {
+            VERBOSE_LOG(2, "Got parser end message.");
+            free_parser_to_aggregator_message(message);
+            break;
+        }
+        if (should_exit) {
+            free_parser_to_aggregator_message(message);
+            continue;
+        }
+        pthread_mutex_lock(&g_aggregator_processing_lock);
+        process_stat(config, stats_container, STAT_RECEIVED, NULL);
+        if (message->type == PARSER_RESULT_PARSED) {
+            clock_gettime(CLOCK_MONOTONIC, &t0);
+            int status = process_metric(config, metrics_container, (struct statsd_datagram*) message->data);
+            clock_gettime(CLOCK_MONOTONIC, &t1);
+            time_spent_aggregating = t1.tv_nsec - t0.tv_nsec;
+            process_stat(config, stats_container, STAT_PARSED, NULL);
+            process_stat(config, stats_container, STAT_TIME_SPENT_PARSING, &message->time);
+            if (status) {
+                process_stat(config, stats_container, STAT_AGGREGATED, NULL);
+                process_stat(config, stats_container, STAT_TIME_SPENT_AGGREGATING, &time_spent_aggregating);
+            } else {
+                process_stat(config, stats_container, STAT_DROPPED, NULL);
+            }
+        } else if (message->type == PARSER_RESULT_DROPPED) {
+            process_stat(config, stats_container, STAT_DROPPED, NULL);
+            process_stat(config, stats_container, STAT_TIME_SPENT_PARSING, &message->time);
+        }
+        free_parser_to_aggregator_message(message);
+        pthread_mutex_unlock(&g_aggregator_processing_lock);
     }
-    VERBOSE_LOG("Aggregator thread exiting.");
+    VERBOSE_LOG(2, "Aggregator thread exiting.");
     pthread_exit(NULL);
 }
 
 /**
- * Sets flag notifying that output was requested
+ * Outputs debug info
  */
 void
-aggregator_request_output() {
-    pthread_mutex_lock(&g_output_requested_lock);
-    g_output_requested = 1;
-    pthread_mutex_unlock(&g_output_requested_lock);
-}
-
-/**
- * Sets flag which is checked in main aggregator loop.
- * If its true, after the channel will become completely empty the thread will exit.
- */
-void
-set_aggregator_exit() {
-    __sync_add_and_fetch(&g_aggregator_exit, 1);
-}
-
-/**
- * Gets exit flag
- */
-int 
-get_aggregator_exit() {
-    return g_aggregator_exit;
+aggregator_debug_output() {
+    if (g_aggregator_args != NULL) {
+        pthread_mutex_lock(&g_aggregator_processing_lock);
+        write_metrics_to_file(g_aggregator_args->config, g_aggregator_args->metrics_container);
+        write_stats_to_file(g_aggregator_args->config, g_aggregator_args->stats_container);
+        pthread_mutex_unlock(&g_aggregator_processing_lock);
+    }
 }
 
 /**

@@ -33,15 +33,14 @@
 
 void signal_handler(int num) {
     if (num == SIGUSR1) {
-        DEBUG_LOG("Handling SIGUSR1.");
-        aggregator_request_output();
+        VERBOSE_LOG(2, "Handling SIGUSR1.");
+        aggregator_debug_output();
     }
     if (num == SIGINT) {
-        DEBUG_LOG("Handling SIGINT.");
+        VERBOSE_LOG(2, "Handling SIGINT.");
         set_exit_flag();
     }
 }
-
 
 #define SET_INST_NAME(instance, name, index) \
     instance[index].i_inst = index; \
@@ -49,6 +48,7 @@ void signal_handler(int num) {
     instance[index].i_name = (char*) malloc(sizeof(char) * len); \
     ALLOC_CHECK("Unable to allocate memory for static PMDA instance descriptor."); \
     memcpy(instance[index].i_name, buff, len);
+
 /**
  * Registers hardcoded instances before PMDA initializes itself fully
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
@@ -105,7 +105,7 @@ create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
 static void
 create_statsd_hardcoded_metrics(struct pmda_data_extension* data) {
     size_t i;
-    size_t hardcoded_count = 15;
+    size_t hardcoded_count = 14;
     data->pcp_metrics = (pmdaMetric*) malloc(hardcoded_count * sizeof(pmdaMetric));
     ALLOC_CHECK("Unable to allocate space for static PMDA metrics.");
     // helper containing only reference to priv data same for all hardcoded metrics
@@ -126,7 +126,7 @@ create_statsd_hardcoded_metrics(struct pmda_data_extension* data) {
         } else {
             if (i == 7) {
                 data->pcp_metrics[i].m_desc.type = PM_TYPE_U64;
-            } else if (i < 11 || i == 12) {
+            } else if (i < 10 || i == 11) {
                 data->pcp_metrics[i].m_desc.type = PM_TYPE_U32;
             } else {
                 data->pcp_metrics[i].m_desc.type = PM_TYPE_STRING;
@@ -220,9 +220,10 @@ init_data_ext(
 static void
 main_PDU_loop(pmdaInterface* dispatch) {
     for(;;) {
-        if (check_exit_flag() != 0) break;
+        if (check_exit_flag()) break;
         if (__pmdaMainPDU(dispatch) < 0) break;
     }
+    VERBOSE_LOG(2, "Exiting main PDU loop.");
 }
 
 static int _isDSO = 1; /* for local contexts */
@@ -236,6 +237,8 @@ static struct aggregator_args* aggregator_thread_args;
 static struct parser_args* parser_thread_args;
 static struct agent_config config;
 static struct pmda_data_extension data = { 0 };
+char help_file_path[MAXPATHLEN];
+char config_file_path[MAXPATHLEN];
 
 void
 __PMDA_INIT_CALL
@@ -243,25 +246,16 @@ statsd_init(pmdaInterface *dispatch)
 {
     struct pmda_metrics_container* metrics;
     struct pmda_stats_container* stats;
-    char config_file_path[MAXPATHLEN];
-    char help_file_path[MAXPATHLEN];
     int pthread_errno, sep = pmPathSeparator();
-
-    pmsprintf(
-        config_file_path,
-        MAXPATHLEN,
-        "%s" "%c" "statsd" "%c" "pmdastatsd.ini",
-        pmGetConfig("PCP_PMDAS_DIR"),
-        sep, sep);
 
     if (_isDSO) {
         pmsprintf(
-            help_file_path,
+            config_file_path,
             MAXPATHLEN,
-            "%s%c" "statsd" "%c" "help",
+            "%s" "%c" "statsd" "%c" "pmdastatsd.ini",
             pmGetConfig("PCP_PMDAS_DIR"),
             sep, sep);
-	pmdaDSO(dispatch, PMDA_INTERFACE_7, "statsd DSO", help_file_path);
+	    pmdaDSO(dispatch, PMDA_INTERFACE_7, "statsd DSO", NULL);
         read_agent_config(&config, dispatch, config_file_path, 0, NULL);
     } else {
         pmSetProcessIdentity(config.username);
@@ -325,19 +319,17 @@ statsd_done(void) {
     if (pthread_join(network_listener, NULL) != 0) {
         DIE("Error joining network network listener thread.");
     } else {
-        VERBOSE_LOG("Network listener thread joined.");
-        set_parser_exit();
+        VERBOSE_LOG(2, "Network listener thread joined.");
     }
     if (pthread_join(parser, NULL) != 0) {
         DIE("Error joining datagram parser thread.");
     } else {
-        VERBOSE_LOG("Parser thread joined.");
-        set_aggregator_exit();
+        VERBOSE_LOG(2, "Parser thread joined.");
     }
     if (pthread_join(aggregator, NULL) != 0) {    
         DIE("Error joining datagram aggregator thread.");
     } else {
-        VERBOSE_LOG("Aggregator thread joined.");
+        VERBOSE_LOG(2, "Aggregator thread joined.");
     }
 
     free_shared_data(&config, &data);
@@ -371,9 +363,7 @@ main(int argc, char** argv)
     }
 
     int sep = pmPathSeparator();
-    pmdaInterface dispatch = { 0 };
-    char help_file_path[MAXPATHLEN];
-    char config_file_path[MAXPATHLEN];
+    pmdaInterface dispatch = { 0 };    
 
     _isDSO = 0;
     pmSetProgname(argv[0]);
@@ -385,14 +375,12 @@ main(int argc, char** argv)
         pmGetConfig("PCP_PMDAS_DIR"),
         sep, sep);
 
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), STATSD, "statsd.log", help_file_path);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), STATSD, "statsd.log", NULL);
 
     read_agent_config(&config, &dispatch, config_file_path, argc, argv);
     init_loggers(&config);
     pmdaOpenLog(&dispatch);
-    if (config.debug) {
-        print_agent_config(&config);
-    }
+    print_agent_config(&config);
     if (config.show_version) {
         pmNotifyErr(LOG_INFO, "Version: %d", VERSION);
     }

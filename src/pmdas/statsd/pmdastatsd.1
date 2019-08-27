@@ -72,24 +72,15 @@ Default:
 .I 8125
 .TP
 .B \-v, \-\-verbose
-Verbose flag.
-Prints some very basic info about agent execution into logfile.
-Default:
-.I 0
+Verbosity level.
+Prints info about agent execution into logfile. Valid values are 0-2. 0 = Default value, shows config information, read socket state, and 
+first 100 dropped messages. 1 = Shows PMNS and related information. 2 = Most detailed verbosity level, also shows dropped messages above 100.
+All levels include those belows.
 .TP
-.B \-g, \-\-debug
-Debug flag.
-Prints detailed info about agent execution.
-With this on, you may get quite large logfiles as messages regarding
-every packet parsing, throwing away of data and PMNS updates will be
-outputted.
-Default:
-.I 0
 .TP
 .B \-o, \-\-debug\-output\-filename=<value>
-You can send the USR1 signal to request the agent output basic
-information about all aggregated metric into a file with this
-name in agent's directory.
+You can send USR1 signal that 'asks' agent to output basic information about all
+aggregated metric into a $PCP\_LOG\_DIR/pmcd/statsd\_{name} file.
 Default:
 .I 0
 .TP
