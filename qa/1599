@@ -14,8 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 test -e $PCP_PMDAS_DIR/statsd/pmdastatsd || _notrun "statsd PMDA not installed"
-$PCP_BINADM_DIR/telnet-probe -c localhost 8126 \
-        || _notrun "Noone listening on statsd TCP relay port 8126"
 
 # NOTE: Miroslav is planning to re-work this in python/shell
 which ruby >/dev/null 2>&1 || _notrun "ruby not installed"
