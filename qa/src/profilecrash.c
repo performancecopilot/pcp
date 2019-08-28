@@ -46,14 +46,18 @@ static pmLongOptions longopts[] = {
 static pmOptions opts = {
     .short_options = "a:D:h:K:Ls:vz?",
     .long_options = longopts,
-    .short_usage = "[options]",
+    .short_usage = "[options] metric",
 };
 
 int		verbose;	/* number of times -v seen on command line */
 				/* target metric */
-char		*metric = "nfs.server.reqs";
+char		*metric;
 pmID		pmid;
 pmDesc		desc;
+				/* target instance domain */
+int		*instlist;
+char		**namelist;
+int		ninst;
 
 int		ctx1;		/* one PMAPI context with fixed profile */
 int		ctx2;		/* one PMAPI context with dynamic profile */
@@ -93,6 +97,21 @@ newcontext(void)
     }
 
     return lctx;
+}
+
+/*
+ * Check if "i" is a valid internal instance identifier for our
+ * instance domain
+ */
+static int
+isvalid(int i)
+{
+    int		j;
+    for (j = 0; j < ninst; j++) {
+	if (i == instlist[j])
+	    return 1;
+    }
+    return 0;
 }
 
 #define INST_INCL	0
@@ -146,7 +165,7 @@ do_inner(void)
 	    }
 	    for (j = 0; j < resp->vset[0]->numval; j++) {
 		int	i = resp->vset[0]->vlist[j].inst;
-		if (i == 0 || i == 17) {
+		if (i == instlist[0] || i == instlist[ninst-1]) {
 		    ;
 		}
 		else {
@@ -172,13 +191,13 @@ do_inner(void)
     }
     state = random() % 2;
     /*
-     * 18 instances for nfs.server.reqs, instance ids are 0, 1, ... 17
      * Pick 5 unique instances.  For INST_INCL, include the first two.
      * For INST_EXCL, exclude all five.
+     * Note: inst[i] is an index into instlist[], not an instance id.
      */
     for (i = 0; i < 5; i++) {
 	while (1) {
-	    inst[i] = random() % 18;
+	    inst[i] = random() % ninst;
 	    for (j = 0; j < i; j++) {
 		if (inst[i] == inst[j])
 		    goto again;
@@ -187,6 +206,12 @@ do_inner(void)
 again:
 	    ;
 	}
+    }
+    /*
+     * Now make inst[] actual instance ids
+     */
+    for (i = 0; i < 5; i++) {
+	inst[i] = instlist[inst[i]];
     }
 
     if (state == INST_INCL) {
@@ -234,13 +259,13 @@ again:
 	    fprintf(stderr, "Error [%d] include numval=%d not 2 as expected\n", ctx2, resp->vset[0]->numval);
 	    ok = 0;
 	}
-	if (state == INST_EXCL && resp->vset[0]->numval != 13) {
-	    fprintf(stderr, "Error [%d] exclude numval=%d not 13 as expected\n", ctx2, resp->vset[0]->numval);
+	if (state == INST_EXCL && resp->vset[0]->numval != ninst-5) {
+	    fprintf(stderr, "Error [%d] exclude numval=%d not %d as expected\n", ctx2, resp->vset[0]->numval, ninst-5);
 	    ok = 0;
 	}
 	for (j = 0; j < resp->vset[0]->numval; j++) {
 	    int	i = resp->vset[0]->vlist[j].inst;
-	    if (i >= 0 && i <= 17) {
+	    if (isvalid(i)) {
 		if (state == INST_INCL &&
 		    (i != inst[0] && i != inst[1])) {
 		    fprintf(stderr, "Error [%d] include inst=%d not expected\n", ctx2, i);
@@ -271,7 +296,7 @@ main(int argc, char **argv)
     int		sts;
     int		outer;		/* outer loop iterations */
     int		inner;		/* inner loop iterations */
-    int		finst[] = { 0, 17 };	/* fixed instances */
+    int		fixinst[2];	/* fixed instances */
     char	*slop = NULL;	/* for random malloc/realloc */
     int		sloplen = 0;
     char	*slop_tmp;
@@ -296,7 +321,7 @@ main(int argc, char **argv)
 	exit(0);
     }
 
-    if (opts.optind != argc) {
+    if (opts.optind != argc-1) {
 	pmUsageMessage(&opts);
 	exit(EXIT_FAILURE);
     }
@@ -314,6 +339,8 @@ main(int argc, char **argv)
 	exit(EXIT_FAILURE);
     }
 
+    metric = argv[argc-1];		/* target metric from command line */
+
     ctx1 = newcontext();
 
     if (opts.tzflag) {
@@ -324,7 +351,7 @@ main(int argc, char **argv)
     }
 
     if ((sts = pmLookupName(1, &metric, &pmid)) < 0) {
-	fprintf(stderr, "%s: pmLookupName: %s\n", pmGetProgname(), pmErrStr(sts));
+	fprintf(stderr, "%s: pmLookupName(%s): %s\n", pmGetProgname(), metric, pmErrStr(sts));
 	exit(EXIT_FAILURE);
     }
 
@@ -332,12 +359,31 @@ main(int argc, char **argv)
 	fprintf(stderr, "%s: pmLookupDesc: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(EXIT_FAILURE);
     }
+    if (desc.indom == PM_INDOM_NULL) {
+	fprintf(stderr, "%s: metric %s: must have an instance domain\n", pmGetProgname(), metric);
+	exit(EXIT_FAILURE);
+    }
+    if (opts.narchives == 1)
+	sts = pmGetInDomArchive(desc.indom, &instlist, &namelist);
+    else
+	sts = pmGetInDom(desc.indom, &instlist, &namelist);
+    if (sts < 0) {
+	fprintf(stderr, "%s: pmGetInDom: %s\n", pmGetProgname(), pmErrStr(sts));
+	exit(EXIT_FAILURE);
+    }
+    ninst = sts;
+    if (ninst < 6) {
+	fprintf(stderr, "%s: metric %s: must have at least 6 instances (not %d)\n", pmGetProgname(), metric, ninst);
+	exit(EXIT_FAILURE);
+    }
 
     if ((sts = pmDelProfile(desc.indom, 0, NULL)) < 0) {
 	fprintf(stderr, "%s: pmDelProfile all: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(EXIT_FAILURE);
     }
-    if ((sts = pmAddProfile(desc.indom, 2, finst)) < 0) {
+    fixinst[0] = instlist[0];
+    fixinst[1] = instlist[ninst-1];
+    if ((sts = pmAddProfile(desc.indom, 2, fixinst)) < 0) {
 	fprintf(stderr, "%s: pmAddProfile: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(EXIT_FAILURE);
     }
