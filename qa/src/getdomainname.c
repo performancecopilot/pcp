@@ -22,8 +22,10 @@ int
 main(int argc, char **argv)
 {
     int		c;
+#ifdef HAVE_GETDOMAINNAME
     int		sts;
     char	buf[MAXDOMAINNAMELEN];
+#endif
 
     pmSetProgname(argv[0]);
 
