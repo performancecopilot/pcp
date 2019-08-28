@@ -37,7 +37,28 @@ do
     metric=`echo "$args" | sed -e 's/.*,//'`
     echo | tee -a $here/$seq.full
     echo "=== $src $metric ===" | tee -a $here/$seq.full
-    src/profilecrash -v $src -s 100 $metric >$tmp.out 2>$tmp.err
+    case "$src"
+    in
+	-a*)	# if archive is compressed, uncompress once to make
+		# test run faster
+		base=`echo $src | sed -e 's/-a *//'`
+		for file in $base.*
+		do
+		    suff=`echo $file | sed -e "s@$base.@@" -e 's/\.xz$//'`
+		    case "$file"
+		    in
+			*.xz)
+				xzcat <"$file" >"$tmp.$suff"
+				;;
+			*)
+				cp "$file" "$tmp.$suff"
+				;;
+		    esac
+		done
+		src="-a $tmp"
+		;;
+    esac
+   src/profilecrash -v $src -s 100 $metric >$tmp.out 2>$tmp.err
     cat $tmp.err $tmp.out >>$here/$seq.full
     cat $tmp.err $tmp.out \
     | egrep -v 'include|exclude| numpmid=1 '
