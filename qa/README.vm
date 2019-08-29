@@ -324,8 +324,12 @@ Arch Linux
 OpenIndiana
     https://www.openindiana.org/download/
     17 Aug 2016: 2016.04
-    # initial setup to get rid of restricitions
+    # initial setup to get rid of restricitions and to get up to date ...
     $ sudo pkg uninstall userland-incorporation entire
+    $ sudo pkg update
+    # then need a reboot if pkg reports
+    # 	Create boot environment: Yes
+    # because the boot environment will have changed
     # which packages are installed
     $ pkg list -H | sed -e 's/ .*//'
     # package search recipe (name and info or description)
