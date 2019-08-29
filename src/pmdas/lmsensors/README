@@ -31,7 +31,8 @@ Installation
 ============
 
  +  Ensure that /usr/bin/sensors is available, usually provided by the
-    lm_sensors package.  On Fedora: 'dnf install lm_sensors'.
+    lm_sensors package.  On Fedora: 'dnf install lm_sensors'. To detect 
+    all available sensors on your system use /usr/sbin/sensors-detect.
 
  +  # cd $PCP_PMDAS_DIR/lmsensors
 
