@@ -1,6 +1,6 @@
 QA output created by 914
 
-=== -h localhost ===
+=== -h localhost sampledso.hordes.one ===
 [1] ok
 [0] ok
 [1] ok
@@ -452,7 +452,7 @@ QA output created by 914
 [0] ok
 [100] ok
 
-=== -a archives/pcp-pidstat-process-args ===
+=== -a archives/pcp-pidstat-process-args nfs.server.reqs ===
 [1] ok
 [0] ok
 [1] ok
@@ -904,7 +904,7 @@ QA output created by 914
 [0] ok
 [100] ok
 
-=== -L ===
+=== -L sampledso.hordes.one ===
 [1] ok
 [0] ok
 [1] ok

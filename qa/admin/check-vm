@@ -504,9 +504,11 @@ then
 fi
 $home/whatami >$tmp.whatami
 
-# append original line numbers for non-blank lines
+# Append original line numbers for non-blank lines in the manifest.
+# Also rewrite [? ...] (package unknown) to [?:<original line number> ...]
+# for easier mapping back to the manifest file.
 #
-$PCP_AWK_PROG 'NF > 0 { print $0 " :" NR }' <$manifest >$tmp.manifest
+$PCP_AWK_PROG 'NF > 0 { gsub("\\[\\?", "[?:" NR); print $0 " :" NR }' <$manifest >$tmp.manifest
 
 if which $PCP_PYTHON_PROG >/dev/null 2>&1
 then
