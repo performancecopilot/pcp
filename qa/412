@@ -76,45 +76,63 @@ _reset()
 #
 _process_log()
 {
+    rm -f $tmp.dbg
+    # t is reporting time in seconds
+    #
+    t=`echo $starttime | sed -e 's/.*://'`
     sed <$tmp.dump \
 	-e '/^[0-9]/{
 s/[0-9][0-9]* metrics*//
 N
 s/\n/ /
 }' \
-    | $PCP_AWK_PROG -v dowrap=$dowrap -v half_delta=$half_delta '
+    | $PCP_AWK_PROG -v dowrap=$dowrap -v half_delta=$half_delta -v t=$t '
       BEGIN {
-	    maxuint = 4294967295;
-	    debug=0
+	    maxuint = 4294967295
+	    debug = 0
+	    # get to same starting time as -O $half_time used for pmval
+	    #
+	    t += half_delta
       }
       $2 == "29.0.58" { 
-	    curr_time = $1;
-	    curr_value = $5;
-	    gsub(/^.*:/, "", curr_time);
+	    next_time = $1
+	    next_value = $5
+	    gsub(/^.*:/, "", next_time)
 	    if (prev_time != 0) {
-		delta = curr_time - prev_time;
-		if (delta < 0) delta += 60; # delta wrap :-)
-		if (debug)
-		    printf("delta=%s;curr=%s;prev=%s\n", delta, curr_time, prev_time);
-
-		#x = (prev_value + curr_value) / 2.0
-		x = (curr_value - prev_value) / delta * half_delta;
-		x += prev_value;
-
-		if (curr_value < prev_value && dowrap) { # then wrap
-		    new_curr_value = curr_value + maxuint;
-
-		    x = (new_curr_value - prev_value) / delta * half_delta;
-		    x += prev_value;
-
-		    if (x > maxuint) x -= maxuint; # wrap back if necessary
+		if (next_time < prev_time) next_time += 60
+		delta = next_time - prev_time
+		if (debug) {
+		    printf("time t=%s;delta=%s;next=%s;prev=%s\n", t, delta, next_time, prev_time) >"'$tmp.dbg'"
+		    printf("value next=%s;prev=%d\n", next_value, prev_value) >"'$tmp.dbg'"
 		}
-		printf "%15.0d\n",x; 
+
+		# note ... cannot do arithmetic here bacause of precision
+		#	issues on some platforms (especialy *BSD) where
+		#	integer arithmetic in awk tops out at 32-bits,
+		#	so defer to bc(1)
+		#
+		if (next_value < prev_value && dowrap) { # then wrap
+		    system("echo \"(" prev_value "+(" next_value "+" maxuint "-" prev_value ")*(" t "-" prev_time ")/" delta ") % " maxuint "\" | bc")
+		    if (debug)
+			printf("dowrap\n") >"'$tmp.dbg'"
+		}
+		else {
+		    system("echo \"" prev_value "+(" next_value "-" prev_value ")*(" t "-" prev_time ")/" delta "\" | bc")
+		}
+
+		# increment the same as -t $delta for pmval
+		#
+		t += half_delta + half_delta
 	    }
-	    prev_time = curr_time;
-	    prev_value = curr_value;
+	    prev_time = next_time
+	    prev_value = next_value
       }
     '
+    if [ -f $tmp.dbg ]
+    then
+	cat $tmp.dbg >>$seq.full
+	rm -f $tmp.dbg
+    fi
 }
 
 #
@@ -122,13 +140,10 @@ s/\n/ /
 #
 _set_starttime()
 {
-    $PCP_AWK_PROG '
-      $2 == "29.0.58" { 
-		printf("starttime=%s\n", $1);
-	        exit 0;
-      }
-    ' <$tmp.dump >$tmp.starttime
-    eval `cat $tmp.starttime`
+    $PCP_AWK_PROG <$tmp.dump '
+BEGIN		{ stamp = 0 }
+/^[0-9]/	{ stamp = $1; next }
+$1 == "29.0.58" { printf("%s\n", stamp); exit 0; }'
 }
 
 #
@@ -137,14 +152,16 @@ _set_starttime()
 _pmval_log()
 {
     echo >>$seq.full
-    echo "--- pmval ---" >>$seq.full
-    pmval -w 15 -f 0 -r -a $tmp.archive -S "@$starttime" -O $half_delta -t $delta \
+    echo "--- pmval -S@$starttime -O $half_delta ---" >>$seq.full
+    #debug debug=-Dinterp,fetch
+    pmval $debug -w 15 -f 0 -r -a $tmp.archive -S "@$starttime" -O $half_delta -t $delta 2>$tmp.err \
       sample.wrap.ulong \
     | tee -a $seq.full \
     | sed \
 	-e '/metric/,/interval/d' \
 	-e '/^[ 	]*$/d' \
 	-e 's/^[^ ][^ ]*  *//'
+    cat $tmp.err >>$seq.full
 }
 
 #
@@ -154,7 +171,13 @@ _compare_results()
 {
     echo >>$seq.full
     echo "--- paste ---" >>$seq.full
-    error=1e+08
+    # imprecision is in floating point arithmetic where the time
+    # stamp precision from pmdumplog is much less than then precision
+    # used in interp.c within libpcp
+    # the values are O(10) digits, and expect the first 5 of these to
+    # be correct, so error should be less than 100,000
+    #
+    error=100000
     paste $tmp.1 $tmp.2 \
     | tee -a $seq.full \
     | $PCP_AWK_PROG -v error=$error ' {
@@ -191,7 +214,7 @@ pmdumplog $tmp.archive >$tmp.dump
 echo >>$seq.full
 echo "--- pmdumplog ---" >>$seq.full
 cat $tmp.dump >>$seq.full
-_set_starttime
+starttime=`_set_starttime`
 
 _wrap_off
 _process_log >$tmp.1
