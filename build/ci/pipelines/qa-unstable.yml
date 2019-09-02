@@ -1,0 +1,12 @@
+# do not trigger this build on Pull Requests
+pr: none
+
+jobs:
+- job: fedora_rawhide
+  displayName: Fedora Rawhide
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - template: templates/qa-steps.yml
+    parameters:
+      distribution: fedora-rawhide
