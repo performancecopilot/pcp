@@ -28,6 +28,10 @@ steps:
     docker exec pcp-qa bash -c 'cp -r /var/log/pcp/* /artifacts/pcp-logs'
     docker exec pcp-qa bash -c 'cp -r /packages /artifacts'
   displayName: 'Copy artifacts'
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: $(Build.ArtifactStagingDirectory)
+    artifactName: ${{ parameters.distribution }}
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: JUnit
@@ -36,7 +40,3 @@ steps:
     mergeTestResults: true
     failTaskOnFailedTests: true
     testRunTitle: ${{ parameters.distribution }}
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: $(Build.ArtifactStagingDirectory)
-    artifactName: ${{ parameters.distribution }}
