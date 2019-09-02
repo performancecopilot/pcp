@@ -1,5 +1,6 @@
-# do not trigger this build on Pull Requests
+# do not trigger this build on Pull Requests or branch pushes
 pr: none
+trigger: none
 
 jobs:
 - job: fedora_rawhide
