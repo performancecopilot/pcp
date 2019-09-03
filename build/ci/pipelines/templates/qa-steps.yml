@@ -4,7 +4,7 @@ parameters:
 steps:
 - script: |
     set -e
-    docker build -f build/containers/qa/Dockerfile.${{ parameters.distribution }} -t pcp-qa .
+    docker build -f build/ci/containers/Dockerfile.${{ parameters.distribution }} -t pcp-qa .
     docker run -d --privileged \
       -v /lib/modules:/lib/modules:ro \
       -v /usr/src:/usr/src:ro \
@@ -15,19 +15,23 @@ steps:
     docker exec pcp-qa bash -c 'cd /var/lib/pcp/testsuite && ./check 002 && rm check.time'
     docker exec pcp-qa bash -c 'mkdir /artifacts/{test-logs,pcp-logs}'
   displayName: 'Build Performance Co-Pilot'
-- script: docker exec pcp-qa bash -o pipefail -c 'cd /var/lib/pcp/testsuite && ./check -g sanity | tee /artifacts/test-logs/sanity.log >(/pcp/build/containers/qa/gen_junit_report.py > /artifacts/test-logs/sanity.xml)'
+- script: docker exec pcp-qa bash -o pipefail -c 'cd /var/lib/pcp/testsuite && ./check -g sanity | tee /artifacts/test-logs/sanity.log >(/pcp/build/ci/gen_junit_report.py > /artifacts/test-logs/sanity.xml)'
   continueOnError: true
   displayName: 'Run tests: Sanity'
-- script: docker exec pcp-qa bash -o pipefail -c 'cd /var/lib/pcp/testsuite && ./check -g pmda.bcc | tee /artifacts/test-logs/pmda.bcc.log >(/pcp/build/containers/qa/gen_junit_report.py > /artifacts/test-logs/pmda.bcc.xml)'
+- script: docker exec pcp-qa bash -o pipefail -c 'cd /var/lib/pcp/testsuite && ./check -g pmda.bcc | tee /artifacts/test-logs/pmda.bcc.log >(/pcp/build/ci/gen_junit_report.py > /artifacts/test-logs/pmda.bcc.xml)'
   continueOnError: true
   displayName: 'Run tests: BCC PMDA'
-- script: docker exec pcp-qa bash -o pipefail -c 'cd /var/lib/pcp/testsuite && ./check -g pmda.bpftrace | tee /artifacts/test-logs/pmda.bpftrace.log >(/pcp/build/containers/qa/gen_junit_report.py > /artifacts/test-logs/pmda.bpftrace.xml)'
+- script: docker exec pcp-qa bash -o pipefail -c 'cd /var/lib/pcp/testsuite && ./check -g pmda.bpftrace | tee /artifacts/test-logs/pmda.bpftrace.log >(/pcp/build/ci/gen_junit_report.py > /artifacts/test-logs/pmda.bpftrace.xml)'
   continueOnError: true
   displayName: 'Run tests: bpftrace PMDA'
 - script: |
     docker exec pcp-qa bash -c 'cp -r /var/log/pcp/* /artifacts/pcp-logs'
     docker exec pcp-qa bash -c 'cp -r /packages /artifacts'
   displayName: 'Copy artifacts'
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: $(Build.ArtifactStagingDirectory)
+    artifactName: ${{ parameters.distribution }}
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: JUnit
@@ -36,7 +40,3 @@ steps:
     mergeTestResults: true
     failTaskOnFailedTests: true
     testRunTitle: ${{ parameters.distribution }}
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: $(Build.ArtifactStagingDirectory)
-    artifactName: ${{ parameters.distribution }}

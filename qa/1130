@@ -12,7 +12,6 @@ echo "QA output created by $seq"
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
-which json_reformat >/dev/null 2>&1 || _notrun "json_reformat binary not installed"
 which pcp2elasticsearch >$seq.full 2>&1 || _notrun "pcp2elasticsearch not installed"
 
 $python -c "import requests" >/dev/null 2>&1
@@ -86,7 +85,7 @@ echo "--- Start of received data ---"
 egrep '(mappings|slack)' $tmp.socat.err | sed -e 's,< [1-9].*,,g' >$tmp.archive.data
 while read -r line
 do
-  echo $line | json_reformat | LC_COLLATE=POSIX sort | tr -d ,
+  echo $line | pmjson | LC_COLLATE=POSIX sort | tr -d ,
 done < $tmp.archive.data
 echo "--- End of received data ---"
 _full_stash

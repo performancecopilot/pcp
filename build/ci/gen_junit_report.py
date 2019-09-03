@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """This script generates a JUnit report from PCP's test runner log file"""
 import sys
 import re

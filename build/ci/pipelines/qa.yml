@@ -4,23 +4,15 @@ jobs:
   pool:
     vmImage: 'ubuntu-latest'
   steps:
-  - template: build/containers/qa/qa.yml
+  - template: templates/qa-steps.yml
     parameters:
       distribution: fedora30
-- job: fedora_rawhide
-  displayName: Fedora Rawhide
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-  - template: build/containers/qa/qa.yml
-    parameters:
-      distribution: fedora-rawhide
 - job: debian_stable
   displayName: Debian Stable
   pool:
     vmImage: 'ubuntu-latest'
   steps:
-  - template: build/containers/qa/qa.yml
+  - template: templates/qa-steps.yml
     parameters:
       distribution: debian-stable
 - job: debian_testing
@@ -28,6 +20,6 @@ jobs:
   pool:
     vmImage: 'ubuntu-latest'
   steps:
-  - template: build/containers/qa/qa.yml
+  - template: templates/qa-steps.yml
     parameters:
       distribution: debian-testing
