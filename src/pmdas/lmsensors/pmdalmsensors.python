@@ -44,13 +44,12 @@ def lmsensors_get():
         # we will read real sensor data
         p = subprocess.Popen(["/usr/bin/sensors", "-j"], stdout=subprocess.PIPE)
         output = json.loads(re.sub("[0-9]_","_", p.communicate()[0].decode("utf-8")))
-        if args.debug:
-            print("function lmsensors_get(), json object after removing redudant naming:\n", output)
-
-        if args.debug == 1:
-            print("level 0 keys:",output[lvl0].keys())
+        if args.debug >= 0:
+            print("function lmsensors_get(), json object after removing redundant naming:\n", output)
 
         for lvl0 in output.keys():
+            if args.debug == 1:
+                print("level 0 keys:",output[lvl0].keys())
             for lvl1 in output[lvl0].keys():
                 adapter=output[lvl0]["Adapter"].lower().replace(" ","_")
                 if lvl1 != "Adapter":
@@ -77,7 +76,7 @@ class LmsensorsPMDA(PMDA):
                     return None 
             # sanity checking: sort out negative and zero values from fans
             if re.search(r'fan', sensornames[item]):
-                if int(sensorvalues[sensornames[item]]) <= 0:
+                if int(sensorvalues[sensornames[item]]) < 0:
                     return None
 
             # if we made it until here, plainly return the read value
