@@ -105,7 +105,7 @@ work(void *arg)
 	char	path[MAXPATHLEN+1];
 	snprintf(path, sizeof(path), "/tmp/mt13out.%03d", lctx);
 	if ((f = fopen(path, "w")) == NULL) {
-	    fprintf(f, "Error [%d] fopen(%s) failed: %s\n", lctx, path, pmErrStr(-errno));
+	    fprintf(stderr, "Error [%d] fopen(%s) failed: %s\n", lctx, path, pmErrStr(-errno));
 	    pthread_exit("botch fopen");
 	}
     }
