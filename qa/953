@@ -47,6 +47,8 @@ _filter_ncpu()
 # 192.0.2.22 -51 (Network is unreachable, Mac OS X)
 # and
 # 192.0.2.22 -65 (No route to host, Mac OS X)
+# and
+# 192.0.2.22 -61 (Connection refused. *BSD)
 # so treat 'em as equivalent here ...
 #
 _filter_connect_fail()
@@ -59,6 +61,7 @@ _filter_connect_fail()
 	-e '/^192\..*-60$/s/-60/NETERROR/' \
 	-e '/^192\..*-51$/s/-51/NETERROR/' \
 	-e '/^192\..*-65$/s/-65/NETERROR/' \
+	-e '/^192\..*-61$/s/-65/NETERROR/' \
     # end
 }
 
