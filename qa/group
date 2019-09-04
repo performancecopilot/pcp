@@ -1367,6 +1367,7 @@ BAD
 964 pmcd local pmda.xfs pmda.dm
 965 derive local kernel
 966 secure local kernel
+967 zsh local pcp2xxx pcp2elasticsearch pcp2xlsx pcp2influxdb pcp2graphite pmrep python pcp2zabbix pcp2xml pcp2json
 968 python local derive kernel
 969 derive local kernel
 970 pmclient archive multi-archive local sanity pmlogextract python
@@ -1499,7 +1500,7 @@ BAD
 1097 pmlogconf local
 1098 python local pmstore
 1099 archive pmiostat local pmie pcp python
-1100 bash zsh local pcp2xxx pcp2elasticsearch pcp2xlsx pcp2influxdb pcp2graphite pmrep python pcp2zabbix pcp2xml pcp2json
+1100 bash local pcp2xxx pcp2elasticsearch pcp2xlsx pcp2influxdb pcp2graphite pmrep python pcp2zabbix pcp2xml pcp2json
 1101 libpcp_web local valgrind
 1102 pmda.prometheus local python
 1103 derive local

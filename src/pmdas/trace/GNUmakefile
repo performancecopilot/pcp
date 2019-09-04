@@ -93,6 +93,27 @@ default_pcp:	default
 
 install_pcp:	install
 
+ifneq "$(PCP_INC_DIR)" "/usr/include/pcp"
+# for cc add -I<run-time-include-dir> (need /.. at the end so
+# #include <pcp/foo.h> works) when $(PCP_INC_DIR) may not be on
+# the default cpp include search path.
+MY_INC_DIR	= -I$(PCP_INC_DIR)/..
+else
+MY_INC_DIR	=
+endif
+ifneq "$(PCP_LIB_DIR)" "/usr/lib"
+# for ld add -L<run-time-lib-dir> and include -rpath when
+# $(PCP_LIB_DIR) may not be on the default ld search path.
+#
+ifeq "$(PCP_PLATFORM)" "darwin"
+MY_LIBS		= -L$(PCP_LIB_DIR) -Wl,-rpath $(PCP_LIB_DIR)
+else
+MY_LIBS		= -L$(PCP_LIB_DIR) -Wl,-rpath=$(PCP_LIB_DIR)
+endif
+else
+MY_LIBS		=
+endif
+
 .NOTPARALLEL:
 Makefile.demos:	Makefile.proto
 	rm -f $@
@@ -100,6 +121,8 @@ Makefile.demos:	Makefile.proto
 		-e 's@PTHREAD_LIB@$(LIB_FOR_PTHREADS)@' \
 		-e 's@DLOPEN_LIB@$(LIB_FOR_DLOPEN)@' \
 		-e 's@MATH_LIB@$(LIB_FOR_MATH)@' \
+		-e 's@MY_INC_DIR@$(MY_INC_DIR)@' \
+		-e 's@MY_LIBS@$(MY_LIBS)@' \
 		<$^ >$@
 
 Makefile.stub:	GNUmakefile.stub
@@ -115,3 +138,6 @@ else
 		-e 's@$$(PCP_ETC_DIR)@$(PCP_ETC_DIR)@' \
 		<$^ >$@
 endif
+
+eek:
+	echo $(TARGET_OS)

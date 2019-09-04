@@ -13,6 +13,14 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+if which systemctl >/dev/null 2>&1
+then
+    :
+else
+    _notrun "No systemctl executable"
+    # NOTREACHED
+fi
+
 host=`hostname`
 [ -z "$host" ] && _notrun "Cannot discover local host name"
 interface=`_host_to_ipaddr $host`
