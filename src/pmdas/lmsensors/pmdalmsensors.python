@@ -19,6 +19,7 @@
 
 # pylint: disable=bad-continuation,line-too-long,too-few-public-methods
 
+import json
 import subprocess
 import re
 import argparse
@@ -41,87 +42,24 @@ def lmsensors_get():
         output = f.read()
     else:
         # we will read real sensor data
-        p = subprocess.Popen(["/usr/bin/sensors", "-u"], stdout=subprocess.PIPE)
-        output = p.communicate()[0]
+        p = subprocess.Popen(["/usr/bin/sensors", "-j"], stdout=subprocess.PIPE)
+        output = json.loads(re.sub("[0-9]_","_", p.communicate()[0].decode("utf-8")))
+        if args.debug >= 0:
+            print("function lmsensors_get(), json object after removing redundant naming:\n", output)
 
-    if args.debug:
-        print("function lmsensors_get(), raw output from sensors:\n", output)
+        for lvl0 in output.keys():
+            if args.debug == 1:
+                print("level 0 keys:",output[lvl0].keys())
+            for lvl1 in output[lvl0].keys():
+                adapter=output[lvl0]["Adapter"].lower().replace(" ","_")
+                if lvl1 != "Adapter":
+                    for lvl2 in output[lvl0][lvl1]:
+                        if "_input" in lvl2:
+                            sensorname=(lvl0+"."+adapter+"."+lvl1.replace(".",",")).lower().replace(" ","_").replace('-', '_')
+                            sensorvalues[sensorname] = output[lvl0][lvl1][lvl2]
 
-    for outline in output.splitlines():
-        if args.inject:
-            outline2 = outline                  # just copy data
-        else:
-            outline2 = outline.decode("utf-8")  # required if source is 'sensors -u'
-
-        outline2.rstrip()
-        if args.debug:
-            if args.debug == 2:
-                print("  inputline:", outline2)
-
-        # We get 4 levels of variables from the sensors output,
-        # and construct a hirachy of metrics.
-        # For example:
-        #
-        # coretemp-isa-0000                 # level0
-        # Adapter: ISA adapter              # level1
-        # Package id 0:                     # level2
-        #   temp1_input: 43.000             # level3
-        #   temp1_max: 100.000
-        #   temp1_crit: 100.000
-        #   temp1_crit_alarm: 0.000
-        # Core 0:                           # level2
-        #   temp2_input: 41.000             # level3
-        #   temp2_max: 100.000
-        #   temp2_crit: 100.000
-        #   temp2_crit_alarm: 0.000
-        #
-        # ..will become:
-        # coretemp_isa.isa_adapter.package_id_0.temp1
-        # coretemp_isa.isa_adapter.core_0.temp2
-
-        if re.search(r'^[a-z0-9-_]*[^:]$', outline2):
-            tmp = outline2.lower()                   # i.e. coretemp-isa-0000
-            level0 = re.sub(r'-[0-9]+', "", tmp)
-            if args.debug:
-                if args.debug == 2:
-                    print("    assigned level0:", level0)
-            continue
-        if re.search(r'^Adapter:', outline2):
-            tmp = re.sub(r'Adapter: ', "", outline2)
-            tmp2 = tmp.lower()
-            level1 = re.sub(r'\s', "-", tmp2, 5)     # i.e. isa-adapter
-            if args.debug:
-                if args.debug == 2:
-                    print("    assigned level1:", level1)
-            continue
-        if re.search(r'^[a-zA-Z0-9-][a-zA-Z0-9-_\s]*:', outline2):
-            tmp = re.sub(r':', "", outline2)
-            tmp2 = tmp.lower()
-            level2 = re.sub(r'\s', "-", tmp2, 5)     # i.e. package_id_0
-            if args.debug:
-                if args.debug == 2:
-                    print("    assigned level2:", level2)
-            continue
-
-        # From the lines left now, we are just interested in m/_input/.
-        # Everything else, for example lines with temp1_max_hyst: or
-        # temp1_emergency:, should be ignored.
-        if not re.search(r'_input: .*', outline2):
-            continue
-
-        tmp = re.sub(r'_input: .*', "", outline2)
-        level3 = re.sub(r'\s+', "", tmp)             # i.e. temp1
-        if args.debug:
-            if args.debug == 2:
-                print("    assigned level3:", level3)
-
-        tmp = re.sub(r'.*: ', "", outline2)
-        sensorvalue = re.sub(r'\..*', "", tmp)       # i.e. 42, actual sensor value
-        sensorvalue.rstrip()
-
-        final_name = (level0 + "." + level1 + "." + level2 + "." + level3).replace('-', '_')
-        sensorvalues[final_name] = sensorvalue
-
+        if args.debug == 2:
+            print("final array:",sensorvalues)
 
 class LmsensorsPMDA(PMDA):
     ''' lmsensors performance metrics domain agent '''
@@ -135,15 +73,14 @@ class LmsensorsPMDA(PMDA):
             # some sensors report -128 in error, from time to time.
             if re.search(r'temp', sensornames[item]):
                 if int(sensorvalues[sensornames[item]]) < -127:
-                    return None
-
-            # sanity checking: sort out negative values from fans
+                    return None 
+            # sanity checking: sort out negative and zero values from fans
             if re.search(r'fan', sensornames[item]):
                 if int(sensorvalues[sensornames[item]]) < 0:
                     return None
 
             # if we made it until here, plainly return the read value
-            return [int(sensorvalues[sensornames[item]]), 1]
+            return [sensorvalues[sensornames[item]], 1]
             # return [42, 1]
         return [c_api.PM_ERR_PMID, 0]
 
@@ -156,10 +93,9 @@ class LmsensorsPMDA(PMDA):
         sensorcounter = 0
         for k in sensorvalues:
             keysplit = k.split(".")
-
-            self.add_metric(basename + "." + keysplit[0] + "." + keysplit[3],   # metric name
+            self.add_metric(basename + "." + keysplit[0] + "." + keysplit[2],   # metric name
                 pmdaMetric(self.pmid(0, sensorcounter),                         # ID
-                c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,   # type, indom, semantics
+                c_api.PM_TYPE_FLOAT, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, # type, indom, semantics
                 pmUnits(0, 0, 0, 0, 0, 0)),                                     # and units.
                 'sensor values from "sensors -u"',                              # short
                 'sensor values from ' + k)                                      # long help
@@ -174,8 +110,6 @@ class LmsensorsPMDA(PMDA):
                 print("  sensorvalues key", k, " : value ", sensorvalues[k])
             for k in sensornames:
                 print("  sensornames key", k, " : value ", sensornames[k])
-            # for item in range(i):
-                # print("  final sensorvalues: ", sensorvalues[sensornames[item]])
 
 
 # main
