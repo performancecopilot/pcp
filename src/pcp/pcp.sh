@@ -1,17 +1,17 @@
 #! /bin/sh
-# 
+#
 # Copyright (c) 2013-2015 Red Hat.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
 . $PCP_DIR/etc/pcp.env
 
@@ -34,6 +34,7 @@ Summary Options:
    --archive
    --host
    --origin
+   --namespace
    -P,--pmie     display pmie evaluation statistics
    --help
 
@@ -43,6 +44,7 @@ Command Options:
    --debug
    --guimode
    --host
+   --local-PMDA
    --namespace
    --origin
    --guiport
@@ -200,13 +202,13 @@ do
 	pcp_timezone="$2"
 	shift
 	;;
+      -z)
+	zflag=true
+	;;
       -V)
 	$PCP_BINADM_DIR/pmconfig -L pcp_version | sed -e 's/[_=]/ /g'
 	sts=0
 	exit
-	;;
-      -z)
-	zflag=true
 	;;
       -\?)
 	_usage ""
