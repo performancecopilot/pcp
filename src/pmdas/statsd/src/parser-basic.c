@@ -34,6 +34,9 @@
 #define IS_DOT(x) \
     ((int) x == (int) '.') \
 
+#define IS_E(x) \
+    ((int) x == (int) 'E' || (int) x == (int) 'e') \
+
 #define IS_SIGN(x) \
     ((int) x == (int) '+' || (int) x == (int) '-') \
 
@@ -105,9 +108,14 @@ parse(char* buffer, struct statsd_datagram** datagram) {
      * 6 = tag_key
      * 7 = tag_value
      */
-    size_t segment_start = 0;
     int segment_type = 0;
-    int dot_found = 0;
+    /* Index into payload */
+    size_t segment_start = 0;
+    int value_segment_type = 0;
+    /* Helper flags for value parsing */
+    int number_found = 0;
+    int allow_dot = 1;
+    int allow_e = 1;
     for (i = 0; i < count; i++) {
         int current_segment_length = i - segment_start;
         switch (segment_type) {
@@ -209,41 +217,64 @@ parse(char* buffer, struct statsd_datagram** datagram) {
             }
             case 3:
             {
-                // value
-                if (segment_start == i) {
-                    if (IS_NUMERIC(buffer[i]) || IS_SIGN(buffer[i])) {
-                        continue;
+                char c = buffer[i];
+                switch (value_segment_type) {
+                    case 0:
+                    {
+                        if (IS_SIGN(c)) {
+                            value_segment_type = 1;
+                            continue;
+                        }
                     }
-                    goto error_clean_up;
-                } else if (IS_NUMERIC(buffer[i])) {
-                    continue;
-                } else if (!dot_found && IS_DOT(buffer[i])) {
-                    dot_found = 1;
-                    continue;
-                } else if (buffer[i] == '|') {
-                    char* startptr;
-                    char* endptr = &buffer[i];
-                    if (buffer[segment_start] == '+') {
-                        (*datagram)->explicit_sign = SIGN_PLUS;
-                        startptr = &(buffer[segment_start]);
-                    } else if (buffer[segment_start] == '-') {
-                        (*datagram)->explicit_sign = SIGN_MINUS;
-                        startptr = &(buffer[segment_start + 1]);
-                    } else {
-                        (*datagram)->explicit_sign = SIGN_NONE;
-                        startptr = &(buffer[segment_start]);
-                    }
-                    double value = strtod(startptr, &endptr);
-                    if (startptr == endptr || errno == ERANGE) {
+                    case 1:
+                    {
+                        if (IS_NUMERIC(c)) {
+                            value_segment_type = 1;
+                            number_found = 1;
+                            continue;
+                        }
+                        if (number_found && IS_DOT(c) && allow_dot) {
+                            number_found = 0;
+                            allow_dot = 0;
+                            continue;
+                        }
+                        if (number_found && IS_E(c) && allow_e) {
+                            number_found = 0;
+                            allow_dot = 0;
+                            allow_e = 0;
+                            value_segment_type = 0;
+                            continue;
+                        }
+                        if (number_found && c == '|') {
+                            char* startptr;
+                            char* endptr = &buffer[i];
+                            if (buffer[segment_start] == '+') {
+                                (*datagram)->explicit_sign = SIGN_PLUS;
+                                startptr = &(buffer[segment_start]);
+                            } else if (buffer[segment_start] == '-') {
+                                (*datagram)->explicit_sign = SIGN_MINUS;
+                                startptr = &(buffer[segment_start + 1]);
+                            } else {
+                                (*datagram)->explicit_sign = SIGN_NONE;
+                                startptr = &(buffer[segment_start]);
+                            }
+                            double value = strtod(startptr, &endptr);
+                            if (startptr == endptr || errno == ERANGE) {
+                                goto error_clean_up;
+                            }
+                            (*datagram)->value = value;
+                            segment_type = 4;
+                            segment_start = i + 1;
+                            goto exit_value;
+                        }
                         goto error_clean_up;
                     }
-                    (*datagram)->value = value;
-                    dot_found = 0;
-                    segment_type = 4;
-                    segment_start = i + 1;
-                } else {
-                    goto error_clean_up;
+                    default: 
+                    {
+                        goto error_clean_up;
+                    }
                 }
+                exit_value:;
                 break;
             }
             case 4:
@@ -310,7 +341,7 @@ parse(char* buffer, struct statsd_datagram** datagram) {
     }
     return 1;
 
-    error_clean_up:
+    error_clean_up:;
     if (any_tags) {
         free_tag_collection(tags);
     }

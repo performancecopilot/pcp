@@ -136,10 +136,10 @@ create_statsd_hardcoded_metrics(struct pmda_data_extension* data) {
         if (i == 5 || i == 6) {
             // time_spent_parsing / time_spent_aggregating
             data->pcp_metrics[i].m_desc.units.dimSpace = 0;
-            data->pcp_metrics[i].m_desc.units.dimTime = 0;
             data->pcp_metrics[i].m_desc.units.dimCount = 0;
             data->pcp_metrics[i].m_desc.units.pad = 0;
             data->pcp_metrics[i].m_desc.units.scaleSpace = 0;
+            data->pcp_metrics[i].m_desc.units.dimTime = 1;
             data->pcp_metrics[i].m_desc.units.scaleTime = PM_TIME_NSEC;
             data->pcp_metrics[i].m_desc.units.scaleCount = 1;
         } else {
