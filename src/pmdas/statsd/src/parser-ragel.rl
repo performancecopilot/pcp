@@ -182,7 +182,7 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 		str_value = [a-z][a-zA-Z0-9_.]*;
 		tag_string = [a-zA-Z0-9_.]{1,};
 		name = str_value[:,]{1};
-		value = ('+'|'-')?[0-9]{1,310}([.][0-9]{1,310})?('|');
+		value = ('+'|'-')?[0-9]+(('.')[0-9]+)?(('e'|'E')('+'|'-')?[0-9]+)?('|');
 		type = ('c'|'g'|'ms')('@'|'\0'|'\n\0'|("|#"));
 		tags = ((tag_string'=')@tag_key_parsed(tag_string(':'|',')@tag_value_parsed))+;
 		tags_end = ((tag_string':')@tag_key_parsed(tag_string(','|'\0'|'\n\0')@tag_value_parsed))+;

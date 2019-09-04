@@ -116,7 +116,17 @@ create_pcp_metric(char* key, struct metric* item, pmdaExt* pmda) {
     } else {
         new_metric->m_desc.sem = PM_SEM_INSTANT;
     }
-    memset(&new_metric->m_desc.units, 0, sizeof(pmUnits));
+    if (item->type == METRIC_TYPE_DURATION) {
+        new_metric->m_desc.units.dimSpace = 0;
+        new_metric->m_desc.units.dimCount = 0;
+        new_metric->m_desc.units.pad = 0;
+        new_metric->m_desc.units.scaleSpace = 0;
+        new_metric->m_desc.units.dimTime = 1;
+        new_metric->m_desc.units.scaleTime = PM_TIME_MSEC;
+        new_metric->m_desc.units.scaleCount = 1;
+    } else {
+        memset(&new_metric->m_desc.units, 0, sizeof(pmUnits));
+    }
     item->meta->pmid = newpmid;
     VERBOSE_LOG(
         1,

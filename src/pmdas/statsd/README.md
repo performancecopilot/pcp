@@ -356,7 +356,6 @@ These names are blacklisted for user usage. No messages with these names will pr
 
 # Roadmap
 - Make sure code is optimized
-- Allow _value_ to be expressed in _e_ notation
 
 # FAQ
 

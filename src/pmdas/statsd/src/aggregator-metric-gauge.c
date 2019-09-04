@@ -57,29 +57,33 @@ int
 update_gauge_value(struct agent_config* config, struct statsd_datagram* datagram, void* value) {
     (void)config;
     double old = *(double*)value;
-    double new_value;
+    double increment;
     switch (datagram->explicit_sign) {
         case SIGN_MINUS:
-            new_value = -1.0 * datagram->value;
+            increment = -1.0 * datagram->value;
             break;
         default:
-            new_value = datagram->value;
-    }
-    // check for overflow
-    if (old > 0 && new_value > DBL_MAX - old) {
-        VERBOSE_LOG(2, "Caught double overflow.");
-        return 0;
-    }
-    // check for underflow
-    if (old < 0 && new_value < DBL_MAX - old) {
-        VERBOSE_LOG(2, "Caught double underflow.");
-        return 0;
+            increment = datagram->value;
     }
     if (datagram->explicit_sign == SIGN_NONE) {
-        *(double*)(value) = new_value;
-    } else {
-        *(double*)(value) += new_value;
+        *(double*)(value) = increment;
+        return 1;
     }
+    if (datagram->explicit_sign == SIGN_PLUS) {
+        // prevent overflow
+        if (old > 0 && increment > DBL_MAX - old) {
+            VERBOSE_LOG(2, "Caught double overflow.");
+            return 0;
+        }
+    }
+    if (datagram->explicit_sign == SIGN_MINUS) {
+        // prevent underflow
+        if (old < 0 && increment < DBL_MIN + old) {
+            VERBOSE_LOG(2, "Caught double underflow.");
+            return 0;
+        }
+    }
+    *(double*)(value) += increment;
     return 1;
 }
 
