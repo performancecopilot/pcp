@@ -253,6 +253,9 @@ echo "=== syslog for pid $! ===" >>/tmp/syslog.full
 # More recent syslog format seen on Ubuntu 11.04
 # (high-precision rsyslog timestamps, traditional-mode no longer enabled)
 # 2011-07-09T10:38:40+10:00 HOST pcp-pmie[PID]: 
+# For RH7.x and Centos 7.x we're seeing some trashing of the syslog
+# output, and some different semantics ({13} case), so cull some
+# obviously wrong or chatty lines
 #
 $sudo grep '[[]'$!']:' /tmp/syslog.out \
 | tee -a /tmp/syslog.full \
@@ -263,6 +266,11 @@ $sudo grep '[[]'$!']:' /tmp/syslog.out \
     -e "s/`hostname -f | sed -e 's/\..*//'` /HOST /" \
     -e 's/[0-9][A-Z]:HOST/HOST/' \
     -e '/ sudo: .*syslog.out$/d' \
+    -e '/pcp-pmie\[.*]: user root$/d' \
+    -e '/pcp-pmie\[.*]: }$/d' \
+    -e '/pcp-pmie\[.*]: {13}$/d' \
+    -e '/pcp-pmie\[.*]: ag\[/s/ ag\[.*/ /' \
+    -e '/tag\[.*]: \#001$/s/ \#001/ /' \
     | LC_COLLATE=POSIX sort \
     | uniq
 
