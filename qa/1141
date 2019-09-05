@@ -17,8 +17,10 @@ policy_name="pcpqaqaqaqa"
 policy_file="$PCP_VAR_DIR/selinux/pcpupstream.pp"
 which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module disassembly)"
 which semodule >/dev/null 2>&1 || _notrun "semodule tool not installed"
-$sudo semodule -l >/dev/null 2>&1
+$sudo semodule -l >$tmp.out 2>&1
 [ $? -eq 0 ] || _notrun "semodule -l fails"
+grep '^pcpupstream$' $tmp.out >/dev/null
+[ $? -eq 0 ] || _notrun "pcpupstream module not loaded"
 which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
 [ -f "$policy_file" ] || _notrun "upstream policy package not installed"
 #if a matching module is already installed
@@ -57,10 +59,15 @@ mkdir -p $tmp/selinux
 #
 OF=$tmp/selinux/$policy_name.pp
 
-dd bs=1 count=70 if=$policy_file of=$OF 2>>$here/$seq.full
-echo -n "qaqaqaqa" >>$OF
+# we need to replace the module name pcpupstream in the binary file
+# with something different ... pcpqaqaqaqa
+#
+( $PCP_ECHO_PROG $PCP_ECHO_N "orig module name: \"""$PCP_ECHO_C"; dd bs=1 skip=67 count=11 if=$policy_file 2>/dev/null; echo "\"" ) >>$here/$seq.full
+dd bs=1 count=67 if=$policy_file of=$OF 2>>$here/$seq.full
+$PCP_ECHO_PROG $PCP_ECHO_N -n "pcpqaqaqaqa""$PCP_ECHO_C" >>$OF
 dd bs=1 skip=78 if=$policy_file >>$OF 2>>$here/$seq.full
 file $OF >>$here/$seq.full
+( $PCP_ECHO_PROG $PCP_ECHO_N "new module name: \"""$PCP_ECHO_C"; dd bs=1 skip=67 count=11 if=$OF 2>/dev/null; echo "\"" ) >>$here/$seq.full
 
 #install the module but catch any errors
 if [ "x$semodule_x_option" = "x" ]
