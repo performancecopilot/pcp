@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 
-# Copyright (c) 2018 Red Hat.  All Rights Reserved.
+# Copyright (c) 2018-2019 Red Hat.  All Rights Reserved.
 # Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -63,7 +63,7 @@ class POSTGRESQLPMDA(PMDA):
     def __init__(self, name, domain):
         """ constructor """
         PMDA.__init__(self, name, domain)
-        self.dbg = False # True for very verbose logging
+        self.verbose = False # True for very verbose logging
         self.debug("starting __init__")
 
         #
@@ -1078,16 +1078,16 @@ class POSTGRESQLPMDA(PMDA):
                 self.cur.execute('SELECT version()')
                 connected = True
             except (psycopg2.InterfaceError, psycopg2.DatabaseError):
-                self.log("Warning: connection lost to postgres server, reconnecting ...")
+                self.log("Connection lost to postgres server, reconnecting ...")
                 if not self.pg_connect():
                     time.sleep(2)
         # success
         return self.cur
 
     def debug(self, msg):
-        """ print message if dbg is set """
-        if self.dbg:
-            self.log("debug: " + msg)
+        """ print diagnostic message if verbose logging is enabled """
+        if self.verbose:
+            self.dbg(msg)
 
 if __name__ == "__main__":
     pmda = POSTGRESQLPMDA("postgresql", 110)

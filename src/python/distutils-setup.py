@@ -1,6 +1,6 @@
 """ Build script for the PCP python package """
 #
-# Copyright (C) 2012-2018 Red Hat.
+# Copyright (C) 2012-2019 Red Hat.
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -21,7 +21,7 @@
 from distutils.core import setup, Extension
 
 setup(name = 'pcp',
-    version = '4.1',
+    version = '5.0',
     description = 'Performance Co-Pilot collector, monitor and instrumentation APIs',
     license = 'GPLv2+',
     author = 'Performance Co-Pilot Development Team',
