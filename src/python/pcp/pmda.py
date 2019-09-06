@@ -582,5 +582,9 @@ class PMDA(MetricDispatch):
         return cpmda.pmda_log(message)
 
     @staticmethod
+    def dbg(message):
+        return cpmda.pmda_dbg(message)
+
+    @staticmethod
     def err(message):
         return cpmda.pmda_err(message)
