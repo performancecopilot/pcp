@@ -74,7 +74,7 @@ class LmsensorsPMDA(PMDA):
             if re.search(r'temp', sensornames[item]):
                 if int(sensorvalues[sensornames[item]]) < -127:
                     return None
-            # sanity checking: sort out negative and zero values from fans
+            # sanity checking: sort out negative values from fans
             if re.search(r'fan', sensornames[item]):
                 if int(sensorvalues[sensornames[item]]) < 0:
                     return None
