@@ -1211,6 +1211,20 @@ pmda_log(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+pmda_dbg(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *message;
+    char *keyword_list[] = {"message", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"s:pmda_dbg", keyword_list, &message))
+	return NULL;
+    pmNotifyErr(LOG_DEBUG, "%s", message);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 pmda_err(PyObject *self, PyObject *args, PyObject *keywords)
 {
     char *message;
@@ -1503,6 +1517,8 @@ static PyMethodDef methods[] = {
     { .ml_name = "set_refresh_all", .ml_meth = (PyCFunction)set_refresh_all,
 	.ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmda_log", .ml_meth = (PyCFunction)pmda_log,
+	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmda_dbg", .ml_meth = (PyCFunction)pmda_dbg,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_err", .ml_meth = (PyCFunction)pmda_err,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
