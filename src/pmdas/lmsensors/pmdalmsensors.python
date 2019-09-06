@@ -17,7 +17,7 @@
 
 """ PCP lmsensors Performance Metrics Domain Agent """
 
-# pylint: disable=bad-continuation,line-too-long,too-few-public-methods
+# pylint: disable=bad-continuation,line-too-long,too-few-public-methods,too-many-nested-blocks
 
 import json
 import subprocess
@@ -43,23 +43,23 @@ def lmsensors_get():
     else:
         # we will read real sensor data
         p = subprocess.Popen(["/usr/bin/sensors", "-j"], stdout=subprocess.PIPE)
-        output = json.loads(re.sub("[0-9]_","_", p.communicate()[0].decode("utf-8")))
+        output = json.loads(re.sub("[0-9]_", "_", p.communicate()[0].decode("utf-8")))
         if args.debug >= 0:
             print("function lmsensors_get(), json object after removing redundant naming:\n", output)
 
         for lvl0 in output.keys():
             if args.debug == 1:
-                print("level 0 keys:",output[lvl0].keys())
+                print("level 0 keys:", output[lvl0].keys())
             for lvl1 in output[lvl0].keys():
-                adapter=output[lvl0]["Adapter"].lower().replace(" ","_")
+                adapter = output[lvl0]["Adapter"].lower().replace(" ", "_")
                 if lvl1 != "Adapter":
                     for lvl2 in output[lvl0][lvl1]:
                         if "_input" in lvl2:
-                            sensorname=(lvl0+"."+adapter+"."+lvl1.replace(".",",")).lower().replace(" ","_").replace('-', '_')
+                            sensorname = (lvl0+"."+adapter+"."+lvl1.replace(".", ",")).lower().replace(" ", "_").replace('-', '_')
                             sensorvalues[sensorname] = output[lvl0][lvl1][lvl2]
 
         if args.debug == 2:
-            print("final array:",sensorvalues)
+            print("final array:", sensorvalues)
 
 class LmsensorsPMDA(PMDA):
     ''' lmsensors performance metrics domain agent '''
@@ -73,7 +73,7 @@ class LmsensorsPMDA(PMDA):
             # some sensors report -128 in error, from time to time.
             if re.search(r'temp', sensornames[item]):
                 if int(sensorvalues[sensornames[item]]) < -127:
-                    return None 
+                    return None
             # sanity checking: sort out negative and zero values from fans
             if re.search(r'fan', sensornames[item]):
                 if int(sensorvalues[sensornames[item]]) < 0:
