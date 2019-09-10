@@ -187,6 +187,7 @@ class pmdaIndom(Structure):
             instance_array[i].i_name = insts[i].i_name
         self.it_set = instance_array
         self.it_numinst = instance_count
+        cpmda.set_need_refresh()
 
     def set_dict_instances(self, indom, insts):
         LIBPCP_PMDA.pmdaCacheOp(indom, cpmda.PMDA_CACHE_INACTIVE)
