@@ -44,11 +44,11 @@ def lmsensors_get():
         # we will read real sensor data
         p = subprocess.Popen(["/usr/bin/sensors", "-j"], stdout=subprocess.PIPE)
         output = json.loads(re.sub("[0-9]_", "_", p.communicate()[0].decode("utf-8")))
-        if args.debug >= 0:
+        if args.debug_value and args.debug_value >= 0:
             print("function lmsensors_get(), json object after removing redundant naming:\n", output)
 
         for lvl0 in output.keys():
-            if args.debug == 1:
+            if args.debug_value and args.debug_value == 1:
                 print("level 0 keys:", output[lvl0].keys())
             for lvl1 in output[lvl0].keys():
                 adapter = output[lvl0]["Adapter"].lower().replace(" ", "_")
@@ -58,7 +58,7 @@ def lmsensors_get():
                             sensorname = (lvl0+"."+adapter+"."+lvl1.replace(".", ",")).lower().replace(" ", "_").replace('-', '_')
                             sensorvalues[sensorname] = output[lvl0][lvl1][lvl2]
 
-        if args.debug == 2:
+        if args.debug_value and args.debug_value == 2:
             print("final array:", sensorvalues)
 
 class LmsensorsPMDA(PMDA):
@@ -104,7 +104,7 @@ class LmsensorsPMDA(PMDA):
 
         self.set_fetch_callback(self.lmsensors_fetch_callback)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
-        if args.debug:
+        if args.debug_value:
             print("debug from __init__:")
             for k in sensorvalues:
                 print("  sensorvalues key", k, " : value ", sensorvalues[k])
@@ -116,7 +116,7 @@ class LmsensorsPMDA(PMDA):
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--inject", type=argparse.FileType('r'),
                     help="inject data from file instead of using sensors")
-parser.add_argument("-d", "--debug", type=int, choices=[0, 1, 2],
+parser.add_argument("-d", "--debug", dest="debug_value", type=int, choices=[0, 1, 2],
                     help="change debug level, 0 is default")
 args = parser.parse_args()
 
@@ -128,7 +128,7 @@ if not os.path.isfile('/usr/bin/sensors'):
 
 lmsensors_get()
 
-if args.debug:
+if args.debug_value:
     for key in sensorvalues:
         print("dict sensorvalues: ", key, " : ", sensorvalues[key])
 if __name__ == '__main__':
