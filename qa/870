@@ -193,13 +193,12 @@ $2 == '"$pid"'	{ print }'
 		    # OK
 		    :
 		else
-		    echo "Error: no matching pmlogger process for ..."
-		    ls -l $PCP_TMP_DIR/pmlogger/$file
+		    echo "Warning: no matching pmlogger process for ..." >>$here/$seq.full
+		    ls -l $PCP_TMP_DIR/pmlogger/$file >>$here/$seq.full
 		    if $check
 		    then
 			$sudo rm -f $PCP_TMP_DIR/pmlogger/$file
-			echo "File removed."
-			touch $tmp.err
+			echo "File removed." >>$here/$seq.full
 		    fi
 		fi
 	    fi
@@ -248,19 +247,18 @@ $2 == '"$pid"'	{ print }'
 		    # OK
 		    :
 		else
-		    echo "Error: no matching pmlogger process for ..."
-		    ls -l $PCP_RUN_DIR/$file
+		    echo "Warning: no matching pmlogger process for ..." >>$here/$seq.full
+		    ls -l $PCP_RUN_DIR/$file >>$here/$seq.full
 		    if $check
 		    then
 			$sudo rm -f $PCP_RUN_DIR/$file
 			case "$file"
 			in
-			    *.socket)	echo "Socket removed."
+			    *.socket)	echo "Socket removed." >>$here/$seq.full
 					;;
-			    *)		echo "File removed."
+			    *)		echo "File removed." >>$here/$seq.full
 					;;
 			esac
-			touch $tmp.err
 		    fi
 		fi
 	    fi
