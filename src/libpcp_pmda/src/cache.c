@@ -558,9 +558,18 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
     entry_t	*last_e = NULL;
     char	*dup;
     int		i;
-    int		hashlen = get_hashlen(h, name);
+    int		hashlen;
 
     *sts = 0;
+
+    if (name == NULL || strlen(name) == 0) {
+	pmNotifyErr(LOG_ERR, 
+	     "insert_cache: NULL or zero length instance name for inst %d\n", inst);
+	*sts = PM_ERR_GENERIC;
+	return NULL;
+    }
+
+    hashlen = get_hashlen(h, name);
 
     if (inst != PM_IN_NULL) {
 	/*
