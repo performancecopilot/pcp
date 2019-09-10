@@ -298,7 +298,11 @@ _check
 
 if $check
 then
-    [ -f $tmp.err ] && status=1
+    if [ -f $tmp.err ]
+    then
+	echo "Now: `date`"
+	status=1
+    fi
     exit
 fi
 
