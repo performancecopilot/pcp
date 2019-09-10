@@ -1,0 +1,19 @@
+QA output created by 1337
+
+=== mssql agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check mssql metrics have appeared ... X metrics and Y values
+mssql.general.active_temp_tables is in range
+mssql.general.logins is in range
+mssql.general.logouts is in range
+mssql.latches.latch_waits is in range
+
+=== remove mssql agent ===
+Culling the Performance Metrics Name Space ...
+mssql ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check mssql metrics have gone away ... OK
