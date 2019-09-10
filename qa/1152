@@ -59,6 +59,13 @@ echo "=== report metric values ==="
 pminfo -dfmtT bcc.usdt.jvm.alloc 2>&1 | tee -a $here/$seq.full \
 | grep TestUnit | _value_filter
 
+echo "=== check for libpcp pmdaCacheOp segfault if key field is empty ==="
+cp /var/lib/pcp/config/pmda/149.120 $tmp.149.120
+$sudo sed -i 's/ TestUnit//' /var/lib/pcp/config/pmda/149.120
+$sudo mv $tmp.149.120 /var/lib/pcp/config/pmda/149.120
+pminfo -dfmtT bcc.usdt.jvm.alloc 2>&1 | tee -a $here/$seq.full \
+| grep TestUnit | _value_filter
+
 $signal -s KILL $javapid > /dev/null 2>&1
 _pmdabcc_remove 2>&1
 

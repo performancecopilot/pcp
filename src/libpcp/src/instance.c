@@ -258,7 +258,9 @@ inresult_to_lists(pmInResult *result, int **instlist, char ***namelist)
     }
     need = 0;
     for (i = 0; i < result->numinst; i++) {
-	need += sizeof(**namelist) + strlen(result->namelist[i]) + 1;
+	/* fortify against NULL instance name returned by a misbehaving PMDA */
+	int len = result->namelist[i] ? strlen(result->namelist[i]) : 0;
+	need += sizeof(**namelist) + len + 1;
     }
     ilist = (int *)malloc(result->numinst * sizeof(result->instlist[0]));
     if (ilist == NULL) {
@@ -277,10 +279,12 @@ inresult_to_lists(pmInResult *result, int **instlist, char ***namelist)
     *namelist = nlist;
     p = (char *)&nlist[result->numinst];
     for (i = 0; i < result->numinst; i++) {
+	int len = result->namelist[i] ? strlen(result->namelist[i]) : 0;
 	ilist[i] = result->instlist[i];
-	strcpy(p, result->namelist[i]);
+	/* name could be NULL or zero length string, see above */
+	strncpy(p, len ? result->namelist[i] : "\0", len+1);
 	nlist[i] = p;
-	p += strlen(result->namelist[i]) + 1;
+	p += len + 1;
     }
     n = result->numinst;
     __pmFreeInResult(result);

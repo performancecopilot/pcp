@@ -43,6 +43,8 @@ Check bcc metrics have appeared ... X metrics and X values
 
 === report metric values ===
 OK
+=== check for libpcp pmdaCacheOp segfault if key field is empty ===
+OK
 
 === remove bcc agent ===
 Culling the Performance Metrics Name Space ...
