@@ -26,6 +26,9 @@ if [ $PCP_PLATFORM = linux ] ; then
 	    'openSUSE '*)
 		ln $seq.linux $seq.out
 		;;
+	    'SUSE Linux Enterprise Server 12 '*)
+		ln $seq.opensuse.15 $seq.out
+		;;
 	esac
     elif [ -f /etc/redhat-release ]
     then
