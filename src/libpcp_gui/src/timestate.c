@@ -120,6 +120,7 @@ pmTimeStateSetup(
     pmTime	*pmtime = malloc(sizeof(pmTime));
     pmTime	*pmtime_tmp;
     int		fd, sts, tzlen;
+    char	tzbuf[PM_TZ_MAXLEN];
 
     if (pmtime == NULL) {
 	fprintf(stderr, "%s: pmTimeConnect: malloc: %s\n", pmGetProgname(), osstrerror());
@@ -141,7 +142,6 @@ pmTimeStateSetup(
 	pmtimevalNow(&pmtime->position);
     }
     if (tz == NULL) {
-	char	tzbuf[PM_TZ_MAXLEN];
 	tz = __pmTimezone_r(tzbuf, sizeof(tzbuf));
 	if (ctxt == PM_CONTEXT_ARCHIVE) {
 	    if ((sts = pmNewZone(tz)) < 0) {
