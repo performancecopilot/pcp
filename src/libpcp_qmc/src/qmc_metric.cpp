@@ -116,6 +116,7 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
     int descType;
     char *src = NULL;
     char *name = NULL;
+    char *host = NULL;
 
     if (metricSpec->isarch == 1)
 	contextType = PM_CONTEXT_ARCHIVE;
@@ -153,10 +154,12 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	    my.status = PM_ERR_CONV;
 	    name = strdup(nameAscii());
 	    src = strdup(context()->source().sourceAscii());
+	    /* hostAscii() is already a strdup'd result */
+	    host = context()->source().hostAscii();
 	    pmprintf("%s: Error: %s%c%s is not supported on %s\n",
 		     pmGetProgname(), contextType == PM_CONTEXT_LOCAL ? "@" : src,
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
-		     name, context()->source().hostAscii());
+		     name, host);
 	}
 	else if (descType == PM_TYPE_AGGREGATE ||
 		 descType == PM_TYPE_AGGREGATE_STATIC ||
@@ -176,6 +179,8 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	free(name);
     if (src)
 	free(src);
+    if (host)
+	free(host);
 }
 
 void
