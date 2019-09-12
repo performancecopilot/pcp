@@ -870,7 +870,24 @@ _wait_pmlogger_end()
 		    _i=`expr $_i + 1`
 		    if [ "$_i" -ge 100 ]
 		    then
-			echo "_wait_pmlogger_end: failed to see pid $_pid exit after 100 iterations"
+			# may exist, but is defunct so we should treat this
+			# as "ended" ...
+			#
+			$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+			| $PCP_AWK_PROG >$tmp.pmlogger.defunct '
+$2 == '$_pid' && $0 ~ /defunct/	{ print $3 }'
+			if [ -s "$tmp.pmlogger.defunct" ]
+			then
+			    echo "_wait_pmlogger_end: pid $_pid is defunct" >>$here/$seq.full
+			    if which pstree >/dev/null 2>&1
+			    then
+				pstree -s -A -pua $_pid >>$here/$seq.full 2>&1
+			    else
+				$PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $_pid `cat $tmp.pmlogger.defunct`
+			    fi
+			else
+			    echo "_wait_pmlogger_end: failed to see pid $_pid exit after 100 iterations"
+			fi
 			#debug# set +x
 			return
 		    fi

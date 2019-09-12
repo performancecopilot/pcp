@@ -17,6 +17,9 @@ $python -c "from collections import OrderedDict" >/dev/null 2>&1
 
 which pmrep >/dev/null 2>&1 || _notrun "No pmrep binary installed"
 
+debug=`pmprobe -v pmcd.control.debug | $PCP_AWK_PROG '{print $3}'`
+[ "$debug" -ne 0 ] && echo "Warning: pmcd debug $debug, not 0!"
+
 _cleanup()
 {
     cd $here

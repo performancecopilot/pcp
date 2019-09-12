@@ -34,8 +34,9 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 	ds389 ds389log activemq lustre gpfs slurm \
 	bind2 redis nutcracker
 
-PYPMDAS = bcc gluster zswap unbound mic haproxy json libvirt lio prometheus \
-	elasticsearch bpftrace
+PYPMDAS = bcc gluster zswap unbound mic haproxy \
+	json libvirt lio prometheus elasticsearch \
+	bpftrace mssql
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf

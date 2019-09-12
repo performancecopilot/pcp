@@ -61,7 +61,7 @@ _filter_connect_fail()
 	-e '/^192\..*-60$/s/-60/NETERROR/' \
 	-e '/^192\..*-51$/s/-51/NETERROR/' \
 	-e '/^192\..*-65$/s/-65/NETERROR/' \
-	-e '/^192\..*-61$/s/-65/NETERROR/' \
+	-e '/^192\..*-61$/s/-61/NETERROR/' \
     # end
 }
 

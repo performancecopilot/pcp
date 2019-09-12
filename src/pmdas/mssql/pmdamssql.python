@@ -1,0 +1,1307 @@
+#!/usr/bin/env pmpython
+
+# Copyright (c) 2019 Red Hat.  All Rights Reserved.
+# Copyright (c) 2011 Aconex.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+""" PCP Microsoft SQL Server Performance Metrics Domain Agent """
+
+# pylint: disable=bad-continuation,line-too-long,too-many-lines
+
+import os
+import sys
+import time
+import pyodbc
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+from pcp.pmapi import pmUnits, pmContext
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+from ctypes import c_int
+import cpmapi as c_api
+import cpmda
+if sys.version >= '3':
+    long = int  # python2 to python3 portability (no long() in python3)
+
+class MSSQLPMDA(PMDA):
+    """
+    PMDA class for Microsoft SQL Server performance metrics
+    """
+
+    def PM_ID(self, cluster, item):
+        """ pmid from PMDA domain, cluster and item """
+        return PMDA.pmid(cluster, item)
+
+    def INDOM_ID(self, serial):
+        """ indom id from PMDA domain and serial """
+        return PMDA.indom(serial)
+
+    def __init__(self, name, domain):
+        """ constructor """
+        PMDA.__init__(self, name, domain)
+        self.connect_pmcd()
+        self.verbose = False # True for very verbose logging
+        self.debug("__init__")
+
+        # common SQL sub-strings for building wait_type instance domain
+        self.wait_type_grouping = 'WHEN wait_type LIKE \'LCK%\' THEN \'LOCKS\' WHEN wait_type LIKE \'PAGEIO%\' THEN \'PAGE I/O LATCH\' WHEN wait_type LIKE \'PAGELATCH%\' THEN \'PAGE LATCH (non-I/O)\' WHEN wait_type LIKE \'LATCH%\' THEN \'LATCH (non-buffer)\' WHEN wait_type LIKE \'LATCH%\' THEN \'LATCH (non-buffer)\' ELSE wait_type'
+        self.wait_type_excludes = 'wait_type NOT IN (\'LAZYWRITER_SLEEP\', \'CLR_AUTO_EVENT\', \'CLR_MANUAL_EVENT\', \'REQUEST_FOR_DEADLOCK_SEARCH\', \'BACKUPTHREAD\', \'CHECKPOINT_QUEUE\', \'EXECSYNC\', \'FFT_RECOVERY\', \'SNI_CRITICAL_SECTION\', \'SOS_PHYS_PAGE_CACHE\', \'CXROWSET_SYNC\', \'DAC_INIT\', \'DIRTY_PAGE_POLL\', \'PWAIT_ALL_COMPONENTS_INITIALIZED\', \'MSQL_XP\', \'WAIT_FOR\', \'DBMIRRORING_CMD\', \'DBMIRROR_DBM_EVENT\', \'DBMIRROR_EVENTS_QUEUE\', \'DBMIRROR_WORKER_QUEUE\', \'XE_TIMER_EVENT\', \'XE_DISPATCHER_WAIT\', \'WAITFOR_TASKSHUTDOWN\', \'WAIT_FOR_RESULTS\', \'SQLTRACE_INCREMENTAL_FLUSH_SLEEP\', \'WAITFOR\', \'QDS_CLEANUP_STALE_QUERIES_TASK_MAIN_LOOP_SLEEP\', \'QDS_PERSIST_TASK_MAIN_LOOP_SLEEP\', \'HADR_FILESTREAM_IOMGR_IOCOMPLETION\', \'LOGMGR_QUEUE\', \'FSAGENT\') AND wait_type NOT LIKE \'PREEMPTIVE%\' AND wait_type NOT LIKE \'SQLTRACE%\' AND wait_type NOT LIKE \'SLEEP%\' AND wait_type NOT LIKE \'FT_%\' AND wait_type NOT LIKE \'XE%\' AND wait_type NOT LIKE \'BROKER%\' AND wait_type NOT LIKE \'DISPATCHER%\' AND wait_type NOT LIKE \'PWAIT%\' AND wait_type NOT LIKE \'SP_SERVER%\''
+
+        # InDom dictionary, each entry has an array of [metadata, query]
+        self.INDOM_META = 0
+        self.INDOM_QUERY = 1
+        self.indoms = {
+            self.INDOM_ID(0) : [pmdaIndom(self.INDOM_ID(0), {}),
+                'select distinct(trim(instance_name)) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:Databases\''],
+            self.INDOM_ID(1) : [pmdaIndom(self.INDOM_ID(1), {}),
+                'select trim(instance_name) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:Memory Broker Clerks\''],
+            self.INDOM_ID(2) : [pmdaIndom(self.INDOM_ID(2), {}),
+                'select trim(instance_name) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:Buffer Node\''],
+            self.INDOM_ID(3) : [pmdaIndom(self.INDOM_ID(3), {}),
+                'select trim(instance_name) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:Locks\''],
+            self.INDOM_ID(4) : [pmdaIndom(self.INDOM_ID(4), {}),
+                'select trim(instance_name) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:LogPool FreePool\''],
+            self.INDOM_ID(5) : [pmdaIndom(self.INDOM_ID(5), {}),
+                'select trim(instance_name) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:Database Replica\''],
+            self.INDOM_ID(6) : [pmdaIndom(self.INDOM_ID(6), {}),
+                'select trim(instance_name) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:SQL Errors\''],
+            self.INDOM_ID(7) : [pmdaIndom(self.INDOM_ID(7), {}),
+                'select trim(instance_name) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:Availability Replica\''],
+            self.INDOM_ID(8) : [pmdaIndom(self.INDOM_ID(8), {}),
+                'select trim(instance_name) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:Plan Cache\''],
+            self.INDOM_ID(9) : [pmdaIndom(self.INDOM_ID(9), {}),
+                'select trim(instance_name) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:Memory Node\''],
+            self.INDOM_ID(10) : [pmdaIndom(self.INDOM_ID(10), {}),
+                'select trim(instance_name) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:Wait Statistics\''],
+            self.INDOM_ID(11) : [pmdaIndom(self.INDOM_ID(11), {}),
+                'select trim(instance_name) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:Exec Statistics\''],
+            self.INDOM_ID(12) : [pmdaIndom(self.INDOM_ID(12), {}),
+                'select trim(instance_name) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:Resource Pool Stats\''],
+            self.INDOM_ID(13) : [pmdaIndom(self.INDOM_ID(13), {}),
+                'select trim(instance_name) ' +
+                'from sys.dm_os_performance_counters ' +
+                'where object_name = \'SQLServer:Batch Resp Statistic\''],
+            self.INDOM_ID(14) : [pmdaIndom(self.INDOM_ID(14), {}),
+                'with wait_category_indom ' +
+                    '( wait_category, wait_type, wait_time_ms ) as ' +
+                    '( select case ' + self.wait_type_grouping + ' end as ' +
+                        'wait_category, wait_type, wait_time_ms ' +
+                    'from sys.dm_os_wait_stats ' + 
+                    'where ' + self.wait_type_excludes + ' ) ' +
+                    'select wait_category from wait_category_indom ' +
+                    'where wait_time_ms >100 group by wait_category'],
+            self.INDOM_ID(15) : [pmdaIndom(self.INDOM_ID(15), {}),
+                    'select trim(db_name(database_id)) ' +
+                    'from sys.dm_io_virtual_file_stats(NULL,1)'],
+        }
+
+        # format of entries in each cluster dict below (keyed on cluster)
+        self.CLUSTER_INDOM = 0
+        self.CLUSTER_QUERY = 1
+
+        # Clusters from querying non-sys.dm_os_performance_counters DM tables.
+        # Instance is always the first column for those metrics with an indom.
+        # (Cluster identifiers below 100 are reserved for the os_perf table.)
+        self.ROW_QUERIES_INST = 0
+        self.dm_io_vfiles_items = 7
+        self.dm_io_vfiles_clusters = {
+                100: [self.INDOM_ID(15),
+                    'select db_name(database_id), ' +
+                        'num_of_reads, num_of_bytes_read, ' +
+                        'io_stall_read_ms, ' +
+                        'num_of_writes, num_of_bytes_written, ' +
+                        'io_stall_write_ms, ' +
+                        'size_on_disk_bytes ' +
+                    'from sys.dm_io_virtual_file_stats(NULL,1)'],
+        }
+        self.dm_os_execreq_items = 1
+        self.dm_os_execreq_clusters = {
+                101: [c_api.PM_INDOM_NULL,
+                    'select count(*) ' +
+                    'from sys.dm_exec_requests ' +
+                    'where session_id >= 51 and status = \'running\''],
+        }
+        self.dm_os_workers_items = 1
+        self.dm_os_workers_clusters = {
+                102: [c_api.PM_INDOM_NULL,
+                    'select isnull(count(*),0) ' +
+                    'from sys.dm_os_workers as worker ' +
+                    'inner join sys.dm_os_schedulers as sched on ' +
+                        'worker.scheduler_address = sched.scheduler_address ' +
+                    'where worker.state = \'RUNNABLE\' ' +
+                        'and sched.scheduler_id < 255'],
+        }
+        self.dm_os_wait_stats_items = 3
+        self.dm_os_wait_stats_clusters = {
+                103: [self.INDOM_ID(14),
+                    'with wait_category_metrics' +
+                    '( wait_category, wait_type, wait_time_ms, ' +
+                      'waiting_tasks_count, max_wait_time_ms ) as ' +
+                    '( select case ' + self.wait_type_grouping + ' end as ' +
+                        'wait_category, wait_type, wait_time_ms, ' +
+                        'waiting_tasks_count, max_wait_time_ms ' +
+                    'from sys.dm_os_wait_stats ' + 
+                    'where ' + self.wait_type_excludes + ' ) ' +
+                    'select wait_category, ' +
+                        'sum(wait_time_ms) as wait_time_ms, ' +
+                        'sum(waiting_tasks_count) as waiting_tasks_count, ' +
+                        'max(max_wait_time_ms) as max_wait_time_ms ' +
+                    'from wait_category_metrics ' +
+                    'where wait_time_ms >100 group by wait_category'],
+        }
+
+        # sys.dm_os_performance_counters
+        # cluster refresh queries, each row is an array of [name, inst, value].
+        # (For null indom cluster refreshes we return an empty string in inst)
+        self.ROW_OS_PERF_NAME = 0
+        self.ROW_OS_PERF_INST = 1
+        self.ROW_OS_PERF_VALUE = 2
+        self.dm_os_perf_clusters = {
+                0 : [c_api.PM_INDOM_NULL,
+                    'select trim(counter_name), \'0\', cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Buffer Manager\''],
+                1 : [self.INDOM_ID(1),
+                    'select trim(counter_name), trim(instance_name), cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Memory Broker Clerks\''],
+                2 : [self.INDOM_ID(2),
+                    'select trim(counter_name), trim(instance_name), cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Buffer Node\''],
+                3 : [c_api.PM_INDOM_NULL,
+                    'select trim(counter_name), \'0\', cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:General Statistics\''],
+                4 : [self.INDOM_ID(3),
+                    'select trim(counter_name), trim(instance_name), cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Locks\''],
+                5 : [self.INDOM_ID(0),
+                    'select trim(counter_name), trim(instance_name), cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Databases\''],
+                6 : [self.INDOM_ID(4),
+                    'select trim(counter_name), trim(instance_name), cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:LogPool FreePool\''],
+                7 : [c_api.PM_INDOM_NULL,
+                    'select trim(counter_name), \'0\', cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Latches\''],
+                8 : [self.INDOM_ID(6),
+                    'select trim(counter_name), trim(instance_name), cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:SQL Errors\''],
+                9 : [c_api.PM_INDOM_NULL,
+                    'select trim(counter_name), \'0\', cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:SQL Statistics\''],
+                10: [c_api.PM_INDOM_NULL,
+                    'select trim(counter_name), \'0\', cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Memory Manager\''],
+                11: [self.INDOM_ID(9),
+                    'select trim(counter_name), trim(instance_name), cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Memory Node\''],
+                12: [self.INDOM_ID(10),
+                    'select trim(counter_name), trim(instance_name), cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Wait Statistics\''],
+                13: [self.INDOM_ID(11),
+                    'select trim(counter_name), trim(instance_name), cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Exec Statistics\''],
+                14: [c_api.PM_INDOM_NULL,
+                    'select trim(counter_name), \'0\', cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:FileTable\''],
+                15: [c_api.PM_INDOM_NULL,
+                    'select trim(counter_name), \'0\', cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Access Methods\''],
+                16: [self.INDOM_ID(5),
+                    'select trim(counter_name), trim(instance_name), cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Database Replica\''],
+                17: [self.INDOM_ID(7),
+                    'select trim(counter_name), trim(instance_name), cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Availability Replica\''],
+                18: [self.INDOM_ID(8),
+                    'select trim(counter_name), trim(instance_name), cntr_value ' +
+                    'from sys.dm_os_performance_counters ' +
+                    'where object_name = \'SQLServer:Plan Cache\''],
+        }
+
+        # Metric table: PMID to array of [name, metadata, value(s), querydata]
+        self.METRIC_NAME = 0
+        self.METRIC_META = 1
+        self.METRIC_VALUES = 2
+        self.METRIC_QUERYDATA = 3
+        zeroUnits = pmUnits(0, 0, 0, 0, 0, 0)
+        secUnits = pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)
+        msecUnits = pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)
+        countUnits = pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)
+        byteUnits = pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)
+        kbyteUnits = pmUnits(1, 0, 0, c_api.PM_SPACE_KBYTE, 0, 0)
+        self.metrics = {
+            # 'SQLServer:Buffer Manager' cluster
+            self.PM_ID(0, 0) : ['mssql.buffer_manager.raw_buffer_cache_hit_ratio',
+                pmdaMetric(self.PM_ID(0, 0), c_api.PM_TYPE_U32,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Buffer cache hit ratio'],
+            self.PM_ID(0, 1) : ['mssql.buffer_manager.raw_buffer_cache_hit_ratio_base',
+                pmdaMetric(self.PM_ID(0, 1), c_api.PM_TYPE_U32,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Buffer cache hit ratio base'],
+            self.PM_ID(0, 2) : ['mssql.buffer_manager.page_lookups',
+                pmdaMetric(self.PM_ID(0, 2), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Page lookups/sec'],
+            self.PM_ID(0, 3) : ['mssql.buffer_manager.free_pages',
+                pmdaMetric(self.PM_ID(0, 3), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Free list stalls/sec'],
+            self.PM_ID(0, 4) : ['mssql.buffer_manager.database_pages',
+                pmdaMetric(self.PM_ID(0, 4), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Database pages'],
+            self.PM_ID(0, 5) : ['mssql.buffer_manager.target_pages',
+                pmdaMetric(self.PM_ID(0, 5), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Target pages'],
+            self.PM_ID(0, 6) : ['mssql.buffer_manager.integral_controller_slope',
+                pmdaMetric(self.PM_ID(0, 6), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Integral Controller Slope'],
+            self.PM_ID(0, 7) : ['mssql.buffer_manager.lazy_writes',
+                pmdaMetric(self.PM_ID(0, 7), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Lazy writes/sec'],
+            self.PM_ID(0, 8) : ['mssql.buffer_manager.readahead_pages',
+                pmdaMetric(self.PM_ID(0, 8), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Readahead pages/sec'],
+            self.PM_ID(0, 9) : ['mssql.buffer_manager.readahead_time',
+                pmdaMetric(self.PM_ID(0, 9), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, msecUnits),
+                {}, 'Readahead time/sec'],
+            self.PM_ID(0, 10) : ['mssql.buffer_manager.page_reads',
+                pmdaMetric(self.PM_ID(0, 10), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Page reads/sec'],
+            self.PM_ID(0, 11) : ['mssql.buffer_manager.page_writes',
+                pmdaMetric(self.PM_ID(0, 11), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Page writes/sec'],
+            self.PM_ID(0, 12) : ['mssql.buffer_manager.checkpoint_pages',
+                pmdaMetric(self.PM_ID(0, 12), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Checkpoint pages/sec'],
+            self.PM_ID(0, 13) : ['mssql.buffer_manager.background_writer_pages',
+                pmdaMetric(self.PM_ID(0, 13), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Background writer pages/sec'],
+            self.PM_ID(0, 14) : ['mssql.buffer_manager.page_life_expectancy',
+                pmdaMetric(self.PM_ID(0, 14), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, secUnits),
+                {}, 'Page life expectancy'],
+
+            # 'SQLServer:Memory Broker Clerks' cluster
+            self.PM_ID(1, 0) : ['mssql.memory_broker_clerks.size',
+                pmdaMetric(self.PM_ID(1, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Memory broker clerk size'],
+            self.PM_ID(1, 1) : ['mssql.memory_broker_clerks.simulation_benefit',
+                pmdaMetric(self.PM_ID(1, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Simulation benefit'],
+            self.PM_ID(1, 2) : ['mssql.memory_broker_clerks.simulation_size',
+                pmdaMetric(self.PM_ID(1, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Simulation size'],
+            self.PM_ID(1, 3) : ['mssql.memory_broker_clerks.internal_benefit',
+                pmdaMetric(self.PM_ID(1, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Internal benefit'],
+            self.PM_ID(1, 4) : ['mssql.memory_broker_clerks.periodic_evictions',
+                pmdaMetric(self.PM_ID(1, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Periodic evictions (pages)'],
+            self.PM_ID(1, 5) : ['mssql.memory_broker_clerks.pressure_evictions',
+                pmdaMetric(self.PM_ID(1, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Pressure evictions (pages/sec)'],
+
+            # 'SQLServer:Buffer Node' cluster
+            self.PM_ID(2, 0) : ['mssql.buffer_node.database_pages',
+                pmdaMetric(self.PM_ID(2, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(2), c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Database pages'],
+            self.PM_ID(2, 1) : ['mssql.buffer_node.page_life_expectancy',
+                pmdaMetric(self.PM_ID(2, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(2), c_api.PM_SEM_INSTANT, secUnits),
+                {}, 'Page life expectancy'],
+            self.PM_ID(2, 2) : ['mssql.buffer_node.local_node_page_lookups',
+                pmdaMetric(self.PM_ID(2, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(2), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Local node page lookups/sec'],
+            self.PM_ID(2, 3) : ['mssql.buffer_node.remote_node_page_lookups',
+                pmdaMetric(self.PM_ID(2, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(2), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Remote node page lookups/sec'],
+
+            # 'SQLServer:General Statistics' cluster
+            self.PM_ID(3, 0) : ['mssql.general.active_temp_tables',
+                pmdaMetric(self.PM_ID(3, 0), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Active Temp Tables'],
+            self.PM_ID(3, 1) : ['mssql.general.temp_tables_creation_rate',
+                pmdaMetric(self.PM_ID(3, 1), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Temp Tables Creation Rate'],
+            self.PM_ID(3, 2) : ['mssql.general.logins',
+                pmdaMetric(self.PM_ID(3, 2), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Logins/sec'],
+            self.PM_ID(3, 3) : ['mssql.general.connection_reset',
+                pmdaMetric(self.PM_ID(3, 3), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Connection Reset/sec'],
+            self.PM_ID(3, 4) : ['mssql.general.logouts',
+                pmdaMetric(self.PM_ID(3, 4), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Logouts/sec'],
+            self.PM_ID(3, 5) : ['mssql.general.user_connections',
+                pmdaMetric(self.PM_ID(3, 5), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'User Connections'],
+            self.PM_ID(3, 6) : ['mssql.general.logical_connections',
+                pmdaMetric(self.PM_ID(3, 6), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Logical Connections'],
+            self.PM_ID(3, 7) : ['mssql.general.transactions',
+                pmdaMetric(self.PM_ID(3, 7), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Transactions'],
+            self.PM_ID(3, 8) : ['mssql.general.processes_blocked',
+                pmdaMetric(self.PM_ID(3, 8), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Processes blocked'],
+
+            # 'SQLServer:Locks' cluster
+            self.PM_ID(4, 0) : ['mssql.locks.lock_requests',
+                pmdaMetric(self.PM_ID(4, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Lock Requests/sec'],
+            self.PM_ID(4, 1) : ['mssql.locks.lock_timeouts',
+                pmdaMetric(self.PM_ID(4, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Lock Timeouts/sec'],
+            self.PM_ID(4, 2) : ['mssql.locks.deadlocks',
+                pmdaMetric(self.PM_ID(4, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Number of Deadlocks/sec'],
+            self.PM_ID(4, 3) : ['mssql.locks.lock_waits',
+                pmdaMetric(self.PM_ID(4, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Lock Waits/sec'],
+            self.PM_ID(4, 4) : ['mssql.locks.lock_wait_time',
+                pmdaMetric(self.PM_ID(4, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, msecUnits),
+                {}, 'Lock Wait Time (ms)'],
+            self.PM_ID(4, 5) : ['mssql.locks.raw_average_wait_time',
+                pmdaMetric(self.PM_ID(4, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Average Wait Time (ms)'],
+            self.PM_ID(4, 6) : ['mssql.locks.raw_average_wait_time_base',
+                pmdaMetric(self.PM_ID(4, 6), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Average Wait Time Base'],
+
+            # 'SQLServer:Databases' cluster
+            self.PM_ID(5, 0) : ['mssql.databases.data_file_size',
+                pmdaMetric(self.PM_ID(5, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Data File(s) Size (KB)'],
+            self.PM_ID(5, 1) : ['mssql.databases.log_file_size',
+                pmdaMetric(self.PM_ID(5, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Log File(s) Size (KB)'],
+            self.PM_ID(5, 2) : ['mssql.databases.active_parallel_redo_threads',
+                pmdaMetric(self.PM_ID(5, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Active parallel redo threads'],
+            self.PM_ID(5, 3) : ['mssql.databases.log_file_used_size',
+                pmdaMetric(self.PM_ID(5, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Log File(s) Used Size (KB)'],
+            self.PM_ID(5, 4) : ['mssql.databases.percent_log_used',
+                pmdaMetric(self.PM_ID(5, 4), c_api.PM_TYPE_FLOAT,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Percent Log Used'],
+            self.PM_ID(5, 5) : ['mssql.databases.xtp_memory_used',
+                pmdaMetric(self.PM_ID(5, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'XTP Memory Used (KB)'],
+            self.PM_ID(5, 6) : ['mssql.databases.active_transactions',
+                pmdaMetric(self.PM_ID(5, 6), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Active Transactions'],
+            self.PM_ID(5, 7) : ['mssql.databases.transactions',
+                pmdaMetric(self.PM_ID(5, 7), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Transactions/sec'],
+            self.PM_ID(5, 8) : ['mssql.databases.repl_pending_transactions',
+                pmdaMetric(self.PM_ID(5, 8), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Repl. Pending Xacts'],
+            self.PM_ID(5, 9) : ['mssql.databases.repl_transaction_rate',
+                pmdaMetric(self.PM_ID(5, 9), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Repl. Trans. Rate'],
+            self.PM_ID(5, 10) : ['mssql.databases.log_cache_reads',
+                pmdaMetric(self.PM_ID(5, 10), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Log Cache Reads/sec'],
+            self.PM_ID(5, 11) : ['mssql.databases.raw_log_cache_hit_ratio',
+                pmdaMetric(self.PM_ID(5, 11), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Log Cache Hit Ratio'],
+            self.PM_ID(5, 12) : ['mssql.databases.raw_log_cache_hit_ratio_base',
+                pmdaMetric(self.PM_ID(5, 12), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Log Cache Hit Ratio Base'],
+            self.PM_ID(5, 13) : ['mssql.databases.log_pool_requests',
+                pmdaMetric(self.PM_ID(5, 13), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Log Pool Requests/sec'],
+            self.PM_ID(5, 14) : ['mssql.databases.log_pool_cache_misses',
+                pmdaMetric(self.PM_ID(5, 14), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Log Pool Cache Misses/sec'],
+            self.PM_ID(5, 15) : ['mssql.databases.log_pool_disk_reads',
+                pmdaMetric(self.PM_ID(5, 15), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Log Pool Disk Reads/sec'],
+            self.PM_ID(5, 16) : ['mssql.databases.log_pool_total_active_log_size',
+                pmdaMetric(self.PM_ID(5, 16), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Log Pool Total Active Log Size'],
+            self.PM_ID(5, 17) : ['mssql.databases.log_pool_total_shared_pool_size',
+                pmdaMetric(self.PM_ID(5, 17), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Log Pool Total Shared Pool Size'],
+            self.PM_ID(5, 18) : ['mssql.databases.bulk_copy_rows',
+                pmdaMetric(self.PM_ID(5, 18), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Bulk Copy Rows/sec'],
+            self.PM_ID(5, 19) : ['mssql.databases.bulk_copy_throughput',
+                pmdaMetric(self.PM_ID(5, 19), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Bulk Copy Throughput/sec'],
+            self.PM_ID(5, 20) : ['mssql.databases.backup_restore_throughput',
+                pmdaMetric(self.PM_ID(5, 20), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Backup/Restore Throughput/sec'],
+            self.PM_ID(5, 21) : ['mssql.databases.dbcc_logical_scan_bytes',
+                pmdaMetric(self.PM_ID(5, 21), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, byteUnits),
+                {}, 'DBCC Logical Scan Bytes/sec'],
+            self.PM_ID(5, 22) : ['mssql.databases.shrink_data_movement_bytes',
+                pmdaMetric(self.PM_ID(5, 22), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Shrink Data Movement Bytes/sec'],
+            self.PM_ID(5, 23) : ['mssql.databases.log_flushes',
+                pmdaMetric(self.PM_ID(5, 23), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Log Flushes/sec'],
+            self.PM_ID(5, 24) : ['mssql.databases.log_bytes_flushed',
+                pmdaMetric(self.PM_ID(5, 24), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, byteUnits),
+                {}, 'Log Bytes Flushed/sec'],
+            self.PM_ID(5, 25) : ['mssql.databases.log_flush_waits',
+                pmdaMetric(self.PM_ID(5, 25), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Log Flush Waits/sec'],
+            self.PM_ID(5, 26) : ['mssql.databases.log_flush_wait_time',
+                pmdaMetric(self.PM_ID(5, 26), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, msecUnits),
+                {}, 'Log Flush Wait Time'],
+            self.PM_ID(5, 27) : ['mssql.databases.log_truncations',
+                pmdaMetric(self.PM_ID(5, 27), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Log Truncations'],
+            self.PM_ID(5, 28) : ['mssql.databases.log_growths',
+                pmdaMetric(self.PM_ID(5, 28), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Log Growths'],
+            self.PM_ID(5, 29) : ['mssql.databases.log_shrinks',
+                pmdaMetric(self.PM_ID(5, 29), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Log Shrinks'],
+            self.PM_ID(5, 30) : ['mssql.databases.write_transactions',
+                pmdaMetric(self.PM_ID(5, 30), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Write Transactions/sec'],
+
+            # 'SQLServer:LogPool FreePool' cluster
+            self.PM_ID(6, 0) : ['mssql.logpool_freepool.free_list_length',
+                pmdaMetric(self.PM_ID(6, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(4), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Free List Length'],
+            self.PM_ID(6, 1) : ['mssql.logpool_freepool.free_buffer_refills',
+                pmdaMetric(self.PM_ID(6, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(4), c_api.PM_SEM_COUNTER, zeroUnits),
+                {}, 'Free Buffer Refills/sec'],
+
+            # 'SQLServer:Latches' cluster
+            self.PM_ID(7, 0) : ['mssql.latches.latch_waits',
+                pmdaMetric(self.PM_ID(7, 0), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Latch Waits/sec'],
+            self.PM_ID(7, 1) : ['mssql.latches.raw_average_latch_wait_time',
+                pmdaMetric(self.PM_ID(7, 1), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, msecUnits),
+                {}, 'Average Latch Wait Time (ms)'],
+            self.PM_ID(7, 2) : ['mssql.latches.raw_average_latch_wait_time_base',
+                pmdaMetric(self.PM_ID(7, 2), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Average Latch Wait Time Base'],
+            self.PM_ID(7, 3) : ['mssql.latches.total_latch_wait_time',
+                pmdaMetric(self.PM_ID(7, 3), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, msecUnits),
+                {}, 'Total Latch Wait Time (ms)'],
+            self.PM_ID(7, 4) : ['mssql.latches.superlatches',
+                pmdaMetric(self.PM_ID(7, 4), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Number of SuperLatches'],
+            self.PM_ID(7, 5) : ['mssql.latches.superlatch_promotions',
+                pmdaMetric(self.PM_ID(7, 5), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'SuperLatch Promotions/sec'],
+            self.PM_ID(7, 6) : ['mssql.latches.superlatch_demotions',
+                pmdaMetric(self.PM_ID(7, 6), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'SuperLatch Demotions/sec'],
+
+            # 'SQLServer:SQL Errors' cluster
+            self.PM_ID(8, 0) : ['mssql.sqlerrors.count',
+                pmdaMetric(self.PM_ID(8, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Errors/sec'],
+
+            # 'SQLServer:SQL Statistics' cluster
+            self.PM_ID(9, 0) : ['mssql.sql_statistics.batch_requests',
+                pmdaMetric(self.PM_ID(9, 0), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Batch Requests/sec'],
+            self.PM_ID(9, 1) : ['mssql.sql_statistics.compilations',
+                pmdaMetric(self.PM_ID(9, 1), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'SQL Compilations/sec'],
+            self.PM_ID(9, 2) : ['mssql.sql_statistics.recompilations',
+                pmdaMetric(self.PM_ID(9, 2), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'SQL Re-Compilations/sec'],
+
+            # 'SQLServer:Memory Manager' cluster
+            self.PM_ID(10, 0) : ['mssql.memory_manager.connection_memory',
+                pmdaMetric(self.PM_ID(10, 0), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Connection Memory (KB)'],
+            self.PM_ID(10, 1) : ['mssql.memory_manager.database_cache_memory',
+                pmdaMetric(self.PM_ID(10, 1), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Database Cache Memory (KB)'],
+            self.PM_ID(10, 2) : ['mssql.memory_manager.free_memory',
+                pmdaMetric(self.PM_ID(10, 2), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Free Memory (KB)'],
+            self.PM_ID(10, 3) : ['mssql.memory_manager.granted_workspace_memory',
+                pmdaMetric(self.PM_ID(10, 3), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Granted Workspace Memory (KB)'],
+            self.PM_ID(10, 4) : ['mssql.memory_manager.lock_memory',
+                pmdaMetric(self.PM_ID(10, 4), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Lock Memory (KB)'],
+            self.PM_ID(10, 5) : ['mssql.memory_manager.maximum_workspace_memory',
+                pmdaMetric(self.PM_ID(10, 5), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Maximum Workspace Memory (KB)'],
+            self.PM_ID(10, 6) : ['mssql.memory_manager.optimizer_memory',
+                pmdaMetric(self.PM_ID(10, 6), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Optimizer Memory (KB)'],
+            self.PM_ID(10, 7) : ['mssql.memory_manager.reserved_server_memory',
+                pmdaMetric(self.PM_ID(10, 7), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Reserved Server Memory (KB)'],
+            self.PM_ID(10, 8) : ['mssql.memory_manager.sql_cache_memory',
+                pmdaMetric(self.PM_ID(10, 8), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'SQL Cache Memory (KB)'],
+            self.PM_ID(10, 9) : ['mssql.memory_manager.stolen_server_memory',
+                pmdaMetric(self.PM_ID(10, 9), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Stolen Server Memory (KB)'],
+            self.PM_ID(10, 10) : ['mssql.memory_manager.log_pool_memory',
+                pmdaMetric(self.PM_ID(10, 10), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Log Pool Memory (KB)'],
+            self.PM_ID(10, 11) : ['mssql.memory_manager.target_server_memory',
+                pmdaMetric(self.PM_ID(10, 11), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Target Server Memory (KB)'],
+            self.PM_ID(10, 12) : ['mssql.memory_manager.total_server_memory',
+                pmdaMetric(self.PM_ID(10, 12), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, kbyteUnits),
+                {}, 'Total Server Memory (KB)'],
+
+            # 'SQLServer:Memory Node' cluster
+            self.PM_ID(11, 0) : ['mssql.memory_node.database_node_memory',
+                pmdaMetric(self.PM_ID(11, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(9), c_api.PM_SEM_COUNTER, kbyteUnits),
+                {}, 'Database Node Memory (KB)'],
+            self.PM_ID(11, 1) : ['mssql.memory_node.free_node_memory',
+                pmdaMetric(self.PM_ID(11, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(9), c_api.PM_SEM_COUNTER, kbyteUnits),
+                {}, 'Free Node Memory (KB)'],
+            self.PM_ID(11, 2) : ['mssql.memory_node.foreign_node_memory',
+                pmdaMetric(self.PM_ID(11, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(9), c_api.PM_SEM_COUNTER, kbyteUnits),
+                {}, 'Foreign Node Memory (KB)'],
+            self.PM_ID(11, 3) : ['mssql.memory_node.stolen_node_memory',
+                pmdaMetric(self.PM_ID(11, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(9), c_api.PM_SEM_COUNTER, kbyteUnits),
+                {}, 'Stolen Node Memory (KB)'],
+            self.PM_ID(11, 4) : ['mssql.memory_node.target_node_memory',
+                pmdaMetric(self.PM_ID(11, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(9), c_api.PM_SEM_COUNTER, kbyteUnits),
+                {}, 'Target Node Memory (KB)'],
+            self.PM_ID(11, 5) : ['mssql.memory_node.total_node_memory',
+                pmdaMetric(self.PM_ID(11, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(9), c_api.PM_SEM_COUNTER, kbyteUnits),
+                {}, 'Total Node Memory (KB)'],
+
+            # 'SQLServer:Wait Statistics' cluster
+            self.PM_ID(12, 0) : ['mssql.wait_statistics.lock_waits',
+                pmdaMetric(self.PM_ID(12, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(10), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Lock waits'],
+            self.PM_ID(12, 1) : ['mssql.wait_statistics.memory_grant_queue_waits',
+                pmdaMetric(self.PM_ID(12, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(10), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Memory grant queue waits'],
+            self.PM_ID(12, 2) : ['mssql.wait_statistics.thread_safe_memory_objects_waits',
+                pmdaMetric(self.PM_ID(12, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(10), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Thread-safe memory objects waits'],
+            self.PM_ID(12, 3) : ['mssql.wait_statistics.log_write_waits',
+                pmdaMetric(self.PM_ID(12, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(10), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Log write waits'],
+            self.PM_ID(12, 4) : ['mssql.wait_statistics.log_buffer_waits',
+                pmdaMetric(self.PM_ID(12, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(10), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Log buffer waits'],
+            self.PM_ID(12, 5) : ['mssql.wait_statistics.network_io_waits',
+                pmdaMetric(self.PM_ID(12, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(10), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Network IO waits'],
+            self.PM_ID(12, 6) : ['mssql.wait_statistics.page_io_latch_waits',
+                pmdaMetric(self.PM_ID(12, 6), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(10), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Page IO latch waits'],
+            self.PM_ID(12, 7) : ['mssql.wait_statistics.page_latch_waits',
+                pmdaMetric(self.PM_ID(12, 7), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(10), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Page latch waits'],
+            self.PM_ID(12, 8) : ['mssql.wait_statistics.non_page_latch_waits',
+                pmdaMetric(self.PM_ID(12, 8), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(10), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Non-Page latch waits'],
+            self.PM_ID(12, 9) : ['mssql.wait_statistics.wait_for_the_worker',
+                pmdaMetric(self.PM_ID(12, 9), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(10), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Wait for the worker'],
+            self.PM_ID(12, 10) : ['mssql.wait_statistics.workspace_synchronization_waits',
+                pmdaMetric(self.PM_ID(12, 10), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(10), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Workspace synchronization waits'],
+            self.PM_ID(12, 11) : ['mssql.wait_statistics.transaction_ownership_waits',
+                pmdaMetric(self.PM_ID(12, 11), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(10), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Transaction ownership waits'],
+
+            # 'SQLServer:Exec Statistics' cluster
+            self.PM_ID(13, 0) : ['mssql.exec_statistics.extended_procedures',
+                pmdaMetric(self.PM_ID(13, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(11), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Extended Procedures'],
+            self.PM_ID(13, 1) : ['mssql.exec_statistics.dtc_calls',
+                pmdaMetric(self.PM_ID(13, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(11), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'DTC calls'],
+            self.PM_ID(13, 2) : ['mssql.exec_statistics.oledb_calls',
+                pmdaMetric(self.PM_ID(13, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(11), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'OLEDB calls'],
+            self.PM_ID(13, 3) : ['mssql.exec_statistics.distributed_query',
+                pmdaMetric(self.PM_ID(13, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(11), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Distributed Query'],
+
+            # 'SQLServer:File Table' cluster
+            self.PM_ID(14, 0) : ['mssql.file_table.db_operations',
+                pmdaMetric(self.PM_ID(14, 0), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'FileTable db operations/sec'],
+            self.PM_ID(14, 1) : ['mssql.file_table.table_operations',
+                pmdaMetric(self.PM_ID(14, 1), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'FileTable table operations/sec'],
+
+            # 'SQLServer:Access Methods' cluster
+            self.PM_ID(15, 0) : ['mssql.access_methods.full_scans',
+                pmdaMetric(self.PM_ID(15, 0), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Full Scans/sec'],
+            self.PM_ID(15, 1) : ['mssql.access_methods.range_scans',
+                pmdaMetric(self.PM_ID(15, 1), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Range Scans/sec'],
+            self.PM_ID(15, 2) : ['mssql.access_methods.probe_scans',
+                pmdaMetric(self.PM_ID(15, 2), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Probe Scans/sec'],
+            self.PM_ID(15, 3) : ['mssql.access_methods.index_searches',
+                pmdaMetric(self.PM_ID(15, 3), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Index Searches/sec'],
+            self.PM_ID(15, 4) : ['mssql.access_methods.page_splits',
+                pmdaMetric(self.PM_ID(15, 4), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Page Splits/sec'],
+            self.PM_ID(15, 5) : ['mssql.access_methods.pages_compressed',
+                pmdaMetric(self.PM_ID(15, 5), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Pages compressed/sec'],
+
+            # 'SQLServer:Database Replica' cluster
+            self.PM_ID(16, 0) : ['mssql.database_replica.recovery_queue',
+                pmdaMetric(self.PM_ID(16, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(5), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Recovery Queue'],
+            self.PM_ID(16, 1) : ['mssql.database_replica.redone_bytes',
+                pmdaMetric(self.PM_ID(16, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(5), c_api.PM_SEM_COUNTER, byteUnits),
+                {}, 'Redone Bytes/sec'],
+            self.PM_ID(16, 2) : ['mssql.database_replica.redones',
+                pmdaMetric(self.PM_ID(16, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(5), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Redones/sec'],
+            self.PM_ID(16, 3) : ['mssql.database_replica.log_send_queue',
+                pmdaMetric(self.PM_ID(16, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(5), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Log Send Queue'],
+            self.PM_ID(16, 4) : ['mssql.database_replica.log_apply_ready_queue',
+                pmdaMetric(self.PM_ID(16, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(5), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Log Apply Ready Queue'],
+            self.PM_ID(16, 5) : ['mssql.database_replica.log_apply_pending_queue',
+                pmdaMetric(self.PM_ID(16, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(5), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Log Apply Pending Queue'],
+            self.PM_ID(16, 6) : ['mssql.database_replica.log_bytes_received',
+                pmdaMetric(self.PM_ID(16, 6), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(5), c_api.PM_SEM_COUNTER, byteUnits),
+                {}, 'Log Bytes Received/sec'],
+            self.PM_ID(16, 7) : ['mssql.database_replica.file_bytes_received',
+                pmdaMetric(self.PM_ID(16, 7), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(5), c_api.PM_SEM_COUNTER, byteUnits),
+                {}, 'File Bytes Received/sec'],
+            self.PM_ID(16, 8) : ['mssql.database_replica.transaction_delay',
+                pmdaMetric(self.PM_ID(16, 8), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(5), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Transaction Delay'],
+
+            # 'SQLServer:Availability Replica' cluster
+            self.PM_ID(17, 0) : ['mssql.availability_replica.bytes_sent_to_replica',
+                pmdaMetric(self.PM_ID(17, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(7), c_api.PM_SEM_COUNTER, byteUnits),
+                {}, 'Bytes Sent to Replica/sec'],
+            self.PM_ID(17, 1) : ['mssql.availability_replica.sends_to_replica',
+                pmdaMetric(self.PM_ID(17, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(7), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Sends to Replica/sec'],
+            self.PM_ID(17, 2) : ['mssql.availability_replica.bytes_sent_to_transport',
+                pmdaMetric(self.PM_ID(17, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(7), c_api.PM_SEM_COUNTER, byteUnits),
+                {}, 'Bytes Sent to Transport/sec'],
+            self.PM_ID(17, 3) : ['mssql.availability_replica.sends_to_transport',
+                pmdaMetric(self.PM_ID(17, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(7), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Sends to Transport/sec'],
+            self.PM_ID(17, 4) : ['mssql.availability_replica.bytes_recv_from_replica',
+                pmdaMetric(self.PM_ID(17, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(7), c_api.PM_SEM_COUNTER, byteUnits),
+                {}, 'Bytes Received from Replica/sec'],
+            self.PM_ID(17, 5) : ['mssql.availability_replica.recvs_from_replica',
+                pmdaMetric(self.PM_ID(17, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(7), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Receives from Replica/sec'],
+            self.PM_ID(17, 6) : ['mssql.availability_replica.flow_control_time',
+                pmdaMetric(self.PM_ID(17, 6), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(7), c_api.PM_SEM_COUNTER, msecUnits),
+                {}, 'Flow Control Time (ms/sec)'],
+            self.PM_ID(17, 7) : ['mssql.availability_replica.flow_control',
+                pmdaMetric(self.PM_ID(17, 7), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(7), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Flow Control/sec'],
+            self.PM_ID(17, 8) : ['mssql.availability_replica.resent_messages',
+                pmdaMetric(self.PM_ID(17, 8), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(7), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Resent Messages/sec'],
+
+            # 'SQLServer:Plan Cache' cluster
+            self.PM_ID(18, 0) : ['mssql.plan_cache.raw_cache_hit_ratio',
+                pmdaMetric(self.PM_ID(18, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(8), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Cache Hit Ratio'],
+            self.PM_ID(18, 1) : ['mssql.plan_cache.raw_cache_hit_ratio_base',
+                pmdaMetric(self.PM_ID(18, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(8), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Cache Hit Ratio Base'],
+            self.PM_ID(18, 2) : ['mssql.plan_cache.cache_pages',
+                pmdaMetric(self.PM_ID(18, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(8), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Cache Pages'],
+            self.PM_ID(18, 3) : ['mssql.plan_cache.cache_object_counts',
+                pmdaMetric(self.PM_ID(18, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(8), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Cache Object Counts'],
+            self.PM_ID(18, 4) : ['mssql.plan_cache.cache_objects_in_use',
+                pmdaMetric(self.PM_ID(18, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(8), c_api.PM_SEM_INSTANT, zeroUnits),
+                {}, 'Cache Objects in use'],
+
+            # Add new sys.dm_os_performance_counters metrics above
+            # (possibly updating self.dm_os_perf_clusters as well).
+
+            # dm_io_vfiles clusters metrics
+            self.PM_ID(100, 0) : ['mssql.virtual_file.read',
+                pmdaMetric(self.PM_ID(100, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(15), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Number of read operations on the data file'],
+            self.PM_ID(100, 1) : ['mssql.virtual_file.read_bytes',
+                pmdaMetric(self.PM_ID(100, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(15), c_api.PM_SEM_COUNTER, byteUnits),
+                {}, 'Number of bytes read from the data file'],
+            self.PM_ID(100, 2) : ['mssql.virtual_file.read_io_stall_time',
+                pmdaMetric(self.PM_ID(100, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(15), c_api.PM_SEM_COUNTER, msecUnits),
+                {}, 'Total time waited for reads issued on the data file'],
+            self.PM_ID(100, 3) : ['mssql.virtual_file.write',
+                pmdaMetric(self.PM_ID(100, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(15), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Number of read operations on the data file'],
+            self.PM_ID(100, 4) : ['mssql.virtual_file.write_bytes',
+                pmdaMetric(self.PM_ID(100, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(15), c_api.PM_SEM_COUNTER, byteUnits),
+                {}, 'Number of bytes read from the data file'],
+            self.PM_ID(100, 5) : ['mssql.virtual_file.write_io_stall_time',
+                pmdaMetric(self.PM_ID(100, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(15), c_api.PM_SEM_COUNTER, msecUnits),
+                {}, 'Total time waited for reads issued on the data file'],
+            self.PM_ID(100, 6) : ['mssql.virtual_file.size',
+                pmdaMetric(self.PM_ID(100, 6), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(15), c_api.PM_SEM_INSTANT, byteUnits),
+                {}, 'Number of bytes used on-disk for the data file'],
+
+            # dm_os_execreq_clusters metrics
+            self.PM_ID(101, 0) : ['mssql.running_user_processes.total',
+                pmdaMetric(self.PM_ID(101, 0), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Total number of running SQL Server user processes'],
+
+            # dm_os_workers_clusters metrics
+            self.PM_ID(102, 0) : ['mssql.os_workers_waiting_cpu.count',
+                pmdaMetric(self.PM_ID(102, 0), c_api.PM_TYPE_U64,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, countUnits),
+                {}, 'Total number of queries waiting for CPU resources'],
+
+            # dm_os_wait_stats_clusters metrics
+            self.PM_ID(103, 0) : ['mssql.os_wait_stats.wait_time',
+                pmdaMetric(self.PM_ID(103, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(14), c_api.PM_SEM_COUNTER, msecUnits),
+                {}, 'Sum of wait times for select categories in sys.dm_os_wait_stats'],
+            self.PM_ID(103, 1) : ['mssql.os_wait_stats.waiting_tasks',
+                pmdaMetric(self.PM_ID(103, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(14), c_api.PM_SEM_COUNTER, countUnits),
+                {}, 'Count of waiting tasks for select categories in sys.dm_os_wait_stats'],
+            self.PM_ID(103, 2) : ['mssql.os_wait_stats.max_wait_time',
+                pmdaMetric(self.PM_ID(103, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(14), c_api.PM_SEM_INSTANT, msecUnits),
+                {}, 'Maximum wait times for select categories in sys.dm_os_wait_stats'],
+        }
+
+        # register all the indoms and metrics with the module
+        self.setup_indoms()
+        self.setup_metrics()
+
+        # if this is the install process, we can bail out now
+        if self.install():
+            return
+
+        pmdadir = os.path.join(pmContext.pmGetConfig('PCP_PMDAS_DIR'), name)
+        conf_file = os.path.join(pmdadir, 'pmdamssql.conf')
+
+        # parse config for connection settings
+        conf_vars = self.config(conf_file, ['authentication', 'connection'])
+        self.driver = conf_vars["connection.driver"]
+        self.server = conf_vars["connection.server"]
+        self.timeout = int(conf_vars["connection.timeout"])
+        self.username = conf_vars["authentication.username"]
+        # need to escape backslashes, single quotes and semi colons
+        self.password = conf_vars["authentication.password"]
+        self.password = self.password.replace("\\", "\\\\")
+        self.password = self.password.replace("'", "\\'")
+        self.password = self.password.replace(";", "\\;")
+
+        self.log("Connecting to %s as user %s" % (self.server, self.username))
+        retries = 0
+        while not self.mssql_connect():
+            # server not running or invalid credentials
+            time.sleep(1) # keep trying ...
+            if retries >= 5:
+                self.log("FATAL: failed to connect after 5 retries")
+                exit(1)
+            retries += 1
+
+        cursor = self.mssql_cursor()
+        cursor.execute('SELECT @@version;')
+        version = str(cursor.fetchone())
+        cursor.close()
+        version = version.strip('(').strip(')').strip().strip(',').strip('\'')
+        version = version.replace('\\n\\t', '; ')
+        self.log(version)
+
+        # register all the callbacks for PDU handling
+        self.set_refresh(self.mssql_refresh)
+        self.set_instance(self.mssql_instance)
+        self.set_fetch_callback(self.mssql_fetch_callback)
+        self.log("Setup complete")
+
+    def mssql_refresh_instances(self, indom, instances, column, rows):
+        """ refresh names and identifiers for given indom in a dict """
+        for row in rows:
+            instname = row[column].replace(" ", "_")
+            instances[instname] = c_int(1)
+            self.debug("mssql_refresh_instances",
+                       "indom=0x%04x instname=%s" % (indom, instname))
+
+    def mssql_refresh_indom(self, indom):
+        """ refresh names and identifiers for given indom """
+        instances = {}
+
+        # query and extract instance names
+        cursor = self.mssql_cursor()
+        try:
+            query = self.indoms[indom][self.INDOM_QUERY]
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            self.mssql_refresh_instances(indom, instances, 0, rows)
+        except (pyodbc.InterfaceError) as error:
+            self.error("mssql_refresh_indom",
+                       "SQL query '%s': %s" % (query, error))
+        cursor.close()
+
+        # update the indom
+        self.replace_indom(indom, instances)
+        self.debug("mssql_refresh_indom",
+                   "indom=0x%04x instances=%s" % (indom, instances))
+
+    def mssql_refresh(self, cluster):
+        """ refresh values for the given cluster """
+        self.debug("mssql_refresh", "cluster %d started" % cluster)
+        if cluster < 100:   # reserved for os_perf_counter clusters
+            self.mssql_refresh_dm_os_perf(cluster)
+        elif cluster in self.dm_io_vfiles_clusters.keys():
+            self.mssql_refresh_dm_values(cluster,
+                    self.dm_io_vfiles_clusters, self.dm_io_vfiles_items)
+        elif cluster in self.dm_os_execreq_clusters.keys():
+            self.mssql_refresh_dm_values(cluster,
+                    self.dm_os_execreq_clusters, self.dm_os_execreq_items)
+        elif cluster in self.dm_os_workers_clusters.keys():
+            self.mssql_refresh_dm_values(cluster,
+                    self.dm_os_workers_clusters, self.dm_os_workers_items)
+        elif cluster in self.dm_os_wait_stats_clusters.keys():
+            self.mssql_refresh_dm_values(cluster,
+                    self.dm_os_wait_stats_clusters, self.dm_os_wait_stats_items)
+        self.debug("mssql_refresh", "cluster %d finished" % cluster)
+
+    def mssql_refresh_dm_os_perf(self, cluster):
+        """ refresh values for the given os_perf cluster """
+        self.debug("mssql_refresh_dm_os_perf", "cluster %d" % cluster)
+
+        # execute the SQL statement for this cluster
+        cursor = self.mssql_cursor()
+        try:
+            meta = self.dm_os_perf_clusters[cluster]
+            indom = meta[self.CLUSTER_INDOM]
+            cursor.execute(meta[self.CLUSTER_QUERY])
+            rows = cursor.fetchall()
+
+            # find each metric in this cluster and update its values
+            for pmid in self.metrics:
+                if self.pmid_cluster(pmid) != cluster:
+                    continue
+                # stash the returned values with the metric
+                self.mssql_refresh_dm_os_perf_metric(self.metrics[pmid], rows)
+
+            # if any, refresh the instance domain while we are at it
+            if indom != c_api.PM_INDOM_NULL:
+                instances = {}
+                self.mssql_refresh_instances(indom, instances, self.ROW_OS_PERF_INST, rows)
+                self.replace_indom(indom, instances)
+
+        except (pyodbc.InterfaceError) as error:
+            self.error("mssql_refresh_dm_os_perf", str(error))
+        cursor.close()
+        return 0
+
+    def mssql_refresh_dm_os_perf_metric(self, metric, rows):
+        """ extract and stash os_perf metric values from given rows """
+        for row in rows:
+            self.debug("mssql_refresh_dm_os_perf_metric", "row %s" % str(row))
+            if row[self.ROW_OS_PERF_NAME] != metric[self.METRIC_QUERYDATA]:
+                continue
+            # found the correct metric for this row - update value
+            instance = row[self.ROW_OS_PERF_INST].replace(" ", "_")
+            metric[self.METRIC_VALUES][instance] = row[self.ROW_OS_PERF_VALUE]
+            self.debug("mssql_refresh_dm_os_perf_metric",
+                       "%s metric %s has value %s for instance %s" %
+                       (row[self.ROW_OS_PERF_NAME], metric[self.METRIC_NAME],
+                        str(row[self.ROW_OS_PERF_VALUE]), instance))
+
+    def mssql_refresh_dm_values(self, cluster, clusters, items):
+        """ refresh multiple metrics values for the given cluster """
+
+        # execute the SQL statement for this cluster
+        cursor = self.mssql_cursor()
+        try:
+            instances = {}
+            meta = clusters[cluster]
+            indom = meta[self.CLUSTER_INDOM]
+            #self.error("mssql_refresh_dm_values", "query %s" % meta[self.CLUSTER_QUERY])
+            cursor.execute(meta[self.CLUSTER_QUERY])
+            rows = cursor.fetchall()
+
+            # for each row, get instance (column 0) and values (other columns)
+            for row in rows:
+                #self.debug("mssql_refresh_dm_values", "row %s" % str(row))
+                column = 0
+                if indom == c_api.PM_INDOM_NULL:
+                    instance = '0'
+                else:
+                    instance = row[column].replace(" ", "_")
+                    instances[instance] = c_int(1)
+                    column = 1
+                for item in range(items):
+                    metric = self.metrics[self.PM_ID(cluster, item)]
+                    metric[self.METRIC_VALUES][instance] = row[column + item]
+                    #self.debug("mssql_refresh_dm_values",
+                    #   "metric %s has value %s for instance %s" %
+                    #   (metric[self.METRIC_NAME], str(row[column + item]), instance))
+
+            # if any, refresh the instance domain while we are at it
+            if indom != c_api.PM_INDOM_NULL:
+                self.replace_indom(indom, instances)
+
+        except (pyodbc.InterfaceError) as error:
+            self.error("mssql_refresh_dm_values", str(error))
+        cursor.close()
+        return 0
+
+    def mssql_instance(self, serial):
+        """ Called once per "instance" PDU """
+        self.mssql_refresh_indom(self.INDOM_ID(serial))
+
+    def mssql_fetch_callback(self, cluster, item, inst):
+        """ Called for each instance of each fetched metric """
+        self.debug("mssql_fetch_callback",
+                   "entered [%d.%d] inst=%d" % (cluster, item, inst))
+
+        pmid = self.PM_ID(cluster, item)
+        metric = self.metrics[pmid]
+        if metric is None:
+            return [c_api.PM_ERR_PMID, 0]
+        name = metric[self.METRIC_NAME]
+        indom = metric[self.METRIC_META].m_desc.indom
+        values = metric[self.METRIC_VALUES]
+
+        self.debug("mssql_fetch_callback",
+                   "%s pmid 0x%04x [%d.%d] inst=%d, indom=0x%04x" %
+                   (name, pmid, cluster, item, inst, indom))
+
+        # get the rowdata for this indom and instance
+        try:
+            if indom == c_api.PM_INDOM_NULL:
+                value = values['0']
+            else:
+                instname = self.inst_name_lookup(indom, inst)
+                if instname is None:
+                    return [c_api.PM_ERR_INST, 0] # unknown instance for this pmid
+                value = values[instname]
+        except KeyError as error:
+            # no values available
+            self.debug("mssql_fetch_callback",
+                       "no value for pmid=0x%04x name=%s inst=%d" %
+                       (pmid, name, inst))
+            return [c_api.PM_ERR_VALUE, 0]
+        except:
+            self.error("mssql_fetch_callback",
+                       "unexpected pmid=0x%04x name=%s error" % (pmid, name))
+            return [c_api.PM_ERR_VALUE, 0]
+
+        if value is None:
+            if metric[self.METRIC_META].m_desc.type == c_api.PM_TYPE_STRING:
+                value = ""
+            else:
+                value = 0
+        return [value, 1]
+
+    def setup_indoms(self):
+        """ create indom table """
+        for indom, data in self.indoms.items():
+            self.debug("setup_indoms", "adding indom 0x%04x with query %s" %
+                       (indom, data[self.INDOM_QUERY]))
+            self.add_indom(data[self.INDOM_META]) # pmdaIndom
+
+    def setup_metrics(self):
+        """ create metric table """
+        for pmid, metric in self.metrics.items():
+            self.debug("setup_metrics", "adding pmid 0x%04x with name %s" %
+                       (pmid, metric[self.METRIC_NAME]))
+            self.add_metric(metric[self.METRIC_NAME],
+                            metric[self.METRIC_META],
+                            metric[self.METRIC_QUERYDATA])
+
+    def config(self, filename, sections):
+        """ parse config file """
+        # Python < 3.2 compat
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
+            parser = configparser.ConfigParser()
+        else:
+            parser = configparser.SafeConfigParser()
+        parser.read(filename)
+
+        # get each requested section
+        params = {}
+        for section in sections:
+            if parser.has_section(section):
+                conf = parser.items(section)
+                for param in conf:
+                    params[section + '.' + param[0]] = param[1]
+            else:
+                raise Exception('Section %s not found in the %s file' %
+                        (section, filename))
+        return params # dict
+
+    def mssql_connect(self):
+        """ connect to SQL Server """
+        try:
+            parameters = 'DRIVER={0};SERVER={1};UID={2};PWD={3}'
+            parameters = parameters.format(self.driver, self.server,
+                            self.username, self.password)
+            self.conn = pyodbc.connect(parameters, timeout = self.timeout)
+            self.conn.timeout = self.timeout
+        except pyodbc.InterfaceError as error:
+            self.error("mssql_connect", "connecting as user %s: %s" %
+                       (self.username, error))
+            self.conn = None
+            return False
+        # success
+        return True
+
+    def mssql_cursor(self):
+        """ Return a cursor, reconnect if necessary. Caller must close. """
+        connected = False
+        while not connected:
+            try:
+                if self.conn is None:
+                    raise pyodbc.InterfaceError('Not connected')
+                self.cursor = self.conn.cursor()
+                self.cursor.execute('SELECT @@version;')
+                connected = True
+            except (pyodbc.InterfaceError, pyodbc.DatabaseError):
+                self.log("Lost SQL Server connection, reconnecting ...")
+                if not self.mssql_connect():
+                    time.sleep(1)
+        # success
+        return self.cursor
+
+    def install(self):
+        """ check whether running the Install process """
+        if 'PCP_PYTHON_DOMAIN' in os.environ:
+            return True
+        elif 'PCP_PYTHON_PMNS' in os.environ:
+            return True
+        return False
+
+    def error(self, function, message):
+        """ print diagnostic with enforced function name """
+        self.err(function + ": " + message)
+
+    def debug(self, function, message = ''):
+        """ print message if verbose diagnostics are set """
+        if self.verbose:
+            if message:
+                self.dbg(function + ": " + message)
+            else:
+                self.dbg(function)
+
+if __name__ == "__main__":
+    pmda = MSSQLPMDA("mssql", 109)
+    pmda.run()

@@ -490,7 +490,7 @@ Requires: pcp-pmda-bcc
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus pcp-pmda-haproxy
-Requires: pcp-pmda-lmsensors
+Requires: pcp-pmda-lmsensors pcp-pmda-mssql
 %endif
 %if !%{disable_snmp}
 Requires: pcp-pmda-snmp
@@ -1705,6 +1705,24 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Linux hardware monitoring sensors.
 # end pcp-pmda-lmsensors
 
+#
+# pcp-pmda-mssql
+#
+%package pmda-mssql
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for Microsoft SQL Server
+URL: https://pcp.io
+Requires: pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-mssql
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from Microsoft SQL Server.
+# end pcp-pmda-mssql
+
 %endif # !%{disable_python2} || !%{disable_python3}
 
 %if !%{disable_json}
@@ -2256,6 +2274,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^logger' |\
   grep -E -v '^mailq' |\
   grep -E -v '^mounts' |\
+  grep -E -v '^mssql' |\
   grep -E -v '^nvidia' |\
   grep -E -v '^roomtemp' |\
   grep -E -v '^sendmail' |\
@@ -2614,6 +2633,9 @@ fi
 
 %preun pmda-lmsensors
 %{pmda_remove "$1" "lmsensors"}
+
+%preun pmda-mssql
+%{pmda_remove "$1" "mssql"}
 
 %endif # !%{disable_python[2,3]}
 
@@ -3243,6 +3265,9 @@ cd
 
 %files pmda-lmsensors
 %{_pmdasdir}/lmsensors
+
+%files pmda-mssql
+%{_pmdasdir}/mssql
 
 %endif # !%{disable_python2} || !%{disable_python3}
 

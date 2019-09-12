@@ -639,6 +639,8 @@ S_pkg?	/usr/lib/python3.*/*-packages/psycopg2		[N/A]
 slackpkg?	/usr/lib*/python2.*/*-packages/psycopg2	[python-psycopg2 (postgresql)]
 pacman?	/usr/lib/python3.*/*-packages/psycopg2/sql.py	[python-psycopg2 (build optional)]
 brew?	/usr/local/lib/python3.*/*-packages/psycopg2	[pip3(psycopg2) (postgresql)]
+# -- python pyodbc
+rpm?    /usr/lib*/python3.*/*-packages/pyodbc*          [python3-pyodbc (mssql QA optional)]
 # perl modules
 # -- Time::HiRes
 dpkg?	Time::HiRes		[perl or libperl5.*]
@@ -1207,6 +1209,9 @@ S_pkg?	mysql			[database/mariadb-101/client (mysql QA optional)]
 slackpkg?	mysql		[mariadb (mysql QA optional)]
 pacman?	mysql			[mariadb-clients (mysql QA optional)]
 brew?	mysql			[mariadb (mysql QA optional)]
+# -- microsoft sql server
+rpm?	/opt/mssql/bin/sqlservr		[mssql-server (mssql QA optional)]
+rpm?	/opt/mssql-tools/bin/sqlcmd	[mssql-tools (mssql QA optional)]
 # -- postgresql
 dpkg?	psql			[postgresql-client-common (postgresql QA optional)]
 rpm?	psql			[postgresql (postgresql QA optional)]
