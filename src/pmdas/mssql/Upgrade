@@ -24,10 +24,10 @@ fi
 
 perlpath=`which $PCP_PERL_PROG`
 original="$PCP_PMDAS_DIR/mssql/mssql.conf"
-upgraded="$PCP_PMDAS_DIR/mssql/pmdamssql.conf"
-if [ -x "$perlpath" -a -f "$original" ]
+upgraded="$PCP_PMDAS_DIR/mssql/mssql.conf.tmp"
+if grep -q '^my ' "$original"
 then
-    mv -f "$upgraded" "$upgraded".saved
+    cp "$original" "$original".saved
     #
     # Extract perl parameters in the way the original PMDA did; then
     # convert old format into new and finally move old config aside.
@@ -53,8 +53,8 @@ print "username=\$username\n";
 \$password='password' unless (defined(\$password) and \$password ne '');
 print "password=\$password\n";
 EOF
-    chmod 600 "$upgraded"
-    mv -f "$original" "$original".saved
+    mv -f "$upgraded" "$original"
+    chmod 600 "$original"
 fi
 
 exit 0

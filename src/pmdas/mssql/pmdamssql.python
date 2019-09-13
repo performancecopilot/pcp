@@ -995,7 +995,7 @@ class MSSQLPMDA(PMDA):
             return
 
         pmdadir = os.path.join(pmContext.pmGetConfig('PCP_PMDAS_DIR'), name)
-        conf_file = os.path.join(pmdadir, 'pmdamssql.conf')
+        conf_file = os.path.join(pmdadir, 'mssql.conf')
 
         # parse config for connection settings
         conf_vars = self.config(conf_file, ['authentication', 'connection'])
