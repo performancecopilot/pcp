@@ -2,34 +2,34 @@
 .\"
 .\" Copyright (c) 2012-2017,2019 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMCD 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmcd\f1 \- performance metrics collector daemon
 .SH SYNOPSIS
 \f3pmcd\f1
-[\f3\-AfQSv\f1]
-[\f3\-c\f1 \f2config\f1]
+[\f3\-AfQSv?\f1]
 [\f3\-C\f1 \f2dirname\f1]
+[\f3\-c\f1 \f2config\f1]
 [\f3\-H\f1 \f2hostname\f1]
 [\f3\-i\f1 \f2ipaddress\f1]
-[\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
+[\f3\-l\f1 \f2logfile\f1]
 [\f3\-M\f1 \f2certname\f1]
-[\f3\-\f1[\f3n\f1|\f3N\f1] \f2pmnsfile\f1]
-[\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]]
+[\f3\-\f1[\f3N\f1|\f3n\f1] \f2pmnsfile\f1]
 [\f3\-P\f1 \f2passfile\f1]
+[\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]]
 [\f3\-q\f1 \f2timeout\f1]
 [\f3\-s\f1 \f2sockname\f1]
 [\f3\-T\f1 \f2traceflag\f1]
@@ -55,9 +55,10 @@ information from the machine that
 is executing on.
 .B pmcd
 delegates most of this request servicing to
-a collection of Performance Metrics Domain Agents 
+a collection of Performance Metrics Domain Agents
 (or just agents), where each agent is responsible for a particular group of
-metrics, known as the domain of the agent.  For example the
+metrics, known as the domain of the agent.
+For instance, the
 .B postgresql
 agent is responsible for
 reporting information relating to the PostgreSQL database,
@@ -74,10 +75,24 @@ address space.
 The configuration section below describes how connections to
 agents are specified.
 .PP
-The options to
+Note that if a PDU exchange with an agent times out, the agent has
+violated the requirement that it delivers metrics with little or no delay.
+This is deemed a
+protocol failure and the agent is disconnected from
+.BR pmcd .
+Any subsequent requests for information from the agent will fail with a status
+indicating that there is no agent to provide it.
+.PP
+It is possible to specify access control to
 .B pmcd
-are as follows.
-.TP
+based on users, groups and hosts.
+This allows one to prevent users, groups of users, and certain hosts from
+accessing the metrics provided by
+.B pmcd
+and is described in more detail in the access control section below.
+.SH OPTIONS
+The available command line options are:
+.TP 5
 .B \-A
 Disable service advertisement.
 By default,
@@ -86,20 +101,7 @@ will advertise its presence on the network using any available mechanisms
 (such as Avahi/DNS-SD), assisting remote monitoring tools with finding it.
 These mechanisms are disabled with this option.
 .TP
-\f3\-c\f1 \f2config\f1
-On startup
-.B pmcd
-uses a configuration file from either the
-.IR $PCP_PMCDCONF_PATH ,
-configuration variable in
-.IR /etc/pcp.conf ,
-or an environment variable of the same name.
-However, these values may be overridden with
-.I config
-using this option.
-The format of this configuration file is described below.
-.TP
-\f3\-C\f1 \f2dirname\f1
+\f3\-C\f1 \f2dirname\f1, \f3\-\-certdb\f1=\f2dirname\f1
 Specify the path to the Network Security Services certificate database,
 for (optional) secure connections.
 The default is
@@ -113,7 +115,20 @@ is provided in the
 .BR PCPIntro (1)
 manual page and the online PCP tutorials.
 .TP
-.B \-f
+\f3\-c\f1 \f2config\f1, \f3\-\-config\f1=\f2config\f1
+On startup
+.B pmcd
+uses a configuration file from either the
+.IR $PCP_PMCDCONF_PATH ,
+configuration variable in
+.IR /etc/pcp.conf ,
+or an environment variable of the same name.
+However, these values may be overridden with
+.I config
+using this option.
+The format of this configuration file is described below.
+.TP
+\f3\-f\f1, \f3\-\-foreground\f1
 By default
 .B pmcd
 is started as a daemon.
@@ -123,22 +138,23 @@ option indicates that it should run in the foreground.
 This is most useful when trying to diagnose problems with misbehaving
 agents.
 .TP
-\f3\-H\f1 \f2hostname\f1
-This option can be used to set the hostname that 
+\f3\-H\f1 \f2hostname\f1, \f3\-\-hostname\f1=\f2hostname\f1
+This option can be used to set the hostname that
 .B pmcd
 will use to represent this instance of itself.
 This is used by client tools like
 .BR pmlogger (1)
 when reporting on the (possibly remote) host.
-If this option is not set, the pmcd.hostname metric will match that 
+If this option is not set, the pmcd.hostname metric will match that
 returned by
 .BR pmhostname (1).
 Refer to the manual page for that tool for full details on how the hostname is
 evaluated.
 .TP
-\f3\-i\f1 \f2ipaddress\f1
+\f3\-i\f1 \f2ipaddress\f1, \f3\-\-interface\f1=\f2ipaddress\f1
 This option is usually only used on hosts with more than one network
-interface.  If no
+interface.
+If no
 .B \-i
 options are specified
 .B pmcd
@@ -148,19 +164,35 @@ The
 option is used to specify explicitly an IP address that connections should be
 accepted on.
 .I ipaddress
-should be in the standard dotted form (e.g. 100.23.45.6).  The
+should be in the standard dotted form (e.g. 100.23.45.6).
+The
 .B \-i
 option may be used multiple times to define a list of IP addresses.
-Connections made to any other IP addresses the host has will be refused.  This
-can be used to limit connections to one network interface if the host is a
-network gateway.  It is also useful if the host takes over the IP address of
-another host that has failed.  In such a situation only the standard IP
-addresses of the host should be given (not the ones inherited from the failed
-host).  This allows PCP applications to determine that a host has failed,
+Connections made to any other IP addresses the host has will be refused.
+This can be used to limit connections to one network interface if the host
+is a network gateway.
+It is also useful if the host takes over the IP address of
+another host that has failed.
+In such a situation only the standard IP addresses of the host should be
+given (not the ones inherited from the failed host).
+This allows PCP applications to determine that a host has failed,
 rather than connecting to the host that has assumed the identity of the failed
 host.
 .TP
-\f3\-l\f1 \f2logfile\f1
+\f3\-L\f1 \f2bytes\f1
+.IR PDU s
+received by
+.B pmcd
+from monitoring clients are restricted to a
+maximum size of 65536 bytes by default to defend against Denial of
+Service attacks.
+The
+.B \-L
+option may be used to change the maximum incoming
+.I PDU
+size.
+.TP
+\f3\-l\f1 \f2logfile\f1, \f3\-\-log\f1=\f2logfile\f1
 By default a log file named
 .I pmcd.log
 is written in the directory
@@ -173,26 +205,25 @@ instead of the default.
 If the log file cannot be created or is not writable, output is
 written to the standard error instead.
 .TP
-\f3\-L\f1 \f2bytes\f1
-.IR PDU s 
-received by 
-.B pmcd 
-from monitoring clients are restricted to a
-maximum size of 65536 bytes by default to defend against Denial of
-Service attacks.  The 
-.B \-L 
-option may be used to change the maximum incoming 
-.I PDU 
-size.
-.TP
-\f3\-M\f1 \f2certname\f1
+\f3\-M\f1 \f2certname\f1, \f3\-\-certname\f1=\f2certname\f1
 By default, pmcd will try to use a certificate called
-.B "PCP Collector certificate" .
+.BR "PCP Collector certificate" .
 The
 .B \-M
 option allows this to be changed.
 .TP
-\f3\-n\f1 \f2pmnsfile\f1
+\f3\-N\f1 \f2pmnsfile\f1, \f3\-\-uniqnames\f1=\f2pmnsfile\f1
+Same function as
+.BR \-n ,
+except for the handling of
+duplicate Performance Metric Identifiers (PMIDs) in
+.I pmnsfile
+\- duplicate names are allowed with
+.BR \-n
+but they are not allowed with
+.BR \-N .
+.TP
+\f3\-n\f1 \f2pmnsfile\f1, \f3\-\-namespace\f1=\f2pmnsfile\f1
 Normally
 .B pmcd
 loads the default Performance Metrics Name Space (PMNS) from
@@ -203,18 +234,7 @@ option is specified an alternative namespace is loaded
 from the file
 .IR pmnsfile .
 .TP
-\f3\-N\f1 \f2pmnsfile\f1
-Same function as
-.BR \-n ,
-except for the handling of
-duplicate Performance Metric Identifiers (PMIDs) in
-.I pmnsfile
-\- duplicate names are allowed with
-.BR \-n
-they are not allowed with
-.BR \-N .
-.TP
-\f3\-P\f1 \f2passfile\f1
+\f3\-P\f1 \f2passfile\f1, \f3\-\-passfile\f1=\f2passfile\f1
 Specify the path to a file containing the Network Security Services certificate
 database password for (optional) secure connections, and for databases that are
 password protected.
@@ -235,12 +255,13 @@ The default timeout interval is five seconds,
 but the
 .B \-q
 option allows an alternative timeout interval (which must be greater than
-zero) to be specified.  The unit of time is seconds.
+zero) to be specified.
+The unit of time is seconds.
 .TP
-.B \-Q
-Require that all remote client connections provide a certficate. 
+\f3\-Q\f1, \f3\-\-remotecert\f1
+Require that all remote client connections provide a certficate.
 .TP
-.B \-S
+\f3\-S\f1, \f3\-\-allcert\f1
 Require that all client connections provide user credentials.
 This means that only unix domain sockets, or authenticated connections are
 permitted (requires secure sockets support).
@@ -248,41 +269,13 @@ If any user or group access control requirements are specified in the pmcd
 configuration file, then this mode of operation is automatically entered,
 whether the \f3\-S\f1 flag is specified or not.
 .TP
-\f3\-s\f1 \f2sockname\f1
+\f3\-s\f1 \f2sockname\f1, \f3\-\-socket\f1=\f2sockname\f1
 Specify the path to a local unix domain socket (for platforms supporting this
 socket family only).
 The default value is
 .IR $PCP_RUN_DIR/pmcd.socket .
 .TP
-\f3\-t\f1 \f2timeout\f1
-To prevent misbehaving clients or agents from hanging the entire Performance Metrics
-Collection System (PMCS),
-.B pmcd
-uses timeouts on PDU exchanges with clients and agents running as processes.
-By
-default the timeout interval is five seconds.
-The
-.B \-t
-option allows an alternative timeout interval in seconds to be specified.
-If
-.I timeout
-is zero, timeouts are turned off.
-It is almost impossible to use the debugger
-interactively on an agent unless timeouts have been turned off for its "parent"
-.BR pmcd .
-.RS
-.PP
-Once
-.B pmcd
-is running, the timeout may be dynamically
-modified by storing an integer value (the timeout in seconds)
-into the metric
-.B pmcd.control.timeout
-via
-.BR pmstore (1).
-.RE
-.TP
-\f3\-T\f1 \f2traceflag\f1
+\f3\-T\f1 \f2traceflag\f1, \f3\-\-trace\f1=\f2traceflag\f1
 To assist with error diagnosis for agents and/or clients of
 .B pmcd
 that are not behaving correctly, an internal event tracing
@@ -306,8 +299,8 @@ unbuffered event tracing
 .PP
 By default, event tracing is buffered using
 a circular buffer that is over-written as new
-events are recorded.  The default
-buffer size holds the last 20 events, although this number
+events are recorded.
+The default buffer size holds the last 20 events, although this number
 may be over-ridden by using
 .BR pmstore (1)
 to modify the metric
@@ -343,13 +336,41 @@ In unbuffered mode,
 event will be reported when it occurs.
 .RE
 .TP
-\f3\-U\f1 \f2username\f1
+\f3\-t\f1 \f2timeout\f1
+To prevent misbehaving clients or agents from hanging the entire Performance Metrics
+Collection System (PMCS),
+.B pmcd
+uses timeouts on PDU exchanges with clients and agents running as processes.
+By
+default the timeout interval is five seconds.
+The
+.B \-t
+option allows an alternative timeout interval in seconds to be specified.
+If
+.I timeout
+is zero, timeouts are turned off.
+It is almost impossible to use the debugger
+interactively on an agent unless timeouts have been turned off for its "parent"
+.BR pmcd .
+.RS
+.PP
+Once
+.B pmcd
+is running, the timeout may be dynamically
+modified by storing an integer value (the timeout in seconds)
+into the metric
+.B pmcd.control.timeout
+via
+.BR pmstore (1).
+.RE
+.TP
+\f3\-U\f1 \f2username\f1, \f3\-\-username\f1=\f2USER\f1
 User account under which to run
 .BR pmcd .
 The default is the unprivileged "pcp" account in current versions of PCP,
 but in older versions the superuser account ("root") was used by default.
 .TP
-\f3\-v\f1
+\f3\-v\f1, \f3\-\-verify\f1
 Verify the
 .B pmcd
 configuration file, reporting on any errors then exiting with a status
@@ -359,29 +380,16 @@ indicating verification success or failure.
 Before the
 .B pmcd
 .I logfile
-can be opened, 
+can be opened,
 .B pmcd
-may encounter a fatal error which prevents it from starting.  By default, the
-output describing this error is sent to
+may encounter a fatal error which prevents it from starting.
+By default, the output describing this error is sent to
 .B /dev/tty
-but it may redirected to 
+but it may redirected to
 .IR file .
-.PP
-If a PDU exchange with an agent times out, the agent has violated the
-requirement that it delivers metrics with little or no delay.
-This is deemed a
-protocol failure and the agent is disconnected from
-.BR pmcd .
-Any subsequent requests for information from the agent will fail with a status
-indicating that there is no agent to provide it.
-.PP
-It is possible to specify access control to
-.B pmcd
-based on users, groups and hosts.
-This allows one to prevent users, groups of users, and certain hosts from
-accessing the metrics provided by
-.B pmcd
-and is described in more detail in the Section on ACCESS CONTROL below.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH CONFIGURATION
 On startup
 .B pmcd
@@ -424,7 +432,7 @@ in double quotes or preceded by a backslash is treated literally rather than as
 a comment delimiter.
 Lexical elements and separators are described further in
 the following sections.
-.SH "AGENT CONFIGURATION"
+.SH AGENT CONFIGURATION
 Each line of the agent configuration section of the configuration file contains
 details of how to connect
 .B pmcd
@@ -476,7 +484,8 @@ is only able to load DSO agents that have the same
 (Subprogram Interface Model ABI, or calling conventions) as it does (i.e. only
 one of the
 .I simabi
-versions will be applicable).  The
+versions will be applicable).
+The
 .I simabi
 version of a running
 .B pmcd
@@ -496,8 +505,8 @@ For a relative
 the environment variable
 .B PMCD_PATH
 defines a colon (:) separated list of directories to search
-when trying to locate the agent DSO.  The default
-search path is
+when trying to locate the agent DSO.
+The default search path is
 .BR "$PCP_SHARE_DIR/lib:/usr/pcp/lib" .
 .PP
 For agents providing socket connections, a line of the form
@@ -533,7 +542,7 @@ respectively.
 specifies the address of the socket within the previously
 specified
 .I addr-family.
-For 
+For
 .B unix
 sockets, the address should be the name of an agent's socket on the
 local host (a valid address for the UNIX domain).
@@ -571,7 +580,7 @@ is passed unmodified to
 to instantiate the agent.
 .PD
 .PP
-For agents interacting with the 
+For agents interacting with the
 .B pmcd
 via stdin/stdout, a line of the form:
 .TP
@@ -595,9 +604,9 @@ The value for this parameter should be
 .IP
 Additionally, the \f2protocol\fP can include the \f3notready\fP keyword
 to indicate that the agent must be marked as not being ready to process
-requests from \f3pmcd\f1. The agent will explicitly notify the \f3pmcd\fP
-when it is ready to process the requests by sending a \f3PM_ERR_PMDAREADY\fP 
-PDU.
+requests from \f3pmcd\f1.
+The agent will explicitly notify the \f3pmcd\fP when it is ready to
+process the requests by sending a \f3PM_ERR_PMDAREADY\fP PDU.
 For further details of this protocol, including a description of the
 IPC parameters that can be specified in a PMDA
 .B Install
@@ -605,7 +614,7 @@ script with the
 .B ipc_prot
 parameter,
 see the relevant section in
-.BR PMDA (3). 
+.BR PMDA (3).
 .PD
 .TP 14
 .I command
@@ -627,7 +636,7 @@ the
 is passed unmodified to
 .BR execve (2)
 to instantiate the agent.
-.SH "ACCESS CONTROL CONFIGURATION"
+.SH ACCESS CONTROL CONFIGURATION
 The access control section of the configuration file is optional, but if
 present it must follow the agent configuration data.
 The case of reserved words is ignored, but elsewhere case is preserved.
@@ -684,7 +693,8 @@ allows
 .B pmcd
 to be used to store metric values in agents that permit store operations.
 This may be the actual value of the metric (e.g. resetting a counter to
-zero).  Alternatively, it may be a value used by the PMDA to introduce a
+zero).
+Alternatively, it may be a value used by the PMDA to introduce a
 change to some aspect of monitoring of that metric (e.g. server side event
 filtering) \- possibly even only for the active client tool performing the
 store operation, and not others.
@@ -709,14 +719,16 @@ and
 routines.
 .PP
 Hosts may be identified by name, IP address, IPv6 address or by the special host
-specifications ``"unix:"'' or ``"local:"''. ``"unix:"'' refers to
+specifications ``"unix:"'' or ``"local:"''.
+``"unix:"'' refers to
 .B pmcd's
-unix domain socket, on supported platforms. ``"local:"'' is equivalent to
-specifying ``"unix:"'' and ``localhost``.
+unix domain socket, on supported platforms.
+``"local:"'' is equivalent to specifying ``"unix:"'' and ``localhost``.
 .PP
 Wildcards may also be specified by ending the host identifier with the
 single wildcard character ``*'' as the last-given component of an
-address. The wildcard ``".*"'' refers to all inet (IPv4) addresses.
+address.
+The wildcard ``".*"'' refers to all inet (IPv4) addresses.
 The wildcard ``":*"'' refers to all IPv6 addresses.
 If an IPv6 wildcard contains a ``::''
 component, then the final ``*'' refers to the final 16 bits of the address only, otherwise it
@@ -1016,13 +1028,13 @@ However,
 reconfiguration (see the next section) re-evaluates all the connection counts
 and will cause client connections to be dropped where connection limits have
 been exceeded.
-.SH "AGENT FENCING"
+.SH AGENT FENCING
 Preventing sampling during the life of a PMDA is sometimes desirable, for
 example if that sampling impacts on sensitive phases of a scheduled job.
 A temporary ``fence'' can be raised to block all PMAPI client access to
 one or more agents in this situation.
 This functionality is provided by the built-in PMCD PMDA and the
-.B pmstore (1)
+.BR pmstore (1)
 command, as in
 .PP
 .CS
@@ -1047,9 +1059,9 @@ Elevated privileges are required to store to the
 .I pmcd.agent.fenced
 metric.
 For additional information, see the help text associated with this metric,
-which can be accessed using the fI\-T\fB, \fB\-\-helptext\fR option to
+which can be accessed using the \fI\-T\fB, \fB\-\-helptext\fR option to
 .BR pminfo (1).
-.SH "RECONFIGURING PMCD"
+.SH RECONFIGURING PMCD
 If the configuration file has been changed or if an agent is not responding
 because it has terminated or the PMNS has been changed,
 .B pmcd
@@ -1067,7 +1079,7 @@ has been modified, it is reparsed and the contents become the new
 configuration.
 If there are errors in the configuration file, the existing
 configuration is retained and the contents of the file are ignored.
-Errors are reported in the 
+Errors are reported in the
 .B pmcd
 log file.
 .PP
@@ -1095,7 +1107,7 @@ Simply stop the agent (e.g. using SIGTERM from
 then send
 .B pmcd
 a SIGHUP, which will cause the agent to be restarted.
-.SH "STARTING AND STOPPING PMCD"
+.SH STARTING AND STOPPING PMCD
 Normally,
 .B pmcd
 is started automatically at boot time and stopped when the
@@ -1172,8 +1184,8 @@ command line option
 may be used to specify alternative port number(s) when
 .B pmcd
 is started; in each case, the specification is a comma-separated list
-of one or more numerical port numbers.  Should both methods be used
-or multiple
+of one or more numerical port numbers.
+Should both methods be used or multiple
 .B \-p
 options appear on the command line,
 .B pmcd
@@ -1193,6 +1205,56 @@ or that the extended host specification syntax is used
 (see
 .BR PCPIntro (1)
 for details).
+.SH CAVEATS
+.B pmcd
+does not explicitly terminate its children (agents), it only
+closes their pipes.
+If an agent never checks for a closed pipe it may not terminate.
+.PP
+The configuration file parser will only read lines of less than 1200
+characters.
+This is intended to prevent accidents with binary files.
+.PP
+The timeouts controlled by the
+.B \-t
+option apply to IPC between
+.B pmcd
+and the PMDAs it spawns.
+This is independent of settings of the environment variables
+.B PMCD_CONNECT_TIMEOUT
+and
+.B PMCD_REQUEST_TIMEOUT
+(see
+.BR PCPIntro (1))
+which may be used respectively to control timeouts for client applications
+trying to connect to
+.B pmcd
+and trying to receive information from
+.BR pmcd .
+.SH DIAGNOSTICS
+If
+.B pmcd
+is already running the message "Error: OpenRequestSocket bind: Address may already be in use" will appear.
+This may also appear if
+.B pmcd
+was shutdown with an outstanding request from a client.
+In this case, a
+request socket has been left in the TIME_WAIT state and until the system closes
+it down (after some timeout period) it will not be possible to run
+.BR pmcd .
+.PP
+In addition to the standard
+.B PCP
+debugging flags, see
+.BR pmdbg (1),
+.B pmcd
+currently uses the options:
+.B appl0
+for tracing I/O and termination of agents,
+.B appl1
+for tracing access control and
+.B appl2
+for tracing the configuration file scanner and parser.
 .SH FILES
 .PD 0
 .TP 10
@@ -1206,17 +1268,17 @@ optional access control specification file
 command line options to
 .B pmcd
 when launched from
-.B $PCP_RC_DIR/pmcd
+.I $PCP_RC_DIR/pmcd
 All the command line option lines should start with a hyphen as
 the first character.
 .TP
-.B $PCP_SYSCONFIG_DIR/pmcd
+.I $PCP_SYSCONFIG_DIR/pmcd
 additional environment variables that will be set when
 .B pmcd
 executes.
 Only settings of the form "PMCD_VARIABLE=value" will be honoured.
 .TP
-.B $PCP_SYSCONF_DIR/labels
+.I $PCP_SYSCONF_DIR/labels
 directory of files containing the global metric labels that will be
 set for every client context created by
 .BR pmcd .
@@ -1227,42 +1289,42 @@ The merged set can be queried via the
 metric.
 Context labels are applied universally to all values.
 .TP
-.B \&./pmcd.log
+.I \&./pmcd.log
 (or
-.B $PCP_LOG_DIR/pmcd/pmcd.log
+.I $PCP_LOG_DIR/pmcd/pmcd.log
 when started automatically)
 .br
 All messages and diagnostics are directed here.
 .TP
-.B $PCP_RUN_DIR/pmcd.pid
-contains an ascii decimal representation of the process ID of 
+.I $PCP_RUN_DIR/pmcd.pid
+contains an ascii decimal representation of the process ID of
 .BR pmcd ,
 when it's running.
 .TP
-.B /etc/pki/nssdb
+.I /etc/pki/nssdb
 default Network Security Services (NSS) certificate database
 directory, used for optional Secure Socket Layer connections.
 This database can be created and queried using the NSS
 .B certutil
 tool, amongst others.
 .TP
-.B /etc/passwd
+.I /etc/passwd
 user names, user identifiers and primary group identifiers, used for access control specifications
 .TP
-.B /etc/groups
+.I /etc/groups
 group names, group identifiers and group members, used for access control specifications
 .PD
 .SH ENVIRONMENT
 The following variables are set in
-.B $PCP_SYSCONFIG_DIR/pmcd
+.BI $PCP_SYSCONFIG_DIR/pmcd .
 .PP
 In addition to the PCP environment variables described in the
 .B "PCP ENVIRONMENT"
-section below, the 
+section below, the
 .B PMCD_PORT
 variable is also recognised
 as the TCP/IP port for incoming connections
-(default 
+(default
 .IR 44321 ),
 and the
 .B PMCD_SOCKET
@@ -1292,7 +1354,8 @@ variable controls whether or not
 .B pmcd
 or
 .B pmdaroot
-(when available), start subsequent pmdas.  When set to a non-zero value,
+(when available), start subsequent pmdas.
+When set to a non-zero value,
 .B pmcd
 will opt to have
 .B pmdaroot
@@ -1309,70 +1372,15 @@ When set to a non-zero value,
 .B pmcd
 will attempt to restart such PMDAS once every minute.
 When set to zero, it uses the original behaviour of just logging the failure.
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.B /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
-.SH DIAGNOSTICS
-If
-.B pmcd
-is already running the message "Error: OpenRequestSocket bind: Address may already be in use" will appear.
-This may also appear if
-.B pmcd
-was shutdown with an outstanding request from a client.
-In this case, a
-request socket has been left in the TIME_WAIT state and until the system closes
-it down (after some timeout period) it will not be possible to run
-.BR pmcd .
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .PP
-In addition to the standard
-.B PCP
-debugging flags, see
-.BR pmdbg (1),
-.B pmcd
-currently uses the options:
-.B appl0
-for tracing I/O and termination of agents,
-.B appl1
-for tracing access control and
-.B appl2
-for tracing the configuration file scanner and parser.
-.SH CAVEATS
-.B pmcd
-does not explicitly terminate its children (agents), it only
-closes their pipes.
-If an agent never checks for a closed pipe it may not terminate.
-.PP
-The configuration file parser will only read lines of less than 1200
-characters.
-This is intended to prevent accidents with binary files.
-.PP
-The timeouts controlled by the
-.B \-t
-option apply to IPC between
-.B pmcd
-and the PMDAs it spawns.  This is independent of settings of the
-environment variables
-.B PMCD_CONNECT_TIMEOUT
-and
-.B PMCD_REQUEST_TIMEOUT
-(see
-.BR PCPIntro (1))
-which may be used respectively to control timeouts for client applications
-trying to connect to
-.B pmcd
-and trying to receive information from
-.BR pmcd .
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmdbg (1),
