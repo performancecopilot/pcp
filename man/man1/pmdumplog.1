@@ -1,24 +1,24 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDUMPLOG 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdumplog\f1 \- dump internal details of a performance metrics archive log
 .SH SYNOPSIS
 \f3pmdumplog\f1
-[\f3\-adehilLmMrstxz\f1]
+[\f3\-adehilLmMrstxzV?\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-T\f1 \f2endtime\f1]
@@ -44,7 +44,7 @@ if the
 .B \-n
 option is specified an alternative local PMNS is loaded
 from the file
-.IR pmnsfile.
+.IR pmnsfile .
 .PP
 If any
 .I metricname
@@ -58,9 +58,11 @@ then
 .B pmdumplog
 will recursively descend the archive's namespace and report on all leaf nodes.
 .PP
-The options control the specific information to be reported.
+Command line options control the specific information to be reported.
+.SH OPTIONS
+The available command line options are:
 .TP 5
-.B \-a
+\fB\-a\fR, \fB\-\-all\fR
 Report almost everything, i.e. the flags
 .BR \-d ,
 .BR \-i ,
@@ -72,42 +74,42 @@ and
 The optional help text (\-\f3h\f1) and label metadata
 strings (\-\f3e\f1) are not reported by default.
 .TP
-.B \-d
+\fB\-d\fR, \fB\-\-descs\fR
 Display the metadata and descriptions for those performance metrics
 that appear at least once in the archive:
 see
 .BR pmLookupDesc (3)
 for more details on the metadata describing metrics.
 .TP
-.B \-e
+\fB\-e\fR, \fB\-\-labelsets\fR
 Display the label metadata if it is present in the archive.
 See
 .BR pmLookupLabels (3)
 for more details on the label metadata hierarchy associated with metrics.
 .TP
-.B \-h
+\fB\-h\fR, \fB\-\-helptext\fR
 Display metric and instance domain help text if present in the archive.
 See
 .BR pmLookupText (3)
 for more details on the help text associated with metrics.
 .TP
-.B \-i
+\fB\-i\fR, \fB\-\-insts\fR
 Display the instance domains, and any variations in their instance
 members over the duration of the archive: see
 .BR pmGetInDom (3)
 for more details on instance domains.
 .TP
-.B \-l
+\fB\-l\fR, \fB\-\-label\fR
 Dump the archive label, showing the log format version,
 the time and date for the start and (current) end of the archive, and
 the host from which the performance metrics values were collected.
 .TP
-.B \-L
+\fB\-L\fR
 Like
 .BR \-l ,
 just a little more verbose.
 .TP
-.B \-m
+\fB\-m\fR, \fB\-\-metrics\fR
 Print the values for the performance metrics from the archive.
 This is the default display option.
 .RS +5n
@@ -130,11 +132,11 @@ The \fItimestamp\fR is only reported for the first metric in
 a group of metrics sharing the same timestamp.
 .RE
 .TP
-.B \-M
+\fB\-M\fR, \fB\-\-markrecs\fR
 If no
 .I metricname
 is specified then
-.I <mark> 
+.I <mark>
 records are reported when they are found in the
 .IR archive .
 If
@@ -159,11 +161,11 @@ and similar tools to indicate a temporal discontinuity in the
 time-series of metric values.
 .RE
 .TP
-.B \-r
+\fB\-r\fR, \fB\-\-reverse\fR
 Process the archive in reverse order, from most recent to oldest
 recorded metric values.
 .TP
-.B \-S
+\fB\-S\fR \fIstarttime\fR, \fB\-\-start\fR=\fIstarttime\fR
 When using the
 .B \-m
 option, the report will be restricted to those records logged at or after
@@ -173,10 +175,10 @@ Refer to
 for a complete description of the syntax for
 .IR starttime .
 .TP
-.B \-s
+\fB\-s\fR, \fB\-\-sizes\fR
 Report the size in bytes of each physical record in the archive.
 .TP
-.B \-T
+\fB\-T\fR \fIendtime\fR, \fB\-\-finish\fR=\fIendtime\fR
 When using the
 .B \-m
 option, the report will be restricted to those records logged before or at
@@ -186,22 +188,25 @@ Refer to
 for a complete description of the syntax for
 .IR endtime .
 .TP
-.B \-t
+\fB\-t\fR
 Dump the temporal index that is used to provide accelerated access
 to large archive files.
 .RS
 .PP
-The integrity of the index will also be checked.  If the index is
-found to be corrupted, the ``*.index'' file can be renamed or removed
-and the archive will still be accessible, however retrievals may take longer
-without the index.  Note however that a corrupted temporal index is
-usually indicative of a deeper malaise that may infect all files in a
-PCP archive.
+The integrity of the index will also be checked.
+If the index is found to be corrupted, the ``*.index'' file can be renamed
+or removed and the archive will still be accessible, however retrievals
+may take longer without the index.
+Note however that a corrupted temporal index is usually indicative of a
+deeper malaise that may infect all files in a PCP archive.
 .RE
 .TP
-.B \-v
-Verbose mode.  Dump the records from a physical archive file in
-hexadecimal format.
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-v\fR \fIfile\fR
+Verbose mode.
+Dump the records from a physical archive file in hexadecimal format.
 In this
 case
 .I file
@@ -219,21 +224,22 @@ Use of
 .B \-v
 precludes the use of all other options and arguments.
 .TP
-.B \-x
+\fB\-x\fR
 Extended timestamp reporting format that includes the day of the week, day of the month,
 month and year in addition to the (default) hours, minutes and seconds time.
 This is useful for archives that span multiple days.
 .RS +5n
 .PP
 A second
-\-x
+.B -x
 option will also report the timestamp as an offset from the start of the
 archive in units of seconds.
 This is useful in conjunction with debug diagnostics from the
 archive handling routines in
 .IR libpcp .
 .RE
-.PP
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
 By default,
 .B pmdumplog
 reports the time of day according to the local timezone on the
@@ -248,36 +254,29 @@ in the format of the environment variable
 .B TZ
 as described in
 .BR environ (7).
-The
-.B \-z
-option changes the timezone to the local timezone at the
+.TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Change the timezone to the local timezone at the
 host that is the source of the performance metrics, as specified in
 the label record of the archive log.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH FILES
 .PD 0
-.TP 10
-.BI $PCP_VAR_DIR/pmns/ *
-default local PMNS specification files
 .TP
-.BI $PCP_LOG_DIR/pmlogger/ hostname
+.I $PCP_LOG_DIR/pmlogger/<hostname>
 Default directory for PCP archives containing performance
 metric values collected from the host
 .IR hostname .
 .PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmlogcheck (1),
