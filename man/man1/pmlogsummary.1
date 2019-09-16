@@ -3,24 +3,24 @@
 .\"
 .\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMLOGSUMMARY 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmlogsummary\f1 \- calculate averages of metrics stored in a set of PCP archives
 .SH SYNOPSIS
 \f3pmlogsummary\f1
-[\f3\-abfFHiIlmMNsvxyz\f1]
+[\f3\-abfFHiIlmMNsvVxyz?\f1]
 [\f3\-B\f1 \f2nbins\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-p\f1 \f2precision\f1]
@@ -32,8 +32,8 @@
 .SH DESCRIPTION
 .B pmlogsummary
 prints statistical information about metrics of numeric type contained within
-the files of a set of Performance Co-Pilot (PCP) archive logs.  The default output prints
-time averages for both counter and non-counter metrics.
+the files of a set of Performance Co-Pilot (PCP) archive logs.
+The default output prints time averages for both counter and non-counter metrics.
 The set of archive logs is identified by
 .IR archive ,
 which is a comma-separated list of names, each
@@ -56,37 +56,20 @@ If no
 .I metricname
 argument is given, the root of the namespace is used.
 .PP
-Normally
-.B pmlogsummary
-operates on the default
-.BR pmns (5),
-however if the
-.B \-n
-option is specified an alternative namespace is loaded
-from the file
-.IR pmnsfile .
-.PP
-The command line options
-.B \-S
-and
-.B \-T
-can be used to specify a time window over which metrics should be summarized.
-These options are common to most Performance Co-Pilot tools and are fully
-described in
-.BR PCPIntro (1).
-.PP
-The remaining options control the specific information to be reported.
 Metrics with counter semantics are converted to rates before being
 evaluated.
-.TP
-.B \-a
-Print all information.  This is equivalent to
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-a\fR, \fB\-\-all\fR
+Print all information.
+This is equivalent to
 .BR \-blmMy .
 .TP
-.B \-b
+\fB\-b\fR
 Print both forms of averaging, that is both stochastic and time averaging.
 .TP
-.B \-B
+\fB\-B\fR \fInbins\fR, \fB\-\-bins\fR=\fInbins\fR
 Print the approximate distribution of values, using histogram bins such
 that the value range (minimum - maximum) for each metric is divided
 equally into
@@ -96,86 +79,121 @@ corresponding range.
 Refer to the ``OUTPUT FORMAT'' section below for a description of how the
 distribution of values is reported).
 .TP
-.B \-f
+\fB\-f\fR
 Spreadsheet format \- the tab character is used to delimit each field
-printed.  This option is intended to allow
+printed.
+This option is intended to allow
 .B pmlogsummary
 output to be imported directly into common spreadsheet applications.
 .TP
-.B \-F
+\fB\-F\fR
 Spreadsheet format \- the comma character is used to delimit each field
-printed.  This option is intended to allow
+printed.
+This option is intended to allow
 .B pmlogsummary
 output to be imported directly into common spreadsheet applications which
 support the Comma Separated Value (.csv) format.
 .TP
-.B \-H
+\fB\-H\fR, \fB\-\-header\fR
 Print a one-line header at the start showing what each field represents.
 .TP
-.B \-l
+\fB\-i\fR, \fB\-\-mintime\fR
+Also print the time at which the minimum value was logged.
+The format of this
+timestamp is described in the ``OUTPUT FORMAT'' section below.
+.TP
+\fB\-I\fR, \fB\-\-maxtime\fR
+Also print the time at which the maximum value was logged.
+The format of this
+timestamp is described in the ``OUTPUT FORMAT'' section below.
+.TP
+\fB\-l\fR, \fB\-\-label\fR
 Also print the archive label, showing the log format version,
 the time and date for the start and end of the archive time window,
 and the host from which the performance metrics values were collected.
 .TP
-.B \-i
-Also print the time at which the minimum value was logged.  The format of this
-timestamp is described in the ``OUTPUT FORMAT'' section below.
-.TP
-.B \-I
-Also print the time at which the maximum value was logged.  The format of this
-timestamp is described in the ``OUTPUT FORMAT'' section below.
-.TP
-.B \-m
+\fB\-m\fR, \fB\-\-minimum\fR
 Also print the minimum logged value for each metric.
 .TP
-.B \-M
+\fB\-M\fR, \fB\-\-maximum\fR
 Also print the maximum logged value for each metric.
 .TP
-.B \-s
-Print (only) the sum of all logged values for each metric.
+\fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
+Load an alternative Performance Metrics Name Space
+.RB ( pmns (5))
+from the file
+.IR pmnsfile .
 .TP
-.B \-N
+\fB\-N\fR
 Suppress any warnings resulting from individual archive fetches (default).
 .TP
-.B \-p
-Print all floating point numbers with 
+\fB\-p\fR \fIprecision\fR, \fB\-\-precision\fR=\fIprecision\fR
+Print all floating point numbers with
 .I precision
 digits after the decimal place.
 .TP
-.B \-v
+\fB\-s\fR, \fB\-\-sum\fR
+Print (only) the sum of all logged values for each metric.
+.TP
+\fB\-S\fR \fIstarttime\fR, \fB\-\-start\fR=\fIstarttime\fR
+Set the
+.I starttime
+of the time window.
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR starttime .
+.TP
+\fB\-T\fR \fIendtime\fR, \fB\-\-finish\fR=\fIendtime\fR
+Set the
+.I endtime
+of the time window.
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR endtime .
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
 Report (verbosely) on warnings resulting from individual archive fetches.
 .TP
-.B \-x
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-x\fR
 Print stochastic averages instead of the default (time averages).
 .TP
-.B \-y
+\fB\-y\fR, \fB\-\-samples\fR
 Also print the number of samples encountered in the set of archives for each metric.
-.PP
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
 By default,
 .B pmlogsummary
 reports the time of day according to the local timezone on the
 system where
 .B pmlogsummary
 is run.
-The
-.B \-Z
-option changes the timezone to
+Change the timezone to
 .I timezone
 in the format of the environment variable
 .B TZ
 as described in
 .BR environ (7).
-The
-.B \-z
-option changes the timezone to the local timezone at the
+.TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Change the timezone to the local timezone at the
 host that is the source of the performance metrics, as specified in
 the label record of the archive log.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH OUTPUT FORMAT
 The
 .B pmlogsummary
 output format is spartan as it is intended to be post-processed with
-standard tools.  This means that there is no annotation associated with each
-output field which would make processing harder.  The intention is that
+standard tools.
+This means that there is no annotation associated with each
+output field which would make processing harder.
+The intention is that
 .B pmlogsummary
 output be massaged into a format which can be used by a spreadsheet program,
 is suitable for inclusion in a web page, or whatever.
@@ -192,7 +210,7 @@ produces a single output line as follows:
 .ft R
 .in
 .PP
-For metrics with multiple instances, 
+For metrics with multiple instances,
 .B pmlogsummary
 produces multiple lines of output as follows:
 .PP
@@ -220,8 +238,8 @@ option is used).
 All counter metrics which are measured in units of time will be converted
 to seconds before being rate converted and used in the
 .B pmlogsummary
-calculations.  The values calculated for these metrics are also printed
-in seconds.
+calculations.
+The values calculated for these metrics are also printed in seconds.
 .PP
 The units will be displayed in the format described by
 .BR pmUnitsStr (3).
@@ -251,8 +269,9 @@ by the total number of values, for each metric).
 Counter metrics are averaged using time averaging (by default),
 but the
 .B \-x
-option can be used to specify that counters be averaged using 
-the stochastic method instead.  When calculating a time average,
+option can be used to specify that counters be averaged using
+the stochastic method instead.
+When calculating a time average,
 the sum of the product of each sample value multiplied by the time difference
 between each sample, is divided by the total time over which
 that metric was logged.
@@ -302,31 +321,27 @@ _
 17	number of values in third bin
 byte / sec	base units for this metric
 .TE
+.SH DIAGNOSTICS
+All are generated on standard error and are intended to be self-
+explanatory.
 .SH FILES
 .PD 0
 .TP 10
-.BI $PCP_VAR_DIR/pmns/ *
+.IR $PCP_VAR_DIR/pmns/ *
 default PMNS specification files
 .TP
-.BI $PCP_LOG_DIR/pmlogger/ hostname
+.I $PCP_LOG_DIR/pmlogger/<hostname>
 Default directory for PCP archives containing performance
 metric values collected from the host
-.IR hostname .
+.IR <hostname> .
 .PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmchart (1),
@@ -339,6 +354,3 @@ as described in
 .BR pmUnitsStr (3)
 and
 .BR pmns (5).
-.SH DIAGNOSTICS
-All are generated on standard error and are intended to be self-
-explanatory.
