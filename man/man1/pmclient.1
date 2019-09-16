@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2016,2019 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -179,13 +179,17 @@ the prevailing real-time delay be applied between samples (see
 .BR \-t )
 to effect a pause.
 .TP
-.B \-S\fR \fInumsec\fR, \fB\-\-pause\fR=\fInumsec\fP
+.B \-S\fR \fIstarttime\fR, \fB\-\-start\fR=\fIstarttime\fP
 The
 .B \-S
 option may be used in conjunction with a set of archives to request that
-display start at the time
-.I numsec
-seconds from the start of the set of archives.
+display start at the
+.I starttime
+from the start of the archive(s).
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR starttime .
 .TP
 \fB\-s\fR \fIsamples\fR, \fB\-\-samples\fR=\fIsamples\fR
 The
