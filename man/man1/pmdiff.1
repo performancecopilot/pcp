@@ -1,36 +1,35 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2013-2016 Red Hat.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
-.\" 
+.\"
+.\"
 .TH PMDIFF 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdiff\f1 \- compares archives and report significant differences
 .SH SYNOPSIS
 \f3pmdiff\f1
-[\f3\-d\f1/\f3--keep\f1]
-[\f3\-z\f1/\f3--hostzone\f1]
-[\f3\-p\f1/\f3--precision\f1 \f2precision\f1]
-[\f3\-q\f1/\f3--threshold\f1 \f2thres\f1]
-[\f3\-S\f1/\f3--start\f1 \f2starttime\f1]
-[\f3\-T\f1/\f3--finish\f1 \f2endtime\f1]
-[\f3\-B\f1/\f3--begin\f1 \f2starttime\f1]
-[\f3\-E\f1/\f3--end\f1 \f2endtime\f1]
+[\f3\-dzV?\f1]
+[\f3\-B\f1 \f2starttime\f1]
+[\f3\-E\f1 \f2endtime\f1]
+[\f3\-p\f1 \f2precision\f1]
+[\f3\-q\f1 \f2thres\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-T\f1 \f2endtime\f1]
 [\f3\-x\f1 \f2metric\f1]
 [\f3\-X\f1 \f2file\f1]
+[\f3\-Z\f1 \f2timezone\f1]
 [\f3--skip-excluded\f1]
 [\f3--skip-missing\f1]
-[\f3\-Z\f1/\f3--timezone\f1 \f2timezone\f1]
 \f2archive1\f1
 [\f2archive2\f1]
 .SH DESCRIPTION
@@ -69,7 +68,7 @@ and
 .BR \-E / \-\-end
 for the start and end times of the second time window of interest.
 .PP
-In the second case, with two sets of archives, the 
+In the second case, with two sets of archives, the
 .BR \-B / \-\-before
 and
 .BR \-E / \-\-end
@@ -102,14 +101,65 @@ Should any metrics be present in one window but missing from the
 other, a diagnostic will be displayed listing each missing metric
 and the archive set from which it was missing.
 .PP
-The remaining options control the specific information to be reported.
 Metrics with counter semantics are converted to rates before being
 evaluated.
+.SH OPTIONS
+The available command line options are:
 .TP 5
-.BR \-p / \-\-precision
-Print all floating point numbers with 
+\fB\-d\fR, \fB\-\-keep\fR
+Debug mode, keep intermediate files.
+.TP
+\fB\-B\fR \fItime\fR, \fB\-\-begin\fR=\fItime\fR
+Start \fItime\fP for the second time window.
+.TP
+\fB\-E\fR \fItime\fR, \fB\-\-end\fR=\fItime\fR
+End \fItime\fP for the second time window.
+.TP
+\fB\-p\fR \fIprecision\fR, \fB\-\-precision\fR=\fIprecision\fR
+Print all floating point numbers with
 .I precision
 digits after the decimal place.
+.TP
+\fB\-q\fR \fIthreshold\fR, \fB\-\-threshold\fR=\fIthreshold\fR
+Change the \fIthreshold\fP for interesting metrics,
+see above for more details.
+.TP
+\fB\-S\fR \fItime\fR, \fB\-\-start\fR=\fItime\fR
+Start \fItime\fP of the first time window.
+.TP
+\fB\-T\fR \fItime\fR, \fB\-\-finish\fR=\fItime\fR
+End \fItime\fP of the first time window.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-x\fR \fImetric\fR
+Compare each \fImetric\fP in each archive set in
+the time windows specified to a given
+.BR egrep (1)
+pattern, excluding those that match from the report output.
+.TP
+\fB\-X\fR \fIfile\fR
+Allows a
+.IR file
+to be specified which containing
+.BR egrep (1)
+patterns which are applied to the metric names to optionally exclude
+some from the report.
+.TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Use the local timezone from the given archive set.
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+Changes the timezone in the archive labels to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .TP
 .B \-\-skip-excluded
 Cull the list of names of metrics being excluded from the output.
@@ -120,54 +170,21 @@ By default,
 will report the names of any metrics that are in one archive set but not
 the other.
 This option suppresses that reporting.
-.TP
-.B \-x
-Compare each metric in each archive set in the time windows specified
-to a given
-.BR egrep (1)
-pattern, excluding those that match from the report output.
-.TP
-.B \-X
-Allows a
-.IR file
-to be specified which containing
-.BR egrep (1)
-patterns which are applied to the metric names to optionally exclude
-some from the report.
-.TP
-.B \-z
-Use the local timezone from the given archive set.
-.TP
-.BR \-Z / \-\-timezone
-Changes the timezone in the archive labels to
-.I timezone
-in the format of the environment variable
-.B TZ
-as described in
-.BR environ (7).
-.PP
 .SH FILES
 .PD 0
 .TP 10
-.BI $PCP_LOG_DIR/pmlogger/ hostname
+.I $PCP_LOG_DIR/pmlogger/<hostname>
 Default directory for PCP archives containing performance
 metric values collected from the host
 .IR hostname .
 .PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmlogger (1),
