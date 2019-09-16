@@ -2,35 +2,35 @@
 .\"
 .\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMCLIENT 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmclient\f1,
 \f3pmclient_fg\f1 \- a simple performance metrics client
-.\" literals use .B or \f3
-.\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3pmclient\f1
+[\f3\-PVz?\f1]
 [\f3\-a\f1 \f2archive\f1]
+[\f3\-A\f1 \f2align\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
-[\f3\-P\f1]
-[\f3\-S\f1 \f2numsec\f1]
+[\f3\-O\f1 \f2origin\f1]
 [\f3\-s\f1 \f2samples\f1]
+[\f3\-S\f1 \f2starttime\f1]
 [\f3\-t\f1 \f2interval\f1]
+[\f3\-T\f1 \f2endtime\f1]
 [\f3\-Z\f1 \f2timezone\f1]
-[\f3\-z\f1]
 .SH DESCRIPTION
 .B pmclient
 and
@@ -39,7 +39,7 @@ are simple clients that use the Performance Metrics Application
 Programming Interface (PMAPI) to report some high-level system
 performance metrics.
 .PP
-The real value of these tools 
+The real value of these tools
 is as sample clients using the
 .BR PMAPI (3),
 interfaces and to this end the source
@@ -108,46 +108,6 @@ or
 .B \-a
 options.
 .PP
-Other options control the specific information to be reported.
-.TP
-\f3\-P\f1
-The default behavior for replaying a set of archives, is to replay at
-full speed.  The
-.B \-P
-option may be used in conjunction with a set of archives, to request that
-the prevailing real-time delay be applied between samples (see
-.BR \-t )
-to effect a pause.
-.TP
-\f3\-S\f1 \f2numsec\f1
-The
-.B \-S
-option may be used in conjunction with a set of archives to request that
-display start at the time
-.I numsec
-seconds from the start of the set of archives.
-.TP
-\f3\-s\f1 \f2samples\f1
-The argument
-.I samples
-defines the number of samples to be retrieved and reported.
-If samples is 0 or
-.B \-s
-is not specified,
-.B pmclient
-will sample and report continuously (in real time mode)
-or until the end of the set of PCP archives (in archive mode).
-.TP
-\f3\-t\f1 \f2interval\f1
-The default update \f2interval\f1 may be set to something other than the
-default 5 seconds.
-The
-.I interval
-argument follows the syntax described in
-.BR PCPIntro (1),
-and in the simplest form may be an unsigned integer (the implied
-units in this case are seconds).
-.PP
 The output from
 .B pmclient
 is directed to standard output, and lists
@@ -164,28 +124,144 @@ Real free memory in Mbytes.
 Aggregate physical disk I/O operations per second (IOPS).
 .IP +
 Load average over the last 1 minute and over the last 15 minutes.
-.PP
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
+Performance metric values are retrieved from the set of Performance
+Co-Pilot (PCP) archive log files identified by the
+.I archive
+argument, which is a comma-separated list of names,
+each of which may be the base name of an archive or the name of
+a directory containing one or more archives.
+.TP
+\fB\-A\fR \fIalign\fR, \fB\-\-align\fR=\fIalign\fR
+Force the initial sample to be
+aligned on the boundary of a natural time unit
+.IR align .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR align .
+.TP
+\fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
+Fetch performance metrics from
+.BR pmcd (1)
+on
+.IR host ,
+rather than from the default localhost.
+.TP
+\fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
+Load an alternative Performance Metrics Name Space
+.RB ( pmns (5))
+from the file
+.IR pmnsfile .
+.TP
+\fB\-O\fR \fIorigin\fR, \fB\-\-origin\fR=\fIorigin\fR
+When reporting archived metrics, start reporting at
+.I origin
+within the time window (see
+.B \-S
+and
+.BR \-T ).
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR origin .
+.TP
+.B \-P\fR, \fB\-\-pause\fP
+The default behavior for replaying a set of archives, is to replay at
+full speed.
+The
+.B \-P
+option may be used in conjunction with a set of archives, to request that
+the prevailing real-time delay be applied between samples (see
+.BR \-t )
+to effect a pause.
+.TP
+.B \-S\fR \fInumsec\fR, \fB\-\-pause\fR=\fInumsec\fP
+The
+.B \-S
+option may be used in conjunction with a set of archives to request that
+display start at the time
+.I numsec
+seconds from the start of the set of archives.
+.TP
+\fB\-s\fR \fIsamples\fR, \fB\-\-samples\fR=\fIsamples\fR
+The
+.I samples
+argument defines the number of samples to be retrieved and reported.
+If
+.I samples
+is 0 or
+.B \-s
+is not specified,
+.B pmclient
+will sample and report continuously (in real time mode) or until the end
+of the set of PCP archives (in archive mode).
+.TP
+\fB\-T\fR \fIendtime\fR, \fB\-\-finish\fR=\fIendtime\fR
+When reporting archived metrics, the report will be restricted to those
+records logged before or at
+.IR endtime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR endtime .
+.TP
+.B \-t\fR \fIinterval\fR, \fB\-\-interval\fR=\fIinterval\fP
+Set the reporting
+.I interval\f1
+to something other than the default 5 seconds.
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied
+units in this case are seconds).
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Use the local timezone of the host that is the source of the
+performance metrics, as identified by either the
+.B \-h
+or the
+.B \-a
+options.
+The default is to use the timezone of the local host.
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+Use
+.I timezone
+for the date and time.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH DIAGNOSTICS
+All are generated on standard error, and are intended to be self-explanatory.
 .SH FILES
 .PD 0
 .TP 10
-.B $PCP_DEMOS_DIR/pmclient
+.I $PCP_DEMOS_DIR/pmclient
 source code, documentation, configuration files and Makefile
 when the PCP development package is installed
 .PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
@@ -201,5 +277,3 @@ as described in
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
-.SH DIAGNOSTICS
-All are generated on standard error, and are intended to be self-explanatory.
