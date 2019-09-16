@@ -79,7 +79,7 @@ Command line options are available to specify font style, frame style,
 modality and one of several different icons to be presented for tailored
 visual feedback to the user.
 .TP 5
-.B \-c \f1or \f3\-center\f1
+.B \-c\f1, \f3\-center\f1
 Center the window on the display.
 .TP
 .B \-nearmouse
@@ -156,7 +156,7 @@ introduces the additional
 .I archive
 and
 .I host
-icon types as well as the original 
+icon types as well as the original
 .BR xconfirm
 types listed earlier.
 .TP
@@ -204,6 +204,9 @@ input until a button is pressed.
 Exit with status 0 after \fIsecs\fP seconds if the user has not
 clicked on a button yet.
 The corresponding resource is \fBtimeout\fP.
+.TP
+.B \-?\f1, \f3\-h\f1, \f3\-help\f1
+Display usage message and exit.
 .SH EXAMPLES
 The following shell script will display a window with an information icon,
 asking the user a yes or no question with "Yes" as the default.
@@ -229,24 +232,30 @@ terminal with an ssh session connected to the requested host.
 .fi
 .SH ENVIRONMENT
 .B pmquery
-is an excellent choice of utility for the "PCP_XCONFIRM_PROG"
+is an excellent choice of utility for the
+.B PCP_XCONFIRM_PROG
 Performance Co-Pilot configuration parameter (refer to
 .BR pcp.conf (5)
 for details).
 .PP
-Note that PCP_XCONFIRM_PROG will be automatically set to
+Note that
+.B PCP_XCONFIRM_PROG
+will be automatically set to
 .B pmquery
 inside tools like
 .BR pmchart ,
-unless PCP_XCONFIRM_PROG is already set in the environment.
-.SH "EXIT STATUS"
+unless
+.B PCP_XCONFIRM_PROG
+is already set in the environment.
+.SH EXIT STATUS
 If it detects an error,
 .B pmquery
 always returns 1, so this value should not be associated with a button.
 Unless \f2\-button\f1 option has not been used, the return code will be
 zero on success.
-.SH "SEE ALSO"
+.SH SEE ALSO
 .BR pmchart (1),
 .BR xconfirm (1),
 .BR xmessage (1),
+and
 .BR pcp.conf (5).
