@@ -20,8 +20,8 @@
 \f3$PCP_BINADM_DIR/pmnewlog\f1
 [\f3\-NPsV?\f1]
 [\f3\-a\f1 \f2accessfile\f1]
-[\f3\-C\f1 \f2saveconfig\f1]
 [\f3\-c\f1 \f2configfile\f1]
+[\f3\-C\f1 \f2saveconfig\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-p\f1 \f2pid\f1]
 [\f2other pmlogger options\f1]
@@ -233,14 +233,11 @@ The available command line options are:
 \fB\-a\fR \fIfile\fR, \fB\-\-access\fR=\fIfile\fR
 Specify access controls \fIfile\fR for the new pmlogger.
 .TP
-\fB\-C\fR \fIfile\fR, \fB\-\-save\fR=\fIfile\fR
-Save the configuration of new pmlogger in \fIfile\fR.
-.TP
 \fB\-c\fR \fIfile\fR, \fB\-\-config\fR=\fIfile\fR
 Load configuration from \fIfile\fR.
 .TP
-\fB\-N\fR, \fB\-\-showme\fR
-Perform a dry run.
+\fB\-C\fR \fIfile\fR, \fB\-\-save\fR=\fIfile\fR
+Save the configuration of new pmlogger in \fIfile\fR.
 .TP
 \fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
 Load an alternative Performance Metrics Name Space
@@ -248,11 +245,14 @@ Load an alternative Performance Metrics Name Space
 from the file
 .IR pmnsfile .
 .TP
-\fB\-P\fR, \fB\-\-primary\fR
-Execute as primary logger instance.
+\fB\-N\fR, \fB\-\-showme\fR
+Perform a dry run.
 .TP
 \fB\-p\fR \fIPID\fR, \fB\-\-pid\fR=\fIPID\fR
 Restart non-primary logger with PID \fIPID\fR.
+.TP
+\fB\-P\fR, \fB\-\-primary\fR
+Execute as primary logger instance.
 .TP
 \fB\-s\fR, \fB\-\-socks\fR
 Use

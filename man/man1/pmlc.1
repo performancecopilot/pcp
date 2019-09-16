@@ -380,11 +380,14 @@ Load an alternative Performance Metrics Name Space
 from the file
 .IR pmnsfile .
 .TP
+\fB\-p\fR \fIport\fR, \fB\-\-port\fR=\fIport\fR
+Connect to the primary pmlogger on TCP/IP port \fIport\fP.
+.TP
 \fB\-P\fR, \fB\-\-primary\fR
 Connect to the primary pmlogger.
 .TP
-\fB\-p\fR \fIport\fR, \fB\-\-port\fR=\fIport\fR
-Connect to the primary pmlogger on TCP/IP port \fIport\fP.
+\fB\-z\fR, \fB\-\-logzone\fR
+Use local time of the pmlogger as the reporting timezone.
 .TP
 \fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
 Use
@@ -395,9 +398,6 @@ is in the format of the environment variable
 .B TZ
 as described in
 .BR environ (7).
-.TP
-\fB\-z\fR, \fB\-\-logzone\fR
-Use local time of the pmlogger as the reporting timezone.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.

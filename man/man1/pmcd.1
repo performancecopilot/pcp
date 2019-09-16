@@ -20,20 +20,20 @@
 .SH SYNOPSIS
 \f3pmcd\f1
 [\f3\-AfQSv?\f1]
-[\f3\-C\f1 \f2dirname\f1]
 [\f3\-c\f1 \f2config\f1]
+[\f3\-C\f1 \f2dirname\f1]
 [\f3\-H\f1 \f2hostname\f1]
 [\f3\-i\f1 \f2ipaddress\f1]
-[\f3\-L\f1 \f2bytes\f1]
 [\f3\-l\f1 \f2logfile\f1]
+[\f3\-L\f1 \f2bytes\f1]
 [\f3\-M\f1 \f2certname\f1]
-[\f3\-\f1[\f3N\f1|\f3n\f1] \f2pmnsfile\f1]
-[\f3\-P\f1 \f2passfile\f1]
+[\f3\-\f1[\f3n\f1|\f3N\f1] \f2pmnsfile\f1]
 [\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]]
+[\f3\-P\f1 \f2passfile\f1]
 [\f3\-q\f1 \f2timeout\f1]
 [\f3\-s\f1 \f2sockname\f1]
-[\f3\-T\f1 \f2traceflag\f1]
 [\f3\-t\f1 \f2timeout\f1]
+[\f3\-T\f1 \f2traceflag\f1]
 [\f3\-U\f1 \f2username\f1]
 [\f3\-x\f1 \f2file\f1]
 .SH DESCRIPTION
@@ -101,6 +101,19 @@ will advertise its presence on the network using any available mechanisms
 (such as Avahi/DNS-SD), assisting remote monitoring tools with finding it.
 These mechanisms are disabled with this option.
 .TP
+\f3\-c\f1 \f2config\f1, \f3\-\-config\f1=\f2config\f1
+On startup
+.B pmcd
+uses a configuration file from either the
+.IR $PCP_PMCDCONF_PATH ,
+configuration variable in
+.IR /etc/pcp.conf ,
+or an environment variable of the same name.
+However, these values may be overridden with
+.I config
+using this option.
+The format of this configuration file is described below.
+.TP
 \f3\-C\f1 \f2dirname\f1, \f3\-\-certdb\f1=\f2dirname\f1
 Specify the path to the Network Security Services certificate database,
 for (optional) secure connections.
@@ -114,19 +127,6 @@ This process and other certificate database maintenance information
 is provided in the
 .BR PCPIntro (1)
 manual page and the online PCP tutorials.
-.TP
-\f3\-c\f1 \f2config\f1, \f3\-\-config\f1=\f2config\f1
-On startup
-.B pmcd
-uses a configuration file from either the
-.IR $PCP_PMCDCONF_PATH ,
-configuration variable in
-.IR /etc/pcp.conf ,
-or an environment variable of the same name.
-However, these values may be overridden with
-.I config
-using this option.
-The format of this configuration file is described below.
 .TP
 \f3\-f\f1, \f3\-\-foreground\f1
 By default
@@ -179,19 +179,6 @@ This allows PCP applications to determine that a host has failed,
 rather than connecting to the host that has assumed the identity of the failed
 host.
 .TP
-\f3\-L\f1 \f2bytes\f1
-.IR PDU s
-received by
-.B pmcd
-from monitoring clients are restricted to a
-maximum size of 65536 bytes by default to defend against Denial of
-Service attacks.
-The
-.B \-L
-option may be used to change the maximum incoming
-.I PDU
-size.
-.TP
 \f3\-l\f1 \f2logfile\f1, \f3\-\-log\f1=\f2logfile\f1
 By default a log file named
 .I pmcd.log
@@ -205,23 +192,25 @@ instead of the default.
 If the log file cannot be created or is not writable, output is
 written to the standard error instead.
 .TP
+\f3\-L\f1 \f2bytes\f1
+.IR PDU s
+received by
+.B pmcd
+from monitoring clients are restricted to a
+maximum size of 65536 bytes by default to defend against Denial of
+Service attacks.
+The
+.B \-L
+option may be used to change the maximum incoming
+.I PDU
+size.
+.TP
 \f3\-M\f1 \f2certname\f1, \f3\-\-certname\f1=\f2certname\f1
 By default, pmcd will try to use a certificate called
 .BR "PCP Collector certificate" .
 The
 .B \-M
 option allows this to be changed.
-.TP
-\f3\-N\f1 \f2pmnsfile\f1, \f3\-\-uniqnames\f1=\f2pmnsfile\f1
-Same function as
-.BR \-n ,
-except for the handling of
-duplicate Performance Metric Identifiers (PMIDs) in
-.I pmnsfile
-\- duplicate names are allowed with
-.BR \-n
-but they are not allowed with
-.BR \-N .
 .TP
 \f3\-n\f1 \f2pmnsfile\f1, \f3\-\-namespace\f1=\f2pmnsfile\f1
 Normally
@@ -233,6 +222,17 @@ however if the
 option is specified an alternative namespace is loaded
 from the file
 .IR pmnsfile .
+.TP
+\f3\-N\f1 \f2pmnsfile\f1, \f3\-\-uniqnames\f1=\f2pmnsfile\f1
+Same function as
+.BR \-n ,
+except for the handling of
+duplicate Performance Metric Identifiers (PMIDs) in
+.I pmnsfile
+\- duplicate names are allowed with
+.BR \-n
+but they are not allowed with
+.BR \-N .
 .TP
 \f3\-P\f1 \f2passfile\f1, \f3\-\-passfile\f1=\f2passfile\f1
 Specify the path to a file containing the Network Security Services certificate
@@ -261,6 +261,12 @@ The unit of time is seconds.
 \f3\-Q\f1, \f3\-\-remotecert\f1
 Require that all remote client connections provide a certficate.
 .TP
+\f3\-s\f1 \f2sockname\f1, \f3\-\-socket\f1=\f2sockname\f1
+Specify the path to a local unix domain socket (for platforms supporting this
+socket family only).
+The default value is
+.IR $PCP_RUN_DIR/pmcd.socket .
+.TP
 \f3\-S\f1, \f3\-\-allcert\f1
 Require that all client connections provide user credentials.
 This means that only unix domain sockets, or authenticated connections are
@@ -269,11 +275,33 @@ If any user or group access control requirements are specified in the pmcd
 configuration file, then this mode of operation is automatically entered,
 whether the \f3\-S\f1 flag is specified or not.
 .TP
-\f3\-s\f1 \f2sockname\f1, \f3\-\-socket\f1=\f2sockname\f1
-Specify the path to a local unix domain socket (for platforms supporting this
-socket family only).
-The default value is
-.IR $PCP_RUN_DIR/pmcd.socket .
+\f3\-t\f1 \f2timeout\f1
+To prevent misbehaving clients or agents from hanging the entire Performance Metrics
+Collection System (PMCS),
+.B pmcd
+uses timeouts on PDU exchanges with clients and agents running as processes.
+By
+default the timeout interval is five seconds.
+The
+.B \-t
+option allows an alternative timeout interval in seconds to be specified.
+If
+.I timeout
+is zero, timeouts are turned off.
+It is almost impossible to use the debugger
+interactively on an agent unless timeouts have been turned off for its "parent"
+.BR pmcd .
+.RS
+.PP
+Once
+.B pmcd
+is running, the timeout may be dynamically
+modified by storing an integer value (the timeout in seconds)
+into the metric
+.B pmcd.control.timeout
+via
+.BR pmstore (1).
+.RE
 .TP
 \f3\-T\f1 \f2traceflag\f1, \f3\-\-trace\f1=\f2traceflag\f1
 To assist with error diagnosis for agents and/or clients of
@@ -334,34 +362,6 @@ via
 In unbuffered mode,
 .B every
 event will be reported when it occurs.
-.RE
-.TP
-\f3\-t\f1 \f2timeout\f1
-To prevent misbehaving clients or agents from hanging the entire Performance Metrics
-Collection System (PMCS),
-.B pmcd
-uses timeouts on PDU exchanges with clients and agents running as processes.
-By
-default the timeout interval is five seconds.
-The
-.B \-t
-option allows an alternative timeout interval in seconds to be specified.
-If
-.I timeout
-is zero, timeouts are turned off.
-It is almost impossible to use the debugger
-interactively on an agent unless timeouts have been turned off for its "parent"
-.BR pmcd .
-.RS
-.PP
-Once
-.B pmcd
-is running, the timeout may be dynamically
-modified by storing an integer value (the timeout in seconds)
-into the metric
-.B pmcd.control.timeout
-via
-.BR pmstore (1).
 .RE
 .TP
 \f3\-U\f1 \f2username\f1, \f3\-\-username\f1=\f2USER\f1

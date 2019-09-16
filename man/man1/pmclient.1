@@ -179,18 +179,6 @@ the prevailing real-time delay be applied between samples (see
 .BR \-t )
 to effect a pause.
 .TP
-.B \-S\fR \fIstarttime\fR, \fB\-\-start\fR=\fIstarttime\fP
-The
-.B \-S
-option may be used in conjunction with a set of archives to request that
-display start at the
-.I starttime
-from the start of the archive(s).
-Refer to
-.BR PCPIntro (1)
-for a complete description of the syntax for
-.IR starttime .
-.TP
 \fB\-s\fR \fIsamples\fR, \fB\-\-samples\fR=\fIsamples\fR
 The
 .I samples
@@ -204,14 +192,17 @@ is not specified,
 will sample and report continuously (in real time mode) or until the end
 of the set of PCP archives (in archive mode).
 .TP
-\fB\-T\fR \fIendtime\fR, \fB\-\-finish\fR=\fIendtime\fR
-When reporting archived metrics, the report will be restricted to those
-records logged before or at
-.IR endtime .
+.B \-S\fR \fIstarttime\fR, \fB\-\-start\fR=\fIstarttime\fP
+The
+.B \-S
+option may be used in conjunction with a set of archives to request that
+display start at the
+.I starttime
+from the start of the archive(s).
 Refer to
 .BR PCPIntro (1)
 for a complete description of the syntax for
-.IR endtime .
+.IR starttime .
 .TP
 .B \-t\fR \fIinterval\fR, \fB\-\-interval\fR=\fIinterval\fP
 Set the reporting
@@ -223,6 +214,15 @@ argument follows the syntax described in
 .BR PCPIntro (1),
 and in the simplest form may be an unsigned integer (the implied
 units in this case are seconds).
+.TP
+\fB\-T\fR \fIendtime\fR, \fB\-\-finish\fR=\fIendtime\fR
+When reporting archived metrics, the report will be restricted to those
+records logged before or at
+.IR endtime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR endtime .
 .TP
 \fB\-V\fR, \fB\-\-version\fR
 Display version number and exit.

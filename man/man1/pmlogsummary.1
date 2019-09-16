@@ -165,6 +165,11 @@ Print stochastic averages instead of the default (time averages).
 \fB\-y\fR, \fB\-\-samples\fR
 Also print the number of samples encountered in the set of archives for each metric.
 .TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Change the timezone to the local timezone at the
+host that is the source of the performance metrics, as specified in
+the label record of the archive log.
+.TP
 \fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
 By default,
 .B pmlogsummary
@@ -178,11 +183,6 @@ in the format of the environment variable
 .B TZ
 as described in
 .BR environ (7).
-.TP
-\fB\-z\fR, \fB\-\-hostzone\fR
-Change the timezone to the local timezone at the
-host that is the source of the performance metrics, as specified in
-the label record of the archive log.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.

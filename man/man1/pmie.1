@@ -118,14 +118,14 @@ option is always used for
 instances launched from
 .BR pmie_check (1).
 .TP
-\fB\-C\fR, \fB\-\-check\fR
-Parse the configuration file(s) and exit before performing any evaluations.
-Any errors in the configuration file are reported.
-.TP
 \fB\-c\fR \fIconfig\fR, \fB\-\-config\fR=\fIconfig\fR
 An alternative to specifying
 .I filename
 at the end of the command line.
+.TP
+\fB\-C\fR, \fB\-\-check\fR
+Parse the configuration file(s) and exit before performing any evaluations.
+Any errors in the configuration file are reported.
 .TP
 \fB\-d\fR, \fB\-\-interact\fR
 Normally
@@ -303,14 +303,6 @@ be used).
 \fB\-X\fR, \fB\-\-secret\-applet\fR
 Run in secret applet mode (thin client).
 .TP
-\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
-Change the reporting timezone to
-.I timezone
-in the format of the environment variable
-.B TZ
-as described in
-.BR environ (7).
-.TP
 \fB\-z\fR, \fB\-\-hostzone\fR
 Change the reporting timezone to the timezone of the host that is the source
 of the performance metrics, as identified via either the
@@ -319,6 +311,13 @@ option or the first named set of archives (as described above for the
 .B \-a
 option).
 .TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+Change the reporting timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
