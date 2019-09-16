@@ -53,7 +53,8 @@ in the current working directory can contain a list of commands that will be
 executed by
 .B dbpmda
 on startup, before the user is prompted to enter further commands
-interactively.  While processing the
+interactively.
+While processing the
 .I .dbpmdarc
 file, interactive mode and command echoing are enabled and then
 reset at the end of the
@@ -74,10 +75,18 @@ If the system supports
 .BR readline (3)
 then this will be used to read commands when input is from a tty
 device, so history and command line editing are available.
-.SH OPTIONS
+.PP
+As there are no timeout constraints on a PMDA while using
 .B dbpmda
-accepts the following command line options:
-.TP
+(as compared to
+.BR pmcd (1)),
+another debugger like
+.BR gdb (1)
+can be used on the PMDA process once it has been attached to
+.BR dbpmda .
+.SH OPTIONS
+The available command line options are:
+.TP 5
 \f3\-e\f1, \f3\-\-echo\-input\f1
 Echo the input to
 .BR stdout .
@@ -93,12 +102,9 @@ Emulate interactive behavior and prompt for new commands, even if standard
 input is not a tty device.
 .TP
 \fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
-Normally
-.B dbpmda
-operates on the distributed Performance Metrics Name Space (PMNS), however if
-the
-.B \-n
-option is specified an alternative local PMNS is loaded from the file
+Load an alternative Performance Metrics Name Space
+.RB ( pmns (5))
+from the file
 .IR pmnsfile .
 .TP
 \fB\-q\fR \fItimeout\fR, \fB\-\-creds\-timeout\fR=\fItimeout\fR
@@ -111,7 +117,8 @@ The default timeout interval is three seconds,
 but the
 .B \-q
 option allows an alternative timeout interval (which must be greater than
-zero) to be specified.  The unit of time is seconds.
+zero) to be specified.
+The unit of time is seconds.
 .TP
 \fB\-U\fR \fIusername\fR, \fB\-\-username\fR=\fIusername\fR
 User account under which to run
@@ -119,21 +126,13 @@ User account under which to run
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
-.PP
-As there are no timeout constraints on a PMDA while using
-.B dbpmda
-(as compared to
-.BR pmcd (1)),
-another debugger like
-.BR gdb (1)
-can be used on the PMDA process once it has been attached to
-.BR dbpmda .
-.SH EXAMPLE
+.SH EXAMPLES
 Below is a
 .B dbpmda
 session using the
 .I simple
-PMDA. A
+PMDA.
+A
 .B \.dbpmdarc
 file is used to set the debugging option, open the PMDA and display the
 current status of the debugger:
@@ -188,10 +187,12 @@ To examine the metric and instance descriptors, the
 .B desc
 and
 .B instance
-commands can be used.  Metrics may be identified either by name, or using the
-``dotted'' notation to specify the domain, cluster and item fields of a
-PMID.  Instance domains must be identified using a ``dotted'' notation to
-specify the domain and serial fields. The syntax for most commands will be
+commands can be used.
+Metrics may be identified either by name, or using the
+``dotted'' notation to specify the domain, cluster and item fields of a PMID.
+Instance domains must be identified using a ``dotted'' notation to
+specify the domain and serial fields.
+The syntax for most commands will be
 displayed if the command is given without any arguments:
 .PP
 .nf
@@ -347,8 +348,8 @@ PMNS and PMDA_INTERFACE_4 in
 .I libpcp_pmda
 has led to additional commands being supported in
 .B dbpmda
-to exercise the associated dynamic PMNS services.  The examples below are based
-on the
+to exercise the associated dynamic PMNS services.
+The examples below are based on the
 .I sample
 PMDA.
 .PP
@@ -480,27 +481,22 @@ and
 to attach to daemon PMDAs.
 .B dbpmda
 makes no attempt to detect the termination of the daemon PMDA process, so it is
-possible for a PMDA to exit unexpectedly without any notification. However,
-any further communication attempts with the PMDA will result in errors which
+possible for a PMDA to exit unexpectedly without any notification.
+However, any further communication attempts with the PMDA will result in errors which
 will indicate that the PMDA is no longer responding.
 .SH FILES
 .TP 10
 .I ./.dbpmdarc
 List of commands to do on startup.
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR gdb (1),
 .BR pmcd (1),
