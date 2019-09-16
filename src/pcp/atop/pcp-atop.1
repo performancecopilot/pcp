@@ -34,7 +34,7 @@ Writing and reading PCP archive folios:
 The program
 .B pcp-atop
 is an interactive monitor to view various aspects of load on a system.
-It shows the occupation of the most critical hardware resources 
+It shows the occupation of the most critical hardware resources
 (from a performance point of view) on system level, i.e. cpu, memory, disk
 and network.
 .br
@@ -86,15 +86,15 @@ option can be used to request the per-process PCP metrics be used instead
 of the default proc metrics from
 .BR pmdaproc (1).
 .PP
-When 
+When
 .B pcp-atop
 is started, it checks whether the standard output channel is connected to a
 screen, or to a file/pipe.
-In the first case it produces screen control 
+In the first case it produces screen control
 codes (via the ncurses library) and behaves interactively;
 in the second case it produces flat ASCII-output.
 .PP
-In interactive mode, the output of 
+In interactive mode, the output of
 .B pcp-atop
 scales dynamically to the current dimensions of the screen/window.
 .br
@@ -103,10 +103,10 @@ automatically. For this purpose, every column has a particular weight.
 The columns with the highest weights that fit within the current width will
 be shown.
 .br
-If the window is resized vertically, lines of the process/thread list 
+If the window is resized vertically, lines of the process/thread list
 will be added or removed automatically.
 .PP
-Furthermore in interactive mode the output of 
+Furthermore in interactive mode the output of
 .B pcp-atop
 can be controlled by pressing particular keys.
 However it is also possible to specify such key as
@@ -114,7 +114,7 @@ However it is also possible to specify such key as
 on the command line.
 In that case
 .B pcp-atop
-switches to the indicated mode on beforehand; this mode can 
+switches to the indicated mode on beforehand; this mode can
 be modified again interactively.
 Specifying such key as flag is especially useful when running
 .B pcp-atop
@@ -129,7 +129,7 @@ data in PCP archive format (see section PCP DATA STORAGE).
 For the resource consumption on system level,
 .B pcp-atop
 uses colors to indicate that a critical occupation percentage has
-been (almost) reached. 
+been (almost) reached.
 A critical occupation percentage means that is likely that this load
 causes a noticeable negative performance influence for applications using
 this resource.
@@ -198,7 +198,7 @@ GPU statistics can be gathered by
 .BR pmdanvidia (1)
 which is a separate data collection daemon process.
 It gathers cumulative utilization counters of every Nvidia GPU
-in the system, as well as utilization counters of every 
+in the system, as well as utilization counters of every
 process that uses a GPU.
 When
 .B pcp-atop
@@ -246,7 +246,7 @@ Show memory related output.
 Per process the following fields are shown in case of a window-width
 of 80 positions:
 process-id, minor and major
-memory faults, size of virtual shared text, total virtual 
+memory faults, size of virtual shared text, total virtual
 process size, total resident process size, virtual and resident growth during
 last interval, memory occupation percentage and process name.
 
@@ -357,7 +357,7 @@ Per user the following fields are shown: number of processes active
 or terminated during last interval (or in total if combined with command `a'),
 accumulated cpu consumption during last interval in system and user mode,
 the current virtual and resident memory space consumed by active processes
-(or all processes of the user if combined with command `a'). 
+(or all processes of the user if combined with command `a').
 .br
 When "storage accounting" is active in the kernel,
 the accumulated read and write throughput on disk is shown.
@@ -375,7 +375,7 @@ Per program the following fields are shown: number of processes active
 or terminated during last interval (or in total if combined with command `a'),
 accumulated cpu consumption during last interval in system and user mode,
 the current virtual and resident memory space consumed by active processes
-(or all processes of the user if combined with command `a'). 
+(or all processes of the user if combined with command `a').
 .br
 When "storage accounting" is active in the kernel,
 the accumulated read and write throughput on disk is shown.
@@ -393,7 +393,7 @@ Per container the following fields are shown: number of processes active
 or terminated during last interval (or in total if combined with command `a'),
 accumulated cpu consumption during last interval in system and user mode,
 the current virtual and resident memory space consumed by active processes
-(or all processes of the user if combined with command `a'). 
+(or all processes of the user if combined with command `a').
 .br
 When "storage accounting" is active in the kernel,
 the accumulated read and write throughput on disk is shown.
@@ -404,7 +404,7 @@ The last columns contain the accumulated occupation percentage for the
 chosen resource (default: cpu) and the Docker container id (CID).
 .PP
 .TP 5
-.B C 
+.B C
 Sort the current list in the order of cpu consumption (default).
 The one-but-last column changes to ``CPU''.
 .PP
@@ -419,7 +419,7 @@ GPU memory occupation).
 The one-but-last column changes to ``GPU''.
 .PP
 .TP 5
-.B M 
+.B M
 Sort the current list in the order of resident memory consumption.
 The one-but-last column changes to ``MEM''.
 In case of sorting on memory,
@@ -606,7 +606,7 @@ Whether this key is active or not can be seen in the header line.
 .PP
 .TP 5
 .B G
-By default, 
+By default,
 .B pcp-atop
 shows/accumulates the processes that are alive and the processes
 that are exited during the last interval.
@@ -734,7 +734,7 @@ is opened.
 If a filename with the symbolic name
 .BI y
 is specified, yesterday's daily logfile is opened
-(this can be repeated so 'yyyy' indicates the logfile of four days ago). 
+(this can be repeated so 'yyyy' indicates the logfile of four days ago).
 .br
 The samples from the file can be viewed interactively by using the key 't'
 to show the next sample, the key 'T' to show the previous sample, the
@@ -764,7 +764,7 @@ so do not rely on these figures.
 .PP
 For every sample
 .B pcp-atop
-first shows the lines related to system level activity. If a particular 
+first shows the lines related to system level activity. If a particular
 system resource has not been used during the interval, the entire line
 related to this resource is suppressed.
 So the number of system level lines may vary for each sample.
@@ -792,7 +792,7 @@ The system level information consists of the following output lines:
 .B PRC
 Process and thread level totals.
 .br
-This line contains the total cpu time consumed 
+This line contains the total cpu time consumed
 in system mode (`sys') and in user mode (`user'),
 the total number of processes present at this moment (`#proc'),
 the total number of threads present at this moment in state `running' (`#trun'),
@@ -820,8 +820,8 @@ Inactive CPUs will not be shown by default.
 The lines showing the per-cpu occupation contain the cpu number in
 the field combined with the wait percentage.
 
-Every line contains the percentage of cpu time spent in 
-kernel mode by all active processes (`sys'), 
+Every line contains the percentage of cpu time spent in
+kernel mode by all active processes (`sys'),
 the percentage of cpu time consumed in user mode (`user') for all
 active processes (including processes running with a nice value larger than
 zero), the percentage of cpu time spent for interrupt handling (`irq')
@@ -956,7 +956,7 @@ Swap occupation and overcommit info.
 This line contains the total amount of swap space on disk (`tot') and
 the amount of free swap space (`free').
 .br
-Furthermore the committed virtual memory space (`vmcom') and the maximum 
+Furthermore the committed virtual memory space (`vmcom') and the maximum
 limit of the committed space (`vmlim', which is by default swap size
 plus 50% of memory size) is shown.
 The committed space is the reserved virtual space for all allocations of
@@ -998,10 +998,10 @@ Such line shows the name (e.g. VolGroup00-lvtmp for a logical volume or
 sda for a hard disk), the busy percentage i.e. the portion of time that the
 unit was busy handling requests (`busy'), the number of read requests issued
 (`read'), the number of write requests issued (`write'),
-the number of KiBytes per read (`KiB/r'), 
-the number of KiBytes per write (`KiB/w'), 
-the number of MiBytes per second throughput for reads (`MBr/s'), 
-the number of MiBytes per second throughput for writes (`MBw/s'), 
+the number of KiBytes per read (`KiB/r'),
+the number of KiBytes per write (`KiB/w'),
+the number of MiBytes per second throughput for reads (`MBr/s'),
+the number of MiBytes per second throughput for writes (`MBw/s'),
 the average queue depth (`avq')
 and the average number of milliseconds needed by a request (`avio')
 for seek, latency and data transfer.
@@ -1019,7 +1019,7 @@ shown any more for that class.
 .B NFM
 Network Filesystem (NFS) mount at the client side.
 .br
-For each NFS-mounted filesystem, a line is shown that contains 
+For each NFS-mounted filesystem, a line is shown that contains
 the mounted server directory, the name of the server (`srv'),
 the total number of bytes physically read from the server (`read') and
 the total number of bytes physically written to the server (`write').
@@ -1035,7 +1035,7 @@ the number of bytes written via memory mapped I/O pages (`mwrit').
 .B NFC
 Network Filesystem (NFS) client side counters.
 .br
-This line contains the number of RPC calls issues by local processes 
+This line contains the number of RPC calls issues by local processes
 (`rpc'), the number of read RPC calls (`read`) and
 write RPC calls (`rpwrite') issued to the NFS server,
 the number of RPC calls being retransmitted (`retxmit')
@@ -1045,13 +1045,13 @@ and the number of authorization refreshes (`autref').
 .B NFS
 Network Filesystem (NFS) server side counters.
 .br
-This line contains the number of RPC calls received from 
+This line contains the number of RPC calls received from
 NFS clients (`rpc'),
 the number of read RPC calls received (`cread`),
 the number of write RPC calls received (`cwrit'),
 the number of Megabytes/second returned to read requests by clients (`MBcr/s`),
 the number of Megabytes/second passed in write requests by clients (`MBcw/s`),
-the number of network requests handled via TCP (`nettcp'), 
+the number of network requests handled via TCP (`nettcp'),
 the number of network requests handled via UDP (`netudp'),
 the number of reply cache hits (`rchits'),
 the number of reply cache misses (`rcmiss') and
@@ -1062,7 +1062,7 @@ counter indicating the number of bad clients (`badcln').
 .PP
 .TP 5
 .B NET
-Network utilization (TCP/IP). 
+Network utilization (TCP/IP).
 .br
 One line is shown for activity of the transport layer (TCP and UDP), one line
 for the IP layer and one line per active interface.
@@ -1185,7 +1185,7 @@ the standard process accounting record.
 .TP 9
 .B CMD
 The name of the process.
-This name can be surrounded by "less/greater than" 
+This name can be surrounded by "less/greater than"
 signs (`<name>') which means that the process has finished during the last
 interval.
 .br
@@ -1195,7 +1195,7 @@ the total number of pages of the process/thread list are shown.
 .TP 9
 .B COMMAND-LINE
 The full command line of the process (including arguments). If the length of
-the command line exceeds the length of the screen line, the arrow 
+the command line exceeds the length of the screen line, the arrow
 keys \-> and <\- can be used for horizontal scroll.
 .br
 Behind the verb `COMMAND-LINE' in the header line, the current page number
@@ -1209,7 +1209,7 @@ for this resource on system level.
 .TP 9
 .B CPUNR
 The identification of the CPU the (main) thread is running on
-or has recently been running on.  
+or has recently been running on.
 .PP
 .TP 9
 .B CTID
@@ -1284,7 +1284,7 @@ daemon does not run with root privileges, this value is not available.
 .PP
 .TP 9
 .B GPUNUMS
-Comma-separated list of GPUs used by the process 
+Comma-separated list of GPUs used by the process
 during the interval.
 When the comma-separated list exceeds
 the width of the column, a hexadecimal value is shown.
@@ -1389,7 +1389,7 @@ Gathering these values also requires superuser privileges
 (otherwise '?K' is shown in the output).
 .PP
 .TP 9
-.B RDDSK 
+.B RDDSK
 When the kernel maintains standard io statistics (>= 2.6.20):
 .br
 The read data transfer issued physically on disk (so reading from the
@@ -1402,16 +1402,16 @@ cron, bash or init, that are not really issued by them.
 .PP
 .TP 9
 .B RGID
-The real group-id under which the process executes. 
+The real group-id under which the process executes.
 .PP
 .TP 9
-.B RGROW 
+.B RGROW
 The amount of resident memory that the process has grown during the last
 interval.
 A resident growth can be caused by touching memory pages which
-were not physically created/loaded before (load-on-demand). 
+were not physically created/loaded before (load-on-demand).
 Note that a resident growth can also be negative e.g. when part of the process
-is paged out due to lack of memory or when the process frees dynamically 
+is paged out due to lack of memory or when the process frees dynamically
 allocated memory.
 For a process which started during the last interval, the resident growth
 reflects the total resident size of the process at that moment.
@@ -1432,13 +1432,13 @@ or ranges from 1 (lowest) till 99 (highest) for a realtime process
 .PP
 .TP 9
 .B RUID
-The real user-id under which the process executes. 
+The real user-id under which the process executes.
 .PP
 .TP 9
 .B S
 The current state of the (main) thread: `R' for running
 (currently processing or in the runqueue), `S' for sleeping interruptible
-(wait for an event to occur), 
+(wait for an event to occur),
 `D' for sleeping non-interruptible, `Z' for zombie (waiting to be synchronized
 with its parent process), `T' for stopped (suspended or traced), `W' for
 swapping, and `E' (exit) for processes which have finished during the last
@@ -1453,7 +1453,7 @@ The saved group-id of the process.
 The status of a process.
 .br
 The first position indicates if the process has been
-started during the last interval (the value 
+started during the last interval (the value
 .I N
 means 'new process').
 
@@ -1467,12 +1467,12 @@ in the column `EXC'.
 .br
 The value
 .I S
-means that the process has been terminated unvoluntarily 
+means that the process has been terminated unvoluntarily
 by a signal; the signal number is displayed in the in the column `EXC'.
 .br
 The value
 .I C
-means that the process has been terminated unvoluntarily 
+means that the process has been terminated unvoluntarily
 by a signal, producing a core dump in its current directory;
 the signal number is displayed in the column `EXC'.
 .PP
@@ -1537,7 +1537,7 @@ The virtual memory size of the private data used by this process
 (including heap and shared library data).
 .PP
 .TP 9
-.B VGROW 
+.B VGROW
 The amount of virtual memory that the process has grown during the last
 interval.
 A virtual growth can be caused by e.g. issueing a malloc()
@@ -1572,7 +1572,7 @@ The virtual memory size of the (private) stack used by this process
 The virtual memory size of the (shared) text of the executable program.
 .PP
 .TP 9
-.B WRDSK 
+.B WRDSK
 When the kernel maintains standard io statistics (>= 2.6.20):
 .br
 The write data transfer issued physically on disk (so writing to the
@@ -1684,7 +1684,7 @@ number of device interrupts.
 .TP 9
 .B GPU
 Subsequent fields:
-GPU number, bus-id string, type of GPU string, 
+GPU number, bus-id string, type of GPU string,
 GPU busy percentage during last second (-1 if not available),
 memory busy percentage during last second (-1 if not available),
 total memory size (KiB), used memory (KiB) at this moment,
@@ -1731,7 +1731,7 @@ page size for this machine (in bytes),
 number of page scans,
 number of allocstalls,
 0 (future use),
-number of swapins, and 
+number of swapins, and
 number of swapouts.
 .TP 9
 .B PSI
@@ -1743,7 +1743,7 @@ memory some avg10, memory some avg60, memory some avg300,
 memory some accumulated microseconds during interval,
 memory full avg10, memory full avg60, memory full avg300,
 memory full accumulated microseconds during interval,
-I/O some avg10, I/O some avg60, I/O some avg300, 
+I/O some avg10, I/O some avg60, I/O some avg300,
 I/O some accumulated microseconds during interval,
 I/O full avg10, I/O full avg60, I/O full avg300, and
 I/O full accumulated microseconds during interval.
@@ -1825,7 +1825,7 @@ duplex mode (0=half, 1=full).
 .B IFB
 Subsequent fields:
 name of the InfiniBand interface, port number,
-number of lanes, maximum rate (Mbps), 
+number of lanes, maximum rate (Mbps),
 number of bytes received,
 number of bytes transmitted,
 number of packets received, and
@@ -1871,7 +1871,7 @@ number of GPUs used by this process,
 bitlist reflecting used GPUs,
 GPU busy percentage during interval,
 memory busy percentage during interval,
-memory occupation (KiB) at this moment 
+memory occupation (KiB) at this moment
 cumulative memory occupation (KiB) during interval, and
 number of samples taken during interval.
 .TP 9
@@ -1904,7 +1904,7 @@ obsoleted kernel patch installed ('n'),
 standard io statistics used ('y' or 'n'),
 number of reads on disk,
 cumulative number of sectors read,
-number of writes on disk, 
+number of writes on disk,
 cumulative number of sectors written,
 cancelled number of written sectors,
 TGID (group number of related tasks/threads) and is_process (y/n).
@@ -1985,17 +1985,6 @@ View the contents of the standard logfile of 2014, June 7 from
 .PP
 .B \  pcp\ atop -r 20140607 -b 14:00
 .PP
-.SH FILES
-.PP
-.TP 5
-.B /etc/atoprc
-Configuration file containing system-wide default values.
-See related man-page.
-.PP
-.TP 5
-.B ~/.atoprc
-Configuration file containing personal default values.
-See related man-page.
 .SH NOTES
 .B pcp-atop
 is based on the source code of the
@@ -2023,6 +2012,26 @@ Refer to the documentation for
 and
 .BR pmdaperfevent (1)
 for further details on activating these metrics.
+.SH FILES
+.PP
+.TP 5
+.B /etc/atoprc
+Configuration file containing system-wide default values.
+See related man-page.
+.PP
+.TP 5
+.B ~/.atoprc
+Configuration file containing personal default values.
+See related man-page.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR pcp (1),
 .BR pcp-atopsar (1),

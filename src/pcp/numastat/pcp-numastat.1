@@ -18,7 +18,7 @@
 \f3pcp-numastat\f1 \- report on NUMA memory allocation
 .SH SYNOPSIS
 \f3pcp\f1 [\f2pcp\ options\f1] \f3numastat\f1
-[\f3\-V?\f1]
+[\f3\-Vw?\f1]
 .SH DESCRIPTION
 .B pcp-numastat
 displays NUMA allocation statistics from the kernel memory
@@ -56,9 +56,13 @@ and several other
 .I pcp options
 become indirectly available.
 .PP
-.TP
+.TP 5
 \fB\-V\fR, \fB\-\-version\fR
 Display the current version of the command.
+.TP
+\fB\-w\fR \fIwidth\fR, \fB\-\-width\fR=\fIwidth\fR
+Limit display to
+.IR width .
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
@@ -67,6 +71,15 @@ Display usage message and exit.
 is inspired by the
 .BR numastat (1)
 command and produces exactly the same output.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR pcp (1),
 .BR numastat (1)

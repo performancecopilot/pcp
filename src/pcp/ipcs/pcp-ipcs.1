@@ -45,11 +45,11 @@ become indirectly available.
 .\" Print details only on the resource identified by
 .\" .IR id .
 .TP
-\fB\-?\fR, \fB\-\-help\fR
-Display the usage message and exit.
-.TP
 \fB\-V\fR, \fB\-\-version\fR
 Display version information and exit.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display the usage message and exit.
 .\" .SS "Resource options"
 .\" .TP
 .\" \fB\-q\fR, \fB\-\-queues\fR
@@ -100,6 +100,15 @@ Show status summary.
 .\" .TP
 .\" .B \-\-human
 .\"Print sizes in human-readable format.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR pcp (1),
 .BR PCPIntro (1),

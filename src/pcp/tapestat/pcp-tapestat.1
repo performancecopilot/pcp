@@ -52,7 +52,7 @@ The options which control the timing and layout of the information
 reported by
 .B pcp-tapestat
 are as follows:
-.TP
+.TP 5
 \fB\-G \fImethod\fR\fR, \fB\-\-aggregate\fR=\fImethod\fR
 Specifies that statistics for device names matching the regular
 expression specified with the
@@ -108,6 +108,17 @@ or
 the minimum or maximum statistics for matching devices are reported,
 respectively.
 .TP
+\fB\-P\fR \fIN\fR, \fB\-\-precision\fR=\fIN\fR
+This indicates the precision (number of decimal places) to report.
+The default precision \f2N\f1
+may be set to something other than the default (2).
+Note that the
+.B avgrq-sz
+and
+.B avgqu-sz
+fields are always reported with \f2N\f1+1 decimals of precision.
+These fields typically have values less than 1.
+.TP
 \fB\-R\fR \fIpattern\fR, \fB\-\-regex\fR=\fIpattern\fR
 This restricts the report to device names matching a regular expression
 .IR pattern .
@@ -122,17 +133,6 @@ e.g. 'st0$' will match 'st0' but not 'st1'.
 See also the
 .B \-G
 option for aggregation options.
-.TP
-\fB\-P\fR \fIN\fR, \fB\-\-precision\fR=\fIN\fR
-This indicates the precision (number of decimal places) to report.
-The default precision \f2N\f1
-may be set to something other than the default (2).
-Note that the
-.B avgrq-sz
-and
-.B avgqu-sz
-fields are always reported with \f2N\f1+1 decimals of precision.
-These fields typically have values less than 1.
 .TP
 \fB\-u\fR, \fB\-\-no-interpolation\fR
 When replaying a set of archives, by default values are reported
@@ -202,7 +202,7 @@ over the interval.
 .TP
 .B w/s
 The number of writes issued expressed as the number per second averaged
-over the interval. 
+over the interval.
 .TP
 .B kb_r/s
 The amount of data read expressed in kilobytes per second averaged
@@ -214,13 +214,13 @@ over the interval.
 .TP
 .B r_pct
 Read percentage wait - the percentage of time over the interval spent
-waiting for read requests to complete. 
+waiting for read requests to complete.
 The time is measured from when the request is dispatched to the SCSI
 mid-layer until it signals that it completed.
 .TP
-.B w_pct 
+.B w_pct
 Write percentage wait - the percentage of time over the interval spent
-waiting for write requests to complete. 
+waiting for write requests to complete.
 The time is measured from when the request is dispatched to the SCSI
 mid-layer until it signals that it completed.
 .TP
@@ -233,10 +233,10 @@ The number of I/Os, expressed as the number per second averaged over the interva
 .TP
 .B o_cnt
 The  number of I/Os, expressed as the number per second averaged
-over the interval, that were included as "other". 
+over the interval, that were included as "other".
 Other I/O includes ioctl calls made to the tape driver and implicit
-operations performed by the tape driver such as 
-rewind on close (for tape devices that implement rewind on close). 
+operations performed by the tape driver such as
+rewind on close (for tape devices that implement rewind on close).
 It does not include any I/O performed using methods outside of the
 tape driver (e.g. via sg ioctls).
 .SH DIAGNOSTICS
@@ -247,20 +247,15 @@ All are generated on standard error and are intended to be self-explanatory.
 .BI $PCP_VAR_DIR/pmns/ *
 default PMNS specification files
 .PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR pcp (1),
 .BR PCPIntro (1),
