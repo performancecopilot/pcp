@@ -2,32 +2,32 @@
 .\"
 .\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMLOGREDUCE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmlogreduce\f1 \- temporal reduction of Performance Co-Pilot archives
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmlogreduce\f1
-[\f3\-z\f1]
+[\f3\-z?\f1]
 [\f3\-A\f1 \f2align\f1]
-[\f3\-S\f1 \f2starttime\f1]
 [\f3\-s\f1 \f2samples\f1]
-[\f3\-T\f1 \f2endtime\f1]
+[\f3\-S\f1 \f2starttime\f1]
 [\f3\-t\f1 \f2interval\f1]
+[\f3\-T\f1 \f2endtime\f1]
 [\f3\-v\f1 \f2volsamples\f1]
 [\f3\-Z\f1 \f2timezone\f1]
-\f2input\f1 \f2output\f1 
+\f2input\f1 \f2output\f1
 .SH DESCRIPTION
 .B pmlogreduce
 reads one set of Performance Co-Pilot (PCP) archives
@@ -39,7 +39,7 @@ and creates a temporally reduced PCP archive in
 is a comma-separated list of names, each
 of which may be the base name of an archive or the name of a directory containing
 one or more archives.
-The 
+The
 data reduction involves statistical and temporal reduction of samples with
 an output sampling
 interval defined by the
@@ -62,26 +62,14 @@ and they will be skipped and not appear in the
 .I output
 archive.
 .SH OPTIONS
-The command line options for
-.B pmlogreduce
-are as follows:
-.PP
-.TP 7
-.BI \-A " align"
+The available command line options are:
+.TP 5
+\fB\-A\fR \fIalign\fR, \fB\-\-align\fR=\fIalign\fR
 Specify a ``natural'' alignment of the output sample times; refer
 to
 .BR PCPIntro (1).
-.PP
-.TP 7
-.BI \-S " starttime"
-Define the start of a time window to restrict the samples retrieved
-from the
-.I input
-archives; refer to
-.BR PCPIntro (1).
-.PP
-.TP 7
-.BI \-s " samples"
+.TP
+\fB\-s\fR \fIsamples\fR, \fB\-\-samples\fR=\fIsamples\fR
 The argument
 .I samples
 defines the number of samples to be written to
@@ -95,22 +83,37 @@ is not specified,
 will sample until the end of the set of PCP archives,
 or the end of the time window as specified by
 .BR -T ,
-whichever comes first.  The
+whichever comes first.
+The
 .B -s
 option will override the
 .B -T
 option if it occurs sooner.
-.PP
-.TP 7
-.BI \-T " endtime"
+.TP
+\fB\-S\fR \fIstarttime\fR, \fB\-\-start\fR=\fIstarttime\fR
+Define the start of a time window to restrict the samples retrieved
+from the
+.I input
+archives; refer to
+.BR PCPIntro (1).
+.TP
+\fB\-t\fR \fIinterval\fR, \fB\-\-interval\fR=\fIinterval\fR
+Consecutive samples in the
+.I output
+archive will appear with a time delta defined by
+.IR interval ;
+refer to
+.BR PCPIntro (1).
+Note the default value is 600 (seconds, i.e. 10 minutes).
+.TP
+\fB\-T\fR \fIendtime\fR, \fB\-\-finish\fR=\fIendtime\fR
 Define the termination of a time window to restrict the samples
 retrieved from the
 .I input
 archives; refer to
 .BR PCPIntro (1).
-.PP
-.TP 7
-.BI \-v " volsamples"
+.TP
+\fB\-v\fR \fIvolsamples\fR
 The
 .I output
 archive is potentially a multi-volume data set, and the
@@ -132,19 +135,18 @@ option, each volume of an archive is limited to no more than
 will automatically create a new volume for the archive before
 this limit is reached.
 .RE
-.PP
-.TP 7
-.BI \-t " interval"
-Consecutive samples in the
-.I output
-archive will appear with a time delta defined by
-.IR interval ;
-refer to
-.BR PCPIntro (1).
-Note the default value is 600 (seconds, i.e. 10 minutes).
-.PP
-.TP 7
-.BI \-Z " timezone"
+.TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Use the local timezone of the host from the
+.I input
+archives when displaying the date and time, or interpreting the
+.B \-S
+and
+.B \-T
+options.
+The default is to initially use the timezone of the local host.
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
 Use
 .I timezone
 when displaying the date and time, or interpreting the
@@ -157,19 +159,10 @@ is in the format of the environment variable
 .B TZ
 as described in
 .BR environ (7).
-.PP
-.TP 7
-.B \-z
-Use the local timezone of the host from the
-.I input
-archives when displaying the date and time, or interpreting the
-.B \-S
-and
-.B \-T
-options.
-The default is to initially use the timezone of the local host.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH DATA REDUCTION
-.PP
 The statistical and temporal reduction follows the following rules:
 .TP 4m
 1.
@@ -240,6 +233,37 @@ interpolation will
 occur across these periods when the
 .I output
 archive is subsequently processed with PCP applications.
+.SH CAVEATS
+.PP
+The preamble metrics (pmcd.pmlogger.archive, pmcd.pmlogger.host,
+and pmcd.pmlogger.port), which are automatically recorded by
+.B pmlogger
+at the start of the archive, may not be present in the archive output by
+.BR pmlogreduce .
+These metrics are only relevant while the archive is being created,
+and have no significance once recording has finished.
+.SH DIAGNOSTICS
+All error conditions detected by
+.B pmlogreduce
+are reported on
+.I stderr
+with textual (if sometimes terse) explanation.
+.PP
+Should the
+.I input
+archives be corrupted (this can happen
+if the
+.B pmlogger
+instance writing the archive suddenly dies), then
+.B pmlogreduce
+will detect and report the position of the corruption in the file,
+and any subsequent information from the
+.I input
+archives will not be processed.
+.PP
+If any error is detected,
+.B pmlogreduce
+will exit with a non-zero status.
 .SH FILES
 .PD 0
 For each of the
@@ -271,20 +295,13 @@ suffix.
 temporal index to support rapid random access to the other files in the
 archive log.
 .PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmdumplog (1),
@@ -294,34 +311,3 @@ as described in
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
-.SH DIAGNOSTICS
-All error conditions detected by
-.B pmlogreduce
-are reported on
-.I stderr
-with textual (if sometimes terse) explanation.
-.PP
-Should the
-.I input
-archives be corrupted (this can happen
-if the
-.B pmlogger
-instance writing the archive suddenly dies), then
-.B pmlogreduce
-will detect and report the position of the corruption in the file,
-and any subsequent information from the
-.I input
-archives will not be processed.
-.PP
-If any error is detected,
-.B pmlogreduce
-will exit with a non-zero status.
-.SH CAVEATS
-.PP
-The preamble metrics (pmcd.pmlogger.archive, pmcd.pmlogger.host,
-and pmcd.pmlogger.port), which are automatically recorded by
-.B pmlogger
-at the start of the archive, may not be present in the archive output by
-.BR pmlogreduce .
-These metrics are only relevant while the archive is being created,
-and have no significance once recording has finished.
