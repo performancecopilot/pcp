@@ -1,30 +1,49 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2018,2019 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
 .TH PCP-PIDSTAT 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3 pcp-pidstat\f1 \- Report statistics for Linux tasks.
+\f3pcp-pidstat\f1 \- Report statistics for Linux tasks.
 .SH SYNOPSIS
 \f3pcp\f1
+[\f2pcp\ options\f1]
 \f3pidstat\f1
-[\f3\-s\f1 N]
-[\f3\-t\f1 DELTA]
 [\f3\-I\f1]
-[\f3\-a\f1 FILE]
-[\f3\-f\f1 FORMAT]
-[\f3\-G\f1 NAME]
-[\f3\-U\f1[USERNAME]]
-[\f3\-p\f1 PID1,PID2..]
-[\f3\-R\f1/\f3\-r/\f3\-k\f1]
+[\f3\-l\f1]
+[\f3\-R\f1]
+[\f3\-r\f1]
+[\f3\-k\f1]
+[\f3\-U\f1 [\f2username\f1]]
 [\f3\-V\f1]
-[\f3\-Z\f1 \f2timezone\f1 \f3--timezone=\f2TZ\f1]
-[\f3\-z\f1 \f3--hostzone\f1]
-[\f3\-l\f2]
+[\f3\-G\f1 \f2processname\f1]
+[\f3\-p\f1 \f2pid1,pid2..\f1]
+[\f3\-t\f1 \fIinterval\f1]
+[\f3\-s\f1 \fIcount\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-B\f1 \f2state\f1]
+[\f3\-f\f1 \f2format\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+[\f3\-z\f1]
 [\f3\-?\f1]
 .SH DESCRIPTION
+The
 .B pcp-pidstat
-command is used for monitoring individual tasks currently being managed
-by the Linux kernel.
+command is used for monitoring individual tasks running on the system.
 Using various options it helps user to see useful information related to
 the processes.
-This information includes percentage CPU, memory and stack usage,
+This information includes CPU percentage, memory and stack usage,
 scheduling and priority.
 By default
 .B pcp-pidstat
@@ -46,49 +65,19 @@ command, the
 .BR \-Z /\c
 .BR \-\-timezone
 and several other
-.I pcp options
-become indirectly available.
+.B pcp
+.I options
+become indirectly available, see
+.BR PCPIntro (1)
+for their descriptions.
 .SH OPTIONS
-Output control options:
-.TP
-.BR \-s \ N ", " \fB\-\-samples =\fIN\fR
-Set the number of samples to be displayed.
-Since the first sample is used for the rate conversion of some of the
-metrics, the total number of samples reported are one less that N.
-Default is continous.
-.TP
-.BR \-t \ DELTA ", " \fB\-\-interval =\fIDELTA\fR
-Set the interval between two samples.
-Default is one second.
-.PP
-General Options:
-.TP
+.TP 5
 .BR \-I \fR
 In an SMP environment, indicates that tasks CPU usage should be divided
 by the total number of processors.
 .TP
-.BR \-B \fR
-Report process states.
-The argument to -B is one of the following:
-
-\fBdetail\fP
-       Show total time processes have spent in each of the 5 different states
-
-\fBall\fP
-       Show total time processes spent in their current state 
-
-[\fBR\fP,\fBS\fP,\fBT\fP,\fBD\fP,\fBZ\fP]
-       A comma separated list of process states.  For example, \fB-B R,S\fP will report processes currently in either \fBR\fP or \fBS\fP states and not report processes currently in any other states.
-.TP
-.BR \-f \fR
-Use the format string for formatting the timestamp.
-The format will be used with the
-.BR python (1)
-datetime.strftime method which is similar to that described
-in
-.BR strftime (3).
-An empty format string (i.e, "") will remove the timestamps from the output.
-The default with stdout is %H:%M:%S.
+.BR \-l \fR
+Display the process command name and all its arguments.
 .TP
 .BR \-R \fR
 Report realtime priority and scheduling policy information.
@@ -142,7 +131,6 @@ RSS
 
 Command
        The command name of the task.
-
 .TP
 .BR \-k \fR
 Report stack utilization.
@@ -166,10 +154,60 @@ StkRef
 Command
       The command name of the task.
 .TP
-.BR \-V \fR
-Display version information and exit.
+.BR \-U \ [\fIusername\fR]", " \fB\-\-user\-name\fI[=username]\fR
+Display the real user name of the tasks being monitored instead of the UID.
+If \fIusername\fR is specified, then only tasks belonging to the specified
+user are displayed.
 .TP
-.B \-Z
+.BR \-V \fR
+Print version number then exit.
+.TP
+.BR \-G \ \fIprocessname\fR ", " \fB\-\-process-name=\fIprocessname\fR
+Display only processes whose command name includes the string \fIprocessname\fR.
+This string can be a regular expression.
+.TP
+.BR \-p \ \fIpid1,pid2..\fR ", " \fB\-\-pid-list=\fIpid1,pid2..\fR
+Display only processes with the listed PIDs.
+.TP
+.BR \-t \ \fIinterval\fR ", " \fB\-\-interval=\fIinterval\fR
+Set the interval between two samples.
+The default is one second.
+.TP
+.BR \-s \ \fIcount\fR ", " \fB\-\-samples=\fIcount\fR
+Set the number of samples to be displayed.
+Since the first sample is used for the rate conversion of some of the
+metrics, the total number of samples reported are one less than \fIcount\fR.
+The default is continous.
+.TP
+.BR \-a \ \fIarchive\fR ", "\fB\-\-archive=\fIarchive\fR
+Causes \f3pcp-pidstat\f1 to use the specified archive than connecting to PMCD.
+The argument to \f3-a\f1 is a comma-separated list of names, each of which may
+be the base name of an archive or the name of a directory containing one or more archives.
+.TP
+.BR \-B \fR
+Report process states.
+The argument to -B is one of the following:
+
+\fBdetail\fP
+       Show total time processes have spent in each of the 5 different states
+
+\fBall\fP
+       Show total time processes spent in their current state
+
+[\fBR\fP,\fBS\fP,\fBT\fP,\fBD\fP,\fBZ\fP]
+       A comma separated list of process states.  For example, \fB-B R,S\fP will report processes currently in either \fBR\fP or \fBS\fP states and not report processes currently in any other states.
+.TP
+.BR \-f \fR
+Use the format string for formatting the timestamp.
+The format will be used with the
+.BR python (1)
+datetime.strftime method which is similar to that described
+in
+.BR strftime (3).
+An empty format string (i.e, "") will remove the timestamps from the output.
+The default with stdout is %H:%M:%S.
+.TP
+.BR \-Z \ \fItimezone\fR ", "\fB\-\-timezone=\fItimezone\fR
 By default,
 .B pcp-pidstat
 reports the time of day according to the local timezone on the system where
@@ -184,7 +222,7 @@ in the format of the environment variable
 as described in
 .BR environ (7).
 .TP
-.B \-z
+.BR \-z " , " \fB\-\-hostzone\fR
 Change the reporting timezone to the local timezone at the host that is
 the source of the performance metrics.
 When replaying a PCP archive that was captured in a foreign timezone, the
@@ -192,32 +230,23 @@ When replaying a PCP archive that was captured in a foreign timezone, the
 option would almost always be used (the default reporting timezone is the
 local timezone, which may not be the same as the timezone of the PCP archive).
 .TP
-.BR \-l \fR
-Display the process command name and all its arguments.
-.TP
 .BR \-? " , " \fB\-\-help\fR
 Display usage message and exit.
-.PP
-Ouput Filter Options
-.TP
-.BR \-G \ NAME ", " \fB\-\-process-name =\fINAME\fR
-Display only processes whose command name includes the string \fINAME\fR.
-This string can be a regular expression.
-.TP
-.BR \-U \ \fI[USERNAME] ", " \fB\-\-user\-name =\fI[USERNAME]\fR
-Display  the real user name of the tasks being monitored instead of the UID.
-If \fIusername\fR is specified, then only tasks belonging to the specified
-user are displayed.
-.TP
-.BR \-p \ \fIPID1,PID2 .. " , " \fB\-\-pid-list =\fIPID1,PID2 ..\fR
-Display only processes whose PID belongs to the given Pid List.
 .SH NOTES
 .B pcp-pidstat
 is inspired by the
 .BR pidstat (1)
 command and aims to be command line and output compatible with it.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .PP
-.SH "SEE ALSO"
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
 .BR pcp (1),
 .BR pidstat (1),
 .BR python (1),
