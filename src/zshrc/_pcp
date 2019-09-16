@@ -344,7 +344,7 @@ _pcp () {
       "(-i --insts $exargs)"{-i,--insts}'[dump instance domain descriptions]' \
       "(-L $exargs)"-L'[verbose label dump]' \
       "(-l --label $exargs)"{-l,--label}'[dump archive log label]' \
-      "(-M --markrecs $exargs)"{-M,--markrecs}'[report mark records]' \
+      "(-M --markrecs $exargs)"{-M,--markrecs}'[report <mark> records]' \
       "(-m --metrics $exargs)"{-m,--metrics}'[dump values of metrics]' \
       "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-r --reverse $exargs)"{-r,--reverse}'[reverse chronological order]' \
