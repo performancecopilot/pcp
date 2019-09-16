@@ -16,8 +16,6 @@
 .TH PCP_KUBE_PODS 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pcp-kube-pods\f1 \- list Kubernetes pods to scan for running PCP services
-.\" literals use .B or \f3
-.\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/discover/pcp-kube-pods\f1
 .SH DESCRIPTION
@@ -49,12 +47,20 @@ such as
 .I "-l service=database"
 to restrict the results using Kubernetes pod labels.
 The default configuration file is
-.I $PCP_SYSCONF_DIR/discover/pcp-kube-pods.conf
+.BR $PCP_SYSCONF_DIR/discover/pcp-kube-pods.conf .
 .PP
 If no local
 .B kubectl
 command is found, nothing is reported and an exit code
 indicating success is returned.
+.SH DIAGNOSTICS
+All diagnostics produced are provided by the
+.B kubectl
+command.
+.P
+The
+.BR kubectl
+exit status is propogated unchanged.
 .SH FILES
 .PD 0
 .TP 10
@@ -73,20 +79,13 @@ configuration file containing command line options passed to
 .BI $PCP_SYSCONF_DIR/discover/pcp-kube-pods.disabled
 existence of this file causes the script to report nothing
 .PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR kubectl-get (1),
 .BR kubectl (1),
@@ -95,11 +94,3 @@ as described in
 .BR pmDiscoverServices (3)
 and
 .BR pcp.env (5).
-.SH DIAGNOSTICS
-All diagnostics produced are provided by the
-.B kubectl
-command.
-.P
-The
-.BR kubectl
-exit status is propogated unchanged.
