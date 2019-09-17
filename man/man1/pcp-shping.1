@@ -1,9 +1,26 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2015,2019 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
 .TH PCP-SHPING 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pcp-shping\f1 \- report on shell service availability and response
 .SH SYNOPSIS
-\f3pcp\ shping\f1
-[\f3\-cl\f1]
+\f3pcp\f1
+[\f2pcp\ options\f1]
+\f3shping\f1
+[\f3\-cl?\f1]
 \f2tag\f1 ...
 .SH DESCRIPTION
 .B pcp-shping
@@ -36,17 +53,36 @@ command, the
 .BR \-\-interval ,
 .BR \-Z /\c
 .BR \-\-timezone
-and several other options become indirectly available.
-.SS Options
-The \fB\-c\fP/\fB\-\-status\fP switch displays a summary of the current
-shell-ping collector \- information about service refresh interval, the
-current command timeout setting, count of refreshes, and the full command
+and several other
+.B pcp
+.I options
+become indirectly available, see
+.BR PCPIntro (1)
+for their descriptions.
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-c\fP, \fB\-\-status\fP
+Display a summary of the current shell-ping collector, including
+information about service refresh interval, the current command
+timeout setting, count of refreshes, and the full command
 line associated with each
 .IR tag .
-.PP
-The \fB\-l\fP/\fB\-\-tags\fP switch displays the valid
+.TP
+\fB\-l\fP, \fB\-\-tags\fP
+Displays the valid
 .IR tag s.
-.SH "SEE ALSO"
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.SH SEE ALSO
 .BR pcp (1),
 .BR pmdashping (1)
 and

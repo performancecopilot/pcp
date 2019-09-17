@@ -100,6 +100,7 @@ _pcp () {
       "$common_help[@]" \
       "$common_most[@]" \
       "(-g --guimode $exargs)"{-g,--guimode}'[GUI mode with new time control]' \
+      "(-L --local-PMDA -a --archive -h --host -H --hostsfile $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
       "(-p --guiport $exargs)"{-p+,--guiport=}'[specify existing time control port]:port:' \
       "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       - set1 \
@@ -343,6 +344,7 @@ _pcp () {
       "(-i --insts $exargs)"{-i,--insts}'[dump instance domain descriptions]' \
       "(-L $exargs)"-L'[verbose label dump]' \
       "(-l --label $exargs)"{-l,--label}'[dump archive log label]' \
+      "(-M --markrecs $exargs)"{-M,--markrecs}'[report <mark> records]' \
       "(-m --metrics $exargs)"{-m,--metrics}'[dump values of metrics]' \
       "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-r --reverse $exargs)"{-r,--reverse}'[reverse chronological order]' \
@@ -600,10 +602,12 @@ _pcp () {
       "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-N -v --verbose --$exargs)"-N'[suppress warnings]' \
       "(-p --precision $exargs)"{-p+,--precision=}'[set floating point precision]:precision:' \
+      "(-s --sum $exargs)"{-s,--sum}'[only print value sums]' \
       "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
       "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
       "(-v --verbose -N $exargs)"{-v,--verbose}'[verbose mode]' \
       "(-x -b $exargs)"-x'[print stochastic averages only]' \
+      "(-y --samples $exargs)"-y'[print sample counts]' \
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       '1:archive:->archives' \

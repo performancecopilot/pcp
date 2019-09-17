@@ -95,7 +95,9 @@ options
 .BR \-\-timezone
 and several other
 .I pcp options
-become indirectly available.
+become indirectly available, see
+.BR PCPIntro (1)
+for their descriptions.
 .PP
 Some generic flags can be specified to influence the behaviour of the
 .B pcp-atopsar
@@ -313,6 +315,93 @@ an interval).
 Report about top-3 processes issueing most IPv4/IPv6 socket transfers.
 This report is only available when using a log file (not when specifying
 an interval).
+.SH PCP ATOPSAR OPTIONS
+The following additional PCP command line long options are also available:
+.TP 5
+\fB\-\-align\fR=\fIalign\fR
+Force the initial sample to be
+aligned on the boundary of a natural time unit
+.IR align .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR align .
+.TP
+\fB\-\-archive\fR=\fIarchive\fR
+Performance metric values are retrieved from the set of Performance
+Co-Pilot (PCP) archive log files identified by the argument
+.IR archive ,
+which is a comma-separated list of names,
+each of which may be the base name of an archive or the name of
+a directory containing one or more archives.
+.TP
+\fB\-\-finish\fR=\fIendtime\fR
+When reporting archived metrics, the report will be restricted to those
+records logged before or at
+.IR endtime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR endtime .
+.TP
+\fB\-\-host\fR=\fIhost\fR
+Fetch performance metrics from
+.BR pmcd (1)
+on
+.IR host ,
+rather than from the default localhost.
+.TP
+\fB\-\-hostzone\fR
+Use the local timezone of the host that is the source of the
+performance metrics, as identified by either the
+.B \-\-host
+or the
+.B \-\-archive
+options.
+The default is to use the timezone of the local host.
+.TP
+\fB\-\-hotproc\fR
+Use the
+.BR pmdaproc (1)
+hotproc metrics.
+.TP
+\fB\-\-interval\fR=\fIinterval\fR
+Set the reporting
+.I interval
+to something other than the default 1 second.
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer
+(the implied units in this case are seconds).
+.TP
+\fB\-\-samples\fR=\fIsamples\fR
+The
+.I samples
+option defines the number of samples to be retrieved and reported.
+.TP
+\fB\-\-start\fR=\fIstarttime\fR
+When reporting archived metrics, the report will be restricted to those
+records logged at or after
+.IR starttime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR starttime .
+.TP
+\fB\-\-timezone\fR=\fItimezone\fR
+Use
+.I timezone
+for the date and time.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.TP
+\fB\-\-version\fR
+Display version number and exit.
 .SH OUTPUT DESCRIPTION
 Depending on the requested report, a number of columns with
 output values are produced.
@@ -1240,6 +1329,15 @@ Daily data file, where
 are digits representing the date, and
 .I HOST
 is the hostname of the machine being logged.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR pcp (1),
 .BR pcp-atop (1),

@@ -18,7 +18,7 @@
 \f3pmseries\f1 \- display information about performance metric timeseries
 .SH SYNOPSIS
 \fBpmseries\fR
-[\fB\-adFiIlLmMnqsSV\fR]
+[\fB\-adFiIlLmMnqsSV?\fR]
 [\fB\-c\fR \fIconfig\fR]
 [\fB\-g\fR \fIpattern\fR]
 [\fB\-h\fR \fIhost\fR]
@@ -44,8 +44,7 @@ By default
 .B pmseries
 communicates with a local
 .BR redis-server (1),
-however the \fB\-h\fR/\fB\-\-host\fR and
-\fB\-p\fR/\fB\-\-port\fR options can be used to
+however the \fB\-h\fR and \fB\-p\fR options can be used to
 specify an alternate Redis instance.
 If this instance is a node of a Redis cluster, all
 other instances in the cluster will be discovered
@@ -59,7 +58,7 @@ into Redis.
 The latter mode is seldom used, however, since
 .BR pmproxy (1)
 will automatically perform this function when it is
-started with the \fB\-t\fR/\fB\-\-timeseries\fR option.
+started with the \fB\-t\fR option.
 In time, this option will become enabled by default.
 .PP
 Without command line options specifying otherwise,
@@ -113,7 +112,7 @@ If all non-option arguments appear to be timeseries
 identifiers (in 40 hex digit form)
 .B pmseries
 will report metadata for these timeseries \- refer to
-the \fB\-a\fR/\fB\-\-all\fR option for details.
+the \fB\-a\fR option for details.
 Otherwise, the parameters will be treated as a timeseries
 query.
 .SH TIMESERIES QUERIES
@@ -310,7 +309,7 @@ Metric descriptions detailing the PMID, data type, data semantics, units,
 scale and associated instance domain.
 This option has a direct \fBpminfo\fR(1) equivalent.
 .TP
-\fB\-g\fR \fIpattern, \fB\-\-glob\fR=\fIpattern\fR
+\fB\-g\fR \fIpattern\fR, \fB\-\-glob\fR=\fIpattern\fR
 Provide a
 .BR glob (7)
 .I pattern
@@ -468,19 +467,14 @@ eb713a9cf472f775aa59ae90c43cd7f960f7870f
 .ESAMPLE
 .PP
 .SH PCP ENVIRONMENT
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

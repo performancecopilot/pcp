@@ -1,24 +1,24 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2008 Aconex.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
-.\" 
+.\"
+.\"
 .TH PMLOGLABEL 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmloglabel\f1 \- check and repair a performance metrics archive label
 .SH SYNOPSIS
 \f3pmloglabel\f1
-[\f3\-Llsv\f1]
+[\f3\-lLsv\f1]
 [\f3\-h\f1 \f2hostname\f1]
 [\f3\-p\f1 \f2pid\f1]
 [\f3\-V\f1 \f2version\f1]
@@ -52,52 +52,51 @@ are able to produce a valid PCP archive from many forms of corruption.
 Note that if the temporal index is found to be corrupt, the "*.index" file
 can be safely moved aside and the archive will still be accessible, however
 retrievals may take longer without the index.
-.PP
-The options control the specific information to be reported, or the
-specific fields to be modified:
+.SH OPTIONS
+The available command line options are:
 .TP 5
-.B \-h
+\fB\-h\fR \fIhostname\fR, \fB\-\-host\fR=\fIhostname\fR
 Modify the logged
 .I hostname
 in the archive label, for all files in the archive.
 .TP
-.B \-l
+\fB\-l\fR, \fB\-\-label\fR
 Dump out the archive label, showing the log format version,
 the time and date for the start and (current) end of the archive, and
 the host from which the performance metrics values were collected.
 .TP
-.B \-L
+\fB\-L\fR
 Like
 .BR \-l ,
 just a little more verbose, showing also the timezone and creator
 process identifier from the archive label.
 .TP
-.B \-p
+\fB\-p\fR \fIpid\fR, \fB\-\-pid\fR=\fIpid\fR
 Set the process identifier stored in the archive label to
 .IR pid ,
 for all files in the archive.
 .TP
-.B \-s
+\fB\-s\fR
 Rewrite the sentinel values which precede and follow the archive label,
 for all files in the archive.
 .TP
-.B \-v
-Verbose mode.  Additional progress information is produced at each step.
+\fB\-v\fR, \fB\-\-verbose\fR
+Verbose mode.
+Additional progress information is produced at each step.
 .TP
-.B \-V
+\fB\-V\fR \fIversion\fR, \fB\-\-version\fR=\fIversion\fR
 Stamp the
 .I version
 number into the magic number field at the start of the archive label,
 for all files in the archive.
 .TP
-.B \-Z
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
 Changes the timezone in the archive labels to
 .I timezone
 in the format of the environment variable
 .B TZ
 as described in
 .BR environ (7).
-.PP
 .SH EXAMPLES
 The following demonstrates the use of
 .B pmloglabel
@@ -130,25 +129,18 @@ write out fails, then the exit status will be 3.
 .SH FILES
 .PD 0
 .TP 10
-.BI $PCP_LOG_DIR/pmlogger/ hostname
+.I $PCP_LOG_DIR/pmlogger/<hostname>
 Default directory for PCP archives containing performance
 metric values collected from the host
-.IR hostname .
+.IR <hostname> .
 .PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmlogcheck (1),

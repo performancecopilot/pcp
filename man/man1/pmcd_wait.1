@@ -1,28 +1,26 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMCD_WAIT 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmcd_wait\f1 \- wait for PMCD to accept client connections
-.\" literals use .B or \f3
-.\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmcd_wait\f1
-[\f3-h\f1 \f2host\f1]
-[\f3-t\f1 \f2interval\f1]
 [\f3\-v\f1]
+[\f3-h\f1 \f2host\f1]
+[\f3-t\f1 \f2timeout\f1]
 .SH DESCRIPTION
 .B pmcd_wait
 waits for the Performance
@@ -39,8 +37,8 @@ on the local host.
 .B pmcd_wait
 will timeout and abandon the attempt to connect to
 .B pmcd
-after 60 seconds.  This default timeout interval
-may be changed using the
+after 60 seconds.
+This default timeout interval may be changed using the
 .B \-t
 option, where the
 .I interval
@@ -55,35 +53,26 @@ an exit status of zero is returned.
 .PP
 If an error or timeout occurs, then a non-zero exit status is returned
 as described below.
-.PP
-The other options are as follows:
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
+Connect
+.BR pmcd (1)
+on
+.IR host ,
+rather than the one on the default localhost.
 .TP
-.B \-v
+\fB\-t\fR timeout\fI\fR, \fB\-\-interval\fR=\fItimeout\fR
+Timeout after \fItimeout\fR seconds if not connected.
+The default timeout value is 60 seconds.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
 This option turns the verbose mode on.
 With the verbose mode off
 (which is the default), no output will be generated.
 With verbose mode on, error messages will be output on
 .IR stderr .
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
-.SH SEE ALSO
-.BR PCPIntro (1),
-.BR pmcd (1),
-.BR pcp.conf (5)
-and
-.BR pcp.env (5).
 .SH DIAGNOSTICS
 Error messages will be output to
 .I stderr
@@ -104,10 +93,10 @@ for more details.
 .TP
 .B 2
 No connection was made in the timeout interval.
-This will happen if 
+This will happen if
 .B pmcd
 is running but
-takes too long to complete the client connection, or if 
+takes too long to complete the client connection, or if
 .B pmcd
 is not running and all connection attempts in the timeout
 interval failed with the error ECONNREFUSED.
@@ -121,3 +110,16 @@ for more details.
 A PCP error occurred, use
 .B \-v
 for more details.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

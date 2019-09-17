@@ -19,14 +19,13 @@ import sys
 import json
 import time
 import re
-from collections import OrderedDict
 import configparser
 import subprocess
 import atexit
 from ctypes import c_int
 
 import cpmapi as c_api
-from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaGetContext
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid, pmdaGetContext
 from pcp.pmapi import pmUnits, pmContext as PCP
 
 from bpftrace import BPFtrace, BPFtraceError, BPFtraceVarDef
@@ -57,6 +56,54 @@ class Consts: # pylint: disable=too-few-public-methods
         Script = 5
         # bpftrace variables start at item no 10
 
+class BPFtraceIndom:
+    """manage indom for a bpftrace map"""
+    def __init__(self, pmda, indom_id):
+        self.pmda = pmda
+        self.indom_id = indom_id
+        self.indom = pmdaIndom(self.indom_id, [])
+        self.pmda.add_indom(self.indom)
+
+        self.next_instance_id = 0
+        self.instance_names = []
+        self.instance_id_lookup = {}
+        self.instance_name_lookup = {}
+
+    def get_inst_id(self, instance_name):
+        """get instance id by instance name"""
+        inst_id = self.instance_id_lookup.get(instance_name)
+        if inst_id is None:
+            inst_id = self.next_instance_id
+            self.next_instance_id += 1
+            self.instance_id_lookup[instance_name] = inst_id
+            self.instance_name_lookup[inst_id] = instance_name
+        return inst_id
+
+    def inst_name_lookup(self, instance_id):
+        """get instance name by instance id"""
+        return self.instance_name_lookup.get(instance_id)
+
+    @classmethod
+    def instance_name_sorting_key(cls, var_def):
+        """returns appropriate sorting fn based on variable type"""
+        if var_def.metrictype == BPFtraceVarDef.MetricType.Histogram:
+            regex = re.compile(r'^(.+?)\-(.+?)$')
+            def sort_key(val):
+                m = regex.match(val)
+                # float('-inf') returns negative infinity, int('-inf') doesn't
+                return float(m.group(1)) if m else val
+            return sort_key
+        else:
+            return lambda x: x
+
+    def update(self, var_def, instance_names):
+        """update indom with new instance names"""
+        instance_names_sorted = sorted(instance_names, key=self.instance_name_sorting_key(var_def))
+        if self.instance_names != instance_names_sorted:
+            instances = [pmdaInstid(self.get_inst_id(name), name) for name in instance_names_sorted]
+            self.indom.set_instances(self.indom_id, instances)
+            self.instance_names = instance_names_sorted
+
 class BPFtraceScript:
     """manage metrics for a bpftrace instance"""
 
@@ -75,7 +122,6 @@ class BPFtraceScript:
 
         self.pmid_to_var = {}
         self.item_to_var = {}
-        self.indom_ids = {}
         self.indoms = {}
         self.metrics = {}
         self.last_refresh = time.time()
@@ -151,10 +197,7 @@ class BPFtraceScript:
             else:
                 # serial needs to be unique across PMDA
                 indom_id = self.pmda.indom(self.cluster * 1000 + item_no)
-                indom = pmdaIndom(indom_id, {})
-                self.pmda.add_indom(indom)
-                self.indom_ids[var_name] = indom_id
-                self.indoms[var_name] = indom
+                self.indoms[var_name] = BPFtraceIndom(self.pmda, indom_id)
 
             pmid = self.pmda.pmid(self.cluster, item_no)
             metric = pmdaMetric(pmid, var_def.datatype, indom_id, var_def.semantics, pmUnits())
@@ -195,32 +238,17 @@ class BPFtraceScript:
                     return '{{"metrictype":"{}"}}'.format(metrictype)
         return '{}'
 
-    @classmethod
-    def instance_name_sorting_key(cls, var_def):
-        """returns appropriate sorting fn based on variable type"""
-        if var_def.metrictype == BPFtraceVarDef.MetricType.Histogram:
-            regex = re.compile(r'^(.+?)\-(.+?)$')
-            def sort_key(val):
-                m = regex.match(val)
-                # float('-inf') returns negative infinity, int('-inf') doesn't
-                return float(m.group(1)) if m else val
-            return sort_key
-        else:
-            return lambda x: x
-
     def refresh_callback(self):
         """PMDA refresh callback for this bpftrace instance"""
         self.refresh_state()
 
         # refresh instance domains
         for var_name, var_def in self.bpftrace.var_defs.items():
-            # parser found variable definition in script, but variable
-            # doesn't exist in bpftrace output due to an error
+            # parser found variable definition in script (first condition),
+            # but maybe variable doesn't exist in bpftrace output due to an error (second condition)
             if not var_def.single and var_name in self.state.maps:
-                sorted_keys = sorted(self.state.maps[var_name].keys(),
-                                     key=self.instance_name_sorting_key(var_def))
-                self.indoms[var_name].set_instances(
-                    self.indom_ids[var_name], OrderedDict([(key, c_int(1)) for key in sorted_keys]))
+                self.indoms[var_name].update(var_def, self.state.maps[var_name].keys())
+
         self.last_refresh = time.time()
 
     def fetch_callback(self, item, inst): # pylint: disable=too-many-return-statements
@@ -246,7 +274,7 @@ class BPFtraceScript:
                 return [self.state.maps[var_name], 1]
             else:
                 key = self.indoms[var_name].inst_name_lookup(inst)
-                if key and key in self.state.maps[var_name]:
+                if key is not None and key in self.state.maps[var_name]:
                     return [self.state.maps[var_name][key], 1]
                 return [c_api.PM_ERR_INST, 0]
         return [c_api.PM_ERR_PMID, 0]
@@ -529,7 +557,7 @@ class BPFtracePMDA(PMDA):
         elif cluster == Consts.Info.Cluster:
             if item == Consts.Info.Scripts:
                 name = self.script_indom.inst_name_lookup(inst)
-                if not name:
+                if name is None:
                     return [c_api.PM_ERR_INST, 0]
 
                 script = self.find_script_by_name(name)

@@ -1,32 +1,32 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMNSADD 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmnsadd\f1 \- add new names to the Performance Co-Pilot PMNS
-.\" literals use .B or \f3
-.\" arguments use .I or \f2
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmnsadd
+[\f3\-?\f1]
 [\f3\-n\f1 \f2namespace\f1]
 .I file
 .SH DESCRIPTION
 .BR pmnsmerge (1)
 performs the same function as
 .B pmnsadd
-and is faster, more robust and more flexible. It is therefore recommended that
+and is faster, more robust and more flexible.
+It is therefore recommended that
 .BR pmnsmerge (1)
 be used instead.
 .PP
@@ -118,32 +118,37 @@ will update the PMNS using
 .BR pmnsmerge (1)
 \- if this fails for any reason, the original namespace remains
 unchanged.
-.SH CAVEAT
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-n\fR \fIpmnsfile\fR
+Load an alternative Performance Metrics Name Space
+.RB ( pmns (5))
+from the file
+.IR pmnsfile .
+.TP
+\fB\-?\fR
+Display usage message and exit.
+.SH CAVEATS
 Once the writing of the new
 .I namespace
 file has begun, the signals SIGINT, SIGHUP and SIGTERM will be ignored
 to protect the integrity of the new files.
 .SH FILES
 .PD 0
-.IP \f2$PCP_VAR_DIR/pmns/root\f1 2.5i
-the default PMNS, when then environment variable
+.TP 10
+.I $PCP_VAR_DIR/pmns/root
+the default PMNS, when the environment variable
 .B PMNS_DEFAULT
 is unset
 .PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR pmnsdel (1),
 .BR pmnsmerge (1),

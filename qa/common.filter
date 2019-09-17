@@ -285,6 +285,7 @@ _filter_optional_pmdas()
 	-e '/pmdammv/d' \
 	-e '/pmdamounts/d' \
 	-e '/pmdampi/d' \
+	-e '/pmdamssql/d' \
 	-e '/pmdamysql/d' \
 	-e '/pmdanamed/d' \
 	-e '/pmdanasavg/d' \
@@ -320,6 +321,7 @@ _filter_optional_pmdas()
 	-e '/pmdasnmp/d' \
 	-e '/pmdasmart/d' \
 	-e '/pmdassping/d' \
+	-e '/pmdastatsd/d' \
 	-e '/pmdasummary/d' \
 	-e '/pmdasystemd/d' \
 	-e '/pmdasystemtap/d' \
@@ -389,6 +391,7 @@ _filter_top_pmns()
 	-e '/^    memcache /d' \
 	-e '/^    mmv /d' \
 	-e '/^    mpi /d' \
+	-e '/^    mssql /d' \
 	-e '/^    mysql /d' \
 	-e '/^    named /d' \
 	-e '/^    netfilter /d' \
@@ -419,6 +422,7 @@ _filter_top_pmns()
 	-e '/^    simple /d' \
 	-e '/^    smart /d' \
 	-e '/^    snmp /d' \
+	-e '/^    statsd /d' \
 	-e '/^    ssping /d' \
 	-e '/^    espping /d' \
 	-e '/^    summary /d' \

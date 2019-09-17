@@ -1,23 +1,26 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMLOGMV 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmlogmv\f1 \- move (rename) Performance Co-Pilot archive files
 .SH SYNOPSIS
-\f3pmlogmv\f1 [\f2\-NV\f1] \f2oldname\f1 \f2newname\f1
+\f3pmlogmv\f1
+[\f2\-NV?\f1]
+\f2oldname\f1
+\f2newname\f1
 .SH DESCRIPTION
 A Performance Co-Pilot (PCP) archive consists of multiple files as
 created by
@@ -33,15 +36,6 @@ that is common to all files in that archive or one of the archive's
 files.
 The new archive's basename is
 .IR newname .
-.PP
-The
-.B \-N
-option performs a dry-run, checking and reporting what changes would
-be made without making any changes.
-.PP
-Additional reporting verbosity may be requested with the
-.B \-V
-option.
 .PP
 Because PCP archives are important records of system activity, special
 care is taken to ensure the integrity of an archive's files.
@@ -69,10 +63,22 @@ and the
 PCP archive files need to be writeable and within the
 .B same
 file system.
-.SH "SEE ALSO"
-.BR ln (2)
-and
-.BR pmlogger (1).
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-N\fR, \fB\-\-showme\fR
+Perform a dry-run, checking and reporting what changes would
+be made without making any changes.
+.TP
+\fB\-V\fR, \fB\-\-verbose\fR
+Enable verbose mode.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH DIAGNOSTICS
 All error and warning messages are intended to be easily understood and errors
 produce a non-zero exit status.
+.SH SEE ALSO
+.BR ln (2)
+and
+.BR pmlogger (1).

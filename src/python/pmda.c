@@ -79,6 +79,16 @@ static void pmns_refresh(void);
 static void pmda_refresh_metrics(void);
 
 static void
+refresh_if_needed(void)
+{
+    if (need_refresh) {
+        pmns_refresh();
+        pmda_refresh_metrics();
+        need_refresh = 0;
+    }
+}
+
+static void
 maybe_refresh_all(void)
 {
     /* Call the refresh metrics hook (if it exists). */
@@ -97,11 +107,7 @@ maybe_refresh_all(void)
 	    Py_DECREF(result);
     }
 
-    if (need_refresh) {
-	pmns_refresh();
-	pmda_refresh_metrics();
-	need_refresh = 0;
-    }
+    refresh_if_needed();
 }
 
 static void
@@ -448,6 +454,11 @@ refresh(int numpmid, pmID *pmidlist)
 	    sts |= refresh_cluster(clusters[j]);
     }
     free(clusters);
+
+    // if the refresh() method of the PMDA sets the need_refresh flag
+    // (e.g. because the instances got changed), update the metrics and
+    // indom buffers
+    refresh_if_needed();
     return sts;
 }
 

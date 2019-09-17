@@ -1,12 +1,25 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017-2019 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
 .TH PCP-DMCACHE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pcp-dmcache\f1,
 \f3pcp-lvmcache\f1 \- report on logical storage device caches
 .SH SYNOPSIS
 \f3pcp\f1 [\f2pcp\ options\f1] \f3dmcache\f1
-[\f3\-i\f1/\f3--iops\f1]
-[\f3\-R\f1/\f3--repeat\f1 \f2N\f1]
-[\f2device\f1 ...]
+[\f3\-iRV?\f1] [\f2device\f1 ...]
 .SH DESCRIPTION
 .B pcp-dmcache
 reports on the activity of any configured Device Mapper Cache targets.
@@ -19,6 +32,11 @@ writes for each cache device.
 .B pcp-dmcache
 (Device Mapper cache).
 .PP
+By default,
+.B pcp-dmcache
+reports on all available cache target devices (one line each, per sample),
+but this can be restricted to specific devices on the command line.
+.SH OPTIONS
 When invoked via the
 .BR pcp (1)
 command, the
@@ -38,23 +56,31 @@ and several other
 .I pcp options
 become indirectly available.
 .PP
-By default,
-.B pcp-dmcache
-reports on all available cache target devices (one line each, per sample),
-but this can be restricted to specific devices on the command line.
-.SH OPTIONS
 Additional options are available for changing the output displayed by
 .BR pcp-dmcache .
-.PP
-.BR \-i /\c
-.BR \-\-iops
+.TP
+\fB\-i\fR, \fB\-\-iops\fR
 displays total read and write operations instead of the default cache hit ratio.
-.PP
-.BR \-R /\c
-.BR \-\-repeat
+.TP
+\fB\-R\fR, \fB\-\-repeat\fR
 changes the frequency at which the column heading is displayed.
 By default, a header is displayed after every tenth sample.
-.SH "SEE ALSO"
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
 .BR pcp (1),
 .BR pmdadm (1),
 .BR dmsetup (1),

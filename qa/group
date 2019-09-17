@@ -1635,6 +1635,7 @@ BAD
 1326 pmstore pmda.pmcd local
 1330 pmda.prometheus local python
 1331 verify local
+1337 pmda.mssql local
 1338 pmlogrewrite labels pmdumplog local
 1340 pmcd pmda.pmcd pmstore local
 1342 pmda.prometheus local python
@@ -1657,6 +1658,7 @@ BAD
 1388 pmwebd local
 1389 pmwebd local
 1390 atop local
+1393:reserved pmda.linux local
 1395 pmda.prometheus local python
 1396 pcp python pidstat local BAD @vm34
 1397 pmda.smart local valgrind
@@ -1696,4 +1698,5 @@ BAD
 1701 pmda.bpftrace local python
 1702 pmda.bpftrace local python
 1703 pmda.bpftrace local python
+1704 pmda.bpftrace local python
 4751 libpcp threads valgrind local pcp python

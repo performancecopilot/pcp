@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (C) 2017-2018 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2017-2019 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -11,6 +11,7 @@
 .\" but WITHOUT ANY WARRANTY; without even the implied warranty of
 .\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 .\" GNU General Public License for more details.
+.\"
 .\"
 .TH PMDABCC 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -27,42 +28,39 @@ with PCP BCC PMDA modules with reasonable effort.
 .PP
 See the BPF and BCC documentation for detailed description of both.
 .PP
-.SH INSTALLATION
-\fBpmdabcc\fP reads a mandatory ini-style configuration file
+.SH CONFIGURATION
+\fBpmdabcc\fP reads a mandatory ini-style configuration file:
 .IP
 .PD 0
-.RS +4
-.IP \(bu 2
+.IP
 .I \f(CW$PCP_PMDAS_DIR\fP/bcc/bcc.conf
-.RE
 .PD
 .PP
-This file contains in its \fB[pmda]\fP section values
-for the following PMDA options:
-.IP
-.PD 0
-.RS +4
-.IP \(bu 2
-modules
-.IP \(bu
-prefix
-.IP \(bu
-process_refresh
-.IP \(bu
-module_failure_fatal
-.RE
-.PD
-.PP
-\fBpmdabcc\fP reads module-specific configuration for each module listed in
-the comma-separated list of \fBmodules\fP (mandatory).
+This file must contain a \fB[pmda]\fP section.
+The following PMDA options are available
+(their default values are shown in parenthesis),
+options marked with asterisk (\fB*\fP)
+can be overridden in module-specific configuration sections:
+.TP 15
+.B modules \fR(unset)\fP
+The \fBpmdabcc\fP PMDA reads module-specific configuration for each
+module listed in the comma-separated list of \fBmodules\fP (mandatory).
+.TP
+.B prefix \fR(\fP\fIbcc.\fP\fR)\fP *
 By default, all metrics from the modules will appear under the \fIbcc\fP
 Performance Metrics Name Space (PMNS) tree, \fBprefix\fP (optional) can be
 used to change this generic prefix.
+.TP
+.B process_refresh \fR(\fP\fI0\fP\fR)\fP
+See below.
+.TP
+.B module_failure_fatal \fR(\fP\fITrue\fP\fR)\fP
 A boolean value for \fBmodule_failure_fatal\fP (optional) controls whether
-a module failing to compile should cause the whole PMDA to abort (this is
-the default) or to start up with any possibly functional modules.
+a module failing to compile should cause the whole PMDA to abort (this
+is the default) or to start up with possibly remaining functional modules.
 Module configuration errors and internal errors (such as failing to
-register the provided PMNS metrics) will always cause the PMDA to fail.
+register the provided PMNS metrics, see \fBpmns\fP(5))
+will always cause the PMDA to fail.
 .PP
 Of particular note, the \fBprocess\fP option accepted by some modules
 evalutes the given PIDs and process names at PMDA/module initialization
@@ -80,33 +78,25 @@ currently running BPF is detached and a new BPF program with updated PID
 information is installed (and if no PIDs matching the filter are anymore
 present, the BPF program will be detach to avoid any needless overhead).
 .PP
-For each listed module a corresponding \fB[module]\fP section must be
-defined containing at least the following options:
-.IP
-.PD 0
-.RS +4
-.IP \(bu 2
-module
-.IP \(bu
-cluster
-.RE
-.PD
-.PP
-\fBmodule\fP defines the actual Python module file name to be loaded during
+For each \fImodule\fP listed in \fBmodules\fP a corresponding \fI[module]\fP
+section must be defined containing at least the following options:
+.TP 15
+.B module
+Defines the actual Python module file name to be loaded during
 PMDA startup under the \fImodules\fP subdirectory of the PCP BCC PMDA
 installation.
-\fBcluster\fP specifies the cluster ID (see \fBPMNS\fP(5)) for the metrics
+.TP
+.B cluster
+Specifies the unique cluster ID (see \fBpmns\fP(5)) for the metrics
 provided by the module under the PMNS path.
-Optionally, \fBprefix\fP can be defined to override the generic value
-described above.
+.PP
 All modules accept but not necessarily use the boolean \fBdebug\fP option.
 .PP
 Modules may also support additional module-specific configuration options,
 refer to the default configuration file for their supported options.
 .PP
-Once the needed setup is ready, you can install the PMDA to load the
-configured modules and the BPF programs they utilize.
-To install, do the following as root:
+.SH INSTALLATION
+To install, the following must be done as root:
 .sp 1
 .RS +4
 .ft B
@@ -117,7 +107,7 @@ To install, do the following as root:
 .ft P
 .RE
 .sp 1
-To uninstall, do the following as root:
+To uninstall, the following must be done as root:
 .sp 1
 .RS +4
 .ft B
@@ -128,12 +118,12 @@ To uninstall, do the following as root:
 .ft P
 .RE
 .sp 1
-\fBpmdabcc\fP is launched by \fBpmcd\fP(1) and should never be executed
-directly.
-The Install and Remove scripts notify \fBpmcd\fP(1) when the agent is
-installed or removed.
+\fBpmdabcc\fP is launched by \fBpmcd\fP(1) and should never be
+executed directly.
+The \fBInstall\fP and \fBRemove\fP scripts notify \fBpmcd\fP(1) when
+the agent is installed or removed.
 .PP
-In case \fBmodule_failure_fatal\fP is set to \fBfalse\fP, the PMDA
+In case \fBmodule_failure_fatal\fP is set to \fBFalse\fP, the PMDA
 installation will be considered successful even if some or even all
 configured modules fail to load, in such cases metric values provided
 by the failing modules will not be available.
@@ -164,7 +154,7 @@ default log file for messages from the \fBpmdabcc\fP agent
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
 On each installation, the
-file \fB/etc/pcp.conf\fP contains the local values for these variables.
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
 The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO

@@ -2,26 +2,26 @@
 .\"
 .\" Copyright (c) 2013-2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMLOGCONF 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmlogconf\f1 \- create/edit a pmlogger configuration file
 .SH SYNOPSIS
 \f3pmlogconf\f1
-[\f3\-cqrv\f1]
+[\f3\-cqrv?\f1]
 [\f3\-d\f2 groupsdir\f1]
-[\f3\-h\f2 hostname\f1]
+[\f3\-h\f2 host\f1]
 \f2configfile\f1
 .SH DESCRIPTION
 .B pmlogconf
@@ -126,7 +126,7 @@ current interval from
 More verbose output may be enabled with the
 .B \-v
 option.
-.SH "SETUP GROUP FILES"
+.SH SETUP GROUP FILES
 When an initial
 .I configfile
 is created, the default specifications come from a set of group
@@ -211,7 +211,7 @@ are treated as comments.
 Blank lines are ignored.
 .IP \(bu 3n
 One or more lines starting with the keyword
-.B ident 
+.B ident
 are used to provide the human-readable description of the group.
 .IP \(bu 3n
 Non-blank lines beginning with white space define metrics to be associated
@@ -223,7 +223,7 @@ configuration, namely either the name of a non-leaf node in the PMNS
 node in the PMNS optionally followed by one or more instance names
 enclosed by ``['' and ``]''.
 .IP \(bu 3n
-A control line starting with one of the keywords 
+A control line starting with one of the keywords
 .B probe
 or
 .B force
@@ -264,7 +264,7 @@ or an expression of the form
 \fIop\fR \fIval\fR
 where
 .I op
-is one of the 
+is one of the
 .BR awk (1)
 operators (\fB==\fR, \fB!=\fR, \fB>\fR, \fB>=\fR, \fB<\fR, \fB<=\fR,
 \fB~\fR (regular expression match) or
@@ -335,7 +335,7 @@ one of the actions
 .B exclude
 or
 .B available
-is applied unconditionally to the group. 
+is applied unconditionally to the group.
 .PP
 Probing is only done when a new group is being added to
 .I configfile
@@ -347,6 +347,33 @@ conditions is done by contacting
 on
 .I hostname
 (defaults to local:).
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-c\fR
+Enable non-interactive, auto-create mode.
+.TP
+\fB\-d\fR \fIgroupdir\fR, \fB\-\-groups\fR=\fIgroupdir\fR
+Specify the path to the \fIgroupsdir\fP directory.
+.TP
+\fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
+Performance metrics source is
+.BR pmcd (1)
+on
+.IR host ,
+rather than on the default localhost.
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Quiet mode, suppress logging interval dialog.
+.TP
+\fB\-r\fR, \fB\-\-reprobe\fR
+Reconsider every group for inclusion in the \fIconfigfile\fP.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Enable verbose mode.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH EXAMPLE
 The following group file demonstrates all of the supported
 syntactic elements.
@@ -374,7 +401,7 @@ compared to earlier versions.  If an old version
 is presented to
 .B pmlogconf
 it will be converted to the new format.
-.SH "PCP ENVIRONMENT"
+.SH PCP ENVIRONMENT
 Environment variables with the prefix
 .B PCP_
 are used to parameterize the file and directory names
