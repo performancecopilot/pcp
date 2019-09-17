@@ -213,10 +213,12 @@ main(int argc, char **argv)
 	pmprintf("%s: pause can only be used with archives\n", pmGetProgname());
 	opts.errors++;
     }
-
-    if (opts.errors || opts.optind < argc - 1) {
+    if (opts.optind < argc - 1)
+	opts.errors++;
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
+	sts = !(opts.flags & PM_OPTFLAG_EXIT);
 	pmUsageMessage(&opts);
-	exit(1);
+	exit(sts);
     }
 
     if (opts.context == PM_CONTEXT_ARCHIVE) {

@@ -343,9 +343,9 @@ but this option \fIwill\fP override per-metric specifications.
 .TP
 \fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 Performance metric values are retrieved from the set of Performance
-Co-Pilot (PCP) archive log files identified by the argument
-.IR archive ,
-which is a comma-separated list of names,
+Co-Pilot (PCP) archive log files identified by the
+.I archive
+argument, which is a comma-separated list of names,
 each of which may be the base name of an archive or the name of
 a directory containing one or more archives.
 See also
@@ -391,11 +391,11 @@ Specify the
 .I config
 file to use.
 The default is the first found of:
-.BR ./pmrep.conf ,
-.BR $HOME/.pmrep.conf ,
-.BR $HOME/pcp/pmrep.conf ,
+.IR ./pmrep.conf ,
+.IR $HOME/.pmrep.conf ,
+.IR $HOME/pcp/pmrep.conf ,
 and
-.BR $PCP_SYSCONF_DIR/pmrep/pmrep.conf .
+.IR $PCP_SYSCONF_DIR/pmrep/pmrep.conf .
 See
 .BR pmrep.conf (5).
 .TP
@@ -741,9 +741,9 @@ Like
 but this option will \fInot\fP override per-metric specifications.
 .TP
 \fB\-s\fR \fIsamples\fR, \fB\-\-samples\fR=\fIsamples\fR
-The argument
+The
 .I samples
-defines the number of samples to be retrieved and reported.
+argument defines the number of samples to be retrieved and reported.
 If
 .I samples
 is 0 or
@@ -765,9 +765,9 @@ for a complete description of the syntax for
 .IR starttime .
 .TP
 \fB\-t\fR \fIinterval\fR, \fB\-\-interval\fR=\fIinterval\fR
-The default update
+Set the reporting
 .I interval
-may be set to something other than the default 1 second.
+to something other than the default 1 second.
 The
 .I interval
 argument follows the syntax described in
@@ -1074,7 +1074,7 @@ system provided \fBpmrep\fP configuration file
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
 On each installation, the
-file \fB/etc/pcp.conf\fP contains the local values for these variables.
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
 The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .PP

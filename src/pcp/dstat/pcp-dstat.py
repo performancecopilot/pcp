@@ -699,7 +699,7 @@ class DstatTool(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("acC:dD:fghiI:lmnN:o:pqrsS:tT:vVy?")
+        opts.pmSetShortOptions("acC:dD:fghiI:lmnN:o:pqrsS:tTvVy?")
         opts.pmSetShortUsage("[-afv] [options...] [delay [count]]")
         opts.pmSetLongOptionText('Versatile tool for generating system resource statistics')
 
@@ -875,7 +875,7 @@ class DstatTool(object):
             self.profile = 'dstat_profile.log'
         elif opt in ['q']:
             self.verify = True
-        elif opt in ['h']:
+        elif opt in ['h', '?']:
             self.usage()
         elif opt in ['V', 'version']:
             self.show_version()

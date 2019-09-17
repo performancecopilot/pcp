@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2018 Red Hat.
+.\" Copyright (c) 2018-2019 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -17,7 +17,26 @@
 .SH NAME
 \f3pcp-dstat\f1 \- versatile tool for generating system resource statistics
 .SH SYNOPSIS
-\f3pcp\f1 [\f2pcp\ options\f1] \f3dstat\f1 [\f2dstat\ options\f1] [\f2delay\f1 [\f2count\f1]]
+\f3pcp\f1 [\f2pcp\ options\f1] \f3dstat\f1 [\f3\-acdfghilmnpqrstvVy?\f1]
+[\f3\-C\f1 \f2cpus\f1]
+[\f3\-D\f1 \f2disks\f1]
+[\f3\-I\f1 \f2interrupts\f1]
+[\f3\-N\f1 \f2interfaces\f1]
+[\f3\-o\f1 \f2output-file\f1]
+[\f3\-S\f1 \f2swap-devices\f1]
+[\f3\-\-bits\f1]
+[\f3\-\-bw\f1]
+[\f3\-\-color\f1]
+[\f3\-\-float\f1]
+[\f3\-\-integer\f1]
+[\f3\-\-nocolor\f1]
+[\f3\-\-noheaders\f1]
+[\f3\-\-noupdate\f1]
+[\f3\-\-list\f1]
+[\f3\-\-pidfile\f1 \f2pid-file\f1]
+[\f3\-\-\f1\f2plugin\f1]
+[\f3\-\-all-plugins\f1]
+[\f2delay\f1 [\f2count\f1]]
 .SH DESCRIPTION
 .de EX
 .in +0.5i
@@ -287,48 +306,48 @@ show remote procedure call (RPC) client calls stats
 .TP
 \fB\-\-rpcd\fR
 show remote procedure call (RPC) server calls stats
-.TP
-\fB\-\-top\-bio\fR
-show most expensive block I/O process
-.TP
-\fB\-\-top\-bio\-adv\fR
-show most expensive block I/O process (incl\&. PID and other stats)
-.TP
-\fB\-\-top\-childwait\fR
-show process waiting for child the most
-.TP
-\fB\-\-top\-cpu\fR
-show most expensive CPU process
-.TP
-\fB\-\-top\-cpu\-adv\fR
-show most expensive CPU process (incl\&. PID and other stats)
-.TP
-\fB\-\-top\-cputime\fR
-show process using the most CPU time (in milliseconds)
-.TP
-\fB\-\-top\-cputime\-avg\fR
-show process with the highest average timeslice (in milliseconds)
-.TP
-\fB\-\-top\-int
-show most frequent interrupt\fR
-.TP
-\fB\-\-top\-io
-show most expensive I/O process\fR
-.TP
-\fB\-\-top\-io\-adv\fR
-show most expensive I/O process (incl\&. PID and other stats)
-.TP
-\fB\-\-top\-latency\fR
-show process with highest total latency (in milliseconds)
-.TP
-\fB\-\-top\-latency\-avg\fR
-show process with the highest average latency (in milliseconds)
-.TP
-\fB\-\-top\-mem\fR
-show process using the most memory
-.TP
-\fB\-\-top\-oom\fR
-show process that will be killed by the out-of-memory (OOM) killer the first
+.\" .TP
+.\" \fB\-\-top\-bio\fR
+.\" show most expensive block I/O process
+.\" .TP
+.\" \fB\-\-top\-bio\-adv\fR
+.\" show most expensive block I/O process (incl\&. PID and other stats)
+.\" .TP
+.\" \fB\-\-top\-childwait\fR
+.\" show process waiting for child the most
+.\" .TP
+.\" \fB\-\-top\-cpu\fR
+.\" show most expensive CPU process
+.\" .TP
+.\" \fB\-\-top\-cpu\-adv\fR
+.\" show most expensive CPU process (incl\&. PID and other stats)
+.\" .TP
+.\" \fB\-\-top\-cputime\fR
+.\" show process using the most CPU time (in milliseconds)
+.\" .TP
+.\" \fB\-\-top\-cputime\-avg\fR
+.\" show process with the highest average timeslice (in milliseconds)
+.\" .TP
+.\" \fB\-\-top\-int
+.\" show most frequent interrupt\fR
+.\" .TP
+.\" \fB\-\-top\-io
+.\" show most expensive I/O process\fR
+.\" .TP
+.\" \fB\-\-top\-io\-adv\fR
+.\" show most expensive I/O process (incl\&. PID and other stats)
+.\" .TP
+.\" \fB\-\-top\-latency\fR
+.\" show process with highest total latency (in milliseconds)
+.\" .TP
+.\" \fB\-\-top\-latency\-avg\fR
+.\" show process with the highest average latency (in milliseconds)
+.\" .TP
+.\" \fB\-\-top\-mem\fR
+.\" show process using the most memory
+.\" .TP
+.\" \fB\-\-top\-oom\fR
+.\" show process that will be killed by the out-of-memory (OOM) killer the first
 .TP
 \fB\-f\fR, \fB\-\-full\fR
 expand \fB\-C\fR, \fB\-D\fR, \fB\-I\fR, \fB\-N\fR and \fB\-S\fR discovery lists
@@ -359,9 +378,12 @@ disable repetitive headers
 \fB\-\-noupdate\fR
 disable intermediate updates when \fIdelay\fR greater than 1.
 .TP
-\fB\-o\fR \fIfile\fR, \fB\-\-output\fR \fIfile\fR
+\fB\-o\fR \fIfile\fR, \fB\-\-output\fR=\fIfile\fR
 write CSV (Comma-Separated Value) format output to a \fIfile\fR.
-.PP
+.TP
+\fB\-p\fR \fIfile\fR, \fB\-\-pidfile\fR=\fIfile\fR
+write the process identifier to a given \fIfile\fR.
+.a PP
 .SH OPTIONAL METRICS PLUGINS
 Some
 .B pcp-dstat

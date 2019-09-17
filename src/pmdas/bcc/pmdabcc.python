@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2017-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2017-2019 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@ from collections import OrderedDict
 from pcp.pmapi import pmContext as PCP
 from pcp.pmda import PMDA, pmdaInstid, pmdaIndom, pmdaMetric
 from cpmapi import PM_INDOM_NULL, PM_ERR_VALUE, PM_ERR_BADSTORE, PM_LABEL_CLUSTER, PM_LABEL_INDOM
-import cpmda
 
 # Module references
 CACHED = 0
@@ -111,7 +110,13 @@ class BCCPMDA(PMDA):
             config = configparser.ConfigParser()
         else:
             config = configparser.SafeConfigParser()
-        config.read(conffile)
+
+        try:
+            config.read(conffile)
+        except Exception as error: # pylint: disable=broad-except
+            self.err(str(error))
+            sys.exit(1)
+
         if config.has_section('pmda'):
             for opt in config.options('pmda'):
                 if opt == 'module_failure_fatal':
@@ -132,7 +137,7 @@ class BCCPMDA(PMDA):
             sys.exit(1)
 
         if not self.modules:
-            self.err("No modules configured, aborting.")
+            self.err("No modules enabled, aborting.")
             sys.exit(1)
 
         self.log("Enabled modules:")
@@ -147,9 +152,9 @@ class BCCPMDA(PMDA):
     def read_module_config(self, config, module):
         """ Read common module configuration """
         if config.has_section(module):
+            self.modules[module][CONFIG] = config
             for opt in config.options(module):
                 if opt == 'module':
-                    self.modules[module][CONFIG] = config
                     self.modules[module][MODULE] = config.get(module, opt)
                 if opt == 'cluster':
                     try:
@@ -159,21 +164,21 @@ class BCCPMDA(PMDA):
                         sys.exit(1)
                 if opt == 'prefix':
                     self.modules[module][PREFIX] = config.get(module, opt)
-                if opt == 'pmdacache':
+                if opt == 'pmda_indom_cache':
                     self.modules[module][CACHED] = config.getboolean(module, opt)
         else:
             self.err("No [%s] section found, aborting." % module)
             sys.exit(1)
 
-        if CACHED not in self.modules[module]:
-            self.modules[module][CACHED] = True
+        if MODULE not in self.modules[module] or CLUSTER not in self.modules[module]:
+            self.err("Both 'module' and 'cluster' are mandatory, aborting.")
+            sys.exit(1)
 
         if PREFIX not in self.modules[module]:
             self.modules[module][PREFIX] = self.prefix
 
-        if MODULE not in self.modules[module] or CLUSTER not in self.modules[module]:
-            self.err("Both 'module' and 'cluster' are mandatory, aborting.")
-            sys.exit(1)
+        if CACHED not in self.modules[module]:
+            self.modules[module][CACHED] = True
 
     def init_modules(self):
         """ Initialize modules """
@@ -230,8 +235,8 @@ class BCCPMDA(PMDA):
             self.log(module)
             cluster = self.modules[module][CLUSTER]
             indom, metrics = self.modules[module][METRICS]()
-            self.modules[module][INDOM] = PM_INDOM_NULL
             caching = {} if self.modules[module][CACHED] else []
+            self.modules[module][INDOM] = PM_INDOM_NULL
             if indom:
                 self.modules[module][INDOM] = self.indom(cluster)
                 self.modules[module][INSTS] = pmdaIndom(self.modules[module][INDOM], caching)
@@ -242,8 +247,8 @@ class BCCPMDA(PMDA):
                                            self.modules[module][INDOM],
                                            metrics[item][3], metrics[item][4]),
                                 metrics[item][5], metrics[item][5])
-            self.clusters[cluster] = module
             self.indoms[self.modules[module][INDOM]] = module
+            self.clusters[cluster] = module
         self.log("Metrics registered.")
 
     def register_helpers(self):
@@ -288,9 +293,6 @@ class BCCPMDA(PMDA):
                 insts = insts_array
             self.modules[module][INSTS].set_instances(self.modules[module][INDOM], insts)
             self.replace_indom(self.modules[module][INDOM], insts)
-            if not self.modules[module][CACHED]:
-                cpmda.set_need_refresh()
-                self.pmns_refresh()
 
     def bcc_fetch_callback(self, cluster, item, inst):
         """ Fetch callback """

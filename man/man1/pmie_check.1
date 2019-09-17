@@ -2,17 +2,17 @@
 .\"
 .\" Copyright (c) 2013-2016 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMIE_CHECK 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -20,12 +20,12 @@
 \f3pmie_daily\f1 \- administration of the Performance Co-Pilot inference engine
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmie_check
-[\f3\-CNsV\f1]
+[\f3\-CNsTV?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-l\f1 \f2logfile\f1]
 .br
 .B $PCP_BINADM_DIR/pmie_daily
-[\f3\-NV\f1]
+[\f3\-NV?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2discard\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -44,8 +44,8 @@ inference engine,
 .PP
 .B pmie_daily
 is intended to be run once per day, preferably in the early morning, as
-soon after midnight as practicable.  Its task is to rotate the log files
-for the running
+soon after midnight as practicable.
+Its task is to rotate the log files for the running
 .B pmie
 processes \- these files may grow without bound if the
 ``print'' action is used, or any other
@@ -55,8 +55,9 @@ After some period, old
 .B pmie
 log files are discarded.
 This period is 14 days by default, but may be changed using the
-.B \-k
-option. Two special values are recognized for the period (\c
+.BR \-k / \-\-discard
+option.
+Two special values are recognized for the period (\c
 .IR discard ),
 namely
 .B 0
@@ -66,23 +67,25 @@ to prevent any log files being discarded.
 .PP
 Log files can optionally be compressed after some period (\c
 .IR compress ),
-to conserve disk space.  This is particularly useful for large numbers of
+to conserve disk space.
+This is particularly useful for large numbers of
 .B pmie
 processes under the control of
 .BR pmie_check .
 The
-.B \-x
+.BR \-x / \-\-compress\-after
 option specifies the number of days after which to compress archive data
 files, and the
 .B \-X
 option specifies the program to use for compression \- by default this is
 .BR xz (1).
 Use of the
-.B \-Y
+.BR \-Y / \-\-regex
 option allows a regular expression to be specified causing files in
 the set of files matched for compression to be omitted \- this allows
 only the data file to be compressed, and also prevents the program from
-attempting to compress it more than once.  The default
+attempting to compress it more than once.
+The default
 .I regex
 is "\.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$" \- such files are
 filtered using the
@@ -91,7 +94,7 @@ option to
 .BR egrep (1).
 .PP
 Use of the
-.B \-m
+.BR \-m / \-\-mail
 option causes
 .B pmie_daily
 to construct a summary of the log files generated for all monitored hosts
@@ -105,7 +108,7 @@ of
 .BR pmie (1)
 processes are running, and if not to re-launch any failed inference engines.
 Use of the
-.B \-s
+.BR \-s / \-\-stop
 option provides the reverse functionality, allowing the set of
 .B pmie
 processes to be cleanly shutdown.
@@ -121,17 +124,18 @@ and
 .B pmie_daily
 are controlled by PCP inference engine control file(s) that specify the
 .B pmie
-instances to be managed.  The default control file is
+instances to be managed.
+The default control file is
 .B $PCP_PMIECONTROL_PATH
 but an alternate may be specified using the
-.B \-c
+.BR \-c / \-\-control
 option.
 If the directory
 .BR $PCP_PMLOGGERCONTROL_PATH .d
 (or
 .IR control .d
 from the
-.B \-c
+.BR \-c / \-\-control
 option) exists, then the contents of any additional control files therein
 will be appended to the main control file (which must exist).
 .PP
@@ -222,7 +226,7 @@ instance, in which case the host name must be the name of the local host.
 When generating
 .B pmie
 configuration files, the primary clause indicates that
-.B pmieconf (1)
+.BR pmieconf (1)
 should enable all rules in the primary group, in addition to all other
 default rules.
 .IP 8.
@@ -243,7 +247,7 @@ The
 .I fourth
 field is the name of the
 .B pmie
-activity log file.  
+activity log file.
 A useful convention is that
 .B pmie
 instances monitoring the local host
@@ -322,19 +326,19 @@ are generated to the new log file.
 The output from the
 .BR cron
 execution of the scripts may be extended using the
-.B \-V
+.BR \-V / \-\-verbose
 option to the scripts which will enable verbose tracing of their activity.
 By default the scripts generate no output unless some error or warning
 condition is encountered.
 .PP
 The
-.B \-N
+.BR \-N / \-\-showme
 option enables a ``show me'' mode, where the actions are echoed,
 but not executed, in the style of ``make \-n''.
 Using
 .B \-N
 in conjunction with
-.B \-V
+.BR \-V / \-\-verbose
 maximizes the diagnostic capabilities for debugging.
 .SH FILES
 .TP 10
@@ -383,20 +387,13 @@ are running
 PCP ``notices'' file used by
 .BR pmie (1)
 and friends
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.B /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR egrep (1),
 .BR PCPintro (1),

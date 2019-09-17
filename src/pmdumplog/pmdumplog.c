@@ -41,6 +41,7 @@ static pmLongOptions longopts[] = {
     { "insts", 0, 'i', 0, "dump instance domain descriptions" },
     { "", 0, 'L', 0, "more verbose form of archive label dump" },
     { "label", 0, 'l', 0, "dump the archive label" },
+    { "markrecs", 0, 'M', 0, "report <mark> records" },
     { "metrics", 0, 'm', 0, "dump values of the metrics (default)" },
     PMOPT_NAMESPACE,
     { "reverse", 0, 'r', 0, "process archive in reverse chronological order" },

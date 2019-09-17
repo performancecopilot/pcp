@@ -24,7 +24,7 @@ domain=109
 python_opt=true
 daemon_opt=false
 
-conf=$PCP_PMDAS_DIR/$iam/pmdamssql.conf
+conf=$PCP_PMDAS_DIR/$iam/mssql.conf
 if [ ! -f "$conf" ]; then
     echo "Error: missing config file \"$conf\""
     status=1

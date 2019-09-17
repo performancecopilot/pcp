@@ -1,11 +1,26 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2015,2019 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
 .TH PCP-VERIFY 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pcp-verify\f1 \- verify aspects of a PCP installation
 .SH SYNOPSIS
-\f3pcp\f1 [\f2pcp\ options\f1] \f3verify\f1
-[\f3\-c\f1/\f3--containers\f1]
-[\f3\-s\f1/\f3--secure\f1]
-[\f3\-v\f1/\f3--verbose\f1]
+\f3pcp\ verify\f1
+[\fB\-a\fP \fIarchive\fP]
+[\fB\-h\fP \fIhost\fP]
+[\f3\-csvV?\f1]
 .SH DESCRIPTION
 .B pcp-verify
 inspects various aspects of a PCP collector installation and reports on
@@ -14,31 +29,48 @@ whether it is configured correctly for certain modes of operation.
 By default,
 .B pcp-verify
 checks that PMCD is running and no agents are in a failed state.
-These checks can be extended and refined using the command line.
+These checks can be extended and refined using the command line options.
 .SH OPTIONS
-Additional options are available for changing the verification performed by
-.BR pcp-verify .
-.PP
-.BR \-c /\c
-.BR \-\-containers
-verifies the collector installation for monitoring containers.
-.PP
-.BR \-s /\c
-.BR \-\-secure
-verifies that the required components for encrypted communication
+The available command line options are:
+.TP 5
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
+Use the \fIarchive\fR for verification.
+.TP
+\fB\-c\fR, \fB\-\-containers\fR
+Verify the collector installation for monitoring containers.
+.TP
+\fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
+Connect to the PMCD on \fIhost\fR for verification.
+.TP
+\fB\-s\fR, \fB\-\-secure\fR
+Verify that the required components for encrypted communication
 are in place.
-.PP
-.BR \-v /\c
-.BR \-\-verbose
-increase the verbosity, and report on each check as it is made.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Increase the verbosity, and report on each check as it is made.
 In the absence of any issues found,
 .B pcp-verify
 operates silently.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH DIAGNOSTICS
 .B pcp-verify
 will exit with a non-zero status if it finds anything worth reporting,
 otherwise it is silent and returns zero.
-.SH "SEE ALSO"
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
 .BR pcp (1)
 and
 .BR PCPIntro (1).

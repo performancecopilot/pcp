@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM		= mssql
 PYSCRIPT	= pmda$(IAM).python
-CONF		= pmda$(IAM).conf
+CONF		= $(IAM).conf
 LDIRT		= domain.h root pmns $(IAM).log
 
 ifneq ($(POD2MAN),)
