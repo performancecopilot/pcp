@@ -525,8 +525,10 @@ UnpackEventRecords(__pmContext *ctxp, pmValueSet *vsp, int idx, pmResult ***rap)
      */
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     need = (eap->ea_nrecords + 1) * sizeof(pmResult *);
-    if ((rpp = (pmResult **)malloc(need)) == NULL)
+    if ((rpp = (pmResult **)malloc(need)) == NULL) {
+	*rap = NULL;
 	return -oserror();
+    }
     *rap = rpp;
 
     base = (char *)&eap->ea_record[0];
@@ -626,8 +628,10 @@ pmUnpackHighResEventRecords(pmValueSet *vsp, int idx, pmHighResResult ***rap)
      */
 PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
     need = (hreap->ea_nrecords + 1) * sizeof(pmHighResResult *);
-    if ((rpp = (pmHighResResult **)malloc(need)) == NULL)
+    if ((rpp = (pmHighResResult **)malloc(need)) == NULL) {
+	*rap = NULL;
 	return -oserror();
+    }
     *rap = rpp;
 
     base = (char *)&hreap->ea_record[0];
