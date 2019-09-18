@@ -582,6 +582,12 @@ private per-user configuration files
 .TP
 .I \f(CW$PCP_SYSCONF_DIR\fP/pcp/dstat/
 system-wide configuration files
+.SH ENVIRONMENT
+Internal plugins behaviour can be changed through environment variables.
+.TP
+.I DSTAT_TIMEFMT
+.BR strftime (3)
+format string for reporting time (see \fB\-\-time\fP)
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
@@ -591,12 +597,6 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
-.SH ENVIRONMENT VARIABLES
-Internal plugins behaviour can be changed through environment variables.
-.TP
-.I DSTAT_TIMEFMT
-.BR strftime (3)
-format string for reporting time (see \fB\-\-time\fP)
 .SH AUTHORS
 .PP
 The Dstat utility was initially written by Dag Wieers
