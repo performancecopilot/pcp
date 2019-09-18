@@ -1066,7 +1066,8 @@ size_t _dictGetStatsHt(char *buf, size_t bufsize, dictht *ht, int tableid) {
         " Chain length distribution:\n",
         tableid, (tableid == 0) ? "main hash table" : "rehashing target",
         ht->size, ht->used, slots, maxchainlen,
-        (float)totchainlen/slots, (float)ht->used/slots);
+        slots > 0 ? (float)totchainlen/slots : 0.0,
+	slots > 0 ? (float)ht->used/slots : 0.0);
 
     for (i = 0; i <= DICT_STATS_VECTLEN-1; i++) {
         if (clvector[i] == 0) continue;

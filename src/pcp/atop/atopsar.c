@@ -1539,6 +1539,9 @@ gendskline(struct sstat *ss, char *tstamp, char selector)
 		if (nlines++)
 			printf("%s  ", tstamp);
 
+		if (mstot == 0)
+			mstot = 1;	/* avoid divide-by-zero */
+
 		if (dskbadness)
 			badness = (dp->io_ms * 100.0 / mstot) * 100/dskbadness;
                 else

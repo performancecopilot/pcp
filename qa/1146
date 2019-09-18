@@ -50,7 +50,7 @@ do
     _filter_pcp_start <$tmp.$i
 done
 
-./870 --check
+./870 --check $seq
 
 echo "+++ at the end primary pmlogger pid = `_get_primary_logger_pid`" >>$here/$seq.full
 

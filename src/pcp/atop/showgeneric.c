@@ -1421,7 +1421,15 @@ generic_samp(double curtime, double nsecs,
 					break;
 
 				   case 12:	// container id
-					(void)strtol(procsel.container, &p, 16);
+					/*
+					 * Don't even ask ... we want to
+					 * scan the input buffer and are only
+					 * interested in a possible error ...
+					 * the (void)(...+1) babble is the
+					 * only way to silence new "smart" C
+					 * compilers!
+					 */
+					(void)(strtol(procsel.container, &p, 16)+1);
 
 					if (*p)
 					{

@@ -988,8 +988,15 @@ get_label(const char *name, const char *value, mmv_value_type_t type,
 	    }
 	    break;
 	case MMV_NUMBER_TYPE:
-	    if (value)
-		(void)strtod(value, &endnum);
+	    if (value) {
+		/*
+		 * Don't even ask ... we want to scan the input buffer
+		 * and are only interested in a possible error ... the
+		 * (void)(...+1) babble is the only way to silence new
+		 * "smart" C compilers!
+		 */
+		(void)(strtod(value, &endnum)+1);
+	    }
 	    if (len < 1 || *endnum != '\0') {
 		setoserror(EINVAL);
 		return -1;
