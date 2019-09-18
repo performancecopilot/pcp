@@ -113,14 +113,14 @@ refresh_numa_meminfo(void)
 	    continue;
 
 	pmsprintf(buf, sizeof(buf), "%s/sys/devices/system/node/node%d/meminfo",
-		linux_statspath, i);
+		linux_statspath, np->nodeid);
 	if ((fp = fopen(buf, "r")) != NULL) {
 	    linux_table_scan(fp, np->meminfo);
 	    fclose(fp);
 	}
 
 	pmsprintf(buf, sizeof(buf), "%s/sys/devices/system/node/node%d/numastat",
-		linux_statspath, i);
+		linux_statspath, np->nodeid);
 	if ((fp = fopen(buf, "r")) != NULL) {
 	    linux_table_scan(fp, np->memstat);
 	    fclose(fp);

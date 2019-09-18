@@ -7351,7 +7351,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->cp = get_machine_info(kernel_uname.machine);
 	    break;
 	case 8: /* hinv.map.cpu_node */
-	    atom->ul = cp->nodeid;
+	    atom->ul = cp->node->nodeid;
 	    break;
 	case 9: /* hinv.cpu.model_name */
 	    if ((i = cp->info.model_name) < 0)

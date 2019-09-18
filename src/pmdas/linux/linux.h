@@ -277,20 +277,22 @@ typedef struct {
 } softnet_t;
 
 typedef struct {
+    unsigned int	nodeid; /* node%d instance name */
+    unsigned int	instid; /* internal instance id */
+    cpuacct_t		stat;
+    struct linux_table	*meminfo;
+    struct linux_table	*memstat;
+    double		bandwidth;
+} pernode_t;
+
+typedef struct {
     unsigned int	cpuid;
-    unsigned int	nodeid;
+    pernode_t		*node;
     char		*name;
     cpuacct_t		stat;
     cpuinfo_t		info;
     softnet_t		*softnet;
 } percpu_t;
 
-typedef struct {
-    unsigned int	nodeid;
-    cpuacct_t		stat;
-    struct linux_table	*meminfo;
-    struct linux_table	*memstat;
-    double		bandwidth;
-} pernode_t;
 
 #endif /* LINUX_PMDA_H */
