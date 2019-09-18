@@ -16,21 +16,21 @@
 
 """ PCP Microsoft SQL Server Performance Metrics Domain Agent """
 
-# pylint: disable=bad-continuation,line-too-long,too-many-lines
+# pylint: disable=bad-continuation,line-too-long,too-many-lines,bare-except
 
 import os
 import sys
 import time
-import pyodbc
 try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
+from ctypes import c_int
 from pcp.pmapi import pmUnits, pmContext
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
-from ctypes import c_int
 import cpmapi as c_api
-import cpmda
+import pyodbc
+
 if sys.version >= '3':
     long = int  # python2 to python3 portability (no long() in python3)
 
@@ -123,7 +123,7 @@ class MSSQLPMDA(PMDA):
                     '( wait_category, wait_type, wait_time_ms ) as ' +
                     '( select case ' + self.wait_type_grouping + ' end as ' +
                         'wait_category, wait_type, wait_time_ms ' +
-                    'from sys.dm_os_wait_stats ' + 
+                    'from sys.dm_os_wait_stats ' +
                     'where ' + self.wait_type_excludes + ' ) ' +
                     'select wait_category from wait_category_indom ' +
                     'where wait_time_ms >100 group by wait_category'],
@@ -177,7 +177,7 @@ class MSSQLPMDA(PMDA):
                     '( select case ' + self.wait_type_grouping + ' end as ' +
                         'wait_category, wait_type, wait_time_ms, ' +
                         'waiting_tasks_count, max_wait_time_ms ' +
-                    'from sys.dm_os_wait_stats ' + 
+                    'from sys.dm_os_wait_stats ' +
                     'where ' + self.wait_type_excludes + ' ) ' +
                     'select wait_category, ' +
                         'sum(wait_time_ms) as wait_time_ms, ' +
@@ -1194,7 +1194,7 @@ class MSSQLPMDA(PMDA):
                 if instname is None:
                     return [c_api.PM_ERR_INST, 0] # unknown instance for this pmid
                 value = values[instname]
-        except KeyError as error:
+        except KeyError:
             # no values available
             self.debug("mssql_fetch_callback",
                        "no value for pmid=0x%04x name=%s inst=%d" %
@@ -1255,7 +1255,7 @@ class MSSQLPMDA(PMDA):
             parameters = 'DRIVER={0};SERVER={1};UID={2};PWD={3}'
             parameters = parameters.format(self.driver, self.server,
                             self.username, self.password)
-            self.conn = pyodbc.connect(parameters, timeout = self.timeout)
+            self.conn = pyodbc.connect(parameters, timeout=self.timeout)
             self.conn.timeout = self.timeout
         except pyodbc.InterfaceError as error:
             self.error("mssql_connect", "connecting as user %s: %s" %
@@ -1294,7 +1294,7 @@ class MSSQLPMDA(PMDA):
         """ print diagnostic with enforced function name """
         self.err(function + ": " + message)
 
-    def debug(self, function, message = ''):
+    def debug(self, function, message=''):
         """ print message if verbose diagnostics are set """
         if self.verbose:
             if message:
