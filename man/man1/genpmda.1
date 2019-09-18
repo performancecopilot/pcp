@@ -61,7 +61,7 @@ is given below.
 input \f2config\f1 file, see example below
 .TP
 .BI "\-i" " IAM"
-pmda name \f2IAM\f1, should appear in \f2stdpmid\f1 or the \f3\-D\f1 option must be used to specify a \f2domain\f1.
+PMDA name \f2IAM\f1, should appear in \f2stdpmid\f1 or the \f3\-D\f1 option must be used to specify a \f2domain\f1.
 .TP 0
 .B "Other options:"
 .TP 5
@@ -89,7 +89,7 @@ print verbose messages about what
 is doing.
 .PP
 Example:
-    Generate an "example" pmda using domain 99:
+    Generate an "example" PMDA using domain 99:
 .br
     \f3genpmda \-D 99 \-v \-i EXAMPLE \-c example.conf\f1
 
@@ -138,10 +138,9 @@ configuration file,
 as described in
 .BR pcp.conf (5).
 .SH SEE ALSO
-.PP
 .BR pmcd (1),
 .BR PMDA (3),
-.BR PMNS (5),
-.BR pcp.conf (5)
+.BR pcp.conf (5),
+.BR pcp.env (5)
 and
-.BR pcp.env (5).
+.BR PMNS (5).
