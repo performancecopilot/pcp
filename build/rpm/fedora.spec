@@ -490,7 +490,7 @@ Requires: pcp-pmda-bcc
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus pcp-pmda-haproxy
-Requires: pcp-pmda-lmsensors pcp-pmda-mssql
+Requires: pcp-pmda-lmsensors pcp-pmda-mssql pcp-pmda-netcheck
 %endif
 %if !%{disable_snmp}
 Requires: pcp-pmda-snmp
@@ -1723,6 +1723,24 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from Microsoft SQL Server.
 # end pcp-pmda-mssql
 
+#
+# pcp-pmda-netcheck
+#
+%package pmda-netcheck
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for simple network checks
+URL: https://pcp.io
+Requires: pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-netcheck
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from simple network checks.
+# end pcp-pmda-netcheck
+
 %endif # !%{disable_python2} || !%{disable_python3}
 
 %if !%{disable_json}
@@ -2275,6 +2293,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^mailq' |\
   grep -E -v '^mounts' |\
   grep -E -v '^mssql' |\
+  grep -E -v '^netcheck' |\
   grep -E -v '^nvidia' |\
   grep -E -v '^roomtemp' |\
   grep -E -v '^sendmail' |\
@@ -2636,6 +2655,9 @@ fi
 
 %preun pmda-mssql
 %{pmda_remove "$1" "mssql"}
+
+%preun pmda-netcheck
+%{pmda_remove "$1" "netcheck"}
 
 %endif # !%{disable_python[2,3]}
 
@@ -3268,6 +3290,9 @@ cd
 
 %files pmda-mssql
 %{_pmdasdir}/mssql
+
+%files pmda-netcheck
+%{_pmdasdir}/netcheck
 
 %endif # !%{disable_python2} || !%{disable_python3}
 

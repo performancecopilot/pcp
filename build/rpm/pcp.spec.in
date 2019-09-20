@@ -268,6 +268,7 @@ Requires: pcp-pmda-lustrecomm pcp-pmda-redis pcp-pmda-docker pcp-pmda-smart
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-haproxy pcp-pmda-nfsclient pcp-pmda-lmsensors pcp-pmda-mssql
+Requires: pcp-pmda-netcheck
 %endif
 %if "@pmda_podman@" == "true"
 Requires: pcp-pmda-podman
@@ -1647,6 +1648,24 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from Microsoft SQL Server.
 # end pcp-pmda-mssql
 
+#
+# pcp-pmda-netcheck
+#
+%package pmda-netcheck
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for simple network checks
+URL: https://pcp.io
+Requires: pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-netcheck
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from simple network checks.
+# end pcp-pmda-netcheck
+
 %endif # @have_python@
 
 %if "@pmda_libvirt@" == "true"
@@ -2308,6 +2327,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/haproxy' > pmda_haproxy_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nfsclient' > pmda_nfsclient_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lmsensors' > pmda_lmsensors_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mssql' > pmda_mssql_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/netcheck' > pmda_netcheck_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmcollectl|pmiostat|pmrep|dstat' \
       -e 'pcp-atop|pcp-collectl|pcp-dmcache|pcp-dstat|pcp-free|pcp-ipcs' \
       -e 'pcp-iostat|pcp-lvmcache|pcp-mpstat|pcp-numastat|pcp-pidstat' \
@@ -2353,7 +2373,8 @@ touch gui_files webapi_files manager_files pmda_infiniband_files \
 %if "@have_python@" == "true"
 touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
       pmda_mic_files pmda_haproxy_files system_tools_files \
-      pmda_lmsensors_files pmda_nfsclient_files pmda_mssql_files
+      pmda_lmsensors_files pmda_nfsclient_files pmda_mssql_files \
+      pmda_netcheck_files
 %endif
 %if "@pmda_bcc@" == "true"
 touch pmda_bcc_files
@@ -2486,6 +2507,7 @@ BEGIN {
     while( getline < "pmda_haproxy_files") pmda_haproxy[$0]=1;
     while( getline < "pmda_lmsensors_files") pmda_lmsensors[$0]=1;
     while( getline < "pmda_mssql_files") pmda_mssql[$0]=1;
+    while( getline < "pmda_netcheck_files") pmda_netcheck[$0]=1;
     while( getline < "pmda_nfsclient_files") pmda_nfsclient[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
     while( getline < "export_pcp2json_files") export_pcp2json[$0]=1;
@@ -2628,6 +2650,7 @@ BEGIN {
     else if (pmda_haproxy[$NF]) f="pmda_haproxy_files.rpm";
     else if (pmda_lmsensors[$NF]) f="pmda_lmsensors_files.rpm";
     else if (pmda_mssql[$NF]) f="pmda_mssql_files.rpm";
+    else if (pmda_netcheck[$NF]) f="pmda_netcheck_files.rpm";
     else if (pmda_nfsclient[$NF]) f="pmda_nfsclient_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
     else if (export_pcp2json[$NF]) f="export_pcp2json_files.rpm";
@@ -3076,6 +3099,9 @@ pmieconf -c enable dmthin
 
 %preun pmda-mssql
 %{pmda_remove "$1" "mssql"}
+
+%preun pmda-netcheck
+%{pmda_remove "$1" "netcheck"}
 %endif #@have_python@
 
 %preun pmda-apache
@@ -3402,6 +3428,8 @@ cd
 %files pmda-lmsensors -f pmda_lmsensors_files.rpm
 
 %files pmda-mssql -f pmda_mssql_files.rpm
+
+%files pmda-netcheck -f pmda_netcheck_files.rpm
 
 %files pmda-nfsclient -f pmda_nfsclient_files.rpm
 
