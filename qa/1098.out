@@ -12,17 +12,29 @@ test_python.some_indom.some_value 0
 === Round 2 ===
 test_python.other_indom.some_value 0
 test_python.some_value 1
-test_python.some_indom.some_value 0
+test_python.some_indom.some_value 1
 === Round 3 ===
 test_python.other_indom.some_value 2
 test_python.some_value 1
-test_python.some_indom.some_value 0
+test_python.some_indom.some_value 1
 === Round 4 ===
 test_python.other_indom.some_value 0
 test_python.some_value 1
-test_python.some_indom.some_value 0
+test_python.some_indom.some_value 2
 === Round 5 ===
 test_python.other_indom.some_value 2
+test_python.some_value 1
+test_python.some_indom.some_value 2
+=== Round 6 ===
+test_python.other_indom.some_value 0
+test_python.some_value 1
+test_python.some_indom.some_value 4
+=== Round 7 ===
+test_python.other_indom.some_value 2
+test_python.some_value 1
+test_python.some_indom.some_value 4
+=== Round 8 ===
+test_python.other_indom.some_value 0
 test_python.some_value 1
 test_python.some_indom.some_value 0
 

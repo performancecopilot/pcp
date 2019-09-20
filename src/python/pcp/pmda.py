@@ -179,8 +179,6 @@ class pmdaIndom(Structure):
 
     def set_list_instances(self, insts):
         instance_count = len(insts)
-        if (instance_count == 0):
-            return
         instance_array = (pmdaInstid * instance_count)()
         for i in range(instance_count):
             instance_array[i].i_inst = insts[i].i_inst
