@@ -36,7 +36,7 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 
 PYPMDAS = bcc gluster zswap unbound mic haproxy \
 	json libvirt lio prometheus elasticsearch \
-	bpftrace mssql
+	bpftrace mssql netcheck
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf

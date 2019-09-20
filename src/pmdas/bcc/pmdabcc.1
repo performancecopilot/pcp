@@ -59,7 +59,7 @@ A boolean value for \fBmodule_failure_fatal\fP (optional) controls whether
 a module failing to compile should cause the whole PMDA to abort (this
 is the default) or to start up with possibly remaining functional modules.
 Module configuration errors and internal errors (such as failing to
-register the provided PMNS metrics, see \fBpmns\fP(5))
+register the provided PMNS metrics, see \fBPMNS\fP(5))
 will always cause the PMDA to fail.
 .PP
 Of particular note, the \fBprocess\fP option accepted by some modules
@@ -87,7 +87,7 @@ PMDA startup under the \fImodules\fP subdirectory of the PCP BCC PMDA
 installation.
 .TP
 .B cluster
-Specifies the unique cluster ID (see \fBpmns\fP(5)) for the metrics
+Specifies the unique cluster ID (see \fBPMNS\fP(5)) for the metrics
 provided by the module under the PMNS path.
 .PP
 All modules accept but not necessarily use the boolean \fBdebug\fP option.
