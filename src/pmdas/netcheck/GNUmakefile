@@ -20,14 +20,13 @@ PYSCRIPT	= pmda$(IAM).python
 CONF		= $(IAM).conf
 LDIRT		= domain.h root pmns $(IAM).log
 
-ifneq ($(POD2MAN),)
+DOMAIN		= NETCHECK
+PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
+SUBDIRS		= modules
+
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
-endif
-
-DOMAIN		= NETCHECK
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 
 default_pcp default: build-me
 
@@ -35,11 +34,19 @@ include $(BUILDRULES)
 
 ifeq "$(HAVE_PYTHON)" "true"
 build-me: check_domain
+
 install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove pyprep $(PYSCRIPT) $(PMDADIR)
-	$(INSTALL) -m 600 $(CONF) $(PMDADIR)/$(CONF)
+	$(INSTALL) -m 644 pmdautil.python $(PMDADIR)/pmdautil.python
+	$(INSTALL) -m 644 $(CONF) $(PMDADIR)/$(CONF)
 	@$(INSTALL_MAN)
+
+default_pcp default:	$(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+
+install_pcp install:	$(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 else
 build-me:
 install_pcp install:

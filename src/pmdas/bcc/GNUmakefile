@@ -17,8 +17,8 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM      = bcc
 PYSCRIPT = pmda$(IAM).python
-LDIRT    = domain.h root pmns $(IAM).log
 CONFIGS  = $(shell echo bcc*.conf)
+LDIRT    = domain.h root pmns $(IAM).log
 
 DOMAIN   = BCC
 PMDADIR  = $(PCP_PMDAS_DIR)/$(IAM)
@@ -28,24 +28,24 @@ MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default_pcp default ::	build-me
+default_pcp default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(PMDA_BCC)" "true"
 build-me:	check_domain
 
-install_pcp install ::	default
+install_pcp install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove Upgrade $(PYSCRIPT) $(PMDADIR)
-	$(INSTALL) -m 644 README.md $(CONFIGS) $(PMDADIR)
 	$(INSTALL) -m 644 pmdautil.python $(PMDADIR)/pmdautil.python
+	$(INSTALL) -m 644 README.md $(CONFIGS) $(PMDADIR)
 	@$(INSTALL_MAN)
 
-default_pcp default ::	$(SUBDIRS)
+default_pcp default:	$(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-install_pcp install ::	$(SUBDIRS)
+install_pcp install:	$(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 else
 build-me:
