@@ -307,7 +307,6 @@ class NetcheckPMDA(PMDA):
             self.check_runner = CheckRunner(self.dbg, self.log, self.err)
 
         params = PCPNetcheckModuleParams()
-        params.hosts = deepcopy(self.hosts)
         params.background_check = self.background_check
         params.check_hosts_parallel = self.check_hosts_parallel
         params.check_interval = self.check_interval
@@ -325,6 +324,7 @@ class NetcheckPMDA(PMDA):
                 self.err("Module '%s' not found, aborting." % module)
                 sys.exit(1)
             try:
+                params.hosts = deepcopy(self.hosts)
                 obj = mod.PCPNetcheckModule(self.modules[module].config,
                                             self.dbg, self.log, self.err, params)
             except Exception as error: # pylint: disable=broad-except
