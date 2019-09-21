@@ -36,7 +36,7 @@ test_python.some_indom.some_value 4
 === Round 8 ===
 test_python.other_indom.some_value 0
 test_python.some_value 1
-test_python.some_indom.some_value 0
+test_python.some_indom.some_value 4
 
 === Bonus Round ===
 
