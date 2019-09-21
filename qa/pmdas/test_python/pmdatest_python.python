@@ -82,13 +82,13 @@ class TestPMDA(PMDA):
             two_instances = [pmdaInstid(0, 'instance0'), pmdaInstid(1, 'instance1')]
             never_seen_instances = [pmdaInstid(99, 'instance99'), pmdaInstid(100, 'instance100'), pmdaInstid(101, 'instance101'), pmdaInstid(102, 'instance102')]
 
-            if self.refreshes < 1:
+            if self.refreshes <= 1:
                 self.replace_indom(self.some_indom, empty_instances)
-            elif self.refreshes < 3:
+            elif self.refreshes <= 3:
                 self.replace_indom(self.some_indom, one_instances)
-            elif self.refreshes < 5:
+            elif self.refreshes <= 5:
                 self.replace_indom(self.some_indom, two_instances)
-            elif self.refreshes < 7:
+            elif self.refreshes <= 7:
                 self.replace_indom(self.some_indom, never_seen_instances)
             else:
                 self.replace_indom(self.some_indom, empty_instances)
