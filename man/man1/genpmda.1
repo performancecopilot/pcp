@@ -61,7 +61,7 @@ is given below.
 input \f2config\f1 file, see example below
 .TP
 .BI "\-i" " IAM"
-pmda name \f2IAM\f1, should appear in \f2stdpmid\f1 or the \f3\-D\f1 option must be used to specify a \f2domain\f1.
+PMDA name \f2IAM\f1, should appear in \f2stdpmid\f1 or the \f3\-D\f1 option must be used to specify a \f2domain\f1.
 .TP 0
 .B "Other options:"
 .TP 5
@@ -89,7 +89,7 @@ print verbose messages about what
 is doing.
 .PP
 Example:
-    Generate an "example" pmda using domain 99:
+    Generate an "example" PMDA using domain 99:
 .br
     \f3genpmda \-D 99 \-v \-i EXAMPLE \-c example.conf\f1
 
@@ -124,24 +124,16 @@ example.metric {
 .SH DIAGNOSTICS
 Many, but all are intended to be easily understood.
 .SH PCP ENVIRONMENT
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
-.PP
 .BR pmcd (1),
 .BR PMDA (3),
-.BR PMNS (5),
-.BR pcp.conf (5)
+.BR pcp.conf (5),
+.BR pcp.env (5)
 and
-.BR pcp.env (5).
+.BR PMNS (5).

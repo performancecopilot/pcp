@@ -1,0 +1,101 @@
+QA output created by 1160
+
+=== netcheck agent installation ===
+Info: Initializing, currently in 'notready' state.
+Info: Reading configuration.
+Info: Enabled modules:
+Info: ['ping', 'ping_latency', 'ping_loss']
+Info: Configured hosts:
+Info: ['localhost']
+Info: Configured background check: False.
+Info: Configured parallel setting: True.
+Info: Configured check interval: 60s.
+Info: Configured align interval: True.
+Info: Reading module setup configuration:
+Info: ping
+Info: ping_latency
+Info: ping_loss
+Info: Module setup configurations read.
+Info: Initializing modules:
+Info: ping, cluster ID: 1804
+Info: ping: Module parameters: count: 1, timeout: 1.0.
+Info: ping: Initialized.
+Info: ping_latency, cluster ID: 248
+Info: ping_latency: Module parameters: count: 1, timeout: 2.0.
+Info: ping_latency: Initialized.
+Info: ping_loss, cluster ID: 1339
+Info: ping_loss: Module parameters: count: 1, timeout: 2.0.
+Info: ping_loss: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: ping
+Info: ping_latency
+Info: ping_loss
+Info: Metrics registered.
+Info: Initializing, currently in 'notready' state.
+Info: Reading configuration.
+Info: Enabled modules:
+Info: ['ping', 'ping_latency', 'ping_loss']
+Info: Configured hosts:
+Info: ['localhost']
+Info: Configured background check: False.
+Info: Configured parallel setting: True.
+Info: Configured check interval: 60s.
+Info: Configured align interval: True.
+Info: Reading module setup configuration:
+Info: ping
+Info: ping_latency
+Info: ping_loss
+Info: Module setup configurations read.
+Info: Initializing modules:
+Info: ping, cluster ID: 1804
+Info: ping: Module parameters: count: 1, timeout: 1.0.
+Info: ping: Initialized.
+Info: ping_latency, cluster ID: 248
+Info: ping_latency: Module parameters: count: 1, timeout: 2.0.
+Info: ping_latency: Initialized.
+Info: ping_loss, cluster ID: 1339
+Info: ping_loss: Module parameters: count: 1, timeout: 2.0.
+Info: ping_loss: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: ping
+Info: ping_latency
+Info: ping_loss
+Info: Metrics registered.
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check netcheck metrics have appeared ... 3 metrics and 3 values
+
+=== report metric values ===
+
+netcheck.ping.latency PMID: 152.248.0 [ping packet latency]
+    Data Type: float  InDom: 152.248 0x260000f8
+    Semantics: instant  Units: millisec
+Help:
+ping packet latency
+    inst [X or "localhost"] value OK
+
+netcheck.ping.loss PMID: 152.1339.0 [ping packet loss percent]
+    Data Type: 32-bit int  InDom: 152.1339 0x2600053b
+    Semantics: instant  Units: none
+Help:
+ping packet loss percent
+    inst [X or "localhost"] value OK
+
+netcheck.ping.status PMID: 152.1804.0 [ping status]
+    Data Type: 32-bit int  InDom: 152.1804 0x2600070c
+    Semantics: instant  Units: none
+Help:
+ping status
+    inst [X or "localhost"] value OK
+=== verify metric values ===
+
+=== remove netcheck agent ===
+Culling the Performance Metrics Name Space ...
+netcheck ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check netcheck metrics have gone away ... OK

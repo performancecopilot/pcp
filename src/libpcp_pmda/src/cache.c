@@ -562,9 +562,26 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 
     *sts = 0;
 
-    if (name == NULL || strlen(name) == 0) {
+    /*
+     * a NULL name is not good ...
+     */
+    if (name == NULL) {
+	char	strbuf[20];
 	pmNotifyErr(LOG_ERR, 
-	     "insert_cache: NULL or zero length instance name for inst %d\n", inst);
+	     "insert_cache: indom %s: NULL instance name for inst %d\n",
+	     pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)), inst);
+	*sts = PM_ERR_GENERIC;
+	return NULL;
+    }
+    /*
+     * it is OK for PMDA_CACHE_STRINGS type caches to have zero-length
+     * names (strings), but not instance domains ...
+     */
+    if ((h->hstate & CACHE_STRINGS) == 0 && strlen(name) == 0) {
+	char	strbuf[20];
+	pmNotifyErr(LOG_ERR, 
+	     "insert_cache: indom %s: zero length instance name for inst %d\n",
+	     pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)), inst);
 	*sts = PM_ERR_GENERIC;
 	return NULL;
     }
@@ -586,9 +603,10 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 	e = find_entry(h, NULL, inst, sts);
 	if (e != NULL) {
 	    if (name_eq(e, name, hashlen) != 1) {
+		char	strbuf[20];
 		/* instance id the same, different name */
 		if (pmDebugOptions.indom) {
-		    fprintf(stderr, "pmdaCache: store: indom %s: instance %d ", pmInDomStr(h->indom), e->inst);
+		    fprintf(stderr, "pmdaCache: store: indom %s: instance %d ", pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)), e->inst);
 		    fprintf(stderr, " in cache, name \"%s\" does not match new entry \"%s\"\n", e->name, name);
 		}
 		*sts = PM_ERR_INST;
@@ -598,7 +616,8 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 	e = find_entry(h, name, PM_IN_NULL, sts);
 	if (e != NULL) {
 	    if (pmDebugOptions.indom) {
-		fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\"", pmInDomStr(h->indom), e->name);
+		char	strbuf[20];
+		fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\"", pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)), e->name);
 		fprintf(stderr, " in cache, id %d does not match new entry %d\n", e->inst, inst);
 	    }
 	    *sts = PM_ERR_INST;
@@ -828,7 +847,7 @@ load_cache(hdr_t *h)
 	    if ((key = malloc(keylen)) == NULL) {
 		pmNotifyErr(LOG_ERR, 
 		     "load_cache: indom %s: unable to allocate memory for keylen=%d",
-		     pmInDomStr(h->indom), keylen);
+		     pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)), keylen);
 		fclose(fp);
 		return PM_ERR_GENERIC;
 	    }
@@ -980,7 +999,8 @@ store(pmInDom indom, int flags, const char *name, pmInDom inst, int keylen, cons
 
 	if (flags != PMDA_CACHE_ADD) {
 	    if (pmDebugOptions.indom) {
-		fprintf(stderr, "pmdaCache store: indom %s: instance \"%s\"", pmInDomStr(indom), name);
+		char	strbuf[20];
+		fprintf(stderr, "pmdaCache store: indom %s: instance \"%s\"", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), name);
 		if (inst != PM_IN_NULL)
 		    fprintf(stderr, " (%d)", inst);
 		fprintf(stderr, " not in cache: flags=%d not allowed\n", flags);
@@ -1008,9 +1028,10 @@ store(pmInDom indom, int flags, const char *name, pmInDom inst, int keylen, cons
 	    e->keylen = keylen;
 	    if (keylen > 0) {
 		if ((e->key = malloc(keylen)) == NULL) {
+		    char	strbuf[20];
 		    pmNotifyErr(LOG_ERR, 
 			 "store: indom %s: unable to allocate memory for keylen=%d",
-			 pmInDomStr(indom), keylen);
+			 pmInDomStr_r(indom, strbuf, sizeof(strbuf)), keylen);
 		    return PM_ERR_GENERIC;
 		}
 		memcpy(e->key, key, keylen);
@@ -1071,6 +1092,7 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
     entry_t	*e;
     const char	*mykey;
     int		mykeylen;
+    char	strbuf[20];
 
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
@@ -1101,7 +1123,7 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 	 */
 	if (key_eq(e, mykeylen, mykey) == 0) {
 	    if (pmDebugOptions.indom) {
-		fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\" (%d) in cache ", pmInDomStr(indom), e->name, e->inst);
+		fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\" (%d) in cache ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), e->name, e->inst);
 		KeyStr(stderr, e->keylen, (const char *)e->key);
 		fprintf(stderr, " does not match new entry ");
 		KeyStr(stderr, mykeylen, mykey);
@@ -1143,7 +1165,7 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 		if (key_eq(e, mykeylen, mykey) == 1)
 		    break;
 		if (pmDebugOptions.indom) {
-		    fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\" (%d) in cache, ", pmInDomStr(indom), e->name, e->inst);
+		    fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\" (%d) in cache, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), e->name, e->inst);
 		    KeyStr(stderr, e->keylen, (const char *)e->key);
 		    fprintf(stderr, " does not match new entry ");
 		    KeyStr(stderr, mykeylen, mykey);
@@ -1153,7 +1175,7 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 	    }
 	    else if (key_eq(e, mykeylen, mykey) == 1) {
 		if (pmDebugOptions.indom) {
-		    fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance %d ", pmInDomStr(indom), e->inst);
+		    fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance %d ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), e->inst);
 		    KeyStr(stderr, e->keylen, (const char *)e->key);
 		    fprintf(stderr, " in cache, name \"%s\" does not match new entry \"%s\"\n", e->name, name);
 		}
@@ -1164,7 +1186,7 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 	    /* failed after MAX_HASH_TRY rehash attempts ... */
 	    pmNotifyErr(LOG_ERR, 
 		 "pmdaCacheStoreKey: indom %s: unable allocate a new id for instance \"%s\" based on a key of %d bytes\n",
-		 pmInDomStr(h->indom), name, keylen);
+		 pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)), name, keylen);
 	    return PM_ERR_GENERIC;
 	}
 
@@ -1397,10 +1419,11 @@ int pmdaCacheLookupKey(pmInDom indom, const char *name, int keylen, const void *
     }
 
     if (pmDebugOptions.indom) {
-	    fprintf(stderr, "pmdaCacheLookupKey: indom %s: ", pmInDomStr(h->indom));
-	    KeyStr(stderr, mykeylen, mykey);
-	    fprintf(stderr, ": no matching key in cache\n");
-	}
+	char	strbuf[20];
+	fprintf(stderr, "pmdaCacheLookupKey: indom %s: ", pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
+	KeyStr(stderr, mykeylen, mykey);
+	fprintf(stderr, ": no matching key in cache\n");
+    }
     return PM_ERR_INST;
 }
 

@@ -45,19 +45,12 @@ around the \s-1PCP\s0 \fIlibpcp_import\fR
 library, and as such could be used as an example to develop new
 tools to import other types of performance data and create \s-1PCP\s0 archives.
 .SH PCP ENVIRONMENT
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR mrtg (1),
 .BR pmchart (1),

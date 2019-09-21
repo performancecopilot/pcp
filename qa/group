@@ -208,6 +208,7 @@ pmda.mounts
 pmda.mpi
 pmda.mysql
 pmda.named
+pmda.netcheck
 pmda.netfilter
 pmda.news
 pmda.nfsclient
@@ -1559,6 +1560,8 @@ BAD
 1157 pmda.bcc local python
 1158 pmda.bcc local python
 1159 pmlogger local pmdumplog kernel
+1160 pmda.netcheck local python
+1161 pmda.netcheck local python
 1163 pmlogrewrite local
 1164 pmda.linux local valgrind
 1166 libpcp local

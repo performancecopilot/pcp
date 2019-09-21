@@ -436,7 +436,7 @@ class PCP2Graphite(object):
             else:
                 for metric, value in miv_tuples:
                     message = "%s %s %s\n" % (metric, value, long(ts))
-                    msg = str.encode(message)
+                    msg = message.encode()
                     if self.context.pmDebug(PM_DEBUG_APPL0):
                         print("Sending %s: %s" % (timestamp, msg.rstrip().decode()))
                     self.socket.send(msg) # pylint: disable=no-member

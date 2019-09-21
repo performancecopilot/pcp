@@ -24,9 +24,9 @@ import subprocess
 import atexit
 from ctypes import c_int
 
-import cpmapi as c_api
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid, pmdaGetContext
 from pcp.pmapi import pmUnits, pmContext as PCP
+import cpmapi as c_api
 
 from bpftrace import BPFtrace, BPFtraceError, BPFtraceVarDef
 
