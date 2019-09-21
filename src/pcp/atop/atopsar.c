@@ -1557,11 +1557,11 @@ gendskline(struct sstat *ss, char *tstamp, char selector)
 		printf("%-14s %3.0lf%% %6.1lf %7.1lf %7.1lf %7.1lf "
 		       "%5.1lf %6.2lf ms",
 		    	pn,
-			mstot ? (double)dp->io_ms  *  100.0 / mstot   : 0.0,
-			mstot ? (double)dp->nread  * 1000.0 / mstot   : 0.0,
+			(double)dp->io_ms  *  100.0 / mstot,
+			(double)dp->nread  * 1000.0 / mstot,
 			dp->nread  ?
 			        (double)dp->nrsect / dp->nread / 2.0  : 0.0,
-			mstot ? (double)dp->nwrite * 1000.0 / mstot   : 0.0,
+			(double)dp->nwrite * 1000.0 / mstot,
 			dp->nwrite ?
   			        (double)dp->nwsect / dp->nwrite / 2.0 : 0.0,
 			dp->io_ms  ? (double)dp->avque / dp->io_ms    : 0.0,
