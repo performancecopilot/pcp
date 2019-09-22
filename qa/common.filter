@@ -289,6 +289,7 @@ _filter_optional_pmdas()
 	-e '/pmdamysql/d' \
 	-e '/pmdanamed/d' \
 	-e '/pmdanasavg/d' \
+	-e '/pmdanetcheck/d' \
 	-e '/pmdanetfilter/d' \
 	-e '/pmdanetprobe/d' \
 	-e '/pmdanews/d' \
@@ -394,6 +395,7 @@ _filter_top_pmns()
 	-e '/^    mssql /d' \
 	-e '/^    mysql /d' \
 	-e '/^    named /d' \
+	-e '/^    netcheck /d' \
 	-e '/^    netfilter /d' \
 	-e '/^    netprobe /d' \
 	-e '/^    news /d' \
