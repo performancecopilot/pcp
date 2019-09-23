@@ -6,8 +6,8 @@ from bpftrace import BPFtrace
 class BPFtraceTests(unittest.TestCase):
 
     def testTableRetainLines(self):
-        bpftrace = BPFtrace(None, None, '// table-retain-lines: 3\n'
-                                        'printf("test");')
+        bpftrace = BPFtrace(None, '// table-retain-lines: 3\n'
+                                  'printf("test");')
         self.assertEqual(bpftrace.metadata.table_retain_lines, 3)
 
         def add_output(s):
