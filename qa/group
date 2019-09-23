@@ -1661,7 +1661,7 @@ BAD
 1388 pmwebd local
 1389 pmwebd local
 1390 atop local
-1393:reserved pmda.linux local
+1393 pmda.linux local
 1395 pmda.prometheus local python
 1396 pcp python pidstat local BAD @vm34
 1397 pmda.smart local valgrind
