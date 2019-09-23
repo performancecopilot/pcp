@@ -1499,7 +1499,7 @@ BAD
 1095 derive local kernel
 1096 libpcp threads local pmmgr local
 1097 pmlogconf local
-1098 python local pmstore
+1098 python local pmstore sanity
 1099 archive pmiostat local pmie pcp python
 1100 bash local pcp2xxx pcp2elasticsearch pcp2xlsx pcp2influxdb pcp2graphite pmrep python pcp2zabbix pcp2xml pcp2json
 1101 libpcp_web local valgrind

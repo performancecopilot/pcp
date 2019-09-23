@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1098
-# Exercise a couple of python PMDA module bugs/features.
+# Exercise a couple of python PMDA module features.
 #
 # Copyright (c) 2017 Red Hat.
 #
@@ -53,7 +53,7 @@ pmstore test_python.some_value 0 \
     | sed -e 's/old value=./old value=N/g'
 
 # need a few invocations to tickle the bug
-for i in 1 2 3 4 5; do
+for i in 1 2 3 4 5 6 7 8; do
     echo "=== Round $i ===" | tee -a $here/$seq.full
     pmprobe \
         test_python.other_indom.some_value \
