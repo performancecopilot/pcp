@@ -391,7 +391,7 @@ cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh,
 
     /* descend into subdirectories to find all cgroups */
     while ((dp = readdir(dirp)) != NULL) {
-	if (dp->d_name[0] == '.')
+	if (dp->d_name[0] == '.' || dp->d_type != DT_DIR)
 	    continue;
 	if (path[0] == '\0')
 	    pmsprintf(cgpath, sizeof(cgpath), "%s%s/%s",
@@ -399,10 +399,6 @@ cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh,
 	else
 	    pmsprintf(cgpath, sizeof(cgpath), "%s%s/%s/%s",
 			proc_statspath, mnt, path, dp->d_name);
-	if (stat(cgpath, &sbuf) < 0)
-	    continue;
-	if (!(S_ISDIR(sbuf.st_mode)))
-	    continue;
 
 	cgname = cgroup_name(cgpath, length);
 	if (check_refresh(cgpath + mntlen, container, container_length))
