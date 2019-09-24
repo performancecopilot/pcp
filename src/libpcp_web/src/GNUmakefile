@@ -35,12 +35,17 @@ endif
 LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
 LCFLAGS += -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0
 
-ifeq "$(HAVE_LIBUV) and $(HAVE_OPENSSL)" "true and true"
-CFILES += sslio.c libuv.c discover.c webgroup.c
-LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1 $(LIBOPENSSLCFLAGS) -DHAVE_OPENSSL=1
-LLDLIBS += $(LIB_FOR_LIBUV) $(LIB_FOR_OPENSSL)
+ifeq "$(HAVE_LIBUV)" "true"
+CFILES += libuv.c discover.c webgroup.c
+LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
+LLDLIBS += $(LIB_FOR_LIBUV)
 else
 CFILES += stubs.c
+endif
+ifeq "$(HAVE_OPENSSL)" "true"
+CFILES += sslio.c
+LCFLAGS += $(LIBOPENSSLCFLAGS) -DHAVE_OPENSSL=1
+LLDLIBS += $(LIB_FOR_OPENSSL)
 endif
 
 STATICLIBTARGET = libpcp_web.a

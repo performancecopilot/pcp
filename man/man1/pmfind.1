@@ -17,62 +17,87 @@
 \f3pmfind\f1 \- find PCP services on the network
 .SH SYNOPSIS
 \f3pmfind\f1
-[\f3\-q\f1]
+[\f3\-qr?\f1]
 [\f3\-m\f1 \f2mechanism\f1]
 [\f3\-s\f1 \f2service\f1]
-[\f3\-r\f1]
 [\f3\-t\f1 \f2timeout\f1]
 .SH DESCRIPTION
 .B pmfind
 searches for instances of the specified PCP service being advertised on the
 network and prints a list of URLs corresponding to the services discovered.
-.PP
+.SH OPTIONS
+\f3\-m\f1 \f2mechanism\f1, \f3\-\-mechanism\f1=\f2mechanism\f1
+This option sets the
+.I mechanism
+that
+.B pmfind
+uses when performing service discovery.
+By default, or if the keyword
+.I all
+is specified, every available mechanism will be used (iteratively).
+See the ``MECHANISMS'' section for a description of each available
+discovery mechanism.
+.TP
+\f3\-q\f1, \f3\-\-quiet\f1
+This option suppresses all output on the standard output stream.
+.TP
+\f3\-r\f1, \f3\-\-resolve\f1
+Requests that DNS name resolution be attempted for the addresses of
+any discovered services.
+The default is to display the network addresses of any discovered services.
+.TP
+\f3\-s\f1 \f2service\f1, \f3\-\-service\f1=\f2service\f1
 By default
 .B pmfind
 will search for all supported PCP services, however a specific PCP
 .I service
 to discover can be specified using the
 .B \-s
-(or
-.BR \-\-service )
 option.
 Supported services are
 .BR pmcd (1),
 .BR pmproxy (1)
 and
 .BR pmwebapi (3) .
-.PP
-The
-.B \-m
-(or
-.BR \-\-mechanism )
-option sets the
-.I mechanism
+.TP
+.TP
+\f3\-t\f1 \f2seconds\f1, \f3\-\-timeout\f1=\f2seconds\f1
+Sets the maximum amount of time in
+.I seconds
 that
 .B pmfind
-uses when performing service discovery.
-By default, or if the keyword "all" is specified, every available
-mechanism will be used (iteratively).
-Supported mechanisms are:
+will take before interrupting the service discovery.
+The
+.I time
+argument is a floating point number representing the number of seconds
+before timing out.
+The default is to take as much time as is needed to complete the process.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH MECHANISMS
+Supported mechanisms for service discovery are:
 .TP
 .B avahi
 Searches for services which are broadcasting using mDNS via
 .BR avahi-daemon (8).
 An optional suffix \fB",timeout=N"\fP may be added to limit the amount of
-time waiting for the avahi-daemon. N is a floating point number
-specifying the number of seconds to wait.
+time waiting for the avahi-daemon.
+.B N
+is a floating point number specifying the number of seconds to wait.
 The default is 0.5 seconds.
 This timeout may also be specified by setting the environment variable
 .B AVAHI_DISCOVERY_TIMEOUT
 to the desired number of seconds.
-If both are specified, then
-the value specified in the environment variable takes precedence.
+If both are specified, then the value specified in the environment variable
+takes precedence.
 .TP
 .B probe=<net-address>/<mask-bits>
 Actively probes the given subnet for the requested PCP service(s).
-<net-address> is an inet or ipv6
-network address and <mask-bits> is the number of bits used to define the
-subnet.
+.B <net-address>
+is an Inet or IPv6 network address and
+.B <mask-bits>
+is the number of bits used to define the subnet.
 For example, 192.168.1.0/24 defines an 8 bit subnet consisting of the
 addresses 192.168.1.0 through 192.168.1.255.
 An optional suffix \fB",maxThreads=N"\fP may be added to limit the number of
@@ -102,63 +127,32 @@ The \fB"timeout=N"\fP option may be added to limit the amount of
 time spent waiting for each connection attempt.
 N is a floating point number specifying the number of seconds to wait.
 The default is 0.02 seconds (20 milliseconds).
-.PP
-The
-.B \-r
-(or
-.BR \-\-resolve )
-option requests that DNS name resolution be attempted for the addresses of
-any discovered services.
-The default is to display the network addresses of any discovered services.
-.PP
-The
-.B \-t
-(or
-.BR \-\-timeout )
-option sets the maximum amount of time that
-.B pmfind
-will take before interrupting the service discovery. The argument is a floating
-point number representing the number of seconds before timing out. The default
-is to take as much time as is needed to complete the process.
-.PP
-The
-.B \-q
-(or
-.BR \-\-quiet )
-option suppresses all output on the standard output stream.
-.SH FILES
-.PD 0
-.TP 10
-.BI $PCP_BINADM_DIR/discover
-default path to address discovery scripts
-.PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
-.SH DIAGNOSTICS
-The value of the exit status from the command is zero when services were
-successfully located, one if no services were found, and two if an error
-occurred.
-.PP
-In the event of an error, a message will be generated on standard error
-that is intended to be self-explanatory.
 .SH SIGNALS
 .B pmfind
 will interrupt the service discovery process when one of the following
 signals is received: SIGHUP, SIGPIPE, SIGINT, SIGTERM, SIGXFSZ, SIGXCPU.
 .B pmfind
 will report any results which were discovered up to point of the interruption.
+.SH DIAGNOSTICS
+The value of the exit status from the command is zero when services were
+successfully located, one if no services were found, and two if an error
+occurred.
+.PP
+In the event of an error a message will be generated on standard error
+that is intended to be self-explanatory.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_BINADM_DIR/discover
+default path to address discovery scripts
+.PD
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

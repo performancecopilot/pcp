@@ -25,7 +25,7 @@ endif
 
 default:	build-me
 
-ifeq "$(HAVE_LIBUV) and $(HAVE_OPENSSL)" "true and true"
+ifeq "$(HAVE_LIBUV)" "true"
 build-me:	$(CMDTARGET)
 
 install:	default

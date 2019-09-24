@@ -1661,7 +1661,7 @@ BAD
 1388 pmwebd local
 1389 pmwebd local
 1390 atop local
-1393:reserved pmda.linux local
+1393 pmda.linux local
 1395 pmda.prometheus local python
 1396 pcp python pidstat local BAD @vm34
 1397 pmda.smart local valgrind
@@ -1702,4 +1702,5 @@ BAD
 1702 pmda.bpftrace local python
 1703 pmda.bpftrace local python
 1704 pmda.bpftrace local python
+1705 pmda.bpftrace local python
 4751 libpcp threads valgrind local pcp python

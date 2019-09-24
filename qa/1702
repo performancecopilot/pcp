@@ -49,7 +49,7 @@ done
 
 echo "=== start script again ==="
 pmstore -F bpftrace.control.start testscript
-_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.counter
+_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.bytes
 
 echo "=== verify current bpftrace PID is different than last PID ==="
 pid2=$(pminfo -f bpftrace.scripts.testscript.pid | grep value | sed -En 's/.*value ([0-9]*)/\1/gp')
