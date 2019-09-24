@@ -15,7 +15,9 @@
 #define PROXY_SERVER_H
 
 #include <uv.h>
+#ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
+#endif
 
 #include "pmapi.h"
 #include "mmv_stats.h"
@@ -87,6 +89,7 @@ typedef struct pcp_client {
     uv_tcp_t		socket;
 } pcp_client;
 
+#ifdef HAVE_OPENSSL
 typedef struct secure_client {
     SSL			*ssl;
     BIO			*read;
@@ -99,12 +102,14 @@ typedef struct secure_client {
 	uv_buf_t	*writes_buffer;
     } pending;
 } secure_client;
-
+#endif
 
 typedef struct client {
     struct stream	stream;
     stream_protocol	protocol;
+#ifdef HAVE_OPENSSL
     secure_client	secure;
+#endif
     union {
 	redis_client	redis;
 	http_client	http;
@@ -127,7 +132,9 @@ typedef struct proxy {
     unsigned int	nservers;	/* count of entries in server array */
     unsigned int	redisetup;	/* is Redis slots information setup */
     struct client	*pending_writes;
+#ifdef HAVE_OPENSSL
     SSL_CTX		*ssl;
+#endif
     redisSlots		*slots;		/* mapping of Redis keys to servers */
     struct servlet	*servlets;	/* linked list of http URL handlers */
     struct mmv_registry	*metrics;	/* internal performance metrics */
