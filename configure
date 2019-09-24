@@ -10704,12 +10704,12 @@ if test -n "$libuv_CFLAGS"; then
     pkg_cv_libuv_CFLAGS="$libuv_CFLAGS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv >= 1.16\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libuv >= 1.16") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libuv") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_libuv_CFLAGS=`$PKG_CONFIG --cflags "libuv >= 1.16" 2>/dev/null`
+  pkg_cv_libuv_CFLAGS=`$PKG_CONFIG --cflags "libuv" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -10721,12 +10721,12 @@ if test -n "$libuv_LIBS"; then
     pkg_cv_libuv_LIBS="$libuv_LIBS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv >= 1.16\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libuv >= 1.16") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libuv\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libuv") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_libuv_LIBS=`$PKG_CONFIG --libs "libuv >= 1.16" 2>/dev/null`
+  pkg_cv_libuv_LIBS=`$PKG_CONFIG --libs "libuv" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -10747,9 +10747,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        libuv_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libuv >= 1.16" 2>&1`
+	        libuv_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libuv" 2>&1`
         else
-	        libuv_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libuv >= 1.16" 2>&1`
+	        libuv_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libuv" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$libuv_PKG_ERRORS" >&5
@@ -10767,6 +10767,51 @@ $as_echo "yes" >&6; }
 	have_libuv=true
 fi
 HAVE_LIBUV=$have_libuv
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for uv_pipe_chmod in -luv" >&5
+$as_echo_n "checking for uv_pipe_chmod in -luv... " >&6; }
+if ${ac_cv_lib_uv_uv_pipe_chmod+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-luv  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char uv_pipe_chmod ();
+int
+main ()
+{
+return uv_pipe_chmod ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_uv_uv_pipe_chmod=yes
+else
+  ac_cv_lib_uv_uv_pipe_chmod=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_uv_uv_pipe_chmod" >&5
+$as_echo "$ac_cv_lib_uv_uv_pipe_chmod" >&6; }
+if test "x$ac_cv_lib_uv_uv_pipe_chmod" = xyes; then :
+
+$as_echo "#define HAVE_UV_PIPE_CHMOD 1" >>confdefs.h
+
+	     have_uv_pipe_chmod=true
+else
+  have_uv_pipe_chmod=false
+fi
 
 
 

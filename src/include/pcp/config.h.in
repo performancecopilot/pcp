@@ -618,6 +618,9 @@
 /* Define to 1 if you have the `usleep' function. */
 #undef HAVE_USLEEP
 
+/* uv_pipe_chmod API. */
+#undef HAVE_UV_PIPE_CHMOD
+
 /* Define to 1 if you have the `valloc' function. */
 #undef HAVE_VALLOC
 
