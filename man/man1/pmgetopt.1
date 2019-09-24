@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2014,2019 Red Hat.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -18,9 +18,9 @@
 \f3pmgetopt\f1 \- Performance Co-Pilot shell script option parser
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmgetopt\f1
-[\f3\-c\f1|\f3\-\-config\f1 \f2file\f1]
-[\f3\-p\f1|\f3\-\-progname\f1 \f2name\f1]
-[\f3\-u\f1|\f3\-\-usage\f1]
+[\f3\-u?\f1]
+[\f3\-c \f2file\f1]
+[\f3\-p \f2name\f1]
 [\f3\-\-\f1]
 [\f2parameters\f1]
 .SH DESCRIPTION
@@ -52,12 +52,12 @@ take two forms: initially, options specific to
 itself are passed in, and terminated using the \-\- mechanism.
 Thereafter, all of the parameters passed into the shell script
 should be passed (usually this is simply the "$@" variable).
-.PP
+.SH OPTIONS
 The options specific to
 .B pmgetopt
 are as follows:
 .TP 5
-.BR \-c , \-\-config
+\f3\-c\f1=\f2file\f1, \f3\-\-config\f1=\f2file\f1
 A configuration
 .I file
 in the format described below is passed to
@@ -67,7 +67,7 @@ If this option is omitted, then
 .B pmconfig 
 will read its configuration from the standard input stream.
 .TP
-.BR \-p , \-\-progname
+\f3\-p\f1=\f2name\f1, \f3\-\-progname\f1=\f2name\f1
 When parsing the calling shell scripts parameters, error and usage
 messages will contain the given program
 .I name
@@ -75,10 +75,15 @@ rather than referring to
 .B pmgetopt
 itself as the source of the error.
 .TP
-.BR \-u , \-\-usage
+\f3\-u\f1, \f3\-\-usage\f1
 A usage message appropriate for the calling shell script to
 present as its own can be generated using the
 option.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display the usage message for
+.B pmgetopt
+itself and exit.
 .PP
 .B pmgetopt
 parses the given parameters, and produces output in a format
@@ -91,9 +96,9 @@ If arguments are presented that do not match the configuration,
 a request for a usage message (\-?) will be generated for the
 calling script to respond to.
 Any non-option parameters will be echoed back to the calling
-script preceded by the double-hyphen delimiter.  Thus a script
-should stop handling options when this delimiter is detected,
-and begin the handling of any non-option arguments.
+script preceded by the double-hyphen delimiter.
+Thus a script should stop handling options when this delimiter
+is detected, and begin the handling of any non-option arguments.
 .PP
 Unlike with the shell built-in
 .I getopt
@@ -110,8 +115,7 @@ The configuration format used by
 .B pmgetopt
 is intended to closely reflect the usage message which would be
 generated in the presence of invalid arguments (or the 
-.BR \-? , \-\-help
-option).
+\f3\-?\f1, \f3\-\-help\f1 option).
 .PP
 There are primarily two types of configuration line \- commands
 and options.
@@ -195,20 +199,13 @@ use form part of the PCP toolkit, in particular the
 and
 .BR pmlogmv (1)
 scripts provide good reference examples.
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR pcp (1),
 .BR pmlogmv (1),
