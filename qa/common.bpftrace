@@ -48,14 +48,15 @@ _pmdabpftrace_cleanup()
 
 _pmdabpftrace_wait_for_value()
 {
-    for i in $(seq 1 10);
+    value_regex=${2:-".*"}
+    for i in `seq 1 20`
     do
-        pminfo -f $1 2>&1 | grep -q 'value .*' && break
+        pminfo -f $1 2>/dev/null | grep -q "value $value_regex" && break
         sleep 1
     done
-
-    if [ $i -ge 30 ]; then
-        echo Timeout while waiting for metric $1.
+    if [ $i -ge 20 ]; then
+        echo "Timeout while waiting for metric $1 to match \"value $value_regex\", output:"
+        pminfo -f $1
         exit
     fi
 }

@@ -20,7 +20,6 @@ import json
 import time
 import re
 import configparser
-import subprocess
 import atexit
 from ctypes import c_int
 
@@ -111,7 +110,7 @@ class BPFtraceScript:
         self.pmda = pmda
         self.cluster = cluster
         self.script = script # contains the unmodified script
-        self.bpftrace = BPFtrace(pmda.bpftrace_path, pmda.log, script)
+        self.bpftrace = BPFtrace(pmda.log, script)
         if self.bpftrace.metadata.name:
             self.name = self.bpftrace.metadata.name
             self.persistent = True
@@ -290,6 +289,17 @@ class BPFtracePMDA(PMDA):
         self.script_expiry_time = 10 * 60 # in seconds, default to 10 min
         self.read_config()
 
+        if not self.is_pmda_setup():
+            try:
+                BPFtrace.configure(self.bpftrace_path)
+            except OSError as e:
+                self.err("Error starting bpftrace: {}".format(e))
+                sys.exit(1)
+            if BPFtrace.VERSION == BPFtrace.VERSION_LATEST:
+                self.log('WARNING: unreleased bpftrace version, assuming latest version')
+            else:
+                self.log('bpftrace version: {}'.format(BPFtrace.VERSION))
+
         self.connect_pmcd()
 
         self.next_script_no = Consts.Script.Cluster
@@ -297,9 +307,9 @@ class BPFtracePMDA(PMDA):
         self.scripts = {}
         self.script_indom_id = None
         self.script_indom = None
-        self.tracepoints_csv = '' if self.is_pmda_setup() else self.read_tracepoints_csv()
-        self.register_metrics()
+        self.tracepoints_csv = BPFtrace.TRACEPOINTS.replace('\n', ',')
 
+        self.register_metrics()
         self.set_store_callback(self.store_callback)
         self.set_label(self.label)
         self.set_refresh(self.refresh_callback)
@@ -375,15 +385,6 @@ class BPFtracePMDA(PMDA):
             self.pmid(Consts.Info.Cluster, Consts.Info.Tracepoints), c_api.PM_TYPE_STRING,
             c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, pmUnits()
         ), "list of all available tracepoints")
-
-    def read_tracepoints_csv(self):
-        """on startup, read list of all available bpftrace tracepoints"""
-        try:
-            tracepoints = subprocess.check_output([self.bpftrace_path, '-l'], encoding='utf8')
-        except OSError as e:
-            self.err("Cannot start bpftrace: {}".format(e))
-            sys.exit(1)
-        return tracepoints.strip().replace('\n', ',')
 
     def set_ctx_state(self, key, value):
         """set per-context state"""

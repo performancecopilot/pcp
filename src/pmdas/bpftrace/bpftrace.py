@@ -63,6 +63,7 @@ class BPFtraceVarDef: # pylint: disable=too-few-public-methods
         """BPFtrace variable types"""
         Control = 'control'
         Histogram = 'histogram'
+        Stacks = 'stacks'
         Output = 'output'
 
     def __init__(self, single, semantics, datatype, metrictype):
@@ -83,8 +84,12 @@ class ScriptMetadata: # pylint: disable=too-few-public-methods
 
 class BPFtrace:
     """class for interacting with bpftrace"""
-    def __init__(self, bpftrace_path, log, script):
-        self.bpftrace_path = bpftrace_path
+    BPFTRACE_PATH = ''
+    TRACEPOINTS = ''
+    VERSION = ()
+    VERSION_LATEST = (999, 999, 999) # simplifies version checks, assuming latest version
+
+    def __init__(self, log, script):
         self.log = log
         self.script = script # contains the modified script (added continuous output)
         self.process = None
@@ -95,6 +100,24 @@ class BPFtrace:
         self._state = BPFtraceState()
 
         self.parse_script()
+
+    @classmethod
+    def parse_version(cls, version):
+        """parse bpftrace version"""
+        re_released_version = re.match(r'bpftrace v(\d+)\.(\d+)\.(\d+)', version)
+        if re_released_version:
+            # regex enforces exactly 3 integers
+            return tuple(map(int, re_released_version.groups())) # (major, minor, patch)
+        return cls.VERSION_LATEST
+
+    @classmethod
+    def configure(cls, path):
+        """configure BPFtrace class"""
+        cls.BPFTRACE_PATH = path
+        version = subprocess.check_output([cls.BPFTRACE_PATH, '--version'], encoding='utf8').strip()
+        cls.VERSION = cls.parse_version(version)
+        cls.TRACEPOINTS = subprocess.check_output([cls.BPFTRACE_PATH, '-l'],
+                                                  encoding='utf8').strip()
 
     def state(self):
         """returns latest state"""
@@ -124,7 +147,11 @@ class BPFtrace:
                 self._state.status = BPFtraceState.Status.Started
 
             if obj['type'] == BPFtraceMessageType.AttachedProbes:
-                self._state.probes = obj['probes']
+                if self.VERSION <= (0, 9, 2):
+                    self._state.probes = obj['probes']
+                else:
+                    # https://github.com/iovisor/bpftrace/commit/9d1269b
+                    self._state.probes = obj['data']['probes']
             elif obj['type'] == BPFtraceMessageType.Map:
                 self._state.maps.update(obj['data'])
             elif obj['type'] == BPFtraceMessageType.Hist:
@@ -142,6 +169,10 @@ class BPFtrace:
     def process_output(self):
         """process stdout and stderr of running bpftrace process"""
         for line in self.process.stdout:
+            if self.VERSION <= (0, 9, 2) and '": }' in line:
+                # invalid JSON, fixed in https://github.com/iovisor/bpftrace/commit/348975b
+                continue
+
             if not line or line.isspace():
                 continue
             try:
@@ -192,15 +223,19 @@ class BPFtrace:
                 vardef = BPFtraceVarDef(single=True, semantics=PM_SEM_INSTANT, datatype=PM_TYPE_U64,
                                         metrictype=None)
                 if func in ['hist', 'lhist']:
+                    if key:
+                        raise BPFtraceError("every histogram needs to be in a separate variable")
                     vardef.single = False
                     vardef.semantics = PM_SEM_COUNTER
                     vardef.metrictype = BPFtraceVarDef.MetricType.Histogram
-                if func == 'count':
+                elif func == 'count':
+                    vardef.single = not bool(key)
                     vardef.semantics = PM_SEM_COUNTER
-                if key:
-                    vardef.single = False
-                    if vardef.metrictype == BPFtraceVarDef.MetricType.Histogram:
-                        raise BPFtraceError("every histogram needs to be in a separate variable")
+                    if key in ['ustack', 'kstack']:
+                        vardef.metrictype = BPFtraceVarDef.MetricType.Stacks
+                else:
+                    vardef.single = not bool(key)
+                    vardef.semantics = PM_SEM_INSTANT
                 self.var_defs[var] = vardef
 
             print_st = ' '.join(['print({});'.format(var) for var in self.var_defs])
@@ -229,7 +264,7 @@ class BPFtrace:
             self._state.reset()
             self._state.status = BPFtraceState.Status.Starting
 
-        self.process = subprocess.Popen([self.bpftrace_path, '-f', 'json', '-e', self.script],
+        self.process = subprocess.Popen([self.BPFTRACE_PATH, '-f', 'json', '-e', self.script],
                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                         encoding='utf8')
 
