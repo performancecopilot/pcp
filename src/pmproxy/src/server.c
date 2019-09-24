@@ -394,7 +394,9 @@ open_request_local(struct proxy *proxy, struct server *server,
     handle->data = (void *)proxy;
 
     uv_pipe_bind(&stream->u.local, name);
+#ifdef HAVE_UV_PIPE_CHMOD
     uv_pipe_chmod(&stream->u.local, UV_READABLE);
+#endif
 
     sts = uv_listen((uv_stream_t *)&stream->u.local, maxpending, on_client_connection);
     if (sts != 0) {

@@ -1755,8 +1755,12 @@ then
 fi
 AC_SUBST(HAVE_OPENSSL, [$have_openssl])
 
-PKG_CHECK_MODULES([libuv], [libuv >= 1.16], [have_libuv=true], [have_libuv=false])
+PKG_CHECK_MODULES([libuv], [libuv], [have_libuv=true], [have_libuv=false])
 AC_SUBST(HAVE_LIBUV, [$have_libuv])
+AC_CHECK_LIB(uv, uv_pipe_chmod,
+	     AC_DEFINE(HAVE_UV_PIPE_CHMOD, [1], [uv_pipe_chmod API.])
+	     have_uv_pipe_chmod=true,
+	     have_uv_pipe_chmod=false)
 
 PKG_CHECK_MODULES([libvarlink], [libvarlink], [have_libvarlink=true], [have_libvarlink=false])
 AC_SUBST(HAVE_LIBVARLINK, [$have_libvarlink])

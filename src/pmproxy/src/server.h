@@ -142,13 +142,19 @@ extern void on_client_write(uv_write_t *, int);
 extern void on_client_close(uv_handle_t *);
 extern void on_buffer_alloc(uv_handle_t *, size_t, uv_buf_t *);
 extern void client_write(struct client *, sds, sds);
-extern void secure_client_write(struct client *, uv_write_t *, unsigned int);
 
 extern void on_protocol_read(uv_stream_t *, ssize_t, const uv_buf_t *);
 
+#ifdef HAVE_OPENSSL
+extern void secure_client_write(struct client *, uv_write_t *, unsigned int);
 extern void on_secure_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
 extern void on_secure_client_close(struct client *);
+#else
+#define secure_client_write(c,w,l)	do { (void)(c); } while (0)
+#define on_secure_client_read(p,c,s,b)	do { (void)(p); } while (0)
+#define on_secure_client_write(c)	do { (void)(c); } while (0)
+#endif
 
 extern void on_redis_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
@@ -162,9 +168,15 @@ extern void on_pcp_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
 extern void on_pcp_client_close(struct client *);
 
+#ifdef HAVE_OPENSSL
 extern void flush_secure_module(struct proxy *);
 extern void setup_secure_module(struct proxy *);
 extern void close_secure_module(struct proxy *);
+#else
+#define flush_secure_module(p)	do { (void)(p); } while (0)
+#define setup_secure_module(p)	do { (void)(p); } while (0)
+#define close_secure_module(p)	do { (void)(p); } while (0)
+#endif
 
 extern void setup_redis_module(struct proxy *);
 extern void close_redis_module(struct proxy *);
