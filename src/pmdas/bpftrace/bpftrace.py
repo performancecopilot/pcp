@@ -166,8 +166,8 @@ class BPFtrace:
                 if self.metadata.table_retain_lines is not None:
                     self.table_retain_lines()
 
-    def process_output(self):
-        """process stdout and stderr of running bpftrace process"""
+    def process_stdout(self):
+        """process stdout of running bpftrace process"""
         for line in self.process.stdout:
             if self.VERSION <= (0, 9, 2) and '": }' in line:
                 # invalid JSON, fixed in https://github.com/iovisor/bpftrace/commit/348975b
@@ -187,6 +187,12 @@ class BPFtrace:
         with self.lock:
             self._state.status = BPFtraceState.Status.Stopped
             self._state.exit_code = self.process.returncode
+
+    def process_stderr(self):
+        """process stderr of running bpftrace process"""
+        for line in self.process.stderr:
+            with self.lock:
+                self._state.output += line
 
     def parse_script(self):
         """parse bpftrace script (read variable semantics, add continuous output)"""
@@ -265,12 +271,14 @@ class BPFtrace:
             self._state.status = BPFtraceState.Status.Starting
 
         self.process = subprocess.Popen([self.BPFTRACE_PATH, '-f', 'json', '-e', self.script],
-                                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                         encoding='utf8')
 
         # with daemon=False, atexit doesn't work
-        self.process_output_thread = Thread(target=self.process_output, daemon=True)
-        self.process_output_thread.start()
+        self.process_stdout_thread = Thread(target=self.process_stdout, daemon=True)
+        self.process_stdout_thread.start()
+        self.process_stderr_thread = Thread(target=self.process_stderr, daemon=True)
+        self.process_stderr_thread.start()
 
         self.log("started {}".format(self))
         with self.lock:

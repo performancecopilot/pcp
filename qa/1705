@@ -25,12 +25,12 @@ pmstore -F bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { }"
 pminfo -f bpftrace.control.register | grep -q "no bpftrace variables or printf statements found, please include at least one variable or print statement in your script" && echo OK
 
 echo "=== invalid probe ==="
-pmstore bpftrace.control.register "does_not_exist { @c = count(); }" > $seq.full
+pmstore bpftrace.control.register "does_not_exist { @c = count(); }" >> $here/$seq.full
 _pmdabpftrace_wait_for_value bpftrace.scripts.script101.output "\"Invalid provider: 'does_not_exist'\""
 pminfo -f bpftrace.scripts.script101.exit_code
 
 echo "=== too many attached tracepoints ==="
-pmstore bpftrace.control.register "kprobe:* { @c = count(); }" > $seq.full
+pmstore bpftrace.control.register "kprobe:* { @c = count(); }" >> $here/$seq.full
 _pmdabpftrace_wait_for_value bpftrace.scripts.script102.output "\"Can't attach to [0-9]* probes because it exceeds the current limit of [0-9]* probes."
 pminfo -f bpftrace.scripts.script102.exit_code
 
