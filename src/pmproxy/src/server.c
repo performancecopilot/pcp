@@ -492,6 +492,7 @@ open_request_ports(const char *localpath, int maxpending)
 	sockaddr = (const struct sockaddr *)addrlist[i].addr;
 	family = __pmSockAddrGetFamily(addrlist[i].addr) == AF_INET ?
 					STREAM_TCP4 : STREAM_TCP6;
+	port = __pmSockAddrGetPort(addrlist[i].addr);
 	server = &proxy->servers[n++];
 	server->stream.address = addrlist[i].address;
 	if (open_request_port(proxy, server, family, sockaddr, port, maxpending) == 0)

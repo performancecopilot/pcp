@@ -458,6 +458,7 @@ PCP_CALL extern __pmSockAddr *__pmSockAddrDup(const __pmSockAddr *);
 PCP_CALL extern void	     __pmSockAddrSetFamily(__pmSockAddr *, int);
 PCP_CALL extern int	     __pmSockAddrGetFamily(const __pmSockAddr *);
 PCP_CALL extern void	     __pmSockAddrSetPort(__pmSockAddr *, int);
+PCP_CALL extern int	     __pmSockAddrGetPort(const __pmSockAddr *);
 PCP_CALL extern void	     __pmSockAddrSetPath(__pmSockAddr *, const char *);
 PCP_CALL extern int	     __pmSockAddrIsLoopBack(const __pmSockAddr *);
 PCP_CALL extern int	     __pmSockAddrIsInet(const __pmSockAddr *);

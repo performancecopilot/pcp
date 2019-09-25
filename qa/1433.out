@@ -7,6 +7,8 @@ pmproxy request port(s):
   === ==== ===== ====== =======
 ok FD 44322 inet INADDR_ANY
 ok FD 44322 ipv6 INADDR_ANY
+ok FD 44323 inet INADDR_ANY
+ok FD 44323 ipv6 INADDR_ANY
 [DATE] pmproxy(PID) Info: pmproxy caught SIGTERM
 [DATE] pmproxy(PID) Info: pmproxy Shutdown
 
