@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 1161
 # Exercise PCP netcheck PMDA dns modules - install, remove and values.
 #
@@ -16,11 +16,18 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 [ -f $PCP_PMDAS_DIR/netcheck/Install ] || _notrun "netcheck PMDA not installed"
 
 which ping > /dev/null 2>&1 || _notrun "ping not installed"
-ping -c 1 localhost > /dev/null 2>&1 || _notrun "failed to ping localhost"
+ping -c 1 -4 localhost > $tmp.tmp 2>&1 || _notrun "failed to ping localhost"
+LOCALHOST=`sed < $tmp.tmp -n -e '/^PING/{
+s/PING //
+s/ .*//
+p
+}'`
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
+
+echo "localhost=$LOCALHOST" >> $seq.full
 
 pmda_filter()
 {
@@ -32,6 +39,7 @@ pmda_filter()
 	-e "s/::1,127.0.0.1/OK/g" \
 	-e "s/127.0.0.1/OK/g" \
 	-e "s/::1/OK/g" \
+	-e "s/value \"$LOCALHOST\"/value \"LOCALHOST\"/" \
     #end
 }
 

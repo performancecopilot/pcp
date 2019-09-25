@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 1160
 # Exercise PCP netcheck PMDA ping modules - install, remove and values.
 #
