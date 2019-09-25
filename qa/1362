@@ -4,6 +4,21 @@
 #
 # Copyright (c) 2018 Red Hat.  All Rights Reserved.
 #
+# Note: this test is _notrun if a local postgresql server is not installed
+# or not configured correctly and running. On Fedora (other platforms may
+# differ), install, initialize, enable and start the server :
+#
+#     sudo dnf install postgresql-server
+#     sudo postgresql-setup initdb
+#     sudo systemctl enable postgresql
+#     sudo systemctl start postgresql
+#
+# Also (on Fedora at least), after a major system upgrade may require you
+# to migrate an existing postgres DB to the new version. To do that:
+#
+#     sudo dnf install postgresql-upgrade
+#     sudo postgresql-setup --upgrade
+#     sudo systemctl restart postgresql
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -87,7 +102,7 @@ sleep 1
 
 echo === checking log for disconnect messages
 pminfo -f postgresql.stat.activity.usename >/dev/null 2>&1
-grep -i "Warning: connection lost" $PCP_LOG_DIR/pmcd/postgresql.log | sed -e 's/^.*Warning/Warning/'
+grep -i "connection lost" $PCP_LOG_DIR/pmcd/postgresql.log | sed -e 's/^.*Info/Info/'
 
 sleep 2
 
