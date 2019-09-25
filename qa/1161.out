@@ -80,7 +80,7 @@ netcheck.dns.reverse.res PMID: 152.3601.0 [reverse dns lookup result]
     Semantics: discrete  Units: none
 Help:
 reverse dns lookup result
-    inst [X or "localhost"] value "localhost"
+    inst [X or "localhost"] value "LOCALHOST"
 
 netcheck.dns.reverse.time PMID: 152.3601.1 [reverse dns lookup time]
     Data Type: float  InDom: 152.3601 0x26000e11
