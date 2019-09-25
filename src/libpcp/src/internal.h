@@ -383,7 +383,6 @@ extern int __pmDataIPC(int, void *) _PCP_HIDDEN;
 
 extern int __pmGetSockOpt(int, int, int, void *, __pmSockLen *) _PCP_HIDDEN;
 extern __pmSockAddr *__pmSockAddrMask(__pmSockAddr *, const __pmSockAddr *) _PCP_HIDDEN;
-extern int	     __pmSockAddrGetPort(const __pmSockAddr *) _PCP_HIDDEN;
 extern void	     __pmSockAddrSetScope(__pmSockAddr *, int) _PCP_HIDDEN;
 extern __pmSockAddr *__pmSockAddrFirstSubnetAddr(const __pmSockAddr *, int) _PCP_HIDDEN;
 extern __pmSockAddr *__pmSockAddrNextSubnetAddr(__pmSockAddr *, int) _PCP_HIDDEN;

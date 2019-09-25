@@ -31,7 +31,7 @@ static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*username;
 static char	*certdb;		/* certificate DB path (NSS) */
 static char	*dbpassfile;		/* certificate DB password file */
-static char     *cert_nickname;         /* Alternate nickname for server certificate */
+static char     *cert_nickname;         /* alternate nickname for server certificate */
 static char	sockpath[MAXPATHLEN];	/* local unix domain socket path */
 
 static void
@@ -65,20 +65,22 @@ static pmLongOptions longopts[] = {
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Service options"),
     { "", 0, 'A', 0, "disable service advertisement" },
+    { "deprecated", 0, 'd', 0, "backward-compatibility mode; no REST APIs" },
     { "foreground", 0, 'f', 0, "run in the foreground" },
+    { "timeseries", 0, 't', 0, "automatic, scalable timeseries; REST APIs" },
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     PMAPI_OPTIONS_HEADER("Configuration options"),
-    { "config", 1, 'c', "PATH", "path to configuration file"},
-    { "certdb", 1, 'C', "PATH", "path to NSS certificate database" },
-    { "passfile", 1, 'P', "PATH", "password file for certificate database access" },
-    { "", 1, 'L', "BYTES", "maximum size for PDUs from clients [default 65536]" },
+    { "config", 1, 'c', "PATH", "path to configuration file (implies --timeseries)"},
+    { "certdb", 1, 'C', "PATH", "path to NSS certificate database (implies --deprecated)" },
+    { "passfile", 1, 'P', "PATH", "password file for certificate database access (implies --deprecated)" },
+    { "certname", 1, 'M', "NAME", "certificate name to use (implies --deprecated)" },
+    { "", 0, 'L', 0, "maximum size for PDUs from clients [default 65536]" },
     PMAPI_OPTIONS_HEADER("Connection options"),
     { "interface", 1, 'i', "ADDR", "accept connections on this IP address" },
-    { "port", 1, 'p', "N", "accept connections on this port" },
+    { "port", 1, 'p', "PORT", "accept connections on this port" },
     { "socket", 1, 's', "PATH", "Unix domain socket file [default $PCP_RUN_DIR/pmproxy.socket]" },
-    { "port", 1, 'r', "N", "Connect to Redis instance on this TCP/IP port" },
-    { "timeseries", 0, 't', 0, "Enable automatic scalable timeseries loading" },
-    { "host", 1, 'h', "HOST", "Connect to Redis instance on this host name" },
+    { "redisport", 1, 'r', "PORT", "Connect to Redis instance on this TCP/IP port (implies --timeseries)" },
+    { "redishost", 1, 'h', "HOST", "Connect to Redis instance on this host name (implies --timeseries)" },
     PMAPI_OPTIONS_HEADER("Diagnostic options"),
     { "log", 1, 'l', "PATH", "redirect diagnostics and trace output" },
     { "", 1, 'x', "PATH", "fatal messages at startup sent to file [default /dev/tty]" },
@@ -86,17 +88,17 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "Ac:C:D:fh:i:l:L:M:p:P:r:s:tU:x:?",
+    .short_options = "Ac:C:dD:fh:i:l:L:M:p:P:r:s:tU:x:?",
     .long_options = longopts,
 };
 
-static void
+static int
 ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 {
     int		c;
     int		sts;
     int		usage = 0;
-    int		timeseries = 0;
+    int		timeseries = 1;
     int		redis_port = 6379;
     char	*redis_host = NULL;
     const char	*inifile = NULL;
@@ -105,16 +107,21 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
-	case 'A':   /* disable pmproxy service advertising */
+	case 'A':	/* disable pmproxy service advertising */
 	    __pmServerClearFeature(PM_SERVER_FEATURE_DISCOVERY);
 	    break;
 
 	case 'c':	/* path to .ini configuration file */
 	    inifile = opts.optarg;
+	    timeseries = 1;
 	    break;
 
 	case 'C':	/* path to NSS certificate database */
 	    certdb = opts.optarg;
+	    break;
+
+	case 'd':	/* run in deprecated (libpcp, select) mode */
+	    timeseries = 0;
 	    break;
 
 	case 'D':	/* debug options */
@@ -131,7 +138,7 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 
 	case 'h':	/* Redis host name */
 	    redis_host = opts.optarg;
-	    timeseries++;
+	    timeseries = 1;
 	    break;
 
 	case 'i':
@@ -145,9 +152,10 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 
         case 'M':	/* nickname for server cert, use to query the nssdb */
             cert_nickname = opts.optarg;
+	    timeseries = 0;
             break;
 
-	case 'L':	/* Maximum size for PDUs from clients */
+	case 'L':	/* maximum size for PDUs from clients */
 	    sts = (int)strtol(opts.optarg, NULL, 0);
 	    if (sts <= 0) {
 		pmprintf("%s: -L requires a positive value\n", pmGetProgname());
@@ -169,6 +177,7 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 
 	case 'P':	/* password file for certificate database access */
 	    dbpassfile = opts.optarg;
+	    timeseries = 0;
 	    break;
 
 	case 'Q':	/* require clients to provide a trusted cert */
@@ -181,7 +190,7 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 		pmprintf("%s: -r requires a positive value\n", pmGetProgname());
 		opts.errors++;
 	    }
-	    timeseries++;
+	    timeseries = 1;
 	    break;
 
 	case 's':	/* path to local unix domain socket */
@@ -192,8 +201,8 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 	    __pmServerSetFeature(PM_SERVER_FEATURE_CREDS_REQD);
 	    break;
 
-	case 't':
-	    timeseries++;
+	case 't':	/* run in timeseries mode (libuv, REST APIs) */
+	    timeseries = 1;
 	    break;
 
 	case 'U':	/* run as user username */
@@ -226,9 +235,6 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 	opts.errors++;
     } else {
 	/* Extract pmproxy configuration information needed immediately */
-	if ((option = pmIniFileLookup(config, "pmproxy", "discover")) &&
-	    (strncmp(option, "true", sdslen(option)) == 0))
-	    timeseries = 1;
 	if ((option = pmIniFileLookup(config, "pmproxy", "maxpending")))
 	    *maxpending = atoi(option);
 
@@ -246,22 +252,29 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 
 #if !defined(HAVE_LIBUV)
     if (timeseries) {
-	pmprintf("%s: -t/--timeseries requires libuv and openssl support (missing)\n",
+	timeseries = 0;
+	pmprintf("%s: disabled time series, requires libuv support (missing)\n",
 			pmGetProgname());
-	opts.errors++;
-    } else {
-	server = &libpcp_pmproxy;
+	pmflush();
     }
+    server = &libpcp_pmproxy;
 #else
     server = timeseries ? &libuv_pmproxy: &libpcp_pmproxy;
 #endif
 
-    if (usage || opts.errors || opts.optind < argc) {
+    if (opts.optind < argc)
+	opts.errors++;
+    if (opts.flags & PM_OPTFLAG_EXIT)
+	usage++;
+
+    if (usage || opts.errors) {
 	pmUsageMessage(&opts);
 	if (usage)
 	    exit(0);
 	DontStart();
     }
+
+    return timeseries;
 }
 
 /* Called to shutdown pmproxy in an orderly manner */
@@ -292,6 +305,7 @@ main(int argc, char *argv[])
     int		localhost = 0;
     int		maxpending = MAXPENDING;
     int		env_warn = 0;
+    int		timeseries;
     char	*envstr;
 
     umask(022);
@@ -312,7 +326,7 @@ main(int argc, char *argv[])
 	maxpending = atoi(envstr);
 	env_warn |= ENV_WARN_MAXPENDING;
     }
-    ParseOptions(argc, argv, &nport, &maxpending);
+    timeseries = ParseOptions(argc, argv, &nport, &maxpending);
 
     pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */
@@ -324,8 +338,11 @@ main(int argc, char *argv[])
 
     if (localhost)
 	__pmServerAddInterface("INADDR_LOOPBACK");
-    if (nport == 0)
-        nport = __pmServerAddPorts(TO_STRING(PROXY_PORT));
+    if (nport == 0) {
+	nport = __pmServerAddPorts(TO_STRING(PROXY_PORT));
+	if (timeseries)
+	    nport = __pmServerAddPorts(TO_STRING(WEBAPI_PORT));
+    }
 
     /* Advertise the service on the network if that is supported */
     __pmServerSetServiceSpec(PM_SERVER_PROXY_SPEC);
@@ -354,7 +371,8 @@ main(int argc, char *argv[])
 	    DontStart();
     }
 
-    if (__pmSecureServerCertificateSetup(certdb, dbpassfile, cert_nickname) < 0)
+    if (!timeseries &&
+        __pmSecureServerCertificateSetup(certdb, dbpassfile, cert_nickname) < 0)
 	DontStart();
 
     fprintf(stderr, "pmproxy: PID = %" FMT_PID, (pid_t)getpid());
