@@ -369,7 +369,6 @@ cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh,
 {
     int length, mntlen = strlen(mnt) + 1;
     DIR *dirp;
-    struct stat sbuf;
     struct dirent *dp;
     const char *cgname;
     char cgpath[MAXPATHLEN] = { 0 };
