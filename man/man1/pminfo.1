@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016-2018 Red Hat.
+.\" Copyright (c) 2016-2019 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@
 \f3pminfo\f1 \- display information about performance metrics
 .SH SYNOPSIS
 \fBpminfo\fR
-[\fB\-dfFIlLmMstTvxz\fR]
+[\fB\-dfFIlLmMstTvxz?\fR]
 [\fB\-a\fR \fIarchive\fR]
 [\fB\-b\fR \fIbatchsize\fR]
 [\fB\-c\fR \fIdmfile\fR]
@@ -27,24 +27,12 @@
 [\fB\-\fR[\fBn\fR|\fBN\fR] \fIpmnsfile\fR]
 [\fB\-O\fR \fItime\fR]
 [\fB\-Z\fR \fItimezone\fR]
+[\f3\-\-container\f1]
 [\fImetricname\fR | \fIpmid\fR | \fIindom\fR]...
 .SH DESCRIPTION
 .B pminfo
 displays various types of information about performance metrics
 available through the facilities of the Performance Co-Pilot (PCP).
-.PP
-Normally
-.B pminfo
-operates on the distributed Performance Metrics Name Space (PMNS),
-however if the \fB\-n\fR/\fB\-\-namespace\fR option is
-specified an alternative local PMNS is loaded from the file
-.IR pmnsfile .
-The \fB\-N\fR/\fB\-\-uniqnames\fR option supports the same function
-as \fB\-n\fR/\fB\-\-namespace\fR, except for the handling of
-duplicate names for the same Performance Metric Identifier (PMID) in
-.I pmnsfile
-\- duplicate names are allowed with \fB\-n\fR/\fB\-\-namespace\fR
-but they are not allowed with \fB\-N\fR/\fB\-\-uniqnames\fR.
 .PP
 The metrics of interest are named in the
 .I metricname
@@ -60,8 +48,8 @@ argument is given, the root of the PMNS is used.
 .PP
 If the
 .I metricname
-argument is in numeric dotted notation,
-it is interpreted as either a 3-dotted
+argument is in numeric dotted notation, it is interpreted as
+either a 3-dotted
 .I pmid
 (metric identifier \- domain, cluster, item numbers) or
 a 2-dotted
@@ -74,8 +62,8 @@ case, a reverse PMID-to-name lookup is performed, and in the
 case, the instance domain is reported directly.
 This latter mode can be used to report the instance domain
 ``one line'' and long form help text summaries.
-.PP
-Unless directed to another host by the \fB\-h\fR/\fB\-\-host\fR
+.SH OPTIONS
+Unless directed to another host by the \fB\-h\fR
 option, by default
 .B pminfo
 will contact the Performance Metrics Collector Daemon
@@ -85,45 +73,48 @@ The connection to a PMCD is only required if
 requires distributed PMNS information, and/or meta-data
 describing metrics, and/or metric values, and/or help text.
 .PP
-The \fB\-a\fR/\fB\-\-archive\fR option causes
+The \fB\-a\fR option causes
 .B pminfo
 to use the specified set of archives rather than connecting to a PMCD.
-The argument to \fB\-a\fR/\fB\-\-archive\fR is a comma-separated list
-of names, each of which may be the base name of an archive or the
-name of a directory containing one or more archives.
 .PP
-The \fB\-L\fR/\fB\-\-local\-PMDA\fR option causes
+The \fB\-L\fR option causes
 .B pminfo
 to use a local context to collect metrics from PMDAs on the local host
 without PMCD.
 Only some metrics are available in this mode.
 .PP
-The \fB\-a\fR/\fB\-\-archive\fR, \fB\-h\fR/\fB\-\-host\fR
-and \fB\-L\fR/\fB\-\-local\-PMDA\fR options are mutually exclusive.
+The \fB\-a, \fB\-h\fR and \fB\-L\fR options are mutually exclusive.
 .PP
-The \fB\-b\fR/\fB\-\-batch\fR option may be used to define the
-maximum size of the group of metrics to be fetched in a single
-request for the \fB\-f/\fB\-\-fetch\fR and \fB\-v/\fB\-\-verify\fR
+The available command line options are:
+.TP 5
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
+Performance metric values are retrieved from the set of Performance
+Co-Pilot (PCP) archive log files identified by the
+.I archive
+argument, which is a comma-separated list of names,
+each of which may be the base name of an archive or the name of
+a directory containing one or more archives.
+.TP
+\fB\-b\fR, \fB\-\-batch\fR
+This option may be used to define the maximum number of metrics
+to be fetched in a single request for the \fB\-f\fR and \fB\-v\fR
 options.
 The default value for
 .I batchsize
 is 128.
-.PP
-Other options control the specific information to be reported.
-.TP 5
+.TP
 \fB\-c\fR \fIdmfile\fR, \fB\-\-derived\fR=\fIdmfile\fR
 The
 .I dmfile
 argument specifies a file that contains derived metric definitions
 in the format described for
 .BR pmLoadDerivedConfig (3).
-The \fB\-c\fR/\fB\-\-derived\fR
-option provides a way to load derived metric definitions
-that is an alternative to the more generic use of the
+The \fB\-c\fR\fR option provides a way to load derived metric
+definitions that is an alternative to the more generic use of the
 .B PCP_DERIVED_CONFIG
 environment variable as described in
 .BR PCPIntro (1).
-Using the \fB\-c\fR/\fB\-\-derived\fR option and the
+Using the \fB\-c\fR option and the
 .B PCP_DERIVED_CONFIG
 environment variable to specify the
 .B same
@@ -135,9 +126,9 @@ scale and associated instance domain.
 .TP
 \fB\-f\fR, \fB\-\-fetch\fR
 Fetch and print values for all instances.
-When fetching from a set of archives, only
-those instances present in the first archive record for a metric will be
-displayed; see also the \fB\-O\fR/\fB\-\-origin\fR option, else use
+When fetching from a set of archives, only those instances present in the
+first archive record for a metric will be displayed;
+see also the \fB\-O\fR option, else use
 .BR pmdumplog (1)
 which may be a better tool for examining archives.
 .TP
@@ -148,18 +139,24 @@ but try harder to fetch instances for metrics which have non-enumerable
 instance domains (e.g. metrics in the ``proc'' subtree of the default
 PMNS on some platforms).
 .TP
+\fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
+Fetch performance metrics from
+.BR pmcd (1)
+on
+.IR host ,
+rather than from the default localhost.
+.TP
 \fB\-I\fR, \fB\-\-fullindom\fR
 Print the InDom in verbose mode.
 .TP
 \fB\-K\fR \fIspec\fR, \fB\-\-spec\-local\fR=\fIspec\fR
-When using the \fB\-L/\fB\-\-local-PMDA\fR option to fetch metrics from
-a local context, this option controls the DSO PMDAs that should be made
-accessible.
+When using the \fB\-L/\fR option to fetch metrics from a local context,
+this option controls the DSO PMDAs that should be made accessible.
 The
 .I spec
 argument conforms to the syntax described in
 .BR pmSpecLocalPMDA (3).
-More than one \fB\-K\fR/\fB\-\-spec-local\fR option may be used.
+More than one \fB\-K\fR option may be used.
 .TP
 \fB\-l\fR, \fB\-\-labels\fR
 Print label sets associated with metrics and instances.
@@ -172,9 +169,25 @@ Print the PMID in terse mode.
 \fB\-M\fR, \fB\-\-fullpmid\fR
 Print the PMID in verbose mode.
 .TP
+\fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
+Normally
+.B pminfo
+operates on the distributed Performance Metrics Name Space (PMNS),
+however if the \fB\-n\fR option is specified an alternative local
+PMNS is loaded from the file
+.IR pmnsfile .
+.TP
+\fB\-N\fR \fIpmnsfile\fR, \fB\-\-uniqnames\fR=\fIpmnsfile\fR
+The \fB\-N\fR option supports the same function as \fB\-n\fR, except
+for the handling of duplicate names for the same Performance Metric
+Identifier (PMID) in
+.I pmnsfile
+\- duplicate names are allowed with \fB\-n\fR but they are not
+allowed with \fB\-N\fR.
+.TP
 \fB\-O\fR \fItime\fR, \fB\-\-origin\fR=\fItime\fR
 When used in conjunction with an archive source of metrics and the
-options \fB\-f/\fB\-\-fetch\fR, the
+options \fB\-f/\fR, the
 .I time
 argument defines a time origin at which the metrics should be
 fetched from the set of archives.
@@ -195,7 +208,7 @@ Archive, local context or
 connections for the same host all produce the same source identifier.
 See also
 .BR pmLookupLabels (3)
-and the \fB\-l/\fB\-\-labels\fR option.
+and the \fB\-l\fR option.
 .TP
 \fB\-t\fR, \fB\-\-oneline\fR
 Print the ``one line'' help summary, if available.
@@ -222,6 +235,14 @@ but with the additional functionality that if a value is
 processed that is of type PM_TYPE_EVENT or PM_TYPE_HIGHRES_EVENT, then
 the event records will be unpacked and the details of each event record
 reported.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.TP
+\fB\-\-container\fR=\fIcontainer\fR
+Specify an individual
+.I container
+to be queried.
 .SH FILES
 .PD 0
 .TP 10
@@ -246,6 +267,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pmrep (1),
 .BR pmval (1),
 .BR PMAPI (3),
+.BR pmGetOptions (3),
 .BR pmLookupLabels (3),
 .BR pmLoadDerivedConfig (3),
 .BR pmSpecLocalPMDA (3),
