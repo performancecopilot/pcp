@@ -7,7 +7,7 @@ Check postgresql metrics have appeared ... X warnings, Y metrics and Z values
 OK
 === restart postgresql service
 === checking log for disconnect messages
-Warning: connection lost to postgres server, reconnecting ...
+Info: Connection lost to postgres server, reconnecting ...
 
 == fetch again .. should have reconnected
 OK
