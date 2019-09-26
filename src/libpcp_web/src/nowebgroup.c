@@ -16,20 +16,6 @@
 #include "pmwebapi.h"
 
 int
-pmDiscoverRegister(const char *path, pmDiscoverModule *module,
-		pmDiscoverCallBacks *callbacks, void *arg)
-{
-    (void)arg; (void)path; (void)module; (void)callbacks;
-    return -EOPNOTSUPP;
-}
-
-void
-pmDiscoverUnregister(int handle)
-{
-    (void)handle;
-}
-
-int
 pmWebGroupContext(pmWebGroupSettings *sp, sds id, struct dict *dp, void *arg)
 {
     (void)arg; (void)dp; (void)id; (void)sp;

@@ -73,7 +73,7 @@ typedef struct pmDiscover {
     pmTimespec			timestamp;	
     int				ctx;		/* PMAPI context handle ) */
     int				fd;		/* meta file descriptor */
-#ifdef HAVE_LIBUV
+#ifdef HAVE_UV_FS_EVENT_START
     uv_fs_event_t		*event_handle;	/* uv fs_notify event handle */ 
     uv_stat_t			statbuf;	/* stat buffer from event CB */
 #endif
