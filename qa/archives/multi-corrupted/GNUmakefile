@@ -3,7 +3,7 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/archives/multi-corrupted
 SRCARCH = $(shell echo *.[0-9].xz)
-SRCMETA = $(patsubst %.0.xz,%.meta,$(SRCARCH))
+SRCMETA = $(patsubst %.0.xz,%.meta.xz,$(SRCARCH))
 SRCIDX = $(patsubst %.0.xz,%.index,$(SRCARCH))
 
 default setup default_pcp:
