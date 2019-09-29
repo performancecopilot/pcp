@@ -157,7 +157,7 @@ allow pcp_pmcd_t hostname_exec_t:file { getattr execute read open execute_no_tra
 #type=AVC msg=audit(YYY.33): avc:  denied  { open } for  pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_state_change/id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
 @PCP_TRACEFS_FILE_RULE@
 
-#type=AVC msg=audit(YYY.91): avc:  denied  { getattr } for  pid=YYYY comm="pmdaproc" path="/dev/gpmctl" dev="devtmpfs" ino=19750 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:gpmctl_t:s0 tclass=sock_file permissive=1
+#type=AVC msg=audit(YYY.37): avc:  denied  { getattr } for  pid=YYYY comm="pmdaproc" path="/dev/gpmctl" dev="devtmpfs" ino=19750 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:gpmctl_t:s0 tclass=sock_file permissive=1
 allow pcp_pmcd_t gpmctl_t:sock_file getattr;
 
 #type=AVC msg=audit(XXX.16): avc:  denied  { write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:haproxy_var_lib_t:s0 tclass=sock_file permissive=0
