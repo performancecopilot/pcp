@@ -64,7 +64,7 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
         """Check module prerequisities"""
         try:
             socket.gethostbyaddr("127.0.0.1")
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             raise RuntimeError("Can't resolve 127.0.0.1!")
 
     def metrics(self):
@@ -87,7 +87,7 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
             end_time = time()
             hosts[host] = res[0]
             timings[host] = (end_time - start_time) * 1000
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             pass
 
     def do_check(self):

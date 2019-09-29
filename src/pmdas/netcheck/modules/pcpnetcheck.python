@@ -19,6 +19,7 @@ except ImportError:
     from time import sleep, time
 
 import sys
+import socket
 
 from ctypes import c_int
 from collections import OrderedDict
@@ -82,7 +83,7 @@ class PCPNetcheckModuleBase(object):
         self.insts = {}
         self.items = ()
 
-        self.pmdaIndom = None # pylint: disable=invalid-name
+        self.pmdaIndom = None  # pylint: disable=invalid-name
         self.config = config
         self.debug = False
 
@@ -111,7 +112,7 @@ class PCPNetcheckModuleBase(object):
                     self.check_interval = \
                         int(PCP.pmParseInterval(self.config.get(self._who, opt))[0])
                     self.log("Using module-specific interval: %d s." % self.check_interval)
-                except Exception: # pylint: disable=broad-except
+                except Exception:  # pylint: disable=broad-except
                     self.err("Invalid time format for 'check_interval', aborting.")
                     sys.exit(1)
             if opt == 'align_interval':
@@ -151,7 +152,7 @@ class PCPNetcheckModuleBase(object):
         """Get metric definitions"""
         raise NotImplementedError
 
-    def helpers(self, pmdaIndom): # pylint: disable=invalid-name
+    def helpers(self, pmdaIndom):  # pylint: disable=invalid-name
         """Register helper function references"""
         self.pmdaIndom = pmdaIndom
 
@@ -168,22 +169,21 @@ class PCPNetcheckModuleBase(object):
     def netdata(self, item, inst):
         """Return net check result as PCP metric value"""
         try:
-            res = self.hosts if 'results' not in dir(self) else self.results
+            ref = self.hosts if item == 0 else self.timings
             key = self.pmdaIndom.inst_name_lookup(inst)
-            ref = res if item == 0 else self.timings
             return [ref[key], 1]
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             return [PMDA_FETCH_NOVALUES, 0]
 
-    def label_cluster(self): # pylint: disable=no-self-use
+    def label_cluster(self):  # pylint: disable=no-self-use
         """Cluster labels"""
         return '{"netcheck_module":"' + self._who + '"}'
 
-    def label_indom(self): # pylint: disable=no-self-use
+    def label_indom(self):  # pylint: disable=no-self-use
         """Instance domain labels"""
         return '{}'
 
-    def label_instance(self, inst): # pylint: disable=no-self-use, unused-argument
+    def label_instance(self, inst):  # pylint: disable=no-self-use, unused-argument
         """Instance labels"""
         return '{}'
 
@@ -200,7 +200,10 @@ class PCPNetcheckModuleBase(object):
     @staticmethod
     def is_ipv6(host):
         """Test if IPv6 address"""
-        return ':' in host
+        try:
+            return ':' in host or ':' in socket.getaddrinfo(host, 0)[0][4][0]
+        except:
+            return False
 
     def update_hosts(self, old, new):
         """Update hosts"""
@@ -214,7 +217,7 @@ class PCPNetcheckModuleBase(object):
     def _generate_command(cmd_template, host, six_opt):
         """Generate command"""
         cmd = [item.replace(PCPNetcheckModuleBase.HOST_TMPL_STR, host) for item in cmd_template]
-        if six_opt and ':' in host:
+        if six_opt and PCPNetcheckModuleBase.is_ipv6(host):
             cmd = [item.replace(PCPNetcheckModuleBase.SIX_OPT, six_opt) for item in cmd]
         else:
             cmd.remove(PCPNetcheckModuleBase.SIX_OPT)
@@ -282,7 +285,7 @@ class PCPNetcheckModuleBase(object):
         """Run check methods sequentially"""
         for host in self.hosts:
             proc = self._start_method(method, params + (host,))
-            self._wait_for_checks({host:proc})
+            self._wait_for_checks({host: proc})
 
     def _run_check_methods_parallel(self, method, params):
         """Run check commands in parallel"""
@@ -307,7 +310,7 @@ class PCPNetcheckModuleBase(object):
         if not procs:
             return
         end_time = time() + float(self.timeout) * self.count
-        start_times = {proc:timings[proc] for proc in timings} if timings else {}
+        start_times = {proc: timings[proc] for proc in timings} if timings else {}
         pause = 0.2 if not timings else 0.02
         subproc = isinstance(list(procs.values())[0], Popen)
         checks_alive = True
@@ -325,7 +328,7 @@ class PCPNetcheckModuleBase(object):
         for proc in procs:
             try:
                 procs[proc].terminate()
-            except Exception: # pylint: disable=broad-except
+            except Exception:  # pylint: disable=broad-except
                 pass
             if timings and timings[proc] == start_times[proc]:
                 timings[proc] = -2

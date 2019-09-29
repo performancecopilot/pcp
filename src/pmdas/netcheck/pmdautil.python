@@ -24,6 +24,7 @@ from time import sleep
 from threading import Thread
 from collections import OrderedDict
 
+
 class CheckRunner(object):
     """Check runner helper"""
     def __init__(self, dbg, log, err):
@@ -48,7 +49,7 @@ class CheckRunner(object):
                 thread.setDaemon(True)
                 thread.start()
                 self._threads.append(thread)
-            sleep(0.01) # Yield
+            sleep(0.01)  # Yield
 
     def _run_module_check(self, module, params):
         """Run module check periodically"""
@@ -59,7 +60,7 @@ class CheckRunner(object):
             start_time = time()
             try:
                 obj.do_check()
-            except Exception as error: # pylint: disable=broad-except
+            except Exception as error:  # pylint: disable=broad-except
                 self._err("%s: %s" % (module, str(error)))
                 self._err("%s has failed, disabling!" % module)
             sleep_time = start_time + interval - time() if align else interval

@@ -62,7 +62,7 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
             proc.communicate()
             if proc.returncode:
                 raise RuntimeError("Can't ping the loopback interface!")
-        except OSError: # pylint: disable=broad-except
+        except OSError:  # pylint: disable=broad-except
             raise RuntimeError("Can't run the ping(1) command!")
 
     def metrics(self):

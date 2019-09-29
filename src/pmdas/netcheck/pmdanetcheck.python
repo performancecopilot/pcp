@@ -125,7 +125,7 @@ class NetcheckPMDA(PMDA):
 
         try:
             config.read(conffile)
-        except Exception as error: # pylint: disable=broad-except
+        except Exception as error:  # pylint: disable=broad-except
             self.err(str(error))
             sys.exit(1)
 
@@ -147,7 +147,7 @@ class NetcheckPMDA(PMDA):
                 elif opt == 'check_interval':
                     try:
                         self.check_interval = int(PCP.pmParseInterval(config.get('pmda', opt))[0])
-                    except Exception: # pylint: disable=broad-except
+                    except Exception:  # pylint: disable=broad-except
                         self.err("Invalid time format for 'check_interval', aborting.")
                         sys.exit(1)
                 elif opt == 'align_interval':
@@ -327,7 +327,7 @@ class NetcheckPMDA(PMDA):
                 params.hosts = deepcopy(self.hosts)
                 obj = mod.PCPNetcheckModule(self.modules[module].config,
                                             self.dbg, self.log, self.err, params)
-            except Exception as error: # pylint: disable=broad-except
+            except Exception as error:  # pylint: disable=broad-except
                 self.err(str(error))
                 if self.module_fail_fatal:
                     self.err("Module '%s' failed to initialize, aborting." % module)
@@ -379,7 +379,8 @@ class NetcheckPMDA(PMDA):
         insts = {}
         try:
             insts = self.modules[module].refresh()
-        except Exception as error: # pylint: disable=broad-except
+        except Exception as error:  # pylint: disable=broad-except
+            self.err(str(module))
             self.err(str(error))
             self.err(traceback.format_exc())
         if self.modules[module].indom != PM_INDOM_NULL:
@@ -399,7 +400,8 @@ class NetcheckPMDA(PMDA):
         module = self.clusters[cluster]
         try:
             return self.modules[module].netdata(item, inst)
-        except Exception as error: # pylint: disable=broad-except
+        except Exception as error:  # pylint: disable=broad-except
+            self.err(str(module))
             self.err(str(error))
             self.err(traceback.format_exc())
             return [PM_ERR_VALUE, 0]
@@ -418,6 +420,7 @@ class NetcheckPMDA(PMDA):
         """Instance labels"""
         module = self.indoms[indom]
         return self.modules[module].label_instance(inst)
+
 
 if __name__ == '__main__':
     NetcheckPMDA('netcheck', 152).run()
