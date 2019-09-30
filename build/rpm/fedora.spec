@@ -97,8 +97,8 @@ Patch0: pmcd-pmlogger-local-context.patch
 %global disable_bcc 1
 %endif
 
-# support for pmdajson (orphaned in Fedora)
-%if 0%{?rhel} != 0 && 0%{?rhel} > 6
+# support for pmdajson
+%if 0%{?rhel} == 0 || 0%{?rhel} > 6
 %if !%{disable_python2} || !%{disable_python3}
 %global disable_json 0
 %else
