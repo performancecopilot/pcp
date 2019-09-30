@@ -11,10 +11,12 @@ Check bpftrace metrics have appeared ... 6 metrics and 5 values
 bpftrace.control.register: new value="tracepoint:raw_syscalls:sys_enter { }" pmStore: Bad input to pmstore
 OK
 === invalid probe ===
+found metric bpftrace.scripts.script101.output matching "value "Invalid provider: 'does_not_exist'""
 
 bpftrace.scripts.script101.exit_code
     value 1
 === too many attached tracepoints ===
+found metric bpftrace.scripts.script102.output matching "value "Can't attach to [0-9]* probes because it exceeds the current limit of [0-9]* probes."
 
 bpftrace.scripts.script102.exit_code
     value 1
