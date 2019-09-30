@@ -229,7 +229,7 @@ BuildRequires: systemtap-sdt-devel
 BuildRequires: boost-devel
 %endif
 %if !%{disable_libuv}
-BuildRequires: libuv-devel >= 1.16
+BuildRequires: libuv-devel >= 1.0
 %endif
 %if !%{disable_openssl}
 BuildRequires: openssl-devel >= 1.1.1
@@ -461,7 +461,7 @@ Requires: pcp-libs = %{version}-%{release}
 Requires: pcp-libs-devel = %{version}-%{release}
 Requires: pcp-devel = %{version}-%{release}
 %if !%{disable_libuv}
-Requires: libuv-devel >= 1.16
+Requires: libuv-devel >= 1.0
 %endif
 Obsoletes: pcp-gui-testsuite
 # The following are inherited from pcp-collector and pcp-monitor,
