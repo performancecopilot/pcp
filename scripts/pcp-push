@@ -259,7 +259,7 @@ then
     # and if we pushed a non-master branch, then also push the master
     # branch back to the remote repo
     #
-    if [ -f touch $tmp.needpush ]
+    if [ -f $tmp.needpush ]
     then
 	$GIT push $push
     fi
