@@ -28,6 +28,7 @@ from multiprocessing import Manager
 
 from pcp.pmapi import pmUnits
 from cpmapi import PM_TYPE_32, PM_TYPE_FLOAT, PM_SEM_INSTANT, PM_TIME_MSEC
+from cpmda import PMDA_FETCH_NOVALUES
 
 from modules.pcpnetcheck import PCPNetcheckModuleBase
 

@@ -13,7 +13,7 @@
 #
 """PCP netcheck PMDA reverse DNS lookup module"""
 
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name,too-many-arguments
 
 try:
     from time import perf_counter as time
