@@ -178,57 +178,15 @@ do
     fi
     echo "Answer the question, bozo!"
 done
+rm -f $tmp.needpush
 if [ -f $tmp.y ]
 then
     if [ "$branch" != master ]
     then
 	$GIT push -u origin $branch
+	touch $tmp.needpush
     else
 	$GIT push $push
-    fi
-fi
-
-# This is no longer necessary ... pushing to the official github
-# repo is done via the pull request process on github.
-# This logic has been made inactive, but left until I'm sure it is
-# no longer needed.
-#
-if false
-then
-    rm -f $tmp.y
-    while true
-    do
-	echo -n "Push to official github repo? [y|n|q] (or ctrl+C to abort) "
-	read ans </dev/tty
-	if [ -z "$ans" ]
-	then
-	    :
-	elif [ "$ans" = y ]
-	then
-	    touch $tmp.y
-	    break
-	elif [ "$ans" = n ]
-	then
-	    break
-	elif [ "$ans" = q ]
-	then
-	    echo "Quitting ... $pushed_sha not updated"
-	    exit
-	fi
-	echo "Answer the question, bozo!"
-    done
-    if [ -f $tmp.y ]
-    then
-	case `id -un`
-	in
-	    kenj)
-		echo "You're not trusted to do this ..."
-		;;
-	    *)
-		push="ssh://git@github.com/performancecopilot/pcp.git"
-		$GIT push $push
-		;;
-	esac
     fi
 fi
 
@@ -298,6 +256,13 @@ then
     $GIT checkout master
     $GIT branch -d $branch
     $RM -f $pushed_sha
+    # and if we pushed a non-master branch, then also push the master
+    # branch back to the remote repo
+    #
+    if [ -f touch $tmp.needpush ]
+    then
+	$GIT push $push
+    fi
 fi
 
 # may have local git mirror that needs to be updated ...
