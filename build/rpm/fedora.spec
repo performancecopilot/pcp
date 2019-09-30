@@ -97,8 +97,8 @@ Patch0: pmcd-pmlogger-local-context.patch
 %global disable_bcc 1
 %endif
 
-# support for pmdajson (orphaned in Fedora)
-%if 0%{?rhel} != 0 && 0%{?rhel} > 6
+# support for pmdajson
+%if 0%{?rhel} == 0 || 0%{?rhel} > 6
 %if !%{disable_python2} || !%{disable_python3}
 %global disable_json 0
 %else
@@ -229,7 +229,7 @@ BuildRequires: systemtap-sdt-devel
 BuildRequires: boost-devel
 %endif
 %if !%{disable_libuv}
-BuildRequires: libuv-devel >= 1.16
+BuildRequires: libuv-devel >= 1.0
 %endif
 %if !%{disable_openssl}
 BuildRequires: openssl-devel >= 1.1.1
@@ -461,7 +461,7 @@ Requires: pcp-libs = %{version}-%{release}
 Requires: pcp-libs-devel = %{version}-%{release}
 Requires: pcp-devel = %{version}-%{release}
 %if !%{disable_libuv}
-Requires: libuv-devel >= 1.16
+Requires: libuv-devel >= 1.0
 %endif
 Obsoletes: pcp-gui-testsuite
 # The following are inherited from pcp-collector and pcp-monitor,

@@ -13,7 +13,7 @@
 #
 """PCP netcheck PMDA packet latency module"""
 
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name,too-many-arguments
 
 import sys
 
@@ -85,5 +85,5 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
                 self.hosts[host] = \
                     float(search(r'/\d+\.\d+/',
                                  outputs[host][0].decode('UTF-8')).group(0)[1:-1])
-            except Exception: # pylint: disable=broad-except
+            except Exception:  # pylint: disable=broad-except
                 self.hosts[host] = -2

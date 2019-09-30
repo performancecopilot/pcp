@@ -102,7 +102,6 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
     def netdata(self, item, inst):
         """Return net check result as PCP metric value"""
         try:
-            key = self.pmdaIndom.inst_name_lookup(inst)
             if item == 0:
                 ref = self.hosts
             elif item == 1:
@@ -112,18 +111,19 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
             else:
                 self.err("Internal error, aborting!")
                 sys.exit(1)
+            key = self.pmdaIndom.inst_name_lookup(inst)
             return [ref[key], 1]
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             return [PMDA_FETCH_NOVALUES, 0]
 
-    def _do_url_get(self, hosts, results, timings, host):
+    def _do_url_get(self, hosts, timings, results, host):
         """Do URL get"""
         try:
             ctx = ssl.create_default_context()
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
             url = self.url.replace(self.HOST_TMPL_STR, host)
-            req = urlget.Request(url, headers={'User-Agent':"PCP netcheck PMDA"})
+            req = urlget.Request(url, headers={'User-Agent': "PCP netcheck PMDA"})
             data = True
             content = ""
             start_time = time()
@@ -133,18 +133,18 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
                 content += data
             end_time = time()
             hosts[host] = 0
-            results[host] = 0 if search(self.string, content) else 1
             timings[host] = end_time - start_time
-        except Exception: # pylint: disable=broad-except
+            results[host] = 0 if search(self.string, content) else 1
+        except Exception:  # pylint: disable=broad-except
             pass
 
     def do_check(self):
         """Do net check"""
         hosts = Manager().dict()
-        results = Manager().dict()
         timings = Manager().dict()
-        self._run_check_methods(self._do_url_get, (hosts, results, timings))
+        results = Manager().dict()
+        self._run_check_methods(self._do_url_get, (hosts, timings, results))
         for host in self.hosts:
             self.hosts[host] = hosts[host] if host in hosts else 1
-            self.results[host] = results[host] if host in results else -1
             self.timings[host] = timings[host] if host in timings else -2
+            self.results[host] = results[host] if host in results else -1

@@ -28,6 +28,7 @@ from multiprocessing import Manager
 
 from pcp.pmapi import pmUnits
 from cpmapi import PM_TYPE_32, PM_TYPE_FLOAT, PM_SEM_INSTANT, PM_TIME_MSEC
+from cpmda import PMDA_FETCH_NOVALUES
 
 from modules.pcpnetcheck import PCPNetcheckModuleBase
 
@@ -77,7 +78,7 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
         """Check module prerequisities"""
         try:
             socket.getaddrinfo("localhost", 0)
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             raise RuntimeError("Can't resolve localhost!")
 
     def metrics(self):
@@ -90,6 +91,15 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
              'socket conn time'),
         )
         return True, self.items
+
+    def netdata(self, item, inst):
+        """Return net check result as PCP metric value"""
+        try:
+            ref = self.results if item == 0 else self.timings
+            key = self.pmdaIndom.inst_name_lookup(inst)
+            return [ref[key], 1]
+        except Exception:  # pylint: disable=broad-except
+            return [PMDA_FETCH_NOVALUES, 0]
 
     def _do_tcp_connect(self, results, timings, ports, host):
         """Do socket connection"""
@@ -104,7 +114,7 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
                 key = host + '::' + port
                 results[key] = res
                 timings[key] = (end_time - start_time) * 1000
-            except Exception: # pylint: disable=broad-except
+            except Exception:  # pylint: disable=broad-except
                 pass
 
     def do_check(self):
