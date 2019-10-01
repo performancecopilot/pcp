@@ -36,6 +36,25 @@ then
     esac
 fi
 
+# transition to pmwebd retirement
+#
+if grep '^[^#]*-p 44324' $PCP_PMWEBDOPTIONS_PATH >/dev/null 2>&1
+then
+    # already done
+    :
+else
+    cat $PCP_PMWEBDOPTIONS_PATH >$tmp.tmp
+    cat <<'End-of-File' >>$tmp.tmp
+
+# Changed for QA during transition, pending pmwebd retirement and
+# pmproxy taking over the care and feeding of port 44323
+#
+OPTIONS="$OPTIONS -p 44324"
+End-of-File
+    $sudo mv $PCP_PMWEBDOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH.save
+    $sudo cp $tmp.tmp $PCP_PMWEBDOPTIONS_PATH
+fi
+
 $sudo rm -f $tmp.* $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
