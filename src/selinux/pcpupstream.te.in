@@ -19,7 +19,7 @@ require {
 	type pcp_pmmgr_t;
 	type pcp_tmp_t;
         type pcp_pmwebd_t;
-	type pcp_pmie_exec_t; # pmdasummary
+	type pcp_pmie_exec_t; # pmda.summary
 	type websm_port_t; # pmda.prometheus
         type system_cronjob_t;
         type user_home_t;

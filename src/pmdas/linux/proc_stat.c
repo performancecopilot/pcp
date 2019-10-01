@@ -174,6 +174,7 @@ refresh_proc_stat(proc_stat_t *proc_stat)
     percpu_t	*cp;
     pmInDom	cpus, nodes;
     char	buf[MAXPATHLEN], *name, *sp, **bp;
+    char	cpuname[32];
     int		n = 0, i, size;
 
     static int fd = -1; /* kept open until exit(), unless testing */
@@ -284,7 +285,8 @@ refresh_proc_stat(proc_stat_t *proc_stat)
 	    cp = NULL;
 	    np = NULL;
 	    i = atoi(&bufindex[n][3]);	/* extract CPU identifier */
-	    if (pmdaCacheLookup(cpus, i, &name, (void **)&cp) < 0 || !cp)
+	    pmsprintf(cpuname, sizeof(cpuname), "cpu%u", i); /* instance name */
+	    if (pmdaCacheLookupName(cpus, cpuname, &i, (void **)&cp) < 0 || !cp)
 		continue;
 	    memset(&cp->stat, 0, sizeof(cp->stat));
 	    sscanf(bufindex[n], PERCPU_FMT, &i,
@@ -292,7 +294,7 @@ refresh_proc_stat(proc_stat_t *proc_stat)
 		    &cp->stat.idle, &cp->stat.wait, &cp->stat.irq,
 		    &cp->stat.sirq, &cp->stat.steal, &cp->stat.guest,
 		    &cp->stat.guest_nice);
-	    pmdaCacheStore(cpus, PMDA_CACHE_ADD, name, (void *)cp);
+	    pmdaCacheStore(cpus, PMDA_CACHE_ADD, cpuname, (void *)cp);
 
 	    /* update per-node aggregate CPU utilisation stats as well */
 	    if (pmdaCacheLookup(nodes, cp->node->instid, NULL, (void **)&np) < 0 || !np)

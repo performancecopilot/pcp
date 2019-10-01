@@ -26,19 +26,26 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+_sort_instname()
+{
+    tee $tmp.sort | sed -n 2p
+    awk '/inst / {print "  ", $4, $6}' $tmp.sort | sed -e 's/\]//' | sort
+}
+
 # real QA test starts here
 mkdir -p $tmp
 tar -C $tmp -xf linux/sysfs-numa-001.tgz
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.$DSO_SUFFIX,linux_init
 export LINUX_STATSPATH="$tmp"
 
-metrics="hinv.nnode hinv.ncpu hinv.map.cpu_node hinv.node.online \
-kernel.percpu.cpu.idle kernel.percpu.cpu.user kernel.pernode.cpu.idle \
-kernel.pernode.cpu.user mem.numa.alloc.local_node mem.numa.util.total \
-mem.numa.util.free mem.numa.util.used"
+metrics="hinv.map.cpu_node hinv.node.online \
+  kernel.percpu.cpu.idle kernel.percpu.cpu.user kernel.pernode.cpu.idle \
+  kernel.pernode.cpu.user mem.numa.alloc.local_node mem.numa.util.total \
+  mem.numa.util.free mem.numa.util.used"
 
 echo == check basic numa metrics 4 nodes, 8 CPUs
-pminfo -L -K clear -K add,60,$pmda -d -f $metrics || exit
+pminfo -L -K clear -K add,60,$pmda -f hinv.nnode hinv.ncpu
+for m in $metrics; do pminfo -L -K clear -K add,60,$pmda -f $m| _sort_instname; done
 
 echo;echo ==;echo == delete node2, leaving node0, node1 and node3;echo ==
 rm -rf $LINUX_STATSPATH/sys/devices/system/node/node2
@@ -49,7 +56,8 @@ rm -rf $LINUX_STATSPATH/sys/devices/system/cpu/cpu{4,5}
 sed -i '/^cpu[45]$/d' $LINUX_STATSPATH/proc/stat
 echo '0,1,2,3,6,7' >$LINUX_STATSPATH/sys/devices/system/cpu/online
 echo '0,1,2,3,6,7' >$LINUX_STATSPATH/sys/devices/system/cpu/present
-pminfo -L -K clear -K add,60,$pmda -d -f $metrics || exit
+pminfo -L -K clear -K add,60,$pmda -f hinv.nnode hinv.ncpu
+for m in $metrics; do pminfo -L -K clear -K add,60,$pmda -f $m| _sort_instname; done
 
 # success, all done
 status=0
