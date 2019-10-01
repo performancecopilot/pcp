@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2014 Aconex
 # Copyright (c) 2014-2015,2017 Red Hat.
+# Copyright (c) 2019 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,7 +17,7 @@
 
 import cpmapi as c_api
 from ctypes import cast, c_char_p, Structure, POINTER
-from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid, pmdaGetContext
 from pcp.pmapi import pmUnits, pmContext as PCP
 
 class Numeric(Structure):
@@ -36,6 +37,7 @@ class TestPMDA(PMDA):
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)
         self.refreshes = 0
+        self.ctxtab = {}
 
         self.some_indom = self.indom(0)
         self.other_indom = self.indom(1)
@@ -60,6 +62,10 @@ class TestPMDA(PMDA):
         self.add_metric(name + '.loaded_indom.some_value',
                 pmdaMetric(self.pmid(3, 0),
                 c_api.PM_TYPE_STRING, self.loaded_indom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 0, 0, 0, 0)))
+        self.add_metric(name + '.current_ctx',
+                pmdaMetric(self.pmid(4, 0),
+                c_api.PM_TYPE_STRING, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
                 pmUnits(0, 0, 0, 0, 0, 0)))
 
         self.set_refresh(self.test_update_status)
@@ -131,6 +137,10 @@ class TestPMDA(PMDA):
                 return [c_api.PM_ERR_INST, 0]
             cache = cast(voidp, POINTER(Numeric))
             return [str(cache.contents.s.decode('utf-8')), 1]
+        elif cluster == 4 and item == 0:
+            ctx = pmdaGetContext()
+            val = "ctx {} val {}".format(ctx, self.ctxtab.get(ctx))
+            return [val, 1]
         return [c_api.PM_ERR_PMID, 0]
 
 
@@ -141,6 +151,11 @@ class TestPMDA(PMDA):
             return 0
         elif cluster == 3 and item == 0:
             self.loaded.load()
+            return 0
+        elif cluster == 4 and item == 0:
+            ctx = pmdaGetContext()
+            self.log("set ctxtab[%d] = %s" % (ctx, value))
+            self.ctxtab[ctx] = value
             return 0
         return c_api.PM_ERR_PERMISSION
 
