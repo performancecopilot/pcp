@@ -327,7 +327,7 @@ allow pcp_pmcd_t self:capability sys_rawio;
 @PCP_VIRT_VAR_RUN_RULE@
 
 #============= pmda-netcheck ==============
-allow pcp_pmcd_t ping_exec_t:file { execute execute_no_trans map };
+allow pcp_pmcd_t ping_exec_t:file { execute execute_no_trans @PCP_HOSTNAME_EXEC_MAP@ };
 allow pcp_pmcd_t self:capability net_raw;
 allow pcp_pmcd_t self:process setcap;
 allow pcp_pmcd_t self:rawip_socket { create getopt setopt };
