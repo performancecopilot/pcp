@@ -20,6 +20,7 @@ require {
 	type pcp_tmp_t;
         type pcp_pmwebd_t;
 	type pcp_pmie_exec_t; # pmda.summary
+	type ping_exec_t; # pmda.netcheck
 	type websm_port_t; # pmda.prometheus
         type system_cronjob_t;
         type user_home_t;
@@ -62,7 +63,9 @@ require {
 	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
 	class fifo_file { getattr read open unlink lock ioctl }; # qa/455
-	class process { signull signal execmem setrlimit ptrace }; #RHBZ1443632
+	class process { signull signal execmem setrlimit ptrace setcap }; #RHBZ1443632, pmda.netcheck (setcap)
+	class rawip_socket { create getopt setopt }; # pmda.netcheck
+	class capability net_raw; # pmda.netcheck
 	class sock_file { getattr write }; #RHBZ1633211, RHBZ1449671
 	class tcp_socket { name_bind name_connect };
 	class shm { unix_read associate getattr read };
@@ -322,6 +325,12 @@ allow pcp_pmcd_t self:capability sys_rawio;
 #============= pmda-libvirt ==============
 #type=AVC msg=audit(YYY.90): avc:  denied  { write } for  pid=30922 comm="python3" name="libvirt-sock-ro" dev="tmpfs" ino=25845 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:virt_var_run_t:s0 tclass=sock_file permissive=0
 @PCP_VIRT_VAR_RUN_RULE@
+
+#============= pmda-netcheck ==============
+allow pcp_pmcd_t ping_exec_t:file { execute execute_no_trans map };
+allow pcp_pmcd_t self:capability net_raw;
+allow pcp_pmcd_t self:process setcap;
+allow pcp_pmcd_t self:rawip_socket { create getopt setopt };
 
 # permit pcp_pmcd_t domain to read all dirs,files and fifo_file in attribute file_type
 @PCP_SELINUX_MACRO_RULE@
