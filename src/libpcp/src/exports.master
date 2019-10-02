@@ -683,8 +683,3 @@ PCP_3.26 {
   global:
     __pmDupLabelSets;
 } PCP_3.25;
-
-PCP_3.27 {
-  global:
-    __pmSockAddrGetPort;
-} PCP_3.26;
