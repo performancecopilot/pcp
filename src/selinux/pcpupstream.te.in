@@ -65,6 +65,7 @@ require {
 	class fifo_file { getattr read open unlink lock ioctl }; # qa/455
 	class process { signull signal execmem setrlimit ptrace setcap }; #RHBZ1443632, pmda.netcheck (setcap)
 	class rawip_socket { create getopt setopt }; # pmda.netcheck
+	class icmp_socket create; # pmda.netcheck
 	class capability net_raw; # pmda.netcheck
 	class sock_file { getattr write }; #RHBZ1633211, RHBZ1449671
 	class tcp_socket { name_bind name_connect };
@@ -331,6 +332,7 @@ allow pcp_pmcd_t ping_exec_t:file { execute execute_no_trans @PCP_HOSTNAME_EXEC_
 allow pcp_pmcd_t self:capability net_raw;
 allow pcp_pmcd_t self:process setcap;
 allow pcp_pmcd_t self:rawip_socket { create getopt setopt };
+allow pcp_pmcd_t self:icmp_socket create;
 
 # permit pcp_pmcd_t domain to read all dirs,files and fifo_file in attribute file_type
 @PCP_SELINUX_MACRO_RULE@
