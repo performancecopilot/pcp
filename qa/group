@@ -1676,6 +1676,7 @@ BAD
 1495 pmlogrewrite labels pmdumplog local
 1511 pmcd local
 1543 pmproxy local
+1544 pmproxy python local
 1545 pcp2xml python pcp2xxx local
 1546 pmrep python local
 1547 pmrep python local

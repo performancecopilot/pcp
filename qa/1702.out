@@ -10,6 +10,7 @@ Check bpftrace metrics have appeared ... 6 metrics and 5 values
 === start bpftrace script ===
 bpftrace.control.register old value="{}" new value="{"name": "testscript", "vars": ["bytes"], "status": "starting", "exit_code": 0, "output": ""}"
 === check metrics ===
+found metric bpftrace.scripts.testscript.probes matching "value 2"
 OK
 === stop bpftrace script ===
 bpftrace.control.stop old value="{}" new value="{"success": "true"}"
@@ -17,6 +18,7 @@ bpftrace.control.stop old value="{}" new value="{"success": "true"}"
 OK
 === start script again ===
 bpftrace.control.start old value="{}" new value="{"success": "true"}"
+found metric bpftrace.scripts.testscript.data.bytes matching "value .*"
 === verify current bpftrace PID is different than last PID ===
 Success: Second PID is different than first PID.
 === deregister bpftrace script ===
