@@ -14,6 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.python
 
+_check_series	# ensure pmproxy makes a REST API available
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
@@ -73,12 +74,12 @@ $sudo ./Install </dev/null \
 cd $here
 
 echo Getting contexts...
-ctx1=$(curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])')
-ctx2=$(curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])')
-ctx3=$(curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])')
-ctx4=$(curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])')
-ctx5=$(curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])')
-ctx6=$(curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])')
+ctx1=`curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+ctx2=`curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+ctx3=`curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+ctx4=`curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+ctx5=`curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+ctx6=`curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
 echo
 
 echo Retrieving values...
@@ -103,7 +104,6 @@ curl -s "http://localhost:$port/pmapi/$ctx3/fetch?names=test_python.current_ctx"
 curl -s "http://localhost:$port/pmapi/$ctx4/fetch?names=test_python.current_ctx" | pmjson | grep '"value"' | _filter_ctx
 curl -s "http://localhost:$port/pmapi/$ctx5/fetch?names=test_python.current_ctx" | pmjson | grep '"value"' | _filter_ctx
 curl -s "http://localhost:$port/pmapi/$ctx6/fetch?names=test_python.current_ctx" | pmjson | grep '"value"' | _filter_ctx
-
 
 # success, all done
 status=0
