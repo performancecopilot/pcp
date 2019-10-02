@@ -12,10 +12,10 @@ X-Python3-Version: >= 3.3
 
 Package: pcp
 Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, ?{python-pcp}, ?{python}, ?{python3-bpfcc}, ?{bpftrace}, libpcp-web1
-Conflicts: pgpool2, dstat
+Conflicts: pgpool2, dstat, pcp-webapi
 Suggests: pcp-gui, libpcp-import-perl
-Provides: dstat
-Replaces: dstat
+Provides: dstat, pcp-webapi
+Replaces: dstat, pcp-webapi
 Architecture: any
 Description: System level performance monitoring and performance management
  Performance Co-Pilot (PCP) is a framework and services to
