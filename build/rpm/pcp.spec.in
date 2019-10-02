@@ -802,7 +802,7 @@ BuildRequires: setools-console
 %else
 BuildRequires: setools
 %endif
-Requires: policycoreutils
+Requires: policycoreutils selinux-policy-targeted
 %if "%{_vendor}" == "suse"
 # no libsemanage for SuSE other than libsemanage1 for OpenSuSE 12
 %if 0%{?suse_version} >= 1200
