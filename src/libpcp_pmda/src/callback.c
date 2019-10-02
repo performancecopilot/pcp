@@ -995,6 +995,13 @@ pmdaAddNotes(pmLabelSet **lsp, const char *fmt, ...)
 int
 pmdaStore(pmResult *result, pmdaExt *pmda)
 {
+    int     version;
+    e_ext_t *extp = (e_ext_t *)pmda->e_ext;
+
+    version = extp->dispatch->comm.pmda_interface;
+    if (version >= PMDA_INTERFACE_5)
+        __pmdaSetContext(pmda->e_context);
+
     return PM_ERR_PERMISSION;
 }
 

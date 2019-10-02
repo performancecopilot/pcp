@@ -525,7 +525,7 @@ PMDA_CALL extern void pmdaSetLabelCallBack(pmdaInterface *, pmdaLabelCallBack);
  *	Return the help text for the metric or instance domain.
  *
  * pmdaStore
- *	Store a value into a metric. This is a no-op.
+ *	Store a value into a metric. This sets the context number.
  *
  * pmdaPMID
  *	Return the PMID for a named metric within a dynamic subtree
