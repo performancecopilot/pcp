@@ -89,7 +89,7 @@ Obsoletes: pcp-pmda-kvm
 Provides: pcp-pmda-kvm
 
 # PCP REST APIs are now provided by pmproxy
-Obsoletes: pcp-webapi
+Obsoletes: pcp-webapi pcp-webapi-debuginfo
 Provides: pcp-webapi
 
 # Utilities used indirectly e.g. by scripts we install

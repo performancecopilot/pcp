@@ -170,6 +170,10 @@ Conflicts: librapi
 Obsoletes: pcp-pmda-kvm
 Provides: pcp-pmda-kvm
 
+# PCP REST APIs are now provided by pmproxy
+Obsoletes: pcp-webapi pcp-webapi-debuginfo
+Provides: pcp-webapi
+
 # https://fedoraproject.org/wiki/Packaging "C and C++"
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
@@ -240,7 +244,7 @@ Obsoletes: pcp-gui-debuginfo
 %endif
 
 Obsoletes: pcp-compat pcp-collector pcp-monitor
-Obsoletes: pcp-webapi pcp-pmda-nvidia
+Obsoletes: pcp-pmda-nvidia
 
 Requires: pcp-libs = %{version}-%{release}
 
