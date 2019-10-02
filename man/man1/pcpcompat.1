@@ -25,8 +25,8 @@
 ..
 The Performance Co-Pilot (PCP) is a toolkit designed for monitoring
 and managing system-level performance.
-These services are distributed and scalable 
-to accommodate the most complex system configurations and performance 
+These services are distributed and scalable
+to accommodate the most complex system configurations and performance
 problems.
 .PP
 In order to achieve these goals effectively, protocol and on-disk
@@ -35,10 +35,10 @@ It is feasible (and indeed encouraged) to use current PCP tools to
 interrogate any remote, down-rev or up-rev
 .BR pmcd (1)
 and also to replay any historical PCP archive (the PCP testsuite
-includes PCP archives created over 20 years ago!)
+includes PCP archives created over 20 years ago!).
 .PP
-From time to time we deprecate and remove PCP utilities, replacing
-them with new versions of utilities providing comparable features.
+From time to time the PCP developers deprecate and remove PCP utilities,
+replacing them with new versions of utilities providing comparable features.
 This page describes replacement utilities for historical PCP tools.
 .SH PCP-COLLECTL
 The
@@ -80,9 +80,9 @@ plugin
 .PP
 This plugin provides an implementation of the Vector application,
 as well as data sources for
-.BR pmdabpftrace (1)
-(bpftrace scripts)
-and
+.BR pmdabpftrace "(1) ("\c
+.BR bpftrace (8)
+scripts) and
 .BR pmseries (1)
 (fast, scalable Redis-based time series analysis).
 .SH PMWEBD
