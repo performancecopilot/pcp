@@ -163,7 +163,11 @@ PCP_WEB_1.8 {
 
 PCP_WEB_1.9 {
   global:
-    pmWebGroupChildren;
-    
     dictDelete;
+    pmWebGroupChildren;
 } PCP_WEB_1.8;
+
+PCP_WEB_1.10 {
+  global:
+    unicode_encode;
+} PCP_WEB_1.9;

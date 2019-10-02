@@ -96,6 +96,12 @@ extern void pmwebapi_add_item_labels(struct context *, struct metric *);
 extern int pmwebapi_add_valueset(struct metric *, pmValueSet *);
 extern void pmwebapi_metric_help(struct context *, struct metric *);
 
+extern void pmwebapi_event_flags(void);
+extern void pmwebapi_event_missed(void);
+extern sds pmwebapi_usectimestamp(sds, struct timeval *);
+extern sds pmwebapi_nsectimestamp(sds, struct timespec *);
+extern sds pmwebapi_event_parameter(sds, pmValueSet *, int, int *);
+
 /*
  * Generally useful sds buffer formatting and diagnostics callback macros
  */

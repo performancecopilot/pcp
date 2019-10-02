@@ -6,13 +6,8 @@ License: GPLv2+ and LGPLv2+ and CC-BY
 URL:     https://pcp.io
 
 %global  bintray https://bintray.com/artifact/download
-%global  github https://github.com/performancecopilot
+Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 
-Source0: %{bintray}/download/pcp/source/pcp-%{version}.src.tar.gz
-Source1: %{github}/pcp-webapp-vector/archive/1.3.1-1/pcp-webapp-vector-1.3.1-1.tar.gz
-Source2: %{github}/pcp-webapp-grafana/archive/1.9.1-2/pcp-webapp-grafana-1.9.1-2.tar.gz
-Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
-Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.1/pcp-webapp-blinkenlights-1.0.1.tar.gz
 Patch0: pmcd-pmlogger-local-context.patch
 
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
@@ -47,16 +42,12 @@ Patch0: pmcd-pmlogger-local-context.patch
 %global disable_podman 1
 %endif
 
-# libchan, libhdr_historgram and pmdastatsd
+# libchan, libhdr_histogram and pmdastatsd
 %if 0%{?fedora} > 31 || 0%{?rhel} > 8
 %global disable_statsd 0
 %else
 %global disable_statsd 1
 %endif
-
-%global disable_microhttpd 0
-%global disable_webapps 0
-%global disable_cairo 0
 
 %if 0%{?rhel} > 7 || 0%{?fedora} >= 30
 %global _with_python2 --with-python=no
@@ -139,7 +130,7 @@ Patch0: pmcd-pmlogger-local-context.patch
 %global disable_systemd 1
 %endif
 
-# systemtap static probing, missing before el6 and on some architectures
+# static probes, missing before el6 and on some architectures
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_sdt 0
 %else
@@ -150,14 +141,7 @@ Patch0: pmcd-pmlogger-local-context.patch
 %endif
 %endif
 
-# boost c++ library, widely available
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
-%global disable_boost 0
-%else
-%global disable_boost 1
-%endif
-
-# libuv
+# libuv async event library
 %if 0%{?fedora} >= 28 || 0%{?rhel} > 7
 %global disable_libuv 0
 %else
@@ -193,7 +177,6 @@ BuildRequires: nss-devel
 BuildRequires: rpm-devel
 BuildRequires: avahi-devel
 BuildRequires: xz-devel
-BuildRequires: zlib-devel
 %if !%{disable_python2}
 %if 0%{?default_python} != 3
 BuildRequires: python%{?default_python}-devel
@@ -216,17 +199,8 @@ BuildRequires: ragel libchan-devel libhdr_histogram-devel
 %if !%{disable_perfevent}
 BuildRequires: libpfm-devel >= 4
 %endif
-%if !%{disable_microhttpd}
-BuildRequires: libmicrohttpd-devel
-%endif
-%if !%{disable_cairo}
-BuildRequires: cairo-devel
-%endif
 %if !%{disable_sdt}
 BuildRequires: systemtap-sdt-devel
-%endif
-%if !%{disable_boost}
-BuildRequires: boost-devel
 %endif
 %if !%{disable_libuv}
 BuildRequires: libuv-devel >= 1.0
@@ -265,10 +239,8 @@ Requires: pcp-selinux = %{version}-%{release}
 Obsoletes: pcp-gui-debuginfo
 %endif
 
-Obsoletes: pcp-pmda-nvidia
-
-# Obsoletes for distros that already have single install pmda's with compat package
 Obsoletes: pcp-compat pcp-collector pcp-monitor
+Obsoletes: pcp-webapi pcp-pmda-nvidia
 
 Requires: pcp-libs = %{version}-%{release}
 
@@ -361,12 +333,6 @@ Requires: pcp-libs = %{version}-%{release}
 %global _with_snmp --with-pmdasnmp=no
 %else
 %global _with_snmp --with-pmdasnmp=yes
-%endif
-
-%if %{disable_webapps}
-%global _with_webapps --with-webapps=no
-%else
-%global _with_webapps --with-webapps=yes
 %endif
 
 %global pmda_remove() %{expand:
@@ -502,9 +468,6 @@ Requires: pcp-pmda-json
 Requires: pcp-pmda-rpm
 %endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
-%if !%{disable_microhttpd}
-Requires: pcp-webapi
-%endif
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-system-tools
 %endif
@@ -534,100 +497,6 @@ the performance metrics collection daemon (pmcd).  It ensures these
 daemons are running when appropriate, and manages their log rotation
 needs.  It is an alternative to the cron-based pmlogger/pmie service
 scripts.
-
-%if !%{disable_microhttpd}
-#
-# pcp-webapi
-#
-%package webapi
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) web API service
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: liberation-sans-fonts
-
-%description webapi
-Provides a daemon (pmwebd) that binds a large subset of the Performance
-Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
-HTTP (PMWEBAPI) protocol.
-%endif
-
-%if !%{disable_webapps}
-#
-# pcp-webjs and pcp-webapp packages
-#
-%package webjs
-License: ASL 2.0 and MIT and CC-BY and GPLv3
-Conflicts: pcp-webjs < 3.11.9
-%if !%{disable_noarch}
-BuildArch: noarch
-%endif
-Requires: pcp-webapp-vector pcp-webapp-blinkenlights
-Requires: pcp-webapp-graphite pcp-webapp-grafana
-Summary: Performance Co-Pilot (PCP) web applications
-URL: https://pcp.io
-
-%description webjs
-Javascript web application content for the Performance Co-Pilot (PCP)
-web service.
-
-%package webapp-vector
-License: ASL 2.0
-%if !%{disable_noarch}
-BuildArch: noarch
-%endif
-Summary: Vector web application for Performance Co-Pilot (PCP)
-URL: https://github.com/Netflix/vector
-
-%description webapp-vector
-Vector web application for the Performance Co-Pilot (PCP).
-
-%package webapp-grafana
-License: ASL 2.0
-Conflicts: pcp-webjs < 3.10.4
-%if !%{disable_noarch}
-BuildArch: noarch
-%endif
-Summary: Grafana web application for Performance Co-Pilot (PCP)
-URL: https://grafana.org
-
-%description webapp-grafana
-Grafana is an open source, feature rich metrics dashboard and graph
-editor.  This package provides a Grafana that uses the Performance
-Co-Pilot (PCP) as the data repository.  Other Grafana backends are
-not used.
-
-Grafana can render time series dashboards at the browser via flot.js
-(more interactive, slower, for beefy browsers) or alternately at the
-server via png (less interactive, faster).
-
-%package webapp-graphite
-License: ASL 2.0 and GPLv3
-Conflicts: pcp-webjs < 3.10.4
-%if !%{disable_noarch}
-BuildArch: noarch
-%endif
-Summary: Graphite web application for Performance Co-Pilot (PCP)
-URL: http://graphite.readthedocs.org
-
-%description webapp-graphite
-Graphite is a highly scalable real-time graphing system. This package
-provides a graphite version that uses the Performance Co-Pilot (PCP)
-as the data repository, and Graphites web interface renders it. The
-Carbon and Whisper subsystems of Graphite are not included nor used.
-
-%package webapp-blinkenlights
-License: ASL 2.0
-%if !%{disable_noarch}
-BuildArch: noarch
-%endif
-Summary: Blinking lights web application for Performance Co-Pilot (PCP)
-URL: https://pcp.io
-
-%description webapp-blinkenlights
-Demo web application showing traffic lights that change colour based
-on the periodic evaluation of performance metric expressions.
-%endif
 
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
@@ -2167,10 +2036,6 @@ updated policy package.
 %endif
 
 %prep
-%setup -q -T -D -a 1 -c -n vector
-%setup -q -T -D -a 2 -c -n grafana
-%setup -q -T -D -a 3 -c -n graphite
-%setup -q -T -D -a 4 -c -n blinkenlights
 %setup -q
 %patch0 -p1
 
@@ -2178,7 +2043,7 @@ updated policy package.
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_podman} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_webapps} %{?_with_python2}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_podman} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2197,20 +2062,6 @@ rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet
 # remove {config,platform}sz.h as these are not multilib friendly.
 rm -f $RPM_BUILD_ROOT/%{_includedir}/pcp/configsz.h
 rm -f $RPM_BUILD_ROOT/%{_includedir}/pcp/platformsz.h
-
-%if %{disable_microhttpd}
-rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmwebd
-rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
-rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
-rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
-%endif
-%if !%{disable_webapps}
-for app in vector grafana graphite blinkenlights; do
-    pwd
-    webapp=`find ../$app -mindepth 1 -maxdepth 1`
-    mv $webapp $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps/$app
-done
-%endif
 
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
@@ -2237,7 +2088,7 @@ desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
 %endif
 
 # default chkconfig off for Fedora and RHEL
-for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmproxy}; do
+for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmmgr,pmproxy}; do
 	test -f "$f" || continue
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
@@ -2314,7 +2165,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 
 # all base pcp package files except those split out into sub-packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E -v 'pmiostat|pmcollectl|zabbix|zbxpcp|dstat' |\
+  grep -E -v 'pmiostat|zabbix|zbxpcp|dstat' |\
   grep -E -v 'pmrep|pcp2graphite|pcp2influxdb|pcp2zabbix' |\
   grep -E -v 'pcp2elasticsearch|pcp2json|pcp2xlsx|pcp2xml' |\
   grep -E -v 'pcp2spark' |\
@@ -2322,11 +2173,11 @@ ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
 sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 
 # Separate the pcp-system-tools package files.
-# pmcollectl and pmiostat are back-compat symlinks to their
-# pcp(1) sub-command variants so are also in pcp-system-tools.
+# pmiostat is a back-compat symlink to its pcp(1) sub-command variant
+# so its also in pcp-system-tools.
 %if !%{disable_python2} || !%{disable_python3}
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  egrep -e 'pmiostat|pmcollectl|pmrep|dstat' |\
+  egrep -e 'pmiostat|pmrep|dstat' |\
   sed -e 's#^#'%{_bindir}'\/#' >pcp-system-tools.list
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
   egrep -e 'atop|collectl|dmcache|dstat|free|iostat|ipcs|lvmcache|mpstat' \
@@ -2368,7 +2219,7 @@ ls -1 $RPM_BUILD_ROOT/%{_logconfdir}/ |\
     sed -e 's#^#'%{_logconfdir}'\/#' |\
     grep -E -v 'zeroconf' >pcp-logconf.list
 cat base_pmdas.list base_bin.list base_exec.list pcp-logconf.list |\
-  grep -E -v 'pmdaib|pmmgr|pmweb|pmsnap|2pcp|pmdas/systemd' |\
+  grep -E -v 'pmdaib|pmmgr|pmsnap|2pcp|pmdas/systemd' |\
   grep -E -v "$PCP_GUI|pixmaps|hicolor|pcp-doc|tutorials|selinux" |\
   grep -E -v %{_confdir} | grep -E -v %{_logsdir} > base.list
 
@@ -2461,20 +2312,6 @@ do
         "$PCP_CONFIG_DIR/$daemon" /etc/$daemon
 done
 exit 0
-
-%if !%{disable_microhttpd}
-%preun webapi
-if [ "$1" -eq 0 ]
-then
-%if !%{disable_systemd}
-    systemctl --no-reload disable pmwebd.service >/dev/null 2>&1
-    systemctl stop pmwebd.service >/dev/null 2>&1
-%else
-    /sbin/service pmwebd stop >/dev/null 2>&1
-    /sbin/chkconfig --del pmwebd >/dev/null 2>&1
-%endif
-fi
-%endif
 
 %preun manager
 if [ "$1" -eq 0 ]
@@ -2750,17 +2587,6 @@ then
     rm -f "$PCP_PMNS_DIR/.NeedRebuild" >/dev/null 2>&1
 fi
 
-%if !%{disable_microhttpd}
-%post webapi
-chown -R pcp:pcp %{_logsdir}/pmwebd 2>/dev/null
-%if !%{disable_systemd}
-    systemctl condrestart pmwebd.service >/dev/null 2>&1
-%else
-    /sbin/chkconfig --add pmwebd >/dev/null 2>&1
-    /sbin/service pmwebd condrestart
-%endif
-%endif
-
 %post manager
 chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %if !%{disable_systemd}
@@ -3034,51 +2860,6 @@ cd
 %files testsuite
 %defattr(-,pcpqa,pcpqa)
 %{_testsdir}
-
-%if !%{disable_microhttpd}
-%files webapi
-%{_initddir}/pmwebd
-%if !%{disable_systemd}
-%{_unitdir}/pmwebd.service
-%endif
-%{_libexecdir}/pcp/bin/pmwebd
-%attr(0775,pcp,pcp) %{_logsdir}/pmwebd
-%{_confdir}/pmwebd
-%config(noreplace) %{_confdir}/pmwebd/pmwebd.options
-# duplicate pcp, pcp-webapi and pcp-webjs directories, but rpm copes with that.
-%dir %{_datadir}/pcp
-%dir %{_datadir}/pcp/webapps
-%endif
-
-%if !%{disable_webapps}
-%files webjs
-# duplicate pcp, pcp-webapi and pcp-webjs directories, but rpm copes with that.
-%dir %{_datadir}/pcp
-%dir %{_datadir}/pcp/webapps
-%{_datadir}/pcp/webapps/*.png
-%{_datadir}/pcp/webapps/*.ico
-%{_datadir}/pcp/webapps/*.html
-
-%files webapp-blinkenlights
-%dir %{_datadir}/pcp
-%dir %{_datadir}/pcp/webapps
-%{_datadir}/pcp/webapps/blinkenlights
-
-%files webapp-grafana
-%dir %{_datadir}/pcp
-%dir %{_datadir}/pcp/webapps
-%{_datadir}/pcp/webapps/grafana
-
-%files webapp-graphite
-%dir %{_datadir}/pcp
-%dir %{_datadir}/pcp/webapps
-%{_datadir}/pcp/webapps/graphite
-
-%files webapp-vector
-%dir %{_datadir}/pcp
-%dir %{_datadir}/pcp/webapps
-%{_datadir}/pcp/webapps/vector
-%endif
 
 %files manager
 %{_initddir}/pmmgr

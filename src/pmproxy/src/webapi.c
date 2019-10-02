@@ -216,16 +216,14 @@ on_pmwebapi_metric(sds context, pmWebMetric *metric, void *arg)
     else
 	result = sdscatlen(result, "{}", 2);
     if (metric->oneline &&
-		(quoted = sdscatrepr(sdsempty(), metric->oneline,
-			sdslen(metric->oneline))) != NULL) {
+		(quoted = json_string(metric->oneline)) != NULL) {
 	result = sdscatfmt(result, ",\"text-oneline\":%S", quoted);
 	sdsfree(quoted);
     }
     quoted = (metric->helptext && metric->helptext[0] != '\0') ?
 		metric->helptext : metric->oneline;
     if (quoted &&
-		(quoted = sdscatrepr(sdsempty(), quoted,
-			sdslen(quoted))) != NULL) {
+		(quoted = json_string(quoted)) != NULL) {
 	result = sdscatfmt(result, ",\"text-help\":%S", quoted);
 	sdsfree(quoted);
     }
@@ -273,6 +271,7 @@ on_pmwebapi_fetch_values(sds context, pmWebValueSet *valueset, void *arg)
     pmwebapi_set_context(baton, context);
 
     if (valueset->pmid != baton->pmid) {	/* new metric */
+	baton->pmid = valueset->pmid;
 	if (baton->numvsets > 0) {
 	    result = sdscatlen(result, "]},", 3);
 	    baton->suffix = json_pop_suffix(baton->suffix);	/* '[' */
@@ -316,11 +315,13 @@ on_pmwebapi_fetch_value(sds context, pmWebValue *value, void *arg)
     baton->numinsts++;
 
     if (value->inst == PM_IN_NULL) {
-	result = sdscatfmt(result, "{\"instance\":%s,\"value\":%S}",
-				baton->compat ? "-1" : "null", value->value);
+	result = sdscatfmt(result, "{\"instance\":%s,\"value\":%s}",
+				baton->compat ? "-1" : "null",
+				sdslen(value->value) ? value->value : "null");
     } else {
-	result = sdscatfmt(result, "{\"instance\":%u,\"value\":%S}",
-			    value->inst, value->value);
+	result = sdscatfmt(result, "{\"instance\":%u,\"value\":%s}",
+				value->inst,
+				sdslen(value->value) ? value->value : "null");
     }
 
     http_set_buffer(baton->client, result, HTTP_FLAG_JSON);
@@ -362,15 +363,13 @@ on_pmwebapi_indom(sds context, pmWebInDom *indom, void *arg)
 	result = sdscatsds(result, indom->labels);
     else
 	result = sdscatlen(result, "{}", 2);
-    if (indom->oneline &&
-		(quoted = sdscatrepr(sdsempty(),
-			indom->oneline, sdslen(indom->oneline)))) {
+    if (indom->oneline && (quoted = json_string(indom->oneline))) {
 	result = sdscatfmt(result, ",\"text-oneline\":%S", quoted);
 	sdsfree(quoted);
     }
     quoted = (indom->helptext && indom->helptext[0] != '\0') ?
 		indom->helptext : indom->oneline;
-    if (quoted && (quoted = sdscatrepr(sdsempty(), quoted, sdslen(quoted)))) {
+    if (quoted && (quoted = json_string(quoted))) {
 	result = sdscatfmt(result, ",\"text-help\":%S", quoted);
 	sdsfree(quoted);
     }
@@ -395,7 +394,7 @@ on_pmwebapi_instance(sds context, pmWebInstance *instance, void *arg)
 	result = sdscatlen(result, ",", 1);
     baton->numinsts++;
 
-    quoted = sdscatrepr(sdsempty(), instance->name, sdslen(instance->name));
+    quoted = json_string(instance->name);
     result = sdscatfmt(result, "{\"instance\":%u,\"name\":%S,\"labels\":",
 			instance->inst, quoted);
     sdsfree(quoted);
@@ -456,14 +455,19 @@ on_pmwebapi_scrape(sds context, pmWebScrape *scrape, void *arg)
     pmWebValue		*value = &scrape->value;
     long long		milliseconds;
     char		pmidstr[20], indomstr[20];
-    sds			name, semantics, result, quoted = NULL, labels = NULL;
+    sds			name = NULL, semantics = NULL, result, quoted = NULL, labels = NULL;
 
     pmwebapi_set_context(baton, context);
     if (open_metrics_type_check(metric->type) < 0)
 	return 0;
-    semantics = open_metrics_semantics(metric->sem);
+
     result = http_get_buffer(baton->client);
     name = open_metrics_name(metric->name, baton->compat);
+
+    if (metric->pmid != baton->pmid)	/* new metric */
+	baton->pmid = metric->pmid;
+    else
+	goto value;	/* metric header already done */
 
     if (baton->compat == 0) {	/* include pmid, indom and type */
 	pmIDStr_r(metric->pmid, pmidstr, sizeof(pmidstr));
@@ -478,20 +482,22 @@ on_pmwebapi_scrape(sds context, pmWebScrape *scrape, void *arg)
 
     if (metric->oneline)
 	result = sdscatfmt(result, "# HELP %S %S\n", name, metric->oneline);
-    result = sdscatfmt(result, "# TYPE %S %S\n%S", name, semantics, name);
+    semantics = open_metrics_semantics(metric->sem);
+    result = sdscatfmt(result, "# TYPE %S %S\n", name, semantics);
 
+value:
     if (metric->indom != PM_INDOM_NULL)
 	labels = instance->labels;
     if (labels == NULL)
 	labels = metric->labels;
 
+    result = sdscatsds(result, name);
     if (metric->indom != PM_INDOM_NULL || labels) {
 	if (metric->indom != PM_INDOM_NULL) {
-	    quoted = sdsempty();
-	    quoted = sdscatrepr(quoted, instance->name, sdslen(instance->name));
+	    quoted = json_string(instance->name);
 	    if (baton->compat == 0)
 		result = sdscatfmt(result,
-				"{instance.name=%S,instance.id=%u",
+				"{instance.name=%S,instance.id=\"%u\"",
 				quoted, instance->inst);
 	    else
 		result = sdscatfmt(result, "{instance=%S", quoted);
@@ -613,10 +619,10 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
 	    else if (status == -EAGAIN)
 		code = HTTP_STATUS_UNAUTHORIZED;
 	    else
-		code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
+		code = HTTP_STATUS_BAD_REQUEST;
 	}
 	if (message)
-	    quoted = sdscatrepr(sdsempty(), message, sdslen(message));
+	    quoted = json_string(message);
 	else
 	    quoted = sdsnew("\"(none)\"");
 	msg = sdsnewlen("{", 1);
@@ -661,7 +667,7 @@ pmwebapi_setup_request_parameters(struct client *client,
 	/* allow all APIs to pass(-through) a 'client' parameter */
 	if ((entry = dictFind(parameters, PARAM_CLIENT)) != NULL) {
 	    value = dictGetVal(entry);   /* leave sds value, dup'd below */
-	    baton->clientid = sdscatrepr(sdsempty(), value, sdslen(value));
+	    baton->clientid = json_string(value);
 	}
 	/* allow all APIs to request specific context via params */
 	if (baton && (entry = dictFind(parameters, PARAM_CONTEXT)) != NULL)
@@ -770,7 +776,7 @@ pmwebapi_request_url(struct client *client, sds url, dict *parameters)
     } else if (baton && baton->working) {
 	client->u.http.parser.status_code = HTTP_STATUS_CONFLICT;
     } else {
-	client->u.http.parser.status_code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
+	client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
     }
     return 1;
 }

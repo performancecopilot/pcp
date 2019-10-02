@@ -127,10 +127,7 @@ NSSCFLAGS = @NSSCFLAGS@
 NSPRCFLAGS = @NSPRCFLAGS@
 SASLCFLAGS = @SASLCFLAGS@
 AVAHICFLAGS = @avahi_CFLAGS@
-CAIROCFLAGS = @cairo_CFLAGS@
 NCURSESCFLAGS = @ncurses_CFLAGS@
-LIBMICROHTTPDCFLAGS = @libmicrohttpd_CFLAGS@
-ZLIBCFLAGS = @zlib_CFLAGS@
 LZMACFLAGS = @lzma_CFLAGS@
 LIBUVCFLAGS = @libuv_CFLAGS@
 OPENSSLCFLAGS = @openssl_CFLAGS@
@@ -260,7 +257,6 @@ ENABLE_PYTHON2 = @enable_python2@
 ENABLE_PYTHON3 = @enable_python3@
 ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_MANAGER = @enable_manager@
-ENABLE_WEBAPI = @enable_webapi@
 ENABLE_SELINUX = @enable_selinux@
 ENABLE_DECOMPRESSION = @enable_decompression@
 ENABLE_LZMA = @enable_lzma@
@@ -298,9 +294,6 @@ HAVE_PYTHON_INFLUXDB = @have_python_influxdb@
 HAVE_PYTHON_OPENPYXL = @have_python_openpyxl@
 HAVE_PYTHON_BPF = @have_python_BPF@
 
-# for building packages from external sources
-HAVE_WEBAPPS = @have_webapps@
-
 # for desktop icons in a variety of img sizes
 HAVE_HICOLOR_ICONS = @have_hicolor_icons@
 
@@ -333,15 +326,6 @@ HAVE_NCURSES = @HAVE_NCURSES@
 LIB_FOR_NCURSES = @ncurses_LIBS@
 HAVE_DEVMAPPER = @HAVE_DEVMAPPER@
 LIB_FOR_DEVMAPPER = @DEVMAPPER_LIBS@
-
-HAVE_CAIRO = @HAVE_CAIRO@
-LIB_FOR_CAIRO = @cairo_LIBS@
-HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
-LIB_FOR_MICROHTTPD = @libmicrohttpd_LIBS@
-HAVE_ZLIB = @HAVE_ZLIB@
-LIB_FOR_ZLIB = @zlib_LIBS@
-HAVE_BOOST = @have_boost@
-HAVE_BOOST_FLYWEIGHT_HPP = @HAVE_BOOST_FLYWEIGHT_HPP@
 
 # configuration state for optional performance domains
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@

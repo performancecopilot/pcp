@@ -389,8 +389,8 @@ Context successfully expired
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
     },
-    "text-oneline": "Instance domain \"bin\" for sample PMDA",
-    "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\n\"bin-100\" .. \"bin-900\"",
+    "text-oneline": "Instance domain \u0022bin\u0022 for sample PMDA",
+    "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\u000A\u0022bin-100\u0022 .. \u0022bin-900\u0022",
     "instances": [
         {
             "instance": 900,
@@ -474,8 +474,8 @@ Context successfully expired
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
     },
-    "text-oneline": "Instance domain \"bin\" for sample PMDA",
-    "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\n\"bin-100\" .. \"bin-900\"",
+    "text-oneline": "Instance domain \u0022bin\u0022 for sample PMDA",
+    "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\u000A\u0022bin-100\u0022 .. \u0022bin-900\u0022",
     "instances": [
         {
             "instance": 900,
@@ -584,60 +584,20 @@ Context successfully expired
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
     },
-    "text-oneline": "Instance domain \"bin\" for sample PMDA",
-    "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\n\"bin-100\" .. \"bin-900\"",
+    "text-oneline": "Instance domain \u0022bin\u0022 for sample PMDA",
+    "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\u000A\u0022bin-100\u0022 .. \u0022bin-900\u0022",
     "instances": [
         {
-            "instance": 900,
-            "name": "bin-900",
+            "instance": 100,
+            "name": "bin-100",
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
             }
         },
         {
-            "instance": 800,
-            "name": "bin-800",
-            "labels": {
-                "domainname": "DOMAINNAME"
-                "hostname": "HOSTNAME"
-            }
-        },
-        {
-            "instance": 400,
-            "name": "bin-400",
-            "labels": {
-                "domainname": "DOMAINNAME"
-                "hostname": "HOSTNAME"
-            }
-        },
-        {
-            "instance": 500,
-            "name": "bin-500",
-            "labels": {
-                "domainname": "DOMAINNAME"
-                "hostname": "HOSTNAME"
-            }
-        },
-        {
-            "instance": 300,
-            "name": "bin-300",
-            "labels": {
-                "domainname": "DOMAINNAME"
-                "hostname": "HOSTNAME"
-            }
-        },
-        {
-            "instance": 600,
-            "name": "bin-600",
-            "labels": {
-                "domainname": "DOMAINNAME"
-                "hostname": "HOSTNAME"
-            }
-        },
-        {
-            "instance": 700,
-            "name": "bin-700",
+            "instance": 200,
+            "name": "bin-200",
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
@@ -864,88 +824,34 @@ sample_long_write_me{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAI
 # PCP sample.long.bin 29.0.103 32 29.2 instant none
 # HELP sample_long_bin like sample.bin but type 32
 # TYPE sample_long_bin gauge
-sample_long_bin{instance.name="bin-100",instance.id=100,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="100"} 100
-# PCP sample.long.bin 29.0.103 32 29.2 instant none
-# HELP sample_long_bin like sample.bin but type 32
-# TYPE sample_long_bin gauge
-sample_long_bin{instance.name="bin-200",instance.id=200,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="200"} 200
-# PCP sample.long.bin 29.0.103 32 29.2 instant none
-# HELP sample_long_bin like sample.bin but type 32
-# TYPE sample_long_bin gauge
-sample_long_bin{instance.name="bin-300",instance.id=300,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="300"} 300
-# PCP sample.long.bin 29.0.103 32 29.2 instant none
-# HELP sample_long_bin like sample.bin but type 32
-# TYPE sample_long_bin gauge
-sample_long_bin{instance.name="bin-400",instance.id=400,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="400"} 400
-# PCP sample.long.bin 29.0.103 32 29.2 instant none
-# HELP sample_long_bin like sample.bin but type 32
-# TYPE sample_long_bin gauge
-sample_long_bin{instance.name="bin-500",instance.id=500,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="500"} 500
-# PCP sample.long.bin 29.0.103 32 29.2 instant none
-# HELP sample_long_bin like sample.bin but type 32
-# TYPE sample_long_bin gauge
-sample_long_bin{instance.name="bin-600",instance.id=600,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="600"} 600
-# PCP sample.long.bin 29.0.103 32 29.2 instant none
-# HELP sample_long_bin like sample.bin but type 32
-# TYPE sample_long_bin gauge
-sample_long_bin{instance.name="bin-700",instance.id=700,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="700"} 700
-# PCP sample.long.bin 29.0.103 32 29.2 instant none
-# HELP sample_long_bin like sample.bin but type 32
-# TYPE sample_long_bin gauge
-sample_long_bin{instance.name="bin-800",instance.id=800,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="800"} 800
-# PCP sample.long.bin 29.0.103 32 29.2 instant none
-# HELP sample_long_bin like sample.bin but type 32
-# TYPE sample_long_bin gauge
-sample_long_bin{instance.name="bin-900",instance.id=900,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="900"} 900
+sample_long_bin{instance.name="bin-100",instance.id="100",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="100"} 100
+sample_long_bin{instance.name="bin-200",instance.id="200",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="200"} 200
+sample_long_bin{instance.name="bin-300",instance.id="300",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="300"} 300
+sample_long_bin{instance.name="bin-400",instance.id="400",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="400"} 400
+sample_long_bin{instance.name="bin-500",instance.id="500",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="500"} 500
+sample_long_bin{instance.name="bin-600",instance.id="600",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="600"} 600
+sample_long_bin{instance.name="bin-700",instance.id="700",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="700"} 700
+sample_long_bin{instance.name="bin-800",instance.id="800",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="800"} 800
+sample_long_bin{instance.name="bin-900",instance.id="900",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="900"} 900
 # PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
 # HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
 # TYPE sample_long_bin_ctr counter
-sample_long_bin_ctr{instance.name="bin-100",instance.id=100,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="100"} 100
-# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
-# HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
-# TYPE sample_long_bin_ctr counter
-sample_long_bin_ctr{instance.name="bin-200",instance.id=200,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="200"} 200
-# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
-# HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
-# TYPE sample_long_bin_ctr counter
-sample_long_bin_ctr{instance.name="bin-300",instance.id=300,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="300"} 300
-# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
-# HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
-# TYPE sample_long_bin_ctr counter
-sample_long_bin_ctr{instance.name="bin-400",instance.id=400,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="400"} 400
-# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
-# HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
-# TYPE sample_long_bin_ctr counter
-sample_long_bin_ctr{instance.name="bin-500",instance.id=500,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="500"} 500
-# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
-# HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
-# TYPE sample_long_bin_ctr counter
-sample_long_bin_ctr{instance.name="bin-600",instance.id=600,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="600"} 600
-# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
-# HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
-# TYPE sample_long_bin_ctr counter
-sample_long_bin_ctr{instance.name="bin-700",instance.id=700,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="700"} 700
-# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
-# HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
-# TYPE sample_long_bin_ctr counter
-sample_long_bin_ctr{instance.name="bin-800",instance.id=800,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="800"} 800
-# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
-# HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
-# TYPE sample_long_bin_ctr counter
-sample_long_bin_ctr{instance.name="bin-900",instance.id=900,hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="900"} 900
+sample_long_bin_ctr{instance.name="bin-100",instance.id="100",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="100"} 100
+sample_long_bin_ctr{instance.name="bin-200",instance.id="200",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="200"} 200
+sample_long_bin_ctr{instance.name="bin-300",instance.id="300",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="300"} 300
+sample_long_bin_ctr{instance.name="bin-400",instance.id="400",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="400"} 400
+sample_long_bin_ctr{instance.name="bin-500",instance.id="500",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="500"} 500
+sample_long_bin_ctr{instance.name="bin-600",instance.id="600",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="600"} 600
+sample_long_bin_ctr{instance.name="bin-700",instance.id="700",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="700"} 700
+sample_long_bin_ctr{instance.name="bin-800",instance.id="800",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="800"} 800
+sample_long_bin_ctr{instance.name="bin-900",instance.id="900",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="900"} 900
 == scrape metric instances ==
 # PCP sample.colour 29.0.5 32 29.1 instant none
 # HELP sample_colour Metrics with a "saw-tooth" trend over time
 # TYPE sample_colour gauge
-sample_colour{instance.name="red",instance.id=0,model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 143
-# PCP sample.colour 29.0.5 32 29.1 instant none
-# HELP sample_colour Metrics with a "saw-tooth" trend over time
-# TYPE sample_colour gauge
-sample_colour{instance.name="green",instance.id=1,model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 244
-# PCP sample.colour 29.0.5 32 29.1 instant none
-# HELP sample_colour Metrics with a "saw-tooth" trend over time
-# TYPE sample_colour gauge
-sample_colour{instance.name="blue",instance.id=2,model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 345
+sample_colour{instance.name="red",instance.id="0",model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 143
+sample_colour{instance.name="green",instance.id="1",model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 244
+sample_colour{instance.name="blue",instance.id="2",model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 345
 == scrape all metrics ==
 done full scrape
 == check pmproxy is running ==
@@ -968,7 +874,7 @@ pmproxy check passed
 }
 == missing derive name parameter ==
 {
-    "message": "failed to parse derived metric \"hinv.ncpu*42\" on line 0 - incomplete expression\n",
+    "message": "failed to parse derived metric \u0022hinv.ncpu*42\u0022 on line 0 - incomplete expression\u000A",
     "success": false
 }
 
@@ -976,36 +882,36 @@ pmproxy check passed
 
 == no servlet ==
 <html>
-<head><title>404 Not Found</title></head>
+<head><title>400 Bad Request</title></head>
 <body>
-<h1>404 Not Found</h1>
+<h1>400 Bad Request</h1>
 <p><b>unknown servlet</b>: no handler for URL</p><hr>
 <p><small><i>pmproxy/VERSION</i></small></p>
 </body>
 </html>
 == no command ==
 <html>
-<head><title>404 Not Found</title></head>
+<head><title>400 Bad Request</title></head>
 <body>
-<h1>404 Not Found</h1>
+<h1>400 Bad Request</h1>
 <p><b>unknown servlet</b>: no handler for URL</p><hr>
 <p><small><i>pmproxy/VERSION</i></small></p>
 </body>
 </html>
 == bad command ==
 <html>
-<head><title>404 Not Found</title></head>
+<head><title>400 Bad Request</title></head>
 <body>
-<h1>404 Not Found</h1>
+<h1>400 Bad Request</h1>
 <p><b>unknown servlet</b>: no handler for URL</p><hr>
 <p><small><i>pmproxy/VERSION</i></small></p>
 </body>
 </html>
 == bad servlet ==
 <html>
-<head><title>404 Not Found</title></head>
+<head><title>400 Bad Request</title></head>
 <body>
-<h1>404 Not Found</h1>
+<h1>400 Bad Request</h1>
 <p><b>unknown servlet</b>: no handler for URL</p><hr>
 <p><small><i>pmproxy/VERSION</i></small></p>
 </body>

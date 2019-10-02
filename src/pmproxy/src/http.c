@@ -11,9 +11,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
+#include <ctype.h>
 #include <assert.h>
 #include "server.h"
-#include "base64.h"
+#include "encoding.h"
 #include "dict.h"
 #include "util.h"
 
@@ -57,6 +58,12 @@ json_pop_suffix(sds suffix)
 	memmove(suffix, suffix+1, length-1);
     }
     return suffix;
+}
+
+sds
+json_string(const sds original)
+{
+    return unicode_encode(original, sdslen(original));
 }
 
 static inline int
@@ -403,6 +410,9 @@ http_add_parameter(dict *parameters,
     sds			pvalue, pname = sdsnewlen(SDS_NOINIT, namelen);
     int			sts;
 
+    if (namelen == 0)
+	return 0;
+
     if ((sts = http_decode(name, namelen, pname)) < 0) {
 	sdsfree(pname);
 	return sts;
@@ -532,7 +542,7 @@ on_url(http_parser *request, const char *offset, size_t length)
 	}
 	result = sdsnew("failed to process URL");
     } else {
-	sts = client->u.http.parser.status_code = HTTP_STATUS_NOT_FOUND;
+	sts = client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	result = sdsnew("no handler for URL");
     }
     http_error(client, sts, result);

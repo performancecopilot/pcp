@@ -4,6 +4,5 @@ pcp.preinst.head
 pcp.postinst
 pcp.postinst.head
 pcp.postrm
-pcp-webapp-vector.*
 pcp-gui.install
 control

@@ -32,7 +32,6 @@ pcp_export_zabbix = pcp-export-zabbix-agent
 pcp_pmda_infiniband = pcp-pmda-infiniband
 pcp_testsuite = pcp-testsuite
 pcp_manager = pcp-manager
-pcp_webapi = pcp-webapi
 pcp_python2 = python-pcp
 pcp_python3 = python3-pcp
 pcpgui = pcp-gui
@@ -70,7 +69,6 @@ dirpcp_export_zabbix = debian/$(pcp_export_zabbix)
 dirpcp_pmda_infiniband = debian/$(pcp_pmda_infiniband)
 dirpcp_testsuite = debian/$(pcp_testsuite)
 dirpcp_manager = debian/$(pcp_manager)
-dirpcp_webapi = debian/$(pcp_webapi)
 dirpcp_python2 = debian/$(pcp_python2)
 dirpcp_python3 = debian/$(pcp_python3)
 dirgui = debian/$(pcpgui)
@@ -90,7 +88,7 @@ alldir = $(dirpcp) $(dirpcpcfg) \
 		$(dirpcp_import_sheet) $(dirpcp_import_iostat) \
 		$(dirpcp_import_collectl) $(dirpcp_testsuite) \
 		$(dirpcp_pmda_infiniband) $(allperldir) \
-		$(dirpcp_manager) $(dirpcp_webapi) \
+		$(dirpcp_manager) \
 		$(dirpcp_python2) $(dirpcp_python3)
 
 zip = export GZIP=-9qn
@@ -121,7 +119,6 @@ pkgpcp_export_zabbix = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_zabbix);
 pkgpcp_pmda_infiniband = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_pmda_infiniband);
 pkgpcp_testsuite = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_testsuite);
 pkgpcp_manager = $(zip) NO_CHOWN=true DIST_ROOT="`pwd`"/$(dirpcp_manager);
-pkgpcp_webapi = $(zip) NO_CHOWN=true DIST_ROOT="`pwd`"/$(dirpcp_webapi);
 pkgpcp_python2 = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_python2);
 pkgpcp_python3 = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_python3);
 
@@ -204,7 +201,6 @@ binary-arch: checkroot build-stamp
 	$(pkgpcp) $(MAKE) -C . install
 	$(pkgpcp_testsuite) $(MAKE) -C qa install
 	$(pkgpcp_manager) $(MAKE) -C src/pmmgr install
-	$(pkgpcp_webapi) $(MAKE) -C src/pmwebd install
 	$(pkglibpcp_mmv_perl) $(MAKE) -C src/perl/MMV install_perl
 	$(pkglibpcp_pmda_perl) $(MAKE) -C src/perl/PMDA install_perl
 	$(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl

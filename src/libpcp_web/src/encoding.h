@@ -11,12 +11,14 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-#ifndef BASE64_H
-#define BASE64_H
+#ifndef ENCODING_H
+#define ENCODING_H
 
 #include "sds.h"
 
 extern sds base64_decode(const char *, size_t);
 extern sds base64_encode(const char *, size_t);
 
-#endif /* BASE64_H */
+extern sds unicode_encode(const char *, size_t);
+
+#endif /* ENCODING_H */

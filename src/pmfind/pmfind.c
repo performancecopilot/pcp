@@ -59,7 +59,6 @@ setupSignals(void)
 static const char *services[] = {
     PM_SERVER_SERVICE_SPEC,
     PM_SERVER_PROXY_SPEC,
-    PM_SERVER_WEBAPI_SPEC,
 };
 
 static pmLongOptions longopts[] = {
@@ -67,7 +66,7 @@ static pmLongOptions longopts[] = {
     PMOPT_DEBUG,
     { "mechanism", 1, 'm', "NAME", "set the discovery method to use [avahi|shell|probe=<subnet>|all]" },
     { "resolve", 0, 'r', 0, "resolve addresses" },
-    { "service", 1, 's', "NAME", "discover services [pmcd|pmproxy|pmwebapi|all]" },
+    { "service", 1, 's', "NAME", "discover services [pmcd|pmproxy|all]" },
     { "timeout", 1, 't', "N.N", "timeout in seconds" },
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "quiet", 0, 'q', 0, "quiet mode, do not write to stdout" },
@@ -193,8 +192,6 @@ main(int argc, char **argv)
 	case 's':	/* local services */
 	    if (strcmp(opts.optarg, "all") == 0)
 		service = NULL;
-	    else if (strcmp(opts.optarg, "pmwebd") == 0) /* back-compatible */
-		service = PM_SERVER_WEBAPI_SPEC;
 	    else
 		service = opts.optarg;
 	    break;

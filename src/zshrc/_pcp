@@ -410,7 +410,7 @@ _pcp () {
       "$common_help[@]" \
       "(-m --mechanism $exargs)"{-m+,--mechanism=}'[specify service discovery mechanism]:mechanism:->pmfind_mechs' \
       "(-r --resolve $exargs)"{-r,--resolve}'[resolve addresses]' \
-      "(-s --service $exargs)"{-s+,--service=}'[specify service to find]:service:(all pmcd pmproxy pmwebd)' \
+      "(-s --service $exargs)"{-s+,--service=}'[specify service to find]:service:(all pmcd pmproxy)' \
       "(-t --timeout $exargs)"{-t+,--timeout=}'[set discovery timeout in seconds]:timeout:' \
       "(-q --quiet $exargs)"{-q,--quiet}'[quiet mode]' \
       && return 0

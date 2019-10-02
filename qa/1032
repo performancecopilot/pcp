@@ -2,22 +2,22 @@
 # PCP QA Test No. 1032
 # Exercise container switching using the webapi _store method.
 #
-# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+# Copyright (c) 2015,2019 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.webapi
 . ./common.python
 . ./common.containers
+
+_check_series
+_check_requests
+_check_requests_json
 
 _check_containers
 _check_docker_binary
 _check_docker_images busybox
-
-_check_pmwebd
-_check_requests_json
 
 $sudo rm -rf $tmp $tmp.* $seq.full
 
@@ -25,7 +25,7 @@ pyscript=src/test_webcontainers.py
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 username=`id -u -n`
-webargs="-U $username"
+webargs="-f -U $username -t"
 webport=`_find_free_port`
 
 _cleanup()
@@ -57,7 +57,7 @@ _filter()
 }
 
 # real QA test starts here
-$PCP_BINADM_DIR/pmwebd $webargs -p $webport -l $tmp.out -v -t5 &
+$PCP_BINADM_DIR/pmproxy $webargs -p $webport -l $tmp.out &
 webpid=$!
 echo "pid=$webpid" >>$seq.full
 
@@ -71,7 +71,7 @@ eval localhost_hostname=`awk '{ print $3 }' $tmp.host`
 echo "localhost_hostname=$localhost_hostname" >> $seq.full
 echo "container_hostname=$container_hostname" >> $seq.full
 
-_wait_for_pmwebd_logfile $tmp.out $webport
+_wait_for_pmproxy $webport
 $python $pyscript --port $webport $container | _filter
 
 # success, all done

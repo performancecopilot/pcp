@@ -70,7 +70,7 @@ COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
 	 common.secure common.gfs2 common.rpm \
 	 common.qt common.avahi common.containers \
-	 common.discovery common.compress common.webapi \
+	 common.discovery common.compress \
 	 common.python common.prometheus common.bcc \
 	 common.bpftrace
 

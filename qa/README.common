@@ -49,7 +49,6 @@ in that order along with other service-specific initialization.
     common.qt
     common.rpm
     common.secure
-    common.webapi
 
 And QA scripts may include these optional "common" files after the
 other ones:

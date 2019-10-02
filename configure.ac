@@ -192,12 +192,6 @@ AC_ARG_WITH([webapi],
     [do_webapi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapi=$withval"],
     [do_webapi=check])
 
-AC_ARG_WITH([webapps],
-    [AC_HELP_STRING([--with-webapps],
-                    [enable building of webapp packages (default is off)])],
-    [do_webapps=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapps=$withval"],
-    [do_webapps=no])
-
 AC_ARG_WITH([selinux],
     [AC_HELP_STRING([--with-selinux],
                     [enable building of selinux package (default is on)])],
@@ -1931,41 +1925,6 @@ fi
 AC_SUBST(PMDA_POSTFIX,$pmda_postfix)
 if $pmda_postfix; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-dnl Do you have system microhttpd libraries for pmwebd?
-PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd > 0.9.9], [have_libmicrohttpd=true], [have_libmicrohttpd=false])
-AC_SUBST(HAVE_LIBMICROHTTPD, [$have_libmicrohttpd])
-
-dnl Do you have graphics libraries for pmwebd?
-PKG_CHECK_MODULES([cairo], [cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2], [have_cairo=true], [have_cairo=false])
-AC_SUBST(HAVE_CAIRO, [$have_cairo])
-
-AC_LANG_PUSH([C++])
-AC_CHECK_HEADERS([boost/flyweight.hpp])
-AC_LANG_POP
-AC_SUBST(HAVE_BOOST_FLYWEIGHT_HPP, [$ac_cv_header_boost_flyweight_hpp])
-
-have_boost=false
-test "$ac_cv_header_boost_flyweight_hpp" = yes && have_boost=true
-AC_SUBST(have_boost)
-
-enable_webapi=false
-AS_IF([test "x$do_webapi" != "xno"], [
-    enable_webapi=true
-
-    if test "$have_libmicrohttpd" != "true"
-    then
-	enable_webapi=false
-	test "$do_webapi" != "check" && \
-	AC_MSG_ERROR([libmicrohttpd is not installed, cannot enable the web API])
-    elif test "$do_webapi" != "check" -a "x$cxx" = "x"
-    then
-	enable_webapi=false
-	test "$do_webapi" != "check" && \
-	AC_MSG_ERROR([C++ compiler unavailable, cannot enable the web API])
-    fi
-])
-AC_SUBST(enable_webapi)
-
 enable_manager=false
 AS_IF([test "x$do_manager" != "xno"], [
     enable_manager=true
@@ -3173,7 +3132,6 @@ AC_SUBST(pcp_sysconf_dir)
 pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
 pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
 pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
-pcp_pmwebdoptions_path=$pcp_sysconf_dir/pmwebd/pmwebd.options
 pcp_pmmgroptions_path=$pcp_sysconf_dir/pmmgr/pmmgr.options
 pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
 pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
@@ -3182,7 +3140,6 @@ pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
 AC_SUBST(pcp_pmcdconf_path)
 AC_SUBST(pcp_pmcdoptions_path)
 AC_SUBST(pcp_pmcdrclocal_path)
-AC_SUBST(pcp_pmwebdoptions_path)
 AC_SUBST(pcp_pmmgroptions_path)
 AC_SUBST(pcp_pmproxyoptions_path)
 AC_SUBST(pcp_pmiecontrol_path)
@@ -3751,16 +3708,6 @@ AC_TRY_COMPILE(
 ],
 [
 ], AC_DEFINE(HAVE_AI_ADDRCONFIG, [1], [AI_ADDRCONFIG macro]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
-
-dnl Find external source tarballs for packaging
-
-have_webapps=false
-if test $do_webapps != "no"
-then
-    AC_MSG_NOTICE([adding web applications to the build])
-    have_webapps=true
-fi
-AC_SUBST(have_webapps)
 
 dnl Capture special options passed to configure
 pcp_prefix=`eval echo $prefix`

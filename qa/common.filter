@@ -638,24 +638,6 @@ _filter_pmproxy_stop()
     | _filter_init_distro
 }
 
-_filter_pmwebd_start()
-{
-    sed \
-	-e '/^Stopping pmwebd/d' \
-	-e '/^Starting pmwebd/d' \
-	-e '/^Waiting for pmwebd/d' \
-	-e "s;$PCP_RC_DIR/pmwebd;\$PCP_RC_DIR/pmwebd;g" \
-    | _filter_init_distro
-}
-
-_filter_pmwebd_stop()
-{
-    sed \
-	-e '/^Waiting for pmwebd/d' \
-	-e "s;$PCP_RC_DIR/pmwebd;\$PCP_RC_DIR/pmwebd;g" \
-    | _filter_init_distro
-}
-
 _sort_pmdumplog_d()
 {
     cat >$tmp.tmp

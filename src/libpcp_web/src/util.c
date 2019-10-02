@@ -1153,3 +1153,49 @@ pmwebapi_indom_help(struct context *context, struct indom *indom)
 	}
     }
 }
+
+void
+pmwebapi_event_flags(void)
+{
+    /* TODO: not yet implemented */
+}
+
+void
+pmwebapi_event_missed(void)
+{
+    /* TODO: not yet implemented */
+}
+
+sds
+pmwebapi_event_parameter(sds s, pmValueSet *vsp, int inst, int *flags)
+{
+    (void)vsp;
+    (void)inst;
+    (void)flags;
+
+    return s;	/* TODO: not yet implemented */
+}
+
+sds
+pmwebapi_usectimestamp(sds s, struct timeval *timestamp)
+{
+    struct tm	tmp;
+    time_t	now;
+
+    now = (time_t)timestamp->tv_sec;
+    pmLocaltime(&now, &tmp);
+    return sdscatfmt(s, "%02d:%02d:%02d.%06d",
+		tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)timestamp->tv_usec);
+}
+
+sds
+pmwebapi_nsectimestamp(sds s, struct timespec *timestamp)
+{
+    struct tm	tmp;
+    time_t	now;
+
+    now = (time_t)timestamp->tv_sec;
+    pmLocaltime(&now, &tmp);
+    return sdscatfmt(s, "%02d:%02d:%02d.%09d",
+		tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)timestamp->tv_nsec);
+}

@@ -73,15 +73,13 @@ __pmDiscoverServicesWithOptions(\fIservice\fP, \fImechanism\fP, NULL, NULL, \fIu
 .I service
 specifies the PCP service to be discovered.
 Currently supported services are
-.B PM_SERVER_SERVICE_SPEC,
-.B PM_PROXY_SERVICE_SPEC
+.B PM_SERVER_SERVICE_SPEC
 and
-.B PM_WEBD_SERVICE_SPEC,
+.B PM_PROXY_SERVICE_SPEC
 which search for
 .BR pmcd (1),
-.BR pmproxy (1),
 and
-.BR pmwebd (1),
+.BR pmproxy (1)
 servers respectively.
 .PP 
 .IR mechanism
@@ -232,9 +230,8 @@ using the
 function.
 .SH SEE ALSO
 .BR pmcd (1),
-.BR pmproxy (1),
-.BR pmwebd (1),
 .BR pmfind (1),
+.BR pmproxy (1),
 .BR pcp-kube-pods (1),
 .BR PMAPI (3),
 .BR pmGetConfig (3),

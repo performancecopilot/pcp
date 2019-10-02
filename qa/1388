@@ -1,18 +1,17 @@
 #!/bin/sh
 # PCP QA Test No. 1388
-# Exercise pmwebd mandatory authentication mode.
+# Exercise PMWEBAPI mandatory authentication mode.
 #
-# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+# Copyright (c) 2017,2019 Red Hat.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
 . ./common.secure
-. ./common.webapi
 
+_notrun "Work in progress transition to pmproxy"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
-[ -f ${PCP_BINADM_DIR}/pmwebd ] || _notrun "pmwebd binary not installed"
 
 full_hostname=`hostname`
 
@@ -24,43 +23,25 @@ test $? -eq 0 || _notrun 'No client support for plain authentication'
 $pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1
 test $? -eq 0 || _notrun 'No server support for plain authentication'
 
-if which pkg-config >/dev/null 2>&1
-then
-    ver="`pkg-config --modversion libmicrohttpd`"
-    case $ver
-    in
-	0.9.62)
-		_notrun "pmwebd does not work with version $ver of libmicrohttpd"
-		# NOTREACHED
-		;;
-    esac
-fi
-
 $sudo rm -f $tmp.* $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 
-webargs="-U $username"
-webport=`_find_free_port`
-webpid=""
-
 _cleanup()
 {
-    # stop pmwebd pmcd client up front
-    if [ "X$webpid" != "X" ]; then
-	$signal -s TERM $webpid
-	webpid=""
-    fi
+    cd $here
 
-    # restore any modified pmcd configuration files
+    # restore any modified pmcd and pmproxy configuration files
     _restore_config $PCP_SASLCONF_DIR/pmcd.conf
 
-    _service pcp stop 2>&1 | _filter_pcp_stop
-    _service pcp start 2>&1 | _filter_pcp_start
+    _service pmcd stop 2>&1 | _filter_pmcd_stop
+    _service pmcd start 2>&1 | _filter_pmcd_start
     _wait_for_pmcd
-    _wait_for_pmlogger
-    _service pmwebd start 2>&1 | _filter_pmwebd_start
+
+    _service pmproxy stop 2>&1 | _filter_pmproxy_stop
+    _service pmproxy start 2>&1 | _filter_pmproxy_start
+    _wait_for_pmproxy
 
     $sudo rm -f $tmp.*
 }
@@ -98,41 +79,42 @@ sasldblistusers2 -f $tmp.passwd.db \
 | _filter_listusers2
 
 echo "Start pmcd with this shiny new sasldb"
-_service pcp restart 2>&1 | tee -a $seq.full >$tmp.out
+_service pmcd restart 2>&1 | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
-_wait_for_pmlogger
 
 if which systemctl >/dev/null 2>&1
 then
     $sudo systemctl daemon-reload
 fi
 
-echo "Start pmwebd with mandatory authentication"
-_service pmwebd stop 2>&1 | _filter_pmwebd_stop
-$PCP_BINADM_DIR/pmwebd $webargs -p $webport -vvv -l $tmp.out -v -t5 -C &
+echo "Start pmproxy with mandatory authentication"
+_service pmproxy stop 2>&1 | _filter_pmproxy_stop
+webport=`_find_free_port`
+$PCP_BINADM_DIR/pmproxy -f $webargs -p $webport -l $tmp.out -C &
 webpid=$!
 echo "pid=$webpid" >>$seq.full
 echo "webport=$webport" >>$seq.full
 echo "webargs=$webargs" >>$seq.full
 
-_wait_for_pmwebd_logfile $tmp.out $webport
+_wait_for_pmproxy $webport
 
-echo && echo "=== pmwebd no authentication (expect errors) ==="
-curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost"
+echo && echo "=== pmproxy no authentication (expect errors) ==="
+curl -s -S "http://localhost:44323/pmapi/context?hostspec=localhost"
 echo
-curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fusername%3Dbob"
+curl -s -S "http://localhost:44323/pmapi/context?hostspec=localhost%3Fusername%3Dbob"
 echo
-curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fpassword%3Dbib"
-echo
-
-echo && echo "=== pmwebd with authentication (expect success) ==="
-curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fusername%3D$username%26password%3Dy" 2>&1 | _filter_context
-echo
-curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fpassword%3Dy%26username%3D$username" 2>&1 | _filter_context
+curl -s -S "http://localhost:44323/pmapi/context?hostspec=localhost%3Fpassword%3Dbib"
 echo
 
-echo "=== pmwebd log ===" >>$seq.full
-cat $tmp.out >>$seq.full
+echo && echo "=== pmproxy with authentication (expect success) ==="
+curl -s -S "http://localhost:44323/pmapi/context?hostspec=localhost%3Fusername%3D$username%26password%3Dy" 2>&1 | _filter_context
+echo
+curl -s -S "http://localhost:44323/pmapi/context?hostspec=localhost%3Fpassword%3Dy%26username%3D$username" 2>&1 | _filter_context
+echo
+
+echo >>$here/$seq.full
+echo "=== pmproxy log ===" >>$here/$seq.full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$here/$seq.full
 
 status=0
 exit

@@ -173,7 +173,7 @@ Package dependencies come in several flavours:
   installed the build will work, but the resultant packages
   may be missing some features or entire applications, e.g.
   extended authentication, secure connections, service
-  discovery, pmwebd, ...;
+  discovery, REST API, ...;
 
 - QA dependencies - you can ignore these unless you want to
   run the (extensive) PCP QA suite.

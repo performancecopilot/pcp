@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 """ Test access to pmdaproc metrics from PCP web daemon -*- python -*- """
 #
-# Copyright (C) 2015 Red Hat.
+# Copyright (C) 2015,2019 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -46,29 +46,7 @@ def test_processes_fetch(ctx,src):
         # don't need to instances/values, seeing some/none returned is enough
 
 # ------------------------------------------------------------------------
-# local-ctx/unix should fail when pmwebd started without -P (else pass)
 # localhost should always fail (no authentication, so no proc.* access)
-
-req = requests.get(url=url + 'context?local=bad' + timeout)
-if req.status_code == 200:
-    have_local = 1
-    resp = req.json()
-    ctx_local = resp['context']
-    print('Received PM_CONTEXT_LOCAL #' + str(ctx_local))
-    test_processes_fetch(ctx_local, 'local context')
-else:
-    status = 'status=' + str(req.status_code)
-    print('No PM_CONTEXT_LOCAL available ' + status)
-
-req = requests.get(url=url + 'context?hostspec=unix:' + timeout)
-if req.status_code == 200:
-    resp = req.json()
-    ctx_unix = resp['context']
-    print('Received PM_CONTEXT_HOST(UNIX:) #' + str(ctx_unix))
-    test_processes_fetch(ctx_unix, 'unix domain')
-else:
-    status = 'status=' + str(req.status_code)
-    print('No PM_CONTEXT_HOST(UNIX:) available ' + status)
 
 print('Create: ' + url + 'context?hostspec=localhost' + timeout)
 req = requests.get(url=url + 'context?hostspec=localhost' + timeout)

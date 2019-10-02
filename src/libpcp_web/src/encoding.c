@@ -11,8 +11,9 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
+#include <ctype.h>
 #include <stdlib.h>
-#include "base64.h"
+#include "encoding.h"
 
 static const char base64_decoding_table[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -81,4 +82,25 @@ base64_encode(const char *src, size_t len)
     }
     *dest = '\0';
     return result;
+}
+
+sds
+unicode_encode(const char *p, size_t length)
+{
+    static const char	hex[] = "0123456789ABCDEF";
+    unsigned int	i;
+    sds			s = sdsnewlen("\"", 1);
+
+    for (i = 0; i < length; i++) {
+	char	c = p[i];
+
+	if (!isascii(c))
+	    s = sdscatlen(s, "\\uFFFD", 6);
+	else if (isalnum(c) || c == ' ' ||
+		(ispunct(c) && !iscntrl(c) && c != '\\' && c != '\"'))
+	    s = sdscatprintf(s, "%c", c);
+	else
+	    s = sdscatprintf(s, "\\u00%c%c", hex[(c>>4) & 0xf], hex[c & 0xf]);
+    }
+    return sdscatlen(s, "\"", 1);
 }

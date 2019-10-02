@@ -495,7 +495,7 @@ on_pmseries_done(int status, void *arg)
 	baton->suffix = NULL;
     } else {
 	if (((code = client->u.http.parser.status_code)) == 0)
-	    code = HTTP_STATUS_NOT_FOUND;
+	    code = HTTP_STATUS_BAD_REQUEST;
 	if (baton->clientid)
 	    msg = sdscatfmt(sdsempty(),
 				"{\"client\":%S,\"success\":%s}\r\n",

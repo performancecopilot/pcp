@@ -250,7 +250,7 @@ fi
 #
 if [ -n "$PCP_SYSTEMDUNIT_DIR" ]
 then
-    for service in pmcd pmlogger pmie pmproxy pmmgr pmwebd
+    for service in pmcd pmlogger pmie pmproxy pmmgr
     do
 	[ -f "$PCP_SYSTEMDUNIT_DIR/$service.service" ] || continue
 	chown "root:$grp" "$PCP_SYSTEMDUNIT_DIR/$service.service"
@@ -283,8 +283,6 @@ then
     # from src/pmdas/prometheus
     _do_dir "root:$grp" 755 "$PCP_PMDAS_DIR"/prometheus/config.d
 fi
-# from src/webapps/GNUmakefile
-_do_dir "root:$grp" 755 "$PCP_SHARE_DIR"/webapps
 
 # Expect only root owned things below $PCP_SYSCONF_DIR
 #
@@ -304,8 +302,9 @@ done
 # pcp:pcp and mode 775 directories
 #
 for dir in "$PCP_LOG_DIR" \
-	   "$PCP_LOG_DIR"/pmcd "$PCP_LOG_DIR"/pmie "$PCP_LOG_DIR"/pmwebd \
-	   "$PCP_LOG_DIR"/pmproxy "$PCP_LOG_DIR"/pmlogger "$PCP_LOG_DIR"/pmmgr \
+	   "$PCP_LOG_DIR"/pmcd "$PCP_LOG_DIR"/pmproxy \
+	   "$PCP_LOG_DIR"/pmie "$PCP_LOG_DIR"/pmlogger \
+	   "$PCP_LOG_DIR"/pmmgr \
 	   "$PCP_SA_DIR" \
 	   "$PCP_RUN_DIR" \
 	   "$PCP_TMP_DIR" "$PCP_TMP_DIR"/pmie "$PCP_TMP_DIR"/pmlogger \
@@ -344,7 +343,7 @@ then
 	svccfg import ../sun/pcp.xml
     fi
 else
-    for svc in pcp pmcd pmie pmlogger pmproxy pmmgr pmwebd
+    for svc in pcp pmcd pmie pmlogger pmproxy pmmgr
     do
 	[ -f /etc/init.d/"$svc" ] || continue
 	if which rc-update >/dev/null 2>&1
@@ -361,7 +360,7 @@ else
 	# disable or enable and start as required by default policy
 	case "$svc"
 	in
-	    pmcd|pmlogger|pmproxy|pmie|pmmgr|pmwebd)
+	    pmcd|pmlogger|pmproxy|pmie|pmmgr)
 		if which rc-update >/dev/null 2>&1
 		then
 		    : TODO?

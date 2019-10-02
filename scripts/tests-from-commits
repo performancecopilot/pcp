@@ -662,10 +662,6 @@ _map()
 	    src/time/*) 		# long gone -> pmtime
 		echo '-g pmtime'
 		;;
-	    src/webapps/*)
-		echo '661
-663'
-		;;
 	    src/win32ctl/*)		# not used in any QA test scripts
 		;;
 	    src/zabbix-agent/*)
@@ -717,7 +713,6 @@ _map()
 	   |src/pmquery/*\
 	   |src/pmrep/*\
 	   |src/pmval/*\
-	   |src/pmwebd/*\
 	   |src/perl/*\
 	   |src/python/*\
 	   |src/selinux/*)

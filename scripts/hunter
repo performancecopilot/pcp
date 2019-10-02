@@ -49,8 +49,6 @@ do
 		;;
 	    src/pmie/src/andor.c|src/pmie/src/dstruct.c|src/pmie/src/eval.c|src/pmie/src/grammar.y|src/pmie/src/lexicon.c|src/pmie/src/match_inst.c|src/pmie/src/pmie.c|src/pmie/src/pragmatics.c|src/pmie/src/show.c|src/pmie/src/symbol.c|src/pmie/src/syntax.c|src/pmie/src/systemlog.c)
 		;;
-	    src/pmwebd/main.cxx|src/pmwebd/pmgraphite.cxx|src/pmwebd/pmresapi.cxx|src/pmwebd/pmwebapi.cxx|src/pmwebd/util.cxx)
-		;;
 	    src/pmchart/*.cpp)
 		;;
 	    src/pmlogreduce/domentric.c|src/pmlogreduce/indom.c|src/pmlogreduce/logio.c|src/pmlogreduce/pmlogreduce.c|src/pmlogreduce/rewrite.c|src/pmlogreduce/scan.c|src/pmlogreduce/util.c)

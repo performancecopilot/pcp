@@ -172,8 +172,7 @@ __pmWebAPIAddPorts(int **ports, int nports)
     int  new_nports = nports;
 
     PM_LOCK(__pmLock_extcall);
-    if ((env = getenv("PMWEBAPI_PORT")) != NULL ||	/* THREADSAFE */
-	(env = getenv("PMWEBD_PORT")) != NULL)		/* back-compat */
+    if ((env = getenv("PMWEBAPI_PORT")) != NULL)	/* THREADSAFE */
 	/*
 	 * THREADSAFE because __pmAddPorts acquires no locks (other than
 	 * on the fatal pmNoMem() path)

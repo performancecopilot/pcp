@@ -28,6 +28,7 @@ typedef enum json_flags {
 
 extern sds json_push_suffix(sds, json_flags);
 extern sds json_pop_suffix(sds);
+extern sds json_string(const sds);
 
 typedef enum http_flags {
     HTTP_FLAG_JSON	= (1<<0),

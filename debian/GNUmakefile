@@ -17,11 +17,6 @@ PCPGUI = pcp-gui
 PCPGUI_FILES = pcp-gui.dirs pcp-gui.install
 PCPGUI_DOC_DIR = $(PCP_DOC_DIR)/../pcp-gui
 
-PCPWEBAPI = pcp-webapi
-PCPWEBAPI_FILES = pcp-webapi.dirs pcp-webapi.install pcp-webapi.prerm \
-		  pcp-webapi.postinst pcp-webapi.postrm
-PCPWEBAPI_DOC_DIR = $(PCP_DOC_DIR)/../pcp-webapi
-
 PCPMANAGER = pcp-manager
 PCPMANAGER_FILES = pcp-manager.dirs pcp-manager.install pcp-manager.prerm \
 		   pcp-manager.postinst pcp-manager.postrm
@@ -108,7 +103,7 @@ DEVWEB_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-web1-dev
 SUBDIRS = source
 LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	pcp.preinst pcp.preinst.head pcp.postinst pcp.postinst.head \
-	pcp-webapp-vector.dirs pcp-webapp-vector.install pcp-gui.install \
+	pcp-gui.install \
 	$(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
@@ -117,7 +112,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL)
 
-default: pcp.preinst pcp.postinst pcp.postrm vector control pcp-gui.install
+default: pcp.preinst pcp.postinst pcp.postrm control pcp-gui.install
 
 include $(BUILDRULES)
 
@@ -137,15 +132,6 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(PCPGUI_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(PCPGUI_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(PCPGUI_DOC_DIR)/changelog.Debian
-endif
-endif
-
-install-webapi:
-ifeq ($(ENABLE_WEBAPI), true)
-ifeq ($(PACKAGE_DISTRIBUTION), debian)
-	$(INSTALL) -m 755 -d $(PCPWEBAPI_DOC_DIR)
-	$(INSTALL) -m 644 copyright $(PCPWEBAPI_DOC_DIR)
-	$(INSTALL) -m 644 changelog $(PCPWEBAPI_DOC_DIR)/changelog.Debian
 endif
 endif
 
@@ -327,22 +313,6 @@ pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail
 	rm -f $@
 	cat pcp.postrm.head configversions pcp.postrm.tail > $@
 
-VECTOR = $(shell echo $(PCP_SHARE_DIR)/webapps/vector | sed -e 's,^/,,g')
-VECTORPKG = pcp-webapp-vector
-VECTORTGZ = $(PWDDIR)/../../../tar/$(VECTORPKG).tar.gz
-
-vector:
-ifeq ($(HAVE_WEBAPPS), true)
-ifeq ($(PACKAGE_DISTRIBUTION), debian)
-	mkdir -p pcp/$(VECTOR) 2>/dev/null || exit 0
-	cd pcp/$(VECTOR) && $(TAR) xzf $(VECTORTGZ) --strip-components=1
-	( cd pcp/$(VECTOR) && find . -type d ) \
-		| sed -e "s,^.,$(VECTOR),g" > $(VECTORPKG).dirs
-	( cd pcp/$(VECTOR) && find . -type f ) \
-		| sed -e "s,^.,$(VECTOR),g" > $(VECTORPKG).install
-endif
-endif
-
 pcp-gui.install:	pcp-gui.install.base pcp-gui.install.hicolor
 	rm -f pcp-gui.install
 	cat pcp-gui.install.base >pcp-gui.install
@@ -350,19 +320,13 @@ ifeq ($(HAVE_HICOLOR_ICONS), true)
 	cat pcp-gui.install.hicolor >>pcp-gui.install
 endif
 
-control:	control.master control.webapi control.pcpgui fixcontrol.master
+control:	control.master control.pcpgui fixcontrol.master
 	./fixcontrol.master >control
 ifeq ($(ENABLE_PYTHON2), true)
 	cat control.python2 >>control
 endif
 ifeq ($(ENABLE_PYTHON3), true)
 	cat control.python3 >>control
-endif
-ifeq ($(HAVE_WEBAPPS), true)
-	cat control.vector >>control
-endif
-ifeq ($(ENABLE_WEBAPI), true)
-	cat control.webapi >>control
 endif
 ifeq ($(ENABLE_QT), true)
 	cat control.pcpgui >>control

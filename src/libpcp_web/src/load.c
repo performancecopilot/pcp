@@ -15,6 +15,7 @@
 #include <limits.h>
 #include <assert.h>
 #include <ctype.h>
+#include "encoding.h"
 #include "discover.h"
 #include "schema.h"
 #include "util.h"
@@ -253,13 +254,74 @@ pmwebapi_clear_metric_updated(metric_t *metric)
 	metric->u.vlist->value[i].updated = 0;
 }
 
-static int
-pmwebapi_extract_value(int valfmt, const pmValue *vp, int type, pmAtomValue *ap)
+static sds
+pmwebapi_extract_events(pmValueSet *vsp, int inst)
 {
+    sds			s;
+    int			record, param, nrecords, flags, sts;
+    pmResult		**results, *result;
+
+    if ((sts = nrecords = pmUnpackEventRecords(vsp, inst, &results)) < 0) {
+	if (pmDebugOptions.series)
+	    fprintf(stderr, "pmUnpackEventRecords: %s\n", pmErrStr(sts));
+	return NULL;
+    }
+    nrecords = sts;
+    pmwebapi_event_flags();
+    pmwebapi_event_missed();
+    s = sdsnewlen("{", 1);
+    for (record = 0; record < nrecords; record++) {
+	if (record > 0)
+	    s = sdscatlen(s, ",", 1);
+	result = results[record];
+	s = sdscatfmt(s, "\"timestamp\":");
+	s = pmwebapi_usectimestamp(s, &result->timestamp);
+	for (param = flags = 0; param < result->numpmid; param++)
+	    s = pmwebapi_event_parameter(s, result->vset[param], param, &flags);
+    }
+    s = sdscatlen(s, "}", 1);
+    pmFreeEventResult(results);
+    return s;
+}
+
+static sds
+pmwebapi_extract_highres_events(pmValueSet *vsp, int inst)
+{
+    sds			s;
+    int			record, param, nrecords, flags, sts;
+    pmHighResResult	**results, *result;
+
+    if ((sts = pmUnpackHighResEventRecords(vsp, inst, &results)) < 0) {
+	if (pmDebugOptions.series)
+	    fprintf(stderr, "pmUnpackHighResEventRecords: %s\n", pmErrStr(sts));
+	return NULL;
+    }
+    nrecords = sts;
+    pmwebapi_event_flags();
+    pmwebapi_event_missed();
+    s = sdsempty();
+    for (record = 0; record < nrecords; record++) {
+	if (record > 0)
+	    s = sdscatlen(s, ",", 1);
+	result = results[record];
+	s = sdscatfmt(s, "\"timestamp\":");
+	s = pmwebapi_nsectimestamp(s, &result->timestamp);
+	for (param = flags = 0; param < result->numpmid; param++)
+	    s = pmwebapi_event_parameter(s, result->vset[param], param, &flags);
+    }
+    s = sdscatlen(s, "}", 1);
+    pmFreeHighResEventResult(results);
+    return s;
+}
+
+static int
+pmwebapi_extract_value(pmValueSet *vsp, int inst, int type, pmAtomValue *ap)
+{
+    pmValue		*vp = &vsp->vlist[inst];
     unsigned int	length;
 
     /*
-     * Handle special cases like aggregate and string values up-front;
+     * Special case (aggregates, strings and events) values up-front -
      * avoid the need for multiple allocations and using sds directly.
      */
     switch (type) {
@@ -269,12 +331,21 @@ pmwebapi_extract_value(int valfmt, const pmValue *vp, int type, pmAtomValue *ap)
 	length = vp->value.pval->vlen - PM_VAL_HDR_SIZE;
 	if (type == PM_TYPE_STRING && length > 0)
 	    length--;	/* do not escape the terminating null byte */
-	ap->cp = sdscatrepr(sdsempty(), vp->value.pval->vbuf, length);
+	ap->cp = unicode_encode(vp->value.pval->vbuf, length);
 	return 0;
+
+    case PM_TYPE_EVENT:
+	ap->cp = pmwebapi_extract_events(vsp, inst);
+	return 0;
+
+    case PM_TYPE_HIGHRES_EVENT:
+	ap->cp = pmwebapi_extract_highres_events(vsp, inst);
+	return 0;
+
     default:
 	break;
     }
-    return pmExtractValue(valfmt, vp, type, ap, type);
+    return pmExtractValue(vsp->valfmt, vp, type, ap, type);
 }
 
 int
@@ -293,7 +364,7 @@ pmwebapi_add_valueset(metric_t *metric, pmValueSet *vsp)
     type = metric->desc.type;
     if (metric->desc.indom == PM_INDOM_NULL) {
 	vp = &vsp->vlist[0];
-	if (pmwebapi_extract_value(vsp->valfmt, vp, type, &metric->u.atom) < 0)
+	if (pmwebapi_extract_value(vsp, 0, type, &metric->u.atom) < 0)
 	    metric->updated = 0;
 	return 1;
     }
@@ -325,12 +396,10 @@ pmwebapi_add_valueset(metric_t *metric, pmValueSet *vsp)
 	}
 	value = &metric->u.vlist->value[k];
 	value->updated = 1;
-	if (pmwebapi_extract_value(vsp->valfmt, vp, type, &value->atom) < 0)
+	if (pmwebapi_extract_value(vsp, j, type, &value->atom) < 0)
 	    value->updated = 0;
     }
 
-    if (metric->u.vlist)
-	metric->u.vlist->listcount = vsp->numval;
     return count;
 }
 
