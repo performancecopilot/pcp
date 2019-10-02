@@ -424,6 +424,8 @@ store(pmResult *result, pmdaExt *pmda)
     if (need_refresh)
 	pmns_refresh();
 
+    pmdaStore(result, pmda);	/* setup context */
+
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
 	pmid = (__pmID_int *)&vsp->pmid;
