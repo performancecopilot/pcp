@@ -45,7 +45,7 @@ Description: Performance Co-Pilot runtime configuration
 Package: libpcp3-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp3 (= ${binary:Version}), libc6-dev | libc-dev
-Breaks: pcp (<< 3.8.0), libpcp-gui2-dev (<< 3.11.10~)
+Breaks: pcp (<< 4.3.4), libpcp-gui2-dev (<< 3.11.10~)
 Replaces: libpcp-gui2-dev (<< 3.11.10~)
 Architecture: any
 Description: Performance Co-Pilot library and headers
