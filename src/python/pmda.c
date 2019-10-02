@@ -762,6 +762,8 @@ store(pmResult *result, pmdaExt *pmda)
     if (store_cb_func == NULL)
 	return PM_ERR_PERMISSION;
 
+    pmdaStore(result, pmda);
+
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
 	pmid = (__pmID_int *)&vsp->pmid;
