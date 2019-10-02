@@ -12,7 +12,7 @@ PMWEBD error, XXX
 
 +++ should fail with a different error (insufficient elements; ie pmFetch failed)
 > GET /pmapi/2222/_fetch?names= HTTP/1.1
-> Host: LOCALHOST:44323
+> Host: LOCALHOST:PORT
 > Accept: */*
 >
 < HTTP/1.1 400 Bad Request
@@ -30,7 +30,7 @@ PMWEBD error, XXX
 
 +++ should fail due to suspicious pmresapi path name
 > GET /etc/passwd HTTP/1.1
-> Host: LOCALHOST:44323
+> Host: LOCALHOST:PORT
 > Accept: */*
 >
 < HTTP/1.1 400 Bad Request
@@ -45,7 +45,7 @@ PMWEBD error, XXX
 
 +++ should fail due to non-enablement of graphite
 > GET /graphite/render?target=* HTTP/1.1
-> Host: LOCALHOST:44323
+> Host: LOCALHOST:PORT
 > Accept: */*
 >
 < HTTP/1.1 400 Bad Request
@@ -62,7 +62,7 @@ PMWEBD error, XXX
 file service ok
 +++ should not fail after patch from GH PR594
 > GET /pmapi/1/metrics HTTP/1.1
-> Host: LOCALHOST:44323
+> Host: LOCALHOST:PORT
 > Accept: */*
 >
 < HTTP/1.1 400 Bad Request
@@ -77,7 +77,7 @@ PMWEBD error, XXX
 
 +++ should fail with incomplete pmapi request url.size=2
 > GET /pmapi HTTP/1.1
-> Host: LOCALHOST:44323
+> Host: LOCALHOST:PORT
 > Accept: */*
 >
 < HTTP/1.1 400 Bad Request
@@ -93,7 +93,7 @@ PMWEBD error, XXX
 
 +++ should fail with incomplete pmapi request url.size=3
 > GET /pmapi/12345 HTTP/1.1
-> Host: LOCALHOST:44323
+> Host: LOCALHOST:PORT
 > Accept: */*
 >
 < HTTP/1.1 400 Bad Request
