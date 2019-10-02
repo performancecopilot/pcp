@@ -28,7 +28,9 @@ kretprobe:vfs_read
 }"
 
 echo "=== check metrics ==="
-_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.bytes
+_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.probes 2
+cat $here/$seq > /dev/null # generate vfs_read syscalls
+pmsleep 2 # bpftrace output interval
 pminfo -dfmtT bpftrace.scripts.testscript.data.bytes 2>&1 | tee -a $here/$seq.full \
 | _instances_filter_any
 pid1=$(pminfo -f bpftrace.scripts.testscript.pid | grep value | sed -En 's/.*value ([0-9]*)/\1/gp')

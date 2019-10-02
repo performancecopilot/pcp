@@ -10,6 +10,7 @@ Check bpftrace metrics have appeared ... 6 metrics and 5 values
 === start bpftrace script ===
 bpftrace.control.register old value="{}" new value="{"name": "script100", "vars": ["signals"], "status": "starting", "exit_code": 0, "output": ""}"
 === check metrics ===
+found metric bpftrace.scripts.script100.probes matching "value 2"
 
 bpftrace.scripts.script100.data.signals PMID: 151.100.10 [@signals variable of bpftrace script]
     Data Type: 64-bit unsigned int  InDom: 151.100010 0x25c186aa
