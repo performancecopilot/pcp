@@ -214,11 +214,11 @@ binary-arch: checkroot build-stamp
 	# to ensure make install after the first version works
 	for V in $(shell pyversions -vr); do \
 	    $(MAKE) -C src/python clean; \
-	    $(pkgpcp_python2) $(MAKE) PYTHON=python$$V -C src/python install_python2; \
+	    $(pkgpcp_python2) $(MAKE) PYTHON2=python$$V -C src/python install_python2; \
 	done
 	for V in $(shell py3versions -vr); do \
 	    $(MAKE) -C src/python clean; \
-	    $(pkgpcp_python3) $(MAKE) PYTHON=python$$V -C src/python install_python3; \
+	    $(pkgpcp_python3) $(MAKE) PYTHON3=python$$V -C src/python install_python3; \
 	done
 
 	dh_installdocs -a

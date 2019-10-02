@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2016 Red Hat.
+# Copyright (c) 2012-2016,2019 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -45,16 +45,16 @@ endif
 default default_pcp: build_python2 build_python3
 
 ifeq "$(ENABLE_PYTHON2)" "true"
-PY_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
-PY_INSTALL_OPTS = $(SETUP_PY_INSTALL_OPTIONS) --record=$(TOPDIR)/python-pcp.list
+PY2_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
+PY2_INSTALL_OPTS = $(SETUP_PY_INSTALL_OPTIONS) --record=$(TOPDIR)/python2-pcp.list
 build_python2: $(SETUP_PY) $(CFILES)
-	export $(ENV); $(PYTHON) $(SETUP_PY) build_ext $(PY_BUILD_OPTS)
-	export $(ENV); $(PYTHON) $(SETUP_PY) build
+	export $(ENV); $(PYTHON2) $(SETUP_PY) build_ext $(PY2_BUILD_OPTS)
+	export $(ENV); $(PYTHON2) $(SETUP_PY) build
 	touch build_python2
 
 install_python2: build_python2
-	export $(ENV); $(PYTHON) $(SETUP_PY) install $(PY_INSTALL_OPTS)
-	export $(ENV); $(PYTHON_INSTALL)
+	export $(ENV); $(PYTHON2) $(SETUP_PY) install $(PY2_INSTALL_OPTS)
+	export $(ENV); $(PYTHON2_INSTALL)
 else
 build_python2:
 install_python2:

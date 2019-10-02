@@ -102,11 +102,11 @@ AC_ARG_WITH([perl],
     [do_perl=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perl=$withval"],
     [do_perl=check])
 
-AC_ARG_WITH([python],
-    [AC_HELP_STRING([--with-python],
+AC_ARG_WITH([python2],
+    [AC_HELP_STRING([--with-python2],
                     [enable support for tools requiring Python (default is on)])],
-    [do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"],
-    [do_python=check])
+    [do_python2=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"],
+    [do_python2=check])
 
 AC_ARG_WITH([python3],
     [AC_HELP_STRING([--with-python3],
@@ -820,8 +820,8 @@ AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
 AC_SUBST(PYLINT)
 
 dnl check if python available for the build and runtime
-AC_CHECK_PROGS(PYTHON, [python python2.7])
-AC_SUBST(PYTHON)
+AC_CHECK_PROGS(PYTHON2, [python2 python2.7 python2.6 python])
+AC_SUBST(PYTHON2)
 
 dnl check if python3 available for the build and runtime
 AC_CHECK_PROGS(PYTHON3, [python3 python3.7 python3.6 python3.4])
@@ -829,14 +829,14 @@ AC_SUBST(PYTHON3)
 
 dnl check if python tools/packages wanted (need python >= 2.6)
 enable_python2=false
-AS_IF([test "x$do_python" != "xno"], [
+AS_IF([test "x$do_python2" != "xno"], [
     enable_python2=true
-    if test -z "$PYTHON"
+    if test -z "$PYTHON2"
     then
 	enable_python2=false
     else
 	AC_MSG_CHECKING([Python version])
-	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	eval `$PYTHON2 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 2; then
 	    echo WARNING: Python version 2.6 or later does not seem to be installed.
@@ -855,9 +855,9 @@ AS_IF([test "x$do_python" != "xno"], [
 	fi
     fi
 
-    if test "$do_python" != "check" -a "$enable_python2" != "true"
+    if test "$do_python2" != "check" -a "$enable_python2" != "true"
     then
-	AC_MSG_ERROR([cannot enable Python - no supported version found])
+	AC_MSG_ERROR([cannot enable Python2 - no supported version found])
     fi
 ])
 AC_SUBST(enable_python2)
