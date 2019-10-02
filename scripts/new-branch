@@ -15,7 +15,7 @@ trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 _usage()
 {
-    echo >&2 "Usage: new-branch [options]"
+    echo >&2 "Usage: new-branch [options] [suffix]"
     echo >&2
     echo >&2 "options:"
     echo >&2 "  -n                  dryrun"
@@ -39,6 +39,14 @@ do
 done
 shift `expr $OPTIND - 1`
 
+if [ $# -eq 1 ]
+then
+    suff="$1"
+    shift
+else
+    suff=''
+fi
+
 [ $# -eq 0 ] || _usage
 
 # expect to be on master branch at this point
@@ -49,7 +57,7 @@ then
     echo "Error: should be on master branch (not $branch)"
     exit
 fi
-branch=`date '+%Y%m%d'`
+branch=`date '+%Y%m%d'`$suff
 if git branch --list | sed -e 's/\*//' -e 's/ //g' | grep "^$branch\$" >/dev/null
 then
     echo "Error: branch $branch already exists"

@@ -52,6 +52,7 @@ kernel
 pmcd
 pmproxy
 pmcpp
+pmwebd		# note this group has been retired
 # strip chart app
 pmchart
 # 3D scene app
@@ -1060,7 +1061,10 @@ BAD
 657 pmda.dm local
 658 logutil local pmlogrewrite
 659 pmlogreduce local
+660:retired pmwebd local
+661:retired pmwebd local python kernel
 662 pmproxy pmda.sample local python pmda.sample
+663:retired pmwebd local python
 664 logutil local pmlogrewrite
 665 pmda.linux local
 666 pmmgr local slow valgrind pmrep python pmlogrewrite
@@ -1124,6 +1128,7 @@ BAD
 724 pmfind local
 725 pmda.jbd2 local
 726 pmlogger pmdumplog local
+727:retired avahi local
 728 libpcp getopt local timezone
 729 python local
 730 pmda.proc local cgroups
@@ -1178,6 +1183,7 @@ BAD
 779 pmda local
 780 pmproxy local
 781 logutil local
+782:retired pmwebd local
 783 pmda.rpm local valgrind
 784 pmda.mic python local
 785 pcp atop local
@@ -1595,6 +1601,7 @@ BAD
 1221 labels pmda.prometheus local python
 1222 pmda.linux pmda.proc local valgrind
 1224 pcp dstat python local
+1225:retired pmwebd local pmrep python pcp kernel
 1227 derive local
 1229 pmlogextract pmdumplog labels help local sanity
 1231 pmlogrewrite labels help pmdumplog local
@@ -1652,6 +1659,7 @@ BAD
 1383 pmlogrewrite labels pmdumplog local
 1385 pmda.prometheus local python
 1388 pmproxy local
+1389:retired pmwebd local
 1390 atop local
 1393 pmda.linux local
 1395 pmda.prometheus local python
