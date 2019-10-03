@@ -12,6 +12,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.config
 
 which pmchart >/dev/null 2>&1 || _notrun "pmchart not installed"
 [ -z "$DISPLAY" -a -z "$PCPQA_CLOSE_X_SERVER" ] && _notrun "need DISPLAY or PCPQA_CLOSE_X_SERVER"
