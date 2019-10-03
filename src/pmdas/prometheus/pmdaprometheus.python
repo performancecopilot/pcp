@@ -409,7 +409,7 @@ class SampleLineParser(object):
     def post_label_value(self, char):
         if char.isspace():
             pass
-        elif char == ',':
+        elif char in (', ', ','):
             self.state = self.parse_label_name_start
         elif char == '}':
             self.state = self.parse_post_labels
