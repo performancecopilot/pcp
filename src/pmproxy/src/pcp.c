@@ -21,9 +21,10 @@
 static void
 client_free(struct client *client)
 {
+    if (client->u.pcp.hostname)
+	sdsfree(client->u.pcp.hostname);
     if (client->buffer)
 	sdsfree(client->buffer);
-    free(client);
 }
 
 static void

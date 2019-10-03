@@ -47,6 +47,10 @@ install_pcp install :: default
 	$(INSTALL) -m 755 -d $(PMDADIR)/config.d
 	$(INSTALL) -m 755 Install Remove Upgrade $(PYSCRIPT) $(PMDADIR)
 	@$(INSTALL_MAN)
+
+check:: $(PYSCRIPT)
+	$(PYLINT) $^
+
 else
 build-me:
 install_pcp install:

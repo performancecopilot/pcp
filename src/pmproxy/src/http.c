@@ -446,7 +446,7 @@ http_parameters(const char *url, size_t length, dict **parameters)
     const char		*p, *name, *value = NULL;
     int			sts = 0, namelen = 0, valuelen = 0;
 
-    *parameters = dictCreate(&sdsDictCallBacks, NULL);
+    *parameters = dictCreate(&sdsOwnDictCallBacks, NULL);
     for (p = name = url; p < end; p++) {
 	if (*p == '=') {
 	    namelen = p - name;
@@ -537,7 +537,7 @@ on_url(http_parser *request, const char *offset, size_t length)
     if ((servlet = servlet_lookup(client, offset, length)) != NULL) {
 	client->u.http.servlet = servlet;
 	if ((sts = client->u.http.parser.status_code) == 0) {
-	    client->u.http.headers = dictCreate(&sdsDictCallBacks, NULL);
+	    client->u.http.headers = dictCreate(&sdsOwnDictCallBacks, NULL);
 	    return 0;
 	}
 	result = sdsnew("failed to process URL");
@@ -685,7 +685,6 @@ on_http_client_close(struct client *client)
     if (client->u.http.parameters)
 	dictRelease(client->u.http.parameters);
     memset(&client->u.http, 0, sizeof(client->u.http));
-    free(client);
 }
 
 static const http_parser_settings settings = {

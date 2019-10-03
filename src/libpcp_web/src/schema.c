@@ -1378,6 +1378,7 @@ decodeCommandKey(redisSlotsBaton *baton, int index, redisReply *reply)
 
     if ((entry = dictAddRaw(slots->keymap, cmd, NULL)) != NULL) {
 	dictSetSignedIntegerVal(entry, position);
+	sdsfree(cmd);
 	return 0;
     }
     sdsfree(cmd);
