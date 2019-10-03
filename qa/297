@@ -90,7 +90,9 @@ _filter_pmproxy()
         -e '/^IPC table fd/d' \
 	-e '/^__pmSetVersionIPC: fd=/d' \
 	-e '/^__pmSetFeaturesIPC: fd=/d' \
-	-e 's/localhost/MY_HOST/g'
+	-e 's/localhost/MY_HOST/g' \
+	-e '/^pmproxy: disabled time series, requires libuv support (missing)/d' \
+    # end
 }
 
 _service pmproxy stop >>$seq.full 2>&1
