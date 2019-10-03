@@ -1,10 +1,10 @@
 #!/bin/sh
 # PCP QA Test No. 1385
-# pmdaprometheus scalability testing
+# pmdaopenmetrics scalability testing
 # specifically scaling number of nodes at once
 #
-# Note: if anything gets added or changed in qa/prometheus/samples directory,
-# then this test (and all tests in group pmda.prometheus) will need to be remade.
+# Note: if anything gets added or changed in qa/openmetrics/samples directory,
+# then this test (and all tests in group pmda.openmetrics) will need to be remade.
 #
 # Copyright (c) 2017 Red Hat.  All Rights Reserved.
 #
@@ -13,15 +13,15 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.prometheus
+. ./common.openmetrics
 
-_pmdaprometheus_check || _notrun "prometheus pmda and/or load generator not installed"
+_pmdaopenmetrics_check || _notrun "openmetrics pmda and/or load generator not installed"
 _have_python266 && _notrun "python load generator does not currently work with python 2.6.6"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 totalendpoints=100 #total queue to work through
-endpoints=1 #prometheus endpoints
+endpoints=1 #openmetrics endpoints
 iterations=4
 metrics=10
 instances=10
@@ -35,10 +35,10 @@ _cleanup()
 	pid=""
     fi
 
-    echo "=== prometheus PMDA log ===" >>$here/$seq.full
-    if [ -f $PCP_LOG_DIR/pmcd/prometheus.log ]
+    echo "=== openmetrics PMDA log ===" >>$here/$seq.full
+    if [ -f $PCP_LOG_DIR/pmcd/openmetrics.log ]
     then
-	cat $PCP_LOG_DIR/pmcd/prometheus.log >>$here/$seq.full
+	cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$here/$seq.full
     else
 	echo "Error: PMDA log file is missing" >>$here/$seq.full
     fi
@@ -56,17 +56,17 @@ _cleanup()
     return 0
 }
 
-trap "_cleanup; _pmdaprometheus_restore_config >>$here/$seq.full; exit \$status" 0 1 2 3 15
+trap "_cleanup; _pmdaopenmetrics_restore_config >>$here/$seq.full; exit \$status" 0 1 2 3 15
 
-_pmdaprometheus_save_config
-_pmdaprometheus_install
+_pmdaopenmetrics_save_config
+_pmdaopenmetrics_install
 
 port=`_find_free_port 10000`
 echo "port=$port" >>$here/$seq.full
 
-$python $here/prometheus/prometheus_endpoint.python \
+$python $here/openmetrics/openmetrics_endpoint.python \
 	--port=$port \
-	--output=$PCP_PMDAS_DIR/prometheus/config.d/ \
+	--output=$PCP_PMDAS_DIR/openmetrics/config.d/ \
 	--total $totalendpoints \
 	--endpoints $endpoints \
 	--metrics $metrics \
@@ -74,13 +74,13 @@ $python $here/prometheus/prometheus_endpoint.python \
 	--limit $iterations >$tmp.endpoint 2>&1 &
 pid=$!
 
-if ! _pmdaprometheus_wait_for_metric prometheus.source0
+if ! _pmdaopenmetrics_wait_for_metric openmetrics.source0
 then
     status=1
     exit
 fi
 
-if pminfo -b 10000000 -v `pminfo prometheus | grep -v \.control | LC_COLLATE=POSIX sort` > $tmp.info 2> $tmp.err
+if pminfo -b 10000000 -v `pminfo openmetrics | grep -v \.control | LC_COLLATE=POSIX sort` > $tmp.info 2> $tmp.err
 then
     :
 else
@@ -89,26 +89,26 @@ else
 fi
 cat $tmp.info $tmp.err
 #sleep 120
-if pminfo -b 10000000 -fd `pminfo prometheus | fgrep -v .control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
+if pminfo -b 10000000 -fd `pminfo openmetrics | fgrep -v .control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
    then
-    echo "Fetch and desc prometheus metrics: success"
+    echo "Fetch and desc openmetrics metrics: success"
     cat $tmp.info
 else
-    echo "Fetch and desc prometheus metrics: failed"
+    echo "Fetch and desc openmetrics metrics: failed"
     cat $tmp.err
 fi
 
-pminfo -b 10000000 -tf `pminfo prometheus.source0 | LC_COLLATE=POSIX sort`
+pminfo -b 10000000 -tf `pminfo openmetrics.source0 | LC_COLLATE=POSIX sort`
 
 for i in `seq 1 1 99`
 do
-    pminfo -b 10000000 -tf `pminfo prometheus.source$i | LC_COLLATE=POSIX sort`
-    pminfo -b 10000000 -tf `pminfo prometheus.source$i | LC_COLLATE=POSIX sort`
-    pminfo -b 10000000 -tf `pminfo prometheus.source$i | LC_COLLATE=POSIX sort`
+    pminfo -b 10000000 -tf `pminfo openmetrics.source$i | LC_COLLATE=POSIX sort`
+    pminfo -b 10000000 -tf `pminfo openmetrics.source$i | LC_COLLATE=POSIX sort`
+    pminfo -b 10000000 -tf `pminfo openmetrics.source$i | LC_COLLATE=POSIX sort`
     sleep 0.5
 done
 
-_pmdaprometheus_remove
+_pmdaopenmetrics_remove
 
 # success, all done
 status=0

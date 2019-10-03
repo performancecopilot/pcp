@@ -282,8 +282,8 @@ Requires: pcp-pmda-libvirt
 %if "@pmda_lio@" == "true"
 Requires: pcp-pmda-lio
 %endif
-%if "@pmda_prometheus@" == "true"
-Requires: pcp-pmda-prometheus
+%if "@pmda_openmetrics@" == "true"
+Requires: pcp-pmda-openmetrics
 %endif
 %if "@pmda_rpm@" == "true"
 Requires: pcp-pmda-rpm
@@ -1638,13 +1638,13 @@ collecting metrics about Elasticsearch.
 #end pcp-pmda-elasticsearch
 %endif
 
-%if "@pmda_prometheus@" == "true"
+%if "@pmda_openmetrics@" == "true"
 #
-# pcp-pmda-prometheus
+# pcp-pmda-openmetrics
 #
-%package pmda-prometheus
+%package pmda-openmetrics
 License: GPLv2+
-Summary: Performance Co-Pilot (PCP) metrics from Prometheus endpoints
+Summary: Performance Co-Pilot (PCP) metrics from OpenMetrics endpoints
 URL: https://pcp.io
 Requires: pcp-libs = @package_version@
 %if "@enable_python3@" == "true"
@@ -1654,11 +1654,13 @@ Requires: python3-requests
 Requires: %{__python2}-pcp = @package_version@
 Requires: %{__python2}-requests
 %endif
+Obsoletes: pcp-pmda-prometheus
+Provides: pcp-pmda-prometheus
 
-%description pmda-prometheus
+%description pmda-openmetrics
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-extracting statistics from programs instrumented as Prometheus endpoints.
-#end pcp-pmda-prometheus
+extracting metrics from OpenMetrics (https://openmetrics.io/) endpoints.
+#end pcp-pmda-openmetrics
 %endif
 
 %if "@pmda_json@" == "true"
@@ -2183,8 +2185,8 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/libvirt' > pmda_libvirt_files
 %if "@pmda_lio@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lio' > pmda_lio_files
 %endif
-%if "@pmda_prometheus@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/prometheus' > pmda_prometheus_files
+%if "@pmda_openmetrics@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/openmetrics' > pmda_openmetrics_files
 %endif
 %if "@pmda_bcc@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bcc' > pmda_bcc_files
@@ -2265,8 +2267,8 @@ touch pmda_libvirt_files
 %if "@pmda_lio@" == "true"
 touch pmda_lio_files
 %endif
-%if "@pmda_prometheus@" == "true"
-touch pmda_prometheus_files
+%if "@pmda_openmetrics@" == "true"
+touch pmda_openmetrics_files
 %endif
 %if "@pmda_snmp@" == "true"
 touch pmda_snmp_files
@@ -2407,8 +2409,8 @@ BEGIN {
 %if "@pmda_lio@" == "true"
     while( getline < "pmda_lio_files") pmda_lio[$0]=1;
 %endif
-%if "@pmda_prometheus@" == "true"
-    while( getline < "pmda_prometheus_files") pmda_prometheus[$0]=1;
+%if "@pmda_openmetrics@" == "true"
+    while( getline < "pmda_openmetrics_files") pmda_openmetrics[$0]=1;
 %endif
     while( getline < "pmda_apache_files") pmda_apache[$0]=1;
     while( getline < "pmda_bash_files") pmda_bash[$0]=1;
@@ -2549,8 +2551,8 @@ BEGIN {
 %if "@pmda_lio@" == "true"
     else if (pmda_lio[$NF]) f="pmda_lio_files.rpm";
 %endif
-%if "@pmda_prometheus@" == "true"
-    else if (pmda_prometheus[$NF]) f="pmda_prometheus_files.rpm";
+%if "@pmda_openmetrics@" == "true"
+    else if (pmda_openmetrics[$NF]) f="pmda_openmetrics_files.rpm";
 %endif
     else if (pmda_apache[$NF]) f="pmda_apache_files.rpm";
     else if (pmda_bash[$NF]) f="pmda_bash_files.rpm";
@@ -2799,10 +2801,10 @@ pmieconf -c enable dmthin
 %{pmda_remove "$1" "lio"}
 %endif #preun pmda-lio
 
-%if "@pmda_prometheus@" == "true"
-%preun pmda-prometheus
-%{pmda_remove "$1" "prometheus"}
-%endif #preun pmda-prometheus
+%if "@pmda_openmetrics@" == "true"
+%preun pmda-openmetrics
+%{pmda_remove "$1" "openmetrics"}
+%endif #preun pmda-openmetrics
 
 %if "@pmda_nginx@" == "true"
 %preun pmda-nginx
@@ -3286,8 +3288,8 @@ cd
 %files pmda-lio -f pmda_lio_files.rpm
 %endif
 
-%if "@pmda_prometheus@" == "true"
-%files pmda-prometheus -f pmda_prometheus_files.rpm
+%if "@pmda_openmetrics@" == "true"
+%files pmda-openmetrics -f pmda_openmetrics_files.rpm
 %endif
 
 %files pmda-apache -f pmda_apache_files.rpm

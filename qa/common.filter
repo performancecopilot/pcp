@@ -301,7 +301,7 @@ _filter_optional_pmdas()
 	-e '/pmdaperfevent/d' \
 	-e '/pmdapipe/d' \
 	-e '/pmdapodman/d' \
-	-e '/pmdaprometheus/d' \
+	-e '/pmdaopenmetrics/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
 	-e '/pmdapdns/d' \
@@ -404,6 +404,7 @@ _filter_top_pmns()
 	-e '/^    nginx /d' \
 	-e '/^    nutcracker /d' \
 	-e '/^    nvidia /d' \
+	-e '/^    openmetrics /d' \
 	-e '/^    oracle /d' \
 	-e '/^    oraping /d' \
 	-e '/^    pdns /d' \
@@ -414,7 +415,6 @@ _filter_top_pmns()
 	-e '/^    postfix /d' \
 	-e '/^    postgresql /d' \
 	-e '/^    proc /d' \
-	-e '/^    prometheus /d' \
 	-e '/^    rabbitmq /d' \
 	-e '/^    redis /d' \
 	-e '/^    rpm /d' \

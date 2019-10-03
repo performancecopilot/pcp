@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 '''
-Performance Metrics Domain Agent exporting Prometheus endpoint metrics.
+Performance Metrics Domain Agent exporting OpenMetrics endpoint metrics.
 '''
 #
 # Copyright (c) 2017 Ronak Jain.
@@ -22,7 +22,7 @@ import time
 import sys
 
 requests = Counter('requests_total', 'Total requests', ['type', 'agent'])
-requests.labels(type='fetch', agent='prometheus').inc()
+requests.labels(type='fetch', agent='openmetrics').inc()
 requests.labels(type='store', agent='json').inc()
 requests.labels(type='oneline', agent='docker').inc()
 

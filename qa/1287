@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1287
-# Test pmdaprometheus install, "notready" and large initial configs.
+# Test pmdaopenmetrics install, "notready" and large initial configs.
 # This also exercises pmdaSendError() and the associated python API
-# functions which are used by pmdaprometheus to tell PMCD that it
+# functions which are used by pmdaopenmetrics to tell PMCD that it
 # has finished processing the initial config on startup and is now 
 # ready to process requests. Also tests the pmdaproc.sh fix for
 # $ipc_prot="binary notready".
@@ -13,9 +13,9 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.prometheus
+. ./common.openmetrics
 
-_pmdaprometheus_check || _notrun "prometheus pmda and/or load generator not installed"
+_pmdaopenmetrics_check || _notrun "openmetrics pmda and/or load generator not installed"
 _have_python266 && _notrun "python load generator does not currently work with python 2.6.6"
 
 status=1	# failure is the default!
@@ -23,33 +23,33 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
-    _pmdaprometheus_restore_config >>$here/$seq.full
+    _pmdaopenmetrics_restore_config >>$here/$seq.full
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-_pmdaprometheus_save_config
+_pmdaopenmetrics_save_config
 
 # add a whopping set of URL configs to exercise the notready stuff
 for i in $(seq 1 500)
 do
-    file=$here/prometheus/samples/simple_metric.txt
+    file=$here/openmetrics/samples/simple_metric.txt
     urlbase=`basename $file .txt | tr .- _`
-    echo 'file://'$file > $PCP_PMDAS_DIR/prometheus/config.d/$urlbase$i.url
+    echo 'file://'$file > $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase$i.url
 done
 
-_pmdaprometheus_install
+_pmdaopenmetrics_install
 
-if ! _pmdaprometheus_wait_for_metric prometheus.control.calls
+if ! _pmdaopenmetrics_wait_for_metric openmetrics.control.calls
 then
     exit
 fi
 
 echo; echo === check \"notready\" appeared in pmcd.conf
 sed -e "s/[ 	]$PCP_PYTHON_PROG[ 	]/ PYTHON_PROG /" <$PCP_PMCDCONF_PATH >$tmp.tmp
-if grep 'prometheus.*notready' $tmp.tmp
+if grep 'openmetrics.*notready' $tmp.tmp
 then
     :
 else
@@ -59,14 +59,14 @@ else
 fi
 
 ## echo === enable verbose log
-## pmstore prometheus.control.debug 1
+## pmstore openmetrics.control.debug 1
 
 echo; echo === pminfo listing.
-names=`pminfo prometheus | fgrep -v prometheus.control | LC_COLLATE=POSIX sort` 2>$tmp.err
+names=`pminfo openmetrics | fgrep -v openmetrics.control | LC_COLLATE=POSIX sort` 2>$tmp.err
 if [ -z "$names" ]; then
-    echo "FAILED - no prometheus metrics to show"
+    echo "FAILED - no openmetrics metrics to show"
 else
-    if pminfo -dtTf `pminfo prometheus | fgrep -v prometheus.control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
+    if pminfo -dtTf `pminfo openmetrics | fgrep -v openmetrics.control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
     then
 	:
     else
@@ -77,12 +77,12 @@ else
 fi
 
 echo == Note: check $seq.full for expected log entries
-echo == pmdaprometheus LOG == >>$here/$seq.full
-cat $PCP_LOG_DIR/pmcd/prometheus.log >>$here/$seq.full
-egrep 'Ready to process requests|notready' $PCP_LOG_DIR/pmcd/prometheus.log | \
+echo == pmdaopenmetrics LOG == >>$here/$seq.full
+cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$here/$seq.full
+egrep 'Ready to process requests|notready' $PCP_LOG_DIR/pmcd/openmetrics.log | \
 sed -e 's/\[.*\]/[DATE]/' -e 's/([0-9]*)/(PID)/'
 
-_pmdaprometheus_remove
+_pmdaopenmetrics_remove
 
 # success, all done
 status=0

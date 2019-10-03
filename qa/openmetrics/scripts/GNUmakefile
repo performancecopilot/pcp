@@ -1,7 +1,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTDIR = $(PCP_VAR_DIR)/testsuite/prometheus/scripts
+TESTDIR = $(PCP_VAR_DIR)/testsuite/openmetrics/scripts
 SCRIPTS = $(shell ls -1 | sed -e '/^GNU.*/d' -e '/^curl$$/d' -e '/not_exec/d' -e '/.*.txt$$/d')
 NONEXEC = $(shell echo *not_exec* *.txt)
 SUBDIRS = curl

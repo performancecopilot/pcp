@@ -176,7 +176,7 @@ sample:secret:foo:bar:max:redirect{instance="mmv"} 0
 sample:secret:foo:bar:max:redirect{instance="jbd2"} 0
 sample:secret:foo:bar:max:redirect{instance="papi"} 0
 sample:secret:foo:bar:max:redirect{instance="dm"} 0
-sample:secret:foo:bar:max:redirect{instance="prometheus"} 0
+sample:secret:foo:bar:max:redirect{instance="openmetrics"} 0
 
 # PCP sample.secret.foo.one instant count
 # HELP sample:secret:foo:one_count dynamic *.secret.foo.one metric

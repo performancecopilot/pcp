@@ -1,9 +1,9 @@
 QA output created by 1395
 
-=== prometheus agent installation ===
-Fetch and desc prometheus metrics: success
+=== openmetrics agent installation ===
+Fetch and desc openmetrics metrics: success
 
-prometheus.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     Data Type: double  InDom: 144.6145 0x24001801
     Semantics: counter  Units: none
     inst [0 or "0 baz:0.0"] value 0
@@ -407,7 +407,7 @@ prometheus.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 203225240000
     inst [399 or "399 baz:279.3"] value 203735857000
 
-prometheus.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
     Data Type: double  InDom: 144.6144 0x24001800
     Semantics: instant  Units: none
     inst [0 or "0 bar:0"] value 0
@@ -811,7 +811,7 @@ prometheus.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 9631.6
     inst [399 or "399 bar:399"] value 9655.799999999999
 
-prometheus.source1.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     Data Type: double  InDom: 144.6146 0x24001802
     Semantics: instant  Units: none
     inst [0 or "0 quantile:0.0"] value 0
@@ -1215,17 +1215,17 @@ prometheus.source1.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.254119816
     inst [399 or "399 quantile:99.75"] value 0.254758308
 
-prometheus.source1.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
     value 7272
 
-prometheus.source1.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
     value 5.564827080000001
 
-prometheus.source0.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source0.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 170205394
     inst [2 or "2 baz:1.4"] value 340410788
@@ -1627,7 +1627,7 @@ prometheus.source0.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 67741746800
     inst [399 or "399 baz:279.3"] value 67911952200
 
-prometheus.source0.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source0.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 0
     inst [2 or "2 bar:2"] value 0
@@ -2029,7 +2029,7 @@ prometheus.source0.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 0
     inst [399 or "399 bar:399"] value 0
 
-prometheus.source0.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source0.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.000319246
     inst [2 or "2 quantile:0.5"] value 0.0006384920000000001
@@ -2431,13 +2431,13 @@ prometheus.source0.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.127059908
     inst [399 or "399 quantile:99.75"] value 0.127379154
 
-prometheus.source0.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source0.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 3636
 
-prometheus.source0.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source0.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 2.78241354
 
-prometheus.source0.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source0.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 170205394
     inst [2 or "2 baz:1.4"] value 340410788
@@ -2839,7 +2839,7 @@ prometheus.source0.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 67741746800
     inst [399 or "399 baz:279.3"] value 67911952200
 
-prometheus.source0.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source0.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 0
     inst [2 or "2 bar:2"] value 0
@@ -3241,7 +3241,7 @@ prometheus.source0.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 0
     inst [399 or "399 bar:399"] value 0
 
-prometheus.source0.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source0.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.000319246
     inst [2 or "2 quantile:0.5"] value 0.0006384920000000001
@@ -3643,13 +3643,13 @@ prometheus.source0.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.127059908
     inst [399 or "399 quantile:99.75"] value 0.127379154
 
-prometheus.source0.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source0.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 3636
 
-prometheus.source0.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source0.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 2.78241354
 
-prometheus.source0.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source0.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 170205394
     inst [2 or "2 baz:1.4"] value 340410788
@@ -4051,7 +4051,7 @@ prometheus.source0.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 67741746800
     inst [399 or "399 baz:279.3"] value 67911952200
 
-prometheus.source0.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source0.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 0
     inst [2 or "2 bar:2"] value 0
@@ -4453,7 +4453,7 @@ prometheus.source0.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 0
     inst [399 or "399 bar:399"] value 0
 
-prometheus.source0.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source0.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.000319246
     inst [2 or "2 quantile:0.5"] value 0.0006384920000000001
@@ -4855,28 +4855,28 @@ prometheus.source0.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.127059908
     inst [399 or "399 quantile:99.75"] value 0.127379154
 
-prometheus.source0.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source0.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 3636
 
-prometheus.source0.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source0.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 2.78241354
 
-prometheus.source0.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source0.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
 Error: Try again. Information not currently available
 
-prometheus.source0.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source0.sample_gauge0000 [instance scale 1, value scale 12.1]
 Error: Try again. Information not currently available
 
-prometheus.source0.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source0.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source0.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source0.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source0.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source0.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 680821576
     inst [2 or "2 baz:1.4"] value 1361643150
@@ -5278,7 +5278,7 @@ prometheus.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 270966987000
     inst [399 or "399 baz:279.3"] value 271647809000
 
-prometheus.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 36.3
     inst [2 or "2 bar:2"] value 72.59999999999999
@@ -5680,7 +5680,7 @@ prometheus.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 14447.4
     inst [399 or "399 bar:399"] value 14483.7
 
-prometheus.source1.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.000798115
     inst [2 or "2 quantile:0.5"] value 0.00159623
@@ -6082,13 +6082,13 @@ prometheus.source1.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.31764977
     inst [399 or "399 quantile:99.75"] value 0.318447885
 
-prometheus.source1.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 9090
 
-prometheus.source1.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 6.956033850000001
 
-prometheus.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 851026970
     inst [2 or "2 baz:1.4"] value 1702053940
@@ -6490,7 +6490,7 @@ prometheus.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 338708734000
     inst [399 or "399 baz:279.3"] value 339559761000
 
-prometheus.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 48.4
     inst [2 or "2 bar:2"] value 96.8
@@ -6892,7 +6892,7 @@ prometheus.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 19263.2
     inst [399 or "399 bar:399"] value 19311.6
 
-prometheus.source1.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.000957738
     inst [2 or "2 quantile:0.5"] value 0.001915476
@@ -7294,43 +7294,43 @@ prometheus.source1.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.381179724
     inst [399 or "399 quantile:99.75"] value 0.382137462
 
-prometheus.source1.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 10908
 
-prometheus.source1.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 8.347240620000001
 
-prometheus.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
 Error: Try again. Information not currently available
 
-prometheus.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
 Error: Try again. Information not currently available
 
-prometheus.source1.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source1.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source1.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source1.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
 Error: Try again. Information not currently available
 
-prometheus.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source1.sample_gauge0000 [instance scale 1, value scale 12.1]
 Error: Try again. Information not currently available
 
-prometheus.source1.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source1.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source1.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source1.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source2.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source2.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 851026970
     inst [2 or "2 baz:1.4"] value 1702053940
@@ -7732,7 +7732,7 @@ prometheus.source2.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 338708734000
     inst [399 or "399 baz:279.3"] value 339559761000
 
-prometheus.source2.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source2.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 48.4
     inst [2 or "2 bar:2"] value 96.8
@@ -8134,7 +8134,7 @@ prometheus.source2.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 19263.2
     inst [399 or "399 bar:399"] value 19311.6
 
-prometheus.source2.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source2.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.000957738
     inst [2 or "2 quantile:0.5"] value 0.001915476
@@ -8536,13 +8536,13 @@ prometheus.source2.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.381179724
     inst [399 or "399 quantile:99.75"] value 0.382137462
 
-prometheus.source2.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source2.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 10908
 
-prometheus.source2.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source2.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 8.347240620000001
 
-prometheus.source2.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source2.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 1191437760
     inst [2 or "2 baz:1.4"] value 2382875520
@@ -8944,7 +8944,7 @@ prometheus.source2.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 474192228000
     inst [399 or "399 baz:279.3"] value 475383665000
 
-prometheus.source2.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source2.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 72.59999999999999
     inst [2 or "2 bar:2"] value 145.2
@@ -9346,7 +9346,7 @@ prometheus.source2.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 28894.8
     inst [399 or "399 bar:399"] value 28967.4
 
-prometheus.source2.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source2.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.001276984
     inst [2 or "2 quantile:0.5"] value 0.002553968
@@ -9748,13 +9748,13 @@ prometheus.source2.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.508239632
     inst [399 or "399 quantile:99.75"] value 0.509516616
 
-prometheus.source2.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source2.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 14544
 
-prometheus.source2.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source2.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 11.12965416
 
-prometheus.source2.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source2.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 1531848550
     inst [2 or "2 baz:1.4"] value 3063697090
@@ -10156,7 +10156,7 @@ prometheus.source2.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 609675721000
     inst [399 or "399 baz:279.3"] value 611207570000
 
-prometheus.source2.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source2.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 96.8
     inst [2 or "2 bar:2"] value 193.6
@@ -10558,7 +10558,7 @@ prometheus.source2.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 38526.4
     inst [399 or "399 bar:399"] value 38623.2
 
-prometheus.source2.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source2.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.00159623
     inst [2 or "2 quantile:0.5"] value 0.00319246
@@ -10960,28 +10960,28 @@ prometheus.source2.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.63529954
     inst [399 or "399 quantile:99.75"] value 0.63689577
 
-prometheus.source2.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source2.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 18180
 
-prometheus.source2.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source2.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 13.9120677
 
-prometheus.source2.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source2.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
 Error: Try again. Information not currently available
 
-prometheus.source2.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source2.sample_gauge0000 [instance scale 1, value scale 12.1]
 Error: Try again. Information not currently available
 
-prometheus.source2.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source2.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source2.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source2.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source2.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source2.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source3.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source3.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 1191437760
     inst [2 or "2 baz:1.4"] value 2382875520
@@ -11383,7 +11383,7 @@ prometheus.source3.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 474192228000
     inst [399 or "399 baz:279.3"] value 475383665000
 
-prometheus.source3.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source3.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 72.59999999999999
     inst [2 or "2 bar:2"] value 145.2
@@ -11785,7 +11785,7 @@ prometheus.source3.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 28894.8
     inst [399 or "399 bar:399"] value 28967.4
 
-prometheus.source3.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source3.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.001276984
     inst [2 or "2 quantile:0.5"] value 0.002553968
@@ -12187,13 +12187,13 @@ prometheus.source3.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.508239632
     inst [399 or "399 quantile:99.75"] value 0.509516616
 
-prometheus.source3.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source3.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 14544
 
-prometheus.source3.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source3.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 11.12965416
 
-prometheus.source3.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source3.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 1702053940
     inst [2 or "2 baz:1.4"] value 3404107880
@@ -12595,7 +12595,7 @@ prometheus.source3.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 677417468000
     inst [399 or "399 baz:279.3"] value 679119522000
 
-prometheus.source3.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source3.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 108.9
     inst [2 or "2 bar:2"] value 217.8
@@ -12997,7 +12997,7 @@ prometheus.source3.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 43342.2
     inst [399 or "399 bar:399"] value 43451.1
 
-prometheus.source3.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source3.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.001755853
     inst [2 or "2 quantile:0.5"] value 0.003511706
@@ -13399,13 +13399,13 @@ prometheus.source3.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.6988294940000001
     inst [399 or "399 quantile:99.75"] value 0.700585347
 
-prometheus.source3.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source3.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 19998
 
-prometheus.source3.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source3.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 15.30327447
 
-prometheus.source3.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source3.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 2212670120
     inst [2 or "2 baz:1.4"] value 4425340240
@@ -13807,7 +13807,7 @@ prometheus.source3.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 880642709000
     inst [399 or "399 baz:279.3"] value 882855379000
 
-prometheus.source3.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source3.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 145.2
     inst [2 or "2 bar:2"] value 290.4
@@ -14209,7 +14209,7 @@ prometheus.source3.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 57789.6
     inst [399 or "399 bar:399"] value 57934.8
 
-prometheus.source3.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source3.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.002234722
     inst [2 or "2 quantile:0.5"] value 0.004469444
@@ -14611,28 +14611,28 @@ prometheus.source3.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.889419356
     inst [399 or "399 quantile:99.75"] value 0.891654078
 
-prometheus.source3.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source3.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 25452
 
-prometheus.source3.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source3.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 19.47689478
 
-prometheus.source3.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source3.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
 Error: Try again. Information not currently available
 
-prometheus.source3.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source3.sample_gauge0000 [instance scale 1, value scale 12.1]
 Error: Try again. Information not currently available
 
-prometheus.source3.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source3.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source3.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source3.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source3.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source3.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source4.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source4.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 1531848550
     inst [2 or "2 baz:1.4"] value 3063697090
@@ -15034,7 +15034,7 @@ prometheus.source4.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 609675721000
     inst [399 or "399 baz:279.3"] value 611207570000
 
-prometheus.source4.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source4.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 96.8
     inst [2 or "2 bar:2"] value 193.6
@@ -15436,7 +15436,7 @@ prometheus.source4.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 38526.4
     inst [399 or "399 bar:399"] value 38623.2
 
-prometheus.source4.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source4.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.00159623
     inst [2 or "2 quantile:0.5"] value 0.00319246
@@ -15838,13 +15838,13 @@ prometheus.source4.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.63529954
     inst [399 or "399 quantile:99.75"] value 0.63689577
 
-prometheus.source4.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source4.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 18180
 
-prometheus.source4.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source4.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 13.9120677
 
-prometheus.source4.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source4.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 2212670120
     inst [2 or "2 baz:1.4"] value 4425340240
@@ -16246,7 +16246,7 @@ prometheus.source4.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 880642709000
     inst [399 or "399 baz:279.3"] value 882855379000
 
-prometheus.source4.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source4.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 145.2
     inst [2 or "2 bar:2"] value 290.4
@@ -16648,7 +16648,7 @@ prometheus.source4.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 57789.6
     inst [399 or "399 bar:399"] value 57934.8
 
-prometheus.source4.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source4.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.002234722
     inst [2 or "2 quantile:0.5"] value 0.004469444
@@ -17050,13 +17050,13 @@ prometheus.source4.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 0.889419356
     inst [399 or "399 quantile:99.75"] value 0.891654078
 
-prometheus.source4.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source4.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 25452
 
-prometheus.source4.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source4.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 19.47689478
 
-prometheus.source4.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source4.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 baz:0.0"] value 0
     inst [1 or "1 baz:0.7"] value 2893491700
     inst [2 or "2 baz:1.4"] value 5786983400
@@ -17458,7 +17458,7 @@ prometheus.source4.sample_counter0001 [instance scale 0.7 value scale 170205394.
     inst [398 or "398 baz:278.6"] value 1151609700000
     inst [399 or "399 baz:279.3"] value 1154503190000
 
-prometheus.source4.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source4.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [0 or "0 bar:0"] value 0
     inst [1 or "1 bar:1"] value 193.6
     inst [2 or "2 bar:2"] value 387.2
@@ -17860,7 +17860,7 @@ prometheus.source4.sample_gauge0000 [instance scale 1, value scale 12.1]
     inst [398 or "398 bar:398"] value 77052.8
     inst [399 or "399 bar:399"] value 77246.39999999999
 
-prometheus.source4.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source4.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
     inst [0 or "0 quantile:0.0"] value 0
     inst [1 or "1 quantile:0.25"] value 0.002873214
     inst [2 or "2 quantile:0.5"] value 0.005746428
@@ -18262,30 +18262,30 @@ prometheus.source4.sample_summary0002 [instance scale 0.25 value scale 0.0001596
     inst [398 or "398 quantile:99.5"] value 1.143539172
     inst [399 or "399 quantile:99.75"] value 1.146412386
 
-prometheus.source4.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source4.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
     value 32724
 
-prometheus.source4.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source4.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
     value 25.04172186
 
-prometheus.source4.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
+openmetrics.source4.sample_counter0001 [instance scale 0.7 value scale 170205394.0]
 Error: Try again. Information not currently available
 
-prometheus.source4.sample_gauge0000 [instance scale 1, value scale 12.1]
+openmetrics.source4.sample_gauge0000 [instance scale 1, value scale 12.1]
 Error: Try again. Information not currently available
 
-prometheus.source4.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
+openmetrics.source4.sample_summary0002 [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source4.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
+openmetrics.source4.sample_summary0002_count [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-prometheus.source4.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
+openmetrics.source4.sample_summary0002_sum [instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-=== remove prometheus agent ===
+=== remove openmetrics agent ===
 Culling the Performance Metrics Name Space ...
-prometheus ... done
+openmetrics ... done
 Updating the PMCD control file, and notifying PMCD ...
 [...removing files...]
-Check prometheus metrics have gone away ... OK
+Check openmetrics metrics have gone away ... OK

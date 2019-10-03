@@ -13,7 +13,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-''' Performance Metrics Domain Agent exporting Prometheus endpoint metrics. '''
+''' Performance Metrics Domain Agent exporting OpenMetrics endpoint metrics. '''
 
 # pylint: disable=bad-continuation, line-too-long, too-many-lines
 # pylint: disable=too-many-nested-blocks, too-many-return-statements
@@ -54,13 +54,13 @@ sort_conf_list = True
 # we've never been able to connect to & collect a list of metrics from.
 empty_source_pmns_poll = 10.0
 
-MAX_CLUSTER = 0xfff    # ~ max. number of prometheus sources
+MAX_CLUSTER = 0xfff    # ~ max. number of openmetrics sources
 MAX_METRIC = 0x3ff     # ~ max. number of metrics per source
 MAX_INDOM = 0x7fffffff # coincidentally, ~ product of above
 
 # These numbers are combined to create unique numbers for several
 # purposes.  The first two types are used only for internal
-# pmdaprometheus purposes, and are not visible as indoms to pmapi
+# pmdaopenmetrics purposes, and are not visible as indoms to pmapi
 # clients.
 #
 # indom# 0: maps source nicknames to 12-bit "cluster" numbers, cluster#0 is not used
@@ -123,7 +123,7 @@ class Metric(object):
         '''
         self.mtype = c_api.PM_TYPE_DOUBLE # NB: allow overriding sometime
 
-        # Split the prometheus metric name by "_", to help
+        # Split the openmetrics metric name by "_", to help
         # decode convention for squishing unit/scale data.
         pieces = self.name.split('_')
         if self.pcpline:
@@ -146,9 +146,9 @@ class Metric(object):
             self.msem = c_api.PM_SEM_INSTANT
 
         if len_pcpline_pieces >= 1:
-            self.mname = 'prometheus.' + self.source.name + '.' + pcpline_pieces[0]
+            self.mname = 'openmetrics.' + self.source.name + '.' + pcpline_pieces[0]
         else:
-            self.mname = 'prometheus.' + self.source.name + '.' + self.name.replace(":", ".")
+            self.mname = 'openmetrics.' + self.source.name + '.' + self.name.replace(":", ".")
 
         # NB: ignore the PCP units suffix.
         # we could do:
@@ -166,7 +166,7 @@ class Metric(object):
             self.munits = pmUnits(0, 0, 1, 0, 0, 0) # simple count
         elif 'seconds' in pieces:
             self.munits = pmUnits(0, 1, 0, 0, 3, 0)
-        elif 'microseconds' in pieces: # not listed in https://prometheus.io/docs/practices/naming/
+        elif 'microseconds' in pieces:
             self.munits = pmUnits(0, 1, 0, 0, 1, 0)
         elif 'bytes' in pieces:
             self.munits = pmUnits(1, 0, 0, 0, 0, 0)
@@ -451,9 +451,9 @@ class SampleLineParser(object):
 
 
 class Source(object):
-    '''An instance of this class represents a distinct Prometheus exporter,
-    identified by a nickname (the next PMNS component beneath prometheus.*),
-    and a URL.  Metrics will show up at prometheus.NICKNAME.MET.RIC as/when
+    '''An instance of this class represents a distinct OpenMetrics exporter,
+    identified by a nickname (the next PMNS component beneath openmetrics.*),
+    and a URL.  Metrics will show up at openmetrics.NICKNAME.METRIC as/when
     the source is online.
     '''
 
@@ -543,7 +543,7 @@ class Source(object):
                 m.store_inst(included_labels, sp.value)
             else:
                 # check metric is not excluded by filters
-                fullname = "prometheus.%s.%s" % (self.name, sp.name)
+                fullname = "openmetrics.%s.%s" % (self.name, sp.name)
                 self.pmda.debug("Checking metric '%s'" % (fullname)) if self.pmda.dbg else None
                 if not self.check_filter(fullname, "METRIC"):
                     self.pmda.log("Metric %s excluded by config filters" % fullname)
@@ -669,7 +669,7 @@ class Source(object):
         target URL by reading the .url file, fetch (http GET) the target and
         then save resulting document.
 
-        If the Source config entry is executable, run it, expecting prometheus
+        If the Source config entry is executable, run it, expecting openmetric
         formatted data on it's stdout, which is then saved.
         '''
 
@@ -701,7 +701,7 @@ class Source(object):
         # fetch the document
         try:
             if self.is_scripted:
-                # Execute file, expecting prometheus metric data on stdout.
+                # Execute file, expecting openmetrics metric data on stdout.
                 # stderr goes to the PMDA log.  Failures are caught below.
                 self.document = subprocess.check_output(self.path, shell=False).decode()
             else:
@@ -730,7 +730,7 @@ class Source(object):
         if self.document is None: # error during fetch?
             return
 
-        # parse and handle the prometheus formatted metric data
+        # parse and handle the openmetrics formatted metric data
         parse_time = time.time()
         s = self.parse_lines(self.document)
 
@@ -761,11 +761,11 @@ class Source(object):
             self.pmda.log("Warning: cannot fetch item %d inst %d: %s" % (item, inst, e))
             return [c_api.PM_ERR_AGAIN, 0]
 
-class PrometheusPMDA(PMDA):
+class OpenMetricsPMDA(PMDA):
     def __init__(self, pmda_name, domain, config, timeout, user, debugflag, logfile):
         '''
         Initialize the PMDA. This can take a while for large configurations.
-        The prometheus entry in pmcd.conf specifies to start up in "notready"
+        The openmetrics entry in pmcd.conf specifies to start up in "notready"
         mode. Once startup and init is complete, we call pmda.pmda_ready()
         to tell PMCD we are ready to process requests, just prior to calling
         run() to enter the main loop. See below.
@@ -842,7 +842,7 @@ class PrometheusPMDA(PMDA):
         # schedule a refresh
         self.set_need_refresh()
 
-        # store callback for prometheus.control.debug
+        # store callback for openmetrics.control.debug
         self.set_store_callback(self.prom_store_callback)
 
         # used frequently, but we welcome it only for initial pmns population purposes
@@ -1024,7 +1024,7 @@ class PrometheusPMDA(PMDA):
 
     def refresh_some_clusters_for_fetch(self, _clusters):
         '''Called once per pmFetch batch handling, before
-        prometheus_fetch_callback calls.  Creates threads to
+        openmetrics_fetch_callback calls.  Creates threads to
         fetch data in parallel.
         '''
         clusters = [int(l) for l in _clusters] # convert from PyLong
@@ -1136,7 +1136,7 @@ class PrometheusPMDA(PMDA):
 
     def prom_store_callback(self, cluster, item, inst, val):
         '''
-        To enable verbose log messages: pmstore prometheus.control.debug 1
+        To enable verbose log messages: pmstore openmetrics.control.debug 1
         '''
         if cluster == 0 and item == 4:
             if val < 0:
@@ -1151,7 +1151,7 @@ class PrometheusPMDA(PMDA):
 
     def debug(self, s):
         if self.dbg:
-            super(PrometheusPMDA, self).log("debug: " + s)
+            super(OpenMetricsPMDA, self).log("debug: " + s)
 
     def log(self, message):
         PMDA.log(message)
@@ -1162,7 +1162,7 @@ class PrometheusPMDA(PMDA):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Prometheus PMDA.',
+        description='OpenMetrics PMDA.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         '-D', '--debug',
@@ -1182,7 +1182,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-l', '--log',
         type=str,
-        default='prometheus.log',
+        default='openmetrics.log',
         help='log filename')
     parser.add_argument(
         '-n', '--nosort',
@@ -1192,7 +1192,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-r', '--root',
         type=str,
-        default='prometheus',
+        default='openmetrics',
         help='dynamic PMNS root name')
     parser.add_argument(
         '-t', '--timeout',
@@ -1217,7 +1217,7 @@ if __name__ == '__main__':
     # the IPC protocol is ipc_prot="binary notready". See also pmcd(1) man page.
     # The "binary notready" setting can also be manually configured in pmcd.conf.
     # Default domain number is PMDA(144), see -d option.
-    pmda = PrometheusPMDA(args.root, args.domain, args.config, args.timeout, args.user, args.debug, args.log)
+    pmda = OpenMetricsPMDA(args.root, args.domain, args.config, args.timeout, args.user, args.debug, args.log)
 
     # Scan initial config
     pmda.log("Initializing ... currently in notready state.")

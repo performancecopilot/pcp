@@ -46,7 +46,7 @@ _filter()
 	-e '/^proc\.io.*: /d' \
 	-e '/^proc\.namespaces.*: /d' \
 	-e '/^pipe\..*: Not Connected/d' \
-	-e '/^prometheus: pmLookupDesc: Unknown or illegal metric identifier/d' \
+	-e '/^openmetrics: pmLookupDesc: Unknown or illegal metric identifier/d' \
 	-e '/^libvirt\..*: Not Connected/d' \
 	-e '/^postgresql\..*: Missing metric value(s)/d' \
 	-e '/^logger\.perfile\.reg\.records: No permission/d' \

@@ -1,7 +1,7 @@
 TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTDIR = $(PCP_VAR_DIR)/testsuite/prometheus/scripts/curl
+TESTDIR = $(PCP_VAR_DIR)/testsuite/openmetrics/scripts/curl
 SCRIPTS = $(shell ls -1 | sed -e '/^GNU.*/d')
 
 default setup default_pcp:	$(SCRIPTS)

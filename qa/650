@@ -78,7 +78,7 @@ _filter_pmdas()
 	-e '/inst \[129 or "dm"]/d' \
         -e '/inst \[140 or "libvirt"]/d' \
 	-e '/inst \[142 or "lio"]/d' \
-	-e '/inst \[144 or "prometheus"]/d' \
+	-e '/inst \[144 or "openmetrics"]/d' \
 	-e '/inst \[149 or "bcc"]/d' \
 	-e '/inst \[250 or "trivial"]/d' \
     # end

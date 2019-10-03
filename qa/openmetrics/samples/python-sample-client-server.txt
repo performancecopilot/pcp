@@ -1,4 +1,4 @@
-# as created by previous qa/prometheus/prometheus_client_server.python
+# as created by previous qa/openmetrics/client_server.python
 
 # HELP python_info Python platform information
 # TYPE python_info gauge
@@ -27,7 +27,7 @@ summary_requests_count 1.0
 summary_requests_sum 4.7
 # HELP requests_total Total requests
 # TYPE requests_total counter
-requests_total{agent="prometheus",type="fetch"} 1.0
+requests_total{agent="openmetrics",type="fetch"} 1.0
 requests_total{agent="json",type="store"} 1.0
 requests_total{agent="docker",type="oneline"} 1.0
 # HELP queue_size Sample Gauge of queue size

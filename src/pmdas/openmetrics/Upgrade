@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 #
 # Copyright (c) 2019 Red Hat.
 #
@@ -12,7 +12,8 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Upgrade an older Prometheus PMDA install with missing 'notready' keyword
+# Upgrade an old PMDA install with missing 'notready' keyword, and also
+# convert an installation with original Prometheus PMDA to OpenMetrics.
 #
 
 . $PCP_DIR/etc/pcp.env
@@ -21,9 +22,18 @@ if grep -q ^prometheus "$PCP_PMCDCONF_PATH" 2>/dev/null
 then
     if grep ^prometheus "$PCP_PMCDCONF_PATH" | grep -q notready 2>/dev/null
     then
-	:	# already has the keyword, so nothing to update here
+	:	# already has the keyword, so nothing to update in that regard
     else
-	sed -i -e "s,^\(prometheus.*binary\),\1 notready,g" $PCP_PMCDCONF_PATH
+	sed -i -e 's,^\(prometheus.*binary\),\1 notready,g' $PCP_PMCDCONF_PATH
     fi
+    if grep -q ^openmetrics "$PCP_PMCDCONF_PATH" 2>/dev/null
+    then
+	:	# already have an openmetrics PMDA install, leave it untouched
+    else
+	sed -i -e "s,prometheus,openmetrics,g" $PCP_PMCDCONF_PATH 2>/dev/null
+	cp -a "$PCP_PMDAS_DIR/prometheus/config.d" "$PCP_PMDAS_DIR/openmetrics/"
+    fi
+    rm -f "$PCP_VAR_DIR/pmns/prometheus" 2>/dev/null
 fi
+
 exit 0

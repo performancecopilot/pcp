@@ -1,7 +1,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTDIR = $(PCP_VAR_DIR)/testsuite/prometheus/samples
+TESTDIR = $(PCP_VAR_DIR)/testsuite/openmetrics/samples
 SAMPLES = $(shell echo *.txt)
 
 default setup default_pcp:

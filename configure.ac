@@ -1213,14 +1213,14 @@ fi
 AC_SUBST(PMDA_LIO, $pmda_lio)
 if $pmda_lio; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-AC_MSG_CHECKING([if the Prometheus PMDA should be included])
-pmda_prometheus=false
+AC_MSG_CHECKING([if the OpenMetrics PMDA should be included])
+pmda_openmetrics=false
 if test "$have_python" = true
 then
-    $have_python_requests && $have_python_OrderedDict && pmda_prometheus=true
+    $have_python_requests && $have_python_OrderedDict && pmda_openmetrics=true
 fi
-AC_SUBST(PMDA_PROMETHEUS, $pmda_prometheus)
-if $pmda_prometheus; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+AC_SUBST(PMDA_OPENMETRICS, $pmda_openmetrics)
+if $pmda_openmetrics; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the libvirt PMDA should be included])
 pmda_libvirt=false
