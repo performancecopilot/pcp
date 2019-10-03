@@ -170,4 +170,5 @@ PCP_WEB_1.9 {
 PCP_WEB_1.10 {
   global:
     unicode_encode;
+    sdsOwnDictCallBacks;
 } PCP_WEB_1.9;

@@ -1048,6 +1048,7 @@ pmwebapi_add_metric(context_t *cp, pmDesc *desc, int numnames, char **names)
 struct metric *
 pmwebapi_new_pmid(context_t *cp, pmID pmid, pmLogInfoCallBack info, void *arg)
 {
+    struct metric	*mp = NULL;
     pmDesc		desc;
     char		**names, errmsg[PM_MAXERRMSGLEN], buffer[64];
     int			sts, numnames;
@@ -1074,9 +1075,10 @@ pmwebapi_new_pmid(context_t *cp, pmID pmid, pmLogInfoCallBack info, void *arg)
 	info(PMLOG_WARNING, msg, arg);
 	sdsfree(msg);
     } else {
-	return pmwebapi_new_metric(cp, &desc, numnames, names);
+	mp = pmwebapi_new_metric(cp, &desc, numnames, names);
+	free(names);
     }
-    return NULL;
+    return mp;
 }
 
 

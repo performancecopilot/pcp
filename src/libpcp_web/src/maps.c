@@ -70,7 +70,7 @@ static uint64_t
 sdsHashCallBack(const void *key)
 {
     return dictGenHashFunction((unsigned char *)key, sdslen((char *)key));
-} 
+}
 
 static int
 sdsCompareCallBack(void *privdata, const void *key1, const void *key2)
@@ -102,6 +102,13 @@ dictType sdsKeyDictCallBacks = {
     .keyCompare		= sdsCompareCallBack,
     .keyDup		= sdsDupCallBack,
     .keyDestructor	= sdsFreeCallBack,
+};
+
+dictType sdsOwnDictCallBacks = {
+    .hashFunction	= sdsHashCallBack,
+    .keyCompare		= sdsCompareCallBack,
+    .keyDestructor	= sdsFreeCallBack,
+    .valDestructor	= sdsFreeCallBack,
 };
 
 dictType sdsDictCallBacks = {

@@ -70,7 +70,7 @@ pmIniFileSetup(const char *progname)
 {
     dict	*config;
 
-    if ((config = dictCreate(&sdsDictCallBacks, "pmIniFileSetup")) == NULL)
+    if ((config = dictCreate(&sdsOwnDictCallBacks, "pmIniFileSetup")) == NULL)
 	return NULL;
     if (pmIniFileParse(progname, dict_handler, config) == 0)
 	return config;
@@ -87,7 +87,6 @@ pmIniFileUpdate(dict *config, const char *group, const char *key, sds value)
     if (pmDebugOptions.libweb)
 	fprintf(stderr, "pmIniFileUpdate set %s = %s\n", name, value);
     dictReplace(config, name, value);
-    sdsfree(name);
 }
 
 sds

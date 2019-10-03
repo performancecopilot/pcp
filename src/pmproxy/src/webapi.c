@@ -541,7 +541,7 @@ on_pmwebapi_scrape_labels(sds context, pmWebLabelSet *labelset, void *arg)
 		"on_pmwebapi_scrape_labels", client, context);
     }
     if (baton->labels == NULL)
-	baton->labels = dictCreate(&sdsDictCallBacks, NULL);
+	baton->labels = dictCreate(&sdsOwnDictCallBacks, NULL);
     open_metrics_labels(labelset, baton->labels);
     dictEmpty(baton->labels, NULL);	/* reset for next caller */
 }
@@ -784,7 +784,7 @@ pmwebapi_request_body(struct client *client, const char *content, size_t length)
     if (baton->restkey == RESTKEY_DERIVE &&
 	client->u.http.parser.method == HTTP_POST) {
 	if (baton->params == NULL) {
-	    baton->params = dictCreate(&sdsDictCallBacks, NULL);
+	    baton->params = dictCreate(&sdsOwnDictCallBacks, NULL);
 	    client->u.http.parameters = baton->params;
 	}
 	dictAdd(baton->params, sdsnew(PARAM_EXPR), sdsnewlen(content, length));

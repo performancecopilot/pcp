@@ -1001,6 +1001,7 @@ pmseries_execute(series_data *dp)
     uv_timer_init(loop, &request);
     uv_timer_start(&request, pmseries_request, 0, 0);
     uv_run(loop, UV_RUN_DEFAULT);
+    uv_loop_close(loop);
     return dp->status;
 }
 
