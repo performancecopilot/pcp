@@ -494,7 +494,7 @@ value:
     result = sdscatsds(result, name);
     if (metric->indom != PM_INDOM_NULL || labels) {
 	if (metric->indom != PM_INDOM_NULL) {
-	    quoted = json_string(instance->name);
+	    quoted = sdscatrepr(sdsempty(), instance->name, sdslen(instance->name));
 	    result = sdscatfmt(result, "{instance=%S", quoted);
 	    sdsfree(quoted);
 	    if (labels)
