@@ -15,6 +15,11 @@
 #
 ''' Performance Metrics Domain Agent exporting Prometheus endpoint metrics. '''
 
+# pylint: disable=bad-continuation, line-too-long, too-many-lines
+# pylint: disable=too-many-nested-blocks, too-many-return-statements
+# pylint: disable=broad-except, bare-except, missing-docstring
+# pylint: disable=expression-not-assigned, too-many-arguments
+
 import os
 import re
 import time
@@ -23,19 +28,21 @@ import traceback
 import argparse
 import threading
 import subprocess
+import sys
 from ctypes import c_int
 from socket import gethostname
 from stat import ST_MODE, S_IXUSR, ST_CTIME
 import requests
-import sys
+
+from pcp.pmapi import pmUnits
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
+import cpmapi as c_api
+import cpmda
+
 if sys.version[0] == '2':
     import Queue as queue
 else:
-    import queue as queue
-import cpmapi as c_api
-import cpmda
-from pcp.pmapi import pmUnits
-from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
+    import queue
 
 # Sort config file list - generally needed because os.walk()
 # returns a different order on different platforms and/or filesystems.
@@ -69,14 +76,12 @@ labeltype = {c_api.PM_LABEL_CONTEXT: "PM_LABEL_CONTEXT",
 
 class Metric(object):
     ''' Metric information class '''
-    def __init__(self,source,name,metricnum,instances,pcpline,helpline,typeline):
+    def __init__(self, source, name, metricnum, instances, pcpline, helpline, typeline):
         self.source = source
         self.name = name
         self.metricnum = metricnum # seen during fetch callbacks
         self.pmid = source.pmda.pmid(source.cluster, metricnum) # add domain/cluster#
-        self.indom_number = (MAX_CLUSTER+1 +
-                     (source.cluster * (MAX_METRIC+1)) +
-                     metricnum)
+        self.indom_number = (MAX_CLUSTER+1 + (source.cluster * (MAX_METRIC+1)) + metricnum)
         self.pcpline = pcpline
         self.typeline = typeline
         self.values = {} # instance-vector-to-value
@@ -89,12 +94,11 @@ class Metric(object):
         self.assign_metadata()
         if instances:
             self.mindom = self.source.pmda.indom(self.indom_number) # add domain#
-            self.indom_table = PersistentNameTable(self.source.pmda,
-                                   self.indom_number, MAX_INDOM)
+            self.indom_table = PersistentNameTable(self.source.pmda, self.indom_number, MAX_INDOM)
         else:
             self.mindom = c_api.PM_INDOM_NULL
             self.indom_table = None
-        self.obj = pmdaMetric(self.pmid,self.mtype,self.mindom,self.msem,self.munits)
+        self.obj = pmdaMetric(self.pmid, self.mtype, self.mindom, self.msem, self.munits)
         if helpline: # it could be None!
             unescaped = helpline.replace('\\\\', '\\').replace('\\n', '\n')
             split = unescaped.split('\n')
@@ -114,7 +118,7 @@ class Metric(object):
 
 
     def assign_metadata(self):
-        ''' Compute metric metadata self.{mtype,mname,msem,munits}
+        ''' Compute metric metadata self.{mtype, mname, msem, munits}
         from the available information already stored in self.
         '''
         self.mtype = c_api.PM_TYPE_DOUBLE # NB: allow overriding sometime
@@ -157,17 +161,17 @@ class Metric(object):
 
         if ((self.typeline == 'histogram' or self.typeline == 'summary')
             and 'count' in pieces): # regardless of UNIT; *_sum peer is has proper type
-            self.munits = pmUnits(0,0,1,0,0,0) # simple count
+            self.munits = pmUnits(0, 0, 1, 0, 0, 0) # simple count
         elif self.typeline == 'histogram' and 'bucket' in pieces: # ditto
-            self.munits = pmUnits(0,0,1,0,0,0) # simple count
+            self.munits = pmUnits(0, 0, 1, 0, 0, 0) # simple count
         elif 'seconds' in pieces:
-            self.munits = pmUnits(0,1,0,0,3,0)
+            self.munits = pmUnits(0, 1, 0, 0, 3, 0)
         elif 'microseconds' in pieces: # not listed in https://prometheus.io/docs/practices/naming/
-            self.munits = pmUnits(0,1,0,0,1,0)
+            self.munits = pmUnits(0, 1, 0, 0, 1, 0)
         elif 'bytes' in pieces:
-            self.munits = pmUnits(1,0,0,0,0,0)
+            self.munits = pmUnits(1, 0, 0, 0, 0, 0)
         else:
-            self.munits = pmUnits(0,0,0,0,0,0) # default, dimensionless old-school count
+            self.munits = pmUnits(0, 0, 0, 0, 0, 0) # default, dimensionless old-school count
 
         assert self.munits and self.msem and self.mname and self.mtype
 
@@ -191,7 +195,7 @@ class Metric(object):
                 self.indom_table.prefix_mode = True # Mark for instance# prefixed names
                 instname = ""
                 for key, val in sorted(labels.items()):
-                    if len(instname) > 0:
+                    if instname:
                         instname += ' '
                     instname += key + ":" + val + ""
                     self.labels[key] = val
@@ -225,14 +229,14 @@ class PersistentNameTable(object):
     uniqueness of the sort approved by pmLookupIndom(3).
     '''
 
-    def __init__(self, pmda, indom, maxnum):
-        self.pmda = pmda
+    def __init__(self, thispmda, indom, maxnum):
+        self.pmda = thispmda
         self.indom = indom
         self.maxnum = maxnum
         self.need_save = False
         self.prefix_mode = False # set later for non-PCP metric instances
         self.store_file_name = '%s/config/pmda/%d.%d.py' % (os.environ['PCP_VAR_DIR'],
-                                    pmda.domain, indom)
+                                    thispmda.domain, indom)
         try: # slightly used!
             with open(self.store_file_name, 'rb') as f:
                 self.instances = pickle.load(f, encoding="bytes")
@@ -247,8 +251,8 @@ class PersistentNameTable(object):
                      (" (pfx)" if self.prefix_mode else ""),
                      len(self.instances))) if self.pmda.dbg else None
                 self.need_save = True # to push values down into c pmda layer
-                # XXX: need separate flag for 'push values to file'; too much i/o
-        except Exception as e: # new!
+                # TODO need separate flag for 'push values to file'; too much i/o
+        except Exception: # new!
             self.instances = [] # won't be saved till nonempty
 
         self.names_to_instances = {}
@@ -256,7 +260,7 @@ class PersistentNameTable(object):
             self.names_to_instances[n] = i
         # prime the pmda indom table with an empty list; the pmdaIndom
         # object will be replaced shortly within .replace_indom()
-        self.pmdaindom = pmdaIndom(pmda.indom(self.indom), [])
+        self.pmdaindom = pmdaIndom(thispmda.indom(self.indom), [])
         self.pmda.add_indom(self.pmdaindom)
         self.save() # replace it with real data now, if non-empty
 
@@ -274,13 +278,13 @@ class PersistentNameTable(object):
                 self.pmda.debug("%4d:\t%s" % (i, instname)) if self.pmda.dbg else None
                 indom_array.append(pmdaInstid(c_int(i), instname))
 
-            # NB: use replace_indom(int,[...]) overload, to pass indom_array,
+            # NB: use replace_indom(int, [...]) overload, to pass indom_array,
             # else it gets ignored
             self.pmda.replace_indom(self.pmda.indom(self.indom), indom_array)
             self.pmda.set_need_refresh()
             # save to disk too
             try: # slightly used!
-                with open(self.store_file_name,'wb') as f:
+                with open(self.store_file_name, 'wb') as f:
                     pickle.dump(self.instances, f, protocol=0) # 0: most compatible
                     pickle.dump(self.prefix_mode, f, protocol=0)
                     self.pmda.debug("saved %s%s, %d instances" %
@@ -341,7 +345,7 @@ class SampleLineParser(object):
             self.state = self.parse_value
             self.value = char
 
-    def parse_label_name_start(self,char):
+    def parse_label_name_start(self, char):
         if char.isspace():
             pass
         elif char == '}':
@@ -387,7 +391,7 @@ class SampleLineParser(object):
             self.lvalue += char
 
     def parse_label_value_escapechar(self, char):
-        # XXX: maybe pass through \-escaped identifiers literally through to pcp
+        # TODO: maybe pass through \-escaped identifiers literally through to pcp
         # otherwise we'd have to filter them out at indom-instance-name creation
         if char == '\\':
             self.state = self.parse_label_value
@@ -453,14 +457,14 @@ class Source(object):
     the source is online.
     '''
 
-    def __init__(self, name, cluster, path, is_scripted, pmda):
+    def __init__(self, name, cluster, path, is_scripted, thispmda):
         self.name = name # source nickname
         self.cluster = cluster # unique/persistent id# for nickname
         self.path = path # pathname to .url or executable file
         self.url = None
         self.parse_url_time = 0 # timestamp of config file when it was last parsed
         self.is_scripted = is_scripted
-        self.pmda = pmda # the shared pmda
+        self.pmda = thispmda # the shared pmda
         self.requests = None
         self.headers = None
         self.filterlist = None
@@ -505,9 +509,9 @@ class Source(object):
             if fs[1] == entrytype:
                 pat = ' '.join(fs[2:]) # regex may have spaces
                 rx = self.pmda.lookup_regex(pat)
-                self.pmda.debug("check_filter(%s) fs=%s regex='%s'" % (name,fs,pat)) if self.pmda.dbg else None
+                self.pmda.debug("check_filter(%s) fs=%s regex='%s'" % (name, fs, pat)) if self.pmda.dbg else None
                 if rx.match(name):
-                    self.pmda.debug(".... rx.match(%s,%s) -> True" % (pat,name)) if self.pmda.dbg else None
+                    self.pmda.debug(".... rx.match(%s, %s) -> True" % (pat, name)) if self.pmda.dbg else None
                     return fs[0] == "INCLUDE"
         # no regex match => include
         return True
@@ -546,7 +550,7 @@ class Source(object):
                     return
                 else:
                     metricnum = self.pmids_table.intern_lookup_value(sp.name)
-                    m = Metric(self,sp.name,metricnum,included_labels, pcpline,helpline,typeline)
+                    m = Metric(self, sp.name, metricnum, included_labels, pcpline, helpline, typeline)
                     self.metrics_by_name[sp.name] = m
                     self.metrics_by_num[metricnum] = m  # not pmid!
                     m.store_inst(included_labels, sp.value)
@@ -604,7 +608,7 @@ class Source(object):
                 # NB: could verify helpline/typeline lp[2] matches,
                 # but we don't have to go out of our way to support
                 # non-compliant exporters.
-                self.parse_metric_line(l,pcpline,helpline,typeline)
+                self.parse_metric_line(l, pcpline, helpline, typeline)
                 num_metrics += 1
 
         # NB: this logic only ever -adds- Metrics to a Source.  If a source
@@ -641,25 +645,23 @@ class Source(object):
         self.filterlist = [] # filters matching metric names or labels
 
         for line in conf[1:]:
-            if len(line) == 0 or line.startswith('#'):
+            if not line or line.startswith('#'):
                 continue
             elif line.startswith('HEADER:'):
-                header=line.split(':',2)
-                key=''.join(header[1].split())
-                val=' '.join(header[2:]).lstrip()
+                header = line.split(':', 2)
+                key = ''.join(header[1].split())
+                val = ' '.join(header[2:]).lstrip()
                 self.headers[key] = val
             elif line.startswith('FILTER:'):
                 # strip off 'FILTER:' and any leading space
                 # each list entry is {INCLUDE|EXCLUDE} METRIC regex ... to end of line
-                filter=''.join(line.split(':',2)[1]).lstrip()
-                self.filterlist.append(filter)
+                header_filter = ''.join(line.split(':', 2)[1]).lstrip()
+                self.filterlist.append(header_filter)
             else:
-                self.pmda.log('Warning: %s ignored unrecognised config entry "%s"' % (self.url,line))
+                self.pmda.log('Warning: %s ignored unrecognised config entry "%s"' % (self.url, line))
 
-        self.pmda.debug("DEBUG url: %s HEADERS: %s" % (self.url,self.headers)) if self.pmda.dbg else None
-        self.pmda.debug("DEBUG url: %s FILTERS: %s" % (self.url,self.filterlist)) if self.pmda.dbg else None
-
-        return
+        self.pmda.debug("DEBUG url: %s HEADERS: %s" % (self.url, self.headers)) if self.pmda.dbg else None
+        self.pmda.debug("DEBUG url: %s FILTERS: %s" % (self.url, self.filterlist)) if self.pmda.dbg else None
 
     def refresh1(self, timeout):
         '''
@@ -672,9 +674,9 @@ class Source(object):
         '''
 
         # clear cached values from all my metrics
-        for n, m in self.metrics_by_name.items():
+        for _, m in self.metrics_by_name.items():
             m.clear_values()
-        # XXX: ditch metrics no longer found in document
+        # TODO: ditch metrics no longer found in document
 
         # bump the fetch call counter for this source, and for the total (cluster 0)
         self.pmda.stats_fetch_calls[self.cluster] += 1
@@ -705,9 +707,9 @@ class Source(object):
             else:
                 # fetch the URL
                 if self.url.startswith('file://'):
-                    self.document = open(self.url[7:],'r').read()
+                    self.document = open(self.url[7:], 'r').read()
                 else:
-                    r = self.requests.get(self.url,headers=self.headers,timeout=timeout)
+                    r = self.requests.get(self.url, headers=self.headers, timeout=timeout)
                     r.raise_for_status() # non-200?  ERROR
                     # NB: the requests package automatically enables http keep-alive and compression
                     self.document = r.text
@@ -721,14 +723,13 @@ class Source(object):
             self.pmda.err('Warning: cannot fetch URL or execute script %s: %s' % (self.path, e))
             return
 
-        
     def refresh2(self, timeout):
         '''
         Parse the saved document that was recently saved in refresh1().
         '''
         if self.document is None: # error during fetch?
             return
-        
+
         # parse and handle the prometheus formatted metric data
         parse_time = time.time()
         s = self.parse_lines(self.document)
@@ -739,16 +740,15 @@ class Source(object):
         self.pmda.stats_parse_time[0] += incr # total
 
         # save metric & indom lookup tables changes, if any
-        for n,m in self.metrics_by_name.items():
+        for _, m in self.metrics_by_name.items():
             try: # NB: must process whole list even if exceptions escape
                 m.save()
             except: # ... which they won't, this is just belt & suspenders
                 pass
         self.pmids_table.save()
-        
+
         self.pmda.debug("fetched %d bytes with %d metrics from URL or script %s" % (len(self.document), s, self.path)) if self.pmda.dbg else None
         self.document = None  # don't hang onto it
-        
 
     def fetch(self, item, inst):
         ''' Retrieve metric/instance values that ought to have been found
@@ -758,7 +758,7 @@ class Source(object):
             m = self.metrics_by_num[item]
             return m.fetch_inst(inst)
         except Exception as e:
-            self.pmda.log("Warning: cannot fetch item %d inst %d: %s" % (item,inst,e))
+            self.pmda.log("Warning: cannot fetch item %d inst %d: %s" % (item, inst, e))
             return [c_api.PM_ERR_AGAIN, 0]
 
 class PrometheusPMDA(PMDA):
@@ -790,7 +790,7 @@ class PrometheusPMDA(PMDA):
 
         # a single central Session that all our sources can concurrently reuse
         self.requests = requests.Session() # allow persistent connections
-        
+
         # the list of configured sources
         self.source_by_name = {}
         # persistently assign numeric id to source names -> pmid "cluster" numbers
@@ -873,14 +873,14 @@ class PrometheusPMDA(PMDA):
             assert s == self.source_by_name[s.name]
 
 
-    def traverse(self, dir, ctime):
+    def traverse(self, directory, ctime):
         ''' Return list of files below dir, recursively '''
         ret = []
-        m = os.path.getctime(dir)
+        m = os.path.getctime(directory)
         if ctime is None or m > ctime:
             ctime = m
 
-        for path, subdirs, files in os.walk(dir):
+        for path, subdirs, files in os.walk(directory):
             for f in files:
                 if not f.startswith("."):
                     fname = os.path.join(path, f)
@@ -889,7 +889,7 @@ class PrometheusPMDA(PMDA):
                         ctime = m
                     ret.append(fname)
             for d in subdirs:
-                m, r = self.traverse(os.path.join(path, d), ctime)
+                m, _ = self.traverse(os.path.join(path, d), ctime)
                 if ctime is None or m > ctime:
                     ctime = m
         return ctime, ret
@@ -916,7 +916,7 @@ class PrometheusPMDA(PMDA):
         self.log("Config change detected, traversed %d config entries in %.04fs, rescanning ..." % (len(conf_filelist), traverse_time))
         nickname_regexp = self.lookup_regex(r"^[A-Za-z][A-Za-z0-9_.]*$")
 
-        # XXX: nuke sources related to removed files
+        # TODO: nuke sources related to removed files
         save_cluster_table = False
         if sort_conf_list:
             # sorted for indom cluster consistency
@@ -934,9 +934,9 @@ class PrometheusPMDA(PMDA):
                 self.debug("Warning: ignored config file '%s', doesn't end in '.url' and not executable." % file) if self.dbg else None
                 continue
             # convert file path name into a PCP metric name
-            name = file_split[0].replace(self.config_dir + "/", "").replace("/",".")
+            name = file_split[0].replace(self.config_dir + "/", "").replace("/", ".")
             if name == "control":
-                self.err("Warning: ignored config file '%s', '%s.control' is a reserved PMNS subtree for PMDA statistics" % (file, self.pmda.pmda_name))
+                self.err("Warning: ignored config file '%s', '%s.control' is a reserved PMNS subtree for PMDA statistics" % (file, self.pmda_name))
                 continue
             if not nickname_regexp.match(name):
                 self.err("Warning: ignored config file '%s', unsuitable for PCP namespace" % file)
@@ -944,7 +944,6 @@ class PrometheusPMDA(PMDA):
             if name in self.source_by_name:
                 # this source is already known
                 self.assert_source_invariants(name=name)
-                pass
             else:
                 try:
                     path = file
@@ -977,7 +976,7 @@ class PrometheusPMDA(PMDA):
         for k, v in self.source_by_cluster.items():
             if v.old_enough_for_refresh():
                 clusters.append(k)
-        if len(clusters) > 0:
+        if clusters:
             self.refresh_some_clusters_for_fetch(clusters)
 
 
@@ -1000,7 +999,7 @@ class PrometheusPMDA(PMDA):
                 return self.source_by_cluster[cluster].fetch(item, inst)
             else:
                 return [c_api.PM_ERR_PMID, 0]
-        except Exception as e:
+        except Exception:
             return [c_api.PM_ERR_AGAIN, 0] # was there before
 
     def refresh1_worker(self, inqueue, outqueue):
@@ -1008,8 +1007,8 @@ class PrometheusPMDA(PMDA):
             try:
                 cluster = inqueue.get()
                 if cluster > 0:
-                        self.assert_source_invariants(cluster=cluster)
-                        self.source_by_cluster[cluster].refresh1(self.timeout)
+                    self.assert_source_invariants(cluster=cluster)
+                    self.source_by_cluster[cluster].refresh1(self.timeout)
             except Exception as e:
                 self.err("Error: Cannot refresh1 cluster %d: %s" % (cluster, e))
             finally:
@@ -1022,7 +1021,7 @@ class PrometheusPMDA(PMDA):
                 self.source_by_cluster[cluster].refresh2(self.timeout)
         except Exception as e:
             self.err("Error: Cannot refresh2 cluster %d: %s" % (cluster, e))
-            
+
     def refresh_some_clusters_for_fetch(self, _clusters):
         '''Called once per pmFetch batch handling, before
         prometheus_fetch_callback calls.  Creates threads to
@@ -1037,11 +1036,11 @@ class PrometheusPMDA(PMDA):
 
         # We start up only a limited number of concurrent fetcher threads.  We don't
         # want to open an unlimited number of .url/.conf files nor sockets.
-        num_threads = min(100,len(clusters))
+        num_threads = min(100, len(clusters))
         threads = []
-        for i in range(num_threads):
+        for _ in range(num_threads):
             t = threading.Thread(target=self.refresh1_worker,
-                                 args=(inpqueue,workqueue))
+                                 args=(inpqueue, workqueue))
             threads.append(t)
             t.daemon = True # allow shutdown if some straggler is still running
             t.start()
@@ -1057,28 +1056,28 @@ class PrometheusPMDA(PMDA):
         for c in clusters: # expected eventual size of workqueue
             cluster = workqueue.get()
             self.refresh2_worker(cluster)
-        # XXX: timeout on this too?
+        # TODO: timeout on this too?
 
     def set_need_refresh(self):
         cpmda.set_need_refresh()
         self.pmns_refresh()
 
-    def prom_label(self, ident, type):
+    def prom_label(self, ident, typeid):
         '''
         return a JSONb formatted string (labelset) for given ident of given type
         '''
 
-        self.debug('prom_label(ident=%d (%#x), type=%s)' % (ident, ident, labeltype[type])) if self.dbg else None
-        if type == c_api.PM_LABEL_INDOM:
+        self.debug('prom_label(ident=%d (%#x), type=%s)' % (ident, ident, labeltype[typeid])) if self.dbg else None
+        if typeid == c_api.PM_LABEL_INDOM:
             # labels for indom=ident
             indom = ident
-            for k, v in self.source_by_cluster.items():
-                for m, mv in v.metrics_by_name.items():
+            for _, v in self.source_by_cluster.items():
+                for _, mv in v.metrics_by_name.items():
                     if mv.mindom == indom:
                         return '{"source":"%s"}' % v.name
             return '{}' # no indom labels
 
-        elif type == c_api.PM_LABEL_CLUSTER:
+        elif typeid == c_api.PM_LABEL_CLUSTER:
             # Labels for a cluster, i.e. an individual source.
             # Note: if using dbpmda, test this with e.g. label cluster 144.1
             # (you need the domain (default 144) and the cluster number (1, 2, ..)
@@ -1090,7 +1089,7 @@ class PrometheusPMDA(PMDA):
                     # label inserted by pmcd (at the context label level).  Details
                     # of the label hierarchy rules are in the "PRECEDENCE" section
                     # of the pmLookupLabels(3) man page.
-                    return '{"script":"%s","source":"%s"}' % (s.path, s.name)
+                    return '{"script":"%s", "source":"%s"}' % (s.path, s.name)
                 else:
                     # extract hostname label from the URL
                     if s.url.startswith("http"):
@@ -1101,7 +1100,7 @@ class PrometheusPMDA(PMDA):
                         host = "localhost"
                     if host == "localhost":
                         host = gethostname()
-                    return '{"hostname":"%s","source":"%s","url":"%s"}' % (host, s.name, s.url)
+                    return '{"hostname":"%s", "source":"%s", "url":"%s"}' % (host, s.name, s.url)
             except:
                 return '{}' # ignore key error for unknown cluster number
 
@@ -1115,24 +1114,24 @@ class PrometheusPMDA(PMDA):
         instlabels = ''
         try:
             self.debug('prom_label_callback(indom=%#x, inst=%d)' % (indom, inst)) if self.dbg else None
-            for k, v in self.source_by_cluster.items():
-                for m, mv in v.metrics_by_name.items():
+            for _, v in self.source_by_cluster.items():
+                for _, mv in v.metrics_by_name.items():
                     if indom == mv.mindom:
                         for i, n in enumerate(mv.indom_table.instances):
                             if inst == i:
                                 # found
                                 self.debug('prom_label_callback: found inst label "%s"' % n) if self.dbg else None
                                 # first add the instname label, which matches the external instance name
-                                instlabels = '"instname": "%s %s"' % (i,n)
+                                instlabels = '"instname": "%s %s"' % (i, n)
                                 # and now each label for this instance separately
-                                self.debug('prom_label_callback: i=%d mv.inst_labels[%d]=%s' % (i,i,mv.inst_labels[i]))
+                                self.debug('prom_label_callback: i=%d mv.inst_labels[%d]=%s' % (i, i, mv.inst_labels[i]))
                                 if i in mv.inst_labels:
-                                    for l,v in mv.inst_labels[i].items():
-                                        instlabels = instlabels + "," + '"%s":"%s"' % (l,v)
+                                    for l, val in mv.inst_labels[i].items():
+                                        instlabels = instlabels + ", " + '"%s":"%s"' % (l, val)
         except Exception as e:
             self.debug("prom_label_callback: exception %s" % e)
             self.debug(traceback.format_exc())
-                
+
         return '{%s}' % instlabels
 
     def prom_store_callback(self, cluster, item, inst, val):
@@ -1148,17 +1147,17 @@ class PrometheusPMDA(PMDA):
 
         if cluster < MAX_CLUSTER and item < MAX_METRIC:
             return c_api.PM_ERR_PERMISSION
-        return c_api_PM_ERR_PMID
+        return c_api.PM_ERR_PMID
 
     def debug(self, s):
         if self.dbg:
             super(PrometheusPMDA, self).log("debug: " + s)
 
-    def log(self, s):
-        super(PrometheusPMDA, self).log(s)
+    def log(self, message):
+        PMDA.log(message)
 
-    def err(self, s):
-        super(PrometheusPMDA, self).err(s)
+    def err(self, message):
+        PMDA.err(message)
 
 
 if __name__ == '__main__':
