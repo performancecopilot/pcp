@@ -1,14 +1,12 @@
 QA output created by 747
 == Checking hinv metric values - sysdev-root-001.tgz
-
 hinv.cpu.online
-    inst [0 or "cpuN"] value 1
-    inst [1 or "cpuN"] value 1
-    inst [2 or "cpuN"] value 0
-    inst [3 or "cpuN"] value 1
-
+   "cpu0" 1
+   "cpu1" 1
+   "cpu2" 0
+   "cpu3" 1
 hinv.node.online
-    inst [0 or "node0"] value 1
+   "node0" 1
 
 == done
 
@@ -56,127 +54,352 @@ kernel.all.cpu.wait.total
 == done
 
 == Checking per-CPU metric values - sysdev-root-001.tgz
-
 kernel.percpu.cpu.guest
-    inst [0 or "cpuN"] value 20
-    inst [1 or "cpuN"] value 0
-    inst [2 or "cpuN"] value 0
-    inst [3 or "cpuN"] value 0
-
+   "cpu0" 20
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
 kernel.percpu.cpu.guest_nice
-    inst [0 or "cpuN"] value 30
-    inst [1 or "cpuN"] value 0
-    inst [2 or "cpuN"] value 0
-    inst [3 or "cpuN"] value 0
-
+   "cpu0" 30
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
 kernel.percpu.cpu.idle
-    inst [0 or "cpuN"] value 286728520
-    inst [1 or "cpuN"] value 286695100
-    inst [2 or "cpuN"] value 286198490
-    inst [3 or "cpuN"] value 287003820
-
+   "cpu0" 286728520
+   "cpu1" 286695100
+   "cpu2" 286198490
+   "cpu3" 287003820
 kernel.percpu.cpu.intr
-    inst [0 or "cpuN"] value 36540
-    inst [1 or "cpuN"] value 25500
-    inst [2 or "cpuN"] value 51900
-    inst [3 or "cpuN"] value 31930
-
+   "cpu0" 36540
+   "cpu1" 25500
+   "cpu2" 51900
+   "cpu3" 31930
 kernel.percpu.cpu.irq.hard
-    inst [0 or "cpuN"] value 13940
-    inst [1 or "cpuN"] value 10830
-    inst [2 or "cpuN"] value 18940
-    inst [3 or "cpuN"] value 12030
-
+   "cpu0" 13940
+   "cpu1" 10830
+   "cpu2" 18940
+   "cpu3" 12030
 kernel.percpu.cpu.irq.soft
-    inst [0 or "cpuN"] value 22600
-    inst [1 or "cpuN"] value 14670
-    inst [2 or "cpuN"] value 32960
-    inst [3 or "cpuN"] value 19900
-
+   "cpu0" 22600
+   "cpu1" 14670
+   "cpu2" 32960
+   "cpu3" 19900
 kernel.percpu.cpu.nice
-    inst [0 or "cpuN"] value 4620
-    inst [1 or "cpuN"] value 1380
-    inst [2 or "cpuN"] value 630
-    inst [3 or "cpuN"] value 550
-
+   "cpu0" 4620
+   "cpu1" 1380
+   "cpu2" 630
+   "cpu3" 550
 kernel.percpu.cpu.steal
-    inst [0 or "cpuN"] value 10
-    inst [1 or "cpuN"] value 0
-    inst [2 or "cpuN"] value 0
-    inst [3 or "cpuN"] value 0
-
+   "cpu0" 10
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
 kernel.percpu.cpu.sys
-    inst [0 or "cpuN"] value 105050
-    inst [1 or "cpuN"] value 146320
-    inst [2 or "cpuN"] value 109360
-    inst [3 or "cpuN"] value 146920
-
+   "cpu0" 105050
+   "cpu1" 146320
+   "cpu2" 109360
+   "cpu3" 146920
 kernel.percpu.cpu.user
-    inst [0 or "cpuN"] value 101190
-    inst [1 or "cpuN"] value 359270
-    inst [2 or "cpuN"] value 113190
-    inst [3 or "cpuN"] value 275520
-
+   "cpu0" 101190
+   "cpu1" 359270
+   "cpu2" 113190
+   "cpu3" 275520
 kernel.percpu.cpu.vnice
-    inst [0 or "cpuN"] value 4590
-    inst [1 or "cpuN"] value 1380
-    inst [2 or "cpuN"] value 630
-    inst [3 or "cpuN"] value 550
-
+   "cpu0" 4590
+   "cpu1" 1380
+   "cpu2" 630
+   "cpu3" 550
 kernel.percpu.cpu.vuser
-    inst [0 or "cpuN"] value 101170
-    inst [1 or "cpuN"] value 359270
-    inst [2 or "cpuN"] value 113190
-    inst [3 or "cpuN"] value 275520
-
+   "cpu0" 101170
+   "cpu1" 359270
+   "cpu2" 113190
+   "cpu3" 275520
 kernel.percpu.cpu.wait.total
-    inst [0 or "cpuN"] value 877160
-    inst [1 or "cpuN"] value 649420
-    inst [2 or "cpuN"] value 1373400
-    inst [3 or "cpuN"] value 420180
+   "cpu0" 877160
+   "cpu1" 649420
+   "cpu2" 1373400
+   "cpu3" 420180
 
 == done
 
 == Checking per-node CPU metric values - sysdev-root-001.tgz
-
 kernel.pernode.cpu.guest
-    inst [0 or "node0"] value 20
-
+   "node0" 20
 kernel.pernode.cpu.guest_nice
-    inst [0 or "node0"] value 30
-
+   "node0" 30
 kernel.pernode.cpu.idle
-    inst [0 or "node0"] value 1146625930
-
+   "node0" 1146625930
 kernel.pernode.cpu.intr
-    inst [0 or "node0"] value 145870
-
+   "node0" 145870
 kernel.pernode.cpu.irq.hard
-    inst [0 or "node0"] value 55740
-
+   "node0" 55740
 kernel.pernode.cpu.irq.soft
-    inst [0 or "node0"] value 90130
-
+   "node0" 90130
 kernel.pernode.cpu.nice
-    inst [0 or "node0"] value 7180
-
+   "node0" 7180
 kernel.pernode.cpu.steal
-    inst [0 or "node0"] value 10
-
+   "node0" 10
 kernel.pernode.cpu.sys
-    inst [0 or "node0"] value 507650
-
+   "node0" 507650
 kernel.pernode.cpu.user
-    inst [0 or "node0"] value 849170
-
+   "node0" 849170
 kernel.pernode.cpu.vnice
-    inst [0 or "node0"] value 7150
-
+   "node0" 7150
 kernel.pernode.cpu.vuser
-    inst [0 or "node0"] value 849150
-
+   "node0" 849150
 kernel.pernode.cpu.wait.total
-    inst [0 or "node0"] value 3320160
+   "node0" 3320160
+
+== done
+
+== Checking hinv metric values - sysfs-numa-001.tgz
+hinv.cpu.online
+   "cpu0" 1
+   "cpu1" 1
+   "cpu2" 1
+   "cpu3" 1
+   "cpu4" 1
+   "cpu5" 1
+   "cpu6" 1
+   "cpu7" 1
+hinv.node.online
+   "node0" 1
+   "node1" 1
+   "node2" 1
+   "node3" 1
+
+== done
+
+== Checking aggregate CPU metric values - sysfs-numa-001.tgz
+
+kernel.all.cpu.guest
+    value 0
+
+kernel.all.cpu.guest_nice
+    value 0
+
+kernel.all.cpu.idle
+    value 657434330
+
+kernel.all.cpu.intr
+    value 368500
+
+kernel.all.cpu.irq.hard
+    value 252590
+
+kernel.all.cpu.irq.soft
+    value 115910
+
+kernel.all.cpu.nice
+    value 41160
+
+kernel.all.cpu.steal
+    value 143770
+
+kernel.all.cpu.sys
+    value 1200190
+
+kernel.all.cpu.user
+    value 3065100
+
+kernel.all.cpu.vnice
+    value 41160
+
+kernel.all.cpu.vuser
+    value 3065100
+
+kernel.all.cpu.wait.total
+    value 979420
+
+== done
+
+== Checking per-CPU metric values - sysfs-numa-001.tgz
+kernel.percpu.cpu.guest
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
+   "cpu4" 0
+   "cpu5" 0
+   "cpu6" 0
+   "cpu7" 0
+kernel.percpu.cpu.guest_nice
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 0
+   "cpu3" 0
+   "cpu4" 0
+   "cpu5" 0
+   "cpu6" 0
+   "cpu7" 0
+kernel.percpu.cpu.idle
+   "cpu0" 82176250
+   "cpu1" 82246600
+   "cpu2" 82152810
+   "cpu3" 82283820
+   "cpu4" 82098120
+   "cpu5" 82009220
+   "cpu6" 82276330
+   "cpu7" 82191150
+kernel.percpu.cpu.intr
+   "cpu0" 31120
+   "cpu1" 27570
+   "cpu2" 65310
+   "cpu3" 32900
+   "cpu4" 30160
+   "cpu5" 74500
+   "cpu6" 69300
+   "cpu7" 37570
+kernel.percpu.cpu.irq.hard
+   "cpu0" 18700
+   "cpu1" 18690
+   "cpu2" 42080
+   "cpu3" 22020
+   "cpu4" 19450
+   "cpu5" 49820
+   "cpu6" 57240
+   "cpu7" 24550
+kernel.percpu.cpu.irq.soft
+   "cpu0" 12420
+   "cpu1" 8880
+   "cpu2" 23230
+   "cpu3" 10880
+   "cpu4" 10710
+   "cpu5" 24680
+   "cpu6" 12060
+   "cpu7" 13020
+kernel.percpu.cpu.nice
+   "cpu0" 2920
+   "cpu1" 3150
+   "cpu2" 2220
+   "cpu3" 4210
+   "cpu4" 7660
+   "cpu5" 9690
+   "cpu6" 2090
+   "cpu7" 9170
+kernel.percpu.cpu.steal
+   "cpu0" 16870
+   "cpu1" 13990
+   "cpu2" 26210
+   "cpu3" 17510
+   "cpu4" 15000
+   "cpu5" 16110
+   "cpu6" 18960
+   "cpu7" 19090
+kernel.percpu.cpu.sys
+   "cpu0" 124510
+   "cpu1" 156270
+   "cpu2" 125800
+   "cpu3" 133860
+   "cpu4" 189540
+   "cpu5" 192970
+   "cpu6" 133390
+   "cpu7" 143810
+kernel.percpu.cpu.user
+   "cpu0" 373300
+   "cpu1" 349760
+   "cpu2" 363240
+   "cpu3" 369770
+   "cpu4" 412040
+   "cpu5" 419270
+   "cpu6" 344030
+   "cpu7" 433650
+kernel.percpu.cpu.vnice
+   "cpu0" 2920
+   "cpu1" 3150
+   "cpu2" 2220
+   "cpu3" 4210
+   "cpu4" 7660
+   "cpu5" 9690
+   "cpu6" 2090
+   "cpu7" 9170
+kernel.percpu.cpu.vuser
+   "cpu0" 373300
+   "cpu1" 349760
+   "cpu2" 363240
+   "cpu3" 369770
+   "cpu4" 412040
+   "cpu5" 419270
+   "cpu6" 344030
+   "cpu7" 433650
+kernel.percpu.cpu.wait.total
+   "cpu0" 179200
+   "cpu1" 105950
+   "cpu2" 88480
+   "cpu3" 79880
+   "cpu4" 166720
+   "cpu5" 196030
+   "cpu6" 78000
+   "cpu7" 85130
+
+== done
+
+== Checking per-node CPU metric values - sysfs-numa-001.tgz
+kernel.pernode.cpu.guest
+   "node0" 0
+   "node1" 0
+   "node2" 0
+   "node3" 0
+kernel.pernode.cpu.guest_nice
+   "node0" 0
+   "node1" 0
+   "node2" 0
+   "node3" 0
+kernel.pernode.cpu.idle
+   "node0" 164422850
+   "node1" 164436630
+   "node2" 164107340
+   "node3" 164467480
+kernel.pernode.cpu.intr
+   "node0" 58690
+   "node1" 98210
+   "node2" 104660
+   "node3" 106870
+kernel.pernode.cpu.irq.hard
+   "node0" 37390
+   "node1" 64100
+   "node2" 69270
+   "node3" 81790
+kernel.pernode.cpu.irq.soft
+   "node0" 21300
+   "node1" 34110
+   "node2" 35390
+   "node3" 25080
+kernel.pernode.cpu.nice
+   "node0" 6070
+   "node1" 6430
+   "node2" 17350
+   "node3" 11260
+kernel.pernode.cpu.steal
+   "node0" 30860
+   "node1" 43720
+   "node2" 31110
+   "node3" 38050
+kernel.pernode.cpu.sys
+   "node0" 280780
+   "node1" 259660
+   "node2" 382510
+   "node3" 277200
+kernel.pernode.cpu.user
+   "node0" 723060
+   "node1" 733010
+   "node2" 831310
+   "node3" 777680
+kernel.pernode.cpu.vnice
+   "node0" 6070
+   "node1" 6430
+   "node2" 17350
+   "node3" 11260
+kernel.pernode.cpu.vuser
+   "node0" 723060
+   "node1" 733010
+   "node2" 831310
+   "node3" 777680
+kernel.pernode.cpu.wait.total
+   "node0" 285150
+   "node1" 168360
+   "node2" 362750
+   "node3" 163130
 
 == done
 

@@ -29,7 +29,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _sort_instname()
 {
     tee $tmp.sort | sed -n 2p
-    awk '/inst / {print "  ", $4, $6}' $tmp.sort | sed -e 's/\]//' | sort
+    awk '/inst / {print "  ", $4, $6}' $tmp.sort | sed -e 's/\]//' | LC_COLLATE=POSIX sort
 }
 
 # real QA test starts here
