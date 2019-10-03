@@ -136,19 +136,15 @@ on_client_close(uv_handle_t *handle)
 	client->next->prev = client->prev;
     *client->prev = client->next;
 
-    switch (client->protocol) {
-    case STREAM_PCP:
+    if (client->protocol & STREAM_PCP)
 	on_pcp_client_close(client);
-	break;
-    case STREAM_HTTP:
+    if (client->protocol & STREAM_HTTP)
 	on_http_client_close(client);
-	break;
-    case STREAM_REDIS:
+    if (client->protocol & STREAM_REDIS)
 	on_redis_client_close(client);
-	break;
-    default:
-	break;
-    }
+    if (client->protocol & STREAM_SECURE)
+	on_secure_client_close(client);
+    free(client);
 }
 
 void
@@ -642,6 +638,7 @@ main_loop(void *arg)
     uv_check_start(&after_io, check_proxy);
 
     uv_run(proxy->events, UV_RUN_DEFAULT);
+    uv_loop_close(proxy->events);
 }
 
 struct pmproxy libuv_pmproxy = {

@@ -1399,6 +1399,7 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	}
     }
 
+    sdsfree(metric->series);
     sdsfree(metric->name);
     sdsfree(metric->sem);
     sdsfree(metric->type);

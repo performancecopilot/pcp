@@ -21,6 +21,7 @@
 extern dictType intKeyDictCallBacks;	/* integer key -> (void *) value */
 extern dictType sdsKeyDictCallBacks;	/* sds string -> (void *) value */
 extern dictType sdsDictCallBacks;	/* sds key -> sds string value */
+extern dictType sdsOwnDictCallBacks;	/* owned sds key -> sds string value */
 
 extern int tsub(struct timeval *, struct timeval *);
 extern int tadd(struct timeval *, struct timeval *);
