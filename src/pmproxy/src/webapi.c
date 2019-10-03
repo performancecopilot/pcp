@@ -495,12 +495,7 @@ value:
     if (metric->indom != PM_INDOM_NULL || labels) {
 	if (metric->indom != PM_INDOM_NULL) {
 	    quoted = json_string(instance->name);
-	    if (baton->compat == 0)
-		result = sdscatfmt(result,
-				"{instance.name=%S,instance.id=\"%u\"",
-				quoted, instance->inst);
-	    else
-		result = sdscatfmt(result, "{instance=%S", quoted);
+	    result = sdscatfmt(result, "{instance=%S", quoted);
 	    sdsfree(quoted);
 	    if (labels)
 		result = sdscatfmt(result, ",%S} %S", labels, value->value);
