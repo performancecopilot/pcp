@@ -8,9 +8,9 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-TESTDIR = $(PCP_VAR_DIR)/testsuite/prometheus
+TESTDIR = $(PCP_VAR_DIR)/testsuite/openmetrics
 
-default default_pcp setup: prometheus_client_server.python
+default default_pcp setup: client_server.python
 
 install install_pcp:
 

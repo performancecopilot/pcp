@@ -278,10 +278,10 @@ done
 _do_dir "root:$grp" 700 "$PCP_TMP_DIR"/pmcd
 # from GNUmakefile
 _do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/labels
-if [ -d "$PCP_PMDAS_DIR"/prometheus ]
+if [ -d "$PCP_PMDAS_DIR"/openmetrics ]
 then
-    # from src/pmdas/prometheus
-    _do_dir "root:$grp" 755 "$PCP_PMDAS_DIR"/prometheus/config.d
+    # from src/pmdas/openmetrics
+    _do_dir "root:$grp" 755 "$PCP_PMDAS_DIR"/openmetrics/config.d
 fi
 
 # Expect only root owned things below $PCP_SYSCONF_DIR

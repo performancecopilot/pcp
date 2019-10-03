@@ -440,7 +440,7 @@ on_pmwebapi_children(sds context, pmWebChildren *children, void *arg)
 
 /*
  * https://openmetrics.io/
- * https://github.com/prometheus/docs/blob/master/content/docs/instrumenting/exposition_formats.md
+ * https://github.com/OpenObservability/OpenMetrics/blob/master/markdown/metric_exposition_format.md
  *
  * metric_name [
  *    "{" label_name "=" `"` label_value `"` { "," label_name "=" `"` label_value `"` } [ "," ] "}"
@@ -495,7 +495,8 @@ value:
     if (metric->indom != PM_INDOM_NULL || labels) {
 	if (metric->indom != PM_INDOM_NULL) {
 	    quoted = sdscatrepr(sdsempty(), instance->name, sdslen(instance->name));
-	    result = sdscatfmt(result, "{instance=%S", quoted);
+	    result = sdscatfmt(result, "{instname=%S,instid=\"%u\"",
+					quoted, instance->inst);
 	    sdsfree(quoted);
 	    if (labels)
 		result = sdscatfmt(result, ",%S} %S", labels, value->value);

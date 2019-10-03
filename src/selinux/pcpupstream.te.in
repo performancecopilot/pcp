@@ -21,7 +21,7 @@ require {
         type pcp_pmwebd_t;
 	type pcp_pmie_exec_t; # pmda.summary
 	type ping_exec_t; # pmda.netcheck
-	type websm_port_t; # pmda.prometheus
+	type websm_port_t; # pmda.openmetrics
         type system_cronjob_t;
         type user_home_t;
         type user_tmp_t;
@@ -135,7 +135,7 @@ allow pcp_pmcd_t self:capability { sys_chroot kill sys_resource ipc_lock chown }
 @PCP_UNRESERVED_PORT_RULE@
 
 #type=AVC msg=audit(YYY.15): avc:  denied  { name_connect } for  pid=13816 comm="python3" dest=9090 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:websm_port_t:s0 tclass=tcp_socket permissive=0
-allow pcp_pmcd_t websm_port_t:tcp_socket name_connect; # pmda.prometheus
+allow pcp_pmcd_t websm_port_t:tcp_socket name_connect; # pmda.openmetrics
 
 #type=AVC msg=audit(YYY.21): avc:  denied  { execute } for  pid=8648 comm="sh" name="8641" dev="tmpfs" ino=246964 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=file permissive=0
 #type=AVC msg=audit(YYY.22): avc:  denied  { execute_no_trans } for  pid=8648 comm="sh" path="/tmp/8641" dev="tmpfs" ino=246964 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=file permissive=0

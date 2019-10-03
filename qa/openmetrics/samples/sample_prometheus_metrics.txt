@@ -1,4 +1,4 @@
-# original pmdaprometheus test case
+# original pmdaopenmetrics test case
 
 # HELP go_gc_duration_seconds A summary of the GC invocation durations.
 # TYPE go_gc_duration_seconds summary

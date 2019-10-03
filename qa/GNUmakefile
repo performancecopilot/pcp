@@ -27,7 +27,7 @@ ifeq "$(PMDA_BPFTRACE)" "true"
 SUBDIRS += bpftrace
 endif
 ifeq "$(HAVE_PYTHON)" "true"
-SUBDIRS += secure mic haproxy lio prometheus
+SUBDIRS += secure mic haproxy lio openmetrics
 endif
 
 ifeq "$(ENABLE_SELINUX)" "true"
@@ -71,8 +71,8 @@ COMMON = common.check common.config common.filter \
 	 common.secure common.gfs2 common.rpm \
 	 common.qt common.avahi common.containers \
 	 common.discovery common.compress \
-	 common.python common.prometheus common.bcc \
-	 common.bpftrace
+	 common.python common.openmetrics \
+	 common.bcc common.bpftrace
 
 OTHERS = group qa_hosts.master README sanity.coverage \
 	 $(shell echo valgrind-suppress* helgrind-suppress*)

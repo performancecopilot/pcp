@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2017-2018 Red Hat.
+.\" Copyright (c) 2017-2019 Red Hat.
 .\" Copyright (c) 2017 Ronak Jain.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -13,13 +13,13 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-.ds ia prometheus
-.ds Ia Prometheus
-.TH PMDAPROMETHEUS 1 "PCP" "Performance Co-Pilot"
+.ds ia openmetrics
+.ds Ia OpenMetrics
+.TH PMDAOPENMETRICS 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdaprometheus\f1 \- Prometheus PMDA
+\f3pmdaopenmetrics\f1 \- OpenMetrics PMDA
 .SH SYNOPSIS
-\f3$PCP_PMDAS_DIR/prometheus/pmdaprometheus\f1
+\f3$PCP_PMDAS_DIR/openmetrics/pmdaopenmetrics\f1
 [\f3\-D\f1]
 [\f3\-n\f1]
 [\f3\-c\f1 \f2config\f1]
@@ -29,11 +29,11 @@
 [\f3\-t\f1 \f2timeout\f1]
 [\f3\-u\f1 \f2user\f1]
 .SH DESCRIPTION
-\fBpmdaprometheus\fR is a Performance Metrics Domain Agent (PMDA) which
-creates PCP metrics from Prometheus endpoints, which provide HTTP based
+\fBpmdaopenmetrics\fR is a Performance Metrics Domain Agent (PMDA) which
+creates PCP metrics from OpenMetrics endpoints, which provide HTTP based
 access to application metrics.
 The default \f2config\fP directory is
-.BR $PCP_PMDAS_DIR/prometheus/config.d/ ,
+.BR $PCP_PMDAS_DIR/openmetrics/config.d/ ,
 see ``CONFIGURATION SOURCES'' below.
 The default URL fetch \f2timeout\fP is \fB2\fP seconds.
 The default \f2user\fP, if not specified with the \f3\-u\fP option,
@@ -48,15 +48,15 @@ If the
 .B \-D
 option is given, additional diagnostic messages will be written to the PMDA log file,
 which is
-.B $PCP_LOG_DIR/pmcd/prometheus.log
+.B $PCP_LOG_DIR/pmcd/openmetrics.log
 by default (see also
 .BR \-l below).
 In addition, the metric
-.B prometheus.control.debug
+.B openmetrics.control.debug
 controls the same debug flag and can be set with the following command:
 .br
 .in +0.5i
-.BI "pmstore prometheus.control.debug" " value"
+.BI "pmstore openmetrics.control.debug" " value"
 .in
 .br
 where
@@ -82,13 +82,13 @@ The
 number should be different for every PMDA on the one host, and the same
 .I domain
 number should be used for
-.B pmdaprometheus
+.B pmdaopenmetrics
 PMDA on all hosts.
 See also the
 .B \-r
 option, which allows the root of the dynamic namespace
 to be changed from the default
-.BR prometheus .
+.BR openmetrics .
 .PP
 The
 .B \-l
@@ -96,7 +96,7 @@ option may be used to specify
 .I logfile
 as the destination for PMDA messages
 instead of the default,
-.BR $PCP_LOG_DIR/pmcd/prometheus.log .
+.BR $PCP_LOG_DIR/pmcd/openmetrics.log .
 As a special case,
 .I logfile
 may be \fB"\-"\fP
@@ -118,10 +118,10 @@ The
 option allows the root of the dynamic namespace to be changed to
 .I root
 from the default,
-.BR prometheus .
+.BR openmetrics .
 In conjunction with other command line options,
 this allows
-.B pmdaprometheus
+.B pmdaopenmetrics
 to be deployed as a different PMDA with distinct metrics namespace
 and metrics domain on the same host system.
 Note that all PMDAs require a unique domain number so the
@@ -133,9 +133,9 @@ option may also change the defaults for some other command line options,
 e.g. the default log file name and the default configuration directory.
 .SH "CONFIGURATION SOURCES"
 As it runs,
-.B pmdaprometheus
+.B pmdaopenmetrics
 periodically recursively scans the
-.B $PCP_PMDAS_DIR/prometheus/config.d
+.B $PCP_PMDAS_DIR/openmetrics/config.d
 directory (or the directory specified with the
 .B \-c
 option), looking for source URL files (\c
@@ -164,13 +164,13 @@ Each file with the
 .I .url
 suffix found in the config directory or sub-directory contains
 one complete HTTP or HTTPS URL at which
-.B pmdaprometheus
-can reach a Prometheus endpoint.
+.B pmdaopenmetrics
+can reach a OpenMetrics endpoint.
 Local file access is also supported with a conventional
 .I file://somepath/somefile
 URL, in which case
 .I somepath/somefile
-should contain prometheus formatted metric data.
+should contain openmetrics formatted metric data.
 .PP
 The first line of a
 .I .url
@@ -274,14 +274,14 @@ defines a new metric, with the new (or changed) instance naming.
 Unrecognized keywords in configuration files are reported in the PMDA log file but otherwise ignored.
 .SH "SCRIPTED SOURCES"
 Executable scripts present in the 
-.I $PCP_PMDAS_DIR/prometheus/config.d
+.I $PCP_PMDAS_DIR/openmetrics/config.d
 directory or sub-directories will be executed and the
 .B stdout
-stream containing prometheus formatted metric data will be parsed as though it had come from a URL or file. 
+stream containing openmetrics formatted metric data will be parsed as though it had come from a URL or file. 
 The
 .B stderr
 stream from a script will be sent to the PMDA log file, which by default can be found in
-.BR $(PCP_LOG_DIR)/pmcd/prometheus.log .
+.BR $(PCP_LOG_DIR)/pmcd/openmetrics.log .
 .PP
 Note that scripted sources do not support label or metric filtering (as described above for URL sources) - they can
 simply do their own filtering in the script itself with
@@ -306,7 +306,7 @@ awk '{
 .fi
 .ft 1
 
-This script produces the following Prometheus-formatted metric
+This script produces the following OpenMetrics-formatted metric
 data when run:
 .in 1i
 .ft CW
@@ -322,9 +322,9 @@ loadavg {interval="15-minute"} 0.54
 .ft 1
 
 If the above script was saved and made executable in a file named
-.I $PCP_PMDAS_DIR/prometheus/config.d/local/system.sh
+.I $PCP_PMDAS_DIR/openmetrics/config.d/local/system.sh
 then this would result in a new PCP metric named
-.B prometheus.local.system.loadavg
+.B openmetrics.local.system.loadavg
 which would have three instances for the current load average values:
 .BR 1-minute ,
 .B 5-minute
@@ -342,13 +342,13 @@ In the case of CPU counters, the metric type definition should be
 .BR counter ,
 not
 .BR gauge .
-For full details of the prometheus exposition formats, see
-.IR https://prometheus.io/docs/instrumenting/exposition_formats .
+For full details of the openmetrics exposition formats, see
+.IR https://openmetrics.io/docs/instrumenting/exposition_formats .
 .SH "METRIC NAMING"
 All metrics from a file named
 .IR JOB .*
 will be exported as PCP metrics with the
-.I prometheus.JOB
+.I openmetrics.JOB
 metric name prefix.
 Therefore, the JOB name must be a valid non-leaf name for PCP PMNS
 metric names.
@@ -364,9 +364,9 @@ may overlap or conflict with metrics returned by
 Config file entries (URLs or scripts) found in subdirectories of the
 config directory will also result in hierarchical metric names.
 For example, a config file named
-.B $PCP_PMDAS_DIR/prometheus/config.d/mysource/latency/get.url
+.B $PCP_PMDAS_DIR/openmetrics/config.d/mysource/latency/get.url
 will result in metrics being created (by fetching that source URL) below
-.BR prometheus.mysource.latency.get
+.BR openmetrics.mysource.latency.get
 in the PCP namespace.
 Scripts found in subdirectories of the config directory similarly result
 in hierarchical PCP metric names.
@@ -374,21 +374,21 @@ in hierarchical PCP metric names.
 As described above, changes and new additions can be made to files in
 the configuration directory without having to restart the PMDA.
 These changes are detected automatically and the PCP metric names below
-.B prometheus
+.B openmetrics
 in the PMNS will be updated accordingly, i.e. new metrics will be
 dynamically added and/or existing metrics removed.
 In addition,
-.B pmdaprometheus
+.B pmdaopenmetrics
 honors the PMCD_NAMES_CHANGE
 .BR pmFetch (3)
 protocol that was introduced in PCP version 4.0.
 In particular, if
-.B prometheus
+.B openmetrics
 metrics are being logged by a PCP version 4.0 or later
 .BR pmlogger (1),
 new metrics that appear as a result of changes in the PMDA configuration
 directory will automatically start to be logged, provided the root of the
-.B prometheus
+.B openmetrics
 PMDA namespace is configured for logging in the
 .B pmlogger
 configuration file.
@@ -403,8 +403,8 @@ configuration file is :
 .nf
 
 log mandatory on 2 second {
-	# log all metrics below the root of the prometheus namespace
-	prometheus
+	# log all metrics below the root of the openmetrics namespace
+	openmetrics
 }
 .in
 .fi
@@ -412,18 +412,18 @@ log mandatory on 2 second {
 .SH "CONTROL METRICS"
 The PMDA maintains special control metrics, as described below.
 Apart from
-.BR prometheus.control.debug ,
+.BR openmetrics.control.debug ,
 each of these metrics is a counter and has one instance for each configured metric source.
 The instance domain is adjusted dynamically as new sources are discovered.
 If there are no sources configured, the metric names are still defined
 but the instance domain will be empty and a fetch will return no values.
-.IP \fBprometheus.control.calls\fP
+.IP \fBopenmetrics.control.calls\fP
 total number of times each configured metric source has been fetched (if it's a URL)
 or executed (if it's a script), since the PMDA started.
-.IP \fBprometheus.control.fetch_time\fP
+.IP \fBopenmetrics.control.fetch_time\fP
 Total time in milliseconds that each configured metric source has taken to return a document,
 excluding the time to parse the document.
-.IP \fBprometheus.control.parse_time\fP
+.IP \fBopenmetrics.control.parse_time\fP
 Total time in milliseconds that each configured metric source has taken to parse each document,
 excluding the time to fetch the document.
 .PP
@@ -433,32 +433,32 @@ The \fBfetch_time\fP and \fBparse_time\fP counters, when converted to a rate, re
 average fetch and parsing latency (respectfully), during the sampling interval.
 .PP
 The
-.BR prometheus.control.debug
+.BR openmetrics.control.debug
 metric has a singular value, defaulting to
 .BR 0 .
 If a non-zero value is stored into this metric using
 .BR pmstore (1),
 additional debug messages will be written to the PMDA log file.
 .SH LIMITATIONS
-.B pmdaprometheus
+.B pmdaopenmetrics
 and
 .B libpcp
 internals impose some numerical constraints about the number of sources (4095),
 metrics (1024) within each source, and instances for each metric (4194304).
 .SH INSTALLATION
-Install the Prometheus PMDA by using the Install script as root:
+Install the OpenMetrics PMDA by using the Install script as root:
 .PP
-      # cd $PCP_PMDAS_DIR/prometheus
+      # cd $PCP_PMDAS_DIR/openmetrics
 .br
       # ./Install
 .PP
 To uninstall, do the following as root:
 .PP
-      # cd $PCP_PMDAS_DIR/prometheus
+      # cd $PCP_PMDAS_DIR/openmetrics
 .br
       # ./Remove
 .PP
-.B pmdaprometheus
+.B pmdaopenmetrics
 is launched by
 .BR pmcd (1)
 and should never be executed directly.
@@ -472,14 +472,14 @@ files are added, removed or changed in the configuration directory,
 it is usually not necessary to restart the PMDA \- the changes will
 be detected and managed on subsequent requests to the PMDA.
 .SH FILES
-.IP "\fB$PCP_PMDAS_DIR/prometheus/Install\fR" 4
-installation script for the \fBpmdaprometheus\fR agent
-.IP "\fB$PCP_PMDAS_DIR/prometheus/Remove\fR" 4
-undo installation script for the \fBpmdaprometheus\fR agent
-.IP "\fB$PCP_PMDAS_DIR/prometheus/config.d/\fR" 4
-contains URLs and scripts used by the \fBpmdaprometheus\fR agent as sources of prometheus metric data.
-.IP "\fB$PCP_LOG_DIR/pmcd/prometheus.log\fR" 4
-default log file for error messages from \fBpmdaprometheus\fR
+.IP "\fB$PCP_PMDAS_DIR/openmetrics/Install\fR" 4
+installation script for the \fBpmdaopenmetrics\fR agent
+.IP "\fB$PCP_PMDAS_DIR/openmetrics/Remove\fR" 4
+undo installation script for the \fBpmdaopenmetrics\fR agent
+.IP "\fB$PCP_PMDAS_DIR/openmetrics/config.d/\fR" 4
+contains URLs and scripts used by the \fBpmdaopenmetrics\fR agent as sources of openmetrics metric data.
+.IP "\fB$PCP_LOG_DIR/pmcd/openmetrics.log\fR" 4
+default log file for error messages from \fBpmdaopenmetrics\fR
 .IP "\fB$PCP_VAR_DIR/config/144.*\fR" 4
 files containing internal tables for metric and instance ID number persistence (domain 144).
 .SH PCP ENVIRONMENT
@@ -499,4 +499,4 @@ configuration file, as described in
 .BR PMWEBAPI (3),
 .BR pmFetch (3)
 and
-.IR https://prometheus.io/docs/instrumenting/exposition_formats .
+.IR https://openmetrics.io/docs/instrumenting/exposition_formats .

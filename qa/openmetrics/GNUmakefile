@@ -3,9 +3,9 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTDIR = $(PCP_VAR_DIR)/testsuite/prometheus
-SERVER = prometheus_client_server.python
-ENDPOINT = prometheus_endpoint.python
+TESTDIR = $(PCP_VAR_DIR)/testsuite/openmetrics
+SERVER = client_server.python
+ENDPOINT = openmetrics_endpoint.python
 SUBDIRS = samples scripts
 
 default default_pcp setup: $(SERVER) $(ENDPOINT) $(SUBDIRS)

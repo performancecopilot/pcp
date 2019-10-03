@@ -16,7 +16,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= prometheus
+IAM	= openmetrics
 PYSCRIPT = pmda$(IAM).python
 LDIRT	= domain.h root pmns $(IAM).log
 
@@ -26,14 +26,14 @@ MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-DOMAIN	= prometheus
+DOMAIN	= $(IAM)
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 default_pcp default ::	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(PMDA_PROMETHEUS)" "true"
+ifeq "$(PMDA_OPENMETRICS)" "true"
 build-me:	check_domain $(SUBDIRS)
 
 default_pcp default :: $(SUBDIRS)

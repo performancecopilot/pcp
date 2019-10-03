@@ -459,7 +459,7 @@ Requires: pcp-pmda-bcc
 %endif
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
-Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus pcp-pmda-haproxy
+Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
 Requires: pcp-pmda-lmsensors pcp-pmda-mssql pcp-pmda-netcheck
 %endif
 %if !%{disable_snmp}
@@ -1536,11 +1536,11 @@ target.
 #end pcp-pmda-lio
 
 #
-# pcp-pmda-prometheus
+# pcp-pmda-openmetrics
 #
-%package pmda-prometheus
+%package pmda-openmetrics
 License: GPLv2+
-Summary: Performance Co-Pilot (PCP) metrics from Prometheus endpoints
+Summary: Performance Co-Pilot (PCP) metrics from OpenMetrics endpoints
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_python3}
@@ -1552,11 +1552,13 @@ Requires: %{__python2}-pcp
 Requires: %{__python2}-requests
 BuildRequires: %{__python2}-requests
 %endif
+Obsoletes: pcp-pmda-prometheus
+Provides: pcp-pmda-prometheus
 
-%description pmda-prometheus
+%description pmda-openmetrics
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-extracting statistics from programs instrumented as Prometheus endpoints.
-#end pcp-pmda-prometheus
+extracting metrics from OpenMetrics (https://openmetrics.io/) endpoints.
+#end pcp-pmda-openmetrics
 
 #
 # pcp-pmda-lmsensors
@@ -2417,8 +2419,8 @@ fi
 %preun pmda-lio
 %{pmda_remove "$1" "lio"}
 
-%preun pmda-prometheus
-%{pmda_remove "$1" "prometheus"}
+%preun pmda-openmetrics
+%{pmda_remove "$1" "openmetrics"}
 
 %preun pmda-lustre
 %{pmda_remove "$1" "lustre"}
@@ -2946,8 +2948,8 @@ cd
 %files pmda-lio
 %{_pmdasdir}/lio
 
-%files pmda-prometheus
-%{_pmdasdir}/prometheus
+%files pmda-openmetrics
+%{_pmdasdir}/openmetrics
 
 %files pmda-lustre
 %{_pmdasdir}/lustre

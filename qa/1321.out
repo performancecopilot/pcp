@@ -1,82 +1,82 @@
 QA output created by 1321
 
-=== prometheus agent installation ===
+=== openmetrics agent installation ===
 ... pmda install succeeded
 
 === pmlogger config ===
-log mandatory on default { prometheus }
+log mandatory on default { openmetrics }
 
-== Created URL file /var/lib/pcp/pmdas/prometheus/config.d/source1.url
+== Created URL file /var/lib/pcp/pmdas/openmetrics/config.d/source1.url
 
-=== prometheus live PMNS is now ===
-prometheus.control.calls
-prometheus.control.debug
-prometheus.control.fetch_time
-prometheus.control.parse_time
-prometheus.source1.metric1
+=== openmetrics live PMNS is now ===
+openmetrics.control.calls
+openmetrics.control.debug
+openmetrics.control.fetch_time
+openmetrics.control.parse_time
+openmetrics.source1.metric1
 
-== Created URL file /var/lib/pcp/pmdas/prometheus/config.d/source2.url
+== Created URL file /var/lib/pcp/pmdas/openmetrics/config.d/source2.url
 
-=== prometheus live PMNS is now ===
-prometheus.control.calls
-prometheus.control.debug
-prometheus.control.fetch_time
-prometheus.control.parse_time
-prometheus.source1.metric1
-prometheus.source2.metric1
-prometheus.source2.metric2
+=== openmetrics live PMNS is now ===
+openmetrics.control.calls
+openmetrics.control.debug
+openmetrics.control.fetch_time
+openmetrics.control.parse_time
+openmetrics.source1.metric1
+openmetrics.source2.metric1
+openmetrics.source2.metric2
 
-== Created URL file /var/lib/pcp/pmdas/prometheus/config.d/source3.url
+== Created URL file /var/lib/pcp/pmdas/openmetrics/config.d/source3.url
 
-=== prometheus live PMNS is now ===
-prometheus.control.calls
-prometheus.control.debug
-prometheus.control.fetch_time
-prometheus.control.parse_time
-prometheus.source1.metric1
-prometheus.source2.metric1
-prometheus.source2.metric2
-prometheus.source3.metric1
-prometheus.source3.metric2
-prometheus.source3.metric3
+=== openmetrics live PMNS is now ===
+openmetrics.control.calls
+openmetrics.control.debug
+openmetrics.control.fetch_time
+openmetrics.control.parse_time
+openmetrics.source1.metric1
+openmetrics.source2.metric1
+openmetrics.source2.metric2
+openmetrics.source3.metric1
+openmetrics.source3.metric2
+openmetrics.source3.metric3
 
-== Created URL file /var/lib/pcp/pmdas/prometheus/config.d/source4.url
+== Created URL file /var/lib/pcp/pmdas/openmetrics/config.d/source4.url
 
-=== prometheus live PMNS is now ===
-prometheus.control.calls
-prometheus.control.debug
-prometheus.control.fetch_time
-prometheus.control.parse_time
-prometheus.source1.metric1
-prometheus.source2.metric1
-prometheus.source2.metric2
-prometheus.source3.metric1
-prometheus.source3.metric2
-prometheus.source3.metric3
-prometheus.source4.metric1
-prometheus.source4.metric2
-prometheus.source4.metric3
-prometheus.source4.metric4
+=== openmetrics live PMNS is now ===
+openmetrics.control.calls
+openmetrics.control.debug
+openmetrics.control.fetch_time
+openmetrics.control.parse_time
+openmetrics.source1.metric1
+openmetrics.source2.metric1
+openmetrics.source2.metric2
+openmetrics.source3.metric1
+openmetrics.source3.metric2
+openmetrics.source3.metric3
+openmetrics.source4.metric1
+openmetrics.source4.metric2
+openmetrics.source4.metric3
+openmetrics.source4.metric4
 
-=== resulting archive contains the following prometheus metrics ===
-prometheus.control.calls
-prometheus.control.debug
-prometheus.control.fetch_time
-prometheus.control.parse_time
-prometheus.source1.metric1
-prometheus.source2.metric1
-prometheus.source2.metric2
-prometheus.source3.metric1
-prometheus.source3.metric2
-prometheus.source3.metric3
-prometheus.source4.metric1
-prometheus.source4.metric2
-prometheus.source4.metric3
-prometheus.source4.metric4
+=== resulting archive contains the following openmetrics metrics ===
+openmetrics.control.calls
+openmetrics.control.debug
+openmetrics.control.fetch_time
+openmetrics.control.parse_time
+openmetrics.source1.metric1
+openmetrics.source2.metric1
+openmetrics.source2.metric2
+openmetrics.source3.metric1
+openmetrics.source3.metric2
+openmetrics.source3.metric3
+openmetrics.source4.metric1
+openmetrics.source4.metric2
+openmetrics.source4.metric3
+openmetrics.source4.metric4
 
-=== remove prometheus agent ===
+=== remove openmetrics agent ===
 Culling the Performance Metrics Name Space ...
-prometheus ... done
+openmetrics ... done
 Updating the PMCD control file, and notifying PMCD ...
 [...removing files...]
-Check prometheus metrics have gone away ... OK
+Check openmetrics metrics have gone away ... OK
