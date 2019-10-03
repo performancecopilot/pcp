@@ -34,6 +34,7 @@ _filter_pmproxy()
 	-e '/^__pmSetDataIPC:/d' \
 	-e '/^__pmDataIPC: /d' \
 	-e '/^IPC table fd/d' \
+	-e '/^pmproxy: disabled time series, requires libuv support (missing)/d' \
     # end
 }
 
