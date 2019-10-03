@@ -16,6 +16,7 @@
 # 
 
 import cpmapi as c_api
+import cpmda
 from ctypes import cast, c_char_p, Structure, POINTER
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid, pmdaGetContext
 from pcp.pmapi import pmUnits, pmContext as PCP
@@ -37,7 +38,8 @@ class TestPMDA(PMDA):
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)
         self.refreshes = 0
-        self.ctxtab = {}
+        self.ctxtabval = {}
+        self.ctxtabuser = {}
 
         self.some_indom = self.indom(0)
         self.other_indom = self.indom(1)
@@ -67,11 +69,16 @@ class TestPMDA(PMDA):
                 pmdaMetric(self.pmid(4, 0),
                 c_api.PM_TYPE_STRING, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
                 pmUnits(0, 0, 0, 0, 0, 0)))
+        self.add_metric(name + '.current_username',
+                pmdaMetric(self.pmid(5, 0),
+                c_api.PM_TYPE_STRING, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 0, 0, 0, 0)))
 
         self.set_refresh(self.test_update_status)
         self.set_refresh_all(self.test_refresh_all)
         self.set_fetch_callback(self.test_fetch_callback)
         self.set_store_callback(self.test_store_callback)
+        self.set_attribute_callback(self.test_attribute_callback)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
 
 
@@ -139,7 +146,11 @@ class TestPMDA(PMDA):
             return [str(cache.contents.s.decode('utf-8')), 1]
         elif cluster == 4 and item == 0:
             ctx = pmdaGetContext()
-            val = "ctx {} val {}".format(ctx, self.ctxtab.get(ctx))
+            val = "ctx %d val %s" % (ctx, self.ctxtabval.get(ctx))
+            return [val, 1]
+        elif cluster == 5 and item == 0:
+            ctx = pmdaGetContext()
+            val = "ctx %d user %s" % (ctx, self.ctxtabuser.get(ctx))
             return [val, 1]
         return [c_api.PM_ERR_PMID, 0]
 
@@ -154,10 +165,15 @@ class TestPMDA(PMDA):
             return 0
         elif cluster == 4 and item == 0:
             ctx = pmdaGetContext()
-            self.log("set ctxtab[%d] = %s" % (ctx, value))
-            self.ctxtab[ctx] = value
+            self.log("set ctxtabval[%d] = %s" % (ctx, value))
+            self.ctxtabval[ctx] = value
             return 0
         return c_api.PM_ERR_PERMISSION
+
+    def test_attribute_callback(self, ctx, attr, value):
+        self.log("attribute callback for ctx %d attr %d value %s" % (ctx, attr, repr(value)))
+        if attr == cpmda.PMDA_ATTR_USERNAME:
+            self.ctxtabuser[ctx] = value
 
 
 if __name__ == '__main__':

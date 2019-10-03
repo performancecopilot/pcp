@@ -61,6 +61,7 @@ static PyObject *instance_func;
 static PyObject *store_cb_func;
 static PyObject *fetch_cb_func;
 static PyObject *label_cb_func;
+static PyObject *attribute_cb_func;
 static PyObject *refresh_all_func;
 static PyObject *refresh_metrics_func;
 
@@ -821,17 +822,25 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
 int
 attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 {
-    if (pmDebugOptions.auth) {
-	char buffer[256];
+    PyObject *arglist, *result;
+    int	sts;
 
-	if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
-	    pmNotifyErr(LOG_ERR, "Bad Attribute: ctx=%d, attr=%d\n", ctx, attr);
-	} else {
-	    buffer[sizeof(buffer)-1] = '\0';
-	    pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
-	}
-    }
-    /* handle connection attributes - need per-connection state code */
+    if ((sts = pmdaAttribute(ctx, attr, value, length, pmda)) < 0)
+        return sts;
+
+    if (attribute_cb_func == NULL)
+        return 0;
+
+    arglist = Py_BuildValue("(iis#)", ctx, attr, value, length-1); // length includes NULL byte
+    if (arglist == NULL)
+        return -ENOMEM;
+
+    result = PyEval_CallObject(attribute_cb_func, arglist);
+    Py_DECREF(arglist);
+    if (result == NULL)
+        return callback_error("attribute");
+
+    Py_DECREF(result);
     return 0;
 }
 
@@ -873,6 +882,8 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 	helptext_file = p = strdup(help);	/* permanent reference */
 	pmdaDaemon(&dispatch, PMDA_INTERFACE_7, name, domain, logfile, p);
     }
+
+    pmdaSetCommFlags(&dispatch, PMDA_FLAG_AUTHORIZE);
     dispatch.version.seven.fetch = fetch;
     dispatch.version.seven.store = store;
     dispatch.version.seven.instance = instance;
@@ -1453,6 +1464,12 @@ set_label_callback(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+set_attribute_callback(PyObject *self, PyObject *args)
+{
+    return set_callback(self, args, "O:set_attribute_callback", &attribute_cb_func);
+}
+
+static PyObject *
 set_refresh_all(PyObject *self, PyObject *args)
 {
     return set_callback(self, args, "O:set_refresh_all", &refresh_all_func);
@@ -1522,6 +1539,8 @@ static PyMethodDef methods[] = {
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_label_callback", .ml_meth = (PyCFunction)set_label_callback,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "set_attribute_callback", .ml_meth = (PyCFunction)set_attribute_callback,
+	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_refresh_metrics",
       .ml_meth = (PyCFunction)set_refresh_metrics,
       .ml_flags = METH_VARARGS|METH_KEYWORDS },
@@ -1585,6 +1604,13 @@ MOD_INIT(cpmda)
     pmda_dict_add(dict, "PMDA_CACHE_SYNC", PMDA_CACHE_SYNC);
     pmda_dict_add(dict, "PMDA_CACHE_DUMP", PMDA_CACHE_DUMP);
     pmda_dict_add(dict, "PMDA_CACHE_DUMP_ALL", PMDA_CACHE_DUMP_ALL);
+
+    /* pmda.h - context attributes */
+    pmda_dict_add(dict, "PMDA_ATTR_USERNAME", PMDA_ATTR_USERNAME);
+    pmda_dict_add(dict, "PMDA_ATTR_USERID", PMDA_ATTR_USERID);
+    pmda_dict_add(dict, "PMDA_ATTR_GROUPID", PMDA_ATTR_GROUPID);
+    pmda_dict_add(dict, "PMDA_ATTR_PROCESSID", PMDA_ATTR_PROCESSID);
+    pmda_dict_add(dict, "PMDA_ATTR_CONTAINER", PMDA_ATTR_CONTAINER);
 
     return MOD_SUCCESS_VAL(module);
 }

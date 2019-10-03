@@ -529,6 +529,10 @@ class PMDA(MetricDispatch):
         return cpmda.set_label_callback(label_callback)
 
     @staticmethod
+    def set_attribute_callback(attribute_callback):
+        return cpmda.set_attribute_callback(attribute_callback)
+
+    @staticmethod
     def set_store_callback(store_callback):
         return cpmda.set_store_callback(store_callback)
 
