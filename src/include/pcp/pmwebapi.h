@@ -92,6 +92,7 @@ typedef struct pmSeriesValue {
     sds		timestamp;	/* sample time this value was taken */
     sds		series;		/* series identifier for this value */
     sds		data;		/* actual value, as binary safe sds */
+    pmTimespec	ts;		/* sample time, converted to binary */
 } pmSeriesValue;
 
 typedef struct pmSeriesLabel {
