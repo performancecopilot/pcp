@@ -374,15 +374,20 @@ extract_sha1(seriesQueryBaton *baton, pmSID series,
 
 static int
 extract_time(seriesQueryBaton *baton, pmSID series,
-		redisReply *reply, sds *stamp)
+		redisReply *reply, sds *stamp, pmTimespec *ts)
 {
     sds			msg, val;
-    char		*point;
+    char		*point = NULL;
 
     if (reply->type == REDIS_REPLY_STRING) {
 	val = sdscpylen(*stamp, reply->str, reply->len);
-	if ((point = strchr(val, '-')) != NULL)
+	ts->tv_sec = strtoull(val, &point, 0);
+	if (point && *point == '-') {
 	    *point = '.';
+	    ts->tv_nsec = strtoull(point+1, NULL, 0);
+	} else {
+	    ts->tv_nsec = 0;
+	}
 	*stamp = val;
 	return 0;
     }
@@ -445,7 +450,7 @@ series_result_reply(seriesQueryBaton *baton, sds series, pmSeriesValue *value,
     for (i = 0; i < nelements; i += 2) {
 	reply = elements[i+1];
 	if ((sts = extract_time(baton, series, elements[i],
-				&value->timestamp)) < 0) {
+				&value->timestamp, &value->ts)) < 0) {
 	    baton->error = sts;
 	} else if (reply->type != REDIS_REPLY_ARRAY) {
 	    infofmt(msg, "expected value array for series %s %s (type=%s)",
@@ -1166,7 +1171,7 @@ series_prepare_time(seriesQueryBaton *baton, series_set_t *result)
 
 	key = sdscatfmt(sdsempty(), "pcp:values:series:%S", sid->name);
 
-	/* XREAD key t1 t2 [COUNT count] */
+	/* XRANGE key t1 t2 [COUNT count] */
 	cmd = redis_command(6);
 	cmd = redis_param_str(cmd, XRANGE, XRANGE_LEN);
 	cmd = redis_param_sds(cmd, key);

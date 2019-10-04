@@ -36,12 +36,7 @@ LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
 LCFLAGS += -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0
 
 ifeq "$(HAVE_LIBUV)" "true"
-CFILES += libuv.c webgroup.c
-ifeq "$(HAVE_UV_FS_EVENT_START)" "true"
-CFILES += discover.c
-else
-CFILES += nodiscover.c
-endif
+CFILES += libuv.c discover.c webgroup.c
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
 LLDLIBS += $(LIB_FOR_LIBUV)
 else
