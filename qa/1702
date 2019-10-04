@@ -21,19 +21,20 @@ _stop_auto_restart pmcd
 _pmdabpftrace_install
 
 echo "=== start bpftrace script ==="
-pmstore -F bpftrace.control.register "// name: testscript
+pmstore bpftrace.control.register "// name: testscript
 kretprobe:vfs_read
 {
     @bytes = hist(retval);
 }"
 
 echo "=== check metrics ==="
-_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.probes 2
+_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.bytes
+
 cat $here/$seq > /dev/null # generate vfs_read syscalls
 pmsleep 2 # bpftrace output interval
 pminfo -dfmtT bpftrace.scripts.testscript.data.bytes 2>&1 | tee -a $here/$seq.full \
-| _instances_filter_any
-pid1=$(pminfo -f bpftrace.scripts.testscript.pid | grep value | sed -En 's/.*value ([0-9]*)/\1/gp')
+  | _instances_filter_any
+pid1=$(pminfo -f bpftrace.scripts.testscript.pid | sed -En 's/.*value ([0-9]+)/\1/gp')
 
 echo "=== stop bpftrace script ==="
 pmstore -F bpftrace.control.stop testscript
@@ -54,11 +55,13 @@ pmstore -F bpftrace.control.start testscript
 _pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.bytes
 
 echo "=== verify current bpftrace PID is different than last PID ==="
-pid2=$(pminfo -f bpftrace.scripts.testscript.pid | grep value | sed -En 's/.*value ([0-9]*)/\1/gp')
+pid2=$(pminfo -f bpftrace.scripts.testscript.pid | sed -En 's/.*value ([0-9]+)/\1/gp')
 
 echo "check PID $pid2 != $pid1" >> $here/$seq.full
 if [ "$pid2" -ne "$pid1" ]; then
     echo "Success: Second PID is different than first PID."
+else
+    echo "Failure: PIDs are equal."
 fi
 
 echo "=== deregister bpftrace script ==="

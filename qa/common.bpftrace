@@ -7,8 +7,8 @@
 
 _pmdabpftrace_check()
 {
-    $python -c "from pcp import pmda" >/dev/null 2>&1
-    [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+    $python -c "from pcp import pmda" >/dev/null 2>&1 || _notrun "python pcp pmda module not installed"
+    $python -c "import sys; sys.exit(0 if sys.version_info >= (3, 6) else 1)" || _notrun "python 3.6+ is required for this PMDA"
 
     which bpftrace > /dev/null || _notrun "bpftrace not installed"
     bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null || _notrun "current bpftrace version doesn't support JSON output, please upgrade"
@@ -48,14 +48,14 @@ _pmdabpftrace_cleanup()
 
 _pmdabpftrace_wait_for_value()
 {
-    value_regex=${2:-".*"}
+    value_regex=${2:-"value .*"}
     for i in `seq 1 20`
     do
-        pminfo -f $1 2>/dev/null | grep -q "value $value_regex" && echo "found metric $1 matching \"value $value_regex\"" && break
+        pminfo -f $1 2>/dev/null | grep -q "$value_regex" && echo "found metric $1 matching \"$value_regex\"" && break
         sleep 1
     done
     if [ $i -ge 20 ]; then
-        echo "Timeout while waiting for metric $1 to match \"value $value_regex\", output:"
+        echo "Timeout while waiting for metric $1 to match \"$value_regex\", output:"
         pminfo -f $1
         exit
     fi

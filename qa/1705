@@ -21,19 +21,34 @@ _stop_auto_restart pmcd
 _pmdabpftrace_install
 
 echo "=== bpftrace script without variabes ==="
-pmstore -F bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { }"
+pmstore bpftrace.control.register "// name: test1
+tracepoint:raw_syscalls:sys_enter { }"
 pminfo -f bpftrace.control.register | grep -q "no bpftrace variables or printf statements found, please include at least one variable or print statement in your script" && echo OK
+echo
 
 echo "=== invalid probe ==="
-pmstore bpftrace.control.register "does_not_exist { @c = count(); }" >> $here/$seq.full
-_pmdabpftrace_wait_for_value bpftrace.scripts.script101.output "\"Invalid provider: 'does_not_exist'\""
-pminfo -f bpftrace.scripts.script101.exit_code
+pmstore bpftrace.control.register "// name: test2
+does_not_exist { @c = count(); }"
+pminfo -f bpftrace.control.register >> $here/$seq.full
+_pmdabpftrace_wait_for_value bpftrace.scripts.test2.error "value \"Invalid provider: 'does_not_exist'\""
+pminfo -f bpftrace.scripts.test2.exit_code
+echo
 
 echo "=== too many attached tracepoints ==="
-pmstore bpftrace.control.register "kprobe:* { @c = count(); }" >> $here/$seq.full
-_pmdabpftrace_wait_for_value bpftrace.scripts.script102.output "\"Can't attach to [0-9]* probes because it exceeds the current limit of [0-9]* probes."
-pminfo -f bpftrace.scripts.script102.exit_code
+pmstore bpftrace.control.register "// name: test3
+kprobe:* { @c = count(); }"
+pminfo -f bpftrace.control.register >> $here/$seq.full
+_pmdabpftrace_wait_for_value bpftrace.scripts.test3.error "value \"Can't attach to [0-9]* probes because it exceeds the current limit of [0-9]* probes."
+pminfo -f bpftrace.scripts.test3.exit_code
+echo
 
+echo "=== too much output ==="
+pmstore bpftrace.control.register '// name: test4
+profile:hz:9999 { printf("test") }'
+pminfo -f bpftrace.control.register >> $here/$seq.full
+_pmdabpftrace_wait_for_value bpftrace.scripts.test4.error "value \"BPFtrace output exceeds limit of 102400 bytes per second\""
+pminfo -f bpftrace.scripts.test4.exit_code
+echo
 
 _pmdabpftrace_remove
 status=0
