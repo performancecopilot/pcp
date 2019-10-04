@@ -846,7 +846,7 @@ have_python
 enable_python3
 enable_python2
 PYTHON3
-PYTHON2
+PYTHON
 PYLINT
 CPPCHECK_POSIX_OPT
 CPPCHECK
@@ -990,7 +990,7 @@ with_systemd
 with_qt
 with_qt3d
 with_perl
-with_python2
+with_python
 with_python3
 with_dstat_symlink
 with_books
@@ -1707,7 +1707,7 @@ Optional Packages:
                           on)
   --with-perl             enable support for tools requiring Perl (default is
                           on)
-  --with-python2          enable support for tools requiring Python (default
+  --with-python           enable support for tools requiring Python (default
                           is on)
   --with-python3          enable support for tools requiring Python3 (default
                           is on)
@@ -2800,11 +2800,11 @@ fi
 
 
 
-# Check whether --with-python2 was given.
-if test "${with_python2+set}" = set; then :
-  withval=$with_python2; do_python2=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"
+# Check whether --with-python was given.
+if test "${with_python+set}" = set; then :
+  withval=$with_python; do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"
 else
-  do_python2=check
+  do_python=check
 fi
 
 
@@ -7250,17 +7250,17 @@ test -n "$PYLINT" || PYLINT="/bin/true"
 
 
 
-for ac_prog in python2 python2.7 python2.6 python
+for ac_prog in python python2.7
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_PYTHON2+:} false; then :
+if ${ac_cv_prog_PYTHON+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  if test -n "$PYTHON2"; then
-  ac_cv_prog_PYTHON2="$PYTHON2" # Let the user override the test.
+  if test -n "$PYTHON"; then
+  ac_cv_prog_PYTHON="$PYTHON" # Let the user override the test.
 else
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $PATH
@@ -7269,7 +7269,7 @@ do
   test -z "$as_dir" && as_dir=.
     for ac_exec_ext in '' $ac_executable_extensions; do
   if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_PYTHON2="$ac_prog"
+    ac_cv_prog_PYTHON="$ac_prog"
     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -7279,17 +7279,17 @@ IFS=$as_save_IFS
 
 fi
 fi
-PYTHON2=$ac_cv_prog_PYTHON2
-if test -n "$PYTHON2"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON2" >&5
-$as_echo "$PYTHON2" >&6; }
+PYTHON=$ac_cv_prog_PYTHON
+if test -n "$PYTHON"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON" >&5
+$as_echo "$PYTHON" >&6; }
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 fi
 
 
-  test -n "$PYTHON2" && break
+  test -n "$PYTHON" && break
 done
 
 
@@ -7339,16 +7339,16 @@ done
 
 
 enable_python2=false
-if test "x$do_python2" != "xno"; then :
+if test "x$do_python" != "xno"; then :
 
     enable_python2=true
-    if test -z "$PYTHON2"
+    if test -z "$PYTHON"
     then
 	enable_python2=false
     else
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Python version" >&5
 $as_echo_n "checking Python version... " >&6; }
-	eval `$PYTHON2 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PY_MAJOR.$PY_MINOR.$PY_POINT" >&5
 $as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 	if test "$PY_MAJOR" -lt 2; then
@@ -7382,9 +7382,9 @@ done
 	fi
     fi
 
-    if test "$do_python2" != "check" -a "$enable_python2" != "true"
+    if test "$do_python" != "check" -a "$enable_python2" != "true"
     then
-	as_fn_error $? "cannot enable Python2 - no supported version found" "$LINENO" 5
+	as_fn_error $? "cannot enable Python - no supported version found" "$LINENO" 5
     fi
 
 fi

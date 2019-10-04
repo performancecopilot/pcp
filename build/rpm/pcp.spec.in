@@ -3353,7 +3353,7 @@ cd
 %files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
 
 %if "@enable_python2@" == "true"
-%files -n %{__python2}-pcp -f python2-pcp.list.rpm
+%files -n %{__python2}-pcp -f python-pcp.list.rpm
 %endif
 
 %if "@enable_python3@" == "true"

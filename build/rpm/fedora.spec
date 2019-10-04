@@ -3159,7 +3159,7 @@ cd
 %files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
 
 %if !%{disable_python2}
-%files -n %{__python2}-pcp -f python2-pcp.list.rpm
+%files -n %{__python2}-pcp -f python-pcp.list.rpm
 %endif
 
 %if !%{disable_python3}
