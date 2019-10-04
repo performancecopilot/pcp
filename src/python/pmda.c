@@ -883,7 +883,6 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 	pmdaDaemon(&dispatch, PMDA_INTERFACE_7, name, domain, logfile, p);
     }
 
-    pmdaSetCommFlags(&dispatch, PMDA_FLAG_AUTHORIZE);
     dispatch.version.seven.fetch = fetch;
     dispatch.version.seven.store = store;
     dispatch.version.seven.instance = instance;
@@ -1387,6 +1386,20 @@ pmda_uptime(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+pmda_set_comm_flags(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int flags;
+    char *keyword_list[] = {"flags", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+        "i:pmda_set_comm_flags", keyword_list, &flags))
+        return NULL;
+
+    pmdaSetCommFlags(&dispatch, flags);
+    return Py_None;
+}
+
+static PyObject *
 set_notify_change(PyObject *self, PyObject *args)
 {
     const int flags = PMDA_EXT_LABEL_CHANGE | PMDA_EXT_NAMES_CHANGE;
@@ -1497,6 +1510,8 @@ static PyMethodDef methods[] = {
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_uptime", .ml_meth = (PyCFunction)pmda_uptime,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmda_set_comm_flags", .ml_meth = (PyCFunction)pmda_set_comm_flags,
+	.ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "init_dispatch", .ml_meth = (PyCFunction)init_dispatch,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_dispatch", .ml_meth = (PyCFunction)pmda_dispatch,
@@ -1604,6 +1619,10 @@ MOD_INIT(cpmda)
     pmda_dict_add(dict, "PMDA_CACHE_SYNC", PMDA_CACHE_SYNC);
     pmda_dict_add(dict, "PMDA_CACHE_DUMP", PMDA_CACHE_DUMP);
     pmda_dict_add(dict, "PMDA_CACHE_DUMP_ALL", PMDA_CACHE_DUMP_ALL);
+
+    /* pmda.h - communication flags */
+    pmda_dict_add(dict, "PMDA_FLAG_AUTHORIZE", PMDA_FLAG_AUTHORIZE);
+    pmda_dict_add(dict, "PMDA_FLAG_CONTAINER", PMDA_FLAG_CONTAINER);
 
     /* pmda.h - context attributes */
     pmda_dict_add(dict, "PMDA_ATTR_USERNAME", PMDA_ATTR_USERNAME);

@@ -80,6 +80,7 @@ class TestPMDA(PMDA):
         self.set_store_callback(self.test_store_callback)
         self.set_attribute_callback(self.test_attribute_callback)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
+        self.set_comm_flags(cpmda.PMDA_FLAG_AUTHORIZE)
 
 
     def test_refresh_all(self, clusters):

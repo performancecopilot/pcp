@@ -581,6 +581,10 @@ class PMDA(MetricDispatch):
         return cpmda.pmda_uptime(now)
 
     @staticmethod
+    def set_comm_flags(flags):
+        return cpmda.pmda_set_comm_flags(flags)
+
+    @staticmethod
     def log(message):
         return cpmda.pmda_log(message)
 
