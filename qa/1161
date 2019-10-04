@@ -16,9 +16,9 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 [ -f $PCP_PMDAS_DIR/netcheck/Install ] || _notrun "netcheck PMDA not installed"
 
 which ping > /dev/null 2>&1 || _notrun "ping not installed"
-ping -c 1 -4 localhost > $tmp.tmp 2>&1 || _notrun "failed to ping localhost"
-LOCALHOST=`sed < $tmp.tmp -n -e '/^PING/{
-s/PING //
+ping -c 1 localhost > $tmp.tmp 2>&1 || _notrun "failed to ping localhost"
+LOCALHOST=`sed < $tmp.tmp -n -e '/bytes from/{
+s/.* bytes from //
 s/ .*//
 p
 }'`
