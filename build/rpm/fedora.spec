@@ -2267,56 +2267,6 @@ exit 0
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
-PCP_CONFIG_DIR=%{_localstatedir}/lib/pcp/config
-PCP_SYSCONF_DIR=%{_confdir}
-PCP_LOG_DIR=%{_logsdir}
-PCP_ETC_DIR=%{_sysconfdir}
-# rename crontab files to align with current Fedora packaging guidelines
-for crontab in pmlogger pmie
-do
-    test -f "$PCP_ETC_DIR/cron.d/$crontab" || continue
-    mv -f "$PCP_ETC_DIR/cron.d/$crontab" "$PCP_ETC_DIR/cron.d/pcp-$crontab"
-done
-# produce a script to run post-install to move configs to their new homes
-save_configs_script()
-{
-    _new="$1"
-    shift
-    for _dir
-    do
-        [ "$_dir" = "$_new" ] && continue
-        if [ -d "$_dir" ]
-        then
-            ( cd "$_dir" ; find . -maxdepth 1 -type f ) | sed -e 's/^\.\///' \
-            | while read _file
-            do
-                [ "$_file" = "control" ] && continue
-                _want=true
-                if [ -f "$_new/$_file" ]
-                then
-                    # file exists in both directories, pick the more
-                    # recently modified one
-                    _try=`find "$_dir/$_file" -newer "$_new/$_file" -print`
-                    [ -n "$_try" ] || _want=false
-                fi
-                $_want && echo cp -p "$_dir/$_file" "$_new/$_file"
-            done
-        fi
-    done
-}
-# migrate and clean configs if we have had a previous in-use installation
-[ -d "$PCP_LOG_DIR" ] || exit 0	# no configuration file upgrades required
-rm -f "$PCP_LOG_DIR/configs.sh"
-for daemon in pmie pmlogger
-do
-    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_CONFIG_DIR/$daemon" \
-        "$PCP_SYSCONF_DIR/$daemon"
-done
-for daemon in pmcd pmproxy
-do
-    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon"\
-        "$PCP_CONFIG_DIR/$daemon" /etc/$daemon
-done
 exit 0
 
 %preun manager
@@ -2647,12 +2597,7 @@ pmieconf -c enable dmthin
 %endif
 
 %post
-PCP_LOG_DIR=%{_logsdir}
 PCP_PMNS_DIR=%{_pmnsdir}
-# restore saved configs, if any
-test -s "$PCP_LOG_DIR/configs.sh" && source "$PCP_LOG_DIR/configs.sh"
-rm -f $PCP_LOG_DIR/configs.sh
-
 chown -R pcp:pcp %{_logsdir}/pmcd 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmlogger 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/sa 2>/dev/null
@@ -2679,7 +2624,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
     /sbin/service pmproxy condrestart
 %endif
 
-cd $PCP_PMNS_DIR && ./Rebuild -s && rm -f .NeedRebuild
+cd "$PCP_PMNS_DIR" && ./Rebuild -s && rm -f .NeedRebuild
 cd
 
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
