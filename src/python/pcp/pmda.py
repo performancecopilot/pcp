@@ -529,6 +529,10 @@ class PMDA(MetricDispatch):
         return cpmda.set_label_callback(label_callback)
 
     @staticmethod
+    def set_attribute_callback(attribute_callback):
+        return cpmda.set_attribute_callback(attribute_callback)
+
+    @staticmethod
     def set_store_callback(store_callback):
         return cpmda.set_store_callback(store_callback)
 
@@ -575,6 +579,10 @@ class PMDA(MetricDispatch):
     @staticmethod
     def uptime(now):
         return cpmda.pmda_uptime(now)
+
+    @staticmethod
+    def set_comm_flags(flags):
+        return cpmda.pmda_set_comm_flags(flags)
 
     @staticmethod
     def log(message):

@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1544
-# Exercise pmproxy store & fetch
+# Exercise pmproxy per-context state
 #
 # Copyright (c) 2019 Red Hat.
 #
@@ -58,13 +58,6 @@ port=44322
 
 # start test Python PMDA
 cd pmdas/test_python
-cat > $tmp.conf <<EOF
-2 0 2147483647
-5 1503630694 five
-9 1503630694 nine
-EOF
-# $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmda/$domain.$loaded
-
 $sudo ./Install </dev/null \
     | _filter_pmda_install \
     | sed -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
@@ -104,6 +97,7 @@ curl -s "http://localhost:$port/pmapi/$ctx3/fetch?names=test_python.current_ctx"
 curl -s "http://localhost:$port/pmapi/$ctx4/fetch?names=test_python.current_ctx" | pmjson | grep '"value"' | _filter_ctx
 curl -s "http://localhost:$port/pmapi/$ctx5/fetch?names=test_python.current_ctx" | pmjson | grep '"value"' | _filter_ctx
 curl -s "http://localhost:$port/pmapi/$ctx6/fetch?names=test_python.current_ctx" | pmjson | grep '"value"' | _filter_ctx
+
 
 # success, all done
 status=0

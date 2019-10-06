@@ -292,7 +292,8 @@ typedef struct pmdaInterface {
 #define PMDA_FLAG_AUTHORIZE	(1<<2)	/* authentication support */
 #define PMDA_FLAG_CONTAINER	(1<<6)	/* container name support */
 
-/* communication attributes */
+/* communication attributes (mirrored from libpcp.h) */
+#define PMDA_ATTR_USERNAME   5  /* username (sasl) */
 #define PMDA_ATTR_USERID	11	/* uid - user identifier (posix) */
 #define PMDA_ATTR_GROUPID	12	/* gid - group identifier (posix) */
 #define PMDA_ATTR_PROCESSID	14	/* pid - process identifier (posix) */
