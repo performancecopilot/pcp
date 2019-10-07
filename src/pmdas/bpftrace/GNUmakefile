@@ -40,6 +40,12 @@ install_pcp install ::	default
 	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
 	$(INSTALL) -m 644 README.md $(CONFIGS) $(PMDADIR)
 	@$(INSTALL_MAN)
+
+default_pcp default ::	$(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+
+install_pcp install ::	$(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 else
 build-me:
 install_pcp install:
