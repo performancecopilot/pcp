@@ -20,6 +20,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
 _cleanup()
 {
     cd $here

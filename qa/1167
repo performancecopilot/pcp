@@ -15,6 +15,8 @@ echo "QA output created by $seq"
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
 _cleanup()
 {
     cd $here
