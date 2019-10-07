@@ -21,6 +21,7 @@ _pmdabpftrace_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/bpftrace
     $sudo ./Remove >/dev/null 2>&1
+    $sudo rm -f $PCP_VAR_DIR/config/pmda/151.*
 
     echo
     echo "=== bpftrace agent installation ==="
