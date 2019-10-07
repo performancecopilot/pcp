@@ -1751,10 +1751,6 @@ AC_SUBST(HAVE_OPENSSL, [$have_openssl])
 
 PKG_CHECK_MODULES([libuv], [libuv >= 1.0], [have_libuv=true], [have_libuv=false])
 AC_SUBST(HAVE_LIBUV, [$have_libuv])
-AC_CHECK_LIB(uv, uv_fs_event_start,
-	     AC_DEFINE(HAVE_UV_FS_EVENT_START, [1], [uv_fs_event_start API.])
-	     have_uv_fs_event_start=true,
-	     have_uv_fs_event_start=false)
 AC_CHECK_LIB(uv, uv_pipe_chmod,
 	     AC_DEFINE(HAVE_UV_PIPE_CHMOD, [1], [uv_pipe_chmod API.])
 	     have_uv_pipe_chmod=true,

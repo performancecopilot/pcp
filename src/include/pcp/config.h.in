@@ -615,9 +615,6 @@
 /* Define to 1 if you have the `usleep' function. */
 #undef HAVE_USLEEP
 
-/* uv_fs_event_start API. */
-#undef HAVE_UV_FS_EVENT_START
-
 /* uv_pipe_chmod API. */
 #undef HAVE_UV_PIPE_CHMOD
 

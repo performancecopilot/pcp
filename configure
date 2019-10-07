@@ -10608,51 +10608,6 @@ $as_echo "yes" >&6; }
 fi
 HAVE_LIBUV=$have_libuv
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for uv_fs_event_start in -luv" >&5
-$as_echo_n "checking for uv_fs_event_start in -luv... " >&6; }
-if ${ac_cv_lib_uv_uv_fs_event_start+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-luv  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char uv_fs_event_start ();
-int
-main ()
-{
-return uv_fs_event_start ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_uv_uv_fs_event_start=yes
-else
-  ac_cv_lib_uv_uv_fs_event_start=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_uv_uv_fs_event_start" >&5
-$as_echo "$ac_cv_lib_uv_uv_fs_event_start" >&6; }
-if test "x$ac_cv_lib_uv_uv_fs_event_start" = xyes; then :
-
-$as_echo "#define HAVE_UV_FS_EVENT_START 1" >>confdefs.h
-
-	     have_uv_fs_event_start=true
-else
-  have_uv_fs_event_start=false
-fi
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for uv_pipe_chmod in -luv" >&5
 $as_echo_n "checking for uv_pipe_chmod in -luv... " >&6; }
 if ${ac_cv_lib_uv_uv_pipe_chmod+:} false; then :
