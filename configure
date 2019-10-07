@@ -7726,7 +7726,7 @@ if test "x$do_pmdabpftrace" = "xcheck"; then :
     fi
 
     $enable_python3 && test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -ge 6 && \
-    $have_python_BPF && $have_bpftrace && pmda_bpftrace=true
+    $have_bpftrace && pmda_bpftrace=true
 
 fi
 PMDA_BPFTRACE=$pmda_bpftrace

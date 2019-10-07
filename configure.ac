@@ -1023,7 +1023,7 @@ AS_IF([test "x$do_pmdabpftrace" = "xcheck"], [
     fi
 
     $enable_python3 && test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -ge 6 && \
-    $have_python_BPF && $have_bpftrace && pmda_bpftrace=true
+    $have_bpftrace && pmda_bpftrace=true
 ])
 AC_SUBST(PMDA_BPFTRACE, $pmda_bpftrace)
 if $pmda_bpftrace; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
