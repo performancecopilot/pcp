@@ -16,19 +16,20 @@ echo "QA output created by $seq"
 [ $PCP_PLATFORM = linux ] || _notrun "Linux sysfs test, only works with Linux"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+mkdir -p $tmp.root
+$sudo mount -t tmpfs none $tmp.root
+
+trap "cd $here; $sudo umount $tmp.root; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _sort_instname()
 {
-    tee $tmp.sort | sed -n 2p
-    awk '/inst / {print "  ", $4, $6}' $tmp.sort | sed -e 's/\]//' | LC_COLLATE=POSIX sort
+    tee $tmp.root/sort | sed -n 2p
+    awk '/inst / {print "  ", $4, $6}' $tmp.root/sort | sed -e 's/\]//' | LC_COLLATE=POSIX sort
 }
 
 # real QA test starts here
-root=$tmp.root
 export LINUX_HERTZ=100
-export LINUX_STATSPATH=$root
+export LINUX_STATSPATH=$tmp.root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 local="-L -K clear -K add,60,$pmda"
 
@@ -39,10 +40,9 @@ pernode_metrics=`pminfo $local kernel.pernode.cpu | LC_COLLATE=POSIX sort`
 
 for tgz in $here/linux/sysdev-*.tgz $here/linux/sysfs-numa-001.tgz
 do
-    rm -fr $root
-    mkdir $root || _fail "root in use when processing $tgz"
-    cd $root
-    tar xzf $tgz
+    $sudo rm -fr $tmp.root/*
+    cd $tmp.root
+    $sudo tar xzf $tgz
     base=`basename $tgz`
 
     echo "== Checking hinv metric values - $base"
