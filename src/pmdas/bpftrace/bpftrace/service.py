@@ -1,19 +1,13 @@
 from typing import Optional, List
 import multiprocessing
-from .models import Script, PMDAConfig, Logger, Status, BPFtraceError
+from .models import Script, PMDAConfig, RuntimeInfo, Logger, Status, BPFtraceError
 from .process_manager import ProcessManagerDaemon
 from .parser import parse_code
+from .utils import get_bpftrace_version
 
 
-def process_manager_main(config: PMDAConfig, logger: Logger, pipe: multiprocessing.Pipe):
-    ProcessManagerDaemon(config, logger, pipe).run()
-
-
-def recv_timeout(pipe, timeout):
-    if pipe.poll(timeout):
-        return pipe.recv()
-    else:
-        return None
+def process_manager_main(config: PMDAConfig, logger: Logger, pipe: multiprocessing.Pipe, runtime_info: RuntimeInfo):
+    ProcessManagerDaemon(config, logger, pipe, runtime_info).run()
 
 
 class BPFtraceService():
@@ -21,11 +15,7 @@ class BPFtraceService():
     def __init__(self, config: PMDAConfig, logger: Logger):
         self.config = config
         self.logger = logger
-        self.pipe, child_pipe = multiprocessing.Pipe()
-        self.process = multiprocessing.Process(name="pmdabpftrace process manager",
-                                               target=process_manager_main,
-                                               args=(self.config, self.logger, child_pipe),
-                                               daemon=True)
+        self.pipe, self.child_pipe = multiprocessing.Pipe()
 
     def wait_for_response(self, timeout: int, request='?'):
         if self.pipe.poll(timeout):
@@ -34,7 +24,27 @@ class BPFtraceService():
             self.logger.error(f"process manager did not reply in {timeout} seconds for {request}")
             return None
 
+    def gather_runtime_info(self) -> RuntimeInfo:
+        runtime_info = RuntimeInfo()
+
+        try:
+            runtime_info.bpftrace_version_str, runtime_info.bpftrace_version = \
+                get_bpftrace_version(self.config.bpftrace_path)
+        except OSError as e:
+            # file not found, insufficient permissions, ...
+            raise BPFtraceError(f"Error starting bpftrace: {e}")
+
+        if runtime_info.bpftrace_version < (0, 9, 2):
+            raise BPFtraceError("bpftrace version 0.9.2 or higher is required "
+                                "for this PMDA (current version: {runtime_info.bpftrace_version_str})")
+        return runtime_info
+
     def start_daemon(self):
+        runtime_info = self.gather_runtime_info()
+        self.process = multiprocessing.Process(name="pmdabpftrace process manager",
+                                               target=process_manager_main,
+                                               args=(self.config, self.logger, self.child_pipe, runtime_info),
+                                               daemon=True)
         self.process.start()
 
     def stop_daemon(self):

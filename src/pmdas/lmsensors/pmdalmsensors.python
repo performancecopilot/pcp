@@ -23,6 +23,7 @@ import json
 import subprocess
 import re
 import argparse
+import sys
 import os.path
 from pcp.pmda import PMDA, pmdaMetric
 from pcp.pmapi import pmUnits, pmContext as PCP
@@ -124,7 +125,7 @@ args = parser.parse_args()
 
 if not os.path.isfile('/usr/bin/sensors'):
     print("/usr/bin/sensors not found!  Is lm_sensors installed?")
-    exit(1)
+    sys.exit(1)
 
 lmsensors_get()
 

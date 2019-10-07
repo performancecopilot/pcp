@@ -53,7 +53,6 @@ class State:
 
 
 class Script:
-
     def __init__(self, code: str):
         # PMNS metric names must start with an alphabetic character
         self.script_id = 's' + str(uuid.uuid4()).replace('-', '')
@@ -92,8 +91,12 @@ class PMDAConfig:
         self.max_throughput = 100 * 1024  # 100 KiB/s
         self.allowed_users = ['admin']
 
-        # simplifies version checks, assuming latest version
+
+class RuntimeInfo:
+    def __init__(self):
+        # assuming latest version per default (simplifies version checks)
         self.bpftrace_version = (999, 999, 999)
+        self.bpftrace_version_str = ""
 
 
 class Logger:

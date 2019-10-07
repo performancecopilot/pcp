@@ -2,7 +2,7 @@ from typing import Dict
 import re
 import json
 from cpmapi import PM_SEM_INSTANT, PM_SEM_COUNTER, PM_TYPE_U64, PM_TYPE_STRING
-from .models import PMDAConfig, Script, BPFtraceError, VariableDefinition, MetricType
+from .models import RuntimeInfo, Script, BPFtraceError, VariableDefinition, MetricType
 
 
 class BPFtraceMessageType:
@@ -98,10 +98,10 @@ def table_retain_lines(script: Script):
         script.state.data['@output'] = output[:newlines[0]] + output[start_content_at:]
 
 
-def process_bpftrace_output_obj(config: PMDAConfig, script: Script, obj: Dict):
+def process_bpftrace_output_obj(runtime_info: RuntimeInfo, script: Script, obj: Dict):
     """process a single JSON object from bpftrace output"""
     if obj['type'] == BPFtraceMessageType.AttachedProbes:
-        if config.bpftrace_version <= (0, 9, 2):
+        if runtime_info.bpftrace_version <= (0, 9, 2):
             script.state.probes = obj['probes']
         else:
             # https://github.com/iovisor/bpftrace/commit/9d1269b
@@ -115,7 +115,7 @@ def process_bpftrace_output_obj(config: PMDAConfig, script: Script, obj: Dict):
                 for bucket in v
             }
     elif obj['type'] in [BPFtraceMessageType.Printf, BPFtraceMessageType.Time]:
-        if config.bpftrace_version <= (0, 9, 2):
+        if runtime_info.bpftrace_version <= (0, 9, 2):
             script.state.data['@output'] = script.state.data.get('@output', '') + obj['msg']
         else:
             # https://github.com/iovisor/bpftrace/commit/9d1269b
@@ -124,8 +124,8 @@ def process_bpftrace_output_obj(config: PMDAConfig, script: Script, obj: Dict):
             table_retain_lines(script)
 
 
-def process_bpftrace_output(config: PMDAConfig, script: Script, line: str):
-    if config.bpftrace_version <= (0, 9, 2) and '": }' in line:
+def process_bpftrace_output(runtime_info: RuntimeInfo, script: Script, line: str):
+    if runtime_info.bpftrace_version <= (0, 9, 2) and '": }' in line:
         # invalid JSON, fixed in https://github.com/iovisor/bpftrace/commit/348975b
         return
 
@@ -134,6 +134,6 @@ def process_bpftrace_output(config: PMDAConfig, script: Script, line: str):
 
     try:
         obj = json.loads(line)
-        process_bpftrace_output_obj(config, script, obj)
+        process_bpftrace_output_obj(runtime_info, script, obj)
     except ValueError:
         script.state.output += line

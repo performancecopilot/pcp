@@ -116,7 +116,7 @@ class DstatTerminal:
             termios.TIOCGWINSZ
         except:
             try:
-                import curses
+                import curses # pylint: disable=import-outside-toplevel
                 curses.setupterm()
                 curses.tigetnum('lines')
                 curses.tigetnum('cols')
@@ -131,7 +131,7 @@ class DstatTerminal:
         """Return the dynamic terminal geometry"""
         if not self.termsize[0]:
             try:
-                import curses
+                import curses # pylint: disable=import-outside-toplevel
                 if self.termsize[1] == 1:
                     s = struct.pack('HHHH', 0, 0, 0, 0)
                     x = fcntl.ioctl(sys.stdout.fileno(), termios.TIOCGWINSZ, s)
@@ -149,7 +149,7 @@ class DstatTerminal:
         """Return whether the system can use colors or not"""
         if sys.stdout.isatty():
             try:
-                import curses
+                import curses # pylint: disable=import-outside-toplevel
                 curses.setupterm()
                 if curses.tigetnum('colors') < 0:
                     return False
@@ -178,7 +178,7 @@ class DstatTerminal:
             return
         if term[:5] != 'xterm' and term[:6] != 'screen':
             return
-        import getpass
+        import getpass # pylint: disable=import-outside-toplevel
         user = getpass.getuser()
         host = context.pmGetContextHostName()
         host = host.split('.')[0]
@@ -1408,7 +1408,7 @@ class DstatTool(object):
         if not os.path.exists(self.output):
             line += '"pcp-dstat ' + self.context.pmGetConfig('PCP_VERSION') + ' CSV Output"\n'
             line += '"Author:","PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>",,,,"URL:","https://pcp.io/ and http://dag.wieers.com/home-made/dstat/"\n'
-        import getpass
+        import getpass # pylint: disable=import-outside-toplevel
         line += '"Host:","' + self.context.pmGetContextHostName() + '",,,,"User:","' + getpass.getuser() + '"\n'
         line += '"Cmdline:","' + self.context.pmProgname() + ' ' + ' '.join(self.arguments) + '",,,,"Date:","' + time.strftime('%d %b %Y %H:%M:%S %Z') + '"\n'
         ### Process title

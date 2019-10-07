@@ -7,7 +7,7 @@ import asyncio
 import traceback
 import time
 from datetime import datetime, timedelta
-from .models import PMDAConfig, Script, Status, Logger, MetricType, BPFtraceError
+from .models import PMDAConfig, RuntimeInfo, Script, Status, Logger, MetricType, BPFtraceError
 from .parser import process_bpftrace_output
 
 
@@ -20,12 +20,13 @@ class ScriptTasks:
 
 class ProcessManagerDaemon():
 
-    def __init__(self, config: PMDAConfig, logger: Logger, pipe: multiprocessing.Pipe):
+    def __init__(self, config: PMDAConfig, logger: Logger, pipe: multiprocessing.Pipe, runtime_info: RuntimeInfo):
         self.loop = asyncio.get_event_loop()
         self.loop.set_exception_handler(self.handle_exception)
         self.config = config
         self.logger = logger
         self.pipe = pipe
+        self.runtime_info = runtime_info
         self.scripts: Dict[str, Script] = {}
         self.script_tasks: Dict[str, ScriptTasks] = {}
 
@@ -49,7 +50,11 @@ class ProcessManagerDaemon():
                     read_bytes_start = time.time()
 
                 line = line.decode('utf-8')
-                process_bpftrace_output(self.config, script, line)
+                try:
+                    process_bpftrace_output(self.runtime_info, script, line)
+                except:  # pylint:disable=bare-except
+                    self.logger.error(f"Error parsing bpftrace output, "
+                                      f"please open a bug report:\n{traceback.format_exc()}")
         except ValueError:
             raise BPFtraceError(
                 f"BPFtrace output exceeds limit of {self.config.max_throughput}"
@@ -206,7 +211,12 @@ class ProcessManagerDaemon():
         self.logger.info("shutdown bpftrace process manager daemon.")
 
     def run(self):
-        self.logger.info("started bpftrace process manager daemon.")
+        self.logger.info(f"started bpftrace process manager daemon "
+                         f"with bpftrace {self.runtime_info.bpftrace_version_str}.")
+        if self.runtime_info.bpftrace_version == (999, 999, 999):
+            self.logger.info(f"WARNING: unrecognized bpftrace version {self.runtime_info.bpftrace_version_str}, "
+                             f"assuming latest version")
+
         asyncio.ensure_future(self.expiry_timer())
         self.loop.run_until_complete(self.main_loop())
 
