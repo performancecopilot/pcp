@@ -188,10 +188,15 @@ class Metric(object):
         if labels is None:
             self.values[c_api.PM_IN_NULL] = float(value)
         else:
+            instname = None
             if self.pcpline: # pmproxy
                 # NB: no quoting/transforms - preserve incoming value verbatim
-                instname = labels['instance']
-            else:
+                if 'instname' in labels.keys():
+                    instname = labels['instname']
+                elif 'instance' in labels.keys():
+                    # back-compat
+                    instname = labels['instance']
+            if instname is None:
                 self.indom_table.prefix_mode = True # Mark for instance# prefixed names
                 instname = ""
                 for key, val in sorted(labels.items()):
