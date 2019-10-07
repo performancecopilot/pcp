@@ -17,23 +17,49 @@ _prepare_pmda bpftrace
 trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
+_filter_json()
+{
+    tee -a $here/$seq.full | \
+    sed -E -e 's,"script_id": .*,"script_id": "SCRIPT_ID",g' \
+           -e 's,"created_at": .*,"created_at": "CREATED_AT",g' \
+           -e 's,"last_accessed_at": .*,"last_accessed_at": "LAST_ACCESSED_AT",g' \
+           -e 's,"pid": .*,"pid": "PID",g' \
+           -e 's,"@": [0-9]+,"@": <count>,g'
+}
+
+_get_metric_value()
+{
+    tail -1 | sed -E -e 's/.*value "(.*)"/\1/'
+}
+
 # real QA test starts here
 _pmdabpftrace_install
 
 echo "=== start bpftrace script ==="
-pmstore -F bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
+pmstore bpftrace.control.register "// name: testscript
+tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
+pminfo -f bpftrace.control.register | _get_metric_value | pmjson | _filter_json
 
-echo "=== check metrics ==="
-_pmdabpftrace_wait_for_value bpftrace.scripts.script100.data.root
-pminfo -dfmtT bpftrace.scripts.script100.status
-pminfo -dfmtT bpftrace.scripts.script100.pid | _value_filter_nonzero
-pminfo -dfmtT bpftrace.scripts.script100.exit_code
-pminfo -dfmtT bpftrace.scripts.script100.output
-pminfo -dfmtT bpftrace.scripts.script100.probes | _value_filter_nonzero
-pminfo -dfmtT bpftrace.scripts.script100.script
+echo "=== check metadata metrics ==="
+_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.root
+pminfo -dfmtT bpftrace.scripts.testscript.status
+pminfo -dfmtT bpftrace.scripts.testscript.pid | _value_filter_nonzero
+pminfo -dfmtT bpftrace.scripts.testscript.exit_code
+pminfo -dfmtT bpftrace.scripts.testscript.error
+pminfo -dfmtT bpftrace.scripts.testscript.probes | _value_filter_nonzero
+pminfo -dfmtT bpftrace.scripts.testscript.code
 
-pminfo -dfmtT bpftrace.scripts.script100.data.root | _value_filter_nonzero
-pminfo -dfmtT bpftrace.scripts.script100.data.scalar
+echo "=== check data metrics ==="
+pminfo -dfmtT bpftrace.scripts.testscript.data.root | _value_filter_nonzero
+pminfo -dfmtT bpftrace.scripts.testscript.data.scalar
+
+echo "=== check general bpftrace metrics ==="
+pminfo -dfmtT bpftrace.info.tracepoints | _value_filter_any
+pminfo -dfmtT bpftrace.info.scripts
+
+echo "=== scripts as JSON ==="
+pminfo -dfmtT bpftrace.info.scripts_json | _value_filter_any
+pminfo -f bpftrace.info.scripts_json | _get_metric_value | pmjson | _filter_json
 
 
 _pmdabpftrace_remove

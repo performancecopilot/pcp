@@ -5,14 +5,14 @@ Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check bpftrace metrics have appeared ... 6 metrics and 5 values
+Check bpftrace metrics have appeared ... 7 metrics and 6 values
 
 === start bpftrace script ===
-bpftrace.control.register old value="{}" new value="{"name": "script100", "vars": ["h"], "status": "starting", "exit_code": 0, "output": ""}"
+bpftrace.control.register old value="{}" new value="BEGIN { @h = hist(-2); @h = hist(1); @h = hist(100); @h = hist(1000); exit(); }"
 === check metrics ===
-found metric bpftrace.scripts.script100.probes matching "value 2"
+found metric bpftrace.scripts.UUID.data.h matching "value .*"
 
-bpftrace.scripts.script100.data.h PMID: 151.100.10 [@h variable of bpftrace script]
+bpftrace.scripts.UUID.data.h PMID: 151.100.10 [@h variable of bpftrace script]
     Data Type: 64-bit unsigned int  InDom: 151.100010 0x25c186aa
     Semantics: counter  Units: none
 Help:
