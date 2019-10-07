@@ -11,7 +11,7 @@ RUN dnf -y install \
 
 COPY . /pcp
 RUN cd /pcp && ./Makepkgs --check --verbose \
-	--without-qt --without-qt3d --without-webapi --without-manager --with-pmdabpftrace
+	--without-qt --without-qt3d --without-webapi --without-manager
 RUN mkdir /packages && cd /pcp/pcp-*/build/rpm && \
     VER=$(pwd | cut -d- -f2 | cut -d/ -f1) && \
     mv *-$VER-*.{x86_64,noarch}.rpm /packages

@@ -10,8 +10,8 @@ from pcp.pmda import PMDA, pmdaMetric, pmdaGetContext
 from pcp.pmapi import pmUnits, pmContext as PCP
 import cpmapi as c_api
 
-from .models import PMDAConfig, Logger, Status, Script, ScriptEncoder, MetricType
-from .utils import get_bpftrace_version, get_tracepoints_csv
+from .models import PMDAConfig, Logger, Status, Script, ScriptEncoder, MetricType, BPFtraceError
+from .utils import get_tracepoints_csv
 from .service import BPFtraceService
 from .cluster import BPFtraceCluster
 from .uncached_indom import UncachedIndom
@@ -45,28 +45,14 @@ class BPFtracePMDA(PMDA):
         self.bpftrace_service = BPFtraceService(self.config, self.logger)
 
         if not self.is_pmda_setup():
-            version_str = ''
-            version = None
             try:
-                version_str, version = get_bpftrace_version(self.config.bpftrace_path)
-            except OSError as e:
-                # file not found, insufficient permissions, ...
-                self.logger.error(f"Error starting bpftrace: {e}")
+                self.bpftrace_service.start_daemon()
+            except BPFtraceError as e:
+                self.logger.error(str(e))
                 sys.exit(1)
 
-            if not version:
-                self.logger.info(f"WARNING: unrecognized bpftrace version {version_str}, "
-                                 "assuming latest version")
-            elif version < (0, 9, 2):
-                self.logger.error("bpftrace version 0.9.2 or higher is required "
-                                  "for this PMDA (current version: {version_str})")
-                sys.exit(1)
-            else:
-                self.logger.info(f"using {version_str}")
-                self.config.bpftrace_version = version
-
+            # read tracepoints after checking bpftrace version (in start_daemon)
             self.tracepoints_csv = get_tracepoints_csv(self.config.bpftrace_path)
-            self.bpftrace_service.start_daemon()
 
         self.set_comm_flags(cpmda.PMDA_FLAG_AUTHORIZE)
         self.connect_pmcd()

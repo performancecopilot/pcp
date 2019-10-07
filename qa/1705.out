@@ -33,8 +33,8 @@ bpftrace.control.register old value="{}" new value="// name: test4
 profile:hz:9999 { printf("test") }"
 found metric bpftrace.scripts.test4.error matching "value "BPFtrace output exceeds limit of 102400 bytes per second""
 
-bpftrace.scripts.test4.exit_code
-    value -9
+bpftrace.scripts.test4.status
+    value "error"
 
 
 === remove bpftrace agent ===
