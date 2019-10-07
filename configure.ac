@@ -158,9 +158,9 @@ AC_ARG_WITH([pmdabcc],
 
 AC_ARG_WITH([pmdabpftrace],
     [AC_HELP_STRING([--with-pmdabpftrace],
-		   [enable bpftrace pmda (default is off)])],
+		   [enable bpftrace pmda (default is on)])],
     [do_pmdabpftrace=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpftrace=$withval"],
-    [do_pmdabpftrace=no])
+    [do_pmdabpftrace=check])
 
 AC_ARG_WITH([pmdajson],
     [AC_HELP_STRING([--with-pmdajson],
@@ -1015,14 +1015,15 @@ AC_MSG_CHECKING([if the bpftrace PMDA should be included])
 pmda_bpftrace=false
 AS_IF([test "x$do_pmdabpftrace" = "xyes"], [pmda_bpftrace=true])
 AS_IF([test "x$do_pmdabpftrace" = "xcheck"], [
-    dnl bpftrace PMDA needs python3, and OrderedDict and bpftrace with JSON support
+    dnl bpftrace PMDA needs python 3.6+ and bpftrace with JSON support
     if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
         have_bpftrace=true
     else
         have_bpftrace=false
     fi
-    $enable_python3 && $have_python_BPF && \
-	$have_python_OrderedDict && $have_bpftrace && pmda_bpftrace=true
+
+    $enable_python3 && test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -ge 6 && \
+    $have_python_BPF && $have_bpftrace && pmda_bpftrace=true
 ])
 AC_SUBST(PMDA_BPFTRACE, $pmda_bpftrace)
 if $pmda_bpftrace; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi

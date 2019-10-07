@@ -1721,7 +1721,7 @@ Optional Packages:
   --with-pmdastatsd       enable statds pmda (default is on)
   --with-pmdapodman       enable podman pmda (default is on)
   --with-pmdabcc          enable BCC pmda (default is on)
-  --with-pmdabpftrace     enable bpftrace pmda (default is off)
+  --with-pmdabpftrace     enable bpftrace pmda (default is on)
   --with-pmdajson         enable JSON pmda (default is on)
   --with-pmdanutcracker   enable nutcracker pmda (default is on)
   --with-pmdasnmp         enable SNMP pmda (default is on)
@@ -2885,7 +2885,7 @@ fi
 if test "${with_pmdabpftrace+set}" = set; then :
   withval=$with_pmdabpftrace; do_pmdabpftrace=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpftrace=$withval"
 else
-  do_pmdabpftrace=no
+  do_pmdabpftrace=check
 fi
 
 
@@ -7724,8 +7724,9 @@ if test "x$do_pmdabpftrace" = "xcheck"; then :
     else
         have_bpftrace=false
     fi
-    $enable_python3 && $have_python_BPF && \
-	$have_python_OrderedDict && $have_bpftrace && pmda_bpftrace=true
+
+    $enable_python3 && test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -ge 6 && \
+    $have_python_BPF && $have_bpftrace && pmda_bpftrace=true
 
 fi
 PMDA_BPFTRACE=$pmda_bpftrace

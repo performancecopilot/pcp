@@ -11,3 +11,11 @@ jobs:
   - template: templates/qa-steps.yml
     parameters:
       distribution: fedora-rawhide
+- job: debian_unstable
+  displayName: Debian Unstable
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - template: templates/qa-steps.yml
+    parameters:
+      distribution: debian-unstable
