@@ -89,6 +89,7 @@ _check_completion_bash()
   cmds="$(grep '  pcp2.*)' $bash_comp | tr -d ')')"
   cmds="$cmds $(grep '  pm.*)' $bash_comp | tr -d ')')"
   for cmd in $cmds; do
+    which $cmd > /dev/null 2>&1 || continue
     $skip_pcp2elasticsearch && [ "$cmd" = pcp2elasticsearch ] && continue
     $skip_pcp2graphite && [ "$cmd" = pcp2graphite ] && continue
     $skip_pcp2influxdb && [ "$cmd" = pcp2influxdb ] && continue
