@@ -25,7 +25,7 @@ Fedora       26       -       kubectl kubernetes-client kubernetes-node libvarli
 Fedora       27       -       libvarlink-devel python3-prometheus_client
 Fedora       2[89]    i.86    389-ds-base kubectl kubernetes-client kubernetes-node python3-bcc
 Fedora       28       -       chan-devel HdrHistogram_c-devel
-Fedora       30       -       apache2 avahi-utils kubectl libavahi-devel libboost-devel mariadb-client mozilla-nspr-devel mozilla-nss-devel mozilla-nss-tools perl-ldap perl-Spreadsheet-Read perl-Spreadsheet-ReadSXC python3-Pillow python3-rtslib-fb sensors zabbix22-agent
+Fedora       30       -       apache2 avahi-utils kubectl libavahi-devel mariadb-client mozilla-nspr-devel mozilla-nss-devel mozilla-nss-tools perl-ldap perl-Spreadsheet-Read perl-Spreadsheet-ReadSXC python3-Pillow python3-rtslib-fb sensors zabbix22-agent
 Fedora       30       i.86    389-ds 389-ds-base Coin-devel kubernetes-client kubernetes-node libqt4-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libqt-devel python36-devel python3-bcc python3-libvirt-python
 #-- FreeBSD
 FreeBSD      10\.4    -       lm_sensors

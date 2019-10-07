@@ -474,9 +474,6 @@ _match_pkg()
 	    dpkg)
 		    case "$xpect"
 		    in
-			libboost1.[0-9]*-dev)	# e.g. libboost1.65-dev
-			    xpect=libboost-dev
-			    ;;
 			libcoin[0-9]*-dev)		# e.g. libcoin80-dev
 			    xpect=libcoin-dev
 			    ;;
@@ -529,9 +526,6 @@ _match_pkg()
 		    in
 			Coin[0-9]*-devel)		# e.g. Coin3-devel
 			    xpect=Coin-devel
-			    ;;
-			libboost_headers*-devel)	# e.g. libboost_headers1_66_0-devel
-			    xpect=libboost-devel
 			    ;;
 			postgresql[0-9]*)		# e.g. postgresql10
 			    xpect=postgresql
