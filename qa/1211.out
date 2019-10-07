@@ -400,8 +400,15 @@ d51624d12da45900bfee2fd73f1e23f3ccabb784
 Values fetch with a one-second interval ...
 
 d51624d12da45900bfee2fd73f1e23f3ccabb784
-    [Mon Oct  3 09:10:23.802930000 2011] 172598364
-    [Mon Oct  3 09:10:24.305845000 2011] 172598481
+    [Mon Oct  3 09:10:22.959242000 2011] 172598244
+    [Mon Oct  3 09:10:23.802930000 2011] 172598481
+    [Mon Oct  3 09:10:24.305845000 2011] 172598559
+
+Values fetch with a two-second interval ...
+
+d51624d12da45900bfee2fd73f1e23f3ccabb784
+    [Mon Oct  3 09:10:22.959242000 2011] 172598244
+    [Mon Oct  3 09:10:23.802930000 2011] 172598481
     [Mon Oct  3 09:10:24.305845000 2011] 172598559
 
 Values fetch for a multi-valued query ...

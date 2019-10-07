@@ -492,7 +492,7 @@ series_values_reply(seriesQueryBaton *baton, sds series,
     seriesSampling	sampling = {0};
     redisReply		*reply, *sample, **elements;
     timing_t		*tp = &baton->u.query.timing;
-    int			n, s, sts, next, nelements;
+    int			n, sts, next, nelements;
     sds			msg, save_timestamp;
 
     sampling.value.timestamp = sdsempty();
@@ -514,87 +514,89 @@ series_values_reply(seriesQueryBaton *baton, sds series,
 	    break;
 	}
 
-	/* iterate over the timestamp:valueset pairs */
-	for (s = 0; s < nelements; s += 2) {
+	/* verify the instance:value pairs array before proceeding */
+	reply = elements[1];
+	if (reply->type != REDIS_REPLY_ARRAY) {
+	    infofmt(msg, "expected value array for series %s %s (type=%s)",
+			series, XRANGE, redis_reply_type(reply));
+	    batoninfo(baton, PMLOG_RESPONSE, msg);
+	    baton->error = -EPROTO;
+	    break;
+	}
 
-	    /* verify the instance:value pairs array before proceeding */
-	    reply = elements[s+1];
-	    if (reply->type != REDIS_REPLY_ARRAY) {
-		infofmt(msg, "expected value array for series %s %s (type=%s)",
-			     series, XRANGE, redis_reply_type(reply));
-		batoninfo(baton, PMLOG_RESPONSE, msg);
-		baton->error = -EPROTO;
+	/* setup state variables used internally during selection process */
+	if (sampling.setup == 0 && (tp->delta.tv_sec || tp->delta.tv_usec)) {
+	    /* 'next' is a nanosecond precision time interval to step with */
+	    sampling.delta.tv_sec = tp->delta.tv_sec;
+	    sampling.delta.tv_nsec = tp->delta.tv_usec * 1000;
+
+	    /* extract the first timestamp to kickstart the comparison process */
+	    if ((sts = extract_time(baton, series, elements[0],
+					&sampling.value.timestamp,
+					&sampling.value.ts)) < 0) {
+		baton->error = sts;
 		break;
 	    }
-
-	    /* setup state variables used internally during selection process */
-	    if (sampling.setup == 0 && (tp->delta.tv_sec || tp->delta.tv_usec)) {
-		/* 'next' is a nanosecond precision time interval to step with */
-		sampling.delta.tv_sec = tp->delta.tv_sec;
-		sampling.delta.tv_nsec = tp->delta.tv_usec * 1000;
-
-		/* extract the first timestamp to kickstart the comparison process */
-		if ((sts = extract_time(baton, series, elements[0],
-					&sampling.value.timestamp,
-					&sampling.value.ts)) < 0) {
-		    baton->error = sts;
-		    break;
-		}
-		if (tp->start.tv_sec || tp->start.tv_usec) {
-		    sampling.goal.tv_sec = tp->start.tv_sec;
-		    sampling.goal.tv_nsec = tp->start.tv_usec * 1000;
-		} else {
-		    sampling.goal = sampling.value.ts;
-		}
-		/* 'goal' is the first target interval as an absolute timestamp */
-		pmTimespec_add(&sampling.goal, &sampling.delta);
-		sampling.next_timestamp = sdsempty();
-		sampling.subsampling = 1;
+	    /* 'goal' is the first target interval as an absolute timestamp */
+	    if (tp->start.tv_sec || tp->start.tv_usec) {
+		sampling.goal.tv_sec = tp->start.tv_sec;
+		sampling.goal.tv_nsec = tp->start.tv_usec * 1000;
+	    } else {
+		sampling.goal = sampling.value.ts;
 	    }
-	    sampling.setup = 1;
+	    sampling.goal.tv_nsec++;	/* ensure we use first sample */
 
-	    if (sampling.subsampling == 0) {
-		if ((sts = extract_time(baton, series, elements[s],
+	    sampling.next_timestamp = sdsempty();
+	    sampling.subsampling = 1;
+	}
+	sampling.setup = 1;
+
+	if (sampling.subsampling == 0) {
+	    if ((sts = extract_time(baton, series, elements[0],
 					&sampling.value.timestamp,
 					&sampling.value.ts)) < 0) {
-		    baton->error = sts;
-		    continue;
-		}
-	    } else if ((next = n + 2) < nsamples) {
-		/*
-		 * Compare this point and the next to the ideal based on delta;
-		 * skip over returning this value if the next one looks better.
-		 */
-		elements = samples[next]->element;
-		if ((sts = extract_time(baton, series, elements[0],
+		baton->error = sts;
+		continue;
+	    }
+	} else if ((next = n + 1) < nsamples) {
+	    /*
+	     * Compare this point and the next to the ideal based on delta;
+	     * skip over returning this value if the next one looks better.
+	     */
+	    elements = samples[next]->element;
+	    if ((sts = extract_time(baton, series, elements[0],
 					&sampling.next_timestamp,
 					&sampling.next_timespec)) < 0) {
-		    baton->error = sts;
-		    continue;
-		} else if (use_next_sample(&sampling)) {
-		    goto next_sample;
-		} /* else falls through and may call user-supplied callback */
-	    }
-
-	    /* check whether a user-requested sample count has been reached */
-	    if (tp->count && sampling.count++ >= tp->count)
-		break;
-
-	    if ((sts = series_instance_reply(baton, series, &sampling.value,
-				reply->elements, reply->element)) < 0)
 		baton->error = sts;
-
-	    if (sampling.subsampling == 0)
 		continue;
-next_sample:
-	    /* carefully swap time strings to avoid leaking memory */
-	    save_timestamp = sampling.next_timestamp;
-	    sampling.next_timestamp = sampling.value.timestamp;
-	    sampling.value.timestamp = save_timestamp;
-	    sampling.value.ts = sampling.next_timespec;
+	    } else if ((sts = use_next_sample(&sampling)) == 1) {
+		goto next_sample;
+	    } else if (sts == -1) {		/* sampling reached the end */
+		goto last_sample;
+	    } /* else falls through and may call user-supplied callback */
 	}
+
+	/* check whether a user-requested sample count has been reached */
+	if (tp->count && sampling.count++ >= tp->count)
+	    break;
+
+	if ((sts = series_instance_reply(baton, series, &sampling.value,
+				reply->elements, reply->element)) < 0) {
+	    baton->error = sts;
+	    goto last_sample;
+	}
+
+	if (sampling.subsampling == 0)
+	    continue;
+next_sample:
+	/* carefully swap time strings to avoid leaking memory */
+	save_timestamp = sampling.next_timestamp;
+	sampling.next_timestamp = sampling.value.timestamp;
+	sampling.value.timestamp = save_timestamp;
+	sampling.value.ts = sampling.next_timespec;
     }
 
+last_sample:
     if (sampling.setup)
 	sdsfree(sampling.next_timestamp);
     sdsfree(sampling.value.timestamp);
