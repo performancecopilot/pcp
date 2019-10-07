@@ -16,6 +16,8 @@ $python -c "from pcp import pmapi" >/dev/null 2>&1
 $python -c "from collections import OrderedDict" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
 
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

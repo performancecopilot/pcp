@@ -95,6 +95,7 @@ zsh_comp=${share_dir}/zsh/site-functions/_pcp
 _check_completion_zsh()
 {
   for cmd in $(grep '#compdef' $zsh_comp | sed -e 's,#compdef ,,'); do
+    which $cmd > /dev/null 2>&1 || continue
     $skip_pcp2elasticsearch && [ "$cmd" = pcp2elasticsearch ] && continue
     $skip_pcp2graphite && [ "$cmd" = pcp2graphite ] && continue
     $skip_pcp2influxdb && [ "$cmd" = pcp2influxdb ] && continue
