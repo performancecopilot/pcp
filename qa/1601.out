@@ -110,13 +110,13 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
     {
         "series": "605fc77742cd0317597291329561ac4e50c0dd12",
         "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
-        "timestamp": 1317633023300.300459700,
+        "timestamp": 1317633023300.460,
         "value": "71661"
     },
     {
         "series": "605fc77742cd0317597291329561ac4e50c0dd12",
         "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
-        "timestamp": 1317633023802.802929198,
+        "timestamp": 1317633023802.930,
         "value": "71661"
     }
 ]
@@ -126,13 +126,13 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
         {
             "series": "605fc77742cd0317597291329561ac4e50c0dd12",
             "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
-            "timestamp": 1317633023300.300459700,
+            "timestamp": 1317633023300.460,
             "value": "71661"
         },
         {
             "series": "605fc77742cd0317597291329561ac4e50c0dd12",
             "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
-            "timestamp": 1317633023802.802929198,
+            "timestamp": 1317633023802.930,
             "value": "71661"
         }
     ]
@@ -142,13 +142,13 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
     {
         "series": "605fc77742cd0317597291329561ac4e50c0dd12",
         "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
-        "timestamp": 1317633023300.300459700,
+        "timestamp": 1317633023300.460,
         "value": "71661"
     },
     {
         "series": "605fc77742cd0317597291329561ac4e50c0dd12",
         "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
-        "timestamp": 1317633023802.802929198,
+        "timestamp": 1317633023802.930,
         "value": "71661"
     }
 ]
@@ -158,13 +158,13 @@ Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
         {
             "series": "605fc77742cd0317597291329561ac4e50c0dd12",
             "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
-            "timestamp": 1317633023300.300459700,
+            "timestamp": 1317633023300.460,
             "value": "71661"
         },
         {
             "series": "605fc77742cd0317597291329561ac4e50c0dd12",
             "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
-            "timestamp": 1317633023802.802929198,
+            "timestamp": 1317633023802.930,
             "value": "71661"
         }
     ]
