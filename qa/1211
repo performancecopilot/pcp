@@ -196,11 +196,19 @@ pmseries $options --labels $second $series
 echo
 
 echo "Values fetch for a single-valued query ..."
-pmseries $options 'kernel.all.pswitch[count: 30]'
+pmseries $options -Z UTC 'kernel.all.pswitch[count: 30]'
+echo
+
+echo "Values fetch with a one-second interval ..."
+pmseries $options -Z UTC 'kernel.all.pswitch[delta: "1sec"]'
+echo
+
+echo "Values fetch with a two-second interval ..."
+pmseries $options -Z UTC 'kernel.all.pswitch[delta: "1sec"]'
 echo
 
 echo "Values fetch for a multi-valued query ..."
-pmseries $options 'kernel.all.load[count: 30]'
+pmseries $options -Z UTC 'kernel.all.load[count: 30]'
 echo
 
 echo "Multi-series lookups from a multi-series query ..."
@@ -231,8 +239,6 @@ echo
 
 echo "Error handling - query with no matching instance name"
 pmseries $options 'kernel.all.load{instance.name == "5 mi*"}'
-
-# TODO: verify all the time-related keywords
 
 # success, all done
 status=0

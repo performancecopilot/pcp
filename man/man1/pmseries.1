@@ -18,11 +18,12 @@
 \f3pmseries\f1 \- display information about performance metric timeseries
 .SH SYNOPSIS
 \fBpmseries\fR
-[\fB\-adFiIlLmMnqsSV?\fR]
+[\fB\-adFiIlLmMnqsStV?\fR]
 [\fB\-c\fR \fIconfig\fR]
 [\fB\-g\fR \fIpattern\fR]
 [\fB\-h\fR \fIhost\fR]
 [\fB\-p\fR \fIport\fR]
+[\fB\-Z\fR \fItimezone\fR]
 [\fIquery\fR | \fIseries\fR ... | \fIsource\fR ... ]
 .SH DESCRIPTION
 .de SAMPLE
@@ -413,8 +414,22 @@ rather than the default \fB6379\fR.
 Perform a timeseries query.
 This is the default action.
 .TP
+\fB\-t\fR, \fB\-\-times\fR
+Report time stamps numerically (in milliseconds) instead of
+the default human readable form.
+.TP
 \fB\-V\fR, \fB\-\-version\fR
 Display version number and exit.
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+Use
+.I timezone
+for the date and time.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
@@ -492,6 +507,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pmParseTimeInterval (3),
 .BR pmParseTimeWindow (3),
 .BR pcp.conf (5),
+.BR environ (7),
 .BR glob (7)
 and
 .BR regex (7).

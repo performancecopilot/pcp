@@ -694,6 +694,8 @@ _pcp () {
       "(-n --names $exargs)"{-n,--names}'[report label names]' \
       "(-S --sources $exargs)"{-S,--sources}'[report context for timeseries sources]' \
       "(-s --series $exargs)"{-s,--series}'[report timeseries identifiers]' \
+      "(-t --times $exargs)"{-t,--times}'[report numeric timestamps]' \
+      "(-Z --timezone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       '1:series:->ts_metrics' \
       && return 0
   ;;

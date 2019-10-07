@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -117,8 +117,8 @@ typedef struct timing {
     struct timeval	align;
     struct timeval	start;
     struct timeval	end;
-    int			count;		/* sample count */
-    int			offset;		/* sample offset */
+    unsigned int	count;		/* sample count */
+    unsigned int	offset;		/* sample offset */
     int			zone;		/* pmNewZone handle */
 } timing_t;
 

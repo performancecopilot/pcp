@@ -28,6 +28,7 @@ typedef enum series_flags {
     PMSERIES_NEED_DESCS	= (1<<9),	/* output requires descs lookup */
     PMSERIES_NEED_INSTS	= (1<<10),	/* output requires insts lookup */
     PMSERIES_NEED_RESET	= (1<<11),	/* need to reset for next series */
+    PMSERIES_TIMES	= (1<<12),	/* report numeric time stamps */
 
     PMSERIES_OPT_ALL	= (1<<16),	/* -a, --all option */
     PMSERIES_OPT_SOURCE = (1<<17),	/* -S, --source option */
@@ -341,21 +342,31 @@ on_series_match(pmSID sid, void *arg)
     return 0;
 }
 
+static void
+printstamp(const pmTimespec *tp)
+{
+    time_t      now;
+    char	ct_buf[32];
+
+    now = (time_t)tp->tv_sec;
+    ctime_r(&now, ct_buf);
+    ct_buf[19] = '\0';	/* internal, before the year */
+    ct_buf[24] = '\0';	/* final newline now removed */
+    printf("%s.%09d %s", ct_buf, (int)(tp->tv_nsec), ct_buf+20);
+}
+
 static int
 on_series_value(pmSID sid, pmSeriesValue *value, void *arg)
 {
     series_data		*dp = (series_data *)arg;
     series_inst		*ip;
-    sds			timestamp, series, data;
+    sds			series, data;
     int			need_free = 1;
-
-    timestamp = value->timestamp;
-    series = value->series;
-    data = value->data;
 
     if (series_next(dp, sid))
 	printf("\n%s\n", sid);
 
+    data = value->data;
     if (dp->type == NULL)
 	dp->type = sdsempty();
     if (strncmp(dp->type, "AGGREGATE", sizeof("AGGREGATE")-1) == 0)
@@ -365,12 +376,20 @@ on_series_value(pmSID sid, pmSeriesValue *value, void *arg)
     else
 	need_free = 0;
 
-    if (sdscmp(series, sid) == 0)
-	printf("    [%s] %s\n", timestamp, data);
-    else if ((ip = series_get_inst(dp, series)) == NULL)
-	printf("    [%s] %s %s\n", timestamp, data, series);
+    printf("    [");
+    if (dp->flags & PMSERIES_TIMES)
+	printf("%s", value->timestamp);
     else
-	printf("    [%s] %s \"%s\"\n", timestamp, data, ip->name);
+	printstamp(&value->ts);
+    printf("] ");
+
+    series = value->series;
+    if (sdscmp(series, sid) == 0)
+	printf("%s\n", data);
+    else if ((ip = series_get_inst(dp, series)) == NULL)
+	printf("%s %s\n", data, series);
+    else
+	printf("%s \"%s\"\n", data, ip->name);
 
     if (need_free)
 	sdsfree(data);
@@ -1009,14 +1028,8 @@ static int
 pmseries_overrides(int opt, pmOptions *opts)
 {
     switch (opt) {
-    case 'a':
-    case 'h':
-    case 'g':
-    case 'L':
-    case 's':
-    case 'S':
-    case 'n':
-    case 'p':
+    case 'a': case 'h': case 'g': case 'L': case 'n':
+    case 'p': case 's': case 'S': case 't': case 'Z':
 	return 1;
     }
     return 0;
@@ -1030,9 +1043,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General Options"),
     { "load", 0, 'L', 0, "load time series values and metadata" },
     { "query", 0, 'q', 0, "perform a time series query (default)" },
-    PMOPT_VERSION,
     PMOPT_DEBUG,
-    PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Reporting Options"),
     { "all", 0, 'a', 0, "report all metadata (-dilms) for time series" },
     { "desc", 0, 'd', 0, "metric descriptor for time series" },
@@ -1046,12 +1057,16 @@ static pmLongOptions longopts[] = {
     { "names", 0, 'n', 0, "print label names only, not values" },
     { "sources", 0, 'S', 0, "report names for time series sources" },
     { "series", 0, 's', 0, "print series ID for metrics, instances and sources" },
+    { "times", 0, 't', 0, "print numeric time stamps (in milliseconds)" },
+    PMOPT_TIMEZONE,
+    PMOPT_VERSION,
+    PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_BOUNDARIES,
-    .short_options = "ac:dD:Fg:h:iIlLmMnqp:sSV?",
+    .short_options = "ac:dD:Fg:h:iIlLmMnqp:sStVZ:?",
     .long_options = longopts,
     .short_usage = "[options] [query ... | series ... | source ...]",
     .override = pmseries_overrides,
@@ -1066,6 +1081,7 @@ main(int argc, char *argv[])
     const char		*space = " ";
     const char		*inifile = NULL;
     const char		*redis_host = NULL;
+    static char		tzbuffer[128];
     unsigned int	redis_port = 6379;	/* default Redis port */
     struct dict		*config;
     series_flags	flags = 0;
@@ -1142,6 +1158,15 @@ main(int argc, char *argv[])
 
 	case 'S':	/* command line contains source identifiers */
 	    flags |= PMSERIES_OPT_SOURCE;
+	    break;
+
+	case 't':	/* report numeric time stamps (milliseconds) */
+	    flags |= PMSERIES_TIMES;
+	    break;
+
+	case 'Z':	/* timezone for reporting time stamps */
+	    pmsprintf(tzbuffer, sizeof(tzbuffer), "%s", opts.optarg);
+	    setenv("TZ", tzbuffer, 1);
 	    break;
 
 	default:
@@ -1221,7 +1246,7 @@ main(int argc, char *argv[])
 	    flags |= PMSERIES_OPT_ALL | PMSERIES_META_OPTS | PMSERIES_SERIESID;
     }
 
-    if (opts.optind == argc && !opts.errors) {
+    if (opts.optind == argc && !opts.errors && !(opts.flags & PM_OPTFLAG_EXIT)) {
 	if ((flags & PMSERIES_OPT_QUERY)) {
 	   pmprintf("%s: error - no query string provided\n",
 			   pmGetProgname());

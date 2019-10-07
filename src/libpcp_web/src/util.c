@@ -122,16 +122,14 @@ const char *
 timeval_stream_str(struct timeval *stamp, char *buffer, int buflen)
 {
     __uint64_t	millipart;
-    __uint64_t	nanopart;
+    __uint64_t	fractions;
     __uint64_t	crossover = stamp->tv_usec / 1000;
 
     millipart = stamp->tv_sec * 1000;
     millipart += crossover;
-    nanopart = stamp->tv_usec * 1000;
-    nanopart -= crossover;
-
+    fractions = stamp->tv_usec % 1000;
     pmsprintf(buffer, buflen, "%" FMT_UINT64 "-%"FMT_UINT64,
-		(__uint64_t)millipart, (__uint64_t)nanopart);
+		(__uint64_t)millipart, (__uint64_t)fractions);
     return buffer;
 }
 
