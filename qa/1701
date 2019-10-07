@@ -17,15 +17,22 @@ _prepare_pmda bpftrace
 trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
+
+_script_id_filter()
+{
+    sed -E -e 's/bpftrace.scripts.([a-z0-9]+).([a-z]+)/bpftrace.scripts.UUID.\2/g'
+}
+
 # real QA test starts here
 _pmdabpftrace_install
 
 echo "=== start bpftrace script ==="
-pmstore -F bpftrace.control.register "BEGIN { @h = hist(-2); @h = hist(1); @h = hist(100); @h = hist(1000); exit(); }"
+pmstore bpftrace.control.register "BEGIN { @h = hist(-2); @h = hist(1); @h = hist(100); @h = hist(1000); exit(); }"
+script_id=`pminfo -f bpftrace.control.register | python -c 'import sys,json; print(json.loads(sys.stdin.read()[38:-2])["script_id"])'`
 
 echo "=== check metrics ==="
-_pmdabpftrace_wait_for_value bpftrace.scripts.script100.probes 2
-pminfo -dfmtT bpftrace.scripts.script100.data.h 2>&1
+_pmdabpftrace_wait_for_value bpftrace.scripts.${script_id}.data.h | _script_id_filter
+pminfo -dfmtT bpftrace.scripts.${script_id}.data.h | _script_id_filter
 
 
 _pmdabpftrace_remove

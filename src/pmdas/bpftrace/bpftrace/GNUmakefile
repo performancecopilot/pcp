@@ -1,4 +1,3 @@
-#! /bin/sh
 #
 # Copyright (c) 2019 Red Hat.
 #
@@ -12,17 +11,23 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Install the bpftrace PMDA
-#
 
-. $PCP_DIR/etc/pcp.env
-. $PCP_SHARE_DIR/lib/pmdaproc.sh
+TOPDIR = ../../../..
+include $(TOPDIR)/src/include/builddefs
 
-iam=bpftrace
-domain=151
-python_opt=true
-daemon_opt=false
+IAM       = bpftrace
+MODULEDIR = $(PCP_PMDAS_DIR)/$(IAM)/bpftrace
+PYSCRIPTS = $(shell echo *.py)
 
-pmdaSetup
-pmdaInstall
-exit
+include $(BUILDRULES)
+
+default_pcp default:	$(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+
+install_pcp install:	default $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+	$(INSTALL) -m 755 -d $(MODULEDIR)
+	$(INSTALL) -m 644 $(PYSCRIPTS) $(MODULEDIR)
+
+check:: $(PYSCRIPTS)
+	$(PYLINT) $^

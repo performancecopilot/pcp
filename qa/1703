@@ -18,7 +18,7 @@ _filter_test_duration()
     sed -E -e "s/test(s?) in .+/test\1/g"
 }
 
-PYTHONPATH="$PCP_PMDAS_DIR/bpftrace" $python $here/bpftrace/tests.py 2>&1 | \
+PYTHONPATH="$PCP_PMDAS_DIR/bpftrace" $python -Wi::DeprecationWarning -m unittest discover $here/bpftrace "*_tests.py" 2>&1 > $here/$seq.full | \
 _filter_test_duration
 
 

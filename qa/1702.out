@@ -5,12 +5,16 @@ Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check bpftrace metrics have appeared ... 6 metrics and 5 values
+Check bpftrace metrics have appeared ... 7 metrics and 6 values
 
 === start bpftrace script ===
-bpftrace.control.register old value="{}" new value="{"name": "testscript", "vars": ["bytes"], "status": "starting", "exit_code": 0, "output": ""}"
+bpftrace.control.register old value="{}" new value="// name: testscript
+kretprobe:vfs_read
+{
+    @bytes = hist(retval);
+}"
 === check metrics ===
-found metric bpftrace.scripts.testscript.probes matching "value 2"
+found metric bpftrace.scripts.testscript.data.bytes matching "value .*"
 OK
 === stop bpftrace script ===
 bpftrace.control.stop old value="{}" new value="{"success": "true"}"
