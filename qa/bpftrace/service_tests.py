@@ -1,15 +1,18 @@
 import unittest
 import time
+import re
+from multiprocessing import Manager
 from bpftrace.parser import parse_code, process_bpftrace_output_obj
 from bpftrace.models import PMDAConfig, Script, Logger
 from bpftrace.service import BPFtraceService
 
+
 class BPFtraceServiceTests(unittest.TestCase):
     config: PMDAConfig
 
-    def setup(self, config=None):
+    def setup(self, config=None, logger=None):
         self.config = config or PMDAConfig()
-        self.logger = Logger(lambda x: print("Info: " + x), lambda x: print("Error: " + x))
+        self.logger = logger or Logger(lambda x: print("Info: " + x), lambda x: print("Error: " + x))
         self.service = BPFtraceService(self.config, self.logger)
         self.service.start_daemon()
 
@@ -34,13 +37,29 @@ class BPFtraceServiceTests(unittest.TestCase):
         self.service.stop_script(script.script_id)
 
     def testDeregister(self):
-        self.setup()
+        manager = Manager()
+        output = manager.list()  # will be transferred to a different process
+
+        logger = Logger(output.append, output.append)
+        self.setup(logger=logger)
         script = self.service.register_script(Script('kretprobe:vfs_read { @bytes = hist(retval); }'))
         self.assertEqual(script.state.status, 'starting')
 
         script = self.waitForData(script.script_id)
         self.assertTrue(script.state.data)
         self.service.deregister_script(script.script_id)
+        self.service.stop_daemon()
+
+        # verify if events happen in the correct order by checking the log messages
+        full_output = "\n".join(output)
+        print(f"testDeregister output: {full_output}")
+        log_msgs_order = [
+            "starting script", "started script", "stopping script", "stopped script", "removed script",
+            "deregister: script .* not found"
+        ]
+        idx = [re.search(log_msg, full_output).span() for log_msg in log_msgs_order]
+        self.assertEqual(len(idx), len(log_msgs_order))
+        self.assertEqual(idx, sorted(idx))
 
     def testExpiry(self):
         config = PMDAConfig()

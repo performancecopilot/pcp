@@ -36,6 +36,13 @@ found metric bpftrace.scripts.test4.error matching "value "BPFtrace output excee
 bpftrace.scripts.test4.status
     value "error"
 
+=== duplicate script name ===
+bpftrace.control.register old value="{}" new value="// name: test5
+tracepoint:raw_syscalls:sys_enter { @x = count() }"
+bpftrace.control.register: new value="// name: test5
+tracepoint:raw_syscalls:sys_enter { @x = count() }" pmStore: Bad input to pmstore
+OK
+
 
 === remove bpftrace agent ===
 Culling the Performance Metrics Name Space ...

@@ -17,7 +17,7 @@ from .cluster import BPFtraceCluster
 from .uncached_indom import UncachedIndom
 
 
-class Consts:  # pylint: disable=too-few-public-methods
+class Consts:
     """PMDA constants"""
     class Control:
         """cluster number and items of control cluster"""
@@ -222,7 +222,7 @@ class BPFtracePMDA(PMDA):
         self.set_ctx_state('deregister', {"success": "true"})
         return 0
 
-    def store_callback(self, cluster: int, item: int, inst: int, val: str):  # pylint: disable=too-many-return-statements
+    def store_callback(self, cluster: int, item: int, inst: int, val: str):
         """PMDA store callback"""
         if cluster == Consts.Control.Cluster:
             username = self.get_ctx_state('username', default='anonymous')
@@ -257,15 +257,17 @@ class BPFtracePMDA(PMDA):
     def sync_scripts_with_process_manager(self):
         # expiration timer may have removed idle scripts
         script_ids = self.bpftrace_service.list_scripts()
-        if script_ids:
-            changed = False
-            for cluster in list(self.clusters.values()):
-                if cluster.script.script_id not in script_ids:
-                    cluster.deregister_metrics()
-                    del self.clusters[cluster.cluster_id]
-                    changed = True
-            if changed:
-                self.refresh_script_indom()
+        if not script_ids:
+            return
+
+        changed = False
+        for cluster in list(self.clusters.values()):
+            if cluster.script.script_id not in script_ids:
+                cluster.deregister_metrics()
+                del self.clusters[cluster.cluster_id]
+                changed = True
+        if changed:
+            self.refresh_script_indom()
 
     def refresh_callback(self, cluster: int):
         """PMDA refresh callback"""

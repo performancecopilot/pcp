@@ -152,9 +152,10 @@ class BPFtraceCluster:
     def refresh_callback(self):
         """PMDA refresh callback for this bpftrace instance"""
         script = self.bpftrace_service.refresh_script(self.script.script_id)
-        if script:
-            self.script = script
+        if not script:
+            return
 
+        self.script = script
         # refresh instance domains
         for var_name, var_def in self.script.variables.items():
             # parser found variable definition in script,
