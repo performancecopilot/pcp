@@ -32,9 +32,14 @@ then
     export DISPLAY=$PCPQA_CLOSE_X_SERVER
 fi
 
+_filter()
+{
+    sed -e '/^QStandardPaths: XDG_RUNTIME_DIR not set.*/d'
+}
+
 # real QA test starts here
 export PCP_STDERR=$tmp.err
-pmchart -C -a /no/such/file -z
+pmchart -C -a /no/such/file -z 2>&1 | _filter
 if [ -s $tmp.err ]
 then
     echo "stderr from pmchart -C -a /no/such/file -z"

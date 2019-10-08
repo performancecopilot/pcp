@@ -162,7 +162,7 @@ series=`pmseries $options sample.double.bin`
 pmseries $options -l $series | _filter_labels | _filter_series
 
 echo "== verify metric values" | tee -a  $seq.full
-pmseries $options sample.ulong.million[samples:2] | _filter_values | _filter_series
+pmseries $options -t sample.ulong.million[samples:2] | _filter_values | _filter_series
 
 # pause until pmlogger exits to prevent confusion when removing archives
 wait $pmlogger_pid
