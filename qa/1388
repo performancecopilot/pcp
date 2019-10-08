@@ -36,6 +36,15 @@ _cleanup()
     # restore any modified pmcd and pmproxy configuration files
     _restore_config $PCP_SASLCONF_DIR/pmcd.conf
 
+    if pmprobe -I pmcd.agent.status | grep '"test_python"' >/dev/null
+    then
+	$sudo rm $PCP_VAR_DIR/config/pmda/$domain.$loaded
+	cd $here/pmdas/test_python
+	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo rm -f domain.h.python
+	cd $here
+    fi
+
     _service pmcd stop >>$seq.full 2>&1
     _service pmcd start >>$seq.full 2>&1
     _wait_for_pmcd
