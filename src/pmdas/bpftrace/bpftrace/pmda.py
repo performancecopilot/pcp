@@ -209,19 +209,17 @@ class BPFtracePMDA(PMDA):
         self.refresh_script_indom()
         return 0
 
-    def deregister_script(self, id_or_name: str):
+    def deregister_script(self, id_or_name: str) -> bool:
         """deregister a bpftrace script"""
         cluster = self.find_cluster_by_name(id_or_name)
         if not cluster:
-            self.set_ctx_state('deregister', {"error": "script not found"})
-            return c_api.PM_ERR_BADSTORE
+            return False
 
         cluster.deregister_metrics()
         self.bpftrace_service.deregister_script(cluster.script.script_id)
         del self.clusters[cluster.cluster_id]
         self.refresh_script_indom()
-        self.set_ctx_state('deregister', {"success": "true"})
-        return 0
+        return True
 
     def store_callback(self, cluster: int, item: int, inst: int, val: str):
         """PMDA store callback"""
@@ -233,9 +231,18 @@ class BPFtracePMDA(PMDA):
             if item == Consts.Control.Register:
                 return self.register_script(val)
             elif item == Consts.Control.Deregister:
-                return self.deregister_script(val)
+                success = True
+                for script_id in val.split(','):
+                    if not self.deregister_script(script_id):
+                        success = False
+
+                if success:
+                    self.set_ctx_state('deregister', {"success": "true"})
+                    return 0
+                else:
+                    self.set_ctx_state('deregister', {"error": "one or more scripts were not found"})
+                    return c_api.PM_ERR_BADSTORE
             elif item == Consts.Control.Start:
-                self.logger.info("start script again")
                 cluster = self.find_cluster_by_name(val)
                 if not cluster:
                     self.set_ctx_state('start', {"error": "script not found"})
