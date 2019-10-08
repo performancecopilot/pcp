@@ -70,8 +70,7 @@ class BPFtracePMDA(PMDA):
 
         @atexit.register
         def cleanup():  # pylint: disable=unused-variable
-            if not self.is_pmda_setup:
-                self.logger.info("Cleanup...")
+            if not self.is_pmda_setup():
                 self.bpftrace_service.stop_daemon()
 
     def is_pmda_setup(self):
@@ -162,9 +161,11 @@ class BPFtracePMDA(PMDA):
             del self.ctxtab[ctx][key]
         return value
 
+    def get_current_username(self):
+        return self.get_ctx_state('username', default='anonymous')
+
     def attribute_callback(self, ctx, attr, value):
         if attr == cpmda.PMDA_ATTR_USERNAME:
-            self.log("username"+value)
             self.set_ctx_state('username', value)
 
     def label(self, ident: int, type_: int) -> str:
@@ -196,7 +197,7 @@ class BPFtracePMDA(PMDA):
     def register_script(self, code: str):
         """register a new bpftrace script"""
         script = Script(code)
-        script.username = self.get_ctx_state('username', default='anonymous')
+        script.username = self.get_current_username()
         script = self.bpftrace_service.register_script(script)
         self.set_ctx_state('register', script)
         if script.state.status == Status.Error:
@@ -225,7 +226,7 @@ class BPFtracePMDA(PMDA):
     def store_callback(self, cluster: int, item: int, inst: int, val: str):
         """PMDA store callback"""
         if cluster == Consts.Control.Cluster:
-            username = self.get_ctx_state('username', default='anonymous')
+            username = self.get_current_username()
             if username not in self.config.allowed_users:
                 return c_api.PM_ERR_PERMISSION
 

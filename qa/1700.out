@@ -171,3 +171,4 @@ bpftrace ... done
 Updating the PMCD control file, and notifying PMCD ...
 [...removing files...]
 Check bpftrace metrics have gone away ... OK
+manager: shutdown pmdabpftrace process manager
