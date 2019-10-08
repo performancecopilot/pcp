@@ -25,6 +25,16 @@ signal=$PCP_BINADM_DIR/pmsignal
 username=`id -u -n`
 $sudo rm -rf $tmp.* $seq.full
 
+# cull these "first time ever run" warnings ...
+# [Wed Oct  9 09:07:50] pmdahaproxy(29369) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/145.0: empty file?
+#
+install_filter()
+{
+    sed \
+	-e '/Error: pmdaCacheOp: .* empty file?/d' \
+    # end
+}
+
 pmda_filter()
 {
     sed \
@@ -61,7 +71,7 @@ EOF
     echo
     echo "=== haproxy agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
-    cat $tmp.out | _filter_pmda_install
+    cat $tmp.out | _filter_pmda_install | install_filter
 }
 
 pmda_cleanup()
