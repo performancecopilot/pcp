@@ -475,6 +475,8 @@ webgroup_encode_value(sds value, int type, pmAtomValue *atom)
 
     case PM_TYPE_STRING:
     case PM_TYPE_AGGREGATE:
+	if (atom->cp == NULL)
+	    return value;
 	return sdscatlen(value, atom->cp, sdslen(atom->cp));
 
     case PM_TYPE_EVENT:
