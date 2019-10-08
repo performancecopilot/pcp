@@ -42,9 +42,16 @@ $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmda/$domain.$loaded
 
 $sudo ./Install </dev/null \
     | _filter_pmda_install \
-    | sed -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
-    | $PCP_AWK_PROG '
-/Check test_python metrics have appeared/ { if ($10 >= 0 && $10 <= 9) $10 = "N" }
+    | tee -a $here/$seq.full \
+    | sed -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' >$tmp.tmp
+    pminfo -f test_python >>$here/$seq.full 2>&1
+    if grep 'warnings,' <$tmp.tmp >/dev/null
+    then
+	echo "Arrgh: warnings for some metrics ..."
+	pminfo -f test_python
+    fi
+    $PCP_AWK_PROG <$tmp.tmp '
+/Check test_python metrics have appeared/ { if ($(NF-1) >= 0 && $(NF-1) <= 9) $(NF-1) = "N" }
                                           { print }'
 cd $here
 
