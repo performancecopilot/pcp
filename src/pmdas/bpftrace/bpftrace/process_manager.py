@@ -166,12 +166,12 @@ class ProcessManager():
                 self.logger.error(f"start: script {script_id} not found")
                 return
 
-            if script.state == Status.Started:
+            if script.state.status == Status.Started:
                 self.logger.info(f"start: {script} already started")
-            elif script.state == Status.Stopped:
+            elif script.state.status == Status.Stopped:
                 await self.start_bpftrace(self.scripts[script_id], self.script_tasks[script_id])
             else:
-                self.logger.error(f"deregister: invalid state {script.state.status} for {script}")
+                self.logger.error(f"start: invalid state {script.state.status} for {script}")
 
     async def deregister(self, script_id: str):
         script_tasks = self.script_tasks.get(script_id)
