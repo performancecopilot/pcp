@@ -41,8 +41,7 @@ tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
         "pid": "PID"
         "exit_code": 0,
         "error": "",
-        "probes": 0,
-        "data": {        }
+        "probes": 0
     }
 }
 === check metadata metrics ===
@@ -161,11 +160,7 @@ expose all scripts in JSON format
             "pid": "PID"
             "exit_code": 0,
             "error": "",
-            "probes": 2,
-            "data": {
-                "@": <count>,
-                "@scalar": 2
-            }
+            "probes": 2
         }
     }
 ]

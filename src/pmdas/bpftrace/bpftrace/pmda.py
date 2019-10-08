@@ -282,7 +282,7 @@ class BPFtracePMDA(PMDA):
         """PMDA fetch callback"""
         if cluster == Consts.Control.Cluster:
             if item == Consts.Control.Register:
-                json_val = json.dumps(self.get_ctx_state('register', {}, True), cls=ScriptEncoder)
+                json_val = ScriptEncoder(dump_state_data=False).encode(self.get_ctx_state('register', {}, True))
                 return [json_val, 1]
             elif item == Consts.Control.Deregister:
                 json_val = json.dumps(self.get_ctx_state('deregister', {}, True))
@@ -305,7 +305,7 @@ class BPFtracePMDA(PMDA):
                 return [c_api.PM_ERR_INST, 0]
             elif item == Consts.Info.ScriptsJson:
                 scripts = [cluster.script for cluster in self.clusters.values()]
-                return [json.dumps(scripts, cls=ScriptEncoder), 1]
+                return [ScriptEncoder(dump_state_data=False).encode(scripts), 1]
             elif item == Consts.Info.Tracepoints:
                 return [self.tracepoints_csv, 1]
         elif cluster in self.clusters:

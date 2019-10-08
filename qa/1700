@@ -23,8 +23,7 @@ _filter_json()
     sed -E -e 's,"script_id": .*,"script_id": "SCRIPT_ID",g' \
            -e 's,"created_at": .*,"created_at": "CREATED_AT",g' \
            -e 's,"last_accessed_at": .*,"last_accessed_at": "LAST_ACCESSED_AT",g' \
-           -e 's,"pid": .*,"pid": "PID",g' \
-           -e 's,"@": [0-9]+,"@": <count>,g'
+           -e 's,"pid": .*,"pid": "PID",g'
 }
 
 _get_metric_value()

@@ -71,13 +71,22 @@ class Script:
 
 
 class ScriptEncoder(json.JSONEncoder):
+    def __init__(self, *args, dump_state_data=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dump_state_data = dump_state_data
+
     # pylint: disable=arguments-differ,method-hidden
     def default(self, obj):
-        if isinstance(obj, datetime):
+        if isinstance(obj, State) and not self.dump_state_data:
+            state = obj.__dict__.copy()
+            del state["data"]
+            return state
+        elif isinstance(obj, (Script, ScriptMetadata, VariableDefinition, State)):
+            return obj.__dict__
+        elif isinstance(obj, datetime):
             return obj.isoformat()
         else:
-            return obj.__dict__
-        return json.JSONEncoder.default(self, obj)
+            return json.JSONEncoder.default(self, obj)
 
 
 class PMDAConfig:
