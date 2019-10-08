@@ -1,13 +1,12 @@
 from typing import Optional, List
 import multiprocessing
-from .models import Script, PMDAConfig, RuntimeInfo, Logger, Status, BPFtraceError
-from .process_manager import ProcessManagerDaemon
-from .parser import parse_code
+from .models import Script, PMDAConfig, RuntimeInfo, Logger, BPFtraceError
+from .process_manager import ProcessManager
 from .utils import get_bpftrace_version
 
 
 def process_manager_main(config: PMDAConfig, logger: Logger, pipe: multiprocessing.Pipe, runtime_info: RuntimeInfo):
-    ProcessManagerDaemon(config, logger, pipe, runtime_info).run()
+    ProcessManager(config, logger, pipe, runtime_info).run()
 
 
 class BPFtraceService():
@@ -16,6 +15,7 @@ class BPFtraceService():
         self.config = config
         self.logger = logger
         self.pipe, self.child_pipe = multiprocessing.Pipe()
+        self.process = None
 
     def wait_for_response(self, timeout: int, request='?'):
         if self.pipe.poll(timeout):
@@ -40,6 +40,10 @@ class BPFtraceService():
         return runtime_info
 
     def start_daemon(self):
+        if self.process:
+            self.logger.error("pmdabpftrace process manager is already started")
+            return
+
         runtime_info = self.gather_runtime_info()
         self.process = multiprocessing.Process(name="pmdabpftrace process manager",
                                                target=process_manager_main,
@@ -48,37 +52,42 @@ class BPFtraceService():
         self.process.start()
 
     def stop_daemon(self):
+        if not self.process:
+            self.logger.error("pmdabpftrace process manager is already stopped")
+            return
+
         # stops the main loop
         self.pipe.send(None)
 
         # after the main loop is stopped and all pending tasks are completed, ProcessManager sends None over the pipe
         self.pipe.recv()
+        self.process = None
+
+    def send_request(self, request: tuple, wait=None):
+        self.pipe.send(request)
+        if not wait:
+            return None
+
+        if self.pipe.poll(wait):
+            return self.pipe.recv()
+        else:
+            self.logger.error(f"process manager did not reply in {wait} seconds for {request}")
+            return None
 
     def register_script(self, script: Script) -> Script:
-        try:
-            script = parse_code(script)
-        except BPFtraceError as e:
-            script.state.error = str(e)
-            script.state.status = Status.Error
-            return script
-
-        script.state.status = Status.Starting
-        self.pipe.send(('register', script))
-        return script
+        return self.send_request(('register', script), wait=2)
 
     def deregister_script(self, script_id: str):
-        self.pipe.send(('deregister', script_id))
+        return self.send_request(('deregister', script_id))
 
     def start_script(self, script_id: str):
-        self.pipe.send(('start', script_id))
+        return self.send_request(('start', script_id))
 
     def stop_script(self, script_id: str):
-        self.pipe.send(('stop', script_id))
+        return self.send_request(('stop', script_id))
 
-    def refresh_script(self, script_id: str, timeout=2) -> Optional[Script]:
-        self.pipe.send(('refresh', script_id))
-        return self.wait_for_response(timeout, ('refresh', script_id))
+    def refresh_script(self, script_id: str) -> Optional[Script]:
+        return self.send_request(('refresh', script_id), wait=2)
 
-    def list_scripts(self, timeout=2) -> Optional[List[str]]:
-        self.pipe.send(('list_scripts',))
-        return self.wait_for_response(timeout, 'list_scripts')
+    def list_scripts(self) -> Optional[List[str]]:
+        return self.send_request(('list_scripts',), wait=2)

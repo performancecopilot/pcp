@@ -23,7 +23,7 @@ _pmdabpftrace_install
 echo "=== bpftrace script without variabes ==="
 pmstore bpftrace.control.register "// name: test1
 tracepoint:raw_syscalls:sys_enter { }"
-pminfo -f bpftrace.control.register | grep -q "no bpftrace variables or printf statements found, please include at least one variable or print statement in your script" && echo OK
+pminfo -f bpftrace.control.register | grep -q '"error": "no bpftrace variables or printf statements found, please include at least one variable or print statement in your script"' && echo OK
 echo
 
 echo "=== invalid probe ==="
@@ -48,6 +48,14 @@ profile:hz:9999 { printf("test") }'
 pminfo -f bpftrace.control.register >> $here/$seq.full
 _pmdabpftrace_wait_for_value bpftrace.scripts.test4.error "value \"BPFtrace output exceeds limit of 102400 bytes per second\""
 pminfo -f bpftrace.scripts.test4.status
+echo
+
+echo "=== duplicate script name ==="
+pmstore bpftrace.control.register "// name: test5
+tracepoint:raw_syscalls:sys_enter { @x = count() }"
+pmstore bpftrace.control.register "// name: test5
+tracepoint:raw_syscalls:sys_enter { @x = count() }"
+pminfo -f bpftrace.control.register | grep -q '"error": "Script name .* is already in use by another script."' && echo OK
 echo
 
 _pmdabpftrace_remove

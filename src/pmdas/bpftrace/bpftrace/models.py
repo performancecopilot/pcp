@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Optional, List, Dict
 import uuid
 import json
 from datetime import datetime
@@ -26,9 +26,9 @@ class VariableDefinition:
 
 class ScriptMetadata:
     def __init__(self):
-        self.name = None
-        self.include = None
-        self.table_retain_lines = None
+        self.name: Optional[str] = None
+        self.include: Optional[List[str]] = None
+        self.table_retain_lines: Optional[int] = None
 
 
 class Status:
@@ -65,22 +65,28 @@ class Script:
         self.variables: Dict[str, VariableDefinition] = {}
         self.state = State()
 
-    def ident(self) -> str:
-        code_output = self.code
-        if len(code_output) > 80:
-            code_output = code_output[:80-6] + ' [...]'
-        code_output = code_output.replace('\n', '\\n')
-        return f"BPFtrace (code='{code_output}', PID={self.state.pid})"
+    def __str__(self) -> str:
+        pid_str = f" (PID={self.state.pid})" if self.state.pid != -1 else ""
+        return f"script {self.script_id}{pid_str}"
 
 
 class ScriptEncoder(json.JSONEncoder):
-    # pylint:disable=arguments-differ,method-hidden
+    def __init__(self, *args, dump_state_data=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dump_state_data = dump_state_data
+
+    # pylint: disable=arguments-differ,method-hidden
     def default(self, obj):
-        if isinstance(obj, datetime):
+        if isinstance(obj, State) and not self.dump_state_data:
+            state = obj.__dict__.copy()
+            del state["data"]
+            return state
+        elif isinstance(obj, (Script, ScriptMetadata, VariableDefinition, State)):
+            return obj.__dict__
+        elif isinstance(obj, datetime):
             return obj.isoformat()
         else:
-            return obj.__dict__
-        return json.JSONEncoder.default(self, obj)
+            return json.JSONEncoder.default(self, obj)
 
 
 class PMDAConfig:

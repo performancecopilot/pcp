@@ -37,7 +37,7 @@ def parse_code(script: Script):
                                     f"must be numeric")
 
     all_variables = re.findall(r'(@.*?)' +  # variable
-                               r'(\[.+?\])?' +  # optional map key
+                               r'(?:\[(.+?)\])?' +  # optional map key
                                r'\s*=\s*' +  # assignment
                                r'(?:([a-zA-Z]\w*)\s*\()?',  # optional function
                                script.code)
