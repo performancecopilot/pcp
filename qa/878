@@ -145,6 +145,10 @@ pmdapipe_install
 # and setup states.
 if pminfo -v pipe > $tmp.info 2> $tmp.err
 then
+    echo "--- pminfo stdout ---" >>$here/$seq.full
+    cat $tmp.info >>$here/$seq.full
+    echo "--- pminfo stderr ---" >>$here/$seq.full
+    cat $tmp.err >>$here/$seq.full
     cat $tmp.info $tmp.err | _filter_pipe
     _exercise_pipe
 else

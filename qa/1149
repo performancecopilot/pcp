@@ -1,0 +1,64 @@
+#!/bin/sh
+# PCP QA Test No. 1149
+# PDUBuf mem leak in pmlogrewrite?
+#
+# Copyright (c) 2019 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    echo "Expect no buffers to be reported ..."
+    tee -a $seq.full \
+    | $PCP_AWK_PROG '
+BEGIN				{ want=0 }
+/^__pmFindPDUBuf\(DEBUG\)/	{ want=1 }
+want == 1			{ print }' \
+    | sed -e 's/)\(:*\) /)\1#/g' \
+    | tr '#' '\012'
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+# reuse the 1st logrewriting case from qa/490
+#
+cat <<End-of-File >$tmp.conf
+global {
+    hostname -> whizz-bang.engr.sgi.com
+    TZ -> "GMT+10"
+    Time -> +30
+}
+indom 1.5 {
+    indom -> 42.10
+    iname "15 minute" -> "forever"
+    iname "1 minute" -> "1 minute is not very long unlike this string"
+    inst 15 -> 9999
+}
+metric 1.*.* { pmid -> 42.*.* }
+metric irix.kernel.all.load { name->load type->double }
+metric hinv.ncpu { name->hinv.number_of_cpus type->U64 }
+End-of-File
+rm -f $tmp.new.*
+cat $tmp.conf >>$seq.full
+pmlogrewrite -Dpdubuf -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+
+# success, all done
+status=0
+exit
