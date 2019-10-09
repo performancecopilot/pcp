@@ -766,6 +766,8 @@ setup_http_module(struct proxy *proxy)
 void
 close_http_module(struct proxy *proxy)
 {
-    /* no extra HTTP shutdown steps needed */
-    (void)proxy;
+    struct servlet	*servlet;
+
+    for (servlet = proxy->servlets; servlet != NULL; servlet = servlet->next)
+	servlet->close();
 }

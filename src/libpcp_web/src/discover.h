@@ -100,6 +100,7 @@ extern void pmSeriesDiscoverText(pmDiscoverEvent *,
  */
 typedef struct discoverModuleData {
     unsigned int		handle;		/* callbacks context handle */
+    unsigned int		shareslots;	/* boolean, sharing 'slots' */
     sds				logname;	/* archive directory dirname */
     mmv_registry_t		*metrics;	/* registry of metrics */
     struct dict			*config;	/* configuration dict */
