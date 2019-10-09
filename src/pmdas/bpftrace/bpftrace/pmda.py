@@ -265,7 +265,7 @@ class BPFtracePMDA(PMDA):
     def sync_scripts_with_process_manager(self):
         # expiration timer may have removed idle scripts
         script_ids = self.bpftrace_service.list_scripts()
-        if not script_ids:
+        if script_ids is None:
             return
 
         changed = False
