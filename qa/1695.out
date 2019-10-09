@@ -11,8 +11,8 @@ pmproxy: PID = PID
 pmproxy request port(s):
   sts fd   port  family address
   === ==== ===== ====== =======
-ok FD 54323 inet INADDR_ANY
-ok FD 54323 ipv6 INADDR_ANY
+ok FD PORT inet INADDR_ANY
+ok FD PORT ipv6 INADDR_ANY
 [DATE] pmproxy(PID) Info: pmproxy caught SIGTERM
 [DATE] pmproxy(PID) Info: pmproxy Shutdown
 

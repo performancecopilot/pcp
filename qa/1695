@@ -34,8 +34,13 @@ pcp.enabled = true
 http.enabled = true
 EOF
 
-# real QA test starts here
 port=`_find_free_port`
+_filter_port()
+{
+    sed -e "s/ FD $port / FD PORT /g"
+}
+
+# real QA test starts here
 export PCP_RUN_DIR=/tmp
 $_valgrind_clean_assert pmproxy -f -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!
@@ -66,7 +71,7 @@ echo "=== valgrind stdout ===" | tee -a $seq.full
 cat $tmp.valout | _filter_valgrind
 
 echo "=== valgrind stderr ===" | tee -a $seq.full
-cat $tmp.valerr | _filter_pmproxy_log
+cat $tmp.valerr | _filter_pmproxy_log | _filter_port
 
 # success, all done
 status=0

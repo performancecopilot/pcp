@@ -81,6 +81,7 @@ on_server_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 	buffer = sdsnewlen(buf->base, nread);
 	client_write(client, buffer, NULL);
     }
+    sdsfree(buf->base);
 }
 
 void
