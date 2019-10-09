@@ -876,7 +876,8 @@ pmwebapi_done(uv_work_t *work, int status)
 			baton->client, status);
 
     /* avoid double-free - client->baton reverse pointer is going away */
-    baton->client->u.http.data = NULL;
+    if (baton->client)
+	baton->client->u.http.data = NULL;
     pmwebapi_free_baton(baton);
 }
 
