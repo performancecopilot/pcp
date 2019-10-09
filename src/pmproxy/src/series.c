@@ -93,10 +93,13 @@ pmseries_lookup_restkey(sds url)
 }
 
 static void
-pmseries_free_baton(struct client *client, pmSeriesBaton *baton)
+pmseries_data_release(struct client *client)
 {
+    pmSeriesBaton	*baton = (pmSeriesBaton *)client->u.http.data;
+
     if (pmDebugOptions.http)
-	fprintf(stderr, "pmseries_free_baton %p for client %p\n", baton, client);
+	fprintf(stderr, "%s: %p for client %p\n", "pmseries_data_release",
+			baton, client);
 
     sdsfree(baton->sid);
     sdsfree(baton->info);
@@ -104,6 +107,7 @@ pmseries_free_baton(struct client *client, pmSeriesBaton *baton)
     sdsfree(baton->suffix);
     sdsfree(baton->clientid);
     memset(baton, 0, sizeof(*baton));
+    free(baton);
 }
 
 /*
@@ -505,8 +509,6 @@ on_pmseries_done(int status, void *arg)
 	flags |= HTTP_FLAG_JSON;
     }
     http_reply(client, msg, code, flags);
-
-    pmseries_free_baton(client, baton);
 }
 
 static void
@@ -658,15 +660,14 @@ pmseries_request_url(struct client *client, sds url, dict *parameters)
     if ((key = pmseries_lookup_restkey(url)) == RESTKEY_NONE)
 	return 0;
 
-    if ((baton = client->u.http.data) == NULL) {
-	if ((baton = calloc(1, sizeof(*baton))) == NULL)
-	    client->u.http.parser.status_code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
+    if ((baton = realloc(client->u.http.data, sizeof(*baton))) != NULL) {
+	memset(baton, 0, sizeof(*baton));
 	client->u.http.data = baton;
-    }
-    if (baton) {
 	baton->client = client;
 	baton->restkey = key;
 	pmseries_setup_request_parameters(client, baton, parameters);
+    } else {
+	client->u.http.parser.status_code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
     }
     return 1;
 }
@@ -748,7 +749,6 @@ pmseries_request_load(struct client *client, pmSeriesBaton *baton)
     if (baton->query == NULL) {
 	message = sdsnewlen(failed, sizeof(failed) - 1);
 	http_reply(client, message, HTTP_STATUS_BAD_REQUEST, HTTP_FLAG_JSON);
-	pmseries_free_baton(client, baton);
     } else if (baton->working) {
 	message = sdsnewlen(loading, sizeof(loading) - 1);
 	http_reply(client, message, HTTP_STATUS_CONFLICT, HTTP_FLAG_JSON);
@@ -884,4 +884,5 @@ struct servlet pmseries_servlet = {
     .on_headers		= pmseries_request_headers,
     .on_body		= pmseries_request_body,
     .on_done		= pmseries_request_done,
+    .on_release		= pmseries_data_release,
 };

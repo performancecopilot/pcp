@@ -68,6 +68,7 @@ typedef int (*httpHeadersCallBack)(struct client *, struct dict *);
 typedef int (*httpUrlCallBack)(struct client *, sds, struct dict *);
 typedef int (*httpBodyCallBack)(struct client *, const char *, size_t);
 typedef int (*httpDoneCallBack)(struct client *);
+typedef void (*httpReleaseCallBack)(struct client *);
 
 typedef struct servlet {
     const char * const	name;
@@ -78,6 +79,7 @@ typedef struct servlet {
     httpHeadersCallBack	on_headers;
     httpBodyCallBack	on_body;
     httpDoneCallBack	on_done;
+    httpReleaseCallBack	on_release;
 } servlet;
 
 extern struct servlet pmseries_servlet;
