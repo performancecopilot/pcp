@@ -397,8 +397,8 @@ http_transfer(struct client *client)
 	    client_write(client, buffer, suffix);
 
 	} else if (parser->http_major <= 1) {
-	    buffer = sdsnew("HTTP 1.0 request result exceeds server limits");
-	    http_error(client, HTTP_STATUS_PAYLOAD_TOO_LARGE, buffer);
+	    http_error(client, HTTP_STATUS_PAYLOAD_TOO_LARGE,
+			"HTTP 1.0 request result exceeds server limits");
 	}
     }
 }
@@ -531,7 +531,6 @@ on_url(http_parser *request, const char *offset, size_t length)
 {
     struct client	*client = (struct client *)request->data;
     struct servlet	*servlet;
-    sds			result;
     int			sts;
 
     if ((servlet = servlet_lookup(client, offset, length)) != NULL) {
@@ -540,12 +539,11 @@ on_url(http_parser *request, const char *offset, size_t length)
 	    client->u.http.headers = dictCreate(&sdsOwnDictCallBacks, NULL);
 	    return 0;
 	}
-	result = sdsnew("failed to process URL");
+	http_error(client, sts, "failed to process URL");
     } else {
 	sts = client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
-	result = sdsnew("no handler for URL");
+	http_error(client, sts, "no handler for URL");
     }
-    http_error(client, sts, result);
     return 0;
 }
 
