@@ -478,7 +478,7 @@ cgroup.subsys.enabled
 cgroup.subsys.hierarchy
 cgroup.subsys.num_cgroups
 
-and 5356 instance values.
+and 5114 instance values.
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector

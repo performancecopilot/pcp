@@ -47,6 +47,7 @@ do
     echo "== Checking namespace and metric numbering - $base"
     pminfo -L -K clear -K add,3,$pmda cgroup \
     | LC_COLLATE=POSIX sort \
+    | grep -v cgroup.cpuacct.stat \
     | tee $tmp.names
     echo "== Checking metric descriptors and values - $base"
     for metric in `cat $tmp.names`
