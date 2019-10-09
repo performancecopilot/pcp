@@ -2050,7 +2050,7 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     && pcp_selinux_cap2_syslog=true
 
     seinfo -x --class=icmp_socket $seinfo_common_flag 2>/dev/null \
-    | grep '^[[ 	]][[ 	]]*syslog$' >/dev/null \
+    | grep '^[[ 	]][[ 	]]*class icmp_socket$' >/dev/null \
     && pcp_selinux_icmp_socket=true
 ])
 AC_SUBST(pcp_selinux_cap_userns_ptrace)
