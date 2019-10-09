@@ -48,7 +48,7 @@ _log_filter()
 
 _value_filter()
 {
-    awk '/pmcd::PMCD_PDU/ && /value [1-9]\d*/ {print "OK"; exit}'
+    awk '/pmcd::PMCD_PDU/ && /value [1-9][0-9]*/ {print "OK"; exit}'
 }
 
 _prepare_pmda bcc

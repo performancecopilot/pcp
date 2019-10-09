@@ -902,7 +902,7 @@ _instances_filter_any()
 
 _instances_filter_nonzero()
 {
-    awk '/value [1-9]\d*/ {print "OK"; exit}'
+    awk '/value [1-9][0-9]*/ {print "OK"; exit}'
 }
 
 _instances_filter_exact()

@@ -20,11 +20,6 @@ $sudo rm -rf $tmp.* $seq.full
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
 out_file="$PCP_TMPFILE_DIR/pcp-qa-$seq" # block device required here (no tmpfs)
 
-_value_filter()
-{
-    awk '/value [1-9]\d*/ {print "OK"; exit}'
-}
-
 _label_filter()
 {
     grep '"0-1"' | grep '"statistic":"histogram"' | grep '"lower_bound":0' | grep 'upper_bound":1' > /dev/null && echo 'OK'
@@ -57,7 +52,7 @@ dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>$here/$se
 
 echo "=== report metric values ==="
 pminfo -dfmtT bcc.disk.all.latency 2>&1 | tee -a $here/$seq.full \
-| _value_filter
+| _instances_filter_nonzero
 
 echo "=== check metric labels ==="
 pminfo -l bcc.disk.all.latency 2>&1 | tee -a $here/$seq.full \

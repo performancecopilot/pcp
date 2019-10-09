@@ -137,11 +137,11 @@ echo && echo "=== pmproxy with authentication (expect success) ==="
 curl -s --user $username:y "http://localhost:44322/pmapi/context" | pmjson | _filter_json
 
 echo && echo "=== state without authentication ==="
-ctx_no_auth=`curl -s "http://localhost:44322/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+ctx_no_auth=`curl -s "http://localhost:44322/pmapi/context" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
 curl -s "http://localhost:44322/pmapi/$ctx_no_auth/fetch?names=test_python.current_username" | pmjson | grep '"value"' | _filter_ctx
 
 echo && echo "=== state with authentication ==="
-ctx_with_auth=`curl -s --user $username:y "http://localhost:44322/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+ctx_with_auth=`curl -s --user $username:y "http://localhost:44322/pmapi/context" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
 curl -s "http://localhost:44322/pmapi/$ctx_with_auth/fetch?names=test_python.current_username" | pmjson | grep '"value"' | _filter_ctx
 
 echo && echo "=== verify with pminfo (expect error) ==="

@@ -20,11 +20,6 @@ status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 
-_value_filter()
-{
-    awk '/value [1-9]\d*/ {print "OK"; exit}'
-}
-
 _prepare_pmda bcc
 trap "_unmount_filesystem xfs; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
@@ -51,19 +46,19 @@ dd if=${out_file} of=/dev/null bs=${write_size} count=1 2>/dev/null
 
 echo "=== report metric values for open ==="
 pminfo -dfmtT bcc.fs.xfs.latency.open 2>&1 | tee -a $here/$seq.full \
-| _value_filter
+| _instances_filter_nonzero
 
 echo "=== report metric values for read ==="
 pminfo -dfmtT bcc.fs.xfs.latency.read 2>&1 | tee -a $here/$seq.full \
-| _value_filter
+| _instances_filter_nonzero
 
 echo "=== report metric values for write ==="
 pminfo -dfmtT bcc.fs.xfs.latency.write 2>&1 | tee -a $here/$seq.full \
-| _value_filter
+| _instances_filter_nonzero
 
 echo "=== report metric values for fsync ==="
 pminfo -dfmtT bcc.fs.xfs.latency.fsync 2>&1 | tee -a $here/$seq.full \
-| _value_filter
+| _instances_filter_nonzero
 
 _pmdabcc_remove
 

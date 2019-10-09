@@ -67,12 +67,12 @@ $sudo ./Install </dev/null \
 cd $here
 
 echo Getting contexts...
-ctx1=`curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
-ctx2=`curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
-ctx3=`curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
-ctx4=`curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
-ctx5=`curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
-ctx6=`curl -s "http://localhost:$port/pmapi/context" | python -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+ctx1=`curl -s "http://localhost:$port/pmapi/context" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+ctx2=`curl -s "http://localhost:$port/pmapi/context" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+ctx3=`curl -s "http://localhost:$port/pmapi/context" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+ctx4=`curl -s "http://localhost:$port/pmapi/context" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+ctx5=`curl -s "http://localhost:$port/pmapi/context" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+ctx6=`curl -s "http://localhost:$port/pmapi/context" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
 echo
 
 echo Retrieving values...
