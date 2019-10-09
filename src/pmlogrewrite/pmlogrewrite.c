@@ -1965,6 +1965,11 @@ main(int argc, char **argv)
 	_pmLogRemove(bak_base, -1);
     }
 
+    if (pmDebugOptions.pdubuf) {
+	/* dump PDU buffer state ... looking for mem leaks here */
+	(void)__pmFindPDUBuf(-1);
+    }
+
     exit(0);
 }
 
