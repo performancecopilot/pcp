@@ -44,9 +44,9 @@ echo
 
 echo "=== too much output ==="
 pmstore bpftrace.control.register '// name: test4
-profile:hz:9999 { printf("test") }'
+profile:hz:9999 { @[kstack,ustack,kstack,ustack] = count(); }'
 pminfo -f bpftrace.control.register >> $here/$seq.full
-_pmdabpftrace_wait_for_value bpftrace.scripts.test4.error "value \"BPFtrace output exceeds limit of 102400 bytes per second\""
+_pmdabpftrace_wait_for_value bpftrace.scripts.test4.error "value \"BPFtrace output exceeds limit of [0-9]* bytes per second\""
 pminfo -f bpftrace.scripts.test4.status
 echo
 

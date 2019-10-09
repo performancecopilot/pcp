@@ -30,8 +30,8 @@ bpftrace.scripts.test3.exit_code
 
 === too much output ===
 bpftrace.control.register old value="{}" new value="// name: test4
-profile:hz:9999 { printf("test") }"
-found metric bpftrace.scripts.test4.error matching "value "BPFtrace output exceeds limit of 102400 bytes per second""
+profile:hz:9999 { @[kstack,ustack,kstack,ustack] = count(); }"
+found metric bpftrace.scripts.test4.error matching "value "BPFtrace output exceeds limit of [0-9]* bytes per second""
 
 bpftrace.scripts.test4.status
     value "error"
