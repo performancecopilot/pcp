@@ -6143,6 +6143,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     net_addr_t		*addrp;
     net_interface_t	*netip;
     scsi_entry_t	*scsi_entry;
+    char		*name;
 
     if (mdesc->m_user != NULL) {
 	/* 
@@ -7378,14 +7379,14 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_SYSFS_DEVICES:
 	switch (item) {
 	case 0: /* hinv.cpu.online */
-	    if (pmdaCacheLookup(INDOM(CPU_INDOM), inst, NULL, NULL) < 0)
+	    if (pmdaCacheLookup(INDOM(CPU_INDOM), inst, &name, NULL) < 0)
 		return PM_ERR_INST;
-	    atom->ul = refresh_sysfs_online(inst, "cpu");
+	    atom->ul = refresh_sysfs_online(name, "cpu");
 	    break;
 	case 1: /* hinv.node.online */
-	    if (pmdaCacheLookup(INDOM(NODE_INDOM), inst, NULL, NULL) < 0)
+	    if (pmdaCacheLookup(INDOM(NODE_INDOM), inst, &name, NULL) < 0)
 		return PM_ERR_INST;
-	    atom->ul = refresh_sysfs_online(inst, "node");
+	    atom->ul = refresh_sysfs_online(name, "node");
 	    break;
 
 	default:

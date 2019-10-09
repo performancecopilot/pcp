@@ -286,7 +286,8 @@ typedef struct {
 } pernode_t;
 
 typedef struct {
-    unsigned int	cpuid;
+    unsigned int	cpuid;  /* cpu%d instance name */
+    unsigned int	instid; /* internal instance id */
     pernode_t		*node;
     char		*name;
     cpuacct_t		stat;
