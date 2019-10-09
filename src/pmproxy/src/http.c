@@ -678,10 +678,17 @@ on_message_complete(http_parser *request)
 void
 on_http_client_close(struct client *client)
 {
+    if (pmDebugOptions.http)
+	fprintf(stderr, "HTTP client close (client=%p)\n", client);
     if (client->u.http.headers)
 	dictRelease(client->u.http.headers);
     if (client->u.http.parameters)
 	dictRelease(client->u.http.parameters);
+
+    sdsfree(client->u.http.username);
+    sdsfree(client->u.http.password);
+    sdsfree(client->u.http.realm);
+
     memset(&client->u.http, 0, sizeof(client->u.http));
 }
 
