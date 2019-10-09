@@ -5,6 +5,7 @@ import sys
 import socket
 
 skt = sys.argv[1]
+os.system('mkdir -p %s' % os.path.dirname(skt))
 
 info = '''Name: QAProxy
 Version: 1.7.6

@@ -19,6 +19,7 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 eval `$PCP_PYTHON_PROG $PCP_PMDAS_DIR/haproxy/connect --config`
 [ -n "$user" ] || _notrun "haproxy PMDA's connect script failed to set \$user"
 [ -n "$socket" ] || _notrun "haproxy PMDA's connect script failed to set \$socket"
+[ -S $socket ] && _notrun "haproxy stats socket already exists; haproxy service running?"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
@@ -59,7 +60,7 @@ pmda_install()
     cat <<EOF >$tmp.config
 [pmda]
 user = $username
-socket = $tmp.stats
+socket = $socket
 EOF
     echo "pmdahaproxy config:" >> $here/$seq.full
     cat $tmp.config >> $here/$seq.full
@@ -88,15 +89,15 @@ pmda_cleanup()
 }
 
 _prepare_pmda haproxy
-trap "pmda_cleanup; exit \$status" 0 1 2 3 15
+trap "pmda_cleanup; rm -f $socket; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 
 # real QA test starts here
-rm -f $tmp.stats
-$python $here/haproxy/haproxy_stats_server.python $tmp.stats &
+$python $here/haproxy/haproxy_stats_server.python $socket &
 spid=$!
 pmsleep 0.5	# give server a chance to start
+chcon -t haproxy_var_lib_t $socket >/dev/null 2>&1 || :
 pmda_install
 echo
 
