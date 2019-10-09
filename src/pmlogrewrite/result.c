@@ -688,7 +688,12 @@ do_result(void)
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	/* do not free inarch.logrec ... this is a libpcp PDU buffer */
+	/*
+	 * do not free inarch.logrec ... this is a libpcp PDU buffer,
+	 * so Unpin it
+	 */
+	__pmUnpinPDUBuf(inarch.logrec);
+	
 	if (pmDebugOptions.appl0) {
 	    struct timeval	stamp;
 	    fprintf(stderr, "Log: write ");

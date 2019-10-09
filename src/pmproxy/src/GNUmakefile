@@ -28,11 +28,11 @@ LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
 SERVLETS = series.c webapi.c
 CFILES += openmetrics.c server.c http.c pcp.c redis.c $(SERVLETS)
 HFILES += openmetrics.h server.h http.h pcp.h
-endif
 ifeq "$(HAVE_OPENSSL)" "true"
 LCFLAGS += $(OPENSSLCFLAGS) -DHAVE_OPENSSL=1
 LDFLAGS += $(LIB_FOR_OPENSSL)
 CFILES += secure.c
+endif
 endif
 CFILES += deprecated.c
 

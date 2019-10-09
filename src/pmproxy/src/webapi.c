@@ -117,8 +117,16 @@ pmwebapi_lookup_restkey(sds url, unsigned int *compat, sds *context)
 }
 
 static void
-pmwebapi_free_baton(pmWebGroupBaton *baton)
+pmwebapi_data_release(struct client *client)
 {
+    pmWebGroupBaton	*baton = (pmWebGroupBaton *)client->u.http.data;
+
+    if (pmDebugOptions.http)
+	fprintf(stderr, "%s: %p for client %p\n", "pmwebapi_data_release",
+			baton, client);
+
+    assert(!baton->working);
+
     sdsfree(baton->suffix);
     sdsfree(baton->context);
     if (baton->clientid)
@@ -757,22 +765,17 @@ pmwebapi_request_url(struct client *client, sds url, dict *parameters)
     if ((key = pmwebapi_lookup_restkey(url, &compat, &context)) == RESTKEY_NONE)
 	return 0;
 
-    if ((baton = client->u.http.data) == NULL) {
-	if ((baton = calloc(1, sizeof(*baton))) == NULL)
-	    client->u.http.parser.status_code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
+    if ((baton = realloc(client->u.http.data, sizeof(*baton))) != NULL) {
+	memset(baton, 0, sizeof(*baton));
 	client->u.http.data = baton;
-    }
-    if (baton && !baton->working) {
+	baton->client = client;
 	baton->restkey = key;
 	baton->compat = compat;
-	baton->client = client;
-	baton->params = client->u.http.parameters;
 	baton->context = context;
+	baton->params = client->u.http.parameters;
 	pmwebapi_setup_request_parameters(client, baton, parameters);
-    } else if (baton && baton->working) {
-	client->u.http.parser.status_code = HTTP_STATUS_CONFLICT;
     } else {
-	client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	client->u.http.parser.status_code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
     }
     return 1;
 }
@@ -872,10 +875,10 @@ pmwebapi_done(uv_work_t *work, int status)
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)work->data;
 
     if (pmDebugOptions.series)
-	fprintf(stderr, "%s: client=%p (sts=%d)\n", "pmwebapi_done",
-			baton->client, status);
+	fprintf(stderr, "%s: client=%p baton=%p (sts=%d)\n", "pmwebapi_done",
+			baton->client, baton, status);
 
-    pmwebapi_free_baton(baton);
+    baton->working = 0;
 }
 
 static int
@@ -887,6 +890,7 @@ pmwebapi_request_done(struct client *client)
     /* submit command request to worker thread */
     baton->working = 1;
     baton->worker.data = baton;
+
     switch (baton->restkey) {
     case RESTKEY_CONTEXT:
 	uv_queue_work(loop, &baton->worker, pmwebapi_context, pmwebapi_done);
@@ -967,4 +971,5 @@ struct servlet pmwebapi_servlet = {
     .on_url		= pmwebapi_request_url,
     .on_body		= pmwebapi_request_body,
     .on_done		= pmwebapi_request_done,
+    .on_release		= pmwebapi_data_release,
 };

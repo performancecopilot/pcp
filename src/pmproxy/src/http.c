@@ -678,8 +678,14 @@ on_message_complete(http_parser *request)
 void
 on_http_client_close(struct client *client)
 {
+    struct servlet	*servlet = client->u.http.servlet;
+
     if (pmDebugOptions.http)
 	fprintf(stderr, "HTTP client close (client=%p)\n", client);
+
+    if (servlet && servlet->on_release)
+	servlet->on_release(client);
+
     if (client->u.http.headers)
 	dictRelease(client->u.http.headers);
     if (client->u.http.parameters)
