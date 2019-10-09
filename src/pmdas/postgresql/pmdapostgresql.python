@@ -750,7 +750,7 @@ class POSTGRESQLPMDA(PMDA):
             retries += 1
             if retries > 5:
                 self.log("FATAL: failed to connect after 5 retries")
-                exit(1)
+                sys.exit(1)
 
         cur = self.pg_cursor()
         cur.execute('SELECT version()')
