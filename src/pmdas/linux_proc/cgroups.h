@@ -320,7 +320,7 @@ enum {
  * General cgroup interfaces
  */
 typedef void (*cgroup_setup_t)(void);
-typedef void (*cgroup_refresh_t)(const char *, const char *);
+typedef void (*cgroup_refresh_t)(const char *, char *);
 extern void refresh_cgroups(const char *, const char *, int,
 			    cgroup_setup_t, cgroup_refresh_t);
 extern char *cgroup_find_subsys(pmInDom, filesys_t *);
@@ -340,11 +340,11 @@ extern void setup_cpusched(void);
 extern void setup_memory(void);
 extern void setup_netcls(void);
 extern void setup_blkio(void);
-extern void refresh_cpuset(const char *, const char *);
-extern void refresh_cpuacct(const char *, const char *);
-extern void refresh_cpusched(const char *, const char *);
-extern void refresh_memory(const char *, const char *);
-extern void refresh_netcls(const char *, const char *);
-extern void refresh_blkio(const char *, const char *);
+extern void refresh_cpuset(const char *, char *);
+extern void refresh_cpuacct(const char *, char *);
+extern void refresh_cpusched(const char *, char *);
+extern void refresh_memory(const char *, char *);
+extern void refresh_netcls(const char *, char *);
+extern void refresh_blkio(const char *, char *);
 
 #endif /* _CGROUP_H */
