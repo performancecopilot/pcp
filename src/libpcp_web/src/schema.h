@@ -156,6 +156,7 @@ typedef struct seriesModuleData {
     struct dict		*config;
     uv_loop_t		*events;
     redisSlots		*slots;
+    unsigned int	shareslots;
 } seriesModuleData;
 
 extern seriesModuleData *getSeriesModuleData(pmSeriesModule *);

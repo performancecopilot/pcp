@@ -1643,6 +1643,7 @@ pmSeriesSetSlots(pmSeriesModule *module, void *slots)
 
     if (data) {
 	data->slots = (redisSlots *)slots;
+	data->shareslots = 1;
 	return 0;
     }
     return -ENOMEM;
@@ -1735,11 +1736,13 @@ pmSeriesSetup(pmSeriesModule *module, void *arg)
     /* fast path for when Redis has been setup already */
     if (data->slots) {
 	module->on_setup(arg);
+	data->shareslots = 1;
     } else {
 	/* establish an initial connection to Redis instance(s) */
 	data->slots = redisSlotsConnect(
 			data->config, SLOTS_VERSION, module->on_info,
 			module->on_setup, arg, data->events, arg);
+	data->shareslots = 0;
     }
     return 0;
 }
@@ -1750,7 +1753,8 @@ pmSeriesClose(pmSeriesModule *module)
     seriesModuleData	*data = (seriesModuleData *)module->privdata;
 
     if (data) {
-	redisSlotsFree(data->slots);
+	if (!data->shareslots)
+	    redisSlotsFree(data->slots);
 	memset(data, 0, sizeof(seriesModuleData));
 	free(data);
     }
@@ -1771,6 +1775,7 @@ pmDiscoverSetSlots(pmDiscoverModule *module, void *slots)
 
     if (data) {
 	data->slots = (redisSlots *)slots;
+	data->shareslots = 1;
 	return 0;
     }
     return -ENOMEM;
@@ -1862,6 +1867,8 @@ pmDiscoverClose(pmDiscoverModule *module)
 
     if (discover) {
 	pmDiscoverUnregister(discover->handle);
+	if (!discover->shareslots)
+	    redisSlotsFree(discover->slots);
 	memset(discover, 0, sizeof(*discover));
 	free(discover);
     }

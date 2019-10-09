@@ -854,6 +854,8 @@ pmseries_servlet_setup(struct proxy *proxy)
 static void
 pmseries_servlet_close(void)
 {
+    pmSeriesClose(&pmseries_settings.module);
+
     sdsfree(PARAM_EXPR);
     sdsfree(PARAM_MATCH);
     sdsfree(PARAM_SERIES);

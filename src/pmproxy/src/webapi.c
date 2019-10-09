@@ -949,6 +949,8 @@ pmwebapi_servlet_setup(struct proxy *proxy)
 static void
 pmwebapi_servlet_close(void)
 {
+    pmWebGroupClose(&pmwebapi_settings.module);
+
     sdsfree(PARAM_NAMES);
     sdsfree(PARAM_NAME);
     sdsfree(PARAM_PMIDS);

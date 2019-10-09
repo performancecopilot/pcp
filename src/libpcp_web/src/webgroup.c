@@ -2066,4 +2066,30 @@ pmWebGroupClose(pmWebGroupModule *module)
 	memset(groups, 0, sizeof(struct webgroups));
 	free(groups);
     }
+
+    sdsfree(PARAM_HOSTNAME);
+    sdsfree(PARAM_HOSTSPEC);
+    sdsfree(PARAM_CTXNUM);
+    sdsfree(PARAM_CTXID);
+    sdsfree(PARAM_POLLTIME);
+    sdsfree(PARAM_PREFIX);
+    sdsfree(PARAM_MNAMES);
+    sdsfree(PARAM_PMIDS);
+    sdsfree(PARAM_PMID);
+    sdsfree(PARAM_INDOM);
+    sdsfree(PARAM_MNAME);
+    sdsfree(PARAM_INSTANCE);
+    sdsfree(PARAM_INAME);
+    sdsfree(PARAM_MVALUE);
+    sdsfree(PARAM_TARGET);
+    sdsfree(PARAM_EXPR);
+    sdsfree(PARAM_MATCH);
+
+    /* generally needed strings, error messages */
+    sdsfree(EMPTYSTRING);
+    sdsfree(LOCALHOST);
+    sdsfree(TIMEOUT);
+    sdsfree(BATCHSIZE);
+    sdsfree(AUTH_USERNAME);
+    sdsfree(AUTH_PASSWORD);
 }
