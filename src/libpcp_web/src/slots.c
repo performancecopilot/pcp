@@ -157,6 +157,7 @@ redisSlotsClear(redisSlots *pool)
 	range = *(redisSlotRange **)root;
 	tdelete(range, &root, slotsCompare);
 	redisSlotRangeClear(pool, range);
+	free(range);
     }
     pool->slots = NULL;
     pool->nslots = 0;

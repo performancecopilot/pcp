@@ -807,6 +807,8 @@ redisFree(redisContext *c)
         free(c->unix_sock.path);
     if (c->timeout)
         free(c->timeout);
+    if (c->saddr)
+        free(c->saddr);
     if (c->ssl)
         redisFreeSsl(c->ssl);
     memset(c, 0, sizeof(*c));
@@ -1379,6 +1381,10 @@ __redisAsyncFree(redisAsyncContext *ac)
             ac->onDisconnect(ac, (ac->err == 0) ? REDIS_OK : REDIS_ERR);
         }
     }
+
+    /* Free event lib data */
+    if (ac->ev.data)
+        free(ac->ev.data);
 
     /* Cleanup self */
     redisFree(c);
