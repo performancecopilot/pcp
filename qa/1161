@@ -36,11 +36,11 @@ pmda_filter()
     sed \
 	-e "s/.*Info:/Info:/g" \
 	-e "s/\[.* or /\[X or /g" \
-	-e "s/value 0.*/value OK/g" \
 	-e "s/127.0.0.1,::1/OK/g" \
 	-e "s/::1,127.0.0.1/OK/g" \
 	-e "s/127.0.0.1/OK/g" \
 	-e "s/::1/OK/g" \
+	-e "s,value [0-9]*\.[0-9]*,value OK,g" \
 	-e "s/value \"$LOCALHOST\"/value \"LOCALHOST\"/" \
     #end
 }
