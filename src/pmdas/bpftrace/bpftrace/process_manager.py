@@ -38,12 +38,13 @@ class ProcessManager():
     async def read_bpftrace_stdout(self, script: Script, script_tasks: ScriptTasks):
         read_bytes = 0
         read_bytes_start = time.time()
+        measure_throughput_every = 5 # seconds
 
         try:
             async for line in script_tasks.process.stdout:
                 read_bytes += len(line)
                 now = time.time()
-                if now >= read_bytes_start + 3:
+                if now >= read_bytes_start + measure_throughput_every:
                     throughput = read_bytes / (now - read_bytes_start)
                     if throughput > self.config.max_throughput:
                         raise BPFtraceError(f"BPFtrace output exceeds limit of "
