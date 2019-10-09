@@ -1227,6 +1227,8 @@ _check_series()
 	_notrun "Redis command line utility not installed"
     which redis-server >/dev/null 2>&1 || \
 	_notrun "Redis server utility not installed"
+    redis-cli ping >/dev/null
+    [ $? -eq 0 ] || _notrun "Redis server not running locally"
     eval `redis-cli info server |
 	grep redis_version: |
 	sed -e 's/:/=/g' -e 's/\..*//g'`
