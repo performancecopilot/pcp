@@ -1,0 +1,74 @@
+#!/bin/sh
+# PCP QA Test No. 1696
+# Valgrind pmproxy REST API load testing.
+
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+_check_series
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+username=`id -u -n`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# create a pmproxy configuration
+cat <<EOF > $tmp.conf
+[pmproxy]
+pcp.enabled = true
+http.enabled = true
+EOF
+
+port=`_find_free_port`
+_filter_port()
+{
+    sed -e "s/ FD $port / FD PORT /g"
+}
+
+# real QA test starts here
+export PCP_RUN_DIR=/tmp
+$_valgrind_clean_assert pmproxy -f -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
+pid=$!
+
+# valgrind takes awhile to fire up
+pmsleep 4.5
+
+date >>$seq.full
+echo "=== pmproxy load test ===" | tee -a $seq.full
+./src/pmproxy_load_test.python 100
+
+echo "=== check pmproxy is running ==="
+pminfo -v -h localhost@localhost:$port hinv.ncpu
+if [ $? -eq 0 ]; then
+    echo "pmproxy check passed"
+else
+    echo "pmproxy check failed"
+fi
+
+# valgrind takes awhile to shutdown too
+pmsignal $pid
+pmsleep 3.5
+echo "=== valgrind stdout ===" | tee -a $seq.full
+cat $tmp.valout | _filter_valgrind
+
+echo "=== valgrind stderr ===" | tee -a $seq.full
+cat $tmp.valerr | _filter_pmproxy_log | _filter_port
+
+# success, all done
+status=0
+exit

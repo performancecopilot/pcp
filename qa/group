@@ -1698,6 +1698,7 @@ BAD
 1644 pmda.perfevent local
 1671 multi-archive archive libpcp pmlogextract pmlogcheck pmdumplog local
 1695 pmproxy valgrind local
+1696 pmproxy valgrind local
 1700 pmda.bpftrace local python
 1701 pmda.bpftrace local python
 1702 pmda.bpftrace local python

@@ -1,0 +1,20 @@
+QA output created by 1696
+=== pmproxy load test ===
+Sending 100 /context and /fetch requests...
+Successful responses: 100/100 (100%)
+=== check pmproxy is running ===
+pmproxy check passed
+=== valgrind stdout ===
+=== valgrind stderr ===
+Log for pmproxy on HOST started DATE
+
+pmproxy: PID = PID
+pmproxy request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD PORT inet INADDR_ANY
+ok FD PORT ipv6 INADDR_ANY
+[DATE] pmproxy(PID) Info: pmproxy caught SIGTERM
+[DATE] pmproxy(PID) Info: pmproxy Shutdown
+
+Log finished DATE
