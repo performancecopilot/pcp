@@ -71,7 +71,7 @@ cpu_add(pmInDom cpus, unsigned int cpuid, pernode_t *np)
     cpu->node = np;
     setup_cpu_info(&cpu->info);
     pmsprintf(name, sizeof(name)-1, "cpu%u", cpuid);
-    pmdaCacheStore(cpus, PMDA_CACHE_ADD, name, (void*)cpu);
+    cpu->instid = pmdaCacheStore(cpus, PMDA_CACHE_ADD, name, (void*)cpu);
 }
 
 static pernode_t *

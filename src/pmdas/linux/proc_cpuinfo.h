@@ -19,4 +19,4 @@
  */
 
 extern int refresh_proc_cpuinfo(void);
-extern int refresh_sysfs_online(unsigned int, const char *);
+extern int refresh_sysfs_online(char *, const char *);

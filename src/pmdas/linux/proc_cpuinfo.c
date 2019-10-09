@@ -28,7 +28,7 @@
  * CPU or NUMA node ("node" parameter).
  */
 int
-refresh_sysfs_online(unsigned int node_num, const char *node)
+refresh_sysfs_online(char *instname, const char *node_or_cpu)
 {
     const char *sysfs_path = "sys/devices/system";
     char path[MAXPATHLEN];
@@ -36,8 +36,8 @@ refresh_sysfs_online(unsigned int node_num, const char *node)
     FILE *fp;
     int n;
 
-    pmsprintf(path, sizeof(path), "%s/%s/%s/%s%u/online",
-		linux_statspath, sysfs_path, node, node, node_num);
+    pmsprintf(path, sizeof(path), "%s/%s/%s/%s/online",
+		linux_statspath, sysfs_path, node_or_cpu, instname);
     if ((fp = fopen(path, "r")) == NULL)
 	return 1;
     n = fscanf(fp, "%u", &online);
