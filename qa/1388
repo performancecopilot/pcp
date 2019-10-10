@@ -11,7 +11,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.secure
 
-#_notrun "Work in progress transition to pmproxy"
+_check_series
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 
 full_hostname=`hostname`
@@ -28,6 +28,9 @@ $sudo rm -f $tmp.* $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
+
+domain=242
+loaded=2
 
 _cleanup()
 {
