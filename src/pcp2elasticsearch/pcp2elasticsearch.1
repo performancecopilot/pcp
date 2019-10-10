@@ -37,6 +37,7 @@
 [\fB\-K\fP \fIspec\fP]
 [\fB\-N\fP \fIpredicate\fP]
 [\fB\-O\fP \fIorigin\fP]
+[\fB\-p\fP \fItype\fP]
 [\fB\-P\fP|\fB\-0\fP \fIprecision\fP]
 [\fB\-q\fP|\fB\-Q\fP \fIcount-scale\fP]
 [\fB\-s\fP \fIsamples\fP]
@@ -158,7 +159,6 @@ Specify the Elasticsearch search type for measurements.
 Corresponding command line option is \fB\-p\fP.
 Defaults to \fBpcp-metric\fP.
 .RE
-
 .SH OPTIONS
 The available command line options are:
 .TP 5
@@ -422,6 +422,11 @@ Refer to
 .BR PCPIntro (1)
 for a complete description of the syntax for
 .IR origin .
+.TP
+\fB\-p\fR \fItype\fR, \fB\-\-es-search-type\fR=\fItype\fR
+Elasticsearch search
+.I type
+for measurements.
 .TP
 \fB\-P\fR \fIprecision\fR, \fB\-\-precision\fR=\fIprecision\fR
 Use
