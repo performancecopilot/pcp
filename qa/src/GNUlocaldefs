@@ -144,7 +144,7 @@ PYTHONFILES = \
 	fsstats.python procpid.python \
 	test_set_source.python test_pmda_memleak.python \
 	test_webcontainers.python test_webprocesses.python \
-	test_pmfg.python \
+	test_pmfg.python pmproxy_load_test.python \
 	mergelabels.python mergelabelsets.python \
 	bcc_version_check.python sort_xml.python
 # not installed:
