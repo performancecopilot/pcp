@@ -473,7 +473,7 @@ on_pmwebapi_scrape(sds context, pmWebScrape *scrape, void *arg)
     if (baton->compat == 0) {	/* include pmid, indom and type */
 	pmIDStr_r(metric->pmid, pmidstr, sizeof(pmidstr));
 	pmInDomStr_r(metric->indom, indomstr, sizeof(indomstr));
-	result = sdscatfmt(result, "# PCP %S %s %S %s %S %S\n",
+	result = sdscatfmt(result, "# PCP5 %S %s %S %s %S %S\n",
 			metric->name, pmidstr, metric->type,
 			indomstr, metric->sem, metric->units);
     } else {

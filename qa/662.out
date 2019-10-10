@@ -294,7 +294,7 @@ store: success
   sample.colour[2=342]
 context #### metrics target=sample.dupnames.three.bin response code 200
 metrics: success
-#### PCP sample.dupnames.three.bin 29.0.6 32 29.2 instant none
+#### PCP5 sample.dupnames.three.bin 29.0.6 32 29.2 instant none
 #### HELP sample_dupnames_three_bin Several constant instances
 #### TYPE sample_dupnames_three_bin gauge
 sample_dupnames_three_bin{instname="bin-100",instid="100",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
@@ -327,7 +327,7 @@ sample_bin{instname="bin-900",instid="900",role="testing",agent="sample",hostnam
 
 context #### metrics target=sample.float.bin response code 200
 metrics: success
-#### PCP sample.float.bin 29.0.107 float 29.2 instant none
+#### PCP5 sample.float.bin 29.0.107 float 29.2 instant none
 #### HELP sample_float_bin like sample.bin but type FLOAT
 #### TYPE sample_float_bin gauge
 sample_float_bin{instname="bin-100",instid="100",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
@@ -342,14 +342,14 @@ sample_float_bin{instname="bin-900",instid="900",role="testing",agent="sample",h
 
 context #### metrics target=sample.double.one response code 200
 metrics: success
-#### PCP sample.double.one 29.0.25 double PM_INDOM_NULL instant none
+#### PCP5 sample.double.one 29.0.25 double PM_INDOM_NULL instant none
 #### HELP sample_double_one 1 as a 64-bit floating point value
 #### TYPE sample_double_one gauge
 sample_double_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",machineid="MACHINE",domainname="DOMAIN"} 1
 
 context #### metrics target=sample.long.bin_ctr response code 200
 metrics: success
-#### PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
+#### PCP5 sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
 #### HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
 #### TYPE sample_long_bin_ctr counter
 sample_long_bin_ctr{instname="bin-100",instid="100",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
@@ -364,7 +364,7 @@ sample_long_bin_ctr{instname="bin-900",instid="900",role="testing",agent="sample
 
 context #### metrics target=sample.ulong.bin_ctr response code 200
 metrics: success
-#### PCP sample.ulong.bin_ctr 29.0.106 u32 29.2 counter Kbyte
+#### PCP5 sample.ulong.bin_ctr 29.0.106 u32 29.2 counter Kbyte
 #### HELP sample_ulong_bin_ctr like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE
 #### TYPE sample_ulong_bin_ctr counter
 sample_ulong_bin_ctr{instname="bin-100",instid="100",role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100

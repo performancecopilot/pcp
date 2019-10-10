@@ -781,16 +781,16 @@ Context successfully expired
 *****   GET /metrics   *****
 
 == scrape one metric ==
-# PCP sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
 sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1
 == scrape two metrics ==
-# PCP sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
 sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1
-# PCP sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
+# PCP5 sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
 # HELP sample_long_ten 10 as a 32-bit integer
 # TYPE sample_long_ten gauge
 sample_long_ten{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 10
@@ -801,27 +801,27 @@ sample_long_ten{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME
     "success": false
 }
 == scrape one metric tree ==
-# PCP sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
 sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1
-# PCP sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
+# PCP5 sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
 # HELP sample_long_ten 10 as a 32-bit integer
 # TYPE sample_long_ten gauge
 sample_long_ten{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 10
-# PCP sample.long.hundred 29.0.12 32 PM_INDOM_NULL instant none
+# PCP5 sample.long.hundred 29.0.12 32 PM_INDOM_NULL instant none
 # HELP sample_long_hundred 100 as a 32-bit integer
 # TYPE sample_long_hundred gauge
 sample_long_hundred{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 100
-# PCP sample.long.million 29.0.13 32 PM_INDOM_NULL instant none
+# PCP5 sample.long.million 29.0.13 32 PM_INDOM_NULL instant none
 # HELP sample_long_million 1000000 as a 32-bit integer
 # TYPE sample_long_million gauge
 sample_long_million{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1000000
-# PCP sample.long.write_me 29.0.14 32 PM_INDOM_NULL instant none
+# PCP5 sample.long.write_me 29.0.14 32 PM_INDOM_NULL instant none
 # HELP sample_long_write_me a 32-bit integer that can be modified
 # TYPE sample_long_write_me gauge
 sample_long_write_me{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",changed="true"} 2
-# PCP sample.long.bin 29.0.103 32 29.2 instant none
+# PCP5 sample.long.bin 29.0.103 32 29.2 instant none
 # HELP sample_long_bin like sample.bin but type 32
 # TYPE sample_long_bin gauge
 sample_long_bin{instname="bin-100",instid="100",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="100"} 100
@@ -833,7 +833,7 @@ sample_long_bin{instname="bin-600",instid="600",hostname="HOSTNAME",machineid="M
 sample_long_bin{instname="bin-700",instid="700",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="700"} 700
 sample_long_bin{instname="bin-800",instid="800",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="800"} 800
 sample_long_bin{instname="bin-900",instid="900",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="900"} 900
-# PCP sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
+# PCP5 sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
 # HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
 # TYPE sample_long_bin_ctr counter
 sample_long_bin_ctr{instname="bin-100",instid="100",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="100"} 100
@@ -846,7 +846,7 @@ sample_long_bin_ctr{instname="bin-700",instid="700",hostname="HOSTNAME",machinei
 sample_long_bin_ctr{instname="bin-800",instid="800",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="800"} 800
 sample_long_bin_ctr{instname="bin-900",instid="900",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="900"} 900
 == scrape metric instances ==
-# PCP sample.colour 29.0.5 32 29.1 instant none
+# PCP5 sample.colour 29.0.5 32 29.1 instant none
 # HELP sample_colour Metrics with a "saw-tooth" trend over time
 # TYPE sample_colour gauge
 sample_colour{instname="red",instid="0",model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 143

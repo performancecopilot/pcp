@@ -126,11 +126,8 @@ The units metadata string may contain spaces and extends to
 the end of the line.
 .PP
 PCP metric names are mapped so that the \fB.\fP separators
-are exchanged with \fB_\fP (':' in back-compatibility mode).
-The reported value types are determined from the PCP
-metric types and units/scales are converted to base
-seconds/bytes/count where appropriate, with a corresponding
-suffix added to the mapped metric name.
+are exchanged with \fB_\fP (':' in back-compatibility mode,
+where "# PCP" is the identifying line suffix).
 Both metric labels and instances are represented as Prometheus
 labels, with external instance names being quoted and the
 flattened PCP metric hierarchy being presented with each value.
@@ -139,21 +136,21 @@ flattened PCP metric hierarchy being presented with each value.
 $ curl -s http://localhost:44322/metrics?\\
 	names=proc.nprocs,kernel.pernode.cpu.intr,filesys.blocksize
 
-# PCP proc.nprocs 3.8.99 u32 PM_INDOM_NULL instant none
+# PCP5 proc.nprocs 3.8.99 u32 PM_INDOM_NULL instant none
 # HELP proc_nprocs instantaneous number of processes
 # TYPE proc_nprocs gauge
 proc_nprocs {hostname="app1"} 7
 
-# PCP kernel.pernode.cpu.intr 60.0.66 u64 60.19 counter millisec
-# HELP kernel_pernode_cpu_intr_seconds_total total interrupt CPU [...]
-# TYPE kernel_pernode_cpu_intr_seconds_total counter
-kernel_pernode_cpu_intr_seconds_total{hostname="app1",inst.name="node0",inst.id=0} 25603
+# PCP5 kernel.pernode.cpu.intr 60.0.66 u64 60.19 counter millisec
+# HELP kernel_pernode_cpu_intr total interrupt CPU [...]
+# TYPE kernel_pernode_cpu_intr counter
+kernel_pernode_cpu_intr{hostname="app1",instname="node0"} 25603
 
-# PCP filesys.blocksize 60.5.9 u32 60.5 instant byte
-# HELP filesys_blocksize_bytes Size of each block on mounted file[...]
-# TYPE filesys_blocksize_bytes gauge
-filesys_blocksize_bytes{hostname="app1",inst.name="/dev/sda1",inst.id=1} 4096
-filesys_blocksize_bytes{hostname="app1",inst.name="/dev/sda2",inst.id=2} 4096
+# PCP5 filesys.blocksize 60.5.9 u32 60.5 instant byte
+# HELP filesys_blocksize Size of each block on mounted file[...]
+# TYPE filesys_blocksize gauge
+filesys_blocksize{hostname="app1",instname="/dev/sda1"} 4096
+filesys_blocksize{hostname="app1",instname="/dev/sda2"} 4096
 .ESAMPLE
 .SH SCALABLE TIME SERIES
 The fast, scalable time series query capabilities
