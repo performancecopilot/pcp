@@ -56,7 +56,7 @@ class Script:
     def __init__(self, code: str):
         # PMNS metric names must start with an alphabetic character
         self.script_id = 's' + str(uuid.uuid4()).replace('-', '')
-        self.username: str = None
+        self.username: Optional[str] = None
         self.persistent = False
         self.created_at = datetime.now()
         self.last_accessed_at = datetime.now()
@@ -90,9 +90,15 @@ class ScriptEncoder(json.JSONEncoder):
 
 
 class PMDAConfig:
+    # see bpftrace.conf for configuration descriptions and units
+    class Authentication:
+        def __init__(self):
+            self.enabled = True
+            self.allowed_users = []
+
     def __init__(self):
-        # see bpftrace.conf for configuration descriptions and units
-        self.allowed_users = ['admin']
+        self.authentication = PMDAConfig.Authentication()
+
         self.bpftrace_path = 'bpftrace'
         self.script_expiry_time = 60  # 1 min
         self.max_throughput = 2 * 1024 * 1024  # 2 MB/s

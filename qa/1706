@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 1706
+# Exercise the bpftrace PMDA - authentication
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.secure
+. ./common.bpftrace
+
+_pmdabpftrace_check
+
+status=1       # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_prepare_pmda bpftrace
+trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+echo "=== default configuration (authentication enabled, no user is allowed) ==="
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+EOF
+pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
+grep -o "permission denied" $PCP_LOG_DIR/pmcd/bpftrace.log
+echo
+
+echo "=== authentication enabled, user is not allowed ==="
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+[authentication]
+enabled = true
+allowed_users = some_user
+EOF
+pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
+grep -o "permission denied" $PCP_LOG_DIR/pmcd/bpftrace.log
+echo
+
+echo "=== authentication enabled, user is allowed ==="
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+[authentication]
+enabled = true
+allowed_users = some_user,$username
+EOF
+pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
+echo
+
+echo "=== authentication disabled, everyone is allowed ==="
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+[authentication]
+enabled = false
+EOF
+pmstore bpftrace.control.register "tracepoint:raw_syscalls:sys_enter { @c = count(); }"
+echo
+
+
+_pmdabpftrace_remove
+status=0
+exit

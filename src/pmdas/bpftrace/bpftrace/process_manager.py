@@ -193,7 +193,7 @@ class ProcessManager():
             if script.state.status in [Status.Stopped, Status.Error]:
                 del self.scripts[script.script_id]
                 del self.script_tasks[script.script_id]
-                self.logger.info(f"script: removed {script}")
+                self.logger.info(f"script: deregistered {script}")
             else:
                 self.logger.error(f"deregister: invalid state {script.state.status} for {script}")
 

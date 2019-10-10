@@ -25,7 +25,8 @@ _pmdabpftrace_install()
 
     # update config
     $sudo cp $PCP_PMDAS_DIR/bpftrace/bpftrace.conf $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup
-    cat > $PCP_PMDAS_DIR/bpftrace/bpftrace.conf
+    echo "pmdabpftrace config:" >> $here/$seq.full
+    tee -a $here/$seq.full > $PCP_PMDAS_DIR/bpftrace/bpftrace.conf
 
     echo
     echo "=== bpftrace agent installation ==="
