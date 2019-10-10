@@ -88,6 +88,17 @@ Patch0: pmcd-pmlogger-local-context.patch
 %global disable_bcc 1
 %endif
 
+# support for pmdabpftrace
+%if 0%{?fedora} >= 30 || 0%{?rhel} > 8
+%ifarch s390 s390x armv7hl aarch64 i686
+%global disable_bpftrace 1
+%else
+%global disable_bpftrace 0
+%endif
+%else
+%global disable_bpftrace 1
+%endif
+
 # support for pmdajson
 %if 0%{?rhel} == 0 || 0%{?rhel} > 6
 %if !%{disable_python2} || !%{disable_python3}
@@ -321,6 +332,12 @@ Requires: pcp-libs = %{version}-%{release}
 %global _with_bcc --with-pmdabcc=yes
 %endif
 
+%if %{disable_bpftrace}
+%global _with_bpftrace --with-pmdabpftrace=no
+%else
+%global _with_bpftrace --with-pmdabpftrace=yes
+%endif
+
 %if %{disable_json}
 %global _with_json --with-pmdajson=no
 %else
@@ -456,6 +473,9 @@ Requires: pcp-pmda-nutcracker
 %endif
 %if !%{disable_bcc}
 Requires: pcp-pmda-bcc
+%endif
+%if !%{disable_bpftrace}
+Requires: pcp-pmda-bpftrace
 %endif
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
@@ -1341,6 +1361,23 @@ extracting performance metrics from eBPF/BCC Python modules.
 # end pcp-pmda-bcc
 %endif
 
+%if !%{disable_bpftrace}
+#
+# pcp-pmda-bpftrace
+#
+%package pmda-bpftrace
+License: ASL 2.0 and GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics from bpftrace scripts
+URL: https://pcp.io
+Requires: bpftrace >= 0.9.2
+Requires: python3-pcp
+Requires: python3 >= 3.6
+%description pmda-bpftrace
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting performance metrics from bpftrace scripts.
+# end pcp-pmda-bpftrace
+%endif
+
 %if !%{disable_python2} || !%{disable_python3}
 #
 # pcp-pmda-gluster
@@ -2049,7 +2086,7 @@ updated policy package.
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_podman} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_podman} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpftrace} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2163,6 +2200,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^json' |\
   grep -E -v '^mic' |\
   grep -E -v '^bcc' |\
+  grep -E -v '^bpftrace' |\
   grep -E -v '^gluster' |\
   grep -E -v '^zswap' |\
   grep -E -v '^unbound' |\
@@ -2422,6 +2460,11 @@ fi
 %if !%{disable_bcc}
 %preun pmda-bcc
 %{pmda_remove "$1" "bcc"}
+%endif
+
+%if !%{disable_bpftrace}
+%preun pmda-bpftrace
+%{pmda_remove "$1" "bpftrace"}
 %endif
 
 %if !%{disable_python2} || !%{disable_python3}
@@ -2970,6 +3013,11 @@ cd
 %if !%{disable_bcc}
 %files pmda-bcc
 %{_pmdasdir}/bcc
+%endif
+
+%if !%{disable_bpftrace}
+%files pmda-bpftrace
+%{_pmdasdir}/bpftrace
 %endif
 
 %if !%{disable_python2} || !%{disable_python3}

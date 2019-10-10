@@ -1,0 +1,75 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2019 Red Hat.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMDABPFTRACE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\fBpmdabpftrace\fP \- bpftrace PMDA
+.SH DESCRIPTION
+\fBpmdabpftrace\fP is a Performance Co-Pilot \s-1PMDA\s0 which exports
+metrics from bpftrace scripts.
+.SH INSTALLATION
+To install, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/bpftrace
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/bpftrace
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
+\fBpmdabpftrace\fP is launched by \fBpmcd\fP(1) and should never be
+executed directly.
+The \fBInstall\fP and \fBRemove\fP scripts notify \fBpmcd\fP(1) when
+the agent is installed or removed.
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/bpftrace/bpftrace.conf\fR" 4
+configuration file for the \fBpmdabpftrace\fR agent
+.IP "\fB$PCP_PMDAS_DIR/bpftrace/Install\fR" 4
+installation script for the \fBpmdabpftrace\fR agent
+.IP "\fB$PCP_PMDAS_DIR/bpftrace/Remove\fR" 4
+undo installation script for the \fBpmdabpftrace\fR agent
+.IP "\fB$PCP_LOG_DIR/pmcd/bpftrace.log\fR" 4
+default log file for error messages from the \fBpmdabpftrace\fR agent
+.PP
+Note the usual/default value for \fB$PCP_PMDAS_DIR\fP is
+.B /var/lib/pcp/pmdas
+and the default for \fB$PCP_LOG_DIR\fP is
+.B /var/log/pcp
+but these settings are platform dependent.
+.PD
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables.
+The \fB$PCP_CONF\fR variable may be used to specify an alternative
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1)
+and
+.BR bpftrace (8).

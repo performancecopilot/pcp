@@ -17,6 +17,7 @@
 
 from ctypes import c_int
 from os import path
+import re
 
 from bcc import BPF, USDT
 
@@ -80,7 +81,6 @@ class PCPBCCModule(PCPBCCBase):
         for usdt in self.usdts:
             lib, name = usdt.split(":")
             for probe in USDT(path=lib).enumerate_probes():
-                import re
                 comp = re.compile(r'\A' + name + r'\Z')
                 pn = probe.name if isinstance(probe.name, str) else probe.name.decode("UTF-8")
                 if name == pn or re.match(comp, pn):
