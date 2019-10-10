@@ -39,7 +39,6 @@ typedef struct pmWebRestCommand {
 typedef struct pmWebGroupBaton {
     struct client	*client;
     pmWebRestKey	restkey;
-    uv_work_t		worker;
     sds			context;
     dict		*params;
     dict		*labels;
@@ -47,11 +46,8 @@ typedef struct pmWebGroupBaton {
     sds			clientid;	/* user-supplied identifier */
     sds			username;	/* from basic auth header */
     sds			password;	/* from basic auth header */
-    unsigned int	ctxnum;
     unsigned int	times : 1;
     unsigned int	compat : 1;
-    unsigned int	working : 1;
-    unsigned int	timeout;
     unsigned int	numpmids;
     unsigned int	numvsets;
     unsigned int	numinsts;
@@ -122,15 +118,12 @@ pmwebapi_data_release(struct client *client)
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)client->u.http.data;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "%s: %p for client %p\n", "pmwebapi_data_release",
+	fprintf(stderr, "%s: baton %p for client %p\n", "pmwebapi_data_release",
 			baton, client);
-
-    assert(!baton->working);
 
     sdsfree(baton->suffix);
     sdsfree(baton->context);
-    if (baton->clientid)
-	sdsfree(baton->clientid);
+    sdsfree(baton->clientid);
     /* baton->params freed in http.c */
     if (baton->labels)
 	dictRelease(baton->labels);
@@ -636,8 +629,8 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
 	msg = sdscat(msg, "\"success\":false}\r\n");
 	sdsfree(quoted);
     }
-    http_reply(client, msg, code, flags);
-    /* baton freed on uv_work_t completion callback, not here */
+
+    http_reply(baton->client, msg, code, flags);
 }
 
 static pmWebGroupSettings pmwebapi_settings = {
@@ -765,8 +758,7 @@ pmwebapi_request_url(struct client *client, sds url, dict *parameters)
     if ((key = pmwebapi_lookup_restkey(url, &compat, &context)) == RESTKEY_NONE)
 	return 0;
 
-    if ((baton = realloc(client->u.http.data, sizeof(*baton))) != NULL) {
-	memset(baton, 0, sizeof(*baton));
+    if ((baton = calloc(1, sizeof(*baton))) != NULL) {
 	client->u.http.data = baton;
 	baton->client = client;
 	baton->restkey = key;
@@ -870,15 +862,10 @@ pmwebapi_context(uv_work_t *work)
 }
 
 static void
-pmwebapi_done(uv_work_t *work, int status)
+pmwebapi_work_done(uv_work_t *work, int status)
 {
-    pmWebGroupBaton	*baton = (pmWebGroupBaton *)work->data;
-
-    if (pmDebugOptions.series)
-	fprintf(stderr, "%s: client=%p baton=%p (sts=%d)\n", "pmwebapi_done",
-			baton->client, baton, status);
-
-    baton->working = 0;
+    (void)status;
+    free(work);
 }
 
 static int
@@ -886,42 +873,43 @@ pmwebapi_request_done(struct client *client)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)client->u.http.data;
     uv_loop_t		*loop = client->proxy->events;
+    uv_work_t		*work = (uv_work_t *)calloc(1, sizeof(uv_work_t));
 
     /* submit command request to worker thread */
-    baton->working = 1;
-    baton->worker.data = baton;
+    work->data = baton;
 
     switch (baton->restkey) {
     case RESTKEY_CONTEXT:
-	uv_queue_work(loop, &baton->worker, pmwebapi_context, pmwebapi_done);
+	uv_queue_work(loop, work, pmwebapi_context, pmwebapi_work_done);
 	break;
     case RESTKEY_PROFILE:
-	uv_queue_work(loop, &baton->worker, pmwebapi_profile, pmwebapi_done);
+	uv_queue_work(loop, work, pmwebapi_profile, pmwebapi_work_done);
 	break;
     case RESTKEY_METRIC:
-	uv_queue_work(loop, &baton->worker, pmwebapi_metric, pmwebapi_done);
+	uv_queue_work(loop, work, pmwebapi_metric, pmwebapi_work_done);
 	break;
     case RESTKEY_FETCH:
-	uv_queue_work(loop, &baton->worker, pmwebapi_fetch, pmwebapi_done);
+	uv_queue_work(loop, work, pmwebapi_fetch, pmwebapi_work_done);
 	break;
     case RESTKEY_INDOM:
-	uv_queue_work(loop, &baton->worker, pmwebapi_indom, pmwebapi_done);
+	uv_queue_work(loop, work, pmwebapi_indom, pmwebapi_work_done);
 	break;
     case RESTKEY_CHILD:
-	uv_queue_work(loop, &baton->worker, pmwebapi_children, pmwebapi_done);
+	uv_queue_work(loop, work, pmwebapi_children, pmwebapi_work_done);
 	break;
     case RESTKEY_STORE:
-	uv_queue_work(loop, &baton->worker, pmwebapi_store, pmwebapi_done);
+	uv_queue_work(loop, work, pmwebapi_store, pmwebapi_work_done);
 	break;
     case RESTKEY_DERIVE:
-	uv_queue_work(loop, &baton->worker, pmwebapi_derive, pmwebapi_done);
+	uv_queue_work(loop, work, pmwebapi_derive, pmwebapi_work_done);
 	break;
     case RESTKEY_SCRAPE:
-	uv_queue_work(loop, &baton->worker, pmwebapi_scrape, pmwebapi_done);
+	uv_queue_work(loop, work, pmwebapi_scrape, pmwebapi_work_done);
 	break;
     case RESTKEY_NONE:
     default:
-	baton->working = 0;
+	client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	free(work);
 	return 1;
     }
     return 0;

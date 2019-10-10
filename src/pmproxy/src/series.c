@@ -660,8 +660,7 @@ pmseries_request_url(struct client *client, sds url, dict *parameters)
     if ((key = pmseries_lookup_restkey(url)) == RESTKEY_NONE)
 	return 0;
 
-    if ((baton = realloc(client->u.http.data, sizeof(*baton))) != NULL) {
-	memset(baton, 0, sizeof(*baton));
+    if ((baton = calloc(1, sizeof(*baton))) != NULL) {
 	client->u.http.data = baton;
 	baton->client = client;
 	baton->restkey = key;
