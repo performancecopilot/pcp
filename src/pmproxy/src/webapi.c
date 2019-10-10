@@ -875,9 +875,15 @@ pmwebapi_request_done(struct client *client)
     uv_loop_t		*loop = client->proxy->events;
     uv_work_t		*work = (uv_work_t *)calloc(1, sizeof(uv_work_t));
 
-    /* submit command request to worker thread */
+    /* fail early if something has already gone wrong */
+    if (client->u.http.parser.status_code != 0)
+	return 1;
+
+    if ((work = (uv_work_t *)calloc(1, sizeof(uv_work_t))) == NULL)
+	return 1;
     work->data = baton;
 
+    /* submit command request to worker thread */
     switch (baton->restkey) {
     case RESTKEY_CONTEXT:
 	uv_queue_work(loop, work, pmwebapi_context, pmwebapi_work_done);
