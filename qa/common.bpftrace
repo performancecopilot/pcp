@@ -23,6 +23,10 @@ _pmdabpftrace_install()
     $sudo ./Remove >/dev/null 2>&1
     $sudo rm -f $PCP_VAR_DIR/config/pmda/151.*
 
+    # update config
+    $sudo cp $PCP_PMDAS_DIR/bpftrace/bpftrace.conf $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup
+    cat > $PCP_PMDAS_DIR/bpftrace/bpftrace.conf
+
     echo
     echo "=== bpftrace agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
@@ -43,6 +47,10 @@ _pmdabpftrace_remove()
 
 _pmdabpftrace_cleanup()
 {
+    cat $PCP_LOG_DIR/pmcd/bpftrace.log >> $here/$seq.full
+    if [ -f $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup ]; then
+        $sudo mv $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup $PCP_PMDAS_DIR/bpftrace/bpftrace.conf
+    fi
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda bpftrace
 }
@@ -50,12 +58,12 @@ _pmdabpftrace_cleanup()
 _pmdabpftrace_wait_for_value()
 {
     value_regex=${2:-"value .*"}
-    for i in `seq 1 20`
+    for i in `seq 1 15`
     do
         pminfo -f $1 2>/dev/null | grep -q "$value_regex" && echo "found metric $1 matching \"$value_regex\"" && break
         sleep 1
     done
-    if [ $i -ge 20 ]; then
+    if [ $i -ge 15 ]; then
         echo "Timeout while waiting for metric $1 to match \"$value_regex\", output:"
         pminfo -f $1
         exit

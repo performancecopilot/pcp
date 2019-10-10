@@ -71,20 +71,26 @@ class ServiceTests(unittest.TestCase):
         self.assertIsNone(script)
 
     def testTooManyKeys(self):
-        self.setup()
+        config = PMDAConfig()
+        config.max_throughput = 64 * 1024
+        self.setup(config)
+
         script = self.service.register_script(Script('profile:hz:9999 { @test1[kstack,ustack] = count(); }'))
         time.sleep(15)
         script = self.service.refresh_script(script.script_id)
         self.assertEqual(script.state.status, 'error')
-        self.assertEqual(script.state.error, 'BPFtrace output exceeds limit of 102400 bytes per second')
+        self.assertRegex(script.state.error, 'BPFtrace output exceeds limit of .+ bytes per second')
 
     def testTooMuchOutput(self):
-        self.setup()
+        config = PMDAConfig()
+        config.max_throughput = 64 * 1024
+        self.setup(config)
+
         script = self.service.register_script(Script('profile:hz:9999 { printf("test"); }'))
-        time.sleep(10)
+        time.sleep(15)
         script = self.service.refresh_script(script.script_id)
         self.assertEqual(script.state.status, 'error')
-        self.assertEqual(script.state.error, 'BPFtrace output exceeds limit of 102400 bytes per second')
+        self.assertRegex(script.state.error, 'BPFtrace output exceeds limit of .+ bytes per second')
 
 
 if __name__ == '__main__':

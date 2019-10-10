@@ -18,7 +18,12 @@ trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here
-_pmdabpftrace_install
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+[pmda]
+allowed_users = anonymous
+max_throughput = 65536
+EOF
 
 echo "=== bpftrace script without variabes ==="
 pmstore bpftrace.control.register "// name: test1
@@ -44,7 +49,7 @@ echo
 
 echo "=== too much output ==="
 pmstore bpftrace.control.register '// name: test4
-profile:hz:9999 { @[kstack,ustack,kstack,ustack] = count(); }'
+profile:hz:9999 { printf("test"); }'
 pminfo -f bpftrace.control.register >> $here/$seq.full
 _pmdabpftrace_wait_for_value bpftrace.scripts.test4.error "value \"BPFtrace output exceeds limit of [0-9]* bytes per second\""
 pminfo -f bpftrace.scripts.test4.status

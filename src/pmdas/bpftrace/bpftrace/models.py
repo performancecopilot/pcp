@@ -92,10 +92,10 @@ class ScriptEncoder(json.JSONEncoder):
 class PMDAConfig:
     def __init__(self):
         # see bpftrace.conf for configuration descriptions and units
-        self.bpftrace_path = 'bpftrace'
-        self.script_expiry_time = 10 * 60  # 10 min
-        self.max_throughput = 100 * 1024  # 100 KiB/s
         self.allowed_users = ['admin']
+        self.bpftrace_path = 'bpftrace'
+        self.script_expiry_time = 60  # 1 min
+        self.max_throughput = 2 * 1024 * 1024  # 2 MB/s
 
 
 class RuntimeInfo:
