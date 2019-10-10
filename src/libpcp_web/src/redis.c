@@ -1382,10 +1382,11 @@ __redisAsyncFree(redisAsyncContext *ac)
         }
     }
 
+#if 0	/* TODO: see async on_close in libuv.c */
     /* Free event lib data */
     if (ac->ev.data)
         free(ac->ev.data);
-
+#endif
     /* Cleanup self */
     redisFree(c);
 }
