@@ -38,7 +38,7 @@ class ProcessManager():
     async def read_bpftrace_stdout(self, script: Script, script_tasks: ScriptTasks):
         read_bytes = 0
         read_bytes_start = time.time()
-        measure_throughput_every = 5 # seconds
+        measure_throughput_every = 5  # seconds
 
         try:
             async for line in script_tasks.process.stdout:
@@ -56,8 +56,11 @@ class ProcessManager():
                 try:
                     process_bpftrace_output(self.runtime_info, script, line)
                 except:  # pylint: disable=bare-except
-                    self.logger.error(f"Error parsing bpftrace output, "
-                                      f"please open a bug report:\n{traceback.format_exc()}")
+                    self.logger.error(f"Error parsing bpftrace output, please open a bug report:\n"
+                                      f"While reading:\n"
+                                      f"{repr(line)}\n"
+                                      f"the following error occured:\n"
+                                      f"{traceback.format_exc()}")
         except ValueError:
             raise BPFtraceError(
                 f"BPFtrace output exceeds limit of {self.config.max_throughput}"

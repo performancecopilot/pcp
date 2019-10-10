@@ -12,7 +12,7 @@ bpftrace.control.register old value="{}" new value="// name: testscript
 tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
 {
     "script_id": "SCRIPT_ID"
-    "username": "anonymous",
+    "username": "USERNAME"
     "persistent": true,
     "created_at": "CREATED_AT"
     "last_accessed_at": "LAST_ACCESSED_AT"
@@ -131,7 +131,7 @@ expose all scripts in JSON format
 [
     {
         "script_id": "SCRIPT_ID"
-        "username": "anonymous",
+        "username": "USERNAME"
         "persistent": true,
         "created_at": "CREATED_AT"
         "last_accessed_at": "LAST_ACCESSED_AT"

@@ -15,31 +15,51 @@ OK
 === invalid probe ===
 bpftrace.control.register old value="{}" new value="// name: test2
 does_not_exist { @c = count(); }"
-found metric bpftrace.scripts.test2.error matching "value "Invalid provider: 'does_not_exist'""
+found metric bpftrace.scripts.test2.status matching "value "error""
+
+bpftrace.scripts.test2.error
+    value "Invalid provider: 'does_not_exist'"
 
 bpftrace.scripts.test2.exit_code
     value 1
 
-=== too many attached tracepoints ===
+=== syntax error ===
 bpftrace.control.register old value="{}" new value="// name: test3
-kprobe:* { @c = count(); }"
-found metric bpftrace.scripts.test3.error matching "value "Can't attach to [0-9]* probes because it exceeds the current limit of [0-9]* probes."
+does_not_exist { @c = count(; }"
+found metric bpftrace.scripts.test3.status matching "value "error""
+
+bpftrace.scripts.test3.error
+    value "stdin:2:23-30: ERROR: syntax error, unexpected ;
+does_not_exist { @c = count(; }
+                      ~~~~~~~"
 
 bpftrace.scripts.test3.exit_code
     value 1
 
-=== too much output ===
+=== too many attached tracepoints ===
 bpftrace.control.register old value="{}" new value="// name: test4
-profile:hz:9999 { printf("test"); }"
-found metric bpftrace.scripts.test4.error matching "value "BPFtrace output exceeds limit of [0-9]* bytes per second""
+kprobe:* { @c = count(); }"
+found metric bpftrace.scripts.test4.status matching "value "error""
 
-bpftrace.scripts.test4.status
-    value "error"
+bpftrace.scripts.test4.error
+    value "Can't attach to PROBES probes because it exceeds the current limit of PROBES probes.
+You can increase the limit through the BPFTRACE_MAX_PROBES environment variable, but BE CAREFUL since a high number of probes attached can cause your system to crash."
+
+bpftrace.scripts.test4.exit_code
+    value 1
+
+=== too much output ===
+bpftrace.control.register old value="{}" new value="// name: test5
+profile:hz:9999 { printf("test"); }"
+found metric bpftrace.scripts.test5.status matching "value "error""
+
+bpftrace.scripts.test5.error
+    value "BPFtrace output exceeds limit of LIMIT bytes per second"
 
 === duplicate script name ===
-bpftrace.control.register old value="{}" new value="// name: test5
+bpftrace.control.register old value="{}" new value="// name: test6
 tracepoint:raw_syscalls:sys_enter { @x = count() }"
-bpftrace.control.register: new value="// name: test5
+bpftrace.control.register: new value="// name: test6
 tracepoint:raw_syscalls:sys_enter { @x = count() }" pmStore: Bad input to pmstore
 OK
 

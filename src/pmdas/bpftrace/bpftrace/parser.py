@@ -132,8 +132,5 @@ def process_bpftrace_output(runtime_info: RuntimeInfo, script: Script, line: str
     if not line or line.isspace():
         return
 
-    try:
-        obj = json.loads(line)
-        process_bpftrace_output_obj(runtime_info, script, obj)
-    except ValueError:
-        script.state.output += line
+    obj = json.loads(line)
+    process_bpftrace_output_obj(runtime_info, script, obj)

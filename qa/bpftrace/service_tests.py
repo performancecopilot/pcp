@@ -53,10 +53,15 @@ class ServiceTests(unittest.TestCase):
         full_output = "\n".join(output)
         print(f"testDeregister output: {full_output}")
         log_msgs_order = [
-            "starting script", "started script", "stopping script", "stopped script", "removed script",
+            "starting script", "started script", "stopping script", "stopped script", "deregistered script",
             "deregister: script .* not found"
         ]
-        idx = [re.search(log_msg, full_output).span() for log_msg in log_msgs_order]
+        idx = []
+        for log_msg in log_msgs_order:
+            m = re.search(log_msg, full_output)
+            if not m:
+                raise Exception(f"cannot find '{log_msg}' in:\n{full_output}")
+            idx.append(m.span()[0])
         self.assertEqual(len(idx), len(log_msgs_order))
         self.assertEqual(idx, sorted(idx))
 
