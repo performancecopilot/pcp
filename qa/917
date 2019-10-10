@@ -153,7 +153,7 @@ else
 fi
 
 if seinfo -x --class=icmp_socket $common_flag 2>&1 \
-   | grep '^[ 	][ 	]*syslog$' >/dev/null
+   | grep '^[ 	][ 	]*class icmp_socket$' >/dev/null
 then
     :
 else
