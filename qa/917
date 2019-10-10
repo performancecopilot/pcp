@@ -134,7 +134,6 @@ else
     echo '/\[pcp_pmcd_t] \[pcp_pmie_exec_t]/s/ map / /' >>$tmp.sed
     echo '/\[pcp_pmcd_t] \[pcp_tmp_t]/s/ map / /' >>$tmp.sed
     echo '/\[pcp_pmcd_t] \[ping_exec_t]/s/ map / /' >>$tmp.sed
-echo yo
 fi
 
 if seinfo -x --class=bpf $common_flag 2>&1 \
@@ -151,6 +150,14 @@ then
     :
 else
     echo '/allow \[pcp_pmcd_t\] .*\[capability2\]/d' >>$tmp.sed
+fi
+
+if seinfo -x --class=icmp_socket $common_flag 2>&1 \
+   | grep '^[ 	][ 	]*syslog$' >/dev/null
+then
+    :
+else
+    echo '/allow \[pcp_pmcd_t\] .*\[icmp_socket\]/d' >>$tmp.sed
 fi
 
 if seinfo -a 2>&1 \
