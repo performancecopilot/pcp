@@ -597,7 +597,7 @@ on_header_value(http_parser *request, const char *offset, size_t length)
 	fprintf(stderr, "Header value: %s (client=%p)\n", value, client);
     entry = (dictEntry *)client->u.http.privdata;
     dictSetVal(client->u.http.headers, entry, value);
-    field = (sds)dictGetVal(entry);
+    field = (sds)dictGetKey(entry);
 
     /* HTTP Basic Auth for all servlets */
     if (strncmp(field, "Authorization", 14) == 0 &&
@@ -664,15 +664,13 @@ on_message_complete(http_parser *request)
 {
     struct client	*client = (struct client *)request->data;
     struct servlet	*servlet = client->u.http.servlet;
-    int			sts = 0;
 
     if (pmDebugOptions.http)
 	fprintf(stderr, "HTTP message complete (client=%p)\n", client);
 
     if (servlet && servlet->on_done)
-	sts = servlet->on_done(client);
-
-    return sts;
+	return servlet->on_done(client);
+    return 0;
 }
 
 void
