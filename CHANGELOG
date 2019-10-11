@@ -1,5 +1,165 @@
 pcp-5.0.0 (11 October 2019)
-    - Work in progress: https://github.com/performancecopilot/pcp/projects/1
+    - Client tools and utilities:
+	pmseries: provide support for the delta keyword, better timestamps
+	atop: fix coverity CID 349453 Logically dead code
+	pcp2graphite: fix string/unicode encoding error
+	zsh completion: write <mark> records like elsewhere
+	bash/zsh completions: update to match recent tool updates
+	pcp: add local context and namespace long options also
+	pmlogconf: add statsd metrics configuration file
+
+    - PMDA additions, enhancements and bug fixes:
+	pmdabpftrace: fedora.spec, manpage, pylint fixes for rawhide
+	pmdabpftrace: authentication with unix sockets
+	pmdabpftrace: fix auto script deregistration, ustack/kstack in eBPF maps
+	pmdabpftrace: deregistration of multiple scripts at once
+	pmdabpftrace: fix PMDA shutdown, QA updates
+	pmdabpftrace: bpftrace data object in register and scripts_json metrics
+	pmdabpftrace: remove bpftrace version from config obj
+	pmdabpftrace: catch exceptions while reading bpftrace output
+	pmdabpftrace: parse bpftrace output in daemon process, authentication
+	pmdabpftrace: read stdout in a separate thread
+	pmdabpftrace: bpftrace version conditionals, QA for error states
+	pmdabpftrace: don't use cached instances
+	pmdabpftrace: export tracepoints as CSV metric
+	pmdabpftrace: table-retain-lines metadata, qa: run python unittests
+	pmdabpftrace: include required bpftrace version in error msg
+	pmdabpftrace: use non-cached indoms, use enum for bpftrace state
+	pmdabpftrace: add bpftrace.info.tracepoints metric
+	pmdabpftrace: fix label callback, and JSON handling in PMDA install
+	pmdabpftrace: add exit_code to bpftrace.control.register response
+	pmdabpftrace: export metric type (e.g. histogram) as label
+	pmdabpftrace: new 'include' metadata: specify bpf maps to export as metrics
+	pmdabpftrace: add support for printf() statements
+	pmdabpftrace: read script_expiry_time from config file
+	pmdabpftrace: unregister scripts not requested in the last X seconds
+	pmdabpftrace: use per-context state for register/deregister/start/stop
+	pmdabpftrace: delayed state transition for starting
+	pmdabpftrace: read one JSON object per line
+	pmdabpftrace: metadata facility, allow custom names for scripts
+	pmdabpftrace: improved state handling, start/stop of scripts
+	pmdabpftrace: use json output, refactor state mgmt
+	pmdabpftrace: separate metric per bpftrace variable
+	pmdabpftrace: read stdin from bpftrace, bpftrace.control metrics
+	pmdabpftrace: new PMDA, initial commit
+	pmdapostgresql: use sys.exit() instead of exit()
+	pmdalinux: match up instname rather than instid in refresh_sysfs_online
+	pmdalinux: use cpu instname, not instid for per-cpu numa stats
+	pmdalinux: correctly handle sparse / discontiguous numa nodes
+	pmdaproc: un-escape cgroup metrics for pmproxy chunked encoding
+	pmdaproc: further refine cgroup_scan
+	pmdaproc: avoid excessive stat calls in cgroups_scan
+	pmdaproc: support ping from iputils
+	pmdaopenmetrics: add support for instname labels + QA
+	pmdaopenmetrics: rename prometheus agent to openmetrics
+	pmdaprometheus: tolerate space after comma in label name format
+	pmdaprometheus: pylint updates and make check target
+	pmdanetcheck: avoid premature optimization
+	pmdanetcheck: new PMDA to do simple network checks
+	pmdamssql: rename config file for consistency
+	pmdamssql: new PMDA for Microsoft SQL Server implementation
+	pmdalmsensors: use sys.exit instead of exit
+	pmdalmsensors: fix debug option handling, pylint, bug fixes
+	pmdalmsensors: initial rework to use json output instead of raw txt
+	pmdastatsd: updated units for duration metrics
+	pmdastatsd: added support for scientific notation for in StatsD payloads
+	pmdastatsd: reduced waste of CPU cycles, update control protocols
+
+    - Server-side utilities and log management scripts:
+	pmproxy: support authentication parameters
+	pmproxy: for PCP v5 ensure distinct openmetrics metadata
+	pmproxy: fix pmproxy build when openssl found but no libuv
+	pmproxy: openmetrics instance names do not want unicode quoting
+	pmproxy, libpcp_web: plug several memory leaks reported by valgrind tests
+	pmproxy: refine the openmetrics output format after review from Mark
+	pmproxy: enable time series mode by default
+	pmproxy: resolve memory leaks around REST API baton lifecycles
+	pmproxy: resolve memory leaks during redis async context disconnect
+	pmproxy: resolve memory leaks during http error handling in pmproxy
+	pmproxy: resolve memory leaks during shutdown of pmproxy service
+	pmlogrewrite: plug major memory leak
+	build: retire deprecated pmwebd, superceded by pmproxy PMWEBAPI(3)
+	pmcd: add missing long forms for some cert/auth options
+	logutil: add 120s timeout in all systemd service configs
+	logutil: pmlogger_check.service is not required by pmlogger.service
+
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	libpcp_web: harden null string value handling in webgroup fetches
+	libpcp_web: simplify pmseries delta calculations, corner cases
+	libpcp_web: fix numerous memory leaks
+	libpcp_web: fix libuv build conditionals, handle older versions of libuv
+	libpcp_web, pmproxy: fix license headers (should be LGPL)
+	libpcp_web: implement PMAPI context re-connection logic
+	libpcp_web: do not escape null terminators on string metrics
+	perl: ensure context setup for PMDA store as with python wrapper
+	python: fix uncached instances with empty list
+	python: refresh indom buffers if need_refresh flag is set in cb
+	python api: export pmdaGetContext(), add debugging wrapper
+	python pmdas: export pmID_cluster function
+	python pmdas: set_comm_flags method to set communication flags
+	python pmdas: enable authentication support
+	libpcp_pmda: correctly set context in store callback
+	libpcp,libpcp_pmda: fortify pmdaCache against NULL instance names
+	libpcp: update getdate.y for pure parser
+	libpcp: fix multi-archive replay err handling for corrupted archive(s)
+	libpcp: fix cockpit-pcp segv with local context
+
+    - Misc build, infrastructure and packaging updates:
+	build: ensure new derived metrics end up in the right package
+	build: remove python bcc dep from bpftrace, add bpfcc to debian unstable, 
+	build: include pmdabpftrace by default if dependencies are installed
+	selinux: adjust rules for pmda.netcheck
+	selinux: fix icmp_socket detection, allow optional
+	selinux: add runtime rpm dep on selinux-policy-targeted
+	selinux: build fix for platforms without map for class file
+	selinux: add policy rules for pmdanetcheck
+	selinux: add policy to allow the gpsd PMDA to function correctly
+	ci: add support for Fedora 31
+
+    - Documentation and QA infrastructure:
+	qa: add pmproxy_load_test to installed testsuite files
+	qa: custom config for bpftrace to trigger limits on slow machines
+	qa: resolve memory leaks from libuv work data structure
+	qa: use correct string when comparing field value for access control
+	qa: update awk scripts of bcc and bpftrace PMDA QAs for Fedora 31
+	qa: resolve memory leaks during pcp protocol proxying
+	qa: resolve memory leaks during http client disconnect
+	qa: tweak test 1695 to ensure pmproxy services used are enabled
+	qa: correct the generic check for a not-running Redis instance
+	qa: add bpftrace pmda and pmns to the common filters
+	man pages: several more long-option updates for man pages
+	qa: update pmseries test to exercise numeric timestamps
+	qa: update pmchart tests to handle DISPLAY access issues
+	qa: update test 042 to better handle podman containers
+	qa: add statsd tests
+	build: drop some boost dep references, causing CI issues
+	qa: ensure bpftrace tests unaffected by previous indom caching
+	build: drop checking for libuv fs_event APIs, no longer needed nor used
+	build: drop old config file transition code from rpm specs
+	misc: add qa/linux/mkfakesys.sh script
+	build: update deb packaging rules on libpcp-dev for man page transition
+	build: when calling 'python' prefer a 2/3-versioned binary if available
+	build: fix deb packaging around removing obsolete webapi package
+	qa/group: mark pmwebd tests as retired
+	docs: new pcpcompat(1) man page
+	qa: updated expected selinux output for gpmctl Policy
+	build: set minimum libuv level to 1.0 for API baseline
+	qa: update makefiles to ensure new archives installed
+	qa: add to the pmproxy log filter for additional diagnostic messages
+	build: python-jsonpointer is orphaned in Fedora so drop pmdajson there
+	qa: make avahi test cases more reliable
+	build: fix pmproxy build with libuv present but without openssl
+	man pages: several more long-option updates for man pages
+	build: relax the libuv and libssl version requirements
+	qa: remove bcc from debian testing build (bpfcc was removed)
+	docs: big overhaul of man pages for consistency, long-options
+	qa: add statsd and mssql to common agent/pmns filtering
+	qa/common.check: improve defunct process checking in _wait_pmlogger_end()
+	azure pipelines: move to build/ci, add separate pipeline for fedora rawhide
+	qa: exercise profile juggling for multi-thread and local contexts
+	qa: fix junit generation script for azure pipelines
+	qa: update statsd PMDA tests filters
+	build: update scripts and vagrantfile for new platforms
 
 pcp-4.3.4 (16 August 2019)
     - Client tools and utilities:
