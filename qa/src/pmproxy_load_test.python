@@ -22,8 +22,8 @@ async def get_json(url):
 async def context_and_fetch(host: str, port: int):
     ctx = await get_json(f"http://{host}:{port}/pmapi/context?hostspec=127.0.0.1&polltimeout=30")
     ctx_id = ctx["context"]
-    #metric = await get_json(f"http://{host}:{port}/pmapi/{ctx_id}/fetch?names=disk.dev.read")
-    inst_val = ctx_id#metric["values"][0]["instances"][0]["value"]
+    metric = await get_json(f"http://{host}:{port}/pmapi/{ctx_id}/fetch?names=disk.dev.read")
+    inst_val = metric["values"][0]["instances"][0]["value"]
     if not inst_val:
         raise Exception("cannot find any instance value for disk.dev.rad")
     return inst_val
