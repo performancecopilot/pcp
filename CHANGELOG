@@ -113,7 +113,6 @@ pcp-5.0.0 (11 October 2019)
 	selinux: add runtime rpm dep on selinux-policy-targeted
 	selinux: build fix for platforms without map for class file
 	selinux: add policy rules for pmdanetcheck
-	selinux: add policy to allow the gpsd PMDA to function correctly
 	ci: add support for Fedora 31
 
     - Documentation and QA infrastructure:
