@@ -491,10 +491,10 @@ webgroup_encode_value(sds value, int type, pmAtomValue *atom)
     return sdscatlen(value, "null", 4);
 }
 
-static void
+static int
 webgroup_fetch(pmWebGroupSettings *settings, context_t *cp,
 		int numpmid, struct metric **mplist, pmID *pmidlist,
-		void *arg)
+		sds *message, void *arg)
 {
     struct instance	*instance;
     struct metric	*metric;
@@ -506,7 +506,7 @@ webgroup_fetch(pmWebGroupSettings *settings, context_t *cp,
     pmResult		*result;
     char		err[PM_MAXERRMSGLEN];
     sds			v = sdsempty(), series = NULL;
-    sds			id = cp->origin, message = NULL;
+    sds			id = cp->origin;
     int			i, j, k, sts, type, status = 0;
 
     if ((sts = pmFetch(numpmid, pmidlist, &result)) >= 0) {
@@ -583,12 +583,11 @@ webgroup_fetch(pmWebGroupSettings *settings, context_t *cp,
     sdsfree(series);
 
     if (sts < 0) {
-	message = sdsnew(pmErrStr_r(sts, err, sizeof(err)));
+	infofmt(*message, "%s",pmErrStr_r(sts, err, sizeof(err)));
 	status = sts;
     }
 
-    settings->callbacks.on_done(id, status, message, arg);
-    sdsfree(message);
+    return status;
 }
 
 /*
@@ -651,7 +650,8 @@ webgroup_lookup_metric(pmWebGroupSettings *settings, context_t *cp, sds name, vo
 
 static int
 webgroup_fetch_names(pmWebGroupSettings *settings, context_t *cp, int fail,
-	int numnames, sds *names, struct metric **mplist, pmID *pmidlist, void *arg)
+	int numnames, sds *names, struct metric **mplist, pmID *pmidlist,
+	sds *message, void *arg)
 {
     struct metric	*metric;
     int			i;
@@ -662,13 +662,12 @@ webgroup_fetch_names(pmWebGroupSettings *settings, context_t *cp, int fail,
 	    return -EINVAL;
 	pmidlist[i] = metric ? metric->desc.pmid : PM_ID_NULL;
     }
-    webgroup_fetch(settings, cp, numnames, mplist, pmidlist, arg);
-    return 0;
+    return webgroup_fetch(settings, cp, numnames, mplist, pmidlist, message, arg);
 }
 
 static int
 webgroup_fetch_pmids(pmWebGroupSettings *settings, context_t *cp, int fail,
-	int numpmids, sds *names, struct metric **mplist, pmID *pmidlist, void *arg)
+	int numpmids, sds *names, struct metric **mplist, pmID *pmidlist, sds *message, void *arg)
 {
     struct metric	*metric;
     int			i;
@@ -680,8 +679,7 @@ webgroup_fetch_pmids(pmWebGroupSettings *settings, context_t *cp, int fail,
 	pmidlist[i] = metric ? metric->desc.pmid : PM_ID_NULL;
     }
 
-    webgroup_fetch(settings, cp, numpmids, mplist, pmidlist, arg);
-    return 0;
+    return webgroup_fetch(settings, cp, numpmids, mplist, pmidlist, message, arg);
 }
 
 void
@@ -726,7 +724,7 @@ pmWebGroupFetch(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 		fprintf(stderr, "%s: fetch %d names (%s,...)\n",
 				"pmWebGroupFetch", numnames, names[0]);
 	    sts = webgroup_fetch_names(settings, cp, singular,
-				numnames, names, mplist, pmidlist, arg);
+				numnames, names, mplist, pmidlist, &msg, arg);
 	}
     }
     /* handle fetch via numeric/dotted-form PMIDs */
@@ -742,7 +740,7 @@ pmWebGroupFetch(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 		fprintf(stderr, "%s: fetch %d pmids (%s,...)\n",
 				"pmWebGroupFetch", numnames, names[0]);
 	    sts = webgroup_fetch_pmids(settings, cp, singular,
-				numnames, names, mplist, pmidlist, arg);
+				numnames, names, mplist, pmidlist, &msg, arg);
 	}
     }
     else {
