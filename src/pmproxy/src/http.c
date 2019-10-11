@@ -607,9 +607,9 @@ on_header_value(http_parser *request, const char *offset, size_t length)
 	    /* extract username:password details */
 	    if ((colon = strchr(decoded, ':')) != NULL) {
 		length = colon - decoded;
-		client->u.http.username = sdsnewlen(decoded, length - 1);
-		length = sdslen(decoded) - length;
-		client->u.http.password = sdsnewlen(colon + 1, length - 1);
+		client->u.http.username = sdsnewlen(decoded, length);
+		length = sdslen(decoded) - length - 1;
+		client->u.http.password = sdsnewlen(colon + 1, length);
 	    } else {
 		client->u.http.parser.status_code = HTTP_STATUS_UNAUTHORIZED;
 	    }
@@ -633,6 +633,16 @@ on_headers_complete(http_parser *request)
 	fprintf(stderr, "HTTP headers complete (client=%p)\n", client);
     if (client->u.http.parser.status_code || !client->u.http.headers)
 	return 0;	/* already in process of failing connection */
+
+    if (client->u.http.username) {
+	if (!client->u.http.parameters)
+	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks, NULL);
+	http_add_parameter(client->u.http.parameters, "auth.username", 13,
+		client->u.http.username, sdslen(client->u.http.username));
+	if (client->u.http.password)
+	    http_add_parameter(client->u.http.parameters, "auth.password", 13,
+		    client->u.http.password, sdslen(client->u.http.password));
+    }
 
     client->u.http.privdata = NULL;
     if (servlet->on_headers)

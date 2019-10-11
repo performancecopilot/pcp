@@ -22,7 +22,7 @@ Check test_python metrics have appeared ... 6 metrics and N values
     "success": false
 }
 {
-    "message": "authentication failed, invalid username/password",
+    "message": "authentication failed",
     "success": false
 }
 
@@ -33,8 +33,10 @@ Check test_python metrics have appeared ... 6 metrics and N values
     "hostspec": "HOSTSPEC"
     "labels": {
         "domainname": "DOMAINNAME"
+        "groupid": GID
         "hostname": "HOSTNAME"
         "machineid": "MACHINEID"
+        "userid": UID
     }
 }
 
@@ -42,7 +44,7 @@ Check test_python metrics have appeared ... 6 metrics and N values
                     "value": "ctx ? user None"
 
 === state with authentication ===
-                    "value": "ctx ? user root"
+                    "value": "ctx ? user USER"
 
 === verify with pminfo (expect error) ===
 Error: test_python.current_username: Authentication - authentication failure
@@ -50,4 +52,4 @@ Error: test_python.current_username: Authentication - authentication failure
 === verify with pminfo (expect success) ===
 
 test_python.current_username
-    value "ctx ? user root"
+    value "ctx ? user USER"
