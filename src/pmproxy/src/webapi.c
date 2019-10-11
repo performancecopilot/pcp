@@ -40,7 +40,6 @@ typedef struct pmWebGroupBaton {
     struct client	*client;
     pmWebRestKey	restkey;
     sds			context;
-    dict		*params;
     dict		*labels;
     sds			suffix;		/* response trailer (stack) */
     sds			clientid;	/* user-supplied identifier */
@@ -124,7 +123,6 @@ pmwebapi_data_release(struct client *client)
     sdsfree(baton->suffix);
     sdsfree(baton->context);
     sdsfree(baton->clientid);
-    /* baton->params freed in http.c */
     if (baton->labels)
 	dictRelease(baton->labels);
     memset(baton, 0, sizeof(*baton));
@@ -764,7 +762,6 @@ pmwebapi_request_url(struct client *client, sds url, dict *parameters)
 	baton->restkey = key;
 	baton->compat = compat;
 	baton->context = context;
-	baton->params = client->u.http.parameters;
 	pmwebapi_setup_request_parameters(client, baton, parameters);
     } else {
 	client->u.http.parser.status_code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
@@ -779,11 +776,10 @@ pmwebapi_request_body(struct client *client, const char *content, size_t length)
 
     if (baton->restkey == RESTKEY_DERIVE &&
 	client->u.http.parser.method == HTTP_POST) {
-	if (baton->params == NULL) {
-	    baton->params = dictCreate(&sdsOwnDictCallBacks, NULL);
-	    client->u.http.parameters = baton->params;
-	}
-	dictAdd(baton->params, sdsnew(PARAM_EXPR), sdsnewlen(content, length));
+	if (client->u.http.parameters == NULL)
+	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks, NULL);
+	dictAdd(client->u.http.parameters,
+			sdsnew(PARAM_EXPR), sdsnewlen(content, length));
     }
     return 0;
 }
@@ -792,32 +788,36 @@ static void
 pmwebapi_fetch(uv_work_t *work)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)work->data;
+    struct dict		*params = baton->client->u.http.parameters;
 
-    pmWebGroupFetch(&pmwebapi_settings, baton->context, baton->params, baton);
+    pmWebGroupFetch(&pmwebapi_settings, baton->context, params, baton);
 }
 
 static void
 pmwebapi_indom(uv_work_t *work)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)work->data;
+    struct dict		*params = baton->client->u.http.parameters;
 
-    pmWebGroupInDom(&pmwebapi_settings, baton->context, baton->params, baton);
+    pmWebGroupInDom(&pmwebapi_settings, baton->context, params, baton);
 }
 
 static void
 pmwebapi_metric(uv_work_t *work)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)work->data;
+    struct dict		*params = baton->client->u.http.parameters;
 
-    pmWebGroupMetric(&pmwebapi_settings, baton->context, baton->params, baton);
+    pmWebGroupMetric(&pmwebapi_settings, baton->context, params, baton);
 }
 
 static void
 pmwebapi_children(uv_work_t *work)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)work->data;
+    struct dict		*params = baton->client->u.http.parameters;
 
-    pmWebGroupChildren(&pmwebapi_settings, baton->context, baton->params, baton);
+    pmWebGroupChildren(&pmwebapi_settings, baton->context, params, baton);
 }
 
 
@@ -825,40 +825,45 @@ static void
 pmwebapi_store(uv_work_t *work)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)work->data;
+    struct dict		*params = baton->client->u.http.parameters;
 
-    pmWebGroupStore(&pmwebapi_settings, baton->context, baton->params, baton);
+    pmWebGroupStore(&pmwebapi_settings, baton->context, params, baton);
 }
 
 static void
 pmwebapi_derive(uv_work_t *work)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)work->data;
+    struct dict		*params = baton->client->u.http.parameters;
 
-    pmWebGroupDerive(&pmwebapi_settings, baton->context, baton->params, baton);
+    pmWebGroupDerive(&pmwebapi_settings, baton->context, params, baton);
 }
 
 static void
 pmwebapi_profile(uv_work_t *work)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)work->data;
+    struct dict		*params = baton->client->u.http.parameters;
 
-    pmWebGroupProfile(&pmwebapi_settings, baton->context, baton->params, baton);
+    pmWebGroupProfile(&pmwebapi_settings, baton->context, params, baton);
 }
 
 static void
 pmwebapi_scrape(uv_work_t *work)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)work->data;
+    struct dict		*params = baton->client->u.http.parameters;
     
-    pmWebGroupScrape(&pmwebapi_settings, baton->context, baton->params, baton);
+    pmWebGroupScrape(&pmwebapi_settings, baton->context, params, baton);
 }
 
 static void
 pmwebapi_context(uv_work_t *work)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)work->data;
+    struct dict		*params = baton->client->u.http.parameters;
 
-    pmWebGroupContext(&pmwebapi_settings, baton->context, baton->params, baton);
+    pmWebGroupContext(&pmwebapi_settings, baton->context, params, baton);
 }
 
 static void
@@ -875,9 +880,15 @@ pmwebapi_request_done(struct client *client)
     uv_loop_t		*loop = client->proxy->events;
     uv_work_t		*work = (uv_work_t *)calloc(1, sizeof(uv_work_t));
 
-    /* submit command request to worker thread */
+    /* fail early if something has already gone wrong */
+    if (client->u.http.parser.status_code != 0)
+	return 1;
+
+    if ((work = (uv_work_t *)calloc(1, sizeof(uv_work_t))) == NULL)
+	return 1;
     work->data = baton;
 
+    /* submit command request to worker thread */
     switch (baton->restkey) {
     case RESTKEY_CONTEXT:
 	uv_queue_work(loop, work, pmwebapi_context, pmwebapi_work_done);

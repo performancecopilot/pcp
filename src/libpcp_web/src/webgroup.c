@@ -111,10 +111,14 @@ webgroup_access(struct context *cp, sds hostspec, dict *params,
 
     /* add username from Basic Auth header if none given in hostspec */
     if (params && cp->username == NULL) {
-	if ((value = dictFetchValue(params, AUTH_USERNAME)) != NULL)
+	if ((value = dictFetchValue(params, AUTH_USERNAME)) != NULL) {
 	    __pmHashAdd(PCP_ATTR_USERNAME, strdup(value), &attrs);
-	if ((value = dictFetchValue(params, AUTH_PASSWORD)) != NULL)
+	    cp->username = sdsdup(value);
+	}
+	if ((value = dictFetchValue(params, AUTH_PASSWORD)) != NULL) {
 	    __pmHashAdd(PCP_ATTR_PASSWORD, strdup(value), &attrs);
+	    cp->password = sdsdup(value);
+	}
     }
 
     bytes = __pmUnparseHostAttrsSpec(hosts, numhosts, &attrs, buf, sizeof(buf));
