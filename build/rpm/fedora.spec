@@ -3186,7 +3186,7 @@ cd
 
 %changelog
 * Fri Oct 11 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.0-1
-- Work in progress: https://github.com/performancecopilot/pcp/projects/1
+- Update to latest PCP sources.
 
 * Fri Aug 16 2019 Nathan Scott <nathans@redhat.com> - 4.3.4-1
 - Resolve bootup issues with pmlogger service (BZ 1737091, BZ 1721223)
