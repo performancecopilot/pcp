@@ -91,6 +91,16 @@ If you choose the latter, please be a good samaritan and forward the
 relevant AVC denials upstream for the community to apply and ship the
 updated policy package.
 
+There's also a possibility that the AVC is covered by some dontaudit
+rule. You can temporary disable dontaudit rules using:
+
+    # semodule -DB
+
+There's also other than AVC audit events related to SELinux - USER_AVC
+and SELINUX_ERR that could be checked in case of unexplained issues:
+
+    # ausearch -m avc,user_avc,selinux_err -i -ts recent
+
 == Building ==
 
 In the src/selinux directory
@@ -162,7 +172,6 @@ https://bugzilla.redhat.com/show_bug.cgi?id=1336211
 /var/run/pcp(/.*)?                     all files          system_u:object_r:pcp_var_run_t:s0 
 /var/run/pmcd\.socket                  regular file       system_u:object_r:pcp_var_run_t:s0 
 /var/run/pmlogger\.primary\.socket     symbolic link      system_u:object_r:pcp_var_run_t:s0 
-
 
 == Background ==
 
