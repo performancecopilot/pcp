@@ -13,13 +13,14 @@
 .\" GNU General Public License for more details.
 .\"
 .\"
-.TH PMDAnetcheck 1 "PCP" "Performance Co-Pilot"
+.TH PMDANETCHECK 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdanetcheck\f1 \- netcheck PMDA
 .SH DESCRIPTION
-\fBpmdanetcheck\fP is a Performance Metrics Domain Agent (PMDA) which does
-basic network checks on the local host by using simple Python modules and,
-in some cases, external utilities such as
+\fBpmdanetcheck\fP is a Performance Co-Pilot (PCP) Performance Metrics
+Domain Agent (PMDA) which does basic network checks on the local host by
+using simple Python modules and, in some cases, external utilities such
+as
 .BR ping (1).
 .PP
 \fBpmdanetcheck\fP loads and acts as a bridge for any number of configured,
@@ -84,9 +85,9 @@ will always cause the PMDA to fail to start.
 For each \fImodule\fP listed in \fBmodules\fP a corresponding \fI[module]\fP
 section must be defined.
 Each \fI[module]\fP section can contain at least the following options
-(their default values shown are in parenthesis):
+(their default values are shown in parenthesis):
 .TP 15
-.B timeout \fR(\fP1\fP\fR)\fP
+.B timeout \fR(\fP\fI1\fP\fR)\fP
 Force a hard \fBtimeout\fP (optional) for each individual network check
 operation.
 .TP
@@ -142,7 +143,7 @@ In case a check has not finished yet its metric value is \fB-1\fP.
 If a check was terminated during execution due to timeout
 the value is \fB-2\fP.
 .SH FILES
-.TP
+.TP 5
 .I \f(CW$PCP_PMDAS_DIR\fP/netcheck/netcheck.conf
 configuration file for the \fBpmdanetcheck\fP agent
 .TP
@@ -157,6 +158,12 @@ undo installation script for the \fBpmdanetcheck\fP agent
 .TP
 .I \f(CW$PCP_LOG_DIR\fP/pmcd/netcheck.log
 default log file for messages from the \fBpmdanetcheck\fP agent
+.PP
+Note that the usual/default value for \fB$PCP_PMDAS_DIR\fP is
+.B /var/lib/pcp/pmdas
+and the default for \fB$PCP_LOG_DIR\fP is
+.B /var/log/pcp
+but these settings are platform dependent.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
