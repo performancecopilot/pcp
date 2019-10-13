@@ -17,9 +17,10 @@
 .SH NAME
 \f3pmdabcc\f1 \- BCC PMDA
 .SH DESCRIPTION
-\fBpmdabcc\fP is a Performance Metrics Domain Agent (PMDA) which extracts
-live performance data from extended BPF (Berkeley Packet Filter) in-kernel
-programs by using BCC (BPF Compiler Collection) Python frontend.
+\fBpmdabcc\fP is a Performance Co-Pilot (PCP) Performance Metrics Domain
+Agent (PMDA) which extracts live performance data from extended BPF
+(Berkeley Packet Filter) in-kernel programs by using BCC (BPF Compiler
+Collection) Python frontend.
 .PP
 \fBpmdabcc\fP loads and acts as a bridge for any number of configured,
 separate PCP BCC PMDA Python modules running BPF programs.
@@ -150,6 +151,12 @@ undo installation script for the \fBpmdabcc\fP agent
 .TP
 .I \f(CW$PCP_LOG_DIR\fP/pmcd/bcc.log
 default log file for messages from the \fBpmdabcc\fP agent
+.PP
+Note that the usual/default value for \fB$PCP_PMDAS_DIR\fP is
+.B /var/lib/pcp/pmdas
+and the default for \fB$PCP_LOG_DIR\fP is
+.B /var/log/pcp
+but these settings are platform dependent.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
