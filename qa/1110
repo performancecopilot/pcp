@@ -19,11 +19,10 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 eval `$PCP_PYTHON_PROG $PCP_PMDAS_DIR/haproxy/connect --config`
 [ -n "$user" ] || _notrun "haproxy PMDA's connect script failed to set \$user"
 [ -n "$socket" ] || _notrun "haproxy PMDA's connect script failed to set \$socket"
-[ -S $socket ] && _notrun "haproxy stats socket already exists; haproxy service running?"
+[ -S "$socket" ] && _notrun "haproxy stats socket already exists; haproxy service running?"
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-username=`id -u -n`
 $sudo rm -rf $tmp.* $seq.full
 
 # cull these "first time ever run" warnings ...
@@ -59,7 +58,7 @@ pmda_install()
 
     cat <<EOF >$tmp.config
 [pmda]
-user = $username
+user = $user
 socket = $socket
 EOF
     echo "pmdahaproxy config:" >> $here/$seq.full
@@ -77,7 +76,8 @@ EOF
 
 pmda_cleanup()
 {
-    [ "X$spid" != X ] && (( $signal $spid )&) >/dev/null 2>&1
+    $sudo $signal -s KILL $spid >/dev/null 2>&1
+    $sudo rm -f $socket >/dev/null 2>&1
     if [ -f $tmp.backup ]; then
         $sudo cp $tmp.backup $PCP_PMDAS_DIR/haproxy/haproxy.conf
         $sudo rm $tmp.backup
@@ -89,15 +89,18 @@ pmda_cleanup()
 }
 
 _prepare_pmda haproxy
-trap "pmda_cleanup; rm -f $socket; exit \$status" 0 1 2 3 15
+trap "pmda_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 
 # real QA test starts here
-$python $here/haproxy/haproxy_stats_server.python $socket &
-spid=$!
+$sudo mkdir -p $(dirname $socket)
+$sudo chmod 0755 $(dirname $socket)
+$sudo $python $here/haproxy/haproxy_stats_server.python $socket &
+spid=$($sudo ps --ppid $! -opid=)
+disown > /dev/null 2>&1 || :
 pmsleep 0.5	# give server a chance to start
-chcon -t haproxy_var_lib_t $socket >/dev/null 2>&1 || :
+$sudo chcon system_u:object_r:haproxy_var_lib_t:s0 $(dirname $socket) $socket >/dev/null 2>&1 || :
 pmda_install
 echo
 
@@ -109,7 +112,7 @@ pminfo -dfmtT $metrics 2>&1 \
 echo "=== verify metric values ==="
 pminfo -v haproxy 2>&1 \
 | $here/src/sortinst | pmda_filter | tee -a $here/$seq.full
-pmda_remove
 
+pmda_remove
 status=0
 exit
