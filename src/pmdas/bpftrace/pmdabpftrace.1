@@ -17,8 +17,54 @@
 .SH NAME
 \fBpmdabpftrace\fP \- bpftrace PMDA
 .SH DESCRIPTION
-\fBpmdabpftrace\fP is a Performance Co-Pilot \s-1PMDA\s0 which exports
-metrics from bpftrace scripts.
+\fBpmdabpftrace\fP is a Performance Co-Pilot (PCP) Performance Metrics
+Domain Agent (PMDA) which exports metrics from
+.BR bpftrace (8)
+scripts.
+.SH CONFIGURATION
+\fBpmdabpftrace\fP reads an optional ini-style configuration file:
+.IP
+.PD 0
+.IP
+.I \f(CW$PCP_PMDAS_DIR\fP/bpftrace/bpftrace.conf
+.PD
+.PP
+This file may contain \fB[authentication]\fP and \fB[bpftrace]\fP
+sections.
+Please refer to
+.UR https://pcp.io/docs/lab.auth.html
+.UE
+on how to setup authentication which is \fBhighly recommended\fP
+as otherwise anyone could run any
+.BR bpftrace (8)
+script as
+.BR root .
+.PP
+.B [authentication]
+section specifies values for the following settings
+(their default values are shown in parenthesis):
+.TP 15
+.B enabled \fR(\fP\fITrue\fP\fR)\fP
+A boolean value to specify whether authention is required or not.
+Please see the note above on authention setup.
+.TP
+.B allowed_users \fR(\fP\fIroot\fP\fR)\fP
+A comma-separated list of usernames which are allowed to register
+.BR bpftrace (8)
+scripts.
+.PP
+.B [bpftrace]
+section specifies values for the following settings
+(their default values are shown in parenthesis):
+.TP 15
+.B bpftrace_path \fR(\fP\fIbpftrace\fP\fR)\fP
+Path to the
+.BR bpftrace (8)
+executable.
+.TP
+.B script_expiry_time \fR(\fP\fI60\fP\fR)\fP
+Unnamed scripts are removed after this period of time (in seconds)
+in case there has been no requests for their values.
 .SH INSTALLATION
 To install, the following must be done as root:
 .sp 1
@@ -47,27 +93,31 @@ executed directly.
 The \fBInstall\fP and \fBRemove\fP scripts notify \fBpmcd\fP(1) when
 the agent is installed or removed.
 .SH FILES
-.IP "\fB$PCP_PMDAS_DIR/bpftrace/bpftrace.conf\fR" 4
+.TP 5
+.I \f(CW$PCP_PMDAS_DIR\fP/bpftrace/bpftrace.conf
 configuration file for the \fBpmdabpftrace\fR agent
-.IP "\fB$PCP_PMDAS_DIR/bpftrace/Install\fR" 4
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/bpftrace/Install
 installation script for the \fBpmdabpftrace\fR agent
-.IP "\fB$PCP_PMDAS_DIR/bpftrace/Remove\fR" 4
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/bpftrace/Remove
 undo installation script for the \fBpmdabpftrace\fR agent
-.IP "\fB$PCP_LOG_DIR/pmcd/bpftrace.log\fR" 4
-default log file for error messages from the \fBpmdabpftrace\fR agent
+.TP
+.I \f(CW$PCP_LOG_DIR\fP/pmcd/bpftrace.log
+default log file for messages from the \fBpmdabpftrace\fR agent
 .PP
-Note the usual/default value for \fB$PCP_PMDAS_DIR\fP is
+Note that the usual/default value for \fB$PCP_PMDAS_DIR\fP is
 .B /var/lib/pcp/pmdas
 and the default for \fB$PCP_LOG_DIR\fP is
 .B /var/log/pcp
 but these settings are platform dependent.
-.PD
 .SH PCP ENVIRONMENT
-Environment variables with the prefix \fBPCP_\fR are used to parameterize
-the file and directory names used by \fBPCP\fR. On each installation, the
-file \fB/etc/pcp.conf\fR contains the local values for these variables.
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
 The \fB$PCP_CONF\fR variable may be used to specify an alternative
-configuration file, as described in \fIpcp.conf\fR(5).
+configuration file, as described in \fBpcp.conf\fR(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1)

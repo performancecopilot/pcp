@@ -2,58 +2,74 @@
 .\"
 .\" Copyright (c) 2018 Red Hat.  All Rights Reserved.
 .\" Copyright (c) 2009 Aconex.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDAPOSTGRESQL 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdapostgresql\f1 \- PostgreSQL database PMDA
 .SH DESCRIPTION
-\f3pmdapostgresql\f1 is a Performance Co-Pilot \s-1PMDA\s0 which extracts
-live performance data from a running PostgreSQL database server.
+\f3pmdapostgresql\f1 is a Performance Co-Pilot (PCP) Performance Metrics
+Domain Agent (PMDA) which extracts live performance data from a running
+PostgreSQL database server.
 .PP
-Many of the staticstics available from a PostgreSQL server may not
+Many of the statistics available from a PostgreSQL server may not
 be enabled by default.
-Refer to the online documentation at
-.I https://www.postgresql.org/docs/current/static/monitoring-stats.html
+Refer to the online documentation
+.UR https://www.postgresql.org/docs/current/static/monitoring-stats.html
+.UE
 which describes each of the available parameters related to statistics
 collection and how to enable them.
-.SH INSTALLATION
-\f3pmdapostgresql\f1 uses a configuration file from \&\f(CW$PCP_PMDAS_DIR\fR/postgresql/postgresql.conf
+.SH CONFIGURATION
+\fBpmdapostgresql\fP reads a mandatory ini-style configuration file:
+.IP
+.PD 0
+.IP
+.I \f(CW$PCP_PMDAS_DIR\fP/postgresql/postgresql.conf
+.PD
 .PP
 This file currently contains only one section
 .B [authentication]
-which specifies values for the following default settings:
-.IP "\(bu" 4
-host \- hostname, [default: 'local']
-.IP "\(bu" 4
-port \- port number, [default: '5432']
-.IP "\(bu" 4
-dbname \- database name, [default: 'postgres']
-.IP "\(bu" 4
-username \- username to run as and to connect to the database [default: 'postgres']
-.IP "\(bu" 4
-password \- password to connect to the database [default: 'password']
-.IP "\(bu" 4
-osuser \- operating system user the PMDA runs as [default: not set]
-.PD
+which specifies values for the following settings
+(their default values are shown in parenthesis):
+.TP 15
+.B host \fR(\fP\fIlocal\fP\fR)\fP
+Hostname to connect to.
+.TP
+.B port \fR(\fP\fI5432\fP\fR)\fP
+Port number to use.
+.TP
+.B dbname \fR(\fP\fIpostgres\fP\fR)\fP
+Database name.
+.TP
+.B username \fR(\fP\fIpostgres\fP\fR)\fP
+Username to run as and to connect to the database.
+.TP
+.B password \fR(\fP\fIpassword\fP\fR)\fP
+Password to connect to the database.
+.TP
+.B osuser \fR(unset)\fP
+Operating system user the PMDA runs as.
 .PP
-The defaults (as above) will result in the PMDA running as the
-current user, using a UNIX domain socket connection to the PostgreSQL server on the localhost.
+The defaults (as above) will result in the PMDA running as the current
+user, using a UNIX domain socket connection to the PostgreSQL server on
+the localhost.
+.PP
 If
 .B osuser
-is not specified in the configuration file, the PMDA will run as the current user.
-A host specification of "local" will use a UNIX domain socket, which uses peer authentication,
-see comments in the
+is not specified in the configuration file, the PMDA will run as the
+current user.
+A host specification of \fIlocal\fP will use a UNIX domain socket, which
+uses peer authentication, see comments in the
 .B pg_hba.conf
 file.
 In this case, the
@@ -61,32 +77,44 @@ In this case, the
 setting should probably be set to
 .BR postgres .
 .PP
-It is generally not necessary to alter the default configuration file for monitoring
-the local PostgreSQL server instance with a default server configuration.
-Note the port number is required even for a UNIX domain
-connection because it's used as the socket filename by the server.
+It is generally not necessary to alter the default configuration file
+for monitoring the local PostgreSQL server instance with a default
+server configuration.
+Note that the port number is required even for a UNIX domain connection
+because it's used as the socket filename by the server.
+.SH INSTALLATION
+To install, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/postgresql
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/postgresql
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
+\fBpmdapostgresql\fP is launched by \fBpmcd\fP(1) and should never be
+executed directly.
+The \fBInstall\fP and \fBRemove\fP scripts notify \fBpmcd\fP(1) when
+the agent is installed or removed.
 .PP
-Once this is setup, you can access the names and values for the
-postgresql performance metrics by doing the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/postgresql
-.br
-      # ./Install
-.PP
-To uninstall, do the following as root:
-.PP
-      # cd $PCP_PMDAS_DIR/postgresql
-.br
-      # ./Remove
-.PP
-\fBpmdapostgresql\fR is launched by \fIpmcd\fR(1) and should never be executed 
-directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
-agent is installed or removed.
-.PP
-\fBpmdapostgresql\fR will automatically attempt to reconnect to the PostgreSQL server
-if it's connection is lost - e.g. if the PostgreSQL service is restarted.
-.SH "SUPPORTED VERSIONS"
-\fBpmdapostgresql\fR has been tested and verified with
+\fBpmdapostgresql\fR will automatically attempt to reconnect to the
+PostgreSQL server if its connection is lost - e.g. if the PostgreSQL
+service is restarted.
+.SH SUPPORTED VERSIONS
+This version of \fBpmdapostgresql\fR has been tested and verified with
 PostgreSQL server version
 .B 10.2
 and earlier.
@@ -95,29 +123,34 @@ probes the various performance tables on start-up to determine the
 column ordering.
 It also tolerates missing or renamed tables and/or columns.
 .SH FILES
-.IP "\fB$PCP_PMDAS_DIR/postgresql/pmdapostgresql.conf\f1"
-configuration file for \fBpmdapostgresql\fR
-.IP "\fB$PCP_PMDAS_DIR/postgresql/Install\fR" 4 
-installation script for the \fBpmdapostgresql\fR agent 
-.IP "\fB$PCP_PMDAS_DIR/postgresql/Remove\fR" 4 
-undo installation script for the \fBpmdapostgresql\fR agent 
-.IP "\fB$PCP_LOG_DIR/pmcd/postgresql.log\fR" 4 
-default log file for error messages from \fBpmdapostgresql\fR 
+.TP 5
+.I \f(CW$PCP_PMDAS_DIR\fP/postgresql/pmdapostgresql.conf
+configuration file for the \fBpmdapostgresql\fR agent
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/postgresql/Install
+installation script for the \fBpmdapostgresql\fR agent
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/postgresql/Remove
+undo installation script for the \fBpmdapostgresql\fR agent
+.TP
+.I \f(CW$PCP_LOG_DIR\fP/pmcd/postgresql.log
+default log file for messages from the \fBpmdapostgresql\fR agent
 .PP
-Note the usual/default value for \fB$PCP_PMDAS_DIR\fP is
+Note that the usual/default value for \fB$PCP_PMDAS_DIR\fP is
 .B /var/lib/pcp/pmdas
 and the default for \fB$PCP_LOG_DIR\fP is
 .B /var/log/pcp
 but these settings are platform dependent.
-.PD
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
-the file and directory names used by \fBPCP\fR. On each installation, the
-file \fB/etc/pcp.conf\fR contains the local values for these variables. 
-The \fB$PCP_CONF\fR variable may be used to specify an alternative 
-configuration file, as described in \fIpcp.conf\fR(5).
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fR contains the local values for these variables.
+The \fB$PCP_CONF\fR variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fR(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
-.BR PMCD (1)
+.BR pmcd (1)
 and
-.B https://www.postgresql.org/docs/current/static/monitoring-stats.html
+.UR \fBhttps://www.postgresql.org/docs/current/static/monitoring-stats.html\fP
+.UE .

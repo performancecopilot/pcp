@@ -77,7 +77,6 @@ EOF
 
 pmda_cleanup()
 {
-    [ "X$spid" != X ] && (( $signal $spid )&) >/dev/null 2>&1
     if [ -f $tmp.backup ]; then
         $sudo cp $tmp.backup $PCP_PMDAS_DIR/netcheck/netcheck.conf
         $sudo rm $tmp.backup
