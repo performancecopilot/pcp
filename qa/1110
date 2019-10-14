@@ -97,7 +97,7 @@ _stop_auto_restart pmcd
 $sudo mkdir -p $(dirname $socket)
 $sudo chmod 0755 $(dirname $socket)
 $sudo $python $here/haproxy/haproxy_stats_server.python $socket &
-spid=$($sudo ps --ppid $! -opid=)
+spid=$($sudo ps -fwaux | grep python | awk '/pcp\/testsuite/ {print $2}')
 disown > /dev/null 2>&1 || :
 pmsleep 0.5	# give server a chance to start
 $sudo chcon system_u:object_r:haproxy_var_lib_t:s0 $(dirname $socket) $socket >/dev/null 2>&1 || :
