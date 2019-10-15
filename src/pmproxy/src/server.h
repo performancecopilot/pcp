@@ -107,6 +107,8 @@ typedef struct secure_client {
 typedef struct client {
     struct stream	stream;
     stream_protocol	protocol;
+    unsigned int	refcount;
+    uv_mutex_t		mutex;
 #ifdef HAVE_OPENSSL
     secure_client	secure;
 #endif
@@ -149,6 +151,9 @@ extern void on_client_write(uv_write_t *, int);
 extern void on_client_close(uv_handle_t *);
 extern void on_buffer_alloc(uv_handle_t *, size_t, uv_buf_t *);
 extern void client_write(struct client *, sds, sds);
+
+extern void client_get(struct client *);
+extern void client_put(struct client *);
 
 extern void on_protocol_read(uv_stream_t *, ssize_t, const uv_buf_t *);
 

@@ -628,7 +628,8 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
 	sdsfree(quoted);
     }
 
-    http_reply(baton->client, msg, code, flags);
+    http_reply(client, msg, code, flags);
+    client_put(client);
 }
 
 static pmWebGroupSettings pmwebapi_settings = {
@@ -878,7 +879,7 @@ pmwebapi_request_done(struct client *client)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)client->u.http.data;
     uv_loop_t		*loop = client->proxy->events;
-    uv_work_t		*work = (uv_work_t *)calloc(1, sizeof(uv_work_t));
+    uv_work_t		*work;
 
     /* fail early if something has already gone wrong */
     if (client->u.http.parser.status_code != 0)
@@ -887,6 +888,9 @@ pmwebapi_request_done(struct client *client)
     if ((work = (uv_work_t *)calloc(1, sizeof(uv_work_t))) == NULL)
 	return 1;
     work->data = baton;
+
+    /* take a reference on the client to prevent freeing races on close */
+    client_get(client);
 
     /* submit command request to worker thread */
     switch (baton->restkey) {
@@ -920,6 +924,7 @@ pmwebapi_request_done(struct client *client)
     case RESTKEY_NONE:
     default:
 	client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	client_put(client);
 	free(work);
 	return 1;
     }

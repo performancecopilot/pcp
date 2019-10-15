@@ -12,6 +12,7 @@
  * License for more details.
  */
 #include "server.h"
+#include <assert.h>
 
 void
 proxylog(pmLogLevel level, sds message, void *arg)
@@ -144,7 +145,33 @@ on_client_close(uv_handle_t *handle)
 	on_redis_client_close(client);
     if (client->protocol & STREAM_SECURE)
 	on_secure_client_close(client);
-    free(client);
+
+    client_put(client);
+}
+
+void
+client_get(struct client *client)
+{
+    uv_mutex_lock(&client->mutex);
+    assert(client->refcount);
+    client->refcount++;
+    uv_mutex_unlock(&client->mutex);
+}
+
+void
+client_put(struct client *client)
+{
+    unsigned int	refcount;
+
+    uv_mutex_lock(&client->mutex);
+    assert(client->refcount);
+    refcount = --client->refcount;
+    uv_mutex_unlock(&client->mutex);
+
+    if (refcount == 0) {
+	memset(client, 0, sizeof(*client));
+	free(client);
+    }
 }
 
 void
@@ -304,11 +331,15 @@ on_client_connection(uv_stream_t *stream, int status)
 	fprintf(stderr, "%s: accept new client %p\n",
 			"on_client_connection", client);
 
+    /* prepare per-client lock for reference counting */
+    uv_mutex_init(&client->mutex);
+    client->refcount = 1;
+
     status = uv_tcp_init(proxy->events, &client->stream.u.tcp);
     if (status != 0) {
 	fprintf(stderr, "%s: client tcp init failed: %s\n",
 			pmGetProgname(), uv_strerror(status));
-	free(client);
+	client_put(client);
 	return;
     }
 
@@ -316,7 +347,7 @@ on_client_connection(uv_stream_t *stream, int status)
     if (status != 0) {
 	fprintf(stderr, "%s: client tcp init failed: %s\n",
 			pmGetProgname(), uv_strerror(status));
-	free(client);
+	client_put(client);
 	return;
     }
     handle = (uv_handle_t *)&client->stream.u.tcp;
