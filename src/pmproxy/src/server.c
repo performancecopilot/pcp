@@ -12,7 +12,10 @@
  * License for more details.
  */
 #include "server.h"
+#include "uv_callback.h"
 #include <assert.h>
+
+uv_callback_t write_request_callback;
 
 void
 proxylog(pmLogLevel level, sds message, void *arg)
@@ -215,10 +218,24 @@ on_client_write(uv_write_t *writer, int status)
     client_close(client);
 }
 
+void *
+on_write_request(uv_callback_t *handle, void *data)
+{
+    write_request *write_r = (write_request *)data;
+    uv_write(write_r->req, write_r->handle, write_r->bufs, write_r->nbufs, write_r->cb);
+
+    free(data);
+
+    // baton will be freed by on_client_write
+
+    return 0;
+}
+
 void
 client_write(struct client *client, sds buffer, sds suffix)
 {
     stream_write_baton	*request;
+    write_request       *write_r;
     unsigned int	nbuffers = 0;
 
     if (client_is_closed(client))
@@ -235,11 +252,21 @@ client_write(struct client *client, sds buffer, sds suffix)
 			"client_write", (long)sdslen(suffix), client);
 	    request->buffer[nbuffers++] = uv_buf_init(suffix, sdslen(suffix));
 	}
-	if (client->stream.secure)
+	if (client->stream.secure) {
 	    secure_client_write(client, &request->writer, nbuffers);
-	else
-	    uv_write(&request->writer, (uv_stream_t *)&client->stream,
-			request->buffer, nbuffers, on_client_write);
+	} else {
+	    // what is data?
+	    write_r = malloc(sizeof(write_request));
+	    if (write_r != NULL) {
+		write_r->baton = request;
+		write_r->req = &request->writer;
+		write_r->handle = (uv_stream_t *)&client->stream;
+		write_r->bufs = &request->buffer[0];
+		write_r->nbufs = nbuffers;
+		write_r->cb = on_client_write;
+	        uv_callback_fire(&write_request_callback, write_r, NULL);
+	    }
+	}
     } else {
 	client_close(client);
     }
@@ -686,6 +713,9 @@ main_loop(void *arg)
     handle = (uv_handle_t *)&after_io;
     handle->data = (void *)proxy;
     uv_check_start(&after_io, check_proxy);
+
+    uv_callback_init(proxy->events, &write_request_callback,
+		     on_write_request, UV_DEFAULT);
 
     uv_run(proxy->events, UV_RUN_DEFAULT);
     uv_loop_close(proxy->events);
