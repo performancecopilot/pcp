@@ -255,7 +255,6 @@ client_write(struct client *client, sds buffer, sds suffix)
 	if (client->stream.secure) {
 	    secure_client_write(client, &request->writer, nbuffers);
 	} else {
-	    // what is data?
 	    write_r = malloc(sizeof(write_request));
 	    if (write_r != NULL) {
 		write_r->baton = request;
@@ -265,6 +264,8 @@ client_write(struct client *client, sds buffer, sds suffix)
 		write_r->nbufs = nbuffers;
 		write_r->cb = on_client_write;
 	        uv_callback_fire(&write_request_callback, write_r, NULL);
+	    } else {
+		free(request);
 	    }
 	}
     } else {
