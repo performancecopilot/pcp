@@ -123,10 +123,13 @@ else
     else
 	echo "check.callback: fail: pmlogger not well!"
 	diff=false
-	cat $tmp.err.1 $tmp.out.1
 	if cmp $tmp.err.1 $tmp.err.2 >/dev/null
 	then
-	    if cmp $tmp.out.1 $tmp.out.2 >/dev/null
+	    # strip timestamps from ./870 output, then cmp
+	    #
+	    sed -e '/^Now:/d' <$tmp.out.1 >$tmp.tmp.1
+	    sed -e '/^Now:/d' <$tmp.out.2 >$tmp.tmp.2
+	    if cmp $tmp.tmp.1 $tmp.tmp.2 >/dev/null
 	    then
 		:
 	    else
