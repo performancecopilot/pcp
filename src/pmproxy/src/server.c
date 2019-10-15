@@ -123,7 +123,7 @@ on_buffer_alloc(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
 	buf->len = 0;
 }
 
-void
+static void
 on_client_close(uv_handle_t *handle)
 {
     struct client	*client = (struct client *)handle;
@@ -174,6 +174,21 @@ client_put(struct client *client)
     }
 }
 
+int
+client_is_closed(struct client *client)
+{
+    return !client->opened;
+}
+
+void
+client_close(struct client *client)
+{
+    if (client->opened == 1) {
+	client->opened = 0;
+	uv_close((uv_handle_t *)client, on_client_close);
+    }
+}
+
 void
 on_client_write(uv_write_t *writer, int status)
 {
@@ -197,16 +212,19 @@ on_client_write(uv_write_t *writer, int status)
 
     if (pmDebugOptions.af)
 	fprintf(stderr, "%s: %s\n", "on_client_write", uv_strerror(status));
-    uv_close((uv_handle_t *)&client->stream, on_client_close);
+    client_close(client);
 }
 
 void
 client_write(struct client *client, sds buffer, sds suffix)
 {
-    stream_write_baton	*request = calloc(1, sizeof(stream_write_baton));
+    stream_write_baton	*request;
     unsigned int	nbuffers = 0;
 
-    if (request) {
+    if (client_is_closed(client))
+	return;
+
+    if ((request = calloc(1, sizeof(stream_write_baton))) != NULL) {
 	if (pmDebugOptions.af)
 	    fprintf(stderr, "%s: sending %ld bytes [0] to client %p\n",
 			"client_write", (long)sdslen(buffer), client);
@@ -223,7 +241,7 @@ client_write(struct client *client, sds buffer, sds suffix)
 	    uv_write(&request->writer, (uv_stream_t *)&client->stream,
 			request->buffer, nbuffers, on_client_write);
     } else {
-	uv_close((uv_handle_t *)&client->stream, on_client_close);
+	client_close(client);
     }
 }
 
@@ -282,7 +300,7 @@ on_protocol_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 	    fprintf(stderr, "%s: unknown protocol key '%c' (0x%x)"
 			    " - disconnecting client %p\n", "on_protocol_read",
 		    *buf->base, (unsigned int)*buf->base, proxy);
-	uv_close((uv_handle_t *)client, on_client_close);
+	client_close(client);
     }
 }
 
@@ -304,7 +322,7 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 	    fprintf(stderr, "%s: read error %ld "
 		    "- disconnecting client %p\n", "on_client_read",
 		    (long)nread, client);
-	uv_close((uv_handle_t *)stream, on_client_close);
+	client_close(client);
     }
     sdsfree(buf->base);
 }
@@ -334,6 +352,7 @@ on_client_connection(uv_stream_t *stream, int status)
     /* prepare per-client lock for reference counting */
     uv_mutex_init(&client->mutex);
     client->refcount = 1;
+    client->opened = 1;
 
     status = uv_tcp_init(proxy->events, &client->stream.u.tcp);
     if (status != 0) {
@@ -365,7 +384,7 @@ on_client_connection(uv_stream_t *stream, int status)
     if (status != 0) {
 	fprintf(stderr, "%s: client read start failed: %s\n",
 			pmGetProgname(), uv_strerror(status));
-	uv_close((uv_handle_t *)stream, on_client_close);
+	client_close(client);
     }
 }
 
