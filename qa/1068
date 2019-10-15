@@ -45,7 +45,8 @@ _zbx_header()
     sed -e 's/{//g' | \
     od -c | \
     sed -n 1p | \
-    sed -e 's/ D 001.*/ D/g'
+    sed -e 's/ D 001.*/ D/g' | \
+    sed -e 's/   / /g' -e 's/  / /g'
 }
 
 zabbix_port=`_find_free_port`
