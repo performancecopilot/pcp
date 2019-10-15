@@ -19,9 +19,9 @@ $python -c "import importlib" >/dev/null 2>&1
 
 which ping > /dev/null 2>&1 || _notrun "ping not installed"
 ping -c 1 localhost > $tmp.tmp 2>&1 || _notrun "failed to ping localhost"
-LOCALHOST=`sed < $tmp.tmp -n -e '/bytes from/{
-s/.* bytes from //
-s/ .*//
+LOCALHOST=`sed < $tmp.tmp -n -e '/ping statistics/{
+s/ ping statistics.*//
+s/--- //
 p
 }'`
 
