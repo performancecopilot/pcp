@@ -699,20 +699,23 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
     struct pmu_event *event_ptr;
     char eventname[BUF_SIZE];
     pmcsetting_t *ptr;
-    int disable_event;
+    int disable_event, cpusetting;
 
     for (pmu_ptr = pmu_list; pmu_ptr; pmu_ptr = pmu_ptr->next) {
         for (event_ptr = pmu_ptr->ev; event_ptr;
              event_ptr = event_ptr->next) {
             ncpus = 0;
             disable_event = 1;
+	    cpusetting = -1;
             /* Setup the event name */
             pmsprintf(eventname, BUF_SIZE, "%s.%s", pmu_ptr->name,
                      event_ptr->name);
             for (ptr = dynamic_setting; ptr; ptr = ptr->next) {
                 if (!strncmp(eventname, ptr->name,
-                             strlen(eventname)))
+                             strlen(eventname))) {
                     disable_event = 0;
+		    cpusetting = ptr->cpuConfig;
+		}
             }
 
             /* Increase the size of event array */
@@ -726,15 +729,28 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
             }
 	    events = evp;
 
-            setup_cpu_config(pmu_ptr, &ncpus, &cpumask);
-
-            if (ncpus <= 0) { /* Assume default cpu set */
-                cpuarr = archinfo->cpus.index;
-                ncpus = archinfo->cpus.count;
-            } else {
-                cpuarr = cpumask;
-            }
-
+	    /*
+	     * If dynamic events have a cpuconfig defined in the
+	     * perfevent.conf, consider that
+	     */
+	    if(!(cpusetting < 0)) {
+	        if (cpusetting < archinfo->cpus.count) {
+		    cpuarr = &archinfo->cpus.index[cpusetting];
+		    ncpus = 1;
+		}
+	    } else {
+		/*
+		 * If no cpuconfig specified in perfevent.conf
+		 * setup the cpu config for this event
+		 */
+	        setup_cpu_config(pmu_ptr, &ncpus, &cpumask);
+		if (ncpus <= 0) { /* Assume default cpu set */
+		    cpuarr = archinfo->cpus.index;
+		    ncpus = archinfo->cpus.count;
+		} else {
+		    cpuarr = cpumask;
+		}
+	    }
             event_t *curr = events + nevents;
             curr->name = strdup(eventname);
 
