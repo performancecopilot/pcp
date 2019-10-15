@@ -52,7 +52,6 @@ typedef unsigned int http_code;
 extern void http_transfer(struct client *);
 extern void http_reply(struct client *, sds, http_code, http_flags);
 extern void http_error(struct client *, http_code, const char *);
-extern void http_close(struct client *);
 
 extern int http_decode(const char *, size_t, sds);
 extern const char *http_status_mapping(http_code);

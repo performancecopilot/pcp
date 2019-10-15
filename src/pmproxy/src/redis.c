@@ -81,7 +81,7 @@ on_redis_client_read(struct proxy *proxy, struct client *client,
 	redisSlotsProxyConnect(proxy->slots,
 		proxylog, &client->u.redis.reader,
 		buf->base, nread, on_redis_server_reply, client) < 0) {
-	uv_close((uv_handle_t *)&client->stream, on_client_close);
+	client_close(client);
     }
 }
 

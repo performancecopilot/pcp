@@ -108,6 +108,7 @@ typedef struct client {
     struct stream	stream;
     stream_protocol	protocol;
     unsigned int	refcount;
+    unsigned int	opened;
     uv_mutex_t		mutex;
 #ifdef HAVE_OPENSSL
     secure_client	secure;
@@ -148,10 +149,11 @@ extern void proxylog(pmLogLevel, sds, void *);
 
 extern void on_proxy_flush(uv_handle_t *);
 extern void on_client_write(uv_write_t *, int);
-extern void on_client_close(uv_handle_t *);
 extern void on_buffer_alloc(uv_handle_t *, size_t, uv_buf_t *);
-extern void client_write(struct client *, sds, sds);
 
+extern void client_write(struct client *, sds, sds);
+extern int client_is_closed(struct client *);
+extern void client_close(struct client *);
 extern void client_get(struct client *);
 extern void client_put(struct client *);
 

@@ -275,12 +275,6 @@ http_response_header(struct client *client, unsigned int length, http_code sts, 
 }
 
 void
-http_close(struct client *client)
-{
-    uv_close((uv_handle_t *)&client->stream, on_client_close);
-}
-
-void
 http_reply(struct client *client, sds message, http_code sts, http_flags type)
 {
     http_flags		flags = client->u.http.flags;
@@ -324,7 +318,7 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
     client_write(client, buffer, suffix);
 
     if (http_should_keep_alive(&client->u.http.parser) == 0)
-	http_close(client);
+	client_close(client);
 }
 
 void

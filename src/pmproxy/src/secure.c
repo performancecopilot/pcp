@@ -97,7 +97,7 @@ on_secure_client_read(struct proxy *proxy, struct client *client,
 	else if (SSL_get_error(client->secure.ssl, sts) == SSL_ERROR_WANT_READ)
 	    maybe_flush_ssl(proxy, client); /* defer to libuv if more to read */
 	else
-	    uv_close((uv_handle_t *)&client->stream, on_client_close);
+	    client_close(client);
 	break;
     } while (1);
 }
@@ -148,8 +148,8 @@ flush_secure_module(struct proxy *proxy)
 		continue;
 	    }
 	    if (sts != SSL_ERROR_WANT_READ) {
-		uv_close((uv_handle_t *)&client->stream, on_client_close);
 		client->secure.pending.queued = 0;
+		client_close(client);
 		break;
 	    }
 	    /*
