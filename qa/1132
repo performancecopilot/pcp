@@ -58,7 +58,6 @@ A="$here/archives/rep"
 # real QA test starts here
 echo "--- running pcp2xlsx"
 pcp2xlsx -a $A -H -I -z -b MB -P 2 -F $tmp.outfile ""
-cp $tmp.outfile /tmp/out
 mkdir -p $tmp.dir/ref $tmp.dir/run
 cd $tmp.dir/ref
 echo "--- unzipping reference output"

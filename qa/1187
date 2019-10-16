@@ -50,7 +50,7 @@ dstat()
 filter_info()
 {
     sed \
-	-e "/^\t/d" \
+	-e "/^$(printf '\t')/d" \
 	-e "/^.GCC /d" \
 	-e "s/^Python .*/Python VERSION/g" \
 	-e "s,$PCP_SYSCONF_DIR,/etc/pcp,g" \
