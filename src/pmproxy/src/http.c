@@ -283,7 +283,7 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
 
     if (flags & HTTP_FLAG_STREAMING) {
 	buffer = sdsempty();
-	if (client->buffer == NULL) {
+	if (client->buffer == NULL) {	/* no data currently accumulated */
 	    pmsprintf(length, sizeof(length), "%lX", (unsigned long)sdslen(message));
 	    buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, message);
 	} else if (message != NULL) {
@@ -298,6 +298,7 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
 	}
 	sdsfree(message);
 	suffix = sdsnewlen("0\r\n\r\n", 5);		/* chunked suffix */
+	client->u.http.flags &= ~HTTP_FLAG_STREAMING;	/* end of stream! */
     } else {	/* regular non-chunked response - headers + response body */
 	if (client->buffer == NULL) {
 	    suffix = message;
