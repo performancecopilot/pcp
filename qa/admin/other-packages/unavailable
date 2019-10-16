@@ -18,7 +18,7 @@ ArchLinux    -        -       python-bcc qtchooser
 CentOS       6\.10    -       chan-devel Coin-devel cppcheck docker docker-common docker-io HdrHistogram_c-devel kubectl kubernetes-client kubernetes-node libpfm-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libuv-devel libvarlink-devel Net::SNMP pylint python2-elasticsearch python2-openpyxl python2-pylint python-elasticsearch python-openpyxl python-prometheus_client python-pylint qt5-qtbase-devel qt5-qtsvg-devel qtchooser socat SoQt-devel systemd-devel system-python-libs uic zabbix22-agent zabbix-agent
 CentOS       7\.[5-7] -       chan-devel HdrHistogram_c-devel libvarlink-devel libvirt-python3 python2-openpyxl python3-bcc python3-elasticsearch python3-jsonpointer python3-libvirt python3-libvirt-python python3-lxml python3-openpyxl python3-pillow python3-Pillow python3-prometheus_client python3-psycopg2 python3-pyodbc python3-requests python3-rtslib python3-rtslib-fb python-openpyxl python-prometheus_client python-pylint qtchooser system-python-libs zfs-fuse
 #-- Debian
-Debian       9\.[4-6] -       docker.io libsoqt5-dev libuv-dev libuv0.10-dev python3-bpfcc
+Debian       9\..*    -       docker.io libsoqt5-dev libuv-dev libuv0.10-dev python3-bpfcc zfsutils-linux
 Debian       8\.[11]  - docker.io avahi-tools cpan(Spreadsheet::ReadSXC) cpan(Text::CSV_XS) libcoin-dev libsoqt5-dev libspreadsheet-readsxc-perl libuv1-dev mariadb-client-core mysql-client-core python3-bpfcc python3-openpyxl python3-prometheus-client python-prometheus-client
 #-- Fedora
 Fedora       26       -       kubectl kubernetes-client kubernetes-node libvarlink-devel python3-bcc python3-prometheus_client
