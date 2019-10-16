@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2018 Red Hat.
+# Copyright (c) 2012-2019 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -528,13 +528,13 @@ check_pmiend_fdleak:	check_pmiend_fdleak.c
 
 httpfetch:	httpfetch.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web $(LIB_FOR_LIBUV)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web
 json_test:	json_test.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web $(LIB_FOR_LIBUV)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web
 sha1int2ext:	sha1int2ext.o
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web $(LIB_FOR_LIBUV)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web
 
 # --- need libpcp_fault
 #

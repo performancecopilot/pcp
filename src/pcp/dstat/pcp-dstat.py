@@ -404,6 +404,14 @@ class DstatTool(object):
         global op
         op = self
 
+        # Avoid tracedump with --version and non-existing --archive
+        if '--version' in arguments and 'PCP_ARCHIVE' in os.environ:
+            if not os.path.exists(os.environ['PCP_ARCHIVE']) and \
+               not os.path.exists(os.environ['PCP_ARCHIVE'] + '.index'):
+                sys.stderr.write(os.path.basename(sys.argv[0]))
+                sys.stderr.write(": No such file or directory\n")
+                sys.exit(1)
+
         self.inittime = time.time()
         self.context = None
         self.opts = self.options()
@@ -1440,6 +1448,10 @@ class DstatTool(object):
         except IOError as error:
             if error.errno != errno.EPIPE:
                 raise error
+        try:
+            sys.stderr.close()
+        except Exception:
+            pass
         if op.pidfile:
             os.remove(op.pidfile)
 

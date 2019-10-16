@@ -22,7 +22,7 @@ static int chunked_transfer_size; /* pmproxy.chunksize, pagesize by default */
 static int smallest_buffer_size = 128;
 
 /*
- * Simple helpers to manage the cumlative addition of JSON
+ * Simple helpers to manage the cumulative addition of JSON
  * (arrays and/or objects) to a buffer.
  */
 sds
@@ -55,7 +55,10 @@ json_pop_suffix(sds suffix)
     /* chop first character - no resize, pad with null terminators */
     if (suffix) {
 	length = sdslen(suffix);
-	memmove(suffix, suffix+1, length-1);
+	// also copy the NUL byte at the end of the c string, therefore use
+	// length instead of length-1
+	memmove(suffix, suffix+1, length);
+	sdssetlen(suffix, length-1); // update length of the sds string accordingly
     }
     return suffix;
 }
@@ -275,12 +278,6 @@ http_response_header(struct client *client, unsigned int length, http_code sts, 
 }
 
 void
-http_close(struct client *client)
-{
-    uv_close((uv_handle_t *)&client->stream, on_client_close);
-}
-
-void
 http_reply(struct client *client, sds message, http_code sts, http_flags type)
 {
     http_flags		flags = client->u.http.flags;
@@ -289,7 +286,7 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
 
     if (flags & HTTP_FLAG_STREAMING) {
 	buffer = sdsempty();
-	if (client->buffer == NULL) {
+	if (client->buffer == NULL) {	/* no data currently accumulated */
 	    pmsprintf(length, sizeof(length), "%lX", (unsigned long)sdslen(message));
 	    buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, message);
 	} else if (message != NULL) {
@@ -304,6 +301,7 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
 	}
 	sdsfree(message);
 	suffix = sdsnewlen("0\r\n\r\n", 5);		/* chunked suffix */
+	client->u.http.flags &= ~HTTP_FLAG_STREAMING;	/* end of stream! */
     } else {	/* regular non-chunked response - headers + response body */
 	if (client->buffer == NULL) {
 	    suffix = message;
@@ -324,7 +322,7 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
     client_write(client, buffer, suffix);
 
     if (http_should_keep_alive(&client->u.http.parser) == 0)
-	http_close(client);
+	client_close(client);
 }
 
 void

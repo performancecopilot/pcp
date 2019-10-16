@@ -218,6 +218,16 @@ timestamp plugins:
 === std err
 === done
 
+Piping
+You did not select any stats, using -cdngy by default.
+----system---- ----total-usage---- -dsk/total- -net/total- ---paging-- ---system--
+     time     |usr sys idl wai stl| read  writ| recv  send|  in   out | int   csw 
+=== done
+
+Missing archive
+pcp-dstat: No such file or directory
+=== done
+
 CSV stdout
 === std out
 ----system---- --io/total- ------tcp-sockets------- async

@@ -45,15 +45,18 @@ on_server_write(uv_write_t *writer, int status)
 
     free(request);
     if (status != 0)
-	uv_close((uv_handle_t *)&client->stream, on_client_close);
+	client_close(client);
 }
 
 static void
 server_write(struct client *client, sds buffer)
 {
-    stream_write_baton	*request = calloc(1, sizeof(stream_write_baton));
+    stream_write_baton	*request;
 
-    if (request) {
+    if (client_is_closed(client))
+	return;
+
+    if ((request = calloc(1, sizeof(stream_write_baton))) != NULL) {
 	if (pmDebugOptions.pdu)
 	    fprintf(stderr, "%s: %ld bytes from client %p to pmcd\n",
 			"server_write", (long)sdslen(buffer), client);
@@ -61,7 +64,7 @@ server_write(struct client *client, sds buffer)
 	uv_write(&request->writer, (uv_stream_t *)&client->u.pcp.socket,
 		 request->buffer, 1, on_server_write);
     } else {
-	uv_close((uv_handle_t *)&client->stream, on_client_close);
+	client_close(client);
     }
 }
 
@@ -107,7 +110,7 @@ on_pcp_client_connect(uv_connect_t *connected, int status)
 			"on_pcp_client_connect", client, status);
 
     if (status != 0) {
-	uv_close((uv_handle_t *)&client->stream, on_client_close);
+	client_close(client);
 	return;
     }
 
@@ -125,7 +128,7 @@ on_pcp_client_connect(uv_connect_t *connected, int status)
     if (status != 0) {
 	fprintf(stderr, "%s: server read start failed: %s\n",
 			"on_pcp_client_connect", uv_strerror(status));
-	uv_close((uv_handle_t *)&client->u.pcp.socket, on_client_close);
+	client_close(client);
     }
 }
 
@@ -254,17 +257,17 @@ on_pcp_client_read(struct proxy *proxy, struct client *client,
 	 */
 	if (client->buffer == NULL && nread >= HEADER_LENGTH) {
 	    if (pcp_consume_client_header(proxy, client, buf->base, nread) < 0)
-		uv_close((uv_handle_t *)&client->stream, on_client_close);
+		client_close(client);
 	} else if (nread < PDU_MAXLENGTH) {
 	    bytes = pcp_consume_bytes(client, buf->base, nread);
 	    if (bytes >= HEADER_LENGTH) {
 		part = client->buffer;
 		if (pcp_consume_client_header(proxy, client, part, bytes) < 0)
-		    uv_close((uv_handle_t *)&client->stream, on_client_close);
+		    client_close(client);
 	    }
 	} else {
 	    /* PDU is too large, tear down the client connection */
-	    uv_close((uv_handle_t *)&client->stream, on_client_close);
+	    client_close(client);
 	}
 	break;
 

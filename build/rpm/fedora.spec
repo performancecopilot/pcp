@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.0.0
+Version: 5.0.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -447,9 +447,6 @@ Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 Requires: pcp-libs-devel = %{version}-%{release}
 Requires: pcp-devel = %{version}-%{release}
-%if !%{disable_libuv}
-Requires: libuv-devel >= 1.0
-%endif
 Obsoletes: pcp-gui-testsuite
 # The following are inherited from pcp-collector and pcp-monitor,
 # both of which are now obsoleted by the base pcp package
@@ -3185,6 +3182,9 @@ cd
 %endif
 
 %changelog
+* Mon Dec 16 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.1-1
+- Work in progress: https://github.com/performancecopilot/pcp/projects/1
+
 * Fri Oct 11 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.0-1
 - Update to latest PCP sources.
 

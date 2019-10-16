@@ -27,6 +27,8 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _unzip_filter()
 {
+    LC_ALL=POSIX sort | \
+    grep -v sharedStrings | \
     sed \
        -e "s|Archive:.*||g" \
        -e "s|[ ]*$||g" \
@@ -72,12 +74,12 @@ cd $tmp.dir
 # openpyxl produced XML changes across versions to we do just a basic
 # sanity check here that the expected data are present in the sheet file
 fail=0
-check_strings="/usr/lib/systemd/systemd mem.util.used kernel.all.sysfork"
 echo checking output
-for str in $(echo $check_metrics | tr ' ' '\n'); do
-	grep $str ref/xl/sharedStrings.xml > /dev/null 2>&1
+check_strings="/usr/lib/systemd/systemd mem.util.used kernel.all.sysfork"
+for str in $(echo $check_strings | tr ' ' '\n'); do
+	grep -r $str . > /dev/null 2>&1
 	[ $? -ne 0 ] && fail=1
-	grep $str ref/xl/sharedStrings.xml > /dev/null 2>&1
+	grep -r $str . > /dev/null 2>&1
 	[ $? -ne 0 ] && fail=1
 done
 if [ $fail -eq 1 ]; then
