@@ -465,7 +465,7 @@ slackpkg?	jsonpointer.py				[N/A (build optional)]
 pacman?	/usr/lib/python3.*/*-packages/jsonpointer.py	[community/python-jsonpointer (build optional)
 brew?	/usr/local/lib/python3.*/*-packages/jsonpointer.py	[pip3(jsonpointer) (build optional)
 # -- python lio
-rpm?	/usr/lib*/python2.*/*-packages/rtslib		[python-rtslib or python2-rtslib]
+rpm?	/usr/lib*/python2.*/*-packages/rtslib		[python-rtslib or python2-rtslib or python2-rtslib-fb]
 rpm?	/usr/lib*/python3.*/*-packages/rtslib		[python3-rtslib or python3-rtslib-fb]
 urpmi?	/usr/lib*/python2.*/*-packages/rtslib		[python3-rtslib]
 urpmi?	/usr/lib*/python2.*/*-packages/rtslib		[python-rtslib]
@@ -1255,7 +1255,7 @@ pacman?		/usr/lib/libicuio.so		[core/icu (build optional)]
 dpkg?		/usr/lib/*/libQt5Core.so|/usr/lib/qt5/lib/libQtCore.so	[qtbase5-dev (build optional)]
 dpkg?		/usr/lib/*/qt5/bin/uic		[qtbase5-dev-tools (build optional)]
 dpkg?		/usr/include/*/qt5/QtSvg/QtSvg|/usr/include/qt5/QtSvg/QtSvg	[libqt5svg5-dev (build optional)]
-rpm?		/usr/lib*/libQt5Core.so|/usr/lib/qt5/lib/libQtCore.so	[qt5-qtbase-devel or libqt5Core-devel or libQt5Core-devel (build optional)]
+rpm?		/usr/lib*/libQt5Core.so|/usr/lib/qt5/lib/libQtCore.so	[qt5-qtbase-devel or libqt5Core-devel or libQt5Core-devel or libqt5-qtbase-devel (build optional)]
 rpm?		uic|/usr/lib/qtchooser/uic	[qtchooser (build optional)]
 rpm?		/usr/include/qt5/QtSvg/QtSvg	[qt5-qtsvg-devel or libqt5-qtsvg-devel (build optional)]
 urpmi?		/usr/lib*/libQt5Core.so|/usr/lib/qt5/lib/libQtCore.so	[qt5-qtbase-devel (build optional)]
