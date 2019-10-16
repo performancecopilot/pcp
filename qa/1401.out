@@ -1,3 +1,5 @@
 QA output created by 1401
 Verify no chunk-encoded lengths in output
 Silence is golden
+Verify no unexpected final EOL markers in output
+JSON

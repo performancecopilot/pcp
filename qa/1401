@@ -1,7 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 1401
 # Exercise REST API chunked encoding with persistent HTTP
-# connections.
+# connections, and end-of-JSON-response EOL strings.
 #
 # Copyright (c) 2019 Red Hat.
 #
@@ -32,15 +32,21 @@ _service pmproxy start >>$here/$seq.full 2>&1
 _wait_for_pmproxy
 
 # curl maintains a connection when given multiple URLs
-url='http://localhost:44322/metrics'
-curl -s "$url" "$url" | tee -a $seq.out > $tmp.out
+echo "Verify no chunk-encoded lengths in output" | tee -a $seq.out
+url1='http://localhost:44322/metrics'
+curl -s "$url1" "$url1" | tee -a $seq.out > $tmp.out
 
 # remove expected, good comment lines and metric lines
-echo "Verify no chunk-encoded lengths in output"
 cat $tmp.out \
     | grep -v '^#' \
     | grep -v '} '
 echo "Silence is golden"
+
+# curl maintains a connection when given multiple URLs
+echo "Verify no unexpected final EOL markers in output" | tee -a $seq.out
+url2='http://localhost:44322/pmapi/fetch?names=hinv.ncpu,disk.dev.read'
+curl -s "$url2" | tee -a $seq.out > $tmp.out
+tail -1 $tmp.out | sed -e 's/{.*}/JSON/g'
 
 # success, all done
 status=0
