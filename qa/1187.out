@@ -224,6 +224,10 @@ You did not select any stats, using -cdngy by default.
      time     |usr sys idl wai stl| read  writ| recv  send|  in   out | int   csw 
 === done
 
+Missing archive
+pcp-dstat: No such file or directory
+=== done
+
 CSV stdout
 === std out
 ----system---- --io/total- ------tcp-sockets------- async
