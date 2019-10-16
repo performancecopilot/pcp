@@ -55,7 +55,10 @@ json_pop_suffix(sds suffix)
     /* chop first character - no resize, pad with null terminators */
     if (suffix) {
 	length = sdslen(suffix);
-	memmove(suffix, suffix+1, length-1);
+	// also copy the NUL byte at the end of the c string, therefore use
+	// length instead of length-1
+	memmove(suffix, suffix+1, length);
+	sdssetlen(suffix, length-1); // update length of the sds string accordingly
     }
     return suffix;
 }
