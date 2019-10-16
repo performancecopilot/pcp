@@ -84,6 +84,11 @@ dstat "Overlapping arguments" -dam
 dstat "Version" --version | filter_info
 dstat "Plugins" --list | filter_info
 
+# No stdout/stderr redirecting
+echo "Piping"
+pcp -z --archive $here/archives/pcp-dstat dstat --time 1 3 | head -n 3
+echo "=== done" && echo
+
 dstat "CSV stdout" --io --tcp --aio -o $tmp.csv | filter_info
 echo "CSV contents" | tee -a $here/$seq.full
 cat $tmp.csv | tee -a $here/$seq.full | filter_info

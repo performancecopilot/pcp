@@ -1440,6 +1440,10 @@ class DstatTool(object):
         except IOError as error:
             if error.errno != errno.EPIPE:
                 raise error
+        try:
+            sys.stderr.close()
+        except Exception:
+            pass
         if op.pidfile:
             os.remove(op.pidfile)
 
