@@ -132,20 +132,6 @@ on_client_close(uv_handle_t *handle)
 	fprintf(stderr, "%s: client %p connection closed\n",
 			"on_client_close", client);
 
-    /* remove client from the doubly-linked list */
-    if (client->next != NULL)
-	client->next->prev = client->prev;
-    *client->prev = client->next;
-
-    if (client->protocol & STREAM_PCP)
-	on_pcp_client_close(client);
-    if (client->protocol & STREAM_HTTP)
-	on_http_client_close(client);
-    if (client->protocol & STREAM_REDIS)
-	on_redis_client_close(client);
-    if (client->protocol & STREAM_SECURE)
-	on_secure_client_close(client);
-
     client_put(client);
 }
 
@@ -169,6 +155,20 @@ client_put(struct client *client)
     uv_mutex_unlock(&client->mutex);
 
     if (refcount == 0) {
+	/* remove client from the doubly-linked list */
+	if (client->next != NULL)
+	    client->next->prev = client->prev;
+	*client->prev = client->next;
+
+	if (client->protocol & STREAM_PCP)
+	    on_pcp_client_close(client);
+	if (client->protocol & STREAM_HTTP)
+	    on_http_client_close(client);
+	if (client->protocol & STREAM_REDIS)
+	    on_redis_client_close(client);
+	if (client->protocol & STREAM_SECURE)
+	    on_secure_client_close(client);
+
 	memset(client, 0, sizeof(*client));
 	free(client);
     }
