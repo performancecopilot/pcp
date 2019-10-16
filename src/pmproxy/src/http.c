@@ -22,7 +22,7 @@ static int chunked_transfer_size; /* pmproxy.chunksize, pagesize by default */
 static int smallest_buffer_size = 128;
 
 /*
- * Simple helpers to manage the cumlative addition of JSON
+ * Simple helpers to manage the cumulative addition of JSON
  * (arrays and/or objects) to a buffer.
  */
 sds
