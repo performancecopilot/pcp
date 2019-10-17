@@ -581,7 +581,7 @@ urpmi?	/usr/lib*/python3.*/*-packages/PIL/Image.py	[python3-pillow (QA optional)
 emerge?	/usr/lib/python3.*/*-packages/PIL/Image.py	[dev-python/pillow]
 pkgin?	/usr/pkg/lib/python3.*/*-packages/?/Image.py	[py36-imaging]
 pkg_add?	/usr/local/lib/python3.*/*-packages/PIL/Image.py	[py3-Pillow]
-F_pkg?	/usr/local/lib/python3.*/*-packages/PIL/Image.py	[N/A (QA optional)]
+F_pkg?	/usr/local/lib/python3.*/*-packages/PIL/Image.py	[py36-pillow (QA optional)]
 S_pkg?	/usr/lib/python2.*/*-packages/PIL/Image.py	[N/A (QA optional)]
 S_pkg?	/usr/lib/python3.*/*-packages/PIL/Image.py	[N/A (QA optional)]
 slackpkg?	/usr/lib*/python2.*/*-packages/PIL/Image.py	[python-pillow (QA optional)]

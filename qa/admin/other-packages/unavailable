@@ -31,8 +31,9 @@ Fedora       30       -       apache2 avahi-utils chan-devel HdrHistogram_c-deve
 Fedora       30       i.86    389-ds 389-ds-base Coin-devel kubernetes-client kubernetes-node libqt4-devel libqt5Core-devel libQt5Core-devel libqt5-qtsvg-devel libqt-devel python36-devel python3-bcc python3-libvirt-python
 Fedora       31       -       chan-devel HdrHistogram_c-devel
 #-- FreeBSD
-FreeBSD      10\.4    -       lm_sensors
-FreeBSD      11\.[12] -       libibmad libibumad lm_sensors
+FreeBSD      10\.4    -       lm_sensors py36-pillow
+FreeBSD      11\.[12] -       libibmad libibumad lm_sensors py36-pillow
+FreeBSD      12\.[0]  -       inventor libibmad libibumad lm_sensors
 #-- Gentoo
 Gentoo       -        -
 #-- LinuxMint

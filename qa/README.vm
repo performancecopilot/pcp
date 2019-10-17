@@ -161,8 +161,8 @@ SuSE (SLES)
 
 FreeBSD
     https://www.freebsd.org/security/security.html#sup
-    19 Nov 2015: 9.3, 10.1 and 10.2
     26 Sep 2018: 10, 10.4, 11 and 11.2
+    17 Oct 2019: 11.2, 11.3 and 12.0
     # which packages are installed
     $ pkg info -a | sed -e 's/-[0-9].*//'
     # package search recipe (name and info or description)
