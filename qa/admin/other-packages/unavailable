@@ -32,7 +32,7 @@ Fedora       30       i.86    389-ds 389-ds-base Coin-devel kubernetes-client ku
 Fedora       31       -       chan-devel HdrHistogram_c-devel
 #-- FreeBSD
 FreeBSD      10\.4    -       lm_sensors py36-pillow
-FreeBSD      11\.[12] -       libibmad libibumad lm_sensors py36-pillow
+FreeBSD      11\.[1-3] -      inventor libibmad libibumad lm_sensors py36-pillow zabbix34-agent
 FreeBSD      12\.[0]  -       inventor libibmad libibumad lm_sensors
 #-- Gentoo
 Gentoo       -        -
