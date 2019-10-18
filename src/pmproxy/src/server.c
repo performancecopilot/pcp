@@ -15,8 +15,6 @@
 #include "uv_callback.h"
 #include <assert.h>
 
-uv_callback_t write_request_callback;
-
 void
 proxylog(pmLogLevel level, sds message, void *arg)
 {
@@ -219,15 +217,13 @@ on_client_write(uv_write_t *writer, int status)
 }
 
 void *
-on_write_request(uv_callback_t *handle, void *data)
+on_write_callback(uv_callback_t *handle, void *data)
 {
-    write_request *write_r = (write_request *)data;
-    uv_write(write_r->req, write_r->handle, write_r->bufs, write_r->nbufs, write_r->cb);
+    stream_write_baton	*request = (stream_write_baton *)data;
 
-    free(data);
-
-    // baton will be freed by on_client_write
-
+    uv_write(&request->writer, request->stream,
+		&request->buffer[0], request->nbuffers, request->callback);
+    (void)handle;
     return 0;
 }
 
@@ -235,7 +231,7 @@ void
 client_write(struct client *client, sds buffer, sds suffix)
 {
     stream_write_baton	*request;
-    write_request       *write_r;
+    struct proxy	*proxy = client->proxy;
     unsigned int	nbuffers = 0;
 
     if (client_is_closed(client))
@@ -252,21 +248,14 @@ client_write(struct client *client, sds buffer, sds suffix)
 			"client_write", (long)sdslen(suffix), client);
 	    request->buffer[nbuffers++] = uv_buf_init(suffix, sdslen(suffix));
 	}
+	request->nbuffers = nbuffers;
+	request->callback = on_client_write;
+	request->stream = (uv_stream_t *)&client->stream;
+
 	if (client->stream.secure) {
-	    secure_client_write(client, &request->writer, nbuffers);
+	    secure_client_write(client, request);
 	} else {
-	    write_r = malloc(sizeof(write_request));
-	    if (write_r != NULL) {
-		write_r->baton = request;
-		write_r->req = &request->writer;
-		write_r->handle = (uv_stream_t *)&client->stream;
-		write_r->bufs = &request->buffer[0];
-		write_r->nbufs = nbuffers;
-		write_r->cb = on_client_write;
-	        uv_callback_fire(&write_request_callback, write_r, NULL);
-	    } else {
-		free(request);
-	    }
+	    uv_callback_fire(&proxy->write_callbacks, request, NULL);
 	}
     } else {
 	client_close(client);
@@ -715,8 +704,8 @@ main_loop(void *arg)
     handle->data = (void *)proxy;
     uv_check_start(&after_io, check_proxy);
 
-    uv_callback_init(proxy->events, &write_request_callback,
-		     on_write_request, UV_DEFAULT);
+    uv_callback_init(proxy->events, &proxy->write_callbacks,
+		    on_write_callback, UV_DEFAULT);
 
     uv_run(proxy->events, UV_RUN_DEFAULT);
     uv_loop_close(proxy->events);

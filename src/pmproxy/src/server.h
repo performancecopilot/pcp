@@ -15,6 +15,8 @@
 #define PROXY_SERVER_H
 
 #include <uv.h>
+#include "uv_callback.h"
+
 #ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
 #endif
@@ -31,6 +33,9 @@
 typedef struct stream_write_baton {
     uv_write_t		writer;
     uv_buf_t		buffer[2];
+    unsigned int	nbuffers;
+    uv_stream_t		*stream;
+    uv_write_cb		callback;
 } stream_write_baton;
 
 typedef enum stream_family {
@@ -59,15 +64,6 @@ typedef enum stream_protocol {
     STREAM_HTTP		= 0x4,
     STREAM_PCP		= 0x8,
 } stream_protocol;
-
-typedef struct write_request {
-    stream_write_baton *baton;
-    uv_write_t *req;
-    uv_stream_t *handle;
-    uv_buf_t *bufs;
-    unsigned int nbufs;
-    uv_write_cb cb;
-} write_request;
 
 typedef struct redis_client {
     redisReader		*reader;	/* RESP request handling state */
@@ -152,6 +148,7 @@ typedef struct proxy {
     struct mmv_registry	*metrics;	/* internal performance metrics */
     struct dict		*config;	/* configuration dictionary */
     uv_loop_t		*events;	/* global, async event loop */
+    uv_callback_t	write_callbacks;
 } proxy;
 
 extern void proxylog(pmLogLevel, sds, void *);
@@ -169,7 +166,7 @@ extern void client_put(struct client *);
 extern void on_protocol_read(uv_stream_t *, ssize_t, const uv_buf_t *);
 
 #ifdef HAVE_OPENSSL
-extern void secure_client_write(struct client *, uv_write_t *, unsigned int);
+extern void secure_client_write(struct client *, stream_write_baton *);
 extern void on_secure_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
 extern void on_secure_client_close(struct client *);

@@ -278,6 +278,7 @@ int uv_callback_fire(uv_callback_t* callback, void *data, uv_callback_t* notify)
    return uv_callback_fire_ex(callback, data, NULL, notify);
 }
 
+#if 0
 /* Synchronous Callback Firing ***********************************************/
 
 struct call_result {
@@ -361,4 +362,4 @@ loc_exit:
    return rc;
 
 }
-
+#endif
