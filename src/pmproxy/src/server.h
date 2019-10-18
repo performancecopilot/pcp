@@ -60,6 +60,15 @@ typedef enum stream_protocol {
     STREAM_PCP		= 0x8,
 } stream_protocol;
 
+typedef struct write_request {
+    stream_write_baton *baton;
+    uv_write_t *req;
+    uv_stream_t *handle;
+    uv_buf_t *bufs;
+    unsigned int nbufs;
+    uv_write_cb cb;
+} write_request;
+
 typedef struct redis_client {
     redisReader		*reader;	/* RESP request handling state */
 } redis_client;

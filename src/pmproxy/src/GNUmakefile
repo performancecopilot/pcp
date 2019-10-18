@@ -17,7 +17,8 @@ include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pmproxy$(EXECSUFFIX)
 HFILES = pmproxy.h
-CFILES = pmproxy.c
+CFILES = pmproxy.c uv_callback.c
+XFILES = uv_callback.h uv_callback.c
 
 LCFLAGS = $(PIECFLAGS) -I$(TOPDIR)/src/libpcp_web/src
 LLDFLAGS = $(PIELDFLAGS)
@@ -36,7 +37,7 @@ endif
 endif
 CFILES += deprecated.c
 
-default:	$(CMDTARGET)
+default:	$(XFILES) $(CMDTARGET)
 
 include $(BUILDRULES)
 
@@ -46,6 +47,9 @@ install:	default
 default_pcp:	default
 
 install_pcp:	install
+
+$(XFILES):
+	$(LN_S) -f $(TOPDIR)/src/external/$@ $@
 
 $(OBJECTS):	$(HFILES) $(TOPDIR)/src/include/pcp/libpcp.h
 
