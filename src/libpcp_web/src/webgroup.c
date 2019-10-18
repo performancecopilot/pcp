@@ -1123,8 +1123,6 @@ webgroup_instances(pmWebGroupSettings *settings,
     iterator = dictGetIterator(ip->insts);
     while ((entry = dictNext(iterator)) != NULL) {
 	instance = (instance_t *)dictGetVal(entry);
-	if (instance->updated == 0)
-	    continue;
 
 	found = 0;
 	if (numnames == 0 && numids == 0)
