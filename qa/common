@@ -348,11 +348,12 @@ then
 	then
 	    # running QA in the tree
 	    ${MAKE:-make} -f GNUmakefile.install >/tmp/$$.make 2>&1
+	    _sts=$?
 	    ( cd qt; ./setup-executables )
 	else
 	    ${MAKE:-make} >/tmp/$$.make 2>&1
 	fi
-	if [ $? != 0 ]
+	if [ $_sts != 0 ]
 	then
 	    cat /tmp/$$.make
 	    echo "Warning: ${MAKE:-make} failed -- some tests may be missing"
@@ -933,7 +934,7 @@ else
     # if we have selinux, and it is enforcing then make sure the pcpqa
     # policy module is installed
     #
-    if which seinfo >/dev/null 2>&1
+    if which getenforce >/dev/null 2>&1
     then
 	case `getenforce`
 	in
