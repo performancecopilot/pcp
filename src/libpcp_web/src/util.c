@@ -948,6 +948,21 @@ pmwebapi_add_instance(struct indom *indom, int inst, char *name)
     return pmwebapi_new_instance(indom, inst, sdsnewlen(name, length));
 }
 
+struct instance *
+pmwebapi_lookup_instance(struct indom *indom, int inst)
+{
+    struct instance	*instance;
+    char		*name;
+
+    if (pmNameInDom(indom->indom, inst, &name) < 0)
+	return NULL;
+
+    instance = pmwebapi_new_instance(indom, inst, sdsnew(name));
+    free(name);
+
+    return instance;
+}
+
 unsigned int
 pmwebapi_add_indom_instances(struct context *context, struct indom *indom)
 {

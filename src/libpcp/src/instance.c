@@ -177,7 +177,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 		if (sts == PDU_INSTANCE) {
 		    pmInResult *result;
 		    if ((sts = __pmDecodeInstance(pb, &result)) >= 0) {
-			if ((*name = strdup(result->namelist[0])) == NULL)
+			if (result->namelist == NULL || (*name = strdup(result->namelist[0])) == NULL)
 			    sts = -oserror();
 			__pmFreeInResult(result);
 		    }
