@@ -677,7 +677,7 @@ _pcp () {
   pmseries)
     _arguments -C -S -s \
       "$common_help[@]" \
-      "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files'
+      "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files' \
       "(-h --host $exargs)"{-h+,--host=}'[specify Redis host]:host:_hosts' \
       "(-p --port $exargs)"{-p+,--port=}'[specify Redis port]:port:' \
       "(-L --load $exargs)"{-L,--load}'[load metadata and data into Redis]' \
