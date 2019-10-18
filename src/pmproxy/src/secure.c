@@ -106,13 +106,14 @@ static void
 flush_ssl_buffer(struct client *client)
 {
     stream_write_baton	*request = calloc(1, sizeof(stream_write_baton));
+    struct proxy	*proxy = client->proxy;
     ssize_t		bytes;
 
     if ((bytes = BIO_pending(client->secure.write)) > 0) {
 	request->buffer[0] = uv_buf_init(sdsnewlen(SDS_NOINIT, bytes), bytes);
+	request->nbuffers = 1;
 	BIO_read(client->secure.write, request->buffer[0].base, bytes);
-	uv_write(&request->writer, (uv_stream_t *)&client->stream,
-			request->buffer, 1, on_client_write);
+	uv_callback_fire(&proxy->write_callbacks, request, NULL);
     }
 }
 
@@ -175,16 +176,14 @@ flush_secure_module(struct proxy *proxy)
 }
 
 void
-secure_client_write(struct client *client,
-		uv_write_t *writer, unsigned int nbuffers)
+secure_client_write(struct client *client, stream_write_baton *request)
 {
-    stream_write_baton	*request = (stream_write_baton *)writer;
     struct proxy	*proxy = client->proxy;
     uv_buf_t		*dup;
     size_t		count, bytes;
     int			i, sts, defer = 0, maybe = 0;
 
-    for (i = 0; i < nbuffers; i++) {
+    for (i = 0; i < request->nbuffers; i++) {
 	if (defer == 0) {
 	    if ((sts = SSL_write(client->secure.ssl,
 			request->buffer[i].base, request->buffer[i].len)) > 0) {
@@ -200,7 +199,7 @@ secure_client_write(struct client *client,
 		    continue;
 	    }
 	    if (sts != SSL_ERROR_WANT_READ) {
-		on_client_write(writer, 1);	/* fail client */
+		on_client_write(&request->writer, 1);	/* fail client */
 		return;
 	    }
 	}
@@ -216,7 +215,7 @@ secure_client_write(struct client *client,
 	bytes = sizeof(uv_buf_t) * count;
 	if ((client->secure.pending.writes_buffer = realloc(
 			client->secure.pending.writes_buffer, bytes)) == NULL) {
-	    on_client_write(writer, 1);		/* fail client */
+	    on_client_write(&request->writer, 1);	/* fail client */
 	    return;
 	}
 	dup = &client->secure.pending.writes_buffer[count-1];
