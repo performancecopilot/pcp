@@ -32,9 +32,9 @@ _service pmproxy start >>$here/$seq.full 2>&1
 _wait_for_pmproxy
 
 # curl maintains a connection when given multiple URLs
-echo "Verify no chunk-encoded lengths in output" | tee -a $seq.out
+echo "Verify no chunk-encoded lengths in output" | tee -a $seq.full
 url1='http://localhost:44322/metrics'
-curl -s "$url1" "$url1" | tee -a $seq.out > $tmp.out
+curl -s "$url1" "$url1" | tee -a $seq.full > $tmp.out
 
 # remove expected, good comment lines and metric lines
 cat $tmp.out \
@@ -43,9 +43,9 @@ cat $tmp.out \
 echo "Silence is golden"
 
 # curl maintains a connection when given multiple URLs
-echo "Verify no unexpected final EOL markers in output" | tee -a $seq.out
+echo "Verify no unexpected final EOL markers in output" | tee -a $seq.full
 url2='http://localhost:44322/pmapi/fetch?names=hinv.ncpu,disk.dev.read'
-curl -s "$url2" | tee -a $seq.out > $tmp.out
+curl -s "$url2" | tee -a $seq.full > $tmp.out
 tail -1 $tmp.out | sed -e 's/{.*}/JSON/g'
 
 # success, all done
