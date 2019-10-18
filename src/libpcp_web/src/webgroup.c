@@ -507,7 +507,7 @@ webgroup_fetch(pmWebGroupSettings *settings, context_t *cp,
     char		err[PM_MAXERRMSGLEN];
     sds			v = sdsempty(), series = NULL;
     sds			id = cp->origin;
-    int			i, j, k, sts, type, status = 0;
+    int			i, j, k, sts, inst, type, status = 0;
 
     if ((sts = pmFetch(numpmid, pmidlist, &result)) >= 0) {
 	webresult.seconds = result->timestamp.tv_sec;
@@ -561,13 +561,20 @@ webgroup_fetch(pmWebGroupSettings *settings, context_t *cp,
 		    value = &metric->u.vlist->value[k];
 		    if (value->updated == 0)
 			continue;
-		    instance = dictFetchValue(indom->insts, &value->inst);
-		    if (instance == NULL)
-			continue;
+		    inst = value->inst;
+		    instance = dictFetchValue(indom->insts, &inst);
+		    if (instance == NULL) {
+			/* found an instance not in existing indom cache */
+			indom->updated = 0;	/* invalidate this cache */
+			if ((instance = pmwebapi_lookup_instance(indom, inst)))
+			    pmwebapi_add_instances_labels(cp, indom);
+			else
+			    continue;
+		    }
 		    v = webgroup_encode_value(v, type, &value->atom);
 		    series = pmwebapi_hash_sds(series, instance->name.hash);
 		    webvalue.series = series;
-		    webvalue.inst = value->inst;
+		    webvalue.inst = inst;
 		    webvalue.value = v;
 
 		    settings->callbacks.on_fetch_value(id, &webvalue, arg);
