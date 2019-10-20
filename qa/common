@@ -352,6 +352,7 @@ then
 	    ( cd qt; ./setup-executables )
 	else
 	    ${MAKE:-make} >/tmp/$$.make 2>&1
+	    _sts=$?
 	fi
 	if [ $_sts != 0 ]
 	then
