@@ -209,7 +209,7 @@ BuildRequires: cyrus-sasl-devel
 BuildRequires: libvarlink-devel
 %endif
 %if !%{disable_statsd}
-BuildRequires: ragel libchan-devel libhdr_histogram-devel
+BuildRequires: ragel chan-devel HdrHistogram_c-devel
 %endif
 %if !%{disable_perfevent}
 BuildRequires: libpfm-devel >= 4
@@ -854,8 +854,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics from statsd
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: libchan libhdr_histogram
-BuildRequires: libchan-devel libhdr_histogram-devel
+Requires: libchan.so.0() HdrHistogram_c
 
 %description pmda-statsd
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
