@@ -194,10 +194,6 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 		write exec;
 
 	}%%
-	(void)statsd_en_main;
-	(void)statsd_error;
-	(void)statsd_first_final;
-	(void)_statsd_eof_actions;
 
 	if (any_tags) {
 		char* json = tag_collection_to_json(tags);
