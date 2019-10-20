@@ -5362,10 +5362,10 @@ static pmdaMetric metrictab[] = {
     PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* kernel.percpu.intr */
-    { NULL, { PMDA_PMID(CLUSTER_INTERRUPTS,4), PM_TYPE_U64,
+    { NULL, { PMDA_PMID(CLUSTER_INTERRUPTS, 4), PM_TYPE_U64,
     CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-    /* kernel.percpu.interrupts.line[<N>] */
+    /* kernel.percpu.interrupts.line[<0-1023>] */
     { NULL, { PMDA_PMID(CLUSTER_INTERRUPT_LINES, 0), PM_TYPE_U32,
     CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
@@ -8708,7 +8708,8 @@ linux_init(pmdaInterface *dp)
 	}
 	if (metrictab[i].m_desc.type == PM_TYPE_NOSUPPORT)
 	    fprintf(stderr, "Bad kernel metric descriptor type (%u.%u)\n",
-			    pmID_cluster(metrictab[i].m_desc.pmid), pmID_item(metrictab[i].m_desc.pmid));
+			    pmID_cluster(metrictab[i].m_desc.pmid),
+			    pmID_item(metrictab[i].m_desc.pmid));
     }
 
     nindoms = sizeof(indomtab)/sizeof(indomtab[0]);
