@@ -1091,6 +1091,39 @@ void test_parse_raw_events(void)
     printf("event = %s raw code = 0x%lx\n", pmctmp->name, pmctmp->rawcode);
 }
 
+/*
+ * This is the case where there are no PMUs exposed, it should only
+ * detect the software events.
+ */
+void test_hv_24x7_events_on_multinode_system(void)
+{
+    struct pmu *pmu_list = NULL, *tmp;
+    struct pmu_event *event;
+    int ev_count = 0;
+    const char *configfile = "config/test_hv_24x7_events_multinode.txt";
+    configuration_t *config;
+
+    config = parse_configfile(configfile);
+    assert(config != NULL);
+
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    setenv("SYSFS_PREFIX", "./fakefs/syspmu_multinode", 1);
+    init_dynamic_events(&pmu_list, config->dynamicpmc->dynamicSettingList);
+    for (tmp = pmu_list; tmp; tmp = tmp->next) {
+	printf("PMU name: %s \n", tmp->name);
+        for (event = tmp->ev; event; event = event->next) {
+	    if (strcmp(tmp->name, "pmu1") == 0)
+		assert(strstr(event->name, "chip"));
+	    ev_count++;
+	    printf(" event name: %s\n", event->name);
+        }
+    }
+
+    printf("%d events found\n", ev_count);
+    /* software events will be initialized in any case */
+    assert(ev_count == (4 + 9));
+}
 int runtest(int n)
 {
     init_mock();
@@ -1200,6 +1233,9 @@ int runtest(int n)
         case 33:
             test_parse_raw_events();
             break;
+	case 34:
+	    test_hv_24x7_events_on_multinode_system();
+	    break;
         default:
             ret = -1;
     }
