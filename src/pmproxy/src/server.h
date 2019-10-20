@@ -171,7 +171,7 @@ extern void on_secure_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
 extern void on_secure_client_close(struct client *);
 #else
-#define secure_client_write(c,w,l)	do { (void)(c); } while (0)
+#define secure_client_write(c,w)	do { (void)(c); } while (0)
 #define on_secure_client_read(p,c,s,b)	do { (void)(p); } while (0)
 #define on_secure_client_write(c)	do { (void)(c); } while (0)
 #define on_secure_client_close(c)	do { (void)(c); } while (0)
