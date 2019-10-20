@@ -412,89 +412,138 @@ static void cleanup_property_info(struct property_info *pi)
  */
 static int parse_event_string(char *buf, struct pmu_event *event,
                               struct pmu *pmu, struct pmcsetting *dynamicpmc,
-			       char *pmu_name)
+			       char *pmu_name, int *new_events)
 {
     struct property_info *pi, *head = NULL, *tmp;
-    char *start, *ptr, *nptr, **endptr, *str, eventname[BUF_SIZE];
+    char *start, *ptr, *nptr, **endptr, *str, eventname[BUF_SIZE], ev_str[BUF_SIZE], pmc_str[BUF_SIZE], *tmp_buf_str;
     struct pmcsetting *pmctmp;
+    int i, ret, sub_ev_cnt = 0;
+    struct pmu_event *sub_event = NULL, *ev_tmp= NULL, *ev_head = NULL;
 
-    start = buf;
+    pmsprintf(ev_str, sizeof(ev_str), "%s.%s", pmu_name, event->name);
+    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next)
+	if (!strncmp(ev_str, pmctmp->name, strlen(ev_str)))
+		sub_ev_cnt++;
 
-    while (1) {
-        ptr = strchr(start, '=');
-        if (!ptr)
-            break;
+    if (sub_ev_cnt > 1)
+	*new_events = sub_ev_cnt;
 
-        /* Found a property */
-        *ptr = '\0';
-        ptr++;   /* ptr now points to the value */
-        pi = calloc(1, sizeof(*pi));
-        if (!pi) {
-            cleanup_property_info(head);
-            return -E_PERFEVENT_REALLOC;
-        }
-        pi->next = NULL;
+    for (i = 0; i < (sub_ev_cnt - 1); i++) {
+	ev_tmp = calloc(1, sizeof(*ev_tmp));
+	if (!ev_tmp) {
+		sub_ev_cnt = 0;
+		break;
+	}
 
-        pi->name = strdup(start);
-        if (!pi->name) {
-            free(pi);
-            cleanup_property_info(head);
-            return -E_PERFEVENT_REALLOC;
-        }
-
-	pmsprintf(eventname, sizeof(eventname), "%s.%s", pmu_name, event->name);
-
-        /* Find next property */
-        start = strchr(ptr, ',');
-        if (!start) {
-            str = buf + strlen(buf) - 1;
-            endptr = &str;
-            nptr = ptr;
-	    if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "chip"))) {
-		for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
-			if (!strncmp(eventname, pmctmp->name, strlen(eventname)))
-			{
-			     pi->value = pmctmp->chip;
-			}
-		}
-            } else
-		pi->value = strtoull(nptr, endptr, 16);
-            if (!head) {
-                head = pi;
-                pi = pi->next;
-            } else {
-                tmp->next = pi;
-                tmp = tmp->next;
-            }
-            break;
-        } else {
-            /* We found the next property */
-            *start = '\0';
-            str = buf + strlen(buf) - 1;
-            endptr = &str;
-            start++;
-            nptr = ptr;
-	    if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "chip"))) {
-		for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
-			if (!strncmp(eventname, pmctmp->name, strlen(eventname)))
-			{
-			     pi->value = pmctmp->chip;
-			}
-		}
-	    } else
-		pi->value = strtoul(nptr, endptr, 16);
-        }
-
-        if (!head) {
-            head = pi;
-            tmp = head;
-        } else {
-            tmp->next = pi;
-            tmp = tmp->next;
-        }
+	if (!sub_event) {
+		sub_event = ev_tmp;
+		ev_head = sub_event;
+		event->next = ev_head;
+		sub_event->name = strdup(event->name);
+	} else {
+		sub_event->next = ev_tmp;
+		sub_event = sub_event->next;
+		sub_event->name = strdup(event->name);
+	}
     }
 
-    return fetch_event_config(head, event, pmu);
+    ev_head = event;
+
+    for (i=0; i < sub_ev_cnt; i++) {
+        head = NULL;
+        tmp_buf_str = strdup(buf);
+        start = tmp_buf_str;
+
+	while (1) {
+	    ptr = strchr(start, '=');
+	    if (!ptr)
+	        break;
+
+	    /* Found a property */
+	    *ptr = '\0';
+	    ptr++;   /* ptr now points to the value */
+	    pi = calloc(1, sizeof(*pi));
+	    if (!pi) {
+	        cleanup_property_info(head);
+	        return -E_PERFEVENT_REALLOC;
+	    }
+
+	    pi->next = NULL;
+	    pi->name = strdup(start);
+	    if (!pi->name) {
+	       free(pi);
+	       cleanup_property_info(head);
+	       return -E_PERFEVENT_REALLOC;
+	    }
+
+	    pmsprintf(eventname, sizeof(eventname), "%s.%s", pmu_name, event->name);
+
+	    /* Find next property */
+	    start = strchr(ptr, ',');
+	    if (!start) {
+	        str = buf + strlen(buf) - 1;
+		endptr = &str;
+		nptr = ptr;
+		if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "chip"))) {
+		    for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+			    pmsprintf(ev_str, sizeof(ev_str), "%s_chip_%d", event->name,pmctmp->chip);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_chip_%d", pmctmp->name,pmctmp->chip);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->chip;
+			    break;
+			}
+		    }
+		} else
+		    pi->value = strtoull(nptr, endptr, 16);
+		if (!head) {
+		    head = pi;
+		    pi = pi->next;
+		} else {
+		    tmp->next = pi;
+		    tmp = tmp->next;
+		}
+		break;
+	    } else {
+	        /* We found the next property */
+		*start = '\0';
+		str = buf + strlen(buf) - 1;
+		endptr = &str;
+		start++;
+		nptr = ptr;
+		if ((!strcmp(nptr, "?")) && (!strcmp(pi->name, "chip"))) {
+	            for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next) {
+		        if (!strncmp(eventname, pmctmp->name, strlen(pmctmp->name)))
+			{
+		            pmsprintf(ev_str, sizeof(ev_str), "%s_chip_%d", event->name,pmctmp->chip);
+			    event->name = strdup(ev_str);
+			    pmsprintf(pmc_str, sizeof(pmc_str), "%s_chip_%d", pmctmp->name,pmctmp->chip);
+			    pmctmp->name = strdup(pmc_str);
+			    pi->value = pmctmp->chip;
+			    break;
+			}
+		    }
+		} else
+		    pi->value = strtoul(nptr, endptr, 16);
+	    }
+	    if (!head) {
+	        head = pi;
+		tmp = head;
+	    } else {
+		tmp->next = pi;
+		tmp = tmp->next;
+	    }
+	}
+	ret = fetch_event_config(head, event, pmu);
+	if (ret)
+	    return ret;
+
+	event->pmu = pmu;
+	event = event->next;
+    }
+    return 0;
 }
 
 /*
@@ -509,7 +558,7 @@ static int fetch_events(DIR *events_dir, struct pmu_event **events,
     struct dirent *dir;
     struct pmu_event *ev = NULL, *tmp, *head = NULL;
     char event_path[PATH_MAX], *buf;
-    int ret = 0;
+    int ret = 0, sub_events, i;
 
     if (!events_dir)
         return -1;
@@ -551,21 +600,27 @@ static int fetch_events(DIR *events_dir, struct pmu_event **events,
             goto free_buf;
         }
 
-        ret = parse_event_string(buf, tmp, pmu, dynamicpmc, pmu_name);
+        ret = parse_event_string(buf, tmp, pmu, dynamicpmc, pmu_name, &sub_events);
         if (ret) {
             ret = -E_PERFEVENT_RUNTIME;
             goto free_buf;
         }
 
-        tmp->pmu = pmu;
+	i = 0;
+	do {
+	    tmp->pmu = pmu;
+	    if (!ev) {
+	         ev = tmp;
+	         head = ev;
+	    } else {
+	         ev->next = tmp;
+	         ev = ev->next;
+            }
+	    tmp = tmp->next;
+	    i++;
+	} while(i < sub_events);
 
-        if (!ev) {
-            ev = tmp;
-            head = ev;
-        } else {
-            ev->next = tmp;
-            ev = ev->next;
-        }
+	sub_events = 0;
     }
 
     *events = head;

@@ -195,7 +195,7 @@ static void add_pmc_setting_name_dynamic(configuration_t *config, char *name)
     }
     newpmcdynamicsetting = calloc(1, sizeof *newpmcdynamicsetting);
     newpmcdynamicsetting->name = strdup(name);
-    newpmcdynamicsetting->cpuConfig = 0;
+    newpmcdynamicsetting->cpuConfig = -1;
     newpmcdynamicsetting->scale = 1.0;
     newpmcdynamicsetting->need_perf_scale = 0;
     newpmcdynamicsetting->chip = -1;
@@ -315,7 +315,7 @@ static void set_pmcsetting_derived_scale(configuration_t *config,  double scale,
 
 static void set_pmcsetting_cpuconfig(configuration_t *config, int cpuconfig)
 {
-    pmcsetting_t *pmcsetting;
+    pmcsetting_t *pmcsetting, *list;
     pmcSettingLists_t *setting_lists;
 
     if( (NULL == config) || (0 == config->nConfigEntries) )
@@ -340,6 +340,21 @@ static void set_pmcsetting_cpuconfig(configuration_t *config, int cpuconfig)
             pmcsetting = pmcsetting->next;
         }
     }
+
+    else if (context_dynamic)
+    {
+        list = config->dynamicpmc->dynamicSettingList;
+        if (NULL == list)
+        {
+          return;
+        }
+        while (list->next)
+        {
+          list = list->next;
+        }
+        pmcsetting = list;
+    }
+
     else
     {
         pmcsetting = config->configArr[config->nConfigEntries-1].pmcSettingList;
