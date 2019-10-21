@@ -2,7 +2,7 @@
 # PCP QA Test No. 886
 # Verify /proc/interrupts parsing for various architectures.
 #
-# Copyright (c) 2016 Red Hat.
+# Copyright (c) 2016,2019 Red Hat.
 #
 
 seq=`basename $0`
@@ -14,6 +14,10 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ $PCP_PLATFORM = linux ] || _notrun "Linux interrupts test, only works with Linux"
+
+# expected output is very large, compressed to save space in repo
+$sudo rm -f $seq.out
+bunzip2 < $seq.out.bz2 > $seq.out
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -29,6 +33,23 @@ _cleanup()
 }
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_unpack()
+{
+    qafile=$1
+    target=$2
+    suffix=`echo "$file" | sed 's/.*\.//'`
+
+    if [ "$suffix" == "bz2" ]
+    then
+	bunzip2 < "$qafile" > "$target"
+    elif [ "$suffix" == "gz" ]
+    then
+	gunzip < "$qafile" > "$target"
+    else
+	cp "$qafile" "$target"
+    fi
+}
 
 # real QA test starts here
 root=$tmp.root
@@ -53,7 +74,7 @@ do
     rm -fr $root
     mkdir -p $root/proc || _fail "root in use when processing $file"
 
-    cp $file $root/proc/interrupts
+    _unpack $file $root/proc/interrupts
     base=`basename $file`
     ncpu=`echo $base | sed -e 's/.*-\([0-9][0-9]*\)cpu-.*/\1/'`
     _make_proc_stat $root/proc/stat $ncpu
@@ -73,7 +94,7 @@ do
     rm -fr $root
     mkdir -p $root/proc || _fail "root in use when processing $file"
 
-    cp $file $root/proc/softirqs
+    _unpack $file $root/proc/softirqs
     base=`basename $file`
     ncpu=`echo $base | sed -e 's/.*-\([0-9][0-9]*\)cpu-.*/\1/'`
     _make_proc_stat $root/proc/stat $ncpu

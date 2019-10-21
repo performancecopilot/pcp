@@ -12,6 +12,7 @@
  * License for more details.
  */
 #include "server.h"
+#include "uv_callback.h"
 #include <assert.h>
 
 void
@@ -215,10 +216,22 @@ on_client_write(uv_write_t *writer, int status)
     client_close(client);
 }
 
+void *
+on_write_callback(uv_callback_t *handle, void *data)
+{
+    stream_write_baton	*request = (stream_write_baton *)data;
+
+    uv_write(&request->writer, request->stream,
+		&request->buffer[0], request->nbuffers, request->callback);
+    (void)handle;
+    return 0;
+}
+
 void
 client_write(struct client *client, sds buffer, sds suffix)
 {
     stream_write_baton	*request;
+    struct proxy	*proxy = client->proxy;
     unsigned int	nbuffers = 0;
 
     if (client_is_closed(client))
@@ -235,11 +248,15 @@ client_write(struct client *client, sds buffer, sds suffix)
 			"client_write", (long)sdslen(suffix), client);
 	    request->buffer[nbuffers++] = uv_buf_init(suffix, sdslen(suffix));
 	}
-	if (client->stream.secure)
-	    secure_client_write(client, &request->writer, nbuffers);
-	else
-	    uv_write(&request->writer, (uv_stream_t *)&client->stream,
-			request->buffer, nbuffers, on_client_write);
+	request->nbuffers = nbuffers;
+	request->callback = on_client_write;
+	request->stream = (uv_stream_t *)&client->stream;
+
+	if (client->stream.secure) {
+	    secure_client_write(client, request);
+	} else {
+	    uv_callback_fire(&proxy->write_callbacks, request, NULL);
+	}
     } else {
 	client_close(client);
     }
@@ -686,6 +703,9 @@ main_loop(void *arg)
     handle = (uv_handle_t *)&after_io;
     handle->data = (void *)proxy;
     uv_check_start(&after_io, check_proxy);
+
+    uv_callback_init(proxy->events, &proxy->write_callbacks,
+		    on_write_callback, UV_DEFAULT);
 
     uv_run(proxy->events, UV_RUN_DEFAULT);
     uv_loop_close(proxy->events);

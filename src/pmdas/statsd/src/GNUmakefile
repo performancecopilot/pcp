@@ -81,7 +81,7 @@ install_pcp : install
 $(OBJECTS): domain.h $(RFILES)
 
 $(RFILES): $(RAGELTARGET).rl
-	$(RAGEL) -C $<
+	$(RAGEL) $<
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)

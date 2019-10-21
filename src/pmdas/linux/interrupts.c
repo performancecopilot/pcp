@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014,2016 Red Hat.
+ * Copyright (c) 2012-2014,2016,2019 Red Hat.
  * Copyright (c) 2011 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,8 @@
 #endif
 #include <ctype.h>
 
+#define MAX_INTERRUPT_LINES	1023
+
 typedef struct {
     unsigned int	id;		/* becomes PMID item number */
     char		*name;		/* becomes PMNS sub-component */
@@ -33,6 +35,9 @@ typedef struct {
     unsigned int	cpuid;		/* CPU identifier */
     unsigned long long	count;		/* per-CPU sum of interrupt counts */
 } online_cpu_t;
+
+static char *iobuf;			/* buffer sized based on CPU count */
+static unsigned int iobufsz;
 
 static unsigned int cpu_count;
 static online_cpu_t *online_cpumap;	/* maps input columns to CPU info */
@@ -63,6 +68,10 @@ setup_interrupts(int reset)
 	pmdaCacheOp(INDOM(SOFTIRQS_NAMES_INDOM), PMDA_CACHE_LOAD);
 	pmdaCacheOp(INDOM(INTERRUPTS_INDOM), PMDA_CACHE_LOAD);
 	pmdaCacheOp(INDOM(SOFTIRQS_INDOM), PMDA_CACHE_LOAD);
+	if ((iobufsz = (_pm_ncpus * 64)) < BUFSIZ)
+	    iobufsz = BUFSIZ;
+	if ((iobuf = malloc(iobufsz)) == NULL)
+	    return -oserror();
 	setup = 1;
     }
     if (cpu_count != _pm_ncpus) {
@@ -134,8 +143,12 @@ static void
 update_lines_pmns(int domain, unsigned int item, unsigned int id)
 {
     char entry[128];
-    pmID pmid = pmID_build(domain, CLUSTER_INTERRUPT_LINES, item);
+    pmID pmid;
 
+    if (item > MAX_INTERRUPT_LINES)
+	return;
+
+    pmid = pmID_build(domain, CLUSTER_INTERRUPT_LINES, item);
     pmsprintf(entry, sizeof(entry), "kernel.percpu.interrupts.line%d", id);
     pmdaTreeInsert(interrupt_tree, pmid, entry);
 }
@@ -419,7 +432,6 @@ int
 refresh_interrupt_values(void)
 {
     FILE *fp;
-    char buf[BUFSIZ];
     int i, j, ncolumns;
     int sts, resized = 0;
 
@@ -428,31 +440,33 @@ refresh_interrupt_values(void)
     if ((sts = setup_interrupts(1)) < 0)
 	return sts;
 
-    if ((fp = linux_statsfile("/proc/interrupts", buf, sizeof(buf))) == NULL)
+    if ((fp = linux_statsfile("/proc/interrupts", iobuf, iobufsz)) == NULL)
 	return -oserror();
 
     /* first parse header, which maps online CPU number to column number */
-    if (fgets(buf, sizeof(buf), fp)) {
-	ncolumns = map_online_cpus(buf);
+    if (fgets(iobuf, iobufsz, fp)) {
+	iobuf[iobufsz - 1] = '\0';
+	ncolumns = map_online_cpus(iobuf);
     } else {
 	fclose(fp);
 	return -EINVAL;		/* unrecognised file format */
     }
 
     i = j = 0;
-    while (fgets(buf, sizeof(buf), fp) != NULL) {
+    while (fgets(iobuf, iobufsz, fp) != NULL) {
+	iobuf[iobufsz - 1] = '\0';
 	/* next we parse each interrupt line row (starting with a digit) */
-	sts = extract_interrupt_lines(buf, ncolumns, i++);
+	sts = extract_interrupt_lines(iobuf, ncolumns, i++);
 	if (sts > 1)
 	    resized++;
 	if (sts)
 	    continue;
-	if (extract_interrupt_errors(buf))
+	if (extract_interrupt_errors(iobuf))
 	    continue;
-	if (extract_interrupt_misses(buf))
+	if (extract_interrupt_misses(iobuf))
 	    continue;
 	/* parse other per-CPU interrupt counter rows (starts non-digit) */
-	sts = extract_interrupt_other(buf, ncolumns, j++);
+	sts = extract_interrupt_other(iobuf, ncolumns, j++);
 	if (sts > 1)
 	    resized++;
 	if (!sts)
@@ -472,7 +486,6 @@ int
 refresh_softirqs_values(void)
 {
     FILE *fp;
-    char buf[BUFSIZ];
     int i = 0, ncolumns;
     int sts, resized = 0;
 
@@ -481,20 +494,22 @@ refresh_softirqs_values(void)
     if ((sts = setup_interrupts(0)) < 0)
 	return sts;
 
-    if ((fp = linux_statsfile("/proc/softirqs", buf, sizeof(buf))) == NULL)
+    if ((fp = linux_statsfile("/proc/softirqs", iobuf, iobufsz)) == NULL)
 	return -oserror();
 
     /* first parse header, which maps online CPU number to column number */
-    if (fgets(buf, sizeof(buf), fp)) {
-	ncolumns = map_online_cpus(buf);
+    if (fgets(iobuf, iobufsz, fp)) {
+	iobuf[iobufsz - 1] = '\0';
+	ncolumns = map_online_cpus(iobuf);
     } else {
 	fclose(fp);
 	return -EINVAL;		/* unrecognised file format */
     }
 
-    while (fgets(buf, sizeof(buf), fp) != NULL) {
+    while (fgets(iobuf, iobufsz, fp) != NULL) {
+	iobuf[iobufsz - 1] = '\0';
 	/* next we parse each softirqs line */
-	sts = extract_softirqs(buf, ncolumns, i++);
+	sts = extract_softirqs(iobuf, ncolumns, i++);
 	if (sts > 1)
 	    resized = 1;
 	if (sts == 0)
@@ -513,7 +528,7 @@ refresh_softirqs_values(void)
 static int
 refresh_interrupts(pmdaExt *pmda, pmdaNameSpace **tree)
 {
-    int i, sts, dom = pmda->e_domain;
+    int i, sts, dom = pmda->e_domain, lines;
 
     if (interrupt_tree) {
 	*tree = interrupt_tree;
@@ -527,12 +542,14 @@ refresh_interrupts(pmdaExt *pmda, pmdaNameSpace **tree)
 			pmGetProgname(), pmErrStr(sts));
 	*tree = NULL;
     } else {
-	for (i = 0; i < lines_count; i++)
+	if ((lines = lines_count) > MAX_INTERRUPT_LINES)
+	    lines = MAX_INTERRUPT_LINES;
+	for (i = 0; i < lines; i++)
 	    update_lines_pmns(dom, i, interrupt_lines[i].id);
 	for (i = 0; i < other_count; i++)
 	    update_other_pmns(dom, interrupt_other[i].name);
 	*tree = interrupt_tree;
-	pmdaTreeRebuildHash(interrupt_tree, lines_count+other_count);
+	pmdaTreeRebuildHash(interrupt_tree, lines + other_count);
 	return 1;
     }
 
@@ -625,7 +642,7 @@ interrupts_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
 	case CLUSTER_INTERRUPT_LINES:
 	    if (!lines_count)
 		return 0;
-	    if (item > lines_count)
+	    if (item > lines_count || item > MAX_INTERRUPT_LINES)
 		break;
 	    atom->ul = interrupt_lines[item].values[inst];
 	    return 1;
@@ -674,11 +691,15 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
 static void
 interrupts_metrictable(int *total, int *trees)
 {
+    int		lines;
+
     if (!refresh_interrupt_count)
 	refresh_interrupt_values();
 
-    if (lines_count > other_count)
-	*trees = lines_count ? lines_count : 1;
+    if ((lines = lines_count) > MAX_INTERRUPT_LINES)
+	lines = MAX_INTERRUPT_LINES;
+    if (lines > other_count)
+	*trees = lines ? lines : 1;
     else
 	*trees = other_count ? other_count : 1;
     *total = 2;	/* lines and other */
@@ -714,7 +735,7 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 	case CLUSTER_INTERRUPT_LINES:
 	    if (!lines_count)
 		return PM_ERR_TEXT;
-	    if (item > lines_count)
+	    if (item > lines_count || item > MAX_INTERRUPT_LINES)
 		return PM_ERR_PMID;
 	    text = interrupt_lines[item].text;
 	    if (text == NULL || text[0] == '\0')

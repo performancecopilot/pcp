@@ -1,6 +1,6 @@
 Name:    pcp
-Version: 5.0.1
-Release: 1%{?dist}
+Version: 5.0.0
+Release: 2%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
 URL:     https://pcp.io
@@ -9,6 +9,7 @@ URL:     https://pcp.io
 Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 
 Patch0: pmcd-pmlogger-local-context.patch
+Patch1: fix-pmdastatsd-build-error.patch
 
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %global __python2 python2
@@ -209,7 +210,7 @@ BuildRequires: cyrus-sasl-devel
 BuildRequires: libvarlink-devel
 %endif
 %if !%{disable_statsd}
-BuildRequires: ragel libchan-devel libhdr_histogram-devel
+BuildRequires: ragel chan-devel HdrHistogram_c-devel
 %endif
 %if !%{disable_perfevent}
 BuildRequires: libpfm-devel >= 4
@@ -854,8 +855,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics from statsd
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: libchan libhdr_histogram
-BuildRequires: libchan-devel libhdr_histogram-devel
+Requires: libchan.so.0() HdrHistogram_c
 
 %description pmda-statsd
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -2078,6 +2078,7 @@ updated policy package.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 %if !%{disable_python2} && 0%{?default_python} != 3
@@ -2885,7 +2886,7 @@ cd
 %if !%{disable_statsd}
 %files pmda-statsd
 %{_pmdasdir}/statsd
-%config(noreplace) %{_pmdasdir}/statsd/statsd.ini
+%config(noreplace) %{_pmdasdir}/statsd/pmdastatsd.ini
 %endif
 
 %if !%{disable_perfevent}
@@ -3182,8 +3183,9 @@ cd
 %endif
 
 %changelog
-* Mon Dec 16 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.1-1
-- Work in progress: https://github.com/performancecopilot/pcp/projects/1
+* Sun Oct 20 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.0-2
+- various spec fixes for pmdastatsd
+- add patch1 to fix pmdastatsd build on rawhide
 
 * Fri Oct 11 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.0-1
 - Update to latest PCP sources.

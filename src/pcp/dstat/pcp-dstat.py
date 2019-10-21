@@ -467,6 +467,7 @@ class DstatTool(object):
         self.color = None
         self.debug = False
         self.verify = False
+        self.show_conf = False
         self.header = 1
         self.output = False
         self.update = True
@@ -867,6 +868,7 @@ class DstatTool(object):
         elif opt in ['integer']:
             self.integer = True
         elif opt in ['list']:
+            self.show_conf = True
             self.show_plugins()
             sys.exit(0)
         elif opt in ['nocolor']:
@@ -886,6 +888,7 @@ class DstatTool(object):
         elif opt in ['h', '?']:
             self.usage()
         elif opt in ['V', 'version']:
+            self.show_conf = True
             self.show_version()
             self.show_plugins()
             sys.exit(0)
@@ -1440,8 +1443,9 @@ class DstatTool(object):
     def finalize():
         """ Finalize and clean up (atexit) """
         try:
-            if not op.verify:
-                sys.stdout.write('\n')
+            if not op.verify and not op.show_conf:
+                if op.update:
+                    sys.stdout.write('\n')
                 if sys.stdout.isatty():
                     sys.stdout.write(ANSI['reset'])
             sys.stdout.flush()
@@ -1672,7 +1676,6 @@ if __name__ == '__main__':
     try:
         dstat = DstatTool(sys.argv[1:])
         dstat.execute()
-
     except pmapi.pmErr as error:
         if error.args[0] != PM_ERR_EOL:
             sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
