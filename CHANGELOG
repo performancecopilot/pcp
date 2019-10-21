@@ -1,3 +1,6 @@
+pcp-5.0.1 (16 December 2019)
+    - currently in development
+
 pcp-5.0.0 (11 October 2019)
     - Client tools and utilities:
 	pmseries: provide support for the delta keyword, better timestamps
