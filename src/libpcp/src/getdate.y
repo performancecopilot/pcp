@@ -80,11 +80,12 @@ static int yyerror(PARSER *, const char *);
 /*
  * seems like the %define variant is more bisonesque, while the
  * %pure-parser maybe a yaccism that bison silently accepts ...
- * adding the %define makes "deprecated directive" warnings go
- * away on some platforms - kenj Aug 2019
+ * using the %define makes "deprecated directive" warnings go
+ * away on some platforms - kenj Oct 2019
+ * old yacc declaration was
+ * %pure-parser
  */
 %define api.pure
-%pure-parser
 
 %parse-param { PARSER *lp }
 %lex-param { PARSER *lp }
