@@ -44,7 +44,6 @@ CFILES = \
 	pmda-callbacks.c \
 	pmdastatsd.c \
 	utils.c \
-	$(RFILES)
 
 HFILES = $(shell echo *.h)
 
@@ -69,6 +68,13 @@ install: default
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 	$(INSTALL) -m 644 root_statsd $(PMDADIR)/root_statsd
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
+
+CFILES += $(RFILES)
+
+$(RFILES): $(RAGELTARGET).rl
+	$(RAGEL) $<
+
+$(OBJECTS): $(RFILES) domain.h
 else
 build-me:
 install:
@@ -77,11 +83,6 @@ endif
 default_pcp : default
 
 install_pcp : install
-
-$(OBJECTS): domain.h $(RFILES)
-
-$(RFILES): $(RAGELTARGET).rl
-	$(RAGEL) $<
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
