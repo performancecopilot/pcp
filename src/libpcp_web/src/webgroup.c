@@ -1123,6 +1123,8 @@ webgroup_instances(pmWebGroupSettings *settings,
     iterator = dictGetIterator(ip->insts);
     while ((entry = dictNext(iterator)) != NULL) {
 	instance = (instance_t *)dictGetVal(entry);
+	if (instance->updated == 0)
+	    continue;
 
 	found = 0;
 	if (numnames == 0 && numids == 0)
@@ -1222,10 +1224,8 @@ pmWebGroupInDom(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	sts = -EINVAL;
 	goto done;
     }
-    if (ip->updated == 0) {
-	count = pmwebapi_add_indom_instances(cp, ip);
-	pmwebapi_add_instances_labels(cp, ip);
-    }
+    count = pmwebapi_add_indom_instances(cp, ip);
+    pmwebapi_add_instances_labels(cp, ip);
     pmwebapi_add_indom_labels(ip);
     pmwebapi_indom_help(cp, ip);
 
