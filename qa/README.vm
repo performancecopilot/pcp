@@ -349,6 +349,7 @@ OpenIndiana
 OpenBSD
     https://en.wikipedia.org/wiki/OpenBSD_version_history
     26 Oct 2018: 6.2, 6.3, 6.4
+    24 Oct 2019: 6.4, 6.5, 6.6
     # package search recipe (name only, not info or description)
     $ pkg_info -Q <pattern>
     # which package installs a file/directory
