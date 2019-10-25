@@ -15,6 +15,7 @@
 #
 #Distro      Version  Arch    Required Packages
 CentOS       7\.[56]  -       python-devel
+Fedora       28       -       python2-devel
 Debian       -        -       python-setuptools python-all python-all-dev
 LinuxMint    -        -       python-setuptools python-all python-all-dev
 NetBSD       -        -       py27-setuptools
