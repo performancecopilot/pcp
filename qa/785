@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 785
 # Basic checkout of the pcp-atopsar(1) utility.
 #
