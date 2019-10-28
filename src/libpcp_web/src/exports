@@ -169,7 +169,6 @@ PCP_WEB_1.9 {
 
 PCP_WEB_1.10 {
   global:
-    pmDiscoverClose;
     pmWebGroupClose;
     sdsOwnDictCallBacks;
     unicode_encode;
