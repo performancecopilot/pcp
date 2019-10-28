@@ -61,7 +61,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(PMDA_STATSD)" "true"
-build-me: $(CMDTARGET) $(LIBTARGET)
+build-me: $(RAGELTARGET).o $(CMDTARGET) $(LIBTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
@@ -70,6 +70,8 @@ install: default
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 
 CFILES += $(RFILES)
+
+$(RAGELTARGET).o: $(RFILES)
 
 $(RFILES): $(RAGELTARGET).rl
 	$(RAGEL) $<
