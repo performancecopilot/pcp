@@ -115,7 +115,7 @@ CentOS
     25 Sep 2018: 6.*, 7.1-7.5
     # everything the same as RedHat
 
-OpenSuSE
+openSUSE
     https://en.opensuse.org/Lifetime
     24 Sep 2018: 42.3 and 15
     16 Oct 2019: 15.0 and 15.1
@@ -131,13 +131,13 @@ OpenSuSE
     $ sudo zypper install <package>
     # update all packages recipe
     $ sudo zypper refresh; sudo zypper update
-    # upgrade recipe ... only from 42.2 to 42.3
+    # upgrade recipe ... e.g from 42.2 to 42.3
     $ sudo sed -i 's/42\.2/42.3/g' /etc/zypp/repos.d/*
     $ sudo zypper --gpg-auto-import-keys ref
     # and then in a console window
     $ sudo zypper dup
 
-SuSE (SLES)
+SUSE (SLES)
     https://www.suse.com/lifecycle/
     18 Nov 2105: 11 SP4 and 12 SP1
     # which packages are installed
@@ -161,8 +161,8 @@ SuSE (SLES)
 
 FreeBSD
     https://www.freebsd.org/security/security.html#sup
-    19 Nov 2015: 9.3, 10.1 and 10.2
     26 Sep 2018: 10, 10.4, 11 and 11.2
+    17 Oct 2019: 11.2, 11.3 and 12.0
     # which packages are installed
     $ pkg info -a | sed -e 's/-[0-9].*//'
     # package search recipe (name and info or description)
@@ -349,6 +349,7 @@ OpenIndiana
 OpenBSD
     https://en.wikipedia.org/wiki/OpenBSD_version_history
     26 Oct 2018: 6.2, 6.3, 6.4
+    24 Oct 2019: 6.4, 6.5, 6.6
     # package search recipe (name only, not info or description)
     $ pkg_info -Q <pattern>
     # which package installs a file/directory
@@ -360,7 +361,27 @@ OpenBSD
     # update all packages recipe
     $ sudo pkg_add -u
     # release upgrade recipe
-    $ ???
+    $ cd /tmp
+    $ wget https://mirror.vdms.com/pub/OpenBSD/6.4/i386/bsd.rd
+                                                   ^^^^ architecture
+					       ^^^ new version		   
+    $ wget https://mirror.vdms.com/pub/OpenBSD/6.4/i386/SHA256.sig
+    $ signify -C -p /etc/signify/openbsd-64-base.pub -x SHA256.sig bsd.rd
+    $ sudo mv /bsd.rd /bsd.rd.6.3
+    			      ^^^ old version
+    $ sudo mv bsd.rd /bsd.rd
+    $ sudo ln /bsd.rd /bsd.rd.6.4
+    			      ^^^ new version
+    $ sudo reboot
+    and in console window, when boot> prompt appears, enter
+    boot /bsd.rd
+    Welcome to the OpenBSD/amd64 6.4 installation program.
+    (I)nstall, (U)pgrade, (A)utoinstall or (S)hell? u
+    ...
+    reboot
+    $ sudo sysmerge
+    $ sudo syspatch
+    $ sudo pkg_add -u
 
 Template
     URL

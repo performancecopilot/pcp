@@ -12,7 +12,7 @@ else
     #
     case `uname`
     in
-	Darwin)
+	Darwin|*BSD)
 	    PCP_ECHO_PROG=echo
 	    PCP_ECHO_N=
 	    PCP_ECHO_C='\c'
@@ -1193,10 +1193,11 @@ then
 	else
 	    tr '\012' ' ' <$tmp.tmp \
 	    | sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//'
-	    # BSD* and Darwin heuristic hack ... don't need extra echo for
-	    # these guys
+	    # BSD* and Darwin heuristic hack ... may not need extra echo
+	    # for these guys, but ... needed on
+	    # FreeBSD 12.0
 	    #
-	    [ -z "$PCP_ECHO_N" ] || echo
+	    echo
 	fi
     else
 	cat $tmp.out

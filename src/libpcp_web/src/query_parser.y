@@ -74,7 +74,16 @@ static const char unexpected_str[]       = "Unexpected";
 static const char initial_str[]  = "Unexpected initial";
 %}
 
-%pure-parser
+/*
+ * seems like the %define variant is more bisonesque, while the
+ * %pure-parser maybe a yaccism that bison silently accepts ...
+ * using the %define makes "deprecated directive" warnings go
+ * away on some platforms - kenj Oct 2019
+ * old yacc declaration was
+ * %pure-parser
+ */
+%define api.pure
+
 %parse-param { PARSER *lp }
 %lex-param { PARSER *lp }
 
