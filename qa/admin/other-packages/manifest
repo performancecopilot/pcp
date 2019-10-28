@@ -1521,7 +1521,7 @@ rpm?		/usr/lib*/libvirt/*/libvirt_driver_qemu.so	[libvirt-daemon-driver-qemu (QA
 urpmi?		libvirtd		[? (QA optional)]
 emerge?		libvirtd		[? (QA optional)]
 pkgin?		libvirtd		[? (QA optional)]
-pkg_add?	libvirtd		[? (QA optional)]
+pkg_add?	libvirtd		[N/A (QA optional)]
 F_pkg?		libvirtd		[? (QA optional)]
 S_pkg?		libvirtd		[N/A (QA optional)]
 slackpkg?	libvirtd		[? (QA optional)]
