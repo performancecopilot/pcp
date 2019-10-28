@@ -151,7 +151,10 @@ fi
 #
 if which pmprobe >/dev/null 2>&1
 then
-    pcpver=`pmprobe -v pmcd.version 2>/dev/null | sed -e 's/"$//' -e 's/.*"//'`
+    if pmprobe -v pmcd.version >$tmp.out 2>/dev/null
+    then
+	pcpver=`sed <$tmp.out -e 's/"$//' -e 's/.*"//'`
+    fi
     [ -z "$pcpver" ] && pcpver=unknown
 else
     pcpver=unknown
