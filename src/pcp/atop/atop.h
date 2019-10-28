@@ -175,6 +175,7 @@ int		contcompar(const void *, const void *);
 count_t		subcount(count_t, count_t);
 
 void		setup_options(struct pmOptions *, char **, char *);
+void		close_options(struct pmOptions *);
 void  		rawread(struct pmOptions *);
 void		rawfolio(struct pmOptions *);
 void		rawarchive(struct pmOptions *, const char *);

@@ -71,6 +71,15 @@ setup_options(pmOptions *opts, char **argv, char *short_options)
 	__pmStartOptions(opts);
 }
 
+void
+close_options(pmOptions *opts)
+{
+	__pmEndOptions(opts);
+
+	if (opts->errors)
+		pmflush();
+}
+
 /*
 ** Function convtime() converts a value (number of seconds since
 ** 1-1-1970) to an ascii-string in the format hh:mm:ss, stored in

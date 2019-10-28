@@ -48,7 +48,6 @@
 /*
 ** miscellaneous values
 */
-static unsigned int 	nsamples = 9999999;
 static char		stampalways;
 static char		usemarkers;
 static char		allresources;
@@ -74,6 +73,7 @@ struct pridef {
 	char    *about;         /* statistics about what                  */
 };
 
+extern unsigned int 	nsamples;
 extern struct pridef	pridef[];      /* table of print-functions        */
 extern int		pricnt;	       /* total number of print-functions */
 
@@ -272,13 +272,13 @@ atopsar(int argc, char *argv[])
 		rawreadflag++;
 	}
 
-	__pmEndOptions(&opts);
+	close_options(&opts);
 
 	if (opts.errors)
-		prusage(pmGetProgname(), &opts);
+		pratopsaruse(pmGetProgname(), &opts);
 
-	if (opts.samples)
-		nsamples = opts.samples;
+	if (opts.samples > 0)
+		nsamples = opts.samples + 1;
 
 	if (opts.interval.tv_sec || opts.interval.tv_usec)
 		interval = opts.interval;
@@ -314,9 +314,9 @@ atopsar(int argc, char *argv[])
 	if (rawreadflag)
 	{
 		vis.show_samp = reportraw;
-               vis.prep = prep;
-               vis.next = next_prinow;
-               prinow = 0;
+		vis.prep = prep;
+		vis.next = next_prinow;
+		prinow = 0;
 	}
 	else
 		vis.show_samp = reportlive;

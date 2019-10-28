@@ -173,7 +173,7 @@ struct visualize vis = {generic_samp, generic_error,
 ** argument values
 */
 static char		awaittrigger;	/* boolean: awaiting trigger */
-static unsigned int 	nsamples = 0xffffffff;
+unsigned int		nsamples = 0xffffffff;
 static char		midnightflag;
 
 /*
@@ -294,7 +294,6 @@ main(int argc, char *argv[])
 	if ( (p = getenv("HOME")) )
 	{
 		pmsprintf(path, sizeof(path), "%s/.atoprc", p);
-		path[sizeof(path)-1] = '\0';
 		readrc(path, 0);
 	}
 
@@ -424,7 +423,7 @@ main(int argc, char *argv[])
 	if (opts.narchives > 0)
 		rawreadflag++;
 
-	__pmEndOptions(&opts);
+	close_options(&opts);
 
 	if (opts.errors)
 		prusage(pmGetProgname(), &opts);
