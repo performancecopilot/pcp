@@ -46,42 +46,37 @@ unhexchar(char c) {
 
 /*
  * Un-escape \\xFF hex escape codes used by systemd in some of the cgroup
- * instance names. This is done insitu - and necessary because golang http
- * response parsers don't tolerate the escapes when used in a streamed
- * chunked encoding sequence. We don't generally want escape sequences in
- * PCP instance names anyway.
+ * instance names. This is necessary because golang http response parsers
+ * don't tolerate the escapes when used in a streamed chunked encoding
+ * sequence. We don't generally want escape sequences in PCP instance
+ * names anyway. Return fsname if there are no changes.
  */
-static void
-unit_name_unescape(char *name) {
-    char *f, *t;
-    int changed = 0;
+static char *
+unit_name_unescape(const char *fsname, char escname[]) {
+    const char *f;
+    char *t;
 
-    if (name == NULL || strlen(name) < 3)
-	/* no change */
-    	return;
+    if (fsname == NULL || strchr(fsname, '\\') == NULL)
+	/* normal, fast path - no change */
+    	return (char *)fsname;
 
-    for (t = f = name; *f; f++) {
+    for (t = escname, f = fsname; *f; f++) {
 	/* nb: t lags f */
-	if (*f == '-') {
-	    *(t++) = '/';
-	    changed = 1;
-	}
-	else if (f[0] == '\\' && f[1] == 'x') {
+	if (f[0] == '\\' && f[1] == 'x') {
 	    int a = unhexchar(f[2]);
 	    int b = unhexchar(f[3]);
 
-	    if (a < 0 || b < 0)
-		return; /* unlikely, unknown escape */
 	    *(t++) = (char) (((uint8_t) a << 4U) | (uint8_t) b);
 	    f += 3;
-	    changed = 1;
 	} else
 	    *(t++) = *f;
     }
     *t = '\0';
 
-    if (changed && pmDebugOptions.appl0)
-    	fprintf(stderr, "unit_name_unescape mapped to <%s>\n", name);
+    if (pmDebugOptions.appl0)
+    	fprintf(stderr, "unit_name_unescape mapped fsname <%s> to escname <%s>\n", fsname, escname);
+
+    return escname;
 }
 
 static void
@@ -552,16 +547,17 @@ setup_cpuset(void)
 }
 
 void
-refresh_cpuset(const char *path, char *name)
+refresh_cpuset(const char *path, const char *name)
 {
     pmInDom indom = INDOM(CGROUP_CPUSET_INDOM);
     cgroup_cpuset_t *cpuset;
+    char *escname, escbuf[MAXPATHLEN];
     char file[MAXPATHLEN];
     char id[MAXCIDLEN];
     int sts;
 
-    unit_name_unescape(name);
-    sts = pmdaCacheLookupName(indom, name, NULL, (void **)&cpuset);
+    escname = unit_name_unescape(name, escbuf);
+    sts = pmdaCacheLookupName(indom, escname, NULL, (void **)&cpuset);
     if (sts == PMDA_CACHE_ACTIVE)
 	return;
     if (sts != PMDA_CACHE_INACTIVE) {
@@ -574,7 +570,7 @@ refresh_cpuset(const char *path, char *name)
     pmsprintf(file, sizeof(file), "%s/cpuset.mems", path);
     cpuset->mems = read_oneline_string(file);
     cgroup_container(name, id, sizeof(id), &cpuset->container);
-    pmdaCacheStore(indom, PMDA_CACHE_ADD, name, cpuset);
+    pmdaCacheStore(indom, PMDA_CACHE_ADD, escname, cpuset);
 }
 
 void
@@ -620,15 +616,17 @@ read_cpuacct_stats(const char *file, cgroup_cpuacct_t *cap)
 }
 
 static int
-read_percpuacct_usage(const char *file, char *name)
+read_percpuacct_usage(const char *file, const char *name)
 {
     pmInDom indom =  INDOM(CGROUP_PERCPUACCT_INDOM);
     cgroup_percpuacct_t *percpuacct;
     char buffer[16 * 4096], *endp;
     char inst[MAXPATHLEN], *p;
+    char *escname, escbuf[MAXPATHLEN];
     unsigned long long value;
     FILE *fp;
     int cpu, sts;
+
 
     if ((fp = fopen(file, "r")) == NULL)
 	return -ENOENT;
@@ -638,7 +636,7 @@ read_percpuacct_usage(const char *file, char *name)
 	return -ENOMEM;
     }
 
-    unit_name_unescape(name);
+    escname = unit_name_unescape(name, escbuf);
     for (cpu = 0; ; cpu++) {
 	value = strtoull(p, &endp, 0);
 	if (*endp == '\0' || endp == p)
@@ -646,7 +644,7 @@ read_percpuacct_usage(const char *file, char *name)
 	p = endp;
 	while (p && isspace((int)*p))
 	    p++;
-	pmsprintf(inst, sizeof(inst), "%s::cpu%d", name, cpu);
+	pmsprintf(inst, sizeof(inst), "%s::cpu%d", escname, cpu);
 	sts = pmdaCacheLookupName(indom, inst, NULL, (void **)&percpuacct);
 	if (sts == PMDA_CACHE_ACTIVE)
 	    continue;
@@ -663,16 +661,17 @@ read_percpuacct_usage(const char *file, char *name)
 }
 
 void
-refresh_cpuacct(const char *path, char *name)
+refresh_cpuacct(const char *path, const char *name)
 {
     pmInDom indom = INDOM(CGROUP_CPUACCT_INDOM);
     cgroup_cpuacct_t *cpuacct;
     char file[MAXPATHLEN];
     char id[MAXCIDLEN];
+    char *escname, escbuf[MAXPATHLEN];
     int sts;
 
-    unit_name_unescape(name);
-    sts = pmdaCacheLookupName(indom, name, NULL, (void **)&cpuacct);
+    escname = unit_name_unescape(name, escbuf);
+    sts = pmdaCacheLookupName(indom, escname, NULL, (void **)&cpuacct);
     if (sts == PMDA_CACHE_ACTIVE)
 	return;
     if (sts != PMDA_CACHE_INACTIVE) {
@@ -687,7 +686,7 @@ refresh_cpuacct(const char *path, char *name)
     pmsprintf(file, sizeof(file), "%s/cpuacct.usage_percpu", path);
     read_percpuacct_usage(file, name);
     cgroup_container(name, id, sizeof(id), &cpuacct->container);
-    pmdaCacheStore(indom, PMDA_CACHE_ADD, name, cpuacct);
+    pmdaCacheStore(indom, PMDA_CACHE_ADD, escname, cpuacct);
 }
 
 void
@@ -734,16 +733,17 @@ read_cpu_stats(const char *file, cgroup_cpustat_t *ccp)
 }
 
 void
-refresh_cpusched(const char *path, char *name)
+refresh_cpusched(const char *path, const char *name)
 {
     pmInDom indom = INDOM(CGROUP_CPUSCHED_INDOM);
     cgroup_cpusched_t *cpusched;
     char file[MAXPATHLEN];
     char id[MAXCIDLEN];
+    char *escname, escbuf[MAXPATHLEN];
     int sts;
 
-    unit_name_unescape(name);
-    sts = pmdaCacheLookupName(indom, name, NULL, (void **)&cpusched);
+    escname = unit_name_unescape(name, escbuf);
+    sts = pmdaCacheLookupName(indom, escname, NULL, (void **)&cpusched);
     if (sts == PMDA_CACHE_ACTIVE)
 	return;
     if (sts != PMDA_CACHE_INACTIVE) {
@@ -761,7 +761,7 @@ refresh_cpusched(const char *path, char *name)
     read_oneline_ll(file, &cpusched->cfs_quota);
     cgroup_container(name, id, sizeof(id), &cpusched->container);
 
-    pmdaCacheStore(indom, PMDA_CACHE_ADD, name, cpusched);
+    pmdaCacheStore(indom, PMDA_CACHE_ADD, escname, cpusched);
 }
 
 void
@@ -840,16 +840,17 @@ read_memory_stats(const char *file, cgroup_memory_t *cmp)
 }
 
 void
-refresh_memory(const char *path, char *name)
+refresh_memory(const char *path, const char *name)
 {
     pmInDom indom = INDOM(CGROUP_MEMORY_INDOM);
     cgroup_memory_t *memory;
     char file[MAXPATHLEN];
     char id[MAXCIDLEN];
+    char *escname, escbuf[MAXPATHLEN];
     int sts;
 
-    unit_name_unescape(name);
-    sts = pmdaCacheLookupName(indom, name, NULL, (void **)&memory);
+    escname = unit_name_unescape(name, escbuf);
+    sts = pmdaCacheLookupName(indom, escname, NULL, (void **)&memory);
     if (sts == PMDA_CACHE_ACTIVE)
 	return;
     if (sts != PMDA_CACHE_INACTIVE) {
@@ -867,7 +868,7 @@ refresh_memory(const char *path, char *name)
     read_oneline_ull(file, &memory->failcnt);
     cgroup_container(name, id, sizeof(id), &memory->container);
 
-    pmdaCacheStore(indom, PMDA_CACHE_ADD, name, memory);
+    pmdaCacheStore(indom, PMDA_CACHE_ADD, escname, memory);
 }
 
 void
@@ -877,16 +878,17 @@ setup_netcls(void)
 }
 
 void
-refresh_netcls(const char *path, char *name)
+refresh_netcls(const char *path, const char *name)
 {
     pmInDom indom = INDOM(CGROUP_NETCLS_INDOM);
     cgroup_netcls_t *netcls;
     char file[MAXPATHLEN];
     char id[MAXCIDLEN];
+    char *escname, escbuf[MAXPATHLEN];
     int sts;
 
-    unit_name_unescape(name);
-    sts = pmdaCacheLookupName(indom, name, NULL, (void **)&netcls);
+    escname = unit_name_unescape(name, escbuf);
+    sts = pmdaCacheLookupName(indom, escname, NULL, (void **)&netcls);
     if (sts == PMDA_CACHE_ACTIVE)
 	return;
     if (sts != PMDA_CACHE_INACTIVE) {
@@ -897,7 +899,7 @@ refresh_netcls(const char *path, char *name)
     pmsprintf(file, sizeof(file), "%s/net_cls.classid", path);
     read_oneline_ull(file, &netcls->classid);
     cgroup_container(name, id, sizeof(id), &netcls->container);
-    pmdaCacheStore(indom, PMDA_CACHE_ADD, name, netcls);
+    pmdaCacheStore(indom, PMDA_CACHE_ADD, escname, netcls);
 }
 
 void
@@ -951,9 +953,11 @@ get_perdevblkio(pmInDom indom, const char *name, const char *disk,
 		char *inst, size_t size)
 {
     cgroup_perdevblkio_t *cdevp;
-    int		sts;
+    char *escname, escbuf[MAXPATHLEN];
+    int sts;
 
-    pmsprintf(inst, size, "%s::%s", name, disk);
+    escname = unit_name_unescape(name, escbuf);
+    pmsprintf(inst, size, "%s::%s", escname, disk);
     sts = pmdaCacheLookupName(indom, inst, NULL, (void **)&cdevp);
     if (sts == PMDA_CACHE_ACTIVE) {
 	if (pmDebugOptions.appl0)
@@ -1091,16 +1095,17 @@ read_blkio_devices_value(const char *file, const char *name, int style,
 }
 
 void
-refresh_blkio(const char *path, char *name)
+refresh_blkio(const char *path, const char *name)
 {
     pmInDom indom = INDOM(CGROUP_BLKIO_INDOM);
     cgroup_blkio_t *blkio;
     char file[MAXPATHLEN];
     char id[MAXCIDLEN];
+    char *escname, escbuf[MAXPATHLEN];
     int sts;
 
-    unit_name_unescape(name);
-    sts = pmdaCacheLookupName(indom, name, NULL, (void **)&blkio);
+    escname = unit_name_unescape(name, escbuf);
+    sts = pmdaCacheLookupName(indom, escname, NULL, (void **)&blkio);
     if (sts == PMDA_CACHE_ACTIVE)
 	return;
     if (sts != PMDA_CACHE_INACTIVE) {
@@ -1140,5 +1145,5 @@ refresh_blkio(const char *path, char *name)
 		CG_BLKIO_THROTTLEIOSERVICED_TOTAL, &blkio->total.throttle_io_serviced);
     cgroup_container(name, id, sizeof(id), &blkio->container);
 
-    pmdaCacheStore(indom, PMDA_CACHE_ADD, name, blkio);
+    pmdaCacheStore(indom, PMDA_CACHE_ADD, escname, blkio);
 }

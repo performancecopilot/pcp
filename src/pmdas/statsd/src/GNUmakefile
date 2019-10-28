@@ -6,7 +6,7 @@
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -43,8 +43,7 @@ CFILES = \
 	parser-basic.c \
 	pmda-callbacks.c \
 	pmdastatsd.c \
-	utils.c \
-	$(RFILES)
+	utils.c
 
 HFILES = $(shell echo *.h)
 
@@ -62,13 +61,22 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(PMDA_STATSD)" "true"
-build-me: $(CMDTARGET) $(LIBTARGET)
+build-me: $(RAGELTARGET).o $(CMDTARGET) $(LIBTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 	$(INSTALL) -m 644 root_statsd $(PMDADIR)/root_statsd
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
+
+CFILES += $(RFILES)
+
+$(RAGELTARGET).o: $(RFILES)
+
+$(RFILES): $(RAGELTARGET).rl
+	$(RAGEL) $<
+
+$(OBJECTS): $(RFILES) domain.h
 else
 build-me:
 install:
@@ -77,11 +85,6 @@ endif
 default_pcp : default
 
 install_pcp : install
-
-$(OBJECTS): domain.h $(RFILES)
-
-$(RFILES): $(RAGELTARGET).rl
-	$(RAGEL) $<
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)

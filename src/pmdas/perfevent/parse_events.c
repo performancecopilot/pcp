@@ -147,7 +147,6 @@ static int setup_sw_events(struct pmu_event **events, struct pmu *pmu)
         tmp = calloc(1, sizeof(*tmp));
         if (!tmp)
             return -1;
-        tmp->next = NULL;
         tmp->name = strdup(sw_events[i].name);
         if (!tmp->name) {
             cleanup_event_list(head);
@@ -182,7 +181,6 @@ static int setup_sw_pmu(struct pmu **pmu)
     tmp = calloc(1, sizeof(*tmp));
     if (!tmp)
         return -1;
-    tmp->next = NULL;
 
     tmp->name = strdup("software");
     if (!tmp->name) {
@@ -288,7 +286,6 @@ static int fetch_format_properties(char *format_path, struct property **prop)
             ret = -E_PERFEVENT_REALLOC;
             goto free_buf;
         }
-        tmp->next = NULL;
 
         if (!strncmp(buf, "config1", strlen("config1"))) {
             tmp->belongs_to = CONFIG1;
@@ -558,7 +555,7 @@ static int fetch_events(DIR *events_dir, struct pmu_event **events,
     struct dirent *dir;
     struct pmu_event *ev = NULL, *tmp, *head = NULL;
     char event_path[PATH_MAX], *buf;
-    int ret = 0, sub_events, i;
+    int ret = 0, sub_events = 0, i;
 
     if (!events_dir)
         return -1;
@@ -578,7 +575,6 @@ static int fetch_events(DIR *events_dir, struct pmu_event **events,
             ret = -E_PERFEVENT_REALLOC;
             goto free_event_list;
         }
-        tmp->next = NULL;
         tmp->name = strdup(dir->d_name);
         if (!tmp->name) {
             ret = -E_PERFEVENT_REALLOC;
@@ -735,9 +731,6 @@ static int populate_pmus(struct pmu **pmus, struct pmcsetting *dynamicpmc)
             ret = -E_PERFEVENT_REALLOC;
             goto free_pmulist;
         }
-        tmp->next = NULL;
-        tmp->prop = NULL;
-        tmp->ev = NULL;
         ret = fetch_format_and_events(pmu_path, tmp, dynamicpmc, dir->d_name);
         if (ret) {
             /*
