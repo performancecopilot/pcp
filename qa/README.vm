@@ -361,7 +361,27 @@ OpenBSD
     # update all packages recipe
     $ sudo pkg_add -u
     # release upgrade recipe
-    $ ???
+    $ cd /tmp
+    $ wget https://mirror.vdms.com/pub/OpenBSD/6.4/i386/bsd.rd
+                                                   ^^^^ architecture
+					       ^^^ new version		   
+    $ wget https://mirror.vdms.com/pub/OpenBSD/6.4/i386/SHA256.sig
+    $ signify -C -p /etc/signify/openbsd-64-base.pub -x SHA256.sig bsd.rd
+    $ sudo mv /bsd.rd /bsd.rd.6.3
+    			      ^^^ old version
+    $ sudo mv bsd.rd /bsd.rd
+    $ sudo ln /bsd.rd /bsd.rd.6.4
+    			      ^^^ new version
+    $ sudo reboot
+    and in console window, when boot> prompt appears, enter
+    boot /bsd.rd
+    Welcome to the OpenBSD/amd64 6.4 installation program.
+    (I)nstall, (U)pgrade, (A)utoinstall or (S)hell? u
+    ...
+    reboot
+    $ sudo sysmerge
+    $ sudo syspatch
+    $ sudo pkg_add -u
 
 Template
     URL
