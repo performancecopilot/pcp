@@ -23,21 +23,6 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-ncpu=`pmprobe -v hinv.ncpu | $PCP_AWK_PROG '{print $3}'`
-
-_check()
-{
-    echo "$1" "$ncpu" "$2" "$3" | $PCP_AWK_PROG '
-function _abs(x) { if (x > 0) return x; else return -x }
-    { if ($3 - 10*$2 <= $4 && $4 <= $3 + 10*$2) {
-	# OK
-      }
-      else {
-	print "Error: " $1 " all=" $3 " sum(percpu)=" $4 " diff=" _abs($3-$4) " not +/- " 10*$2
-      }
-    }'
-}
-
 # real QA test starts here
 echo "Silence is golden"
 
@@ -74,7 +59,7 @@ do
 		   | $PCP_AWK_PROG '
     { s = $3; for (i = 4; i <= NF; i++) s += $i; print s }'`
 	echo $percpu_metric $sum_value >>$here/$seq.full
-	_check $all_metric $all_value $sum_value
+	_within_tolerance $all_metric $all_value $sum_value 5%
     else
 	echo "Error: $all_metric numval=$all_numval, $percpu_metric numval=$percpu_numval !"
     fi
