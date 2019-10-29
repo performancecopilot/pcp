@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 813
-# pmlogextract -x exereciser
+# pmlogextract -x exerciser
 #
 # Copyright (c) 2019 Ken McDonell.  All Rights Reserved.
 #
