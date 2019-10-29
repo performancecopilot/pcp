@@ -10,4 +10,3 @@ Verify changes in dynamic instance domain
 {"context":CTX,"timestamp":TIMESTAMP,"values":[{"pmid":"29.0.80","name":"sample.many.int","instances":[{"instance":0,"value":0},{"instance":1,"value":1},{"instance":2,"value":2}]}]}
 {"context":CTX,"success":true}
 {"context":CTX,"timestamp":TIMESTAMP,"values":[{"pmid":"29.0.80","name":"sample.many.int","instances":[{"instance":0,"value":0},{"instance":1,"value":1},{"instance":2,"value":2},{"instance":3,"value":3},{"instance":4,"value":4},{"instance":5,"value":5},{"instance":6,"value":6}]}]}
-
