@@ -8,8 +8,6 @@ URL:     https://pcp.io
 %global  bintray https://bintray.com/artifact/download
 Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 
-Patch0: pmcd-pmlogger-local-context.patch
-
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %global __python2 python2
 %else
@@ -2076,7 +2074,6 @@ updated policy package.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 %if !%{disable_python2} && 0%{?default_python} != 3
@@ -2126,7 +2123,12 @@ rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
 desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
 %endif
 
-# default chkconfig off for Fedora and RHEL
+%if 0%{?rhel} || 0%{?fedora}
+# Fedora and RHEL default local only access for pmcd and pmlogger
+sed -i -e '/^# .*_LOCAL=1/s/^# //' $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/{pmcd,pmlogger}
+%endif
+
+# default chkconfig off (all RPM platforms)
 for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmmgr,pmproxy}; do
 	test -f "$f" || continue
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
