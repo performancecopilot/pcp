@@ -372,11 +372,13 @@ See also
 .TP
 \fB\-J\fR \fIrank\fR, \fB\-\-rank\fR=\fIrank\fR
 Limit results to highest/lowest
-.I rank
+.IR rank ed
 instances of set-valued metrics.
 A positive integer will include highest valued instances in reporting.
 A negative integer will include lowest valued instances in reporting.
 A value of zero performs no ranking.
+Ranking does not imply sorting, see
+.BR \-6 .
 See also
 .BR \-8 .
 .TP
@@ -424,6 +426,8 @@ When reporting, rest of the metrics sharing the same
 .BR PCPIntro (1))
 as the predicate will include only the highest/lowest ranking
 instances of the corresponding predicate.
+Ranking does not imply sorting, see
+.BR \-6 .
 .RS
 .PP
 So for example, using \fBproc.memory.rss\fP
