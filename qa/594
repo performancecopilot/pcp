@@ -27,7 +27,7 @@ src/779246 \
     |
 	$PCP_AWK_PROG '
 	/\+\+\+ Expect/ { expsiz = $3; }
-	/value \"/ { 
+	/value "/ { 
 		$2="\"<" length($2)/2-1 " CHARS>\"" 
 		$3="[<" length($3)/2-1 " BYTES>]" 
 	} 
