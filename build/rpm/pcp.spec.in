@@ -747,7 +747,7 @@ Obsoletes: dstat <= 0.8
 %description system-tools
 This PCP module contains additional system monitoring tools written
 in the Python language.
-%endif #pcp-system-tools
+%endif
 
 %if "@enable_qt@" == "true"
 #
@@ -1571,7 +1571,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
 
-%endif # @have_python@
+%endif
 
 %if "@pmda_libvirt@" == "true"
 #
@@ -2686,7 +2686,7 @@ pmieconf -c enable dmthin
     /sbin/service pmcd condrestart
     /sbin/service pmlogger condrestart
     /sbin/service pmie condrestart
-%endif #zeroconf
+%endif
 
 %if "@enable_selinux@" == "true"
 %preun selinux
@@ -2702,102 +2702,102 @@ pmieconf -c enable dmthin
 %if "@pmda_rpm@" == "true"
 %preun pmda-rpm
 %{pmda_remove "$1" "rpm"}
-%endif #preun pmda-rpm
+%endif
 
 %if "@pmda_systemd@" == "true"
 %preun pmda-systemd
 %{pmda_remove "$1" "systemd"}
-%endif #preun pmda-systemd
+%endif
 
 %if "@pmda_infiniband@" == "true"
 %preun pmda-infiniband
 %{pmda_remove "$1" "infiniband"}
-%endif #preun pmda-infiniband
+%endif
 
 %if "@pmda_perfevent@" == "true"
 %preun pmda-perfevent
 %{pmda_remove "$1" "perfevent"}
-%endif #preun pmda-perfevent
+%endif
 
 %if "@pmda_podman@" == "true"
 %preun pmda-podman
 %{pmda_remove "$1" "podman"}
-%endif #preun pmda-podman
+%endif
 
 %if "@pmda_statsd@" == "true"
 %preun pmda-statsd
 %{pmda_remove "$1" "statsd"}
-%endif #preun pmda-statsd
+%endif
 
 %if "@pmda_json@" == "true"
 %preun pmda-json
 %{pmda_remove "$1" "json"}
-%endif #preun pmda-json
+%endif
 
 %if "@pmda_libvirt@" == "true"
 %preun pmda-libvirt
 %{pmda_remove "$1" "libvirt"}
-%endif #preun pmda-libvirt
+%endif
 
 %if "@pmda_lio@" == "true"
 %preun pmda-lio
 %{pmda_remove "$1" "lio"}
-%endif #preun pmda-lio
+%endif
 
 %if "@pmda_openmetrics@" == "true"
 %preun pmda-openmetrics
 %{pmda_remove "$1" "openmetrics"}
-%endif #preun pmda-openmetrics
+%endif
 
 %if "@pmda_nginx@" == "true"
 %preun pmda-nginx
 %{pmda_remove "$1" "nginx"}
-%endif #preun pmda-nginx
+%endif
 
 %if "@pmda_oracle@" == "true"
 %preun pmda-oracle
 %{pmda_remove "$1" "oracle"}
-%endif #preun pmda-oracle
+%endif
 
 %if "@pmda_postgresql@" == "true"
 %preun pmda-postgresql
 %{pmda_remove "$1" "postgresql"}
-%endif #preun pmda-postgresql
+%endif
 
 %if "@pmda_postfix@" == "true"
 %preun pmda-postfix
 %{pmda_remove "$1" "postfix"}
-%endif #preun pmda-postfix
+%endif
 
 %if "@pmda_elasticsearch@" == "true"
 %preun pmda-elasticsearch
 %{pmda_remove "$1" "elasticsearch"}
-%endif #preun pmda-elasticsearch
+%endif
 
 %if "@pmda_snmp@" == "true"
 %preun pmda-snmp
 %{pmda_remove "$1" "snmp"}
-%endif #preun pmda-snmp
+%endif
 
 %if "@pmda_mysql@" == "true"
 %preun pmda-mysql
 %{pmda_remove "$1" "mysql"}
-%endif #preun pmda-mysql
+%endif
 
 %if "@pmda_activemq@" == "true"
 %preun pmda-activemq
 %{pmda_remove "$1" "activemq"}
-%endif #preun pmda-activemq
+%endif
 
 %if "@pmda_bind2@" == "true"
 %preun pmda-bind2
 %{pmda_remove "$1" "bind2"}
-%endif #preun pmda-bind2
+%endif
 
 %if "@pmda_nutcracker@" == "true"
 %preun pmda-nutcracker
 %{pmda_remove "$1" "nutcracker"}
-%endif #preun pmda-nutcracker
+%endif
 
 %if "@have_perl@" == "true"
 %preun pmda-redis
@@ -2898,7 +2898,7 @@ pmieconf -c enable dmthin
 
 %preun pmda-netcheck
 %{pmda_remove "$1" "netcheck"}
-%endif #@have_python@
+%endif
 
 %preun pmda-apache
 %{pmda_remove "$1" "apache"}
