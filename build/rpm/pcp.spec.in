@@ -60,7 +60,10 @@ BuildRequires: qt4-devel >= 4.4
 %endif
 %endif
 %if "%{_vendor}" == "redhat"
-BuildRequires: initscripts man /bin/hostname
+BuildRequires: man /bin/hostname
+%if "@enable_systemd@" == "false"
+BuildRequires: initscripts
+%endif
 %endif
 %if "@pmda_rpm@" == "true"
 BuildRequires: rpm-devel
@@ -104,7 +107,9 @@ Requires: which
 Requires: sysconfig util-linux
 %global _rcdir /etc/init.d
 %else
+%if "@enable_systemd@" == "false"
 Requires: initscripts
+%endif
 %global _rcdir /etc/rc.d/init.d
 %endif
 %if "@enable_systemd@" == "true"
