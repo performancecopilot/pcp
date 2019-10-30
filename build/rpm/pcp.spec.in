@@ -2416,7 +2416,7 @@ BEGIN {
     while( getline < "pmda_summary_files") pmda_summary[$0]=1;
     while( getline < "pmda_trace_files") pmda_trace[$0]=1;
     while( getline < "pmda_weblog_files") pmda_weblog[$0]=1;
-%if "@enable_perl@" == "true"
+%if "@have_perl@" == "true"
     while( getline < "import_sar2pcp_files") import_sar2pcp[$0]=1;
     while( getline < "import_iostat2pcp_files") import_iostat2pcp[$0]=1;
     while( getline < "import_sheet2pcp_files") import_sheet2pcp[$0]=1;
