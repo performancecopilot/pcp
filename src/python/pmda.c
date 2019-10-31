@@ -62,6 +62,7 @@ static PyObject *store_cb_func;
 static PyObject *fetch_cb_func;
 static PyObject *label_cb_func;
 static PyObject *attribute_cb_func;
+static PyObject *endcontext_cb_func;
 static PyObject *refresh_all_func;
 static PyObject *refresh_metrics_func;
 
@@ -846,6 +847,28 @@ attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
     return 0;
 }
 
+void
+endContextCallBack(int ctx)
+{
+    PyObject *arglist, *result;
+
+    if (endcontext_cb_func == NULL)
+        return;
+
+    arglist = Py_BuildValue("(i)", ctx);
+    if (arglist == NULL)
+        return;
+
+    result = PyEval_CallObject(endcontext_cb_func, arglist);
+    Py_DECREF(arglist);
+    if (result == NULL) {
+        callback_error("endcontext");
+        return;
+    }
+
+    Py_DECREF(result);
+}
+
 /*
  * Allocate a new PMDA dispatch structure and fill it
  * in for the agent we have been asked to instantiate.
@@ -896,6 +919,7 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
     dispatch.version.seven.label = label;
     pmdaSetLabelCallBack(&dispatch, label_callback);
     pmdaSetFetchCallBack(&dispatch, fetch_callback);
+    pmdaSetEndContextCallBack(&dispatch, endContextCallBack);
 
     if (!pmda_generating_pmns() && !pmda_generating_domain())
 	pmdaOpenLog(&dispatch);
@@ -1485,6 +1509,12 @@ set_attribute_callback(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+set_endcontext_callback(PyObject *self, PyObject *args)
+{
+    return set_callback(self, args, "O:set_endcontext_callback", &endcontext_cb_func);
+}
+
+static PyObject *
 set_refresh_all(PyObject *self, PyObject *args)
 {
     return set_callback(self, args, "O:set_refresh_all", &refresh_all_func);
@@ -1557,6 +1587,8 @@ static PyMethodDef methods[] = {
     { .ml_name = "set_label_callback", .ml_meth = (PyCFunction)set_label_callback,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_attribute_callback", .ml_meth = (PyCFunction)set_attribute_callback,
+	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "set_endcontext_callback", .ml_meth = (PyCFunction)set_endcontext_callback,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_refresh_metrics",
       .ml_meth = (PyCFunction)set_refresh_metrics,

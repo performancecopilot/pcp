@@ -537,6 +537,10 @@ class PMDA(MetricDispatch):
         return cpmda.set_store_callback(store_callback)
 
     @staticmethod
+    def set_endcontext_callback(endcontext_callback):
+        return cpmda.set_endcontext_callback(endcontext_callback)
+
+    @staticmethod
     def set_refresh_all(refresh_all):
         return cpmda.set_refresh_all(refresh_all)
 
