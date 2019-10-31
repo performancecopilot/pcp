@@ -29,6 +29,9 @@ remove_connection_from_queue(struct client *client)
 void
 on_secure_client_close(struct client *client)
 {
+    if (pmDebugOptions.auth || pmDebugOptions.http)
+	fprintf(stderr, "%s: client %p\n", "on_secure_client_close", client);
+
     remove_connection_from_queue(client);
     /* client->read and client->write freed by SSL_free */
     SSL_free(client->secure.ssl);
@@ -72,11 +75,21 @@ setup_secure_client(struct proxy *proxy, struct client *client)
 }
 
 void
+on_secure_client_write(struct client *client)
+{
+    if (pmDebugOptions.auth || pmDebugOptions.http)
+	fprintf(stderr, "%s: client %p\n", "on_secure_client_write", client);
+}
+
+void
 on_secure_client_read(struct proxy *proxy, struct client *client,
 			ssize_t nread, const uv_buf_t *buf)
 {
     size_t		bytes = 0;
     int			sts;
+
+    if (pmDebugOptions.auth || pmDebugOptions.http)
+	fprintf(stderr, "%s: client %p\n", "on_secure_client_read", client);
 
     /* once-off per-client SSL setup first time through */
     if (client->stream.secure == 0) {

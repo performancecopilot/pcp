@@ -169,6 +169,7 @@ extern void on_protocol_read(uv_stream_t *, ssize_t, const uv_buf_t *);
 extern void secure_client_write(struct client *, stream_write_baton *);
 extern void on_secure_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
+extern void on_secure_client_write(struct client *);
 extern void on_secure_client_close(struct client *);
 #else
 #define secure_client_write(c,w)	do { (void)(c); } while (0)
@@ -179,14 +180,17 @@ extern void on_secure_client_close(struct client *);
 
 extern void on_redis_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
+extern void on_redis_client_write(struct client *);
 extern void on_redis_client_close(struct client *);
 
 extern void on_http_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
+extern void on_http_client_write(struct client *);
 extern void on_http_client_close(struct client *);
 
 extern void on_pcp_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
+extern void on_pcp_client_write(struct client *);
 extern void on_pcp_client_close(struct client *);
 
 #ifdef HAVE_OPENSSL

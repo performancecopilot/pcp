@@ -326,9 +326,6 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
 			client, buffer, suffix);
     }
     client_write(client, buffer, suffix);
-
-    if (http_should_keep_alive(&client->u.http.parser) == 0)
-	client_close(client);
 }
 
 void
@@ -713,6 +710,17 @@ on_http_client_close(struct client *client)
     memset(&client->u.http, 0, sizeof(client->u.http));
 }
 
+void
+on_http_client_write(struct client *client)
+{
+    if (pmDebugOptions.http)
+	fprintf(stderr, "%s: client %p\n", "on_redis_client_write", client);
+
+    /* write has been submitted now, close connection if required */
+    if (http_should_keep_alive(&client->u.http.parser) == 0)
+	client_close(client);
+}
+
 static const http_parser_settings settings = {
     .on_url			= on_url,
     .on_body			= on_body,
@@ -731,8 +739,9 @@ on_http_client_read(struct proxy *proxy, struct client *client,
     size_t		bytes;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "read %ld bytes from HTTP client %p\n%.*s",
-			(long)nread, client, (int)nread, buf->base);
+	fprintf(stderr, "%s: %lld bytes from HTTP client %p\n%.*s",
+		"on_http_client_read", (long long)nread, client,
+		(int)nread, buf->base);
 
     if (nread <= 0)
 	return;
