@@ -64,6 +64,7 @@ class BPFtracePMDA(PMDA):
 
         self.register_metrics()
         self.set_attribute_callback(self.attribute_callback)
+        self.set_endcontext_callback(self.endcontext_callback)
         self.set_label(self.label)
         self.set_store_callback(self.store_callback)
         self.set_refresh(self.refresh_callback)
@@ -168,6 +169,10 @@ class BPFtracePMDA(PMDA):
             del self.ctxtab[ctx][key]
         return value
 
+    def del_ctx_state(self, ctx: int):
+        if ctx in self.ctxtab:
+            del self.ctxtab[ctx]
+
     def get_current_username(self):
         return self.get_ctx_state('username')
 
@@ -182,6 +187,9 @@ class BPFtracePMDA(PMDA):
                 return
 
             self.set_ctx_state('username', passwd.pw_name, ctx=ctx)
+
+    def endcontext_callback(self, ctx: int):
+        self.del_ctx_state(ctx)
 
     def label(self, ident: int, type_: int) -> str:
         """PMDA label"""
