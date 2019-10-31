@@ -36,21 +36,21 @@ class ProcessManager():
         self.logger.error(f"exception in event loop: {context}")
 
     async def read_bpftrace_stdout(self, script: Script, script_tasks: ScriptTasks):
-        read_bytes = 0
-        read_bytes_start = time.time()
+        data_bytes_last_value = 0
+        data_bytes_time = time.time()
         measure_throughput_every = 5  # seconds
 
         try:
             async for line in script_tasks.process.stdout:
-                read_bytes += len(line)
+                script.state.data_bytes += len(line)
                 now = time.time()
-                if now >= read_bytes_start + measure_throughput_every:
-                    throughput = read_bytes / (now - read_bytes_start)
+                if now >= data_bytes_time + measure_throughput_every:
+                    throughput = (script.state.data_bytes - data_bytes_last_value) / (now - data_bytes_time)
                     if throughput > self.config.max_throughput:
                         raise BPFtraceError(f"BPFtrace output exceeds limit of "
                                             f"{self.config.max_throughput} bytes per second")
-                    read_bytes = 0
-                    read_bytes_start = time.time()
+                    data_bytes_last_value = script.state.data_bytes
+                    data_bytes_time = time.time()
 
                 line = line.decode('utf-8')
                 try:

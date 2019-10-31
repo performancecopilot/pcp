@@ -49,6 +49,7 @@ class State:
         self.exit_code = 0
         self.error = ''
         self.probes = 0
+        self.data_bytes = 0
         self.data = {}
 
 

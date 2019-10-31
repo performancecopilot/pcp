@@ -41,7 +41,8 @@ tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
         "pid": "PID"
         "exit_code": 0,
         "error": "",
-        "probes": 0
+        "probes": 0,
+        "data_bytes": DATA_BYTES
     }
 }
 === check metadata metrics ===
@@ -89,6 +90,13 @@ Help:
 bpftrace script
     value "// name: testscript
 tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
+
+bpftrace.scripts.testscript.data_bytes PMID: 151.100.6 [count of bytes read from bpftrace script]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help:
+count of bytes read from bpftrace script
+    value OK
 === check data metrics ===
 
 bpftrace.scripts.testscript.data.root PMID: 151.100.10 [@ variable of bpftrace script]
@@ -160,7 +168,8 @@ expose all scripts in JSON format
             "pid": "PID"
             "exit_code": 0,
             "error": "",
-            "probes": 2
+            "probes": 2,
+            "data_bytes": DATA_BYTES
         }
     }
 ]
