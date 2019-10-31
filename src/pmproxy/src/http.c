@@ -85,12 +85,18 @@ http_decode(const char *url, size_t urllen, sds buf)
     int			c;
 
     for (out = buf; url < end; out++) {
-	c = *url++;
+	c = *url;
 	if (c == '+')
 	    c = ' ';
-	if (c == '%' &&
-	    (!ishex(*url++) || !ishex(*url++) || !sscanf(url - 2, "%2x", &c)))
-	    return -EINVAL;
+	if (c != '%')
+	    url++;
+	else {
+	    if (url + 3 > end)
+	        return -EINVAL;
+	    url++;	/* move past percent character */
+	    if (!ishex(*url++) || !ishex(*url++) || !sscanf(url - 2, "%2x", &c))
+		return -EINVAL;
+	}
 	if (out - buf > sdslen(buf))
 	    return -E2BIG;
 	*out = c;
@@ -451,12 +457,15 @@ http_parameters(const char *url, size_t length, dict **parameters)
 	    value = p + 1;
 	}
 	else if (*p == '&') {
-	    valuelen = p - value;
+	    if (namelen == 0)
+		namelen = p - name;
+	    valuelen = value ? p - value : 0;
 	    sts = http_add_parameter(*parameters, name, namelen, value, valuelen);
 	    if (sts < 0)
 		break;
 	    value = NULL;
 	    name = p + 1;
+	    namelen = valuelen = 0;
 	}
     }
     if (p == end && p != name) {

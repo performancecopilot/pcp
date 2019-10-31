@@ -27,6 +27,13 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+_filter_context()
+{
+    sed \
+	-e 's/"context":[1-9][0-9]*,.*/"context":CTX}/g' \
+    #end
+}
+
 _filter_fetch()
 {
     sed \
@@ -64,6 +71,18 @@ store1='http://localhost:44322/pmapi/store?name=sample.many.count&value=5'
 store2='http://localhost:44322/pmapi/store?name=sample.many.count&value=3'
 store3='http://localhost:44322/pmapi/store?name=sample.many.count&value=7'
 curl -s "$store1" "$fetch" "$store2" "$fetch" "$store3" "$fetch" | _filter_fetch
+
+# check parsing of URLs with strange parameters
+echo "Verify handling of unusual URL contents (empty)" | tee -a $seq.full
+curl -s 'http://localhost:44322/pmapi/context?' | _filter_context
+echo "Verify handling of unusual URL contents (empty with ampersand)" | tee -a $seq.full
+curl -s 'http://localhost:44322/pmapi/context?&' | _filter_context
+echo "Verify handling of unusual URL contents (name without equals)" | tee -a $seq.full
+curl -s 'http://localhost:44322/pmapi/context?test' | _filter_context
+echo "Verify handling of unusual URL contents (param then name without equals)" | tee -a $seq.full
+curl -s 'http://localhost:44322/pmapi/context?test1=1&test2' | _filter_context
+echo "Verify handling of unusual URL contents (repeating ampersands)" | tee -a $seq.full
+curl -s 'http://localhost:44322/pmapi/context?test1=1&&test2=2' | _filter_context
 
 # success, all done
 status=0
