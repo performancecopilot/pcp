@@ -29,6 +29,7 @@ class ScriptMetadata:
         self.name: Optional[str] = None
         self.include: Optional[List[str]] = None
         self.table_retain_lines: Optional[int] = None
+        self.custom_output_block = False
 
 
 class Status:

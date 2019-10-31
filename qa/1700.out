@@ -20,7 +20,8 @@ tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
     "metadata": {
         "name": "testscript",
         "include": null,
-        "table_retain_lines": null
+        "table_retain_lines": null,
+        "custom_output_block": false
     },
     "variables": {
         "@": {
@@ -147,7 +148,8 @@ expose all scripts in JSON format
         "metadata": {
             "name": "testscript",
             "include": null,
-            "table_retain_lines": null
+            "table_retain_lines": null,
+            "custom_output_block": false
         },
         "variables": {
             "@": {

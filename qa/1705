@@ -29,7 +29,7 @@ EOF
 echo "=== bpftrace script without variabes ==="
 pmstore bpftrace.control.register "// name: test1
 tracepoint:raw_syscalls:sys_enter { }"
-pminfo -f bpftrace.control.register | grep -q '"error": "no bpftrace variables or printf statements found, please include at least one variable or print statement in your script"' && echo OK
+pminfo -f bpftrace.control.register | grep -q '"error": "no bpftrace variables or printf statements found, please include at least one variable or printf statement in your script"' && echo OK
 echo
 
 echo "=== invalid probe ==="

@@ -120,10 +120,13 @@ class ProcessManager():
         self.logger.info(f"script: starting {script}...")
         script.state.reset()
         script.state.status = Status.Starting
-        print_stmts = ' '.join([f"print({var_name});"
-                                for var_name, var_def in script.variables.items()
-                                if var_def.metrictype != MetricType.Output])
-        code = script.code + f"\ninterval:s:1 {{ {print_stmts} }}"
+        if script.metadata.custom_output_block:
+            code = script.code
+        else:
+            print_stmts = ' '.join([f"print({var_name});"
+                                    for var_name, var_def in script.variables.items()
+                                    if var_def.metrictype != MetricType.Output])
+            code = script.code + f"\ninterval:s:1 {{ {print_stmts} }}"
         script_tasks.process = await asyncio.subprocess.create_subprocess_exec(
             self.config.bpftrace_path, '-f', 'json', '-e', code,
             limit=self.config.max_throughput, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
