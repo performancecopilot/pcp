@@ -47,14 +47,15 @@ pid=$!
 
 # valgrind takes awhile to fire up
 pmsleep 4.5
+params="polltimeout=20"
 
 date >>$seq.full
 echo "=== checking metric scrape operation ===" | tee -a $seq.full
-curl --get --silent http://localhost:$port/metrics >> $seq.full
+curl --get --silent "http://localhost:$port/metrics?$params" >> $seq.full
 date >>$seq.full
 echo "=== checking metric fetch operation ===" | tee -a $seq.full
 metrics="sample.colour,sample.long.one,sample.long.one,sample.double.one"
-curl --get --silent "http://localhost:$port/pmapi/fetch?names=$metrics" >> $seq.full
+curl --get --silent "http://localhost:$port/pmapi/fetch?names=$metrics&$params" >> $seq.full
 
 echo "=== check pmproxy is running ==="
 pminfo -v -h localhost@localhost:$port hinv.ncpu
