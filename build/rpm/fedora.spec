@@ -3183,7 +3183,8 @@ cd
 %endif
 
 %changelog
-* Fri Nov 01 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.1-1
+* Mon Nov 04 2019 Nathan Scott <nathans@redhat.com> - 5.0.1-1
+- Resolve selinux policy issues in PCP tools (BZ 1743040)
 - Update to latest PCP sources.
 
 * Sun Oct 20 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.0-2
