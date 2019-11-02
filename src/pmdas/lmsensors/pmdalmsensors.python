@@ -43,8 +43,10 @@ def lmsensors_get():
         output = f.read()
     else:
         # we will read real sensor data
-        p = subprocess.Popen(["/usr/bin/sensors", "-j"], stdout=subprocess.PIPE)
-        output = json.loads(re.sub("[0-9]_", "_", p.communicate()[0].decode("utf-8")))
+        with open(os.devnull, 'w') as devnull:
+            p = subprocess.Popen(["/usr/bin/sensors", "-j"], stdout=subprocess.PIPE, stderr=devnull)
+            output = json.loads(re.sub("[0-9]_", "_", p.communicate()[0].decode("utf-8")))
+
         if args.debug_value and args.debug_value >= 0:
             print("function lmsensors_get(), json object after removing redundant naming:\n", output)
 
