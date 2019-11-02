@@ -39,6 +39,11 @@ enum {
     NUM_UPTODATE
 };
 
+enum {
+    CGROUP_VERIFIED	= 0,
+    CGROUP_NOT_VERIFIED	= 1,
+};
+
 /*
  * General container services, abstracting individual implementations into
  * "engines" which are then instantiated one-per-container-technology.
@@ -76,6 +81,7 @@ typedef struct container {
     char		cgroup[128];
     struct stat		stat;
     container_engine_t	*engine;
+    int			cgroup_verified;
 } container_t;
 
 enum {

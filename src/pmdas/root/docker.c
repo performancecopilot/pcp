@@ -59,9 +59,22 @@ docker_setup(container_engine_t *dp)
 int
 docker_indom_changed(container_engine_t *dp)
 {
+    static const char	*cgroup_check_default = "/sys/fs/cgroup/memory/docker";
+    const char		*cgroup_check_path = getenv("PCP_CGROUP_CHECK_PATH");
     static int		lasterrno;
     static struct stat	lastsbuf;
+    static struct stat	lastcgroupsbuf;
     struct stat		statbuf;
+
+    if (cgroup_check_path == NULL)
+	cgroup_check_path = cgroup_check_default;
+
+    if (stat(cgroup_check_path, &statbuf) == 0) {
+	if (root_stat_time_differs(&statbuf, &lastcgroupsbuf)) {
+	    lastcgroupsbuf = statbuf;
+	    return 1;
+	}
+    }
 
     if (stat(dp->path, &statbuf) != 0) {
 	if (oserror() == lasterrno)
@@ -91,6 +104,8 @@ docker_cgroup_find(char *name, int namelen, char *path, int pathlen)
 
     while ((drp = readdir(finddir)) != NULL) {
 	/* handle any special cases that we can cull right away */
+	if (drp->d_type == DT_REG)
+	    continue;
 	if (*(base = &drp->d_name[0]) == '.' ||
 	    strcmp(base, "user.slice") == 0)
 	    continue;
@@ -140,14 +155,15 @@ docker_cgroup_search(char *name, int namelen, char *cgroups, container_t *cp)
 	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "%s", p + pathlen);
 	return 0;
     }
-    /* Else attempt a default naming conventions. */
+    /* Else fallback to using a default naming conventions. */
     if (systemd_cgroup)
 	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "%s/docker-%s.scope",
 			systemd_cgroup, name);
     else
 	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "/docker/%s", name);
 
-    return access(cp->cgroup, F_OK);
+    pathlen = pmsprintf(path, sizeof(path), "%s%s", cgroups, cp->cgroup);
+    return access(path, F_OK);
 }
 
 void
@@ -191,15 +207,19 @@ docker_insts_refresh(container_engine_t *dp, pmInDom indom)
 	    if ((cp = calloc(1, sizeof(container_t))) == NULL)
 		break;
 	    cp->engine = dp;
-	    if (docker_cgroup_search(path, strlen(path), cgroup, cp) == 0)
-		pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
-	    else {
-		if (pmDebugOptions.attr)
-		    fprintf(stderr, "%s: could not locate cgroup path for container %s\n",
-					    pmGetProgname(), path);
-		free(cp);
-	    }
+	    cp->cgroup_verified = CGROUP_NOT_VERIFIED;
+	    pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
 	}
+
+	if (cp == NULL || cp->cgroup_verified == CGROUP_VERIFIED)
+	    continue;
+
+	sts = docker_cgroup_search(path, strlen(path), cgroup, cp);
+	cp->cgroup_verified = (sts == 0) ? CGROUP_VERIFIED : CGROUP_NOT_VERIFIED;
+	if (pmDebugOptions.attr && sts != 0)
+	    /* container may not be running, so heuristic may be wrong */
+	    fprintf(stderr, "%s: unverified container cgroup used for %s\n",
+		    pmGetProgname(), path);
     }
     closedir(rundir);
 }
