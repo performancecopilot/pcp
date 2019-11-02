@@ -121,7 +121,7 @@ docker_cgroup_find(char *name, int namelen, char *path, int pathlen)
     return found ? path : NULL;
 }
 
-static void
+static int
 docker_cgroup_search(char *name, int namelen, char *cgroups, container_t *cp)
 {
     char		path[MAXPATHLEN], *p;
@@ -133,19 +133,21 @@ docker_cgroup_search(char *name, int namelen, char *cgroups, container_t *cp)
     pathlen = pmsprintf(path, sizeof(path), "%s/%s", cgroups, "unified");
     if ((p = docker_cgroup_find(name, namelen, path, pathlen)) != NULL) {
 	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "%s", p + pathlen);
-	return;
+	return 0;
     }
     pathlen = pmsprintf(path, sizeof(path), "%s/%s", cgroups, "memory");
     if ((p = docker_cgroup_find(name, namelen, path, pathlen)) != NULL) {
 	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "%s", p + pathlen);
-	return;
+	return 0;
     }
-    /* Else fallback to using a default naming conventions. */
+    /* Else attempt a default naming conventions. */
     if (systemd_cgroup)
 	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "%s/docker-%s.scope",
 			systemd_cgroup, name);
     else
 	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "/docker/%s", name);
+
+    return access(cp->cgroup, F_OK);
 }
 
 void
@@ -173,19 +175,31 @@ docker_insts_refresh(container_engine_t *dp, pmInDom indom)
 	if (*(path = &drp->d_name[0]) == '.')
 	    continue;
 	sts = pmdaCacheLookupName(indom, path, NULL, (void **)&cp);
-	if (sts == PMDA_CACHE_ACTIVE)
-	    continue;
-	/* allocate space for values for this container and update indom */
-	if (sts != PMDA_CACHE_INACTIVE) {
+	switch (sts) {
+	case PMDA_CACHE_ACTIVE:
+	    break;
+
+	case PMDA_CACHE_INACTIVE:
+	    pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
+	    break;
+
+	default:
+	    /* allocate space for values for this container and update indom */
 	    if (pmDebugOptions.attr)
 		fprintf(stderr, "%s: adding docker container %s\n",
 			pmGetProgname(), path);
 	    if ((cp = calloc(1, sizeof(container_t))) == NULL)
-		continue;
+		break;
 	    cp->engine = dp;
-	    docker_cgroup_search(path, strlen(path), cgroup, cp);
+	    if (docker_cgroup_search(path, strlen(path), cgroup, cp) == 0)
+		pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
+	    else {
+		if (pmDebugOptions.attr)
+		    fprintf(stderr, "%s: could not locate cgroup path for container %s\n",
+					    pmGetProgname(), path);
+		free(cp);
+	    }
 	}
-	pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
     }
     closedir(rundir);
 }
