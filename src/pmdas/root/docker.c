@@ -140,14 +140,13 @@ docker_cgroup_search(char *name, int namelen, char *cgroups, container_t *cp)
 	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "%s", p + pathlen);
 	return 0;
     }
-    /* Else attempt a default naming conventions. */
+    /* Else fallback to using a default naming convention. */
     if (systemd_cgroup)
 	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "%s/docker-%s.scope",
 			systemd_cgroup, name);
     else
 	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "/docker/%s", name);
-
-    return access(cp->cgroup, F_OK);
+    return 1;
 }
 
 void
@@ -191,15 +190,17 @@ docker_insts_refresh(container_engine_t *dp, pmInDom indom)
 	    if ((cp = calloc(1, sizeof(container_t))) == NULL)
 		break;
 	    cp->engine = dp;
-	    if (docker_cgroup_search(path, strlen(path), cgroup, cp) == 0)
-		pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
-	    else {
-		if (pmDebugOptions.attr)
-		    fprintf(stderr, "%s: could not locate cgroup path for container %s\n",
-					    pmGetProgname(), path);
-		free(cp);
-	    }
+	    pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
 	}
+	if (cp == NULL || (cp->uptodate & CONTAINERS_UPTODATE_CGROUP))
+	    continue;
+	sts = docker_cgroup_search(path, strlen(path), cgroup, cp);
+	/* container may not be running, so heuristic may be wrong */
+	if (sts == 0)
+	    cp->uptodate |= CONTAINERS_UPTODATE_CGROUP;
+	else if (pmDebugOptions.attr)
+	    fprintf(stderr, "%s: unverified container cgroup used for %s\n",
+		    pmGetProgname(), path);
     }
     closedir(rundir);
 }
@@ -253,7 +254,6 @@ docker_values_parse(FILE *fp, const char *name, container_t *values)
 	local_metrics[i].json_pointer = strdup(json_metrics[i].json_pointer);
 
     local_metrics[0].dom = strdup(name);
-    values->uptodate = 0;
 
     clearerr(fp);
     if ((sts = pmjsonGet(local_metrics, JSONMETRICS_SZ, PM_INDOM_NULL,
@@ -269,7 +269,7 @@ docker_values_parse(FILE *fp, const char *name, container_t *values)
     else
 	values->name = strdup("?");
     if (values->name)
-	values->uptodate++;
+	values->uptodate |= CONTAINERS_UPTODATE_NAME;
     if (local_metrics[2].values.ul)
 	values->flags = CONTAINER_FLAG_RUNNING;
     else if (local_metrics[3].values.ul)
@@ -278,7 +278,7 @@ docker_values_parse(FILE *fp, const char *name, container_t *values)
 	values->flags = CONTAINER_FLAG_RESTARTING;
     else
 	values->flags = 0;
-    values->uptodate++;
+    values->uptodate |= CONTAINERS_UPTODATE_STATE;
     return 0;
 }
 
@@ -324,8 +324,11 @@ docker_value_refresh(container_engine_t *dp,
 
     if (!docker_values_changed(path, values))
 	return 0;
+
+    values->uptodate &= ~(CONTAINERS_UPTODATE_NAME|CONTAINERS_UPTODATE_STATE);
+
     if (pmDebugOptions.attr)
-	pmNotifyErr(LOG_DEBUG, "docker_value_refresh: file=%s\n", path);
+	pmNotifyErr(LOG_DEBUG, "%s: file=%s\n", "docker_value_refresh", path);
     if ((fp = fopen(path, "r")) == NULL)
 	return -oserror();
     sts = docker_values_parse(fp, name, values);
@@ -334,10 +337,11 @@ docker_value_refresh(container_engine_t *dp,
 	return sts;
 
     if (pmDebugOptions.attr)
-	pmNotifyErr(LOG_DEBUG, "docker_value_refresh: uptodate=%d of %d\n",
-	    values->uptodate, NUM_UPTODATE);
+	pmNotifyErr(LOG_DEBUG, "%s: uptodate=0x%x\n", "docker_value_refresh",
+		    values->uptodate);
 
-    return values->uptodate == NUM_UPTODATE ? 0 : PM_ERR_AGAIN;
+    /* did we manage to extract both container name and status? */
+    return (values->uptodate & CONTAINERS_UPTODATE_STATE)? 0 : PM_ERR_AGAIN;
 }
 
 /*

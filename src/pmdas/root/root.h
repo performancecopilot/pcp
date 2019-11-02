@@ -34,9 +34,9 @@ enum {
 };
 
 enum {
-    CONTAINERS_UPTODATE_NAME,
-    CONTAINERS_UPTODATE_STATE,
-    NUM_UPTODATE
+    CONTAINERS_UPTODATE_NAME	= 0x1,
+    CONTAINERS_UPTODATE_STATE	= 0x2,
+    CONTAINERS_UPTODATE_CGROUP  = 0x4,
 };
 
 /*
@@ -69,9 +69,8 @@ typedef struct container_engine {
 typedef struct container {
     int			pid;
     int			flags : 8;	/* CONTAINER_FLAG bitwise */
-    int			state : 8;	/* internal driver states */
     int			uptodate : 8;	/* refreshed values count */ 
-    int			padding : 8;
+    int			padding : 16;
     char		*name;		/* human-presentable name */
     char		cgroup[128];
     struct stat		stat;

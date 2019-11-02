@@ -101,7 +101,8 @@ lxc_insts_refresh(container_engine_t *dp, pmInDom indom)
 		continue;
 	    cp->engine = dp;
 	    cp->name = cp->cgroup + 4;
-	    pmsprintf(cp->cgroup, sizeof(cp->cgroup), "lxc/%s", path);
+	    pmsprintf(cp->cgroup, sizeof(cp->cgroup), "/lxc/%s", path);
+	    cp->uptodate |= CONTAINERS_UPTODATE_CGROUP;
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
     }
@@ -143,7 +144,7 @@ lxc_values_parse(FILE *pp, const char *name, container_t *values)
 		values->flags |= CONTAINER_FLAG_RESTARTING;
 	}
     }
-    values->uptodate = NUM_UPTODATE;
+    values->uptodate |= (CONTAINERS_UPTODATE_NAME|CONTAINERS_UPTODATE_STATE);
 
     return 0;
 }
@@ -160,6 +161,8 @@ lxc_value_refresh(container_engine_t *dp, const char *name, container_t *values)
     FILE	*pp;
     char	path[MAXPATHLEN];
     __pmExecCtl_t	*argp = NULL;
+
+    values->uptodate &= ~(CONTAINERS_UPTODATE_NAME|CONTAINERS_UPTODATE_STATE);
 
     pmsprintf(path, sizeof(path), "%s -n %s", lxc_info, name);
     if (pmDebugOptions.attr)

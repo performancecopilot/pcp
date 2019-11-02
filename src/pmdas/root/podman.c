@@ -121,7 +121,7 @@ podman_cgroup_find(char *name, int namelen, char *path, int pathlen)
     return found ? path : NULL;
 }
 
-static void
+static int
 podman_cgroup_search(char *name, int namelen, char *cgroups, container_t *cp)
 {
     char		path[MAXPATHLEN], *p;
@@ -133,15 +133,16 @@ podman_cgroup_search(char *name, int namelen, char *cgroups, container_t *cp)
     pathlen = pmsprintf(path, sizeof(path), "%s/%s", cgroups, "unified");
     if ((p = podman_cgroup_find(name, namelen, path, pathlen)) != NULL) {
 	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "%s", p + pathlen);
-	return;
+	return 0;
     }
     pathlen = pmsprintf(path, sizeof(path), "%s/%s", cgroups, "memory");
     if ((p = podman_cgroup_find(name, namelen, path, pathlen)) != NULL) {
 	pmsprintf(cp->cgroup, sizeof(cp->cgroup), "%s", p + pathlen);
-	return;
+	return 0;
     }
-    /* Else fallback to using a default naming conventions. */
-    pmsprintf(cp->cgroup, sizeof(cp->cgroup), "libpod-%s.scope", name);
+    /* Else fallback to using a default naming convention. */
+    pmsprintf(cp->cgroup, sizeof(cp->cgroup), "/libpod-%s.scope", name);
+    return 1;
 }
 
 static container_t *
@@ -152,10 +153,11 @@ podman_inst_insert(pmInDom indom, char *name, char *cgroup, container_engine_t *
     /* allocate space for values for this container and update indom */
     if (pmDebugOptions.attr)
 	fprintf(stderr, "%s: adding podman container %s\n",
-		pmGetProgname(), name);
+		"podman_inst_insert", name);
     if ((cp = calloc(1, sizeof(container_t))) != NULL) {
 	cp->engine = dp;
 	podman_cgroup_search(name, strlen(name), cgroup, cp);
+	cp->uptodate |= CONTAINERS_UPTODATE_CGROUP;
     }
     return cp;
 }
@@ -386,29 +388,30 @@ podman_value_refresh(container_engine_t *dp,
 {
     char	path[MAXPATHLEN];
 
-    values->uptodate = 0;
-
     /* /var/run/containers/storage/overlay-containers/[HASH]/userdata/pidfile */
     pmsprintf(path, sizeof(path), "%s/%s/userdata/pidfile", podman_rundir, name);
     if (!podman_values_changed(path, values))
 	return 0;
+
+    values->uptodate &= ~(CONTAINERS_UPTODATE_NAME|CONTAINERS_UPTODATE_STATE);
+
     if (pmDebugOptions.attr)
-	pmNotifyErr(LOG_DEBUG, "podman_value_refresh: file=%s\n", path);
+	pmNotifyErr(LOG_DEBUG, "%s: file=%s\n", "podman_value_refresh", path);
 
     values->pid = podman_container_process(path);
     if (values->name)
-	values->uptodate++;
+	values->uptodate |= CONTAINERS_UPTODATE_NAME;
     if (values->pid > 0)
 	values->flags = CONTAINER_FLAG_RUNNING;
     else
 	values->flags = 0;
-    values->uptodate++;
+    values->uptodate |= CONTAINERS_UPTODATE_STATE;
 
     if (pmDebugOptions.attr)
-	pmNotifyErr(LOG_DEBUG, "podman_value_refresh: pid=%d uptodate=%d of %d\n",
-	    values->pid, values->uptodate, NUM_UPTODATE);
+	pmNotifyErr(LOG_DEBUG, "%s: pid=%d uptodate=0x%x\n",
+		"podman_value_refresh", values->pid, values->uptodate);
 
-    return values->uptodate == NUM_UPTODATE ? 0 : PM_ERR_AGAIN;
+    return (values->uptodate & CONTAINERS_UPTODATE_STATE)? 0 : PM_ERR_AGAIN;
 }
 
 /*
