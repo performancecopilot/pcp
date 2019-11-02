@@ -59,9 +59,23 @@ docker_setup(container_engine_t *dp)
 int
 docker_indom_changed(container_engine_t *dp)
 {
+    static const char	*cgroup_check_default = "/sys/fs/cgroup/memory/docker";
+    static const char	*cgroup_check_path;
     static int		lasterrno;
     static struct stat	lastsbuf;
+    static struct stat	lastcgroupsbuf;
     struct stat		statbuf;
+
+    if (cgroup_check_path == NULL) {
+	if ((cgroup_check_path = getenv("PCP_CGROUP_CHECK_PATH")) == NULL)
+	    cgroup_check_path = cgroup_check_default;
+    }
+
+    if (stat(cgroup_check_path, &statbuf) == 0 &&
+	root_stat_time_differs(&statbuf, &lastcgroupsbuf)) {
+	lastcgroupsbuf = statbuf;
+	return 1;
+    }
 
     if (stat(dp->path, &statbuf) != 0) {
 	if (oserror() == lasterrno)
@@ -91,6 +105,8 @@ docker_cgroup_find(char *name, int namelen, char *path, int pathlen)
 
     while ((drp = readdir(finddir)) != NULL) {
 	/* handle any special cases that we can cull right away */
+	if (drp->d_type == DT_REG)
+	    continue;
 	if (*(base = &drp->d_name[0]) == '.' ||
 	    strcmp(base, "user.slice") == 0)
 	    continue;
