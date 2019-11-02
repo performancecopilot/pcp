@@ -77,12 +77,22 @@ void
 on_redis_client_read(struct proxy *proxy, struct client *client,
 		ssize_t nread, const uv_buf_t *buf)
 {
+    if (pmDebugOptions.pdu)
+	fprintf(stderr, "%s: client %p\n", "on_redis_client_read", client);
+
     if (redis_protocol == 0 ||
 	redisSlotsProxyConnect(proxy->slots,
 		proxylog, &client->u.redis.reader,
 		buf->base, nread, on_redis_server_reply, client) < 0) {
 	client_close(client);
     }
+}
+
+void
+on_redis_client_write(struct client *client)
+{
+    if (pmDebugOptions.pdu)
+	fprintf(stderr, "%s: client %p\n", "on_redis_client_write", client);
 }
 
 void

@@ -200,6 +200,17 @@ on_client_write(uv_write_t *writer, int status)
 	fprintf(stderr, "%s: completed write [sts=%d] to client %p\n",
 			"on_client_write", status, client);
 
+    if (status == 0) {
+	if (client->protocol & STREAM_SECURE)
+	    on_secure_client_write(client);
+	if (client->protocol & STREAM_PCP)
+	    on_pcp_client_write(client);
+	else if (client->protocol & STREAM_HTTP)
+	    on_http_client_write(client);
+	else if (client->protocol & STREAM_REDIS)
+	    on_redis_client_write(client);
+    }
+
     sdsfree(request->buffer[0].base);
     request->buffer[0].base = NULL;
     if (request->buffer[1].base) {	/* optional second buffer */

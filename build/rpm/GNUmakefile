@@ -103,6 +103,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@enable_selinux@|$(ENABLE_SELINUX)|g' \
 	    -e's|@enable_lzma@|$(ENABLE_LZMA)|g' \
 	    -e's|@have_python@|$(HAVE_PYTHON)|g' \
+	    -e's|@have_perl@|$(HAVE_PERL)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \
 	    -e's|@pcp_pmcdconf_path@|$(PCP_PMCDCONF_PATH)|g' \
 	    -e's|@pcp_sysconfig_dir@|$(PCP_SYSCONFIG_DIR)|g' \

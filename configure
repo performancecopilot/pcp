@@ -9102,22 +9102,26 @@ fi
 pod2man=$POD2MAN
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if ExtUtils::MakeMaker is installed" >&5
+if test "$enable_perl" != "false"; then :
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking if ExtUtils::MakeMaker is installed" >&5
 $as_echo_n "checking if ExtUtils::MakeMaker is installed... " >&6; }
-perl -e "use ExtUtils::MakeMaker" 2>/dev/null
-if test $? -eq 0
-then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result:  yes" >&5
+    perl -e "use ExtUtils::MakeMaker" 2>/dev/null
+    if test $? -eq 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result:  yes" >&5
 $as_echo " yes" >&6; }
-else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result:  no" >&5
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result:  no" >&5
 $as_echo " no" >&6; }
-    echo
-    echo "FATAL ERROR: Perl ExtUtils::MakeMaker module missing."
-    echo "You can either install this from your distribution, or"
-    echo "download from CPAN (Comprehensive Perl Archive Network)."
-    rm -rf conftest conftest.*
-    exit 1
+	echo
+	echo "FATAL ERROR: Perl ExtUtils::MakeMaker module missing."
+	echo "You can either install this from your distribution, or"
+	echo "download from CPAN (Comprehensive Perl Archive Network)."
+	rm -rf conftest conftest.*
+	exit 1
+    fi
+
 fi
 
 # Extract the first word of "true", so it can be a program name with args.

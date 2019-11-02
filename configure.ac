@@ -1545,20 +1545,22 @@ pod2man=$POD2MAN
 AC_SUBST(pod2man)
 
 dnl extra check for the Perl MakeMaker package
-AC_MSG_CHECKING([if ExtUtils::MakeMaker is installed])
-perl -e "use ExtUtils::MakeMaker" 2>/dev/null
-if test $? -eq 0
-then
-    AC_MSG_RESULT([ yes])
-else
-    AC_MSG_RESULT([ no])
-    echo
-    echo "FATAL ERROR: Perl ExtUtils::MakeMaker module missing."
-    echo "You can either install this from your distribution, or"
-    echo "download from CPAN (Comprehensive Perl Archive Network)."
-    rm -rf conftest conftest.*
-    exit 1
-fi
+AS_IF([test "$enable_perl" != "false"], [
+    AC_MSG_CHECKING([if ExtUtils::MakeMaker is installed])
+    perl -e "use ExtUtils::MakeMaker" 2>/dev/null
+    if test $? -eq 0
+    then
+	AC_MSG_RESULT([ yes])
+    else
+	AC_MSG_RESULT([ no])
+	echo
+	echo "FATAL ERROR: Perl ExtUtils::MakeMaker module missing."
+	echo "You can either install this from your distribution, or"
+	echo "download from CPAN (Comprehensive Perl Archive Network)."
+	rm -rf conftest conftest.*
+	exit 1
+    fi
+])
 
 AC_PATH_PROG(TRUEPROG, true)
 

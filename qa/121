@@ -41,10 +41,10 @@ cat <<End-of-File >>$tmp.ref
 End-of-File
 
 $PCP_AWK_PROG <$tmp.ref >$tmp.tmp '
-/^\#\+ disk\/summary/	{ state = 1; next }
-state == 1 && /^\#----/	{ state = 0; next }
-/^\#\+ kernel\/bufcache-all/		{ state = 2; next }
-state == 2 && /^\#\+ memory\/swap/{ state = 1; next }
+/^#\+ disk\/summary/	{ state = 1; next }
+state == 1 && /^#----/	{ state = 0; next }
+/^#\+ kernel\/bufcache-all/		{ state = 2; next }
+state == 2 && /^#\+ memory\/swap/{ state = 1; next }
 state == 0		{ print }'
 cp $tmp.tmp $tmp.in
 echo >>$seq.full

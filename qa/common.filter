@@ -341,7 +341,43 @@ _filter_optional_pmdas()
 	-e '/pmdaxvm/d' \
 	-e '/pmdazimbra/d' \
 	-e '/pmdazswap/d' \
+    #end
+}
 
+# cull lines for pmcd.pmda instances that are non-default.
+#
+_filter_optional_pmda_instances()
+{
+    sed \
+	-e '/inst \[4 or "pmproxy"]/d' \
+	-e '/inst \[10 or "trace"]/d' \
+	-e '/inst \[15 or "sendmail"]/d' \
+	-e '/inst \[24 or "redis"]/d' \
+	-e '/inst \[28 or "news"]/d' \
+	-e '/inst \[33 or "podman"]/d' \
+	-e '/inst \[60 or "linux"]/d' \
+	-e '/inst \[62 or "nfsclient"]/d' \
+	-e '/inst \[68 or "apache"]/d' \
+        -e '/inst \[72 or "mounts"]/d' \
+	-e '/inst \[74 or "lmsensors"]/d' \
+	-e '/inst \[78 or "darwin"]/d' \
+	-e '/inst \[95 or "kvm"]/d' \
+	-e '/inst \[98 or "zimbra"]/d' \
+	-e '/inst \[106 or "logger"]/d' \
+	-e '/inst \[110 or "postgresql"]/d' \
+	-e '/inst \[114 or "systemd"]/d' \
+        -e '/inst \[120 or "nvidia"]/d' \
+        -e '/inst \[122 or "jbd2"]/d' \
+	-e '/inst \[123 or "rpm"]/d' \
+	-e '/inst \[127 or "perfevent"]/d' \
+	-e '/inst \[129 or "dm"]/d' \
+        -e '/inst \[140 or "libvirt"]/d' \
+        -e '/inst \[151 or "bpftrace"]/d' \
+	-e '/inst \[142 or "lio"]/d' \
+	-e '/inst \[144 or "openmetrics"]/d' \
+	-e '/inst \[149 or "bcc"]/d' \
+	-e '/inst \[250 or "trivial"]/d' \
+    # end
 }
 
 # cull the optional top-level PMNS entries
@@ -446,8 +482,8 @@ _filter_top_pmns()
 	-e '/^    webping /d' \
 	-e '/^    zimbra /d' \
 	-e '/^    zswap /d' \
-	-e 's/ $//'
-
+	-e 's/ $//' \
+    #end
 }
 
 # handle pmDumpResult() output

@@ -25,7 +25,7 @@ async def context_and_fetch(host: str, port: int):
     metric = await get_json(f"http://{host}:{port}/pmapi/{ctx_id}/fetch?names=disk.dev.read")
     inst_val = metric["values"][0]["instances"][0]["value"]
     if not inst_val:
-        raise Exception("cannot find any instance value for disk.dev.rad")
+        raise Exception("cannot find any instance value for disk.dev.read")
     return inst_val
 
 

@@ -1,15 +1,12 @@
 Name:    pcp
-Version: 5.0.0
-Release: 2%{?dist}
+Version: 5.0.1
+Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
 URL:     https://pcp.io
 
 %global  bintray https://bintray.com/artifact/download
 Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
-
-Patch0: pmcd-pmlogger-local-context.patch
-Patch1: fix-pmdastatsd-build-error.patch
 
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %global __python2 python2
@@ -2077,8 +2074,6 @@ updated policy package.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
 
 %build
 %if !%{disable_python2} && 0%{?default_python} != 3
@@ -2128,7 +2123,12 @@ rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
 desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
 %endif
 
-# default chkconfig off for Fedora and RHEL
+%if 0%{?rhel} || 0%{?fedora}
+# Fedora and RHEL default local only access for pmcd and pmlogger
+sed -i -e '/^# .*_LOCAL=1/s/^# //' $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/{pmcd,pmlogger}
+%endif
+
+# default chkconfig off (all RPM platforms)
 for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmmgr,pmproxy}; do
 	test -f "$f" || continue
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
@@ -3183,6 +3183,10 @@ cd
 %endif
 
 %changelog
+* Mon Nov 04 2019 Nathan Scott <nathans@redhat.com> - 5.0.1-1
+- Resolve selinux policy issues in PCP tools (BZ 1743040)
+- Update to latest PCP sources.
+
 * Sun Oct 20 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.0-2
 - various spec fixes for pmdastatsd
 - add patch1 to fix pmdastatsd build on rawhide

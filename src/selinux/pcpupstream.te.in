@@ -65,7 +65,7 @@ require {
 	class fifo_file { getattr read open unlink lock ioctl }; # qa/455
 	class process { signull signal execmem setrlimit ptrace setcap }; #RHBZ1443632, pmda.netcheck (setcap)
 	class rawip_socket { create getopt setopt read write }; # pmda.netcheck
-	@PCP_ICMP_SOCKET_CLASS@ # pmda.netcheck
+	@PCP_ICMP_SOCKET_CLASS@
 	class capability net_raw; # pmda.netcheck
 	class sock_file { getattr write }; #RHBZ1633211, RHBZ1449671
 	class tcp_socket { name_bind name_connect };
@@ -254,6 +254,10 @@ allow pcp_pmie_t proc_net_t:file read;
 #RHBZ1635394
 #type=AVC msg=audit(YYY.66): avc:  denied  { sys_ptrace } for  pid=15683 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=cap_userns permissive=0
 @PCP_CAPUSERNS_PTRACE_RULE_PMIE@
+
+#RHBZ1743040
+#type=AVC msg=audit(YYY.91): avc:  denied  { setrlimit } for  pid=2085 comm="systemctl" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=process permissive=0
+allow pcp_pmie_t self:process setrlimit;
 
 #RHBZ1623988
 #type=AVC msg=audit(YYY.65): avc:  denied  { signal } for  pid=3106 comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process permissive=1

@@ -215,6 +215,39 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 }
 
 static struct context *
+webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
+{
+    char		errbuf[PM_MAXERRMSGLEN];
+    int			sts;
+
+    if (pmDebugOptions.http)
+	fprintf(stderr, "context %u timer set (%p) to %u msec\n",
+			cp->randomid, cp, cp->timeout);
+
+    /* if already started, uv_timer_start updates the timer */
+    uv_timer_start(&cp->timer, webgroup_timeout_context, cp->timeout, 0);
+
+    if (cp->setup == 0) {
+	if ((sts = pmReconnectContext(cp->context)) < 0) {
+	    infofmt(*message, "cannot reconnect context: %s",
+			pmErrStr_r(sts, errbuf, sizeof(errbuf)));
+	    *status = sts;
+	    return NULL;
+	}
+	cp->setup = 1;
+    }
+
+    if ((sts = pmUseContext(cp->context)) < 0) {
+	infofmt(*message, "cannot use existing context: %s",
+			pmErrStr_r(sts, errbuf, sizeof(errbuf)));
+	*status = sts;
+	return NULL;
+    }
+
+    return cp;
+}
+
+static struct context *
 webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
 		int *status, sds *message, void *arg)
 {
@@ -222,8 +255,7 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
     struct context	*cp = NULL;
     unsigned int	key;
     pmWebAccess		access;
-    char		errbuf[PM_MAXERRMSGLEN], *endptr = NULL;
-    int			sts;
+    char		*endptr = NULL;
 
     if (*id == NULL) {
 	if (!(cp = webgroup_new_context(sp, params, status, message, arg)))
@@ -254,29 +286,7 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
 	    return NULL;
     }
 
-    if (pmDebugOptions.http)
-	fprintf(stderr, "context %u timer set (%p) to %u msec\n",
-			cp->randomid, cp, cp->timeout);
-    uv_timer_start(&cp->timer, webgroup_timeout_context, cp->timeout, 0);
-
-    if (cp->setup == 0) {
-	if ((sts = pmReconnectContext(cp->context)) < 0) {
-	    infofmt(*message, "cannot reconnect context: %s",
-			pmErrStr_r(sts, errbuf, sizeof(errbuf)));
-	    *status = sts;
-	    return NULL;
-	}
-	cp->setup = 1;
-    }
-
-    if ((sts = pmUseContext(cp->context)) < 0) {
-	infofmt(*message, "cannot use existing context: %s",
-			pmErrStr_r(sts, errbuf, sizeof(errbuf)));
-	*status = sts;
-	return NULL;
-    }
-
-    return cp;
+    return webgroup_use_context(cp, status, message, arg);
 }
 
 int
@@ -661,7 +671,10 @@ webgroup_fetch_names(pmWebGroupSettings *settings, context_t *cp, int fail,
 	sds *message, void *arg)
 {
     struct metric	*metric;
-    int			i;
+    int			i, status = 0;
+
+    if (webgroup_use_context(cp, &status, message, arg) == NULL)
+	return status;
 
     for (i = 0; i < numnames; i++) {
 	metric = mplist[i] = webgroup_lookup_metric(settings, cp, names[i], arg);
@@ -674,10 +687,14 @@ webgroup_fetch_names(pmWebGroupSettings *settings, context_t *cp, int fail,
 
 static int
 webgroup_fetch_pmids(pmWebGroupSettings *settings, context_t *cp, int fail,
-	int numpmids, sds *names, struct metric **mplist, pmID *pmidlist, sds *message, void *arg)
+	int numpmids, sds *names, struct metric **mplist, pmID *pmidlist,
+	sds *message, void *arg)
 {
     struct metric	*metric;
-    int			i;
+    int			i, status = 0;
+
+    if (webgroup_use_context(cp, &status, message, arg) == NULL)
+	return status;
 
     for (i = 0; i < numpmids; i++) {
 	metric = mplist[i] = webgroup_lookup_pmid(settings, cp, names[i], arg);
@@ -1474,7 +1491,7 @@ scrape_instance_labelsets(metric_t *metric, indom_t *indom, instance_t *inst,
 static int
 webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 		int numpmid, struct metric **mplist, pmID *pmidlist,
-		void *arg)
+		sds *msg, void *arg)
 {
     struct instance	*instance;
     struct metric	*metric;
@@ -1583,8 +1600,13 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 	    }
 	}
 	pmFreeResult(result);
-    } else if (sts == PM_ERR_IPC) {
-	cp->setup = 0;
+    } else {
+	char		err[PM_MAXERRMSGLEN];
+
+	if (sts == PM_ERR_IPC)
+	    cp->setup = 0;
+
+	infofmt(*msg, "%s", pmErrStr_r(sts, err, sizeof(err)));
     }
 
     sdsfree(v);
@@ -1599,26 +1621,31 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 
 static int
 webgroup_scrape_names(pmWebGroupSettings *settings, context_t *cp,
-	int numnames, sds *names, struct metric **mplist, pmID *pmidlist, void *arg)
+	int numnames, sds *names, struct metric **mplist, pmID *pmidlist,
+	sds *msg, void *arg)
 {
     struct metric	*metric;
-    int			i;
+    int			i, sts = 0;
+
+    if (webgroup_use_context(cp, &sts, msg, arg) == NULL)
+	return sts;
 
     for (i = 0; i < numnames; i++) {
 	metric = mplist[i] = webgroup_lookup_metric(settings, cp, names[i], arg);
 	pmidlist[i] = metric ? metric->desc.pmid : PM_ID_NULL;
     }
-    return webgroup_scrape(settings, cp, numnames, mplist, pmidlist, arg);
+    return webgroup_scrape(settings, cp, numnames, mplist, pmidlist, msg, arg);
 }
 
 typedef struct webscrape {
     pmWebGroupSettings	*settings;
     struct context	*context;
+    sds			*msg;
+    int			status;
     unsigned int	numnames;	/* current count of metric names */
     sds			*names;		/* metric names for batched up scrape */
     struct metric	**mplist;
     pmID		*pmidlist;
-    int			status;
     void		*arg;
 } webscrape_t;
 
@@ -1642,7 +1669,8 @@ webgroup_scrape_batch(const char *name, void *arg)
     if (scrape->numnames == DEFAULT_BATCHSIZE) {
 	sts = webgroup_scrape_names(scrape->settings, scrape->context,
 			scrape->numnames, scrape->names,
-			scrape->mplist, scrape->pmidlist, scrape->arg);
+			scrape->mplist, scrape->pmidlist,
+			scrape->msg, scrape->arg);
 	for (i = 0; i < scrape->numnames; i++)
 	    sdsfree(scrape->names[i]);
 	scrape->numnames = 0;
@@ -1652,7 +1680,7 @@ webgroup_scrape_batch(const char *name, void *arg)
 }
 
 static int
-webgroup_scrape_tree(const char *prefix, struct webscrape *scrape, sds *msg)
+webgroup_scrape_tree(const char *prefix, struct webscrape *scrape)
 {
     int			i, sts;
     char		err[PM_MAXERRMSGLEN];
@@ -1667,16 +1695,17 @@ webgroup_scrape_tree(const char *prefix, struct webscrape *scrape, sds *msg)
 	sts = webgroup_scrape_names(scrape->settings, scrape->context,
 				    scrape->numnames, scrape->names,
 				    scrape->mplist, scrape->pmidlist,
-				    scrape->arg);
+				    scrape->msg, scrape->arg);
 	for (i = 0; i < scrape->numnames; i++)
 	    sdsfree(scrape->names[i]);
 	scrape->numnames = 0;
+    } else {
+	infofmt(*scrape->msg, "'%s' - %s", prefix,
+		pmErrStr_r(sts, err, sizeof(err)));
     }
-    if (sts < 0)
-	infofmt(*msg, "'%s' - %s", prefix, pmErrStr_r(sts, err, sizeof(err)));
-    else {
+
+    if (sts >= 0)
 	sts = (scrape->status < 0) ? scrape->status : 0;
-    }
     return sts;
 }
 
@@ -1704,17 +1733,18 @@ pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 
     scrape.settings = settings;
     scrape.context = cp;
+    scrape.msg = &msg;
     scrape.arg = arg;
 
     /* handle scrape via metric name list traversal (else entire namespace) */
     if (metrics && sdslen(metrics)) {
 	length = sdslen(metrics);
 	if ((names = sdssplitlen(metrics, length, ",", 1, &numnames)) == NULL)
-	    sts = webgroup_scrape_tree("", &scrape, &msg);
+	    sts = webgroup_scrape_tree("", &scrape);
 	for (i = 0; i < numnames; i++)
-	    sts = webgroup_scrape_tree(names[i], &scrape, &msg);
+	    sts = webgroup_scrape_tree(names[i], &scrape);
     } else {
-	sts = webgroup_scrape_tree("", &scrape, &msg);
+	sts = webgroup_scrape_tree("", &scrape);
     }
 
     if (scrape.names) {

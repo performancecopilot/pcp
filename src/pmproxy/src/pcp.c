@@ -290,6 +290,13 @@ on_pcp_client_read(struct proxy *proxy, struct client *client,
 }
 
 void
+on_pcp_client_write(struct client *client)
+{
+    if (pmDebugOptions.pdu)
+	fprintf(stderr, "%s: client %p\n", "on_pcp_client_write", client);
+}
+
+void
 setup_pcp_module(struct proxy *proxy)
 {
     /* no extra PCP protocol setup steps needed */
