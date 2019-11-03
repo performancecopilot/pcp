@@ -1,10 +1,10 @@
 QA output created by 530
 
 === [] regular show ===
-PMLOGGER.DAILY: [TMP/control:2]
+PMLOGGER.DAILY: [TMP.control:2]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP/control:2]
+PMLOGGER.DAILY: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
 NOW-2.00.02.0
 NOW-2.00.02.index
@@ -27,14 +27,12 @@ TODAY.00.04.meta
 YESTERDAY.0
 YESTERDAY.index
 YESTERDAY.meta
-control
-sed
 
 === [] nothing to do but cull some more ===
-PMLOGGER.DAILY: [TMP/control:2]
+PMLOGGER.DAILY: [TMP.control:2]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP/control:2]
+PMLOGGER.DAILY: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
 NOW-2.00.02.0
 NOW-2.00.02.index
@@ -48,20 +46,18 @@ TODAY.00.02.meta
 TODAY.00.04.0
 TODAY.00.04.index
 TODAY.00.04.meta
-control
 save.0
 save.index
 save.meta
-sed
 
 === [] error, output already exists ===
-PMLOGGER.DAILY: [TMP/control:2]
+PMLOGGER.DAILY: [TMP.control:2]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP/control:2]
+PMLOGGER.DAILY: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
 PMLOGGER.DAILY: Warning: output archive (YESTERDAY) already exists
-[TMP/control:2] ... skip log merging and compressing for host "HOST"
+[TMP.control:2] ... skip log merging and compressing for host "HOST"
 NOW-2.00.02.0
 NOW-2.00.02.index
 NOW-2.00.02.meta
@@ -80,17 +76,15 @@ YESTERDAY.17.18.index
 YESTERDAY.17.18.meta
 YESTERDAY.index
 YESTERDAY.meta
-control
-sed
 
 === [verbose] regular show ===
 
 === daily maintenance of PCP archives for host HOST ===
 
-PMLOGGER.DAILY: [TMP/control:2]
+PMLOGGER.DAILY: [TMP.control:2]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP/control:2]
+PMLOGGER.DAILY: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
 Archive files older than 3 days being removed ...
     NOW-5.00.02.0 NOW-5.00.02.index NOW-5.00.02.meta NOW-5.00.04.0
@@ -125,17 +119,15 @@ TODAY.00.04.meta
 YESTERDAY.0
 YESTERDAY.index
 YESTERDAY.meta
-control
-sed
 
 === [verbose] nothing to do but cull some more ===
 
 === daily maintenance of PCP archives for host HOST ===
 
-PMLOGGER.DAILY: [TMP/control:2]
+PMLOGGER.DAILY: [TMP.control:2]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP/control:2]
+PMLOGGER.DAILY: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
 Archive files older than 2 days being removed ...
     NOW-3.00.02.0 NOW-3.00.02.index NOW-3.00.02.meta NOW-3.00.04.0
@@ -153,23 +145,21 @@ TODAY.00.02.meta
 TODAY.00.04.0
 TODAY.00.04.index
 TODAY.00.04.meta
-control
 save.0
 save.index
 save.meta
-sed
 
 === [verbose] error, output already exists ===
 
 === daily maintenance of PCP archives for host HOST ===
 
-PMLOGGER.DAILY: [TMP/control:2]
+PMLOGGER.DAILY: [TMP.control:2]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP/control:2]
+PMLOGGER.DAILY: [TMP.control:2]
 Warning: skipping pmnewlog because we don't know which pmlogger to stop
 PMLOGGER.DAILY: Warning: output archive (YESTERDAY) already exists
-[TMP/control:2] ... skip log merging and compressing for host "HOST"
+[TMP.control:2] ... skip log merging and compressing for host "HOST"
 NOW-2.00.02.0
 NOW-2.00.02.index
 NOW-2.00.02.meta
@@ -188,5 +178,3 @@ YESTERDAY.17.18.index
 YESTERDAY.17.18.meta
 YESTERDAY.index
 YESTERDAY.meta
-control
-sed
