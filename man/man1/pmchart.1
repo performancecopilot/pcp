@@ -178,6 +178,14 @@ metric values.
 Any \f2sources\f1 listed on the command line are assumed to be hosts
 if this option is used.
 .TP
+\fB\-H\fR \fIpath\fR, \fB\-\-hostsfile\fR=\fIpath\fR
+Specify the
+.I path
+to a file containing a set of hostnames where
+.BR pmcd (1)
+is running ,
+rather than using the default localhost.
+.TP
 \fB\-K\fR \fIspec\fR, \fB\-\-spec\-local\fR=\fIspec\fR
 When fetching metrics from a local context (see
 .BR \-L ),
