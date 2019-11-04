@@ -1,5 +1,51 @@
 pcp-5.0.1 (4 November 2019)
-    - currently in development
+    - Server-side utilities and log management scripts:
+	pmproxy: fix bad memory accesses reported by valgrind
+	pmproxy: guard libuv socket close to prevent double-close failure
+	pmproxy: ensure client data structures are freed only on last use
+	pmproxy: remove linefeeds at the end of JSON responses
+	pmproxy: ensure correct persistent connection streaming state
+	pmproxy: ensure uv_write happens from main thread
+	pmproxy: refresh indom if instance doesn't exist in the cached indom
+	pmproxy: always refresh indom for /indom API requests
+	pmproxy: improve robustness parsing URL with unusual params
+    - PMDA additions, enhancements and bug fixes:
+	pmdalinux: fix segfault in interrupts code with large CPU counts
+	pmdalmsensors: fix issue when sensors(1) writes on stderr
+	pmdanetcheck: netcheck.conf and man page consistency tweaks
+	pmdaperfevent: add cpunumber option for dynamic perf events
+	pmdaperfevent: support hv_24x7 nest events on mutlinode system
+	pmdaproc: retain cgroup paths and only un-escape instance names
+	pmdaroot: improve handling of cached/inactive cgroup behaviour
+	pmdaroot: refresh container indom on cgroup fs change as well
+    - Client tools and utilities:
+	pcp-atopsar: fix mishandling of some command line arguments
+	pcp-dstat: handle piping properly
+	pcp-dstat: handle missing archive with --version
+	pcp-dstat: remove extraneous eol in archive invocations
+	pmlogconf: resolve incorrect quoting in awk scripts
+	selinux: tweak policy to allow pmie to call setrlimit
+	zshrc: fix typo in pmseries(1) completions
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	libpcp: check pmInResult->namelist for NULL before accessing first element
+	libpcp: suppress pduread EINTR warnings for interactive tools
+    - Misc build, infrastructure and packaging updates:
+	rpm build: replace pmcd-pmlogger-local-context.patch with code
+	rpm build: drop dep on initscripts when systemd in use
+	rpm build: drop testsuite rpm spec dependency on libuv-devel
+	build: fix --without-perl builds to not need ExtUtils::MakeMaker
+	ragel: fix statsd PMDA ragel invocation with latest versions
+	bison: pure parser changes for libpcp and libpcp_web yacc code
+	pylint: ignore order of imports
+    - Documentation and QA infrastructure:
+	pmrep/pcp2xxx man pages: clarify ranking/sorting a bit
+	man pages: several more long-option updates for man pages
+	selinux README: add a note about dontaudit AVCs and non-AVCs
+	QA and build updates for FreeBSD 10.x, 11.x and 12.x
+	QA updates for OpenSUSE Leap 15.0
+	QA updates for LinuxMint 17.x
+	QA updates for OpenBSD 6.x
+	QA updates for Centos 6
 
 pcp-5.0.0 (11 October 2019)
     - Client tools and utilities:
