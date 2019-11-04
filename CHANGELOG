@@ -1,3 +1,6 @@
+pcp-5.0.2 (18 December 2019)
+    - Work in progress: https://github.com/performancecopilot/pcp/projects/1
+
 pcp-5.0.1 (4 November 2019)
     - Server-side utilities and log management scripts:
 	pmproxy: fix bad memory accesses reported by valgrind
@@ -14,7 +17,7 @@ pcp-5.0.1 (4 November 2019)
 	pmdalmsensors: fix issue when sensors(1) writes on stderr
 	pmdanetcheck: netcheck.conf and man page consistency tweaks
 	pmdaperfevent: add cpunumber option for dynamic perf events
-	pmdaperfevent: support hv_24x7 nest events on mutlinode system
+	pmdaperfevent: support hv_24x7 nest events on multinode system
 	pmdaproc: retain cgroup paths and only un-escape instance names
 	pmdaroot: improve handling of cached/inactive cgroup behaviour
 	pmdaroot: refresh container indom on cgroup fs change as well
