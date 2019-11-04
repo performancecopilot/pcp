@@ -140,6 +140,12 @@ echo "s/`pmdate %Y%m%d`/TODAY/g" >>$tmp/sed
 echo >$tmp/control '$version=1.1
 LOCALHOSTNAME	n   n	'"$tmp"'	./config'
 
+# pmlogger_daily runs as the user "pcp" ... fix ownership
+#
+find $tmp/* -type f | xargs -r $sudo chown $PCP_USER:$PCP_GROUP
+find $tmp/* -type d | xargs -r $sudo chown $PCP_USER:$PCP_GROUP
+$sudo chown $PCP_USER:$PCP_GROUP $tmp
+
 echo
 echo "Before ..."
 ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort | tee $tmp.before
@@ -153,7 +159,7 @@ ls -l $tmp >>$seq.full
 #
 echo
 echo "pmlogger_daily -k 4 -x never -V ..." >>$seq.full
-$sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp/control -k 4 -x never -V -l $tmp.log
+$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -c $tmp/control -k 4 -x never -V -l $tmp.log
 $sudo cat $tmp.log \
 | tee -a $seq.full \
 | _filter \
