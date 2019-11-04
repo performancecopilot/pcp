@@ -35,6 +35,8 @@ def parse_code(script: Script):
             else:
                 raise BPFtraceError(f"invalid value '{val}' for {key}, "
                                     f"must be numeric")
+        elif key == 'custom-output-block':
+            script.metadata.custom_output_block = True
 
     all_variables = re.findall(r'(@.*?)' +  # variable
                                r'(?:\[(.+?)\])?' +  # optional map key
@@ -75,7 +77,7 @@ def parse_code(script: Script):
 
     if not script.variables:
         raise BPFtraceError("no bpftrace variables or printf statements found, please include "
-                            "at least one variable or print statement in your script")
+                            "at least one variable or printf statement in your script")
     if script.metadata.name:
         script.persistent = True
     return script

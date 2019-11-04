@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.0.1
+Version: 5.0.2
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -41,13 +41,13 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %endif
 
 # libchan, libhdr_histogram and pmdastatsd
-%if 0%{?fedora} > 31 || 0%{?rhel} > 8
+%if 0%{?fedora} >= 29 || 0%{?rhel} > 8
 %global disable_statsd 0
 %else
 %global disable_statsd 1
 %endif
 
-%if 0%{?rhel} > 7 || 0%{?fedora} >= 30
+%if 0%{?fedora} >= 30 || 0%{?rhel} > 7
 %global _with_python2 --with-python=no
 %global disable_python2 1
 %else
@@ -1647,7 +1647,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
 
-%endif # !%{disable_python2} || !%{disable_python3}
+%endif
 
 %if !%{disable_json}
 #
@@ -1670,7 +1670,7 @@ BuildRequires: %{__python2}-jsonpointer %{__python2}-six
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics output in JSON.
 # end pcp-pmda-json
-%endif # !%{disable_json}
+%endif
 
 #
 # C pmdas
@@ -2002,7 +2002,7 @@ Obsoletes: dstat <= 0.8
 %description system-tools
 This PCP module contains additional system monitoring tools written
 in the Python language.
-%endif #end pcp-system-tools
+%endif
 
 %if !%{disable_qt}
 #
@@ -2320,37 +2320,37 @@ fi
 %if !%{disable_rpm}
 %preun pmda-rpm
 %{pmda_remove "$1" "rpm"}
-%endif #preun pmda-rpm
+%endif
 
 %if !%{disable_systemd}
 %preun pmda-systemd
 %{pmda_remove "$1" "systemd"}
-%endif #preun pmda-systemd
+%endif
 
 %if !%{disable_infiniband}
 %preun pmda-infiniband
 %{pmda_remove "$1" "infiniband"}
-%endif #preun pmda-infiniband
+%endif
 
 %if !%{disable_perfevent}
 %preun pmda-perfevent
 %{pmda_remove "$1" "perfevent"}
-%endif #preun pmda-perfevent
+%endif
 
 %if !%{disable_podman}
 %preun pmda-podman
 %{pmda_remove "$1" "podman"}
-%endif #preun pmda-podman
+%endif
 
 %if !%{disable_statsd}
 %preun pmda-statsd
 %{pmda_remove "$1" "statsd"}
-%endif #preun pmda-statsd
+%endif
 
 %if !%{disable_json}
 %preun pmda-json
 %{pmda_remove "$1" "json"}
-%endif #preun pmda-json
+%endif
 
 %preun pmda-nginx
 %{pmda_remove "$1" "nginx"}
@@ -2493,7 +2493,7 @@ fi
 %preun pmda-netcheck
 %{pmda_remove "$1" "netcheck"}
 
-%endif # !%{disable_python[2,3]}
+%endif
 
 %preun pmda-apache
 %{pmda_remove "$1" "apache"}
@@ -2624,7 +2624,7 @@ pmieconf -c enable dmthin
     /sbin/service pmlogger condrestart
     /sbin/service pmie condrestart
 %endif
-%endif #zeroconf
+%endif
 
 %if !%{disable_selinux}
 %post selinux
@@ -3072,7 +3072,7 @@ cd
 %files pmda-netcheck
 %{_pmdasdir}/netcheck
 
-%endif # !%{disable_python2} || !%{disable_python3}
+%endif
 
 %files export-zabbix-agent
 %{_libdir}/zabbix
@@ -3183,6 +3183,9 @@ cd
 %endif
 
 %changelog
+* Wed Dec 18 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.2-1
+- Work in progress: https://github.com/performancecopilot/pcp/projects/1
+
 * Mon Nov 04 2019 Nathan Scott <nathans@redhat.com> - 5.0.1-1
 - Resolve selinux policy issues in PCP tools (BZ 1743040)
 - Update to latest PCP sources.

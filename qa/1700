@@ -24,7 +24,8 @@ _filter_json()
            -e 's,"created_at": .*,"created_at": "CREATED_AT",g' \
            -e 's,"last_accessed_at": .*,"last_accessed_at": "LAST_ACCESSED_AT",g' \
            -e 's,"pid": .*,"pid": "PID",g' \
-           -e 's,"username": .*,"username": "USERNAME",g'
+           -e 's,"username": .*,"username": "USERNAME",g' \
+           -e 's,"data_bytes": .*,"data_bytes": DATA_BYTES,g'
 }
 
 _get_metric_value()
@@ -52,6 +53,7 @@ pminfo -dfmtT bpftrace.scripts.testscript.exit_code
 pminfo -dfmtT bpftrace.scripts.testscript.error
 pminfo -dfmtT bpftrace.scripts.testscript.probes | _value_filter_nonzero
 pminfo -dfmtT bpftrace.scripts.testscript.code
+pminfo -dfmtT bpftrace.scripts.testscript.data_bytes | _value_filter_nonzero
 
 echo "=== check data metrics ==="
 pminfo -dfmtT bpftrace.scripts.testscript.data.root | _value_filter_nonzero

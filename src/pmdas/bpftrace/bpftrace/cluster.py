@@ -20,6 +20,7 @@ class Consts:
         Error = 3
         Probes = 4
         Code = 5
+        DataBytes = 6
         First_BPFtrace_Variable = 10
 
 
@@ -92,6 +93,13 @@ class BPFtraceCluster:
         self.pmda.add_metric(f'bpftrace.scripts.{self.name}.code', self.code_metric,
                              "bpftrace script")
 
+        self.data_bytes_metric = pmdaMetric(
+            self.pmda.pmid(self.cluster_id, Consts.Script.DataBytes), c_api.PM_TYPE_U32,
+            c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)
+        )
+        self.pmda.add_metric(f'bpftrace.scripts.{self.name}.data_bytes', self.data_bytes_metric,
+                             "count of bytes read from bpftrace script")
+
         item_no = Consts.Script.First_BPFtrace_Variable
         for var_name, var_def in self.script.variables.items():
             if var_def.single:
@@ -120,6 +128,7 @@ class BPFtraceCluster:
         self.pmda.remove_metric(f'bpftrace.scripts.{self.name}.error', self.error_metric)
         self.pmda.remove_metric(f'bpftrace.scripts.{self.name}.probes', self.probes_metric)
         self.pmda.remove_metric(f'bpftrace.scripts.{self.name}.code', self.code_metric)
+        self.pmda.remove_metric(f'bpftrace.scripts.{self.name}.data_bytes', self.data_bytes_metric)
         for metric_name, metric in self.metrics.items():
             self.pmda.remove_metric(metric_name, metric)
 
@@ -184,6 +193,8 @@ class BPFtraceCluster:
             return [self.script.state.probes, 1]
         elif item == Consts.Script.Code:
             return [self.script.code, 1]
+        elif item == Consts.Script.DataBytes:
+            return [self.script.state.data_bytes, 1]
         elif item in self.item_to_var:
             var_name = self.item_to_var[item]
             if var_name not in self.script.state.data:
