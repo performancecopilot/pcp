@@ -27,15 +27,13 @@ max_throughput = 65536
 EOF
 
 echo "=== bpftrace script without variabes ==="
-pmstore bpftrace.control.register "// name: test1
-tracepoint:raw_syscalls:sys_enter { }"
-pminfo -f bpftrace.control.register | grep -q '"error": "no bpftrace variables or printf statements found, please include at least one variable or printf statement in your script"' && echo OK
+./src/store_and_fetch bpftrace.control.register "// name: test1
+tracepoint:raw_syscalls:sys_enter { }" | grep -o '"error": "no bpftrace variables or printf statements found, please include at least one variable or printf statement in your script"'
 echo
 
 echo "=== invalid probe ==="
 pmstore bpftrace.control.register "// name: test2
 does_not_exist { @c = count(); }"
-pminfo -f bpftrace.control.register >> $here/$seq.full
 _pmdabpftrace_wait_for_value bpftrace.scripts.test2.status 'value "error"'
 pminfo -f bpftrace.scripts.test2.error
 pminfo -f bpftrace.scripts.test2.exit_code
@@ -44,7 +42,6 @@ echo
 echo "=== syntax error ==="
 pmstore bpftrace.control.register "// name: test3
 does_not_exist { @c = count(; }"
-pminfo -f bpftrace.control.register >> $here/$seq.full
 _pmdabpftrace_wait_for_value bpftrace.scripts.test3.status 'value "error"'
 pminfo -f bpftrace.scripts.test3.error
 pminfo -f bpftrace.scripts.test3.exit_code
@@ -53,7 +50,6 @@ echo
 echo "=== too many attached tracepoints ==="
 pmstore bpftrace.control.register "// name: test4
 kprobe:* { @c = count(); }"
-pminfo -f bpftrace.control.register >> $here/$seq.full
 _pmdabpftrace_wait_for_value bpftrace.scripts.test4.status 'value "error"'
 pminfo -f bpftrace.scripts.test4.error | sed -e 's/ [1-9][0-9]* / PROBES /g'
 pminfo -f bpftrace.scripts.test4.exit_code
@@ -62,7 +58,6 @@ echo
 echo "=== too much output ==="
 pmstore bpftrace.control.register '// name: test5
 profile:hz:9999 { printf("test"); }'
-pminfo -f bpftrace.control.register >> $here/$seq.full
 _pmdabpftrace_wait_for_value bpftrace.scripts.test5.status 'value "error"'
 pminfo -f bpftrace.scripts.test5.error | sed -e 's/ [1-9][0-9]* / LIMIT /g'
 echo
@@ -70,9 +65,8 @@ echo
 echo "=== duplicate script name ==="
 pmstore bpftrace.control.register "// name: test6
 tracepoint:raw_syscalls:sys_enter { @x = count() }"
-pmstore bpftrace.control.register "// name: test6
-tracepoint:raw_syscalls:sys_enter { @x = count() }"
-pminfo -f bpftrace.control.register | grep -q '"error": "Script name .* is already in use by another script."' && echo OK
+./src/store_and_fetch bpftrace.control.register "// name: test6
+tracepoint:raw_syscalls:sys_enter { @x = count() }" | grep -o '"error": "Script name .* is already in use by another script."'
 echo
 
 

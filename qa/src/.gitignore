@@ -214,6 +214,7 @@ store
 storepast
 storepdu
 storepmcd
+store_and_fetch
 stripmark
 sum16
 tabort

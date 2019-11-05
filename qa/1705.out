@@ -8,9 +8,7 @@ Updating the PMCD control file, and notifying PMCD ...
 Check bpftrace metrics have appeared ... 7 metrics and 6 values
 
 === bpftrace script without variabes ===
-bpftrace.control.register: new value="// name: test1
-tracepoint:raw_syscalls:sys_enter { }" pmStore: Bad input to pmstore
-OK
+"error": "no bpftrace variables or printf statements found, please include at least one variable or printf statement in your script"
 
 === invalid probe ===
 bpftrace.control.register old value="{}" new value="// name: test2
@@ -59,9 +57,7 @@ bpftrace.scripts.test5.error
 === duplicate script name ===
 bpftrace.control.register old value="{}" new value="// name: test6
 tracepoint:raw_syscalls:sys_enter { @x = count() }"
-bpftrace.control.register: new value="// name: test6
-tracepoint:raw_syscalls:sys_enter { @x = count() }" pmStore: Bad input to pmstore
-OK
+"error": "Script name test6 is already in use by another script."
 
 
 === remove bpftrace agent ===

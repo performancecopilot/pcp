@@ -30,7 +30,6 @@ kretprobe:vfs_read
 {
     @bytes = hist(retval);
 }"
-pminfo -f bpftrace.control.register >> $here/$seq.full
 
 echo "=== check metrics ==="
 _pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.bytes
@@ -78,11 +77,9 @@ pminfo bpftrace.scripts.testscript.data.bytes
 echo "=== register two scripts ==="
 pmstore bpftrace.control.register "// name: testscript1
 kretprobe:vfs_read { @bytes = hist(retval); }"
-pminfo -f bpftrace.control.register >> $here/$seq.full
 
 pmstore bpftrace.control.register "// name: testscript2
 kretprobe:vfs_read { @bytes = hist(retval); }"
-pminfo -f bpftrace.control.register >> $here/$seq.full
 
 echo "=== verify two scripts ==="
 pminfo -f bpftrace.info.scripts

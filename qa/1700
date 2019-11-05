@@ -41,9 +41,8 @@ enabled = false
 EOF
 
 echo "=== start bpftrace script ==="
-pmstore bpftrace.control.register "// name: testscript
-tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
-pminfo -f bpftrace.control.register | _get_metric_value | pmjson | _filter_json
+./src/store_and_fetch bpftrace.control.register "// name: testscript
+tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }" | pmjson | _filter_json
 
 echo "=== check metadata metrics ==="
 _pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.root

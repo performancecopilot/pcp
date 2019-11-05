@@ -31,8 +31,8 @@ enabled = false
 EOF
 
 echo "=== start bpftrace script ==="
-pmstore bpftrace.control.register "BEGIN { @h = hist(-2); @h = hist(1); @h = hist(100); @h = hist(1000); exit(); }"
-script_id=`pminfo -f bpftrace.control.register | python3 -c 'import sys,json; print(json.loads(sys.stdin.read()[38:-2])["script_id"])'`
+script_id=`./src/store_and_fetch bpftrace.control.register "BEGIN { @h = hist(-2); @h = hist(1); @h = hist(100); @h = hist(1000); exit(); }" | \
+  python3 -c 'import sys,json; print(json.loads(sys.stdin.read())["script_id"])'`
 
 echo "=== check metrics ==="
 _pmdabpftrace_wait_for_value bpftrace.scripts.${script_id}.data.h | _script_id_filter
