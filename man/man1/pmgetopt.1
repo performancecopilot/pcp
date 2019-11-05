@@ -2,12 +2,12 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2014,2019 Red Hat.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -53,18 +53,16 @@ itself are passed in, and terminated using the \-\- mechanism.
 Thereafter, all of the parameters passed into the shell script
 should be passed (usually this is simply the "$@" variable).
 .SH OPTIONS
-The options specific to
-.B pmgetopt
-are as follows:
+The available command line options are:
 .TP 5
 \f3\-c\f1=\f2file\f1, \f3\-\-config\f1=\f2file\f1
 A configuration
 .I file
 in the format described below is passed to
-.B pmconfig 
+.B pmconfig
 using this option.
 If this option is omitted, then
-.B pmconfig 
+.B pmconfig
 will read its configuration from the standard input stream.
 .TP
 \f3\-p\f1=\f2name\f1, \f3\-\-progname\f1=\f2name\f1

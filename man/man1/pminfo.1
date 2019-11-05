@@ -62,7 +62,7 @@ case, a reverse PMID-to-name lookup is performed, and in the
 case, the instance domain is reported directly.
 This latter mode can be used to report the instance domain
 ``one line'' and long form help text summaries.
-.SH OPTIONS
+.PP
 Unless directed to another host by the \fB\-h\fR
 option, by default
 .B pminfo
@@ -84,7 +84,7 @@ without PMCD.
 Only some metrics are available in this mode.
 .PP
 The \fB\-a, \fB\-h\fR and \fB\-L\fR options are mutually exclusive.
-.PP
+.SH OPTIONS
 The available command line options are:
 .TP 5
 \fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
@@ -244,11 +244,9 @@ Specify an individual
 .I container
 to be queried.
 .SH FILES
-.PD 0
-.TP 10
-.BI $PCP_VAR_DIR/pmns/ *
+.TP
+.I $PCP_VAR_DIR/pmns/ *
 default local PMNS specification files
-.PD
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
