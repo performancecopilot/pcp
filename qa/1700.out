@@ -8,8 +8,6 @@ Updating the PMCD control file, and notifying PMCD ...
 Check bpftrace metrics have appeared ... 7 metrics and 6 values
 
 === start bpftrace script ===
-bpftrace.control.register old value="{}" new value="// name: testscript
-tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
 {
     "script_id": "SCRIPT_ID"
     "username": "USERNAME"

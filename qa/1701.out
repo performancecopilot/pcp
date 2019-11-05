@@ -8,7 +8,6 @@ Updating the PMCD control file, and notifying PMCD ...
 Check bpftrace metrics have appeared ... 7 metrics and 6 values
 
 === start bpftrace script ===
-bpftrace.control.register old value="{}" new value="BEGIN { @h = hist(-2); @h = hist(1); @h = hist(100); @h = hist(1000); exit(); }"
 === check metrics ===
 found metric bpftrace.scripts.UUID.data.h matching "value .*"
 
