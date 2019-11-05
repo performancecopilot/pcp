@@ -27,7 +27,7 @@
 .SH DESCRIPTION
 .B pcp-iostat
 reports I/O statistics for SCSI (by default) or other devices (if the \f3\-x\f1 option is specified).
-.PP
+.SH OPTIONS
 When invoked via the
 .BR pcp (1)
 command, the
@@ -48,11 +48,10 @@ and several other
 become indirectly available; refer to
 .BR PCPIntro (1)
 for a complete description of these options.
-.SH OPTIONS
-The options which control the timing and layout of the information
-reported by
+.PP
+The additional command line options available for
 .B pcp-iostat
-are as follows:
+are:
 .TP 5
 \fB\-G \fImethod\fR\fR, \fB\-\-aggregate\fR=\fImethod\fR
 Specifies that statistics for device names matching the regular

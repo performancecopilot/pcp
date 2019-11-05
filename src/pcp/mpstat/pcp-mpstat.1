@@ -44,7 +44,7 @@ The value of
 .I count
 parameter determines the number of samples to be displayed.
 The default is continous.
-.PP
+.SH OPTIONS
 When invoked via the
 .BR pcp (1)
 command, the
@@ -61,12 +61,14 @@ command, the
 .BR \-Z /\c
 .BR \-\-timezone
 and several other
-.B pcp
-.I options
-become indirectly available, see
+.I pcp options
+become indirectly available; refer to
 .BR PCPIntro (1)
-for their descriptions.
-.SH OPTIONS
+for a complete description of these options.
+.PP
+The additional command line options available for
+.B pcp-mpstat
+are:
 .IP -A
 This option is equivalent to specifying
 .BR "-u -I ALL -P ALL"

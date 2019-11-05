@@ -26,7 +26,7 @@
 .SH DESCRIPTION
 .B pcp-tapestat
 reports I/O statistics for tape devices.
-.PP
+.SH OPTIONS
 When invoked via the
 .BR pcp (1)
 command, the
@@ -47,11 +47,10 @@ and several other
 become indirectly available; refer to
 .BR PCPIntro (1)
 for a complete description of these options.
-.SH OPTIONS
-The options which control the timing and layout of the information
-reported by
+.PP
+The additional command line options available for
 .B pcp-tapestat
-are as follows:
+are:
 .TP 5
 \fB\-G \fImethod\fR\fR, \fB\-\-aggregate\fR=\fImethod\fR
 Specifies that statistics for device names matching the regular

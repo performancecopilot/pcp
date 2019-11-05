@@ -48,7 +48,7 @@ scheduling and priority.
 By default
 .B pcp-pidstat
 reports live data for the local host.
-.PP
+.SH OPTIONS
 When invoked via the
 .BR pcp (1)
 command, the
@@ -65,12 +65,15 @@ command, the
 .BR \-Z /\c
 .BR \-\-timezone
 and several other
-.B pcp
-.I options
-become indirectly available, see
+and several other
+.I pcp options
+become indirectly available; refer to
 .BR PCPIntro (1)
-for their descriptions.
-.SH OPTIONS
+for a complete description of these options.
+.PP
+The additional command line options available for
+.B pcp-pidstat
+are:
 .TP 5
 .BR \-I \fR
 In an SMP environment, indicates that tasks CPU usage should be divided
