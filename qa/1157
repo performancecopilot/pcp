@@ -12,6 +12,12 @@ echo "QA output created by $seq"
 
 _pmdabcc_check
 _bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
+case "`uname -srm`"
+in
+    Linux\ 5.2.*)
+    		_notrun "Bad Linux 5.2 kernel headers will cause BPF to fail"
+		;;
+esac
 
 # sch_netem is part of optional kernel-modules-extra on Fedora
 $sudo modprobe sch_netem
