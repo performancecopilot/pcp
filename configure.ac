@@ -928,10 +928,11 @@ AC_MSG_CHECKING(for dstat symlink)
 enable_dstat=false
 if test "$do_dstat_symlink" = "check" -o "$do_dstat_symlink" = "yes"
 then
-    enable_dstat=true
-    if test "$have_python" = "false"
+    if test "$have_python" = "false" -a "$do_dstat_symlink" = "yes"
     then
 	AC_MSG_ERROR([cannot enable dstat symlink - no python found])
+    else
+	enable_dstat=true
     fi
 fi
 AC_SUBST(enable_dstat)
