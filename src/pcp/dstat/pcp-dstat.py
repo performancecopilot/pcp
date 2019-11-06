@@ -1443,6 +1443,7 @@ class DstatTool(object):
     def finalize():
         """ Finalize and clean up (atexit) """
         try:
+            sys.stderr.close() # avoid python-generated warnings
             if not op.verify and not op.show_conf:
                 if op.update:
                     sys.stdout.write('\n')
@@ -1451,7 +1452,7 @@ class DstatTool(object):
             sys.stdout.flush()
             if op.pidfile:
                 os.remove(op.pidfile)
-        except Exception:
+        except:
             pass
 
     def perform(self, update):
