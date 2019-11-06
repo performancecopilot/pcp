@@ -1449,15 +1449,10 @@ class DstatTool(object):
                 if sys.stdout.isatty():
                     sys.stdout.write(ANSI['reset'])
             sys.stdout.flush()
-        except IOError as error:
-            if error.errno != errno.EPIPE:
-                raise error
-        try:
-            sys.stderr.close()
+            if op.pidfile:
+                os.remove(op.pidfile)
         except Exception:
             pass
-        if op.pidfile:
-            os.remove(op.pidfile)
 
     def perform(self, update):
         "Inner loop that calculates counters and constructs output"
