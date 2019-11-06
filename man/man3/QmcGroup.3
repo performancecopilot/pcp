@@ -1,16 +1,16 @@
 '\"macro stdmacro
 .\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .TH QMC_GROUP 3 "SGI" "Performance Co-Pilot"
 .SH NAME
 \f3QmcGroup\f1 \- container representing a single fetch group of metrics from
@@ -19,13 +19,13 @@ multiple sources
 .ft 3
 #include <QmcGroup.h>
 .sp
-CC ... \-lqmc \-lpcp 
+CC ... \-lqmc \-lpcp
 .ft 1
 .SH DESCRIPTION
 A
 .B QmcGroup
 object is a container for contexts and metrics that should be fetched at
-the same time.  The class manages the 
+the same time.  The class manages the
 .BR QmcContext (3)
 objects, timezones and bounds for every context created with
 .B QmcGroup::use
@@ -37,13 +37,13 @@ and
 Destructor which destroys all metrics and contexts created by this group.
 .TP
 .B "QmcGroup(bool restrictArchives = false);"
-Construct a new fetch group. 
+Construct a new fetch group.
 .I restrictArchives
 will restrict the creating of multiple archive contexts created from the same
 host.
 .SH "CONTEXTS"
-The default context of the group is defined as the first context created with 
-.B QmcGroup::use 
+The default context of the group is defined as the first context created with
+.B QmcGroup::use
 before the first call to
 .BR QmcGroup::addMetric .
 If no context is created before the first metric is added, the localhost
@@ -80,11 +80,11 @@ context.
 The index to the current group context.
 .TP
 .B "int use(int type, char const* source);"
-Use the context of 
+Use the context of
 .I type
 from
 .IR source .
-If a context to this 
+If a context to this
 .I source
 already exists in this group, that context will become the current
 .BR PMAPI (3)
@@ -98,26 +98,26 @@ or a
 error code if the context failed.
 .TP
 .B "bool defaultDefined() const;"
-Returns 
+Returns
 .B true
 if a default context has been determined.
 .TP
 .B "int useDefault();"
 Use the default context. If a default context has not been created, the
 context to the local host will be attempted.  A result less than zero indicates
-that the method failed with the 
+that the method failed with the
 .BR PMAPI (3)
 error encoded in the result.
 .TP
 .B "void createLocalContext();"
 Create and use a context to the local host.  A result less than zero indicates
-that the method failed with the 
+that the method failed with the
 .BR PMAPI (3)
 error encoded in the result.
 .SH "METRICS"
-These 
+These
 .B addMetric
-methods should be used to create new metrics as the 
+methods should be used to create new metrics as the
 .B QmcMetric
 constructors are private. These methods will always return a pointer to
 a
@@ -133,7 +133,7 @@ Add the metric
 .I str
 to the group, with a scaling factor of
 .IR scale .
-If 
+If
 .I active
 is set the metric will use only active instances (see
 .BR QmcMetric (3)).
@@ -145,7 +145,7 @@ Add the metric
 .I theMetric
 to the group, with a scaling factor of
 .IR scale .
-If 
+If
 .I active
 is set the metric will use only active instances (see
 .BR QmcMetric (3)).
@@ -208,10 +208,10 @@ Return the origin of the default timezone.
 .TP
 .B "int useDefaultTZ();"
 Set the timezone to be the default timezone as defined in a previous call
-to 
+to
 .B QmcGroup::useTZ
 or
-.BR QmcGroup::useLocalTZ . 
+.BR QmcGroup::useLocalTZ .
 .TP
 .B "struct timeval const& logStart() const;"
 Return the earliest starting time of any archives in this group.  Assumes that
@@ -233,7 +233,7 @@ Send the current timezones to
 .SH "DEBUGGING"
 .TP 4
 .B "void dump(ostream &os);"
-Dump state information about this group to 
+Dump state information about this group to
 .IR os .
 .SH SEE ALSO
 .BR PMAPI (3),

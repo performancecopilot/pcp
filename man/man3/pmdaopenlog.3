@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDAOPENLOG 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -30,23 +30,23 @@ cc ... \-lpcp_pmda \-lpcp
 .B pmdaOpenLog
 redirects
 .I stderr
-to the logfile specified in the 
+to the logfile specified in the
 .I dispatch
 structure, set by the previous call to
 .BR pmdaDaemon (3)
 or
 .BR pmdaGetOpt (3).
 The first line of the log file will detail the name of the calling process,
-the host the process is running on, and the current time.  In addition, the 
+the host the process is running on, and the current time.  In addition, the
 log is appended with the exit time of the process by
-a routine registered with 
+a routine registered with
 .BR atexit (3).
 .SH CAVEAT
-The PMDA must be using 
-.B PMDA_PROTOCOL_2 
-or later, as specified in the call to 
+The PMDA must be using
+.B PMDA_PROTOCOL_2
+or later, as specified in the call to
 .BR pmdaDSO (3)
-or 
+or
 .BR pmdaDaemon (3).
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix

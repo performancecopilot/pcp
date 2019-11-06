@@ -2,17 +2,17 @@
 .\"
 .\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMSETMODE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -36,7 +36,7 @@ performance metrics and meta-data in the current
 Performance Metrics Application Programming Interface (PMAPI)
 context.
 This mode affects the semantics of subsequent calls to the following
-PMAPI routines: 
+PMAPI routines:
 .BR pmFetch (3),
 .BR pmFetchArchive (3),
 .BR pmLookupDesc (3),
@@ -133,7 +133,7 @@ For
 .IR mode s
 other than
 .BR PM_MODE_LIVE ,
-after each successful 
+after each successful
 .BR pmFetch (3),
 the time origin is reset to the timestamp returned via the
 .CW pmResult
@@ -248,7 +248,7 @@ the high-order bits of the
 parameter is also used to optionally set the units of time for the
 .I delta
 parameter. To specify the units of time use the
-.B PM_XTB_SET 
+.B PM_XTB_SET
 macro with one of the values
 .BR PM_TIME_NSEC ,
 .BR PM_TIME_MSEC ,

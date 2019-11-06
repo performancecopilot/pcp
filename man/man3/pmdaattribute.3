@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2013 Red Hat.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDAATTRIBUTE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -57,7 +57,7 @@ The
 .BR pmdaGetContext (3)
 interface may be particularly helpful also.
 .PP
-All attributes are passed as 
+All attributes are passed as
 .IR key \-\c
 .I value
 pairs and the
@@ -86,11 +86,11 @@ In other words, errors will be be passed to PMCD but there is no guarantee
 made that the error will be return to the client and result in termination
 of the client, for example.
 .SH CAVEAT
-The PMDA must be using 
-.B PMDA_PROTOCOL_6 
-or later, as specified in the call to 
+The PMDA must be using
+.B PMDA_PROTOCOL_6
+or later, as specified in the call to
 .BR pmdaDSO (3)
-or 
+or
 .BR pmdaDaemon (3).
 .SH SEE ALSO
 .BR PMAPI (3),

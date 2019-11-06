@@ -192,16 +192,16 @@ cannot be created or is not writable, output is
 written to the standard error instead.
 .TP
 \f3\-L\f1 \f2bytes\f1
-.IR PDU s 
-received by 
-.B pmproxy 
+.IR PDU s
+received by
+.B pmproxy
 from PCP monitoring clients are restricted to a
 maximum size of 65536 bytes by default to defend against Denial of
 Service attacks.
-The 
-.B \-L 
-option may be used to change the maximum incoming 
-.I PDU 
+The
+.B \-L
+option may be used to change the maximum incoming
+.I PDU
 size.
 .TP
 \f3\-M\f1 \f2name\f1, \f3\-\-certname\f1=\f2name\f1
@@ -265,12 +265,12 @@ before starting to accept incoming packets from PCP monitoring clients.
 Before the
 .B pmproxy
 .I logfile
-can be opened, 
+can be opened,
 .B pmproxy
 may encounter a fatal error which prevents it from starting.
 By default the output describing this error is sent to
 .B /dev/tty
-but it may redirected to 
+but it may redirected to
 .IR file .
 .SH CONFIGURATION
 When running in the \f3timeseries\f1 mode of operation, runtime

@@ -47,7 +47,7 @@ Unless directed to another host by the
 .B \-h
 option, or to one or more sets of archives by the
 .B \-a
-option, 
+option,
 .B pmdumptext
 will contact the Performance Metrics Collector Daemon (PMCD)
 on the local host to obtain the required information.
@@ -65,16 +65,16 @@ precision of the values with
 .BR \-P ,
 the width of the columns with
 .BR \-w ,
-and the format of the values with the 
+and the format of the values with the
 .BR \-G
 and
 .BR \-F
 options for the shortest of scientific or fixed digits, and a fixed
 width format, respectively.
 .PP
-The 
+The
 .I metrics
-to be dumped can be listed on the command line, in a 
+to be dumped can be listed on the command line, in a
 .I config
 file, or piped to
 .B pmdumptext
@@ -100,9 +100,9 @@ myhost:kernel.all.cpu.idle[cpu0,cpu3]
 .PP
 The format of a metric is further described in
 .BR PCPIntro (1).
-A normalization value may optionally follow a metric name in a 
+A normalization value may optionally follow a metric name in a
 .I config
-file or on 
+file or on
 .IR stdin .
 The metric value will be scaled by this value.
 For example, if the file system ``/dev/root'' has a capacity
@@ -133,15 +133,15 @@ is required to dump
 etc.
 .SH OPTIONS
 The command line options
-.BR \-A , 
-.BR \-O , 
+.BR \-A ,
+.BR \-O ,
 .B \-S
 and
 .B \-T
 control the alignment, offset, start and end time when visualizing metrics
 from archives.
 These options are common to most Performance Co-Pilot tools
-and are fully described in 
+and are fully described in
 .BR PCPIntro (1).
 .PP
 The other available options are:
@@ -164,19 +164,19 @@ will use the first archive as their source.
 \fB\-c\fR \fIconfig\fR, \fB\-\-config\fR=\fIconfig\fR
 If no
 .I metrics
-are listed on the command line, a 
+are listed on the command line, a
 .I config
 file can be used to specify the
 .IR metrics
 to be dumped.
-Unlike the command line 
+Unlike the command line
 .IR metrics ,
 each metric may be followed by a normalization value.
 Empty lines and lines that begin with ``#'' are ignored.
 .TP
 \fB\-C\fR, \fB\-\-check\fR
 Exit before dumping any values, but after parsing the metrics.
-Metrics, instances, normals and units are listed if 
+Metrics, instances, normals and units are listed if
 .BR \-m ,
 .BR \-l ,
 .BR \-N
@@ -185,10 +185,10 @@ and/or
 are specified.
 .TP
 \fB\-d\fR \fIdelimiter\fR, \fB\-\-delimiter\fR=\fIdelimiter\fR
-Specify the 
+Specify the
 .I delimiter
 that separates each column of output.
-The 
+The
 .I delimiter
 may only be a single character.
 \fB\-f\fR \fIformat\fR, \fB\-\-time\-format\fR=\fIformat\fR
@@ -197,7 +197,7 @@ Use the
 string for formatting the timestamp with each set of values.
 The syntax of this string is the same as that described in
 .BR strftime (3).
-An empty 
+An empty
 .I format
 string (eg. '') will remove the timestamps from the output.
 .TP
@@ -238,7 +238,7 @@ This option may not be used with
 .B \-P
 as fixed point values are not fixed width.
 This option will also affect the
-output of 
+output of
 .BR \-m
 and
 .BR \-u
@@ -249,14 +249,14 @@ Show the source of the metrics.
 In interactive mode, the host of the metrics
 is shown.
 In non-interactive mode, this option shows the source of
-the metrics with the metric name even if 
+the metrics with the metric name even if
 .B \-m
 is not specified.
 .TP
 \fB\-m\fR, \fB\-\-metrics\fR
 Output the metric names before the metric values.
-The source and units of 
-the metrics may also be dumped with the \f3\-l\f1 and \f3\-u\f1 options 
+The source and units of
+the metrics may also be dumped with the \f3\-l\f1 and \f3\-u\f1 options
 respectively.
 If in interactive mode, the metrics names may be truncated,
 and the instance names, where relevant, are also truncated on the follow
@@ -275,7 +275,7 @@ Load an alternative local PMNS from the file
 \fB\-o\fR, \fB\-\-offset\fR
 When a timestamp is being reported (ie. unless an empty format string is
 given with the
-.B \-f 
+.B \-f
 option), the timestamp is prefixed with the offset in seconds from
 the start of the set of archives or the beginning of the execution of
 .BR pmdumptext .
@@ -340,7 +340,7 @@ Output the column number and complete metric names, one-per-line,
 both before dumping the first set of values and again each time the
 header is repeated.
 \fB\-z\fR, \fB\-\-hostzone\fR
-Use the local timezone of the host that is the source of the 
+Use the local timezone of the host that is the source of the
 performance metrics, as identified by either the
 .B \-h
 or the first
@@ -368,7 +368,7 @@ The metrics listed on the command line or in the
 file may have no specific source or come from different sources.
 .PP
 However, restrictions apply when archives
-are specified on the command line 
+are specified on the command line
 .RB ( \-a )
 and/or in the configuration file.
 Firstly, there may be only one set of archives for any one host.

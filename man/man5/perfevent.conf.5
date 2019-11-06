@@ -2,17 +2,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2014 Joe White.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PERFEVENT.CONF 5 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -80,10 +80,10 @@ For derived events, one or more groups of events can be specified where, counter
 .PP
 The available event cpu options are as follows:
 .TP
-.B cpu 
-to add the counter to all cpus in the system 
+.B cpu
+to add the counter to all cpus in the system
 .TP
-.B cpu_rr 
+.B cpu_rr
 to add to one of the cpus in a round-robin allocation strategy
 .TP
 .B node
@@ -92,7 +92,7 @@ to add the counter to the first cpu in each numa node
 .B node_rr
 to add the counter to the cpus in each numa node in a round-robin allocation strategy
 .TP
-.B [N] 
+.B [N]
 where N is the numerical digit of the CPU index
 .PP
 if the CPU option is absent then the event is programmed on all cpus.

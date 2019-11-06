@@ -2,17 +2,17 @@
 .\"
 .\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMGETINDOMARCHIVE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -48,7 +48,7 @@ This routine is a specialized version of the more general PMAPI
 routine
 .BR pmGetInDom .
 .PP
-The number of instances found is returned as the function value 
+The number of instances found is returned as the function value
 (else less than zero to indicate an error).
 .PP
 The value for the instance domain
@@ -67,7 +67,7 @@ and the names that the elements of
 .I namelist
 point to, will have been allocated by
 .B pmGetInDomArchive
-with two calls to 
+with two calls to
 .BR malloc (3),
 and it is the responsibility of the caller to
 .CW free(instlist)
@@ -82,7 +82,7 @@ is less than one, both
 and
 .I namelist
 are undefined (no space will have been allocated,
-and so calling 
+and so calling
 .BR free (3)
 is a singularly bad idea).
 .SH "PCP ENVIRONMENT"

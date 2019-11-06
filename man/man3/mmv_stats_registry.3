@@ -28,7 +28,7 @@
 .hy 0
 .in +8n
 .ti -8n
-mmv_registry_t *mmv_stats_registry(const\ char\ *\fIfile\fP, int \fIcluster\fP, 
+mmv_registry_t *mmv_stats_registry(const\ char\ *\fIfile\fP, int \fIcluster\fP,
                             mmv_stats_flags_t \fIflags\fP);
 .br
 .ti -8n
@@ -57,7 +57,7 @@ It returns a handle that is used in subsequent MMV API calls when
 adding metrics, indoms, instances and labels to the registry \- before
 actually creating the file.
 .P
-\f3mmv_stats_start\f1 is the call that creates the \f2MMV\f1(5) file with 
+\f3mmv_stats_start\f1 is the call that creates the \f2MMV\f1(5) file with
 the handle that returns \f3mmv_stats_registry\f1.
 It returns the mapped memory handle used in subsequent MMV API calls,
 such as \f3mmv_inc_value\f1(3).
@@ -66,7 +66,7 @@ such as \f3mmv_inc_value\f1(3).
 handle returned by an earlier initialization call and also frees
 the registry structure.
 .P
-The combination of \f3mmv_stats_registry\f1 and \f3mmv_stats_start\f1 
+The combination of \f3mmv_stats_registry\f1 and \f3mmv_stats_start\f1
 do the same as the deprecated calls \f3mmv_stats(2)_init\f1.
 However, now, one should first call \f3mmv_stats_registry\f1 and then
 the API calls that add instances, indoms, metrics and labels.
@@ -77,7 +77,7 @@ The file is created in the \f2$PCP_TMP_DIR/mmv\f1 directory, the
 \f2name\f1 argument is expected to be a basename of the file, not
 the full path.
 The metadata content of the file does not change after the file has
-been created. 
+been created.
 .P
 The old file is removed unconditionally unless there was an error.
 .P
@@ -100,7 +100,7 @@ int mmv_stats_add_metric(mmv_registry_t *registry, const\ char\ *\fIname\fP, int
 .P
 When adding a metric, internally it is being handled using the next struct.
 \f2sem\f1 match in the struct is semantics. \f2units\f1 match in the struct
-is dimension. \f2serial\f1 match in the struct is indom. 
+is dimension. \f2serial\f1 match in the struct is indom.
 .P
 .nf
         typedef struct {
@@ -118,7 +118,7 @@ is dimension. \f2serial\f1 match in the struct is indom.
 .SH ADD INDOMS
 .ft 3
 .br
-int mmv_stats_add_indom(mmv_registry_t *\fIregistry\fP, int \fIserial\fP, 
+int mmv_stats_add_indom(mmv_registry_t *\fIregistry\fP, int \fIserial\fP,
                         const\ char\ *\fIshorthelp\fP, const\ char\ *\fIlonghelp\fP);
 
 .P
@@ -152,7 +152,7 @@ When adding an instance, internally it is being handled using the next struct.
 
 .fi
 .P
-It is worth mentioning that if the indom of the instance is not found it 
+It is worth mentioning that if the indom of the instance is not found it
 returns an error.
 .P
 .SH ADD LABELS
@@ -186,17 +186,17 @@ int mmv_stats_add_instance_label(mmv_registry_t *\fIregistry\fP, int \fIserial\f
 and \f2value\f1 are the strings that will form the label.
 .P
 \f2type\f1 specifies the value type that can be: MMV_STRING_TYPE,
-MMV_NUMBER_TYPE, MMV_BOOLEAN_TYPE, MMV_NULL_TYPE, MMV_ARRAY_TYPE and MMV_MAP_TYPE. 
+MMV_NUMBER_TYPE, MMV_BOOLEAN_TYPE, MMV_NULL_TYPE, MMV_ARRAY_TYPE and MMV_MAP_TYPE.
 .P
 At the moment there is a simple check of the correctness of the value.
-After adding a label, it is called a function to verify if it is correct. 
+After adding a label, it is called a function to verify if it is correct.
 .P
 Additionally, if \f2optional\f1 is set, it is added the flag PM_LABEL_OPTIONAL.
 .P
-\f2serial\f1 is the serial of the indom when adding an indom or instance label. 
-\f2item\f1 is the metric identifier when adding a metric label. Finally, when 
-adding a registry label it is not necessary to give the cluster id because 
-it will be taken from the internal registry struct already created. 
+\f2serial\f1 is the serial of the indom when adding an indom or instance label.
+\f2item\f1 is the metric identifier when adding a metric label. Finally, when
+adding a registry label it is not necessary to give the cluster id because
+it will be taken from the internal registry struct already created.
 .P
 \f3mmv_stats_add_registry_label\f1 adds a PM_LABEL_CLUSTER.
 .P
@@ -206,7 +206,7 @@ it will be taken from the internal registry struct already created.
 .P
 \f3mmv_stats_add_instance_label\f1 adds a PM_LABEL_INSTANCES.
 .P
-      
+
 .P
 .SH RETURN VALUES
  When adding metrics, indoms, instances and labels, if correct returns 0

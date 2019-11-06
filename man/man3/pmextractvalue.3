@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMEXTRACTVALUE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -67,14 +67,14 @@ typedef union {
 .PP
 The routine
 .B pmExtractValue
-provides a convenient mechanism for extracting values from the 
+provides a convenient mechanism for extracting values from the
 .CW pmValue
 part of a
 .CW pmResult
-structure, optionally converting the data type, and making the result 
+structure, optionally converting the data type, and making the result
 available to the application programmer.
 .PP
-.I itype 
+.I itype
 defines the data type of the input value held in
 .I ival
 according to the storage format defined by
@@ -115,7 +115,7 @@ specifies
 then the
 following types are not allowed, as these cannot be encoded in 32-bits;
 .BR __int64_t ,
-.BR __uint64_t , 
+.BR __uint64_t ,
 .BR double ,
 .B char *
 and
@@ -144,7 +144,7 @@ and
 .B float
 options (\c
 .I itype
-being 
+being
 .BR PM_TYPE_32 ,
 .B PM_TYPE_U32
 and
@@ -159,7 +159,7 @@ conversion -- the input type (\c
 is shown vertically, and the output type (\c
 .IR otype )
 is shown horizontally.
-Y means the conversion is always acceptable, N means the conversion can never be performed (the function returns 
+Y means the conversion is always acceptable, N means the conversion can never be performed (the function returns
 .BR PM_ERR_CONV ),
 P means the conversion may lose accuracy (but no error status is returned),
 T means the result may be subject to high-order truncation (in which case
@@ -226,7 +226,7 @@ Although this function appears rather complex, it has been constructed to
 assist the development of performance tools that wish to convert values,
 whose type is only known via the
 .CW type
-field in a 
+field in a
 .CW pmDesc
 structure, into a canonical type for local processing.
 See the

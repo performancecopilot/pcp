@@ -2,17 +2,17 @@
 .\"
 .\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMNEWCONTEXT 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -166,13 +166,13 @@ Both the \f3PM_CTXFLAG_SHALLOW\fP and \f3PM_CTXFLAG_EXCLUSIVE\fP flags are
 now deprecated and ignored.
 .PP
 The initial instance
-profile is set up to select all instances in all instance domains. 
+profile is set up to select all instances in all instance domains.
 In the case of a set of archives,
 the initial collection time is also set to zero,
 so that an initial
 .BR pmFetch (3)
-will result in the earliest set of metrics 
-being returned from the set of archives. 
+will result in the earliest set of metrics
+being returned from the set of archives.
 .PP
 Once established, the association between a context and a source of metrics
 is fixed for the life of the context, however routines are provided to
@@ -305,10 +305,10 @@ PMCD connection limit for this host exceeded
 .P
 .B PM_ERR_NOCONTEXT
 .IP
-Requested context type was not 
-.BR PM_CONTEXT_LOCAL , 
-.B PM_CONTEXT_HOST 
-or 
+Requested context type was not
+.BR PM_CONTEXT_LOCAL ,
+.B PM_CONTEXT_HOST
+or
 .BR PM_CONTEXT_ARCHIVE .
 .P
 .B PM_ERR_LOGOVERLAP

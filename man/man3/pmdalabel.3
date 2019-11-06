@@ -89,7 +89,7 @@ and space is only to be allocated when labels are present and returned.
 In this case, the return code must indicate the number of label
 .I sets
 that have been allocated.
-This will only ever be greater than one in the 
+This will only ever be greater than one in the
 .B PM_LABEL_INSTANCES
 case.
 .PP
@@ -145,11 +145,11 @@ If labels for the requested entity could not be obtained due to a
 catastrophic failure, such as an out of memory condition, these
 routines will return a negative error code.
 .SH CAVEAT
-The PMDA must be using 
+The PMDA must be using
 .B PMDA_PROTOCOL_7
-or later, as specified in the call to 
+or later, as specified in the call to
 .BR pmdaDSO (3)
-or 
+or
 .BR pmdaDaemon (3).
 .SH SEE ALSO
 .BR pminfo (1),

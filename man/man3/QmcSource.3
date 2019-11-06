@@ -1,16 +1,16 @@
 '\"macro stdmacro
 .\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .TH QMC_SOURCE 3 "SGI" "Performance Co-Pilot"
 .SH NAME
 \f3QmcSource \f1 \- manages contexts created by all groups
@@ -18,7 +18,7 @@
 .ft 3
 #include <QmcSource.h>
 .sp
-CC ... \-lqmc \-lpcp 
+CC ... \-lqmc \-lpcp
 .ft 1
 .SH DESCRIPTION
 The
@@ -30,7 +30,7 @@ when the context could have been duplicated (see
 .BR pmDupContext (3)).
 This also reduces the duplication of descriptions of each source.
 .PP
-In general, 
+In general,
 .B QMC
 users should only need to access
 .B QmcSource
@@ -47,23 +47,23 @@ Destructor.
 .B "static QmcSource* getSource(int type, const char* source,"
 .B "bool matchHosts)"
 
-This method will return a 
+This method will return a
 .B QmcSource
 object that represents a context of
 .I type
 to
 .IR source .
-The 
+The
 .B QmcSource
 object may be a new object if the
 .I source
 has not been previously requested. Memory management of the
 .B QmcSource
-objects is handled by 
+objects is handled by
 .BR QmcSource .
 If all
 .BR QmcContext (3)s
-to the 
+to the
 .B QmcSource
 have been deleted, the
 .B QmcSource
@@ -72,7 +72,7 @@ object will also be deleted.
 The
 .I matchHosts
 flag controls the algorithm that is used to match hosts to archives.
-If 
+If
 .I matchHosts
 is equal to
 .B false
@@ -81,7 +81,7 @@ existing source context. A
 .B QmcSource
 object will always be returned in this case, although the
 .B QmcSource::status
-method may indicate that a context to 
+method may indicate that a context to
 .I source
 failed.
 

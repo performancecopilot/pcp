@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .\" add in the -me strings for super and subscripts
 .ie n \{\
@@ -58,7 +58,7 @@ The
 .CW pmDesc
 structure provides all of the information required to describe and
 manipulate a
-performance metric via the 
+performance metric via the
 PMAPI, and has the following declaration.
 .PP
 .ft CW
@@ -98,7 +98,7 @@ typedef struct {
 .PP
 The
 .CW type
-field in the 
+field in the
 .CW pmDesc
 describes various encodings (or formats) for a metric's value.
 .PP
@@ -165,7 +165,7 @@ structure.
  *
  * For example, a pmUnits struct of
  *      { 1, \-1, 0, PM_SPACE_MBYTE, PM_TIME_SEC, 0 }
- * represents Mbytes/sec, while 
+ * represents Mbytes/sec, while
  *      { 0, 1, \-1, 0, PM_TIME_HOUR, 6 }
  * represents hours/million-events
  */
@@ -210,7 +210,7 @@ conjunction with the
 structure that defines the dimension and scale of the values for a particular
 performance metric.
 .PP
-Below the PMAPI, the information required to complete the 
+Below the PMAPI, the information required to complete the
 .CW pmDesc
 structure, is fetched from the PMDAs, and in this way the format
 and scale of performance metrics may change dynamically, as

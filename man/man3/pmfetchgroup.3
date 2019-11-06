@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2014-2018 Red Hat, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMFETCHGROUP 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -522,7 +522,7 @@ int main()
     int sts, i;
     char *diskunits = getenv("PCP_DISK_UNITS");
     struct timeval t;
-    
+
     sts = pmCreateFetchGroup(&fg, PM_CONTEXT_HOST, "local:");
     pcpassert(sts);
     sts = pmExtendFetchGroup_item(fg, "kernel.all.load", "1 minute",
@@ -538,7 +538,7 @@ int main()
     pcpassert(sts);
     sts = pmExtendFetchGroup_timestamp(fg, &t);
     pcpassert(sts);
-    
+
     for (i=0; i < 10; i++) {
         unsigned int j;
         char stamp[28];

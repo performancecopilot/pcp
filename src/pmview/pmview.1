@@ -25,7 +25,7 @@
 [\f3\-xrm "\f1\f2resourceName\f1\f3:\f2 value\f3"\f1 ...]
 [\f2other X11-args\f1]
 .SH DESCRIPTION
-.B pmview 
+.B pmview
 is a
 generalized 3D performance metrics visualization tool for the
 Performance Co-Pilot
@@ -81,10 +81,10 @@ system is not accessible or a performance analyst is not available on-site.
 All metrics in the Performance Metrics Name Space (PMNS) with numeric value
 semantics from any number of hosts or archives may be visualized.
 .B pmview
-examines the semantics of the metrics and where sensible, converts metric 
+examines the semantics of the metrics and where sensible, converts metric
 values to a rate before scaling.
 .SH COMMAND LINE OPTIONS
-The 
+The
 .BR -S ,
 .BR -T ,
 .B -O
@@ -92,16 +92,16 @@ and
 .B -A
 options may be used to define a time window to restrict the samples retrieved,
 set an initial origin within the time window, or specify a ``natural''
-alignment of the sample times; refer to 
-.BR PCPIntro(1) 
+alignment of the sample times; refer to
+.BR PCPIntro(1)
 for a complete description of these options.
 .PP
 The other available options are:
 .TP
 \f3-a\f1 \f2archive\f1[\f3,\f2archive\f3,\f1...]]
-Specify an 
+Specify an
 .I archive
-from which metrics can be obtained for a particular host.  
+from which metrics can be obtained for a particular host.
 .I archive
 is the basename of an archive, or the name of a directory conytaining archives,
 previously created by
@@ -127,10 +127,10 @@ Fetch performance metrics from
 .BR pmcd (1)
 on
 .IR host ,
-rather than the default localhost.  Implies that 
+rather than the default localhost.  Implies that
 .B pmview
-will run in live mode, so no archives can be specified on the command line or 
-in the configuration file.  Only one 
+will run in live mode, so no archives can be specified on the command line or
+in the configuration file.  Only one
 .B \-h
 option may be given.
 .TP
@@ -152,14 +152,14 @@ Used when a tool launches another tool so that they can connect to the
 same time controls.
 .TP
 \f3\-R\f1 \f2logconfig\f1
-Use 
+Use
 .I logconfig
 as the
 .BR pmlogger (1)
 config when recording.
 .TP
 \f3\-r\f1 \f2addconfig\f1
-Append 
+Append
 .I addconfig
 onto the
 .BR pmlogger (1)
@@ -194,11 +194,11 @@ reports the time of day according to the local timezone on the system where
 .B pmview
 is run.  The
 .B \-Z
-option changes the default timezone to 
+option changes the default timezone to
 .I timezone
 which should be in the format of the environment variable
 .B TZ
-as described in 
+as described in
 .BR environ (7).
 .TP
 \f3\-z\f1
@@ -219,12 +219,12 @@ option.
 .br
 \f3\-xrm\f1 \f3"\f2resourceName: value\f3"\f1
 .IP
-Most standard 
-.BR X (1) 
+Most standard
+.BR X (1)
 command line arguments may be used.
 .SH WINDOW
 The
-.B pmview 
+.B pmview
 window is comprised of a menu bar, time and scale controls, metric and time
 values, and an ``examiner'' viewer (see
 .BR ivview (1)),
@@ -232,16 +232,16 @@ which displays the 3D scene.
 .SH EXAMINER VIEWER
 The left, right and bottom edges of the examiner viewer contain a variety of
 thumb wheels and buttons that can be used to adjust the visualization of the
-3D scene.  The 
+3D scene.  The
 .I Rotx
 and
 .I Roty
-thumb wheels allow the user to rotate the scene about the x and y axes, 
+thumb wheels allow the user to rotate the scene about the x and y axes,
 respectively.  The
 .I dolly
 thumb wheel moves the virtual camera closer and further from the scene allowing
-the user to examine specific parts in detail or view the entire scene.  On the 
-right edge of the viewer are eight buttons which affect the way the user can 
+the user to examine specific parts in detail or view the entire scene.  On the
+right edge of the viewer are eight buttons which affect the way the user can
 interact with the scene.
 .TP 4n
 .I Pointer
@@ -278,12 +278,12 @@ over an object has the same effect.
 .I Perspective Box
 Switches the display between perspective and orthogonal projections.
 .PP
-Pressing the right mouse button within the scene window will bring up a menu 
+Pressing the right mouse button within the scene window will bring up a menu
 of options which affect how the 3D scene is drawn.  The options include
 drawing the blocks as wire frames, and turning on stereo viewing.
 .SH METRIC SELECTION
-When the pointer cursor is active, more information about the 3D scene can 
-be obtained.  Text describing the metric represented by the block under the 
+When the pointer cursor is active, more information about the 3D scene can
+be obtained.  Text describing the metric represented by the block under the
 cursor will be displayed in the top text box of the
 .B pmview
 window.  The text contains the source and name of the metric, current value and
@@ -319,9 +319,9 @@ online help
 .RB ( Help ).
 .TP 4n
 .B "File/Record"
-When in ``live'' mode, this option will launch 
+When in ``live'' mode, this option will launch
 .BR pmlogger (1)
-processes to record the current scene into an archive folio (see 
+processes to record the current scene into an archive folio (see
 .BR pmafm(1))
 so that it may be
 replayed at a later time.  This option is not available in ``replay'' mode.
@@ -329,7 +329,7 @@ replayed at a later time.  This option is not available in ``replay'' mode.
 When
 .B "File/Record"
 is selected, a file chooser dialog will prompt for the name of the new archive
-folio.  If the directory to the folio does not exist, 
+folio.  If the directory to the folio does not exist,
 .B pmview
 will attempt to create it.  It is usually convenient to keep each folio within
 its own directory as there will be several other files associated with the
@@ -341,19 +341,19 @@ will launch a
 .BR pmlogger (1)
 process for each host to collect the metrics required from that host in the
 current scene.  The current selections do not affect the set of metrics that
-are recorded.  
+are recorded.
 
-While recording is in progress, a red dot will appear in the time controls 
+While recording is in progress, a red dot will appear in the time controls
 button in the top left-hand corner of the
 .B pmview
-window.  The 
+window.  The
 .B "File/Record"
 option will also change to
 .BR "File/Stop Recording"
 as only one recording session is possible at any one time.  Selecting blocks or
 launching other tools will have no affect on the recording session.
 
-The record session may be terminated by selecting 
+The record session may be terminated by selecting
 .BR "File/Stop Recording" .
 This will display dialogs for each
 .BR pmlogger (1)
@@ -374,7 +374,7 @@ An archive folio may be replayed using the command:
 .RB `` pmafm
 .I folio
 .BR replay ''.
-See 
+See
 .BR pmafm (1)
 for more details.
 
@@ -385,10 +385,10 @@ scene to use metrics that are not contained in the scene.  For example,
 uses several
 .I hinv
 metrics to determine the size and layout of some objects.  As these metrics are
-also needed when replaying the generated archive with the front-end script, 
-a complete 
+also needed when replaying the generated archive with the front-end script,
+a complete
 .BR pmlogger (1)
-config can be specified 
+config can be specified
 .RB ( \-R )
 that overrides the
 .B pmview
@@ -399,7 +399,7 @@ to the
 generated config.
 .TP 4n
 .B "File/Save"
-Saves the current scene to a human-readable Open Inventor file (see 
+Saves the current scene to a human-readable Open Inventor file (see
 .BR inventor (1)).
 A file dialog will prompt for the location of the file.  The default file
 extension is ``.iv'' which is recognized by
@@ -423,12 +423,12 @@ Displays the time controls (see
 that are driving this instance of
 .BR pmview .
 The time controls may be shared by other tools, including
-.BR pmchart (1), 
+.BR pmchart (1),
 that have been launched by other instances of
 .B pmview
 and
 .BR oview (1).
-Therefore, this menu item may appear to have no affect if the time controls 
+Therefore, this menu item may appear to have no affect if the time controls
 are already visible.
 .TP 4n
 .B "Options/New Time Control"
@@ -439,11 +439,11 @@ and use a new time control that is not connected to any other tools.  The new
 time control will be immediately displayed.
 .TP 4n
 .B "Launch"
-The launch menu is generated from a menu specification file (see 
+The launch menu is generated from a menu specification file (see
 .BR pmlaunch (5)).
 The menu contains tools that may be launched based on the sources and names of
-the selected metrics in the scene.  For example, if the selected metrics are 
-from three different hosts, then three copies of a tool may be launched, 
+the selected metrics in the scene.  For example, if the selected metrics are
+from three different hosts, then three copies of a tool may be launched,
 one for each host.  The behavior of a launch depends on the selected metrics
 and the tools being launched.
 
@@ -451,32 +451,32 @@ On selection of a
 .B Launch
 menu item
 .BR pmview
-generates state information in the 
+generates state information in the
 .BR pmlaunch (5)
 metrics specification format.  This provides a description of the selected
-metrics (or if there are no selections, all the metrics) in the scene without 
+metrics (or if there are no selections, all the metrics) in the scene without
 any geometry information.
 
 Tools which can monitor multiple hosts and user specified metrics may be
-launched only once for those metrics (eg 
+launched only once for those metrics (eg
 .BR pmdumptext (1)).
 Other tools which have a fixed view for one host (eg
 .BR mpvis (1)),
 may be
-launched multiple times, once for each host in the selected metric list.  If 
+launched multiple times, once for each host in the selected metric list.  If
 the launched tools have time controls, they will share the
 time controls with the launching
 .BR pmview .
 
 The set of launched tools is configurable, and may include IRIX and user
-applications.  See 
+applications.  See
 .BR pmlaunch (5)
 for more details.
 .TP 4n
 .B "Help/..."
-If 
+If
 .I pcp.books.help
-has been installed, then the 
+has been installed, then the
 .BR insight (1)
 books for
 .B pmview
@@ -485,17 +485,17 @@ are displayed.
 In addition to the menu options for time controls, the current direction of the
 time controls (see
 .BR pmtime (1))
-is shown in a button in the top-left corner of the 
+is shown in a button in the top-left corner of the
 .B pmview
-window.  Pressing this button will display the time control and is identical 
+window.  Pressing this button will display the time control and is identical
 in behavior to
 .BR "Options/Show Time Control" .
 .SH SCALE CONTROLS
-Above the examiner window is a thumb wheel and an editable text box which 
-allow the user to apply a multiplier to all values represented in the scene.  
+Above the examiner window is a thumb wheel and an editable text box which
+allow the user to apply a multiplier to all values represented in the scene.
 Spinning the wheel to the right and/or increasing the text value for the scale
 will increase the height of the bars.  Spinning the wheel to the left and/or
-lowering the text value will decrease the height of the bars.  The button to 
+lowering the text value will decrease the height of the bars.  The button to
 the right of the thumb wheel will reset the scale so that the bars appear at
 the original height for their current value.
 .SH TIME INFORMATION
@@ -503,11 +503,11 @@ Beside the scale controls is another text box which displays the time of the
 fetched metrics.  The time will change with the time controller (see
 .BR pmtime (1)).
 .SH ENVIRONMENT
-The default face of the 3D font in the 
-.B pmview 
-window can be altered via 
+The default face of the 3D font in the
+.B pmview
+window can be altered via
 .I PMVIEW_FONT
-environment variable which can be set to the base name of a Type1 font 
+environment variable which can be set to the base name of a Type1 font
 file in the default Inventor fonts directory.
 .SH FILES
 .TP 5
@@ -573,12 +573,12 @@ Relevant information is also available from the on-line PCP
 Tutorial.  Provided the
 .B pcp.man.tutorial
 subsystem from the PCP images has been installed, access the
-URL 
-.B file:$PCP_DOC_DIR/Tutorial/pmview.html 
+URL
+.B file:$PCP_DOC_DIR/Tutorial/pmview.html
 from your web browser.
 
 .SH DIAGNOSTICS
-Are intended to be self-explanatory.  The environment variable 
+Are intended to be self-explanatory.  The environment variable
 .B PCP_STDERR
 can be set to force most startup warnings and errors to be sent to the
 standard error stream rather than posted in a dialog.

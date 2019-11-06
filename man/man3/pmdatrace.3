@@ -2,17 +2,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDATRACE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -100,14 +100,14 @@ and
 .BR PMDA (3)).
 .PP
 The monitoring of transactions using the Performance Co-Pilot (PCP)
-infrastructure is initiated through a call to 
+infrastructure is initiated through a call to
 .BR pmtracebegin .
 Time will be recorded from the end of each
 .B pmtracebegin
 call to the start of the following call to
 .BR pmtraceend ,
 where the same \f2tag\f1 identifier is used in both calls.
-Following from this, no visible recording will occur until at least one call to 
+Following from this, no visible recording will occur until at least one call to
 .B pmtraceend
 is made referencing a \f2tag\f1 previously used in a call to
 .BR pmtracebegin .
@@ -121,7 +121,7 @@ name are still exported.  This is most useful when an error condition
 arises during transaction processing and the transaction does not run to
 completion.
 .PP
-The \f2tag\f1 argument to 
+The \f2tag\f1 argument to
 .BR pmtracebegin ,
 .B pmtraceend
 and
@@ -311,7 +311,7 @@ from your web browser.
 .SH DIAGNOSTICS
 A negative return value from a \f2pcp_trace\f1 function indicates that an
 error has occurred \- if this is the case, the return value can be passed
-to 
+to
 .B pmtraceerrstr
 to obtain the associated error message.
 .PP

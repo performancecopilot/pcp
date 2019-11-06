@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDAFETCH 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -39,7 +39,7 @@ cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmdaFetch
-is a generic callback used by a 
+is a generic callback used by a
 .BR PMDA (3)
 to process a fetch request from
 .BR pmcd (1).
@@ -73,17 +73,17 @@ int func(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
 will allocate and resize the
 .I resp
 result structure, to store values for the
-.I numpmid 
+.I numpmid
 metrics listed in
 .IR pmidlist .
 .PP
 For each instance listed in the profile (see
 .BR pmdaProfile (3))
-of each metric listed in 
+of each metric listed in
 .IR pmidlist ,
 the
 .B pmdaFetchCallBack
-method is called to fill the 
+method is called to fill the
 .B pmAtomValue
 structure identified by
 .I avp
@@ -115,16 +115,16 @@ The success error codes depend on the version of
 the PMDA is using.
 .PP
 If the PMDA is using
-.B PMDA_INTERFACE_2 
+.B PMDA_INTERFACE_2
 then on success the
 .B pmdaFetchCallBack
 method should return
 .BR 0 .
 .PP
 If the PMDA is using
-.B PMDA_INTERFACE_3 
+.B PMDA_INTERFACE_3
 or
-.B PMDA_INTERFACE_4 
+.B PMDA_INTERFACE_4
 then on success the
 .B pmdaFetchCallBack
 method should return
@@ -141,7 +141,7 @@ and
 both seem reasonable.
 .PP
 If the PMDA is using
-.B PMDA_INTERFACE_5 
+.B PMDA_INTERFACE_5
 or later then on success the
 .B pmdaFetchCallBack
 method should return
@@ -172,7 +172,7 @@ one of
 .BR calloc (3),
 .BR realloc (3),
 .B strdup (3)
-etc. and 
+etc. and
 .B pmdaFetch
 should release the memory by calling
 .IR free (3)
@@ -237,19 +237,19 @@ static pmdaIndom indomtab[] = {
 .sp 0.5v
 static pmdaMetric metrictab[] = {
 /* A */
-    { (void *)0, 
+    { (void *)0,
       { PMDA_PMID(0,0), PM_TYPE_32, PM_INDOM_NULL,
         PM_SEM_INSTANT, {0,0,0,0,0,0} }, },
 /* B */
-    { (void *)0, 
+    { (void *)0,
       { PMDA_PMID(0,1), PM_TYPE_DOUBLE, X_INDOM,
         PM_SEM_INSTANT, {0,1,0,0,PM_TIME_SEC,0} }, },
 /* C */
-    { (void *)0, 
+    { (void *)0,
       { PMDA_PMID(0,2), PM_TYPE_STRING, PM_INDOM_NULL,
         PM_SEM_INSTANT, {0,0,0,0,0,0} }, },
 /* D */
-    { (void *)0, 
+    { (void *)0,
       { PMDA_PMID(0,3), PM_TYPE_STRING, PM_INDOM_NULL,
         PM_SEM_INSTANT, {0,0,0,0,0,0} }, },
 };
@@ -316,7 +316,7 @@ myFetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
 .PP
 .SH DIAGNOSTICS
 The following error messages indicate that there is discrepancy between the
-namespace, 
+namespace,
 .B pmdaMetric
 and
 .B pmdaIndom
@@ -327,9 +327,9 @@ and the registered fetch callback:
 .BI "pmdaFetch: Requested metric " metric " is not defined"
 A requested metric
 .I metric
-is not listed in the 
+is not listed in the
 .B pmdaMetric
-table.  The namespace for this 
+table.  The namespace for this
 .BR PMDA (3)
 may contain additional metrics.
 .TP
@@ -354,7 +354,7 @@ table, but is not supported by the callback method.
 .B pmdaFetch: Fetch callback error:
 The
 .B pmdaFetchCallBack
-method returned a result other than 
+method returned a result other than
 .BR PMDA_FETCH_NOVALUES ,
 .BR PMDA_FETCH_STATIC ,
 .BR PMDA_FETCH_DYNAMIC ,
@@ -363,7 +363,7 @@ or
 .BR PM_ERR_INST .
 .TP
 .BI "pmdaFetch: Descriptor type (" type ") for metric " pmid " is bad"
-The data type 
+The data type
 .I type
 specified for the metric
 .I pmid
@@ -379,11 +379,11 @@ if an error occurred while allocating the
 structure or copying the value from the
 .BR pmAtomValue .
 .SH CAVEAT
-The PMDA must be using 
-.B PMDA_INTERFACE_2 
-or later, as specified in the call to 
+The PMDA must be using
+.B PMDA_INTERFACE_2
+or later, as specified in the call to
 .BR pmdaDSO (3)
-or 
+or
 .BR pmdaDaemon (3).
 .SH SEE ALSO
 .BR pmcd (1),

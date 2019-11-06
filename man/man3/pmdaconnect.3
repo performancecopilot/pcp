@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDACONNECT 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -30,16 +30,16 @@ cc ... \-lpcp_pmda \-lpcp
 .B pmdaConnect
 initializes an IPC channel between a
 .BR PMDA (3)
-and the 
+and the
 .BR pmcd (1)
-process on the local host.  The type of the connection is dependent on the 
+process on the local host.  The type of the connection is dependent on the
 .I e_io
 field of the
 .B pmdaExt
 structure:
 .TP 15
 .B pmdaPipe
-Use 
+Use
 .BR stdin / stdout
 to communicate; assumes this is a pipe created by
 .B pmcd
@@ -52,7 +52,7 @@ Assume
 .BR pmcd (1)
 will establish a connection to an IPv4 internet domain socket set up by the
 .BR PMDA (3).
-The name or number of the port must be specified in the 
+The name or number of the port must be specified in the
 .I e_sockname
 or
 .I e_port
@@ -65,7 +65,7 @@ Assume
 .BR pmcd (1)
 will establish a connection to an IPv6 internet domain socket set up by the
 .BR PMDA (3).
-The name or number of the port must be specified in the 
+The name or number of the port must be specified in the
 .I e_sockname
 or
 .I e_port
@@ -78,22 +78,22 @@ Assume
 .BR pmcd (1)
 will establish a connection to a unix domain socket set up by the
 .BR PMDA (3).
-The port number must be specified in the 
+The port number must be specified in the
 .I e_port
-field of the 
+field of the
 .B pmdaExt structure.
 .TP
 .B pmdaUnknown
 The initial value of
 .I e_io
-which defaults to using 
+which defaults to using
 .BR stdin / stdout .
 .PP
 The relevant
 .B pmdaExt
 fields are initialized by
 .BR pmdaDaemon (3)
-and set by 
+and set by
 .BR pmdaGetOpt (3)
 or
 .BR pmdaGetOptions (3)
@@ -114,7 +114,7 @@ the available metrics and/or instance domains before
 can be called, then it risks timing out during the handshake protocol that
 starts as soon as
 .BR pmcd (1)
-launches the PMDA and does not conclude until 
+launches the PMDA and does not conclude until
 .B pmdaConnect
 is called.
 In this case, it is advisable to move the
@@ -131,7 +131,7 @@ the call to
 .BR pmdaInit (3).
 .SH DIAGNOSTICS
 .B pmdaConnect
-will log the type of connection made to 
+will log the type of connection made to
 .BR pmcd (1)
 if the
 .BR PMAPI (3)
@@ -144,9 +144,9 @@ If an error occurs that is unrecoverable,
 .I dispatch->status
 is set to a value less than 0, otherwise it is zero or positive.
 .SH CAVEAT
-The PMDA must be using 
-.B PMDA_INTERFACE_2 
-or later, as specified in the call to 
+The PMDA must be using
+.B PMDA_INTERFACE_2
+or later, as specified in the call to
 .BR pmdaDaemon (3).
 .SH SEE ALSO
 .BR pmcd (1),

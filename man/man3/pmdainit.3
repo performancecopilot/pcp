@@ -66,7 +66,7 @@ cc ... \-lpcp_pmda \-lpcp
 .B pmdaInit
 initializes a PMDA so that it is ready to receive PDUs from
 .BR pmcd (1).
-The function expects as arguments the instance domain table 
+The function expects as arguments the instance domain table
 .RI ( indoms )
 and the metric description table
 .RI ( metrics )
@@ -79,7 +79,7 @@ respectively.
 .PP
 Much of the
 .B pmdaInterface
-structure can be automatically initialized with 
+structure can be automatically initialized with
 .BR pmdaDaemon (3),
 .BR pmdaGetOpt (3)
 and
@@ -138,16 +138,16 @@ static pmdaIndom indomtab[] = {
 
 static pmdaMetric metrictab[] = {
 /* A */
-    { (void *)0, 
-      { PMDA_PMID(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+    { (void *)0,
+      { PMDA_PMID(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
         { 0,0,0,0,0,0} }, },
 /* B */
-    { (void *)0, 
-      { PMDA_PMID(0,1), PM_TYPE_U32, X_INDOM, PM_SEM_INSTANT, 
+    { (void *)0,
+      { PMDA_PMID(0,1), PM_TYPE_U32, X_INDOM, PM_SEM_INSTANT,
         { 0,0,0,0,0,0} }, },
 /* C */
-    { (void *)0, 
-      { PMDA_PMID(0,2), PM_TYPE_DOUBLE, Y_INDOM, PM_SEM_INSTANT, 
+    { (void *)0,
+      { PMDA_PMID(0,2), PM_TYPE_DOUBLE, Y_INDOM, PM_SEM_INSTANT,
         { 0,1,0,0,PM_TIME_SEC,0} }, }
 };
 .in
@@ -166,7 +166,7 @@ field of each instance domain.  This identifier also replaces the
 field of all metrics which have that instance domain, so that they are
 correctly associated.
 .PP
-The second stage opens the 
+The second stage opens the
 help text file, if one was specified with the
 .B \-h
 command line option (see
@@ -188,7 +188,7 @@ Each has its own set of tradeoffs and an appropriate strategy
 should be selected for each PMDA.
 .PP
 If all of the metric PMID item numbers correspond to the position
-in the 
+in the
 .I metrics
 table, then direct mapping is used.
 This is the most efficient of the lookup functions as it involves
@@ -303,9 +303,9 @@ for subsequently retrieving it.
 .B pmdaInit
 will set
 .I dispatch->status
-to a value less than zero if there is an error that would prevent the 
+to a value less than zero if there is an error that would prevent the
 .BR PMDA (3)
-from successfully running.  
+from successfully running.
 .BR pmcd (1)
 will terminate the connection to the
 .BR PMDA (3)
@@ -317,7 +317,7 @@ may issue any of these messages:
 .BI "PMDA interface version " interface " not supported"
 The
 .I interface
-version is not supported by 
+version is not supported by
 .BR pmdaInit .
 .TP
 .B "Using pmdaFetch() but fetch call back not set"
@@ -360,11 +360,11 @@ index the metric description table.
 This is a non-fatal warning message \- a fallback to linear searching
 will be automatically performed should this situation arise.
 .SH CAVEAT
-The PMDA must be using 
-.B PMDA_INTERFACE_2 
-or later, as specified in the call to 
+The PMDA must be using
+.B PMDA_INTERFACE_2
+or later, as specified in the call to
 .BR pmdaDSO (3)
-or 
+or
 .BR pmdaDaemon (3)
 to use
 .BR pmdaInit .
