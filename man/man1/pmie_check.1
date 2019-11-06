@@ -383,38 +383,38 @@ entries are needed as the timer mechanism provided by
 .B systemd
 is used instead.
 .SH FILES
-.TP 10
-.B $PCP_PMIECONTROL_PATH
+.TP 5
+.I $PCP_PMIECONTROL_PATH
 the default PCP inference engine control file
 .br
 .BR Warning :
 this file must not be writable by any user other than root.
 .TP
-.BR $PCP_PMIECONTROL_PATH .d
+.I $PCP_PMIECONTROL_PATH.d
 optional directory containing additional PCP inference engine control files,
 typically one per host
 .br
 .BR Warning :
 this files herein must not be writable by any user other than root.
 .TP
-.B $PCP_SYSCONF_DIR/pmie/crontab
+.I $PCP_SYSCONF_DIR/pmie/crontab
 sample crontab for automated script execution by $PCP_USER (or root) -
 exists only if the platform does not support the
 .I /etc/cron.d
 mechanism.
 .TP
-.B $PCP_VAR_DIR/config/pmie/config.default
+.I $PCP_VAR_DIR/config/pmie/config.default
 default
 .B pmlogger
 configuration file location for a localhost inference engine, typically
 generated automatically by
 .BR pmieconf (1).
 .TP
-.BI $PCP_LOG_DIR/pmie/ hostname
+.I $PCP_LOG_DIR/pmie/<hostname>
 default location for the pmie log file for the host
 .I hostname
 .TP
-.BI $PCP_LOG_DIR/pmie/ hostname /lock
+.I $PCP_LOG_DIR/pmie/<hostname>/lock
 transient lock file to guarantee mutual exclusion during
 .B pmie
 administration for the host
@@ -425,7 +425,7 @@ nor
 .B pmie_check
 are running
 .TP
-.B $PCP_LOG_DIR/NOTICES
+.I $PCP_LOG_DIR/NOTICES
 PCP ``notices'' file used by
 .BR pmie (1)
 and friends

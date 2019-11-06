@@ -1223,28 +1223,26 @@ syntax error is corrected,
 .B pmie
 will not attempt any expression evaluation.
 .SH FILES
-.PD 0
-.TP 10
-.BI $PCP_DEMOS_DIR/pmie/ *
+.TP 5
+.I $PCP_DEMOS_DIR/pmie/*
 annotated example rules
 .TP
-.BI $PCP_VAR_DIR/pmns/ *
+.I $PCP_VAR_DIR/pmns/*
 default PMNS specification files
 .TP
-.BI $PCP_TMP_DIR/pmie
+.I $PCP_TMP_DIR/pmie
 .B pmie
 maintains files in this directory to identify the running
 .B pmie
 instances and to export runtime information about each instance \- this data
 forms the basis of the pmcd.pmie performance metrics
 .TP
-.BI $PCP_PMIECONTROL_PATH
+.I $PCP_PMIECONTROL_PATH
 the default set of
 .B pmie
 instances to start at boot time \- refer to
 .BR pmie_check (1)
 for details
-.PD
 .SH PCP ENVIRONMENT
 Environment variables with the prefix
 .B PCP_

@@ -690,36 +690,36 @@ entries are needed as the timer mechanism provided by
 .B systemd
 is used instead.
 .SH FILES
-.TP 10
-.B $PCP_PMLOGGERCONTROL_PATH
+.TP 5
+.I $PCP_PMLOGGERCONTROL_PATH
 the PCP logger control file
 .br
 .BR Warning :
 this file must not be writable by any user other than root.
 .TP
-.BR $PCP_PMLOGGERCONTROL_PATH .d
+.I $PCP_PMLOGGERCONTROL_PATH.d
 optional directory containing additional PCP logger control files,
 typically one per host
 .br
 .BR Warning :
 the files herein must not be writable by any user other than root.
 .TP
-.B $PCP_SYSCONF_DIR/pmlogger/crontab
+.I $PCP_SYSCONF_DIR/pmlogger/crontab
 sample crontab for automated script execution by $PCP_USER (or root).
 Exists only if the platform does not support the /etc/cron.d mechanism.
 .TP
-.B $PCP_VAR_DIR/config/pmlogger/config.default
+.I $PCP_VAR_DIR/config/pmlogger/config.default
 default
 .B pmlogger
 configuration file location for the local primary logger, typically
 generated automatically by
 .BR pmlogconf (1).
 .TP
-.BI $PCP_LOG_DIR/pmlogger/ hostname
+.I $PCP_LOG_DIR/pmlogger/<hostname>
 default location for archives of performance information collected from the host
 .I hostname
 .TP
-.BI $PCP_LOG_DIR/pmlogger/ hostname /lock
+.I $PCP_LOG_DIR/pmlogger/<hostname>/lock
 transient lock file to guarantee mutual exclusion during
 .B pmlogger
 administration for the host
@@ -730,31 +730,31 @@ nor
 .B pmlogger_check
 are running
 .TP
-.BI $PCP_LOG_DIR/pmlogger/ hostname /Latest
+.I $PCP_LOG_DIR/pmlogger/<hostname>/Latest
 PCP archive folio created by
 .BR mkaf (1)
 for the most recently launched archive containing performance metrics from
 the host
 .I hostname
 .TP
-.B $PCP_LOG_DIR/NOTICES
+.I $PCP_LOG_DIR/NOTICES
 PCP ``notices'' file used by
 .BR pmie (1)
 and friends
 .TP
-.B $PCP_LOG_DIR/pmlogger/pmlogger_check.log
+.I $PCP_LOG_DIR/pmlogger/pmlogger_check.log
 if the previous execution of
 .B pmlogger_check
 produced any output it is saved here.
 The normal case is no output in which case the file does not exist.
 .TP
-.B $PCP_LOG_DIR/pmlogger/pmlogger_daily.log
+.I $PCP_LOG_DIR/pmlogger/pmlogger_daily.log
 if the previous execution of
 .B pmlogger_daily
 produced any output it is saved here.
 The normal case is no output in which case the file does not exist.
 .TP
-.BI $PCP_LOG_DIR/pmlogger/ hostname /SaveLogs
+.I $PCP_LOG_DIR/pmlogger/<hostname>/SaveLogs
 if this directory exists,
 then the log file from the
 .B \-l
@@ -781,7 +781,7 @@ the uid of the user ``pcp'',
 .BI $PCP_LOG_DIR/pmlogger/ hostname /SaveLogs
 typically needs to be owned by the user ``pcp''.
 .TP
-.B $PCP_LOG_DIR/pmlogger/.NeedRewrite
+.I $PCP_LOG_DIR/pmlogger/.NeedRewrite
 if this file exists, then this is treated as equivalent to using
 .B \-R
 on the command line and the file will be removed once all rewriting

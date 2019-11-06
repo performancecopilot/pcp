@@ -62,23 +62,17 @@ The
 .BR kubectl
 exit status is propogated unchanged.
 .SH FILES
-.PD 0
-.TP 10
-.BI $PCP_BINADM_DIR/discover
+.TP 5
+.I $PCP_BINADM_DIR/discover
 default path to address discovery commands like
-.BR pcp-kube-pods .
-.PD
-.PD 0
-.TP 10
-.BI $PCP_SYSCONF_DIR/discover/pcp-kube-pods.conf
+.B pcp-kube-pods
+.TP
+.I $PCP_SYSCONF_DIR/discover/pcp-kube-pods.conf
 configuration file containing command line options passed to
-.BR kubectl-get .
-.PD
-.PD 0
-.TP 10
-.BI $PCP_SYSCONF_DIR/discover/pcp-kube-pods.disabled
+.B kubectl-get
+.TP
+.I $PCP_SYSCONF_DIR/discover/pcp-kube-pods.disabled
 existence of this file causes the script to report nothing
-.PD
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

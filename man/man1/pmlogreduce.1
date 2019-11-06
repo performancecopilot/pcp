@@ -265,13 +265,12 @@ If any error is detected,
 .B pmlogreduce
 will exit with a non-zero status.
 .SH FILES
-.PD 0
 For each of the
 .I input
 and
 .I output
 archives, several physical files are used.
-.TP 10
+.TP 5
 \f2archive\f3.meta
 metadata (metric descriptions, instance domains, etc.) for the archive log
 .TP
@@ -294,7 +293,6 @@ suffix.
 \f2archive\f3.index
 temporal index to support rapid random access to the other files in the
 archive log.
-.PD
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

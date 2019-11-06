@@ -393,9 +393,8 @@ currently supports the debugging option
 .B context
 for tracing client connections and disconnections.
 .SH FILES
-.PD 0
-.TP
-.B PCP_PMPROXYOPTIONS_PATH
+.TP 5
+.I PCP_PMPROXYOPTIONS_PATH
 command line options for
 .B pmproxy
 when launched from
@@ -403,34 +402,33 @@ when launched from
 All the command line option lines should start with a hyphen as
 the first character.
 .TP
-.B $PCP_SYSCONFIG_DIR/pmproxy
+.I $PCP_SYSCONFIG_DIR/pmproxy
 additional environment variables that will be set when
 .B pmproxy
 executes.
 Only settings of the form "PMPROXY_VARIABLE=value" will be honoured.
 .TP
-.B \&./pmproxy.log
+.I \&./pmproxy.log
 (or
 .B $PCP_LOG_DIR/pmproxy/pmproxy.log
 when started automatically)
 .br
 All messages and diagnostics are directed here
 .TP
-.B /etc/pki/tls
+.I /etc/pki/tls
 default OpenSSL certificate database directory, used for optional
 Secure Socket Layer connections in \f3timeseries\f1 mode of operation.
 These certificates can be created and queried using the
 .B openssl
 tool, amongst others.
 .TP
-.B /etc/pki/nssdb
+.I /etc/pki/nssdb
 default Network Sercity Services (NSS) database directory, used for optional
 Secure Socket Layer connections in \f3deprecated\f1 mode of operation.
 This database can be created and queried using the NSS
 .B certutil
 tool, amongst others.
 This is only used when \f3pmproxy\f1 is running in \f3deprecated\f1 mode.
-.PD
 .SH ENVIRONMENT
 In addition to the PCP environment variables described in the
 .B "PCP ENVIRONMENT"
