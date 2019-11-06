@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2018 Red Hat.
+.\" Copyright (c) 2013-2019 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -19,12 +19,12 @@
 \f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive log files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_check
-[\f3\-CNsTV\f1]
+[\f3\-CNsTV?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-l\f1 \f2logfile\f1]
 .br
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-KMNoprRV\f1]
+[\f3\-KMNoprRV?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2discard\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -41,123 +41,18 @@ Performance Co-Pilot (see
 .BR PCPintro (1))
 archive log files.
 .PP
+.B pmlogger_check
+may be run at any time of the day and is intended to check that a desired set
+of
+.BR pmlogger (1)
+processes are running.
+If not, it (re-)starts any missing logger processes.
+.PP
 .B pmlogger_daily
 is intended to be run once per day, preferably in the early morning, as
 soon after midnight as practicable.
-Its task is to aggregate, rotate and perform general housekeeping one or more sets of PCP archives.
-.PP
-After some period, old PCP archives are discarded.
-This period is 14 days by default, but may be changed using the
-.B \-k
-option.
-Some special values are recognized for the period (\c
-.IR discard ),
-namely
-.B 0
-to keep no archives beyond the current one, and
-.B forever
-or
-.B never
-to prevent any archives being discarded.
-Note that the semantics of
-.I discard
-are that it is measured from the time of last modification of each
-archive, and not from the current day.
-This has subtle implications for compression (see below) \- the
-compression process results in the creation of new archive files
-which have new modification times.
-In this case, the
-.I discard
-period (re)starts from the time of compression.
-.PP
-Archive data files can optionally be compressed after some period
-to conserve disk space.
-This is particularly useful for large numbers of
-.B pmlogger
-processes under the control of
-.BR pmlogger_check .
-If
-.B transparent_decompress
-is enabled when
-.I libpcp
-was built
-(can be checked with
-.B pmconfig
-.BR \-L ),
-then the default behaviour is compression ``as soon as possible''
-otherwise the default behaviour is to
-.B not
-compress files (which matches the historical default behaviour
-in earlier PCP releases).
-.PP
-The
-.B \-x
-option controls compression and
-.I compress
-specifies the number of days after which to compress archive data
-files and metadata files.
-If
-.I compress
-is
-.B 0
-then compression will be applied as soon as possible.
-If
-.I compress
-is
-.B never
-or
-.B forever
-then no compression will be done.
-The environment variable
-.B PCP_COMPRESSAFTER
-may be used as an alternative mechanism to define
-.IR compress .
-If both
-.B PCP_COMPRESSAFTER
-and
-.B \-x
-specify different values for
-.I compress
-then the environment variable value is used and a warning is issued.
-.PP
-The
-.B \-X
-option specifies the program to use for compression \- by default this is
-.BR xz (1).
-The environment variable
-.B PCP_COMPRESS
-may be used as an alternative mechanism to define
-.IR program .
-If both
-.B PCP_COMPRESS
-and
-.B \-X
-specify different compression programs
-then the environment variable value is used and a warning is issued.
-.PP
-Use of the
-.B \-Y
-option allows a regular expression to be specified causing files in
-the set of files matched for compression to be omitted \- this allows
-only the data file to be compressed, and also prevents the program from
-attempting to compress it more than once.  The default
-.I regex
-is "\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$" \- such files are
-filtered using the
-.B \-v
-option to
-.BR egrep (1).
-The environment variable
-.B PCP_COMPRESSREGEX
-may be used as an alternative mechanism to define
-.IR regex .
-If both
-.B PCP_COMPRESSREGEX
-and
-.B \-Y
-specify different values for
-.I regex
-then the environment variable value is used and a warning is issued.
+Its task is to aggregate, rotate and perform general housekeeping one or
+more sets of PCP archives.
 .PP
 To accommodate the evolution of PMDAs and changes in production
 logging environments,
@@ -189,34 +84,6 @@ exist, else rewriting rules from
 .B $PCP_SYSCONF_DIR/pmlogrewrite
 if that directory exists, else no rewriting is attempted.
 .PP
-The
-.B \-r
-command line option acts as an over-ride and
-prevents all archive rewriting with
-.BR pmlogrewrite (1)
-independent of the presence of any rewriting rule files or directories.
-.PP
-Sometimes PMDA changes require
-.I all
-archives to be rewritten,
-not just the ones involved
-in any current merging.
-This is required for example after a PCP upgrade where a new version of an
-existing PMDA has revised metadata.
-The
-.B \-R
-command line forces this universal-style of rewriting.
-.PP
-The
-.B \-R
-option to
-.B pmlogger_daily
-is mutually exclusive with both the
-.B \-r
-and
-.B \-M
-options.
-.PP
 As an alternate mechanism, if the file
 .B $PCP_LOG_DIR/pmlogger/.NeedRewrite
 exists when
@@ -226,88 +93,70 @@ starts then this is treated the same as specifying
 on the command line and
 .B $PCP_LOG_DIR/pmlogger/.NeedRewrite
 will be removed once all the rewriting has been done.
-.PP
-By default all possible archives will be merged.  The
-.B \-o
-option reinstates the old behaviour in which only yesterday's archives
-will be considered as merge candidates.
-.PP
-In the special case where only a single input archive
-needs to be merged,
-.BR pmlogmv (1)
-is used to rename the archive, otherwise
-.BR pmlogger_merge (1)
-is used to merge all of the archives for a single host and a single day into a new
-PCP archive and the individual archives are removed.
-.PP
-The
-.B \-M
-option may be used to disable archive merging (or renaming) and rewriting
-(\c
-.B \-M
-implies
-.BR \-r ).
-This is most useful in cases where the archives are being incrementally
-copied to a remote repository, e.g. using
-.BR rsync (1).
-Merging, renaming and rewriting all risk an increase in the synchronization
-load, especially immediately after
+.SH OPTIONS
+.TP 5
+\fB\-c\fR \fIcontrol\fR, \fB\-\-control\fR=\fIcontrol\fR
+Both
+.B pmlogger_check
+and
 .B pmlogger_daily
-has run, so
-.B \-M
-may be useful in these cases.
-.PP
-To assist with debugging or diagnosing intermittent failures the
-.B \-t
-option may be used.  This will turn on very verbose tracing (\c
-.BR \-VV )
-and capture the trace output in a file named
-.BI $PCP_LOG_DIR/pmlogger/daily. datestamp .trace,
-where
-.I datestamp
-is the time
-.B pmlogger_daily
-was run in the format YYYYMMDD.HH.MM.
-In addition, the
-.I want
-argument will ensure that trace files created with
-.B \-t
-will be kept for
-.I want
-days and then discarded.
-.PP
-In addition, if the
-PCP ``notices'' file (\c
-.BR $PCP_LOG_DIR/NOTICES )
-is larger than 20480 bytes,
-.B pmlogger_daily
-will rename the file with a ``.old'' suffix, and start
-a new ``notices'' file.
-The rotate threshold may be changed from 20480 to
-.I size
-bytes using the
-.B \-s
+are controlled by PCP logger control file(s)
+that specifies the
+.B pmlogger
+instances to be managed.
+The default
+.I control
+file is
+.BR $PCP_PMLOGGERCONTROL_PATH ,
+but an alternate may be specified using the
+.B \-c
 option.
-.PP
-Use of the
-.B \-m
-option causes
-.B pmlogger_daily
-to construct a summary of the ``notices'' file entries which were
-generated in the last 24 hours, and e-mail that summary to the set of
-space-separated
-.IR addresses .
-This daily summary is stored in the file
-.BR $PCP_LOG_DIR/NOTICES.daily ,
-which will be empty when no new ``notices'' entries were made in the previous
-24 hour period.
-.PP
-If the
-.B \-K
-option is specified for
+If the directory
+.BR $PCP_PMLOGGERCONTROL_PATH .d
+(or
+.IR control .d
+from the
+.B \-c
+option) exists, then the contents of any additional
+.I control
+files therein will be appended to the main control file (which must exist).
+.TP
+\fB\-C\fR
+This option causes
+.B pmlogger_check
+to query the system service runlevel information for
+.BR pmie ,
+and use that to determine whether to start processes or not.
+.TP
+\fB\-k\fR \fIperiod\fR, \fB\-\-discard\fR=\fIperiod\fR
+After some period, old PCP archives are discarded.
+This period is 14 days by default, but may be changed using
+this option.
+Some special values are recognized for the
+.IR period ,
+namely
+.B 0
+to keep no archives beyond the current one, and
+.B forever
+or
+.B never
+to prevent any archives being discarded.
+Note that the semantics of
+.I discard
+are that it is measured from the time of last modification of each
+archive, and not from the current day.
+This has subtle implications for compression (see below) \- the
+compression process results in the creation of new archive files
+which have new modification times.
+In this case, the
+.I discard
+period (re)starts from the time of compression.
+.TP
+\fB\-K\fR
+When this option is specified for
 .B pmlogger_daily
 then only the compression tasks are attempted, so no
-.BR pmlogger (1)
+.BR pmlogger
 rotation, no culling, no rewriting, etc.
 When
 .B \-K
@@ -343,13 +192,85 @@ scheduled invocation of
 then this will compress all volumes except the ones being currently
 written by
 .BR pmlogger (1).
-.PP
-If the
-.B \-p
-option is specified for
+.TP
+\fB\-l\fR \fIfile\fR, \fB\-\-logfile\fR=\fIfile\fR
+In order to ensure that mail is not unintentionally sent when these
+scripts are run from
+.BR cron (8)
+diagnostics are always sent to log files.
+By default, this file is
+.B $PCP_LOG_DIR/pmlogger/pmlogger_check.log
+or
+.B $PCP_LOG_DIR/pmlogger/pmlogger_daily.log
+but this can be changed using the
+.B \-l
+option.
+If this log
+.I file
+already exists when the script starts, it will be
+renamed with a
+.I .prev
+suffix (overwriting any log file saved earlier) before diagnostics
+are generated to the log file.
+The
+.B \-l
+and
+.B \-t
+options cannot be used together.
+.TP
+\fB\-m\fR \fIaddresses\fR, \fB\-\-mail\fR=\fIaddresses\fR
+Use of this option causes
 .B pmlogger_daily
-then the status of the daily processing is polled and if the
-daily
+to construct a summary of the ``notices'' file entries which were
+generated in the last 24 hours, and e-mail that summary to the set of
+space-separated
+.IR addresses .
+This daily summary is stored in the file
+.BR $PCP_LOG_DIR/NOTICES.daily ,
+which will be empty when no new ``notices'' entries were made in the
+previous 24 hour period.
+.TP
+\fB\-M\fR
+This option may be used to disable archive merging (or renaming) and rewriting
+(\c
+.B \-M
+implies
+.BR \-r ).
+This is most useful in cases where the archives are being incrementally
+copied to a remote repository, e.g. using
+.BR rsync (1).
+Merging, renaming and rewriting all risk an increase in the synchronization
+load, especially immediately after
+.B pmlogger_daily
+has run, so
+.B \-M
+may be useful in these cases.
+.TP
+\fB\-N\fR, \fB\-\-showme\fR
+This option enables a ``show me'' mode, where the programs actions are
+echoed, but not executed, in the style of ``make \-n''.
+Using
+.B \-N
+in conjunction with
+.B \-V
+maximizes the diagnostic capabilities for debugging.
+.TP
+\fB\-o\fR
+By default all possible archives will be merged.
+This option reinstates the old behaviour in which only yesterday's archives
+will be considered as merge candidates.
+In the special case where only a single input archive
+needs to be merged,
+.BR pmlogmv (1)
+is used to rename the archive, otherwise
+.BR pmlogger_merge (1)
+is used to merge all of the archives for a single host and a single day into a new
+PCP archive and the individual archives are removed.
+.TP
+\fB\-p\fR
+If this option is specified for
+.B pmlogger_daily
+then the status of the daily processing is polled and if the daily
 .BR pmlogger (1)
 rotation, culling, rewriting, compressing, etc.
 has not been done in the last 24 hours then it is done now.
@@ -363,14 +284,10 @@ set up) to ensure daily processing happens as soon as possible if
 it was missed at the regularly scheduled time (which is 00:10
 by default), e.g. if the system was down or suspended at that
 time.
-.PP
-With the
-.B \-p
-option,
+With this option
 .B pmlogger_daily
 simply exits if the previous day's processing has already been
 done.
-.PP
 The
 .B \-K
 and
@@ -378,68 +295,189 @@ and
 options to
 .B pmlogger_daily
 are mutually exclusive.
-.PP
-The script
-.B $PCP_BINADM_DIR/pmlogger_daily
-could be copied and modified to implement a site-specific procedure for
-end-of-week and/or end-of-month management for a set of PCP archives.
-.PP
-.B pmlogger_check
-may be run at any time, and is intended to check that the desired set
-of
-.BR pmlogger (1)
-processes are running, and if not to re-launch any failed loggers.
-Use of the
+.TP
+\fB\-r\fR, \fB\-\-norewrite\fR
+This command line option acts as an override and prevents all archive
+rewriting with
+.BR pmlogrewrite (1)
+independent of the presence of any rewriting rule files or directories.
+.TP
+\fB\-R\fR, \fB\-\-rewriteall\fR
+Sometimes PMDA changes require
+.I all
+archives to be rewritten,
+not just the ones involved
+in any current merging.
+This is required for example after a PCP upgrade where a new version of an
+existing PMDA has revised metadata.
+The
+.B \-R
+command line forces this universal-style of rewriting.
+The
+.B \-R
+option to
+.B pmlogger_daily
+is mutually exclusive with both the
+.B \-r
+and
+.B \-M
+options.
+.TP
+\fB\-s\fR \fIsize\fR, \fB\-\-rotate\fR=\fIsize\fR
+If the PCP ``notices'' file (\c
+.BR $PCP_LOG_DIR/NOTICES )
+is larger than 20480 bytes,
+.B pmlogger_daily
+will rename the file with a ``.old'' suffix, and start
+a new ``notices'' file.
+The rotate threshold may be changed from 20480 to
+.I size
+bytes using the
 .B \-s
-option provides the reverse functionality, allowing the set of
+option.
+.TP
+\fB\-s\fR, \fB\-\-stop\fR
+Use of this option provides the reverse
+.B pmlogger_check
+functionality, allowing the set of
 .B pmlogger
 processes to be cleanly shutdown.
-Use of the
-.B \-C
-option queries the system service runlevel information for
-.BR pmlogger ,
-and uses that to determine whether to start processes.
-.PP
-The
-.B \-T
-option provides a terser form of output for
+.TP
+\fB\-t\fR \fIperiod\fR
+To assist with debugging or diagnosing intermittent failures the
+.B \-t
+option may be used.
+This will turn on very verbose tracing (\c
+.BR \-VV )
+and capture the trace output in a file named
+.BI $PCP_LOG_DIR/pmlogger/daily. datestamp .trace,
+where
+.I datestamp
+is the time
+.B pmlogger_daily
+was run in the format YYYYMMDD.HH.MM.
+In addition, the
+.I period
+argument will ensure that trace files created with
+.B \-t
+will be kept for
+.I period
+days and then discarded.
+.TP
+\fB\-T\fR, \fB\-\-terse\fR
+This option to
 .B pmlogger_check
-that is most suitable for a
+produces less verbose output than the default.
+This is most suitable for a
 .I pmlogger
 \&``farm'' where many instances of
 .I pmlogger
 are expected to be running.
-.PP
+.TP
+\fB\-V\fR, \fB\-\-verbose\fR
+The output from the
+.BR cron
+execution of the scripts may be extended using the
+.B \-V
+option to the scripts which will enable verbose tracing of their activity.
+By default the scripts generate no output unless some error or warning
+condition is encountered.
 Using
 .B \-N
-option invokes the scripts in a ``show me'' or ``dry run'' mode where the
-tasks that would be performed are reported, but no changes are made.
-This is typically used for debugging in combination with one (verbose)
-or two (very verbose)
+in conjunction with
 .B \-V
-options.
-.PP
-Both
-.B pmlogger_daily
-and
-.B pmlogger_check
-are controlled by PCP logger control file(s)
-that specifies the
+maximizes the diagnostic capabilities for debugging.
+.TP
+\fB\-x\fR \fIperiod\fR, \fB\-\-compress\-after\fR=\fIperiod\fR
+Archive data files can optionally be compressed after some period
+to conserve disk space.
+This is particularly useful for large numbers of
 .B pmlogger
-instances to be managed.  The default control file is
-.BR $PCP_PMLOGGERCONTROL_PATH ,
-but an alternate may be specified using the
-.B \-c
-option.
-If the directory
-.BR $PCP_PMLOGGERCONTROL_PATH .d
-(or
-.IR control .d
-from the
-.B \-c
-option) exists, then the contents of any additional control files therein
-will be appended to the main control file (which must exist).
-.PP
+processes under the control of
+.BR pmlogger_check .
+If
+.B transparent_decompress
+is enabled when
+.I libpcp
+was built
+(can be checked with the
+.BR pmconfig (1)
+.BR \-L option),
+then the default behaviour is compression ``as soon as possible''.
+Otherwise the default behaviour is to
+.B not
+compress files (which matches the historical default behaviour in
+earlier PCP releases).
+The
+.B \-x
+option specifies the number of days after which to compress archive data
+and metadata files.
+If
+.I compress
+is
+.B 0
+then compression will be applied as soon as possible.
+If
+.I compress
+is
+.B never
+or
+.B forever
+then no compression will be done.
+The environment variable
+.B PCP_COMPRESSAFTER
+may be used as an alternative mechanism to define
+.IR compress .
+If both
+.B PCP_COMPRESSAFTER
+and
+.B \-x
+specify different values for
+.I compress
+then the environment variable value is used and a warning is issued.
+.TP
+\fB\-X\fR \fIprogram\fR, \fB\-\-compressor\fR=\fIprogram\fR
+This option specifies the program to use for compression \- by default
+this is
+.BR xz (1).
+The environment variable
+.B PCP_COMPRESS
+may be used as an alternative mechanism to define
+.IR program .
+If both
+.B PCP_COMPRESS
+and
+.B \-X
+specify different compression programs
+then the environment variable value is used and a warning is issued.
+.TP
+\fB\-Y\fR \fIregex\fR, \fB\-\-regex\fR=\fIregex\fR
+This option allows a regular expression to be specified causing files in
+the set of files matched for compression to be omitted \- this allows
+only the data file to be compressed, and also prevents the program from
+attempting to compress it more than once.
+The default
+.I regex
+is "\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$" \- such files are
+filtered using the
+.B \-v
+option to
+.BR egrep (1).
+The environment variable
+.B PCP_COMPRESSREGEX
+may be used as an alternative mechanism to define
+.IR regex .
+If both
+.B PCP_COMPRESSREGEX
+and
+.B \-Y
+specify different values for
+.I regex
+then the environment variable value is used and a warning is issued.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH CONFIGURATION
 .BR Warning :
 The
 .B $PCP_PMLOGGERCONTROL_PATH
@@ -643,36 +681,14 @@ and shown below.
 .ft 1
 .fi
 .PP
-In order to ensure that mail is not unintentionally sent when these
-scripts are run from
-.BR cron (8)
-diagnostics are always sent to a log file.
-By default, this file is
-.B $PCP_LOG_DIR/pmlogger/pmlogger_daily.log
-or
-.B $PCP_LOG_DIR/pmlogger/pmlogger_check.log
-but this can be changed using the
-.B \-l
-option.
-If this log file already exists when the script starts, it will be
-renamed with a
-.I .prev
-suffix (overwriting any log file saved earlier) before diagnostics
-are generated to the log file.
-The
-.B \-l
-and
-.B \-t
-options cannot be used together.
-.PP
-The output from the
-.BR cron
-execution of the scripts may be extended using the
-.B \-V
-option to the scripts which will enable verbose tracing of their activity.
-By default the scripts generate no output unless some error or warning
-condition is encountered.
-
+When using
+.BR systemd (1)
+on Linux,
+no
+.B crontab
+entries are needed as the timer mechanism provided by
+.B systemd
+is used instead.
 .SH FILES
 .TP 10
 .B $PCP_PMLOGGERCONTROL_PATH
@@ -770,20 +786,13 @@ if this file exists, then this is treated as equivalent to using
 .B \-R
 on the command line and the file will be removed once all rewriting
 has been done.
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.B /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 The default behaviour, when
 .BR pmlogger (1)
@@ -813,6 +822,7 @@ disables the regeneration and checking.
 .BR pmlogrewrite (1),
 .BR pmnewlog (1),
 .BR pmsocks (1),
+.BR systemd (1)
 .BR xz (1)
 and
 .BR cron (8).
