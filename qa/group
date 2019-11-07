@@ -1657,6 +1657,7 @@ BAD
 1368 labels help pmlogger pmdumplog local sanity
 1369 labels pmcd pmlogger pmdumplog local
 1372 pmie local
+1379 pmproxy local
 1383 pmlogrewrite labels pmdumplog local
 1385 pmda.openmetrics local python
 1388 pmproxy local

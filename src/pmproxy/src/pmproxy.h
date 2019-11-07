@@ -15,7 +15,7 @@
 #ifndef PMPROXY_H
 #define PMPROXY_H
 
-typedef void *(*proxyOpenRequestPorts)(const char *, int);
+typedef void *(*proxyOpenRequestPorts)(char *, size_t, int);
 typedef void (*proxyDumpRequestPorts)(FILE *, void *);
 typedef void (*proxyShutdownPorts)(void *);
 typedef void (*proxyMainLoop)(void *);

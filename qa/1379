@@ -1,0 +1,128 @@
+#!/bin/sh
+# PCP QA Test No. 1379
+# Exercise Unix domain socket access to pmproxy and the PMWEBAPI(3)
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+_get_libpcp_config
+$unix_domain_sockets || _notrun "No PCP unix domain socket support"
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+curl --help | grep -q unix-socket || _notrun "No curl unix domain socket support"
+
+_cleanup()
+{
+    cd $here
+    if $need_restore
+    then
+	need_restore=false
+	_restore_config $PCP_SYSCONF_DIR/labels
+	_restore_config $PCP_SYSCONF_DIR/pmproxy
+	_sighup_pmcd
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+hostname=`hostname`
+machineid=`_machine_id`
+if which domainname >/dev/null 2>&1
+then
+    domainname=`domainname`
+else
+    domainname=`hostname -d`
+fi
+[ -z "$domainname" ] && domainname=localdomain
+[ "$domainname" = "(none)" ] && domainname=localdomain
+_filter_json()
+{
+    echo "== $@ ==" | tee -a $here/$seq.full
+    tee -a $seq.full > $tmp.unfiltered
+
+    pmjson < $tmp.unfiltered > $tmp.filtered
+    status=$?
+    if [ $status -eq 0 ]; then
+        cat $tmp.filtered | \
+        sed \
+            -e '/"machineid": .*/d' \
+            -e 's,"series": .*,"series": "SERIES",g' \
+            -e 's,"source": .*,"source": "SOURCE",g' \
+            -e 's,"context": .*,"context": "CONTEXT",g' \
+            -e 's,"hostname": .*,"hostname": "HOSTNAME",g' \
+            -e 's,"hostspec": .*,"hostname": "HOSTNAME",g' \
+            -e 's,"domainname": .*,"domainname": "DOMAINNAME",g' \
+            -e 's,"timestamp": [0-9][0-9]*.[0-9][0-9]*,"timestamp": TIME,g' \
+            -e 's,"msec": [0-9][0-9]*,"msec": MILLISECONDS,g' \
+            -e 's,"usec": [0-9][0-9]*,"usec": MICROSECONDS,g' \
+            -e 's,"nsec": [0-9][0-9]*,"nsec": NANOSECONDS,g' \
+            -e 's,"sec": [0-9][0-9]*,"sec": SECONDS,g' \
+        #end
+        _get_context < $tmp.filtered > $tmp.context
+    else
+	echo "Invalid JSON: $status"
+	cat $tmp.unfiltered
+	rm -f $tmp.context
+    fi
+}
+
+_get_context()
+{
+    grep '"context"' | \
+    sed \
+        -e 's/.*context\": //g' \
+        -e 's/,$//g' \
+    #end
+}
+
+# real QA test starts here
+_save_config $PCP_SYSCONF_DIR/labels
+_save_config $PCP_SYSCONF_DIR/pmproxy
+need_restore=true
+
+$sudo rm -f $PCP_SYSCONF_DIR/labels/*
+_sighup_pmcd
+
+$sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
+echo "--timeseries" >> $tmp.options
+$sudo cp $tmp.options $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
+echo "[pmproxy]" >> $tmp.conf
+echo "pcp.enabled = true" >> $tmp.conf
+echo "http.enabled = true" >> $tmp.conf
+echo "redis.enabled = true" >> $tmp.conf
+echo "secure.enabled = true" >> $tmp.conf
+$sudo cp $tmp.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+cat $tmp.conf >> $here/$seq.full
+
+_service pmproxy stop >/dev/null
+_service pmproxy start >>$here/$seq.full 2>&1
+_wait_for_pmproxy
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $here/$seq.full
+
+socket="$PCP_RUN_DIR/pmproxy.socket"
+
+curl -s --unix-socket "$socket" \
+	"http://localhost/pmapi/context" \
+| _filter_json "Check context creation on unix socket"
+
+context="context=`cat $tmp.context`"
+metrics='names=sample.long.one,sample.long.million'
+
+curl -s --unix-socket "$socket" \
+	"http://localhost/pmapi/fetch?$context&$metrics" \
+| _filter_json "Check metric fetching on that context"
+
+# success, all done
+status=0
+exit

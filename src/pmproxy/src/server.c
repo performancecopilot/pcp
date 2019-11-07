@@ -15,6 +15,8 @@
 #include "uv_callback.h"
 #include <assert.h>
 
+static uv_signal_t	sighup, sigint, sigterm;
+
 void
 proxylog(pmLogLevel level, sds message, void *arg)
 {
@@ -90,14 +92,18 @@ signal_handler(uv_signal_t *sighandle, int signum)
 	return;
     pmNotifyErr(LOG_INFO, "pmproxy caught %s\n",
 		signum == SIGINT ? "SIGINT" : "SIGTERM");
-    uv_signal_stop(sighandle);
+    uv_signal_stop(&sigterm);
+    uv_signal_stop(&sigint);
+    uv_signal_stop(&sighup);
+    uv_close((uv_handle_t *)&sigterm, NULL);
+    uv_close((uv_handle_t *)&sigint, NULL);
+    uv_close((uv_handle_t *)&sighup, NULL);
     uv_stop(loop);
 }
 
 static void
 signal_init(struct proxy *proxy)
 {
-    static uv_signal_t	sighup, sigint, sigterm;
     uv_loop_t		*loop = proxy->events;
 
     signal(SIGPIPE, SIG_IGN);
@@ -445,6 +451,7 @@ open_request_port(struct proxy *proxy, struct server *server, stream_family fami
     if (sts != 0) {
 	fprintf(stderr, "%s: socket listen error %s\n",
 			pmGetProgname(), uv_strerror(sts));
+	uv_close(handle, NULL);
 	return -ENOTCONN;
     }
     stream->active = 1;
@@ -466,21 +473,33 @@ open_request_local(struct proxy *proxy, struct server *server,
     uv_pipe_init(proxy->events, &stream->u.local, 0);
     handle = (uv_handle_t *)&stream->u.local;
     handle->data = (void *)proxy;
-
     uv_pipe_bind(&stream->u.local, name);
 #ifdef HAVE_UV_PIPE_CHMOD
-    uv_pipe_chmod(&stream->u.local, UV_READABLE);
+    uv_pipe_chmod(&stream->u.local, UV_READABLE | UV_WRITABLE);
 #endif
 
     sts = uv_listen((uv_stream_t *)&stream->u.local, maxpending, on_client_connection);
     if (sts != 0) {
 	fprintf(stderr, "%s: local listen error %s\n",
 			pmGetProgname(), uv_strerror(sts));
+	uv_close(handle, NULL);
         return -ENOTCONN;
     }
     stream->active = 1;
     __pmServerSetFeature(PM_SERVER_FEATURE_UNIX_DOMAIN);
     return 0;
+}
+
+static void
+setup_default_local_path(char *localpath, size_t localpathlen)
+{
+    char		*envstr;
+
+    if ((envstr = getenv("PMPROXY_SOCKET")) != NULL)
+	pmsprintf(localpath, localpathlen, "%s", envstr);
+    else
+	pmsprintf(localpath, localpathlen, "%s%c" "pmproxy.socket",
+			pmGetConfig("PCP_RUN_DIR"), pmPathSeparator());
 }
 
 typedef struct proxyaddr {
@@ -490,7 +509,7 @@ typedef struct proxyaddr {
 } proxyaddr;
 
 static void *
-open_request_ports(const char *localpath, int maxpending)
+open_request_ports(char *localpath, size_t localpathlen, int maxpending)
 {
     int			inaddr, total, count, port, sts, i, n;
     int			with_ipv6 = strcmp(pmGetAPIConfig("ipv6"), "true") == 0;
@@ -501,6 +520,9 @@ open_request_ports(const char *localpath, int maxpending)
     stream_family	family;
     struct server	*server;
     struct proxy	*proxy;
+
+    if (localpath[0] == '\0')
+	setup_default_local_path(localpath, localpathlen);
 
     if ((sts = total = __pmServerSetupRequestPorts()) < 0)
 	return NULL;
@@ -581,7 +603,7 @@ open_request_ports(const char *localpath, int maxpending)
 	free(proxy);
 	return NULL;
     }
-    proxy->nservers = count;
+    proxy->nservers = n;
     return proxy;
 
 fail:
@@ -609,12 +631,17 @@ shutdown_ports(void *arg)
     int			i;
 
     for (i = 0; i < proxy->nservers; i++) {
-	server = &proxy->servers[i++];
+	server = &proxy->servers[i];
 	stream = &server->stream;
 	if (stream->active == 0)
 	    continue;
-	if (server->presence)
-	    __pmServerUnadvertisePresence(server->presence);
+	if (stream->family == STREAM_LOCAL)
+	    uv_close((uv_handle_t *)&stream->u.local, NULL);
+	else {
+	    uv_close((uv_handle_t *)&stream->u.tcp, NULL);
+	    if (server->presence)
+		__pmServerUnadvertisePresence(server->presence);
+	}
     }
     proxy->nservers = 0;
     free(proxy->servers);
@@ -626,6 +653,8 @@ shutdown_ports(void *arg)
 	pmIniFileFree(proxy->config);
 	proxy->config = NULL;
     }
+
+    uv_loop_close(proxy->events);
 }
 
 static void
@@ -719,7 +748,6 @@ main_loop(void *arg)
 		    on_write_callback, UV_DEFAULT);
 
     uv_run(proxy->events, UV_RUN_DEFAULT);
-    uv_loop_close(proxy->events);
 }
 
 struct pmproxy libuv_pmproxy = {

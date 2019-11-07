@@ -650,7 +650,7 @@ ShutdownPorts(void *arg)
 }
 
 static void *
-OpenRequestPorts(const char *path, int maxpending)
+OpenRequestPorts(char *path, size_t pathlen, int maxpending)
 {
     ServerInfo	*sp;
     int		sts;
@@ -672,6 +672,7 @@ OpenRequestPorts(const char *path, int maxpending)
     __pmSetSignalHandler(SIGSEGV, SigBad);
 
     (void)path;
+    (void)pathlen;
 
     if ((sp = calloc(1, sizeof(ServerInfo))) == NULL)
 	return NULL;

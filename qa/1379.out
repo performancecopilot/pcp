@@ -1,0 +1,38 @@
+QA output created by 1379
+== Check context creation on unix socket ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+== Check metric fetching on that context ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.10",
+            "name": "sample.long.one",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 1
+                }
+            ]
+        },
+        {
+            "pmid": "29.0.13",
+            "name": "sample.long.million",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 1000000
+                }
+            ]
+        }
+    ]
+}

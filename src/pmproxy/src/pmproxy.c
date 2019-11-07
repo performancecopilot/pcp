@@ -351,7 +351,7 @@ main(int argc, char *argv[])
 	__pmServerStart(argc, argv, 1);
 
     /* Open non-blocking request ports for client connections */
-    if ((info = server->openports(sockpath, maxpending)) == NULL)
+    if ((info = server->openports(sockpath, sizeof(sockpath), maxpending)) == NULL)
 	DontStart();
 
     if (env_warn & ENV_WARN_PORT)
