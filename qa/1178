@@ -14,6 +14,12 @@ _pmdabcc_check
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 [ "$(pmpython src/bcc_version_check.python)" = "0.6.1" ] \
   && _notrun "Broken BCC version detected"
+case "`uname -srm`"
+in
+    Linux\ 5.2.*)
+    		_notrun "Bad Linux 5.2 kernel headers will cause BPF to fail"
+		;;
+esac
 
 target_ip=1.1.1.1
 
