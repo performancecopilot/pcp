@@ -1,0 +1,14 @@
+stages:
+- stage: Test
+  jobs:
+  - template: jobs/test_group.yml
+    parameters:
+      job: sanity
+      group: sanity
+      distributions: ${{ parameters.distributions }}
+
+  - template: jobs/test_group.yml
+    parameters:
+      job: pmda_bcc
+      group: pmda.bcc
+      distributions: ${{ parameters.distributions }}

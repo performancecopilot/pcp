@@ -1,0 +1,3 @@
+ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+
+resource_group: PCP_Agents

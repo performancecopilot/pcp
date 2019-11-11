@@ -1,0 +1,2 @@
+azure_pipelines_agent_linux_source: "https://vstsagentpackage.azureedge.net/agent/2.160.0/vsts-agent-linux-x64-2.160.0.tar.gz"
+azure_pipelines_url: "https://dev.azure.com/andreasgerstmayr"

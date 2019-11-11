@@ -1,0 +1,21 @@
+- name: Start virtual machine from base distribution image
+  azure_rm_virtualmachine:
+    resource_group: "{{ resource_group }}"
+    name: "{{ hostname }}"
+    vm_size: "{{ vm_size }}"
+    image: 
+      publisher: "{{ image.marketplace.publisher }}"
+      offer: "{{ image.marketplace.offer }}"
+      sku: "{{ image.marketplace.sku }}"
+      version: latest
+    plan:
+      publisher:  "{{ image.marketplace.publisher }}"
+      product: "{{ image.marketplace.offer }}"
+      name: "{{ image.marketplace.sku }}"
+    accept_terms: yes
+    admin_username: pcp
+    ssh_password_enabled: no
+    ssh_public_keys:
+      - path: /home/pcp/.ssh/authorized_keys
+        key_data: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  delegate_to: localhost

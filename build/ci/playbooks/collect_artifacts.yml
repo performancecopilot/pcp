@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+  - name: Create artifacts directory
+    file:
+      path: "{{ lookup('env', 'PWD') }}/artifacts"
+      state: directory
+
+  - name: Move artifacts
+    shell: mv *.rpm artifacts/
+    args:
+      chdir: "{{ lookup('env', 'PWD') }}"

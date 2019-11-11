@@ -1,0 +1,56 @@
+- set_fact:
+    hostname: "agent-image-builder-{{ inventory_hostname }}{% if pcp_commit is defined %}-deps{% endif %}"
+    image_name: "agent-image-{{ inventory_hostname }}{% if pcp_commit is defined %}-deps{% endif %}"
+    distribution: "{{ inventory_hostname }}"
+
+- name: "Delete image {{ image_name }} (if existing)"
+  azure_rm_image:
+    resource_group: "{{ resource_group }}"
+    name: "{{ image_name }}"
+    state: absent
+  delegate_to: localhost
+
+- import_tasks: start_vm_marketplace.yml
+  when: image.marketplace is defined
+
+- name: Update host IP in inventory
+  add_host:
+      hostname: "{{ inventory_hostname }}"
+      ansible_host: "{{ azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
+      ansible_user: pcp
+
+- import_role:
+    name: azure-pipelines-agent
+
+- name: Deprovision, generalize and create image from running virtual machine
+  block:
+    - name: Deprovision virtual machine
+      shell: sleep 3; waagent -force -deprovision+user
+      async: 1 # deprovisioning will remove user and close SSH connections
+      poll: 0
+      become: yes
+
+    - name: Generalize virtual machine
+      azure_rm_virtualmachine:
+        resource_group: "{{ resource_group }}"
+        name: "{{ hostname }}"
+        generalized: true
+      delegate_to: localhost
+
+    - name: Create an image from a virtual machine
+      azure_rm_image:
+        resource_group: "{{ resource_group }}"
+        name: "{{ image_name }}"
+        source: "{{ hostname }}"
+      delegate_to: localhost
+
+  always:
+    - name: Remove the VM and all resources that were autocreated
+      azure_rm_virtualmachine:
+        resource_group: "{{ resource_group }}"
+        name: "{{ hostname }}"
+        remove_on_absent: all_autocreated
+        state: absent
+      delegate_to: localhost
+
+  when: create_image|bool

@@ -1,0 +1,6 @@
+# multiple parallel jobs, ansible limit fedora30? problem mit add_host...
+jobs:
+- job: update_agents
+  displayName: Update agents
+  steps:
+    - script: ansible-playbook update_agents.yml -i inventory.yml -e "commit_hash=master"

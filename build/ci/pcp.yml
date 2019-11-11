@@ -1,0 +1,16 @@
+stages:
+- template: stages/build.yml
+  parameters:
+    distributions:
+    - fedora30
+
+- template: stages/test.yml
+  parameters:
+    distributions:
+    - fedora30
+
+- ${{ if eq(variables['release'], 'true') }}:
+  - template: stages/release.yml
+    parameters:
+      distributions:
+      - fedora30

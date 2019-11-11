@@ -1,0 +1,22 @@
+- name: Create PCP directory
+  file:
+    path: /home/pcp/pcp
+    state: directory
+
+- name: Checkout PCP source code
+  git:
+    repo: 'https://github.com/performancecopilot/pcp.git'
+    version: "{{ pcp_commit }}"
+    dest: /home/pcp/pcp
+    depth: 1
+
+- name: Install PCP build dependencies
+  shell: "dnf -y -b --skip-broken install `/home/pcp/pcp/qa/admin/check-vm -fp`"
+  args:
+    warn: no
+  become: yes
+
+- name: Remove PCP directory
+  file:
+    path: /home/pcp/pcp
+    state: absent

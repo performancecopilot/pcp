@@ -1,0 +1,16 @@
+all:
+  children:
+    workers:
+      children:
+        fedora30:
+          hosts:
+            dummy:
+          vars:
+            name: Fedora 30
+            vm_size: Standard_B2s
+            image:
+              marketplace:
+                publisher: tunnelbiz
+                offer: fedora
+                sku: fedora30
+            ansible_python_interpreter: /usr/bin/python3

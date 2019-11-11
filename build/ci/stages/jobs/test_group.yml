@@ -1,0 +1,24 @@
+jobs:
+- job: test_${{ parameters.job }}
+  displayName: Run ${{ parameters.group }} QA on
+  strategy:
+    matrix:
+      ${{ each distribution in parameters.distributions }}:
+        ${{ distribution }}:
+          distribution: ${{ distribution }}
+  pool:
+    name: default
+    cancelTimeoutInMinutes: 10
+    demands:
+    - "Agent.Image -equals $(agent_image_name)"
+    - Build.BuildId -equals $(Build.BuildId)
+  steps:
+  - checkout: none
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: pcp-build-$(distribution)
+      targetPath: $(System.DefaultWorkingDirectory)
+  - script: find
+    displayName: Install Performance Co-Pilot on test agent
+  - script: echo ./check -g ${{ parameters.group }}
+    displayName: Run tests of ${{ parameters.group }} QA group
