@@ -86,6 +86,7 @@ class NetcheckPMDA(PMDA):
 
         self.read_config()
         self.connect_pmcd()
+        self.set_user(PCP.pmGetConfig('PCP_USER'))
 
         self.init_modules()
         self.register_metrics()

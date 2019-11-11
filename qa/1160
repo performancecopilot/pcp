@@ -19,6 +19,11 @@ $python -c "import importlib" >/dev/null 2>&1
 
 which ping > /dev/null 2>&1 || _notrun "ping not installed"
 ping -c 1 localhost > /dev/null 2>&1 || _notrun "failed to ping localhost"
+selinux=$(getenforce 2>/dev/null)
+pgr=$(tr -d '\t' < /proc/sys/net/ipv4/ping_group_range 2>/dev/null)
+if [ "$selinux" = "Enforcing" -a $pgr -eq 10 ]; then
+	_notrun "ping_group_range does not allow creating ICMP Echo sockets"
+fi
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal

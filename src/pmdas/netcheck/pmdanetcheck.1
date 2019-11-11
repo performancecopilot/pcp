@@ -28,6 +28,16 @@ separate PCP netcheck PMDA Python modules running Python code
 or external programs.
 Existing Python modules and programs should be possible to be utilized
 with PCP netcheck PMDA modules with minimal effort.
+.PP
+Note that on SELinux enabled systems for \fBpmdanetcheck\fP to be able to
+use the
+.BR ping (1)
+command the \fBpcp\fP group must be able to create ICMP Echo sockets;
+please make sure the group id for \fBpcp\fP is included in the range at
+.I /proc/sys/net/ipv4/ping_group_range
+and refer to
+.BR icmp (7)
+for more details on this.
 .SH CONFIGURATION
 \fBpmdanetcheck\fP reads a mandatory ini-style configuration file:
 .IP
@@ -180,5 +190,6 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR gai.conf (5),
 .BR resolv.conf (5),
 .BR resolver (5),
+.BR icmp (7),
 and
 .BR ip (8).
