@@ -77,6 +77,9 @@ _service pcp start 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 
+# these sometimes get left around and are owned by root
+$sudo rm -f $PCP_VAR_DIR/config/pmlogger/*.{tmp,saved} 2>/dev/null
+
 echo
 echo "Ping primary logger ..." | tee -a $seq.full
 echo 'connect primary' | pmlc
