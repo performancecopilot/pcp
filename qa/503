@@ -13,7 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
+PMLOGREWRITE=`which pmlogrewrite 2>/dev/null`
+[ -n "$PMLOGREWRITE" ] || _notrun "pmlogrewrite not installed"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -48,7 +49,7 @@ _setup()
 	$sudo cp archives/rewrite.$x $tmp.arch/20111001.22.10.$x
     done
     echo "global { time -> +1:00:00 }" >$tmp.conf.time
-    $sudo pmlogrewrite -c $tmp.conf.time -i $tmp.arch/20111001.22.10
+    $sudo $PMLOGREWRITE -c $tmp.conf.time -i $tmp.arch/20111001.22.10
 
     # pmlogger_daily runs as the user "pcp" ... fix ownership
     #
@@ -148,14 +149,14 @@ do
     echo | tee -a $seq.full
     echo "+++ expect mismatch +++" | tee -a $seq.full
     _setup
-    $sudo pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
+    $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -x never -V -l $tmp.log
     $sudo cat $tmp.log | _filter
 
     echo | tee -a $seq.full
     echo "+++ expect fix via local config file +++" | tee -a $seq.full
     _setup
-    $sudo pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
+    $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo cp $tmp.conf $tmp.arch/pmlogrewrite
     $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -x never -V -l $tmp.log
     $sudo cat $tmp.log | _filter
@@ -164,7 +165,7 @@ do
     echo | tee -a $seq.full
     echo "+++ expect fix via local symlink config file +++" | tee -a $seq.full
     _setup
-    $sudo pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
+    $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo ln -s $tmp.conf $tmp.arch/pmlogrewrite
     $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -x never -V -l $tmp.log
     $sudo cat $tmp.log | _filter
@@ -173,7 +174,7 @@ do
     echo | tee -a $seq.full
     echo "+++ expect fix via global config dir +++" | tee -a $seq.full
     _setup
-    $sudo pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
+    $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo mkdir -p $PCP_VAR_DIR/config/pmlogrewrite
     $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
     $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -x never -V -l $tmp.log
@@ -184,7 +185,7 @@ do
     echo | tee -a $seq.full
     echo "+++ expect fix via symlink to global config dir +++" | tee -a $seq.full
     _setup
-    $sudo pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
+    $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo mkdir -p $PCP_VAR_DIR/config/pmlogrewrite
     $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
     $sudo ln -s $PCP_VAR_DIR/config/pmlogrewrite $tmp.arch/pmlogrewrite
@@ -198,7 +199,7 @@ done
 echo | tee -a $seq.full
 echo "+++ expect fail when -r used and local config file present +++" | tee -a $seq.full
 _setup
-$sudo pmlogrewrite -c $tmp.conf -i $tmp.arch/20111001.22.10
+$sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
 $sudo cp $tmp.conf $tmp.arch/pmlogrewrite
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -r -c $tmp.control -x never -V -l $tmp.log
 $sudo cat $tmp.log | _filter
