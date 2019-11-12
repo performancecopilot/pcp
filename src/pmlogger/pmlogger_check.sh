@@ -983,7 +983,9 @@ then
 fi
 
 # Prior to exiting we compress existing logs, if any. See pmlogger_daily -K
-_compress_now
+# Do not compress on a virgin install - it confuses systemd's Type=forking
+# exit status checks. There is nothing to compress anyway. See RHBZ#1721223.
+[ -f "$PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp" ] && _compress_now
 
 [ -f $tmp/err ] && status=1
 exit
