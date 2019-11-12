@@ -80,7 +80,7 @@ _cleanup()
 
     $sudo $PCP_BINADM_DIR/pmlogger_check
     _service pmlogger restart >/dev/null 2>&1
-    _restore_auto_restart pmmlogger
+    _restore_auto_restart pmlogger
     _wait_for_pmlogger
 }
 
