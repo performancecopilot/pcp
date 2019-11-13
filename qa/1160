@@ -20,8 +20,16 @@ $python -c "import importlib" >/dev/null 2>&1
 which ping > /dev/null 2>&1 || _notrun "ping not installed"
 ping -c 1 localhost > /dev/null 2>&1 || _notrun "failed to ping localhost"
 selinux=$(getenforce 2>/dev/null)
-pgr=$(tr -d '\t' < /proc/sys/net/ipv4/ping_group_range 2>/dev/null)
+pgr=0
+if [ -f /proc/sys/net/ipv4/ping_group_range ]; then
+	pgr=$(tr -d '\t' < /proc/sys/net/ipv4/ping_group_range 2>/dev/null)
+fi
 if [ "$selinux" = "Enforcing" -a $pgr -eq 10 ]; then
+	seinfo --common > /dev/null 2>&1 && scf=--common
+	seinfo -x --class=icmp_socket $scf 2>/dev/null \
+	| grep '^[ 	][ 	]*class icmp_socket$' >/dev/null && icmp_cls=true
+fi
+if [ "$selinux" = "Enforcing" -a $pgr -eq 10 -a "$icmp_cls" = "true" ]; then
 	_notrun "ping_group_range does not allow creating ICMP Echo sockets"
 fi
 
