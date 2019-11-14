@@ -1,0 +1,20 @@
+- name: "Check if image {{ image_name }} exists"
+  azure_rm_image_info:
+    resource_group: "{{ resource_group }}"
+    name: "{{ image_name }}"
+  register: output_image_info
+  ignore_errors: yes
+
+- name: Decide if image should be built
+  set_fact:
+    build_image: "{{ output_image_info.failed or force_create|bool }}"
+
+- debug:
+    msg: >
+      Image for {{ distribution}}
+      {% if pcp_dependencies|bool %}with{% else %}without{% endif %} PCP build dependencies ({{ image_name }})
+      {% if output_image_info.failed %}does not exist{% else %}exists{% endif %} and
+      {% if build_image %}will{% else %}won't{% endif %} be built
+
+- import_tasks: start_image_builder.yml
+  when: build_image

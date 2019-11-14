@@ -1,0 +1,18 @@
+- name: Create PCP directory
+  file:
+    path: /home/pcp/pcp
+    state: directory
+
+- name: Checkout PCP source code
+  git:
+    repo: "https://github.com/performancecopilot/pcp.git"
+    version: "{{ pcp_commit }}"
+    dest: /home/pcp/pcp
+    depth: 1
+
+- include_tasks: "pcp_build_dependencies_{{ ansible_facts['distribution'] }}.yml"
+
+- name: Remove PCP directory
+  file:
+    path: /home/pcp/pcp
+    state: absent

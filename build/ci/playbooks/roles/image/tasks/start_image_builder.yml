@@ -1,0 +1,23 @@
+- name: Set image builder hostname
+  set_fact:
+    image_builder_host: "image-builder-{{ distribution }}{% if pcp_dependencies|bool %}-deps{% endif %}"
+
+- name: Start virtual machine from base distribution image
+  azure_rm_virtualmachine:
+    resource_group: "{{ resource_group }}"
+    name: "{{ image_builder_host }}"
+    vm_size: "{{ distribution_opts.vm_size }}"
+    image: "{{ distribution_opts.base_image }}"
+    plan: "{{ distribution_opts.plan | default(omit) }}"
+    accept_terms: "{{ distribution_opts.plan is defined }}"
+    admin_username: pcp
+    ssh_password_enabled: no
+    ssh_public_keys:
+      - path: /home/pcp/.ssh/authorized_keys
+        key_data: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Update host IP in inventory
+  add_host:
+      hostname: "{{ image_builder_host }}"
+      ansible_host: "{{ azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
+      ansible_user: pcp

@@ -1,0 +1,17 @@
+- name: Create a virtual network for agents
+  azure_rm_virtualnetwork:
+    resource_group: "{{ resource_group }}"
+    name: pcp-network
+    address_prefixes_cidr:
+      - "10.1.0.0/16"
+  delegate_to: localhost
+  run_once: yes
+
+- name: Create a subnet of pcp-network
+  azure_rm_subnet:
+    resource_group: "{{ resource_group }}"
+    virtual_network_name: pcp-network
+    name: pcp-subnet
+    address_prefix_cidr: "10.1.0.0/24"
+  delegate_to: localhost
+  run_once: yes

@@ -1,0 +1,35 @@
+- name: Set scale set name
+  set_fact:
+    scale_set: "build-{{ build_id }}-{{ distribution }}"
+
+- name: Set Ansible group name for scale set 
+  set_fact:
+    scale_set_group: "vmss_{{ scale_set | replace('-', '_') }}"
+
+- name: Create a VM scale set
+  azure_rm_virtualmachinescaleset:
+    resource_group: "{{ resource_group }}"
+    name: "{{ scale_set }}"
+    vm_size: "{{ distribution_opts.vm_size }}"
+    image: "{{ image_name }}"
+    plan: "{{ distribution_opts.plan | default(omit) }}"
+    admin_username: pcp
+    ssh_password_enabled: no
+    ssh_public_keys:
+      - path: /home/pcp/.ssh/authorized_keys
+        key_data: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    virtual_network_name: pcp-network
+    subnet_name: pcp-subnet
+    public_ip_per_vm: yes
+    upgrade_policy: Manual
+    managed_disk_type: Standard_LRS
+    capacity: 2
+    tags:
+      build_id: "{{ build_id }}"
+      pcp_commit: "{{ pcp_commit }}"
+
+- meta: refresh_inventory
+
+- name: Set build host
+  set_fact:
+    build_host: "{{ groups[scale_set_group] | sort | first }}"

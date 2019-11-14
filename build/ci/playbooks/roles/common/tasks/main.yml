@@ -1,0 +1,6 @@
+- name: Set environment variables
+  set_fact:
+    image_name: "agent-image-{{ distribution }}{% if pcp_dependencies|bool %}-deps{% endif %}"
+    distribution_opts: "{{ distributions[distribution] }}"
+
+- import_tasks: network.yml

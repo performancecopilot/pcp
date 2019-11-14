@@ -1,0 +1,13 @@
+plugin: azure_rm
+
+hostvar_expressions:
+  ansible_user: "'pcp'"
+
+include_vmss_resource_groups:
+  - PCP_Builds
+
+keyed_groups:
+  - prefix: vmss
+    key: vmss.name | default('none')
+  - prefix: build
+    key: build_id | default('none')

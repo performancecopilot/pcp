@@ -1,0 +1,9 @@
+- name: Configure agent scale set
+  hosts: localhost
+  roles:
+    - agent_scale_set
+
+- name: Build PCP
+  hosts: "{{ hostvars.localhost.build_host }}"
+  roles:
+    - build
