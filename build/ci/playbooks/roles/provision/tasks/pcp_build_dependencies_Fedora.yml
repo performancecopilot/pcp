@@ -1,5 +1,0 @@
-- name: Install PCP build dependencies
-  shell: "dnf -y -b --skip-broken install `/home/pcp/pcp/qa/admin/check-vm -fp`"
-  args:
-    warn: no
-  become: yes

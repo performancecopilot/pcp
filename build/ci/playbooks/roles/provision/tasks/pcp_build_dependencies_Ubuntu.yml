@@ -1,5 +1,0 @@
-- name: Install PCP build dependencies
-  shell: "apt-get install -y `./qa/admin/check-vm -p`"
-  args:
-    warn: no
-  become: yes

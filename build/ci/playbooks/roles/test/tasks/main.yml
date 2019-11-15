@@ -1,4 +1,0 @@
-- shell: find
-
-- debug:
-    msg: "abc {{ ansible_play_batch.index(inventory_hostname) }} me {{ inventory_hostname }}"

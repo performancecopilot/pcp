@@ -1,0 +1,31 @@
+name: PCP Continuous Integration
+on: [push]
+
+jobs:
+  build:
+    name: QA
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distribution: [fedora30, ubuntu1804]
+    env:
+      BUILD_ID: 1
+      PCP_COMMIT: ${{ github.sha }}
+    steps:
+    - uses: actions/checkout@master
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Create SSH key pair
+      run: ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -P ""
+    - name: Start scale set
+      run: ./build/ci/run_script.sh start_vmss.sh ${{ matrix.distribution }}
+    - name: Build
+      run: ./build/ci/run_script.sh start_build.sh ${{ matrix.distribution }}
+    - name: Publish artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: pcp-${{ matrix.distribution }}
+        path: /tmp/artifacts
+    - name: Test
+      run: ./build/ci/run_script.sh start_test.sh ${{ matrix.distribution }}
