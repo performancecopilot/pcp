@@ -1,0 +1,12 @@
+jobs:
+  - job: prepare
+    displayName: Prepare
+    steps:
+    - checkout: none
+    - script: |
+        python -c 'import json,os; print("##vso[task.setVariable variable=matrix;isOutput=true]" +
+          json.dumps({host:{"ci_host":host} for host in os.environ["HOSTS"].split(",")}))'
+      env:
+        HOSTS: $(hosts)
+      name: matrix_step
+      displayName: Prepare Job Matrix

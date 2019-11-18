@@ -1,0 +1,36 @@
+steps:
+  - checkout: self
+    fetchDepth: 1
+  - script: |
+      set -eu
+      sudo apt-get install -y parallel
+      ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -q -P ""
+      az login --service-principal -u "${AZ_CLIENT_ID}" -p "${AZ_CLIENT_SECRET}" --tenant "${AZ_TENANT}"
+    displayName: Setup
+    env:
+      AZ_CLIENT_ID: $(AzClientId)
+      AZ_CLIENT_SECRET: $(AzClientSecret)
+      AZ_TENANT: $(AzTenant)
+  - script: ./build/ci/scripts/start_vmss.sh "$(ci_host)"
+    env:
+      BUILD_ID: $(Build.BuildId)
+      GIT_REPO: $(Build.Repository.Uri)
+      GIT_COMMIT: $(Build.SourceVersion)
+    displayName: Start VMs
+  - script: ./build/ci/scripts/start_build.sh "$(ci_host)"
+    env:
+      BUILD_ID: $(Build.BuildId)
+      GIT_REPO: $(Build.Repository.Uri)
+      GIT_COMMIT: $(Build.SourceVersion)
+    displayName: Build
+  - publish: ./artifacts
+    artifact: $(ci_host)
+  - script: ./build/ci/scripts/start_tests.sh "$(ci_host)"
+    env:
+      BUILD_ID: $(Build.BuildId)
+    displayName: Test
+  - script: ./build/ci/scripts/stop_vmss.sh "$(ci_host)"
+    env:
+      BUILD_ID: $(Build.BuildId)
+    displayName: Stop VMs
+    condition: always()

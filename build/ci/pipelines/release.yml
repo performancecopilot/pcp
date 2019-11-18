@@ -1,0 +1,16 @@
+trigger: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+jobs:
+  - template: templates/matrix.yml
+
+  - job: release
+    dependsOn: prepare
+    displayName: "Release:"
+    strategy:
+      matrix: $[ dependencies.prepare.outputs['matrix_step.matrix'] ]
+    steps:
+      - template: templates/qa-steps.yml
+      - script: find

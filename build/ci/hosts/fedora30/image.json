@@ -1,0 +1,62 @@
+{
+  "variables": {
+    "subscription_id": "{{env `AZ_SUBSCRIPTION_ID`}}",
+    "client_id": "{{env `AZ_CLIENT_ID`}}",
+    "client_secret": "{{env `AZ_CLIENT_SECRET`}}",
+    "resource_group": "{{env `AZ_RESOURCE_GROUP`}}",
+    "location": "{{env `AZ_LOCATION`}}",
+    "vm_size": "{{env `AZ_VM_SIZE`}}",
+    "image": "{{env `AZ_IMAGE`}}",
+    "git_repo": "{{env `GIT_REPO`}}",
+    "git_commit": "{{env `GIT_COMMIT`}}"
+  },
+  "sensitive-variables": [
+    "client_secret"
+  ],
+  "builders": [{
+    "type": "azure-arm",
+
+    "subscription_id": "{{user `subscription_id`}}",
+    "client_id": "{{user `client_id`}}",
+    "client_secret": "{{user `client_secret`}}",
+
+    "managed_image_resource_group_name": "{{user `resource_group`}}",
+    "managed_image_name": "{{user `image`}}",
+
+    "os_type": "Linux",
+    "image_publisher": "tunnelbiz",
+    "image_offer": "fedora",
+    "image_sku": "fedora30",
+    "plan_info": {
+      "plan_publisher": "tunnelbiz",
+      "plan_product": "fedora",
+      "plan_name": "fedora30"
+    },
+
+    "location": "{{user `location`}}",
+    "vm_size": "{{user `vm_size`}}",
+
+    "azure_tags": {
+      "git_repo": "{{user `git_repo`}}",
+      "git_commit": "{{user `git_commit`}}"
+    }
+  }],
+  "provisioners": [
+    { "type": "file", "source": "common/fedora/provision.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/fedora/build.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/fedora/install.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/fedora/test.sh", "destination": "/tmp/" },
+    {
+      "type": "shell",
+      "environment_vars": [
+        "GIT_REPO={{user `git_repo`}}",
+        "GIT_COMMIT={{user `git_commit`}}"
+      ],
+      "inline": [
+        "sudo mkdir /usr/local/ci",
+        "sudo mv /tmp/provision.sh /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci",
+        "/usr/local/ci/provision.sh"
+      ]
+    }
+  ]
+}
