@@ -45,7 +45,7 @@
     { "type": "file", "source": "common/fedora/provision.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/fedora/build.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/fedora/install.sh", "destination": "/tmp/" },
-    { "type": "file", "source": "common/fedora/test.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/linux/test.sh", "destination": "/tmp/" },
     {
       "type": "shell",
       "environment_vars": [

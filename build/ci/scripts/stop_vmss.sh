@@ -5,4 +5,5 @@ cd "$(dirname "$0")/.."
 
 az vmss delete \
   --resource-group "${AZ_RESOURCE_GROUP}" \
-  --name "${AZ_VMSS}"
+  --name "${AZ_VMSS}" \
+  --no-wait

@@ -40,7 +40,7 @@
     { "type": "file", "source": "common/debian/provision.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/debian/build.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/debian/install.sh", "destination": "/tmp/" },
-    { "type": "file", "source": "common/debian/test.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/linux/test.sh", "destination": "/tmp/" },
     {
       "type": "shell",
       "environment_vars": [

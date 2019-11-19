@@ -12,25 +12,36 @@ steps:
       AZ_CLIENT_SECRET: $(AzClientSecret)
       AZ_TENANT: $(AzTenant)
   - script: ./build/ci/scripts/start_vmss.sh "$(ci_host)"
-    env:
-      BUILD_ID: $(Build.BuildId)
-      GIT_REPO: $(Build.Repository.Uri)
-      GIT_COMMIT: $(Build.SourceVersion)
     displayName: Start VMs
-  - script: ./build/ci/scripts/start_build.sh "$(ci_host)"
     env:
       BUILD_ID: $(Build.BuildId)
       GIT_REPO: $(Build.Repository.Uri)
       GIT_COMMIT: $(Build.SourceVersion)
+  - script: ./build/ci/scripts/start_build.sh "$(ci_host)"
     displayName: Build
+    env:
+      BUILD_ID: $(Build.BuildId)
+      GIT_REPO: $(Build.Repository.Uri)
+      GIT_COMMIT: $(Build.SourceVersion)
   - publish: ./artifacts
     artifact: $(ci_host)
-  - script: ./build/ci/scripts/start_tests.sh "$(ci_host)"
-    env:
-      BUILD_ID: $(Build.BuildId)
+  - script: |
+      ./build/ci/scripts/start_tests.sh "$(ci_host)"
+      status=$?
+      ./build/ci/scripts/create_junitreport.py ./test-results > ./test-results/tests.xml
+      exit $status
     displayName: Test
-  - script: ./build/ci/scripts/stop_vmss.sh "$(ci_host)"
     env:
       BUILD_ID: $(Build.BuildId)
+  - task: PublishTestResults@2
+    condition: always()
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: '*.xml'
+      searchFolder: './test-results'
+      testRunTitle: $(ci_host)
+  - script: ./build/ci/scripts/stop_vmss.sh "$(ci_host)"
     displayName: Stop VMs
     condition: always()
+    env:
+      BUILD_ID: $(Build.BuildId)
