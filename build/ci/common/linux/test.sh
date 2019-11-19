@@ -1,7 +1,7 @@
 #!/bin/sh -u
 
 cd /var/lib/pcp/testsuite
-./check $1 2>&1
+sudo -u pcpqa ./check $1 2>&1
 status=$?
 
 if [ $status -ne 0 ]; then

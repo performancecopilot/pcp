@@ -20,9 +20,9 @@ jobs:
           unzip packer_*_linux_amd64.zip
           PATH="$(pwd):$PATH" ./build/ci/scripts/build_image.sh "$(ci_host)"
         env:
-          AZ_SUBSCRIPTION_ID: $(AzSubscriptionId)
-          AZ_CLIENT_ID: $(AzClientId)
-          AZ_CLIENT_SECRET: $(AzClientSecret)
+          AZ_SUBSCRIPTION_ID: $(AZ_SUBSCRIPTION_ID)
+          AZ_CLIENT_ID: $(AZ_CLIENT_ID)
+          AZ_CLIENT_SECRET: $(AZ_CLIENT_SECRET)
           GIT_REPO: $(Build.Repository.Uri)
           GIT_COMMIT: $(Build.SourceVersion)
         displayName: Build

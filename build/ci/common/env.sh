@@ -11,8 +11,6 @@ AZ_IMAGE="image-${CI_HOST}"
 AZ_PLAN_INFO=""
 [ ! -z ${BUILD_ID+x} ] && AZ_VMSS="build-${BUILD_ID}-${CI_HOST}"
 
-SSH="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-
 if [ -e "hosts/${CI_HOST}/env.sh" ]; then
     . "hosts/${CI_HOST}/env.sh"
 fi

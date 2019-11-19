@@ -6,11 +6,11 @@ steps:
       sudo apt-get install -y parallel
       ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -q -P ""
       az login --service-principal -u "${AZ_CLIENT_ID}" -p "${AZ_CLIENT_SECRET}" --tenant "${AZ_TENANT}"
-    displayName: Setup
     env:
-      AZ_CLIENT_ID: $(AzClientId)
-      AZ_CLIENT_SECRET: $(AzClientSecret)
-      AZ_TENANT: $(AzTenant)
+      AZ_CLIENT_ID: $(AZ_CLIENT_ID)
+      AZ_CLIENT_SECRET: $(AZ_CLIENT_SECRET)
+      AZ_TENANT: $(AZ_TENANT)
+    displayName: Setup
   - script: ./build/ci/scripts/start_vmss.sh "$(ci_host)"
     displayName: Start VMs
     env:
@@ -23,22 +23,23 @@ steps:
       BUILD_ID: $(Build.BuildId)
       GIT_REPO: $(Build.Repository.Uri)
       GIT_COMMIT: $(Build.SourceVersion)
+  - script: ./build/ci/scripts/start_install.sh "$(ci_host)"
+    displayName: Install
+    env:
+      BUILD_ID: $(Build.BuildId)
   - publish: ./artifacts
+    displayName: Publish build artifacts
     artifact: $(ci_host)
-  - script: |
-      ./build/ci/scripts/start_tests.sh "$(ci_host)"
-      status=$?
-      ./build/ci/scripts/create_junitreport.py ./test-results > ./test-results/tests.xml
-      exit $status
+  - script: ./build/ci/scripts/start_tests.sh "$(ci_host)"
     displayName: Test
     env:
       BUILD_ID: $(Build.BuildId)
   - task: PublishTestResults@2
+    displayName: Publish test results
     condition: always()
     inputs:
       testResultsFormat: JUnit
       testResultsFiles: '*.xml'
-      searchFolder: './test-results'
       testRunTitle: $(ci_host)
   - script: ./build/ci/scripts/stop_vmss.sh "$(ci_host)"
     displayName: Stop VMs
