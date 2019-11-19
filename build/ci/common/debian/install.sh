@@ -1,4 +1,4 @@
-#!/bin/sh -eux
+#!/bin/sh -eu
 
 cd /home/pcp/artifacts
 sudo dpkg -i *.deb
