@@ -245,7 +245,7 @@ allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open re
 
 
 #type=AVC msg=audit(YYY.50): avc:  denied  { sys_ptrace } for  pid=30881 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=capability permissive=0
-allow pcp_pmie_t self:capability { chown fowner dac_override kill net_admin sys_ptrace };
+allow pcp_pmie_t self:capability { chown fowner dac_override kill net_admin sys_ptrace fsetid };
 
 #RHBZ1517656
 #type=AVC msg=audit(XXX.50): avc:  denied  { read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:proc_net_t:s0 tclass=file permissive=0
