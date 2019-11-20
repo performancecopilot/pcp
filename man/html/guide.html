@@ -36,13 +36,14 @@
     <LI><A HREF="#hotproc">Monitoring “Hot” Processes with Hotproc</A>
     <LI><A HREF="#instrument">Application Instrumentation</A>
   </UL>
-  <LI><A HREF="#derived">Derived Metrics</A>
   <LI><A HREF="#pmie">Performance Metrics Inference</A>
+  <LI><A HREF="#pmseries">Fast, Scalable Time Series Querying</A>
   <LI><A HREF="#web">Web Services</A>
   <UL>
     <LI><A HREF="#pmproxy">Performance Metrics REST APIs</A>
     <LI><A HREF="#grafana">Web Interface for Performance Metrics</A>
   </UL>
+  <LI><A HREF="#derived">Derived Metrics</A>
   <LI><A HREF="#custom">Customizing and Extending PCP</A>
   <LI><A HREF="#next">Additional Information</A>
 </UL>
@@ -456,35 +457,6 @@ Enable monitoring of all Java instances on the fly and display all the collected
 
 <P>See the <A HREF="https://pcp.io/doc/pcp-programmers-guide.pdf">Performance Co-Pilot Programmer's Guide PDF</A> for more information about application instrumentation.
 
-<a name="derived"></a>
-<H1>Derived Metrics</H1>
-
-<P>PCP provides a wide range of performance metrics but still in some cases the readily available metrics may not exactly provide what is needed. Derived metrics (see <a href="http://man7.org/linux/man-pages/man3/pmloadderivedconfig.3.html">pmLoadDerivedConfig(3)</a>) may be used to extend the available metrics with new (derived) metrics by using simple arithmetic expressions (see <a href="http://man7.org/linux/man-pages/man3/pmregisterderived.3.html">pmRegisterDerived(3)</a>).
-
-<P>The following example illustrates how to define corresponding metrics which are displayed by <KBD>sar -d</KBD> but are not provided by default by PCP:
-
-<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Create a file containing definitions of derived metrics and point PCP_DERIVED_CONFIG to it when running PCP utilities:</BR><B>
-<BR> $ cat ./pcp-deriv-metrics.conf
-<BR> disk.dev.avqsz = disk.dev.read_rawactive + disk.dev.write_rawactive
-<BR> disk.dev.avrqsz = 2 * rate(disk.dev.total_bytes) / rate(disk.dev.total)
-<BR> disk.dev.await = 1000 * (rate(disk.dev.read_rawactive) + rate(disk.dev.write_rawactive)) / rate(disk.dev.total)
-<BR> $ export PCP_DERIVED_CONFIG=./pcp-deriv-metrics.conf
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.dev.avqsz
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.dev.avrqsz -h acme.com
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.dev.await -a acme.com/20140902</B>
-</TD></TR>
-</TABLE>
-
-<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Define a derived metric on the command line and monitor it with standard metrics:</BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -t 2sec -p -b MB -e "mem.util.allcache = mem.util.bufmem + mem.util.cached + mem.util.slab" mem.util.free mem.util.allcache mem.util.used
-</TD></TR>
-</TABLE>
-
-
 <a name="pmie"></a>
 <H1>Performance Metrics Inference</H1>
 
@@ -526,6 +498,30 @@ This example shows a PMIE script, checks its syntax, runs it against an archive,
 </TABLE>
 
 
+<a name="pmseries"></a>
+<H1>Fast, Scalable Time Series Querying</H1>
+
+<P>Performance Metrics Series (<a href="http://man7.org/linux/man-pages/man1/pmseries.1.html">pmseries(1)</a>) works with local pmlogger and <a href="http://redis.io">Redis</a> servers to allow fast, scalable performance queries spanning multiple hosts.
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable and start PMIE:<br><B>
+<br> # systemctl enable pmlogger pmproxy redis
+<br> # systemctl start pmlogger pmproxy redis
+</B></TD></TR>
+</TABLE>
+
+<P>Redis can be run standalone or in large, highly available setups.
+It is also provided as a scalable service by many cloud vendors.
+
+<P>The metrics indexing process is designed to spread data across
+multiple Redis nodes for improved query performance, so adding more
+nodes can significantly improve performance.
+
+<P>Examples of the <a href="http://man7.org/linux/man-pages/man1/pmseries.1.html">pmseries</a> query language can be found on the man page.
+These queries can be executed from the command line utility, or from
+the <a href="https://github.com/performancecopilot/grafana-pcp">grafana-pcp</a> plugin for Grafana (see the <A HREF="#web">PCP Web Services</A> section below).
+
+
 <a name="web"></a>
 <H1>PCP Web Services</H1>
 
@@ -546,7 +542,43 @@ This example shows a PMIE script, checks its syntax, runs it against an archive,
 
 <P><A HREF="https://grafana.com/">Grafana</A> is the recommended web interface for accessing PCP performance metrics over HTTP.
 
-<P>After installing the PCP REST API services as described above, install the grafana-pcp package and then just point a browser toward <a href="http://localhost:3000">http://localhost:3000</a>.
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PCP REST APIs service:<br><B>
+<br> # systemctl enable grafana-server
+<br> # systemctl start grafana-server
+</B></TD></TR>
+</TABLE>
+
+<P>After installing the PCP REST API services as described above, install the <a href="https://github.com/performancecopilot/grafana-pcp">grafana-pcp</a> package and then point a browser toward <a href="http://localhost:3000">http://localhost:3000</a>.
+
+<a name="derived"></a>
+<H1>Derived Metrics</H1>
+
+<P>PCP provides a wide range of performance metrics but still in some cases the readily available metrics may not exactly provide what is needed. Derived metrics (see <a href="http://man7.org/linux/man-pages/man3/pmloadderivedconfig.3.html">pmLoadDerivedConfig(3)</a>) may be used to extend the available metrics with new (derived) metrics by using simple arithmetic expressions (see <a href="http://man7.org/linux/man-pages/man3/pmregisterderived.3.html">pmRegisterDerived(3)</a>).
+
+<P>The following example illustrates how to define corresponding metrics which are displayed by <KBD>sar -d</KBD> but are not provided by default by PCP:
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+Create a file containing definitions of derived metrics and point PCP_DERIVED_CONFIG to it when running PCP utilities:</BR><B>
+<BR> $ cat ./pcp-deriv-metrics.conf
+<BR> disk.dev.avqsz = disk.dev.read_rawactive + disk.dev.write_rawactive
+<BR> disk.dev.avrqsz = 2 * rate(disk.dev.total_bytes) / rate(disk.dev.total)
+<BR> disk.dev.await = 1000 * (rate(disk.dev.read_rawactive) + rate(disk.dev.write_rawactive)) / rate(disk.dev.total)
+<BR> $ export PCP_DERIVED_CONFIG=./pcp-deriv-metrics.conf
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.dev.avqsz
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.dev.avrqsz -h acme.com
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.dev.await -a acme.com/20140902</B>
+</TD></TR>
+</TABLE>
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+Define a derived metric on the command line and monitor it with standard metrics:</BR><B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -t 2sec -p -b MB -e "mem.util.allcache = mem.util.bufmem + mem.util.cached + mem.util.slab" mem.util.free mem.util.allcache mem.util.used
+</TD></TR>
+</TABLE>
+
 
 <a name="custom"></a>
 <H1>Customizing and Extending PCP</H1>
