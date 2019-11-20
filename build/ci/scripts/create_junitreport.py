@@ -13,7 +13,7 @@ def parse_results_dir(results_dir):
         for test_no in os.listdir(os.path.join(results_dir, group)):
             path = os.path.join(results_dir, group, test_no)
             test = {
-                "no": test_no,
+                "no": int(test_no),
                 "stdout": open(os.path.join(path, "stdout")).read(),
                 "stderr": open(os.path.join(path, "stderr")).read()
             }
@@ -26,25 +26,27 @@ def parse_results_dir(results_dir):
                 test["skipped"] = notrun_m.group(2)
             else:
                 test["failed"] = "Test failed"
-                test["failed_reason"] = test["stderr"]
+                test["failed_reason"] = test["stdout"]
             tests.append(test)
 
     return tests
 
-def parse_testsuite(results_dir):
+def parse_testsuite(job_file, results_dir):
     """parse test output and calculate summary properties"""
     testsuite = {
         "name": "tests",
         "tests": parse_results_dir(results_dir)
     }
 
-    #test_durations = {}
-    #with open('check.time') as f:
-    #    for line in f:
-    #        no, duration = line.strip().split(' ')
-    #        test_durations[no] = int(duration)
+    test_durations = {}
+    with open(job_file) as f:
+        next(f) # skip header
+        for line in f:
+            spl = line.split("\t")
+            no = int(spl[8].split(" ")[1])
+            test_durations[no] = float(spl[3])
     for test in testsuite["tests"]:
-        test["time"] = 0
+        test["time"] = test_durations.get(test["no"], 0)
 
     testsuite["tests_cnt"] = len(testsuite["tests"])
     testsuite["skipped_cnt"] = len([test for test in testsuite["tests"] if "skipped" in test])
@@ -52,10 +54,10 @@ def parse_testsuite(results_dir):
     testsuite["time"] = sum([test["time"] for test in testsuite["tests"]])
     return testsuite
 
-def create_report(results_dir):
+def create_report(job_file, results_dir):
     """generates a JUnit report"""
     testsuites = []
-    testsuites.append(parse_testsuite(results_dir))
+    testsuites.append(parse_testsuite(job_file, results_dir))
 
     print('<?xml version="1.0" encoding="UTF-8"?>')
     print('<testsuites>')
@@ -80,4 +82,7 @@ def create_report(results_dir):
     print('</testsuites>')
 
 if __name__ == '__main__':
-    create_report(sys.argv[1])
+    if len(sys.argv) != 3:
+        print("usage: {} tests-job-file tests-results-directory".format(sys.argv[0]))
+        sys.exit(1)
+    create_report(sys.argv[1], sys.argv[2])

@@ -2,7 +2,7 @@
 
 sudo apt-get update
 #sudo apt-get dist-upgrade
-sudo apt-get install -y git
+sudo apt-get install -y git rsync
 
 git clone "${GIT_REPO}"
 cd pcp

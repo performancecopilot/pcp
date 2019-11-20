@@ -1,4 +1,4 @@
-SSH="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+SSH="ssh -F scripts/vmss_ssh_config"
 
 HOST_IPS=$(az vmss list-instance-public-ips \
   --resource-group "${AZ_RESOURCE_GROUP}" \
