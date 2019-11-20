@@ -1245,6 +1245,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for the Postfix (MTA)
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = @package_version@
+Requires: perl-Time-HiRes
 %if 0%{?fedora} > 16 || 0%{?rhel} > 5
 Requires: postfix-perl-scripts
 %endif

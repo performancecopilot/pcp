@@ -1216,6 +1216,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for the Postfix (MTA)
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl-Time-HiRes
 %if 0%{?fedora} > 16 || 0%{?rhel} > 5
 Requires: postfix-perl-scripts
 BuildRequires: postfix-perl-scripts
@@ -3184,6 +3185,7 @@ cd
 
 %changelog
 * Wed Dec 18 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.2-1
+- Fix dstat exception writing to a closed fd (BZ 1768619)
 - Work in progress: https://github.com/performancecopilot/pcp/projects/1
 
 * Mon Nov 04 2019 Nathan Scott <nathans@redhat.com> - 5.0.1-1
