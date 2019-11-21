@@ -1,8 +1,7 @@
 #!/bin/sh -eux
 
-export DEBIAN_FRONTEND=noninteractive
 sudo apt-get update
-sudo apt-get -y dist-upgrade
+sudo DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
 sudo apt-get install -y git rsync
 
 git clone "${GIT_REPO}"
@@ -11,7 +10,7 @@ git checkout "${GIT_COMMIT}"
 
 for i in `./qa/admin/check-vm -p`
 do
-    sudo apt-get install -y $i || true
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $i || true
 done
 sudo apt-get install -y zlib1g-dev
 

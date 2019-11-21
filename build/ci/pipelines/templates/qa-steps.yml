@@ -11,7 +11,7 @@ steps:
       AZ_CLIENT_SECRET: $(AZ_CLIENT_SECRET)
       AZ_TENANT: $(AZ_TENANT)
     displayName: Setup
-  - script: ./build/ci/scripts/start_vmss.sh "$(ci_host)"
+  - script: ./build/ci/scripts/start_vmss.sh "$(ci_host)" "$(vm_count)"
     displayName: Start VMs
     env:
       BUILD_ID: $(Build.BuildId)

@@ -8,7 +8,7 @@ az vmss create \
   --name "${AZ_VMSS}" \
   --vm-sku "${AZ_VM_SIZE}" \
   --computer-name-prefix "${AZ_VMSS}-inst" \
-  --instance-count 4 \
+  --instance-count "$2" \
   --image "${AZ_IMAGE}" \
   --lb "" \
   --public-ip-per-vm \
