@@ -54,8 +54,8 @@
       ],
       "inline": [
         "sudo mkdir /usr/local/ci",
-        "sudo mv /tmp/provision.sh /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci",
-        "/usr/local/ci/provision.sh"
+        "sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci",
+        "/tmp/provision.sh"
       ]
     }
   ]

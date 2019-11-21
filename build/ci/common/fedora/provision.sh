@@ -1,6 +1,6 @@
 #!/bin/sh -eux
 
-#sudo dnf upgrade
+sudo dnf -y upgrade
 sudo dnf install -y git
 
 git clone "${GIT_REPO}"
