@@ -147,6 +147,61 @@ pmDiscoverTraverse(unsigned int flags, void (*callback)(pmDiscover *))
 }
 
 /*
+ * Traverse and purge deleted entries
+ * Return count of purged entries.
+ */
+static int
+pmDiscoverPurgeDeleted(void)
+{
+    int			count = 0, i;
+    pmDiscover		*p, *prev, *next;
+
+    for (i = 0; i < PM_DISCOVER_HASHTAB_SIZE; i++) {
+	p = discover_hashtable[i];
+	prev = NULL;
+    	while (p) {
+	    next = p->next;
+
+	    if (p->flags & PM_DISCOVER_FLAGS_DELETED) {
+		if (prev)
+		    prev->next = next;
+		else
+		    discover_hashtable[i] = next;
+
+		/* now delete p and all of it's resources */
+		if (p->ctx >= 0)
+		    pmDestroyContext(p->ctx);
+		if (p->fd >= 0)
+		    close(p->fd);
+		if (p->context.name)
+		    sdsfree(p->context.name);
+		if (p->context.source)
+		    sdsfree(p->context.source);
+
+#if 0 /* TODO: this next line segfaults - need to understand why */
+		if (p->context.labelset)
+		    pmFreeLabelSets(p->context.labelset, 1);
+#endif
+
+		memset(p, 0, sizeof(pmDiscover));
+		free(p);
+
+		count++;
+	    }
+	    else
+		prev = p;
+
+	    p = next;
+	}
+    }
+
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "pmDiscoverPurgeDeleted: purged %d entries\n", count);
+
+    return count;
+}
+
+/*
  * Discover dirs and archives - add new entries or refresh existing.
  * Call this for each top-level directory. Discovered paths are not
  * automatically monitored. After discovery, need to traverse and
@@ -344,6 +399,8 @@ static struct {
     { PM_DISCOVER_FLAGS_META, "metavol|" },
     { PM_DISCOVER_FLAGS_COMPRESSED, "compressed|" },
     { PM_DISCOVER_FLAGS_MONITORED, "monitored|" },
+    { PM_DISCOVER_FLAGS_DATAVOL_READY, "datavol-ready|" },
+    { PM_DISCOVER_FLAGS_META_IN_PROGRESS, "metavol-in-progress|" },
     { 0, NULL }
 };
 
@@ -611,15 +668,19 @@ pmDiscoverNewSource(pmDiscover *p, int context)
     pmDiscoverInvokeSourceCallBacks(p, &timestamp);
 }
 
+/*
+ * Process metadata records until EOF. That can span multiple
+ * callbacks if we get a partial record read.
+ */
 static void
-pmDiscoverInvokeCallBacks(pmDiscover *p)
+process_metadata(pmDiscover *p)
 {
-    pmResult		*r;
+    int			partial = 0;
     pmTimespec		ts;
     pmDesc		desc;
     off_t		off;
     char		*buffer;
-    int			e, i, nb, len, sts, nrec, nsets;
+    int			e, i, nb, len, nsets;
     int			type, id; /* pmID or pmInDom */
     int			nnames;
     char		**names;
@@ -628,9 +689,202 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
     unsigned char	hash[20];
     __pmLogHdr		hdr;
     sds			msg, source;
-    uint32_t		*bp;
     static uint32_t	*buf = NULL;
     static int		buflen = 0;
+
+    /*
+     * Read all metadata records from current offset though to EOF
+     * and call all registered callbacks. Avoid processing logvol
+     * callbacks until all metadata records have been read.
+     */
+    p->flags |= PM_DISCOVER_FLAGS_META_IN_PROGRESS;
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "process_metadata: in progress, flags=%s\n", pmDiscoverFlagsStr(p));
+    for (;;) {
+	off = lseek(p->fd, 0, SEEK_CUR);
+	nb = read(p->fd, &hdr, sizeof(__pmLogHdr));
+
+	if (nb <= 0) {
+	    /* we're at EOF or an error. But may still be part way through a record */
+	    break;
+	}
+
+	if (nb != sizeof(__pmLogHdr)) {
+	    /* rewind so we can wait for more data on the next change CallBack */
+	    lseek(p->fd, off, SEEK_SET);
+	    partial = 1;
+	    continue;
+	}
+
+	hdr.len = ntohl(hdr.len);
+	hdr.type = ntohl(hdr.type);
+	if (hdr.len <= 0) {
+	    /* rewind and wait for more data, as above */
+	    lseek(p->fd, off, SEEK_SET);
+	    partial = 1;
+	    continue;
+	}
+
+	/* record length: see __pmLogLoadMeta() */
+	len = hdr.len - (int)sizeof(__pmLogHdr); /* includes trailer */
+	if (len <= 0) {
+	    infofmt(msg, "Unknown metadata record type %d (0x%02x), len=%d\n",
+		    hdr.type, hdr.type, len);
+	    moduleinfo(p->module, PMLOG_WARNING, msg, p->data);
+	    continue; /* skip this one */
+	}
+
+	if (len > buflen) {
+	    buflen = len + 4096;
+	    buf = (uint32_t *)realloc(buf, buflen);
+	}
+
+	/* read the body + trailer */
+	if ((nb = read(p->fd, buf, len)) != len) {
+	    /* rewind and wait for more data, as above */
+	    lseek(p->fd, off, SEEK_SET);
+	    partial = 1;
+	    continue;
+	}
+
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "Log metadata read len %4d type %d: ", len, hdr.type);
+
+	switch (hdr.type) {
+	case TYPE_DESC:
+	    /* decode pmDesc result from PDU buffer */
+	    nnames = 0;
+	    names = NULL;
+	    if ((e = pmDiscoverDecodeMetaDesc(buf, len, &desc, &nnames, &names)) < 0) {
+		if (pmDebugOptions.discovery)
+		    fprintf(stderr, " pmDiscoverDecodeMetaDesc failed: err=%d %s\n", e, pmErrStr(e));
+		break;
+	    }
+	    /* use timestamp from last modification */
+	    ts.tv_sec = p->statbuf.st_mtim.tv_sec;
+	    ts.tv_nsec = p->statbuf.st_mtim.tv_nsec;
+	    pmDiscoverInvokeMetricCallBacks(p, &ts, &desc, nnames, names);
+	    for (i = 0; i < nnames; i++)
+		free(names[i]);
+	    if (names)
+		free(names);
+	    break;
+
+	case TYPE_INDOM:
+	    /* decode indom result from buffer */
+	    if ((e = pmDiscoverDecodeMetaInDom(buf, len, &ts, &inresult)) < 0) {
+		if (pmDebugOptions.discovery)
+		    fprintf(stderr, " pmDiscoverDecodeMetaInDom failed: err=%d %s\n", e, pmErrStr(e));
+		break;
+	    }
+	    pmDiscoverInvokeInDomCallBacks(p, &ts, &inresult);
+	    if (inresult.numinst > 0) {
+		for (i = 0; i < inresult.numinst; i++)
+		    free(inresult.namelist[i]);
+		free(inresult.namelist);
+		free(inresult.instlist);
+	    }
+	    break;
+
+	case TYPE_LABEL:
+	    /* decode labelset from buffer */
+	    if ((e = pmDiscoverDecodeMetaLabelSet(buf, len, &ts, &id, &type, &nsets, &labelset)) < 0) {
+		if (pmDebugOptions.discovery)
+		    fprintf(stderr, " pmDiscoverDecodeMetaLabelSet failed: err=%d %s\n", e, pmErrStr(e));
+		break;
+	    }
+
+	    /*
+	     * If this is a context labelset, we need to store it in 'p' and
+	     * also update the source identifier (pmSID) - effectively making
+	     * a new source.
+	     */
+	    if ((type & PM_LABEL_CONTEXT)) {
+		pmwebapi_source_hash(hash, labelset->json, labelset->jsonlen);
+		source = pmwebapi_hash_sds(NULL, hash);
+		if (sdscmp(source, p->context.source) == 0) {
+		    sdsfree(source);
+		} else {
+		    sdsfree(p->context.source);
+		    p->context.source = source;
+		    p->context.labelset = labelset;
+		    pmDiscoverInvokeSourceCallBacks(p, &ts);
+		}
+	    }
+	    pmDiscoverInvokeLabelsCallBacks(p, &ts, id, type, labelset, nsets);
+	    if (labelset != p->context.labelset)
+		pmFreeLabelSets(labelset, nsets);
+	    break;
+
+	case TYPE_TEXT:
+	    if (pmDebugOptions.discovery)
+		fprintf(stderr, "TEXT\n");
+	    /* decode help text from buffer */
+	    buffer = NULL;
+	    if ((e = pmDiscoverDecodeMetaHelpText(buf, len, &type, &id, &buffer)) < 0) {
+		if (pmDebugOptions.discovery)
+		    fprintf(stderr, " pmDiscoverDecodeMetaHelpText failed: err=%d %s\n", e, pmErrStr(e));
+		break;
+	    }
+	    /* use timestamp from last modification */
+	    ts.tv_sec = p->statbuf.st_mtim.tv_sec;
+	    ts.tv_nsec = p->statbuf.st_mtim.tv_nsec;
+	    pmDiscoverInvokeTextCallBacks(p, &ts, id, type, buffer);
+	    if (buffer)
+		free(buffer);
+	    break;
+
+	default:
+	    if (pmDebugOptions.discovery)
+		fprintf(stderr, "%s, len = %d\n",
+			hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS02) ?
+			"PM_LOG_MAGICv2" : "UNKNOWN", len);
+	    break;
+	}
+    }
+
+    if (partial == 0)
+	/* flag that all available metadata has been now been read */
+	p->flags &= ~PM_DISCOVER_FLAGS_META_IN_PROGRESS;
+
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "process_metadata: completed, partial=%d flags=%s\n",
+		partial, pmDiscoverFlagsStr(p));
+}
+
+/*
+ * fetch metric values to EOF and call all registered callbacks
+ */
+static void
+process_logvol_callback(pmDiscover *p)
+{
+    pmResult		*r;
+    pmTimespec		ts;
+
+    pmUseContext(p->ctx);
+    while (pmFetchArchive(&r) == 0) {
+	if (pmDebugOptions.discovery) {
+	    char		tbuf[64], bufs[64];
+
+	    fprintf(stderr, "FETCHED @%s [%s] %d metrics\n",
+		    timeval_str(&r->timestamp, tbuf, sizeof(tbuf)),
+		    timeval_stream_str(&r->timestamp, bufs, sizeof(bufs)),
+		    r->numpmid);
+	}
+	ts.tv_sec = r->timestamp.tv_sec;
+	ts.tv_nsec = r->timestamp.tv_usec * 1000;
+	pmDiscoverInvokeValuesCallBack(p, &ts, r);
+	pmFreeResult(r);
+    }
+    /* datavol is now up-to-date and at EOF */
+    p->flags &= ~PM_DISCOVER_FLAGS_DATAVOL_READY;
+}
+
+static void
+pmDiscoverInvokeCallBacks(pmDiscover *p)
+{
+    int			sts;
+    sds			msg;
 
     if (p->ctx < 0) {
 	/*
@@ -656,6 +910,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		return;
 	    }
 	    pmSetMode(PM_MODE_FORW, &tvp, 1);
+	    /* note: we do not scan pre-existing logvol data. */
 	}
 	else if (p->flags & PM_DISCOVER_FLAGS_META) {
 	    if ((sts = pmNewContext(p->context.type, p->context.name)) < 0) {
@@ -674,207 +929,40 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		return;
 	    }
 
-	    /*
-	     * Scan raw metadata file thru to current EOF, correctly handling
-	     * partial reads.
-	     */
-	    off = lseek(p->fd, 0, SEEK_CUR);
-	    for (nrec = 0; ; nrec++) {
-		if ((nb = read(p->fd, &hdr, sizeof(hdr))) != sizeof(hdr)) {
-		    /* EOF or partial read: rewind so we can wait for more data */
-		    lseek(p->fd, off, SEEK_SET);
-		    break;
-		}
-		hdr.len = ntohl(hdr.len);
-		hdr.type = ntohl(hdr.type);
-		len = hdr.len - sizeof(hdr);
-		if (len > buflen) {
-		    buflen = len + 4096;
-		    if ((bp = (uint32_t *)realloc(buf, buflen)) != NULL) {
-			buf = bp;
-		    } else {
-			infofmt(msg, "realloc %d bytes failed for %s\n",
-					buflen, p->context.name);
-			moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
-			break;
-		    }
-		}
-
-		if ((nb = read(p->fd, buf, len)) != len) {
-		    /* EOF or partial read: rewind and wait for more data, as above */
-		    lseek(p->fd, off, SEEK_SET);
-		    break;
-		}
-	    }
-	    if (pmDebugOptions.discovery)
-		fprintf(stderr, "METADATA opened and scanned"
-				" %d metadata records to EOF\n", nrec);
+	    /* process all existing metadata */
+	    process_metadata(p);
 	}
     }
 
     /*
      * Now call the registered callbacks, if any, for this path
      */
-    if (p->flags & PM_DISCOVER_FLAGS_DATAVOL) {
+    if (p->flags & (PM_DISCOVER_FLAGS_DATAVOL | PM_DISCOVER_FLAGS_DATAVOL_READY)) {
 	/*
-	 * fetch metric values to EOF and call all registered callbacks
+	 * datavol has data ready (either now or earlier during a metadata CB)
 	 */
-	pmUseContext(p->ctx);
-	while (pmFetchArchive(&r) == 0) {
+	p->flags |= PM_DISCOVER_FLAGS_DATAVOL_READY;
+
+	if (p->flags & PM_DISCOVER_FLAGS_META_IN_PROGRESS) {
+	    /*
+	     * metadata read is in progress - delay reading logvol until it's finished.
+	     */
 	    if (pmDebugOptions.discovery) {
-		char		tbuf[64], bufs[64];
-
-		fprintf(stderr, "FETCHED @%s [%s] %d metrics\n",
-			timeval_str(&r->timestamp, tbuf, sizeof(tbuf)),
-			timeval_stream_str(&r->timestamp, bufs, sizeof(bufs)),
-			r->numpmid);
-	    }
-	    ts.tv_sec = r->timestamp.tv_sec;
-	    ts.tv_nsec = r->timestamp.tv_usec * 1000;
-	    pmDiscoverInvokeValuesCallBack(p, &ts, r);
-	    pmFreeResult(r);
-	}
-    }
-    else if (p->flags & PM_DISCOVER_FLAGS_META) {
-    	/*
-	 * Read all metadata records from current offset though to EOF
-	 * and call all registered callbacks
-	 */
-	for (;;) {
-	    off = lseek(p->fd, 0, SEEK_CUR);
-	    nb = read(p->fd, &hdr, sizeof(__pmLogHdr));
-
-	    if (nb != sizeof(__pmLogHdr)) {
-		/* rewind so we can wait for more data on the next change CallBack */
-		lseek(p->fd, off, SEEK_SET);
-		break;
-	    }
-
-	    hdr.len = ntohl(hdr.len);
-	    hdr.type = ntohl(hdr.type);
-	    if (hdr.len <= 0) {
-	    	/* rewind and wait for more data, as above */
-		lseek(p->fd, off, SEEK_SET);
-		break;
-	    }
-
-	    /* record length: see __pmLogLoadMeta() */
-	    len = hdr.len - (int)sizeof(__pmLogHdr); /* includes trailer */
-	    if (len <= 0) {
-		infofmt(msg, "Unknown metadata record type %d (0x%02x), len=%d\n",
-			hdr.type, hdr.type, len);
-		moduleinfo(p->module, PMLOG_WARNING, msg, p->data);
-		continue; /* skip this one */
-	    }
-
-	    if (len > buflen) {
-		buflen = len + 4096;
-	    	buf = (uint32_t *)realloc(buf, buflen);
-	    }
-
-	    /* read the body + trailer */
-	    if ((nb = read(p->fd, buf, len)) != len) {
-	    	/* rewind and wait for more data, as above */
-		lseek(p->fd, off, SEEK_SET);
-		break;
-	    }
-
-	    if (pmDebugOptions.discovery)
-		fprintf(stderr, "Log metadata read len %4d type %d: ", len, hdr.type);
-
-	    switch (hdr.type) {
-		case TYPE_DESC:
-		    /* decode pmDesc result from PDU buffer */
-		    nnames = 0;
-		    names = NULL;
-		    if ((e = pmDiscoverDecodeMetaDesc(buf, len, &desc, &nnames, &names)) < 0) {
-			if (pmDebugOptions.discovery)
-			    fprintf(stderr, " pmDiscoverDecodeMetaDesc failed: err=%d %s\n", e, pmErrStr(e));
-			break;
-		    }
-		    /* use timestamp from last modification */
-		    ts.tv_sec = p->statbuf.st_mtim.tv_sec;
-		    ts.tv_nsec = p->statbuf.st_mtim.tv_nsec;
-		    pmDiscoverInvokeMetricCallBacks(p, &ts, &desc, nnames, names);
-		    for (i = 0; i < nnames; i++)
-			free(names[i]);
-		    if (names)
-			free(names);
-		    break;
-
-	    	case TYPE_INDOM:
-		    /* decode indom result from buffer */
-		    if ((e = pmDiscoverDecodeMetaInDom(buf, len, &ts, &inresult)) < 0) {
-			if (pmDebugOptions.discovery)
-			    fprintf(stderr, " pmDiscoverDecodeMetaInDom failed: err=%d %s\n", e, pmErrStr(e));
-			break;
-		    }
-		    pmDiscoverInvokeInDomCallBacks(p, &ts, &inresult);
-		    if (inresult.numinst > 0) {
-			for (i = 0; i < inresult.numinst; i++)
-			    free(inresult.namelist[i]);
-			free(inresult.namelist);
-			free(inresult.instlist);
-		    }
-		    break;
-
-		case TYPE_LABEL:
-		    /* decode labelset from buffer */
-		    if ((e = pmDiscoverDecodeMetaLabelSet(buf, len, &ts, &id, &type, &nsets, &labelset)) < 0) {
-			if (pmDebugOptions.discovery)
-			    fprintf(stderr, " pmDiscoverDecodeMetaLabelSet failed: err=%d %s\n", e, pmErrStr(e));
-			break;
-		    }
-
-		    /*
-		     * If this is a context labelset, we need to store it in 'p' and
-		     * also update the source identifier (pmSID) - effectively making
-		     * a new source.
-		     */
-		    if ((type & PM_LABEL_CONTEXT)) {
-			pmwebapi_source_hash(hash, labelset->json, labelset->jsonlen);
-			source = pmwebapi_hash_sds(NULL, hash);
-			if (sdscmp(source, p->context.source) == 0) {
-			    sdsfree(source);
-			} else {
-			    sdsfree(p->context.source);
-			    p->context.source = source;
-			    p->context.labelset = labelset;
-			    pmDiscoverInvokeSourceCallBacks(p, &ts);
-			}
-		    }
-		    pmDiscoverInvokeLabelsCallBacks(p, &ts, id, type, labelset, nsets);
-		    if (labelset != p->context.labelset)
-			pmFreeLabelSets(labelset, nsets);
-		    break;
-
-		case TYPE_TEXT:
-		    if (pmDebugOptions.discovery)
-			fprintf(stderr, "TEXT\n");
-		    /* decode help text from buffer */
-		    buffer = NULL;
-		    if ((e = pmDiscoverDecodeMetaHelpText(buf, len, &type, &id, &buffer)) < 0) {
-			if (pmDebugOptions.discovery)
-			    fprintf(stderr, " pmDiscoverDecodeMetaHelpText failed: err=%d %s\n", e, pmErrStr(e));
-			break;
-		    }
-		    /* use timestamp from last modification */
-		    ts.tv_sec = p->statbuf.st_mtim.tv_sec;
-		    ts.tv_nsec = p->statbuf.st_mtim.tv_nsec;
-		    pmDiscoverInvokeTextCallBacks(p, &ts, id, type, buffer);
-		    if (buffer)
-			free(buffer);
-		    break;
-
-		default:
-		    if (pmDebugOptions.discovery)
-			fprintf(stderr, "%s, len = %d\n",
-				hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS02) ?
-				"PM_LOG_MAGICv2" : "UNKNOWN", len);
-		    break;
+		fprintf(stderr, "pmDiscoverInvokeCallBacks: datavol ready, but metadata read in progress\n");
 	    }
 	}
     }
+
+    if (p->flags & PM_DISCOVER_FLAGS_META) {
+	/* process metadata */
+	process_metadata(p);
+    }
+
+    /* process any unprocessed datavol callbacks */
+    pmDiscoverTraverse(PM_DISCOVER_FLAGS_DATAVOL_READY, process_logvol_callback);
+
+    /* finally, purge deleted entries, if any */
+    pmDiscoverPurgeDeleted();
 }
 
 static void

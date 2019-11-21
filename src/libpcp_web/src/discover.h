@@ -38,24 +38,33 @@ typedef void uv_loop_t;
  * log volumes and meta data are monitored for changes.  Monitoring is done
  * efficiently - using libuv/fs_notify mechanisms - no polling and callbacks
  * are issued with low latency when changes are detected.
+ *
+ * The PM_DISCOVER_FLAGS_META_IN_PROGRESS flag indicates a metadata record
+ * read is in-progress. This can span multiple callbacks. Until this completes,
+ * we avoid proesssing logvol records. If a logvol callback is received whilst
+ * PM_DISCOVER_FLAGS_META_IN_PROGRESS is set, set PM_DISCOVER_FLAGS_DATAVOL_READY
+ * so we know to process the log volume callback once the metadata read has
+ * completed.
  */
 
 /*
  * Discovery state flags for a given path
  */
-typedef enum pmDiscoverFlags {
-    PM_DISCOVER_FLAGS_NONE	= (0),
+typedef enum pmDiscoverFlags { 
+    PM_DISCOVER_FLAGS_NONE			= (0),
 
-    PM_DISCOVER_FLAGS_NEW	= (1 << 0), /* new path (stays set until cleared) */
-    PM_DISCOVER_FLAGS_DELETED	= (1 << 1), /* deleted (may have been compressed) */
-    PM_DISCOVER_FLAGS_COMPRESSED= (1 << 2), /* file is compressed */
-    PM_DISCOVER_FLAGS_MONITORED	= (1 << 3), /* path is monitored */
-    PM_DISCOVER_FLAGS_DIRECTORY	= (1 << 4), /* directory path */
-    PM_DISCOVER_FLAGS_DATAVOL	= (1 << 5), /* archive data volume */
-    PM_DISCOVER_FLAGS_INDEX	= (1 << 6), /* archive index file */
-    PM_DISCOVER_FLAGS_META	= (1 << 7), /* archive metadata */
+    PM_DISCOVER_FLAGS_NEW			= (1 << 0), /* new path (stays set until cleared) */
+    PM_DISCOVER_FLAGS_DELETED			= (1 << 1), /* deleted (may have been compressed) */
+    PM_DISCOVER_FLAGS_COMPRESSED		= (1 << 2), /* file is compressed */
+    PM_DISCOVER_FLAGS_MONITORED			= (1 << 3), /* path is monitored */
+    PM_DISCOVER_FLAGS_DIRECTORY			= (1 << 4), /* directory path */
+    PM_DISCOVER_FLAGS_DATAVOL			= (1 << 5), /* archive data volume */
+    PM_DISCOVER_FLAGS_INDEX			= (1 << 6), /* archive index file */
+    PM_DISCOVER_FLAGS_META			= (1 << 7), /* archive metadata */
+    PM_DISCOVER_FLAGS_DATAVOL_READY		= (1 << 9), /* flag: datavol data available */
+    PM_DISCOVER_FLAGS_META_IN_PROGRESS		= (1 << 8), /* flag: metadata read in progress */
 
-    PM_DISCOVER_FLAGS_ALL	= ((unsigned int)~PM_DISCOVER_FLAGS_NONE)
+    PM_DISCOVER_FLAGS_ALL			= ((unsigned int)~PM_DISCOVER_FLAGS_NONE)
 } pmDiscoverFlags;
 
 struct pmDiscover;
