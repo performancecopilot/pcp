@@ -1,12 +1,12 @@
 {
   "variables": {
-    "subscription_id": "{{env `AZ_SUBSCRIPTION_ID`}}",
-    "client_id": "{{env `AZ_CLIENT_ID`}}",
-    "client_secret": "{{env `AZ_CLIENT_SECRET`}}",
-    "resource_group": "{{env `AZ_RESOURCE_GROUP`}}",
-    "location": "{{env `AZ_LOCATION`}}",
-    "vm_size": "{{env `AZ_VM_SIZE`}}",
-    "image": "{{env `AZ_IMAGE`}}",
+    "az_subscription_id": "{{env `AZ_SUBSCRIPTION_ID`}}",
+    "az_client_id": "{{env `AZ_CLIENT_ID`}}",
+    "az_client_secret": "{{env `AZ_CLIENT_SECRET`}}",
+    "az_resource_group": "{{env `AZ_RESOURCE_GROUP`}}",
+    "az_location": "{{env `AZ_LOCATION`}}",
+    "az_vm_size": "{{env `AZ_VM_SIZE`}}",
+    "az_image": "{{env `AZ_IMAGE`}}",
     "git_repo": "{{env `GIT_REPO`}}",
     "git_commit": "{{env `GIT_COMMIT`}}"
   },
@@ -16,12 +16,12 @@
   "builders": [{
     "type": "azure-arm",
 
-    "subscription_id": "{{user `subscription_id`}}",
-    "client_id": "{{user `client_id`}}",
-    "client_secret": "{{user `client_secret`}}",
+    "subscription_id": "{{user `az_subscription_id`}}",
+    "client_id": "{{user `az_client_id`}}",
+    "client_secret": "{{user `az_client_secret`}}",
 
-    "managed_image_resource_group_name": "{{user `resource_group`}}",
-    "managed_image_name": "{{user `image`}}",
+    "managed_image_resource_group_name": "{{user `az_resource_group`}}",
+    "managed_image_name": "{{user `az_image`}}",
 
     "os_type": "Linux",
     "image_publisher": "tunnelbiz",
@@ -33,8 +33,8 @@
       "plan_name": "fedora30"
     },
 
-    "location": "{{user `location`}}",
-    "vm_size": "{{user `vm_size`}}",
+    "location": "{{user `az_location`}}",
+    "vm_size": "{{user `az_vm_size`}}",
 
     "azure_tags": {
       "git_repo": "{{user `git_repo`}}",

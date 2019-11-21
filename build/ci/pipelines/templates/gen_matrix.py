@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import os
 import json
+import re
 
-hosts = os.environ.get("HOSTS", "all").split(",")
+hosts = re.split(r"[ ,]", os.environ.get("HOSTS", "all"))
 if hosts in ([""], ["all"]):
     hosts = os.listdir("./build/ci/hosts")
 

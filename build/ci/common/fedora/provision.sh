@@ -10,6 +10,6 @@ git checkout "${GIT_COMMIT}"
 sudo dnf -y -b --skip-broken install `./qa/admin/check-vm -fp`
 sudo dnf -y install python2-devel
 
-sudo /usr/sbin/waagent -force -deprovision+user
+sudo waagent -force -deprovision+user
 export HISTSIZE=0
 sync

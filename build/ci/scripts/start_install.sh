@@ -2,7 +2,7 @@
 
 PREV_PWD=$PWD
 cd "$(dirname "$0")/.."
-. common/env.sh
+. scripts/env.sh
 . scripts/vmss.env.sh
 artifacts_dir="${PREV_PWD}/artifacts/"
 

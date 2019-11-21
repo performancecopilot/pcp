@@ -16,13 +16,15 @@ jobs:
         fetchDepth: 1
       - script: |
           set -eu
-          wget -q https://releases.hashicorp.com/packer/1.4.5/packer_1.4.5_linux_amd64.zip
-          unzip packer_*_linux_amd64.zip
-          PATH="$(pwd):$PATH" ./build/ci/scripts/build_image.sh "$(ci_host)"
+          sudo apt-get update && sudo apt-get install -y qemu-kvm
+          wget -q -O packer_linux_amd64.zip https://releases.hashicorp.com/packer/1.4.5/packer_1.4.5_linux_amd64.zip
+          unzip packer_linux_amd64.zip && sudo mv ./packer /usr/local/bin
+          ./build/ci/scripts/build_image.sh "$(ci_host)"
         env:
           AZ_SUBSCRIPTION_ID: $(AZ_SUBSCRIPTION_ID)
           AZ_CLIENT_ID: $(AZ_CLIENT_ID)
           AZ_CLIENT_SECRET: $(AZ_CLIENT_SECRET)
+          AZ_TENANT: $(AZ_TENANT)
           GIT_REPO: $(Build.Repository.Uri)
           GIT_COMMIT: $(Build.SourceVersion)
         displayName: Build

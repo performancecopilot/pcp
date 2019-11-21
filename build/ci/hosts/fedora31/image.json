@@ -1,0 +1,69 @@
+{
+  "variables": {
+    "az_client_id": "{{env `AZ_CLIENT_ID`}}",
+    "az_client_secret": "{{env `AZ_CLIENT_SECRET`}}",
+    "az_tenant": "{{env `AZ_TENANT`}}",
+    "az_resource_group": "{{env `AZ_RESOURCE_GROUP`}}",
+    "az_image": "{{env `AZ_IMAGE`}}",
+    "az_storage": "{{env `AZ_STORAGE`}}",
+    "az_storage_container": "{{env `AZ_STORAGE_CONTAINER`}}",
+    "git_repo": "{{env `GIT_REPO`}}",
+    "git_commit": "{{env `GIT_COMMIT`}}"
+  },
+  "sensitive-variables": [
+  ],
+  "builders": [{
+    "type": "qemu",
+
+    "iso_url": "https://download.fedoraproject.org/pub/fedora/linux/releases/31/Cloud/x86_64/images/Fedora-Cloud-Base-31-1.9.x86_64.raw.xz",
+    "iso_checksum": "fc9e54fb7a7b80426cbcb7c61ab272ef8de43ddaee418406f6a45f7c43330d68",
+    "disk_image": true,
+    "memory": 2048,
+    "qemuargs": [
+      ["-smbios", "type=1,serial=ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/"]
+    ],
+    "headless": true,
+
+    "output_directory": "build-{{user `az_image`}}",
+    "vm_name": "{{user `az_image`}}.img",
+    "format": "raw",
+
+    "http_directory": "hosts/fedora31/cloud-init",
+    "ssh_username": "fedora",
+    "ssh_password": "packer"
+  }],
+  "provisioners": [
+    { "type": "file", "source": "common/fedora/azure_agent.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/fedora/provision.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/fedora/build.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/fedora/install.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/linux/test.sh", "destination": "/tmp/" },
+    {
+      "type": "shell",
+      "environment_vars": [
+        "GIT_REPO={{user `git_repo`}}",
+        "GIT_COMMIT={{user `git_commit`}}"
+      ],
+      "inline": [
+        "sudo mkdir /usr/local/ci",
+        "sudo mv /tmp/azure_agent.sh /tmp/provision.sh /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci",
+        "sudo /usr/local/ci/azure_agent.sh",
+        "/usr/local/ci/provision.sh"
+      ]
+    }
+  ],
+  "post-processors": [{
+    "type": "shell-local",
+    "environment_vars": [
+      "AZ_CLIENT_ID={{user `az_client_id`}}",
+      "AZ_CLIENT_SECRET={{user `az_client_secret`}}",
+      "AZ_TENANT={{user `az_tenant`}}",
+      "AZ_RESOURCE_GROUP={{user `az_resource_group`}}",
+      "AZ_IMAGE={{user `az_image`}}",
+      "AZ_STORAGE={{user `az_storage`}}",
+      "AZ_STORAGE_CONTAINER={{user `az_storage_container`}}"
+    ],
+    "script": "scripts/azure_image_upload.sh"
+  }]
+}
+

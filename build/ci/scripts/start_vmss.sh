@@ -1,7 +1,7 @@
 #!/bin/sh -eu
 
 cd "$(dirname "$0")/.."
-. common/env.sh
+. scripts/env.sh
 
 az vmss create \
   --resource-group "${AZ_RESOURCE_GROUP}" \

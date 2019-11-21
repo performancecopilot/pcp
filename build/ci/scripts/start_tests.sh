@@ -2,7 +2,7 @@
 
 PREV_PWD=$PWD
 cd "$(dirname "$0")/.."
-. common/env.sh
+. scripts/env.sh
 . scripts/vmss.env.sh
 tests_job_file="${PREV_PWD}/jobs.txt"
 tests_junit_file="${PREV_PWD}/tests.xml"

@@ -14,6 +14,6 @@ do
 done
 sudo apt-get install -y zlib1g-dev
 
-sudo /usr/sbin/waagent -force -deprovision+user
+sudo waagent -force -deprovision+user
 export HISTSIZE=0
 sync

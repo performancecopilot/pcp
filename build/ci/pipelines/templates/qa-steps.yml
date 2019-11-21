@@ -3,7 +3,7 @@ steps:
     fetchDepth: 1
   - script: |
       set -eu
-      sudo apt-get install -y parallel
+      sudo apt-get update && sudo apt-get install -y parallel
       ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -q -P ""
       az login --service-principal -u "${AZ_CLIENT_ID}" -p "${AZ_CLIENT_SECRET}" --tenant "${AZ_TENANT}"
     env:
