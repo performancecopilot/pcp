@@ -1699,7 +1699,7 @@ BAD
 1602 pmproxy local
 1622 selinux local
 1644 pmda.perfevent local
-1661:reserved pmproxy libpcp_web pmlogger local
+1661 pmproxy libpcp_web pmlogger local
 1671 multi-archive archive libpcp pmlogextract pmlogcheck pmdumplog local
 1695 pmproxy valgrind local
 1696 pmproxy valgrind local
