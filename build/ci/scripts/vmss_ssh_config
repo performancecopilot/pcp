@@ -1,0 +1,5 @@
+# Disable "Warning: Permanently added ... (ECDSA) to the list of known hosts." messages
+LogLevel ERROR
+
+StrictHostKeyChecking no
+UserKnownHostsFile /dev/null

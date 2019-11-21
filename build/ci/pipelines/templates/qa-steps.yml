@@ -1,42 +1,48 @@
-parameters:
-  distribution: ''
-
 steps:
-- script: |
-    set -e
-    docker build -f build/ci/containers/Dockerfile.${{ parameters.distribution }} -t pcp-qa .
-    docker run -d --privileged \
-      -v /lib/modules:/lib/modules:ro \
-      -v /usr/src:/usr/src:ro \
-      -v "$(Build.ArtifactStagingDirectory)":/artifacts \
-      --name pcp-qa pcp-qa
-    docker exec pcp-qa bash -c 'touch /var/lib/pcp/pmdas/{simple,sample}/.NeedInstall'
-    docker exec pcp-qa bash -c 'systemctl restart pmcd || journalctl -xe'
-    docker exec pcp-qa bash -c 'cd /var/lib/pcp/testsuite && ./check 002 && rm check.time'
-    docker exec pcp-qa bash -c 'mkdir /artifacts/{test-logs,pcp-logs}'
-  displayName: 'Build Performance Co-Pilot'
-- script: docker exec pcp-qa bash -o pipefail -c 'cd /var/lib/pcp/testsuite && ./check -g sanity | tee /artifacts/test-logs/sanity.log >(/pcp/build/ci/gen_junit_report.py > /artifacts/test-logs/sanity.xml)'
-  continueOnError: true
-  displayName: 'Run tests: Sanity'
-- script: docker exec pcp-qa bash -o pipefail -c 'cd /var/lib/pcp/testsuite && ./check -g pmda.bcc | tee /artifacts/test-logs/pmda.bcc.log >(/pcp/build/ci/gen_junit_report.py > /artifacts/test-logs/pmda.bcc.xml)'
-  continueOnError: true
-  displayName: 'Run tests: BCC PMDA'
-- script: docker exec pcp-qa bash -o pipefail -c 'cd /var/lib/pcp/testsuite && ./check -g pmda.bpftrace | tee /artifacts/test-logs/pmda.bpftrace.log >(/pcp/build/ci/gen_junit_report.py > /artifacts/test-logs/pmda.bpftrace.xml)'
-  continueOnError: true
-  displayName: 'Run tests: bpftrace PMDA'
-- script: |
-    docker exec pcp-qa bash -c 'cp -r /var/log/pcp/* /artifacts/pcp-logs'
-    docker exec pcp-qa bash -c 'cp -r /packages /artifacts'
-  displayName: 'Copy artifacts'
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: $(Build.ArtifactStagingDirectory)
-    artifactName: ${{ parameters.distribution }}
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: JUnit
-    testResultsFiles: '*.xml'
-    searchFolder: '$(Build.ArtifactStagingDirectory)/test-logs'
-    mergeTestResults: true
-    failTaskOnFailedTests: true
-    testRunTitle: ${{ parameters.distribution }}
+  - checkout: self
+    fetchDepth: 1
+  - script: |
+      set -eu
+      sudo apt-get update && sudo apt-get install -y parallel
+      ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -q -P ""
+      az login --service-principal -u "${AZ_CLIENT_ID}" -p "${AZ_CLIENT_SECRET}" --tenant "${AZ_TENANT}"
+    env:
+      AZ_CLIENT_ID: $(AZ_CLIENT_ID)
+      AZ_CLIENT_SECRET: $(AZ_CLIENT_SECRET)
+      AZ_TENANT: $(AZ_TENANT)
+    displayName: Setup
+  - script: ./build/ci/scripts/start_vmss.sh "$(ci_host)"
+    displayName: Start VMs
+    env:
+      BUILD_ID: $(Build.BuildId)
+      GIT_REPO: $(Build.Repository.Uri)
+      GIT_COMMIT: $(Build.SourceVersion)
+  - script: ./build/ci/scripts/start_build.sh "$(ci_host)"
+    displayName: Build
+    env:
+      BUILD_ID: $(Build.BuildId)
+      GIT_REPO: $(Build.Repository.Uri)
+      GIT_COMMIT: $(Build.SourceVersion)
+  - script: ./build/ci/scripts/start_install.sh "$(ci_host)"
+    displayName: Install
+    env:
+      BUILD_ID: $(Build.BuildId)
+  - publish: ./artifacts
+    displayName: Publish build artifacts
+    artifact: $(ci_host)
+  - script: ./build/ci/scripts/start_tests.sh "$(ci_host)" "$(tests)"
+    displayName: Test
+    env:
+      BUILD_ID: $(Build.BuildId)
+  - task: PublishTestResults@2
+    displayName: Publish test results
+    condition: always()
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: '*.xml'
+      testRunTitle: $(ci_host)
+  - script: ./build/ci/scripts/stop_vmss.sh "$(ci_host)"
+    displayName: Stop VMs
+    condition: always()
+    env:
+      BUILD_ID: $(Build.BuildId)

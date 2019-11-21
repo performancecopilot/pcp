@@ -1,0 +1,5 @@
+#cloud-config
+password: packer
+chpasswd:
+  expire: False
+ssh_pwauth: True

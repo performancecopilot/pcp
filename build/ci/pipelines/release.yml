@@ -1,0 +1,23 @@
+trigger: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+jobs:
+  - template: templates/matrix.yml
+
+  - job: release
+    dependsOn: prepare
+    displayName: "Release:"
+    strategy:
+      matrix: $[ dependencies.prepare.outputs['matrix_step.matrix'] ]
+    steps:
+      - template: templates/qa-steps.yml
+      - script: |
+          user=${bintray_user} > .bintrayrc
+          email=${bintray_email} >> .bintrayrc
+          apikey=${bintray_apikey} >> .bintrayrc
+          gpgpass=${bintray_gpgpass} >> .bintrayrc
+        displayName: Configure bintray
+      - script: ./scripts/bintray-upload
+        displayName: Upload to bintray

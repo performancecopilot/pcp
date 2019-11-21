@@ -2,61 +2,49 @@
 """This script generates a JUnit report from PCP's test runner log file"""
 import sys
 import re
+import os
 from xml.sax.saxutils import escape
 
-def read_logfile(no, ext):
-    """read a logfile (and return an error message if file could not be found)"""
-    fn = str(no) + '.' + ext
-    try:
-        with open(fn) as f:
-            return f.read()
-    except IOError as e:
-        return 'could not open {}: {}'.format(fn, e)
-
-def parse_testouput_tests():
+def parse_results_dir(results_dir):
     """parse tests from testoutput"""
     tests = []
-    for line in sys.stdin:
-        # [xx%] will only be displayed if there are more than 9 tests
-        success_m = re.match(r'^(?:\[\d+%\] )?(\d+)$', line)
-        notrun_m = re.match(r'^(?:\[\d+%\] )?(\d+) \[not run\] (.+)$', line)
-        failed_m = re.match(r'^(?:\[\d+%\] )?(\d+) (.+)$', line)
-        if success_m:
-            tests.append({
-                "no": success_m.group(1),
-                "stdout": read_logfile(success_m.group(1), "out")
-            })
-        elif notrun_m:
-            tests.append({
-                "no": notrun_m.group(1),
-                "skipped": notrun_m.group(2),
-            })
-        elif failed_m:
-            tests.append({
-                "no": failed_m.group(1),
-                "failed": failed_m.group(2).replace("- ", ""),
-                "failed_reason": "",
-                "stdout": read_logfile(failed_m.group(1), "out.bad"),
-                "stderr": read_logfile(failed_m.group(1), "full")
-            })
-        else:
-            # if this line doesn't match any regex, it's probably output from the previous test
-            if tests and "failed_reason" in tests[-1]:
-                tests[-1]["failed_reason"] += line
+
+    for group in os.listdir(results_dir):
+        for test_no in os.listdir(os.path.join(results_dir, group)):
+            path = os.path.join(results_dir, group, test_no)
+            test = {
+                "no": int(test_no),
+                "stdout": open(os.path.join(path, "stdout")).read(),
+                "stderr": open(os.path.join(path, "stderr")).read()
+            }
+            success_m = re.search(r'^Passed all \d+ tests$', test["stdout"], re.MULTILINE)
+            notrun_m = re.search(r'^(\d+) \[not run\] (.+)', test["stdout"], re.MULTILINE)
+
+            if success_m:
+                pass
+            elif notrun_m:
+                test["skipped"] = notrun_m.group(2)
+            else:
+                test["failed"] = "Test failed"
+                test["failed_reason"] = test["stdout"]
+            tests.append(test)
+
     return tests
 
-def parse_testouput():
+def parse_testsuite(job_file, results_dir):
     """parse test output and calculate summary properties"""
     testsuite = {
         "name": "tests",
-        "tests": parse_testouput_tests()
+        "tests": parse_results_dir(results_dir)
     }
 
     test_durations = {}
-    with open('check.time') as f:
+    with open(job_file) as f:
+        next(f) # skip header
         for line in f:
-            no, duration = line.strip().split(' ')
-            test_durations[no] = int(duration)
+            spl = line.split("\t")
+            no = int(spl[8].split(" ")[1])
+            test_durations[no] = float(spl[3])
     for test in testsuite["tests"]:
         test["time"] = test_durations.get(test["no"], 0)
 
@@ -66,10 +54,10 @@ def parse_testouput():
     testsuite["time"] = sum([test["time"] for test in testsuite["tests"]])
     return testsuite
 
-def create_report():
+def create_report(job_file, results_dir):
     """generates a JUnit report"""
     testsuites = []
-    testsuites.append(parse_testouput())
+    testsuites.append(parse_testsuite(job_file, results_dir))
 
     print('<?xml version="1.0" encoding="UTF-8"?>')
     print('<testsuites>')
@@ -94,4 +82,7 @@ def create_report():
     print('</testsuites>')
 
 if __name__ == '__main__':
-    create_report()
+    if len(sys.argv) != 3:
+        print("usage: {} tests-job-file tests-results-directory".format(sys.argv[0]))
+        sys.exit(1)
+    create_report(sys.argv[1], sys.argv[2])

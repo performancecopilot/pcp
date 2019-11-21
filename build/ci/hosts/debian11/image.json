@@ -1,0 +1,57 @@
+{
+  "variables": {
+    "az_subscription_id": "{{env `AZ_SUBSCRIPTION_ID`}}",
+    "az_client_id": "{{env `AZ_CLIENT_ID`}}",
+    "az_client_secret": "{{env `AZ_CLIENT_SECRET`}}",
+    "az_resource_group": "{{env `AZ_RESOURCE_GROUP`}}",
+    "az_location": "{{env `AZ_LOCATION`}}",
+    "az_vm_size": "{{env `AZ_VM_SIZE`}}",
+    "az_image": "{{env `AZ_IMAGE`}}",
+    "git_repo": "{{env `GIT_REPO`}}",
+    "git_commit": "{{env `GIT_COMMIT`}}"
+  },
+  "sensitive-variables": [
+    "client_secret"
+  ],
+  "builders": [{
+    "type": "azure-arm",
+
+    "subscription_id": "{{user `az_subscription_id`}}",
+    "client_id": "{{user `az_client_id`}}",
+    "client_secret": "{{user `az_client_secret`}}",
+
+    "managed_image_resource_group_name": "{{user `az_resource_group`}}",
+    "managed_image_name": "{{user `az_image`}}",
+
+    "os_type": "Linux",
+    "image_publisher": "Debian",
+    "image_offer": "debian-11-daily",
+    "image_sku": "11",
+
+    "location": "{{user `az_location`}}",
+    "vm_size": "{{user `az_vm_size`}}",
+
+    "azure_tags": {
+      "git_repo": "{{user `git_repo`}}",
+      "git_commit": "{{user `git_commit`}}"
+    }
+  }],
+  "provisioners": [
+    { "type": "file", "source": "common/debian/provision.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/debian/build.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/debian/install.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/linux/test.sh", "destination": "/tmp/" },
+    {
+      "type": "shell",
+      "environment_vars": [
+        "GIT_REPO={{user `git_repo`}}",
+        "GIT_COMMIT={{user `git_commit`}}"
+      ],
+      "inline": [
+        "sudo mkdir /usr/local/ci",
+        "sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci",
+        "/tmp/provision.sh"
+      ]
+    }
+  ]
+}

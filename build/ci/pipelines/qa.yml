@@ -1,33 +1,15 @@
+trigger: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
 jobs:
-- job: fedora30
-  displayName: Fedora 30
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-  - template: templates/qa-steps.yml
-    parameters:
-      distribution: fedora30
-- job: fedora31
-  displayName: Fedora 31
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-  - template: templates/qa-steps.yml
-    parameters:
-      distribution: fedora31
-- job: debian_stable
-  displayName: Debian Stable
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-  - template: templates/qa-steps.yml
-    parameters:
-      distribution: debian-stable
-- job: debian_testing
-  displayName: Debian Testing
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-  - template: templates/qa-steps.yml
-    parameters:
-      distribution: debian-testing
+  - template: templates/matrix.yml
+
+  - job: qa
+    dependsOn: prepare
+    displayName: "QA:"
+    strategy:
+      matrix: $[ dependencies.prepare.outputs['matrix_step.matrix'] ]
+    steps:
+      - template: templates/qa-steps.yml
