@@ -1,0 +1,68 @@
+#!/bin/sh
+# Exercise pmseries handling of multiple host labels.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+
+_cleanup()
+{
+    [ -n "$options" ] && redis-cli $options shutdown
+    _restore_config $PCP_SYSCONF_DIR/pmseries
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+hostname=`pmhostname`
+redisport=`_find_free_port`
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_source()
+{
+    sed \
+	-e "s,$here,PATH,g" \
+	-e "s,$hostname,QAHOST,g" \
+    #end
+}
+
+# real QA test starts here
+_save_config $PCP_SYSCONF_DIR/pmseries
+$sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
+
+echo "Start test Redis server ..."
+redis-server --port $redisport > $tmp.redis 2>&1 &
+echo "PING"
+pmsleep 0.125
+options="-p $redisport"
+redis-cli $options ping
+echo
+
+echo "Load first archive"
+pmseries $options --load "{source.path: \"$here/archives/viewqa1\"}" | _filter_source
+echo "Load second archive"
+pmseries $options --load "{source.path: \"$here/archives/viewqa2\"}" | _filter_source
+echo "Check labels loaded"
+pmseries $options --labels
+echo
+
+echo "Query series using labels for host edge"
+pmseries $options 'disk.all.write{hostname:"edge"}'
+echo "Query series using labels for host leaf"
+pmseries $options 'disk.all.write{hostname:"leaf"}'
+echo
+
+# success, all done
+status=0
+exit

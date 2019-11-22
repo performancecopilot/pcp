@@ -1,0 +1,17 @@
+QA output created by 1690
+Start test Redis server ...
+PING
+PONG
+
+Load first archive
+pmseries: [Info] processed 151 archive records from PATH/archives/viewqa1
+Load second archive
+pmseries: [Info] processed 129 archive records from PATH/archives/viewqa2
+Check labels loaded
+hostname
+
+Query series using labels for host edge
+3238c2e92d0babb7e848578f52dd3f9fc69dcd3a
+Query series using labels for host leaf
+03fe155a8a42dccd8534859a6cc9e3252a127099
+

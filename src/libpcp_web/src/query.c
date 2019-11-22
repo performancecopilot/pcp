@@ -638,7 +638,7 @@ node_series_reply(seriesQueryBaton *baton, node_t *np, int nelements, redisReply
 	    memcpy(series, reply->str, SHA1SZ);
 	    if (pmDebugOptions.series) {
 		pmwebapi_hash_str(series, hashbuf, sizeof(hashbuf));
-		printf("    %s\n", hashbuf);
+		fprintf(stderr, "    %s\n", hashbuf);
 	    }
 	    series += SHA1SZ;
 	} else {
@@ -694,7 +694,7 @@ series_intersect(series_set_t *a, series_set_t *b)
 
     qsort(large, nlarge, SHA1SZ, series_compare);
 
-    for (i = 0, cp = saved = small; i < nsmall; i++, cp ++) {
+    for (i = 0, cp = saved = small; i < nsmall; i++, cp += SHA1SZ) {
 	if (!bsearch(cp, large, nlarge, SHA1SZ, series_compare))
 	    continue;		/* no match, continue advancing cp only */
 	if (saved != cp)
@@ -711,10 +711,10 @@ series_intersect(series_set_t *a, series_set_t *b)
     if (pmDebugOptions.series && pmDebugOptions.desperate) {
 	char		hashbuf[42];
 
-	printf("Intersect result set contains %d series:\n", total);
-	for (i = 0, cp = small; i < total; cp++, i++) {
+	fprintf(stderr, "Intersect result set contains %d series:\n", total);
+	for (i = 0, cp = small; i < total; cp += SHA1SZ, i++) {
 	    pmwebapi_hash_str(cp, hashbuf, sizeof(hashbuf));
-	    printf("    %s\n", hashbuf);
+	    fprintf(stderr, "    %s\n", hashbuf);
 	}
     }
 
@@ -767,7 +767,7 @@ series_union(series_set_t *a, series_set_t *b)
     }
 
     if (pmDebugOptions.series)
-	printf("Union of large(%d) and small(%d) series\n", nlarge, nsmall);
+	fprintf(stderr, "Union of large(%d) and small(%d) series\n", nlarge, nsmall);
 
     qsort(large, nlarge, SHA1SZ, series_compare);
 
@@ -794,10 +794,10 @@ series_union(series_set_t *a, series_set_t *b)
     if (pmDebugOptions.series && pmDebugOptions.desperate) {
 	char		hashbuf[42];
 
-	printf("Union result set contains %d series:\n", total);
+	fprintf(stderr, "Union result set contains %d series:\n", total);
 	for (i = 0, cp = large; i < total; cp += SHA1SZ, i++) {
 	    pmwebapi_hash_str(cp, hashbuf, sizeof(hashbuf));
-	    printf("    %s\n", hashbuf);
+	    fprintf(stderr, "    %s\n", hashbuf);
 	}
     }
 
@@ -980,7 +980,7 @@ series_prepare_maps_pattern_reply(
     } else {
 	name = left->key + sizeof("pcp:map:") - 1;
 	if (pmDebugOptions.series)
-	    printf("%s %s\n", node_subtype(np->left), np->key);
+	    fprintf(stderr, "%s %s\n", node_subtype(np->left), np->key);
 	if (node_pattern_reply(baton, np, name, reply->elements, reply->element) < 0)
 	    baton->error = -EPROTO;
     }
@@ -1106,7 +1106,7 @@ series_prepare_smembers_reply(
 	baton->error = -EPROTO;
     } else {
 	if (pmDebugOptions.series)
-	    printf("%s %s\n", node_subtype(np->left), np->key);
+	    fprintf(stderr, "%s %s\n", node_subtype(np->left), np->key);
 	sts = node_series_reply(baton, np, reply->elements, reply->element);
 	if (sts < 0)
 	    baton->error = sts;
