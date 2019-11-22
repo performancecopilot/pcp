@@ -40,10 +40,10 @@ _unpack()
     target=$2
     suffix=`echo "$file" | sed 's/.*\.//'`
 
-    if [ "$suffix" == "bz2" ]
+    if [ "$suffix" = "bz2" ]
     then
 	bunzip2 < "$qafile" > "$target"
-    elif [ "$suffix" == "gz" ]
+    elif [ "$suffix" = "gz" ]
     then
 	gunzip < "$qafile" > "$target"
     else
