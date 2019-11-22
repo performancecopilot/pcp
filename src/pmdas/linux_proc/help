@@ -2,7 +2,7 @@
 # Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
-# Portions Copyright (c) 2013,2015-2016 Red Hat.
+# Portions Copyright (c) 2013,2015-2016,2018-2019 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,6 +32,9 @@
 
 @ 3.9 all current processes
 @ 3.39 set of interesting ("hot") processes
+
+@ 3.16 kernel v2 control group (cgroup) names
+@ 3.17 individual block devices for v2 control groups (cgroup)
 
 @ 3.20 kernel cpusets resource control group (cgroup)
 @ 3.21 kernel cpu accounting resource control group (cgroup)
@@ -180,6 +183,27 @@ the cgroup.
 @ cgroup.memory.stat.inactive_file File-backed memory on inactive LRU list
 @ cgroup.memory.stat.active_file File-backed memory on active LRU list
 @ cgroup.memory.stat.unevictable Memory that cannot be reclaimed (e.g. mlocked)
+@ cgroup.memory.stat.anon Anonymous memory
+@ cgroup.memory.stat.anon_thp Anonymous memory in transparent huge pages for each cgroup
+@ cgroup.memory.stat.file Bytes of cached file data total for each cgroup
+@ cgroup.memory.stat.file_dirty Bytes of dirty cached file data for each cgroup
+@ cgroup.memory.stat.file_mapped Bytes of mapped file data for each cgroup
+@ cgroup.memory.stat.file_writeback Bytes of file data under writeback for each cgroup
+@ cgroup.memory.stat.kernel_stack Bytes of kernel stack memory for each cgroup
+@ cgroup.memory.stat.pgactivate Activated pages for each cgroup
+@ cgroup.memory.stat.pgdeactivate Deactivated pages for each cgroup
+@ cgroup.memory.stat.pglazyfree Pages being lazily freed for each cgroup
+@ cgroup.memory.stat.pglazyfreed Pages lazily freed for each cgroup
+@ cgroup.memory.stat.pgrefill Refill pages for each cgroup
+@ cgroup.memory.stat.pgscan Scanned pages for each cgroup
+@ cgroup.memory.stat.pgsteal Steal pages for each cgroup
+@ cgroup.memory.stat.shmem Shared memory for each cgroup
+@ cgroup.memory.stat.slab Total slab pages for each cgroup
+@ cgroup.memory.stat.slab_reclaimable Reclaimable slab pages for each cgroup
+@ cgroup.memory.stat.slab_unreclaimable Unreclaimable slab pages for each cgroup
+@ cgroup.memory.stat.sock Pages in each cgroup used for sockets
+@ cgroup.memory.stat.thp_collapse_alloc Transparent huge page collapses for each cgroup
+@ cgroup.memory.stat.thp_fault_alloc Transparent huge page faults for each cgroup
 @ cgroup.memory.stat.total.cache Hierarchical, cumulative version of stat.cache
 @ cgroup.memory.stat.total.rss Hierarchical, cumulative version of stat.rss
 @ cgroup.memory.stat.total.rss_huge Hierarchical, cumulative version of stat.rss_huge
@@ -200,6 +224,10 @@ the cgroup.
 @ cgroup.memory.stat.recent.rotated_file VM internal parameter (see mm/vmscan.c)
 @ cgroup.memory.stat.recent.scanned_anon VM internal parameter (see mm/vmscan.c)
 @ cgroup.memory.stat.recent.scanned_file VM internal parameter (see mm/vmscan.c)
+
+@ cgroup.memory.stat.workingset.activate Activated working set pages for each cgroup
+@ cgroup.memory.stat.workingset.nodereclaim Working set pages under NUMA node reclaim for each cgroup
+@ cgroup.memory.stat.workingset.refault Refault working set pages for each cgroup
 
 @ cgroup.memory.id.container Each memory cgroups container based on heuristics
 
@@ -292,6 +320,117 @@ the cgroup.
 @ cgroup.blkio.all.throttle.io_serviced.async Per-cgroup throttle async operations serviced
 @ cgroup.blkio.all.throttle.io_serviced.total Per-cgroup total throttle operations serviced
 @ cgroup.blkio.id.container Each blkio cgroups container based on heuristics
+
+@ cgroup.pressure.cpu.some.avg10sec Time runnable cgroup processes delayed for CPU resources
+Indicates the time in which at least some cgroup tasks stalled on CPU
+resources over the last 10 seconds.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name cpu.pressure
+
+@ cgroup.pressure.cpu.some.avg1min Time runnable cgroup processes delayed for CPU resources
+Indicates the time in which at least some cgroup tasks stalled on CPU
+resources over the last 1 minute.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name cpu.pressure
+
+@ cgroup.pressure.cpu.some.avg5min Time runnable cgroup processes delayed for CPU resources
+Indicates the time in which at least some cgroup tasks stalled on CPU
+resources over the last 5 minutes.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name cpu.pressure
+
+@ cgroup.pressure.cpu.some.total Total time cgroup processes stalled for CPU resources
+Indicates the time in which at least some cgroup tasks stalled on CPU
+resources (total time, cumulative).  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name cpu.pressure
+
+@ cgroup.pressure.memory.some.avg10sec Time runnable cgroup processes delayed for memory resources
+Indicates the time in which at least some cgroup tasks stalled on memory
+resources over the last 10 seconds.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name memory.pressure
+
+@ cgroup.pressure.memory.some.avg1min Time runnable cgroup processes delayed for memory resources
+Indicates the time in which at least some cgroup tasks stalled on memory
+resources over the last 1 minute.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name memory.pressure
+
+@ cgroup.pressure.memory.some.avg5min Time runnable cgroup processes delayed for memory resources
+Indicates the time in which at least some cgroup tasks stalled on memory
+resources over the last 5 minutes.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name memory.pressure
+
+@ cgroup.pressure.memory.some.total Total time cgroup processes stalled for memory resources
+The CPU time for which at least some cgroup tasks stalled on memory
+resources.  Pressure stall information (PSI) from:
+$ find /sys/fs/cgroup -name memory.pressure
+
+@ cgroup.pressure.memory.full.avg10sec Time all cgroup work is delayed from memory pressure
+Indicates the time in which all cgroup tasks stalled on memory
+resources over the last 10 seconds.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name memory.pressure
+
+@ cgroup.pressure.memory.full.avg1min Time all cgroup work is delayed from memory pressure
+Indicates the time in which all cgroup tasks stalled on memory
+resources over the last 1 minute.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name memory.pressure
+
+@ cgroup.pressure.memory.full.avg5min Time all cgroup work is delayed from memory pressure
+Indicates the time in which all cgroup tasks stalled on memory
+resources over the last 5 minutes.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name memory.pressure
+
+@ cgroup.pressure.memory.full.total Total time when all cgroup tasks stall on memory resources
+The CPU time for which all cgroup tasks stalled on memory resources.
+Pressure stall information (PSI) from:
+$ find /sys/fs/cgroup -name memory.pressure
+
+@ cgroup.pressure.io.some.avg10sec Time runnable cgroup processes delayed for IO resources
+Indicates the time in which at least some cgroup tasks stalled on IO
+resources over the last 10 seconds.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name io.pressure
+
+@ cgroup.pressure.io.some.avg1min Time runnable cgroup processes delayed for IO resources
+Indicates the time in which at least some cgroup tasks stalled on IO
+resources over the last 1 minute.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name io.pressure
+
+@ cgroup.pressure.io.some.avg5min Time runnable cgroup processes delayed for IO resources
+Indicates the time in which at least some cgroup tasks stalled on IO
+resources over the last 5 minutes.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name io.pressure
+
+@ cgroup.pressure.io.some.total Total time cgroup processes stalled for IO resources
+The CPU time in which at least some cgroup tasks stalled on IO
+resources.  Pressure stall information (PSI) from:
+$ find /sys/fs/cgroup -name io.pressure
+
+@ cgroup.pressure.io.full.avg10sec Time all cgroup work is delayed from IO pressure
+Indicates the time in which all cgroup tasks stalled on input/output
+resources over the last 10 seconds.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name io.pressure
+
+@ cgroup.pressure.io.full.avg1min Time all cgroup work is delayed from IO pressure
+Indicates the time in which all cgroup tasks stalled on input/output
+resources over the last 1 minute.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name io.pressure
+
+@ cgroup.pressure.io.full.avg5min Time all cgroup work is delayed from IO pressure
+Indicates the time in which all cgroup tasks stalled on input/output
+resources over the last 5 minutes.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name io.pressure
+
+@ cgroup.pressure.io.full.total Total time when all cgroup tasks stall on IO resources
+The CPU time in which all cgroup tasks stalled on IO resources.
+Pressure stall information (PSI) from:
+$ find /sys/fs/cgroup -name io.pressure
+
+@ cgroup.cpu.stat.user Time spent by tasks of the cgroup in user mode
+@ cgroup.cpu.stat.system Time spent by tasks of the cgroup in kernel mode
+@ cgroup.cpu.stat.usage CPU time consumed by processes in each cgroup
+
+@ cgroup.io.stat.rbytes Bytes read per-cgroup, per-device
+@ cgroup.io.stat.wbytes Bytes written per-cgroup, per-device
+@ cgroup.io.stat.rios Read operations per-cgroup, per-device
+@ cgroup.io.stat.wios Write operations per-cgroup, per-device
+@ cgroup.io.stat.dbytes Direct IO bytes per-cgroup, per-device
+@ cgroup.io.stat.dios Direct IO operations per-cgroup, per-device
 
 @ hotproc.control.refresh time in secs between refreshes
 Controls how long it takes before the "interesting" process list is refreshed

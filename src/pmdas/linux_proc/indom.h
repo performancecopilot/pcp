@@ -28,6 +28,9 @@
 #define DEVT_INDOM		12 /* - internal-only (major:minor names) */
 #define CPU_INDOM		13 /* - internal-only (user-visible CPUs) */
 
+#define CGROUP2_INDOM		16 /* - control group v2 groups */
+#define CGROUP2_PERDEV_INDOM	17 /* - control group v2 groups::device */
+
 #define CGROUP_CPUSET_INDOM	20 /* - control group cpuset, groups */
 #define CGROUP_CPUACCT_INDOM	21 /* - control group cpuacct, groups */
 #define CGROUP_PERCPUACCT_INDOM	22 /* - control group cpuacct, groups::cpu */

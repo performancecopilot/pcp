@@ -1,7 +1,7 @@
 /*
  * Linux proc/<pid>/{stat,statm,status,...} Clusters
  *
- * Copyright (c) 2013-2018 Red Hat.
+ * Copyright (c) 2013-2019 Red Hat.
  * Copyright (c) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * 
@@ -167,11 +167,16 @@ refresh_cgroup_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
      * going to be returned based on the cgroup specified earlier via a
      * store into the proc.control.{all,perclient}.cgroups metric.
      *
-     * Use the "cgroup.procs" or "tasks" file depending on want_threads.
+     * Use the "cgroup.procs" (v2/v1) and "cgroups.threads" (cgroups v2)
+     * or "tasks" (cgroups1) file, depending on want_threads.
      * Note that both these files are already sorted, ascending numeric.
      */
-    if (want_threads)
+    if (cgroup_version == 0)
+	refresh_cgroup_filesys();
+    if (want_threads && cgroup_version == 1)
 	pmsprintf(path, sizeof(path), "%s%s/tasks", proc_statspath, cgroup);
+    else if (want_threads && cgroup_version > 1)
+	pmsprintf(path, sizeof(path), "%s%s/cgroup.threads", proc_statspath, cgroup);
     else
 	pmsprintf(path, sizeof(path), "%s%s/cgroup.procs", proc_statspath, cgroup);
 
@@ -1033,24 +1038,17 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
 		 const char *container, int namelen)
 {
     char path[MAXPATHLEN];
-    int sts, length, want_cgroups;
+    int sts, want_cgroups;
     const char *filter = cgroups;
 
     want_cgroups = container || (cgroups && cgroups[0] != '\0');
 
-    /* For containers we asked pmdaroot for a cgroup name for the container.
-     * We must find this systems mount path for a cgroup subsystem that will
-     * be in use for all containers - choose memory for this purpose, as its
-     * pervasive and all container engines must surely use it.  Surely.
+    /*
+     * For containers we asked pmdaroot for a cgroup name for the container;
+     * next find a matching filesystem path we can use to look up processes.
      */
-    if (container) {
-	length = cgroup_mounts_subsys("memory", path, sizeof(path));
-	if (length > sizeof(path)-1)
-	    length = sizeof(path)-1;
-	length = (length <= 0) ? 0 : sizeof(path) - length;
-	strncat(path, container, length);
-	filter = path;
-    }
+    if (container)
+	filter = cgroup_container_path(path, sizeof(path), container);
 
     /* Reset accounting of the runqueue metrics, initially all zeroes */
     if (proc_runq)
