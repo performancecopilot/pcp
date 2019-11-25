@@ -3185,7 +3185,7 @@ cd
 %endif
 
 %changelog
-* Wed Dec 18 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.2-1
+* Wed Dec 11 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.2-1
 - Fix dstat exception writing to a closed fd (BZ 1768619)
 - Work in progress: https://github.com/performancecopilot/pcp/projects/1
 

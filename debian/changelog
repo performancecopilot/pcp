@@ -2,7 +2,7 @@ pcp (5.0.2-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Wed, 18 Dec 2019 07:52:01 +1100
+ -- Nathan Scott <nathans@debian.org>  Wed, 11 Dec 2019 07:52:01 +1100
 
 pcp (5.0.1-1) unstable; urgency=low
 
