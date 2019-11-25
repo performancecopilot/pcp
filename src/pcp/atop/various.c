@@ -511,14 +511,33 @@ ptrverify(const void *ptr, const char *errormsg, ...)
 
 		va_start(args, errormsg);
 		vfprintf(stderr, errormsg, args);
-        	va_end  (args);
+        	va_end(args);
 
 		exit(13);
 	}
 }
 
 /*
-** signal catcher for cleanup before exit
+ * +** cleanup, give error message and exit
++*/
+void
+mcleanstop(int exitcode, const char *errormsg, ...)
+{
+	va_list args;
+
+	acctswoff();
+	netatop_signoff();
+	(vis.show_end)();
+
+	va_start(args, errormsg);
+	vfprintf(stderr, errormsg, args);
+	va_end(args);
+
+	exit(exitcode);
+}
+
+/*
+** cleanup, give error message and exit
 */
 void
 cleanstop(int exitcode)
@@ -526,6 +545,7 @@ cleanstop(int exitcode)
 	acctswoff();
 	netatop_signoff();
 	(vis.show_end)();
+
 	exit(exitcode);
 }
 

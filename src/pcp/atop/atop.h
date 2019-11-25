@@ -176,7 +176,6 @@ count_t		subcount(count_t, count_t);
 
 void		setup_options(struct pmOptions *, char **, char *);
 void		close_options(struct pmOptions *);
-void  		rawread(struct pmOptions *);
 void		rawfolio(struct pmOptions *);
 void		rawarchive(struct pmOptions *, const char *);
 void		rawwrite(struct pmOptions *, const char *, struct timeval *,
@@ -189,6 +188,7 @@ void		setalarm2(int, int);
 char 		*getstrvers(void);
 unsigned short 	getnumvers(void);
 void		ptrverify(const void *, const char *, ...);
+void		mcleanstop(int, const char *, ...);
 void		cleanstop(int);
 void		prusage(char *, struct pmOptions *);
 void		show_pcp_usage(struct pmOptions *);

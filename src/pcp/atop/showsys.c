@@ -1558,7 +1558,7 @@ sysprt_PSIIOF(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16];
-	psiformat(&(sstat->psi.iosome), "if", buf, sizeof buf);
+	psiformat(&(sstat->psi.iofull), "if", buf, sizeof buf);
         return buf;
 }
 sys_printdef syspdef_PSIIOF = {"PSIIOF", sysprt_PSIIOF};

@@ -20,7 +20,7 @@ used to merge new changes into pcp-atop[sar] is:
 
 - generate a patch showing the new atop differences, e.g.
   $ git clone https://github.com/Atoptool/atop.git && cd atop
-  $ git diff v2.3.0 v2.4.0
+  $ git diff v2.4.0 v2.5.0
 
 - discard from the patch any atopconvert.c changes, as well as
   any/all changes to files below prev/ - we use self-contained

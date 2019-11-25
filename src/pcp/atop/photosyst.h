@@ -225,14 +225,14 @@ struct nfsstat {
 };
 
 /************************************************************************/
-struct	psi {
+struct psi {
 	float	avg10;		// average pressure last 10 seconds
 	float	avg60;		// average pressure last 60 seconds
 	float	avg300;		// average pressure last 300 seconds
 	count_t	total;		// total number of milliseconds
 };
 
-struct	pressure {
+struct pressure {
 	char	   present;	/* pressure stats supported?	*/
 	char       future[3];
 	struct psi cpusome;	/* pressure stall info 'some'   */
