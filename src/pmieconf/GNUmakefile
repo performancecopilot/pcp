@@ -17,7 +17,8 @@ TOPDIR = ../..
 include	$(TOPDIR)/src/include/builddefs
 include $(TOPDIR)/src/libpcp/src/GNUlibrarydefs
 
-MKFILE_SUBDIRS = cpu entropy filesys memory percpu pernetif global primary
+MKFILE_SUBDIRS = cpu entropy filesys memory percpu pernetif \
+		 global primary zeroconf
 SUBDIRS	= $(MKFILE_SUBDIRS)
 
 CMDTARGET = pmieconf$(EXECSUFFIX)

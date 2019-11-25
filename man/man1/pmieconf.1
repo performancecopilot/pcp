@@ -59,7 +59,7 @@ Any rule modifications resulting from
 manipulation of variable values will be written to \f2file\f1.
 The default value of \f2file\f1 is dependent on the user ID \- for the root
 user, the file
-.I $PCP_VAR_DIR/config/pmieconf/config.pmie
+.I $PCP_SYSCONF_DIR/pmie/config.pmie
 is used, for other users the default is
 .IR $HOME/.pcp/pmie/config.pmie .
 .TP
@@ -304,7 +304,7 @@ rule:
 .I $PCP_VAR_DIR/config/pmieconf/*/*
 generalized system resource monitoring rules
 .TP
-.I $PCP_VAR_DIR/config/pmieconf/config.pmie
+.I $PCP_SYSCONF_DIR/pmie/config.pmie
 default super-user settings for system resource monitoring rules
 .TP
 .I $HOME/.pcp/pmie/config.pmie

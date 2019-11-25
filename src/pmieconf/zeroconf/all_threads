@@ -1,0 +1,37 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	zeroconf.all_threads
+	default	= "$rule$"
+	predicate = "some_host ( proc.control.all.threads == 0 )"
+	enabled	= no
+	version	= 1
+	help	=
+"Ensure per-thread metrics are exported by the pmdaproc(1)
+Performance Metric Domain Agent (PMDA).";
+
+string	rule
+	default	= "Enable per-thread proc metrics"
+	modify	= no
+	display	= no;
+
+string	action_expand
+	default	= "threads[%v]@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h threads=%v"
+	display	= no
+	modify	= no;
+
+shell	all_threads_action
+	enabled	= yes
+	default	= "pmstore proc.control.all.threads 1"
+	help	=
+"The pmdaproc(1) Performance Metrics Domain Agent will receive a
+metric store to via pmstore(1) to export threads values as well.";
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

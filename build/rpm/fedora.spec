@@ -2806,6 +2806,7 @@ cd
 %else
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger-daily-report
 %endif
+%{_localstatedir}/lib/pcp/config/pmieconf/zeroconf
 %{_localstatedir}/lib/pcp/config/pmlogconf/zeroconf
 
 #additional pmlogger config files
