@@ -9,7 +9,7 @@ network.interface.in.bytes
 proc.memory.rss
     inst [INST or NAME] value NUMBER
 
-cgroup.memory.stat.rss
+cgroup.memory.stat.pgfault
     inst [INST or NAME] value NUMBER
 
 == pmcd PMDA
