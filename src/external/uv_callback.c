@@ -103,7 +103,7 @@ void dequeue_all_from_callback(uv_callback_t* master, uv_callback_t* callback) {
             call->free_data(call->data);
          }
          free(call);
-         call = prev->next;
+         call = prev ? prev->next : NULL;
       } else {
          prev = call;
          call = call->next;
