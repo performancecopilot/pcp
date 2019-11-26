@@ -118,11 +118,12 @@ on_secure_client_read(struct proxy *proxy, struct client *client,
 static void
 flush_ssl_buffer(struct client *client)
 {
-    stream_write_baton	*request = calloc(1, sizeof(stream_write_baton));
+    stream_write_baton	*request;
     struct proxy	*proxy = client->proxy;
     ssize_t		bytes;
 
     if ((bytes = BIO_pending(client->secure.write)) > 0) {
+	request = calloc(1, sizeof(stream_write_baton));
 	request->buffer[0] = uv_buf_init(sdsnewlen(SDS_NOINIT, bytes), bytes);
 	request->nbuffers = 1;
 	BIO_read(client->secure.write, request->buffer[0].base, bytes);
@@ -134,8 +135,8 @@ void
 flush_secure_module(struct proxy *proxy)
 {
     struct client	*client, **head = &proxy->pending_writes;
-    size_t		i;
-    int			used, sts;
+    size_t		i, used;
+    int			sts;
 
     while ((client = *head) != NULL) {
 	flush_ssl_buffer(client);
@@ -182,7 +183,7 @@ flush_secure_module(struct proxy *proxy)
 	} else {
 	    client->secure.pending.writes_count -= used;
 	    memmove(client->secure.pending.writes_buffer,
-		    client->secure.pending.writes_buffer + sizeof(uv_buf_t) * used,
+		    client->secure.pending.writes_buffer + used,
 		    sizeof(uv_buf_t) * client->secure.pending.writes_count);
 	}
     }

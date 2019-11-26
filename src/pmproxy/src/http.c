@@ -301,9 +301,6 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
 	    buffer = sdscatfmt(buffer, "%s\r\n%S%S\r\n",
 				length, client->buffer, message);
 	    client->buffer = NULL;
-	} else {
-	    message = buffer;
-	    buffer = NULL;
 	}
 	sdsfree(message);
 	suffix = sdsnewlen("0\r\n\r\n", 5);		/* chunked suffix */

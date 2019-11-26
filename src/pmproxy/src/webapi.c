@@ -666,7 +666,7 @@ pmwebapi_setup_request_parameters(struct client *client,
 	    baton->clientid = json_string(value);
 	}
 	/* allow all APIs to request specific context via params */
-	if (baton && (entry = dictFind(parameters, PARAM_CONTEXT)) != NULL)
+	if ((entry = dictFind(parameters, PARAM_CONTEXT)) != NULL)
 	    pmwebapi_set_context(baton, dictGetVal(entry));
     }
 
