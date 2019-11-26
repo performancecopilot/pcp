@@ -391,9 +391,10 @@ skip_metric(pmID pmid)
 	    fprintf(stderr, "skip_metric: Error: cannot realloc %ld bytes for skip_ml[]\n",
 		    (long)skip_ml_numpmid*sizeof(pmID));
 	    abandon_extract();
+	} else {
+	    skip_ml = skip_ml_tmp;
+	    skip_ml[skip_ml_numpmid-1] = pmid;
 	}
-	skip_ml = skip_ml_tmp;
-	skip_ml[skip_ml_numpmid-1] = pmid;
     }
 }
 
