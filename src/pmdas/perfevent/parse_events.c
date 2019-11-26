@@ -411,11 +411,11 @@ static int parse_event_string(char *buf, struct pmu_event *event,
                               struct pmu *pmu, struct pmcsetting *dynamicpmc,
 			       char *pmu_name, int *new_events)
 {
-    struct property_info *pi, *head = NULL, *tmp;
+    struct property_info *pi, *head, *tmp;
     char *start, *ptr, *nptr, **endptr, *str, eventname[BUF_SIZE], ev_str[BUF_SIZE], pmc_str[BUF_SIZE], *tmp_buf_str;
     struct pmcsetting *pmctmp;
     int i, ret, sub_ev_cnt = 0;
-    struct pmu_event *sub_event = NULL, *ev_tmp= NULL, *ev_head = NULL;
+    struct pmu_event *sub_event = NULL, *ev_tmp = NULL;
 
     pmsprintf(ev_str, sizeof(ev_str), "%s.%s", pmu_name, event->name);
     for (pmctmp = dynamicpmc; pmctmp; pmctmp = pmctmp->next)
@@ -434,8 +434,7 @@ static int parse_event_string(char *buf, struct pmu_event *event,
 
 	if (!sub_event) {
 		sub_event = ev_tmp;
-		ev_head = sub_event;
-		event->next = ev_head;
+		event->next = sub_event;
 		sub_event->name = strdup(event->name);
 	} else {
 		sub_event->next = ev_tmp;
@@ -444,9 +443,7 @@ static int parse_event_string(char *buf, struct pmu_event *event,
 	}
     }
 
-    ev_head = event;
-
-    for (i=0; i < sub_ev_cnt; i++) {
+    for (i = 0; i < sub_ev_cnt; i++) {
         head = NULL;
         tmp_buf_str = strdup(buf);
         start = tmp_buf_str;
@@ -461,16 +458,18 @@ static int parse_event_string(char *buf, struct pmu_event *event,
 	    ptr++;   /* ptr now points to the value */
 	    pi = calloc(1, sizeof(*pi));
 	    if (!pi) {
-	        cleanup_property_info(head);
-	        return -E_PERFEVENT_REALLOC;
+		free(tmp_buf_str);
+		cleanup_property_info(head);
+		return -E_PERFEVENT_REALLOC;
 	    }
 
 	    pi->next = NULL;
 	    pi->name = strdup(start);
 	    if (!pi->name) {
-	       free(pi);
-	       cleanup_property_info(head);
-	       return -E_PERFEVENT_REALLOC;
+		free(pi);
+		free(tmp_buf_str);
+		cleanup_property_info(head);
+		return -E_PERFEVENT_REALLOC;
 	    }
 
 	    pmsprintf(eventname, sizeof(eventname), "%s.%s", pmu_name, event->name);
@@ -497,7 +496,7 @@ static int parse_event_string(char *buf, struct pmu_event *event,
 		    pi->value = strtoull(nptr, endptr, 16);
 		if (!head) {
 		    head = pi;
-		    pi = pi->next;
+		    tmp = head;
 		} else {
 		    tmp->next = pi;
 		    tmp = tmp->next;
@@ -533,6 +532,7 @@ static int parse_event_string(char *buf, struct pmu_event *event,
 		tmp = tmp->next;
 	    }
 	}
+	free(tmp_buf_str);
 	ret = fetch_event_config(head, event, pmu);
 	if (ret)
 	    return ret;
@@ -614,7 +614,7 @@ static int fetch_events(DIR *events_dir, struct pmu_event **events,
             }
 	    tmp = tmp->next;
 	    i++;
-	} while(i < sub_events);
+	} while(tmp && i < sub_events);
 
 	sub_events = 0;
     }
