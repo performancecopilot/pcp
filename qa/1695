@@ -52,6 +52,12 @@ params="polltimeout=20"
 date >>$seq.full
 echo "=== checking metric scrape operation ===" | tee -a $seq.full
 curl --get --silent "http://localhost:$port/metrics?$params" >> $seq.full
+
+date >>$seq.full
+echo "=== checking one client making multiple requests ===" | tee -a $seq.full
+context="http://localhost:$port/pmapi/context"
+curl --get --silent $context $context >> $seq.full
+
 date >>$seq.full
 echo "=== checking metric fetch operation ===" | tee -a $seq.full
 metrics="sample.colour,sample.long.one,sample.long.one,sample.double.one"

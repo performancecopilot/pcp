@@ -404,6 +404,37 @@ http_transfer(struct client *client)
     }
 }
 
+static void
+http_client_release(struct client *client)
+{
+    struct servlet	*servlet = client->u.http.servlet;
+
+    if (servlet && servlet->on_release)
+	servlet->on_release(client);
+    client->u.http.privdata = NULL;
+
+    if (client->u.http.headers) {
+	dictRelease(client->u.http.headers);
+	client->u.http.headers = NULL;
+    }
+    if (client->u.http.parameters) {
+	dictRelease(client->u.http.parameters);
+	client->u.http.parameters = NULL;
+    }
+    if (client->u.http.username) {
+	sdsfree(client->u.http.username);
+	client->u.http.username = NULL;
+    }
+    if (client->u.http.password) {
+	sdsfree(client->u.http.password);
+	client->u.http.password = NULL;
+    }
+    if (client->u.http.realm) {
+	sdsfree(client->u.http.realm);
+	client->u.http.realm = NULL;
+    }
+}
+
 static int
 http_add_parameter(dict *parameters,
 	const char *name, int namelen, const char *value, int valuelen)
@@ -536,6 +567,8 @@ on_url(http_parser *request, const char *offset, size_t length)
     struct client	*client = (struct client *)request->data;
     struct servlet	*servlet;
     int			sts;
+
+    http_client_release(client);	/* new URL, clean slate */
 
     if ((servlet = servlet_lookup(client, offset, length)) != NULL) {
 	client->u.http.servlet = servlet;
@@ -690,23 +723,10 @@ on_message_complete(http_parser *request)
 void
 on_http_client_close(struct client *client)
 {
-    struct servlet	*servlet = client->u.http.servlet;
-
     if (pmDebugOptions.http)
 	fprintf(stderr, "HTTP client close (client=%p)\n", client);
 
-    if (servlet && servlet->on_release)
-	servlet->on_release(client);
-
-    if (client->u.http.headers)
-	dictRelease(client->u.http.headers);
-    if (client->u.http.parameters)
-	dictRelease(client->u.http.parameters);
-
-    sdsfree(client->u.http.username);
-    sdsfree(client->u.http.password);
-    sdsfree(client->u.http.realm);
-
+    http_client_release(client);
     memset(&client->u.http, 0, sizeof(client->u.http));
 }
 
