@@ -18,8 +18,14 @@ which pmproxy >/dev/null 2>&1 || _notrun "No pmproxy binary installed"
 
 _cleanup()
 {
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
+    _restore_config $PCP_ETC_DIR/pcp/pmlogger
+    _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    echo;echo === restarting pmproxy
+    _service pmproxy restart 2>&1 | _filter_pcp_start
+    _wait_for_pmproxy
+    $sudo rm -rf $tmp.*
 }
 
 status=1	# failure is the default!
@@ -27,11 +33,19 @@ $sudo rm -rf $tmp $tmp.*
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+
+# only want the primary logger running
+_save_config $PCP_ETC_DIR/pcp/pmlogger
+for f in `find $PCP_ETC_DIR/pcp/pmlogger -type f`; do
+    $PCP_AWK_PROG '/^\$/ || /^#/ || (/PCP_LOG_DIR/ && $2 == "y") {print}' $f >$tmp.new
+    $sudo mv $tmp.new $f
+done
+
 echo;echo === restarting pmproxy service to ensure sane starting condition 
 _service pmlogger stop 2>&1 | _filter_pcp_stop
-_service pmproxy stop 2>&1 | _filter_pcp_stop
-_service pmproxy start 2>&1 | _filter_pcp_start
-_wait_for_pmproxy
+_service pmproxy restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+# give pmproxy a chance to startup
+pmsleep 2; _wait_for_pmproxy
 
 pmproxy_pid=`_get_pids_by_name -a pmproxy`
 [ -z "$pmproxy_pid" ] && echo === pmproxy not running && status=1 && exit 1
@@ -48,12 +62,12 @@ echo;echo === compressing the new archives, which also deletes the originals
 $sudo xz $dir/testarchive.{0,meta}
 $sudo chown -R $PCP_USER $dir
 
-echo;echo === restarting pmlogger 
+echo;echo === restarting pmlogger # primary only
 _service pmlogger restart 2>&1 | _filter_pcp_start
 _wait_for_pmlogger
 
 echo;echo === wait for pmproxy to process filesystem events
-pmsleep 2
+pmsleep 5
 
 echo;echo === checking pmproxy file descriptors for deleted files, should be none 
 $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
@@ -63,10 +77,6 @@ $sudo rm -rf $dir
 
 echo;echo === see $seq.full for pmproxy logs 
 cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq.full
-
-echo;echo === restarting pmproxy
-_service pmproxy restart 2>&1 | _filter_pcp_start
-_wait_for_pmproxy
 
 # success, all done
 status=0
