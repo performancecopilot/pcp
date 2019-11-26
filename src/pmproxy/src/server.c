@@ -635,9 +635,10 @@ shutdown_ports(void *arg)
 	stream = &server->stream;
 	if (stream->active == 0)
 	    continue;
-	if (stream->family == STREAM_LOCAL)
+	if (stream->family == STREAM_LOCAL) {
 	    uv_close((uv_handle_t *)&stream->u.local, NULL);
-	else {
+	    unlink(stream->address);
+	} else {
 	    uv_close((uv_handle_t *)&stream->u.tcp, NULL);
 	    if (server->presence)
 		__pmServerUnadvertisePresence(server->presence);
