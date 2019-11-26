@@ -899,13 +899,13 @@ pmwebapi_add_instances_labels(struct context *context, struct indom *indom)
 	}
 	if (sts >= 0)
 	    indom->updated = 1;
-    } else {
-	if (sts >= 0)
-	    indom->updated = 1;
 	else if (pmDebugOptions.series)
 	    fprintf(stderr, "failed to get indom (%s) instance labels: %s\n",
 		    pmInDomStr_r(indom->indom, buffer, sizeof(buffer)),
 		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+    } else {
+	if (sts >= 0)
+	    indom->updated = 1;
     }
 
     if (labelsets)

@@ -363,7 +363,6 @@ pmwebapi_add_valueset(metric_t *metric, pmValueSet *vsp)
     metric->updated = 1;
     type = metric->desc.type;
     if (metric->desc.indom == PM_INDOM_NULL) {
-	vp = &vsp->vlist[0];
 	if (pmwebapi_extract_value(vsp, 0, type, &metric->u.atom) < 0)
 	    metric->updated = 0;
 	return 1;
@@ -394,10 +393,11 @@ pmwebapi_add_valueset(metric_t *metric, pmValueSet *vsp)
 	} else {
 	    k = j;		/* successful direct mapping */
 	}
-	value = &metric->u.vlist->value[k];
-	value->updated = 1;
-	if (pmwebapi_extract_value(vsp, j, type, &value->atom) < 0)
-	    value->updated = 0;
+	if ((value = &metric->u.vlist->value[k]) != NULL) {
+	    value->updated = 1;
+	    if (pmwebapi_extract_value(vsp, j, type, &value->atom) < 0)
+		value->updated = 0;
+	}
     }
 
     return count;

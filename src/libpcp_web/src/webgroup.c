@@ -349,7 +349,7 @@ static int
 webgroup_derived_metrics(sds config, sds *errmsg)
 {
     unsigned int	line = 0;
-    char		*p, *end, *name, *expr, *error;
+    char		*p, *end, *name = NULL, *expr, *error;
 
     /*
      * Pick apart the derived metrics "configuration file" in expr.
@@ -832,21 +832,6 @@ webgroup_lookup_indom(pmWebGroupSettings *settings, context_t *cp, sds name, voi
     return webgroup_cache_indom(cp, indom);
 }
 
-static regex_t *
-name_match_setup(enum matches match, int numnames, sds *names)
-{
-    regex_t		*regex = NULL;
-    int			i;
-
-    if (match == MATCH_REGEX && numnames > 0) {
-	if ((regex = calloc(numnames, sizeof(*regex))) == NULL)
-	    return NULL;
-	for (i = 0; i < numnames; i++)
-	    regcomp(&regex[i], names[i], REG_EXTENDED|REG_NOSUB);
-    }
-    return regex;
-}
-
 static void
 name_match_free(regex_t *regex, int numnames)
 {
@@ -857,6 +842,25 @@ name_match_free(regex_t *regex, int numnames)
 	    regfree(&regex[i]);
 	free(regex);
     }
+}
+
+static regex_t *
+name_match_setup(enum matches match, int numnames, sds *names)
+{
+    regex_t		*regex = NULL;
+    int			i, sts = 0;
+
+    if (match == MATCH_REGEX && numnames > 0) {
+	if ((regex = calloc(numnames, sizeof(*regex))) == NULL)
+	    return NULL;
+	for (i = 0; i < numnames; i++)
+	    sts |= regcomp(&regex[i], names[i], REG_EXTENDED|REG_NOSUB);
+	if (sts) {
+	    name_match_free(regex, numnames);
+	    return NULL;
+	}
+    }
+    return regex;
 }
 
 static int
@@ -924,7 +928,7 @@ webgroup_profile(struct context *cp, struct indom *ip,
     regex = name_match_setup(match, numnames, names);
 
     iterator = dictGetIterator(ip->insts);
-    while ((entry = dictNext(iterator)) != NULL) {
+    while (insts && (entry = dictNext(iterator)) != NULL) {
 	instance = (instance_t *)dictGetVal(entry);
 	if (instance->updated == 0)
 	    continue;
@@ -1327,11 +1331,8 @@ webmetric_lookup(const char *name, void *arg)
     if (snp == NULL)	/* a 'redirect' - pick the first series */
 	snp = &mp->names[0];
 
-    if (mp->cluster) {
-	if (mp->cluster->domain)
-	    pmwebapi_add_domain_labels(cp, mp->cluster->domain);
-	pmwebapi_add_cluster_labels(cp, mp->cluster);
-    }
+    pmwebapi_add_domain_labels(cp, mp->cluster->domain);
+    pmwebapi_add_cluster_labels(cp, mp->cluster);
     if (mp->indom)
 	pmwebapi_add_indom_labels(mp->indom);
     pmwebapi_add_item_labels(cp, mp);
@@ -1576,7 +1577,7 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 		}
 		for (k = 0; k < metric->u.vlist->listcount; k++) {
 		    value = &metric->u.vlist->value[k];
-		    if (value->updated == 0)
+		    if (value->updated == 0 || indom == NULL)
 			continue;
 		    instance = dictFetchValue(indom->insts, &value->inst);
 		    if (instance == NULL)

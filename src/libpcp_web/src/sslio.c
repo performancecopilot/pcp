@@ -39,8 +39,8 @@
  * Callback used for debugging
  */
 static void sslLogCallback(const SSL *ssl, int where, int ret) {
-    const char *retstr = "";
-    int should_log = 1;
+    const char *retstr;
+    int should_log = 0;
     /* Ignore low-level SSL stuff */
 
     if (where & SSL_CB_ALERT) {
