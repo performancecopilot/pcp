@@ -561,20 +561,24 @@ push_label_name(parser_t *parser)
 {
     char		*stack;	/* dot-separated accumulated 'stack' */
     size_t		bytes;
+    int			first = 1;
 
     if (parser->name) {
 	bytes = parser->namelen + 1;
-	if (parser->stack)
+	if (parser->stack) {
 	    bytes += parser->stacklen + 1;
+	    first = 0;
+	}
 	if ((stack = realloc(parser->stack, bytes)) == NULL)
 	    return;
-	if (parser->stack == NULL)
+	/* do not access parser->stack now until reassigned (maybe freed) */
+	if (first)
 	    pmsprintf(stack, bytes, "%.*s",
 			parser->namelen, parser->jsonb + parser->name);
 	else
-	    pmsprintf(stack, bytes, "%s.%.*s", parser->stack,
+	    pmsprintf(stack+parser->stacklen, bytes-parser->stacklen, ".%.*s",
 			parser->namelen, parser->jsonb + parser->name);
-	parser->stack = stack;
+	parser->stack = stack;	/* reassigned here, safe to access again */
 	parser->stacklen = bytes;
 	parser->stackstyle = STACK_COMPOUND;
 	parser->stackdepth++;
