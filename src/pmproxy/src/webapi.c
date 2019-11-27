@@ -754,8 +754,10 @@ pmwebapi_request_url(struct client *client, sds url, dict *parameters)
     unsigned int	compat = 0;
     sds			context = NULL;
 
-    if ((key = pmwebapi_lookup_restkey(url, &compat, &context)) == RESTKEY_NONE)
+    if ((key = pmwebapi_lookup_restkey(url, &compat, &context)) == RESTKEY_NONE) {
+	sdsfree(context);
 	return 0;
+    }
 
     if ((baton = calloc(1, sizeof(*baton))) != NULL) {
 	client->u.http.data = baton;
@@ -766,6 +768,7 @@ pmwebapi_request_url(struct client *client, sds url, dict *parameters)
 	pmwebapi_setup_request_parameters(client, baton, parameters);
     } else {
 	client->u.http.parser.status_code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
+	sdsfree(context);
     }
     return 1;
 }
@@ -780,7 +783,8 @@ pmwebapi_request_body(struct client *client, const char *content, size_t length)
 	if (client->u.http.parameters == NULL)
 	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks, NULL);
 	dictAdd(client->u.http.parameters,
-			sdsnew(PARAM_EXPR), sdsnewlen(content, length));
+			sdsnewlen(PARAM_EXPR, sdslen(PARAM_EXPR)),
+			sdsnewlen(content, length));
     }
     return 0;
 }
