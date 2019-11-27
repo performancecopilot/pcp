@@ -1092,6 +1092,9 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 
     switch (type) {
     case PM_LABEL_CONTEXT:
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "%s: context\n", "pmSeriesDiscoverLabels");
+
 	if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
 	    if (cp->labelset)
 		pmFreeLabelSets(cp->labelset, 1);
@@ -1106,6 +1109,10 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 
     case PM_LABEL_DOMAIN:
 	domain = pmwebapi_add_domain(cp, ident);
+	if (pmDebugOptions.discovery && domain)
+	    fprintf(stderr, "%s: domain=%u\n",
+			    "pmSeriesDiscoverLabels", domain->domain);
+
 	if (domain && (labels = pmwebapi_labelsetdup(sets)) != NULL) {
 	    if (domain->labelset)
 		pmFreeLabelSets(domain->labelset, 1);
@@ -1120,6 +1127,9 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
     case PM_LABEL_CLUSTER:
 	domain = pmwebapi_add_domain(cp, pmID_domain(ident));
 	cluster = pmwebapi_add_cluster(cp, domain, pmID_cluster(ident));
+	if (pmDebugOptions.discovery && cluster)
+	    fprintf(stderr, "%s: domain=%u\n", "pmSeriesDiscoverLabels", domain->domain);
+
 	if (cluster && (labels = pmwebapi_labelsetdup(sets)) != NULL) {
 	    if (cluster->labelset)
 		pmFreeLabelSets(cluster->labelset, 1);
@@ -1133,6 +1143,10 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 
     case PM_LABEL_ITEM:
 	metric = pmwebapi_new_pmid(cp, ident, event->module->on_info, arg);
+	if (pmDebugOptions.discovery && metric)
+	    fprintf(stderr, "%s: metric=%s\n",
+			    "pmSeriesDiscoverLabels", pmIDStr(metric->desc.pmid));
+
 	if (metric && (labels = pmwebapi_labelsetdup(sets)) != NULL) {
 	    if (metric->labelset)
 		pmFreeLabelSets(metric->labelset, 1);
@@ -1147,6 +1161,10 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
     case PM_LABEL_INDOM:
 	domain = pmwebapi_add_domain(cp, pmInDom_domain(ident));
 	indom = pmwebapi_add_indom(cp, domain, ident);
+	if (pmDebugOptions.discovery && indom)
+	    fprintf(stderr, "%s: indom=%s\n",
+			    "pmSeriesDiscoverLabels", pmInDomStr(indom->indom));
+
 	if (indom && (labels = pmwebapi_labelsetdup(sets)) != NULL) {
 	    if (indom->labelset)
 		pmFreeLabelSets(indom->labelset, 1);
@@ -1161,6 +1179,11 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
     case PM_LABEL_INSTANCES:
 	domain = pmwebapi_add_domain(cp, pmInDom_domain(ident));
 	indom = pmwebapi_add_indom(cp, domain, ident);
+	if (pmDebugOptions.discovery && indom)
+	    fprintf(stderr, "%s: instances for indom=%s (%d sets)\n",
+			    "pmSeriesDiscoverLabels",
+			    pmInDomStr(indom->indom), nsets);
+
 	for (i = 0; indom && i < nsets; i++) {
 	    id = sets[i].inst;
 	    if ((instance = dictFetchValue(indom->insts, &id)) == NULL)
@@ -1199,7 +1222,7 @@ pmSeriesDiscoverMetric(pmDiscoverEvent *event,
 
     if (pmDebugOptions.discovery) {
 	for (i = 0; i < numnames; i++)
-	    fprintf(stderr, "pmSeriesDiscoverMetric [%d/%d]: %s - %s\n",
+	    fprintf(stderr, "pmSeriesDiscoverMetric: [%d/%d] %s - %s\n",
 			i + 1, numnames, pmIDStr(desc->pmid), names[i]);
     }
 
@@ -1217,6 +1240,9 @@ pmSeriesDiscoverValues(pmDiscoverEvent *event, pmResult *result, void *arg)
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
     seriesGetContext	*context = &baton->pmapi;
+
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "%s: result numpmids=%d\n", "pmSeriesDiscoverValues", result->numpmid);
 
     seriesBatonReference(context, "pmSeriesDiscoverValues");
     baton->arg = arg;
