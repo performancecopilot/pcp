@@ -153,6 +153,7 @@ extern void pmSeriesClose(pmSeriesModule *);
 
 extern int pmSeriesDescs(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesLabels(pmSeriesSettings *, int, sds *, void *);
+extern int pmSeriesLabelValues(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesInstances(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesMetrics(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesSources(pmSeriesSettings *, int, sds *, void *);

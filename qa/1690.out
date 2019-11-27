@@ -9,6 +9,8 @@ Load second archive
 pmseries: [Info] processed 129 archive records from PATH/archives/viewqa2
 Check labels loaded
 hostname
+Check labels values
+hostname: "leaf", "edge"
 
 Query series using labels for host edge
 3238c2e92d0babb7e848578f52dd3f9fc69dcd3a

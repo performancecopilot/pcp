@@ -79,6 +79,13 @@ _filter_values()
     #end
 }
 
+_filter_label_values()
+{
+    sed \
+	-e "s/^hostname: \"${hostname}\"/hostname: \"HOSTNAME\"/g" \
+    #end
+}
+
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/labels
 _save_config $PCP_SYSCONF_DIR/pmproxy
@@ -163,6 +170,10 @@ pmseries $options -l $series | _filter_labels | _filter_series
 
 echo "== verify metric values" | tee -a  $seq.full
 pmseries $options -t sample.ulong.million[samples:2] | _filter_values | _filter_series
+
+echo "== verify label names and values" | tee -a  $seq.full
+labels=`pmseries $options -l | LC_COLLATE=POSIX sort`
+pmseries $options -v $labels | _filter_label_values
 
 # pause until pmlogger exits to prevent confusion when removing archives
 wait $pmlogger_pid

@@ -55,6 +55,8 @@ echo "Load second archive"
 pmseries $options --load "{source.path: \"$here/archives/viewqa2\"}" | _filter_source
 echo "Check labels loaded"
 pmseries $options --labels
+echo "Check labels values"
+pmseries $options --values hostname
 echo
 
 echo "Query series using labels for host edge"

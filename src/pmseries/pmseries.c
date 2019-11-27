@@ -38,6 +38,7 @@ typedef enum series_flags {
     PMSERIES_OPT_LOAD	= (1<<21),	/* -L, --load option */
     PMSERIES_OPT_METRIC	= (1<<22),	/* -m, --metric option */
     PMSERIES_OPT_QUERY	= (1<<23),	/* -q, --query option (default) */
+    PMSERIES_OPT_VALUES = (1<<24),	/* -v, --values option */
 } series_flags;
 
 #define PMSERIES_META_OPTS	(PMSERIES_OPT_DESC | PMSERIES_OPT_INSTS | \
@@ -230,7 +231,7 @@ series_data_free(series_data *dp)
 }
 
 static int
-series_split(sds string, pmSID **series)
+comma_split(sds string, sds **series)
 {
     size_t		length;
     int			nseries = 0;
@@ -652,7 +653,20 @@ on_series_labelmap(pmSID series, pmSeriesLabel *label, void *arg)
 {
     series_inst		*ip = NULL;
     series_data		*dp = (series_data *)arg;
-    sds			name, value;
+    sds			name = label->name, value = label->value;
+
+    if (dp->flags & PMSERIES_OPT_VALUES) {
+	/* stash label name as 'series' for next-label handling */
+	if (dp->series == NULL)
+	    dp->series = sdsempty();
+	if (series_next(dp, name)) {
+	    printf("%s: %s", name, value);
+	} else {
+	    printf(", %s", value);
+	}
+	dp->flags |= PMSERIES_NEED_EOL;
+	return 0;
+    }
 
     if (dp->flags & PMSERIES_INSTLABELS) {
 	if ((ip = series_get_inst(dp, series)) == NULL)
@@ -661,8 +675,6 @@ on_series_labelmap(pmSID series, pmSeriesLabel *label, void *arg)
 	printf("\n%s\n", series);
     }
 
-    name = label->name;
-    value = label->value;
     if (dp->flags & PMSERIES_INSTLABELS)
 	series_add_labels(name, value, &ip->nlabels, &ip->labels);
     else
@@ -718,7 +730,7 @@ series_source(series_data *dp)
     char		msg[PM_MAXERRMSGLEN];
     pmSID		*sources = NULL;
 
-    if ((nsources = sts = series_split(dp->query, &sources)) < 0) {
+    if ((nsources = sts = comma_split(dp->query, &sources)) < 0) {
 	fprintf(stderr, "%s: cannot find source identifiers in '%s': %s\n",
 		pmGetProgname(), dp->query, pmErrStr_r(sts, msg, sizeof(msg)));
     } else {
@@ -959,7 +971,7 @@ series_report(series_data *dp)
     pmSID		*series = NULL;
     series_entry	*entry;
 
-    if ((nseries = sts = series_split(dp->query, &series)) < 0) {
+    if ((nseries = sts = comma_split(dp->query, &series)) < 0) {
 	fprintf(stderr, "%s: no series identifiers in string '%s': %s\n",
 		pmGetProgname(), dp->query, pmErrStr_r(sts, msg, sizeof(msg)));
     } else {
@@ -974,6 +986,23 @@ series_report(series_data *dp)
 	}
 	entry = dp->head;
 	entry->func(dp, entry->arg);
+    }
+}
+
+static void
+series_label_values(series_data *dp)
+{
+    int			nlabels, sts;
+    char		msg[PM_MAXERRMSGLEN];
+    sds			*labels = NULL;
+
+    if ((nlabels = sts = comma_split(dp->query, &labels)) <= 0) {
+	fprintf(stderr, "%s: no label names in string '%s': %s\n",
+		pmGetProgname(), dp->query, pmErrStr_r(sts, msg, sizeof(msg)));
+    } else {
+	sts = pmSeriesLabelValues(&dp->settings, nlabels, labels, dp);
+	if (sts < 0)
+	    on_series_done(sts, dp);
     }
 }
 
@@ -994,6 +1023,8 @@ on_series_setup(void *arg)
 	series_load(dp);
     else if (flags & PMSERIES_OPT_QUERY)
 	series_query(dp);
+    else if (flags & PMSERIES_OPT_VALUES)
+	series_label_values(dp);
     else if ((flags & PMSERIES_OPT_SOURCE) && !(flags & PMSERIES_META_OPTS))
 	series_source(dp);
     else
@@ -1043,6 +1074,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General Options"),
     { "load", 0, 'L', 0, "load time series values and metadata" },
     { "query", 0, 'q', 0, "perform a time series query (default)" },
+    { "values", 0, 'v', 0, "all known values for given label name(s)" },
     PMOPT_DEBUG,
     PMAPI_OPTIONS_HEADER("Reporting Options"),
     { "all", 0, 'a', 0, "report all metadata (-dilms) for time series" },
@@ -1066,9 +1098,9 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_BOUNDARIES,
-    .short_options = "ac:dD:Fg:h:iIlLmMnqp:sStVZ:?",
+    .short_options = "ac:dD:Fg:h:iIlLmMnqp:sStvVZ:?",
     .long_options = longopts,
-    .short_usage = "[options] [query ... | series ... | source ...]",
+    .short_usage = "[options] [query ... | labels ... | series ... | source ...]",
     .override = pmseries_overrides,
 };
 
@@ -1164,6 +1196,10 @@ main(int argc, char *argv[])
 	    flags |= PMSERIES_TIMES;
 	    break;
 
+	case 'v':	/* command line contains label name(s) */
+	    flags |= PMSERIES_OPT_VALUES;
+	    break;
+
 	case 'Z':	/* timezone for reporting time stamps */
 	    pmsprintf(tzbuffer, sizeof(tzbuffer), "%s", opts.optarg);
 	    setenv("TZ", tzbuffer, 1);
@@ -1203,8 +1239,8 @@ main(int argc, char *argv[])
     if (flags & PMSERIES_OPT_ALL)
 	flags |= PMSERIES_META_OPTS;
 
-    if ((flags & PMSERIES_OPT_LOAD) &&
-	(flags & (PMSERIES_META_OPTS | PMSERIES_OPT_SOURCE))) {
+    if ((flags & PMSERIES_OPT_LOAD) && (flags &
+	    (PMSERIES_META_OPTS | PMSERIES_OPT_SOURCE | PMSERIES_OPT_VALUES))) {
 	pmprintf("%s: error - cannot use load and reporting options together\n",
 			pmGetProgname());
 	opts.errors++;
@@ -1214,8 +1250,8 @@ main(int argc, char *argv[])
 			pmGetProgname());
 	opts.errors++;
     }
-    else if ((flags & PMSERIES_OPT_QUERY) &&
-	(flags & (PMSERIES_META_OPTS | PMSERIES_OPT_SOURCE))) {
+    else if ((flags & PMSERIES_OPT_QUERY) && (flags &
+	    (PMSERIES_META_OPTS | PMSERIES_OPT_SOURCE | PMSERIES_OPT_VALUES))) {
 	pmprintf("%s: error - cannot use query and metadata options together\n",
 			pmGetProgname());
 	opts.errors++;
@@ -1234,8 +1270,9 @@ main(int argc, char *argv[])
      * If all parameters are series hashes, assume --all metadata
      * mode otherwise assume its a --query request.
      */
-    if (!(flags & (PMSERIES_META_OPTS|PMSERIES_OPT_LOAD|PMSERIES_OPT_SOURCE)) &&
-	!(flags & (PMSERIES_NEED_DESCS|PMSERIES_NEED_INSTS))) {
+    if (!(flags & (PMSERIES_META_OPTS | PMSERIES_OPT_LOAD)) &&
+        !(flags & (PMSERIES_OPT_SOURCE | PMSERIES_OPT_VALUES)) &&
+	!(flags & (PMSERIES_NEED_DESCS | PMSERIES_NEED_INSTS))) {
 	for (c = opts.optind; c < argc; c++) {
 	    if (strlen(argv[c]) != 40)
 		break;
@@ -1252,7 +1289,12 @@ main(int argc, char *argv[])
 			   pmGetProgname());
 	   opts.errors++;
 	}
-	else if (!(flags & (PMSERIES_META_OPTS|PMSERIES_OPT_SOURCE)) ||
+	else if ((flags & PMSERIES_OPT_VALUES)) {
+	    pmprintf("%s: error - no label name(s) provided\n",
+			    pmGetProgname());
+	    opts.errors++;
+	}
+	else if (!(flags & (PMSERIES_META_OPTS | PMSERIES_OPT_SOURCE)) ||
 		 /* --all needs a timeseries identifier to work on */
 		 ((flags & PMSERIES_OPT_ALL) && opts.optind == argc)) {
 	    pmprintf("%s: error - no series string(s) provided\n",

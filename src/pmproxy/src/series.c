@@ -47,6 +47,8 @@ typedef struct pmSeriesBaton {
     sds			suffix;
     unsigned int	series;
     unsigned int	values;
+    int			nnames;
+    sds			*names;
     sds			info;
     sds			query;
     sds			clientid;
@@ -66,7 +68,8 @@ static pmSeriesRestCommand commands[] = {
 };
 
 /* constant string keys (initialized during servlet setup) */
-static sds PARAM_EXPR, PARAM_MATCH, PARAM_SERIES, PARAM_SOURCE, PARAM_CLIENT;
+static sds PARAM_EXPR, PARAM_MATCH, PARAM_SERIES, PARAM_SOURCE,
+	   PARAM_CLIENT, PARAM_NAME, PARAM_NAMES;
 static sds PARAM_ALIGN, PARAM_COUNT, PARAM_DELTA, PARAM_OFFSET,
 	   PARAM_SAMPLES, PARAM_INTERVAL, PARAM_START, PARAM_FINISH,
 	   PARAM_BEGIN, PARAM_END, PARAM_RANGE, PARAM_ZONE;
@@ -100,6 +103,11 @@ pmseries_data_release(struct client *client)
     if (pmDebugOptions.http)
 	fprintf(stderr, "%s: %p for client %p\n", "pmseries_data_release",
 			baton, client);
+
+    if (baton->nsids)
+	sdsfreesplitres(baton->sids, baton->nsids);
+    if (baton->names)
+	sdsfreesplitres(baton->names, baton->nnames);
 
     sdsfree(baton->sid);
     sdsfree(baton->info);
@@ -355,6 +363,35 @@ on_pmseries_label(pmSID sid, sds label, void *arg)
 }
 
 static int
+on_pmseries_labelvalues(pmSeriesBaton *baton, pmSeriesLabel *label)
+{
+    struct client	*client = baton->client;
+    sds			s, name, value, result;
+
+    name = label->name;
+    value = label->value;
+    result = http_get_buffer(client);
+
+    if ((s = baton->sid) == NULL) {	/* first label name */
+	baton->sid = sdsdup(name);	/* (stash name in sid for convenience) */
+	result = push_client_identifier(baton, result);
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
+	baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+	result = sdscatfmt(result, "{\"%S\":[%S", name, value);
+    } else if (sdscmp(s, name) != 0) {	/* next label name */
+	sdsclear(baton->sid);
+	baton->sid = sdscpylen(s, name, sdslen(name));
+	result = sdscatfmt(result, "],\"%S\":[%S", name, value);
+    } else {	/* next label value for previous label name */
+	result = sdscatfmt(result, ",%S", value);
+    }
+
+    http_set_buffer(client, result, HTTP_FLAG_JSON);
+    http_transfer(client);
+    return 0;
+}
+
+static int
 on_pmseries_labelmap(pmSID sid, pmSeriesLabel *label, void *arg)
 {
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
@@ -363,7 +400,7 @@ on_pmseries_labelmap(pmSID sid, pmSeriesLabel *label, void *arg)
     sds			s, name, value, result;
 
     if (baton->nsids == 0)
-	return 0;
+	return on_pmseries_labelvalues(baton, label);
 
     name = label->name;
     value = label->value;
@@ -540,7 +577,7 @@ pmseries_setup_request_parameters(struct client *client,
     enum http_method	method = client->u.http.parser.method;
     dictEntry		*entry;
     size_t		length;
-    sds			series;
+    sds			series, names;
 
     if (parameters) {
 	/* allow all APIs to pass(-through) a 'client' parameter */
@@ -616,6 +653,16 @@ pmseries_setup_request_parameters(struct client *client,
 	    } else if ((entry = dictFind(parameters, PARAM_MATCH)) != NULL) {
 		baton->match = dictGetVal(entry);
 		baton->sids = &baton->match;
+	    }
+	}
+	/* special case: requesting all known values for given label name(s) */
+	if (parameters && baton->restkey == RESTKEY_LABELS) {
+	    if ((entry = dictFind(parameters, PARAM_NAME)) == NULL)
+		entry = dictFind(parameters, PARAM_NAMES);	/* synonym */
+	    if (entry != NULL) {
+		names = dictGetVal(entry);
+		length = sdslen(names);
+		baton->names = sdssplitlen(names, length, ",", 1, &baton->nnames);
 	    }
 	}
 	break;
@@ -786,8 +833,12 @@ pmseries_request_done(struct client *client)
 	break;
 
     case RESTKEY_LABELS:
-	if ((sts = pmSeriesLabels(&pmseries_settings,
-					baton->nsids, baton->sids, baton)) < 0)
+	sts = (baton->names == NULL) ?
+	    pmSeriesLabels(&pmseries_settings,
+					baton->nsids, baton->sids, baton) :
+	    pmSeriesLabelValues(&pmseries_settings,
+					baton->nnames, baton->names, baton);
+	if (sts < 0)
 	    on_pmseries_done(sts, baton);
 	break;
 
@@ -825,6 +876,8 @@ pmseries_servlet_setup(struct proxy *proxy)
 {
     PARAM_EXPR = sdsnew("expr");
     PARAM_MATCH = sdsnew("match");
+    PARAM_NAME = sdsnew("name");
+    PARAM_NAMES = sdsnew("names");
     PARAM_SERIES = sdsnew("series");
     PARAM_SOURCE = sdsnew("source");
     PARAM_CLIENT = sdsnew("client");
@@ -857,6 +910,8 @@ pmseries_servlet_close(void)
 
     sdsfree(PARAM_EXPR);
     sdsfree(PARAM_MATCH);
+    sdsfree(PARAM_NAME);
+    sdsfree(PARAM_NAMES);
     sdsfree(PARAM_SERIES);
     sdsfree(PARAM_SOURCE);
     sdsfree(PARAM_CLIENT);

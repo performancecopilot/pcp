@@ -41,5 +41,18 @@ TIMESERIES
 TIMESERIES
     [TIMESTAMP] VALUE
     [TIMESTAMP] VALUE
+== verify label names and values
+agent: "mmv", "sample", "pmcd"
+changed: false
+clan: "mcdonell"
+cluster: "zero"
+hostname: "HOSTNAME"
+indom_label: 42.001
+measure: "speed"
+metric_label: null
+model: "RGB"
+role: "testing"
+units: "metres per second"
+unitsystem: "SI"
 == verify archive removal
 == all done

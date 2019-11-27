@@ -58,6 +58,14 @@ _filter_source()
     #end
 }
 
+_filter_archive()
+{
+    pmjson | \
+    sed \
+        -e "s,bozo-laptop,QALOGHOST,g" \
+    #end
+}
+
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/pmproxy
 _save_config $PCP_SYSCONF_DIR/pmseries
@@ -132,6 +140,18 @@ url="http://localhost:$proxyport/series/labels?series=$series3"
 echo "$url" >> $seq.full
 curl --get --silent "$url" | tee -a $seq.full | pmjson
 curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
+
+echo "== verify all label names" | tee -a $seq.full
+url="http://localhost:$proxyport/series/labels"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | pmjson
+curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | pmjson
+
+echo "== verify all label values" | tee -a $seq.full
+url="http://localhost:$proxyport/series/labels?names=hostname"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | _filter_archive
+curl --get --silent "$url&client=pcp-qa-$seq" | tee -a $seq.full | _filter_archive
 
 echo "== verify metric values" | tee -a  $seq.full
 url="http://localhost:$proxyport/series/values?series=$series2&samples=2"

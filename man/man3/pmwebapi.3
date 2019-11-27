@@ -299,7 +299,7 @@ $ curl -s http://localhost:44322/series/descs?\\
   }
 ]
 .ESAMPLE
-.SS GET \fI/series/labels\fR \- \fBpmSeriesLabels\fR(3)
+.SS GET \fI/series/labels\fR \- \fBpmSeriesLabels\fR(3), \fBpmSeriesLabelValues\fR(3)
 .TS
 box,left;
 c | c | cw(2.4i)
@@ -308,13 +308,33 @@ Parameters	Type	Explanation
 _
 series	string	Comma-separated list of series identifiers
 match	string	Glob pattern string to match on all labels
+name	string	Find all known label values for given name
+names	string	Comma-separated list of label names
 client	string	Request identifier sent back with response
 .TE
 .P
-Performs a label set lookup for one or more time series
-identifiers.
-The JSON response contains the same information as the
-\fBpmseries\fR \-\fBl\fR/\-\-\fBlabels\fR option.
+This command operates in one of three modes.
+It can perform a label set lookup for one or more time
+series identifiers, when given the
+.I series
+parameter).
+It can produce a list of all known label names, in the
+absense of
+.IR name ,
+.I names
+or
+.I series
+parameters.
+The JSON responses for these modes contains the same information
+as the \fBpmseries\fR \-\fBl\fR/\-\-\fBlabels\fR option.
+.P
+Alternatively, it can produce a list of all known label
+values for a given label
+.I name
+or
+.IR names .
+The JSON response for this mode contains the same information
+as the \fBpmseries\fR \-\fBv\fR/\-\-\fBvalues\fR option.
 .P
 .SAMPLE
 $ curl -s http://localhost:44322/series/labels?\\
@@ -338,9 +358,11 @@ $ curl -s http://localhost:44322/series/labels?\\
 .ESAMPLE
 .P
 Alternatively, with no
+.IR name ,
+.I names
+or
 .I series
-argument, this request will return the list of all known
-label names.
+parameters, return the list of all known label names.
 .P
 .SAMPLE
 $ curl -s http://localhost:44322/series/labels | pmjson
@@ -357,6 +379,21 @@ $ curl -s http://localhost:44322/series/labels | pmjson
     "platform",
     "userid"
 ]
+.ESAMPLE
+.P
+Use the
+.I name
+or
+.I names
+parameters to find all possible label values for the given name(s).
+.P
+.SAMPLE
+$ curl -s http://localhost:44322/series/labels?\\
+	names=hostname,domainname | pmjson
+{
+    "hostname": [ "app", "nas" ],
+    "domainname": [ "acme.com" ]
+}
 .ESAMPLE
 .SS GET \fI/series/metrics\fR \- \fBpmSeriesMetrics\fR(3)
 .TS

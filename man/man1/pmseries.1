@@ -18,13 +18,13 @@
 \f3pmseries\f1 \- display information about performance metric timeseries
 .SH SYNOPSIS
 \fBpmseries\fR
-[\fB\-adFiIlLmMnqsStV?\fR]
+[\fB\-adFiIlLmMnqsStvV?\fR]
 [\fB\-c\fR \fIconfig\fR]
 [\fB\-g\fR \fIpattern\fR]
 [\fB\-h\fR \fIhost\fR]
 [\fB\-p\fR \fIport\fR]
 [\fB\-Z\fR \fItimezone\fR]
-[\fIquery\fR | \fIseries\fR ... | \fIsource\fR ... ]
+[\fIquery\fR | \fIlabels\fR ... | \fIseries\fR ... | \fIsource\fR ... ]
 .SH DESCRIPTION
 .de SAMPLE
 .RS 2n
@@ -418,6 +418,9 @@ This is the default action.
 \fB\-t\fR, \fB\-\-times\fR
 Report time stamps numerically (in milliseconds) instead of
 the default human readable form.
+.TP
+\fB\-v\fR, \fB\-\-values\fR
+Report all of the known values for given \fIlabel\fR name(s).
 .TP
 \fB\-V\fR, \fB\-\-version\fR
 Display version number and exit.
