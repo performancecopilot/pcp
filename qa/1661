@@ -36,10 +36,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # only want the primary logger running
 _save_config $PCP_ETC_DIR/pcp/pmlogger
-for f in `find $PCP_ETC_DIR/pcp/pmlogger -type f`; do
-    $PCP_AWK_PROG '/^\$/ || /^#/ || (/PCP_LOG_DIR/ && $2 == "y") {print}' $f >$tmp.new
-    $sudo mv $tmp.new $f
-done
+_restore_pmlogger_control
 
 echo;echo === restarting pmproxy service to ensure sane starting condition 
 _service pmlogger stop 2>&1 | _filter_pcp_stop
