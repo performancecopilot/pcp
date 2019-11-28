@@ -1712,4 +1712,4 @@ BAD
 1705 pmda.bpftrace local python
 1706 pmda.bpftrace local python
 1707 pmda.bpftrace local python
-4751 libpcp threads valgrind local pcp python
+4751 libpcp threads valgrind local pcp
