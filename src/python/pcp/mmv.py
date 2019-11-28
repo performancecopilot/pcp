@@ -16,9 +16,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# pylint: disable=missing-docstring,line-too-long,bad-continuation
-# pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
-#
 # Example use of this module for instrumenting a python application:
 
         from pcp import mmv, pmapi
@@ -101,7 +98,7 @@ class mmv_instance(Structure):
 
     def __init__(self, inst, name):
         Structure.__init__(self)
-        if type(name) != type(b''):
+        if not isinstance(name, bytes):
             name = name.encode('utf-8')
         self.external = name
         self.internal = inst
@@ -117,11 +114,11 @@ class mmv_indom(Structure):
                 ("shorttext", c_char_p),
                 ("helptext", c_char_p)]
 
-    def __init__(self, serial, shorttext = '', helptext = ''):
+    def __init__(self, serial, shorttext='', helptext=''):
         Structure.__init__(self)
-        if helptext != None and type(helptext) != type(b''):
+        if helptext is not None and not isinstance(helptext, bytes):
             helptext = helptext.encode('utf-8')
-        if shorttext != None and type(shorttext) != type(b''):
+        if shorttext is not None and not isinstance(shorttext, bytes):
             shorttext = shorttext.encode('utf-8')
         self.shorttext = shorttext
         self.helptext = shorttext
@@ -149,13 +146,13 @@ class mmv_metric(Structure):
                 ("shorttext", c_char_p),
                 ("helptext", c_char_p)]
 
-    def __init__(self, name, item, typeof, semantics, dimension, indom = 0, shorttext = '', helptext = ''):
+    def __init__(self, name, item, typeof, semantics, dimension, indom=0, shorttext='', helptext=''): # pylint: disable=R0913
         Structure.__init__(self)
-        if type(name) != type(b''):
+        if not isinstance(name, bytes):
             name = name.encode('utf-8')
-        if helptext != None and type(helptext) != type(b''):
+        if helptext is not None and not isinstance(helptext, bytes):
             helptext = helptext.encode('utf-8')
-        if shorttext != None and type(shorttext) != type(b''):
+        if shorttext is not None and not isinstance(shorttext, bytes):
             shorttext = shorttext.encode('utf-8')
         self.shorttext = shorttext
         self.helptext = shorttext
@@ -230,8 +227,8 @@ class MemoryMappedValues(object):
         via pmdammv (Performance Metrics Domain Agent for MMV)
     """
 
-    def __init__(self, name, flags = 0, cluster = 42):
-        if type(name) != type(b''):
+    def __init__(self, name, flags=0, cluster=42):
+        if not isinstance(name, bytes):
             name = name.encode('utf-8')
         self._name = name
         self._cluster = cluster  # PMID cluster number (domain is MMV)
@@ -252,18 +249,16 @@ class MemoryMappedValues(object):
         indoms = (mmv_indom * count_indoms)()
         for i in range(count_indoms):
             indoms[i] = self._indoms[i]
-        self._handle = LIBPCP_MMV.mmv_stats_init(
-                                self._name,
-                                self._cluster,
-                                self._flags,
-                                metrics, count_metrics,
-                                indoms, count_indoms)
+        self._handle = LIBPCP_MMV.mmv_stats_init(self._name, self._cluster,
+                                                 self._flags,
+                                                 metrics, count_metrics,
+                                                 indoms, count_indoms)
 
     def stop(self):
         """ Shut down the underlying library with metrics/instances.
             This closes the mmap file preventing any further updates.
         """
-        if (self._handle != None):
+        if self._handle is not None:
             LIBPCP_MMV.mmv_stats_stop(self._name, self._handle)
         self._handle = None
 
@@ -274,14 +269,14 @@ class MemoryMappedValues(object):
 
     def started(self):
         """ Property flagging an active memory mapping """
-        if (self._handle == None):
+        if self._handle is None:
             return 0
         return 1
 
     def add_indoms(self, indoms):
         """ Make a list of instance domains visible to the MMV export """
         self._indoms = indoms
-        if (self.started()):
+        if self.started():
             self.restart()
 
     def add_indom(self, indom):
@@ -292,7 +287,7 @@ class MemoryMappedValues(object):
     def add_metrics(self, metrics):
         """ Make a list of metrics visible to the MMV export """
         self._metrics = metrics
-        if (self.started()):
+        if self.started():
             self.restart()
 
     def add_metric(self, metric):
@@ -311,9 +306,9 @@ class MemoryMappedValues(object):
             a convenience only for situations where performance will not
             be affected by repeated (linear) name/inst lookups.
         """
-        if name != None and type(name) != type(b''):
+        if name is not None and not isinstance(name, bytes):
             name = name.encode('utf-8')
-        if inst != None and type(inst) != type(b''):
+        if inst is not None and not isinstance(inst, bytes):
             inst = inst.encode('utf-8')
         return LIBPCP_MMV.mmv_lookup_value_desc(self._handle, name, inst)
 
@@ -331,7 +326,7 @@ class MemoryMappedValues(object):
 
     def set_string(self, mapping, value):
         """ Set the string mapped metric to a given value """
-        if value != None and type(value) != type(b''):
+        if value is not None and not isinstance(value, bytes):
             value = value.encode('utf-8')
         LIBPCP_MMV.mmv_set_string(self._handle, mapping, value, len(value))
 
@@ -348,25 +343,25 @@ class MemoryMappedValues(object):
 
     def lookup_add(self, name, inst, value):
         """ Lookup the named metric[instance] and add a value to it """
-        if name != None and type(name) != type(b''):
+        if name is not None and not isinstance(name, bytes):
             name = name.encode('utf-8')
-        if inst != None and type(inst) != type(b''):
+        if inst is not None and not isinstance(inst, bytes):
             inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_add(self._handle, name, inst, value)
 
     def lookup_inc(self, name, inst):
         """ Lookup the named metric[instance] and add one to it """
-        if name != None and type(name) != type(b''):
+        if name is not None and not isinstance(name, bytes):
             name = name.encode('utf-8')
-        if inst != None and type(inst) != type(b''):
+        if inst is not None and not isinstance(inst, bytes):
             inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_inc(self._handle, name, inst)
 
     def lookup_set(self, name, inst, value):
         """ Lookup the named metric[instance] and set its value """
-        if name != None and type(name) != type(b''):
+        if name is not None and not isinstance(name, bytes):
             name = name.encode('utf-8')
-        if inst != None and type(inst) != type(b''):
+        if inst is not None and not isinstance(inst, bytes):
             inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_set(self._handle, name, inst, value)
 
@@ -374,20 +369,20 @@ class MemoryMappedValues(object):
         """ Lookup the named metric[instance] and start an interval
             The opaque handle returned is passed to interval_end().
         """
-        if name != None and type(name) != type(b''):
+        if name is not None and not isinstance(name, bytes):
             name = name.encode('utf-8')
-        if inst != None and type(inst) != type(b''):
+        if inst is not None and not isinstance(inst, bytes):
             inst = inst.encode('utf-8')
         return LIBPCP_MMV.mmv_stats_interval_start(self._handle,
                                                    None, name, inst)
 
     def lookup_set_string(self, name, inst, s):
         """ Lookup the named metric[instance] and set its string value """
-        if name != None and type(name) != type(b''):
+        if name is not None and not isinstance(name, bytes):
             name = name.encode('utf-8')
-        if inst != None and type(inst) != type(b''):
+        if inst is not None and not isinstance(inst, bytes):
             inst = inst.encode('utf-8')
-        if type(s) != type(b''):
+        if not isinstance(s, bytes):
             s = s.encode('utf-8')
         LIBPCP_MMV.mmv_stats_set_strlen(self._handle, name, inst, s, len(s))
 
@@ -397,9 +392,9 @@ class MemoryMappedValues(object):
             One example use is: add value to bucketN else use a catch-all
                                 bucket such as "other"
         """
-        if name != None and type(name) != type(b''):
+        if name is not None and not isinstance(name, bytes):
             name = name.encode('utf-8')
-        if inst != None and type(inst) != type(b''):
+        if inst is not None and not isinstance(inst, bytes):
             inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_add_fallback(self._handle, name, inst, fall, value)
 
@@ -408,8 +403,8 @@ class MemoryMappedValues(object):
             If instance is not found, fallback to using a second instance
             One sample use is: inc value of BucketA, else inc a catch-all
         """
-        if name != None and type(name) != type(b''):
+        if name is not None and not isinstance(name, bytes):
             name = name.encode('utf-8')
-        if inst != None and type(inst) != type(b''):
+        if inst is not None and not isinstance(inst, bytes):
             inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_inc_fallback(self._handle, name, inst, fallback)

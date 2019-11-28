@@ -16,16 +16,16 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# pylint: disable=missing-docstring,line-too-long,bad-continuation
+# pylint: disable=line-too-long,protected-access,dangerous-default-value
 # pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
 #
 
-from sys import stderr
+import sys
 from ctypes import c_int, c_uint, c_char_p, cast, POINTER
-from pcp.pmapi import (pmContext, pmResult, pmValueSet, pmValue, pmDesc,
-        pmErr, pmOptions, timeval)
+from pcp.pmapi import pmContext, pmValue, pmDesc, pmErr, timeval
 from cpmapi import (PM_CONTEXT_HOST, PM_CONTEXT_ARCHIVE, PM_INDOM_NULL,
-        PM_IN_NULL, PM_ID_NULL, PM_SEM_COUNTER, PM_ERR_EOL, PM_TYPE_DOUBLE)
+                    PM_IN_NULL, PM_ID_NULL, PM_SEM_COUNTER, PM_ERR_EOL,
+                    PM_TYPE_DOUBLE)
 
 
 class MetricCore(object):
@@ -41,7 +41,7 @@ class MetricCore(object):
 
     def __init__(self, ctx, name, pmid):
         self.ctx = ctx
-        if type(name) != type(b''):
+        if not isinstance(name, bytes):
             name = name.encode('utf-8')
         self.name = name
         self.pmid = pmid
@@ -111,13 +111,13 @@ class Metric(object):
                 name = instD[instval.inst]
             except KeyError:
                 name = ''
-            outAtom = self.ctx.pmExtractValue(
-                    vset.valfmt, instval, self.desc.type, self._convType)
+            outAtom = self.ctx.pmExtractValue(vset.valfmt, instval,
+                                              self.desc.type, self._convType)
             if self._convUnits:
                 desc = (POINTER(pmDesc) * 1)()
                 desc[0] = self.desc
-                outAtom = self.ctx.pmConvScale(
-                        self._convType, outAtom, desc, 0, self._convUnits)
+                outAtom = self.ctx.pmConvScale(self._convType, outAtom, desc,
+                                               0, self._convUnits)
             value = outAtom.dref(self._convType)
             valL.append((instval, name, value))
         return valL
@@ -141,7 +141,7 @@ class Metric(object):
         """
         if self.desc.sem != PM_SEM_COUNTER:
             return self.computeValues(values)
-        if prevValues == None:
+        if prevValues is None:
             return None
         pvset = prevValues
         vset = values
@@ -151,26 +151,26 @@ class Metric(object):
         for i in range(vset.numval):
             instval = self.get_vlist(vset, i)
             pinstval = self._find_previous_instval(i, instval.inst, pvset)
-            if pinstval == None:
+            if pinstval is None:
                 continue
             try:
                 name = instD[instval.inst]
             except KeyError:
                 name = ''
-            outAtom = self.ctx.pmExtractValue(vset.valfmt,
-                    instval, self.desc.type, PM_TYPE_DOUBLE)
-            poutAtom = self.ctx.pmExtractValue(pvset.valfmt,
-                    pinstval, self.desc.type, PM_TYPE_DOUBLE)
+            outAtom = self.ctx.pmExtractValue(vset.valfmt, instval,
+                                              self.desc.type, PM_TYPE_DOUBLE)
+            poutAtom = self.ctx.pmExtractValue(pvset.valfmt, pinstval,
+                                               self.desc.type, PM_TYPE_DOUBLE)
             if self._convUnits:
                 desc = (POINTER(pmDesc) * 1)()
                 desc[0] = self.desc
-                outAtom = self.ctx.pmConvScale(
-                        PM_TYPE_DOUBLE, outAtom, desc, 0, self._convUnits)
-                poutAtom = self.ctx.pmConvScale(
-                        PM_TYPE_DOUBLE, poutAtom, desc, 0, self._convUnits)
+                outAtom = self.ctx.pmConvScale(PM_TYPE_DOUBLE, outAtom, desc,
+                                               0, self._convUnits)
+                poutAtom = self.ctx.pmConvScale(PM_TYPE_DOUBLE, poutAtom, desc,
+                                                0, self._convUnits)
             value = outAtom.dref(PM_TYPE_DOUBLE)
             pvalue = poutAtom.dref(PM_TYPE_DOUBLE)
-            if (value >= pvalue):
+            if value >= pvalue:
                 valL.append((instval, name, (value - pvalue) / delta))
         return valL
 
@@ -233,8 +233,8 @@ class Metric(object):
     def metricPrint(self):
         indomstr = self.ctx.pmInDomStr(self.desc.indom)
         print("   ", "indom:", indomstr)
-        instD = self.ctx.mcGetInstD(self.desc.indom)
-        for inst, name, val in self.netValues:
+        _ = self.ctx.mcGetInstD(self.desc.indom)
+        for _, name, val in self.netValues:
             print("   ", name, val)
 
     def metricConvert(self, delta):
@@ -255,8 +255,8 @@ class MetricCache(pmContext):
 
     ##
     # overloads
-  
-    def __init__(self, typed = PM_CONTEXT_HOST, target = "local:"):
+
+    def __init__(self, typed=PM_CONTEXT_HOST, target="local:"):
         pmContext.__init__(self, typed, target)
         self._mcIndomD = {}
         self._mcByNameD = {}
@@ -266,7 +266,7 @@ class MetricCache(pmContext):
 
     ##
     # methods
-  
+
     def mcGetInstD(self, indom):
         """ Query the instance : instance_list dictionary """
         return self._mcIndomD[indom]
@@ -276,13 +276,13 @@ class MetricCache(pmContext):
         indom = core.desc.contents.indom
         if indom not in self._mcIndomD:
             if c_int(indom).value == c_int(PM_INDOM_NULL).value:
-                instmap = { PM_IN_NULL : b'PM_IN_NULL' }
+                instmap = {PM_IN_NULL: b'PM_IN_NULL'}
             else:
                 if self._type == PM_CONTEXT_ARCHIVE:
                     instL, nameL = self.pmGetInDomArchive(core.desc)
                 else:
                     instL, nameL = self.pmGetInDom(core.desc)
-                if instL != None and nameL != None:
+                if instL is not None and nameL is not None:
                     instmap = dict(zip(instL, nameL))
                 else:
                     instmap = {}
@@ -302,7 +302,7 @@ class MetricCache(pmContext):
         errL = None
         # lookup names in cache
         for index, name in enumerate(nameL):
-            if type(name) == type(b''):
+            if isinstance(name, bytes):
                 name = name.decode()
             # lookup metric core in cache
             core = self._mcByNameD.get(name)
@@ -329,7 +329,7 @@ class MetricCache(pmContext):
                     coreL[missD[name]] = newcore
 
         return coreL, errL
-    
+
     def _mcCreateCore(self, name, pmid):
         """ Update the core description """
         newcore = MetricCore(self, name, pmid)
@@ -337,7 +337,7 @@ class MetricCache(pmContext):
             newcore.desc = self.pmLookupDesc(pmid)
         except pmErr as error:
             fail = "%s: pmLookupDesc: %s" % (error.progname(), error.message())
-            print >> stderr, fail
+            sys.stderr.write(fail)
             raise SystemExit(1)
 
         # insert core into cache
@@ -349,18 +349,18 @@ class MetricCache(pmContext):
         errL = None
         nameA = (c_char_p * len(nameL))()
         for index, name in enumerate(nameL):
-            if type(name) != type(b''):
+            if not isinstance(name, bytes):
                 name = name.encode('utf-8')
             nameA[index] = c_char_p(name)
         try:
             pmidArray = self.pmLookupName(nameA)
             if len(pmidArray) < len(nameA):
                 missing = "%d of %d metric names" % (len(pmidArray), len(nameA))
-                print >> stderr, "Cannot resolve", missing
+                sys.stderr.write("Cannot resolve %s" % missing)
                 raise SystemExit(1)
         except pmErr as error:
             fail = "%s: pmLookupName: %s" % (error.progname(), error.message())
-            print >> stderr, fail
+            sys.stderr.write(fail)
             raise SystemExit(1)
 
         return zip(nameL, pmidArray), errL
@@ -415,7 +415,7 @@ class MetricGroup(dict):
     ##
     # overloads
 
-    def __init__(self, contextCache, inL = []):
+    def __init__(self, contextCache, inL=[]):
         dict.__init__(self)
         self._ctx = contextCache
         self._pmidArray = None
@@ -424,18 +424,17 @@ class MetricGroup(dict):
         self._altD = {}
         self.mgAdd(inL)
 
-    def __setitem__(self, attr, value = []):
+    def __setitem__(self, attr, value=[]):
         if attr in self:
             raise KeyError("metric group with that key already exists")
-        else:
-            dict.__setitem__(self, attr, MetricGroup(self, inL = value))
+        dict.__setitem__(self, attr, MetricGroup(self, inL=value))
 
     ##
     # methods
 
     def mgAdd(self, nameL):
         """ Create the list of Metric(s) """
-        coreL, errL = self._ctx.mcGetCoresByName(nameL)
+        coreL, _ = self._ctx.mcGetCoresByName(nameL)
         for core in coreL:
             metric = Metric(core)
             self.update({metric.name: metric})
@@ -463,7 +462,7 @@ class MetricGroup(dict):
             if error.args[0] == PM_ERR_EOL:
                 raise SystemExit(0)
             fail = "%s: pmFetch: %s" % (error.progname(), error.message())
-            print >> stderr, fail
+            sys.stderr.write(fail)
             raise SystemExit(1)
 
         return result.timestamp # timeval
@@ -473,7 +472,7 @@ class MetricGroup(dict):
         Sample delta - used for rate conversion calculations, which
         requires timestamps from successive samples.
         """
-        if self._prev != None:
+        if self._prev is not None:
             prevTimestamp = float(self.prevTimestamp)
         else:
             prevTimestamp = 0.0
@@ -546,7 +545,7 @@ class MetricGroupManager(dict, MetricCache):
     ##
     # overloads
 
-    def __init__(self, typed = PM_CONTEXT_HOST, target = "local:"):
+    def __init__(self, typed=PM_CONTEXT_HOST, target="local:"):
         dict.__init__(self)
         MetricCache.__init__(self, typed, target)
         self._options = None
@@ -555,16 +554,15 @@ class MetricGroupManager(dict, MetricCache):
         self._printer = None
         self._counter = 0
 
-    def __setitem__(self, attr, value = []):
+    def __setitem__(self, attr, value=[]):
         if attr in self:
             raise KeyError("metric group with that key already exists")
-        else:
-            dict.__setitem__(self, attr, MetricGroup(self, inL = value))
+        dict.__setitem__(self, attr, MetricGroup(self, inL=value))
 
     @classmethod
-    def builder(build, options, argv):
+    def builder(cls, options, argv):
         """ Helper interface, simple PCP monitor argument parsing. """
-        manager = build.fromOptions(options, argv)
+        manager = cls.fromOptions(options, argv)
         manager._default_delta = timeval(options.delta, 0)
         manager._options = options
         return manager
@@ -588,21 +586,21 @@ class MetricGroupManager(dict, MetricCache):
             automatically increasing the sample count to accommodate
             when counters metrics are present.
         """
-        if self._options == None:
+        if self._options is None:
             return 0, None	# loop until interrupted or PM_ERR_EOL
         extra = 1       # extra sample needed if rate converting
         for group in self.keys():
             if self[group].nonCounters:
                 extra = 0
         samples = self._options.pmGetOptionSamples()
-        if samples != None:
+        if samples is not None:
             return samples + extra, None
-        if self._options.pmGetOptionFinishOptarg() == None:
+        if self._options.pmGetOptionFinishOptarg() is None:
             return 0, None # loop until interrupted or PM_ERR_EOL
         origin = self._options.pmGetOptionOrigin()
         finish = self._options.pmGetOptionFinish()
         delta = self._options.pmGetOptionInterval()
-        if delta == None:
+        if delta is None:
             delta = self._default_delta
         period = self._tv2float(delta)
         window = (self._tv2float(finish) - self._tv2float(origin)) / period
@@ -616,13 +614,13 @@ class MetricGroupManager(dict, MetricCache):
             whether this is an archive or live context, and the sampling
             --interval (including the default value, if none requested).
         """
-        if self._default_pause != None:
+        if self._default_pause is not None:
             return self._default_pause
         if self.type == PM_CONTEXT_ARCHIVE:
             self._default_pause = timeval(0, 0)
-        elif self._options != None:
+        elif self._options is not None:
             pause = self._options.pmGetOptionInterval()
-            if pause != None:
+            if pause is not None:
                 self._default_pause = pause
             else:
                 self._default_pause = self._default_delta
@@ -639,22 +637,22 @@ class MetricGroupManager(dict, MetricCache):
         missing = []
         nameA = (c_char_p * len(nameL))()
         for i, n in enumerate(nameL):
-            if type(n) != type(b''):
+            if not isinstance(n, bytes):
                 n = n.encode('utf-8')
             nameA[i] = c_char_p(n)
         try:
             # fast path: check all in one call
             pmContext.pmLookupName(self, nameA)
-        except pmErr as err:
+        except pmErr:
             # failure: check all names individually
             for i, n in enumerate(nameA):
                 try:
                     pmContext.pmLookupName(self, (n))
-                except pmErr as err:
+                except pmErr:
                     missing.append(nameL[i])
-        if len(missing) == 0:
-            return None 
-        return missing 
+        if not missing:
+            return None
+        return missing
 
     def fetch(self):
         """ Perform fetch operation on all of the groups. """
@@ -681,7 +679,7 @@ class MetricGroupManager(dict, MetricCache):
         try:
             curtime = self.fetch()
             while True:
-                if samples > 0 and self._counter >= samples:
+                if self._counter >= samples > 0:
                     break
                 if finish is not None and self._tv2float(curtime) >= self._tv2float(finish):
                     break

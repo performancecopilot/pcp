@@ -24,4 +24,4 @@ include $(BUILDRULES)
 install_pcp install:
 
 check:: $(PYCODE)
-	#$(PYLINT) $^
+	$(PYLINT) $^

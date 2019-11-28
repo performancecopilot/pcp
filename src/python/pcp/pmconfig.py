@@ -947,7 +947,7 @@ class pmConfig(object):
         if not self.util.rank:
             return instances
         rank = abs(self.util.rank)
-        revs = True if self.util.rank > 0 else False
+        revs = bool(self.util.rank > 0)
         return sorted(instances, key=lambda value: value[2], reverse=revs)[:rank]
 
     def validate_predicate(self):

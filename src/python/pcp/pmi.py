@@ -1,4 +1,3 @@
-# pylint: disable=C0103
 """Wrapper module for libpcp_import - Performace Co-Pilot Log Import API
 #
 # Copyright (C) 2012-2019 Red Hat.
@@ -15,9 +14,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-#
-# pylint: disable=missing-docstring,line-too-long,bad-continuation
-# pylint: disable=too-many-lines,too-many-arguments,too-many-nested-blocks
 #
 
 # Example use of this module for creating a PCP archive:
@@ -140,16 +136,26 @@ class pmiErr(Exception):
     '''
     Encapsulation for PMI interface error code
     '''
+    def __init__(self, *args):
+        super(pmiErr, self).__init__(*args)
+        self.args = list(args)
+        if args and isinstance(args[0], int):
+            self.code = args[0]
+        else:
+            self.code = 0
+
     def __str__(self):
-        error_code = self.args[0]
         try:
-            error_symbol = pmiErrSymDict[error_code]
+            error_symbol = pmiErrSymDict[self.code]
             error_string = ctypes.create_string_buffer(PMI_MAXERRMSGLEN)
-            error_string = LIBPCP_IMPORT.pmiErrStr_r(error_code,
-                                        error_string, PMI_MAXERRMSGLEN)
+            error_string = LIBPCP_IMPORT.pmiErrStr_r(self.code, error_string,
+                                                     PMI_MAXERRMSGLEN)
         except KeyError:
             error_symbol = error_string = ""
         return "%s %s" % (error_symbol, error_string)
+
+    def errno(self):
+        return self.code
 
 
 #
@@ -182,8 +188,8 @@ class pmiLogImport(object):
     ##
     # overloads
 
-    def __init__(self, path, inherit = 0):
-        if type(path) != type(b''):
+    def __init__(self, path, inherit=0):
+        if not isinstance(path, bytes):
             path = path.encode('utf-8')
         self._path = path        # the archive path (file name)
         self._ctx = LIBPCP_IMPORT.pmiStart(c_char_p(path), inherit)
@@ -204,7 +210,7 @@ class pmiLogImport(object):
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        if type(hostname) != type(b''):
+        if not isinstance(hostname, bytes):
             hostname = hostname.encode('utf-8')
         status = LIBPCP_IMPORT.pmiSetHostname(c_char_p(hostname))
         if status < 0:
@@ -217,7 +223,7 @@ class pmiLogImport(object):
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        if type(timezone) != type(b''):
+        if not isinstance(timezone, bytes):
             timezone = timezone.encode('utf-8')
         status = LIBPCP_IMPORT.pmiSetTimezone(c_char_p(timezone))
         if status < 0:
@@ -241,11 +247,11 @@ class pmiLogImport(object):
 
     @staticmethod
     def pmiUnits(dim_space, dim_time, dim_count,
-                        scale_space, scale_time, scale_count):
+                 scale_space, scale_time, scale_count):
         # pylint: disable=R0913
         """PMI - construct a pmiUnits data structure (helper routine) """
         return LIBPCP_IMPORT.pmiUnits(dim_space, dim_time, dim_count,
-                                       scale_space, scale_time, scale_count)
+                                      scale_space, scale_time, scale_count)
 
     def pmiAddMetric(self, name, pmid, typed, indom, sem, units):
         # pylint: disable=R0913
@@ -253,10 +259,10 @@ class pmiLogImport(object):
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        if type(name) != type(b''):
+        if not isinstance(name, bytes):
             name = name.encode('utf-8')
         status = LIBPCP_IMPORT.pmiAddMetric(c_char_p(name),
-                                        pmid, typed, indom, sem, units)
+                                            pmid, typed, indom, sem, units)
         if status < 0:
             raise pmiErr(status)
         return status
@@ -266,7 +272,7 @@ class pmiLogImport(object):
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        if type(instance) != type(b''):
+        if not isinstance(instance, bytes):
             instance = instance.encode('utf-8')
         status = LIBPCP_IMPORT.pmiAddInstance(indom, c_char_p(instance), instid)
         if status < 0:
@@ -278,17 +284,17 @@ class pmiLogImport(object):
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        if type(name) != type(b''):
+        if not isinstance(name, bytes):
             name = name.encode('utf-8')
         instance = None
-        if inst != None:
-            if type(inst) != type(b''):
+        if inst is not None:
+            if not isinstance(inst, bytes):
                 inst = inst.encode('utf-8')
             instance = c_char_p(inst)
-        if type(value) != type(b''):
+        if not isinstance(value, bytes):
             value = value.encode('utf-8')
         status = LIBPCP_IMPORT.pmiPutValue(c_char_p(name),
-                                        instance, c_char_p(value))
+                                           instance, c_char_p(value))
         if status < 0:
             raise pmiErr(status)
         return status
@@ -298,11 +304,11 @@ class pmiLogImport(object):
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        if type(name) != type(b''):
+        if not isinstance(name, bytes):
             name = name.encode('utf-8')
         instance = None
-        if inst != None:
-            if type(inst) != type(b''):
+        if inst is not None:
+            if not isinstance(inst, bytes):
                 inst = inst.encode('utf-8')
             instance = c_char_p(inst)
         status = LIBPCP_IMPORT.pmiGetHandle(c_char_p(name), instance)
@@ -315,7 +321,7 @@ class pmiLogImport(object):
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        if type(value) != type(b''):
+        if not isinstance(value, bytes):
             value = value.encode('utf-8')
         status = LIBPCP_IMPORT.pmiPutValueHandle(handle, c_char_p(value))
         if status < 0:
@@ -357,7 +363,7 @@ class pmiLogImport(object):
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        if type(content) != type(b''):
+        if not isinstance(content, bytes):
             content = content.encode('utf-8')
         status = LIBPCP_IMPORT.pmiPutText(typ, cls, ident, c_char_p(content))
         if status < 0:
@@ -365,13 +371,14 @@ class pmiLogImport(object):
         return status
 
     def pmiPutLabel(self, typ, ident, inst, name, content):
+        # pylint: disable=R0913
         """PMI - add a label record to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        if type(name) != type(b''):
+        if not isinstance(name, bytes):
             name = name.encode('utf-8')
-        if type(content) != type(b''):
+        if not isinstance(content, bytes):
             content = content.encode('utf-8')
         status = LIBPCP_IMPORT.pmiPutLabel(typ, ident, inst, c_char_p(name), c_char_p(content))
         if status < 0:
