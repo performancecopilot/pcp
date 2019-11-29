@@ -34,7 +34,6 @@ typedef struct stream_write_baton {
     uv_write_t		writer;
     uv_buf_t		buffer[2];
     unsigned int	nbuffers;
-    uv_stream_t		*stream;
     uv_write_cb		callback;
 } stream_write_baton;
 

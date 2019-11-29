@@ -61,8 +61,10 @@ server_write(struct client *client, sds buffer)
 	    fprintf(stderr, "%s: %ld bytes from client %p to pmcd\n",
 			"server_write", (long)sdslen(buffer), client);
 	request->buffer[0] = uv_buf_init(buffer, sdslen(buffer));
+	request->nbuffers = 1;
+	request->writer.data = client;
 	uv_write(&request->writer, (uv_stream_t *)&client->u.pcp.socket,
-		 request->buffer, 1, on_server_write);
+		 request->buffer, request->nbuffers, on_server_write);
     } else {
 	client_close(client);
     }

@@ -119,15 +119,16 @@ static void
 flush_ssl_buffer(struct client *client)
 {
     stream_write_baton	*request;
-    struct proxy	*proxy = client->proxy;
     ssize_t		bytes;
 
     if ((bytes = BIO_pending(client->secure.write)) > 0) {
 	request = calloc(1, sizeof(stream_write_baton));
 	request->buffer[0] = uv_buf_init(sdsnewlen(SDS_NOINIT, bytes), bytes);
 	request->nbuffers = 1;
+	request->writer.data = client;
 	BIO_read(client->secure.write, request->buffer[0].base, bytes);
-	uv_callback_fire(&proxy->write_callbacks, request, NULL);
+	uv_write(&request->writer, (uv_stream_t *)&client->stream,
+			request->buffer, request->nbuffers, on_client_write);
     }
 }
 
@@ -237,7 +238,7 @@ secure_client_write(struct client *client, stream_write_baton *request)
 	dup->len = request->buffer[i].len;
 	maybe = 1;
     }
-    on_client_write((uv_write_t *)request, 0);	/* successfully written */
+    on_client_write(&request->writer, 0);	/* successfully written */
 
     if (maybe)
 	maybe_flush_ssl(proxy, client);

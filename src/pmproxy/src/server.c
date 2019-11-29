@@ -199,7 +199,7 @@ client_close(struct client *client)
 void
 on_client_write(uv_write_t *writer, int status)
 {
-    struct client	*client = (struct client *)writer->handle;
+    struct client	*client = (struct client *)writer->data;
     stream_write_baton	*request = (stream_write_baton *)writer;
 
     if (pmDebugOptions.af)
@@ -237,9 +237,16 @@ void *
 on_write_callback(uv_callback_t *handle, void *data)
 {
     stream_write_baton	*request = (stream_write_baton *)data;
+    struct client	*client = (struct client *)request->writer.data;
 
-    uv_write(&request->writer, request->stream,
-		&request->buffer[0], request->nbuffers, request->callback);
+    if (pmDebugOptions.af)
+	fprintf(stderr, "%s: client=%p\n", "on_write_callback", client);
+
+    if (client->stream.secure == 0)
+	uv_write(&request->writer, (uv_stream_t *)&client->stream,
+		 &request->buffer[0], request->nbuffers, request->callback);
+    else
+	secure_client_write(client, request);
     (void)handle;
     return 0;
 }
@@ -266,14 +273,10 @@ client_write(struct client *client, sds buffer, sds suffix)
 	    request->buffer[nbuffers++] = uv_buf_init(suffix, sdslen(suffix));
 	}
 	request->nbuffers = nbuffers;
+	request->writer.data = client;
 	request->callback = on_client_write;
-	request->stream = (uv_stream_t *)&client->stream;
 
-	if (client->stream.secure) {
-	    secure_client_write(client, request);
-	} else {
-	    uv_callback_fire(&proxy->write_callbacks, request, NULL);
-	}
+	uv_callback_fire(&proxy->write_callbacks, request, NULL);
     } else {
 	client_close(client);
     }
