@@ -98,6 +98,7 @@ work(void *arg)
     int		state;			/* 0 to include instances, 1 to exclude */
     int		inst[3];		/* instances */
     pmResult	*resp;
+    int		fopened = 0;
     int		ok;
     FILE	*f;
 
@@ -108,6 +109,7 @@ work(void *arg)
 	    fprintf(stderr, "Error [%d] fopen(%s) failed: %s\n", lctx, path, pmErrStr(-errno));
 	    pthread_exit("botch fopen");
 	}
+	fopened = 1;
     }
     else
 	f = stderr;
@@ -119,12 +121,14 @@ work(void *arg)
 
     if ((sts = pmUseContext(lctx)) < 0) {
 	fprintf(f, "Error [%d] Cannot use context: %s\n", lctx, pmErrStr(sts));
+	if (fopened) fclose(f);
 	pthread_exit("botch pmUseContext");
     }
 
     if (opts.tzflag) {
 	if ((sts = pmNewContextZone()) < 0) {
 	    fprintf(f, "Error [%d] Cannot set context timezone: %s\n", lctx, pmErrStr(sts));
+	    if (fopened) fclose(f);
 	    pthread_exit("botch pmNewContextZone");
 	}
     }
@@ -149,10 +153,12 @@ work(void *arg)
 		fprintf(f, "[%d] include: %d %d\n", lctx, inst[0], inst[1]);
 	    if ((sts = pmDelProfile(desc.indom, 0, NULL)) < 0) {
 		fprintf(f, "Error [%d] pmDelProfile all: %s\n", lctx, pmErrStr(sts));
+		if (fopened) fclose(f);
 		pthread_exit("botch pmDelProfile all");
 	    }
 	    if ((sts = pmAddProfile(desc.indom, 2, inst)) < 0) {
 		fprintf(f, "Error [%d] pmAddProfile: %s\n", lctx, pmErrStr(sts));
+		if (fopened) fclose(f);
 		pthread_exit("botch pmAddProfile");
 	    }
 	}
@@ -161,15 +167,18 @@ work(void *arg)
 		fprintf(f, "[%d] exclude: %d %d %d\n", lctx, inst[0], inst[1], inst[2]);
 	    if ((sts = pmAddProfile(desc.indom, 0, NULL)) < 0) {
 		fprintf(f, "Error [%d] pmAddProfile all: %s\n", lctx, pmErrStr(sts));
+		if (fopened) fclose(f);
 		pthread_exit("botch pmAddProfile all");
 	    }
 	    if ((sts = pmDelProfile(desc.indom, 3, inst)) < 0) {
 		fprintf(f, "Error [%d] pmDelProfile: %s\n", lctx, pmErrStr(sts));
+		if (fopened) fclose(f);
 		pthread_exit("botch pmDelProfile");
 	    }
 	}
 	if ((sts = pmFetch(1, &pmid, &resp)) < 0) {
 	    fprintf(f, "Error [%d] pmFetch: %s\n", lctx, pmErrStr(sts));
+	    if (fopened) fclose(f);
 	    pthread_exit("botch pmFetch");
 	}
 	if (verbose) {
@@ -233,6 +242,7 @@ work(void *arg)
 	}
     }
 
+    if (fopened) fclose(f);
     return(NULL);	/* pthread done */
 }
 
