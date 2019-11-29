@@ -959,7 +959,7 @@ profile:
 	    pmAddProfile(indom, count, insts) :
 	    pmDelProfile(indom, count, insts);
 
-    if (count)
+    if (insts)
 	free(insts);
     return sts;
 }
@@ -1744,6 +1744,7 @@ pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 	    sts = webgroup_scrape_tree("", &scrape);
 	for (i = 0; i < numnames; i++)
 	    sts = webgroup_scrape_tree(names[i], &scrape);
+	sdsfreesplitres(names, numnames);
     } else {
 	sts = webgroup_scrape_tree("", &scrape);
     }
@@ -1866,8 +1867,10 @@ webgroup_store(struct context *context, struct metric *metric,
     bytes = sizeof(pmValueSet) + sizeof(pmValue) * (count - 1);
     if ((result = (pmResult *)calloc(1, sizeof(pmResult))) == NULL ||
 	(valueset = (pmValueSet *)calloc(1, bytes)) == NULL) {
-	if (atom.cp && metric->desc.type == PM_TYPE_STRING)
+	if (atom.cp && metric->desc.type == PM_TYPE_STRING) {
+	    if (result) free(result);
 	    free(atom.cp);
+	}
 	return -ENOMEM;
     }
     result->vset[0] = valueset;
