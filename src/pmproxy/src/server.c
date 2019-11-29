@@ -578,6 +578,7 @@ open_request_ports(char *localpath, size_t localpathlen, int maxpending)
 
     count = n = 0;
     if (*localpath) {
+	unlink(localpath);
 	server = &proxy->servers[n++];
 	server->stream.address = localpath;
 	if (open_request_local(proxy, server, localpath, maxpending) == 0)
@@ -645,8 +646,6 @@ shutdown_ports(void *arg)
 	}
     }
     proxy->nservers = 0;
-    free(proxy->servers);
-    proxy->servers = NULL;
 
     close_proxy(proxy);
 
@@ -656,6 +655,9 @@ shutdown_ports(void *arg)
     }
 
     uv_loop_close(proxy->events);
+
+    free(proxy->servers);
+    proxy->servers = NULL;
 }
 
 static void
