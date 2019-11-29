@@ -51,9 +51,8 @@ labeladd(void *arg, const struct dictEntry *entry)
 {
     pmWebLabelSet	*labels = (pmWebLabelSet *)arg;
 
-    if (sdslen(labels->buffer) == 0)	/* first time */
-	sdscatfmt(labels->buffer, "%S=%S", entry->key, entry->v.val);
-    else
+    labels->buffer = (sdslen(labels->buffer) == 0) ?	/* first time */
+	sdscatfmt(labels->buffer, "%S=%S", entry->key, entry->v.val) :
 	sdscatfmt(labels->buffer, ",%S=%S", entry->key, entry->v.val);
 }
 

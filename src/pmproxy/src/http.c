@@ -436,11 +436,12 @@ static int
 http_add_parameter(dict *parameters,
 	const char *name, int namelen, const char *value, int valuelen)
 {
-    sds			pvalue, pname = sdsnewlen(SDS_NOINIT, namelen);
+    sds			pvalue, pname;
     int			sts;
 
     if (namelen == 0)
 	return 0;
+    pname = sdsnewlen(SDS_NOINIT, namelen);
 
     if ((sts = http_decode(name, namelen, pname)) < 0) {
 	sdsfree(pname);
