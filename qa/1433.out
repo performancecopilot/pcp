@@ -5,6 +5,7 @@ pmproxy: PID = PID
 pmproxy request port(s):
   sts fd   port  family address
   === ==== ===== ====== =======
+ok FD unix UNIX_DOMAIN_SOCKET
 ok FD 44322 inet INADDR_ANY
 ok FD 44322 ipv6 INADDR_ANY
 ok FD 44323 inet INADDR_ANY
