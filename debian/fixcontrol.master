@@ -84,13 +84,38 @@ else
     echo "s/?{bpftrace}, //" >>$tmp.sed
 fi
 
+if $PMDA_POSTGRESQL
+then
+    if $ENABLE_PYTHON3
+    then
+	echo "s/?{python-psycopg2}, /python3-psycopg2, /" >>$tmp.sed
+    else
+	echo "s/?{python-psycopg2}, /python-psycopg2, /" >>$tmp.sed
+    fi
+else
+    echo "s/?{python-psycopg2}, //" >>$tmp.sed
+fi
+
+if $ENABLE_PYTHON2
+then
+    echo "s/?{python-all}, /python-all, /" >>$tmp.sed
+    echo "s/?{python-dev}, /python-dev, /" >>$tmp.sed
+else
+    echo "s/?{python-dev}, //" >>$tmp.sed
+    echo "s/?{python-all}, //" >>$tmp.sed
+fi
+
 if $ENABLE_PYTHON3
 then
     echo "s/?{python-pcp}, /python3-pcp, /" >>$tmp.sed
     echo "s/?{python}, /python3, /" >>$tmp.sed
-else
+elif $ENABLE_PYTHON2
+then
     echo "s/?{python-pcp}, /python-pcp, /" >>$tmp.sed
     echo "s/?{python}, /python, /" >>$tmp.sed
+else
+    echo "s/?{python-pcp}, //" >>$tmp.sed
+    echo "s/?{python}, //" >>$tmp.sed
 fi
 
 if $HAVE_PYTHON_JSONPOINTER
