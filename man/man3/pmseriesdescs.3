@@ -1,0 +1,64 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2019 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMSERIESSETUP 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmSeriesDescs\f1,
+\f3pmSeriesLabels\f1,
+\f3pmSeriesLabelValues\f1,
+\f3pmSeriesInstances\f1,
+\f3pmSeriesMetrics\f1,
+\f3pmSeriesSources\f1 \- fast, scalable time series metadata
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmwebapi.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmSeriesDescs(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+.br
+.ti -8n
+int pmSeriesLabels(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+.br
+.ti -8n
+int pmSeriesLabelValues(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+.br
+.ti -8n
+int pmSeriesInstances(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+.br
+.ti -8n
+int pmSeriesMetrics(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+.br
+.ti -8n
+int pmSeriesSources(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_web
+.ft 1
+.SH DESCRIPTION
+TODO \- fast, scalable time series metadata interfaces
+.SH DIAGNOSTICS
+TODO \- zero on success, negative return codes.
+.SH SEE ALSO
+.BR pmproxy (1),
+.BR pmlogger (1),
+.BR pmSeriesQuery (3),
+.BR pmSeriesSetup (3),
+.BR PMAPI (3)
+and
+.BR PMWEBAPI (3).

@@ -1,0 +1,55 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2019 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMSERIESSETUP 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmSeriesQuery\f1,
+\f3pmSeriesSetSlots\f1,
+\f3pmSeriesSetEventLoop\f1,
+\f3pmSeriesSetConfiguration\f1,
+\f3pmSeriesSetMetricRegistry\f1,
+\f3pmDiscoverClose\f1 \- fast, scalable time series querying
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmwebapi.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmSeriesQuery(pmSeriesSettings *\fIsp\fP, sds *\fIquery\fP, pmSeriesFlags \fIflags\fP, void *\fIarg\fP);
+.br
+.ti -8n
+int pmSeriesValues(pmSeriesSettings *\fIsp\fP, pmSeriesTimeWindow *\fIwindow\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+.sp
+.ti -8n
+int pmSeriesLoad(pmSeriesSettings *\fIsp\fP, sds *\fIquery\fP, pmSeriesFlags \fIflags\fP, void *\fIarg\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_web
+.ft 1
+.SH DESCRIPTION
+TODO \- fast, scalable time series querying
+.SH DIAGNOSTICS
+TODO \- zero on success, negative return codes.
+.SH SEE ALSO
+.BR pmproxy (1),
+.BR pmlogger (1),
+.BR pmSeriesDescs (3),
+.BR pmSeriesSetup (3),
+.BR PMAPI (3)
+and
+.BR PMWEBAPI (3).
