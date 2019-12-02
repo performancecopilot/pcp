@@ -874,6 +874,8 @@ pmseries_request_done(struct client *client)
 static void
 pmseries_servlet_setup(struct proxy *proxy)
 {
+    mmv_registry_t	*metric_registry = proxymetrics(proxy, METRICS_SERIES);
+
     PARAM_EXPR = sdsnew("expr");
     PARAM_MATCH = sdsnew("match");
     PARAM_NAME = sdsnew("name");
@@ -898,15 +900,16 @@ pmseries_servlet_setup(struct proxy *proxy)
     pmSeriesSetSlots(&pmseries_settings.module, proxy->slots);
     pmSeriesSetEventLoop(&pmseries_settings.module, proxy->events);
     pmSeriesSetConfiguration(&pmseries_settings.module, proxy->config);
-    pmSeriesSetMetricRegistry(&pmseries_settings.module, proxy->metrics);
+    pmSeriesSetMetricRegistry(&pmseries_settings.module, metric_registry);
 
     pmSeriesSetup(&pmseries_settings.module, proxy);
 }
 
 static void
-pmseries_servlet_close(void)
+pmseries_servlet_close(struct proxy *proxy)
 {
     pmSeriesClose(&pmseries_settings.module);
+    proxymetrics_close(proxy, METRICS_SERIES);
 
     sdsfree(PARAM_EXPR);
     sdsfree(PARAM_MATCH);

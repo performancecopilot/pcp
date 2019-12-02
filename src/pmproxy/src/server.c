@@ -45,6 +45,90 @@ proxylog(pmLogLevel level, sds message, void *arg)
     pmNotifyErr(priority, "%s%s", state, message);
 }
 
+mmv_registry_t *
+proxymetrics(struct proxy *proxy, enum proxy_registry prid)
+{
+    mmv_stats_flags_t	flags = MMV_FLAG_PROCESS;
+    mmv_registry_t	*registry;
+    char		*file, path[MAXPATHLEN];
+    int			sep = pmPathSeparator();
+
+    struct {
+	proxy_registry	prid;
+	const char	*registry;
+    } names[] = {
+	{ METRICS_NOTUSED,	NULL },
+	{ METRICS_SERVER,	"server" },
+	{ METRICS_REDIS,	"redis" },
+	{ METRICS_HTTP,		"http" },
+	{ METRICS_PCP,		"pcp" },
+	{ METRICS_DISCOVER,	"discover" },
+	{ METRICS_SERIES,	"series" },
+	{ METRICS_WEBGROUP,	"webgroup" },
+    };
+
+    if (prid >= NUM_REGISTRY || prid <= METRICS_NOTUSED)
+	return NULL;
+
+    if (proxy->metrics[prid] != NULL)	/* already setup */
+	return proxy->metrics[prid];
+
+    pmsprintf(path, sizeof(path), "%s%cpmproxy%c%s",
+	    pmGetConfig("PCP_TMP_DIR"), sep, sep, names[prid].registry);
+    if ((file = strdup(path)) == NULL)
+	return NULL;
+
+    if (prid == METRICS_SERVER)
+	flags |= MMV_FLAG_NOPREFIX;
+    if ((registry = mmv_stats_registry(file, prid, flags)) == NULL)
+	free(file);
+    proxy->metrics[prid] = registry;
+    return registry;
+}
+
+void
+proxymetrics_close(struct proxy *proxy, enum proxy_registry prid)
+{
+    if (prid >= NUM_REGISTRY || prid <= METRICS_NOTUSED)
+	return;
+
+    if (proxy->metrics[prid] != NULL) {
+	mmv_stats_free(proxy->metrics[prid]);
+	proxy->metrics[prid] = NULL;
+    }
+}
+
+static void
+server_metrics_init(struct proxy *proxy)
+{
+    mmv_registry_t	*registry;
+    pmAtomValue		*value;
+    pmInDom		noindom = MMV_INDOM_NULL;
+    pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
+    pid_t		pid = getpid();
+    char		buffer[64];
+    void		*map;
+
+    if ((registry = proxy->metrics[METRICS_SERVER]) == NULL)
+	return;
+
+    mmv_stats_add_metric(registry, "pid", SERVER_PID,
+		MMV_TYPE_U32, MMV_SEM_DISCRETE, nounits, noindom,
+		"PID for the current pmproxy invocation", NULL);
+    pmsprintf(buffer, sizeof(buffer), "%u", pid);
+    mmv_stats_add_metric_label(registry, SERVER_PID,
+		"pid", buffer, MMV_NUMBER_TYPE, 0);
+
+    if ((map = mmv_stats_start(registry)) == NULL) {
+	fprintf(stderr, "%s: %s metrics start failed\n", "server",
+			pmGetProgname());
+	return;
+    }
+
+    if ((value = mmv_lookup_value_desc(map, "pid", NULL)) != NULL)
+	mmv_set_value(map, value, pid);
+}
+
 static struct proxy *
 server_init(int portcount, const char *localpath)
 {
@@ -76,8 +160,13 @@ server_init(int portcount, const char *localpath)
     }
 
     proxy->config = config;
+
+    proxymetrics(proxy, METRICS_SERVER);
+    server_metrics_init(proxy);
+
     proxy->events = uv_default_loop();
     uv_loop_init(proxy->events);
+
     return proxy;
 }
 
@@ -658,6 +747,7 @@ shutdown_ports(void *arg)
     }
 
     uv_loop_close(proxy->events);
+    proxymetrics_close(proxy, METRICS_SERVER);
 
     free(proxy->servers);
     proxy->servers = NULL;

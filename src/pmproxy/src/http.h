@@ -62,7 +62,7 @@ extern sds http_get_buffer(struct client *);
 extern void http_set_buffer(struct client *, sds, http_flags);
 
 typedef void (*httpSetupCallBack)(struct proxy *);
-typedef void (*httpCloseCallBack)(void);
+typedef void (*httpCloseCallBack)(struct proxy *);
 typedef int (*httpHeadersCallBack)(struct client *, struct dict *);
 typedef int (*httpUrlCallBack)(struct client *, sds, struct dict *);
 typedef int (*httpBodyCallBack)(struct client *, const char *, size_t);

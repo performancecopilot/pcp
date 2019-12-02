@@ -127,6 +127,7 @@ void
 setup_redis_module(struct proxy *proxy)
 {
     redisSlotsFlags	flags = SLOTS_NONE;
+    mmv_registry_t	*metric_registry = proxymetrics(proxy, METRICS_REDIS);
     sds			option;
 
     if ((option = pmIniFileLookup(config, "pmproxy", "redis.enabled")))
@@ -151,7 +152,7 @@ setup_redis_module(struct proxy *proxy)
     if (archive_discovery) {
 	pmDiscoverSetEventLoop(&redis_discover.module, proxy->events);
 	pmDiscoverSetConfiguration(&redis_discover.module, proxy->config);
-	pmDiscoverSetMetricRegistry(&redis_discover.module, proxy->metrics);
+	pmDiscoverSetMetricRegistry(&redis_discover.module, metric_registry);
 	pmDiscoverSetup(&redis_discover.module, &redis_discover.callbacks, proxy);
     }
 }
@@ -159,9 +160,13 @@ setup_redis_module(struct proxy *proxy)
 void
 close_redis_module(struct proxy *proxy)
 {
-    if (proxy->slots)
+    if (proxy->slots) {
 	redisSlotsFree(proxy->slots);
-    proxy->slots = NULL;
+	proxy->slots = NULL;
+    }
+
     if (archive_discovery)
 	pmDiscoverClose(&redis_discover.module);
+
+    proxymetrics_close(proxy, METRICS_REDIS);
 }

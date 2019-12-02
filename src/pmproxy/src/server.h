@@ -30,6 +30,23 @@
 #include "http.h"
 #include "pcp.h"
 
+typedef enum proxy_registry {
+    METRICS_NOTUSED	= 0,	/* special "next available" MMV cluster */
+    METRICS_SERVER,
+    METRICS_REDIS,
+    METRICS_HTTP,
+    METRICS_PCP,
+    METRICS_DISCOVER,
+    METRICS_SERIES,
+    METRICS_WEBGROUP,
+    NUM_REGISTRY
+} proxy_registry;
+
+typedef enum server_metric {
+    SERVER_PID,
+    NUM_SERVER_METRIC
+} server_metric;
+
 typedef struct stream_write_baton {
     uv_write_t		writer;
     uv_buf_t		buffer[2];
@@ -144,13 +161,15 @@ typedef struct proxy {
 #endif
     redisSlots		*slots;		/* mapping of Redis keys to servers */
     struct servlet	*servlets;	/* linked list of http URL handlers */
-    struct mmv_registry	*metrics;	/* internal performance metrics */
+    mmv_registry_t	*metrics[NUM_REGISTRY];	/* performance metrics */
     struct dict		*config;	/* configuration dictionary */
     uv_loop_t		*events;	/* global, async event loop */
     uv_callback_t	write_callbacks;
 } proxy;
 
 extern void proxylog(pmLogLevel, sds, void *);
+extern mmv_registry_t *proxymetrics(struct proxy *, enum proxy_registry);
+extern void proxymetrics_close(struct proxy *, enum proxy_registry);
 
 extern void on_proxy_flush(uv_handle_t *);
 extern void on_client_write(uv_write_t *, int);

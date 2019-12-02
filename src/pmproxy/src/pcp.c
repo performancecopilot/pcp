@@ -301,13 +301,11 @@ on_pcp_client_write(struct client *client)
 void
 setup_pcp_module(struct proxy *proxy)
 {
-    /* no extra PCP protocol setup steps needed */
-    (void)proxy;
+    proxymetrics(proxy, METRICS_PCP);
 }
 
 void
 close_pcp_module(struct proxy *proxy)
 {
-    /* no extra PCP protocol shutdown steps needed */
-    (void)proxy;
+    proxymetrics_close(proxy, METRICS_PCP);
 }

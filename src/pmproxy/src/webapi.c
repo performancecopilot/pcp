@@ -938,6 +938,8 @@ pmwebapi_request_done(struct client *client)
 static void
 pmwebapi_servlet_setup(struct proxy *proxy)
 {
+    mmv_registry_t	*metric_registry = proxymetrics(proxy, METRICS_WEBGROUP);
+
     PARAM_NAMES = sdsnew("names");
     PARAM_NAME = sdsnew("name");
     PARAM_PMIDS = sdsnew("pmids");
@@ -952,13 +954,14 @@ pmwebapi_servlet_setup(struct proxy *proxy)
     pmWebGroupSetup(&pmwebapi_settings.module);
     pmWebGroupSetEventLoop(&pmwebapi_settings.module, proxy->events);
     pmWebGroupSetConfiguration(&pmwebapi_settings.module, proxy->config);
-    pmWebGroupSetMetricRegistry(&pmwebapi_settings.module, proxy->metrics);
+    pmWebGroupSetMetricRegistry(&pmwebapi_settings.module, metric_registry);
 }
 
 static void
-pmwebapi_servlet_close(void)
+pmwebapi_servlet_close(struct proxy *proxy)
 {
     pmWebGroupClose(&pmwebapi_settings.module);
+    proxymetrics_close(proxy, METRICS_WEBGROUP);
 
     sdsfree(PARAM_NAMES);
     sdsfree(PARAM_NAME);

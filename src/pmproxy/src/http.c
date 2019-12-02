@@ -805,6 +805,8 @@ setup_http_module(struct proxy *proxy)
 {
     sds			option;
 
+    proxymetrics(proxy, METRICS_HTTP);
+
     if ((option = pmIniFileLookup(config, "pmproxy", "chunksize")) != NULL)
 	chunked_transfer_size = atoi(option);
     else
@@ -822,5 +824,7 @@ close_http_module(struct proxy *proxy)
     struct servlet	*servlet;
 
     for (servlet = proxy->servlets; servlet != NULL; servlet = servlet->next)
-	servlet->close();
+	servlet->close(proxy);
+
+    proxymetrics_close(proxy, METRICS_HTTP);
 }
