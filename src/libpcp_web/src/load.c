@@ -138,23 +138,22 @@ new_metric(seriesLoadBaton *baton, pmValueSet *vsp)
     pmDesc		desc;
     char		errmsg[PM_MAXERRMSGLEN], idbuf[64];
     char		**nameall = NULL;
-    sds			msg;
     int			count, sts, i;
 
     if ((sts = pmLookupDesc(vsp->pmid, &desc)) < 0) {
 	if (sts == PM_ERR_IPC)
 	    context->setup = 0;
-	infofmt(msg, "failed to lookup metric %s descriptor: %s",
+	if (pmDebugOptions.series)
+	    fprintf(stderr, "failed to lookup metric %s descriptor: %s",
 		pmIDStr_r(vsp->pmid, idbuf, sizeof(idbuf)),
 		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	batoninfo(baton, PMLOG_WARNING, msg);
     } else if ((sts = count = pmNameAll(vsp->pmid, &nameall)) < 0) {
 	if (sts == PM_ERR_IPC)
 	    context->setup = 0;
-	infofmt(msg, "failed to lookup metric %s names: %s",
+	if (pmDebugOptions.series)
+	    fprintf(stderr, "failed to lookup metric %s names: %s",
 		pmIDStr_r(vsp->pmid, idbuf, sizeof(idbuf)),
 		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	batoninfo(baton, PMLOG_WARNING, msg);
     }
     if (sts < 0)
 	return NULL;
@@ -184,23 +183,6 @@ new_metric(seriesLoadBaton *baton, pmValueSet *vsp)
 
     return metric;
 }
-
-#if 0
-static void
-free_metric(metric_t *metric)
-{
-    int			i;
-
-    if (metric->desc.indom != PM_INDOM_NULL && metric->u.vlist != NULL) 
-	free(metric->u.vlist);
-    if (metric->names) {
-	for (i = 0; i < metric->numnames; i++)
-	    sdsfree(metric->names[i].sds);
-	free(metric->names);
-    }
-    free(metric);
-}
-#endif
 
 static int
 pmwebapi_add_value(metric_t *metric, int inst, int index)
@@ -314,6 +296,23 @@ pmwebapi_extract_highres_events(pmValueSet *vsp, int inst)
     return s;
 }
 
+void
+pmwebapi_release_value(int type, pmAtomValue *atom)
+{
+    switch (type) {
+    case PM_TYPE_STRING:
+    case PM_TYPE_AGGREGATE:
+    case PM_TYPE_AGGREGATE_STATIC:
+    case PM_TYPE_EVENT:
+    case PM_TYPE_HIGHRES_EVENT:
+	sdsfree(atom->cp);
+	break;
+
+    default:
+	break;
+    }
+}
+
 static int
 pmwebapi_extract_value(pmValueSet *vsp, int inst, int type, pmAtomValue *ap)
 {
@@ -331,14 +330,20 @@ pmwebapi_extract_value(pmValueSet *vsp, int inst, int type, pmAtomValue *ap)
 	length = vp->value.pval->vlen - PM_VAL_HDR_SIZE;
 	if (type == PM_TYPE_STRING && length > 0)
 	    length--;	/* do not escape the terminating null byte */
+	if (ap->cp)
+	    sdsfree(ap->cp);
 	ap->cp = unicode_encode(vp->value.pval->vbuf, length);
 	return 0;
 
     case PM_TYPE_EVENT:
+	if (ap->cp)
+	    sdsfree(ap->cp);
 	ap->cp = pmwebapi_extract_events(vsp, inst);
 	return 0;
 
     case PM_TYPE_HIGHRES_EVENT:
+	if (ap->cp)
+	    sdsfree(ap->cp);
 	ap->cp = pmwebapi_extract_highres_events(vsp, inst);
 	return 0;
 
@@ -756,7 +761,7 @@ freeSeriesGetContext(seriesGetContext *baton, int release)
     context_t		*cp = &baton->context;
 
     seriesBatonCheckMagic(baton, MAGIC_CONTEXT, "freeSeriesGetContext");
-    pmwebapi_free_context(cp);
+    pmwebapi_release_context(cp);
     if (release) {
 	memset(baton, 0, sizeof(*baton));
 	free(baton);

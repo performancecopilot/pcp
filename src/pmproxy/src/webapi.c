@@ -543,7 +543,8 @@ on_pmwebapi_scrape_labels(sds context, pmWebLabelSet *labelset, void *arg)
     if (baton->labels == NULL)
 	baton->labels = dictCreate(&sdsOwnDictCallBacks, NULL);
     open_metrics_labels(labelset, baton->labels);
-    dictEmpty(baton->labels, NULL);	/* reset for next caller */
+    dictRelease(baton->labels);	/* reset for next caller */
+    baton->labels = NULL;
 }
 
 static int

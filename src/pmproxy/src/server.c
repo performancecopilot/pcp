@@ -17,6 +17,20 @@
 
 static uv_signal_t	sighup, sigint, sigterm;
 
+static struct {
+	const char	*group;
+	char		*path;
+} server_metrics[] = {
+	{ .group = NULL },		/* METRICS_NOTUSED */
+	{ .group = "server" },		/* METRICS_SERVER */
+	{ .group = "redis" },		/* METRICS_REDIS */
+	{ .group = "http" },		/* METRICS_HTTP */
+	{ .group = "pcp" },		/* METRICS_PCP */
+	{ .group = "discover" },	/* METRICS_DISCOVER */
+	{ .group = "series" },		/* METRICS_SERIES */
+	{ .group = "webgroup" },	/* METRICS_WEBGROUP */
+};
+
 void
 proxylog(pmLogLevel level, sds message, void *arg)
 {
@@ -53,20 +67,6 @@ proxymetrics(struct proxy *proxy, enum proxy_registry prid)
     char		*file, path[MAXPATHLEN];
     int			sep = pmPathSeparator();
 
-    struct {
-	proxy_registry	prid;
-	const char	*registry;
-    } names[] = {
-	{ METRICS_NOTUSED,	NULL },
-	{ METRICS_SERVER,	"server" },
-	{ METRICS_REDIS,	"redis" },
-	{ METRICS_HTTP,		"http" },
-	{ METRICS_PCP,		"pcp" },
-	{ METRICS_DISCOVER,	"discover" },
-	{ METRICS_SERIES,	"series" },
-	{ METRICS_WEBGROUP,	"webgroup" },
-    };
-
     if (prid >= NUM_REGISTRY || prid <= METRICS_NOTUSED)
 	return NULL;
 
@@ -74,13 +74,15 @@ proxymetrics(struct proxy *proxy, enum proxy_registry prid)
 	return proxy->metrics[prid];
 
     pmsprintf(path, sizeof(path), "%s%cpmproxy%c%s",
-	    pmGetConfig("PCP_TMP_DIR"), sep, sep, names[prid].registry);
+	    pmGetConfig("PCP_TMP_DIR"), sep, sep, server_metrics[prid].group);
     if ((file = strdup(path)) == NULL)
 	return NULL;
 
     if (prid == METRICS_SERVER)
 	flags |= MMV_FLAG_NOPREFIX;
-    if ((registry = mmv_stats_registry(file, prid, flags)) == NULL)
+    if ((registry = mmv_stats_registry(file, prid, flags)) != NULL)
+	server_metrics[prid].path = file;
+    else
 	free(file);
     proxy->metrics[prid] = registry;
     return registry;
@@ -95,6 +97,11 @@ proxymetrics_close(struct proxy *proxy, enum proxy_registry prid)
     if (proxy->metrics[prid] != NULL) {
 	mmv_stats_free(proxy->metrics[prid]);
 	proxy->metrics[prid] = NULL;
+    }
+
+    if (server_metrics[prid].path != NULL) {
+	free(server_metrics[prid].path);
+	server_metrics[prid].path = NULL;
     }
 }
 
@@ -120,8 +127,7 @@ server_metrics_init(struct proxy *proxy)
 		"pid", buffer, MMV_NUMBER_TYPE, 0);
 
     if ((map = mmv_stats_start(registry)) == NULL) {
-	fprintf(stderr, "%s: %s metrics start failed\n", "server",
-			pmGetProgname());
+	fprintf(stderr, "%s: instrumentation disabled\n", pmGetProgname());
 	return;
     }
 

@@ -16,6 +16,7 @@
 
 #include "sds.h"
 #include "dict.h"
+#include "batons.h"
 
 struct redisSlots;
 typedef dict redisMap;

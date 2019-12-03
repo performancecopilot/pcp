@@ -345,7 +345,7 @@ metrics: success
 #### PCP5 sample.double.one 29.0.25 double PM_INDOM_NULL instant none
 #### HELP sample_double_one 1 as a 64-bit floating point value
 #### TYPE sample_double_one gauge
-sample_double_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",machineid="MACHINE",domainname="DOMAIN"} 1
+sample_double_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE"} 1
 
 context #### metrics target=sample.long.bin_ctr response code 200
 metrics: success

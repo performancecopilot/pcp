@@ -15,10 +15,11 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "libpcp.h"
+#include "pmwebapi.h"
 #include "private.h"
 #include "sdsalloc.h"
 #include "zmalloc.h"
-#include "dict.h"
+#include "maps.h"
 #include "util.h"
 #include "sha1.h"
 
@@ -672,8 +673,21 @@ pmwebapi_locate_context(context_t *cp)
 void
 pmwebapi_free_context(context_t *cp)
 {
-    if (cp->context >= 0)
+    pmwebapi_release_context(cp);
+    memset(cp, 0, sizeof(*cp));
+    free(cp);
+}
+
+void
+pmwebapi_release_context(context_t *cp)
+{
+    dictIterator	*iterator;
+    dictEntry		*entry;
+
+    if (cp->context >= 0) {
 	pmDestroyContext(cp->context);
+	cp->context = -1;
+    }
 
     sdsfree(cp->name.sds);
     sdsfree(cp->origin);
@@ -683,16 +697,50 @@ pmwebapi_free_context(context_t *cp)
     sdsfree(cp->password);
     sdsfree(cp->realm);
 
-    if (cp->pmids)
+    sdsfree(cp->labels);
+    if (cp->labelset)
+	pmFreeLabelSets(cp->labelset, 1);
+
+    if (cp->metrics)	/* use the same value pointers as cp->pmids */
+	dictRelease(cp->metrics);	/* but, one entry per name */
+
+    if (cp->pmids) {
+	iterator = dictGetIterator(cp->pmids);
+	while ((entry = dictNext(iterator)) != NULL)
+	    pmwebapi_free_metric((metric_t *)dictGetVal(entry));
+	dictReleaseIterator(iterator);
 	dictRelease(cp->pmids);
-    if (cp->metrics)
-	dictRelease(cp->metrics);
-    if (cp->indoms)
-	dictRelease(cp->indoms);
-    if (cp->domains)
-	dictRelease(cp->domains);
-    if (cp->clusters)
+    }
+    if (cp->clusters) {
+	iterator = dictGetIterator(cp->clusters);
+	while ((entry = dictNext(iterator)) != NULL)
+	    pmwebapi_free_cluster((cluster_t *)dictGetVal(entry));
+	dictReleaseIterator(iterator);
 	dictRelease(cp->clusters);
+    }
+    if (cp->indoms) {
+	iterator = dictGetIterator(cp->indoms);
+	while ((entry = dictNext(iterator)) != NULL)
+	    pmwebapi_free_indom((indom_t *)dictGetVal(entry));
+	dictReleaseIterator(iterator);
+	dictRelease(cp->indoms);
+    }
+    if (cp->domains) {
+	iterator = dictGetIterator(cp->domains);
+	while ((entry = dictNext(iterator)) != NULL)
+	    pmwebapi_free_domain((domain_t *)dictGetVal(entry));
+	dictReleaseIterator(iterator);
+	dictRelease(cp->domains);
+    }
+}
+
+void
+pmwebapi_free_domain(struct domain *domain)
+{
+    if (domain->labelset)
+	pmFreeLabelSets(domain->labelset, 1);
+    memset(domain, 0, sizeof(*domain));
+    free(domain);
 }
 
 struct domain *
@@ -736,6 +784,15 @@ pmwebapi_add_domain_labels(struct context *context, struct domain *domain)
 	    domain->labelset = NULL;
 	}
     }
+}
+
+void
+pmwebapi_free_cluster(struct cluster *cluster)
+{
+    if (cluster->labelset)
+	pmFreeLabelSets(cluster->labelset, 1);
+    memset(cluster, 0, sizeof(*cluster));
+    free(cluster);
 }
 
 struct cluster *
@@ -783,6 +840,31 @@ pmwebapi_add_cluster_labels(struct context *context, struct cluster *cluster)
 	    cluster->labelset = NULL;
 	}
     }
+}
+
+void
+pmwebapi_free_indom(indom_t *indom)
+{
+    dictIterator	*iterator;
+    dictEntry		*entry;
+
+    sdsfree(indom->helptext);
+    sdsfree(indom->oneline);
+    sdsfree(indom->labels);
+
+    if (indom->labelset)
+	pmFreeLabelSets(indom->labelset, 1);
+
+    if (indom->insts) {
+	iterator = dictGetIterator(indom->insts);
+	while ((entry = dictNext(iterator)) != NULL)
+	    pmwebapi_free_instance((instance_t *)dictGetVal(entry));
+	dictReleaseIterator(iterator);
+	dictRelease(indom->insts);
+    }
+
+    memset(indom, 0, sizeof(*indom));
+    free(indom);
 }
 
 struct indom *
@@ -912,6 +994,29 @@ pmwebapi_add_instances_labels(struct context *context, struct indom *indom)
 	pmFreeLabelSets(labelsets, nsets);
 }
 
+void
+pmwebapi_free_instance(instance_t *instance)
+{
+    labellist_t		*list = instance->labellist;
+
+    sdsfree(instance->name.sds);
+    sdsfree(instance->labels);
+
+    if (instance->labelset)
+	pmFreeLabelSets(instance->labelset, 1);
+
+    while (list) {
+	sdsfree(list->name);
+	sdsfree(list->value);
+	if (list->valuemap)
+	    redisMapRelease(list->valuemap);
+	list = list->next;
+    }
+
+    memset(instance, 0, sizeof(*instance));
+    free(instance);
+}
+
 struct instance *
 pmwebapi_new_instance(indom_t *indom, int inst, sds name)
 {
@@ -1002,6 +1107,44 @@ pmwebapi_add_indom_instances(struct context *context, struct indom *indom)
     return count;
 }
 
+void
+pmwebapi_free_metric(metric_t *metric)
+{
+    labellist_t		*list = metric->labellist;
+    int			i, type = metric->desc.type;
+
+    sdsfree(metric->helptext);
+    sdsfree(metric->oneline);
+    sdsfree(metric->labels);
+
+    if (metric->labelset)
+	pmFreeLabelSets(metric->labelset, 1);
+
+    while (list) {
+	sdsfree(list->name);
+	sdsfree(list->value);
+	if (list->valuemap)
+	    redisMapRelease(list->valuemap);
+	list = list->next;
+    }
+
+    for (i = 0; i < metric->numnames; i++)
+	sdsfree(metric->names[i].sds);
+    if (metric->names)
+	free(metric->names);
+
+    if (metric->desc.indom == PM_INDOM_NULL) {
+	pmwebapi_release_value(type, &metric->u.atom);
+    } else if (metric->u.vlist) {
+	for (i = 0; i < metric->u.vlist->listcount; i++)
+	    pmwebapi_release_value(type, &metric->u.vlist->value[i].atom);
+	free(metric->u.vlist);
+    }
+
+    memset(metric, 0, sizeof(*metric));
+    free(metric);
+}
+
 struct metric *
 pmwebapi_new_metric(context_t *cp, pmDesc *desc, int numnames, char **names)
 {
@@ -1065,28 +1208,25 @@ pmwebapi_new_pmid(context_t *cp, pmID pmid, pmLogInfoCallBack info, void *arg)
     pmDesc		desc;
     char		**names, errmsg[PM_MAXERRMSGLEN], buffer[64];
     int			sts, numnames;
-    sds			msg;
 
     if ((sts = pmUseContext(cp->context)) < 0) {
-	infofmt(msg, "failed to use context for PMID %s: %s",
+	fprintf(stderr, "failed to use context for PMID %s: %s",
 		pmIDStr_r(pmid, buffer, sizeof(buffer)),
 		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	info(PMLOG_WARNING, msg, arg);
-	sdsfree(msg);
     } else if ((sts = pmLookupDesc(pmid, &desc)) < 0) {
 	if (sts == PM_ERR_IPC)
 	    cp->setup = 0;
-	infofmt(msg, "failed to lookup metric %s descriptor: %s",
-		pmIDStr_r(pmid, buffer, sizeof(buffer)),
-		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	info(PMLOG_WARNING, msg, arg);
-	sdsfree(msg);
+	if (pmDebugOptions.series)
+	    fprintf(stderr, "failed to lookup metric %s descriptor: %s",
+		    pmIDStr_r(pmid, buffer, sizeof(buffer)),
+		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     } else if ((numnames = sts = pmNameAll(pmid, &names)) < 0) {
-	infofmt(msg, "failed to lookup metric %s names: %s",
-		pmIDStr_r(pmid, buffer, sizeof(buffer)),
-		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	info(PMLOG_WARNING, msg, arg);
-	sdsfree(msg);
+	if (sts == PM_ERR_IPC)
+	    cp->setup = 0;
+	if (pmDebugOptions.series)
+	    fprintf(stderr, "failed to lookup metric %s names: %s",
+		    pmIDStr_r(pmid, buffer, sizeof(buffer)),
+		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     } else {
 	mp = pmwebapi_new_metric(cp, &desc, numnames, names);
 	free(names);

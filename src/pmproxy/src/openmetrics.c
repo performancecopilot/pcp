@@ -63,6 +63,7 @@ open_metrics_labels(pmWebLabelSet *labels, struct dict *dict)
     unsigned long	cursor = 0;
     pmLabelSet		*labelset;
     pmLabel		*label;
+    dictEntry		*entry;
     const char		*offset;
     sds			key, value;
     int			i, j, length;
@@ -82,7 +83,13 @@ open_metrics_labels(pmWebLabelSet *labels, struct dict *dict)
 	    value = sdscatrepr(sdsempty(), offset, length);
 
 	    /* overwrite entries from earlier passes: label hierarchy */
-	    dictReplace(dict, key, value);
+	    if ((entry = dictFind(dict, key)) == NULL) {
+		dictAdd(dict, key, value);	/* new entry */
+	    } else {
+		sdsfree(key);
+		sdsfree(dictGetVal(entry));
+		dictSetVal(dict, entry, value);
+	    }
 	}
     }
 

@@ -300,9 +300,12 @@ http_reply(struct client *client, sds message, http_code sts, http_flags type)
 				(unsigned long)sdslen(client->buffer) + sdslen(message));
 	    buffer = sdscatfmt(buffer, "%s\r\n%S%S\r\n",
 				length, client->buffer, message);
-	    client->buffer = NULL;
 	}
+
 	sdsfree(message);
+	sdsfree(client->buffer);
+	client->buffer = NULL;
+
 	suffix = sdsnewlen("0\r\n\r\n", 5);		/* chunked suffix */
 	client->u.http.flags &= ~HTTP_FLAG_STREAMING;	/* end of stream! */
     } else {	/* regular non-chunked response - headers + response body */
@@ -384,19 +387,22 @@ http_transfer(struct client *client)
 	    /* prepend a chunked transfer encoding message length (hex) */
 	    buffer = sdscatprintf(buffer, "%lX\r\n", (unsigned long)sdslen(client->buffer));
 	    suffix = sdscatfmt(client->buffer, "\r\n");
-	    /* reset for next call, original released on I/O completion */
-	    client->buffer = NULL;
+	    /* reset for next call - original released on I/O completion */
+	    client->buffer = NULL;	/* safe, as now held in 'suffix' */
 
 	    if (pmDebugOptions.http) {
-		fprintf(stderr, "HTTP chunked buffer (client %p)\n%s"
-				"HTTP chunked suffix (client %p)\n%s",
-				client, buffer, client, suffix);
+		fprintf(stderr, "HTTP chunked buffer (client %p, len=%lu)\n%s"
+				"HTTP chunked suffix (client %p, len=%lu)\n%s",
+				client, (unsigned long)sdslen(buffer), buffer,
+				client, (unsigned long)sdslen(suffix), suffix);
 	    }
 	    client_write(client, buffer, suffix);
 
 	} else if (parser->http_major <= 1) {
 	    http_error(client, HTTP_STATUS_PAYLOAD_TOO_LARGE,
 			"HTTP 1.0 request result exceeds server limits");
+	    sdsfree(client->buffer);
+	    client->buffer = NULL;
 	}
     }
 }

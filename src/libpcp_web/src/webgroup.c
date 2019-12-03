@@ -67,7 +67,6 @@ webgroup_destroy_context(struct context *context, struct webgroups *groups)
     if (groups)
 	dictUnlink(groups->contexts, &context->randomid);
     pmwebapi_free_context(context);
-    memset(context, 0, sizeof(*context));
 }
 
 static void
@@ -2101,8 +2100,15 @@ void
 pmWebGroupClose(pmWebGroupModule *module)
 {
     struct webgroups	*groups = (struct webgroups *)module->privdata;
+    dictIterator	*iterator;
+    dictEntry		*entry;
 
     if (groups) {
+	/* walk the contexts, stop timers and free resources */
+	iterator = dictGetIterator(groups->contexts);
+	while ((entry = dictNext(iterator)) != NULL)
+	    webgroup_destroy_context((context_t *)dictGetVal(entry), NULL);
+	dictReleaseIterator(iterator);
 	dictRelease(groups->contexts);
 	memset(groups, 0, sizeof(struct webgroups));
 	free(groups);
