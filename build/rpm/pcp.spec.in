@@ -85,14 +85,15 @@ BuildRequires: systemd-devel
 Conflicts: pcp-pro < 2.2
 
 # prevent conflicting binary and man page install for pcp(1)
-Conflicts: librapi
+Conflicts: librapi < 0.16
 
 # KVM PMDA moved into pcp (no longer using Perl, default on)
-Obsoletes: pcp-pmda-kvm
+Obsoletes: pcp-pmda-kvm < 4.1.1
 Provides: pcp-pmda-kvm
 
 # PCP REST APIs are now provided by pmproxy
-Obsoletes: pcp-webapi pcp-webapi-debuginfo
+Obsoletes: pcp-webapi-debuginfo < 5.0.0
+Obsoletes: pcp-webapi < 5.0.0
 Provides: pcp-webapi
 
 # Utilities used indirectly e.g. by scripts we install
@@ -168,16 +169,20 @@ then
 fi
 }
 
-Requires: pcp-libs = @package_version@
 %if "@enable_selinux@" == "true"
 Requires: pcp-selinux = @package_version@
 %endif
-Obsoletes: pcp-compat pcp-collector pcp-monitor
+
+Requires: pcp-libs = @package_version@
 
 # Some older releases did not update or replace pcp-gui-debuginfo properly
 %if 0%{?fedora} < 27 && 0%{?rhel} <= 7 && "%{_vendor}" == "redhat"
-Obsoletes: pcp-gui-debuginfo
+Obsoletes: pcp-gui-debuginfo < 4.1.1
 %endif
+
+Obsoletes: pcp-compat < 4.2.0
+Obsoletes: pcp-monitor < 4.2.0
+Obsoletes: pcp-collector < 4.2.0
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
@@ -250,7 +255,7 @@ Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
 Requires: pcp-libs-devel = @package_version@
 Requires: pcp-devel = @package_version@
-Obsoletes: pcp-gui-testsuite
+Obsoletes: pcp-gui-testsuite < 3.9.5
 # The following are inherited from pcp-collector and pcp-monitor,
 # both of which are now obsoleted by the base pcp package
 %if "@have_perl@" == "true"
@@ -927,7 +932,8 @@ Requires: libpfm4 >= 4.4
 Requires: libpfm >= 4.4
 %endif
 BuildRequires: libpfm-devel >= 4.4
-Obsoletes: pcp-pmda-papi pcp-pmda-papi-debuginfo
+Obsoletes: pcp-pmda-papi < 5.0.0
+Obsoletes: pcp-pmda-papi-debuginfo < 5.0.0
 
 %description pmda-perfevent
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1535,7 +1541,7 @@ Requires: python3-pcp
 Requires: %{__python2}-pcp
 %endif
 # rewritten in python, so there is no longer a debuginfo package
-Obsoletes: pcp-pmda-lmsensors-debuginfo
+Obsoletes: pcp-pmda-lmsensors-debuginfo < 4.2.0
 %description pmda-lmsensors
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Linux hardware monitoring sensors.
@@ -1673,7 +1679,7 @@ Requires: python3-requests
 Requires: %{__python2}-pcp = @package_version@
 Requires: %{__python2}-requests
 %endif
-Obsoletes: pcp-pmda-prometheus
+Obsoletes: pcp-pmda-prometheus < 5.0.0
 Provides: pcp-pmda-prometheus
 
 %description pmda-openmetrics
@@ -2096,7 +2102,7 @@ SYSEOF
 awk '{print $NF}' $DIST_MANIFEST | egrep 'selinux' | egrep -v 'tmp' >selinux_files
 %endif
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc|man.*\.[1-9].*' | egrep -v 'out' >docs_files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials' >>docs_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials|/html/' >>docs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite|etc/systemd/system' >testsuite_files
 %if "@enable_qt@" == "true"
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
