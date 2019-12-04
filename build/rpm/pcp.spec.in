@@ -152,7 +152,7 @@ then
     PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
     if [ -f "$PCP_PMCDCONF_PATH" -a -f "$PCP_PMDAS_DIR/%2/domain.h" ]
     then
-	(cd $PCP_PMDAS_DIR/%2/ && ./Remove >/dev/null 2>&1)
+	(cd "$PCP_PMDAS_DIR/%2/" && ./Remove >/dev/null 2>&1)
     fi
 fi
 }
@@ -914,7 +914,7 @@ URL: https://pcp.io
 
 %description pmda-statsd
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting statistics available the statsd daemon.
+collecting statistics from the statsd daemon.
 #end pcp-pmda-statsd
 %endif
 
@@ -2206,7 +2206,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/oracle' > pmda_oracle_files
 %if "@pmda_snmp@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/snmp' > pmda_snmp_files
 %endif
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm' > pmda_dm_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm|pmieconf/dm' > pmda_dm_files
 %if "@pmda_json@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/json' > pmda_json_files
 %endif

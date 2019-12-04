@@ -361,9 +361,11 @@ Requires: pcp-libs = %{version}-%{release}
 %global pmda_remove() %{expand:
 if [ %1 -eq 0 ]
 then
-    if [ -f "%{_confdir}/pmcd/pmcd.conf" -a -f "%{_pmdasdir}/%2/domain.h" ]
+    PCP_PMDAS_DIR=%{_pmdasdir}
+    PCP_PMCDCONF_PATH=%{_confdir}/pmcd/pmcd.conf
+    if [ -f "$PCP_PMCDCONF_PATH" -a -f "$PCP_PMDAS_DIR/%2/domain.h" ]
     then
-	(cd %{_pmdasdir}/%2/ && ./Remove >/dev/null 2>&1)
+	(cd "$PCP_PMDAS_DIR/%2/" && ./Remove >/dev/null 2>&1)
     fi
 fi
 }
@@ -2712,6 +2714,8 @@ cd
 %dir %{_confdir}
 %dir %{_pmdasdir}
 %dir %{_datadir}/pcp
+%dir %{_libexecdir}/pcp
+%dir %{_libexecdir}/pcp/bin
 %dir %{_localstatedir}/lib/pcp
 %dir %{_localstatedir}/lib/pcp/config
 %dir %attr(0775,pcp,pcp) %{_tempsdir}
@@ -2772,6 +2776,7 @@ cd
 %config(noreplace) %{_sysconfdir}/sysconfig/pmproxy
 %config(noreplace) %{_sysconfdir}/sysconfig/pmcd
 %config %{_sysconfdir}/pcp.env
+%dir %{_confdir}/pipe.conf.d
 %dir %{_confdir}/labels
 %dir %{_confdir}/pmcd
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
