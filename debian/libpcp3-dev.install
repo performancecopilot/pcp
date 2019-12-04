@@ -62,6 +62,7 @@ usr/share/man/man3/pmDestroyContext.3.gz
 usr/share/man/man3/pmDestroyFetchGroup.3.gz
 usr/share/man/man3/pmdiscoverservices.3.gz
 usr/share/man/man3/pmdiscoversetup.3.gz
+usr/share/man/man3/pmDiscoverClose.3.gz
 usr/share/man/man3/pmDiscoverServices.3.gz
 usr/share/man/man3/pmDiscoverSetup.3.gz
 usr/share/man/man3/pmDiscoverSetConfiguration.3.gz
@@ -299,6 +300,7 @@ usr/share/man/man3/pmSemStr_r.3.gz
 usr/share/man/man3/pmseriesdescs.3.gz
 usr/share/man/man3/pmseriesquery.3.gz
 usr/share/man/man3/pmseriessetup.3.gz
+usr/share/man/man3/pmSeriesClose.3.gz
 usr/share/man/man3/pmSeriesDescs.3.gz
 usr/share/man/man3/pmSeriesInstances.3.gz
 usr/share/man/man3/pmSeriesLabels.3.gz
