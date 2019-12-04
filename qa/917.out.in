@@ -51,6 +51,7 @@ decl 1:
   allow [pcp_pmcd_t] [sysctl_irq_t] : [dir] { search };
 ! allow [pcp_pmcd_t] self : [bpf] { map_create map_read map_write prog_load prog_run };
   allow [pcp_pmcd_t] [kernel_t] : [process] { signull };
+! allow [pcp_pmcd_t] [unconfined_service_t] : [process] { signull };
 ! allow [pcp_pmcd_t] self : [capability2] { syslog };
   allow [pcp_pmcd_t] [kernel_t] : [system] { module_request };
   allow [pcp_pmcd_t] [su_exec_t] : [file] { execute };
