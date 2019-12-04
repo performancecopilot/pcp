@@ -41,7 +41,7 @@ typedef void uv_loop_t;
  *
  * The PM_DISCOVER_FLAGS_META_IN_PROGRESS flag indicates a metadata record
  * read is in-progress. This can span multiple callbacks. Until this completes,
- * we avoid proesssing logvol records. If a logvol callback is received whilst
+ * we avoid processing logvol records. If a logvol callback is received whilst
  * PM_DISCOVER_FLAGS_META_IN_PROGRESS is set, set PM_DISCOVER_FLAGS_DATAVOL_READY
  * so we know to process the log volume callback once the metadata read has
  * completed.
@@ -80,7 +80,7 @@ typedef struct pmDiscover {
     pmDiscoverModule		*module;	/* global state from caller */
     pmDiscoverFlags		flags;		/* state for discovery process */
     pmTimespec			timestamp;	
-    int				ctx;		/* PMAPI context handle ) */
+    int				ctx;		/* PMAPI context handle */
     int				fd;		/* meta file descriptor */
 #ifdef HAVE_LIBUV
     uv_fs_event_t		*event_handle;	/* uv fs_notify event handle */ 

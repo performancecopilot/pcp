@@ -88,6 +88,22 @@ pmDiscoverAdd(const char *path, pmDiscoverModule *module, void *arg)
     return pmDiscoverLookupAdd(path, module, arg);
 }
 
+static void
+pmDiscoverFree(pmDiscover *p)
+{
+    if (p->ctx >= 0)
+	pmDestroyContext(p->ctx);
+    if (p->fd >= 0)
+	close(p->fd);
+    if (p->context.name)
+	sdsfree(p->context.name);
+    if (p->context.source)
+	sdsfree(p->context.source);
+    if (p->context.labelset)
+	pmFreeLabelSets(p->context.labelset, 1);
+    memset(p, 0, sizeof(*p));
+    free(p);
+}
 /*
  * Delete tracking of a previously discovered path. Frees resources and
  * destroy PCP context (if any).
@@ -104,20 +120,7 @@ pmDiscoverDelete(sds path)
 	    	discover_hashtable[k] = NULL;
 	    else
 	    	p->next = h->next;
-
-	    if (h->ctx >= 0)
-		pmDestroyContext(h->ctx);
-	    if (h->fd >= 0)
-		close(h->fd);
-
-	    if (h->context.name)
-		sdsfree(h->context.name);
-	    if (h->context.source)
-		sdsfree(h->context.source);
-	    if (h->context.labelset)
-		pmFreeLabelSets(h->context.labelset, 1);
-	    memset(h, 0, sizeof(pmDiscover));
-	    free(h);
+	    pmDiscoverFree(h);
 	    break;
 	}
     }
@@ -162,41 +165,23 @@ pmDiscoverPurgeDeleted(void)
     	while (p) {
 	    next = p->next;
 
-	    if (p->flags & PM_DISCOVER_FLAGS_DELETED) {
+	    if (!(p->flags & PM_DISCOVER_FLAGS_DELETED)) {
+		prev = p;
+	    } else {
 		if (prev)
 		    prev->next = next;
 		else
 		    discover_hashtable[i] = next;
-
-		/* now delete p and all of it's resources */
-		if (p->ctx >= 0)
-		    pmDestroyContext(p->ctx);
-		if (p->fd >= 0)
-		    close(p->fd);
-		if (p->context.name)
-		    sdsfree(p->context.name);
-		if (p->context.source)
-		    sdsfree(p->context.source);
-
-#if 0 /* TODO: this next line segfaults - need to understand why */
-		if (p->context.labelset)
-		    pmFreeLabelSets(p->context.labelset, 1);
-#endif
-
-		memset(p, 0, sizeof(pmDiscover));
-		free(p);
-
+		pmDiscoverFree(p);
 		count++;
 	    }
-	    else
-		prev = p;
-
 	    p = next;
 	}
     }
 
     if (pmDebugOptions.discovery)
-	fprintf(stderr, "pmDiscoverPurgeDeleted: purged %d entries\n", count);
+	fprintf(stderr, "%s: purged %d entries\n",
+			"pmDiscoverPurgeDeleted", count);
 
     return count;
 }
@@ -482,7 +467,7 @@ pmDiscoverInvokeSourceCallBacks(pmDiscover *p, pmTimespec *ts)
     int			i;
 
     if (pmDebugOptions.discovery) {
-	fprintf(stderr, "%s[%s]: %s name %s\n", "redisSlotsDiscoverSource",
+	fprintf(stderr, "%s[%s]: %s name %s\n", "pmDiscoverInvokeSourceCallBacks",
 			timespec_str(ts, buf, sizeof(buf)),
 			p->context.source, p->context.name);
 	if (pmDebugOptions.labels)
@@ -506,7 +491,7 @@ pmDiscoverInvokeValuesCallBack(pmDiscover *p, pmTimespec *ts, pmResult *r)
     int			i;
 
     if (pmDebugOptions.discovery) {
-	fprintf(stderr, "%s[%s]: %s numpmid %d\n", "redisSlotsDiscoverValues",
+	fprintf(stderr, "%s[%s]: %s numpmid %d\n", "pmDiscoverInvokeValuesCallBack",
 			timespec_str(ts, buf, sizeof(buf)),
 			p->context.source, r->numpmid);
 	if (pmDebugOptions.labels)
@@ -531,7 +516,7 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
     int			i;
 
     if (pmDebugOptions.discovery) {
-	fprintf(stderr, "%s[%s]: %s name%s", "redisSlotsDiscoverMetric",
+	fprintf(stderr, "%s[%s]: %s name%s", "pmDiscoverInvokeMetricCallBacks",
 			timespec_str(ts, buf, sizeof(buf)),
 			p->context.source, numnames > 0 ? " " : "(none)\n");
 	for (i = 0; i < numnames; i++)
@@ -559,7 +544,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s numinst %d indom %s\n",
-			"redisSlotsDiscoverInDom",
+			"pmDiscoverInvokeInDomCallBacks",
 			timespec_str(ts, buf, sizeof(buf)),
 			p->context.source, in->numinst,
 			pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)));
@@ -587,7 +572,7 @@ pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
     if (pmDebugOptions.discovery) {
 	__pmLabelIdentString(ident, type, idbuf, sizeof(idbuf));
 	fprintf(stderr, "%s[%s]: %s ID %s type %s\n",
-			"redisSlotsDiscoverLabels",
+			"pmDiscoverInvokeLabelsCallBacks",
 			timespec_str(ts, buf, sizeof(buf)),
 			p->context.source, idbuf, __pmLabelTypeString(type));
 	pmPrintLabelSets(stderr, ident, type, sets, nsets);
@@ -613,7 +598,7 @@ pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
     int			i;
 
     if (pmDebugOptions.discovery) {
-	fprintf(stderr, "%s[%s]: %s ", "redisSlotsDiscoverText",
+	fprintf(stderr, "%s[%s]: %s ", "pmDiscoverInvokeTextCallBacks",
 			timespec_str(ts, buf, sizeof(buf)),
 			p->context.source);
 	if (type & PM_TEXT_INDOM)
@@ -639,7 +624,7 @@ pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
 static void
 pmDiscoverNewSource(pmDiscover *p, int context)
 {
-    pmLabelSet		*labelset;
+    pmLabelSet		*labelset = NULL;
     pmTimespec		timestamp;
     unsigned char	hash[20];
     char		buf[PM_MAXLABELJSONLEN];
@@ -685,7 +670,7 @@ process_metadata(pmDiscover *p)
     int			nnames;
     char		**names;
     pmInResult		inresult;
-    pmLabelSet		*labelset;
+    pmLabelSet		*labelset = NULL;
     unsigned char	hash[20];
     __pmLogHdr		hdr;
     sds			msg, source;
@@ -699,7 +684,8 @@ process_metadata(pmDiscover *p)
      */
     p->flags |= PM_DISCOVER_FLAGS_META_IN_PROGRESS;
     if (pmDebugOptions.discovery)
-	fprintf(stderr, "process_metadata: in progress, flags=%s\n", pmDiscoverFlagsStr(p));
+	fprintf(stderr, "%s: in progress, flags=%s\n",
+			"process_metadata", pmDiscoverFlagsStr(p));
     for (;;) {
 	off = lseek(p->fd, 0, SEEK_CUR);
 	nb = read(p->fd, &hdr, sizeof(__pmLogHdr));
@@ -757,7 +743,8 @@ process_metadata(pmDiscover *p)
 	    names = NULL;
 	    if ((e = pmDiscoverDecodeMetaDesc(buf, len, &desc, &nnames, &names)) < 0) {
 		if (pmDebugOptions.discovery)
-		    fprintf(stderr, " pmDiscoverDecodeMetaDesc failed: err=%d %s\n", e, pmErrStr(e));
+		    fprintf(stderr, "%s failed: err=%d %s\n",
+				    "pmDiscoverDecodeMetaDesc", e, pmErrStr(e));
 		break;
 	    }
 	    /* use timestamp from last modification */
@@ -774,7 +761,8 @@ process_metadata(pmDiscover *p)
 	    /* decode indom result from buffer */
 	    if ((e = pmDiscoverDecodeMetaInDom(buf, len, &ts, &inresult)) < 0) {
 		if (pmDebugOptions.discovery)
-		    fprintf(stderr, " pmDiscoverDecodeMetaInDom failed: err=%d %s\n", e, pmErrStr(e));
+		    fprintf(stderr, "%s failed: err=%d %s\n",
+				    "pmDiscoverDecodeMetaInDom", e, pmErrStr(e));
 		break;
 	    }
 	    pmDiscoverInvokeInDomCallBacks(p, &ts, &inresult);
@@ -790,7 +778,8 @@ process_metadata(pmDiscover *p)
 	    /* decode labelset from buffer */
 	    if ((e = pmDiscoverDecodeMetaLabelSet(buf, len, &ts, &id, &type, &nsets, &labelset)) < 0) {
 		if (pmDebugOptions.discovery)
-		    fprintf(stderr, " pmDiscoverDecodeMetaLabelSet failed: err=%d %s\n", e, pmErrStr(e));
+		    fprintf(stderr, "%s failed: err=%d %s\n",
+				    "pmDiscoverDecodeMetaLabelSet", e, pmErrStr(e));
 		break;
 	    }
 
@@ -823,7 +812,8 @@ process_metadata(pmDiscover *p)
 	    buffer = NULL;
 	    if ((e = pmDiscoverDecodeMetaHelpText(buf, len, &type, &id, &buffer)) < 0) {
 		if (pmDebugOptions.discovery)
-		    fprintf(stderr, " pmDiscoverDecodeMetaHelpText failed: err=%d %s\n", e, pmErrStr(e));
+		    fprintf(stderr, "%s failed: err=%d %s\n",
+				    "pmDiscoverDecodeMetaHelpText", e, pmErrStr(e));
 		break;
 	    }
 	    /* use timestamp from last modification */
@@ -848,8 +838,8 @@ process_metadata(pmDiscover *p)
 	p->flags &= ~PM_DISCOVER_FLAGS_META_IN_PROGRESS;
 
     if (pmDebugOptions.discovery)
-	fprintf(stderr, "process_metadata: completed, partial=%d flags=%s\n",
-		partial, pmDiscoverFlagsStr(p));
+	fprintf(stderr, "%s : completed, partial=%d flags=%s\n",
+			"process_metadata", partial, pmDiscoverFlagsStr(p));
 }
 
 /*
@@ -983,7 +973,6 @@ changed_callback(pmDiscover *p)
 	 */
 	pmDiscoverArchives(p->context.name, p->module, p->data);
 	pmDiscoverTraverse(PM_DISCOVER_FLAGS_NEW, created_callback);
-	// pmDiscoverTraverse(PM_DISCOVER_FLAGS_DELETED, deleted_callback);
     }
     else if (p->flags & PM_DISCOVER_FLAGS_COMPRESSED) {
     	/* we do not monitor compressed files - do nothing */
@@ -1237,14 +1226,11 @@ pmDiscoverDecodeMetaLabelSet(uint32_t *buf, int buflen, pmTimespec *ts, int *ide
 
     if (nsets < 0)
     	return PM_ERR_IPC;
-    if (nsets == 0) {
-    	labelsets = NULL;
+    if (nsets == 0)
 	goto success;
-    }
 
     if ((labelsets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL)
 	return -ENOMEM;
-    memset(labelsets, 0, nsets * sizeof(pmLabelSet));
 
     for (i = 0; i < nsets; i++) {
 	inst = *((unsigned int*)&tbuf[k]);
