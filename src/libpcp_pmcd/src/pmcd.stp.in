@@ -32,6 +32,8 @@ global PDU_PMNS_NAMES	=	0x700e
 global PDU_PMNS_CHILD	=	0x700f
 global PDU_PMNS_TRAVERSE =	0x7010
 global PDU_ATTR		=	0x7011
+global PDU_LABEL_REQ	=	0x7012
+global PDU_LABEL	=	0x7013
 global PDU_LOG_CONTROL	=	0x8000
 global PDU_LOG_STATUS	=	0x8001
 global PDU_LOG_REQUEST	=	0x8002
@@ -90,6 +92,8 @@ probe begin {
     pdu_types[PDU_PMNS_CHILD] = "PMNS_CHILD";
     pdu_types[PDU_PMNS_TRAVERSE] = "PMNS_TRAVERSE";
     pdu_types[PDU_ATTR] = "ATTR";
+    pdu_types[PDU_LABEL_REQ] = "LABEL_REQ";
+    pdu_types[PDU_LABEL] = "LABEL";
     pdu_types[PDU_LOG_CONTROL] = "LOG_CONTROL";
     pdu_types[PDU_LOG_STATUS] = "LOG_STATUS";
     pdu_types[PDU_LOG_REQUEST] = "LOG_REQUEST";
