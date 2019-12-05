@@ -858,7 +858,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics from statsd
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: libchan.so.0() HdrHistogram_c
+Requires: chan HdrHistogram_c
 
 %description pmda-statsd
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -3220,6 +3220,7 @@ cd
 %changelog
 * Wed Dec 11 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.2-1
 - Fix dstat exception writing to a closed fd (BZ 1768619)
+- Fix chan lib dependency of pcp-pmda-statsd (BZ 1770815)
 - Work in progress: https://github.com/performancecopilot/pcp/projects/1
 
 * Mon Nov 04 2019 Nathan Scott <nathans@redhat.com> - 5.0.1-1

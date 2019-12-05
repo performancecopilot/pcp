@@ -72,7 +72,7 @@ BuildRequires: rpm-devel
 BuildRequires: libvarlink-devel
 %endif
 %if "@pmda_statsd@" == "true"
-#BuildRequires: ragel libchan-devel libhdr_histogram-devel
+BuildRequires: ragel chan-devel HdrHistogram_c-devel
 %endif
 %if "@pmda_perfevent@" == "true"
 BuildRequires: libpfm-devel >= 4
@@ -909,8 +909,9 @@ collecting podman container and pod statistics through libvarlink.
 License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics from statsd
 URL: https://pcp.io
-#Requires: libchan libhdr_histogram
-#BuildRequires: libchan-devel libhdr_histogram
+Requires: chan HdrHistogram_c
+Requires: pcp-libs = @package_version@
+BuildRequires: ragel chan-devel HdrHistogram_c-devel
 
 %description pmda-statsd
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
