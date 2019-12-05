@@ -41,20 +41,20 @@ Modules can be enabled and configured in the [bcc.conf](bcc.conf) file. The
 `modules` setting of the `[pmda]` section lists the enabled modules:
 ```
 [pmda]
-modules = runqlat,tcplife
+modules = runqlat,tcpperpid
 ```
 
 Each module has their own section with individual module-related
-configuration, for example the `tcplife` module:
+configuration, for example the `tcpperpid` module:
 ```
-[tcplife]
-module = tcplife
-cluster = 3
+[tcpperpid]
+module = tcpperpid
+cluster = 11
 dport = 80,443
 ```
 
-In this case the tcplife module traces only TCP sessions with a remote port of
-80 or 443.
+In this case the `tcpperpid` module traces only TCP sessions with a remote
+port of 80 or 443.
 
 For many modules process(es) to monitor can be defined as a list of names,
 PIDs, or regular expressions. PMDA-wide parameter `process_refresh` can be
@@ -66,10 +66,11 @@ used to monitor newly created processes matching the list of processes.
 yum install pcp pcp-pmda-bcc
 systemctl enable --now pmcd
 cd $PCP_PMDAS_DIR/bcc
+vi bcc.conf
 ./Install
 ```
 
-On many systems `$PCP_PMDAS_DIR` is `/var/lib/pcp/pmdas`.
+On most systems `$PCP_PMDAS_DIR` is `/var/lib/pcp/pmdas`.
 
 # Uninstalling the PMDA
 
@@ -82,23 +83,23 @@ cd $PCP_PMDAS_DIR/bcc
 
 ## CLI
 ```
-$ pminfo -f bcc.fs.ext4.latency.open
+$ pminfo -f bcc.disk.all.latency                                
 
-bcc.fs.ext4.latency.open
-    inst [0 or "0-1"] value 140636
-    inst [1 or "2-3"] value 15512
-    inst [2 or "4-7"] value 696
-    inst [3 or "8-15"] value 106
-    inst [4 or "16-31"] value 285
-    inst [5 or "32-63"] value 87
-    inst [6 or "64-127"] value 27
-    inst [7 or "128-255"] value 11
-    inst [8 or "256-511"] value 11
+bcc.disk.all.latency
+    inst [0 or "0-1"] value 0
+    inst [1 or "2-3"] value 0
+    inst [2 or "4-7"] value 0
+    inst [3 or "8-15"] value 0
+    inst [4 or "16-31"] value 0
+    inst [5 or "32-63"] value 1956
+    inst [6 or "64-127"] value 5715
+    inst [7 or "128-255"] value 6321
+    inst [8 or "256-511"] value 3416
 ```
 
 ## Web Frontend
 
-Most of the BCC PMDA Modules have a corresponding Vector widget
+Many of the BCC PMDA modules have a corresponding Vector widget
 ([Vector BCC Widgets](https://github.com/Netflix/vector/blob/master/src/app/charts/bcc.js)),
 for example:
 
