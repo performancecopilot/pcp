@@ -24,6 +24,7 @@ LCFLAGS = $(PIECFLAGS) \
 	  -I$(TOPDIR)/src/libpcp_web/src -I$(TOPDIR)/src/libpcp_mmv/src
 LLDFLAGS = $(PIELDFLAGS)
 LLDLIBS	= -lpcp_mmv $(PCP_WEBLIB)
+PCPLIB_LDFLAGS += -L$(TOPDIR)/src/libpcp_mmv/$(LIBPCP_ABIDIR)
 
 ifeq "$(HAVE_LIBUV)" "true"
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
