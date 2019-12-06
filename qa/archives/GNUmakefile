@@ -45,6 +45,7 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-pidstat-timezone.0.xz pcp-pidstat-timezone.meta.xz \
 	  pcp-pidstat-timezone.index zero_disk_activity.index  \
 	  zero_disk_activity.0.xz zero_disk_activity.meta.xz \
+	  dstat-disks.0.xz dstat-disks.meta.xz dstat-disks.index \
 	  20180416.10.00.meta.xz 20180416.10.00.index 20180416.10.00.0.xz \
 	  20180416.10.00.1.xz 20180416.10.00.2.xz 20180416.10.00.3.xz \
 	  20190628.04.03.0.xz 20190628.04.03.1.xz 20190628.04.03.meta.xz \

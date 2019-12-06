@@ -39,7 +39,7 @@ from pcp import pmapi
 TRUNC = "xxx"
 VERSION = 1
 CURR_INSTS = False
-MAX_INSTS = 1024
+BASE_INSTS = 64
 
 class pmConfig(object):
     """ Config reader and validator """
@@ -502,7 +502,7 @@ class pmConfig(object):
             sys.stderr.write("Error while parsing options: %s.\n" % err)
             sys.exit(1)
 
-    def validate_metrics(self, curr_insts=CURR_INSTS, max_insts=MAX_INSTS):
+    def validate_metrics(self, curr_insts=CURR_INSTS, max_insts=BASE_INSTS):
         """ Validate the metricset """
         # Check the metrics against PMNS, resolve non-leaf metrics
 
@@ -629,6 +629,9 @@ class pmConfig(object):
                     self.util.metrics[metric][1] = self.util.instances
             if self.insts[i][0][0] == pmapi.c_api.PM_IN_NULL:
                 self.util.metrics[metric][1] = []
+            # dynamically resize fetchgroup value arrays
+            if not max_insts or max_insts < len(self.insts[i][0]):
+                max_insts = len(self.insts[i][0])
 
             # Rawness
             if hasattr(self.util, 'type_prefer') and not self.util.metrics[metric][3]:
@@ -782,24 +785,9 @@ class pmConfig(object):
                 max_insts = max(1, max_insts)
                 scale = self.util.metrics[metric][2][0]
                 if curr_insts and self.util.metrics[metric][1]:
-                    mitems = 0
-                    vanished = []
                     for j in range(0, len(self.insts[i][1])):
-                        if mitems < max_insts:
-                            try:
-                                items.append((self.insts[i][0][j], self.insts[i][1][j], self.util.pmfg.extend_item(metric, mtype, scale, self.insts[i][1][j])))
-                                mitems += 1
-                            except pmapi.pmErr as error:
-                                if error.args[0] == pmapi.c_api.PM_ERR_CONV:
-                                    raise
-                                vanished.append(j)
-                        else:
-                            del self.insts[i][0][-1]
-                            del self.insts[i][1][-1]
-                    if mitems > 0:
-                        for v in reversed(vanished):
-                            del self.insts[i][0][v]
-                            del self.insts[i][1][v]
+                        item = self.util.pmfg.extend_item(metric, mtype, scale, self.insts[i][1][j])
+                        items.append((self.insts[i][0][j], self.insts[i][1][j], item))
                     self.util.metrics[metric][5] = self.pmfg_items_to_indom(items)
                 else:
                     self.util.metrics[metric][5] = self.util.pmfg.extend_indom(metric, mtype, scale, max_insts)
@@ -877,7 +865,7 @@ class pmConfig(object):
         self.util.pmfg.clear()
         self.util.pmfg_ts = None
 
-    def update_metrics(self, curr_insts=CURR_INSTS, max_insts=MAX_INSTS):
+    def update_metrics(self, curr_insts=CURR_INSTS, max_insts=BASE_INSTS):
         """ Update metricset """
         self.clear_metrics()
         self.util.pmfg_ts = self.util.pmfg.extend_timestamp()
