@@ -2093,7 +2093,7 @@ static pmdaMetric metrictab[] = {
 
 /* disk.partitions.total */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,2), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,2), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.blkread */
@@ -2108,25 +2108,25 @@ static pmdaMetric metrictab[] = {
 
 /* disk.partitions.blktotal */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,5), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,5), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.read_bytes */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,6), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,6), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* disk.partitions.write_bytes */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,7), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,7), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* disk.partitions.total_bytes */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,8), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,8), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* disk.partitions.read_merge*/
+/* disk.partitions.read_merge */
     { NULL,
       { PMDA_PMID(CLUSTER_PARTITIONS,9), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
@@ -2168,32 +2168,32 @@ static pmdaMetric metrictab[] = {
 
 /* disk.dev.read_bytes */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,38), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,38), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* disk.dev.write_bytes */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,39), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,39), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* disk.dev.total_bytes */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,40), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,40), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* disk.all.read_bytes */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,41), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,41), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* disk.all.write_bytes */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,42), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,42), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* disk.all.total_bytes */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,43), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,43), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /*
@@ -5718,7 +5718,6 @@ FILE *
 linux_statsfile(const char *path, char *buffer, int size)
 {
     pmsprintf(buffer, size, "%s%s", linux_statspath, path);
-    buffer[size-1] = '\0';
     return fopen(buffer, "r");
 }
 

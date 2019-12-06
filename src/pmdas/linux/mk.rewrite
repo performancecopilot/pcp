@@ -34,8 +34,13 @@ cat <<End-of-File >linux_kernel_ulong.conf
 #
 metric disk.dev.read { type -> $KERNEL_ULONG }
 metric disk.dev.write { type -> $KERNEL_ULONG }
+metric disk.dev.total { type -> $KERNEL_ULONG }
 metric disk.dev.blkread { type -> $KERNEL_ULONG }
 metric disk.dev.blkwrite { type -> $KERNEL_ULONG }
+metric disk.dev.blktotal { type -> $KERNEL_ULONG }
+metric disk.dev.read_bytes { type -> $KERNEL_ULONG }
+metric disk.dev.write_bytes { type -> $KERNEL_ULONG }
+metric disk.dev.total_bytes { type -> $KERNEL_ULONG }
 metric disk.dev.read_merge { type -> $KERNEL_ULONG }
 metric disk.dev.write_merge { type -> $KERNEL_ULONG }
 
@@ -43,8 +48,13 @@ metric disk.dev.write_merge { type -> $KERNEL_ULONG }
 #
 metric disk.partitions.read { type -> $KERNEL_ULONG }
 metric disk.partitions.write { type -> $KERNEL_ULONG }
+metric disk.partitions.total { type -> $KERNEL_ULONG }
 metric disk.partitions.blkread { type -> $KERNEL_ULONG }
 metric disk.partitions.blkwrite { type -> $KERNEL_ULONG }
+metric disk.partitions.blktotal { type -> $KERNEL_ULONG }
+metric disk.partitions.read_bytes { type -> $KERNEL_ULONG }
+metric disk.partitions.write_bytes { type -> $KERNEL_ULONG }
+metric disk.partitions.total_bytes { type -> $KERNEL_ULONG }
 
 # disk.dm group
 #
