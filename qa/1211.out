@@ -309,6 +309,11 @@ Perform globbing name-based query (3) ...
 32a1af87ff6b7a7777a44536d2a425c27d5e77f2
 fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
 
+Perform globbing name-based query (4) ...
+2db1da4d276d81c42c578c2829e99188ae7cc898
+ca134b5dbe631cf5bfb3fa72d9e9f697e38f97d5
+ccf157fc1740b6459681bfca477fb6ea6864d32c
+
 Perform globbing instance-based query (1) ...
 fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
 
@@ -318,10 +323,11 @@ Perform globbing instance-based query (2) ... no result
 Perform globbing instance-based query (3) ...
 fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
 
-Perform globbing instance-based query (4) ...
-2db1da4d276d81c42c578c2829e99188ae7cc898
-ca134b5dbe631cf5bfb3fa72d9e9f697e38f97d5
-ccf157fc1740b6459681bfca477fb6ea6864d32c
+Perform regex instance-based query (1) ...
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
+
+Perform regex instance-based query (2) ... no result
+(expect no result)
 
 Descriptor lookup for a given SeriesID ...
 

@@ -141,6 +141,10 @@ echo "Perform globbing name-based query (3) ..."
 pmseries $options 'kernel.all.l*d' | LC_COLLATE=POSIX sort
 echo
 
+echo "Perform globbing name-based query (4) ..."
+pmseries $options 'disk.partitions.blk*' | LC_COLLATE=POSIX sort
+echo
+
 echo "Perform globbing instance-based query (1) ..."
 pmseries $options 'kernel.all.load{instance.name:"1*"}'
 echo
@@ -154,8 +158,13 @@ echo "Perform globbing instance-based query (3) ..."
 pmseries $options 'kernel.all.load{instance.name:"*1*"}'
 echo
 
-echo "Perform globbing instance-based query (4) ..."
-pmseries $options 'disk.partitions.blk*' | LC_COLLATE=POSIX sort
+echo "Perform regex instance-based query (1) ..."
+pmseries $options 'kernel.all.load{instance.name=~"1.*"}'
+echo
+
+echo "Perform regex instance-based query (2) ... no result"
+pmseries $options 'kernel.all.load{instance.name=~"1\*"}'
+echo "(expect no result)"
 echo
 
 # kernel.all.load from proc archive (host:bozo-laptop)

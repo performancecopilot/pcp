@@ -16,6 +16,9 @@
 
 #include "pmapi.h"
 #include "pmwebapi.h"
+#ifdef HAVE_REGEX_H
+#include <regex.h>
+#endif
 
 /*
  * Time series querying
@@ -104,7 +107,7 @@ typedef struct node {
     /* partial match data for glob/regex */
     int			nmatches;
     sds			*matches;
-    void		*regex;	/* compiled regex */
+    regex_t		regex;	/* compiled regex */
     unsigned long long	cursor;
 } node_t;
 

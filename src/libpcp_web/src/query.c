@@ -21,9 +21,6 @@
 #include "batons.h"
 #include "slots.h"
 #include "maps.h"
-#ifdef HAVE_REGEX_H
-#include <regex.h>
-#endif
 #include <fnmatch.h>
 
 #define SHA1SZ		20	/* internal sha1 hash buffer size in bytes */
@@ -837,7 +834,7 @@ string_pattern_match(node_t *np, sds pattern, char *string, int length)
 	return fnmatch(pattern, string, 0) == 0;
 
     /* use either regular expression match or negation */
-    sts = regexec((const regex_t *)np->regex, string, 0, NULL, 0);
+    sts = regexec((const regex_t *)&np->regex, string, 0, NULL, 0);
     if (np->type == N_REQ)
 	return sts == 0;
     if (np->type == N_RNE)
@@ -945,6 +942,8 @@ node_pattern_reply(seriesQueryBaton *baton, node_t *np, const char *name, int ne
 out:
     if (np->cursor > 0)	/* still more to retrieve - kick off the next batch */
 	series_pattern_match(baton, np);
+    else
+	regfree((regex_t *)&np->regex);
 
     return nelements;
 }
