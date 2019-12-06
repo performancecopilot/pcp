@@ -95,6 +95,7 @@ import sys
 import time
 import errno
 import datetime
+import json
 
 # constants adapted from C header file <pcp/pmapi.h>
 import cpmapi as c_api
@@ -525,6 +526,8 @@ class pmDesc(Structure):
 pmDescPtr = POINTER(pmDesc)
 pmDescPtr.sem = property(lambda x: x.contents.sem, None, None, None)
 pmDescPtr.type = property(lambda x: x.contents.type, None, None, None)
+pmDescPtr.indom = property(lambda x: x.contents.indom, None, None, None)
+pmDescPtr.units = property(lambda x: x.contents.units, None, None, None)
 
 
 def get_indom(pmdesc):
@@ -592,6 +595,8 @@ class pmLabel(Structure):
                 ("flags", c_int, 8),
                 ("value", c_int, 16),
                 ("valuelen", c_int, 16)]
+    def __str__(self):
+        return self.name + ":" + '"' + self.value + '"'
 
 pmLabelPtr = POINTER(pmLabel)
 pmLabelPtr.name = property(lambda x: x.contents.name, None, None, None)
@@ -803,8 +808,29 @@ LIBPCP.pmUnitsStr_r.argtypes = [POINTER(pmUnits), c_char_p, c_int]
 LIBPCP.pmNumberStr_r.restype = c_char_p
 LIBPCP.pmNumberStr_r.argtypes = [c_double, c_char_p, c_int]
 
+LIBPCP.pmID_build.restype = c_uint
+LIBPCP.pmID_build.argtypes = [c_uint, c_uint, c_uint]
+
+LIBPCP.pmID_domain.restype = c_uint
+LIBPCP.pmID_domain.argtypes = [c_uint]
+
+LIBPCP.pmID_cluster.restype = c_uint
+LIBPCP.pmID_cluster.argtypes = [c_uint]
+
+LIBPCP.pmID_item.restype = c_uint
+LIBPCP.pmID_item.argtypes = [c_uint]
+
 LIBPCP.pmIDStr_r.restype = c_char_p
 LIBPCP.pmIDStr_r.argtypes = [c_uint, c_char_p, c_int]
+
+LIBPCP.pmInDom_build.restype = c_uint
+LIBPCP.pmInDom_build.argtypes = [c_uint, c_uint]
+
+LIBPCP.pmInDom_domain.restype = c_uint
+LIBPCP.pmInDom_domain.argtypes = [c_uint]
+
+LIBPCP.pmInDom_serial.restype = c_uint
+LIBPCP.pmInDom_serial.argtypes = [c_uint]
 
 LIBPCP.pmInDomStr_r.restype = c_char_p
 LIBPCP.pmInDomStr_r.argtypes = [c_uint, c_char_p, c_int]
@@ -1648,18 +1674,21 @@ class pmContext(object):
     ##
     # PMAPI Instance Domain Services
 
-    def pmGetInDom(self, pmdescp):
-        """PMAPI - Lookup the list of instances from an instance domain PMDESCP
-
+    def pmGetInDom(self, pmdescp=None, indom=None):
+        """PMAPI - Lookup the list of instances from an instance domain PMDESCP or indo
         ([instance1, instance2...] [name1, name2...]) pmGetInDom(pmDesc pmdesc)
         """
+        if pmdescp is None and indom is None:
+            raise pmErr(c_api.PM_ERR_GENERIC, "invalid arguments")
+
         instA_p = POINTER(c_int)()
         nameA_p = POINTER(c_char_p)()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmGetInDom(get_indom(pmdescp),
-                                   byref(instA_p), byref(nameA_p))
+        if indom is None:
+            indom = get_indom(pmdescp)
+        status = LIBPCP.pmGetInDom(indom, byref(instA_p), byref(nameA_p))
         if status < 0:
             raise pmErr(status)
         if status > 0:
@@ -1671,6 +1700,18 @@ class pmContext(object):
             instL = None
             nameL = None
         return instL, nameL
+
+    def pmGetInDomDict(self, indom):
+        """ helper to return dict of inst:name for an indom """
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr(status)
+        retD = {}
+        instL, nameL = self.pmGetInDom(indom=indom)
+        n = len(instL)
+        for i in range(n):
+            retD.update({instL[i]: nameL[i]})
+        return retD
 
     def pmLookupInDom(self, pmdesc, name):
         """PMAPI - Lookup the instance id with the given NAME in the indom
@@ -2036,51 +2077,74 @@ class pmContext(object):
             raise pmErr(status)
         return result_p
 
-    def result_to_list(self, result_p, n):
-        """ helper to build label list from lookup labels result
+    def pmlabelset_to_dict(self, lset, flags=0xff):
+        """ return a dict of a pmLabelSet, i.e. {name: value, ...}
+            if flags is not 0xff, filter on labels with matching flags
         """
-        labelL = []
-        for i in range(n):
-            if result_p[i] is not None:
-                labelL.append(result_p[i])
-        if not labelL:
-            return None
-        return labelL
+        if lset is None or lset.jsonlen == 0 or lset.json is None:
+            return {}
+        if flags == 0xff:
+            # no filtering, return a dict of all labels in the set
+            return json.loads(lset.json.decode())
+        # TODO slow track: walk the labels array and filter on flags
+        return {}
 
     def pmLookupLabels(self, pmid):
-        """PMAPI - Get merged labelset for a single metric
+        """PMAPI - Get all labels for a single metric, excluding instance
+           level labels (use pmGetInstancesLabels for those).
+           Return dict of {type: {name: value, ...}, ...}
         """
-        result_p = POINTER(pmLabelSet)()
+        ret = {}
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmLookupLabels(pmid, byref(result_p))
-        if status < 0:
-            raise pmErr(status)
-        if status > 0:
-            labelL = self.result_to_list(result_p, status)
-        else:
-            labelL = None
-        return labelL
+        desc = self.pmLookupDesc(pmid)
+
+        lset = self.pmGetContextLabels()
+        if lset:
+            ret.update({c_api.PM_LABEL_CONTEXT: lset})
+
+        lset = self.pmGetDomainLabels(LIBPCP.pmID_domain(pmid))
+        if lset:
+            ret.update({c_api.PM_LABEL_DOMAIN: lset})
+
+        lset = self.pmGetInDomLabels(desc.indom)
+        if lset:
+            ret.update({c_api.PM_LABEL_INDOM: lset})
+
+        lset = self.pmGetClusterLabels(pmid)
+        if lset:
+            ret.update({c_api.PM_LABEL_CLUSTER: lset})
+
+        lset = self.pmGetItemLabels(pmid)
+        if lset:
+            ret.update({c_api.PM_LABEL_ITEM: lset})
+
+        return ret
 
     def pmGetInstancesLabels(self, indom):
-        """PMAPI - Get labels for all metric values (instances)
+        """PMAPI - Get instance level labels for all instances in indom
+           return a dict {instid: {name: value, ...}, ...}
         """
-        result_p = POINTER(pmLabelSet)()
+        instlabelsD = {}
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
+
+        result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmGetInstancesLabels(indom, byref(result_p))
         if status < 0:
             raise pmErr(status)
-        if status > 0:
-            labelL = self.result_to_list(result_p, status)
-        else:
-            labelL = None
-        return labelL
+        for i in range(status):
+            lset = result_p[i]
+            if lset.json is not None:
+                instlabelsD.update({lset.inst: json.loads(lset.json)})
+
+        return instlabelsD
 
     def pmGetItemLabels(self, pmid):
         """PMAPI - Get labels of a given metric identifier
+           On success, this returns a dict of the labels in a single pmLabelSet
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
@@ -2089,14 +2153,13 @@ class pmContext(object):
         status = LIBPCP.pmGetItemLabels(pmid, byref(result_p))
         if status < 0:
             raise pmErr(status)
-        if status > 0:
-            labelL = self.result_to_list(result_p, status)
-        else:
-            labelL = None
-        return labelL
+        if status == 0:
+            return {}
+        return self.pmlabelset_to_dict(result_p[0])
 
     def pmGetClusterLabels(self, pmid):
         """PMAPI - Get labels of a given metric cluster
+           On success, this returns a dict of the labels in a single pmLabelSet
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
@@ -2105,14 +2168,13 @@ class pmContext(object):
         status = LIBPCP.pmGetClusterLabels(pmid, byref(result_p))
         if status < 0:
             raise pmErr(status)
-        if status > 0:
-            labelL = self.result_to_list(result_p, status)
-        else:
-            labelL = None
-        return labelL
+        if status == 0:
+            return {}
+        return self.pmlabelset_to_dict(result_p[0])
 
     def pmGetInDomLabels(self, indom):
         """PMAPI - Get labels of a given instance domain
+           On success, this returns a dict of the labels in a single pmLabelSet
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
@@ -2121,14 +2183,13 @@ class pmContext(object):
         status = LIBPCP.pmGetInDomLabels(indom, byref(result_p))
         if status < 0:
             raise pmErr(status)
-        if status > 0:
-            labelL = self.result_to_list(result_p, status)
-        else:
-            labelL = None
-        return labelL
+        if status == 0:
+            return {}
+        return self.pmlabelset_to_dict(result_p[0])
 
     def pmGetDomainLabels(self, domain):
         """PMAPI - Get labels of a given performance domain
+           On success, this returns a dict of the labels in a single pmLabelSet
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
@@ -2137,14 +2198,13 @@ class pmContext(object):
         status = LIBPCP.pmGetDomainLabels(domain, byref(result_p))
         if status < 0:
             raise pmErr(status)
-        if status > 0:
-            labelL = self.result_to_list(result_p, status)
-        else:
-            labelL = None
-        return labelL
+        if status == 0:
+            return {}
+        return self.pmlabelset_to_dict(result_p[0])
 
     def pmGetContextLabels(self):
         """PMAPI - Get labels of the current context
+           On success, this returns a dict of the labels in a single pmLabelSet
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
@@ -2153,11 +2213,9 @@ class pmContext(object):
         status = LIBPCP.pmGetContextLabels(byref(result_p))
         if status < 0:
             raise pmErr(status)
-        if status > 0:
-            labelL = self.result_to_list(result_p, status)
-        else:
-            labelL = None
-        return labelL
+        if status == 0:
+            return {}
+        return self.pmlabelset_to_dict(result_p[0])
 
     ##
     # PMAPI Ancilliary Support Services
@@ -2309,11 +2367,53 @@ class pmContext(object):
         return str(result.decode())
 
     @staticmethod
+    def pmID_build(d, c, i):
+        """PMAPI - build a pmID from domain, cluster, item"""
+        result = LIBPCP.pmID_build(d, c, i)
+        return result
+
+    @staticmethod
+    def pmID_domain(pmid):
+        """PMAPI - return domain number from pmID"""
+        result = LIBPCP.pmID_domain(pmid)
+        return result
+
+    @staticmethod
+    def pmID_cluster(pmid):
+        """PMAPI - return cluster number from pmID"""
+        result = LIBPCP.pmID_cluster(pmid)
+        return result
+
+    @staticmethod
+    def pmID_item(pmid):
+        """PMAPI - return item number from pmID"""
+        result = LIBPCP.pmID_item(pmid)
+        return result
+
+    @staticmethod
     def pmIDStr(pmid):
         """PMAPI - Convert a pmID to a readable string """
         pmidstr = ctypes.create_string_buffer(32)
         result = LIBPCP.pmIDStr_r(pmid, pmidstr, 32)
         return str(result.decode())
+
+    @staticmethod
+    def pmInDom_build(d, s):
+        """PMAPI - build an indom from domain and serial"""
+        result = LIBPCP.pmInDom_build(d, s)
+        return result
+
+    @staticmethod
+    def pmInDom_domain(indom):
+        """PMAPI - return domain number from indom"""
+        result = LIBPCP.pmInDom_domain(indom)
+        return result
+
+    @staticmethod
+    def pmInDom_serial(indom):
+        """PMAPI - return serial number from indom"""
+        result = LIBPCP.pmInDom_serial(indom)
+        return result
 
     @staticmethod
     def pmInDomStr(pmdescp):
