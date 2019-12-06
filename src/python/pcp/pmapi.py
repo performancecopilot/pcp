@@ -606,8 +606,10 @@ class pmLabelSet(Structure):
                 ("nlabels", c_int),
                 ("json", c_char_p),
                 ("jsonlen", c_int, 16),
-                ("padding", c_int, 16),
-                ("labels", POINTER(pmLabel))]
+                ("padding", c_int, 15),
+                ("compound", c_int, 1),
+                ("labels", POINTER(pmLabel)),
+                ("hash", c_void_p)]
     def __str__(self):
         if self.json is None:
             return "{}"

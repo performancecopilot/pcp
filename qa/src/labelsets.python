@@ -1,0 +1,55 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (C) 2019 Red Hat
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import sys
+import cpmapi as c_api
+import argparse
+from pcp import pmapi
+import cpmapi as api
+
+if len(sys.argv) == 2:
+    metric = sys.argv[1]
+else:
+    metric = "kernel.percpu.cpu.idle"
+ctx = pmapi.pmContext(api.PM_CONTEXT_HOST, "localhost")
+
+print("== get context level labels")
+context_labels = ctx.pmGetContextLabels()
+print("context labels: %s" % context_labels)
+
+pmid = ctx.pmLookupName(metric)[0]
+print("pmid of %s is %s" % (metric, ctx.pmIDStr(pmid)))
+metric_labels = ctx.pmLookupLabels(pmid)
+for lset in metric_labels:
+    print("type(lset)=%s nlabels=%d json=%s" % (type(lset), lset.nlabels, lset))
+    for i in range(lset.nlabels):
+        lab = lset.labels[i]
+        print("  [%d] flags=%02x" % (i, lab.flags))
+
+desc = ctx.pmLookupDesc(pmid)
+indom = desc.contents.indom
+
+print("\n== get indom level labels for metric %s" % metric)
+print("indom of %s is %s" % (metric, ctx.pmInDomStr(desc)))
+indom_labels = ctx.pmGetInDomLabels(indom)
+print("indom_labels: %s\n" % indom_labels)
+
+print("\n== get instances level labelsets for indom")
+instances_labels = ctx.pmGetInstancesLabels(indom)
+for lset in instances_labels:
+    print("type(lset)=%s nlabels=%d json=%s" % (type(lset), lset.nlabels, lset))
+    for i in range(lset.nlabels):
+        lab = lset.labels[i]
+        print("  [%d] flags=%02x" % (i, lab.flags))
