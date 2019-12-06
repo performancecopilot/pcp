@@ -1673,8 +1673,9 @@ if __name__ == '__main__':
         dstat = DstatTool(sys.argv[1:])
         dstat.execute()
     except pmapi.pmErr as error:
-        if error.args[0] != PM_ERR_EOL:
-            sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
+        if error.args[0] == PM_ERR_EOL:
+            sys.exit(0)
+        sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
         sys.exit(1)
     except pmapi.pmUsageErr as usage:
         usage.message()
