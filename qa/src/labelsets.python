@@ -25,31 +25,51 @@ else:
     metric = "kernel.percpu.cpu.idle"
 ctx = pmapi.pmContext(api.PM_CONTEXT_HOST, "localhost")
 
-print("== get context level labels")
-context_labels = ctx.pmGetContextLabels()
-print("context labels: %s" % context_labels)
-
 pmid = ctx.pmLookupName(metric)[0]
 print("pmid of %s is %s" % (metric, ctx.pmIDStr(pmid)))
-metric_labels = ctx.pmLookupLabels(pmid)
-for lset in metric_labels:
-    print("type(lset)=%s nlabels=%d json=%s" % (type(lset), lset.nlabels, lset))
-    for i in range(lset.nlabels):
-        lab = lset.labels[i]
-        print("  [%d] flags=%02x" % (i, lab.flags))
-
 desc = ctx.pmLookupDesc(pmid)
 indom = desc.contents.indom
+print("indom of %s is %d or '%s'" % (metric, indom, ctx.pmInDomStr(desc)))
 
-print("\n== get indom level labels for metric %s" % metric)
-print("indom of %s is %s" % (metric, ctx.pmInDomStr(desc)))
-indom_labels = ctx.pmGetInDomLabels(indom)
-print("indom_labels: %s\n" % indom_labels)
+if indom != c_api.PM_INDOM_NULL:
+    print("\n== pmGetInDomDict")
+    lsets = ctx.pmGetInDomDict(indom)
+    print(lsets)
 
-print("\n== get instances level labelsets for indom")
-instances_labels = ctx.pmGetInstancesLabels(indom)
-for lset in instances_labels:
-    print("type(lset)=%s nlabels=%d json=%s" % (type(lset), lset.nlabels, lset))
-    for i in range(lset.nlabels):
-        lab = lset.labels[i]
-        print("  [%d] flags=%02x" % (i, lab.flags))
+    print("\n== pmGetInDom(indom=%d)" % indom)
+    instL, nameL = ctx.pmGetInDom(indom=indom)
+    print(instL, nameL)
+
+    print("\n== pmGetInDom(desc=%s)" % desc)
+    instL, nameL = ctx.pmGetInDom(desc)
+    print(instL, nameL)
+
+print("\n== pmGetDomainLabels")
+lsets = ctx.pmGetDomainLabels(ctx.pmID_domain(pmid))
+print(lsets)
+
+print("\n== pmGetContextLabels")
+lsets = ctx.pmGetContextLabels()
+print(lsets)
+
+print("\n== pmGetItemLabels")
+lsets = ctx.pmGetItemLabels(pmid)
+print(lsets)
+
+print("\n== pmGetClusterLabels")
+lsets = ctx.pmGetClusterLabels(pmid)
+print(lsets)
+
+if indom != c_api.PM_INDOM_NULL:
+    print("\n== pmGetInDomLabels")
+    lsets = ctx.pmGetInDomLabels(indom)
+    print(lsets)
+
+    lsets = ctx.pmLookupLabels(pmid)
+    print("\n== pmLookupLabels -> type=%s len=%d" % (type(lsets), len(lsets)))
+    print(lsets)
+
+    lsets = ctx.pmGetInstancesLabels(indom)
+    print("\n== pmGetInstancesLabels -> type=%s len=%d" % (type(lsets), len(lsets)))
+    print(lsets)
+

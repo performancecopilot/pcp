@@ -12,8 +12,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-
-# test for-some-thing || _notrun No support for some-thing
+. ./common.python
 
 _cleanup()
 {
@@ -26,8 +25,12 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-src/labelsets.py >$seq.full
+cp /dev/null $seq.full
+pminfo sample | grep -v bad | while read m; do
+    echo >>$seq.full; echo '### ' $m ' ###' >>$seq.full
+    src/labelsets.py $m >>$seq.full || break
+done
 status=$?
 
-if [ $status -eq 0 ]; then echo passed; else echo failed, see $seq.full; fi
+if [ $status -eq 0 ]; then echo passed, see $seq.full.ok; else echo failed, see $seq.full; fi
 exit
