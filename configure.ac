@@ -786,7 +786,7 @@ AC_SUBST(PACKAGE_REVISION)
 AC_SUBST(PACKAGE_BUILD)
 
 if test -z "$PACKAGE_BUILD_DATE" ; then
-    PACKAGE_BUILD_DATE=`date +%Y-%m-%d`
+    PACKAGE_BUILD_DATE=`date --utc --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y-%m-%d`
 fi
 AC_SUBST(PACKAGE_BUILD_DATE)
 
