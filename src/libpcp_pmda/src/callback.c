@@ -632,14 +632,15 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				    inst, strbuf);
 		    }
 		}
-		else if (sts == PM_ERR_APPVERSION ||
+		else if (sts == PM_ERR_VALUE ||
+			 sts == PM_ERR_APPVERSION ||
 			 sts == PM_ERR_PERMISSION ||
 			 sts == PM_ERR_AGAIN ||
 			 sts == PM_ERR_NYI) {
 		    if (pmDebugOptions.libpmda) {
 			pmNotifyErr(LOG_ERR,
-			     "pmdaFetch: Unavailable metric PMID %s[%d]\n",
-				    strbuf, inst);
+			     "pmdaFetch: Fetch callback error from metric PMID %s[%d]: %s\n",
+				strbuf, inst, pmErrStr(sts));
 		    }
 		}
 		else {
