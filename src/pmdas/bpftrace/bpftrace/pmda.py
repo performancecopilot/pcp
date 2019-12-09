@@ -66,6 +66,7 @@ class BPFtracePMDA(PMDA):
         self.set_attribute_callback(self.attribute_callback)
         self.set_endcontext_callback(self.endcontext_callback)
         self.set_label(self.label)
+        self.set_label_callback(self.label_callback)
         self.set_store_callback(self.store_callback)
         self.set_refresh(self.refresh_callback)
         self.set_fetch_callback(self.fetch_callback)
@@ -204,6 +205,9 @@ class BPFtracePMDA(PMDA):
             cluster = self.pmid_cluster(ident)
             if cluster not in [Consts.Control.Cluster, Consts.Info.Cluster]:
                 return self.clusters[cluster].label(ident, type_)
+        return '{}'
+
+    def label_callback(self, indom: int, inst: int) -> str:
         return '{}'
 
     def refresh_script_indom(self):

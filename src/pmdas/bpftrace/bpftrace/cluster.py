@@ -174,13 +174,7 @@ class BPFtraceCluster:
                                              key_fn=self.instance_name_sorting_key(var_def))
 
     def fetch_callback(self, item: int, inst: int):
-        """
-        PMDA fetch callback for this bpftrace instance
-
-        if a client queries a bpftrace map value, but it doesn't exist yet,
-        we return PM_ERR_VALUE, which shows up in the logs as:
-        Error: pmdaFetch: Fetch callback error from metric PMID <...>: Missing metric value(s)
-        """
+        """PMDA fetch callback for this bpftrace instance"""
         if item == Consts.Script.Status:
             return [self.script.state.status, 1]
         elif item == Consts.Script.Pid:
