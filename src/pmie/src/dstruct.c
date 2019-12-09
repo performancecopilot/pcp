@@ -262,7 +262,7 @@ sleepTight(Task *t)
 		sts = nanosleep(&ts, &tleft);
 		/* deferred signal handling done immediately */
 		if (doexit)
-		    exit(doexit);
+		    exit(doexit == 15 ? 0 : doexit);
 		if (dorotate) {
 		    logRotate();
 		    dorotate = 0;
