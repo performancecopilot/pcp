@@ -1152,14 +1152,14 @@ pmwebapi_new_metric(context_t *cp, const sds name, pmDesc *desc,
     struct seriesname	*series;
     struct metric	*metric;
     struct domain	*domain;
-    int			i, len, numextra = 1;	/* is given name in names? */
+    int			i, len, numextra = 0;	/* is given name in names? */
 
     if (numnames <= 0)
 	return NULL;
 
     for (i = 0; name && i < numnames; i++) {
 	if (strcmp(name, names[i]) == 0) {
-	    numextra = 0;
+	    numextra = 1;
 	    break;
 	}
     }
