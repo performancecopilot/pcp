@@ -1,5 +1,64 @@
 pcp-5.0.2 (11 December 2019)
-    - Work in progress: https://github.com/performancecopilot/pcp/projects/1
+    - Server-side utilities and log management scripts:
+	pmproxy: REST API to report all label values by name
+	pmproxy: fix memory leak when re-using http connections
+	pmproxy: fix memory leak on a failed REST API call
+	pmproxy: improvements to the instrumentation mechanism
+	pmproxy: add support for AF_UNIX local client connections
+	logutil: fix pmlogger service timeout on new installations
+	pmie: on SIGTERM, exit 0 for a normal shutdown rather than exit 15
+	pmcd: add labels PDUs into the trace set
+    - PMDA additions, enhancements and bug fixes:
+	pmdaproc: support for kernel cgroups v2 (and systemd using same)
+	pmdalinux: update per-device read_bytes, write_bytes metric types
+	pmdabpftrace: implement label callback
+	pmdabpftrace: clear context tab on endcontext
+	pmdanetcheck: run as pcp user, document ICMP Echo socket permissions
+	pmdaperfevent: fix memory leaks and remove some unused code
+    - Client tools and utilities:
+	pcp-atop: update to latest upstream atop v2.5.0 sources
+	pcp-dstat: no stack trace when dstat exits due to a signal
+	pcp-dstat: fix handling of very large numbers of disk devices
+	pcp-dstat: exit with code zero when archive end reached
+	pmieconf: add a pcp-zeroconf option for enabling all_threads
+	pmseries: fix pointer arithmetic on series ID set intersection
+	pmseries: add new option to report all label values by name
+	pmseries: fix and test regular expression pattern matching
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	libpcp: fix potential use-after-free in labels code
+	libpcp_web: fix file descriptor and memory leaks in discovery code
+	libpcp_web: resolve valgrind issues observed in qa tests
+	libpcp_pmda: show PM_ERR_VALUE errors only if libpmda debug flag set
+	python API: add endcontext callback for PMDAs
+	python API: resolve pylint warnings on all python modules
+	python API: add missing fields to pmLabelSets structure
+    - Misc build, infrastructure and packaging updates:
+	configure: make build reproducible
+	build: do not create dstat symlink when non-python build requested
+	build: add perl-High-Res rpm dependency for pcp-pmda-postfix
+	build: update deb packaging to allow for python3-only builds
+	build: resolve several rpm spec differences that have crept in
+	build: fix chan lib dependency of pcp-pmda-statsd rpm
+	build: fix hostname dependency of pcp rpm
+    - Security Enhanced Linux:
+	pmdaunbound: add selinux policy for unbound PMDA metrics
+	pmdanetcheck: resolve failure on latest f31
+	pmdabpftrace: resolve failure on latest f31
+	pmdabcc: fix AVC error when running /var/lib/pcp/pmdas/bcc/Install
+	pmie: add fsetid to pmie start script policy as done for pmlogger
+    - Documentation and QA infrastructure:
+	CI: initial new version using custom Azure Pipelines agents and Ansible
+	CI: simplified architecture, added pipeline definitions
+	CI: create JUnit test results file for Azure Pipelines
+	CI: run platform builds and tests in parallel
+	docs: Added to pmseries(1) man page
+	docs: Added Redis setup notes to the quickstart guide
+	docs: Complete coverage in man pages of long options in PCP utilities.
+	docs: Numerous man page consistency fixes
+	docs: details for pmSeriesSetup(3) and related async APIs
+	docs: details for pmDiscoverSetup(3) and related async APIs
+	docs: details for pmSeriesQuery(3) and related time series APIs
+	docs: details for pmSeriesDescs(3) and other time series metadata APIs
 
 pcp-5.0.1 (4 November 2019)
     - Server-side utilities and log management scripts:
@@ -59,7 +118,6 @@ pcp-5.0.0 (11 October 2019)
 	bash/zsh completions: update to match recent tool updates
 	pcp: add local context and namespace long options also
 	pmlogconf: add statsd metrics configuration file
-
     - PMDA additions, enhancements and bug fixes:
 	pmdabpftrace: fedora.spec, manpage, pylint fixes for rawhide
 	pmdabpftrace: authentication with unix sockets
@@ -116,7 +174,6 @@ pcp-5.0.0 (11 October 2019)
 	pmdastatsd: updated units for duration metrics
 	pmdastatsd: added support for scientific notation for in StatsD payloads
 	pmdastatsd: reduced waste of CPU cycles, update control protocols
-
     - Server-side utilities and log management scripts:
 	pmproxy: support authentication parameters
 	pmproxy: for PCP v5 ensure distinct openmetrics metadata
@@ -134,7 +191,6 @@ pcp-5.0.0 (11 October 2019)
 	pmcd: add missing long forms for some cert/auth options
 	logutil: add 120s timeout in all systemd service configs
 	logutil: pmlogger_check.service is not required by pmlogger.service
-
     - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
 	libpcp_web: harden null string value handling in webgroup fetches
 	libpcp_web: simplify pmseries delta calculations, corner cases
@@ -155,7 +211,6 @@ pcp-5.0.0 (11 October 2019)
 	libpcp: update getdate.y for pure parser
 	libpcp: fix multi-archive replay err handling for corrupted archive(s)
 	libpcp: fix cockpit-pcp segv with local context
-
     - Misc build, infrastructure and packaging updates:
 	build: ensure new derived metrics end up in the right package
 	build: remove python bcc dep from bpftrace, add bpfcc to debian unstable, 
@@ -166,7 +221,6 @@ pcp-5.0.0 (11 October 2019)
 	selinux: build fix for platforms without map for class file
 	selinux: add policy rules for pmdanetcheck
 	ci: add support for Fedora 31
-
     - Documentation and QA infrastructure:
 	qa: add pmproxy_load_test to installed testsuite files
 	qa: custom config for bpftrace to trigger limits on slow machines
