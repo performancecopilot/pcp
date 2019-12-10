@@ -158,7 +158,7 @@ new_metric(seriesLoadBaton *baton, pmValueSet *vsp)
     if (sts < 0)
 	return NULL;
 
-    if ((metric = pmwebapi_new_metric(context, &desc, count, nameall)) == NULL)
+    if ((metric = pmwebapi_new_metric(context, NULL, &desc, count, nameall)) == NULL)
 	return NULL;
     if (metric->cluster) {
 	if (metric->cluster->domain)
@@ -1147,7 +1147,7 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 	break;
 
     case PM_LABEL_ITEM:
-	metric = pmwebapi_new_pmid(cp, ident, event->module->on_info, arg);
+	metric = pmwebapi_new_pmid(cp, NULL, ident, event->module->on_info, arg);
 	if (pmDebugOptions.discovery && metric)
 	    fprintf(stderr, "%s: metric=%s\n",
 			    "pmSeriesDiscoverLabels", pmIDStr(metric->desc.pmid));
@@ -1232,7 +1232,7 @@ pmSeriesDiscoverMetric(pmDiscoverEvent *event,
     }
 
     if ((metric = pmwebapi_add_metric(&baton->pmapi.context,
-				desc, numnames, names)) == NULL) {
+				NULL, desc, numnames, names)) == NULL) {
 	infofmt(msg, "%s: failed metric discovery", "pmSeriesDiscoverMetric");
 	moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	return;

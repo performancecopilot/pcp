@@ -1146,19 +1146,30 @@ pmwebapi_free_metric(metric_t *metric)
 }
 
 struct metric *
-pmwebapi_new_metric(context_t *cp, pmDesc *desc, int numnames, char **names)
+pmwebapi_new_metric(context_t *cp, const sds name, pmDesc *desc,
+		int numnames, char **names)
 {
     struct seriesname	*series;
     struct metric	*metric;
     struct domain	*domain;
-    int			i, len;
+    int			i, len, numextra = 1;	/* is given name in names? */
 
     if (numnames <= 0)
 	return NULL;
 
+    for (i = 0; name && i < numnames; i++) {
+	if (strcmp(name, names[i]) == 0) {
+	    numextra = 0;
+	    break;
+	}
+    }
+
+    if ((metric = dictFetchValue(cp->pmids, &desc->pmid)) != NULL)
+	return pmwebapi_add_metric(cp, name, desc, numnames, names);
+
     if ((metric = calloc(1, sizeof(metric_t))) == NULL)
 	return NULL;
-    if ((series = calloc(numnames, sizeof(seriesname_t))) == NULL) {
+    if ((series = calloc(numnames + numextra, sizeof(seriesname_t))) == NULL) {
 	free(metric);
 	return NULL;
     }
@@ -1167,6 +1178,10 @@ pmwebapi_new_metric(context_t *cp, pmDesc *desc, int numnames, char **names)
 	series[i].sds = sdsnewlen(names[i], len);
 	pmwebapi_string_hash(series[i].id, names[i], len);
     }
+    if (numextra) {
+	series[i].sds = sdsdup(name);
+	pmwebapi_string_hash(series[i].id, name, sdslen(name));
+    }
 
     domain = pmwebapi_add_domain(cp, pmID_domain(desc->pmid));
     metric->indom = pmwebapi_add_indom(cp, domain, desc->indom);
@@ -1174,21 +1189,25 @@ pmwebapi_new_metric(context_t *cp, pmDesc *desc, int numnames, char **names)
 
     metric->desc = *desc;
     metric->names = series;
-    metric->numnames = numnames;
+    metric->numnames = numnames + numextra;
     for (i = 0; i < numnames; i++)
+	dictAdd(cp->metrics, series[i].sds, (void *)metric);
+    if (numextra)
 	dictAdd(cp->metrics, series[i].sds, (void *)metric);
     dictAdd(cp->pmids, &desc->pmid, (void *)metric);
     return metric;
 }
 
 struct metric *
-pmwebapi_add_metric(context_t *cp, pmDesc *desc, int numnames, char **names)
+pmwebapi_add_metric(context_t *cp, const sds base, pmDesc *desc, int numnames, char **names)
 {
     struct metric	*metric;
     sds			name = sdsempty();
     int			i;
 
     /* search for a match on any of the given names */
+    if (base && (metric = dictFetchValue(cp->metrics, base)) != NULL)
+	return metric;
     for (i = 0; i < numnames; i++) {
 	sdsclear(name);
 	name = sdscat(name, names[i]);
@@ -1198,11 +1217,12 @@ pmwebapi_add_metric(context_t *cp, pmDesc *desc, int numnames, char **names)
 	}
     }
     sdsfree(name);
-    return pmwebapi_new_metric(cp, desc, numnames, names);
+    return pmwebapi_new_metric(cp, base, desc, numnames, names);
 }
 
 struct metric *
-pmwebapi_new_pmid(context_t *cp, pmID pmid, pmLogInfoCallBack info, void *arg)
+pmwebapi_new_pmid(context_t *cp, const sds name, pmID pmid,
+		pmLogInfoCallBack info, void *arg)
 {
     struct metric	*mp = NULL;
     pmDesc		desc;
@@ -1228,7 +1248,7 @@ pmwebapi_new_pmid(context_t *cp, pmID pmid, pmLogInfoCallBack info, void *arg)
 		    pmIDStr_r(pmid, buffer, sizeof(buffer)),
 		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     } else {
-	mp = pmwebapi_new_metric(cp, &desc, numnames, names);
+	mp = pmwebapi_new_metric(cp, name, &desc, numnames, names);
 	free(names);
     }
     return mp;

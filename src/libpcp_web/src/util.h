@@ -93,11 +93,11 @@ extern struct instance *pmwebapi_add_instance(struct indom *, int, char *);
 extern void pmwebapi_free_instance(struct instance *);
 
 extern struct metric *pmwebapi_new_pmid(struct context *,
-		pmID, pmLogInfoCallBack, void *);
+		const sds, pmID, pmLogInfoCallBack, void *);
 extern struct metric *pmwebapi_new_metric(struct context *,
-		pmDesc *, int, char **);
+		const sds, pmDesc *, int, char **);
 extern struct metric *pmwebapi_add_metric(struct context *,
-		pmDesc *, int, char **);
+		const sds, pmDesc *, int, char **);
 extern void pmwebapi_add_item_labels(struct context *, struct metric *);
 extern int pmwebapi_add_valueset(struct metric *, pmValueSet *);
 extern void pmwebapi_free_metric(struct metric *);

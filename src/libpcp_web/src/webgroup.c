@@ -641,7 +641,7 @@ webgroup_lookup_pmid(pmWebGroupSettings *settings, context_t *cp, sds name, void
     }
     if ((mp = (struct metric *)dictFetchValue(cp->pmids, &pmid)) != NULL)
 	return mp;
-    return pmwebapi_new_pmid(cp, pmid, settings->module.on_info, arg);
+    return pmwebapi_new_pmid(cp, NULL, pmid, settings->module.on_info, arg);
 }
 
 static struct metric *
@@ -661,7 +661,7 @@ webgroup_lookup_metric(pmWebGroupSettings *settings, context_t *cp, sds name, vo
 			    "webgroup_lookup_metric", name);
 	return NULL;
     }
-    return pmwebapi_new_pmid(cp, pmid, settings->module.on_info, arg);
+    return pmwebapi_new_pmid(cp, name, pmid, settings->module.on_info, arg);
 }
 
 static int
