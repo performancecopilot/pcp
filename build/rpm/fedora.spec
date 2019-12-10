@@ -1935,8 +1935,6 @@ Summary: Performance Co-Pilot (PCP) Zeroconf Package
 URL: https://pcp.io
 Requires: pcp pcp-doc pcp-system-tools
 Requires: pcp-pmda-dm pcp-pmda-nfsclient
-# to make pcp-zeroconf replace sysstat, uncomment the next line
-# Obsoletes: sysstat
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
 gathering frequency, several extended pmlogger configurations, as well as
@@ -1955,7 +1953,7 @@ URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 # on these platforms, python2-pcp replaces python-pcp
-Obsoletes: python-pcp
+Obsoletes: python-pcp < %{version}
 %endif
 %if 0%{?rhel} == 5
 Requires: python%{default_python}

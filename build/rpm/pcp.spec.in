@@ -699,7 +699,7 @@ URL: https://pcp.io
 BuildRequires: %{__python2}-devel
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 # on these platforms, python2-pcp replaces python-pcp
-Obsoletes: python-pcp
+Obsoletes: python-pcp < @package_version@
 %endif
 %if "%{_vendor}" == "redhat" && 0%{?rhel} <= 5 && 0%{?fedora} <= 25
 Requires: %{__python2}-ctypes
