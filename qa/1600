@@ -83,6 +83,7 @@ _filter_label_values()
 {
     sed \
 	-e "s/^hostname: \"${hostname}\"/hostname: \"HOSTNAME\"/g" \
+	-e "/metric_label: null/d" \
     #end
 }
 

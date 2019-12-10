@@ -49,7 +49,6 @@ cluster: "zero"
 hostname: "HOSTNAME"
 indom_label: 42.001
 measure: "speed"
-metric_label: null
 model: "RGB"
 role: "testing"
 units: "metres per second"
