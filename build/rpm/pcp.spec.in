@@ -60,7 +60,7 @@ BuildRequires: qt4-devel >= 4.4
 %endif
 %endif
 %if "%{_vendor}" == "redhat"
-BuildRequires: man /bin/hostname
+BuildRequires: man hostname
 %if "@enable_systemd@" == "false"
 BuildRequires: initscripts
 %endif
@@ -75,7 +75,7 @@ BuildRequires: libvarlink-devel
 BuildRequires: ragel chan-devel HdrHistogram_c-devel
 %endif
 %if "@pmda_perfevent@" == "true"
-BuildRequires: libpfm-devel >= 4
+BuildRequires: libpfm-devel >= 4.4
 %endif
 %if "@pmda_systemd@" == "true"
 BuildRequires: systemd-devel
@@ -98,6 +98,9 @@ Provides: pcp-webapi
 
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash xz gawk sed grep coreutils findutils
+%if "%{_vendor}" == "redhat"
+Requires: hostname
+%endif
 # which(1) comes from different places
 %if 0%{?suse_version} >= 1100
 Requires: util-linux
@@ -893,6 +896,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for podman containers
 URL: https://pcp.io
 Requires: libvarlink
+Requires: pcp-libs = @package_version@
 BuildRequires: libvarlink-devel
 
 %description pmda-podman

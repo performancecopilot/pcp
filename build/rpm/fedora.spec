@@ -228,7 +228,7 @@ BuildRequires: perl-generators
 BuildRequires: perl-devel perl(strict)
 BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
 BuildRequires: perl(LWP::UserAgent) perl(Time::HiRes) perl(Digest::MD5)
-BuildRequires: man
+BuildRequires: man hostname
 %if !%{disable_systemd}
 BuildRequires: systemd-devel
 %endif
@@ -242,7 +242,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash xz gawk sed grep findutils which
+Requires: bash xz gawk sed grep findutils which hostname
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
@@ -3221,7 +3221,7 @@ cd
 * Wed Dec 11 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.2-1
 - Fix dstat exception writing to a closed fd (BZ 1768619)
 - Fix chan lib dependency of pcp-pmda-statsd (BZ 1770815)
-- Work in progress: https://github.com/performancecopilot/pcp/projects/1
+- Update to latest PCP sources.
 
 * Mon Nov 04 2019 Nathan Scott <nathans@redhat.com> - 5.0.1-1
 - Resolve selinux policy issues in PCP tools (BZ 1743040)
