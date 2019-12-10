@@ -1866,7 +1866,7 @@ AC_MSG_CHECKING([if the perfevent PMDA should be included])
 AC_SUBST(PMDA_PERFEVENT, $pmda_perfevent)
 if $pmda_perfevent; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-AC_CHECK_LIB(hdr_histogram, hdr_init, [lib_for_hdr_histogram="-lhdr_histogram"])
+AC_CHECK_LIB(hdr_histogram, hdr_init, [lib_for_hdr_histogram="-lz -lhdr_histogram"])
 AC_SUBST(lib_for_hdr_histogram)
 
 AC_CHECK_LIB(chan, chan_init, [lib_for_chan="-lchan"])
