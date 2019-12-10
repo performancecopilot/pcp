@@ -1158,11 +1158,11 @@ pmwebapi_new_metric(context_t *cp, const sds name, pmDesc *desc,
 	return NULL;
 
     for (i = 0; name && i < numnames; i++) {
-	if (strcmp(name, names[i]) == 0) {
-	    numextra = 1;
+	if (strcmp(name, names[i]) == 0)
 	    break;
-	}
     }
+    if (name && i == numnames)
+	numextra = 1;
 
     if ((metric = dictFetchValue(cp->pmids, &desc->pmid)) != NULL)
 	return pmwebapi_add_metric(cp, name, desc, numnames, names);
