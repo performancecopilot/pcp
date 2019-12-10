@@ -104,6 +104,7 @@ pmDiscoverFree(pmDiscover *p)
     memset(p, 0, sizeof(*p));
     free(p);
 }
+
 /*
  * Delete tracking of a previously discovered path. Frees resources and
  * destroy PCP context (if any).
@@ -283,11 +284,9 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
     else if (uv_fs_stat(NULL, &sreq, p->context.name, NULL) < 0) {
     	p->flags |= PM_DISCOVER_FLAGS_DELETED;
 	if (p->event_handle) {
-	    if (p->event_handle) {
-		uv_fs_event_stop(p->event_handle);
-		free(p->event_handle);
-		p->event_handle = NULL;
-	    }
+	    uv_fs_event_stop(p->event_handle);
+	    free(p->event_handle);
+	    p->event_handle = NULL;
 	}
 	/* path has been deleted. statbuf is invalid */
 	memset(&p->statbuf, 0, sizeof(p->statbuf));
