@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.0.2
+Version: 5.0.3
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -87,7 +87,7 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %endif
 
 # support for pmdabpftrace
-%if 0%{?fedora} >= 30 || 0%{?rhel} > 8
+%if 0%{?fedora} >= 30 || 0%{?rhel} > 7
 %ifarch s390 s390x armv7hl aarch64 i686
 %global disable_bpftrace 1
 %else
@@ -191,6 +191,7 @@ BuildRequires: nss-devel
 BuildRequires: rpm-devel
 BuildRequires: avahi-devel
 BuildRequires: xz-devel
+BuildRequires: zlib-devel
 %if !%{disable_python2}
 %if 0%{?default_python} != 3
 BuildRequires: python%{?default_python}-devel
@@ -228,7 +229,7 @@ BuildRequires: perl-generators
 BuildRequires: perl-devel perl(strict)
 BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
 BuildRequires: perl(LWP::UserAgent) perl(Time::HiRes) perl(Digest::MD5)
-BuildRequires: man hostname
+BuildRequires: man /bin/hostname
 %if !%{disable_systemd}
 BuildRequires: systemd-devel
 %endif
@@ -242,7 +243,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash xz gawk sed grep findutils which hostname
+Requires: bash xz gawk sed grep findutils which /bin/hostname
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
@@ -3216,6 +3217,9 @@ cd
 %endif
 
 %changelog
+* Fri Feb 28 202 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
+- Update to latest PCP sources.
+
 * Wed Dec 11 2019 Nathan Scott <nathans@redhat.com> - 5.0.2-1
 - Resolve fresh install pmlogger timeout bug (BZ 1721223)
 - Fix dstat exception writing to a closed fd (BZ 1768619)
