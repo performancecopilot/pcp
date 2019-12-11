@@ -34,6 +34,7 @@ pcp-5.0.2 (11 December 2019)
 	python API: add missing fields to pmLabelSets structure
     - Misc build, infrastructure and packaging updates:
 	configure: make build reproducible
+	configure: make zlib available for hdr_histogram checks
 	build: do not create dstat symlink when non-python build requested
 	build: add perl-High-Res rpm dependency for pcp-pmda-postfix
 	build: update deb packaging to allow for python3-only builds
