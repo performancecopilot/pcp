@@ -3216,7 +3216,8 @@ cd
 %endif
 
 %changelog
-* Wed Dec 11 2019 Mark Goodwin <mgoodwin@redhat.com> - 5.0.2-1
+* Wed Dec 11 2019 Nathan Scott <nathans@redhat.com> - 5.0.2-1
+- Resolve fresh install pmlogger timeout bug (BZ 1721223)
 - Fix dstat exception writing to a closed fd (BZ 1768619)
 - Fix chan lib dependency of pcp-pmda-statsd (BZ 1770815)
 - Update to latest PCP sources.
