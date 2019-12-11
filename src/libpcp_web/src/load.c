@@ -1101,8 +1101,10 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 	    fprintf(stderr, "%s: context\n", "pmSeriesDiscoverLabels");
 
 	if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
+#if 0 /* PCP GH#800 do not free this labelset - it's owned by the discover code */
 	    if (cp->labelset)
 		pmFreeLabelSets(cp->labelset, 1);
+#endif
 	    cp->labelset = labels;
 	    pmwebapi_locate_context(cp);
 	    cp->updated = 1;
