@@ -120,7 +120,7 @@ class PCPBCCModule(PCPBCCBase):
                 with open(path.dirname(__file__) + '/../' + bpf_src) as src:
                     self.bpf_text = src.read()
 
-                    self.bpf_text = self.bpf_text.replace("FILTER", "FILTER_PID")
+                self.bpf_text = self.bpf_text.replace("FILTER", "FILTER_PID")
 
             if not self.pids and self.proc_filter and self.proc_refresh:
                 self.log("No process to attach found, activation postponed.")
