@@ -19,7 +19,8 @@ _cleanup()
 {
     cd $here
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
-    [ -n "$options" ] && redis-cli $options shutdown
+    [ -n "$options2" ] && redis-cli $options2 shutdown
+    [ -n "$options1" ] && redis-cli $options1 shutdown
     if $need_restore
     then
 	need_restore=false
