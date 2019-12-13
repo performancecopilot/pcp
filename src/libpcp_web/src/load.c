@@ -1032,6 +1032,13 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
 	moduleinfo(module, PMLOG_ERROR, msg, arg);
 	return;
     }
+    if ((set = pmwebapi_labelsetdup(p->context.labelset)) == NULL) {
+	infofmt(msg, "%s: out of memory for labels", "pmSeriesDiscoverSource");
+	moduleinfo(module, PMLOG_ERROR, msg, arg);
+	free(baton);
+	return;
+    }
+
     initSeriesLoadBaton(baton, module, 0 /*flags*/,
 			module->on_info, series_discover_done,
 			data->slots, arg);
@@ -1046,8 +1053,9 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
     cp->context = p->ctx;
     cp->type = p->context.type;
     cp->name.sds = sdsdup(p->context.name);
-    cp->host = p->context.hostname;
-    cp->labelset = set = p->context.labelset;
+    cp->host = sdsdup(p->context.hostname);
+    cp->labelset = set;
+
     pmwebapi_source_hash(cp->name.hash, set->json, set->jsonlen);
     pmwebapi_setup_context(cp);
     set_source_origin(cp);
@@ -1101,15 +1109,13 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 	    fprintf(stderr, "%s: context\n", "pmSeriesDiscoverLabels");
 
 	if ((labels = pmwebapi_labelsetdup(sets)) != NULL) {
-#if 0 /* PCP GH#800 do not free this labelset - it's owned by the discover code */
 	    if (cp->labelset)
 		pmFreeLabelSets(cp->labelset, 1);
-#endif
 	    cp->labelset = labels;
 	    pmwebapi_locate_context(cp);
 	    cp->updated = 1;
 	} else {
-	    infofmt(msg, "failed to duplicate label set");
+	    infofmt(msg, "failed to duplicate %s label set", "context");
 	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	}
 	break;
@@ -1125,8 +1131,8 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 		pmFreeLabelSets(domain->labelset, 1);
 	    domain->labelset = labels;
 	    domain->updated = 1;
-	} else {
-	    infofmt(msg, "failed to duplicate label set");
+	} else if (domain) {
+	    infofmt(msg, "failed to duplicate %s label set", "domain");
 	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	}
 	break;
@@ -1142,8 +1148,8 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 		pmFreeLabelSets(cluster->labelset, 1);
 	    cluster->labelset = labels;
 	    cluster->updated = 1;
-	} else {
-	    infofmt(msg, "failed to duplicate label set");
+	} else if (cluster) {
+	    infofmt(msg, "failed to duplicate %s label set", "cluster");
 	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	}
 	break;
@@ -1159,8 +1165,8 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 		pmFreeLabelSets(metric->labelset, 1);
 	    metric->labelset = labels;
 	    metric->updated = 1;
-	} else {
-	    infofmt(msg, "failed to duplicate label set");
+	} else if (metric) {
+	    infofmt(msg, "failed to duplicate %s label set", "item");
 	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	}
 	break;
@@ -1177,8 +1183,8 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 		pmFreeLabelSets(indom->labelset, 1);
 		    indom->labelset = labels;
 	    indom->updated = 1;
-	} else {
-	    infofmt(msg, "failed to duplicate label set");
+	} else if (indom) {
+	    infofmt(msg, "failed to duplicate %s label set", "indom");
 	    moduleinfo(event->module, PMLOG_ERROR, msg, arg);
 	}
 	break;
@@ -1196,7 +1202,7 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 	    if ((instance = dictFetchValue(indom->insts, &id)) == NULL)
 		continue;
 	    if ((labels = pmwebapi_labelsetdup(&sets[i])) == NULL) {
-		infofmt(msg, "failed to dup %s instance labels: %s",
+		infofmt(msg, "failed to dup indom %s instance label set: %s",
 			pmInDomStr_r(indom->indom, idbuf, sizeof(idbuf)),
 			pmErrStr_r(-ENOMEM, errmsg, sizeof(errmsg)));
 		moduleinfo(event->module, PMLOG_ERROR, msg, arg);
