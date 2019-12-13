@@ -629,7 +629,7 @@ class pmConfig(object):
                     self.util.metrics[metric][1] = self.util.instances
             if self.insts[i][0][0] == pmapi.c_api.PM_IN_NULL:
                 self.util.metrics[metric][1] = []
-            # dynamically resize fetchgroup value arrays
+            # Dynamically resize fetchgroup value arrays
             if not max_insts or max_insts < len(self.insts[i][0]):
                 max_insts = len(self.insts[i][0])
 
@@ -785,9 +785,21 @@ class pmConfig(object):
                 max_insts = max(1, max_insts)
                 scale = self.util.metrics[metric][2][0]
                 if curr_insts and self.util.metrics[metric][1]:
+                    mitems = 0
+                    vanished = []
                     for j in range(0, len(self.insts[i][1])):
-                        item = self.util.pmfg.extend_item(metric, mtype, scale, self.insts[i][1][j])
-                        items.append((self.insts[i][0][j], self.insts[i][1][j], item))
+                        try:
+                            item = self.util.pmfg.extend_item(metric, mtype, scale, self.insts[i][1][j])
+                            items.append((self.insts[i][0][j], self.insts[i][1][j], item))
+                            mitems += 1
+                        except pmapi.pmErr as error:
+                            if error.args[0] == pmapi.c_api.PM_ERR_CONV:
+                                raise
+                            vanished.append(j)
+                    if mitems > 0:
+                        for v in reversed(vanished):
+                            del self.insts[i][0][v]
+                            del self.insts[i][1][v]
                     self.util.metrics[metric][5] = self.pmfg_items_to_indom(items)
                 else:
                     self.util.metrics[metric][5] = self.util.pmfg.extend_indom(metric, mtype, scale, max_insts)
