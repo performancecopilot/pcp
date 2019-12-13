@@ -2129,6 +2129,10 @@ rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
 desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
 %endif
 
+%if %{disable_xlsx}
+rm -f $RPM_BUILD_ROOT/%{_bashcompdir}/pcp2xlsx
+%endif
+
 %if 0%{?rhel} || 0%{?fedora}
 # Fedora and RHEL default local only access for pmcd and pmlogger
 sed -i -e '/^# .*_LOCAL=1/s/^# //' $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/{pmcd,pmlogger}
@@ -3217,7 +3221,7 @@ cd
 %endif
 
 %changelog
-* Fri Feb 28 202 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
+* Fri Feb 28 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
 - Update to latest PCP sources.
 
 * Wed Dec 11 2019 Nathan Scott <nathans@redhat.com> - 5.0.2-1
