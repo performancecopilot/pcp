@@ -141,7 +141,7 @@ class BCCPMDA(PMDA):
             sys.exit(1)
 
         self.log("Enabled modules:")
-        self.log(str(list(self.modules)))
+        self.log(str([str(module) for module in self.modules.keys()]))
 
         self.log("Configuring modules:")
         for module in self.modules:
