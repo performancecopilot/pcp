@@ -1523,6 +1523,7 @@ BAD
 1122 pmie local
 1123 pmchart local kernel
 1124 pmda.bcc local python
+1125 pmda.bcc local python
 1126 pmda.bcc local python
 1127 pmda.bcc local python
 1128 pmie local
