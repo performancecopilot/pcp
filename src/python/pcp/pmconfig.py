@@ -387,6 +387,13 @@ class pmConfig(object):
             return True
         return False
 
+    def get_metric_indom(self, desc):
+        """ Get instance domain for metric """
+        if self.util.context.type == pmapi.c_api.PM_CONTEXT_ARCHIVE:
+            return self.util.context.pmGetInDomArchive(desc)
+        else:
+            return self.util.context.pmGetInDom(desc)
+
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
         try:
@@ -398,10 +405,7 @@ class pmConfig(object):
             if desc.contents.indom == pmapi.c_api.PM_IN_NULL:
                 inst = ([pmapi.c_api.PM_IN_NULL], [None])     # mem.util.free
             else:
-                if self.util.context.type == pmapi.c_api.PM_CONTEXT_ARCHIVE:
-                    inst = self.util.context.pmGetInDomArchive(desc)
-                else:
-                    inst = self.util.context.pmGetInDom(desc) # disk.dev.read
+                inst = self.get_metric_indom(desc)            # disk.dev.read
                 if not inst[0]:
                     inst = ([pmapi.c_api.PM_IN_NULL], [None]) # pmcd.pmie.logfile
             # Reject unsupported types
@@ -989,6 +993,10 @@ class pmConfig(object):
                         # Ignore transient instances
                         if inst != pmapi.c_api.PM_IN_NULL and not name:
                             continue
+                        # Check for instances becoming available for metric for the first time
+                        if inst != pmapi.c_api.PM_IN_NULL and \
+                           self.insts[i][0][0] == pmapi.c_api.PM_IN_NULL:
+                            self.insts[i] = self.get_metric_indom(self.descs[i])
                         if early_live_filter and inst != pmapi.c_api.PM_IN_NULL and \
                            not self.filter_instance(metric, name):
                             continue
