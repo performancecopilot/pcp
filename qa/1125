@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 1125
 # Exercise the BCC PMDA klockstat module - install, remove and values.
 #
