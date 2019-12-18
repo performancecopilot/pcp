@@ -633,7 +633,7 @@ Time,"kernel.uname.release"
             <release>1.2.3</release>
             <release>1.2.3</release>
             <release>3.2.1</release>
-            <release>None</release>
+            <release></release>
             <release>X</release>
             <release>XXX</release>
             <release>XXX</release>

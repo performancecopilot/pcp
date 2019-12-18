@@ -41,7 +41,7 @@ testing names-change=update with pcp2xml
 <interval instance-name="eggs" unit="microsec">xxxxxxx</interval>
 <string>g'day world</string>
 <strings instance-name="zero">00oo00</strings>
-<strings instance-name="hero">None</strings>
+<strings instance-name="hero"/>
 </test>
 </mmv>
 </timestamp>
@@ -60,7 +60,7 @@ testing names-change=update with pcp2xml
 <interval instance-name="eggs" unit="microsec">xxxxxxx</interval>
 <string>g'day world</string>
 <strings instance-name="zero">00oo00</strings>
-<strings instance-name="hero">None</strings>
+<strings instance-name="hero"/>
 </test>
 </mmv>
 </timestamp>

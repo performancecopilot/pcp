@@ -427,17 +427,17 @@ class PCP2XML(object):
         insts_key = "@instances"
         inst_key = "@id"
 
-        def escape_xml_markup(string):
-            """ Escape XML markup characters """
-            if not string:
-                return None
-            return string.replace("&", "&amp;").replace('"', '&quot;').replace("'", "&apos;").replace("<", "&lt;").replace(">", "&gt;")
+        def escape_xml_attr(string):
+            """ Escape characters in XML attributes """
+            if string is None:
+                return ""
+            return string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', '&quot;')
 
-        def escape_xml_text(string):
-            """ Escape XML text characters """
-            if not string:
-                return None
-            return string.replace("&", "&amp;").replace("<", "&lt;")
+        def escape_xml_data(string):
+            """ Escape characters in XML data """
+            if string is None:
+                return ""
+            return string.replace("&", "&amp;").replace("<", "&lt;").replace("]]>", "]]&gt;")
 
         results = self.pmconfig.get_ranked_results(valid_only=True)
 
@@ -451,8 +451,8 @@ class PCP2XML(object):
             fmt = "." + str(self.metrics[metric][6]) + "f"
             for inst, name, value in results[metric]:
                 value = format(value, fmt) if isinstance(value, float) else str(value)
-                value = escape_xml_text(value)
-                name = escape_xml_markup(name)
+                value = escape_xml_data(value)
+                name = escape_xml_attr(name)
 
                 pmns_leaf_dict = data
 
