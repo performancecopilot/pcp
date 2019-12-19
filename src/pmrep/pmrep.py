@@ -958,16 +958,8 @@ class PMReporter(object):
                         if error.errno() == PMI_ERR_DUPINSTNAME:
                             pass
                 if self.pmconfig.descs[i].contents.sem == PM_SEM_DISCRETE and metric in self.prev_res:
-                    def lookup_inst_index(mres, instance):
-                        """ Helper to lookup instance index """
-                        index = -1
-                        for ins, _, _ in mres:
-                            index += 1
-                            if ins == instance:
-                                return index
-                        return -1
-                    index = lookup_inst_index(self.prev_res[metric], inst)
-                    if index >= 0 and value == self.prev_res[metric][index][2]:
+                    index = [idx for idx, (x, _, _) in enumerate(self.prev_res[metric]) if x == inst]
+                    if index and value == self.prev_res[metric][index[0]][2]:
                         continue
                 self.pmi.pmiPutValue(metric, name, str(value))
                 data = 1
