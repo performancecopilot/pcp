@@ -772,7 +772,7 @@ class PMReporter(object):
             """ Line writer helper """
             line = "[" + str(k).rjust(c) + "] - "
             line += metric
-            if self.pmconfig.insts[i][0][0] != PM_IN_NULL and name:
+            if name:
                 line += "[\"" + name + "\"]"
             if self.unitinfo:
                 if self.metrics[metric][2][0]:
@@ -787,7 +787,8 @@ class PMReporter(object):
             for i, metric in enumerate(self.metrics):
                 for j, n in self.get_results_iter(i, metric, results):
                     k += 1
-                    name = self.pmconfig.insts[i][1][j] if self.static_header else str(n[1])
+                    name = self.pmconfig.insts[i][1][j] if self.static_header else n[1]
+                    name = name if name is None else str(name)
                     write_line(metric, k, i, name)
         else:
             for label in self.labels:
@@ -797,7 +798,8 @@ class PMReporter(object):
                         write_line(metric, k, i, None)
                     else:
                         for j, n in self.get_results_iter(i, metric, results):
-                            name = self.pmconfig.insts[i][1][j] if not self.dynamic_header else str(n[1])
+                            name = self.pmconfig.insts[i][1][j] if not self.dynamic_header else n[1]
+                            name = name if name is None else str(name)
                             write_line(metric, k, i, name)
 
         self.writer.write("\n")

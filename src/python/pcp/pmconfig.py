@@ -993,10 +993,6 @@ class pmConfig(object):
                         # Ignore transient instances
                         if inst != pmapi.c_api.PM_IN_NULL and not name:
                             continue
-                        # Check for instances becoming available for metric for the first time
-                        if inst != pmapi.c_api.PM_IN_NULL and \
-                           self.insts[i][0][0] == pmapi.c_api.PM_IN_NULL:
-                            self.insts[i] = self.get_metric_indom(self.descs[i])
                         if early_live_filter and inst != pmapi.c_api.PM_IN_NULL and \
                            not self.filter_instance(metric, name):
                             continue
