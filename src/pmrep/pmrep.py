@@ -38,7 +38,7 @@ import os
 from pcp import pmapi, pmi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_LOCAL
 from cpmapi import PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
-from cpmapi import PM_SEM_DISCRETE, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
+from cpmapi import PM_SEM_DISCRETE, PM_TYPE_STRING
 from cpmi import PMI_ERR_DUPINSTNAME
 
 if sys.version_info[0] >= 3:
@@ -969,13 +969,7 @@ class PMReporter(object):
                     index = lookup_inst_index(self.prev_res[metric], inst)
                     if index >= 0 and value == self.prev_res[metric][index][2]:
                         continue
-                if self.pmconfig.descs[i].contents.type == PM_TYPE_STRING:
-                    self.pmi.pmiPutValue(metric, name, value)
-                elif self.pmconfig.descs[i].contents.type == PM_TYPE_FLOAT or \
-                     self.pmconfig.descs[i].contents.type == PM_TYPE_DOUBLE:
-                    self.pmi.pmiPutValue(metric, name, "%f" % value)
-                else:
-                    self.pmi.pmiPutValue(metric, name, "%d" % value)
+                self.pmi.pmiPutValue(metric, name, str(value))
                 data = 1
         self.prev_res = results # pylint: disable=attribute-defined-outside-init
 
