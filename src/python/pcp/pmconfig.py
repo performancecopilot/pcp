@@ -402,7 +402,7 @@ class pmConfig(object):
                 # Always ignore duplicates
                 return
             desc = self.util.context.pmLookupDescs(pmid)[0]
-            if desc.contents.indom == pmapi.c_api.PM_IN_NULL:
+            if desc.contents.indom == pmapi.c_api.PM_INDOM_NULL:
                 inst = ([pmapi.c_api.PM_IN_NULL], [None])     # mem.util.free
             else:
                 inst = self.get_metric_indom(desc)            # disk.dev.read
