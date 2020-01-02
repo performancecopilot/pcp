@@ -974,7 +974,7 @@ class PMReporter(object):
         if self.rank:
             for metric in results:
                 results[metric] = sorted(results[metric], key=lambda x: x[0])
-        insts = [i[0] for metric in results for i in results[metric]]
+        insts = [(metric, list(zip(*results[metric]))[0]) for metric in results if results[metric]]
         if self.fixed_header:
             self.prepare_stdout_colxrow(results)
         elif insts and (self.repeat_header == self.lines or insts != self.prev_insts):

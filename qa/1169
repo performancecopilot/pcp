@@ -112,6 +112,11 @@ pmrep $log -p -u -X test -7 -S @00:00:02 -s 2 -J 3 -e 'a = 100 * rate(disk.dev.r
                                       disk.dev.read disk.dev.write a mem.util.used | _archive_filter
 
 
+# Corner case to ensure noticing changing instances
+echo "== ensure noticing changing instances"
+log="--archive $here/archives/dyninsts2 -z"
+pmrep $log -p -u -1 -r -s 4 disk.dev.read disk.dev.write | _archive_filter
+
 # success, all done
 status=0
 exit

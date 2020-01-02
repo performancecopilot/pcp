@@ -1402,3 +1402,15 @@ Time,"disk.dev.read-sdb","disk.dev.write-sdb"
 00:00:03   sdb         3          3  100         ~
 00:00:03   sdc         3          3  100         ~
 00:00:03     =         ~          ~    ~         3
+== ensure noticing changing instances
+          d.d.read  d.d.read  d.d.write
+               sda       sdb        sdd
+             count     count      count
+00:00:00         0         0          0
+00:00:01         1         1          1
+
+          d.d.read  d.d.write  d.d.write
+               sda        sdb        sdd
+             count      count      count
+00:00:02         2          2          2
+00:00:03         3          3          3
