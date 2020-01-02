@@ -1708,8 +1708,8 @@ class pmContext(object):
             raise pmErr(status)
         retD = {}
         instL, nameL = self.pmGetInDom(indom=indom)
-        if instL is None:
-            return {}
+        if instL is None or nameL is None:
+            return retD
         n = len(instL)
         for i in range(n):
             retD.update({instL[i]: nameL[i]})
