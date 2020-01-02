@@ -11,7 +11,7 @@
     "git_commit": "{{env `GIT_COMMIT`}}"
   },
   "sensitive-variables": [
-    "client_secret"
+    "az_client_secret"
   ],
   "builders": [{
     "type": "azure-arm",

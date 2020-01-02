@@ -1,6 +1,7 @@
 steps:
   - checkout: self
     fetchDepth: 1
+
   - script: |
       set -eu
       sudo apt-get update && sudo apt-get install -y parallel
@@ -11,29 +12,35 @@ steps:
       AZ_CLIENT_SECRET: $(AZ_CLIENT_SECRET)
       AZ_TENANT: $(AZ_TENANT)
     displayName: Setup
+
   - script: ./build/ci/scripts/start_vmss.sh "$(ci_host)" "$(vm_count)"
     displayName: Start VMs
     env:
       BUILD_ID: $(Build.BuildId)
       GIT_REPO: $(Build.Repository.Uri)
       GIT_COMMIT: $(Build.SourceVersion)
+
   - script: ./build/ci/scripts/start_build.sh "$(ci_host)"
     displayName: Build
     env:
       BUILD_ID: $(Build.BuildId)
       GIT_REPO: $(Build.Repository.Uri)
       GIT_COMMIT: $(Build.SourceVersion)
+
   - script: ./build/ci/scripts/start_install.sh "$(ci_host)"
     displayName: Install
     env:
       BUILD_ID: $(Build.BuildId)
+
   - publish: ./artifacts
     displayName: Publish build artifacts
     artifact: $(ci_host)
+
   - script: ./build/ci/scripts/start_tests.sh "$(ci_host)" "$(tests)"
     displayName: Test
     env:
       BUILD_ID: $(Build.BuildId)
+
   - task: PublishTestResults@2
     displayName: Publish test results
     condition: always()
@@ -41,6 +48,7 @@ steps:
       testResultsFormat: JUnit
       testResultsFiles: '*.xml'
       testRunTitle: $(ci_host)
+
   - script: ./build/ci/scripts/stop_vmss.sh "$(ci_host)"
     displayName: Stop VMs
     condition: always()

@@ -1,7 +1,9 @@
 #!/bin/sh -u
 
+# NOTE: sudo -i is required to set the $HOME env variable to /var/lib/pcp/testsuite, which is required for some QA tests
+
 cd /var/lib/pcp/testsuite
-sudo -u pcpqa ./check $1 2>&1
+sudo -i -u pcpqa ./check $1 2>&1
 status=$?
 
 if [ $status -ne 0 ]; then
