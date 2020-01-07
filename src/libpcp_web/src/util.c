@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Red Hat.
+ * Copyright (c) 2017-2020 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1202,12 +1202,14 @@ struct metric *
 pmwebapi_add_metric(context_t *cp, const sds base, pmDesc *desc, int numnames, char **names)
 {
     struct metric	*metric;
-    sds			name = sdsempty();
+    sds			name;
     int			i;
 
     /* search for a match on any of the given names */
     if (base && (metric = dictFetchValue(cp->metrics, base)) != NULL)
 	return metric;
+
+    name = sdsempty();
     for (i = 0; i < numnames; i++) {
 	sdsclear(name);
 	name = sdscat(name, names[i]);
@@ -1217,6 +1219,7 @@ pmwebapi_add_metric(context_t *cp, const sds base, pmDesc *desc, int numnames, c
 	}
     }
     sdsfree(name);
+
     return pmwebapi_new_metric(cp, base, desc, numnames, names);
 }
 
