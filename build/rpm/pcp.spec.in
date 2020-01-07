@@ -60,7 +60,7 @@ BuildRequires: qt4-devel >= 4.4
 %endif
 %endif
 %if "%{_vendor}" == "redhat"
-BuildRequires: man hostname
+BuildRequires: man /bin/hostname
 %if "@enable_systemd@" == "false"
 BuildRequires: initscripts
 %endif
@@ -99,7 +99,7 @@ Provides: pcp-webapi
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash xz gawk sed grep coreutils findutils
 %if "%{_vendor}" == "redhat"
-Requires: hostname
+Requires: /bin/hostname
 %endif
 # which(1) comes from different places
 %if 0%{?suse_version} >= 1100
