@@ -12,6 +12,11 @@ qemu-img resize -f raw "${image_raw}" ${rounded_size}
 qemu-img convert -f raw -o subformat=fixed,force_size -O vpc "${image_raw}" "${image_vhd}"
 azcopy copy "${image_vhd}" "${image_vhd_url}"
 
+# create does not overwrite the image if the source URL matches
+az image delete \
+  --resource-group "${AZ_RESOURCE_GROUP}" \
+  --name "${AZ_IMAGE}"
+
 az image create \
   --resource-group "${AZ_RESOURCE_GROUP}" \
   --name "${AZ_IMAGE}" \

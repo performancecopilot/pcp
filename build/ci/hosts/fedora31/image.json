@@ -34,7 +34,7 @@
     "ssh_timeout": "20m"
   }],
   "provisioners": [
-    { "type": "file", "source": "common/fedora/azure_agent.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/fedora/azure_prep.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/fedora/provision.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/fedora/build.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/fedora/install.sh", "destination": "/tmp/" },
@@ -47,9 +47,10 @@
       ],
       "inline": [
         "sudo mkdir /usr/local/ci",
-        "sudo mv /tmp/azure_agent.sh /tmp/provision.sh /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci",
-        "sudo /usr/local/ci/azure_agent.sh",
-        "/usr/local/ci/provision.sh"
+        "sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci",
+        "sudo /tmp/azure_prep.sh",
+        "/tmp/provision.sh",
+        "sudo -i /bin/sh -cx 'userdel -f -r fedora && rm /etc/sudoers.d/90-cloud-init-users'"
       ]
     }
   ],
@@ -62,7 +63,7 @@
       "AZ_STORAGE_URL={{user `az_storage_url`}}",
       "AZ_STORAGE_CONTAINER={{user `az_storage_container`}}"
     ],
-    "script": "scripts/azure_image_upload.sh"
+    "script": "scripts/upload_vhd.sh"
   }]
 }
 

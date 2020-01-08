@@ -14,12 +14,16 @@ TYPE=Ethernet
 USERCTL=no
 PEERDNS=yes
 IPV6INIT=no
-NM_CONTROLLED=no
 EOF
 
 ln -s /dev/null /etc/udev/rules.d/75-persistent-net-generator.rules
 
-sed -i 's/GRUB_CMDLINE_LINUX=".*"/GRUB_CMDLINE_LINUX="rootdelay=300 console=ttyS0 earlyprintk=ttyS0 net.ifnames=0"/' /etc/default/grub
+touch /etc/cloud/cloud-init.disabled
+rm -rf /var/lib/cloud/instances
+
+sed -i 's/GRUB_CMDLINE_LINUX=".*"/GRUB_CMDLINE_LINUX="console=tty1 console=ttyS0 earlyprintk=ttyS0 rootdelay=300 net.ifnames=0"/' /etc/default/grub
+sed -i 's/GRUB_TERMINAL_OUTPUT=".*"/GRUB_TERMINAL="serial console"/' /etc/default/grub
+echo 'GRUB_SERIAL_COMMAND="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"' >> /etc/default/grub
 grub2-mkconfig -o /boot/grub2/grub.cfg
 
 echo 'add_drivers+=" hv_vmbus hv_netvsc hv_storvsc "' >> /etc/dracut.conf
