@@ -44,10 +44,11 @@ typedef struct redisSlotRange {
 typedef struct redisSlots {
     unsigned int	counter;
     unsigned int	nslots;
+    unsigned int	setup;		/* slots info all successfully setup */
+    unsigned int	refresh;	/* do slot refresh whenever possible */
     redisSlotRange	*slots;		/* all instances; e.g. CLUSTER SLOTS */
     redisMap		*keymap;	/* map command names to key position */
     dict		*contexts;	/* async contexts access by hostspec */
-    unsigned int	refresh;	/* do slot refresh whenever possible */
     void		*events;
 } redisSlots;
 

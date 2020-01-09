@@ -51,6 +51,10 @@
 #define HSET_LEN	(sizeof(HSET)-1)
 #define HVALS		"HVALS"
 #define HVALS_LEN	(sizeof(HVALS)-1)
+#define INFO		"INFO"
+#define INFO_LEN	(sizeof(INFO)-1)
+#define PING		"PING"
+#define PING_LEN	(sizeof(PING)-1)
 #define PUBLISH		"PUBLISH"
 #define PUBLISH_LEN	(sizeof(PUBLISH)-1)
 #define SADD		"SADD"

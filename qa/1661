@@ -41,8 +41,7 @@ _restore_pmlogger_control
 echo;echo === restarting pmproxy service to ensure sane starting condition 
 _service pmlogger stop 2>&1 | _filter_pcp_stop
 _service pmproxy restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
-# give pmproxy a chance to startup
-pmsleep 2; _wait_for_pmproxy
+_wait_for_pmproxy
 
 pmproxy_pid=`_get_pids_by_name -a pmproxy`
 [ -z "$pmproxy_pid" ] && echo === pmproxy not running && status=1 && exit 1

@@ -140,18 +140,25 @@ new_metric(seriesLoadBaton *baton, pmValueSet *vsp)
     char		**nameall = NULL;
     int			count, sts, i;
 
-    if ((sts = pmLookupDesc(vsp->pmid, &desc)) < 0) {
+    if ((sts = pmUseContext(context->context)) < 0) {
+	fprintf(stderr, "%s: failed to use context for PMID %s: %s\n",
+		"new_metric",
+		pmIDStr_r(vsp->pmid, idbuf, sizeof(idbuf)),
+		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+    } else if ((sts = pmLookupDesc(vsp->pmid, &desc)) < 0) {
 	if (sts == PM_ERR_IPC)
 	    context->setup = 0;
 	if (pmDebugOptions.series)
-	    fprintf(stderr, "failed to lookup metric %s descriptor: %s",
+	    fprintf(stderr, "%s: failed to lookup metric %s descriptor: %s\n",
+		"new_metric",
 		pmIDStr_r(vsp->pmid, idbuf, sizeof(idbuf)),
 		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     } else if ((sts = count = pmNameAll(vsp->pmid, &nameall)) < 0) {
 	if (sts == PM_ERR_IPC)
 	    context->setup = 0;
 	if (pmDebugOptions.series)
-	    fprintf(stderr, "failed to lookup metric %s names: %s",
+	    fprintf(stderr, "%s: failed to lookup metric %s names: %s\n",
+		"new_metric",
 		pmIDStr_r(vsp->pmid, idbuf, sizeof(idbuf)),
 		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     }
@@ -171,7 +178,7 @@ new_metric(seriesLoadBaton *baton, pmValueSet *vsp)
     pmwebapi_metric_hash(metric);
 
     if (pmDebugOptions.series) {
-	fprintf(stderr, "new_metric [%s] names:",
+	fprintf(stderr, "%s [%s] names:\n", "new_metric",
 		pmIDStr_r(vsp->pmid, idbuf, sizeof(idbuf)));
 	for (i = 0; i < count; i++) {
 	    pmwebapi_hash_str(metric->names[i].hash, idbuf, sizeof(idbuf));
@@ -1023,7 +1030,7 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
     sds			msg;
     int			i;
 
-    if (data == NULL || data->slots == NULL)
+    if (data == NULL || data->slots == NULL || data->slots->setup == 0)
 	return;
 
     baton = (seriesLoadBaton *)calloc(1, sizeof(seriesLoadBaton));
@@ -1045,11 +1052,12 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
     initSeriesGetContext(&baton->pmapi, baton);
     p->baton = baton;
 
-    if (pmDebugOptions.discovery)
-	fprintf(stderr, "%s: new source %s context=%d\n",
-			"pmSeriesDiscoverSource", p->context.name, p->ctx);
-
     cp = &baton->pmapi.context;
+
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "%s: new source %s context=%p ctxid=%d\n",
+			"pmSeriesDiscoverSource", p->context.name, cp, p->ctx);
+
     cp->context = p->ctx;
     cp->type = p->context.type;
     cp->name.sds = sdsdup(p->context.name);
@@ -1102,6 +1110,9 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
     char		errmsg[PM_MAXERRMSGLEN], idbuf[64];
     sds			msg;
     int			i, id;
+
+    if (baton == NULL || baton->slots == NULL || baton->slots->setup == 0)
+	return;
 
     switch (type) {
     case PM_LABEL_CONTEXT:
@@ -1235,9 +1246,12 @@ pmSeriesDiscoverMetric(pmDiscoverEvent *event,
 
     if (pmDebugOptions.discovery) {
 	for (i = 0; i < numnames; i++)
-	    fprintf(stderr, "pmSeriesDiscoverMetric: [%d/%d] %s - %s\n",
+	    fprintf(stderr, "%s: [%d/%d] %s - %s\n", "pmSeriesDiscoverMetric",
 			i + 1, numnames, pmIDStr(desc->pmid), names[i]);
     }
+
+    if (baton == NULL || baton->slots == NULL || baton->slots->setup == 0)
+	return;
 
     if ((metric = pmwebapi_add_metric(&baton->pmapi.context,
 				NULL, desc, numnames, names)) == NULL) {
@@ -1256,6 +1270,9 @@ pmSeriesDiscoverValues(pmDiscoverEvent *event, pmResult *result, void *arg)
 
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "%s: result numpmids=%d\n", "pmSeriesDiscoverValues", result->numpmid);
+
+    if (baton == NULL || baton->slots == NULL || baton->slots->setup == 0)
+	return;
 
     seriesBatonReference(context, "pmSeriesDiscoverValues");
     baton->arg = arg;
@@ -1277,7 +1294,10 @@ pmSeriesDiscoverInDom(pmDiscoverEvent *event, pmInResult *in, void *arg)
     int			i;
 
     if (pmDebugOptions.discovery)
-	fprintf(stderr, "pmSeriesDiscoverInDom: %s\n", pmInDomStr(id));
+	fprintf(stderr, "%s: %s\n", "pmSeriesDiscoverInDom", pmInDomStr(id));
+
+    if (baton == NULL || baton->slots == NULL || baton->slots->setup == 0)
+	return;
 
     if ((domain = pmwebapi_add_domain(context, pmInDom_domain(id))) == NULL) {
 	infofmt(msg, "%s: failed indom discovery (domain %u)",
@@ -1309,11 +1329,10 @@ pmSeriesDiscoverText(pmDiscoverEvent *event,
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
 
-    (void)baton;
-    (void)ident;
-    (void)type;
-    (void)text;
-    (void)arg;
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "%s: ident=%u type=%u arg=%p\n",
+			"pmSeriesDiscoverText", ident, type, arg);
 
-    /* for Redis, help text will need special handling (RediSearch) */
+    if (baton == NULL || baton->slots == NULL || baton->slots->setup == 0)
+	return;
 }

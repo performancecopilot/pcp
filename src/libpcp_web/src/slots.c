@@ -356,6 +356,21 @@ redisSlotsRequest(redisSlots *slots, const char *topic,
 
     if (UNLIKELY(pmDebugOptions.desperate))
 	fputs(cmd, stderr);
+    if (UNLIKELY(!key && !slots->setup)) {
+	/*
+	 * First request must be CLUSTER, PING, or similar - must
+	 * not allow regular requests until these have completed.
+	 * This is because the low layers accumulate async requests
+	 * until connection establishment, which might not happen.
+	 * Over time this becomes a memory leak - if we do not ever
+	 * establish an initial connection).
+	 */
+	if (strcmp(topic, CLUSTER) != 0 &&
+	    strcmp(topic, PING) != 0 && strcmp(topic, INFO) != 0) {
+	    sdsfree(cmd);
+	    return -ENOTCONN;
+	}
+    }
 
     sts = redisAsyncFormattedCommand(context, callback, cmd, arg);
     if (key)

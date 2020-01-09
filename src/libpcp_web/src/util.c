@@ -1233,21 +1233,24 @@ pmwebapi_new_pmid(context_t *cp, const sds name, pmID pmid,
     int			sts, numnames;
 
     if ((sts = pmUseContext(cp->context)) < 0) {
-	fprintf(stderr, "failed to use context for PMID %s: %s",
+	fprintf(stderr, "%s: failed to use context for PMID %s: %s\n",
+		"pmwebapi_new_pmid",
 		pmIDStr_r(pmid, buffer, sizeof(buffer)),
 		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     } else if ((sts = pmLookupDesc(pmid, &desc)) < 0) {
 	if (sts == PM_ERR_IPC)
 	    cp->setup = 0;
 	if (pmDebugOptions.series)
-	    fprintf(stderr, "failed to lookup metric %s descriptor: %s",
+	    fprintf(stderr, "%s: failed to lookup metric %s descriptor: %s\n",
+		    "pmwebapi_new_pmid",
 		    pmIDStr_r(pmid, buffer, sizeof(buffer)),
 		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     } else if ((numnames = sts = pmNameAll(pmid, &names)) < 0) {
 	if (sts == PM_ERR_IPC)
 	    cp->setup = 0;
 	if (pmDebugOptions.series)
-	    fprintf(stderr, "failed to lookup metric %s names: %s",
+	    fprintf(stderr, "%s: failed to lookup metric %s names: %s\n",
+		    "pmwebapi_new_pmid",
 		    pmIDStr_r(pmid, buffer, sizeof(buffer)),
 		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     } else {

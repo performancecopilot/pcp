@@ -1,0 +1,8 @@
+QA output created by 1573
+=== extract initial rss
+=== restarting pmlogger
+=== wait for pmproxy to process filesystem events
+=== extract updated rss
+=== checking rss within tolerance
+=== see 1573.full for pmproxy rss and logs
+=== restarting pmproxy

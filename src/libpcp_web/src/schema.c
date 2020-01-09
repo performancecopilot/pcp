@@ -1545,7 +1545,10 @@ redis_load_slots_callback(
     redisSlots		*slots = baton->slots;
 
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_load_slots_callback");
+
+    slots->setup = 1;	/* we've received initial response from Redis */
     slots->refresh = 0;	/* we're processing CLUSTER SLOTS command now */
+
     /* no cluster redirection checking is needed for this callback */
     sdsfree(cmd);
 
