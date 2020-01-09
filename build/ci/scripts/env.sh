@@ -14,6 +14,10 @@ export AZ_STORAGE_ACCOUNT="pcpstore"
 export AZ_STORAGE_URL="https://pcpstore.blob.core.windows.net"
 export AZ_STORAGE_CONTAINER="vhd-images"
 
+bintray_subject="agerstmayr"
+bintray_package="pcp"
+bintray_params=""
+
 if [ -e "hosts/${CI_HOST}/env.sh" ]; then
     . "hosts/${CI_HOST}/env.sh"
 fi

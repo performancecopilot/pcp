@@ -1,10 +1,9 @@
 #!/bin/sh -eu
 
-PREV_PWD=$PWD
 cd "$(dirname "$0")/.."
 . scripts/env.sh
 . scripts/vmss.env.sh
-artifacts_dir="${PREV_PWD}/artifacts/"
+artifacts_dir="$2"
 
 echo Host IPs: ${HOST_IPS}
 echo Builder IPs: ${BUILDER_IP}

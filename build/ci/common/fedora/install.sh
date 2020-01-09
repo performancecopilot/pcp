@@ -1,4 +1,4 @@
-#!/bin/sh -eu
+#!/bin/sh -eux
 
 cd ./artifacts
 sudo rpm -i *.rpm

@@ -27,7 +27,7 @@ steps:
       GIT_REPO: $(Build.Repository.Uri)
       GIT_COMMIT: $(Build.SourceVersion)
 
-  - script: ./build/ci/scripts/start_install.sh "$(ci_host)"
+  - script: ./build/ci/scripts/start_install.sh "$(ci_host)" "$(pwd)/artifacts"
     displayName: Install
     env:
       BUILD_ID: $(Build.BuildId)
