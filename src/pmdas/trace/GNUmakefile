@@ -101,7 +101,7 @@ MY_INC_DIR	= -I$(PCP_INC_DIR)/..
 else
 MY_INC_DIR	=
 endif
-ifneq "$(PCP_LIB_DIR)" "/usr/lib"
+ifeq "$(findstring $(PCP_LIB_DIR), /usr/lib /usr/lib64)" ""
 # for ld add -L<run-time-lib-dir> and include -rpath when
 # $(PCP_LIB_DIR) may not be on the default ld search path.
 #
