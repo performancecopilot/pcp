@@ -4,6 +4,14 @@ pcp (5.0.3-1) unstable; urgency=low
 
  -- Nathan Scott <nathans@debian.org>  Fri, 28 Feb 2020 21:47:18 +1100
 
+pcp (5.0.2-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Drop remaining python2 build commands (closes: #947916)
+  * Build-depend on python3-all-dev for the py3 extension build.
+
+ -- Martin Pitt <mpitt@debian.org>  Sat, 04 Jan 2020 09:58:40 +0000
+
 pcp (5.0.2-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
