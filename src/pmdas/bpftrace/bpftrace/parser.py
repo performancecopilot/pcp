@@ -58,7 +58,7 @@ def parse_code(script: Script):
         elif func == 'count':
             vardef.single = not bool(key)
             vardef.semantics = PM_SEM_COUNTER
-            if key in ['ustack', 'kstack']:
+            if re.search(r'(^|,)[ku]stack($|,)', key):
                 vardef.metrictype = MetricType.Stacks
         else:
             vardef.single = not bool(key)

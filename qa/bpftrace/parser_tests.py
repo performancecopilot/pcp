@@ -8,29 +8,43 @@ class ParserTests(unittest.TestCase):
 
     def testParseHist(self):
         script = Script("""
-	if ($ns) {
-		@usecs = hist((nsecs - $ns) / 1000);
-	}
-	delete(@qtime[args->next_pid]);
-""")
+        if ($ns) {
+            @usecs = hist((nsecs - $ns) / 1000);
+        }
+        delete(@qtime[args->next_pid]);
+        """)
         script = parse_code(script)
         self.assertEqual(script.variables['@usecs'].metrictype, MetricType.Histogram)
         self.assertEqual(script.variables['@usecs'].semantics, PM_SEM_COUNTER)
 
     def testParseStackProfiler(self):
-        script = Script('profile:hz:99 { @[kstack] = count(); }')
+        script = Script("""
+        profile:hz:99 { @[kstack] = count(); }
+        @ck[comm,kstack] = count();
+        @u[ustack] = count();
+        @a[comm,kstack,ustack] = count();
+        @n[nokstack] = count();
+        """)
         script = parse_code(script)
         self.assertEqual(script.variables['@'].metrictype, MetricType.Stacks)
         self.assertEqual(script.variables['@'].semantics, PM_SEM_COUNTER)
+        self.assertEqual(script.variables['@ck'].metrictype, MetricType.Stacks)
+        self.assertEqual(script.variables['@ck'].semantics, PM_SEM_COUNTER)
+        self.assertEqual(script.variables['@u'].metrictype, MetricType.Stacks)
+        self.assertEqual(script.variables['@u'].semantics, PM_SEM_COUNTER)
+        self.assertEqual(script.variables['@a'].metrictype, MetricType.Stacks)
+        self.assertEqual(script.variables['@a'].semantics, PM_SEM_COUNTER)
+        self.assertEqual(script.variables['@n'].metrictype, None)
+        self.assertEqual(script.variables['@n'].semantics, PM_SEM_COUNTER)
 
     def testParseLhist(self):
         script = Script("""
-profile:hz:99
-/pid/
-{
-	@cpu = lhist(cpu, 0, 1000, 1);
-}
-""")
+        profile:hz:99
+        /pid/
+        {
+            @cpu = lhist(cpu, 0, 1000, 1);
+        }
+        """)
         script = parse_code(script)
         self.assertEqual(script.variables['@cpu'].metrictype, MetricType.Histogram)
         self.assertEqual(script.variables['@cpu'].semantics, PM_SEM_COUNTER)
