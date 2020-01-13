@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2018-2019 Red Hat.
+# Copyright (C) 2018-2020 Red Hat.
 # Copyright (C) 2004-2016 Dag Wieers <dag@wieers.com>
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -242,6 +242,7 @@ class DstatPlugin(object):
         self.colorstep = None
         self.grouptype = None   # flag for metric/inst group displays
         self.cullinsts = None   # regex pattern for dropped instances
+        self.valuesets = {} # dict of sample values within one 'delay'
         self.metrics = []   # list of all metrics (states) for plugin
         self.names = []     # list of all column names for the plugin
         self.mgroup = []    # list of names of metrics in this plugin
@@ -278,6 +279,7 @@ class DstatPlugin(object):
         if metric[12] is None:
             metric[12] = self.cullinsts
         metric[13] = self   # back-pointer to this from metric dict
+        metric[14] = self.valuesets  # recent samples for averaging
 
     def prepare_grouptype(self, instlist, fullinst):
         """Setup a list of instances from the command line"""
@@ -419,7 +421,8 @@ class DstatTool(object):
         self.pmconfig = pmconfig.pmConfig(self)
 
         ### Add additional dstat metric specifiers
-        dspec = (None, 'printtype', 'colorstep', 'grouptype', 'cullinsts', 'plugin')
+        dspec = (None, 'printtype', 'colorstep', 'grouptype', 'cullinsts',
+                'plugin', 'valuesets')
         mspec = self.pmconfig.metricspec + dspec
         self.pmconfig.metricspec = mspec
 
@@ -495,7 +498,7 @@ class DstatTool(object):
         # values - 0:text label, 1:instance(s), 2:unit/scale, 3:type,
         #          4:width, 5:pmfg item, 6:precision, 7:limit,
         #          [ 8:printtype, 9:colorstep, 10:grouptype, 11:cullinsts,
-        #           12:plugin <- Dstat extras ]
+        #           12:plugin, 13:valuesets <- Dstat extras ]
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -1121,22 +1124,70 @@ class DstatTool(object):
         #sys.stderr.write("tshow result:\n%s%s\n" % (line, THEME['default']))
         return line
 
+    def mgetkey(self, label, instid):
+        "Get valueset lookup key for a given metric instance"
+        return label + '[' + str(instid) + ']'
+
+    def mlookup(self, valuesets, key):
+        "Perform valueset lookup for a given metric instance"
+        try:
+            valueset = valuesets[key]
+        except KeyError:
+            valueset = []
+        return valueset
+
+    def mappend(self, valuesets, key, pmtype, value):
+        "Add value into the given valueset for a later averaging calculation"
+        valueset = self.mlookup(valuesets, key)
+        if value is None or pmtype not in [PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64,
+                                    PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE]:
+            valueset = []
+        valueset.append(value)
+        return valueset
+
+    def maverage(self, valueset, key):
+        "Perform valueset averaging calculation, return current average"
+        value = sum(valueset) / len(valueset)
+        #sys.stderr.write("average[%s] %s = %s / %s%s\n" %
+        #(key, value, sum(valueset), len(valueset), THEME['default']))
+        return value
+
+    def mupdate(self, valuesets, valueset, key):
+        "Store latest values in a set in the valueset array"
+        if valueset:
+            valuesets[key] = valueset
+
+    def mcleanup(self, valuesets, key):
+        "Reset a valueset for storing values for the next sample"
+        if step == op.delay:
+            valueset = self.mlookup(valuesets, key)
+            valueset.clear()
+            return valueset
+        return None
+
     def mshow(self, plugin, index, result):
         "Display stat results"
         metric = op.metrics[plugin.mgroup[index]]
         #sys.stderr.write("Result metric: %s\n" % metric)
+        label = metric[0]
         units = metric[2][1]
         width = metric[4]
         pmtype = metric[5].pmtype
         printtype = metric[8]
         colorstep = metric[9]
+        valuesets = metric[13]
 
         line = ''
         count = 0
         sep = CHAR['space']
-        for _, _, value in result:
+        for instid, _, value in result:
             if count > 0:
                 line = line + sep
+            key = self.mgetkey(label, instid)
+            valueset = self.mappend(valuesets, key, pmtype, value)
+            value = self.maverage(valueset, key)
+            self.mcleanup(valuesets, key)
+            self.mupdate(valuesets, valueset, key)
             #sys.stderr.write("mshow result value:\n%s%s\n" % (value, THEME['default']))
             line = line + self.cprint(value, units, printtype, pmtype, width, colorstep)
             count += 1
@@ -1147,7 +1198,7 @@ class DstatTool(object):
 
     @staticmethod
     def roundcsv(var):
-        '''round value for CSV output'''
+        "Value rounding for comma-separated-value output"
         if var is None:
             return ''
         if var != round(var):
@@ -1193,16 +1244,33 @@ class DstatTool(object):
 
         line = ''
         count = 0
-        totals = [0] * len(plugin.mgroup)
         col = THEME['frame'] + CHAR['colon']
 
+        # first iterate over the result and update all metric instance valuesets
+        for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
+            metric = op.metrics[plugin.mgroup[i]]
+            result = results[name]
+            valuesets = metric[13]
+            label = metric[0]
+            for instid, _, value in result:
+                key = self.mgetkey(label, instid)
+                valueset = self.mappend(valuesets, key, pmtype, value)
+                self.mupdate(valuesets, valueset, key)
+
+        # next, iterate over specific instances requested and report values
         for inst in plugin.igroup:      # e.g. [cpu0, cpu1, total]
             for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
+                metric = op.metrics[plugin.mgroup[i]]
                 result = results[name]
+                valuesets = metric[13]
+                label = metric[0]
                 value = None
-                for _, instname, val in result:
+
+                for instid, instname, _ in result:
                     if instname == inst:
-                        value = val
+                        key = self.mgetkey(label, instid)
+                        valueset = self.mlookup(valuesets, key)
+                        value = self.maverage(valueset, key)
                 #sys.stderr.write("[%s] inst=%s value=%s\n" % (name, inst, str(value)))
                 if not self.instance_match(inst, plugin):
                     continue
@@ -1215,13 +1283,22 @@ class DstatTool(object):
                 line = line + self.cprint(value, units, printtype, pmtype, width, colorstep)
                 count += 1
 
+        # next, handle the total column (if requested) and report a value
         if plugin.grouptype > 1:   # report 'total' (sum) calculation
+            totals = [0] * len(plugin.mgroup)
             for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
+                metric = op.metrics[name]
                 values = 0
                 result = results[name]
-                for _, instname, val in result:
-                    totals[i] += val
+                valuesets = metric[13]
+                label = metric[0]
+
+                for instid, instname, _ in result:
+                    key = self.mgetkey(label, instid)
+                    valueset = self.mlookup(valuesets, key)
+                    totals[i] += self.maverage(valueset, key)
                     values += 1
+
             if values == 0:
                 totals = [None] * len(plugin.mgroup)
             if values and plugin.printtype == 'p':
@@ -1230,6 +1307,17 @@ class DstatTool(object):
             if line != '':
                 line = line + col
             line = line + self.cprintlist(totals, units, printtype, pmtype, width, colorstep)
+
+        # finally, throw away any values that are no longer needed
+        for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
+            metric = op.metrics[name]
+            valuesets = metric[13]
+            label = metric[0]
+            for instid, _, _ in result:
+                key = self.mgetkey(label, instid)
+                valueset = self.mcleanup(valuesets, key)
+                self.mupdate(valuesets, valueset, key)
+
         #sys.stderr.write("gshow result line:\n%s%s\n" % (line, THEME['default']))
         return line
 
@@ -1272,7 +1360,7 @@ class DstatTool(object):
                 if line != '':
                     line = line + CHAR['sep']
                 line = line + self.roundcsv(value)
-        #sys.stderr.write("gshow result line:\n%s%s\n" % (line, THEME['default']))
+        #sys.stderr.write("gshowcsv result line:\n%s%s\n" % (line, THEME['default']))
         return line
 
     def cprintlist(self, values, units, prtype, pmtype, width, colorstep):
