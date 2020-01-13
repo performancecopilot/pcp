@@ -178,3 +178,8 @@ PCP_WEB_1.11 {
   global:
     pmSeriesLabelValues;
 } PCP_WEB_1.10;
+
+PCP_WEB_1.12 {
+  global:
+    SDS_NOINIT;
+} PCP_WEB_1.11;
