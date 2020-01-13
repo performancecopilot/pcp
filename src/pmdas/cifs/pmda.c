@@ -25,8 +25,6 @@ static int _isDSO = 1; /* for local contexts */
 
 static char *cifs_procfsdir = "/proc/fs/cifs";
 static char *cifs_statspath = "";
-unsigned int global_version_major;
-unsigned int global_version_minor;
 
 pmdaIndom indomtable[] = {
     { .it_indom = CIFS_FS_INDOM },
