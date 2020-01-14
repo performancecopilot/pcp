@@ -99,8 +99,11 @@ typedef struct {
     char		buffer[MMV_STRINGMAX];	/* temporary fetch buffer */
 } agent_t;
 
-#define MAX_MMV_COUNT 10000		/* enforce reasonable limits */
+/* enforce reasonable limits for various data structures */
+#define MAX_MMV_ITEMS	((1<<10)-1)
+#define MAX_MMV_SERIAL	((1<<22)-1)
 #define MAX_MMV_CLUSTER ((1<<12)-1)
+#define MAX_MMV_LABELS	((1<<8)-1)
 
 /*
  * Check cluster number validity (must be in range 0 .. 1<<12).
@@ -588,11 +591,11 @@ map_stats(pmdaExt *pmda)
 
 	    switch (type) {
 	    case MMV_TOC_METRICS:
-		if (count > MAX_MMV_COUNT) {
+		if (count > MAX_MMV_ITEMS) {
 		    if (pmDebugOptions.appl0) {
 			pmNotifyErr(LOG_ERR, "MMV: %s - "
 					"metrics count: %d > %d",
-					s->name, count, MAX_MMV_COUNT);
+					s->name, count, MAX_MMV_ITEMS);
 		    }
 		    continue;
 		}
@@ -692,11 +695,11 @@ map_stats(pmdaExt *pmda)
 		break;
 
 	    case MMV_TOC_INDOMS:
-		if (count > MAX_MMV_COUNT) {
+		if (count > MAX_MMV_SERIAL) {
 		    if (pmDebugOptions.appl0) {
 			pmNotifyErr(LOG_ERR, "MMV: %s - "
 					"indoms count: %d > %d",
-					s->name, count, MAX_MMV_COUNT);
+					s->name, count, MAX_MMV_SERIAL);
 		    }
 		    continue;
 		}
@@ -718,15 +721,6 @@ map_stats(pmdaExt *pmda)
 		    pmdaIndom *ip;
 		    __uint64_t ioffset = id[k].offset;
 		    __uint32_t icount = id[k].count;
-
-		    if (icount > MAX_MMV_COUNT) {
-			if (pmDebugOptions.appl0) {
-			    pmNotifyErr(LOG_ERR, "MMV: %s - "
-					"indom[%d] count: %d > %d",
-					s->name, k, icount, MAX_MMV_COUNT);
-			}
-			continue;
-		    }
 
 		    if (s->version == MMV_VERSION1) {
 			ioffset += (icount * sizeof(mmv_disk_instance_t));
@@ -763,14 +757,6 @@ map_stats(pmdaExt *pmda)
 		break;
 
 	    case MMV_TOC_VALUES:
-		if (count > MAX_MMV_COUNT) {
-		    if (pmDebugOptions.appl0) {
-			pmNotifyErr(LOG_ERR, "MMV: %s - "
-					"values count: %d > %d",
-					s->name, count, MAX_MMV_COUNT);
-		    }
-		    continue;
-		}
 		offset += (count * sizeof(mmv_disk_value_t));
 		if (s->len < offset) {
 		    if (pmDebugOptions.appl0) {
@@ -791,11 +777,11 @@ map_stats(pmdaExt *pmda)
 		break;
 		
 	    case MMV_TOC_LABELS:
-	        if (count > MAX_MMV_COUNT) {
+	        if (count > MAX_MMV_LABELS) {
 		    if (pmDebugOptions.appl0) {
 		        pmNotifyErr(LOG_ERR, "MMV: %s - "
 		                   "labels count: %d > %d",
-				    s->name, count, MAX_MMV_COUNT);
+				    s->name, count, MAX_MMV_LABELS);
 		    }
 		    continue;
 		}

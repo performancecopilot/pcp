@@ -31,3 +31,103 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+
+mmv.spacex.jvm.compilation
+    inst [107296233 or "qa108"] value NUMBER
+
+mmv.spacex.keypool
+    inst [22580347 or "qa108/cavariationcorr"] value NUMBER
+    inst [22842569 or "qa108/cavariationlink"] value NUMBER
+    inst [31157271 or "qa108/projectrole"] value NUMBER
+    inst [70925961 or "qa108/cabudget"] value NUMBER
+    inst [179478139 or "qa108/fileuploaderror"] value NUMBER
+    inst [179595281 or "qa108/fileuploadentry"] value NUMBER
+    inst [204648886 or "qa108/alert"] value NUMBER
+    inst [209183446 or "qa108/filex"] value NUMBER
+    inst [211660573 or "qa108/tdrresponse"] value NUMBER
+    inst [211987711 or "qa108/tdrattachment"] value NUMBER
+    inst [221149241 or "qa108/share"] value NUMBER
+    inst [223327847 or "qa108/userx"] value NUMBER
+    inst [253387654 or "qa108/cabudgetitemeventlog"] value NUMBER
+    inst [255479847 or "qa108/userrole"] value NUMBER
+    inst [292502285 or "qa108/project"] value NUMBER
+    inst [295666290 or "qa108/corr_number_audit"] value NUMBER
+    inst [355938567 or "qa108/customfieldunit"] value NUMBER
+    inst [396449249 or "qa108/rolesecuredasset"] value NUMBER
+    inst [438966201 or "qa108/caoption"] value NUMBER
+    inst [439916619 or "qa108/cddoctype"] value NUMBER
+    inst [451796822 or "qa108/cacontract"] value NUMBER
+    inst [537094992 or "qa108/tdrtender"] value NUMBER
+    inst [541819053 or "qa108/membershiprequest"] value NUMBER
+    inst [564969554 or "qa108/entityimport"] value NUMBER
+    inst [614358068 or "qa108/taskaggregate"] value NUMBER
+    inst [620281358 or "qa108/grantlog"] value NUMBER
+    inst [639797974 or "qa108/document_import_type"] value NUMBER
+    inst [678483058 or "qa108/tdraddendum"] value NUMBER
+    inst [678727156 or "qa108/document_import_discipline"] value NUMBER
+    inst [699451099 or "qa108/tdrnotify"] value NUMBER
+    inst [730735121 or "qa108/caterminology"] value NUMBER
+    inst [743233481 or "qa108/approvable_item_key_mapping"] value NUMBER
+    inst [743928935 or "qa108/organization"] value NUMBER
+    inst [762888983 or "qa108/cacontractgroup"] value NUMBER
+    inst [769562794 or "qa108/tdrtemplate"] value NUMBER
+    inst [799192016 or "qa108/eventlog"] value NUMBER
+    inst [838395100 or "qa108/role"] value NUMBER
+    inst [848656082 or "qa108/podstate"] value NUMBER
+    inst [885781011 or "qa108/division"] value NUMBER
+    inst [912770407 or "qa108/cavariationbudgetitem"] value NUMBER
+    inst [928559844 or "qa108/cabudgetitem"] value NUMBER
+    inst [951393271 or "qa108/documenttypeabbreviation"] value NUMBER
+    inst [977012748 or "qa108/tasktypestate"] value NUMBER
+    inst [977951095 or "qa108/projectemail"] value NUMBER
+    inst [999356003 or "qa108/fileupload"] value NUMBER
+    inst [1001749992 or "qa108/attributemapping"] value NUMBER
+    inst [1013901834 or "qa108/attribute"] value NUMBER
+    inst [1063304385 or "qa108/preference"] value NUMBER
+    inst [1075834631 or "qa108/cdstatus"] value NUMBER
+    inst [1156264217 or "qa108/next_doc_num"] value NUMBER
+    inst [1163616614 or "qa108/documentimport"] value NUMBER
+    inst [1181883127 or "qa108/cdprojectcopyhist"] value NUMBER
+    inst [1218573425 or "qa108/exttender"] value NUMBER
+    inst [1425229416 or "qa108/corr_footer"] value NUMBER
+    inst [1434360911 or "qa108/cavariation"] value NUMBER
+    inst [1513102272 or "qa108/cacontracteventlog"] value NUMBER
+    inst [1540199185 or "qa108/manifestimportprofile"] value NUMBER
+    inst [1566802330 or "qa108/approvable_item"] value NUMBER
+    inst [1618219483 or "qa108/request_approver"] value NUMBER
+    inst [1622546719 or "qa108/webcam"] value NUMBER
+    inst [1626492032 or "qa108/correspondence"] value NUMBER
+    inst [1695723623 or "qa108/folderitem"] value NUMBER
+    inst [1708866471 or "qa108/tdrrfi"] value NUMBER
+    inst [1755878938 or "qa108/distributionlog"] value NUMBER
+    inst [1758661871 or "qa108/approvable_item_configuration"] value NUMBER
+    inst [1759126289 or "qa108/corr_reason"] value NUMBER
+    inst [1785984548 or "qa108/groupuser"] value NUMBER
+    inst [1808867930 or "qa108/projectorganization"] value NUMBER
+    inst [1819647703 or "qa108/corr_thread"] value NUMBER
+    inst [1845270670 or "qa108/docfile"] value NUMBER
+    inst [1878495177 or "qa108/savedsearch"] value NUMBER
+    inst [1914830180 or "qa108/webcam_archive"] value NUMBER
+    inst [1918302215 or "qa108/approval_request"] value NUMBER
+    inst [2034645475 or "qa108/faxaddress"] value NUMBER
+    inst [2053115903 or "qa108/corr_note"] value NUMBER
+    inst [2053304135 or "qa108/corr_type"] value NUMBER
+    inst [2068202310 or "qa108/groups"] value NUMBER
+    inst [2094092901 or "qa108/propertyconfiguration"] value NUMBER
+    inst [2094321593 or "qa108/cavariationeventlog"] value NUMBER
+    inst [2099708076 or "qa108/folder"] value NUMBER
+    inst [2104373460 or "qa108/accessibleasset"] value NUMBER
+    inst [2117158819 or "qa108/organizationsnapshot"] value NUMBER
+    inst [2136477134 or "qa108/alertlog"] value NUMBER
+=== std err ===
+[DATE] pminfo(PID) Warning: invalid item 1024 (mmv.spacex.packages.request.circuitbreaker.fallback) in large-parfait, ignored
+[DATE] pminfo(PID) Error: pmdaFetch: PMID 70.42.464 not handled by fetch callback
+[DATE] pminfo(PID) Error: pmdaFetch: PMID 70.42.464 not handled by fetch callback
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: PCP_BIN_DIR/pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init --fetch mmv.spacex.jvm.compilation mmv.spacex.keypool
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
