@@ -14,7 +14,7 @@ export AZ_STORAGE_ACCOUNT="pcpstore"
 export AZ_STORAGE_URL="https://pcpstore.blob.core.windows.net"
 export AZ_STORAGE_CONTAINER="vhd-images"
 
-bintray_subject="agerstmayr"
+bintray_subject="pcp"
 bintray_package="pcp"
 bintray_params=""
 
