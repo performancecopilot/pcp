@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2019 Red Hat.
+dnl Copyright (c) 2012-2020 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl
@@ -822,7 +822,7 @@ AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
 AC_SUBST(PYLINT)
 
 dnl check if python available for the build and runtime
-AC_CHECK_PROGS(PYTHON, [python python2.7])
+AC_CHECK_PROGS(PYTHON, [python2 python2.7 python])
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
