@@ -19,6 +19,23 @@ in
 		;;
 esac
 
+if [ -f /etc/lsb-release ]
+then
+    . /etc/lsb-release
+    if [ "$DISTRIB_ID" = Ubuntu ]
+    then
+	# This test fails for Ubuntu 19.10 because the linux headers used
+	# by the BPF compiler appear to be knackered.
+	#
+	case "$DISTRIB_RELEASE"
+	in
+	    19.10)
+		_notrun "bcc does not work for this test on Ubuntu $DISTRIB_RELEASE"
+		;;
+	esac
+    fi
+fi
+
 # sch_netem is part of optional kernel-modules-extra on Fedora
 $sudo modprobe sch_netem
 lsmod | grep sch_netem >/dev/null 2>&1 \
