@@ -24,9 +24,9 @@
     "managed_image_name": "{{user `az_image`}}",
 
     "os_type": "Linux",
-    "image_publisher": "Canonical",
-    "image_offer": "UbuntuServer",
-    "image_sku": "18.04-LTS",
+    "image_publisher": "RedHat",
+    "image_offer": "RHEL",
+    "image_sku": "7-RAW",
 
     "location": "{{user `az_location`}}",
     "vm_size": "{{user `az_vm_size`}}",
@@ -37,8 +37,8 @@
     }
   }],
   "provisioners": [
-    { "type": "file", "source": "common/debian/build.sh", "destination": "/tmp/" },
-    { "type": "file", "source": "common/debian/install.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/redhat/build.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/redhat/install.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/linux/test.sh", "destination": "/tmp/" },
     { "type": "shell", "inline": ["sudo mkdir /usr/local/ci && sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci"]},
     {
@@ -49,8 +49,8 @@
         "GIT_COMMIT={{user `git_commit`}}"
       ],
       "scripts": [
-        "hosts/ubuntu1804/setup_bcc_upstream.sh",
-        "common/debian/provision.sh",
+        "hosts/rhel7/setup_epel.sh",
+        "common/redhat/provision.sh",
         "common/linux/deprovision.sh"
       ]
     }

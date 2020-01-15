@@ -29,5 +29,5 @@ grub2-mkconfig -o /boot/grub2/grub.cfg
 echo 'add_drivers+=" hv_vmbus hv_netvsc hv_storvsc "' >> /etc/dracut.conf
 dracut -f -v
 
-dnf install -y python-pyasn1 WALinuxAgent
+yum install -y python-pyasn1 WALinuxAgent
 systemctl enable waagent

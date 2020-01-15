@@ -34,25 +34,25 @@
     "ssh_timeout": "20m"
   }],
   "provisioners": [
-    { "type": "file", "source": "common/fedora/azure_prep.sh", "destination": "/tmp/" },
-    { "type": "file", "source": "common/fedora/provision.sh", "destination": "/tmp/" },
-    { "type": "file", "source": "common/fedora/build.sh", "destination": "/tmp/" },
-    { "type": "file", "source": "common/fedora/install.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/redhat/build.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/redhat/install.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/linux/test.sh", "destination": "/tmp/" },
+    { "type": "shell", "inline": ["sudo mkdir /usr/local/ci && sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci"]},
     {
       "type": "shell",
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
       "environment_vars": [
         "GIT_REPO={{user `git_repo`}}",
         "GIT_COMMIT={{user `git_commit`}}"
       ],
-      "inline": [
-        "sudo mkdir /usr/local/ci",
-        "sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci",
-        "sudo /tmp/azure_prep.sh",
-        "/tmp/provision.sh",
-        "sudo -i /bin/sh -cx 'userdel -f -r fedora && rm /etc/sudoers.d/90-cloud-init-users'"
+      "scripts": [
+        "hosts/fedora31/upgrade_bcc.sh",
+        "common/fedora/provision.sh",
+        "common/redhat/azure_prep.sh",
+        "common/linux/deprovision.sh"
       ]
-    }
+    },
+    { "type": "shell", "inline": ["sudo -i /bin/sh -cx 'userdel -f -r fedora && rm /etc/sudoers.d/90-cloud-init-users'"]}
   ],
   "post-processors": [{
     "type": "shell-local",

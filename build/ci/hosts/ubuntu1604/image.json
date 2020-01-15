@@ -37,20 +37,20 @@
     }
   }],
   "provisioners": [
-    { "type": "file", "source": "common/debian/provision.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/debian/build.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/debian/install.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/linux/test.sh", "destination": "/tmp/" },
+    { "type": "shell", "inline": ["sudo mkdir /usr/local/ci && sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci"]},
     {
       "type": "shell",
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
       "environment_vars": [
         "GIT_REPO={{user `git_repo`}}",
         "GIT_COMMIT={{user `git_commit`}}"
       ],
-      "inline": [
-        "sudo mkdir /usr/local/ci",
-        "sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci",
-        "/tmp/provision.sh"
+      "scripts": [
+        "common/debian/provision.sh",
+        "common/linux/deprovision.sh"
       ]
     }
   ]
