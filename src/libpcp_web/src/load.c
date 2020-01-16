@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Red Hat.
+ * Copyright (c) 2017-2020 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -130,6 +130,24 @@ get_instance_metadata(seriesLoadBaton *baton, pmInDom indom)
     return count;
 }
 
+static void
+get_metric_metadata(seriesLoadBaton *baton, metric_t *metric)
+{
+    context_t		*context = &baton->pmapi.context;
+
+    if (metric->cluster) {
+	if (metric->cluster->domain)
+	    pmwebapi_add_domain_labels(context, metric->cluster->domain);
+	pmwebapi_add_cluster_labels(context, metric->cluster);
+    }
+    if (metric->indom)
+	pmwebapi_add_instances_labels(context, metric->indom);
+    pmwebapi_add_item_labels(context, metric);
+    pmwebapi_metric_hash(metric);
+
+    metric->cached = 1;
+}
+
 static metric_t *
 new_metric(seriesLoadBaton *baton, pmValueSet *vsp)
 {
@@ -167,15 +185,7 @@ new_metric(seriesLoadBaton *baton, pmValueSet *vsp)
 
     if ((metric = pmwebapi_new_metric(context, NULL, &desc, count, nameall)) == NULL)
 	return NULL;
-    if (metric->cluster) {
-	if (metric->cluster->domain)
-	    pmwebapi_add_domain_labels(context, metric->cluster->domain);
-	pmwebapi_add_cluster_labels(context, metric->cluster);
-    }
-    if (metric->indom)
-	pmwebapi_add_instances_labels(context, metric->indom);
-    pmwebapi_add_item_labels(context, metric);
-    pmwebapi_metric_hash(metric);
+    get_metric_metadata(baton, metric);
 
     if (pmDebugOptions.series) {
 	fprintf(stderr, "%s [%s] names:\n", "new_metric",
@@ -455,7 +465,8 @@ series_cache_update(seriesLoadBaton *baton)
 		continue;
 	    write_meta = 1;
 	} else {	/* pmid already observed */
-	    write_meta = 0;
+	    if ((write_meta = metric->cached) == 0)
+		get_metric_metadata(baton, metric);
 	}
 
 	/* iterate through result instances and ensure metric_t is complete */
