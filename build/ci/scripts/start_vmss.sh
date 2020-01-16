@@ -14,4 +14,4 @@ az vmss create \
   --public-ip-per-vm \
   --admin-username pcp \
   ${AZ_PLAN_INFO} \
-  --tags "GIT_REPO=${GIT_REPO}" "GIT_COMMIT=${GIT_COMMIT}"
+  --tags "git_repo=${GIT_REPO}" "git_commit=${GIT_COMMIT}"

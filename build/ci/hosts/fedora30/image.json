@@ -37,6 +37,7 @@
     "vm_size": "{{user `az_vm_size`}}",
 
     "azure_tags": {
+      "created_at": "{{ isotime }}",
       "git_repo": "{{user `git_repo`}}",
       "git_commit": "{{user `git_commit`}}"
     }

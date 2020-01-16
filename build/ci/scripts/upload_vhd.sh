@@ -20,8 +20,10 @@ az image delete \
 az image create \
   --resource-group "${AZ_RESOURCE_GROUP}" \
   --name "${AZ_IMAGE}" \
+  --source "${image_vhd_url}" \
   --os-type Linux \
-  --source "${image_vhd_url}"
+  --os-disk-caching ReadWrite \
+  --tags "created_at=$(date -u -Iseconds)" "git_repo=${GIT_REPO}" "git_commit=${GIT_COMMIT}"
 
 az storage blob delete \
   --account-name "${AZ_STORAGE_ACCOUNT}" \
