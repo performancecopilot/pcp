@@ -3,6 +3,11 @@
 cd "$(dirname "$0")/.."
 . scripts/env.sh
 
+az image show \
+  --resource-group "${AZ_RESOURCE_GROUP}" \
+  --name "${AZ_IMAGE}" \
+  --query tags
+
 az vmss create \
   --resource-group "${AZ_RESOURCE_GROUP}" \
   --name "${AZ_VMSS}" \

@@ -3,21 +3,21 @@
 cd "$(dirname "$0")/.."
 . scripts/env.sh
 . scripts/vmss.env.sh
-artifacts_dir="$2"
+artifacts_dir="$2/"
 
 echo Host IPs: ${HOST_IPS}
 echo Builder IPs: ${BUILDER_IP}
 
 echo
 echo Download artifacts from build server
-rsync -a -e "$SSH" pcp@${BUILDER_IP}:artifacts/ "${artifacts_dir}"
+rsync -av -e "$SSH" pcp@${BUILDER_IP}:artifacts/ "${artifacts_dir}"
 
-echo
-echo Transfer artifacts to hosts
 for host_ip in ${HOST_IPS}
 do
   [ "${host_ip}" = "${BUILDER_IP}" ] && continue
-  rsync -a -e "$SSH" "${artifacts_dir}" pcp@${host_ip}:artifacts/
+  echo
+  echo Transfer artifacts to host ${host_ip}
+  rsync -av -e "$SSH" "${artifacts_dir}" pcp@${host_ip}:artifacts/
 done
 
 echo
