@@ -1,16 +1,17 @@
 #!/bin/sh -eu
 
-PREV_PWD=$PWD
 cd "$(dirname "$0")/.."
 . scripts/env.sh
 . scripts/vmss.env.sh
-tests_job_file="${PREV_PWD}/jobs.txt"
-tests_junit_file="${PREV_PWD}/tests.xml"
-tests_results_dir="${PREV_PWD}/test-results"
+tests="$2"
+tests_dir="$3"
+tests_job_file="${tests_dir}/jobs.txt"
+tests_junit_file="${tests_dir}/tests.xml"
+tests_results_dir="${tests_dir}/test-results"
 
 echo Start distributed QA tests
-tests=$(cat ../../qa/group | grep -E "$2" | cut -d' ' -f1 | grep -E '^[0-9]+$' || true)
-[ -z "${tests}" ] && { echo "No tests matching '$2', exiting."; exit 0; }
+tests=$(cat ../../qa/group | grep -E "${tests}" | cut -d' ' -f1 | grep -E '^[0-9]+$' || true)
+[ -z "${tests}" ] && { echo "No tests matching '${tests}', exiting."; exit 0; }
 
 status=0
 parallel --jobs 1 --eta --joblog "${tests_job_file}" --results "${tests_results_dir}" \

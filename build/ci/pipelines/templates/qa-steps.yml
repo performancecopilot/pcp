@@ -36,7 +36,7 @@ steps:
     displayName: Publish build artifacts
     artifact: $(ci_host)
 
-  - script: ./build/ci/scripts/start_tests.sh "$(ci_host)" "$(tests)"
+  - script: ./build/ci/scripts/start_tests.sh "$(ci_host)" "$(tests)" "$(pwd)"
     displayName: Test
     env:
       BUILD_ID: $(Build.BuildId)
