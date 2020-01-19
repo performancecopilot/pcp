@@ -73,20 +73,18 @@ __pmLogCompressedSuffix(const char *suffix)
 }
 
 /*
- * If name contains '.' and the suffix is "index", "meta" or a string of
- * digits, all optionally followed by one of the compression suffixes,
- * strip the suffix.
- *
- * Modifications are performed on the argument string in-place. If modifications
- * are made, a pointer to the start of the modified string is returned.
- * Otherwise, NULL is returned.
+ * Variant of __pmLogBaseName() - see below that also returns log
+ * the volume number if the file name is an archive log volume.
+ * If the vol argument is NULL it will be ignored.
  */
 char *
-__pmLogBaseName(char *name)
+__pmLogBaseNameVol(char *name, int *vol)
 {
     char	*q, *q2;
     int		strip = 0;
 
+    if (vol)
+	*vol = -1;
     if ((q = strrchr(name, '.')) != NULL) {
 	if (__pmLogCompressedSuffix(q)) {
 	    /*
@@ -114,16 +112,10 @@ __pmLogBaseName(char *name)
 	 */
 	if (q[1] != '\0') {
 	    char	*end;
-	    /*
-	     * Below we don't care about the value from strtol(),
-	     * we're interested in updating the pointer "end".
-	     * The messiness is thanks to gcc and glibc ... strtol()
-	     * is marked __attribute__((warn_unused_result)) ...
-	     * to avoid warnings on all platforms, assign to a
-	     * dummy variable that is explicitly marked unused.
-	     */
-	    long	tmpl __attribute__((unused));
+	    long	tmpl;
 	    tmpl = strtol(q+1, &end, 10);
+	    if (vol)
+		*vol = tmpl;
 	    if (*end == '\0') strip = 1;
 	}
     }
@@ -134,6 +126,21 @@ done:
     }
 
     return NULL; /* not the name of an archive file. */
+}
+
+/*
+ * If name contains '.' and the suffix is "index", "meta" or a string of
+ * digits, all optionally followed by one of the compression suffixes,
+ * strip the suffix.
+ *
+ * Modifications are performed on the argument string in-place. If modifications
+ * are made, a pointer to the start of the modified string is returned.
+ * Otherwise, NULL is returned.
+ */
+char *
+__pmLogBaseName(char *name)
+{
+    return __pmLogBaseNameVol(name, NULL);
 }
 
 static int
