@@ -11,7 +11,12 @@ default setup default_pcp:
 install install_pcp: default $(TESTFILES)
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	# I wish I knew how to extract such listing from $(TESTFILES), not sure why this is needed yet
-	$(INSTALL) -m 644 src/cases/0.py $(TESTDIR)/src/cases/0.py
+	$(INSTALL) -m 644 src/cases/1.py $(TESTDIR)/src/cases/1.py
+	$(INSTALL) -m 644 src/cases/2.py $(TESTDIR)/src/cases/2.py
+	$(INSTALL) -m 644 src/cases/3.py $(TESTDIR)/src/cases/3.py
+	$(INSTALL) -m 644 src/cases/4.py $(TESTDIR)/src/cases/4.py
+	$(INSTALL) -m 644 src/cases/5.py $(TESTDIR)/src/cases/5.py
+	$(INSTALL) -m 644 src/cases/6.py $(TESTDIR)/src/cases/6.py
 	$(INSTALL) -m 644 src/configs/complex/0/pmdastatsd.ini $(TESTDIR)/src/configs/complex/0/pmdastatsd.ini
 	$(INSTALL) -m 644 src/configs/complex/1/pmdastatsd.ini $(TESTDIR)/src/configs/complex/1/pmdastatsd.ini
 	$(INSTALL) -m 644 src/configs/single/debug_output_filename/0/pmdastatsd.ini $(TESTDIR)/src/configs/single/debug_output_filename/0/pmdastatsd.ini

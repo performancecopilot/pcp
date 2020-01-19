@@ -14,6 +14,7 @@ import pmdastatsd_test_utils as utils
 
 configs_dir = os.path.join("configs")
 
+utils.print_test_file_separator()
 print(os.path.basename(__file__))
 
 def exercise_config(config_file):
