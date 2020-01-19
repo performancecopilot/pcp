@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2018,2020 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -47,7 +47,7 @@ extern __pm_fops __pm_xz;
 #endif
 
 static const struct {
-    const char	*suff;
+    const char	*suffix;
     const int	appl;
     __pm_fops   *handler;
 } compress_ctl[] = {
@@ -61,6 +61,17 @@ static const struct {
 };
 static const int ncompress = sizeof(compress_ctl) / sizeof(compress_ctl[0]);
 
+int
+__pmLogCompressedSuffix(const char *suffix)
+{
+    int		i;
+
+    for (i = 0; i < ncompress; i++)
+	if (strcmp(suffix, compress_ctl[i].suffix) == 0)
+	    return 1;
+    return 0;
+}
+
 /*
  * If name contains '.' and the suffix is "index", "meta" or a string of
  * digits, all optionally followed by one of the compression suffixes,
@@ -73,28 +84,22 @@ static const int ncompress = sizeof(compress_ctl) / sizeof(compress_ctl[0]);
 char *
 __pmLogBaseName(char *name)
 {
-    char *q;
-    int   strip;
-    int   i;
+    char	*q, *q2;
+    int		strip = 0;
 
-    strip = 0;
     if ((q = strrchr(name, '.')) != NULL) {
-	for (i = 0; i < ncompress; i++) {
-	    if (strcmp(q, compress_ctl[i].suff) == 0) {
-		char	*q2;
-		/*
-		 * The name ends with one of the supported compressed file
-		 * suffixes. Strip it before checking for other known suffixes.
-		 */
-		*q = '\0';
-		if ((q2 = strrchr(name, '.')) == NULL) {
-		    /* no . to the left of the suffix */
-		    *q = '.';
-		    goto done;
-		}
-		q = q2;
-		break;
+	if (__pmLogCompressedSuffix(q)) {
+	    /*
+	     * The name ends with one of the supported compressed file
+	     * suffixes. Strip it before checking for other known suffixes.
+	     */
+	    *q = '\0';
+	    if ((q2 = strrchr(name, '.')) == NULL) {
+		/* no . to the left of the suffix */
+		*q = '.';
+		goto done;
 	    }
+	    q = q2;
 	}
 	if (strcmp(q, ".index") == 0) {
 	    strip = 1;
@@ -319,7 +324,7 @@ __pmCompressedFileIndex(char *fname, size_t flen)
     char	tmpname[MAXPATHLEN];
 
     for (i = 0; i < ncompress; i++) {
-	suffix = compress_ctl[i].suff;
+	suffix = compress_ctl[i].suffix;
 	pmsprintf(tmpname, sizeof(tmpname), "%s%s", fname, suffix);
 	sts = access(tmpname, R_OK);
 	if (sts == 0 || (errno != ENOENT && errno != ENOTDIR)) {
@@ -358,7 +363,7 @@ index_compress(char *fname, size_t flen)
     suffix = strrchr(fname, '.');
     if (suffix != NULL) {
 	for (i = 0; i < ncompress; i++) {
-	    if (strcmp(suffix, compress_ctl[i].suff) == 0)
+	    if (strcmp(suffix, compress_ctl[i].suffix) == 0)
 		return i;
 	}
     }
@@ -731,7 +736,7 @@ compress_suffix_list(void)
 	const char	*q;
 
 	for (i = 0; i < ncompress; i++) {
-	    q = compress_ctl[i].suff;
+	    q = compress_ctl[i].suffix;
 	    if (i > 0)
 		*p++ = ' ';
 	    while (*q) {

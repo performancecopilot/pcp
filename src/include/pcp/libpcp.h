@@ -7,7 +7,7 @@
  *	remain fixed across releases, and they may not work, or may
  *	provide different semantics at some point in the future.
  *
- * Copyright (c) 2012-2019 Red Hat.
+ * Copyright (c) 2012-2020 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -846,6 +846,13 @@ PCP_CALL extern int __pmLogPutText(__pmArchCtl *, unsigned int , unsigned int, c
 PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
 PCP_CALL extern int __pmLogLoadLabel(__pmArchCtl *, const char *);
 PCP_CALL extern int __pmLogLoadMeta(__pmArchCtl *);
+PCP_CALL extern int __pmLogAddDesc(__pmArchCtl *, const pmDesc *);
+PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, const pmTimespec *, const pmInResult *, int *, int);
+PCP_CALL extern int __pmLogAddPMNSNode(__pmArchCtl *, pmID, const char *);
+PCP_CALL extern int __pmLogAddLabelSets(__pmArchCtl *, const pmTimespec *, unsigned int, unsigned int, int, pmLabelSet *);
+PCP_CALL extern int __pmLogAddText(__pmArchCtl *, unsigned int, unsigned int, const char *);
+PCP_CALL extern int __pmLogAddVolume(__pmArchCtl *, unsigned int);
+
 #define PMLOGREAD_NEXT		0
 #define PMLOGREAD_TO_EOF	1
 PCP_CALL extern int __pmLogRead(__pmArchCtl *, int, __pmFILE *, pmResult **, int);
@@ -862,6 +869,7 @@ PCP_CALL extern int __pmLogLookupText(__pmArchCtl *, unsigned int , unsigned int
 PCP_CALL extern int __pmLogNameInDom(__pmArchCtl *, pmInDom, pmTimeval *, int, char **);
 PCP_CALL extern const char *__pmLogLocalSocketDefault(int, char *buf, size_t bufSize);
 PCP_CALL extern const char *__pmLogLocalSocketUser(int, char *buf, size_t bufSize);
+PCP_CALL extern int __pmLogCompressedSuffix(const char *);
 PCP_CALL extern char *__pmLogBaseName(char *);
 PCP_DATA extern int __pmLogReads;
 
