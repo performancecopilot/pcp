@@ -388,7 +388,7 @@ class pmUnits(Structure):
 
     def __int__(self):
         return c_api.pmUnits_int(self.dimSpace, self.dimTime, self.dimCount,
-                            self.scaleSpace, self.scaleTime, self.scaleCount)
+                                 self.scaleSpace, self.scaleTime, self.scaleCount)
 
     def __str__(self):
         unitstr = ctypes.create_string_buffer(64)
