@@ -24,9 +24,9 @@
     "managed_image_name": "{{user `az_image`}}",
 
     "os_type": "Linux",
-    "image_publisher": "Debian",
-    "image_offer": "debian-10",
-    "image_sku": "10",
+    "image_publisher": "RedHat",
+    "image_offer": "RHEL",
+    "image_sku": "8",
 
     "location": "{{user `az_location`}}",
     "vm_size": "{{user `az_vm_size`}}",
@@ -38,10 +38,15 @@
     }
   }],
   "provisioners": [
-    { "type": "file", "source": "common/debian/build.sh", "destination": "/tmp/" },
-    { "type": "file", "source": "common/debian/install.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/redhat/build.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/redhat/install.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/linux/test.sh", "destination": "/tmp/" },
     { "type": "shell", "inline": ["sudo mkdir /usr/local/ci && sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci"]},
+    {
+      "type": "shell",
+      "execute_command": "cd /; chmod +x {{ .Path }}; sudo {{ .Vars }} '{{ .Path }}'",
+      "script": "hosts/rhel8/remove_homelv.sh"
+    },
     {
       "type": "shell",
       "execute_command": "chmod +x {{ .Path }}; sudo {{ .Vars }} '{{ .Path }}'",
@@ -50,7 +55,7 @@
         "GIT_COMMIT={{user `git_commit`}}"
       ],
       "scripts": [
-        "common/debian/provision.sh",
+        "common/redhat/provision_dnf.sh",
         "common/linux/deprovision.sh"
       ]
     }
