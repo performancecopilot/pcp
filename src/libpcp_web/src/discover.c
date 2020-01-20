@@ -284,8 +284,8 @@ pmDiscoverArchives(const char *dir, pmDiscoverModule *module, void *arg)
 			__pmContext *ctxp = __pmHandleToPtr(a->ctx);
 			__pmArchCtl *acp = ctxp->c_archctl;
 
-			PM_UNLOCK(ctxp->c_lock);
 		    	__pmLogAddVolume(acp, vol);
+			PM_UNLOCK(ctxp->c_lock);
 			if (pmDebugOptions.discovery)
 			    fprintf(stderr, "pmDiscoverArchives: added logvol %s %s vol=%d\n",
 				a->context.name, pmDiscoverFlagsStr(a), vol);
@@ -1059,10 +1059,10 @@ process_logvol(pmDiscover *p)
 		__pmContext *ctxp = __pmHandleToPtr(p->ctx);
 		__pmArchCtl *acp = ctxp->c_archctl;
 
-		PM_UNLOCK(ctxp->c_lock);
 		if (acp->ac_curvol < acp->ac_log->l_maxvol) {
 		    sts = __pmLogChangeVol(acp, acp->ac_curvol + 1);
 		    if (sts == 0) {
+			PM_UNLOCK(ctxp->c_lock);
 			if (pmDebugOptions.discovery)
 			    fprintf(stderr, "process_logvol: %s fetch failed, suceeded in switching to next vol\n",
 				p->context.name);
@@ -1074,6 +1074,7 @@ process_logvol(pmDiscover *p)
 		    fprintf(stderr, "process_logvol: %s fetch failed and failed to switch to next vol: %s\n",
 			p->context.name, pmErrStr(sts));
 		/* we are done - wait for another callback */
+		PM_UNLOCK(ctxp->c_lock);
 		break;
 	    }
 	}
@@ -1200,10 +1201,10 @@ print_callback(pmDiscover *p)
 
 	if (p->ctx >= 0 && (ctxp = __pmHandleToPtr(p->ctx)) != NULL) {
 	    acp = ctxp->c_archctl;
+	    fprintf(stderr, "    ARCHIVE %s fd=%d ctx=%d maxvol=%d ac_curvol=%d ac_offset=%ld ac_vol=%d %s\n",
+		p->context.name, p->fd, p->ctx, acp->ac_log->l_maxvol, acp->ac_curvol,
+		acp->ac_offset, acp->ac_vol, pmDiscoverFlagsStr(p));
 	    PM_UNLOCK(ctxp->c_lock);
-	    fprintf(stderr, "    ARCHIVE %s fd=%d ctx=%d curvol=%d maxvol=%d %s\n",
-		p->context.name, p->fd, p->ctx, acp->ac_curvol, acp->ac_log->l_maxvol,
-		pmDiscoverFlagsStr(p));
 	}
     }
 }
