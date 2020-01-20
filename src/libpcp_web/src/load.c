@@ -112,22 +112,25 @@ load_prepare_metric(const char *name, void *arg)
  * Iterate over an instance domain and extract names and labels
  * for each instance.
  */
-static unsigned int
-get_instance_metadata(seriesLoadBaton *baton, pmInDom indom)
+static void
+get_instance_metadata(seriesLoadBaton *baton, pmInDom indom, int force_refresh)
 {
     context_t		*cp = &baton->pmapi.context;
-    unsigned int	count = 0;
     domain_t		*dp;
     indom_t		*ip;
 
     if (indom != PM_INDOM_NULL) {
 	if ((dp = pmwebapi_add_domain(cp, pmInDom_domain(indom))))
 	    pmwebapi_add_domain_labels(cp, dp);
-	if ((ip = pmwebapi_add_indom(cp, dp, indom)) &&
-	    (count = pmwebapi_add_indom_instances(cp, ip)) > 0)
-	    pmwebapi_add_instances_labels(cp, ip);
+	if ((ip = pmwebapi_add_indom(cp, dp, indom)) != NULL) {
+	    if (force_refresh)
+		ip->updated = 1;
+	    if (ip->updated) {
+		pmwebapi_add_indom_instances(cp, ip);
+		pmwebapi_add_instances_labels(cp, ip);
+	    }
+	}
     }
-    return count;
 }
 
 static void
@@ -144,8 +147,6 @@ get_metric_metadata(seriesLoadBaton *baton, metric_t *metric)
 	pmwebapi_add_instances_labels(context, metric->indom);
     pmwebapi_add_item_labels(context, metric);
     pmwebapi_metric_hash(metric);
-
-    metric->cached = 1;
 }
 
 static metric_t *
@@ -435,7 +436,7 @@ series_cache_update(seriesLoadBaton *baton)
     metric_t		*metric = NULL;
     char		ts[64];
     sds			timestamp;
-    int			i, write_meta, write_data;
+    int			i, write_meta, write_inst, write_data;
 
     timestamp = sdsnew(timeval_stream_str(&result->timestamp, ts, sizeof(ts)));
     write_data = (!(baton->flags & PM_SERIES_FLAG_METADATA));
@@ -458,6 +459,8 @@ series_cache_update(seriesLoadBaton *baton)
 	    dictFetchValue(baton->wanted, &vsp->pmid) == NULL)
 	    continue;
 
+	write_meta = write_inst = 0;
+
 	/* check if pmid already in hash list */
 	if ((metric = dictFetchValue(cp->pmids, &vsp->pmid)) == NULL) {
 	    /* create a new metric, and add it to load context */
@@ -473,14 +476,14 @@ series_cache_update(seriesLoadBaton *baton)
 	if (metric->error == 0 && vsp->numval < 0)
 	    write_meta = 1;
 	if (pmwebapi_add_valueset(metric, vsp) != 0)
-	    write_meta = 1;
+	    write_meta = write_inst = 1;
 
 	/* record the error code in the cache */
 	metric->error = (vsp->numval < 0) ? vsp->numval : 0;
 
 	/* make PMAPI calls to cache metadata */
-	if (write_meta && get_instance_metadata(baton, metric->desc.indom) != 0)
-	    continue;
+	if (write_meta)
+	    get_instance_metadata(baton, metric->desc.indom, write_inst);
 
 	/* initiate writes to backend caching servers (Redis) */
 	server_cache_metric(baton, metric, timestamp, write_meta, write_data);

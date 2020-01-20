@@ -535,6 +535,8 @@ pmwebapi_metric_hash(metric_t *metric)
 	sdsclear(identifier);
     }
     sdsfree(identifier);
+
+    metric->cached = 0;
 }
 
 void
@@ -574,6 +576,8 @@ pmwebapi_instance_hash(indom_t *ip, instance_t *instance)
     SHA1Update(&shactx, (unsigned char *)identifier, sdslen(identifier));
     SHA1Final(instance->name.hash, &shactx);
     sdsfree(identifier);
+
+    instance->cached = 0;
 }
 
 sds
@@ -1046,7 +1050,6 @@ pmwebapi_add_instance(struct indom *indom, int inst, char *name)
 	    instance->name.sds = sdscatlen(instance->name.sds, name, length);
 	    pmwebapi_string_hash(instance->name.id, name, length);
 	    pmwebapi_instance_hash(indom, instance);
-	    instance->cached = 0;
 	}
 	return instance;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019 Red Hat.
+ * Copyright (c) 2018-2020 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -628,8 +628,10 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
 {
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
+    __pmContext		*ctxp;
+    __pmArchCtl		*acp;
     char		buf[32];
-    int			i;
+    int			i, sts;
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s name%s", "pmDiscoverInvokeMetricCallBacks",
@@ -642,12 +644,32 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
     }
 
+    if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
+	ctxp = __pmHandleToPtr(p->ctx);
+	acp = ctxp->c_archctl;
+	PM_UNLOCK(ctxp->c_lock);
+
+	if ((sts = __pmLogAddDesc(acp, desc)) < 0)
+	    fprintf(stderr, "%s: failed to add metric descriptor for %s\n",
+		    "pmDiscoverInvokeMetricCallBacks", pmIDStr(desc->pmid));
+    }
+
+    for (i = 0; i < numnames; i++) {
+	if ((sts = __pmLogAddPMNSNode(acp, desc->pmid, names[i])) < 0)
+	    fprintf(stderr, "%s: failed to add metric name %s for %s\n",
+			    "pmDiscoverInvokeMetricCallBacks", names[i], pmIDStr(desc->pmid));
+    }
+
     discover_event_init(p, ts, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_metric != NULL)
 	    callbacks->on_metric(&event, desc, numnames, names, p->data);
     }
+
+    for (i = 0; i < numnames; i++)
+	free(names[i]);
+    free(names);
 }
 
 static void
@@ -655,8 +677,10 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
 {
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
+    __pmContext		*ctxp;
+    __pmArchCtl		*acp;
     char		buf[32], inbuf[32];
-    int			i;
+    int			i, sts;
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s numinst %d indom %s\n",
@@ -668,11 +692,33 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
     }
 
+    if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
+	ctxp = __pmHandleToPtr(p->ctx);
+	acp = ctxp->c_archctl;
+	PM_UNLOCK(ctxp->c_lock);
+
+	if ((sts = __pmLogAddInDom(acp, ts, in, NULL, 0)) < 0) {
+	    char		errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s: failed to add indom for %s: %s\n",
+			"pmDiscoverInvokeInDomCallBacks", pmIDStr(in->indom),
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    } else {
+	sts = PMLOGPUTINDOM_DUP;
+    }
+
     discover_event_init(p, ts, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_indom != NULL)
 	    callbacks->on_indom(&event, in, p->data);
+    }
+
+    if (sts == PMLOGPUTINDOM_DUP) {
+	for (i = 0; i < in->numinst; i++)
+	    free(in->namelist[i]);
+	free(in->namelist);
+	free(in->instlist);
     }
 }
 
@@ -682,8 +728,10 @@ pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
 {
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
+    __pmContext		*ctxp;
+    __pmArchCtl		*acp;
     char		buf[32], idbuf[64];
-    int			i;
+    int			i, sts;
 
     if (pmDebugOptions.discovery) {
 	__pmLabelIdentString(ident, type, idbuf, sizeof(idbuf));
@@ -696,12 +744,31 @@ pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
     }
 
+    if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
+	ctxp = __pmHandleToPtr(p->ctx);
+	acp = ctxp->c_archctl;
+	PM_UNLOCK(ctxp->c_lock);
+
+	if ((sts = __pmLogAddLabelSets(acp, ts,
+					type, ident, nsets, sets)) < 0) {
+	    char		errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s: failed to add log labelset: %s\n",
+			"pmDiscoverInvokeLabelsCallBacks",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    } else {
+	sts = -EAGAIN;	/* free labelsets memory after callbacks */
+    }
+
     discover_event_init(p, ts, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_labels != NULL)
 	    callbacks->on_labels(&event, ident, type, sets, nsets, p->data);
     }
+
+    if (sts < 0)
+	pmFreeLabelSets(sets, nsets);
 }
 
 static void
@@ -710,8 +777,10 @@ pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
 {
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
+    __pmContext		*ctxp;
+    __pmArchCtl		*acp;
     char		buf[32];
-    int			i;
+    int			i, sts;
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s ", "pmDiscoverInvokeTextCallBacks",
@@ -729,12 +798,27 @@ pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
     }
 
+    if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
+	ctxp = __pmHandleToPtr(p->ctx);
+	acp = ctxp->c_archctl;
+	PM_UNLOCK(ctxp->c_lock);
+
+	if ((sts = __pmLogAddText(acp, ident, type, text)) < 0) {
+	    char		errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s: failed to add %u text for %u: %s\n",
+	               "pmDiscoverInvokeTextCallBacks", type, ident,
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
     discover_event_init(p, ts, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_text != NULL)
 	    callbacks->on_text(&event, ident, type, text, p->data);
     }
+
+    free(text);
 }
 
 static void
@@ -781,7 +865,7 @@ process_metadata(pmDiscover *p)
     pmDesc		desc;
     off_t		off;
     char		*buffer;
-    int			e, i, nb, len, nsets;
+    int			e, nb, len, nsets;
     int			type, id; /* pmID or pmInDom */
     int			nnames;
     char		**names;
@@ -867,10 +951,6 @@ process_metadata(pmDiscover *p)
 	    ts.tv_sec = p->statbuf.st_mtim.tv_sec;
 	    ts.tv_nsec = p->statbuf.st_mtim.tv_nsec;
 	    pmDiscoverInvokeMetricCallBacks(p, &ts, &desc, nnames, names);
-	    for (i = 0; i < nnames; i++)
-		free(names[i]);
-	    if (names)
-		free(names);
 	    break;
 
 	case TYPE_INDOM:
@@ -882,12 +962,6 @@ process_metadata(pmDiscover *p)
 		break;
 	    }
 	    pmDiscoverInvokeInDomCallBacks(p, &ts, &inresult);
-	    if (inresult.numinst > 0) {
-		for (i = 0; i < inresult.numinst; i++)
-		    free(inresult.namelist[i]);
-		free(inresult.namelist);
-		free(inresult.instlist);
-	    }
 	    break;
 
 	case TYPE_LABEL:
@@ -912,13 +986,13 @@ process_metadata(pmDiscover *p)
 		} else {
 		    sdsfree(p->context.source);
 		    p->context.source = source;
-		    p->context.labelset = labelset;
+		    if (p->context.labelset)
+			pmFreeLabelSets(p->context.labelset, 1);
+		    p->context.labelset = __pmDupLabelSets(labelset, 1);
 		    pmDiscoverInvokeSourceCallBacks(p, &ts);
 		}
 	    }
 	    pmDiscoverInvokeLabelsCallBacks(p, &ts, id, type, labelset, nsets);
-	    if (labelset != p->context.labelset)
-		pmFreeLabelSets(labelset, nsets);
 	    break;
 
 	case TYPE_TEXT:
@@ -936,8 +1010,6 @@ process_metadata(pmDiscover *p)
 	    ts.tv_sec = p->statbuf.st_mtim.tv_sec;
 	    ts.tv_nsec = p->statbuf.st_mtim.tv_nsec;
 	    pmDiscoverInvokeTextCallBacks(p, &ts, id, type, buffer);
-	    if (buffer)
-		free(buffer);
 	    break;
 
 	default:
@@ -954,8 +1026,8 @@ process_metadata(pmDiscover *p)
 	p->flags &= ~PM_DISCOVER_FLAGS_META_IN_PROGRESS;
 
     if (pmDebugOptions.discovery)
-	fprintf(stderr, "process_metadata: completed, partial=%d %s %s\n",
-			partial, p->context.name, pmDiscoverFlagsStr(p));
+	fprintf(stderr, "%s: completed, partial=%d %s %s\n",
+			"process_metadata", partial, p->context.name, pmDiscoverFlagsStr(p));
 }
 
 /*
