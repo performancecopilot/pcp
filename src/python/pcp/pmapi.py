@@ -1,6 +1,6 @@
 """ Wrapper module for LIBPCP - the core Performace Co-Pilot API
 #
-# Copyright (C) 2012-2019 Red Hat
+# Copyright (C) 2012-2020 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -385,6 +385,10 @@ class pmUnits(Structure):
         self.scaleTime = scaleT
         self.scaleCount = scaleC
         self.pad = 0
+
+    def __int__(self):
+        return c_api.pmUnits_int(self.dimSpace, self.dimTime, self.dimCount,
+                            self.scaleSpace, self.scaleTime, self.scaleCount)
 
     def __str__(self):
         unitstr = ctypes.create_string_buffer(64)
