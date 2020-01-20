@@ -114,6 +114,12 @@ pmDiscoverFree(pmDiscover *p)
 	sdsfree(p->context.source);
     if (p->context.labelset)
 	pmFreeLabelSets(p->context.labelset, 1);
+    if (p->event_handle) {
+	uv_fs_event_stop(p->event_handle);
+	free(p->event_handle);
+	p->event_handle = NULL;
+    }
+
     memset(p, 0, sizeof(*p));
     free(p);
 }
@@ -177,18 +183,26 @@ pmDiscoverPurgeDeleted(void)
     return count;
 }
 
-static int
-str_ends_with(const char *s, const char *suffix)
+/*
+ * if string ends with given suffix then return pointer
+ * to start of suffix in string, else NULL
+ */
+static char *
+strsuffix(char *s, const char *suffix)
 {
-    char *p;
+    int slen, suflen;
+    char *ret = NULL;
 
-    if (s && suffix && strlen(s) >= strlen(suffix)) {
-        if ((p = strstr(s, suffix)) != NULL) {
-	    if (p[strlen(suffix)] == '\0')
-		return 1;
+    if (s && suffix) {
+    	slen = strlen(s);
+	suflen = strlen(suffix);
+	if (slen >= suflen) {
+	    ret = s + (slen - suflen);
+	    if (strncmp(ret, suffix, suflen) != 0)
+	    	ret = NULL;
 	}
     }
-    return 0;
+    return ret;
 }
 
 /*
@@ -204,34 +218,82 @@ pmDiscoverArchives(const char *dir, pmDiscoverModule *module, void *arg)
     uv_dirent_t		dent;
     uv_stat_t		*s;
     pmDiscover		*a;
-    char		*t;
+    char		*suffix;
     char		path[MAXNAMELEN];
     int			sep = pmPathSeparator();
+    int			vol;
+    int			sts;
 
-    if (uv_fs_scandir(NULL, &req, dir, 0, NULL) < 0)
-	return -ESRCH;
-
+    /*
+     * note: pmDiscoverLookupAdd sets PM_DISCOVER_FLAGS_NEW
+     * if this is a newly discovered archive or directory
+     */
     a = pmDiscoverLookupAdd(dir, module, arg);
     a->flags |= PM_DISCOVER_FLAGS_DIRECTORY;
 
+    if ((sts = uv_fs_scandir(NULL, &req, dir, 0, NULL)) < 0) {
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "pmDiscoverArchives: scandir %s failed %s: err %d\n", dir, path, sts);
+	return -ESRCH;
+    }
+
     while (uv_fs_scandir_next(&req, &dent) != UV_EOF) {
 	pmsprintf(path, sizeof(path), "%s%c%s", dir, sep, dent.name);
-	if (uv_fs_stat(NULL, &sreq, path, NULL) < 0)
+
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "pmDiscoverArchives: scandir found %s\n", path);
+
+	if (uv_fs_stat(NULL, &sreq, path, NULL) < 0) {
+	    if (pmDebugOptions.discovery)
+		fprintf(stderr, "pmDiscoverArchives: stat failed %s\n", path);
 	    continue;
+	}
+
 	s = &sreq.statbuf;
-	if (S_ISREG(s->st_mode) && str_ends_with(path, ".meta")) {
-	    /*
-	     * An uncompressed PCP archive meta file. Track the meta
-	     * file - the matching logvol filename varies because logvols
-	     * are periodically rolled by pmlogger. So just register for
-	     * fs events on the metadata file but process both metadata
-	     * and logvol data when called. Process all available metadata
-	     * to EOF before processing any logvol data.
-	     */
-	    if ((t = strrchr(path, '.')) != NULL)
-	    	*t = '\0'; /* strip suffix: ".meta" or logvol digit(s) */
-	    a = pmDiscoverLookupAdd(path, module, arg);
-	    a->flags |= PM_DISCOVER_FLAGS_META;
+	if (S_ISREG(s->st_mode)) {
+	    if ((suffix = strsuffix(path, ".meta")) != NULL) {
+		/*
+		 * An uncompressed PCP archive meta file. Track the meta
+		 * file - the matching logvol filename varies because logvols
+		 * are periodically rolled by pmlogger. Importantly, process all
+		 * available metadata to EOF before processing any logvol data.
+		 */
+		*suffix = '\0'; /* strip suffix from path giving archive name */
+		a = pmDiscoverLookupAdd(path, module, arg);
+
+		/*
+		 * note: pmDiscoverLookupAdd sets PM_DISCOVER_FLAGS_NEW
+		 * if this is a newly discovered archive, otherwise we're
+		 * already tracking this archive.
+		 */
+		a->flags |= PM_DISCOVER_FLAGS_META;
+	    }
+	    else if ((suffix = __pmLogBaseNameVol(path, &vol)) != NULL && vol >= 0) {
+		/*
+		 * An archive logvol. This logvol may have been created since
+		 * the context was first opened. Update the context maxvol
+		 * to be sure pmFetchArchive can switch to it in due course.
+		 */
+		if ((a = pmDiscoverLookup(path)) != NULL) {
+		    a->flags |= PM_DISCOVER_FLAGS_DATAVOL;
+		    /* ensure archive context knows about this volume */
+		    if (pmDebugOptions.discovery)
+			fprintf(stderr, "pmDiscoverArchives: found logvol %s %s vol=%d\n",
+			    a->context.name, pmDiscoverFlagsStr(a), vol);
+		    if (a->ctx >= 0 && vol >= 0) {
+			__pmContext *ctxp = __pmHandleToPtr(a->ctx);
+			__pmArchCtl *acp = ctxp->c_archctl;
+
+			PM_UNLOCK(ctxp->c_lock);
+		    	__pmLogAddVolume(acp, vol);
+			if (pmDebugOptions.discovery)
+			    fprintf(stderr, "pmDiscoverArchives: added logvol %s %s vol=%d\n",
+				a->context.name, pmDiscoverFlagsStr(a), vol);
+		    }
+		}
+	    } else if (pmDebugOptions.discovery) {
+		fprintf(stderr, "pmDiscoverArchives: ignored regular file %s\n", path);
+	    }
 	}
 	else if (S_ISDIR(s->st_mode)) {
 	    /*
@@ -278,6 +340,11 @@ is_deleted(pmDiscover *p, uv_fs_t *sreq)
 	sdsfree(meta);
     }
 
+    if (pmDebugOptions.discovery) {
+	fprintf(stderr, "is_deleted: checking %s (%s) -> %s\n",
+		p->context.name, pmDiscoverFlagsStr(p), ret ? "DELETED" : "no");
+    }
+
     return ret;
 }
 
@@ -309,7 +376,7 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
      * If the path has been deleted, stop it's event monitor and free the req
      * buffer, else call the pmDiscovery callback.
      */
-    if (str_ends_with(path, ".meta") && (s = strrchr(path, '.')) != NULL)
+    if ((s = strsuffix(path, ".meta")) != NULL)
 	*s = '\0';
 
     p = pmDiscoverLookup(path);
@@ -324,17 +391,13 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
     }
     else if (is_deleted(p, &sreq)) {
     	p->flags |= PM_DISCOVER_FLAGS_DELETED;
-	if (p->event_handle) {
-	    uv_fs_event_stop(p->event_handle);
-	    free(p->event_handle);
-	    p->event_handle = NULL;
-	}
 	/* path has been deleted. statbuf is invalid */
 	memset(&p->statbuf, 0, sizeof(p->statbuf));
 	path_changed = 1;
 	if (pmDebugOptions.discovery)
 	    fprintf(stderr, "fs_change_callBack: %s (%s) has been deleted",
 	    	p->context.name, pmDiscoverFlagsStr(p));
+	uv_fs_req_cleanup(&sreq);
     }
     else {
 	if (pmDebugOptions.discovery)
@@ -347,9 +410,8 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
 	uv_fs_req_cleanup(&sreq);
     }
 
-    if (p && p->changed && path_changed && !(p->flags & PM_DISCOVER_FLAGS_DELETED)) {
-	p->changed(p);
-    }
+    if (p && p->changed && path_changed)
+	p->changed(p); /* returns immediately if PM_DISCOVER_FLAGS_DELETED */
 
     sdsfree(path);
 }
@@ -391,13 +453,9 @@ pmDiscoverMonitor(sds path, void (*callback)(pmDiscover *))
 	}
 	else {
 	    /*
-	     * Monitor an archive file. This tracks the archive meta file,
-	     * but we might as well just use directory change events since
-	     * we get a directory change callback whenever *anything* in a
-	     * monitored directory changes (see uv docs and comments in uv.h).
-	     * If an archive hasn't changed, process_metadata() and process_logvol()
-	     * are cheap to check if they're at EOF, or we can stat and
-	     * check mtime.
+	     * Monitor an archive file. This tracks the archive meta file
+	     * but the change callback processes both meta and logvol on
+	     * every callback (meta before logvol).
 	     */
 	    eventfilename = sdscat(eventfilename, ".meta");
 	    uv_fs_event_start(p->event_handle, fs_change_callBack, eventfilename,
@@ -742,8 +800,8 @@ process_metadata(pmDiscover *p)
      */
     p->flags |= PM_DISCOVER_FLAGS_META_IN_PROGRESS;
     if (pmDebugOptions.discovery)
-	fprintf(stderr, "%s: in progress, flags=%s\n",
-			"process_metadata", pmDiscoverFlagsStr(p));
+	fprintf(stderr, "process_metadata: %s in progress %s\n",
+		p->context.name, pmDiscoverFlagsStr(p));
     for (;;) {
 	off = lseek(p->fd, 0, SEEK_CUR);
 	nb = read(p->fd, &hdr, sizeof(__pmLogHdr));
@@ -896,45 +954,13 @@ process_metadata(pmDiscover *p)
 	p->flags &= ~PM_DISCOVER_FLAGS_META_IN_PROGRESS;
 
     if (pmDebugOptions.discovery)
-	fprintf(stderr, "%s : completed, partial=%d flags=%s\n",
-			"process_metadata", partial, pmDiscoverFlagsStr(p));
+	fprintf(stderr, "process_metadata: completed, partial=%d %s %s\n",
+			partial, p->context.name, pmDiscoverFlagsStr(p));
 }
 
 /*
- * Add new logvols to context, if any exist past current max vol.
- * When logtailing, pmFetchArchive will automatically switch to
- * the next volume as needed.
- * *
- * TODO use a libpcp function - too many libpcp internals exposed!
- */
-static void
-bump_max_logvols(pmDiscover *p)
-{
-    __pmContext      *ctxp;
-    char	     name[MAXNAMELEN];
-
-    if (p->ctx >= 0) {
-	ctxp = __pmHandleToPtr(p->ctx);
-	if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
-	    int maxvol = ctxp->c_archctl->ac_log->l_maxvol;
-	    for (;;) {
-		sprintf(name, "%s.%d", p->context.name, maxvol+1);
-		if (access(name, F_OK) != 0)
-		    break;
-		maxvol++;
-	    }
-	    if (maxvol > ctxp->c_archctl->ac_log->l_maxvol) {
-	    	ctxp->c_archctl->ac_log->l_maxvol = maxvol;
-		if (pmDebugOptions.discovery)
-		    fprintf(stderr, "process_logvol: bumped maxvols to %d for %s\n",
-		    	maxvol, p->context.name);
-	    }
-	}
-    }
-}
-
-/*
- * fetch metric values to EOF and call all registered callbacks
+ * Fetch metric values to EOF and call all registered callbacks.
+ * Always process metadata thru to EOF before any logvol data.
  */
 static void
 process_logvol(pmDiscover *p)
@@ -943,23 +969,46 @@ process_logvol(pmDiscover *p)
     pmResult		*r;
     pmTimespec		ts;
 
-    pmUseContext(p->ctx);
-    bump_max_logvols(p); /* see comments therein */
     for (;;) {
+	pmUseContext(p->ctx);
 	if ((sts = pmFetchArchive(&r)) < 0) {
-	    if (pmDebugOptions.discovery) {
-		if (sts == PM_ERR_EOL)
-		    /* expected */
+	    if (sts == PM_ERR_EOL) {
+		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "process_logvol: %s end of archive reached\n",
 		    	p->context.name);
-		else
-		    /* not expected */
-		    fprintf(stderr, "process_logvol: %s fetch failed: %s\n",
+
+		/* succesfully processed to current end of log */
+		break;
+	    } else if (sts == PM_ERR_LOGREC) {
+		/* 
+		 * This log vol was probably deleted (likely compressed)
+		 * under our feet. Try and skip to the next volume.
+		 */
+		__pmContext *ctxp = __pmHandleToPtr(p->ctx);
+		__pmArchCtl *acp = ctxp->c_archctl;
+
+		PM_UNLOCK(ctxp->c_lock);
+		if (acp->ac_curvol < acp->ac_log->l_maxvol) {
+		    sts = __pmLogChangeVol(acp, acp->ac_curvol + 1);
+		    if (sts == 0) {
+			if (pmDebugOptions.discovery)
+			    fprintf(stderr, "process_logvol: %s fetch failed, suceeded in switching to next vol\n",
+				p->context.name);
+			break;
+		    }
+		}
+
+		if (pmDebugOptions.discovery)
+		    fprintf(stderr, "process_logvol: %s fetch failed and failed to switch to next vol: %s\n",
 			p->context.name, pmErrStr(sts));
+		/* we are done - wait for another callback */
+		break;
 	    }
-	    break;
 	}
 	else {
+	    /*
+	     * Fetch succeeded - call the values callback and continue
+	     */
 	    if (pmDebugOptions.discovery) {
 		char		tbuf[64], bufs[64];
 
@@ -1066,13 +1115,33 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 static void
 print_callback(pmDiscover *p)
 {
-    fprintf(stderr, "    %s fd=%d ctx=%d %s\n",
-    	p->context.name, p->fd, p->ctx, pmDiscoverFlagsStr(p));
+    if (p->flags & (PM_DISCOVER_FLAGS_DELETED | PM_DISCOVER_FLAGS_NEW))
+    	return;
+
+    if (p->flags & PM_DISCOVER_FLAGS_DIRECTORY) {
+	fprintf(stderr, "    DIRECTORY %s %s\n",
+	    p->context.name, pmDiscoverFlagsStr(p));
+    }
+    else {
+	__pmContext *ctxp;
+	__pmArchCtl *acp;
+
+	if (p->ctx >= 0 && (ctxp = __pmHandleToPtr(p->ctx)) != NULL) {
+	    acp = ctxp->c_archctl;
+	    PM_UNLOCK(ctxp->c_lock);
+	    fprintf(stderr, "    ARCHIVE %s fd=%d ctx=%d curvol=%d maxvol=%d %s\n",
+		p->context.name, p->fd, p->ctx, acp->ac_curvol, acp->ac_log->l_maxvol,
+		pmDiscoverFlagsStr(p));
+	}
+    }
 }
 
 static void
 changed_callback(pmDiscover *p)
 {
+    static time_t last_dir_scan = 0;
+    time_t now;
+
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "CHANGED %s (%s)\n", p->context.name,
 			pmDiscoverFlagsStr(p));
@@ -1095,13 +1164,28 @@ changed_callback(pmDiscover *p)
 	/*
 	 * A changed directory path means a new archive or subdirectory may have
 	 * been created or deleted - traverse and update the hash table.
+	 *
+	 * This is throttled because we get callbacks whenever the directory
+	 * or ANYTHING in that directory changes.
 	 */
-	pmDiscoverArchives(p->context.name, p->module, p->data);
-	pmDiscoverTraverse(PM_DISCOVER_FLAGS_NEW, created_callback);
-	pmDiscoverPurgeDeleted();
-    }
+	now = time(NULL);
+	if (pmDebugOptions.discovery) {
+	    fprintf(stderr, "DIRECTORY CHANGED now=%ld last_dir_scan=%ld %s (%s)\n",
+	    	now, last_dir_scan, p->context.name, pmDiscoverFlagsStr(p));
+	}
 
-    if (p->flags & (PM_DISCOVER_FLAGS_DATAVOL|PM_DISCOVER_FLAGS_META)) {
+	/* only throttle if nothing has been deleted and we've had a recent dirscan */
+	if (pmDiscoverTraverse(PM_DISCOVER_FLAGS_DELETED, NULL) == 0 && (now - last_dir_scan < 10)) {
+	    if (pmDebugOptions.discovery)
+		fprintf(stderr, "--- THROTTLED ---\n");
+	}
+	else {
+	    pmDiscoverArchives(p->context.name, p->module, p->data);
+	    pmDiscoverTraverse(PM_DISCOVER_FLAGS_NEW, created_callback);
+	    last_dir_scan = now;
+	}
+    }
+    else if (p->flags & (PM_DISCOVER_FLAGS_DATAVOL|PM_DISCOVER_FLAGS_META)) {
     	/*
 	 * Fetch new archive data (both metadata or logvol) and
 	 * call the registered callbacks.
