@@ -233,7 +233,7 @@ statsd.pmda.settings.debug_output_filename
     value "debug"
 
 statsd.pmda.settings.verbose
-    value 2
+    value 0
 
 statsd.pmda.settings.max_unprocessed_packets
     value 2048

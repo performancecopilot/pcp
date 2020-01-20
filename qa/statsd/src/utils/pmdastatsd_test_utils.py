@@ -61,7 +61,7 @@ def set_config(path_to_config):
 def request_metric(metric_name):
 	"""fetches metric with a given name."""
 	command = 'pminfo {} -f'
-	results = subprocess.check_output(command.format(metric_name, shell=True))
+	results = subprocess.check_output(command.format(metric_name), shell=True)
 	return results.strip()
 
 def print_metric(metric_name):
@@ -78,3 +78,6 @@ def print_config_metrics():
 
 def print_test_section_separator():
 	print("----------------------")
+
+def print_test_file_separator():
+	print("======================")
