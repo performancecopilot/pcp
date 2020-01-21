@@ -628,8 +628,6 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
 {
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
-    __pmContext		*ctxp;
-    __pmArchCtl		*acp;
     char		buf[32];
     int			i, sts;
 
@@ -645,19 +643,18 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
     }
 
     if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
-	ctxp = __pmHandleToPtr(p->ctx);
-	acp = ctxp->c_archctl;
-	PM_UNLOCK(ctxp->c_lock);
+	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
+	__pmArchCtl	*acp = ctxp->c_archctl;
 
 	if ((sts = __pmLogAddDesc(acp, desc)) < 0)
 	    fprintf(stderr, "%s: failed to add metric descriptor for %s\n",
 		    "pmDiscoverInvokeMetricCallBacks", pmIDStr(desc->pmid));
-    }
-
-    for (i = 0; i < numnames; i++) {
-	if ((sts = __pmLogAddPMNSNode(acp, desc->pmid, names[i])) < 0)
-	    fprintf(stderr, "%s: failed to add metric name %s for %s\n",
+	for (i = 0; i < numnames; i++) {
+	    if ((sts = __pmLogAddPMNSNode(acp, desc->pmid, names[i])) < 0)
+		fprintf(stderr, "%s: failed to add metric name %s for %s\n",
 			    "pmDiscoverInvokeMetricCallBacks", names[i], pmIDStr(desc->pmid));
+	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     discover_event_init(p, ts, &event);
@@ -677,8 +674,6 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
 {
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
-    __pmContext		*ctxp;
-    __pmArchCtl		*acp;
     char		buf[32], inbuf[32];
     int			i, sts;
 
@@ -693,16 +688,15 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
     }
 
     if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
-	ctxp = __pmHandleToPtr(p->ctx);
-	acp = ctxp->c_archctl;
-	PM_UNLOCK(ctxp->c_lock);
+	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
+	__pmArchCtl	*acp = ctxp->c_archctl;
+	char		errmsg[PM_MAXERRMSGLEN];
 
-	if ((sts = __pmLogAddInDom(acp, ts, in, NULL, 0)) < 0) {
-	    char		errmsg[PM_MAXERRMSGLEN];
+	if ((sts = __pmLogAddInDom(acp, ts, in, NULL, 0)) < 0)
 	    fprintf(stderr, "%s: failed to add indom for %s: %s\n",
 			"pmDiscoverInvokeInDomCallBacks", pmIDStr(in->indom),
 			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	}
+	PM_UNLOCK(ctxp->c_lock);
     } else {
 	sts = PMLOGPUTINDOM_DUP;
     }
@@ -728,8 +722,6 @@ pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
 {
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
-    __pmContext		*ctxp;
-    __pmArchCtl		*acp;
     char		buf[32], idbuf[64];
     int			i, sts;
 
@@ -745,17 +737,15 @@ pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
     }
 
     if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
-	ctxp = __pmHandleToPtr(p->ctx);
-	acp = ctxp->c_archctl;
-	PM_UNLOCK(ctxp->c_lock);
+	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
+	__pmArchCtl	*acp = ctxp->c_archctl;
+	char		errmsg[PM_MAXERRMSGLEN];
 
-	if ((sts = __pmLogAddLabelSets(acp, ts,
-					type, ident, nsets, sets)) < 0) {
-	    char		errmsg[PM_MAXERRMSGLEN];
+	if ((sts = __pmLogAddLabelSets(acp, ts, type, ident, nsets, sets)) < 0)
 	    fprintf(stderr, "%s: failed to add log labelset: %s\n",
 			"pmDiscoverInvokeLabelsCallBacks",
 			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	}
+	PM_UNLOCK(ctxp->c_lock);
     } else {
 	sts = -EAGAIN;	/* free labelsets memory after callbacks */
     }
@@ -777,8 +767,6 @@ pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
 {
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
-    __pmContext		*ctxp;
-    __pmArchCtl		*acp;
     char		buf[32];
     int			i, sts;
 
@@ -799,16 +787,15 @@ pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
     }
 
     if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
-	ctxp = __pmHandleToPtr(p->ctx);
-	acp = ctxp->c_archctl;
-	PM_UNLOCK(ctxp->c_lock);
+	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
+	__pmArchCtl	*acp = ctxp->c_archctl;
+	char		errmsg[PM_MAXERRMSGLEN];
 
-	if ((sts = __pmLogAddText(acp, ident, type, text)) < 0) {
-	    char		errmsg[PM_MAXERRMSGLEN];
+	if ((sts = __pmLogAddText(acp, ident, type, text)) < 0)
 	    fprintf(stderr, "%s: failed to add %u text for %u: %s\n",
 	               "pmDiscoverInvokeTextCallBacks", type, ident,
 			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     discover_event_init(p, ts, &event);
