@@ -107,8 +107,8 @@ void QedViewControl::cleanupRecording(void)
     my.recording = false;
     my.loggerList.clear();
     my.archiveList.clear();
-    my.view = QString::null;
-    my.folio = QString::null;
+    my.view = QString();
+    my.folio = QString();
 }
 
 bool QedViewControl::queryRecording(QString &errmsg)

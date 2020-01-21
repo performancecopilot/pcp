@@ -44,7 +44,7 @@ public:
     int type() const { return my.type; }
 
     bool isArchive() const { return my.type == PM_CONTEXT_ARCHIVE; }
-    bool isContainer() const { return my.context_container != QString::null; }
+    bool isContainer() const { return my.context_container != QString(); }
     QString hostLabel() const;
 
     QString source() const { return my.source; }
