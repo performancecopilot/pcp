@@ -833,6 +833,9 @@ class PidstatReport(pmcc.MetricGroupPrinter):
             # need two fetches to report rate converted counter metrics
             return
 
+        if not group['hinv.ncpu'].netValues or not group['kernel.uname.sysname'].netValues:
+            return
+
         if not self.Machine_info_count:
             self.print_machine_info(group, manager)
             self.Machine_info_count = 1
