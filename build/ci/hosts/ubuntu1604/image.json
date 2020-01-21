@@ -44,7 +44,7 @@
     { "type": "shell", "inline": ["sudo mkdir /usr/local/ci && sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci"]},
     {
       "type": "shell",
-      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
+      "execute_command": "chmod +x {{ .Path }}; sudo {{ .Vars }} '{{ .Path }}'",
       "environment_vars": [
         "GIT_REPO={{user `git_repo`}}",
         "GIT_COMMIT={{user `git_commit`}}"
