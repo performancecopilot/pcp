@@ -604,3 +604,49 @@ statsd.pmda.dropped
 statsd.test_gauge3
     inst [0 or "/"] value -inf
 Restoring config file...
+======================
+7.py
+----------------------
+Setting config file... configs/single/duration_aggregation_type/0/pmdastatsd.ini
+statsd.test_duration
+    inst [0 or "/min"] value 1
+    inst [1 or "/max"] value 100
+    inst [2 or "/median"] value 50
+    inst [3 or "/average"] value 50.5
+    inst [4 or "/percentile90"] value 90
+    inst [5 or "/percentile95"] value 95
+    inst [6 or "/percentile99"] value 99
+    inst [7 or "/count"] value 100
+    inst [8 or "/std_deviation"] value 28.86607004772212
+Restoring config file...
+======================
+8.py
+----------------------
+Setting config file... configs/single/duration_aggregation_type/0/pmdastatsd.ini
+statsd.test_labels
+    inst [0 or "/"] value 0
+    inst [1 or "/tagX=X::tagY=Y"] value 2
+    inst [2 or "/tagA=A::tagB=B::tagC=C"] value 3
+    inst [3 or "/A=A"] value 4
+    inst [4 or "/A=A::B=B::C=C"] value 5
+    inst [5 or "/tagX=X"] value 1
+    inst [6 or "/A=10"] value 6
+Number of instances in result: OK
+Root instance OK
+/tagX=X::tagY=Y instance OK
+/tagA=A::tagB=B::tagC=C instance OK
+/A=A instance OK
+/A=A::B=B::C=C instance OK
+/tagX=X instance OK
+/A=10 instance OK
+Number of instances in result: OK
+/min::label=X instance OK
+/max::label=X instance OK
+/median::label=X instance OK
+/average::label=X instance OK
+/percentile90::label=X instance OK
+/percentile95::label=X instance OK
+/percentile99::label=X instance OK
+/count::label=X instance OK
+/std_deviation::label=X instance OK
+Restoring config file...

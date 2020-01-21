@@ -66,9 +66,7 @@ def request_metric(metric_name):
 
 def print_metric(metric_name):
 	"""fetches metric with a given name, printing out the response"""
-	command = 'pminfo {} -f'
-	results = subprocess.check_output(command.format(metric_name), shell=True)
-	print(results.strip())
+	print(request_metric(metric_name))
 
 def print_config_metrics():
 	"""fetches config-related metrics, printing out the response"""
