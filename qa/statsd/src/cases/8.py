@@ -45,7 +45,6 @@ def run_test():
 
     # TODO: maybe create abstractions for instance related operations in tests? 
     labels_result = utils.request_metric("statsd.test_labels")
-    print(labels_result)
     expected_number_of_instances = 7
     if labels_result.count("inst [") != expected_number_of_instances:
         print("Unexpected number of instances.")

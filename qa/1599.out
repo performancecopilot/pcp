@@ -623,14 +623,6 @@ Restoring config file...
 8.py
 ----------------------
 Setting config file... configs/single/duration_aggregation_type/0/pmdastatsd.ini
-statsd.test_labels
-    inst [0 or "/"] value 0
-    inst [1 or "/tagX=X::tagY=Y"] value 2
-    inst [2 or "/tagA=A::tagB=B::tagC=C"] value 3
-    inst [3 or "/A=A"] value 4
-    inst [4 or "/A=A::B=B::C=C"] value 5
-    inst [5 or "/tagX=X"] value 1
-    inst [6 or "/A=10"] value 6
 Number of instances in result: OK
 Root instance OK
 /tagX=X::tagY=Y instance OK
