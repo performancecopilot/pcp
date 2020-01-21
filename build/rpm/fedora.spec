@@ -3222,6 +3222,8 @@ cd
 
 %changelog
 * Fri Feb 28 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
+- Fix compilation with gcc version 10 (BZ 1793495)
+- Fix dstat sub-sample averaging (BZ 1780039)
 - Update to latest PCP sources.
 
 * Wed Dec 11 2019 Nathan Scott <nathans@redhat.com> - 5.0.2-1
