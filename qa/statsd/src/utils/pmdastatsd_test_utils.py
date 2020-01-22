@@ -6,6 +6,8 @@ import socket
 import subprocess
 import os
 import shutil
+import re		
+import collections
 
 # get pmdastatsd dir
 get_pmdastatsd_dir_command = 'echo $PCP_PMDAS_DIR/statsd'
@@ -59,10 +61,37 @@ def set_config(path_to_config):
 		print("Error setting config file.")
 
 def request_metric(metric_name):
-	"""fetches metric with a given name."""
+	"""fetches metric value with a given name."""
 	command = 'pminfo {} -f'
 	results = subprocess.check_output(command.format(metric_name), shell=True)
 	return results.strip()
+
+def pminfo(str):
+	"""pminfo wrapper."""
+	command = 'pminfo {}'
+	results = subprocess.check_output(command.format(str), shell=True)
+	return results.strip()
+
+def get_instances(request_output):
+	# good enough, not the best
+	instance_lines = [line.strip() for line in request_output.split('\n') if "inst [" in line]
+	if len(instance_lines) == 0:
+		return collections.OrderedDict()
+	instances = {}
+	for line in instance_lines:
+		# again, heuristics good enough
+		key = re.findall(r"\"(.*)\"", line)[0]
+		value = re.findall(r"(?<=\"\] value ).*", line)[0]
+		instances[key] = value
+	d = collections.OrderedDict(sorted(instances.items()))
+	return d
+
+def check_is_in_bounds(expected_value, measured_value, toleration_margin = 0.1):
+    lower_bound = expected_value - (expected_value * toleration_margin)
+    upper_bound = expected_value + (expected_value * toleration_margin)
+    if measured_value >= lower_bound and measured_value <= upper_bound:
+        return True
+    return False
 
 def print_metric(metric_name):
 	"""fetches metric with a given name, printing out the response"""
