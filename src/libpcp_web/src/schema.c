@@ -1844,12 +1844,47 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
     const char		fallback[] = "/var/log/pcp";
     const char		*paths[] = { "pmlogger", "pmmgr" };
     const char		*logdir = pmGetOptionalConfig("PCP_LOG_DIR");
+    struct dict		*config;
+    unsigned int	domain, serial;
+    pmInDom		indom;
     char		path[MAXPATHLEN];
     char		sep = pmPathSeparator();
-    int			i, sts, count = 0;
+    sds			option, *ids;
+    int			i, sts, nids, count = 0;
 
     if (data == NULL)
 	return -ENOMEM;
+    config = data->config;
+
+    /* double-check that we are supposed to be in here */
+    if ((option = pmIniFileLookup(config, "discover", "enabled"))) {
+	if (strcasecmp(option, "false") == 0)
+	    return 0;
+    }
+
+    /* prepare for optional metric and indom exclusion */
+    if ((option = pmIniFileLookup(config, "discover", "exclude.metrics"))) {
+	if ((data->pmids = dictCreate(&intKeyDictCallBacks, NULL)) == NULL)
+	    return -ENOMEM;
+	/* parse regular expression string for matching on metric names */
+	regcomp(&data->exclude_names, option, REG_EXTENDED|REG_NOSUB);
+    }
+    if ((option = pmIniFileLookup(config, "discover", "exclude.indoms"))) {
+	if ((data->indoms = dictCreate(&intKeyDictCallBacks, NULL)) == NULL)
+	    return -ENOMEM;
+	/* parse comma-separated indoms in 'option', convert to pmInDom */
+	if ((ids = sdssplitlen(option, sdslen(option), ",", 1, &nids))) {
+	    data->exclude_indoms = nids;
+	    for (i = 0; i < nids; i++) {
+		if (sscanf(ids[i], "%u.%u", &domain, &serial) == 2) {
+		    indom = pmInDom_build(domain, serial);
+		    dictAdd(data->indoms, &indom, NULL);
+		}
+		sdsfree(ids[i]);
+	    }
+	    free(ids);
+	}
+    }
 
     /* create global EVAL hashes and string map caches */
     redisGlobalsInit(data->config);

@@ -427,7 +427,7 @@ pmwebapi_add_valueset(metric_t *metric, pmValueSet *vsp)
 }
 
 static void
-series_cache_update(seriesLoadBaton *baton)
+series_cache_update(seriesLoadBaton *baton, struct dict *exclude)
 {
     seriesGetContext	*context = &baton->pmapi;
     context_t		*cp = &context->context;
@@ -457,6 +457,10 @@ series_cache_update(seriesLoadBaton *baton)
 	/* check if in the restricted group (optional metric filter) */
 	if (dictSize(baton->wanted) &&
 	    dictFetchValue(baton->wanted, &vsp->pmid) == NULL)
+	    continue;
+
+	/* check if metric to be skipped (optional metric exclusion) */
+	if (exclude && (dictFind(exclude, &vsp->pmid)) != NULL)
 	    continue;
 
 	write_meta = write_inst = 0;
@@ -570,7 +574,7 @@ server_cache_window(void *arg)
 	    (finish->tv_sec == result->timestamp.tv_sec &&
 	     finish->tv_usec >= result->timestamp.tv_usec)) {
 	    context->done = server_cache_update_done;
-	    series_cache_update(baton);
+	    series_cache_update(baton, NULL);
 	}
 	else {
 	    if (pmDebugOptions.series)
@@ -1278,9 +1282,11 @@ pmSeriesDiscoverMetric(pmDiscoverEvent *event,
 void
 pmSeriesDiscoverValues(pmDiscoverEvent *event, pmResult *result, void *arg)
 {
+    pmDiscoverModule	*module = event->module;
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
     seriesGetContext	*context = &baton->pmapi;
+    discoverModuleData	*data = getDiscoverModuleData(module);
 
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "%s: result numpmids=%d\n", "pmSeriesDiscoverValues", result->numpmid);
@@ -1292,7 +1298,7 @@ pmSeriesDiscoverValues(pmDiscoverEvent *event, pmResult *result, void *arg)
     baton->arg = arg;
     context->result = result;
 
-    series_cache_update(baton);
+    series_cache_update(baton, data->pmids);
 }
 
 void

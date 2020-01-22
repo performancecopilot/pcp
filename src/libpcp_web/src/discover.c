@@ -626,6 +626,7 @@ static void
 pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
 		int numnames, char **names)
 {
+    discoverModuleData	*data = getDiscoverModuleData(p->module);
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
     char		buf[32];
@@ -636,23 +637,48 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
 			timespec_str(ts, buf, sizeof(buf)),
 			p->context.source, numnames > 0 ? " " : "(none)\n");
 	for (i = 0; i < numnames; i++)
-	    printf("\"%s\"%s", names[i], i < numnames - 1 ? ", " : "\n");
+	    fprintf(stderr, "[%u/%u] \"%s\"%s", i+1, numnames, names[i],
+			    i < numnames - 1 ? ", " : "\n");
 	pmPrintDesc(stderr, desc);
 	if (pmDebugOptions.labels)
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
     }
 
+    if (data->pmids) {
+	if (dictFind(data->pmids, &desc->pmid) != NULL)
+	    goto out;	/* metric contains an already excluded PMID */
+	for (i = 0; i < numnames; i++) {
+	    if (regexec(&data->exclude_names, names[i], 0, NULL, 0) == 0)
+		break;
+	}
+	if (i != numnames) {
+	    if (pmDebugOptions.discovery)
+		fprintf(stderr, "%s: excluding metric %s\n",
+				"pmDiscoverInvokeMetricCallBacks", names[i]);
+	    /* add this pmid to the exclusion list and return early */
+	    dictAdd(data->pmids, &desc->pmid, NULL);
+	    goto out;
+	}
+    }
+    if (data->indoms) {
+	if (dictFind(data->indoms, &desc->indom) != NULL)
+	    goto out;	/* metric contains an already excluded InDom */
+    }
+
     if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
 	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
 	__pmArchCtl	*acp = ctxp->c_archctl;
+	char		idstr[32];
 
 	if ((sts = __pmLogAddDesc(acp, desc)) < 0)
 	    fprintf(stderr, "%s: failed to add metric descriptor for %s\n",
-		    "pmDiscoverInvokeMetricCallBacks", pmIDStr(desc->pmid));
+			    "pmDiscoverInvokeMetricCallBacks",
+			    pmIDStr_r(desc->pmid, idstr, sizeof(idstr)));
 	for (i = 0; i < numnames; i++) {
 	    if ((sts = __pmLogAddPMNSNode(acp, desc->pmid, names[i])) < 0)
 		fprintf(stderr, "%s: failed to add metric name %s for %s\n",
-			    "pmDiscoverInvokeMetricCallBacks", names[i], pmIDStr(desc->pmid));
+				"pmDiscoverInvokeMetricCallBacks", names[i],
+				pmIDStr_r(desc->pmid, idstr, sizeof(idstr)));
 	}
 	PM_UNLOCK(ctxp->c_lock);
     }
@@ -664,6 +690,7 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
 	    callbacks->on_metric(&event, desc, numnames, names, p->data);
     }
 
+out:
     for (i = 0; i < numnames; i++)
 	free(names[i]);
     free(names);
@@ -672,10 +699,11 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
 static void
 pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
 {
+    discoverModuleData	*data = getDiscoverModuleData(p->module);
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
     char		buf[32], inbuf[32];
-    int			i, sts;
+    int			i, sts = PMLOGPUTINDOM_DUP; /* free after callbacks */
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s numinst %d indom %s\n",
@@ -685,6 +713,11 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
 			pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)));
 	if (pmDebugOptions.labels)
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
+    }
+
+    if (data->indoms) {
+	if (dictFind(data->indoms, &in->indom) != NULL)
+	    goto out;	/* excluded InDom */
     }
 
     if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
@@ -697,8 +730,6 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
 			"pmDiscoverInvokeInDomCallBacks", pmIDStr(in->indom),
 			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	PM_UNLOCK(ctxp->c_lock);
-    } else {
-	sts = PMLOGPUTINDOM_DUP;
     }
 
     discover_event_init(p, ts, &event);
@@ -708,6 +739,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
 	    callbacks->on_indom(&event, in, p->data);
     }
 
+out:
     if (sts == PMLOGPUTINDOM_DUP) {
 	for (i = 0; i < in->numinst; i++)
 	    free(in->namelist[i]);
@@ -720,10 +752,11 @@ static void
 pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
 		int ident, int type, pmLabelSet *sets, int nsets)
 {
+    discoverModuleData	*data = getDiscoverModuleData(p->module);
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
     char		buf[32], idbuf[64];
-    int			i, sts;
+    int			i, sts = -EAGAIN; /* free labelsets after callbacks */
 
     if (pmDebugOptions.discovery) {
 	__pmLabelIdentString(ident, type, idbuf, sizeof(idbuf));
@@ -736,6 +769,15 @@ pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
     }
 
+    if ((type & PM_LABEL_ITEM) && data->pmids) {
+	if (dictFind(data->pmids, &ident) != NULL)
+	    goto out;	/* text from an already excluded InDom */
+    }
+    if ((type & (PM_LABEL_INDOM|PM_LABEL_INSTANCES)) && data->indoms) {
+	if (dictFind(data->indoms, &ident) != NULL)
+	    goto out;	/* text from an already excluded InDom */
+    }
+
     if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
 	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
 	__pmArchCtl	*acp = ctxp->c_archctl;
@@ -746,8 +788,6 @@ pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
 			"pmDiscoverInvokeLabelsCallBacks",
 			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	PM_UNLOCK(ctxp->c_lock);
-    } else {
-	sts = -EAGAIN;	/* free labelsets memory after callbacks */
     }
 
     discover_event_init(p, ts, &event);
@@ -757,6 +797,7 @@ pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
 	    callbacks->on_labels(&event, ident, type, sets, nsets, p->data);
     }
 
+out:
     if (sts < 0)
 	pmFreeLabelSets(sets, nsets);
 }
@@ -765,6 +806,7 @@ static void
 pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
 		int ident, int type, char *text)
 {
+    discoverModuleData	*data = getDiscoverModuleData(p->module);
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
     char		buf[32];
@@ -786,6 +828,15 @@ pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
     }
 
+    if ((type & PM_TEXT_PMID) && data->pmids) {
+	if (dictFind(data->pmids, &ident) != NULL)
+	    goto out;	/* text from an already excluded InDom */
+    }
+    if ((type & PM_TEXT_INDOM) && data->indoms) {
+	if (dictFind(data->indoms, &ident) != NULL)
+	    goto out;	/* text from an already excluded InDom */
+    }
+
     if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
 	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
 	__pmArchCtl	*acp = ctxp->c_archctl;
@@ -805,6 +856,7 @@ pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
 	    callbacks->on_text(&event, ident, type, text, p->data);
     }
 
+out:
     free(text);
 }
 
