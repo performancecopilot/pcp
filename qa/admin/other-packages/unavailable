@@ -62,3 +62,4 @@ Ubuntu       14\.04   -       libsoqt5-dev libsoqt-dev libsoqt-dev-common libspr
 Ubuntu       16\.04   -       libsoqt5-dev libsoqt-dev libsoqt-dev-common libspreadsheet-readsxc-perl libuv1-dev python3-bpfcc
 Ubuntu       18\.04   -       libsoqt5-dev libsoqt-dev libsoqt-dev-common libuv-dev libuv0.10-dev
 Ubuntu       19\.04   -       libsoqt5-dev libsoqt-dev libsoqt-dev-common libuv-dev libuv0.10-dev
+Ubuntu       19\.10   -       libsoqt5-dev libsoqt-dev-common
