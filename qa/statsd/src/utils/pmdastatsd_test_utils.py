@@ -13,6 +13,11 @@ import collections
 get_pmdastatsd_dir_command = 'echo $PCP_PMDAS_DIR/statsd'
 pmdastatsd_dir = subprocess.check_output(get_pmdastatsd_dir_command, shell=True)
 pmdastatsd_dir = pmdastatsd_dir.strip()
+
+get_pmdastatsd_log_dir_command = 'echo $PCP_LOG_DIR/pmcd'
+pmdastatsd_log_dir = subprocess.check_output(get_pmdastatsd_log_dir_command, shell=True)
+pmdastatsd_log_path = pmdastatsd_log_dir.strip() + "/statsd.log"
+
 pmdastatsd_config_filename = "pmdastatsd.ini"
 pmdastatsd_config_backup_filename = "backup_pmdastatsd.ini"
 

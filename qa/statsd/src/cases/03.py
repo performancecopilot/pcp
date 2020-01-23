@@ -26,5 +26,6 @@ def run_test():
     utils.print_metric('statsd.pmda.time_spent_aggregating')
     utils.print_metric('statsd.pmda.metrics_tracked')
     utils.pmdastatsd_remove()
+    utils.restore_config()
 
 run_test()
