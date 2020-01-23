@@ -27,7 +27,7 @@ steps:
       GIT_REPO: $(Build.Repository.Uri)
       GIT_COMMIT: $(Build.SourceVersion)
 
-  - script: ./build/ci/scripts/start_install.sh "$(ci_host)"
+  - script: ./build/ci/scripts/start_install.sh "$(ci_host)" "$(pwd)/artifacts"
     displayName: Install
     env:
       BUILD_ID: $(Build.BuildId)
@@ -36,14 +36,14 @@ steps:
     displayName: Publish build artifacts
     artifact: $(ci_host)
 
-  - script: ./build/ci/scripts/start_tests.sh "$(ci_host)" "$(tests)"
+  - script: ./build/ci/scripts/start_tests.sh "$(ci_host)" "$(tests)" "$(pwd)"
     displayName: Test
     env:
       BUILD_ID: $(Build.BuildId)
 
   - task: PublishTestResults@2
     displayName: Publish test results
-    condition: always()
+    condition: succeededOrFailed()
     inputs:
       testResultsFormat: JUnit
       testResultsFiles: '*.xml'

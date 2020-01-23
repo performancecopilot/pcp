@@ -1,0 +1,85 @@
+#!/bin/sh
+# PCP QA Test No. 1694
+# Exercise pcp-pidstat with missing kernel and hinv metrics.
+#
+# Copyright (c) 2020 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+test -x $PCP_BINADM_DIR/pcp-pidstat || _notrun "No pcp-pidstat(1) installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== Checking pcp-pidstat without kernel metrics ==="
+cat >$tmp.conf1 <<EOF1
+hinv
+mem
+proc
+EOF1
+pmlogextract -c $tmp.conf1 $here/archives/pcp-pidstat $tmp.pidstat1
+pcp -z -a $tmp.pidstat1 pidstat
+echo
+
+echo "=== Checking pcp-pidstat without hinv metrics ==="
+cat >$tmp.conf2 <<EOF2
+kernel
+mem
+proc
+EOF2
+pmlogextract -c $tmp.conf2 $here/archives/pcp-pidstat $tmp.pidstat2
+pcp -z -a $tmp.pidstat2 pidstat
+echo
+
+echo "=== Checking pcp-pidstat without proc metrics ==="
+cat >$tmp.conf3 <<EOF3
+hinv
+kernel
+mem
+EOF3
+pmlogextract -c $tmp.conf3 $here/archives/pcp-pidstat $tmp.pidstat3
+pcp -z -a $tmp.pidstat3 pidstat
+echo
+
+echo "=== Checking pcp-pidstat without mem metrics ==="
+cat >$tmp.conf4 <<EOF4
+hinv
+kernel
+proc
+EOF4
+pmlogextract -c $tmp.conf4 $here/archives/pcp-pidstat $tmp.pidstat4
+pcp -z -a $tmp.pidstat4 pidstat
+echo
+
+echo "=== Checking pcp-pidstat with proc metrics first ==="
+cat >$tmp.conf5 <<EOF5
+hinv
+kernel
+mem
+EOF5
+cat >$tmp.conf6 <<EOF6
+proc
+EOF6
+pmlogextract -c $tmp.conf6 -s1 $here/archives/pcp-pidstat $tmp.pidstat6
+pmlogextract -c $tmp.conf5 -S2sec $here/archives/pcp-pidstat $tmp.pidstat5
+pmlogextract $tmp.pidstat5 $tmp.pidstat6 $tmp.pidstat7
+pcp -z -a $tmp.pidstat7 pidstat
+echo
+
+status=0
+exit

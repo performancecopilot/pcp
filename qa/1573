@@ -54,7 +54,7 @@ echo "redis.enabled = true" >> $tmp.conf
 echo "[discover]" >> $tmp.conf
 echo "enabled = true" >> $tmp.conf
 echo "[pmseries]" >> $tmp.conf
-echo "enabled = true" >> $tmp.conf
+echo "enabled = false" >> $tmp.conf
 $sudo cp $tmp.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
 
 _service pmlogger stop >/dev/null

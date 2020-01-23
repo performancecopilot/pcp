@@ -1,6 +1,5 @@
 #!/bin/sh -eu
 
-PREV_PWD=$PWD
 cd "$(dirname "$0")/.."
 . scripts/env.sh
 . scripts/vmss.env.sh

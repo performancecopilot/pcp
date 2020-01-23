@@ -821,8 +821,7 @@ class PidstatReport(pmcc.MetricGroupPrinter):
         header_string += '(' + group['kernel.uname.nodename'].netValues[0][2] + ')  '
         header_string += time_string + '  '
         header_string += group['kernel.uname.machine'].netValues[0][2] + '  '
-        no_cpu =self.get_ncpu(group)
-        print("%s  (%s CPU)" % (header_string,no_cpu))
+        print("%s  (%s CPU)" % (header_string, self.get_ncpu(group)))
 
     def get_ncpu(self,group):
         return group['hinv.ncpu'].netValues[0][2]
@@ -833,16 +832,23 @@ class PidstatReport(pmcc.MetricGroupPrinter):
             # need two fetches to report rate converted counter metrics
             return
 
-        if not self.Machine_info_count:
-            self.print_machine_info(group, manager)
-            self.Machine_info_count = 1
+        if not group['hinv.ncpu'].netValues or not group['kernel.uname.sysname'].netValues:
+            return
+
+        try:
+            ncpu = self.get_ncpu(group)
+            if not self.Machine_info_count:
+                self.print_machine_info(group, manager)
+                self.Machine_info_count = 1
+        except IndexError:
+            # missing some metrics
+            return
 
         ts = group.contextCache.pmLocaltime(int(group.timestamp))
         timestamp = time.strftime(PidstatOptions.timefmt, ts.struct_time())
         interval_in_seconds = self.timeStampDelta(group)
         header_indentation = "        " if len(timestamp)<9 else (len(timestamp)-7)*" "
         value_indentation = ((len(header_indentation)+9)-len(timestamp))*" "
-        ncpu = self.get_ncpu(group)
 
         metric_repository = ReportingMetricRepository(group)
 

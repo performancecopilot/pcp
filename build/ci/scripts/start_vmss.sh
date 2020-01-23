@@ -3,6 +3,11 @@
 cd "$(dirname "$0")/.."
 . scripts/env.sh
 
+az image show \
+  --resource-group "${AZ_RESOURCE_GROUP}" \
+  --name "${AZ_IMAGE}" \
+  --query tags
+
 az vmss create \
   --resource-group "${AZ_RESOURCE_GROUP}" \
   --name "${AZ_VMSS}" \
@@ -14,4 +19,4 @@ az vmss create \
   --public-ip-per-vm \
   --admin-username pcp \
   ${AZ_PLAN_INFO} \
-  --tags "GIT_REPO=${GIT_REPO}" "GIT_COMMIT=${GIT_COMMIT}"
+  --tags "git_repo=${GIT_REPO}" "git_commit=${GIT_COMMIT}"

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2020 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -67,6 +67,8 @@
 #define XADD_LEN	(sizeof(XADD)-1)
 #define XRANGE		"XRANGE"
 #define XRANGE_LEN	(sizeof(XRANGE)-1)
+#define XREVRANGE	"XREVRANGE"
+#define XREVRANGE_LEN	(sizeof(XREVRANGE)-1)
 
 /* create a Redis protocol command (e.g. XADD, SMEMBER) */
 static inline sds

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Red Hat.
+ * Copyright (c) 2017-2020 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1243,24 +1243,43 @@ series_prepare_time_reply(
     series_query_end_phase(baton);
 }
 
+unsigned int
+series_value_count_only(timing_t *tp)
+{
+    if (tp->window.range || tp->window.delta ||
+	tp->window.start || tp->window.end)
+	return 0;
+    return tp->count;
+}
+
 static void
 series_prepare_time(seriesQueryBaton *baton, series_set_t *result)
 {
     timing_t		*tp = &baton->u.query.timing;
     unsigned char	*series = result->series;
     seriesGetSID	*sid;
-    char		buffer[64];
+    char		buffer[64], revbuf[64];
     sds			start, end, key, cmd;
-    unsigned int	i;
+    unsigned int	i, revlen = 0, reverse = 0;
 
-    start = sdsnew(timeval_stream_str(&tp->start, buffer, sizeof(buffer)));
+    /* if only 'count' is requested, work back from most recent value */
+    if ((reverse = series_value_count_only(tp)) != 0) {
+	revlen = pmsprintf(revbuf, sizeof(revbuf), "%u", reverse);
+	start = sdsnew("+");
+    } else {
+	start = sdsnew(timeval_stream_str(&tp->start, buffer, sizeof(buffer)));
+    }
+
     if (pmDebugOptions.series)
 	fprintf(stderr, "START: %s\n", start);
 
-    if (tp->end.tv_sec)
+    if (reverse)
+	end = sdsnew("-");
+    else if (tp->end.tv_sec)
 	end = sdsnew(timeval_stream_str(&tp->end, buffer, sizeof(buffer)));
     else
 	end = sdsnew("+");	/* "+" means "no end" - to the most recent */
+
     if (pmDebugOptions.series)
 	fprintf(stderr, "END: %s\n", end);
 
@@ -1277,12 +1296,21 @@ series_prepare_time(seriesQueryBaton *baton, series_set_t *result)
 
 	key = sdscatfmt(sdsempty(), "pcp:values:series:%S", sid->name);
 
-	/* XRANGE key t1 t2 */
-	cmd = redis_command(4);
-	cmd = redis_param_str(cmd, XRANGE, XRANGE_LEN);
+	/* X[REV]RANGE key t1 t2 [count N] */
+	if (reverse) {
+	    cmd = redis_command(6);
+	    cmd = redis_param_str(cmd, XREVRANGE, XREVRANGE_LEN);
+	} else {
+	    cmd = redis_command(4);
+	    cmd = redis_param_str(cmd, XRANGE, XRANGE_LEN);
+	}
 	cmd = redis_param_sds(cmd, key);
 	cmd = redis_param_sds(cmd, start);
 	cmd = redis_param_sds(cmd, end);
+	if (reverse) {
+	    cmd = redis_param_str(cmd, "COUNT", sizeof("COUNT")-1);
+	    cmd = redis_param_str(cmd, revbuf, revlen);
+	}
 	redisSlotsRequest(baton->slots, XRANGE, key, cmd,
 				series_prepare_time_reply, sid);
     }

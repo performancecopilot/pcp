@@ -1,6 +1,6 @@
 """ Wrapper module for LIBPCP - the core Performace Co-Pilot API
 #
-# Copyright (C) 2012-2019 Red Hat
+# Copyright (C) 2012-2020 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -127,8 +127,10 @@ LIBC = CDLL(find_library(libc_name))
 if sys.version >= '3':
     integer_types = (int,)
     long = int
+    text_type = str
 else:
     integer_types = (int, long,)
+    text_type = unicode # pylint: disable=undefined-variable
 
 def pyFileToCFile(fileObj):
     if sys.version >= '3':
@@ -383,6 +385,10 @@ class pmUnits(Structure):
         self.scaleTime = scaleT
         self.scaleCount = scaleC
         self.pad = 0
+
+    def __int__(self):
+        return c_api.pmUnits_int(self.dimSpace, self.dimTime, self.dimCount,
+                                 self.scaleSpace, self.scaleTime, self.scaleCount)
 
     def __str__(self):
         unitstr = ctypes.create_string_buffer(64)
@@ -2500,7 +2506,7 @@ class pmContext(object):
 
     @staticmethod
     def pmParseUnitsStr(string):
-        if not isinstance(string, (bytes, str)):
+        if not isinstance(string, (bytes, text_type)):
             raise pmErr(c_api.PM_ERR_CONV, str(string))
         if not isinstance(string, bytes):
             string = string.encode('utf-8')

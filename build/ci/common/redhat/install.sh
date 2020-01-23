@@ -1,5 +1,5 @@
-#!/bin/sh -eu
+#!/bin/sh -eux
 
 cd ./artifacts
-sudo rpm -i *.rpm
+sudo rpm -iv *.rpm
 echo 'pcpqa ALL=(ALL)   NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa

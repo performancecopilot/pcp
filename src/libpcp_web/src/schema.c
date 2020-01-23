@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Red Hat.
+ * Copyright (c) 2017-2020 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -819,7 +819,7 @@ redis_series_metric(redisSlots *slots, metric_t *metric,
      */
 
     /* ensure all metric name strings are mapped */
-    for (i = 0; i < metric->numnames; i++) {
+    for (i = 0; metric->cached == 0 && i < metric->numnames; i++) {
 	assert(metric->names[i].sds != NULL);
 	seriesBatonReference(baton, "redis_series_metric");
 	redisGetMap(slots,
@@ -830,7 +830,8 @@ redis_series_metric(redisSlots *slots, metric_t *metric,
 
     /* ensure all metric or instance label strings are mapped */
     if (metric->desc.indom == PM_INDOM_NULL || metric->u.vlist == NULL) {
-	series_metric_label_mapping(metric, baton);
+	if (metric->cached == 0)
+	    series_metric_label_mapping(metric, baton);
     } else {
 	for (i = 0; i < metric->u.vlist->listcount; i++) {
 	    value = &metric->u.vlist->value[i];
@@ -847,7 +848,8 @@ redis_series_metric(redisSlots *slots, metric_t *metric,
 			series_name_mapping_callback,
 			baton->info, baton->userdata, baton);
 
-	    series_instance_label_mapping(metric, instance, baton);
+	    if (instance->cached == 0)
+		series_instance_label_mapping(metric, instance, baton);
 	}
     }
 
@@ -941,6 +943,9 @@ redis_series_metadata(context_t *context, metric_t *metric, void *arg)
     sds				cmd, key;
     int				i;
 
+    if (metric->cached)
+	goto check_instances;
+
     indom = pmwebapi_indom_str(metric, ibuf, sizeof(ibuf));
     pmid = pmwebapi_pmid_str(metric, pbuf, sizeof(pbuf));
     sem = pmwebapi_semantics_str(metric, sbuf, sizeof(sbuf));
@@ -1000,16 +1005,24 @@ redis_series_metadata(context_t *context, metric_t *metric, void *arg)
 	cmd = redis_param_sha(cmd, metric->names[i].hash);
     redisSlotsRequest(slots, SADD, key, cmd, redis_series_source_callback, arg);
 
+check_instances:
     if (metric->desc.indom == PM_INDOM_NULL || metric->u.vlist == NULL) {
-	redis_series_labelset(slots, metric, NULL, baton);
+	if (metric->cached == 0) {
+	    redis_series_labelset(slots, metric, NULL, baton);
+	    metric->cached = 1;
+	}
     } else {
 	for (i = 0; i < metric->u.vlist->listcount; i++) {
 	    value = &metric->u.vlist->value[i];
 	    if ((instance = dictFetchValue(metric->indom->insts, &value->inst)) == NULL)
 		continue;
-	    redis_series_instance(slots, metric, instance, baton);
-	    redis_series_labelset(slots, metric, instance, baton);
+	    if (instance->cached == 0 || metric->cached == 0) {
+		redis_series_instance(slots, metric, instance, baton);
+		redis_series_labelset(slots, metric, instance, baton);
+	    }
+	    instance->cached = 1;
 	}
+	metric->cached = 1;
     }
 }
 
@@ -1210,7 +1223,6 @@ redis_series_stream(redisSlots *slots, sds stamp, metric_t *metric,
 
     redisSlotsRequest(slots, XADD, key, cmd, redis_series_stream_callback, baton);
 
-
     key = sdscatfmt(sdsempty(), "pcp:values:series:%s", hash);
     cmd = redis_command(3);	/* EXPIRE key timer */
     cmd = redis_param_str(cmd, EXPIRE, EXPIRE_LEN);
@@ -1227,9 +1239,6 @@ redis_series_streamed(sds stamp, metric_t *metric, void *arg)
     redisSlots			*slots = baton->slots;
     char			hashbuf[42];
     int				i;
-
-    if (metric->updated == 0)
-	return;
 
     for (i = 0; i < metric->numnames; i++) {
 	pmwebapi_hash_str(metric->names[i].hash, hashbuf, sizeof(hashbuf));
@@ -1835,12 +1844,47 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
     const char		fallback[] = "/var/log/pcp";
     const char		*paths[] = { "pmlogger", "pmmgr" };
     const char		*logdir = pmGetOptionalConfig("PCP_LOG_DIR");
+    struct dict		*config;
+    unsigned int	domain, serial;
+    pmInDom		indom;
     char		path[MAXPATHLEN];
     char		sep = pmPathSeparator();
-    int			i, sts, count = 0;
+    sds			option, *ids;
+    int			i, sts, nids, count = 0;
 
     if (data == NULL)
 	return -ENOMEM;
+    config = data->config;
+
+    /* double-check that we are supposed to be in here */
+    if ((option = pmIniFileLookup(config, "discover", "enabled"))) {
+	if (strcasecmp(option, "false") == 0)
+	    return 0;
+    }
+
+    /* prepare for optional metric and indom exclusion */
+    if ((option = pmIniFileLookup(config, "discover", "exclude.metrics"))) {
+	if ((data->pmids = dictCreate(&intKeyDictCallBacks, NULL)) == NULL)
+	    return -ENOMEM;
+	/* parse regular expression string for matching on metric names */
+	regcomp(&data->exclude_names, option, REG_EXTENDED|REG_NOSUB);
+    }
+    if ((option = pmIniFileLookup(config, "discover", "exclude.indoms"))) {
+	if ((data->indoms = dictCreate(&intKeyDictCallBacks, NULL)) == NULL)
+	    return -ENOMEM;
+	/* parse comma-separated indoms in 'option', convert to pmInDom */
+	if ((ids = sdssplitlen(option, sdslen(option), ",", 1, &nids))) {
+	    data->exclude_indoms = nids;
+	    for (i = 0; i < nids; i++) {
+		if (sscanf(ids[i], "%u.%u", &domain, &serial) == 2) {
+		    indom = pmInDom_build(domain, serial);
+		    dictAdd(data->indoms, &indom, NULL);
+		}
+		sdsfree(ids[i]);
+	    }
+	    free(ids);
+	}
+    }
 
     /* create global EVAL hashes and string map caches */
     redisGlobalsInit(data->config);

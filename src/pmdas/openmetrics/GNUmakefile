@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2017 Ronak Jain.
-# Copyright (c) 2017,2019 Red Hat.
+# Copyright (c) 2017,2019-2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -20,8 +20,6 @@ IAM	= openmetrics
 PYSCRIPT = pmda$(IAM).python
 LDIRT	= domain.h root pmns $(IAM).log
 
-SUBDIRS	=
-
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
@@ -34,17 +32,12 @@ default_pcp default ::	build-me
 include $(BUILDRULES)
 
 ifeq "$(PMDA_OPENMETRICS)" "true"
-build-me:	check_domain $(SUBDIRS)
-
-default_pcp default :: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-
-install_pcp install :: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+build-me:	check_domain
 
 install_pcp install :: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 -d $(PMDADIR)/config.d
+	$(INSTALL) -m 644 grafana.url $(PMDADIR)/config.d/grafana.url
 	$(INSTALL) -m 755 Install Remove Upgrade $(PYSCRIPT) $(PMDADIR)
 	@$(INSTALL_MAN)
 

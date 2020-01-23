@@ -34,24 +34,25 @@
     "ssh_timeout": "20m"
   }],
   "provisioners": [
-    { "type": "file", "source": "common/fedora/azure_agent.sh", "destination": "/tmp/" },
-    { "type": "file", "source": "common/fedora/provision.sh", "destination": "/tmp/" },
-    { "type": "file", "source": "common/fedora/build.sh", "destination": "/tmp/" },
-    { "type": "file", "source": "common/fedora/install.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/redhat/build.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "common/redhat/install.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/linux/test.sh", "destination": "/tmp/" },
+    { "type": "shell", "inline": ["sudo mkdir /usr/local/ci && sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci"]},
     {
       "type": "shell",
+      "execute_command": "chmod +x {{ .Path }}; sudo {{ .Vars }} '{{ .Path }}'",
       "environment_vars": [
         "GIT_REPO={{user `git_repo`}}",
         "GIT_COMMIT={{user `git_commit`}}"
       ],
-      "inline": [
-        "sudo mkdir /usr/local/ci",
-        "sudo mv /tmp/azure_agent.sh /tmp/provision.sh /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci",
-        "sudo /usr/local/ci/azure_agent.sh",
-        "/usr/local/ci/provision.sh"
+      "scripts": [
+        "hosts/fedora31/upgrade_bcc.sh",
+        "common/redhat/provision_dnf.sh",
+        "common/redhat/azure_prep.sh",
+        "common/linux/deprovision.sh"
       ]
-    }
+    },
+    { "type": "shell", "inline": ["sudo -i /bin/sh -cx 'userdel -f -r fedora && rm /etc/sudoers.d/90-cloud-init-users'"]}
   ],
   "post-processors": [{
     "type": "shell-local",
@@ -62,7 +63,7 @@
       "AZ_STORAGE_URL={{user `az_storage_url`}}",
       "AZ_STORAGE_CONTAINER={{user `az_storage_container`}}"
     ],
-    "script": "scripts/azure_image_upload.sh"
+    "script": "scripts/upload_vhd.sh"
   }]
 }
 

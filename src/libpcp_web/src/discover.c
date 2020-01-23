@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019 Red Hat.
+ * Copyright (c) 2018-2020 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,9 +24,10 @@ static int pmDiscoverDecodeMetaLabelSet(uint32_t *, int, pmTimespec *, int *, in
 /* array of registered callbacks, see pmDiscoverSetup() */
 static int discoverCallBackTableSize;
 static pmDiscoverCallBacks **discoverCallBackTable;
+static char *pmDiscoverFlagsStr(pmDiscover *);
 
 /* internal hash table of discovered paths */
-#define PM_DISCOVER_HASHTAB_SIZE 64
+#define PM_DISCOVER_HASHTAB_SIZE 16
 static pmDiscover *discover_hashtable[PM_DISCOVER_HASHTAB_SIZE];
 
 /* FNV string hash algorithm. Return unsigned in range 0 .. limit-1 */
@@ -44,17 +45,25 @@ strhash(const char *s, unsigned int limit)
 }
 
 /*
- * Lookup or Add a discovered file path (directory or PCP archive file)
+ * Lookup or Add a discovered file path (directory or PCP archive file).
+ * Note: the fullpath suffix (.meta, .[0-9]+) should already be stripped.
  * Return path table entry (new or existing).
  */
 static pmDiscover *
-pmDiscoverLookupAdd(const char *path, pmDiscoverModule *module, void *arg)
+pmDiscoverLookupAdd(const char *fullpath, pmDiscoverModule *module, void *arg)
 {
     pmDiscover		*p, *h;
-    unsigned int	k = strhash(path, PM_DISCOVER_HASHTAB_SIZE);
+    unsigned int	k;
+    sds			name;
+
+    name = sdsnew(fullpath);
+    k = strhash(name, PM_DISCOVER_HASHTAB_SIZE);
+
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "pmDiscoverLookupAdd: name=%s\n", name);
 
     for (p = NULL, h = discover_hashtable[k]; h != NULL; p = h, h = h->next) {
-    	if (strcmp(h->context.name, path) == 0)
+    	if (sdscmp(h->context.name, name) == 0)
 	    break;
     }
 
@@ -65,14 +74,24 @@ pmDiscoverLookupAdd(const char *path, pmDiscoverModule *module, void *arg)
 	h->ctx = -1; /* no PMAPI context initially */
 	h->flags = PM_DISCOVER_FLAGS_NEW;
 	h->context.type = PM_CONTEXT_ARCHIVE;
-	h->context.name = sdsnew(path);
+	h->context.name = name;
 	h->module = module;
 	h->data = arg;
 	if (p == NULL)
 	    discover_hashtable[k] = h;
 	else
 	    p->next = h;
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "pmDiscoverLookupAdd: --> new entry %s\n", name);
+
     }
+    else {
+	/* already in hash table, so free the buffer */
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "pmDiscoverLookupAdd: --> existing entry %s\n", name);
+    	sdsfree(name);
+    }
+
     return h;
 }
 
@@ -80,12 +99,6 @@ static pmDiscover *
 pmDiscoverLookup(const char *path)
 {
     return pmDiscoverLookupAdd(path, NULL, NULL);
-}
-
-static pmDiscover *
-pmDiscoverAdd(const char *path, pmDiscoverModule *module, void *arg)
-{
-    return pmDiscoverLookupAdd(path, module, arg);
 }
 
 static void
@@ -101,30 +114,14 @@ pmDiscoverFree(pmDiscover *p)
 	sdsfree(p->context.source);
     if (p->context.labelset)
 	pmFreeLabelSets(p->context.labelset, 1);
+    if (p->event_handle) {
+	uv_fs_event_stop(p->event_handle);
+	free(p->event_handle);
+	p->event_handle = NULL;
+    }
+
     memset(p, 0, sizeof(*p));
     free(p);
-}
-
-/*
- * Delete tracking of a previously discovered path. Frees resources and
- * destroy PCP context (if any).
- */
-static void
-pmDiscoverDelete(sds path)
-{
-    pmDiscover		*p, *h;
-    unsigned int	k = strhash(path, PM_DISCOVER_HASHTAB_SIZE);
-
-    for (p = NULL, h = discover_hashtable[k]; h != NULL; p = h, h = h->next) {
-    	if (sdscmp(h->context.name, path) == 0) {
-	    if (p == NULL)
-	    	discover_hashtable[k] = NULL;
-	    else
-	    	p->next = h->next;
-	    pmDiscoverFree(h);
-	    break;
-	}
-    }
 }
 
 /*
@@ -173,6 +170,9 @@ pmDiscoverPurgeDeleted(void)
 		    prev->next = next;
 		else
 		    discover_hashtable[i] = next;
+		if (pmDebugOptions.discovery)
+		    fprintf(stderr, "pmDiscoverPurgeDeleted: deleted %s %s\n",
+		    	p->context.name, pmDiscoverFlagsStr(p));
 		pmDiscoverFree(p);
 		count++;
 	    }
@@ -180,11 +180,29 @@ pmDiscoverPurgeDeleted(void)
 	}
     }
 
-    if (pmDebugOptions.discovery)
-	fprintf(stderr, "%s: purged %d entries\n",
-			"pmDiscoverPurgeDeleted", count);
-
     return count;
+}
+
+/*
+ * if string ends with given suffix then return pointer
+ * to start of suffix in string, else NULL
+ */
+static char *
+strsuffix(char *s, const char *suffix)
+{
+    int slen, suflen;
+    char *ret = NULL;
+
+    if (s && suffix) {
+    	slen = strlen(s);
+	suflen = strlen(suffix);
+	if (slen >= suflen) {
+	    ret = s + (slen - suflen);
+	    if (strncmp(ret, suffix, suflen) != 0)
+	    	ret = NULL;
+	}
+    }
+    return ret;
 }
 
 /*
@@ -200,40 +218,82 @@ pmDiscoverArchives(const char *dir, pmDiscoverModule *module, void *arg)
     uv_dirent_t		dent;
     uv_stat_t		*s;
     pmDiscover		*a;
+    char		*suffix;
     char		path[MAXNAMELEN];
-    char		basepath[MAXNAMELEN];
     int			sep = pmPathSeparator();
+    int			vol;
+    int			sts;
 
-    if (uv_fs_scandir(NULL, &req, dir, 0, NULL) < 0)
-	return -ESRCH;
-
-    a = pmDiscoverAdd(dir, module, arg);
+    /*
+     * note: pmDiscoverLookupAdd sets PM_DISCOVER_FLAGS_NEW
+     * if this is a newly discovered archive or directory
+     */
+    a = pmDiscoverLookupAdd(dir, module, arg);
     a->flags |= PM_DISCOVER_FLAGS_DIRECTORY;
+
+    if ((sts = uv_fs_scandir(NULL, &req, dir, 0, NULL)) < 0) {
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "pmDiscoverArchives: scandir %s failed %s: err %d\n", dir, path, sts);
+	return -ESRCH;
+    }
 
     while (uv_fs_scandir_next(&req, &dent) != UV_EOF) {
 	pmsprintf(path, sizeof(path), "%s%c%s", dir, sep, dent.name);
-	if (uv_fs_stat(NULL, &sreq, path, NULL) < 0)
+
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "pmDiscoverArchives: scandir found %s\n", path);
+
+	if (uv_fs_stat(NULL, &sreq, path, NULL) < 0) {
+	    if (pmDebugOptions.discovery)
+		fprintf(stderr, "pmDiscoverArchives: stat failed %s\n", path);
 	    continue;
+	}
+
 	s = &sreq.statbuf;
-	strncpy(basepath, path, sizeof(basepath)); /* __pmLogBaseName modifies it's argument */
-	if (S_ISREG(s->st_mode) && __pmLogBaseName(basepath) != NULL) {
-	    /*
-	     * An archive file (index, meta or data vol). If compressed, then
-	     * it is read-only and we don't have to monitor it for growth.
-	     */
-	    a = pmDiscoverAdd(path, module, arg);
-	    a->flags &= ~PM_DISCOVER_FLAGS_DELETED;
+	if (S_ISREG(s->st_mode)) {
+	    if ((suffix = strsuffix(path, ".meta")) != NULL) {
+		/*
+		 * An uncompressed PCP archive meta file. Track the meta
+		 * file - the matching logvol filename varies because logvols
+		 * are periodically rolled by pmlogger. Importantly, process all
+		 * available metadata to EOF before processing any logvol data.
+		 */
+		*suffix = '\0'; /* strip suffix from path giving archive name */
+		a = pmDiscoverLookupAdd(path, module, arg);
 
-	    if (strstr(path, ".meta"))
-	    	a->flags |= PM_DISCOVER_FLAGS_META;
-	    else if (strstr(path, ".index"))
-	    	a->flags |= PM_DISCOVER_FLAGS_INDEX;
-	    else
-	    	a->flags |= PM_DISCOVER_FLAGS_DATAVOL;
+		/*
+		 * note: pmDiscoverLookupAdd sets PM_DISCOVER_FLAGS_NEW
+		 * if this is a newly discovered archive, otherwise we're
+		 * already tracking this archive.
+		 */
+		a->flags |= PM_DISCOVER_FLAGS_META;
+	    }
+	    else if ((suffix = __pmLogBaseNameVol(path, &vol)) != NULL && vol >= 0) {
+		/*
+		 * An archive logvol. This logvol may have been created since
+		 * the context was first opened. Update the context maxvol
+		 * to be sure pmFetchArchive can switch to it in due course.
+		 */
+		if ((a = pmDiscoverLookup(path)) != NULL) {
+		    a->flags |= PM_DISCOVER_FLAGS_DATAVOL;
+		    /* ensure archive context knows about this volume */
+		    if (pmDebugOptions.discovery)
+			fprintf(stderr, "pmDiscoverArchives: found logvol %s %s vol=%d\n",
+			    a->context.name, pmDiscoverFlagsStr(a), vol);
+		    if (a->ctx >= 0 && vol >= 0) {
+			__pmContext *ctxp = __pmHandleToPtr(a->ctx);
+			__pmArchCtl *acp = ctxp->c_archctl;
 
-	    /* compare to libpcp io.c for suffix list */
-	    if (strstr(path, ".xz") || strstr(path, ".gz"))
-	    	a->flags |= PM_DISCOVER_FLAGS_COMPRESSED;
+		    	__pmLogAddVolume(acp, vol);
+			PM_UNLOCK(ctxp->c_lock);
+			if (pmDebugOptions.discovery)
+			    fprintf(stderr, "pmDiscoverArchives: added logvol %s %s vol=%d\n",
+				a->context.name, pmDiscoverFlagsStr(a), vol);
+		    }
+		}
+	    } else if (pmDebugOptions.discovery) {
+		fprintf(stderr, "pmDiscoverArchives: ignored regular file %s\n", path);
+	    }
 	}
 	else if (S_ISDIR(s->st_mode)) {
 	    /*
@@ -249,6 +309,45 @@ pmDiscoverArchives(const char *dir, pmDiscoverModule *module, void *arg)
     return 0;
 }
 
+/*
+ * Return 1 if monitored path has been deleted.
+ * For archives, we only check the meta file because
+ * a logvol can be deleted (e.g. via compression when
+ * the logvol is rolled to a new volume) without
+ * actually deleting the archive.
+ */
+static int
+is_deleted(pmDiscover *p, uv_fs_t *sreq)
+{
+    int			ret = 0;
+
+    if (p->flags & PM_DISCOVER_FLAGS_DIRECTORY) {
+	if (uv_fs_stat(NULL, sreq, p->context.name, NULL) < 0)
+	    ret = 1; /* directory has been deleted */
+    }
+
+    if (p->flags & PM_DISCOVER_FLAGS_META) {
+    	sds meta = sdsnew(p->context.name);
+	meta = sdscat(meta, ".meta");
+	if (uv_fs_stat(NULL, sreq, meta, NULL) < 0) {
+	    /*
+	     * Archive metadata file has been deleted (or compressed)
+	     * hence consider the archive to be deleted because there
+	     * is no more data to logtail.
+	     */
+	    ret = 1;
+	}
+	sdsfree(meta);
+    }
+
+    if (pmDebugOptions.discovery) {
+	fprintf(stderr, "is_deleted: checking %s (%s) -> %s\n",
+		p->context.name, pmDiscoverFlagsStr(p), ret ? "DELETED" : "no");
+    }
+
+    return ret;
+}
+
 static void
 fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int status)
 {
@@ -256,6 +355,7 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
     size_t		bytes = sizeof(buffer) - 1;
     pmDiscover		*p;
     uv_fs_t		sreq;
+    char		*s;
     sds			path;
     int			path_changed = 0;
 
@@ -263,7 +363,7 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
     path = sdsnewlen(buffer, bytes);
 
     if (pmDebugOptions.discovery) {
-	fprintf(stderr, "%s: event on %s -", "fs_change_callBack", path);
+	fprintf(stderr, "fs_change_callBack: event on %s -", path);
 	if (events & UV_RENAME)
 	    fprintf(stderr, " renamed");
 	if (events & UV_CHANGE)
@@ -272,27 +372,36 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
     }
 
     /*
-     * Lookup the path, stat and update it's flags accordingly. If the
-     * path has been deleted, stop it's event monitor and free the req buffer.
-     * Then call the pmDiscovery callback.
+     * Strip suffix and lookup the path. stat and update it's flags accordingly.
+     * If the path has been deleted, stop it's event monitor and free the req
+     * buffer, else call the pmDiscovery callback.
      */
-    if ((p = pmDiscoverLookup(path)) == NULL) {
-	if (pmDebugOptions.discovery)
-	    fprintf(stderr, "%s: filename %s lookup failed\n",
-		    "fs_change_callBack", filename);
+    if ((s = strsuffix(path, ".meta")) != NULL)
+	*s = '\0';
+
+    p = pmDiscoverLookup(path);
+    if (p && pmDebugOptions.discovery) {
+	fprintf(stderr, "fs_change_callBack: ---> found entry %s (%s)\n",
+		p->context.name, pmDiscoverFlagsStr(p));
     }
-    else if (uv_fs_stat(NULL, &sreq, p->context.name, NULL) < 0) {
+
+    if (p == NULL) {
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "fs_change_callBack: %s lookup failed\n", filename);
+    }
+    else if (is_deleted(p, &sreq)) {
     	p->flags |= PM_DISCOVER_FLAGS_DELETED;
-	if (p->event_handle) {
-	    uv_fs_event_stop(p->event_handle);
-	    free(p->event_handle);
-	    p->event_handle = NULL;
-	}
 	/* path has been deleted. statbuf is invalid */
 	memset(&p->statbuf, 0, sizeof(p->statbuf));
 	path_changed = 1;
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "fs_change_callBack: %s (%s) has been deleted",
+	    	p->context.name, pmDiscoverFlagsStr(p));
+	uv_fs_req_cleanup(&sreq);
     }
     else {
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "fs_change_callBack: %s has changed\n", p->context.name);
 	/* avoid spurious events. only call the callBack if it really changed */
 	if (p->statbuf.st_mtim.tv_sec != sreq.statbuf.st_mtim.tv_sec ||
 	    p->statbuf.st_mtim.tv_nsec != sreq.statbuf.st_mtim.tv_nsec)
@@ -301,8 +410,8 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
 	uv_fs_req_cleanup(&sreq);
     }
 
-    if (p && p->changed && path_changed && !(p->flags & PM_DISCOVER_FLAGS_DELETED))
-	p->changed(p);
+    if (p && p->changed && path_changed)
+	p->changed(p); /* returns immediately if PM_DISCOVER_FLAGS_DELETED */
 
     sdsfree(path);
 }
@@ -316,9 +425,14 @@ pmDiscoverMonitor(sds path, void (*callback)(pmDiscover *))
 {
     discoverModuleData	*data;
     pmDiscover		*p;
+    sds			eventfilename;
 
-    if ((p = pmDiscoverLookup(path)) == NULL)
+    if ((p = pmDiscoverLookup(path)) == NULL) {
+	if (pmDebugOptions.discovery) {
+	    fprintf(stderr, "pmDiscoverMonitor: lookup failed for %s\n", path);
+	}
 	return -ESRCH;
+    }
     data = getDiscoverModuleData(p->module);
 
     /* save the discovery callback to be invoked */
@@ -330,9 +444,29 @@ pmDiscoverMonitor(sds path, void (*callback)(pmDiscover *))
 	 * Start monitoring, using given uv loop. Up to the caller to create
 	 * a PCP PMAPI context and to fetch/logtail in the changed callback.
 	 */
+	eventfilename = sdsnew(p->context.name);
 	uv_fs_event_init(data->events, p->event_handle);
-	uv_fs_event_start(p->event_handle, fs_change_callBack, p->context.name,
+
+	if (p->flags & PM_DISCOVER_FLAGS_DIRECTORY) {
+	    uv_fs_event_start(p->event_handle, fs_change_callBack, eventfilename,
+			    UV_FS_EVENT_WATCH_ENTRY);
+	}
+	else {
+	    /*
+	     * Monitor an archive file. This tracks the archive meta file
+	     * but the change callback processes both meta and logvol on
+	     * every callback (meta before logvol).
+	     */
+	    eventfilename = sdscat(eventfilename, ".meta");
+	    uv_fs_event_start(p->event_handle, fs_change_callBack, eventfilename,
 			UV_FS_EVENT_WATCH_ENTRY);
+	}
+
+	if (pmDebugOptions.discovery) {
+	    fprintf(stderr, "pmDiscoverMonitor: added event for %s (%s)\n",
+	    	eventfilename, pmDiscoverFlagsStr(p));
+	}
+	sdsfree(eventfilename);
     }
 
     return 0;
@@ -411,41 +545,24 @@ static void changed_callback(pmDiscover *); /* fwd decl */
 static void
 created_callback(pmDiscover *p)
 {
-    if (pmDebugOptions.discovery)
-	fprintf(stderr, "CREATED %s, %s\n", p->context.name, pmDiscoverFlagsStr(p));
-
     p->flags &= ~PM_DISCOVER_FLAGS_NEW;
 
-    if (p->flags & PM_DISCOVER_FLAGS_COMPRESSED)
-    	return; /* compressed archives don't grow */
+    if (p->flags & (PM_DISCOVER_FLAGS_COMPRESSED|PM_DISCOVER_FLAGS_INDEX))
+    	return; /* compressed archives don't grow and we ignore archive index files */
+
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "CREATED %s, %s\n", p->context.name, pmDiscoverFlagsStr(p));
 
     if (p->flags & PM_DISCOVER_FLAGS_DIRECTORY) {
 	if (pmDebugOptions.discovery)
 	    fprintf(stderr, "MONITOR directory %s\n", p->context.name);
 	pmDiscoverMonitor(p->context.name, changed_callback);
     }
-
-    if (p->flags & PM_DISCOVER_FLAGS_DATAVOL) {
+    else if (p->flags & (PM_DISCOVER_FLAGS_META|PM_DISCOVER_FLAGS_DATAVOL)) {
 	if (pmDebugOptions.discovery)
-	    fprintf(stderr, "MONITOR logvol %s\n", p->context.name);
+	    fprintf(stderr, "MONITOR archive %s\n", p->context.name);
 	pmDiscoverMonitor(p->context.name, changed_callback);
     }
-
-    if (p->flags & PM_DISCOVER_FLAGS_META) {
-	if (pmDebugOptions.discovery)
-	    fprintf(stderr, "MONITOR metadata %s\n", p->context.name);
-	pmDiscoverMonitor(p->context.name, changed_callback);
-    }
-}
-
-static void
-deleted_callback(pmDiscover *p)
-{
-    if (pmDebugOptions.discovery)
-	fprintf(stderr, "DELETED %s (%s)\n", p->context.name,
-			pmDiscoverFlagsStr(p));
-    pmDiscoverDelete(p->context.name);
-    /* p is now no longer valid */
 }
 
 static void
@@ -509,20 +626,61 @@ static void
 pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
 		int numnames, char **names)
 {
+    discoverModuleData	*data = getDiscoverModuleData(p->module);
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
     char		buf[32];
-    int			i;
+    int			i, sts;
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s name%s", "pmDiscoverInvokeMetricCallBacks",
 			timespec_str(ts, buf, sizeof(buf)),
 			p->context.source, numnames > 0 ? " " : "(none)\n");
 	for (i = 0; i < numnames; i++)
-	    printf("\"%s\"%s", names[i], i < numnames - 1 ? ", " : "\n");
+	    fprintf(stderr, "[%u/%u] \"%s\"%s", i+1, numnames, names[i],
+			    i < numnames - 1 ? ", " : "\n");
 	pmPrintDesc(stderr, desc);
 	if (pmDebugOptions.labels)
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
+    }
+
+    if (data->pmids) {
+	if (dictFind(data->pmids, &desc->pmid) != NULL)
+	    goto out;	/* metric contains an already excluded PMID */
+	for (i = 0; i < numnames; i++) {
+	    if (regexec(&data->exclude_names, names[i], 0, NULL, 0) == 0)
+		break;
+	}
+	if (i != numnames) {
+	    if (pmDebugOptions.discovery)
+		fprintf(stderr, "%s: excluding metric %s\n",
+				"pmDiscoverInvokeMetricCallBacks", names[i]);
+	    /* add this pmid to the exclusion list and return early */
+	    dictAdd(data->pmids, &desc->pmid, NULL);
+	    goto out;
+	}
+    }
+    if (data->indoms) {
+	if (dictFind(data->indoms, &desc->indom) != NULL)
+	    goto out;	/* metric contains an already excluded InDom */
+    }
+
+    if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
+	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
+	__pmArchCtl	*acp = ctxp->c_archctl;
+	char		idstr[32];
+
+	if ((sts = __pmLogAddDesc(acp, desc)) < 0)
+	    fprintf(stderr, "%s: failed to add metric descriptor for %s\n",
+			    "pmDiscoverInvokeMetricCallBacks",
+			    pmIDStr_r(desc->pmid, idstr, sizeof(idstr)));
+	for (i = 0; i < numnames; i++) {
+	    if ((sts = __pmLogAddPMNSNode(acp, desc->pmid, names[i])) < 0)
+		fprintf(stderr, "%s: failed to add metric name %s for %s\n",
+				"pmDiscoverInvokeMetricCallBacks", names[i],
+				pmIDStr_r(desc->pmid, idstr, sizeof(idstr)));
+	}
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     discover_event_init(p, ts, &event);
@@ -531,15 +689,21 @@ pmDiscoverInvokeMetricCallBacks(pmDiscover *p, pmTimespec *ts, pmDesc *desc,
 	    callbacks->on_metric != NULL)
 	    callbacks->on_metric(&event, desc, numnames, names, p->data);
     }
+
+out:
+    for (i = 0; i < numnames; i++)
+	free(names[i]);
+    free(names);
 }
 
 static void
 pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
 {
+    discoverModuleData	*data = getDiscoverModuleData(p->module);
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
     char		buf[32], inbuf[32];
-    int			i;
+    int			i, sts = PMLOGPUTINDOM_DUP; /* free after callbacks */
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s numinst %d indom %s\n",
@@ -551,11 +715,36 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, pmTimespec *ts, pmInResult *in)
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
     }
 
+    if (data->indoms) {
+	if (dictFind(data->indoms, &in->indom) != NULL)
+	    goto out;	/* excluded InDom */
+    }
+
+    if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
+	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
+	__pmArchCtl	*acp = ctxp->c_archctl;
+	char		errmsg[PM_MAXERRMSGLEN];
+
+	if ((sts = __pmLogAddInDom(acp, ts, in, NULL, 0)) < 0)
+	    fprintf(stderr, "%s: failed to add indom for %s: %s\n",
+			"pmDiscoverInvokeInDomCallBacks", pmIDStr(in->indom),
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	PM_UNLOCK(ctxp->c_lock);
+    }
+
     discover_event_init(p, ts, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_indom != NULL)
 	    callbacks->on_indom(&event, in, p->data);
+    }
+
+out:
+    if (sts == PMLOGPUTINDOM_DUP) {
+	for (i = 0; i < in->numinst; i++)
+	    free(in->namelist[i]);
+	free(in->namelist);
+	free(in->instlist);
     }
 }
 
@@ -563,10 +752,11 @@ static void
 pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
 		int ident, int type, pmLabelSet *sets, int nsets)
 {
+    discoverModuleData	*data = getDiscoverModuleData(p->module);
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
     char		buf[32], idbuf[64];
-    int			i;
+    int			i, sts = -EAGAIN; /* free labelsets after callbacks */
 
     if (pmDebugOptions.discovery) {
 	__pmLabelIdentString(ident, type, idbuf, sizeof(idbuf));
@@ -579,22 +769,48 @@ pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, pmTimespec *ts,
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
     }
 
+    if ((type & PM_LABEL_ITEM) && data->pmids) {
+	if (dictFind(data->pmids, &ident) != NULL)
+	    goto out;	/* text from an already excluded InDom */
+    }
+    if ((type & (PM_LABEL_INDOM|PM_LABEL_INSTANCES)) && data->indoms) {
+	if (dictFind(data->indoms, &ident) != NULL)
+	    goto out;	/* text from an already excluded InDom */
+    }
+
+    if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
+	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
+	__pmArchCtl	*acp = ctxp->c_archctl;
+	char		errmsg[PM_MAXERRMSGLEN];
+
+	if ((sts = __pmLogAddLabelSets(acp, ts, type, ident, nsets, sets)) < 0)
+	    fprintf(stderr, "%s: failed to add log labelset: %s\n",
+			"pmDiscoverInvokeLabelsCallBacks",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	PM_UNLOCK(ctxp->c_lock);
+    }
+
     discover_event_init(p, ts, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_labels != NULL)
 	    callbacks->on_labels(&event, ident, type, sets, nsets, p->data);
     }
+
+out:
+    if (sts < 0)
+	pmFreeLabelSets(sets, nsets);
 }
 
 static void
 pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
 		int ident, int type, char *text)
 {
+    discoverModuleData	*data = getDiscoverModuleData(p->module);
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
     char		buf[32];
-    int			i;
+    int			i, sts;
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s ", "pmDiscoverInvokeTextCallBacks",
@@ -612,12 +828,36 @@ pmDiscoverInvokeTextCallBacks(pmDiscover *p, pmTimespec *ts,
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
     }
 
+    if ((type & PM_TEXT_PMID) && data->pmids) {
+	if (dictFind(data->pmids, &ident) != NULL)
+	    goto out;	/* text from an already excluded InDom */
+    }
+    if ((type & PM_TEXT_INDOM) && data->indoms) {
+	if (dictFind(data->indoms, &ident) != NULL)
+	    goto out;	/* text from an already excluded InDom */
+    }
+
+    if (p->ctx >= 0 && p->context.type == PM_CONTEXT_ARCHIVE) {
+	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
+	__pmArchCtl	*acp = ctxp->c_archctl;
+	char		errmsg[PM_MAXERRMSGLEN];
+
+	if ((sts = __pmLogAddText(acp, ident, type, text)) < 0)
+	    fprintf(stderr, "%s: failed to add %u text for %u: %s\n",
+	               "pmDiscoverInvokeTextCallBacks", type, ident,
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	PM_UNLOCK(ctxp->c_lock);
+    }
+
     discover_event_init(p, ts, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_text != NULL)
 	    callbacks->on_text(&event, ident, type, text, p->data);
     }
+
+out:
+    free(text);
 }
 
 static void
@@ -664,7 +904,7 @@ process_metadata(pmDiscover *p)
     pmDesc		desc;
     off_t		off;
     char		*buffer;
-    int			e, i, nb, len, nsets;
+    int			e, nb, len, nsets;
     int			type, id; /* pmID or pmInDom */
     int			nnames;
     char		**names;
@@ -683,8 +923,8 @@ process_metadata(pmDiscover *p)
      */
     p->flags |= PM_DISCOVER_FLAGS_META_IN_PROGRESS;
     if (pmDebugOptions.discovery)
-	fprintf(stderr, "%s: in progress, flags=%s\n",
-			"process_metadata", pmDiscoverFlagsStr(p));
+	fprintf(stderr, "process_metadata: %s in progress %s\n",
+		p->context.name, pmDiscoverFlagsStr(p));
     for (;;) {
 	off = lseek(p->fd, 0, SEEK_CUR);
 	nb = read(p->fd, &hdr, sizeof(__pmLogHdr));
@@ -750,10 +990,6 @@ process_metadata(pmDiscover *p)
 	    ts.tv_sec = p->statbuf.st_mtim.tv_sec;
 	    ts.tv_nsec = p->statbuf.st_mtim.tv_nsec;
 	    pmDiscoverInvokeMetricCallBacks(p, &ts, &desc, nnames, names);
-	    for (i = 0; i < nnames; i++)
-		free(names[i]);
-	    if (names)
-		free(names);
 	    break;
 
 	case TYPE_INDOM:
@@ -765,12 +1001,6 @@ process_metadata(pmDiscover *p)
 		break;
 	    }
 	    pmDiscoverInvokeInDomCallBacks(p, &ts, &inresult);
-	    if (inresult.numinst > 0) {
-		for (i = 0; i < inresult.numinst; i++)
-		    free(inresult.namelist[i]);
-		free(inresult.namelist);
-		free(inresult.instlist);
-	    }
 	    break;
 
 	case TYPE_LABEL:
@@ -795,13 +1025,13 @@ process_metadata(pmDiscover *p)
 		} else {
 		    sdsfree(p->context.source);
 		    p->context.source = source;
-		    p->context.labelset = labelset;
+		    if (p->context.labelset)
+			pmFreeLabelSets(p->context.labelset, 1);
+		    p->context.labelset = __pmDupLabelSets(labelset, 1);
 		    pmDiscoverInvokeSourceCallBacks(p, &ts);
 		}
 	    }
 	    pmDiscoverInvokeLabelsCallBacks(p, &ts, id, type, labelset, nsets);
-	    if (labelset != p->context.labelset)
-		pmFreeLabelSets(labelset, nsets);
 	    break;
 
 	case TYPE_TEXT:
@@ -819,8 +1049,6 @@ process_metadata(pmDiscover *p)
 	    ts.tv_sec = p->statbuf.st_mtim.tv_sec;
 	    ts.tv_nsec = p->statbuf.st_mtim.tv_nsec;
 	    pmDiscoverInvokeTextCallBacks(p, &ts, id, type, buffer);
-	    if (buffer)
-		free(buffer);
 	    break;
 
 	default:
@@ -833,37 +1061,79 @@ process_metadata(pmDiscover *p)
     }
 
     if (partial == 0)
-	/* flag that all available metadata has been now been read */
+	/* flag that all available metadata has now been read */
 	p->flags &= ~PM_DISCOVER_FLAGS_META_IN_PROGRESS;
 
     if (pmDebugOptions.discovery)
-	fprintf(stderr, "%s : completed, partial=%d flags=%s\n",
-			"process_metadata", partial, pmDiscoverFlagsStr(p));
+	fprintf(stderr, "%s: completed, partial=%d %s %s\n",
+			"process_metadata", partial, p->context.name, pmDiscoverFlagsStr(p));
 }
 
 /*
- * fetch metric values to EOF and call all registered callbacks
+ * Fetch metric values to EOF and call all registered callbacks.
+ * Always process metadata thru to EOF before any logvol data.
  */
 static void
-process_logvol_callback(pmDiscover *p)
+process_logvol(pmDiscover *p)
 {
+    int			sts;
     pmResult		*r;
     pmTimespec		ts;
 
-    pmUseContext(p->ctx);
-    while (pmFetchArchive(&r) == 0) {
-	if (pmDebugOptions.discovery) {
-	    char		tbuf[64], bufs[64];
+    for (;;) {
+	pmUseContext(p->ctx);
+	if ((sts = pmFetchArchive(&r)) < 0) {
+	    if (sts == PM_ERR_EOL) {
+		if (pmDebugOptions.discovery)
+		    fprintf(stderr, "process_logvol: %s end of archive reached\n",
+		    	p->context.name);
 
-	    fprintf(stderr, "FETCHED @%s [%s] %d metrics\n",
-		    timeval_str(&r->timestamp, tbuf, sizeof(tbuf)),
-		    timeval_stream_str(&r->timestamp, bufs, sizeof(bufs)),
-		    r->numpmid);
+		/* succesfully processed to current end of log */
+		break;
+	    } else if (sts == PM_ERR_LOGREC) {
+		/* 
+		 * This log vol was probably deleted (likely compressed)
+		 * under our feet. Try and skip to the next volume.
+		 */
+		__pmContext *ctxp = __pmHandleToPtr(p->ctx);
+		__pmArchCtl *acp = ctxp->c_archctl;
+
+		if (acp->ac_curvol < acp->ac_log->l_maxvol) {
+		    sts = __pmLogChangeVol(acp, acp->ac_curvol + 1);
+		    if (sts == 0) {
+			PM_UNLOCK(ctxp->c_lock);
+			if (pmDebugOptions.discovery)
+			    fprintf(stderr, "process_logvol: %s fetch failed, suceeded in switching to next vol\n",
+				p->context.name);
+			break;
+		    }
+		}
+
+		if (pmDebugOptions.discovery)
+		    fprintf(stderr, "process_logvol: %s fetch failed and failed to switch to next vol: %s\n",
+			p->context.name, pmErrStr(sts));
+		/* we are done - wait for another callback */
+		PM_UNLOCK(ctxp->c_lock);
+		break;
+	    }
 	}
-	ts.tv_sec = r->timestamp.tv_sec;
-	ts.tv_nsec = r->timestamp.tv_usec * 1000;
-	pmDiscoverInvokeValuesCallBack(p, &ts, r);
-	pmFreeResult(r);
+	else {
+	    /*
+	     * Fetch succeeded - call the values callback and continue
+	     */
+	    if (pmDebugOptions.discovery) {
+		char		tbuf[64], bufs[64];
+
+		fprintf(stderr, "process_logvol: %s FETCHED @%s [%s] %d metrics\n",
+			p->context.name, timeval_str(&r->timestamp, tbuf, sizeof(tbuf)),
+			timeval_stream_str(&r->timestamp, bufs, sizeof(bufs)),
+			r->numpmid);
+	    }
+	    ts.tv_sec = r->timestamp.tv_sec;
+	    ts.tv_nsec = r->timestamp.tv_usec * 1000;
+	    pmDiscoverInvokeValuesCallBack(p, &ts, r);
+	    pmFreeResult(r);
+	}
     }
     /* datavol is now up-to-date and at EOF */
     p->flags &= ~PM_DISCOVER_FLAGS_DATAVOL_READY;
@@ -874,12 +1144,13 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 {
     int			sts;
     sds			msg;
+    sds			metaname;
 
     if (p->ctx < 0) {
 	/*
 	 * once off initialization on the first event
 	 */
-	if (p->flags & PM_DISCOVER_FLAGS_DATAVOL) {
+	if (p->flags & (PM_DISCOVER_FLAGS_DATAVOL | PM_DISCOVER_FLAGS_META)) {
 	    struct timeval	tvp;
 
 	    /* create the PMAPI context (once off) */
@@ -898,28 +1169,25 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		p->ctx = -1;
 		return;
 	    }
+	    /* seek to end of archive for logvol data */
 	    pmSetMode(PM_MODE_FORW, &tvp, 1);
-	    /* note: we do not scan pre-existing logvol data. */
-	}
-	else if (p->flags & PM_DISCOVER_FLAGS_META) {
-	    if ((sts = pmNewContext(p->context.type, p->context.name)) < 0) {
-		infofmt(msg, "pmNewContext failed for %s: %s\n",
-				p->context.name, pmErrStr(sts));
+
+	    /*
+	     * For archive meta files, p->fd is the direct file descriptor
+	     * and we pre-scan existing metadata. Note: we do NOT scan
+	     * pre-existing logvol data.
+	     */
+	    metaname = sdsnew(p->context.name);
+	    metaname = sdscat(metaname, ".meta");
+	    if ((p->fd = open(metaname, O_RDONLY)) < 0) {
+		infofmt(msg, "open failed for %s: %s\n", metaname, osstrerror());
 		moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
+		sdsfree(metaname);
 		return;
 	    }
-	    pmDiscoverNewSource(p, sts);
-
-	    /* for archive meta files, p->fd is the direct file descriptor */
-	    if ((p->fd = open(p->context.name, O_RDONLY)) < 0) {
-		infofmt(msg, "open failed for %s: %s\n", p->context.name,
-				osstrerror());
-		moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
-		return;
-	    }
-
-	    /* process all existing metadata */
+	    /* pre-process all existing metadata */
 	    process_metadata(p);
+	    sdsfree(metaname);
 	}
     }
 
@@ -943,46 +1211,104 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
     }
 
     if (p->flags & PM_DISCOVER_FLAGS_META) {
-	/* process metadata */
+	/* process new metadata, if any */
 	process_metadata(p);
     }
 
-    /* process any unprocessed datavol callbacks */
-    pmDiscoverTraverse(PM_DISCOVER_FLAGS_DATAVOL_READY, process_logvol_callback);
+    if ((p->flags & PM_DISCOVER_FLAGS_META_IN_PROGRESS) == 0) {
+	/* no metdata read in progress, so process new datavol data, if any */
+	process_logvol(p);
+    }
 
     /* finally, purge deleted entries, if any */
     pmDiscoverPurgeDeleted();
 }
 
 static void
+print_callback(pmDiscover *p)
+{
+    if (p->flags & (PM_DISCOVER_FLAGS_DELETED | PM_DISCOVER_FLAGS_NEW))
+    	return;
+
+    if (p->flags & PM_DISCOVER_FLAGS_DIRECTORY) {
+	fprintf(stderr, "    DIRECTORY %s %s\n",
+	    p->context.name, pmDiscoverFlagsStr(p));
+    }
+    else {
+	__pmContext *ctxp;
+	__pmArchCtl *acp;
+
+	if (p->ctx >= 0 && (ctxp = __pmHandleToPtr(p->ctx)) != NULL) {
+	    acp = ctxp->c_archctl;
+	    fprintf(stderr, "    ARCHIVE %s fd=%d ctx=%d maxvol=%d ac_curvol=%d ac_offset=%ld ac_vol=%d %s\n",
+		p->context.name, p->fd, p->ctx, acp->ac_log->l_maxvol, acp->ac_curvol,
+		acp->ac_offset, acp->ac_vol, pmDiscoverFlagsStr(p));
+	    PM_UNLOCK(ctxp->c_lock);
+	}
+    }
+}
+
+static void
 changed_callback(pmDiscover *p)
 {
+    static time_t last_dir_scan = 0;
+    time_t now;
+
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "CHANGED %s (%s)\n", p->context.name,
 			pmDiscoverFlagsStr(p));
 
     if (p->flags & PM_DISCOVER_FLAGS_DELETED) {
-	/* path or directory has been deleted - remove from hash table */
-	deleted_callback(p);
-    }
-    else if (p->flags & PM_DISCOVER_FLAGS_DIRECTORY) {
 	/*
-	 * A changed directory path means a new archive or subdirectory
-	 * has been created - traverse and update the hash table.
+	 * Path has been deleted. Do nothing for now. Will be purged
+	 * in due course by pmDiscoverPurgeDeleted.
 	 */
-	pmDiscoverArchives(p->context.name, p->module, p->data);
-	pmDiscoverTraverse(PM_DISCOVER_FLAGS_NEW, created_callback);
+	return;
+	
     }
-    else if (p->flags & PM_DISCOVER_FLAGS_COMPRESSED) {
+
+    if (p->flags & PM_DISCOVER_FLAGS_COMPRESSED) {
     	/* we do not monitor compressed files - do nothing */
-	; /**/
+	return;
+    }
+
+    if (p->flags & PM_DISCOVER_FLAGS_DIRECTORY) {
+	/*
+	 * A changed directory path means a new archive or subdirectory may have
+	 * been created or deleted - traverse and update the hash table.
+	 *
+	 * This is throttled because we get callbacks whenever the directory
+	 * or ANYTHING in that directory changes.
+	 */
+	now = time(NULL);
+	if (pmDebugOptions.discovery) {
+	    fprintf(stderr, "DIRECTORY CHANGED now=%ld last_dir_scan=%ld %s (%s)\n",
+	    	now, last_dir_scan, p->context.name, pmDiscoverFlagsStr(p));
+	}
+
+	/* only throttle if nothing has been deleted and we've had a recent dirscan */
+	if (pmDiscoverTraverse(PM_DISCOVER_FLAGS_DELETED, NULL) == 0 && (now - last_dir_scan < 10)) {
+	    if (pmDebugOptions.discovery)
+		fprintf(stderr, "--- THROTTLED ---\n");
+	}
+	else {
+	    pmDiscoverArchives(p->context.name, p->module, p->data);
+	    pmDiscoverTraverse(PM_DISCOVER_FLAGS_NEW, created_callback);
+	    last_dir_scan = now;
+	}
     }
     else if (p->flags & (PM_DISCOVER_FLAGS_DATAVOL|PM_DISCOVER_FLAGS_META)) {
     	/*
-	 * We only monitor uncompressed logvol and metadata paths. Fetch new data
-	 * (metadata or logvol) and call the registered callbacks.
+	 * Fetch new archive data (both metadata or logvol) and
+	 * call the registered callbacks.
 	 */
 	pmDiscoverInvokeCallBacks(p);
+    }
+
+    if (pmDebugOptions.discovery) {
+	fprintf(stderr, "-- tracking:\n");
+	pmDiscoverTraverse(PM_DISCOVER_FLAGS_ALL, print_callback);
+	fprintf(stderr, "--\n");
     }
 }
 
@@ -995,18 +1321,9 @@ dir_callback(pmDiscover *p)
 static void
 archive_callback(pmDiscover *p)
 {
-    if (p->flags & PM_DISCOVER_FLAGS_COMPRESSED)
-    	return; /* compressed archives don't grow */
-
-    if (p->flags & PM_DISCOVER_FLAGS_DATAVOL) {
-	if (pmDebugOptions.discovery)
-	    fprintf(stderr, "DISCOVERED ARCHIVE LOGVOL %s\n", p->context.name);
-	pmDiscoverMonitor(p->context.name, changed_callback);
-    }
-
     if (p->flags & PM_DISCOVER_FLAGS_META) {
 	if (pmDebugOptions.discovery)
-	    fprintf(stderr, "DISCOVERED ARCHIVE METADATA %s\n", p->context.name);
+	    fprintf(stderr, "DISCOVERED ARCHIVE %s\n", p->context.name);
 	pmDiscoverMonitor(p->context.name, changed_callback);
     }
 }
@@ -1048,9 +1365,9 @@ pmDiscoverRegister(const char *dir, pmDiscoverModule *module,
     }
 
     if (pmDebugOptions.discovery) {
-	fprintf(stderr, "Now managing %d directories and %d archive files\n",
+	fprintf(stderr, "Now tracking %d directories and %d archives\n",
 	    pmDiscoverTraverse(PM_DISCOVER_FLAGS_DIRECTORY, NULL),
-	    pmDiscoverTraverse(PM_DISCOVER_FLAGS_DATAVOL, NULL));
+	    pmDiscoverTraverse(PM_DISCOVER_FLAGS_DATAVOL|PM_DISCOVER_FLAGS_META, NULL));
     }
 
     /* monitor the directories */

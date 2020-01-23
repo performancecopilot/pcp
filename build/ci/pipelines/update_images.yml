@@ -12,7 +12,7 @@ jobs:
     displayName: "Build:"
     strategy:
       matrix: $[ dependencies.prepare.outputs['matrix_step.matrix'] ]
-    timeoutInMinutes: 360
+    timeoutInMinutes: 240
     steps:
       - checkout: self
         fetchDepth: 1

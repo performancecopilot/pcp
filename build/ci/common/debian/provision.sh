@@ -1,8 +1,9 @@
 #!/bin/sh -eux
 
-sudo apt-get update
-sudo DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
-sudo apt-get install -y git rsync
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get -y dist-upgrade
+apt-get install -y git rsync
 
 git clone "${GIT_REPO}"
 cd ./pcp
@@ -10,12 +11,8 @@ git checkout "${GIT_COMMIT}"
 
 for i in `./qa/admin/check-vm -p`
 do
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $i || true
+    apt-get install -y $i || true
 done
-sudo apt-get install -y zlib1g-dev
+apt-get install -y zlib1g-dev
 
 cd .. && rm -rf ./pcp
-
-sudo waagent -force -deprovision+user
-export HISTSIZE=0
-sync

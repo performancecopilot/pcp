@@ -7253,7 +7253,7 @@ test -n "$PYLINT" || PYLINT="/bin/true"
 
 
 
-for ac_prog in python python2.7
+for ac_prog in python2 python2.7 python
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -11376,7 +11376,7 @@ if ${ac_cv_lib_hdr_histogram_hdr_init+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lz -lhdr_histogram  $LIBS"
+LIBS="-lhdr_histogram  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -11407,7 +11407,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_hdr_histogram_hdr_init" >&5
 $as_echo "$ac_cv_lib_hdr_histogram_hdr_init" >&6; }
 if test "x$ac_cv_lib_hdr_histogram_hdr_init" = xyes; then :
-  lib_for_hdr_histogram="-lhdr_histogram"
+  lib_for_hdr_histogram="-lz -lhdr_histogram"
 fi
 
 
