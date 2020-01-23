@@ -121,7 +121,10 @@ else
 	# ok this time
 	:
     else
-	echo "check.callback: fail: pmlogger not well!"
+	# failed twice ... report first failure and if second failure
+	# is different, report that also
+	#
+	cat $tmp.err.1 $tmp.out.1
 	diff=false
 	if cmp $tmp.err.1 $tmp.err.2 >/dev/null
 	then
@@ -143,6 +146,7 @@ else
 	    echo "... and different output from 3 seconds later"
 	    cat $tmp.err.2 $tmp.out.2
 	fi
+	echo "check.callback: fail: pmlogger not well!"
 	$abort && status=1
     fi
 fi
