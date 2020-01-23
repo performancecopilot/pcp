@@ -1,4 +1,54 @@
 #! /bin/sh
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Author:    Ken McDonell <kenj@kenj.id.au>
+#
+# On branch master
+# Your branch is ahead of 'origin/master' by 5 commits.
+#   (use "git push" to publish your local commits)
+#
+# Changes to be committed:
+#	modified:   check.callback.sample
+#
+# Changes not staged for commit:
+#	modified:   ../src/pmcd/src/dofetch.c
+#	modified:   ../src/pmcd/src/pmcd.c
+#
+# Untracked files:
+#	../20190209.patches
+#	../20191002.sha
+#	../20200110.sha
+#	../NOTREADY
+#	../README.azure
+#	../README.china
+#	../README.git
+#	../README.mingw
+#	../README.msys
+#	../TODO
+#	../TODO.brew
+#	../TODO.py
+#	../TODO.vm
+#	../Win32-NOTES
+#	../bugs/
+#	../conf.grind/
+#	../dpkg-overlap
+#	../find-newest
+#	../images/pmgadgets.png
+#	../images/pmgadgets.svg
+#	../images/tmp/
+#	../libpcp.rfc
+#	../man/fix
+#	../myaudit
+#	../myinstall
+#	../pushed.sha
+#	002.pre-avc
+#	272.tmp
+#	595.core
+#	914.core
+#	README.github
+#	VM.updates
+#	admin/cull-packages
 # PCP QA Test No. 667
 # checks basic pcp2graphite functionality
 #
@@ -14,8 +64,8 @@ $python -c "from pcp import pmapi" >/dev/null 2>&1
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
 which pcp2graphite >$seq.full 2>&1 || _notrun "pcp2graphite not installed"
 
-port_pickled=2004
-port_text=2003
+port_pickled=42004
+port_text=42003
 $PCP_BINADM_DIR/telnet-probe -c localhost $port_pickled \
 	&& _notrun "Someone already listening on graphite pickled port $port_pickled"
 $PCP_BINADM_DIR/telnet-probe -c localhost $port_text \
@@ -77,7 +127,7 @@ echo "=== 1. pcp2graphite one-shot pickle  ===" | tee -a $seq.full
 socat -u tcp-listen:$port_pickled,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
 scpid=$!
 sleep 2
-$pcp2graphite -t 1 hinv.ncpu >$tmp.p2g.out 2>$tmp.p2g.err &
+$pcp2graphite -p $port_pickled -t 1 hinv.ncpu >$tmp.p2g.out 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 3
 $signal $scpid $p2gpid >/dev/null 2>&1
@@ -98,8 +148,9 @@ p2gpid=$!
 sleep 10 # 5sec startup + 5sec ... enough for at least 2 messages
 $signal $scpid $p2gpid >/dev/null 2>&1
 wait
-head -2 $tmp.socat.out |
-    sed -e "s,\.ncpu $ncpu ,.ncpu NCPUS ," |    # confirm ncpus value
+egrep 'foobar\.hinv\.ncpu|foobar\.sample\.datasize' $tmp.socat.out \
+    | head -2 \
+    | sed -e "s,\.ncpu $ncpu ,.ncpu NCPUS ," |    # confirm ncpus value
     sed -r -e 's, [0-9]+[02468]$, TIMESTAMP2,'  # confirm time alignment
 grep 'Excluding' $tmp.p2g.err
 _full_stash
@@ -114,8 +165,9 @@ p2gpid=$!
 sleep 10 # 5sec startup + 5sec ... enough for at least 2 messages
 $signal $scpid $p2gpid >/dev/null 2>&1
 wait
-head -2 $tmp.socat.out |
-    sed -e "s,\.ncpu $ncpu ,.ncpu NCPUS ," |    # confirm ncpus value
+grep 'foobar\.hinv\.ncpu' $tmp.socat.out \
+    | head -2 \
+    | sed -e "s,\.ncpu $ncpu ,.ncpu NCPUS ," |    # confirm ncpus value
     sed -r -e 's, [0-9]+[02468]$, TIMESTAMP2,'  # confirm time alignment
 grep 'Excluding' $tmp.p2g.err
 _full_stash
@@ -131,7 +183,8 @@ sleep 10 # 5sec startup + 5sec ... enough for at least 2 messages
 $signal $scpid $p2gpid >/dev/null 2>&1
 wait
 # confirm time alignment
-head -10 $tmp.socat.out \
+grep 'pcp\.sample\.string\.hullo' $tmp.socat.out \
+    | head -10 \
     | sed -r -e 's, [0-9]+[02468]$, TIMESTAMP2,'  \
     | LC_COLLATE=POSIX sort
 grep 'Excluding' $tmp.p2g.err
@@ -175,7 +228,7 @@ echo pickle version: $pickle_version >> $seq.full
 socat -u tcp-listen:$port_pickled,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
 scpid=$!
 sleep 2
-$pcp2graphite -X $pickle_version -r -t 1 hinv.ncpu >$tmp.p2g.out 2>$tmp.p2g.err &
+$pcp2graphite -p $port_pickled -X $pickle_version -r -t 1 hinv.ncpu >$tmp.p2g.out 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 3
 $signal $scpid $p2gpid >/dev/null 2>&1
