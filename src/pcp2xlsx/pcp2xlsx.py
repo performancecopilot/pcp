@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2020 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -33,7 +33,7 @@ import openpyxl
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_IN_NULL, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_DEBUG_APPL1
 
 if sys.version_info[0] >= 3:
     long = int # pylint: disable=redefined-builtin
@@ -432,11 +432,13 @@ class PCP2XLSX(object):
                 for j in range(len(self.pmconfig.insts[i][0])):
                     col += 1
                     key = metric
-                    if self.pmconfig.insts[i][0][0] != PM_IN_NULL and  self.pmconfig.insts[i][1][j]:
-                        key += "[" + self.pmconfig.insts[i][1][j] + "]"
-                    # Mark metrics with instance domain but without instances
-                    if self.pmconfig.descs[i].contents.indom != PM_IN_NULL and self.pmconfig.insts[i][1][0] is None:
-                        key += "[]"
+                    if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
+                        # Always mark metrics with instance domain
+                        key += "["
+                        if self.pmconfig.insts[i][1][j]:
+                            # Append instance name when present
+                            key += self.pmconfig.insts[i][1][j]
+                        key += "]"
                     write_cell(col, self.row, key, True)
                     l = len(key) if self.metrics[metric][4] < len(key) else self.metrics[metric][4]
                     if self.ws.column_dimensions[chr(col)].width is None or \
@@ -448,7 +450,7 @@ class PCP2XLSX(object):
             col = COLUMNA
             for i, metric in enumerate(self.metrics):
                 unit = self.metrics[metric][2][0]
-                ins = 1 if self.pmconfig.insts[i][0][0] == PM_IN_NULL else len(self.pmconfig.insts[i][0])
+                ins = 1 if self.pmconfig.descs[i].contents.indom == PM_INDOM_NULL else len(self.pmconfig.insts[i][0])
                 for _ in range(ins):
                     col += 1
                     write_cell(col, self.row, unit, True)

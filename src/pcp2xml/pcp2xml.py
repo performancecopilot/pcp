@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2020 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,7 +32,7 @@ import os
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
 
 if sys.version_info[0] >= 3:
     long = int # pylint: disable=redefined-builtin
@@ -510,7 +510,7 @@ class PCP2XML(object):
                 attrs += ' semantics="' + self.context.pmSemStr(desc.contents.sem) + '"'
             if self.everything:
                 attrs += ' pmid="' + str(pmid) + '"'
-                if desc.contents.indom != PM_IN_NULL:
+                if desc.contents.indom != PM_INDOM_NULL:
                     attrs += ' indom="' + str(desc.contents.indom) + '"'
                 if inst_id is not None:
                     attrs += ' instance-id="' + str(inst_id) + '"'
