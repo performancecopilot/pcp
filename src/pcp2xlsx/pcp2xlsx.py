@@ -405,8 +405,9 @@ class PCP2XLSX(object):
             col = COLUMNA
             write_cell(col, self.row, "Source", True, left)
             col += 1
-            write_cell(col, self.row, self.source, True, left)
-            l = len(self.source) if len(self.source) > l else l
+            source = self.source if self.source else "local context"
+            write_cell(col, self.row, source, True, left)
+            l = len(source) if len(source) > l else l
             self.ws.column_dimensions[chr(col)].width = l + PADDING
             self.row += 1
 
