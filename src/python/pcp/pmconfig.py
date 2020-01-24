@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2020 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -58,6 +58,7 @@ class pmConfig(object):
         self.pmids = []
         self.descs = []
         self.insts = []
+        self.texts = []
 
         # Pause helpers
         self._round = 0
@@ -375,6 +376,12 @@ class pmConfig(object):
 
         self._conf_metrics = deepcopy(self.util.metrics)
 
+    def provide_texts(self):
+        """ Check if help texts requested """
+        if hasattr(self.util, 'include_texts') and self.util.include_texts:
+            return True
+        return False
+
     def do_live_filtering(self):
         """ Check if doing live filtering """
         if hasattr(self.util, 'live_filter') and self.util.live_filter:
@@ -439,6 +446,18 @@ class pmConfig(object):
             self.pmids.append(pmid)
             self.descs.append(desc)
             self.insts.append(inst)
+            if self.provide_texts():
+                line, help, doml, domh = None, None, None, None
+                try:
+                    line = self.util.context.pmLookupText(pmid, pmapi.c_api.PM_TEXT_ONELINE)
+                    help = self.util.context.pmLookupText(pmid, pmapi.c_api.PM_TEXT_HELP)
+                    if desc.contents.indom != pmapi.c_api.PM_INDOM_NULL:
+                        doml = self.util.context.pmLookupInDomText(desc, pmapi.c_api.PM_TEXT_ONELINE)
+                        domh = self.util.context.pmLookupInDomText(desc, pmapi.c_api.PM_TEXT_HELP)
+                except pmapi.pmErr as error:
+                    if error.args[0] != pmapi.c_api.PM_ERR_TEXT:
+                        raise
+                self.texts.append([line, help, doml, domh])
         except pmapi.pmErr as error:
             if hasattr(self.util, 'ignore_incompat') and self.util.ignore_incompat:
                 return
@@ -829,6 +848,8 @@ class pmConfig(object):
             del self.pmids[incompat_metrics[metric]]
             del self.descs[incompat_metrics[metric]]
             del self.insts[incompat_metrics[metric]]
+            if self.provide_texts():
+                del self.texts[incompat_metrics[metric]]
             del self.util.metrics[metric]
         del incompat_metrics
 
@@ -878,6 +899,7 @@ class pmConfig(object):
         self.pmids = []
         self.descs = []
         self.insts = []
+        self.texts = []
         self.util.pmfg.clear()
         self.util.pmfg_ts = None
 

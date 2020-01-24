@@ -1580,6 +1580,7 @@ BAD
 1181 pmda.bcc local python
 1182 libpcp local
 1184 pminfo pmseries local
+1185 pmrep python archive local
 1186 pmie local
 1187 python pcp dstat local
 1188 pmda.dm local valgrind

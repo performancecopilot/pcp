@@ -650,6 +650,7 @@ _pcp () {
       "(-U --no-unit-info $exargs)"{-U,--no-unit-info}'[omit unit info]' \
       "(-p --timestamps $exargs)"{-p,--timestamps}'[print timestamps]' \
       "(-d --delay --container -h --host -L --local-PMDA -K --spec-local -u --no-interpol $exargs)"{-d,--delay}'[delay between updates in archive mode]' \
+      "(--include-texts $exargs)"--include-texts'[include metric help texts in archive output]' \
       "(-X --colxrow $exargs)"{-X+,--colxrow=}'[swap stdout columns and rows using header label]:label:' \
       "(-w --width -W --width-force $exargs)"{-w+,--width=}'[set default column width]:width:' \
       "(-W --width-force -w --width $exargs)"{-W+,--width-force=}'[forced column width]:width:' \

@@ -1,0 +1,19 @@
+QA output created by 1185
+== pmrep archive reporting and creation with help texts
+Recording 2 metrics:
+1 samples(s) with 1.0 sec interval ~ 0 sec duration.
+== print help texts from the created archive
+
+mem.util.free PMID: 60.1.2 [free memory metric from /proc/meminfo]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+Help:
+Alias for mem.freemem.
+
+disk.dev.read PMID: 60.0.4 [per-disk read operations]
+    Data Type: 64-bit unsigned int  InDom: 60.1 0xf000001
+    Semantics: counter  Units: count
+Help:
+Cumulative number of disk read operations since system boot time (subject
+to counter wrap).
+== done
