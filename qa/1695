@@ -49,7 +49,7 @@ $_valgrind_clean_assert pmproxy -f -p $port -U $username -l- -c $tmp.conf >$tmp.
 pid=$!
 
 # valgrind takes awhile to fire up
-pmsleep 4.5
+pmsleep 8
 params="polltimeout=20"
 
 date >>$seq.full

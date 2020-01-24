@@ -1297,7 +1297,7 @@ brew?		libQt5Core.so			[N/A (build optional)]
 brew?		/usr/local/bin/uic		[qt (build optional)]
 brew?		QtSvg/QtSvg			[N/A (build optional)]
 # -- Inventor stuff
-dpkg?	/usr/include/Inventor/Qt/SoQt.h	[libsoqt-dev-common (build optional)]
+dpkg?	/usr/include/Inventor/Qt/SoQt.h	[libsoqt-dev-common or libsoqt-dev (build optional)]
 urpmi?	/usr/include/Inventor/Qt/SoQt.h	[lib64soqt-devel (build optional)]
 rpm?	/usr/include/Inventor/Qt/SoQt.h|/usr/include/Coin*/Inventor/Qt/SoQt.h	[SoQt-devel (build optional)]
 urpmi?	/usr/include/Inventor/Qt/SoQt.h	[lib64soqt-devel (build optional)]
