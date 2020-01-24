@@ -23,9 +23,16 @@ _cleanup()
     _wait_for_pmcd
     _wait_for_pmlogger
     echo;echo === restarting pmproxy
-    _service pmproxy restart 2>&1 | _filter_pcp_start
+    _service pmproxy restart 2>&1 | _filter_pcp_start | _filter_pmproxy
     _wait_for_pmproxy
     $sudo rm -rf $tmp.*
+}
+
+_filter_pmproxy()
+{
+    sed \
+	-e '/pmproxy: disabled time series, requires libuv support (missing)/d' \
+    # end
 }
 
 status=1	# failure is the default!
@@ -40,7 +47,7 @@ _restore_pmlogger_control
 
 echo;echo === restarting pmproxy service to ensure sane starting condition 
 _service pmlogger stop 2>&1 | _filter_pcp_stop
-_service pmproxy restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+_service pmproxy restart 2>&1 | _filter_pcp_stop | _filter_pcp_start | _filter_pmproxy
 _wait_for_pmproxy
 
 pmproxy_pid=`_get_pids_by_name -a pmproxy`
@@ -55,8 +62,17 @@ echo;echo === checking pmproxy file descriptors for deleted files, should be non
 $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
 
 echo;echo === compressing the new archives, which also deletes the originals 
-$sudo xz $dir/testarchive.{0,meta}
-$sudo chown -R $PCP_USER $dir
+for suff in 0 meta
+do
+    if [ -f $dir/testarchive.$suff ]
+    then
+	$sudo xz $dir/testarchive.$suff
+    else
+	echo "Error: $dir/testarchive.$suff missing!"
+	ls -l $dir
+    fi
+    $sudo chown -R $PCP_USER $dir
+done
 
 echo;echo === restarting pmlogger # primary only
 _service pmlogger restart 2>&1 | _filter_pcp_start
@@ -71,8 +87,11 @@ $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
 echo;echo === cleaning up
 $sudo rm -rf $dir
 
-echo;echo === see $seq.full for pmproxy logs 
+echo;echo === see $seq.full for logs 
+echo "+++ pmproxy.log +++" >>$seq.full
 cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq.full
+echo "+++ pmlogger.log +++" >>$seq.full
+cat $tmp.pmlogger.log >>$seq.full
 
 # success, all done
 status=0
