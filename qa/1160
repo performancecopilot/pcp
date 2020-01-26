@@ -43,6 +43,7 @@ pmda_filter()
 	-e "s/.*Info:/Info:/g" \
 	-e "s/\[.* or /\[X or /g" \
 	-e "s/value [0-3].*/value OK/g" \
+	-e "s/u'\([^']*\)'/'\1'/g" \
     #end
 }
 
