@@ -60,16 +60,15 @@ print("\n== pmGetClusterLabels")
 lsets = ctx.pmGetClusterLabels(pmid)
 print(lsets)
 
+lsets = ctx.pmLookupLabels(pmid)
+print("\n== pmLookupLabels -> type=%s len=%d" % (type(lsets), len(lsets)))
+print(lsets)
+
 if indom != c_api.PM_INDOM_NULL:
     print("\n== pmGetInDomLabels")
     lsets = ctx.pmGetInDomLabels(indom)
     print(lsets)
 
-    lsets = ctx.pmLookupLabels(pmid)
-    print("\n== pmLookupLabels -> type=%s len=%d" % (type(lsets), len(lsets)))
-    print(lsets)
-
     lsets = ctx.pmGetInstancesLabels(indom)
     print("\n== pmGetInstancesLabels -> type=%s len=%d" % (type(lsets), len(lsets)))
     print(lsets)
-

@@ -2116,9 +2116,10 @@ class pmContext(object):
         if lset:
             ret.update({c_api.PM_LABEL_DOMAIN: lset})
 
-        lset = self.pmGetInDomLabels(desc.indom)
-        if lset:
-            ret.update({c_api.PM_LABEL_INDOM: lset})
+        if desc.indom != c_api.PM_INDOM_NULL:
+            lset = self.pmGetInDomLabels(desc.indom)
+            if lset:
+                ret.update({c_api.PM_LABEL_INDOM: lset})
 
         lset = self.pmGetClusterLabels(pmid)
         if lset:
