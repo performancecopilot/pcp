@@ -23,6 +23,7 @@ install install_pcp: default $(TESTFILES)
 	$(INSTALL) -m 644 src/cases/10.py $(TESTDIR)/src/cases/10.py
 	$(INSTALL) -m 644 src/cases/11.py $(TESTDIR)/src/cases/11.py
 	$(INSTALL) -m 644 src/cases/12.py $(TESTDIR)/src/cases/12.py
+	$(INSTALL) -m 644 src/cases/13.py $(TESTDIR)/src/cases/13.py
 	$(INSTALL) -m 644 src/configs/complex/0/pmdastatsd.ini $(TESTDIR)/src/configs/complex/0/pmdastatsd.ini
 	$(INSTALL) -m 644 src/configs/complex/1/pmdastatsd.ini $(TESTDIR)/src/configs/complex/1/pmdastatsd.ini
 	$(INSTALL) -m 644 src/configs/single/debug_output_filename/0/pmdastatsd.ini $(TESTDIR)/src/configs/single/debug_output_filename/0/pmdastatsd.ini
@@ -31,6 +32,7 @@ install install_pcp: default $(TESTFILES)
 	$(INSTALL) -m 644 src/configs/single/duration_aggregation_type/1/pmdastatsd.ini $(TESTDIR)/src/configs/single/duration_aggregation_type/1/pmdastatsd.ini
 	$(INSTALL) -m 644 src/configs/single/max_udp_packet_size/0/pmdastatsd.ini $(TESTDIR)/src/configs/single/max_udp_packet_size/0/pmdastatsd.ini
 	$(INSTALL) -m 644 src/configs/single/max_udp_packet_size/1/pmdastatsd.ini $(TESTDIR)/src/configs/single/max_udp_packet_size/1/pmdastatsd.ini
+	$(INSTALL) -m 644 src/configs/single/max_udp_packet_size/2/pmdastatsd.ini $(TESTDIR)/src/configs/single/max_udp_packet_size/2/pmdastatsd.ini
 	$(INSTALL) -m 644 src/configs/single/max_unprocessed_packets/0/pmdastatsd.ini $(TESTDIR)/src/configs/single/max_unprocessed_packets/0/pmdastatsd.ini
 	$(INSTALL) -m 644 src/configs/single/max_unprocessed_packets/1/pmdastatsd.ini $(TESTDIR)/src/configs/single/max_unprocessed_packets/1/pmdastatsd.ini
 	$(INSTALL) -m 644 src/configs/single/parser_type/0/pmdastatsd.ini $(TESTDIR)/src/configs/single/parser_type/0/pmdastatsd.ini

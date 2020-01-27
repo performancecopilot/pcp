@@ -16,7 +16,8 @@ pmdastatsd_dir = pmdastatsd_dir.strip()
 
 get_pmdastatsd_log_dir_command = 'echo $PCP_LOG_DIR/pmcd'
 pmdastatsd_log_dir = subprocess.check_output(get_pmdastatsd_log_dir_command, shell=True)
-pmdastatsd_log_path = pmdastatsd_log_dir.strip() + "/statsd.log"
+pmdastatsd_log_dir = pmdastatsd_log_dir.strip()
+pmdastatsd_log_path = pmdastatsd_log_dir + "/statsd.log"
 
 pmdastatsd_config_filename = "pmdastatsd.ini"
 pmdastatsd_config_backup_filename = "backup_pmdastatsd.ini"
@@ -64,6 +65,33 @@ def set_config(path_to_config):
 		shutil.copy(path_to_config, os.path.join(pmdastatsd_dir, pmdastatsd_config_filename))
 	else:
 		print("Error setting config file.")
+
+def get_pmdastatsd_pids():
+	"""returns pmdastatsd pid"""
+	command = 'pgrep pmdastatsd'
+	results = subprocess.check_output(command, shell=True)
+	return results.strip().split('\n')
+
+def send_debug_output_signal(pid):
+	command = 'kill -USR1 {}'
+	results = subprocess.check_output(command.format(pid), shell=True)
+
+def get_debug_file(name):
+	f = open(os.path.join(pmdastatsd_log_dir, "statsd_" + name), "r")
+	contents = []
+	# replace "time spent parsing" and "time spent aggregating" lines as results may vary
+	for line in f:
+		if 'time spent parsing' in line:
+			contents.append("time spent parsing: <filtered>\n")
+		elif 'time spent aggregating' in line:
+			contents.append("time spent aggregating: <filtered>\n")
+		else:
+			contents.append(line)
+	f.close()
+	return ''.join(contents)
+
+def remove_debug_file(name):
+	os.remove(os.path.join(pmdastatsd_log_dir, "statsd_" + name))
 
 def request_metric(metric_name):
 	"""fetches metric value with a given name."""
