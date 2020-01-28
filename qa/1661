@@ -92,6 +92,12 @@ if [ `expr $curlogvol + 1` -ne $newlogvol ]; then echo FAILED curlogvol=$curlogv
 else echo passed
 fi
 
+echo;echo === checking pmproxy survives pmlogger restart
+_service pmlogger restart 2>&1 | _filter_pcp_start
+_wait_for_pmlogger
+$sudo [ ! -d /proc/$pmproxy_pid/fd/ ] && echo FAIL && status=1 && exit
+echo passed
+
 echo;echo === cleaning up
 $sudo rm -rf $dir
 
