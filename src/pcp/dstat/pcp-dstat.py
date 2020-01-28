@@ -815,7 +815,7 @@ class DstatTool(object):
             self.disklist = sorted([x for x in insts if x != 'total'])
             if 'total' in insts:
                 self.disklist.append('total')
-        elif opt in ['--filesystem']:
+        elif opt in ['filesystem']:
             self.append_plugin('fs')
         elif opt in ['g']:
             self.append_plugin('page')
