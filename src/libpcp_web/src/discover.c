@@ -418,18 +418,6 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
     int			count = 0;
     struct stat		statbuf;
 
-    uv_fs_event_getpath(handle, buffer, &bytes);
-    path = sdsnewlen(buffer, bytes);
-
-    if (pmDebugOptions.discovery) {
-	fprintf(stderr, "fs_change_callBack: event on %s -", path);
-	if (events & UV_RENAME)
-	    fprintf(stderr, " renamed");
-	if (events & UV_CHANGE)
-	    fprintf(stderr, " changed");
-	fputc('\n', stderr);
-    }
-
     /*
      * check if logs are currently being rolled by pmlogger_daily et al
      * in any of the directories we are tracking. For mutex, the log control
@@ -457,6 +445,19 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
 	pmDiscoverTraverse(PM_DISCOVER_FLAGS_META|PM_DISCOVER_FLAGS_DATAVOL, check_deleted);
     }
     lockcnt = count;
+
+    uv_fs_event_getpath(handle, buffer, &bytes);
+    path = sdsnewlen(buffer, bytes);
+
+    if (pmDebugOptions.discovery) {
+	fprintf(stderr, "fs_change_callBack: event on %s -", path);
+	if (events & UV_RENAME)
+	    fprintf(stderr, " renamed");
+	if (events & UV_CHANGE)
+	    fprintf(stderr, " changed");
+	fputc('\n', stderr);
+    }
+
     	
     /*
      * Strip ".meta" suffix (if any) and lookup the path. stat and update it's
@@ -493,7 +494,6 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
 	p->changed(p); /* returns immediately if PM_DISCOVER_FLAGS_DELETED */
 
     sdsfree(path);
-    pmDiscoverPurgeDeleted();
 }
 
 /*
@@ -1312,9 +1312,6 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	/* no metdata read in progress, so process new datavol data, if any */
 	process_logvol(p);
     }
-
-    /* finally, purge deleted entries (globally), if any */
-    pmDiscoverPurgeDeleted();
 }
 
 static void
@@ -1404,13 +1401,8 @@ changed_callback(pmDiscover *p)
 	pmDiscoverTraverseArg(PM_DISCOVER_FLAGS_DATAVOL|PM_DISCOVER_FLAGS_META,
 	    directory_changed_cb, (void *)p->context.name);
 
-    }
-    else if (p->flags & (PM_DISCOVER_FLAGS_DATAVOL|PM_DISCOVER_FLAGS_META)) {
-    	/*
-	 * Fetch new archive data (both metadata or logvol) and then call
-	 * the registered callbacks, see process_meta() and process_logvol().
-	 */
-	pmDiscoverInvokeCallBacks(p);
+	/* finally, purge deleted entries (globally), if any */
+	pmDiscoverPurgeDeleted();
     }
 
     if (pmDebugOptions.discovery) {
