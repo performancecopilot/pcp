@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# remake the sample-labels archive ... that is intended to be checked in
+# and not remade, this script is simply a record of it was created.
+#
+# sample-labels is an archive with labels at each label hierarchy level.
+#
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+. $PCP_DIR/etc/pcp.env
+
+pmcd=`_get_pids_by_name pmcd`
+echo '{"latitude": -25.28496, "longitude": 152.87886}' > $tmp.labels
+sudo cp $tmp.labels $PCP_SYSCONF_DIR/labels/pcpqa.location
+
+sudo kill -HUP $pmcd
+
+cat <<End-of-File >>$tmp.config
+log mandatory on default {
+    sample.colour
+    sample.mirage
+    sample.rapid
+}
+End-of-File
+
+rm -f sample-labels.* pmlogger.log
+
+pmlogger -t 0.5sec -c $tmp.config -s 2 sample-labels
+
+sudo rm $PCP_SYSCONF_DIR/labels/pcpqa.location
+cat pmlogger.log
