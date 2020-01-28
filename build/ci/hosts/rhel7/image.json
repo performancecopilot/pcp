@@ -50,7 +50,7 @@
         "GIT_COMMIT={{user `git_commit`}}"
       ],
       "scripts": [
-        "hosts/rhel7/setup_epel.sh",
+        "hosts/rhel7/install_libuv.sh",
         "common/redhat/provision_yum.sh",
         "common/linux/deprovision.sh"
       ]
