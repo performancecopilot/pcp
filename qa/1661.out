@@ -17,6 +17,9 @@ QA output created by 1661
 === checking pmproxy correctly switches logvol when pmlogger bumps to a new logvol
 passed
 
+=== checking pmproxy survives pmlogger restart
+passed
+
 === cleaning up
 
 === see 1661.full for logs
