@@ -1,6 +1,6 @@
 #!/bin/sh -eux
 
-yum update
+yum -y update
 yum install -y git
 
 git clone "${GIT_REPO}"
