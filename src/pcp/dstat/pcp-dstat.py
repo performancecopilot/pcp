@@ -1161,7 +1161,7 @@ class DstatTool(object):
         "Reset a valueset for storing values for the next sample"
         if step == op.delay:
             valueset = self.mlookup(valuesets, key)
-            valueset.clear()
+            del valueset[:]
             return valueset
         return None
 
