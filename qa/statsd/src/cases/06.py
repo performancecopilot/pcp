@@ -60,16 +60,18 @@ def run_test():
             sock.sendto("test_gauge:{}|g".format(payload).encode("utf-8"), (ip, port))
         utils.print_metric("statsd.pmda.dropped")
         utils.print_metric('statsd.test_gauge')
-        # check for overflow
         overflow_payload = sys.float_info.max
-        sock.sendto("test_gauge2:+{}|g".format(overflow_payload).encode("utf-8"), (ip, port))
         sock.sendto("test_gauge2:+{}|g".format(overflow_payload).encode("utf-8"), (ip, port))
         utils.print_metric("statsd.pmda.dropped")
         utils.print_metric("statsd.test_gauge2")
-        # check for underflow 
+        sock.sendto("test_gauge2:+{}|g".format(overflow_payload).encode("utf-8"), (ip, port))
+        utils.print_metric("statsd.pmda.dropped")
+        utils.print_metric("statsd.test_gauge2")
         # TODO: check if this is truly the desired behavior
         underflow_payload = sys.float_info.max * -1.0
         sock.sendto("test_gauge3:{}|g".format(underflow_payload).encode("utf-8"), (ip, port))
+        utils.print_metric("statsd.pmda.dropped")
+        utils.print_metric("statsd.test_gauge3")
         sock.sendto("test_gauge3:{}|g".format(underflow_payload).encode("utf-8"), (ip, port))
         utils.print_metric("statsd.pmda.dropped")
         utils.print_metric("statsd.test_gauge3")

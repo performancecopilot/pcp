@@ -38,7 +38,7 @@ create_duration_value(struct agent_config* config, struct statsd_datagram* datag
         default:
             new_value = datagram->value;
     }
-    if (new_value < 0 || new_value >= DBL_MAX) {
+    if (new_value < 0) {
         return 0;
     }
     if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_HDR_HISTOGRAM) {

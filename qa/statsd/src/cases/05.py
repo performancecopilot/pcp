@@ -61,14 +61,14 @@ def run_test():
         for payload in payloads:
             sock.sendto("test_counter:{}|c".format(payload).encode("utf-8"), (ip, port))
         utils.print_metric('statsd.test_counter')
-        # check for overflow
         test_payload = sys.float_info.max
         sock.sendto("test_counter2:{}|c".format(test_payload).encode("utf-8"), (ip, port))
-        sock.sendto("test_counter2:{}|c".format(test_payload).encode("utf-8"), (ip, port))
-        # should contain single sock
         utils.print_metric("statsd.test_counter2")
         utils.print_metric("statsd.pmda.dropped")
-        # utils.pmdastatsd_remove()
+        sock.sendto("test_counter2:{}|c".format(test_payload).encode("utf-8"), (ip, port))
+        utils.print_metric("statsd.test_counter2")
+        utils.print_metric("statsd.pmda.dropped")
+        utils.pmdastatsd_remove()
         utils.restore_config()
 
 run_test()

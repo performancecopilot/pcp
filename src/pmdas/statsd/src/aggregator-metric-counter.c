@@ -35,7 +35,7 @@ create_counter_value(struct agent_config* config, struct statsd_datagram* datagr
         default:
             new_value = datagram->value;
     }
-    if (new_value < 0 || new_value >= DBL_MAX) {
+    if (new_value < 0) {
         return 0;
     }
     *out = (double*) malloc(sizeof(double));
@@ -64,11 +64,6 @@ update_counter_value(struct agent_config* config, struct statsd_datagram* datagr
     }
     // discard negative values
     if (new_value < 0) {
-        return 0;
-    }
-    // check for overflow
-    if (new_value > DBL_MAX - *(double*)value) {
-        VERBOSE_LOG(2, "Caught double overflow.");
         return 0;
     }
     *(double*)(value) += new_value;
