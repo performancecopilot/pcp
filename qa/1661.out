@@ -14,6 +14,9 @@ QA output created by 1661
 
 === checking pmproxy file descriptors for deleted files, should be none
 
+=== checking pmproxy correctly switches logvol when pmlogger bumps to a new logvol
+passed
+
 === cleaning up
 
 === see 1661.full for logs
