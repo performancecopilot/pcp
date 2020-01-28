@@ -84,6 +84,14 @@ pmsleep 5
 echo;echo === checking pmproxy file descriptors for deleted files, should be none 
 $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
 
+echo;echo === checking pmproxy correctly switches logvol when pmlogger bumps to a new logvol
+curlogvol=`$sudo ls -l /proc/$pmproxy_pid/fd/ | awk -F. '/pmlogger.*.[0-9]$/ {print $NF}'`
+$sudo killall -HUP pmlogger && sleep 2
+newlogvol=`$sudo ls -l /proc/$pmproxy_pid/fd/ | awk -F. '/pmlogger.*.[0-9]$/ {print $NF}'`
+if [ `expr $curlogvol + 1` -ne $newlogvol ]; then echo FAILED curlogvol=$curlogvol newlogvol=$newlogvol
+else echo passed
+fi
+
 echo;echo === cleaning up
 $sudo rm -rf $dir
 
