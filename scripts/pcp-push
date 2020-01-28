@@ -223,6 +223,7 @@ then
 		elif [ -n "$ans" ]
 		then
 		    echo "$ans" >$tmp.pr
+		    echo >>$tmp.pr
 		    cat /tmp/msg >>$tmp.pr
 		    break
 		else

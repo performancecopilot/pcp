@@ -485,7 +485,7 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 22:		/* kernel.all.pswitch */
 	    case 23:		/* kernel.all.syscall */
 	    case 24:		/* kernel.all.intr */
-		sts = do_sysctl(mp, sizeof(atom->ull));
+		sts = do_sysctl(mp, 0);
 		if (sts > 0) {
 		    switch (sts) {
 			case 4:

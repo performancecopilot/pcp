@@ -35,6 +35,7 @@ pmda_filter()
 	-e "s/::1/OK/g" \
 	-e "s,value [0-9]*\.[0-9]*,value OK,g" \
 	-e "s/value \"localhost.*/value \"LOCALHOST\"/" \
+	-e "s/u'\([^']*\)'/'\1'/g" \
     #end
 }
 
