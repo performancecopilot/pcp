@@ -15,9 +15,18 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "avahi_cleanup; exit \$status" 0 1 2 3 15
 
+_filter()
+{
+    sed \
+	-e "/Failed to resolve service '.*' of type '_pmproxy._tcp' in domain 'local': Timeout reached/d" \
+    # done
+}
+
 # real QA test starts here
 service=pmproxy
 avahi_service
-avahi_verify
+sleep 5
+avahi_verify 2>&1 \
+| _filter
 status=0
 exit

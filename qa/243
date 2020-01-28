@@ -38,6 +38,7 @@ N
 d
 }' \
 	-e 's/ INADDR_ANY/ 0x0/g' \
+	-e "s@$tmp@TMP@g" \
 	#end
 }
 
@@ -87,21 +88,32 @@ _wait_for_pmcd
 echo "Checking for startup errors ..."
 [ -f err1 ] && _filter_err <err1
 
-# Try to start another pmcd.  This should fail because the socket is already in
-# use.  Make sure that there are no changes to the log file
+# Save pmcd log file to date ...
 #
+# Although _wait_for_pmcd() returns and pmcd is alive, the log file
+# may not have been created yet ... be a little patient
+#
+for i in 1 2 3 4 5 6 7 8 9 10
+do
+    [ -f pmcd.log ] && break
+    pmsleep 0.2
+done
 if [ -f pmcd.log ]
 then
     cp pmcd.log pmcd.log.$$
 else
-    echo "No pmcd.log, pmcd failed to start!"
+    echo "No pmcd.log, pmcd failed to start?"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mcd'
     exit
 fi
 
+# Try to start another pmcd.  This should fail because the socket is
+# already in use.
+#
 echo
 echo "Trying to start another PMCD over the top of the first one."
 echo "Expect \"bind:  Address already in use\"...:"
-$PCP_PMCD_PROG -f -x err2 2>&1 | _filter_err &
+$PCP_PMCD_PROG -f -x err2 -l $tmp.log 2>&1 | _filter_err &
 
 # EADDRINUSE errors now have 4x250 msec delay while we retry before giving
 # up, and this happens once per socket type, so up to 3 times ... and then
@@ -111,7 +123,15 @@ pmsleep 3.5
 echo "Checking for startup errors ..."
 [ -f err2 ] && _filter_err <err2
 
-echo "Checking that log hasn't changed ..."
-diff pmcd.log pmcd.log.$$
-
-status=$?
+# Make sure that there are no changes to the pmcd log file
+#
+echo "Checking that the original pmcd log hasn't changed ..."
+if diff pmcd.log pmcd.log.$$
+then
+    status=0
+else
+    echo "+++ log file for first pmcd +++" >>$here/$seq.full
+    cat pmcd.log >>$here/$seq.full
+    echo "+++ log file for second pmcd +++" >>$here/$seq.full
+    cat $tmp.log >>$here/$seq.full
+fi
