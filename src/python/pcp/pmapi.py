@@ -1681,7 +1681,7 @@ class pmContext(object):
     # PMAPI Instance Domain Services
 
     def pmGetInDom(self, pmdescp=None, indom=None):
-        """PMAPI - Lookup the list of instances from an instance domain PMDESCP or indo
+        """PMAPI - Lookup the list of instances from an instance domain PMDESCP or indom
         ([instance1, instance2...] [name1, name2...]) pmGetInDom(pmDesc pmdesc)
         """
         if pmdescp is None and indom is None:
