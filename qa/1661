@@ -86,8 +86,26 @@ $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
 
 echo;echo === checking pmproxy correctly switches logvol when pmlogger bumps to a new logvol
 curlogvol=`$sudo ls -l /proc/$pmproxy_pid/fd/ | awk -F. '/pmlogger.*.[0-9]$/ {print $NF}'`
+echo "curlogvol=$curlogvol" >>$seq.full
+if [ -z "$curlogvol" ]
+then
+    echo "Arrgh ... curlogvol not found from ..."
+    $sudo ls -l /proc/$pmproxy_pid/fd/
+    echo "pmproxy_pid=$pmproxy_pid"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy'
+    exit
+fi
 $sudo killall -HUP pmlogger && sleep 2
 newlogvol=`$sudo ls -l /proc/$pmproxy_pid/fd/ | awk -F. '/pmlogger.*.[0-9]$/ {print $NF}'`
+echo "newlogvol=$newlogvol" >>$seq.full
+if [ -z "$newlogvol" ]
+then
+    echo "Arrgh ... newlogvol not found from ..."
+    $sudo ls -l /proc/$pmproxy_pid/fd/
+    echo "pmproxy_pid=$pmproxy_pid"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy'
+    exit
+fi
 if [ `expr $curlogvol + 1` -ne $newlogvol ]; then echo FAILED curlogvol=$curlogvol newlogvol=$newlogvol
 else echo passed
 fi
