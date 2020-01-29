@@ -481,6 +481,9 @@ class DstatTool(object):
         # Options for specific plugins
         self.cpulist = None
         self.disklist = None
+        self.dmlist = None
+        self.mdlist = None
+        self.partlist = None
         self.intlist = None
         self.netlist = None
         self.swaplist = None
@@ -659,11 +662,17 @@ class DstatTool(object):
                                 lib.parse_verbose_metric_info(metrics, name, 'label', mkey)
                         lib.parse_verbose_metric_info(metrics, name, spec, value)
 
-                # Instance logic for -C/-D/-I/-N/-S options
+                # Instance logic for -C/-D/-L/-M/-P/-I/-N/-S options
                 if section == 'cpu':
                     plugin.prepare_grouptype(self.cpulist, self.full)
                 elif section in ['disk', 'disk-tps']:
                     plugin.prepare_grouptype(self.disklist, self.full)
+                elif section in ['dm', 'dm-tps']:
+                    plugin.prepare_grouptype(self.dmlist, self.full)
+                elif section in ['md', 'md-tps']:
+                    plugin.prepare_grouptype(self.mdlist, self.full)
+                elif section in ['part', 'part-tps']:
+                    plugin.prepare_grouptype(self.partlist, self.full)
                 elif section == 'int':
                     plugin.prepare_grouptype(self.intlist, self.full)
                 elif section == 'net':
@@ -711,7 +720,7 @@ class DstatTool(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("acC:dD:fghiI:lmnN:o:pqrsS:tTvVy?")
+        opts.pmSetShortOptions("acC:dD:fghiI:lL:mM:nN:o:pP:qrsS:tTvVy?")
         opts.pmSetShortUsage("[-afv] [options...] [delay [count]]")
         opts.pmSetLongOptionText('Versatile tool for generating system resource statistics')
 
@@ -719,7 +728,16 @@ class DstatTool(object):
         opts.pmSetLongOption('cpu', 0, 'c', '', 'enable cpu stats')
         opts.pmSetLongOptionText(' '*5 + '-C 0,3,total' + ' '*10 + 'include cpu0, cpu3 and total')
         opts.pmSetLongOption('disk', 0, 'd', '', 'enable disk stats')
-        opts.pmSetLongOptionText(' '*5 + '-D total,hda' + ' '*10 + 'include hda and total')
+        opts.pmSetLongOptionText(' '*5 + '-D total,sda' + ' '*10 + 'include sda and total')
+        opts.pmSetLongOption('device-mapper', 0, None, '', '')
+        opts.pmSetLongOptionText('  --dm, --device-mapper' + ' '*1 + 'enable device mapper stats')
+        opts.pmSetLongOptionText(' '*5 + '-L root,home,total' + ' '*4 + 'include root, home and total')
+        opts.pmSetLongOption('multi-device', 0, None, '', '')
+        opts.pmSetLongOptionText('  --md, --multi-device' + ' '*2 + 'enable multi-device driver stats')
+        opts.pmSetLongOptionText(' '*5 + '-M total,md-0' + ' '*9 + 'include md-0 and total')
+        opts.pmSetLongOption('partition', 0, None, '', '')
+        opts.pmSetLongOptionText('  --part, --partition' + ' '*3 + 'enable disk partition stats')
+        opts.pmSetLongOptionText(' '*5 + '-P total,sdb2' + ' '*9 + 'include sdb2 and total')
         opts.pmSetLongOption('page', 0, 'g', '', 'enable page stats')
         opts.pmSetLongOption('int', 0, 'i', '', 'enable interrupt stats')
         opts.pmSetLongOptionText(' '*5 + '-I 9,CAL' + ' '*14 + 'include int9 and function call interrupts')
@@ -783,7 +801,7 @@ class DstatTool(object):
 
     def option_override(self, opt):
         """ Override standard PCP options for Dstat utility """
-        if opt in ('a', 'D', 'g', 'h', 'n', 'N', 'p', 's', 'S', 't', 'T', 'V'):
+        if opt in ('a', 'D', 'g', 'h', 'L', 'n', 'N', 'p', 's', 'S', 't', 'T', 'V'):
             return 1
         return 0
 
@@ -815,6 +833,27 @@ class DstatTool(object):
             self.disklist = sorted([x for x in insts if x != 'total'])
             if 'total' in insts:
                 self.disklist.append('total')
+        elif opt in ['device-mapper']:
+            self.append_plugin('dm')
+        elif opt in ['L']:
+            insts = arg.split(',')
+            self.dmlist = sorted([x for x in insts if x != 'total'])
+            if 'total' in insts:
+                self.dmlist.append('total')
+        elif opt in ['multi-device']:
+            self.append_plugin('md')
+        elif opt in ['M']:
+            insts = arg.split(',')
+            self.mdlist = sorted([x for x in insts if x != 'total'])
+            if 'total' in insts:
+                self.mdlist.append('total')
+        elif opt in ['partition']:
+            self.append_plugin('part')
+        elif opt in ['P']:
+            insts = arg.split(',')
+            self.partlist = sorted([x for x in insts if x != 'total'])
+            if 'total' in insts:
+                self.partlist.append('total')
         elif opt in ['filesystem']:
             self.append_plugin('fs')
         elif opt in ['g']:

@@ -324,7 +324,7 @@ allow pcp_pmmgr_t self:capability dac_override;
 #type=AVC msg=audit(YYY.92): avc:  denied  { read } for pid=26828 comm="smartctl" name="sda" dev="devtmpfs" ino=9158 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fixed_disk_device_t:s0 tclass=blk_file permissive=0
 
 allow pcp_pmcd_t fsadm_exec_t:file { execute execute_no_trans getattr open read @PCP_FSADM_EXEC_MAP@ };
-allow pcp_pmcd_t fixed_disk_device_t:blk_file read;
+allow pcp_pmcd_t fixed_disk_device_t:blk_file { open read };
 
 #============= pmda-nvidia ==============
 #type=AVC msg=audit(YYY.83): avc: denied { map } for pid=7034 comm="pmdanvidia" path="/usr/lib64/libnvidia-ml.so" dev="dm-2" ino=16267329 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0

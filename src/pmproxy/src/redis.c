@@ -145,11 +145,11 @@ setup_redis_module(struct proxy *proxy)
 	proxy->slots = redisSlotsConnect(proxy->config,
 			flags, proxylog, on_redis_connected,
 			proxy, proxy->events, proxy);
-	if (archive_discovery)
+	if (archive_discovery && series_queries)
 	    pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
     }
 
-    if (archive_discovery) {
+    if (archive_discovery && series_queries) {
 	pmDiscoverSetEventLoop(&redis_discover.module, proxy->events);
 	pmDiscoverSetConfiguration(&redis_discover.module, proxy->config);
 	pmDiscoverSetMetricRegistry(&redis_discover.module, metric_registry);

@@ -1,0 +1,65 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[md]
+label = dsk/%I
+printtype = b
+precision = 0
+grouptype = 2
+reads = disk.md.read_bytes
+reads.label = read
+writes = disk.md.write_bytes
+writes.label = writ
+
+[md-avgqu]
+label = %I
+width = 4
+grouptype = 1
+printtype = f
+colorstep = 10
+avgqu = disk.md.aveq
+
+[md-avgrq]
+label = %I
+width = 4
+grouptype = 1
+printtype = f
+colorstep = 10
+avgrq = (delta(disk.md.read_bytes) + delta(disk.md.write_bytes)) / (delta(disk.md.read) + delta(disk.md.write))
+
+[md-svctm]
+label = %I
+width = 4
+grouptype = 1
+printtype = f
+colorstep = 1
+svctm = (delta(disk.md.avactive) / 1000 / 2) / (delta(disk.md.read) + delta(disk.md.write))
+
+[md-tps]
+label = dsk/%I
+width = 5
+printtype = d
+grouptype = 2
+reads = disk.md.read
+reads.label = #read
+writes = disk.md.write
+writes.label = #writ
+
+[md-util]
+label = %I
+width = 4
+grouptype = 1
+printtype = f
+colorstep = 34
+util = 100 * rate(disk.md.avactive)
+
+[md-wait]
+label = %I
+width = 4
+grouptype = 1
+printtype = f
+colorstep = 1
+rawait = delta(disk.md.read_rawactive) / delta(disk.md.read)
+wawait = delta(disk.md.write_rawactive) / delta(disk.md.write)
+

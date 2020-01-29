@@ -86,8 +86,8 @@ typedef struct pmDiscover {
     int				fd;		/* meta file descriptor */
 #ifdef HAVE_LIBUV
     uv_fs_event_t		*event_handle;	/* uv fs_notify event handle */ 
-    uv_stat_t			statbuf;	/* stat buffer from event CB */
 #endif
+    struct stat			statbuf;	/* stat buffer */
     void			*baton;		/* private internal lib data */
     void			*data;		/* opaque user data pointer */
 } pmDiscover;

@@ -1,0 +1,65 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[part]
+label = dsk/%I
+printtype = b
+precision = 0
+grouptype = 2
+reads = disk.partitions.read_bytes
+reads.label = read
+writes = disk.partitions.write_bytes
+writes.label = writ
+
+[part-avgqu]
+label = %I
+width = 4
+grouptype = 1
+printtype = f
+colorstep = 10
+avgqu = disk.partitions.aveq
+
+[part-avgrq]
+label = %I
+width = 4
+grouptype = 1
+printtype = f
+colorstep = 10
+avgrq = (delta(disk.partitions.read_bytes) + delta(disk.partitions.write_bytes)) / (delta(disk.partitions.read) + delta(disk.partitions.write))
+
+[part-svctm]
+label = %I
+width = 4
+grouptype = 1
+printtype = f
+colorstep = 1
+svctm = (delta(disk.partitions.avactive) / 1000 / 2) / (delta(disk.partitions.read) + delta(disk.partitions.write))
+
+[part-tps]
+label = dsk/%I
+width = 5
+printtype = d
+grouptype = 2
+reads = disk.partitions.read
+reads.label = #read
+writes = disk.partitions.write
+writes.label = #writ
+
+[part-util]
+label = %I
+width = 4
+grouptype = 1
+printtype = f
+colorstep = 34
+util = 100 * rate(disk.partitions.avactive)
+
+[part-wait]
+label = %I
+width = 4
+grouptype = 1
+printtype = f
+colorstep = 1
+rawait = delta(disk.partitions.read_rawactive) / delta(disk.partitions.read)
+wawait = delta(disk.partitions.write_rawactive) / delta(disk.partitions.write)
+
