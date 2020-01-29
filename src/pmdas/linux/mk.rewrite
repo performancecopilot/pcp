@@ -116,6 +116,11 @@ metric network.interface.ipv6_addr { sem -> discrete }
 metric network.interface.ipv6_scope { sem -> discrete }
 metric network.interface.hw_addr { sem -> discrete }
 
+# kernel.all.uptime and kernel.all.idletime changed to double:
+#
+metric kernel.all.uptime { type -> DOUBLE }
+metric kernel.all.idletime { type -> DOUBLE }
+
 End-of-File
 
 cat <<End-of-File >proc_net_sockstat_deprecate.conf

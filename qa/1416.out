@@ -1,0 +1,23 @@
+QA output created by 1416
+== Rewriting
+status=0
+
+== Metadata before
+
+kernel.all.uptime
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
+kernel.all.idletime
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
+== Metadata after
+
+kernel.all.uptime
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
+kernel.all.idletime
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec

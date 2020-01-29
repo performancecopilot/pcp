@@ -1675,6 +1675,7 @@ BAD
 1407 pmchart derive local
 1408 pmchart libpcp_qmc local
 1415 pmda.mmv labels local
+1416 pmlogrewrite local
 1422 pmda.mmv local valgrind
 1423 pcp2spark python pcp2xxx local
 1433 pmproxy local
