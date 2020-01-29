@@ -92,12 +92,12 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %global disable_bcc 1
 %endif
 
-# support for pmdabpftrace
+# support for pmdabpftrace, check bpftrace.spec for supported architectures of bpftrace
 %if 0%{?fedora} >= 30 || 0%{?rhel} > 7
-%ifarch s390 s390x armv7hl aarch64 i686
-%global disable_bpftrace 1
-%else
+%ifarch x86_64 %{power64} aarch64 s390x
 %global disable_bpftrace 0
+%else
+%global disable_bpftrace 1
 %endif
 %else
 %global disable_bpftrace 1
