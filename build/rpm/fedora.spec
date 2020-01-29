@@ -81,12 +81,12 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %global perl_interpreter perl
 %endif
 
-# support for pmdabcc
+# support for pmdabcc, check bcc.spec for supported architectures of bcc
 %if 0%{?fedora} >= 25 || 0%{?rhel} > 6
-%ifarch s390 s390x armv7hl aarch64 i686
-%global disable_bcc 1
-%else
+%ifarch x86_64 %{power64} aarch64 s390x
 %global disable_bcc 0
+%else
+%global disable_bcc 1
 %endif
 %else
 %global disable_bcc 1
