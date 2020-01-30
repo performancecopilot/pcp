@@ -14,6 +14,12 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %global __python2 python
 %endif
 
+%if 0%{?rhel}%{?centos} >= 7 || 0%{?fedora} >= 17
+%global _hostname_executable /usr/bin/hostname
+%else
+%global _hostname_executable /bin/hostname
+%endif
+
 %if 0%{?fedora} || 0%{?rhel} > 5
 %global disable_selinux 0
 %else
@@ -75,23 +81,23 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %global perl_interpreter perl
 %endif
 
-# support for pmdabcc
+# support for pmdabcc, check bcc.spec for supported architectures of bcc
 %if 0%{?fedora} >= 25 || 0%{?rhel} > 6
-%ifarch s390 s390x armv7hl aarch64 i686
-%global disable_bcc 1
-%else
+%ifarch x86_64 %{power64} aarch64 s390x
 %global disable_bcc 0
+%else
+%global disable_bcc 1
 %endif
 %else
 %global disable_bcc 1
 %endif
 
-# support for pmdabpftrace
+# support for pmdabpftrace, check bpftrace.spec for supported architectures of bpftrace
 %if 0%{?fedora} >= 30 || 0%{?rhel} > 7
-%ifarch s390 s390x armv7hl aarch64 i686
-%global disable_bpftrace 1
-%else
+%ifarch x86_64 %{power64} aarch64 s390x
 %global disable_bpftrace 0
+%else
+%global disable_bpftrace 1
 %endif
 %else
 %global disable_bpftrace 1
@@ -229,7 +235,7 @@ BuildRequires: perl-generators
 BuildRequires: perl-devel perl(strict)
 BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
 BuildRequires: perl(LWP::UserAgent) perl(Time::HiRes) perl(Digest::MD5)
-BuildRequires: man /bin/hostname
+BuildRequires: man %{_hostname_executable}
 %if !%{disable_systemd}
 BuildRequires: systemd-devel
 %endif
@@ -243,7 +249,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash xz gawk sed grep findutils which /bin/hostname
+Requires: bash xz gawk sed grep findutils which %{_hostname_executable}
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
