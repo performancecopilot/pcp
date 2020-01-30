@@ -1,1 +1,1 @@
-bintray_distribution="el8"
+BINTRAY_DISTRIBUTION="el8"

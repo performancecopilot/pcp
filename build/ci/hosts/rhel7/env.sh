@@ -1,1 +1,1 @@
-bintray_distribution="el7"
+BINTRAY_DISTRIBUTION="el7"

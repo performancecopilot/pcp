@@ -2,7 +2,8 @@
 
 cd "$(dirname "$0")/.."
 . scripts/env.sh
-. scripts/vmss.env.sh
+. scripts/env.build.sh
+. scripts/env.vmss.sh
 tests="$2"
 tests_dir="$3"
 tests_job_file="${tests_dir}/jobs.txt"
@@ -15,7 +16,7 @@ tests=$(cat ../../qa/group | grep -E "${tests}" | cut -d' ' -f1 | grep -E '^[0-9
 
 status=0
 parallel --jobs 1 --eta --joblog "${tests_job_file}" --results "${tests_results_dir}" \
-  -S "${HOSTS_SSH}" /usr/local/ci/test.sh ::: "${tests}" > /dev/null || status=$?
+  -S "${AZ_VMSS_HOSTS_SSH}" /usr/local/ci/test.sh ::: "${tests}" > /dev/null || status=$?
 
 echo
 echo Generate JUnit output

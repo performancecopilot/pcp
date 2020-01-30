@@ -21,3 +21,4 @@ jobs:
           BINTRAY_USER: $(BINTRAY_USER)
           BINTRAY_APIKEY: $(BINTRAY_APIKEY)
           BINTRAY_GPG_PASSPHRASE: $(BINTRAY_GPG_PASSPHRASE)
+          SNAPSHOT: $(snapshot)

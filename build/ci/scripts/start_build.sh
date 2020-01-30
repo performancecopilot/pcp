@@ -2,6 +2,11 @@
 
 cd "$(dirname "$0")/.."
 . scripts/env.sh
-. scripts/vmss.env.sh
+. scripts/env.build.sh
+. scripts/env.vmss.sh
 
-$SSH pcp@${BUILDER_IP} "GIT_REPO=${GIT_REPO} GIT_COMMIT=${GIT_COMMIT} /usr/local/ci/build.sh"
+echo Copying sources to build server
+rsync -a -e "$SSH" ../../ pcp@${AZ_VMSS_BUILDER_IP}:pcp/
+
+echo Start build
+$SSH pcp@${AZ_VMSS_BUILDER_IP} /usr/local/ci/build.sh

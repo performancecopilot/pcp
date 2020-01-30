@@ -2,6 +2,7 @@
 
 cd "$(dirname "$0")/.."
 . scripts/env.sh
+. scripts/env.build.sh
 
 az image show \
   --resource-group "${AZ_RESOURCE_GROUP}" \
@@ -18,5 +19,4 @@ az vmss create \
   --lb "" \
   --public-ip-per-vm \
   --admin-username pcp \
-  ${AZ_PLAN_INFO} \
-  --tags "git_repo=${GIT_REPO}" "git_commit=${GIT_COMMIT}"
+  ${AZ_PLAN_INFO}
