@@ -19,6 +19,17 @@ _check_series
 
 _cleanup()
 {
+    echo;echo === cleaning up
+    $sudo rm -rf $dir
+
+    echo;echo === see $seq.full for logs 
+    echo "+++ pmproxy.log +++" >>$seq.full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq.full
+    echo "+++ pmproxy.log.prev +++" >>$seq.full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log.prev >>$seq.full
+    echo "+++ pmlogger.log +++" >>$seq.full
+    cat $tmp.pmlogger.log >>$seq.full
+
     _restore_config $PCP_ETC_DIR/pcp/pmlogger
     _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
     _wait_for_pmcd
@@ -53,10 +64,15 @@ _wait_for_pmproxy
 
 pmproxy_pid=`_get_pids_by_name -a pmproxy`
 [ -z "$pmproxy_pid" ] && echo === pmproxy not running && status=1 && exit 1
+date >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy' >>$seq.full
+echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
 
 echo;echo === creating archive in new archive directory 
 dir=$PCP_LOG_DIR/pmlogger/qa1661
 $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown $dir 775 $PCP_USER:$PCP_GROUP"
+# make sure no archive files left here from a previous run of this test
+$sudo rm -f $dir/testarchive.*
 $sudo sh -c "pmlogger -s 20 -t 1 -c config.default -l$tmp.pmlogger.log $dir/testarchive"
 
 echo;echo === checking pmproxy file descriptors for deleted files, should be none 
@@ -116,15 +132,6 @@ _service pmlogger restart 2>&1 | _filter_pcp_start
 _wait_for_pmlogger
 $sudo [ ! -d /proc/$pmproxy_pid/fd/ ] && echo FAIL && status=1 && exit
 echo passed
-
-echo;echo === cleaning up
-$sudo rm -rf $dir
-
-echo;echo === see $seq.full for logs 
-echo "+++ pmproxy.log +++" >>$seq.full
-cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq.full
-echo "+++ pmlogger.log +++" >>$seq.full
-cat $tmp.pmlogger.log >>$seq.full
 
 # success, all done
 status=0
