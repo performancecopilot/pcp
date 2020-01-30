@@ -13,8 +13,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_check_series
+
 [ $PCP_PLATFORM = linux ] || _notrun "Test only runs on Linux"
-which pmproxy >/dev/null 2>&1 || _notrun "No pmproxy binary installed"
 
 _cleanup()
 {
@@ -85,9 +86,9 @@ echo;echo === checking pmproxy file descriptors for deleted files, should be non
 $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
 
 echo;echo === checking pmproxy correctly switches logvol when pmlogger bumps to a new logvol
-curlogvol=`$sudo ls -l /proc/$pmproxy_pid/fd/ | awk -F. '/pmlogger.*.[0-9]$/ {print $NF}'`
+curlogvol=`$sudo ls -l /proc/$pmproxy_pid/fd/ | awk -F. '/pmlogger.*.[0-9]$/ {print $NF; exit}'`
 $sudo killall -HUP pmlogger && sleep 2
-newlogvol=`$sudo ls -l /proc/$pmproxy_pid/fd/ | awk -F. '/pmlogger.*.[0-9]$/ {print $NF}'`
+newlogvol=`$sudo ls -l /proc/$pmproxy_pid/fd/ | awk -F. '/pmlogger.*.[0-9]$/ {print $NF; exit}'`
 if [ `expr $curlogvol + 1` -ne $newlogvol ]; then echo FAILED curlogvol=$curlogvol newlogvol=$newlogvol
 else echo passed
 fi
