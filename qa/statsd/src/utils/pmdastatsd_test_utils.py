@@ -21,6 +21,7 @@ pmdastatsd_log_path = pmdastatsd_log_dir + "/statsd.log"
 
 pmdastatsd_config_filename = "pmdastatsd.ini"
 pmdastatsd_config_backup_filename = "backup_pmdastatsd.ini"
+dbpmdarc_filename = ".dbpmdarc"
 
 # default as in, default that is distributed with PCP
 default_config_file = os.path.join("configs", "complex", "0", "pmdastatsd.ini")
@@ -71,6 +72,27 @@ def get_pmdastatsd_pids():
 	command = 'pgrep pmdastatsd'
 	results = subprocess.check_output(command, shell=True)
 	return results.strip().split('\n')
+
+def get_pmdastatsd_pids_ran_by_dbpmda():
+	"""returns pmdastatsd pid"""
+	command = 'pgrep -f pmdastatsd'
+	results = subprocess.check_output(command, shell=True)
+	return results.strip().split('\n')
+
+def setup_dbpmdarc():
+	f = open(os.path.join(pmdastatsd_dir, dbpmdarc_filename), "w+")
+	f.write("debug libpmda\n")
+	f.write("open pipe pmdastatsd\n")
+	f.write("namespace root_statsd\n")
+	f.write("status\n")
+	f.close()
+
+def remove_dbpmdarc():
+	os.remove(os.path.join(pmdastatsd_dir, dbpmdarc_filename))
+
+def send_INT_to_pid(pid):
+	command = 'sudo kill -INT {}'
+	results = subprocess.check_output(command.format(pid), shell=True)
 
 def send_debug_output_signal(pid):
 	command = 'kill -USR1 {}'

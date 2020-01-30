@@ -25,6 +25,7 @@ install install_pcp: default $(TESTFILES)
 	$(INSTALL) -m 644 src/cases/12.py $(TESTDIR)/src/cases/12.py
 	$(INSTALL) -m 644 src/cases/13.py $(TESTDIR)/src/cases/13.py
 	$(INSTALL) -m 644 src/cases/14.py $(TESTDIR)/src/cases/14.py
+	$(INSTALL) -m 644 src/cases/15.py $(TESTDIR)/src/cases/15.py
 	$(INSTALL) -m 644 src/configs/complex/0/pmdastatsd.ini $(TESTDIR)/src/configs/complex/0/pmdastatsd.ini
 	$(INSTALL) -m 644 src/configs/complex/1/pmdastatsd.ini $(TESTDIR)/src/configs/complex/1/pmdastatsd.ini
 	$(INSTALL) -m 644 src/configs/single/debug_output_filename/0/pmdastatsd.ini $(TESTDIR)/src/configs/single/debug_output_filename/0/pmdastatsd.ini

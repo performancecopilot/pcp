@@ -17,6 +17,8 @@ test -e $PCP_PMDAS_DIR/statsd/pmdastatsd || _notrun "statsd PMDA not installed"
 
 which python >/dev/null 2>&1 || _notrun "python not installed"
 
+which valgrind >/dev/null 2>&1 || _notrun "valgrind not installed"
+
 _cleanup()
 {
     cd $here
@@ -33,10 +35,10 @@ trap "_cleanup_pmda statsd; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 cd $here/statsd/src
-scripts=`find cases -name *.py | LC_COLLATE=POSIX sort`
+scripts=`find cases -name *.py -not -name 15.py | LC_COLLATE=POSIX sort`
 for script in $scripts
 do
-    python $script
+    python $script $here/statsd/output
 done
 cd $here
 
