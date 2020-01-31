@@ -2147,7 +2147,7 @@ class pmContext(object):
         for i in range(status):
             lset = result_p[i]
             if lset.json is not None:
-                instlabelsD.update({lset.inst: json.loads(lset.json)})
+                instlabelsD.update({lset.inst: json.loads(lset.json.decode())})
 
         return instlabelsD
 
