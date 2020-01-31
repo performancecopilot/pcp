@@ -114,6 +114,17 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %global disable_json 1
 %endif
 
+# No mssql ODBC driver on non-x86 platforms
+%ifarch x86_64
+%if !%{disable_python2} || !%{disable_python3}
+%global disable_mssql 0
+%else
+%global disable_mssql 1
+%endif
+%else
+%global disable_mssql 1
+%endif
+
 # support for pmdanutcracker (perl deps missing on rhel)
 %if 0%{?rhel} == 0
 %global disable_nutcracker 0
@@ -488,7 +499,10 @@ Requires: pcp-pmda-bpftrace
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
-Requires: pcp-pmda-lmsensors pcp-pmda-mssql pcp-pmda-netcheck
+Requires: pcp-pmda-lmsensors pcp-pmda-netcheck
+%endif
+%if !%{disable_mssql}
+Requires: pcp-pmda-mssql 
 %endif
 %if !%{disable_snmp}
 Requires: pcp-pmda-snmp
@@ -1627,24 +1641,6 @@ collecting metrics about the Linux hardware monitoring sensors.
 # end pcp-pmda-lmsensors
 
 #
-# pcp-pmda-mssql
-#
-%package pmda-mssql
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) metrics for Microsoft SQL Server
-URL: https://pcp.io
-Requires: pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
-Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
-%description pmda-mssql
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics from Microsoft SQL Server.
-# end pcp-pmda-mssql
-
-#
 # pcp-pmda-netcheck
 #
 %package pmda-netcheck
@@ -1662,6 +1658,26 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
 
+%endif
+
+%if !%{disable_mssql}
+#
+# pcp-pmda-mssql
+#
+%package pmda-mssql
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for Microsoft SQL Server
+URL: https://pcp.io
+Requires: pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-mssql
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from Microsoft SQL Server.
+# end pcp-pmda-mssql
 %endif
 
 %if !%{disable_json}
@@ -2513,8 +2529,10 @@ fi
 %preun pmda-lmsensors
 %{pmda_remove "$1" "lmsensors"}
 
+%if !%{disable_mssql}
 %preun pmda-mssql
 %{pmda_remove "$1" "mssql"}
+%endif
 
 %preun pmda-netcheck
 %{pmda_remove "$1" "netcheck"}
@@ -3107,9 +3125,6 @@ cd
 %files pmda-lmsensors
 %{_pmdasdir}/lmsensors
 
-%files pmda-mssql
-%{_pmdasdir}/mssql
-
 %files pmda-netcheck
 %{_pmdasdir}/netcheck
 
@@ -3118,6 +3133,11 @@ cd
 %files export-zabbix-agent
 %{_libdir}/zabbix
 %{_sysconfdir}/zabbix/zabbix_agentd.d/zbxpcp.conf
+
+%if !%{disable_mssql}
+%files pmda-mssql
+%{_pmdasdir}/mssql
+%endif
 
 %if !%{disable_json}
 %files pmda-json
