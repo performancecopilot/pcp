@@ -2133,6 +2133,11 @@ rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib
 rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
 %endif
 
+%if %{disable_mssql}
+# remove pmdamssql on platforms lacking MSODBC driver packages.
+rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/mssql
+%endif
+
 %if %{disable_selinux}
 rm -fr $RPM_BUILD_ROOT/%{_selinuxdir}
 %endif
