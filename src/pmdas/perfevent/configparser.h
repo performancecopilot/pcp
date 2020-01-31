@@ -71,9 +71,9 @@ typedef struct configuration {
     pmcdynamic_t *dynamicpmc;
 } configuration_t;
 
-int context_newpmc;
-int context_derived;        /* A flag to check the current pmc */
-int context_dynamic;        /* check the current dynamic pmc */
+extern int context_newpmc;
+extern int context_derived;        /* A flag to check the current pmc */
+extern int context_dynamic;        /* check the current dynamic pmc */
 
 /* \brief parse the perf event configuration file
  * This function allocates memory. The returned object should be passed to
