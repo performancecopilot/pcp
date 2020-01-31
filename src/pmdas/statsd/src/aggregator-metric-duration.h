@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +26,7 @@
  * Creates duration value in given dest
  * @arg
  */
-int 
+extern int 
 create_duration_value(struct agent_config* config, struct statsd_datagram* datagram, void** out);
 
 /**
@@ -35,7 +36,7 @@ create_duration_value(struct agent_config* config, struct statsd_datagram* datag
  * @arg datagram - Data to update the item with
  * @return 1 on success, 0 on fail
  */
-int
+extern int
 update_duration_value(struct agent_config* config, struct statsd_datagram* datagram, void* value);
 
 /**
@@ -45,7 +46,7 @@ update_duration_value(struct agent_config* config, struct statsd_datagram* datag
  * @arg instance - What information to extract
  * @return duration instance value
  */
-double
+extern double
 get_duration_instance(struct agent_config* config, void* value, enum DURATION_INSTANCE instance);
 
 /**
@@ -54,7 +55,7 @@ get_duration_instance(struct agent_config* config, void* value, enum DURATION_IN
  * @arg f - Opened file handle
  * @arg value
  */
-void
+extern void
 print_duration_metric_value(struct agent_config* config, FILE* f, void* value);
 
 /**
@@ -63,7 +64,7 @@ print_duration_metric_value(struct agent_config* config, FILE* f, void* value);
  * @arg f - Opened file handle
  * @arg item - Metric to print out
  */
-void
+extern void
 print_duration_metric(struct agent_config* config, FILE* f, struct metric* item);
 
 /**
@@ -71,7 +72,7 @@ print_duration_metric(struct agent_config* config, FILE* f, struct metric* item)
  * @arg config
  * @arg value - value to be freed
  */
-void
+extern void
 free_duration_value(struct agent_config* config, void* value);
 
 #endif

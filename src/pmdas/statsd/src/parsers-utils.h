@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -62,12 +63,12 @@
         return EXIT_FAILURE; \
     } \
 
-struct tag {
+extern struct tag {
     char* key;
     char* value;
 } tag;
 
-struct tag_collection {
+extern struct tag_collection {
     struct tag** values;
     size_t length;
 } tag_collection;
@@ -75,13 +76,13 @@ struct tag_collection {
 /**
  * Converts tag_collection* struct to JSON string that is sorted by keys and contains no duplicities (right-most wins) 
  */
-char*
+extern char*
 tag_collection_to_json(struct tag_collection* tags);
 
-void
+extern void
 free_tag_collection(struct tag_collection* tags);
 
-int
+extern int
 assert_statsd_datagram_eq(
     struct statsd_datagram** datagram,
     char* name,

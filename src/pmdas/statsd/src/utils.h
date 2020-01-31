@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -87,7 +88,7 @@
  * @arg num - Boundary
  * @return 1 on success
  */
-int
+extern int
 validate_metric_name_string(char* src, size_t num);
 
 /**
@@ -97,7 +98,7 @@ validate_metric_name_string(char* src, size_t num);
  * @arg src - String to be sanitized
  * @return 1 on success
  */
-int
+extern int
 sanitize_string(char* src, size_t num);
 
 /**
@@ -106,7 +107,7 @@ sanitize_string(char* src, size_t num);
  * @arg src - String to be validated
  * @return 1 on success
  */
-int
+extern int
 sanitize_metric_val_string(char* src);
 
 /**
@@ -116,59 +117,59 @@ sanitize_metric_val_string(char* src);
  * @arg out - What metric string contained
  * @return 1 on success
  */
-int
+extern int
 sanitize_type_val_string(char* src, enum METRIC_TYPE* out);
 
 /**
  * Check *verbose* flag
  * @return 1 if below or equal, else 0
  */
-int 
+extern int 
 check_verbosity(int level);
 
 /**
  * Checks that error count for metrics is below threshold
  * @return if passes
  */
-int
+extern int
 is_metric_err_below_threshold();
 
 /**
  * Increments error count for metrics
  */
-void
+extern void
 increment_metric_err_count();
 
 /**
  * Prints error message about reaching metric error message count threshold - only once, subsequent calls dont do anything.
  */
-void
+extern void
 maybe_print_metric_err_msg();
 
 /**
  * Check *debug* flag
  * @return debug flag
  */
-int
+extern int
 is_debug();
 
-void
+extern void
 log_mutex_lock();
 
-void
+extern void
 log_mutex_unlock();
 
-void
+extern void
 set_exit_flag();
 
-int
+extern int
 check_exit_flag();
 
 /**
  * Initializes debugging/verbose/tracing flags based on given config
  * @arg config - Config to check against
  */
-void
+extern void
 init_loggers(struct agent_config* config);
 
 #endif

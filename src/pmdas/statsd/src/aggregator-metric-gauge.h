@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +27,7 @@
  * @arg out - Dest pointer
  * @return 1 on success, 0 on fail
  */
-int
+extern int
 create_gauge_value(struct agent_config* config, struct statsd_datagram* datagram, void** out);
 
 /**
@@ -36,7 +37,7 @@ create_gauge_value(struct agent_config* config, struct statsd_datagram* datagram
  * @arg datagram - Data to update the item with
  * @return 1 on success, 0 on fail
  */
-int
+extern int
 update_gauge_value(struct agent_config* config, struct statsd_datagram* datagram, void* value);
 
 /**
@@ -45,7 +46,7 @@ update_gauge_value(struct agent_config* config, struct statsd_datagram* datagram
  * @arg f - Opened file handle
  * @arg value
  */
-void
+extern void
 print_gauge_metric_value(struct agent_config* config, FILE* f, void* value);
 
 /**
@@ -54,7 +55,7 @@ print_gauge_metric_value(struct agent_config* config, FILE* f, void* value);
  * @arg f - Opened file handle
  * @arg item - Metric to print out
  */
-void
+extern void
 print_gauge_metric(struct agent_config* config, FILE* f, struct metric* item);
 
 /**
@@ -62,7 +63,7 @@ print_gauge_metric(struct agent_config* config, FILE* f, struct metric* item);
  * @arg config
  * @arg value - value to be freed
  */
-void
+extern void
 free_gauge_value(struct agent_config* config, void* value);
 
 #endif

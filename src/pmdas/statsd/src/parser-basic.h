@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +24,7 @@
  * @arg datagram - Placeholder for parsed data
  * @return 1 on success, 0 on fail 
  */
-int
+extern int
 basic_parser_parse(char *buffer, struct statsd_datagram** datagram);
 
 #endif

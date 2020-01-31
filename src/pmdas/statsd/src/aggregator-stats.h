@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +20,7 @@
 
 #include "config-reader.h"
 
-enum STAT_TYPE {
+typedef enum STAT_TYPE {
     STAT_RECEIVED,
     STAT_PARSED,
     STAT_DROPPED,
@@ -29,13 +30,13 @@ enum STAT_TYPE {
     STAT_TRACKED_METRIC
 } STAT_TYPE;
 
-struct metric_counters {
+typedef struct metric_counters {
     size_t counter;
     size_t gauge;
     size_t duration;
 } metric_counters;
 
-struct pmda_stats {
+typedef struct pmda_stats {
     size_t received;
     size_t parsed;
     size_t dropped;
@@ -45,7 +46,7 @@ struct pmda_stats {
     struct metric_counters* metrics_recorded;
 } pmda_stats;
 
-struct pmda_stats_container {
+typedef struct pmda_stats_container {
     struct pmda_stats* stats;
     pthread_mutex_t mutex;
 } pmda_stats_container;
@@ -53,7 +54,7 @@ struct pmda_stats_container {
 /**
  * Creates new pmda_stats_container structure, initializes all stats to 0
  */
-struct pmda_stats_container*
+extern struct pmda_stats_container*
 init_pmda_stats(struct agent_config* config);
 
 /**
@@ -64,7 +65,7 @@ init_pmda_stats(struct agent_config* config);
  * 
  * Synchronized by mutex on pmda_stats_container
  */
-void
+extern void
 reset_stat(struct agent_config* config, struct pmda_stats_container* s, enum STAT_TYPE type);
 
 /**
@@ -76,7 +77,7 @@ reset_stat(struct agent_config* config, struct pmda_stats_container* s, enum STA
  * 
  * Synchronized by mutex on pmda_stats_container
  */
-void
+extern void
 process_stat(struct agent_config* config, struct pmda_stats_container* s, enum STAT_TYPE type, void* data);
 
 /**
@@ -86,7 +87,7 @@ process_stat(struct agent_config* config, struct pmda_stats_container* s, enum S
  * 
  * Synchronized by mutex on pmda_stats_container
  */
-void
+extern void
 write_stats_to_file(struct agent_config* config, struct pmda_stats_container* stats);
 
 /**
@@ -98,7 +99,7 @@ write_stats_to_file(struct agent_config* config, struct pmda_stats_container* st
  *
  * Synchronized by mutex on pmda_stats_container
  */
-unsigned long int
+extern unsigned long int
 get_agent_stat(struct agent_config* config, struct pmda_stats_container* stats, enum STAT_TYPE type, void* data);
 
 #endif

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +26,7 @@
  * @arg value - Initial value
  * @return hdr_histogram
  */
-void
+extern void
 create_hdr_duration_value(long long unsigned int value, void** out);
 
 /**
@@ -33,7 +34,7 @@ create_hdr_duration_value(long long unsigned int value, void** out);
  * @arg histogram - Histogram to update 
  * @arg value - Value to record
  */
-void
+extern void
 update_hdr_duration_value(long long unsigned int value, struct hdr_histogram* histogram);
 
 /**
@@ -42,7 +43,7 @@ update_hdr_duration_value(long long unsigned int value, struct hdr_histogram* hi
  * @arg instance - Placeholder for data population
  * @return duration instance value
  */
-double
+extern double
 get_hdr_histogram_duration_instance(struct hdr_histogram* histogram, enum DURATION_INSTANCE instance);
 
 /**
@@ -58,7 +59,7 @@ print_hdr_duration_value(FILE* f, struct hdr_histogram* histogram);
  * @arg config
  * @arg value - value value to be freed
  */
-void
+extern void
 free_hdr_duration_value(struct agent_config* config, void* value);
 
 #endif
