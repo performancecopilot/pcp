@@ -964,8 +964,18 @@ pmDiscoverNewSource(pmDiscover *p, int context)
     p->context.labelset = labelset;
 
     /* use timestamp from file creation as starting time */
+#if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
+    timestamp.tv_sec = p->statbuf.st_ctime.tv_sec;
+    timestamp.tv_nsec = p->statbuf.st_ctime.tv_nsec;
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
+    timestamp.tv_sec = p->statbuf.st_mtimespec.tv_sec;
+    timestamp.tv_nsec = p->statbuf.st_mtimespec.tv_nsec;
+#elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
     timestamp.tv_sec = p->statbuf.st_ctim.tv_sec;
     timestamp.tv_nsec = p->statbuf.st_ctim.tv_nsec;
+#else
+!bozo!
+#endif
 
     /* inform utilities that a source has been discovered */
     pmDiscoverInvokeSourceCallBacks(p, &timestamp);
@@ -1071,8 +1081,18 @@ process_metadata(pmDiscover *p)
 		break;
 	    }
 	    /* use timestamp from last modification */
-	    ts.tv_sec = p->statbuf.st_mtim.tv_sec;
-	    ts.tv_nsec = p->statbuf.st_mtim.tv_nsec;
+#if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
+	    ts.tv_sec = p->statbuf.st_ctime.tv_sec;
+	    ts.tv_nsec = p->statbuf.st_ctime.tv_nsec;
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
+	    ts.tv_sec = p->statbuf.st_mtimespec.tv_sec;
+	    ts.tv_nsec = p->statbuf.st_mtimespec.tv_nsec;
+#elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
+	    ts.tv_sec = p->statbuf.st_ctim.tv_sec;
+	    ts.tv_nsec = p->statbuf.st_ctim.tv_nsec;
+#else
+!bozo!
+#endif
 	    pmDiscoverInvokeMetricCallBacks(p, &ts, &desc, nnames, names);
 	    break;
 
@@ -1130,8 +1150,18 @@ process_metadata(pmDiscover *p)
 		break;
 	    }
 	    /* use timestamp from last modification */
-	    ts.tv_sec = p->statbuf.st_mtim.tv_sec;
-	    ts.tv_nsec = p->statbuf.st_mtim.tv_nsec;
+#if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
+	    ts.tv_sec = p->statbuf.st_ctime.tv_sec;
+	    ts.tv_nsec = p->statbuf.st_ctime.tv_nsec;
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
+	    ts.tv_sec = p->statbuf.st_mtimespec.tv_sec;
+	    ts.tv_nsec = p->statbuf.st_mtimespec.tv_nsec;
+#elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
+	    ts.tv_sec = p->statbuf.st_ctim.tv_sec;
+	    ts.tv_nsec = p->statbuf.st_ctim.tv_nsec;
+#else
+!bozo!
+#endif
 	    pmDiscoverInvokeTextCallBacks(p, &ts, id, type, buffer);
 	    break;
 
