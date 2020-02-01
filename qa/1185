@@ -37,11 +37,11 @@ _path_filter()
 
 # real QA test starts here
 echo "== pmrep archive reporting and creation with help texts"
-pmrep -z -u -s 1 --include-texts -o archive -F $tmp.archive mem.util.free disk.dev.read | \
+pmrep -z -u -s 1 --include-texts -o archive -F $tmp.archive sample.bin sample.seconds | \
   _path_filter
 echo "== print help texts from the created archive"
-pminfo -a $tmp.archive -dmtT mem.util.free
-pminfo -a $tmp.archive -dmtT disk.dev.read
+pminfo -a $tmp.archive -dmtT sample.bin
+pminfo -a $tmp.archive -dmtT sample.seconds
 
 rm -f $tmp.archive*
 
