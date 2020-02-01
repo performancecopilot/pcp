@@ -951,7 +951,6 @@ pmnsDecodeCallback(const char *name, void *closure)
 static PyObject *
 pmUnits_int(PyObject *self, PyObject *args, PyObject *keywords)
 {
-    int sts;
     pmUnits units = {0};
     unsigned int dimSpace = 0, dimTime = 0, dimCount = 0;
     unsigned int scaleSpace = 0, scaleTime = 0, scaleCount = 0;
