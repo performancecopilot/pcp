@@ -359,7 +359,7 @@ webgroup_derived_metrics(sds config, sds *errmsg)
      */
     end = config + sdslen(config);
     for (p = config; p < end; p++) {
-	if (isspace(*p)) {
+	if (isspace((int)(*p))) {
 	    if (*p == '\n')
 		line++;
 	    continue;
@@ -375,12 +375,12 @@ webgroup_derived_metrics(sds config, sds *errmsg)
 
 	/* find start and end points of the next metric name */
 	name = p;
-	while (!isspace(*p) && *p != '=' && p < end)
+	while (!isspace((int)(*p)) && *p != '=' && p < end)
 	    p++;
 	if (p == end)
 	    break;
 	*p++ = '\0';
-	while ((isspace(*p) && !ismarker(*p)) || *p == '=')
+	while ((isspace((int)(*p)) && !ismarker(*p)) || *p == '=')
 	    p++;
 
 	/* metric name is prepared - move onto the expression */

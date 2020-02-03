@@ -96,8 +96,8 @@ unicode_encode(const char *p, size_t length)
 
 	if (!isascii(c))
 	    s = sdscatlen(s, "\\uFFFD", 6);
-	else if (isalnum(c) || c == ' ' ||
-		(ispunct(c) && !iscntrl(c) && c != '\\' && c != '\"'))
+	else if (isalnum((int)(c)) || c == ' ' ||
+		(ispunct((int)(c)) && !iscntrl((int)(c)) && c != '\\' && c != '\"'))
 	    s = sdscatprintf(s, "%c", c);
 	else
 	    s = sdscatprintf(s, "\\u00%c%c", hex[(c>>4) & 0xf], hex[c & 0xf]);
