@@ -1,18 +1,21 @@
 '\"macro stdmacro
-.ie \(.g \{\
-.\" ... groff (hack for khelpcenter, man2html, etc.)
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
 .TH PMIECONF 5 "PCP" "Performance Co-Pilot"
-\}
-.el \{\
-.if \nX=0 .ds x} PMIECONF 5 "PCP" "Performance Co-Pilot"
-.if \nX=1 .ds x} PMIECONF 5 "Performance Co-Pilot"
-.if \nX=2 .ds x} PMIECONF 5 "" "\&"
-.if \nX=3 .ds x} PMIECONF "" "" "\&"
-.TH \*(x}
-.rr X
-\}
 .SH NAME
-pmieconf \- generalized pmie rules and customizations
+\f3pmieconf\f1 \- generalized pmie rules and customizations
 .SH DESCRIPTION
 The pmieconf file formats are used by the
 .BR pmieconf (1)
@@ -289,7 +292,6 @@ The example defines a rule ("memory.exhausted") and a string ("rule").
 Note that for the above rule to be complete, "threshold" and "pct" would
 also need to be defined - for the full expression of this rule, refer to
 .IR $PCP_VAR_DIR/config/pmieconf/memory/exhausted .
-.PP
 .SH FILES
 .PD 0
 .TP 10

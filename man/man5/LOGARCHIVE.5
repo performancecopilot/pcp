@@ -253,10 +253,9 @@ _
 32	N	bytes of the name, no NULL terminator nor padding
 32+N	4	N2: number of bytes in next name
 36+N	N2	bytes of the name, no NULL terminator nor padding
-\...	...	...
+\&...	...	...
 .TE
 
-.PP
 .SS pmLogIndom
 Instances of this record represent the number-string mapping
 table of an instance domain.
@@ -283,10 +282,10 @@ _
 16	4	N: number of instances in domain, normally >0
 20	4	first instance number
 24	4	second instance number (if appropriate)
-\...	...	...
+\&...	...	...
 20+4*N	4	first offset into string table (see below)
 20+4*N+4	4	second offset into string table (etc.)
-\...	...	...
+\&...	...	...
 20+8*N	M	base of string table, containing
 		packed, NULL-terminated instance names
 .TE
@@ -326,9 +325,9 @@ _
 		usually 1 except in the case of instances
 24	4	offset to the start of the JSONB labels string
 28	L1	first labelset array entry (see below)
-\...	...	...
+\&...	...	...
 28+L1	LN	N-th labelset array entry (see below)
-\...	...	...
+\&...	...	...
 28+L1+...LN	M	concatenated JSONB strings for all labelsets
 .TE
 
@@ -357,7 +356,7 @@ _
 16	2	first label value offset
 18	2	first label value length
 20	2	second label name offset (if appropriate)
-\...	...	...
+\&...	...	...
 .TE
 
 .SS pmLogText
