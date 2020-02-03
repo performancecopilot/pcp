@@ -44,6 +44,7 @@ steps:
       testResultsFormat: JUnit
       testResultsFiles: '*.xml'
       testRunTitle: $(ci_host)
+      failTaskOnFailedTests: true
 
   - script: ./build/ci/scripts/stop_vmss.sh "$(ci_host)"
     displayName: Stop VMs
