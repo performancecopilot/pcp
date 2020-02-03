@@ -23,11 +23,9 @@ if [ $PCP_PLATFORM = linux ] ; then
 	    'SUSE LINUX Enterprise Server 9 '*|\
 	    'SUSE Linux Enterprise Server 10 '*|\
 	    'SUSE Linux Enterprise Server 11 '*|\
+	    'SUSE Linux Enterprise Server 12 '*|\
 	    'openSUSE '*)
 		ln $seq.linux $seq.out
-		;;
-	    'SUSE Linux Enterprise Server 12 '*)
-		ln $seq.opensuse.15 $seq.out
 		;;
 	esac
     elif [ -f /etc/redhat-release ]

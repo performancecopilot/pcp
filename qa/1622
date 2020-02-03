@@ -138,6 +138,15 @@ type=AVC msg=audit(YYY.80): avc:  denied  { map } for  pid=8678 comm="smartctl" 
 type=AVC msg=audit(YYY.81): avc:  denied  { sys_rawio } for  pid=8678 comm="smartctl" capability=17  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
 type=AVC msg=audit(YYY.82): avc:  denied  { name_connect } for  pid=15299 comm="pmdaredis" dest=6379 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:redis_port_t:s0 tclass=tcp_socket permissive=0
 type=AVC msg=audit(YYY.83): avc: denied { execute } for pid=19060 comm="zimbraprobe" name="su" dev="dm-0" ino=26416761 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:su_exec_t:s0 tclass=file permissive=0
+type=AVC msg=audit(YYY.84): avc: denied { execute } for pid=19828 comm="pmdanvidia" path="//usr/lib64/libnvidia-ml.so" dev="dm-2" ino=16267329 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0
+type=AVC msg=audit(YYY.85): avc: denied { signal } for pid=31205 comm="pmsignal" scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=process permissive=0
+type=AVC msg=audit(YYY.86): avc: denied { signal } for pid=23951 comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=process permissive=0
+type=AVC msg=audit(YYY.87): avc:  denied  { chown } for  pid=8999 comm="pmdasimple" capability=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
+type=AVC msg=audit(YYY.88): avc:  denied  { read } for  pid=2023 comm="pmdakvm" name="kvm" dev="tracefs" ino=18541 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
+type=AVC msg=audit(YYY.89): avc:  denied  { map } for  pid=4969 comm="pmdarpm" path="/var/lib/rpm/Name" dev="dm-0" ino=519186 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:rpm_var_lib_t:s0 tclass=file permissive=0
+type=AVC msg=audit(YYY.90): avc:  denied  { write } for  pid=30922 comm="python3" name="libvirt-sock-ro" dev="tmpfs" ino=25845 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:virt_var_run_t:s0 tclass=sock_file permissive=0
+type=AVC msg=audit(YYY.91): avc:  denied  { setrlimit } for  pid=2085 comm="systemctl" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=process permissive=0
+type=AVC msg=audit(YYY.92): avc:  denied  { open read ioctl } for pid=26828 comm="smartctl" name="sda" dev="devtmpfs" ino=9158 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fixed_disk_device_t:s0 tclass=blk_file permissive=0
 
 #Synthesized AVC's
 type=AVC msg=audit(XXX.1): avc:  denied  { open read search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:svirt_sandbox_file_t:s0 tclass=dir permissive=0
