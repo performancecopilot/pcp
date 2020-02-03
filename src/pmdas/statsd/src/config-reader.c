@@ -112,7 +112,6 @@ read_agent_config_file(struct agent_config* dest, char* path) {
     if (ini_parse(path, ini_line_handler, dest) < 0) {
         DIE("Can't load config file");
     }
-    pmNotifyErr(LOG_INFO, "Config loaded from %s.", path);
 }
 
 /**

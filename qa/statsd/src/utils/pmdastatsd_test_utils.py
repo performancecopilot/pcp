@@ -85,6 +85,7 @@ def setup_dbpmdarc():
 	f.write("open pipe pmdastatsd\n")
 	f.write("namespace root_statsd\n")
 	f.write("status\n")
+	f.write("\n")
 	f.close()
 
 def remove_dbpmdarc():
@@ -93,6 +94,7 @@ def remove_dbpmdarc():
 def send_INT_to_pid(pid):
 	command = 'sudo kill -INT {}'
 	results = subprocess.check_output(command.format(pid), shell=True)
+	print(results)
 
 def send_debug_output_signal(pid):
 	command = 'kill -USR1 {}'

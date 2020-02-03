@@ -32,7 +32,8 @@ print(os.path.basename(__file__))
 ip = "0.0.0.0"
 port = 8125
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-valgrind_out_path = os.path.join(sys.argv[1], "valgrind.out")
+valgrind_out_dir = os.path.join(sys.argv[1])
+valgrind_out_path = os.path.join(sys.argv[1], "valgrind-%p.out")
 
 payloads = [
     "test_labels:0|c", # no label
@@ -136,63 +137,59 @@ def enqueue_output(out, queue):
     out.close()
 
 def run_test():
-    utils.print_test_section_separator()
     utils.pmdastatsd_remove()
-
     utils.setup_dbpmdarc()
-    utils.set_config(basis_parser_config)
 
-    p = Popen('valgrind --trace-children=yes --leak-check=full --log-file=' + valgrind_out_path + ' dbpmda', cwd=utils.pmdastatsd_dir, stdout=PIPE, stdin=PIPE, bufsize=1, close_fds=ON_POSIX, shell=True)
-    q = Queue()
-    t = Thread(target=enqueue_output, args=(p.stdout, q))
-    t.daemon = True # thread dies with the program
-    t.start()
-    # read line without blocking
-    try:
-        while p.poll() is None:
-            line = q.get(timeout=10)
-            if line == ".dbpmdarc> \n":
-                break
-    except Empty:
-        print("Unable to get expected output from dbmda.")
-        p.kill()
-        return
+    for config in testconfigs:
+        utils.print_test_section_separator()
+        utils.set_config(config)
 
-    # get pmdastatsdpid
-    pmdastatsd_pid = utils.get_pmdastatsd_pids_ran_by_dbpmda()[0]
-    print("pmdastatsd: " + pmdastatsd_pid)
-    # send payloads
-    for payload in payloads:
-        sock.sendto(payload.encode("utf-8"), (ip, port))
-    # wait to make sure the agent handler the payloads
-    time.sleep(5)
-    # exercise populating pmns when metric is requested
-    # p.stdin.write("fetch statsd.pmda.dropped")
-    # p.stdin.flush()
-    time.sleep(1)
-    # p.stdin.write("fetch statsd.stat_cpu_wait")
-    # p.stdin.flush()
-    # time.sleep(1)
-    # p.stdin.write("fetch statsd.stat_login")
-    # p.stdin.flush()
-    # time.sleep(1)
-    # p.stdin.write("fetch statsd.stat_logout")
-    # p.stdin.flush()
-    time.sleep(1)
-    # trigger cleanup in agent by sending SIGINT
-    utils.send_INT_to_pid(pmdastatsd_pid)
-    # again, wait for cleanup
-    time.sleep(5)
-    # attempt to get response after PMDA clean up
-    try:
-        while p.poll() is None:
-            line = q.get(timeout=10)
-            print(line)
-    except Empty:
-        print("Unable to get expected output from dbpma after fetching values.")
+        p = Popen('valgrind --trace-children=yes --leak-check=full --log-file=' + valgrind_out_path + ' dbpmda', cwd=utils.pmdastatsd_dir, stdout=PIPE, stdin=PIPE, bufsize=1, close_fds=ON_POSIX, shell=True)
+        q = Queue()
+        t = Thread(target=enqueue_output, args=(p.stdout, q))
+        t.daemon = True # thread dies with the program
+        t.start()
+        time.sleep(3)
+        # read line without blocking
+        try:
+            while p.poll() is None:
+                line = q.get(timeout=15)
+                if line == ".dbpmdarc> \n":
+                    break
+        except Empty:
+            print("Unable to get expected output from dbmda.")
+            p.kill()
+            return
+
+        # get pmdastatsdpid
+        pmdastatsd_pid = utils.get_pmdastatsd_pids_ran_by_dbpmda()[0]
+        # send payloads
+        for payload in payloads:
+            sock.sendto(payload.encode("utf-8"), (ip, port))
+        # wait to make sure the agent handler the payloads
+        time.sleep(3)
+        # TODO: exercise populating pmns when metric is requested
+        time.sleep(3)
+        # trigger cleanup in agent by sending SIGINT
+        utils.send_INT_to_pid(pmdastatsd_pid)
+        # again, wait for cleanup
+        time.sleep(3)
+        # see what valgrind has to say
+        valgrind_pmdastatsd_output = valgrind_out_path.replace("%p", pmdastatsd_pid)
+        f = open(valgrind_pmdastatsd_output, "r")
+        show_next_line = 0
+        for line in f:
+            if 'LEAK SUMMARY' in line:
+                sys.stdout.write(line.replace("=={}==".format(pmdastatsd_pid), ""))
+                show_next_line = 1
+            elif show_next_line:
+                sys.stdout.write(line.replace("=={}==".format(pmdastatsd_pid), ""))
+                show_next_line = 0
+        for fname in os.listdir(valgrind_out_dir):
+            if fname.startswith("valgrind"):
+                os.remove(os.path.join(valgrind_out_dir, fname))
         p.kill()
-        return
-    utils.restore_config()
+        utils.restore_config()
 
 run_test()
 

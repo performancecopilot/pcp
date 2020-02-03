@@ -380,6 +380,7 @@ main(int argc, char** argv)
     read_agent_config(&config, &dispatch, config_file_path, argc, argv);
     init_loggers(&config);
     pmdaOpenLog(&dispatch);
+    pmNotifyErr(LOG_INFO, "Config loaded from %s.", config_file_path);
     print_agent_config(&config);
     if (config.show_version) {
         pmNotifyErr(LOG_INFO, "Version: %d", VERSION);
