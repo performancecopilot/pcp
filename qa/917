@@ -84,6 +84,7 @@ do
 		echo '/allow \[pcp_pmcd_t] \[tracefs_t]/d' >>$tmp.sed
 		;;
 	    unconfined_service_t)
+		echo '/allow \[pcp_pmcd_t] \[unconfined_service_t]/d' >>$tmp.sed
 		echo '/allow \[pcp_pmlogger_t] \[unconfined_service_t]/d' >>$tmp.sed
 		echo '/allow \[pcp_pmie_t] \[unconfined_service_t]/d' >>$tmp.sed
 		;;
