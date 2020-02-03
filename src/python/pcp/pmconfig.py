@@ -447,17 +447,17 @@ class pmConfig(object):
             self.descs.append(desc)
             self.insts.append(inst)
             if self.provide_texts():
-                line, help, doml, domh = None, None, None, None
+                line, full, doml, domh = None, None, None, None
                 try:
                     line = self.util.context.pmLookupText(pmid, pmapi.c_api.PM_TEXT_ONELINE)
-                    help = self.util.context.pmLookupText(pmid, pmapi.c_api.PM_TEXT_HELP)
+                    full = self.util.context.pmLookupText(pmid, pmapi.c_api.PM_TEXT_HELP)
                     if desc.contents.indom != pmapi.c_api.PM_INDOM_NULL:
                         doml = self.util.context.pmLookupInDomText(desc, pmapi.c_api.PM_TEXT_ONELINE)
                         domh = self.util.context.pmLookupInDomText(desc, pmapi.c_api.PM_TEXT_HELP)
                 except pmapi.pmErr as error:
                     if error.args[0] != pmapi.c_api.PM_ERR_TEXT:
                         raise
-                self.texts.append([line, help, doml, domh])
+                self.texts.append([line, full, doml, domh])
         except pmapi.pmErr as error:
             if hasattr(self.util, 'ignore_incompat') and self.util.ignore_incompat:
                 return
