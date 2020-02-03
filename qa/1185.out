@@ -4,16 +4,27 @@ Recording 2 metrics:
 1 samples(s) with 1.0 sec interval ~ 0 sec duration.
 == print help texts from the created archive
 
-mem.util.free PMID: 60.1.2 [free memory metric from /proc/meminfo]
-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: Kbyte
+sample.bin PMID: 29.0.6 [Several constant instances]
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
 Help:
-Alias for mem.freemem.
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
 
-disk.dev.read PMID: 60.0.4 [per-disk read operations]
-    Data Type: 64-bit unsigned int  InDom: 60.1 0xf000001
-    Semantics: counter  Units: count
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sample.bucket,
+sample.part_bin, sample.bogus_bin, sample.scramble.bin
+sample.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sample.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sample.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sample.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sample.string.bin.
+
+sample.seconds PMID: 29.0.2 [Elapsed time (seconds)]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
 Help:
-Cumulative number of disk read operations since system boot time (subject
-to counter wrap).
+The elapsed time since the PMDA started, in seconds, i.e. as returned
+by time(2).
 == done

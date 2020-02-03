@@ -124,7 +124,7 @@ verify installation with:
 
 == QA ==
 
-Next go over to qa and modify test 1622
+Next go over to qa and possibly modify tests 1622 and 917.
 
 Add/delete/modify the matching AVC line changes from
 src/selinux/pcpupstream.te.in (without the comment # prefix) to the

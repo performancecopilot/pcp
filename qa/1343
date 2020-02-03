@@ -150,6 +150,7 @@ do
     then
 	echo "Arrg, failed to start pmlogger at iteration $x"
 	echo "Looking for non-empty $tmp.xfsmount/$hostname/config.pmlogger"
+	df -h $tmp.xfsmount
 	ls -lR $tmp.xfsmount
     fi
 
