@@ -9,6 +9,6 @@ jobs:
     displayName: "QA:"
     strategy:
       matrix: $[ dependencies.prepare.outputs['matrix_step.matrix'] ]
-    timeoutInMinutes: 240
+    timeoutInMinutes: 360
     steps:
       - template: templates/qa-steps.yml
