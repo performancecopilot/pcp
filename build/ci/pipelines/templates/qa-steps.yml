@@ -14,7 +14,7 @@ steps:
           PCP_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
           PCP_BUILD_VERSION=${PCP_VERSION}-${PACKAGE_BUILD}
           sed -i "s/PACKAGE_BUILD=.*/PACKAGE_BUILD=${PACKAGE_BUILD}/" VERSION.pcp
-          sed -i "1 s/(.*)/(${PCP_BUILD_VERSION})/" debian/changelog
+          sed -i "1 s/pcp (.*)/pcp (${PCP_BUILD_VERSION})/" debian/changelog
       fi
     env:
       AZ_CLIENT_ID: $(AZ_CLIENT_ID)
