@@ -38,6 +38,9 @@ install: default
 check:: $(SCRIPT)
 	#$(PYLINT) $^
 	$(SUBDIRS_MAKERULE)
+
+check :: $(MAN_PAGES)
+	$(MANLINT) $^
 else
 build-me:
 install:

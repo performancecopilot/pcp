@@ -8,7 +8,6 @@
 [\-r \f2file|date\f1] [\-h \f2host\f1] [\-R \f2cnt\f1] [\-b \f2hh:mm\f1] [\-e \f2hh:mm\f1]
 .br
 \f3pcp\f1 [\f2pcp\ options\f1] \f3atopsar\f1 [\f2atop\ options\f1] \f2interval\f1 [\f2samples\f1]
-.P
 .SH DESCRIPTION
 The
 .B pcp-atopsar
@@ -19,12 +18,12 @@ In the first synopsis line (no sampling interval specified),
 extracts data from a raw logfile that has been recorded previously by
 .BR pmlogger (1)
 (or via the
-.B \-w 
+.B \-w
 option of the
 .B pcp-atop
 program).
 .br
-You can specify the name of the logfile with the 
+You can specify the name of the logfile with the
 .B \-r
 option of the
 .B pcp-atopsar
@@ -102,20 +101,17 @@ for their descriptions.
 Some generic flags can be specified to influence the behaviour of the
 .B pcp-atopsar
 program:
-.PP
 .TP 5
 .B \-S
 By default the timestamp at the beginning of a line is suppressed if more
 lines are shown for one interval. With this flag a timestamp is
 given for every output-line (easier for post-processing).
-.PP
 .TP 5
 .B \-a
 By default certain resources as disks and network interfaces are only
 shown when they were active during the interval.
 With this flag all resources of a given type are shown, even if
 they were inactive during the interval.
-.PP
 .TP 5
 .B \-x
 By default
@@ -128,10 +124,9 @@ See the man-page of
 .B atop
 for a detailed description of this feature (section COLORS).
 .br
-With the flag 
+With the flag
 .B \-x
 the use of colors is suppressed unconditionally.
-.PP
 .TP 5
 .B \-C
 By default
@@ -144,10 +139,9 @@ See the man-page of
 .B atop
 for a detailed description of this feature (section COLORS).
 .br
-With the flag 
+With the flag
 .B \-C
 colors will always be used, even if output is not directed to a terminal.
-.PP
 .TP 5
 .B \-M
 Use markers at the end of a line to indicate that a critical occupation
@@ -156,16 +150,14 @@ for particular resources. The marker '*' is similar to the color red
 and the marker '+' to the color cyan. See the man-page of
 .B atop
 for a detailed description of these colors (section COLORS).
-.PP
 .TP 5
 .B \-H
 Repeat the header line within a report for every
 .I N
 detail lines. The value of
-.I N 
+.I N
 is determined dynamically in case of output to a tty/window (depending
 on the number of lines); for output to a file or pipe this value is 23.
-.PP
 .TP 5
 .B \-R
 Summarize
@@ -174,142 +166,109 @@ samples into one sample. When the logfile contains e.g. samples of 10 minutes,
 the use of the flag '\-R 6' shows a report with one sample for every hour.
 .PP
 Other flags are used to define which reports are required:
-.PP
 .TP 5
 .B \-A
 Show all possible reports.
-.PP
 .TP 5
 .B \-c
 Report about CPU utilization (in total and per cpu).
-.PP
 .TP 5
 .B \-g
 Report about GPU utilization (per GPU).
-.PP
 .TP 5
 .B \-p
 Report about processor-related matters, like load-averages and
 hardware interrupts.
-.PP
 .TP 5
 .B \-P
 Report about processes.
-.PP
 .TP 5
 .B \-m
 Current memory- and swap-occupation.
-.PP
 .TP 5
 .B \-s
 Report about paging- and swapping-activity, and overcommitment.
-.PP
 .TP 5
 .B \-B
 Report about Pressure Stall Information (PSI).
-.PP
 .TP 5
 .B \-l
 Report about utilization of logical volumes.
-.PP
 .TP 5
 .B \-f
 Report about utilization of multiple devices.
-.PP
 .TP 5
 .B \-d
 Report about utilization of disks.
-.PP
 .TP 5
 .B \-n
 Report about NFS mounted filesystems on NFS client.
-.PP
 .TP 5
 .B \-j
 Report about NFS client activity.
-.PP
 .TP 5
 .B \-J
 Report about NFS server activity.
-.PP
 .TP 5
 .B \-i
 Report about the network interfaces.
-.PP
 .TP 5
 .B \-I
 Report about errors for network-interfaces.
-.PP
 .TP 5
 .B \-w
 Report about IP version 4 network traffic.
-.PP
 .TP 5
 .B \-W
 Report about errors for IP version 4 traffic.
-.PP
 .TP 5
 .B \-y
 General report about ICMP version 4 layer activity.
-.PP
 .TP 5
 .B \-Y
 Per-type report about ICMP version 4 layer activity.
-.PP
 .TP 5
 .B \-u
 Report about UDP version 4 network traffic.
-.PP
 .TP 5
 .B \-z
 Report about IP version 6 network traffic.
-.PP
 .TP 5
 .B \-Z
 Report about errors for IP version 6 traffic.
-.PP
 .TP 5
 .B \-k
 General report about ICMP version 6 layer activity.
-.PP
 .TP 5
 .B \-K
 Per-type report about ICMP version 6 layer activity.
-.PP
 .TP 5
 .B \-U
 Report about UDP version 6 network traffic.
-.PP
 .TP 5
 .B \-t
 Report about TCP network traffic.
-.PP
 .TP 5
 .B \-T
 Report about errors for TCP-traffic.
-.PP
 .TP 5
 .B \-h
 Report about Infiniband utilization.
-.PP
 .TP 5
 .B \-O
 Report about top-3 processes consuming most processor capacity.
 This report is only available when using a log file (not when specifying
 an interval).
-.PP
 .TP 5
 .B \-G
 Report about top-3 processes consuming most resident memory.
 This report is only available when using a log file (not when specifying
 an interval).
-.PP
 .TP 5
 .B \-D
 Report about top-3 processes issueing most disk transfers.
 This report is only available when using a log file (not when specifying
 an interval).
-.PP
 .TP 5
 .B \-N
 Report about top-3 processes issueing most IPv4/IPv6 socket transfers.
@@ -617,7 +576,7 @@ The output for the flags
 (LVM),
 .B \-f
 (MD), and
-.B \-d 
+.B \-d
 (hard disk) contains the following columns per active unit:
 .TP 12
 .B disk
@@ -1258,11 +1217,10 @@ The percentage of socket transfers related to the total
 number of transfers issued by all processes,
 so a high percentage does not imply a high network load on system level.
 .SH EXAMPLES
-To see today's cpu-activity so far 
+To see today's cpu-activity so far
 (supposed that
 .B atop
 is logging in the background):
-.PP
 .TP 12
 .B \  pcp-atopsar
 .PP
@@ -1270,7 +1228,6 @@ To see the memory occupation for June 5, 2018 between 10:00 and 12:30
 (supposed that
 .B pmlogger
 has been logging daily in the background on host acme.com):
-.PP
 .TP 12
 .B \  pcp-atopsar \-m \-r $PCP_LOG_DIR/pmlogger/acme.com/20180605 \-b 10:00 \-e 12:30
 .br
@@ -1291,7 +1248,6 @@ Write a logfile with
 to record the system behaviour for 30 minutes
 (30 samples of one minute) and produce all available reports
 afterwards:
-.PP
 .TP 12
 .B \  pcp-atop       \-w /tmp/atoplog 60 30
 .TP 12
@@ -1299,29 +1255,23 @@ afterwards:
 .PP
 To watch TCP activity evolve for ten minutes (10 samples with sixty seconds
 interval):
-.PP
 .TP 12
 .B \  pcp-atopsar \-t 60 10
 .PP
-To watch the header-lines ('_' as last character) of all reports with only 
+To watch the header-lines ('_' as last character) of all reports with only
 the detail-lines showing critical resource consumption (marker '*' or '+'
 as last character):
-.PP
 .TP 12
 .B \  pcp-atopsar \-AM | grep '[_*+]$'
-.PP
 .SH FILES
-.PP
 .TP 5
 .B /etc/atoprc
 Configuration file containing system-wide default values (mainly flags).
 See related man-page.
-.PP
 .TP 5
 .B ~/.atoprc
 Configuration file containing personal default values (mainly flags).
 See related man-page.
-.PP
 .TP 5
 .BI $PCP_LOG_DIR/pmlogger/HOST/YYYYMMDD
 Daily data file, where
