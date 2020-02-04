@@ -39,13 +39,12 @@
     { "type": "shell", "inline": ["sudo mkdir /usr/local/ci && sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci"]},
     {
       "type": "shell",
-      "execute_command": "chmod +x {{ .Path }}; sudo {{ .Vars }} '{{ .Path }}'",
+      "execute_command": "sudo {{ .Vars }} '{{ .Path }}'",
       "environment_vars": [
         "GIT_REPO={{user `git_repo`}}",
         "GIT_COMMIT={{user `git_commit`}}"
       ],
       "scripts": [
-        "hosts/fedora31/upgrade_bcc.sh",
         "common/redhat/provision_dnf.sh",
         "common/redhat/azure_prep.sh",
         "common/linux/deprovision.sh"
