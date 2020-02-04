@@ -733,7 +733,7 @@ prusage(char *myname, pmOptions *opts)
 	printf("\t\tor\n");
 	printf("Usage: %s -w  file  [-S] [-%c] [interval [samples]]\n",
 					myname, MALLPROC);
-	printf("       %s -r  file  [-b hh:mm] [-e hh:mm] [-flags]\n",
+	printf("       %s -r  file  [-b hh:mm] [-e hh:mm] [-flags] [interval [samples]]\n",
 					myname);
 	printf("\n");
 	printf("\tgeneric flags:\n");
