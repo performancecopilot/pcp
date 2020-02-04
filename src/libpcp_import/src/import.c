@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 Red Hat.
+ * Copyright (c) 2013-2020 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -710,9 +710,10 @@ pmiAddInstance(pmInDom indom, const char *instance, int inst)
 static int
 make_handle(const char *name, const char *instance, pmi_handle *hp)
 {
-    int		m;
+    static int	m = -1;
     int		i;
-    int		j;
+    static int	j = -1;
+    int		found = 0;
     int		spaced;
     const char	*p;
     pmi_indom	*idp;
@@ -721,9 +722,14 @@ make_handle(const char *name, const char *instance, pmi_handle *hp)
 	/* map "" to NULL to help Perl callers */
 	instance = NULL;
 
-    for (m = 0; m < current->nmetric; m++) {
-	if (strcmp(name, current->metric[m].name) == 0)
-	    break;
+    if (m >= 0 && m < current->nmetric && strcmp(name, current->metric[m].name) == 0) {
+    	; /* optimization: same metric as last time */
+    }
+    else {
+	for (m = 0; m < current->nmetric; m++) {
+	    if (strcmp(name, current->metric[m].name) == 0)
+		break;
+	}
     }
     if (m == current->nmetric)
 	return current->last_sts = PM_ERR_NAME;
@@ -753,13 +759,27 @@ make_handle(const char *name, const char *instance, pmi_handle *hp)
 	for (p = instance; *p && *p != ' '; p++)
 	    ;
 	spaced = (*p == ' ') ? p - instance + 1: 0;	/* +1 => *must* compare the space too */
-	for (j = 0; j < idp->ninstance; j++) {
+
+	if (j >= 0 && j < idp->ninstance) {
+	    /* optimization: same inst as last time? */
 	    if (spaced) {
 		if (strncmp(instance, idp->name[j], spaced) == 0)
-		    break;
+		    found = 1;
 	    } else {
 		if (strcmp(instance, idp->name[j]) == 0)
-		    break;
+		    found = 1;
+	    }
+	}
+
+	if (!found) {
+	    for (j = 0; j < idp->ninstance; j++) {
+		if (spaced) {
+		    if (strncmp(instance, idp->name[j], spaced) == 0)
+			break;
+		} else {
+		    if (strcmp(instance, idp->name[j]) == 0)
+			break;
+		}
 	    }
 	}
 	if (j == idp->ninstance)

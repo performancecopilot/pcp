@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2020 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -127,6 +127,29 @@ check_metric(pmi_context *current, pmID pmid, int *needti)
     return sts;
 }
 
+static void
+newvolume(pmi_context *current, pmTimeval *tvp)
+{
+    __pmFILE		*newfp;
+    __pmArchCtl		*acp = &current->archctl;
+    __pmLogCtl		*lcp = &current->logctl;
+    int			nextvol = acp->ac_curvol + 1;
+
+    if ((newfp = __pmLogNewFile(current->archive, nextvol)) == NULL) {
+	fprintf(stderr, "logimport: Error: volume %d: %s\n", nextvol, pmErrStr(-oserror()));
+	return;
+    }
+
+    if (pmDebugOptions.log)
+	fprintf(stderr, "logimport: '%s' new log volume %d\n", current->archive, nextvol);
+
+    __pmFclose(acp->ac_mfp);
+    acp->ac_mfp = newfp;
+    lcp->l_label.ill_vol = acp->ac_curvol = nextvol;
+    __pmLogWriteLabel(acp->ac_mfp, &lcp->l_label);
+    __pmFflush(acp->ac_mfp);
+}
+
 int
 _pmi_put_result(pmi_context *current, pmResult *result)
 {
@@ -135,6 +158,9 @@ _pmi_put_result(pmi_context *current, pmResult *result)
     __pmArchCtl	*acp = &current->archctl;
     int		k;
     int		needti;
+    char	*p = getenv("PCP_LOGIMPORT_MAXLOGSZ");
+    unsigned long off;
+    unsigned long max_logsz = p ? strtoul(p, NULL, 10) : 0x7fffffff;
 
     /*
      * some front-end tools use lazy discovery of instances and/or process
@@ -167,6 +193,9 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	__pmLogPutIndex(acp, &stamp);
     }
 
+    off = __pmFtell(acp->ac_mfp) + ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
+    if (off >= max_logsz)
+    	newvolume(current, (pmTimeval *)&pb[3]);
     if ((sts = __pmLogPutResult2(acp, pb)) < 0) {
 	__pmUnpinPDUBuf(pb);
 	return sts;

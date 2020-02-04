@@ -1,2 +1,4 @@
 QA output created by 1623
-[skeleton from qa/new, replace me]
+checking one volume created without PCP_LOGIMPORT_MAXLOGSZ
+checking 4 volumes created with PCP_LOGIMPORT_MAXLOGSZ=250000
+check they replay the same, expect no diff
