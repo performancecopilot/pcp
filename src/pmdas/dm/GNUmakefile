@@ -83,3 +83,6 @@ endif
 pmda.o vdo.o: vdo.h
 
 dmcache.o dmthin.o vdo.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

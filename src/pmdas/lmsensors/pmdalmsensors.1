@@ -1,16 +1,16 @@
-.\" 
+.\"
 .\" Copyright (c) 2014, 2018 Red Hat.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .TH "PMDALMSENSORS" "1" "PCP" "Performance Co-Pilot" ""
 .SH "NAME"
 \f3pmdalmsensors.python\f1 \- Linux hardware monitoring performance metrics domain agent (PMDA)
@@ -22,41 +22,39 @@
 is a Performance Metrics Domain Agent (PMDA) which extracts
 performance metrics describing the state of hardware using
 the lm\-sensors software on compatible motherboards.
-.PP 
+.PP
 The
 .B lmsensors
 PMDA exports metrics that measure fan speeds and core temperatures.
-.PP 
 .SH "INSTALLATION"
 If you want access to the names, help text and values for the lmsensors
 performance metrics, do the following as root:
-.PP 
+.PP
 .ft CW
-.nf 
+.nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/lmsensors
 # ./Install
 .in
-.fi 
+.fi
 .ft 1
-.PP 
+.PP
 If you want to undo the installation, do the following as root:
-.PP 
+.PP
 .ft CW
-.nf 
+.nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/lmsensors
 # ./Remove
 .in
-.fi 
+.fi
 .ft 1
-.PP 
+.PP
 pmdalmsensors.python is usually launched by pmcd (1), and not
 executed directly. Direct execution is mostly used for debugging
 purposes.
 
-
-The Install and Remove scripts notify pmcd (1) when the agent 
+The Install and Remove scripts notify pmcd (1) when the agent
 is installed or removed.
 .SH "OPTIONS"
 .PP
@@ -92,7 +90,7 @@ installation script for the
 agent
 .TP 10
 .B $PCP_PMDAS_DIR/lmsensors/Remove
-undo installation script for the 
+undo installation script for the
 .B pmdalmsensors
 agent
 .PD

@@ -38,3 +38,6 @@ ifeq "$(PMDA_STATSD)" "true"
 	$(INSTALL) -m 644 pmda$(IAM).ini README.md $(PMDADIR)
 	@$(INSTALL_MAN)
 endif
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

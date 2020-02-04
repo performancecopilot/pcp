@@ -63,3 +63,6 @@ pmda.o:			pmdacifs.h
 pmda.o stats.o:		stats.h
 
 pmda.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

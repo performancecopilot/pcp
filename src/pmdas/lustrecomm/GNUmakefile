@@ -68,3 +68,6 @@ $(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

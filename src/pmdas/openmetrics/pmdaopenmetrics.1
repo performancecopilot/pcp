@@ -153,7 +153,7 @@ The PMDA will relay data and metadata when/if they are available,
 and will return errors when/if they are down.
 PCP metric IDs, internal and external instance domain identifiers are
 persisted and will be restored when individual metric sources become
-available and/or when the PMDA is restarted. 
+available and/or when the PMDA is restarted.
 In addition, the PMDA checks directory modification times and will rescan
 for new or changed configuration files dynamically.
 It is
@@ -273,11 +273,11 @@ defines a new metric, with the new (or changed) instance naming.
 .P
 Unrecognized keywords in configuration files are reported in the PMDA log file but otherwise ignored.
 .SH "SCRIPTED SOURCES"
-Executable scripts present in the 
+Executable scripts present in the
 .I $PCP_PMDAS_DIR/openmetrics/config.d
 directory or sub-directories will be executed and the
 .B stdout
-stream containing openmetrics formatted metric data will be parsed as though it had come from a URL or file. 
+stream containing openmetrics formatted metric data will be parsed as though it had come from a URL or file.
 The
 .B stderr
 stream from a script will be sent to the PMDA log file, which by default can be found in
@@ -357,7 +357,7 @@ If the
 name has multiple dot-separated components, the resulting
 PMNS names will include those components and care is needed to ensure
 there are no overlapping definitions, e.g. metrics returned by
-.B JOB.response 
+.B JOB.response
 may overlap or conflict with metrics returned by
 .BR JOB.response.time .
 .PP
@@ -463,7 +463,7 @@ is launched by
 .BR pmcd (1)
 and should never be executed directly.
 The Install and Remove scripts notify
-.B pmcd 
+.B pmcd
 when the agent is installed or removed.
 .PP
 When scripts and
