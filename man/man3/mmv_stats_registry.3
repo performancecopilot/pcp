@@ -90,7 +90,6 @@ this is verified on each request for new values.
 .P
 The next sections explain how to add metrics, indoms, instances
 and labels.
-.P
 .SH ADD METRICS
 .ft 3
 .br
@@ -114,7 +113,6 @@ is dimension. \f2serial\f1 match in the struct is indom.
             char *helptext;             /* Optional, full help text */
         } mmv_metric2_t;
 .fi
-.P
 .SH ADD INDOMS
 .ft 3
 .br
@@ -143,7 +141,6 @@ int mmv_stats_add_instance(mmv_registry_t *\fIregistry\fP, int \fIserial\fP,
 When adding an instance, internally it is being handled using the next struct.
 \f2instid\f1 match in the struct is internal while \f2instname\f1 is external.
 .P
-.P
 .nf
         typedef struct {
             __int32_t internal;
@@ -154,7 +151,6 @@ When adding an instance, internally it is being handled using the next struct.
 .P
 It is worth mentioning that if the indom of the instance is not found it
 returns an error.
-.P
 .SH ADD LABELS
 .ft 3
 .br
@@ -205,9 +201,6 @@ it will be taken from the internal registry struct already created.
 \f3mmv_stats_add_metric_label\f1 adds a PM_LABEL_ITEM.
 .P
 \f3mmv_stats_add_instance_label\f1 adds a PM_LABEL_INSTANCES.
-.P
-
-.P
 .SH RETURN VALUES
  When adding metrics, indoms, instances and labels, if correct returns 0
  and if not it returns an errno code. The other functions return the address
