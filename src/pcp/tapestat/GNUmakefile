@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Red Hat.
+# Copyright (c) 2017,2020 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,17 +16,18 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 TARGET = pcp-tapestat
+SCRIPT = $(TARGET).py
 MAN_SECTION = 1
 MAN_PAGES = $(TARGET).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default: $(TARGET).py $(MAN_PAGES)
+default: $(SCRIPT) $(MAN_PAGES)
 
 include $(BUILDRULES)
 
 install: default
 ifeq "$(HAVE_PYTHON)" "true"
-	$(INSTALL) -m 755 $(TARGET).py $(PCP_BINADM_DIR)/$(TARGET)
+	$(INSTALL) -m 755 $(SCRIPT) $(PCP_BINADM_DIR)/$(TARGET)
 	@$(INSTALL_MAN)
 endif
 
@@ -35,7 +36,7 @@ default_pcp : default
 install_pcp : install
 
 check :: $(SCRIPT)
-	#$(PYLINT) $^
+	$(PYLINT) $^
 
 check :: $(MAN_PAGES)
 	$(MANLINT) $^

@@ -1,5 +1,5 @@
 #!/usr/bin/env pmpython
-# Copyright (C) 2014-2016 Red Hat.
+# Copyright (C) 2014-2016,2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -11,31 +11,32 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# pylint: disable=C0103,R0914,R0902
+# pylint: disable=bad-whitespace,protected-access,redefined-outer-name
+# pylint: disable=too-many-nested-blocks,too-many-boolean-expressions
 """ Display disk and device-mapper I/O statistics """
 
 import re
 import sys
 import signal
 from pcp import pmapi, pmcc
-from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE, PM_SPACE_KBYTE, PM_MODE_FORW
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_MODE_FORW
 
 # use default SIGPIPE handler to avoid broken pipe exceptions
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 IOSTAT_SD_METRICS = [ 'disk.dev.read', 'disk.dev.read_bytes',
-                 'disk.dev.write', 'disk.dev.write_bytes',
-                 'disk.dev.read_merge', 'disk.dev.write_merge',
-                 'disk.dev.blkread', 'disk.dev.blkwrite',
-                 'disk.dev.read_rawactive', 'disk.dev.write_rawactive',
-                 'disk.dev.avactive']
+                      'disk.dev.write', 'disk.dev.write_bytes',
+                      'disk.dev.read_merge', 'disk.dev.write_merge',
+                      'disk.dev.blkread', 'disk.dev.blkwrite',
+                      'disk.dev.read_rawactive', 'disk.dev.write_rawactive',
+                      'disk.dev.avactive']
 
 IOSTAT_DM_METRICS = [ 'disk.dm.read', 'disk.dm.read_bytes',
-                 'disk.dm.write', 'disk.dm.write_bytes',
-                 'disk.dm.read_merge', 'disk.dm.write_merge',
-                 'disk.dm.blkread', 'disk.dm.blkwrite',
-                 'disk.dm.read_rawactive', 'disk.dm.write_rawactive',
-                 'disk.dm.avactive']
+                      'disk.dm.write', 'disk.dm.write_bytes',
+                      'disk.dm.read_merge', 'disk.dm.write_merge',
+                      'disk.dm.blkread', 'disk.dm.blkwrite',
+                      'disk.dm.read_rawactive', 'disk.dm.write_rawactive',
+                      'disk.dm.avactive']
 
 def aggregate(method, aggr_value, value):
     if method == 'sum':
@@ -49,7 +50,7 @@ def aggregate(method, aggr_value, value):
         if aggr_value < value:
             aggr_value = value
     else:
-       raise pmapi.pmUsageErr
+        raise pmapi.pmUsageErr
     return aggr_value
 
 class IostatReport(pmcc.MetricGroupPrinter):
@@ -58,7 +59,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
         s = group.timestamp.tv_sec - group.prevTimestamp.tv_sec
         u = group.timestamp.tv_usec - group.prevTimestamp.tv_usec
         # u may be negative here, calculation is still correct.
-        return (s + u / 1000000.0)
+        return s + u / 1000000.0
 
     def instlist(self, group, name):
         return dict(map(lambda x: (x[1], x[2]), group[name].netValues)).keys()
@@ -76,13 +77,13 @@ class IostatReport(pmcc.MetricGroupPrinter):
 
         aggr = IostatOptions.Gflag
         if aggr and aggr not in ('sum', 'avg', 'min', 'max'):
-           print("Error, -G aggregation method must be one of 'sum', 'avg', 'min' or 'max'")
-           raise pmapi.pmUsageErr
+            print("Error, -G aggregation method must be one of 'sum', 'avg', 'min' or 'max'")
+            raise pmapi.pmUsageErr
 
         precision = IostatOptions.Pflag
         if precision < 0 or precision > 10 :
-           print("Precision value must be between 0 and 10")
-           raise pmapi.pmUsageErr
+            print("Precision value must be between 0 and 10")
+            raise pmapi.pmUsageErr
 
         if 'dm' in IostatOptions.xflag:
             subtree = 'disk.dm'
@@ -90,7 +91,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
             subtree = 'disk.dev'
         group = manager["iostat"]
 
-        if group[subtree + '.read_merge'].netPrevValues == None:
+        if group[subtree + '.read_merge'].netPrevValues is None:
             # need two fetches to report rate converted counter metrics
             return
 
@@ -124,31 +125,31 @@ class IostatReport(pmcc.MetricGroupPrinter):
 
         c_avactive = self.curVals(group, subtree + '.avactive')
         p_avactive = self.prevVals(group, subtree + '.avactive')
-        
+
         if precision == 1:
-           utilspace=precision+5
-           avgrqszspace=precision+7
-           awaitspace=precision+6
-           rrqmspace=precision+5
-           wrqmspace=precision+5
-           headfmtavgspace=precision+7
-           headfmtquspace=precision+7
+            utilspace=precision+5
+            avgrqszspace=precision+7
+            awaitspace=precision+6
+            rrqmspace=precision+5
+            wrqmspace=precision+5
+            headfmtavgspace=precision+7
+            headfmtquspace=precision+7
         elif precision == 0:
-           utilspace=precision+5
-           avgrqszspace=precision+8
-           awaitspace=precision+7
-           rrqmspace=precision+6
-           wrqmspace=precision+6
-           headfmtavgspace=avgrqszspace
-           headfmtquspace=precision+8
+            utilspace=precision+5
+            avgrqszspace=precision+8
+            awaitspace=precision+7
+            rrqmspace=precision+6
+            wrqmspace=precision+6
+            headfmtavgspace=avgrqszspace
+            headfmtquspace=precision+8
         else:
-           utilspace=precision+5
-           avgrqszspace=precision+6
-           awaitspace=precision+5
-           rrqmspace=precision+5
-           wrqmspace=precision+5
-           headfmtavgspace=avgrqszspace
-           headfmtquspace=precision+6
+            utilspace=precision+5
+            avgrqszspace=precision+6
+            awaitspace=precision+5
+            rrqmspace=precision+5
+            wrqmspace=precision+5
+            headfmtavgspace=avgrqszspace
+            headfmtquspace=precision+6
 
         if "t" in IostatOptions.xflag:
             headfmt = "%-24s %-12s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s"
@@ -163,13 +164,22 @@ class IostatReport(pmcc.MetricGroupPrinter):
                 self.Hcount = 1
             if self.Hcount == 1:
                 if "t" in IostatOptions.xflag:
-                    heading = ('# Timestamp', 'Device',rrqmspace, 'rrqm/s',wrqmspace, 'wrqm/s',precision+5, 'r/s',precision+4,\
-                    'w/s',precision+6, 'rkB/s',precision+6, 'wkB/s', avgrqszspace,'avgrq-sz',precision+6, 'avgqu-sz',precision+5, \
-                    'await',precision+5, 'r_await', precision+5,'w_await',utilspace, '%util')
+                    heading = ('# Timestamp', 'Device',rrqmspace,
+                               'rrqm/s',wrqmspace, 'wrqm/s',precision+5,
+                               'r/s',precision+4, 'w/s',precision+6,
+                               'rkB/s',precision+6, 'wkB/s',
+                               avgrqszspace,'avgrq-sz',precision+6,
+                               'avgqu-sz',precision+5, 'await',precision+5,
+                               'r_await', precision+5,'w_await',utilspace,
+                               '%util')
                 else:
-                    heading = ('# Device',rrqmspace, 'rrqm/s',wrqmspace, 'wrqm/s',precision+5, 'r/s',precision+4, 'w/s'\
-                    ,precision+6, 'rkB/s',precision+6, 'wkB/s', avgrqszspace,'avgrq-sz',precision+6, 'avgqu-sz',precision+5,\
-                    'await',awaitspace, 'r_await',awaitspace, 'w_await',utilspace, '%util')
+                    heading = ('# Device',rrqmspace, 'rrqm/s',wrqmspace,
+                               'wrqm/s',precision+5, 'r/s',precision+4,
+                               'w/s',precision+6, 'rkB/s',precision+6,
+                               'wkB/s', avgrqszspace,'avgrq-sz',precision+6,
+                               'avgqu-sz',precision+5, 'await',awaitspace,
+                               'r_await',awaitspace, 'w_await',utilspace,
+                               '%util')
                 print(headfmt % heading)
 
         if p_rrqm == {} or p_wrqm == {} or p_r == {} or p_w == {} or \
@@ -177,9 +187,12 @@ class IostatReport(pmcc.MetricGroupPrinter):
            p_rkb == {} or p_wkb == {}:
             # no values for some metric (e.g. near start of archive)
             if "t" in IostatOptions.xflag:
-                print(headfmt % (timestamp, 'NODATA',rrqmspace, '?',wrqmspace, '?',precision+5, '?',precision+4, '?',precision+6,\
-               '?',precision+6, '?',headfmtavgspace, '?',headfmtquspace, '?', precision+5, '?',awaitspace, '?',awaitspace, '?',\
-                utilspace, '?'))
+                print(headfmt % (timestamp, 'NODATA',rrqmspace, '?',wrqmspace,
+                                 '?',precision+5, '?',precision+4,
+                                 '?',precision+6, '?',precision+6,
+                                 '?',headfmtavgspace, '?',headfmtquspace,
+                                 '?',precision+5, '?',awaitspace,
+                                 '?',awaitspace, '?',utilspace, '?'))
             return
 
         try:
@@ -212,7 +225,8 @@ class IostatReport(pmcc.MetricGroupPrinter):
                     avgrqsz = (float)((c_rkb[inst] - p_rkb[inst]) + (c_wkb[inst] - p_wkb[inst])) / tot_ios
 
                 # average queue length
-                avgqsz = (float)((c_ractive[inst] - p_ractive[inst]) + (c_wactive[inst] - p_wactive[inst])) / dt / 1000.0
+                avgqsz = (float)((c_ractive[inst] - p_ractive[inst]) +
+                                 (c_wactive[inst] - p_wactive[inst])) / dt / 1000.0
 
                 # await, r_await, w_await
                 if tot_ios:
@@ -229,49 +243,75 @@ class IostatReport(pmcc.MetricGroupPrinter):
                     util = 100.0 * tot_active / dt
 
                 device = inst	# prepare name for printing
-                badcounters = rrqm < 0 or wrqm < 0 or r < 0 or w < 0 or t_await < 0 or avgrqsz < 0 or avgqsz < 0 or util < 0
+                badcounters = (rrqm < 0 or wrqm < 0 or r < 0 or w < 0 or
+                               t_await < 0 or avgrqsz < 0 or avgqsz < 0 or util < 0)
 
                 if "t" in IostatOptions.xflag:
                     if badcounters:
-                        print(headfmt % (timestamp, device,rrqmspace, '?',wrqmspace, '?',precision+5, '?',precision+4, '?',precision+6,\
-                        '?',precision+6, '?',headfmtavgspace, '?',headfmtquspace, '?', precision+5, '?',awaitspace, '?',\
-                        awaitspace, '?',utilspace, '?'))
+                        print(headfmt % (timestamp, device,rrqmspace,
+                                         '?',wrqmspace, '?',precision+5,
+                                         '?',precision+4, '?',precision+6,
+                                         '?',precision+6, '?',headfmtavgspace,
+                                         '?',headfmtquspace, '?', precision+5,
+                                         '?',awaitspace, '?', awaitspace,
+                                         '?',utilspace, '?'))
                     else:
-                        if IostatOptions.Rflag and re.search(regex,device) == None: 
-                            continue  
+                        if IostatOptions.Rflag and re.search(regex,device) is None:
+                            continue
 
                         if IostatOptions.Gflag:
                             aggr_count += 1
 
                         if "noidle" in IostatOptions.xflag:
-                            if rrqm == 0 and wrqm == 0 and r == 0 and w == 0 :
+                            if rrqm == 0 and wrqm == 0 and r == 0 and w == 0:
                                 continue
 
                         if not IostatOptions.Gflag:
-                            print(valfmt % (timestamp, device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision,\
-                            r,precision+4,precision, w,precision+6,precision, rkb,precision+6,precision, wkb, avgrqszspace,precision+1 ,avgrqsz,\
-                            avgrqszspace,precision+1, avgqsz,precision+5,precision, t_await,awaitspace,precision, r_await,awaitspace,precision,\
-                            w_await,utilspace,precision, util))
+                            print(valfmt % (timestamp, device,rrqmspace,precision,
+                                            rrqm,wrqmspace,precision,
+                                            wrqm,precision+5,precision,
+                                            r,precision+4,precision,
+                                            w,precision+6,precision,
+                                            rkb,precision+6,precision,
+                                            wkb,avgrqszspace,precision+1,
+                                            avgrqsz,avgrqszspace,precision+1,
+                                            avgqsz,precision+5,precision,
+                                            t_await,awaitspace,precision,
+                                            r_await,awaitspace,precision,
+                                            w_await,utilspace,precision, util))
                 else:
                     if badcounters:
-                        print(headfmt % (device,rrqmspace, '?',wrqmspace, '?',precision+5, '?',precision+4, '?',precision+6, '?',precision+6,\
-                        '?',headfmtavgspace, '?',headfmtquspace, '?', precision+5, '?',awaitspace, '?',awaitspace, '?',utilspace, '?'))
+                        print(headfmt % (device,rrqmspace, '?',wrqmspace,
+                                         '?',precision+5, '?',precision+4,
+                                         '?',precision+6, '?',precision+6,
+                                         '?',headfmtavgspace,
+                                         '?',headfmtquspace,
+                                         '?',precision+5, '?',awaitspace,
+                                         '?',awaitspace, '?',utilspace, '?'))
                     else:
-                        if IostatOptions.Rflag and re.search(regex,device) == None: 
-                            continue  
+                        if IostatOptions.Rflag and re.search(regex,device) is None:
+                            continue
 
                         if IostatOptions.Gflag:
                             aggr_count += 1
 
                         if "noidle" in IostatOptions.xflag:
-                            if rrqm == 0 and wrqm == 0 and r == 0 and w == 0 :
+                            if rrqm == 0 and wrqm == 0 and r == 0 and w == 0:
                                 continue
 
                         if not IostatOptions.Gflag:
-                            print(valfmt % (device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision, r,precision+4,\
-                            precision, w,precision+6,precision, rkb,precision+6,precision, wkb,\
-                            avgrqszspace,precision+1 ,avgrqsz,avgrqszspace,precision+1, avgqsz,precision+5,precision, t_await,awaitspace,precision,\
-                            r_await,awaitspace,precision, w_await,utilspace,precision, util))
+                            print(valfmt % (device,rrqmspace, precision,
+                                            rrqm,wrqmspace,precision,
+                                            wrqm,precision+5,precision,
+                                            r,precision+4,precision,
+                                            w,precision+6,precision,
+                                            rkb,precision+6,precision,
+                                            wkb,avgrqszspace,precision+1,
+                                            avgrqsz,avgrqszspace,precision+1,
+                                            avgqsz,precision+5,precision,
+                                            t_await,awaitspace,precision,
+                                            r_await,awaitspace,precision,
+                                            w_await,utilspace,precision, util))
 
                 if IostatOptions.Gflag and not badcounters:
                     aggr_rrqm = aggregate(aggr, aggr_rrqm, rrqm)
@@ -307,15 +347,31 @@ class IostatReport(pmcc.MetricGroupPrinter):
                 # report aggregate values - the 'device' here is reported as the regex used for the aggregation
                 device = '%s(%s)' % (aggr, regex)
                 if "t" in IostatOptions.xflag:
-                    print(valfmt % (timestamp, device,rrqmspace, precision, aggr_rrqm,wrqmspace,precision, aggr_wrqm,precision+5,precision,\
-                    aggr_r,precision+4,precision, aggr_w,precision+6,precision, aggr_rkb,precision+6,precision, aggr_wkb, avgrqszspace,precision+1 ,aggr_avgrqsz,\
-                    avgrqszspace,precision+1, aggr_avgqsz,precision+5,precision, aggr_await,awaitspace,precision, aggr_r_await,awaitspace,precision,\
-                    aggr_w_await,utilspace,precision, aggr_util))
+                    print(valfmt % (timestamp, device,rrqmspace, precision,
+                                    aggr_rrqm,wrqmspace,precision,
+                                    aggr_wrqm,precision+5,precision,
+                                    aggr_r,precision+4,precision,
+                                    aggr_w,precision+6,precision,
+                                    aggr_rkb,precision+6,precision,
+                                    aggr_wkb,avgrqszspace,precision+1,
+                                    aggr_avgrqsz,avgrqszspace,precision+1,
+                                    aggr_avgqsz,precision+5,precision,
+                                    aggr_await,awaitspace,precision,
+                                    aggr_r_await,awaitspace,precision,
+                                    aggr_w_await,utilspace,precision, aggr_util))
                 else:
-                    print(valfmt % (device,rrqmspace, precision, aggr_rrqm,wrqmspace,precision, aggr_wrqm,precision+5,precision, aggr_r,precision+4,\
-                    precision, aggr_w,precision+6,precision, aggr_rkb,precision+6,precision, aggr_wkb,\
-                    avgrqszspace,precision+1 ,aggr_avgrqsz,avgrqszspace,precision+1, aggr_avgqsz,precision+5,precision, aggr_await,awaitspace,precision,\
-                    aggr_r_await,awaitspace,precision, aggr_w_await,utilspace,precision, aggr_util))
+                    print(valfmt % (device,rrqmspace, precision,
+                                    aggr_rrqm,wrqmspace,precision,
+                                    aggr_wrqm,precision+5,precision,
+                                    aggr_r,precision+4,precision,
+                                    aggr_w,precision+6,precision,
+                                    aggr_rkb,precision+6,precision,
+                                    aggr_wkb,avgrqszspace,precision+1,
+                                    aggr_avgrqsz,avgrqszspace,precision+1,
+                                    aggr_avgqsz,precision+5,precision,
+                                    aggr_await,awaitspace,precision,
+                                    aggr_r_await,awaitspace,precision,
+                                    aggr_w_await,utilspace,precision, aggr_util))
 
         except KeyError:
             # instance missing from previous sample
@@ -323,7 +379,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
 
 class IostatOptions(pmapi.pmOptions):
     # class attributes
-    xflag = [] 
+    xflag = []
     uflag = None
     Pflag = 2
     Rflag = ""
@@ -357,11 +413,15 @@ class IostatOptions(pmapi.pmOptions):
         self.pmSetLongOptionAlign()
         self.pmSetLongOptionArchive()
         self.pmSetLongOptionDebug()
-        self.pmSetLongOption("aggregate", 1, "G", "method", "aggregate values for devices matching -R regex using 'method' (sum, avg, min or max)")
+        self.pmSetLongOption("aggregate", 1, "G", "method",
+                             "aggregate values for devices matching -R regex"
+                             "using 'method' (sum, avg, min or max)")
         self.pmSetLongOptionHost()
         self.pmSetLongOptionOrigin()
         self.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator")
-        self.pmSetLongOption("regex", 1, "R", "pattern", "only report for devices names matching pattern, e.g. 'sd[a-zA-Z]+'. See also -G.")
+        self.pmSetLongOption("regex", 1, "R", "pattern",
+                             "only report for devices names matching pattern, "
+                             "e.g. 'sd[a-zA-Z]+'. See also -G.")
         self.pmSetLongOptionStart()
         self.pmSetLongOptionSamples()
         self.pmSetLongOptionFinish()
@@ -374,9 +434,9 @@ class IostatOptions(pmapi.pmOptions):
         self.pmSetLongOptionHeader("Extended options")
         self.pmSetLongOption("", 1, 'x', "LIST", "comma separated extended options: [[dm],[t],[h],[noidle]]")
         self.pmSetLongOptionText("\t\tdm\tshow device-mapper statistics (default is sd devices)")
-        self.pmSetLongOptionText("\t\tt\tprecede every line with a timestamp in ctime format");
-        self.pmSetLongOptionText("\t\th\tsuppress headings");
-        self.pmSetLongOptionText("\t\tnoidle\tdo not display idle devices");
+        self.pmSetLongOptionText("\t\tt\tprecede every line with a timestamp in ctime format")
+        self.pmSetLongOptionText("\t\th\tsuppress headings")
+        self.pmSetLongOptionText("\t\tnoidle\tdo not display idle devices")
 
 if __name__ == '__main__':
     try:
@@ -394,7 +454,7 @@ if __name__ == '__main__':
         else:
             namelist = IOSTAT_SD_METRICS
         missing = manager.checkMissingMetrics(namelist)
-        if missing != None:
+        if missing is not None:
             sys.stderr.write('Error: not all required metrics are available\nMissing %s\n' % (missing))
             sys.exit(1)
         manager["iostat"] = namelist

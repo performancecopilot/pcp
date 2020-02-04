@@ -341,7 +341,10 @@ dstat
 pidstat
 
 # pcp-iostat
-pmiostat
+iostat
+
+# pcp-tapestat
+tapestat
 
 # pmseries
 pmseries
@@ -937,7 +940,7 @@ BAD
 533 dbpmda local pmda.sample
 534 pmie local
 535 pmie local pmprobe
-536 pmimport local pmiostat pmval pmprobe pmdumplog timezone collectl pcp python
+536 pmimport local iostat pmval pmprobe pmdumplog timezone collectl pcp python
 537 pmimport perl local
 538 pmie local pmstore
 539 pmpost local flakey
@@ -1007,7 +1010,7 @@ BAD
 603 trace pmda.install remote
 604 archive pmval pmlogextract pmdumplog local
 605 trace local
-606 python archive pmns pmiostat local pidstat pcp
+606 python archive pmns iostat local pidstat pcp
 607 libpcp local
 608 pmpost local
 609 pmdumplog local
@@ -1209,7 +1212,7 @@ BAD
 806 pmstore pminfo pmie pmval pmprobe dbpmda local
 807 pcp local
 808 pmlogger local logutil
-810 pmiostat archive multi-archive local pmlogextract pcp python
+810 iostat archive multi-archive local pmlogextract pcp python
 811 pmlogger pmcpp local kernel
 812 pmlogextract local pmdumplog
 813 pmlogextract local
@@ -1241,7 +1244,7 @@ BAD
 839 pcp python local
 840 avahi local
 841 pmda local python
-842 python local pmiostat pmval pcp kernel
+842 python local iostat pmval pcp kernel
 843 pmda local python
 844 pmda.linux local
 845 pmda.mounts local python
@@ -1249,7 +1252,7 @@ BAD
 847 containers local
 848 pmcd secure local kernel
 849 pmie local
-851 pmiostat local pcp python kernel
+851 iostat local pcp python kernel
 852 pmda.proc local
 853 pmcpp local kernel
 854 pmlogger local pmlc pmdumplog pmstore folio
@@ -1334,7 +1337,7 @@ BAD
 933 pmda.proc local
 934 pmieutil local
 935 derive local
-936 pcp python local
+936 pcp tapestat python local
 937 derive local
 938 derive local kernel
 939 derive local kernel
@@ -1497,7 +1500,7 @@ BAD
 1096 libpcp threads local pmmgr local
 1097 pmlogconf local
 1098 python local pmstore sanity
-1099 archive pmiostat local pmie pcp python
+1099 archive iostat local pmie pcp python
 1100 bash local pcp2xxx pcp2elasticsearch pcp2xlsx pcp2influxdb pcp2graphite pmrep python pcp2zabbix pcp2xml pcp2json
 1101 libpcp_web local valgrind
 1102 pmda.openmetrics local python
@@ -1607,7 +1610,7 @@ BAD
 1229 pmlogextract pmdumplog labels help local sanity
 1231 pmlogrewrite labels help pmdumplog local
 1234 libpcp_web local
-1238 pmiostat archive multi-archive decompress-xz local pmlogextract pcp python
+1238 iostat archive multi-archive decompress-xz local pmlogextract pcp python
 1239 pmlogrewrite labels pmdumplog local
 1240 libpcp pmrep local python
 1242 pmrep archive multi-archive decompress-xz local pmlogextract python
@@ -1694,7 +1697,7 @@ BAD
 1546 pmrep python local
 1547 pmrep python local
 1573 pmproxy libpcp_web pmlogger local
-1588 python pmiostat local
+1588 python iostat local
 1598 pmda.statsd local
 1599 pmda.statsd local
 1600 pmseries pmcd pmproxy pmlogger local

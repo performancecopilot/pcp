@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 Red Hat, Inc.  All Rights Reserved.
+# Copyright (c) 2014-2015,2020 Red Hat, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,17 +15,18 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CMDTARGET = pcp-iostat
-MAN_PAGES = $(CMDTARGET).1
+TARGET = pcp-iostat
+SCRIPT = $(TARGET).py
+MAN_PAGES = $(TARGET).1
 
-default: $(CMDTARGET).py
+default: $(SCRIPT)
 
 include $(BUILDRULES)
 
 install: default
 ifeq "$(HAVE_PYTHON)" "true"
-	$(INSTALL) -m 755 $(CMDTARGET).py $(PCP_BINADM_DIR)/$(CMDTARGET)
-	$(INSTALL) -S $(PCP_BINADM_DIR)/$(CMDTARGET) $(PCP_BIN_DIR)/pmiostat
+	$(INSTALL) -m 755 $(SCRIPT) $(PCP_BINADM_DIR)/$(TARGET)
+	$(INSTALL) -S $(PCP_BINADM_DIR)/$(TARGET) $(PCP_BIN_DIR)/pmiostat
 	@$(INSTALL_MAN)
 endif
 
@@ -34,7 +35,7 @@ default_pcp: default
 install_pcp: install
 
 check :: $(SCRIPT)
-	#$(PYLINT) $^
+	$(PYLINT) $^
 
 check :: $(MAN_PAGES)
 	$(MANLINT) $^
