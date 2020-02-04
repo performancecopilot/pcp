@@ -1,7 +1,7 @@
 '\"! tbl | nroff \-man
 '\" t macro stdmacro
 .\"
-.\" Copyright (c) 2013-2019 Red Hat.
+.\" Copyright (c) 2013-2020 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -37,7 +37,7 @@ cc ... \-lpcp_web \-lpcp
 .ft 1
 .SH DESCRIPTION
 .de SAMPLE
-.br
+.PP
 .RS 2n
 .nf
 .nh
@@ -83,7 +83,7 @@ and popularized by the
 project) is available.
 .SS GET /metrics
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -131,7 +131,6 @@ where "# PCP" is the identifying line suffix).
 Both metric labels and instances are represented as Prometheus
 labels, with external instance names being quoted and the
 flattened PCP metric hierarchy being presented with each value.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/metrics?\\
 	names=proc.nprocs,kernel.pernode.cpu.intr,filesys.blocksize
@@ -170,7 +169,7 @@ response \- all responses will be in JSON object form in
 this case, with top level "client" and "result" fields.
 .SS GET \fI/series/query\fR \- \fBpmSeriesQuery\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -191,7 +190,6 @@ parameter (HTTP GET) or via the message body (HTTP POST).
 When querying for time series matches only, no time window
 options are specified and matching series identifiers are
 returned in a JSON array.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/series/query?\\
 	expr=disk.dev.read* | pmjson
@@ -206,7 +204,6 @@ When querying for time series values as well, a time
 window must be specified as part of the query string.
 The simplest form is to just request the most recent
 sample.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/series/query?\\
 	expr=disk.dev.read*[samples:1] | pmjson
@@ -231,7 +228,7 @@ $ curl -s http://localhost:44322/series/query?\\
 .ESAMPLE
 .SS GET \fI/series/values\fR \- \fBpmSeriesValues\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -256,7 +253,6 @@ any of the time window parameters described on
 .BR pmseries (1).
 If no time window parameters are specified, the single
 most recent value observed is retrieved.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/series/values?\\
 	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
@@ -270,7 +266,7 @@ $ curl -s http://localhost:44322/series/values?\\
 .ESAMPLE
 .SS GET \fI/series/descs\fR \- \fBpmSeriesDescs\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -283,7 +279,6 @@ Performs a descriptor lookup for one or more time series
 identifiers.
 The JSON response contains the same information as the
 \fBpmseries\fR \-\fBd\fR/\-\-\fBdesc\fR option.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/series/descs?\\
 	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
@@ -301,7 +296,7 @@ $ curl -s http://localhost:44322/series/descs?\\
 .ESAMPLE
 .SS GET \fI/series/labels\fR \- \fBpmSeriesLabels\fR(3), \fBpmSeriesLabelValues\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -335,7 +330,6 @@ or
 .IR names .
 The JSON response for this mode contains the same information
 as the \fBpmseries\fR \-\fBv\fR/\-\-\fBvalues\fR option.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/series/labels?\\
 	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
@@ -363,7 +357,6 @@ Alternatively, with no
 or
 .I series
 parameters, return the list of all known label names.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/series/labels | pmjson
 [
@@ -386,7 +379,6 @@ Use the
 or
 .I names
 parameters to find all possible label values for the given name(s).
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/series/labels?\\
 	names=hostname,domainname | pmjson
@@ -397,7 +389,7 @@ $ curl -s http://localhost:44322/series/labels?\\
 .ESAMPLE
 .SS GET \fI/series/metrics\fR \- \fBpmSeriesMetrics\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -411,7 +403,6 @@ Performs a metric name lookup for one or more time series
 identifiers.
 The JSON response contains the same information as the
 \fBpmseries\fR \-\fBm\fR/\-\-\fBmetrics\fR option.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/series/metrics?\\
 	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
@@ -427,7 +418,6 @@ Alternatively, with no
 .I series
 argument, this request will return the list of all known
 metric names.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/series/metrics | pmjson
 [
@@ -441,7 +431,7 @@ $ curl -s http://localhost:44322/series/metrics | pmjson
 .ESAMPLE
 .SS GET \fI/series/sources\fR \- \fBpmSeriesSources\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -456,7 +446,6 @@ returning an array of all PMAPI context names used to
 access the time series from that source.
 The JSON response contains the same information as the
 \fBpmseries\fR \-\fBS\fR/\-\-\fBsource\fR option.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/series/sources?\\
 	source=2cd6a38f9339f2dd1f0b4775bda89a9e7244def6 | pmjson
@@ -472,7 +461,7 @@ $ curl -s http://localhost:44322/series/sources?\\
 .ESAMPLE
 .SS GET \fI/series/instances\fR \- \fBpmSeriesInstances\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -486,7 +475,6 @@ Provide instance identifiers and names for one or more
 time series identifiers.
 The JSON response contains the same information as the
 \fBpmseries\fR \-\fBi\fR/\-\-\fBinstance\fR option.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/series/instances?\\
 	series=605fc77742cd0317597291329561ac4e50c0dd12 | pmjson
@@ -511,7 +499,6 @@ Alternatively, with no
 .I series
 argument, this request will return the list of all known
 instance names.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/series/instances | pmjson
 [
@@ -531,7 +518,7 @@ $ curl -s http://localhost:44322/series/instances | pmjson
 .ESAMPLE
 .SS GET \fI/series/load\fR \- \fBpmSeriesLoad\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -546,7 +533,6 @@ into the
 cache.
 This request is equivalent to the \fBpmseries\fR \-\fBl\fR/\-\-\fBload\fR
 option.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/series/load&\\
 	expr={source.name:"/var/log/pcp/pmlogger/acme"}
@@ -554,7 +540,6 @@ $ curl -s http://localhost:44322/series/load&\\
   "success": true
 }
 .ESAMPLE
-.P
 .SH PMAPI HOST SERVICES
 The live performance collection facilities available from
 .BR pmcd (1)
@@ -593,7 +578,7 @@ parameter or enbedded in the endpoint URL itself, such as
 .BR /pmapi/[number]/fetch .
 .SS GET \fI/pmapi/context\fR \- \fBpmNewContext\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -620,7 +605,6 @@ explicitly create the contexts they use.
 .PP
 If successful, the server responds with a HTTP 200 (OK) code
 and JSON message body of the form:
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/context?\\
 	hostspec=www.acme.com&polltime=500 | pmjson
@@ -651,7 +635,7 @@ providing the client web application an opportunity to request
 these from the user.
 .SS GET \fI/pmapi/metric\fR \- \fBpmLookupDesc\fR(3), \fBpmLookupLabels\fR(3), \fBpmLookupName\fR(3), \fBpmLookupText\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -688,7 +672,6 @@ or
 .PP
 The server response is a JSON document that provides metric
 metadata as an array.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/metric?\\
 	names=kernel.all.load,disk.all.read | pmjson
@@ -749,7 +732,7 @@ and
 .BR pmSemStr (3).
 .SS GET \fI/pmapi/fetch\fR \- \fBpmFetch\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -772,7 +755,6 @@ If any of the names or pmids provided are valid, the response is a JSON
 document that provides the values for all instances of the metrics, unless
 a instance profile has been set for the web context (see section on InDom
 profiles below).
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/fetch?\\
 	names=kernel.all.load,disk.all.read | pmjson
@@ -813,7 +795,7 @@ map with second (sec) and microsecond (us) fields, instead of using
 the more compact floating point representation shown above.
 .SS GET \fI/pmapi/children\fR \- \fBpmGetChildren\fR(3), \fBpmGetChildrenStatus\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -840,7 +822,6 @@ traversal.
 The server response is a JSON document that provides the set
 of leaf and non-leaf nodes below the given namespace node or
 root.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/children?prefix=mem | pmjson
 {
@@ -863,7 +844,7 @@ $ curl -s http://localhost:44322/pmapi/children?prefix=mem | pmjson
 .ESAMPLE
 .SS GET \fI/pmapi/indom\fR \- \fBpmGetInDom\fR(3), \fBpmNameInDom\fR(3), \fBpmLookupInDom\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -899,7 +880,6 @@ regular expression or glob pattern matching should be used instead.
 .PP
 The response is a JSON document that provides the instance domain
 metadata as an array.
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/indom?\\
 	name=kernel.all.load | pmjson
@@ -956,7 +936,6 @@ Some PMAPI operations can be performed with an active instance
 domain profile which restricts (filters) the set of resulting
 instances returned, as described on
 .BR pmAddProfile (3).
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/profile?\\
 	expr=add,indom=60.2,iname=1%20minute
@@ -964,7 +943,7 @@ $ curl -s http://localhost:44322/pmapi/profile?\\
 .ESAMPLE
 .SS GET \fI/pmapi/store\fR \- \fBpmStore\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -994,7 +973,6 @@ will be interpreted according to the type of the metric
 being modified.
 .PP
 If successful, the response from these requests is a JSON document of the form:
-.P
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/store?\\
 	name=pmcd.control.timeout&value=10
@@ -1005,7 +983,7 @@ $ curl -s http://localhost:44322/pmapi/store?\\
 .ESAMPLE
 .SS GET \fI/pmapi/derive\fR: \fBpmRegisterDerived\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation
@@ -1028,7 +1006,6 @@ in place of a GET.
 In this case the HTTP POST request body may be used to provide
 one or more derived metrics specification (all at once, across
 multiple lines, as a convenience).
-.PP
 .SAMPLE
 $ curl -s http://localhost:44322/pmapi/derive?\\
 	name=blkio.avgsz&expr=disk.all.blktotal/disk.all.total | pmjson
@@ -1057,7 +1034,7 @@ $ curl -s http://localhost:44322/pmapi/fetch?\\
 .ESAMPLE
 .SS GET \fI/pmapi/metrics\fR: \fBpmLookupDesc\fR(3),\fBpmLookupLabels\fR(3), \fBpmFetch\fR(3)
 .TS
-box,left;
+box;
 c | c | cw(2.4i)
 lf(CW) | l | l.
 Parameters	Type	Explanation

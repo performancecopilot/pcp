@@ -19,6 +19,16 @@
 .SH SYNOPSIS
 \&\fBsheet2pcp\fR [\fB\-h\fR \fIhost\fR] [\fB\-Z\fR \fItimezone\fR] \fIinfile\fR \fImapfile\fR \fIoutfile\fR
 .SH DESCRIPTION
+.de SAMPLE
+.RS 2n
+.nf
+.nh
+..
+.de ESAMPLE
+.hy
+.fi
+.RE
+..
 \&\fBsheet2pcp\fR is intended to read a data spreadsheet (\fIinfile\fR)
 translate this into a Performance
 Co-Pilot (\s-1PCP\s0) archive with the basename \fIoutfile\fR.
@@ -120,7 +130,7 @@ has one value, it is singular and the Instance Domain should be set to
 Otherwise \fBindom\fR should be specified as 2 numbers separated by a period (.)
 to set the \fBdomain\fR and \fBordinal\fR fields of the Instance Domain.
 Examples: indom=``\s-1PM_INDOM_NULL\s0'', indom=``60.3'', indom=``\s-1PMI_DOMAIN\s0.4''.
-.Sp
+.sp
 More than
 one metric can share the same Instance Domain when the metrics have defined
 values over similar sets of instances, e.g. all the metrics for each network
@@ -128,7 +138,7 @@ interface.  It is standard practice for the \fBdomain\fR field to be the
 same for the \fBpmid\fR and the \fBindom\fR; if the \fBpmid\fR attribute is missing,
 then the \fBdomain\fR field for the \fBindom\fR should be the reserved domain
 \&\fB\s-1PMI_DOMAIN\s0\fR.
-.Sp
+.sp
 If the \fBindom\fR attribute is omitted then the default Instance Domain for
 the metric is \fB\s-1PM_INDOM_NULL\s0\fR.
 .IP "\fBunits\fR" 10
@@ -183,28 +193,28 @@ generate no metric values in the output archive.
 .IX Subsection "EXAMPLE"
 The \fImapfile\fR ...
 .PP
-.Vb 11
-\&    <?xml version="1.0" encoding="UTF\-8"?>
-\&    <sheet heading="1">
-\&        <!\-\- simple example \-\->
-\&        <metric pmid="60.0.2" indom="60.0" units="0,1,0,0,PM_TIME_MSEC,0"
-\&            type="PM_TYPE_U64" sem="PM_SEM_COUNTER">
-\&        kernel.percpu.cpu.sys</metric>
-\&        <datetime></datetime>
-\&        <skip></skip>
-\&        <data>kernel.percpu.cpu.sys[cpu0]</data>
-\&        <data>kernel.percpu.cpu.sys[cpu1]</data>
-\&    </sheet>
-.Ve
+.SAMPLE
+    <?xml version="1.0" encoding="UTF\-8"?>
+    <sheet heading="1">
+        <!\-\- simple example \-\->
+        <metric pmid="60.0.2" indom="60.0" units="0,1,0,0,PM_TIME_MSEC,0"
+            type="PM_TYPE_U64" sem="PM_SEM_COUNTER">
+        kernel.percpu.cpu.sys</metric>
+        <datetime></datetime>
+        <skip></skip>
+        <data>kernel.percpu.cpu.sys[cpu0]</data>
+        <data>kernel.percpu.cpu.sys[cpu1]</data>
+    </sheet>
+.ESAMPLE
 .PP
 could be used for a spreadsheet in which the first few rows are ...
 .PP
-.Vb 4
-\&    Date;"Status";"SysTime \- 0";"SysTime \- 1";
-\&    26/01/2001 14:05:22;"Some Busy";0.750;0.133
-\&    26/01/2001 14:05:37;"OK";0.150;0.273
-\&    26/01/2001 14:05:52;"All Busy";0.733;0.653
-.Ve
+.SAMPLE
+    Date;"Status";"SysTime \- 0";"SysTime \- 1";
+    26/01/2001 14:05:22;"Some Busy";0.750;0.133
+    26/01/2001 14:05:37;"OK";0.150;0.273
+    26/01/2001 14:05:52;"All Busy";0.733;0.653
+.ESAMPLE
 .SH "CAVEATS"
 .IX Header "CAVEATS"
 Only the first sheet from \fIinfile\fR will be processed.

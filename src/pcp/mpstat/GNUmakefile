@@ -21,9 +21,14 @@ install: default
 	$(INSTALL) -m 755 $(SCRIPT) $(PCP_BINADM_DIR)/$(TARGET)
 	@$(INSTALL_MAN)
 
+check:: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^
+
 check:: $(SCRIPT)
 	#$(PYLINT) $^
-	$(SUBDIRS_MAKERULE)
 else
 build-me:
 install:

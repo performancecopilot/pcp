@@ -6,7 +6,7 @@ fi
 export CI_HOST="$1"
 export AZ_RESOURCE_GROUP="PCP_Builds"
 export AZ_LOCATION="eastus"
-export AZ_VM_SIZE="Standard_F2s_v2"
+export AZ_VM_SIZE="Standard_B2s"
 export AZ_IMAGE="image-${CI_HOST}"
 export AZ_PLAN_INFO=""
 export AZ_STORAGE_ACCOUNT="pcpstore"

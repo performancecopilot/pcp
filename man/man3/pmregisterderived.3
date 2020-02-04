@@ -26,7 +26,6 @@
 char *pmRegisterDerived(char *\fIname\fP, char *\fIexpr\fP);
 .br
 int pmRegisterDerivedMetric(char *\fIname\fP, char *\fIexpr\fP, char **\fIerrmsg\fP);
-.fi
 .sp
 cc ... \-lpcp
 .ft 1
@@ -384,7 +383,6 @@ avg_io_size = delta(disk.dev.total) == 0 ? \e
     delta(disk.dev.total_bytes) / delta(disk.dev.total)
 .ft R
 .RE
-.TE
 .IP * 2n
 Expressions may be rescaled using the
 .ft CW
