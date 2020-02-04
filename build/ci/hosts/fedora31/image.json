@@ -3,7 +3,6 @@
     "az_resource_group": "{{env `AZ_RESOURCE_GROUP`}}",
     "az_image": "{{env `AZ_IMAGE`}}",
     "az_storage_account": "{{env `AZ_STORAGE_ACCOUNT`}}",
-    "az_storage_url": "{{env `AZ_STORAGE_URL`}}",
     "az_storage_container": "{{env `AZ_STORAGE_CONTAINER`}}",
     "git_repo": "{{env `GIT_REPO`}}",
     "git_commit": "{{env `GIT_COMMIT`}}"
@@ -60,7 +59,6 @@
       "AZ_RESOURCE_GROUP={{user `az_resource_group`}}",
       "AZ_IMAGE={{user `az_image`}}",
       "AZ_STORAGE_ACCOUNT={{user `az_storage_account`}}",
-      "AZ_STORAGE_URL={{user `az_storage_url`}}",
       "AZ_STORAGE_CONTAINER={{user `az_storage_container`}}"
     ],
     "script": "scripts/upload_vhd.sh"

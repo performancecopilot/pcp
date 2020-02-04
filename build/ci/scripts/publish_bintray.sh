@@ -2,7 +2,6 @@
 
 cd "$(dirname "$0")/.."
 . scripts/env.sh
-. scripts/env.build.sh
 artifacts="$2/*"
 BINTRAY_REPOSITORY="${BINTRAY_DISTRIBUTION}"
 [ "${SNAPSHOT}" != "no" ] && BINTRAY_REPOSITORY="${BINTRAY_REPOSITORY}-nightly"

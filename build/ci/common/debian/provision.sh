@@ -15,4 +15,3 @@ for i in `./qa/admin/check-vm -p`; do apt-get install -y $i || true; done
 cd .. && rm -rf ./pcp
 
 apt-get install -y zlib1g-dev
-systemctl enable redis

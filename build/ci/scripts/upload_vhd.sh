@@ -1,7 +1,11 @@
 #!/bin/sh -eux
 image_raw="build-${AZ_IMAGE}/${AZ_IMAGE}.img"
 image_vhd="build-${AZ_IMAGE}/${AZ_IMAGE}.vhd"
-image_vhd_url="${AZ_STORAGE_URL}/${AZ_STORAGE_CONTAINER}/${AZ_IMAGE}.vhd"
+image_vhd_url="$(az storage blob url \
+  --account-name "${AZ_STORAGE_ACCOUNT}" \
+  --container-name "${AZ_STORAGE_CONTAINER}" \
+  --name "${AZ_IMAGE}.vhd" \
+  --output tsv)"
 
 # Azure VM images need to be aligned at 1MB
 MB=$((1024*1024))
@@ -27,5 +31,5 @@ az image create \
 
 az storage blob delete \
   --account-name "${AZ_STORAGE_ACCOUNT}" \
-  --container "${AZ_STORAGE_CONTAINER}" \
+  --container-name "${AZ_STORAGE_CONTAINER}" \
   --name "${AZ_IMAGE}.vhd"

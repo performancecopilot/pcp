@@ -2,7 +2,6 @@
 
 cd "$(dirname "$0")/.."
 . scripts/env.sh
-. scripts/env.build.sh
 computer_name_prefix="$(echo "${AZ_VMSS}" | tr -d '.')-i"
 
 az image show \
