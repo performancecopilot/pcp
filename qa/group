@@ -331,20 +331,14 @@ avahi
 # zabbix exporting
 zbxpcp
 
-# pcp-atop and related commands
+# pcp system commands
 atop
-
-# pcp-dstat
 dstat
-
-# pcp-pidstat
 pidstat
-
-# pcp-iostat
 iostat
-
-# pcp-tapestat
 tapestat
+ipcs
+mpstat
 
 # pmseries
 pmseries
@@ -1284,7 +1278,7 @@ BAD
 880 pmrep python local kernel
 881 pmcd local
 882 pmlogger local pmlc pmdumplog pmstore folio
-883 pcp python local
+883 pcp mpstat python local
 884 libpcp_web local
 885 pmda.linux local kernel
 886 pmda.linux local kernel
@@ -1514,7 +1508,7 @@ BAD
 1110 pmda.haproxy local python
 1111 pcp2influxdb python pcp2xxx local
 1112 pmda.linux local
-1113 pcp python local
+1113 pcp ipcs python local
 1114 archive pmval multi-archive local pmlogextract kernel
 1115 pmda.bcc local python
 1116 pmda.bcc local python
