@@ -8,10 +8,7 @@ apt-get update
 apt-get -y dist-upgrade
 apt-get install -y git rsync
 
-git clone "${GIT_REPO}"
-cd ./pcp
-git checkout "${GIT_COMMIT}"
 for i in `./qa/admin/check-vm -p`; do apt-get install -y $i || true; done
-cd .. && rm -rf ./pcp
+rm -rf ./qa
 
 apt-get install -y zlib1g-dev
