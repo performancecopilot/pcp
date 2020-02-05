@@ -14,6 +14,7 @@ tests=$(cat ../../qa/group | grep -E "${tests}" | grep -oP '^[0-9]+(?= )' || tru
 [ -z "${tests}" ] && { echo "No tests matching '${tests}', exiting."; exit 0; }
 
 status=0
+mkdir -p "${tests_dir}"
 parallel --jobs 1 --eta --joblog "${tests_job_file}" --results "${tests_results_dir}" \
   -S "${AZ_VMSS_HOSTS_SSH}" /usr/local/ci/test.sh ::: "${tests}" > /dev/null || status=$?
 
