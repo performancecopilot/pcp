@@ -123,58 +123,47 @@ payloads = [
     ":20|ms"
 ]
 
-basis_parser_config = os.path.join("configs", "single", "parser_type", "0", "pmdastatsd.ini")
+command_to_execute = [
+    'echo "fetch statsd.pmda.received"',
+    'echo "fetch statsd.stat_login"',
+    'echo "fetch statsd.stat_logout"',
+    'echo "fetch statsd.stat_success"',
+    'echo "fetch statsd.stat_error"',
+    'echo "fetch statsd.stat_cpu_wait"',
+    'echo "fetch statsd.stat_cpu_busy"',
+    'echo "fetch statsd.stat_tagged_counter_b"'
+]
+# delay between commands <1 was returning "bad metric name"
+composed_command = '; sleep 0.1; '.join(command_to_execute)
+basic_parser_config = os.path.join("configs", "single", "parser_type", "0", "pmdastatsd.ini")
 ragel_parser_config = os.path.join("configs", "single", "parser_type", "1", "pmdastatsd.ini")
 
 duration_aggregation_basic_config = os.path.join("configs", "single", "duration_aggregation_type", "0", "pmdastatsd.ini")
 duration_aggregation_hdr_histogram_config = os.path.join("configs", "single", "duration_aggregation_type", "1", "pmdastatsd.ini")
 
-testconfigs = [basis_parser_config, ragel_parser_config, duration_aggregation_basic_config, duration_aggregation_hdr_histogram_config]
-
-def enqueue_output(out, queue):
-    for line in iter(out.readline, b''):
-        queue.put(line)
-    out.close()
+testconfigs = [basic_parser_config, ragel_parser_config, duration_aggregation_basic_config, duration_aggregation_hdr_histogram_config]
 
 def run_test():
     utils.pmdastatsd_remove()
     utils.setup_dbpmdarc()
-
+    command = '(sleep 15;' + composed_command + '; cat) | sudo valgrind --trace-children=yes --leak-check=full --log-file=' + valgrind_out_path + ' dbpmda -i';
     for config in testconfigs:
         utils.print_test_section_separator()
         utils.set_config(config)
-
-        p = Popen('valgrind --trace-children=yes --leak-check=full --log-file=' + valgrind_out_path + ' dbpmda', cwd=utils.pmdastatsd_dir, stdout=PIPE, stdin=PIPE, bufsize=1, close_fds=ON_POSIX, shell=True)
-        q = Queue()
-        t = Thread(target=enqueue_output, args=(p.stdout, q))
-        t.daemon = True # thread dies with the program
-        t.start()
-        time.sleep(3)
-        # read line without blocking
-        try:
-            while p.poll() is None:
-                line = q.get(timeout=15)
-                if line == ".dbpmdarc> \n":
-                    break
-        except Empty:
-            print("Unable to get expected output from dbmda.")
-            p.kill()
-            return
-
+        p = Popen(command, cwd=utils.pmdastatsd_dir, stdout=PIPE, stdin=PIPE, bufsize=1, close_fds=ON_POSIX, shell=True)
+        time.sleep(10)
         # get pmdastatsdpid
         pmdastatsd_pid = utils.get_pmdastatsd_pids_ran_by_dbpmda()[0]
         # send payloads
         for payload in payloads:
             sock.sendto(payload.encode("utf-8"), (ip, port))
-        # wait to make sure the agent handler the payloads
-        time.sleep(3)
-        # TODO: exercise populating pmns when metric is requested
-        time.sleep(3)
+        time.sleep(5)
+        # wait to make sure the agent handles the payloads AND dbpmda gets delayed echo statements
+        time.sleep(5)
         # trigger cleanup in agent by sending SIGINT
         utils.send_INT_to_pid(pmdastatsd_pid)
         # again, wait for cleanup
         time.sleep(3)
-        # see what valgrind has to say
         valgrind_pmdastatsd_output = valgrind_out_path.replace("%p", pmdastatsd_pid)
         f = open(valgrind_pmdastatsd_output, "r")
         show_next_line = 0
@@ -187,8 +176,9 @@ def run_test():
                 show_next_line = 0
         for fname in os.listdir(valgrind_out_dir):
             if fname.startswith("valgrind"):
-                os.remove(os.path.join(valgrind_out_dir, fname))
+                os.remove(os.path.join(valgrind_out_dir, fname))        
         p.kill()
+        # sometimes agent hangs due to dbpmda exit probably? Doesn't happen when its './Remove'd
         utils.restore_config()
 
 run_test()

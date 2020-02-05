@@ -79,6 +79,12 @@ def get_pmdastatsd_pids_ran_by_dbpmda():
 	results = subprocess.check_output(command, shell=True)
 	return results.strip().split('\n')
 
+def get_dbpmda_pids():
+	"""returns dbpmda pid"""
+	command = 'pgrep -f dbpmda'
+	results = subprocess.check_output(command, shell=True)
+	return results.strip().split('\n')
+
 def setup_dbpmdarc():
 	f = open(os.path.join(pmdastatsd_dir, dbpmdarc_filename), "w+")
 	f.write("debug libpmda\n")
@@ -93,6 +99,11 @@ def remove_dbpmdarc():
 
 def send_INT_to_pid(pid):
 	command = 'sudo kill -INT {}'
+	results = subprocess.check_output(command.format(pid), shell=True)
+	print(results)
+
+def send_KILL_to_pid(pid):
+	command = 'sudo kill -KILL {}'
 	results = subprocess.check_output(command.format(pid), shell=True)
 	print(results)
 
