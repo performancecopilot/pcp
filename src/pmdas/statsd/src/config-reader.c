@@ -28,7 +28,9 @@ set_default_config(struct agent_config* config) {
     config->max_udp_packet_size = 1472;
     config->max_unprocessed_packets = 2048;
     config->verbose = 0;
-    config->debug_output_filename = "debug";
+    config->debug_output_filename = (char*) malloc(sizeof(char) * 6);
+    ALLOC_CHECK("Unable to allocate memory for debug output filename");
+    memcpy(config->debug_output_filename, "debug", 6);
     config->show_version = 0;
     config->port = 8125;
     config->parser_type = PARSER_TYPE_BASIC;
@@ -75,6 +77,7 @@ ini_line_handler(void* user, const char* section, const char* name, const char* 
             dest->verbose = param;
         }
     } else if (MATCH("debug_output_filename")) {
+        free(dest->debug_output_filename);
         dest->debug_output_filename = (char*) malloc(length);
         ALLOC_CHECK("Unable to asssing memory for config debug_output_filename");
         memcpy(dest->debug_output_filename, value, length);
@@ -161,8 +164,11 @@ read_agent_config_cmd(pmdaInterface* dispatch, struct agent_config* dest, int ar
                 dest->show_version = 1;
                 break;
             case 'o':
+            {
+                free(dest->debug_output_filename);
                 dest->debug_output_filename = opts.optarg;
                 break;
+            }
             case 'Z':
             {
                 long unsigned int param = strtoul(opts.optarg, NULL, 10);

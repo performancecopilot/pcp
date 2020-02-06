@@ -145,7 +145,7 @@ testconfigs = [basic_parser_config, ragel_parser_config, duration_aggregation_ba
 
 def run_test():
     utils.pmdastatsd_remove()
-    utils.setup_dbpmdarc()
+    utils.setup_dbpmdarc()    
     command = '(sleep 15;' + composed_command + '; cat) | sudo valgrind --trace-children=yes --leak-check=full --log-file=' + valgrind_out_path + ' dbpmda -i';
     for config in testconfigs:
         utils.print_test_section_separator()
@@ -156,7 +156,7 @@ def run_test():
         pmdastatsd_pid = utils.get_pmdastatsd_pids_ran_by_dbpmda()[0]
         # send payloads
         for payload in payloads:
-            sock.sendto(payload.encode("utf-8"), (ip, port))
+           sock.sendto(payload.encode("utf-8"), (ip, port))
         time.sleep(5)
         # wait to make sure the agent handles the payloads AND dbpmda gets delayed echo statements
         time.sleep(5)
@@ -173,12 +173,12 @@ def run_test():
                 show_next_line = 1
             elif show_next_line:
                 sys.stdout.write(line.replace("=={}==".format(pmdastatsd_pid), ""))
-                show_next_line = 0
+                show_next_line = 0        
+        # sometimes agent hangs due to dbpmda exit probably? Doesn't happen when its './Remove'd
+        p.kill()
         for fname in os.listdir(valgrind_out_dir):
             if fname.startswith("valgrind"):
-                os.remove(os.path.join(valgrind_out_dir, fname))        
-        p.kill()
-        # sometimes agent hangs due to dbpmda exit probably? Doesn't happen when its './Remove'd
+                os.remove(os.path.join(valgrind_out_dir, fname))
         utils.restore_config()
 
 run_test()
