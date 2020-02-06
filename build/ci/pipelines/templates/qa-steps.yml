@@ -35,7 +35,7 @@ steps:
 
   - publish: ./artifacts
     displayName: Publish build artifacts
-    artifact: build $(ci_host)
+    artifact: build_$(ci_host)
 
   - script: ./build/ci/scripts/start_tests.sh "$(ci_host)" "$(tests)" "$(pwd)/tests"
     displayName: Test
@@ -43,7 +43,7 @@ steps:
   - publish: ./tests
     displayName: Publish test artifacts
     condition: succeededOrFailed()
-    artifact: tests $(ci_host)
+    artifact: tests_$(ci_host)
 
   - task: PublishTestResults@2
     displayName: Publish test results
