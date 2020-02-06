@@ -48,3 +48,6 @@ check_domain:	../../pmns/stdpmid
 
 check::	$(PYSCRIPT)
 	$(PYLINT) $^
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

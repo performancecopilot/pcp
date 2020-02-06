@@ -3,7 +3,6 @@
     "az_resource_group": "{{env `AZ_RESOURCE_GROUP`}}",
     "az_image": "{{env `AZ_IMAGE`}}",
     "az_storage_account": "{{env `AZ_STORAGE_ACCOUNT`}}",
-    "az_storage_url": "{{env `AZ_STORAGE_URL`}}",
     "az_storage_container": "{{env `AZ_STORAGE_CONTAINER`}}",
     "git_repo": "{{env `GIT_REPO`}}",
     "git_commit": "{{env `GIT_COMMIT`}}"
@@ -38,17 +37,13 @@
     { "type": "file", "source": "common/redhat/install.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/linux/test.sh", "destination": "/tmp/" },
     { "type": "shell", "inline": ["sudo mkdir /usr/local/ci && sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci"]},
+    { "type": "file", "source": "../../qa", "destination": "./" },
     {
       "type": "shell",
-      "execute_command": "chmod +x {{ .Path }}; sudo {{ .Vars }} '{{ .Path }}'",
-      "environment_vars": [
-        "GIT_REPO={{user `git_repo`}}",
-        "GIT_COMMIT={{user `git_commit`}}"
-      ],
+      "execute_command": "sudo {{ .Vars }} '{{ .Path }}'",
       "scripts": [
-        "hosts/fedora31/upgrade_bcc.sh",
-        "common/redhat/provision_dnf.sh",
         "common/redhat/azure_prep.sh",
+        "common/redhat/provision_dnf.sh",
         "common/linux/deprovision.sh"
       ]
     },
@@ -60,7 +55,6 @@
       "AZ_RESOURCE_GROUP={{user `az_resource_group`}}",
       "AZ_IMAGE={{user `az_image`}}",
       "AZ_STORAGE_ACCOUNT={{user `az_storage_account`}}",
-      "AZ_STORAGE_URL={{user `az_storage_url`}}",
       "AZ_STORAGE_CONTAINER={{user `az_storage_container`}}"
     ],
     "script": "scripts/upload_vhd.sh"

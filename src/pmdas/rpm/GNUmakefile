@@ -31,6 +31,10 @@ VERSION_SCRIPT	= exports
 LSRCFILES	= Install Remove pmns root help
 LDIRT		= domain.h $(IAM).log $(VERSION_SCRIPT)
 
+MAN_SECTION	= 1
+MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
+MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
+
 LIB_FOR_RPM	= -lrpm
 LLDLIBS		= $(PCP_PMDALIB) $(LIB_FOR_RPM) $(LIB_FOR_PTHREADS)
 LCFLAGS		= $(INVISIBILITY)
@@ -47,6 +51,7 @@ install_pcp install:	default
 	$(INSTALL) -m 644 root pmns domain.h help $(PMDADIR)
 	$(INSTALL) -m 755 $(CMDTARGET) $(LIBTARGET) $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/rpm_migrate.conf
+	@$(INSTALL_MAN)
 else
 build-me:
 install_pcp install:
@@ -65,3 +70,6 @@ rpm.o timer.o: timer.h
 rpm.o: $(VERSION_SCRIPT)
 
 rpm.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

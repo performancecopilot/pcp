@@ -1,17 +1,17 @@
-# 
+#
 # Copyright (c) 2012, 2016 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
 use strict;
 use warnings;
@@ -438,7 +438,7 @@ the agent is installed or removed.
 
 =item $PCP_PMDAS_DIR/vmware/vmware.conf
 
-configuration file for the B<pmdavmware> agent 
+configuration file for the B<pmdavmware> agent
 
 =item $PCP_PMDAS_DIR/vmware/Install
 

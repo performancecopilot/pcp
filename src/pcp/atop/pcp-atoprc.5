@@ -18,14 +18,11 @@ and after that from the user-specific rcfile
 .I ~/.atoprc
 (so system-wide settings can be overruled by an individual user).
 The options in both rcfiles are identical.
-.PP
 .SH OPTIONS
-.PP
 The rcfile contains keyword-value pairs, one on every line (blank lines
 and lines starting with a #-sign are ignored).
 .br
 The following keywords can be specified:
-.PP
 .TP 4
 .B flags
 A list of default flags for
@@ -33,114 +30,96 @@ A list of default flags for
 can be defined here. The flags which are allowed
 are 'g', 'm', 'd', 'n', 'u', 'p', 's', 'c', 'v', 'C', 'M', 'D', 'N', 'A',
 \&'a', 'y', 'f', 'F', 'G', 'R', '1', 'e', 'E' and 'x'.
-.PP
 .TP 4
 .B interval
 The default interval value in seconds.
-.PP
 .TP 4
 .B linelen
 The length of a screen line when sending output to a file or pipe (default 80).
-.PP
 .TP 4
 .B username
 The default regular expression for the users for which active
 processes will be shown.
-.PP
 .TP 4
 .B procname
 The default regular expression for the process names to be shown.
-.PP
 .TP 4
 .B maxlinecpu
 The maximum number of active CPUs that will be shown.
-.PP
 .TP 4
 .B maxlinegpu
 The maximum number of active GPUs that will be shown.
-.PP
 .TP 4
 .B maxlinelvm
 The maximum number of active logical volumes that will be shown.
-.PP
 .TP 4
 .B maxlinemdd
 The maximum number of active multiple devices that will be shown.
-.PP
 .TP 4
 .B maxlinedisk
 The maximum number of active disks that will be shown.
-.PP
 .TP 4
 .B maxlinenfsm
 The maximum number of NFS mounts that will be shown on an NFS client.
-.PP
 .TP 4
 .B maxlineintf
 The maximum number of active network interfaces that will be shown.
-.PP
 .TP 4
 .B maxlinecont
 The maximum number of active containers that will be shown.
-.PP
 .TP 4
 .B cpucritperc
 The busy percentage considered critical for a processor
 (see section COLORS in the man-page of the
 .I pcp-atop
 command).
-This percentage is used to determine 
+This percentage is used to determine
 a weighted percentage for line coloring and sorting of active processes.
 When this value is zero, no line coloring or automatic sorting is performed
 for this resource.
-.PP
 .TP 4
 .B dskcritperc
 The busy percentage considered critical for a disk
 (see section COLORS in the man-page of the
 .I pcp-atop
 command).
-This percentage is used to determine 
+This percentage is used to determine
 a weighted percentage for line coloring and sorting of active processes.
 When this value is zero, no line coloring or automatic sorting is performed
 for this resource.
-.PP
 .TP 4
 .B netcritperc
 The busy percentage considered critical for a network interface
 (see section COLORS in the man-page of the
 .I pcp-atop
 command).
-This percentage is used to determine 
+This percentage is used to determine
 a weighted percentage for line coloring and sorting of active processes.
 When this value is zero, no line coloring or automatic sorting is performed
 for this resource.
-.PP
 .TP 4
 .B memcritperc
 The percentage considered critical for memory utilization
 (see section COLORS in the man-page of the
 .I pcp-atop
 command).
-This percentage is used to determine 
+This percentage is used to determine
 a weighted percentage for line coloring and sorting of active processes.
 When this value is zero, no line coloring or automatic sorting is performed
 for this resource.
-.PP
 .TP 4
 .B swpcritperc
 The occupation percentage considered critical for swap space
 (see section COLORS in the man-page of the
 .I pcp-atop
 command).
-This percentage is used to determine 
+This percentage is used to determine
 a weighted percentage for line coloring and sorting of active processes.
 When this value is zero, no line coloring or automatic sorting is performed
 for this resource.
-.PP
 .TP 4
 .B swoutcritsec
-The number of pages swapped out per second considered critical for 
+The number of pages swapped out per second considered critical for
 for memory utilization
 (see section COLORS in the man-page of the
 .I pcp-atop
@@ -149,7 +128,6 @@ This threshold is used in combination with 'memcritperc' to determine a
 weighted percentage for line coloring and sorting of active processes.
 When this value is zero, no line coloring or automatic sorting is performed
 for this resource.
-.PP
 .TP 4
 .B almostcrit
 A percentage of the critical percentage to determine if the resource
@@ -159,32 +137,27 @@ is almost critical
 command).
 When this value is zero, no line coloring for `almost critical' is
 performed.
-.PP
 .TP 4
 .B colorinfo
 Definition of color name for information messages (default: green).
 .br
 Allowed colors are: red green yellow blue magenta cyan black white.
-.PP
 .TP 4
 .B colorthread
 Definition of color name for thread-specific lines when using
 the 'y' option (default: yellow).
 .br
 Allowed colors are: red green yellow blue magenta cyan black white.
-.PP
 .TP 4
 .B coloralmost
 Definition of color name for almost critical resources (default: cyan).
 .br
 Allowed colors are: red green yellow blue magenta cyan black white.
-.PP
 .TP 4
 .B colorcritical
 Definition of color name for critical resources (default: red).
 .br
 Allowed colors are: red green yellow blue magenta cyan black white.
-.PP
 .TP 4
 .B pcp-atopsarflags
 A list of default flags for
@@ -256,10 +229,9 @@ dropped dynamically).
 .PP
 A special columnid for system lines is 'BLANKBOX'. This indicates
 that an empty column is required at this position. Also this
-special columnid is followed by a priority (usually low). 
+special columnid is followed by a priority (usually low).
 .PP
 The following definition can be specified for process information:
-.PP
 .TP 4
 .B ownprocline
 The columnids are the names of the columns that are shown in the
@@ -271,7 +243,6 @@ show one of the columns CPU%/DSK%/MEM%/NET%, depending on the chosen
 sort-criterium.
 .br
 An example of a user-defined process line:
-.PP
 .TP 8
 \ 
 ownprocline\ \ \ PID:20 PPID:10 SYSCPU:15 USRCPU:15
@@ -281,91 +252,69 @@ The following definitions are used internally by
 .I pcp-atop
 as the default system lines (you can redefine each of them in the
 rcfile as one line):
-.PP
 .TP 4
 .B ownsysprcline
 Redefinition of line labeled with 'PRC':
-.PP
 .TP 8
 \ 
 ownsysprcline\ \ \ PRCSYS:8 PRCUSER:8 BLANKBOX:0 PRCNPROC:7 PRCNZOMBIE:5 PRCCLONES:4 BLANKBOX:0 PRCNNEXIT:6
-.PP
 .TP 4
 .B ownallcpuline
 Redefinition of line labeled with 'CPU' for total CPU-utilization:
-.PP
 .TP 8
 \ 
 ownallcpuline\ \ \ CPUSYS:8 CPUUSER:7 CPUIRQ:4 BLANKBOX:0 CPUIDLE:5 CPUWAIT:6 BLANKBOX:0 CPUSTEAL:1 CPUGUEST:3
-.PP
 .TP 4
 .B ownonecpuline
 Redefinition of line labeled with 'CPU' for utilization of one CPU:
-.PP
 .TP 8
 \ 
 ownonecpuline\ \ \ CPUISYS:8 CPUIUSER:7 CPUIIRQ:4 BLANKBOX:0 CPUIIDLE:5 CPUIWAIT:6 BLANKBOX:0 CPUISTEAL:1 CPUIGUEST:3
-.PP
 .TP 4
 .B owncplline
 Redefinition of line labeled with 'CPL':
-.PP
 .TP 8
 \ 
 owncplline\ \ \ CPLAVG1:4 CPLAVG5:3 CPLAVG15:2 BLANKBOX:0 CPLCSW:6 CPLINTR:5 BLANKBOX:0 CPLNUMCPU:1
-.PP
 .TP 4
 .B ownmemline
 Redefinition of line labeled with 'MEM':
-.PP
 .TP 8
 \ 
 ownmemline\ \ \ MEMTOT:2 MEMFREE:5 MEMCACHE:3 MEMDIRTY:1 MEMBUFFER:3 MEMSLAB:3 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0
-.PP
 .TP 4
 .B ownswpline
 Redefinition of line labeled with 'SWP':
-.PP
 .TP 8
 \ 
 ownswpline\ \ \ SWPTOT:3 SWPFREE:4 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0 SWPCOMMITTED:5 SWPCOMMITLIM:6
-.PP
 .TP 4
 .B ownpagline
 Redefinition of line labeled with 'PAG':
-.PP
 .TP 8
 \ 
 ownpagline\ \ \ PAGSCAN:3 PAGSTALL:1 BLANKBOX:0 PAGSWIN:4 PAGSWOUT:3
-.PP
 .TP 4
 .B owndskline
 Redefinition of lines labeled with 'LVM', 'MDD' and 'DSK':
-.PP
 .TP 8
 \ 
 owndskline\ \ \ DSKNAME:8 DSKBUSY:7 DSKNREAD:6 DSKNWRITE:6 DSKKBPERRD:4 DSKKBPERWR:4 DSKMBPERSECRD:5 DSKMBPERSECWR:5 DSKAVQUEUE:1 DSKAVIO:5
-.PP
 .TP 4
 .B ownnettrline
 Redefinition of line labeled with 'NET' for transport:
-.PP
 .TP 8
 \ 
 ownnettrline\ \ \ NETTRANSPORT:9 NETTCPI:8 NETTCPO:8 NETUDPI:8 NETUDPO:8 NETTCPACTOPEN:6 NETTCPPASVOPEN:5 NETTCPRETRANS:4 NETTCPINERR:3 NETTCPORESET:20 NETUDPNOPORT:1 NETUDPINERR:3
-.PP
 .TP 4
 .B ownnetnetline
 Redefinition of line labeled with 'NET' for network:
-.PP
 .TP 8
 \ 
 ownnetnetline\ \ \ NETNETWORK:5 NETIPI:4 NETIPO:4 NETIPFRW:4 NETIPDELIV:4 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0 NETICMPIN:1 NETICMPOUT:1
-.PP
 .TP 4
 .B ownnetifline
 Redefinition of line labeled with 'NET' for interfaces:
-.PP
 .TP 8
 \ 
 ownnetifline\ \ \ NETNAME:8 NETPCKI:7 NETPCKO:7 NETSPEEDIN:6 NETSPEEDOUT:6 NETCOLLIS:3 NETMULTICASTIN:2 NETRCVERR:5 NETSNDERR:5 NETRCVDROP:4 NETSNDDROP:4

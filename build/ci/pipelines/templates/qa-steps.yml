@@ -11,7 +11,10 @@ steps:
       if [ "${SNAPSHOT}" != "no" ]; then
           . ./VERSION.pcp
           PACKAGE_BUILD="0.${BUILD_ID}.$(date +'%Y%m%d').$(git rev-parse --short HEAD)"
+          PCP_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+          PCP_BUILD_VERSION=${PCP_VERSION}-${PACKAGE_BUILD}
           sed -i "s/PACKAGE_BUILD=.*/PACKAGE_BUILD=${PACKAGE_BUILD}/" VERSION.pcp
+          sed -i "1 s/pcp (.*)/pcp (${PCP_BUILD_VERSION})/" debian/changelog
       fi
     env:
       AZ_CLIENT_ID: $(AZ_CLIENT_ID)
@@ -32,17 +35,22 @@ steps:
 
   - publish: ./artifacts
     displayName: Publish build artifacts
-    artifact: $(ci_host)
+    artifact: build $(ci_host)
 
-  - script: ./build/ci/scripts/start_tests.sh "$(ci_host)" "$(tests)" "$(pwd)"
+  - script: ./build/ci/scripts/start_tests.sh "$(ci_host)" "$(tests)" "$(pwd)/tests"
     displayName: Test
+
+  - publish: ./tests
+    displayName: Publish test artifacts
+    condition: succeededOrFailed()
+    artifact: tests $(ci_host)
 
   - task: PublishTestResults@2
     displayName: Publish test results
     condition: succeededOrFailed()
     inputs:
       testResultsFormat: JUnit
-      testResultsFiles: '*.xml'
+      testResultsFiles: tests/tests.xml
       testRunTitle: $(ci_host)
       failTaskOnFailedTests: true
 

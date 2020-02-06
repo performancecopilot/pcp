@@ -58,3 +58,6 @@ ifeq "$(PMDA_ACTIVEMQ)" "true"
 test:
 	for test in $(TESTS); do perl $$test || exit 1; done
 endif
+
+check :: $(MAN_PAGES)
+	$(MANLINT) $^

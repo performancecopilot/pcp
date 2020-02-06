@@ -28,7 +28,7 @@ check:: $(MAN_PAGES)
 	$(MANLINT) $^
 
 check:: $(SCRIPT)
-	#$(PYLINT) $^
+	$(PYLINT) $^
 else
 build-me:
 install:

@@ -12,7 +12,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# pylint: disable=C0103,R0914,R0902
+# pylint: disable=bad-continuation,bad-whitespace
 """ Provide information on IPC facilities """
 
 import sys
@@ -20,7 +20,7 @@ from pcp import pmapi
 from cpmapi import PM_TYPE_U32
 
 class Ipcs(object):
-    """ provides information on the inter-process communication 
+    """ provides information on the inter-process communication
         facilities for which the calling process has read access.
     """
 
@@ -54,12 +54,12 @@ class Ipcs(object):
     def extract(self, descs, result):
         """ Extract the set of metric values from a given pmResult """
         values = []
-        for index in range(len(descs)):
+        for index, desc in enumerate(descs):
             if result.contents.get_numval(index) > 0:
                 atom = self.context.pmExtractValue(
                                 result.contents.get_valfmt(index),
                                 result.contents.get_vlist(index, 0),
-                                descs[index].contents.type, PM_TYPE_U32)
+                                desc.contents.type, PM_TYPE_U32)
                 values.append(int(atom.ul))
             else:
                 values.append(int(0))
@@ -110,7 +110,7 @@ class Ipcs(object):
 
     def report(self, values):
         kb = 1024
-        pagesize = self.get_pagesize() 
+        pagesize = self.get_pagesize()
         pagesize_kb = pagesize / kb
         if self.show_limit == 1:
             print("\n------ Messages Limits --------")

@@ -2,7 +2,6 @@
 
 cd "$(dirname "$0")/.."
 . scripts/env.sh
-. scripts/env.build.sh
 . scripts/env.vmss.sh
 
 echo Copying sources to build server

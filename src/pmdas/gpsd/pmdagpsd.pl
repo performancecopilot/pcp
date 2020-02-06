@@ -133,7 +133,7 @@ sub gpsd_fetch_callback
     my $metric_name = pmda_pmid_name($cluster, $item);
 
     # $pmda->log("gpsd_fetch_callback $metric_name $cluster:$item ($inst)\n");
-    
+
     return (PM_ERR_PMID, 0) if (!defined($metric_name));
 
     if ($cluster == 0) {
@@ -155,14 +155,14 @@ sub gpsd_fetch_callback
     if ($metric_name =~ m/^satellites\./) {
         # satellite info
         $metric_name =~ s/^satellites\.//;
-    
+
         # $pmda->log("gpsd_fetch_callbac2 $metric_name $cluster:$item ($inst): ${satdata{$metric_name}}\n");
         # $pmda->log("gpsd_fetch_callbac2 $metric_name $cluster:$item ($inst): ${satdata{$metric_name}{$inst}}\n");
         return (PM_ERR_INST, 0) if ($inst == PM_IN_NULL);
         return (PM_ERR_PMID, 0) if (!defined($satdata{$metric_name}{$inst}));
         return ($satdata{$metric_name}{$inst}, 1);
     }
-        
+
     return (PM_ERR_INST, 0) if ($inst != PM_IN_NULL);
     return (PM_ERR_PMID, 0) if (!defined($devdata{$metric_name}));
     return ($devdata{$metric_name}, 1);

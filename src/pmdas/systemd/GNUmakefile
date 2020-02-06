@@ -56,3 +56,6 @@ domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
 systemd.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

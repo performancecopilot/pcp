@@ -32,7 +32,7 @@ sub samba_fetch
     my $prefix = '';
     my $generated_cluster = 20; # start well above hard-coded ones
 
-    # work around smbstatus / libpopt adverse reaction to these variables 
+    # work around smbstatus / libpopt adverse reaction to these variables
     delete $ENV{'POSIXLY_CORRECT'};
     delete $ENV{'POSIX_ME_HARDER'};
 

@@ -47,3 +47,6 @@ endif
 
 check_domain: ../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^
