@@ -1,0 +1,47 @@
+QA output created by 1183
+== pmrep archive reporting and creation with help texts
+Recording 2 metrics:
+1 samples(s) with 1.0 sec interval ~ 0 sec duration.
+== print help texts from the created archive
+
+sample.colour PMID: 29.0.5 [Metrics with a "saw-tooth" trend over time]
+    Data Type: 32-bit int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
+Help:
+This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range N to
+N+100, then back to N.  The different instances have different N
+values, namely 100 (red), 200 (green) and 300 (blue).
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.mirage and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+
+sample.mirage PMID: 29.0.37 [Simple saw-tooth rate, but instances come and go]
+    Data Type: 32-bit int  InDom: 29.3 0x7400003
+    Semantics: instant  Units: Kbyte / sec
+Help:
+The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution
+over time.  Different instances of the metric have different baselines
+for the saw-tooth, but all have an max-to-min range of 100.
+
+What makes this metric interesting is that instances come and go although
+not more often than once every 10 seconds by default.  Use pmstore to
+change sample.controller.mirage and the frequency of instance domain
+changes can be varied.
+
+Instance 0 is always present, but the other instances 1 thru 49 come
+and go in a cyclic pattern with a large random component influencing
+when each instance appears and disappears.
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.colour and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+== done
