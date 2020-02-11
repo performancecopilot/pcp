@@ -15,19 +15,26 @@ tests=$(cat ../../qa/group | grep -E "${tests}" | grep -oP '^[0-9]+(?= )' || tru
 
 status=0
 mkdir -p "${tests_dir}"
-parallel --jobs 1 --eta --joblog "${tests_job_file}" --results "${tests_results_dir}" \
+parallel --jobs 1 --max-args 30 --eta --joblog "${tests_job_file}" --results "${tests_results_dir}/{}/" \
   -S "${AZ_VMSS_HOSTS_SSH}" /usr/local/ci/test.sh ::: "${tests}" > /dev/null || status=$?
 
 echo
 echo Generate JUnit output
-./scripts/create_junitreport.py "${tests_job_file}" "${tests_results_dir}" > "${tests_junit_file}"
+cat << EOF > "${tests_junit_file}"
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="tests">
+    $(cat "${tests_results_dir}"/*/stderr)
+  </testsuite>
+</testsuites>
+EOF
 
 echo
-echo All tests:
+echo All test jobs:
 cat "${tests_job_file}"
 
 echo
-echo Failed tests:
+echo Failed test jobs:
 cat "${tests_job_file}" | awk -F '\t' '$7 != 0 {print}'
 
 exit $status

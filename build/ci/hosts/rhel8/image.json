@@ -41,7 +41,8 @@
     { "type": "file", "source": "common/redhat/build.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/redhat/install.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/linux/test.sh", "destination": "/tmp/" },
-    { "type": "shell", "inline": ["sudo mkdir /usr/local/ci && sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci"]},
+    { "type": "file", "source": "common/linux/create_report.py", "destination": "/tmp/" },
+    { "type": "shell", "inline": ["sudo mkdir /usr/local/ci && sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /tmp/create_report.py /usr/local/ci"]},
     {
       "type": "shell",
       "execute_command": "cd /; sudo {{ .Vars }} '{{ .Path }}'",
