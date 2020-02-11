@@ -2171,8 +2171,8 @@ read_pmiefile(char *warning, size_t warnlen)
     p = strtok(home, rule_path_sep);
     while (p != NULL) {
 	if (access(p, F_OK) < 0) {
-	    free(home);
 	    pmsprintf(errmsg, sizeof(errmsg), "cannot access rules path component: \"%s\"", p);
+	    free(home);
 	    return errmsg;
 	}
 	p = strtok(NULL, rule_path_sep);
