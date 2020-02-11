@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2020 Red Hat.
 # Copyright (c) 2016 Sitaram Shelke.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -39,7 +40,7 @@ check:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 check:: $(SCRIPT)
-	#$(PYLINT) $^
+	$(PYLINT) $^
 
 check :: $(MAN_PAGES)
 	$(MANLINT) $^
