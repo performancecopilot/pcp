@@ -10,7 +10,7 @@ tests_junit_file="${tests_dir}/tests.xml"
 tests_results_dir="${tests_dir}/test-results"
 
 echo Start distributed QA tests
-tests=$(cat ../../qa/group | grep -E "${tests}" | grep -oP '^[0-9]+(?= )' || true)
+tests=$(grep -E "${tests}" ../../qa/group | grep -oP '^[0-9]+(?= )' || true)
 [ -z "${tests}" ] && { echo "No tests matching '${tests}', exiting."; exit 0; }
 
 status=0
@@ -35,6 +35,6 @@ cat "${tests_job_file}"
 
 echo
 echo Failed test jobs:
-cat "${tests_job_file}" | awk -F '\t' '$7 != 0 {print}'
+awk -F '\t' '$7 != 0 {print}' "${tests_job_file}"
 
 exit $status

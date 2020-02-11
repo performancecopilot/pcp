@@ -5,19 +5,19 @@ cd "$(dirname "$0")/.."
 . scripts/env.vmss.sh
 artifacts_dir="$2/"
 
-echo Host IPs: ${AZ_VMSS_IPS}
-echo Builder IPs: ${AZ_VMSS_BUILDER_IP}
+echo Host IPs: "${AZ_VMSS_IPS}"
+echo Builder IPs: "${AZ_VMSS_BUILDER_IP}"
 
 echo
 echo Download artifacts from build server
-rsync -av -e "$SSH" pcp@${AZ_VMSS_BUILDER_IP}:artifacts/ "${artifacts_dir}"
+rsync -av -e "$SSH" "pcp@${AZ_VMSS_BUILDER_IP}:artifacts/" "${artifacts_dir}"
 
 for host_ip in ${AZ_VMSS_IPS}
 do
   [ "${host_ip}" = "${AZ_VMSS_BUILDER_IP}" ] && continue
   echo
-  echo Transfer artifacts to host ${host_ip}
-  rsync -av -e "$SSH" "${artifacts_dir}" pcp@${host_ip}:artifacts/
+  echo Transfer artifacts to host "${host_ip}"
+  rsync -av -e "$SSH" "${artifacts_dir}" "pcp@${host_ip}:artifacts/"
 done
 
 echo
