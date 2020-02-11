@@ -408,10 +408,10 @@ redisSlotsRedirect(redisSlots *slots, redisReply *reply,
 	if (moved)
 	    slots->refresh = 1;
 	slot = (p += (moved + asked));
-	while (isdigit(*p))	/* skip over slot# */
+	while (isdigit((int)(*p)))	/* skip over slot# */
 	    p++;
 	len = p - slot;
-	while (isspace(*p))	/* skip over space */
+	while (isspace((int)(*p)))	/* skip over space */
 	    p++;
 
 	hostspec = sdsnew(p);

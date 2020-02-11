@@ -88,11 +88,11 @@ pmwebapi_lookup_restkey(sds url, unsigned int *compat, sds *context)
 	strncmp(url, "/pmapi/", sizeof("/pmapi/") - 1) == 0) {
 	name = (const char *)url + sizeof("/pmapi/") - 1;
 	/* extract (optional) context identifier */
-	if (isdigit(*name)) {
+	if (isdigit((int)(*name))) {
 	    ctxid = name;
 	    do {
 		name++;
-	    } while (isdigit(*name));
+	    } while (isdigit((int)(*name)));
 	    if (*name++ != '/')
 		return RESTKEY_NONE;
 	    *context = sdsnewlen(ctxid, name - ctxid - 1);
