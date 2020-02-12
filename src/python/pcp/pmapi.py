@@ -134,10 +134,9 @@ else:
 
 def pyFileToCFile(fileObj):
     if sys.version >= '3':
-        from os import fdopen
         ctypes.pythonapi.PyObject_AsFileDescriptor.restype = ctypes.c_int
         ctypes.pythonapi.PyObject_AsFileDescriptor.argtypes = [ctypes.py_object]
-        return fdopen(ctypes.pythonapi.PyObject_AsFileDescriptor(fileObj), "r", closefd=False)
+        return os.fdopen(ctypes.pythonapi.PyObject_AsFileDescriptor(fileObj), "r", closefd=False)
     else:
         ctypes.pythonapi.PyFile_AsFile.restype = ctypes.c_void_p
         ctypes.pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]

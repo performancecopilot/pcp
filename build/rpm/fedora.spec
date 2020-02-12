@@ -3252,7 +3252,9 @@ cd
 %endif
 
 %changelog
-* Fri Feb 28 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
+* Thu Feb 27 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
+- Avoid python ctypes bitfield struct on-stack (BZ 1800685)
+- Add dstat support for DM/MD/part devices (BZ 1794273)
 - Fix compilation with gcc version 10 (BZ 1793495)
 - Fix dstat sub-sample averaging (BZ 1780039)
 - Update to latest PCP sources.

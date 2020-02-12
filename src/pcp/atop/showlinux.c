@@ -646,19 +646,22 @@ totalcap(struct syscap *psc, struct sstat *sstat,
 		struct tstat 	*curstat = *(proclist+i);
 		count_t		nett_wsz;
 
-		psc->availnet += curstat->net.tcpssz;
-		psc->availnet += curstat->net.tcprsz;
-		psc->availnet += curstat->net.udpssz;
-		psc->availnet += curstat->net.udprsz;
+		if (curstat)
+		{
+			psc->availnet += curstat->net.tcpssz;
+			psc->availnet += curstat->net.tcprsz;
+			psc->availnet += curstat->net.udpssz;
+			psc->availnet += curstat->net.udprsz;
 
-		if (curstat->dsk.wsz > curstat->dsk.cwsz)
-			nett_wsz = curstat->dsk.wsz -
-			           curstat->dsk.cwsz;
-		else
-			nett_wsz = 0;
+			if (curstat->dsk.wsz > curstat->dsk.cwsz)
+				nett_wsz = curstat->dsk.wsz -
+					   curstat->dsk.cwsz;
+			else
+				nett_wsz = 0;
 
-		psc->availdsk += curstat->dsk.rsz;
-		psc->availdsk += nett_wsz;
+			psc->availdsk += curstat->dsk.rsz;
+			psc->availdsk += nett_wsz;
+		}
 	}
 
 	for (psc->availgpumem=i=0; i < sstat->gpu.nrgpus; i++)
@@ -977,8 +980,11 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
         {
 		struct tstat *curstat = *(devtstat->procactive+i);
 
-                extra.totut	+= curstat->cpu.utime;
-                extra.totst 	+= curstat->cpu.stime;
+		if (curstat)
+		{
+			extra.totut	+= curstat->cpu.utime;
+			extra.totst 	+= curstat->cpu.stime;
+		}
         }
 
         extra.nproc	= devtstat->nprocall;

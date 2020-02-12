@@ -30,6 +30,7 @@ from collections import OrderedDict
 from pcp.pmapi import pmContext as PCP
 from pcp.pmda import PMDA, pmdaInstid, pmdaIndom, pmdaMetric
 from cpmapi import PM_INDOM_NULL, PM_ERR_VALUE, PM_ERR_BADSTORE, PM_LABEL_CLUSTER, PM_LABEL_INDOM
+import pmdautil
 
 # Module references
 CACHED = 0
@@ -198,7 +199,6 @@ class BCCPMDA(PMDA):
             os.chdir(pmdadir)
         os.chdir(cwd)
 
-        import pmdautil
         self.proc_helper = pmdautil.ProcMon(self.log, self.err)
         for module in self.modules:
             self.log(module)
