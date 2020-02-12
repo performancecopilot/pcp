@@ -4,7 +4,11 @@ steps:
 
   - script: |
       set -eu
-      sudo apt-get update && sudo apt-get install -y parallel
+      # parallel in Ubuntu bionic is from 2016, which has a bug regarding the results dir
+      # (creates too many nested dirs when using the --max-args argument)
+      wget -q -O parallel.tar.bz2 http://ftp.gnu.org/gnu/parallel/parallel-20200122.tar.bz2
+      tar -xf parallel.tar.bz2 && (cd parallel-* && ./configure && make && sudo make install)
+
       ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -q -P ""
       az login --service-principal -u "${AZ_CLIENT_ID}" -p "${AZ_CLIENT_SECRET}" --tenant "${AZ_TENANT}"
 
