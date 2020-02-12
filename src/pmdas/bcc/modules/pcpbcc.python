@@ -17,8 +17,8 @@ import re
 import ctypes as ct
 from os import kill, listdir, path
 from collections import OrderedDict
-
 from bcc.table import log2_index_max
+from bcc import __version__, BPF
 
 from cpmapi import PM_ERR_BADSTORE
 
@@ -314,10 +314,8 @@ class PCPBCCBase(object):
     def bcc_version():
         """ Check BCC version """
         try:
-            from bcc import __version__
             return __version__.split("-")[0]
         except Exception: # pylint: disable=broad-except
-            from bcc import BPF
             if 'perf_buffer_poll' in dir(BPF):
                 return "0.6.0"
             else:

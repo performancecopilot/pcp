@@ -19,13 +19,17 @@
 
 """ Performance Metrics Domain Agent exporting Elasticsearch metrics. """
 
+import sys
+import json
 try:
     import ConfigParser
 except ImportError:
     import configparser as ConfigParser
+try:
+    import urllib.request as httprequest
+except Exception:
+    import urllib2 as httprequest
 
-import sys
-import json
 from ctypes import c_int
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 from pcp.pmapi import pmUnits
@@ -343,10 +347,6 @@ class elasticsearchPMDA(PMDA):
 
     def setup_urllib(self, url, auth, pasw):
         """ Setup urllib """
-        try:
-            import urllib.request as httprequest
-        except Exception:
-            import urllib2 as httprequest
         passman = httprequest.HTTPPasswordMgrWithDefaultRealm()
         passman.add_password(None, url, auth, pasw)
         authhandler = httprequest.HTTPBasicAuthHandler(passman)

@@ -1016,7 +1016,7 @@ class MSSQLPMDA(PMDA):
             time.sleep(1) # keep trying ...
             if retries >= 5:
                 self.log("FATAL: failed to connect after 5 retries")
-                exit(1)
+                sys.exit(1)
             retries += 1
 
         cursor = self.mssql_cursor()
