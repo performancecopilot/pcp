@@ -90,7 +90,7 @@ fi
 for i in `seq 2 1 99`
 do
     pminfo -f `pminfo openmetrics.source$i | LC_COLLATE=POSIX sort`
-    sleep 0.5
+    pmsleep 0.0005
 done
 
 _pmdaopenmetrics_remove

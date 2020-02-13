@@ -82,7 +82,6 @@ else
     cat $tmp.out
 fi
 cat $tmp.info $tmp.err
-#sleep 120
 if pminfo -b 10000000 -fd `pminfo openmetrics | fgrep -v .control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
    then
     echo "Fetch and desc openmetrics metrics: success"
@@ -99,7 +98,7 @@ do
     pminfo -b 10000000 -tf `pminfo openmetrics.source$i | LC_COLLATE=POSIX sort`
     pminfo -b 10000000 -tf `pminfo openmetrics.source$i | LC_COLLATE=POSIX sort`
     pminfo -b 10000000 -tf `pminfo openmetrics.source$i | LC_COLLATE=POSIX sort`
-    sleep 0.5
+    pmsleep 0.0005
 done
 
 _pmdaopenmetrics_remove
