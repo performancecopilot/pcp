@@ -59,7 +59,6 @@ Host access list:
 00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
 == == =========== ======================================= ======================================= === ==============
 y 0 3 IPADDR IPMASK 0 localhost
-
 func1: __pmAccSaveHosts -> OK
 func1: __pmAccRestoreHosts -> OK
 func1: __pmAccAddClient -> 0
