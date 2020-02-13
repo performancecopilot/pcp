@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 . scripts/env.vmss.sh
 
 echo Copying sources to build server
-rsync -a -e "$SSH" ../../ pcp@${AZ_VMSS_BUILDER_IP}:pcp/
+rsync -a -e "$SSH" ../../ "pcp@${AZ_VMSS_BUILDER_IP}:pcp/"
 
 echo Start build
-$SSH pcp@${AZ_VMSS_BUILDER_IP} /usr/local/ci/build.sh
+$SSH "pcp@${AZ_VMSS_BUILDER_IP}" /usr/local/ci/build.sh

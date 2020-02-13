@@ -10,7 +10,7 @@ image_vhd_url="$(az storage blob url \
 # Azure VM images need to be aligned at 1MB
 MB=$((1024*1024))
 size=$(qemu-img info -f raw --output json "${image_raw}" | jq '."virtual-size"')
-rounded_size=$((($size/$MB + 1)*$MB))
+rounded_size=$(((size/MB + 1)*MB))
 qemu-img resize -f raw "${image_raw}" ${rounded_size}
 
 qemu-img convert -f raw -o subformat=fixed,force_size -O vpc "${image_raw}" "${image_vhd}"

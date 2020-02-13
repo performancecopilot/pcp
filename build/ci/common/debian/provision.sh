@@ -8,7 +8,7 @@ apt-get update
 apt-get -y dist-upgrade
 apt-get install -y git rsync
 
-for i in `./qa/admin/check-vm -p`; do apt-get install -y $i || true; done
+for i in $(./qa/admin/check-vm -p); do apt-get install -y "$i" || true; done
 rm -rf ./qa
 
 apt-get install -y zlib1g-dev

@@ -39,6 +39,8 @@ install_pcp install :: default
 	$(INSTALL) -m 755 -d $(PMDADIR)/config.d
 	$(INSTALL) -m 644 grafana.url $(PMDADIR)/config.d/grafana.url
 	$(INSTALL) -m 755 Install Remove Upgrade $(PYSCRIPT) $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
 	@$(INSTALL_MAN)
 
 check:: $(PYSCRIPT)
