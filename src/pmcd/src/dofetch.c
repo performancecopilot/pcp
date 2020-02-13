@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2019 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -291,7 +291,11 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	    }
 	}
 	else {
-	    if (aPtr->status.notReady == 0) {
+	    if (aPtr->status.fenced) {
+		/* agent is blocked from PDUs */
+		sts = PM_ERR_PMDAFENCED;
+	    }
+	    else if (aPtr->status.notReady == 0) {
 		/* agent is ready for PDUs */
 		pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_FETCH, dpList->listSize);
 		if ((sts = __pmSendFetch(aPtr->inFd, cPtr - client, ctxnum, &when,

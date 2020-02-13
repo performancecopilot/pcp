@@ -12,7 +12,7 @@ exit=0
 <timestamp>: Global settings setup complete
 <timestamp>: Metric group setup complete (0 hosts, 0 archives)
 <timestamp>: Timezones and time window setup complete
-<timestamp>: Time button resources loaded
+<timestamp>: QedTimeButton::QedTimeButton: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
@@ -40,7 +40,7 @@ exit=0
 <timestamp>: Global settings setup complete
 <timestamp>: Metric group setup complete (0 hosts, 0 archives)
 <timestamp>: Timezones and time window setup complete
-<timestamp>: Time button resources loaded
+<timestamp>: QedTimeButton::QedTimeButton: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
@@ -68,7 +68,7 @@ exit=1
 <timestamp>: Global settings setup complete
 <timestamp>: Metric group setup complete (0 hosts, 0 archives)
 <timestamp>: Timezones and time window setup complete
-<timestamp>: Time button resources loaded
+<timestamp>: QedTimeButton::QedTimeButton: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
@@ -110,7 +110,7 @@ exit=0
 <timestamp>: Global settings setup complete
 <timestamp>: Metric group setup complete (0 hosts, 0 archives)
 <timestamp>: Timezones and time window setup complete
-<timestamp>: Time button resources loaded
+<timestamp>: QedTimeButton::QedTimeButton: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
@@ -166,7 +166,7 @@ exit=1
 <timestamp>: Global settings setup complete
 <timestamp>: Metric group setup complete (0 hosts, 0 archives)
 <timestamp>: Timezones and time window setup complete
-<timestamp>: Time button resources loaded
+<timestamp>: QedTimeButton::QedTimeButton: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete

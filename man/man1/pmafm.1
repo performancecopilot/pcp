@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMAFM 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -30,8 +30,7 @@ or the interactive ``record mode'' services of PCP clients like
 .B pmafm
 provides a number of services that may be used to process folios.
 In particular, it provides support for execution of PCP tools using one
-or more of the component
-archive logs within an archive folio.
+or more of the component archive logs within an archive folio.
 .PP
 The target folio is identified by the folio control file
 .IR folioname .
@@ -143,7 +142,7 @@ Otherwise, this command is synonymous with
 .BR repeat .
 .TP
 .B selections
-Display those archives that would be selected for 
+Display those archives that would be selected for
 processing with a
 .BR repeat ,
 .B replay
@@ -176,10 +175,11 @@ are synonymous,
 but
 .B h
 is ambiguous.
+.SH DIAGNOSTICS
+Many, but all are intended to be easily understood.
 .SH FILES
-.PD 0
-.TP 10
-.BI $PCP_VAR_DIR/config/pmafm/ *
+.TP 5
+.I $PCP_VAR_DIR/config/pmafm/*
 control files that define the behavior of each PCP tool
 known to
 .BR pmafm .
@@ -187,36 +187,25 @@ This information may be customized or extended, see
 .I $PCP_VAR_DIR/config/pmafm/pcp
 for documentation of the syntax and semantics of these files.
 .TP
-.BI $HOME/.pcp/pmafm/ *
-User customization of the control files.  All files in this
-directory are treated in the same manner as control files in
-the
+.I $HOME/.pcp/pmafm/*
+User customization of the control files.
+All files in this directory are treated in the same manner as
+control files in the
 .I $PCP_VAR_DIR/config/pmafm
 directory.
-.PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
-.PP
 .BR mkaf (1),
 .BR pmchart (1),
-.BR pmview (1),
+.BR pcp-atop (1),
 .BR PMAPI (3),
 .BR pmRecordSetup (3),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
-.SH DIAGNOSTICS
-Many, but all are intended to be easily understood.

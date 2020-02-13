@@ -16,9 +16,19 @@ echo "QA output created by $seq"
 _check_valgrind
 [ $PCP_PLATFORM = linux ] || _notrun "Linux interrupts test, only works with Linux"
 
+_cleanup()
+{
+    # Need to clear the linux PMDA's indom cache when we're done to
+    # prevent cross-version pollution
+    #
+    $sudo rm -f $PCP_VAR_DIR/config/pmda/60.*
+    cd $here
+    rm -rf $tmp.*
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -30,27 +40,38 @@ _filter()
 # real QA test starts here
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 metrics="kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.softirqs"
-machine=8cpu-x86_64
 
-export LINUX_STATSPATH=$tmp.root
-export LINUX_NCPUS=8
+for machine in 8cpu-x86_64 1cpu-i686
+do
 
-mkdir -p $LINUX_STATSPATH/proc
-cp $here/linux/interrupts-$machine $LINUX_STATSPATH/proc/interrupts
-cp $here/linux/softirqs-$machine $LINUX_STATSPATH/proc/softirqs
-_make_proc_stat $LINUX_STATSPATH/proc/stat $LINUX_NCPUS
+    # Need to clear the linux PMDA's indom cache before we run with -L
+    # to prevent cross-version pollution
+    #
+    $sudo rm -f $PCP_VAR_DIR/config/pmda/60.*
 
-echo "== Checking interrupts and softirqs names"
-_run_valgrind pminfo -L -K clear -K add,60,$pmda $metrics | _filter
-echo && echo "== done" && echo
+    ncpus=`echo $machine | sed -e 's/cpu.*//g'`
+    export LINUX_STATSPATH=$tmp.root
+    export LINUX_NCPUS=$ncpus
 
-echo "== Checking interrupts and softirqs values"
-_run_valgrind pminfo --fetch -L -K clear -K add,60,$pmda $metrics | _filter
-echo && echo "== done" && echo
+    mkdir -p $LINUX_STATSPATH/proc
+    cp $here/linux/interrupts-$machine $LINUX_STATSPATH/proc/interrupts
+    cp $here/linux/softirqs-$machine $LINUX_STATSPATH/proc/softirqs
+    _make_proc_stat $LINUX_STATSPATH/proc/stat $ncpus
 
-echo "== Checking interrupts and softirqs helptext"
-_run_valgrind pminfo -tT -L -K clear -K add,60,$pmda $metrics | _filter
-echo && echo "== done" && echo
+    echo "== Checking interrupts and softirqs names - $ncpus CPU(s)"
+    _run_valgrind pminfo -L -K clear -K add,60,$pmda $metrics | _filter
+    echo && echo "== done" && echo
+
+    echo "== Checking interrupts and softirqs values"
+    _run_valgrind pminfo --fetch -L -K clear -K add,60,$pmda $metrics | _filter
+    echo && echo "== done" && echo
+
+    echo "== Checking interrupts and softirqs helptext"
+    _run_valgrind pminfo -tT -L -K clear -K add,60,$pmda $metrics | _filter
+    echo && echo "== done" && echo
+
+    rm -fr $LINUX_STATSPATH/proc
+done
 
 # success, all done
 status=0

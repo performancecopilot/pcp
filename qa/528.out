@@ -14,7 +14,9 @@ QA output created by 528
     Semantics: instant  Units: none
     Semantics: instant  Units: none
   No indoms.
+  No labels.
   No pmResult.
+  No text.
   handle[0] metric=my.metric.string (245.0.5) instance=-1
   handle[1] metric=my.metric.strung (245.0.7) instance=-1
   metric[0] name=my.metric.foo pmid=245.0.1

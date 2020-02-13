@@ -74,6 +74,7 @@ fetchrate_lite
 fetchrate_lite.c
 getconfig
 getcontexthost
+getdomainname
 getoptions
 getversion
 github-50
@@ -145,6 +146,7 @@ multithread9
 multithread10
 multithread11
 multithread12
+multithread13
 mv-bar.1
 mv-bar.2
 mv-bar.3
@@ -188,6 +190,7 @@ pmprintf
 pmsocks_objstyle
 pmsprintf
 pmtimezone.so
+profilecrash
 proc_test
 progname
 pv
@@ -202,6 +205,7 @@ rtimetest
 scale
 scanmeta
 semstr
+sha1int2ext
 slow_af
 sortinst
 spawn
@@ -210,6 +214,7 @@ store
 storepast
 storepdu
 storepmcd
+store_and_fetch
 stripmark
 sum16
 tabort

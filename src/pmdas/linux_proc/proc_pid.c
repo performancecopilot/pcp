@@ -1,7 +1,7 @@
 /*
  * Linux proc/<pid>/{stat,statm,status,...} Clusters
  *
- * Copyright (c) 2013-2018 Red Hat.
+ * Copyright (c) 2013-2019 Red Hat.
  * Copyright (c) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * 
@@ -167,11 +167,16 @@ refresh_cgroup_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
      * going to be returned based on the cgroup specified earlier via a
      * store into the proc.control.{all,perclient}.cgroups metric.
      *
-     * Use the "cgroup.procs" or "tasks" file depending on want_threads.
+     * Use the "cgroup.procs" (v2/v1) and "cgroups.threads" (cgroups v2)
+     * or "tasks" (cgroups1) file, depending on want_threads.
      * Note that both these files are already sorted, ascending numeric.
      */
-    if (want_threads)
+    if (cgroup_version == 0)
+	refresh_cgroup_filesys();
+    if (want_threads && cgroup_version == 1)
 	pmsprintf(path, sizeof(path), "%s%s/tasks", proc_statspath, cgroup);
+    else if (want_threads && cgroup_version > 1)
+	pmsprintf(path, sizeof(path), "%s%s/cgroup.threads", proc_statspath, cgroup);
     else
 	pmsprintf(path, sizeof(path), "%s%s/cgroup.procs", proc_statspath, cgroup);
 
@@ -820,21 +825,13 @@ disable_hotproc(void)
 static void
 refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 {
-    int i;
+    int i, numinst, idx;
     int fd;
     char *p;
     char buf[MAXPATHLEN];
     __pmHashNode *node, *next, *prev;
     proc_pid_entry_t *ep;
     pmdaIndom *indomp = proc_pid->indom;
-
-    if (indomp->it_numinst < pids->count) {
-	indomp->it_set = (pmdaInstid *)realloc(indomp->it_set,
-	    pids->count * sizeof(pmdaInstid));
-    	memset(&indomp->it_set[indomp->it_numinst], 0,
-	    (pids->count - indomp->it_numinst) * sizeof(pmdaInstid));
-    }
-    indomp->it_numinst = pids->count;
 
     /*
      * invalidate all entries so we can harvest pids that have exited
@@ -852,7 +849,9 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
      */
     for (i=0; i < pids->count; i++) {
 	node = __pmHashSearch(pids->pids[i], &proc_pid->pidhash);
-	if (node == NULL) {
+	if (node)
+	    ep = (proc_pid_entry_t *)node->data;
+	else {
 	    int k = 0;
 
 	    ep = (proc_pid_entry_t *)malloc(sizeof(proc_pid_entry_t));
@@ -940,57 +939,52 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 	    __pmHashAdd(pids->pids[i], (void *)ep, &proc_pid->pidhash);
 	    //fprintf(stderr, "key %d : ADDED \"%s\" to hash table\n", pids->pids[i], buf);
 	}
-	else
-	    ep = (proc_pid_entry_t *)node->data;
-	
-	/* mark pid as still existing */
-	ep->flags |= PROC_PID_FLAG_VALID;
 
-	/* refresh the indom pointer */
-	indomp->it_set[i].i_inst = ep->id;
-	if (indomp->it_set[i].i_name) {
-	    int len = strlen(indomp->it_set[i].i_name);
-	    if (strncmp(indomp->it_set[i].i_name, ep->name, len) != 0) {
-	    	free(indomp->it_set[i].i_name);
-	    	indomp->it_set[i].i_name = NULL;
-	    }
-	    else if (pmDebugOptions.libpmda) {
-		fprintf(stderr, "refresh_proc_pidlist: Instance id=%d \"%s\" no change\n",
-		    ep->id, indomp->it_set[i].i_name);
-	    }
+	if (ep->instname == NULL) {
+           /*
+             * The external instance name is the pid followed by
+             * a copy of the psargs truncated at the first space.
+             * e.g. "012345 /path/to/command". Command line args,
+             * if any, are truncated. The full command line is
+             * available in the proc.psinfo.psargs metric.
+             */
+            if ((p = strchr(ep->name, ' ')) != NULL) {
+                if ((p = strchr(p+1, ' ')) != NULL) {
+                    int len = p - ep->name;
+		    if (len > PROC_PID_STAT_CMD_MAXLEN)
+			len = PROC_PID_STAT_CMD_MAXLEN;
+                    ep->instname = (char *)malloc(len+1);
+                    strncpy(ep->instname, ep->name, len);
+                    ep->instname[len] = '\0';
+                }
+            }
+            if (ep->instname == NULL) /* no spaces found, so use the full name */
+                ep->instname = strndup(ep->name, PROC_PID_STAT_CMD_MAXLEN);
 	}
-	if (indomp->it_set[i].i_name == NULL) {
-	    /*
-	     * The external instance name is the pid followed by
-	     * a copy of the psargs truncated at the first space.
-	     * e.g. "012345 /path/to/command". Command line args,
-	     * if any, are truncated. The full command line is
-	     * available in the proc.psinfo.psargs metric.
-	     */
-	    if ((p = strchr(ep->name, ' ')) != NULL) {
-		if ((p = strchr(p+1, ' ')) != NULL) {
-		    int len = p - ep->name;
-		    indomp->it_set[i].i_name = (char *)malloc(len+1);
-		    strncpy(indomp->it_set[i].i_name, ep->name, len);
-		    indomp->it_set[i].i_name[len] = '\0';
-		}
-	    }
-	    if (indomp->it_set[i].i_name == NULL)
-		indomp->it_set[i].i_name = strdup(ep->name);
-	}
+	
+	/* mark pid as valid (new or still running) */
+	ep->flags |= PROC_PID_FLAG_VALID;
     }
 
     /* 
-     * harvest exited pids from the pid hash table
+     * harvest pids that have exit'ed
      */
+    numinst = 0;
     for (i=0; i < proc_pid->pidhash.hsize; i++) {
 	for (prev=NULL, node=proc_pid->pidhash.hash[i]; node != NULL;) {
 	    next = node->next;
 	    ep = (proc_pid_entry_t *)node->data;
 	    // fprintf(stderr, "CHECKING key=%d node=" PRINTF_P_PFX "%p prev=" PRINTF_P_PFX "%p next=" PRINTF_P_PFX "%p ep=" PRINTF_P_PFX "%p valid=%d\n",
 	    	// ep->id, node, prev, node->next, ep, ep->valid);
-	    if (!(ep->flags & PROC_PID_FLAG_VALID)) {
+	    if (ep->flags & PROC_PID_FLAG_VALID) {
+		numinst++;
+	    	prev = node;
+	    }
+	    else {
+		// This process has exited.
 	        //fprintf(stderr, "DELETED key=%d name=\"%s\"\n", ep->id, ep->name);
+		if (ep->instname != NULL)
+		    free(ep->instname);
 		if (ep->name != NULL)
 		    free(ep->name);
 		if (ep->stat_buf != NULL)
@@ -1017,11 +1011,23 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 		free(ep);
 		free(node);
 	    }
-	    else {
-	    	prev = node;
-	    }
 	    if ((node = next) == NULL)
 	    	break;
+	}
+    }
+
+    /*
+     * At this point, the hash table contains only valid pids. Refresh the indom table,
+     * based on the updated process hash table. Indom table instance names are shared
+     * with their hash table entry, do not free!
+     */
+    indomp->it_numinst = numinst;
+    indomp->it_set = (pmdaInstid *)realloc(indomp->it_set, numinst * sizeof(pmdaInstid));
+    for (idx=0, i=0; i < proc_pid->pidhash.hsize; i++) {
+	for (node=proc_pid->pidhash.hash[i]; node != NULL; node=node->next, idx++) {
+	    ep = (proc_pid_entry_t *)node->data;
+	    indomp->it_set[idx].i_inst = ep->id; /* internal instid is pid */
+	    indomp->it_set[idx].i_name = ep->instname; /* ptr ref, do not free */
 	}
     }
 }
@@ -1032,24 +1038,17 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
 		 const char *container, int namelen)
 {
     char path[MAXPATHLEN];
-    int sts, length, want_cgroups;
+    int sts, want_cgroups;
     const char *filter = cgroups;
 
     want_cgroups = container || (cgroups && cgroups[0] != '\0');
 
-    /* For containers we asked pmdaroot for a cgroup name for the container.
-     * We must find this systems mount path for a cgroup subsystem that will
-     * be in use for all containers - choose memory for this purpose, as its
-     * pervasive and all container engines must surely use it.  Surely.
+    /*
+     * For containers we asked pmdaroot for a cgroup name for the container;
+     * next find a matching filesystem path we can use to look up processes.
      */
-    if (container) {
-	length = cgroup_mounts_subsys("memory", path, sizeof(path));
-	if (length > sizeof(path)-1)
-	    length = sizeof(path)-1;
-	length = (length <= 0) ? 0 : sizeof(path) - length;
-	strncat(path, container, length);
-	filter = path;
-    }
+    if (container)
+	filter = cgroup_container_path(path, sizeof(path), container);
 
     /* Reset accounting of the runqueue metrics, initially all zeroes */
     if (proc_runq)

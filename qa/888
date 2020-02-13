@@ -22,11 +22,19 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 export LINUX_PAGESIZE=4096
+$sudo rm -f $PCP_VAR_DIR/config/pmda/60.*
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.$DSO_SUFFIX,linux_init
+root=$tmp.root
+
+# prepare a root matching the shared library calls
+export LINUX_STATSPATH=$root
+mkdir -p $root || _fail "root in use when processing $tgz"
+cd $root
+$sudo tar xzf $here/linux/sysvipc-root-002.tgz
 
 for metric in tot rss swp used_ids swap_attempts swap_successes
 do

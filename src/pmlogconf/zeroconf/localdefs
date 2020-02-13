@@ -1,5 +1,6 @@
 FILES = \
 	atop-proc \
+	interrupts \
 	nfsclient \
 	numastat \
 	pidstat \

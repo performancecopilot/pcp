@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
 # Copyright (C) 2018 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -61,7 +61,7 @@ import struct
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_DEBUG_APPL0, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_DEBUG_APPL0, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_SEC
 
 if sys.version_info[0] >= 3:
@@ -104,8 +104,9 @@ class PCP2Zabbix(object):
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
-                     'live_filter', 'rank', 'invert_filter', 'predicate',
-                     'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
+                     'live_filter', 'rank', 'invert_filter', 'predicate', 'names_change',
+                     'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
+                     'omit_flat')
 
         # The order of preference for options (as present):
         # 1 - command line options
@@ -126,6 +127,8 @@ class PCP2Zabbix(object):
         self.type = 0
         self.type_prefer = self.type
         self.ignore_incompat = 0
+        self.ignore_unknown = 0
+        self.names_change = 0 # ignore
         self.instances = []
         self.live_filter = 0
         self.rank = 0
@@ -181,7 +184,7 @@ class PCP2Zabbix(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:8:9:nN:vP:0:q:b:y:Q:B:Y:g:p:X:E:x:l")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:4:58:9:nN:vP:0:q:b:y:Q:B:Y:g:p:X:E:x:l")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -211,6 +214,8 @@ class PCP2Zabbix(object):
         opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
+        opts.pmSetLongOption("ignore-unknown", 0, "5", "", "ignore unknown metrics (default: abort)")
+        opts.pmSetLongOption("names-change", 1, "4", "ACTION", "update/ignore/abort on PMNS change (default: ignore)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")
         opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
@@ -271,6 +276,18 @@ class PCP2Zabbix(object):
             self.type_prefer = 1
         elif opt == 'I':
             self.ignore_incompat = 1
+        elif opt == '5':
+            self.ignore_unknown = 1
+        elif opt == '4':
+            if optarg == 'ignore':
+                self.names_change = 0
+            elif optarg == 'abort':
+                self.names_change = 1
+            elif optarg == 'update':
+                self.names_change = 2
+            else:
+                sys.stderr.write("Unknown names-change action '%s' specified.\n" % optarg)
+                sys.exit(1)
         elif opt == 'i':
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
         elif opt == 'j':
@@ -385,19 +402,17 @@ class PCP2Zabbix(object):
             time.sleep(align)
 
         # Main loop
+        refresh_metrics = 0
         while self.samples != 0:
-            # Fetch values
-            try:
-                self.pmfg.fetch()
-            except pmapi.pmErr as error:
-                if error.args[0] == PM_ERR_EOL:
-                    break
-                raise error
+            # Refresh metrics as needed
+            if refresh_metrics:
+                refresh_metrics = 0
+                self.pmconfig.update_metrics(curr_insts=not self.live_filter)
 
-            # Watch for endtime in uninterpolated mode
-            if not self.interpol:
-                if float(self.pmfg_ts().strftime('%s')) > float(self.opts.pmGetOptionFinish()):
-                    break
+            # Fetch values
+            refresh_metrics = self.pmconfig.fetch()
+            if refresh_metrics < 0:
+                break
 
             # Report and prepare for the next round
             self.report(self.pmfg_ts())
@@ -492,6 +507,8 @@ class PCP2Zabbix(object):
         except socket.timeout as err:
             sys.stderr.write("Zabbix connection timed out: %s\n" % str(err))
             return False
+        except KeyboardInterrupt as err:
+            sys.exit(1)
         finally:
             zabbix.close()
 
@@ -506,10 +523,7 @@ class PCP2Zabbix(object):
 
         ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
 
-        if self.zabbix_prevsend is None:
-            self.zabbix_prevsend = ts
-
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_ranked_results(valid_only=True)
 
         # Collect the results
         for metric in results:
@@ -556,7 +570,7 @@ class PCP2Zabbix(object):
             if len(self.zabbix_metrics) >= self.zabbix_interval:
                 self.send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
                 self.zabbix_metrics = []
-        elif ts - self.zabbix_prevsend > self.zabbix_interval:
+        elif not self.zabbix_prevsend or ts - self.zabbix_prevsend > self.zabbix_interval:
             self.send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
             self.zabbix_metrics = []
             self.zabbix_prevsend = ts
@@ -574,9 +588,11 @@ if __name__ == '__main__':
         P.validate_config()
         P.execute()
         P.finalize()
-
     except pmapi.pmErr as error:
-        sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
+        sys.stderr.write("%s: %s" % (error.progname(), error.message()))
+        if error.message() == "Connection refused":
+            sys.stderr.write("; is pmcd running?")
+        sys.stderr.write("\n")
         sys.exit(1)
     except pmapi.pmUsageErr as usage:
         usage.message()

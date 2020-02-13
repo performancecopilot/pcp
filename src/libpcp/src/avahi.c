@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2015,2019 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -549,9 +549,9 @@ resolveCallback(
 		serviceInfo.spec = PM_SERVER_PROXY_SPEC;
 		serviceInfo.protocol = PROXY_PROTOCOL;
 	    }
-	    else if (strcmp(type, "_" PM_SERVER_WEBD_SPEC "._tcp") == 0) {
-		serviceInfo.spec = PM_SERVER_WEBD_SPEC;
-		serviceInfo.protocol = PMWEBD_PROTOCOL;
+	    else if (strcmp(type, "_" PM_SERVER_WEBAPI_SPEC "._tcp") == 0) {
+		serviceInfo.spec = PM_SERVER_WEBAPI_SPEC;
+		serviceInfo.protocol = WEBAPI_PROTOCOL;
 	    }
 	    else {
 		context->error = EINVAL;

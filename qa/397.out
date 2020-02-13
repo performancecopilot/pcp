@@ -32,6 +32,8 @@ pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 1
   29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
     inst [0 or ???] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
     inst [1 or ???] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+dbpmda> close
+dbpmda> wait 1
 dbpmda> 
 
 === pmda log ===

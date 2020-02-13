@@ -14,6 +14,13 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ *
+ * Debug flags
+ * appl0	I/O
+ * appl1	metdata changes
+ * appl2	pmResult changes
+ * appl3	-q and reason for not taking quick exit
+ * appl4	config parser
  */
 
 #include <math.h>
@@ -121,6 +128,17 @@ newvolume(int vol)
     else {
 	fprintf(stderr, "%s: __pmLogNewFile(%s,%d) Error: %s\n",
 		pmGetProgname(), outarch.name, vol, pmErrStr(-oserror()));
+	if (oserror() == EEXIST) {
+	    /*
+	     * We've written some files (.index, .meta, .0, ...) and then
+	     * found a duplicate file name ... doesn't matter what you do
+	     * here, badness will result
+	     */
+	    fprintf(stderr, "Removing output files we've created for archive \"%s\"\n", outarch.name);
+	    _pmLogRemove(outarch.name, vol-1);
+	    exit(1);
+	    /*NOTREACHED*/
+	}
 	abandon();
 	/*NOTREACHED*/
     }
@@ -697,27 +715,114 @@ anychange(void)
     const labelspec_t	*lp;
     int			i;
 
-    if (global.flags != 0)
+    if (global.flags != 0) {
+	if (pmDebugOptions.appl3) {
+	    fprintf(stderr, "anychange: global.flags (%d,", global.flags);
+	    if (global.flags & GLOBAL_CHANGE_TIME)
+		fprintf(stderr, " CHANGE_TIME");
+	    if (global.flags & GLOBAL_CHANGE_HOSTNAME)
+		fprintf(stderr, " CHANGE_HOSTNAME");
+	    if (global.flags & GLOBAL_CHANGE_TZ)
+		fprintf(stderr, " CHANGE_TZ");
+	    fprintf(stderr, ") != 0\n");
+	}
 	return 1;
+    }
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
-	if (ip->new_indom != ip->old_indom)
+	if (ip->new_indom != ip->old_indom) {
+	    if (pmDebugOptions.appl3) {
+		fprintf(stderr, "anychange: indom %s changed\n", pmInDomStr(ip->old_indom));
+	    }
 	    return 1;
+	}
 	for (i = 0; i < ip->numinst; i++) {
-	    if (ip->inst_flags[i])
+	    if (ip->inst_flags[i]) {
+		if (pmDebugOptions.appl3) {
+		    fprintf(stderr, "anychange: indom %s inst %d flags (%d,",
+			pmInDomStr(ip->old_indom), i, ip->inst_flags[i]);
+		    if (ip->inst_flags[i] & INST_CHANGE_INST)
+			fprintf(stderr, " CHANGE_INST");
+		    if (ip->inst_flags[i] & INST_CHANGE_INAME)
+			fprintf(stderr, " CHANGE_INAME");
+		    if (ip->inst_flags[i] & INST_DELETE)
+			fprintf(stderr, " DELETE");
+		    fprintf(stderr, ") != 0\n");
+		}
 		return 1;
+	    }
 	}
     }
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
-	if (mp->flags != 0 || mp->ip != NULL)
+	if (mp->flags != 0 || mp->ip != NULL) {
+	    if (pmDebugOptions.appl3) {
+		if (mp->flags != 0) {
+		    fprintf(stderr, "anychange: metric %s flags (%d,",
+			mp->old_name, mp->flags);
+		    if (mp->flags & METRIC_CHANGE_PMID)
+			fprintf(stderr, " CHANGE_PMID");
+		    if (mp->flags & METRIC_CHANGE_NAME)
+			fprintf(stderr, " CHANGE_NAME");
+		    if (mp->flags & METRIC_CHANGE_TYPE)
+			fprintf(stderr, " CHANGE_TYPE");
+		    if (mp->flags & METRIC_CHANGE_INDOM)
+			fprintf(stderr, " CHANGE_INDOM");
+		    if (mp->flags & METRIC_CHANGE_SEM)
+			fprintf(stderr, " CHANGE_SEM");
+		    if (mp->flags & METRIC_CHANGE_UNITS)
+			fprintf(stderr, " CHANGE_UNITS");
+		    if (mp->flags & METRIC_DELETE)
+			fprintf(stderr, " DELETE");
+		    if (mp->flags & METRIC_RESCALE)
+			fprintf(stderr, " RESCALE");
+		    fprintf(stderr, ") != 0\n");
+		}
+		if (mp->ip != NULL)
+		    fprintf(stderr, "anychange: metric %s ip NULL\n", mp->old_name);
+	    }
 	    return 1;
+	}
     }
     for (lp = label_root; lp != NULL; lp = lp->l_next) {
-	if (lp->flags != 0 || lp->ip != NULL)
+	if (lp->flags != 0 || lp->ip != NULL) {
+	    if (pmDebugOptions.appl3) {
+		if (lp->flags != 0) {
+		    fprintf(stderr, "anychange: label %s flags (%d,",
+			lp->old_label, lp->flags);
+		    if (lp->flags & LABEL_ACTIVE)
+			fprintf(stderr, " ACTIVE");
+		    if (lp->flags & LABEL_CHANGE_ID)
+			fprintf(stderr, " CHANGE_ID");
+		    if (lp->flags & LABEL_CHANGE_LABEL)
+			fprintf(stderr, " CHANGE_LABEL");
+		    if (lp->flags & LABEL_CHANGE_INSTANCE)
+			fprintf(stderr, " CHANGE_INSTANCE");
+		    if (lp->flags & LABEL_DELETE)
+			fprintf(stderr, " DELETE");
+		    if (lp->flags & LABEL_NEW)
+			fprintf(stderr, " NEW");
+		    fprintf(stderr, ") != 0\n");
+		}
+		if (lp->ip != NULL)
+		    fprintf(stderr, "anychange: label %s ip NULL\n", lp->old_label);
+	    }
 	    return 1;
+	}
     }
     for (tp = text_root; tp != NULL; tp = tp->t_next) {
-	if (tp->flags != 0 || tp->ip != NULL)
+	if (tp->flags != 0 || tp->ip != NULL) {
+	    if (pmDebugOptions.appl3) {
+		if (tp->flags != 0)
+		    fprintf(stderr, "anychange: %s %s text flags (%d) != 0\n",
+		       (tp->old_type & PM_TEXT_PMID) ? "pmID" : "pmInDom",
+		       (tp->old_type & PM_TEXT_PMID) ? pmIDStr(tp->old_id) : pmInDomStr(tp->old_id),
+		       tp->flags);
+		if (tp->ip != NULL)
+		    fprintf(stderr, "anychange: %s %s text ip NULL\n",
+		       (tp->old_type & PM_TEXT_PMID) ? "pmID" : "pmInDom",
+		       (tp->old_type & PM_TEXT_PMID) ? pmIDStr(tp->old_id) : pmInDomStr(tp->old_id));
+	    }
 	    return 1;
+	}
     }
     
     return 0;
@@ -1327,7 +1432,7 @@ do_newlabelsets(void)
 	    else if ((lp->old_type & PM_LABEL_DOMAIN))
 		fprintf(stderr, " domain %d\n", pmID_domain(lp->old_id));
 	    else if ((lp->old_type & PM_LABEL_CLUSTER))
-		fprintf(stderr, " item %d.%d\n", pmID_domain(lp->old_id), pmID_cluster (lp->old_id));
+		fprintf(stderr, " cluster %d.%d\n", pmID_domain(lp->old_id), pmID_cluster (lp->old_id));
 	    else if ((lp->old_type & PM_LABEL_ITEM))
 		fprintf(stderr, " item %s\n", pmIDStr(lp->old_id));
 	    else if ((lp->old_type & PM_LABEL_INDOM))
@@ -1555,15 +1660,23 @@ main(int argc, char **argv)
     if (Cflag)
 	exit(0);
 
-    if (qflag && anychange() == 0)
+    if (qflag && anychange() == 0) {
+	if (pmDebugOptions.appl3) {
+	    fprintf(stderr, "Done, no rewriting required\n");
+	}
 	exit(0);
+    }
 
     /* create output log - must be done before writing label */
     outarch.archctl.ac_log = &outarch.logctl;
     if ((sts = __pmLogCreate("", outarch.name, PM_LOG_VERS02, &outarch.archctl)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate(%s): %s\n",
 		pmGetProgname(), outarch.name, pmErrStr(sts));
-	abandon();
+	/*
+	 * do not cleanup ... if error is EEXIST we should not clobber an
+	 * existing (and persumably) good archive
+	 */
+	exit(1);
 	/*NOTREACHED*/
     }
 
@@ -1849,7 +1962,12 @@ main(int argc, char **argv)
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	_pmLogRemove(bak_base);
+	_pmLogRemove(bak_base, -1);
+    }
+
+    if (pmDebugOptions.pdubuf) {
+	/* dump PDU buffer state ... looking for mem leaks here */
+	(void)__pmFindPDUBuf(-1);
     }
 
     exit(0);
@@ -1864,7 +1982,7 @@ abandon(void)
 	if (Cflag == 0 && iflag == 0)
 	    fprintf(stderr, "Archive \"%s\" not created.\n", outarch.name);
 
-	_pmLogRemove(outarch.name);
+	_pmLogRemove(outarch.name, -1);
 	if (iflag)
 	    _pmLogRename(bak_base, inarch.name);
 	while (outarch.archctl.ac_curvol >= 0) {

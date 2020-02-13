@@ -65,7 +65,7 @@ QA output created by 006
 -12408 PMCD requires a client certificate
 -12409 Derived metric definition failed
 -12410 No support for metric label metadata
--12411 No such PMAPI error code (-12411)
+-12411 PMDA is currently fenced and unable to respond to requests
 -12412 No such PMAPI error code (-12412)
 -12413 No such PMAPI error code (-12413)
 -12414 No such PMAPI error code (-12414)

@@ -8,16 +8,17 @@ Found correct index in output
 Found proper hostid in output
 === 3. pcp2elasticsearch full-blown archive replay session ===
 --- Start of received data ---
-                    "type": "date"
+                    "type": "epoch_milli"
                     "type": "string"
+                "@host-id": {
                 "@timestamp": {
-                "host-id": {
                 }
                 }
             "properties": {
             }
         "pcp-metric": {
         }
+    "ignore": 400
     "mappings": {
     }
 {
@@ -92,16 +93,17 @@ Found proper hostid in output
     }
 {
 }
-                    "type": "date"
+                    "type": "epoch_milli"
                     "type": "string"
+                "@host-id": {
                 "@timestamp": {
-                "host-id": {
                 }
                 }
             "properties": {
             }
         "pcp-metric": {
         }
+    "ignore": 400
     "mappings": {
     }
 {
@@ -192,16 +194,17 @@ Found proper hostid in output
     }
 {
 }
-                    "type": "date"
+                    "type": "epoch_milli"
                     "type": "string"
+                "@host-id": {
                 "@timestamp": {
-                "host-id": {
                 }
                 }
             "properties": {
             }
         "pcp-metric": {
         }
+    "ignore": 400
     "mappings": {
     }
 {
@@ -292,16 +295,17 @@ Found proper hostid in output
     }
 {
 }
-                    "type": "date"
+                    "type": "epoch_milli"
                     "type": "string"
+                "@host-id": {
                 "@timestamp": {
-                "host-id": {
                 }
                 }
             "properties": {
             }
         "pcp-metric": {
         }
+    "ignore": 400
     "mappings": {
     }
 {
@@ -392,16 +396,17 @@ Found proper hostid in output
     }
 {
 }
-                    "type": "date"
+                    "type": "epoch_milli"
                     "type": "string"
+                "@host-id": {
                 "@timestamp": {
-                "host-id": {
                 }
                 }
             "properties": {
             }
         "pcp-metric": {
         }
+    "ignore": 400
     "mappings": {
     }
 {
@@ -493,3 +498,6 @@ Found proper hostid in output
 {
 }
 --- End of received data ---
+=== 4. pcp2elasticsearch with custom --es-search-type ===
+--- Start of received data ---
+Found correct index in output

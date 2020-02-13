@@ -68,8 +68,8 @@ To uninstall, do the following as root:
 .br
       # ./Remove
 .PP
-\fBpmdaoracle\fR is launched by \fIpmcd\fR(1) and should never be executed 
-directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
+\fBpmdaoracle\fR is launched by \fIpmcd\fR(1) and should never be executed
+directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
 agent is installed or removed.
 .SH "CONNECTION STATE"
 By default,
@@ -79,7 +79,7 @@ ensure timely responses to its queries, and will automatically re-connect
 if a connection drops.
 .PP
 However, in certain circumstances this may be undesirable, so a manual
-.BR pmStore (3) 
+.BR pmStore (3)
 mechanism is provided to explicitly control disconnecting and reconnecting
 to an Oracle instance.
 This can be used, for example, to ensure that
@@ -113,22 +113,22 @@ oracle.control.connected inst [0 or "master"] old value=1 new value=0
 configuration file for all \s-1PCP\s0 database monitors
 .IP "\fB$PCP_PMDAS_DIR/oracle/oracle.conf\f1" 4
 configuration file for \fBpmdaoracle\fR
-.IP "\fB$PCP_PMDAS_DIR/oracle/sample.conf\fR" 4 
+.IP "\fB$PCP_PMDAS_DIR/oracle/sample.conf\fR" 4
 example configuration file for \fBpmdaoracle\fR using $LD_LIBRARY_PATH
-.IP "\fB$PCP_PMDAS_DIR/oracle/connect.pl\fR" 4 
+.IP "\fB$PCP_PMDAS_DIR/oracle/connect.pl\fR" 4
 configuration test script for \fBOracle\fR database connectivity
-.IP "\fB$PCP_PMDAS_DIR/oracle/Install\fR" 4 
-installation script for the \fBpmdaoracle\fR agent 
-.IP "\fB$PCP_PMDAS_DIR/oracle/Remove\fR" 4 
-undo installation script for the \fBpmdaoracle\fR agent 
-.IP "\fB$PCP_LOG_DIR/pmcd/oracle.log\fR" 4 
-default log file for error messages from \fBpmdaoracle\fR 
+.IP "\fB$PCP_PMDAS_DIR/oracle/Install\fR" 4
+installation script for the \fBpmdaoracle\fR agent
+.IP "\fB$PCP_PMDAS_DIR/oracle/Remove\fR" 4
+undo installation script for the \fBpmdaoracle\fR agent
+.IP "\fB$PCP_LOG_DIR/pmcd/oracle.log\fR" 4
+default log file for error messages from \fBpmdaoracle\fR
 .PD
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
 the file and directory names used by \fBPCP\fR. On each installation, the
-file \fB/etc/pcp.conf\fR contains the local values for these variables. 
-The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+file \fB/etc/pcp.conf\fR contains the local values for these variables.
+The \fB$PCP_CONF\fR variable may be used to specify an alternative
 configuration file, as described in \fIpcp.conf\fR(5).
 .SH SEE ALSO
 .BR PCPIntro (1),

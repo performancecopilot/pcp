@@ -7,7 +7,7 @@
  *	remain fixed across releases, and they may not work, or may
  *	provide different semantics at some point in the future.
  *
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2020 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -50,10 +50,11 @@ extern "C" {
 #define PROXY_PROTOCOL "proxy"
 
 /*
- * port that clients connect to pmwebd(1) by default
+ * HTTP[S] connections come here by default, over-ride with $WEBAPI_PORT
+ * in environment
  */
-#define PMWEBD_PORT 44323
-#define PMWEBD_PROTOCOL "http"
+#define WEBAPI_PORT 44323
+#define WEBAPI_PROTOCOL "http"
 
 /*
  * internal libpcp state ... PM_STATE_APPL means we are at or above the
@@ -457,6 +458,7 @@ PCP_CALL extern __pmSockAddr *__pmSockAddrDup(const __pmSockAddr *);
 PCP_CALL extern void	     __pmSockAddrSetFamily(__pmSockAddr *, int);
 PCP_CALL extern int	     __pmSockAddrGetFamily(const __pmSockAddr *);
 PCP_CALL extern void	     __pmSockAddrSetPort(__pmSockAddr *, int);
+PCP_CALL extern int	     __pmSockAddrGetPort(const __pmSockAddr *);
 PCP_CALL extern void	     __pmSockAddrSetPath(__pmSockAddr *, const char *);
 PCP_CALL extern int	     __pmSockAddrIsLoopBack(const __pmSockAddr *);
 PCP_CALL extern int	     __pmSockAddrIsInet(const __pmSockAddr *);
@@ -608,6 +610,7 @@ pmlabel_intrinsic(pmLabel *lp)
     return (lp->flags & PM_LABEL_OPTIONAL) == 0;
 }
 PCP_CALL extern int __pmAddLabels(pmLabelSet **, const char *, int);
+PCP_CALL extern pmLabelSet *__pmDupLabelSets(pmLabelSet *, int);
 PCP_CALL extern int __pmParseLabelSet(const char *, int, int, pmLabelSet **);
 PCP_CALL extern int __pmGetContextLabels(pmLabelSet **);
 PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
@@ -843,6 +846,13 @@ PCP_CALL extern int __pmLogPutText(__pmArchCtl *, unsigned int , unsigned int, c
 PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
 PCP_CALL extern int __pmLogLoadLabel(__pmArchCtl *, const char *);
 PCP_CALL extern int __pmLogLoadMeta(__pmArchCtl *);
+PCP_CALL extern int __pmLogAddDesc(__pmArchCtl *, const pmDesc *);
+PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, const pmTimespec *, const pmInResult *, int *, int);
+PCP_CALL extern int __pmLogAddPMNSNode(__pmArchCtl *, pmID, const char *);
+PCP_CALL extern int __pmLogAddLabelSets(__pmArchCtl *, const pmTimespec *, unsigned int, unsigned int, int, pmLabelSet *);
+PCP_CALL extern int __pmLogAddText(__pmArchCtl *, unsigned int, unsigned int, const char *);
+PCP_CALL extern int __pmLogAddVolume(__pmArchCtl *, unsigned int);
+
 #define PMLOGREAD_NEXT		0
 #define PMLOGREAD_TO_EOF	1
 PCP_CALL extern int __pmLogRead(__pmArchCtl *, int, __pmFILE *, pmResult **, int);
@@ -859,7 +869,9 @@ PCP_CALL extern int __pmLogLookupText(__pmArchCtl *, unsigned int , unsigned int
 PCP_CALL extern int __pmLogNameInDom(__pmArchCtl *, pmInDom, pmTimeval *, int, char **);
 PCP_CALL extern const char *__pmLogLocalSocketDefault(int, char *buf, size_t bufSize);
 PCP_CALL extern const char *__pmLogLocalSocketUser(int, char *buf, size_t bufSize);
+PCP_CALL extern int __pmLogCompressedSuffix(const char *);
 PCP_CALL extern char *__pmLogBaseName(char *);
+PCP_CALL extern char *__pmLogBaseNameVol(char *, int *);
 PCP_DATA extern int __pmLogReads;
 
 /* Convert opaque context handle to __pmContext pointer */
@@ -1220,7 +1232,7 @@ PCP_CALL extern void __pmServerSetServiceSpec(const char *);
 typedef void (*__pmServerCallback)(__pmFdSet *, int, int);
 PCP_CALL extern void __pmServerAddNewClients(__pmFdSet *, __pmServerCallback);
 PCP_CALL extern int __pmServerOpenRequestPorts(__pmFdSet *, int);
-PCP_CALL int __pmServerGetRequestPort(int, const char **, int *);
+PCP_CALL extern int __pmServerGetRequestPort(int, const char **, int *);
 PCP_CALL extern int __pmServerSetupRequestPorts(void);
 PCP_CALL extern void __pmServerCloseRequestPorts(void);
 PCP_CALL extern void __pmServerDumpRequestPorts(FILE *);

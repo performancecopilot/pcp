@@ -37,6 +37,9 @@ trap "_cleanup" 0 1 2 3 15
 _save_config $PCP_PMDAS_DIR/bind2/bind2.conf
 _prepare_pmda_install $iam
 
+$sudo ./Remove >/dev/null 2>&1
+
+rm -f $tmp.out
 xmlfiles=`ls $here/named/bind-*.xml | LC_COLLATE=POSIX sort`
 for xml in $xmlfiles
 do
@@ -44,7 +47,6 @@ do
 
     echo
     echo "=== $iam agent installation with test=$base ==="
-    $sudo ./Remove > $tmp.out 2>&1
 
     # put the test config file in place
     echo "test=$xml" > $tmp.conf
@@ -65,6 +67,8 @@ do
     echo "=== $iam metrics ==="
     metrics=`pminfo $iam | LC_COLLATE=POSIX sort`
     pminfo -fmdtT $metrics
+
+    $sudo ./Remove > $tmp.out 2>&1
 done
 
 echo

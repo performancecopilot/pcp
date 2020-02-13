@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,24 +18,28 @@ include $(TOPDIR)/src/include/builddefs
 CMDTARGET = pmproxy$(EXECSUFFIX)
 HFILES = pmproxy.h
 CFILES = pmproxy.c
+XFILES = uv_callback.h uv_callback.c
 
-LCFLAGS = $(PIECFLAGS)
+LCFLAGS = $(PIECFLAGS) \
+	  -I$(TOPDIR)/src/libpcp_web/src -I$(TOPDIR)/src/libpcp_mmv/src
 LLDFLAGS = $(PIELDFLAGS)
-LLDLIBS	= $(PCP_WEBLIB)
+LLDLIBS	= -lpcp_mmv $(PCP_WEBLIB)
+PCPLIB_LDFLAGS += -L$(TOPDIR)/src/libpcp_mmv/$(LIBPCP_ABIDIR)
 
-EXPERIMENTAL = false
-#EXPERIMENTAL = true
-
-ifeq "$(EXPERIMENTAL)" "true"
-#ifeq "$(HAVE_LIBUV)" "true"
-LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1 -I$(TOPDIR)/src/libpcp_web/src
-CFILES += server.c redis.c pcp.c
-HFILES += server.h
-else
-CFILES += deprecated.c
+ifeq "$(HAVE_LIBUV)" "true"
+LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
+SERVLETS = series.c webapi.c
+CFILES += openmetrics.c server.c http.c pcp.c uv_callback.c redis.c $(SERVLETS)
+HFILES += openmetrics.h server.h http.h pcp.h uv_callback.h
+ifeq "$(HAVE_OPENSSL)" "true"
+LCFLAGS += $(OPENSSLCFLAGS) -DHAVE_OPENSSL=1
+LDFLAGS += $(LIB_FOR_OPENSSL)
+CFILES += secure.c
 endif
+endif
+CFILES += deprecated.c
 
-default:	$(CMDTARGET)
+default:	$(XFILES) $(CMDTARGET)
 
 include $(BUILDRULES)
 
@@ -45,6 +49,9 @@ install:	default
 default_pcp:	default
 
 install_pcp:	install
+
+$(XFILES):
+	$(LN_S) -f $(TOPDIR)/src/external/$@ $@
 
 $(OBJECTS):	$(HFILES) $(TOPDIR)/src/include/pcp/libpcp.h
 

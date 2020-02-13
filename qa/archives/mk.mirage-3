@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# remake the mirage-3 archive that is intended to be checked in and
+# not remade, this script is simply a record of how it was created
+#
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+log mandatory on default {
+    sample.mirage
+    sample.milliseconds
+}
+End-of-File
+
+rm -f mirage-3.*
+
+pmstore sample.controller.mirage 1
+pmlogger -t 20msec -c $tmp.config -s 1000 mirage-3
+pmstore sample.controller.mirage 10000

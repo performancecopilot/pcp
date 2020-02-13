@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2018 Red Hat.
+.\" Copyright (c) 2013-2019 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -18,9 +18,8 @@
 \f3pmlogger_merge\f1 \- helper script to merge Performance Co-Pilot archives
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_merge
-[\f3\-fNV\f1]
+[\f3\-fNV?\f1]
 [\f2input-basename\f1 ... \f2output-name\f1]
-.br
 .SH DESCRIPTION
 .B pmlogger_merge
 is a helper script that is used by
@@ -34,7 +33,7 @@ is a wrapper script for
 .BR pmlogextract (1)
 that merges all of the archive logs matching the
 .I input-basename
-arguments, and creates a new archive using 
+arguments, and creates a new archive using
 .I output-name
 as the base name for the physical files that constitute
 an archive log.
@@ -42,15 +41,15 @@ The
 .I input-basename
 arguments may contain meta characters in the style of
 .BR sh (1).
-.PP
-If specified, the
-.B \-f
-option causes all of the input files to be removed once the output
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-f\fR, \fB\-\-force\fR
+This option causes all of the input files to be removed once the output
 archive has been created.
-.PP
-Using
-.B \-N
-option runs
+.TP
+\fB\-N\fR, \fB\-\-showme\fR
+Runs
 .B pmlogger_merge
 in a ``show me'' or ``dry run'' mode where the
 tasks that would be performed are reported, but no changes are made.
@@ -58,21 +57,19 @@ This is typically used for debugging in combination with one (verbose)
 or two (very verbose)
 .B \-V
 options.
-
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.B /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.TP
+\fB\-V\fR, \fB\-\-verbose\fR
+Increase verbosity in the output progress report.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmlogextract (1),

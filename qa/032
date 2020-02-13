@@ -50,7 +50,7 @@ timesleep=`expr 60 - $timeleft`
 sleep $timesleep
 _writable_primary_logger
 
-_service pcp start | _filter_pcp_start
+_service pcp start 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 

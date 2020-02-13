@@ -1,0 +1,49 @@
+QA output created by 1547
+Running tests with pmrep ...
+testing names-change=abort
+  m.c.files
+           
+testing names-change=ignore
+  m.c.files  m.c.debug  m.c.reload
+                                  
+          0          0           0
+          0          0           0
+          1          0           0
+          1          0           0
+testing names-change=update
+  m.c.files  m.c.debug  m.c.reload
+                                  
+          0          0           0
+          0          0           0
+          1          0           0
+
+  m.t.strings  m.t.strings  m.t.string  m.t.interval  m.t.interval  m.t.interval  m.t.indom  m.t.indom  m.t.discrete  m.t.counter  m.c.files  m.c.debug  m.c.reload
+         zero         hero                      bird          tree          eggs       zero       hero                                                             
+                                            microsec      microsec      microsec      count      count                      count                                  
+       00oo00               g'day worl             0             0       xxxxxxx         43          0            42           41          1          0           0
+       00oo00               g'day worl             0             0       xxxxxxx         43          0            42           41          1          0           0
+testing names-change=update with instance filtering
+  m.c.files  m.c.debug  m.c.reload
+                                  
+          0          0           0
+          0          0           0
+          1          0           0
+
+  m.t.strings  m.t.string  m.t.interval  m.t.indom  m.t.discrete  m.t.counter  m.c.files  m.c.debug  m.c.reload
+         zero                      eggs       zero                                                             
+                               microsec      count                      count                                  
+       00oo00  g'day worl       xxxxxxx         43            42           41          1          0           0
+       00oo00  g'day worl       xxxxxxx         43            42           41          1          0           0
+
+  m.c.files  m.c.debug  m.c.reload
+                                  
+                                  
+          0          0           0
+          0          0           0
+          1          0           0
+
+  m.t.strings  m.t.string  m.t.interval  m.t.indom  m.t.discrete  m.t.counter  m.c.files  m.c.debug  m.c.reload
+         zero                      eggs       zero                                                             
+                               microsec      count                      count                                  
+       00oo00  g'day worl       xxxxxxx         43            42           41          1          0           0
+       00oo00  g'day worl       xxxxxxx         43            42           41          1          0           0

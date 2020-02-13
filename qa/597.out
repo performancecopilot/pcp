@@ -14,7 +14,6 @@ Contents of the selected configuration file:
 --------------- start ./sample.conf ---------------
 [deleted]
 --------------- end ./sample.conf ---------------
-
 Use this configuration file? [y] 
 All commands are run one after another as a group and the group is run
 once per "cycle" time.   Enter the cycle time in seconds [120] 

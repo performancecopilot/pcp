@@ -1,0 +1,52 @@
+#!/bin/sh
+# PCP QA Test No. 1301
+# Exercise pmproxy metrics functionality via MMV PMDA.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+#
+# pmproxy is default installed, but may be blocked by
+# package upgrades choosing to not override existing
+# pmcd.conf files that have local modifications.  In
+# this case, not much we can do - prefer to not have
+# to add Install/Remove scripts for this (core) PMDA.
+#
+pminfo pmproxy >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "pmproxy names not in the namespace"
+grep -q ^pmproxy "$PCP_PMCDCONF_PATH" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "pmproxy not configured in pmcd.conf"
+
+_cleanup()
+{
+    _restore_config "$PCP_TMP_DIR/pmproxy"
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_save_config "$PCP_TMP_DIR/pmproxy"
+$sudo rm -rf "$PCP_TMP_DIR/pmproxy/test"
+
+echo "Creating test metrics"
+$sudo $here/src/mmv_simple $PCP_TMP_DIR/pmproxy/test
+echo Done; echo
+
+echo "Fetching test metrics"
+pminfo -df pmproxy.test
+
+# success, all done
+status=0
+exit

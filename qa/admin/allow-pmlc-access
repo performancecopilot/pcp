@@ -11,6 +11,7 @@
 _getnetworkaddr()
 {
     __verbose=false
+    $very_verbose && __verbose=true
     if `which hostname >/dev/null 2>&1`
     then
 	host=`hostname`
@@ -27,8 +28,20 @@ _getnetworkaddr()
 		    # inet 192.168.1.100  netmask 255.255.255.0  ...
 		    # or
 		    # inet addr:192.168.1.224  Bcast:192.168.1.255  Mask:255.255.255.0
+		    # or
+		    # inet 192.168.1.238/24 broadcast 192.168.1.255 flags 0x0
 		    #
-		    mask=`ifconfig | grep "[ :]$addr " | sed -e 's/.*ask[ :]\([^ ][^ ]*\).*/\1/'`
+		    __config=`ifconfig | grep "[ :]$addr[ /]"`
+		    if echo "$__config" | grep '[Mm]ask' >/dev/null
+		    then
+			mask=`echo "$__config" | sed -e 's/.*ask[ :]\([^ ][^ ]*\).*/\1/'`
+		    elif echo "$__config" | grep " $addr/" >/dev/null
+		    then
+			mask=`echo "$__config" | sed -e '/\/24/s/.*/255.255.255.0/'`
+		    else
+			echo "_getnetworkaddr: botched config line: $__config" >&2
+			mask=''
+		    fi
 		    $__verbose && echo "_getnetworkaddr: ifconfig -> mask=$mask" >&2
 		    case "$mask"
 		    in
@@ -78,6 +91,7 @@ _getnetworkaddr()
 
 tmp=/var/tmp/$$
 sts=0
+very_verbose=false
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 # add additional and optional directories

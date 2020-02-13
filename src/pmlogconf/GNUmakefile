@@ -28,6 +28,7 @@ SUBDIRS = \
 	networking \
 	platform \
 	sgi \
+	statsd \
 	storage \
 	tools \
 	v1.0

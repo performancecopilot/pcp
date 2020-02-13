@@ -1,0 +1,116 @@
+#!/bin/sh
+# PCP QA Test No. 1337
+# Copyright (c) 2019 Red Hat.
+#
+# Exercise MSSQL agent Install and Remove scripts,
+# plus metric value validation on select metrics.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+SQLCMD=/opt/mssql-tools/bin/sqlcmd
+test -x "$SQLCMD" || _notrun "Microsoft SQL Server tools not installed"
+test -x /opt/mssql/bin/sqlservr || _notrun "Microsoft SQL Server not installed"
+test -d "$PCP_PMDAS_DIR/mssql" || _notrun "Microsoft SQL Server PMDA not installed"
+
+# extract username and password, check connection to SQL Server
+eval `$sudo egrep 'server=|username=|password=' "$PCP_PMDAS_DIR/mssql/mssql.conf"`
+test -n "$server" || _notrun "Cannot find SQL Server connection setting"
+test -n "$username" || _notrun "Cannot find SQL Server username setting"
+test -n "$password" || _notrun "Cannot find SQL Server password setting"
+
+_query()
+{
+    $SQLCMD -S "$server" -U "$username" -P "$password" -Q "$@"
+}
+_query "select 1" > $tmp.query
+grep -q '(1 rows affected)' $tmp.query || \
+	_notrun "Cannot perform a basic select query on $server - got:" `cat $tmp.out`
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_compare_values()
+{
+    metric=$1
+    sql=$2	# sqlcmd output file
+    pcp=$3	# pmprobe output file
+
+    sqlvalue=`awk '/SQLServer:/ { print $(NF-1) }' $sql`
+    pcpvalue=`awk '{print $NF}' $pcp`
+
+    _within_tolerance $metric $pcpvalue $sqlvalue 10% -v
+}
+
+pmdamssql_remove()
+{
+    echo
+    echo "=== remove mssql agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdamssql_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/mssql
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== mssql agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # Check mssql metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check mssql metrics have appeared/    { if ($7 >= 20 && $7 <= 800) $7 = "X"
+                                          if ($10 >= 0 && $10 <= 800) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+_prepare_pmda mssql
+# note: _restore_auto_restart pmcd done in _cleanup_pmda()
+trap "_cleanup_pmda mssql; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmcd
+
+# real QA test starts here
+pmdamssql_install
+
+# verify metrics compating PCP values to sqlcmd queries
+_query "select * from sys.dm_os_performance_counters where object_name = 'SQLServer:General Statistics' and counter_name = 'Active Temp Tables'" > $tmp.sql_active_temp_tables
+pmprobe -v mssql.general.active_temp_tables > $tmp.pcp_active_temp_tables
+_compare_values mssql.general.active_temp_tables $tmp.sql_active_temp_tables $tmp.pcp_active_temp_tables
+
+_query "select * from sys.dm_os_performance_counters where object_name = 'SQLServer:General Statistics' and counter_name = 'Logins/sec'" > $tmp.sql_logins
+pmprobe -v mssql.general.logins > $tmp.pcp_logins
+_compare_values mssql.general.logins $tmp.sql_logins $tmp.pcp_logins
+
+_query "select * from sys.dm_os_performance_counters where object_name = 'SQLServer:General Statistics' and counter_name = 'Logouts/sec'" > $tmp.sql_logouts
+pmprobe -v mssql.general.logouts > $tmp.pcp_logouts
+_compare_values mssql.general.logouts $tmp.sql_logouts $tmp.pcp_logouts
+
+_query "select * from sys.dm_os_performance_counters where object_name = 'SQLServer:Latches ' and counter_name = 'Latch Waits/sec'" > $tmp.sql_latch_waits
+pmprobe -v mssql.latches.latch_waits > $tmp.pcp_latch_waits
+_compare_values mssql.latches.latch_waits $tmp.sql_latch_waits $tmp.pcp_latch_waits
+
+pmdamssql_remove
+# success, all done
+status=0
+exit

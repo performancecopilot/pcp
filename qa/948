@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
-    _service pcp start | _filter_pcp_start
+    _service pcp start 2>&1 | _filter_pcp_start
     _wait_for_pmcd
     _restore_auto_restart pmcd
     _wait_for_pmlogger
@@ -85,7 +85,7 @@ cat <<End-of-File >$tmp.pmlc
 quit
 End-of-File
 sleep 1
-pmlc -e <$tmp.pmlc $! 2>&1 | _filter_pmlc
+pmlc -e <$tmp.pmlc $pid 2>&1 | _filter_pmlc
 if ps -p $pid >/dev/null
 then
     echo "Error: pmlogger still alive!"
@@ -99,7 +99,7 @@ $sudo_local_ctx pmlogger -c /dev/null -L -o -l $tmp.log $tmp &
 pid=$!
 echo "pid=$pid" >>$seq.full
 sleep 1
-pmlc -e <$tmp.pmlc $! 2>&1 | _filter_pmlc
+$sudo_local_ctx pmlc -e <$tmp.pmlc $pid 2>&1 | _filter_pmlc
 if ps -p $pid >/dev/null
 then
     $sudo_local_ctx kill -TERM $pid

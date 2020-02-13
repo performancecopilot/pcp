@@ -23,7 +23,7 @@ Temporal Index
 		Log Vol    end(meta)     end(log)
 TIMESTAMP      0          132          132
 TIMESTAMP      0          316          132
-TIMESTAMP      0          316          252
+TIMESTAMP      0         1401          252
 
 [100 bytes]
 TIMESTAMP 2 metrics

@@ -38,6 +38,10 @@ _cleanup()
 _prepare_pmda pipe
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# don't need to regenerate config.default with pmlogconf
+#
+export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+
 _stop_auto_restart pmcd
 
 # move aside pipe configuration state to be restored later.
@@ -141,6 +145,10 @@ pmdapipe_install
 # and setup states.
 if pminfo -v pipe > $tmp.info 2> $tmp.err
 then
+    echo "--- pminfo stdout ---" >>$here/$seq.full
+    cat $tmp.info >>$here/$seq.full
+    echo "--- pminfo stderr ---" >>$here/$seq.full
+    cat $tmp.err >>$here/$seq.full
     cat $tmp.info $tmp.err | _filter_pipe
     _exercise_pipe
 else

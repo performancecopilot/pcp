@@ -27,7 +27,7 @@ from bcc import BPF
 from pcp.pmapi import pmUnits
 from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING
 from cpmapi import PM_SEM_INSTANT, PM_SPACE_BYTE, PM_TIME_USEC
-from cpmapi import PM_ERR_AGAIN
+from cpmda import PMDA_FETCH_NOVALUES
 
 from modules.pcpbcc import PCPBCCBase
 
@@ -130,7 +130,10 @@ class PCPBCCModule(PCPBCCBase):
         try:
             self.bpf = BPF(src_file=bpf_src)
             self.bpf.attach_kprobe(event="blk_account_io_start", fn_name="trace_pid_start")
-            self.bpf.attach_kprobe(event="blk_start_request", fn_name="trace_req_start")
+            # Compat: bcc < 0.6.0 (first check)
+            if 'get_kprobe_functions' not in dir(self.bpf) or \
+               self.get_kprobe_functions(b"blk_start_request"):
+                self.bpf.attach_kprobe(event="blk_start_request", fn_name="trace_req_start")
             self.bpf.attach_kprobe(event="blk_mq_start_request", fn_name="trace_req_start")
             self.bpf.attach_kprobe(event="blk_account_io_completion", fn_name="trace_req_completion")
             if self.interval > 0:
@@ -215,4 +218,4 @@ class PCPBCCModule(PCPBCCBase):
             return [value, 1]
         except Exception: # pylint: disable=broad-except
             self.lock.release()
-            return [PM_ERR_AGAIN, 0]
+            return [PMDA_FETCH_NOVALUES, 0]

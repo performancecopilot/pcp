@@ -3,12 +3,6 @@ QA output created by 954
 pmLoadConfig(TMP.c1) -> 1
 qa.a
 lock(derived_metric)
-lock(derived_metric) [count=2]
-unlock(derived_metric) [count=1]
-lock(derived_metric) [count=2]
-unlock(derived_metric) [count=1]
-lock(derived_metric) [count=2]
-unlock(derived_metric) [count=1]
 unlock(derived_metric)
 lock(derived_metric)
 unlock(derived_metric)
@@ -21,16 +15,8 @@ pmLoadConfig(TMP.c2) -> 1
 qa.a
 qa.b
 lock(derived_metric)
-lock(derived_metric) [count=2]
-unlock(derived_metric) [count=1]
-lock(derived_metric) [count=2]
-unlock(derived_metric) [count=1]
-lock(derived_metric) [count=2]
-unlock(derived_metric) [count=1]
 unlock(derived_metric)
 lock(derived_metric)
-lock(derived_metric) [count=2]
-unlock(derived_metric) [count=1]
 unlock(derived_metric)
 lock(derived_metric)
 unlock(derived_metric)

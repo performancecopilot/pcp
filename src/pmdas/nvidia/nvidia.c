@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,11 @@
 #include "domain.h"
 #include "localnvml.h"
 
-/* InDom table (just one row - corresponding to the set of graphics cards) */
-enum { GCARD_INDOM = 0 };
+/* InDom table (set of graphics cards, set of processes+devices) */
+enum { GCARD_INDOM = 0, GPROC_INDOM };
 pmdaIndom indomtab[] = {
     { GCARD_INDOM, 0, NULL },
+    { GPROC_INDOM, 0, NULL },
 };
 
 /* List of metric item numbers - increasing from zero, no holes */
@@ -36,8 +37,21 @@ enum {
     NVIDIA_MEMUSED,
     NVIDIA_MEMTOTAL,
     NVIDIA_MEMFREE,
+    NVIDIA_PROC_SAMPLES,
+    NVIDIA_PROC_MEMUSED,
+    NVIDIA_PROC_MEMACCUM,
+    NVIDIA_PROC_GPUACTIVE,
+    NVIDIA_PROC_MEMACTIVE,
+    NVIDIA_PROC_TIME,
 
     NVIDIA_METRIC_COUNT
+};
+
+/* Flags indicating modes of the nvidia library */
+enum {
+    COMPUTE	= 0x1,
+    ACCOUNT	= 0x2,
+    PERSIST	= 0x4,
 };
 
 /* Table of metrics exported by this PMDA */
@@ -66,17 +80,42 @@ static pmdaMetric metrictab[] = {
 	PM_SEM_DISCRETE, PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
     { NULL, { PMDA_PMID(0, NVIDIA_MEMFREE), PM_TYPE_U64, GCARD_INDOM,
 	PM_SEM_INSTANT, PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
+    { NULL, { PMDA_PMID(1, NVIDIA_PROC_SAMPLES), PM_TYPE_U64, GPROC_INDOM,
+	PM_SEM_COUNTER, PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) } },
+    { NULL, { PMDA_PMID(1, NVIDIA_PROC_MEMUSED), PM_TYPE_U64, GPROC_INDOM,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
+    { NULL, { PMDA_PMID(1, NVIDIA_PROC_MEMACCUM), PM_TYPE_U64, GPROC_INDOM,
+	PM_SEM_COUNTER, PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
+    { NULL, { PMDA_PMID(1, NVIDIA_PROC_GPUACTIVE), PM_TYPE_U32, GPROC_INDOM,
+	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+    { NULL, { PMDA_PMID(1, NVIDIA_PROC_MEMACTIVE), PM_TYPE_U32, GPROC_INDOM,
+	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+    { NULL, { PMDA_PMID(1, NVIDIA_PROC_TIME), PM_TYPE_U64, GPROC_INDOM,
+	PM_SEM_COUNTER, PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) } },
 };
+
+/* GPROC_INDOM struct, stats that are per process, per card */
+typedef struct {
+    unsigned int	pid;
+    unsigned int	cardid;
+    unsigned long long	samples;
+    unsigned long long	memused;
+    unsigned long long	memaccum;
+    nvmlAccountingStats_t acct;
+} nvproc_t;
 
 /* GCARD_INDOM struct, stats that are per card */
 typedef struct {
     int			cardid;
+    int			flags;
     int			failed[NVIDIA_METRIC_COUNT];
     char		*name;
     char		*busid;
     int			temp;
     int			fanspeed;
     int			perfstate;
+    int			processes;
+    nvproc_t		*nvproc;
     nvmlUtilization_t	active;
     nvmlMemory_t	memory;
 } nvinfo_t;
@@ -84,7 +123,7 @@ typedef struct {
 /* overall struct, holds instance values, indom and instance struct arrays */
 typedef struct {
     int			numcards;
-    int			 maxcards;
+    int			maxcards;
     nvinfo_t		*nvinfo;
     pmdaIndom		*nvindom;
 } pcp_nvinfo_t;
@@ -97,10 +136,10 @@ static int		nvmlDSO_loaded;
 static int
 setup_gcard_indom(void)
 {
-    unsigned int	device_count = 0;
+    nvmlDevice_t	device;
+    unsigned int	device_count = 0, count;
     pmdaIndom		*idp = &indomtab[GCARD_INDOM];
     char		gpuname[32], *name;
-    size_t		size;
     int			i, sts;
 
     /* Initialize instance domain and instances. */
@@ -112,21 +151,17 @@ setup_gcard_indom(void)
 
     pcp_nvinfo.nvindom = idp;
     pcp_nvinfo.nvindom->it_numinst = 0;
-
-    size = device_count * sizeof(pmdaInstid);
-    pcp_nvinfo.nvindom->it_set = (pmdaInstid *)malloc(size);
+    pcp_nvinfo.nvindom->it_set = (pmdaInstid *)calloc(device_count, sizeof(pmdaInstid));
     if (!pcp_nvinfo.nvindom->it_set) {
-	pmNoMem("gcard indom", size, PM_RECOV_ERR);
+	pmNoMem("gcard indom", device_count * sizeof(pmdaInstid), PM_RECOV_ERR);
 	return -ENOMEM;
     }
 
-    size = device_count * sizeof(nvinfo_t);
-    if ((pcp_nvinfo.nvinfo = (nvinfo_t *)malloc(size)) == NULL) {
-	pmNoMem("gcard values", size, PM_RECOV_ERR);
+    if ((pcp_nvinfo.nvinfo = (nvinfo_t *)calloc(device_count, sizeof(nvinfo_t))) == NULL) {
+	pmNoMem("gcard values", device_count * sizeof(nvinfo_t), PM_RECOV_ERR);
 	free(pcp_nvinfo.nvindom->it_set);
 	return -ENOMEM;
     }
-    memset(pcp_nvinfo.nvinfo, 0, size);
 
     for (i = 0; i < device_count; i++) {
 	pcp_nvinfo.nvindom->it_set[i].i_inst = i;
@@ -141,6 +176,23 @@ setup_gcard_indom(void)
 	}
 	pcp_nvinfo.nvindom->it_set[i].i_name = name;
     }
+    for (i = 0; i < device_count; i++) {
+	if ((sts = localNvmlDeviceGetHandleByIndex(i, &device))) {
+	    pmNotifyErr(LOG_ERR, "nvmlDeviceGetHandleByIndex: %s",
+			localNvmlErrStr(sts));
+	    continue;
+	}
+	count = 0;
+	sts = localNvmlDeviceGetComputeRunningProcesses(device, &count, NULL);
+	if (sts == NVML_SUCCESS)
+	    pcp_nvinfo.nvinfo[i].flags |= COMPUTE;
+	sts = localNvmlDeviceSetAccountingMode(device, NVML_FEATURE_ENABLED);
+	if (sts == NVML_SUCCESS)
+	    pcp_nvinfo.nvinfo[i].flags |= ACCOUNT;
+	sts = localNvmlDeviceSetPersistenceMode(device, NVML_FEATURE_ENABLED);
+	if (sts == NVML_SUCCESS)
+	    pcp_nvinfo.nvinfo[i].flags |= PERSIST;
+    }
 
     pcp_nvinfo.numcards = 0;
     pcp_nvinfo.maxcards = device_count;
@@ -148,11 +200,62 @@ setup_gcard_indom(void)
     return 0;
 }
 
+static void
+refresh_proc(nvmlDevice_t device, pmInDom indom, const char *name,
+		unsigned int cardid, nvinfo_t *nvinfo)
+{
+    char		pname[NVML_DEVICE_NAME_BUFFER_SIZE+64];	/* + for pid::cardid:: */
+    int			i, sts, inst;
+    nvproc_t		*nvproc;
+    unsigned int	count = 0;
+    nvmlAccountingStats_t stats;
+    static int		ninfos;		/* local high-water mark */
+    static nvmlProcessInfo_t *infos, *tmp;
+
+    /* extract size of process list for this device */
+    localNvmlDeviceGetComputeRunningProcesses(device, &count, NULL);
+    if (count > ninfos) {
+	if ((tmp = realloc(infos, count * sizeof(*infos))) == NULL)
+	    return;	/* out-of-memory */
+	infos = tmp;
+	ninfos = count;
+    }
+    count = ninfos;
+
+    /* extract actual process list for this device now */
+    if ((sts = localNvmlDeviceGetComputeRunningProcesses(device, &count, infos)))
+	return;
+    for (i = 0; i < count; i++) {
+	/* extract the per-process stats now if available */
+	memset(&stats, 0, sizeof(stats));
+	if (nvinfo->flags & ACCOUNT)
+	    localNvmlDeviceGetAccountingStats(device, infos[i].pid, &stats);
+
+	/* build instance name (device + PID) */
+	pmsprintf(pname, sizeof(pname), "%u::%u %s", cardid, infos[i].pid, name);
+
+	/* lookup struct for this instance, create new one if none */
+	if (pmdaCacheLookupName(indom, pname, &inst, (void **)&nvproc) < 0) {
+	    if ((nvproc = (nvproc_t *)calloc(1, sizeof(*nvproc))) == NULL)
+		continue;	/* out-of-memory */
+	    nvproc->pid = infos[i].pid;
+	    nvproc->cardid = cardid;
+	}
+	nvproc->memused = infos[i].usedGpuMemory;
+	nvproc->memaccum += infos[i].usedGpuMemory;
+	memcpy(&nvproc->acct, &stats, sizeof(stats));
+	nvproc->samples++;
+
+	pmdaCacheStore(indom, PMDA_CACHE_ADD, pname, nvproc);
+    }
+}
+
 static int
-refresh(pcp_nvinfo_t *pcp_nvinfo)
+refresh(pcp_nvinfo_t *pcp_nvinfo, int need_processes)
 {
     unsigned int	device_count;
     nvmlDevice_t	device;
+    pmInDom		indom = indomtab[GPROC_INDOM].it_indom;
     char		name[NVML_DEVICE_NAME_BUFFER_SIZE];
     nvmlPciInfo_t	pci;
     unsigned int	fanspeed;
@@ -160,7 +263,7 @@ refresh(pcp_nvinfo_t *pcp_nvinfo)
     nvmlUtilization_t	utilization;
     nvmlMemory_t	memory;
     nvmlPstates_t	pstate;
-    int			i, sts;
+    int			i, j, sts;
 
     if (!nvmlDSO_loaded) {
 	if (localNvmlInit() == NVML_ERROR_LIBRARY_NOT_FOUND)
@@ -168,6 +271,10 @@ refresh(pcp_nvinfo_t *pcp_nvinfo)
 	setup_gcard_indom();
 	nvmlDSO_loaded = 1;
     }
+
+    /* mark full cache inactive, later iterate over active processes */
+    if (need_processes)
+	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
     if ((sts = localNvmlDeviceGetCount(&device_count)) != 0) {
 	pmNotifyErr(LOG_ERR, "nvmlDeviceGetCount: %s",
@@ -177,7 +284,6 @@ refresh(pcp_nvinfo_t *pcp_nvinfo)
     pcp_nvinfo->numcards = device_count;
 
     for (i = 0; i < device_count && i < pcp_nvinfo->maxcards; i++) {
-	int	j;
 	pcp_nvinfo->nvinfo[i].cardid = i;
 	if ((sts = localNvmlDeviceGetHandleByIndex(i, &device))) {
 	    pmNotifyErr(LOG_ERR, "nvmlDeviceGetHandleByIndex: %s",
@@ -190,13 +296,13 @@ refresh(pcp_nvinfo_t *pcp_nvinfo)
 	    pcp_nvinfo->nvinfo[i].failed[j] = 0;
 	if ((sts = localNvmlDeviceGetName(device, name, sizeof(name))))
 	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_CARDNAME] = 1;
-        if ((sts = localNvmlDeviceGetPciInfo(device, &pci)))
+	if ((sts = localNvmlDeviceGetPciInfo(device, &pci)))
 	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_BUSID] = 1;
-        if ((sts = localNvmlDeviceGetFanSpeed(device, &fanspeed)))
+	if ((sts = localNvmlDeviceGetFanSpeed(device, &fanspeed)))
 	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_FANSPEED] = 1;
-        if ((sts = localNvmlDeviceGetTemperature(device, NVML_TEMPERATURE_GPU, &temperature)))
+	if ((sts = localNvmlDeviceGetTemperature(device, NVML_TEMPERATURE_GPU, &temperature)))
 	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_TEMP] = 1;
-        if ((sts = localNvmlDeviceGetUtilizationRates(device, &utilization))) {
+	if ((sts = localNvmlDeviceGetUtilizationRates(device, &utilization))) {
 	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_GPUACTIVE] = 1;
 	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_MEMACTIVE] = 1;
 	}
@@ -208,18 +314,36 @@ refresh(pcp_nvinfo_t *pcp_nvinfo)
 	if ((sts = localNvmlDeviceGetPerformanceState(device, &pstate)))
 	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_PERFSTATE] = 1;
 
-	if (pcp_nvinfo->nvinfo[i].name == NULL)
+	if (pcp_nvinfo->nvinfo[i].name == NULL &&
+	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_CARDNAME] == 0)
 	    pcp_nvinfo->nvinfo[i].name = strdup(name);
-	if (pcp_nvinfo->nvinfo[i].busid == NULL)
+	if (pcp_nvinfo->nvinfo[i].busid == NULL &&
+	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_BUSID] == 0)
 	    pcp_nvinfo->nvinfo[i].busid = strdup(pci.busId);
 	pcp_nvinfo->nvinfo[i].temp = temperature;
 	pcp_nvinfo->nvinfo[i].fanspeed = fanspeed;
 	pcp_nvinfo->nvinfo[i].perfstate = pstate;
 	pcp_nvinfo->nvinfo[i].active = utilization;	/* struct copy */
 	pcp_nvinfo->nvinfo[i].memory = memory;		/* struct copy */
+
+	if (need_processes && !pcp_nvinfo->nvinfo[i].failed[NVIDIA_CARDNAME])
+	    refresh_proc(device, indom, name, i, &pcp_nvinfo->nvinfo[i]);
     }
 
+    /* walk and cull any entries that remain inactive at this point */
+    if (need_processes)
+	pmdaCacheOp(indom, PMDA_CACHE_SAVE);
+    pmdaCachePurge(indom, 120);
+
     return 0;
+}
+
+static int
+nvidia_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
+{
+    if (pmInDom_serial(indom) == GPROC_INDOM)
+	refresh(&pcp_nvinfo, 1);
+    return pmdaInstance(indom, inst, name, result, pmda);
 }
 
 /*
@@ -230,19 +354,30 @@ refresh(pcp_nvinfo_t *pcp_nvinfo)
 static int
 nvidia_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    refresh(&pcp_nvinfo);
+    int		i, need_processes = 0;
+
+    for (i = 0; i < numpmid; i++) {
+	if (pmID_cluster(pmidlist[i]) == 1)
+		need_processes = 1;
+    }
+    refresh(&pcp_nvinfo, need_processes);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
 static int
 nvidia_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    if (pmID_cluster(mdesc->m_desc.pmid) != 0)
+    unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
+    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
+    nvproc_t		*nvproc;
+
+    if (cluster != 0 && cluster != 1)
 	return PM_ERR_PMID;
-    if (pmID_item(mdesc->m_desc.pmid) != 0 && inst > indomtab[GCARD_INDOM].it_numinst)
+    if (item != 0 && cluster == 0 && inst > indomtab[GCARD_INDOM].it_numinst)
 	return PM_ERR_INST;
 
-    switch (pmID_item(mdesc->m_desc.pmid)) {
+    if (cluster == 0) {
+	switch (item) {
         case NVIDIA_NUMCARDS:
             atom->ul = pcp_nvinfo.numcards;
             break;
@@ -301,9 +436,94 @@ nvidia_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
             break;
         default:
             return PM_ERR_PMID;
+	}
+    } else if (cluster == 1) {
+	if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&nvproc) < 0)
+	    return PM_ERR_INST;
+	switch (item) {
+	case NVIDIA_PROC_SAMPLES:
+	    atom->ull = nvproc->samples;
+	    break;
+	case NVIDIA_PROC_MEMUSED:
+	    atom->ull = nvproc->memused;
+	    break;
+	case NVIDIA_PROC_MEMACCUM:
+	    atom->ull = nvproc->memaccum;
+	    break;
+	case NVIDIA_PROC_GPUACTIVE:
+	    atom->ull = nvproc->acct.gpuUtilization;
+	    break;
+	case NVIDIA_PROC_MEMACTIVE:
+	    atom->ull = nvproc->acct.memoryUtilization;
+	    break;
+	case NVIDIA_PROC_TIME:
+	    atom->ull = nvproc->acct.time;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
     }
 
+    return 1;
+}
+
+static int
+nvidia_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
+{
+    nvproc_t	*nvproc;
+    int		sts;
+
+    if (indom == PM_INDOM_NULL)
+	return 0;
+
+    switch (pmInDom_serial(indom)) {
+    case GCARD_INDOM:
+	return pmdaAddLabels(lp, "{\"gpu\":%u}",
+				pcp_nvinfo.nvinfo[inst].cardid);
+    case GPROC_INDOM:
+	sts = pmdaCacheLookup(indom, inst, NULL, (void **)&nvproc);
+        if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+            return 0;
+        return pmdaAddLabels(lp, "{\"gpu\":%u,pid\":%u}",
+				nvproc->cardid, nvproc->pid);
+    default:
+	break;
+    }
     return 0;
+}
+
+static int
+nvidia_labelInDom(pmInDom indom, pmLabelSet **lp)
+{
+    switch (pmInDom_serial(indom)) {
+    case GCARD_INDOM:
+	pmdaAddLabels(lp, "{\"device_type\":\"gpu\"}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per gpu\"}");
+	return 1;
+    case GPROC_INDOM:
+	pmdaAddLabels(lp, "{\"device_type\":\"gpu\"}");
+	pmdaAddLabels(lp, "{\"indom_name\":\"per processes per gpu\"}");
+	return 1;
+    default:
+	break;
+    }
+    return 0;
+}
+
+static int
+nvidia_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
+{
+    int		sts;
+
+    switch (type) {
+    case PM_LABEL_INDOM:
+	if ((sts = nvidia_labelInDom((pmInDom)ident, lpp)) < 0)
+	    return sts;
+	break;
+    default:
+	break;
+    }
+    return pmdaLabel(ident, type, lpp, pmda);
 }
 
 /**
@@ -325,7 +545,7 @@ nvidia_init(pmdaInterface *dp)
 
     if (isDSO) {
     	initializeHelpPath();
-    	pmdaDSO(dp, PMDA_INTERFACE_2, "nvidia DSO", mypath);
+    	pmdaDSO(dp, PMDA_INTERFACE_7, "nvidia DSO", mypath);
     }
 
     if (dp->status != 0)
@@ -343,8 +563,11 @@ nvidia_init(pmdaInterface *dp)
 	pmNotifyErr(LOG_INFO, "NVIDIA NVML library currently unavailable");
     }
 
-    dp->version.any.fetch = nvidia_fetch;
+    dp->version.seven.instance = nvidia_instance;
+    dp->version.seven.fetch = nvidia_fetch;
+    dp->version.seven.label = nvidia_label;
     pmdaSetFetchCallBack(dp, nvidia_fetchCallBack);
+    pmdaSetLabelCallBack(dp, nvidia_labelCallBack);
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), 
 	     metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
@@ -373,7 +596,7 @@ main(int argc, char **argv)
     pmSetProgname(argv[0]);
 
     initializeHelpPath();
-    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmGetProgname(), NVML,
+    pmdaDaemon(&desc, PMDA_INTERFACE_7, pmGetProgname(), NVML,
 		"nvidia.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &desc);

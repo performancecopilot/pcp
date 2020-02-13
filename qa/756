@@ -19,6 +19,36 @@ echo "QA output created by $seq"
 [ -f $PCP_INC_DIR/builddefs ] || _notrun "No $PCP_INC_DIR/builddefs"
 grep 'PMDA_PERFEVENT[ 	]*=[ 	]*true' $PCP_INC_DIR/builddefs >/dev/null 2>&1 || _notrun "PMDA_PERFEVENT is not true in builddefs"
 
+# some output is dependent on directory order in the filesystem, e.g.
+# PMU name : pmu1
+#	event name : bar
+#	event name : foo
+# need to divert this and sort it before output.
+#
+_filter()
+{
+    ( sed -e 's/^ ===/===/' ; echo "===== END ====") \
+    | $PCP_AWK_PROG '
+BEGIN		{ divert = 0; ndiv = 0 }
+/^===== END ====/	{ next }
+divert == 0	{ print }
+divert > 0 && /^[ 	]/	{ # line beginning with whitespace continues
+				  # the diversion
+				  print $0 >"'$tmp.sort'." ndiv
+				  divert++
+				  next
+				}
+divert > 0	{ # end of diversion
+		  if (divert > 1) {
+		      # at least one line diverted
+		      system("LC_COLLATE=POSIX sort '$tmp.sort'." ndiv)
+		  }
+		  divert = 0
+		  print
+		}
+/^PMU name/	{ divert = 1; ndiv++; next }'
+}
+
 status=1	# failure is the default
 rm -f $seq.full
 cd perfevent
@@ -28,7 +58,7 @@ then
     # we're in the git tree, rebuild the binary to be sure, to be sure
     #
     rm -f perfevent_test
-    if $PCP_MAKE_PROG >>$here/$seq.full 2>&1
+    if $PCP_MAKE_PROG perfevent_test >>$here/$seq.full 2>&1
     then
 	:
     else
@@ -37,10 +67,11 @@ then
     fi
 fi
 
-if ./perfevent_test all 2>/dev/null;
+./perfevent_test all 2>/dev/null | _filter
+status=$?
+if [ "$status" -eq 0 ]
 then
-	echo "Unit tests Passed"
-	status=0
+    echo "Unit tests Passed"
 fi
 
 cd - > /dev/null

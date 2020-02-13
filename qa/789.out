@@ -1,30 +1,24 @@
 QA output created by 789
-=== Daemon PMDA papi native events test ===
-dbpmda> open pipe PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
-Start pmdapapi PMDA: PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
-dbpmda> getdesc on
-dbpmda> attr "username" "root"
-Attribute: username=root
-Success
-dbpmda> attr 11 "0"
-Attribute: userid=0
-Success
-dbpmda> store papi.control.enable "perf.CYCLES"
-PMID: 126.1.0
-Getting description...
-Sending Profile...
-Getting Result Structure...
-126.1.0: "" -> "perf.CYCLES"
-Sending Result...
-dbpmda> fetch papi.system.perf.CYCLES
-PMID(s): 126.0.NUMBER
-pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  126.0.NUMBER (<noname>): numval: 1 valfmt: 1 vlist[]:
-   value NUMBER
-dbpmda> store papi.control.disable "perf.CYCLES"
-PMID: 126.1.2
-Getting description...
-Getting Result Structure...
-126.1.2: "" -> "perf.CYCLES"
-Sending Result...
-dbpmda> 
+
+=== default zimbra agent installation ===
+Culling the Performance Metrics Name Space ...
+zimbra ... not found in Name Space, this is OK
+Updating the PMCD control file, and notifying PMCD ...
+Check zimbra metrics have gone away ... OK
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check zimbra metrics have appeared ... N metrics and X values
+
+=== validate values ===
+zimbra.fd_count: OK
+zimbra.mailboxd_fd_count: OK
+zimbra.mailboxd.lmtp.rcvd_msgs: OK
+zimbra.mailboxd.heap.free: OK
+
+=== remove zimbra agent ===
+Culling the Performance Metrics Name Space ...
+zimbra ... done
+Updating the PMCD control file, and notifying PMCD ...
+Check zimbra metrics have gone away ... OK

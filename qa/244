@@ -92,10 +92,6 @@ $1 == "cisco"		{ $4 = "fd_in"; $5 = "fd_out"
 CONFIG=$PCP_PMCDCONF_PATH
 NEWCONFIG=$tmp/pmcd.conf
 CONFIGSAVE=$tmp/pmcd.conf.save
-[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
-	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
-LOGCONTROL=$PCP_PMLOGGERCONTROL_PATH
-SAVE_LOGCONTROL=$tmp/control.save
 signal="$sudo $PCP_BINADM_DIR/pmsignal"
 _needclean=true
 status=1
@@ -111,25 +107,25 @@ cd $tmp
 
 $sudo chmod u+w $CONFIG
 cp $CONFIG $CONFIGSAVE
-[ -f $LOGCONTROL ] && $sudo mv $LOGCONTROL $SAVE_LOGCONTROL
 
 _cleanup()
 {
     cd $here
     if $_needclean
     then
+	echo "--- stderr from tmp.sh ---" >>$seq.full
+	cat $tmp.full >>$seq.full
 	_needclean=false
 	$signal -s TERM $pmcd
 	sleep 1
 	$sudo rm -f $CONFIG
 	$sudo cp $CONFIGSAVE $CONFIG
 	$sudo chmod u-w $CONFIG
-	[ -f $SAVE_LOGCONTROL ] && $sudo mv $SAVE_LOGCONTROL $LOGCONTROL
 	_restore_loggers
 	echo "Restart and ping pmcd ..."
 	unset PMCD_PORT
 	unset PMCD_SOCKET
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -190,7 +186,7 @@ id pcp >/dev/null 2>&1 && sudoopts="-u pcp"
 cat >$tmp.sh <<END
 #!/bin/sh
 export PATH=$here/src:$PATH
-$PCP_PMCD_PROG -f -t 2 &
+$PCP_PMCD_PROG -f -t 2 2>>$tmp.full &
 echo \$!
 END
 pmcd=`$sudo $sudoopts sh $tmp.sh`

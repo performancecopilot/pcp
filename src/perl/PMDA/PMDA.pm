@@ -35,7 +35,9 @@ require DynaLoader;
 	PM_ERR_THREAD PM_ERR_NOCONTAINER PM_ERR_BADSTORE PM_ERR_LOGHOST
 	PM_ERR_LOGCHANGETYPE PM_ERR_LOGCHANGESEM PM_ERR_LOGCHANGEINDOM
 	PM_ERR_LOGCHANGEUNITS PM_ERR_NEEDCLIENTCERT
+	PM_ERR_BADDERIVE PM_ERR_NOLABELS PM_ERR_PMDAFENCED
 	PM_ERR_NYI
+	PMDA_FETCH_NOVALUES PMDA_FETCH_STATIC PMDA_FETCH_DYNAMIC
 );
 @EXPORT_OK = qw();
 $VERSION = '1.17';
@@ -141,7 +143,23 @@ sub PM_ERR_FAULT	{ -12445; }	# QA fault injected
 sub PM_ERR_THREAD	{ -12398; }	# Operation not supported for multi-threaded applications
 sub PM_ERR_NOCONTAINER	{ -12399; }	# Container not found 
 sub PM_ERR_BADSTORE	{ -12400; }	# Bad input to pmstore
+sub PM_ERR_LOGOVERLAP	{ -12401; }	# Archives overlap in time
+sub PM_ERR_LOGHOST	{ -12402; }	# Archives differ by host
+sub PM_ERR_LOGCHANGETYPE { -12404; }	# The type of a metric has changed in an archive
+sub PM_ERR_LOGCHANGESEM	{ -12405; }	# The semantics of a metric has changed in an archive
+sub PM_ERR_LOGCHANGEINDOM { -12406; }	# The instance domain of a metric has changed in an archive
+sub PM_ERR_LOGCHANGEUNITS { -12407; }	# The units of a metric have changed in an archive
+sub PM_ERR_NEEDCLIENTCERT { -12408; }	# PMCD requires a client certificate
+sub PM_ERR_BADDERIVE	{ -12409; }	# Derived metric definition failed
+sub PM_ERR_NOLABELS	{ -12410; }	# No support for metric label metadata
+sub PM_ERR_PMDAFENCED	{ -12411; }	# PMDA is currently fenced and unable to respond to requests
+
 sub PM_ERR_NYI		{ -21344; }	# Functionality not yet implemented
+
+# constants from pmda.h
+sub PMDA_FETCH_NOVALUES	{ 0; } 		# fetch call back result
+sub PMDA_FETCH_STATIC	{ 1; } 		# fetch call back result
+sub PMDA_FETCH_DYNAMIC	{ 2; } 		# fetch call back result
 
 
 bootstrap PCP::PMDA $VERSION;

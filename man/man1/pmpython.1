@@ -1,3 +1,17 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
 .TH PMPYTHON 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmpython\f1 \- run a python script using a preferred python variant
@@ -8,13 +22,12 @@
 .B pmpython
 provides a way to run python scripts using a customisable python
 interpreter, rather than embedding the name of
-a particular version of python into
-each script.
+a particular version of python into each script.
 .PP
 This can be useful as it allows version-independent python code to be
-run anywhere.  All python modules shipped with PCP support versions
-2.6 and later (in the python2 series), and 3.3 and later (in the python3
-release series).
+run anywhere.
+All python modules shipped with PCP support versions 2.6 and later (in
+the python2 series), and 3.3 and later (in the python3 release series).
 .PP
 Due to python monitoring and collecting scripts being relatively simple
 in PCP (not requiring new modules, language features, etc), it has been
@@ -81,22 +94,14 @@ can be set in the local environment to override the global setting).
 .B pmpython
 is a replacement for an earlier tool with similar function, namely
 .BR pcp-python (1).
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
-.PP
-.SH "SEE ALSO"
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.SH SEE ALSO
 .BR env (1),
 .BR pcp (1),
 .BR pcp-python (1)

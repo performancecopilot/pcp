@@ -529,7 +529,7 @@ do_result(void)
 		pmValueSet	*save_vsp = save[i];
 		int		save_numval;
 		save_numval = orig_numval[i];
-		if (pmDebugOptions.appl1)
+		if (pmDebugOptions.appl2)
 		    fprintf(stderr, "Delete: vset[%d] for %s\n", i, pmIDStr(inarch.rp->vset[i]->pmid));
 		for (j = i+1; j < inarch.rp->numpmid; j++) {
 		    inarch.rp->vset[j-1] = inarch.rp->vset[j];
@@ -549,7 +549,7 @@ do_result(void)
 	     *   METRIC_CHANGE_NAME
 	     *   METRIC_CHANGE_SEM
 	     */
-	    if (pmDebugOptions.appl1)
+	    if (pmDebugOptions.appl2)
 		fprintf(stderr, "Rewrite: vset[%d] for %s\n", i, pmIDStr(inarch.rp->vset[i]->pmid));
 
 	    if (mp->flags & METRIC_CHANGE_PMID)
@@ -688,7 +688,12 @@ do_result(void)
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	/* do not free inarch.logrec ... this is a libpcp PDU buffer */
+	/*
+	 * do not free inarch.logrec ... this is a libpcp PDU buffer,
+	 * so Unpin it
+	 */
+	__pmUnpinPDUBuf(inarch.logrec);
+	
 	if (pmDebugOptions.appl0) {
 	    struct timeval	stamp;
 	    fprintf(stderr, "Log: write ");

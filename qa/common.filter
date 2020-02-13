@@ -66,6 +66,20 @@ s/ i:[0-9] / i:? /
 s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
 s/entry=[^ ]*/entry=[OS]_init/
 }' \
+	-e '/^netbsd.*pmda_netbsd/{
+s/netbsd/[OS]  /
+s/116/ ??/
+s/ i:[0-9] / i:? /
+s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
+s/entry=[^ ]*/entry=[OS]_init/
+}' \
+	-e '/^openbsd.*pmda_openbsd/{
+s/openbsd/[OS]   /
+s/139/ ??/
+s/ i:[0-9] / i:? /
+s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
+s/entry=[^ ]*/entry=[OS]_init/
+}' \
 	-e '/^solaris.*pmda_solaris/{
 s/solaris/[OS]   /
 s/75/??/
@@ -124,6 +138,29 @@ state == 2		{ print base,$0; next }
 state == 1 && /^=====/	{ state = 2; base = NR+1 }' \
     | LC_COLLATE=POSIX _POSIX2_VERSION=0 sort +0n -1 +2n -3 \
     | sed -e 's/^[^ ]* //'
+}
+
+# pmproxy log file
+#
+_filter_pmproxy_log()
+{
+    $PCP_AWK_PROG '
+/ok .* INADDR_ANY/			{ $2 = "FD" }
+/ok .*pmproxy.socket$/			{ $2 = "FD"; $4 = "UNIX_DOMAIN_SOCKET" }
+					{ print }' \
+    | sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e '/pmproxy([0-9][0-9]*)/s//pmproxy(PID)/' \
+        -e '/^\(Log for pmproxy on\) [^ ][^ ]*/s//\1 HOST/' \
+	-e '/^pmproxy: PID/s/=.*/= PID/' \
+	-e 's/pmproxy([1-9][0-9]*) Error:/pmproxy(PID) Error:/' \
+	-e '/^pmproxy: Signalled (signal=[1-9][0-9]*).*/d' \
+	-e '/^pmproxy: disabled time series,.*(missing)/d' \
+	-e '/Info: connected to .*redis.*/d' \
+	-e '/Info: OpenSSL .*/d' \
+	-e '/Info: .* setup$/d' \
+    #end
 }
 
 # pmlogger log file
@@ -214,6 +251,7 @@ _filter_optional_pmdas()
 	-e '/pmdabcc/d' \
 	-e '/pmdabind2/d' \
 	-e '/pmdabonding/d' \
+	-e '/pmdabpftrace/d' \
 	-e '/pmdabrocade/d' \
 	-e '/pmdacisco/d' \
 	-e '/pmdadbping/d' \
@@ -249,9 +287,11 @@ _filter_optional_pmdas()
 	-e '/pmdammv/d' \
 	-e '/pmdamounts/d' \
 	-e '/pmdampi/d' \
+	-e '/pmdamssql/d' \
 	-e '/pmdamysql/d' \
 	-e '/pmdanamed/d' \
 	-e '/pmdanasavg/d' \
+	-e '/pmdanetcheck/d' \
 	-e '/pmdanetfilter/d' \
 	-e '/pmdanetprobe/d' \
 	-e '/pmdanews/d' \
@@ -261,10 +301,10 @@ _filter_optional_pmdas()
 	-e '/pmdanvidia/d' \
 	-e '/pmdaperfevent/d' \
 	-e '/pmdapipe/d' \
-	-e '/pmdaprometheus/d' \
+	-e '/pmdapodman/d' \
+	-e '/pmdaopenmetrics/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
-	-e '/pmdapapi/d' \
 	-e '/pmdapdns/d' \
 	-e '/pmdapmcd/d' \
 	-e '/pmdaproc/d' \
@@ -284,6 +324,7 @@ _filter_optional_pmdas()
 	-e '/pmdasnmp/d' \
 	-e '/pmdasmart/d' \
 	-e '/pmdassping/d' \
+	-e '/pmdastatsd/d' \
 	-e '/pmdasummary/d' \
 	-e '/pmdasystemd/d' \
 	-e '/pmdasystemtap/d' \
@@ -300,7 +341,44 @@ _filter_optional_pmdas()
 	-e '/pmdaxvm/d' \
 	-e '/pmdazimbra/d' \
 	-e '/pmdazswap/d' \
+    #end
+}
 
+# cull lines for pmcd.pmda instances that are non-default.
+#
+_filter_optional_pmda_instances()
+{
+    sed \
+	-e '/inst \[4 or "pmproxy"]/d' \
+	-e '/inst \[10 or "trace"]/d' \
+	-e '/inst \[15 or "sendmail"]/d' \
+	-e '/inst \[24 or "redis"]/d' \
+	-e '/inst \[28 or "news"]/d' \
+	-e '/inst \[33 or "podman"]/d' \
+	-e '/inst \[60 or "linux"]/d' \
+	-e '/inst \[62 or "nfsclient"]/d' \
+	-e '/inst \[68 or "apache"]/d' \
+        -e '/inst \[72 or "mounts"]/d' \
+	-e '/inst \[74 or "lmsensors"]/d' \
+	-e '/inst \[78 or "darwin"]/d' \
+	-e '/inst \[95 or "kvm"]/d' \
+	-e '/inst \[98 or "zimbra"]/d' \
+	-e '/inst \[106 or "logger"]/d' \
+	-e '/inst \[110 or "postgresql"]/d' \
+	-e '/inst \[114 or "systemd"]/d' \
+        -e '/inst \[120 or "nvidia"]/d' \
+        -e '/inst \[122 or "jbd2"]/d' \
+	-e '/inst \[123 or "rpm"]/d' \
+	-e '/inst \[127 or "perfevent"]/d' \
+	-e '/inst \[129 or "dm"]/d' \
+        -e '/inst \[140 or "libvirt"]/d' \
+        -e '/inst \[151 or "bpftrace"]/d' \
+	-e '/inst \[142 or "lio"]/d' \
+	-e '/inst \[144 or "openmetrics"]/d' \
+	-e '/inst \[149 or "bcc"]/d' \
+        -e '/inst \[152 or "netcheck"]/d' \
+	-e '/inst \[250 or "trivial"]/d' \
+    # end
 }
 
 # cull the optional top-level PMNS entries
@@ -316,6 +394,7 @@ _filter_top_pmns()
 	-e '/^    bcc /d' \
 	-e '/^    bind2 /d' \
 	-e '/^    bonding /d' \
+	-e '/^    bpftrace /d' \
 	-e '/^    brocade /d' \
 	-e '/^    broken /d' \
 	-e '/^    cgroup /d' \
@@ -353,8 +432,10 @@ _filter_top_pmns()
 	-e '/^    memcache /d' \
 	-e '/^    mmv /d' \
 	-e '/^    mpi /d' \
+	-e '/^    mssql /d' \
 	-e '/^    mysql /d' \
 	-e '/^    named /d' \
+	-e '/^    netcheck /d' \
 	-e '/^    netfilter /d' \
 	-e '/^    netprobe /d' \
 	-e '/^    news /d' \
@@ -362,16 +443,17 @@ _filter_top_pmns()
 	-e '/^    nginx /d' \
 	-e '/^    nutcracker /d' \
 	-e '/^    nvidia /d' \
+	-e '/^    openmetrics /d' \
 	-e '/^    oracle /d' \
 	-e '/^    oraping /d' \
-	-e '/^    papi /d' \
 	-e '/^    pdns /d' \
 	-e '/^    perfevent /d' \
 	-e '/^    pipe /d' \
+	-e '/^    pmproxy /d' \
+	-e '/^    podman /d' \
 	-e '/^    postfix /d' \
 	-e '/^    postgresql /d' \
 	-e '/^    proc /d' \
-	-e '/^    prometheus /d' \
 	-e '/^    rabbitmq /d' \
 	-e '/^    redis /d' \
 	-e '/^    rpm /d' \
@@ -382,6 +464,7 @@ _filter_top_pmns()
 	-e '/^    simple /d' \
 	-e '/^    smart /d' \
 	-e '/^    snmp /d' \
+	-e '/^    statsd /d' \
 	-e '/^    ssping /d' \
 	-e '/^    espping /d' \
 	-e '/^    summary /d' \
@@ -400,8 +483,8 @@ _filter_top_pmns()
 	-e '/^    webping /d' \
 	-e '/^    zimbra /d' \
 	-e '/^    zswap /d' \
-	-e 's/ $//'
-
+	-e 's/ $//' \
+    #end
 }
 
 # handle pmDumpResult() output
@@ -444,6 +527,11 @@ _filter_cron_scripts()
 	-e 's/cron\.pmsnap/pmsnap/g'
 }
 
+# besides rewriting platform-specific paths, we need to ensure that
+# any chatter from the pcp/pmcd/pmlogger start scripts is removed ...
+# this may come from the PCP scripts or the infrastructure that runs
+# them, e.g. systemctl
+#
 _filter_pcp_start()
 {
     sed \
@@ -474,24 +562,17 @@ s/\.\.\.[. ]*failed/.../
 s/Performance Co-Pilot starting PMCD (logfile is [^)]*) .../Starting pmcd ... /
 s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
 }' \
-	-e '/^Starting pmcd/{
-s/\.\.\. \.\.done/... /
-}' \
-	-e '/^Starting pmlogger/{
-s/\.\.\. \.\.done/... /
-}' \
+	-e '/^Starting pmcd/d' \
+	-e '/^pmcd\.service: Succeeded/d' \
+	-e '/^Rebuilding PMNS /d' \
+	-e '/^Starting pmlogger/d' \
+	-e '/^Waiting for PMCD/d' \
+	-e '/^Waiting for pmcd/d' \
 	-e '/^Performance Co-Pilot installing/s//Installing/' \
+	-e '/Installing .* PMDA/d' \
+	-e '/Removing .* PMDA/d' \
         -e '/^\.[. ]*done$/d' \
         -e '/^\.[. ]*failed$/d' \
-	-e '/^Waiting for PMCD/{
-s/PMCD/pmcd/
-s/\.\.\.[. ]*done/.../
-s/\.\.\.\.*/.../
-}' \
-	-e '/^Waiting for pmcd/{
-s/\.\.\.[. ]*done/.../
-s/\.\.\.\.*/.../
-}' \
 	-e 's/^\(Waiting .*\.\.\.\)\(\$PCP_RC_DIR\)/\1\
 \2/' \
 	-e '/^[ 	]*$/d' \
@@ -508,19 +589,12 @@ _filter_pcp_stop()
 {
     sed \
 	-e '/^Stopping pmlogger/d' \
+	-e '/^Waiting for PMCD/s/PMCD/pmcd/' \
+	-e '/^Waiting for pmcd/d' \
+	-e '/^pmcd\.service: Succeeded/d' \
 	-e '/^Waiting for PMIE/s/PMIE/pmie/' \
-	-e '/^Waiting for pmie/s/\.\.\.[. ]*done/.../' \
-	-e '/^Waiting for PMCD/{
-s/\.\.\.[. ]*done/.../
-s/PMCD/pmcd/
-s/\.\.\.\.*/.../
-}' \
-	-e '/^Waiting for pmcd/{
-s/\.\.\.[. ]*done/.../
-s/\.\.\.\.*/.../
-}' \
+	-e '/^Waiting for pmie/d' \
 	-e '/Warning: Forcing PMCD to terminate!/s/PMCD/pmcd/' \
-	-e '/^Waiting for pmie/s/\.\.\. *$/.../' \
 	-e '/^Performance Co-Pilot/s/\.\.\. *$/.../' \
         -e '/^\.[. ]*done$/d' \
 	-e '/is not a native service, redirecting to .*chkconfig/d' \
@@ -541,10 +615,13 @@ _filterall_pcp_start()
 _filter_pmie_start()
 {
     sed \
-	-e '/^Waiting for PMIE/s/PMIE/pmie/' \
-	-e '/^Waiting for pmie process(es) to terminate/d' \
+	-e 's/PMIE/pmie/g' \
+	-e '/^Stopping pmie/d' \
+	-e '/^Starting pmie/d' \
+	-e '/^Waiting for pmie/d' \
 	-e "s;$PCP_RC_DIR/pmie;\$PCP_RC_DIR/pmie;g" \
 	-e '/(pmie) is disabled/d' \
+	-e '/(pmie) not permanently enabled/d' \
 	-e '/To enable/d' \
 	-e '/update-rc.d -f pmie remove/d' \
 	-e '/update-rc.d pmie defaults/d' \
@@ -573,7 +650,9 @@ _filter_pmie_stop()
 _filter_pmproxy_start()
 {
     sed \
-	-e '/^Waiting for pmproxy to terminate/d' \
+	-e '/^Stopping pmproxy/d' \
+	-e '/^Starting pmproxy/d' \
+	-e '/^Waiting for pmproxy/d' \
 	-e "s;$PCP_RC_DIR/pmproxy;\$PCP_RC_DIR/pmproxy;g" \
 	-e '/(pmproxy) is disabled/d' \
 	-e '/To enable/d' \
@@ -594,8 +673,7 @@ _filter_pmproxy_stop()
 {
     sed \
 	-e "s;$PCP_RC_DIR/pmproxy;\$PCP_RC_DIR/pmproxy;g" \
-	-e '/^Waiting for pmproxy/s/\.\.\.[. ]*done/.../' \
-	-e '/^Waiting for pmproxy/s/\.\.\. *$/.../' \
+	-e '/^Waiting for pmproxy/d' \
     | _filter_init_distro
 }
 
@@ -625,11 +703,14 @@ _filter_pmda_install()
 	-e '/Terminate PMDA/,/Updating the PMCD/c\
 Terminate PMDA if already installed ...\
 [...install files, make output...]\
-Updating the PMCD control file, and notifying PMCD ...' \
+Updating the PMCD control file, and notifying PMCD ...
+' \
 	-e '/Installing files/,/Updating the Performance Metrics/c\
 Installing files ...\
 [...install files, make output...]\
-Updating the Performance Metrics Name Space (PMNS) ...'
+Updating the Performance Metrics Name Space (PMNS) ...
+' \
+    | _filter_pcp_start
 }
 
 _filter_pmda_remove()
@@ -839,4 +920,29 @@ _filter_views()
 	-e '/GConf-WARNING \*\*: Client failed to connect to the D-BUS/d' \
 	-e '/Failed to connect to socket .*dbus.*: Connection refused/d' \
 	-e '/^$/d'
+}
+
+_value_filter_any()
+{
+    sed -E -e "s/value .+/value OK/g"
+}
+
+_value_filter_nonzero()
+{
+    sed -e "s/value [1-9][0-9]*/value OK/g"
+}
+
+_instances_filter_any()
+{
+    awk '/value .+/ {print "OK"; exit}'
+}
+
+_instances_filter_nonzero()
+{
+    awk '/value [1-9][0-9]*/ {print "OK"; exit}'
+}
+
+_instances_filter_exact()
+{
+    grep "value $1" > /dev/null && echo OK
 }

@@ -84,3 +84,6 @@ jbd2_kernel_ulong.conf:	mk.rewrite
 pmda.o proc_jbd2.o:	convert.h
 pmda.o proc_jbd2.o:	proc_jbd2.h
 pmda.o:			$(VERSION_SCRIPT)
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

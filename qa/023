@@ -90,6 +90,9 @@ $1 == "y" && $2 = "y" && $8 == "localhost" {
     | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../' \
     | _filter_me \
     | sed -e '/MY_HOSTNAME A_PID/{
+s/^6 /N-OK /
+s/^8 /N-OK /
+s/^9 /N-OK /
 s/^16 /N-OK /
 s/^17 /N-OK /
 s/^18 /N-OK /
@@ -137,7 +140,7 @@ cleanup()
 	echo "Restart and ping pmcd ..."
 	unset PMCD_PORT # don't worry about preserving just get rid of it
 	unset PMCD_SOCKET
-	_service pcp restart \
+	_service pcp restart 2>&1 \
 	| tee -a $here/$seq.full \
 	| _filterall_pcp_start \
 	| sed \
@@ -200,7 +203,7 @@ echo 'hinv { ncpu 1:0:1 }' >> $FAKE_NS
 # sample agent (domain 254).  These agents will be appended to the file.
 #
 cat <<EOF >$TMP_CONFIG
-# Created by QA $seq
+# Created by PCP QA test $seq
 fake_irix 1 pipe binary $here/src/dumb_pmda -d 1 fake_irix
 fake_proc 3 pipe binary $here/src/dumb_pmda -d 3 fake_proc
 fake_cisco 5 pipe binary $here/src/dumb_pmda -d 5 fake_cisco
@@ -237,7 +240,7 @@ PMCD_PORT=$port
 PATH=$PATH:$here/src
 PMCD_SOCKET=$tmp/pmcd.socket
 export PMCD_PORT PATH PMCD_SOCKET
-$PCP_PMCD_PROG -f -t 2 &
+$PCP_PMCD_PROG -f -t 2 2>>$here/$seq.full &
 pmcd=$!
 if [ -d $PCP_RUN_DIR ]
 then

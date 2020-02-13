@@ -1,0 +1,112 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2018 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMIPUTLABEL 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmiPutLabel\f1 \- add labels to the output archive
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/import.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmiPutLabel(unsigned int \fItype\fP, unsigned int \fIid\fP, unsigned int \fIinstance\fP, const char *\fIname\fP, const char *\fIvalue\fP)
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH "Perl SYNOPSIS"
+.ft 3
+use PCP::LogImport;
+.sp
+pmiPutLabel($\fItype\fP, $\fIid\fP, $\fIinstance\fP, $\fIname\fP, $\fIvalue\fP);
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiPutLabel
+adds a label for the global context or for a given domain, cluster, item,
+instance domain or instance.
+.PP
+The
+.I type
+must be one of
+.BR PM_LABEL_CONTEXT,
+.BR PM_LABEL_DOMAIN,
+.BR PM_LABEL_CLUSTER,
+.BR PM_LABEL_ITEM,
+.BR PM_LABEL_INDOM,
+or
+.BR PM_LABEL_INSTANCES .
+.PP
+If
+.I type
+is
+.BR PM_LABEL_CONTEXT ,
+then
+.I id
+and
+.I instance
+are ignored.
+Otherwise,
+.I id
+should match a domain, cluster, metric or instance domain defined earlier in
+a call to
+.BR pmiAddMetric (3).
+.PP
+If
+.I type
+is
+.BR PM_LABEL_INSTANCES ,
+then
+.I instance
+should match an instance number of the selected domain. Otherwise
+.I instance
+is ignored.
+.PP
+.I name
+is a string containing the name of the label to be added.
+.PP
+.I value
+is a string containing the value of the label to be added.
+.PP
+No data will be written until
+.BR pmiWrite (3)
+is called, so multiple calls to
+.B pmiPutLabel
+are typically used to accumulate several labels before calling
+.BR pmiWrite (3).
+.SH DIAGNOSTICS
+.B pmiPutLabel
+returns zero on success else a negative value that can be turned into an
+error message by calling
+.BR pmiErrStr (3).
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR pmiAddInstance (3),
+.BR pmiAddMetric (3),
+.BR pmiErrStr (3),
+.BR pmiPutResult (3),
+.BR pmiPutValue (3),
+.BR pmiPutValueHandle (3),
+.BR pmiPutText (3)
+and
+.BR pmiWrite (3).

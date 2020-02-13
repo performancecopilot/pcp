@@ -45,17 +45,6 @@ extern int	do_swap_metrics(pmdaMetric *, unsigned int, pmAtomValue *);
 extern void	refresh_vm_uvmexp_metrics(void);
 extern int	do_vm_uvmexp_metrics(pmdaMetric *, unsigned int, pmAtomValue *);
 
-/*
- * kernel memory reader pieces
- */
-#include <kvm.h>
-#include <nlist.h>
-
-extern kvm_t	*kvmp;
-
-#define KERN_IFNET	0
-extern struct nlist	symbols[];
-
 /* miscellaneous useful values */
 extern int	cpuhz;
 extern int	ncpu;

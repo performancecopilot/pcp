@@ -1,18 +1,18 @@
 #!/bin/sh
 # PCP QA Test No. 1388
-# Exercise pmwebd mandatory authentication mode.
+# Exercise pmproxy mandatory authentication mode.
 #
-# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+# Copyright (c) 2017,2019 Red Hat.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
+. ./common.filter
 . ./common.secure
-. ./common.webapi
 
+_check_series
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
-[ -f ${PCP_BINADM_DIR}/pmwebd ] || _notrun "pmwebd binary not installed"
 
 full_hostname=`hostname`
 
@@ -28,47 +28,95 @@ $sudo rm -f $tmp.* $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
-
-webargs="-U $username"
-webport=`_find_free_port`
-webpid=""
+need_restore=false
+groupid=`id -g`
+userid=`id -u`
+domain=242
+loaded=2
 
 _cleanup()
 {
-    # stop pmwebd pmcd client up front
-    if [ "X$webpid" != "X" ]; then
-	$signal -s TERM $webpid
-	webpid=""
+    cd $here
+
+    # restore any modified pmcd and pmproxy configuration files
+    if $need_restore
+    then
+	need_restore=false
+	_restore_config $PCP_SASLCONF_DIR/pmcd.conf
+	_restore_config $PCP_SYSCONF_DIR/labels
+        _restore_config $PCP_SYSCONF_DIR/pmproxy
     fi
 
-    # restore any modified pmcd configuration files
-    _restore_config $PCP_SASLCONF_DIR/pmcd.conf
+    if pmprobe -I pmcd.agent.status | grep '"test_python"' >/dev/null
+    then
+	$sudo rm $PCP_VAR_DIR/config/pmda/$domain.$loaded
+	cd $here/pmdas/test_python
+	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo rm -f domain.h.python
+	cd $here
+    fi
 
-    _service pcp stop 2>&1 | _filter_pcp_stop
-    _service pcp start 2>&1 | _filter_pcp_start
+    _service pmcd stop >>$seq.full 2>&1
+    _service pmcd start >>$seq.full 2>&1
     _wait_for_pmcd
-    _wait_for_pmlogger
+
+    _service pmproxy stop >>$seq.full 2>&1
+    _service pmproxy start >>$seq.full 2>&1
+    _wait_for_pmproxy
 
     $sudo rm -f $tmp.*
 }
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+_filter_credentials()
+{
+    sed \
+	-e 's/"groupid": '$groupid',/"groupid": GID/g' \
+	-e 's/"userid": '$userid'/"userid": UID/g' \
+    #end
+}
+
+_filter_username()
+{
+    sed -e "s/user $username/user USER/"
+}
+
 _filter_listusers2()
 {
     sed \
         -e "s/^$username/USER/" \
         -e "s/@$full_hostname:/@HOST:/" \
-        -e "s/@$hostname:/@HOST:/"
+        -e "s/@$hostname:/@HOST:/" \
+    #end
 }
 
-_filter_context()
+_filter_json()
 {
-    sed -e 's/: [0-9][0-9]*/: CTX/g'
+    tee -a $seq.full | \
+    sed -e 's,"machineid": .*,"machineid": "MACHINEID",g' \
+        -e 's,"context": .*,"context": "CONTEXT",g' \
+        -e 's,"hostname": .*,"hostname": "HOSTNAME",g' \
+        -e 's,"domainname": .*,"domainname": "DOMAINNAME",g' \
+        -e 's,"source": .*,"source": "SOURCE",g' \
+        -e 's,"hostspec": .*,"hostspec": "HOSTSPEC",g' \
+    # end
 }
+
+_filter_ctx()
+{
+    tee -a $seq.full | \
+    sed -E -e 's/ctx [0-9]+/ctx ?/g'
+}
+
+# real QA test starts here
+_save_config $PCP_SYSCONF_DIR/labels
+_save_config $PCP_SYSCONF_DIR/pmproxy
+_save_config $PCP_SASLCONF_DIR/pmcd.conf
+need_restore=true
+$sudo rm -f $PCP_SYSCONF_DIR/labels/*
 
 # start pmcd in sasldb authenticating mode
-_save_config $PCP_SASLCONF_DIR/pmcd.conf
 echo 'mech_list: plain' >$tmp.sasl
 echo "sasldb_path: $tmp.passwd.db" >>$tmp.sasl
 $sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
@@ -84,31 +132,60 @@ sasldblistusers2 -f $tmp.passwd.db \
 | tee -a $seq.full \
 | _filter_listusers2
 
+echo "Ensure pmcd can read the password file" | tee -a $seq.full
+$sudo chgrp pcp $tmp.passwd.db
+ls -l $tmp.passwd.db >>$seq.full
+$sudo -u pcp od -c $tmp.passwd.db >>$seq.full
+
 echo "Start pmcd with this shiny new sasldb"
-_service pcp restart | tee -a $seq.full >$tmp.out
+_service pmcd restart 2>&1 | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
-_wait_for_pmlogger
 
-echo "Start pmwebd with mandatory authentication"
-$PCP_BINADM_DIR/pmwebd $webargs -p $webport -l $tmp.out -v -t5 -C &
-webpid=$!
-echo "pid=$webpid" >>$seq.full
-echo "webport=$webport" >>$seq.full
-echo "webargs=$webargs" >>$seq.full
+if which systemctl >/dev/null 2>&1
+then
+    $sudo systemctl daemon-reload
+fi
 
-_wait_for_pmwebd_logfile $tmp.out $webport
+echo "Start pmproxy with mandatory authentication"
+_service pmproxy stop >/dev/null
+_service pmproxy start >>$here/$seq.full 2>&1
 
-echo && echo "=== pmwebd no authentication (expect errors) ==="
-curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost"
-echo
-curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fusername%3Dbob"
-echo
-curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fpassword%3Dbib"
-echo
+echo "Start test Python PMDA to check if username is in per-context state"
+cd pmdas/test_python
+$sudo ./Install </dev/null \
+    | _filter_pmda_install \
+    | sed -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+    | $PCP_AWK_PROG '
+/Check test_python metrics have appeared/ { if ($10 >= 0 && $10 <= 9) $10 = "N" }
+                                          { print }'
+cd $here
 
-echo && echo "=== pmwebd with authentication (expect success) ==="
-curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fusername%3D$username%26password%3Dy" 2>&1 | _filter_context
-echo
+echo && echo "=== pmproxy no authentication (expect errors) ==="
+curl -s -S "http://localhost:44322/pmapi/context?hostspec=localhost%3Fusername%3Dbob" | pmjson | _filter_json
+curl -s -S "http://localhost:44322/pmapi/context?hostspec=localhost%3Fpassword%3Dbib" | pmjson | _filter_json
+curl -s --user $username:bob "http://localhost:44322/pmapi/context?hostspec=localhost%3Fusername%3Dbob" | pmjson | _filter_json
+
+echo && echo "=== pmproxy with authentication (expect success) ==="
+curl -s --user $username:y "http://localhost:44322/pmapi/context" | pmjson | _filter_json | _filter_credentials
+
+echo && echo "=== state without authentication ==="
+ctx_no_auth=`curl -s "http://localhost:44322/pmapi/context" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+curl -s "http://localhost:44322/pmapi/$ctx_no_auth/fetch?names=test_python.current_username" | pmjson | grep '"value"' | _filter_ctx
+
+echo && echo "=== state with authentication ==="
+ctx_with_auth=`curl -s --user $username:y "http://localhost:44322/pmapi/context" | pmpython -c 'import sys,json; print(json.load(sys.stdin)["context"])'`
+curl -s "http://localhost:44322/pmapi/$ctx_with_auth/fetch?names=test_python.current_username" | pmjson | grep '"value"' | _filter_ctx | _filter_username
+
+echo && echo "=== verify with pminfo (expect error) ==="
+pminfo -f -h "pcp://127.0.0.1?username=$username&password=bob" test_python.current_username
+
+echo && echo "=== verify with pminfo (expect success) ==="
+pminfo -f -h "pcp://127.0.0.1?username=$username&password=y" test_python.current_username | _filter_ctx | _filter_username
+
+
+echo >>$here/$seq.full
+echo "=== pmproxy log ===" >>$here/$seq.full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$here/$seq.full
 
 status=0
 exit

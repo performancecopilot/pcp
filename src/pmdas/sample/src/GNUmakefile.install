@@ -54,7 +54,7 @@ CMDTARGET = pmda$(IAM)
 TARGETS = $(LIBTARGET) $(CMDTARGET)
 
 LLDLIBS	= -lpcp_pmda -lpcp $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) $(LIB_FOR_RT)
-LDIRT	= *.log help.dir help.pag
+LDIRT	= *.log help.dir help.pag dsohelp dsohelp.dir dsohelp.pag
 
 default: $(TARGETS)
 

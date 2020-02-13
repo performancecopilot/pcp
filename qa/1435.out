@@ -1,0 +1,5 @@
+QA output created by 1435
+== Upgrade test case 1
+elasticsearch 108 pipe binary python PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.python
+== Upgrade test case 2
+elasticsearch 108 pipe binary python PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.python

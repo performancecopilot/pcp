@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2019 Red Hat.
  * Copyright (c) 1995-2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -550,6 +550,37 @@ pmdaDirect(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
     }
 }
 
+void *
+pmdaExtGetData(pmdaExt *pmda)
+{
+    e_ext_t	*extp = (e_ext_t *)pmda->e_ext;
+
+    return extp->privdata;
+}
+
+void
+pmdaExtSetData(pmdaExt *pmda, void *data)
+{
+    e_ext_t	*extp = (e_ext_t *)pmda->e_ext;
+
+    if (pmDebugOptions.libpmda)
+	pmNotifyErr(LOG_DEBUG, "pmdaExtSetData: data=%p", data);
+    extp->privdata = data;
+}
+
+void
+pmdaSetData(pmdaInterface *dispatch, void *data)
+{
+    if (HAVE_ANY(dispatch->comm.pmda_interface))
+	pmdaExtSetData(dispatch->version.any.ext, data);
+    else {
+	pmNotifyErr(LOG_CRIT, "pmdaSetData: PMDA interface version %d not supported (domain=%d)",
+		     dispatch->comm.pmda_interface, dispatch->domain);
+	dispatch->status = PM_ERR_GENERIC;
+	return;
+    }
+}
+
 void
 pmdaExtSetFlags(pmdaExt *pmda, int flags)
 {
@@ -561,13 +592,13 @@ pmdaExtSetFlags(pmdaExt *pmda, int flags)
 void
 pmdaSetFlags(pmdaInterface *dispatch, int flags)
 {
-    if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
+    if (HAVE_ANY(dispatch->comm.pmda_interface))
+	pmdaExtSetFlags(dispatch->version.any.ext, flags);
+    else {
 	pmNotifyErr(LOG_CRIT, "pmdaSetFlags: PMDA interface version %d not supported (domain=%d)",
 		     dispatch->comm.pmda_interface, dispatch->domain);
 	dispatch->status = PM_ERR_GENERIC;
-	return;
     }
-    pmdaExtSetFlags(dispatch->version.any.ext, flags);
 }
 
 void
@@ -758,7 +789,7 @@ __pmdaSetupPDU(int infd, int outfd, int flags, const char *agentname)
 	return -1;
     }
 
-    if ((pinpdu = sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) < 0) {
+    if ((pinpdu = sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) < 0) {
 	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s getting creds: %s\n", agentname, pmErrStr(sts));
 	return -1;
     }

@@ -63,7 +63,7 @@ debug=false
 pcp -P \
 | tee -a $seq.full \
 | sed \
-    -e '/:/{
+    -e '/pmie:/{
 :loop
 N
 s/\n[ 	]*\(.*([0-9][0-9]* rules\)/ \1/
@@ -76,8 +76,8 @@ s/)$/ )/
     -e 's/rules)$/rule)/' \
 | tee $tmp.dbg.1 \
 | $PCP_AWK_PROG '
-/pmie: .* rule\)/		{ state=1 }
-'$debug' == "true"		{ print "state=" state " want=" want ": " $0 }
+/^  *pmie: /			{ state=1 }
+"'$debug'" == "true"		{ print "state=" state " want=" want ": " $0 }
 state==1 && /'`echo $tmp.pmie | sed -e s@/@\\\\\\\\/@g`' \(2 rule\)/	{ print; want = 1; next }
 state==1 && / \(actions=/	{ if ($3 == $5 && $5 == $9) {
 				      if ($3 >= 4 && $3 <= 9) $3 = "OK"
@@ -86,6 +86,7 @@ state==1 && / \(actions=/	{ if ($3 == $5 && $5 == $9) {
 				  }
 				}
 state==1 && / rule\)/		{ want = 0 }
+state==1 && /'"`hostname`"':/	{ want = 0 }
 want==1		{ print }' \
 | tee $tmp.dbg.2 \
 | sed \

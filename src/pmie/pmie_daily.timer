@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily processing of PMIE logs
+
+[Timer]
+OnCalendar=*-*-* 00:08:00
+
+[Install]
+WantedBy=timers.target
+RequiredBy=pmie.service

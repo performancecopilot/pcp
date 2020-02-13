@@ -1,0 +1,129 @@
+QA output created by 1393
+== check basic numa metrics 4 nodes, 8 CPUs
+
+hinv.nnode
+    value 4
+
+hinv.ncpu
+    value 8
+hinv.map.cpu_node
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 1
+   "cpu3" 1
+   "cpu4" 2
+   "cpu5" 2
+   "cpu6" 3
+   "cpu7" 3
+hinv.node.online
+   "node0" 1
+   "node1" 1
+   "node2" 1
+   "node3" 1
+kernel.percpu.cpu.idle
+   "cpu0" 82176250
+   "cpu1" 82246600
+   "cpu2" 82152810
+   "cpu3" 82283820
+   "cpu4" 82098120
+   "cpu5" 82009220
+   "cpu6" 82276330
+   "cpu7" 82191150
+kernel.percpu.cpu.user
+   "cpu0" 373300
+   "cpu1" 349760
+   "cpu2" 363240
+   "cpu3" 369770
+   "cpu4" 412040
+   "cpu5" 419270
+   "cpu6" 344030
+   "cpu7" 433650
+kernel.pernode.cpu.idle
+   "node0" 164422850
+   "node1" 164436630
+   "node2" 164107340
+   "node3" 164467480
+kernel.pernode.cpu.user
+   "node0" 723060
+   "node1" 733010
+   "node2" 831310
+   "node3" 777680
+mem.numa.alloc.local_node
+   "node0" 32241822
+   "node1" 32048777
+   "node2" 35574473
+   "node3" 32921660
+mem.numa.util.total
+   "node0" 1030924
+   "node1" 1031416
+   "node2" 965616
+   "node3" 1006408
+mem.numa.util.free
+   "node0" 354088
+   "node1" 557252
+   "node2" 229456
+   "node3" 271916
+mem.numa.util.used
+   "node0" 676836
+   "node1" 474164
+   "node2" 736160
+   "node3" 734492
+
+==
+== delete node2, leaving node0, node1 and node3
+==
+
+hinv.nnode
+    value 3
+
+hinv.ncpu
+    value 6
+hinv.map.cpu_node
+   "cpu0" 0
+   "cpu1" 0
+   "cpu2" 1
+   "cpu3" 1
+   "cpu6" 3
+   "cpu7" 3
+hinv.node.online
+   "node0" 1
+   "node1" 1
+   "node3" 1
+kernel.percpu.cpu.idle
+   "cpu0" 82176250
+   "cpu1" 82246600
+   "cpu2" 82152810
+   "cpu3" 82283820
+   "cpu6" 82276330
+   "cpu7" 82191150
+kernel.percpu.cpu.user
+   "cpu0" 373300
+   "cpu1" 349760
+   "cpu2" 363240
+   "cpu3" 369770
+   "cpu6" 344030
+   "cpu7" 433650
+kernel.pernode.cpu.idle
+   "node0" 164422850
+   "node1" 164436630
+   "node3" 164467480
+kernel.pernode.cpu.user
+   "node0" 723060
+   "node1" 733010
+   "node3" 777680
+mem.numa.alloc.local_node
+   "node0" 32241822
+   "node1" 32048777
+   "node3" 32921660
+mem.numa.util.total
+   "node0" 1030924
+   "node1" 1031416
+   "node3" 1006408
+mem.numa.util.free
+   "node0" 354088
+   "node1" 557252
+   "node3" 271916
+mem.numa.util.used
+   "node0" 676836
+   "node1" 474164
+   "node3" 734492

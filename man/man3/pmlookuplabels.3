@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016-2017 Red Hat.
+.\" Copyright (c) 2016-2018 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -43,6 +43,26 @@ int pmGetContextLabels(pmLabelSet **\fIlabelsets\fP);
 .sp
 cc ... \-lpcp
 .ft 1
+.SH "PYTHON SYNOPSIS"
+.ft 3
+from pcp import pmapi
+.sp
+.nf
+\fIlabelsets\fP = pmapi.pmContext().pmLookupLabels(\fIpmid\fP)
+.sp
+\fIlabelsets\fP = pmapi.pmContext().pmGetInstancesLabels(\fIindom\fP)
+.br
+\fIlabelsets\fP = pmapi.pmContext().pmGetItemLabels(\fIpmid\fP)
+.br
+\fIlabelsets\fP = pmapi.pmContext().pmGetClusterLabels(\fIpmid\fP)
+.br
+\fIlabelsets\fP = pmapi.pmContext().pmGetInDomLabels(\fIindom\fP)
+.br
+\fIlabelsets\fP = pmapi.pmContext().pmGetDomainLabels(\fIdomain\fP)
+.br
+\fIlabelsets\fP = pmapi.pmContext().pmGetContextLabels()
+.sp
+.ft 1
 .SH DESCRIPTION
 .de CW
 .ie t \f(CW\\$1\fR\\$2
@@ -64,8 +84,15 @@ The
 .B pmLookupLabels
 routine is a convenience interface providing retrieval for all
 labels associated with a single performance metric identifier,
-.IR pmid .
-It performs no caching of labels internally.
+.IR pmid ,
+.B except
+labels at the instances level.
+Labels at the instances level must be retrieved separately with a call to
+.BR pmGetInstancesLabels
+because different metric instances may have labels with the same label name.
+The
+.B pmLookupLabels
+function performs no caching of labels internally.
 .PP
 For efficiency in communication and storage within the various
 components of the PMCS (Performance Metrics Collection System),
@@ -129,7 +156,11 @@ These independent
 can be merged using
 .BR pmMergeLabelSets (3)
 to form the complete set of all labels associated with a given value.
-.PP
+Note that the label sets returned by
+.B pmGetInstancesLabels
+can be traversed but should not be merged because the label names are unlikely
+to be unique for different instances of the given
+.IR indom .
 .SH LABEL SYNTAX
 Labels are stored and communicated within PCP using JSONB format.
 This format is a restricted form of JSON suitable for indexing
@@ -293,7 +324,6 @@ to form the merged
 for several
 .BR pmdasample (1)
 metrics as follows:
-.PP
 .P
 .ft CW
 .nf
@@ -361,6 +391,35 @@ and
 .IR name s:
 transient)
 to form the complete set for each of the metrics.
+.SH "PYTHON EXAMPLE"
+.ft 3
+.nf
+#!/usr/bin/env pmpython
+
+import sys
+from pcp import pmapi
+import cpmapi as c_api
+
+ctx = pmapi.pmContext(c_api.PM_CONTEXT_HOST, "local:")
+
+for metric in sys.argv[1:]:
+    pmid = ctx.pmLookupName(metric)[0]
+    desc = ctx.pmLookupDescs(pmid)[0]
+
+    print("== label sets for %s ==" % metric)
+    labelSetList = ctx.pmLookupLabels(pmid)
+    # class pmLabelSet has a __str__ handler
+    for labelSet in labelSetList:
+        print("\t%s" % labelSet)
+    ctx.pmFreeLabelSets(labelSetList)
+
+    if desc.contents.indom != c_api.PM_INDOM_NULL:
+        print("== instances label sets for %s ==" % metric)
+        labelSetList = ctx.pmGetInstancesLabels(desc.contents.indom)
+        for labelSet in labelSetList:
+            print("\t%s" % labelSet)
+        ctx.pmFreeLabelSets(labelSetList)
+.ft 2
 .SH DIAGNOSTICS
 On success these interfaces all return the number of elements in
 the
@@ -377,7 +436,8 @@ Only in the case of
 .B pmLookupLabels
 will the resulting
 .I labelset
-be a merged set of labels from all hierarchy levels.
+be a merged set of labels from all hierarchy levels
+(except at the instances level, as described above).
 .PP
 For the other routines, except for
 .BR pmGetInstancesLabels ,
@@ -403,6 +463,12 @@ If no result can be obtained,
 e.g. due to IPC failure using the current PMAPI context then
 .B pmGetInstancesLabels
 will return a negative error code which may be examined using
+.PP
+A successful return from the Python API always provides the
+labelset in the form of a list, for all labels functions.
+On error a
+.B pmErr
+exception is raised containing the error code and diagnostic.
 .BR pmErrStr (3).
 .SH SEE ALSO
 .BR pmcd (1),

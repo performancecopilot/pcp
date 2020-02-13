@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018-2020 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -16,9 +16,15 @@
 
 #include "pmwebapi.h"
 #include "libpcp.h"
-
+#include "mmv_stats.h"
+#include "slots.h"
+#ifdef HAVE_REGEX_H
+#include <regex.h>
+#endif
 #ifdef HAVE_LIBUV
 #include <uv.h>
+#else
+typedef void uv_loop_t;
 #endif
 
 /*
@@ -34,24 +40,33 @@
  * log volumes and meta data are monitored for changes.  Monitoring is done
  * efficiently - using libuv/fs_notify mechanisms - no polling and callbacks
  * are issued with low latency when changes are detected.
+ *
+ * The PM_DISCOVER_FLAGS_META_IN_PROGRESS flag indicates a metadata record
+ * read is in-progress. This can span multiple callbacks. Until this completes,
+ * we avoid processing logvol records. If a logvol callback is received whilst
+ * PM_DISCOVER_FLAGS_META_IN_PROGRESS is set, set PM_DISCOVER_FLAGS_DATAVOL_READY
+ * so we know to process the log volume callback once the metadata read has
+ * completed.
  */
 
 /*
  * Discovery state flags for a given path
  */
-typedef enum pmDiscoverFlags {
-    PM_DISCOVER_FLAGS_NONE	= (0),
+typedef enum pmDiscoverFlags { 
+    PM_DISCOVER_FLAGS_NONE			= (0),
 
-    PM_DISCOVER_FLAGS_NEW	= (1 << 0), /* new path (stays set until cleared) */
-    PM_DISCOVER_FLAGS_DELETED	= (1 << 1), /* deleted (may have been compressed) */
-    PM_DISCOVER_FLAGS_COMPRESSED= (1 << 2), /* file is compressed */
-    PM_DISCOVER_FLAGS_MONITORED	= (1 << 3), /* path is monitored */
-    PM_DISCOVER_FLAGS_DIRECTORY	= (1 << 4), /* directory path */
-    PM_DISCOVER_FLAGS_DATAVOL	= (1 << 5), /* archive data volume */
-    PM_DISCOVER_FLAGS_INDEX	= (1 << 6), /* archive index file */
-    PM_DISCOVER_FLAGS_META	= (1 << 7), /* archive metadata */
+    PM_DISCOVER_FLAGS_NEW			= (1 << 0), /* new path (stays set until cleared) */
+    PM_DISCOVER_FLAGS_DELETED			= (1 << 1), /* deleted (may have been compressed) */
+    PM_DISCOVER_FLAGS_COMPRESSED		= (1 << 2), /* file is compressed */
+    PM_DISCOVER_FLAGS_MONITORED			= (1 << 3), /* path is monitored */
+    PM_DISCOVER_FLAGS_DIRECTORY			= (1 << 4), /* directory path */
+    PM_DISCOVER_FLAGS_DATAVOL			= (1 << 5), /* archive data volume */
+    PM_DISCOVER_FLAGS_INDEX			= (1 << 6), /* archive index file */
+    PM_DISCOVER_FLAGS_META			= (1 << 7), /* archive metadata */
+    PM_DISCOVER_FLAGS_DATAVOL_READY		= (1 << 9), /* flag: datavol data available */
+    PM_DISCOVER_FLAGS_META_IN_PROGRESS		= (1 << 8), /* flag: metadata read in progress */
 
-    PM_DISCOVER_FLAGS_ALL	= ((unsigned int)~PM_DISCOVER_FLAGS_NONE)
+    PM_DISCOVER_FLAGS_ALL			= ((unsigned int)~PM_DISCOVER_FLAGS_NONE)
 } pmDiscoverFlags;
 
 struct pmDiscover;
@@ -67,11 +82,12 @@ typedef struct pmDiscover {
     pmDiscoverModule		*module;	/* global state from caller */
     pmDiscoverFlags		flags;		/* state for discovery process */
     pmTimespec			timestamp;	
-    int				ctx;		/* PMAPI context or .meta fd */
+    int				ctx;		/* PMAPI context handle */
+    int				fd;		/* meta file descriptor */
 #ifdef HAVE_LIBUV
     uv_fs_event_t		*event_handle;	/* uv fs_notify event handle */ 
-    uv_stat_t			statbuf;	/* stat buffer from event CB */
 #endif
+    struct stat			statbuf;	/* stat buffer */
     void			*baton;		/* private internal lib data */
     void			*data;		/* opaque user data pointer */
 } pmDiscover;
@@ -90,14 +106,28 @@ extern void pmSeriesDiscoverInDom(pmDiscoverEvent *,
 extern void pmSeriesDiscoverText(pmDiscoverEvent *,
 				int, int, char *, void *);
 
-#ifdef HAVE_LIBUV
+/*
+ * Module internals data structure
+ */
+typedef struct discoverModuleData {
+    unsigned int		handle;		/* callbacks context handle */
+    unsigned int		shareslots;	/* boolean, sharing 'slots' */
+    sds				logname;	/* archive directory dirname */
+    mmv_registry_t		*metrics;	/* registry of metrics */
+    struct dict			*config;	/* configuration dict */
+    uv_loop_t			*events;	/* event library loop */
+    redisSlots			*slots;		/* server slots data */
+    regex_t			exclude_names;	/* metric names to exclude */
+    struct dict			*pmids;		/* dict of excluded PMIDs */
+    unsigned int		exclude_indoms;	/* exclude instance domains */
+    struct dict			*indoms;	/* dict of excluded InDoms */
+    void			*data;		/* user-supplied pointer */
+} discoverModuleData;
+
+extern discoverModuleData *getDiscoverModuleData(pmDiscoverModule *);
+
 extern int pmDiscoverRegister(const char *,
 		pmDiscoverModule *, pmDiscoverCallBacks *, void *);
 extern void pmDiscoverUnregister(int);
-
-#else
-#define pmDiscoverRegister(path, module, callbacks, data)	(-EOPNOTSUPP)
-#define pmDiscoverUnregister(handle)	do { } while (0)
-#endif
 
 #endif /* SERIES_DISCOVER_H */

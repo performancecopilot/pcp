@@ -2,7 +2,7 @@
 # PCP QA Test No. 1211
 # Exercise basic pmseries loading and querying.
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 #
 
 seq=`basename $0`
@@ -14,27 +14,20 @@ path=""
 . ./common.filter
 . ./common.check
 
-which pmseries >/dev/null 2>&1 || \
-	_notrun "pmseries command line utility not installed"
-which redis-cli >/dev/null 2>&1 || \
-	_notrun "Redis command line utility not installed"
-redis-cli ping >/dev/null 2>$here/$seq.err
-sts=$?
-msg=`cat $here/$seq.err`
-rm -f $here/$seq.err
-[ $sts -eq 0 ] || _notrun $msg
+_check_series
 
 _cleanup()
 {
+    [ -n "$options" ] && redis-cli $options shutdown
+    _restore_config $PCP_SYSCONF_DIR/pmseries
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
 
 status=1	# failure is the default!
-series=unknown
 hostname=`hostname`
+redisport=`_find_free_port`
 
-options=""
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -42,33 +35,85 @@ _filter_source()
 {
     sed \
 	-e "s,$here,PATH,g" \
-	-e "s,$hostname,QAHOST,g" \
     #end
 }
 
+_sort_context()
+{
+    sed -e 's/    Context: //g' -e 's/, /\n/g' | \
+    LC_COLLATE=POSIX sort | \
+    $PCP_AWK_PROG 'BEGIN { printf "    Context: " } {
+	if (count == 0) {printf("%s", $0)} else {printf(", %s", $0)};
+	count++
+    } END { print out }'
+}
+
 # real QA test starts here
-echo "Clearing local cache ..."
-redis-cli -c -p 7000 flushall
+_save_config $PCP_SYSCONF_DIR/pmseries
+$sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
+
+echo "Start test Redis server ..."
+redis-server --port $redisport > $tmp.redis 2>&1 &
+echo "PING"
+pmsleep 0.125
+options="-p $redisport"
+redis-cli $options ping
 echo
 
 echo "Verify basic load from proc archive"
 pmseries $options --load "{source.path: \"$here/archives/proc\"}" | _filter_source
 echo
 
+echo "Error handling - load from bad path"
+pmseries $options --load "{source.path: \"/no/such/archive\"}"
+echo
+
+echo "Verify pminfo and pmseries source and series match"
+echo "=> pminfo"
+pminfo -smd --archive $here/archives/proc kernel.all.load
+echo "=> pmseries"
+loaded=`pmseries $options "kernel.all.load{source.name:\"$here/archives/proc\"}"`
+series=fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
+second=d51624d12da45900bfee2fd73f1e23f3ccabb784
+source=2cd6a38f9339f2dd1f0b4775bda89a9e7244def6
+if [ "$loaded" != "$series" ]
+then
+    echo "Series identifier mismatch - loaded $loaded, expected $series"
+    exit 1
+fi
+pmseries $options -smd $series
+echo
+
 echo "List all metric names ..."
 pmseries $options -m | LC_COLLATE=POSIX sort
+echo
+
+echo "List some metric names ..."
+pmseries $options -m -g 'hinv*' | LC_COLLATE=POSIX sort
 echo
 
 echo "List all label names ..."
 pmseries $options -l | LC_COLLATE=POSIX sort
 echo
 
+echo "List some label names ..."
+pmseries $options -l -g 'h*' | LC_COLLATE=POSIX sort
+echo
+
 echo "List all context names ..."
-pmseries $options -c | _filter_source | LC_COLLATE=POSIX sort
+pmseries $options -S | _filter_source | LC_COLLATE=POSIX sort
+echo
+
+echo "List some context names ..."
+pmseries $options -S -g 'bozo*' | _filter_source | LC_COLLATE=POSIX sort
 echo
 
 echo "List all instance names ..."
 pmseries $options -i | LC_COLLATE=POSIX sort
+echo
+
+echo "List some instance names ..."
+pmseries $options -i -g 'sda*' | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform simple name-based query ..."
@@ -76,8 +121,7 @@ pmseries $options kernel.all.pswitch | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform simple label-based query ..."
-#pmseries $options 'kernel.all.load{hostname:"bozo-laptop"}' | LC_COLLATE=POSIX sort
-pmseries $options 'kernel.all.load{hostname=="bozo-laptop"}' | LC_COLLATE=POSIX sort
+pmseries $options 'kernel.all.load{hostname:"bozo-laptop"}' | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform simple instance-based query ..."
@@ -93,7 +137,11 @@ pmseries $options 'kernel*pswitch' | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform globbing name-based query (3) ..."
-#pmseries $options 'kernel.all.l*d' | LC_COLLATE=POSIX sort
+pmseries $options 'kernel.all.l*d' | LC_COLLATE=POSIX sort
+echo
+
+echo "Perform globbing name-based query (4) ..."
+pmseries $options 'disk.partitions.blk*' | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform globbing instance-based query (1) ..."
@@ -109,8 +157,16 @@ echo "Perform globbing instance-based query (3) ..."
 pmseries $options 'kernel.all.load{instance.name:"*1*"}'
 echo
 
+echo "Perform regex instance-based query (1) ..."
+pmseries $options 'kernel.all.load{instance.name=~"1.*"}'
+echo
+
+echo "Perform regex instance-based query (2) ... no result"
+pmseries $options 'kernel.all.load{instance.name=~"1\*"}'
+echo "(expect no result)"
+echo
+
 # kernel.all.load from proc archive (host:bozo-laptop)
-series=3d372f871a4dd73028a7a4f0b05cb927c462b7b8
 echo "Descriptor lookup for a given SeriesID ..."
 pmseries $options --desc $series
 echo
@@ -128,7 +184,7 @@ pmseries $options -dIM $series
 echo
 
 echo "SourceID lookup for a given SeriesID ..."
-pmseries $options --source $series
+pmseries $options --sources $source | _filter_source | _sort_context
 echo
 
 echo "Instances lookup for a given SeriesID ..."
@@ -143,17 +199,31 @@ echo "All lookups for a given SeriesID ..."
 pmseries $options --all $series
 echo
 
+echo "Labels lookup for two given SeriesIDs ..."
+pmseries $options --labels $second $series
+echo
+
 echo "Values fetch for a single-valued query ..."
-pmseries $options 'kernel.all.pswitch[count: 30]'
+pmseries $options -Z UTC 'kernel.all.pswitch[count: 30]'
+echo
+
+echo "Values fetch with a one-second interval ..."
+pmseries $options -Z UTC 'kernel.all.pswitch[delta: "1sec"]'
+echo
+
+echo "Values fetch with a two-second interval ..."
+pmseries $options -Z UTC 'kernel.all.pswitch[delta: "1sec"]'
 echo
 
 echo "Values fetch for a multi-valued query ..."
-pmseries $options 'kernel.all.load[count: 30]'
+pmseries $options -Z UTC 'kernel.all.load[count: 30]'
 echo
 
-status=0
-exit  # TODO: pmseries frontend is WIP from here
-# TODO: verify pminfo and pmseries source and series match
+echo "Multi-series lookups from a multi-series query ..."
+pmseries $options 'disk.partitions.blk*' | \
+	LC_COLLATE=POSIX sort | \
+	tee -a $tmp.series
+pmseries $options -a `cat $tmp.series`
 
 echo "Perform simple source-based query ..."
 pmseries $options 'kernel.all.pswitch{source.name:"bozo-laptop"}'
@@ -177,8 +247,6 @@ echo
 
 echo "Error handling - query with no matching instance name"
 pmseries $options 'kernel.all.load{instance.name == "5 mi*"}'
-
-# TODO: verify all the time-related keywords
 
 # success, all done
 status=0

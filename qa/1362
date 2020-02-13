@@ -4,6 +4,34 @@
 #
 # Copyright (c) 2018 Red Hat.  All Rights Reserved.
 #
+# Note: this test is _notrun if a local postgresql server is not installed
+# or not configured correctly and running. On Fedora (other platforms may
+# differ), install, initialize, enable and start the server :
+#
+#     sudo dnf install postgresql-server
+#     sudo postgresql-setup initdb
+#     sudo systemctl enable postgresql
+#     sudo systemctl start postgresql
+#
+# Also (on Fedora at least), after a major system upgrade may require you
+# to migrate an existing postgres DB to the new version. To do that:
+#
+#     sudo dnf install postgresql-upgrade
+#     sudo postgresql-setup --upgrade
+#     sudo systemctl restart postgresql
+#
+# For Ubuntu, the major upgrade recipe is more like ...
+#
+#     # remove the on install empty main cluster
+#     sudo pg_dropcluster --stop <newversion> main
+#     sudo systemctl stop postgresql
+#     sudo pg_upgradecluster -m upgrade <oldversion> main
+#     sudo systemctl start postgresql
+#     # check <oldversion> is down, <newversion> is online
+#     pg_lsclusters
+#     # remove the <oldversion> cluster
+#     sudo pg_dropcluster --stop <oldversion> main
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -21,9 +49,15 @@ echo '\q' | $sudo -u postgres psql >/dev/null 2>&1
 $sudo -u postgres psql -c "select VERSION();" | grep -s "PostgreSQL 8" > /dev/null
 [ $? -eq 0 ] && _notrun "not testing postgres v8.x, too old"
 
+# need systemctl to reliably restart postgresql server
+#
+which systemctl >/dev/null 2>&1 || _notrun "systemctl not installed"
+
+CONF=$PCP_PMDAS_DIR/postgresql/pmdapostgresql.conf
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; $sudo mv $CONF.$seq $CONF; _cleanup_pmda postgresql; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 pmdapostgresql_remove()
 {
@@ -38,6 +72,18 @@ pmdapostgresql_install()
 {
     # start from known starting points
     cd $PCP_PMDAS_DIR/postgresql
+    $sudo mv $CONF $CONF.$seq
+    cat <<EOF>$tmp.conf
+[authentication]
+host=local
+port=5432
+dbname=postgres
+user=postgres
+password=password
+osuser=postgres
+EOF
+
+    $sudo mv $tmp.conf $CONF
     $sudo ./Remove >/dev/null 2>&1
     _service pmcd stop 2>&1 | _filter_pcp_stop
 
@@ -55,7 +101,6 @@ pmdapostgresql_install()
 }
 
 _prepare_pmda postgresql
-trap "_cleanup_pmda postgresql; exit \$status" 0 1 2 3 15
 
 # note: _restore_auto_restart pmcd done in _cleanup_pmda()
 _stop_auto_restart pmcd
@@ -68,13 +113,13 @@ pminfo -f postgresql.stat.activity.usename >/dev/null 2>&1 || exit
 echo OK
 
 echo === restart postgresql service
-$sudo service postgresql restart >>$here/$seq.full 2>&1
+$sudo systemctl restart postgresql >>$here/$seq.full 2>&1
 
 sleep 1
 
 echo === checking log for disconnect messages
 pminfo -f postgresql.stat.activity.usename >/dev/null 2>&1
-grep -i "Warning: connection lost" $PCP_LOG_DIR/pmcd/postgresql.log | sed -e 's/^.*Warning/Warning/'
+grep -i "connection lost" $PCP_LOG_DIR/pmcd/postgresql.log | sed -e 's/^.*Info/Info/'
 
 sleep 2
 

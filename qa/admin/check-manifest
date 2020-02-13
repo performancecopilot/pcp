@@ -1,0 +1,1090 @@
+#!/bin/sh
+#
+# Validation script for packages-other/manifest
+#
+# DO NOT RUN DIRECTLY ... this script is exec'd from check-vm -c
+#
+
+if [ -f /etc/pcp.conf ]
+then
+    . /etc/pcp.conf
+else
+    # punt
+    #
+    case `uname`
+    in
+	Darwin)
+	    PCP_ECHO_PROG=echo
+	    PCP_ECHO_N=
+	    PCP_ECHO_C='\c'
+	    ;;
+	*)
+	    PCP_ECHO_PROG=echo
+	    PCP_ECHO_N=-n
+	    PCP_ECHO_C=
+	    ;;
+    esac
+fi
+
+# Need directory where whatami script is located
+#
+home=`echo $0 | sed -e 's/\/*check-manifest$//'`
+[ -z "$home" ] && home=`pwd`
+if [ ! -d "$home" ]
+then
+    echo "$0: Botch: \$0=$0 -> bad \$home=$home ?"
+    exit 1
+fi
+if [ ! -f "$home"/whatami ]
+then
+    echo "$0: Botch: cannot find $home/whatami"
+    exit 1
+fi
+
+_usage()
+{
+    echo "Usage: $0 [-v] manifest-from-check-vm-c"
+    exit 1
+}
+
+verbose=false
+very_verbose=false
+while getopts 'v?' p
+do
+    case "$p"
+    in
+	v)	if $verbose
+		then
+		    very_verbose=true
+		else
+		    verbose=true
+		fi
+		;;
+
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -eq 1 ] || _usage
+
+tmp="$1"
+if [ ! -f $tmp.manifest ]
+then
+    echo "$0: Hand off botch: $tmp.manifest not found"
+    exit 1
+fi
+if [ ! -f $tmp.unavail ]
+then
+    echo "$0: Hand off botch: $tmp.unavail not found"
+    exit 1
+fi
+
+_cleanup()
+{
+    if $very_verbose
+    then
+	echo "Temporary files preserved: `echo $tmp.*`"
+    else
+	rm -f $tmp.*
+    fi
+}
+
+sts=1
+trap "_cleanup; exit \$sts" 0 1 2 3 15
+
+if $very_verbose
+then
+    # clean up stuff left over from any previous runs
+    #
+    mv $tmp.manifest $tmp-manifest
+    mv $tmp.unavail $tmp-unavail
+    rm -f $tmp.*
+    mv $tmp-manifest $tmp.manifest
+    mv $tmp-unavail $tmp.unavail
+fi
+
+# $pkgtool tells us what family of packaging tools we need
+# to use to map a pathname to an installed package name
+# $searchtool tells us how to search for packages by name
+# (including uninstalled packages)
+#
+pgktool=''
+searchtool=''
+$home/whatami >$tmp.tmp
+case "`sed <$tmp.tmp -e 's/  */ /g' -e 's/ \[.*//' | cut -d ' ' -f 4-`"
+in
+    *Ubuntu*|*Debian*|*LinuxMint*)
+	pkgtool=dpkg
+	searchtool=dpkg-query
+	;;
+    *RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
+	pkgtool=rpm
+	if which zypper >/dev/null 2>&1
+	then
+	    searchtool=zypper
+	elif which dnf >/dev/null 2>&1
+	then
+	    searchtool=dnf
+	elif which yum >/dev/null 2>&1
+	then
+	    searchtool=yum
+	fi
+	;;
+
+    *NetBSD*)
+	pkgtool=pkgin
+	searchtool=pkgin
+	;;
+
+    *FreeBSD*)
+	pkgtool=F_pkg		# FreeBSD version of pkg(1)
+	searchtool=F_pkg
+	;;
+
+    *OpenBSD*)
+	pkgtool=pkg_add
+	searchtool=pkg_info
+	;;
+
+    *Gentoo*)
+	pkgtool=emerge
+	searchtool=equery
+	;;
+
+    *Darwin*)
+	pkgtool=brew
+	searchtool=brew
+	;;
+
+    *OpenIndiana*)
+	pkgtool=S_pkg		# OpenIndiana version of pkg(1)
+	searchtool=S_pkg
+	;;
+
+    *Slackware*)
+	pkgtool=slackpkg
+	searchtool=slackpkg
+	;;
+
+    *Arch\ Linux*)
+	pkgtool=pacman
+	searchtool=pacman
+	;;
+
+esac
+if [ -z "$pkgtool" ]
+then
+    echo "$0: Botch: don't recognize pkgtool for: `cat $tmp.tmp`"
+    exit
+fi
+
+_path_to_pkg()
+{
+    # Try other packaging options (Perl or Python) first ...
+    #
+    for info in $2
+    do
+	case "$info"
+	in
+	    "cpan("*")")
+		module=`echo "$info" | sed -e 's/.*(//' -e 's/)//'`
+		if [ -z "$module" ]
+		then
+		    echo "Botch: failed to get $tool module from \"$info\""
+		    touch $tmp.abort
+		    return
+		fi
+		if which cpan >/dev/null
+		then
+		    if [ ! -f $tmp.perlmodules ]
+		    then
+			sudo cpan -l 2>/dev/null | sed -e 's/[ 	].*//' >$tmp.perlmodules
+		    fi
+		    if grep "^$module\$" $tmp.perlmodules >/dev/null
+		    then
+			# found it!
+			echo "$info"
+			$very_verbose && echo >&2 "found cpan info for $info"
+			return
+		    fi
+		elif [ ! -f $tmp.cpan.warn ]
+		then
+		    echo >&2 "Warning: cpan not installed, cannot check Perl modules for cpan()" | tee $tmp.cpan.warn
+		fi
+		;;
+	    "pip("*")"|"pip3("*")")
+		tool=`echo "$info" | sed -e 's/(.*//'`
+		module=`echo "$info" | sed -e 's/.*(//' -e 's/)//'`
+		if [ -z "$tool" ]
+		then
+		    echo "Botch: failed to get tool from \"$info\""
+		    touch $tmp.abort
+		    return
+		fi
+		if [ -z "$module" ]
+		then
+		    echo "Botch: failed to get $tool module from \"$info\""
+		    touch $tmp.abort
+		    return
+		fi
+		if `which "$tool"` >/dev/null
+		then
+		    $tool show -f "$module" >$tmp.tmp
+		    match=`echo $1 | sed -e 's;.*-packages/;;'`
+		    if grep " $match\$" $tmp.tmp >/dev/null
+		    then
+			# found it!
+			echo "$info"
+			return
+		    fi
+		fi
+		;;
+	esac
+    done
+
+    case "$pkgtool"
+    in
+	dpkg)
+	    # expecting output like
+	    # lm-sensors: /usr/bin/sensors
+	    #
+	    dpkg-query -S "$1" 2>/dev/null | sed -e 's/:.*//' >$tmp.tmp
+	    # if not found in any package, try realpath() alternative
+	    #
+	    if [ -s $tmp.tmp ]
+	    then
+		cat $tmp.tmp
+	    elif which realpath >/dev/null 2>&1
+	    then
+		_target=`realpath $1`
+		if [ "$_target" != "$1" ]
+		then
+		    dpkg-query -S "$_target" 2>/dev/null | sed -e 's/:.*//'
+		fi
+	    fi
+	    ;;
+
+	rpm)
+	    # expecting output like
+	    # lm_sensors-3.4.0-8.fc27.x86_64
+	    #
+	    rpm -qf "$1" 2>/dev/null | sed -e '/is not owned by any/d' -e 's/-[0-9].*//' >$tmp.tmp
+	    # if not found in any package, try realpath() alternative
+	    #
+	    if [ -s $tmp.tmp ]
+	    then
+		cat $tmp.tmp
+	    elif which realpath >/dev/null 2>&1
+	    then
+		_target=`realpath $1`
+		if [ "$_target" != "$1" ]
+		then
+		    rpm -qf "$_target" 2>/dev/null | sed -e '/is not owned by any/d' -e 's/-[0-9].*//'
+		fi
+	    fi
+	    ;;
+
+	pkgin)
+	    # expecting output like
+	    # bash-4.4.18<version babble>
+	    #
+	    pkg_info -Fe "$1" 2>/dev/null \
+	    | sed >$tmp.tmp -e 's/-[0-9].*//'
+	    if [ -s $tmp.tmp ]
+	    then
+		cat $tmp.tmp
+	    fi
+	    ;;
+
+	F_pkg)
+	    # expecting output like
+	    # /usr/local/bin/bash was installed by package bash-4.4.19
+	    #
+	    pkg which "$1" 2>/dev/null \
+	    | sed -n >$tmp.tmp \
+		-e '/was installed by package/{
+s/.*was installed by package //
+s/-[0-9].*//
+p
+}'
+	    if [ -s $tmp.tmp ]
+	    then
+		cat $tmp.tmp
+	    fi
+	    ;;
+
+	S_pkg)
+	    # expecting output like
+	    # shell/bash
+	    #
+	    # need to strip leading / from path before searching
+	    # also more than one package can install the same binary (!)
+	    # e.g. g++ in developer/gcc-6 and developer/gcc-7, in this
+	    # case, pick the first one (arbitrarily)
+	    #
+	    pkg contents -H -o pkg.name -a path=`echo "$1" | sed -e 's;^/;;' -e 1q` 2>/dev/null
+	    ;;
+
+	pkg_add)
+	    # expecting output like
+	    # bash-4.4.23:shells/bash:/usr/local/bin/bash
+	    # bash-4.4.23:shells/bash:/usr/local/bin/bashbug
+	    # bashunit-20140327:devel/bashunit:/usr/local/bin/bashunit.bash
+	    #
+	    # version is optional, so need to strip stuff after : first
+	    #
+	    # no apparent way to pass glob chars thru, hence the grep
+	    # at the end
+	    #
+	    pkg_locate "$1" 2>/dev/null \
+	    | grep ":$1\$" \
+	    | sed -e 's/:.*//' -e 's/-[0-9].*//' \
+	    | LC_COLLATE=POSIX sort \
+	    | uniq \
+	    | ( tr '\012' '|'; echo ) \
+	    | sed -e 's/|$//' >$tmp.tmp
+	    if [ -s $tmp.tmp ]
+	    then
+		cat $tmp.tmp
+	    fi
+	    ;;
+
+	emerge)
+	    # expecting output like
+	    # sys-apps/lm_sensors-3.4.0_p20170901
+	    # (don't be fooled by interactive output, when output goes
+	    # to a file, a different format is used!)
+	    #
+	    equery belongs "$1" 2>/dev/null \
+	    | sed -e '/Searching for/d' -e 's/-[0-9].*//' >$tmp.tmp
+	    if [ -s $tmp.tmp ]
+	    then
+		cat $tmp.tmp
+	    fi
+	    ;;
+
+	slackpkg)
+	    # expecting output like
+	    # /var/log/packages/bash-4.3.048-x86_64-1_slack14.2
+	    #
+	    # Need to strip leading / from path before searching.
+	    # Apply realpath to unwind any symlinks.
+	    # Try exact match first, else prefix match with *.new suffix
+	    # (this was needed for /bin/bash where the packaed file is
+	    # /bin/bash4.new and some post-install magic makes the real
+	    # /usr/bin/bash and the symlink /bin/bash).  Ditto for
+	    # /etc/httpd/httpd.conf.new (packaged) vs
+	    # /etc/httpd/httpd.conf (installed).
+	    #
+	    _path=`realpath "$1"`
+	    if $very_verbose
+	    then
+		echo >&2 "_path_to_pkg: arg=\"$1\" _path=\"$_path\""
+	    fi
+	    for suff in '' '.*\.new'
+	    do
+		grep -rl `echo "$_path$suff" | sed -e 's;^/;^;' -e 's/$/\$/'` /var/log/packages \
+		| sed >$tmp.tmp \
+		    -e 's,/var/log/packages/,,' \
+		    -e 's/-[0-9].*//' \
+		# end
+		if [ -s $tmp.tmp ]
+		then
+		    cat $tmp.tmp
+		    return
+		fi
+	    done
+	    ;;
+
+	pacman)
+	    # expecting output like
+	    # /usr/bin/bash is owned by core/bash 4.4.023-1
+	    #
+	    pacman -Qo "$1" | sed -e 's/.* is owned by //' -e 's/ .*//'
+	    ;;
+
+	brew)
+	    # for commands expect output from ls like
+	    # lrwxr-xr-x  1 kenj  admin  28 29 Nov 06:14 /usr/local/bin/nmap -> ../Cellar/nmap/7.70/bin/nmap
+	    #
+	    ls -l "$1" 2>/dev/null \
+	    | sed >$tmp.tmp -n -e '/ -> .*\/Cellar\//{
+s;.* -> .*/Cellar/;;
+s;/.*;;
+p
+}'
+	    if [ -s $tmp.tmp ]
+	    then
+		cat $tmp.tmp
+	    else
+		# for non-commands, it is all a bit messier ...
+		# - use last part of pathname from $1
+		# - find $(brew --cellar) -name ... for candidates
+		# - strip $(brew --cellar) prefix
+		# - extract formula and path
+		# - try to tail match paths
+		#
+		cellar=`brew --cellar`
+		if [ ! -d "$cellar" ]
+		then
+		    echo "Botch: brew cellar \"$cellar\" does not exist"
+		    touch $tmp.abort
+		    return
+		fi
+		base=`echo "$1" | sed -e 's/.*\///'`
+		find $cellar -name $base \
+		| sed -e "s;$cellar/;;" -e 's;/[0-9./]*; ;' \
+		| while read formula path
+		do
+		    if echo "$1" | grep "$path\$" >/dev/null
+		    then
+			echo $formula
+			break
+		    fi
+		done
+	    fi
+	    ;;
+
+	*)
+	    echo "_path_to_pkg: cannot handle $pkgtool packaging yet"
+	    touch $tmp.abort
+	    ;;
+    esac
+    if $very_verbose
+    then
+	[ -s $tmp.tmp ] || echo >&2 "no pkg for $info"
+    fi
+}
+
+# Deal with some known metapackage equivalences.
+#
+# Usage: _match_pkg pkg-from-pkgtool pkg-from-manifest
+#
+# pkg-from-pkgtool may contain alternates (separated by |) if the target
+# file is delivered in more than one package, e.g. on OpenBSD
+#
+_match_pkg()
+{
+    rm -f $tmp.match
+    for xpect in `echo "$1" | sed -e 's/|/ /g'`
+    do
+	case $pkgtool
+	in
+	    dpkg)
+		    case "$xpect"
+		    in
+			libcoin[0-9]*-dev)		# e.g. libcoin80-dev
+			    xpect=libcoin-dev
+			    ;;
+			libicu[0-9]*[0-9])		# e.g. libicu60
+			    xpect=libicu
+			    ;;
+			libperl5.[0-9]*)		# e.g. libperl5.22
+			    xpect='libperl5.*'
+			    ;;
+			libpython2.[0-9]-dev)	# e.g. libpython2.7-dev
+			    xpect=libpython-dev
+			    ;;
+			libpython2.[0-9]-stdlib)	# e.g. libpython2.7-stdlib
+			    xpect=libpython-stdlib
+			    ;;
+			libpython3.[0-9]-dev|libpython.3.[0-9]m)	# e.g. libpython3.6-dev
+			    xpect=libpython3-dev
+			    ;;
+			libpython3.[0-9]-stdlib)	# e.g. libpython3.6-stdlib
+			    xpect=libpython3-stdlib
+			    ;;
+			libreadline[0-9]*-dev)	# e.g. libreadline6-dev
+			    xpect=libreadline-dev
+			    ;;
+			libuv[0-9]*.[0-9]*-dev)	# e.g. libuv0.10-dev 
+			    xpect=libuv-dev
+			    ;;
+			mariadb-client-core-[0-9]*.[0-9]*)	# e.g. mariadb-client-core-10.1
+			    xpect=mariadb-client-core
+			    ;;
+			mysql-client-[0-9]*.[0-9]*)	# e.g. mysql-client-5.5
+			    xpect=mysql-client
+			    ;;
+			mysql-client-core-[0-9]*.[0-9]*)	# e.g. mysql-client-core-5.5
+			    xpect=mysql-client-core
+			    ;;
+			perl-modules-5.[0-9]*)	# e.g. perl-modules-5.26
+			    xpect=perl-modules
+			    ;;
+			python2.[0-9])		# e.g. python2.7
+			    xpect=python
+			    ;;
+			python2.[0-9]-dev)		# e.g. python2.7-dev
+			    xpect=python-dev
+			    ;;
+		    esac
+		    ;;
+	    rpm)
+		    case "$xpect"
+		    in
+			Coin[0-9]*-devel)		# e.g. Coin3-devel
+			    xpect=Coin-devel
+			    ;;
+			postgresql[0-9]*)		# e.g. postgresql10
+			    xpect=postgresql
+			    ;;
+		    esac
+		    ;;
+
+	    pkgin)
+		    case "$xpect"
+		    in
+			postgresql[0-9]*-client)	# e.g. postgresql95-client
+			    xpect=postgresql-client
+			    ;;
+		    esac
+		    ;;
+
+	    F_pkg)
+		    case "$xpect"
+		    in
+			postgresql[0-9]*-client)	# e.g. postgresql95-client
+			    xpect=postgresql-client
+			    ;;
+		    esac
+		    ;;
+
+	    pkg_add)
+		    case "$xpect"
+		    in
+			base6[1-4]|comp6[1-4])
+			    xpect=base
+			    ;;
+			xshare6[1-4])
+			    xpect=xshare
+			    ;;
+		    esac
+		    ;;
+
+	    emerge)
+		    # try full package name first
+		    #
+		    if [ "$xpect" = "$2" ]
+		    then
+			touch $tmp.match
+			break
+		    fi
+		    # names like foo/bar are expected from equery, but
+		    # often bar is unique and the foo/ part is not needed
+		    # so test for trailing match first
+		    #
+		    basename=`echo "$xpect" | sed -e 's/.*\///'`
+		    if [ "$basename" = "$2" ]
+		    then
+			touch $tmp.match
+			break
+		    fi
+
+	esac
+	if [ "$xpect" = "$2" ]
+	then
+	    touch $tmp.match
+	    break
+	fi
+    done
+
+    if [ -f $tmp.match ]
+    then
+	return 0
+    else
+	return 1
+    fi
+}
+
+# Hunt for a target in the packages.
+# On entry:
+# $target is a list of alternate targets (separated by |)
+# $pkginfo is the list of alternate packages (separated by
+# a space) that we think one of the targets is to be found in
+#  ... this is the [...] part of the manifest with noise words
+#  removed
+#
+_hunt()
+{
+
+    rm -f $tmp.msg $tmp.ok
+    for file in `echo "$target" | sed -e 's/|/ /g'`
+    do
+	case "$file"
+	in
+	    /*)
+		if [ -f "$file" -o -d "$file" ]
+		then
+		    :
+		else
+		    echo "$line: file/dir target \"$file\" not found" >>$tmp.msg
+		    file=''
+		fi
+		;;
+	    *)
+		which=`which $file 2>/dev/null`
+		if [ -z "$which" -o ! -x "$which" ]
+		then
+		    echo "$line: exec target \"$file\" not found or not executable" >>$tmp.msg
+		    file=''
+		else
+		    file="$which"
+		fi
+		;;
+	esac
+	if [ -n "$file" ]
+	then
+	    pkg=`_path_to_pkg "$file" "$pkginfo"`
+	    if [ -f $tmp.abort ]
+	    then
+		echo "$pkg"
+		exit
+	    fi
+	    $very_verbose && echo >&2 "file=\"$file\" from pkg=\"$pkg\""
+	    if [ -z "$pkg" ]
+	    then
+		if echo " $pkginfo " | grep ' base ' >/dev/null
+		then
+		    # if "base" is specified as a possible provider (which
+		    # may be from a line that contains no provider info,
+		    # see above) and the file exists (or we wouldn't be here)
+		    # then that is OK if it is not installed by the package
+		    # manager
+		    #
+		    $verbose && echo >&2 "$line: OK target $file assumed to be from base system install"
+		    :
+		else
+		    echo "$line: target \"$file\" not installed from any package" >>$tmp.msg
+		fi
+	    else
+		rm -f $tmp.ok
+		for spec in $pkginfo
+		do
+		    if _match_pkg "$pkg" "$spec"
+		    then
+			$verbose && echo >&2 "$line: OK target $file found in $spec"
+			touch $tmp.ok
+		    else
+			echo "$line: target \"$file\" in package $pkg not $spec" >>$tmp.msg
+		    fi
+		done
+		[ -f $tmp.ok ] && break
+	    fi
+	fi
+    done
+    if [ ! -f $tmp.ok -a -f $tmp.msg ]
+    then
+	cat $tmp.msg
+    fi
+}
+
+# all the places where Perl bits might get installed .. geez!
+#
+_perl_dirs=''
+for dir in /usr/lib/perl /usr/lib/perl5 /usr/lib*/perl /usr/lib*/perl5 /usr/lib/*/perl /usr/lib/*/perl5 /usr/share/perl /usr/share/perl5 /usr/pkg/lib/perl5 /usr/local/share/perl5 /usr/local/lib*/perl5/ /usr/local/share/perl /usr/perl5 /Library/Perl/5.* /System/Library/Perl/5.* /System/Library/Perl/Extras/5.*
+do
+    [ -d "$dir" ] && _perl_dirs="$_perl_dirs $dir"
+done
+
+# strip comments, empty (only :<lineno>) and N/A lines and skip lines
+#
+sed <$tmp.manifest \
+    -e 's/#.*\(:[0-9][0-9]*\)$/\1/' \
+    -e '/^[ 	]*:[0-9][0-9]*$/d' \
+    -e '/^[ 	]*$/d' \
+    -e '/\[N\/A/d' \
+    -e '/\[SKIP]/d' \
+    -e '/\[SKIP on host/d' \
+| while read guard target extra
+do
+    # most lines have no guard, but some do, e.g.
+    # !pkg?   egcc|gcc        [gcc]
+    # weird?  foobar          [foobar-dev]
+    # so do the guard logic to decide if this line should
+    # be processed or skipped
+    #
+    case "$guard"
+    in
+	!*\?)	# negated guard
+	    _guard=`echo "$guard" | sed -e 's/^!//' -e 's/?$//'`
+	    if which $_guard >/dev/null 2>&1
+	    then
+		continue
+	    fi
+	    ;;
+	*\?)	# guard
+	    _guard=`echo "$guard" | sed -e 's/?$//'`
+	    if which $_guard >/dev/null 2>&1
+	    then
+		:
+	    else
+		continue
+	    fi
+	    ;;
+	*)	# just regular lines, there is no "guard"
+	    extra="$target $extra"
+	    target="$guard"
+	    ;;
+    esac
+
+    line=`echo $extra | sed -e 's/.*:\([0-9][0-9]*\)$/\1/'`
+    # reduce things like "[lm-sensors (QA optional)]:1189" down to
+    # "lm-sensors"
+    # and "[perl-Spreadsheet-ReadSXC or perl(Spreadsheet::ReadSXC) or from cpan(Spreadsheet::ReadSXC) (QA optional)]:601
+    # down to "perl-Spreadsheet-ReadSXC cpan(Spreadsheet::ReadSXC)"
+    # and cull the [N/A...] lines
+    #
+    pkginfo=`echo "$extra" \
+	| sed \
+	    -e 's/:[0-9][0-9]*//' \
+	    -e 's/#.*//' \
+	    -e 's/\[//' \
+	    -e 's/]//' \
+	    -e "s/'perl([^0]*)'//" \
+	    -e "s/perl([^0]*)//" \
+	    -e 's/([^)]* optional)//' \
+	    -e 's/base [^ ][^ ]* install/base/' \
+	    -e 's/ or / /g' \
+	    -e 's/  */ /g' \
+	    -e 's/^ //' \
+	    -e 's/ $//'`
+    # we have some manifest lines for really common commands where
+    # there is no [pkginfo], so punt on the package name being the same
+    # as the target name else it is part of a base system install
+    #
+    [ -z "$pkginfo" ] && pkginfo="$target base"
+    # unknown ones warrant a warning
+    #
+    [ "$pkginfo" = "?" ] && echo "$line: Warning: package for \"$target\" is not known"
+    $very_verbose && echo >&2 target=\"$target\" extra=\"$extra\" pkginfo=\"$pkginfo\"
+
+    case "$target"
+    in
+	*::)
+	    # special case Perl, no module name
+	    _perl=`echo "$target" | sed -e 's/:://'`
+	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
+	             | egrep "/$_perl.(pm|so|dylib|bs)$" \
+		     | ( tr '\012' '|'; echo ) \
+		     | sed -e 's/|$//'`
+	    if [ -z "$_target" ]
+	    then
+		echo "$line: Perl source \"$target\" not found"
+	    else
+		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
+		target="$_target"
+		_hunt
+	    fi
+	    ;;
+
+	*::*::*)
+	    # special case Perl, with module and submodule name
+	    _module=`echo "$target" | sed -e 's/::.*//'`
+	    _submodule=`echo "$target" | sed -e 's/[^:]*::\([^:][^:]*\)::.*/\1/'`
+	    _perl=`echo "$target" | sed -e 's/.*:://'`
+	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
+	             | egrep "/$_module/($_submodule|$_submodule/$_perl)/$_perl.(pm|so|dylib|bs)$" \
+		     | ( tr '\012' '|'; echo ) \
+		     | sed -e 's/|$//'`
+	    if [ -z "$_target" ]
+	    then
+		echo "$line: Perl source \"$target\" not found"
+	    else
+		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
+		target="$_target"
+		_hunt
+	    fi
+	    ;;
+
+	*::*)
+	    # normal case Perl, with module name
+	    _module=`echo "$target" | sed -e 's/::.*//'`
+	    _perl=`echo "$target" | sed -e 's/.*:://'`
+	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
+		     | tee $tmp.debug \
+	             | egrep "/$_module/$_perl.(pm|so|dylib|bs)$" \
+		     | ( tr '\012' '|'; echo ) \
+		     | sed -e 's/|$//'`
+	    if [ -z "$_target" ]
+	    then
+		$very_verbose && echo >&2 "... looking for $_module/$_perl.* from candidates: `cat $tmp.debug`"
+		echo "$line: Perl source \"$target\" not found"
+	    else
+		$very_verbose && echo >&2 "$line: Perl $target -> $_target"
+		target="$_target"
+		_hunt
+	    fi
+	    ;;
+
+	*)  # file, directory or executable tests, separated by |
+	    # if we can find one of the alternatives we're good
+	    #
+	    _hunt
+	    ;;
+    esac
+
+done
+
+# check the N/A packages list for this platform
+#
+# first, list all currently installed packages ...
+#
+case "$pkgtool"
+in
+    dpkg)
+	dpkg-query -W -f '${package}\n'
+	;;
+
+    rpm)
+	rpm -qa --qf '%{NAME}\n'
+	;;
+
+    pkgin)
+	pkgin list | sed -e 's/-[0-9].*//'
+	;;
+
+    F_pkg)
+	pkg info -a | sed -e 's/-[0-9].*//'
+	;;
+
+    S_pkg)
+	pkg list -H | sed -e 's/ .*//'
+	;;
+
+    pkg_add)
+	pkg_info -a | sed -e 's/-[0-9].*//'
+	;;
+
+    emerge)
+	equery list '*' | sed -e 's/.*].*] //' -e 's/-[0-9].*//'
+	;;
+
+    slackpkg)
+	ls /var/log/packages | sed -e 's/-[0-9].*//'
+	;;
+
+    pacman)
+	pacman -Q -i | sed -n -e '/^Name /s/.* : //p'
+	;;
+
+    brew)
+	echo >&2 "TODO: no list all packages method for brew"
+	;;
+
+    *)
+	echo >&2 "Botch: no list all packages method for $pkgtool"
+	;;
+esac >$tmp.installed
+
+if [ -s $tmp.unavail ]
+then
+    rm -f $tmp.botch $tmp.allpkgs
+    if grep '[[*^$]' $tmp.unavail >/dev/null
+    then
+	# remove lines with grep patterns ... it is just too hard to
+	# know what to check for ...
+	#
+	grep -v '[[*^$]' <$tmp.unavail >$tmp.tmp
+	mv $tmp.tmp $tmp.unavail
+    fi
+    $PCP_ECHO_PROG $PCP_ECHO_N "Checking the `wc -l <$tmp.unavail | sed -e 's/ //g'` N/A packages for `hostname -s` ""$PCP_ECHO_C"
+    if $verbose
+    then
+	$PCP_ECHO_PROG "..."
+    else
+	touch $tmp.dots
+    fi
+    cat $tmp.unavail \
+    | while read pkg 
+    do
+	if $verbose
+	then
+	    echo >&2 "check N/A for \"$pkg\""
+	else
+	    # may be slow, so emit dots for progress ...
+	    #
+	    $PCP_ECHO_PROG >&2 $PCP_ECHO_N ."$PCP_ECHO_C"
+	    touch $tmp.dots
+	fi
+	rm -f $tmp.avail
+	case "$searchtool"
+	in
+	    dpkg-query)
+		if dpkg-query -l "$pkg" >$tmp.out 2>&1
+		then
+		    if grep "^un *$pkg " $tmp.out >/dev/null
+		    then
+			:
+		    else
+			touch $tmp.avail
+			$verbose && cat >&2 $tmp.out
+		    fi
+		fi
+		;;
+
+	    yum)
+		# For example: search bash ->
+		# bash.x86_64 : The GNU Bourne Again shell
+		# make package name match up to the .
+		#
+		prefix=`echo "$pkg" | sed -e 's/[. ].*//'`
+		if yum search "$pkg" 2>&1 | grep "^$prefix" >$tmp.out 2>&1
+		then
+		    touch $tmp.avail
+		    $verbose && cat >&2 $tmp.out
+		fi
+		;;
+
+	    dnf)
+		# For example: search bash ->
+		# bash.x86_64 : The GNU Bourne Again shell
+		# make package name match up to the .
+		#
+		prefix=`echo "$pkg" | sed -e 's/[. ].*//'`
+		if dnf search "$pkg" 2>&1 | grep "^$prefix" >$tmp.out 2>&1
+		then
+		    touch $tmp.avail
+		    $verbose && cat >&2 $tmp.out
+		fi
+		;;
+
+	    zypper)
+		# make package name match up to the first digit or hypen
+		#
+		prefix=`echo "$pkg" | sed -e 's/^\([^0-9-]*\).*/\1/'`
+		if zypper search -t package "$pkg" | grep "| $prefix" >$tmp.out 2>&1
+		then
+		    touch $tmp.avail
+		    $verbose && cat >&2 $tmp.out
+		fi
+		;;
+
+	    pkgin)
+		[ ! -f $tmp.allpkgs ] && pkgin avail >$tmp.allpkgs
+		if grep "^$pkg-" $tmp.allpkgs >$tmp.out 2>&1
+		then
+		    touch $tmp.avail
+		    $verbose && cat >&2 $tmp.out
+		fi
+		;;
+
+	    F_pkg)
+		# For example: search bash ->
+		# bash-4.4.23                    GNU Project's Bourne Again SHell
+		# make package name match up to the -<digit>
+		#
+		prefix=`echo "$pkg" | sed -e 's/-[0-9].*//'`
+		if pkg search "$pkg" 2>&1 | grep "^$prefix" >$tmp.out 2>&1
+		then
+		    touch $tmp.avail
+		    $verbose && cat >&2 $tmp.out
+		fi
+		;;
+
+	    pkg_info)
+		# For example: search bash (installed) ->
+		# Information for inst:bash-4.4.23
+		# 		   search GraphicsMagic (not installed) ->
+		# Information for https://mirror.aarnet.edu.au/pub/OpenBSD/6.4/packages/amd64/GraphicsMagick-1.3.30.tgz
+		#
+		# Using pkg_info becasuse pkg_locate matches on path,
+		# not package name
+		#
+		if pkg_info "$pkg" 2>&1 | grep '^Information ' >$tmp.out
+		then
+		    touch $tmp.avail
+		    $verbose && cat >&2 $tmp.out
+		fi
+		;;
+
+	    equery)
+		# For example: equery meta bash ->
+		# ...
+		# Location:    /usr/portage/app-shells/bash
+		#
+		if equery meta "$pkg" 2>&1 | grep '^Location:' >$tmp.out
+		then
+		    touch $tmp.avail
+		    $verbose && cat >&2 $tmp.out
+		fi
+		;;
+
+	    slackpkg)
+		# For example: slackpkg search bash ->
+		# ...
+		# [ installed ] - bash-4.3.048-x86_64-1_slack14.2
+		# [uninstalled] - bash-completion-2.2-noarch-3
+		#
+		if slackpkg search "$pkg" 2>&1 | grep '^\[uninstalled]' >$tmp.out
+		then
+		    touch $tmp.avail
+		    $verbose && cat >&2 $tmp.out
+		fi
+		;;
+
+	    pacman)
+		# For example: pacman -Sl | grep " bash " ->
+		# core bash 4.4.023-1 [installed]
+		#
+		if pacman -Sl | grep " $pkg " >$tmp.out
+		then
+		    touch $tmp.avail
+		    $verbose && cat >&2 $tmp.out
+		fi
+		;;
+
+
+	    brew)
+		# For example: brew info bash ->
+		# ...
+		# bash: stable 4.4.23 (bottled), HEAD
+		#
+		if brew info "$pkg" 2>&1 | grep "^$pkg:" >$tmp.out
+		then
+		    touch $tmp.avail
+		    $verbose && cat >&2 $tmp.out
+		fi
+		;;
+
+	    *)
+		if [ -f $tmp.dots ]
+		then
+		    echo
+		    rm -f $tmp.dots
+		fi
+		echo "_hunt: Botch: no rule for searchtool=$searchtool"
+		touch $tmp.botch
+		break
+		;;
+	esac
+	if [ -f $tmp.avail ]
+	then
+	    if [ -f $tmp.dots ]
+	    then
+		echo
+		rm -f $tmp.dots
+	    fi
+	    $verbose && cat >&2 $tmp.out
+	    if grep "^$pkg\$" $tmp.installed >/dev/null
+	    then
+		echo "looks like package $pkg is already installed"
+	    else
+		echo "looks like package $pkg may be available"
+	    fi
+	fi
+	[ -f $tmp.botch ] && break
+    done
+
+    if [ -f $tmp.dots ]
+    then
+	# done with dots ...
+	#
+	echo
+	rm -f $tmp.dots
+    fi
+fi
+
+sts=0
+exit

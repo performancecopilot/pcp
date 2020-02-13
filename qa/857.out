@@ -1,5 +1,5 @@
 QA output created by 857
-== Checking interrupts and softirqs names
+== Checking interrupts and softirqs names - 8 CPU(s)
 === std out ===
 kernel.percpu.intr
 kernel.percpu.interrupts.PIW
@@ -735,6 +735,386 @@ kernel.percpu.softirqs.TASKLET One-line Help: Error: One-line or help text is no
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.softirqs.BLOCK_IOPOLL One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.BLOCK One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.NET_RX One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.NET_TX One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.TIMER One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.HI One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -tT -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.softirqs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking interrupts and softirqs names - 1 CPU(s)
+=== std out ===
+kernel.percpu.intr
+kernel.percpu.interrupts.PIW
+kernel.percpu.interrupts.NPI
+kernel.percpu.interrupts.PIN
+kernel.percpu.interrupts.MIS
+kernel.percpu.interrupts.ERR
+kernel.percpu.interrupts.HVS
+kernel.percpu.interrupts.HRE
+kernel.percpu.interrupts.HYP
+kernel.percpu.interrupts.MCP
+kernel.percpu.interrupts.MCE
+kernel.percpu.interrupts.DFR
+kernel.percpu.interrupts.THR
+kernel.percpu.interrupts.TRM
+kernel.percpu.interrupts.TLB
+kernel.percpu.interrupts.CAL
+kernel.percpu.interrupts.RES
+kernel.percpu.interrupts.RTR
+kernel.percpu.interrupts.IWI
+kernel.percpu.interrupts.PMI
+kernel.percpu.interrupts.SPU
+kernel.percpu.interrupts.LOC
+kernel.percpu.interrupts.NMI
+kernel.percpu.interrupts.line25
+kernel.percpu.interrupts.line24
+kernel.percpu.interrupts.line15
+kernel.percpu.interrupts.line14
+kernel.percpu.interrupts.line12
+kernel.percpu.interrupts.line11
+kernel.percpu.interrupts.line10
+kernel.percpu.interrupts.line9
+kernel.percpu.interrupts.line8
+kernel.percpu.interrupts.line1
+kernel.percpu.interrupts.line0
+kernel.percpu.softirqs.RCU
+kernel.percpu.softirqs.HRTIMER
+kernel.percpu.softirqs.SCHED
+kernel.percpu.softirqs.TASKLET
+kernel.percpu.softirqs.IRQ_POLL
+kernel.percpu.softirqs.BLOCK
+kernel.percpu.softirqs.NET_RX
+kernel.percpu.softirqs.NET_TX
+kernel.percpu.softirqs.TIMER
+kernel.percpu.softirqs.HI
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.softirqs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking interrupts and softirqs values
+=== std out ===
+
+kernel.percpu.intr
+    inst [0 or "cpu0"] value 7538223
+
+kernel.percpu.interrupts.PIW
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.NPI
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.PIN
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.MIS
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.ERR
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.HVS
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.HRE
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.HYP
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.MCP
+    inst [0 or "cpu0"] value 276
+
+kernel.percpu.interrupts.MCE
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.DFR
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.THR
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.TRM
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.TLB
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.CAL
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.RES
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.RTR
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.IWI
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.PMI
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.SPU
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.LOC
+    inst [0 or "cpu0"] value 6651207
+
+kernel.percpu.interrupts.NMI
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.line25
+    inst [0 or "cpu0"] value 234
+
+kernel.percpu.interrupts.line24
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.line15
+    inst [0 or "cpu0"] value 578269
+
+kernel.percpu.interrupts.line14
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.line12
+    inst [0 or "cpu0"] value 1080
+
+kernel.percpu.interrupts.line11
+    inst [0 or "cpu0"] value 307009
+
+kernel.percpu.interrupts.line10
+    inst [0 or "cpu0"] value 130
+
+kernel.percpu.interrupts.line9
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.line8
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.interrupts.line1
+    inst [0 or "cpu0"] value 9
+
+kernel.percpu.interrupts.line0
+    inst [0 or "cpu0"] value 9
+
+kernel.percpu.softirqs.RCU
+    inst [0 or "cpu0"] value 9479358
+
+kernel.percpu.softirqs.HRTIMER
+    inst [0 or "cpu0"] value 6675
+
+kernel.percpu.softirqs.SCHED
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.softirqs.TASKLET
+    inst [0 or "cpu0"] value 25
+
+kernel.percpu.softirqs.IRQ_POLL
+    inst [0 or "cpu0"] value 0
+
+kernel.percpu.softirqs.BLOCK
+    inst [0 or "cpu0"] value 649022
+
+kernel.percpu.softirqs.NET_RX
+    inst [0 or "cpu0"] value 2315415
+
+kernel.percpu.softirqs.NET_TX
+    inst [0 or "cpu0"] value 28234
+
+kernel.percpu.softirqs.TIMER
+    inst [0 or "cpu0"] value 6403664
+
+kernel.percpu.softirqs.HI
+    inst [0 or "cpu0"] value 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo --fetch -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.softirqs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking interrupts and softirqs helptext
+=== std out ===
+
+kernel.percpu.intr [interrupt count metric from /proc/interrupts]
+Help:
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+
+kernel.percpu.interrupts.PIW [Posted-interrupt wakeup event]
+Help:
+Posted-interrupt wakeup event
+
+kernel.percpu.interrupts.NPI [Nested posted-interrupt event]
+Help:
+Nested posted-interrupt event
+
+kernel.percpu.interrupts.PIN [Posted-interrupt notification event]
+Help:
+Posted-interrupt notification event
+
+kernel.percpu.interrupts.MIS One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.interrupts.ERR One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.interrupts.HVS [Hyper-V stimer0 interrupts]
+Help:
+Hyper-V stimer0 interrupts
+
+kernel.percpu.interrupts.HRE [Hyper-V reenlightenment interrupts]
+Help:
+Hyper-V reenlightenment interrupts
+
+kernel.percpu.interrupts.HYP [Hypervisor callback interrupts]
+Help:
+Hypervisor callback interrupts
+
+kernel.percpu.interrupts.MCP [Machine check polls]
+Help:
+Machine check polls
+
+kernel.percpu.interrupts.MCE [Machine check exceptions]
+Help:
+Machine check exceptions
+
+kernel.percpu.interrupts.DFR [Deferred Error APIC interrupts]
+Help:
+Deferred Error APIC interrupts
+
+kernel.percpu.interrupts.THR [Threshold APIC interrupts]
+Help:
+Threshold APIC interrupts
+
+kernel.percpu.interrupts.TRM [Thermal event interrupts]
+Help:
+Thermal event interrupts
+
+kernel.percpu.interrupts.TLB [TLB shootdowns]
+Help:
+TLB shootdowns
+
+kernel.percpu.interrupts.CAL [Function call interrupts]
+Help:
+Function call interrupts
+
+kernel.percpu.interrupts.RES [Rescheduling interrupts]
+Help:
+Rescheduling interrupts
+
+kernel.percpu.interrupts.RTR [APIC ICR read retries]
+Help:
+APIC ICR read retries
+
+kernel.percpu.interrupts.IWI [IRQ work interrupts]
+Help:
+IRQ work interrupts
+
+kernel.percpu.interrupts.PMI [Performance monitoring interrupts]
+Help:
+Performance monitoring interrupts
+
+kernel.percpu.interrupts.SPU [Spurious interrupts]
+Help:
+Spurious interrupts
+
+kernel.percpu.interrupts.LOC [Local timer interrupts]
+Help:
+Local timer interrupts
+
+kernel.percpu.interrupts.NMI [Non-maskable interrupts]
+Help:
+Non-maskable interrupts
+
+kernel.percpu.interrupts.line25 [PCI-MSI 65536-edge snd_hda_intel:card0]
+Help:
+PCI-MSI 65536-edge snd_hda_intel:card0
+
+kernel.percpu.interrupts.line24 [PCI-MSI 81920-edge ahci[0000:00:05.0]]
+Help:
+PCI-MSI 81920-edge ahci[0000:00:05.0]
+
+kernel.percpu.interrupts.line15 [IO-APIC 15-edge ata_piix]
+Help:
+IO-APIC 15-edge ata_piix
+
+kernel.percpu.interrupts.line14 [IO-APIC 14-edge ata_piix]
+Help:
+IO-APIC 14-edge ata_piix
+
+kernel.percpu.interrupts.line12 [IO-APIC 12-edge i8042]
+Help:
+IO-APIC 12-edge i8042
+
+kernel.percpu.interrupts.line11 [IO-APIC 11-fasteoi uhci_hcd:usb1, ens3]
+Help:
+IO-APIC 11-fasteoi uhci_hcd:usb1, ens3
+
+kernel.percpu.interrupts.line10 [IO-APIC 10-fasteoi virtio0, qxl]
+Help:
+IO-APIC 10-fasteoi virtio0, qxl
+
+kernel.percpu.interrupts.line9 [IO-APIC 9-fasteoi acpi]
+Help:
+IO-APIC 9-fasteoi acpi
+
+kernel.percpu.interrupts.line8 [IO-APIC 8-edge rtc0]
+Help:
+IO-APIC 8-edge rtc0
+
+kernel.percpu.interrupts.line1 [IO-APIC 1-edge i8042]
+Help:
+IO-APIC 1-edge i8042
+
+kernel.percpu.interrupts.line0 [IO-APIC 2-edge timer]
+Help:
+IO-APIC 2-edge timer
+
+kernel.percpu.softirqs.RCU One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.HRTIMER One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.SCHED One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.TASKLET One-line Help: Error: One-line or help text is not available
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.IRQ_POLL One-line Help: Error: One-line or help text is not available
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.softirqs.BLOCK One-line Help: Error: One-line or help text is not available

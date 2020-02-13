@@ -232,7 +232,8 @@ static int search_for_config(char *device_path, uint64_t config, char *event_fil
             break;
         }
         if (parsed_config == config) {
-            strncpy(event_file, entry->d_name, strlen(entry->d_name)+1);
+            strncpy(event_file, entry->d_name, MAX_EVENT_NAME-1);
+            event_file[MAX_EVENT_NAME-1] = '\0';	/* buffer overrun guard */
             ret = 0;
             break;
         }
@@ -523,7 +524,8 @@ static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
 
 /* Setup an event
  */
-static int perf_setup_event(perfdata_t *inst, const char *eventname, const int cpuSetting)
+static int perf_setup_event(perfdata_t *inst, const char *eventname,
+                            unsigned long eventcode, const int cpuSetting)
 {
     int i;
     int ncpus, ret;
@@ -607,6 +609,25 @@ static int perf_setup_event(perfdata_t *inst, const char *eventname, const int c
                 continue;
             }
 
+        } else if (!strncmp(eventname, "RAW:", 4)) {
+            info->type = EVENT_TYPE_PERF;
+
+            memset(&info->hw, 0, sizeof(info->hw));
+            info->hw.type = PERF_TYPE_RAW;
+            info->hw.size = sizeof(info->hw);
+            info->hw.config = eventcode;
+            info->hw.read_format = PERF_FORMAT_TOTAL_TIME_ENABLED | PERF_FORMAT_TOTAL_TIME_RUNNING;
+            info->hw.exclude_hv = 1;
+            info->hw.exclude_guest = 1;
+            info->hw.disabled = 1;
+            info->fd = perf_event_open(&info->hw, -1, info->cpu, -1, 0);
+
+            if (info->fd == -1) {
+                fprintf(stderr, "perf_event_open failed on cpu%d for \"%s\": %s\n",
+                        info->cpu, curr->name, strerror(errno));
+                free_eventcpuinfo(info);
+                continue;
+            }
         } else {
 
             info->type = EVENT_TYPE_PERF;
@@ -678,20 +699,23 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
     struct pmu_event *event_ptr;
     char eventname[BUF_SIZE];
     pmcsetting_t *ptr;
-    int disable_event;
+    int disable_event, cpusetting;
 
     for (pmu_ptr = pmu_list; pmu_ptr; pmu_ptr = pmu_ptr->next) {
         for (event_ptr = pmu_ptr->ev; event_ptr;
              event_ptr = event_ptr->next) {
             ncpus = 0;
             disable_event = 1;
+	    cpusetting = -1;
             /* Setup the event name */
             pmsprintf(eventname, BUF_SIZE, "%s.%s", pmu_ptr->name,
                      event_ptr->name);
             for (ptr = dynamic_setting; ptr; ptr = ptr->next) {
                 if (!strncmp(eventname, ptr->name,
-                             strlen(eventname)))
+                             strlen(eventname))) {
                     disable_event = 0;
+		    cpusetting = ptr->cpuConfig;
+		}
             }
 
             /* Increase the size of event array */
@@ -705,15 +729,28 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
             }
 	    events = evp;
 
-            setup_cpu_config(pmu_ptr, &ncpus, &cpumask);
-
-            if (ncpus <= 0) { /* Assume default cpu set */
-                cpuarr = archinfo->cpus.index;
-                ncpus = archinfo->cpus.count;
-            } else {
-                cpuarr = cpumask;
-            }
-
+	    /*
+	     * If dynamic events have a cpuconfig defined in the
+	     * perfevent.conf, consider that
+	     */
+	    if(!(cpusetting < 0)) {
+	        if (cpusetting < archinfo->cpus.count) {
+		    cpuarr = &archinfo->cpus.index[cpusetting];
+		    ncpus = 1;
+		}
+	    } else {
+		/*
+		 * If no cpuconfig specified in perfevent.conf
+		 * setup the cpu config for this event
+		 */
+	        setup_cpu_config(pmu_ptr, &ncpus, &cpumask);
+		if (ncpus <= 0) { /* Assume default cpu set */
+		    cpuarr = archinfo->cpus.index;
+		    ncpus = archinfo->cpus.count;
+		} else {
+		    cpuarr = cpumask;
+		}
+	    }
             event_t *curr = events + nevents;
             curr->name = strdup(eventname);
 
@@ -1219,14 +1256,15 @@ perfhandle_t *perf_event_create(const char *config_file)
 
     while(pmcsetting)
     {
-        (void) perf_setup_event(inst, pmcsetting->name, pmcsetting->cpuConfig);
+        (void) perf_setup_event(inst, pmcsetting->name, pmcsetting->rawcode,
+                                pmcsetting->cpuConfig);
 
         pmcsetting = pmcsetting->next;
     }
 
     /* Setup the dynamic events */
     if (perfconfig->dynamicpmc) {
-	ret = init_dynamic_events(&pmu_list);
+	ret = init_dynamic_events(&pmu_list, perfconfig->dynamicpmc->dynamicSettingList);
 	if (!ret)
 	    perf_setup_dynamic_events(inst,
 				      perfconfig->dynamicpmc->dynamicSettingList,

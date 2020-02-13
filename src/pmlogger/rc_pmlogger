@@ -168,6 +168,7 @@ _shutdown()
     if [ ! -s $tmp/tmp ]
     then
  	[ "$1" = verbose ] && echo "$prog: pmlogger not running"
+	rm -f $PCP_RUN_DIR/pmlogger.pid
 	return 0
     fi
 
@@ -196,6 +197,7 @@ _shutdown()
 	true
 	$RC_STATUS -v
     fi
+    rm -f $PCP_RUN_DIR/pmlogger.pid
     $PCP_BINADM_DIR/pmpost "stop pmlogger from $prog"
 }
 

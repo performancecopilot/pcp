@@ -29,7 +29,7 @@ from bcc import BPF
 
 from pcp.pmapi import pmUnits
 from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING, PM_SEM_INSTANT, PM_SPACE_BYTE
-from cpmapi import PM_ERR_AGAIN
+from cpmda import PMDA_FETCH_NOVALUES
 
 from modules.pcpbcc import PCPBCCBase
 
@@ -120,7 +120,7 @@ class PCPBCCModule(PCPBCCBase):
                 with open(path.dirname(__file__) + '/../' + bpf_src) as src:
                     self.bpf_text = src.read()
 
-                    self.bpf_text = self.bpf_text.replace("FILTER", "FILTER_PID")
+                self.bpf_text = self.bpf_text.replace("FILTER", "FILTER_PID")
 
             if not self.pids and self.proc_filter and self.proc_refresh:
                 self.log("No process to attach found, activation postponed.")
@@ -265,4 +265,4 @@ class PCPBCCModule(PCPBCCBase):
             return [value, 1]
         except Exception: # pylint: disable=broad-except
             self.lock.release()
-            return [PM_ERR_AGAIN, 0]
+            return [PMDA_FETCH_NOVALUES, 0]

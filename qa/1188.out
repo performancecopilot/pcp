@@ -1039,6 +1039,1249 @@ vdo.dev.slab.summary.blocks_written PMID: 129.5.143 [Count of blocks written]
 Help:
 Count of blocks written
     inst [0 or "vdo1"] value 1018
+
+vdo.dev.hash_lock.concurrent_data_matches PMID: 129.5.154 [Concurrent write data matches ]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of writes with the same data as another in-flight write.
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.hash_lock.concurrent_hash_collisions PMID: 129.5.155 [Concurrent write hash collisions]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of writes whose hash collided with an in-flight write.
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.hash_lock.dedupe_advice_stale PMID: 129.5.156 [Number of times deduplication advice was incorrect.]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Number of times deduplication advice was incorrect.
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.hash_lock.dedupe_advice_valid PMID: 129.5.157 [Number of times deduplication advice was correct]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Number of times deduplication advice was correct
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.index.curr_dedupe_queries PMID: 129.5.158 [Current deduplication queries currently in-flight]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Current deduplication queries currently in-flight
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.index.entries_indexed PMID: 129.5.159 [Total number of chunk names stored in the index]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Total number of chunk names stored in the index
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.index.max_dedupe_queries PMID: 129.5.160 [Maximum number of in-flight deduplication queries]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Maximum number of in-flight deduplication queries
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.index.posts_found PMID: 129.5.161 [Post calls where entry found]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of post calls since context statistics were last reset that
+found an existing entry.
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.index.posts_not_found PMID: 129.5.162 [Posts calls where entry not found]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of post calls since context statistics were last reset that
+added a new entry.
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.index.queries_found PMID: 129.5.163 [Query calls where entry found]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of query calls since context statistics were last reset that
+found an existing entry.
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.index.queries_not_found PMID: 129.5.164 [Query calls where entry not found]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of query calls since context statistics were last reset that
+did not find an entry.
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.index.updates_found PMID: 129.5.165 [Update calls where entry found]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of update calls since context statistics were last reset that
+updated an existing entry.
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.index.updates_not_found PMID: 129.5.166 [Update calls where entry not found]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of update calls since context statistics were last reset that
+added a new entry.
+Error: Metric not supported by this version of monitored application
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,129,PCP_PMDAS_DIR/dm/pmda_dm,dm_init -dfmtT vdo
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Valgrind checking metric descriptors and values - vdo-root-002.tgz
+=== std out ===
+
+vdo.dev.blocksize PMID: 129.5.95 [The device physical block size]
+    Data Type: 32-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: discrete  Units: byte
+Help:
+The device physical block size
+    inst [0 or "vdotest"] value 4096
+
+vdo.dev.complete_recoveries PMID: 129.5.96 [Count of times the VDO has successfully recovered]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times the VDO has successfully recovered
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.curr_dedupe_queries PMID: 129.5.97 [Number of dedupe queries active]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of dedupe queries active
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.curr_vios_in_progress PMID: 129.5.98 [Number of VIOs in progress]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of VIOs in progress
+    inst [0 or "vdotest"] value 181
+
+vdo.dev.flush_out PMID: 129.5.106 [Count of flush events]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush events
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.in_recovery_mode PMID: 129.5.107 [Whether VDO is currently in recovery mode]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Whether VDO is currently in recovery mode
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.instance PMID: 129.5.108 [Kernel instance number for this VDO]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Kernel instance number for this VDO
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.journal_disk_full PMID: 129.5.112 [Count of times the on-disk journal was full]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times the on-disk journal was full
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.logical_blocksize PMID: 129.5.118 [Logical block size]
+    Data Type: 32-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: discrete  Units: byte
+Help:
+Logical block size
+    inst [0 or "vdotest"] value 4096
+
+vdo.dev.max_dedupe_queries PMID: 129.5.120 [Maximum number of deduplication active queries]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Maximum number of deduplication active queries
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.maxvios PMID: 129.5.121 [Maximum number of active VIOs]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Maximum number of active VIOs
+    inst [0 or "vdotest"] value 944
+
+vdo.dev.mode PMID: 129.5.126 [String describing the operating mode of the VDO]
+    Data Type: string  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+String describing the operating mode of the VDO
+    inst [0 or "vdotest"] value "normal"
+
+vdo.dev.physical_blocks PMID: 129.5.131 [Number of physical blocks]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of physical blocks
+    inst [0 or "vdotest"] value 2621440
+
+vdo.dev.readonly_recoveries PMID: 129.5.135 [Count of readonly recoveries performed]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of readonly recoveries performed
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.recovery_percentage PMID: 129.5.136 [Percent complete when recovery is active]
+    Data Type: float  InDom: 129.5 0x20400005
+    Semantics: instant  Units: none
+Help:
+Percent complete when recovery is active
+    inst [0 or "vdotest"] value 100
+
+vdo.dev.write_policy PMID: 129.5.144 [String describing the active write policy of the VDO]
+    Data Type: string  InDom: 129.5 0x20400005
+    Semantics: discrete  Units: none
+Help:
+String describing the active write policy of the VDO
+    inst [0 or "vdotest"] value "async"
+
+vdo.dev.capacity PMID: 129.5.149 [Total physical device capacity]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: Kbyte
+Help:
+Total physical device capacity
+    inst [0 or "vdotest"] value 10485760
+
+vdo.dev.used PMID: 129.5.150 [Used device space, including both data and metadata (overhead)]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: Kbyte
+Help:
+Used device space, including both data and metadata (overhead)
+    inst [0 or "vdotest"] value 4289708
+
+vdo.dev.available PMID: 129.5.151 [Difference between device capacity and used space]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: Kbyte
+Help:
+Difference between device capacity and used space
+    inst [0 or "vdotest"] value 6196052
+
+vdo.dev.used_percentage PMID: 129.5.152 [Percentage of physical device space used]
+    Data Type: float  InDom: 129.5 0x20400005
+    Semantics: instant  Units: none
+Help:
+Percentage of physical device space used
+    inst [0 or "vdotest"] value 40.909843
+
+vdo.dev.savings_percentage PMID: 129.5.153 [Percentage of logical blocks not being used for data blocks]
+    Data Type: float  InDom: 129.5 0x20400005
+    Semantics: instant  Units: none
+Help:
+Percentage of logical blocks not being used for data blocks
+    inst [0 or "vdotest"] value 82.854805
+
+vdo.dev.allocator.slab_count PMID: 129.5.1 [Number of slabs from which blocks may be allocated]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of slabs from which blocks may be allocated
+    inst [0 or "vdotest"] value 3
+
+vdo.dev.allocator.slabs_opened PMID: 129.5.2 [Count of slabs from which blocks have ever been allocated]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of slabs from which blocks have ever been allocated
+    inst [0 or "vdotest"] value 1
+
+vdo.dev.allocator.slabs_reopened PMID: 129.5.3 [Count of times that a slab has been re-opened]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times that a slab has been re-opened
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.acknowledged.discard PMID: 129.5.4 [Count of disacrd operations on ACKd bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of disacrd operations on ACKd bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.acknowledged.flush PMID: 129.5.5 [Count of flush operations on ACKd bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush operations on ACKd bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.acknowledged.fua PMID: 129.5.6 [Count of force unit access operations on ACKed bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of force unit access operations on ACKed bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.acknowledged.read PMID: 129.5.7 [Count of read operations on ACKed bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of read operations on ACKed bios
+    inst [0 or "vdotest"] value 131835
+
+vdo.dev.bios.acknowledged.write PMID: 129.5.8 [Count of write operations on ACKed bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of write operations on ACKed bios
+    inst [0 or "vdotest"] value 131104
+
+vdo.dev.bios.acknowledged.partial.discard PMID: 129.5.9 [Count of discard operations on ACKed partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of discard operations on ACKed partial bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.acknowledged.partial.flush PMID: 129.5.10 [Count of flush operations on ACKed partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush operations on ACKed partial bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.acknowledged.partial.fua PMID: 129.5.11 [Count of force unit access operations on ACKed partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of force unit access operations on ACKed partial bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.acknowledged.partial.read PMID: 129.5.12 [Count of read operations on ACKed partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of read operations on ACKed partial bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.acknowledged.partial.write PMID: 129.5.13 [Count of write operations on ACKed partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of write operations on ACKed partial bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in.discard PMID: 129.5.14 [Count of discard operations on incoming bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of discard operations on incoming bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in.flush PMID: 129.5.15 [Count of flush operations on incoming bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush operations on incoming bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in.fua PMID: 129.5.16 [Count of force unit access operations on incoming bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of force unit access operations on incoming bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in.read PMID: 129.5.17 [Count of read operations on incoming bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of read operations on incoming bios
+    inst [0 or "vdotest"] value 131835
+
+vdo.dev.bios.in.write PMID: 129.5.18 [Count of write operations on incoming bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of write operations on incoming bios
+    inst [0 or "vdotest"] value 131104
+
+vdo.dev.bios.in.partial.discard PMID: 129.5.19 [Count of discard operations on incoming partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of discard operations on incoming partial bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in.partial.flush PMID: 129.5.20 [Count of flush operations on incoming partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush operations on incoming partial bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in.partial.fua PMID: 129.5.21 [Count of force unit access operations on incoming partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of force unit access operations on incoming partial bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in.partial.read PMID: 129.5.22 [Count of read operations on incoming partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of read operations on incoming partial bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in.partial.write PMID: 129.5.23 [Count of write operations on incoming partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of write operations on incoming partial bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in_progress.discard PMID: 129.5.24 [Count of discard operations on in-progress bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of discard operations on in-progress bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in_progress.flush PMID: 129.5.25 [Count of flush operations on in-progress bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush operations on in-progress bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in_progress.fua PMID: 129.5.26 [Count of force unit access operations on in-progress bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of force unit access operations on in-progress bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in_progress.read PMID: 129.5.27 [Count of read operations on in-progress bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of read operations on in-progress bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in_progress.write PMID: 129.5.28 [Count of write operations on in-progress bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of write operations on in-progress bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.out.discard PMID: 129.5.49 [Count of discard operations on outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of discard operations on outgoing bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.out.flush PMID: 129.5.50 [Count of flush operations on outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush operations on outgoing bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.out.fua PMID: 129.5.51 [Count of force unit access operations on outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of force unit access operations on outgoing bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.out.read PMID: 129.5.52 [Count of read operations on outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of read operations on outgoing bios
+    inst [0 or "vdotest"] value 11220
+
+vdo.dev.bios.out.write PMID: 129.5.53 [Count of write operations on outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of write operations on outgoing bios
+    inst [0 or "vdotest"] value 13673
+
+vdo.dev.bios.out.completed.discard PMID: 129.5.54 [Count of discard operations on completed outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of discard operations on completed outgoing bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.out.completed.flush PMID: 129.5.55 [Count of flush operations on completed outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush operations on completed outgoing bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.out.completed.fua PMID: 129.5.56 [Count of force unit access operations on completed outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of force unit access operations on completed outgoing bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.out.completed.read PMID: 129.5.57 [Count of read operations on completed outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of read operations on completed outgoing bios
+    inst [0 or "vdotest"] value 11220
+
+vdo.dev.bios.out.completed.write PMID: 129.5.58 [Count of write operations on completed outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of write operations on completed outgoing bios
+    inst [0 or "vdotest"] value 13673
+
+vdo.dev.bios.journal.discard PMID: 129.5.29 [Count of discard operations on journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of discard operations on journal bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.journal.flush PMID: 129.5.30 [Count of flush operations on journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush operations on journal bios
+    inst [0 or "vdotest"] value 102
+
+vdo.dev.bios.journal.fua PMID: 129.5.31 [Count of force unit access operations on journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of force unit access operations on journal bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.journal.read PMID: 129.5.32 [Count of read operations on journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of read operations on journal bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.journal.write PMID: 129.5.33 [Count of write operations on journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of write operations on journal bios
+    inst [0 or "vdotest"] value 11009
+
+vdo.dev.bios.journal.completed.discard PMID: 129.5.34 [Count of discard operations on completed journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of discard operations on completed journal bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.journal.completed.flush PMID: 129.5.35 [Count of flush operations on completed journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush operations on completed journal bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.journal.completed.fua PMID: 129.5.36 [Count of force unit access operations on completed journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of force unit access operations on completed journal bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.journal.completed.read PMID: 129.5.37 [Count of read operations on completed journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of read operations on completed journal bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.journal.completed.write PMID: 129.5.38 [Count of write operations on completed journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of write operations on completed journal bios
+    inst [0 or "vdotest"] value 10907
+
+vdo.dev.bios.meta.discard PMID: 129.5.39 [Count of discard operations on metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of discard operations on metadata bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.meta.flush PMID: 129.5.40 [Count of flush operations on metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush operations on metadata bios
+    inst [0 or "vdotest"] value 204
+
+vdo.dev.bios.meta.fua PMID: 129.5.41 [Count of force unit access operations on metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of force unit access operations on metadata bios
+    inst [0 or "vdotest"] value 1
+
+vdo.dev.bios.meta.read PMID: 129.5.42 [Count of read operations on metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of read operations on metadata bios
+    inst [0 or "vdotest"] value 223
+
+vdo.dev.bios.meta.write PMID: 129.5.43 [Count of write operations on metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of write operations on metadata bios
+    inst [0 or "vdotest"] value 19869
+
+vdo.dev.bios.meta.completed.discard PMID: 129.5.44 [Count of discard operations on completed metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of discard operations on completed metadata bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.meta.completed.flush PMID: 129.5.45 [Count of flush operations on completed metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush operations on completed metadata bios
+    inst [0 or "vdotest"] value 102
+
+vdo.dev.bios.meta.completed.fua PMID: 129.5.46 [Count of force unit access operations on completed metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of force unit access operations on completed metadata bios
+    inst [0 or "vdotest"] value 1
+
+vdo.dev.bios.meta.completed.read PMID: 129.5.47 [Count of read operations on completed metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of read operations on completed metadata bios
+    inst [0 or "vdotest"] value 223
+
+vdo.dev.bios.meta.completed.write PMID: 129.5.48 [Count of write operations on completed metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of write operations on completed metadata bios
+    inst [0 or "vdotest"] value 19767
+
+vdo.dev.bios.page_cache.discard PMID: 129.5.69 [Count of discard operations on page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of discard operations on page cache bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.page_cache.flush PMID: 129.5.70 [Count of flush operations on page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush operations on page cache bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.page_cache.fua PMID: 129.5.71 [Count of force unit access operations on page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of force unit access operations on page cache bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.page_cache.read PMID: 129.5.72 [Count of read operations on page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of read operations on page cache bios
+    inst [0 or "vdotest"] value 162
+
+vdo.dev.bios.page_cache.write PMID: 129.5.73 [Count of write operations on page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of write operations on page cache bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.page_cache.completed.discard PMID: 129.5.64 [Count of discard operations on completed page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of discard operations on completed page cache bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.page_cache.completed.flush PMID: 129.5.65 [Count of flush operations on completed page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flush operations on completed page cache bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.page_cache.completed.fua PMID: 129.5.66 [Count of force unit access operations on completed page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of force unit access operations on completed page cache bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.page_cache.completed.read PMID: 129.5.67 [Count of read operations on completed page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of read operations on completed page cache bios
+    inst [0 or "vdotest"] value 162
+
+vdo.dev.bios.page_cache.completed.write PMID: 129.5.68 [Count of discard operations on completed page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of discard operations on completed page cache bios
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.block_map.cache_pressure PMID: 129.5.74 [Count of times when a free page was not available]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times when a free page was not available
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.block_map.cache_size PMID: 129.5.75 [Size of the block map page cache]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Size of the block map page cache
+    inst [0 or "vdotest"] value 134217728
+
+vdo.dev.block_map.clean_pages PMID: 129.5.76 [Number of clean (resident) pages]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of clean (resident) pages
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.block_map.dirty_pages PMID: 129.5.77 [Number of dirty (resident) pages]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Number of dirty (resident) pages
+    inst [0 or "vdotest"] value 162
+
+vdo.dev.block_map.discard_required PMID: 129.5.78 [Count of gets requiring discard]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of gets requiring discard
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.block_map.failed_pages PMID: 129.5.79 [Number of pages in failed state]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of pages in failed state
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.block_map.failed_reads PMID: 129.5.80 [Count of failed page reads]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of failed page reads
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.block_map.failed_writes PMID: 129.5.81 [Count of failed page writes]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of failed page writes
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.block_map.fetch_required PMID: 129.5.82 [Count of gets requiring fetch]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of gets requiring fetch
+    inst [0 or "vdotest"] value 162
+
+vdo.dev.block_map.flush_count PMID: 129.5.83 [Count of flushes issued]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of flushes issued
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.block_map.found_in_cache PMID: 129.5.84 [Count of gets that were already there]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of gets that were already there
+    inst [0 or "vdotest"] value 332794
+
+vdo.dev.block_map.free_pages PMID: 129.5.85 [Number of free pages]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of free pages
+    inst [0 or "vdotest"] value 32606
+
+vdo.dev.block_map.incoming_pages PMID: 129.5.86 [Number of pages incoming]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of pages incoming
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.block_map.outgoing_pages PMID: 129.5.87 [Number of pages outgoing]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of pages outgoing
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.block_map.pages_loaded PMID: 129.5.88 [Count of page fetches]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of page fetches
+    inst [0 or "vdotest"] value 162
+
+vdo.dev.block_map.pages_saved PMID: 129.5.89 [Count of page saves]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of page saves
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.block_map.read_count PMID: 129.5.90 [Count of getVDOPageAsync calls for read]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of getVDOPageAsync calls for read
+    inst [0 or "vdotest"] value 210743
+
+vdo.dev.block_map.read_outgoing PMID: 129.5.91 [Count of gets for outgoing pages]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of gets for outgoing pages
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.block_map.reclaimed PMID: 129.5.92 [Count of gets that are reclaimed]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of gets that are reclaimed
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.block_map.wait_for_page PMID: 129.5.93 [Count of gets enqueued for their page]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of gets enqueued for their page
+    inst [0 or "vdotest"] value 8710
+
+vdo.dev.block_map.write_count PMID: 129.5.94 [Count of getVDOPageAsync calls for write]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of getVDOPageAsync calls for write
+    inst [0 or "vdotest"] value 130923
+
+vdo.dev.data_blocks.used PMID: 129.5.99 [Number of blocks used for data]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of blocks used for data
+    inst [0 or "vdotest"] value 22447
+
+vdo.dev.dedupe_advice.stale PMID: 129.5.100 [Count of times stale deduplication advice given]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times stale deduplication advice given
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.dedupe_advice.timeouts PMID: 129.5.101 [Count of times deduplication advice timed out]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times deduplication advice timed out
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.dedupe_advice.valid PMID: 129.5.102 [Count of times valid deduplication advice given]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times valid deduplication advice given
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.errors.invalid_advicepbncount PMID: 129.5.103 [Count of invalid advice PBN errors]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of invalid advice PBN errors
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.errors.no_space_error_count PMID: 129.5.104 [Count of times a VIO completed with VDO_NO_SPACE error]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times a VIO completed with VDO_NO_SPACE error
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.errors.readonly_error_count PMID: 129.5.105 [Count of times a VIO completed with a VDO_READ_ONLY error]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times a VIO completed with a VDO_READ_ONLY error
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.journal_blocks.batching PMID: 129.5.145 [Difference between journal blocks started and written]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Difference between journal blocks started and written
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.journal_blocks.committed PMID: 129.5.109 [Number of journal blocks for which a write operation has completed]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Number of journal blocks for which a write operation has completed
+    inst [0 or "vdotest"] value 10907
+
+vdo.dev.journal_blocks.started PMID: 129.5.110 [Number of journal blocks for which processing has started]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Number of journal blocks for which processing has started
+    inst [0 or "vdotest"] value 10907
+
+vdo.dev.journal_blocks.writing PMID: 129.5.146 [Difference between journal entries written and committed]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Difference between journal entries written and committed
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.journal_blocks.written PMID: 129.5.111 [Number of journal blocks for which a write operation has been issued]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Number of journal blocks for which a write operation has been issued
+    inst [0 or "vdotest"] value 10907
+
+vdo.dev.journal_entries.batching PMID: 129.5.147 [Difference between journal entries started and written]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Difference between journal entries started and written
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.journal_entries.committed PMID: 129.5.113 [Number of journal entries for which a write operation has completed]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Number of journal entries for which a write operation has completed
+    inst [0 or "vdotest"] value 262188
+
+vdo.dev.journal_entries.started PMID: 129.5.114 [Number of journal entries for which processing has started]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Number of journal entries for which processing has started
+    inst [0 or "vdotest"] value 262188
+
+vdo.dev.journal_entries.writing PMID: 129.5.148 [Difference between journal entries written and committed]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Difference between journal entries written and committed
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.journal_entries.written PMID: 129.5.115 [Number of journal entries for which a write operation has been issued]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Number of journal entries for which a write operation has been issued
+    inst [0 or "vdotest"] value 262188
+
+vdo.dev.journal_slab.commits_requested PMID: 129.5.116 [Count of journal slab commits requested]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of journal slab commits requested
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.logical_blocks.count PMID: 129.5.117 [Number of logical blocks]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Number of logical blocks
+    inst [0 or "vdotest"] value 1569686
+
+vdo.dev.logical_blocks.used PMID: 129.5.119 [Number of logical blocks currently mapped to physical blocks]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of logical blocks currently mapped to physical blocks
+    inst [0 or "vdotest"] value 130923
+
+vdo.dev.memory_usage.bios_used PMID: 129.5.122 [Count of all bios used]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of all bios used
+    inst [0 or "vdotest"] value 37286
+
+vdo.dev.memory_usage.bytes_used PMID: 129.5.123 [Count of all bytes used]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: byte
+Help:
+Count of all bytes used
+    inst [0 or "vdotest"] value 424274472
+
+vdo.dev.memory_usage.peak.bio_count PMID: 129.5.124 [Peak count of bios used]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Peak count of bios used
+    inst [0 or "vdotest"] value 37574
+
+vdo.dev.memory_usage.peak.bytes_used PMID: 129.5.125 [Peak count of bytes used]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: byte
+Help:
+Peak count of bytes used
+    inst [0 or "vdotest"] value 424279320
+
+vdo.dev.overhead_blocks.used PMID: 129.5.127 [Number of blocks used for VDO metadata]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of blocks used for VDO metadata
+    inst [0 or "vdotest"] value 1049980
+
+vdo.dev.packer.compressed_blocks.written PMID: 129.5.128 [Count of blocks containing compressed items written]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of blocks containing compressed items written
+    inst [0 or "vdotest"] value 8593
+
+vdo.dev.packer.compressed_fragments.in_packer PMID: 129.5.129 [Number of VIOs that are pending in the packer]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of VIOs that are pending in the packer
+    inst [0 or "vdotest"] value 181
+
+vdo.dev.packer.compressed_fragments.written PMID: 129.5.130 [Count of compressed data items written]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of compressed data items written
+    inst [0 or "vdotest"] value 117250
+
+vdo.dev.read_cache.accesses PMID: 129.5.132 [Count of accesses to the read cache]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of accesses to the read cache
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.read_cache.data_hits PMID: 129.5.133 [Count of data hits in the read cache]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of data hits in the read cache
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.read_cache.hits PMID: 129.5.134 [Count of all hits in the read cache]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of all hits in the read cache
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.ref_counts.blocks_written PMID: 129.5.137 [Count of reference blocks written]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of reference blocks written
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.slab.journal.blocked_count PMID: 129.5.138 [Count of times an entry was added over the block threshold]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times an entry was added over the block threshold
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.slab.journal.blocks_written PMID: 129.5.139 [Count of times a tail block was written]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times a tail block was written
+    inst [0 or "vdotest"] value 101
+
+vdo.dev.slab.journal.disk_full_count PMID: 129.5.140 [Count of times the on-disk journal was full]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times the on-disk journal was full
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.slab.journal.flush_count PMID: 129.5.141 [Count of times an entry was added over the flush threshold]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times an entry was added over the flush threshold
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.slab.journal.tail_busy_count PMID: 129.5.142 [Count of times VDO had to wait for the tail to write]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of times VDO had to wait for the tail to write
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.slab.summary.blocks_written PMID: 129.5.143 [Count of blocks written]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of blocks written
+    inst [0 or "vdotest"] value 101
+
+vdo.dev.hash_lock.concurrent_data_matches PMID: 129.5.154 [Concurrent write data matches ]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of writes with the same data as another in-flight write.
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.hash_lock.concurrent_hash_collisions PMID: 129.5.155 [Concurrent write hash collisions]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of writes whose hash collided with an in-flight write.
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.hash_lock.dedupe_advice_stale PMID: 129.5.156 [Number of times deduplication advice was incorrect.]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Number of times deduplication advice was incorrect.
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.hash_lock.dedupe_advice_valid PMID: 129.5.157 [Number of times deduplication advice was correct]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Number of times deduplication advice was correct
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.index.curr_dedupe_queries PMID: 129.5.158 [Current deduplication queries currently in-flight]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Current deduplication queries currently in-flight
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.index.entries_indexed PMID: 129.5.159 [Total number of chunk names stored in the index]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Total number of chunk names stored in the index
+    inst [0 or "vdotest"] value 131104
+
+vdo.dev.index.max_dedupe_queries PMID: 129.5.160 [Maximum number of in-flight deduplication queries]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Maximum number of in-flight deduplication queries
+    inst [0 or "vdotest"] value 323
+
+vdo.dev.index.posts_found PMID: 129.5.161 [Post calls where entry found]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of post calls since context statistics were last reset that
+found an existing entry.
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.index.posts_not_found PMID: 129.5.162 [Posts calls where entry not found]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of post calls since context statistics were last reset that
+added a new entry.
+    inst [0 or "vdotest"] value 131104
+
+vdo.dev.index.queries_found PMID: 129.5.163 [Query calls where entry found]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of query calls since context statistics were last reset that
+found an existing entry.
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.index.queries_not_found PMID: 129.5.164 [Query calls where entry not found]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of query calls since context statistics were last reset that
+did not find an entry.
+    inst [0 or "vdotest"] value 0
+
+vdo.dev.index.updates_found PMID: 129.5.165 [Update calls where entry found]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of update calls since context statistics were last reset that
+updated an existing entry.
+    inst [0 or "vdotest"] value 117250
+
+vdo.dev.index.updates_not_found PMID: 129.5.166 [Update calls where entry not found]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+The number of update calls since context statistics were last reset that
+added a new entry.
+    inst [0 or "vdotest"] value 0
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector

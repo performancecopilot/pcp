@@ -1,6 +1,5 @@
 QA output created by 832
 Start pmcd with modified $PCP_PMCDOPTIONS_PATH (pmcd.options)
-Starting pmcd ... 
 testing secure mode access via unix domain socket (PASS)
 sample.write_me old value=2 new value=1
 sample.write_me 1 1
@@ -16,6 +15,3 @@ pmprobe: Cannot connect to PMCD on host "localhost": Authentication - invalid pa
 pminfo: Cannot connect to PMCD on host "localhost": Authentication - invalid parameter supplied
 pminfo: Cannot connect to PMCD on host "localhost": Authentication - invalid parameter supplied
 
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
-Starting pmlogger ... 

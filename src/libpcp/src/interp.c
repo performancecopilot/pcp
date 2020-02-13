@@ -809,6 +809,7 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
     pmResult	*logrp;
     pmTimeval	tmp;
     double	t_this;
+    int		err;
     int		sts;
 
     /*
@@ -816,7 +817,7 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
      * to make sure we are up to t_req
      */
     if (ctxp->c_delta > 0) {
-	while (cache_read(ctxp, PM_MODE_FORW, &logrp) >= 0) {
+	while ((err = cache_read(ctxp, PM_MODE_FORW, &logrp)) >= 0) {
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
 	    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
@@ -835,7 +836,7 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 	}
     }
     else {
-	while (cache_read(ctxp, PM_MODE_BACK, &logrp) >= 0) {
+	while ((err = cache_read(ctxp, PM_MODE_BACK, &logrp)) >= 0) {
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
 	    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
@@ -853,6 +854,15 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 		return sts;
 	}
     }
+
+    if (err == PM_ERR_LOGREC) {
+	if (pmDebugOptions.interp || pmDebugOptions.log) {
+	    fprintf(stderr, "Error: corrupted archive '%s', vol %d\n",
+		ctxp->c_archctl ->ac_log->l_name, ctxp->c_archctl->ac_curvol);
+	}
+    	return err;
+    }
+
     return 0;
 }
 
@@ -1214,8 +1224,15 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	done = 0;
 
 	while (done < back) {
-	    if (cache_read(ctxp, PM_MODE_BACK, &logrp) < 0) {
-		/* ran into start of log */
+	    if ((sts = cache_read(ctxp, PM_MODE_BACK, &logrp)) < 0) {
+		if (sts == PM_ERR_LOGREC) {
+		    if (pmDebugOptions.interp || pmDebugOptions.log) {
+		        fprintf(stderr, "Error: corrupted archive scanning backwards in '%s', volume %d\n",
+			    ctxp->c_archctl->ac_log->l_name, ctxp->c_archctl->ac_curvol);
+		    }
+		    return sts;
+		}
+		/* otherwise, we probably ran into start of log */
 		if (pmDebugOptions.interp) {
 		    fprintf(stderr, "Start of Log, %d metric-inst not found\n",
 			    back - done);
@@ -1345,7 +1362,14 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 
 	while (done < forw) {
 	    if ((sts = cache_read(ctxp, PM_MODE_FORW, &logrp)) < 0) {
-		/* ran into end of log */
+		if (sts == PM_ERR_LOGREC) {
+		    if (pmDebugOptions.interp || pmDebugOptions.log) {
+		        fprintf(stderr, "Error: corrupted archive scanning forwards in '%s', volume %d\n",
+			    ctxp->c_archctl->ac_log->l_name, ctxp->c_archctl->ac_curvol);
+		    }
+		    return sts;
+		}
+		/* otherwise we probably ran into end of log */
 		if (pmDebugOptions.interp) {
 		    fprintf(stderr, "End of Log, %d metric-insts not found\n",
 		    		forw - done);

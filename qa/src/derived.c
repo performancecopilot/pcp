@@ -40,7 +40,7 @@ main(int argc, char **argv)
 	/* non-flag args are argv[optind] ... argv[argc-1] */
 	name = expr = argv[opts.optind];
 	if ((name = strsep(&expr, "=")) == NULL) {
-	    fprintf(stderr, "%s: invalid name=expr \"%s\"\n", pmGetProgname(), name);
+	    fprintf(stderr, "%s: invalid name=expr \"%s\"\n", pmGetProgname(), expr);
 	    return 1;
 	}
 

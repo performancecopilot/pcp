@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -16,6 +16,9 @@
 
 #include "pmapi.h"
 #include "pmwebapi.h"
+#ifdef HAVE_REGEX_H
+#include <regex.h>
+#endif
 
 /*
  * Time series querying
@@ -104,27 +107,21 @@ typedef struct node {
     /* partial match data for glob/regex */
     int			nmatches;
     sds			*matches;
+    regex_t		regex;	/* compiled regex */
     unsigned long long	cursor;
 } node_t;
 
 typedef struct timing {
     /* input string */
-    sds			deltas;
-    sds			aligns;
-    sds			starts;
-    sds			ends;
-    sds			ranges;
-    sds			counts;
-    sds			offsets;
-    sds			zones;
+    pmSeriesTimeWindow	window;
 
     /* parsed inputs */
     struct timeval	delta;	
     struct timeval	align;
     struct timeval	start;
     struct timeval	end;
-    int			count;		/* sample count */
-    int			offset;		/* sample offset */
+    unsigned int	count;		/* sample count */
+    unsigned int	offset;		/* sample offset */
     int			zone;		/* pmNewZone handle */
 } timing_t;
 

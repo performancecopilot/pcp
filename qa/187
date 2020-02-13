@@ -120,7 +120,7 @@ $sudo mv $tmp.log3 $tmp.$otherfqdn_pid
 # check entries
 _check
 
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

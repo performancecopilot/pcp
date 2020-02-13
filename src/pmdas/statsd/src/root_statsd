@@ -1,0 +1,13 @@
+/*
+ * statsd metrics name space
+ */
+
+#ifndef STATSD
+#define STATSD	57
+#endif
+
+root {
+	statsd	STATSD:*:*
+}
+
+#undef STATSD

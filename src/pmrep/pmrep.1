@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (C) 2015-2020 Marko Myllynen <myllynen@redhat.com>
 .\" Copyright (c) 2016-2018 Red Hat.
-.\" Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -19,11 +19,13 @@
 \f3pmrep\f1 \- performance metrics reporter
 .SH SYNOPSIS
 \fBpmrep\fP
-[\fB\-123CdgGHIjkLnprRuUvVxz?\fP]
+[\fB\-12357CdgGHIjkLnprRuUvVxz?\fP]
+[\fB\-4\fP \fIaction\fP]
+[\fB\-6\fP \fIsort-metric\fP]
 [\fB\-8\fP|\fB\-9\fP \fIlimit\fP]
 [\fB\-a\fP \fIarchive\fP]
-[\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\fB\-A\fP \fIalign\fP]
+[\fB\-\-archive\-folio\fP \fIfolio\fP]
 [\fB\-b\fP|\fB\-B\fP \fIspace-scale\fP]
 [\fB\-c\fP \fIconfig\fP]
 [\fB\-\-container\fP \fIcontainer\fP]
@@ -34,6 +36,7 @@
 [\fB\-F\fP \fIoutfile\fP]
 [\fB\-h\fP \fIhost\fP]
 [\fB\-i\fP \fIinstances\fP]
+[\fB\-\-include\-texts\fP]
 [\fB\-J\fP \fIrank\fP]
 [\fB\-K\fP \fIspec\fP]
 [\fB\-l\fP \fIdelimiter\fP]
@@ -51,7 +54,7 @@
 [\fB\-y\fP|\fB\-Y\fP \fItime-scale\fP]
 [\fB\-Z\fP \fItimezone\fP]
 \fImetricspec\fP
-\fI[...]\fP
+[...]
 .SH DESCRIPTION
 .de EX
 .in +0.5i
@@ -250,11 +253,19 @@ file options (if any).
 .SH OPTIONS
 The available command line options are:
 .TP 5
+\fB\-0\fR \fIprecision\fR, \fB\-\-precision\-force\fR=\fIprecision\fR
+Like
+.B \-P
+but this option \fIwill\fP override per-metric specifications.
+.TP
 \fB\-1\fR, \fB\-\-dynamic\-header\fR
 Print a new dynamically adjusted header every time changes in
 availability of metric and instance values occur.
 By default a static header that never changes is printed once.
 See also
+.BR \-4 ,
+.BR \-7 ,
+and
 .BR \-E .
 .TP
 \fB\-2\fR, \fB\-\-overall\-rank\fR
@@ -272,7 +283,46 @@ including averages and peak times for values.
 \fB\-3\fR, \fB\-\-overall\-rank\-alt\fR
 Like
 .B \-2
-but print results in \fBpmrep\fP \fImetricspec\fP format.
+but print metric instances in \fBpmrep\fP \fImetricspec\fP format,
+to allow easily selecting the instances for further investigation.
+.TP
+\fB\-4\fR \fIaction\fR, \fB\-\-names\-change\fR=\fIaction\fR
+Specify which
+.I action
+to take on receiving a metric names change event during sampling.
+These events occur when a PMDA discovers new metrics sometime
+after starting up, and informs running client tools like
+.BR pmrep .
+Valid values for
+.I action
+are \fBupdate\fP (refresh metrics being sampled),
+\fBignore\fP (do nothing \- the default behaviour)
+and \fBabort\fP (exit the program if such an event happens).
+\fIupdate\fP implies \fB\-\-dynamic\-header\fP.
+.TP
+\fB\-5\fR, \fB\-\-ignore\-unknown\fR
+Silently ignore any metric name that cannot be resolved.
+At least one metric must be found for the tool to start.
+.TP
+\fB\-6\fR, \fB\-\-sort\-metric\fR=\fIsort-metric\fR
+Specify a sort reference metric to sort output by values with
+.BR \-X .
+By default sorting order is descending, prepending the metric
+name with the minus sign (``-'') will change the order to be ascending.
+See also
+.BR \-J " and "
+.BR \-N .
+.TP
+\fB\-7\fR, \fB\-\-fixed\-header\fR
+With \fB\-X\fP print a fixed header once (unless using \fB\-E\fP)
+including all metrics being reported.
+Unlike with the default (static) header, only instances with values
+available are reported.
+Unlike with the dynamic header, the header is not updated even if
+values for some metrics later become (un)available.
+See also
+.BR \-1 " and "
+.BR \-E .
 .TP
 \fB\-8\fR \fIlimit\fR, \fB\-\-limit\-filter\fR=\fIlimit\fR
 Limit results to instances with values above/below
@@ -294,21 +344,13 @@ but this option \fIwill\fP override per-metric specifications.
 .TP
 \fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 Performance metric values are retrieved from the set of Performance
-Co-Pilot (PCP) archive log files identified by the argument
-.IR archive ,
-which is a comma-separated list of names,
+Co-Pilot (PCP) archive log files identified by the
+.I archive
+argument, which is a comma-separated list of names,
 each of which may be the base name of an archive or the name of
 a directory containing one or more archives.
 See also
 .BR \-u .
-.TP
-.B \-\-archive\-folio
-Read metric source archives from the PCP archive
-.I folio
-created by tools like
-.BR pmchart (1)
-or, less often, manually with
-.BR mkaf (1).
 .TP
 \fB\-A\fR \fIalign\fR, \fB\-\-align\fR=\fIalign\fR
 Force the initial sample to be
@@ -318,6 +360,14 @@ Refer to
 .BR PCPIntro (1)
 for a complete description of the syntax for
 .IR align .
+.TP
+\fB\-\-archive\-folio\fR=\fIfolio\fR
+Read metric source archives from the PCP archive
+.I folio
+created by tools like
+.BR pmchart (1)
+or, less often, manually with
+.BR mkaf (1).
 .TP
 \fB\-b\fR \fIscale\fR, \fB\-\-space\-scale\fR=\fIscale\fR
 .I Unit/scale
@@ -342,11 +392,11 @@ Specify the
 .I config
 file to use.
 The default is the first found of:
-.BR ./pmrep.conf ,
-.BR $HOME/.pmrep.conf ,
-.BR $HOME/pcp/pmrep.conf ,
+.IR ./pmrep.conf ,
+.IR $HOME/.pmrep.conf ,
+.IR $HOME/pcp/pmrep.conf ,
 and
-.BR $PCP_SYSCONF_DIR/pmrep/pmrep.conf .
+.IR $PCP_SYSCONF_DIR/pmrep/pmrep.conf .
 See
 .BR pmrep.conf (5).
 .TP
@@ -389,7 +439,9 @@ Repeat the header every
 .I lines
 of output.
 See also
-.BR \-1 .
+.B \-1
+and
+.BR \-7 .
 .TP
 \fB\-f\fR \fIformat\fR, \fB\-\-timestamp\-format\fR=\fIformat\fR
 Use the
@@ -500,24 +552,32 @@ from reporting.
 This may be especially useful when requesting
 non-leaf nodes of the PMNS tree for reporting.
 .TP
+\fB\-\-include\-texts\fR
+When writing a PCP archive,
+include PCP metric help texts in the created archive.
+.TP
 \fB\-j\fR, \fB\-\-live\-filter\fR
 Perform instance live filtering.
 This allows capturing all filtered instances even if processes
 are restarted at some point (unlike without live filtering).
-Doing live filtering over a huge amount of instances naturally
-comes with some overhead so a bit of user caution is advised.
+Performing live filtering over a huge amount of instances will add
+some internal overhead so a bit of user caution is advised.
 See also
-.BR \-1 .
+.BR \-1 " and "
+.BR \-n .
 .TP
 \fB\-J\fR \fIrank\fR, \fB\-\-rank\fR=\fIrank\fR
 Limit results to highest/lowest
-.I rank
+.IR rank ed
 instances of set-valued metrics.
 A positive integer will include highest valued instances in reporting.
 A negative integer will include lowest valued instances in reporting.
 A value of zero performs no ranking.
+Ranking does not imply sorting, see
+.BR \-6 .
 See also
-.BR \-2 " and "
+.BR \-2
+and
 .BR \-8 .
 .TP
 \fB\-k\fR, \fB\-\-extended\-csv\fR
@@ -562,7 +622,7 @@ See also
 .TP
 \fB\-n\fR, \fB\-\-invert\-filter\fR
 Perform ranking before live filtering.
-By default instance live filter filtering (when requested, see
+By default instance live filtering (when requested, see
 .BR \-j )
 happens before instance ranking (when requested, see
 .BR \-J ).
@@ -576,24 +636,26 @@ filter reference metrics.
 By default ranking (see
 .BR \-J )
 happens for each metric individually.
-With predicate filter reference metrics, ranking is done only for the
-specified metrics.
-When reporting, the rest of the metrics sharing the same
+With predicates, ranking is done only for the
+specified predicate metrics.
+When reporting, rest of the metrics sharing the same
 .I instance domain
 (see
 .BR PCPIntro (1))
-as the predicates will include only the highest/lowest ranking
-instances of the corresponding predicates.
+as the predicate will include only the highest/lowest ranking
+instances of the corresponding predicate.
+Ranking does not imply sorting, see
+.BR \-6 .
 .RS
 .PP
-So for example, when the using \fBproc.memory.rss\fP
-(resident size of process)
+So for example, using \fBproc.memory.rss\fP
+(resident memory size of process)
 as the
 .I predicate
-and including \fBproc.io.total_bytes\fP and \fBmem.util.used\fP as metrics
-to be reported, only the processes using most/least memory (as per
+metric together with \fBproc.io.total_bytes\fP and \fBmem.util.used\fP as
+metrics to be reported, only the processes using most/least (as per
 .BR \-J )
-will be included when reporting total bytes written by processes.
+memory will be included when reporting total bytes written by processes.
 Since \fBmem.util.used\fP is a single-valued metric (thus not sharing the
 same instance domain as the process-related metrics),
 it will be reported as usual.
@@ -655,11 +717,6 @@ or not printed at all if it does not.
 The default is to use 3 decimal places (when applicable).
 This option will \fInot\fP override possible per-metric specifications.
 .TP
-\fB\-0\fR \fIprecision\fR, \fB\-\-precision\-force\fR=\fIprecision\fR
-Like
-.B \-P
-but this option \fIwill\fP override per-metric specifications.
-.TP
 \fB\-q\fR \fIscale\fR, \fB\-\-count\-scale\fR=\fIscale\fR
 .I Unit/scale
 for count metrics, possible values include
@@ -693,9 +750,9 @@ Like
 but this option will \fInot\fP override per-metric specifications.
 .TP
 \fB\-s\fR \fIsamples\fR, \fB\-\-samples\fR=\fIsamples\fR
-The argument
+The
 .I samples
-defines the number of samples to be retrieved and reported.
+argument defines the number of samples to be retrieved and reported.
 If
 .I samples
 is 0 or
@@ -717,9 +774,9 @@ for a complete description of the syntax for
 .IR starttime .
 .TP
 \fB\-t\fR \fIinterval\fR, \fB\-\-interval\fR=\fIinterval\fR
-The default update
+Set the reporting
 .I interval
-may be set to something other than the default 1 second.
+to something other than the default 1 second.
 The
 .I interval
 argument follows the syntax described in
@@ -836,7 +893,8 @@ This is convenient to allow easily using
 .BR grep (1)
 to filter results or to more closely mimic other utilities.
 See also
-.BR \-i .
+.BR \-i " and "
+.BR \-6 .
 .TP
 \fB\-y\fR \fIscale\fR, \fB\-\-time\-scale\fR=\fIscale\fR
 .I Unit/scale
@@ -1015,7 +1073,7 @@ $ pmrep \-o archive \-F ./a \-J 3 \-N proc.memory.rss proc.memory proc.io
 .ft P
 .RE
 .SH FILES
-.TP
+.TP 5
 .I pmrep.conf
 \fBpmrep\fP configuration file (see \fB\-c\fP)
 .TP
@@ -1025,7 +1083,7 @@ system provided \fBpmrep\fP configuration file
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
 On each installation, the
-file \fB/etc/pcp.conf\fP contains the local values for these variables.
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
 The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .PP
@@ -1066,7 +1124,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR strftime (3),
 .BR LOGARCHIVE (5),
 .BR pcp.conf (5),
-.BR pmns (5),
+.BR PMNS (5),
 .BR pmrep.conf (5),
 .BR environ (7)
 and

@@ -1,0 +1,89 @@
+#!/bin/sh
+# PCP QA Test No. 1401
+# Exercise REST API chunked encoding with persistent HTTP
+# connections, end-of-JSON-response EOL strings and other
+# small API buglets that have cropped up over time.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_context()
+{
+    sed \
+	-e 's/"context":[1-9][0-9]*,.*/"context":CTX}/g' \
+    #end
+}
+
+_filter_fetch()
+{
+    sed \
+	-e 's/"context":[1-9][0-9]*/"context":CTX/g' \
+	-e 's/"timestamp":[1-9][0-9]*\.[0-9][0-9]*/"timestamp":TIMESTAMP/g' \
+    #end
+}
+
+# real QA test starts here
+_service pmproxy stop >/dev/null
+_service pmproxy start >>$here/$seq.full 2>&1
+_wait_for_pmproxy
+
+# curl maintains a connection when given multiple URLs
+echo "Verify no chunk-encoded lengths in output" | tee -a $seq.full
+url1='http://localhost:44322/metrics'
+curl -s "$url1" "$url1" | tee -a $seq.full > $tmp.out
+
+# remove expected, good comment lines and metric lines
+cat $tmp.out \
+    | grep -v '^#' \
+    | grep -v '} '
+echo "Silence is golden"
+
+# curl maintains a connection when given multiple URLs
+echo "Verify no unexpected final EOL markers in output" | tee -a $seq.full
+url2='http://localhost:44322/pmapi/fetch?names=hinv.ncpu,disk.dev.read'
+curl -s "$url2" | tee -a $seq.full > $tmp.out
+tail -1 $tmp.out | sed -e 's/{.*}/JSON/g'
+
+# change instance domain for a single connection
+echo "Verify changes in dynamic instance domain" | tee -a $seq.full
+fetch='http://localhost:44322/pmapi/fetch?name=sample.many.int'
+store1='http://localhost:44322/pmapi/store?name=sample.many.count&value=5'
+store2='http://localhost:44322/pmapi/store?name=sample.many.count&value=3'
+store3='http://localhost:44322/pmapi/store?name=sample.many.count&value=7'
+curl -s "$store1" "$fetch" "$store2" "$fetch" "$store3" "$fetch" | _filter_fetch
+
+# check parsing of URLs with strange parameters
+echo "Verify handling of unusual URL contents (empty)" | tee -a $seq.full
+curl -s 'http://localhost:44322/pmapi/context?' | _filter_context
+echo "Verify handling of unusual URL contents (empty with ampersand)" | tee -a $seq.full
+curl -s 'http://localhost:44322/pmapi/context?&' | _filter_context
+echo "Verify handling of unusual URL contents (name without equals)" | tee -a $seq.full
+curl -s 'http://localhost:44322/pmapi/context?test' | _filter_context
+echo "Verify handling of unusual URL contents (param then name without equals)" | tee -a $seq.full
+curl -s 'http://localhost:44322/pmapi/context?test1=1&test2' | _filter_context
+echo "Verify handling of unusual URL contents (repeating ampersands)" | tee -a $seq.full
+curl -s 'http://localhost:44322/pmapi/context?test1=1&&test2=2' | _filter_context
+
+# success, all done
+status=0
+exit

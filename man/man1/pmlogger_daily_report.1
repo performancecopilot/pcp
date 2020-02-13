@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2018 Red Hat.
+.\" Copyright (c) 2018-2019 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -17,25 +17,19 @@
 \f3pmlogger_daily_report\f1 \- write Performance Co-Pilot daily summary reports
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_daily_report
+[\f3\-ApV?\f1]
 [\f3\-a\f1 \f2archivefile\f1]
 [\f3\-f\f1 \f2outputfile\f1]
 [\f3\-h\f1 \f2hostname\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-o\f1 \f2directory\f1]
-[\f3\-p\f1]
 [\f3\-t\f1 \f2interval\f1]
-[\f3\-A\f1]
-[\f3\-V\f1]
-[\f3\--help\f1]
 .SH DESCRIPTION
 .B pmlogger_daily_report
 and the associated
-.BR crontab (5)
-entry (depending on local platform, either 
-.I $PCP_ETC_DIR/cron.d/pcp-pmlogger-daily-report
-or
-.IR $PCP_SYSCONF_DIR/pmlogger/crontab-daily-report )
-write daily performance summary reports, much like those produced by 
+.BR systemd (1)
+services
+write daily performance summary reports, much like those produced by
 .BR sadc (1)
 and the
 .BR sa2 (8)
@@ -43,10 +37,11 @@ utility.
 .PP
 All of the command line arguments are optional and intended to be self
 explanatory.
-If no arguments are specified,
+The service is not enabled by default.
+If the service is enabled and no arguments are specified,
 .B pmlogger_daily_report
 will be run by
-.BR cron (8)
+.BR systemd
 at 2am each morning and write a performance summary report named
 .BI sar XX
 (where
@@ -64,11 +59,12 @@ directory by default, but this may be changed with the
 .B \-o
 option to a different
 .IR directory .
-Note the default
-.BR crontab (5)
-entry currently specifies
-.B $PCP_LOG_DIR/sa
-as the output directory; this may be changed in the future.
+.PP
+Note that there are suffciently flexible command line options for
+.B pmlogger_daily_report
+to be used to read any
+.B archivefile
+and write the report to any output directory.
 .PP
 If the
 .B \-a
@@ -78,7 +74,7 @@ is
 .IR $PCP_LOG_DIR/pmlogger/HOSTNAME/YYYYMMDD ,
 where
 .I HOSTNAME
-defaults to the local hostname (may be changed with the
+defaults to the local hostname (unless changed with the
 .B \-h
 option) and
 .I YYYYMMDD
@@ -95,38 +91,6 @@ will use all PCP archives found in that directory
 to write the report (this is known as multi-archive mode,
 and may be considerably slower than specifying a single
 archive as the input).
-.PP
-Note that there are suffciently flexible command line options for
-.B pmlogger_daily_report
-to be used to read any
-.B archivefile
-and write the report to any output directory.
-As such, this tool can be configured by editing the crontab entry,
-.B $PCP_ETC_DIR/cron.d/pcp-pmlogger-daily-report
-and adding whatever command line options are required.
-.PP
-If the
-.B \-p
-option is specified
-then the status of the daily processing is polled and if the
-report has not been done in the last 24 hours then it is done now.
-The intent is to have
-.B pmlogger_daily_report
-called regularly with the
-.B \-p
-option (at 30 mins past the hour, every hour in the default
-.BR cron (8)
-set up) to ensure daily processing happens as soon as possible if
-it was missed at the regularly scheduled time (which is 02:00
-by default), e.g. if the system was down or suspended at that
-time.
-.PP
-With the
-.B \-p
-option,
-.B pmlogger_daily_report
-simply exits if the previous day's processing has already been
-done.
 .PP
 The reports themselves are created by the
 .BR pmrep (1)
@@ -155,11 +119,32 @@ As the name suggests,
 requires no additional configuration after installation in order to
 capture the required archives needed by
 .BR pmlogger_daily_report .
-.PP
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-a\fR \fIarchive\fR
+Specifies an alternate input
+.I archive
+file basename or directory path.
+.TP
+\fB\-A\fR
+Use the start and end times of input archive for the report, as
+opposed to the default behaviour of 24 hours from midnight yesterday.
+.TP
+\fB\-f\fR \fIfilename\fR
+Specifies an alternate output
+.IR filename .
+\fB\-h\fR \fIhostname\fR
+Specifies an alternateA
+.I hostname
+to use within the default input archive file path.
+.TP
+\fB\-l\fR \fIfile\fR, \fB\-\-logfile\fR=\fIfile\fR
 In order to ensure that mail is not unintentionally sent when this
 script is run from
-.BR cron (8)
-diagnostics are always sent to a log file.
+.BR systemd (1)
+diagnostics are always sent to a log
+.IR file .
 By default, this file is
 .B $PCP_LOG_DIR/pmlogger/pmlogger_daily_report.log
 but this can be changed using the
@@ -170,35 +155,53 @@ renamed with a
 .I .prev
 suffix (overwriting any log file saved earlier) before diagnostics
 are generated to the log file.
-.PP
-The output from the
-.BR cron (8)
-execution of the script may be extended using the
-.B \-V
-option which enables verbose tracing of activity.
+.TP
+\fB\-p\fR
+If this option is specified
+then the status of the daily processing is polled and if the
+report has not been done in the last 24 hours then it is done now.
+The intent is to have
+.B pmlogger_daily_report
+called regularly with the
+.B \-p
+option (at 30 mins past the hour, every hour in the default
+.BR systemd (1)
+setup) to ensure daily processing happens as soon as possible
+if it was missed at the regularly scheduled time (2am by default),
+for example if the system was down or suspended at that time.
+With this option,
+.B pmlogger_daily_report
+simply exits if the previous day's processing has already been
+done.
+.TP
+\fB\-t\fR \fIinterval\fR
+Specifies the sampling
+.I interval
+used when generating the report, in the format described in
+.BR PCPIntro (1).
+The default is every 10 minutes.
+.TP
+\fB\-V\fR, \fB\-\-verbose\fR
+The output from the execution of the script may be extended using
+this option which enables verbose tracing of activity.
 By default the script generates no log output unless some error or
 warning condition is encountered.
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmlogger_daily (1),
 .BR pmlogger (1),
 .BR pmrep (1),
 .BR sadc (1),
-.BR crontab (5),
-.BR sa2 (8)
+.BR systemd (1)
 and
-.BR cron (8).
+.BR sa2 (8).

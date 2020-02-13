@@ -7,7 +7,7 @@
 ** Include-file describing miscellaneous constants and function-prototypes.
 **
 ** Copyright (C) 1996-2014 Gerlof Langeveld
-** Copyright (C) 2015-2017 Red Hat.
+** Copyright (C) 2015-2019 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -21,9 +21,6 @@
 */
 #define	EQ		0
 #define SECSDAY		86400
-#define RAWNAMESZ	256
-#define	PROCCHUNK	100	/* process-entries for future expansion  */
-#define	PROCMIN		256     /* minimum number of processes allocated */
 
 /*
 ** memory-size formatting possibilities
@@ -51,9 +48,7 @@ struct sstat;
 */
 #define RRBOOT		0x0001
 #define RRLAST  	0x0002
-#define RRNETATOP	0x0004
-#define RRNETATOPD	0x0008
-#define RRACCTACTIVE	0x0010
+#define RRMARK		0x0004
 #define RRIOSTAT	0x0020
 #define RRDOCKSTAT	0x0040
 
@@ -64,6 +59,8 @@ struct visualize {
 	void	(*show_error) (const char *, ...);
 	void	(*show_end)   (void);
 	void	(*show_usage) (void);
+       void    (*prep)       (void);
+       int     (*next)       (void);
 };
 
 struct sysname {
@@ -83,6 +80,7 @@ extern struct timeval   pretime;
 extern struct timeval   curtime;
 extern struct timeval   interval;
 extern unsigned long	sampcnt;
+extern unsigned long	sampflags;
 extern char      	screen;
 extern int      	linelen;
 extern char      	acctreason;
@@ -105,6 +103,7 @@ extern unsigned int	pidmax;
 extern unsigned int	pagesize;
 extern unsigned int	hinv_nrcpus;
 extern unsigned int	hinv_nrdisk;
+extern unsigned int	hinv_nrgpus;
 extern unsigned int	hinv_nrintf;
 
 extern int		supportflags;
@@ -128,6 +127,7 @@ extern int		almostcrit;
 #define	NETATOP		0x00000010
 #define	NETATOPD	0x00000020
 #define	DOCKSTAT	0x00000040
+#define	GPUSTAT		0x00000080
 
 /*
 ** structure containing the start-addresses of functions for visualization
@@ -138,6 +138,8 @@ char		generic_samp (double, double,
 void		generic_error(const char *, ...);
 void		generic_end  (void);
 void		generic_usage(void);
+void		generic_prep (void);
+int            generic_next (void);
 
 /*
 ** miscellaneous prototypes
@@ -157,20 +159,23 @@ int		compcpu(const void *, const void *);
 int		compdsk(const void *, const void *);
 int		compmem(const void *, const void *);
 int		compnet(const void *, const void *);
+int		compgpu(const void *, const void *);
 int		compusr(const void *, const void *);
 int		compnam(const void *, const void *);
 int		compcon(const void *, const void *);
 
 int		cpucompar (const void *, const void *);
+int		gpucompar (const void *, const void *);
 int		diskcompar(const void *, const void *);
 int		intfcompar(const void *, const void *);
+int		ifbcompar(const void *, const void *);
 int		nfsmcompar(const void *, const void *);
 int		contcompar(const void *, const void *);
 
 count_t		subcount(count_t, count_t);
 
 void		setup_options(struct pmOptions *, char **, char *);
-void  		rawread(struct pmOptions *);
+void		close_options(struct pmOptions *);
 void		rawfolio(struct pmOptions *);
 void		rawarchive(struct pmOptions *, const char *);
 void		rawwrite(struct pmOptions *, const char *, struct timeval *,
@@ -183,6 +188,7 @@ void		setalarm2(int, int);
 char 		*getstrvers(void);
 unsigned short 	getnumvers(void);
 void		ptrverify(const void *, const char *, ...);
+void		mcleanstop(int, const char *, ...);
 void		cleanstop(int);
 void		prusage(char *, struct pmOptions *);
 void		show_pcp_usage(struct pmOptions *);
@@ -208,6 +214,7 @@ count_t		extract_count_t_index(struct pmResult *, struct pmDesc *, int, int);
 char *		extract_string(struct pmResult *, struct pmDesc *, int, char *, int);
 char *		extract_string_inst(struct pmResult *, struct pmDesc *, int, char *, int, int);
 char *		extract_string_index(struct pmResult *, struct pmDesc *, int, char *, int, int);
+int		present_metric_value(struct pmResult *, int);
 
 /*
 ** Optional netatop module interfaces

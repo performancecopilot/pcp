@@ -1,0 +1,195 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (C) 2019 Marko Myllynen <myllynen@redhat.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\"
+.TH PMDANETCHECK 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdanetcheck\f1 \- netcheck PMDA
+.SH DESCRIPTION
+\fBpmdanetcheck\fP is a Performance Co-Pilot (PCP) Performance Metrics
+Domain Agent (PMDA) which does basic network checks on the local host by
+using simple Python modules and, in some cases, external utilities such
+as
+.BR ping (1).
+.PP
+\fBpmdanetcheck\fP loads and acts as a bridge for any number of configured,
+separate PCP netcheck PMDA Python modules running Python code
+or external programs.
+Existing Python modules and programs should be possible to be utilized
+with PCP netcheck PMDA modules with minimal effort.
+.PP
+Note that on SELinux enabled systems for \fBpmdanetcheck\fP to be able to
+use the
+.BR ping (1)
+command the \fBpcp\fP group must be able to create ICMP Echo sockets;
+please make sure the group id for \fBpcp\fP is included in the range at
+.I /proc/sys/net/ipv4/ping_group_range
+and refer to
+.BR icmp (7)
+for more details on this.
+.SH CONFIGURATION
+\fBpmdanetcheck\fP reads a mandatory ini-style configuration file:
+.IP
+.PD 0
+.IP
+.I \f(CW$PCP_PMDAS_DIR\fP/netcheck/netcheck.conf
+.PD
+.PP
+This file must contain a \fB[pmda]\fP section.
+The following PMDA options are available
+(their default values are shown in parenthesis),
+options marked with asterisk (\fB*\fP)
+can be overridden in module-specific configuration sections:
+.TP 15
+.B modules \fR(unset)\fP
+The \fBpmdanetcheck\fP PMDA reads module-specific configuration for each
+module listed in the comma-separated list of \fBmodules\fP (mandatory).
+.TP
+.B hosts \fR(\fP\fIDGW,DNS\fP\fR)\fP *
+A comma-separated list of \fBhosts\fP (optional) specifies the hosts to run
+the checks for.
+The special values \fBDGW\fP, \fBDNS\fP, \fBNTP\fP will be
+translated to the default gateway, nameservers listed in
+\fB/etc/resolv.conf\fP, and timeservers listed in
+\fB/etc/chrony.conf\fP, respectively, on PMDA startup.
+.TP
+.B background_check \fR(\fP\fITrue\fP\fR)\fP *
+A boolean value for \fBbackground_check\fP (optional) controls whether to run
+checks constantly in the background or only on demand.
+Refer to the default configuration file for more discussion about this.
+.TP
+.B check_hosts_parallel \fR(\fP\fITrue\fP\fR)\fP *
+\fBcheck_hosts_parallel\fP (optional) controls whether modules should check
+hosts one by one or in parallel.
+.TP
+.B check_interval \fR(\fP\fI1m\fP\fR)\fP *
+\fBcheck_interval\fP (optional) specifies the time interval between two
+consecutive checks for hosts when checks are done in the background.
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for the time interval.
+.TP
+.B align_interval \fR(\fP\fITrue\fP\fR)\fP *
+\fBalign_interval\fP (optional) specifies whether to take the previous
+check duration into account when pausing between checks.
+.TP
+.B module_failure_fatal \fR(\fP\fITrue\fP\fR)\fP
+A boolean value for \fBmodule_failure_fatal\fP (optional) controls whether
+a module failing to initialize should cause the whole PMDA to abort (this
+is the default) or to start up with possibly remaining functional modules.
+Module configuration errors and internal errors (such as failing to
+register the provided PMNS metrics, see \fBpmns\fP(5))
+will always cause the PMDA to fail to start.
+.PP
+For each \fImodule\fP listed in \fBmodules\fP a corresponding \fI[module]\fP
+section must be defined.
+Each \fI[module]\fP section can contain at least the following options
+(their default values are shown in parenthesis):
+.TP 15
+.B timeout \fR(\fP\fI1\fP\fR)\fP
+Force a hard \fBtimeout\fP (optional) for each individual network check
+operation.
+.TP
+.B debug \fR(\fP\fIFalse\fP\fR)\fP
+Enable logging of internal \fBdebug\fP messages (rarely used).
+.PP
+The module-specific options modules accept are described in the default
+configuration file.
+.PP
+Modules expect basic network functionality to be present on the system,
+for example the \fBlocalhost\fP address being reachable.
+.SH INSTALLATION
+To install, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/netcheck
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/netcheck
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
+\fBpmdanetcheck\fP is launched by \fBpmcd\fP(1) and should never be
+executed directly.
+The \fBInstall\fP and \fBRemove\fP scripts notify \fBpmcd\fP(1) when
+the agent is installed or removed.
+.PP
+In case \fBmodule_failure_fatal\fP is set to \fBFalse\fP, the PMDA
+installation will be considered successful if some (but not all)
+configured modules fail to load, in such cases metrics provided
+by the failing modules will not be available.
+The \fBpmdanetcheck\fP agent log file (see below) will contain detailed
+information about activation of each module.
+.PP
+Modules will provide real values only after having collected data.
+For example, for the \fBping\fP module the metric value is the
+exit value of the \fBping\fP(1) command and for \fBping_latency\fP the
+average packet latency as reported by \fBping\fP(1).
+For metrics indicating status, \fB0\fP denotes success.
+In case a check has not finished yet its metric value is \fB-1\fP.
+If a check was terminated during execution due to timeout
+the value is \fB-2\fP.
+.SH FILES
+.TP 5
+.I \f(CW$PCP_PMDAS_DIR\fP/netcheck/netcheck.conf
+configuration file for the \fBpmdanetcheck\fP agent
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/netcheck/netcheck/*.{py,python}
+PCP netcheck PMDA Python modules for the \fBpmdanetcheck\fP agent
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/netcheck/Install
+installation script for the \fBpmdanetcheck\fP agent
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/netcheck/Remove\fP
+undo installation script for the \fBpmdanetcheck\fP agent
+.TP
+.I \f(CW$PCP_LOG_DIR\fP/pmcd/netcheck.log
+default log file for messages from the \fBpmdanetcheck\fP agent
+.PP
+Note that the usual/default value for \fB$PCP_PMDAS_DIR\fP is
+.B /var/lib/pcp/pmdas
+and the default for \fB$PCP_LOG_DIR\fP is
+.B /var/log/pcp
+but these settings are platform dependent.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR ping (1),
+.BR pmcd (1),
+.BR getaddrinfo (3),
+.BR resolver (3),
+.BR gai.conf (5),
+.BR resolv.conf (5),
+.BR resolver (5),
+.BR icmp (7)
+and
+.BR ip (8).

@@ -18,3 +18,17 @@ proc.id.container
     inst [N or "000996 /usr/libexec/docker/docker-containerd-current"] value ""
     inst [N or "026287 /usr/libexec/docker/docker-containerd-shim-current"] value ""
     inst [N or "026304 /bin/prometheus"] value "0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736"
+
+== Fetching proc.psinfo.cgroups metric - procpid-4.18.13-root-006.tgz
+
+proc.psinfo.cgroups
+    inst [N or "000001 /usr/lib/systemd/systemd"] value "blkio:/;devices:/;freezer:/;hugetlb:/;perf_event:/;cpu,cpuacct:/;cpuset:/;net_cls,net_prio:/;pids:/;memory:/;name=systemd:/init.scope;:/init.scope"
+    inst [N or "025731 podman"] value "blkio:/;devices:/user.slice;freezer:/;hugetlb:/;perf_event:/;cpu,cpuacct:/;cpuset:/;net_cls,net_prio:/;pids:/user.slice/user-1000.slice/user@1000.service;memory:/user.slice/user-1000.slice/user@1000.service;name=systemd:/user.slice/user-1000.slice/user@1000.service/gnome-terminal-server.service;:/user.slice/user-1000.slice/user@1000.service/gnome-terminal-server.service"
+    inst [N or "025951 /bin/prometheus"] value "blkio:/machine.slice/libpod-06e531ab675fb4a8141bcfd0f199957b132bfbd3080b7c6b99bd3f2ce0bca85c.scope;devices:/machine.slice/libpod-06e531ab675fb4a8141bcfd0f199957b132bfbd3080b7c6b99bd3f2ce0bca85c.scope;freezer:/machine.slice/libpod-06e531ab675fb4a8141bcfd0f199957b132bfbd3080b7c6b99bd3f2ce0bca85c.scope;hugetlb:/machine.slice/libpod-06e531ab675fb4a8141bcfd0f199957b132bfbd3080b7c6b99bd3f2ce0bca85c.scope;perf_event:/machine.slice/libpod-06e531ab675fb4a8141bcfd0f199957b132bfbd3080b7c6b99bd3f2ce0bca85c.scope;cpu,cpuacct:/machine.slice/libpod-06e531ab675fb4a8141bcfd0f199957b132bfbd3080b7c6b99bd3f2ce0bca85c.scope;cpuset:/machine.slice/libpod-06e531ab675fb4a8141bcfd0f199957b132bfbd3080b7c6b99bd3f2ce0bca85c.scope;net_cls,net_prio:/machine.slice/libpod-06e531ab675fb4a8141bcfd0f199957b132bfbd3080b7c6b99bd3f2ce0bca85c.scope;pids:/machine.slice/libpod-06e531ab675fb4a8141bcfd0f199957b132bfbd3080b7c6b99bd3f2ce0bca85c.scope"
+
+== Fetching proc.id.container metric - procpid-4.18.13-root-006.tgz
+
+proc.id.container
+    inst [N or "000001 /usr/lib/systemd/systemd"] value ""
+    inst [N or "025731 podman"] value ""
+    inst [N or "025951 /bin/prometheus"] value "06e531ab675fb4a8141bcfd0f199957b132bfbd3080b7c6b99bd3f2ce0bca85c"

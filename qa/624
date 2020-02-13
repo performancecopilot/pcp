@@ -21,6 +21,10 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+# Note: 204XXX filtering is because stdio does not always return the same
+#       value on different platforms ... it is 204800 (EOF) on OpenBSD 6.3
+#       (vm33) but 204456 elsewhere
+#
 _filter()
 {
     tee -a $seq.full \
@@ -31,7 +35,9 @@ _filter()
 	-e '/^_pm/d' \
 	-e '/^logputresult:/d' \
 	-e '/[-+ ]\[[0-9][0-9]* bytes]/d' \
-	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/" \
+	-e '/occurred/s/offset 204[0-9][0-9][0-9]/offset 204XXX/' \
+    # end
 }
 
 _cmp()

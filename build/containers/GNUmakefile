@@ -25,7 +25,6 @@ SUBDIRS = \
 	pcp-pmlogger \
 	pcp-pmie \
 	pcp-testsuite \
-	pcp-pmwebd \
 	\
 	pcp-standalone \
 	pcp-java-app \

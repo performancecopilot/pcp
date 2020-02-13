@@ -30,7 +30,7 @@ cd 051.work
 # The die.* tests die automatically by themselves.
 
 cat >die.001 <<End-of-File
-# Test whitespace in "[access]" token
+# Test whitespace in "[access]" token - for PCP QA test 051/die.001
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -40,7 +40,7 @@ die!
 End-of-File
 
 cat >die.002 <<End-of-File
-# Test whitespace in "[access]" token
+# Test whitespace in "[access]" token - for PCP QA test 051/die.002
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -50,7 +50,7 @@ die!
 End-of-File
 
 cat >die.003 <<End-of-File
-# Test whitespace in "[access]" token
+# Test whitespace in "[access]" token - for PCP QA test 051/die.003
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -60,7 +60,7 @@ die!
 End-of-File
 
 cat >die.004 <<End-of-File
-# Test whitespace in "[access]" token
+# Test whitespace in "[access]" token - for PCP QA test 051/die.004
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -73,7 +73,7 @@ die!
 End-of-File
 
 cat >die.005 <<End-of-File
-# Test missing host list
+# Test missing host list - for PCP QA test 051/die.005
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -84,7 +84,7 @@ die!
 End-of-File
 
 cat >die.006 <<End-of-File
-# Test missing comma in host list
+# Test missing comma in host list - for PCP QA test 051/die.006
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -95,7 +95,7 @@ die!
 End-of-File
 
 cat >die.007 <<End-of-File
-# Test extra comma in host list
+# Test extra comma in host list - for PCP QA test 051/die.007
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -106,7 +106,7 @@ die!
 End-of-File
 
 cat >die.008 <<End-of-File
-# Test missing colon after host list
+# Test missing colon after host list - for PCP QA test 051/die.008
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -117,7 +117,7 @@ die!
 End-of-File
 
 cat >die.009 <<End-of-File
-# Test extra comma and missing colon after host list
+# Test extra comma and missing colon after host list - for PCP QA test 051/die.009
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -128,7 +128,7 @@ die!
 End-of-File
 
 cat >die.010 <<End-of-File
-# Test missing semicolon
+# Test missing semicolon - for PCP QA test 051/die.010
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -139,7 +139,7 @@ die!
 End-of-File
 
 cat >die.011 <<End-of-File
-# Test statement with lotsa whitespace and comments interspersed.
+# Test statement with lotsa whitespace and comments interspersed. - for PCP QA test 051/die.011
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -163,7 +163,7 @@ all
 End-of-File
 
 cat >die.012 <<End-of-File
-# Test all operation types.
+# Test all operation types. - for PCP QA test 051/die.012
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -178,7 +178,7 @@ die!
 End-of-File
 
 cat >die.013 <<End-of-File
-# Test all operations in a single permission list.
+# Test all operations in a single permission list. - for PCP QA test 051/die.013
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -189,7 +189,7 @@ die!
 End-of-File
 
 cat >die.014 <<End-of-File
-# Test clash of "all" with a specific operation.
+# Test clash of "all" with a specific operation. - for PCP QA test 051/die.014
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -200,7 +200,7 @@ die!
 End-of-File
 
 cat >die.015 <<End-of-File
-# Test that "all" works with a connection limit.
+# Test that "all" works with a connection limit. - for PCP QA test 051/die.015
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -211,7 +211,7 @@ die!
 End-of-File
 
 cat >die.016 <<End-of-File
-# Test that specific operations work with a connection limit.
+# Test that specific operations work with a connection limit. - for PCP QA test 051/die.016
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -222,7 +222,7 @@ die!
 End-of-File
 
 cat >die.017 <<End-of-File
-# Test that a connection limit fails in a disallow.
+# Test that a connection limit fails in a disallow. - for PCP QA test 051/die.017
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -233,7 +233,7 @@ die!
 End-of-File
 
 cat >die.018 <<End-of-File
-# Test that a connection limit fails in a disallow with except.
+# Test that a connection limit fails in a disallow with except. - for PCP QA test 051/die.018
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -244,7 +244,7 @@ die!
 End-of-File
 
 cat >die.019 <<End-of-File
-# Test that a connection limit is OK in an allow with an except.
+# Test that a connection limit is OK in an allow with an except. - for PCP QA test 051/die.019
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -255,7 +255,7 @@ die!
 End-of-File
 
 cat >die.020 <<End-of-File
-# Test that a bogus hostname is detected
+# Test that a bogus hostname is detected - for PCP QA test 051/die.020
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -266,7 +266,7 @@ die!
 End-of-File
 
 cat >die.021 <<End-of-File
-# Test a no such host condition
+# Test a no such host condition - for PCP QA test 051/die.021
 #
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -277,7 +277,7 @@ die!
 End-of-File
 
 cat >die.022 <<End-of-File
-# Test that a bogus IP address
+# Test that a bogus IP address - for PCP QA test 051/die.022
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -288,7 +288,7 @@ die!
 End-of-File
 
 cat >die.023 <<End-of-File
-# Test bad wildcard detection in IP address
+# Test bad wildcard detection in IP address - for PCP QA test 051/die.023
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -299,7 +299,7 @@ die!
 End-of-File
 
 cat >die.024 <<End-of-File
-# Test embedded wildcard detection in host name
+# Test embedded wildcard detection in host name - for PCP QA test 051/die.024
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -310,7 +310,7 @@ die!
 End-of-File
 
 cat >die.025 <<End-of-File
-# Test wildcard detection in textual host name
+# Test wildcard detection in textual host name - for PCP QA test 051/die.025
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -321,7 +321,7 @@ die!
 End-of-File
 
 cat >die.026 <<End-of-File
-# Test range check for IP address components
+# Test range check for IP address components - for PCP QA test 051/die.026
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -333,7 +333,7 @@ die!
 End-of-File
 
 cat >die.027 <<End-of-File
-# Test "reinforcing" of permissions
+# Test "reinforcing" of permissions - for PCP QA test 051/die.027
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -345,7 +345,7 @@ die!
 End-of-File
 
 cat >die.028 <<End-of-File
-# Test contradictory permissions
+# Test contradictory permissions - for PCP QA test 051/die.028
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -357,7 +357,7 @@ die!
 End-of-File
 
 cat >die.029 <<End-of-File
-# Test contradictory permissions with host aliasing (IP and name)
+# Test contradictory permissions with host aliasing (IP and name) - for PCP QA test 051/die.029
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -369,7 +369,7 @@ die!
 End-of-File
 
 cat >die.030 <<End-of-File
-# Test contradictory permissions with host aliasing (different names)
+# Test contradictory permissions with host aliasing (different names) - for PCP QA test 051/die.030
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -381,7 +381,7 @@ die!
 End-of-File
 
 cat >die.031 <<End-of-File
-# Test mutually exclusive host lists
+# Test mutually exclusive host lists - for PCP QA test 051/die.031
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -393,7 +393,7 @@ die!
 End-of-File
 
 cat >die.032 <<End-of-File
-# Test overlapping host lists
+# Test overlapping host lists - for PCP QA test 051/die.032
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -405,7 +405,7 @@ die!
 End-of-File
 
 cat >die.033 <<End-of-File
-# Test overlapping host lists with conflict
+# Test overlapping host lists with conflict - for PCP QA test 051/die.033
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -417,7 +417,7 @@ die!
 End-of-File
 
 cat >die.034 <<End-of-File
-# Test overlapping host lists with conflicting connection counts
+# Test overlapping host lists with conflicting connection counts - for PCP QA test 051/die.034
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -429,7 +429,7 @@ die!
 End-of-File
 
 cat >die.035 <<End-of-File
-# Test various levels of wildcarding
+# Test various levels of wildcarding - for PCP QA test 051/die.035
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -444,7 +444,7 @@ die!
 End-of-File
 
 cat >die.036 <<End-of-File
-# Test various levels of wildcarding with several similar setups
+# Test various levels of wildcarding with several similar setups - for PCP QA test 051/die.036
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -469,7 +469,7 @@ die!
 End-of-File
 
 cat >die.037 <<End-of-File
-# Test reinforcing of disallows
+# Test reinforcing of disallows - for PCP QA test 051/die.037
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -482,7 +482,7 @@ die!
 End-of-File
 
 cat >die.038 <<End-of-File
-# Test detection of multiple conflicting explicit connections limits
+# Test detection of multiple conflicting explicit connections limits - for PCP QA test 051/die.038
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -493,7 +493,7 @@ die!
 End-of-File
 
 cat >die.039 <<End-of-File
-# Test detection of connections limits immediately after "all except"
+# Test detection of connections limits immediately after "all except" - for PCP QA test 051/die.039
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -504,7 +504,7 @@ die!
 End-of-File
 
 cat >die.040 <<End-of-File
-# Test unlimited connections access spec.
+# Test unlimited connections access spec. - for PCP QA test 051/die.040
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -515,7 +515,7 @@ die!
 End-of-File
 
 cat >die.041 <<End-of-File
-# Test clash of unlimited connections with explicit maximum
+# Test clash of unlimited connections with explicit maximum - for PCP QA test 051/die.041
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -527,7 +527,7 @@ die!
 End-of-File
 
 cat >die.042 <<End-of-File
-# Test reinforcing of unlimited connections
+# Test reinforcing of unlimited connections - for PCP QA test 051/die.042
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -541,7 +541,7 @@ End-of-File
 # Note: no quotes around "End-Of-File" or $host and $ipaddr not expanded
 
 cat >die.043 <<End-of-File
-# Test conflicts with localhost aliasing
+# Test conflicts with localhost aliasing - for PCP QA test 051/die.043
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -566,7 +566,7 @@ die!
 End-of-File
 
 cat >die.045 <<End-of-File
-# Test invalid and valid operations in a single permission list.
+# Test invalid and valid operations in a single permission list. - for PCP QA test 051/die.045
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
 
@@ -580,7 +580,7 @@ End-of-File
 # The kill.* tests must be killed as they leave pmcd running.
 
 cat >kill.001 <<End-of-File
-# Test various special case tokens and the parser
+# Test various special case tokens and the parser - for PCP QA test 051/kill.001
 
 tricky		128	pipe	binary		\\
 			cat "whacko name" \\

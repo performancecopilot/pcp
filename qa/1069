@@ -17,6 +17,8 @@ $python -c "from collections import OrderedDict" >/dev/null 2>&1
 
 which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
 
+_need_metric kernel.all.cpu.wait
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15

@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2015-2018 Red Hat.
+# Copyright (c) 2015-2019 Red Hat.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # NB: this file is renamed GNUmakefile upon installation into $PCP_VAR_DIR/testsuite.
@@ -21,7 +21,7 @@ ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif
 ifeq "$(HAVE_PYTHON)" "true"
-SUBDIRS += secure mic haproxy lio prometheus
+SUBDIRS += secure mic haproxy lio openmetrics
 endif
 
 default default_pcp setup: $(SUBDIRS) localconfig qa_hosts

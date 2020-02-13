@@ -17,9 +17,8 @@ echo "QA output created by $seq"
 
 if [ "`pmsocks echo ok 2>&1`" != ok ]
 then
-    echo "pmsocks is not installed and/or not configured" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "pmsocks is not installed and/or not configured"
+    # NOTREACHED
 fi
 
 rm -f $seq.out
@@ -51,16 +50,14 @@ _filter()
 otherhost=`./getpmcdhosts -L -n 1 2>$tmp.out`
 if [ -z "$otherhost" ]
 then
-    echo "Cannot find a suitable remote pmcd host" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit
+    _notrun "Cannot find a suitable remote pmcd host"
+    # NOTREACHED
 fi
 dname=`pmhostname | sed -e 's/^[a-z0-9]*\.//'`
 if ! grep sgi $dname >/dev/null
 then
-    echo "QA host is not in the SGI domain" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit
+    _notrun "QA host is not in the SGI domain"
+    # NOTREACHED
 fi
 [ -n "$PCPQA_SOCKS_SERVER" ] || _notrun 'PCPQA_SOCKS_SERVER is not set in ./common.config'
 

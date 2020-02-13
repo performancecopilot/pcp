@@ -44,8 +44,9 @@ p
     else
 	ln $seq.linux.3 $seq.out || exit 1
     fi
-elif [ $PCP_PLATFORM = darwin ]
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
 then
+    # same output for Mac OS X and FreeBSD and NetBSD and OpenBSD
     ln $seq.darwin $seq.out || exit 1
 elif [ $PCP_PLATFORM = solaris ]
 then

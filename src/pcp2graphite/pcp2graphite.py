@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2014-2017 Red Hat
-# Copyright (C) 2015-2018 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2014-2017 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -39,7 +39,7 @@ import re
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_DEBUG_APPL0, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_DEBUG_APPL0, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_SEC
 
 if sys.version_info[0] >= 3:
@@ -51,6 +51,7 @@ DEFAULT_CONFIG = ["./pcp2graphite.conf", "$HOME/.pcp2graphite.conf", "$HOME/.pcp
 # Defaults
 CONFVER = 1
 SERVER = "localhost"
+PORT = 2004
 PREFIX = "pcp."
 
 class PCP2Graphite(object):
@@ -69,8 +70,9 @@ class PCP2Graphite(object):
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
-                     'live_filter', 'rank', 'invert_filter', 'predicate',
-                     'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
+                     'live_filter', 'rank', 'invert_filter', 'predicate', 'names_change',
+                     'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
+                     'omit_flat')
 
         # The order of preference for options (as present):
         # 1 - command line options
@@ -91,6 +93,8 @@ class PCP2Graphite(object):
         self.type = 0
         self.type_prefer = self.type
         self.ignore_incompat = 0
+        self.ignore_unknown = 0
+        self.names_change = 0 # ignore
         self.instances = []
         self.live_filter = 0
         self.rank = 0
@@ -111,7 +115,7 @@ class PCP2Graphite(object):
         self.time_scale_force = None
 
         self.graphite_host = SERVER
-        self.graphite_port = 2004
+        self.graphite_port = PORT
         self.pickle = 1
         self.pickle_protocol = 0
         self.prefix = PREFIX
@@ -140,7 +144,7 @@ class PCP2Graphite(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:8:9:nN:vP:0:q:b:y:Q:B:Y:g:p:X:E:x:")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:4:58:9:nN:vP:0:q:b:y:Q:B:Y:g:p:X:E:x:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -170,6 +174,8 @@ class PCP2Graphite(object):
         opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
         opts.pmSetLongOption("raw-prefer", 0, "R", "", "prefer output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
+        opts.pmSetLongOption("ignore-unknown", 0, "5", "", "ignore unknown metrics (default: abort)")
+        opts.pmSetLongOption("names-change", 1, "4", "ACTION", "update/ignore/abort on PMNS change (default: ignore)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("live-filter", 0, "j", "", "perform instance live filtering")
         opts.pmSetLongOption("rank", 1, "J", "COUNT", "limit results to COUNT highest/lowest valued instances")
@@ -188,7 +194,7 @@ class PCP2Graphite(object):
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
 
         opts.pmSetLongOption("graphite-host", 1, "g", "SERVER", "Graphite server (default: " + SERVER + ")")
-        opts.pmSetLongOption("pickle-port", 1, "p", "PICKLE-PORT", "Graphite pickle port (default: 2004)")
+        opts.pmSetLongOption("pickle-port", 1, "p", "PICKLE-PORT", "Graphite pickle port (default: " + str(PORT) + ")")
         opts.pmSetLongOption("pickle-protocol", 1, "X", "PROTOCOL", "pickle protocol version (default: 0)")
         opts.pmSetLongOption("text-port", 1, "E", "TEXT-PORT", "Graphite plaintext port (usually: 2003)")
         opts.pmSetLongOption("prefix", 1, "x", "PREFIX", "prefix for metric names (default: " + PREFIX + ")")
@@ -229,6 +235,18 @@ class PCP2Graphite(object):
             self.type_prefer = 1
         elif opt == 'I':
             self.ignore_incompat = 1
+        elif opt == '5':
+            self.ignore_unknown = 1
+        elif opt == '4':
+            if optarg == 'ignore':
+                self.names_change = 0
+            elif optarg == 'abort':
+                self.names_change = 1
+            elif optarg == 'update':
+                self.names_change = 2
+            else:
+                sys.stderr.write("Unknown names-change action '%s' specified.\n" % optarg)
+                sys.exit(1)
         elif opt == 'i':
             self.instances = self.instances + self.pmconfig.parse_instances(optarg)
         elif opt == 'j':
@@ -332,19 +350,17 @@ class PCP2Graphite(object):
             time.sleep(align)
 
         # Main loop
+        refresh_metrics = 0
         while self.samples != 0:
-            # Fetch values
-            try:
-                self.pmfg.fetch()
-            except pmapi.pmErr as error:
-                if error.args[0] == PM_ERR_EOL:
-                    break
-                raise error
+            # Refresh metrics as needed
+            if refresh_metrics:
+                refresh_metrics = 0
+                self.pmconfig.update_metrics(curr_insts=not self.live_filter)
 
-            # Watch for endtime in uninterpolated mode
-            if not self.interpol:
-                if float(self.pmfg_ts().strftime('%s')) > float(self.opts.pmGetOptionFinish()):
-                    break
+            # Fetch values
+            refresh_metrics = self.pmconfig.fetch()
+            if refresh_metrics < 0:
+                break
 
             # Report and prepare for the next round
             self.report(self.pmfg_ts())
@@ -369,7 +385,7 @@ class PCP2Graphite(object):
             sys.stdout.write("Sending %d archived metrics to Graphite host %s...\n(Ctrl-C to stop)\n" % (len(self.metrics), self.graphite_host))
             return
 
-        sys.stdout.write("Sending %d metrics to Graphite host %s every %d sec" % (len(self.metrics), self.graphite_host, self.interval))
+        sys.stdout.write("Sending %d metrics to Graphite host %s every %.1f sec" % (len(self.metrics), self.graphite_host, float(self.interval)))
         if self.runtime != -1:
             sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), self.runtime))
         elif self.samples:
@@ -388,7 +404,7 @@ class PCP2Graphite(object):
             """ Sanitize the instance domain string for Carbon/Graphite """
             return "_" + re.sub('[^a-zA-Z_0-9-]', '_', string)
 
-        results = self.pmconfig.get_sorted_results()
+        results = self.pmconfig.get_ranked_results(valid_only=True)
 
         # Prepare data for easier processing below
         miv_tuples = []
@@ -420,7 +436,7 @@ class PCP2Graphite(object):
             else:
                 for metric, value in miv_tuples:
                     message = "%s %s %s\n" % (metric, value, long(ts))
-                    msg = str.encode(message)
+                    msg = message.encode()
                     if self.context.pmDebug(PM_DEBUG_APPL0):
                         print("Sending %s: %s" % (timestamp, msg.rstrip().decode()))
                     self.socket.send(msg) # pylint: disable=no-member
@@ -446,9 +462,11 @@ if __name__ == '__main__':
         P.validate_config()
         P.execute()
         P.finalize()
-
     except pmapi.pmErr as error:
-        sys.stderr.write("%s: %s\n" % (error.progname(), error.message()))
+        sys.stderr.write("%s: %s" % (error.progname(), error.message()))
+        if error.message() == "Connection refused":
+            sys.stderr.write("; is pmcd running?")
+        sys.stderr.write("\n")
         sys.exit(1)
     except pmapi.pmUsageErr as usage:
         usage.message()

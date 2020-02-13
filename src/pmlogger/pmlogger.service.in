@@ -2,12 +2,16 @@
 Description=Performance Metrics Archive Logger
 Documentation=man:pmlogger(1)
 After=network-online.target pmcd.service
+After=pmlogger_check.timer pmlogger_daily.timer pmlogger_daily-poll.timer
+BindsTo=pmlogger_check.timer pmlogger_daily.timer pmlogger_daily-poll.timer
 
 [Service]
-Type=oneshot
-ExecStart=@path@/pmlogger start
-ExecStop=@path@/pmlogger stop
-RemainAfterExit=yes
+Type=forking
+TimeoutSec=120
+Restart=always
+ExecStart=@PCP_RC_DIR@/pmlogger start
+ExecStop=@PCP_RC_DIR@/pmlogger stop
+PIDFile=@PCP_RUN_DIR@/pmlogger.pid
 
 [Install]
 WantedBy=multi-user.target

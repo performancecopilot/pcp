@@ -1,0 +1,54 @@
+QA output created by 1706
+=== default configuration (authentication enabled, no user is allowed) ===
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 7 metrics and 6 values
+
+bpftrace.control.register: new value="tracepoint:raw_syscalls:sys_enter { @c = count(); }" pmStore: No permission to perform requested operation
+permission denied
+
+=== authentication enabled, user is not allowed ===
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 7 metrics and 6 values
+
+bpftrace.control.register: new value="tracepoint:raw_syscalls:sys_enter { @c = count(); }" pmStore: No permission to perform requested operation
+permission denied
+
+=== authentication enabled, user is allowed ===
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 7 metrics and 6 values
+
+bpftrace.control.register old value="{}" new value="tracepoint:raw_syscalls:sys_enter { @c = count(); }"
+
+=== authentication disabled, everyone is allowed ===
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 7 metrics and 6 values
+
+bpftrace.control.register old value="{}" new value="tracepoint:raw_syscalls:sys_enter { @c = count(); }"
+
+
+=== remove bpftrace agent ===
+Culling the Performance Metrics Name Space ...
+bpftrace ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bpftrace metrics have gone away ... OK

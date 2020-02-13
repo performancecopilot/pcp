@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1098
-# Exercise a couple of python PMDA module bugs/features.
+# Exercise a couple of python PMDA module features.
 #
 # Copyright (c) 2017 Red Hat.
 #
@@ -42,9 +42,16 @@ $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmda/$domain.$loaded
 
 $sudo ./Install </dev/null \
     | _filter_pmda_install \
-    | sed -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
-    | $PCP_AWK_PROG '
-/Check test_python metrics have appeared/ { if ($10 >= 0 && $10 <= 9) $10 = "N" }
+    | tee -a $here/$seq.full \
+    | sed -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' >$tmp.tmp
+    pminfo -f test_python >>$here/$seq.full 2>&1
+    if grep 'warnings,' <$tmp.tmp >/dev/null
+    then
+	echo "Arrgh: warnings for some metrics ..."
+	pminfo -f test_python
+    fi
+    $PCP_AWK_PROG <$tmp.tmp '
+/Check test_python metrics have appeared/ { if ($(NF-1) >= 0 && $(NF-1) <= 9) $(NF-1) = "N" }
                                           { print }'
 cd $here
 
@@ -53,7 +60,7 @@ pmstore test_python.some_value 0 \
     | sed -e 's/old value=./old value=N/g'
 
 # need a few invocations to tickle the bug
-for i in 1 2 3 4 5; do
+for i in 1 2 3 4 5 6 7 8; do
     echo "=== Round $i ===" | tee -a $here/$seq.full
     pmprobe \
         test_python.other_indom.some_value \

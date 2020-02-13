@@ -276,10 +276,10 @@ TOC[2]: offset 72, string offset 264 (6 entries)
 
 TOC[3]: offset 88, labels offset 1800 (2 entries)
   [1/1800] {"registry_label":"string"}
-        flags=0x8, identity=0x141
+        flags=0x48, identity=0x141
         internal=0xffffffff
   [2/2056] {"metric_label":321}
-        flags=0x10, identity=0x1
+        flags=0x50, identity=0x1
         internal=0xffffffff
 MMV file   = $PCP_TMP_DIR/mmv/test3-PID
 Version    = 3
@@ -380,7 +380,7 @@ TOC[4]: offset 104, string offset 928 (22 entries)
 
 TOC[5]: offset 120, labels offset 6560 (1 entries)
   [1/6560] {"registry_label":"string"}
-        flags=0x8, identity=0x141
+        flags=0x48, identity=0x141
         internal=0xffffffff
 MMV file   = $PCP_TMP_DIR/mmv/notest3-PID
 Version    = 1

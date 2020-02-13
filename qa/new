@@ -12,8 +12,8 @@
 # generic initialization
 . ./common.rc
 
-min=500
-max=1499
+min=1200
+max=1699
 max_probes=200
 
 _usage()
@@ -328,7 +328,7 @@ if [ ! -f $id.out ]
 then
     echo "Creating skeletal output, $id.out"
     echo "QA output created by $id" >$id.out
-    echo "[skeleton from now, replace me]" >>$id.out
+    echo "[skeleton from qa/new, replace me]" >>$id.out
 fi
 
 # and finally, don't forget the git work ...

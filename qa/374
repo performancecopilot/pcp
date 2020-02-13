@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 # PCP QA Test No. 374
 # pmlogger (assorted) and pmlc (PCP 2.0) version compatibility
 #
@@ -41,17 +41,28 @@ _remote_signal()
     pid="$2"
     base="$3"
 
-    cat <<end-of-file >$tmp.cmd
+    cat <<End-of-File >$tmp.cmd
 . \$PCP_DIR/etc/pcp.env
+ls -l \$PCP_TMP_DIR/pmlogger >&2
 \$PCP_BINADM_DIR/pmsignal -s TERM $pid
 sleep 1
 \$PCP_BINADM_DIR/pmsignal -s KILL $pid
-test -k \$PCP_TMP_DIR/pmlogger || /usr/bin/sudo chmod o-w \$PCP_TMP_DIR/pmlogger 2>/dev/null
+sleep 1
+ls -l \$PCP_TMP_DIR/pmlogger >&2
+[ -k \$PCP_TMP_DIR/pmlogger ] || sudo chmod o-w \$PCP_TMP_DIR/pmlogger 2>/dev/null
+ls -ld \$PCP_TMP_DIR/pmlogger >&2
 rm -f /tmp/$base.*
-end-of-file
-    scp -q $tmp.cmd pcpqa@$host:$tmp.cmd
-    ssh -q pcpqa@$host /bin/sh $tmp.cmd >/dev/null 2>&1
-    ssh -q pcpqa@$host "rm -f $tmp.cmd"
+End-of-File
+    scp -q $tmp.cmd pcpqa@$host:$seq.cmd
+    ssh -q pcpqa@$host sh ./$seq.cmd >$tmp.out 2>$tmp.err
+    ssh -q pcpqa@$host "rm -f $seq.cmd"
+
+    echo >>$seq.full
+    echo "_remote_signal: ssh to $host ..." >>$seq.full
+    echo "--- stdout ---" >>$seq.full
+    cat $tmp.out >>$seq.full
+    echo "--- stderr ---" >>$seq.full
+    cat $tmp.err >>$seq.full
 }
 
 _speak_to_me()
@@ -59,25 +70,41 @@ _speak_to_me()
     host=$1
     pid=''
     base=''
-    cat <<'End-of-File' | ssh -q pcpqa@$host sh >$tmp.tmp 2>&1
-if [ -r $PCP_DIR/etc/pcp.env ]
+    cat <<End-of-File >$tmp.cmd
+if [ -r \$PCP_DIR/etc/pcp.env ]
 then
-    . $PCP_DIR/etc/pcp.env
+    . \$PCP_DIR/etc/pcp.env
 else
-    echo "Error: unable to read $PCP_DIR/etc/pcp.env!" >&2
+    echo "Error: unable to read \$PCP_DIR/etc/pcp.env!" >&2
     exit 1
 fi
-rm -f /tmp/$$.*
-test -k $PCP_TMP_DIR/pmlogger || /usr/bin/sudo chmod o+w $PCP_TMP_DIR/pmlogger 2>/dev/null
+rm -f /tmp/\$\$.*
+[ -k \$PCP_TMP_DIR/pmlogger ] || sudo chmod o+w \$PCP_TMP_DIR/pmlogger
+ls -ld \$PCP_TMP_DIR/pmlogger >&2
+if [ -w \$PCP_TMP_DIR/pmlogger ]
+then
+    :
+else
+    echo "Error: unable to make \$PCP_TMP_DIR/pmlogger writeable" >&2
+    exit 1
+fi
 ( pmlogger -T5min -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
-echo pid=$! base=$$
+sleep 1
+ls -l \$PCP_TMP_DIR/pmlogger >&2
+echo pid=\$! base=\$\$
 End-of-File
+    scp -q $tmp.cmd pcpqa@$host:$seq.cmd
+    ssh -q pcpqa@$host sh ./$seq.cmd >$tmp.out 2>$tmp.err
+    ssh -q pcpqa@$host "rm -f $seq.cmd"
 
     echo >>$seq.full
-    echo "From ssh to $host ..." >>$seq.full
-    cat $tmp.tmp >>$seq.full
+    echo "_speak_to_me: ssh to $host ..." >>$seq.full
+    echo "--- stdout ---" >>$seq.full
+    cat $tmp.out >>$seq.full
+    echo "--- stderr ---" >>$seq.full
+    cat $tmp.err >>$seq.full
 
-    eval `cat $tmp.tmp`
+    eval `cat $tmp.out`
 
     if [ -z "$pid" ]
     then
@@ -194,9 +221,9 @@ do
     host=`eval $cmd`
     if [ -z "$host" ]
     then
-	echo "Cannot find a 64-bit host running PCP" >$seq.notrun
 	need_clean=false
-	exit
+	_notrun "Cannot find a 64-bit host running PCP"
+	# NOTREACHED
     else
 	echo
 	echo "=== pmlogger host type: $type ===" | sed 's/\\>//'

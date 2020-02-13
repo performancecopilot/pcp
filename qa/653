@@ -77,15 +77,19 @@ username=`id -u -n`	# me, myself & I
 trap "_cleanup" 0 1 2 3 15
 $sudo rm -f $tmp.* $seq.full
 
+# make sure the shell babble after username is terminated goes elsewhere
+#
+exec 2>$tmp.err
+
 # real QA test starts here
 echo "== failing case, should error out" | tee -a $seq.full
-$here/src/username nosuchuser >$tmp.err 2>&1 &
+$here/src/username nosuchuser >$tmp.out 2>&1 &
 pid=$!
 sleep 1	# give it a chance to start
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | _filter_ps $pid nosuchuser
 $sudo $PCP_BINADM_DIR/pmsignal -a username
 wait $pid
-[ -s $tmp.err ] && cat $tmp.err | _filter_err $pid
+[ -s $tmp.out ] && cat $tmp.out | _filter_err $pid
 
 echo "== passing case, should be local user" | tee -a $seq.full
 $here/src/username $username &
@@ -95,6 +99,10 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | _filter_ps $pid $username >$tmp.out
 $sudo $PCP_BINADM_DIR/pmsignal -a username
 wait $pid
 [ -s $tmp.out ] && cat $tmp.out | _filter_out $username
+
+echo >>$here/$seq.full
+echo "==== shell's stderr ===========" >>$seq.full
+cat $tmp.err >>$seq.full
 
 status=0
 exit

@@ -2,24 +2,24 @@
 .\"
 .\" Copyright (c) 2016 Red Hat.  All Rights Reserved.
 .\" Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMLOGREWRITE 1 "" "Performance Co-Pilot"
 .SH NAME
 \f3pmlogrewrite\f1 \- rewrite Performance Co-Pilot archives
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmlogrewrite\f1
-[\f3\-Cdiqsvw \f1]
+[\f3\-Cdiqsvw?\f1]
 [\f3\-c\f1 \f2config\f1]
 \f2inlog\f1 [\f2outlog\f1]
 .SH DESCRIPTION
@@ -95,25 +95,9 @@ and
 .BR pmloglabel (1)
 may be a useful tool in these cases.
 .SH OPTIONS
-The command line options for
-.B pmlogrewrite
-are as follows:
-.TP 7
-.B \-C
-Parse the rewriting rules and quit.
-.I outlog
-is not created.
-When
-.B \-C
-is specified, this also sets
-.B \-v
-and
-.B \-w
-so that all warnings and verbose messages are displayed as
-.I config
-is parsed.
-.TP 7
-.BI \-c " config"
+The available command line options are:
+.TP 5
+\fB\-c\fR \fIconfig\fR, \fB\-\-config\fR=\fIconfig\fR
 If
 .I config
 is a file or symbolic link,
@@ -126,32 +110,48 @@ be used to provide the rewriting rules.
 Multiple
 .B \-c
 options are allowed.
-.TP 7
-.B \-d
-Desperate mode.  Normally if a fatal error occurs, all trace of
+.TP
+\fB\-C\fR, \fB\-\-check\fR
+Parse the rewriting rules and quit.
+.I outlog
+is not created.
+When
+.B \-C
+is specified, this also sets
+.B \-v
+and
+.B \-w
+so that all warnings and verbose messages are displayed as
+.I config
+is parsed.
+.TP
+\fB\-d\fR, \fB\-\-desperate\fR
+Desperate mode.
+Normally if a fatal error occurs, all trace of
 the partially written PCP archive
 .I outlog
-is removed.  With the
+is removed.
+With the
 .B \-d
 option, the partially created
 .I outlog
 archive log is not removed.
-.TP 7
-.B \-i
+.TP
+\fB\-i\fR
 Rather than creating
 .IR outlog ,
 .I inlog
 is rewritten in place when the
 .B \-i
 option is used.
-A new archive is created using temporary file names and then renamed to 
+A new archive is created using temporary file names and then renamed to
 .I inlog
 in such a way that
 if any errors (not warnings) are encountered,
 .I inlog
 remains unaltered.
-.TP 7
-.B \-q
+.TP
+\fB\-q\fR, \fB\-\-quick\fR
 Quick mode, where if there are no rewriting actions to be
 performed (none of the global data, instance domains or metrics
 from
@@ -162,8 +162,8 @@ will exit (with status 0, so success) immediately after parsing
 the configuration file(s) and
 .I outlog
 is not created.
-.TP 7
-.B \-s
+.TP
+\fB\-s\fR, \fB\-\-scale\fR
 When the ``units'' of a metric are changed, if the dimension in terms
 of space, time and count is unaltered, then the scaling factor is being changed,
 e.g. BYTE to KBYTE, or MSEC\u\s-3-1\s0\d to USEC\u\s-3-1\s0\d, or the
@@ -173,9 +173,11 @@ motivation may be (a) that the original metadata was wrong but the
 values in
 .I inlog
 are correct, or (b) the metadata is changing so the values need
-to change as well.  The default
+to change as well.
+The default
 .B pmlogrewrite
-behaviour matches case (a).  If case (b) applies, then use the
+behaviour matches case (a).
+If case (b) applies, then use the
 .B \-s
 option and the values of all the
 metrics with a scale factor change in each result will be rescaled.
@@ -185,20 +187,22 @@ the
 option for the
 .KW UNITS
 clause of the metric rewriting rule described below.
-.TP 7
-.BI \-v
-Increase verbosity of diagnostic output.
-.TP 7
-.BI \-w
-Emit warnings.  Normally
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Enable verbose mode.
+.TP
+\fB\-w\fR, \fB\-\-warning\fR
+Emit warnings.
+Normally
 .B pmlogrewrite
 remains silent for any warning that is not fatal and
 it is expected that for a particular archive, some (or indeed, all)
-of the rewriting specifications may not apply.  For example, changes to
+of the rewriting specifications may not apply.
+For example, changes to
 a PMDA may be captured in a set of rewriting rules, but a single archive
 may not contain all of the modified metrics nor all of the modified
-instance domains and/or instances.  Because these cases are expected,
-they do not prevent
+instance domains and/or instances.
+Because these cases are expected, they do not prevent
 .B pmlogrewrite
 executing, and rules that do not apply to
 .I inlog
@@ -211,6 +215,9 @@ from a previous version of a PMDA.
 The
 .B \-w
 flag forces warnings to be emitted for all of these cases.
+.TP
+\fB\-?\fR
+Display usage message and exit.
 .PP
 The argument
 .I outlog
@@ -231,7 +238,8 @@ and
 are all equivalent in rewriting rules.
 .PP
 The character ``#'' introduces
-a comment and the remainder of the line is ignored.  Otherwise the
+a comment and the remainder of the line is ignored.
+Otherwise the
 input is relatively free format with optional white space (spaces, tabs or
 newlines) between lexical items in the rules.
 .PP
@@ -274,10 +282,12 @@ This clause forces all the timestamps to be adjusted by
 where
 .I delta
 is an optional sign ``+'' (the default) or ``\-'', an optional number of
-hours followed by a colon ``:'', an optional number of minutes followed by a 
+hours followed by a colon ``:'', an optional number of minutes followed by a
 colon ``:'', a number of seconds, an optional fraction of seconds following
-a period ``.''.  The simplest example would be ``30'' to increase the
-timestamps by 30 seconds.  A more complex example would be ``\-23:59:59.999''
+a period ``.''.
+The simplest example would be ``30'' to increase the
+timestamps by 30 seconds.
+A more complex example would be ``\-23:59:59.999''
 to move the timestamps backwards by one millisecond less than one day.
 .RE
 .PP
@@ -415,7 +425,7 @@ As a special case,
 .I newserial
 could be an asterisk ``*'' which means use
 .I serial
-from the 
+from the
 .B indom
 rewriting rule, although this is most useful when
 .I serial
@@ -442,7 +452,8 @@ clause where the instance domain is a duplicate copy of the
 .I indom
 rewriting rule, and then any
 mapping rules are applied to the copied
-\fInewdomain\fP\f(BI.\fP\fInewserial\fP instance domain.  This is
+\fInewdomain\fP\f(BI.\fP\fInewserial\fP instance domain.
+This is
 useful when a PMDA is split and the same instance domain needs to
 be replicated for domain \fIdomain\fP and domain \fInewdomain\fP.
 So for example if the metrics
@@ -617,7 +628,7 @@ choose the value of the instance with
 .I name
 for its external instance name
 from each result; the sequence of rewriting rules ensures the
-.KW OUTPUT 
+.KW OUTPUT
 processing happens before instance renaming
 from any associated
 .B indom
@@ -661,8 +672,8 @@ are all equivalent and the output instance identifier will be 0.
 In general it is an error to specify a rewriting action for the
 same metadata or result values more than once, e.g. more than one
 .KW INDOM
-clause for the same instance domain.  The one exception is the possible
-interaction between the
+clause for the same instance domain.
+The one exception is the possible interaction between the
 .KW INDOM
 clauses in the
 .B indom
@@ -705,7 +716,8 @@ metric sample.bin { indom -> 123.2 }
 .PP
 The metric (which must have been
 previously defined over an instance domain) is being modified to
-be a singular metric.  This involves a metadata change and collapsing
+be a singular metric.
+This involves a metadata change and collapsing
 all results for this metric so that multiple values become one value.
 .PP
 The optional
@@ -733,7 +745,7 @@ the Performance Metrics Name Space (PMNS).
 .I newname
 should not match any existing name in the archive's PMNS and must
 follow the syntactic rules for valid metric names as outlined in
-.BR pmns (5).
+.BR PMNS (5).
 .RE
 
 .PP
@@ -747,13 +759,13 @@ As special cases,
 .I newcluster
 could be an asterisk ``*'' which means use
 .I cluster
-from the 
+from the
 .B metric
 rewriting rule and/or
 .I item
 could be an asterisk which means use
 .I item
-from the 
+from the
 .B metric
 rewriting rule.
 This is most useful when
@@ -862,11 +874,12 @@ required.
 .RS +4n
 .PP
 .I newunits
-is six values separated by commas.  The first 3 values describe the
+is six values separated by commas.
+The first 3 values describe the
 dimension of the metric along the dimensions of space, time and count; these
-are integer values, usually 0, 1 or \-1.  The remaining 3 values describe
-the scale of the metric's values in the dimensions of space, time and
-count.
+are integer values, usually 0, 1 or \-1.
+The remaining 3 values describe
+the scale of the metric's values in the dimensions of space, time and count.
 Space scale values should be 0 (if the space dimension is 0), else
 the XXX part of the name of one of the
 .B PM_SPACE_XXX
@@ -905,7 +918,8 @@ command line option, but applied to just this metric.
 .PP
 When changing the domain number for a metric or instance domain,
 the new domain number will usually match an existing PMDA's domain
-number.  If this is not the case, then the new domain number
+number.
+If this is not the case, then the new domain number
 should not be randomly chosen; consult
 .B $PCP_VAR_DIR/pmns/stdpmid
 for domain numbers that are already assigned to PMDAs.
@@ -951,6 +965,8 @@ If \fItexttype\fP is not specified, then the default is
 .PP
 The optional \fItextcontent\fP further restricts the selected text records to
 those containing the specified content.
+Characters such as double quotes
+may be escaped by preceding them with a backslash ``\\''.
 .PP
 If a designated help text record is not in
 .I inlog
@@ -977,7 +993,7 @@ As a special case,
 .I newserial
 could be an asterisk ``*'' which means use
 .I serial
-from the 
+from the
 .B text
 rewriting rule, although this is most useful when
 .I serial
@@ -1001,13 +1017,13 @@ As special cases,
 .I newcluster
 could be an asterisk ``*'' which means use
 .I cluster
-from the 
+from the
 .B text
 rewriting rule and/or
 .I item
 could be an asterisk which means use
 .I item
-from the 
+from the
 .B text
 rewriting rule.
 This is most useful when
@@ -1097,7 +1113,8 @@ for a discussion of this issue.
 In all cases, a \f(BI"\fP\fIlabel-name\fP\f(BI"\fP and/or a
 \f(BI"\fP\fIlabel-value\fP\f(BI"\fP may be optionally specified
 in double quotes in order to select labels with the given name and/or
-given value. These may individually be omitted or specified as
+given value.
+These may individually be omitted or specified as
 asterisks ``*'' to indicate that labels with all names and/or values are
 selected.
 .PP
@@ -1125,9 +1142,11 @@ A new label with the name \f(BI"\fP\fInew-label-name\fP\f(BI"\fP and the value
 \f(BI"\fP\fInew-label-value\fP\f(BI"\fP is created and associated with the
 specified \fIlabelid\fP and optional \fIinstance\fP (in the case of a
 .KW INSTANCES
-\fIlabelid\fP). If \f(BI"\fP\fIlabel-name\fP\f(BI"\fP or
+\fIlabelid\fP).
+If \f(BI"\fP\fIlabel-name\fP\f(BI"\fP or
 \f(BI"\fP\fIlabel-value\fP\f(BI"\fP were specified, then they are ignored
-with a warning. If \fIinstance\fP is not specified for an 
+with a warning.
+If \fIinstance\fP is not specified for an
 .KW INSTANCES
 \fIlabelid\fP, then a new label will be created for each instance in the
 specified instance domain.
@@ -1176,7 +1195,7 @@ As a special case,
 .I newcluster
 could be an asterisk ``*'' which means use
 .I cluster
-from the 
+from the
 .B label
 rewriting rule.
 This is most useful when
@@ -1201,13 +1220,13 @@ As special cases,
 .I newcluster
 could be an asterisk ``*'' which means use
 .I cluster
-from the 
+from the
 .B label
 rewriting rule and/or
 .I item
 could be an asterisk which means use
 .I item
-from the 
+from the
 .B label
 rewriting rule.
 This is most useful when
@@ -1234,7 +1253,7 @@ As a special case,
 .I newserial
 could be an asterisk ``*'' which means use
 .I serial
-from the 
+from the
 .B label
 rewriting rule, although this is most useful when
 .I serial
@@ -1295,7 +1314,8 @@ indom 60.2 {
 .PP
 If we decide to split the ``proc'' metrics out of the Linux PMDA, this
 will involve changing the domain number for the PMID of these metrics
-and the associated instance domains.  The rules below would rewrite an
+and the associated instance domains.
+The rules below would rewrite an
 old archive to match the changes after the PMDA split.
 .RS +4
 .ft CW
@@ -1316,7 +1336,8 @@ indom 60.9 { indom -> 123.0 }
 .PP
 If the metric foo.count_em was exported as a native ``long'' then it
 could be a 32-bit integer on some platforms and a 64-bit integer on
-other platforms.  Subsequent investigations show the value is in
+other platforms.
+Subsequent investigations show the value is in
 fact unsigned, so the following rules could be used.
 .RS +4
 .ft CW
@@ -1328,54 +1349,6 @@ metric foo.count_em {
 .fi
 .ft P
 .RE
-.SH FILES
-.PD 0
-For each of the
-.I inlog
-and
-.I outlog
-archive logs, several physical files are used.
-.TP 10
-\f2archive\f3.meta
-metadata (metric descriptions, instance domains, etc.) for the archive log
-.TP
-\f2archive\f3.0
-initial volume of metrics values (subsequent volumes have suffixes
-.BR 1 ,
-.BR 2 ,
-\&...).
-.TP
-\f2archive\f3.index
-temporal index to support rapid random access to the other files in the
-archive log.
-.PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
-.SH SEE ALSO
-.BR PCPIntro (1),
-.BR pmdaInstance (3),
-.BR pmdumplog (1),
-.BR pmlogger (1),
-.BR pmlogextract (1),
-.BR pmloglabel (1),
-.BR pmlogreduce (1),
-.BR pmLookupDesc (3),
-.BR pmns (5),
-.BR pcp.conf (5)
-and
-.BR pcp.env (5).
 .SH DIAGNOSTICS
 All error conditions detected by
 .B pmlogrewrite
@@ -1394,3 +1367,44 @@ and any subsequent information from that archive log will not be processed.
 If any error is detected,
 .B pmlogrewrite
 will exit with a non-zero status.
+.SH FILES
+For each of the
+.I inlog
+and
+.I outlog
+archive logs, several physical files are used.
+.TP 5
+\f2archive\f3.meta
+metadata (metric descriptions, instance domains, etc.) for the archive log
+.TP
+\f2archive\f3.0
+initial volume of metrics values (subsequent volumes have suffixes
+.BR 1 ,
+.BR 2 ,
+\&...).
+.TP
+\f2archive\f3.index
+temporal index to support rapid random access to the other files in the
+archive log.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmdumplog (1),
+.BR pmlogger (1),
+.BR pmlogextract (1),
+.BR pmloglabel (1),
+.BR pmlogreduce (1),
+.BR pmdaInstance (3),
+.BR pmLookupDesc (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR PMNS (5).

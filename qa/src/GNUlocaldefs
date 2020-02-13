@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2018 Red Hat.
+# Copyright (c) 2012-2019 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -48,7 +48,8 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	archctl_segfault.c debug.c int2pmid.c int2indom.c exectest.c \
 	unpickargs.c hanoi.c progname.c countmark.c \
 	indom2int.c pmid2int.c scanmeta.c traverse_return_codes.c \
-	timeshift.c checkstructs.c bcc_profile.c
+	timeshift.c checkstructs.c bcc_profile.c sha1int2ext.c \
+	getdomainname.c profilecrash.c store_and_fetch.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -64,18 +65,18 @@ ifeq ($(shell test $(PCP_VER) -ge 3600 && echo 1), 1)
 CFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
 	multithread4.c multithread5.c multithread6.c multithread7.c \
 	multithread8.c multithread9.c multithread10.c multithread11.c \
-	multithread12.c \
+	multithread12.c multithread13.c \
 	exerlock.c
 else
 MYFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
 	multithread4.c multithread5.c multithread6.c multithread7.c \
 	multithread8.c multithread9.c multithread10.c multithread11.c \
-	multithread12.c \
+	multithread12.c multithread13.c \
 	exerlock.c
 LDIRT += multithread0 multithread1 multithread2 multithread3 \
 	multithread4 multithread5 multithread6 multithread7 \
 	multithread8 multithread9 multithread10 multithread11 \
-	multithread12 \
+	multithread12 multithread13 \
 	exerlock
 endif
 
@@ -143,9 +144,9 @@ PYTHONFILES = \
 	fsstats.python procpid.python \
 	test_set_source.python test_pmda_memleak.python \
 	test_webcontainers.python test_webprocesses.python \
-	test_pmfg.python \
+	test_pmfg.python pmproxy_load_test.python \
 	mergelabels.python mergelabelsets.python \
-	bcc_version_check.python
+	bcc_version_check.python sort_xml.python labelsets.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 LDIRT += $(PYFILES)
@@ -169,7 +170,7 @@ MYFILES += \
 	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c \
 	qa_libpcp_compat.c
 
-MYSCRIPTS = grind-tools ipcs_clear show-args fixhosts mkpermslist \
+MYSCRIPTS = grind-tools show-args fixhosts mkpermslist \
 	memcachestats.pl
 
 PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
@@ -219,8 +220,7 @@ LDIRT	+= *.log domain.h help.pag help.dir \
 default default_pcp: \
 	$(CFILES_TARGETS) $(TARGETS) \
 	$(SRCARCHPART) \
-	$(PLFILES) $(PYFILES) \
-	ipcs_clear
+	$(PLFILES) $(PYFILES)
 
 setup: default $(XTRATARGETS)
 
@@ -313,7 +313,7 @@ template:	template.c
 
 exercise:	exercise.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ exercise.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ exercise.c $(LDLIBS)
 
 chkacc1:	chkacc1.c
 	rm -f $@
@@ -329,7 +329,7 @@ chkacc3:	chkacc3.c
 
 ipc:	ipc.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ ipc.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ ipc.c $(LDLIBS)
 
 chk_memleak:	chk_memleak.c
 	rm -f $@
@@ -337,11 +337,11 @@ chk_memleak:	chk_memleak.c
 
 chknumval:	chknumval.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ chknumval.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ chknumval.c $(LDLIBS)
 
 logcontrol:	logcontrol.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ logcontrol.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ logcontrol.c $(LDLIBS)
 
 numberstr: numberstr.c
 	rm -f $@
@@ -349,11 +349,11 @@ numberstr: numberstr.c
 
 pmcdgone:	pmcdgone.c localconfig.h
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pmcdgone.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pmcdgone.c $(LDLIBS)
 
 slow_af:	slow_af.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ slow_af.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ slow_af.c $(LDLIBS)
 
 mmv_poke:	mmv_poke.c
 	rm -f $@
@@ -361,19 +361,23 @@ mmv_poke:	mmv_poke.c
 
 labels:	labels.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ labels.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ labels.c $(LDLIBS)
 
 mergelabels:	mergelabels.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ mergelabels.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ mergelabels.c $(LDLIBS)
 
 mergelabelsets:	mergelabelsets.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ mergelabelsets.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ mergelabelsets.c $(LDLIBS)
 
 traverse_return_codes:	traverse_return_codes.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ traverse_return_codes.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ traverse_return_codes.c $(LDLIBS)
+
+getdomainname:	getdomainname.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ getdomainname.c $(LDLIBS)
 
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
@@ -406,6 +410,10 @@ pcp_lite_crash: pcp_lite_crash.c
 store: store.c
 	rm -f $@
 	$(CCF) $(CDEFS) -DLITE=1 -o $@ store.c $(LDLIBS)
+
+store_and_fetch: store_and_fetch.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DLITE=1 -o $@ store_and_fetch.c $(LDLIBS)
 
 # --- need libpcp_pmda
 #
@@ -474,15 +482,15 @@ mmv%:	mmv%.o
 #
 pducheck:	pducheck.o 
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pducheck.o  $(TRACELIB) $(LDLIBS) -lpcp_pmda
+	$(CCF) $(CDEFS) -o $@ pducheck.o $(TRACELIB) $(LDLIBS) -lpcp_pmda
 
 pducrash:	pducrash.o 
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pducrash.o  $(TRACELIB) $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pducrash.o $(TRACELIB) $(LDLIBS)
 
 pdu-server:	pdu-server.o
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pdu-server.o  $(TRACELIB) $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pdu-server.o $(TRACELIB) $(LDLIBS)
 
 obs:	obs.c
 	rm -f $@
@@ -526,6 +534,9 @@ httpfetch:	httpfetch.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web
 json_test:	json_test.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web
+sha1int2ext:	sha1int2ext.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web
 
@@ -597,6 +608,10 @@ multithread11:	multithread11.c
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 
 multithread12:	multithread12.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread13:	multithread13.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 
@@ -713,6 +728,7 @@ multithread3.o:	libpcp.h
 multithread4.o:	libpcp.h
 multithread8.o:	libpcp.h
 multithread9.o:	libpcp.h
+multithread10.o:	libpcp.h
 nameall.o:	libpcp.h
 parsehostattrs.o:	libpcp.h
 parsehostspec.o:	libpcp.h

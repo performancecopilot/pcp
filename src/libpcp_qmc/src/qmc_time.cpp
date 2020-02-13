@@ -163,3 +163,123 @@ QString QmcTime::deltaString(double value, QmcTime::DeltaUnits units)
 	delta.sprintf("%.6f", value);
     return delta;
 }
+
+char *QmcTime::packetStr(QmcTime::Packet *packet)
+{
+    static char	buffer[1024];
+    char	*p = buffer;
+    const char	*q;
+
+    if (packet-> magic == Magic)
+	sprintf(p, "magic: TIME");
+    else
+	sprintf(p, "magic: %d?", packet->magic);
+    while (*p) p++;
+
+    sprintf(p, " length: %u", packet->length);
+    while (*p) p++;
+
+    q = NULL;
+    switch (packet->command) {
+	case Set:
+	    q = "Set";
+	    break;
+	case Step:
+	    q = "Step";
+	    break;
+	case TZ:
+	    q = "TZ";
+	    break;
+	case VCRMode:
+	    q = "VCRMode";
+	    break;
+	case VCRModeDrag:
+	    q = "VCRModeDrag";
+	    break;
+	case GUIShow:
+	    q = "GUIShow";
+	    break;
+	case GUIHide:
+	    q = "GUIHide";
+	    break;
+	case Bounds:
+	    q = "Bounds";
+	    break;
+	case ACK:
+	    q = "ACK";
+	    break;
+    }
+    if (q == NULL)
+	sprintf(p, " command: %d bogus?", packet->command);
+    else
+	sprintf(p, " command: %s", q);
+    while (*p) p++;
+
+    q = NULL;
+    switch (packet->source) {
+	case NoSource:
+	    q = "NoSource";
+	    break;
+	case HostSource:
+	    q = "HostSource";
+	    break;
+	case ArchiveSource:
+	    q = "ArchiveSource";
+	    break;
+    }
+    if (q == NULL)
+	sprintf(p, " source: %d bogus?", packet->source);
+    else
+	sprintf(p, " source: %s", q);
+    while (*p) p++;
+
+    q = NULL;
+    switch (packet->state) {
+	case StoppedState:
+	    q = "StoppedState";
+	    break;
+	case ForwardState:
+	    q = "ForwardState";
+	    break;
+	case BackwardState:
+	    q = "BackwardState";
+	    break;
+    }
+    if (q == NULL)
+	sprintf(p, " state: %d bogus?", packet->state);
+    else
+	sprintf(p, " state: %s", q);
+    while (*p) p++;
+
+    q = NULL;
+    switch (packet->mode) {
+	case StepMode:
+	    q = "StepMode";
+	    break;
+	case NormalMode:
+	    q = "NormalMode";
+	    break;
+	case FastMode:
+	    q = "FastMode";
+	    break;
+    }
+    if (q == NULL)
+	sprintf(p, " mode: %d bogus?", packet->mode);
+    else
+	sprintf(p, " mode: %s", q);
+    while (*p) p++;
+
+    sprintf(p, " delta: %ld.%06ld", (long)packet->delta.tv_sec, (long)packet->delta.tv_usec);
+    while (*p) p++;
+
+    sprintf(p, " position: %ld.%06ld", (long)packet->position.tv_sec, (long)packet->position.tv_usec);
+    while (*p) p++;
+
+    sprintf(p, " start: %ld.%06ld", (long)packet->start.tv_sec, (long)packet->start.tv_usec);
+    while (*p) p++;
+
+    sprintf(p, " data[]: %d bytes", (int)(sizeof(QmcTime::Packet) - packet->length));
+    while (*p) p++;
+
+    return buffer;
+}

@@ -1,26 +1,24 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMSTORE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmstore\f1 \- modify performance metric values
-.\" literals use .B or \f3
-.\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3pmstore\f1
-[\f3\-LfF\f1]
+[\f3\-fFLV?\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-i\f1 \f2instances\f1]
 [\f3\-K\f1 \f2spec\f1]
@@ -48,12 +46,13 @@ will be updated.
 .PP
 Normally
 .B pmstore
-operates on the default Performance Metrics Name Space (PMNS), however
-if the
+operates on the default Performance Metrics Name Space (PMNS), see
+.BR PMNS (5),
+however if the
 .B \-n
 option is specified an alternative namespace is loaded
 from the file
-.IR pmnsfile.
+.IR pmnsfile .
 .PP
 Unless directed to another host by the
 .B \-h
@@ -67,7 +66,8 @@ The
 option causes
 .B pmstore
 to use a local context to store to metrics from PMDAs on the local host
-without PMCD.  Only some metrics are available in this mode.
+without PMCD.
+Only some metrics are available in this mode.
 The
 .BR \-h
 and
@@ -88,8 +88,8 @@ as follows.
 If the metric has an \fBinteger\fR type, then
 .I value
 should be an optional leading hyphen, followed either by decimal digits
-or ``0x'' and some hexadecimal digits.  ``0X'' is also acceptable in lieu
-of ``0x''.
+or ``0x'' and some hexadecimal digits.
+``0X'' is also acceptable in lieu of ``0x''.
 See
 .BR strtol (3)
 and the related routines.
@@ -123,7 +123,8 @@ When using the
 option to fetch metrics from a local context, the
 .B \-K
 option may be used to control the DSO PMDAs that should be
-made accessible.  The
+made accessible.
+The
 .I spec
 argument conforms to the syntax described in
 .BR pmSpecLocalPMDA (3).
@@ -149,37 +150,61 @@ is a metric that provides different semantics for the store operation,
 e.g. to increment the current value or reset a counter (independent of the
 .I value
 from the command line).
-.SH FILES
-.PD 0
-.TP 10
-.BI $PCP_VAR_DIR/pmns/ *
-default PMNS specification files
-.PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-f\fR, \fB\-\-force\fR
+Store the value even if no current value set.
+.TP
+\fB\-F\fR, \fB\-\-fetch\fR
+Report the metric value after setting it.
+.TP
+\fB\-i\fR \fIinsts\fR, \fB\-\-insts\fR=\fIinsts\fR
+Restrict store to the comma-separated list of instances.
+.TP
+\fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
+Connect to
+.BR pmcd (1)
+on
+.IR host ,
+rather than on the default localhost.
+.TP
+\fB\-K\fR \fIspec\fR, \fB\-\-spec\-local\fR=\fIspec\fR
+When fetching metrics from a local context (see
+.BR \-L ),
+the
+.B \-K
+option may be used to control the DSO PMDAs that should be made accessible.
 The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
-.SH SEE ALSO
-.BR pmcd (1),
-.BR pminfo (1),
-.BR pmval (1),
-.BR PMAPI (3),
-.BR pmFetch (3),
-.BR pmSpecLocalPMDA (3),
-.BR pmStore (3),
-.BR strtod (3)
-and
-.BR strtol (3).
+.I spec
+argument conforms to the syntax described in
+.BR pmSpecLocalPMDA (3).
+More than one
+.B \-K
+option may be used.
+.TP
+\fB\-L\fR, \fB\-\-local\-PMDA\fR
+Use a local context to collect metrics from DSO PMDAs on the local host
+without PMCD.
+See also
+.BR \-K .
+.TP
+\f3\-n\f1 \f2pmnsfile\f1, \f3\-\-namespace\f1=\f2pmnsfile\f1
+Normally
+.B pmcd
+loads the default Performance Metrics Name Space (PMNS) from
+.BR $PCP_VAR_DIR/pmns/root ,
+however if the
+.B \-n
+option is specified an alternative namespace is loaded
+from the file
+.IR pmnsfile .
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH DIAGNOSTICS
 Two messages indicate a mismatch between the internal data type for
 .I metricname
@@ -190,3 +215,22 @@ provided.
 The value "???" is out of range for the data type (PM_TYPE_...)
 .P
 The value "???" is incompatible with the data type (PM_TYPE_...)
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pminfo (1),
+.BR pmval (1),
+.BR PMAPI (3),
+.BR pmFetch (3),
+.BR pmSpecLocalPMDA (3),
+.BR pmStore (3),
+.BR strtod (3),
+.BR strtol (3)
+and
+.BR PMNS (5).

@@ -51,8 +51,8 @@ esac
 host=`./getpmcdhosts -L -n 1 -a trace -e $want`
 if [ -z "$host" ]
 then
-    echo "Cannot find $want endian host running pmdatrace" >$seq.notrun
-    exit
+    _notrun "Cannot find $want endian host running pmdatrace"
+    # NOTREACHED
 fi
 echo "remote host: $host" >>$seq.full
 

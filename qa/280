@@ -52,24 +52,35 @@ LOCALHOST=`hostname`
 trap "_cleanup; $sudo rm -f $tmp.* $LOGGING_DIR/$LOCALHOST/lock; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 
 _cleanup()
 {
+    _restore_config $PCP_ETC_DIR/pcp/pmlogger
+    _service pmcd restart 2>&1 | _filter_pcp_start
+    _wait_for_pmcd
     _restore_auto_restart pmcd
+    _service pmlogger restart 2>&1 | _filter_pcp_start
+    _wait_for_pmlogger
+    _restore_auto_restart pmlogger
 }
 
 rm -f $seq.full
 
 # real QA test starts here
-
+_save_config $PCP_ETC_DIR/pcp/pmlogger
+_restore_pmlogger_control
 umask 022
 
 # start from a known state
 #
 _service pcp stop >/dev/null 2>&1
-_service pcp start | _filter_pcp_start
+_service pcp start 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
+
+# these sometimes get left around and are owned by root
+$sudo rm -f $PCP_VAR_DIR/config/pmlogger/*.{tmp,saved} 2>/dev/null
 
 echo
 echo "Ping primary logger ..." | tee -a $seq.full
@@ -77,7 +88,9 @@ echo 'connect primary' | pmlc
 
 echo
 echo "Expect this should do nothing ..." | tee -a $seq.full
-$sudo $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log
+touch $tmp.log
+$sudo chown $PCP_USER:$PCP_GROUP $tmp.log
+$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
@@ -91,21 +104,27 @@ then
 fi
 
 echo
-echo "Kill off primary logger ..."
-$sudo $signal -s TERM $pid
-sleep 2
-echo 'connect primary' | pmlc 2>&1 | _filter
+echo "Kill off primary logger ..." | tee -a $here/$seq.full
+_service pmlogger stop 2>&1 | _filter_pcp_stop
+_wait_pmlogger_end $pid
+echo 'connect primary' | pmlc 2>&1 | tee -a $here/$seq.full | _filter
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 
-# delay to minimize risk of name clash
+# delay to minimize risk of archive name clash
 #
-sleep 10
+sleep 2
 
+echo
 echo "Expect this to re-start the primary logger ..." | tee -a $seq.full
-$sudo $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log
-$sudo cat $tmp.log | tee -a $seq.full | _filter
+$sudo -u $PCP_USER -g $PCP_USER $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log
+[ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
+
+# if it is present, get systemctl on the same page ...
+#
+_service pmlogger start 2>&1 | _filter_pcp_start
+_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 
 pid=`_get_primary_logger_pid`
 if [ -z "$pid" ]
@@ -117,41 +136,48 @@ then
 fi
 
 echo
-echo "Kill off primary logger ..."
-$sudo $signal -s TERM $pid
-sleep 2
-echo 'connect primary' | pmlc 2>&1 | _filter
+echo "Kill off primary logger ..." | tee -a $here/$seq.full
+_service pmlogger stop 2>&1 | _filter_pcp_stop
+_wait_pmlogger_end $pid
+echo 'connect primary' | pmlc 2>&1 | tee -a $here/$seq.full | _filter
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 
-# delay to minimize risk of name clash
+# delay to minimize risk of archive name clash
 #
-sleep 10
+sleep 2
 
 echo
 echo "Expect this to quietly re-start the primary logger ..." | tee -a $seq.full
-$sudo $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
+$sudo -u $PCP_USER -g $PCP_USER $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
 echo
 echo "Expect this to get a mutex failure ..." | tee -a $seq.full
 $sudo touch $LOGGING_DIR/$LOCALHOST/lock
-$sudo $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
-$sudo cat $tmp.log | tee -a $seq.full | _filter \
-| $PCP_AWK_PROG '
+$sudo -u $PCP_USER -g $PCP_USER $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
+if [ -f $tmp.log ]
+then
+    $sudo cat $tmp.log | tee -a $seq.full | _filter \
+    | $PCP_AWK_PROG '
 /-r.-r.-r.-/	{ $3 = "USER"; $4 = "GROUP"; $6 = "Mmm"; $7 = "D"; $8 = "YYYY" }
 		{ print }'
+fi
 
 echo
 echo "Expect this to cleanup an old lock file ..." | tee -a $seq.full
 $sudo rm -f $LOGGING_DIR/$LOCALHOST/lock
 $sudo touch -t 199701020304.00 $LOGGING_DIR/$LOCALHOST/lock
-$sudo $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
-$sudo cat $tmp.log | tee -a $seq.full | _filter \
+$sudo -u $PCP_USER -g $PCP_USER $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
+if [ -f $tmp.log ]
+then
+    $sudo cat $tmp.log | tee -a $seq.full | _filter \
 | $PCP_AWK_PROG '
 /-r.-r.-r.-/	{ $3 = "USER"; $4 = "GROUP" }
 		{ print }'
+fi
+
 $sudo rm -f $LOGGING_DIR/$LOCALHOST/lock
 
 # success, all done

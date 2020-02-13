@@ -13,12 +13,14 @@ fi
 # need to know what version we're running
 . ./localconfig
 
-# systemctl is not proving sufficiently reliable to enable for
-# all platforms, and the resulting test failures are confusing
-# for new folk.  For now unilaterally disable its use and rely
-# on the traditional daemon management methods.
+# if systemctl is present, then use this to start and stop services
 #
-export PCPQA_SYSTEMD=no
+if `which systemctl >/dev/null 2>&1`
+then
+    export PCPQA_SYSTEMD=yes
+else
+    export PCPQA_SYSTEMD=no
+fi
 
 # common routine for preventing a test from running on some platforms
 # use: _notrun "Reason for not running this test is ..."
@@ -27,6 +29,7 @@ _notrun()
 {
     echo $@ >$here/$seq.notrun
     echo "$seq: [not run] `cat $here/$seq.notrun`"
+    rm -f $here/$seq.pre-avc
     exit 0
 }
 
@@ -168,8 +171,8 @@ _restore_auto_restart()
 # else run the PCP scripts directly
 #
 # Based on similar logic in the $PCP_RC_DIR/pcp script, but note this
-# one has to do the $sudo and the journal dredging and handle "pcp" as
-# the special non-service case ...
+# one has to do the $sudo and handle "pcp" as the special non-service
+# case ...
 #
 # Usage: _service [-v] <service> [on|off|restart|...]
 #
@@ -221,105 +224,35 @@ _service()
     then
 	# smells like systemctl is the go ...
 	#
-	# need to extract relevant journal entries, like
-	# Jan 28 13:48:39 vm31.localdomain pmcd[24352]: Starting pmcd ...
-	# but not these
-	# -- Logs begin at Tue 2016-11-15 02:41:52 AEDT, end at Sun 2017-01-29 07:01:06 AEDT. --
-	# Jan 28 13:48:39 vm31.localdomain systemd[1]: Starting Performance Metrics Collector Daemon...
-	#
 	case "$1"
 	in
 	    pcp)
 		# not a systemd service but a wrapper for the pmcd and pmlogger
 		# services, so a little different ...
 		#
-		if `which journalctl >/dev/null 2>&1`
-		then
-		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
-		    | egrep " (pmcd)|(pmlogger)\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
-		elif `which systemd-journalctl >/dev/null 2>&1`
-		then
-		    $sudo systemd-journalctl -a -q -n 100 \
-		    | egrep " (pmcd)|(pmlogger)\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
-		fi
 		$_verbose && echo "_service: using $PCP_RC_DIR/pcp $2"
-		$sudo $PCP_RC_DIR/pcp $2
-		sleep 2
-		if `which journalctl >/dev/null 2>&1`
+		if [ "$2" = start -o "$2" = restart ]
 		then
-		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
-		    | egrep " (pmcd)|(pmlogger)\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.post
-		elif `which systemd-journalctl >/dev/null 2>&1`
-		then
-		    $sudo systemd-journalctl -a -q -n 100 \
-		    | egrep " (pmcd)|(pmlogger)\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.post
+		    $_verbose && echo "_service: using systemctl $2 $pmcd.service then pmlogger.service"
+		    $sudo systemctl reset-failed pmcd.service 2>>$here/$seq.full
+		    $sudo systemctl $2 pmcd.service
+		    $sudo systemctl reset-failed pmlogger.service 2>>$here/$seq.full
+		    $sudo systemctl $2 pmlogger.service
+		else
+		    $_verbose && echo "_service: using systemctl $2 pmlogger.service then pmcd.service"
+		    $sudo systemctl $2 pmlogger.service
+		    $sudo systemctl $2 pmcd.service
 		fi
 		;;
 	    *)
-		if `which journalctl >/dev/null 2>&1`
-		then
-		    $sudo journalctl -n 10 -u $1 \
-		    | grep " $1\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
-		elif `which systemd-journalctl >/dev/null 2>&1`
-		then
-		    $sudo systemd-journalctl -a -q -n 100 \
-		    | egrep " $1\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
-		fi
 		$_verbose && echo "_service: using systemctl $2 $1.service"
-		$sudo systemctl $2 $1.service
-		sleep 2
-		if `which journalctl >/dev/null 2>&1`
+		if [ "$2" = start -o "$2" = restart ]
 		then
-		    $sudo journalctl -n 10 -u $1 \
-		    | grep " $1\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.post
-		elif `which systemd-journalctl >/dev/null 2>&1`
-		then
-		    $sudo systemd-journalctl -a -q -n 100 \
-		    | egrep " $1\\[" \
-		    | sed -e 's/\.\.done$//' >$tmp.journal.post
+		    $sudo systemctl reset-failed $1.service 2>>$here/$seq.full
 		fi
+		$sudo systemctl $2 $1.service
 		;;
 	esac
-	# logic copied from pmdaproc.sh ...
-	#
-	# diff the pre and post journal lines to find those most recently
-	# added:
-	#	- lines beginning with a digit are ed(1) commands, ignore
-	#	- --- lines are diff fluff
-	#	- lines beginnning < are only in journal.pre, ignore
-	#	- strip journal datestamp and process id info
-	#	- add trailing space for some output lines to match
-	#	  non-systemd output and QA *.out files
-	#	- bizarro (on vm19) the .post file may contain lines
-	#	  _before_ the start of a non-empty .pre file, so any
-	#	  > lines after 0a? are nonsense, but need to make sure
-	#	  the .pre file is not empty (sigh)
-	#
-	echo "--- journal _service $1 $2 pre ---" >>$here/$seq.full
-	[ -s $tmp.journal.pre ] || echo "-- added by _service() --" >$tmp.journal.pre
-	cat $tmp.journal.pre >>$here/$seq.full
-	echo "--- journal _service $1 $2 post ---" >>$here/$seq.full
-	cat $tmp.journal.post >>$here/$seq.full
-	diff $tmp.journal.pre $tmp.journal.post \
-	| $PCP_AWK_PROG '
-BEGIN		{ skip = 0 }
-$1 ~ /^0a/	{ skip = 1; next }
-skip == 1 && $1 != ">"	{ skip = 0 }
-skip == 0	{ print }' \
-	| sed \
-	    -e '/^[<0-9]/d' \
-	    -e '/^---$/d' \
-	    -e "s/^.*\\[[0-9]*]: //" \
-	    -e '/^Starting p.*[^ ]$/s/$/ /' \
-	    -e '/^Stopping p.*[^ ]$/s/$/ /' \
-	# end
     elif [ -f $PCP_RC_DIR/$1 ]
     then
 	$_verbose && echo "_service: using $PCP_RC_DIR/$1 $2"
@@ -524,7 +457,16 @@ _host_to_fqdn()
     then
 	if which nslookup >/dev/null 2>&1
 	then
-	    ans=`nslookup $1 2>&1 | sed -n -e '/^Name:[ 	][ 	]*/s///p'`
+	    ans=`nslookup $1 2>&1 | sed -n -e '/^Name:[ 	][ 	]*/{
+s///p
+q
+}'`
+	elif which host >/dev/null 2>&1
+	then
+	    ans=`host $1 2>&1 | sed -n -e '/ has address /{
+s/ .*//p
+q
+}'`
 	fi
     fi
     if [ -z "$ans" ]
@@ -567,25 +509,57 @@ _machine_id()
     cat /etc/machine-id 2> /dev/null || echo localmachine
 }
 
+# Check metric ($1) availability from pmcd on host ($2, defaults to
+# a local: pminfo connection) ... abort if no value(s) available
+#
 _check_metric()
 {
-    if pminfo -h ${2-localhost} -f $1 2>&1 | grep " value " >/dev/null
+    if pminfo -h ${2-local:} -f $1 2>&1 | grep " value " >/dev/null
     then
 	:
     else
-	echo "Check failed for metric \"$1\" at host \"${2-localhost}\" ... is PMDA installed?"
+	echo "Check failed for metric \"$1\" at host \"${2-local:}\" ... is PMDA installed?"
 	exit 1
     fi
+}
+
+# Check for metric availability from local pmcd and _notrun if not
+# available.
+# Use this check for metrics that are requireed by a qa test but are
+# not universally available, e.g. kernel metrics across different
+# platforms.
+#
+_need_metric()
+{
+    numval=`pmprobe $1 | cut -f 2 -d ' '`
+    case "$numval"
+    in
+	-*)
+	    _notrun "metric \"$1\" not available"
+	    ;;
+	[0-9]*)
+	    ;;
+	*)
+	    echo "_need_metric: unexpected output: `pmprobe $1`"
+	    ;;
+    esac
 }
 
 # wait_for_pmcd [maxdelay [host]]
 #
 _wait_for_pmcd()
 {
-    # 20 seconds default seems like a reasonble max time to get going
+    # 20 seconds default seems like a reasonable max time to get going
     #debug# set -x
     _can_wait=${1-20}
-    _host=${2-localhost}
+    if [ $# -eq 2 -a -n "$2" ]
+    then
+	_host="$2"
+	_host_opt="-h $2"
+    else
+	_host=localhost
+	_host_opt=''
+    fi
     _i=0
     _dead=true
     #debug# ping -c 2 $_host
@@ -596,8 +570,8 @@ _wait_for_pmcd()
     do
 	echo "-- $_i --" >>$tmp._wait_for_pmcd.err
 	echo "-- $_i --" >>$tmp._wait_for_pmcd.out
-	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
-	_sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients 2>>$tmp._wait_for_pmcd.err | tee -a $tmp._wait_for_pmcd.out | $PCP_AWK_PROG '{print $2}'`
+	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $_host_opt pmcd.numclients
+	_sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $_host_opt pmcd.numclients 2>>$tmp._wait_for_pmcd.err | tee -a $tmp._wait_for_pmcd.out | $PCP_AWK_PROG '{print $2}'`
 	if [ "${_sts:-0}" -gt 0 ]
 	then
 	    # numval really > 0, we're done
@@ -617,8 +591,8 @@ _wait_for_pmcd()
 	echo "=== failing pmprobes stderr ==="
 	cat $tmp._wait_for_pmcd.err
 	echo "... and now"
-	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients"
-	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
+	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $_host_opt pmcd.numclients"
+	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $_host_opt pmcd.numclients
 	case $_host
 	in
 	    localhost|unix:|local:|`hostname`)
@@ -700,17 +674,20 @@ _wait_for_pmlogger()
     case $# in
 	0)
 	    _pid="-P"
+	    _sudo="$sudo -u pcp"
 	    dir_hostname=`hostname || echo localhost`
 	    _logfile="$PCP_LOG_DIR/pmlogger/$dir_hostname/pmlogger.log" 
             _iam="primary"
 	    ;;
 	2)
 	    _pid=$1
+	    _sudo=''
 	    _logfile=$2
             _iam="pid=$_pid"
 	    ;;
 	3)
 	    _pid=$1
+	    _sudo=''
 	    _logfile=$2
 	    _maxdelay=$3
             _iam="pid=$_pid"
@@ -730,7 +707,14 @@ _wait_for_pmlogger()
     do
 	ps $PCP_PS_ALL_FLAGS | egrep "([p]mlogger|[P]ID)" >>$tmp._wait_for_pmlogger.pmlc
 	echo "pmlc $_pid" >>$tmp._wait_for_pmlogger.pmlc
-	if pmlc $_pid </dev/null 2>&1 \
+	# May need sudo -u pcp here in case we're doing credentials checks
+	# in pmlogger and this is the primary pmlogger (started by user
+	# pcp) ... $_sudo contains the right secret sauce.
+	#
+	# For hard debugging, add -Dpdu,context,desperate to pmlc invocation
+	# below.
+	#
+	if $_sudo pmlc $_pid </dev/null 2>&1 \
 		| tee -a $tmp._wait_for_pmlogger.pmlc \
 		| egrep "Connection refused|Transport endpoint is not connected" >/dev/null
 	then
@@ -886,7 +870,24 @@ _wait_pmlogger_end()
 		    _i=`expr $_i + 1`
 		    if [ "$_i" -ge 100 ]
 		    then
-			echo "_wait_pmlogger_end: failed to see pid $_pid exit after 100 iterations"
+			# may exist, but is defunct so we should treat this
+			# as "ended" ...
+			#
+			$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+			| $PCP_AWK_PROG >$tmp.pmlogger.defunct '
+$2 == '$_pid' && $0 ~ /defunct/	{ print $3 }'
+			if [ -s "$tmp.pmlogger.defunct" ]
+			then
+			    echo "_wait_pmlogger_end: pid $_pid is defunct" >>$here/$seq.full
+			    if which pstree >/dev/null 2>&1
+			    then
+				pstree -s -A -pua $_pid >>$here/$seq.full 2>&1
+			    else
+				$PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $_pid `cat $tmp.pmlogger.defunct`
+			    fi
+			else
+			    echo "_wait_pmlogger_end: failed to see pid $_pid exit after 100 iterations"
+			fi
 			#debug# set +x
 			return
 		    fi
@@ -948,6 +949,126 @@ p
     done
 }
 
+# Wait for at primary pmie to start ...
+#
+_wait_for_pmie()
+{
+    #debug# set -x
+
+    _i=0
+    while true
+    do
+	if [ ! -f $PCP_RUN_DIR/pmie.pid ]
+	then
+	    # process not started yet ...
+	    _i=`expr $_i + 1`
+	    if [ "$_i" -ge 100 ]
+	    then
+		echo "_wait_for_pmie: failed to see pmie start after 100 iterations"
+		#debug# set +x
+		return
+	    fi
+	    pmsleep 0.1
+	else
+	    # process has really started ...
+	    #debug# set +x
+	    return
+	fi
+    done
+}
+
+# Wait for primary pmie to end
+#
+_wait_pmie_end()
+{
+    #debug# set -x
+
+    _pidlist=`cat $PCP_RUN_DIR/pmie.pid 2>/dev/null`
+    if [ -z "$_pidlist" ]
+    then
+	# no $PCP_RUN_DIR/pmie.pid file, try ps(1) the hard way ...
+	# Note, this will wait for ALL pmie's running on the local machine.
+	#
+	_pidlist=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+	| sed -n -e '/\[p]mie /{
+s/^[^ 	]*//
+s/^[ 	]*//
+s/[ 	].*//
+p
+}'`
+    fi
+    if [ -z "$_pidlist" ]
+    then
+	#debug# set +x
+	return
+    fi
+
+    _i=0
+    while true
+    do
+	rm -f $tmp.some_pmie_running
+	for _pid in $_pidlist
+	do
+	    if sudo kill -s 0 $_pid 2>/dev/null
+	    then
+		# process still exists
+		touch $tmp.some.pmie
+	    fi
+	done
+	if [ -f $tmp.some.pmie ]
+	then
+	    _i=`expr $_i + 1`
+	    if [ "$_i" -ge 100 ]
+	    then
+		echo "_wait_pmie_end: failed to see pid(s) $_pidlist exit after 100 iterations"
+		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|[p]mie'
+		#debug# set +x
+		break
+	    fi
+	    pmsleep 0.1
+	else
+	    # all processes have exited
+	    #debug# set +x
+	    break
+	fi
+    done
+}
+
+# Wait for pmproxy to start up on given port
+# Usage: _wait_for_pmproxy [port [logfile]]
+#
+_wait_for_pmproxy()
+{
+    __port=$1
+
+    [ -z "$__port" ] && __port=44322
+
+    count=0
+    while ! $PCP_BINADM_DIR/telnet-probe -c localhost $__port
+    do
+	count=`expr $count + 1`
+	if [ $count -ge 20 ]
+	then
+	    echo "pmproxy failed to start on port $__port"
+	    echo "likely looking processes ..."
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy'
+	    if [ -n "$2" ]
+	    then
+		if [ -f "$2" ]
+		then
+		    echo "pmproxy logfile ($2) ..."
+		    cat "$2"
+		else
+		    echo "pmproxy logfile ($2) not created"
+		fi
+	    fi
+	    status=1
+	    exit
+	fi
+	pmsleep 0.1
+    done
+}
+
 # ensure primary logger allows pmlc state changes
 #
 _writable_primary_logger()
@@ -993,6 +1114,19 @@ _restore_primary_logger()
 	    rm -f $tmp.sed-i
 	fi
     fi
+}
+
+# restore pmlogger control file(s) to ensure only primary logger
+# would be started (as in a default install) - i.e. remove farm.
+#
+_restore_pmlogger_control()
+{
+    for _file in `find $PCP_ETC_DIR/pcp/pmlogger -type f`
+    do
+	$PCP_AWK_PROG '/^\$/ || /^#/ || (/PCP_LOG_DIR/ && $2 == "y") {print}' \
+		$_file >$tmp.new
+	$sudo mv $tmp.new $_file
+    done
 }
 
 # purify support
@@ -1093,6 +1227,22 @@ _check_purify()
     [ $? -eq 0 ] || _notrun "No purify binary found"
 }
 
+_check_series()
+{
+    which pmseries >/dev/null 2>&1 || \
+	_notrun "pmseries command line utility not installed"
+    which redis-cli >/dev/null 2>&1 || \
+	_notrun "Redis command line utility not installed"
+    which redis-server >/dev/null 2>&1 || \
+	_notrun "Redis server utility not installed"
+    redis-cli ping >/dev/null
+    [ $? -eq 0 ] || _notrun "Redis server not running locally"
+    eval `redis-cli info server |
+	grep redis_version: |
+	sed -e 's/:/=/g' -e 's/\..*//g'`
+    [ $redis_version -ge 5 ] || _notrun "Redis $redis_version too old"
+}
+
 _check_display()
 {
     # note: non-X systems (MacOSX, Windows) must pass here unchallenged
@@ -1121,67 +1271,6 @@ _clean_display()
     test -d "$tmp/xdg-runtime" && $sudo rm -fr "$tmp/xdg-runtime"
 }
 
-_check_containers()
-{
-    [ $PCP_PLATFORM = linux ] || _notrun "Linux-specific containers testing"
-    _contain=`pmprobe -v pmcd.feature.containers | awk '{ print $3 }'`
-    [ $_contain = 1 ] || _notrun "Running kernel does not support containers"
-    pminfo -f pmcd.agent.type 2>/dev/null | grep linux | grep -q 'value 4'
-    [ $? = 0 ] || _notrun "pmdalinux has insufficient privileges as a DSO"
-}
-
-# good output from dbpmda looks like ...
-# dbpmda> open pipe /var/lib/pcp/pmdas/papi/pmdapapi -d 126
-# ...
-# dbpmda> fetch papi.system.TOT_INS
-# PMID(s): 126.0.14
-# pmResult dump from 0x25c6e00 timestamp: 0.000000 10:00:00.000 numpmid: 1
-#   126.0.14 (<noname>): numval: 1 valfmt: 1 vlist[]:
-#      value 2616
-#
-_check_papi()
-{
-    [ -f $PCP_PMDAS_DIR/papi/pmdapapi ] || _notrun "no executable for the papi PMDA"
-    [ -f $PCP_PMDAS_DIR/papi/root ] || _notrun "no PMNS for the papi PMDA"
-
-    $sudo dbpmda -n $PCP_PMDAS_DIR/papi/root -ie <<EOF >$tmp.papi.check
-open pipe $PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l $tmp.papi.log
-attr "username" "root"
-attr 11 "0"
-fetch papi.system.TOT_INS
-EOF
-    echo "papi.log ..." >>$here/$seq.full
-    cat $tmp.papi.log >>$here/$seq.full
-    $sudo rm $tmp.papi.log
-    echo "_check_papi ..." >>$here/$seq.full
-    cat $tmp.papi.check >>$here/$seq.full
-    if grep ' value [0-9][0-9]*$' <$tmp.papi.check >/dev/null
-    then
-	:
-    else
-	_notrun "PAPI counters not available on this platform"
-    fi
-}
-
-_check_papi_native()
-{
-    $sudo dbpmda -n $PCP_PMDAS_DIR/papi/root -ie <<EOF >$tmp.papi.check
-open pipe $PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l $tmp.papi.log
-attr "username" "root"
-attr 11 "0"
-traverse papi.system.perf
-EOF
-    echo "papi.log ..." >>$here/$seq.full
-    cat $tmp.papi.log >>$here/$seq.full
-    $sudo rm $tmp.papi.log
-    echo "_check_papi_native ..." >>$here/$seq.full
-    cat $tmp.papi.check >>$here/$seq.full
-    if grep "Error PDU: Unknown metric name" <$tmp.papi.check >/dev/null
-    then
-	_notrun "PAPI native metrics not available on this platform"
-    fi
-}
-
 # valgrind support
 #
 # typical usage:
@@ -1199,6 +1288,12 @@ _check_valgrind()
 {
     which valgrind >/dev/null 2>&1
     [ $? -eq 0 ] || _notrun "No valgrind binary found"
+    case `hostname -s`
+    in
+	vm10)
+	    _notrun "valgrind broken on vm10"
+	    ;;
+    esac
 }
 
 # Note: because we may be avoiding leaks in system libraries
@@ -1210,8 +1305,10 @@ _check_valgrind()
 # +indirectly lost: 0 bytes in 0 blocks
 #
 # Note
-#	last 5 sed expressions are for broken valgrind(1) on
+#	last 6 sed expressions are for broken valgrind(1) on
 #	Debian strech circa 2016
+#	one before that is for broken valgrind(1) on Arch Linux
+#	circa Nov 2019
 # 
 _filter_valgrind()
 {
@@ -1230,9 +1327,11 @@ _filter_valgrind()
 	-e '/^suppressed:/d' \
 	-e '/^Reachable blocks (those to which a pointer was found)/d' \
 	-e '/^To see them, rerun with:/d' \
+	-e '/^For lists of detected and suppressed errors,/d' \
 	-e '/^For counts of detected and suppressed errors,/d' \
 	-e '/^ERROR SUMMARY:/s/ (suppressed: [^)]*)/ .../' \
 	-e "s/^All heap blocks were freed -- .*/$noleak/g" \
+	-e '/warning: addVar: in range .* outside all rx mapped areas/d' \
 	-e '/WARNING: Serious error when reading debug info/d' \
 	-e '/When reading debug info from /d' \
 	-e '/Ignoring non-Dwarf2\/3\/4 block in .debug_info/d' \
@@ -1251,6 +1350,7 @@ _filter_helgrind()
 	-e '/^Copyright (/d' \
 	-e '/^Using Valgrind-/d' \
 	-e '/^Command: /d' \
+	-e '/^For lists of detected and suppressed errors,/d' \
 	-e '/^For counts of detected and suppressed errors,/d' \
 	-e '/^Use --history-level=approx or =none/d' \
 	-e '/^the cost of reduced accuracy of conflicting-access/d' \
@@ -1341,13 +1441,15 @@ fi
 
 _run_helgrind()
 {
-    rm -f $tmp.valgrind.err $tmp.valgrind.out $tmp.valgrind.log
-    touch $tmp.valgrind.err $tmp.valgrind.out $tmp.valgrind.log
+    $sudo rm -f $tmp.valgrind.err $tmp.valgrind.out $tmp.valgrind.log
+    touch $tmp.valgrind.err $tmp.valgrind.out
     if [ x"$1" = "x--sudo" ]
     then
+	$sudo touch $tmp.valgrind.log
 	_helgrind_prefix=$sudo
 	shift
     else
+	touch $tmp.valgrind.log
 	_helgrind_prefix=''
     fi
     __version=`valgrind --version | sed -e 's/valgrind-//'`
@@ -1472,30 +1574,57 @@ EOF
   fi
 }
 
-# comment pmlogger_check and pmsnap entries in the crontab file
-# (also cron.pmcheck and cron.pmsnap entries for backwards compatibility)
-# Usage: _remove_cron backup sudo
+# disable systemd timers and / or comment pmlogger_check and pmsnap entries in
+# the crontab file (also cron.pmcheck and cron.pmsnap entries for backwards
+# compatibility)
+# Usage: _remove_job_scheduler cron_backup systemd_state sudo
 #
-# backup - where to keep the old crontab file
+# cron_backup - where to keep the old crontab file
+# systemd_state - where to keep systemd timer state
 # sudo - location of sudo
 #
-_remove_cron()
+_remove_job_scheduler()
 {
-    rc_backup=${1:-crontab}
-    rc_sudo=${2:-sudo}
+    rc_cron_backup=${1:-crontab}
+    rc_systemd_state=${2:-systemd.state}
+    rc_sudo=${3:-sudo}
 
-    $rc_sudo rm -f $rc_backup
-    if $rc_sudo crontab -l 2>/dev/null >$rc_backup
-    then
-	:
-    else
-	# error, make sure the backup is empty so no changes are made
-	echo >$rc_backup
+    $rc_sudo rm -f $rc_cron_backup $rc_systemd_state
+
+    if systemctl cat pmie_daily.timer >/dev/null 2>&1; then
+	for i in pmie_daily.timer pmie_check.timer pmlogger_daily.timer \
+		pmlogger_daily-poll.timer pmlogger_check.timer \
+		pmlogger_daily_report.timer pmlogger_daily_report-poll.timer; do
+	    $rc_sudo systemctl is-active "$i" > /dev/null || continue
+	    $rc_sudo systemctl stop $i >/dev/null
+	    echo "$i" >> $rc_systemd_state
+	done
     fi
 
-    if [ -s $rc_backup ]
+    which crontab >/dev/null 2>&1 || return	# systemd timers only
+
+    if $rc_sudo crontab -l 2>/dev/null >$rc_cron_backup
     then
-	$rc_sudo cat $rc_backup \
+	# Need to cull lines like this, so we end up whith just the
+	# real crontab entries (if any)
+	#
+	# DO NOT EDIT THIS FILE - edit the master and reinstall.
+	# (/dev/null installed on Sun Feb  2 07:30:33 2020)
+	# (Cronie version 4.2)
+	sed <$rc_cron_backup >$tmp.__cron \
+	    -e '/^# DO NOT EDIT THIS FILE/d' \
+	    -e '/^# (.* installed on /d' \
+	    -e '/^# (Cronie/d' \
+	# end
+	cp $tmp.__cron $rc_cron_backup
+    else
+	# error, remove the backup file so no changes are made
+	rm -f $rc_cron_backup
+    fi
+
+    if [ -s $rc_cron_backup ]
+    then
+	$rc_sudo cat $rc_cron_backup \
 	| sed \
 	    -e 's/^[^#].*pmlogger_check/#&/' \
 	    -e 's/^[^#].*pmsnap/#&/' \
@@ -1505,34 +1634,43 @@ _remove_cron()
     fi
 }
 
-# restore crontab back to original state
-# Usage: _restore_cron backup sudo
+# restore systemd timers and / or crontab back to original state
+# Usage: _restore_job_scheduler cron_backup systemd_state sudo
 #
-# backup - where to keep the old crontab file
+# cron_backup - where to keep the old crontab file
+# systemd_state - where to keep systemd timer state
 # sudo - location of sudo
 #
-_restore_cron()
+_restore_job_scheduler()
 {
-    rc_backup=${1:-crontab}
-    rc_sudo=${2:-sudo}
+    rc_cron_backup=${1:-crontab}
+    rc_systemd_state=${2:-systemd.state}
+    rc_sudo=${3:-sudo}
 
-    if [ -s $rc_backup ]
+    if [ -s $rc_systemd_state ]; then
+	for i in $(cat $rc_systemd_state); do
+	    $rc_sudo systemctl start $i >/dev/null
+	done
+	rm -f $rc_systemd_state
+    fi
+
+    if [ -s $rc_cron_backup ]
     then
 	$rc_sudo rm -f rc_cron_out rc_cron_check rc_cron_diff
-	if $rc_sudo crontab $rc_backup >rc_cron_out 2>&1
+	if $rc_sudo crontab $rc_cron_backup >rc_cron_out 2>&1
 	then
 	    # check everything is OK
 	    #
 	    $rc_sudo crontab -l >rc_cron_check
-	    sed -e '/^#/d' $rc_backup >$rc_backup.clean
+	    sed -e '/^#/d' $rc_cron_backup >$rc_cron_backup.clean
 	    sed -e '/^#/d' rc_cron_check >rc_cron_check.clean
-	    if diff -u $rc_backup.clean rc_cron_check.clean >rc_cron_diff 2>&1
+	    if diff -u $rc_cron_backup.clean rc_cron_check.clean >rc_cron_diff 2>&1
 	    then
 		:
 	    else
 		echo "_restore_cron: Warning: could not restore crontab to original state"
 		echo "               Unexpected differences ..."
-		diff -u $rc_backup rc_cron_check
+		diff -u $rc_cron_backup rc_cron_check
 	    fi
 	    $rc_sudo rm -f rc_cron_check rc_cron_check.clean rc_cron_diff
 	else
@@ -1545,11 +1683,12 @@ _restore_cron()
 }
 
 # running QA within a container can mean no crontab setup;
-# _check_cron is a convenience routine checking the external
-# dependencies of _remove_cron() and _restore_cron()
+# _check_job_scheduler() is a convenience routine checking the external
+# dependencies of _remove_job_scheduler() and _restore_job_scheduler()
 #
-_check_cron()
+_check_job_scheduler()
 {
+    systemctl cat pmie_daily.timer >/dev/null 2>&1 && return
     which crontab >/dev/null 2>&1 || _notrun "No crontab binary found"
 }
 
@@ -1958,7 +2097,6 @@ _change_config()
 	    pmie)	pat=PMIE ;;
 	    pmproxy)	pat=PMPROXY ;;
 	    pmmgr)	pat=PMMGR ;;
-	    pmwebd)	pat=PMWEBD ;;
 	    verbose)	pat="" ;;
 	    *)		pat=$1 ;;
 	esac
@@ -2226,20 +2364,35 @@ _disable_loggers()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+    if [ -f $PCP_PMLOGGERCONTROL_PATH.$seq ]
+    then
+	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq already exists"
+	date
+	ls -l $PCP_PMLOGGERCONTROL_PATH.$seq
+	exit
+    fi
     if [ -f $PCP_PMLOGGERCONTROL_PATH ]
     then
-	[ ! -f $tmp.control ] && \
-		$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
+	$sudo mv $PCP_PMLOGGERCONTROL_PATH $PCP_PMLOGGERCONTROL_PATH.$seq
+    else
+	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH missing"
+    fi
+    if [ -d $PCP_PMLOGGERCONTROL_PATH.$seq.d ]
+    then
+	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq.d already exists"
+	date
+	ls -ld $PCP_PMLOGGERCONTROL_PATH.$seq.d
+	exit
     fi
     if [ -d $PCP_PMLOGGERCONTROL_PATH.d ]
     then
-	[ ! -d $tmp.control.d ] && \
-		$sudo cp -a $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
-	$sudo rm -fr $PCP_PMLOGGERCONTROL_PATH.d
+	$sudo mv $PCP_PMLOGGERCONTROL_PATH.d $PCP_PMLOGGERCONTROL_PATH.$seq.d
+    else
+	echo "_disable_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.d missing"
     fi
     cat <<End-of-File >$tmp._tmp
-# dummy file created by qa/$seq on `date`
-# the goal here is to have a controlled primary logger that does
+# Installed by PCP QA test $seq on `date`
+# The goal here is to have a controlled primary logger that does
 # not make requests to pmcd!
 \$version=1.1
 LOCALHOSTNAME y n PCP_LOG_DIR/pmlogger/LOCALHOSTNAME -c /dev/null
@@ -2251,13 +2404,19 @@ _restore_loggers()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
-    if [ -d $tmp.control.d ]
+    if [ -d $PCP_PMLOGGERCONTROL_PATH.$seq.d ]
     then
-	$sudo cp -a $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
-	$sudo rm -fr $tmp.control.d
+	$sudo rm -fr $PCP_PMLOGGERCONTROL_PATH.d
+	$sudo mv $PCP_PMLOGGERCONTROL_PATH.$seq.d $PCP_PMLOGGERCONTROL_PATH.d
+    else
+	echo "_restore_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq.d missing"
     fi
-    [ -f $tmp.control ] && \
-	$sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
+    if [ -f $PCP_PMLOGGERCONTROL_PATH.$seq ]
+    then
+	$sudo mv $PCP_PMLOGGERCONTROL_PATH.$seq $PCP_PMLOGGERCONTROL_PATH
+    else
+	echo "_restore_loggers: Botch: $PCP_PMLOGGERCONTROL_PATH.$seq missing"
+    fi
 }
 
 # _check_core [dir]
@@ -2291,6 +2450,26 @@ _check_core()
 	echo ")"
 	status=1
     fi
+}
+
+# is a pre-existing mmv directory in place?  if so, move it aside
+# and prepare a directory with write access by unprivileged users
+#
+_prepare_pmda_mmv()
+{
+    if [ -d "$PCP_TMP_DIR/mmv" ]
+    then
+	_save_config "$PCP_TMP_DIR/mmv"
+	$sudo rm -rf $PCP_TMP_DIR/mmv
+    fi
+    $sudo mkdir -p -m 1777 "$PCP_TMP_DIR/mmv"
+    $sudo chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/mmv"
+    cullmmv=true
+}
+
+_restore_pmda_mmv()
+{
+    [ -n "$cullmmv" ] && $cullmmv && _restore_config "$PCP_TMP_DIR/mmv"
 }
 
 # prepare for a save-able pmcd and pmda configuration.
@@ -2439,7 +2618,7 @@ _sighup_pmcd()
     _signal_delay=0.05
     _sighups_before=-1
 
-    eval `pmprobe -v pmcd.sighups 2>/dev/null \
+    eval `pmprobe $@ -v pmcd.sighups 2>/dev/null \
 	  | $PCP_AWK_PROG '{ printf "_sighups_before=%d\n", $3 }'`
     if [ $_sighups_before -lt 0 ]
     then
@@ -2456,7 +2635,7 @@ _sighup_pmcd()
     do
 	$PCP_BINADM_DIR/pmsleep $_delay
 	_sighups=-1
-	eval `pmprobe -v pmcd.sighups 2>/dev/null | \
+	eval `pmprobe $@ -v pmcd.sighups 2>/dev/null | \
 	    $PCP_AWK_PROG '{ printf "_sighups=%d\n", $3 }'`
 	if [ $_sighups -gt $_sighups_before ]
 	then
@@ -2473,4 +2652,39 @@ _sighup_pmcd()
     # delay for $_signal_delay while pmcd actually does post-SIGHUP work
     #
     $PCP_BINADM_DIR/pmsleep $_signal_delay
+}
+
+# common webapi header filtering
+#
+_webapi_header_filter()
+{
+    tee -a $here/$seq.full \
+    | col -b \
+    | sed \
+	-e 's/^\(Content-Length:\) [0-9][0-9]*/\1 SIZE/g' \
+	-e 's/^\(Date:\).*/\1 DATE/g' \
+	-e 's/\(\"context\":\) [0-9][0-9]*/\1 CTXID/g' \
+	-e '/^Connection: Keep-Alive/d' \
+    | LC_COLLATE=POSIX sort
+}
+
+_webapi_response_filter()
+{
+    tee -a $here/$seq.full \
+    | col -b \
+    | sed -e 's,#[0-9]*,####,g' \
+        -e 's/ connected$//g' \
+        -e '/^\* Adding handle: /d' \
+        -e '/^\* Closing connection ####/d' \
+        -e '/- Conn .*_pipe.*_pipe/d' \
+        -e '/Curl_[\.a-zA-Z0-9]*:/d' \
+        -e 's/::1/LOCALADDR/g' \
+        -e 's/127\.0\.0\.1/LOCALADDR/g' \
+        -e 's/PMWEBD error, .*/PMWEBD error, XXX/g' \
+        -e 's/localhost[\.a-zA-Z0-9]*/LOCALHOST/g' \
+        -e 's/Date:.*/Date: DATE/' \
+	-e 's/\[[0-9][0-9]* bytes data]/[data not shown]/' \
+        -e '/> User-Agent: /d' \
+	-e '/Connection: Keep-Alive/d' \
+    # end
 }

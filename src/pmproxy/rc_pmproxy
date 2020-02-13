@@ -85,6 +85,7 @@ _shutdown()
     if [ ! -s $tmp/tmp ]
     then
 	[ "$1" = verbose ] && echo "$pmprog: pmproxy not running"
+	rm -f $PCP_RUN_DIR/pmproxy.pid
 	return 0
     fi
 
@@ -94,6 +95,8 @@ _shutdown()
     # Wait for pmproxy to terminate.
     #
     pmsignal -p -s TERM pmproxy > /dev/null 2>&1
+
+    [ "$1" = quietly ] || \
     $ECHO $PCP_ECHO_N "Waiting for pmproxy to terminate ...""$PCP_ECHO_C"
     gone=0
     for i in 1 2 3 4 5 6
@@ -133,7 +136,14 @@ _shutdown()
 	echo "$prog: Warning: pmproxy won't die!"
 	exit
     fi
-    $RC_STATUS -v 
+    if [ "$1" = quietly ]
+    then
+	$RC_STATUS
+    else
+	true
+	$RC_STATUS -v
+    fi
+    rm -f $PCP_RUN_DIR/pmproxy.pid
     $PCP_BINADM_DIR/pmpost "stop pmproxy from $pmprog"
 }
 

@@ -1,8 +1,28 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014,2019 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
 .TH PCP-FREE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pcp-free\f1 \- report on free and used memory in the system
 .SH SYNOPSIS
-\f3pcp\f1 [\f2pcp\ options\f1] \f3free\f1 [\f3\-bkmgoltV\f1] [\f3\-c\f1 \f2count\f1] [\f3\-s\f1 \f2interval\f1]
+\f3pcp\f1
+[\f2pcp\ options\f1]
+\f3free\f1
+[\f3\-bkmgroltV?\f1]
+[\f3\-c\f1 \f2count\f1]
+[\f3\-s\f1 \f2interval\f1]
 .SH DESCRIPTION
 .B pcp-free
 gives a summary display of the total amount of free and used
@@ -25,35 +45,58 @@ command, the
 .BR \-Z /\c
 .BR \-\-timezone
 and several other
-.I pcp options
-become indirectly available.
-.SS Options
-The \fB\-b\fP/\fB\-\-bytes\fP switch displays the amount of memory in bytes; the
-\fB\-k\fP/\fB\-\-kilobytes\fP switch (set by default) displays it in kilobytes;
-the \fB\-m\fP/\fB\-\-megabytes\fP switch displays it in megabytes.
-.PP
-The \fB\-t\fP/\fB\-\-total\fP switch displays a line containing the totals.
-.PP
-The \fB-o\fP switch disables the display of a "buffer adjusted" line.
+.B pcp
+.I options
+become indirectly available, see
+.BR PCPIntro (1)
+for their descriptions.
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-b\fP, \fB\-\-bytes\fP
+Display the amount of memory in bytes.
+.TP
+\fB\-c\fR \fIcount\fR, \fB\-\-samples\fR=\fIcount\fR
+Terminate the display after \fIcount\fR iterations.
+See also
+.BR \-s .
+.TP
+\fB\-g\fP, \fB\-\-gigabytes\fP
+Display the amount of memory in gigabytes.
+.TP
+\fB\-k\fP, \fB\-\-kilobytes\fP
+Display the amount of memory in kilobytes.
+This is the default.
+.TP
+\fB\-l\fP
+Display detailed low and high memory statistics.
+.TP
+\fB\-m\fP, \fB\-\-megabytes\fP
+Display the amount of memory in megabytes.
+.TP
+\fB-o\fP
+Disable the display of a "buffer adjusted" line.
 If the \fB-o\fP option is not specified, \fBfree\fP subtracts buffer memory
 from the used memory and adds it to the free memory reported.
-.PP
-The \fB\-s\fP/\fB\-\-interval\fP switch activates continuous polling \fIdelay\fP
-seconds apart.
+.TP
+\fB\-r\fP, \fB\-\-terabytes\fP
+Display the amount of memory in terabytes.
+.TP
+\fB\-s\fR \fIdelay\fR, \fB\-\-interval\fR=\fIdelay\fR
+Activate continuous polling \fIdelay\fP seconds apart.
 You may specify any floating point number for \fIdelay\fP, or indeed any valid
 .BR pmParseInterval (3)
 specification, which includes microsecond resolution delay times.
-This can be used in conjunction with the \fB\-c\fP/\fB\-\-samples\fP option
-to terminate the display after \fIcount\fP iterations.
-.PP
-The \fB\-l\fP switch shows detailed low and high memory statistics.
-.PP
-The current version of
-.B pcp-free
-can be queried using the
-.BR \-V /\c
-.B \-\-version
-option.
+This can be used in conjunction with the \fB\-c\fP option.
+.TP
+\fB\-t\fP, \fB\-\-total\fP
+Display a line containing the totals.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH NOTES
 .B pcp-free
 is inspired by the
@@ -61,10 +104,19 @@ is inspired by the
 command and aims to be command line and output compatible with it.
 .PP
 The shared memory column should be ignored; it is obsolete.
-.SH "SEE ALSO"
-.BR pcp (1),
-.BR free(1),
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
 .BR PCPIntro (1),
+.BR pcp (1),
+.BR free (1),
 .BR pmParseInterval (3)
 and
 .BR environ (7).

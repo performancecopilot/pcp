@@ -176,6 +176,7 @@ do
 	    -e "/hw\.hub\..*: $unavailable/d" \
 	    -e "/hw\.router\..*: $unavailable/d" \
 	    -e "/ipc\.msg\.key: $unavailable/d" \
+	    -e "/ipc\.msg\.last_.*: $unavailable/d" \
 	    -e "/ipc\.msg\.messages: $unavailable/d" \
 	    -e "/ipc\.msg\.msgsz: $unavailable/d" \
 	    -e "/ipc\.msg\.owner: $unavailable/d" \
@@ -184,12 +185,15 @@ do
 	    -e "/ipc\.sem\.nsems: $unavailable/d" \
 	    -e "/ipc\.sem\.owner: $unavailable/d" \
 	    -e "/ipc\.sem\.perms: $unavailable/d" \
+	    -e "/ipc\.shm\.creator_.*: $unavailable/d" \
 	    -e "/ipc\.shm\.key: $unavailable/d" \
+	    -e "/ipc\.shm\.last_.*: $unavailable/d" \
 	    -e "/ipc\.shm\.nattch: $unavailable/d" \
 	    -e "/ipc\.shm\.owner: $unavailable/d" \
 	    -e "/ipc\.shm\.perms: $unavailable/d" \
 	    -e "/ipc\.shm\.segsz: $unavailable/d" \
 	    -e "/ipc\.shm\.status: $unavailable/d" \
+	    -e "/kernel\.all\.pressure\..*: $unavailable/d" \
 	    -e "/kernel\.percpu\.softirqs\.none: $unavailable/d" \
 	    -e "/kernel\.pernode..*: $unavailable/d" \
 	    -e "/kernel\..*\.syscall: $unavailable/d" \
@@ -340,9 +344,10 @@ do
 	# end
     elif [ "$PCP_PLATFORM" = openbsd ]
     then
-	# do nothing at the moment
 	sed <$tmp.tmp \
-	    -e 's/a/a/' \
+	    -e "/kernel\.all\.cpu\.spin: $unavailable/d" \
+	    -e "/kernel\.percpu\.cpu\.spin: $unavailable/d" \
+	    -e "/mem\.util\.anonpages: $unavailable/d" \
 	# end
     fi
 done

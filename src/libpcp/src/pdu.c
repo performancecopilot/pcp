@@ -237,10 +237,12 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		return PM_ERR_TIMEOUT;
 	    }
 	    else if (status < 0) {
-		char	errmsg[PM_MAXERRMSGLEN];
 		status = -neterror();
-		pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d status=%d: %s",
+		if (status != -EINTR) {
+		    char	errmsg[PM_MAXERRMSGLEN];
+		    pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d status=%d: %s",
 			fd, status, netstrerror_r(errmsg, sizeof(errmsg)));
+		}
 		setoserror(neterror());
 		return status;
 	    }
@@ -256,7 +258,8 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 	    /* end of file or error */
 	    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "pduread(%d, ...): eof/error %d from %s: ", fd, status, socketipc == 0 ? "read" : "__pmRecv");
+		fprintf(stderr, "pduread(%d, ...): eof/error %d from %s: ",
+			fd, status, socketipc == 0 ? "read" : "__pmRecv");
 		fprintf(stderr, "%s\n", osstrerror_r(errmsg, sizeof(errmsg)));
 	    }
 	    if (status == 0)

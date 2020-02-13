@@ -179,3 +179,10 @@ PCP_PMDA_3.9 {
     pmdaTreeInsert;
     pmdaTreeRelease;
 } PCP_PMDA_3.8;
+
+PCP_PMDA_3.10 {
+  global:
+    pmdaExtGetData;
+    pmdaExtSetData;
+    pmdaSetData;
+} PCP_PMDA_3.9;

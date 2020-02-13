@@ -260,6 +260,21 @@ __pmLookupDSO(int domain)
     return NULL;
 }
 
+void
+__pmClearDSOProfile(int handle)
+{
+    int		i;
+    for (i = 0; i < numdso; i++) {
+	if (dsotab[i].ctx_last_prof == handle) {
+	    if (pmDebugOptions.profile) {
+		fprintf(stderr, "__pmClearDSOProfile(%d) -> dsotab[%d], domain=%d\n", handle, i, dsotab[i].domain);
+	    }
+	    dsotab[i].ctx_last_prof = -1;
+	}
+    }
+    return;
+}
+
 static void
 EndLocalContext(void)
 {
@@ -534,6 +549,7 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 		}
 	    }
 	    dsotab[numdso].handle = NULL;
+	    dsotab[numdso].ctx_last_prof = -1;
 	    numdso++;
 	    break;
 

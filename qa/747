@@ -16,36 +16,21 @@ echo "QA output created by $seq"
 [ $PCP_PLATFORM = linux ] || _notrun "Linux sysfs test, only works with Linux"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+mkdir -p $tmp.root
+$sudo mount -t tmpfs none $tmp.root
 
-# deal with non-determinism in the order in which the per cpu indom
-# is populated
-# input is assumed to be in the format ...
-# 	head ...
-# 	stuff to fix ...
-# 	tail ...
-#
-_fix_percpu_indom()
+trap "cd $here; $sudo umount $tmp.root; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_sort_instname()
 {
-    rm -f $tmp.head $tmp.percpu $tmp.tail
-    $PCP_AWK_PROG '
-/^hinv\.cpu\.online/		{ state = 1 }
-/^kernel\.percpu\./		{ state = 1 }
-state == 0			{ print >"'"$tmp.head"'"; next }
-state == 1			{ print >"'"$tmp.percpu"'" }
-state == 2			{ print >"'"$tmp.tail"'"; next }
-state == 1 && NF == 0		{ state = 2 }'
-    [ -f $tmp.head ] && cat $tmp.head
-    [ -f $tmp.percpu ] && $here/src/sortinst -i <$tmp.percpu \
-			  | sed -e 's/cpu[0-9][0-9]*/cpuN/'
-    [ -f $tmp.tail ] && cat $tmp.tail
+    $sudo rm -f $tmp.sort
+    tee $tmp.sort | sed -n 2p
+    awk '/inst / {print "  ", $4, $6}' $tmp.sort | sed -e 's/\]//' | LC_COLLATE=POSIX sort
 }
 
 # real QA test starts here
-root=$tmp.root
 export LINUX_HERTZ=100
-export LINUX_STATSPATH=$root
+export LINUX_STATSPATH=$tmp.root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 local="-L -K clear -K add,60,$pmda"
 
@@ -54,18 +39,17 @@ allcpu_metrics=`pminfo $local kernel.all.cpu | LC_COLLATE=POSIX sort`
 percpu_metrics=`pminfo $local kernel.percpu.cpu | LC_COLLATE=POSIX sort`
 pernode_metrics=`pminfo $local kernel.pernode.cpu | LC_COLLATE=POSIX sort`
 
-for tgz in $here/linux/sysdev-*.tgz
+for tgz in $here/linux/sysdev-*.tgz $here/linux/sysfs-numa-001.tgz
 do
-    rm -fr $root
-    mkdir $root || _fail "root in use when processing $tgz"
-    cd $root
-    tar xzf $tgz
+    $sudo rm -fr $tmp.root/*
+    cd $tmp.root
+    $sudo tar xzf $tgz
     base=`basename $tgz`
 
     echo "== Checking hinv metric values - $base"
     for m in $hinv_metrics
     do
-	pminfo $local -f $m | _fix_percpu_indom
+	pminfo $local -f $m | _sort_instname
     done
     echo && echo "== done" && echo
 
@@ -76,12 +60,15 @@ do
     echo "== Checking per-CPU metric values - $base"
     for m in $percpu_metrics
     do
-	pminfo $local -f $m | _fix_percpu_indom
+	pminfo $local -f $m | _sort_instname
     done
     echo && echo "== done" && echo
 
     echo "== Checking per-node CPU metric values - $base"
-    pminfo $local -f $pernode_metrics
+    for m in $pernode_metrics
+    do
+	pminfo $local -f $m | _sort_instname
+    done
     echo && echo "== done" && echo
 
     cd $here

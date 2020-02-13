@@ -33,12 +33,16 @@ then
     exit 1
 fi
 
+# make sure the shell babble after pdu-server is terminated goes elsewhere
+#
+exec 2>$tmp.err
+
 src/pdu-server -p $port -D pdu,appl0 -Z UTC >$tmp.out 2>&1 &
 server_pid=$!
 
 sleep 1
 
-src/pducheck -p $port -i 1 localhost
+src/pducheck -p $port -i 1 localhost 2>&1
 
 sleep 1
 
@@ -236,6 +240,10 @@ s/482d5a54   455245/545a2d48 45524500/
 /PDU_LOG_CONTROL/	{ fix = 2 }
 /pmResult/ && fix > 0	{ fix--; $6 = "NOW"; $7 = "TODAY" }
 			{ print }'
+
+echo >>$seq.full
+echo "==== shell's stderr ===========" >>$seq.full
+cat $tmp.err >>$seq.full
 
 # success, all done
 status=0

@@ -1,7 +1,4 @@
 QA output created by 761
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
-Starting pmlogger ... 
 === Checking empty containers configuration, no values
 containers.cgroup 0
 containers.engine 0
@@ -189,10 +186,35 @@ containers.state.running
 
 == done
 
+== Checking values for active containers in containers-docker-titan-root-007.tgz
+
+containers.cgroup
+    inst [N or "e41d0176fce811b3065a604031ff6629c850d76747a29604ff930794596052bb"] value "/system.slice/docker-e41d0176fce811b3065a604031ff6629c850d76747a29604ff930794596052bb.scope"
+
+containers.engine
+    inst [N or "e41d0176fce811b3065a604031ff6629c850d76747a29604ff930794596052bb"] value "docker"
+
+containers.name
+    inst [N or "e41d0176fce811b3065a604031ff6629c850d76747a29604ff930794596052bb"] value "25ad5c4c-4dd2-49a4-ab75-5e61e4568b0b"
+
+containers.pid
+    inst [N or "e41d0176fce811b3065a604031ff6629c850d76747a29604ff930794596052bb"] value 3219766
+
+containers.state.paused
+    inst [N or "e41d0176fce811b3065a604031ff6629c850d76747a29604ff930794596052bb"] value 0
+
+containers.state.restarting
+    inst [N or "e41d0176fce811b3065a604031ff6629c850d76747a29604ff930794596052bb"] value 0
+
+containers.state.running
+    inst [N or "e41d0176fce811b3065a604031ff6629c850d76747a29604ff930794596052bb"] value 1
+
+== done
+
 == Checking values for active containers in containers-lxc-1.0.6-root-001.tgz
 
 containers.cgroup
-    inst [N or "myvm"] value "lxc/myvm"
+    inst [N or "myvm"] value "/lxc/myvm"
 
 containers.engine
     inst [N or "myvm"] value "lxc"

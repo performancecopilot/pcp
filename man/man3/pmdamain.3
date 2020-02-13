@@ -2,17 +2,17 @@
 .\"
 .\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDAMAIN 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -56,13 +56,13 @@ int pmdaGetContext(void);
 .ad
 .ft 1
 .SH DESCRIPTION
-For Performance Metric Domain Agents 
-.RB ( PMDA (3)) 
+For Performance Metric Domain Agents
+.RB ( PMDA (3))
 using the binary PDU protocols to communicate with
 .BR pmcd (1),
 the routine
 .B pmdaMain
-provides a generic implementation of the PDU-driven main loop. 
+provides a generic implementation of the PDU-driven main loop.
 .PP
 .I dispatch
 describes how to process each incoming PDU. It
@@ -132,14 +132,14 @@ For
 .I dispatch->domain
 and
 .I dispatch->status
-are ignored.  The 
+are ignored.  The
 .I comm.pmda_interface
 field is used to determine the interface used by the PMDA.  Setting this field
 to
 .B PMDA_INTERFACE_2
 or
 .B PMDA_INTERFACE_3
-will force 
+will force
 .B pmdaMain
 to use the callbacks in the
 .I version.two
@@ -150,7 +150,7 @@ A setting of
 .B PMDA_INTERFACE_4
 or
 .B PMDA_INTERFACE_5
-will force 
+will force
 .B pmdaMain
 to use the callbacks in the
 .I version.four
@@ -198,17 +198,17 @@ processing within a PMDA, namely
 .I done
 and
 .IR end .
-These callbacks should be set with 
+These callbacks should be set with
 .BR pmdaSetCheckCallBack ,
 .B pmdaSetDoneCallBack
 and
 .BR pmdaSetEndContextCallBack .
 .PP
-If not null, 
-.I check 
-is called after each PDU is received (but before it was processed), and 
+If not null,
+.I check
+is called after each PDU is received (but before it was processed), and
 .I done
-is called after each PDU is sent.  
+is called after each PDU is sent.
 If
 .I check
 returns a value less than zero (typically PM_ERR_AGAIN),
@@ -263,18 +263,18 @@ These messages may be appended to the PMDA's log file:
 .BI "PMDA interface version " interface " not supported"
 The
 .I interface
-version is not supported by 
+version is not supported by
 .BR pmdaMain .
 .TP
 .B Unrecognized pdu type
-The PMDA received a PDU from 
+The PMDA received a PDU from
 .B pmcd
 that it does not recognize. This may indicate that the
 .B pmcd
 process is using a more advanced interface than
 .BR pmdaMain .
 .PP
-If the 
+If the
 .BR PMAPI (3)
 debugging control options
 have the ``libpmda'' option set then each PDU that is received is reported

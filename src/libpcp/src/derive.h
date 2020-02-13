@@ -14,6 +14,9 @@
 #ifndef _DERIVE_H
 #define _DERIVE_H
 
+#include <sys/types.h>
+#include <regex.h>
+
 /*
  * Derived Metrics support
  */
@@ -37,6 +40,23 @@ typedef struct {		/* dynamic information for an expression node */
     struct timeval	last_stamp;	/* timestamp from previous fetch for rate() */
 } info_t;
 
+typedef struct {			/* for instance filtering */
+    int			ftype;		/* F_REGEX or F_EXACT */
+    int			inst;		/* internal instance id if ftype == F_EXACT */
+    regex_t		regex;		/* compiled regex if ftype = F_REGEX */
+
+    int			invert;		/* 0 for regex match, 1 for not regex match */
+    __pmHashCtl		hash;		/* instance hash table for ftype == F_REGEX */
+    int			used;		/* node fetch counter for garbage collection */
+} pattern_t;
+
+/* instance control for filtering, hangs off .data field of __pmHashNode */
+typedef struct {
+    int		inst;			/* internal instance id */
+    int		match;			/* true if this instance matches */
+    int		used;			/* inst fetch counter for garbage collection */
+} instctl_t;
+
 typedef struct node {		/* expression tree node */
     int		type;
     pmDesc	desc;
@@ -44,7 +64,10 @@ typedef struct node {		/* expression tree node */
     struct node	*left;
     struct node	*right;
     char	*value;
-    info_t	*info;
+    union {
+	info_t		*info;
+	pattern_t	*pattern;
+    } data;
 } node_t;
 
 typedef struct {		/* one derived metric */
@@ -100,17 +123,28 @@ typedef struct {
 #define N_RESCALE	29
 #define N_SCALE		30
 #define N_DEFINED	31
+#define N_FILTERINST	32
+#define N_PATTERN	33
+#define N_SCALAR	34
+
+/* instance filtering types */
+#define F_REGEX		0		/* matchinst([!]pattern, expr) */
+#define F_EXACT		1		/* metric[instance] */
+
+/* fetch count for regex instances garbage collection */
+#define REGEX_INST_COMPACT	100
 
 extern int __dmtraverse(__pmContext *, const char *, char ***) _PCP_HIDDEN;
-extern int __dmchildren(__pmContext *, const char *, char ***, int **) _PCP_HIDDEN;
-extern int __dmgetpmid(const char *, pmID *) _PCP_HIDDEN;
+extern int __dmchildren(__pmContext *, int, const char *, char ***, int **) _PCP_HIDDEN;
+extern int __dmgetpmid(int, const char *, pmID *) _PCP_HIDDEN;
 extern int __dmgetname(pmID, char **) _PCP_HIDDEN;
 extern void __dmopencontext(__pmContext *) _PCP_HIDDEN;
-extern void __dmbind(__pmContext *, int) _PCP_HIDDEN;
+extern void __dmbind(int, __pmContext *, int) _PCP_HIDDEN;
 extern void __dmclosecontext(__pmContext *) _PCP_HIDDEN;
-extern int __dmdesc(__pmContext *, pmID, pmDesc *) _PCP_HIDDEN;
+extern int __dmdesc(__pmContext *, int, pmID, pmDesc *) _PCP_HIDDEN;
 extern int __dmprefetch(__pmContext *, int, const pmID *, pmID **) _PCP_HIDDEN;
 extern void __dmpostfetch(__pmContext *, pmResult **) _PCP_HIDDEN;
 extern void __dmdumpexpr(node_t *, int) _PCP_HIDDEN;
+extern char *__dmnode_type_str(int) _PCP_HIDDEN;
 
 #endif	/* _DERIVE_H */

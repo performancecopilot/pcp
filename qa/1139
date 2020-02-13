@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1139
-# Ranking, limit filter, and predicates tests with pmrep.
+# Ranking, sorting, limit filter, and predicates tests with pmrep.
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 #
 
 seq=`basename $0`
@@ -93,6 +93,14 @@ rm -f $tmp.archive.0 $tmp.archive.index $tmp.archive.meta
 echo "== test predicate being filtered out"
 pmrep -z -s 14 $log $out -p -r -u -J  2 -i sda       -N kernel.pernode.cpu.sys disk.dev.write | \
 _msg_filter
+
+echo "== test predicate with sort metric"
+pmrep -s 2 -S @00:00:15 $log -p -r -u -J 3 -X "" -i sdb,sdc,sdd -1                  -6  kernel.pernode.cpu.sys disk.dev.read disk.dev.write
+pmrep -s 2 -S @00:00:15 $log -p -r -u -J 3 -X "" -i sdb,sdc,sdd -1 -N disk.dev.read -6  mem.util.used          disk.dev.read disk.dev.write mem.util.used
+pmrep -s 2 -S @00:00:15 $log -p -r -u -J 3 -X "" -i sdb,sdc,sdd -1 -N disk.dev.read -6  disk.dev.read          disk.dev.read disk.dev.write
+pmrep -s 2 -S @00:00:15 $log -p -r -u -J 3 -X "" -i sdb,sdc,sdd -1 -N disk.dev.read -6 -disk.dev.read          disk.dev.read disk.dev.write
+pmrep -s 2 -S @00:00:15 $log -p -r -u -J 3 -X "" -i sdb,sdc,sdd -1 -N disk.dev.read -6  disk.dev.write         disk.dev.read disk.dev.write
+pmrep -s 2 -S @00:00:15 $log -p -r -u -J 3 -X "" -i sdb,sdc,sdd -1 -N disk.dev.read -6 -disk.dev.write         disk.dev.read disk.dev.write
 
 echo "== test overall ranking"
 pmrep $log -I -s 12 -r -u   -J 2 -l - -2 disk kernel mem

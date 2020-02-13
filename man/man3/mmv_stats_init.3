@@ -20,10 +20,7 @@
 \f3mmv_stats_init\f1,
 \f3mmv_stats2_init\f1 - create and initialize Memory Mapped Value file
 .SH "C SYNOPSIS"
-.sp
 .ft 3
-.sp
-.br
 #include <pcp/pmapi.h>
 .br
 #include <pcp/mmv_stats.h>
@@ -46,7 +43,7 @@ cc ... \-lpcp_mmv \-lpcp
 .P
 .B Note: these functions are deprecated \- see mmv_stats_registry(3).
 .P
-\f3mmv_stats_init\f1 creates and initializes the content of the 
+\f3mmv_stats_init\f1 creates and initializes the content of the
 \f2MMV\f1(5) file, returning a handle that is used in subsequent
 MMV API calls.
 .P
@@ -59,7 +56,7 @@ handle returned by an earlier initialization call.
 The file is created in the $PCP_TMP_DIR/mmv directory, \f2name\f1
 argument is expected to be a basename of the file, not the full path.
 The metadata content of the file does not change after the file has
-been created. 
+been created.
 .P
 The old file is removed unconditionally unless there was an error.
 .P
@@ -151,7 +148,6 @@ which is 64 bytes).
             char *helptext;              /* Long help text */
         } mmv_indom2_t;
 .fi
-.P
 .SH RETURN VALUES
 These functions return the address of the memory mapped region on success.
 On failure, NULL is returned and \f2errno\f1 is set to a value suitable

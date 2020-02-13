@@ -39,6 +39,7 @@ hinv {
     ninterface	NETBSD:3:17
     physmem	NETBSD:0:1
     pagesize	NETBSD:1:3
+    machine	NETBSD:1:17	/* alias for kernel.uname.machine on NetBSD */
     cpu
 }
 
@@ -60,6 +61,7 @@ kernel.all {
     intr	NETBSD:5:3
     hz		NETBSD:0:13
     load	NETBSD:1:2
+    uptime	NETBSD:1:19
     cpu
 }
 
@@ -117,6 +119,7 @@ disk.all {
 
 mem {
     util
+    freemem	NETBSD:5:6	/* alias for mem.util.freemem */
 }
 
 mem.util {

@@ -129,20 +129,20 @@ _interrupt()
     status=1
 }
 
+# Save config files and pmlogger_check, but leave the originals in place
+#
 _save_setup()
 {
-	for file in $PCP_PMCDCONF_PATH \
-		$CHECK $PCP_PMLOGGERCONTROL_PATH \
-		$PCP_PMLOGGEROPTIONS_PATH
-	do
-	    [ -f $file.$seq ] && $sudo rm -f $file.$seq
-	    [ -f $file ] && $sudo cp -p $file $file.$seq
-	done
-	for dir in $PCP_PMLOGGERCONTROL_PATH.d
-	do
-	    [ -d $dir.$seq ] && $sudo rm -fr $dir.$seq
-	    [ -d $dir ] && $sudo cp -a $dir $dir.$seq
-	done
+    for file in $PCP_PMCDCONF_PATH $CHECK $PCP_PMLOGGEROPTIONS_PATH
+    do
+	if [ -f $file ]
+	then
+	    $sudo rm -f $file.$seq
+	    $sudo mv $file $file.$seq
+	    $sudo cp -p $file.$seq $file
+	fi
+    done
+    _disable_loggers
 }
 
 _cleanup()
@@ -152,32 +152,24 @@ _cleanup()
     then
 	echo
 	echo "Restore the state of the universe ..."
-	for file in $PCP_PMCDCONF_PATH \
-		$CHECK $PCP_PMLOGGERCONTROL_PATH \
-		$PCP_PMLOGGEROPTIONS_PATH
+	for file in $PCP_PMCDCONF_PATH $CHECK $PCP_PMLOGGEROPTIONS_PATH
 	do
 	    if [ -f $file.$seq ]
 	    then
 		$sudo rm -f $file
-		$sudo cp -p $file.$seq $file
-		$sudo rm -f $file.$seq
+		$sudo mv $file.$seq $file
 	    fi
 	done
-	for dir in $PCP_PMLOGGERCONTROL_PATH.d
-	do
-	    if [ -d $dir.$seq ]
-	    then
-		$sudo rm -fr $dir
-		$sudo cp -a $dir.$seq $dir
-		$sudo rm -fr $dir.$seq
-	    fi
-	done
-	[ -f $PCP_PMCD_PROG.$seq ] && \
-	$sudo mv -f $PCP_PMCD_PROG.$seq $PCP_PMCD_PROG
+	_restore_loggers
+	if [ -f $PCP_PMCD_PROG.$seq ]
+	then
+	    $sudo rm -f $PCP_PMCD_PROG
+	    $sudo mv $PCP_PMCD_PROG.$seq $PCP_PMCD_PROG
+	fi
 
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false
@@ -202,27 +194,28 @@ _exercise_rc_scripts()
     if [ $PCP_PLATFORM = linux ]
     then
 	cat <<End-of-File >$tmp.out
-# from qa/$seq
+# Installed by PCP QA test $seq on `date`
 linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
     elif [ $PCP_PLATFORM = darwin ]
     then
 	cat <<End-of-File >$tmp.out
-# from qa/$seq
+# Installed by PCP QA test $seq on `date`
 darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
 End-of-File
     elif [ $PCP_PLATFORM = solaris ]
     then
 	cat <<End-of-File >$tmp.out
-# from qa/$seq
+# Installed by PCP QA test $seq on `date`
 solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
     elif [ $PCP_PLATFORM = freebsd ]
     then
 	cat <<End-of-File >$tmp.out
+# Installed by PCP QA test $seq on `date`
 freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
@@ -248,10 +241,11 @@ End-of-File
 
     echo 
     echo "=== expect 2 x connect failure: pmcd is true(1), so hard for pmlogger ==="
-    $sudo mv -f $PCP_PMCD_PROG $PCP_PMCD_PROG.$seq
+    $sudo rm -f $PCP_PMCD_PROG.$seq
+    $sudo mv $PCP_PMCD_PROG $PCP_PMCD_PROG.$seq
     $sudo cp `which true` $PCP_PMCD_PROG
     _poke_pmcd_n_logger
-    $sudo mv -f $PCP_PMCD_PROG.$seq $PCP_PMCD_PROG
+    $sudo mv $PCP_PMCD_PROG.$seq $PCP_PMCD_PROG
     echo "=== start again ==="
     _poke_pmcd_n_logger
 
@@ -273,7 +267,6 @@ End-of-File
     $sudo rm $CHECK 
     _poke_pmcd_n_logger
     $sudo cp -p $CHECK.$seq $CHECK
-    _disable_loggers
 
     echo 
     echo "=== expect error: pmlogger/control moved, so no pmlogger ==="
@@ -283,7 +276,6 @@ End-of-File
 
 # real QA test starts here
 _save_setup
-_disable_loggers
 _service pcp stop | _filter_pcp_stop
 ( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) 2>&1 \
 | tee -a $seq.full \

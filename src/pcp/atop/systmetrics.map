@@ -3,11 +3,13 @@
 #
 
 systmetrics {
+	# /proc/loadavg
+	kernel.all.load				CPU_LOAD
+
 	# /proc/stat
 	kernel.all.pswitch			CPU_CSW
 	kernel.all.intr				CPU_DEVINT
 	kernel.all.sysfork			CPU_NPROCS
-	kernel.all.load				CPU_LOAD
 	kernel.all.cpu.user			CPU_UTIME
 	kernel.all.cpu.nice			CPU_NTIME
 	kernel.all.cpu.sys			CPU_STIME
@@ -26,6 +28,7 @@ systmetrics {
 	kernel.percpu.cpu.irq.soft		PERCPU_SOFTIRQ
 	kernel.percpu.cpu.steal			PERCPU_STEAL
 	kernel.percpu.cpu.guest			PERCPU_GUEST
+
 	hinv.cpu.clock				PERCPU_FREQCNT_CNT
 
 	# /proc/vmstat
@@ -261,6 +264,31 @@ systmetrics {
 	nfsclient.bytes.write.server		PERNFS_TOTWRBYTES
 	nfsclient.pages.read			PERNFS_RDPAGES
 	nfsclient.pages.write			PERNFS_WRPAGES
+
+	# /proc/pressure/{cpu,memory,io}
+	kernel.all.pressure.cpu.some.avg	PSI_CPUSOME_AVG
+	kernel.all.pressure.cpu.some.total	PSI_CPUSOME_TOTAL
+	kernel.all.pressure.memory.some.avg	PSI_MEMSOME_AVG
+	kernel.all.pressure.memory.some.total	PSI_MEMSOME_TOTAL
+	kernel.all.pressure.memory.full.avg	PSI_MEMFULL_AVG
+	kernel.all.pressure.memory.full.total	PSI_MEMFULL_TOTAL
+	kernel.all.pressure.io.some.avg		PSI_IOSOME_AVG
+	kernel.all.pressure.io.some.total	PSI_IOSOME_TOTAL
+	kernel.all.pressure.io.full.avg		PSI_IOFULL_AVG
+	kernel.all.pressure.io.full.total	PSI_IOFULL_TOTAL
+
+	# hardware events
+	perfevent.hwcounters.INSTRUCTIONS_RETIRED.value		PERCPU_PERF_INSTR
+	perfevent.hwcounters.UNHALTED_REFERENCE_CYCLES.value	PERCPU_PERF_CYCLE
+
+	# Infiniband
+	infiniband.port.lid			PERIFB_PORT_LID
+	infiniband.port.rate			PERIFB_PORT_RATE
+	infiniband.port.linkwidth		PERIFB_PORT_WIDTH
+	infiniband.port.in.bytes		PERIFB_PORT_INB
+	infiniband.port.out.bytes		PERIFB_PORT_OUTB
+	infiniband.port.in.packets		PERIFB_PORT_INPKT
+	infiniband.port.out.packets		PERIFB_PORT_OUTPKT
 
 	# http status
 	apache.total_accesses			WWW_ACCESSES

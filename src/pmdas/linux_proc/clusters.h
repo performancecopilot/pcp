@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014,2018 Red Hat.
+ * Copyright (c) 2013-2014,2018-2019 Red Hat.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -53,7 +53,13 @@
 #define CLUSTER_PID_OOM_SCORE	62 /* /proc/<pid>/oom_score */
 #define CLUSTER_HOTPROC_PID_OOM_SCORE   63 /* /proc/<pid>/oom_score */
 
+#define CLUSTER_CGROUP2_CPU_PRESSURE	64
+#define CLUSTER_CGROUP2_IO_PRESSURE	65
+#define CLUSTER_CGROUP2_MEM_PRESSURE	66
+#define CLUSTER_CGROUP2_CPU_STAT	67
+#define CLUSTER_CGROUP2_IO_STAT		68
+
 #define MIN_CLUSTER  8		/* first cluster number we use here */
-#define MAX_CLUSTER 64		/* one more than highest cluster number used */
+#define MAX_CLUSTER 69		/* one more than highest cluster number used */
 
 #endif /* _CLUSTERS_H */

@@ -364,9 +364,9 @@ ull_xpect_0: ?
 f_xpect_0: ?
 d_xpect_0: ?
 pmie_xpect_120: ?
-derived_xpect_60: ?
+derived_xpect_120: ?
 pmie_xpect_360: ?
-derived_xpect_180: ?
+derived_xpect_360: ?
 
 r_xpect_one_quarter: 0.25
 l_xpect_0: 0
@@ -374,9 +374,9 @@ ull_xpect_0: 0
 f_xpect_0: 0
 d_xpect_0: 0
 pmie_xpect_120: 120
-derived_xpect_60: <skipped>
+derived_xpect_120: <skipped>
 pmie_xpect_360: 360
-derived_xpect_180: <skipped>
+derived_xpect_360: <skipped>
 
 r_xpect_one_quarter: 0.25
 l_xpect_0: 0
@@ -384,9 +384,9 @@ ull_xpect_0: 0
 f_xpect_0: 0
 d_xpect_0: 0
 pmie_xpect_120: 120
-derived_xpect_60: 60
+derived_xpect_120: 120
 pmie_xpect_360: 360
-derived_xpect_180: 180
+derived_xpect_360: 360
 
 r_xpect_one_quarter: 0.25
 l_xpect_0: 0
@@ -394,9 +394,9 @@ ull_xpect_0: 0
 f_xpect_0: 0
 d_xpect_0: 0
 pmie_xpect_120: 120
-derived_xpect_60: 60
+derived_xpect_120: 120
 pmie_xpect_360: 360
-derived_xpect_180: 180
+derived_xpect_360: 360
 
 r_xpect_one_quarter: 0.25
 l_xpect_0: 0
@@ -404,9 +404,9 @@ ull_xpect_0: 0
 f_xpect_0: 0
 d_xpect_0: 0
 pmie_xpect_120: 120
-derived_xpect_60: 60
+derived_xpect_120: 120
 pmie_xpect_360: 360
-derived_xpect_180: 180
+derived_xpect_360: 360
 
 r_xpect_one_quarter: 0.25
 l_xpect_0: 0
@@ -414,9 +414,9 @@ ull_xpect_0: 0
 f_xpect_0: 0
 d_xpect_0: 0
 pmie_xpect_120: 120
-derived_xpect_60: 60
+derived_xpect_120: 120
 pmie_xpect_360: 360
-derived_xpect_180: 180
+derived_xpect_360: 360
 
 r_xpect_one_quarter: 0.25
 l_xpect_0: 0
@@ -424,9 +424,9 @@ ull_xpect_0: 0
 f_xpect_0: 0
 d_xpect_0: 0
 pmie_xpect_120: 120
-derived_xpect_60: 60
+derived_xpect_120: 120
 pmie_xpect_360: 360
-derived_xpect_180: 180
+derived_xpect_360: 360
 
 r_xpect_one_quarter: 0.25
 l_xpect_0: 0
@@ -434,9 +434,9 @@ ull_xpect_0: 0
 f_xpect_0: 0
 d_xpect_0: 0
 pmie_xpect_120: 120
-derived_xpect_60: 60
+derived_xpect_120: 120
 pmie_xpect_360: 360
-derived_xpect_180: 180
+derived_xpect_360: 360
 
 r_xpect_one_quarter: 0.25
 l_xpect_0: 0
@@ -444,9 +444,9 @@ ull_xpect_0: 0
 f_xpect_0: 0
 d_xpect_0: 0
 pmie_xpect_120: 120
-derived_xpect_60: 60
+derived_xpect_120: 120
 pmie_xpect_360: 360
-derived_xpect_180: 180
+derived_xpect_360: 360
 
 r_xpect_one_quarter: 0.25
 l_xpect_0: 0
@@ -454,9 +454,9 @@ ull_xpect_0: 0
 f_xpect_0: 0
 d_xpect_0: 0
 pmie_xpect_120: 120
-derived_xpect_60: 60
+derived_xpect_120: 120
 pmie_xpect_360: 360
-derived_xpect_180: 180
+derived_xpect_360: 360
 
 r_xpect_one_quarter: 0.25
 l_xpect_0: 0
@@ -464,8 +464,8 @@ ull_xpect_0: 0
 f_xpect_0: 0
 d_xpect_0: 0
 pmie_xpect_120: 120
-derived_xpect_60: 60
+derived_xpect_120: 120
 pmie_xpect_360: 360
-derived_xpect_180: 180
+derived_xpect_360: 360
 
 pmie: note - evaluator exiting

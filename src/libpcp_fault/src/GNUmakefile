@@ -28,18 +28,19 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
-	connectlocal.c derive_fetch.c events.c lock.c hash.c jsmn.c \
+	connectlocal.c derive_fetch.c events.c lock.c hash.c jsonsl.c \
 	fault.c access.c getopt.c io.c io_stdio.c exec.c \
 	shellprobe.c subnetprobe.c \
 	deprecated.c
-HFILES = derive.h internal.h compiler.h pmdbg.h \
-	avahi.h shellprobe.h subnetprobe.h
-EXT_FILES = jsmn.h jsmn.c sort_r.h
+HFILES = derive.h internal.h compiler.h pmdbg.h jsonsl.c sort_r.h \
+	avahi.h subnetprobe.h shellprobe.h
+EXT_FILES = jsonsl.c jsonsl.h sort_r.h
 YFILES = getdate.y derive_parser.y
+OTHERS	= fix_derive_parser_y derive_parser.y.in
 VERSION_SCRIPT = exports
 
 # files that will be symbolic-linked to here from libpcp directory
-LN_FILES = $(filter-out $(EXT_FILES),$(CFILES)) $(HFILES) $(YFILES)
+LN_FILES = $(filter-out $(EXT_FILES),$(CFILES)) $(HFILES) getdate.y $(OTHERS)
 
 CFLAGS_OPT = -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1 -g -O0
 
@@ -102,8 +103,8 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) getdate.h check.done \
-	$(LN_FILES) $(EXT_FILES) exports *.c
+LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) derive_parser.y \
+	getdate.h check.done $(LN_FILES) $(EXT_FILES) exports *.c
 
 base default : $(HFILES) $(CFILES) $(EXT_FILES) $(VERSION_SCRIPT) $(INFILES) \
 	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
@@ -119,12 +120,12 @@ endif
 include $(BUILDRULES)
 
 *.o: internal.h compiler.h derive.h
-jsmn.o: jsmn.h
+jsonsl.o: jsonsl.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h
+labels.o: jsonsl.h sort_r.h
 fault.o:	$(TOPDIR)/src/include/pcp/fault.h
-labels.o:	sort_r.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/platform_defs.h
@@ -136,6 +137,9 @@ getdate.h getdate.tab.c: getdate.y
 .NOTPARALLEL:
 derive_parser.tab.h derive_parser.tab.c: derive_parser.y derive.h
 	$(YACC) -d -b `basename $< .y` $<
+
+derive_parser.y: derive_parser.y.in fix_derive_parser_y
+	./fix_derive_parser_y
 
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows
@@ -166,10 +170,6 @@ $(VERSION_SCRIPT): ../../libpcp/src/$(VERSION_SCRIPT) mk.exports
 pmdbg.h:	../../libpcp/src/pmdbg.h
 ../../libpcp/src/pmdbg.h:
 	( cd ../../libpcp/src; ./mk.pmdbg )
-
-derive_parser.y:	../../libpcp/src/derive_parser.y
-../../libpcp/src/derive_parser.y:
-	( cd ../../libpcp/src; $(MAKE) derive_parser.y )
 
 $(LN_FILES):
 	rm -f $@

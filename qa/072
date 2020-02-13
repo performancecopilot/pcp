@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
@@ -33,7 +34,7 @@ log mandatory on every 24 hours {
 	hinv.physmem
 	hinv.ncpu
 	hinv.ndisk
-	hinv.nfilesys
+	hinv.pagesize
 }
 
 mandatory on 50 msecs {
@@ -50,8 +51,8 @@ End-of-File
 remote=`./getpmcdhosts -L -n 1 2>$tmp.out`
 if [ -z "$remote" ]
 then
-    cat $tmp.out >$seq.notrun
-    exit
+    _notrun "`cat $tmp.out`"
+    # NOTREACHED
 fi
 
 for host in `hostname` $remote

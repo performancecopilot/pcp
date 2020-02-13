@@ -21,9 +21,6 @@ PMDA built
 Help generated
 === Replacing pmcd.options ===
 === Restarting PMCD with minimal PMDAs ===
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
-Starting pmlogger ... 
 === Installing simple ===
 5 metrics and 9 values
 simple is alive and well
@@ -88,9 +85,6 @@ Check broken metrics have gone away ... OK
 === Resetting pmcd.conf back to original state ===
 === Resetting pmcd.options back to original state ===
 === Restart PMCD ===
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
-Starting pmlogger ... 
 === Filter pmcd.log ===
 Log for pmcd on HOST started DATE
 

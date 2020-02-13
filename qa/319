@@ -1,6 +1,7 @@
 #! /bin/sh
 # PCP QA Test No. 319
 # reworked AND and OR logic in the presence of unavailable results
+# see also qa/697 for valgrind version of this test
 #
 # Copyright (c) 2007 Silicon Graphics, Inc.  All Rights Reserved.
 #

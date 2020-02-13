@@ -32,7 +32,7 @@ _cleanup()
 	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	    rm -f $tmp.pmcd.conf
 	fi
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true
@@ -44,6 +44,10 @@ status=1
 done_clean=false
 $sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# don't need to regenerate config.default with pmlogconf
+#
+export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 
 qahost=`hostname`
 eval `./getpmcdhosts -L -n 2 2>$tmp.out | sed -e 's/^/other1=/' -e 's/ / other2=/'`
@@ -66,7 +70,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 if [ $PCP_PLATFORM = linux ]
 then
     cat <<End-of-File >$tmp.tmp
-# from qa/$seq
+# Installed by PCP QA test $seq on `date`
 #
 linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
@@ -75,7 +79,7 @@ End-of-File
 elif [ $PCP_PLATFORM = darwin ]
 then
     cat <<End-of-File >$tmp.tmp
-# from qa/$seq
+# Installed by PCP QA test $seq on `date`
 #
 darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
@@ -84,7 +88,7 @@ End-of-File
 elif [ $PCP_PLATFORM = solaris ]
 then
     cat <<End-of-File >$tmp.tmp
-# from qa/$seq
+# Installed by PCP QA test $seq on `date`
 #
 solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
@@ -93,9 +97,27 @@ End-of-File
 elif [ $PCP_PLATFORM = freebsd ]
 then
     cat <<End-of-File >$tmp.tmp
-# from qa/$seq
+# Installed by PCP QA test $seq on `date`
 #
 freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+
+End-of-File
+elif [ $PCP_PLATFORM = netbsd ]
+then
+    cat <<End-of-File >$tmp.tmp
+# Installed by PCP QA test $seq on `date`
+#
+netbsd	116	dso	netbsd_init	$PCP_PMDAS_DIR/netbsd/pmda_netbsd.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+
+End-of-File
+elif [ $PCP_PLATFORM = openbsd ]
+then
+    cat <<End-of-File >$tmp.tmp
+# Installed by PCP QA test $seq on `date`
+#
+openbsd	139	dso	openbsd_init	$PCP_PMDAS_DIR/openbsd/pmda_openbsd.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 
 End-of-File
@@ -128,7 +150,7 @@ echo "=== pmcd restarting ===" >>$seq.full
 # (expected) error messages.
 #
 $sudo $PCP_RC_DIR/pmcd restart 2>>$seq.full | _filter_pcp_start
-$sudo $PCP_RC_DIR/pmlogger restart 2>>$seq.full
+$sudo $PCP_RC_DIR/pmlogger restart 2>>$seq.full | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 echo "=== pmcd restarted ===" >>$seq.full
@@ -148,6 +170,7 @@ s/lib=\/var\//lib=\/usr-or-var\//
 -e '/gethostbyname(/s/ Unknown host/ No address associated with name/' \
 -e '/gethostbyname(/s/ Host name lookup failure/ No address associated with name/' \
 -e '/gethostbyname(/s/ Resolver Error 0 (no error)/ No address associated with name/' \
+-e '/gethostbyname(/s/ Resolver internal error/ No address associated with name/' \
 -e "/$qahost\$/"'{
 s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / LOCALIP  /
 s/  */ /g

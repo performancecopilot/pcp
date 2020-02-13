@@ -16,11 +16,11 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    linux|darwin)
+    linux)
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
 	;;
-    solaris)
-	# same output config for Mac OS X and OpenSolaris
+    darwin|solaris|freebsd)
+	# same output config for Mac OS X, OpenSolaris and FreeBSD
 	ln $seq.darwin $seq.out || exit 1
 	;;
     *)
@@ -66,9 +66,9 @@ log mandatory on default {
 	network.interface.out.bytes
 }
 End-of-File
-elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
 then
-    # same pmlogger config for Mac OS X and OpenSolaris
+    # same pmlogger config for Mac OS X, OpenSolaris and FreeBSD
     cat > $tmp.pmlogger.in <<End-of-File
 log mandatory on default {
 	kernel.all.load
@@ -107,9 +107,9 @@ then
 			cat $tmp.tmp
 			diff $tmp.ref $tmp.tmp
 		done
-elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
 then
-		# same metrics for Mac OS X and OpenSolaris
+		# same metrics for Mac OS X, OpenSolaris and FreeBSD
 		for args in "kernel.all disk.dev network.interface.in network.interface.out" "kernel disk network" "kernel.all.load kernel.all.cpu.idle kernel.all.cpu.sys kernel.all.cpu.user disk.dev.read disk.dev.write disk.dev.total network.interface.in.bytes network.interface.out.bytes"
 		do
 			echo

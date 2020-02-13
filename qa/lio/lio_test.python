@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pmpython
 
 # Pre Reqs
 # 1. rtslib_fb
@@ -26,7 +26,7 @@ class ISCSITests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print "\nCreating test iSCSI target using iscsi_config.json\n"
+        print("\nCreating test iSCSI target using iscsi_config.json\n")
         ISCSITests.target = ISCSITarget()
 
         pminfo = PMInfo()
@@ -71,7 +71,7 @@ class ISCSITests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        print "\nDeleting test iSCSI target"
+        print("\nDeleting test iSCSI target")
         ISCSITests.target.drop_test_config()
 
     def test_LUN_count(self):

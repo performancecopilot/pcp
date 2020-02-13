@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2018 Red Hat.
+ * Copyright (C) 2012-2020 Red Hat.
  * Copyright (C) 2009-2012 Michael T. Werner
  *
  * This file is part of the "pcp" module, the python interfaces for the
@@ -843,9 +843,9 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
     for (i = 0; i < argCount; i++) {
 	PyObject *pyarg = PyList_GET_ITEM(pyargv, i);
 #if PY_MAJOR_VERSION >= 3
-	char *string = PyUnicode_AsUTF8(pyarg);
+	char *string = (char *)PyUnicode_AsUTF8(pyarg);
 #else
-	char *string = PyString_AsString(pyarg);
+	char *string = (char *)PyString_AsString(pyarg);
 #endif
 
 	/* All parameters may be referred back to later, e.g. via
@@ -941,6 +941,36 @@ pmnsDecodeCallback(const char *name, void *closure)
         PyErr_Print();
     else
 	Py_DECREF(result);
+}
+
+/*
+ * Convince python interpreter that the pmUnits structure is the
+ * moral equivalent of an (unsigned) integer, for passing across
+ * ctypes interfaces 'by-value'.
+ */
+static PyObject *
+pmUnits_int(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    pmUnits units = {0};
+    unsigned int dimSpace = 0, dimTime = 0, dimCount = 0;
+    unsigned int scaleSpace = 0, scaleTime = 0, scaleCount = 0;
+    char *keyword_list[] = {"dimSpace", "dimTime", "dimCount",
+			    "scaleSpace", "scaleTime", "scaleCount", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+		"IIIIII:pmSetContextOptions", keyword_list,
+		&dimSpace, &dimTime, &dimCount,
+		&scaleSpace, &scaleTime, &scaleCount))
+	return NULL;
+
+    units.dimSpace = dimSpace;
+    units.dimTime = dimTime;
+    units.dimCount = dimCount;
+    units.scaleSpace = scaleSpace;
+    units.scaleTime = scaleTime;
+    units.scaleCount = scaleCount;
+
+    return Py_BuildValue("i", *(unsigned int *)&units);
 }
 
 /*
@@ -1447,6 +1477,9 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmnsTraverse",
 	.ml_meth = (PyCFunction) pmnsTraverse,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmUnits_int",
+	.ml_meth = (PyCFunction) pmUnits_int,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { NULL }
 };
 
@@ -1576,6 +1609,8 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_MODE_FORW",   PM_MODE_FORW);
     dict_add(dict, "PM_MODE_BACK",   PM_MODE_BACK);
 
+    dict_add(dict, "PM_TEXT_PMID",    PM_TEXT_PMID);
+    dict_add(dict, "PM_TEXT_INDOM",   PM_TEXT_INDOM);
     dict_add(dict, "PM_TEXT_ONELINE", PM_TEXT_ONELINE);
     dict_add(dict, "PM_TEXT_HELP",    PM_TEXT_HELP);
 
@@ -1673,9 +1708,10 @@ MOD_INIT(cpmapi)
     edict_add(dict, edict, "PM_ERR_LOGCHANGEINDOM", PM_ERR_LOGCHANGEINDOM);
     edict_add(dict, edict, "PM_ERR_LOGCHANGEUNITS", PM_ERR_LOGCHANGEUNITS);
     edict_add(dict, edict, "PM_ERR_NEEDCLIENTCERT", PM_ERR_NEEDCLIENTCERT);
+    edict_add(dict, edict, "PM_ERR_BADDERIVE", PM_ERR_BADDERIVE);
     edict_add(dict, edict, "PM_ERR_NOLABELS", PM_ERR_NOLABELS);
+    edict_add(dict, edict, "PM_ERR_PMDAFENCED", PM_ERR_PMDAFENCED);
     edict_add(dict, edict, "PM_ERR_NYI", PM_ERR_NYI);
-    edict_add(dict, edict, "PM_ERR_NOLABELS", PM_ERR_NOLABELS);
 
     return MOD_SUCCESS_VAL(module);
 }

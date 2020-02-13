@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMCONTROLLOG 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -166,11 +166,11 @@ unchanged.  If
 .I control
 is
 .B PM_LOG_ADVISORY
-and the last mandatory control for the metric was 
+and the last mandatory control for the metric was
 .BR PM_LOG_MAYBE ,
 then logging is enabled or disabled as specified by the
 .I state
-argument, i.e. 
+argument, i.e.
 .B PM_LOG_ON
 or
 .BR PM_LOG_OFF .
@@ -178,7 +178,7 @@ When the arguments
 .I state
 and
 .I control
-specify a request to change the logging behavior, the 
+specify a request to change the logging behavior, the
 argument
 .I delta
 defines the logging interval in milliseconds to be applied to all metrics and
@@ -201,7 +201,7 @@ with
 equal to zero, the corresponding
 .CW pmValueSet
 in
-.IR result 
+.IR result
 will contain a value for each available instance at the time of the call.  Each
 metric value in
 .I status
@@ -230,7 +230,7 @@ supposed to be logged, or false if it was unavailable; and
 returns the current logging interval for the metric (in milliseconds).
 .B PMLC_MAX_DELTA
 defines the greatest
-.I delta 
+.I delta
 that can be returned in an encoded metric value.
 .PP
 As a special case, when

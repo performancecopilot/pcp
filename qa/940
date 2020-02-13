@@ -42,7 +42,7 @@ _filter_sedismod1()
 }
 _filter_outfile()
 {
-    awk -v container_t="$conatienr_runtime_t" \
+    awk -v container_t="$container_runtime_t" \
     '{
     	if (container_t == "" && /container_runtime_t/)
 	   !/container_runtime_t/ ;

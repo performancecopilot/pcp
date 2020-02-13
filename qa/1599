@@ -1,0 +1,68 @@
+#!/bin/sh
+# PCP QA Test No. 1599
+# Run each of the statsd PMDA ruby tests.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+test -e $PCP_PMDAS_DIR/statsd/pmdastatsd || _notrun "statsd PMDA not installed"
+
+# NOTE: Miroslav is planning to re-work this in python/shell
+which ruby >/dev/null 2>&1 || _notrun "ruby not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+pmdastatsd_remove()
+{
+    echo
+    echo "=== remove statsd agent ==="
+    cd $PCP_PMDAS_DIR/statsd
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdastatsd_install()
+{
+    echo
+    echo "=== statsd agent installation ==="
+    cd $PCP_PMDAS_DIR/statsd
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    _filter_pmda_install <$tmp.out
+}
+
+_prepare_pmda statsd
+# note: _restore_auto_restart pmcd done in _cleanup_pmda()
+trap "_cleanup_pmda statsd; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+pmdastatsd_install
+
+cd $here/statsd
+scripts=`ls *.rb | LC_COLLATE=POSIX sort`
+for script in $scripts
+do
+    ruby $script
+done
+cd $here
+
+pmdastatsd_remove
+status=0
+exit

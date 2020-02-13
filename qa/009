@@ -12,25 +12,15 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-case $PCP_PLATFORM
-in
-    *)
-	echo "Missing some ipc/shm/sem metrics on PCP_PLATFORM $PCP_PLATFORM" >$seq.notrun
-	echo "$seq: [not run] `cat $seq.notrun`"
-	exit 0
-	;;
-esac
+echo "Retired - destructive and only ever worked on IRIX"
+exit 1
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
-
-# blow away any residual junk
-$sudo src/ipcs_clear
 
 src/ipc 2>&1 \
 | sed \
     -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
     -e 's/SHMID_[0-9]*/SHMID_INTEGER/g' \
-    -e 's/SEMSET_[0-9]*/SEMSET_INTEGER/g' \
     -e 's/SEMID_[0-9]*\.[0-9]*/SEMID_INTEGER/g' \
     -e 's/inst \[[0-9]*/inst [ID/' \
     -e '/ value /s/ value .*/ value .../' \

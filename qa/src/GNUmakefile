@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2012,2014,2016 Red Hat.
+# Copyright (c) 2012,2014,2016,2018 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -29,8 +29,8 @@ localconfig.h: ../localconfig
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 644 $(CFILES) $(MYFILES) $(PSCRIPTS) $(TESTDIR)
-	$(INSTALL) -m 755 $(MYSCRIPTS) $(TESTDIR)
+	$(INSTALL) -m 644 $(CFILES) $(MYFILES) $(TESTDIR)
+	$(INSTALL) -m 755 $(PSCRIPTS) $(MYSCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 755 $(NVIDIAQALIB) $(TESTDIR)/$(NVIDIAQALIB)
 	$(INSTALL) -m 644 GNUlocaldefs $(TESTDIR)/GNUlocaldefs
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile

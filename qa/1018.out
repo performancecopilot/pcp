@@ -32,7 +32,6 @@ QmcSource::QmcSource: Created context 2 to Local context
   host = HOST, timezone = TZ, tz hndl = 2
   start = 0, end = 0, dupFlag = false
   1 contexts: 2 
-Waiting for pmcd to terminate ...
 *** Create an archive context ***
 QmcSource::getSource: Creating new source for archives/oview-short
 QmcSource::QmcSource: Created context 0 to archive "archives/oview-short"
@@ -72,5 +71,3 @@ QmcSource::QmcSource: Created context 1 to Local context
   host = HOST, timezone = TZ, tz hndl = 1
   start = 0, end = 0, dupFlag = false
   1 contexts: 1 
-Starting pmcd ... 
-Starting pmlogger ... 

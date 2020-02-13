@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMRECONNECTCONTEXT 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -31,7 +31,7 @@ connection to a PMCD may be established and then subsequently lost.
 .PP
 The routine
 .B pmReconnectContext
-allows an application to request that the context identified by 
+allows an application to request that the context identified by
 .I handle
 should be re-established, provided the associated metrics source is accessible.
 .PP
@@ -44,7 +44,7 @@ to avoid flooding the system with reconnect requests,
 .B pmReconnectContext
 will only attempt a reconnection after a suitable delay from the previous
 unsuccessful attempt to reconnect this context. This imposed restriction on
-the reconnect re-try time interval uses an exponential back-off so that the 
+the reconnect re-try time interval uses an exponential back-off so that the
 initial delay is 5 seconds after the first unsuccessful attempt, then 10
 seconds, then 20 seconds, then 40 seconds and then 80 seconds thereafter.
 .PP
@@ -79,7 +79,7 @@ or
 .BR pmLoadDerivedConfig (3)
 will be re-processed and re-bound to the available metrics from the reconnected source.
 The support of dynamic definition for derived metrics provides
-one use case where 
+one use case where
 .B pmReconnectContext
 may be called even if the connection to the metrics source has not been lost.
 .PP

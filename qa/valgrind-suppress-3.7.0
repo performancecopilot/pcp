@@ -62,3 +62,34 @@
    fun:__pmConnectPMCD
    fun:pmNewContext
 }
+
+# in scandir in libc()
+# qa/620 on vm21
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x8049A70: ??? (in /usr/bin/pmlogsize)
+# by 0x41A2F64: scandir (scandir.c:86)
+# by 0x804949A: ??? (in /usr/bin/pmlogsize)
+# by 0x411AE45: (below main) (libc-start.c:244)
+{
+   scandir
+   Memcheck:Cond
+   obj:/usr/bin/pmlogsize
+   fun:scandir
+   obj:/usr/bin/pmlogsize
+   fun:(below main)
+}
+
+# broken valgrind?
+# this one goes away when libpcp is compiled -O0 instead of -O2
+# all on vm21: qa/388, qa/393 and qa/394
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x4083C99: ??? (in /usr/lib/libpcp.so.3)
+# by 0x407F466: __pmLogFetch (in /usr/lib/libpcp.so.3)
+# by 0x40F4E45: (below main) (libc-start.c:244)
+{
+   valgrind_botch
+   Memcheck:Cond
+   obj:/usr/lib/libpcp.so.3
+   fun:__pmLogFetch
+   fun:(below main)
+}

@@ -1,0 +1,13 @@
+/*
+ * PMPROXY metrics name space
+ */
+
+#ifndef PMPROXY
+#define PMPROXY	4
+#endif
+
+root {
+	pmproxy	PMPROXY:*:*
+}
+
+#undef PMPROXY

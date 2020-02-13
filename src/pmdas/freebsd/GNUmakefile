@@ -22,11 +22,12 @@ DOMAIN		= FREEBSD
 CMDTARGET 	= pmdafreebsd
 LIBTARGET	= pmda_freebsd.so
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+LOGREWRITEDIR   = $(PCP_VAR_DIR)/config/pmlogrewrite
 CONF_LINE	= "freebsd	85	dso	freebsd_init	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES		= freebsd.c disk.c netif.c
-
 HFILES		= freebsd.h
+CONFTARGETS	= freebsd_disk_units.conf freebsd_misc.conf
 
 LSRCFILES	= help root_freebsd
 LDIRT		= help.dir help.pag help.sed help.tmp domain.h $(IAM).log
@@ -38,7 +39,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "freebsd"
-build-me: $(LIBTARGET) $(CMDTARGET) help.dir help.pag
+build-me: $(LIBTARGET) $(CMDTARGET) help.dir help.pag $(CONFTARGETS)
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -50,6 +51,8 @@ install: default
 	$(INSTALL) -m 644 domain.h help help.dir help.pag $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root_freebsd $(PCP_VAR_DIR)/pmns/root_freebsd
+	$(INSTALL) -m 644 freebsd_disk_units.conf $(LOGREWRITEDIR)/freebsd_disk_units.conf
+	$(INSTALL) -m 644 freebsd_misc.conf $(LOGREWRITEDIR)/freebsd_misc.conf
 else
 build-me:
 install:

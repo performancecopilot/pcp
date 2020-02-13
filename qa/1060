@@ -21,9 +21,17 @@ _cleanup()
 {
     if $needclean
     then
+	if $pmie_was_running
+	then
+	    _restore_auto_restart pmie
+	    _service pmie start >>$here/$seq.full 2>&1
+	else
+	    _service pmie stop >>$here/$seq.full 2>&1
+	    $sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >/dev/null 2>&1
+	    _wait_pmie_end
+	fi
 	$sudo rm -f ${PCP_PMIECONTROL_PATH}.d/qa-$seq
 	needclean=false
-	_service pmie restart | _filter_pmie_start | sed -e '/Warning: .* not permanently enabled/d'
     fi
     cd $here
     $sudo rm -rf $tmp $tmp.*
@@ -39,6 +47,7 @@ $1 == "pmie:"	{ next }
 NF < 4		{ print; next }
 		{ print "mode=" $1 " user=" $3 " group=" $4 " name=" $NF }' \
     | sed \
+	-e '/\.prior/d' \
 	-e '/^total /d' \
 	-e 's/[2-9][0-9][0-9][0-9]:$/YYYY:/' \
 	-e 's/[2-9][0-9][0-9][0-9]\/[01][0-9]:$/YYYY\/MM:/' \
@@ -56,6 +65,15 @@ status=1	# failure is the default!
 needclean=true
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+pmie_was_running=false
+[ -f $PCP_RUN_DIR/pmie.pid ] && pmie_was_running=true
+
+if $pmie_was_running
+then
+    _stop_auto_restart pmie
+    _service pmie stop >>$here/$seq.full 2>&1
+fi
 
 # real QA test starts here
 cat <<End-of-File >$tmp.tmp

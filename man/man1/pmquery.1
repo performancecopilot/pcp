@@ -1,3 +1,17 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
 .TH PMQUERY 1 "" "Performance Co-Pilot"
 .SH NAME
 \f3pmconfirm\f1, \f3pmmessage\f1, \f3pmquery\f1 \- general purpose dialog box
@@ -48,12 +62,12 @@ but wherever possible the original semantics remain.
 .B pmconfirm
 displays a line of text for each
 .B \-t
-argument specified (or a file when the
+option specified (or a file when the
 .B \-file
-argument is used),
+option is used),
 and a button for each
 .B \-b
-argument specified.
+option specified.
 When one of the buttons is pressed, the label of that button is written to
 .B pmquery's
 standard output.
@@ -78,8 +92,10 @@ A default text can be entered using the same mechanisms as the other tools.
 Command line options are available to specify font style, frame style,
 modality and one of several different icons to be presented for tailored
 visual feedback to the user.
+.SH OPTIONS
+The available command line options are:
 .TP 5
-.B \-c \f1or \f3\-center\f1
+.B \-c\f1, \f3\-center\f1
 Center the window on the display.
 .TP
 .B \-nearmouse
@@ -93,7 +109,7 @@ If
 is the empty string, the button in that position is not displayed.
 If no
 .B \-b
-arguments are present, the default is a button with the label Continue.
+options are present, the default is a button with the label Continue.
 The exit status associated with
 .I button-name
 is zero.
@@ -108,7 +124,7 @@ is zero.
 .TP
 .B \-buttons \f2button,button,.\|.\|.\f1
 This option will create one button for each comma-separated \f2button\f1
-argument.
+option.
 Each \f2button\f1 consists of a label optionally followed by a colon
 and an exit value.
 The exit value will be returned if that button is selected.
@@ -156,7 +172,7 @@ introduces the additional
 .I archive
 and
 .I host
-icon types as well as the original 
+icon types as well as the original
 .BR xconfirm
 types listed earlier.
 .TP
@@ -182,7 +198,7 @@ It is the default behaviour for
 .BR pmmessage .
 .TP
 .B \-geometry \f2geometry-string\f1
-This provides xconfirm with an X-compatible geometry string specification.
+This provides the tool with an X-compatible geometry string specification.
 This option is only available when using the X Window System.
 .TP
 .B \-useslider
@@ -204,6 +220,9 @@ input until a button is pressed.
 Exit with status 0 after \fIsecs\fP seconds if the user has not
 clicked on a button yet.
 The corresponding resource is \fBtimeout\fP.
+.TP
+.B \-?\f1, \f3\-h\f1, \f3\-help\f1
+Display usage message and exit.
 .SH EXAMPLES
 The following shell script will display a window with an information icon,
 asking the user a yes or no question with "Yes" as the default.
@@ -229,24 +248,28 @@ terminal with an ssh session connected to the requested host.
 .fi
 .SH ENVIRONMENT
 .B pmquery
-is an excellent choice of utility for the "PCP_XCONFIRM_PROG"
+is an excellent choice of utility for the
+.B PCP_XCONFIRM_PROG
 Performance Co-Pilot configuration parameter (refer to
 .BR pcp.conf (5)
 for details).
 .PP
-Note that PCP_XCONFIRM_PROG will be automatically set to
+Note that
+.B PCP_XCONFIRM_PROG
+will be automatically set to
 .B pmquery
 inside tools like
 .BR pmchart ,
-unless PCP_XCONFIRM_PROG is already set in the environment.
-.SH "EXIT STATUS"
+unless
+.B PCP_XCONFIRM_PROG
+is already set in the environment.
+.SH EXIT STATUS
 If it detects an error,
 .B pmquery
 always returns 1, so this value should not be associated with a button.
 Unless \f2\-button\f1 option has not been used, the return code will be
 zero on success.
-.SH "SEE ALSO"
-.BR pmchart (1),
-.BR xconfirm (1),
-.BR xmessage (1),
+.SH SEE ALSO
+.BR pmchart (1)
+and
 .BR pcp.conf (5).

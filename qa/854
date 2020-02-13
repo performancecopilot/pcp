@@ -31,7 +31,7 @@ _cleanup()
 	    rm -f $tmp.pmcd.conf
 	fi
 	_restore_primary_logger
-	_service pcp restart \
+	_service pcp restart 2>&1 \
 	| _filter_pcp_start \
 	| sed -e '/pmlogger not running/d'
 	_wait_for_pmcd
@@ -55,7 +55,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 _service pcp stop >/dev/null 2>&1
 
 cat <<End-of-File >$tmp.tmp
-# temporary for qa/$seq
+# Installed by PCP QA test $seq on `date`
 pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
 sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
 simple	253	pipe	binary 		/var/lib/pcp/pmdas/simple/pmdasimple -d 253 
@@ -63,7 +63,7 @@ End-of-File
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
 
 _writable_primary_logger
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 if [ -d $PCP_LOG_DIR/pmlogger ]
 then

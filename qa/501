@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    linux|darwin|solaris)
+    linux|darwin|solaris|freebsd|netbsd|openbsd)
 	ln $seq-linux.out $seq.out || exit 1
 	;;
     *)
@@ -24,6 +24,8 @@ esac
 . ./common.product
 . ./common.filter
 . ./common.check
+
+_need_metric mem.physmem
 
 status=0	# success is the default!
 host=`hostname`

@@ -1,0 +1,201 @@
+QA output created by 1601
+Start test Redis server ...
+PING
+PONG
+
+pmseries: [Info] processed 5 archive records from PATH/archives/proc
+Using series 1440b8b8bfe69465340eb934e9086ae8212f3cff for disk.all.read
+Using series 605fc77742cd0317597291329561ac4e50c0dd12 for disk.dev.read
+Using series 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183 for kernel.all.uptime
+== verify series query
+[
+    "57460677841d3142f67f327393e42713640cace4",
+    "87570f1b9335781c7942879bb14a254f116ce75b",
+    "1440b8b8bfe69465340eb934e9086ae8212f3cff"
+]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        "57460677841d3142f67f327393e42713640cace4",
+        "87570f1b9335781c7942879bb14a254f116ce75b",
+        "1440b8b8bfe69465340eb934e9086ae8212f3cff"
+    ]
+}
+== verify metric descs
+[
+    {
+        "series": "1440b8b8bfe69465340eb934e9086ae8212f3cff",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "pmid": "60.0.24",
+        "indom": "none",
+        "semantics": "counter",
+        "type": "u64",
+        "units": "count"
+    }
+]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        {
+            "series": "1440b8b8bfe69465340eb934e9086ae8212f3cff",
+            "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+            "pmid": "60.0.24",
+            "indom": "none",
+            "semantics": "counter",
+            "type": "u64",
+            "units": "count"
+        }
+    ]
+}
+== verify metric names
+[
+    {
+        "series": "1440b8b8bfe69465340eb934e9086ae8212f3cff",
+        "name": "disk.all.read"
+    }
+]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        {
+            "series": "1440b8b8bfe69465340eb934e9086ae8212f3cff",
+            "name": "disk.all.read"
+        }
+    ]
+}
+== verify metric insts
+[
+    {
+        "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+        "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+        "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+        "id": 0,
+        "name": "sda"
+    }
+]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        {
+            "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+            "source": "2cd6a38f9339f2dd1f0b4775bda89a9e7244def6",
+            "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+            "id": 0,
+            "name": "sda"
+        }
+    ]
+}
+== verify metric labels
+[
+    {
+        "series": "01d8bc7fa75aaff98a08aa0b1c0f2394368d5183",
+        "labels": {
+            "hostname": "bozo-laptop"
+        }
+    }
+]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        {
+            "series": "01d8bc7fa75aaff98a08aa0b1c0f2394368d5183",
+            "labels": {
+                "hostname": "bozo-laptop"
+            }
+        }
+    ]
+}
+== verify all label names
+[
+    "hostname"
+]
+[
+    "hostname"
+]
+== verify all label values
+{
+    "hostname": [
+        "QALOGHOST"
+    ]
+}
+{
+    "client": "pcp-qa-1601",
+    "result": {
+        "hostname": [
+            "QALOGHOST"
+        ]
+    }
+}
+== verify metric values
+[
+    {
+        "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+        "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+        "timestamp": 1317633024305.845,
+        "value": "71661"
+    },
+    {
+        "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+        "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+        "timestamp": 1317633023802.930,
+        "value": "71661"
+    }
+]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        {
+            "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+            "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+            "timestamp": 1317633024305.845,
+            "value": "71661"
+        },
+        {
+            "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+            "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+            "timestamp": 1317633023802.930,
+            "value": "71661"
+        }
+    ]
+}
+== verify metric values by query
+[
+    {
+        "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+        "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+        "timestamp": 1317633024305.845,
+        "value": "71661"
+    },
+    {
+        "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+        "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+        "timestamp": 1317633023802.930,
+        "value": "71661"
+    }
+]
+{
+    "client": "pcp-qa-1601",
+    "result": [
+        {
+            "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+            "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+            "timestamp": 1317633024305.845,
+            "value": "71661"
+        },
+        {
+            "series": "605fc77742cd0317597291329561ac4e50c0dd12",
+            "instance": "c3795d8b757506a2901c6b08b489ba56cae7f0d4",
+            "timestamp": 1317633023802.930,
+            "value": "71661"
+        }
+    ]
+}
+== verify ping response
+{
+    "success": true
+}
+{
+    "client": "pcp-qa-1601",
+    "success": true
+}
+== all done

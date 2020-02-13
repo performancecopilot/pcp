@@ -37,6 +37,7 @@ PMID: 30.0.3 (sampledso.milliseconds)
 2 sampledso.const_rate.gradient
 2 sampledso.const_rate.value
 2 sampledso.control
+2 sampledso.controller.mirage
 2 sampledso.daemon_pid
 2 sampledso.dodgey.control
 2 sampledso.dodgey.value
@@ -81,6 +82,7 @@ PMID: 30.0.3 (sampledso.milliseconds)
 2 sampledso.float.one
 2 sampledso.float.ten
 2 sampledso.float.write_me
+2 sampledso.ghosts.visible
 2 sampledso.hordes.one
 2 sampledso.hordes.two
 2 sampledso.lights
@@ -202,6 +204,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.const_rate.gradient
 2 sampledso.const_rate.value
 2 sampledso.control
+2 sampledso.controller.mirage
 2 sampledso.daemon_pid
 2 sampledso.dodgey.control
 2 sampledso.dodgey.value
@@ -246,6 +249,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.float.one
 2 sampledso.float.ten
 2 sampledso.float.write_me
+2 sampledso.ghosts.visible
 2 sampledso.hordes.one
 2 sampledso.hordes.two
 2 sampledso.lights
@@ -353,6 +357,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 0 sampledso.const_rate.gradient
 0 sampledso.const_rate.value
 0 sampledso.control
+0 sampledso.controller.mirage
 0 sampledso.daemon_pid
 0 sampledso.dodgey.control
 0 sampledso.dodgey.value
@@ -397,6 +402,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 0 sampledso.float.one
 0 sampledso.float.ten
 0 sampledso.float.write_me
+0 sampledso.ghosts.visible
 0 sampledso.hordes.one
 0 sampledso.hordes.two
 0 sampledso.lights
@@ -503,6 +509,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 1 sampledso.const_rate.gradient
 1 sampledso.const_rate.value
 1 sampledso.control
+1 sampledso.controller.mirage
 1 sampledso.daemon_pid
 1 sampledso.dodgey.control
 1 sampledso.dodgey.value
@@ -547,6 +554,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 1 sampledso.float.one
 1 sampledso.float.ten
 1 sampledso.float.write_me
+1 sampledso.ghosts.visible
 1 sampledso.hordes.one
 1 sampledso.hordes.two
 1 sampledso.lights
@@ -653,6 +661,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.const_rate.gradient
 2 sampledso.const_rate.value
 2 sampledso.control
+2 sampledso.controller.mirage
 2 sampledso.daemon_pid
 2 sampledso.dodgey.control
 2 sampledso.dodgey.value
@@ -697,6 +706,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.float.one
 2 sampledso.float.ten
 2 sampledso.float.write_me
+2 sampledso.ghosts.visible
 2 sampledso.hordes.one
 2 sampledso.hordes.two
 2 sampledso.lights
@@ -804,6 +814,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 0 sampledso.const_rate.gradient
 0 sampledso.const_rate.value
 0 sampledso.control
+0 sampledso.controller.mirage
 0 sampledso.daemon_pid
 0 sampledso.dodgey.control
 0 sampledso.dodgey.value
@@ -848,6 +859,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 0 sampledso.float.one
 0 sampledso.float.ten
 0 sampledso.float.write_me
+0 sampledso.ghosts.visible
 0 sampledso.hordes.one
 0 sampledso.hordes.two
 0 sampledso.lights
@@ -954,6 +966,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 1 sampledso.const_rate.gradient
 1 sampledso.const_rate.value
 1 sampledso.control
+1 sampledso.controller.mirage
 1 sampledso.daemon_pid
 1 sampledso.dodgey.control
 1 sampledso.dodgey.value
@@ -998,6 +1011,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 1 sampledso.float.one
 1 sampledso.float.ten
 1 sampledso.float.write_me
+1 sampledso.ghosts.visible
 1 sampledso.hordes.one
 1 sampledso.hordes.two
 1 sampledso.lights
@@ -1104,6 +1118,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.const_rate.gradient
 2 sampledso.const_rate.value
 2 sampledso.control
+2 sampledso.controller.mirage
 2 sampledso.daemon_pid
 2 sampledso.dodgey.control
 2 sampledso.dodgey.value
@@ -1148,6 +1163,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.float.one
 2 sampledso.float.ten
 2 sampledso.float.write_me
+2 sampledso.ghosts.visible
 2 sampledso.hordes.one
 2 sampledso.hordes.two
 2 sampledso.lights
@@ -1306,6 +1322,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 0 sampledso.const_rate.gradient
 0 sampledso.const_rate.value
 0 sampledso.control
+0 sampledso.controller.mirage
 0 sampledso.daemon_pid
 0 sampledso.dodgey.control
 0 sampledso.dodgey.value
@@ -1350,6 +1367,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 0 sampledso.float.one
 0 sampledso.float.ten
 0 sampledso.float.write_me
+0 sampledso.ghosts.visible
 0 sampledso.hordes.one
 0 sampledso.hordes.two
 0 sampledso.lights
@@ -1456,6 +1474,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 1 sampledso.const_rate.gradient
 1 sampledso.const_rate.value
 1 sampledso.control
+1 sampledso.controller.mirage
 1 sampledso.daemon_pid
 1 sampledso.dodgey.control
 1 sampledso.dodgey.value
@@ -1500,6 +1519,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 1 sampledso.float.one
 1 sampledso.float.ten
 1 sampledso.float.write_me
+1 sampledso.ghosts.visible
 1 sampledso.hordes.one
 1 sampledso.hordes.two
 1 sampledso.lights
@@ -1606,6 +1626,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 2 sampledso.const_rate.gradient
 2 sampledso.const_rate.value
 2 sampledso.control
+2 sampledso.controller.mirage
 2 sampledso.daemon_pid
 2 sampledso.dodgey.control
 2 sampledso.dodgey.value
@@ -1650,6 +1671,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 2 sampledso.float.one
 2 sampledso.float.ten
 2 sampledso.float.write_me
+2 sampledso.ghosts.visible
 2 sampledso.hordes.one
 2 sampledso.hordes.two
 2 sampledso.lights
@@ -1757,6 +1779,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 0 sampledso.const_rate.gradient
 0 sampledso.const_rate.value
 0 sampledso.control
+0 sampledso.controller.mirage
 0 sampledso.daemon_pid
 0 sampledso.dodgey.control
 0 sampledso.dodgey.value
@@ -1801,6 +1824,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 0 sampledso.float.one
 0 sampledso.float.ten
 0 sampledso.float.write_me
+0 sampledso.ghosts.visible
 0 sampledso.hordes.one
 0 sampledso.hordes.two
 0 sampledso.lights
@@ -1907,6 +1931,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 1 sampledso.const_rate.gradient
 1 sampledso.const_rate.value
 1 sampledso.control
+1 sampledso.controller.mirage
 1 sampledso.daemon_pid
 1 sampledso.dodgey.control
 1 sampledso.dodgey.value
@@ -1951,6 +1976,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 1 sampledso.float.one
 1 sampledso.float.ten
 1 sampledso.float.write_me
+1 sampledso.ghosts.visible
 1 sampledso.hordes.one
 1 sampledso.hordes.two
 1 sampledso.lights
@@ -2057,6 +2083,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 2 sampledso.const_rate.gradient
 2 sampledso.const_rate.value
 2 sampledso.control
+2 sampledso.controller.mirage
 2 sampledso.daemon_pid
 2 sampledso.dodgey.control
 2 sampledso.dodgey.value
@@ -2101,6 +2128,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 2 sampledso.float.one
 2 sampledso.float.ten
 2 sampledso.float.write_me
+2 sampledso.ghosts.visible
 2 sampledso.hordes.one
 2 sampledso.hordes.two
 2 sampledso.lights

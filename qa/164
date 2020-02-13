@@ -11,9 +11,8 @@ if which diskstat >/dev/null 2>&1
 then
     :
 else
-    echo "No diskstat binary installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "No diskstat binary installed"
+    # NOTREACHED
 fi
 
 # get standard environment, filters and checks

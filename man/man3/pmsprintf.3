@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2017 Red Hat.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMSPRINTF 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -25,7 +25,7 @@ int pmsprintf(char *\fIstr\fP, size_t \fIsize\fP, const char *\fIfmt\fP, ... /*\
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-Safe string formatting interface that wraps the 
+Safe string formatting interface that wraps the
 .BR vsnprintf (3)
 call.
 .PP
@@ -52,7 +52,6 @@ returns the number of characters written to the supplied buffer,
 not including the null terminator.
 .PP
 The return code is always zero or more, never negative.
-.PP
 .SH SEE ALSO
 .BR vsnprintf (3),
 .BR pmprintf (3)

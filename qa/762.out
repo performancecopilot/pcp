@@ -310,6 +310,8 @@ PMID 29.0.153 sample.string.bin: a string-valued version of sample.bin
 
 PMID 29.0.154 sample.bad.fetch.again: Fetch returns PM_ERR_AGAIN, always
 
+PMID 29.0.155 sample.controller.mirage: time control for sample.mirage instance changes
+
 PMID 29.0.1000: dynamic *.secret.bar metric
 
 PMID 29.0.1001: dynamic *.secret.foo.one metric
@@ -325,5 +327,13 @@ PMID 29.0.1005: dynamic *.secret.foo.bar.grunt.five metric
 PMID 29.0.1006: dynamic *.secret.foo.bar.grunt.snort.six metric
 
 PMID 29.0.1007: dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric
+
+PMID 29.0.1008: Number of visible ghosts
+
+PMID 29.0.1009: Country or region of source for each ghost
+
+PMID 29.0.1010: Karma measure for each ghost
+
+PMID 29.0.1011: Ghost states
 
 PMID 29.0.1023 sample.bigid: a metric with item number bigger then 2^9

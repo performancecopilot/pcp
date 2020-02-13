@@ -5,7 +5,7 @@
 # Run from check after each test completes, but you need to ensure
 # the script is called check.callback and it is executable.
 #
-# Usage: check.callback [seq#]
+# Usage: check.callback [--precheck] [seq#]
 #
 # Note: This is a SAMPLE script, you should either
 #	(a) $ ln check.callback.sample check.callback
@@ -33,28 +33,52 @@ then
     fi
 fi
 
+# Security Enhanced Linux log messages
+audit=/var/log/audit/audit.log
+sudo=`which sudo`
+
 # Did pmlogger.daily get run as expected?
+# But don't bother if it is just after midnight!
 #
-yesterday=`pmdate -1d %Y%m%d`
-host=`hostname`
-case $host
+case `pmdate %H:%M`
 in
-    # CONFIGURE-ME
-    # - may need to add extra hosts here to enable this test
-    #
-    bozo)
-	    if [ ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta.xz -a ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta ]
-	    then
-		echo "check.callback: fail: pmlogger.daily not well!"
-		echo "Missing $yesterday archive ..."
-		ls -l $PCP_LOG_DIR/pmlogger/$host/$yesterday.*
-	    fi
-	    ;;
+    00:[012]*)
+	;;
+    *)
+	yesterday=`pmdate -1d %Y%m%d`
+	host=`hostname`
+	case $host
+	in
+	    # CONFIGURE-ME
+	    # - may need to add extra hosts here to enable this test
+	    #
+	    bozo|bozo-vm|vm01|vm03|vm36)
+		    if [ ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta.xz -a ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta ]
+		    then
+			echo "check.callback: fail: pmlogger.daily not well!"
+			echo "Missing $yesterday archive ..."
+			ls -l $PCP_LOG_DIR/pmlogger/$host/$yesterday.*
+		    fi
+		    ;;
+	esac
+	;;
 esac
 
 status=0
 tmp=/var/tmp/check.callback-$$
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+if [ "$1" = "--precheck" ]
+then
+    shift
+    echo "--- start pre-check ---"
+    ./941 --check $1
+    ./870 --check $1
+    $sudo egrep '^type=(AVC|SELINUX).*pcp' $audit >$1.pre-avc 2>/dev/null
+    echo "before `wc -l <$1.pre-avc` AVC errors"
+    echo "--- end pre-check ---"
+    exit
+fi
 
 # CONFIGURE-ME
 # Set abort to true if you want to stop QA as soon as a problem is
@@ -63,10 +87,10 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # Aborting is good for hard problems, because you'd like to know which
 # QA test is breaking things and there is no point continuing.
 # Not aborting is good for transient problems, because the breakage may
-# be repaired autonomously (usually timeing related) or by a later QA
+# be repaired autonomously (usually timing related) or by a later QA
 # test.
 #
-abort=true
+abort=false
 
 # Check pmcd status
 #
@@ -97,12 +121,18 @@ else
 	# ok this time
 	:
     else
-	echo "check.callback: fail: pmlogger not well!"
-	diff=false
+	# failed twice ... report first failure and if second failure
+	# is different, report that also
+	#
 	cat $tmp.err.1 $tmp.out.1
+	diff=false
 	if cmp $tmp.err.1 $tmp.err.2 >/dev/null
 	then
-	    if cmp $tmp.out.1 $tmp.out.2 >/dev/null
+	    # strip timestamps from ./870 output, then cmp
+	    #
+	    sed -e '/^Now:/d' <$tmp.out.1 >$tmp.tmp.1
+	    sed -e '/^Now:/d' <$tmp.out.2 >$tmp.tmp.2
+	    if cmp $tmp.tmp.1 $tmp.tmp.2 >/dev/null
 	    then
 		:
 	    else
@@ -116,6 +146,7 @@ else
 	    echo "... and different output from 3 seconds later"
 	    cat $tmp.err.2 $tmp.out.2
 	fi
+	echo "check.callback: fail: pmlogger not well!"
 	$abort && status=1
     fi
 fi
@@ -177,5 +208,20 @@ then
     cat $tmp.out
     $abort && status=1
 fi
+
+# Check audit log for any Security Enhanced Linux access denials
+# related to PCP ...
+#
+$sudo egrep '^type=(AVC|SELINUX).*pcp' $audit 2>/dev/null >$1.post-avc
+diff $1.pre-avc $1.post-avc \
+| sed -n -e '/> /s///p' >$tmp.out
+if [ -s $tmp.out ]
+then
+    echo "check.callback: fail: new SELinux/AVC denials"
+    cat $tmp.out
+    echo "after `wc -l <$1.post-avc` AVC errors"
+    $abort && status=1
+fi
+rm -f $1.pre-avc $1.post-avc
 
 exit

@@ -1,0 +1,198 @@
+QA output created by 1390
+
+== All Metrics
+
+HOST-SUMMARY-LINE
+
+-------------------------- analysis date: 2015/09/25 --------------------------
+
+11:03:19  cpu  %usr %nice %sys %irq %softirq  %steal %guest  %wait %idle  _cpu_
+
+11:03:21  cpu  %usr %nice %sys %irq %softirq  %steal %guest  %wait %idle  _cpu_
+11:03:21  all     4     0    1    0        0       0      0      2   392
+            0     1     0    0    0        0       0      0      1    98
+            1     1     0    0    0        0       0      0      0    98
+            2     1     0    0    0        0       0      0      1    97
+            3     1     0    0    0        0       0      0      0    99
+11:03:22  all     2     0    2    0        0       0      0      0   395
+            0     2     0    2    0        0       0      0      0    96
+            1     0     0    1    0        0       0      0      0    99
+            2     0     0    0    0        0       0      0      0   100
+            3     1     0    0    0        0       0      0      0    99
+11:03:23  all     5     0    3    0        0       0      0      9   384
+            0     2     0    2    0        0       0      0      0    96
+            1     0     0    0    0        0       0      0      0   100
+            2     0     0    0    0        0       0      0      0   100
+            3     1     0    0    0        0       0      0      8    91
+
+11:03:21  pswch/s devintr/s  clones/s  loadavg1 loadavg5 loadavg15       _load_
+11:03:21  64271501  21747971 225394.00      1.04     1.06      1.06
+11:03:22      537       220      0.00      1.04     1.06      1.06
+11:03:23      577       248      1.00      1.04     1.06      1.06
+
+11:03:21  clones/s pexit/s  curproc curzomb    thrrun thrslpi thrslpu _procthr_
+11:03:21  225394.00    0.00      254       0         1     250       1
+11:03:22      0.00    0.00      254       0         1     251       1
+11:03:23      1.00    0.00      254       0         1     250       1
+
+11:03:21     busaddr   gpubusy  membusy  memocc  memtot memuse  gputype   _gpu_
+11:03:21  
+11:03:22  
+11:03:23  
+
+11:03:21  memtotal memfree buffers cached dirty slabmem  swptotal swpfree _mem_
+11:03:21     3849M    196M    275M  1553M    0M    357M    13661M  13652M
+11:03:22     3849M    195M    275M  1553M    0M    358M    13661M  13652M
+11:03:23     3849M    195M    275M  1553M    0M    358M    13661M  13652M
+
+11:03:21  pagescan/s   swapin/s  swapout/s        commitspc  commitlim   _swap_
+11:03:21   412940.00      96.00    2329.00            4254M     15586M
+11:03:22        0.00       0.00       0.00            4244M     15586M
+11:03:23        0.00       0.00       0.00            4244M     15586M
+
+11:03:21  cs_10_60_300   ms_10_60_300 mf_10_60_300   is_10_60_300 if_10_60_300
+11:03:21    0%  0%  0%     0%  0%  0%   0%  0%  0%     0%  0%  0%   0%  0%  0%
+11:03:22    0%  0%  0%     0%  0%  0%   0%  0%  0%     0%  0%  0%   0%  0%  0%
+11:03:23    0%  0%  0%     0%  0%  0%   0%  0%  0%     0%  0%  0%   0%  0%  0%
+
+11:03:21  disk           busy read/s KB/read  writ/s KB/writ avque avserv _lvm_
+11:03:21  7-1974438-pool   0%    0.0     0.0     0.0     0.0   0.0   0.00 ms
+11:03:22  
+11:03:23  
+
+11:03:21  disk           busy read/s KB/read  writ/s KB/writ avque avserv _mdd_
+11:03:21  
+11:03:22  
+11:03:23  
+
+11:03:21  disk           busy read/s KB/read  writ/s KB/writ avque avserv _dsk_
+11:03:21  sda              0%    0.2    18.1     0.2    14.6  14.9   6.23 ms
+11:03:22  
+11:03:23  sda              1%    0.0     0.0     0.2    57.0   1.0  41.50 ms
+
+11:03:21  controller port  busy ipack/s opack/s igbps ogbps maxgbps lanes  _ib_
+11:03:21  
+11:03:22  
+11:03:23  
+
+11:03:21  mounted_device                          physread/s  physwrit/s  _nfm_
+11:03:21  
+11:03:22  
+11:03:23  
+
+11:03:21       rpc/s   rpcread/s  rpcwrite/s  retrans/s  autrefresh/s     _nfc_
+11:03:21       35.00        0.00        0.00       0.00         35.00
+11:03:22        0.00        0.00        0.00       0.00          0.00
+11:03:23        0.00        0.00        0.00       0.00          0.00
+
+11:03:21    rpc/s  rpcread/s rpcwrite/s MBcr/s  MBcw/s  nettcp/s netudp/s _nfs_
+11:03:21     0.00       0.00       0.00   0.00    0.00      0.00     0.00
+11:03:22     0.00       0.00       0.00   0.00    0.00      0.00     0.00
+11:03:23     0.00       0.00       0.00   0.00    0.00      0.00     0.00
+
+11:03:21  interf busy ipack/s opack/s iKbyte/s oKbyte/s imbps ombps maxmbps_if_
+11:03:21  p2p1      ? 391124.0 275266.0   142586   101417  1168   830       0  
+          wlp2s0    ?     0.0     0.0        0        0     0     0       0  
+          lo        ? 60894.0 60894.0    72880    72880   597   597       0  
+          tun0      ?  5917.0  6220.0     2159      591    17     4       0  
+          ocker0    ?     0.0     0.0        0        0     0     0       0  
+11:03:22  p2p1      ?     3.0     0.0        0        0     0     0       0  
+          lo        ?     8.0     8.0        1        1     0     0       0  
+11:03:23  p2p1      ?     3.0     0.0        0        0     0     0       0  
+          lo        ?     1.0     1.0        0        0     0     0       0  
+
+11:03:21  interf ierr/s oerr/s coll/s idrop/s odrop/s iframe/s ocarrier/s  _if_
+11:03:21  p2p1     0.00   0.00   0.00    0.00    0.00     0.00       0.00
+          wlp2s0   0.00   0.00   0.00    0.00    0.00     0.00       0.00
+          lo       0.00   0.00   0.00    0.00    0.00     0.00       0.00
+          tun0     0.00   0.00   0.00    0.00    0.00     0.00       0.00
+          ocker0   0.00   0.00   0.00    0.00    0.00     0.00       0.00
+11:03:22  p2p1     0.00   0.00   0.00    0.00    0.00     0.00       0.00
+          lo       0.00   0.00   0.00    0.00    0.00     0.00       0.00
+11:03:23  p2p1     0.00   0.00   0.00    0.00    0.00     0.00       0.00
+          lo       0.00   0.00   0.00    0.00    0.00     0.00       0.00
+
+11:03:21  inrecv/s outreq/s indeliver/s forward/s reasmok/s fragcreat/s  _ipv4_
+11:03:21  300477.0 328162.0    298080.0       1.0       0.0         0.0
+11:03:22       0.0      0.0         0.0       1.0       0.0         0.0
+11:03:23       0.0      0.0         0.0       1.0       0.0         0.0
+
+11:03:21  in: dsc/s hder/s ader/s unkp/s ratim/s rfail/s out: dsc/s nrt/s_ipv4_
+11:03:21        0.0    0.0    0.0    0.0     0.0     0.0        0.0  38.0
+11:03:22        0.0    0.0    0.0    0.0     0.0     0.0        0.0   0.0
+11:03:23        0.0    0.0    0.0    0.0     0.0     0.0        0.0   0.0
+
+11:03:21  intot/s outtot/s  inecho/s inerep/s  otecho/s oterep/s       _icmpv4_
+11:03:21      5.0   1547.0      0.00     0.00      0.00     0.00
+11:03:22      0.0      0.0      0.00     0.00      0.00     0.00
+11:03:23      0.0      0.0      0.00     0.00      0.00     0.00
+
+11:03:21  ierr/s isq/s ird/s idu/s ite/s oerr/s osq/s ord/s odu/s ote/s_icmpv4_
+11:03:21    5.00  0.00  0.00  5.00  0.00   0.00  0.00  0.00 1547.00  0.00
+11:03:22    0.00  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00  0.00
+11:03:23    0.00  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00  0.00
+
+11:03:21  indgram/s outdgram/s   inerr/s  noport/s                      _udpv4_
+11:03:21    75245.0    81495.0      0.00     50.00
+11:03:22        0.0        0.0      0.00      0.00
+11:03:23        0.0        0.0      0.00      0.00
+
+11:03:21  inrecv/s outreq/s inmc/s outmc/s indeliv/s reasmok/s fragcre/s _ipv6_
+11:03:21       0.0      0.0    0.0     0.0       0.0       0.0       0.0
+11:03:22       0.0      0.0    0.0     0.0       0.0       0.0       0.0
+11:03:23       0.0      0.0    0.0     0.0       0.0       0.0       0.0
+
+11:03:21  in: dsc/s hder/s ader/s unkp/s ratim/s rfail/s out: dsc/s nrt/s_ipv6_
+11:03:21        0.0    0.0    0.0    0.0     0.0     0.0        0.0   0.0
+11:03:22        0.0    0.0    0.0    0.0     0.0     0.0        0.0   0.0
+11:03:23        0.0    0.0    0.0    0.0     0.0     0.0        0.0   0.0
+
+11:03:21  intot/s outtot/s inerr/s innsol/s innadv/s otnsol/s otnadv/s  _icmp6_
+11:03:21      0.0      0.0    0.00     0.00     0.00     0.00     0.00
+11:03:22      0.0      0.0    0.00     0.00     0.00     0.00     0.00
+11:03:23      0.0      0.0    0.00     0.00     0.00     0.00     0.00
+
+11:03:21  iecho/s ierep/s oerep/s idu/s odu/s ird/s ord/s ite/s ote/s  _icmpv6_
+11:03:21     0.00    0.00    0.00  0.00  0.00  0.00  0.00  0.00  0.00
+11:03:22     0.00    0.00    0.00  0.00  0.00  0.00  0.00  0.00  0.00
+11:03:23     0.00    0.00    0.00  0.00  0.00  0.00  0.00  0.00  0.00
+
+11:03:21  indgram/s outdgram/s   inerr/s  noport/s                      _udpv6_
+11:03:21        0.0        0.0      0.00      0.00
+11:03:22        0.0        0.0      0.00      0.00
+11:03:23        0.0        0.0      0.00      0.00
+
+11:03:21  insegs/s outsegs/s  actopen/s pasopen/s  nowopen                _tcp_
+11:03:21  263909.0  284731.0    11664.0      71.0       37
+11:03:22       5.0       6.0        1.0       1.0       39
+11:03:23       4.0       3.0        0.0       0.0       37
+
+11:03:21  inerr/s  retrans/s  attfail/s  estabreset/s  outreset/s         _tcp_
+11:03:21    229.0     1935.0     7756.0          99.0      9962.0
+11:03:22      0.0        0.0        0.0           0.0         0.0
+11:03:23      0.0        0.0        0.0           1.0         1.0
+
+11:03:21  requests/s  Kbytes/s  bytes/req    idleworkers busyworkers     _http_
+11:03:21        9.00     17.00    1934.22              4           1
+11:03:22        1.00      1.00    1024.00              4           1
+11:03:23        0.00      0.00       0.00              4           1
+
+11:03:21    pid command  cpu% |   pid command  cpu% |   pid command  cpu%_top3_
+11:03:21   7014 firefox    3% |   877 Xorg       1% |   556 java       0%
+11:03:22  30579 pmdaproc   2% |  7014 firefox    1% | 30594 perl       1%
+11:03:23  30579 pmdaproc   5% |  7014 firefox    2% |                    
+
+11:03:21    pid command  mem% |   pid command  mem% |   pid command  mem%_top3_
+11:03:21   7014 firefox   14% |  6354 gnome-sh  10% |   556 java       5%
+11:03:22   7014 firefox   14% |  6354 gnome-sh  10% |   556 java       5%
+11:03:23   7014 firefox   14% |  6354 gnome-sh  10% |   556 java       5%
+
+11:03:21    pid command  dsk% |   pid command  dsk% |   pid command  dsk%_top3_
+11:03:21   7014 firefox   77% |  4507 bash      10% | 21741 bash       4%
+11:03:22    662 pmlogger  99% |   309 mk.atop.   1% |                    
+11:03:23    662 pmlogger 100% |                     |                    
+
+11:03:21    pid command  net% |   pid command  net% |   pid command  net%_top3_
+11:03:21  no per-process network counters available.....
+
+== Done

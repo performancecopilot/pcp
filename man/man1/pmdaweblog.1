@@ -2,17 +2,17 @@
 .\"
 .\" Copyright (c) 2012 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDAWEBLOG 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -148,7 +148,6 @@ This value may be changed dynamically using
 .BR pmstore (1)
 to modify the value of the performance metric
 .BR web.config.check .
-.I
 .TP
 .B \-p
 Communicate with
@@ -196,10 +195,10 @@ The default is the unprivileged "pcp" account in current versions of PCP,
 but in older versions the superuser account ("root") was used by default.
 .SH INSTALLATION
 The PCP framework allows metrics to be collected on one host
-and monitored from another.  These hosts are referred to as 
-.I collector 
-and 
-.I monitor 
+and monitored from another.  These hosts are referred to as
+.I collector
+and
+.I monitor
 hosts, respectively.  A host may be both a collector and a monitor.
 .PP
 Collector hosts require the installation of the agent, while monitoring
@@ -247,7 +246,7 @@ and should never be executed directly.
 The
 .B Install
 and
-.B Remove 
+.B Remove
 scripts notify
 .BR pmcd (1)
 when the agent is installed or removed.
@@ -318,17 +317,17 @@ The second argument,
 should contain the size of the request.
 A size of ``\f3\-\f1'' or `` '' is treated as unknown.
 .PP
-Argument 
+Argument
 .I $3
-should contain the status code returned to the client browser and argument 
+should contain the status code returned to the client browser and argument
 .I $4
 should contain the status code returned to the server from a remote host.
 These latter two arguments are used for caching servers and must be specified
-as a pair (or 
+as a pair (or
 .I $3
 will be ignored). For further information on status codes, refer to the
 web site
-.B http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+.BR http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html .
 .PP
 Some legal non\-
 .B Posix
@@ -346,10 +345,10 @@ regex SYSLOG_FTP ftpd[.*]: ([gp][\-A\-Za\-z]+)$0( )$1
 .fi
 .ft 1
 .PP
-There is 1 special types of access logs with the 
+There is 1 special types of access logs with the
 .I RegexName
 .I SQUID.
-This formats extract 4 parameters but since the 
+This formats extract 4 parameters but since the
 .B Squid
 log file uses text-based status codes, it is handled as a special case.
 .PP
@@ -399,9 +398,9 @@ regex SYSLOG_FTP_err FTP LOGIN FAILED
 .PP
 If
 .B POSIX
-compliant regular expressions are used, additional information is required 
-since the order of parameters cannot be specified in the regular expression. 
-For backwards compatibility, the common case of two parameters the order 
+compliant regular expressions are used, additional information is required
+since the order of parameters cannot be specified in the regular expression.
+For backwards compatibility, the common case of two parameters the order
 may be specified as
 .I method,size
 or
@@ -419,11 +418,11 @@ Used for cases like the error logs where the content is ignored.
 .PP
 As for the non-
 .B Posix
-format, the 
+format, the
 .I SQUID
 RegexName is treated as a special case to match the non-numerical status codes.
 .PP
-Some legal 
+Some legal
 .B Posix
 regex expression specifications for monitoring an access log are:
 .PP
@@ -522,7 +521,7 @@ server ftpd on SYSLOG_FTP /var/log/messages SYSLOG_FTP_err /var/log/messages
 .ft 1
 .SH CAVEATS
 Specifying regular expressions with an incorrect number of arguments, anything other
-than 2 for access logs, and none for error logs, may cause the PMDA to behave 
+than 2 for access logs, and none for error logs, may cause the PMDA to behave
 incorrectly and even crash. This is due to limitations in the interface of
 .BR regex (3).
 .SH FILES

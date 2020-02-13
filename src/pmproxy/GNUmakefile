@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2018 Red Hat.
+# Copyright (c) 2014-2019 Red Hat.
 # Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -24,13 +24,13 @@ default: $(SUBDIRS) pmproxy.service
 
 install: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 755 -d `dirname $(PCP_PMPROXYOPTIONS_PATH)`
-	$(INSTALL) -m 644 pmproxy.options $(PCP_PMPROXYOPTIONS_PATH)
+	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmproxy
+	$(INSTALL) -m 644 pmproxy.conf pmproxy.options $(PCP_SYSCONF_DIR)/pmproxy
+	$(INSTALL) -m 644 pmproxy.defaults $(PCP_SYSCONFIG_DIR)/pmproxy
 	$(INSTALL) -m 755 rc_pmproxy $(PCP_RC_DIR)/pmproxy
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmproxy.service $(PCP_SYSTEMDUNIT_DIR)/pmproxy.service
 endif
-	$(INSTALL) -m 644 pmproxy.defaults $(PCP_SYSCONFIG_DIR)/pmproxy
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_USER) -d $(PCP_LOG_DIR)/pmproxy
 
 include $(BUILDRULES)

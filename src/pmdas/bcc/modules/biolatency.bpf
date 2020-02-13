@@ -20,7 +20,7 @@ int trace_req_start(struct pt_regs *ctx, struct request *req)
 }
 
 // output
-int trace_req_completion(struct pt_regs *ctx, struct request *req)
+int trace_req_done(struct pt_regs *ctx, struct request *req)
 {
     u64 *tsp, delta;
 

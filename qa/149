@@ -19,7 +19,7 @@ rm -f $seq.out
 if [ $PCP_PLATFORM = linux ]
 then
     ln $seq.out.linux $seq.out
-elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
 then
     # same output as linux
     ln $seq.out.linux $seq.out

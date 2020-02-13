@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# Copyright (c) 2018 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Install the podman PMDA and/or PMNS
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=podman
+daemon_opt=true
+pipe_opt=true
+pmns_source=root_podman
+
+if [ ! -S /run/podman/io.podman ]
+then
+    $PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to start the podman varlink socket? [y] ""$PCP_ECHO_C"
+    read ans
+    if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o -z "$ans" ]
+    then
+        systemctl enable io.podman.service
+        systemctl start io.podman.service
+    else
+        echo "Warning: continuing installation but expect no metric values"
+    fi
+fi
+
+pmdaSetup
+pmdaInstall
+exit

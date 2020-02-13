@@ -1,0 +1,709 @@
+QA output created by 1250
+============= init_t ==============
+type=AVC msg=audit(1484681301.812:174751): avc: denied { read } for pid=21999 comm="pmcd" name="pmcd" dev="dm-1" ino=936441 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:pcp_log_t:s0 tclass=dir permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1484681301.810:174749): avc: denied { getattr } for pid=21999 comm="pmcd" path="/var/lib/pcp/pmns/root" dev="dm-1" ino=945382 scontext=system_u:system_r:init_t:s0 tcontext=unconfined_u:object_r:pcp_var_lib_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1484681301.810:174750): avc: denied { execute } for pid=21999 comm="pmcd" name="Rebuild" dev="dm-1" ino=937158 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:pcp_var_lib_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1484681301.369:174692): avc: denied { open } for pid=21901 comm="pmcd" path="/var/tmp/pcp.sQReBLg6R/pcp.env.path" dev="dm-1" ino=930323 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:tmp_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=USER_AVC msg=audit(1535947021.608:238558): pid=775 uid=81 auid=4294967295 ses=4294967295 subj=system_u:system_r:system_dbusd_t:s0-s0:c0.c1023 msg='avc: denied { send_msg } for msgtype=method_return dest=:1.14778 spid=1 tpid=19555 scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:system_cronjob_t:s0-s0:c0.c1023 tclass=dbus permissive=0 exe="/usr/bin/dbus-daemon" sauid=81 hostname=? addr=? terminal=?
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+============= pcp_pmcd_t ==============
+type=AVC msg=audit(1463754714.313:316): avc: denied { net_admin } for pid=2335 comm="pmcd" capability=12 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1491576442.619:1738169): avc: denied { sys_ptrace } for pid=15205 comm="pmdaproc" capability=19 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498833776.957:2094): avc: denied { ipc_owner } for pid=21341 comm="pmdalinux" capability=15 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1491581538.561:10949): avc: denied { getattr } for pid=9375 comm="pmdaproc" path="/run/systemd/initctl/fifo" dev="tmpfs" ino=13290 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:initctl_t:s0 tclass=fifo_file permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1491581538.587:10952): avc: denied { sys_ptrace } for pid=9375 comm="pmdaproc" capability=19 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=cap_userns permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1485899863.032:3024): avc: denied { sys_chroot } for pid=25873 comm="pmdalinux" capability=18 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1485899838.438:13213): avc: denied { read } for pid=29112 comm="pmdalinux" dev="nsfs" ino=4026532454 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:nsfs_t:s0 tclass=file permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498835003.745:8276): avc: denied { name_bind } for pid=7079 comm="pmdasimple" src=5650 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1499709840.120:5028): avc: denied { name_connect } for pid=13816 comm="python3" dest=9090 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:websm_port_t:s0 tclass=tcp_socket permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498835613.883:11808): avc: denied { unix_read } for pid=14552 comm="pmdalinux" key=0 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=shm permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498846768.313:12024): avc: denied { getattr associate } for pid=8128 comm="pmdalinux" key=0 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=shm permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498843308.799:418): avc: denied { read } for pid=16668 comm="pmdalogger" name="458-16195.fifo" dev="tmpfs" ino=56008 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=fifo_file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498843308.800:420): avc: denied { getattr } for pid=16668 comm="pmdalogger" path="/tmp/458-16195.fifo" dev="tmpfs" ino=56008 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=fifo_file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498843308.800:419): avc: denied { open } for pid=16668 comm="pmdalogger" path="/tmp/458-16195.fifo" dev="tmpfs" ino=56008 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=fifo_file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498844147.316:3557): avc: denied { execute } for pid=8648 comm="sh" name="8641" dev="tmpfs" ino=246964 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498844147.316:3558): avc: denied { execute_no_trans } for pid=8648 comm="sh" path="/tmp/8641" dev="tmpfs" ino=246964 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498844147.327:3559): avc: denied { getattr } for pid=8656 comm="sh" path="/usr/bin/hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498844147.327:3560): avc: denied { execute } for pid=8656 comm="sh" name="hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498844147.327:3561): avc: denied { read } for pid=8656 comm="sh" name="hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498844147.327:3562): avc: denied { open } for pid=8657 comm="sh" path="/usr/bin/hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498844147.327:3563): avc: denied { execute_no_trans } for pid=8657 comm="sh" path="/usr/bin/hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498845911.359:7642): avc: denied { mount } for pid=22090 comm="pmdaperfevent" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=filesystem permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498845911.360:7643): avc: denied { search } for pid=22090 comm="pmdaperfevent" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498845911.360:7644): avc: denied { read } for pid=22090 comm="pmdaperfevent" name="events" dev="tracefs" ino=176 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498845911.360:7645): avc: denied { open } for pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events" dev="tracefs" ino=176 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498845911.360:7646): avc: denied { read } for pid=22090 comm="pmdaperfevent" name="id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498845911.360:7647): avc: denied { open } for pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_state_change/id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+RHBZ1505888
+type=AVC msg=audit(1508779244.425:386): avc: denied { write } for pid=2967 comm="pmdaxfs" name="stats_clear" dev="proc" ino=87731 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sysctl_fs_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(...): avc: denied { getattr } for pid=NNN comm="pmdalinux" path="/var/lib/mock" dev="dm-1" ino=917749 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:mock_var_lib_t:s0 tclass=dir permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(...): avc: denied { map } for pid=NNN comm="ldconfig" path="/usr/sbin/ldconfig" dev="dm-1" ino=1052382 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:ldconfig_exec_t:s0 tclass=file permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1519670939.873:2012): avc: denied { unix_read } for pid=1423 comm="pmdalinux" key=-559038737 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1519670949.871:2013): avc: denied { unix_read } for pid=1423 comm="pmdalinux" key=-559038737 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1530448398.992:231): avc: denied { read } for pid=16334 comm="python3" name="kallsyms" dev="proc" ino=4026532064 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:system_map_t:s0 tclass=file permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+RHBZ1622253
+type=AVC msg=audit(1532540174.341:22480): avc: denied { search } for pid=25668 comm="perl" name="named" dev="dm-3" ino=2128175 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:named_zone_t:s0 tclass=dir
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+RHBZ1619381
+type=AVC msg=audit(1534774142.552:48731): avc: denied { unix_read } for pid=1726 comm="pmdalinux" key=0 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tclass=shm permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(...): avc: denied { connectto } for pid=NNN comm="python" path="/run/postgresql/.s.PGSQL.5432" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:postgresql_t:s0 tclass=unix_stream_socket
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+RHBZ1535522
+type=AVC msg=audit(1538550792.679:11735): avc: denied { search } for pid=21371 comm="pmdalinux" name=".cache" dev="dm-0" ino=11796488 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:cache_home_t:s0 tclass=dir permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+RHBZ1601721
+============= pcp_pmlogger_t ==============
+type=AVC msg=audit(1494326424.876:88): avc: denied { write } for pid=18266 comm="logger" name="log" dev="devtmpfs" ino=1413 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:devlog_t:s0 tclass=sock_file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498833990.644:5974): avc: denied { read } for pid=26849 comm="logger" name="log" dev="devtmpfs" ino=1389 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:devlog_t:s0 tclass=lnk_file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1484681301.380:174695): avc: denied { sys_ptrace } for pid=21962 comm="ps" capability=19 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:pcp_pmlogger_t:s0 tclass=capability
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/19/2017 16:57:40.120:11020) : avc: denied { signal } for pid=28414 comm=pmsignal scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1503321970.417:261): avc: denied { execute_no_trans } for pid=6760 comm="pmlogger_check" path="/usr/bin/pmlogger" dev="dm-1" ino=1051023 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:pcp_pmlogger_exec_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1493690261.688:262): avc: denied { name_connect } for pid=17604 comm="pmlc" dest=4330 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:dey_sapi_port_t:s0 tclass=tcp_socket
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1533291591.092:495620): avc: denied { connectto } for pid=18025 comm="pmprobe" path="/run/pcp/pmcd.socket" scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=unix_stream_socket permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+RHBZ1488116
+type=AVC msg=audit(1504516526.487:431): avc: denied { search } for pid=18056 comm="ps" name="testuser" dev="dm-0" ino=539096275 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_home_dir_t:s0 tclass=dir
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+RHBZ1634205
+type=AVC msg=audit(1538179769.540:285): avc: denied { search } for pid=8613 comm="ps" name=".cache" dev="dm-0" ino=1277884 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:cache_home_t:s0 tclass=dir permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+RHBZ1648602
+type=AVC msg=audit(1541890175.206:269): avc: denied { search } for pid=7835 comm="ps" name="lightdm" dev="sda1" ino=3145740 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:xserver_log_t:s0 tclass=dir permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+============= pcp_pmie_t ==============
+type=AVC msg=audit(1498847682.537:15753): avc: denied { sys_ptrace } for pid=30881 comm="ps" capability=19 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=capability permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/05/2017 10:24:45.084:351) : avc: denied { connectto } for pid=8941 comm=systemctl path=/run/systemd/private scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:init_t:s0 tclass=unix_stream_socket
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/05/2017 10:24:45.081:348) : avc: denied { open } for pid=8939 comm=runlevel path=/run/utmp dev="tmpfs" ino=12392 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_var_run_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/05/2017 10:24:45.081:348) : avc: denied { read } for pid=8939 comm=runlevel name=utmp dev="tmpfs" ino=12392 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_var_run_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/05/2017 10:24:45.081:349) : avc: denied { lock } for pid=8939 comm=runlevel path=/run/utmp dev="tmpfs" ino=12392 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_var_run_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/05/2017 10:24:45.082:350) : avc: denied { getattr } for pid=8870 comm=pmie path=/usr/lib/systemd/system/pmie.service dev="dm-1" ino=4203 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_unit_file_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498847677.050:15587): avc: denied { search } for pid=30181 comm="pmie" name="system" dev="dm-1" ino=1182241 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_unit_file_t:s0 tclass=dir permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/05/2017 09:58:27.740:304) : avc: denied { read } for pid=7073 comm=pmie name=systemctl dev="dm-1" ino=3402 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_systemctl_exec_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/05/2017 09:58:27.740:303) : avc: denied { execute } for pid=7073 comm=pmie name=systemctl dev="dm-1" ino=3402 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_systemctl_exec_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/05/2017 09:58:27.742:305) : avc: denied { getattr } for pid=7004 comm=pmie path=/usr/lib/systemd/system/pmie.service dev="dm-1" ino=4203 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_unit_file_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/05/2017 10:24:45.080:347) : avc: denied { execute_no_trans } for pid=8939 comm=pmie path=/usr/bin/systemctl dev="dm-1" ino=3402 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_systemctl_exec_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/05/2017 10:24:45.080:347) : avc: denied { open } for pid=8939 comm=pmie path=/usr/bin/systemctl dev="dm-1" ino=3402 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_systemctl_exec_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498843991.020:2708): avc: denied { getattr } for pid=13079 comm="which" path="/usr/bin/systemctl" dev="dm-1" ino=1078205 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_systemctl_exec_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498836881.729:16279): avc: denied { connectto } for pid=12589 comm="pmie" path="/run/pcp/pmcd.socket" scontext=system_u:system_r:pcp_pmie_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=unix_stream_socket permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+audit: type=1400 audit(1504924094.677:197): avc: denied { execute_no_trans } for pid=3703 comm=pmie_check path=/usr/bin/pmie dev=dm-0 ino=2506240 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:pcp_pmie_exec_t:s0 tclass=file permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+RHBZ1533080
+type=AVC msg=audit(...): avc: denied { open } for pid=NNN comm="runlevel" path="/dev/kmsg" dev="devtmpfs" ino=1043 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:kmsg_device_t:s0 tclass=chr_file permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+RHBZ1623988
+type=AVC msg=audit(1535642748.855:3214): avc: denied { signal } for pid=3106 comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+RHBZ1635394
+type=AVC msg=audit(1538509480.147:87573): avc: denied { sys_ptrace } for pid=15683 comm="ps" capability=19 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=cap_userns permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+============= pcp_pmproxy_t ==============
+type=AVC msg=audit(04/05/2017 09:54:13.548:281) : avc: denied { net_admin } for pid=6669 comm=pmproxy capability=net_admin scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:system_r:pcp_pmproxy_t:s0 tclass=capability
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/05/2017 09:54:13.548:281) : avc: denied { read } for pid=6669 comm=pmproxy name=disable_ipv6 dev="proc" ino=9994 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/05/2017 10:24:45.771:356) : avc: denied { open } for pid=9669 comm=pmproxy path=/proc/sys/net/ipv6/conf/all/disable_ipv6 dev="proc" ino=9994 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(04/05/2017 10:24:45.771:357) : avc: denied { getattr } for pid=9669 comm=pmproxy path=/proc/sys/net/ipv6/conf/all/disable_ipv6 dev="proc" ino=9994 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498837089.845:16693): avc: denied { search } for pid=14446 comm="pmproxy" name="net" dev="proc" ino=1168 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=dir permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+RHBZ1517656
+type=AVC msg=audit(1511771694.686:575): avc: denied { read } for pid=28833 comm="pmproxy" name="unix" dev="proc" ino=4026532015 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:proc_net_t:s0 tclass=file
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+============= pcp_pmmgr_t ==============
+type=AVC msg=audit(1498835526.281:10254): avc: denied { name_bind } for pid=13114 comm="pmlogger" src=4332 scontext=system_u:system_r:pcp_pmmgr_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1498835400.826:9769): avc: denied { connectto } for pid=16715 comm="pmmgr" path="/run/pcp/pmcd.socket" scontext=system_u:system_r:pcp_pmmgr_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=unix_stream_socket permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+============= pmda-smart ==============
+type=AVC msg=audit(1525420698.415:327): avc: denied { read } for pid=8678 comm="sh" name="smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1525420698.415:328): avc: denied { open } for pid=8678 comm="sh" path="/usr/sbin/smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1525420698.415:329): avc: denied { execute_no_trans } for pid=8678 comm="sh" path="/usr/sbin/smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1525420698.415:326): avc: denied { execute } for pid=8678 comm="sh" name="smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1525375355.243:3382): avc: denied { getattr } for pid=4770 comm="sh" path="/usr/sbin/smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1525420698.417:330): avc: denied { map } for pid=8678 comm="smartctl" path="/usr/sbin/smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+type=AVC msg=audit(1525420698.433:331): avc: denied { sys_rawio } for pid=8678 comm="smartctl" capability=17 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+
+============= pmda-redis ==============
+type=AVC msg=audit(1533183330.416:362367): avc: denied { name_connect } for pid=15299 comm="pmdaredis" dest=6379 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:redis_port_t:s0 tclass=tcp_socket permissive=0
+
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under which the audit message was generated.
+
+		Possible mismatch between current in-memory boolean settings vs. permanent ones.
+

@@ -35,7 +35,7 @@ _cleanup()
 	_restore_config $PCP_PMCDCONF_PATH
 	$sudo rm -f $PCP_PMCDCONF_PATH.prev
 	_restore_loggers
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -59,7 +59,7 @@ skip == 0	{ print }
     | _filter_pmcd_log \
     | sed \
 	-e '/^Job for pmcd.service failed/d' \
-	-e '/^See "systemctl status pmcd.service"/d' \
+	-e '/^See "systemctl  *status pmcd.service"/d' \
 	-e '/^pmcd.service: /d' \
 	-e '/^Job failed. See system journal/d' \
     # end
@@ -89,28 +89,28 @@ _stop_auto_restart pmcd
 if [ $PCP_PLATFORM = linux ]
 then
     cat <<End-of-File >$tmp.conf
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
 elif [ $PCP_PLATFORM = darwin ]
 then
     cat <<End-of-File >$tmp.conf
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
 End-of-File
 elif [ $PCP_PLATFORM = solaris ]
 then
     cat <<End-of-File >$tmp.conf
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
 elif [ $PCP_PLATFORM = freebsd ]
 then
     cat <<End-of-File >$tmp.conf
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
@@ -122,7 +122,7 @@ echo "=== initial pmcd.conf ===" >>$seq.full
 cat $tmp.conf >>$seq.full
 echo "=== ===" >>$seq.full
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

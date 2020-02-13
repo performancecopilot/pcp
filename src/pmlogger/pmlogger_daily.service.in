@@ -1,0 +1,11 @@
+[Unit]
+Description=Process archive logs
+Documentation=man:pmlogger_daily(1)
+ConditionPathExists=!@CRONTAB_PATH@
+
+[Service]
+Type=oneshot
+TimeoutSec=120
+EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
+ExecStart=@PCP_BINADM_DIR@/pmlogger_daily $PMLOGGER_DAILY_PARAMS
+User=@PCP_USER@

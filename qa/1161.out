@@ -1,0 +1,98 @@
+QA output created by 1161
+
+=== netcheck agent installation ===
+Info: Initializing, currently in 'notready' state.
+Info: Reading configuration.
+Info: Enabled modules:
+Info: ['dns_lookup', 'dns_reverse']
+Info: Configured hosts:
+Info: ['localhost']
+Info: Configured background check: False.
+Info: Configured parallel setting: True.
+Info: Configured check interval: 60s.
+Info: Configured align interval: True.
+Info: Reading module setup configuration:
+Info: dns_lookup
+Info: dns_reverse
+Info: Module setup configurations read.
+Info: Initializing modules:
+Info: dns_lookup, cluster ID: 102
+Info: dns_lookup: Module parameters: timeout: 1.0, family: both.
+Info: dns_lookup: Initialized.
+Info: dns_reverse, cluster ID: 3601
+Info: dns_reverse: Module parameters: timeout: 1.0.
+Info: dns_reverse: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: dns_lookup
+Info: dns_reverse
+Info: Metrics registered.
+Info: Initializing, currently in 'notready' state.
+Info: Reading configuration.
+Info: Enabled modules:
+Info: ['dns_lookup', 'dns_reverse']
+Info: Configured hosts:
+Info: ['localhost']
+Info: Configured background check: False.
+Info: Configured parallel setting: True.
+Info: Configured check interval: 60s.
+Info: Configured align interval: True.
+Info: Reading module setup configuration:
+Info: dns_lookup
+Info: dns_reverse
+Info: Module setup configurations read.
+Info: Initializing modules:
+Info: dns_lookup, cluster ID: 102
+Info: dns_lookup: Module parameters: timeout: 1.0, family: both.
+Info: dns_lookup: Initialized.
+Info: dns_reverse, cluster ID: 3601
+Info: dns_reverse: Module parameters: timeout: 1.0.
+Info: dns_reverse: Initialized.
+Info: Modules initialized.
+Info: Registering metrics:
+Info: dns_lookup
+Info: dns_reverse
+Info: Metrics registered.
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check netcheck metrics have appeared ... 4 metrics and 4 values
+
+=== report metric values ===
+
+netcheck.dns.lookup.res PMID: 152.102.0 [dns lookup result]
+    Data Type: string  InDom: 152.102 0x26000066
+    Semantics: discrete  Units: none
+Help:
+dns lookup result
+    inst [X or "localhost"] value "OK"
+
+netcheck.dns.lookup.time PMID: 152.102.1 [dns lookup time]
+    Data Type: float  InDom: 152.102 0x26000066
+    Semantics: instant  Units: millisec
+Help:
+dns lookup time
+    inst [X or "localhost"] value OK
+
+netcheck.dns.reverse.res PMID: 152.3601.0 [reverse dns lookup result]
+    Data Type: string  InDom: 152.3601 0x26000e11
+    Semantics: discrete  Units: none
+Help:
+reverse dns lookup result
+    inst [X or "localhost"] value "LOCALHOST"
+
+netcheck.dns.reverse.time PMID: 152.3601.1 [reverse dns lookup time]
+    Data Type: float  InDom: 152.3601 0x26000e11
+    Semantics: instant  Units: millisec
+Help:
+reverse dns lookup time
+    inst [X or "localhost"] value OK
+=== verify metric values ===
+
+=== remove netcheck agent ===
+Culling the Performance Metrics Name Space ...
+netcheck ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check netcheck metrics have gone away ... OK

@@ -41,13 +41,18 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
-if $check
-then
-    echo "--- running 941 --check @ `date` ---" >>$here/$seq.full
-fi
-
 _get_pids_by_name pmcd >$tmp.pids
 num_pmcds=`cat $tmp.pids | wc -l | sed -e 's/ //g'`
+if $check
+then
+    echo "--- running 941 --check @ `date` ---"
+    echo "_get_pids_by_name pmcd ..."
+    cat $tmp.pids
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps.out
+    echo "$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmcd ..."
+    egrep 'PID|pmcd' <$tmp.ps.out
+    echo "num_pmcds=$num_pmcds (should be 1)"
+fi
 case "$num_pmcds"
 in
     0)
@@ -100,9 +105,11 @@ then
 	echo "==> start $PCP_LOG_DIR/pmcd/pmcd.log file ==>"
 	cat $PCP_LOG_DIR/pmcd/pmcd.log
 	echo "<= end $PCP_LOG_DIR/pmcd/pmcd.log file <=="
+	$check && status=1
     fi
 else
     echo "Error: $PCP_LOG_DIR/pmcd/pmcd.log missing!"
+    $check && status=1
 fi
 
 if [ -f $PCP_LOG_DIR/pmcd/pmcd.log.prev ]
@@ -113,6 +120,7 @@ then
 	echo "==> start $PCP_LOG_DIR/pmcd/pmcd.log.prev file ==>"
 	cat $PCP_LOG_DIR/pmcd/pmcd.log.prev
 	echo "<= end $PCP_LOG_DIR/pmcd/pmcd.log.prev file <=="
+	$check && status=1
     fi
 fi
 
@@ -123,11 +131,34 @@ then
 	$check || echo "OK: run file has pmcd's pid"
     else
 	echo "Error: $PCP_RUN_DIR/pmcd.pid -> PID `cat $PCP_RUN_DIR/pmcd.pid` not pmcd (PID=$pid)"
-	status = 1
+	status=1
     fi
 else
     echo "Error: $PCP_RUN_DIR/pmcd.pid missing"
-    status = 1
+    status=1
+fi
+
+marker='PCP QA test'
+# Did a QA test leave behind a modified pmcd.conf file?
+#
+if grep "$marker" $PCP_PMCDCONF_PATH >/dev/null
+then
+    echo "Error: $PCP_PMCDCONF_PATH changed for QA, may not be correct"
+    grep "$marker" $PCP_PMCDCONF_PATH
+    status=1
+else
+    $check || echo "OK: PMCDCONF_PATH not from a QA test"
+fi
+
+# Did a QA test leave behind a modified pmcd.options file?
+#
+if grep "$marker" $PCP_PMCDOPTIONS_PATH >/dev/null
+then
+    echo "Error: $PCP_PMCDOPTIONS_PATH changed for QA, may not be correct"
+    grep "$marker" $PCP_PMCDOPTIONS_PATH
+    status=1
+else
+    $check || echo "OK: PMCDOPTIONS_PATH not from a QA test"
 fi
 
 # success, all done

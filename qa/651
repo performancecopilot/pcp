@@ -38,6 +38,14 @@ _filter()
 	-e '/hinv.ncpu/s/ 1 [0-9][0-9]*/ 1 <n>/'
 }
 
+_filter_pmproxy()
+{
+    sed \
+	-e '/^pmproxy: disabled time series, requires libuv support (missing)/d' \
+    # end
+
+}
+
 signal=$PCP_BINADM_DIR/pmsignal
 username=`id -u -n`
 status=0	# success is the default!
@@ -50,6 +58,7 @@ _cleanup()
     _wait_for_stop
     echo "final pmproxy log ..." >>$here/$seq.full
     cat $tmp.log >>$here/$seq.full
+    _service pmproxy start 2>&1 | _filter_pmproxy_start
     _restore_auto_restart pmproxy
     $sudo rm -f $tmp.*
 }
@@ -119,7 +128,8 @@ export PMPROXY_HOST=$hostname
 export PMPROXY_PORT=44322
 
 _stop_auto_restart pmproxy
-$sudo $signal -a pmproxy
+_service pmproxy stop 2>&1 | _filter_pmproxy_stop
+# $sudo $signal -a pmproxy
 _wait_for_stop
 
 proxyargs="-l $tmp.log"
@@ -131,7 +141,8 @@ pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
 echo
 echo "== simplest default case ==" | tee -a $here/$seq.full
-$sudo $PCP_BINADM_DIR/pmproxy $proxyargs
+$sudo $PCP_BINADM_DIR/pmproxy $proxyargs 2>&1 \
+| _filter_pmproxy
 _wait_for_start
 
 pmprobe $target -v sample.long.hundred 2>&1 | _filter
@@ -152,7 +163,8 @@ cat $tmp.log >>$here/$seq.full
 
 echo
 echo "== non-standard PMPROXY_PORT, expect success ==" | tee -a $here/$seq.full
-$sudo $PCP_BINADM_DIR/pmproxy $proxyargs
+$sudo $PCP_BINADM_DIR/pmproxy $proxyargs 2>&1 \
+| _filter_pmproxy
 _wait_for_start
 
 pmprobe $target -v sample.long.hundred 2>&1 | _filter
@@ -165,7 +177,8 @@ cat $tmp.log >>$here/$seq.full
 
 echo
 echo "== restricted interface for connections, expect failure ==" | tee -a $here/$seq.full
-$sudo $PCP_BINADM_DIR/pmproxy -i 127.0.0.1 $proxyargs
+$sudo $PCP_BINADM_DIR/pmproxy -i 127.0.0.1 $proxyargs 2>&1 \
+| _filter_pmproxy
 _wait_for_start
 
 pmprobe $target -v sample.long.hundred 2>&1 | _filter

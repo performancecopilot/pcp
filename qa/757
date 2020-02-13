@@ -22,7 +22,7 @@ perfevent_remove()
 {
     echo
     echo "=== remove perfevent agent ==="
-    sudo ./Remove >$tmp.out 2>&1
+    $sudo ./Remove >$tmp.out 2>&1
     _filter_pmda_remove <$tmp.out
 }
 
@@ -91,6 +91,9 @@ else
     cat $tmp.out
 fi
 cat $tmp.info $tmp.err | _filter_perfevent
+
+# Verify label extraction doesn't crash PMDA
+pminfo --labels perfevent >$here/$seq.full
 
 # Check that the correct metrics are present
 pminfo perfevent

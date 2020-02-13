@@ -88,7 +88,11 @@ main(int argc, char **argv)
     }
 
     if (opts.nhosts == 0)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	hostname = "unix:";
+#else
 	hostname = "local:";
+#endif
     else
 	hostname = opts.hosts[0];
 

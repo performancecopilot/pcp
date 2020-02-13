@@ -43,13 +43,10 @@
 #define YYDEBUG 1
 
 static int		need_init = 1;
+static int		in_matchinst = 0;	/* context sensitive / lexing */
 static ctl_t		registered = {
 #ifdef PM_MULTI_THREAD
-#ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
-    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
-#else
     PTHREAD_MUTEX_INITIALIZER,
-#endif
 #else
     0,
 #endif
@@ -77,6 +74,7 @@ typedef union {
     node_t	*n;
     pmUnits	u;
     pmDesc	d;
+    int		i;
 } YYSTYPE;
 #define YYSTYPE_IS_DECLARED 1
 
@@ -85,9 +83,10 @@ static node_t *parse_tree;
 int derive_parse(void);
 static int derive_lex(void);
 static void derive_error(char *);
+static int registeranon(int, const char *, int);
+static int __dminit_configfile(const char *);
 int derive_debug;
 
-static char *n_type_str(int);
 static char *n_type_c(int);
 static char *l_type_str(int);
 
@@ -102,57 +101,6 @@ static const char initial_str[]	 = "Unexpected initial";
 
 static const pmUnits noUnits;
 static pmDesc specdesc;
-
-#if defined(PM_MULTI_THREAD) && !defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
-static void
-initialize_mutex(void)
-{
-    static pthread_mutex_t	init = PTHREAD_MUTEX_INITIALIZER;
-    static int			done;
-    int				psts;
-    char			errmsg[PM_MAXERRMSGLEN];
-
-    if ((psts = pthread_mutex_lock(&init)) != 0) {
-	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "initialize_mutex: pthread_mutex_lock failed: %s", errmsg);
-	exit(4);
-    }
-    if (!done) {
-	/*
-	 * Unable to initialize at compile time, need to do it here in
-	 * a one trip for all threads run-time initialization.
-	 */
-	pthread_mutexattr_t    attr;
-
-	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
-	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_init failed: %s", errmsg);
-	    exit(4);
-	}
-	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
-	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_settype failed: %s", errmsg);
-	    exit(4);
-	}
-	if ((psts = pthread_mutex_init(&registered.mutex, &attr)) != 0) {
-	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "initialize_mutex: pthread_mutex_init failed: %s", errmsg);
-	    exit(4);
-	}
-	pthread_mutexattr_destroy(&attr);
-	done = 1;
-    }
-    if ((psts = pthread_mutex_unlock(&init)) != 0) {
-	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "initialize_mutex: pthread_mutex_unlock failed: %s", errmsg);
-	exit(4);
-    }
-}
-#else
-# define initialize_mutex() do { } while (0)
-#endif
-
-static int __dminit_configfile(const char *);
 
 /*
  * Handle one component of the ':' separated derived config spec.
@@ -171,14 +119,15 @@ __dminit_component(const char *name, int descend, int recover)
 {
     struct stat	sbuf;
     int		sts = 0;
+    int		lsts = 0;
 
     if (stat(name, &sbuf) < 0) {
+	sts = -oserror();
 	if (pmDebugOptions.derive) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "Warning: derived metrics path component: %s: %s\n",
-		name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+		name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
-	sts = -oserror();
 	goto finish;
     }
     if (S_ISREG(sbuf.st_mode)) {
@@ -196,12 +145,12 @@ __dminit_component(const char *name, int descend, int recover)
 	struct dirent	*dp;
 
 	if ((dirp = opendir(name)) == NULL) {
+	    sts = -oserror();
 	    if (pmDebugOptions.derive) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "Warning: derived metrics path directory component: %s: %s\n",
-		    name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
-	    sts = -oserror();
 	    goto finish;
 	}
 	/* dirp is an on-stack variable, so readdir() is ... */
@@ -223,10 +172,11 @@ __dminit_component(const char *name, int descend, int recover)
 	    sts += localsts;
 	}
 	/* error is most unlikely and ignore unless -Dderive specified */
-	if (oserror() != 0 && pmDebugOptions.derive) {
+	lsts = -oserror();
+	if (lsts != 0 && pmDebugOptions.derive) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "Warning: %s: readdir failed: %s\n",
-		name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+		name, pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
 	}
 	closedir(dirp);
 	goto finish;
@@ -292,14 +242,14 @@ __dminit(void)
 
 	/* anon metrics for event record unpacking */
 PM_FAULT_POINT("libpcp/derive.c:7", PM_FAULT_PMAPI);
-	sts = __pmRegisterAnon("event.flags", PM_TYPE_U32);
+	sts = registeranon(PM_LOCKED, "event.flags", PM_TYPE_U32);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s: Warning: failed to register event.flags: %s\n",
 		    pmGetProgname(), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 PM_FAULT_POINT("libpcp/derive.c:8", PM_FAULT_PMAPI);
-	sts = __pmRegisterAnon("event.missed", PM_TYPE_U32);
+	sts = registeranon(PM_LOCKED, "event.missed", PM_TYPE_U32);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s: Warning: failed to register event.missed: %s\n",
@@ -349,7 +299,7 @@ newnode(int type)
     np->left = NULL;
     np->right = NULL;
     np->value = NULL;
-    np->info = NULL;
+    np->data.info = NULL;
     return np;
 }
 
@@ -361,37 +311,59 @@ free_expr(node_t *np)
     free_expr(np->right);
     np->left = np->right = NULL;
     /* value is only allocated once for the static nodes */
-    if (np->info == NULL && np->value != NULL) {
+    if (np->type != N_PATTERN && np->data.info == NULL && np->value != NULL) {
 	free(np->value);
     }
     else if (np->type == N_DEFINED) {
 	/* value is strdup'd, but info is not NULL */
 	free(np->value);
     }
-    if (np->info != NULL) {
-	/* N_INSTANT nodes copy the left ivlist pointeer */
-	if (np->info->ivlist != NULL && np->type != N_INSTANT) {
+    if (np->type == N_PATTERN) {
+	if (np->data.pattern->ftype == F_REGEX) {
+	    __pmHashNode	*hnp;
+	    __pmHashNode	*prior_hnp;
+	    /*
+	     * free all the instctl_t structs hanging off the hash list
+	     */
+	    for (hnp = __pmHashWalk(&np->data.pattern->hash, PM_HASH_WALK_START);
+		 hnp != NULL; ) {
+		free(hnp->data);
+		prior_hnp = hnp;
+		hnp = __pmHashWalk(&np->data.pattern->hash, PM_HASH_WALK_NEXT);
+		free(prior_hnp);
+	    }
+	    __pmHashClear(&np->data.pattern->hash);
+	}
+	else {
+	    /* F_EXACT */
+	    free(np->value);		/* external inst name from lexer */
+	}
+	free(np->data.pattern);
+    }
+    else if (np->data.info != NULL) {
+	/* N_INSTANT nodes copy the left ivlist pointer */
+	if (np->data.info->ivlist != NULL && np->type != N_INSTANT) {
 	    if (np->desc.type == PM_TYPE_STRING) {
 		int	j;
-		for (j = 0; j < np->info->numval; j++) {
-		    if (np->info->ivlist[j].value.cp != NULL)
-			free(np->info->ivlist[j].value.cp);
+		for (j = 0; j < np->data.info->numval; j++) {
+		    if (np->data.info->ivlist[j].value.cp != NULL)
+			free(np->data.info->ivlist[j].value.cp);
 		}
 	    }
-	    free(np->info->ivlist);
+	    free(np->data.info->ivlist);
 	}
-	if (np->info->last_ivlist != NULL) {
+	if (np->data.info->last_ivlist != NULL) {
 	    if (np->desc.type == PM_TYPE_STRING) {
 		int	j;
-		for (j = 0; j < np->info->last_numval; j++) {
-		    if (np->info->last_ivlist[j].value.cp != NULL) {
-			free(np->info->last_ivlist[j].value.cp);
+		for (j = 0; j < np->data.info->last_numval; j++) {
+		    if (np->data.info->last_ivlist[j].value.cp != NULL) {
+			free(np->data.info->last_ivlist[j].value.cp);
 		    }
 		}
 	    }
-	    free(np->info->last_ivlist);
+	    free(np->data.info->last_ivlist);
 	}
-    	free(np->info);
+    	free(np->data.info);
     }
     free(np);
 }
@@ -405,7 +377,9 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 {
     node_t	*new;
 
+    PM_ASSERT_IS_LOCKED(registered.mutex);
     assert(np != NULL);
+
     new = newnode(np->type);
     if (np->left != NULL) {
 	/*
@@ -428,42 +402,67 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 	    return(NULL);
 	}
     }
-    if (np->type != N_SCALE) {
-	if ((new->info = (info_t *)malloc(sizeof(info_t))) == NULL) {
+    if (np->type == N_SCALE) {
+	new->data.info = NULL;
+    }
+    if (np->type == N_PATTERN) {
+	if ((new->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
+	    PM_UNLOCK(registered.mutex);
+	    pmNoMem("bind_expr: pattern block", sizeof(pattern_t), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	    new->data.pattern->ftype = np->data.pattern->ftype;
+	    if (np->data.pattern->ftype == F_REGEX) {
+		new->data.pattern->regex = np->data.pattern->regex;
+		new->data.pattern->invert = np->data.pattern->invert;
+	      __pmHashInit(&new->data.pattern->hash);
+		new->data.pattern->used = 0;
+	    }
+	    else {
+		/* F_EXACT */
+		new->data.pattern->inst = np->data.pattern->inst;
+		new->value = strdup(np->value);
+		if (new->value == NULL) {
+		    PM_UNLOCK(registered.mutex);
+		    pmNoMem("bind_expr: inst name", strlen(np->value)+1, PM_FATAL_ERR);
+		    /*NOTREACHED*/
+		}
+	    }
+    }
+    else {
+	if ((new->data.info = (info_t *)malloc(sizeof(info_t))) == NULL) {
 	    PM_UNLOCK(registered.mutex);
 	    pmNoMem("bind_expr: info block", sizeof(info_t), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
-	new->info->pmid = PM_ID_NULL;
-	new->info->numval = 0;
-	new->info->mul_scale = new->info->div_scale = 1;
-	new->info->ivlist = NULL;
-	new->info->stamp.tv_sec = 0;
-	new->info->stamp.tv_usec = 0;
-	new->info->time_scale = -1;		/* one-trip initialization if needed */
-	new->info->last_numval = 0;
-	new->info->last_ivlist = NULL;
-	new->info->last_stamp.tv_sec = 0;
-	new->info->last_stamp.tv_usec = 0;
-    }
-    else {
-	new->info = NULL;
+	new->data.info->pmid = PM_ID_NULL;
+	new->data.info->numval = 0;
+	new->data.info->mul_scale = new->data.info->div_scale = 1;
+	new->data.info->ivlist = NULL;
+	new->data.info->stamp.tv_sec = 0;
+	new->data.info->stamp.tv_usec = 0;
+	new->data.info->time_scale = -1;		/* one-trip initialization if needed */
+	new->data.info->last_numval = 0;
+	new->data.info->last_ivlist = NULL;
+	new->data.info->last_stamp.tv_sec = 0;
+	new->data.info->last_stamp.tv_usec = 0;
     }
 
     /* TODO ... need to investigate this for N_SCALE nodes! */
     /* need info to be non-null to protect copy of value in free_expr */
-    new->value = np->value;
+    if (new->type != N_PATTERN)
+	new->value = np->value;
 
     new->save_last = np->save_last;
 
     if (new->type == N_NAME) {
 	int	sts;
 
-	sts = pmLookupName_ctx(ctxp, 1, &new->value, &new->info->pmid);
+	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, &new->value, &new->data.info->pmid);
 	if (sts < 0) {
 	    if (lookup_err_ok) {
 		/* derived(x) -> false case */
-		new->info->pmid = PM_ID_NULL;
+		new->data.info->pmid = PM_ID_NULL;
 		return new;
 	    }
 	    if (pmDebugOptions.derive) {
@@ -473,12 +472,12 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 	    free_expr(new);
 	    return NULL;
 	}
-	sts = pmLookupDesc_ctx(ctxp, new->info->pmid, &new->desc);
+	sts = pmLookupDesc_ctx(ctxp, PM_LOCKED, new->data.info->pmid, &new->desc);
 	if (sts < 0) {
 	    if (pmDebugOptions.derive) {
 		char	strbuf[20];
 		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 	    free_expr(new);
 	    return NULL;
@@ -536,7 +535,8 @@ void report_sem_error(char *name, node_t *np)
 	case N_SUM:
 	case N_ANON:
 	case N_DEFINED:
-	    pmprintf("%s(%s)", n_type_str(np->type), np->left->value);
+	case N_SCALAR:
+	    pmprintf("%s(%s)", __dmnode_type_str(np->type), np->left->value);
 	    break;
 	case N_QUEST:
 	    if (np->left->type == N_INTEGER || np->left->type == N_DOUBLE || np->left->type == N_NAME)
@@ -560,7 +560,7 @@ void report_sem_error(char *name, node_t *np)
 		pmprintf("%s ", np->left->value);
 	    else
 		pmprintf("<expr> ");
-	    pmprintf("%s ", n_type_str(np->type));
+	    pmprintf("%s ", __dmnode_type_str(np->type));
 	    {
 		const char		*units;
 		char		strbuf[60];
@@ -570,6 +570,9 @@ void report_sem_error(char *name, node_t *np)
 		else
 		    pmprintf("%s", units);
 	    }
+	    break;
+	case N_FILTERINST:
+	    pmprintf("%s ", __dmnode_type_str(np->type));
 	    break;
 	default:
 	    /* should never get here ... */
@@ -628,9 +631,9 @@ map_units(node_t *np)
 	    /* use the left scaleCount, scale the right operand */
 	    for (i = 0; i < diff; i++) {
 		if (right->units.dimCount > 0)
-		    np->right->info->div_scale *= 10;
+		    np->right->data.info->div_scale *= 10;
 		else
-		    np->right->info->mul_scale *= 10;
+		    np->right->data.info->mul_scale *= 10;
 	    }
 	    np->desc.type = PM_TYPE_DOUBLE;
 	}
@@ -639,9 +642,9 @@ map_units(node_t *np)
 	    np->desc.units.scaleCount = right->units.scaleCount;
 	    for (i = diff; i < 0; i++) {
 		if (left->units.dimCount > 0)
-		    np->left->info->div_scale *= 10;
+		    np->left->data.info->div_scale *= 10;
 		else
-		    np->left->info->mul_scale *= 10;
+		    np->left->data.info->mul_scale *= 10;
 	    }
 	    np->desc.type = PM_TYPE_DOUBLE;
 	}
@@ -652,9 +655,9 @@ map_units(node_t *np)
 	    /* use the left scaleTime, scale the right operand */
 	    for (i = right->units.scaleTime; i < left->units.scaleTime; i++) {
 		if (right->units.dimTime > 0)
-		    np->right->info->div_scale *= timefactor[i];
+		    np->right->data.info->div_scale *= timefactor[i];
 		else
-		    np->right->info->mul_scale *= timefactor[i];
+		    np->right->data.info->mul_scale *= timefactor[i];
 	    }
 	    np->desc.type = PM_TYPE_DOUBLE;
 	}
@@ -663,9 +666,9 @@ map_units(node_t *np)
 	    np->desc.units.scaleTime = right->units.scaleTime;
 	    for (i = left->units.scaleTime; i < right->units.scaleTime; i++) {
 		if (right->units.dimTime > 0)
-		    np->left->info->div_scale *= timefactor[i];
+		    np->left->data.info->div_scale *= timefactor[i];
 		else
-		    np->left->info->mul_scale *= timefactor[i];
+		    np->left->data.info->mul_scale *= timefactor[i];
 	    }
 	    np->desc.type = PM_TYPE_DOUBLE;
 	}
@@ -676,9 +679,9 @@ map_units(node_t *np)
 	    /* use the left scaleSpace, scale the right operand */
 	    for (i = 0; i < diff; i++) {
 		if (right->units.dimSpace > 0)
-		    np->right->info->div_scale *= 1024;
+		    np->right->data.info->div_scale *= 1024;
 		else
-		    np->right->info->mul_scale *= 1024;
+		    np->right->data.info->mul_scale *= 1024;
 	    }
 	    np->desc.type = PM_TYPE_DOUBLE;
 	}
@@ -687,9 +690,9 @@ map_units(node_t *np)
 	    np->desc.units.scaleSpace = right->units.scaleSpace;
 	    for (i = diff; i < 0; i++) {
 		if (right->units.dimSpace > 0)
-		    np->left->info->div_scale *= 1024;
+		    np->left->data.info->div_scale *= 1024;
 		else
-		    np->left->info->mul_scale *= 1024;
+		    np->left->data.info->mul_scale *= 1024;
 	    }
 	    np->desc.type = PM_TYPE_DOUBLE;
 	}
@@ -822,6 +825,10 @@ map_desc(int n, node_t *np)
 	    goto bad;
 	}
 	np->desc.units = np->right->desc.units;		/* struct assignment */
+	return 0;
+    }
+    else if (np->type == N_PATTERN) {
+	/* nothing to see or test here */
 	return 0;
     }
     else {
@@ -1036,25 +1043,25 @@ check_expr(int n, node_t *np)
     assert(np != NULL);
 
     if (np->type == N_INTEGER || np->type == N_DOUBLE || np->type == N_NAME ||
-        np->type == N_SCALE)
+        np->type == N_SCALE || np->type == N_PATTERN)
 	return 0;
 
     if (np->type == N_DEFINED) {
-	if ((np->info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
+	if ((np->data.info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
 	    pmNoMem("check_expr: defined ivlist", sizeof(val_t), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
-	np->info->numval = 1;
-	np->info->ivlist[0].inst = PM_IN_NULL;
-	if (np->left->info->pmid == PM_ID_NULL) {
+	np->data.info->numval = 1;
+	np->data.info->ivlist[0].inst = PM_IN_NULL;
+	if (np->left->data.info->pmid == PM_ID_NULL) {
 	    /* defined(x) is false */
-	    np->info->ivlist[0].value.ul = 0;
+	    np->data.info->ivlist[0].value.ul = 0;
 	}
 	else {
 	    /* defined(x) is true */
-	    np->info->ivlist[0].value.ul = 1;
+	    np->data.info->ivlist[0].value.ul = 1;
 	}
-	np->info->pmid = np->desc.pmid = PM_ID_NULL;
+	np->data.info->pmid = np->desc.pmid = PM_ID_NULL;
 	np->desc.type = PM_TYPE_U32;
 	np->desc.indom = PM_INDOM_NULL;
 	np->desc.sem = PM_SEM_DISCRETE;
@@ -1205,6 +1212,11 @@ check_expr(int n, node_t *np)
 	    /* correct pmDesc promoted through COLON node at the right */
 	    np->desc = np->right->desc;
 	    return 0;
+
+	case N_FILTERINST:
+	    /* use descriptor from right operand (left is pattern) */
+	    np->desc = np->right->desc;
+	    return 0;
 	
 	default:
 	    /* build pmDesc from pmDesc of both operands */
@@ -1220,6 +1232,7 @@ check_expr(int n, node_t *np)
      * delta()		expect numeric operand, result is instantaneous
      * rate()		expect numeric operand, dimension of time must be
      * 			0 or 1, result is instantaneous
+     * scalar()		remove indom
      * aggr funcs	most expect numeric operand, result is instantaneous
      *			and singular
      * unary -		expect numeric operand, result is signed
@@ -1245,6 +1258,10 @@ check_expr(int n, node_t *np)
 		np->desc.sem = PM_SEM_INSTANT;
 	    else
 		np->desc.sem = np->left->desc.sem;
+	    break;
+
+	case N_SCALAR:
+	    np->desc.indom = PM_INDOM_NULL;
 	    break;
 
 	case N_AVG:
@@ -1380,53 +1397,88 @@ __dmdumpexpr(node_t *np, int level)
 
     if (level == 0) fprintf(stderr, "Derived metric expr dump from " PRINTF_P_PFX "%p...\n", np);
     if (np == NULL) return;
-    fprintf(stderr, "expr node " PRINTF_P_PFX "%p type=%s left=" PRINTF_P_PFX "%p right=" PRINTF_P_PFX "%p save_last=%d", np, n_type_str(np->type), np->left, np->right, np->save_last);
-    if (np->type == N_NAME || np->type == N_INTEGER || np->type == N_DOUBLE)
-	fprintf(stderr, " [%s] master=%d", np->value, np->info == NULL ? 1 : 0);
-    else if (np->type == N_SCALE) {
-	if (pmUnitsStr_r(&np->desc.units, strbuf, sizeof(strbuf)) == NULL) {
-	    fprintf(stderr, " [bad units: %d %d %d %d %d %d]", 
-	    	np->desc.units.scaleCount, np->desc.units.scaleTime,
-	    	np->desc.units.scaleSpace,
-	    	np->desc.units.dimCount, np->desc.units.dimTime,
-	    	np->desc.units.dimSpace);
+    fprintf(stderr, "expr node " PRINTF_P_PFX "%p type=%s", np, __dmnode_type_str(np->type));
+    if (np->type == N_PATTERN) {
+	__pmHashNode	*hnp;
+	instctl_t	*icp;
+	int		numinst = 0;
+	int		nummatch = 0;;
+	fprintf(stderr, " pattern: %s type: ", np->value);
+	if (np->data.pattern->ftype == F_REGEX) {
+	    /* regular expression from matchinst() */
+	    fprintf(stderr, "%sregex used=%d",
+		np->data.pattern->invert ? "inverted " : "", np->data.pattern->used);
+	    if (np->data.pattern->hash.hash != NULL) {
+		for (hnp = __pmHashWalk(&np->data.pattern->hash, PM_HASH_WALK_START);
+		     hnp != NULL;
+		     hnp = __pmHashWalk(&np->data.pattern->hash, PM_HASH_WALK_NEXT)) {
+		    numinst++;
+		    icp = (instctl_t *)hnp->data;
+		    if (icp->match) nummatch++;
+		}
+		fprintf(stderr, " (%d instances, %d matches)", numinst, nummatch);
+	    }
 	}
-	else
-	    fprintf(stderr, " [%s]", strbuf);
-    }
-    fputc('\n', stderr);
-    if (np->info) {
-	fprintf(stderr, "    PMID: %s ", pmIDStr_r(np->info->pmid, strbuf, sizeof(strbuf)));
-	fprintf(stderr, "(%s from pmDesc) numval: %d", pmIDStr_r(np->desc.pmid, strbuf, sizeof(strbuf)), np->info->numval);
-	if (np->info->div_scale != 1)
-	    fprintf(stderr, " div_scale: %d", np->info->div_scale);
-	if (np->info->mul_scale != 1)
-	    fprintf(stderr, " mul_scale: %d", np->info->mul_scale);
+	else {
+	    /* F_EXACT */
+	    fprintf(stderr, "exact match inst=%d", np->data.pattern->inst);
+	}
 	fputc('\n', stderr);
-	pmPrintDesc(stderr, &np->desc);
-	if (np->info->ivlist) {
-	    int		j;
-	    int		max;
-
-	    max = np->info->numval > np->info->last_numval ? np->info->numval : np->info->last_numval;
-
-	    for (j = 0; j < max; j++) {
-		fprintf(stderr, "[%d]", j);
-		if (j < np->info->numval) {
-		    fprintf(stderr, " inst=%d, val=", np->info->ivlist[j].inst);
-		    dump_value(np->desc.type, &np->info->ivlist[j].value);
-		}
-		if (j < np->info->last_numval) {
-		    fprintf(stderr, " (last inst=%d, val=", np->info->last_ivlist[j].inst);
-		    dump_value(np->desc.type, &np->info->last_ivlist[j].value);
-		    fputc(')', stderr);
-		}
+    }
+    else {
+	fprintf(stderr, " left=" PRINTF_P_PFX "%p right=" PRINTF_P_PFX "%p save_last=%d", np->left, np->right, np->save_last);
+	if (np->type == N_NAME || np->type == N_INTEGER || np->type == N_DOUBLE)
+	    fprintf(stderr, " [%s] master=%d", np->value, np->data.info == NULL ? 1 : 0);
+	if (np->type == N_SCALE) {
+	    if (pmUnitsStr_r(&np->desc.units, strbuf, sizeof(strbuf)) == NULL) {
+		fprintf(stderr, " [bad units: %d %d %d %d %d %d]", 
+		    np->desc.units.scaleCount, np->desc.units.scaleTime,
+		    np->desc.units.scaleSpace,
+		    np->desc.units.dimCount, np->desc.units.dimTime,
+		    np->desc.units.dimSpace);
+	    }
+	    else
+		fprintf(stderr, " [%s]", strbuf);
+	    fputc('\n', stderr);
+	}
+	else {
+	    fputc('\n', stderr);
+	    if (np->data.info) {
+		fprintf(stderr, "    PMID: %s ", pmIDStr_r(np->data.info->pmid, strbuf, sizeof(strbuf)));
+		fprintf(stderr, "(%s from pmDesc) numval: %d", pmIDStr_r(np->desc.pmid, strbuf, sizeof(strbuf)), np->data.info->numval);
+		if (np->data.info->div_scale != 1)
+		    fprintf(stderr, " div_scale: %d", np->data.info->div_scale);
+		if (np->data.info->mul_scale != 1)
+		    fprintf(stderr, " mul_scale: %d", np->data.info->mul_scale);
 		fputc('\n', stderr);
+		pmPrintDesc(stderr, &np->desc);
+		if (np->data.info->ivlist) {
+		    int		j;
+		    int		max;
+
+		    max = np->data.info->numval > np->data.info->last_numval ? np->data.info->numval : np->data.info->last_numval;
+
+		    for (j = 0; j < max; j++) {
+			fprintf(stderr, "[%d]", j);
+			if (j < np->data.info->numval) {
+			    fprintf(stderr, " inst=%d, val=", np->data.info->ivlist[j].inst);
+			    dump_value(np->desc.type, &np->data.info->ivlist[j].value);
+			}
+			if (j < np->data.info->last_numval) {
+			    fprintf(stderr, " (last inst=%d, val=", np->data.info->last_ivlist[j].inst);
+			    dump_value(np->desc.type, &np->data.info->last_ivlist[j].value);
+			    fputc(')', stderr);
+			}
+			fputc('\n', stderr);
+		    }
+		}
 	    }
 	}
     }
+
     if (np->left != NULL) __dmdumpexpr(np->left, level+1);
     if (np->right != NULL) __dmdumpexpr(np->right, level+1);
+
 }
 
 static int
@@ -1453,15 +1505,19 @@ checkname(char *p)
 }
 
 static char *
-registerderived(const char *name, const char *expr, int isanon)
+registerderived(int derive_locked, const char *name, const char *expr, int isanon)
 {
     node_t		*np;
     static __pmID_int	pmid;
     int			i;
 
-    PM_INIT_LOCKS();
-    initialize_mutex();
-    PM_LOCK(registered.mutex);
+    if (derive_locked == PM_NOT_LOCKED) {
+	PM_INIT_LOCKS();
+	PM_LOCK(registered.mutex);
+    }
+    else {
+	PM_ASSERT_IS_LOCKED(registered.mutex);
+    }
 
     if (pmDebugOptions.derive && pmDebugOptions.appl0) {
 	fprintf(stderr, "pmRegisterDerived: name=\"%s\" expr=\"%s\"\n", name, expr);
@@ -1471,7 +1527,8 @@ registerderived(const char *name, const char *expr, int isanon)
 	if (strcmp(name, registered.mlist[i].name) == 0) {
 	    /* oops, duplicate name ... */
 	    PM_TPD(derive_errmsg) = "Duplicate derived metric name";
-	    PM_UNLOCK(registered.mutex);
+	    if (derive_locked == PM_NOT_LOCKED)
+		PM_UNLOCK(registered.mutex);
 	    return (char *)expr;
 	}
     }
@@ -1490,7 +1547,8 @@ registerderived(const char *name, const char *expr, int isanon)
     if (np == NULL) {
 	/* parser error */
 	char	*sts = (char *)lexicon;
-	PM_UNLOCK(registered.mutex);
+	if (derive_locked == PM_NOT_LOCKED)
+	    PM_UNLOCK(registered.mutex);
 	return sts;
     }
 
@@ -1519,7 +1577,8 @@ registerderived(const char *name, const char *expr, int isanon)
 	    __dmdumpexpr(np, 0);
     }
 
-    PM_UNLOCK(registered.mutex);
+    if (derive_locked == PM_NOT_LOCKED)
+	PM_UNLOCK(registered.mutex);
     return NULL;
 }
 
@@ -1527,7 +1586,7 @@ registerderived(const char *name, const char *expr, int isanon)
 char *
 pmRegisterDerived(const char *name, const char *expr)
 {
-    return registerderived(name, expr, 0);
+    return registerderived(PM_NOT_LOCKED, name, expr, 0);
 }
 
 /* Variant including error handling. */
@@ -1543,7 +1602,7 @@ pmRegisterDerivedMetric(const char *name, const char *expr, char **errmsg)
 	"Error: pmRegisterDerivedMetric(\"%s\", ...) syntax error\n%s\n%*s^\n";
 
     *errmsg = NULL;
-    if ((offset = registerderived(name, expr, 0)) == NULL)
+    if ((offset = registerderived(PM_NOT_LOCKED, name, expr, 0)) == NULL)
 	return 0;
 
     /* failed to register name/expr - build an error string to pass back */
@@ -1571,6 +1630,13 @@ pmRegisterDerivedMetric(const char *name, const char *expr, char **errmsg)
 int
 __pmRegisterAnon(const char *name, int type)
 {
+    return registeranon(PM_NOT_LOCKED, name, type);
+}
+
+/* Internal version of register an anonymous metric */
+static int
+registeranon(int derive_locked, const char *name, int type)
+{
     char	*msg;
     char	buf[21];	/* anon(PM_TYPE_XXXXXX) */
 
@@ -1597,7 +1663,7 @@ PM_FAULT_RETURN(PM_FAULT_PMAPI);
 	default:
 	    return PM_ERR_TYPE;
     }
-    if ((msg = registerderived(name, buf, 1)) != NULL) {
+    if ((msg = registerderived(derive_locked, name, buf, 1)) != NULL) {
 	pmprintf("__pmRegisterAnon(%s, %d): @ \"%s\" Error: %s\n", name, type, msg, pmDerivedErrStr());
 	pmflush();
 	return PM_ERR_GENERIC;
@@ -1611,7 +1677,6 @@ pmLoadDerivedConfig(const char *fname)
     int		sts;
 
     PM_INIT_LOCKS();
-    initialize_mutex();
     PM_LOCK(registered.mutex);
     __dminit();
     sts = __dminit_parse(fname, 0 /*non-recovering*/);
@@ -1711,7 +1776,7 @@ __dminit_configfile(const char *fname)
 		    free(np);
 		    goto next_line;
 		}
-		errp = pmRegisterDerived(q, ep);
+		errp = registerderived(PM_LOCKED, q, ep, 0);
 		if (errp != NULL) {
 		    pmprintf("[%s:%d] Error: pmRegisterDerived(%s, ...) syntax error\n", fname, lineno, q);
 		    pmprintf("%s\n", &buf[eq+1]);
@@ -1803,7 +1868,8 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 	/* no derived metrics below PMCS, not even anon */
     	return PM_ERR_NAME;
 
-    initialize_mutex();
+    PM_LOCK(ctxp->c_lock);
+
     PM_LOCK(registered.mutex);
     __dminit();
 
@@ -1820,16 +1886,12 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 	     * this one in the current context ... if this fails we
 	     * will skip the metric
 	     */
-	    if (ctxp != NULL && cp->mlist[i].bind == 0) {
-		/* ctxp->c_lock not locked at this point */
-		PM_LOCK(ctxp->c_lock);
-		__dmbind(ctxp, i);
-		PM_UNLOCK(ctxp->c_lock);
+	    if (cp->mlist[i].bind == 0) {
+		__dmbind(PM_LOCKED, ctxp, i);
 	    }
 	    /* skip invalid derived metrics, e.g. due to missing operands */
 	    if (!cp->mlist[i].anon) {
-		if (ctxp == NULL ||
-		   (cp->mlist[i].bind == 1 && cp->mlist[i].expr == NULL)) {
+		if (cp->mlist[i].bind == 1 && cp->mlist[i].expr == NULL) {
 		    if (pmDebugOptions.derive) {
 			fprintf(stderr, "__dmtraverse: name=\"%s\", omitting invalid child \"%s\"\n",
 			    name, cp->mlist[i].name);
@@ -1850,12 +1912,13 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
     }
     *namelist = list;
 
+    PM_UNLOCK(ctxp->c_lock);
     PM_UNLOCK(registered.mutex);
     return sts;
 }
 
 int
-__dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statuslist)
+__dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***offspring, int **statuslist)
 {
     int		i;
     int		j;
@@ -1874,9 +1937,13 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
 	/* no derived metrics below PMCS, not even anon */
     	return PM_ERR_NAME;
 
-    initialize_mutex();
-    PM_LOCK(registered.mutex);
-    __dminit();
+    if (derive_locked == PM_NOT_LOCKED) {
+	PM_LOCK(registered.mutex);
+	__dminit();
+    }
+    else {
+	PM_ASSERT_IS_LOCKED(registered.mutex);
+    }
 
     for (i = 0; i < cp->nmetric; i++) {
 	/* skip invalid derived metrics, e.g. due to missing operands */
@@ -1906,7 +1973,8 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
 		 * and status[] are realloc'd
 		 */
 		assert(num_chn == 0 && children == NULL && status == NULL);
-		PM_UNLOCK(registered.mutex);
+		if (derive_locked == PM_NOT_LOCKED)
+		    PM_UNLOCK(registered.mutex);
 		return 0;
 	    }
 	    start = matchlen > 0 ? matchlen + 1 : 0;
@@ -1920,14 +1988,16 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
 		/* first time for this one */
 		num_chn++;
 		if ((children = (char **)realloc(children, num_chn*sizeof(children[0]))) == NULL) {
-		    PM_UNLOCK(registered.mutex);
+		    if (derive_locked == PM_NOT_LOCKED)
+			PM_UNLOCK(registered.mutex);
 		    pmNoMem("__dmchildren: children", num_chn*sizeof(children[0]), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
 		for (len = 0; cp->mlist[i].name[start+len] != '\0' && cp->mlist[i].name[start+len] != '.'; len++)
 		    ;
 		if ((children[num_chn-1] = (char *)malloc(len+1)) == NULL) {
-		    PM_UNLOCK(registered.mutex);
+		    if (derive_locked == PM_NOT_LOCKED)
+			PM_UNLOCK(registered.mutex);
 		    pmNoMem("__dmchildren: name", len+1, PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
@@ -1940,7 +2010,8 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
 
 		if (statuslist != NULL) {
 		    if ((status = (int *)realloc(status, num_chn*sizeof(status[0]))) == NULL) {
-			PM_UNLOCK(registered.mutex);
+			if (derive_locked == PM_NOT_LOCKED)
+			    PM_UNLOCK(registered.mutex);
 			pmNoMem("__dmchildren: statrus", num_chn*sizeof(status[0]), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
@@ -1957,7 +2028,8 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
     }
 
     if (num_chn == 0) {
-	PM_UNLOCK(registered.mutex);
+	if (derive_locked == PM_NOT_LOCKED)
+	    PM_UNLOCK(registered.mutex);
 	return PM_ERR_NAME;
     }
 
@@ -1988,27 +2060,35 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
     if (statuslist != NULL)
 	*statuslist = status;
 
-    PM_UNLOCK(registered.mutex);
+    if (derive_locked == PM_NOT_LOCKED)
+	PM_UNLOCK(registered.mutex);
     return num_chn;
 }
 
 int
-__dmgetpmid(const char *name, pmID *dp)
+__dmgetpmid(int derive_locked, const char *name, pmID *dp)
 {
     int		i;
 
-    initialize_mutex();
-    PM_LOCK(registered.mutex);
-    __dminit();
+    if (derive_locked == PM_NOT_LOCKED) {
+	PM_LOCK(registered.mutex);
+	__dminit();
+    }
+    else {
+	PM_ASSERT_IS_LOCKED(registered.mutex);
+    }
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (strcmp(name, registered.mlist[i].name) == 0) {
 	    *dp = registered.mlist[i].pmid;
-	    PM_UNLOCK(registered.mutex);
+	    if (derive_locked == PM_NOT_LOCKED)
+		PM_UNLOCK(registered.mutex);
 	    return 0;
 	}
     }
-    PM_UNLOCK(registered.mutex);
+    if (derive_locked == PM_NOT_LOCKED)
+	PM_UNLOCK(registered.mutex);
+
     return PM_ERR_NAME;
 }
 
@@ -2017,7 +2097,6 @@ __dmgetname(pmID pmid, char ** name)
 {
     int		i;
 
-    initialize_mutex();
     PM_LOCK(registered.mutex);
     __dminit();
 
@@ -2043,13 +2122,21 @@ __dmgetname(pmID pmid, char ** name)
  * sets cp->mlist[i].expr as return value (NULL for error)
  */
 void
-__dmbind(__pmContext *ctxp, int i)
+__dmbind(int derive_locked, __pmContext *ctxp, int i)
 {
     int		sts;
     pmID	pmid;
     ctl_t	*cp;
 
     PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+
+    if (derive_locked == PM_NOT_LOCKED) {
+	PM_INIT_LOCKS();
+	PM_LOCK(registered.mutex);
+    }
+    else {
+	PM_ASSERT_IS_LOCKED(registered.mutex);
+    }
 
     cp = (ctl_t *)ctxp->c_dm;
 
@@ -2062,7 +2149,7 @@ __dmbind(__pmContext *ctxp, int i)
 	 * derived metric searching is performed if the name is valid
 	 * for a real metric in the current context.
 	 */
-	sts = pmLookupName_ctx(ctxp, 1, &registered.mlist[i].name, &pmid);
+	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, &registered.mlist[i].name, &pmid);
 	if (sts >= 0 && !IS_DERIVED(pmid)) {
 	    if (pmDebugOptions.derive) {
 		char	strbuf[20];
@@ -2095,6 +2182,8 @@ __dmbind(__pmContext *ctxp, int i)
 
 done:
     cp->mlist[i].bind = 1;
+    if (derive_locked == PM_NOT_LOCKED)
+	PM_UNLOCK(registered.mutex);
     return;
 }
 
@@ -2108,7 +2197,6 @@ __dmopencontext(__pmContext *ctxp)
     int		i;
     ctl_t	*cp;
 
-    initialize_mutex();
     PM_LOCK(registered.mutex);
     __dminit();
 
@@ -2165,7 +2253,7 @@ __dmclosecontext(__pmContext *ctxp)
 }
 
 int
-__dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
+__dmdesc(__pmContext *ctxp, int derive_locked, pmID pmid, pmDesc *desc)
 {
     int		i;
     ctl_t	*cp = (ctl_t *)ctxp->c_dm;
@@ -2178,7 +2266,7 @@ __dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
 	if (cp->mlist[i].pmid == pmid) {
 	    if (cp->mlist[i].bind == 0) {
 		/* ctxp->c_lock already locked at this point */
-		__dmbind(ctxp, i);
+		__dmbind(derive_locked, ctxp, i);
 	    }
 	    if (cp->mlist[i].expr == NULL)
 		/* bind failed for some reason, reported earlier */
@@ -2261,6 +2349,8 @@ PUT-PREFIX-DECL-HERE ... see GNumakefile
 %token      L_MKCONST
 %token      L_RESCALE
 %token      L_DEFINED
+%token      L_MATCHINST
+%token      L_SCALAR
 %token      L_TYPE
 %token      L_SEMANTICS
 %token      L_UNITS
@@ -2274,11 +2364,15 @@ PUT-PREFIX-DECL-HERE ... see GNumakefile
 %token <s>  L_DOUBLE
 %token <s>  L_NAME
 %token <s>  L_STRING
+%token <s>  L_INSTNAME
+%token <s>  L_PATTERN
 
 %type  <n>  defn
 %type  <n>  expr
+%type  <n>  regexpr
 %type  <n>  num
 %type  <n>  func
+%type  <i>  opt_bang
 %type  <d>  spec
 %type  <d>  speclist
 %type  <s>  specval
@@ -2366,6 +2460,35 @@ defn	: expr L_EOS
 
 expr	: L_LPAREN expr L_RPAREN
 		{ $$ = $2; }
+	| L_NAME L_INSTNAME
+		{ np = newnode(N_FILTERINST);
+		  np->right = newnode(N_NAME);
+		  np->right->value = $1;
+		  np->left = newnode(N_PATTERN);
+		  np->left->value = $2;
+		  if ((np->left->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
+		      PM_UNLOCK(registered.mutex);
+		      pmNoMem("pmRegisterDerived: alloc pattern", (int)sizeof(pattern_t), PM_FATAL_ERR);
+		      /*NOTREACHED*/
+		  }
+		  np->left->data.pattern->ftype = F_EXACT;
+		  np->left->data.pattern->inst = PM_IN_NULL;
+		  $$ = np;
+		}
+	| L_LPAREN expr L_RPAREN L_INSTNAME
+		{ np = newnode(N_FILTERINST);
+		  np->right = $2;
+		  np->left = newnode(N_PATTERN);
+		  np->left->value = $4;
+		  if ((np->left->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
+		      PM_UNLOCK(registered.mutex);
+		      pmNoMem("pmRegisterDerived: alloc pattern", (int)sizeof(pattern_t), PM_FATAL_ERR);
+		      /*NOTREACHED*/
+		  }
+		  np->left->data.pattern->ftype = F_REGEX;
+		  np->left->data.pattern->inst = PM_IN_NULL;
+		  $$ = np;
+		}
 	| num
 		{ $$ = $1; }
 	| L_NAME
@@ -2420,40 +2543,67 @@ expr	: L_LPAREN expr L_RPAREN
 
 	/* error reporting */
 	| L_NAME error
-		{ gramerr(op_str, follow, n_type_str(N_NAME)); YYERROR; }
+		{ gramerr(op_str, follow, __dmnode_type_str(N_NAME)); YYERROR; }
 	| expr L_PLUS error
-		{ gramerr(aexpr_str, follow, n_type_str(N_PLUS)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_PLUS)); YYERROR; }
 	| expr L_MINUS error
-		{ gramerr(aexpr_str, follow, n_type_str(N_MINUS)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_MINUS)); YYERROR; }
 	| expr L_STAR error
-		{ gramerr(aexpr_str, follow, n_type_str(N_STAR)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_STAR)); YYERROR; }
 	| expr L_SLASH error
-		{ gramerr(aexpr_str, follow, n_type_str(N_SLASH)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_SLASH)); YYERROR; }
 	| L_MINUS error
-		{ gramerr(aexpr_str, follow, n_type_str(N_NEG)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEG)); YYERROR; }
 	| expr L_LT error
-		{ gramerr(aexpr_str, follow, n_type_str(N_LT)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LT)); YYERROR; }
 	| expr L_LEQ error
-		{ gramerr(aexpr_str, follow, n_type_str(N_LEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LEQ)); YYERROR; }
 	| expr L_EQ error
-		{ gramerr(aexpr_str, follow, n_type_str(N_EQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_EQ)); YYERROR; }
 	| expr L_GEQ error
-		{ gramerr(aexpr_str, follow, n_type_str(N_GEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GEQ)); YYERROR; }
 	| expr L_GT error
-		{ gramerr(aexpr_str, follow, n_type_str(N_GT)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GT)); YYERROR; }
 	| expr L_NEQ error
-		{ gramerr(aexpr_str, follow, n_type_str(N_NEQ)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEQ)); YYERROR; }
 	| expr L_AND error
-		{ gramerr(bexpr_str, follow, n_type_str(N_AND)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_AND)); YYERROR; }
 	| expr L_OR error
-		{ gramerr(bexpr_str, follow, n_type_str(N_OR)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_OR)); YYERROR; }
 	| L_NOT error
-		{ gramerr(bexpr_str, follow, n_type_str(N_NOT)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_NOT)); YYERROR; }
 	| expr L_QUEST error
-		{ gramerr(aexpr_str, follow, n_type_str(N_QUEST)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_QUEST)); YYERROR; }
 	| expr L_QUEST expr L_COLON error
-		{ gramerr(aexpr_str, follow, n_type_str(N_COLON)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_COLON)); YYERROR; }
 	;
+
+regexpr	: opt_bang L_PATTERN
+		{ int	lsts;
+		  np = newnode(N_PATTERN);
+		  np->value = $2;
+		  if ((np->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
+		      PM_UNLOCK(registered.mutex);
+		      pmNoMem("pmRegisterDerived: alloc pattern", (int)sizeof(pattern_t), PM_FATAL_ERR);
+		      /*NOTREACHED*/
+		  }
+		  np->data.pattern->ftype = F_REGEX;
+		  if ((lsts = regcomp(&np->data.pattern->regex, np->value, REG_EXTENDED|REG_NOSUB)) != 0) {
+		      /* regcomp() failed ... */
+		      char	errmsg[128];
+		      regerror(lsts, &np->data.pattern->regex, errmsg, sizeof(errmsg));
+		      gramerr("bad regular expression:", NULL, errmsg);
+		      derive_error(NULL);
+		      return -1;
+		  }
+		  np->data.pattern->invert = $1;
+		  $$ = np;
+		}
+
+opt_bang	: L_NOT
+		{ $$ = 1; }
+	|
+		{ $$ = 0; }
 
 num	: L_INTEGER
 		{ np = newnode(N_INTEGER);
@@ -2678,6 +2828,19 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  free($5);
 		  $$ = np;
 		}
+	| L_MATCHINST L_LPAREN regexpr L_COMMA expr L_RPAREN
+		{
+		  np = newnode(N_FILTERINST);
+		  np->left = $3;
+		  np->right = $5;
+		  $$ = np;
+		  in_matchinst = 0;
+		}
+	| L_SCALAR L_LPAREN expr L_RPAREN
+		{ np = newnode(N_SCALAR);
+		  np->left = $3;
+		  $$ = np;
+		}
 	| L_ANON L_LPAREN error
 		{ gramerr(name_str, follow, "anon("); YYERROR; }
 	| L_AVG L_LPAREN error
@@ -2700,6 +2863,14 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		{ gramerr(op_str, follow, "rescale("); YYERROR; }
 	| L_RESCALE L_LPAREN expr L_COMMA error
 		{ gramerr("Units string", follow, "rescale(<expr>,"); YYERROR; }
+	| L_MATCHINST L_LPAREN error
+		{ gramerr("<filter>, <expr>)", follow, "matchinst("); YYERROR; }
+	| L_MATCHINST L_LPAREN regexpr error
+		{ gramerr(", <expr>)", follow, "matchinst(<filter>"); YYERROR; }
+	| L_MATCHINST L_LPAREN regexpr L_COMMA error
+		{ gramerr("<expr>)", follow, "matchinst(<filter>,"); YYERROR; }
+	| L_SCALAR L_LPAREN error
+		{ gramerr("<expr>", follow, "scalar("); YYERROR; }
 	;
 
 %%
@@ -2721,6 +2892,8 @@ static const struct {
     { L_MKCONST,"mkconst" },
     { L_RESCALE,"rescale" },
     { L_DEFINED,"defined" },
+    { L_MATCHINST, "matchinst" },
+    { L_SCALAR,	"scalar" },
     { L_UNDEF,	NULL }
 };
 static struct {
@@ -2748,7 +2921,9 @@ static struct {
     { L_UNITS,		0,		"UNITS",	NULL },
     { L_ASSIGN,		0,		"ASSIGN",	"=" },
     { L_COMMA,		0,		"COMMA",	"," },
-    { L_STRING,		0,		"STRING",	"\"" },
+    { L_STRING,		0,		"STRING",	NULL },
+    { L_INSTNAME,	0,		"INSTNAME",	NULL },
+    { L_PATTERN,	0,		"PATTERN",	NULL },
     { L_AVG,		N_AVG,		"AVG",		NULL },
     { L_COUNT,		N_COUNT,	"COUNT",	NULL },
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
@@ -2762,6 +2937,9 @@ static struct {
     { L_RESCALE,	N_RESCALE,	"RESCALE",	NULL },
     { 0,		N_SCALE,	"SCALE",	NULL },
     { L_DEFINED,	N_DEFINED,	"DEFINED",	NULL },
+    { L_MATCHINST,	N_FILTERINST,	"FILTERINST",	NULL },
+    { L_SCALAR,		N_SCALAR,	"SCALAR",	NULL },
+    { 0,		N_PATTERN,	"PATTERN",	NULL },
     { L_LT,		N_LT,		"LT",		"<" },
     { L_LEQ,		N_LEQ,		"LEQ",		"<=" },
     { L_EQ,		N_EQ,		"EQ",		"==" },
@@ -2776,8 +2954,8 @@ static struct {
 };
 
 /* full name for all node types */
-static char *
-n_type_str(int type)
+char *
+__dmnode_type_str(int type)
 {
     int		i;
     /* long enough for ... "unknown type XXXXXXXXXXX!" */
@@ -2858,6 +3036,7 @@ derive_lex(void)
     int		i;
     int		firstch = 1;
     int		ret = L_UNDEF;
+    int		escape = 0;
 
     for ( ; ret == L_UNDEF; ) {
 	c = get();
@@ -2923,8 +3102,12 @@ derive_lex(void)
 			break;
 
 		    case '/':
-			*p = '\0';
-			ret = L_SLASH;
+			if (!in_matchinst) {
+			    *p = '\0';
+			    ret = L_SLASH;
+			}
+			else
+			    ltype = L_PATTERN;
 			break;
 
 		    case '(':
@@ -2978,6 +3161,10 @@ derive_lex(void)
 
 		    case '"':
 			ltype = L_STRING;
+			break;
+
+		    case '[':
+			ltype = L_INSTNAME;
 			break;
 
 		    default:
@@ -3039,6 +3226,8 @@ derive_lex(void)
 			    unget(c);
 			    p[-1] = '\0';
 			    ret = func[i].f_type;
+			    if (ret == L_MATCHINST)
+				in_matchinst = 1;
 			    break;
 			}
 		    }
@@ -3086,6 +3275,62 @@ derive_lex(void)
 		    break;
 		}
 		ret = L_STRING;
+		break;
+	    }
+	    else if (ltype == L_INSTNAME) {
+		if (escape && c != '\0') {
+		    escape = 0;
+		    continue;
+		}
+		if (escape == 0 && c == '\\') {
+		    p--;
+		    escape = 1;
+		    continue;
+		}
+		if (c != ']') {
+		    if (c == '\0') {
+			PM_TPD(derive_errmsg) = "unterminated instance name";
+			ret = L_ERROR;
+			break;
+		    }
+		    continue;
+		}
+		/* [-1] and [1] to strip [ .. ] */
+		p[-1] = '\0';
+		if ((derive_lval.s = strdup(&tokbuf[1])) == NULL) {
+		    PM_TPD(derive_errmsg) = "strdup() for INSTNAME failed";
+		    ret = L_ERROR;
+		    break;
+		}
+		ret = L_INSTNAME;
+		break;
+	    }
+	    else if (ltype == L_PATTERN) {
+		if (escape && c != '\0') {
+		    escape = 0;
+		    continue;
+		}
+		if (escape == 0 && c == '\\') {
+		    p--;
+		    escape = 1;
+		    continue;
+		}
+		if (c != '/') {
+		    if (c == '\0') {
+			PM_TPD(derive_errmsg) = "unterminated pattern";
+			ret = L_ERROR;
+			break;
+		    }
+		    continue;
+		}
+		/* [-1] and [1] to strip / .. / */
+		p[-1] = '\0';
+		if ((derive_lval.s = strdup(&tokbuf[1])) == NULL) {
+		    PM_TPD(derive_errmsg) = "strdup() for PATTERN failed";
+		    ret = L_ERROR;
+		    break;
+		}
+		ret = L_PATTERN;
 		break;
 	    }
 	    else if (ltype == L_LT) {
@@ -3172,7 +3417,7 @@ derive_lex(void)
 
     }
     if (pmDebugOptions.derive && pmDebugOptions.appl0) {
-	if (ltype == L_STRING)
+	if (ltype == L_STRING || ltype == L_INSTNAME || ltype == L_PATTERN)
 	    fprintf(stderr, "derive_lex() -> type=L_%s \"%s\"\n", l_type_str(ret), &tokbuf[1]);
 	else
 	    fprintf(stderr, "derive_lex() -> type=L_%s \"%s\"\n", l_type_str(ret), ret == L_EOS ? "" : tokbuf);

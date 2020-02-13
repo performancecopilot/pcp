@@ -1,0 +1,81 @@
+#
+# Copyright (C) 2019 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+"""PCP netcheck PMDA ping module"""
+
+# pylint: disable=invalid-name
+
+import sys
+
+from subprocess import Popen, PIPE
+
+from pcp.pmapi import pmUnits
+from cpmapi import PM_TYPE_32, PM_SEM_INSTANT
+
+from modules.pcpnetcheck import PCPNetcheckModuleBase
+
+# Module constants
+MODULE = 'ping'
+BASENS = 'ping.'
+units_none = pmUnits(0, 0, 0, 0, 0, 0)
+
+
+class PCPNetcheckModule(PCPNetcheckModuleBase):
+    # pylint: disable=too-many-arguments
+    """PCP netcheck ping module"""
+    def __init__(self, config, dbg, log, err, params):
+        """Constructor"""
+        PCPNetcheckModuleBase.__init__(self, MODULE, config, dbg, log, err, params)
+
+        self.count = 1
+
+        self.prereq_check()
+
+        for opt in self.config.options(MODULE):
+            if opt == 'count':
+                self.count = int(self.config.get(MODULE, opt))
+                self.assert_positive(opt, self.count)
+            elif opt not in self.common_opts:
+                self.err("Invalid directive '%s' in %s, aborting." % (opt, MODULE))
+                sys.exit(1)
+
+        self.log("Module parameters: count: %s, timeout: %s." % (self.count, self.timeout))
+
+        self.log("Initialized.")
+
+    @staticmethod
+    def prereq_check():
+        """Check module prerequisities"""
+        try:
+            cmd = ['ping', '-c', '1', '-W', '1', 'localhost']
+            proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            proc.communicate()
+            if proc.returncode:
+                raise RuntimeError("Can't ping the loopback interface!")
+        except OSError:  # pylint: disable=broad-except
+            raise RuntimeError("Can't run the ping(1) command!")
+
+    def metrics(self):
+        """Get metric definitions"""
+        self.items = (
+            # Name - reserved - type - semantics - units - help
+            (BASENS + 'status', None, PM_TYPE_32, PM_SEM_INSTANT, units_none,
+             'ping status'),
+        )
+        return True, self.items
+
+    def do_check(self):
+        """Do net check"""
+        cmd_template = ['ping', '-c', str(self.count), '-W', str(self.timeout),
+                        self.SIX_OPT, self.HOST_TMPL_STR]
+        self.hosts = self._run_check_commands(cmd_template, '-6')[1]

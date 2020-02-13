@@ -68,7 +68,9 @@ _filter()
     | LC_COLLATE=POSIX sort
 }
 
-for tgz in $here/linux/procpid-4.14.5-root-005.tgz
+for tgz in \
+	$here/linux/procpid-4.14.5-root-005.tgz \
+	$here/linux/procpid-4.18.13-root-006.tgz
 do
     cd $here
     $sudo rm -fr $root

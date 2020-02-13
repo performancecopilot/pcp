@@ -32,6 +32,10 @@ cpu_count()
     pmprobe -h $host -v hinv.ncpu | tee -a $here/$seq.full | awk '{ print $3 }'
 }
 
+# make sure the shell babble after $PCP_PYTHON_PROG is terminated goes
+# elsewhere
+#
+exec 2>$tmp.err
 
 # real QA test starts here
 cd secure
@@ -40,7 +44,7 @@ echo "Initial CPU count: $ncpu" > $here/$seq.full
 for hang_test in hang-*
 do
     echo "$hang_test checking: " | tee -a $here/$seq.full
-    python $hang_test $host >$tmp.out 2>&1 &
+    $PCP_PYTHON_PROG $hang_test $host >$tmp.out 2>&1 &
     ppid=$!
     sts=0
     n=0
@@ -65,6 +69,10 @@ do
     cat $tmp.out >> $here/$seq.full
     [ $sts -eq 0 ] || exit
 done
+
+echo >>$here/$seq.full
+echo "==== shell's stderr ===========" >>$here/$seq.full
+cat $tmp.err >>$here/$seq.full
 
 # success, all done
 status=0

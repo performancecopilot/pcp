@@ -1,0 +1,128 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2019 Red Hat.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMDAMSSQL 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdamssql\f1 \- Microsoft SQL Server database PMDA
+.SH DESCRIPTION
+\fBpmdamssql\fP is a Performance Co-Pilot (PCP) Performance Metrics
+Domain Agent (PMDA) which extracts live performance data from a running
+Microsoft SQL Server database server.
+.SH CONFIGURATION
+Firstly, \f3pmdamssql\f1 requires installation of these support packages:
+.TP 5
+.B mssql-server
+The primary Microsoft SQL Server database package.
+.TP
+.BR msodbcsql17 " or (" msodbcsql )
+Latest Microsoft SQL Server ODBC bindings.
+.TP
+.B pyodbc
+General Python ODBC module with Microsoft SQL Server support enabled.
+.PP
+Next, \fBpmdamssql\fP reads an optional ini-style configuration file:
+.IP
+.PD 0
+.IP
+.I \f(CW$PCP_PMDAS_DIR\fP/mssql/mssql.conf
+.PD
+.PP
+This file currently allows for two sections, one for configuring the
+library that connects to SQL server, the other for authenticating with
+SQL server.
+.PP
+.B [connection]
+section specifies values for the following settings
+(their default values are shown in parenthesis):
+.TP 15
+.B driver \fR(\fP\fI{ODBC Driver 17 for SQL Server}\fP\fR)\fP
+ODBC driver string.
+.TP
+.B server \fR(\fP\fItcp:localhost\fP\fR)\fP
+SQL Server socket connection string.
+.TP
+.B timeout \fR(\fP\fI2\fP\fR)\fP
+Connection timeout setting, in seconds.
+.PP
+.B [authentication]
+section specifies values for the following settings
+(their default values are shown in parenthesis):
+.TP 15
+.B username \fR(\fP\fIsa\fP\fR)\fP
+Username to connect to the database.
+.TP
+.B password \fR(unset)\fP
+Password to connect to the database.
+.PD
+.SH INSTALLATION
+To install, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/mssql
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/mssql
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
+\fBpmdamssql\fP is launched by \fBpmcd\fP(1) and should never be
+executed directly.
+The \fBInstall\fP and \fBRemove\fP scripts notify \fBpmcd\fP(1) when
+the agent is installed or removed.
+.PP
+\fBpmdamssql\fR will automatically attempt to reconnect to the SQL Server
+if its connection is lost - e.g. if the SQL Server service is restarted.
+.SH FILES
+.TP 5
+.I \f(CW$PCP_PMDAS_DIR\fP/mssql/mssql.conf
+configuration file for the \fBpmdamssql\fR agent
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/mssql/Install
+installation script for the \fBpmdamssql\fR agent
+.TP
+.I \f(CW$PCP_PMDAS_DIR\fP/mssql/Remove
+undo installation script for the \fBpmdamssql\fR agent
+.TP
+.I \f(CW$PCP_LOG_DIR\fP/pmcd/mssql.log
+default log file for messages from the \fBpmdamssql\fR agent
+.PP
+Note that the usual/default value for \fB$PCP_PMDAS_DIR\fP is
+.B /var/lib/pcp/pmdas
+and the default for \fB$PCP_LOG_DIR\fP is
+.B /var/log/pcp
+but these settings are platform dependent.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fR contains the local values for these variables.
+The \fB$PCP_CONF\fR variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fR(5).
+.SH SEE ALSO
+.BR PCPIntro (1)
+and
+.BR pmcd (1).

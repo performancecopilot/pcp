@@ -2,16 +2,17 @@
 .\"
 .\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2009 Aconex.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
+.\"
 .\"
 .TH PMSIGNAL 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -32,9 +33,9 @@ to one or more processes.
 .PP
 The processes are specified directly using PIDs or as program names (with
 either the
-.BR \-a / \-\-all
+.B \-a
 or
-.BR \-p / \-\-program
+.B \-p
 options).
 In the
 .B all
@@ -48,7 +49,7 @@ case, process identifiers are extracted from files in the $PCP_RUN_DIR
 directrory where file names are matched on \f2name\f1.pid.
 .PP
 The
-.BR \-n / \-\-dry-run
+.B \-n
 option reports the list of process identifiers that would have been
 signalled, but no signals are actually sent.
 .PP
@@ -56,7 +57,7 @@ If a
 .I signal
 is not specified, then the TERM signal will be sent.
 The list of supported signals is reported when using the
-.BR \-l / \-\-list
+.B \-l
 option.
 .PP
 On Linux and UNIX platforms,
@@ -67,20 +68,33 @@ command.
 On Windows, the is no direct equivalent to this mechanism, and
 so an alternate mechanism has been implemented \- this is only
 honoured by PCP tools, however, not all Windows utilities.
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-a\fR, \fB\-\-all\fR
+Send signal to all named processes.
+.TP
+\fB\-l\fR, \fB\-\-list\fR
+List supported signals.
+.TP
+\fB\-n\fR, \fB\-\-dry\-run\fR
+List processes that would be affected.
+.TP
+\fB\-p\fR, \fB\-\-program\fR
+Extract programs from PCP runtime PID files.
+.TP
+\fB\-s\fR \fIsignal\fR, \fB\-\-signal\fR=\fIsignal\fR
+Specify the signal to send, one of: HUP, USR1, TERM, KILL.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR basename (1),
 .BR kill (1),

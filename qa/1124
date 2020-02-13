@@ -19,7 +19,7 @@ $sudo rm -rf $tmp.* $seq.full
 
 _value_filter()
 {
-    awk '/random:urandom_read/ && /value [1-9]\d*/ {print "OK"; exit}'
+    awk '/random:urandom_read/ && /value [1-9][0-9]*/ {print "OK"; exit}'
 }
 
 _prepare_pmda bcc
@@ -28,6 +28,7 @@ _stop_auto_restart pmcd
 
 # real QA test starts here
 cat <<EOF | _pmdabcc_install
+# Installed by PCP QA test $seq on `date`
 [pmda]
 modules = tracepoint_hits
 prefix = bcc.

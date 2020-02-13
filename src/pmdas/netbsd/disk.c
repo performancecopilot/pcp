@@ -57,12 +57,12 @@ refresh_disk_metrics(void)
 	/* initialization or something has changed */
 	if (ndisk == -1) {
 	    if (pmDebugOptions.appl0)
-		fprintf(stderr, "Info: refresh_disk_metrics: initial ndisk=%d\n", buflen / sizeof(struct io_sysctl));
+		fprintf(stderr, "Info: refresh_disk_metrics: initial ndisk=%d\n", (int)(buflen / sizeof(struct io_sysctl)));
 	    pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_LOAD);
 	}
 	else {
 	if (pmDebugOptions.appl0)
-	    fprintf(stderr, "Info: refresh_disk_metrics: ndisk changed from %d to %d\n", ndisk, buflen / sizeof(struct io_sysctl));
+	    fprintf(stderr, "Info: refresh_disk_metrics: ndisk changed from %d to %d\n", ndisk, (int)(buflen / sizeof(struct io_sysctl)));
 	    pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_INACTIVE);
 	}
 	ndisk = buflen / sizeof(struct io_sysctl);

@@ -8,7 +8,7 @@
 ** time-of-day, the cpu-time consumption and the memory-occupation. 
 **
 ** Copyright (C) 2000-2010 Gerlof Langeveld
-** Copyright (C) 2015-2017 Red Hat.
+** Copyright (C) 2015-2019 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -69,6 +69,15 @@ setup_options(pmOptions *opts, char **argv, char *short_options)
 		opt->short_opt = 0;
 
 	__pmStartOptions(opts);
+}
+
+void
+close_options(pmOptions *opts)
+{
+	__pmEndOptions(opts);
+
+	if (opts->errors)
+		pmflush();
 }
 
 /*
@@ -311,11 +320,13 @@ val2cpustr(count_t value, char *strvalue, size_t buflen)
 ** Function val2Hzstr() converts a value (in MHz) 
 ** to an ascii-string.
 ** The result-string is placed in the area pointed to strvalue,
-** which should be able to contain at least 8 positions.
+** which should be able to contain 7 positions plus null byte.
 */
 char *
 val2Hzstr(count_t value, char *strvalue, size_t buflen)
 {
+	char *fformat;
+
         if (value < 1000)
         {
                 pmsprintf(strvalue, buflen, "%4lldMHz", value);
@@ -330,8 +341,22 @@ val2Hzstr(count_t value, char *strvalue, size_t buflen)
                         prefix='T';        
                         fval /= 1000.0;
                 }
-                pmsprintf(strvalue, buflen, "%4.2f%cHz", fval, prefix);
+
+                if (fval < 10.0)
+		{
+			 fformat = "%4.2f%cHz";
+		}
+		else
+		{
+			if (fval < 100.0)
+				fformat = "%4.1f%cHz";
+                	else
+				fformat = "%4.0f%cHz";
+		}
+
+                pmsprintf(strvalue, buflen, fformat, fval, prefix);
         }
+
 	return strvalue;
 }
 
@@ -476,23 +501,43 @@ ptrverify(const void *ptr, const char *errormsg, ...)
 {
 	if (!ptr)
 	{
+        	va_list args;
+
 		acctswoff();
 		netatop_signoff();
 
 		if (vis.show_end)
 			(vis.show_end)();
 
-        	va_list args;
 		va_start(args, errormsg);
-		fprintf(stderr, errormsg, args);
-        	va_end  (args);
+		vfprintf(stderr, errormsg, args);
+        	va_end(args);
 
 		exit(13);
 	}
 }
 
 /*
-** signal catcher for cleanup before exit
+ * +** cleanup, give error message and exit
++*/
+void
+mcleanstop(int exitcode, const char *errormsg, ...)
+{
+	va_list args;
+
+	acctswoff();
+	netatop_signoff();
+	(vis.show_end)();
+
+	va_start(args, errormsg);
+	vfprintf(stderr, errormsg, args);
+	va_end(args);
+
+	exit(exitcode);
+}
+
+/*
+** cleanup, give error message and exit
 */
 void
 cleanstop(int exitcode)
@@ -500,6 +545,7 @@ cleanstop(int exitcode)
 	acctswoff();
 	netatop_signoff();
 	(vis.show_end)();
+
 	exit(exitcode);
 }
 
@@ -556,7 +602,8 @@ setup_step_mode(pmOptions *opts, int forward)
 }
 
 /*
-** Set the origin position and interval for PMAPI context fetching
+** Set the origin position and interval for PMAPI context fetching.
+** Enable full-thread proc reporting for all live modes.
 */
 static int
 setup_origin(pmOptions *opts)
@@ -580,6 +627,31 @@ setup_origin(pmOptions *opts)
 			opts->flags |= PM_OPTFLAG_RUNTIME_ERR;
 			opts->errors++;
 		}
+	}
+	else
+	/* set proc.control.perclient.threads to unsigned integer value 1 */
+	{
+		pmResult	*result = calloc(1, sizeof(pmResult));
+		pmValueSet	*vset = calloc(1, sizeof(pmValueSet));
+
+		ptrverify(vset, "Malloc vset failed for thread enabling\n");
+		ptrverify(result, "Malloc result failed for thread enabling\n");
+
+		vset->vlist[0].inst = PM_IN_NULL;
+		vset->vlist[0].value.lval = 1;
+		vset->valfmt = PM_VAL_INSITU;
+		vset->numval = 1;
+		vset->pmid = pmID_build(3, 10, 2);
+
+		result->vset[0] = vset;
+		result->numpmid = 1;
+
+		sts = pmStore(result);
+		if (sts < 0 && pmDebugOptions.appl0)
+			fprintf(stderr, "%s: pmStore failed: %s\n",
+					pmGetProgname(), pmErrStr(sts));
+		sts = 0;	/* continue without detailed thread stats */
+		pmFreeResult(result);
 	}
 
 	return sts;
@@ -685,6 +757,8 @@ setup_globals(pmOptions *opts)
 	/* default hardware inventory - used as fallbacks only if other metrics missing */
 	if ((hinv_nrcpus = extract_integer(result, descs, NRCPUS)) <= 0)
 		hinv_nrcpus = 1;
+	if ((hinv_nrgpus = extract_integer(result, descs, NRGPUS)) <= 0)
+		hinv_nrgpus = 1;
 	if ((hinv_nrdisk = extract_integer(result, descs, NRDISK)) <= 0)
 		hinv_nrdisk = 1;
 	if ((hinv_nrintf = extract_integer(result, descs, NRINTF)) <= 0)
@@ -755,6 +829,12 @@ extract_count_t_index(pmResult *result, pmDesc *descs, int value, int i)
 	pmExtractValue(values->valfmt, &values->vlist[i],
 			descs[value].type, &atom, PM_TYPE_64);
 	return atom.ll;
+}
+
+int
+present_metric_value(pmResult *result, int value)
+{
+	return (result->vset[value]->numval <= 0);
 }
 
 count_t
@@ -891,19 +971,26 @@ setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
 int
 fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 {
-	int	sts;
+	pmResult	*rp;
+	int		sts;
 
 	pmSetMode(fetchmode, &curtime, fetchstep);
 	if ((sts = pmFetch(nmetrics, pmids, result)) < 0)
 	{
-		if (sts != PM_ERR_EOL)
-			fprintf(stderr, "%s: %s query: %s\n",
-				pmGetProgname(), purpose, pmErrStr(sts));
+		if (sts == PM_ERR_EOL)
+		{
+			sampflags |= (RRLAST | RRMARK);
+			return sts;
+		}
+		fprintf(stderr, "%s: %s query: %s\n",
+			pmGetProgname(), purpose, pmErrStr(sts));
 		cleanstop(1);
 	}
+	rp = *result;
+	if (rp->numpmid == 0)	/* mark record */
+		sampflags |= RRMARK;
 	if (pmDebugOptions.appl1)
 	{
-		pmResult	*rp = *result;
 		struct tm	tmp;
 		time_t		sec;
 
@@ -1108,7 +1195,7 @@ static void
 rawconfig(FILE *fp, double interval)
 {
 	char		**p;
-	unsigned int	delta;
+	unsigned int	delta, offset;
 	extern char	*hostmetrics[];
 	extern char	*ifpropmetrics[];
 	extern char	*systmetrics[];
@@ -1125,8 +1212,9 @@ rawconfig(FILE *fp, double interval)
 	fprintf(fp, "log mandatory on every %u milliseconds {\n", delta);
 	for (p = systmetrics; (*p)[0] != '.'; p++)
 		fprintf(fp, "    %s\n", *p);
+	offset = hotprocflag ? 0 : 3;
 	for (p = procmetrics; (*p)[0] != '.'; p++)
-		fprintf(fp, "    %s\n", *p);
+		fprintf(fp, "    %s\n", *p + offset);
 	fputs("}\n", fp);
 }
 

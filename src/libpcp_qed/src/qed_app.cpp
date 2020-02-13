@@ -33,6 +33,7 @@ QedApp::QedApp(int &argc, char **argv) : QApplication(argc, argv)
     my.zflag = 0;
     my.tz = NULL;
     my.port = -1;
+    my.delta.tv_sec = my.delta.tv_usec = 0;
 
     QCoreApplication::setOrganizationName("PCP");
     QCoreApplication::setApplicationName(pmGetProgname());
@@ -65,8 +66,10 @@ int QedApp::globalFontSize()
 int QedApp::getopts(const char *options)
 {
     int			unknown = 0;
-    int			c, sts, errflg = 0;
+    int			c, errflg = 0;
     char		*endnum, *msg;
+
+    /* TODO: this code should all be removed (convert tool to pmGetOptions) */
 
     do {
 	switch ((c = getopt(my.argc, my.argv, options))) {
@@ -77,15 +80,6 @@ int QedApp::getopts(const char *options)
 
 	case 'a':
 	    my.archives.append(optarg);
-	    break;
-
-	case 'D':
-	    sts = pmSetDebug(optarg);
-	    if (sts < 0) {
-		pmprintf("%s: unrecognized debug options specification (%s)\n",
-			pmGetProgname(), optarg);
-		errflg++;
-	    }
 	    break;
 
 	case 'h':

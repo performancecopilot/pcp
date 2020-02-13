@@ -2,14 +2,15 @@ cpu/GNUmakefile
 entropy/GNUmakefile
 filesys/GNUmakefile
 global/GNUmakefile
-local
 memory/GNUmakefile
 percpu/GNUmakefile
 pernetif/GNUmakefile
 primary/GNUmakefile
+zeroconf/GNUmakefile
 pmieconf
 pmieconf.static
 pmlogconf
 pmlogconf.tmp
 rate-syscalls
 rules
+local

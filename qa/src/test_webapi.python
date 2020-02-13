@@ -1,7 +1,6 @@
 #!/usr/bin/env pmpython
-""" Test creation of a PCP web daemon via the requests module -*- python -*- """
 #
-# Copyright (C) 2013-2016 Red Hat Inc.
+# Copyright (C) 2013-2016,2019 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -28,12 +27,7 @@ os.unsetenv('HTTP_PROXY')
 
 # ------------------------------------------------------------------------
 
-# test - create contexts
-req = requests.get(url=url + 'pmapi/context?local=foo&polltimeout=5')
-resp = req.json()
-ctx_local = resp['context']
-print('Received PM_CONTEXT_LOCAL #' + str(ctx_local))
-
+# test - create context
 req = requests.get(url=url + 'pmapi/context?hostname=' + args.host + '&polltimeout=5')
 resp = req.json()
 ctx_host = resp['context']
@@ -42,18 +36,6 @@ print('Received PM_CONTEXT_HOST #' + str(ctx_host))
 # ------------------------------------------------------------------------
 
 # all these should get an error
-req = requests.get(url=url + 'pmapi/context?archivefile=/dev/null')
-print('bad archive /dev/null response code ' + str(req.status_code))
-
-req = requests.get(url=url + 'pmapi/context?archivefile=../etc/passwd')
-print('bad archive ../etc/passwd response code ' + str(req.status_code))
-
-req = requests.get(url=url + 'pmapi/context?archivefile=/etc/passwd')
-print('bad archive /etc/passwd response code ' + str(req.status_code))
-
-req = requests.get(url=url + 'pmapi/context?archivefile=../../etc/shadow')
-print('bad archive ../../etc/shadow response code ' + str(req.status_code))
-
 req = requests.get(url=url + 'pmapi/NOSUCHAPI')
 print('command NOSUCHAPI response code ' + str(req.status_code))
 
@@ -70,12 +52,8 @@ print('non-pmwebapi response code ' + str(req.status_code))
 
 def test_metric_enumeration(ctx, prefix):
     ctxurl = url + 'pmapi/' + str(ctx) + '/'
-    if (ctx == ctx_local):
-        procargs = ['pminfo', '-L', '-t']
-        dbg = 'local'
-    else:
-        procargs = ['pminfo', '-h', args.host, '-t']
-        dbg = 'host'
+    procargs = ['pminfo', '-h', args.host, '-t']
+    dbg = 'host'
     if (prefix != ''):
         procargs.append(prefix)
         dbg = dbg + '-' + prefix
@@ -116,22 +94,21 @@ def test_metric_enumeration(ctx, prefix):
     print(testprefix + ' enumeration with pmwebinfo #'+str(len(resp['metrics'])))
 
     web_metrics = 0
-    f = open('webapi-webd-' + dbg, 'w')
+    f = open('webapi-' + dbg, 'w')
     for metric in resp['metrics']:
         web_metrics = web_metrics + 1
         f.write(metric['name'] + '\n')
     f.write('Total ' + str(web_metrics) + ' metrics\n')
     f.close()
 
-    if (abs(len(resp['metrics']) - num_metrics) < 10): # allow some variation
+    # not exact match due to some expected error situations (see above)
+    if (abs(len(resp['metrics']) - num_metrics) < 10):
         print(testprefix + ' enumeration match count PASS')
     else:
         print(testprefix + ' enumeration match count FAIL')
 
 
-test_metric_enumeration(ctx_local,'')
 test_metric_enumeration(ctx_host,'')
-test_metric_enumeration(ctx_local,'kernel')
 test_metric_enumeration(ctx_host,'kernel')
 
 # ------------------------------------------------------------------------
@@ -165,19 +142,17 @@ def test_fetch(ctx,metrics):
         # don't pretty-print instances/values, because they could fluctuate too much from test to test for _filter()
 
 
-# use both contexts so neither times out
-test_fetch(ctx_local,'names=')
-test_fetch(ctx_local,'names=no.such.metric')
-test_fetch(ctx_local,'names=no.such.metric1,pmcd.client.whoami,no.such.metric2')  # ignore the bad metrics; no pmcd.* with -L
-test_fetch(ctx_host,'names=no.such.metric3,pmcd.client.whoami,no.such.metric4')  # ignore the bad metrics
+test_fetch(ctx_host,'names=')
+test_fetch(ctx_host,'name=no.such.metric')
+test_fetch(ctx_host,'names=no.such.metric1,pmcd.client.whoami,no.such.metric2')  # ignore bad metrics
 test_fetch(ctx_host,'names=sample.event.records') # events
 test_fetch(ctx_host,'pmids=121634826,0x740000b') # sample.long.one, sample.long.ten
-test_fetch(ctx_local,'names=keepalive')
+test_fetch(ctx_host,'name=keepalive')
 test_fetch(ctx_host,'names=sample.bogus_bin,sample.sysinfo,sample.byte_rate,sample.ulong.bin')
 test_fetch(ctx_host,'names=sample.longlong.bin,,,sample.ulonglong.million,sample.float.hundred')
 test_fetch(ctx_host,'names=sample.double.bin_ctr,sample.aggregate.null,sample.hordes.one')
 test_fetch(ctx_host,'names=sample.dodgey.value')
-test_fetch(ctx_local,'pmids=blargh')
+test_fetch(ctx_host,'pmid=blargh')
 
 # ------------------------------------------------------------------------
 
@@ -203,12 +178,10 @@ def test_metadata(ctx,metrics):
         # too much from test to test for _filter()
 
 
-# use both contexts so neither times out
-test_metadata(ctx_local,'prefix=no.such.metric')
-test_metadata(ctx_local,'prefix=no.such.metric1,pmcd.client.whoami,no.such.metric2')  # ignore the bad metrics; no pmcd.* with -L
-test_metadata(ctx_host,'prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4')  # ignore the bad metrics
+test_metadata(ctx_host,'prefix=no.such.metric')
+test_metadata(ctx_host,'prefix=no.such.metric1,pmcd.client.whoami,no.such.metric2')  # ignore bad metrics
 test_metadata(ctx_host,'prefix=sample') # whole shebang
-test_metadata(ctx_local,'prefix=keepalive')
+test_metadata(ctx_host,'prefix=keepalive')
 
 # ------------------------------------------------------------------------
 
@@ -236,13 +209,13 @@ def test_indom(ctx,dom):
 
 
 # use both contexts so neither times out
-test_indom(ctx_local,'indom=')
+test_indom(ctx_host,'indom=')
 test_indom(ctx_host,'indom=0x7400009') # sample.scramble.bin
 test_indom(ctx_host,'name=sample.many.int&instance=1,4')
 test_indom(ctx_host,'name=sample.many.int&instance=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21') # too many
 test_indom(ctx_host,'indom=0x7400008&iname=i-2,,,i-3') # sample.many.int
 test_indom(ctx_host,'name=pmcd.client.whoami')
-test_indom(ctx_local,'names=keepalive')
+test_indom(ctx_host,'names=keepalive')
 
 # ------------------------------------------------------------------------
 
@@ -269,26 +242,30 @@ def check_vals(ctx, metric):
 
     for metric in sorted(result['values'], key=lambda x: x['name']):
         for inst in sorted(metric['instances'], key=lambda x: x['instance']):
-            print('  ' + metric['name'] + '[' + str(inst['value']) + ']')
+            if inst['instance'] == -1:
+                instinfo = str(inst['value'])
+            else:
+                instinfo = str(inst['instance'])  + '=' + str(inst['value'])
+            print('  ' + metric['name'] + '[' + instinfo + ']')
 
-# use both contexts so neither times out, verify values reflect stored change
-test_store(ctx_local, 'name=') # no metric
+# verify values reflect stored change
+test_store(ctx_host, 'name=') # no metric
 test_store(ctx_host, 'name=sample.write_me') # no values
 test_store(ctx_host, 'name=sample.write_me&value=42')
-test_store(ctx_local, 'name=sample.write_me&value=bad')
+test_store(ctx_host, 'name=sample.write_me&value=bad')
 
 test_store(ctx_host, 'name=sample.long.write_me&value=42')
 check_vals(ctx_host, 'sample.long.write_me')
-test_store(ctx_local, 'name=sample.long.write_me&value=bad')
+test_store(ctx_host, 'name=sample.long.write_me&value=bad')
 test_store(ctx_host, 'name=sample.ulong.write_me&value=42')
 check_vals(ctx_host, 'sample.ulong.write_me')
-test_store(ctx_local, 'name=sample.ulong.write_me&value=bad')
+test_store(ctx_host, 'name=sample.ulong.write_me&value=bad')
 test_store(ctx_host, 'name=sample.float.write_me&value=42.0')
 check_vals(ctx_host, 'sample.float.write_me')
 test_store(ctx_host, 'name=sample.string.write_me&value=good')
 check_vals(ctx_host, 'sample.string.write_me')
-test_store(ctx_local, 'name=sample.double.write_me&value=bad')
-test_store(ctx_local, 'name=sample.aggregate.write_me&value=bad')
+test_store(ctx_host, 'name=sample.double.write_me&value=bad')
+test_store(ctx_host, 'name=sample.aggregate.write_me&value=bad')
 
 test_store(ctx_host, 'name=sample.colour&value=10&instance=0')
 check_vals(ctx_host, 'sample.colour')
@@ -302,7 +279,7 @@ check_vals(ctx_host, 'sample.colour')
 # ------------------------------------------------------------------------
 
 def test_metric(ctx, suffix):
-    # Check some prometheus format values
+    # Check some OpenMetrics format values
     req = requests.get(url=url + 'pmapi/'+str(ctx)+'/metrics?'+suffix)
     print('context #'+str(ctx)+' metrics '+suffix+' response code ' + str(req.status_code))
     if (req.status_code != 200):
@@ -321,5 +298,5 @@ test_metric(ctx_host, 'target=sample.ulong.bin_ctr')
 print('sleeping briefly to expire contexts')
 time.sleep(7) # >> polltimeout=5
 
-test_metadata(ctx_local,'names=kernel.all.nprocs')  # expect status 400ish
+test_metadata(ctx_host,'names=kernel.all.nprocs')  # expect status 400
 test_indom(ctx_host,'names=kernel.all.nprocs')

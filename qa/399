@@ -24,31 +24,36 @@ $sudo rm -f core* $seq.core*
 
 echo
 echo "Test 1"
-if [ $PCP_PLATFORM = linux ]
-then
 
-cat >$tmp.conf <<'End-of-File'
+case $PCP_PLATFORM
+in
+    linux|freebsd|openbsd|netbsd)
+	_need_metric disk.dev.avactive
+	cat >$tmp.conf <<'End-of-File'
 dsk = "disk.dev";
 total0 = $delta * $dsk.total@0;
 total1 = $delta * $dsk.total@1;
 iops = $delta * ($dsk.total@0 - $dsk.total@1);
 resp = $delta * 1000 * ($dsk.avactive@0 - $dsk.avactive@1);
 End-of-File
+	;;
 
-elif [ $PCP_PLATFORM = solaris ]
-then
-
-cat >$tmp.conf <<'End-of-File'
+    solaris)
+	_need_metric disk.dev.run.time
+	cat >$tmp.conf <<'End-of-File'
 dsk = "disk.dev";
 total0 = $delta * $dsk.total@0;
 total1 = $delta * $dsk.total@1;
 iops = $delta * ($dsk.total@0 - $dsk.total@1);
 resp = $delta * 1000 * ($dsk.run.time@0 - $dsk.run.time@1);
 End-of-File
+	;;
 
-else
-    bozo!
-fi
+    *)
+	echo "No case for PCP_PLATFORM=$PCP_PLATFORM, bozo!"
+	exit
+	;;
+esac
 
 pmie -vv -t 1 -T 1 <$tmp.conf >/dev/null 2>$tmp.err
 echo "Stderr output ..."
@@ -58,10 +63,11 @@ _check_core
 
 echo
 echo "Test 2"
-if [ $PCP_PLATFORM = linux ]
-then
 
-cat >$tmp.conf <<'End-of-File'
+case $PCP_PLATFORM
+in
+    linux|freebsd|openbsd|netbsd)
+	cat >$tmp.conf <<'End-of-File'
 dsk = "disk.dev";
 total0 = $delta * $dsk.total@0;
 total1 = $delta * $dsk.total@1;
@@ -69,11 +75,10 @@ iops = $delta * ($dsk.total@0 - $dsk.total@1);
 resp = $delta * 1000 * ($dsk.avactive@0 - $dsk.avactive@1);
 avg = $delta * 1000 * ($dsk.avactive@0 - $dsk.avactive@1) / ($dsk.total@0 - $dsk.total@1);
 End-of-File
+	;;
 
-elif [ $PCP_PLATFORM = solaris ]
-then
-
-cat >$tmp.conf <<'End-of-File'
+    solaris)
+	cat >$tmp.conf <<'End-of-File'
 dsk = "disk.dev";
 total0 = $delta * $dsk.total@0;
 total1 = $delta * $dsk.total@1;
@@ -81,10 +86,9 @@ iops = $delta * ($dsk.total@0 - $dsk.total@1);
 resp = $delta * 1000 * ($dsk.run.time@0 - $dsk.run.time@1);
 avg = $delta * 1000 * ($dsk.run.time@0 - $dsk.run.time@1) / ($dsk.total@0 - $dsk.total@1);
 End-of-File
+	;;
 
-else
-    bozo!
-fi
+esac
 
 pmie -vv -t 1 -T 1 <$tmp.conf >/dev/null 2>$tmp.err
 echo "Stderr output ..."

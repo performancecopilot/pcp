@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMGETCHILDRENSTATUS 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -53,18 +53,18 @@ special case, if
 is an empty string (i.e.\f3""\f1), the immediate descendants of
 the root node in the PMNS will be returned.
 .PP
-If 
-.IR status 
-is not NULL, then 
+If
+.IR status
+is not NULL, then
 .B pmGetChildrenStatus
 will also return the status of each child via
 .IR status.
-The status will refer to either a leaf node (with value 
+The status will refer to either a leaf node (with value
 .B PMNS_LEAF_STATUS
 ) or a non-leaf node (with value
 .B PMNS_NONLEAF_STATUS
 ).
-.PP 
+.PP
 Normally,
 .B pmGetChildrenStatus
 will return the number of descendent names discovered, else a value
@@ -90,12 +90,12 @@ caller to
 .IR offspring )
 to release the space
 when it is no longer required.
-The same holds true for the 
+The same holds true for the
 .I status
 array.
 .PP
 When an error occurs, or
-.I name 
+.I name
 is a leaf node (i.e. the result of
 .B pmGetChildrenStatus
 is less than one), both
@@ -135,7 +135,7 @@ function.
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and
-.BR pmns (5).
+.BR PMNS (5).
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOPMNS\f1
 Failed to access a PMNS for operation.

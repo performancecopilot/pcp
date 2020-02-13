@@ -17,6 +17,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
+@ 22.0 Instance domain for "perserver" metrics
+
 @ web.config.numservers number of servers in configuration file
 The number of Web servers specified in the configuration file.
 The log files for these Web servers may or may not be monitored,

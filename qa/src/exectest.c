@@ -132,7 +132,7 @@ Options:\n\
 	    printf(": %s\n", pmErrStr(sts));
 	}
 	else {
-	    if (pmDebugOptions.desperate) printf(" fileno(pin)=%d", fileno(pin));
+	    if (pmDebugOptions.desperate) printf(" fileno(pout)=%d", fileno(pout));
 	    putchar('\n');
 	    printf("--- start pipe input ---\n");
 	    while ((c = fgetc(fin)) != EOF) {

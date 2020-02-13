@@ -34,14 +34,15 @@ _filter_pmproxy()
 	-e '/^__pmSetDataIPC:/d' \
 	-e '/^__pmDataIPC: /d' \
 	-e '/^IPC table fd/d' \
-
+	-e '/^pmproxy: disabled time series, requires libuv support (missing)/d' \
+    # end
 }
 
 _check()
 {
-    connects=`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'`
-    disconnects=`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'`
-    difference=$(($connects - $disconnects))
+    connects=`egrep 'AcceptNewClient|accept new client' $tmp.log | wc -l`
+    disconnects=`egrep 'DeleteClient|connection closed' $tmp.log | wc -l`
+    difference=`expr $connects - $disconnects`
     echo "N connects"
     echo "N-$difference disconnects"
     echo "--- $tmp.log ---" >>$here/$seq.full
@@ -80,7 +81,7 @@ do
     echo
     echo "kill off a client ..."
     echo "kill off client pid=$pid" >>$here/$seq.full
-    $signal -s KILL $pid
+    $signal -s KILL $pid >>$here/$seq.full 2>&1
     sleep 1
     _check
 done

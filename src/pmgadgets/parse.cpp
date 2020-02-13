@@ -63,7 +63,15 @@ public:
     char	*inst;                   // instance name (may be NULL)
 };
 
-int AddMetrics(double a, QList<MetricData*>&b, QedGadget *c) { return 0; /* TODO */ }
+int AddMetrics(double a, QList<MetricData*>&b, QedGadget *c)
+{
+    /* TODO */
+    (void)a;
+    (void)b;
+    (void)c;
+
+    return 0;
+}
 
 typedef struct {
     int		id;

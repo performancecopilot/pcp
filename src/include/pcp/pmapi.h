@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2019 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -220,6 +220,7 @@ typedef struct pmDesc {
 #define PM_ERR_NEEDCLIENTCERT	(-PM_ERR_BASE-63)   /* PMCD requires a client certificate */
 #define PM_ERR_BADDERIVE	(-PM_ERR_BASE-64)   /* Derived metric definition failed */
 #define PM_ERR_NOLABELS		(-PM_ERR_BASE-65)   /* No support for label metadata */
+#define PM_ERR_PMDAFENCED	(-PM_ERR_BASE-66)   /* PMDA is currently fenced and unable to respond to requests */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
@@ -563,15 +564,18 @@ typedef struct pmLabel {
 } pmLabel;
 
 /* Bits for the flags field (above) */
-#define PM_LABEL_OPTIONAL	(1<<7)
+#define PM_LABEL_COMPOUND	(1<<6)	/* name has multiple components */
+#define PM_LABEL_OPTIONAL	(1<<7)	/* intrinsic / extrinsic label */
 
 typedef struct pmLabelSet {
     unsigned int 	inst;		/* PM_IN_NULL or the instance ID */
     int			nlabels;	/* count of labels or error code */
     char		*json;		/* JSON formatted labels string */
     unsigned int	jsonlen : 16;	/* JSON string length byte count */
-    unsigned int	padding : 16;	/* zero, reserved for future use */
+    unsigned int	padding : 15;	/* zero, reserved for future use */
+    unsigned int	compound: 1;	/* flag indicating compound names */
     pmLabel		*labels;	/* indexing into the JSON string */
+    void		*hash;		/* compound naming hash (opaque) */
 } pmLabelSet;
 
 #define PM_MAXLABELS		((1<<8)-1)
@@ -1065,7 +1069,7 @@ PCP_CALL extern void pmFreeHighResEventResult(pmHighResResult **);
 /* Service discovery, for clients. */
 #define PM_SERVER_SERVICE_SPEC	"pmcd"
 #define PM_SERVER_PROXY_SPEC	"pmproxy"
-#define PM_SERVER_WEBD_SPEC	"pmwebd"
+#define PM_SERVER_WEBAPI_SPEC	"pmwebapi"
 
 PCP_CALL extern int pmDiscoverServices(const char *, const char *, char ***);
 
@@ -1132,6 +1136,9 @@ typedef struct {
     int labels;		/* Metric label metadata operations */
     int series;		/* Time series tracing */
     int	libweb;		/* Trace services from libpcp_web */
+    int	appl3;		/* Application-specific flag 3 */
+    int	appl4;		/* Application-specific flag 4 */
+    int	appl5;		/* Application-specific flag 5 */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;

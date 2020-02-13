@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 
-# Copyright (c) 2018 Red Hat.  All Rights Reserved.
+# Copyright (c) 2018-2019 Red Hat.  All Rights Reserved.
 # Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -23,16 +23,16 @@
 import os
 import sys
 import time
+import traceback
 from ctypes import c_int
+import psycopg2
 try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
-import traceback
 from pcp.pmapi import pmUnits
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 import cpmapi as c_api
-import psycopg2
 if sys.version >= '3':
     long = int  # python2 to python3 portability (no long() in python3)
 
@@ -63,7 +63,7 @@ class POSTGRESQLPMDA(PMDA):
     def __init__(self, name, domain):
         """ constructor """
         PMDA.__init__(self, name, domain)
-        self.dbg = False # True for very verbose logging
+        self.verbose = False # True for very verbose logging
         self.debug("starting __init__")
 
         #
@@ -101,8 +101,8 @@ class POSTGRESQLPMDA(PMDA):
             self.PM_ID(0, 11) : ['postgresql.stat.activity.query_start', 'pg_stat_activity', 'query_start',
                 pmdaMetric(self.PM_ID(0, 11), c_api.PM_TYPE_STRING, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, zeroUnits)],
 
-            self.PM_ID(0, 12) : ['postgresql.stat.activity.waiting', 'pg_stat_activity', 'wait_event_type', # or 'waiting'
-                pmdaMetric(self.PM_ID(0, 12), c_api.PM_TYPE_32, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, zeroUnits)],
+            # self.PM_ID(0, 12) : ['postgresql.stat.activity.waiting', 'pg_stat_activity', 'wait_event_type', # or 'waiting'
+                # pmdaMetric(self.PM_ID(0, 12), c_api.PM_TYPE_32, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, zeroUnits)],
 
             self.PM_ID(0, 13) : ['postgresql.stat.activity.current_query', 'pg_stat_activity', 'query',
                 pmdaMetric(self.PM_ID(0, 13), c_api.PM_TYPE_STRING, self.INDOM_ID(3), c_api.PM_SEM_INSTANT, zeroUnits)],
@@ -730,15 +730,27 @@ class POSTGRESQLPMDA(PMDA):
         self.port = self.conf["port"]
         self.dbname = self.conf["dbname"]
         self.user = self.conf["user"]
-        self.password = self.conf["password"]
+        # GH##586 : need to escape backslashes and single quotes in password strings
+        self.password = self.conf["password"].replace("\\", "\\\\").replace("'", "\\'")
 
-        self.log("Switching to user '%s'" % self.user)
-        self.set_user(self.user)
+        # GH##586 : only switch user if osuser is set in the config file
+        try:
+            self.osuser = self.conf["osuser"]
+            self.log("Switching to user '%s'" % self.osuser)
+            self.set_user(self.osuser)
+        except KeyError:
+            # just run as the current user
+            pass
 
         self.log("Connecting to host '%s', port '%s', db '%s' as user '%s'" % (self.host, self.port, self.dbname, self.user))
+        retries = 0
         while not self.pg_connect():
             # server not running or invalid credentials
-            time.sleep(10) # keep trying ...
+            time.sleep(5) # keep trying ...
+            retries += 1
+            if retries > 5:
+                self.log("FATAL: failed to connect after 5 retries")
+                sys.exit(1)
 
         cur = self.pg_cursor()
         cur.execute('SELECT version()')
@@ -769,17 +781,24 @@ class POSTGRESQLPMDA(PMDA):
         self.set_fetch_callback(self.pg_fetch_callback)
         self.log("completed __init__")
 
-    def pg_refresh(self, pmid):
-        """ refresh table rowdata for given metric, if not already done """
-        table = self.metrictable[pmid][self.METRIC_TABLE]
+    def pg_refresh(self, arg_id, id_is_indom=False):
+        """ refresh table rowdata for given indom (or metric), if not already done """
+
+        if id_is_indom:
+            indom = arg_id
+            table = self.indomtable[indom][self.INDOM_TABLE]
+        else:
+            pmid = arg_id
+            table = self.metrictable[pmid][self.METRIC_TABLE]
+            if self.pmid_column_dict[pmid] is None:
+                # no mapping for this metric
+                return
+            indom = self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.indom
+
         if table in self.refreshed_tables:
-            # nothing to do - table already refreshed for this fetch
-            return
-        if self.pmid_column_dict[pmid] is None:
-            # no mapping for this metric
+            # nothing to do - table already refreshed
             return
 
-        indom = self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.indom
         if indom == c_api.PM_INDOM_NULL:
             # refresh table for singular indom
             self.debug("pg_refresh singular table %s" % table)
@@ -859,13 +878,13 @@ class POSTGRESQLPMDA(PMDA):
         self.debug("pg_refresh_all: started")
         self.refreshed_tables = []
         for pmid, _ in self.metrictable.items():
-            self.pg_refresh(pmid)
+            self.pg_refresh(pmid, False)
         self.debug("pg_refresh_all: finished")
 
     def pg_instance(self, serial):
         """ Called once per "instance" PDU """
         indom = self.INDOM_ID(serial)
-        self.pg_refresh(indom)
+        self.pg_refresh(indom, True)
 
     def pg_fetch(self):
         """ Called once per fetch PDU, before callbacks """
@@ -878,8 +897,9 @@ class POSTGRESQLPMDA(PMDA):
         if pmid not in self.metrictable:
             return [c_api.PM_ERR_PMID, 0]
 
-        if self.pmid_column_dict[pmid] is None:
+        if pmid not in self.pmid_column_dict or self.pmid_column_dict[pmid] is None:
             # no mapping for this metric with this version of postgresql
+            self.debug("pg_fetch_callback: no mapping for metric %d.%d.%d" % (110, cluster, item))
             return [c_api.PM_ERR_APPVERSION, 0]
 
         pmnsname = self.metrictable[pmid][self.METRIC_NAME]
@@ -888,7 +908,7 @@ class POSTGRESQLPMDA(PMDA):
         # refresh the table for this pmid, if necessary
         table = self.metrictable[pmid][self.METRIC_TABLE]
         if table not in self.refreshed_tables:
-            self.pg_refresh(pmid)
+            self.pg_refresh(pmid, False)
 
         self.debug("pg_fetch_callback pmid 0x%04x '%s': cluster %d, item %d, inst %d, indom=0x%04x" %
             (pmid, pmnsname, cluster, item, inst, indom))
@@ -1032,9 +1052,9 @@ class POSTGRESQLPMDA(PMDA):
         """ connect to the postgresql server """
         if self.host == "local":
             # local UNIX domain, but still need port number for the socket filename
-            params = "port=%s dbname=%s user=%s password=%s" % (self.port, self.dbname, self.user, self.password)
+            params = "port=%s dbname=%s user=%s password='%s'" % (self.port, self.dbname, self.user, self.password)
         else:
-            params = "host=%s port=%s dbname=%s user=%s password=%s" % (self.host, self.port, self.dbname, self.user, self.password)
+            params = "host=%s port=%s dbname=%s user=%s password='%s'" % (self.host, self.port, self.dbname, self.user, self.password)
         try:
             self.conn = psycopg2.connect(params)
         except (psycopg2.DatabaseError) as error: # pylint disable: broad-except
@@ -1058,16 +1078,16 @@ class POSTGRESQLPMDA(PMDA):
                 self.cur.execute('SELECT version()')
                 connected = True
             except (psycopg2.InterfaceError, psycopg2.DatabaseError):
-                self.log("Warning: connection lost to postgres server, reconnecting ...")
+                self.log("Connection lost to postgres server, reconnecting ...")
                 if not self.pg_connect():
                     time.sleep(2)
         # success
         return self.cur
 
     def debug(self, msg):
-        """ print message if dbg is set """
-        if self.dbg:
-            self.log("debug: " + msg)
+        """ print diagnostic message if verbose logging is enabled """
+        if self.verbose:
+            self.dbg(msg)
 
 if __name__ == "__main__":
     pmda = POSTGRESQLPMDA("postgresql", 110)

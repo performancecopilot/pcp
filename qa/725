@@ -38,7 +38,7 @@ _cleanup()
 	    $sudo cp $tmp.cache $cache
 	    $sudo rm -f $tmp.cache
 	fi
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	if $install_on_cleanup
@@ -130,6 +130,7 @@ sed < $PCP_PMCDCONF_PATH \
 	-e "/^$iam.*/s/$/ -j JBD2PATH/" \
 	-e "s,JBD2PATH,$tmp.jbd2.dir,g" \
 	> $tmp.conf
+echo "# Installed by PCP QA test $seq on `date`" >>$tmp.conf
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
 $sudo rm -f $cache	# local host indom cache
 $sudo $PCP_BINADM_DIR/pmsignal -a -s HUP pmcd

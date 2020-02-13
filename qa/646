@@ -18,27 +18,16 @@ echo "QA output created by $seq"
 status=0	# success is the default!
 files1="$PCP_TMP_DIR/mmv/test-$$ $PCP_TMP_DIR/mmv/notest-$$ $PCP_TMP_DIR/mmv/simple-$$"
 files2="$PCP_TMP_DIR/mmv/test2-$$ $PCP_TMP_DIR/mmv/notest2-$$ $PCP_TMP_DIR/mmv/simple2-$$"
-culldir=false
 
 _cleanup()
 {
-    $culldir && _restore_config "$PCP_TMP_DIR/mmv"
     $sudo rm -f $files1 $files2
+    _restore_pmda_mmv
     rm -f $tmp.*
 }
 
 $sudo rm -rf $tmp.* $seq.full $files1 $files2
 trap "_cleanup; exit \$status" 0 1 2 3 15
-
-# is a pre-existing mmv directory in place?  if so, write access needed
-if [ -d "$PCP_TMP_DIR/mmv" ]
-then
-    _save_config "$PCP_TMP_DIR/mmv"
-    $sudo rm -rf $PCP_TMP_DIR/mmv
-fi
-culldir=true
-$sudo mkdir -p -m 1777 "$PCP_TMP_DIR/mmv"
-$sudo chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/mmv"
 
 _filter_mmvdump()
 {
@@ -61,6 +50,9 @@ _filter_mmvdump()
 	-e "s,^MMV file.*= $PCP_TMP_DIR,MMV file   = \$PCP_TMP_DIR,g" \
 
 }
+
+# real QA test starts here
+_prepare_pmda_mmv
 
 echo $$ > $seq.full
 

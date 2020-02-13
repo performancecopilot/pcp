@@ -63,7 +63,7 @@ QmcMetric::QmcMetric(QmcGroup *group, const char *string,
     if (my.status < 0) {
 	pmprintf("%s: Error: Unable to parse metric spec:\n%s\n", 
 		 pmGetProgname(), msg);
-	my.name = QString::null;
+	my.name = QString();
 	free(msg);
     }
     else {
@@ -116,6 +116,7 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
     int descType;
     char *src = NULL;
     char *name = NULL;
+    char *host = NULL;
 
     if (metricSpec->isarch == 1)
 	contextType = PM_CONTEXT_ARCHIVE;
@@ -153,10 +154,12 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	    my.status = PM_ERR_CONV;
 	    name = strdup(nameAscii());
 	    src = strdup(context()->source().sourceAscii());
+	    /* hostAscii() is already a strdup'd result */
+	    host = context()->source().hostAscii();
 	    pmprintf("%s: Error: %s%c%s is not supported on %s\n",
 		     pmGetProgname(), contextType == PM_CONTEXT_LOCAL ? "@" : src,
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
-		     name, context()->source().hostAscii());
+		     name, host);
 	}
 	else if (descType == PM_TYPE_AGGREGATE ||
 		 descType == PM_TYPE_AGGREGATE_STATIC ||
@@ -176,6 +179,8 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	free(name);
     if (src)
 	free(src);
+    if (host)
+	free(host);
 }
 
 void
@@ -917,13 +922,13 @@ QmcEventRecord::parameterAsString(int index) const
     QString identifier;
 
     if (index >= my.parameters.size())
-	return QString::null;
+	return QString();
 
     int type = my.parameters[index].type();
     if (QmcMetric::real(type))
 	return QString::number(my.parameters.at(index).value(0));
     if (QmcMetric::event(type))
-	return QString::null;
+	return QString();
     return my.parameters.at(index).stringValue(0);
 }
 
@@ -936,7 +941,7 @@ QmcEventRecord::identifier() const
     //
     if (my.flags & PM_EVENT_FLAG_ID)
 	return parameterAsString(0);
-    return QString::null;
+    return QString();
 }
 
 QString
@@ -949,7 +954,7 @@ QmcEventRecord::parent() const
     //
     if (my.flags & PM_EVENT_FLAG_PARENT)
 	return parameterAsString((my.flags & PM_EVENT_FLAG_ID) != 0);
-    return QString::null;
+    return QString();
 }
 
 void
@@ -972,7 +977,7 @@ QmcEventParameter::summary(QString &os, int instID) const
             if (my.values.size() > 1)
                 os.append("\n").append("        ");
             QString name = my.indom->name(instID);
-            if (name == QString::null)
+            if (name == QString())
                 os.append("[").append(instID).append("]");
             else
                 os.append("[\"").append(name).append("\"]");
@@ -1032,7 +1037,7 @@ QmcEventParameter::dump(QTextStream &os, int instID) const
 	    if (my.values.size() > 1)
 		os << endl << "        ";
 	    QString name = my.indom->name(instID);
-	    if (name == QString::null)
+	    if (name == QString())
 		os << "[" << instID << "]";
 	    else
 		os << "[\"" << name << "\"]";
@@ -1094,7 +1099,7 @@ QmcMetric::dumpEventMetric(QTextStream &os, bool srcFlag, uint instance) const
 		instID = my.values[i].instance();
 
 	    QString inst = instName(instID);
-	    if (inst == QString::null)
+	    if (inst == QString())
 		os << "[" << instID << "]";
 	    else
 		os << "[\"" << inst << "\"]";

@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMNSMERGE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -32,8 +32,8 @@ Performance Co-Pilot (PCP).
 Each
 .I infile
 argument names a file that includes the root of a PMNS, of the form
-.P
 .sp 0.5v
+.P
 .in +1i
 .ft CW
 .nf
@@ -68,8 +68,8 @@ The merging proceeds by matching names in PMNS, only those
 added after any existing metrics with the longest possible
 matching prefix in their names.
 For example, merging these two input PMNS
-.P
 .sp 0.5v
+.P
 .in +1i
 .ft CW
 .nf
@@ -78,7 +78,7 @@ root {                    root {
     mine       1:1:1          mine      1:1:1
     foo                       foo
                               yawn
-    yours      1:1:2 
+    yours      1:1:2
 }                         }
 foo {                     foo {
     fumble     1:2:1
@@ -94,15 +94,15 @@ foo {                     foo {
 .P
 Produces the resulting PMNS in
 .IR out .
-.P
 .sp 0.5v
+.P
 .in +1i
 .ft CW
 .nf
 root {
     mine      1:1:1
     foo
-    yours     1:1:2 
+    yours     1:1:2
     surprise  1:1:3
     yawn
 }
@@ -130,7 +130,8 @@ to be unlinked (if possible) and truncated before writing starts.
 .PP
 Normally
 duplicate names for the same Performance Metric Identifier (PMID) in
-a PMNS are allowed.  The
+a PMNS are allowed.
+The
 .B \-d
 option is the default option and is included for backwards compatibility.
 The
@@ -170,25 +171,39 @@ In addition to
 syntactic checking, specifying
 .B \-x
 will also enable a check for duplicate names for all PMIDs.
-.SH CAVEAT
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-a\fR
+Process files in command line order.
+.TP
+\fB\-d\fR, \fB\-\-dupok\fR
+Allow duplicate metric names per PMID.
+This is the default.
+.TP
+\fB\-f\fR, \fB\-\-force\fR
+Overwrite output file if it already exists.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Verbose input processing.
+.TP
+\fB\-x\fR, \fB\-\-nodups\fR
+Do not allow duplicate metric names per PMID.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH CAVEATS
 Once the writing of the new
 .I outfile
 file has begun, the signals SIGINT, SIGHUP and SIGTERM will be ignored
 to protect the integrity of the new file.
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR pmnsadd (1),
 .BR pmnsdel (1),
@@ -196,4 +211,4 @@ as described in
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and
-.BR pmns (5).
+.BR PMNS (5).

@@ -1,0 +1,54 @@
+#!/bin/sh
+# PCP QA Test No. 1408
+# test pmchart handling missing archives and timezones
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.config
+
+which pmchart >/dev/null 2>&1 || _notrun "pmchart not installed"
+[ -z "$DISPLAY" -a -z "$PCPQA_CLOSE_X_SERVER" ] && _notrun "need DISPLAY or PCPQA_CLOSE_X_SERVER"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+if [ -z "$DISPLAY" ]
+then
+    export DISPLAY=$PCPQA_CLOSE_X_SERVER
+fi
+
+_filter()
+{
+    sed -e '/^QStandardPaths: XDG_RUNTIME_DIR not set.*/d'
+}
+
+# real QA test starts here
+export PCP_STDERR=$tmp.err
+pmchart -C -a /no/such/file -z 2>&1 | _filter
+if [ -s $tmp.err ]
+then
+    echo "stderr from pmchart -C -a /no/such/file -z"
+    cat $tmp.err
+else
+    echo "no stderr from pmchart -C -a /no/such/file -z"
+    exit
+fi
+
+# success, all done
+status=0
+exit

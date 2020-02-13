@@ -1,13 +1,13 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2012-2013 Red Hat.
+.\" Copyright (c) 2012-2013, 2019 Red Hat.
 .\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -36,7 +36,8 @@ A series of physical files will be created with the prefix \fIoutfile\fR.
 These are \fIoutfile\fR\fB.0\fR (the performance data),
 \&\fIoutfile\fR\fB.meta\fR (the metadata that describes the performance data) and
 \&\fIoutfile\fR\fB.index\fR (a temporal index to improve efficiency of replay
-operations for the archive).  If any of these files exists already,
+operations for the archive).
+If any of these files exists already,
 then \fBsar2pcp\fR will \fBnot\fR overwrite them and will exit with an error
 message of the form
 .PP
@@ -47,11 +48,19 @@ around the \s-1PCP\s0 \fIlibpcp_import\fR
 library, and as such could be used as an example to develop new
 tools to import other types of performance data and create \s-1PCP\s0 archives.
 A Python wrapper module is also available.
-.SH "CAVEATS"
-.IX Header "CAVEATS"
+.SH NOTES
+As of \fBsysstat\fR version 12.0.5, \fBsadc\fR(1) has added functionality to
+directly write \s-1PCP\s0 archive files.
+To produce archive files from sar run:
+.sp
+.nf
+$ sadf -l -O pcparchive=ARCHIVE_NAME sar.dat -- -A
+.fi
+.sp
+.SH CAVEATS
 When not using the \s-1XML\s0 input option, \fBsar2pcp\fR requires \fIinfile\fR to
 have been created by a version of \fBsadc\fR(1) from
-<http://sebastien.godard.pagesperso\-orange.fr/>
+.B http://sebastien.godard.pagesperso\-orange.fr/
 which includes the \fBsadf\fR(1) utility
 to translate \fIinfile\fR into an \s-1XML\s0 stream (any since version 6);
 \&\fBsar2pcp\fR will automatically run \fBsadf\fR(1) and translate the resultant
@@ -59,8 +68,8 @@ to translate \fIinfile\fR into an \s-1XML\s0 stream (any since version 6);
 .PP
 When using binary \fBsadc\fR files
 it is important to ensure the installed \fBsadf\fR is compatible with the
-version of \fBsadc\fR that originally generated the binary files.  Simply
-assuming a newer installed version will work is unfortunately far too
+version of \fBsadc\fR that originally generated the binary files.
+Simply assuming a newer installed version will work is unfortunately far too
 optimistic, and nor should one assume that binary data from different
 platforms (e.g. different endianness) will work \- these issues are due
 to limitations in \fBsadc\fR and \fBsadf\fR, and not in \fBsar2pcp\fR itself.
@@ -71,26 +80,23 @@ been detected is consistent across versions, and is always prefixed
 Invalid system activity file
 .PP
 Using an \s-1XML\s0 \fIinfile\fR has the advantage that the installed version
-of \fBsadf\fR is completely bypassed.  \fBsar2pcp\fR undertakes to transform
+of \fBsadf\fR is completely bypassed.
+\fBsar2pcp\fR undertakes to transform
 any valid \s-1XML\s0 produced by any of the different variations of \fBsadf\fR
-into a valid \s-1PCP\s0 archive.  Any version of \s-1PCP\s0 will be able to interpret
+into a valid \s-1PCP\s0 archive.
+Any version of \s-1PCP\s0 will be able to interpret
 the archive files produced by any version of \fBsar2pcp\fR, and you are
 also free to move the binary \s-1PCP\s0 archive between different platforms,
 different hardware, even different operating systems \- it Just Works (\s-1TM\s0).
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR pmie (1),
 .BR pmchart (1),

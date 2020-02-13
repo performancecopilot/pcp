@@ -30,29 +30,29 @@ _cleanup()
 	# put pmcd.conf back
 	#
 	_restore_config $PCP_PMCDCONF_PATH
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	# reinstall the sample PMDA ... the PMNS will have been trashed
 	#
 	cd $PCP_VAR_DIR/pmdas/sample
-	sudo ./Install </dev/null >>$here/$seq.full
+	$sudo ./Install </dev/null >>$here/$seq.full
 	done_clean=true
     fi
     cd $here
-    $sudo rm -rf $tmp $tmp.*
+    $sudo rm -rf $tmp $tmp.* $here/$seq.dir
     exit $status
 }
 
 _fixup()
 {
     $sudo cp $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH
-    _service pmcd restart | _filter_pcp_start
+    _service pmcd restart 2>&1 | _filter_pcp_start
     _wait_for_pmcd
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
+$sudo rm -rf $tmp $tmp.* $seq.full $here/$seq.dir
 trap "_cleanup; exit \$status" 0 1 2 3 15
 done_clean=false
 _save_config $PCP_PMCDCONF_PATH
@@ -83,16 +83,15 @@ s/\[[0-9][0-9]*]/[N]/
     # end
 }
 
-if mkdir -p $tmp/pmdas/whacko
+if mkdir -p $here/$seq.dir/pmdas/whacko
 then
     :
 else
-    echo "Arrgh: cannot mkdir $tmp/pmdas/whacko"
-    ls -ld $tmp
+    echo "Arrgh: cannot mkdir $here/$seq.dir/pmdas/whacko"
     exit
 fi
-cp pmdas/whacko/* $tmp/pmdas/whacko
-cd $tmp/pmdas/whacko
+cp pmdas/whacko/* $here/$seq.dir/pmdas/whacko
+cd $here/$seq.dir/pmdas/whacko
 if [ -f GNUmakefile.install ]
 then
     # running from a git tree, not the testsuite directory, so use

@@ -23,6 +23,7 @@ if [ $PCP_PLATFORM = linux ] ; then
 	    'SUSE LINUX Enterprise Server 9 '*|\
 	    'SUSE Linux Enterprise Server 10 '*|\
 	    'SUSE Linux Enterprise Server 11 '*|\
+	    'SUSE Linux Enterprise Server 12 '*|\
 	    'openSUSE '*)
 		ln $seq.linux $seq.out
 		;;
@@ -55,9 +56,9 @@ if [ $PCP_PLATFORM = linux ] ; then
 	ln $seq.linux $seq.out
     elif [ -f /etc/os-release ]
     then
-	if grep 'openSUSE Leap 15.0' /etc/os-release >/dev/null
+	if grep 'openSUSE Leap 15.[01]' /etc/os-release >/dev/null
 	then
-	    ln $seq.opensuse.15 $seq.out
+	    ln $seq.linux $seq.out
 	fi
     fi
 
@@ -105,7 +106,7 @@ p
 	    exit 1
 	fi
     fi
-elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = freebsd ]
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
 then
     ln $seq.darwin $seq.out
 elif [ $PCP_PLATFORM = solaris ]

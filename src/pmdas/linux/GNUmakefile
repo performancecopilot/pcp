@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013-2018 Red Hat.
+# Copyright (c) 2013-2019 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -39,7 +39,7 @@ CFILES		= pmda.c linux_table.c mem_bandwidth.c namespaces.c \
 		  proc_net_raw.c proc_net_udp.c proc_net_unix.c \
 		  proc_net_snmp6.c proc_buddyinfo.c proc_zoneinfo.c \
 		  sysfs_tapestats.c proc_net_sockstat6.c \
-		  proc_fs_nfsd.c proc_tty.c
+		  proc_fs_nfsd.c proc_tty.c proc_pressure.c
 
 HFILES		= linux.h linux_table.h convert.h namespaces.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
@@ -54,7 +54,7 @@ HFILES		= linux.h linux_table.h convert.h namespaces.h \
 		  proc_net_raw.h proc_net_udp.h proc_net_unix.h \
 		  proc_net_snmp6.h proc_buddyinfo.h proc_zoneinfo.h \
 		  sysfs_tapestats.h proc_net_sockstat6.h \
-		  proc_fs_nfsd.h proc_tty.h
+		  proc_fs_nfsd.h proc_tty.h proc_pressure.h
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag

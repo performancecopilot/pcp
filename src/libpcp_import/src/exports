@@ -31,3 +31,10 @@ PCP_IMPORT_1.1 {
   global:
     pmiPutMark;
 } PCP_IMPORT_1.0;
+
+PCP_IMPORT_1.2 {
+  global:
+    pmiPutText;
+    pmiPutLabel;
+    pmiCluster;
+} PCP_IMPORT_1.1;

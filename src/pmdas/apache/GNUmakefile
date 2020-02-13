@@ -30,7 +30,7 @@ PMCHART	= $(PCP_VAR_DIR)/config/pmchart
 
 LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so $(TARGETS)
 LLDFLAGS= -L$(TOPDIR)/src/libpcp_web/src
-LLDLIBS	= -lpcp_web $(PCP_PMDALIB)
+LLDLIBS	= -lpcp_web $(PCP_PMDALIB) $(LIB_FOR_LIBUV)
 
 default: build-me
 

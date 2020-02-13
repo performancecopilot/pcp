@@ -21,6 +21,7 @@
 
 #include <linux/limits.h>
 #include "architecture.h"
+#include "configparser.h"
 
 #define CONFIG  0
 #define CONFIG1 1     /* Extension of config1 */
@@ -80,11 +81,11 @@ struct software_event {
     unsigned long long config;
 };
 
-char dev_dir[PATH_MAX];   /* Optional path prefix for the PMU devices */
+extern char dev_dir[];   /* Optional path prefix for the PMU devices */
 
-int init_dynamic_events(struct pmu **pmu_list);
-void setup_cpu_config(struct pmu *pmu_ptr, int *ncpus, int **cpuarr);
-int get_file_string(char *path, char *buf);
-void cleanup_pmu_list(struct pmu *pmu);
+extern int init_dynamic_events(struct pmu **pmu_list, struct pmcsetting *dynamicpmc);
+extern void setup_cpu_config(struct pmu *pmu_ptr, int *ncpus, int **cpuarr);
+extern int get_file_string(char *path, char *buf);
+extern void cleanup_pmu_list(struct pmu *pmu);
 
 #endif /* PARSE_EVENTS_H_ */

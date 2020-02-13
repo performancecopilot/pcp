@@ -1,0 +1,15 @@
+[Unit]
+Description=Poll system activity report generation
+Documentation=man:pmlogger_daily_report(1)
+ConditionPathExists=!@CRONTAB_DAILY_REPORT_PATH@
+
+[Service]
+Type=oneshot
+Environment="PMLOGGER_DAILY_REPORT_POLL_PARAMS=-o @PCP_SA_DIR@ -p"
+EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
+ExecStart=@PCP_BINADM_DIR@/pmlogger_daily_report $PMLOGGER_DAILY_REPORT_POLL_PARAMS
+User=@PCP_USER@
+
+[Install]
+WantedBy=pmlogger.service
+RequiredBy=pmlogger_daily_report.service

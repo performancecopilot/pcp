@@ -1,16 +1,16 @@
 '\"macro stdmacro
 .\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .TH QMC_METRIC 3 "SGI" "Performance Co-Pilot"
 .SH NAME
 \f3QmcMetric\f1 \- container for a metric and all its values
@@ -18,7 +18,7 @@
 .ft 3
 #include <pcp/pmc/Metric.h>
 .sp
-CC ... \-lpcp_pmc \-lpcp 
+CC ... \-lpcp_pmc \-lpcp
 .ft 1
 .SH DESCRIPTION
 A
@@ -41,7 +41,7 @@ objects, indexes to the descriptors in the metric's
 and
 .B QmcContext
 and flags to indicate if the instances are explicit or implicit, and if
-only active metrics are required after 
+only active metrics are required after
 .B QmcMetric::updateIndom
 is called.
 .SH "CONSTRUCTORS"
@@ -72,7 +72,7 @@ even if they are in a different order.
 Add the instance
 .B name
 to the metric.  If the instance does not exist in the instance domain,
-a 
+a
 .BR PMAPI (3)
 error will be returned.  This method ignores the value of the
 .I active
@@ -82,7 +82,7 @@ constructor.
 .TP
 .B "void removeInst(uint_t index);"
 Remove the instance at position
-.I index 
+.I index
 from the metric.
 .SH SEE ALSO
 .BR PMAPI (3),

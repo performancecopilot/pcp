@@ -25,8 +25,6 @@ static int _isDSO = 1; /* for local contexts */
 
 static char *cifs_procfsdir = "/proc/fs/cifs";
 static char *cifs_statspath = "";
-unsigned int global_version_major;
-unsigned int global_version_minor;
 
 pmdaIndom indomtable[] = {
     { .it_indom = CIFS_FS_INDOM },
@@ -444,7 +442,8 @@ cifs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return PM_ERR_PMID;
     }
 
-    return 1;
+    /* NOTREACHED */
+    return PMDA_FETCH_NOVALUES;
 }
 
 static int

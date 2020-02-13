@@ -339,7 +339,7 @@ fi
 #
 if [ -z "$titleArg" ]
 then
-    titleArg="SGI PCP : Web Server Activity for Host $host"
+    titleArg="PCP: Web Server Activity for Host $host"
 fi
 
 

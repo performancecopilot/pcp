@@ -387,26 +387,29 @@ main(int argc, char *argv[])
 
 	fprintf(stderr,
 	    "Client Cache %% hit rate: %.2f\n", 
-	    100.0*(float)client_cache_hits/(float)(client_cache_hits + proxy_cache_hits + remote_fetches));
+	    client_cache_hits + proxy_cache_hits + remote_fetches> 0 ?
+		100.0*(float)client_cache_hits/(float)(client_cache_hits + proxy_cache_hits + remote_fetches) : 0.0);
 	fprintf(stderr,
 	    "Proxy  Cache %% hit rate: %.2f\n", 
-	    100.0*(float)proxy_cache_hits/(float)(client_cache_hits + proxy_cache_hits + remote_fetches));
+	    client_cache_hits + proxy_cache_hits + remote_fetches > 0 ?
+		100.0*(float)proxy_cache_hits/(float)(client_cache_hits + proxy_cache_hits + remote_fetches) : 0.0);
 	fprintf(stderr,
 	    "Local  Cache %% hit rate: %.2f\n", 
-	    100.0*(float)(client_cache_hits + proxy_cache_hits)/
-		(float)(client_cache_hits + proxy_cache_hits + remote_fetches));
+	    client_cache_hits + proxy_cache_hits + remote_fetches > 0 ?
+		100.0*(float)(client_cache_hits + proxy_cache_hits)/
+		    (float)(client_cache_hits + proxy_cache_hits + remote_fetches) : 0.0);
 
 	fprintf(stderr,
 	    "\nAverage fetch size: Proxy  -> Client: %.2f  Kb\n",
-	    proxy_bytes/proxy_cache_hits/1000.0);
+	    proxy_cache_hits > 0 ? proxy_bytes/proxy_cache_hits/1000.0 : 0.0);
 	fprintf(stderr,
 	    "Average fetch size: Remote -> Client : %.2f  Kb\n",
-	    remote_bytes/remote_fetches/1000.0);
+	    remote_fetches > 0 ? remote_bytes/remote_fetches/1000.0 : 0.0);
 
 	fprintf(stderr,"\nClient Cache bandwidth reduction effectiveness: UNKNOWN\n");
 	fprintf(stderr,
 	    "Proxy  Cache bandwidth reduction effectiveness: %f%%\n", 
-	    100.0*proxy_bytes/(proxy_bytes +  remote_bytes));
+	    proxy_bytes +  remote_bytes > 0 ? 100.0*proxy_bytes/(proxy_bytes +  remote_bytes) : 0.0);
 
     }
 

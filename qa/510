@@ -27,8 +27,10 @@ _cleanup()
 	_restore_config $control
 	needclean=false
 	_restore_primary_logger
-	_service pcp restart | _filter_pcp_start
-	_wait_for_pmcd
+	echo "Stop/start at end ..." >>$here/$seq.full
+	_stop_primary_pmlogger
+	_service pmlogger start 2>&1 | _filter_pcp_start
+	_wait_for_pmlogger
     fi
     $sudo rm -f $tmp.*
     exit $status
@@ -40,18 +42,51 @@ _filter()
 	-e 's/Version [0-9].*/Version VERSION/'
 }
 
+# Note.  If cron-based or systemd-timers are running we have a
+# potential race with a primary pmlogger being started after
+# we stop the primary logger and before we start our special -Dall
+# one.
+# This procedure does not protect against that, but it does minimize
+# the risk somewhat ... sigh.
+#
+_stop_primary_pmlogger()
+{
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$here/$seq.full
+    _pid=`_get_pids_by_name -a 'pmlogger.*-P'`
+    _numpid=`echo $_pid | wc -w | sed -e 's/ //g'`
+    echo "Found: $_numpid ($_pid)" >>$here/$seq.full
+    case "$_numpid"
+    in
+	0)
+	    echo "Arrgh ... expected one primary logger, found none"
+	    exit
+	    ;;
+	1)
+	    ;;
+	*)
+	    echo "Arrgh ... expecting one primary logger, found $_numpid ($_pid)"
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger'
+	    exit
+	    ;;
+    esac
+    ls -l $PCP_TMP_DIR/pmlogger >>$here/$seq.full
+    _service pmlogger stop 2>&1 | _filter_pcp_stop
+    _wait_pmlogger_end $_pid >>$here/$seq.full 2>&1
+}
+
 control=$PCP_PMLOGGERCONTROL_PATH
 [ -f $PCP_PMLOGGERCONTROL_PATH.d/local ] && \
 control=$PCP_PMLOGGERCONTROL_PATH.d/local
 
 # stop primary logger, add -Dall to config file and restart pmlogger
-_service pcp stop >/dev/null 2>&1
+echo "Stop/start at beginning ..." >>$here/$seq.full
+_stop_primary_pmlogger
+
 sed -e '/^LOCALHOSTNAME/s/$/ -Dall/' < $control >$tmp.control
 _save_config $control
 $sudo cp $tmp.control $control
 _writable_primary_logger
-_service pcp restart | _filter_pcp_start
-_wait_for_pmcd
+_service pmlogger start 2>&1 | _filter_pcp_start
 _wait_for_pmlogger
 
 # real QA test starts here

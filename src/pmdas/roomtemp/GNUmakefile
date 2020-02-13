@@ -71,3 +71,6 @@ libmlan.a : $(SUBDIRS)
 default_pcp : default
 
 install_pcp : install
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

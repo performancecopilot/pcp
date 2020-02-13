@@ -78,7 +78,7 @@ _check_1()
     echo "=== check_1 pre-join ===" >>$seq.full
     ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq.full
     ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq.full
-    join -j1 -a1 -a2 $tmp.1 $tmp.2 \
+    join -1 1 -2 1  -a1 -a2 $tmp.1 $tmp.2 \
     | $PCP_AWK_PROG '
 	{ nval = (NF-1)/2
 	  for (i = 2; i <= nval+1; i++) {
@@ -107,7 +107,7 @@ _check_2()
     echo "=== check_2 pre-join ===" >>$seq.full
     ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq.full
     ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq.full
-    join -j1 -a1 -a2 $tmp.2 $tmp.1 \
+    join -1 1 -2 1 -a1 -a2 $tmp.2 $tmp.1 \
     | sed -e 's/)://g' \
     | $PCP_AWK_PROG '
 	{ nval = (NF-1)/2

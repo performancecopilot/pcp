@@ -1,86 +1,74 @@
 #! /bin/sh
 # PCP QA Test No. 662
-# checks pmwebd functionality using python test script
+# Exercises REST API functionality using python requests module
 #
-# Copyright (c) 2013-2015 Red Hat, Inc.  All Rights Reserved.
+# Copyright (c) 2013-2015,2019 Red Hat.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.webapi
 . ./common.python
 
-_check_pmwebd
+_check_series
 _check_requests_json
 
-# only restart pmwebd if it was running before the QA test starts
-#
-if [ -n "`_get_pids_by_name pmwebd`" ]
-then
-    restart_pmwebd=true
-else
-    restart_pmwebd=false
-fi
-
-_stop_auto_restart pmwebd # see GH #394
-_service pmwebd stop >/dev/null 2>&1
-$sudo $signal -a pmwebd >/dev/null 2>&1
-
 $sudo rm -f $tmp.* $seq.full
-
-pyscript=src/test_webapi.py
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
-username=`id -u -n`
-
-webargs="-U $username -P"
-webport=`_find_free_port`
-webpid=""
+hostname=`hostname`
+machineid=`_machine_id`
+if which domainname >/dev/null 2>&1
+then
+    domainname=`domainname`
+else
+    domainname=`hostname -d`
+fi
+[ -z "$domainname" ] && domainname=localdomain
+[ "$domainname" = "(none)" ] && domainname=localdomain
+need_restore=true
 
 _cleanup()
 {
-    if [ "X$webpid" != "X" ]; then
-	$signal -s TERM $webpid
-	webpid=""
+    if $need_restore
+    then
+	need_restore=false
+	$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+	_restore_config $PCP_ETC_DIR/pcp/labels
+	_sighup_pmcd
     fi
-    _restore_auto_restart pmwebd
-    $restart_pmwebd && _service pmwebd restart >/dev/null 2>&1
+    _restore_auto_restart pmproxy
+    $restart_pmproxy && _service pmproxy restart >/dev/null 2>&1
     $sudo rm -f $tmp.*
 }
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-$PCP_BINADM_DIR/pmwebd -l $tmp.out $webargs -p $webport -v -t5 &
-webpid=$!
-echo "pid=$webpid" >>$seq.full
-echo "webport=$webport" >>$seq.full
-echo "webargs=$webargs" >>$seq.full
+_filter_labels()
+{
+    sed \
+	-e "s/domainname=.${domainname}./domainname=\"DOMAIN\"/g" \
+	-e "s/machineid=.${machineid}./machineid=\"MACHINE\"/g" \
+	-e "s/hostname=.${hostname}./hostname=\"HOSTNAME\"/g" \
+    #end
+}
 
-_wait_for_pmwebd_logfile $tmp.out $webport
+# real test starts here
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -f $PCP_ETC_DIR/pcp/labels/*
+_sighup_pmcd
 
-# prepare the expected output file based on detected mode
-rm -f $seq.out
-if grep -q IPv6 $tmp.out; then
-    grep -q IPv4 $tmp.out || _notrun "QA host running in IPv6 mode only"
-    ln $seq.out.46 $seq.out	# ipv6 + ipv4
-else
-    ln $seq.out.4 $seq.out	# ipv4 only
-fi
+_service pmproxy restart >/dev/null 2>&1
 
-ipv6local=`_ipv6_localhost`
-echo "ipv6local=$ipv6local" >>$seq.full
-if grep -q IPv4 $tmp.out; then
-    echo && echo === IPv4 pmwebd testing via python ===
-    $python $pyscript --host localhost --port $webport | _webapi_response_filter
-fi
-if grep -q IPv6 $tmp.out; then
-    echo && echo === IPv6 pmwebd testing via python ===
-    $python $pyscript --host $ipv6local --port $webport | _webapi_response_filter
-fi
+# make the same derived metrics available between the processes
+# being compared (pminfo is run within test_webapi.py, which is
+# affected by this (qa/common unsets this).
+#
+export PCP_DERIVED_CONFIG="$PCP_VAR_DIR/config/derived"
+$python $here/src/test_webapi.py | _webapi_response_filter | _filter_labels
 
 echo >>$here/$seq.full
-echo "=== pmwebd log ===" >>$here/$seq.full
-cat $tmp.out >>$here/$seq.full
+echo "=== pmproxy log ===" >>$here/$seq.full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$here/$seq.full
 
 status=0
 exit

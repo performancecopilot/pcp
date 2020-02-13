@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2014 Aconex
 # Copyright (c) 2014-2015,2017 Red Hat.
+# Copyright (c) 2019 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,8 +16,9 @@
 # 
 
 import cpmapi as c_api
+import cpmda
 from ctypes import cast, c_char_p, Structure, POINTER
-from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid, pmdaGetContext
 from pcp.pmapi import pmUnits, pmContext as PCP
 
 class Numeric(Structure):
@@ -36,6 +38,8 @@ class TestPMDA(PMDA):
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)
         self.refreshes = 0
+        self.ctxtabval = {}
+        self.ctxtabuser = {}
 
         self.some_indom = self.indom(0)
         self.other_indom = self.indom(1)
@@ -61,12 +65,22 @@ class TestPMDA(PMDA):
                 pmdaMetric(self.pmid(3, 0),
                 c_api.PM_TYPE_STRING, self.loaded_indom, c_api.PM_SEM_INSTANT,
                 pmUnits(0, 0, 0, 0, 0, 0)))
+        self.add_metric(name + '.current_ctx',
+                pmdaMetric(self.pmid(4, 0),
+                c_api.PM_TYPE_STRING, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 0, 0, 0, 0)))
+        self.add_metric(name + '.current_username',
+                pmdaMetric(self.pmid(5, 0),
+                c_api.PM_TYPE_STRING, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 0, 0, 0, 0)))
 
         self.set_refresh(self.test_update_status)
         self.set_refresh_all(self.test_refresh_all)
         self.set_fetch_callback(self.test_fetch_callback)
         self.set_store_callback(self.test_store_callback)
+        self.set_attribute_callback(self.test_attribute_callback)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
+        self.set_comm_flags(cpmda.PMDA_FLAG_AUTHORIZE)
 
 
     def test_refresh_all(self, clusters):
@@ -82,13 +96,13 @@ class TestPMDA(PMDA):
             two_instances = [pmdaInstid(0, 'instance0'), pmdaInstid(1, 'instance1')]
             never_seen_instances = [pmdaInstid(99, 'instance99'), pmdaInstid(100, 'instance100'), pmdaInstid(101, 'instance101'), pmdaInstid(102, 'instance102')]
 
-            if self.refreshes < 1:
+            if self.refreshes <= 1:
                 self.replace_indom(self.some_indom, empty_instances)
-            elif self.refreshes < 3:
+            elif self.refreshes <= 3:
                 self.replace_indom(self.some_indom, one_instances)
-            elif self.refreshes < 5:
+            elif self.refreshes <= 5:
                 self.replace_indom(self.some_indom, two_instances)
-            elif self.refreshes < 7:
+            elif self.refreshes <= 7:
                 self.replace_indom(self.some_indom, never_seen_instances)
             else:
                 self.replace_indom(self.some_indom, empty_instances)
@@ -131,6 +145,14 @@ class TestPMDA(PMDA):
                 return [c_api.PM_ERR_INST, 0]
             cache = cast(voidp, POINTER(Numeric))
             return [str(cache.contents.s.decode('utf-8')), 1]
+        elif cluster == 4 and item == 0:
+            ctx = pmdaGetContext()
+            val = "ctx %d val %s" % (ctx, self.ctxtabval.get(ctx))
+            return [val, 1]
+        elif cluster == 5 and item == 0:
+            ctx = pmdaGetContext()
+            val = "ctx %d user %s" % (ctx, self.ctxtabuser.get(ctx))
+            return [val, 1]
         return [c_api.PM_ERR_PMID, 0]
 
 
@@ -142,7 +164,17 @@ class TestPMDA(PMDA):
         elif cluster == 3 and item == 0:
             self.loaded.load()
             return 0
+        elif cluster == 4 and item == 0:
+            ctx = pmdaGetContext()
+            self.log("set ctxtabval[%d] = %s" % (ctx, value))
+            self.ctxtabval[ctx] = value
+            return 0
         return c_api.PM_ERR_PERMISSION
+
+    def test_attribute_callback(self, ctx, attr, value):
+        self.log("attribute callback for ctx %d attr %d value %s" % (ctx, attr, repr(value)))
+        if attr == cpmda.PMDA_ATTR_USERNAME:
+            self.ctxtabuser[ctx] = value
 
 
 if __name__ == '__main__':

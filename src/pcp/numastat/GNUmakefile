@@ -38,3 +38,6 @@ install_pcp : install
 
 check:: $(SCRIPT)
 	$(PYLINT) $^
+
+check :: $(MAN_PAGES)
+	$(MANLINT) $^

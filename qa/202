@@ -21,7 +21,7 @@ _filter()
     pmdumplog $1 \
     | tee -a $seq.full \
     | $PCP_AWK_PROG '
-/\<mark\>/	{ mark++; next }
+/<mark>/	{ mark++; next }
 /^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\./	{ rec++ }
 END		{ printf "%d records",rec
 		  if (mark) printf ", and %d marks",mark
@@ -29,7 +29,7 @@ END		{ printf "%d records",rec
 		}'
     pmdumplog $1 \
     | $PCP_AWK_PROG >$1.stamp '
-/\<mark\>/	{ print $1 "-mark"; next }
+/<mark>/	{ print $1 "-mark"; next }
 /^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\./	{ print $1 }'
 }
 

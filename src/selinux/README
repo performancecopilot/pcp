@@ -2,40 +2,144 @@ PCP SELinux Module
 
 == TL;DR ==
 
-Dammit Jim, I'm a developer, not a selinux expert!
+Dammit Jim, I'm a developer, not an SELinux expert!
 
-Ok ok, AVC denials are logged in /var/log/audit/audit.log Pull out the
-relevant errors, and either, forward that along with the bug/pull
+Ok ok, AVC denials are logged in /var/log/audit/audit.log.  Pull out
+the relevant errors, and either, forward that along with the bug/pull
 request for us to add/fix, or run:
 
-cat /var/log/audit/audit.log | audit2allow -w
+sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \
+| audit2allow -w
 
-which will verify that the avc is not already covered in the pcp
-policy file, and then:
+which will verify that the AVC is not already covered in the pcp
+policy file.
 
-cat /var/log/audit/audit.log | audit2allow -M mypolicy
-semodule -i mypolicy.pp
+Now there are two options ... create and load your own module policy
+(good for testing)
+
+    $ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \
+    | audit2allow -M mypolicy
+    $ sudo semodule -i mypolicy.pp
+
+Else merge the new rules into the PCP package rules, probably in
+src/selinux/pcpupstream.te.in.
+
+    $ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \
+    | audit2allow -m myrules
+
+This will produce output something like
+
+    module myrules 1.0;
+
+    require {
+        type pcp_pmcd_t;
+	class capability chown;
+    }
+
+    #============= pcp_pmcd_t ==============
+
+    allow pcp_pmcd_t self:capability chown;
+
+
+At which point you need to make sure all the "types" (pcp_pmcd_t
+above), "classes" (capability chown above) and other elements in the
+require { ... } clause are already mentioned in the require { ... }
+clause in src/selinux/pcpupstream.te.in.  If they are missing, add
+them here.  Note that classes may be sets, hence the form
+
+    class capability { kill ... chown ... };
+
+rather than the singular form
+
+    class capability chown;
+
+as reported by audit2allow -m.
+
+Also, some of the "require" elements may be optional (not supported on
+all versions of SELinux), so watch out for things like
+
+    @PCP_TRACEFS@
+
+which becomes
+
+    type tracefs_t;
+
+or
+
+    <nothing>
+
+and the corresponding conditional rules, like @PCP_TRACEFS_FS_RULE@,
+@PCP_TRACEFS_DIR_RULE@ and @PCP_TRACEFS_FILE_RULE@
+
+Now go further down src/selinux/pcpupstream.te.in and add the "allow"
+clause from audit2allow -m, prefixed by the full text of the matching
+AVC line from audit.log as a comment, so something like:
+
+    # type=AVC msg=audit(1554197433.052:5607): avc: denied { chown } for pid=8999 comm="pmdasimple" capability=0 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
+    allow pcp_pmcd_t self:capability chown;
+
+For documentation, it will help to replace the msg=audit(...) part
+with msg=audit(XXX.<N>) (or YYY.<N>) provided the <N> (number) part is
+chosen to make the line unique across all type=AVC comments ... the
+src/selinux/next-xxx-yyy script will report the next avaliable unique
+IDs for both XXX.<N> and YYY.<N>.
 
 Be careful you understand what context accesses you're allowing with
 this policy, and that they *should* be allowed.
 
 If you choose the latter, please be a good samaritan and forward the
-relevant avc denials upstream for the community to apply and ship the
+relevant AVC denials upstream for the community to apply and ship the
 updated policy package.
+
+There's also a possibility that the AVC is covered by some dontaudit
+rule. You can temporary disable dontaudit rules using:
+
+    # semodule -DB
+
+There's also other than AVC audit events related to SELinux - USER_AVC
+and SELINUX_ERR that could be checked in case of unexplained issues:
+
+    # ausearch -m avc,user_avc,selinux_err -i -ts recent
 
 == Building ==
 
-make -f /usr/share/selinux/devel/Makefile
+In the src/selinux directory
+
+    $ make clean
+    $ make
+
+Ignore any errors off in other people's rules, like
+
+    /usr/share/selinux/devel/include/contrib/container.if:242: Error: duplicate definition of container_systemctl(). Original definition on 324.
+
+there's not much we can do about those.
 
 == Installing ==
 
-# semodule -X 400 -i pcpupstream.pp
+    $ sudo semodule -X 400 -i pcpupstream.pp
 
 verify installation with:
 
-# semodule --list=full 
+   $ sudo semodule --list=full | grep pcpupstream
+
+== QA ==
+
+Next go over to qa and possibly modify tests 1622 and 917.
+
+Add/delete/modify the matching AVC line changes from
+src/selinux/pcpupstream.te.in (without the comment # prefix) to the
+end of the here-is document in qa/1622.
+
+If you add, edit or remove "allow" lines in
+src/selinux/pcpupstream.te.in then you need to review the
+corresponding type=AVC line in qa/1622 and make sure they are
+consistent.
+
+And test 917.out.in may need some adjustment if you've added or
+deleted or amended the allow rules.
 
 == Bugs ==
+
 https://bugzilla.redhat.com/show_bug.cgi?id=1337968
 https://bugzilla.redhat.com/show_bug.cgi?id=1381127
 https://bugzilla.redhat.com/show_bug.cgi?id=1398147
@@ -51,19 +155,16 @@ https://bugzilla.redhat.com/show_bug.cgi?id=1336211
 /etc/rc\.d/init\.d/pmlogger            regular file       system_u:object_r:pcp_pmlogger_initrc_exec_t:s0 
 /etc/rc\.d/init\.d/pmmgr               regular file       system_u:object_r:pcp_pmmgr_initrc_exec_t:s0 
 /etc/rc\.d/init\.d/pmproxy             regular file       system_u:object_r:pcp_pmproxy_initrc_exec_t:s0 
-/etc/rc\.d/init\.d/pmwebd              regular file       system_u:object_r:pcp_pmwebd_initrc_exec_t:s0 
 /usr/bin/pmcd                          regular file       system_u:object_r:pcp_pmcd_exec_t:s0 
 /usr/bin/pmie                          regular file       system_u:object_r:pcp_pmie_exec_t:s0 
 /usr/bin/pmlogger                      regular file       system_u:object_r:pcp_pmlogger_exec_t:s0 
 /usr/bin/pmmgr                         regular file       system_u:object_r:pcp_pmmgr_exec_t:s0 
 /usr/bin/pmproxy                       regular file       system_u:object_r:pcp_pmproxy_exec_t:s0 
-/usr/bin/pmwebd                        regular file       system_u:object_r:pcp_pmwebd_exec_t:s0
 /usr/libexec/pcp/bin/pmcd              regular file       system_u:object_r:pcp_pmcd_exec_t:s0 
 /usr/libexec/pcp/bin/pmie              regular file       system_u:object_r:pcp_pmie_exec_t:s0 
 /usr/libexec/pcp/bin/pmlogger          regular file       system_u:object_r:pcp_pmlogger_exec_t:s0 
 /usr/libexec/pcp/bin/pmmgr             regular file       system_u:object_r:pcp_pmmgr_exec_t:s0 
 /usr/libexec/pcp/bin/pmproxy           regular file       system_u:object_r:pcp_pmproxy_exec_t:s0 
-/usr/libexec/pcp/bin/pmwebd            regular file       system_u:object_r:pcp_pmwebd_exec_t:s0
 /usr/share/pcp/lib/pmie                regular file       system_u:object_r:pcp_pmie_exec_t:s0 
 /usr/share/pcp/lib/pmlogger            regular file       system_u:object_r:pcp_pmlogger_exec_t:s0
 /var/lib/pcp(/.*)?                     all files          system_u:object_r:pcp_var_lib_t:s0 
@@ -72,10 +173,14 @@ https://bugzilla.redhat.com/show_bug.cgi?id=1336211
 /var/run/pmcd\.socket                  regular file       system_u:object_r:pcp_var_run_t:s0 
 /var/run/pmlogger\.primary\.socket     symbolic link      system_u:object_r:pcp_var_run_t:s0 
 
-
 == Background ==
 
-Selinux is a layer of security on top of traditional unix permissions.
+Security-Enhanced Linux (SELinux) is a Linux kernel security module
+that provides a mechanism for supporting access control security
+policies, including mandatory access controls (MAC).  On SELinux
+enabled systems both the traditional UNIX/POSIX, user dictated DAC
+(discretionary access control) and policy based MAC rules must allow
+access to resources where needed.
 
 ls -lZ /var/lib/pcp/
 total 88
@@ -85,22 +190,24 @@ drwxr-xr-x.  2 root  root  system_u:object_r:pcp_var_lib_t:s0  4096 Jan 18 17:13
 drwxr-xr-x. 34 pcpqa pcpqa system_u:object_r:pcp_var_lib_t:s0 69632 Jan 18 17:15 testsuite
 drwxrwxr-x.  8 pcp   pcp   system_u:object_r:pcp_var_lib_t:s0  4096 Jan 18 17:13 tmp
                            |                                |
-	       	     	   \----- selinux permissions ------/
+	                   \----- SELinux permissions ------/
 
 system_u:object_r:pcp_var_lib_t:s0
 |-------| 
     ^   |--------|
     |	     ^   |-------------|
-    |	     |	 	^      |--|
+    |	     |	        ^      |--|
     |        |          |        ^
     |        |          |        +- Priority
     |        |          +---------- Context
     |        +--------------------- Role
     +------------------------------ User
 
-In general usage, the only portion we care about is the Context (ie pcp_var_lib_t).
+In general usage, the only portion we care about is the Context (ie
+pcp_var_lib_t).
 
-SELinux manages a list of 'contexts' and how contexts are allowed to interact with each other.
+SELinux manages a list of 'contexts' and how contexts are allowed to
+interact with each other.
 
 For example, it makes sense for the 'pcp_pmlogger_t' context to be
 able to read and write to PCP log files with a 'pcp_log_t' context.
@@ -108,16 +215,17 @@ However, it doesn't make sense for 'pcp_pmlogger_t' to write to Apache
 log files, which have a 'httpd_log_t' context.
 
 Where this can be of focus for PCP is various PMDA's gathering metrics
-from domains.  And, using the example with Apache earlier, many of these
-files have different contexts.  We need to document these accesses and
-why they're required, building our own policy package for inclusion in
-the running policy.
+from domains.  And, using the example with Apache earlier, many of
+these files have different contexts.  We need to document these
+accesses and why they're required, building our own policy package for
+inclusion in the running policy.
 
 == Testing ==
 
 Policy Packages can be examined using the 'sedismod' tool.
 
-The testsuite makes use of the 'unconditional AVTAB' listing, for example;
+The testsuite makes use of the 'unconditional AVTAB' listing, e.g:
+
 $ printf "1\nq\n" | sedismod pcpupstream.pp
 
 unconditional avtab:
@@ -141,8 +249,20 @@ decl 1:
   allow [pcp_pmie_t] self : [capability] { kill net_admin chown };
 
 == Additional Resources ==
+
 http://equivocation.org/node/24
 http://equivocation.org/node/27
 http://equivocation.org/node/42
 http://equivocation.org/node/51
 http://equivocation.org/node/52
+
+== Debugging Policy Package Notes ==
+
+In instances where a policy package fails to load and produces an
+error related to the cil file, you can use the following command to
+extract the policy package to an equivalent state to debug:
+
+# /usr/libexec/selinux/hll/pp /path/to/pcpupstream.pp /tmp/pcpupstream.cil
+
+It is then possible to inspect the offending cil file to determine the
+missing context/class/type.

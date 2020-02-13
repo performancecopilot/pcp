@@ -32,7 +32,7 @@ refresh_proc_net_unix(proc_net_unix_t *up)
     for (buf[0]='\0';;) {
 	q = strchrnul(p, '\n');
 	if (*q == '\n') {
-	    if (sscanf(p, "%*s %*s %*s %*s %*s %x %x", &type, &state) == 2) {
+	    if (sscanf(p, "%*s %*s %*s %*s %x %x", &type, &state) == 2) {
 		if (type == 0x0002)
 		    up->datagram_count++;
 		else if (type == 0x0001) {

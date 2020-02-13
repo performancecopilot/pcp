@@ -10,6 +10,7 @@ networking/GNUmakefile
 platform/GNUmakefile
 sgi/GNUmakefile
 sqlserver/GNUmakefile
+statsd/GNUmakefile
 storage/GNUmakefile
 tools/GNUmakefile
 v1.0/GNUmakefile

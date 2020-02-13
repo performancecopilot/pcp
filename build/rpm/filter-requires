@@ -65,9 +65,11 @@ in
 	# See RedHat BZ 830923 and BZ 754678 for Spreadsheet::Read
 	# issues.
 	# Does not seem to matter what version of RH or Fedora.
+	# and CentOS sees an issue with /usr/bin/sh
 	$* \
 	| sed \
-	    -e '/^perl(Spreadsheet::Read)$/d'
+	    -e '/^perl(Spreadsheet::Read)$/d' \
+	    -e '/^\/usr\/bin\/sh$/d'
 	;;
     *)
 	$*

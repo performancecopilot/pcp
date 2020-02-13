@@ -1,7 +1,7 @@
 QA output created by 1068
 == Zabbix Archive ===
 == Zabbix server input ===
-header: 0000000   Z   B   X   D
+header: 0000000 Z B X D
 body:
 {
 	"request":"sender data",
@@ -39,7 +39,7 @@ body:
 }
 == Zabbix LLD ===
 == Zabbix server input ===
-header: 0000000   Z   B   X   D
+header: 0000000 Z B X D
 body:
 {
 	"request":"sender data",

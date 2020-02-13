@@ -9,6 +9,7 @@
 
 #include "qwt_series_data.h"
 #include "qwt_math.h"
+#include <qnumeric.h>
 
 static inline QRectF qwtBoundingRect( const QPointF &sample )
 {
@@ -59,7 +60,8 @@ static inline QRectF qwtBoundingRect( const QwtOHLCSample &sample )
 /*!
   \brief Calculate the bounding rectangle of a series subset
 
-  Slow implementation, that iterates over the series.
+  Slow implementation, that iterates over the series. Ignores samples that
+  are NaN as they do not lie within a finite bounding box.
 
   \param series Series
   \param from Index of the first sample, <= 0 means from the beginning
@@ -67,6 +69,15 @@ static inline QRectF qwtBoundingRect( const QwtOHLCSample &sample )
 
   \return Bounding rectangle
 */
+static inline bool sampleBoundValid(QRectF rect)
+{
+    if ( qIsNaN(rect.left()) || qIsNaN(rect.right()) ||
+         qIsNaN(rect.top()) || qIsNaN(rect.bottom()) )
+        return false;
+    if ( rect.width() < 0.0 || rect.height() < 0.0 )
+        return false;
+    return true;
+}
 
 template <class T>
 QRectF qwtBoundingRectT(
@@ -87,7 +98,7 @@ QRectF qwtBoundingRectT(
     for ( i = from; i <= to; i++ )
     {
         const QRectF rect = qwtBoundingRect( series.sample( i ) );
-        if ( rect.width() >= 0.0 && rect.height() >= 0.0 )
+        if ( sampleBoundValid( rect ) )
         {
             boundingRect = rect;
             i++;
@@ -98,7 +109,7 @@ QRectF qwtBoundingRectT(
     for ( ; i <= to; i++ )
     {
         const QRectF rect = qwtBoundingRect( series.sample( i ) );
-        if ( rect.width() >= 0.0 && rect.height() >= 0.0 )
+        if ( sampleBoundValid( rect ) )
         {
             boundingRect.setLeft( qMin( boundingRect.left(), rect.left() ) );
             boundingRect.setRight( qMax( boundingRect.right(), rect.right() ) );

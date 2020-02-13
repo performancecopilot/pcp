@@ -1,0 +1,60 @@
+#! /bin/sh
+#
+# Copyright (c) 2019 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Upgrade an older (perl) mssql PMDA to latest (python) version
+#
+
+. $PCP_DIR/etc/pcp.env
+
+if grep -q ^mssql "$PCP_PMCDCONF_PATH" 2>/dev/null
+then
+    sed -i -e "s,perl $PCP_PMDAS_DIR/mssql/pmdamssql.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/mssql/pmdamssql.python,g" $PCP_PMCDCONF_PATH 2>/dev/null
+fi
+
+perlpath=`which $PCP_PERL_PROG`
+original="$PCP_PMDAS_DIR/mssql/mssql.conf"
+upgraded="$PCP_PMDAS_DIR/mssql/mssql.conf.tmp"
+if grep -q '^my ' "$original"
+then
+    cp "$original" "$original".saved
+    #
+    # Extract perl parameters in the way the original PMDA did; then
+    # convert old format into new and finally move old config aside.
+    #
+    "$perlpath" > "$upgraded" << EOF
+my \$database = undef; # default: 'PCP'
+my \$username = undef; # default: 'dbmonitor'
+my \$password = undef; # default: 'dbmonitor'
+my \$server = undef;   # default: 'localhost'
+
+eval \`cat $PCP_PMDAS_DIR/mssql/mssql.conf\`;
+
+exit 0 unless defined(\$database) or defined(\$username) or defined(\$password) or defined(\$server);
+
+print "[authentication]\n";
+print "driver={ODBC Driver 17 for SQL Server}\n";
+\$server='tcp:localhost' unless (defined(\$server) and \$server ne '');
+print "server=\$server\n";
+\$database='master' unless (defined(\$database) and \$database ne '');
+print "database=\$database\n";
+\$username='sa' unless (defined(\$username) and \$username ne '');
+print "username=\$username\n";
+\$password='password' unless (defined(\$password) and \$password ne '');
+print "password=\$password\n";
+EOF
+    mv -f "$upgraded" "$original"
+    chmod 600 "$original"
+fi
+
+exit 0

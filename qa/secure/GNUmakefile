@@ -10,7 +10,7 @@ HANGFILES = $(shell echo hang-*)
 
 PYMODULES = pcppdu.python
 TESTCASES = $(CRASHFILES) $(QUERYFILES) $(LEAKFILES) $(HANGFILES)
-LDIRT = pcppdu.py pcppdu.pyc pcppdu.pyo
+LDIRT = pcppdu.py pcppdu.pyc pcppdu.pyo __pycache__
 
 default default_pcp setup: pcppdu.py
 

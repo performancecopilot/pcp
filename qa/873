@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_need_metric kernel.pernode.cpu metrics
+
 ncpu=$(pmprobe -v hinv.ncpu | awk '{print $NF}')
 [ $ncpu -eq 1 ] || _notrun only tested on single CPU systems
 

@@ -1844,6 +1844,27 @@ proc.psinfo.psargs
     inst [N or "026287 /usr/libexec/docker/docker-containerd-shim-current"] value "/usr/libexec/docker/docker-containerd-shim-current 0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736 /var/run/docker/libcontainerd/0ea0c47ef0e1a90cd10059a0da0abd4da28d3bc35ce15c7beb46da1c7ab02736 /usr/libexec/docker/docker-runc-current"
     inst [N or "026304 /bin/prometheus"] value "/bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles"
 
+== Fetching per-thread proc.psinfo.rss metric - procpid-4.18.13-root-006.tgz
+
+proc.psinfo.rss
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 11292
+    inst [N or "025731 podman"] value 18380
+    inst [N or "025951 /bin/prometheus"] value 27128
+
+== Fetching per-thread proc.psinfo.pid metric - procpid-4.18.13-root-006.tgz
+
+proc.psinfo.pid
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 1
+    inst [N or "025731 podman"] value 25731
+    inst [N or "025951 /bin/prometheus"] value 25951
+
+== Fetching per-thread proc.psinfo.psargs metric - procpid-4.18.13-root-006.tgz
+
+proc.psinfo.psargs
+    inst [N or "000001 /usr/lib/systemd/systemd"] value "/usr/lib/systemd/systemd --switched-root --system --deserialize 32"
+    inst [N or "025731 podman"] value "podman run -p 9091:9090 prom/prometheus"
+    inst [N or "025951 /bin/prometheus"] value "/bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles"
+
 == Fetching per-thread proc.psinfo.rss metric - procpid-4.2.3-root-004.tgz
 
 proc.psinfo.rss

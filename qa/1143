@@ -1,0 +1,78 @@
+#!/bin/sh
+# PCP QA Test No. 1143
+# pmie: some more %v tests (leaf nodes in expression tree and
+# string values), and test -v since both use the same formatting
+# routines now.
+#
+# Prompted by problem reported by Lukas Oliva <lukas.oliva@mavenir.com>
+# for values reported from:
+#	pmie -h host -v
+#	some_inst proc.psinfo.cmd == "java" -> print "%v %i";
+# where %v generated numbers like 4.68578e-310 instead of "java"
+#
+# Copyright (c) 2019 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    # DATE is like: Thu Jan 31 08:56:58 2019 or Thu Jan 31 18:20:11
+    tee -a $seq.full \
+    | sed \
+	-e '/.*Info: evaluator exiting/d' \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]/DATE/' \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e 's/ pmie([0-9][0-9]*) / pmie(PID) /' \
+    # end
+}
+
+# real QA test starts here
+pmie -v -t 0.1sec -T +0.15sec <<'End-of-File' >$tmp.out 2>&1
+sample.string.hullo == "hullo world!" -> print "hullo? %v";
+sample.string.hullo;
+sample.long.one == 1 -> print "long? %v";
+sample.long.one;
+sample.long.one + 12;
+sample.ulong.one == 1 -> print "ulong? %v";
+sample.ulong.one;
+sample.ulong.one + 12;
+sample.longlong.one == 1 -> print "longlong? %v";
+sample.longlong.one;
+sample.longlong.one + 12;
+sample.ulonglong.one == 1 -> print "ulonglong? %v";
+sample.ulonglong.one;
+sample.ulonglong.one + 12;
+sample.float.one == 1 -> print "float? %v";
+sample.float.one;
+sample.float.one + 12;
+sample.double.one == 1 -> print "double? %v";
+sample.double.one;
+sample.double.one + 12;
+some_inst ( sample.bin > 0 ) -> print "bin?" " [%i] %v";
+sample.bin;
+sample.bin + 13;
+some_inst ( sample.string.bin != "foo" ) -> print "string.bin?" " [%i] %v";
+sample.string.bin;
+End-of-File
+_filter <$tmp.out
+
+# success, all done
+status=0
+exit

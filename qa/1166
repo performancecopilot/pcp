@@ -34,10 +34,20 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+cat <<End-of-File >$tmp.makefile
+include $PCP_INC_DIR/builddefs
+
+TMP="$tmp"
+SEQ="$seq"
+
+default:
+		\$(CC) -I\$(PCP_INC_DIR)/.. \$(CFLAGS) \$(LDFLAGS) '-DSEQ=\$(SEQ)' '-DTMP=\$(TMP)' -o $tmp src/qa_libpcp_compat.c -lpcp
+End-of-File
+
 # real QA test starts here
 
-echo "=== binary compatibility checks ==="
-if cc -DBINARY_COMPAT_TEST "-DSEQ=\"$seq\"" "-DTMP=\"$tmp\"" -o $tmp src/qa_libpcp_compat.c -lpcp
+echo "=== binary compatibility checks ===" | tee -a $here/$seq.full
+if LCFLAGS="-DBINARY_COMPAT_TEST" $PCP_MAKE_PROG -f $tmp.makefile >$here/$seq.full 2>&1
 then
     if $tmp 2>&1 | _filter
     then
@@ -50,8 +60,8 @@ else
 fi
 
 echo
-echo "=== source code compatibility checks ==="
-if cc -o $tmp "-DSEQ=\"$seq\"" "-DTMP=\"$tmp\"" src/qa_libpcp_compat.c -lpcp
+echo "=== source code compatibility checks ===" | tee -a $here/$seq.full
+if $PCP_MAKE_PROG -f $tmp.makefile >$here/$seq.full 2>&1
 then
     if $tmp 2>&1 | _filter
     then

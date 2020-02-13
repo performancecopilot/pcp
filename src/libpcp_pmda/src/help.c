@@ -52,7 +52,7 @@ pmdaOpenHelp(const char *fname)
     help_t	*tmp_tab;
 
     for (sts = 0; sts < numhelp; sts++) {
-	if (tab[sts].dir_fd == -1)
+	if (tab[sts].text == NULL)
 	    break;
     }
     if (sts == numhelp) {
@@ -97,6 +97,8 @@ pmdaOpenHelp(const char *fname)
 	sts = -oserror();
 	goto failed;
     }
+    close(hp->dir_fd);
+    hp->dir_fd = -1;
 
     pmsprintf(pathname, sizeof(pathname), "%s.pag", fname);
     hp->pag_fd = open(pathname, O_RDONLY);
@@ -114,7 +116,11 @@ pmdaOpenHelp(const char *fname)
 	sts = -oserror();
 	goto failed;
     }
+    close(hp->pag_fd);
+    hp->pag_fd = -1;
+
     return numhelp - 1;
+
 
 failed:
     pmdaCloseHelp(numhelp-1);

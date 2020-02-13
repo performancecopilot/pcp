@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily processing of archive logs
+
+[Timer]
+OnCalendar=*-*-* 00:10:00
+
+[Install]
+WantedBy=timers.target
+RequiredBy=pmlogger.service

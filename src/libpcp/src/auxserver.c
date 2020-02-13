@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 Red Hat.
+ * Copyright (c) 2013-2019 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -80,8 +80,8 @@ __pmServiceAddPorts(const char *service, int **ports, int nports)
 	nports = __pmPMCDAddPorts(ports, nports);
     else if (strcmp(service, PM_SERVER_PROXY_SPEC) == 0)
 	nports = __pmProxyAddPorts(ports, nports);
-    else if (strcmp(service, PM_SERVER_WEBD_SPEC) == 0)
-	nports = __pmWebdAddPorts(ports, nports);
+    else if (strcmp(service, PM_SERVER_WEBAPI_SPEC) == 0)
+	nports = __pmWebAPIAddPorts(ports, nports);
     else
 	nports = -EOPNOTSUPP;
 
@@ -157,7 +157,7 @@ __pmProxyAddPorts(int **ports, int nports)
 }
 
 int
-__pmWebdAddPorts(int **ports, int nports)
+__pmWebAPIAddPorts(int **ports, int nports)
 {
     /*
      * The list of ports referenced by *ports may be (re)allocated
@@ -172,12 +172,12 @@ __pmWebdAddPorts(int **ports, int nports)
     int  new_nports = nports;
 
     PM_LOCK(__pmLock_extcall);
-    if ((env = getenv("PMWEBD_PORT")) != NULL)		/* THREADSAFE */
+    if ((env = getenv("PMWEBAPI_PORT")) != NULL)	/* THREADSAFE */
 	/*
 	 * THREADSAFE because __pmAddPorts acquires no locks (other than
 	 * on the fatal pmNoMem() path)
 	 */
-	new_nports = __pmAddPorts(env, ports, nports);		/* THREADSAFE */
+	new_nports = __pmAddPorts(env, ports, nports);	/* THREADSAFE */
     PM_UNLOCK(__pmLock_extcall);
 
     /*
@@ -185,7 +185,7 @@ __pmWebdAddPorts(int **ports, int nports)
      * error.
      */
     if (new_nports <= nports)
-	new_nports = __pmAddPorts(TO_STRING(PMWEBD_PORT), ports, nports);
+	new_nports = __pmAddPorts(TO_STRING(WEBAPI_PORT), ports, nports);
 
     return new_nports;
 }

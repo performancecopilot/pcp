@@ -66,10 +66,136 @@ _filter_darwin()
 	    -e '/^proc\..* Unknown metric name/d' \
 	    -e '/^kernel\.all\.intr .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.nusers .* Unknown metric name/d' \
-	    -e '/^kernel\.all\.pswitch .* Unknown metric name/d' \
 	    -e '/^mem\.util\.bufmem .* Unknown metric name/d' \
 	    -e '/^mem\.util\.cached .* Unknown metric name/d' \
 	# darwin
+    fi
+}
+
+_filter_freebsd()
+{
+    if [ $PCP_PLATFORM != freebsd ]
+    then
+	cat
+    else
+	sed \
+	    -e '/^disk\.all\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
+	    -e '/^filesys .* Unknown metric name/d' \
+	    -e '/^filesys\..* Unknown metric name/d' \
+	    -e '/^hinv\.nnode .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.io\..* Unknown metric name/d' \
+	    -e '/^kernel\.all\.kpreempt .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.kswitch .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.nusers .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pswitch .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.sysexec .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.sysfork .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.sysioctl .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.sysread .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.syswrite .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.uptime .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.pswitch .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.syscall .* Unknown metric name/d' \
+	    -e '/^mem\.util\.bufmem .* Unknown metric name/d' \
+	    -e '/^name_cache\.enters .* Unknown metric name/d' \
+	    -e '/^name_cache\.misses .* Unknown metric name/d' \
+	    -e '/^name_cache\.removes .* Unknown metric name/d' \
+	    -e '/^name_cache\.searches .* Unknown metric name/d' \
+	    -e '/^network\.icmp .* Unknown metric name/d' \
+	    -e '/^network\.igmp .* Unknown metric name/d' \
+	    -e '/^network\.interface\.collisions .* Unknown metric name/d' \
+	    -e '/^network\.ip .* Unknown metric name/d' \
+	    -e '/^network\.tcp .* Unknown metric name/d' \
+	    -e '/^network\.udp .* Unknown metric name/d' \
+	    -e '/^network\.udplite .* Unknown metric name/d' \
+	    -e '/^proc\..* Unknown metric name/d' \
+	# freebsd
+    fi
+}
+
+_filter_netbsd()
+{
+    if [ $PCP_PLATFORM != netbsd ]
+    then
+	cat
+    else
+	sed \
+	    -e '/^disk\.all\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.all\.blkread .* Unknown metric name/d' \
+	    -e '/^disk\.all\.blkwrite .* Unknown metric name/d' \
+	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
+	    -e '/^hinv\.nnode .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.io\..* Unknown metric name/d' \
+	    -e '/^kernel\.all\.kpreempt .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.kswitch .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.nusers .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.sysexec .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.sysfork .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.sysioctl .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.sysread .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.syswrite .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.uptime .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.pswitch .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.syscall .* Unknown metric name/d' \
+	    -e '/^mem\.util\.bufmem .* Unknown metric name/d' \
+	    -e '/^name_cache\.enters .* Unknown metric name/d' \
+	    -e '/^name_cache\.misses .* Unknown metric name/d' \
+	    -e '/^name_cache\.removes .* Unknown metric name/d' \
+	    -e '/^name_cache\.searches .* Unknown metric name/d' \
+	    -e '/^network\.icmp .* Unknown metric name/d' \
+	    -e '/^network\.igmp .* Unknown metric name/d' \
+	    -e '/^network\.interface\.collisions .* Unknown metric name/d' \
+	    -e '/^network\.ip .* Unknown metric name/d' \
+	    -e '/^network\.tcp .* Unknown metric name/d' \
+	    -e '/^network\.udp .* Unknown metric name/d' \
+	    -e '/^network\.udplite .* Unknown metric name/d' \
+	    -e '/^proc\..* Unknown metric name/d' \
+	# netbsd
+    fi
+}
+
+_filter_openbsd()
+{
+    if [ $PCP_PLATFORM != openbsd ]
+    then
+	cat
+    else
+	sed \
+	    -e '/^disk\.all\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.all\.blkread .* Unknown metric name/d' \
+	    -e '/^disk\.all\.blkwrite .* Unknown metric name/d' \
+	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
+	    -e '/^filesys.* Unknown metric name/d' \
+	    -e '/^disk\.partitions\..* Unknown metric name/d' \
+	    -e '/^hinv\.nnode .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.io\..* Unknown metric name/d' \
+	    -e '/^kernel\.all\.kpreempt .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.kswitch .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.nusers .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.sysexec .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.sysfork .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.sysioctl .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.sysread .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.syswrite .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.uptime .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pswitch .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.pswitch .* Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.syscall .* Unknown metric name/d' \
+	    -e '/^mem\.util\.bufmem .* Unknown metric name/d' \
+	    -e '/^name_cache\.enters .* Unknown metric name/d' \
+	    -e '/^name_cache\.misses .* Unknown metric name/d' \
+	    -e '/^name_cache\.removes .* Unknown metric name/d' \
+	    -e '/^name_cache\.searches .* Unknown metric name/d' \
+	    -e '/^network\.icmp .* Unknown metric name/d' \
+	    -e '/^network\.igmp .* Unknown metric name/d' \
+	    -e '/^network\.ip .* Unknown metric name/d' \
+	    -e '/^network\.tcp .* Unknown metric name/d' \
+	    -e '/^network\.udp .* Unknown metric name/d' \
+	    -e '/^network\.udplite .* Unknown metric name/d' \
+	    -e '/^network\.interface\.collisions .* Unknown metric name/d' \
+	    -e '/^proc\..* Unknown metric name/d' \
+	# openbsd
     fi
 }
 
@@ -87,6 +213,8 @@ _filter_linux()
 	    -e '/^proc.psinfo.cgroups.* No data available/d' \
 	    -e '/^cgroup..*.container.* No data available/d' \
 	    -e '/^proc.id.container.* No data available/d' \
+	    -e '/^nfsclient.options.* Unknown metric name/d' \
+	    -e '/^perfevent.hwcounters.* Unknown metric name/d' \
 	# linux
     fi
 }
@@ -110,7 +238,12 @@ _filter()
        -e '/^oracle.* Information not currently available/d' \
        -e '/^swap.in .* Metric not supported/d' \
        -e '/^swap.out .* Metric not supported/d' \
-    | _filter_linux | _filter_solaris | _filter_darwin
+    | _filter_linux \
+    | _filter_solaris \
+    | _filter_darwin \
+    | _filter_freebsd \
+    | _filter_netbsd \
+    | _filter_openbsd
 }
 
 # real QA test starts here

@@ -60,7 +60,7 @@ test_indoms(void)
 	assert(values_sts == PM_ERR_TOOBIG); /* 5 < 9 */
 
 	for (j = 0; j < almost_bins; j++) {
-	    assert((i==0) ^ (values_stss[j] == 0));
+	    assert((i==0) || (values_stss[j] == 0));
 	    if (i > 0)
 		assert(values[j].l == 0);
 	    assert(values_inst_codes[j] >= 0);
@@ -124,8 +124,14 @@ test_counter(void)
 
 	assert(rapid_counter2_sts == 0);
 	assert(constant_rate_counter_count == 1); /* only one instance */
-	assert((i > 0) ^ (rapid_counter_sts < 0));
-	assert((i > 0) ^ (constant_rate_counter_stss[0] < 0));
+	if (i <= 0 && rapid_counter_sts >= 0)
+	    fprintf(stderr, "botch 1: i=%d rapid_counter_sts=%d\n", i, rapid_counter_sts);
+	assert((i > 0) || (rapid_counter_sts < 0));
+	if (i <= 0 && constant_rate_counter_stss[0] >= 0)
+	    fprintf(stderr, "botch 2: i=%d constant_rate_counter_stss[0]=%d\n", i, constant_rate_counter_stss[0]);
+	assert((i > 0) || (constant_rate_counter_stss[0] < 0));
+	if (constant_rate_counter_stss[1] >= 0)
+	    fprintf(stderr, "botch 3: constant_rate_counter_stss[1]=%d\n", constant_rate_counter_stss[1]);
 	assert((constant_rate_counter_stss[1] < 0));
 
 	/* ticking at 10Hz, expect 864000-ish "count/24 hours" */
@@ -217,7 +223,7 @@ test_events(const char *event_metric_name)
 	    /* the sole literals; not from [bogus] */
 	    assert(strcmp(values2[j].cp, "6") == 0 ||
 		    strcmp(values2[j].cp, "twelve") == 0 ||
-		    strcmp(values2[j].cp, "thirteen"));
+		    strcmp(values2[j].cp, "thirteen") == 0);
 	    assert(times2[j].tv_sec > 0);
 	    if (j > 0) /* assert time ordering */
 		assert(times2[j-1].tv_sec < times2[j].tv_sec ||

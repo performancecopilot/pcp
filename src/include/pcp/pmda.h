@@ -292,7 +292,8 @@ typedef struct pmdaInterface {
 #define PMDA_FLAG_AUTHORIZE	(1<<2)	/* authentication support */
 #define PMDA_FLAG_CONTAINER	(1<<6)	/* container name support */
 
-/* communication attributes */
+/* communication attributes (mirrored from libpcp.h) */
+#define PMDA_ATTR_USERNAME   5  /* username (sasl) */
 #define PMDA_ATTR_USERID	11	/* uid - user identifier (posix) */
 #define PMDA_ATTR_GROUPID	12	/* gid - group identifier (posix) */
 #define PMDA_ATTR_PROCESSID	14	/* pid - process identifier (posix) */
@@ -306,6 +307,7 @@ typedef struct __pmDSO {
     char		*name;
     char		*init;
     void		*handle;
+    int			ctx_last_prof;	/* ctx that sent last profile */
     pmdaInterface	dispatch;
 } __pmDSO;
 
@@ -420,6 +422,10 @@ typedef struct pmdaOptions {
  *      flags involving early setup (such as metric table hashing), otherwise
  *      can be called at any time (such as for namespace change notification).
  *
+ * pmdaSetData / pmdaExtSetData / pmdaExtGetData
+ *	Private data hook get/set for (esp. DSO) PMDAs that is accessible via
+ *	the callbacks through the pmdaExt structure.
+ *
  * pmdaInit
  *      Further initialises the pmdaExt structure with the instance domain and
  *      metric structures. Unique identifiers are applied to each instance 
@@ -479,6 +485,9 @@ PMDA_CALL extern void pmdaUsageMessage(pmdaOptions *);
 PMDA_CALL extern void pmdaDaemon(pmdaInterface *, int, const char *, int , const char *, const char *);
 PMDA_CALL extern void pmdaDSO(pmdaInterface *, int, char *, char *);
 PMDA_CALL extern void pmdaOpenLog(pmdaInterface *);
+PMDA_CALL extern void *pmdaExtGetData(pmdaExt *);
+PMDA_CALL extern void pmdaExtSetData(pmdaExt *, void *);
+PMDA_CALL extern void pmdaSetData(pmdaInterface *, void *);
 PMDA_CALL extern void pmdaExtSetFlags(pmdaExt *, int);
 PMDA_CALL extern void pmdaSetFlags(pmdaInterface *, int);
 PMDA_CALL extern void pmdaSetCommFlags(pmdaInterface *, int);
@@ -517,7 +526,7 @@ PMDA_CALL extern void pmdaSetLabelCallBack(pmdaInterface *, pmdaLabelCallBack);
  *	Return the help text for the metric or instance domain.
  *
  * pmdaStore
- *	Store a value into a metric. This is a no-op.
+ *	Store a value into a metric. This sets the context number.
  *
  * pmdaPMID
  *	Return the PMID for a named metric within a dynamic subtree

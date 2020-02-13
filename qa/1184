@@ -2,7 +2,7 @@
 # PCP QA Test No. 1184
 # Exercise pminfo source and series identifier handling.
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 #
 
 seq=`basename $0`

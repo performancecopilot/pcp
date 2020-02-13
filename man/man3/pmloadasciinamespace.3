@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMLOADASCIINAMESPACE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -47,7 +47,7 @@ argument designates the PMNS of interest.
 For applications not requiring a tailored PMNS,
 the special value
 .B PM_NS_DEFAULT
-may be 
+may be
 used for
 .IR filename ,
 to force the default local PMNS to be loaded.
@@ -75,13 +75,13 @@ The other difference is that when
 .B pmLoadASCIINameSpace
 is used and
 .I filename
-is 
+is
 .B not
 PM_NS_DEFAULT, the PMNS file will always be pre-processed
 with
 .BR pmcpp (1)
 as described in
-.BR pmns (5).
+.BR PMNS (5).
 This allows a PMNS file that contains
 C-style comments, pre-processor directives or
 macros to be processed correctly before the PMNS is parsed.
@@ -93,7 +93,6 @@ returns zero on success.
 the default local PMNS, when the environment variable
 .B PMNS_DEFAULT
 is unset
-.RE
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -120,7 +119,7 @@ function.
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and
-.BR pmns (5).
+.BR PMNS (5).
 .SH DIAGNOSTICS
 Syntax and other errors in the parsing of the PMNS are reported
 on

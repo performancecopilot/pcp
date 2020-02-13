@@ -80,6 +80,8 @@ sample {
     event
     dupnames
     negative
+    ghosts	SAMPLE:*:*
+    controller
 }
 
 sample.long {
@@ -321,4 +323,8 @@ sample.negative.discrete {
     m_64		SAMPLE:0:150
     m_float		SAMPLE:0:151
     m_double		SAMPLE:0:152
+}
+
+sample.controller {
+    mirage		SAMPLE:0:155
 }

@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident   GPU metrics sampled by the atop command
+probe	nvidia.numcards values ? include : exclude
+
+	nvidia

@@ -25,7 +25,7 @@ from bcc import BPF
 
 from pcp.pmapi import pmUnits
 from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_COUNT_ONE
-from cpmapi import PM_ERR_AGAIN
+from cpmda import PMDA_FETCH_NOVALUES
 
 from modules.pcpbcc import PCPBCCBase
 
@@ -155,4 +155,4 @@ class PCPBCCModule(PCPBCCBase):
             key = self.pmdaIndom.inst_name_lookup(inst)
             return [self.cache[key], 1]
         except Exception: # pylint: disable=broad-except
-            return [PM_ERR_AGAIN, 0]
+            return [PMDA_FETCH_NOVALUES, 0]

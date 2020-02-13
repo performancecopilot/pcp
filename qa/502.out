@@ -29,7 +29,7 @@ Metric: sample.colour (29.0.5)
 Inst Changes:	<- InDom 29.1
 Error: data fread got 340 expected 484
 pmlogrewrite: Error: __pmLogRead[log TMP.arch/ok-truncbin]: Corrupted record in a PCP archive log
-pmlogrewrite: Error occurred at byte offset 204456 into a file of 204800 bytes.
+pmlogrewrite: Error occurred at byte offset 204XXX into a file of 204800 bytes.
 ok-truncbin.0
 ok-truncbin.index
 ok-truncbin.meta

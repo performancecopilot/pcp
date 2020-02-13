@@ -15,8 +15,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-echo "Not yet working - libpcp_gui recording" > $seq.notrun
-exit 0
+_notrun "Not yet working - libpcp_gui recording"
+# NOTREACHED
 
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15

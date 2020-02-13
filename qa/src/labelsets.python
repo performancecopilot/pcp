@@ -1,0 +1,74 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (C) 2019 Red Hat
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import sys
+import cpmapi as c_api
+import argparse
+from pcp import pmapi
+import cpmapi as api
+
+if len(sys.argv) == 2:
+    metric = sys.argv[1]
+else:
+    metric = "kernel.percpu.cpu.idle"
+ctx = pmapi.pmContext(api.PM_CONTEXT_HOST, "localhost")
+
+pmid = ctx.pmLookupName(metric)[0]
+print("pmid of %s is %s" % (metric, ctx.pmIDStr(pmid)))
+desc = ctx.pmLookupDesc(pmid)
+indom = desc.contents.indom
+print("indom of %s is %d or '%s'" % (metric, indom, ctx.pmInDomStr(desc)))
+
+if indom != c_api.PM_INDOM_NULL:
+    print("\n== pmGetInDomDict")
+    lsets = ctx.pmGetInDomDict(indom)
+    print(lsets)
+
+    print("\n== pmGetInDom(indom=%d)" % indom)
+    instL, nameL = ctx.pmGetInDom(indom=indom)
+    print(instL, nameL)
+
+    print("\n== pmGetInDom(desc=%s)" % desc)
+    instL, nameL = ctx.pmGetInDom(desc)
+    print(instL, nameL)
+
+print("\n== pmGetDomainLabels")
+lsets = ctx.pmGetDomainLabels(ctx.pmID_domain(pmid))
+print(lsets)
+
+print("\n== pmGetContextLabels")
+lsets = ctx.pmGetContextLabels()
+print(lsets)
+
+print("\n== pmGetItemLabels")
+lsets = ctx.pmGetItemLabels(pmid)
+print(lsets)
+
+print("\n== pmGetClusterLabels")
+lsets = ctx.pmGetClusterLabels(pmid)
+print(lsets)
+
+lsets = ctx.pmLookupLabels(pmid)
+print("\n== pmLookupLabels -> type=%s len=%d" % (type(lsets), len(lsets)))
+print(lsets)
+
+if indom != c_api.PM_INDOM_NULL:
+    print("\n== pmGetInDomLabels")
+    lsets = ctx.pmGetInDomLabels(indom)
+    print(lsets)
+
+    lsets = ctx.pmGetInstancesLabels(indom)
+    print("\n== pmGetInstancesLabels -> type=%s len=%d" % (type(lsets), len(lsets)))
+    print(lsets)

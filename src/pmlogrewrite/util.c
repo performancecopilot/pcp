@@ -197,12 +197,16 @@ cleanup:
 }
 
 /*
- * Remove all the physical archive files with basename of base.
+ * Remove the physical archive files with basename of base.
+ * If upto is -1, remove them all (this is the normal abandon()
+ * case).
+ * Otherwise, remove .index, .meta and volume 0, 1, ... upto
+ * and skip removal for any volumes upto+1, upto+2, ...
  *
  * Note: also handles compressed versions of files.
  */
 int
-_pmLogRemove(const char *name)
+_pmLogRemove(const char *name, int upto)
 {
     int			sts;
     int			nfound = 0;
@@ -254,6 +258,29 @@ _pmLogRemove(const char *name)
 	if (strcmp(base, logbase) != 0)
 	    continue; /* Not the same archive */
 
+	if (upto != -1) {
+	    char	*q;
+	    char	*qend;
+	    int		vol;
+	    q = &dp->d_name[strlen(logbase)];
+	    if (*q != '.')
+		goto smackit;
+	    q++;
+	    if (*q == '\0')
+		goto smackit;
+	    if (strcmp(q, "index") == 0 || strcmp(q, "meta") == 0)
+		goto smackit;
+	    vol = (int)strtol(q, &qend, 10);
+	    if (*qend != '\0')
+		goto smackit;
+	    if (vol > upto) {
+		if (pmDebugOptions.log)
+		    fprintf(stderr, "__pmLogRemove: do not remove %s\n", path);
+		continue;
+	    }
+	}
+
+smackit:
 	p = &dp->d_name[strlen(base)];
 	pmsprintf(path, sizeof(path), "%s%s", name, p);
 	unlink(path);

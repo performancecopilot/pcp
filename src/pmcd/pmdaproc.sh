@@ -60,7 +60,7 @@ _setup_localhost()
 	# on our path
 	#
 	ping --help >$tmp/hlp 2>&1
-	if grep '.-c count' $tmp/hlp >/dev/null 2>&1
+	if grep '.-c count' $tmp/hlp >/dev/null 2>&1 || grep '.-c <count>' $tmp/hlp >/dev/null 2>&1
 	then
 	    __opt='-c 1 localhost'
 	elif grep '.-n count' $tmp/hlp >/dev/null 2>&1
@@ -411,7 +411,7 @@ __check_root()
     else
 	if [ "X$ROOT" != X -a "X$ROOT" != X/ ]
 	then
-	    echo "Install: \$ROOT was set to \"$ROOT\""
+	    echo "$prog: \$ROOT was set to \"$ROOT\""
 	    echo "          Use -R rootdir to install somewhere other than /"
 	    status=1
 	    exit
@@ -433,7 +433,7 @@ __check_domain()
     then
 	__infile=domain.h.python
     else
-	echo "Install: cannot find domain.h (or similar) to determine the Performance Metrics Domain"
+	echo "$prog: cannot find domain.h (or similar) to determine the Performance Metrics Domain"
 	status=1
 	exit
     fi
@@ -460,7 +460,7 @@ __check_domain()
     fi
     if [ "X$domain" = X ]
     then
-	echo "Install: cannot determine the Performance Metrics Domain from $__infile"
+	echo "$prog: cannot determine the Performance Metrics Domain from $__infile"
 	status=1
 	exit
     fi
@@ -1037,6 +1037,14 @@ _install()
     then
 	__choose_ipc $pmda_dir
 	__args="-d $domain $__args"
+	# Optionally use $PCP_DEBUG from the environment to set -D options
+	# in pmcd.conf for command line args
+	#
+	if [ -n "$PCP_DEBUG" ]
+	then
+	    __args="-D$PCP_DEBUG $__args"
+	fi
+
     elif [ "$pmda_type" = perl ]
     then
 	type="pipe	$ipc_prot		perl $perl_name"

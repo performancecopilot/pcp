@@ -114,7 +114,7 @@ END	{ if (NR > 0) {
     fi
 }
 
-_addfiles ()
+_addfiles()
 {
     af=$1
     [ "$af" = "" ] && return 1
@@ -130,7 +130,8 @@ _addfiles ()
     return 0
 }
 
-_check_lock() {
+_check_lock()
+{
     #  Check that a check process of that process ID found in
     #  $CHECKLOCK exists, and if not, release the lock.
 
@@ -365,11 +366,16 @@ do
 	start=`_wallclock`
 	$timestamp && _timestamp
 
+	# optional --precheck callback
+	#
+	rm -f $tmp.callback.pre
+	if [ -x ./check.callback ]
+	then
+	    ./check.callback --precheck $seq >$tmp.callback.pre 2>&1
+	fi
+
 	./$seq >$tmp.out 2>&1
 	sts=$?
-
-	$timestamp && _timestamp
-	stop=`_wallclock`
 
 	if $check_config
 	then
@@ -383,8 +389,8 @@ do
 	    fi
 	fi
 
-    	# remove the lock
-    	_release_lock
+	# remove the lock
+	_release_lock
 
 	if [ -f core ]
 	then
@@ -394,7 +400,7 @@ do
 	fi
 
 	$sudo rm -f $seq.out.bad
-	rm -f $tmp.callback_abort
+	rm -f $tmp.callback.abort
 	if [ -f $seq.notrun ]
 	then
 	    [ $color = true ] && tput bold && tput setaf 4 # blue
@@ -458,15 +464,15 @@ do
 		#
 		if [ -x ./check.callback ]
 		then
-		    if ./check.callback $seq >$tmp.tmp 2>&1
+		    if ./check.callback $seq >$tmp.callback.post 2>&1
 		    then
 			# script passes, so don't think about aborting
 			# but output would indicate a problem
 			# ...
-			if [ -s $tmp.tmp ]
+			if [ -s $tmp.callback.post ]
 			then
-			    # output from check.callback, this means something bad has been
-			    # detected ...
+			    # output from check.callback, this means something
+			    # bad has been detected ...
 			    #
 			    [ $color = true ] && tput bold && tput setaf 1 # red
 			    if $done_nl
@@ -478,7 +484,9 @@ do
 			    [ $color = true ] && tput sgr0 # reset
 			    echo >>$tmp.out
 			    echo "+++ check.callback output +++" >>$tmp.out
-			    cat $tmp.tmp >>$tmp.out
+			    [ -f $tmp.callback.pre ] && cat $tmp.callback.pre >>$tmp.out
+			    cat $tmp.callback.post >>$tmp.out
+			    err=true
 			fi
 		    else
 			# check.callback suggests we should abandon the QA run ...
@@ -493,12 +501,16 @@ do
 			[ $color = true ] && tput sgr0 # reset
 			echo >>$tmp.out
 			echo "+++ check.callback output +++" >>$tmp.out
-			cat $tmp.tmp >>$tmp.out
+			[ -f $tmp.callback.pre ] && cat $tmp.callback.pre >>$tmp.out
+			cat $tmp.callback.post >>$tmp.out
 			err=true
 			echo "Check! [after $seq] Run aborted by check.callback @ `date`" >>check.log
-			touch $tmp.callback_abort
+			touch $tmp.callback.abort
 		    fi
 		fi
+
+		$timestamp && _timestamp
+		stop=`_wallclock`
 
 		if $err
 		then
@@ -526,11 +538,11 @@ do
     [ -f $seq.notrun ] || try=`expr $try + 1`
     rm -f $seq.notrun
 
-    [ -f $tmp.callback_abort ] && break
+    [ -f $tmp.callback.abort ] && break
 
 done
 
-if [ -f $tmp.callback_abort ]
+if [ -f $tmp.callback.abort ]
 then
     aborted=true
 else

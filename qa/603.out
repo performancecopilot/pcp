@@ -10,8 +10,6 @@ and scale [y]?
 Using the following units for trace.observe.value:
   Dimensions:  space=0 time=0 count=0
   Scale:       space=0 time=0 count=0
-
-
 The dimension and scale for the trace.counter.value metrics may be expressed
 in terms of Space, Time and Count (i.e. events or messages).  The default
 dimension and scale is "None".  Do you wish to accept the default dimension
@@ -19,8 +17,6 @@ and scale [y]?
 Using the following units for trace.counter.value:
   Dimensions:  space=0 time=0 count=0
   Scale:       space=0 time=0 count=0
-
-
 Client host access - (A)llow/(D)isallow [Enter to complete install]? 
 Host specification (IP mask/Enter to cancel): 
 Client host access - (A)llow/(D)isallow [Enter to complete install]? 
@@ -45,8 +41,6 @@ and scale [y]?
 Using the following units for trace.observe.value:
   Dimensions:  space=0 time=0 count=0
   Scale:       space=0 time=0 count=0
-
-
 The dimension and scale for the trace.counter.value metrics may be expressed
 in terms of Space, Time and Count (i.e. events or messages).  The default
 dimension and scale is "None".  Do you wish to accept the default dimension
@@ -54,8 +48,6 @@ and scale [y]?
 Using the following units for trace.counter.value:
   Dimensions:  space=0 time=0 count=0
   Scale:       space=0 time=0 count=0
-
-
 Client host access - (A)llow/(D)isallow [Enter to complete install]? 
 Host specification (IP mask/Enter to cancel): 
 Client host access - (A)llow/(D)isallow [Enter to complete install]? 

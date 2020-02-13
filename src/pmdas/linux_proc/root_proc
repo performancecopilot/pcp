@@ -19,12 +19,15 @@ root {
 cgroup {
     subsys
     mounts
+    cpu
     cpuset
     cpuacct
     cpusched
     memory
     netclass
     blkio
+    pressure
+    io
 }
 
 cgroup.subsys {
@@ -37,6 +40,16 @@ cgroup.subsys {
 cgroup.mounts {
     subsys		PROC:38:0
     count		PROC:38:1
+}
+
+cgroup.cpu {
+    stat
+}
+
+cgroup.cpu.stat {
+    user		PROC:67:0
+    system		PROC:67:1
+    usage		PROC:67:2
 }
 
 cgroup.cpuset {
@@ -103,8 +116,30 @@ cgroup.memory.stat {
     inactive_file	PROC:45:12
     active_file		PROC:45:13
     unevictable		PROC:45:14
+    anon		PROC:45:17
+    anon_thp		PROC:45:18
+    file		PROC:45:19
+    file_dirty		PROC:45:20
+    file_mapped		PROC:45:21
+    file_writeback	PROC:45:22
+    kernel_stack	PROC:45:25
+    pgactivate		PROC:45:26
+    pgdeactivate	PROC:45:27
+    pglazyfree		PROC:45:28
+    pglazyfreed		PROC:45:50
+    pgrefill		PROC:45:51
+    pgscan		PROC:45:52
+    pgsteal		PROC:45:53
+    shmem		PROC:45:64
+    slab		PROC:45:65
+    slab_reclaimable	PROC:45:66
+    slab_unreclaimable	PROC:45:67
+    sock		PROC:45:68
+    thp_collapse_alloc	PROC:45:70
+    thp_fault_alloc	PROC:45:71
     total
     recent
+    workingset
 }
 
 cgroup.memory.stat.total {
@@ -130,6 +165,12 @@ cgroup.memory.stat.recent {
     rotated_file	PROC:45:61
     scanned_anon	PROC:45:62
     scanned_file	PROC:45:63
+}
+
+cgroup.memory.stat.workingset {
+    activate		PROC:45:72
+    nodereclaim		PROC:45:73
+    refault		PROC:45:74
 }
 
 cgroup.memory.id {
@@ -315,6 +356,74 @@ cgroup.blkio.all.throttle.io_serviced {
 
 cgroup.blkio.id {
     container		PROC:49:42
+}
+
+cgroup.pressure {
+    cpu
+    memory
+    io
+}
+
+cgroup.pressure.cpu {
+    some
+}
+
+cgroup.pressure.cpu.some {
+    avg10sec		PROC:64:0
+    avg1min		PROC:64:1
+    avg5min		PROC:64:2
+    total		PROC:64:3
+}
+
+cgroup.pressure.memory {
+    some
+    full
+}
+
+cgroup.pressure.memory.some {
+    avg10sec		PROC:66:0
+    avg1min		PROC:66:1
+    avg5min		PROC:66:2
+    total		PROC:66:3
+}
+
+cgroup.pressure.memory.full {
+    avg10sec		PROC:66:4
+    avg1min		PROC:66:5
+    avg5min		PROC:66:6
+    total		PROC:66:7
+}
+
+cgroup.pressure.io {
+    some
+    full
+}
+
+cgroup.pressure.io.some {
+    avg10sec		PROC:65:0
+    avg1min		PROC:65:1
+    avg5min		PROC:65:2
+    total		PROC:65:3
+}
+
+cgroup.pressure.io.full {
+    avg10sec		PROC:65:4
+    avg1min		PROC:65:5
+    avg5min		PROC:65:6
+    total		PROC:65:7
+}
+
+cgroup.io {
+    stat
+}
+
+cgroup.io.stat {
+    rbytes		PROC:68:0
+    wbytes		PROC:68:1
+    rios		PROC:68:2
+    wios		PROC:68:3
+    dbytes		PROC:68:4
+    dios		PROC:68:5
 }
 
 proc {

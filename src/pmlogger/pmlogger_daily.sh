@@ -1218,7 +1218,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 			if [ -f $outfile.0 -o -f $outfile.index -o -f $outfile.meta ]
 			then
 			    _skipping "output archive ($outfile) already exists"
-			    break
+			    continue
 			else
 			    $VERY_VERBOSE && echo "Rewriting input archives using $rewrite"
 			    if $RFLAG
@@ -1236,12 +1236,12 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 					    :
 					else
 					    _skipping "rewrite for $arch failed using $rewrite failed"
-					    break
+					    continue
 					fi
 				    fi
 				done
 			    fi
-			    [ -f $tmp/skip ] && break
+			    [ -f $tmp/skip ] && continue
 			    if $VERY_VERBOSE
 			    then
 				for arch in $inlist
@@ -1294,16 +1294,6 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 		    done
 		fi
 	    fi
-
-	    if [ -f $tmp/skip ]
-	    then
-		# this is sufficiently serious that we don't want to remove
-		# the lock file, so problems are not compounded the next time
-		# the script is run
-		$VERY_VERBOSE && echo "Skip compression ..."
-		continue
-	    fi
-
 	fi
 
 	# and compress old archive data files

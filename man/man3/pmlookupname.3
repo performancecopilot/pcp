@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMLOOKUPNAME 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -36,7 +36,7 @@ full pathnames for performance metrics from a Performance Metrics Name
 Space (PMNS),
 .B pmLookupName
 returns the list of associated
-Performance Metric Identifiers (PMIDs) via 
+Performance Metric Identifiers (PMIDs) via
 .IR pmidlist .
 .PP
 The result from
@@ -68,7 +68,7 @@ error code (less than zero).
 .PP
 When errors are encountered, any metrics that cannot be looked up
 result in the corresponding element of
-.I pmidlist 
+.I pmidlist
 being set to
 .BR PM_ID_NULL .
 .PP
@@ -155,11 +155,11 @@ and
 must be at least 1
 .IP \f3PM_ERR_NOPMNS\f1
 Failed to access a PMNS for operation.
-Note that if the application hasn't a priori called 
+Note that if the application hasn't a priori called
 .BR pmLoadNameSpace (3)
 and wants to use the distributed PMNS, then a call to
 .B pmLookupName
-must be made after the creation of a context (see 
+must be made after the creation of a context (see
 .BR pmNewContext (3)).
 .IP \f3PM_ERR_NAME\f1
 .I namelist[0]

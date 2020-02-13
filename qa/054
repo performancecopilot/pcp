@@ -12,20 +12,35 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
 $sudo rm -f $seq.full
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 host=`./getpmcdhosts -L -n1 2>$tmp.out` # choose a non-local host (foreign server)
-[ -z "$host" ] && cat $tmp.out >$seq.notrun
+if [ -z "$host" ]
+then
+    _notrun "`cat $tmp.out`"
+    # NOTREACHED
+fi
 eval realhost=`pmprobe -v -h $host pmcd.hostname | $PCP_AWK_PROG '{ print $3 }'`
 [ $realhost = Unknown ] && realhost=`pmhostname $host`
 
 echo "Using host: $host" >> $seq.full
 echo "Using realhost: $realhost" >> $seq.full
 
-echo "log mandatory on once { hinv.ncpu }" >$tmp.config
+# Note:
+#   This used to log just hinv.ncpu, but as of late 2019 I started seeing
+#   this test hanging and the QA runs never finished across a number of
+#   machines in the QA Farm.  The problem is the remote pmcd (usually, but
+#   not always, vm01 for me), where the pmDesc for hinv.ncpu was unavailable
+#   because there was no PMCD agent for the domain ... this means the linux
+#   PMDA was dead, but pmcd was alive.
+#   Added sample.seconds in the hope that this will avoid the problem for
+#   this test ... leaving the linux PMDA issue to be investigated separately.
+#
+echo "log mandatory on once { hinv.ncpu sample.seconds }" >$tmp.config
 
 pmlogger -c $tmp.config -l $tmp.log -s 1 -h $host $tmp
 _filter_pmlogger_log <$tmp.log

@@ -1,16 +1,38 @@
 #!/bin/sh
-apt-get update
-# Use a regex for some of the more obscure packages so apt doesn't exit if missing
-# Trying to not have one script per box
-apt-get install -y  '^(libreadline|libpapi|libpfm4|libcoin80|libicu)-dev$' \
-	bc bison curl flex  git  g++  dpkg-dev  pkg-config  debhelper chrpath \
-        python-all  python-all-dev  libnspr4-dev  libnss3-dev  libsasl2-dev  libmicrohttpd-dev  libavahi-common-dev \
-        libqt4-dev  autotools-dev  autoconf  gawk  libxml-tokeparser-perl  libspreadsheet-read-perl gdb sysv-rc-conf \
-	libcairo2-dev sysstat valgrind apache2 realpath unbound \
-	libibumad-dev libsoqt-dev libsoqt-dev-common libnss3-tools libibmad-dev x11-utils build-essential pbuilder
 
 cd /vagrant
-sudo -H -u vagrant ./Makepkgs
-dpkg -i build/deb/*.deb
 
-echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+cat <<EOF >/etc/systemd/resolved.conf
+#  This file is part of systemd.
+# 
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+#
+# Entries in this file show the compile time defaults.
+# You can change settings by editing this file.
+# Defaults can be restored by simply deleting this file.
+#
+# See resolved.conf(5) for details
+
+[Resolve]
+#DNS=4.2.2.1 4.2.2.2 208.67.220.220 208.67.222.222
+#DNS=8.8.8.8
+#FallbackDNS=
+#Domains=
+#LLMNR=no
+#MulticastDNS=no
+#DNSSEC=yes
+#Cache=yes
+#DNSStubListener=yes
+EOF
+sudo systemctl restart systemd-resolved
+apt-get update
+apt-get install -y `./qa/admin/check-vm -p`
+
+sudo -H -u vagrant ./Makepkgs --verbose
+dpkg -i build/deb/*.deb
+echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpqa
+sudo service pmcd restart
+sudo service pmlogger restart

@@ -56,6 +56,7 @@ _stop_auto_restart pmcd
 
 # real QA test starts here
 cat <<EOF | _pmdabcc_install
+# Installed by PCP QA test $seq on `date`
 [pmda]
 modules = biotop
 prefix = bcc.
@@ -69,7 +70,7 @@ _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC biotop module
 echo Started dd at $(date) >> $here/$seq.full
-dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>$here/$seq.full
+dd if=/dev/zero of=${out_file} bs=${write_size} count=1 oflag=direct 2>>$here/$seq.full
 
 # wait until PMDA refreshes BPF table containing dd
 _pmdabcc_wait_for_value bcc.proc.io.perdev.comm '"dd"'

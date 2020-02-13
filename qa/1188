@@ -2,7 +2,7 @@
 # PCP QA Test No. 1188
 # Test pmdadm VDO (Virtual Data Optimizer) metrics with valgrind.
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 #
 
 seq=`basename $0`
@@ -37,6 +37,7 @@ _filter()
     $here/src/sortinst | \
     sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e '/Warning: built without support for dmstats metrics/d' \
     #end
 }
 
@@ -52,9 +53,9 @@ cd $PCP_PMDAS_DIR/dm
 $sudo ./Install </dev/null >$tmp.out 2>&1
 cat $tmp.out >> $here/$seq.full
 
-for tgz in $here/linux/vdo-*.tgz
+for tgz in $here/linux/vdo-root-*.tgz
 do
-    [ $tgz = "linux/vdo-*" ] && continue
+    [ $tgz = "linux/vdo-root-*" ] && continue
 
     $sudo rm -fr $root
     mkdir $root || _fail "root in use when processing $tgz"

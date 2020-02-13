@@ -1,0 +1,24 @@
+trigger: none
+pr: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+jobs:
+  - template: templates/matrix.yml
+
+  - job: release
+    dependsOn: prepare
+    displayName: "Release:"
+    strategy:
+      matrix: $[ dependencies.prepare.outputs['matrix_step.matrix'] ]
+    steps:
+      - template: templates/qa-steps.yml
+
+      - script: ./build/ci/scripts/publish_bintray.sh "$(ci_host)" "$(pwd)/artifacts"
+        displayName: Upload to bintray
+        env:
+          BINTRAY_USER: $(BINTRAY_USER)
+          BINTRAY_APIKEY: $(BINTRAY_APIKEY)
+          BINTRAY_GPG_PASSPHRASE: $(BINTRAY_GPG_PASSPHRASE)
+          SNAPSHOT: $(snapshot)

@@ -15,27 +15,30 @@
 .\"
 .TH PMMGR 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmmgr\f1 \- pcp daemon manager
+\f3pmmgr\f1 \- PCP daemon manager
 .SH SYNOPSIS
 \f3pmmgr\f1
-[\f3\-v\f1]
+[\f3\-v?\f1]
 [\f3\-c\f1 \f2config-directory\f1]
 [\f3\-p\f1 \f2polling-interval\f1]
 [\f3\-l\f1 \f2log-file\f1]
+[\f3\-U\f1 \f2username\f1]
 .SH DESCRIPTION
 .B pmmgr
 manages a collection of PCP daemons for a set of discovered local and
-remote hosts running the Performance Metrics Collection Daemon (PMCD),
+remote hosts running the Performance Metrics Collection Daemon (PMCD,
+see
+.BR pmcd (1)),
 according to zero or more configuration directories.
 It keeps a matching set of
-.BR pmie ,
-.BR pmlogger , 
-.B pmrep
+.BR pmie (1),
+.BR pmlogger (1),
+.BR pmrep (1)
 and other daemons running, and their archives/logs merged/rotated.
 It provides an alternative to the default
-.B pmlogger_daily
+.BR pmlogger_daily (1)
 and
-.BR pmie_daily
+.BR pmie_daily (1)
 scripts that administer
 .B pmlogger
 and
@@ -54,7 +57,8 @@ Each poll interval,
 .B pmmgr
 computes a list of possible targets for a
 .B pmcd
-search.  This list is assembled from several configuration files,
+search.
+This list is assembled from several configuration files,
 and may include explicitly listed specifications, hosts discovered through
 several different mechanisms, and/or individual containers running within them.
 Once the list is assembled,
@@ -64,7 +68,8 @@ attempts to make a brief
 connection to each target, in order to check for the existence of an actual
 running
 .B pmcd
-instance, and to extract a hostid.  The hostid is treated as a
+instance, and to extract a hostid.
+The hostid is treated as a
 unique identifier for the instance, so that redundant connection paths to the
 same server can be filtered out.
 Once the final list of live
@@ -72,19 +77,18 @@ Once the final list of live
 instances is identified, along with their unique hostids,
 .B pmmgr
 ensures that
-any requested pcp client daemons are started (or restarted) for them.
+any requested PCP client daemons are started (or restarted) for them.
 If any
 .B pmcd
-instances disappear from the list, its pcp client daemons are stopped.
+instances disappear from the list, its PCP client daemons are stopped.
 This entire cycle repeats every poll interval.
 .SH OPTIONS
-A description of the command line options specific to
-.B pmmgr
-follows:
+The available command line options are:
 .TP 5
-.B \-c
+\fB\-c\fR \fIdirectory\fR, \fB\-\-config\fR=\fIdirectory\fR
+Adds a given configuration
 .I directory
-adds a given configuration directory to
+to
 .BR pmmgr .
 .B pmmgr
 can supervise
@@ -96,21 +100,35 @@ will fill in missing information with built-in defaults.
 The default directory is
 .I $PCP_SYSCONF_DIR/pmmgr
 .TP
-.B \-p
-.I polling-interval
-sets the host-discovery polling interval to the given number of seconds.
-The default is 60.  Daemons for a particular target host will be restarted
-no more frequently than this interval.  There may be a short-lived thread
-inside
+\fB\-l\fR \fIlogfile\fR, \fB\-\-log\fR=\fIlogfile\fR
+Redirect standard output and error to the given
+.IR logfile ,
+which is created anew.
+.TP
+\fB\-p\fR \fIinterval\fR, \fB\-\-poll\fR=\fIinterval\fR
+Set the host-discovery polling
+.I interval
+to the given number of seconds.
+The default is
+.BR 60 .
+Daemons for a particular target host will be restarted
+no more frequently than this interval.
+There may be a short-lived thread inside
 .B pmmgr
 for startup and shutdown of each daemon for each target host.
 .TP
-.B \-l
-.I log-file
-redirects standard output and error to the given log file, which is created anew
+\fB\-U\fR \fIusername\fR, \fB\-\-username\fR=\fIusername\fR
+Switch from the root to user
+.IR username
+on startup.
+The default is
+.BR pcp .
 .TP
-.B \-v
-adds more verbose tracing to standard output.
+\fB\-v\fR
+Enable verbose mode.
+.TP
+\fB\-?\fR
+Display usage message and exit.
 .SH CONFIGURATION
 .SS FILES
 A
@@ -122,20 +140,23 @@ should be run with.
 uses a small number of files in a configuration directory,
 instead of lines in a single text file.
 The individual files carry zero or more lines of 100% pure configuration
-text, and no comments.  (If desired, a configuration may be commented
+text, and no comments.
+(If desired, a configuration may be commented
 upon within other files, such as a free-form README.)
 .PP
 Some of the configuration files are forked into pairs: per-hostid and
-common.  This permits numerous almost-identical-configuration targets
-to be managed from the same configuration directory.  For these files,
+common.
+This permits numerous almost-identical-configuration targets
+to be managed from the same configuration directory.
+For these files,
 marked with \fB*\fR below, \fBpmmgr\fP will \fIconcatenate\fP a
 per-hostid file (if it exists) and a common file (if it exists) in
 order to form the complete configuration item.
 .PP
 For example, for \fBpmie\fP configuration for target hostid \fBfoo\fP,
 .B pmmgr
-will search files named \fIpmie.foo\fP then \fIpmie\fP.  For
-single-line configuration items, the first file & line found will
+will search files named \fIpmie.foo\fP then \fIpmie\fP.
+For single-line configuration items, the first file & line found will
 "win"; for multi-line configuration items, they all "win".
 .SS TARGET SELECTION
 This set of configuration files identifies where
@@ -144,20 +165,25 @@ should search
 for
 .B pmcd
 instances, how to uniquely identify them, and where state
-such as log files should be kept for each.  Ideally, a persistent and
+such as log files should be kept for each.
+Ideally, a persistent and
 unique hostid string is computed for each potential target pmcd from
-specified metric values.  This hostid is also used as a subdirectory
-name for locating daemon data.  The rare empty hostid is mapped to "-".
+specified metric values.
+This hostid is also used as a subdirectory name for locating daemon data.
+The rare empty hostid is mapped to "-".
 .TP
 .I hostid\-static
 This file contains one or more lines specifying the static string that
 should be used as multiple distinct hostids for the same target
-\fBpmcd\fP.  Treatment of the distinct hostids may be customized using
+\fBpmcd\fP.
+Treatment of the distinct hostids may be customized using
 per-hostid configuration files.
 Specifying values in this file overrides the
 .I hostid\-metrics
-file specified below.  It should be noted that using this option will cause
-all target pmcds to be assigned the same set of hostids.  Thus, this is
+file specified below.
+It should be noted that using this option will cause
+all target pmcds to be assigned the same set of hostids.
+Thus, this is
 useful in monitoring single hosts or if each monitored host has its own
 configuration directory.
 .TP
@@ -178,9 +204,10 @@ all the metrics/instances named are queried, string values fetched, and
 normalized/concatenated into a single hyphenated printable string.
 The default is the single metric
 .BR pmcd.hostname ,
-which is sufficient if all the hosts discovered have unique hostname(2).  If
-they don't, you should add other pcp metric specifications to set them apart
-at your site.  The more you add, the longer the hostid string, but the more
+which is sufficient if all the hosts discovered have unique hostname.
+If they don't, you should add other pcp metric specifications to set them
+apart at your site.
+The more you add, the longer the hostid string, but the more
 likely that accidental duplication is prevented.
 .P
 However, it may be desirable for a hostid to also be
@@ -188,24 +215,25 @@ However, it may be desirable for a hostid to also be
 so that if the target host goes offline and later returns, the new
 hostid matches the previous one, because then old and new histories can be joined.
 This argues against using metrics whose values vary from boot to boot.
-.P
+.PP
 Some candidate metrics to consider:
 .IR network.interface.hw_addr ", " network.interface.inet_addr["eth0"] ", "
-.IR network.interface.ipv6_addr ", " kernel.uname.nodename
+.IR network.interface.ipv6_addr ", " kernel.uname.nodename .
 .TP
 .I log\-directory
 This file contains the path of a directory beneath which the per-hostid
 subdirectories are to be created by
 .BR pmmgr .
 If it is not a full path, it
-is implicitly relative to the configuration directory itself.  The default is
+is implicitly relative to the configuration directory itself.
+The default is
 .BR $PCP_LOG_DIR/pmmgr/ .
 .TP
 .I target\-host
 This file contains one or more lines containing
 .B pmcd
 host specifications, as described on the
-.IR PCPintro (1)
+.BR PCPIntro (1)
 manual page.
 The default is to target pmcd at
 .BR local: .
@@ -214,25 +242,29 @@ The default is to target pmcd at
 This file contains one or more lines containing specifications for the
 .IR pmDiscoverServices
 PMAPI call, each of which may map onto a fluctuating set of local or remote
-pmcd servers.  Each poll interval,
+pmcd servers.
+Each poll interval,
 .B pmmgr
 will attempt to rerun discovery with
-all of the given specifications.  Again, it is not a problem if more than one
+all of the given specifications.
+Again, it is not a problem if more than one
 specification matches the same actual pmcd: one confirmed access path is
-arbitrarily selected.  The default is to do
+arbitrarily selected.
+The default is to do
 .BR "no discovery" .
 Consider including
 .IR avahi,timeout=5
 to rely in pmcd self-announcements on the local network (searching for up to
-five seconds each time).  Consider including
+five seconds each time).
+Consider including
 .IR probe=192.168.1.0/24
 to quickly scan the given IP address range.
 .TP
 .I subtarget\-containers
 If this file exists,
 .B pmmgr
-will scan each host that is found for
-running containers.  For each running container, it will create
+will scan each host that is found for running containers.
+For each running container, it will create
 independent subtargets for running requested daemons.
 The hostid string for these subtargets is the host's hostid
 string, followed by a double-hyphen, then the full unique container
@@ -241,16 +273,18 @@ instance-name string.
 .I target\-threads
 This file contains a limit on the number of concurrent threads
 that analyze potential target pmcds for their hostids and/or
-containers.  The default is
+containers.
+The default is
 .BR "a few dozen threads per CPU core" ,
-if known.  Set this to zero if remote pmcds should be analyzed
-sequentially.  A small number of threads is not a good idea if any
+if known.
+Set this to zero if remote pmcds should be analyzed sequentially.
+A small number of threads is not a good idea if any
 potential target pmcds are unreachable, since $PMCD_CONNECT_TIMEOUT
 may be several seconds long each.
 .TP
 .I log\-subdirectory\-gc
 This file may contain a time interval specification as per the
-.BR PCPintro (1)
+.BR PCPIntro (1)
 manual page.
 All subdirectories of the log\-directory are
 presumed to contain data for
@@ -267,12 +301,12 @@ restarts, and
 .B pmlogmerge
 intervals).
 The default value is
-.IR 90days .
-
+.BR 90days .
 .SS PMLOGGER CONFIGURATION
 This group of configuration options controls a
 .BR pmlogger
-daemon for each host.  This may include generating its configuration,
+daemon for each host.
+This may include generating its configuration,
 and managing its archives.
 .TP
 .I pmlogger*
@@ -285,9 +319,11 @@ targeted host.
 This file contains one line of additional space-separated options
 for the
 .B pmlogger
-daemon.  (\c
+daemon.
+(\c
 .B pmmgr
-already adds \-h, \-H, \-f, \-r, \-l, and perhaps \-c.)
+already adds
+.BR \-h ", " \-H ", " \-f ", " \-r ", " \-l ", and perhaps "\-c .)
 The default is to maintain
 .BR "no pmlogger"
 (and no other configuration in this section is processed).
@@ -295,7 +331,10 @@ The default is to maintain
 .I pmlogger\-timefmt*
 Specify a time format to use in the archive\-* name for
 .B pmlogger
-generated archives. The default is "%Y%m%d.%H%M%S". Expected to be in 
+generated archives.
+The default is
+.BR "%Y%m%d.%H%M%S" .
+Expected to be in
 .BR strftime (3)
 format.
 .TP
@@ -313,14 +352,16 @@ options for the
 program.
 .BR pmlogconf 's
 generated output file will be stored under
-the log\-directory/hostid subdirectory.  (\c
+the log\-directory/hostid subdirectory.
+(\c
 .B pmmgr
-already adds \-c, \-r, and \-h.)
+already adds
+.BR \-c ", " \-r ", and "\-h .)
 The default is
 .BR "no pmlogconf" ,
 so instead, the
 .B pmlogger
-file above should probably contain a \-c option, to
+file above should probably contain a \f3\-c\f1 option, to
 specify a fixed
 .B pmlogger
 configuration.
@@ -330,7 +371,8 @@ Default
 configurations can collect tens of megabytes of data
 per day (possibly split into multiple archives), per target host.
 If your disk space is less than infinite, or archive-splitting unwieldy,
-this should be managed.  In the default, unmanaged case, the system
+this should be managed.
+In the default, unmanaged case, the system
 administrator is responsible for managing the individual
 .I archive-*
 files from the per-host logging subdirectories.
@@ -340,7 +382,8 @@ each representing different performance and usability tradeoffs.
 .SS ARCHIVE LOG MANAGEMENT - pmlogmerge
 This style of archive log management regularly creates a single merged
 archive from prior archives for each target host, in effect lopping
-off old data and appending the new.  A single merged archive can be
+off old data and appending the new.
+A single merged archive can be
 relatively large (defaults to approximately 100-400 MB per host), and
 puts a corresponding I/O load on storage, but is most convenient for a
 detailed long-timeframe analysis.
@@ -358,10 +401,11 @@ If this file exists,
 will run
 .B pmlogextract
 to periodically merge together preexisting log archives for each
-target pmcd into a single large one.  Then, the preexisting log
+target pmcd into a single large one.
+Then, the preexisting log
 archives are deleted (including any prior merged ones).
 This configuration file may contain a time interval specification as per the
-.BR PCPintro (1)
+.BR PCPIntro (1)
 manual page, representing the period after which
 .B pmlogger
 should be temporarily stopped, and archives merged.
@@ -394,7 +438,8 @@ If this file exists, it the time interval it contains is the maximum age.
 The default is
 .BR 90days .
 To store corrupt archives indefinitely, set this to a large
-quantity like "99999weeks".
+quantity like
+.BR 99999weeks .
 .TP
 .I pmlogmerge\-rewrite*
 If this file exists,
@@ -402,7 +447,9 @@ If this file exists,
 will run
 .B "pmlogrewrite -i"
 (plus any other options listed in this file) on each input archive before
-merging it.  This will naturally require more disk I/O.  The default is
+merging it.
+This will naturally require more disk I/O.
+The default is
 .BR "no rewriting" .
 .TP
 .I pmlogmerge\-retain*
@@ -411,11 +458,12 @@ reduces/deletes any original-resolution archives after a time
 period specified by this file, as measured by the file mtime.
 The period will also be passed to
 .B pmlogextract
-as a negative parameter to \f2\-S\f1.
+as a negative parameter to \f3\-S\f1.
 The default is
-.IR 14days .
+.BR 14days .
 To store archives indefinitely, set this to a large quantity
-like "99999weeks".
+like
+.BR 99999weeks .
 .TP
 .I pmlogreduce*
 If this file exists, then prior to removing archives that
@@ -423,10 +471,10 @@ expire past the
 .I pmlogmerge\-retain
 period, they are processed with
 .B pmlogreduce
-to create reduced archives (named \fBreduced-*\fR).  If the
-file contains space-separated options, they are passed onto
-pmlogreduce.  (By default, pmlogreduce down-samples to a
-600-second interval.)
+to create reduced archives (named \fBreduced-*\fR).
+If the file contains space-separated options, they are passed onto
+pmlogreduce.
+(By default, pmlogreduce down-samples to a 600-second interval.)
 .TP
 .I pmlogreduce\-retain*
 If this file exists, then reduced archives (identified by the
@@ -438,28 +486,29 @@ time \fBplus\fR the pmlogreduce\-retain time.
 The default is
 .BR 90days .
 To store reduced archives indefinitely, set this to a large
-quantity like "99999weeks".
+quantity like
+.BR 99999weeks .
 .TP
 .I disk\-full\-threshold
 If this file exists, then
 .B pmmgr
 will track the disk space available
-where pmlogger archives are kept.  If that partition fills up
-past the configured percentage,
+where pmlogger archives are kept.
+If that partition fills up past the configured percentage,
 .B pmmgr
 will linearly reduce the duration logs are kept via the
 .I disk\-full\-retention
 variable.
-
+.PP
 Values must be greater than zero, and expressed either a value
 between 0 and 1, or decimal value between 1 and 100.
 .TP
 .I disk\-full\-retention
 If expressed, this variable scales the rate at which logs are culled when
 .I disk\-full\-threshold
-has been surpassed.  A lower percentage will cull logs more quickly (in
-favour of preserving disk space), while a higher percentage will opt to
-retain more pcp archives.
+has been surpassed.
+A lower percentage will cull logs more quickly (in favour of preserving
+disk space), while a higher percentage will opt to retain more pcp archives.
 .TS
 box,center;
 c|c|c.
@@ -505,9 +554,11 @@ daemon for each targeted
 This file contains one line of additional space-separated options
 for the
 .B pmie
-daemon.  (\c
+daemon.
+(\c
 .B pmmgr
-already adds \-h, \-f, \-l, and perhaps \-c.)
+already adds
+.BR \-h ", " \-f ", " \-l ", and perhaps "\-c .)
 The default is to maintain
 .BR "no pmie"
 (and no other configuration in this section is processed).
@@ -525,62 +576,57 @@ The file contains one line of space-separated additional options for the
 program.
 .BR pmieconf -
 generated output file will be stored under
-the log\-directory/hostid subdirectory.  (\c
+the log\-directory/hostid subdirectory.
+(\c
 .B pmmgr
-already adds \-F, \-c, and \-f.)
+already adds
+.BR \-F ", " \-c ", and "\-f .)
 The default is
 .BR "no pmieconf" ,
 so instead, the
 .I pmie
-file above should probably contain a \-c option, to
+file above should probably contain a \f3\-c\f1 option, to
 specify a fixed
 .B pmie configuration.
 .SS MONITOR DAEMON MANAGEMENT
 .B pmmgr
 may be used to invoke arbitrary PCP client programs for each target
-.BR pmcd .
+.BR pmcd (1).
 This can enable automated invocation of reporting or relaying tools, such as
-.BR pmrep ,
-.B pcp2graphite
+.BR pmrep (1),
+.BR pcp2graphite (1)
 or
-.B pcp2influxdb
+.BR pcp2influxdb (1)
 without needing a specialized system service.
 .TP
 .I monitor*
 If this file exists, then for each line in this file, a new background process will
-be invoked.  (It is restarted if it exits.)  The line specifies the beginning of the
-command line (including the program name);
+be invoked.
+(It is restarted if it exits.)
+The line specifies the beginning of the command line (including the program name);
 .B pmmgr
-appends a \-h HOSTSPEC, and arranges
+appends a \f3\-h\f1 \f2HOSTSPEC\f1, and arranges
 to collect the standard output and standard error into separate
 .BR monitor-NN.out " and " monitor-NN.err
-files under the log directory.  Errors messages in the latter are transcribed
+files under the log directory.
+Errors messages in the latter are transcribed
 to
 .BR pmmgr 's
 own logs.
 .SH FILES
-.PD 0
-.TP 10
-.BI $PCP_SYSCONF_DIR/pmmgr/
+.TP 5
+.I $PCP_SYSCONF_DIR/pmmgr/
 default configuration directory
 .TP
-.BI $PCP_LOG_DIR/pmmgr/
+.I $PCP_LOG_DIR/pmmgr/
 default logging directory
-.PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parametrize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR cron (1),
@@ -588,13 +634,13 @@ as described in
 .BR pmlogconf (1),
 .BR pmlogger (1),
 .BR pmlogger_daily (1),
-.BR pmieconf (1),
+.BR pmlogreduce (1),
 .BR pmie (1),
+.BR pmieconf (1),
 .BR pmie_daily (1),
 .BR pmrep (1),
 .BR pcp2graphite (1),
 .BR pcp2influxdb (1),
-.BR pmlogreduce (1),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).

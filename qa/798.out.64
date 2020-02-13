@@ -1,4 +1,170 @@
 QA output created by 798
+=== Test case: mountstats-4.18.0-105.el8.rpc-v1.1.qa
+dbpmda> open pipe $PYTHON pmdanfsclient.python
+Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
+dbpmda> getdesc on
+dbpmda> desc nfsclient.export
+PMID: 62.0.1
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.mountpoint
+PMID: 62.0.2
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.options.string
+PMID: 62.1.1
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.options.proto
+PMID: 62.1.24
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.options.vers
+PMID: 62.1.6
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> fetch nfsclient.export
+PMID(s): 62.0.1
+pmResult ... numpmid: 1
+  62.0.1 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "192.168.122.24:/exports"
+    inst [N or ???] value "192.168.122.27:/exports"
+    inst [N or ???] value "rhel7u6-node2:/exports"
+    inst [N or ???] value "rhel8u0-node2-beta:/exports"
+dbpmda> fetch nfsclient.mountpoint
+PMID(s): 62.0.2
+pmResult ... numpmid: 1
+  62.0.2 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "/mnt/nfsv3"
+    inst [N or ???] value "/mnt/nfsv4.0"
+    inst [N or ???] value "/mnt/nfsv4.1"
+    inst [N or ???] value "/mnt/nfsv4.2"
+dbpmda> fetch nfsclient.options.string
+PMID(s): 62.1.1
+pmResult ... numpmid: 1
+  62.1.1 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "rw,vers=3,rsize=131072,wsize=131072,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.122.24,mountvers=3,mountport=687,mountproto=udp,local_lock=none"
+    inst [N or ???] value "rw,vers=4.0,rsize=262144,wsize=262144,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.122.17,local_lock=none"
+    inst [N or ???] value "rw,vers=4.1,rsize=524288,wsize=524288,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.122.17,local_lock=none"
+    inst [N or ???] value "rw,vers=4.2,rsize=524288,wsize=524288,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.122.17,local_lock=none"
+dbpmda> fetch nfsclient.options.proto
+PMID(s): 62.1.24
+pmResult ... numpmid: 1
+  62.1.24 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+dbpmda> fetch nfsclient.options.vers
+PMID(s): 62.1.6
+pmResult ... numpmid: 1
+  62.1.6 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "3"
+    inst [N or ???] value "4.0"
+    inst [N or ???] value "4.1"
+    inst [N or ???] value "4.2"
+dbpmda> fetch nfsclient.options.vers
+PMID(s): 62.1.6
+pmResult ... numpmid: 1
+  62.1.6 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "3"
+    inst [N or ???] value "4.0"
+    inst [N or ???] value "4.1"
+    inst [N or ???] value "4.2"
+dbpmda> instance 62.0
+pmInDom: 62.0
+[  X] inst: X name: "/mnt/nfsv3"
+[X+1] inst: X+1 name: "/mnt/nfsv4.0"
+[X+2] inst: X+2 name: "/mnt/nfsv4.1"
+[X+3] inst: X+3 name: "/mnt/nfsv4.2"
+dbpmda> 
+Log for pmdanfsclient on HOST ...
+Log finished ...
+=== Test case: mountstats-4.18.0-80.el8-rpc-v1.0.qa
+dbpmda> open pipe $PYTHON pmdanfsclient.python
+Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
+dbpmda> getdesc on
+dbpmda> desc nfsclient.export
+PMID: 62.0.1
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.mountpoint
+PMID: 62.0.2
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.options.string
+PMID: 62.1.1
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.options.proto
+PMID: 62.1.24
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.options.vers
+PMID: 62.1.6
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> fetch nfsclient.export
+PMID(s): 62.0.1
+pmResult ... numpmid: 1
+  62.0.1 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "192.168.122.24:/exports"
+    inst [N or ???] value "192.168.122.27:/exports"
+    inst [N or ???] value "rhel7u6-node2:/exports"
+    inst [N or ???] value "rhel8u0-node2-beta:/exports"
+dbpmda> fetch nfsclient.mountpoint
+PMID(s): 62.0.2
+pmResult ... numpmid: 1
+  62.0.2 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "/mnt/nfsv3"
+    inst [N or ???] value "/mnt/nfsv4.0"
+    inst [N or ???] value "/mnt/nfsv4.1"
+    inst [N or ???] value "/mnt/nfsv4.2"
+dbpmda> fetch nfsclient.options.string
+PMID(s): 62.1.1
+pmResult ... numpmid: 1
+  62.1.1 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "rw,vers=3,rsize=131072,wsize=131072,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.122.24,mountvers=3,mountport=687,mountproto=udp,local_lock=none"
+    inst [N or ???] value "rw,vers=4.0,rsize=262144,wsize=262144,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.122.17,local_lock=none"
+    inst [N or ???] value "rw,vers=4.1,rsize=524288,wsize=524288,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.122.17,local_lock=none"
+    inst [N or ???] value "rw,vers=4.2,rsize=524288,wsize=524288,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.122.17,local_lock=none"
+dbpmda> fetch nfsclient.options.proto
+PMID(s): 62.1.24
+pmResult ... numpmid: 1
+  62.1.24 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+dbpmda> fetch nfsclient.options.vers
+PMID(s): 62.1.6
+pmResult ... numpmid: 1
+  62.1.6 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "3"
+    inst [N or ???] value "4.0"
+    inst [N or ???] value "4.1"
+    inst [N or ???] value "4.2"
+dbpmda> fetch nfsclient.options.vers
+PMID(s): 62.1.6
+pmResult ... numpmid: 1
+  62.1.6 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "3"
+    inst [N or ???] value "4.0"
+    inst [N or ???] value "4.1"
+    inst [N or ???] value "4.2"
+dbpmda> instance 62.0
+pmInDom: 62.0
+[  X] inst: X name: "/mnt/nfsv3"
+[X+1] inst: X+1 name: "/mnt/nfsv4.0"
+[X+2] inst: X+2 name: "/mnt/nfsv4.1"
+[X+3] inst: X+3 name: "/mnt/nfsv4.2"
+dbpmda> 
+Log for pmdanfsclient on HOST ...
+Log finished ...
 === Test case: mountstats.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
@@ -409,9 +575,9 @@ pmResult ... numpmid: 1
     inst [N or ???] value "udp"
     inst [N or ???] value "udp"
 dbpmda> fetch nfsclient.ops.readdirplus.ops
-PMID(s): 62.8.161
+PMID(s): 62.8.181
 pmResult ... numpmid: 1
-  62.8.161 (<noname>): numval: 10 valfmt: 0-or-1 vlist[]:
+  62.8.181 (<noname>): numval: 10 valfmt: 1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 3432
     inst [N or ???] value 3432
@@ -423,9 +589,9 @@ pmResult ... numpmid: 1
     inst [N or ???] value 3432
     inst [N or ???] value 3432
 dbpmda> fetch nfsclient.ops.readdirplus.ntrans
-PMID(s): 62.8.162
+PMID(s): 62.8.182
 pmResult ... numpmid: 1
-  62.8.162 (<noname>): numval: 10 valfmt: 0-or-1 vlist[]:
+  62.8.182 (<noname>): numval: 10 valfmt: 1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 3432
     inst [N or ???] value 3432
@@ -437,9 +603,9 @@ pmResult ... numpmid: 1
     inst [N or ???] value 3432
     inst [N or ???] value 3432
 dbpmda> fetch nfsclient.ops.readdirplus.timeouts
-PMID(s): 62.8.163
+PMID(s): 62.8.183
 pmResult ... numpmid: 1
-  62.8.163 (<noname>): numval: 10 valfmt: 0-or-1 vlist[]:
+  62.8.183 (<noname>): numval: 10 valfmt: 1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 0
     inst [N or ???] value 0
@@ -451,9 +617,9 @@ pmResult ... numpmid: 1
     inst [N or ???] value 0
     inst [N or ???] value 0
 dbpmda> fetch nfsclient.ops.readdirplus.bytes_sent
-PMID(s): 62.8.164
+PMID(s): 62.8.184
 pmResult ... numpmid: 1
-  62.8.164 (<noname>): numval: 10 valfmt: 1 vlist[]:
+  62.8.184 (<noname>): numval: 10 valfmt: 1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 507824
     inst [N or ???] value 507824
@@ -465,9 +631,9 @@ pmResult ... numpmid: 1
     inst [N or ???] value 507824
     inst [N or ???] value 507824
 dbpmda> fetch nfsclient.ops.readdirplus.bytes_recv
-PMID(s): 62.8.165
+PMID(s): 62.8.185
 pmResult ... numpmid: 1
-  62.8.165 (<noname>): numval: 10 valfmt: 1 vlist[]:
+  62.8.185 (<noname>): numval: 10 valfmt: 1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 10469364
     inst [N or ???] value 10469364
@@ -479,9 +645,9 @@ pmResult ... numpmid: 1
     inst [N or ???] value 10469364
     inst [N or ???] value 10469364
 dbpmda> fetch nfsclient.ops.readdirplus.queue
-PMID(s): 62.8.166
+PMID(s): 62.8.186
 pmResult ... numpmid: 1
-  62.8.166 (<noname>): numval: 10 valfmt: 1 vlist[]:
+  62.8.186 (<noname>): numval: 10 valfmt: 1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 26
     inst [N or ???] value 26
@@ -493,9 +659,9 @@ pmResult ... numpmid: 1
     inst [N or ???] value 26
     inst [N or ???] value 26
 dbpmda> fetch nfsclient.ops.readdirplus.rtt
-PMID(s): 62.8.167
+PMID(s): 62.8.187
 pmResult ... numpmid: 1
-  62.8.167 (<noname>): numval: 10 valfmt: 1 vlist[]:
+  62.8.187 (<noname>): numval: 10 valfmt: 1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 22016
     inst [N or ???] value 22016
@@ -507,9 +673,9 @@ pmResult ... numpmid: 1
     inst [N or ???] value 22016
     inst [N or ???] value 22016
 dbpmda> fetch nfsclient.ops.readdirplus.execute
-PMID(s): 62.8.168
+PMID(s): 62.8.188
 pmResult ... numpmid: 1
-  62.8.168 (<noname>): numval: 10 valfmt: 1 vlist[]:
+  62.8.188 (<noname>): numval: 10 valfmt: 1 vlist[]:
     inst [N or ???] value 0
     inst [N or ???] value 28273
     inst [N or ???] value 28273
@@ -546,99 +712,99 @@ PMID: 62.3.2
     Data Type: string  InDom: 62.0 0xf800000
     Semantics: instant  Units: none
 dbpmda> desc nfsclient.ops.seek.ops
-PMID: 62.8.465
+PMID: 62.8.523
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.seek.ntrans
-PMID: 62.8.466
+PMID: 62.8.524
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.seek.timeouts
-PMID: 62.8.467
+PMID: 62.8.525
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.seek.bytes_sent
-PMID: 62.8.468
+PMID: 62.8.526
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: byte
 dbpmda> desc nfsclient.ops.seek.bytes_recv
-PMID: 62.8.469
+PMID: 62.8.527
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: byte
 dbpmda> desc nfsclient.ops.seek.queue
-PMID: 62.8.470
+PMID: 62.8.528
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: millisec
 dbpmda> desc nfsclient.ops.seek.rtt
-PMID: 62.8.471
+PMID: 62.8.529
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: millisec
 dbpmda> desc nfsclient.ops.seek.execute
-PMID: 62.8.472
+PMID: 62.8.530
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: millisec
 dbpmda> desc nfsclient.ops.allocate.ops
-PMID: 62.8.473
+PMID: 62.8.532
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.allocate.ntrans
-PMID: 62.8.474
+PMID: 62.8.533
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.allocate.timeouts
-PMID: 62.8.475
+PMID: 62.8.534
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.allocate.bytes_sent
-PMID: 62.8.476
+PMID: 62.8.535
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: byte
 dbpmda> desc nfsclient.ops.allocate.bytes_recv
-PMID: 62.8.477
+PMID: 62.8.536
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: byte
 dbpmda> desc nfsclient.ops.allocate.queue
-PMID: 62.8.478
+PMID: 62.8.537
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: millisec
 dbpmda> desc nfsclient.ops.allocate.rtt
-PMID: 62.8.479
+PMID: 62.8.538
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: millisec
 dbpmda> desc nfsclient.ops.allocate.execute
-PMID: 62.8.480
+PMID: 62.8.539
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: millisec
 dbpmda> desc nfsclient.ops.deallocate.ops
-PMID: 62.8.481
+PMID: 62.8.541
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.deallocate.ntrans
-PMID: 62.8.482
+PMID: 62.8.542
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.deallocate.timeouts
-PMID: 62.8.483
+PMID: 62.8.543
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: count
 dbpmda> desc nfsclient.ops.deallocate.bytes_sent
-PMID: 62.8.484
+PMID: 62.8.544
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: byte
 dbpmda> desc nfsclient.ops.deallocate.bytes_recv
-PMID: 62.8.485
+PMID: 62.8.545
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: byte
 dbpmda> desc nfsclient.ops.deallocate.queue
-PMID: 62.8.486
+PMID: 62.8.546
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: millisec
 dbpmda> desc nfsclient.ops.deallocate.rtt
-PMID: 62.8.487
+PMID: 62.8.547
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: millisec
 dbpmda> desc nfsclient.ops.deallocate.execute
-PMID: 62.8.488
+PMID: 62.8.548
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: millisec
 dbpmda> fetch nfsclient.nfsv4
@@ -647,125 +813,1225 @@ pmResult ... numpmid: 1
   62.3.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value "bm0=0xfdffbfff,bm1=0x40f9be3e,bm2=0x10803,acl=0x3,sessions,pnfs=not configured"
 dbpmda> fetch nfsclient.ops.seek.ops
-PMID(s): 62.8.465
+PMID(s): 62.8.523
 pmResult ... numpmid: 1
-  62.8.465 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.523 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 1
 dbpmda> fetch nfsclient.ops.seek.ntrans
-PMID(s): 62.8.466
+PMID(s): 62.8.524
 pmResult ... numpmid: 1
-  62.8.466 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.524 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 2
 dbpmda> fetch nfsclient.ops.seek.timeouts
-PMID(s): 62.8.467
+PMID(s): 62.8.525
 pmResult ... numpmid: 1
-  62.8.467 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.525 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 3
 dbpmda> fetch nfsclient.ops.seek.bytes_sent
-PMID(s): 62.8.468
+PMID(s): 62.8.526
 pmResult ... numpmid: 1
-  62.8.468 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.526 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 4
 dbpmda> fetch nfsclient.ops.seek.bytes_recv
-PMID(s): 62.8.469
+PMID(s): 62.8.527
 pmResult ... numpmid: 1
-  62.8.469 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.527 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 5
 dbpmda> fetch nfsclient.ops.seek.queue
-PMID(s): 62.8.470
+PMID(s): 62.8.528
 pmResult ... numpmid: 1
-  62.8.470 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.528 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 6
 dbpmda> fetch nfsclient.ops.seek.rtt
-PMID(s): 62.8.471
+PMID(s): 62.8.529
 pmResult ... numpmid: 1
-  62.8.471 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.529 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 7
 dbpmda> fetch nfsclient.ops.seek.execute
-PMID(s): 62.8.472
+PMID(s): 62.8.530
 pmResult ... numpmid: 1
-  62.8.472 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.530 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 8
 dbpmda> fetch nfsclient.ops.allocate.ops
-PMID(s): 62.8.473
+PMID(s): 62.8.532
 pmResult ... numpmid: 1
-  62.8.473 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.532 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 9
 dbpmda> fetch nfsclient.ops.allocate.ntrans
-PMID(s): 62.8.474
+PMID(s): 62.8.533
 pmResult ... numpmid: 1
-  62.8.474 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.533 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 11
 dbpmda> fetch nfsclient.ops.allocate.timeouts
-PMID(s): 62.8.475
+PMID(s): 62.8.534
 pmResult ... numpmid: 1
-  62.8.475 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.534 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 13
 dbpmda> fetch nfsclient.ops.allocate.bytes_sent
-PMID(s): 62.8.476
+PMID(s): 62.8.535
 pmResult ... numpmid: 1
-  62.8.476 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.535 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 15
 dbpmda> fetch nfsclient.ops.allocate.bytes_recv
-PMID(s): 62.8.477
+PMID(s): 62.8.536
 pmResult ... numpmid: 1
-  62.8.477 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.536 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 17
 dbpmda> fetch nfsclient.ops.allocate.queue
-PMID(s): 62.8.478
+PMID(s): 62.8.537
 pmResult ... numpmid: 1
-  62.8.478 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.537 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 19
 dbpmda> fetch nfsclient.ops.allocate.rtt
-PMID(s): 62.8.479
+PMID(s): 62.8.538
 pmResult ... numpmid: 1
-  62.8.479 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.538 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 21
 dbpmda> fetch nfsclient.ops.allocate.execute
-PMID(s): 62.8.480
+PMID(s): 62.8.539
 pmResult ... numpmid: 1
-  62.8.480 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.539 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 23
 dbpmda> fetch nfsclient.ops.deallocate.ops
-PMID(s): 62.8.481
+PMID(s): 62.8.541
 pmResult ... numpmid: 1
-  62.8.481 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.541 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 10
 dbpmda> fetch nfsclient.ops.deallocate.ntrans
-PMID(s): 62.8.482
+PMID(s): 62.8.542
 pmResult ... numpmid: 1
-  62.8.482 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.542 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 12
 dbpmda> fetch nfsclient.ops.deallocate.timeouts
-PMID(s): 62.8.483
+PMID(s): 62.8.543
 pmResult ... numpmid: 1
-  62.8.483 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.543 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 14
 dbpmda> fetch nfsclient.ops.deallocate.bytes_sent
-PMID(s): 62.8.484
+PMID(s): 62.8.544
 pmResult ... numpmid: 1
-  62.8.484 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.544 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 16
 dbpmda> fetch nfsclient.ops.deallocate.bytes_recv
-PMID(s): 62.8.485
+PMID(s): 62.8.545
 pmResult ... numpmid: 1
-  62.8.485 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.545 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 18
 dbpmda> fetch nfsclient.ops.deallocate.queue
-PMID(s): 62.8.486
+PMID(s): 62.8.546
 pmResult ... numpmid: 1
-  62.8.486 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.546 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 20
 dbpmda> fetch nfsclient.ops.deallocate.rtt
-PMID(s): 62.8.487
+PMID(s): 62.8.547
 pmResult ... numpmid: 1
-  62.8.487 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.547 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 22
 dbpmda> fetch nfsclient.ops.deallocate.execute
-PMID(s): 62.8.488
+PMID(s): 62.8.548
 pmResult ... numpmid: 1
-  62.8.488 (<noname>): numval: 1 valfmt: 1 vlist[]:
+  62.8.548 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [N or ???] value 24
+dbpmda> 
+Log for pmdanfsclient on HOST ...
+Log finished ...
+=== Test case: mountstats-4.18.0-105.el8.rpc-v1.1.qa
+dbpmda> open pipe $PYTHON pmdanfsclient.python
+Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
+dbpmda> getdesc on
+dbpmda> fetch nfsclient.export
+PMID(s): 62.0.1
+pmResult ... numpmid: 1
+  62.0.1 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "192.168.122.24:/exports"
+    inst [N or ???] value "192.168.122.27:/exports"
+    inst [N or ???] value "rhel7u6-node2:/exports"
+    inst [N or ???] value "rhel8u0-node2-beta:/exports"
+dbpmda> fetch nfsclient.options.mountvers
+PMID(s): 62.1.30
+pmResult ... numpmid: 1
+  62.1.30 (<noname>): numval: 4 valfmt: 0 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 3
+dbpmda> fetch nfsclient.options.mountproto
+PMID(s): 62.1.32
+pmResult ... numpmid: 1
+  62.1.32 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [N or ???] value "udp"
+dbpmda> fetch nfsclient.ops.copy.errors
+PMID(s): 62.8.585
+pmResult ... numpmid: 1
+  62.8.585 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.clone.errors
+PMID(s): 62.8.576
+pmResult ... numpmid: 1
+  62.8.576 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.layoutstats.errors
+PMID(s): 62.8.567
+pmResult ... numpmid: 1
+  62.8.567 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.fsid_present.errors
+PMID(s): 62.8.558
+pmResult ... numpmid: 1
+  62.8.558 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.deallocate.errors
+PMID(s): 62.8.549
+pmResult ... numpmid: 1
+  62.8.549 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.allocate.errors
+PMID(s): 62.8.540
+pmResult ... numpmid: 1
+  62.8.540 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.seek.errors
+PMID(s): 62.8.531
+pmResult ... numpmid: 1
+  62.8.531 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.test_stateid.errors
+PMID(s): 62.8.522
+pmResult ... numpmid: 1
+  62.8.522 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.secinfo_no_name.errors
+PMID(s): 62.8.513
+pmResult ... numpmid: 1
+  62.8.513 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.getdevicelist.errors
+PMID(s): 62.8.504
+pmResult ... numpmid: 1
+  62.8.504 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.free_stateid.errors
+PMID(s): 62.8.495
+pmResult ... numpmid: 1
+  62.8.495 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.destroy_clientid.errors
+PMID(s): 62.8.486
+pmResult ... numpmid: 1
+  62.8.486 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.bind_conn_to_session.errors
+PMID(s): 62.8.477
+pmResult ... numpmid: 1
+  62.8.477 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.statfs.errors
+PMID(s): 62.8.468
+pmResult ... numpmid: 1
+  62.8.468 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.setclientid_confirm.errors
+PMID(s): 62.8.459
+pmResult ... numpmid: 1
+  62.8.459 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.setclientid.errors
+PMID(s): 62.8.450
+pmResult ... numpmid: 1
+  62.8.450 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.setacl.errors
+PMID(s): 62.8.441
+pmResult ... numpmid: 1
+  62.8.441 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.server_caps.errors
+PMID(s): 62.8.432
+pmResult ... numpmid: 1
+  62.8.432 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.sequence.errors
+PMID(s): 62.8.423
+pmResult ... numpmid: 1
+  62.8.423 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.secinfo.errors
+PMID(s): 62.8.414
+pmResult ... numpmid: 1
+  62.8.414 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.renew.errors
+PMID(s): 62.8.405
+pmResult ... numpmid: 1
+  62.8.405 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.release_lockowner.errors
+PMID(s): 62.8.396
+pmResult ... numpmid: 1
+  62.8.396 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.reclaim_complete.errors
+PMID(s): 62.8.387
+pmResult ... numpmid: 1
+  62.8.387 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.open_noattr.errors
+PMID(s): 62.8.378
+pmResult ... numpmid: 1
+  62.8.378 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.open_downgrade.errors
+PMID(s): 62.8.369
+pmResult ... numpmid: 1
+  62.8.369 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.open_confirm.errors
+PMID(s): 62.8.360
+pmResult ... numpmid: 1
+  62.8.360 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.open.errors
+PMID(s): 62.8.351
+pmResult ... numpmid: 1
+  62.8.351 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.lookup_root.errors
+PMID(s): 62.8.342
+pmResult ... numpmid: 1
+  62.8.342 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.locku.errors
+PMID(s): 62.8.333
+pmResult ... numpmid: 1
+  62.8.333 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.lockt.errors
+PMID(s): 62.8.324
+pmResult ... numpmid: 1
+  62.8.324 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.lock.errors
+PMID(s): 62.8.315
+pmResult ... numpmid: 1
+  62.8.315 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.layoutreturn.errors
+PMID(s): 62.8.306
+pmResult ... numpmid: 1
+  62.8.306 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.layoutget.errors
+PMID(s): 62.8.297
+pmResult ... numpmid: 1
+  62.8.297 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.layoutcommit.errors
+PMID(s): 62.8.288
+pmResult ... numpmid: 1
+  62.8.288 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.get_lease_time.errors
+PMID(s): 62.8.279
+pmResult ... numpmid: 1
+  62.8.279 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.getdeviceinfo.errors
+PMID(s): 62.8.270
+pmResult ... numpmid: 1
+  62.8.270 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.getacl.errors
+PMID(s): 62.8.261
+pmResult ... numpmid: 1
+  62.8.261 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.fs_locations.errors
+PMID(s): 62.8.252
+pmResult ... numpmid: 1
+  62.8.252 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.exchange_id.errors
+PMID(s): 62.8.243
+pmResult ... numpmid: 1
+  62.8.243 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.destroy_session.errors
+PMID(s): 62.8.234
+pmResult ... numpmid: 1
+  62.8.234 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.delegreturn.errors
+PMID(s): 62.8.225
+pmResult ... numpmid: 1
+  62.8.225 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.create_session.errors
+PMID(s): 62.8.216
+pmResult ... numpmid: 1
+  62.8.216 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.close.errors
+PMID(s): 62.8.207
+pmResult ... numpmid: 1
+  62.8.207 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.rmdir.errors
+PMID(s): 62.8.198
+pmResult ... numpmid: 1
+  62.8.198 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.readdirplus.errors
+PMID(s): 62.8.189
+pmResult ... numpmid: 1
+  62.8.189 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.mknod.errors
+PMID(s): 62.8.180
+pmResult ... numpmid: 1
+  62.8.180 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.mkdir.errors
+PMID(s): 62.8.171
+pmResult ... numpmid: 1
+  62.8.171 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.fsstat.errors
+PMID(s): 62.8.162
+pmResult ... numpmid: 1
+  62.8.162 (<noname>): numval: 4 valfmt: 0-or-1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.commit.errors
+PMID(s): 62.8.153
+pmResult ... numpmid: 1
+  62.8.153 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.pathconf.errors
+PMID(s): 62.8.144
+pmResult ... numpmid: 1
+  62.8.144 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.fsinfo.errors
+PMID(s): 62.8.135
+pmResult ... numpmid: 1
+  62.8.135 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.readdir.errors
+PMID(s): 62.8.126
+pmResult ... numpmid: 1
+  62.8.126 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.link.errors
+PMID(s): 62.8.117
+pmResult ... numpmid: 1
+  62.8.117 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.rename.errors
+PMID(s): 62.8.108
+pmResult ... numpmid: 1
+  62.8.108 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.remove.errors
+PMID(s): 62.8.99
+pmResult ... numpmid: 1
+  62.8.99 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.symlink.errors
+PMID(s): 62.8.90
+pmResult ... numpmid: 1
+  62.8.90 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.create.errors
+PMID(s): 62.8.81
+pmResult ... numpmid: 1
+  62.8.81 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.write.errors
+PMID(s): 62.8.72
+pmResult ... numpmid: 1
+  62.8.72 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.read.errors
+PMID(s): 62.8.63
+pmResult ... numpmid: 1
+  62.8.63 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.readlink.errors
+PMID(s): 62.8.54
+pmResult ... numpmid: 1
+  62.8.54 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.access.errors
+PMID(s): 62.8.45
+pmResult ... numpmid: 1
+  62.8.45 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.lookup.errors
+PMID(s): 62.8.36
+pmResult ... numpmid: 1
+  62.8.36 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.setattr.errors
+PMID(s): 62.8.27
+pmResult ... numpmid: 1
+  62.8.27 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.getattr.errors
+PMID(s): 62.8.18
+pmResult ... numpmid: 1
+  62.8.18 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.null.errors
+PMID(s): 62.8.9
+pmResult ... numpmid: 1
+  62.8.9 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> 
+Log for pmdanfsclient on HOST ...
+Log finished ...
+=== Test case: mountstats-4.18.0-80.el8-rpc-v1.0.qa
+dbpmda> open pipe $PYTHON pmdanfsclient.python
+Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
+dbpmda> getdesc on
+dbpmda> fetch nfsclient.export
+PMID(s): 62.0.1
+pmResult ... numpmid: 1
+  62.0.1 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value "192.168.122.24:/exports"
+    inst [N or ???] value "192.168.122.27:/exports"
+    inst [N or ???] value "rhel7u6-node2:/exports"
+    inst [N or ???] value "rhel8u0-node2-beta:/exports"
+dbpmda> fetch nfsclient.options.mountvers
+PMID(s): 62.1.30
+pmResult ... numpmid: 1
+  62.1.30 (<noname>): numval: 4 valfmt: 0 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 3
+dbpmda> fetch nfsclient.options.mountproto
+PMID(s): 62.1.32
+pmResult ... numpmid: 1
+  62.1.32 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [N or ???] value "udp"
+dbpmda> fetch nfsclient.ops.copy.errors
+PMID(s): 62.8.585
+pmResult ... numpmid: 1
+  62.8.585 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.clone.errors
+PMID(s): 62.8.576
+pmResult ... numpmid: 1
+  62.8.576 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.layoutstats.errors
+PMID(s): 62.8.567
+pmResult ... numpmid: 1
+  62.8.567 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.fsid_present.errors
+PMID(s): 62.8.558
+pmResult ... numpmid: 1
+  62.8.558 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.deallocate.errors
+PMID(s): 62.8.549
+pmResult ... numpmid: 1
+  62.8.549 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.allocate.errors
+PMID(s): 62.8.540
+pmResult ... numpmid: 1
+  62.8.540 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.seek.errors
+PMID(s): 62.8.531
+pmResult ... numpmid: 1
+  62.8.531 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.test_stateid.errors
+PMID(s): 62.8.522
+pmResult ... numpmid: 1
+  62.8.522 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.secinfo_no_name.errors
+PMID(s): 62.8.513
+pmResult ... numpmid: 1
+  62.8.513 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.getdevicelist.errors
+PMID(s): 62.8.504
+pmResult ... numpmid: 1
+  62.8.504 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.free_stateid.errors
+PMID(s): 62.8.495
+pmResult ... numpmid: 1
+  62.8.495 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.destroy_clientid.errors
+PMID(s): 62.8.486
+pmResult ... numpmid: 1
+  62.8.486 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.bind_conn_to_session.errors
+PMID(s): 62.8.477
+pmResult ... numpmid: 1
+  62.8.477 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.statfs.errors
+PMID(s): 62.8.468
+pmResult ... numpmid: 1
+  62.8.468 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.setclientid_confirm.errors
+PMID(s): 62.8.459
+pmResult ... numpmid: 1
+  62.8.459 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.setclientid.errors
+PMID(s): 62.8.450
+pmResult ... numpmid: 1
+  62.8.450 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.setacl.errors
+PMID(s): 62.8.441
+pmResult ... numpmid: 1
+  62.8.441 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.server_caps.errors
+PMID(s): 62.8.432
+pmResult ... numpmid: 1
+  62.8.432 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.sequence.errors
+PMID(s): 62.8.423
+pmResult ... numpmid: 1
+  62.8.423 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.secinfo.errors
+PMID(s): 62.8.414
+pmResult ... numpmid: 1
+  62.8.414 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.renew.errors
+PMID(s): 62.8.405
+pmResult ... numpmid: 1
+  62.8.405 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.release_lockowner.errors
+PMID(s): 62.8.396
+pmResult ... numpmid: 1
+  62.8.396 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.reclaim_complete.errors
+PMID(s): 62.8.387
+pmResult ... numpmid: 1
+  62.8.387 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.open_noattr.errors
+PMID(s): 62.8.378
+pmResult ... numpmid: 1
+  62.8.378 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.open_downgrade.errors
+PMID(s): 62.8.369
+pmResult ... numpmid: 1
+  62.8.369 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.open_confirm.errors
+PMID(s): 62.8.360
+pmResult ... numpmid: 1
+  62.8.360 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.open.errors
+PMID(s): 62.8.351
+pmResult ... numpmid: 1
+  62.8.351 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.lookup_root.errors
+PMID(s): 62.8.342
+pmResult ... numpmid: 1
+  62.8.342 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.locku.errors
+PMID(s): 62.8.333
+pmResult ... numpmid: 1
+  62.8.333 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.lockt.errors
+PMID(s): 62.8.324
+pmResult ... numpmid: 1
+  62.8.324 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.lock.errors
+PMID(s): 62.8.315
+pmResult ... numpmid: 1
+  62.8.315 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.layoutreturn.errors
+PMID(s): 62.8.306
+pmResult ... numpmid: 1
+  62.8.306 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.layoutget.errors
+PMID(s): 62.8.297
+pmResult ... numpmid: 1
+  62.8.297 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.layoutcommit.errors
+PMID(s): 62.8.288
+pmResult ... numpmid: 1
+  62.8.288 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.get_lease_time.errors
+PMID(s): 62.8.279
+pmResult ... numpmid: 1
+  62.8.279 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.getdeviceinfo.errors
+PMID(s): 62.8.270
+pmResult ... numpmid: 1
+  62.8.270 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.getacl.errors
+PMID(s): 62.8.261
+pmResult ... numpmid: 1
+  62.8.261 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.fs_locations.errors
+PMID(s): 62.8.252
+pmResult ... numpmid: 1
+  62.8.252 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.exchange_id.errors
+PMID(s): 62.8.243
+pmResult ... numpmid: 1
+  62.8.243 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.destroy_session.errors
+PMID(s): 62.8.234
+pmResult ... numpmid: 1
+  62.8.234 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.delegreturn.errors
+PMID(s): 62.8.225
+pmResult ... numpmid: 1
+  62.8.225 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.create_session.errors
+PMID(s): 62.8.216
+pmResult ... numpmid: 1
+  62.8.216 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.close.errors
+PMID(s): 62.8.207
+pmResult ... numpmid: 1
+  62.8.207 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.rmdir.errors
+PMID(s): 62.8.198
+pmResult ... numpmid: 1
+  62.8.198 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.readdirplus.errors
+PMID(s): 62.8.189
+pmResult ... numpmid: 1
+  62.8.189 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.mknod.errors
+PMID(s): 62.8.180
+pmResult ... numpmid: 1
+  62.8.180 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.mkdir.errors
+PMID(s): 62.8.171
+pmResult ... numpmid: 1
+  62.8.171 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.fsstat.errors
+PMID(s): 62.8.162
+pmResult ... numpmid: 1
+  62.8.162 (<noname>): numval: 4 valfmt: 0-or-1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.commit.errors
+PMID(s): 62.8.153
+pmResult ... numpmid: 1
+  62.8.153 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.pathconf.errors
+PMID(s): 62.8.144
+pmResult ... numpmid: 1
+  62.8.144 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.fsinfo.errors
+PMID(s): 62.8.135
+pmResult ... numpmid: 1
+  62.8.135 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.readdir.errors
+PMID(s): 62.8.126
+pmResult ... numpmid: 1
+  62.8.126 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.link.errors
+PMID(s): 62.8.117
+pmResult ... numpmid: 1
+  62.8.117 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.rename.errors
+PMID(s): 62.8.108
+pmResult ... numpmid: 1
+  62.8.108 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.remove.errors
+PMID(s): 62.8.99
+pmResult ... numpmid: 1
+  62.8.99 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.symlink.errors
+PMID(s): 62.8.90
+pmResult ... numpmid: 1
+  62.8.90 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.create.errors
+PMID(s): 62.8.81
+pmResult ... numpmid: 1
+  62.8.81 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.write.errors
+PMID(s): 62.8.72
+pmResult ... numpmid: 1
+  62.8.72 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.read.errors
+PMID(s): 62.8.63
+pmResult ... numpmid: 1
+  62.8.63 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.readlink.errors
+PMID(s): 62.8.54
+pmResult ... numpmid: 1
+  62.8.54 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.access.errors
+PMID(s): 62.8.45
+pmResult ... numpmid: 1
+  62.8.45 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.lookup.errors
+PMID(s): 62.8.36
+pmResult ... numpmid: 1
+  62.8.36 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.setattr.errors
+PMID(s): 62.8.27
+pmResult ... numpmid: 1
+  62.8.27 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.getattr.errors
+PMID(s): 62.8.18
+pmResult ... numpmid: 1
+  62.8.18 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+dbpmda> fetch nfsclient.ops.null.errors
+PMID(s): 62.8.9
+pmResult ... numpmid: 1
+  62.8.9 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
+    inst [N or ???] value 0
 dbpmda> 
 Log for pmdanfsclient on HOST ...
 Log finished ...

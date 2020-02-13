@@ -23,7 +23,7 @@ $authentication || _notrun "No authentication support available"
 _cleanup()
 {
     cd $here
-    _service pcp restart | _filter_pcp_start
+    _service pcp restart 2>&1 | _filter_pcp_start
     _restore_auto_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -36,7 +36,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd		# sample.log is now sure to be clean
 _wait_for_pmlogger
 

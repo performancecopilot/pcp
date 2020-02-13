@@ -1,24 +1,19 @@
 #!/bin/sh
 
-# For sudo to work from a script
-sed -i '/requiretty/d' /etc/sudoers 
+cd /vagrant || exit
 
-dnf -y group install 'Development Tools' 'C Development Tools and Libraries' 'RPM Development Tools'
-dnf -y install perl-ExtUtils-MakeMaker bison flex libmicrohttpd-devel qt-devel fedora-packager systemd-devel perl-JSON \
-		sysstat perl-Digest-MD5 bc ed cpan cairo-devel cyrus-sasl-devel libibumad-devel libibmad-devel avahi-devel \
-		papi-devel libpfm-devel rpm-devel perl-TimeDate perl-XML-TokeParser perl-Spreadsheet-WriteExcel \
-		perl-Text-CSV_XS bind-utils httpd python-devel nspr-devel nss-devel perl-Spreadsheet-XLSX time xorg-x11-utils \
-                ncurses-devel readline-devel rrdtool-perl
+# setup vm
+packages=`./qa/admin/check-vm -fp`
+dnf -y -b --skip-broken install $packages
 
-# Remove too old libraries
-pfmvers=`rpm -q --qf "%{VERSION}\n" libpfm`
-[ "$pfmvers" = "`echo -e "$pfmvers\n4.3.9" | sort -V | head -n1`" ] && rpm -e libpfm libpfm-devel papi papi-devel
-
-cd /vagrant
+# build pcp
 sudo -H -u vagrant ./Makepkgs
-rpm -ivh  pcp-*/build/rpm/*.rpm
 
-# Doesn't start automatically on all distributions
-/sbin/service pmcd start
+# install pcp
+. ./VERSION.pcp
+version="$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION"
+rpm -Uvh --force "pcp-$version/build/rpm/*.rpm"
 
-echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+# setup pcpqa
+sed -i '/requiretty/d' /etc/sudoers	# for sudo to work from a script
+echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpqa

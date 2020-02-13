@@ -45,9 +45,8 @@ _filter()
 	-e '/^proc\.fd.*: No permission/d' \
 	-e '/^proc\.io.*: /d' \
 	-e '/^proc\.namespaces.*: /d' \
-	-e '/^papi\..*: No permission/d' \
 	-e '/^pipe\..*: Not Connected/d' \
-	-e '/^prometheus: pmLookupDesc: Unknown or illegal metric identifier/d' \
+	-e '/^openmetrics: pmLookupDesc: Unknown or illegal metric identifier/d' \
 	-e '/^libvirt\..*: Not Connected/d' \
 	-e '/^postgresql\..*: Missing metric value(s)/d' \
 	-e '/^logger\.perfile\.reg\.records: No permission/d' \
@@ -65,7 +64,15 @@ _filter()
 	-e '/^nginx\..*: Try again./d' \
 	-e '/^zswap\..*: Try again./d' \
 	-e '/Container not found/d' \
-    # end
+	-e '/^postgresql/d' \
+    | if [ $PCP_PLATFORM = openbsd ]
+    then
+	sed \
+	    -e '/^mem.util.anonpages: Not Supported/d' \
+	# end
+    else
+	cat
+    fi
 }
 
 _filter_libvirt()

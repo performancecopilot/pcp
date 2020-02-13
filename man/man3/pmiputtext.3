@@ -1,0 +1,105 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2018 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMIPUTTEXT 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmiPutText\f1 \- add help text for an metric or instance domain
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/import.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmiPutText(unsigned int \fItype\fP, unsigned int \fIclass\fP, unsigned int \fIid\fP, const char *\fIcontent\fP)
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH "Perl SYNOPSIS"
+.ft 3
+use PCP::LogImport;
+.sp
+pmiPutText($\fItype\fP, $\fIclass\fP, $\fIid\fP, $\fIcontent\fP);
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiPutText
+adds help text for a given
+metric or instance domain.
+.PP
+The
+.I type
+must be one of
+.BR PM_TEXT_PMID
+or
+.BR PM_TEXT_INDOM .
+.PP
+The
+.I class
+must be one of
+.BR PM_TEXT_ONELINE
+or
+.BR PM_TEXT_HELP .
+.PP
+If
+.I type
+is
+.BR PM_TEXT_PMID ,
+then
+.I id
+should match a pmid defined earlier in a call to
+.BR pmiAddMetric (3).
+If
+.I type
+is
+.BR PM_TEXT_INDOM ,
+then
+.I id
+should match an instance domain defined earlier in a call to
+.BR pmiAddMetric (3).
+.PP
+.I content
+is a string containing the content of the help text.
+.PP
+No data will be written until
+.BR pmiWrite (3)
+is called, so multiple calls to
+.B pmiPutText
+are typically used to accumulate help text for several
+metrics or instance domains before calling
+.BR pmiWrite (3).
+.SH DIAGNOSTICS
+.B pmiPutText
+returns zero on success else a negative value that can be turned into an
+error message by calling
+.BR pmiErrStr (3).
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR pmiAddInstance (3),
+.BR pmiAddMetric (3),
+.BR pmiErrStr (3),
+.BR pmiPutResult (3),
+.BR pmiPutValue (3),
+.BR pmiPutValueHandle (3),
+.BR pmiPutLabel (3)
+and
+.BR pmiWrite (3).

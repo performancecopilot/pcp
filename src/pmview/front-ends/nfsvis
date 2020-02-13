@@ -171,7 +171,7 @@ grep fsstat $tmp.pmview_result >/dev/null && s_statfs=fsstat
 
 if [ -z "$titleArg" ]
 then
-    titleArg="SGI PCP : NFS Client V$client & Server V$server Request Traffic for host $host"
+    titleArg="PCP: NFS Client V$client & Server V$server Request Traffic for host $host"
 fi
 
 

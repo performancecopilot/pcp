@@ -96,7 +96,10 @@ for _ in range(5):
 
     for name in insts_d:
         value = batch
-        arch.pmiPutValue("disk.dev.write", name, "%d" % value)
+        if name == "sdd":
+            arch.pmiPutValue("disk.dev.write", name, "%d" % (value + 100))
+        else:
+            arch.pmiPutValue("disk.dev.write", name, "%d" % value)
         if name == "sdc":
             continue
         arch.pmiPutValue("disk.dev.read", name, "%d" % value)

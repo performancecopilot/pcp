@@ -8,17 +8,12 @@ Possible configuration files to choose from:
 Which configuration file do you want to use ? [1] Abandoning configuration file selection.
 Do you wish to enter commands to create a new configuration file? [y] 
 Enter one ping specification per line, in the format
-
 tag		command line details
-
 where the "tag" is a single unique word (no spaces) and the "command line
 details" are the corresponding sh(1) command.  For example
-
 dns-self	nslookup `hostname`
-
 An empty line terminates the specification process and there must be at
 least one specification.
-
 Tag Command: Tag Command: Tag Command: Tag Command: 
 All commands are run one after another as a group and the group is run
 once per "cycle" time.   Enter the cycle time in seconds [120] 

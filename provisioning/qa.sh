@@ -1,11 +1,21 @@
 #!/bin/sh
-
-touch /tmp/runqa.sh
-echo "#!/bin/sh" >> /tmp/runqa.sh
-echo "cd /var/lib/pcp/testsuite" >> /tmp/runqa.sh
-echo "./check #{QA_FLAGS} >/tmp/runqa.out 2>&1" >> /tmp/runqa.sh
-echo "cp /tmp/runqa.out /qaresults" >> /tmp/runqa.sh
-echo "cp /var/lib/pcp/testsuite/*.bad /qaresults" >> /tmp/runqa.sh
-
-chmod 777 /tmp/runqa.sh
-sudo -b -H -u pcpqa sh -c '/tmp/runqa.sh'
+if [ -z "${2}" ]; then
+    sudo su - pcpqa -c "./check ${1} >runqa.out 2>&1"
+else
+    extras=`cd /vagrant && /vagrant/scripts/tests-from-commits -r "${2}" | xargs`
+    sudo su - pcpqa -c "./check ${1} ${extras} >runqa.out 2>&1"
+fi
+sudo cp "/var/lib/pcp/testsuite/runqa.out" /qaresults/
+if test -n "$(find /var/lib/pcp/testsuite/ -maxdepth 1 -name '*out.bad' -print -quit)"; then
+    for file in /var/lib/pcp/testsuite/*out.bad
+    do
+        sudo cp "$file" /qaresults/
+    done
+    exit 1
+elif [ ! -f '/var/lib/pcp/testsuite/runqa.out' ] ; then
+    echo "No Tests run"
+    exit 1
+else
+    echo "All Tests Passed."
+    exit 0
+fi

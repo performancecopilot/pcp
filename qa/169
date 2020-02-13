@@ -39,14 +39,22 @@ _cleanup()
     echo >>$seq.full
     cat $PCP_LOG_DIR/pmcd/dumb_pmda.log >>$seq.full
     _restore_config $PCP_PMCDCONF_PATH
-    _service pcp start >$tmp.start
+    _restore_config $PCP_SYSCONFIG_DIR/pmcd
+    _service pcp start 2>&1 >$tmp.start
     _filter_pcp_start <$tmp.start | _filter_dots
     _wait_for_pmcd
     _restore_auto_restart pmcd
     _wait_for_pmlogger
     _restore_auto_restart pmlogger
-    _service pmie start >>$seq.full
     _restore_auto_restart pmie
+    if $pmie_was_running
+    then
+	_service pmie start >>$seq.full 2>&1
+    else
+	_service pmie stop >>$seq.full 2>&1
+	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$seq.full 2>&1
+	_wait_pmie_end
+    fi
 
     rm -f $tmp.*
 }
@@ -58,6 +66,14 @@ rm -f $seq.full
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
 _stop_auto_restart pmie
+
+pmie_was_running=false
+if [ -f $PCP_RUN_DIR/pmie.pid ]
+then
+    pmie_was_running=true
+    echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$here/$seq.full
+    _service pmie stop >>$here/$seq.full 2>&1
+fi
 
 # real QA test starts here
 
@@ -78,7 +94,7 @@ _filter()
 
 _check_pmcd_procs()
 {
-    n_pmcd=`ps $PCP_PS_ALL_FLAGS \
+    n_pmcd=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
 	    | tee $tmp.pmcd \
 	    | fgrep "$PCP_PMCD_PATH" \
 	    | grep -v pmcd_wait \
@@ -137,7 +153,8 @@ EOF
 
 _save_config $PCP_PMCDCONF_PATH
 cat >$tmp.tmp <<End-Of-File
-# QA test 169 dummy pmcd.conf (blame Jonathan if you find this!)
+# Installed by PCP QA test $seq on `date`
+# (blame Jonathan if you find this!)
 #
 dummyproc	$dummy_domain	pipe	binary 	$here/src/dumb_pmda -d $dummy_domain $TAG
 End-Of-File
@@ -150,6 +167,20 @@ _service pmlogger stop >>$here/$seq.full 2>&1
 _service pmie stop >>$here/$seq.full 2>&1
 
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+
+# turn off
+# PMCD_RESTART_AGENTS=1
+# from sysconfig environment
+#
+_save_config $PCP_SYSCONFIG_DIR/pmcd
+$sudo sed -e '/^PMCD_RESTART_AGENTS/{
+s/=1/=0/
+i\
+#\
+# NOTE: changed by QA '"$seq on `date`"'
+}' $PCP_SYSCONFIG_DIR/pmcd >$tmp.sysconfig
+$sudo cp $tmp.sysconfig $PCP_SYSCONFIG_DIR/pmcd
+
 # Note: need to use $PCP_RC_DIR/pmcd here, not _service pmcd so that
 # systemd (if it is available) does not notice any pmcd exiting
 #
@@ -165,11 +196,11 @@ else
     exit
 fi
 
-ps $PCP_PS_ALL_FLAGS >$tmp.ps
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | sed -e 's/$/ /' >$tmp.ps
 egrep '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
-old_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/dumb_pmda /{print $2}'`
+old_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/\/src\/dumb_pmda /{print $2}'`
 echo "old_dumb_pid=$old_dumb_pid" >>$seq.full
-old_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/pmcd /{print $2}'`
+old_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/\/bin\/pmcd /{print $2}'`
 echo "old_pmcd_pid=$old_pmcd_pid" >>$seq.full
 if [ -z "$old_dumb_pid" ]
 then
@@ -207,11 +238,11 @@ _echo ""
 sleep 2
 pminfo -n $pmns -d dummyproc >/dev/null 2>&1
 
-ps $PCP_PS_ALL_FLAGS >$tmp.ps
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | sed -e 's/$/ /' >$tmp.ps
 egrep '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
-new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/dumb_pmda /{print $2}'`
+new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/\/src\/dumb_pmda /{print $2}'`
 echo "new_dumb_pid=$new_dumb_pid" >>$seq.full
-new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/pmcd /{print $2}'`
+new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/\/bin\/pmcd /{print $2}'`
 echo "new_pmcd_pid=$new_pmcd_pid" >>$seq.full
 if [ -z "$new_pmcd_pid" ]
 then
@@ -254,11 +285,11 @@ else
     exit
 fi
 
-ps $PCP_PS_ALL_FLAGS >$tmp.ps
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | sed -e 's/$/ /' >$tmp.ps
 egrep '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
-new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/dumb_pmda /{print $2}'`
+new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/\/src\/dumb_pmda /{print $2}'`
 echo "new_dumb_pid=$new_dumb_pid" >>$seq.full
-new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/pmcd /{print $2}'`
+new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/\/bin\/pmcd /{print $2}'`
 echo "new_pmcd_pid=$new_pmcd_pid" >>$seq.full
 if [ -z "$new_pmcd_pid" ]
 then
@@ -300,17 +331,17 @@ _set_timeouts 10 5
 #
 _echo ""
 _echo "Expect dummyproc to fail (timeout for pmcd failure):"
-#DEBUG# date
+echo "Before pminfo: `date`" >>$seq.full
 pminfo -n $pmns -d dummyproc 2>&1 \
 | _filter
-#DEBUG# date
+echo "After pminfo: `date`" >>$seq.full
 _echo ""
 
-ps $PCP_PS_ALL_FLAGS >$tmp.ps
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | sed -e 's/$/ /' >$tmp.ps
 egrep '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
-new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/dumb_pmda /{print $2}'`
+new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/\/src\/dumb_pmda /{print $2}'`
 echo "new_dumb_pid=$new_dumb_pid" >>$seq.full
-new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/pmcd /{print $2}'`
+new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/\/bin\/pmcd /{print $2}'`
 echo "new_pmcd_pid=$new_pmcd_pid" >>$seq.full
 if [ -z "$new_pmcd_pid" ]
 then
@@ -345,11 +376,11 @@ _echo "Now wait for pmcd to timeout..."
 _echo ""
 sleep 8
 
-ps $PCP_PS_ALL_FLAGS >$tmp.ps
-egrep '[P]ID|[p]m|[d]umb' $tmp.ps >>$seq.full
-new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/dumb_pmda /{print $2}'`
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | sed -e 's/$/ /' >$tmp.ps
+egrep '[P]ID|[p]mcd|[p]mda' $tmp.ps >>$seq.full
+new_dumb_pid=`$PCP_AWK_PROG <$tmp.ps '/\/src\/dumb_pmda /{print $2}'`
 echo "new_dumb_pid=$new_dumb_pid" >>$seq.full
-new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/pmcd /{print $2}'`
+new_pmcd_pid=`$PCP_AWK_PROG <$tmp.ps '/\/bin\/pmcd /{print $2}'`
 echo "new_pmcd_pid=$new_pmcd_pid" >>$seq.full
 if [ -z "$new_pmcd_pid" ]
 then

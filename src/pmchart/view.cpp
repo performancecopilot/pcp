@@ -971,11 +971,16 @@ done_tab:
 			pms.source = strdup(host);
 		    }
 		}
-		else {
+		else if (activeGroup->numContexts() > 0) {
 		    // no explicit host, use current default source
 		    QmcSource source = activeGroup->context()->source();
 		    pms.source = strdup((const char *)
 					source.source().toLatin1());
+		}
+		else {
+		    // already reported context errors, just get out
+		    _errors++;
+		    goto abandon;
 		}
 		// expand instances when not specified for metrics
 		// with instance domains and all instances required,

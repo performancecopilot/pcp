@@ -13,10 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ $PCP_PLATFORM = solaris ]
-then
-    _notrun No filesys metrics for Solaris
-elif [ $PCP_PLATFORM = linux ]
+_need_metric filesys.capacity
+if [ $PCP_PLATFORM = linux ]
 then
     loopcount=`$sudo losetup -a | wc -l`
     [ $loopcount -eq 0 ] || _notrun "System has active loop devices, bailing"
@@ -27,11 +25,18 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 rm -f $seq.full
 
+# On Linux mount output looks like
+# /dev/sdb5 on /bozo-0 type ext4 (rw,relatime)
+# On FreeBSD mount output looks like
+# /dev/da0p2 on / (ufs, local, journaled soft-updates)
+# on OpenBSD mount output looks like (same as Linux)
+# /dev/wd0a on / type ffs (local)
+#
 filesystems=`mount \
 	     | sed -e 's/[(,)]//g' \
              | $PCP_AWK_PROG '
-$4 == "type" && ($5 == "efs" || $5 == "xfs" || $5 == "ext2" || $5 == "ext3" || $5 == "ext4" || $5 == "btrfs") { print $1 }
-$4 == "hfs" { print $1 }'`
+$4 == "type" && ($5 == "efs" || $5 == "xfs" || $5 == "ext2" || $5 == "ext3" || $5 == "ext4" || $5 == "btrfs" || $5 == "ffs") { print $1 }
+$4 == "hfs" || $4 == "ufs" { print $1 }'`
 
 if [ -z "$filesystems" ]
 then
@@ -226,7 +231,7 @@ cat $tmp.1 >>$seq.full
 
 (for f in $filesystems
 do
-    if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin ]
+    if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
     then
 	$sudo df -lk \
 	| grep $f \
@@ -279,9 +284,15 @@ cat $tmp.2 >>$seq.full
 
 LC_COLLATE=POSIX join -a2 -1 1 $tmp.1 $tmp.2 \
 | $PCP_AWK_PROG '{
-    a=$2; b=$3; d=a-b;
-    if (d<0) d = -d;
-    if (d > 5 && d>a/100) {
+    a=$2; b=$3; d=a-b
+    if (d < 0) d = -d
+    if (a < 1)
+	print $1 " pcp=" a " df=" b " delta=" d  >>"'$seq.full'"
+    else
+	printf "%s pcp=%d df=%d delta=%d (%.2f%%)\n",$1,a,b,d,d*100/a >>"'$seq.full'"
+    # skip small values ... the 1% threshold is meaningless ...
+    if (a < 100 || b < 100) next
+    if (d > 5 && d > a/100) {
 	print "'$0' : Diff of more than 5 in total and 1 percent: ", $0
 	err++
     }

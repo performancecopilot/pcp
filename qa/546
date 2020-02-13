@@ -1,8 +1,9 @@
 #!/bin/sh
 # PCP QA Test No. 546
 # Check parsing of PMCD access section user/group extensions with errors
+# (new access control cases, not checked in QA 051 or 454)
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013,2019 Red Hat.
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 #
 
@@ -26,10 +27,9 @@ _filter()
 	-e "s:$groupid $groupname:GROUPID GROUPNAME:g" \
 	-e "s:$userid\($username\):USERID(USERNAME):g" \
 	-e "s:$groupid\($groupname\):GROUPID(GROUPNAME):g" \
-
+    #end
 }
 
-# new access control cases, not checked in QA 051 or 454
 # real QA test starts here
 export PCP_PMCDCONF_PATH=$tmp.conf
 export PMCD_PORT=9876
@@ -89,7 +89,15 @@ allow group $groupname, nosuchgroup
 End-of-File
 pmcd -v | _filter
 
+# access file test case
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+End-of-File
+cat <<End-of-File >$tmp.conf.access
+allow user $username, nosuchuser
+End-of-File
+pmcd -v | _filter
+
 # success, all done
 status=0
-
 exit

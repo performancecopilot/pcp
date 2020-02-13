@@ -1,0 +1,92 @@
+#!/bin/sh
+# PCP QA Test No. 1434
+# Exercise the PostgreSQL PMDA ./Upgrade script.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/postgresql ] || _notrun "postgresql PMDA is not installed"
+
+_cleanup()
+{
+    cd $here
+    _restore_config "$PCP_PMDAS_DIR/postgresql/pmdapostgresql.conf"
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e "s,$PCP_PYTHON_PROG,python,g" \
+    #end
+}
+
+# upgrade an existing postgresql install (no change)
+cat >$tmp.pmcd.conf.1 <<EOF
+postgresql 110 pipe binary $PCP_PYTHON_PROG $PCP_PMDAS_DIR/postgresql/pmdapostgresql.python
+EOF
+
+# test upgrade to a down-rev perl postgresql install
+cat >$tmp.pmcd.conf.2 <<EOF
+postgresql 110 pipe binary perl $PCP_PMDAS_DIR/postgresql/pmdapostgresql.pl
+EOF
+
+# upgrade of a single perl postgresql config
+cat >$tmp.perl.conf.1 <<EOF
+\$database = 'dbi:Pg:dbname=postgres';
+\$username = 'postgres';    # DB username for DB login
+\$password = '';	    # DBI parameter, typically unused for postgres
+\$os_user = '';		    # O/S user to run the PMDA
+EOF
+
+# upgrade more complex perl postgresql config
+cat >$tmp.perl.conf.2 <<EOF
+\$database = 'dbi:Pg:dbname=mydb;host=myhost;port=12345';
+\$username = 'myuser';	# DB username for DB login
+\$password = 'mypass';	# DBI parameter, typically unused for postgres
+\$os_user = 'myosusr';	# O/S user to run the PMDA
+EOF
+
+# real QA test starts here
+cd $PCP_PMDAS_DIR/postgresql
+_save_config "$PCP_PMDAS_DIR/postgresql/pmdapostgresql.conf"
+
+cases=`ls -1 $tmp.pmcd.conf.* | sed -e 's/.*pmcd.conf.//g' | LC_COLLATE=POSIX sort`
+for case in $cases
+do
+    config="$tmp.pmcd.conf.$case"
+    export PCP_PMCDCONF_PATH=$config
+    echo "== Upgrade test case $case"
+    ./Upgrade
+    cat $config | _filter
+done
+
+# exercise old perl config upgrades
+input="$PCP_PMDAS_DIR/postgresql/postgresql.conf"
+output="$PCP_PMDAS_DIR/postgresql/pmdapostgresql.conf"
+perlcases=`ls -1 $tmp.perl.conf.* | sed -e 's/.*perl.conf.//g' | LC_COLLATE=POSIX sort`
+for perlcase in $perlcases
+do
+    config="$tmp.perl.conf.$perlcase"
+    $sudo mv $config $input
+    echo "== Upgrade perl test case $perlcase"
+    $sudo ./Upgrade
+    $sudo cat $output
+done
+
+# success, all done
+status=0
+exit

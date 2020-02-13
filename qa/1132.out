@@ -1,28 +1,26 @@
 QA output created by 1132
 --- running pcp2xlsx
 --- unzipping reference output
-
+  inflating: [Content_Types].xml
   inflating: _rels/.rels
   inflating: docProps/app.xml
   inflating: docProps/core.xml
-  inflating: xl/theme/theme1.xml
-  inflating: xl/worksheets/sheet1.xml
-  inflating: xl/sharedStrings.xml
-  inflating: xl/styles.xml
-  inflating: xl/workbook.xml
   inflating: xl/_rels/workbook.xml.rels
-  inflating: [Content_Types].xml
+  inflating: xl/styles.xml
+  inflating: xl/theme/theme1.xml
+  inflating: xl/workbook.xml
+  inflating: xl/worksheets/sheet1.xml
+
 --- unzipping generated output
-
+  inflating: [Content_Types].xml
   inflating: _rels/.rels
   inflating: docProps/app.xml
   inflating: docProps/core.xml
-  inflating: xl/theme/theme1.xml
-  inflating: xl/worksheets/sheet1.xml
-  inflating: xl/sharedStrings.xml
-  inflating: xl/styles.xml
-  inflating: xl/workbook.xml
   inflating: xl/_rels/workbook.xml.rels
-  inflating: [Content_Types].xml
+  inflating: xl/styles.xml
+  inflating: xl/theme/theme1.xml
+  inflating: xl/workbook.xml
+  inflating: xl/worksheets/sheet1.xml
+
 checking output
 output ok

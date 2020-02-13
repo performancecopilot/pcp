@@ -113,7 +113,6 @@ refresh_proc_meminfo(proc_meminfo_t *proc_meminfo)
 	    for (bufp++; *bufp; bufp++) {
 	    	if (isdigit((int)*bufp)) {
 		    sscanf(bufp, "%llu", (unsigned long long *)p);
-		    *p *= 1024; /* kbytes -> bytes */
 		    break;
 		}
 	    }

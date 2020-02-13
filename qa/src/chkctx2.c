@@ -2,7 +2,8 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#define SOURCE handle == 0 ? "host" : ( type == PM_CONTEXT_ARCHIVE ? "archive" : "host" )
+#define TYPE type == PM_CONTEXT_ARCHIVE ? "archive" : "host"
+#define SOURCE handle == 0 ? "host" : TYPE
 #define HOST handle == 0 ? "localhost" : host
 
 /*
@@ -186,7 +187,7 @@ main(int argc, char **argv)
 	if (handle) {
 	    if ((sts = pmDestroyContext(handle)) < 0)
 		fprintf(stderr, "pmDestroyContext %d %s=%s: %s\n",
-		    handle, SOURCE, HOST, pmErrStr(sts));
+		    handle, TYPE, host, pmErrStr(sts));
 	}
 	handle--;
     }

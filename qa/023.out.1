@@ -1,8 +1,7 @@
 QA output created by 023
-Waiting for pmcd to terminate ...
 $PCP_PMCDCONF_PATH contains:
 <BEGIN>
-# Created by QA 023
+# Created by PCP QA test 023
 fake_irix 1 pipe binary dumb_pmda -d 1 fake_irix
 fake_proc 3 pipe binary dumb_pmda -d 3 fake_proc
 fake_cisco 5 pipe binary dumb_pmda -d 5 fake_cisco
@@ -178,6 +177,4 @@ pmcd.agent.status
     inst [6 or "fake_six"] value 0
 
 Restart and ping pmcd ...
-Starting pmcd ... 
-Starting pmlogger ... 
 pmcd.control.debug 1

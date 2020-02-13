@@ -93,6 +93,48 @@ nvidia.memfree PMID: 120.0.11 [Unallocated FB memory]
 Help:
 Amount of GPU FB memory that is not currently allocated, in bytes.
 No value(s) available!
+
+nvidia.proc.samples PMID: 120.1.12 [Number of times process stats have been sampled]
+    Data Type: 64-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: counter  Units: count
+Help:
+Number of times process stats have been sampled
+No value(s) available!
+
+nvidia.proc.memused PMID: 120.1.13 [Memory in use by each process accessing each card]
+    Data Type: 64-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: instant  Units: byte
+Help:
+Memory in use by each process accessing each card
+No value(s) available!
+
+nvidia.proc.memaccum PMID: 120.1.14 [Accumulated memory used by processes accessing each card]
+    Data Type: 64-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: counter  Units: byte
+Help:
+Accumulated memory used by processes accessing each card
+No value(s) available!
+
+nvidia.proc.gpuactive PMID: 120.1.15 [Graphics card utilization by processes accessing each card]
+    Data Type: 32-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: instant  Units: none
+Help:
+Graphics card utilization by processes accessing each card
+No value(s) available!
+
+nvidia.proc.memactive PMID: 120.1.16 [Memory access utilization by processes accessing each card]
+    Data Type: 32-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: instant  Units: none
+Help:
+Memory access utilization by processes accessing each card
+No value(s) available!
+
+nvidia.proc.time PMID: 120.1.17 [Milliseconds spent by processes accessing each graphics card]
+    Data Type: 64-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: counter  Units: millisec
+Help:
+Milliseconds spent by processes accessing each graphics card
+No value(s) available!
 === std err ===
 pminfo[PID] Info: NVIDIA NVML library currently unavailable
 === filtered valgrind report ===
@@ -207,6 +249,60 @@ Help:
 Amount of GPU FB memory that is not currently allocated, in bytes.
     inst [0 or "gpu0"] value 163577856
     inst [1 or "gpu1"] value 2147483648
+
+nvidia.proc.samples PMID: 120.1.12 [Number of times process stats have been sampled]
+    Data Type: 64-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: counter  Units: count
+Help:
+Number of times process stats have been sampled
+    inst [0 or "0::PID GeForce 100M Series"] value 1
+    inst [1 or "1::PID Quadro FX 200M Series"] value 1
+    inst [2 or "1::PID Quadro FX 200M Series"] value 1
+
+nvidia.proc.memused PMID: 120.1.13 [Memory in use by each process accessing each card]
+    Data Type: 64-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: instant  Units: byte
+Help:
+Memory in use by each process accessing each card
+    inst [0 or "0::PID GeForce 100M Series"] value 104857600
+    inst [1 or "1::PID Quadro FX 200M Series"] value 2147483648
+    inst [2 or "1::PID Quadro FX 200M Series"] value 4294967296
+
+nvidia.proc.memaccum PMID: 120.1.14 [Accumulated memory used by processes accessing each card]
+    Data Type: 64-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: counter  Units: byte
+Help:
+Accumulated memory used by processes accessing each card
+    inst [0 or "0::PID GeForce 100M Series"] value 104857600
+    inst [1 or "1::PID Quadro FX 200M Series"] value 2147483648
+    inst [2 or "1::PID Quadro FX 200M Series"] value 4294967296
+
+nvidia.proc.gpuactive PMID: 120.1.15 [Graphics card utilization by processes accessing each card]
+    Data Type: 32-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: instant  Units: none
+Help:
+Graphics card utilization by processes accessing each card
+    inst [0 or "0::PID GeForce 100M Series"] value 20
+    inst [1 or "1::PID Quadro FX 200M Series"] value 40
+    inst [2 or "1::PID Quadro FX 200M Series"] value 60
+
+nvidia.proc.memactive PMID: 120.1.16 [Memory access utilization by processes accessing each card]
+    Data Type: 32-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: instant  Units: none
+Help:
+Memory access utilization by processes accessing each card
+    inst [0 or "0::PID GeForce 100M Series"] value 12
+    inst [1 or "1::PID Quadro FX 200M Series"] value 25
+    inst [2 or "1::PID Quadro FX 200M Series"] value 50
+
+nvidia.proc.time PMID: 120.1.17 [Milliseconds spent by processes accessing each graphics card]
+    Data Type: 64-bit unsigned int  InDom: 120.1 0x1e000001
+    Semantics: counter  Units: millisec
+Help:
+Milliseconds spent by processes accessing each graphics card
+    inst [0 or "0::PID GeForce 100M Series"] value 0
+    inst [1 or "1::PID Quadro FX 200M Series"] value 0
+    inst [2 or "1::PID Quadro FX 200M Series"] value 0
 === std err ===
 pminfo[PID] Info: Successfully loaded NVIDIA NVML library
 === filtered valgrind report ===

@@ -60,7 +60,7 @@ setup_cpu_info(cpuinfo_t *cip)
 }
 
 static void
-cpu_add(pmInDom cpus, unsigned int cpuid, unsigned int nodeid)
+cpu_add(pmInDom cpus, unsigned int cpuid, pernode_t *np)
 {
     percpu_t	*cpu;
     char	name[64];
@@ -68,23 +68,24 @@ cpu_add(pmInDom cpus, unsigned int cpuid, unsigned int nodeid)
     if ((cpu = (percpu_t *)calloc(1, sizeof(percpu_t))) == NULL)
 	return;
     cpu->cpuid = cpuid;
-    cpu->nodeid = nodeid;
+    cpu->node = np;
     setup_cpu_info(&cpu->info);
     pmsprintf(name, sizeof(name)-1, "cpu%u", cpuid);
-    pmdaCacheStore(cpus, PMDA_CACHE_ADD, name, (void*)cpu);
+    cpu->instid = pmdaCacheStore(cpus, PMDA_CACHE_ADD, name, (void*)cpu);
 }
 
-static void
+static pernode_t *
 node_add(pmInDom nodes, unsigned int nodeid)
 {
     pernode_t	*node;
     char	name[64];
 
     if ((node = (pernode_t *)calloc(1, sizeof(pernode_t))) == NULL)
-	return;
+	return NULL;
     node->nodeid = nodeid;
     pmsprintf(name, sizeof(name)-1, "node%u", nodeid);
-    pmdaCacheStore(nodes, PMDA_CACHE_ADD, name, (void*)node);
+    node->instid = pmdaCacheStore(nodes, PMDA_CACHE_ADD, name, (void*)node);
+    return node;
 }
 
 void
@@ -98,6 +99,7 @@ cpu_node_setup(void)
     DIR			*cpu_dir;
     int			i, count;
     char		path[MAXPATHLEN];
+    pernode_t		*np;
     static int		setup;
 
     if (setup)
@@ -112,16 +114,16 @@ cpu_node_setup(void)
     count = scandir(path, &node_files, NULL, versionsort);
     if (!node_files || (linux_test_mode & LINUX_TEST_NCPUS)) {
 	/* QA mode or no sysfs support, assume single NUMA node */
-	node_add(nodes, 0);	/* default to just node zero */
+	np = node_add(nodes, 0);	/* default to just node zero */
 	for (cpu = 0; cpu < _pm_ncpus; cpu++)
-	    cpu_add(cpus, cpu, 0);	/* all in node zero */
+	    cpu_add(cpus, cpu, np);	/* all in node zero */
 	goto done;
     }
 
     for (i = 0; i < count; i++) {
 	if (sscanf(node_files[i]->d_name, "node%u", &node) != 1)
 	    continue;
-	node_add(nodes, node);
+	np = node_add(nodes, node);
 	pmsprintf(path, sizeof(path), "%s/%s/%s",
 		 linux_statspath, node_path, node_files[i]->d_name);
 	if ((cpu_dir = opendir(path)) == NULL)
@@ -129,7 +131,7 @@ cpu_node_setup(void)
 	while ((cpu_entry = readdir(cpu_dir)) != NULL) {
 	    if (sscanf(cpu_entry->d_name, "cpu%u", &cpu) != 1)
 		continue;
-	    cpu_add(cpus, cpu, node);
+	    cpu_add(cpus, cpu, np);
 	}
 	closedir(cpu_dir);
     }
@@ -172,6 +174,7 @@ refresh_proc_stat(proc_stat_t *proc_stat)
     percpu_t	*cp;
     pmInDom	cpus, nodes;
     char	buf[MAXPATHLEN], *name, *sp, **bp;
+    char	cpuname[32];
     int		n = 0, i, size;
 
     static int fd = -1; /* kept open until exit(), unless testing */
@@ -282,7 +285,8 @@ refresh_proc_stat(proc_stat_t *proc_stat)
 	    cp = NULL;
 	    np = NULL;
 	    i = atoi(&bufindex[n][3]);	/* extract CPU identifier */
-	    if (pmdaCacheLookup(cpus, i, &name, (void **)&cp) < 0 || !cp)
+	    pmsprintf(cpuname, sizeof(cpuname), "cpu%u", i); /* instance name */
+	    if (pmdaCacheLookupName(cpus, cpuname, &i, (void **)&cp) < 0 || !cp)
 		continue;
 	    memset(&cp->stat, 0, sizeof(cp->stat));
 	    sscanf(bufindex[n], PERCPU_FMT, &i,
@@ -290,10 +294,10 @@ refresh_proc_stat(proc_stat_t *proc_stat)
 		    &cp->stat.idle, &cp->stat.wait, &cp->stat.irq,
 		    &cp->stat.sirq, &cp->stat.steal, &cp->stat.guest,
 		    &cp->stat.guest_nice);
-	    pmdaCacheStore(cpus, PMDA_CACHE_ADD, name, (void *)cp);
+	    pmdaCacheStore(cpus, PMDA_CACHE_ADD, cpuname, (void *)cp);
 
 	    /* update per-node aggregate CPU utilisation stats as well */
-	    if (pmdaCacheLookup(nodes, cp->nodeid, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(nodes, cp->node->instid, NULL, (void **)&np) < 0 || !np)
 		continue;
 	    np->stat.user += cp->stat.user;
 	    np->stat.nice += cp->stat.nice;

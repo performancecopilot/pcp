@@ -2,27 +2,27 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" Copyright (c) 2015-2016 Red Hat.
-.\" 
+.\" Copyright (c) 2015-2016,2018-2019 Red Hat.
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMIE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmie\f1 \- inference engine for performance metrics
 .SH SYNOPSIS
 \f3pmie\f1
-[\f3\-bCdefHqVvWxz\f1]
-[\f3\-A\f1 \f2align\f1]
+[\f3\-bCdefHPqvVWxXz?\f1]
 [\f3\-a\f1 \f2archive\f1]
+[\f3\-A\f1 \f2align\f1]
 [\f3\-c\f1 \f2filename\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -30,15 +30,16 @@
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-O\f1 \f2offset\f1]
 [\f3\-S\f1 \f2starttime\f1]
-[\f3\-T\f1 \f2endtime\f1]
 [\f3\-t\f1 \f2interval\f1]
+[\f3\-T\f1 \f2endtime\f1]
 [\f3\-U\f1 \f2username\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 [\f2filename ...\f1]
 .SH DESCRIPTION
 .B pmie
 accepts a collection of arithmetic, logical, and rule expressions to be
-evaluated at specified frequencies.  The base data for the expressions
+evaluated at specified frequencies.
+The base data for the expressions
 consists of performance metrics values delivered in real-time
 from any host
 running the Performance Metrics Collection Daemon (PMCD), or using historical
@@ -46,23 +47,39 @@ data from Performance Co-Pilot (PCP) archive logs.
 .P
 As well as computing arithmetic and logical values,
 .B pmie
-can execute actions (popup alarms, write system log messages, and launch 
-programs) in response to specified conditions.  Such actions are
+can execute actions (popup alarms, write system log messages, and launch
+programs) in response to specified conditions.
+Such actions are
 extremely useful in detecting, monitoring and correcting performance
 related problems.
 .P
 The expressions to be evaluated are read from
 configuration files specified by one or more
 .I filename
-arguments.  In the absence of any
+arguments.
+In the absence of any
 .IR filename ,
 expressions are read from standard input.
-.P
-A description of the command line options specific to
+.PP
+Output from
 .B pmie
-follows:
+is directed to standard output and standard error as follows:
 .TP 5
-.B \-a
+.B stdout
+Expression values printed in the verbose
+.B \-v
+mode and the output of
+.B print
+actions.
+.TP
+.B stderr
+Error and warning messages for any syntactic or semantic problems during
+expression parsing, and any semantic or performance metrics availability
+problems during expression evaluation.
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 .I archive
 which is a comma-separated list of names, each
 of which may be the base name of an archive or the name of a directory containing
@@ -79,10 +96,19 @@ expression must match the host name recorded in one of the archive labels.
 In the case of multiple sets of archives, timestamps recorded in the archives are
 used to ensure temporal consistency.
 .TP
-.B \-b
+\fB\-A\fR \fIalign\fR, \fB\-\-align\fR=\fIalign\fR
+Force the initial time window to be
+aligned on the boundary of a natural time unit
+.IR align .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR align .
+.TP
+\fB\-b\fR, \fB\-\-buffer\fR
 Output will be line buffered and standard output is attached to standard
-error.  This is most useful for background execution in conjunction with
-the
+error.
+This is most useful for background execution in conjunction with the
 .B \-l
 option.
 The
@@ -92,16 +118,16 @@ option is always used for
 instances launched from
 .BR pmie_check (1).
 .TP
-.B \-C
-Parse the configuration file(s) and exit before performing any evaluations.
-Any errors in the configuration file are reported.
-.TP
-.B \-c
+\fB\-c\fR \fIconfig\fR, \fB\-\-config\fR=\fIconfig\fR
 An alternative to specifying
 .I filename
 at the end of the command line.
 .TP
-.B \-d
+\fB\-C\fR, \fB\-\-check\fR
+Parse the configuration file(s) and exit before performing any evaluations.
+Any errors in the configuration file are reported.
+.TP
+\fB\-d\fR, \fB\-\-interact\fR
 Normally
 .B pmie
 would be launched as a non-interactive process to monitor and manage the
@@ -112,15 +138,15 @@ flag however, execution is interactive and the user is presented
 with a menu of options.
 Interactive mode is useful mainly for debugging new expressions.
 .TP
-.B \-e
+\fB\-e\fR, \fB\-\-timestamp\fR
 When used with
 .BR \-V ,
 .B \-v
 or
 .BR \-W ,
 this option
-forces timestamps to be reported with each expression.  The timestamps
-are in
+forces timestamps to be reported with each expression.
+The timestamps are in
 .BR ctime (3)
 format, enclosed in parenthesis and appear after the expression name and before the
 expression value, e.g.
@@ -128,7 +154,7 @@ expression value, e.g.
 	expr_1 (Tue Feb  6 19:55:10 2001): 12
 .fi
 .TP
-.B \-f
+\fB\-f\fR, \fB\-\-foreground\fR
 If the
 .B \-l
 option is specified and there is no
@@ -143,22 +169,24 @@ option forces
 .B pmie
 to be run in the foreground, independent of any other options.
 .TP
-.B \-h
+\fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
 By default performance data is fetched from the local host (in real-time mode)
 or the host for the first named set of archives on the command line
-(in archive mode).  The \f2host\f1 argument overrides this default.
+(in archive mode).
+The \f2host\f1 argument overrides this default.
 It does not override hosts explicitly named in the expressions
-being evaluated.  The \f2host\f1 argument is interpreted as a
+being evaluated.
+The \f2host\f1 argument is interpreted as a
 connection specification for \f2pmNewContext\f1, and is later
 mapped to the remote pmcd's self-reported host name for
-reporting purposes.  See also the %h vs. %c substitutions in rule action
-strings below.
+reporting purposes.
+See also the %h vs. %c substitutions in rule action strings below.
 .TP
-.B \-l
+\fB\-l\fR \fIlogfile\fR, \fB\-\-logfile\fR=\fIlogfile\fR
 Standard error is sent to
 .IR logfile .
 .TP
-.B \-j
+\fB\-j\fR \fIfile\fR
 An alternative STOMP protocol configuration is loaded from
 .IR stompfile .
 If this option is not used, and the
@@ -167,16 +195,34 @@ action is used in any rule, the default location
 .I $PCP_SYSCONF_DIR/pmie/config/stomp
 will be used.
 .TP
-.B \-n
+\fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
 An alternative Performance Metrics Name Space (PMNS) is loaded from the file
 .IR pmnsfile .
 .TP
-.B \-q
+\fB\-O\fR \fIorigin\fR, \fB\-\-origin\fR=\fIorigin\fR
+Specify the \fIorigin\fP of the time window.
+See
+.BR PCPIntro (1)
+for complete description of this option.
+.TP
+\fB\-P\fR, \fB\-\-primary\fR
+Identifies this as the primary
+.B pmie
+instance for a host.
+See the ``AUTOMATIC RESTART'' section below for further details.
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
 Suppresses diagnostic messages that would be printed to standard
 output by default, especially the "evaluator exiting" message as
 this can confuse scripts.
 .TP
-.B \-t
+\fB\-S\fR \fIstarttime\fR, \fB\-\-start\fR=\fIstarttime\fR
+Specify the \fIstarttime\fP of the time window.
+See
+.BR PCPIntro (1)
+for complete description of this option.
+.TP
+\fB\-t\fR \fIinterval\fR, \fB\-\-interval\fR=\fIinterval\fR
 The
 .I interval
 argument follows the syntax described in
@@ -190,7 +236,13 @@ the
 variable \f(CWdelta\f1 described below.
 The default is 10.0 seconds.
 .TP
-\f3\-U\f1 \f2username\f1
+\fB\-T\fR \fIendtime\fR, \fB\-\-finish\fR=\fIendtime\fR
+Specify the \fIendtime\fP of the time window.
+See
+.BR PCPIntro (1)
+for complete description of this option.
+.TP
+\fB\-U\fR \fIusername\fR, \fB\-\-username\fR=\fIusername\fR
 User account under which to run
 .BR pmie .
 The default is the current user account for interactive use.
@@ -198,7 +250,7 @@ When run as a daemon, the unprivileged "pcp" account is used
 in current versions of PCP, but in older versions the superuser
 account ("root") was used by default.
 .TP
-.B \-v
+\fB\-v\fR
 Unless one of the verbose options
 .BR \-V ,
 .B \-v
@@ -206,10 +258,11 @@ or
 .B \-W
 appears on the command line, expressions are
 evaluated silently, the only output is as a result of any actions
-being executed.  In the verbose mode, specified using the
+being executed.
+In the verbose mode, specified using the
 .B \-v
 flag, the value of each expression is printed as it is
-evaluated.  
+evaluated.
 The values are in canonical units;
 bytes in the dimension of ``space'', seconds in the dimension of ``time''
 and events in the dimension of ``count''.
@@ -222,13 +275,13 @@ expressions, evaluating derived performance metrics,
 passing these values on to other tools for further processing
 and in debugging new expressions.
 .TP
-.B \-V
+\fB\-V\fR, \fB\-\-verbose\fR
 This option has the same effect as the
 .B \-v
 option, except that the name of the host and instance
 (if applicable) are printed as well as expression values.
 .TP
-.B \-W
+\fB\-W\fR
 This option has the same effect as the
 .B \-V
 option described above, except that for boolean expressions,
@@ -236,8 +289,9 @@ only those names and values that make the expression true are printed.
 These are the same names and values accessible to rule actions as the
 %h, %i, %c and %v bindings, as described below.
 .TP
-.B \-x
-Execute in domain agent mode.  This mode is used within the Performance
+\fB\-x\fR, \fB\-\-secret\-agent\fR
+Execute in domain agent mode.
+This mode is used within the Performance
 Co-Pilot product to derive values for summary metrics, see
 .BR pmdasummary (1).
 Only restricted functionality
@@ -246,7 +300,18 @@ is available in this mode
 .B not
 be used).
 .TP
-.B \-Z
+\fB\-X\fR, \fB\-\-secret\-applet\fR
+Run in secret applet mode (thin client).
+.TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Change the reporting timezone to the timezone of the host that is the source
+of the performance metrics, as identified via either the
+.B \-h
+option or the first named set of archives (as described above for the
+.B \-a
+option).
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
 Change the reporting timezone to
 .I timezone
 in the format of the environment variable
@@ -254,41 +319,8 @@ in the format of the environment variable
 as described in
 .BR environ (7).
 .TP
-.B \-z
-Change the reporting timezone to the timezone of the host that is the source
-of the performance metrics, as identified via either the
-.B \-h
-option or the first named set of archives (as described above for the
-.B \-a
-option).
-.P
-The
-.BR \-S ,
-.BR \-T ,
-.BR \-O ,
-and
-.B \-A
-options may be used to define a time window to restrict the
-samples retrieved, set an initial origin within the time window,
-or specify a ``natural'' alignment of the sample times; refer to
-.BR PCPIntro (1)
-for a complete description of these options.
-.P
-Output from
-.B pmie
-is directed to standard output and standard error as follows:
-.TP 5
-.B stdout
-Expression values printed in the verbose
-.B \-v
-mode and the output of
-.B print
-actions.
-.TP
-.B stderr
-Error and warning messages for any syntactic or semantic problems during
-expression parsing, and any semantic or performance metrics availability
-problems during expression evaluation.
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
 .SH EXAMPLES
 The following example expressions demonstrate some of the capabilities
 of the inference engine.
@@ -303,7 +335,8 @@ The variable
 .ft CW
 delta
 .ft 1
-controls expression evaluation frequency.  Specify that subsequent expressions
+controls expression evaluation frequency.
+Specify that subsequent expressions
 be evaluated once a second, until further notice:
 .P
 .ft CW
@@ -415,14 +448,14 @@ filesys.free #'/dev/usr' /
 .fi
 .ft 1
 .P
-The following rule requires a machine that supports the PCP environment metrics.
+The following rule requires a machine that supports the lmsensors metrics.
 If the machine environment temperature rises more than 2 degrees over a
 10 minute interval, write an entry in the system log:
 .P
 .ft CW
 .nf
 .in +0.5i
-environ.temp @0 - environ.temp @1 > 2
+lmsensors.coretemp_isa.temp1 @0 - lmsensors.coretemp_isa.temp1 @1 > 2
 -> alarm "temperature rising fast" &
    syslog "machine room temperature rise alarm";
 .in
@@ -501,7 +534,6 @@ mypmda.errors > 1 && instant mypmda.errors < 100
 .in
 .fi
 .ft 1
-.P
 .SH QUICK START
 The
 .B pmie
@@ -515,7 +547,7 @@ tool provides a facility for generating a
 .B pmie
 configuration file from a set of generalized
 .B pmie
-rules. 
+rules.
 The supplied set of rules covers
 a wide range of performance scenarios.
 .P
@@ -526,7 +558,7 @@ provides a detailed tutorial-style chapter covering
 .SH EXPRESSION SYNTAX
 This description is terse and informal.
 For a more comprehensive description see the
-.IR "Performance Co-Pilot User's and Administrator's Guide" .  
+.IR "Performance Co-Pilot User's and Administrator's Guide" .
 .P
 A
 .B pmie
@@ -539,7 +571,7 @@ is encouraged to enhance readability and remove ambiguity.
 .P
 Operands are performance metric names
 (see
-.BR pmns (5))
+.BR PMNS (5))
 and the normal literal constants.
 .P
 Operands involving performance metrics may produce sets of values, as a
@@ -549,7 +581,8 @@ result of enumeration in the dimensions of
 and
 .BR time .
 Special qualifiers may appear after a performance metric name to
-define the enumeration in each dimension.  For example,
+define the enumeration in each dimension.
+For example,
 .P
 .in +4n
 .ft CW
@@ -570,7 +603,7 @@ The default interpretation in the absence of
 for the default source of PCP performance metrics.
 .P
 Host and instance names that do not follow the rules for variables
-in programming languages, ie. alphabetic optionally followed by 
+in programming languages, ie. alphabetic optionally followed by
 alphanumerics, should be enclosed in single quotes.
 .P
 Expression evaluation follows the law of ``least surprises''.
@@ -612,7 +645,7 @@ _
 .P
 All operators are supported for numeric-valued operands and expressions.
 For string-valued
-operands, namely literal string constants enclosed in double quotes or 
+operands, namely literal string constants enclosed in double quotes or
 metrics with a data type of string (\c
 .BR PM_TYPE_STRING ),
 .B only
@@ -624,7 +657,7 @@ are supported.
 .P
 The \f(CBrate\fP and \f(CBinstant\fP operators are the logical inverse
 of one another, so
-an arithmetic expression \fIexpr\fP 
+an arithmetic expression \fIexpr\fP
 is equal to \f(CBrate instant\fP \fIexpr\fP.
 The more useful cases involve using \f(CBrate\fP with a metric that
 is not a counter to determine the rate of change over time or \f(CBinstant\fP
@@ -682,7 +715,8 @@ T}
 .P
 The following instantial operators may be used to filter or limit a
 set-valued logical expression, based on regular expression matching
-of instance names.  The logical expression must be a set involving
+of instance names.
+The logical expression must be a set involving
 the dimension of instances, and the regular expression is of the
 form used by
 .BR egrep (1)
@@ -700,7 +734,8 @@ match_inst	T{
 .ad l
 For each value of the logical expression that is ``true'', the
 result is ``true'' if the associated instance name matches the
-regular expression.  Otherwise the result is ``false''.
+regular expression.
+Otherwise the result is ``false''.
 T}
 _
 nomatch_inst	T{
@@ -934,7 +969,7 @@ c|c|c|c|c
 ^|c|c|c|c.
 A \f(CBor\fR B	B
 	_
-B	\f(CBtrue\fR	\f(CBfalse\fR	\f(CBunknown\fR
+	\f(CBtrue\fR	\f(CBfalse\fR	\f(CBunknown\fR
 _
 A	\f(CBtrue\fR	\f(CBtrue\fR	\f(CBtrue\fR	\f(CBtrue\fR
 	_	_	_	_
@@ -982,8 +1017,8 @@ executed and an \f(CBotherwise\fR clause has been specified,
 then the action associated with the \f(CBotherwise\fR clause will be executed.
 .SH SCALE FACTORS
 Scale factors may be appended to arithmetic expressions and force
-linear scaling of the value to canonical units.  Simple scale factors
-are constructed from the keywords:
+linear scaling of the value to canonical units.
+Simple scale factors are constructed from the keywords:
 \f(CBnanosecond\fR, \f(CBnanosec\fR, \f(CBnsec\f1,
 \f(CBmicrosecond\fR, \f(CBmicrosec\fR, \f(CBusec\f1,
 \f(CBmillisecond\fR, \f(CBmillisec\fR, \f(CBmsec\f1,
@@ -1002,7 +1037,7 @@ Where
 .I name
 follows the normal rules
 for variables
-in programming languages, ie. alphabetic optionally followed by 
+in programming languages, ie. alphabetic optionally followed by
 alphanumerics.
 .I constexpr
 must be a constant expression, either a string
@@ -1049,9 +1084,51 @@ It is often useful for
 processes to be started and stopped when the local host is booted
 or shutdown, or when they have been detected as no longer running
 (when they have unexpectedly exited for some reason).
-Refer to 
+Refer to
 .BR pmie_check (1)
 for details on automating this process.
+.PP
+Optionally, each system running
+.BR pmcd (1)
+may also be configured to run a ``primary''
+.B pmie
+instance.
+This
+.B pmie
+instance is launched by
+.BR $PCP_RC_DIR/pmie ,
+and is affected by the files
+.IR $PCP_SYSCONF_DIR/pmie/control ,
+.IR $PCP_SYSCONF_DIR/pmie/control .d
+(use
+.BR chkconfig (8),
+.BR systemctl (1)
+or similar platform-specific commands to activate or disable the primary
+.B pmie
+instance)
+and
+.I $PCP_VAR_DIR/config/pmie/config.default
+(the default initial configuration file for the primary
+.BR pmie ).
+.PP
+The primary
+.B pmie
+instance is identified by the
+.B \-P
+option.
+There may be at most one ``primary''
+.B pmie
+instance on each system.
+The primary
+.B pmie
+instance (if any)
+must be running on the same host as the
+.BR pmcd (1)
+to which it connects (if any), so the
+.B \-h
+and
+.B \-P
+options are mutually exclusive.
 .SH EVENT MONITORING
 It is common for production systems to be monitored in a central
 location.
@@ -1060,7 +1137,7 @@ log facilities \- see
 .BR logger (1),
 and
 .BR syslogd (1).
-On Windows, communication with the system event log is handled by 
+On Windows, communication with the system event log is handled by
 .BR pcp-eventlog (1).
 .P
 .B pmie
@@ -1133,29 +1210,6 @@ In this situation, where the STOMP connection to the JMS server
 has been severed, the
 .I stomp
 action will return a non-zero error value.
-.SH FILES
-.PD 0
-.TP 10
-.BI $PCP_DEMOS_DIR/pmie/ *
-annotated example rules
-.TP
-.BI $PCP_VAR_DIR/pmns/ *
-default PMNS specification files
-.TP
-.BI $PCP_TMP_DIR/pmie
-.B pmie
-maintains files in this directory to identify the running
-.B pmie
-instances and to export runtime information about each instance \- this data
-forms the basis of the pmcd.pmie performance metrics
-.TP
-.BI $PCP_PMIECONTROL_PATH
-the default set of
-.B pmie
-instances to start at boot time \- refer to
-.BR pmie_check (1)
-for details
-.PD
 .SH BUGS
 The lexical scanner and parser will attempt to recover after an
 error in the input expressions.
@@ -1163,24 +1217,39 @@ Parsing resumes after skipping input up to
 the next semi-colon (;), however during this skipping
 process the scanner is ignorant of comments and strings, so an
 embedded semi-colon may cause parsing to resume at an unexpected
-place.  This behavior is largely benign, as until the initial
+place.
+This behavior is largely benign, as until the initial
 syntax error is corrected,
-.B pmie 
+.B pmie
 will not attempt any expression evaluation.
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH FILES
+.TP 5
+.I $PCP_DEMOS_DIR/pmie/*
+annotated example rules
+.TP
+.I $PCP_VAR_DIR/pmns/*
+default PMNS specification files
+.TP
+.I $PCP_TMP_DIR/pmie
+.B pmie
+maintains files in this directory to identify the running
+.B pmie
+instances and to export runtime information about each instance \- this data
+forms the basis of the pmcd.pmie performance metrics
+.TP
+.I $PCP_PMIECONTROL_PATH
+the default set of
+.B pmie
+instances to start at boot time \- refer to
+.BR pmie_check (1)
+for details
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 When executing shell actions,
 .B pmie
@@ -1219,9 +1288,10 @@ a cross-platform dialog box.
 .BR pmlogger (1),
 .BR pmval (1),
 .BR PMAPI (3),
-.BR pcp.conf (5)
+.BR pcp.conf (5),
+.BR pcp.env (5)
 and
-.BR pcp.env (5).
+.BR PMNS (5).
 .SH USER GUIDE
 For a more complete description of the
 .B pmie
@@ -1230,6 +1300,6 @@ language, refer to the
 This is available online from:
 .in +4n
 .nf
-https://pcp.io/doc/pcp-users-and-administrators-guide.pdf
+.B https://pcp.io/doc/pcp-users-and-administrators-guide.pdf
 .fi
 .in -4n

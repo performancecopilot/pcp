@@ -3,6 +3,7 @@
 # Install/Remove postgresql PMDA and check some basic metrics
 #
 # Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2018 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -21,9 +22,11 @@ echo '\q' | $sudo -u postgres psql >/dev/null 2>&1
 $sudo -u postgres psql -c "select VERSION();" | grep -s "PostgreSQL 8" > /dev/null
 [ $? -eq 0 ] && _notrun "not testing postgres v8.x, too old"
 
+CONF=$PCP_PMDAS_DIR/postgresql/pmdapostgresql.conf
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; $sudo mv $CONF.$seq $CONF; _cleanup_pmda postgresql; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 pmdapostgresql_remove()
 {
@@ -38,6 +41,17 @@ pmdapostgresql_install()
 {
     # start from known starting points
     cd $PCP_PMDAS_DIR/postgresql
+    $sudo mv $CONF $CONF.$seq
+    cat <<EOF >$tmp.conf
+[authentication]
+host=local
+port=5432
+dbname=postgres
+user=postgres
+password=password
+osuser=postgres
+EOF
+    $sudo mv $tmp.conf $CONF
     $sudo ./Remove >/dev/null 2>&1
     _service pmcd stop 2>&1 | _filter_pcp_stop
 
@@ -56,7 +70,6 @@ pmdapostgresql_install()
 
 _prepare_pmda postgresql
 # note: _restore_auto_restart pmcd done in _cleanup_pmda()
-trap "_cleanup_pmda postgresql; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 

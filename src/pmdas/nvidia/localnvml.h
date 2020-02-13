@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,13 +43,27 @@ typedef enum {
     NVML_ERROR_FUNCTION_NOT_FOUND	= 13,
     NVML_ERROR_CORRUPTED_INFOROM	= 14,
     NVML_ERROR_GPU_IS_LOST		= 15,
+    NVML_ERROR_RESET_REQUIRED		= 16,
+    NVML_ERROR_OPERATING_SYSTEM		= 17,
+    NVML_ERROR_LIB_RM_VERSION_MISMATCH	= 18,
     NVML_ERROR_UNKNOWN			= 999
 } nvmlReturn_t;
 
 typedef enum {
     NVML_TEMPERATURE_GPU		= 0,
+    NVML_TEMPERATURE_MEM,
+    NVML_TEMPERATURE_BOARD,
+    NVML_TEMPERATURE_VR1,
+    NVML_TEMPERATURE_VR2,
+    NVML_TEMPERATURE_VR3,
+    NVML_TEMPERATURE_VR4,
     NVML_TEMPERATURE_COUNT
 } nvmlTemperatureSensors_t;
+
+typedef enum {
+    NVML_FEATURE_DISABLED		= 0,
+    NVML_FEATURE_ENABLED
+} nvmlEnableState_t;
 
 typedef struct {
     char		busId[NVML_DEVICE_PCI_BUS_ID_BUFFER_SIZE];
@@ -72,6 +86,21 @@ typedef struct {
     unsigned long long	used;
 } nvmlMemory_t;
 
+typedef struct {
+    unsigned int	pid;
+    unsigned long long	usedGpuMemory;
+} nvmlProcessInfo_t;
+
+typedef struct {
+    unsigned int	gpuUtilization;
+    unsigned int	isRunning;
+    unsigned long long	maxMemoryUse;
+    unsigned int	memoryUtilization;
+    unsigned int	reserved[5];
+    unsigned long long	startTime;
+    unsigned long long	time;
+} nvmlAccountingStats_t;
+
 extern int localNvmlInit(void);
 extern int localNvmlShutdown(void);
 extern const char *localNvmlErrStr(nvmlReturn_t);
@@ -85,5 +114,10 @@ extern int localNvmlDeviceGetTemperature(nvmlDevice_t, nvmlTemperatureSensors_t,
 extern int localNvmlDeviceGetUtilizationRates(nvmlDevice_t, nvmlUtilization_t *);
 extern int localNvmlDeviceGetMemoryInfo(nvmlDevice_t, nvmlMemory_t *);
 extern int localNvmlDeviceGetPerformanceState(nvmlDevice_t, nvmlPstates_t *);
+extern int localNvmlDeviceSetAccountingMode(nvmlDevice_t, nvmlEnableState_t);
+extern int localNvmlDeviceSetPersistenceMode(nvmlDevice_t, nvmlEnableState_t);
+extern int localNvmlDeviceGetComputeRunningProcesses(nvmlDevice_t, unsigned int *, nvmlProcessInfo_t *);
+extern int localNvmlDeviceGetAccountingPids(nvmlDevice_t, unsigned int *, unsigned int *);
+extern int localNvmlDeviceGetAccountingStats(nvmlDevice_t, unsigned int, nvmlAccountingStats_t *);
 
 #endif /* _LOCAL_NVML_H */

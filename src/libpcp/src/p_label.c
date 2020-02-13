@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 Red Hat.
+ * Copyright (c) 2016-2019 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -71,7 +71,7 @@ __pmLabelIdentString(int ident, int type, char *buf, size_t buflen)
 char *
 __pmLabelFlagString(int flags, char *buf, int buflen)
 {
-    int		type = (flags & ~PM_LABEL_OPTIONAL);
+    int		type = (flags & ~(PM_LABEL_COMPOUND|PM_LABEL_OPTIONAL));
 
     /*
      * buffer needs to be long enough to hold label source
@@ -80,6 +80,8 @@ __pmLabelFlagString(int flags, char *buf, int buflen)
     if (buflen <= 16)
 	return NULL;
     strcpy(buf, __pmLabelTypeString(type));
+    if (flags & PM_LABEL_COMPOUND)
+	strcat(buf, ",compound");
     if (flags & PM_LABEL_OPTIONAL)
 	strcat(buf, ",optional");
     return buf;

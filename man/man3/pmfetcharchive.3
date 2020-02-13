@@ -2,17 +2,17 @@
 .\"
 .\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMFETCHARCHIVE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -27,7 +27,7 @@ cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmFetchArchive
-is a variant of 
+is a variant of
 .BR pmFetch (3)
 that may only be used when the current
 Performance Metrics Application Programming Interface (PMAPI)
@@ -59,10 +59,10 @@ to concatenate two or more PCP archive logs, and the
 record marks a point in time between the end of one input archive and
 the start of the next input archive.
 .PP
-It is expected that 
+It is expected that
 .B pmFetchArchive
 would be used to create utilities that scan sets of archive logs,
-while the more common access to the archives would be via the 
+while the more common access to the archives would be via the
 .BR pmFetch (3)
 interface.
 .PP

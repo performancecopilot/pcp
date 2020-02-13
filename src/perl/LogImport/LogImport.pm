@@ -12,7 +12,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
 @EXPORT = qw(
     pmiStart pmiUseContext pmiEnd pmiSetHostname pmiSetTimezone
     pmiAddMetric pmiAddInstance pmiPutValue pmiGetHandle pmiPutValueHandle
-    pmiWrite pmiPutMark pmiDump pmiErrStr pmiUnits pmiID pmiInDom
+    pmiWrite pmiPutText pmiPutLabel pmiPutMark pmiDump pmiErrStr pmiUnits pmiID pmiInDom
     pmID_build pmid_build pmInDom_build
     pmiBatchPutValue pmiBatchPutValueHandle pmiBatchWrite pmiBatchEnd
     PM_ID_NULL PM_INDOM_NULL PM_IN_NULL
@@ -23,6 +23,9 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
 	PM_TYPE_FLOAT PM_TYPE_DOUBLE PM_TYPE_STRING
     PM_SEM_COUNTER PM_SEM_INSTANT PM_SEM_DISCRETE
     PMI_DOMAIN
+    PM_TEXT_ONELINE PM_TEXT_HELP PM_TEXT_PMID PM_TEXT_INDOM
+    PM_LABEL_CONTEXT PM_LABEL_DOMAIN PM_LABEL_CLUSTER PM_LABEL_ITEM
+    PM_LABEL_INDOM PM_LABEL_INSTANCES
 );
 %EXPORT_TAGS = qw();
 @EXPORT_OK = qw();
@@ -73,6 +76,20 @@ sub PM_SEM_DISCRETE	{ 4; }	# instantaneous value, discrete domain
 # reserved domain (see $PCP_VAR_DIR/pmns/stdpmid)
 sub PMI_DOMAIN		{ 245; }
 
+# Text types and classes
+sub PM_TEXT_ONELINE	{ 1; }
+sub PM_TEXT_HELP	{ 2; }
+sub PM_TEXT_PMID	{ 4; }
+sub PM_TEXT_INDOM	{ 8; }
+
+# Label types
+sub PM_LABEL_CONTEXT	{ 1<<0; }
+sub PM_LABEL_DOMAIN	{ 1<<1; }
+sub PM_LABEL_INDOM	{ 1<<2; }
+sub PM_LABEL_CLUSTER	{ 1<<3; }
+sub PM_LABEL_ITEM	{ 1<<4; }
+sub PM_LABEL_INSTANCES	{ 1<<5; }
+
 # error codes
 sub PMI_ERR_DUPMETRICNAME { -20001; }
 sub PMI_ERR_DUPMETRICID	{ -20002; }	# Metric pmID already defined
@@ -87,6 +104,11 @@ sub PMI_ERR_BADSEM      { -20010; }	# Illegal metric semantics
 sub PMI_ERR_NODATA      { -20011; }	# No data to output
 sub PMI_ERR_BADMETRICNAME { -20012; }	# Illegal metric name
 sub PMI_ERR_BADTIMESTAMP { -20013; }	# Illegal result timestamp
+sub PMI_ERR_BADTEXTTYPE	{ -20014; }	# Illegal text type */
+sub PMI_ERR_BADTEXTCLASS { -20015; }	# Illegal text type */
+sub PMI_ERR_BADTEXTID	{ -20016; }	# Illegal text type */
+sub PMI_ERR_EMPTYTEXTCONTENT { -20017; }# Empty text content */
+sub PMI_ERR_DUPTEXT     { -20018; }	# Duplicate text */
 
 # Batch operations
 our %pmi_batch = ();
@@ -168,8 +190,8 @@ library.
 
 pmiAddInstance(3), pmiAddMetric(3), pmiEnd(3), pmiErrStr(3),
 pmiGetHandle(3), pmiPutResult(3), pmiPutValue(3), pmiPutValueHandle(3),
-pmiPutMark(3), pmiStart(3), pmiSetHostname(3), pmiSetTimezone(3), pmiUnits(3),
-pmiUseContext(3) and pmiWrite(3).
+pmiPutMark(3), pmiPutText(3), pmiPutLabel(3), pmiStart(3), pmiSetHostname(3), pmiSetTimezone(3),
+pmiUnits(3), pmiUseContext(3) and pmiWrite(3).
 
 The PCP mailing list pcp@groups.io can be used for questions about
 this module.
@@ -181,6 +203,7 @@ Further details can be found at https://pcp.io
 Ken McDonell, E<lt>kenj@kenj.id.auE<gt>
 
 Copyright (C) 2010 by Ken McDonell.
+Copyright (C) 2018 Red Hat.
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License, version 2 (see

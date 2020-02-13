@@ -11,10 +11,10 @@ Error: Container not found
 
 == procfs PMDA
 proc.memory.rss -12399 Container not found
-cgroup.memory.stat.rss -12399 Container not found
+cgroup.memory.stat.pgfault -12399 Container not found
 
 proc.memory.rss
 Error: Container not found
 
-cgroup.memory.stat.rss
+cgroup.memory.stat.pgfault
 Error: Container not found

@@ -1,0 +1,9 @@
+[Unit]
+Description=Hourly polling of log processing
+
+[Timer]
+OnCalendar=*-*-* *:30:00
+
+[Install]
+WantedBy=timers.target
+RequiredBy=pmlogger.service

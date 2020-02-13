@@ -29,7 +29,9 @@ avahi_cleanup()
 
 avahi_service()
 {
+    _stop_auto_restart $service
     $sudo "$PCP_RC_DIR/$service" restart >>$here/$seq.full 2>&1
+    _restore_auto_restart $service
 }
 
 avahi_verify()
@@ -42,12 +44,21 @@ avahi_verify()
     # strip any domain part ... e.g. if hostname is vm08.localdomain,
     # avahi reports this as vm08.local
     # look for a line like this ...
-    # = eth0 IPv4 PCP pmwebd on vm04.localdomain _pmwebd._tcp local
-    # + eth0 IPv6 PCP pmwebd on vm30 _pmwebd._tcp local
+    # = eth0 IPv4 PCP pmproxy on vm04.localdomain _pmproxy._tcp local
+    # + eth0 IPv6 PCP pmproxy on vm30 _pmroxy._tcp local
     #
     hostname=`hostname | sed -e 's/\..*//'`
     echo "hostname=$hostname" >>$here/$seq.full
-    avahi-browse -rt -d local "_$service._tcp" 2>&1 | \
+    echo "avahi-browse -rt -d local _$service._tcp" >> $here/$seq.full
+    avahi-browse -rt -d local "_$service._tcp" > $tmp.out
+    # sometimes we need a fair bit of time for avahi to register
+    for i in 0.1 0.3 1 2 3
+    do
+	[ -s $tmp.out ] && break
+	pmsleep $i
+	avahi-browse -rt -d local "_$service._tcp" > $tmp.out
+    done
+    cat $tmp.out | \
 	tee -a $here/$seq.full | \
 	sed -n \
 	    -e '/ '"$hostname"'[ .]/{
@@ -55,6 +66,7 @@ s/  */ /g
 s/'"$hostname"'[^ ]*/HOSTNAME/
 s/[=+] [^ ]* /. <interface> /
 s/ IPv[46] / <protocol> /
+s/ \#[0-9] / /
 p
 q
 }'

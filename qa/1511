@@ -1,0 +1,81 @@
+#!/bin/sh
+# PCP QA Test No. 1511
+# Exercise use of the pmcd.conf.access file.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$unix_domain_sockets || _notrun "No unix domain socket support available"
+
+_cleanup()
+{
+    if $done_clean
+    then
+        :
+    else
+        echo "Restore pmcd.conf and restart PMCD ..."
+	$sudo rm -f $PCP_PMCDCONF_PATH.access
+	[ -f $PCP_PMCDCONF_PATH.access.$seq ] && _restore_config $PCP_PMCDCONF_PATH.access
+        _restore_config $PCP_PMCDCONF_PATH
+	_restore_primary_logger
+        _service pcp restart 2>&1 | _filter_pcp_start
+        _wait_for_pmcd
+	_restore_auto_restart pmcd
+	_wait_for_pmlogger
+	_restore_auto_restart pmlogger
+	done_clean=true
+    fi
+    rm -f $tmp.*
+    exit $status
+}
+
+status=1	# failure is the default!
+done_clean=false
+username=`id -u -n`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
+
+_stop_auto_restart pmcd
+_stop_auto_restart pmlogger
+_service pmcd stop >/dev/null 2>&1
+
+_save_config $PCP_PMCDCONF_PATH
+$sudo rm -f $PCP_PMCDCONF_PATH $PCP_PMCDCONF_PATH.access
+[ -f $PCP_PMCDCONF_PATH.access ] && _save_config $PCP_PMCDCONF_PATH.access
+
+cat <<End-of-File >$tmp.tmp
+# Installed by PCP QA test $seq on `date`
+pmcd    2       dso     pmcd_init       $PMDA_PMCD_PATH
+sample  29      pipe    binary          $PCP_PMDAS_DIR/sample/pmdasample -d 29
+End-of-File
+$sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+
+cat <<End-of-File >$tmp.access
+# Installed by PCP QA test $seq on `date`
+disallow user $username : store;
+End-of-File
+$sudo cp $tmp.access $PCP_PMCDCONF_PATH.access
+
+_service pmcd start | _filter_pcp_start
+_wait_for_pmcd 10 unix:
+
+cat $PCP_LOG_DIR/pmcd/pmcd.log >> $seq.full
+
+echo "Attempting disallowed store access (expect failure)"
+pmstore -h unix: sample.write_me 2
+
+# success, all done
+status=0
+exit

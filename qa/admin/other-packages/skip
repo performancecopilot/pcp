@@ -1,0 +1,90 @@
+# Skip packages by distro ... these are ones that although available
+# are:
+# - incompatible with other pieces we need, e.g. Qt4 when other
+#   packages are Qt5, or
+# - fail prerequisites due to packaging botches, or
+# - are bad e.g. like valgrind dumping core
+#
+# >= 3 fields per line (separated by while space)
+# Field 1	- Distro name, as reported by whatami
+# Field 2	- Distro version, as reported by whatami, - for all versions
+# 		  (an alias for .*)
+# Field 3	- Distro architecture, - for all architectures (alias for .*)
+# Field 4 .. N	- packages that should be skipped
+#
+# grep(1) patterns allowed in all Fields.
+#
+# Comments prefixed by #
+#
+#Distro      Version  Arch    Skipped Packages
+#-- ArchLinux
+# we're using python3
+ArchLinux    -        -       python2-.* .*-python2
+#-- Centos
+# we're using python2
+CentOS       6\.10    -       .*-python3 python3-.* python3[0-9]-.*
+# we're using python3
+CentOS       7\.[5-7] -       .*-python2 python2-.* python2[0-9]-.* python-.*
+# we're using python3 from Debian 9 onwards
+Debian       9\..*    -       python-.*
+Debian       buster   -       python-.*
+#-- Fedora
+# observed on vm22
+# 389-ds is available but cannot be installed because nothing provides
+# 389-admin and 389-ds-base and 389-dsgw needed by 389-ds
+Fedora       29       i.86    389-ds
+# we're using python3 from Fedora26 onwards
+Fedora       2[6-9]   -       python-.* python2-.* mssql-server mssql-tools
+Fedora       3[0-9]   -       python-.* python2-.* 
+# and prefer mariadb over mysql
+Fedora       3[0-9]   -       community-mysql mysql
+#-- Gentoo
+# observed on vm05
+# I cannot figure out how to remake this package with USE=utils so that
+# avahi-browse is built and installed (Ken)
+Gentoo       2\.4\.2  -       net-dns/avahi
+#-- LinuxMint
+# observed on vm18
+# libsoqt-dev -> libsoqt4-dev and all the other Qt pieces are Qt5
+LinuxMint    17\.3    -       libsoqt-dev
+# observed on vm36 ... ditto
+LinuxMint    18\.3    -       libsoqt-dev
+# we're using python3
+LinuxMint    17\..*   -       python-.*
+LinuxMint    18\..*   -       python-.*
+#-- NetBSD
+# observed on vm38 ... dtrace(1) is not the systemtap one
+# we're using python3
+NetBSD       6\.1\.5  -       py27-.* dtrace
+NetBSD       8\.0     -       py27-.* dtrace
+#-- OpenBSD
+# observed on vm37
+# qtbase is Qt5 and gcc++ here is too old to compile Qt5 headers ... revisit
+# if we change from gcc to clang for OpenBSD
+# qtsvg is not needed without Qt5
+# valgrind is available, but segv's
+# we're using python3
+OpenBSD      6\.[34]  -       qtbase qtsvg valgrind python-.* .*-python
+#-- RedHat
+# we're using python2
+RHEL         6\.10    -       .*-python3 python3-.* python3[0-9]-.*
+RHEL         7\.[5-7] -       .*-python3 python3-.* python3[0-9]-.*
+#-- Slackware
+# we're using python2
+Slackware    14\.2    -       python3-.*
+#-- SuSE SLES
+# we're using python3
+SUSE         12-SP.*  -       python-.*
+#-- Ubuntu
+# observed on vm01
+# python3-bpfcc : Depends: libbpfcc (>= 0.5.0-5ubuntu1) but it is not installable
+Ubuntu       18\.04   i.86    python3-bpfcc
+# observed on bozo
+# libsoqt-dev, libsoqt-dev-common and libcoin-dev are all for Qt4, but we're
+# using Qt5 for the other bits we need for pmview
+Ubuntu       18\.04   -       libcoin-dev libsoqt-dev libsoqt-dev-common
+Ubuntu       18\.10   -       libcoin-dev libsoqt-dev libsoqt-dev-common
+# we're using python3 from 14.04 on
+Ubuntu       1[45]\.. -       python-.*
+Ubuntu       1[67]\.. -       python-.*
+Ubuntu       1[89]\.. -       python-.*

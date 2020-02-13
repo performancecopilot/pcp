@@ -191,6 +191,7 @@ _shutdown()
     if [ ! -s $tmp/pmies ]
     then
 	[ "$1" = verbose ] && echo "$pmprog: pmie not running"
+	rm -f $PCP_RUN_DIR/pmie.pid
 	return 0
     fi
 
@@ -215,6 +216,7 @@ _shutdown()
 	true
 	$RC_STATUS -v
     fi
+    rm -f $PCP_RUN_DIR/pmie.pid
     rm -fr "$tmp/pmie" "$PCP_TMP_DIR"/pmie/*
     $PCP_BINADM_DIR/pmpost "stop pmie from $pmprog"
 }

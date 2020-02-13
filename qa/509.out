@@ -115,6 +115,7 @@ pmLoadNameSpace: drift -> 29.0.7
 pmLoadNameSpace: end -> 29.0.125
 pmLoadNameSpace: error_check -> 29.0.75
 pmLoadNameSpace: error_code -> 29.0.74
+pmLoadNameSpace: ghosts -> 29.*.*
 pmLoadNameSpace: gradient -> 29.0.73
 pmLoadNameSpace: hecto -> 29.0.117
 pmLoadNameSpace: highres_records -> 29.0.139
@@ -159,6 +160,7 @@ pmLoadNameSpace: million -> 29.0.23
 pmLoadNameSpace: million -> 29.0.28
 pmLoadNameSpace: million -> 29.0.96
 pmLoadNameSpace: milliseconds -> 29.0.3
+pmLoadNameSpace: mirage -> 29.0.155
 pmLoadNameSpace: mirage -> 29.0.37
 pmLoadNameSpace: mirage_longlong -> 29.0.38
 pmLoadNameSpace: needprofile -> 29.0.49

@@ -23,9 +23,14 @@ webapi-webd-*
 check.time
 localconfig
 localconfig.h
+pcpqa.fc
+pcpqa.if
+pcpqa.pp
+pcpqa.te
 qa_hosts
 qa_outfiles
 rc_cron_check.clean
+stap_*.ko
 sudo
 008.out
 012.out
@@ -63,6 +68,7 @@ sudo
 375.out
 419.out
 422.out
+451.out
 480.out
 501.out
 519.out
@@ -76,10 +82,10 @@ sudo
 605.out
 660.out
 661.png
-662.out
 740.out
 769.out
 798.out
+886.out
 905.out
 917.out
 919.out

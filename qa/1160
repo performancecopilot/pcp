@@ -1,0 +1,125 @@
+#!/bin/sh
+# PCP QA Test No. 1160
+# Exercise PCP netcheck PMDA ping modules - install, remove and values.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+$python -c "import importlib" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python importlib module not installed"
+
+[ -f $PCP_PMDAS_DIR/netcheck/Install ] || _notrun "netcheck PMDA not installed"
+
+which ping > /dev/null 2>&1 || _notrun "ping not installed"
+ping -c 1 localhost > /dev/null 2>&1 || _notrun "failed to ping localhost"
+selinux=$(getenforce 2>/dev/null)
+pgr=0
+if [ -f /proc/sys/net/ipv4/ping_group_range ]; then
+	pgr=$(tr -d '\t' < /proc/sys/net/ipv4/ping_group_range 2>/dev/null)
+fi
+if [ "$selinux" = "Enforcing" -a $pgr -eq 10 ]; then
+	seinfo --common > /dev/null 2>&1 && scf=--common
+	seinfo -x --class=icmp_socket $scf 2>/dev/null \
+	| grep '^[ 	][ 	]*class icmp_socket$' >/dev/null && icmp_cls=true
+fi
+if [ "$selinux" = "Enforcing" -a $pgr -eq 10 -a "$icmp_cls" = "true" ]; then
+	_notrun "ping_group_range does not allow creating ICMP Echo sockets"
+fi
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+pmda_filter()
+{
+    sed \
+	-e "s/.*Info:/Info:/g" \
+	-e "s/\[.* or /\[X or /g" \
+	-e "s/value [0-3].*/value OK/g" \
+	-e "s/u'\([^']*\)'/'\1'/g" \
+    #end
+}
+
+pmda_remove()
+{
+    echo
+    echo "=== remove netcheck agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmda_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/netcheck
+    $sudo ./Remove >/dev/null 2>&1
+
+    cat <<EOF >$tmp.config
+[pmda]
+modules = ping,ping_latency,ping_loss
+hosts = localhost
+background_check = False
+[ping]
+count = 1
+timeout = 1
+[ping_latency]
+count = 1
+timeout = 1
+[ping_loss]
+count = 1
+timeout = 1
+EOF
+    echo "pmdanetcheck config:" >> $here/$seq.full
+    cat $tmp.config >> $here/$seq.full
+
+    [ -f $PCP_PMDAS_DIR/netcheck/netcheck.conf ] && \
+    $sudo cp $PCP_PMDAS_DIR/netcheck/netcheck.conf $tmp.backup
+    $sudo cp $tmp.config $PCP_PMDAS_DIR/netcheck/netcheck.conf
+
+    echo
+    echo "=== netcheck agent installation ==="
+    $sudo ./Install < /dev/null >$tmp.out 2>&1
+    cat $tmp.out | _filter_pmda_install | pmda_filter
+}
+
+pmda_cleanup()
+{
+    if [ -f $tmp.backup ]; then
+        $sudo cp $tmp.backup $PCP_PMDAS_DIR/netcheck/netcheck.conf
+        $sudo rm $tmp.backup
+    else
+        $sudo rm -f $PCP_PMDAS_DIR/netcheck/netcheck.conf
+    fi
+    # note: _restore_auto_restart pmcd done in _cleanup_pmda()
+    _cleanup_pmda netcheck
+}
+
+_prepare_pmda netcheck
+trap "pmda_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmcd
+
+# real QA test starts here
+rm -f $tmp.stats
+pmda_install
+echo
+
+echo "=== report metric values ==="
+metrics=`pminfo netcheck | LC_COLLATE=POSIX sort`
+pminfo -dfmtT $metrics 2>&1 \
+| pmda_filter | tee -a $here/$seq.full
+
+echo "=== verify metric values ==="
+pminfo -v netcheck 2>&1 \
+| pmda_filter | tee -a $here/$seq.full
+pmda_remove
+
+status=0
+exit

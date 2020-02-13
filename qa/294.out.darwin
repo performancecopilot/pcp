@@ -9,6 +9,10 @@ pmcd.agent.type
 pmcd.agent.status
     Data Type: 32-bit int  InDom: 2.3 0x800003
     Semantics: discrete  Units: none
+
+pmcd.agent.fenced
+    Data Type: 32-bit unsigned int  InDom: 2.3 0x800003
+    Semantics: instant  Units: none
 N connects
 N-0 disconnects
 

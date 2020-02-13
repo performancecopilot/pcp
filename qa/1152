@@ -2,7 +2,7 @@
 # PCP QA Test No. 1152
 # Exercise the BCC PMDA USDT JVM allocations module - install, remove and values.
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2019 Red Hat.
 #
 
 seq=`basename $0`
@@ -24,22 +24,23 @@ _log_filter()
 
 _value_filter()
 {
-    awk '/value [1-9]\d*/ {print "OK"; exit}'
+    awk '/value [1-9][0-9]*/ {print "OK"; exit}'
 }
 
 _prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+trap "\$signal -s KILL \$javapid > /dev/null 2>&1; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # Launch a Java test program
 cd $here/java
 java -XX:+DTraceAllocProbes USDTJVMTest &
 javapid=$!
-disown
+disown > /dev/null 2>&1 || :
 cd $here
 
 # real QA test starts here
 cat <<EOF | _pmdabcc_install | _log_filter
+# Installed by PCP QA test $seq on `date`
 [pmda]
 modules = usdt_jvm_alloc
 prefix = bcc.
@@ -55,6 +56,13 @@ _pmdabcc_wait_for_metric
 pmsleep 1
 
 echo "=== report metric values ==="
+pminfo -dfmtT bcc.usdt.jvm.alloc 2>&1 | tee -a $here/$seq.full \
+| grep TestUnit | _value_filter
+
+echo "=== check for libpcp pmdaCacheOp segfault if key field is empty ==="
+cp /var/lib/pcp/config/pmda/149.120 $tmp.149.120
+$sudo sed -i 's/ TestUnit//' /var/lib/pcp/config/pmda/149.120
+$sudo mv $tmp.149.120 /var/lib/pcp/config/pmda/149.120
 pminfo -dfmtT bcc.usdt.jvm.alloc 2>&1 | tee -a $here/$seq.full \
 | grep TestUnit | _value_filter
 

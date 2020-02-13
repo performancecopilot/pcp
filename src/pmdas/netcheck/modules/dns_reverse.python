@@ -1,0 +1,100 @@
+#
+# Copyright (C) 2019 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+"""PCP netcheck PMDA reverse DNS lookup module"""
+
+# pylint: disable=invalid-name,too-many-arguments
+
+try:
+    from time import perf_counter as time
+except ImportError:
+    from time import time
+
+import sys
+import socket
+
+from multiprocessing import Manager
+
+from pcp.pmapi import pmUnits
+from cpmapi import PM_TYPE_FLOAT, PM_TYPE_STRING, PM_SEM_INSTANT, PM_SEM_DISCRETE, PM_TIME_MSEC
+
+from modules.pcpnetcheck import PCPNetcheckModuleBase
+
+# Module constants
+MODULE = 'dns_reverse'
+BASENS = 'dns.reverse.'
+units_none = pmUnits(0, 0, 0, 0, 0, 0)
+units_msecs = pmUnits(0, 1, 0, 0, PM_TIME_MSEC, 0)
+
+
+class PCPNetcheckModule(PCPNetcheckModuleBase):
+    """PCP netcheck reverse DNS lookup module"""
+    def __init__(self, config, dbg, log, err, params):
+        """Constructor"""
+        PCPNetcheckModuleBase.__init__(self, MODULE, config, dbg, log, err, params)
+
+        self.prereq_check()
+
+        for opt in self.config.options(MODULE):
+            if opt not in self.common_opts:
+                self.err("Invalid directive '%s' in %s, aborting." % (opt, MODULE))
+                sys.exit(1)
+
+        self.log("Module parameters: timeout: %s." % self.timeout)
+
+        socket.setdefaulttimeout(self.timeout)
+
+        for host in self.hosts:
+            self.hosts[host] = ""
+
+        self.log("Initialized.")
+
+    @staticmethod
+    def prereq_check():
+        """Check module prerequisities"""
+        try:
+            socket.gethostbyaddr("127.0.0.1")
+        except Exception:  # pylint: disable=broad-except
+            raise RuntimeError("Can't resolve 127.0.0.1!")
+
+    def metrics(self):
+        """Get metric definitions"""
+        self.items = (
+            # Name - reserved - type - semantics - units - help
+            (BASENS + 'res', None, PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,
+             'reverse dns lookup result'),
+            (BASENS + 'time', None, PM_TYPE_FLOAT, PM_SEM_INSTANT, units_msecs,
+             'reverse dns lookup time'),
+        )
+        return True, self.items
+
+    @staticmethod
+    def _do_reverse(hosts, timings, host):
+        """Do reverse DNS lookup"""
+        try:
+            start_time = time()
+            res = socket.gethostbyaddr(host)
+            end_time = time()
+            hosts[host] = res[0]
+            timings[host] = (end_time - start_time) * 1000
+        except Exception:  # pylint: disable=broad-except
+            pass
+
+    def do_check(self):
+        """Do net check"""
+        hosts = Manager().dict()
+        timings = Manager().dict()
+        self._run_check_methods(self._do_reverse, (hosts, timings))
+        for host in self.hosts:
+            self.hosts[host] = hosts[host] if host in hosts else self.HOST_FAIL_STR
+            self.timings[host] = timings[host] if host in timings else -2

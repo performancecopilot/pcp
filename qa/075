@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
 host=`hostname`
 
@@ -76,8 +77,8 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 remote=`./getpmcdhosts -L -n 1 -a sample 2>$tmp.out`
 if [ -z "$remote" ]
 then
-    cat $tmp.out >$seq.notrun
-    exit
+    _notrun "`cat $tmp.out`"
+    # NOTREACHED
 fi
 
 # real QA test starts here

@@ -1,0 +1,56 @@
+QA output created by 1372
+=== without aggregate ===
+expr_1: false false false false true false false false false
+
+expr_1: false false false false true false false false false
+
+=== with count_inst ===
+DATE: OK 1
+DATE: OK 1
+
+=== with count_inst and -v ===
+DATE: OK 1
+expr_1: true
+
+DATE: OK 1
+expr_1: true
+
+
+=== with count_inst() ===
+DATE: OK 1
+DATE: OK 1
+
+=== with count_inst() and -v ===
+DATE: OK 1
+expr_1: true
+
+DATE: OK 1
+expr_1: true
+
+
+=== with count_inst and no rule (no output) ===
+
+=== with count_inst and no rule and -v ===
+expr_1: 1
+
+expr_1: 1
+
+
+=== with sum_inst ===
+pmie: syntax error - near line 1 of standard input
+arithmetic (not STRING) operand required for aggregate operator
+
+=== with sum_inst and -v ===
+pmie: syntax error - near line 1 of standard input
+arithmetic (not STRING) operand required for aggregate operator
+
+=== with sum_inst() ===
+pmie: syntax error - near line 1 of standard input
+arithmetic (not STRING) operand required for aggregate operator
+
+=== with sum_inst() and -v ===
+pmie: syntax error - near line 1 of standard input
+arithmetic (not STRING) operand required for aggregate operator
+
+=== with incorrect sum_inst() ===
+pmie: syntax error - near line 1 of standard input

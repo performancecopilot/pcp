@@ -1,0 +1,12 @@
+[Unit]
+Description=Half-hourly check of pmlogger instances
+
+[Timer]
+# if enabled, runs 1m after boot and every half hour
+OnBootSec=1min
+OnCalendar=*-*-* *:25:00
+OnCalendar=*-*-* *:55:00
+
+[Install]
+WantedBy=timers.target
+RequiredBy=pmlogger.service

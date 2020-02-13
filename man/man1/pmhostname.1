@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMHOSTNAME 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -39,8 +39,9 @@ and this is than passed to
 .B pmhostname
 provides a service for shell scripts that
 mimics the logic formerly used by Performance Co-Pilot applications
-when trying to determine the official name of a host.  PCP applications
-no longer use DNS-based heuristics, and therefore this command is
+when trying to determine the official name of a host.
+PCP applications no longer use DNS-based heuristics, and therefore
+this command is
 .IR deprecated .
 .PP
 If
@@ -50,23 +51,14 @@ fails, the input host name (either
 or the result from calling
 .BR gethostname (2))
 is reported.
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
-.BR named (1),
-.BR nsd (1),
 .BR nslookup (1),
 .BR gethostname (2),
 .BR gethostbyname (3),

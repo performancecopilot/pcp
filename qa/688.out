@@ -1,2 +1,175 @@
 QA output created by 688
-[skeleton from now, replace me]
+=== simple cases ===
+pmRegisterDerived: name="event.flags" expr="anon(PM_TYPE_U32)"
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+Derived metric expr dump from <addr-0>...
+expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
+pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric expr dump from <addr-2>...
+expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: name="qa.a" expr="matchinst(/100/, sample.bin)"
+derive_lex() -> type=L_FILTERINST "matchinst"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_PATTERN "100"
+derive_lex() -> type=L_COMMA ","
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[2] qa.a = matchinst(/100/, sample.bin)
+Derived metric expr dump from <addr-4>...
+expr node <addr-4> type=FILTERINST left=<addr-5> right=<addr-6> save_last=0
+expr node <addr-5> type=PATTERN pattern: 100 type: regex used=0
+expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+pmRegisterDerived: name="qa.b" expr="matchinst(!/bin-[1-5]00/, sample.bin)"
+derive_lex() -> type=L_FILTERINST "matchinst"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NOT "!"
+derive_lex() -> type=L_PATTERN "bin-[1-5]00"
+derive_lex() -> type=L_COMMA ","
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[3] qa.b = matchinst(!/bin-[1-5]00/, sample.bin)
+Derived metric expr dump from <addr-7>...
+expr node <addr-7> type=FILTERINST left=<addr-8> right=<addr-9> save_last=0
+expr node <addr-8> type=PATTERN pattern: bin-[1-5]00 type: inverted regex used=0
+expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+pmRegisterDerived: name="qa.c" expr="sample.bin[bin-300] + sample.bin[bin-500]"
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_INSTNAME "bin-300"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_INSTNAME "bin-500"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[4] qa.c = sample.bin[bin-300] + sample.bin[bin-500]
+Derived metric expr dump from <addr-10>...
+expr node <addr-10> type=PLUS left=<addr-11> right=<addr-14> save_last=0
+expr node <addr-11> type=FILTERINST left=<addr-12> right=<addr-13> save_last=0
+expr node <addr-12> type=PATTERN pattern: bin-300 type: exact match inst=-1
+expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+expr node <addr-14> type=FILTERINST left=<addr-15> right=<addr-16> save_last=0
+expr node <addr-15> type=PATTERN pattern: bin-500 type: exact match inst=-1
+expr node <addr-16> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+pmRegisterDerived: name="qa.d" expr="sample.bin[\b\i\n\-\3\0\0] + sample.bin[\]bin-500\\]"
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_INSTNAME "bin-300"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_INSTNAME "]bin-500\"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[5] qa.d = sample.bin[\b\i\n\-\3\0\0] + sample.bin[\]bin-500\\]
+Derived metric expr dump from <addr-17>...
+expr node <addr-17> type=PLUS left=<addr-18> right=<addr-21> save_last=0
+expr node <addr-18> type=FILTERINST left=<addr-19> right=<addr-20> save_last=0
+expr node <addr-19> type=PATTERN pattern: bin-300 type: exact match inst=-1
+expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+expr node <addr-21> type=FILTERINST left=<addr-22> right=<addr-23> save_last=0
+expr node <addr-22> type=PATTERN pattern: ]bin-500\ type: exact match inst=-1
+expr node <addr-23> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+pmRegisterDerived: name="qa.e" expr="matchinst(/\\[1\\]100\//, sample.bin)"
+derive_lex() -> type=L_FILTERINST "matchinst"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_PATTERN "\[1\]100/"
+derive_lex() -> type=L_COMMA ","
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[6] qa.e = matchinst(/\\[1\\]100\//, sample.bin)
+Derived metric expr dump from <addr-24>...
+expr node <addr-24> type=FILTERINST left=<addr-25> right=<addr-26> save_last=0
+expr node <addr-25> type=PATTERN pattern: \[1\]100/ type: regex used=0
+expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+__dmgetpmid: metric "qa.a" -> PMID 511.0.3
+__dmbind: bind metric[2] qa.a
+__dmtraverse: name="qa" added "qa.a"
+__dmgetpmid: metric "qa.b" -> PMID 511.0.4
+__dmbind: bind metric[3] qa.b
+__dmtraverse: name="qa" added "qa.b"
+__dmgetpmid: metric "qa.c" -> PMID 511.0.5
+__dmbind: bind metric[4] qa.c
+__dmtraverse: name="qa" added "qa.c"
+__dmgetpmid: metric "qa.d" -> PMID 511.0.6
+__dmbind: bind metric[5] qa.d
+__dmtraverse: name="qa" added "qa.d"
+__dmgetpmid: metric "qa.e" -> PMID 511.0.7
+__dmbind: bind metric[6] qa.e
+__dmtraverse: name="qa" added "qa.e"
+__dmgetpmid: metric "qa.a" -> PMID 511.0.3
+__dmgetpmid: metric "qa.b" -> PMID 511.0.4
+__dmgetpmid: metric "qa.c" -> PMID 511.0.5
+__dmgetpmid: metric "qa.d" -> PMID 511.0.6
+__dmgetpmid: metric "qa.e" -> PMID 511.0.7
+
+qa.a
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa.b
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa.c
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa.d
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa.e
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+=== syntax errors ===
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] Error: pmRegisterDerived(qa.a, ...) syntax error
+ matchinst(
+          ^
+<filter>, <expr>) expected to follow matchinst(
+[TMP.config:2] Error: pmRegisterDerived(qa.b, ...) syntax error
+ matchinst(/100/
+               ^
+, <expr>) expected to follow matchinst(<filter>
+[TMP.config:3] Error: pmRegisterDerived(qa.c, ...) syntax error
+ matchinst(/100/,
+                ^
+<expr>) expected to follow matchinst(<filter>,
+[TMP.config:4] Error: pmRegisterDerived(qa.d, ...) syntax error
+ matchinst(/100/, sample.bin
+                           ^
+<expr>) expected to follow matchinst(<filter>,
+[TMP.config:5] Error: pmRegisterDerived(qa.e, ...) syntax error
+ matchinst(/100/, (sample.bin + 1
+                                ^
+<expr>) expected to follow matchinst(<filter>,
+[TMP.config:6] Error: pmRegisterDerived(qa.f, ...) syntax error
+ sample.bin[bin-300
+           ^       
+unterminated instance name
+[TMP.config:7] Error: pmRegisterDerived(qa.g, ...) syntax error
+ sample.bin[
+           ^
+unterminated instance name
+[TMP.config:8] Error: pmRegisterDerived(qa.h, ...) syntax error
+ matchinst(/10[/, sample.bin)
+           ^                 
+bad regular expression: 'Invalid regular expression'
+Error: qa: Unknown metric name

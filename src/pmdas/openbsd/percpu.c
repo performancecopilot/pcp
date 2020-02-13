@@ -37,13 +37,16 @@
 #include <string.h>
 
 static uint64_t		*stats;
+static uint64_t		*buffer;
 static int		valid;
 
 void
 refresh_percpu_metrics(void)
 {
     int		sts;
-    static int	name[] = { CTL_KERN, KERN_CPTIME };
+    int		i;
+    int		cpu;
+    static int	name[] = { CTL_KERN, KERN_CPTIME2, 0 };
     u_int	namelen = sizeof(name) / sizeof(name[0]);
     size_t	buflen = ncpu*CPUSTATES*sizeof(uint64_t);
 
@@ -56,12 +59,37 @@ refresh_percpu_metrics(void)
 	    pmNoMem("refresh_percpu_metrics: stats", buflen, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
+	buffer = (uint64_t *)malloc(CPUSTATES*sizeof(uint64_t));
+	if (buffer == NULL) {
+	    pmNoMem("refresh_percpu_metrics: buffer", CPUSTATES*sizeof(uint64_t), PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
     }
     /* fetch all the available data */
-    if ((sts = sysctl(name, namelen, stats, &buflen, NULL, 0)) != 0) {
-	fprintf(stderr, "refresh_percpu_metrics: stats sysctl(): %s\n", strerror(errno));
-	valid = 0;
-	return;
+    for (cpu = 0; cpu < ncpu; cpu++) {
+	name[2] = cpu;
+	if ((sts = sysctl(name, namelen, buffer, &buflen, NULL, 0)) < 0) {
+	    fprintf(stderr, "refresh_percpu_metrics: stats sysctl(cpu[%d]): %s\n", cpu, strerror(errno));
+	    valid = 0;
+	    return;
+	}
+	if (buflen == CPUSTATES*sizeof(__uint64_t)) {
+	    /* 64-bit values from sysctl() */
+	    for (i = 0; i < CPUSTATES; i++)
+		stats[cpu*CPUSTATES+i] = buffer[i];
+	}
+	else if (buflen == CPUSTATES*sizeof(__uint32_t)) {
+	    /* 32-bit values from sysctl() */
+	    for (i = 0; i < CPUSTATES; i++)
+		stats[cpu*CPUSTATES+i] = (__uint64_t)((__uint32_t *)buffer)[i];
+	}
+	else {
+	    fprintf(stderr, "Error: refresh_percpu_metrics: sysctl(cpu[%d]) datalen=%d not %d (long) or %d (int)!\n",
+		cpu, (int)buflen, (int)(ncpu*CPUSTATES*sizeof(__uint64_t)), 
+		(int)(ncpu*CPUSTATES*sizeof(__uint32_t))); 
+	    valid = 0;
+	    return;
+	}
     }
 
     valid = 1;
@@ -105,6 +133,15 @@ do_percpu_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 7:		/* kernel.percpu.cpu.idle */
 		atom->ull = 1000 * stats[inst*CPUSTATES+CP_IDLE] / cpuhz;
 		break;
+
+	    case 8:		/* kernel.percpu.cpu.spin */
+#ifdef CP_SPIN
+		atom->ull = 1000 * stats[inst*CPUSTATES+CP_SPIN] / cpuhz;
+#else
+		sts = 0;
+#endif
+		break;
+
 
 	    default:
 		sts = PM_ERR_PMID;

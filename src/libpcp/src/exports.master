@@ -678,3 +678,20 @@ PCP_3.25 {
     __pmServerGetRequestPort;
     __pmServerSetupRequestPorts;
 } PCP_3.24;
+
+PCP_3.26 {
+  global:
+    __pmDupLabelSets;
+} PCP_3.25;
+
+PCP_3.27 {
+  global:
+    __pmLogAddDesc;
+    __pmLogAddInDom;
+    __pmLogAddPMNSNode;
+    __pmLogAddLabelSets;
+    __pmLogAddText;
+    __pmLogAddVolume;
+    __pmLogCompressedSuffix;
+    __pmLogBaseNameVol;
+} PCP_3.26;

@@ -2,9 +2,6 @@ QA output created by 187
 map file for this host present
 map file for other host present
 map file for other-fqdn host present
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
-Starting pmlogger ... 
 map file for this host present
 map file for other host present
 map file for other-fqdn host present

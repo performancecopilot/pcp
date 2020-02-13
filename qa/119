@@ -41,7 +41,7 @@ _cleanup()
 	    $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
 	[ -d $tmp.control.d ] && \
 	    $sudo mv $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_restore_auto_restart pmlogger
 	$_needpmmgr && _restore_auto_restart pmmgr
@@ -92,14 +92,26 @@ no.such.host.pcp.io	n n $LOGGING_DIR/no.such.host.pcp.io -c /dev/null
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 
-# stop pmcd, create the archive directories, start pmcd ...
+# stop pmcd, primary pmlogger and pmmgr, create the archive directories,
+# start pmcd ...
 #
+_get_pids_by_name -a pmlogger >$tmp.pid
 _service pcp stop >$tmp.out 2>&1
 cat $tmp.out >$seq.full
 # test may not pass if pmlogger from pmmgr is running
 #
 $_needpmmgr && _service pmmgr stop >$tmp.out 2>&1
 cat $tmp.out >$seq.full
+
+# wait for all of the extant pmloggers to exit
+#
+if [ -s $tmp.pid ]
+then
+    for pid in `cat $tmp.pid`
+    do
+	_wait_pmlogger_end $pid
+    done
+fi
 
 $sudo mkdir -p $LOGGING_DIR/${myhost}-one >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/${myhost}-two >/dev/null 2>&1

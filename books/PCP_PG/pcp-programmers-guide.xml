@@ -3736,7 +3736,7 @@ A pcp client may be written in the python language by making use of the python b
 <programlisting>import cpmapi as c_api</programlisting></para></listitem><listitem><para>pmapi which provides access to PMAPI functions and data structures
 <programlisting>from pcp import pmapi</programlisting></para></listitem><listitem><para>pmErr which provides access to the python bindings exception handler
 <programlisting>from pcp.pmapi import pmErr</programlisting></para></listitem><listitem><para>pmgui which provides access to PMAPI record mode functions
-<programlisting>from pcp import ppmgui</programlisting></para></listitem></itemizedlist>
+<programlisting>from pcp import pmgui</programlisting></para></listitem></itemizedlist>
 Creating and destroying a PMAPI context in the python environment is done by creating and destroying an object of the pmapi class.  This is done in one of two ways, either directly:
 <programlisting>    context = pmapi.pmContext()</programlisting>
 or by automated processing of the command line arguments (refer to the <command>pmGetOptions</command> man page for greater detail).

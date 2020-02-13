@@ -17,6 +17,7 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	disk.md.blkread
 	disk.md.blkwrite
 
+	kernel.all.pressure
 	kernel.all.pswitch
 	kernel.all.intr
 	kernel.all.sysfork
@@ -39,6 +40,7 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	kernel.percpu.cpu.irq.soft
 	kernel.percpu.cpu.steal
 	kernel.percpu.cpu.guest
+
 	hinv.cpu.clock
 
 	mem.vmstat.pgscan_direct_dma
@@ -46,16 +48,21 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	mem.vmstat.pgscan_direct_high
 	mem.vmstat.pgscan_direct_movable
 	mem.vmstat.pgscan_direct_normal
+	mem.vmstat.pgscan_direct_throttle
+	mem.vmstat.pgscan_direct
 	mem.vmstat.pgscan_kswapd_dma
 	mem.vmstat.pgscan_kswapd_dma32
 	mem.vmstat.pgscan_kswapd_high
 	mem.vmstat.pgscan_kswapd_movable
 	mem.vmstat.pgscan_kswapd_normal
+	mem.vmstat.pgscan_kswapd
 	mem.vmstat.pgsteal_dma
 	mem.vmstat.pgsteal_dma32
 	mem.vmstat.pgsteal_high
 	mem.vmstat.pgsteal_movable
 	mem.vmstat.pgsteal_normal
+	mem.vmstat.pgsteal_kswapd
+	mem.vmstat.pgsteal_direct
 	mem.vmstat.allocstall
 	mem.util.cached
 	mem.util.dirty

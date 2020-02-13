@@ -1,5 +1,4 @@
 QA output created by 657
-Waiting for pmcd to terminate ...
 
 === Setting up QA fakeroot testing data ===
 
@@ -8,9 +7,9 @@ Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check dmcache metrics have appeared ... 16 metrics and 16 values
-Check dmthin metrics have appeared ... 13 metrics and 16 values
-Check dmstats metrics have appeared ... 15 metrics and 0 values
+Check dmcache metrics have appeared ... 16 metrics and X values
+Check dmthin metrics have appeared ... 13 metrics and X values
+Check dmstats metrics have appeared ... 15 metrics and X values
 
 === Check dm-cache metrics ===
 
@@ -229,6 +228,3 @@ Help:
 The highest mapped sector of the thin volume.
     inst [0 or "vg_1-lv3"] value 8388607
     inst [1 or "vg_1-lv2"] value 8388607
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
-Starting pmlogger ... 

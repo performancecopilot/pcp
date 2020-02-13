@@ -234,8 +234,8 @@ int ExportDialog::exportFile(char *outfile, char *geometry, bool transparent)
 	file.append(".png");
 	format = QString("png");
     }
-    strncpy(suffix, (const char *)format.toLatin1(), sizeof(suffix));
-    suffix[sizeof(suffix)-1] = '\0';
+    strncpy(suffix, (const char *)format.toLatin1(), sizeof(suffix)-1);
+    suffix[sizeof(suffix)-1] = '\0';	/* buffer overrun guard */
 
     regex.setPattern("(\\d+)x(\\d+)");
     if (regex.indexIn(QString(geometry)) != -1) {

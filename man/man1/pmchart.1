@@ -1,15 +1,27 @@
-.\" Copyright (c) 2016, Red Hat.  All Rights Reserved.
+'\"macro stdmacro
+.\"
 .\" Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
 .\" Copyright (c) 2008, Aconex.  All Rights Reserved.
-.\" Copyright (c) 2014-2016, Red Hat.
+.\" Copyright (c) 2014-2016,2019, Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
 .TH PMCHART 1 "" "Performance Co-Pilot"
 .SH NAME
 \f3pmchart\f1 \- strip chart tool for Performance Co-Pilot
 .SH SYNOPSIS
 \f3pmchart\f1
-[\f3\-CVWz\f1]
-[\f3\-A\f1 \f2align\f1]
+[\f3\-CLVWz?\f1]
 [\f3\-a\f1 \f2archive\f1]
+[\f3\-A\f1 \f2align\f1]
 [\f3\-c\f1 \f2configfile\f1]
 [\f3\-f\f1 \f2fontfamily\f1]
 [\f3\-F\f1 \f2fontsize\f1]
@@ -20,8 +32,8 @@
 [\f3\-p\f1 \f2port\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-S\f1 \f2starttime\f1]
-[\f3\-T\f1 \f2endtime\f1]
 [\f3\-t\f1 \f2interval\f1]
+[\f3\-T\f1 \f2endtime\f1]
 [\f3\-v\f1 \f2visible\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 [\f3\-geometry\f1 \f2geometry\f1]
@@ -35,7 +47,8 @@ on the unified time axis (X-axis), and through the use of multiple
 interface Tabs.
 .PP
 Metric values can be sourced from one or more live hosts
-(simultaneously).  Alternatively, one or more sets of PCP archives
+(simultaneously).
+Alternatively, one or more sets of PCP archives
 can be used as a source of historical data.
 See
 .BR PCPIntro (1)
@@ -65,17 +78,16 @@ makes extensive use of the
 utility for time control, refer to the
 .B pmtime
 manual page for further details of its operation.
-.PP
-Options which control the default source, timing and layout of the
-.B pmchart
-window are as follows:
+.SH OPTIONS
+The available command line options are:
 .TP 5
-.B \-a
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 Performance metric values are retrieved from the set of Performance Co-Pilot
-(PCP) archive logs identified by this option, by default. The argument is
-a comma-separated list of names, each of which may be the base name of an
-archive or the name of a directory containing one or more archives. The
-resulting set of archives will be the source of the performance metrics.
+(PCP) archive logs identified by this option, by default.
+The argument is a comma-separated list of names, each of which may be the
+base name of an archive or the name of a directory containing one or more
+archives.
+The resulting set of archives will be the source of the performance metrics.
 The initial Tab created will be an archive mode Tab.
 Multiple
 .B \-a
@@ -84,7 +96,16 @@ for sourcing metric values.
 Any \f2sources\f1 listed on the command line are assumed to be sets of archives
 if this option is used.
 .TP
-.B \-c
+\fB\-A\fR \fIalign\fR, \fB\-\-align\fR=\fIalign\fR
+Force the initial sample to be
+aligned on the boundary of a natural time unit
+.IR align .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR align .
+.TP
+\fB\-c\fR \fIconfigfile\fR, \fB\-\-view\fR=\fIconfigfile\fR
 .I configfile
 specifies an initial view to load, using the default source of metrics.
 Multiple
@@ -92,20 +113,20 @@ Multiple
 views can be specified, and they will all be opened in the
 default Tab with the default source of metrics.
 .TP
-.B \-C
-Used with 
+\fB\-c\fR, \fB\-\-check\fR
+Used with
 .BR \-c ,
 the view(s) are parsed, any errors are reported, and the tool exits.
 This is primarily intended for testing purposes.
 If a second
 .B \-C
 option is presented,
-.B pmchart 
+.B pmchart
 also connects to
 .BR pmcd (1)
 to check the semantics of metrics.
 .TP
-.B \-f
+\fB\-f\fR \fIfamily\fR, \fB\-\-font-family\fR=\fIfamily\fR
 Specify the default font
 .I family
 to be used in several chart components,
@@ -117,7 +138,7 @@ the value is inherited from the environment in which
 operates, and differs according to the look-and-feel of each
 platform.
 .TP
-.B \-F
+\fB\-F\fR \fIpoint\fR, \fB\-\-font-size\fR=\fIpoint\fR
 Specify the default font
 .I point
 size to be used in several chart components,
@@ -125,7 +146,7 @@ such as the chart title, legend, and Y-axis label.
 The default is platform dependent, but is either 7, 8 or 9.
 This setting does not affect the rest of the user interface.
 .TP
-.B \-g
+\fB\-g\fR \fIgeometry\fR, \fB\-\-geometry\fR=\fIgeometry\fR
 Generate image with the specified
 .I geometry
 (width and height).
@@ -144,7 +165,7 @@ where
 .I geometry
 specifies the desired window width, height and optional placement.
 .TP
-.B \-h
+\fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
 Current performance metric values are retrieved from the nominated
 .I host
 machine by default.
@@ -155,7 +176,35 @@ metric values.
 Any \f2sources\f1 listed on the command line are assumed to be hosts
 if this option is used.
 .TP
-.B \-o
+\fB\-H\fR \fIpath\fR, \fB\-\-hostsfile\fR=\fIpath\fR
+Specify the
+.I path
+to a file containing a set of hostnames where
+.BR pmcd (1)
+is running ,
+rather than using the default localhost.
+.TP
+\fB\-K\fR \fIspec\fR, \fB\-\-spec\-local\fR=\fIspec\fR
+When fetching metrics from a local context (see
+.BR \-L ),
+the
+.B \-K
+option may be used to control the DSO PMDAs that should be made accessible.
+The
+.I spec
+argument conforms to the syntax described in
+.BR pmSpecLocalPMDA (3).
+More than one
+.B \-K
+option may be used.
+.TP
+\fB\-L\fR, \fB\-\-local\-PMDA\fR
+Use a local context to collect metrics from DSO PMDAs on the local host
+without PMCD.
+See also
+.BR \-K .
+.TP
+\fB\-o\fR \fIoutfile\fR, \fB\-\-output\fR=\fIoutfile\fR
 Generate an image file named
 .IR outfile ,
 and then exit.
@@ -168,13 +217,25 @@ the generated file is named with this extension.
 The supported image file formats include: bmp, jpeg, jpg, png, ppm,
 tif, tiff, xbm, and xpm.
 .TP
-.B \-p
+\fB\-O\fR \fIorigin\fR, \fB\-\-origin\fR=\fIorigin\fR
+When reporting archived metrics, start reporting at
+.I origin
+within the time window (see
+.B \-S
+and
+.BR \-T ).
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR origin .
+.TP
+\fB\-p\fR \fIport\fR, \fB\-\-port\fR=\fIport\fR
 .I port
 number for connection to an existing
 .B pmtime
 time control process.
 .TP
-.B \-s
+\fB\-s\fR \fIsamples\fR, \fB\-\-samples\fR=\fIsamples\fR
 Specifies the number of
 .I samples
 that will be retained before discarding old data (replaced by
@@ -182,7 +243,16 @@ new values at the current time position).
 This value can subsequently be modified through the Edit Tab
 dialog.
 .TP
-.B \-t
+\fB\-S\fR \fIstarttime\fR, \fB\-\-start\fR=\fIstarttime\fR
+When reporting archived metrics, the report will be restricted to those
+records logged at or after
+.IR starttime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR starttime .
+.TP
+\fB\-t\fR \fIinterval\fR, \fB\-\-interval\fR=\fIinterval\fR
 Sets the inital update
 .I interval
 to something other than the default 1 second.
@@ -193,8 +263,17 @@ argument follows the syntax described in
 and in the simplest form may be an unsigned integer (the implied
 units in this case are seconds).
 .TP
-.B \-v
-Sets the inital visible
+\fB\-T\fR \fIendtime\fR, \fB\-\-finish\fR=\fIendtime\fR
+When reporting archived metrics, the report will be restricted to those
+records logged before or at
+.IR endtime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR endtime .
+.TP
+\fB\-v\fR \fIsamples\fR, \fB\-\-visible\fR=\fIsamples\fR
+Sets the initial visible
 .I samples
 that will be displayed in all charts in the default Tab.
 This value must be less than or equal to the total number
@@ -202,26 +281,13 @@ of samples retained (the
 .B \-s
 value).
 .TP
-.B \-V
+\fB\-V\fR, \fB\-\-version\fR
 Display pmchart version number and exit
 .TP
-.B \-W
+\fB\-W\fR, fB\-\-white\fR
 Export images using an opaque(white) background
 .TP
-.B \-Z
-By default,
-.B pmtime
-reports the time of day according to the local timezone on the system
-where
-.B pmchart is run.
-The
-.B \-Z
-option changes the timezone to
-.I timezone
-in the format of the environment variable TZ as described in
-.BR environ (7).
-.TP
-.B \-z
+\fB\-z\fR, \fB\-\-hostzone\fR
 Change the reporting timezone to the local timezone at the host
 that is the source of the performance metrics, as identified via
 either the
@@ -242,6 +308,20 @@ window, or specify a "natural" alignment of the sample  times;  refer
 to
 .BR PCPIntro (1)
 for a complete description of these options.
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+By default,
+.B pmtime
+reports the time of day according to the local timezone on the system
+where
+.B pmchart
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable TZ as described in
+.BR environ (7).
 .SH VIEWS
 The primary
 .B pmchart
@@ -408,7 +488,8 @@ for an extensive description of the capabilities of these tools.
 .PP
 .B pmchart
 loads predefined chart configurations (or "views") from external
-files that conform to the following rules.  In the descriptions below
+files that conform to the following rules.
+In the descriptions below
 keywords (shown in \f(CBbold\fP) may appear in upper, lower or
 mixed case, elements shown in \f(CW[stuff]\fP are optional, and
 user-supplied elements are shown as \f(CW<other stuff>\fP.
@@ -464,9 +545,10 @@ of the chart.
 The \f(CW<title>\fP is usually enclosed in quotes (") and if it
 contains the sequence "%h" this will be replaced by the short form
 of the hostname for the default source of metrics at the time
-this chart was loaded.  Alternatively, "%H" can be used to insert
-the full host name.  If the hostname appears to be an inet or IPv6
-address, no shortening will be attempted; it will be used as-is in
+this chart was loaded.
+Alternatively, "%H" can be used to insert the full host name.
+If the hostname appears to be an inet or IPv6 address,
+no shortening will be attempted; it will be used as-is in
 both replacement cases.
 After the view is loaded, the title visibility and setting
 can be manipulated using the
@@ -496,7 +578,8 @@ plotted.
 .PP
 \f(CW<onoff>\fP is one of the keywords \f(CBon\fP or \f(CBoff\fP and the
 \f(CBlegend\fP clause controls the presence or absence of the plot
-legend below the graph area.  The default is for the legend to be shown.
+legend below the graph area.
+The default is for the legend to be shown.
 After the view is loaded, the legend visibility
 can be toggled using the
 .I "Show Legend"
@@ -571,8 +654,8 @@ e.g. \f(CBred\fP or \f(CBsteelblue\fP, see also the output from
 The "color" \f(CB#\-cycle\fP specifies that
 .B pmchart
 should use the next in a pallet of colors that it uses cyclically
-for each chart.  This is the default if the \f(CBcolor\fP clause
-is omitted.
+for each chart.
+This is the default if the \f(CBcolor\fP clause is omitted.
 .PP
 The \f(CW<hostspec>\fP in the \f(CBhost\fP clause may be a hostname,
 an IP address or an asterisk (*); the latter is used to mean the
@@ -609,14 +692,16 @@ uses extended regular expression notation in the style of
 .B pmchart
 uses a bizarre syntactic notation where \f(CW<inst>\fP and
 \f(CW<pat>\fP extend from the first non-white space character to the
-end of the input line.  For
+end of the input line.
+For
 .B pmchart
 configuration files these elements are either delimited by white
 space, or enclosed in quotes (").
 .RE
 .IP 7. 0.3i
 The optional \f(CBtab\fP directive can be used to create views with
-multiple charts which span multiple Tabs.  The syntax is as follows:
+multiple charts which span multiple Tabs.
+The syntax is as follows:
 .ES
 \f(CBtab\fP <label> [\f(CBhost\fP <host>] [\f(CBpoints\fP <points> [\f(CBsamples\fP <samples>]]
 .EE
@@ -627,24 +712,17 @@ All chart specifications following this keyword will be created
 on the new Tab, until the end of the configuration file or until
 another \f(CBtab\fP keyword is encountered.
 .SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 Of particular note, the
 .B $PCP_XCONFIRM_PROG
 setting is explicitly and unconditionally overridden by
-.B pmchart.
+.BR pmchart .
 This is set to the
 .BR pmconfirm (1),
 utility, in order that some popup dialogs (particularly in the
@@ -665,4 +743,4 @@ application.
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and
-.BR pmns (5).
+.BR PMNS (5).

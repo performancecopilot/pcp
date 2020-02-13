@@ -1,25 +1,33 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH GENPMDA 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3genpmda\f1 \- Performance Co-Pilot PMDA Generator
 .SH SYNOPSIS
-\f3genpmda\f1 [\f3\-d\f1] [\f3\-D\f1 \f2domain\f1] [\f3\-s\f1 \f2stdpmid\f1] [\f3\-t\f1 \f2topdir\f1] [\f3\-n\f1 \f2pmns\f1] [\f3\-o\f1 \f2dir\f1] [\f3\-v\f1] \f3\-i\f1 \f2IAM\f1 \f3\-c\f1 \f2config\f1
+\f3genpmda\f1
+[\f3\-dv\f1]
+[\f3\-D\f1 \f2domain\f1]
+[\f3\-n\f1 \f2pmns\f1]
+[\f3\-o\f1 \f2dir\f1]
+[\f3\-s\f1 \f2stdpmid\f1]
+[\f3\-t\f1 \f2topdir\f1]
+\f3\-c\f1 \f2config\f1
+\f3\-i\f1 \f2IAM\f1
 .SH DESCRIPTION
-.B Genpmda
+.B genpmda
 is a rapid application development tool for creating new
 Performance Metrics Domain Agents, see
 .BR PMDA (3).
@@ -28,10 +36,10 @@ the Performance Co-pilot (PCP) with new performance metrics
 without needing to understand the low level details of how PMDAs are
 constructed.
 .PP
-.B Genpmda
+.B genpmda
 reads a config file containing an augmented
 Performance Metrics Name Space, see
-.BR pmns (5),
+.BR PMNS (5),
 and automatically generates virtually all of the source code
 to implement a fully functional PMDA, including the Makefile,
 name space, support scripts for configuring the new PMDA,
@@ -48,40 +56,40 @@ is given below.
 .SH OPTIONS
 .TP 0
 .B "Required options:"
-.TP 7
+.TP 5
 .BI "\-c" " config"
 input \f2config\f1 file, see example below
-.TP 7
+.TP
 .BI "\-i" " IAM"
-pmda name \f2IAM\f1, should appear in \f2stdpmid\f1 or the \f3\-D\f1 option must be used to specify a \f2domain\f1.
+PMDA name \f2IAM\f1, should appear in \f2stdpmid\f1 or the \f3\-D\f1 option must be used to specify a \f2domain\f1.
 .TP 0
 .B "Other options:"
-.TP 7
+.TP 5
 .BI "\-d"
 generate an Install script for a daemon PMDA (default is DSO)
-.TP 7
-.BI "\-t" " topdir"
-use \f2topdir\f1 in generated GNUmakefile, default \f3../../..\f1
-.TP 7
-.BI "\-n" " pmns"
-use \f2pmns\f1 as root of the namespace (default matches \f3\-i\f1 flag)
-.TP 7
+.TP
 .BI "\-D" " domain"
 use \f2domain\f1 number in the generated \f3pmns\f1 and \f3domain.h\f1 (if \f3\-s\f1 is not given)
-.TP 7
-.BI "\-s" " stdpmid"
-path to \f2stdpmid\f1 (default \f3../../pmns/stdpmid\f1)
-.TP 7
+.TP
+.BI "\-n" " pmns"
+use \f2pmns\f1 as root of the namespace (default matches \f3\-i\f1 flag)
+.TP
 .BI "\-o" " dir"
 use \f2dir\f1 for generated source code, default \f3./generated\f1
-.TP 7
+.TP
+.BI "\-s" " stdpmid"
+path to \f2stdpmid\f1 (default \f3../../pmns/stdpmid\f1)
+.TP
+.BI "\-t" " topdir"
+use \f2topdir\f1 in generated GNUmakefile, default \f3../../..\f1
+.TP
 .BI "\-v"
 print verbose messages about what
 .B genpmda
 is doing.
 .PP
 Example:
-    Generate an "example" pmda using domain 99:
+    Generate an "example" PMDA using domain 99:
 .br
     \f3genpmda \-D 99 \-v \-i EXAMPLE \-c example.conf\f1
 
@@ -113,27 +121,19 @@ example.metric {
 
 .fi
 .sp 2
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
-.SH SEE ALSO
-.PP
-.BR PMDA (3),
-.BR pmns (5),
-.BR pmcd (1),
-.BR pcp.conf (5)
-and
-.BR pcp.env (5).
 .SH DIAGNOSTICS
 Many, but all are intended to be easily understood.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR PMDA (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR PMNS (5).

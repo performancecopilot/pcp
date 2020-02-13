@@ -3,7 +3,7 @@
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
 # Portions Copyright (c) 2016-2017 Fujitsu.
-# Portions Copyright (c) 2013-2018 Red Hat.
+# Portions Copyright (c) 2013-2019 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -65,6 +65,8 @@ derived devices such as nst0, nst0a, st0l, st0m and so forth. The derived
 devices all share the same statistics in the kernel as the st devices.
 @ 60.35 serial devices (aka ttys)
 @ 60.36 set of soft interrupts
+@ 60.37 pressure time averages for 10 seconds, 1 minute and 5 minutes
+
 
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
@@ -1757,6 +1759,8 @@ See also the kernel.uname.* metrics
 @ ipc.msg.perms access permissions (from msgctl(..,MSG_STAT,..))
 @ ipc.msg.msgsz used size in bytes (from msgctl(..,MSG_STAT,..))
 @ ipc.msg.messages number of messages currently queued (from msgctl(..,MSG_STAT,..))
+@ ipc.msg.last_send_pid last process to send on each message queue
+@ ipc.msg.last_recv_pid last process to recv on each message queue
 @ ipc.shm.max_segsz maximum shared segment size in bytes (from shmctl(..,IPC_INFO,..))
 @ ipc.shm.min_segsz minimum shared segment size in bytes (from shmctl(..,IPC_INFO,..))
 @ ipc.shm.max_seg maximum number of shared segments in system (from shmctl(..,IPC_INFO,..))
@@ -1774,6 +1778,10 @@ See also the kernel.uname.* metrics
 @ ipc.shm.segsz size of segment (bytes) (from shmctl(.., SHM_STAT, ..))
 @ ipc.shm.nattch no. of current attaches (from shmctl(.., SHM_STAT, ..))
 @ ipc.shm.status share memory segment status (from shmctl(.., SHM_STAT, ..))
+The string value may contain the space-separated values "dest" (a shared memory
+segment marked for destruction on last detach) and "locked" or the empty string.
+@ ipc.shm.creator_pid process creating each shared memory segment
+@ ipc.shm.last_access_pid process last accessing each shared memory segment
 
 @ vfs.files.count number of in-use file structures
 @ vfs.files.free number of available file structures
@@ -1822,3 +1830,46 @@ For writes it means not all data made it to tape.
 @ tty.serial.brk Number of breaks for current serial line.
 @ tty.serial.overrun Number of overrun errors for current serial line.
 @ tty.serial.irq IRQ number.
+
+@ kernel.all.pressure.cpu.some.avg Percentage of time runnable processes delayed for CPU resources
+Indicates the time in which at least some tasks stalled on CPU resources.
+The ratios are tracked as recent trends over ten second, one minute,
+and five minute windows.
+Pressure stall information (PSI) from /proc/pressure/cpu.
+@ kernel.all.pressure.cpu.some.total Total time processes stalled for CPU resources
+Indicates the time in which at least some tasks stalled on CPU resources.
+Pressure stall information (PSI) from /proc/pressure/cpu.
+
+@ kernel.all.pressure.memory.some.avg Percentage of time runnable processes delayed for memory resources
+Indicates the time in which at least some tasks stalled on memory resources.
+The ratios are tracked as recent trends over ten second, one minute,
+and five minute windows.
+Pressure stall information (PSI) from /proc/pressure/memory.
+@ kernel.all.pressure.memory.some.total Total time processes stalled for memory resources
+The CPU time for which at least some tasks stalled on memory resources.
+Pressure stall information (PSI) from /proc/pressure/memory.
+@ kernel.all.pressure.memory.full.avg Percentage of time all work is delayed from memory pressure
+Indicates the time in which all tasks stalled on memory resources.
+The ratios are tracked as recent trends over ten second, one minute,
+and five minute windows.
+Pressure stall information (PSI) from /proc/pressure/memory.
+@ kernel.all.pressure.memory.full.total Total time when all tasks stall on memory resources
+The CPU time for which all tasks stalled on memory resources.
+Pressure stall information (PSI) from /proc/pressure/memory.
+
+@ kernel.all.pressure.io.some.avg Percentage of time runnable processes delayed for IO resources
+Indicates the time in which at least some tasks stalled on IO resources.
+The ratios are tracked as recent trends over ten second, one minute,
+and five minute windows.
+Pressure stall information (PSI) from /proc/pressure/io.
+@ kernel.all.pressure.io.some.total Total time processes stalled for IO resources
+The CPU time in which at least some tasks stalled on IO resources.
+Pressure stall information (PSI) from /proc/pressure/io.
+@ kernel.all.pressure.io.full.avg Percentage of time all work is delayed from IO pressure
+Indicates the time in which all tasks stalled on IO resources.
+The ratios are tracked as recent trends over ten second, one minute,
+and five minute windows.
+Pressure stall information (PSI) from /proc/pressure/io.
+@ kernel.all.pressure.io.full.total Total time when all tasks stall on IO resources
+The CPU time in which all tasks stalled on IO resources.
+Pressure stall information (PSI) from /proc/pressure/io.

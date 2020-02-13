@@ -1,12 +1,12 @@
 '\"! tbl | mmdoc
 .\"
 .\" Copyright (c) 2014-2016 Red Hat.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -33,7 +33,6 @@ int pmGetContextOptions(int \fIctx\fP, pmOptions *\fIopts\fP);
 void pmUsageMessage(pmOptions *\fIopts\fP);
 .br
 void pmFreeOptions(pmOptions *\fIopts\fP);
-.fi
 .sp
 cc ... \-lpcp
 .ft 1
@@ -86,8 +85,8 @@ entries describing the arguments, as well as the enclosing
 .I pmOptions
 struct, which are defined as follows (internal fields are not
 presented, for brevity):
-.PP
 .sp 0.5v
+.PP
 .ft CW
 .nf
 .in +0.25i
@@ -408,7 +407,7 @@ variable of the same name).
 Some environment variables may be used as an alternative to the
 command line options.
 The use of these mechanisms is primarily
-for internal use by PCP tools. 
+for internal use by PCP tools.
 General users should choose the command line options as this provides
 a clearer indication of intent, makes debugging issues easier and
 avoids confusion over possible conflicts between the command line
@@ -478,7 +477,7 @@ $PCP_HOST	\-h	--host	T{
 .fi
 .hy 0
 .ad l
-metrics source is 
+metrics source is
 .BR pmcd (1)
 on a host
 T}

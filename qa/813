@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 813
-# Testing pmdapapi functionality with dbpmda
+# pmlogextract -x exerciser
 #
-# Copyright (c) 2014 Red Hat Inc.  All Rights Reserved.
+# Copyright (c) 2019 Ken McDonell.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -13,52 +13,57 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -d $PCP_PMDAS_DIR/papi ] || _notrun "PAPI PMDA is not installed"
-
-$sudo rm -rf $tmp.* $seq.full
-trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
-
-_filter_papi_errors()
+_cleanup()
 {
-    sed \
-	-e '/pfm_find_full_event(.*): event not found./d' \
-	-e '/events in papi_events.csv were not valid./d' \
-    # end
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
 }
 
 _filter()
 {
     sed \
-	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
-	-e 's/value [0-9][0-9]*/value NUMBER/' \
-	-e 's/value \".*\"/value STRING/' \
-	-e 's/0x[0-9a-f]*/ADDR/g' \
-	-e 's/[0-2][0-9]:00:00.000/TIME/' \
-	-e 's/126.0.[0-9][0-9]*/126.0.NUMBER/' \
-	-e "s,$tmp,TMP," \
-    | _filter_papi_errors
+	-e "s@$tmp@TMP@g" \
+    # end
 }
 
-# vars and checks
-papirootpmns=$PCP_PMDAS_DIR/papi/root
-pipepmda=$PCP_PMDAS_DIR/papi/pmdapapi
-
-# check if papi PMDA is going to work on this platform
-_check_papi
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-echo "=== Daemon PMDA papi test ==="
-$sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
-open pipe $pipepmda -d 126 -l $tmp.log
-getdesc on
-attr "username" "root"
-attr 11 "0"
-desc papi.system.TOT_INS
-desc papi.control.status
-desc papi.available.num_counters
-store papi.control.enable "TOT_INS"
-fetch papi.system.TOT_INS
-store papi.control.disable "TOT_INS"
-EOF
 
-cat $tmp.log >>$here/$seq.full
+echo "=== default behaviour with metadata changed ==="
+pmlogextract archives/20190628.04.03 archives/20190628.06.31 $tmp 2>&1 | _filter
+for suf in 0 meta index
+do
+    [ -f $tmp.$suf ] && echo "$tmp.$suf exists: this is not expected"
+done
+
+echo
+echo "=== same with -x ==="
+rm -f $tmp.0 $tmp.meta $tmp.index
+pmlogextract -x archives/20190628.04.03 archives/20190628.06.31 $tmp 2>&1 | _filter
+for suf in 0 meta index
+do
+    [ -f $tmp.$suf ] || echo "$tmp.$suf missing: this is not expected"
+done
+pmlogcheck $tmp
+pmdumplog -z $tmp mmv
+pmdumplog -d $tmp | grep mmv
+
+echo
+echo "=== same with -x and -c ==="
+rm -f $tmp.0 $tmp.meta $tmp.index
+echo "mmv" >$tmp.config
+pmlogextract -x -c $tmp.config archives/20190628.04.03 archives/20190628.06.31 $tmp 2>&1 | _filter
+for suf in 0 meta index
+do
+    [ -f $tmp.$suf ] || echo "$tmp.$suf missing: this is not expected"
+done
+pmlogcheck $tmp
+pmdumplog -z $tmp mmv
+pmdumplog -d $tmp | grep mmv
+
+# success, all done
+status=0
+exit

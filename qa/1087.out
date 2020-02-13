@@ -1,10 +1,6 @@
 QA output created by 1087
 
 === bind2 agent installation with test=bind-9.10.4-stats.xml ===
-Culling the Performance Metrics Name Space ...
-bind2 ... not found in Name Space, this is OK
-Updating the PMCD control file, and notifying PMCD ...
-Check bind2 metrics have gone away ... OK
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
@@ -1744,7 +1740,7 @@ Help: <empty entry>
 
 === remove bind2 agent ===
 Culling the Performance Metrics Name Space ...
-bind2 ... done
+bind2 ... not found in Name Space, this is OK
 Updating the PMCD control file, and notifying PMCD ...
 [...removing files...]
 Check bind2 metrics have gone away ... OK

@@ -1,0 +1,73 @@
+#
+# Common shell routines for testing pmdabpftrace
+#
+
+# get standard environment, filters and checks
+. ./common.python
+
+_pmdabpftrace_check()
+{
+    $python -c "from pcp import pmda" >/dev/null 2>&1 || _notrun "python pcp pmda module not installed"
+    $python -c "import sys; sys.exit(0 if sys.version_info >= (3, 6) else 1)" || _notrun "python 3.6+ is required for this PMDA"
+
+    which bpftrace > /dev/null || _notrun "bpftrace not installed"
+    bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null || _notrun "current bpftrace version doesn't support JSON output, please upgrade"
+
+    [ -f $PCP_PMDAS_DIR/bpftrace/pmdabpftrace.python ] || _notrun "bpftrace PMDA not installed"
+}
+
+_pmdabpftrace_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/bpftrace
+    $sudo ./Remove >/dev/null 2>&1
+    $sudo rm -f $PCP_VAR_DIR/config/pmda/151.*
+
+    # update config
+    $sudo cp $PCP_PMDAS_DIR/bpftrace/bpftrace.conf $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup
+    echo "pmdabpftrace config:" >> $here/$seq.full
+    tee -a $here/$seq.full > $tmp.bpftrace.conf
+    $sudo cp $tmp.bpftrace.conf $PCP_PMDAS_DIR/bpftrace/bpftrace.conf
+
+    echo
+    echo "=== bpftrace agent installation ==="
+    $sudo ./Install </dev/null > $tmp.bpftrace.out 2>&1
+    cat $tmp.bpftrace.out | _filter_pmda_install
+
+    echo
+}
+
+_pmdabpftrace_remove()
+{
+    cd $PCP_PMDAS_DIR/bpftrace
+
+    echo
+    echo "=== remove bpftrace agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+_pmdabpftrace_cleanup()
+{
+    cat $PCP_LOG_DIR/pmcd/bpftrace.log >> $here/$seq.full
+    if [ -f $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup ]; then
+        $sudo mv $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup $PCP_PMDAS_DIR/bpftrace/bpftrace.conf
+    fi
+    # note: _restore_auto_restart pmcd done in _cleanup_pmda()
+    _cleanup_pmda bpftrace
+}
+
+_pmdabpftrace_wait_for_value()
+{
+    value_regex=${2:-"value .*"}
+    for i in `seq 1 15`
+    do
+        pminfo -f $1 2>/dev/null | grep -q "$value_regex" && echo "found metric $1 matching \"$value_regex\"" && break
+        sleep 1
+    done
+    if [ $i -ge 15 ]; then
+        echo "Timeout while waiting for metric $1 to match \"$value_regex\", output:"
+        pminfo -f $1
+        exit
+    fi
+}

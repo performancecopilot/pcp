@@ -2,26 +2,24 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMCPP 1 "" "Performance Co-Pilot"
 .SH NAME
 \f3pmcpp\f1 \- simple preprocessor for the Performance Co-Pilot
-.\" literals use .B or \f3
-.\" arguments use .I or \f2
 .SH SYNOPSIS
 .B pmcpp
-[\f3\-Prs\f1]
+[\f3\-Prs?\f1]
 [\f3\-D\f1 \f2name\f1[=\f2value\f1] ...]
 [\f3\-I\f1 \f2dir\f1 ...]
 [\f2infile\f1]
@@ -180,28 +178,35 @@ replaced by the macro value, otherwise the word is unchanged.
 .PP
 There is generally one output line for each input line, although the line
 may be empty if the text has been stripped due to the handling of
-comments or conditional directives.  When there is a change in the input
+comments or conditional directives.
+When there is a change in the input
 stream, an additional output line is generated of the form:
 .PP
 .ti +10n
 # lineno "filename"
 .PP
-to indicate the 
+to indicate the
 .I following
 line of output corresponds to line number
 .I lineno
 of the input file
 .IR filename .
-.PP
-The
-.B \-P
-argument suppresses the generation of these linemarker lines.
-.PP
-The
-.B \-s
-argument changes the expected input style from C-like to shell-like
-(where # is a comment prefix).  This forces the following changes
-in
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-D\fR \fIname[=value]\fR, \fB\-\-define\fR=\fIname[=value]\fR
+Defines a macro with an optional value, as described earlier.
+.TP
+\fB\-I\fR \fIdir\fR, \fB\-\-include\fR=\fIdir\fR
+An additional directory to search for include files.
+.TP
+\fB\-P\fR
+Suppresses the generation of the linemarker lines, described above.
+.TP
+\fB\-s\fR, \fB\-\-shell\fR
+Changes the expected input style from C-like to shell-like
+(where # is a comment prefix).
+This forces the following changes in
 .B pmcpp
 behaviour:
 .PD 0
@@ -210,15 +215,15 @@ The control prefix character changes from
 .B #
 to
 .BR % ,
-so 
+so
 .B %include
 for example.
 .IP \(bu 3n
 No comment stripping is performed.
 .PD
-.PP
-To provide finer control of macro expansion, the
-.B \-r
+.TP
+\fB\-r\fR, \fB\-\-restrict\fR
+Provide finer control of macro expansion \- this
 option restricts macro substitution to words that match the patterns
 .BR # name
 or
@@ -289,8 +294,8 @@ _
 Input	Output
 _
 	# 1 "<stdin>"
-#define MYDOMAIN 27	
-	
+#define MYDOMAIN 27
+
 root {	root {
     foo   MYDOMAIN:0:0	   foo   27:0:0
 }	}
@@ -362,25 +367,20 @@ log mandatory on %cpu_freq {	log mandatory on 15 sec {
 }	}
 %endif
 .TE
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR cpp (1),
 .BR pmLoadASCIINameSpace (3),
 .BR pmLoadNameSpace (3),
-.BR pmns (5),
-.BR pcp.conf (5)
+.BR pcp.conf (5),
+.BR pcp.env (5)
 and
-.BR pcp.env (5).
+.BR PMNS (5).

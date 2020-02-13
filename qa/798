@@ -109,7 +109,6 @@ NR > 1	{ printf "[X+%d] inst: X+%d name: %s\n", NR-1, NR-1, $6 }'
 domain=62
 [ -f $PCP_VAR_DIR/config/pmda/$domain.0 ] && \
     _save_config $PCP_VAR_DIR/config/pmda/$domain.0
-$sudo rm -f $PCP_VAR_DIR/config/pmda/$domain.0
 script=pmdanfsclient.python
 cd "$PCP_PMDAS_DIR/nfsclient"
 
@@ -217,13 +216,90 @@ fetch nfsclient.ops.deallocate.queue
 fetch nfsclient.ops.deallocate.rtt
 fetch nfsclient.ops.deallocate.execute
 EOF
+
+# create a set of commands for dbpmda and different rpc versions
+cat >$tmp.rpccmds <<End-of-File
+open pipe $python_path $script
+# on some platforms this may take a while ...
+wait 2
+getdesc on
+fetch nfsclient.export
+fetch nfsclient.options.mountvers
+fetch nfsclient.options.mountproto
+fetch nfsclient.ops.copy.errors
+fetch nfsclient.ops.clone.errors
+fetch nfsclient.ops.layoutstats.errors
+fetch nfsclient.ops.fsid_present.errors
+fetch nfsclient.ops.deallocate.errors
+fetch nfsclient.ops.allocate.errors
+fetch nfsclient.ops.seek.errors
+fetch nfsclient.ops.test_stateid.errors
+fetch nfsclient.ops.secinfo_no_name.errors
+fetch nfsclient.ops.getdevicelist.errors
+fetch nfsclient.ops.free_stateid.errors
+fetch nfsclient.ops.destroy_clientid.errors
+fetch nfsclient.ops.bind_conn_to_session.errors
+fetch nfsclient.ops.statfs.errors
+fetch nfsclient.ops.setclientid_confirm.errors
+fetch nfsclient.ops.setclientid.errors
+fetch nfsclient.ops.setacl.errors
+fetch nfsclient.ops.server_caps.errors
+fetch nfsclient.ops.sequence.errors
+fetch nfsclient.ops.secinfo.errors
+fetch nfsclient.ops.renew.errors
+fetch nfsclient.ops.release_lockowner.errors
+fetch nfsclient.ops.reclaim_complete.errors
+fetch nfsclient.ops.open_noattr.errors
+fetch nfsclient.ops.open_downgrade.errors
+fetch nfsclient.ops.open_confirm.errors
+fetch nfsclient.ops.open.errors
+fetch nfsclient.ops.lookup_root.errors
+fetch nfsclient.ops.locku.errors
+fetch nfsclient.ops.lockt.errors
+fetch nfsclient.ops.lock.errors
+fetch nfsclient.ops.layoutreturn.errors
+fetch nfsclient.ops.layoutget.errors
+fetch nfsclient.ops.layoutcommit.errors
+fetch nfsclient.ops.get_lease_time.errors
+fetch nfsclient.ops.getdeviceinfo.errors
+fetch nfsclient.ops.getacl.errors
+fetch nfsclient.ops.fs_locations.errors
+fetch nfsclient.ops.exchange_id.errors
+fetch nfsclient.ops.destroy_session.errors
+fetch nfsclient.ops.delegreturn.errors
+fetch nfsclient.ops.create_session.errors
+fetch nfsclient.ops.close.errors
+fetch nfsclient.ops.rmdir.errors
+fetch nfsclient.ops.readdirplus.errors
+fetch nfsclient.ops.mknod.errors
+fetch nfsclient.ops.mkdir.errors
+fetch nfsclient.ops.fsstat.errors
+fetch nfsclient.ops.commit.errors
+fetch nfsclient.ops.pathconf.errors
+fetch nfsclient.ops.fsinfo.errors
+fetch nfsclient.ops.readdir.errors
+fetch nfsclient.ops.link.errors
+fetch nfsclient.ops.rename.errors
+fetch nfsclient.ops.remove.errors
+fetch nfsclient.ops.symlink.errors
+fetch nfsclient.ops.create.errors
+fetch nfsclient.ops.write.errors
+fetch nfsclient.ops.read.errors
+fetch nfsclient.ops.readlink.errors
+fetch nfsclient.ops.access.errors
+fetch nfsclient.ops.lookup.errors
+fetch nfsclient.ops.setattr.errors
+fetch nfsclient.ops.getattr.errors
+fetch nfsclient.ops.null.errors
+End-of-File
+
 # iterate over our pre-canned mountstats files
 test="$here/nfsclient"
 for file in $test/*.qa
 do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
-    $sudo rm -f nfsclient.log
+    $sudo rm -f nfsclient.log $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
 	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.cmds 2>&1 \
 	| _filter | _filter_indom
@@ -236,7 +312,7 @@ for file in $test/*3.qa
 do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
-    $sudo rm -f nfsclient.log
+    $sudo rm -f nfsclient.log $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
 	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.v3cmds 2>&1 \
 	| _filter | _filter_indom
@@ -249,9 +325,22 @@ for file in $test/*42.qa
 do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
-    $sudo rm -f nfsclient.log
+    $sudo rm -f nfsclient.log $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
 	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.42cmds 2>&1 \
+	| _filter | _filter_indom
+    pmsleep 0.5
+    _filter_pmda_log < nfsclient.log
+done
+
+# iterate over pre-canned rpcv1.[01] mountstat files
+for file in $test/*rpc-v*.qa
+do
+    export NFSCLIENT_MOUNTSTATS_PATH="$file"
+    echo === Test case: `basename $file`
+    $sudo rm -f nfsclient.log $PCP_VAR_DIR/config/pmda/$domain.0
+    $sudo TERM=ansi \
+	sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.rpccmds 2>&1 \
 	| _filter | _filter_indom
     pmsleep 0.5
     _filter_pmda_log < nfsclient.log

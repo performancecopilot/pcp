@@ -3,17 +3,17 @@
 .\"
 .\" Copyright (c) 2012-2018 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMFETCH 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -107,14 +107,14 @@ To accommodate metrics with multiple value instances, the
 field indicates how many values are returned for each requested PMID.
 The field
 .CW valfmt
-in the 
+in the
 .CW pmValueSet
 structure indicates if the values for this metric are stored
 .I insitu
-in the 
+in the
 .CW lval
 field, i.e. a 32-bit integer quantity (either int, unsigned int,
-long or unsigned long) or if the values are held in associated 
+long or unsigned long) or if the values are held in associated
 .CW pmValueBlock
 structures.
 The
@@ -176,27 +176,27 @@ and 32 bit integers).
 .PP
 If one value (i.e. associated with a particular instance)
 for a requested metric is `unavailable' (at the requested time),
-then there is no associated 
+then there is no associated
 .CW pmValue
-structure in the 
+structure in the
 .IR result .
 If there are no available values for a metric,
 then
 .CW numval
-will be zero and the associated 
+will be zero and the associated
 .CW pmValue[]
 instance will be empty (\c
 .CW valfmt
 is undefined in these circumstances,
-however 
+however
 .CW pmid
 will be correctly set to the PMID of the metric with no values).
 .PP
 As an extension of this protocol,
 if the Performance Metrics Collection System (PMCS)
-is able to provide a reason why no values are available 
+is able to provide a reason why no values are available
 for a particular metric,
-this is encoded as a standard error code in the corresponding 
+this is encoded as a standard error code in the corresponding
 .CW numval .
 Since the error codes are all negative,
 values for a requested metric are `unavailable' if
@@ -218,7 +218,7 @@ e.g. a disk is not installed, or off-line, or Oracle is not installed
 .IP "+"
 The metric is one for which an instance profile is required,
 and none was provided (there are a small number of metrics in this category,
-typically ones with very large, and/or very 
+typically ones with very large, and/or very
 dynamic instance domains, and/or expensive metric instantiation methods).
 .IP "+"
 If the current context involves fetching metrics from an archive log,
@@ -230,52 +230,52 @@ that indicate a temporal discontinuity in the time-series of
 metric values.
 .PP
 In general, we may not be able to differentiate between the various cases,
-and if differentiation is not possible, 
+and if differentiation is not possible,
 .CW numval
 will simply be zero.
 .PP
 The argument definition and the result specifications have been constructed
-to ensure that for each PMID in the requested 
+to ensure that for each PMID in the requested
 .I pmidlist
-there is exactly one 
+there is exactly one
 .CW pmValueSet
-in the 
+in the
 .IR result ,
 and further the PMIDs appear in exactly the same sequence in both
 .I pmidlist
-and 
+and
 .IR result .
-This makes the number 
-and order of entries in 
+This makes the number
+and order of entries in
 .I result
 completely deterministic,
 and greatly simplifies the application programming logic
-after the call to 
+after the call to
 .BR pmFetch .
 .PP
-The 
+The
 .I result
-structure returned by 
+structure returned by
 .B pmFetch
 is dynamically allocated using
-a combination of 
+a combination of
 .BR malloc (3)
 calls
 and specialized allocation strategies,
 and should be released when no longer required by calling
 .BR pmFreeResult (3)
-\- under no circumstances should 
+\- under no circumstances should
 .BR free (3)
 be called directly to release this space.
 .PP
 As common error conditions are encoded
-in the 
+in the
 .I result
 data structure, we'd expect only cataclysmic events
 to cause an error value to be returned.
 One example would be if the metrics source context was a remote host,
 and that host or the PMCS on that host became unreachable.
-Otherwise the value returned by the 
+Otherwise the value returned by the
 .B pmFetch
 function will be non-negative.
 .PP
@@ -335,7 +335,7 @@ See the
 .BR pmFetchGroup (3)
 API for a higher level method that insulates
 the user from the intricacies of looking up metric names and metadata,
-setting up instance profiles, 
+setting up instance profiles,
 .CW pmResult
 traversal, conversions, and scaling.
 .SH DIAGNOSTICS

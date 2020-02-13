@@ -30,7 +30,7 @@ do
     echo checking metric: $metric  >> $seq.full
 
     # check fetch (eg. RH BZ 858384)
-    pmval -s 1 @:$metric  >> $seq.full
+    $sudo_local_ctx pmval -s 1 @:$metric  >> $seq.full
     [ $? -ne 0 ] && echo "$metric failed (pmval)"
 
     # check instance identifiers (only, no fetch)

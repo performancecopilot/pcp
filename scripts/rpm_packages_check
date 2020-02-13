@@ -1,0 +1,26 @@
+#! /bin/sh
+#
+
+[ $# -ne 1 ] && echo "Compare Makepkgs with rpmbuild" && echo "Usage: $0 VERSION" && exit 1
+
+VER=$1
+[ ! -d pcp-$VER ] && echo No directory pcp-$VER. Run both Makepkgs and rpmbuild first && exit 1
+
+for rpm in pcp-$VER/build/rpm/*.rpm; do
+  echo $rpm | egrep -qs 'debuginfo|debugsource|src\.rpm' && continue
+  pkg=`basename $rpm`
+  basepkg=`echo $pkg | sed -e '/src.rpm/d' -e "s/-$VER.*.rpm//"`
+  fc_pkg=`echo ~/rpmbuild/RPMS/*/$basepkg-$VER-[0-9]*.fc*.*.rpm`
+  basefc_pkg=`basename $fc_pkg`
+  echo "== rpmdiff -iS -i5 -iD -iN -iL -iF -iT $pkg $basefc_pkg" >/tmp/$$
+  if [ ! -f "$fc_pkg" ]; then
+      cat /tmp/$$; echo "    WARNING: No rpmbuild package named $fc_pkg"
+      continue
+  fi
+  rpmdiff -iS -i5 -iD -iN -iL -iF -iT $rpm $fc_pkg | \
+  sed -e '/UG.*testsuite/d' -e '/REQUIRES/d' -e '/PROVIDES/d' -e '/.build-id/d' -e 's/^/    /' >/tmp/$$.rpmdiff
+  if [ -s /tmp/$$.rpmdiff ]; then
+      cat /tmp/$$ /tmp/$$.rpmdiff
+  fi
+  rm -f /tmp/$$ /tmp/$$.rpmdiff
+done

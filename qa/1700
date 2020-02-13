@@ -1,0 +1,77 @@
+#!/bin/sh
+# PCP QA Test No. 1700
+# Exercise the bpftrace PMDA - single values
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bpftrace
+
+_pmdabpftrace_check
+
+status=1       # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_prepare_pmda bpftrace
+trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+_filter_json()
+{
+    tee -a $here/$seq.full | \
+    sed -E -e 's,"script_id": .*,"script_id": "SCRIPT_ID",g' \
+           -e 's,"created_at": .*,"created_at": "CREATED_AT",g' \
+           -e 's,"last_accessed_at": .*,"last_accessed_at": "LAST_ACCESSED_AT",g' \
+           -e 's,"pid": .*,"pid": "PID",g' \
+           -e 's,"username": .*,"username": "USERNAME",g' \
+           -e 's,"data_bytes": .*,"data_bytes": DATA_BYTES,g'
+}
+
+_get_metric_value()
+{
+    tail -1 | sed -E -e 's/.*value "(.*)"/\1/'
+}
+
+# real QA test starts here
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+[authentication]
+enabled = false
+EOF
+
+echo "=== start bpftrace script ==="
+./src/store_and_fetch bpftrace.control.register "// name: testscript
+tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }" | pmjson | _filter_json
+
+echo "=== check metadata metrics ==="
+_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.data.root
+pminfo -dfmtT bpftrace.scripts.testscript.status
+pminfo -dfmtT bpftrace.scripts.testscript.pid | _value_filter_nonzero
+pminfo -dfmtT bpftrace.scripts.testscript.exit_code
+pminfo -dfmtT bpftrace.scripts.testscript.error
+pminfo -dfmtT bpftrace.scripts.testscript.probes | _value_filter_nonzero
+pminfo -dfmtT bpftrace.scripts.testscript.code
+pminfo -dfmtT bpftrace.scripts.testscript.data_bytes | _value_filter_nonzero
+
+echo "=== check data metrics ==="
+pminfo -dfmtT bpftrace.scripts.testscript.data.root | _value_filter_nonzero
+pminfo -dfmtT bpftrace.scripts.testscript.data.scalar
+
+echo "=== check general bpftrace metrics ==="
+pminfo -dfmtT bpftrace.info.tracepoints | _value_filter_any
+pminfo -dfmtT bpftrace.info.scripts
+
+echo "=== scripts as JSON ==="
+pminfo -dfmtT bpftrace.info.scripts_json | _value_filter_any
+pminfo -f bpftrace.info.scripts_json | _get_metric_value | pmjson | _filter_json
+
+
+_pmdabpftrace_remove
+
+# check if pmdabpftrace process manager was shutdown correctly
+cat $PCP_LOG_DIR/pmcd/bpftrace.log | grep -o "manager: shutdown pmdabpftrace process manager"
+
+
+status=0
+exit

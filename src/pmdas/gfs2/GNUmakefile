@@ -66,3 +66,6 @@ pmda.o ftrace.o latency.o:     latency.h
 pmda.o control.o:              control.h
 
 pmda.o sbstats.o worst_glock.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

@@ -8,19 +8,19 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# preliminary check
-#
-./getpmcdhosts -n 2 -L -a sample -v 'pcp>=2' -s IRIX64 2>$seq.notrun >/dev/null
-if [ $? -eq 1 ]; then
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit
-fi
-rm -f $seq.notrun
-
-# get standard filters
+# get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+# preliminary check
+#
+./getpmcdhosts -n 2 -L -a sample -v 'pcp>=2' -s IRIX64 >$tmp.tmp 2>&1
+if [ $? -ne 0 ]; then
+    _notrun "`cat $tmp.tmp`"
+    # NOTREACHED
+fi
+rm -f $seq.tmp
 
 rsignal=pmsignal
 status=1	# failure is the default!
@@ -97,7 +97,7 @@ cleanup()
 	unset PMCD_PORT
 	[ -f $oconfig ] && $sudo cp $oconfig $config
 	# _change_config pmlogger on
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
         _needclean=false
@@ -185,7 +185,7 @@ cat $config >>$seq.full
 PMCD_PORT=$port
 export PMCD_PORT
 
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 
@@ -281,7 +281,7 @@ echo >>$seq.full
 echo "=== Second pmcd.conf ===" >>$seq.full
 cat $config >>$seq.full
 
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd_from_remote $other1
 _wait_for_pmlogger
 ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me pmcd.control.debug 4096'"

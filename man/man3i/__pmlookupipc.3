@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMLOOKUPIPC 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -80,7 +80,7 @@ descriptor is not available (see the __pmDecodeError code for an example).
 .PP
 The
 .B __pmOverrideLastFd
-is an escape mechanism for use in those situations where the last PDU 
+is an escape mechanism for use in those situations where the last PDU
 fetch did not go through the usual channels (ie. __pmGetPDU), so as to ensure
 that the cached file descriptor is the correct file descriptor for the PDU
 which is currently being processed.  This will typically be used for archive

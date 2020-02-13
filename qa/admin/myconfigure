@@ -4,8 +4,41 @@
 # the goal is to make the workarea files
 # src/include/pcp.conf and src/include/builddefs match /etc/pcp.conf
 # and /usr/include/pcp/builddefs so "sudo make install"
-# works without surprises
+# works without surprises from anywhere in the source tree and
+# "make setup" works in the qa directory
 #
+
+_usage()
+{
+    echo >&2 "Usage: $0 [options]"
+    echo >&2 "Options:"
+    echo >&2 "-q	do configure, skip make and check steps"
+    exit 1
+}
+
+quick=false
+while getopts 'q?' p
+do
+    case "$p"
+    in
+	q)	quick=true
+		refresh=false
+		;;
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -ne 0 ] && _usage
+
+if [ ! -f VERSION.pcp ]
+then
+    echo "Arrgh: VERSION.pcp not found, you need to be at the root of the git tree"
+    exit 1
+fi
+
+. VERSION.pcp
+version=$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION
 
 target=`uname -s | sed -e 's/ .*//' | tr 'A-Z' 'a-z'`
 
@@ -63,10 +96,11 @@ then
     configopts="$configopts --with-make=$MAKE --with-tar=$TAR --with-zip=$ZIP"
 elif [ $target = darwin ]
 then
-    # On Mac OS X platforms, we install away from /usr/bin, /usr/lib
-    # and so on because of security requirements in recent versions.
+    # On Mac OS X platforms, we're using brew ...
     #
-    configopts="--prefix=/usr/local --sysconfdir=/etc --localstatedir=/var"
+    export CC=clang
+    export CXX=clang
+    configopts="`brew diy --version=$version --name=pcp` --without-manager --without-webapi"
 elif [ $target = netbsd ]
 then
     # Try to mimic where pkgsrc/pkgin place things
@@ -128,6 +162,11 @@ in
 	#
 	configopts="$configopts --without-optimization"
 	;;
+    bozo-vm|bozo-vm.localdomain)
+	# trying to build pmview here ...
+	#
+	configopts="$configopts --with-qt=debug --without-optimization"
+	;;
 esac
 
 echo "Using: $configtools configure $configopts ..."
@@ -140,26 +179,28 @@ then
     exit 1
 fi
 
-#debug# exit 0
-
 . src/include/pcp.conf
 
-# build some useful libs ...
-#
 here=`pwd`
-cd src/include
-$PCP_MAKE_PROG
-cd ../libpcp
-$PCP_MAKE_PROG
-cd ../libpcp_pmda
-$PCP_MAKE_PROG
-cd ../pmns
-$PCP_MAKE_PROG
-cd ../pmcpp
-$PCP_MAKE_PROG
-cd ../newhelp
-$PCP_MAKE_PROG
-cd $here
+
+# build critical stuff for "make setup" in qa directory
+#
+cd src/include; $PCP_MAKE_PROG; cd $here
+cd src/pmns; $PCP_MAKE_PROG; cd $here
+
+if $quick
+then
+    echo "== Configured pcp ($configopts)"
+else
+    # build some useful libs ...
+    #
+    cd src/libpcp; $PCP_MAKE_PROG; cd $here
+    cd src/libpcp_static; $PCP_MAKE_PROG; cd $here
+    cd src/libpcp_pmda; $PCP_MAKE_PROG; cd $here
+    cd src/libpcp_qmc; $PCP_MAKE_PROG; cd $here
+    cd src/pmcpp; $PCP_MAKE_PROG; cd $here
+    cd src/newhelp; $PCP_MAKE_PROG; cd $here
+fi
 
 # check expected files are the same
 #

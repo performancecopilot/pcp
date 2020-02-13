@@ -10,10 +10,14 @@ echo "QA output created by $seq"
 
 . ./common.python
 
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 $python -c "from collections import OrderedDict" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
 
 which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+_need_metric kernel.all.sysfork
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
@@ -21,10 +25,12 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 A=$here/archives/20130706
 
+# meesages would appear on stderr, if at all ...
 echo expect no broken pipe exceptions or Exception Ignored errors
-pmrep -a $A -o csv -r -u -S @10:00 kernel.all.sysfork | head -0
-pmrep -a $A -F $tmp.csv -o csv -r -u -S @10:00 kernel.all.sysfork | head -0
-pmrep -a $A -u -S @10:00 kernel.all.sysfork | head -0
+
+pmrep -a $A -o csv -r -u -S @10:00 kernel.all.sysfork >>$here/$seq.full
+pmrep -a $A -F $tmp.csv -o csv -r -u -S @10:00 kernel.all.sysfork >>$here/$seq.full
+pmrep -a $A -u -S @10:00 kernel.all.sysfork >>$here/$seq.full
 
 # success, all done
 status=0

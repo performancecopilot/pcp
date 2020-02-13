@@ -12,6 +12,7 @@ Logs
 .gitcensus
 .bintrayrc
 .bintrayrc.*
+.vscode
 .qmake.stash
 autom4te.cache
 config.status

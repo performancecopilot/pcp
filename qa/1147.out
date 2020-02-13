@@ -1,0 +1,9 @@
+QA output created by 1147
+== 1 ===
+_service: using systemctl start pmlogger.service
+== 2 ===
+_service: using systemctl start pmlogger.service
+== 3 ===
+_service: using systemctl start pmlogger.service
+== 4 ===
+_service: using systemctl start pmlogger.service

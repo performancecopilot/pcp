@@ -40,7 +40,15 @@ _filter_labels()
 	-e 's/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/[TIMESTAMP]/' \
 	-e 's/Context labels ([0-9][0-9]* bytes)/Context labels (N bytes)/' \
 	-e '/.*name.* : value.*\[context]$/d' \
-    #end
+    | $PCP_AWK_PROG '
+	BEGIN { skip=0}
+	    / *Context labels/ { skip=1 }
+	    / *Domain 29 labels/ { skip=0 }
+	    { if (skip >= 2) { printf("        [%d] CONTEXT LABEL\n", skip-2) }
+              else {print}
+              if (skip >= 1) { skip++ }
+            }'
+    # context label sizes (and hence offsets) are non-deterministic, so filtered
 }
 
 status=1	# failure is the default!
@@ -80,8 +88,8 @@ EOF
 pmlogger -c $tmp.config -T 0.25sec -l $tmp.log -t 0.1sec $tmp
 
 echo
-echo "=== Dump labels"
-pmdumplog -e $tmp | _filter_labels
+echo "=== Dump labels" | tee -a $here/$seq.full
+pmdumplog -e $tmp | tee -a $here/$seq.full | _filter_labels
 
 echo
 echo "=== Dump help text"

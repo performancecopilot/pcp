@@ -1,16 +1,8 @@
+-  add labels support [-m/-M]
+
 -  comment, clean up, optimize code
 -  drop RHEL 6 / Python 2.6 support around RHEL 6 EOL (ca. 2020)
 -  drop RHEL 7 / Python 2.x support around RHEL 7 EOL (ca. 2024)
-
--  add labels support [-m/-M]
-
--  pmvis (or pmvisual) - report archive (or even live) metrics
-   visually as diagrams / histograms on text based terminals -
-   & pmrep style output with top-like (static) fields/columns.
-
--  pmdiag (or pmdoctor) - inspect archives, report anomalies,
-   information, offer suggestions, send reports, build on top
-   of pmie/pmrep/pmlogsummary, allow using for automation.
 
 -  includedir config file support (?)
 -  copy directive conf file support (?)
@@ -18,11 +10,10 @@
 
 -----
 
-In use / reserved cmd line options:
-012389AaBbCcDdEeFfGgHhIiJjKkLlNnOoPpQqRrSsTtUuVvWwXxYyZz
+In use cmd line options:
+0123456789AaBbCcDdEeFfGgHhIiJjKkLlNnOoPpQqRrSsTtUuVvWwXxYyZz
 
-Tentatively planned:
+Reserved:
 Mm
 
 Available:
-4567

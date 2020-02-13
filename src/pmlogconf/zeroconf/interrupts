@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident   all available interrupts per CPU
+probe   kernel.percpu.interrupts.LOC values ? include : exclude
+delta   10 minutes
+        kernel.percpu.interrupts

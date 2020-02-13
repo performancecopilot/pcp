@@ -1,0 +1,21 @@
+QA output created by 1695
+=== checking metric scrape operation ===
+=== checking one client making multiple requests ===
+=== checking metric fetch operation ===
+=== check pmproxy is running ===
+pmproxy check passed
+=== valgrind stdout ===
+=== valgrind stderr ===
+Log for pmproxy on HOST started DATE
+
+pmproxy: PID = PID
+pmproxy request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD unix UNIX_DOMAIN_SOCKET
+ok FD PORT inet INADDR_ANY
+ok FD PORT ipv6 INADDR_ANY
+[DATE] pmproxy(PID) Info: pmproxy caught SIGTERM
+[DATE] pmproxy(PID) Info: pmproxy Shutdown
+
+Log finished DATE

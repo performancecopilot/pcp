@@ -56,6 +56,7 @@
 
 #include "pmapi.h"
 #include "libpcp.h"
+#include "fault.h"
 #include "deprecated.h"
 #include "pmdbg.h"
 #include "internal.h"
@@ -755,7 +756,7 @@ dump_valueset(__pmContext *ctxp, FILE *f, pmValueSet *vsp)
 	return;
     }
     if (__pmGetInternalState() == PM_STATE_PMCS ||
-	pmLookupDesc_ctx(ctxp, vsp->pmid, &desc) < 0) {
+	pmLookupDesc_ctx(ctxp, PM_NOT_LOCKED, vsp->pmid, &desc) < 0) {
 	/* don't know, so punt on the most common cases */
 	desc.indom = PM_INDOM_NULL;
 	have_desc = 0;
@@ -1641,12 +1642,14 @@ vpmprintf(const char *fmt, va_list arg)
     PM_LOCK(util_lock);
     if (msgbuf == NULL) {
 	/* initial 4K allocation */
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	msgbuf = malloc(MSGCHUNK);
 	if (msgbuf == NULL) {
+	    PM_UNLOCK(util_lock);
 	    pmNoMem("vmprintf malloc", MSGCHUNK, PM_RECOV_ERR);
 	    vfprintf(stderr, fmt, arg);
+	    fputc('\n', stderr);
 	    fflush(stderr);
-	    PM_UNLOCK(util_lock);
 	    return -ENOMEM;
 	}
 	msgbuflen = MSGCHUNK;
@@ -1664,22 +1667,28 @@ vpmprintf(const char *fmt, va_list arg)
 	    va_copy(arg, save_arg);	/* will need to call vsnprintf() again */
 	}
 	msgbuflen += MSGCHUNK;
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	msgbuf_tmp = realloc(msgbuf, msgbuflen);
 	if (msgbuf_tmp == NULL) {
-	    pmNoMem("vmprintf realloc", msgbuflen, PM_RECOV_ERR);
+	    int		msgbuflen_tmp = msgbuflen;
+	    msgbuf[msgbuflen - MSGCHUNK] = '\0';
 	    fprintf(stderr, "%s", msgbuf);
 	    vfprintf(stderr, fmt, arg);
+	    fputc('\n', stderr);
 	    fflush(stderr);
 	    free(msgbuf);
 	    msgbuf = NULL;
 	    msgbuflen = 0;
 	    msgsize = 0;
 	    PM_UNLOCK(util_lock);
+	    pmNoMem("vmprintf realloc", msgbuflen_tmp, PM_RECOV_ERR);
+	    va_end(save_arg);
 	    return -ENOMEM;
 	}
 	msgbuf = msgbuf_tmp;
 	avail = msgbuflen - msgsize - 1;
     }
+    va_end(save_arg);
     msgsize += bytes;
 
     PM_UNLOCK(util_lock);
@@ -1850,7 +1859,7 @@ __pmSetClientId(const char *id)
     if (ctxp == NULL)
 	return PM_ERR_NOCONTEXT;
 
-    if ((sts = pmLookupName_ctx(ctxp, 1, &name, &pmid)) < 0) {
+    if ((sts = pmLookupName_ctx(ctxp, PM_NOT_LOCKED, 1, &name, &pmid)) < 0) {
 	PM_UNLOCK(ctxp->c_lock);
 	return sts;
     }
@@ -2515,16 +2524,18 @@ __pmProcessExists(pid_t pid)
     return (len > 0);
 }
 #elif defined(IS_FREEBSD) || defined(IS_OPENBSD)
+#include <errno.h>
 int
 __pmProcessExists(pid_t pid)
 {
     /*
-     * kill(.., 0) returns -1 if the process exists.
+     * kill(.., 0) -1 and errno == ESRCH if the process does not exist
      */
-    if (kill(pid, 0) == -1)
-	return 1;
-    else
+    errno = 0;
+    if (kill(pid, 0) == -1 && errno == ESRCH)
 	return 0;
+    else
+	return 1;
 }
 #elif !defined(IS_MINGW)
 #define PROCFS			"/proc"
@@ -2548,6 +2559,34 @@ __pmProcessTerminate(pid_t pid, int force)
 !bozo!
 #endif
 
+#if defined(IS_DARWIN)
+#define sbrk hack_sbrk
+/*
+ * cheap and nasty sbrk(0) for Mac OS X where sbrk() is deprecated
+ */
+void *
+hack_sbrk(int incr)
+{
+    static size_t	get[] = { 4096, 2000, 900, 2000, 4096 };
+    static int		pick = 0;
+    static void		*highwater = NULL;
+    void		*try;
+    if (incr != 0)
+	return NULL;
+
+    try = malloc(get[pick]);
+    if (try > highwater)
+	highwater = try;
+    free(try);
+
+    pick++;
+    if (pick == sizeof(get) / sizeof(get[0]))
+	pick = 0;
+
+    return highwater;
+}
+#endif
+
 #if defined(HAVE_SBRK)
 int
 __pmProcessDataSize(unsigned long *size)
@@ -2563,9 +2602,13 @@ __pmProcessDataSize(unsigned long *size)
     }
     return 0;
 }
-#elif !defined(IS_MINGW)
+#elif !defined(IS_MINGW) && !defined(IS_DARWIN)
 #warning "Platform does not define a process datasize interface?"
 int __pmProcessDataSize(unsigned long *) { return -1; }
+#endif
+
+#if defined(IS_DARWIN)
+#undef sbrk
 #endif
 
 #if !defined(IS_MINGW)

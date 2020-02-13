@@ -10,23 +10,16 @@
 #include <pcp/pmapi.h>
 #include "libpcp.h"
 
-#define SEMAPHORES /* comment this to NOT test semaphores */
-
 #define IPC_N 4
 #define NSEMS 8
 
 int shm_list[IPC_N], shm_n=0, shmindom;
 int sem_list[IPC_N * NSEMS], sem_n=0, semindom;
-int semset_list[IPC_N], semset_n = 0, semsetindom;
 
 static char *metrics[] = {
     "ipc.shm.nattch",
     "ipc.shm.segsz",
-#ifdef SEMAPHORES
     "ipc.sem.nsems",
-    "ipc.sem.ncnt",
-    "ipc.sem.zcnt",
-#endif
 NULL };
 
 static int npmids;
@@ -94,7 +87,7 @@ main(int argc, char **argv)
     key_t	key;
     int		sts;
     int		errflag = 0;
-    char	*host = "localhost";
+    char	*host = "local:";
     char	*namespace = PM_NS_DEFAULT;
     int		iterations = 1;
     int		iter;
@@ -176,24 +169,14 @@ USAGE:
     }
     shmindom = desc.indom;
 
-#ifdef SEMAPHORES
     if ((e = pmLookupDesc(pmids[2], &desc)) < 0) {
         printf("pmLookupDesc: %s\n", pmErrStr(e));
         exit(1);
     }
-    semsetindom = desc.indom;
-    if ((e = pmLookupDesc(pmids[3], &desc)) < 0) {
-        printf("pmLookupDesc: %s\n", pmErrStr(e));
-        exit(1);
-    }
     semindom = desc.indom;
-#endif
 
     fprintf(stderr, "shmindom=%s", pmInDomStr(shmindom));
-#ifdef SEMAPHORES
-    fprintf(stderr, " semsetindom=%s", pmInDomStr(semsetindom));
-    fprintf(stderr, " semindom=%s", pmInDomStr(semindom));
-#endif
+    fprintf(stderr, "semindom=%s", pmInDomStr(semindom));
     fputc('\n', stderr);
 
     key = (key_t)0xabcd0000;
@@ -207,10 +190,7 @@ USAGE:
 	    goto CLEANUP;
 	}
 
-#ifdef SEMAPHORES
 	if ((id = semget(key++, NSEMS, IPC_CREAT|IPC_EXCL|0777)) >= 0) {
-	    semset_list[semset_n++] = id;
-	    fprintf(stderr, "SEMSET_%d\n", id);
 	    for (j=0; j < NSEMS; j++) {
 		sem_list[sem_n++] = (id << 16) | j;
 		fprintf(stderr, "SEMID_%d.%d ", id, j);
@@ -221,18 +201,13 @@ USAGE:
 	    perror("semget");
 	    goto CLEANUP;
 	}
-#endif
     }
 
     pmDelProfile(shmindom, 0, NULL);
     pmAddProfile(shmindom, shm_n, shm_list);
 
-#ifdef SEMAPHORES
-    pmDelProfile(semsetindom, 0, NULL);
-    pmAddProfile(semsetindom, semset_n, semset_list);
     pmDelProfile(semindom, 0, NULL);
     pmAddProfile(semindom, sem_n, sem_list);
-#endif
 
     fprintf(stderr, "Single Metrics ...\n");
     for (j = 0; j < npmids; j++) {
@@ -263,11 +238,7 @@ USAGE:
 
     /* now test the err conditions */
     _force_err(shmindom, shm_list[0], pmids[0]);
-
-#ifdef SEMAPHORES
-    _force_err(semsetindom, semset_list[0], pmids[2]);
-    _force_err(semindom, sem_list[0], pmids[3]);
-#endif
+    _force_err(semindom, sem_list[0], pmids[2]);
 
 CLEANUP:
     for (i=0; i < shm_n; i++) {
@@ -275,13 +246,11 @@ CLEANUP:
 	    if (shmctl(shm_list[i], IPC_RMID, 0) < 0)
 		perror("shmctl(IPC_RMID)");
     }
-#ifdef SEMAPHORES
     for (i=0; i < sem_n; i += NSEMS) {
 	if (sem_list[i] >= 0)
 	    if (semctl(sem_list[i] >> 16, 0, IPC_RMID) < 0)
 		perror("semctl(IPC_RMID)");
     }
-#endif
 
     exit(0);
 }

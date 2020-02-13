@@ -17,13 +17,13 @@ echo "QA output created by $seq"
 eval `./getpmcdhosts -n 2 -L | sed -e 's/ / other2=/' -e 's/^/other1=/'`
 if [ -z "$other1" ]
 then
-    echo "Cannot find first remote host running pmcd" >$seq.notrun
-    exit
+    _notrun "Cannot find first remote host running pmcd"
+    # NOTREACHED
 fi
 if [ -z "$other2" ]
 then
-    echo "Cannot find second remote host running pmcd" >$seq.notrun
-    exit
+    _notrun "Cannot find second remote host running pmcd"
+    # NOTREACHED
 fi
 echo "other1=$other1" >>$here/$seq.full
 echo "other2=$other2" >>$here/$seq.full
@@ -107,7 +107,7 @@ fi
 # real QA test starts here
 $sudo rm -f core* $seq.core*
 
-_service pmcd stop | _filter_pcp_start
+_service pmcd stop 2>&1 | _filter_pcp_start
 _service pmlogger stop | _filter_pcp_start
 _wait_pmcd_end
 
@@ -135,7 +135,7 @@ pmie -t 1sec >$tmp.out 2>$tmp.err <$tmp.in &
 pmie_pid=$!
 
 sleep 5
-_service pmcd start | _filter_pcp_start
+_service pmcd start 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _service pmlogger start | _filter_pcp_start
 _wait_for_pmlogger
@@ -186,9 +186,9 @@ if $have_journalctl
 then
     # be careful ... --boot not supported in all versions, -l not
     # supported in all versions
-    $sudo journalctl -b --full | tail -100 >$tmp.syslog
+    $sudo journalctl -b --full | tail -200 >$tmp.syslog
 else
-    $sudo tail -100 $SYSLOG >$tmp.syslog
+    $sudo tail -200 $SYSLOG >$tmp.syslog
 fi
 sed <$tmp.syslog -n \
     -e '/message repeated [1-9][0-9]* times/d' \

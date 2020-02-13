@@ -20,6 +20,10 @@
 #include "proc_runq.h"
 #include "hotproc.h"
 
+/*
+ * Maximim length of psargs and proc instance name.
+ */
+#define PROC_PID_STAT_CMD_MAXLEN	4096
 
 /*
  * /proc/<pid>/stat metrics
@@ -252,7 +256,8 @@ enum {
 typedef struct {
     int			id;	/* pid, hash key and internal instance id */
     int			flags;	/* combinations of PROC_PID_FLAG_* values */
-    char		*name;	/* external instance name (<pid> cmdline) */
+    char		*name;	/* full command line and args */
+    char		*instname; /* external instance name (truncated <pid> cmdline) */
 
     /* /proc/<pid>/stat cluster */
     int			stat_buflen;

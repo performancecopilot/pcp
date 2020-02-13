@@ -22,6 +22,12 @@ trap "rm -f $tmp.* /tmp/func?.out; exit \$status" 0 1 2 3 15
 # collect stderr as we go
 exec 2>> $seq.full
 
+openfiles=`ulimit -n`
+if [ "$openfiles" -lt 1024 ]
+then
+    ulimit -n 1024
+fi
+
 _filter_ncpu()
 {
   tee -a $seq.full | sed -e 's, [0-9]*$, NUMBER,'
@@ -41,6 +47,8 @@ _filter_ncpu()
 # 192.0.2.22 -51 (Network is unreachable, Mac OS X)
 # and
 # 192.0.2.22 -65 (No route to host, Mac OS X)
+# and
+# 192.0.2.22 -61 (Connection refused. *BSD)
 # so treat 'em as equivalent here ...
 #
 _filter_connect_fail()
@@ -53,6 +61,7 @@ _filter_connect_fail()
 	-e '/^192\..*-60$/s/-60/NETERROR/' \
 	-e '/^192\..*-51$/s/-51/NETERROR/' \
 	-e '/^192\..*-65$/s/-65/NETERROR/' \
+	-e '/^192\..*-61$/s/-61/NETERROR/' \
     # end
 }
 

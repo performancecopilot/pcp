@@ -84,7 +84,7 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 		break;
     }
     else if (type == PM_CONTEXT_ARCHIVE) {
-	if (source == QString::null) {
+	if (source == QString()) {
 	    pmprintf("%s: Error: Archive context requires archive path\n",
 			 pmGetProgname());
 	    return PM_ERR_NOCONTEXT;
@@ -97,7 +97,7 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 	}
     }
     else {
-	if (source == QString::null) {
+	if (source == QString()) {
 	    if (!defaultDefined()) {
 		createLocalContext();
 		if (!defaultDefined()) {

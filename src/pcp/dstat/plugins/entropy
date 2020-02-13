@@ -1,0 +1,7 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[entropy]
+avail = kernel.all.entropy.avail
+pool = kernel.all.entropy.poolsize

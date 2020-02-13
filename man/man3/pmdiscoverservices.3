@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2014 Red Hat.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDISCOVERSERVICES 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -52,7 +52,7 @@ and using the type of discovery optionally specified in
 returns, via
 .IR urls ,
 a list of URLs representing the services discovered on the network.
-.PP 
+.PP
 The internal function
 .B __pmDiscoverServicesWithOptions
 performs the same function and adds arguments for global options and a mechanism
@@ -69,21 +69,19 @@ pmDiscoverServices(\fIservice\fP, \fImechanism\fP, \fIurls\fP)
 is equivalent to calling
 .sp
 __pmDiscoverServicesWithOptions(\fIservice\fP, \fImechanism\fP, NULL, NULL, \fIurls\fP);
-.PP 
+.PP
 .I service
 specifies the PCP service to be discovered.
 Currently supported services are
-.B PM_SERVER_SERVICE_SPEC,
-.B PM_PROXY_SERVICE_SPEC
+.B PM_SERVER_SERVICE_SPEC
 and
-.B PM_WEBD_SERVICE_SPEC,
+.B PM_PROXY_SERVICE_SPEC
 which search for
 .BR pmcd (1),
-.BR pmproxy (1),
 and
-.BR pmwebd (1),
+.BR pmproxy (1)
 servers respectively.
-.PP 
+.PP
 .IR mechanism
 specifies the style of discovery to be used.
 .PP
@@ -138,7 +136,7 @@ The default is 0.02 seconds (20 milliseconds).
 .PP
 .IR mechanism
 may also be NULL, which means to use all available discovery mechanisms.
-.PP 
+.PP
 For
 .B __pmDiscoverServicesWithOptions,
 .IR optionsString
@@ -157,7 +155,7 @@ before timing out.
 .PP
 .IR optionsString
 may also be NULL, which means that no global options are specified.
-.PP 
+.PP
 For
 .B __pmDiscoverServicesWithOptions,
 .IR flags
@@ -177,7 +175,7 @@ to interrupt the service discovery process.
 .PP
 .IR flags
 may also be NULL, which indicates that no flags are set.
-.PP 
+.PP
 .B pmDiscoverServices
 and
 .B __pmDiscoverServicesWithOptions
@@ -232,9 +230,8 @@ using the
 function.
 .SH SEE ALSO
 .BR pmcd (1),
-.BR pmproxy (1),
-.BR pmwebd (1),
 .BR pmfind (1),
+.BR pmproxy (1),
 .BR pcp-kube-pods (1),
 .BR PMAPI (3),
 .BR pmGetConfig (3),

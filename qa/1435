@@ -1,0 +1,61 @@
+#!/bin/sh
+# PCP QA Test No. 1434
+# Exercise elasticsearch PMDA ./Upgrade script.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/elasticsearch ] || _notrun "elasticsearch PMDA is not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e "s,$PCP_PYTHON_PROG,python,g" \
+    #end
+}
+
+# upgrade an existing elasticsearch install (no change)
+cat >$tmp.pmcd.conf.1 <<EOF
+elasticsearch 108 pipe binary $PCP_PYTHON_PROG $PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.python
+EOF
+
+# test upgrade to a down-rev perl elasticsearch install
+cat >$tmp.pmcd.conf.2 <<EOF
+elasticsearch 108 pipe binary perl $PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.pl
+EOF
+
+# real QA test starts here
+cd $PCP_PMDAS_DIR/elasticsearch
+
+cases=`ls -1 $tmp.pmcd.conf.* | sed -e 's/.*pmcd.conf.//g' | LC_COLLATE=POSIX sort`
+for case in $cases
+do
+    config="$tmp.pmcd.conf.$case"
+    export PCP_PMCDCONF_PATH=$config
+    echo "== Upgrade test case $case"
+    ./Upgrade
+    cat $config | _filter
+done
+
+# success, all done
+status=0
+exit

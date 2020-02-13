@@ -2,17 +2,17 @@
 .\"
 .\" Copyright (c) 2014 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDAGETOPTIONS 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -66,7 +66,7 @@ and
 will trap are:
 .TP 15
 .BI \-D debugspec
-Set the 
+Set the
 .BR PMAPI (3)
 debugging options to
 .IR debugspec ,
@@ -75,7 +75,7 @@ as described in
 Used for controlling levels of trace output while debugging.
 .TP
 .BI \-d domain
-Set the 
+Set the
 .I domain
 number of this agent.
 .TP
@@ -88,24 +88,24 @@ or
 .BR pmdaDaemon (3).
 .TP
 .BI \-i port
-Expect PMCD to connect on inet 
+Expect PMCD to connect on inet
 .I port
 (number or name).
 .TP
 .BI \-6 port
-Expect PMCD to connect on ipv6 
+Expect PMCD to connect on ipv6
 .I port
 (number or name).
 .TP
 .BI \-l logfile
-Redirect diagnostics and trace output to 
+Redirect diagnostics and trace output to
 .IR logfile .
 .TP
 .B \-p
 Expect PMCD to supply stdin/stdout pipe.
 .TP
 .BI \-u socket
-Expect PMCD to connect on unix domain 
+Expect PMCD to connect on unix domain
 .IR socket .
 .PP
 The
@@ -118,13 +118,13 @@ parameter:
 .BI \-U username
 Set the user account name under which the PMDA should execute.
 .PP
-Only one of 
+Only one of
 .BR \-i ,
 .BR \-6 ,
-.BR \-p 
+.BR \-p
 and
 .B \-u
-may be specified.  If none of these three options is given, a pipe 
+may be specified.  If none of these three options is given, a pipe
 .RB ( \-p )
 is assumed.  When these options are encountered by
 .BR pmdaGetOpt ,
@@ -165,8 +165,8 @@ structure will contain a non-zero error count.
 takes a pointer to an int,
 .IR err ,
 which is used as an error count.  This variable should be initialized to zero
-before 
-.B pmdaGetOpt 
+before
+.B pmdaGetOpt
 is first called, and tested when
 .B pmdaGetOpt
 returns EOF.
@@ -199,10 +199,10 @@ Both
 .B pmdaGetOptions
 and
 .B pmdaGetOpt
-will display the same error messages as 
+will display the same error messages as
 .BR getopt .
 .SH CAVEAT
-The options 
+The options
 .BR \-D ,
 .BR \-d ,
 .BR \-i ,
@@ -218,11 +218,11 @@ interface, which operates in the same way as described for the
 .BR pmGetOptions (3)
 interface used by PMAPI client tools.
 .PP
-The PMDA must be using 
-.B PMDA_INTERFACE_2 
-or later, as specified in the call to 
+The PMDA must be using
+.B PMDA_INTERFACE_2
+or later, as specified in the call to
 .BR pmdaDSO (3)
-or 
+or
 .BR pmdaDaemon (3).
 .SH SEE ALSO
 .BR pmdbg (1),

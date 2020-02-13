@@ -2,23 +2,21 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMNS 5 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmns\f1 \- the performance metrics name space
-.\" literals use .B or \f3
-.\" arguments use .I or \f2
+\f3PMNS\f1 \- the performance metrics name space
 .SH SYNOPSIS
 .I $PCP_VAR_DIR/pmns
 .SH DESCRIPTION
@@ -56,18 +54,18 @@ For an example of this, see
 the PCP Tutorial in
 .IR $PCP_DEMOS_DIR/Tutorial .
 .PP
-Although an application can call 
+Although an application can call
 .BR pmLoadNameSpace (3),
-normally this is only done directly for the 
+normally this is only done directly for the
 .B \-n
 command line option where an explicit root PMNS file is specified.
-Since PCP version 2 uses a distributed PMNS (see below), 
+Since PCP version 2 uses a distributed PMNS (see below),
 an application can extract PMNS information from a
 host's PMCD or an archive.  If the PMNS source
 is a version 1 archive (see
 .BR PCPIntro (1)),
-however, 
-then the local PMNS will be loaded using the path specified by the 
+however,
+then the local PMNS will be loaded using the path specified by the
 environment variable
 .BR PMNS_DEFAULT .
 .SH DISTRIBUTED PMNS
@@ -88,11 +86,11 @@ C-style comments
 .IP + 3n
 .CW #include
 directives
-.IP + 3n 
+.IP + 3n
 .CW #define
 directives and macro substitution
-.IP + 3n 
-conditional processing via 
+.IP + 3n
+conditional processing via
 .CW #ifdef
 \&...
 .CW #endif ,
@@ -131,7 +129,7 @@ Where
 is the full pathname from the root of the PMNS to this non-leaf node,
 with each
 component in the pathname separated by a ``.''.
-The root node for the PMNS must have the special 
+The root node for the PMNS must have the special
 name ``root'', but the common prefix ``root.'' must be omitted from
 all pathnames.
 Each component in the pathname must begin with an alphabetic character,

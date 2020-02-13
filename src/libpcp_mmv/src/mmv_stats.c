@@ -42,8 +42,11 @@ mmv_stats_path(const char *fname, char *fullpath, size_t pathlen)
 {
     int sep = pmPathSeparator();
 
-    pmsprintf(fullpath, pathlen, "%s%c" "mmv" "%c%s",
+    if (fname[0] != sep)
+	pmsprintf(fullpath, pathlen, "%s%c" "mmv" "%c%s",
 		pmGetConfig("PCP_TMP_DIR"), sep, sep, fname);
+    else /* full path given - use it directly */
+	pmsprintf(fullpath, pathlen, "%s", fname);
 }
 
 static void *
@@ -985,8 +988,15 @@ get_label(const char *name, const char *value, mmv_value_type_t type,
 	    }
 	    break;
 	case MMV_NUMBER_TYPE:
-	    if (value)
-		(void)strtod(value, &endnum);
+	    if (value) {
+		/*
+		 * Don't even ask ... we want to scan the input buffer
+		 * and are only interested in a possible error ... the
+		 * (void)(...+1) babble is the only way to silence new
+		 * "smart" C compilers!
+		 */
+		(void)(strtod(value, &endnum)+1);
+	    }
 	    if (len < 1 || *endnum != '\0') {
 		setoserror(EINVAL);
 		return -1;
@@ -1019,7 +1029,7 @@ mmv_stats_add_registry_label(mmv_registry_t *registry,
     size_t bytes;
     char buffer[MMV_LABELMAX];
     int buflen;
-    int flags = PM_LABEL_CLUSTER;
+    int flags = PM_LABEL_CLUSTER | PM_LABEL_COMPOUND;
 
     if (registry == NULL) {
 	setoserror(EFAULT);
@@ -1062,7 +1072,7 @@ mmv_stats_add_indom_label(mmv_registry_t *registry, int serial,
     size_t bytes;
     char buffer[MMV_LABELMAX];
     int buflen;
-    int flags = PM_LABEL_INDOM;
+    int flags = PM_LABEL_INDOM | PM_LABEL_COMPOUND;
 
     if (registry == NULL) {
 	setoserror(EFAULT);
@@ -1105,7 +1115,7 @@ mmv_stats_add_metric_label(mmv_registry_t *registry, int item,
     size_t bytes;
     char buffer[MMV_LABELMAX];
     int buflen;
-    int flags = PM_LABEL_ITEM;
+    int flags = PM_LABEL_ITEM | PM_LABEL_COMPOUND;
 
     if (registry == NULL) {
 	setoserror(EFAULT);
@@ -1148,7 +1158,7 @@ mmv_stats_add_instance_label(mmv_registry_t *registry, int serial, int instid,
     size_t bytes;
     char buffer[MMV_LABELMAX];
     int buflen;
-    int flags = PM_LABEL_INSTANCES;
+    int flags = PM_LABEL_INSTANCES | PM_LABEL_COMPOUND;
 
     if (registry == NULL) {
 	setoserror(EFAULT);

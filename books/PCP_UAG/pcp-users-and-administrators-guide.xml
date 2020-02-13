@@ -1180,22 +1180,15 @@ sources of metrics for retrospective analysis.</para>
 <varlistentry>
 <term><command>pmproxy</command></term>
 <listitem><para><indexterm id="ITch01-38"><primary>pmproxy tool</primary>
-<secondary>brief description</secondary></indexterm>Allows the execution
-of PCP tools through a network firewall system.</para>
+<secondary>brief description</secondary></indexterm>Provides REST APIs,
+archive discovery, and both PCP and Redis protocol proxying when executing
+PCP or Redis client tools through a network firewall system.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmtrace</command></term>
 <listitem><para><indexterm id="ITch01-74"><primary>pmtrace tool</primary>
 </indexterm>Provides a simple command line interface to the trace PMDA
 and its associated <filename>pcp_trace</filename> library.</para>
-</listitem></varlistentry>
-<varlistentry>
-<term><command>pmwebd</command></term>
-<listitem><para><indexterm id="IG3137188802"><primary>web daemon</primary>
-</indexterm>Is the Performance Metrics Web Daemon, a front-end to both
-<command>pmcd</command> and PCP archives,
-providing a JSON interface suitable for use by web-based tools wishing to
-access performance data over HTTP.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -2056,7 +2049,7 @@ the <literal>telnet</literal> session, increase the PMAPI time out by setting
 the <literal>PMCD_CONNECT_TIMEOUT</literal> environment variable to some number
 of seconds (60 for instance), and try the PCP client tool again.</para>
 <para>Verify that PMCD is not running in local-only mode, by looking for an enabled value (one) from: <literallayout class="monospaced"><userinput>pminfo -f pmcd.feature.local</userinput></literallayout></para>
-<para>This setting is controlled from the <literal>PMCD_LOCAL</literal> environment variable usually set via <filename>${PCP_SYSCONFIG_PATH}/pmcd</filename>.</para>
+<para>This setting is controlled from the <literal>PMCD_LOCAL</literal> environment variable usually set via <filename>${PCP_SYSCONFIG_DIR}/pmcd</filename>.</para>
 <para>If these techniques are ineffective, it is likely an intermediary firewall is blocking the client from accessing the PMCD port - resolving such issues is firewall-host platform-specific and cannot practically be covered here.</para>
 </listitem></varlistentry>
 </variablelist>
@@ -7806,11 +7799,6 @@ Collection System</link></secondaryie>
    <primaryie>pmval tool</primaryie>
       <secondaryie>brief description <link linkend="ITch01-42">Performance Monitoring and Visualization</link></secondaryie>
       <secondaryie>description <link linkend="ITch04-23">The <command>pmval</command> Command</link></secondaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>pmwebd tool <link linkend="IG3137188802">Collecting, Transporting, and Archiving Performance Information
-</link></primaryie>
 </indexentry>
 
 <indexentry>

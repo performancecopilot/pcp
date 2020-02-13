@@ -1,0 +1,43 @@
+#!/bin/sh
+# PCP QA Test No. 1212
+# Exercise pmseries query parser error handling.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+path=""
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+
+_cleanup()
+{
+    _restore_config $PCP_SYSCONF_DIR/pmseries
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_save_config $PCP_SYSCONF_DIR/pmseries
+$sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
+echo
+
+# real QA test starts here
+echo "== Query parse error handling - invalid metric name"
+pmseries kernel.all.!bang
+
+echo "== Query parse error handling - invalid sample"
+pmseries kernel.all.load[badness]
+
+# success, all done
+status=0
+exit

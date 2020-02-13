@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+# if a method is in pmapi.h, it should have a man page
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+grep PCP_CALL src/include/pcp/pmapi.h \
+| sed -e 's/(.*//' -e 's/.* //' -e 's/^\*\**//' \
+| while read func
+do
+    if man -k "$func" >$tmp.tmp
+    then
+	:
+    else
+	cat $tmp.tmp
+    fi
+done
+

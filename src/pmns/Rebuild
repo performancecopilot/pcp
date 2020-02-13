@@ -332,6 +332,9 @@ BEGIN	{ map["root_web"] = "-"	# historical old file, not present anymore
 	    # good to go, skipping check or PMDA is in pmcd.conf
 	    #
 	    echo "$root_file" >>$tmp/mergelist
+	elif [ ! -z "$verbose" ]
+	then
+	    echo "Warning: skipping root_$pmda as $pmda PMDA is not in pmcd.conf"
 	fi
     done
     mergelist="`cat $tmp/mergelist`"

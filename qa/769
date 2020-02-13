@@ -41,24 +41,11 @@ _check_chk()
 }
 
 ln -f $seq.out.1 $seq.out || exit 1
-if [ -f $PCP_BINADM_DIR/pmwebd ]
-then
-    PMWEBD_INSTALLED=true
-    FULL_LIST="pmcd pmie pmlogger pmproxy pmwebd"
-    ln -f $seq.out.2 $seq.out || exit 1
-fi
 if [ -f $PCP_BINADM_DIR/pmmgr ]
 then
     PMMGR_INSTALLED=true
-    if $PMWEBD_INSTALLED ;
-    then
-	FULL_LIST="pmcd pmie pmlogger pmmgr pmproxy pmwebd"
-	ln -f $seq.out.4 $seq.out || exit 1
-    else
-	FULL_LIST="pmcd pmie pmlogger pmmgr pmproxy"
-	ln -f $seq.out.3 $seq.out || exit 1
-    fi
-    
+    FULL_LIST="pmcd pmie pmlogger pmmgr pmproxy"
+    ln -f $seq.out.2 $seq.out || exit 1
 fi
 
 # real QA test starts here
@@ -92,5 +79,4 @@ done
 
 # success, all done
 status=0
-
 exit

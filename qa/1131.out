@@ -709,7 +709,7 @@ QA output created by 1131
                   "@instances": [
                     {
                       "name": "cpu0",
-                      "value": 5587.42
+                      "value": 5587.4
                     }
                   ]
                 },
@@ -718,7 +718,7 @@ QA output created by 1131
                     {
                       "@unit": "count",
                       "name": "cpu0",
-                      "value": 3029.031
+                      "value": 3029.0
                     }
                   ]
                 }
@@ -747,7 +747,7 @@ QA output created by 1131
                   "@instances": [
                     {
                       "name": "1 minute",
-                      "value": 0.09
+                      "value": 0.0
                     }
                   ]
                 },
@@ -790,7 +790,7 @@ QA output created by 1131
                     {
                       "@unit": "Mbyte/s",
                       "name": "enp0s25",
-                      "value": 781261.938
+                      "value": 781261.9
                     }
                   ]
                 }
@@ -833,7 +833,7 @@ QA output created by 1131
                   "@instances": [
                     {
                       "name": "cpu0",
-                      "value": 5587.42
+                      "value": 5587.4
                     }
                   ]
                 },
@@ -842,7 +842,7 @@ QA output created by 1131
                     {
                       "@unit": "count",
                       "name": "cpu0",
-                      "value": 2723.437
+                      "value": 2723.4
                     }
                   ]
                 }
@@ -871,7 +871,7 @@ QA output created by 1131
                   "@instances": [
                     {
                       "name": "1 minute",
-                      "value": 0.09
+                      "value": 0.0
                     }
                   ]
                 },
@@ -931,7 +931,7 @@ QA output created by 1131
                     {
                       "@unit": "Mbyte/s",
                       "name": "enp0s25",
-                      "value": 781261.938
+                      "value": 781261.9
                     }
                   ]
                 }
@@ -974,7 +974,7 @@ QA output created by 1131
                   "@instances": [
                     {
                       "name": "cpu0",
-                      "value": 5587.42
+                      "value": 5587.4
                     }
                   ]
                 },
@@ -1012,7 +1012,7 @@ QA output created by 1131
                   "@instances": [
                     {
                       "name": "1 minute",
-                      "value": 0.08
+                      "value": 0.0
                     }
                   ]
                 },
@@ -1072,7 +1072,7 @@ QA output created by 1131
                     {
                       "@unit": "Mbyte/s",
                       "name": "enp0s25",
-                      "value": 781261.938
+                      "value": 781261.9
                     }
                   ]
                 }
@@ -1115,7 +1115,7 @@ QA output created by 1131
                   "@instances": [
                     {
                       "name": "cpu0",
-                      "value": 5587.42
+                      "value": 5587.4
                     }
                   ]
                 },
@@ -1153,7 +1153,7 @@ QA output created by 1131
                   "@instances": [
                     {
                       "name": "1 minute",
-                      "value": 0.08
+                      "value": 0.0
                     }
                   ]
                 },
@@ -1173,7 +1173,7 @@ QA output created by 1131
                       {
                         "@unit": "ms/s",
                         "name": "cpu0",
-                        "value": 9.999
+                        "value": 9.9
                       }
                     ]
                   }
@@ -1213,7 +1213,7 @@ QA output created by 1131
                     {
                       "@unit": "Mbyte/s",
                       "name": "enp0s25",
-                      "value": 781261.938
+                      "value": 781261.9
                     }
                   ]
                 }
@@ -1256,7 +1256,7 @@ QA output created by 1131
                   "@instances": [
                     {
                       "name": "cpu0",
-                      "value": 5587.42
+                      "value": 5587.4
                     }
                   ]
                 },
@@ -1265,7 +1265,7 @@ QA output created by 1131
                     {
                       "@unit": "count",
                       "name": "cpu0",
-                      "value": 2800.109
+                      "value": 2800.1
                     }
                   ]
                 }
@@ -1294,7 +1294,7 @@ QA output created by 1131
                   "@instances": [
                     {
                       "name": "1 minute",
-                      "value": 0.08
+                      "value": 0.0
                     }
                   ]
                 },
@@ -1354,7 +1354,7 @@ QA output created by 1131
                     {
                       "@unit": "Mbyte/s",
                       "name": "enp0s25",
-                      "value": 781261.938
+                      "value": 781261.9
                     }
                   ]
                 }

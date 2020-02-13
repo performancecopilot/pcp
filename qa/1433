@@ -1,0 +1,48 @@
+#!/bin/sh
+# PCP QA Test No. 1433
+# pmproxy rc script stop/start with timeseries option.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+eval `pmconfig -L ipv6 unix_domain_sockets`
+[ "$ipv6" = "true" ] || _notrun "No IPv6 support"
+[ "$unix_domain_sockets" = "true" ] || _notrun "No Unix socket support"
+
+_cleanup()
+{
+    cd $here
+    _restore_config $PCP_PMPROXYOPTIONS_PATH
+    $sudo rm -rf $tmp $tmp.*
+    _service pmproxy condrestart >/dev/null 2>&1
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_save_config $PCP_PMPROXYOPTIONS_PATH
+
+echo "# Option added by PCP QA test $seq" > $tmp.local
+echo --timeseries >> $tmp.local
+$sudo cp $tmp.local $PCP_PMPROXYOPTIONS_PATH
+
+_service pmproxy stop >/dev/null 2>&1
+_service pmproxy start 2>&1 | _filter_pmproxy_start
+
+_service pmproxy stop 2>&1 | _filter_pmproxy_start
+_filter_pmproxy_log < $PCP_LOG_DIR/pmproxy/pmproxy.log
+
+# success, all done
+status=0
+exit

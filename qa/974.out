@@ -1988,6 +1988,67 @@ proc.schedstat.cpu_time
 
 == done
 
+== Extracting subtrees for later use - procpid-4.18.13-root-006.tgz
+== Checking namespace and metric numbering - procpid-4.18.13-root-006.tgz
+== Checking metric descriptors and a fetch - procpid-4.18.13-root-006.tgz
+
+proc.control.all.threads
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 0
+
+proc.fd.count
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: count
+Error: Metric not supported by this version of monitored application
+
+proc.id.egid
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 0
+    inst [N or "025731 podman"] value 0
+    inst [N or "025951 /bin/prometheus"] value 65534
+
+proc.io.cancelled_write_bytes
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: byte
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 37298176
+    inst [N or "025731 podman"] value 0
+    inst [N or "025951 /bin/prometheus"] value 24576
+
+proc.memory.datrss
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 21920
+    inst [N or "025731 podman"] value 178588
+    inst [N or "025951 /bin/prometheus"] value 105088
+
+proc.namespaces.envid
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+Error: Metric not supported by this version of monitored application
+
+proc.psinfo.blocked
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 671173123
+    inst [N or "025731 podman"] value 0
+    inst [N or "025951 /bin/prometheus"] value 1006254592
+
+proc.runq.blocked
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+    value 0
+
+proc.schedstat.cpu_time
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: nanosec
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 99029042031
+    inst [N or "025731 podman"] value 34770300
+    inst [N or "025951 /bin/prometheus"] value 75849550
+
+== done
+
 == Extracting subtrees for later use - procpid-4.2.3-root-004.tgz
 == Checking namespace and metric numbering - procpid-4.2.3-root-004.tgz
 == Checking metric descriptors and a fetch - procpid-4.2.3-root-004.tgz

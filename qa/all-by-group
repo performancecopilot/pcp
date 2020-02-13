@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# Report all tests (exclude :retired and :reserved ones) by group ..
+#
+
+tmp=/var/tmp/bad
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+LC_COLLATE=POSIX
+
+sed -n <group \
+    -e '/ BAD /d' \
+    -e '/^[0-9][0-9]* /s/ .*//p' \
+| while read seq
+do
+    grep "^$seq " group \
+    | sed \
+	-e 's/^[^ ]* //' \
+    | tr ' ' '\012' \
+    | sed \
+	-e '/^local$/d' \
+	-e '/^#[0-9][0-9]*$/d' \
+    | while read group
+    do
+	echo "$group $seq" >>$tmp.raw
+    done
+done
+
+if [ -s $tmp.raw ]
+then
+    ( sort -t ' ' -k 1,1 -k 2,2n $tmp.raw ; echo "end-of-list" ) \
+    | awk '
+BEGIN		{ last_grp = "" }
+$1 != last_grp	{ if (last_grp != "") print last_grp,nfail,tests
+		  last_grp = $1
+		  nfail = 1
+		  tests = $2
+		  next
+		}
+		{ nfail++
+		  tests = tests " " $2
+		}' \
+    | sort -t ' ' -k 2,2nr -k 1,1d \
+    | awk '{ $2 = ""; print }' \
+    | while read grp tests
+    do
+	printf "%20.20s %s\n" "$grp" "$tests"
+    done
+fi

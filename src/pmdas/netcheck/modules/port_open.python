@@ -1,0 +1,129 @@
+#
+# Copyright (C) 2019 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+"""PCP netcheck PMDA open ports module"""
+
+# pylint: disable=invalid-name
+
+try:
+    from time import perf_counter as time
+except ImportError:
+    from time import time
+
+import sys
+import socket
+
+from ctypes import c_int
+from multiprocessing import Manager
+
+from pcp.pmapi import pmUnits
+from cpmapi import PM_TYPE_32, PM_TYPE_FLOAT, PM_SEM_INSTANT, PM_TIME_MSEC
+from cpmda import PMDA_FETCH_NOVALUES
+
+from modules.pcpnetcheck import PCPNetcheckModuleBase
+
+# Module constants
+MODULE = 'port_open'
+BASENS = 'port.'
+units_none = pmUnits(0, 0, 0, 0, 0, 0)
+units_msecs = pmUnits(0, 1, 0, 0, PM_TIME_MSEC, 0)
+
+
+class PCPNetcheckModule(PCPNetcheckModuleBase):
+    # pylint: disable=too-many-arguments
+    """PCP netcheck port open module"""
+    def __init__(self, config, dbg, log, err, params):
+        """Constructor"""
+        PCPNetcheckModuleBase.__init__(self, MODULE, config, dbg, log, err, params)
+
+        self.ports = None
+
+        self.results = {}
+
+        self.prereq_check()
+
+        for opt in self.config.options(MODULE):
+            if opt == 'ports':
+                self.ports = self.config.get(MODULE, opt).lower().split(",")
+                if [p for p in self.ports if not p.isdigit()]:
+                    self.err("Invalid specification for 'ports', aborting.")
+                    sys.exit(1)
+            elif opt not in self.common_opts:
+                self.err("Invalid directive '%s' in %s, aborting." % (opt, MODULE))
+                sys.exit(1)
+
+        if not self.ports:
+            self.err("'ports' is mandatory, aborting.")
+            sys.exit(1)
+
+        socket.setdefaulttimeout(self.timeout)
+        self.insts = {host + '::' + port: c_int(1) for port in self.ports for host in self.hosts}
+
+        self.log("Module parameters: timeout: %s, ports: %s." % (self.timeout, str(self.ports)))
+
+        self.log("Initialized.")
+
+    @staticmethod
+    def prereq_check():
+        """Check module prerequisities"""
+        try:
+            socket.getaddrinfo("localhost", 0)
+        except Exception:  # pylint: disable=broad-except
+            raise RuntimeError("Can't resolve localhost!")
+
+    def metrics(self):
+        """Get metric definitions"""
+        self.items = (
+            # Name - reserved - type - semantics - units - help
+            (BASENS + 'status', None, PM_TYPE_32, PM_SEM_INSTANT, units_none,
+             'socket conn status'),
+            (BASENS + 'time', None, PM_TYPE_FLOAT, PM_SEM_INSTANT, units_msecs,
+             'socket conn time'),
+        )
+        return True, self.items
+
+    def netdata(self, item, inst):
+        """Return net check result as PCP metric value"""
+        try:
+            ref = self.results if item == 0 else self.timings
+            key = self.pmdaIndom.inst_name_lookup(inst)
+            return [ref[key], 1]
+        except Exception:  # pylint: disable=broad-except
+            return [PMDA_FETCH_NOVALUES, 0]
+
+    def _do_tcp_connect(self, results, timings, ports, host):
+        """Do socket connection"""
+        for port in ports:
+            family = socket.AF_INET if not self.is_ipv6(host) else socket.AF_INET6
+            try:
+                sock = socket.socket(family, socket.SOCK_STREAM)
+                start_time = time()
+                res = sock.connect_ex((host, int(port)))
+                end_time = time()
+                sock.close()
+                key = host + '::' + port
+                results[key] = res
+                timings[key] = (end_time - start_time) * 1000
+            except Exception:  # pylint: disable=broad-except
+                pass
+
+    def do_check(self):
+        """Do net check"""
+        results = Manager().dict()
+        timings = Manager().dict()
+        self._run_check_methods(self._do_tcp_connect, (results, timings, self.ports))
+        for host in self.hosts:
+            for port in self.ports:
+                key = host + '::' + port
+                self.results[key] = results[key] if key in results else 1
+                self.timings[key] = timings[key] if key in timings else -2

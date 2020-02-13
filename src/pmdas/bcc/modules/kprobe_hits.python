@@ -1,0 +1,360 @@
+#
+# Copyright (C) 2019 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP BCC PMDA kprobe hits module """
+
+# pylint: disable=invalid-name, too-many-instance-attributes
+
+import errno
+from ctypes import c_int
+from os import path
+
+from bcc import BPF
+
+from pcp.pmapi import pmUnits
+from cpmapi import PM_TYPE_U64, PM_SEM_COUNTER, PM_SEM_INSTANT, PM_COUNT_ONE, PM_TIME_NSEC
+from cpmapi import PM_ERR_PMID
+from cpmda import PMDA_FETCH_NOVALUES
+
+from modules.pcpbcc import PCPBCCBase
+
+#
+# BPF program
+#
+bpf_src = "modules/kprobe_hits.bpf"
+# Individual entry kprobe
+kprobe_entry_txt = """
+#ifdef LATENCY
+int trace_entry_KPROBE_NAME(void *ctx) {
+    u64 pid = bpf_get_current_pid_tgid();
+    FILTER_PID
+    u64 t = bpf_ktime_get_ns();
+    start.update(&pid, &t);
+    return 0;
+}
+#endif
+"""
+
+# Individual exit kprobe
+kprobe_exit_txt = """
+static char *KPROBE_NAME = "KPROBE_NAME";
+int trace_exit_KPROBE_NAME(struct pt_regs *ctx) {
+    u64 pid = bpf_get_current_pid_tgid();
+    FILTER_PID
+    //FILTER_ERRNO
+    struct kprobe_t k = {};
+    __builtin_memcpy(&k.kprobe, KPROBE_NAME, sizeof(k.kprobe));
+    u64 zero = 0, *val;
+    val = stats_ok.lookup_or_init(&k, &zero);
+    ++(*val);
+    if (PT_REGS_RC(ctx) RET_CHECK) {
+      val = stats_fail.lookup_or_init(&k, &zero);
+      ++(*val);
+    }
+#if defined(DETAILS) || defined(LATENCY)
+    struct details_t d = {.pid = pid >> 32};
+    __builtin_memcpy(&d.kprobe, KPROBE_NAME, sizeof(d.kprobe));
+#endif
+#ifdef DETAILS
+    val = pidstats.lookup_or_init(&d, &zero);
+    ++(*val);
+#endif
+#ifdef LATENCY
+    u64 *start_ns = start.lookup(&pid);
+    if (!start_ns) return 0;
+    start.delete(&pid);
+    u64 time_ns = bpf_ktime_get_ns() - *start_ns;
+    val = latstats.lookup_or_init(&d, &zero);
+    if (val) (*val) += time_ns;
+#ifdef DETAILS
+    val = pidlatstats.lookup_or_init(&d, &zero);
+    if (val) (*val) += time_ns;
+#endif
+#endif
+    return 0;
+}
+"""
+
+#
+# PCP BCC PMDA constants
+#
+MODULE = 'kprobe_hits'
+BASENS = 'kprobe.hits.'
+units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
+units_nsecs = pmUnits(0, 1, 0, 0, PM_TIME_NSEC, 0)
+
+#
+# PCP BCC Module
+#
+class PCPBCCModule(PCPBCCBase):
+    """ PCP BCC kprobe hits module """
+    def __init__(self, config, log, err, proc_refresh):
+        """ Constructor """
+        PCPBCCBase.__init__(self, MODULE, config, log, err)
+
+        self.pids = []
+        self.proc_filter = None
+        self.proc_refresh = proc_refresh
+
+        self.errno = 0
+        self.ret_chk = "!= 0"
+        self.details = False
+        self.latency = False
+
+        self.max_pids = 128
+
+        self.kprobes = []
+
+        def read_errno(errstr):
+            """ Helper to read errno """
+            try:
+                return abs(int(errstr))
+            except ValueError:
+                return getattr(errno, errstr)
+
+        for opt in self.config.options(MODULE):
+            if opt == 'errno':
+                self.errno = read_errno(self.config.get(MODULE, opt))
+            if opt == 'ret_chk':
+                self.ret_chk = self.config.get(MODULE, opt)
+            if opt == 'details':
+                self.details = self.config.getboolean(MODULE, opt)
+            if opt == 'latency':
+                self.latency = self.config.getboolean(MODULE, opt)
+            if opt == 'process':
+                self.proc_filter = self.config.get(MODULE, opt)
+                self.update_pids(self.get_proc_info(self.proc_filter))
+            if opt == 'kprobes':
+                self.kprobes = self.read_probe_conf(self.config.get(MODULE, opt))
+
+        self.cnt_cache = None
+        self.fail_cache = None
+        self.avg_cache = None
+        self.cml_cache = None
+        self.insts = None
+
+        self.log("Configured kprobes: " + str(self.kprobes))
+
+        found = []
+        for kprobe in self.kprobes:
+            kprobe = kprobe.replace("kprobe:", "")
+            if kprobe not in found:
+                found.append(kprobe)
+        self.kprobes = found
+
+        if not self.kprobes:
+            raise RuntimeError("No matching kprobes found.")
+        self.log("Found %s kprobes: %s." % (str(len(self.kprobes)), str(self.kprobes)))
+
+        self.log("Initialized.")
+
+    def metrics(self):
+        """ Get metric definitions """
+        name = BASENS
+        self.items = (
+            # Name - reserved - type - semantics - units - help
+            (name + 'count', None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'kprobe count'),
+            (name + 'fail', None, PM_TYPE_U64, PM_SEM_COUNTER, units_count, 'kprobe fail count'),
+            (name + 'latency.avg', None, PM_TYPE_U64, PM_SEM_INSTANT, units_nsecs, 'kprobe avg'
+                                                                                   'latency'),
+            (name + 'latency.cml', None, PM_TYPE_U64, PM_SEM_COUNTER, units_nsecs, 'kprobe cml'
+                                                                                   'latency'),
+        )
+        return True, self.items
+
+    def init_insts(self):
+        """ Initialize insts """
+        self.insts = {self.kprobes[i] : c_int(1) for i in range(len(self.kprobes))}
+
+    def reset_cache(self):
+        """ Reset internal cache """
+        self.cnt_cache = {}
+        self.fail_cache = {}
+        self.avg_cache = {}
+        self.cml_cache = {}
+        self.init_insts()
+
+    def undef_cache(self):
+        """ Undefine internal cache """
+        self.cnt_cache = None
+        self.fail_cache = None
+        self.avg_cache = None
+        self.cml_cache = None
+        self.insts = None
+
+    def update_pids(self, procs):
+        """ Update PIDs to trace """
+        prev = self.pids
+        if not self.proc_filter:
+            return 0
+        if not prev and not procs:
+            return 0
+        if not procs and self.proc_filter:
+            self.pids = []
+            return -1
+        trace_pids = []
+        for pid in self.pids:
+            if self.pid_alive(pid):
+                trace_pids.append(pid)
+        if len(trace_pids) == self.max_pids:
+            return 0
+        found_procs = [p for p in procs if p[0] not in trace_pids]
+        if found_procs:
+            for proc in found_procs:
+                if len(trace_pids) < self.max_pids:
+                    trace_pids.append(proc[0])
+            self.pids = trace_pids
+            for proc in procs:
+                if proc[0] in self.pids:
+                    info = proc[1] + " " + proc[2] if proc[2] else proc[1]
+                    self.log("Tracing PID %s: %s." % (str(proc[0]), info))
+            return 1
+        return 0
+
+    def compile(self):
+        """ Compile BPF """
+        try:
+            if not self.pids and self.proc_filter and not self.proc_refresh:
+                raise RuntimeError("No process to attach found.")
+
+            if not self.bpf_text:
+                with open(path.dirname(__file__) + '/../' + bpf_src) as src:
+                    self.bpf_text = src.read()
+
+                if self.errno:
+                    errno_filter = "if (PT_REGS_RC(ctx) != -%d) return 0;" % self.errno
+                    self.bpf_text = self.bpf_text.replace("//FILTER_ERRNO", errno_filter)
+                self.bpf_text = self.bpf_text.replace("KPROBE_COUNT", str(len(self.kprobes)))
+                self.bpf_text = self.bpf_text.replace("MAX_PIDS", str(self.max_pids))
+
+            if not self.pids and self.proc_filter and self.proc_refresh:
+                self.log("No process to attach found, activation postponed.")
+                return
+
+            bpf_text = self.bpf_text
+            details = "#define DETAILS" if self.details and self.pids else ""
+            latency = "#define LATENCY" if self.latency else ""
+            bpf_text = bpf_text.replace("DEFINE_DETAILS", details)
+            bpf_text = bpf_text.replace("DEFINE_LATENCY", latency)
+
+            for kprobe in self.kprobes:
+                probe = ""
+                if latency:
+                    probe = kprobe_entry_txt.replace("KPROBE_NAME", kprobe)
+                probe += kprobe_exit_txt.replace("KPROBE_NAME", kprobe)
+                if self.debug:
+                    self.log("Generated functions:\n%s" % probe)
+                bpf_text += probe
+
+            bpf_text = bpf_text.replace("RET_CHECK", self.ret_chk)
+            bpf_text = self.apply_pid_filter(bpf_text, self.pids, False, True)
+
+            self.log("Compiling %s kprobes: %s" % (str(len(self.kprobes)), str((self.kprobes))))
+
+            if self.debug:
+                self.log("BPF to be compiled:")
+                self.log("\n" + bpf_text)
+
+            self.reset_cache()
+            self.bpf = BPF(text=bpf_text)
+            for kprobe in list(self.kprobes):
+                # Compat: bcc < 0.6.0 (first check)
+                if 'get_kprobe_functions' in dir(self.bpf) and \
+                   not self.get_kprobe_functions(kprobe.encode()):
+                    del self.kprobes[self.kprobes.index(kprobe)]
+                    continue
+                if latency:
+                    if self.debug:
+                        self.log("Attaching kprobe: %s" % kprobe)
+                    self.bpf.attach_kprobe(event=kprobe, fn_name="trace_entry_" + kprobe)
+                if self.debug:
+                    self.log("Attaching kretprobe: %s" % kprobe)
+                self.bpf.attach_kretprobe(event=kprobe, fn_name="trace_exit_" + kprobe)
+            self.log("Compiled.")
+        except Exception as error: # pylint: disable=broad-except
+            self.bpf = None
+            self.undef_cache()
+            self.err(str(error))
+            self.err("Module NOT active!")
+            raise
+
+    def refresh(self):
+        """ Refresh BPF data """
+        if self.bpf is None:
+            return None
+
+        self.init_insts()
+
+        for k, v in self.bpf["stats_ok"].items():
+            self.cnt_cache[k.kprobe.decode("ASCII", "replace")] = v.value
+
+        for k, v in self.bpf["stats_fail"].items():
+            self.fail_cache[k.kprobe.decode("ASCII", "replace")] = v.value
+
+        if self.latency:
+            for k, v in self.bpf["latstats"].items():
+                key = k.kprobe.decode("ASCII", "replace")
+                val = v.value
+                self.cml_cache[key] = val
+                val = val if key not in self.avg_cache else int(val / self.cnt_cache[key])
+                self.avg_cache[key] = val
+
+        check_pids = set()
+        stale_pids = set()
+
+        def use_pid(pid):
+            """ Helper to quickly check whether to use PID info """
+            if pid not in check_pids:
+                if pid in stale_pids or not self.pid_alive(pid):
+                    stale_pids.add(pid)
+                    return False
+                else:
+                    check_pids.add(pid)
+            return True
+
+        if self.details and self.pids:
+            for k, v in self.bpf["pidstats"].items():
+                if not use_pid(k.pid):
+                    continue
+                key = str(k.pid) + "::" + k.kprobe.decode("ASCII", "replace")
+                self.cnt_cache[key] = v.value
+                self.insts[key] = c_int(1)
+
+        if self.details and self.pids and self.latency:
+            for k, v in self.bpf["pidlatstats"].items():
+                if not use_pid(k.pid):
+                    continue
+                key = str(k.pid) + "::" + k.kprobe.decode("ASCII", "replace")
+                val = v.value
+                self.cml_cache[key] = val
+                val = val if key not in self.avg_cache else int(val / self.cnt_cache[key])
+                self.avg_cache[key] = val
+
+        return self.insts
+
+    def bpfdata(self, item, inst):
+        """ Return BPF data as PCP metric value """
+        try:
+            key = self.pmdaIndom.inst_name_lookup(inst)
+            if item == 0:
+                return [self.cnt_cache[key], 1]
+            elif item == 1:
+                return [self.fail_cache[key], 1]
+            elif item == 2:
+                return [self.avg_cache[key], 1]
+            elif item == 3:
+                return [self.cml_cache[key], 1]
+            else:
+                return [PM_ERR_PMID, 0]
+        except Exception: # pylint: disable=broad-except
+            return [PMDA_FETCH_NOVALUES, 0]

@@ -134,7 +134,7 @@ main(int argc, char **argv)
     printf("__pmNoMem test: expect to see a message\n");
     fflush(stdout);
     errno = ENOMEM;
-    __pmNoMem("SEQ", (size_t)123456, PM_RECOV_ERR);
+    __pmNoMem(SEQ, (size_t)123456, PM_RECOV_ERR);
 
     printf("__pmNotifyErr test: expect to see standard message format\n");
     fflush(stdout);

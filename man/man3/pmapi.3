@@ -1,19 +1,19 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2016-2019 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
-.\" 
+.\"
+.\"
 .TH PMAPI 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3PMAPI\f1 \- introduction to the Performance Metrics Application Programming Interface
@@ -74,7 +74,7 @@ application starts; see
 .BR pmLoadASCIINameSpace (3),
 .BR pmLoadNameSpace (3),
 and
-.BR pmns (5).
+.BR PMNS (5).
 .PP
 Internally (below the PMAPI) the implementation of the
 Performance Metrics Collection System
@@ -256,7 +256,7 @@ and the desired dimensionality and scale of
 the value the PMAPI client wishes to manipulate.
 Alternatively, the
 .BR pmFetchGroup (3)
-functions can perform data format and unit conversion operations, 
+functions can perform data format and unit conversion operations,
 specified by textual descriptions of desired unit / scales.
 .SH "INSTANCE PROFILE"
 The set of instances for performance metrics returned from a
@@ -350,7 +350,7 @@ As a general rule, if the called routine returns
 an error status then no allocation will have been
 done, and any pointer to a variable sized result is undefined.
 .SH DIAGNOSTICS
-Where error conditions may arise, the functions that comprise the PMAPI conform to a single, simple 
+Where error conditions may arise, the functions that comprise the PMAPI conform to a single, simple
 error notification scheme, as follows;
 .IP + 3n
 the function returns an integer
@@ -425,8 +425,10 @@ function.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR PCPIntro (3),
-.BR pmda (3),
+.BR PMDA (3),
+.BR PMWEBAPI (3),
 .BR pmGetConfig (3),
-.BR pcp.conf (5)
+.BR pcp.conf (5),
+.BR pcp.env (5)
 and
-.BR pcp.env (5).
+.BR PMNS (5).

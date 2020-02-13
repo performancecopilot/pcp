@@ -90,7 +90,9 @@ _filter_pmproxy()
         -e '/^IPC table fd/d' \
 	-e '/^__pmSetVersionIPC: fd=/d' \
 	-e '/^__pmSetFeaturesIPC: fd=/d' \
-	-e 's/localhost/MY_HOST/g'
+	-e 's/localhost/MY_HOST/g' \
+	-e '/^pmproxy: disabled time series, requires libuv support (missing)/d' \
+    # end
 }
 
 _service pmproxy stop >>$seq.full 2>&1
@@ -99,7 +101,7 @@ $sudo $signal -a pmproxy >>$seq.full 2>&1
 OLD_PCP_RUN_DIR=$PCP_RUN_DIR
 mkdir -p $tmp.rundir
 export PCP_RUN_DIR=$tmp.rundir
-proxyargs="-Dcontext -U $username"
+proxyargs="-Dcontext -U $username -d"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
 
 # real QA test starts here

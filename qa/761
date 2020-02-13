@@ -36,10 +36,11 @@ $sudo rm -rf $tmp.* $seq.full
 root_cleanup()
 {
     cd $here
-    [ -d $root ] && sudo rm -fr $root
-    [ -f $tmp.conf.backup ] && sudo cp $tmp.conf.backup $PCP_DIR/etc/pcp.conf
+    [ -d $root ] && $sudo rm -fr $root
+    [ -f $tmp.conf.backup ] && $sudo cp $tmp.conf.backup $PCP_DIR/etc/pcp.conf
     _restore_pmda_install root
     rm -f $tmp.*
+    rm -f $here/$seq.test-lxc-info.sh
 }
 
 # do metrics one at a time, map all internal instance ids to N and sort
@@ -65,7 +66,7 @@ cp $PCP_DIR/etc/pcp.conf $tmp.conf
 cp $PCP_DIR/etc/pcp.conf $tmp.conf.backup
 
 # simple testing script for LXC containers
-cat >$tmp.test-lxc-info.sh <<EOF
+cat >$here/$seq.test-lxc-info.sh <<EOF
 #!/bin/sh
 name="\$2"
 test -d "\$PCP_LXC_DIR/\$name" || exit 0
@@ -74,7 +75,7 @@ echo "State:          RUNNING"
 echo "PID:            17297"
 echo "CPU use:        1.13 seconds"
 EOF
-chmod 755 $tmp.test-lxc-info.sh
+chmod 755 $here/$seq.test-lxc-info.sh
 export PCP_LXC_DIR=$root/var/lib/lxc
 
 # real QA test starts here
@@ -82,11 +83,13 @@ _service pmcd stop | _filter_pcp_stop
 echo >> $tmp.conf
 echo "# from QA $seq ..." >> $tmp.conf
 echo PCP_LXC_DIR=$root/var/lib/lxc >> $tmp.conf
-echo PCP_LXC_INFO=$tmp.test-lxc-info.sh >> $tmp.conf
+echo PCP_LXC_INFO=$here/$seq.test-lxc-info.sh >> $tmp.conf
 echo PCP_DOCKER_DIR=$root/var/lib/docker >> $tmp.conf
 echo PCP_SYSTEMD_CGROUP=/system.slice >> $tmp.conf
+echo PCP_PODMAN_RUNDIR=$root/var/run/containers >> $tmp.conf
+echo PCP_PODMAN_DATADIR=$root/var/lib/containers >> $tmp.conf
 $sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

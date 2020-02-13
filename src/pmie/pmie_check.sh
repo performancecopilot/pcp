@@ -726,7 +726,12 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 		_configure_pmie "$configfile" "$host" "$primary"
 	    fi
 
-	    args="-h $host -l $logfile $args"
+	    if [ "X$primary" = Xy ]
+	    then
+		args="-P -l $logfile $args"
+	    else
+		args="-h $host -l $logfile $args"
+	    fi
 
 	    $VERBOSE && _restarting
 

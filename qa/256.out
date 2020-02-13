@@ -336,6 +336,7 @@ sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
 sampledso.secret.foo.one
 sampledso.secret.foo.two
 sampledso.secret.bar
+sampledso.ghosts.visible
 sampledso.long.one
 sampledso.long.ten
 sampledso.long.hundred
@@ -466,6 +467,7 @@ sampledso.negative.discrete.m_32
 sampledso.negative.discrete.m_64
 sampledso.negative.discrete.m_float
 sampledso.negative.discrete.m_double
+sampledso.controller.mirage
 sampledso.one
 sampledso.suba.two
 sampledso.suba.three
@@ -537,6 +539,7 @@ sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
 sampledso.secret.foo.one
 sampledso.secret.foo.two
 sampledso.secret.bar
+sampledso.ghosts.visible
 sampledso.long.one
 sampledso.long.ten
 sampledso.long.hundred
@@ -667,6 +670,7 @@ sampledso.negative.discrete.m_32
 sampledso.negative.discrete.m_64
 sampledso.negative.discrete.m_float
 sampledso.negative.discrete.m_double
+sampledso.controller.mirage
 sampledso.one
 sampledso.suba.two
 sampledso.suba.three
@@ -684,6 +688,7 @@ Name space load: N.NN msec
 30.0.36 alias sampledso.write_me and sampledso.dupnames.two.write_me
 30.0.46 alias sampledso.lights and sampledso.dupnames.two.lights
 pmNameAll(sampledso.secret): Unknown or illegal metric identifier
+pmNameAll(sampledso.ghosts): Unknown or illegal metric identifier
 30.0.16 alias sampledso.float.ten and sampledso.dupnames.two.float.ten
 30.0.26 alias sampledso.double.ten and sampledso.dupnames.two.double.ten
 30.0.1 alias sampledso.dupnames.daemon_pid and sampledso.dupnames.pid_daemon

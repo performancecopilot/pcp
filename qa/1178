@@ -14,6 +14,46 @@ _pmdabcc_check
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 [ "$(pmpython src/bcc_version_check.python)" = "0.6.1" ] \
   && _notrun "Broken BCC version detected"
+case "`uname -srm`"
+in
+    Linux\ 5.2.*)
+    		_notrun "Bad Linux 5.2 kernel headers will cause BPF to fail"
+		;;
+esac
+
+if [ -f /etc/lsb-release ]
+then
+    . /etc/lsb-release
+    if [ "$DISTRIB_ID" = Ubuntu ]
+    then
+	# This test fails for Ubuntu 19.10 because the linux headers used
+	# by the BPF compiler appear to be knackered.
+	#
+	case "$DISTRIB_RELEASE"
+	in
+	    19.10)
+		_notrun "bcc does not work for this test on Ubuntu $DISTRIB_RELEASE"
+		;;
+	esac
+    fi
+fi
+
+if [ -f /etc/os-release ]
+then
+    . /etc/os-release
+    if [ "$NAME" = "openSUSE Leap" ]
+    then
+	# This test fails for openSUSE 15.1 because the linux headers used
+	# by the BPF compiler appear to be knackered.
+	#
+	case "$VERSION"
+	in
+	    15.1)
+		_notrun "bcc does not work for this test on openSUSE $VERSION"
+		;;
+	esac
+    fi
+fi
 
 target_ip=1.1.1.1
 
@@ -33,6 +73,7 @@ trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 cat <<EOF | _pmdabcc_install | _install_filter
+# Installed by PCP QA test $seq on `date`
 [pmda]
 modules = tcpperpid
 prefix = bcc.
@@ -45,7 +86,7 @@ EOF
 _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC tcpperpid module
-curl -s http://${target_ip} &
+curl -s http://${target_ip} > /dev/null &
 curlpid=$!
 
 pmsleep 3

@@ -64,6 +64,10 @@ End-of-File
 	cat <<End-of-File
 rm -f \$HOME/$1.log
 echo "--- starting $1 on \`date\` ---" >\$HOME/$1.log
+if [ -x ./freespace ] 
+then
+    ./freespace -l >>\$HOME/$1.log
+fi
 End-of-File
     fi
     if [ "$1" = daily ]
@@ -123,7 +127,7 @@ then
     echo "Warning: modified pcp files ..." | tee -a \$HOME/daily.log
     sed -e 's/.*M  */    /' \$tmp.status | tee -a \$HOME/daily.log
 else
-    echo "Info: No modified pcp files" | tee -a \$HOME/daily.log
+    echo "Info: no modified pcp files" | tee -a \$HOME/daily.log
 fi
 End-of-File
 }
@@ -186,6 +190,19 @@ $1 == "PACKAGE_BUILD"	{ print "PACKAGE_BUILD",$2+1; next }
     fi
 fi
 cp VERSION.pcp.daily VERSION.pcp
+# if we're using systemctl, then need to stop PCP services
+# to prevent autorestart banging its head against the wall
+# once the libraries are removed and the packages are being
+# built (and installed)
+#
+if which systemctl >/dev/null 2>&1
+then
+    echo "Info: stopping PCP services" | tee -a $HOME/daily.log
+    for svc in pmie pmlogger pmmgr pmproxy pmcd
+    do
+	sudo systemctl stop $svc
+    done
+fi
 # simulate a first-time build
 sudo rm -rf /usr/include/pcp
 sudo rm -f /usr/lib*/libpcp[_.]*
@@ -216,8 +233,9 @@ rm -f VERSION.pcp
 git checkout -- VERSION.pcp
 # Look for errors/warnings in the build logs ...
 #
-# In the sed below are "warnings" that are
-# (a) out of out control (e.g. in flex/bison generated code), or
+# In the seds below are for "errors" and "warnings" that are:
+# (a) out of out control (e.g. in flex/bison generated code,
+#     Qt headers, non-PCP libraries, etc), or
 # (b) apparently benign things we're no going to fix, or
 # (c) stuff we've triaged and made a "no change needed" call
 #
@@ -228,7 +246,10 @@ do
     echo "--- end $log ---" >>$HOME/daily.log
 done
 grep 'Permission denied' Logs/pcp >$tmp.err
-grep ' [Ee]rror: ' Logs/pcp >>$tmp.err
+grep ' [Ee]rror: ' Logs/pcp \
+| sed >>$tmp.err \
+    -e '/^\/usr\/share\/selinux\/devel\/.* duplicate definition of /d' \
+    # end
 sed -e 's/^/ /' <Logs/pcp \
 | grep -i ' warning: ' \
 | sed >>$tmp.err \
@@ -237,15 +258,26 @@ sed -e 's/^/ /' <Logs/pcp \
     -e '/input.* defined but not used/d' \
     -e '/jobserver unavailable: using -j1/d'\
     -e '/^warning: File listed twice: .*python/d' \
+    -e '/Deprecated external dependency generator is used!/d' \
     -e '/^dpkg-shlibdeps: warning: .*\/pmda_pmcd.so contains an unresolvable .* probably a plugin/d' \
+    -e '/^dpkg-shlibdeps: warning: package could avoid a useless dependency/d' \
     -e '/^configure: WARNING: unrecognized options: --disable-dependency-tracking/d' \
-    -e '/^\/usr\/share\/selinux\/devel\/.* duplicate definition of /d' \
+    -e '/QtCore\/qvector.h:.* memcpy(/d' \
+    -e '/libpython.* warning: warning: tmpnam() possibly used unsafely/d' \
+    -e '/libpython.* warning: warning: tempnam() possibly used unsafely/d' \
+    -e '/WARNING: missing directory entry for <.*pcp/s/WARNING/Warning/' \
+    -e '/WARNING: missing directory entry for </d' \
+    -e '/^Project WARNING: CONFIG-=import_qpa_plugin is deprecated./d' \
+    -e '/^Project MESSAGE: Warning: unknown QT: widgets/d' \
+    -e '/^Project MESSAGE: Warning: unknown QT: printsupport/d' \
+    -e '/ldconfig: Warning: ignoring configuration file that cannot be opened: .*pcp.*BUILDROOT/d' \
+    -e '/<stdout>:.* warning: comparison between signed and unsigned/d' \
 # end
 if [ -s $tmp.err ]
 then
-    echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build warnings/errors" | tee -a $HOME/daily.log
+    echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build errors/warnings" | tee -a $HOME/daily.log
     cat $tmp.err >>$HOME/daily.log
-    echo "--- end build warnings/errors ---" >>$HOME/daily.log
+    echo "--- end build errors/warnings ---" >>$HOME/daily.log
     ok=false
 fi
 $ok && echo "Info: Makepkgs" | tee -a $HOME/daily.log
@@ -481,8 +513,11 @@ sts=\$?
 # look for badness in daily.qa.log and report here (so it goes into any
 # cron-based email)
 awk <\$HOME/daily.qa.log '
-\$1 == "Aborted!"	{ print }
-\$1 == "Check!"		{ print }'
+/waiting for lock/		{ print }
+/could not acquire lock/	{ print }
+/error while loading shared libraries/	{ print }
+\$1 == "Aborted!"		{ print }
+\$1 == "Check!"			{ print }'
 # get last block from check.log ... then get the summary on
 # stdout (not needed in the daily.qa.log already there)
 sed -e '/^    [0-9 ]*\$/d' <check.log \
@@ -501,6 +536,22 @@ then
     echo "Info: QA \$qa_restrict done" | tee -a \$HOME/daily.qa.log
 else
     echo "Error: QA \$qa_restrict failed!" | tee -a \$HOME/daily.qa.log
+fi
+# if we're using systemctl, then need to start enabled PCP
+# services so we leave things in a good state
+#
+if which systemctl >/dev/null 2>&1
+then
+    systemctl list-unit-files >\$tmp.systemctl
+    for svc in pmcd pmproxy pmie pmlogger_daily_report pmlogger pmmgr
+    do
+	if grep "\$svc.service[ 	]*enabled" <\$tmp.systemctl >/dev/null
+	then
+	    echo "Info: restarting \$svc" | tee -a \$HOME/daily.qa.log
+	    sudo systemctl reset-failed \$svc
+	    sudo systemctl restart \$svc
+	fi
+    done
 fi
 date >>\$HOME/daily.qa.log
 End-of-File
@@ -551,7 +602,7 @@ sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24 vm26 vm28 vm30 vm32 vm34"
-list_2="vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23 vm25 vm27 vm29 vm31 vm33"
+list_2="bozo vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23 vm25 vm27 vm29 vm31 vm33 vm37 vm38"
 
 args="$*"
 pcp_branch=master
@@ -752,7 +803,7 @@ do
     count=`wc -l <$tmp.domain | sed -e 's/ //g'`
     if [ $count != 1 ]
     then
-	echo "Warning: More than one domain matches \"$target\" ... the matches I have are ..."
+	echo "Warning: more than one domain matches \"$target\" ... the matches I have are ..."
 	cat $tmp.domain
 	echo "... using the first one."
     fi
@@ -780,19 +831,31 @@ do
 	    [ X"$what" = Xall ] && check_what='-x valgrind'
 	    ;;
 
-	vm06|vm09|vm13|vm33)
-	    # Only -g sanity at this stage for NetBSD or OpenBSD or FreeBSD
-	    # or OpenIndiana
+	vm06)
+	    # Only selected groups at this stage for FreeBSD 10.4
+	    #	sanity trace libpcp kernel pmrep threads
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind'
+	    ;;
+
+	vm09)
+	    # Only selected groups at this stage for NetBSD 6.1.5
+	    #	sanity trace libpcp kernel pmrep threads
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind'
 	    ;;
 
 	vm10)
-	    # Only selected groups this stage for FreeBSD 10.4
-	    #	sanity trace libpcp
-	    # and some tests are not working yet
+	    # Only selected groups at this stage for FreeBSD 10.4
+	    #	sanity trace libpcp kernel pmrep threads
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -x valgrind'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind'
+	    ;;
+
+	vm13)
+	    # Only -g sanity at this stage for OpenIndiana
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
 
 	vm15)
@@ -808,11 +871,18 @@ do
 	    ;;
 
 	vm32)
-	    # Only selected groups this stage for FreeBSD 11.1
-	    #	sanity trace libpcp
+	    # Only selected groups at this stage for FreeBSD 11.1
+	    #	sanity trace libpcp kernel pmrep threads
 	    # and some tests are not working yet
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -x valgrind -X 603'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind -X 603'
+	    ;;
+
+	vm33)
+	    # Only selected groups at this stage for OpenBSD 6.3
+	    #	sanity trace libpcp kernel pmrep threads
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads'
 	    ;;
 
 	vm35)
@@ -843,6 +913,21 @@ do
 		efile=''
 	    fi
 	    ;;
+
+	vm37)
+	    # Only selected groups this stage for OpenBSD 6.4
+	    #	sanity threads kernel
+	    # and some tests are not working yet
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity -g threads -g kernel'
+	    ;;
+
+	vm38)
+	    # Only -g sanity at this stage for NetBSD 8.0
+	    #
+	    [ X"$what" = Xall ] && check_what='-g sanity'
+	    ;;
+
     esac
 
     if which virsh >/dev/null 2>&1
@@ -894,7 +979,7 @@ do
 	max_wait=300
 	while [ $wait -lt $max_wait ]
 	do
-	    if ssh $build_user@$host true
+	    if ssh $build_user@$host true >/dev/null 2>&1
 	    then
 		$debug && echo host $host up and ssh for $build_user ok
 		if [ "$build_user" != "$qa_user" ]
@@ -1006,6 +1091,7 @@ End-of-File
 
 	# actually do the remote work here
 	#
+	start=`date +%s`
 	ssh -t $build_user@$host sh -c ./daily.script
 	scp -q $build_user@$host:daily.log $tmp.out
 	echo "=== build and install: `date` ===" >>$log
@@ -1041,7 +1127,7 @@ End-of-File
 		rm -f $HOME/Logs/by-vm/$domain/qa
 		mkdir -p $HOME/Logs/by-vm/$domain/qa
 		( cd $HOME/Logs/by-vm/$domain/qa;
-		    for file in common* group show-me localconfig
+		    for file in common common.rc common.check common.setup group show-me localconfig
 		    do
 		    	ln -s $HOME/src/pcp/qa/$file* .
 		    done
@@ -1072,7 +1158,16 @@ End-of-File
 		echo "No failures."
 	    fi
 	fi
+	end=`date +%s`
+	echo "$start $end" | awk >>$log '
+    { delta = $2 - $1
+      hr = int(delta/3600)
+      min = int((delta-hr*3600)/60)
+      sec = delta % 60
+      printf "Elapsed time: %d:%02d:%02d (%d secs)\n", hr, min, sec, delta
+    }'
     fi
+    
 
     if $sflag
     then
@@ -1093,9 +1188,9 @@ End-of-File
 	    then
 		if $work
 		then
-		    echo "Warning: Already shutdown"  | tee -a $HOME/daily.log
+		    echo "Warning: already shutdown"  | tee -a $HOME/daily.log
 		else
-		    echo "Warning: Already shutdown"
+		    echo "Warning: already shutdown"
 		fi
 	    else
 		ssh -f -t -q $build_user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; ( sudo poweroff || sudo halt )" </dev/null &
@@ -1108,17 +1203,17 @@ End-of-File
 		sudo virsh destroy $domain
 		if $work
 		then
-		    echo "Info: Shutdown"  | tee -a $HOME/daily.log
+		    echo "Info: shutdown"  | tee -a $HOME/daily.log
 		else
-		    echo "Info: Shutdown"
+		    echo "Info: shutdown"
 		fi
 	    fi
 	else
 	    if $work
 	    then
-		echo "Warning: Shutdown skipped"  | tee -a $HOME/daily.log
+		echo "Warning: shutdown skipped"  | tee -a $HOME/daily.log
 	    else
-		echo "Warning: Shutdown skipped"
+		echo "Warning: shutdown skipped"
 	    fi
 	fi
     fi

@@ -1,16 +1,16 @@
 '\"macro stdmacro
 .\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .TH QMC_INDOM 3 "SGI" "Performance Co-Pilot"
 .SH NAME
 \f3QmcIndom\f1 \- container for a instance domain description
@@ -18,7 +18,7 @@
 .ft 3
 #include <QmcIndom.h>
 .sp
-CC ... \-lqmc \-lpcp 
+CC ... \-lqmc \-lpcp
 .ft 1
 .SH DESCRIPTION
 A
@@ -45,7 +45,7 @@ objects referring to this instance.
 
 - the likely position of the instance in the
 .B pmResult
-from a 
+from a
 .BR pmFetch (3).
 This is also used to indicate the position of the next NULL instance
 in the instance table, if this entry is also NULL.
@@ -54,7 +54,7 @@ in the instance table, if this entry is also NULL.
 .BR pmGetInDom (3).
 .in
 .PP
-The 
+The
 .B QmcIndom
 object has a list of
 .B QmcInstance
@@ -65,7 +65,7 @@ generation.
 .SH CONSTRUCTORS
 .TP 4
 .B "QmcIndom::QmcIndom(int type, QmcDesc &desc);"
-Calls 
+Calls
 .BR pmGetInDom (3)
 and
 .BR pmGetInDomArchive (3)
@@ -91,13 +91,13 @@ inserted into positions of deleted instances before being appended to the list.
 This algorithm is expensive (potentially O(N^2)).
 .TP 4
 .B "bool changed() const;"
-Returns 
+Returns
 .B true
 if the instance domain may have changed in the last fetch.
 .TP
 .B "void newFetch();"
 Reset the flags that may have indicated that the instance domain had changed.
-This is called by 
+This is called by
 .BR QmcContext::fetch .
 .TP
 .B "void hasChanged();"
@@ -151,7 +151,7 @@ else if (the number of referenced instances
 else
 
         add all instances to profile
-        delete all instances that are not referenced 
+        delete all instances that are not referenced
 .fi
 .ft R
 .in
@@ -193,7 +193,7 @@ to the global debugging specification, as described in
 .BR pmSetDebug (3).
 .SH BUGS
 User's have no control over the algorithm used to generate the profile. In
-the case of 
+the case of
 .I proc
 metrics, an implicit profile could be generated if all process instances are
 required, even though this will result in no values being returned in the

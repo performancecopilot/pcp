@@ -2,7 +2,7 @@
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) International Business Machines Corp., 2002
  * Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
- * Portions Copyright (c) 2013-2018 Red Hat.
+ * Portions Copyright (c) 2013-2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -106,6 +106,7 @@ kernel.all {
     softirqs
     entropy
     pid_max		60:72:2
+    pressure
 }
 
 kernel.all.interrupts {
@@ -120,6 +121,51 @@ kernel.all.softirqs {
 kernel.all.entropy {
     avail		60:72:0
     poolsize		60:72:1
+}
+
+kernel.all.pressure {
+    cpu
+    memory
+    io
+}
+
+kernel.all.pressure.cpu {
+    some
+}
+
+kernel.all.pressure.cpu.some {
+    avg			60:83:0
+    total		60:83:1
+}
+
+kernel.all.pressure.memory {
+    some
+    full
+}
+
+kernel.all.pressure.memory.some {
+    avg			60:84:0
+    total		60:84:1
+}
+
+kernel.all.pressure.memory.full {
+    avg			60:84:2
+    total		60:84:3
+}
+
+kernel.all.pressure.io {
+    some
+    full
+}
+
+kernel.all.pressure.io.some {
+    avg			60:85:0
+    total		60:85:1
+}
+
+kernel.all.pressure.io.full {
+    avg			60:85:2
+    total		60:85:3
 }
 
 kernel.all.cpu {
@@ -256,6 +302,8 @@ ipc.msg {
     perms 		60:65:2
     msgsz 		60:65:3
     messages 		60:65:4
+    last_send_pid	60:65:5
+    last_recv_pid	60:65:6
 }
 
 ipc.shm {
@@ -276,6 +324,8 @@ ipc.shm {
     segsz 		60:64:3
     nattch 		60:64:4
     status 		60:64:5
+    creator_pid		60:64:6
+    last_access_pid	60:64:7
 }
 
 pmda {

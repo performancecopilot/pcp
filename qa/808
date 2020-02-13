@@ -14,9 +14,24 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_cleanup()
+{
+    cd $here
+    if [ -n "$pid" ]
+    then
+	$sudo rm -f $PCP_TMP_DIR/pmlogger/$pid $PCP_RUN_DIR/pmlogger.$pid.socket
+    fi
+    $sudo rm -f $PCP_RUN_DIR/pmlogger.pid
+    _restore_auto_restart pmlogger
+    _service pmlogger restart | _filter_pcp_start
+    rm -rf $tmp.*
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmlogger
 
 # real QA test starts here
 
@@ -50,15 +65,13 @@ else
 	echo pid of killed primary logger is $pid
 	echo === ls -l $PCP_RUN_DIR ===
 	ls -l $PCP_RUN_DIR
-	echo === manually removing stale run files ===
-	$sudo rm -f $PCP_RUN_DIR/*pmlogger*
 	status=1
 	exit
     fi
 
     # cleanup from SIGKILL
     #
-    $sudo rm -f $PCP_TMP_DIR/pmlogger/$pid $PCP_RUN_DIR/pmlogger.$pid.socket
+    $sudo rm -f $PCP_TMP_DIR/pmlogger/$pid $PCP_RUN_DIR/pmlogger.pid $PCP_RUN_DIR/pmlogger.$pid.socket
 
 
 #
@@ -97,15 +110,13 @@ else
 	echo pid of killed primary logger is $pid
 	echo === ls -il $PCP_RUN_DIR ===
 	ls -il $PCP_RUN_DIR
-	echo === manually removing stale run files ===
-	$sudo rm -f $PCP_RUN_DIR/*pmlogger*
 	status=1
 	exit
     fi
 
     # cleanup from SIGKILL
     #
-    $sudo rm -f $PCP_TMP_DIR/pmlogger/$pid $PCP_RUN_DIR/pmlogger.$pid.socket
+    $sudo rm -f $PCP_TMP_DIR/pmlogger/$pid $PCP_RUN_DIR/pmlogger.pid $PCP_RUN_DIR/pmlogger.$pid.socket
 
     # success
     status=0

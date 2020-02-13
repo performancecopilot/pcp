@@ -42,6 +42,10 @@ typedef enum mmv_metric_sem {
     MMV_SEM_DISCRETE	= PM_SEM_DISCRETE,
 } mmv_metric_sem_t;
 
+enum {
+    MMV_INDOM_NULL	= PM_INDOM_NULL
+};
+
 typedef struct mmv_instances {
     __int32_t		internal;	/* Internal instance ID */
     char		external[MMV_NAMEMAX];	/* External instance ID */

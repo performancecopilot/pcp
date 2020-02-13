@@ -44,8 +44,13 @@ thishost        n   n   $tmp/thishost    -c /no/such/config
 otherhost       n   n   $tmp/otherhost   -c /no/such/config
 End-of-File
 
+# pmlogger_daily runs as the user "pcp" ... fix ownership
+#
+find $tmp/* -type f | xargs -r $sudo chown $PCP_USER:$PCP_GROUP
+find $tmp/* -type d | xargs -r $sudo chown $PCP_USER:$PCP_GROUP
+
 # real QA test starts here
-$sudo $PCP_BINADM_DIR/pmlogger_daily -x 0 -l $tmp.log -V -k never -c $tmp.control \
+$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -x 0 -l $tmp.log -V -k never -c $tmp.control \
 | _filter
 
 _filter <$tmp.log

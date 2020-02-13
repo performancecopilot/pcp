@@ -1,141 +1,185 @@
 #!/bin/sh
 # PCP QA Test No. 967
-# Testing auto enabling pmdapapi metrics
+# zsh shell completion check (see 1100 for bash version)
 #
-# Copyright (c) 2014-2015 Red Hat Inc.  All Rights Reserved.
+# Copyright (c) 2017 Red Hat.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
+. ./common.config
+echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$here/$seq.full
 
-[ -d $PCP_PMDAS_DIR/papi ] || _notrun "PAPI PMDA is not installed"
-perfevent=`pminfo -f pmcd.agent.status | grep perfevent | wc -l`
-[ $perfevent -eq 1 ] && _notrun "perfevent PMDA installed, conflicts with PAPI"
+[ $PCP_PLATFORM = linux ] || _notrun "Test needs to run only on Linux"
 
-$sudo rm -rf $tmp.* $seq.full
-trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+if which zsh >/dev/null 2>&1
+then
+    :
+else
+    _notrun "No zsh executable"
+    # NOTREACHED
+fi
 
-_filter_papi_errors()
+status=1       # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+export PCP_STDERR=$tmp.err
+echo "DISPLAY=$DISPLAY" >>$here/$seq.full
+echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$here/$seq.full
+if [ -z "$DISPLAY" ]
+then
+    export DISPLAY=$PCPQA_CLOSE_X_SERVER
+    echo "DISPLAY=$DISPLAY" >>$here/$seq.full
+fi
+
+# these may not be available if needed modules missing
+#
+skip_pcp2elasticsearch=false
+$python -c "import requests" >/dev/null 2>&1
+[ $? -eq 0 ] || skip_pcp2elasticsearch=true
+skip_pcp2xlsx=false
+$python -c "import openpyxl" >/dev/null 2>&1
+[ $? -eq 0 ] || skip_pcp2xlsx=true
+skip_pmrep=false
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    skip_pcp2elasticsearch=true
+    skip_pcp2graphite=true
+    skip_pcp2influxdb=true
+    skip_pcp2json=true
+    skip_pcp2spark=true
+    skip_pcp2xlsx=true
+    skip_pcp2xml=true
+    skip_pcp2zabbix=true
+    skip_pmrep=true
+fi
+
+# these may not be available if X11 display is missing
+#
+skip_pmchart=false
+which xdpyinfo >/dev/null 2>&1
+if [ $? -eq 0 ]
+then
+    xdpyinfo >/dev/null 2>&1
+    [ $? -eq 0 ] || skip_pmchart=true
+else
+    skip_pmchart=true
+fi
+
+# these may not be installed on all platforms
+skip_pmdumptext=false
+which pmchart > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    skip_pmchart=true
+fi
+which pmdumptext > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    skip_pmdumptext=true
+fi
+skip_pmseries=false
+which pmseries > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    skip_pmseries=true
+fi
+
+# sources
+share_dir=`dirname $PCP_SHARE_DIR`
+zsh_comp=${share_dir}/zsh/site-functions/_pcp
+
+# functions
+_check_completion_zsh()
 {
-    sed \
-	-e '/pfm_find_full_event(.*): event not found./d' \
-	-e '/events in papi_events.csv were not valid./d' \
-    # end
+  for cmd in $(grep '#compdef' $zsh_comp | sed -e 's,#compdef ,,'); do
+    which $cmd > /dev/null 2>&1 || continue
+    $skip_pcp2elasticsearch && [ "$cmd" = pcp2elasticsearch ] && continue
+    $skip_pcp2graphite && [ "$cmd" = pcp2graphite ] && continue
+    $skip_pcp2influxdb && [ "$cmd" = pcp2influxdb ] && continue
+    $skip_pcp2json && [ "$cmd" = pcp2json ] && continue
+    $skip_pcp2spark && [ "$cmd" = pcp2spark ] && continue
+    $skip_pcp2xlsx && [ "$cmd" = pcp2xlsx ] && continue
+    $skip_pcp2xml && [ "$cmd" = pcp2xml ] && continue
+    $skip_pcp2zabbix && [ "$cmd" = pcp2zabbix ] && continue
+    $skip_pmchart && [ "$cmd" = pmchart ] && continue
+    $skip_pmdumptext && [ "$cmd" = pmdumptext ] && continue
+    $skip_pmrep && [ "$cmd" = pmrep ] && continue
+    $skip_pmseries && [ "$cmd" = pmseries ] && continue
+    echo $cmd | grep = > /dev/null 2>&1 && continue
+    common=$(awk "/common_most=/,/  \)/" $zsh_comp)
+    pytool=$(awk "/common_python=/,/  \)/" $zsh_comp)
+    pmda=$(awk "/common_pmda=/,/  \)/" $zsh_comp)
+    version=V
+    comps=$(awk "/  $cmd\)/,/;;/" $zsh_comp | sed -e 's,equivalent to .*,,')
+    # Need $tmp.err and PCP_STDERR for pmchart ...
+    #
+    rm -f $tmp.err
+    touch $tmp.err
+    echo "=== zsh $cmd ===" >>$here/$seq.full
+    echo "comps=$comps" >>$here/$seq.full
+    $cmd --help >$tmp.out 2>&1
+    echo "--- stdout ---" >>$here/$seq.full
+    cat $tmp.out >>$here/$seq.full
+    echo "--- stderr ---" >>$here/$seq.full
+    cat $tmp.err >>$here/$seq.full
+    opts=$(cat $tmp.out $tmp.err | sed -e 's,equivalent to .*,,' | grep -Eo -- ' -[^-].' | tr -d - | tr -d '?' | tr -d , | sort | uniq)
+    echo "opts=$opts" >>$here/$seq.full
+
+    for opt in $opts; do
+      echo $comps | grep -E -- '({-'$opt'|"-'$opt')' > /dev/null 2>&1
+      not_found=$?
+      if [ $not_found -ne 0 ]; then
+        if [ "$opt" = "V" ]; then
+          echo $comps | grep common_help > /dev/null 2>&1
+          not_found=$?
+        fi
+      fi
+      if [ $not_found -ne 0 ]; then
+        echo $comps | grep common_most > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+          echo $common | grep -E -- '({-'$opt'|"-'$opt')' > /dev/null 2>&1
+          not_found=$?
+        fi
+      fi
+      if [ $not_found -ne 0 ]; then
+        echo $comps | grep common_pmda > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+          echo $pmda | grep -E -- '({-'$opt'|"-'$opt')' > /dev/null 2>&1
+          not_found=$?
+        fi
+      fi
+      if [ $not_found -ne 0 ]; then
+        echo $comps | grep common_python > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+          echo $pytool | grep -E -- '({-'$opt'|"-'$opt')' > /dev/null 2>&1
+          not_found=$?
+        fi
+      fi
+      if [ $not_found -ne 0 ]; then
+        echo "$opt missing for $cmd zsh completions"
+      fi
+    done
+
+    for comp in $(echo $comps | grep -o \"\(-. | tr -d '"' | tr -d '(' | tr -d '-'); do
+      echo $opts | grep $comp > /dev/null 2>&1
+      if [ $? -ne 0 ]; then
+        echo "$comp looks extraneous for $cmd zsh completions"
+      fi
+    done
+
+  done
 }
-
-_filter()
-{
-    sed \
-	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
-	-e 's/value [0-9][0-9]*/value NUMBER/' \
-	-e 's/TOT_INS([0-9]): [0-9][0-9]*/TOT_INS(N) NUMBER/' \
-	-e 's/TOT_INS(-1): [0-9][0-9]*/TOT_INS(-1) NUMBER/' \
-	-e 's/0x[0-9a-f]*/ADDR/g' \
-	-e 's/[0-2][0-9]:00:00.000/TIME/' \
-	-e 's/126.0.[0-9][0-9]*/126.0.NUMBER/' \
-	-e "s,$tmp,TMP," \
-    | _filter_papi_errors
-}
-
-# vars and checks
-papirootpmns=$PCP_PMDAS_DIR/papi/root
-pipepmda=$PCP_PMDAS_DIR/papi/pmdapapi
-
-# check if papi PMDA is going to work on this platform
-_check_papi
 
 # real QA test starts here
+echo "== only V+u for pmlogger should be missing"
+_check_completion_zsh
 
-# we want to check existing functionality is not effected if
-# 'auto_enabled' is disabled (aka, set to zero)
-# directly fetching the metric should not return a number
-
-echo "=== Daemon PMDA papi auto_enable disabled test ==="
-$sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
-open pipe $pipepmda -d 126 -l $tmp.log
-# on some platforms this may take a while ...
-wait 2
-getdesc on
-attr 'username' 'root'
-attr 11 '0'
-desc papi.system.TOT_INS
-desc papi.control.status
-desc papi.control.auto_enable
-store papi.control.auto_enable "0"
-fetch papi.system.TOT_INS
-store papi.control.enable "TOT_INS"
-fetch papi.system.TOT_INS
-store papi.control.disable "TOT_INS"
-fetch papi.system.TOT_INS
-EOF
-cat $tmp.log >>$here/$seq.full
-
-# now that we know existing functionality is working, lets test
-# the timeout of auto_enable, lets set to 5 seconds and test
-echo "=== Daemon PMDA papi auto_enable test ==="
-$sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
-open pipe $pipepmda -d 126 -l $tmp.log
-# on some platforms this may take a while ...
-wait 2
-getdesc on
-attr "username" "root"
-attr 11 "0"
-desc papi.system.TOT_INS
-store papi.control.auto_enable "5"
-fetch papi.system.TOT_INS
-fetch papi.control.status
-wait 7
-fetch papi.control.status
-EOF
-cat $tmp.log >>$here/$seq.full
-
-# even with a timeout (for our case it will be a small one)
-# the existing control.{enable,disable} metrics will override the
-# timeout value and the counters will continue counting
-
-echo "=== Daemon PMDA papi auto_enable with papi.control.enable test ==="
-$sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
-open pipe $pipepmda -d 126 -l $tmp.log
-# on some platforms this may take a while ...
-wait 2
-getdesc on
-attr "username" "root"
-attr 11 "0"
-desc papi.system.TOT_INS
-store papi.control.auto_enable "5"
-store papi.control.enable "TOT_INS"
-fetch papi.system.TOT_INS
-fetch papi.control.status
-wait 7
-fetch papi.control.status
-store papi.control.disable "TOT_INS"
-fetch papi.control.status
-EOF
-cat $tmp.log >>$here/$seq.full
-
-# add a test to check that the papi.control.status metric shows
-# evidence of altering the papi.control.multiplex metric
-
-echo "=== Daemon PMDA papi auto_enable with multiplexing disabled test ==="
-$sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
-open pipe $pipepmda -d 126 -l $tmp.log
-# on some platforms this may take a while ...
-wait 2
-getdesc on
-attr "username" "root"
-attr 11 "0"
-desc papi.control.multiplex
-fetch papi.control.status
-store papi.control.multiplex "0"
-store papi.control.auto_enable "5"
-fetch papi.system.TOT_INS
-fetch papi.control.status
-wait 7
-fetch papi.control.status
-EOF
-cat $tmp.log >>$here/$seq.full
+# success, all done
+echo "== done"
+status=0
+exit

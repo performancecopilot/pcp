@@ -74,6 +74,7 @@ thread_A(void *arg)
 	perror("thread_A fopen");
 	pthread_exit("botch A.1");
     }
+    setlinebuf(f);
 
     if (pick_me == 0)
 	pthread_barrier_wait(&barrier);
@@ -119,6 +120,7 @@ thread_B(void *arg)
 	perror("thread_B fopen");
 	pthread_exit("botch B.1");
     }
+    setlinebuf(f);
 
     if (pick_me == 0)
 	pthread_barrier_wait(&barrier);
@@ -189,6 +191,7 @@ thread_C(void *arg)
 	perror("thread_C fopen");
 	pthread_exit("botch C.1");
     }
+    setlinebuf(f);
 
     if (pick_me == 0)
 	pthread_barrier_wait(&barrier);
@@ -327,6 +330,7 @@ thread_D(void *arg)
 	perror("thread_D fopen");
 	pthread_exit("botch D.1");
     }
+    setlinebuf(f);
 
     if (pick_me == 0)
 	pthread_barrier_wait(&barrier);
@@ -361,6 +365,23 @@ thread_D(void *arg)
     return(NULL);	/* pthread done */
 }
 
+static void
+wait_for_thread(char *name, pthread_t tid)
+{
+    int		sts;
+    char	*msg;
+
+    sts = pthread_join(tid, (void *)&msg);
+    if (sts == 0) {
+	if (msg == PTHREAD_CANCELED)
+	    printf("thread %s: pthread_join: cancelled?\n", name);
+	else if (msg != NULL)
+	    printf("thread %s: pthread_join: %s\n", name, msg);
+    }
+    else
+	printf("thread %s: pthread_join: error: %s\n", name, strerror(sts));
+}
+
 int
 main(int argc, char **argv)
 {
@@ -373,7 +394,6 @@ main(int argc, char **argv)
     int		iter_C = 10;
     int		iter_D = 10;
     int		sts;
-    char	*msg;
     char	*endnum;
     int		errflag = 0;
     int		c;
@@ -525,26 +545,14 @@ main(int argc, char **argv)
 	}
     }
 
-    if (pick_me == 0 || pick_me == 1) {
-	pthread_join(tid_A, (void *)&msg);
-	if (msg != NULL) printf("tid_A: %s\n", msg);
-	pthread_cancel(tid_A);
-    }
-    if (pick_me == 0 || pick_me == 2) {
-	pthread_join(tid_B, (void *)&msg); 
-	if (msg != NULL) printf("tid_B: %s\n", msg);
-	pthread_cancel(tid_B);
-    }
-    if (pick_me == 0 || pick_me == 3) {
-	pthread_join(tid_C, (void *)&msg); 
-	if (msg != NULL) printf("tid_C: %s\n", msg);
-	pthread_cancel(tid_C);
-    }
-    if (pick_me == 0 || pick_me == 4) {
-	pthread_join(tid_D, (void *)&msg); 
-	if (msg != NULL) printf("tid_D: %s\n", msg);
-	pthread_cancel(tid_D);
-    }
+    if (pick_me == 0 || pick_me == 1)
+	wait_for_thread("tid_A", tid_A);
+    if (pick_me == 0 || pick_me == 2)
+	wait_for_thread("tid_B", tid_B);
+    if (pick_me == 0 || pick_me == 3)
+	wait_for_thread("tid_C", tid_C);
+    if (pick_me == 0 || pick_me == 4)
+	wait_for_thread("tid_D", tid_D);
 
     exit(0);
 }

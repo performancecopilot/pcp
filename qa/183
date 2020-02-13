@@ -116,7 +116,7 @@ echo "=== no primary logger ===" >>$seq.full
 $sudo $signal -a -s TERM pmlogger
 pmsleep 1.1
 $sudo $newlog $tmp 2>&1 | tee -a $seq.full | _filter
-_service pcp restart \
+_service pcp restart 2>&1 \
 | _filter_pcp_start \
 | sed -e '/pmlogger not running/d'
 _wait_for_pmcd

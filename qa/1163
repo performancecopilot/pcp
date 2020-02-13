@@ -104,6 +104,16 @@ pmdumplog -h $tmp.rewritten 2>&1 | tee -a $seq.full
 cat > $tmp.config <<EOF
 text metric 2.0.3 * "Number of clients currently connected to PMCD" { delete }
 text InDom 2.3 * "PMDA Instance Domain" { delete }
+
+text metric 2.0.16 *
+"A space-separated string representing all running PCP services with PID
+files in \$PCP_RUN_DIR (such as pmcd itself, pmproxy and a few others)."
+{ delete }
+
+text metric 2.0.20 *
+"Minor part of the PCP build version numbering.  For example on Linux
+with RPM packaging, if the PCP RPM version is pcp-2.5.99-20070323 then
+pmcd.build returns the string \"20070323\"."{ delete }
 EOF
 
 # Run pmlogrewrite(1)

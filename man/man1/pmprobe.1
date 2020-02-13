@@ -1,25 +1,24 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016-2018 Red Hat.
+.\" Copyright (c) 2016-2019 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
 .\"
 .TH PMPROBE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmprobe\f1 \- lightweight probe for performance metrics
 .SH SYNOPSIS
 \f3pmprobe\f1
-[\f3\-fFIiLVvz\f1]
+[\f3\-fFIiLVvz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-b\f1 \f2batchsize\f1]
 [\f3\-h\f1 \f2hostname\f1]
@@ -27,6 +26,8 @@
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-O\f1 \f2time\f1]
 [\f3\-Z\f1 \f2timezone\f1]
+[\f3\-\-container\f1=\f2name\f1]
+[\f3\-\-derived\f1=\f2file\f1]
 [\f2metricname\f1 ...]
 .SH DESCRIPTION
 .B pmprobe
@@ -39,7 +40,7 @@ arguments.
 If
 .I metricname
 is a non-leaf node in the Performance Metrics Name Space (\c
-.BR pmns (5)),
+.BR PMNS (5)),
 then
 .B pmprobe
 will recursively descend the PMNS and report on all leaf nodes.
@@ -78,32 +79,40 @@ The
 option causes
 .B pmprobe
 to use the specified set of archives rather than connecting to a PMCD.
-The argument is a comma-separated list of names, each
-of which may be the base name of an archive or the name of a directory containing
-one or more archives.
-The
-.B \-a
-and
-.B \-h
-options are mutually exclusive.
 .PP
-The \fB\-b\fR/\fB\-\-batch\fR option may be used to define the maximum size of
-the group of metrics to be fetched in a single request for the
-\fB\-v/\fB\-\-values\fR option.
-This batching is also applied to the
+The
+.B \-L
+option causes
+.B pmprobe
+to use a local context to collect metrics from PMDAs on the local host
+without PMCD.
+Only some metrics are available in this mode.
+.PP
+The
+.BR \-a ,
+.B \-h
+and
+.B \-L
+options are mutually exclusive.
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
+Performance metric values are retrieved from the set of Performance
+Co-Pilot (PCP) archive log files identified by the
+.I archive
+argument, which is a comma-separated list of names,
+each of which may be the base name of an archive or the name of
+a directory containing one or more archives.
+.TP
+\fB\-b\fR, \fB\-\-batch\fR
+This option may be used to define the maximum number of metrics
+to be fetched in a single request for the \fB\-v\fR option and
+any
 .BR pmLookupName (3)
 request that
 .B pmprobe
-calls with the list of leaf metric names, to avoid exceeding the maximum PDU length
-supported by
-.BR pmcd (1)
-for client requests.
-This can be important for
-.BR pmlogconf (1),
-which uses
-.B pmprobe
-to enumerate the set of metrics to be logged by
-.BR pmlogger (1).
+calls with a list of leaf metric names.
 The default value for
 .I batchsize
 is 128.
@@ -112,20 +121,8 @@ and also to stagger fetches, which may otherwise timeout if
 .BR pmcd (1)
 or a PMDA is slow to respond, particularly if a large
 number of metrics are probed.
-.PP
-The
-.B \-L
-option causes
-.B pmprobe
-to use a local context to collect metrics from PMDAs on the local host
-without PMCD.  Only some metrics are available in this mode.
-The
-.BR \-a ,
-.B \-h
-and
-.B \-L
-options are mutually exclusive.
-.PP
+.TP
+\fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
 Normally
 .B pmprobe
 operates on the distributed Performance Metrics Name Space (PMNS),
@@ -134,62 +131,54 @@ however, if the
 option is specified an alternative local PMNS file is loaded
 from the file
 .IR pmnsfile .
-.PP
-Other options control the output of additional information when
-one or more values is available.
-.TP 5
-.B \-f
+.TP
+\fB\-f\fR, \fB\-\-force\fR
 When used with
 .B \-i
 or
 .B \-I
 the set of instances reported will be all of those known at the
-source of the performance data.  By default the set of reported
-instances are those for which values are currently available, which
-may be smaller than the set reported with
+source of the performance data.
+By default the set of reported
+instances are those for which values are currently available,
+which may be smaller than the set reported with
 .BR \-f .
 .TP
-.B \-I
-Report the external identifiers for each instance.  The literal string
+\fB\-I\fR, \fB\-\-external\fR
+Report the external identifiers for each instance.
+The literal string
 .B PM_IN_NULL
 is reported for singular metrics.
 .TP
-.B \-i
-Report the internal identifiers for each instance.  The values are
-in decimal and prefixed by ``?''.  As a special case, the literal
-string
+\fB\-i\fR, \fB\-\-internal\fR
+Report the internal identifiers for each instance.
+The values are in decimal and prefixed by ``?''.
+As a special case, the literal string
 .B PM_IN_NULL
 is reported for singular metrics.
 .TP
-.B \-K
-When using the
-.B \-L
-option to fetch metrics from a local context, the
-.B \-K
-option may be used to control the DSO PMDAs that should be
-made accessible.  The
+\fB\-K\fR \fIspec\fR, \fB\-\-spec\-local\fR=\fIspec\fR
+When using the \fB\-L/\fR option to fetch metrics from a local context,
+this option controls the DSO PMDAs that should be made accessible.
+The
 .I spec
 argument conforms to the syntax described in
 .BR pmSpecLocalPMDA (3).
-More than one
-.B \-K
-option may be used.
+More than one \fB\-K\fR option may be used.
 .TP
-.B \-O
-When used in conjunction with an archive source of metrics and
-the
-.B \-v
-option the
+\fB\-O\fR \fItime\fR, \fB\-\-origin\fR=\fItime\fR
+When used in conjunction with an archive source of metrics and the
+options \fB\-f/\fR, the
 .I time
 argument defines a time origin at which the metrics should be
-fetched from the archive(s).
+fetched from the set of archives.
 Refer to
 .BR PCPIntro (1)
 for a complete description of this option, and the syntax for the
 .I time
 argument.
 .TP
-.B \-v
+\fB\-v\fR, \fB\-\-values\fR
 Report the value for each instance, as per the formatting
 rules of
 .BR pmPrintValue (3).
@@ -198,7 +187,6 @@ those instances present in the first archive record for a metric will be
 displayed; see also the
 .B \-O
 option.
-.PP
 The
 .B \-v
 option is mutually exclusive with either the
@@ -206,11 +194,35 @@ option is mutually exclusive with either the
 or
 .B \-i
 options.
-.PP
+.TP
+\fB\-V\fR, \fB\-\-verbose\fR
+This option provides a cryptic summary of the number of messages
+sent and received across the PMAPI interface.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.TP
+\fB\-\-container\fR=\fIcontainer\fR
+Specify an individual
+.I container
+to be queried.
+.TP
+\fB\-\-derived\fR=\fIdmfile\fR
 The
-.B \-V
-option provides a cryptic summary of the number of messages sent
-and received across the PMAPI interface.
+.I dmfile
+argument specifies a file that contains derived metric definitions
+in the format described for
+.BR pmLoadDerivedConfig (3).
+This option provides a way to load derived metric definitions that
+is an alternative to the more generic use of the
+.B PCP_DERIVED_CONFIG
+environment variable as described in
+.BR PCPIntro (1).
+Using the \fB\-\-derived\fR option and the
+.B PCP_DERIVED_CONFIG
+environment variable to specify the
+.B same
+configuration is a bad idea, so choose one or the other method.
 .SH EXAMPLES
 .nf
 .ft CW
@@ -228,15 +240,15 @@ disk.dev.response 2
 .ft CW
 $ pmprobe \-I disk.dev.read disk.dev.write disk.all.total
 .ft CW
-disk.dev.read 2 "dks0d1" "dks0d2"
-disk.dev.write 2 "dks0d1" "dks0d2"
+disk.dev.read 2 "sda" "sdb"
+disk.dev.write 2 "sda" "sdb"
 disk.all.total 1 PM_IN_NULL
 .sp
 .ft CW
 $ pmprobe \-v pmcd.numagents pmcd.version pmcd.control.timeout
 .ft CW
 pmcd.numagents 1 9
-pmcd.version 1 "2.0 beta-1"
+pmcd.version 1 "5.0.0"
 pmcd.control.timeout 1 5
 .sp
 .ft CW
@@ -247,25 +259,18 @@ disk.all.total 1 4992466
 .fi
 .ft R
 .SH FILES
-.PD 0
-.TP 10
-.BI $PCP_VAR_DIR/pmns/ *
+.TP 5
+.I $PCP_VAR_DIR/pmns/*
 default PMNS specification files
-.PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
@@ -273,8 +278,9 @@ as described in
 .BR pminfo (1),
 .BR PMAPI (3),
 .BR pmErrStr (3),
+.BR pmGetOptions (3),
 .BR pmSpecLocalPMDA (3),
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and
-.BR pmns (5).
+.BR PMNS (5).

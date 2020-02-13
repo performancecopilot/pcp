@@ -1,0 +1,110 @@
+#!/bin/sh
+# PCP QA Test No. 1358
+# Exercise the podman PMDA.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.containers
+
+[ -f $PCP_PMDAS_DIR/podman/pmdapodman ] || _notrun "podman pmda not installed"
+_check_containers
+_check_podman_binary
+_check_podman_images busybox
+
+iam=podman
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+pmdapodman_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/podman
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== podman agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # Check podman metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check podman metrics have appeared/    { if ($7 >= 20) $7 = "X"
+                                          if ($10 >= 0) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+_filter()
+{
+    egrep "^podman|$pod1|$pod2|$container1|$container2" | \
+    sed \
+	-e "s/$pod1/POD/g" \
+	-e "s/$pod2/POD/g" \
+	-e "s/$container1/CONTAINER/g" \
+	-e "s/$container2/CONTAINER/g" \
+	-e 's/ value [0-9]\+\.\?[0-9]*[eE][+-][0-9]\+/ value FLOAT/g' \
+	-e 's/ value [0-9]\+\.[0-9]\+/ value FLOAT/g' \
+	-e 's/ value [0-9]\+/ value INTEGER/g' \
+	-e 's/ value ".*"/ value STRING/g' \
+	-e 's/inst \[[[0-9]\+ or/ inst [NNN or/g' \
+    #end
+}
+
+_cleanup()
+{
+    if [ -n "$container1" -o -n "$container2" ]
+    then
+        echo "== removing containers" | tee -a $here/$seq.full
+        _remove_podman_containers $container1 $container2
+        container2=""
+        container1=""
+    fi
+    if [ -n "$pod1" -o -n "$pod2" ]
+    then
+        echo "== removing pods" | tee -a $here/$seq.full
+        _remove_podman_pods $pod1 $pod2
+        pod2=""
+        pod1=""
+    fi
+    _restore_pmda_install $iam
+    $sudo rm -f $tmp.*
+}
+
+_prepare_pmda podman
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmdapodman_install
+
+# create some new podman containers
+container1=`$podman run -d busybox sleep 10`
+echo "== container1: $container1" >> $here/$seq.full
+container2=`$podman run -d busybox sleep 10`
+echo "== container2: $container2" >> $here/$seq.full
+[ -z "$container1" -o -z "$container2" ] && _fail "Failed to create containers"
+
+# create some new podman pods
+pod1=`$podman pod create`
+echo "== pod1: $pod1" >> $here/$seq.full
+pod2=`$podman pod create`
+echo "== pod2: $pod2" >> $here/$seq.full
+[ -z "$pod1" -o -z "$pod2" ] && _fail "Failed to create PODs"
+
+# fetch new state, check for new containers and pods
+echo "=== podman metric verification ==="
+pminfo --fetch podman | tee -a $here/$seq.full | _filter
+
+echo
+echo "=== remove $iam agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
+
+# success, all done
+status=0
+exit

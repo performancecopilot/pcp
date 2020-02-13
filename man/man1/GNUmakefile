@@ -32,4 +32,5 @@ install :: install_pcp
 install_pcp : default
 	$(INSTALL_MAN)
 
-
+check :: $(MAN_PAGES)
+	$(MANLINT) $^

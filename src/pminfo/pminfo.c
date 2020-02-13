@@ -644,7 +644,7 @@ mymetrichash(unsigned char *hash, const char *name, pmDesc *desc, const char *la
 
     pmsprintf(buffer, sizeof(buffer),
 		"{\"series\":\"metric\",\"name\":\"%s\",\"labels\":%s,"
-		 "\"semantics\":%s,\"type\":%s,\"units\":%s}",
+		 "\"semantics\":\"%s\",\"type\":\"%s\",\"units\":\"%s\"}",
 		name, labels, pmSemStr(desc->sem), pmTypeStr(desc->type),
 		pmUnitsStr(&desc->units));
     SHA1Init(&shactx);

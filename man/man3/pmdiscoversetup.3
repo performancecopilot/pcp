@@ -1,0 +1,183 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2019 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDISCOVERSETUP 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmDiscoverSetup\f1,
+\f3pmDiscoverSetSlots\f1,
+\f3pmDiscoverSetEventLoop\f1,
+\f3pmDiscoverSetConfiguration\f1,
+\f3pmDiscoverSetMetricRegistry\f1,
+\f3pmDiscoverClose\f1 \- asynchronous archive location and contents discovery services
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmwebapi.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmDiscoverSetup(pmDiscoverModule *\fImodule\fP, pmDiscoverCallBacks *\fIcallbacks\fP, void *\fIarg\fP);
+.sp
+.ti -8n
+int pmDiscoverSetSlots(pmDiscoverModule *\fImodule\fP, void *\fIslots\fP);
+.br
+.ti -8n
+int pmDiscoverSetEventLoop(pmDiscoverModule *\fImodule\fP, void *\fIuvloop\fP);
+.br
+.ti -8n
+int pmDiscoverSetConfiguration(pmDiscoverModule *\fImodule\fP, struct dict *\fIconfig\fP);
+.br
+.ti -8n
+int pmDiscoverSetMetricRegistry(pmDiscoverModule *\fImodule\fP, struct mmv_registry *\fIregistry\fP);
+.sp
+.ti -8n
+int pmDiscoverClose(pmDiscoverModule *\fImodule\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_web
+.ft 1
+.SH DESCRIPTION
+The
+.B pmDiscoverSetup
+and related functions are an integral part of the
+.B libpcp_web
+API library, as used by and described in
+.BR pmwebapi (3),
+.BR pmproxy (1),
+.BR pmseries (1)
+and elsewhere.
+These functions provide an asynchronous event driven mechanism to automatically
+discover PCP archives created by
+.BR pmlogger (1)
+and any other application capable of writing PCP archives.
+This includes
+.BR pmrep (1)
+and other applications using the
+.BR LOGIMPORT (3)
+API for importing performance data into the PCP infrastructure and writing PCP archives.
+.P
+The
+.B pmDiscover
+API services dynamically discover, monitor and manage directories of PCP archives as they
+are created, written to, compressed and eventually deleted.
+The underlying archive life-cycle is normally managed by the PCP log management infrustructure (see
+.BR pmlogger_daily (1)).
+Discovered archives that are active (currently being written) are "log-tailed" to extract near live/real-time
+performance data which is then passed off via registered callbacks for further processing.
+Archives that are compressed or inactive are tracked/monitored but not log-tailed.
+.P
+The
+.B pmDiscover
+routines can be configured to automatically discover and monitor PCP archives in one or more
+directories as specified in the
+.BR pmDiscoverModule ,
+which is initially set up by calling
+.B pmDiscoverSetConfiguration
+to create a
+.I module
+of type
+.BR pmDiscoverModule ,
+as described above.
+The resulting
+.I module
+is then passed to
+.BR pmDiscoverSetup
+along with an initialized structure of
+.I callbacks
+of type
+.BR pmDiscoverCallBacks .
+.P
+Setting up a discovery module and callbacks would normally declare an instance of
+.BR pmDiscoverSettings ,
+e.g.
+.br
+.sp
+.nf
+.in +0.5i
+#include <pcp/pmwebapi.h>
+
+static pmDiscoverSettings someapp_discover = {
+    .callbacks.on_source        = pmSomeappDiscoverSource,
+    .callbacks.on_closed        = pmSomeappDiscoverClosed,
+    .callbacks.on_labels        = pmSomeappDiscoverLabels,
+    .callbacks.on_metric        = pmSomeappDiscoverMetric,
+    .callbacks.on_values        = pmSomeappDiscoverValues,
+    .callbacks.on_indom         = pmSomeappDiscoverInDom,
+    .callbacks.on_text          = pmSomeappDiscoverText,
+    .module.on_info             = someapp_logging_function,
+};
+.in
+.fi
+.P
+And then initialize this with API calls similar to the following:
+.br
+.sp
+.nf
+.in +0.5i
+pmDiscoverSetEventLoop(&someapp_discover.module, myevents);
+pmDiscoverSetConfiguration(&someapp_discover.module, myconfig);
+pmDiscoverSetMetricRegistry(&someapp_discover.module, metric_registry);
+pmDiscoverSetup(&someapp_discover.module, &someapp_discover.callbacks, &privatedata);
+.in
+.fi
+.P
+The above code must then implement each of the declared callbacks
+etc. to do whatever is required with the data passed in to the callback.
+Prototypes for these callbacks can be found in the
+.B pmwebapi.h
+header.
+The callbacks will be made asynchronously, as archives are discovered or deleted
+and as new data is written to active archive log volume and metadata files.
+.P
+In the case of
+.BR pmproxy (1),
+callbacks are registered to capture performance data, which is then sent to
+.BR redis (1)
+as the database back-end for fast scalable time-series queries by clients
+of the
+.BR PMWEBAPI (3)
+REST API services.
+Such clients include the
+.BR pmseries (1)
+application and
+.BR pmproxy (1),
+which is the back-end REST API server for
+.BR grafana-pcp (1),
+a native
+.BR grafana (1)
+data-source for PCP.
+.SH FILES
+The default archive directory is
+.BR $PCP_LOG_DIR ,
+which is normally
+.BR /var/log/pcp/pmlogger .
+The API recursively descends all sub-directories and also dynamically discovers any new directories or archives found therein.
+.SH DIAGNOSTICS
+Generally zero on success, or on error a negative return code, see
+.BR pmerr (1).
+.SH SEE ALSO
+.BR pmerr (1),
+.BR pmlogger (1),
+.BR pmproxy (1),
+.BR pmseries (1),
+.BR PMWEBAPI (3),
+.BR mmv_stats_registry (3),
+.BR PMAPI (3),
+.BR pmErrStr (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

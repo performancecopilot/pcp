@@ -23,6 +23,9 @@ MAN_PAGES = pmmgr.1
 
 LLDLIBS	= $(PCPLIB) $(LIB_FOR_PTHREADS) $(LIB_FOR_ATOMIC)
 LLDFLAGS += $(RDYNAMIC_FLAG) $(PIELDFLAGS)
+ifeq "$(TARGET_OS)" "openbsd"
+LLDFLAGS += -L/usr/local/lib
+endif
 LCFLAGS += $(PIECFLAGS)
 LDIRT = *.log pmmgr.service
 

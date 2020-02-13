@@ -82,7 +82,7 @@ PmView::PmView() : QMainWindow(NULL)
     toolbarAction->setChecked(globalSettings.initialToolbar);
     my.consoleHidden = true;
     if (somedebug)
-	consoleAction->setVisible(false);
+	consoleAction->setVisible(true);
     consoleAction->setChecked(false);
 
     // Build Scene Graph
@@ -97,8 +97,10 @@ PmView::PmView() : QMainWindow(NULL)
     my.drawStyle->style.setValue(SoDrawStyle::FILLED);
     my.root->addChild(my.drawStyle);
 
+    my.activeView = 0;
+
 #if 0
-    // TODO is this needed?
+    // TODO : support image dump from command line?
     if (outfile)
 	QTimer::singleShot(0, this, SLOT(exportFile()));
     else
@@ -114,7 +116,19 @@ void PmView::languageChange()
 
 void PmView::init(void)
 {
+    View *view = new View;
+    view->init(activeGroup, createPopupMenu(),
+		    activeGroup->isArchiveSource()? "Archive" : "Live");
+    pmview->addActiveView(view);
+
     my.statusBar->init();
+
+    connect(pmtime, SIGNAL(step(bool, QmcTime::Packet *)),
+		this, SLOT(step(bool, QmcTime::Packet *)));
+    connect(pmtime, SIGNAL(VCRMode(bool, QmcTime::Packet *, bool)),
+		this, SLOT(VCRMode(bool, QmcTime::Packet *, bool)));
+    connect(pmtime, SIGNAL(timeZone(bool, QmcTime::Packet *, char *)),
+		this, SLOT(timeZone(bool, QmcTime::Packet *, char *)));
 }
 
 void
@@ -227,6 +241,23 @@ void PmView::quit()
     // End any processes we may have started and close any open dialogs
     if (pmtime)
 	pmtime->quit();
+#ifdef HAVE_UNSETENV
+    unsetenv("PCP_STDERR");
+#else
+    putenv("PCP_STDERR=");
+#endif
+    pmflush();
+}
+
+void PmView::setValueText(QString &string)
+{
+    my.statusBar->setValueText(string);
+    QTimer::singleShot(PmView::defaultTimeout(), this, SLOT(timeout()));
+}
+
+void PmView::timeout()
+{
+    my.statusBar->clearValueText();
 }
 
 void PmView::closeEvent(QCloseEvent *)
@@ -268,6 +299,10 @@ void PmView::setButtonState(QedTimeButton::State state)
 
 void PmView::step(bool live, QmcTime::Packet *packet)
 {
+    if (pmDebugOptions.timecontrol) {
+	console->post("pmView::step(live=%d)", live);
+	console->post("Packet: %s", QmcTime::packetStr(packet));
+    }
     if (live)
 	liveGroup->step(packet);
     else
@@ -276,6 +311,10 @@ void PmView::step(bool live, QmcTime::Packet *packet)
 
 void PmView::VCRMode(bool live, QmcTime::Packet *packet, bool drag)
 {
+    if (pmDebugOptions.timecontrol) {
+	console->post("pmView::VCRMode(live=%d, ..., drag=%d", live, drag);
+	console->post("Packet: %s", QmcTime::packetStr(packet));
+    }
     if (live)
 	liveGroup->VCRMode(packet, drag);
     else
@@ -284,6 +323,10 @@ void PmView::VCRMode(bool live, QmcTime::Packet *packet, bool drag)
 
 void PmView::timeZone(bool live, QmcTime::Packet *packet, char *tzdata)
 {
+    if (pmDebugOptions.timecontrol) {
+	console->post("pmView::timeZone(live=%d, ..., tzdata=%s)", live, tzdata);
+	console->post("Packet: %s", QmcTime::packetStr(packet));
+    }
     if (live)
 	liveGroup->setTimezone(packet, tzdata);
     else
@@ -389,15 +432,13 @@ void PmView::optionsMenubar()
 
 void PmView::optionsConsole()
 {
-#if 0
-    if (pmDebug) {
+    if (somedebug) {
 	if (my.consoleHidden)
 	    console->show();
 	else
 	    console->hide();
 	my.consoleHidden = !my.consoleHidden;
     }
-#endif
 }
 
 void PmView::optionsNewPmchart()

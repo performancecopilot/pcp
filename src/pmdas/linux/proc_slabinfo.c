@@ -115,16 +115,18 @@ refresh_proc_slabinfo(pmInDom slab_indom, proc_slabinfo_t *slabinfo)
 	}
 	else if (major_version == 2 && minor_version >= 0 && minor_version <= 1) {
 	    /* 
-	     * <name> <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab>  .. and more
+	     * <name> <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab> : ... : slabdata <active_slabs> <num_slabs>.. and more
 	     * (generally for kernels up to at least 2.6.11)
 	     */
-	    i = sscanf(buf, "%s %lu %lu %u %u %u", name,
+	    i = sscanf(buf, "%s %lu %lu %u %u %u : %*s %*s %*s %*s : %*s %u %u", name,
 			    (unsigned long *)&sbuf.num_active_objs,
 			    (unsigned long *)&sbuf.total_objs,
 			    &sbuf.object_size,
 			    &sbuf.objects_per_slab, 
-			    &sbuf.pages_per_slab);
-	    if (i != 6) {
+			    &sbuf.pages_per_slab,
+			    &sbuf.num_active_slabs,
+			    &sbuf.total_slabs);
+	    if (i != 8) {
 		sts = PM_ERR_APPVERSION;
 		break;
 	    }
@@ -210,7 +212,7 @@ proc_slabinfo_fetch(pmInDom indom, int item, unsigned int inst, pmAtomValue *ap)
 	    ap->ul = slab_cache->pages_per_slab;
 	    break;
 	case 6:	/* mem.slabinfo.slabs.objects_per_slab */
-	    if (slab_cache->seen != 20)	/* version 2.0 only */
+	    if (slab_cache->seen != 20 && slab_cache->seen != 21)	/* version 2.0 or 2.1 only */
 		return 0;
 	    ap->ul = slab_cache->objects_per_slab;
 	    break;

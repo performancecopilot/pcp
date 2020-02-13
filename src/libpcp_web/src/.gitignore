@@ -1,8 +1,12 @@
 sds.c
+ini.c
+ini.h
 dict.c
 dict.h
 jsmn.c
 jsmn.h
+jsonsl.c
+jsonsl.h
 sha1.c
 sha1.h
 crc16.c
@@ -15,6 +19,6 @@ query_parser.tab.h
 libpcp_web.dll
 libpcp_web.dll.1
 libpcp_web.dylib
-libpcp_web.dylib.1
+libpcp_web.1.dylib
 libpcp_web.so
 libpcp_web.so.1

@@ -36,17 +36,17 @@ __dmgetpmid: metric "my.x3" -> PMID 511.0.5
 __dmgetpmid: metric "my.x4" -> PMID 511.0.6
 __dmgetpmid: metric "my.x5" -> PMID 511.0.7
 derived metrics prefetch added 2 metrics: 29.0.6 29.0.50
-eval_expr: inst[1] mismatch left [1]=200 right [1]=300
-eval_expr: inst[1] mismatch left [2]=300 right [0]=100
+eval_expr: PLUS: inst[1] mismatch left [1]=200 right [1]=300
+eval_expr: PLUS: inst[1] mismatch left [2]=300 right [0]=100
 eval_expr: recover @ right [1]=300
-eval_expr: inst[2] mismatch left [3]=400 right [2]=500
-eval_expr: inst[2] mismatch left [4]=500 right [0]=100
+eval_expr: PLUS: inst[2] mismatch left [3]=400 right [2]=500
+eval_expr: PLUS: inst[2] mismatch left [4]=500 right [0]=100
 eval_expr: recover @ right [2]=500
-eval_expr: inst[3] mismatch left [5]=600 right [3]=700
-eval_expr: inst[3] mismatch left [6]=700 right [0]=100
+eval_expr: PLUS: inst[3] mismatch left [5]=600 right [3]=700
+eval_expr: PLUS: inst[3] mismatch left [6]=700 right [0]=100
 eval_expr: recover @ right [3]=700
-eval_expr: inst[4] mismatch left [7]=800 right [4]=900
-eval_expr: inst[4] mismatch left [8]=900 right [0]=100
+eval_expr: PLUS: inst[4] mismatch left [7]=800 right [4]=900
+eval_expr: PLUS: inst[4] mismatch left [8]=900 right [0]=100
 eval_expr: recover @ right [4]=900
 __dmpostfetch: [0] root node 511.0.3: numval=5 vset[0]: inst=100 l=200 vset[1]: inst=300 l=600 vset[2]: inst=500 l=1000 vset[3]: inst=700 l=1400 vset[4]: inst=900 l=1800
 expr node <addr-0> type=PLUS left=<addr-1> right=<addr-2> save_last=0
@@ -80,13 +80,13 @@ expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bin
 [2] inst=500, val=500
 [3] inst=700, val=700
 [4] inst=900, val=900
-eval_expr: inst[1] mismatch left [1]=300 right [1]=200
+eval_expr: PLUS: inst[1] mismatch left [1]=300 right [1]=200
 eval_expr: recover @ right [2]=300
-eval_expr: inst[2] mismatch left [2]=500 right [3]=400
+eval_expr: PLUS: inst[2] mismatch left [2]=500 right [3]=400
 eval_expr: recover @ right [4]=500
-eval_expr: inst[3] mismatch left [3]=700 right [5]=600
+eval_expr: PLUS: inst[3] mismatch left [3]=700 right [5]=600
 eval_expr: recover @ right [6]=700
-eval_expr: inst[4] mismatch left [4]=900 right [7]=800
+eval_expr: PLUS: inst[4] mismatch left [4]=900 right [7]=800
 eval_expr: recover @ right [8]=900
 __dmpostfetch: [1] root node 511.0.4: numval=5 vset[0]: inst=100 l=200 vset[1]: inst=300 l=600 vset[2]: inst=500 l=1000 vset[3]: inst=700 l=1400 vset[4]: inst=900 l=1800
 expr node <addr-3> type=PLUS left=<addr-4> right=<addr-5> save_last=0
@@ -168,25 +168,25 @@ expr node <addr-11> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=2
-eval_expr: inst[1] mismatch left [1]=200 right [1]=300
-eval_expr: inst[1] mismatch left [2]=300 right [0]=100
+eval_expr: PLUS: inst[1] mismatch left [1]=200 right [1]=300
+eval_expr: PLUS: inst[1] mismatch left [2]=300 right [0]=100
 eval_expr: recover @ right [1]=300
-eval_expr: inst[2] mismatch left [3]=400 right [2]=500
-eval_expr: inst[2] mismatch left [4]=500 right [0]=100
+eval_expr: PLUS: inst[2] mismatch left [3]=400 right [2]=500
+eval_expr: PLUS: inst[2] mismatch left [4]=500 right [0]=100
 eval_expr: recover @ right [2]=500
-eval_expr: inst[3] mismatch left [5]=600 right [3]=700
-eval_expr: inst[3] mismatch left [6]=700 right [0]=100
+eval_expr: PLUS: inst[3] mismatch left [5]=600 right [3]=700
+eval_expr: PLUS: inst[3] mismatch left [6]=700 right [0]=100
 eval_expr: recover @ right [3]=700
-eval_expr: inst[4] mismatch left [7]=800 right [4]=900
-eval_expr: inst[4] mismatch left [8]=900 right [0]=100
+eval_expr: PLUS: inst[4] mismatch left [7]=800 right [4]=900
+eval_expr: PLUS: inst[4] mismatch left [8]=900 right [0]=100
 eval_expr: recover @ right [4]=900
-eval_expr: inst[1] mismatch left [1]=300 right [1]=200
+eval_expr: PLUS: inst[1] mismatch left [1]=300 right [1]=200
 eval_expr: recover @ right [2]=300
-eval_expr: inst[2] mismatch left [2]=500 right [3]=400
+eval_expr: PLUS: inst[2] mismatch left [2]=500 right [3]=400
 eval_expr: recover @ right [4]=500
-eval_expr: inst[3] mismatch left [3]=700 right [5]=600
+eval_expr: PLUS: inst[3] mismatch left [3]=700 right [5]=600
 eval_expr: recover @ right [6]=700
-eval_expr: inst[4] mismatch left [4]=900 right [7]=800
+eval_expr: PLUS: inst[4] mismatch left [4]=900 right [7]=800
 eval_expr: recover @ right [8]=900
 __dmpostfetch: [4] root node 511.0.7: numval=5 vset[0]: inst=100 l=0 vset[1]: inst=300 l=0 vset[2]: inst=500 l=0 vset[3]: inst=700 l=0 vset[4]: inst=900 l=0
 expr node <addr-12> type=MINUS left=<addr-13> right=<addr-16> save_last=0

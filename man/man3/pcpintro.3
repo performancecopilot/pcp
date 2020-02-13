@@ -2,18 +2,18 @@
 .\"
 .\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
-.\" 
+.\"
+.\"
 .TH PCPINTRO 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3PCPIntro\f1 \- introduction to the Performance Co-Pilot (PCP) libraries
@@ -407,7 +407,7 @@ cannot be opened for reading.
 .br
 An attempt is made to read past the end file of the last volume
 of a set of PCP archives, or past the
-end of the time window (as specified with a 
+end of the time window (as specified with a
 .B \-T/\-\-finish
 option) for a set of PCP archives.
 .TP
@@ -594,7 +594,7 @@ must not be invalid.
 .SH "NAMESPACE ERRORS"
 These errors may occur in the processing of PCP namespace operations.
 A PCP namespace, see
-.BR pmns (5),
+.BR PMNS (5),
 provides the external
 names and the internal identifiers for the available performance metrics.
 .TP
@@ -640,7 +640,7 @@ with this error if they are busy at the moment.  This error translates
 to
 .B PM_ERR_AGAIN
 for the PCP client who made the request to
-.BR pmcd 
+.BR pmcd
 which caused the initial request to the PMDA.
 At some later time the PMDA will inform
 .B pmcd
@@ -706,6 +706,7 @@ function.
 .BR pmSetMode (3),
 .BR pmStore (3),
 .BR pmTimeConnect (3),
-.BR pcp.conf (5)
+.BR pcp.conf (5),
+.BR pcp.env (5)
 and
-.BR pcp.env (5).
+.BR PMNS (5).

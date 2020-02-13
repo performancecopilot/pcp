@@ -48,9 +48,11 @@ _SHAREDOPTS	= -shared -fpic
 endif
 ifeq ($(TARGET_OS), darwin)
 # libtool doesnt understand -dynamiclib so we need both
-_SHAREDOPTS	= -fPIC -dynamic -dynamiclib -flat_namespace -undefined suppress -headerpad_max_install_names -arch i386
+_SHAREDOPTS	= -fPIC -dynamic -dynamiclib -flat_namespace -undefined suppress -headerpad_max_install_names
 ifeq ($(PACKAGE_DISTRIBUTION), cocoa)
 _SHAREDOPTS	+= -arch x86_64
+else
+_SHAREDOPTS	+= -arch i386 -arch x86_64
 endif
 endif
 ifeq ($(TARGET_OS), aix)

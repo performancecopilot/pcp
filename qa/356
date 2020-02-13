@@ -42,15 +42,15 @@ skip == 1 &&  NF == 0	{ next }
 # real QA test starts here
 
 export PCP_DERIVED_CONFIG=$tmp.config
-echo "bad_in_pkts;" | pmie -t 1 -T+12 -v >$tmp.out 2>&1 &
+echo "bad_in_pkts;" | pmie -t 1 -T+15 -v >$tmp.out 2>&1 &
 
 sleep 3
 
 unset PCP_DERIVED_CONFIG
-_service pcp restart \
-| _filter_pcp_start
+_stop_auto_restart pmcd
+_service pmcd restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
-_wait_for_pmlogger
+_restore_auto_restart pmcd
 
 wait
 

@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 799
-# Test Performance API (PAPI) pmda for conflicting metrics
+# checkout pmlogrewrite -q
 #
-# Copyright (c) 2014 Red Hat Inc.  All Rights Reserved.
+# Copyright (c) 2019 Ken McDonell.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -13,90 +13,34 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -d $PCP_PMDAS_DIR/papi ] || _notrun "PAPI PMDA is not installed"
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
-_filter_papi_errors()
-{
-    sed \
-	-e '/pfm_find_full_event(.*): event not found./d' \
-	-e '/events in papi_events.csv were not valid./d' \
-	-e '/PAPI Error:*/d' \
-	-e '/ibwarn:*/d' \
-    # end
-}
+# real QA test starts here
+echo "log mandatory on once {" >$tmp.config
+pminfo \
+| sed \
+    -e 's/\..*//' \
+| sort \
+| uniq >>$tmp.config
+echo "}" >>$tmp.config
 
-_filter()
-{
-    sed \
-	-e 's/value [0-9][0-9]*/value NUMBER/' \
-	-e 's/value \".*\"/value STRING/' \
-    | _filter_papi_errors
-}
+pmlogger -l $tmp.log -c $tmp.config -s 1 $tmp
 
-pmdapapi_remove()
-{
-    echo
-    echo "=== remove PAPI agent ==="
-    $sudo ./Remove >$tmp.out 2>&1
-    _filter_pmda_remove <$tmp.out
-}
+echo "values in the archive ..." >>$seq.full
+pmdumplog $tmp \
+| grep ' value ' \
+| wc -l >>$seq.full
 
-pmdapapi_install()
-{
-    # start from known starting points
-    cd $PCP_PMDAS_DIR/papi
-    $sudo ./Remove >/dev/null 2>&1
-    _service pmcd stop
+pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite -Dappl0,appl3 -q -i $tmp 2>&1
 
-    echo
-    echo "=== PAPI agent installation ==="
-    $sudo ./Install </dev/null >$tmp.out 2>&1
-    # Check papi metrics have appeared ... X metrics and Y values
-    _filter_pmda_install <$tmp.out \
-    | sed \
-        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
-        -e 's/[0-9][0-9]* warnings, //' \
-    | $PCP_AWK_PROG '
-/Check papi metrics have appeared/   { if ($7 >= 20 && $7 <= 500) $7 = "X"
-                                       if ($10 >= 0 && $10 <= 500) $10 = "Y"
-                                     }
-                                     { print }'
-}
-
-# start actual QA
-pmns=$PCP_PMDAS_DIR/papi/root
-pmda=$PCP_PMDAS_DIR/papi/pmda_papi.$DSO_SUFFIX,papi_init
-
-_prepare_pmda papi
-# note: _restore_auto_restart pmcd done in _cleanup_pmda()
-trap "_cleanup_pmda papi; exit \$status" 0 1 2 3 15
-
-_stop_auto_restart pmcd
-
-pmdapapi_install
-
-echo
-echo "== PAPI library behaviour, adding conflicting metrics (when multiplexing is disabled), as root"
-$sudo pmstore -hlocal: papi.control.enable "L1_ICM L2_DCM L2_ICM L1_TCM L2_TCM" 2>&1 | _filter_papi_errors
-
-echo
-echo "== PAPI library behaviour, metric totals, as root"
-$sudo pminfo -hlocal: -f papi.system.L1_ICM 2>&1 | _filter
-$sudo pminfo -hlocal: -f papi.system.L2_DCM 2>&1 | _filter
-$sudo pminfo -hlocal: -f papi.system.L2_ICM 2>&1 | _filter
-$sudo pminfo -hlocal: -f papi.system.L1_TCM 2>&1 | _filter
-$sudo pminfo -hlocal: -f papi.system.L2_TCM 2>&1 | _filter
-
-echo
-echo "== PAPI library behaviour, removing metrics, as root"
-$sudo pmstore -hlocal: -K clear -K add,126,$pmda -f -n $pmns papi.control.disable "L1_ICM L2_DCM L2_ICM L1_TCM L2_TCM" 2>&1 | _filter_papi_errors
-
-pmdapapi_remove
 # success, all done
 status=0
-
 exit

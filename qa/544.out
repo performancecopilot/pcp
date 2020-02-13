@@ -7108,11 +7108,11 @@ proc.io.cancelled_write_bytes
     inst [160409 or "160409 /usr/bin/python"] value 0
     inst [160491 or "160491 /usr/bin/python"] value 0
     inst [160551 or "160551 /usr/bin/python"] value 0
-40722 TMP.out.cpus
-44436 TMP.out.disks
-45676 TMP.out.general
-11372 TMP.out.nets
-02284 TMP.out.procs
+775377108 TMP.out.cpus
+3740894604 TMP.out.disks
+911071498 TMP.out.general
+2552241352 TMP.out.nets
+135051620 TMP.out.procs
 Check values ...
 proc.psinfo.nice[1963]: match
 proc.psinfo.nice[11607]: match
@@ -10506,11 +10506,11 @@ proc.io.cancelled_write_bytes
     inst [21561 or "021561 man"] value 0
     inst [21571 or "021571 less"] value 0
     inst [21777 or "021777 /usr/bin/perl"] value 0
-14808 TMP.out.cpus
-30729 TMP.out.disks
-24005 TMP.out.general
-50381 TMP.out.nets
-45252 TMP.out.procs
+3091036398 TMP.out.cpus
+323516661 TMP.out.disks
+45847948 TMP.out.general
+1913719375 TMP.out.nets
+2361837999 TMP.out.procs
 Check values ...
 proc.psinfo.nice[2459]: match
 proc.psinfo.vsize[7876]: match

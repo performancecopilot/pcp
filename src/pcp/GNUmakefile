@@ -18,7 +18,6 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = \
 	atop \
-	collectl \
 	dmcache \
 	dstat \
 	free \

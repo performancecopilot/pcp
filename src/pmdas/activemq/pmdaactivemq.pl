@@ -49,16 +49,16 @@ my $jvm_garbage_collection_cluster = 5;
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/activemq/activemq.conf', 'activemq.conf') {
     eval `cat $file` unless ! -f $file;
 }
-my $timesource = TimeSource->new;
-my $cache = Cache->new($timesource, $cache_time);
+my $timesource = PCP::TimeSource->new;
+my $cache = PCP::Cache->new($timesource, $cache_time);
 my $http_client = LWP::UserAgent->new;
 $http_client->agent('pmdaactivemq');
 $http_client->timeout($rest_timeout);
-my $rest_client = RESTClient->new($http_client, $cache, $rest_hostname, $rest_port, $rest_username, $rest_password, $rest_realm);
-my $activemq = ActiveMQ->new($rest_client);
-my $jvm_memory = JVMMemory->new($rest_client);
-my $jvm_memory_pool = JVMMemoryPool->new($rest_client);
-my $jvm_garbage_collection = JVMGarbageCollection->new($rest_client);
+my $rest_client = PCP::RESTClient->new($http_client, $cache, $rest_hostname, $rest_port, $rest_username, $rest_password, $rest_realm);
+my $activemq = PCP::ActiveMQ->new($rest_client);
+my $jvm_memory = PCP::JVMMemory->new($rest_client);
+my $jvm_memory_pool = PCP::JVMMemoryPool->new($rest_client);
+my $jvm_garbage_collection = PCP::JVMGarbageCollection->new($rest_client);
 
 my %queue_instances;
 

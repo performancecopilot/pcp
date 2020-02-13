@@ -30,7 +30,7 @@ _cleanup()
 	echo
 	echo 'Restoring real pmcd.conf ...'
 	_restore_config $PCP_PMCDCONF_PATH
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false
@@ -49,7 +49,7 @@ trap "_interrupt; _cleanup" 1 2 3 15
 case $PCP_PLATFORM in
 linux|solaris|freebsd)
     cat <<End-of-File >$tmp.minconf
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 #
 # Name	Id	IPC	IPC Params 	File/Cmd
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
@@ -58,7 +58,7 @@ End-of-File
 
 darwin)
     cat <<End-of-File >$tmp.minconf
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 #
 # Name	Id	IPC	IPC Params 	File/Cmd
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
@@ -87,7 +87,7 @@ sample	99	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 99
 sample	109	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 109
 End-of-File
 $sudo cp $tmp.out $PCP_PMCDCONF_PATH
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

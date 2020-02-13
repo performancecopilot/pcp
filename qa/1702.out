@@ -1,0 +1,56 @@
+QA output created by 1702
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 7 metrics and 6 values
+
+=== start bpftrace script ===
+bpftrace.control.register old value="{}" new value="// name: testscript
+kretprobe:vfs_read
+{
+    @bytes = hist(retval);
+}"
+=== check metrics ===
+found metric bpftrace.scripts.testscript.data.bytes matching "value .*"
+OK
+=== stop bpftrace script ===
+bpftrace.control.stop old value="{}" new value="{"success": "true"}"
+=== verify script is stopped ===
+OK
+=== start script again ===
+bpftrace.control.start old value="{}" new value="{"success": "true"}"
+found metric bpftrace.scripts.testscript.data.bytes matching "value .*"
+=== verify current bpftrace PID is different than last PID ===
+Success: Second PID is different than first PID.
+=== deregister bpftrace script ===
+bpftrace.control.deregister old value="{}" new value="{"success": "true"}"
+=== check metric has disappeared ===
+Error: bpftrace.scripts.testscript.data.bytes: Unknown metric name
+=== register two scripts ===
+bpftrace.control.register old value="{}" new value="// name: testscript1
+kretprobe:vfs_read { @bytes = hist(retval); }"
+bpftrace.control.register old value="{}" new value="// name: testscript2
+kretprobe:vfs_read { @bytes = hist(retval); }"
+=== verify two scripts ===
+
+bpftrace.info.scripts
+    inst [1 or "testscript1"] value "// name: testscript1
+kretprobe:vfs_read { @bytes = hist(retval); }"
+    inst [2 or "testscript2"] value "// name: testscript2
+kretprobe:vfs_read { @bytes = hist(retval); }"
+=== deregister two scripts ===
+bpftrace.control.deregister old value="{}" new value="{"success": "true"}"
+=== verify two scripts are deregistered ===
+
+bpftrace.info.scripts
+No value(s) available!
+
+=== remove bpftrace agent ===
+Culling the Performance Metrics Name Space ...
+bpftrace ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bpftrace metrics have gone away ... OK

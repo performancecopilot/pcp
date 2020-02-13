@@ -31,7 +31,7 @@ _cleanup()
     then
 	[ -f $tmp.pmcd.bak ] && $sudo cp $tmp.pmcd.bak $pmcdconf
 	[ -f $tmp.root.bak ] && $sudo cp $tmp.root.bak $rootconf
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	$sudo rm -f $tmp.*
@@ -101,7 +101,7 @@ cp $rootconf $tmp.root.bak
 needclean=true
 $sudo cp $tmp.pmcd.conf $pmcdconf 
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([p]mcd)|([P]ID)' >>$here/$seq.full
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([p]mcd)|([P]ID)' >>$here/$seq.full
 _wait_for_pmcd
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([p]mcd)|([P]ID)' >>$here/$seq.full

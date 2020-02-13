@@ -1,7 +1,7 @@
 /*
  * Device Mapper PMDA
  *
- * Copyright (c) 2015,2018 Red Hat.
+ * Copyright (c) 2015,2018-2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -924,6 +924,72 @@ static pmdaMetric metrictable[] = {
         PM_TYPE_STRING, DM_VDODEV_INDOM, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+    { .m_user = (void *) "hash_lock_concurrent_data_matches",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_HASH_LOCK_CONCURRENT_DATA_MATCHES),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "hash_lock_concurrent_hash_collisions",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_HASH_LOCK_CONCURRENT_HASH_COLLISIONS),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "hash_lock_dedupe_advice_stale",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_HASH_LOCK_DEDUPE_ADVICE_STALE),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "hash_lock_dedupe_advice_valid",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_HASH_LOCK_DEDUPE_ADVICE_VALID),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "index_curr_dedupe_queries",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_INDEX_CURR_DEDUPE_QUERIES),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "index_entries_indexed",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_INDEX_ENTRIES_INDEXED),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "index_max_dedupe_queries",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_INDEX_MAX_DEDUPE_QUERIES),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "index_posts_found",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_INDEX_POSTS_FOUND),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "index_posts_not_found",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_INDEX_POSTS_NOT_FOUND),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "index_queries_found",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_INDEX_QUERIES_FOUND),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "index_queries_not_found",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_INDEX_QUERIES_NOT_FOUND),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "index_updates_found",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_INDEX_UPDATES_FOUND),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "index_updates_not_found",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_INDEX_UPDATES_NOT_FOUND),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
     /* Derived metrics */
     { .m_user = NULL,
       .m_desc = {
@@ -1188,7 +1254,7 @@ dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
         default: /* unknown cluster */
 	    return PM_ERR_PMID;
     }
-    return 1;
+    return PMDA_FETCH_NOVALUES;
 }
 
 /*
@@ -1203,11 +1269,15 @@ dm_init(pmdaInterface *dp)
 	int sep = pmPathSeparator();
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "dm" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_4, "DM DSO", helppath);
+	pmdaDSO(dp, PMDA_INTERFACE_7, "DM DSO", helppath);
     }
 
     if (dp->status != 0)
 	return;
+
+#ifndef HAVE_DEVMAPPER
+    pmNotifyErr(LOG_WARNING, "built without support for dmstats metrics\n");
+#endif
 
     /* Check for environment variables allowing test injection */
     dm_cache_setup();
@@ -1256,7 +1326,7 @@ main(int argc, char **argv)
     pmSetProgname(argv[0]);
     pmsprintf(helppath, sizeof(helppath), "%s%c" "dm" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmGetProgname(), DM, "dm.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), DM, "dm.log", helppath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {

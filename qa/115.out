@@ -2,15 +2,9 @@ QA output created by 115
 pmie count at start of QA testing: 0
 
 === check default install operation ===
-$PCP_RC_DIR/pmie: Warning: Performance Co-Pilot Inference Engine (pmie) not permanently enabled.
-Starting pmie ... 
 pmie count after chkconfig pmie off: 1
 
 === check for missing control file ===
-$PCP_RC_DIR/pmie:
-Error: PCP inference engine control file $PCP_PMIECONTROL_PATH
-is missing!  Cannot start any Performance Co-Pilot inference engine(s).
-failed (status=1)
 pmie count after attempt without control file: 0
 
 === check pmie_check and custom configs ===
@@ -62,7 +56,7 @@ No current pmie process exists for:
 host = LOCALHOST
 log file = /tmp/SEQ-PID.log0
 Restarting pmie for host "LOCALHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l /tmp/SEQ-PID.log0 -c /tmp/SEQ-PID.conf
++ $PCP_BIN_DIR/pmie -b -P -l /tmp/SEQ-PID.log0 -c /tmp/SEQ-PID.conf
 
 === warnings ... ===
 --- stale lock file ---

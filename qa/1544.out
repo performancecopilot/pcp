@@ -1,0 +1,46 @@
+QA output created by 1544
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check test_python metrics have appeared ... 6 metrics and N values
+Getting contexts...
+
+Retrieving values...
+                    "value": "ctx ? val None"
+                    "value": "ctx ? val None"
+                    "value": "ctx ? val None"
+
+Storing values...
+{
+    "context": CONTEXT
+    "success": true
+}
+{
+    "context": CONTEXT
+    "success": true
+}
+{
+    "context": CONTEXT
+    "success": true
+}
+{
+    "context": CONTEXT
+    "success": true
+}
+{
+    "context": CONTEXT
+    "success": true
+}
+{
+    "context": CONTEXT
+    "success": true
+}
+
+Retrieving values...
+                    "value": "ctx ? val 1"
+                    "value": "ctx ? val 2"
+                    "value": "ctx ? val 3"
+                    "value": "ctx ? val 4"
+                    "value": "ctx ? val 5"
+                    "value": "ctx ? val 6"

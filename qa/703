@@ -18,6 +18,9 @@ then
     _notrun "weblog PMDA won't work for Solaris Apache install"
 fi
 
+$PCP_BINADM_DIR/telnet-probe -c localhost 80  || \
+    _notrun "No one is home on the default http port 80"
+
 status=1	# failure is the default!
 
 _cleanup()

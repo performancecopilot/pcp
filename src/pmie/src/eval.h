@@ -24,6 +24,9 @@
 
 #include "dstruct.h"
 
+/* does function operator return a scalar result? */
+int isScalarResult(Expr *);
+
 /* fill in apprpriate evaluator function for given Expr */
 void findEval(Expr *);
 

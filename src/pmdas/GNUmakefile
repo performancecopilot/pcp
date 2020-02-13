@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2016 Red Hat.
+# Copyright (c) 2013-2019 Red Hat.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -24,17 +24,19 @@ CPMDAS = root pmcd \
 	apache cisco trace shping mounts weblog \
 	mmv lmsensors process roomtemp summary etw \
 	lustrecomm infiniband logger bash systemd \
-	gfs2 jbd2 cifs rpm nvidia papi perfevent \
-	dm pipe openbsd docker smart
+	gfs2 jbd2 cifs rpm nvidia perfevent \
+	dm pipe openbsd docker smart podman statsd
 
 PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache mysql oracle vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
-	rsyslog elasticsearch snmp nginx nfsclient \
+	rsyslog snmp nginx nfsclient \
 	ds389 ds389log activemq lustre gpfs slurm \
 	bind2 redis nutcracker
 
-PYPMDAS = bcc gluster zswap unbound mic haproxy json libvirt lio prometheus
+PYPMDAS = bcc gluster zswap unbound mic haproxy \
+	json libvirt lio openmetrics elasticsearch \
+	bpftrace mssql netcheck
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf

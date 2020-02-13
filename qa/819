@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -f $PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.pl ] || \
+[ -f $PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.python ] || \
 	_notrun "elasticsearch pmda not installed"
 
 port=9200
@@ -29,7 +29,10 @@ pmdaelasticsearch_remove()
     echo
     echo "=== remove elasticsearch agent ==="
     $sudo ./Remove >$tmp.out 2>&1
-    _filter_pmda_remove <$tmp.out
+    _filter_pmda_remove <$tmp.out \
+    | sed \
+	-e '/^Starting pmlogger \.\.\. /d' \
+    # end
 }
 
 pmdaelasticsearch_install()
@@ -46,6 +49,7 @@ pmdaelasticsearch_install()
     # Check elasticsearch metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
+	-e '/^Starting pmlogger \.\.\. /d' \
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
         -e 's/[0-9][0-9]* warnings, //' \
     | $PCP_AWK_PROG '

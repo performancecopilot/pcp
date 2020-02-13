@@ -1,18 +1,9 @@
 QA output created by 568
-sample.bin labels from 12 sets:
+sample.bin labels from 3 sets:
   Context:	{"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","machineid":"MACHINE","pcpqa":"labels","userid":UID}
   Domain:	{"agent":"sample","role":"testing"}
   Cluster:	{"cluster":"zero"}
-  Inst[100]:	{"bin":100}
-  Inst[200]:	{"bin":200}
-  Inst[300]:	{"bin":300}
-  Inst[400]:	{"bin":400}
-  Inst[500]:	{"bin":500}
-  Inst[600]:	{"bin":600}
-  Inst[700]:	{"bin":700}
-  Inst[800]:	{"bin":800}
-  Inst[900]:	{"bin":900}
-sample.colour labels from 7 sets:
+sample.colour labels from 4 sets:
   Context:	{"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","machineid":"MACHINE","pcpqa":"labels","userid":UID}
   Domain:	{"agent":"sample","role":"testing"}
   InDom:	{"model":"RGB"}

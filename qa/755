@@ -21,7 +21,10 @@ $sudo rm -rf $tmp.* $seq.full
 _filter_apache()
 {
     # cull message resulting from no running httpd
-    grep -v 'Information not currently available'
+    # or no activity
+    #
+    grep -v 'Information not currently available' \
+    | grep -v 'No value(s) available'
 }
 
 pmdaapache_remove()
@@ -56,6 +59,10 @@ pmdaapache_install()
 _prepare_pmda apache
 # note: _restore_auto_restart pmcd done in _cleanup_pmda()
 trap "_cleanup_pmda apache; exit \$status" 0 1 2 3 15
+
+# don't need to regenerate config.default with pmlogconf
+#
+export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 
 _stop_auto_restart pmcd
 

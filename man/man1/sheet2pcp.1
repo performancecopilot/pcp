@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH SHEET2PCP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -19,6 +19,16 @@
 .SH SYNOPSIS
 \&\fBsheet2pcp\fR [\fB\-h\fR \fIhost\fR] [\fB\-Z\fR \fItimezone\fR] \fIinfile\fR \fImapfile\fR \fIoutfile\fR
 .SH DESCRIPTION
+.de SAMPLE
+.RS 2n
+.nf
+.nh
+..
+.de ESAMPLE
+.hy
+.fi
+.RE
+..
 \&\fBsheet2pcp\fR is intended to read a data spreadsheet (\fIinfile\fR)
 translate this into a Performance
 Co-Pilot (\s-1PCP\s0) archive with the basename \fIoutfile\fR.
@@ -48,12 +58,12 @@ operations for the archive).  If any of these files exists already,
 then \fBsheet2pcp\fR will \fBnot\fR overwrite them and will exit with an error
 message.
 .PP
-The \fB\-h\fR option is an alternate to the 
+The \fB\-h\fR option is an alternate to the
 \&\fBhostname\fR attribute of the \fB<sheet>\fR element in \fImapfile\fR
 described below.  If both are specified, the value from \fImapfile\fR is
 used.
 .PP
-The \fB\-Z\fR option is an alternate to the 
+The \fB\-Z\fR option is an alternate to the
 \&\fBtimezone\fR attribute of the \fB<sheet>\fR element in \fImapfile\fR
 described below.  If both are specified, the value from \fImapfile\fR is
 used.
@@ -120,7 +130,7 @@ has one value, it is singular and the Instance Domain should be set to
 Otherwise \fBindom\fR should be specified as 2 numbers separated by a period (.)
 to set the \fBdomain\fR and \fBordinal\fR fields of the Instance Domain.
 Examples: indom=``\s-1PM_INDOM_NULL\s0'', indom=``60.3'', indom=``\s-1PMI_DOMAIN\s0.4''.
-.Sp
+.sp
 More than
 one metric can share the same Instance Domain when the metrics have defined
 values over similar sets of instances, e.g. all the metrics for each network
@@ -128,7 +138,7 @@ interface.  It is standard practice for the \fBdomain\fR field to be the
 same for the \fBpmid\fR and the \fBindom\fR; if the \fBpmid\fR attribute is missing,
 then the \fBdomain\fR field for the \fBindom\fR should be the reserved domain
 \&\fB\s-1PMI_DOMAIN\s0\fR.
-.Sp
+.sp
 If the \fBindom\fR attribute is omitted then the default Instance Domain for
 the metric is \fB\s-1PM_INDOM_NULL\s0\fR.
 .IP "\fBunits\fR" 10
@@ -183,28 +193,28 @@ generate no metric values in the output archive.
 .IX Subsection "EXAMPLE"
 The \fImapfile\fR ...
 .PP
-.Vb 11
-\&    <?xml version="1.0" encoding="UTF\-8"?>
-\&    <sheet heading="1">
-\&        <!\-\- simple example \-\->
-\&        <metric pmid="60.0.2" indom="60.0" units="0,1,0,0,PM_TIME_MSEC,0"
-\&            type="PM_TYPE_U64" sem="PM_SEM_COUNTER">
-\&        kernel.percpu.cpu.sys</metric>
-\&        <datetime></datetime>
-\&        <skip></skip>
-\&        <data>kernel.percpu.cpu.sys[cpu0]</data>
-\&        <data>kernel.percpu.cpu.sys[cpu1]</data>
-\&    </sheet>
-.Ve
+.SAMPLE
+    <?xml version="1.0" encoding="UTF\-8"?>
+    <sheet heading="1">
+        <!\-\- simple example \-\->
+        <metric pmid="60.0.2" indom="60.0" units="0,1,0,0,PM_TIME_MSEC,0"
+            type="PM_TYPE_U64" sem="PM_SEM_COUNTER">
+        kernel.percpu.cpu.sys</metric>
+        <datetime></datetime>
+        <skip></skip>
+        <data>kernel.percpu.cpu.sys[cpu0]</data>
+        <data>kernel.percpu.cpu.sys[cpu1]</data>
+    </sheet>
+.ESAMPLE
 .PP
 could be used for a spreadsheet in which the first few rows are ...
 .PP
-.Vb 4
-\&    Date;"Status";"SysTime \- 0";"SysTime \- 1";
-\&    26/01/2001 14:05:22;"Some Busy";0.750;0.133
-\&    26/01/2001 14:05:37;"OK";0.150;0.273
-\&    26/01/2001 14:05:52;"All Busy";0.733;0.653
-.Ve
+.SAMPLE
+    Date;"Status";"SysTime \- 0";"SysTime \- 1";
+    26/01/2001 14:05:22;"Some Busy";0.750;0.133
+    26/01/2001 14:05:37;"OK";0.150;0.273
+    26/01/2001 14:05:52;"All Busy";0.733;0.653
+.ESAMPLE
 .SH "CAVEATS"
 .IX Header "CAVEATS"
 Only the first sheet from \fIinfile\fR will be processed.
@@ -227,20 +237,15 @@ which in turn requires \fBOLE::Storage_Lite\fR(3pm).
 .IX Item "*.xlsx"
 Microsoft OpenXML documents require \fBSpreadsheet::XLSX\fR(3pm).  \fBsheet2pcp\fR
 does not appear to work with OpenXML documents saved from OpenOffice.
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH "SEE ALSO"
 .BR pmchart (1),
 .BR pmie (1),

@@ -76,6 +76,11 @@ echo
 echo '=== -a archives/ok-foo ==='
 ( sh -c "src/github-50 -a archives/ok-foo" 2>&1 ) | _filter
 
+# this calls abort() on the error paths, so we may have core files ...
+# this is not cause for failing the test
+#
+rm -f core
+
 # success, all done
 status=0
 

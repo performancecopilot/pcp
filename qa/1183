@@ -1,0 +1,52 @@
+#!/bin/sh
+# PCP QA Test No. 1183
+# Exercise pmrep archive creation with help texts.
+#
+# Copyright (c) 2020 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_live_filter()
+{
+    sed \
+        -e "s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/HH:MM:SS/g" \
+    #end
+}
+
+_path_filter()
+{
+    sed \
+        -e "s# to .*:#:#g" \
+    #end
+}
+
+# real QA test starts here
+echo "== pmrep archive reporting and creation with help texts"
+pmrep -z -u -s 1 --include-texts -a $here/archives/sample-labels \
+  -o archive -F $tmp.archive sample.colour sample.mirage | \
+  _path_filter
+echo "== print help texts from the created archive"
+pminfo -a $tmp.archive -dmtT sample.colour
+pminfo -a $tmp.archive -dmtT sample.mirage
+
+rm -f $tmp.archive*
+
+# success, all done
+echo "== done"
+status=0
+exit

@@ -19,6 +19,10 @@ which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
 which pcp2json >/dev/null 2>&1 || _notrun "pcp2json not installed"
 which pcp2xml >/dev/null 2>&1 || _notrun "pcp2xml not installed"
 
+[ $PCP_PLATFORM = freebsd ] && _notrun "FreeBSD Python chokes on non-ascii chars"
+[ $PCP_PLATFORM = netbsd ] && _notrun "NetBSD Python chokes on non-ascii chars"
+[ $PCP_PLATFORM = openbsd ] && _notrun "OpenBSD Python chokes on non-ascii chars"
+
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp $tmp.* $seq.full
@@ -44,6 +48,18 @@ echo "---"
 pmrep -z -p -u -a $A -w 40 kernel.all.uptime
 echo "---"
 pmrep -z -p -u -a $A -w 40 sample.float.one
+echo "---"
+pmrep -z -p -u -a $A -w 40 --ignore-unknown no.such.metric sample.float.one
+echo "---"
+cat > $tmp.config <<EOF
+[test]
+no.such.metric = ,,
+sample.float.one = ,,
+EOF
+pmrep -z -p -u -a $A -w 40 -c $tmp.config -5 :test
+echo "---"
+# diminutive case - fail cleanly if no known metrics at all
+pmrep -z -p -u -a $A -w 40 --ignore-unknown no.such.metric
 echo "---"
 # -s 10 can be removed when Python 2 support is dropped
 pmrep -z -p -u -a $A -w 40 -s 10 kernel.uname.release

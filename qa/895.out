@@ -12,4 +12,4 @@ Group ... {
 pmlogger: Caught signal 2, exiting
 
 Log finished DATE
-OK, between 100 and 140 archive records
+OK, found expected number of archive records

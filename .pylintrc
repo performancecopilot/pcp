@@ -3,7 +3,7 @@
 # A comma-separated list of package or module names from where C extensions may
 # be loaded. Extensions are loading into the active Python interpreter and may
 # run arbitrary code
-extension-pkg-whitelist=
+extension-pkg-whitelist=cpmapi,cpmda
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
@@ -71,6 +71,7 @@ disable=print-statement,
         file-ignored,
         suppressed-message,
         useless-suppression,
+        useless-object-inheritance,
         deprecated-pragma,
         apply-builtin,
         basestring-builtin,
@@ -141,7 +142,13 @@ disable=print-statement,
         invalid-name,
         too-many-statements,
         abstract-method,
-        access-member-before-definition
+        access-member-before-definition,
+        missing-docstring,
+        too-few-public-methods,
+        too-many-return-statements,
+        bad-option-value, # older pylint versions don't recognize options from newer pylint versions
+        no-else-continue,
+        wrong-import-order
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -248,8 +255,8 @@ redefining-builtins-modules=six.moves,past.builtins,future.builtins
 
 # List of note tags to take in consideration, separated by a comma.
 notes=FIXME,
-      XXX,
-      TODO
+      XXX
+#      TODO
 
 
 [BASIC]
@@ -425,7 +432,7 @@ indent-after-paren=4
 indent-string='    '
 
 # Maximum number of characters on a single line.
-max-line-length=100
+max-line-length=120
 
 # Maximum number of lines in a module
 max-module-lines=1000

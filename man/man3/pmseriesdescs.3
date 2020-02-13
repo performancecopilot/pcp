@@ -1,0 +1,157 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2019 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMSERIESSETUP 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmSeriesDescs\f1,
+\f3pmSeriesLabels\f1,
+\f3pmSeriesLabelValues\f1,
+\f3pmSeriesInstances\f1,
+\f3pmSeriesMetrics\f1,
+\f3pmSeriesSources\f1 \- fast, scalable time series metadata
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmwebapi.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmSeriesDescs(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+.br
+.ti -8n
+int pmSeriesLabels(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+.br
+.ti -8n
+int pmSeriesLabelValues(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIlabels\fP, void *\fIarg\fP);
+.br
+.ti -8n
+int pmSeriesInstances(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+.br
+.ti -8n
+int pmSeriesMetrics(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+.br
+.ti -8n
+int pmSeriesSources(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_web
+.ft 1
+.SH DESCRIPTION
+Each performance metric and data source forming part of the Performance
+Co-Pilot (PCP) fast, scalable time series service has certain properties
+(metadata) associated with it.
+These properties can be queried using the interfaces described here.
+.PP
+This functionality is provided through asynchronous APIs, which function
+in an event-driven fashion where callbacks are invoked for each metadata
+structure being returned.
+.PP
+As a general pattern, all interfaces in these APIs that need to invoke
+callbacks provided by the calling program (see
+.BR pmSeriesSetup (3))
+will take an opaque (void * pointer) parameter,
+.IR arg .
+This pointer will be passed through unchanged and is typically used to
+access a data structure maintaining state within the calling program.
+.PP
+With a couple of exceptions, these interfaces tend to operate in one of
+two modes.
+Firstly, one invocation is available to query metadata for a specific
+(non-zero)
+.I count
+of time
+.IR series .
+A second, (zero)
+.IR count ,
+mode returns all available metadata of that type, across all time series.
+.PP
+In order to retrieve metric descriptor information for one or more time
+series, the
+.B pmSeriesDescs
+interface is used.
+For each valid
+.I series
+identifier provided, a callback will be invoked providing the metric
+units, semantics, and type as well as other identifiers associated with
+it (pmID, InDom and source identifier).
+When this call is issued with a zero value for
+.IR count ,
+It is an error to pass a zero or negative value of
+.I count
+into this interface.
+.PP
+To extract label names and values, the
+.B pmSeriesLabels
+interface is used.
+With a non-zero value for
+.I count
+valid
+.I series
+identifiers, this routine will invoke a callback once for each label
+name and once for each label name:value pair, for labels associated
+with those time series.
+If called with a
+.I count
+of zero, this interface will return (via the label name callback) all
+label names that have observed to date \- not associated with specific
+time series.
+The
+.B pmSeriesLabelValues
+interface is comparable to this latter mode, except will return all
+label values that have been observed to date for the given array of
+.I labels
+names (not associated with any specific time series identifiers).
+.PP
+.B pmSeriesInstances
+can be used to find metadata about instance domains and instance
+identifiers associated with a given (non-zero)
+.I count
+of time
+.I series
+identifiers.
+If a zero value is passed for
+.I count
+then all instance names observed to date will be returned.
+.PP
+.B pmSeriesMetrics
+can be used to find metric names associated with a given (non-zero)
+.I count
+of time
+.I series
+identifiers.
+If a zero value is passed for
+.I count
+then all metric names observed to date will be returned.
+.PP
+.B pmSeriesSources
+can be used to find metadata about the source of metrics \- that is,
+host names and archive file paths.
+If a zero value is passed for
+.I count
+then all metric sources observed to date will be returned.
+.SH DIAGNOSTICS
+Where these functions return a status code, this is always zero on success.
+On failure a negative PMAPI error code is returned.
+.SH SEE ALSO
+.BR pmproxy (1),
+.BR pmlogger (1),
+.BR pmseries (1),
+.BR pmSeriesQuery (3),
+.BR pmSeriesSetup (3),
+.BR PMAPI (3)
+and
+.BR PMWEBAPI (3).

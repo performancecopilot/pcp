@@ -1,0 +1,6 @@
+LINUX {
+    global:
+	mmv_init;
+	pmproxy_init;
+    local: *;
+};

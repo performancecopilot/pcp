@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,15 @@ extern "C" {
 #endif
 
 #include <pcp/pmapi.h>
-#include "sds.h"
+#include <pcp/sds.h>
+
+/*
+ * Opaque structures - forward declarations.
+ * (see also <pcp/dict.h> <pcp/mmv_stats.h>)
+ */
+
+struct dict;
+struct mmv_registry;
 
 /*
  * Generalised asynchronous logging facilities.
@@ -41,6 +49,15 @@ typedef void (*pmLogInfoCallBack)(pmLogLevel, sds, void *);
 extern int pmLogLevelIsTTY(void);
 extern void pmLogLevelPrint(FILE *, pmLogLevel, sds, int);
 extern const char *pmLogLevelStr(pmLogLevel);
+
+/*
+ * Configuration file services
+ */
+
+extern struct dict *pmIniFileSetup(const char *);
+extern void pmIniFileUpdate(struct dict *, const char *, const char *, sds);
+extern sds pmIniFileLookup(struct dict *, const char *, const char *);
+extern void pmIniFileFree(struct dict *);
 
 /*
  * Fast, scalable time series querying services
@@ -67,19 +84,32 @@ typedef struct pmSeriesDesc {
 typedef struct pmSeriesInst {
     sds		instid;		/* first seen numeric instance identifier */
     sds		name;		/* full external (string) instance name */
-    sds		series;		/* metric series identifier for values */
+    sds		source;		/* instances source series identifier */
+    sds		series;		/* series identifier for inst value */
 } pmSeriesInst;
 
 typedef struct pmSeriesValue {
     sds		timestamp;	/* sample time this value was taken */
     sds		series;		/* series identifier for this value */
     sds		data;		/* actual value, as binary safe sds */
+    pmTimespec	ts;		/* sample time, converted to binary */
 } pmSeriesValue;
 
 typedef struct pmSeriesLabel {
     sds		name;		/* name (string) of this label */
     sds		value;		/* value of this label */
 } pmSeriesLabel;
+
+typedef struct pmSeriesTimeWindow {
+    sds		delta;		/* sample interval */
+    sds		align;		/* alignment for sample start */
+    sds		start;		/* start time */
+    sds		end;		/* end time */
+    sds		range;		/* sample time range */
+    sds		count;		/* number of samples */
+    sds		offset;		/* offset from sample start */
+    sds		zone;		/* timezone of time strings */
+} pmSeriesTimeWindow;
 
 typedef void (*pmSeriesSetupCallBack)(void *);
 typedef int (*pmSeriesMatchCallBack)(pmSID, void *);
@@ -106,10 +136,7 @@ typedef struct pmSeriesCallBacks {
 typedef struct pmSeriesModule {
     pmLogInfoCallBack		on_info;	/* general diagnostics call */
     pmSeriesSetupCallBack	on_setup;	/* server connections setup */
-    sds                         hostspec;       /* initial connect hostspec */
-    void			*events;	/* opaque event library data */
-    void			*slots;		/* opaque server slots data */
-    void			*data;		/* private internal lib data */
+    void			*privdata;	/* private internal lib data */
 } pmSeriesModule;
 
 typedef struct pmSeriesSettings {
@@ -117,15 +144,22 @@ typedef struct pmSeriesSettings {
     pmSeriesCallBacks		callbacks;
 } pmSeriesSettings;
 
-extern void pmSeriesSetup(pmSeriesModule *, void *);
-extern int pmSeriesDescs(pmSeriesSettings *, int, pmSID *, void *);
-extern int pmSeriesLabels(pmSeriesSettings *, int, pmSID *, void *);
-extern int pmSeriesInstances(pmSeriesSettings *, int, pmSID *, void *);
-extern int pmSeriesMetrics(pmSeriesSettings *, int, pmSID *, void *);
-extern int pmSeriesSources(pmSeriesSettings *, int, pmSID *, void *);
+extern int pmSeriesSetup(pmSeriesModule *, void *);
+extern int pmSeriesSetSlots(pmSeriesModule *, void *);
+extern int pmSeriesSetEventLoop(pmSeriesModule *, void *);
+extern int pmSeriesSetConfiguration(pmSeriesModule *, struct dict *);
+extern int pmSeriesSetMetricRegistry(pmSeriesModule *, struct mmv_registry *);
+extern void pmSeriesClose(pmSeriesModule *);
+
+extern int pmSeriesDescs(pmSeriesSettings *, int, sds *, void *);
+extern int pmSeriesLabels(pmSeriesSettings *, int, sds *, void *);
+extern int pmSeriesLabelValues(pmSeriesSettings *, int, sds *, void *);
+extern int pmSeriesInstances(pmSeriesSettings *, int, sds *, void *);
+extern int pmSeriesMetrics(pmSeriesSettings *, int, sds *, void *);
+extern int pmSeriesSources(pmSeriesSettings *, int, sds *, void *);
+extern int pmSeriesValues(pmSeriesSettings *, pmSeriesTimeWindow *, int, sds *, void *);
 extern int pmSeriesQuery(pmSeriesSettings *, sds, pmSeriesFlags, void *);
 extern int pmSeriesLoad(pmSeriesSettings *, sds, pmSeriesFlags, void *);
-extern void pmSeriesClose(pmSeriesModule *);
 
 /*
  * Asynchronous archive location and contents discovery services
@@ -149,11 +183,7 @@ typedef struct pmDiscoverEvent {
 
 typedef struct pmDiscoverModule {
     pmLogInfoCallBack		on_info;	/* general diagnostics call */
-    unsigned int		handle;		/* callbacks context handle */
-    sds				logname;	/* archive directory dirname */
-    void			*events;	/* opaque event library data */
-    void			*slots;		/* opaque server slots data */
-    void			*data;		/* private internal lib data */
+    void			*privdata;	/* private internal lib data */
 } pmDiscoverModule;
 
 typedef void (*pmDiscoverSourceCallBack)(pmDiscoverEvent *, void *);
@@ -184,8 +214,152 @@ typedef struct pmDiscoverSettings {
     pmDiscoverCallBacks		callbacks;
 } pmDiscoverSettings;
 
-extern void pmDiscoverSetup(pmDiscoverSettings *, void *);
-extern void pmDiscoverClose(pmDiscoverSettings *);
+extern int pmDiscoverSetup(pmDiscoverModule *, pmDiscoverCallBacks *, void *);
+extern int pmDiscoverSetSlots(pmDiscoverModule *, void *);
+extern int pmDiscoverSetEventLoop(pmDiscoverModule *, void *);
+extern int pmDiscoverSetConfiguration(pmDiscoverModule *, struct dict *);
+extern int pmDiscoverSetMetricRegistry(pmDiscoverModule *, struct mmv_registry *);
+extern void pmDiscoverClose(pmDiscoverModule *);
+
+/*
+ * Interfaces providing PMWEBAPI(3) backward compatibility.
+ * Provides live performance data only; no archive support.
+ */
+typedef struct pmWebSource {
+    pmSID		source;
+    sds			hostspec;
+    sds			labels;
+} pmWebSource;
+
+typedef struct pmWebAccess {
+    sds			username;
+    sds			password;
+    sds			realm;
+} pmWebAccess;
+
+typedef struct pmWebMetric {
+    pmSID		series;
+    pmID		pmid;
+    sds			name;
+    sds			sem;
+    sds			type;
+    sds			units;
+    pmInDom		indom;
+    sds			labels;
+    sds			oneline;
+    sds			helptext;
+} pmWebMetric;
+
+typedef struct pmWebResult {
+    long long		seconds;
+    long long		nanoseconds;
+} pmWebResult;
+
+typedef struct pmWebValueSet {
+    pmSID		series;
+    pmID		pmid;
+    sds			name;
+    sds			labels;
+} pmWebValueSet;
+
+typedef struct pmWebValue {	/* used with both fetch and scrape */
+    pmSID		series;
+    pmID		pmid;
+    unsigned int	inst;
+    sds			value;
+} pmWebValue;
+
+typedef struct pmWebInDom {
+    pmInDom		indom;
+    sds			labels;
+    sds			oneline;
+    sds			helptext;
+    unsigned int	numinsts;
+} pmWebInDom;
+
+typedef struct pmWebInstance {
+    pmInDom		indom;
+    unsigned int	inst;
+    sds			labels;
+    sds			name;
+} pmWebInstance;
+
+typedef struct pmWebChildren {
+    sds			name;
+    unsigned int	numleaf;
+    unsigned int	numnonleaf;
+    sds			*leaf;
+    sds			*nonleaf;
+} pmWebChildren;
+
+typedef struct pmWebScrape {
+    pmWebMetric		metric;
+    pmWebInstance	instance;
+    pmWebValue		value;
+    long long		seconds;
+    long long		nanoseconds;
+} pmWebScrape;
+
+typedef struct pmWebLabelSet {
+    pmLabelSet		*sets[6];
+    int			nsets;
+    sds			buffer;
+} pmWebLabelSet;
+
+typedef void (*pmWebContextCallBack)(sds, pmWebSource *, void *);
+typedef int (*pmWebAccessCallBack)(sds, pmWebAccess *, int *, sds *, void *);
+typedef void (*pmWebMetricCallBack)(sds, pmWebMetric *, void *);
+typedef int (*pmWebFetchCallBack)(sds, pmWebResult *, void *);
+typedef int (*pmWebFetchValueSetCallBack)(sds, pmWebValueSet *, void *);
+typedef int (*pmWebFetchValueCallBack)(sds, pmWebValue *, void *);
+typedef int (*pmWebInDomCallBack)(sds, pmWebInDom *, void *);
+typedef int (*pmWebInDomInstanceCallBack)(sds, pmWebInstance *, void *);
+typedef int (*pmWebChildrenCallBack)(sds, pmWebChildren *, void *);
+typedef int (*pmWebScrapeCallBack)(sds, pmWebScrape *, void *);
+typedef void (*pmWebScrapeLabelSetCallBack)(sds, pmWebLabelSet *, void *);
+typedef void (*pmWebStatusCallBack)(sds, int, sds, void *);
+
+typedef struct pmWebGroupCallBacks {
+    pmWebContextCallBack	on_context;
+    pmWebMetricCallBack		on_metric;
+    pmWebFetchCallBack		on_fetch;
+    pmWebFetchValueSetCallBack	on_fetch_values;
+    pmWebFetchValueCallBack	on_fetch_value;
+    pmWebInDomCallBack		on_indom;
+    pmWebInDomInstanceCallBack	on_instance;
+    pmWebChildrenCallBack	on_children;
+    pmWebScrapeCallBack		on_scrape;
+    pmWebScrapeLabelSetCallBack	on_scrape_labels;
+    pmWebAccessCallBack		on_check;	/* general access check call */
+    pmWebStatusCallBack		on_done;	/* all-purpose done callback */
+} pmWebGroupCallBacks;
+
+typedef struct pmWebGroupModule {
+    pmLogInfoCallBack		on_info;	/* general diagnostics call */
+    void			*privdata;	/* private internal lib data */
+} pmWebGroupModule;
+
+typedef struct pmWebGroupSettings {
+    pmWebGroupModule		module;
+    pmWebGroupCallBacks		callbacks;
+} pmWebGroupSettings;
+
+struct dict;	/* parameters dictionary */
+extern int pmWebGroupContext(pmWebGroupSettings *, sds, struct dict *, void *);
+extern void pmWebGroupDerive(pmWebGroupSettings *, sds, struct dict *, void *);
+extern void pmWebGroupFetch(pmWebGroupSettings *, sds, struct dict *, void *);
+extern void pmWebGroupInDom(pmWebGroupSettings *, sds, struct dict *, void *);
+extern void pmWebGroupMetric(pmWebGroupSettings *, sds, struct dict *, void *);
+extern void pmWebGroupChildren(pmWebGroupSettings *, sds, struct dict *, void *);
+extern void pmWebGroupProfile(pmWebGroupSettings *, sds, struct dict *, void *);
+extern void pmWebGroupScrape(pmWebGroupSettings *, sds, struct dict *, void *);
+extern void pmWebGroupStore(pmWebGroupSettings *, sds, struct dict *, void *);
+
+extern int pmWebGroupSetup(pmWebGroupModule *);
+extern int pmWebGroupSetEventLoop(pmWebGroupModule *, void *);
+extern int pmWebGroupSetConfiguration(pmWebGroupModule *, struct dict *);
+extern int pmWebGroupSetMetricRegistry(pmWebGroupModule *, struct mmv_registry *);
+extern void pmWebGroupClose(pmWebGroupModule *);
 
 #ifdef __cplusplus
 }

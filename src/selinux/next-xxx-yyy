@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Get next XXX.<NN> and YYY.>NN> unique id for msg=audit(...) in
+# pcpupstream.te.in
+#
+
+for tag in XXX YYY
+do
+    last=`grep msg= pcpupstream.te.in \
+    | sed -n \
+	-e '/audit('$tag/{'
+s/.*audit('$tag'\.//
+s/).*//p
+}' \
+    | sort -nr \
+    | head -1`
+    if [ -z "$last" ]
+    then
+	echo "Botch: cannot find highest <NN> for $tag.<NN>"
+	exit 1
+    fi
+    last=`expr $last + 1`
+    echo "$tag.$last"
+done

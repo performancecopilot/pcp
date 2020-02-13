@@ -1,0 +1,7 @@
+QA output created by 1644
+== Upgrade test case 1
+perfevent 127 pipe binary PCP_PMDAS_DIR/perfevent/pmdaperfevent -d 127
+== Upgrade test case 2
+perfevent 127 pipe binary PCP_PMDAS_DIR/perfevent/pmdaperfevent -d 127
+== Upgrade test case 3
+perfevent 127 pipe binary PCP_PMDAS_DIR/perfevent/pmdaperfevent -d 127

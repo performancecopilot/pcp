@@ -33,13 +33,12 @@ else
     __extra=''
 fi
 
-# need -q 10 because valgrind with all these options sometimes takes
-# longer to startup than the default credentials timeout of 3 seconds
+# need -q 45 because valgrind with all these options sometimes takes much
+# longer to startup than the default credentials timeout of 3 seconds,
+# especially on slow VMs
 #
-dbpmda -f -q 10 -ie 2>$tmp._valgrind.err >$tmp._valgrind.out <<End-of-File
+dbpmda -f -q 45 -ie 2>$tmp._valgrind.err >$tmp._valgrind.out <<End-of-File
 open pipe $VALGRIND --leak-check=full --read-var-info=yes --gen-suppressions=all --suppressions=valgrind-suppress $__extra --log-file=$tmp._valgrind pmdas/github-56/pmdatrivial
-# need to give valgrind a chance to get the PMDA started ...
-wait 5
 children trivial
 exit
 End-of-File

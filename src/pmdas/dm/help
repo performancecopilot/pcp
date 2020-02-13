@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018 Red Hat.
+# Copyright (c) 2015-2019 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -324,3 +324,31 @@ The number of latency histogram bins configured for the region.
 @ vdo.dev.available Difference between device capacity and used space
 @ vdo.dev.used_percentage Percentage of physical device space used
 @ vdo.dev.savings_percentage Percentage of logical blocks not being used for data blocks
+
+@ vdo.dev.hash_lock.concurrent_data_matches Concurrent write data matches 
+The number of writes with the same data as another in-flight write.
+@ vdo.dev.hash_lock.concurrent_hash_collisions Concurrent write hash collisions
+The number of writes whose hash collided with an in-flight write.
+@ vdo.dev.hash_lock.dedupe_advice_stale Number of times deduplication advice was incorrect.
+@ vdo.dev.hash_lock.dedupe_advice_valid Number of times deduplication advice was correct
+@ vdo.dev.index.curr_dedupe_queries Current deduplication queries currently in-flight
+@ vdo.dev.index.entries_indexed Total number of chunk names stored in the index
+@ vdo.dev.index.max_dedupe_queries Maximum number of in-flight deduplication queries
+@ vdo.dev.index.posts_found Post calls where entry found
+The number of post calls since context statistics were last reset that
+found an existing entry.
+@ vdo.dev.index.posts_not_found Posts calls where entry not found
+The number of post calls since context statistics were last reset that
+added a new entry.
+@ vdo.dev.index.queries_found Query calls where entry found
+The number of query calls since context statistics were last reset that
+found an existing entry.
+@ vdo.dev.index.queries_not_found Query calls where entry not found
+The number of query calls since context statistics were last reset that
+did not find an entry.
+@ vdo.dev.index.updates_found Update calls where entry found
+The number of update calls since context statistics were last reset that
+updated an existing entry.
+@ vdo.dev.index.updates_not_found Update calls where entry not found
+The number of update calls since context statistics were last reset that
+added a new entry.

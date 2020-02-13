@@ -1,0 +1,67 @@
+#!/bin/sh
+# PCP QA Test No. 1644
+# Exercise perfevent PMDA ./Upgrade script.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/perfevent ] || _notrun "perfevent PMDA is not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e "s,	, ,g" \
+    #end
+}
+
+# upgrade an existing perfevent install (no change)
+cat >$tmp.pmcd.conf.1 <<EOF
+perfevent 127 pipe binary $PCP_PMDAS_DIR/perfevent/pmdaperfevent -d 127
+EOF
+
+# test upgrade from a (deprecated) papi install
+cat >$tmp.pmcd.conf.2 <<EOF
+papi 126 pipe binary $PCP_PMDAS_DIR/papi/pmdapapi -d 126
+EOF
+
+# test upgrade from a (deprecated) papi install with perfevent
+cat >$tmp.pmcd.conf.3 <<EOF
+papi 126 pipe binary $PCP_PMDAS_DIR/papi/pmdapapi -d 126
+perfevent 127 pipe binary $PCP_PMDAS_DIR/perfevent/pmdaperfevent -d 127
+EOF
+
+# real QA test starts here
+cd $PCP_PMDAS_DIR/perfevent
+
+cases=`ls -1 $tmp.pmcd.conf.* | sed -e 's/.*pmcd.conf.//g' | LC_COLLATE=POSIX sort`
+for case in $cases
+do
+    config="$tmp.pmcd.conf.$case"
+    export PCP_PMCDCONF_PATH=$config
+    echo "== Upgrade test case $case"
+    ./Upgrade
+    cat $config | _filter
+done
+
+# success, all done
+status=0
+exit

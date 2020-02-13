@@ -24,7 +24,7 @@ _cleanup()
 {
     [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
     [ "$PCP_PLATFORM" != "linux" ] && _change_config pmlogger on
-    _service pcp restart >/dev/null
+    _service pcp restart 2>&1 >/dev/null
     _restore_auto_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -121,7 +121,7 @@ $0 != last	{ print; last = $0 }' \
 }
 
 cat >$tmp.new <<End-of-File
-# From QA 200
+# Installed by PCP QA test $seq on `date`
 #
 # Name	Id	IPC	IPC Params 	File/Cmd
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
@@ -167,7 +167,7 @@ do
     _wait_for_pmcd_exit
     pmsleep 1.1
     echo "begin start pmcd `date`" >>$seq.full
-    _service pmcd start \
+    _service pmcd start 2>&1 \
     | _filter_pcp_start
     echo "end start pmcd `date`" >>$seq.full
 

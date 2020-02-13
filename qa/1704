@@ -1,0 +1,50 @@
+#!/bin/sh
+# PCP QA Test No. 1704
+# Exercise the bpftrace PMDA - maps
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bpftrace
+
+_pmdabpftrace_check
+
+status=1       # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_prepare_pmda bpftrace
+trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+[authentication]
+enabled = false
+EOF
+
+sleep 60 &
+sleep_pid=$!
+
+echo "=== start bpftrace script ==="
+pmstore bpftrace.control.register "// name: testscript
+tracepoint:syscalls:sys_enter_kill /args->pid == $sleep_pid/ { @signals[args->sig] = count(); }" | sed -e "s/$sleep_pid/PID/"
+
+echo "=== check metrics ==="
+_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.probes "value 2"
+
+pminfo -dfmtT bpftrace.scripts.testscript.data.signals
+
+kill -CHLD $sleep_pid
+pmsleep 2 # bpftrace prints eBPF maps every second -> wait 2s to be sure
+pminfo -dfmtT bpftrace.scripts.testscript.data.signals
+
+kill -TERM $sleep_pid
+pmsleep 2
+pminfo -dfmtT bpftrace.scripts.testscript.data.signals
+
+
+_pmdabpftrace_remove
+status=0
+exit

@@ -17,7 +17,7 @@ status=0
 _cleanup()
 {
     _restore_config $PCP_PMCDOPTIONS_PATH
-    _service pcp restart | _filter_pcp_start
+    _service pcp restart 2>&1 | _filter_pcp_start
     _restore_auto_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -35,7 +35,7 @@ rm -rf $tmp.* $seq.full
 echo "First, the standard logfile:" | tee -a $seq.full
 _service pcp stop >/dev/null
 $sudo rm -f $PCP_LOG_DIR/pmcd/pmcd.log
-_service pcp start | tee -a $seq.full >$tmp.out
+_service pcp start 2>&1 | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger
 grep -i 'starting pmcd' $tmp.out | _filter_pcp_start
@@ -55,7 +55,7 @@ echo ""
 _save_config $PCP_PMCDOPTIONS_PATH
 cp $PCP_PMCDOPTIONS_PATH $tmp.options
 cat <<End-Of-File >>$tmp.options
-# Dummy lines added by PCP QA test 170
+# Dummy lines added for PCP QA test $seq
 #
 -l $tmp.1.pmcd.log
 -l $tmp.2.pmcd.log
@@ -63,7 +63,7 @@ End-Of-File
 $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
 echo "The logfile from the hacked \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $seq.full
-_service pcp restart | tee -a $seq.full >$tmp.out
+_service pcp restart 2>&1 | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger
 grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start

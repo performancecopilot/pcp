@@ -56,7 +56,7 @@ _cleanup()
     then
 	[ -f $tmp.control ] && \
 	    $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -141,9 +141,9 @@ PMCD_CONNECT_TIMEOUT=1000
 export PMCD_CONNECT_TIMEOUT
 pminfo -f sample.long.million >$tmp.tmp 2>&1 &
 
-_expect "Starting, Waiting, Forcing termination and Starting again"
+_expect "Forcing termination"
 ps $PCP_PS_ALL_FLAGS | egrep "PID|$pid" >>$seq.full
-_service pcp restart >$tmp.two 2>&1
+( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) >$tmp.two 2>&1
 _wait_for_pmcd
 _wait_for_pmlogger
 wait

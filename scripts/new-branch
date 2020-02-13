@@ -1,0 +1,98 @@
+#!/bin/sh
+#
+# Usage: scripts/new-branch
+#
+# This script uses today's date to create a new branch, record the
+# HEAD SHA in <branch>.sha, then switch back to the master branch
+#
+# All of this sets up for a new batch of commits to be pushed via
+# github pull requests using the sister-scripts scripts/pcp-push
+#
+
+tmp=/var/tmp/$$
+sts=1
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+_usage()
+{
+    echo >&2 "Usage: new-branch [options] [suffix]"
+    echo >&2
+    echo >&2 "options:"
+    echo >&2 "  -n                  dryrun"
+    exit
+}
+
+dryrun=false
+GIT=git
+while getopts "n?" c
+do
+    case $c
+    in
+	n)
+	    dryrun=true
+	    GIT="echo + git"
+	    ;;
+	*)
+	    _usage
+	    # NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -eq 1 ]
+then
+    suff="$1"
+    shift
+else
+    suff=''
+fi
+
+[ $# -eq 0 ] || _usage
+
+# expect to be on master branch at this point
+#
+branch=`git branch --list | sed -n -e 's/^\* //p'`
+if [ "$branch" != master ]
+then
+    echo "Error: should be on master branch (not $branch)"
+    exit
+fi
+branch=`date '+%Y%m%d'`$suff
+if git branch --list | sed -e 's/\*//' -e 's/ //g' | grep "^$branch\$" >/dev/null
+then
+    echo "Error: branch $branch already exists"
+    exit
+fi
+
+if $dryrun
+then
+    $GIT checkout -b "$branch"
+else
+    if $GIT checkout -b "$branch"
+    then
+	:
+    else
+	echo "Error: branch $branch not created"
+	exit
+    fi
+fi
+
+# remember HEAD commit that was pushed to <branch>...
+#
+sha=`git log | sed -e 's/commit //' -e 1q`
+
+# back to square one
+#
+$GIT checkout master
+
+if $dryrun
+then
+    echo "+ echo $sha >$branch.sha"
+else
+    echo "$sha" >$branch.sha
+fi
+
+# all done
+#
+sts=0
+exit

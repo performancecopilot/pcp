@@ -1,0 +1,14 @@
+QA output created by 1212
+
+== Query parse error handling - invalid metric name
+pmseries: [Error] cannot parse given string
+
+kernel.all.!bang
+           ^ -- syntax error
+
+== Query parse error handling - invalid sample
+pmseries: [Error] cannot parse given string
+
+kernel.all.load[badness]
+                ^ -- syntax error
+

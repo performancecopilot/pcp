@@ -60,7 +60,7 @@ install:	default
 	$(INSTALL) -m 755 Rebuild $(PMNS_VAR_DIR)/Rebuild
 	$(INSTALL) -m 755 Make.stdpmid $(PMNS_VAR_DIR)/Make.stdpmid
 	$(INSTALL) -m 644 $(STDPMID) $(PMNS_VAR_DIR)
-ifeq (, $(filter redhat debian, $(PACKAGE_DISTRIBUTION)))
+ifeq (, $(filter redhat debian suse, $(PACKAGE_DISTRIBUTION)))
 	$(INSTALL) -m 644 .NeedRebuild $(PMNS_VAR_DIR)/.NeedRebuild
 endif
 

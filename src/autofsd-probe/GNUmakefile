@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015,2020 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -42,3 +42,9 @@ endif
 default_pcp : default
 
 install_pcp : install
+
+check::	$(CFILES)
+	$(CLINT) $^
+
+check :: $(MAN_PAGES)
+	$(MANLINT) $^

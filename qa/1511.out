@@ -1,0 +1,4 @@
+QA output created by 1511
+Attempting disallowed store access (expect failure)
+sample.write_me: new value="2" pmStore: No permission to perform requested operation
+Restore pmcd.conf and restart PMCD ...

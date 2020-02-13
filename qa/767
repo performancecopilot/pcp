@@ -8,10 +8,7 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.containers
 
 _check_containers
 
@@ -29,7 +26,7 @@ pminfo --fetch --container=$container $metrics
 echo
 
 echo "== procfs PMDA"
-metrics="proc.memory.rss cgroup.memory.stat.rss"
+metrics="proc.memory.rss cgroup.memory.stat.pgfault"
 pmprobe --external --container=$container $metrics
 pminfo --fetch --container=$container $metrics
 

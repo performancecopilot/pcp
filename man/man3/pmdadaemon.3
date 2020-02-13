@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDADAEMON 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -39,7 +39,7 @@ initializes the
 .B pmdaInterface
 structure to use the
 .I interface
-extensions assuming the 
+extensions assuming the
 .BR PMDA (3)
 is to be run as a daemon.  The
 .B pmdaInterface
@@ -50,16 +50,16 @@ The name of the agent.
 .TP
 .I domain
 The default domain number of the agent which uniquely identifies this PMDA
-from other running PMDAs.  This may be subsequently changed by a command line 
-option 
+from other running PMDAs.  This may be subsequently changed by a command line
+option
 .B \-d
-(see 
+(see
 .BR pmdaGetOpt (3)).
 .TP
 .I logfile
-The default path to the log file.  This may be replaced by the 
+The default path to the log file.  This may be replaced by the
 .B \-l
-command line option if using 
+command line option if using
 .BR pmdaGetOpt .
 .I logfile
 will be copied with
@@ -70,7 +70,7 @@ may be released after the call to
 .BR pmdaDaemon .
 .TP
 .I helptext
-The default path to the help text (see 
+The default path to the help text (see
 .BR pmdaText (3).
 This may be replaced by the
 .B \-h
@@ -87,7 +87,7 @@ so the storage associated with
 may be released after the call to
 .BR pmdaDaemon .
 .PP
-The callbacks are initialized to 
+The callbacks are initialized to
 .BR pmdaProfile (3),
 .BR pmdaFetch (3),
 .BR pmdaDesc (3),
@@ -98,14 +98,14 @@ and
 .SH DIAGNOSTICS
 .TP 15
 .B Unable to allocate memory for pmdaExt structure
-In addition, the 
+In addition, the
 .I dispatch->status
 field is set to a value less than zero.
 .TP
 .BI "PMDA interface version " interface " not supported"
 The
 .I interface
-version is not supported by 
+version is not supported by
 .BR pmdaDaemon .
 .SH CAVEAT
 The PMDA must be using
@@ -118,7 +118,7 @@ has been called, it is expected that the
 .B pmdaInterface
 structure pointed to by
 .I dispatch
-will remain accessible to the 
+will remain accessible to the
 routines in
 .I libpcp_pmda
 (not reclaimed off the stack,

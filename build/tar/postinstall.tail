@@ -105,7 +105,7 @@ then
     #
     if [ "$PCP_PLATFORM" = darwin ]
     then
-	./useradd.darwin -c "Performance Co-Pilot" -g pcp -d "$PCP_VAR_DIR" -s "$nologin" pcp
+	./useradd.darwin -c "Performance Co-Pilot" -g pcp -d "$PCP_VAR_DIR" -s $nologin pcp
     else
 	if grep '^pcp:' /etc/group >/dev/null
 	then
@@ -113,7 +113,7 @@ then
 	else
 	    if which groupadd >/dev/null 2>&1
 	    then
-		groupadd "$sys_acc" pcp
+		groupadd $sys_acc pcp
 	    else
 		if [ "$PCP_PLATFORM" = freebsd ]
 		then
@@ -131,7 +131,7 @@ then
 	else
 	    if which useradd >/dev/null 2>&1
 	    then
-		useradd -c "Performance Co-Pilot" -g pcp -d "$PCP_VAR_DIR" "$no_home_dir" "$sys_acc" -s "$nologin" pcp
+		useradd -c "Performance Co-Pilot" -g pcp -d "$PCP_VAR_DIR" $no_home_dir $sys_acc -s $nologin pcp
 	    elif which adduser >/dev/null 2>&1
 	    then
 		echo "pcp::::::Performance Co-Pilot:$PCP_VAR_DIR::" \
@@ -148,7 +148,7 @@ then
     #
     if [ "$PCP_PLATFORM" = darwin ]
     then
-	./useradd.darwin -c "PCP Quality Assurance" -g pcpqa -d "$PCP_VAR_DIR"/testsuite -s "$bash" pcpqa
+	./useradd.darwin -c "PCP Quality Assurance" -g pcpqa -d "$PCP_VAR_DIR"/testsuite -s $bash pcpqa
     else
 	if grep '^pcpqa:' /etc/group >/dev/null
 	then
@@ -156,7 +156,7 @@ then
 	else
 	    if which groupadd >/dev/null 2>&1
 	    then
-		groupadd "$sys_acc" pcpqa
+		groupadd $sys_acc pcpqa
 	    else
 		if [ "$PCP_PLATFORM" = freebsd ]
 		then
@@ -174,7 +174,7 @@ then
 	else
 	    if which useradd >/dev/null 2>&1
 	    then
-		useradd -c "PCP Quality Assurance" -g pcpqa -d "$PCP_VAR_DIR"/testsuite "$no_home_dir" "$sys_acc" -s "$bash" pcpqa
+		useradd -c "PCP Quality Assurance" -g pcpqa -d "$PCP_VAR_DIR"/testsuite $no_home_dir $sys_acc -s $bash pcpqa
 	    elif which adduser >/dev/null 2>&1
 	    then
 		# no bash for default FreeBSD
@@ -194,7 +194,7 @@ fi
 _do_dir()
 {
     dir="$3"
-    [ -d "$dir" ] || mkdir "$dir"
+    [ -d "$dir" ] || mkdir -p "$dir"
     chown "$1" "$dir"
     chmod "$2" "$dir"
 }
@@ -250,7 +250,7 @@ fi
 #
 if [ -n "$PCP_SYSTEMDUNIT_DIR" ]
 then
-    for service in pmcd pmlogger pmie pmproxy pmmgr pmwebd
+    for service in pmcd pmlogger pmie pmproxy pmmgr
     do
 	[ -f "$PCP_SYSTEMDUNIT_DIR/$service.service" ] || continue
 	chown "root:$grp" "$PCP_SYSTEMDUNIT_DIR/$service.service"
@@ -267,7 +267,7 @@ fi
 
 # all the /etc/cron.d PCP files MUST be owned my root
 #
-for file in /etc/crond./pcp-*
+for file in /etc/cron.d/pcp-*
 do
     [ -f "$file" ] && chown "root:$grp" "$file"
 done
@@ -278,31 +278,37 @@ done
 _do_dir "root:$grp" 700 "$PCP_TMP_DIR"/pmcd
 # from GNUmakefile
 _do_dir "root:$grp" 755 "$PCP_SYSCONF_DIR"/labels
-if [ -d "$PCP_PMDAS_DIR"/prometheus ]
+if [ -d "$PCP_PMDAS_DIR"/openmetrics ]
 then
-    # from src/pmdas/prometheus
-    _do_dir "root:$grp" 755 "$PCP_PMDAS_DIR"/prometheus/config.d
+    # from src/pmdas/openmetrics
+    _do_dir "root:$grp" 755 "$PCP_PMDAS_DIR"/openmetrics/config.d
 fi
-# from src/webapps/GNUmakefile
-_do_dir "root:$grp" 755 "$PCP_SHARE_DIR"/webapps
 
 # Expect only root owned things below $PCP_SYSCONF_DIR
 #
 find "$PCP_SYSCONF_DIR" ! -user root \
 | while read f
 do
-    chown "root:$grp" "$f"
+    if [ -L "$f" ]
+    then
+	# change the symlink, not what it points to
+	#
+	chown -h "root:$grp" "$f"
+    else
+	chown "root:$grp" "$f"
+    fi
 done
 
 # pcp:pcp and mode 775 directories
 #
 for dir in "$PCP_LOG_DIR" \
-	   "$PCP_LOG_DIR"/pmcd "$PCP_LOG_DIR"/pmie "$PCP_LOG_DIR"/pmwebd \
-	   "$PCP_LOG_DIR"/pmproxy "$PCP_LOG_DIR"/pmlogger "$PCP_LOG_DIR"/pmmgr \
+	   "$PCP_LOG_DIR"/pmcd "$PCP_LOG_DIR"/pmproxy \
+	   "$PCP_LOG_DIR"/pmie "$PCP_LOG_DIR"/pmlogger \
+	   "$PCP_LOG_DIR"/pmmgr \
 	   "$PCP_SA_DIR" \
 	   "$PCP_RUN_DIR" \
-	   "$PCP_VAR_DIR"/tmp "$PCP_VAR_DIR"/tmp/pmie "$PCP_VAR_DIR"/tmp/pmlogger \
-	   "$PCP_VAR_DIR"/tmp/mmv \
+	   "$PCP_TMP_DIR" "$PCP_TMP_DIR"/pmie "$PCP_TMP_DIR"/pmlogger \
+	   "$PCP_TMP_DIR"/mmv "$PCP_TMP_DIR"/pmproxy \
 	   "$PCP_VAR_DIR"/config/pmda \
 	   "$PCP_VAR_DIR"/config/pmie "$PCP_VAR_DIR"/config/pmlogger \
 	   "$PCP_NSSDB_DIR"
@@ -337,7 +343,7 @@ then
 	svccfg import ../sun/pcp.xml
     fi
 else
-    for svc in pcp pmcd pmie pmlogger pmproxy pmmgr pmwebd
+    for svc in pcp pmcd pmie pmlogger pmproxy pmmgr
     do
 	[ -f /etc/init.d/"$svc" ] || continue
 	if which rc-update >/dev/null 2>&1
@@ -354,7 +360,7 @@ else
 	# disable or enable and start as required by default policy
 	case "$svc"
 	in
-	    pmcd|pmlogger|pmproxy|pmie|pmmgr|pmwebd)
+	    pmcd|pmlogger|pmproxy|pmie|pmmgr)
 		if which rc-update >/dev/null 2>&1
 		then
 		    : TODO?

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2018 Red Hat.
+# Copyright (c) 2012-2019 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -127,12 +127,10 @@ NSSCFLAGS = @NSSCFLAGS@
 NSPRCFLAGS = @NSPRCFLAGS@
 SASLCFLAGS = @SASLCFLAGS@
 AVAHICFLAGS = @avahi_CFLAGS@
-CAIROCFLAGS = @cairo_CFLAGS@
 NCURSESCFLAGS = @ncurses_CFLAGS@
-LIBMICROHTTPDCFLAGS = @libmicrohttpd_CFLAGS@
-ZLIBCFLAGS = @zlib_CFLAGS@
 LZMACFLAGS = @lzma_CFLAGS@
 LIBUVCFLAGS = @libuv_CFLAGS@
+OPENSSLCFLAGS = @openssl_CFLAGS@
 
 LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
@@ -158,6 +156,7 @@ OBJECTS = $(ASFILES:.s=.o) \
           $(CXXFILES:.cxx=.o) \
           $(FFILES:.f=.o) \
           $(LFILES:.l=.o) \
+          $(RLFILES:.rl=.o) \
           $(YFILES:%.y=%.tab.o)
 
 #NB: don't override $(MAKE); gnumake sets it well, propagating -j etc.
@@ -170,11 +169,13 @@ SED	= @sed@
 CPP	= @cpp@
 LEX	= @lex@
 YACC	= @yacc@
+RAGEL	= @RAGEL@
 ECHO	= @echo@
 LN_S	= @LN_S@
 GREP    = @grep@
 GIT	= @GIT@
-CLINT	= @CPPCHECK@ --std=posix --force --quiet --error-exitcode=1
+MANLINT	= $(TOPDIR)/scripts/man-lint
+CLINT	= $(TOPDIR)/scripts/c-lint -I$(TOPDIR)/src/include/pcp
 PYLINT	= @PYLINT@ --rcfile=$(TOPDIR)/.pylintrc --output-format=colorized
 PYTHON	= @PYTHON@
 PYTHON3	= @PYTHON3@
@@ -209,7 +210,6 @@ LZMA	= @lzma@
 XZ	= @xz@
 TAR	= @tar@
 RPMPROG	= @rpmprog@
-PACKAGE_MAKER = @package_maker@
 HDIUTIL = @hdiutil@
 MKINSTALLP = @mkinstallp@
 DLLTOOL = @dlltool@
@@ -258,28 +258,27 @@ ENABLE_PYTHON2 = @enable_python2@
 ENABLE_PYTHON3 = @enable_python3@
 ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_MANAGER = @enable_manager@
-ENABLE_WEBAPI = @enable_webapi@
 ENABLE_SELINUX = @enable_selinux@
 ENABLE_DECOMPRESSION = @enable_decompression@
 ENABLE_LZMA = @enable_lzma@
 
 # selinux configuration bits
-PCP_SELINUX_CLASS_STATUS = @pcp_selinux_class_status@
+PCP_SELINUX_FILES_LIST_NON_AUTH_DIRS = @pcp_selinux_files_list_non_auth_dirs@
 PCP_SELINUX_CAP_USERNS_PTRACE = @pcp_selinux_cap_userns_ptrace@
 PCP_SELINUX_CONTAINER_RUNTIME = @pcp_selinux_container_runtime@
 PCP_SELINUX_NSFS = @pcp_selinux_nsfs@
 PCP_SELINUX_DOCKER_VAR_LIB = @pcp_selinux_docker_var_lib@
-PCP_SELINUX_SVIRT_LXC_NET = @pcp_selinux_svirt_lxc_net@
-PCP_SELINUX_SYSTEMD_UNIT_FILE = @pcp_selinux_systemd_unit_file@
-PCP_SELINUX_SYSTEMD_EXEC = @pcp_selinux_systemd_exec@
 PCP_SELINUX_UNRESERVED_PORT = @pcp_selinux_unreserved_port@
 PCP_SELINUX_TRACEFS = @pcp_selinux_tracefs@
-PCP_SELINUX_SOCK_FILE_GETATTR = @pcp_selinux_sock_file_getattr@
 PCP_SELINUX_HOSTNAME_EXEC_MAP = @pcp_selinux_hostname_exec_map@
-PCP_SELINUX_MOCK = @pcp_selinux_mock@
 PCP_SELINUX_UNCONFINED = @pcp_selinux_unconfined@
 PCP_SELINUX_NUMAD = @pcp_selinux_numad@
 PCP_SELINUX_BPF_STATUS = @pcp_selinux_bpf_status@
+PCP_SELINUX_RPM_VAR_LIB = @pcp_selinux_rpm_var_lib@
+PCP_SELINUX_VIRT_VAR_RUN = @pcp_selinux_virt_var_run@
+PCP_SELINUX_FILES_MMAP_ALL_FILES = @pcp_selinux_files_mmap_all_files@
+PCP_SELINUX_CAP2_SYSLOG = @pcp_selinux_cap2_syslog@
+PCP_SELINUX_ICMP_SOCKET = @pcp_selinux_icmp_socket@
 
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@
@@ -293,70 +292,63 @@ HAVE_PYTHON_REQUESTS = @have_python_requests@
 HAVE_PYTHON_SETUPTOOLS = @have_python_setuptools@
 HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
 HAVE_PYTHON_ORDEREDDICT = @have_python_OrderedDict@
-HAVE_PYTHON_ELASTICSEARCH = @have_python_Elasticsearch@
 HAVE_PYTHON_INFLUXDB = @have_python_influxdb@
 HAVE_PYTHON_OPENPYXL = @have_python_openpyxl@
 HAVE_PYTHON_BPF = @have_python_BPF@
-
-# for building packages from external sources
-HAVE_WEBAPPS = @have_webapps@
 
 # for desktop icons in a variety of img sizes
 HAVE_HICOLOR_ICONS = @have_hicolor_icons@
 
 # additional libraries needed for particular functions
+LIB_FOR_ATOMIC = @lib_for_atomic@
+LIB_FOR_AVAHI = @lib_for_avahi@
 LIB_FOR_BASENAME = @lib_for_basename@
-LIB_FOR_DLOPEN = @lib_for_dlopen@
-LIB_FOR_REGEX = @lib_for_regex@
-LIB_FOR_MATH = @lib_for_math@
-LIB_FOR_READLINE = @lib_for_readline@
+LIB_FOR_CHAN = @lib_for_chan@
 LIB_FOR_CURSES = @lib_for_curses@
-LIB_FOR_PTHREADS = @lib_for_pthreads@
-LIB_FOR_RT = @lib_for_rt@
+LIB_FOR_DLOPEN = @lib_for_dlopen@
+LIB_FOR_HDR_HISTOGRAM = @lib_for_hdr_histogram@
+LIB_FOR_LZMA = @lib_for_lzma@
+LIB_FOR_MATH = @lib_for_math@
 LIB_FOR_NSS = @lib_for_nss@
 LIB_FOR_NSPR = @lib_for_nspr@
+LIB_FOR_PTHREADS = @lib_for_pthreads@
+LIB_FOR_READLINE = @lib_for_readline@
+LIB_FOR_REGEX = @lib_for_regex@
+LIB_FOR_RT = @lib_for_rt@
 LIB_FOR_SASL = @lib_for_sasl@
 LIB_FOR_SSL = @lib_for_ssl@
-LIB_FOR_AVAHI = @lib_for_avahi@
-LIB_FOR_ATOMIC = @lib_for_atomic@
-LIB_FOR_LZMA = @lib_for_lzma@
 
 HAVE_LIBUV = @HAVE_LIBUV@
 LIB_FOR_LIBUV = @libuv_LIBS@
+HAVE_OPENSSL = @HAVE_OPENSSL@
+LIB_FOR_OPENSSL = @openssl_LIBS@
+HAVE_LIBVARLINK = @HAVE_LIBVARLINK@
+LIB_FOR_LIBVARLINK = @libvarlink_LIBS@
 HAVE_NCURSES = @HAVE_NCURSES@
 LIB_FOR_NCURSES = @ncurses_LIBS@
 HAVE_DEVMAPPER = @HAVE_DEVMAPPER@
 LIB_FOR_DEVMAPPER = @DEVMAPPER_LIBS@
 
-HAVE_CAIRO = @HAVE_CAIRO@
-LIB_FOR_CAIRO = @cairo_LIBS@
-HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
-LIB_FOR_MICROHTTPD = @libmicrohttpd_LIBS@
-HAVE_ZLIB = @HAVE_ZLIB@
-LIB_FOR_ZLIB = @zlib_LIBS@
-HAVE_BOOST = @have_boost@
-HAVE_BOOST_FLYWEIGHT_HPP = @HAVE_BOOST_FLYWEIGHT_HPP@
-
 # configuration state for optional performance domains
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
 SYSTEMD_LIBS = @SYSTEMD_LIBS@
-PAPI_CFLAGS = @PAPI_CFLAGS@
-PAPI_LIBS = @PAPI_LIBS@
 PFM_LIBS = @PFM_LIBS@
 IB_LIBS = @IB_LIBS@
 PMDA_BCC = @PMDA_BCC@
+PMDA_BPFTRACE = @PMDA_BPFTRACE@
 PMDA_RPM = @PMDA_RPM@
 PMDA_JSON = @PMDA_JSON@
-PMDA_PAPI = @PMDA_PAPI@
+PMDA_PODMAN = @PMDA_PODMAN@
+PMDA_STATSD = @PMDA_STATSD@
 PMDA_LIBVIRT = @PMDA_LIBVIRT@
 PMDA_SYSTEMD = @PMDA_SYSTEMD@
 PMDA_PERFEVENT = @PMDA_PERFEVENT@
-PMDA_PROMETHEUS = @PMDA_PROMETHEUS@
 PMDA_INFINIBAND = @PMDA_INFINIBAND@
+PMDA_OPENMETRICS = @PMDA_OPENMETRICS@
+PMDA_ELASTICSEARCH = @PMDA_ELASTICSEARCH@
 PMDA_MYSQL = @PMDA_MYSQL@
 PMDA_ORACLE = @PMDA_ORACLE@
 PMDA_POSTGRESQL = @PMDA_POSTGRESQL@
-PMDA_ELASTICSEARCH = @PMDA_ELASTICSEARCH@
 PMDA_SNMP = @PMDA_SNMP@
 PMDA_NGINX = @PMDA_NGINX@
 PMDA_ACTIVEMQ = @PMDA_ACTIVEMQ@
@@ -702,13 +694,16 @@ PYTHON_PREFIX=@python_prefix@
 SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include:$(TOPDIR)/src/include/pcp$(EXTRA_PY_INCLUDES)
 SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$(TOPDIR)/src/libpcp_gui/src:$(TOPDIR)/src/libpcp_import/src:$(TOPDIR)/src/libpcp_mmv/src
 SETUP_PY_INSTALL_OPTIONS = --skip-build
-SETUP_PY_INSTALL_OPTIONS += --root="$${DIST_ROOT-/}"
+SETUP_PY_INSTALL_OPTIONS += --root="$${DIST_ROOT:-/}"
 ifeq "$(PYTHON_PREFIX)" "/usr"
 ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
 SETUP_PY_INSTALL_OPTIONS += --install-layout=deb
 endif
 else
 SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
+endif
+ifeq "$(ENABLE_PYTHON3)" "true"
+SETUP_PY_BUILD_OPTIONS += -DENABLE_PYTHON3
 endif
 # RPM byte-compiles and installs results in our DIST_ROOT, cater for this:
 ifeq "$(shell [ '$(TARGET_OS)' = linux -a '$(PACKAGE_DISTRIBUTION)' != gentoo \
@@ -817,10 +812,14 @@ endif	# linux && !gentoo if
 # becomes
 # LIBS = $(SUBLIBS) -L../libpcp/src -L../libpcp_qmc/src ... -L/usr/lib -lpcp_qmc ...
 #
-QTFIX = $(AWK) '$$1 == "LIBS" { printf $$1; for (i=2;i<=NF;i++) { if ($$i~/^-L\//) { save=save " " $$i; continue } else if (save!="" && $$i~/^-l/) { printf " %s",save; save="" } printf " %s",$$i } if (save!="") printf " %s",save; print ""; next } { print }'
+QTFIX = sed -e 's/Makefile.new/Makefile/g' <Makefile.new | $(AWK) '$$1 == "LIBS" { printf $$1; for (i=2;i<=NF;i++) { if ($$i~/^-L\//) { save=save " " $$i; continue } else if (save!="" && $$i~/^-l/) { printf " %s",save; save="" } printf " %s",$$i } if (save!="") printf " %s",save; print ""; next } { print }' >Makefile.fix
 
 # Qt magic for build/installs across all the supported platforms
-QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(QTFIX) <Makefile >Makefile.fix && mv Makefile.fix Makefile && $(MAKE) $(MAKEOPTS) -f Makefile
+# because qmake does not always get it right, e.g. omitting -fPIC for
+# static libraries in Qt5 on Ubuntu x86_64, we need to push our CFLAGS, CXXFLAGS
+# (usually empty) and LDFLAGS down
+#
+QTMAKE = rm -f Makefile.new Makefile.fix; CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(QMAKE) -o Makefile.new CONFIG+=$(QT_RELEASE) && $(QTFIX) && ( if [ -f Makefile ]; then if diff Makefile Makefile.fix >/dev/null; then :; else rm -f Makefile; mv Makefile.fix Makefile; fi; else mv Makefile.fix Makefile; fi ); rm -f Makefile.new Makefile.fix; $(MAKE) $(MAKEOPTS) -f Makefile
 ifeq ($(PCP_PLATFORM),darwin)
 MACBUILD = build/$(QT_RELEASE)/$(COMMAND).app/Contents
 BINARY = $(MACBUILD)/MacOS/$(COMMAND)
@@ -915,7 +914,7 @@ endif
 PCP_GUILIB = -lpcp_gui $(PCPLIB)
 PCP_PMDALIB = -lpcp_pmda $(PCPLIB)
 PCP_TRACELIB = -lpcp_trace $(PCPLIB)
-PCPWEBLIB_EXTRAS = $(LIB_FOR_LIBUV) $(PCP_PMDALIB)
+PCPWEBLIB_EXTRAS = $(LIB_FOR_OPENSSL) $(LIB_FOR_LIBUV) $(PCP_PMDALIB)
 PCP_WEBLIB = -lpcp_web $(PCPWEBLIB_EXTRAS)
 
 ifdef PCP_ALTLIBS

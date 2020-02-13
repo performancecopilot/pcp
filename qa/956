@@ -25,8 +25,9 @@ _cleanup()
 {
     _service pmcd stop | _filter_pcp_stop
     unset PMCD_PORT
+    unset PMCD_SOCKET
     _restore_config $PCP_PMCDOPTIONS_PATH
-    _service pcp start | _filter_pcp_start
+    _service pcp start 2>&1 | _filter_pcp_start
     _wait_for_pmcd
     _restore_auto_restart pmcd
     _wait_for_pmlogger
@@ -34,10 +35,22 @@ _cleanup()
 
     if pmprobe -I pmcd.agent.status | grep '"dynamic"' >/dev/null
     then
+	# need to uninstall dynamic PMDA
+	#
         cd $here/pmdas/dynamic
         $sudo ./Remove >>$here/$seq.full 2>&1
         cd $here
     fi
+
+    if pminfo | grep '^dynamic' >/dev/null
+    then
+	# need to cleanup PMNS
+	#
+        cd $here/pmdas/dynamic
+        $sudo ./Remove >>$here/$seq.full 2>&1
+        cd $here
+    fi
+
     $sudo rm -f $tmp.*
 }
 
@@ -56,24 +69,27 @@ fi
 echo "port=$port" >>$seq.full
 _save_config $PCP_PMCDOPTIONS_PATH
 cat <<End-of-File >$tmp.newoptions
-# New pmcd.options file created by QA $seq
+# New pmcd.options file created by PCP QA test $seq
 #
 -s $tmp.socket
 End-of-File
-$sudo cp $tmp.newoptions $PCP_PMCDOPTIONS_PATH
 
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
 _service pcp stop | _filter_pcp_stop
+
+$sudo cp $tmp.newoptions $PCP_PMCDOPTIONS_PATH
 
 # need to start pmcd indirectly in a shell script because sudo
 # may cleanse the environment, which also means we cannot use
 # the _service wrapper
 #
 echo "export PMCD_PORT=$port" >$tmp.start
+echo "export PMCD_SOCKET=$tmp.socket" >>$tmp.start
 echo "$PCP_RC_DIR/pmcd restart" >>$tmp.start
-$sudo sh $tmp.start | _filter_pcp_start
+$sudo sh $tmp.start 2>&1 | _filter_pcp_start
 export PMCD_PORT=$port
+export PMCD_SOCKET=$tmp.socket
 _wait_for_pmcd
 
 cd $here/pmdas/dynamic
@@ -140,11 +156,12 @@ pmsleep 3.75
 echo "Tickle access to the failed PMDA, must see 'Try Again'"
 pmprobe -h unix:$tmp.socket -i hinv.ncpu | tee $tmp.tmp
 nval=`$PCP_AWK_PROG <$tmp.tmp '{print $2}'`
-if [ "$nval" -ge 0 ]
+if [ -z "$nval" -o "$nval" -ge 0 ]
 then
     # this is not expected
     #
     echo "Error: nval=$nval not as expected ... see $seq.full"
+    pmprobe -h unix:$tmp.socket -i hinv.ncpu >>$here/$seq.full
     echo "+++ Tickle failed `date` +++" >>$here/$seq.full
     cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
     cat $PCP_LOG_DIR/pmcd/dynamic.log >>$here/$seq.full

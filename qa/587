@@ -48,7 +48,7 @@ _cleanup()
     then
 	echo
 	_restore_config $PCP_PMCDCONF_PATH
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
     else
@@ -70,7 +70,7 @@ case "$PCP_PLATFORM" in
 
 linux)
     cat >> $tmp.conf << EOF
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 linux   60      dso     linux_init      $PCP_PMDAS_DIR/linux/pmda_linux.so
 EOF
@@ -78,7 +78,7 @@ EOF
 
 darwin)
     cat >> $tmp.conf << EOF
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
 darwin  78      dso     darwin_init     $PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
 EOF
@@ -86,7 +86,7 @@ EOF
 
 solaris)
     cat >> $tmp.conf << EOF
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
 EOF
@@ -94,7 +94,7 @@ EOF
 
 freebsd)
     cat >> $tmp.conf << EOF
-# temporary pmcd.conf for qa/$seq
+# Installed by PCP QA test $seq on `date`
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
 EOF
@@ -107,7 +107,7 @@ esac
 
 _save_config $PCP_PMCDCONF_PATH
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-_service pcp restart | _filter_pcp_start
+_service pcp restart 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

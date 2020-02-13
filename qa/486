@@ -60,7 +60,15 @@ _cmp()
     pmdumplog -z -dilmst $1 | tee -a $seq.full >$tmp.in
     pmdumplog -z -dilmst $2 | tee -a $seq.full >$tmp.out
     echo "pmdumplog diffs ..."
-    diff -u $tmp.in $tmp.out | _filter
+    # For the *BSD platforms, use gdiff in preference to diff, so we
+    # don't get bitten by the diff-jackpot non-determinism
+    #
+    DIFF=diff
+    if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
+    then
+	which gdiff >/dev/null 2>&1 && DIFF=gdiff
+    fi
+    $DIFF -u $tmp.in $tmp.out | _filter
     [ -z "$filter_new" -a -z "$filter_old" ] && return
     if [ ! -z "$filter_old" ]
     then
@@ -80,7 +88,7 @@ _cmp()
     fi
     echo
     echo "FILTERED pmdumplog diffs ..."
-    diff -u $tmp.in $tmp.out | _filter
+    $DIFF -u $tmp.in $tmp.out | _filter
 }
 
 # real QA test starts here

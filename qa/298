@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_need_metric kernel.all.cpu.wait.total
+
 rm -f $seq.out $seq.full
 if [ $PCP_PLATFORM = darwin ]
 then

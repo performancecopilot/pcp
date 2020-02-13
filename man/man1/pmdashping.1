@@ -2,17 +2,17 @@
 .\"
 .\" Copyright (c) 2012 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDASHPING 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -29,7 +29,7 @@
 .br
 .SH DESCRIPTION
 .B pmdashping
-is a Performance Metrics Domain Agent (PMDA) which exports 
+is a Performance Metrics Domain Agent (PMDA) which exports
 quality of service and response time measurements for
 arbitrary commands as might be run from a shell such as
 .BR sh (1).
@@ -130,7 +130,6 @@ exported by the PMDA, and form the external instance domain identifiers
 for the
 .B pmdashping
 metrics which relate to each command.
-.PP
 .SH INSTALLATION
 In order for a host to export the names, help text and values for the shping
 performance metrics, do the following as root:
@@ -209,6 +208,7 @@ configuration file,
 as described in
 .BR pcp.conf (5).
 .SH SEE ALSO
+.BR PCPIntro (1),
 .BR pmcd (1)
 and
 .BR pcp-shping (1).

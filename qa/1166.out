@@ -6,7 +6,7 @@ Log for 1166 on HOST started DATE
 
 G'day cobber
 __pmNoMem test: expect to see a message
-[DATE] qa_libpcp_compat(PID) Warning: SEQ: malloc(123456) failed: Cannot allocate memory
+[DATE] qa_libpcp_compat(PID) Warning: 1166: malloc(123456) failed: Cannot allocate memory
 __pmNotifyErr test: expect to see standard message format
 [DATE] qa_libpcp_compat(PID) Notice: Hullo world! The answer is 42
 __pmPrintDesc test:
@@ -38,7 +38,7 @@ Log for 1166 on HOST started DATE
 
 G'day cobber
 __pmNoMem test: expect to see a message
-[DATE] qa_libpcp_compat(PID) Warning: SEQ: malloc(123456) failed: Cannot allocate memory
+[DATE] qa_libpcp_compat(PID) Warning: 1166: malloc(123456) failed: Cannot allocate memory
 __pmNotifyErr test: expect to see standard message format
 [DATE] qa_libpcp_compat(PID) Notice: Hullo world! The answer is 42
 __pmPrintDesc test:

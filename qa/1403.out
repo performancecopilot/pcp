@@ -1,0 +1,350 @@
+QA output created by 1403
+== Checking shared memory metric values - sysvipc-root-001.tgz
+=== std out ===
+
+ipc.shm.key
+    inst [10 or "10387466"] value "0x00000000"
+    inst [7 or "11894791"] value "0x00000000"
+    inst [13 or "11927565"] value "0x00000000"
+    inst [8 or "13795336"] value "0x00000000"
+    inst [5 or "1474565"] value "0x00000000"
+    inst [6 or "1507334"] value "0x00000000"
+    inst [2 or "262146"] value "0x00000000"
+    inst [14 or "28114958"] value "0x00000000"
+    inst [4 or "2883588"] value "0x00000000"
+    inst [15 or "2916367"] value "0x1d68239d"
+    inst [1 or "30801921"] value "0x00000000"
+    inst [11 or "40632331"] value "0x00000000"
+    inst [12 or "40828940"] value "0x00000000"
+    inst [9 or "44793865"] value "0x00000000"
+    inst [0 or "45023232"] value "0x00000000"
+    inst [3 or "45121539"] value "0x00000000"
+
+ipc.shm.owner
+    inst [10 or "10387466"] value "root"
+    inst [7 or "11894791"] value "root"
+    inst [13 or "11927565"] value "root"
+    inst [8 or "13795336"] value "root"
+    inst [5 or "1474565"] value "root"
+    inst [6 or "1507334"] value "root"
+    inst [2 or "262146"] value "root"
+    inst [14 or "28114958"] value "root"
+    inst [4 or "2883588"] value "root"
+    inst [15 or "2916367"] value "root"
+    inst [1 or "30801921"] value "root"
+    inst [11 or "40632331"] value "root"
+    inst [12 or "40828940"] value "root"
+    inst [9 or "44793865"] value "root"
+    inst [0 or "45023232"] value "root"
+    inst [3 or "45121539"] value "root"
+
+ipc.shm.perms
+    inst [10 or "10387466"] value 600
+    inst [7 or "11894791"] value 600
+    inst [13 or "11927565"] value 600
+    inst [8 or "13795336"] value 600
+    inst [5 or "1474565"] value 600
+    inst [6 or "1507334"] value 600
+    inst [2 or "262146"] value 600
+    inst [14 or "28114958"] value 600
+    inst [4 or "2883588"] value 600
+    inst [15 or "2916367"] value 600
+    inst [1 or "30801921"] value 600
+    inst [11 or "40632331"] value 600
+    inst [12 or "40828940"] value 600
+    inst [9 or "44793865"] value 600
+    inst [0 or "45023232"] value 600
+    inst [3 or "45121539"] value 600
+
+ipc.shm.segsz
+    inst [10 or "10387466"] value 53248
+    inst [7 or "11894791"] value 155648
+    inst [13 or "11927565"] value 155648
+    inst [8 or "13795336"] value 876544
+    inst [5 or "1474565"] value 32763904
+    inst [6 or "1507334"] value 32763904
+    inst [2 or "262146"] value 524288
+    inst [14 or "28114958"] value 73728
+    inst [4 or "2883588"] value 778240
+    inst [15 or "2916367"] value 77824
+    inst [1 or "30801921"] value 405504
+    inst [11 or "40632331"] value 524288
+    inst [12 or "40828940"] value 126976
+    inst [9 or "44793865"] value 192512
+    inst [0 or "45023232"] value 393216
+    inst [3 or "45121539"] value 524288
+
+ipc.shm.nattch
+    inst [10 or "10387466"] value 2
+    inst [7 or "11894791"] value 2
+    inst [13 or "11927565"] value 2
+    inst [8 or "13795336"] value 2
+    inst [5 or "1474565"] value 2
+    inst [6 or "1507334"] value 2
+    inst [2 or "262146"] value 2
+    inst [14 or "28114958"] value 2
+    inst [4 or "2883588"] value 2
+    inst [15 or "2916367"] value 42
+    inst [1 or "30801921"] value 2
+    inst [11 or "40632331"] value 2
+    inst [12 or "40828940"] value 2
+    inst [9 or "44793865"] value 2
+    inst [0 or "45023232"] value 2
+    inst [3 or "45121539"] value 2
+
+ipc.shm.status
+    inst [10 or "10387466"] value "dest"
+    inst [7 or "11894791"] value "dest"
+    inst [13 or "11927565"] value "dest"
+    inst [8 or "13795336"] value "dest"
+    inst [5 or "1474565"] value "dest"
+    inst [6 or "1507334"] value "dest"
+    inst [2 or "262146"] value "dest"
+    inst [14 or "28114958"] value "dest"
+    inst [4 or "2883588"] value "dest"
+    inst [15 or "2916367"] value ""
+    inst [1 or "30801921"] value "dest"
+    inst [11 or "40632331"] value "dest"
+    inst [12 or "40828940"] value "dest"
+    inst [9 or "44793865"] value "dest locked"
+    inst [0 or "45023232"] value "dest"
+    inst [3 or "45121539"] value "dest"
+
+ipc.shm.creator_pid
+    inst [10 or "10387466"] value 29440
+    inst [7 or "11894791"] value 29440
+    inst [13 or "11927565"] value 29440
+    inst [8 or "13795336"] value 29440
+    inst [5 or "1474565"] value 29440
+    inst [6 or "1507334"] value 29440
+    inst [2 or "262146"] value 8301
+    inst [14 or "28114958"] value 29440
+    inst [4 or "2883588"] value 29440
+    inst [15 or "2916367"] value 85132
+    inst [1 or "30801921"] value 29440
+    inst [11 or "40632331"] value 30669
+    inst [12 or "40828940"] value 29440
+    inst [9 or "44793865"] value 29440
+    inst [0 or "45023232"] value 19464
+    inst [3 or "45121539"] value 19464
+
+ipc.shm.last_access_pid
+    inst [10 or "10387466"] value 4383
+    inst [7 or "11894791"] value 4383
+    inst [13 or "11927565"] value 4383
+    inst [8 or "13795336"] value 4383
+    inst [5 or "1474565"] value 4383
+    inst [6 or "1507334"] value 4383
+    inst [2 or "262146"] value 4383
+    inst [14 or "28114958"] value 4383
+    inst [4 or "2883588"] value 4383
+    inst [15 or "2916367"] value 9924
+    inst [1 or "30801921"] value 4383
+    inst [11 or "40632331"] value 4383
+    inst [12 or "40828940"] value 4383
+    inst [9 or "44793865"] value 8396
+    inst [0 or "45023232"] value 19471
+    inst [3 or "45121539"] value 19471
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo --fetch -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init ipc.shm.key ipc.shm.owner ipc.shm.perms ipc.shm.segsz ipc.shm.nattch ipc.shm.status ipc.shm.creator_pid ipc.shm.last_access_pid
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking semaphore metric values - sysvipc-root-001.tgz
+=== std out ===
+
+ipc.msg.key
+    inst [0 or "0"] value "0xf890b0d2"
+    inst [1 or "131073"] value "0x4634c6a8"
+    inst [2 or "65538"] value "0x6b5db5be"
+    inst [3 or "98307"] value "0x1d682399"
+
+ipc.msg.owner
+    inst [0 or "0"] value "root"
+    inst [1 or "131073"] value "root"
+    inst [2 or "65538"] value "root"
+    inst [3 or "98307"] value "root"
+
+ipc.msg.perms
+    inst [0 or "0"] value 644
+    inst [1 or "131073"] value 644
+    inst [2 or "65538"] value 644
+    inst [3 or "98307"] value 644
+
+ipc.msg.msgsz
+    inst [0 or "0"] value 0
+    inst [1 or "131073"] value 0
+    inst [2 or "65538"] value 12327810
+    inst [3 or "98307"] value 0
+
+ipc.msg.messages
+    inst [0 or "0"] value 0
+    inst [1 or "131073"] value 0
+    inst [2 or "65538"] value 42
+    inst [3 or "98307"] value 0
+
+ipc.msg.last_send_pid
+    inst [0 or "0"] value 0
+    inst [1 or "131073"] value 0
+    inst [2 or "65538"] value 2874
+    inst [3 or "98307"] value 0
+
+ipc.msg.last_recv_pid
+    inst [0 or "0"] value 0
+    inst [1 or "131073"] value 0
+    inst [2 or "65538"] value 57109
+    inst [3 or "98307"] value 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo --fetch -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init ipc.msg.key ipc.msg.owner ipc.msg.perms ipc.msg.msgsz ipc.msg.messages ipc.msg.last_send_pid ipc.msg.last_recv_pid
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking message queue metric values - sysvipc-root-001.tgz
+=== std out ===
+
+ipc.sem.key
+    inst [1 or "1015809"] value "0x00000000"
+    inst [2 or "1048578"] value "0x00000000"
+    inst [3 or "1081347"] value "0x00000000"
+    inst [4 or "1114116"] value "0x1d68239a"
+    inst [0 or "983040"] value "0x00000000"
+
+ipc.sem.owner
+    inst [1 or "1015809"] value "root"
+    inst [2 or "1048578"] value "root"
+    inst [3 or "1081347"] value "root"
+    inst [4 or "1114116"] value "root"
+    inst [0 or "983040"] value "root"
+
+ipc.sem.perms
+    inst [1 or "1015809"] value 600
+    inst [2 or "1048578"] value 600
+    inst [3 or "1081347"] value 600
+    inst [4 or "1114116"] value 600
+    inst [0 or "983040"] value 600
+
+ipc.sem.nsems
+    inst [1 or "1015809"] value 1
+    inst [2 or "1048578"] value 1
+    inst [3 or "1081347"] value 1
+    inst [4 or "1114116"] value 5
+    inst [0 or "983040"] value 1
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo --fetch -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init ipc.sem.key ipc.sem.owner ipc.sem.perms ipc.sem.nsems
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking shared memory metric values - sysvipc-root-002.tgz
+=== std out ===
+
+ipc.shm.key
+    inst [0 or "0"] value "0x00000457"
+
+ipc.shm.owner
+    inst [0 or "0"] value "root"
+
+ipc.shm.perms
+    inst [0 or "0"] value 570
+
+ipc.shm.segsz
+    inst [0 or "0"] value 666
+
+ipc.shm.nattch
+    inst [0 or "0"] value 777
+
+ipc.shm.status
+    inst [0 or "0"] value "dest"
+
+ipc.shm.creator_pid
+    inst [0 or "0"] value 29440
+
+ipc.shm.last_access_pid
+    inst [0 or "0"] value 4383
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo --fetch -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init ipc.shm.key ipc.shm.owner ipc.shm.perms ipc.shm.segsz ipc.shm.nattch ipc.shm.status ipc.shm.creator_pid ipc.shm.last_access_pid
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking semaphore metric values - sysvipc-root-002.tgz
+=== std out ===
+
+ipc.msg.key
+    inst [0 or "0"] value "0x00000457"
+
+ipc.msg.owner
+    inst [0 or "0"] value "root"
+
+ipc.msg.perms
+    inst [0 or "0"] value 570
+
+ipc.msg.msgsz
+    inst [0 or "0"] value 666
+
+ipc.msg.messages
+    inst [0 or "0"] value 777
+
+ipc.msg.last_send_pid
+    inst [0 or "0"] value 0
+
+ipc.msg.last_recv_pid
+    inst [0 or "0"] value 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo --fetch -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init ipc.msg.key ipc.msg.owner ipc.msg.perms ipc.msg.msgsz ipc.msg.messages ipc.msg.last_send_pid ipc.msg.last_recv_pid
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking message queue metric values - sysvipc-root-002.tgz
+=== std out ===
+
+ipc.sem.key
+    inst [0 or "0"] value "0x00000457"
+
+ipc.sem.owner
+    inst [0 or "0"] value "root"
+
+ipc.sem.perms
+    inst [0 or "0"] value 570
+
+ipc.sem.nsems
+    inst [0 or "0"] value 999
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo --fetch -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init ipc.sem.key ipc.sem.owner ipc.sem.perms ipc.sem.nsems
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+

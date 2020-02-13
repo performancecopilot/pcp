@@ -81,14 +81,13 @@ public:
     View *activeView() { return my.viewList.at(my.activeView); }
     bool isViewRecording();
     bool isArchiveView();
+    void addActiveView(View *view) { my.viewList.append(view); }
 
-    virtual void step(bool livemode, QmcTime::Packet *pmtime);
-    virtual void VCRMode(bool livemode, QmcTime::Packet *pmtime, bool drag);
-    virtual void timeZone(bool livemode, QmcTime::Packet *pmtime, char *tzdata);
     virtual void setDateLabel(QString label);
     virtual void setDateLabel(time_t seconds, QString tz);
     virtual void setButtonState(QedTimeButton::State state);
     virtual void setRecordState(bool recording);
+    virtual void setValueText(QString &text);
 
     virtual QMenu *createPopupMenu();
     virtual void updateToolbarContents();
@@ -126,7 +125,11 @@ public slots:
     virtual void recordQuery();
     virtual void recordStop();
     virtual void recordDetach();
+    virtual void timeout();
     virtual void updateToolbarOrientation(Qt::Orientation);
+    virtual void step(bool livemode, QmcTime::Packet *pmtime);
+    virtual void VCRMode(bool livemode, QmcTime::Packet *pmtime, bool drag);
+    virtual void timeZone(bool livemode, QmcTime::Packet *pmtime, char *tzdata);
 
 protected slots:
     virtual void languageChange();

@@ -1,0 +1,74 @@
+#! /bin/sh
+#
+# Copyright (c) 2019 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Upgrade an older (perl) postgresql PMDA to latest (python) version
+#
+
+. $PCP_DIR/etc/pcp.env
+
+if grep -q ^postgresql "$PCP_PMCDCONF_PATH" 2>/dev/null
+then
+    sed -i -e "s,perl $PCP_PMDAS_DIR/postgresql/pmdapostgresql.pl,$PCP_PYTHON_PROG $PCP_PMDAS_DIR/postgresql/pmdapostgresql.python,g" $PCP_PMCDCONF_PATH 2>/dev/null
+fi
+
+perlpath=`which $PCP_PERL_PROG`
+original="$PCP_PMDAS_DIR/postgresql/postgresql.conf"
+upgraded="$PCP_PMDAS_DIR/postgresql/pmdapostgresql.conf"
+if [ -x "$perlpath" -a -f "$original" ]
+then
+    mv -f "$upgraded" "$upgraded".saved
+    #
+    # Extract perl parameters in the way the original PMDA did; then
+    # convert old format into new and finally move old config aside.
+    #
+    "$perlpath" > "$upgraded" << EOF
+my \$database = undef; # default: 'dbi:Pg:dbname=postgres;host=host;port=port';
+my \$username = undef; # default: 'postgres'; -- DB username for DB login
+my \$password = undef; # default: ''; -- DBI parameter, often unused for postgres
+my \$os_user = undef;  # default: ''; -- O/S user to run the PMDA as
+
+eval \`cat $PCP_PMDAS_DIR/postgresql/postgresql.conf\`;
+
+exit 0 unless defined(\$database) or defined(\$username) or defined(\$password) or defined(\$os_user);
+
+print "[authentication]\n";
+if (defined(\$database)) {
+    my (\$host, \$port, \$dbname) = (\$database, \$database, \$database);
+    \$host =~ s/.*host=(\w+).*/\$1/g;
+    if (\$host eq '' or \$host eq \$database) { print "host=local\n"; }
+    else { print "host=\$host\n"; }
+    \$port =~ s/.*port=(\d+).*/\$1/g;
+    if (\$port eq '' or \$port eq \$database) { print "port=5432\n"; }
+    else { print "port=\$port\n"; }
+    \$dbname =~ s/.*dbname=(\w+).*/\$1/g;
+    if (\$dbname eq '' or \$host eq \$database) { print "dbname=postgres\n"; }
+    else { print "dbname=\$dbname\n"; }
+} else {
+    print "dbname=postgres\n";
+    print "host=local\n";
+    print "port=5432\n";
+}
+
+\$username='postgres' unless (defined(\$username) and \$username ne '');
+print "user=\$username\n";
+\$password='password' unless (defined(\$password) and \$password ne '');
+print "password=\$password\n";
+\$os_user='postgres' unless (defined(\$os_user) and \$os_user ne '');
+print "osuser=\$os_user\n";
+EOF
+    chmod 600 "$upgraded"
+    mv -f "$original" "$original".saved
+fi
+
+exit 0

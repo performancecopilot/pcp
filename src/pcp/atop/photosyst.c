@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015-2017 Red Hat.
+** Copyright (C) 2015-2019 Red Hat.
 ** Copyright (C) 2000-2012 Gerlof Langeveld.
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -41,6 +41,10 @@ sstat_alloc(const char *purpose)
 	ptrverify(ptr, "Alloc failed for %s (interfaces)\n", purpose);
 	sstat->intf.intf = (struct perintf *)ptr;
 
+	ptr = calloc(1, sizeof(struct perifb));
+	ptrverify(ptr, "Alloc failed for %s (IB ports)\n", purpose);
+	sstat->ifb.ifb = (struct perifb *)ptr;
+
 	ptr = calloc(1, sizeof(struct perdsk));
 	ptrverify(ptr, "Alloc failed for %s (disk devices)\n", purpose);
 	sstat->dsk.dsk = (struct perdsk *)ptr;
@@ -57,6 +61,10 @@ sstat_alloc(const char *purpose)
 	ptrverify(ptr, "Alloc failed for %s (NFS mounts)\n", purpose);
 	sstat->nfs.nfsmounts.nfsmnt = (struct pernfsmount *)ptr;
 
+	ptr = calloc(1, sizeof(struct pergpu));
+	ptrverify(ptr, "Alloc failed for %s (GPUs)\n", purpose);
+	sstat->gpu.gpu = (struct pergpu *)ptr;
+
 	return sstat;
 }
 
@@ -67,22 +75,26 @@ sstat_alloc(const char *purpose)
 void
 sstat_reset(struct sstat *sstat)
 {
-	void		*cpu, *intf, *mdd, *lvm, *dsk, *nfs;
-	unsigned int	nrcpu, nrintf, nrdsk, nrlvm, nrmdd, nrnfs;
+	void		*cpu, *gpu, *intf, *ifb, *mdd, *lvm, *dsk, *nfs;
+	unsigned int	nrcpu, nrgpus, nrintf, nrports, nrdsk, nrlvm, nrmdd, nrnfs;
 
 	cpu = sstat->cpu.cpu;
 	intf = sstat->intf.intf;
+	ifb = sstat->ifb.ifb;
 	dsk = sstat->dsk.dsk;
 	lvm = sstat->dsk.lvm;
 	mdd = sstat->dsk.mdd;
 	nfs = sstat->nfs.nfsmounts.nfsmnt;
+	gpu = sstat->gpu.gpu;
 
 	nrcpu = sstat->cpu.nrcpu;
 	nrintf = sstat->intf.nrintf;
+	nrports = sstat->ifb.nrports;
 	nrdsk = sstat->dsk.ndsk;
 	nrlvm = sstat->dsk.nlvm;
 	nrmdd = sstat->dsk.nmdd;
 	nrnfs = sstat->nfs.nfsmounts.nrmounts;
+	nrgpus = sstat->gpu.nrgpus;
 
 	/* clear fixed portion now that pointers/sized are safe */
 	memset(sstat, 0, sizeof(struct sstat));
@@ -90,25 +102,31 @@ sstat_reset(struct sstat *sstat)
 	/* clear the dynamically-sized buffers and restore ptrs */
 	memset(cpu, 0, sizeof(struct percpu) * nrcpu);
 	memset(intf, 0, sizeof(struct perintf) * nrintf);
+	memset(ifb, 0, sizeof(struct perifb) * nrports);
 	memset(dsk, 0, sizeof(struct perdsk) * nrdsk);
 	memset(lvm, 0, sizeof(struct perdsk) * nrlvm);
 	memset(mdd, 0, sizeof(struct perdsk) * nrmdd);
 	memset(nfs, 0, sizeof(struct pernfsmount) * nrnfs);
+	memset(gpu, 0, sizeof(struct pergpu) * nrgpus);
 
 	/* stitch the main sstat buffer back together once more */
 	sstat->cpu.cpu = cpu;
 	sstat->intf.intf = intf;
+	sstat->ifb.ifb = ifb;
 	sstat->dsk.dsk = dsk;
 	sstat->dsk.lvm = lvm;
 	sstat->dsk.mdd = mdd;
 	sstat->nfs.nfsmounts.nfsmnt = nfs;
+	sstat->gpu.gpu = gpu;
 
 	sstat->cpu.nrcpu = nrcpu;
 	sstat->intf.nrintf = nrintf;
+	sstat->ifb.nrports = nrports;
 	sstat->dsk.ndsk = nrdsk;
 	sstat->dsk.nlvm = nrlvm;
 	sstat->dsk.nmdd = nrmdd;
 	sstat->nfs.nfsmounts.nrmounts = nrnfs;
+	sstat->gpu.nrgpus = nrgpus;
 }
 
 static void
@@ -126,8 +144,10 @@ update_processor(struct percpu *cpu, int id, pmResult *result, pmDesc *descs)
 	cpu->steal = extract_count_t_inst(result, descs, PERCPU_STEAL, id);
 	cpu->guest = extract_count_t_inst(result, descs, PERCPU_GUEST, id);
 
-	memset(&cpu->freqcnt, 0, sizeof(struct freqcnt));
+	memset(&cpu->freqcnt, 0, sizeof(cpu->freqcnt));
 	cpu->freqcnt.cnt = extract_count_t_inst(result, descs, PERCPU_FREQCNT_CNT, id);
+	cpu->instr = extract_count_t_inst(result, descs, PERCPU_PERF_INSTR, id);
+	cpu->cycle = extract_count_t_inst(result, descs, PERCPU_PERF_CYCLE, id);
 }
 
 static void
@@ -152,6 +172,21 @@ update_interface(struct perintf *in, int id, char *name, pmResult *rp, pmDesc *d
 	in->scollis = extract_count_t_inst(rp, dp, PERINTF_SCOLLIS, id);
 	in->scarrier = extract_count_t_inst(rp, dp, PERINTF_SCARRIER, id);
 	in->scompr = extract_count_t_inst(rp, dp, PERINTF_SCOMPR, id);
+}
+
+static void
+update_ibport(struct perifb *ib, int id, char *name, pmResult *rp, pmDesc *dp)
+{
+	strncpy(ib->ibname, name, sizeof(ib->ibname));
+	ib->ibname[sizeof(ib->ibname)-1] = '\0';
+
+	ib->portnr = extract_integer_inst(rp, dp, PERIFB_PORT_LID, id);
+	ib->lanes = extract_integer_inst(rp, dp, PERIFB_PORT_WIDTH, id);
+	ib->rate = extract_count_t_inst(rp, dp, PERIFB_PORT_RATE, id);
+	ib->rcvb = extract_count_t_inst(rp, dp, PERIFB_PORT_INB, id);
+	ib->sndb = extract_count_t_inst(rp, dp, PERIFB_PORT_OUTB, id);
+	ib->rcvp = extract_count_t_inst(rp, dp, PERIFB_PORT_INPKT, id);
+	ib->sndp = extract_count_t_inst(rp, dp, PERIFB_PORT_OUTPKT, id);
 }
 
 static void
@@ -200,7 +235,7 @@ static void
 update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp)
 {
 	/* use local client mount unless server export is available */
-	strncpy(mp->mountdev, name, sizeof(mp->mountdev));
+	strncpy(mp->mountdev, name, sizeof(mp->mountdev)-1);
 	extract_string_inst(rp, dp, PERNFS_EXPORT, &mp->mountdev[0],
 				sizeof(mp->mountdev)-1, id);
 	mp->mountdev[sizeof(mp->mountdev)-1] = '\0';
@@ -216,13 +251,13 @@ update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp)
 	mp->pagesmwrite = extract_count_t_inst(rp, dp, PERNFS_WRPAGES, id);
 }
 
-void
+char
 photosyst(struct sstat *si)
 {
 	static int	setup;
 	count_t		count;
-	unsigned int	nrcpu, nrdisk, nrintf;
-	unsigned int	onrcpu, onrdisk, onrintf;
+	unsigned int	nrcpu, nrdisk, nrintf, nrports;
+	unsigned int	onrcpu, onrdisk, onrintf, onrports;
 	unsigned int	nrlvm, nrmdd, nrnfs;
 	unsigned int	onrlvm, onrmdd, onrnfs;
 	static pmID	pmids[SYST_NMETRICS];
@@ -238,10 +273,12 @@ photosyst(struct sstat *si)
 		setup = 1;
 	}
 
-	fetch_metrics("system", SYST_NMETRICS, pmids, &result);
+	if (fetch_metrics("system", SYST_NMETRICS, pmids, &result) < 0)
+		return 'r';
 
 	onrcpu  = si->cpu.nrcpu;
 	onrintf = si->intf.nrintf;
+	onrports = si->ifb.nrports;
 	onrdisk = si->dsk.ndsk;
 	onrlvm  = si->dsk.nlvm;
 	onrmdd  = si->dsk.nmdd;
@@ -250,13 +287,15 @@ photosyst(struct sstat *si)
 	sstat_reset(si);
 	si->stamp = result->timestamp;
 
+	/* /proc/loadavg */
+	si->cpu.lavg1 = extract_float_inst(result, descs, CPU_LOAD, 1);
+	si->cpu.lavg5 = extract_float_inst(result, descs, CPU_LOAD, 5);
+	si->cpu.lavg15 = extract_float_inst(result, descs, CPU_LOAD, 15);
+
 	/* /proc/stat */
 	si->cpu.csw = extract_count_t(result, descs, CPU_CSW);
 	si->cpu.devint = extract_count_t(result, descs, CPU_DEVINT);
 	si->cpu.nprocs = extract_count_t(result, descs, CPU_NPROCS);
-	si->cpu.lavg1 = extract_float_inst(result, descs, CPU_LOAD, 1);
-	si->cpu.lavg5 = extract_float_inst(result, descs, CPU_LOAD, 5);
-	si->cpu.lavg15 = extract_float_inst(result, descs, CPU_LOAD, 15);
 	si->cpu.all.utime = extract_count_t(result, descs, CPU_UTIME);
 	si->cpu.all.ntime = extract_count_t(result, descs, CPU_NTIME);
 	si->cpu.all.stime = extract_count_t(result, descs, CPU_STIME);
@@ -282,10 +321,15 @@ photosyst(struct sstat *si)
 	}
 	for (i=0; i < nrcpu; i++)
 	{
+		struct percpu	*percpu = &si->cpu.cpu[i];
+
 		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating processor %d: %s\n",
 				pmGetProgname(), ids[i], insts[i]);
-		update_processor(&si->cpu.cpu[i], ids[i], result, descs);
+		update_processor(percpu, ids[i], result, descs);
+
+		si->cpu.all.instr += percpu->instr;
+		si->cpu.all.cycle += percpu->cycle;
 	}
 	si->cpu.nrcpu = nrcpu;
 	free(insts);
@@ -530,7 +574,7 @@ photosyst(struct sstat *si)
 				pmGetProgname(), ids[i], insts[i]);
 		update_lvm(&si->dsk.lvm[i], ids[i], insts[i], result, descs);
 	}
-	si->dsk.lvm[nrlvm].name[0] = '\0'; 
+	si->dsk.lvm[nrlvm].name[0] = '\0';
 	si->dsk.nlvm = nrlvm;
 	free(insts);
 	free(ids);
@@ -614,6 +658,54 @@ photosyst(struct sstat *si)
 	free(insts);
 	free(ids);
 
+	/*
+	** pressure statistics in /proc/pressure (>= 4.20)
+	*/
+	si->psi.present = present_metric_value(result, PSI_CPUSOME_TOTAL);
+	si->psi.cpusome.avg10 = extract_count_t_inst(result, descs, PSI_CPUSOME_AVG, 10);
+	si->psi.cpusome.avg60 = extract_count_t_inst(result, descs, PSI_CPUSOME_AVG, 60);
+	si->psi.cpusome.avg300 = extract_count_t_inst(result, descs, PSI_CPUSOME_AVG, 300);
+	si->psi.cpusome.total = extract_count_t(result, descs, PSI_CPUSOME_TOTAL);
+	si->psi.memsome.avg10 = extract_count_t_inst(result, descs, PSI_MEMSOME_AVG, 10);
+	si->psi.memsome.avg60 = extract_count_t_inst(result, descs, PSI_MEMSOME_AVG, 60);
+	si->psi.memsome.avg300 = extract_count_t_inst(result, descs, PSI_MEMSOME_AVG, 300);
+	si->psi.memsome.total = extract_count_t(result, descs, PSI_MEMSOME_TOTAL);
+	si->psi.memfull.avg10 = extract_count_t_inst(result, descs, PSI_MEMFULL_AVG, 10);
+	si->psi.memfull.avg60 = extract_count_t_inst(result, descs, PSI_MEMFULL_AVG, 60);
+	si->psi.memfull.avg300 = extract_count_t_inst(result, descs, PSI_MEMFULL_AVG, 300);
+	si->psi.memfull.total = extract_count_t(result, descs, PSI_MEMFULL_TOTAL);
+	si->psi.iosome.avg10 = extract_count_t_inst(result, descs, PSI_IOSOME_AVG, 10);
+	si->psi.iosome.avg60 = extract_count_t_inst(result, descs, PSI_IOSOME_AVG, 60);
+	si->psi.iosome.avg300 = extract_count_t_inst(result, descs, PSI_IOSOME_AVG, 300);
+	si->psi.iosome.total = extract_count_t(result, descs, PSI_IOSOME_TOTAL);
+	si->psi.iofull.avg10 = extract_count_t_inst(result, descs, PSI_IOFULL_AVG, 10);
+	si->psi.iofull.avg60 = extract_count_t_inst(result, descs, PSI_IOFULL_AVG, 60);
+	si->psi.iofull.avg300 = extract_count_t_inst(result, descs, PSI_IOFULL_AVG, 300);
+	si->psi.iofull.total = extract_count_t(result, descs, PSI_IOFULL_TOTAL);
+
+	/* Infiniband statistics */
+	insts = NULL; /* silence coverity */
+	ids = NULL;
+	nrports = get_instances("ibports", PERIFB_PORT_RATE, descs, &ids, &insts);
+	if (nrports > onrports)
+	{
+		size = (nrports + 1) * sizeof(struct perifb);
+		si->ifb.ifb = (struct perifb *)realloc(si->ifb.ifb, size);
+		ptrverify(si->ifb.ifb, "photosyst ifb [%d]\n", (long)size);
+	}
+
+	for (i=0; i < nrports; i++)
+	{
+		if (pmDebugOptions.appl0)
+			fprintf(stderr, "%s: updating Infiniband port %d: %s\n",
+				pmGetProgname(), ids[i], insts[i]);
+		update_ibport(&si->ifb.ifb[i], ids[i], insts[i], result, descs);
+	}
+	si->ifb.ifb[nrports].ibname[0] = '\0';
+	si->ifb.nrports = nrports;
+	free(insts);
+	free(ids);
+
 	/* Apache status */
 	si->www.accesses  = extract_count_t(result, descs, WWW_ACCESSES);
 	si->www.totkbytes = extract_count_t(result, descs, WWW_TOTKBYTES);
@@ -622,4 +714,5 @@ photosyst(struct sstat *si)
 	si->www.iworkers  = extract_integer(result, descs, WWW_IWORKERS);
 
 	pmFreeResult(result);
+	return '\0';
 }

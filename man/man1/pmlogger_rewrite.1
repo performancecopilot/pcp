@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2018 Red Hat.
+.\" Copyright (c) 2013-2019 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@
 \f3pmlogger_rewrite\f1 \- helper script to rewrite Performance Co-Pilot archives
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_rewrite
-[\f3\-dNsVvw\f1]
+[\f3\-dNsVvw?\f1]
 [\f3\-c\f1 \f2config\f1]
 \f2archive\f1 ...
 .br
@@ -44,25 +44,15 @@ the files in a PCP archive, or a directory (in which
 case all subordinate PCP archives are found by recursive
 descent).
 .PP
-.B pmlogrewrite (1)
+.B pmlogrewrite
 is run with the
 .B \-i
-option so rewiting is done ``in place'' and the
+option so rewriting is done ``in place''.
+The
 .B \-q
-option so if no rewriting is required then no changes are made to the
-archive files.
-.PP
-Using
-.B \-N
-option runs
-.B pmlogger_rewrite
-in a ``show me'' or ``dry run'' mode where the
-tasks that would be performed are reported, but no changes are made.
-This is typically used for debugging in combination with one (verbose)
-or two (very verbose)
-.B \-V
-options.
-.PP
+option is also used, so if no rewriting is required then no changes are made
+to the archive files.
+.SH OPTIONS
 The following options are passed through to
 .BR pmlogrewrite :
 .BR \-c ,
@@ -74,21 +64,31 @@ and
 Refer to
 .BR pmlogrewrite (1)
 for the meaning of these options.
-
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.B /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.PP
+The remaining options are:
+.TP 5
+\fB\-N\fR, \fB\-\-showme\fR
+Runs
+.B pmlogger_rewrite
+in a ``show me'' or ``dry run'' mode where the
+tasks that would be performed are reported, but no changes are made.
+This is typically used for debugging in combination with one (verbose)
+or two (very verbose)
+.B \-V
+options.
+.TP
+\fB\-V\fR, \fB\-\-verbose\fR
+Increase script output verbosity.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmlogger (1),

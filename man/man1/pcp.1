@@ -2,35 +2,34 @@
 .\"
 .\" Copyright (c) 2014-2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PCP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pcp\f1,
 \f3pcp-summary\f1 \- run a command or summarize an installation
 .SH SYNOPSIS
-.ft 3
 \f3pcp\f1
 [pcp options...]
-pcp-\f2command\f1
+\f2pcp-command\f1
 [command options...]
 .br
 \f3pcp\f1
-[\f3\-P\f1]
+[\f3\-LPV?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-h\f1 \f2host\f1]
+[\f3\-O\f1 \f2origin\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
-.ft 1
 .SH DESCRIPTION
 The
 .B pcp
@@ -54,11 +53,11 @@ to run, again possibly in the context of a remote
 .I host
 or set of historical
 .IR archives .
-.SH "COMMAND MODE"
+.SH COMMAND MODE
 When
 .B pcp
 is invoked with a command to run, it will search for the named
-.IR command 
+.IR command
 in
 .B $PCP_BINADM_DIR
 and also
@@ -100,7 +99,7 @@ usage message, but some examples include:
 .BR pcp-uptime (1)
 and
 .BR pcp-numastat (1).
-.SH "SUMMARY MODE"
+.SH SUMMARY MODE
 The
 summary report includes: the OS version, a summary of the hardware inventory,
 the local timezone, the PCP software version, the state of the
@@ -111,35 +110,6 @@ process and associated Performance Metrics Domain Agents
 and PCP inference engines (\c
 .BR pmie (1))
 that are running.
-.PP
-With no arguments,
-.B pcp
-reports on the local host, however the
-following options are accepted:
-.IP "\f3\-a\f1 \f2archive\f1"
-Report the PCP
-configuration as described in the set of PCP archive logs,
-.IR archive ,
-which is a comma-separated list of names, each
-of which may be the base name of an archive or the name of a directory containing
-one or more archives.
-.IP "\f3\-h\f1 \f2host\f1"
-Report the PCP configuration on 
-.I host
-rather than the local host.
-.IP "\f3\-n\f1 \f2pmnsfile\f1"
-Load an alternative Performance Metrics Name Space
-.RB ( pmns (5))
-from the file
-.IR pmnsfile .
-.IP \f3\-P\f1
-Display
-.B pmie
-performance information \- counts of rules evaluating to true, false, or
-indeterminate, as well as the expected rate of rule calculation, for each
-.B pmie
-process running on the default host.
-Refer to the individual metric help text for full details on these values.
 .PP
 All of the displayed values are performance
 .I metric
@@ -159,38 +129,89 @@ required by
 .B pcp
 to produce its output is contained in
 .BR $PCP_VAR_DIR/config/pmlogconf/tools/pcp-summary .
+.SH SUMMARY MODE OPTIONS
+With no arguments,
+.B pcp
+reports on the local host, however the
+following options are accepted:
+.TP 5
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
+Report the PCP
+configuration as described in the set of PCP archive logs,
+.IR archive ,
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+.TP
+\fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
+Report the PCP configuration on
+.I host
+rather than the local host.
+.TP
+\fB\-L\fR, \fB\-\-local\-PMDA\fR
+Use a local context to collect metrics from DSO PMDAs on the local host
+without PMCD.
+.TP
+\fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
+Load an alternative Performance Metrics Name Space
+.RB ( PMNS (5))
+from the file
+.IR pmnsfile .
+.TP
+\fB\-O\fR \fIorigin\fR, \fB\-\-origin\fR=\fIorigin\fR
+When reporting archived metrics, start reporting at
+.I origin
+within the time window.
+.TP
+\fB\-P\fR, \fB\-\-pmie\fR
+Display
+.BR pmie (1)
+performance information \- counts of rules evaluating to true, false, or
+indeterminate, as well as the expected rate of rule calculation, for each
+.B pmie
+process running on the default host.
+Refer to the individual metric help text for full details on these values.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH DIAGNOSTICS
+.B pcp
+will terminate with an exit status of
+.B 1
+if
+.B pmcd
+on the target host could not be reached or the set of archives could not be opened,
+or
+.B 2
+for any other error.
 .SH FILES
-.PD 0
-.TP 10
-.B $HOME/.pcp/bin
+.TP 5
+.I $HOME/.pcp/bin
 Per-user location for
 .I command
 scripts.
 .TP
-.B $PCP_BINADM_DIR
+.I $PCP_BINADM_DIR
 System location for installed
 .I command
 scripts.
 .TP
-.B $PCP_VAR_DIR/config/pmlogconf/tools/pcp-summary
+.I $PCP_VAR_DIR/config/pmlogconf/tools/pcp-summary
 .BR pmlogconf (1)
 configuration file for collecting all of the metrics required by
-.BR pcp .
-.PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.B /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.B pcp
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pcp-free (1),
@@ -202,16 +223,7 @@ as described in
 .BR pmie (1),
 .BR pmlogconf (1),
 .BR pmlogger (1),
-.BR pcp.conf (5)
+.BR pcp.conf (5),
+.BR pcp.env (5)
 and
-.BR pcp.env (5).
-.SH DIAGNOSTICS
-.B pcp 
-will terminate with an exit status of 
-.B 1
-if 
-.B pmcd
-on the target host could not be reached or the set of archives could not be opened, 
-or
-.B 2
-for any other error.
+.BR PMNS (5).

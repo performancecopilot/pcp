@@ -4,17 +4,17 @@
 .\" Copyright (c) 2016-2018 Red Hat.
 .\" Copyright (c) 2009 Max Matveev
 .\" Copyright (c) 2009 Aconex.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH MMV 5 "" "Performance Co-Pilot"
 .SH NAME
@@ -258,17 +258,24 @@ The entries in the Labels (v3) section have the following format:
 box,center;
 c | c | c
 n | n | l.
-Offset  Length  Value
+Offset	Length	Value
 _
-0       4       Flags (PM_LABEL_[CLUSTER|ITEM|INDOM|INSTANCES]|OPTIONAL)
+0	4	Flags (PM_LABEL_[CLUSTER|ITEM|INDOM|INSTANCES]|OPTIONAL)
 _
-4       4       Identifier for given type (indom, cluster or item)
+4	4	Identifier for given type (indom, cluster or item)
 _
-8       4       Internal Instance or PM_IN_NULL
+8	4	Internal Instance or PM_IN_NULL
 _
-12      244     Payload (Name and Value JSONB String)
+12	244	Payload (Name and Value JSONB String)
 .TE
 .PP
+Each entry in the payload is a 244 byte (maximum) character array,
+containing a single NULL-terminated \fIname\fR:\fIvalue\fR pair in
+JSON format.
+Insignificant whitespace must not be present.
+Label names consist only of alphanumeric characters or underscores,
+and must begin with an alphabetic.
+Upper and lower case characters are considered distinct.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmdammv (1),

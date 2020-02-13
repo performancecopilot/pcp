@@ -2,17 +2,17 @@
 .\"
 .\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMGETARCHIVEEND 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -37,7 +37,7 @@ This timestamp may be passed to
 .BR pmSetMode (3)
 to reliably position the context at the last valid
 log record, e.g. in preparation for subsequent reading in
-reverse chronological order. 
+reverse chronological order.
 .PP
 For archive logs that are not concurrently being written, the
 physical end of file and the logical end of file are co-incident.
@@ -62,7 +62,7 @@ is well-defined.
 .PP
 .BR pmGetArchiveEnd
 preserves the positioning state of the log file prior to
-this function call. 
+this function call.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

@@ -4,15 +4,12 @@ QA output created by 042
 network.interface.in.bytes
     inst [INST or NAME] value NUMBER
 
-filesys.used
-    inst [INST or NAME] value NUMBER
-
 == procfs PMDA
 
 proc.memory.rss
     inst [INST or NAME] value NUMBER
 
-cgroup.memory.stat.rss
+cgroup.memory.stat.pgfault
     inst [INST or NAME] value NUMBER
 
 == pmcd PMDA

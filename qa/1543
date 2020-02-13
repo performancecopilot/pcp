@@ -1,0 +1,351 @@
+#!/bin/sh
+# PCP QA Test No. 1543
+# Exercise the async pmproxy PMWEBAPI implementation.
+#
+# Copyright (c) 2019 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+
+_cleanup()
+{
+    cd $here
+    if $need_restore
+    then
+	need_restore=false
+	_restore_config $PCP_SYSCONF_DIR/labels
+        _restore_config $PCP_SYSCONF_DIR/pmproxy
+	_sighup_pmcd
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+need_restore=false
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+hostname=`hostname`
+machineid=`_machine_id`
+if which domainname >/dev/null 2>&1
+then
+    domainname=`domainname`
+else
+    domainname=`hostname -d`
+fi
+[ -z "$domainname" ] && domainname=localdomain
+[ "$domainname" = "(none)" ] && domainname=localdomain
+
+_filter_html()
+{
+    echo "== $@ ==" | tee -a $here/$seq.full
+    tee -a $seq.full | \
+    sed \
+	-e "s,pmproxy/$PCP_VERSION,pmproxy/VERSION,g" \
+    #end
+}
+
+_filter_text()
+{
+    echo "== $@ ==" | tee -a $here/$seq.full
+    tee -a $seq.full | \
+    sed \
+	-e "s/hostname=\"$hostname\"/hostname=\"HOSTNAME\"/g" \
+	-e "s/machineid=\"$machineid\"/machineid=\"MACHINEID\"/g" \
+	-e "s/domainname=\"$domainname\"/domainname=\"DOMAINNAME\"/g" \
+    #end
+}
+
+_filter_value()
+{
+    sed \
+	-e 's/"value": .*/"value": VALUE/g'
+    #end
+}
+
+_filter_json()
+{
+    echo "== $@ ==" | tee -a $here/$seq.full
+    tee -a $seq.full > $tmp.unfiltered
+
+    pmjson < $tmp.unfiltered > $tmp.filtered
+    status=$?
+    if [ $status -eq 0 ]; then
+	cat $tmp.filtered | \
+	sed \
+	    -e '/"machineid": .*/d' \
+	    -e 's,"series": .*,"series": "SERIES",g' \
+	    -e 's,"source": .*,"source": "SOURCE",g' \
+	    -e 's,"context": .*,"context": "CONTEXT",g' \
+	    -e 's,"hostname": .*,"hostname": "HOSTNAME",g' \
+	    -e 's,"hostspec": .*,"hostname": "HOSTNAME",g' \
+	    -e 's,"domainname": .*,"domainname": "DOMAINNAME",g' \
+	    -e 's,"timestamp": [0-9][0-9]*.[0-9][0-9]*,"timestamp": TIME,g' \
+	    -e 's,"msec": [0-9][0-9]*,"msec": MILLISECONDS,g' \
+	    -e 's,"usec": [0-9][0-9]*,"usec": MICROSECONDS,g' \
+	    -e 's,"nsec": [0-9][0-9]*,"nsec": NANOSECONDS,g' \
+	    -e 's,"sec": [0-9][0-9]*,"sec": SECONDS,g' \
+	#end
+	context < $tmp.filtered > $tmp.context
+    else
+	echo "Invalid JSON: $status"
+	cat $tmp.unfiltered
+	rm -f $tmp.context
+    fi
+}
+
+context()
+{
+    grep '"context"' | \
+    sed \
+	-e 's/.*context\": //g' \
+	-e 's/,$//g' \
+    #end
+}
+
+section()
+{
+    echo | tee -a $here/$seq.full
+    echo "*****   $@   *****" | tee -a $here/$seq.full
+    echo | tee -a $here/$seq.full
+}
+
+# real QA test starts here
+_save_config $PCP_SYSCONF_DIR/labels
+_save_config $PCP_SYSCONF_DIR/pmproxy
+need_restore=true
+
+$sudo rm -f $PCP_SYSCONF_DIR/labels/*
+_sighup_pmcd
+
+$sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
+echo "--timeseries" >> $tmp.options
+$sudo cp $tmp.options $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
+echo "[pmproxy]" >> $tmp.conf
+echo "pcp.enabled = true" >> $tmp.conf
+echo "http.enabled = true" >> $tmp.conf
+$sudo cp $tmp.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+
+_service pmproxy stop >/dev/null
+_service pmproxy start >>$here/$seq.full 2>&1
+
+port=44322
+
+section "GET /pmapi/context"
+# optional params: hostname, hostspec, polltimeout
+
+curl -s "http://localhost:$port/pmapi/context" \
+	| _filter_json "Check default context creation"
+
+curl -s "http://localhost:$port/pmapi/context?hostname=localhost" \
+	| _filter_json "Check hostname parameter"
+
+curl -s "http://localhost:$port/pmapi/context?hostspec=localhost" \
+	| _filter_json "Check hostspec parameter"
+oldcontext=`cat $tmp.context`
+
+echo "Using context: $oldcontext" >> $seq.full
+curl -s "http://localhost:$port/pmapi/$oldcontext/context" \
+	| _filter_json "Pinging active context via URL"
+urlcontext=`cat $tmp.context`
+
+if [ "$oldcontext" != "$urlcontext" ]; then
+	echo "Context mismatch (URL): \"$oldcontext\" not equal to \"$urlcontext\""
+else
+	echo "Context ping success"
+fi
+
+curl -s "http://localhost:$port/pmapi/context?polltimeout=250" \
+	| _filter_json "Check polltimeout parameters"
+oldcontext=`cat $tmp.context`
+echo "Using context: $oldcontext" >> $seq.full
+pmsleep 250msec	# timeout this context
+pmsleep 100msec	# extra for slow test machines
+curl -s "http://localhost:$port/pmapi/$oldcontext/context" \
+	| _filter_json "Pinging now-expired context via URL"
+urlcontext=`cat $tmp.context`
+if [ "$oldcontext" != "$urlcontext" ]; then
+	echo "Context mismatch (URL): \"$oldcontext\" not equal to \"$urlcontext\""
+else
+	echo "Context successfully expired"
+fi
+curl -s "http://localhost:$port/pmapi/context?context=$urlcontext" \
+	| _filter_json "Pinging now-expired context via parameter"
+paramctx=`cat $tmp.context`
+if [ "$oldcontext" != "$paramctx" ]; then
+	echo "Context mismatch (param): \"$oldcontext\" not equal to \"$paramctx\""
+else
+	echo "Context successfully expired"
+fi
+
+
+section "GET /pmapi/metric"
+# optional params: prefix, names, name
+
+curl -s "http://localhost:$port/pmapi/metric?name=sample.long.ten" \
+	| _filter_json "metric name"
+curl -s "http://localhost:$port/pmapi/metric?prefix=sample.long" \
+	| _filter_json "metric prefix"
+curl -s "http://localhost:$port/pmapi/metric?name=bad.metric" \
+	| _filter_json "bad metric name"
+
+
+section "GET /pmapi/fetch"
+# mandatory params: name or names or pmid or pmids
+
+curl -s "http://localhost:$port/pmapi/fetch?name=sample.long.one" \
+	| _filter_json "fetch by name"
+curl -s "http://localhost:$port/pmapi/fetch?names=sample.long.one" \
+	| _filter_json "fetch by names"
+curl -s "http://localhost:$port/pmapi/fetch?pmid=29.0.10" \
+	| _filter_json "fetch by pmid"
+curl -s "http://localhost:$port/pmapi/fetch?pmids=29.0.10,29.0.11" \
+	| _filter_json "fetch by pmids"
+curl -s "http://localhost:$port/pmapi/fetch?names=no.such.metric" \
+	| _filter_json "bad name fetch"
+curl -s "http://localhost:$port/pmapi/fetch?pmids=0.0.0" \
+	| _filter_json "bad pmid fetch"
+curl -s "http://localhost:$port/pmapi/fetch?names=sample.long.one,no.such.metric" \
+	| _filter_json "some good some bad names fetch"
+curl -s "http://localhost:$port/pmapi/fetch?pmids=0.0.0,29.0.11" \
+	| _filter_json "some good some bad pmids fetch"
+curl -s "http://localhost:$port/pmapi/fetch?name=sample.string.hullo" \
+	| _filter_json "fetch string by name"
+
+
+section "GET /pmapi/indom"
+# mandatory params: name or indom
+
+curl -s "http://localhost:$port/pmapi/indom?name=sample.bin" \
+	| _filter_json "instances by name"
+curl -s "http://localhost:$port/pmapi/indom?indom=29.2" \
+	| _filter_json "instances by indom"
+curl -s "http://localhost:$port/pmapi/indom?name=no.such.metric" \
+	| _filter_json "bad indom name parameter"
+curl -s "http://localhost:$port/pmapi/indom?indom=0.0" \
+	| _filter_json "bad indom parameter"
+curl -s "http://localhost:$port/pmapi/indom" \
+	| _filter_html "no indom parameters"
+curl -s "http://localhost:$port/pmapi/indom?name=sample.bin&iname=bin-100,bin-200" \
+	| _filter_json "individual instances"
+
+
+section "GET /pmapi/children"
+# optional params: prefix
+
+curl -s "http://localhost:$port/pmapi/children?prefix=sample.dynamic" \
+	| _filter_json "PMNS children of a nonleaf node"
+curl -s "http://localhost:$port/pmapi/children?prefix=sample.long.one" \
+        | _filter_json "PMNS children of a leaf node"
+curl -s "http://localhost:$port/pmapi/children?prefix=no.such.path" \
+        | _filter_json "PMNS children of non-existent node"
+
+
+section "GET /pmapi/profile"
+# mandatory params: expr (add/del)
+# optional params: indom, insts, instances
+
+curl -s "http://localhost:$port/pmapi/profile?expr=add&name=sample.colour" \
+	| _filter_json "add all sample.colour instances"
+context=`cat $tmp.context`
+curl -s "http://localhost:$port/pmapi/$context/profile?expr=del&name=sample.colour&iname=red,green" \
+	| _filter_json "del instances by name"
+curl -s "http://localhost:$port/pmapi/$context/fetch?name=sample.colour" \
+	| _filter_json "check restricted context profile" | _filter_value
+curl -s "http://localhost:$port/pmapi/$context/profile?expr=add" \
+	| _filter_json "add all instances"
+curl -s "http://localhost:$port/pmapi/$context/fetch?name=sample.colour" \
+	| _filter_json "check unrestricted context profile" | _filter_value
+curl -s "http://localhost:$port/pmapi/$context/profile?expr=add&indom=29.1&iname=red" \
+	| _filter_json "add specific instance"
+curl -s "http://localhost:$port/pmapi/$context/profile?expr=del" \
+	| _filter_json "del all instances"
+curl -s "http://localhost:$port/pmapi/$context/profile?expr=add&name=sample.colour&iname=green,blue" \
+	| _filter_json "add instances by name"
+curl -s "http://localhost:$port/pmapi/$context/profile?expr=del&indom=29.1&iname=green" \
+	| _filter_json "del specific instance"
+
+
+section "GET /pmapi/store"
+# mandatory params: name or pmid, value
+# optional params: iname, instance
+
+curl -s "http://localhost:$port/pmapi/store?name=sample.long.write_me&value=42" \
+	| _filter_json "store value by name"
+context=`cat $tmp.context`
+curl -s "http://localhost:$port/pmapi/$context/fetch?name=sample.long.write_me" \
+	| _filter_json "check stored value by name"
+curl -s "http://localhost:$port/pmapi/store?pmid=29.0.14&value=2" \
+	| _filter_json "store value by pmid"
+context=`cat $tmp.context`
+curl -s "http://localhost:$port/pmapi/$context/fetch?pmid=29.0.14" \
+	| _filter_json "check stored value by pmid"
+curl -s "http://localhost:$port/pmapi/store?name=sample.colour&value=42&iname=red,blue" \
+	| _filter_json "instance store by name and iname"
+curl -s "http://localhost:$port/pmapi/store?name=sample.colour&value=42&instance=0,1" \
+	| _filter_json "instance store by name and instance ID"
+curl -s "http://localhost:$port/pmapi/store?name=no.such.metric&value=42" \
+	| _filter_json "store to invalid metric name"
+
+
+section "GET /metrics"
+# optional params: names, times
+
+curl -s "http://localhost:$port/pmapi/metrics?target=sample.long.one" \
+	| _filter_text "scrape one metric"
+curl -s "http://localhost:$port/metrics?names=sample.long.one,sample.long.ten" \
+	| _filter_text "scrape two metrics"
+curl -s "http://localhost:$port/metrics?names=no.such.metric" \
+	| _filter_json "scrape bad metric name"
+curl -s "http://localhost:$port/pmapi/metrics?target=sample.long" \
+	| _filter_text "scrape one metric tree"
+curl -s "http://localhost:$port/pmapi/metrics?target=sample.colour" \
+	| _filter_text "scrape metric instances"
+echo "== scrape all metrics =="
+curl -s "http://localhost:$port/metrics" \
+	> /dev/null	# checking pmproxy remains up here (too much to filter)
+echo "done full scrape"
+echo "== check pmproxy is running =="
+pminfo -v -h localhost@localhost:$port hinv.ncpu
+if [ $? -eq 0 ]; then
+    echo "pmproxy check passed"
+else
+    echo "pmproxy check failed"
+fi
+
+
+
+section "GET and POST /pmapi/derive"
+## mandatory params: name, expr (or POST body)
+curl -s "http://localhost:$port/pmapi/derive?name=qa.metric&expr=hinv.ncpu*2" \
+	| _filter_json "derive by GET"
+cat > $tmp.out <<EOF
+qa.one.metric = hinv.ncpu;
+qa.two.metric = hinv.ncpu * 2;
+EOF
+curl -s "http://localhost:$port/pmapi/derive" -d @$tmp.out \
+	| _filter_json "derive by POST"
+curl -s "http://localhost:$port/pmapi/derive?name=a.new.metric" \
+	| _filter_json "missing derive expr parameter"
+curl -s "http://localhost:$port/pmapi/derive?expr=hinv.ncpu*42" \
+	| _filter_json "missing derive name parameter"
+
+
+section "Generic errors - no handler, bad URLs"
+
+curl -s http://localhost:$port/ | _filter_html "no servlet"
+curl -s http://localhost:$port/pmapi | _filter_html "no command"
+curl -s http://localhost:$port/pmapi/bad | _filter_html "bad command"
+curl -s http://localhost:$port/bad/servlet | _filter_html "bad servlet"
+
+# success, all done
+status=0
+exit

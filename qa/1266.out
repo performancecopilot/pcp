@@ -1,0 +1,5 @@
+QA output created by 1266
+== Expect no hotproc metrics logged by default
+passed
+== Expect some proc metrics logged by default
+passed

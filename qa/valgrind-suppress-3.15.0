@@ -1,0 +1,110 @@
+# qa/1080 and qa/490 and qa/386 and qa/459 on Fedora 29
+# at 0x483880B: malloc (vg_replace_malloc.c:299)
+# by 0x4A0D490: tsearch (in /usr/lib64/libc-2.28.so)
+# by 0x4871EA6: __pmFindPDUBuf (pdubuf.c:126)
+# ...
+{
+   tsearch
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:tsearch
+   fun:__pmFindPDUBuf
+   ...
+}
+
+# qa/1080 and qa/490 and qa/386 and qa/459 on Fedora 29
+# at 0x483880B: malloc (vg_replace_malloc.c:299)
+# by 0x4871E5F: __pmFindPDUBuf (pdubuf.c:115)
+# ...
+{
+   findpdubuf
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:__pmFindPDUBuf
+   ...
+}
+
+# Previously seen as:
+# qa/681 on vm02 ... this one goes away when you compile w/out -O2,
+# so probably bogus
+#
+# Now also seen on vm24 (OpenSuSE 15.1).
+#
+# at 0x4C2E08F: malloc (in /usr/lib64/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0x5163219: strdup (in /lib64/libc-2.26.so)
+# by 0x4E9B742: __pmProcessAddArg (exec.c:167)
+# by 0x4012E5: main (exectest.c:97)
+{
+   processaddarg_bogus
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:strdup
+   fun:__pmProcessAddArg
+   fun:main
+}
+
+# Seen in qa/720 on vm24 (OpenSuSE Leap 15.1) ... not our code at all
+#
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x4C34F06: bcmp (in /usr/lib64/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0xADFF08A: ??? (in /usr/lib64/libcrypto.so.1.1)
+# by 0xADFE235: FIPS_selftest (in /usr/lib64/libcrypto.so.1.1)
+# by 0xADF909C: ??? (in /usr/lib64/libcrypto.so.1.1)
+# by 0xAE0CFE0: FIPS_mode_set (in /usr/lib64/libcrypto.so.1.1)
+# by 0xAD1216A: ??? (in /usr/lib64/libcrypto.so.1.1)
+# by 0x400FBF9: call_init.part.0 (in /lib64/ld-2.26.so)
+# by 0x400FD05: _dl_init (in /lib64/ld-2.26.so)
+# by 0x4014488: dl_open_worker (in /lib64/ld-2.26.so)
+# by 0x5217F43: _dl_catch_error (in /lib64/libc-2.26.so)
+# by 0x4013C08: _dl_open (in /lib64/ld-2.26.so)
+# by 0x6A2EF95: dlopen_doit (in /lib64/libdl-2.26.so)
+#
+{
+   libcrypto initialize botch-0
+   Memcheck:Cond
+   ...
+   obj:/usr/lib64/libcrypto.so.1.1
+   fun:FIPS_selftest
+   obj:/usr/lib64/libcrypto.so.1.1
+   fun:FIPS_mode_set
+   obj:/usr/lib64/libcrypto.so.1.1
+   fun:call_init.part.0
+   fun:_dl_init
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   ...
+}
+
+# and same failing test as above, different call stack
+# Conditional jump or move depends on uninitialised value(s)
+# at 0xADF90A1: ??? (in /usr/lib64/libcrypto.so.1.1)
+# by 0xAE0CFE0: FIPS_mode_set (in /usr/lib64/libcrypto.so.1.1)
+# by 0xAD1216A: ??? (in /usr/lib64/libcrypto.so.1.1)
+# by 0x400FBF9: call_init.part.0 (in /lib64/ld-2.26.so)
+# by 0x400FD05: _dl_init (in /lib64/ld-2.26.so)
+# by 0x4014488: dl_open_worker (in /lib64/ld-2.26.so)
+# by 0x5217F43: _dl_catch_error (in /lib64/libc-2.26.so)
+# by 0x4013C08: _dl_open (in /lib64/ld-2.26.so)
+# by 0x6A2EF95: dlopen_doit (in /lib64/libdl-2.26.so)
+# by 0x5217F43: _dl_catch_error (in /lib64/libc-2.26.so)
+# by 0x6A2F664: _dlerror_run (in /lib64/libdl-2.26.so)
+# by 0x6A2F020: dlopen@@GLIBC_2.2.5 (in /lib64/libdl-2.26.so)
+{
+   libcrypto initialize botch-1
+   Memcheck:Cond
+   obj:/usr/lib64/libcrypto.so.1.1
+   fun:FIPS_mode_set
+   obj:/usr/lib64/libcrypto.so.1.1
+   fun:call_init.part.0
+   fun:_dl_init
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   ...
+}

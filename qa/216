@@ -22,9 +22,8 @@ which netstat >/dev/null 2>&1 || _notrun "netstat not installed"
 
 if [ $PCP_PLATFORM != linux ]
 then
-    echo "network.* checks for non-linux done in test 117" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "network.* checks for non-linux done in test 117"
+    # NOTREACHED
 fi
 
 #debug# tmp=`pwd`/tmp

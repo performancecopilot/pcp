@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014,2019 Red Hat.
 # Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -27,6 +27,10 @@
 #
 # blank lines before the @ line are ignored
 #
+
+@ NVML.0 NVIDIA graphics cards installed in this system
+
+@ NVML.1 Processes mapped to NVIDIA graphics cards in use
 
 @ nvidia.numcards Number of Graphics Cards
 The number of NVIDIA Graphics cards installed in this system
@@ -70,3 +74,11 @@ The total amount of GPU FB memory available on the card, in bytes.
 
 @ nvidia.memfree Unallocated FB memory
 Amount of GPU FB memory that is not currently allocated, in bytes.
+
+@ nvidia.proc.samples Number of times process stats have been sampled
+@ nvidia.proc.memused Memory in use by each process accessing each card
+@ nvidia.proc.memaccum Accumulated memory used by processes accessing each card
+@ nvidia.proc.gpuactive Graphics card utilization by processes accessing each card
+@ nvidia.proc.memactive Memory access utilization by processes accessing each card
+@ nvidia.proc.time Milliseconds spent by processes accessing each graphics card
+

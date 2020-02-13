@@ -1,0 +1,58 @@
+#!/bin/sh
+# PCP QA Test No. 1545
+# Exercise python handling PMCD metric-names-change notification.
+#
+# Copyright (c) 2018 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+$python -c "from lxml import etree" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python lxml etree module not installed"
+
+which pcp2xml >/dev/null 2>&1 || _notrun "No pcp2xml binary installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -f $PCP_TMP_DIR/mmv/test
+    _restore_pmda_mmv
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter_xml()
+{
+    sed \
+        -e 's,<host .*>,<host>,g' \
+        -e 's,<timezone.*/,<timezone>UTC</,g' \
+        -e 's,<timestamp.*>,<timestamp>,g' \
+        -e 's,[0-9]\{4\,7\},xxxxxxx,g' \
+    | pmpython src/sort_xml.python \
+    | sed -e 's/^  *//'
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_prepare_pmda_mmv
+
+# test names-change=update with pcp2xml
+echo testing names-change=update with pcp2xml
+pcp2xml -s 5 -t 1 -5 -r --names-change=update mmv.control.files mmv.test | _filter_xml &
+
+pmsleep 1.5
+$here/src/mmv_genstats test 1
+wait
+
+# success, all done
+status=0
+exit

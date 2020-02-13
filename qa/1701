@@ -1,0 +1,44 @@
+#!/bin/sh
+# PCP QA Test No. 1701
+# Exercise the bpftrace PMDA - histograms
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bpftrace
+
+_pmdabpftrace_check
+
+status=1       # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_prepare_pmda bpftrace
+trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+
+_script_id_filter()
+{
+    sed -E -e 's/bpftrace.scripts.([a-z0-9]+).([a-z]+)/bpftrace.scripts.UUID.\2/g'
+}
+
+# real QA test starts here
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+[authentication]
+enabled = false
+EOF
+
+echo "=== start bpftrace script ==="
+script_id=`./src/store_and_fetch bpftrace.control.register "BEGIN { @h = hist(-2); @h = hist(1); @h = hist(100); @h = hist(1000); exit(); }" | \
+  python3 -c 'import sys,json; print(json.loads(sys.stdin.read())["script_id"])'`
+
+echo "=== check metrics ==="
+_pmdabpftrace_wait_for_value bpftrace.scripts.${script_id}.data.h | _script_id_filter
+pminfo -dfmtT bpftrace.scripts.${script_id}.data.h | _script_id_filter
+
+
+_pmdabpftrace_remove
+status=0
+exit

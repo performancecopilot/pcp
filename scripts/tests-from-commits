@@ -1,0 +1,832 @@
+#!/bin/sh
+#
+# typical usage:
+# test-from-commits -b master -t pcp -r 6bad98e4b0537c2e99b3906ca7a36f4998ea3419..HEAD
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# find QA tests containing a particular qa application (qa/src/foo) or
+# archive (qa/archives/foo) or qa PMDA (qa/pmda/foo) or linux fake
+# proc file (qa/linux/foo) or similar ...
+#
+_hunt_qa()
+{
+
+    cd $topdir/qa
+
+    # use the file name to produce an egrep pattern ($_pat) to be
+    # used to search in the QA tests ... to skip the file name, don't
+    # set $_pat
+    # - use .meta as the representative for each archive, skip the
+    #   .index and .N files
+    # for some special cases, e.g. archives, they are used but not
+    # named in QA tests, so egrep won't help ... set $_tests to a
+    # list of QA tests in this case
+    #
+    _pat=''
+    _tests=''
+    qa_file=`echo "$1" | sed -e 's/^qa\///'`
+    #debug# echo >&2 "qa_file=$qa_file"
+    case "$qa_file"
+    in
+	# not implicated in any particular QA test
+	#
+	GNUmakefile*\
+       |Makefile\
+       |all-by-group\
+       |bad-by-group\
+       |buildbot/*\
+       |changeversion\
+       |check*\
+       |chk*\
+       |cull-pmlogger-config\
+       |disk-work\
+       |findmetric\
+       |getpmcdhosts\
+       |helgrind-suppress\
+       |mk.*\
+       |new\
+       |new-seqs\
+       |qa_hosts.master\
+       |recheck\
+       |remake\
+       |sanity.coverage\
+       |setup.051\
+       |show-me\
+       |sniff4dodgey\
+       |xlate_2_new_pmns)		# not used in any QA test scripts
+	    ;;
+	[0-9][0-9][0-9][-.]*\
+       |[0-9][0-9][0-9][0-9][-.]*)	# not used in any QA test scripts
+	    _tests="`echo $qa_file | sed -e 's/[-.].*//'`"
+	    ;;
+	archives/*.[0-9]*\
+       |archives/*.index*\
+       |archives/*.pmns\
+       |archives/config.*\
+       |archives/*.config\
+       |archives/GNUmakefile*\
+       |archives/idtohex\
+       |archives/mk.*\
+       |archives/multi*/GNUmakefile*)	# not used in any QA test scripts
+	    ;;
+	# these files are not used in any QA test as far as we can tell
+	# ...
+	archives/cputime.meta\
+       |archives/cputime.mpstat\
+       |archives/cputime.sar\
+       |archives/pcp-atop-log.folio)	# not used in any QA test scripts
+	    ;;
+	# search full filename
+	#
+	archives/collectl-qa\
+       |archives/crontab-sar-report.tar.xz\
+       |archives/ds390-access.gz\
+       |archives/pcp-atop.folio\
+       |archives/pcp-hotatop.folio)
+	    _pat="$qa_file"
+	    ;;
+	# the QA test scripts
+	#
+	[0-9][0-9][0-9]|[0-9][0-9][0-9][0-9])
+	    _tests="$qa_file"
+	    ;;
+	# special cases ...
+	#
+	20071023-08-06-36.*)
+	    _pat='20071023-08-06-36\.'
+	    ;;
+	archives/archive-goodred-20150417.meta*\
+       |archives/cputime.meta*\
+       |archives/new_mysql.meta*\
+       |archives/new_snmp.meta*\
+       |archives/new_tcp.meta*\
+       |archives/oview-short.meta*\
+       |archives/pmatop-log.meta*\
+       |archives/reduce-2.meta*\
+       |archives/spotinstance.meta*)
+	    _tests='661
+1225'
+	    ;;
+	archives/src-vldb-disks.meta*\
+       |archives/viewqa?.meta*)
+	    _tests='661'
+	    ;;
+	archives/mark_no_mark*.meta*)
+	    _tests='661
+1225'
+	    _pat=archives/mark_no_mark_
+	    ;;
+	archives/nfsclient_??.meta*)
+	    _tests='661
+1225'
+	    _pat=archives/nfsclient_
+	    ;;
+
+	# default archive pattern
+	#
+	archives/*.meta*)
+	    _pat=`echo "$qa_file" | sed -e 's/\.bz$//' -e 's/\.xz$//' -e 's/\.[^.]*$//' -e 's/$/( |\.|$)/'`
+	    ;;
+	badarchives/*.[0-9]*\
+       |badarchives/*.index*\
+       |badarchives/config.*\
+       |badarchives/*.config\
+       |badarchives/GNUmakefile*\
+       |badarchives/mk.*)		# not used in any QA test scripts
+	    ;;
+	badarchives/541380.meta*\
+       |badarchives/ace.meta*\
+       |badarchives/babylon.percpu.meta*\
+       |badarchives/babylon.pmview.meta*\
+       |badarchives/bigace.meta*\
+       |badarchives/bug.meta*)
+	    _tests='661
+663'
+	    ;;
+	badarchives/badlabel-*.meta*\
+       |badarchives/badlen-*.meta*\
+       |badarchives/badlog-*.meta*\
+       |badarchives/badmeta-*.meta*\
+       |badarchives/badti-*.meta*)
+	    _pat=`echo "$qa_file" | sed -e 's/\-.*/-/'`
+	    ;;
+	badarchives/*.meta*)
+	    _pat=`echo "$qa_file" | sed -e 's/\.bz$//' -e 's/\.xz$//' -e 's/\.[^.]*$//' -e 's/$/( |\.|$)/'`
+	    ;;
+	cifs/*)
+	    _tests='-g pmda.cifs'
+	    ;;
+	cisco/*)
+	    _tests=383
+	    ;;
+	collectl/*)
+	    _tests='-g collectl'
+	    ;;
+	common.bcc)
+	    _tests='-g pmda.bcc'
+	    ;;
+	ganglia/*)
+	    _tests='-g ganglia2pcp'
+	    ;;
+	gluster/*)
+	    _tests='-g pmda.gluster'
+	    ;;
+	gpfs/*)
+	    _tests='-g pmda.gpfs'
+	    ;;
+	haproxy/*)
+	    _tests='-g pmda.haproxy'
+	    ;;
+	interact/*)			# not used in any QA test scripts
+	    ;;
+	java/*)				# not used?
+	    ;;
+	json/*)
+	    _tests='884
+1101'
+	    ;;
+	# not used in any QA test
+	linux/GNUmakefile*\
+       |linux/bigsys-root-hpbl920gen8.tgz\
+       |linux/mk.procpid)		# not used in any QA test scripts
+	    ;;
+	linux/cgroups-*)
+	    _tests='-g cgroups'
+	    ;;
+	linux/containers-docker-*\
+       |linux/containers-lxc-*)
+	    _tests='761'
+	    ;;
+	linux/cpuinfo-[0-9]*)
+	    _tests='885'
+	    ;;
+	linux/interrupts-[0-9]*\
+       |linux/softirqs-[0-9]*)
+	    _tests='886'
+	    ;;
+	linux/nfsrpc-*)
+	    _tests='732'
+	    ;;
+	linux/proc_serial_*)
+	    _tests='665'
+	    ;;
+	linux/procnet-[0-9]*)
+	    _tests='1164'
+	    ;;
+	linux/procnet-snmp*)
+	    _tests='872'
+	    ;;
+	linux/procpid-[0-9]*)
+	    _tests='735
+852
+974'
+	    ;;
+	linux/procsys-root-*)
+	    _tests='1073'
+	    ;;
+	linux/sysdev-root-*)
+	    _tests='747'
+	    ;;
+	linux/xfs-root-*)
+	    _tests='987
+988'
+	    ;;
+	linux/*)	# all over the shop ...
+	    _pat=`echo "$qa_file" | sed -e 's/\.[^.]*$//' -e 's/-[0-9][0-9][0-9]$//'`
+	    ;;
+	lio/*)
+	    _tests='-g pmda.lio'
+	    ;;
+	lustre/*)
+	    _tests='-g pmda.lustre'
+	    ;;
+	mic/*)
+	    _tests='-g pmda.mic'
+	    ;;
+	mmv/*)
+	    _tests='-g pmda.mmv'
+	    ;;
+	named/*)
+	    _tests='-g pmda.named'
+	    ;;
+	nfsclient/*)
+	    _tests='-g pmda.nfsclient'
+	    ;;
+	pconf/*)
+	    _tests='-g pmieconf'
+	    ;;
+	perfevent/*)
+	    _tests='-g pmda.perfevent'
+	    ;;
+	perl/*)		# not used?
+	    ;;
+	pmdas/GNUmakefile*\
+       |pmdas/*/GNUmakefile*\
+       |pmdas/*/Install\
+       |pmdas/*/Remove)			# not used in any QA test scripts
+	    ;;
+	pmdas/bigun/*\
+       |pmdas/schizo/*)			# not used in any QA test scripts
+	    ;;
+	pmdas/*)
+	    _pat=`echo "$qa_file" | sed -e 's/\(.*pmdas\/[^/]*\)\/.*/\1/' -e 's/$/( |\/|$)/'`
+	    ;;
+	pmlogconv/*)			# not used in any QA test scripts
+	    ;;
+	postfix/*)
+	    _tests='-g pmda.postfix'
+	    ;;
+	prometheus/*)
+	    _tests='-g pmda.prometheus'
+	    ;;
+	qt/*)
+	    _tests='-g libpcp_qmc'
+	    ;;
+	sadist/*\
+       |sheet/*)
+	    _tests='-g pmimport'
+	    ;;
+	secure/*)
+	    _tests='550
+551'
+	    ;;
+	slurm/*)
+	    _tests='-g pmda.slurm'
+	    ;;
+	smart/*)
+	    _tests='-g pmda.smart'
+	    ;;
+	src/*.index\
+       |src/*.meta\
+       |src/*.[0-9]\
+       |src/*.config\
+       |src/*.h\
+       |src/GNUlocaldefs\
+       |src/GNUmakefile*\
+       |src/err_v1.dump\
+       |src/fixhosts\
+       |src/grind-tools\
+       |src/ipcs_clear\
+       |src/mkpermslist\
+       |src/mv-me\
+       |src/permslist\
+       |src/root_*\
+       |src/show-args)			# not used in any QA test scripts
+	    ;;
+	src/anon-sa.c\
+       |src/chkacc4.c\
+       |src/hp-mib.c\
+       |src/indom2int.c\
+       |src/int2indom.c\
+       |src/int2pmid.c\
+       |src/iohack.c\
+       |src/mmv_ondisk.c\
+       |src/pcp_lite_crash.c\
+       |src/pmid2int.c\
+       |src/qa_test.c\
+       |src/qa_timezone.c\
+       |src/rootclient.c\
+       |src/sha1int2ext.c\
+       |src/statvfs.c\
+       |src/test_pmda_memleak.python\
+       |src/versiondefs)	# not used in any QA test scripts
+	    ;;
+	src/nvidia-ml.c)
+	    _pat='src/libnvidia-ml'
+	    ;;
+	src/sgi.bf)
+	    _tests='377'
+	    ;;
+	src/tiny.pmns)
+	    _tests='052'
+	    ;;
+	# default QA app
+	#
+	src/*.c)
+	    _pat=`echo "$qa_file" | sed -e 's/\.[^.]*$//' -e 's/$/( |;|&|>|<|\||$)/'`
+	    ;;
+	# Perl and Python scripts
+	#
+	src/*.p[ely]*)
+	    _pat=`echo "$qa_file" | sed -e 's/\.[^.]*$/\\./'`
+	    ;;
+	tmparch/*)			# made on the fly, not checked in
+	    ;;
+	unbound/*)
+	    _tests='-g pmda.unbound'
+	    ;;
+	valgrind-*)
+	    _tests='-g valgrind'
+	    ;;
+	views/*)
+	    _tests='1006'
+	    ;;
+	*)
+	    echo >&2 "Warning: $1: no QA test search pattern produced"
+    esac
+
+    if [ -n "$_pat" ]
+    then
+	egrep -l "$_pat" [0-9][0-9][0-9] [0-9][0-9][0-9][0-9] >$tmp.tmp
+	if [ -s $tmp.tmp ]
+	then
+	    cat $tmp.tmp
+	else
+	    echo >&2 "Warning: $1: no QA test matches pattern: \"$_pat\""
+	fi
+    fi
+    if [ -n "$_tests" ]
+    then
+	echo "$_tests"
+    fi
+
+    cd $here
+}
+
+# remove files that don't drive QA
+#
+_cull()
+{
+    sed \
+	-e '/^aclocal.m4$/d' \
+	-e '/^CHANGELOG$/d' \
+	-e '/^configure$/d' \
+	-e '/^configure\.in$/d' \
+	-e '/^config\./d' \
+	-e '/^COPYING$/d' \
+	-e '/^\.dir-locals\.el$/d' \
+	-e '/^Makefile$/d' \
+	-e '/^install-sh$/d' \
+	-e '/^pcp\.lsm\.in$/d' \
+	-e '/^\.pylintrc$/d' \
+	-e '/^README/d' \
+	-e '/\/README/d' \
+	-e '/^\.travis\.yml$/d' \
+	-e '/^Vagrantfile/d' \
+	-e '/^VERSION/d' \
+	-e '/^[^/]*\.md$/d' \
+	-e '/^books\//d' \
+	-e '/^debian\/copyright$/d' \
+	-e '/^doc\//d' \
+	-e '/^images\//d' \
+	-e '/^m4\//d' \
+	-e '/^provisioning\//d' \
+	-e '/^qa\/admin\//d' \
+	-e '/^qa\/group$/d' \
+	-e '/^qa\/group-stats$/d' \
+	-e '/^qa\/common/d' \
+	-e '/^src\/libpcp_qwt/d' \
+	-e '/^.gitignore$/d' \
+	-e '/\/.gitignore$/d' \
+	-e '/\.pro$/d' \
+	-e '/\.ui$/d' \
+	-e '/\.ui\.h$/d' \
+	-e '/\/Makefile$/d' \
+    # end
+}
+
+# hard work happens here ...
+#
+# map a pathname in the git tree onto QA group(s)
+_map()
+{
+    while read f
+    do
+	case "$f"
+	in
+	    Makepkgs\
+	   |configure.ac\
+	   |src/include/*\
+	   |build/*\
+	   |debian/*\
+	   |GNUmakefile)
+		# not much we can do here ... the scope is potentially huge
+		# but if it builds OK then check packaging
+		#
+		echo '-g verify'
+		;;
+	    man/*\
+	   |*.1)
+		echo '-g man'
+		;;
+	    qa/*)
+		_hunt_qa "$f"
+		;;
+	    scripts/*)			# not used in any QA test scripts
+		;;
+	    src/GNUmakefile\
+	   |src/Makefile)		# not used in any QA test scripts
+		;;
+	    src/autofsd-probe/*)	# no direct QA tests
+		;;
+	    src/bashrc/*)
+		echo '-g bash'
+		;;
+	    src/chart/*) 		# long gone -> pmchart
+		echo '-g pmchart'
+		;;
+	    src/derived/*)
+		echo '-g derive'
+		;;
+	    src/discover/*)
+		echo '-g pmfind'
+		;;
+	    src/external/*)		# other people's code, no explicit QA tests
+		;;
+	    src/genpmda/*)		# no longer useful nor tested
+		;;
+	    src/libpcp/src/*derive*)
+		echo '-g derive'
+		;;
+	    src/libpcp/src/p_*.c\
+	   |src/libpcp/src/*pdu*.c)
+		echo '-g pdu'
+		;;
+	    src/libpcp/src/*fetch*.c)
+		echo '-g fetch'
+		;;
+	    src/libpcp/src/log*.c\
+	   |src/libpcp/src/interp.c)
+		echo '-g archive'
+		;;
+	    src/libpcp/src/context.c)
+		echo '-g context'
+		;;
+	    src/libpcp/src/connectlocal.c\
+	   |src/libpcp/src/fetchlocal.c)
+		echo '-g context_local'
+		;;
+	    src/libpcp/src/events.c)
+		echo '-g event'
+		;;
+	    src/libpcp/src/getopt.c)
+		echo '-g getopt'
+		;;
+	    src/libpcp/src/instance.c\
+	   |src/libpcp/src/sortinst.c)
+		echo '-g indom'
+		;;
+	    src/libpcp/src/io_xz.c)
+		echo '-g decompress-xz'
+		;;
+	    src/libpcp/src/io*.c)
+		echo '-g multi-archive'
+		;;
+	    src/libpcp/src/secure*.c)
+		echo '-g secure'
+		;;
+	    src/libpcp/src/store.c)
+		echo '-g pmstore'
+		;;
+	    src/libpcp/src/lock.c)
+		echo '-g threads'
+		;;
+	    src/libpcp/*)
+		echo '-g libpcp'
+		;;
+	    src/libpcp_fault/*)
+		echo '-g fault'
+		;;
+	    src/libpcp_import/*)
+		echo '-g pmimport'
+		;;
+	    src/libpcp_pmda/*)
+		echo '-g pmda'
+		;;
+	    src/libpcp_trace/*)
+		echo '-g trace'
+		;;
+	    src/libpcp_*)
+		echo "$f" | sed -e 's/src\///' -e 's/\/.*//' -e 's/^/-g /'
+		;;
+	    src/newhelp/*)
+		echo '-g help'
+		;;
+	    src/pcp2*)
+		echo "$f" | sed -e 's/src\///' -e 's/\/.*//' -e 's/^/-g /'
+		;;
+	    src/*2pcp/*)
+		echo '-g pmimport'
+		;;
+	    src/pcp/atop/*)
+		echo '-g atop'
+		;;
+	    src/pcp/collectl/*)
+		echo '-g collectl'
+		;;
+	    src/pcp/dstat/*)
+		echo '-g dstat'
+		;;
+	    src/pcp/iostat/*)
+		echo '-g pmiostat'
+		;;
+	    src/pcp/pidstat/*)
+		echo '-g pidstat'
+		;;
+	    src/pmafm/*)
+		echo '-g folio'
+		;;
+	    src/pmconfig/*)		# no direct QA tests, used in a few for _notrun guards
+		;;
+	    src/pmdbg/*)
+		echo '219'
+		;;
+	    src/pmerr/*)
+		echo '006
+610
+636'
+		;;
+	    src/pmdas/aix/*\
+	   |src/pmdas/darwin/*\
+	   |src/pmdas/freebsd/*\
+	   |src/pmdas/linux/*\
+	   |src/pmdas/netbsd/*\
+	   |src/pmdas/openbsd/*\
+	   |src/pmdas/solaris/*\
+	   |src/pmdas/windows/*)
+		# same as other PMDAs plus -g kernel
+		echo "$f" | sed -e 's/src\/pmdas\//pmda./' -e 's/\/.*//' -e 's/^/-g /'
+		echo '-g kernel'
+		;;
+	    src/pmdas/*)
+		echo "$f" | sed -e 's/src\/pmdas\//pmda./' -e 's/\/.*//' -e 's/^/-g /'
+		;;
+	    src/pmgenmap/*)
+	    	echo '021'
+		;;
+	    src/pmgetopt/*)
+		echo '-g getopt'
+		;;
+	    src/pmhostname/*)		# no direct QA tests, used in some
+		echo '054
+116
+215'
+		;;
+	    src/pmie/control*\
+	   |src/pmie/crontab*\
+	   |src/pmie/pmie_*\
+	   |src/pmie.service*)
+		echo '-g pmieutil'
+		;;
+	    src/pmiestatus/*)		# not used in any QA test scripts
+		;;
+	    src/pmjson/*)
+		echo '1234'
+		;;
+	    src/pmgenmap/*)
+	    	echo '021'
+		;;
+	    src/pmlock/*)		# no direct QA tests, used in some
+		echo '638
+639'
+		;;
+	    src/pmgetopt/*)
+		echo '-g getopt'
+		;;
+	    src/pmlogger/control*\
+	   |rc/pmlogger/crontab*\
+	   |rc/pmlogger/pmlogger_*\
+	   |rc/pmlogger.service*)
+		echo '-g logutil'
+		;;
+	    src/pmlogger/pmnewlog.sh)
+		echo '-g pmnewlog'
+		;;
+	    src/pmlogger/pmlogmv.sh)
+		echo '-g pmlogmv'
+		;;
+	    src/pmlogsummary/pmdiff.sh)
+		echo '-g pmdiff'
+		;;
+	    src/pmpython/*)
+		echo '863'
+		;;
+	    src/pmsignal/*)		# used everywhere, this is a specific QA test
+		echo '881'
+		;;
+	    src/pmsleep/*)		# used everywhere, no specific QA test
+		;;
+	    src/pmsnap/*)		# not used in any QA test scripts
+		;;
+	    src/pmtrace/*)
+		echo '601'
+		;;
+	    src/procmemstat/*)		# not used in any QA test scripts
+		;;
+	    src/telnet-probe/*)
+		echo '589'
+		;;
+	    src/time/*) 		# long gone -> pmtime
+		echo '-g pmtime'
+		;;
+	    src/win32ctl/*)		# not used in any QA test scripts
+		;;
+	    src/zabbix-agent/*)
+		echo '-g zbxpcp'
+		;;
+	    src/zshrc/*)
+		echo '-g zsh'
+		;;
+
+	    # for all of these, the QA group is the same as the directory
+	    # below src
+	    #
+	    src/dbpmda/*\
+	   |src/pcp/*\
+	   |src/pmclient/*\
+	   |src/pmchart/*\
+	   |src/pmcd/*\
+	   |src/pmcd_wait/*\
+	   |src/pmcpp/*\
+	   |src/pmdate/*\
+	   |src/pmdumplog/*\
+	   |src/pmdumptext/*\
+	   |src/pmfind/*\
+	   |src/pmgadgets/*\
+	   |src/pminfo/*\
+	   |src/pmie/*\
+	   |src/pmieconf/*\
+	   |src/pmlc/*\
+	   |src/pmlogger/*\
+	   |src/pmlogcheck/*\
+	   |src/pmlogconf/*\
+	   |src/pmlogextract/*\
+	   |src/pmloglabel/*\
+	   |src/pmlogreduce/*\
+	   |src/pmlogrewrite/*\
+	   |src/pmlogsize/*\
+	   |src/pmlogsummary/*\
+	   |src/pmmgr/*\
+	   |src/pmns/*\
+	   |src/*pmpost/*\
+	   |src/pmprobe/*\
+	   |src/pmproxy/*\
+	   |src/pmseries/*\
+	   |src/pmsocks/*\
+	   |src/pmstat/*\
+	   |src/pmstore/*\
+	   |src/pmtime/*\
+	   |src/pmview/*\
+	   |src/pmquery/*\
+	   |src/pmrep/*\
+	   |src/pmval/*\
+	   |src/perl/*\
+	   |src/python/*\
+	   |src/selinux/*)
+		echo "$f" | sed -e 's/src\///' -e 's/\/.*//' -e 's/^/-g /'
+		;;
+
+	    tools/*)			# not used in any QA test scripts
+		;;
+	    *)
+		echo >&2 "Warning: $f: no matching QA group from _map"
+		;;
+	esac
+    done
+}
+
+# expand -g groupname into the corresponding list of tests
+#
+_expand()
+{
+
+    cd $topdir/qa
+
+    while read line
+    do
+	case "$line"
+	in
+	    [0-9][0-9][0-9]|[0-9][0-9][0-9][0-9])
+		echo "$line"
+		;;
+
+	    -g\ *)
+		./check -n $line
+		;;
+
+	    *)
+		echo >&2 "_expand: botch: $line: unexpected"
+		;;
+	esac
+    done
+
+    cd $here
+}
+
+
+_usage()
+{
+    echo >&2 "Usage: groups-to-test [options]"
+    echo >&2
+    echo >&2 "options:"
+    echo >&2 "  -b branch           [defaults to master]"
+    echo >&2 "  -r range            [defaults to \$(cat tested.sha)..HEAD)]"
+    exit 1
+}
+
+# find the base of the git tree
+#
+here=`pwd`
+rm -f $tmp.tmp
+while true
+do
+    if [ -d .git ]
+    then
+	topdir=`pwd`/
+	break
+    fi
+    if [ `pwd` = "/" ]
+    then
+	echo >&2 "Error: no .git between / and $here, do you know what you're doing?"
+	exit 1
+    fi
+    cd ..
+done
+
+if [ -f $topdir/tested.sha ]
+then
+    range=$(cat $topdir/tested.sha)..HEAD
+else
+    range=''
+fi
+branch=master
+while getopts "b:r:?" c
+do
+    case $c
+    in
+	b)
+	    branch="$OPTARG"
+	    ;;
+	r)
+	    range="$OPTARG"
+	    ;;
+	*)
+	    _usage
+	    # NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+
+[ $# -eq 0 ] || _usage
+
+if [ -z "$range" ]
+then
+    echo "Error: no range from tested.sha, so need -r range"
+    exit 1
+fi
+
+unset GIT_EXTERNAL_DIFF
+
+git diff --name-only $range \
+| _cull \
+| _map \
+| sort \
+| uniq \
+| _expand \
+| sort -n \
+| uniq
+
+exit

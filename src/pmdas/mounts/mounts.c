@@ -388,65 +388,65 @@ mounts_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
     case MOUNTS_CAPACITY:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
-	    return PM_ERR_AGAIN;
+	    return PMDA_FETCH_NOVALUES;
 	atom->ull = (__uint64_t)mp->capacity * mp->bsize / 1024;
 	break;
     case MOUNTS_USED:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
-	    return PM_ERR_AGAIN;
+	    return PMDA_FETCH_NOVALUES;
 	atom->ull = ((__uint64_t)mp->capacity - mp->bfree) * mp->bsize / 1024;
 	break;
     case MOUNTS_FREE:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
-	    return PM_ERR_AGAIN;
+	    return PMDA_FETCH_NOVALUES;
 	atom->ull = (__uint64_t)mp->bfree * mp->bsize / 1024;
 	break;
     case MOUNTS_MAXFILES:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
-	    return PM_ERR_AGAIN;
+	    return PMDA_FETCH_NOVALUES;
 	atom->ull = mp->files;
 	break;
     case MOUNTS_USEDFILES:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
-	    return PM_ERR_AGAIN;
+	    return PMDA_FETCH_NOVALUES;
 	atom->ull = mp->files - mp->ffree;
 	break;
     case MOUNTS_FREEFILES:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
-	    return PM_ERR_AGAIN;
+	    return PMDA_FETCH_NOVALUES;
 	atom->ull = mp->ffree;
 	break;
     case MOUNTS_FULL:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
-	    return PM_ERR_AGAIN;
+	    return PMDA_FETCH_NOVALUES;
 	used = (__uint64_t)(mp->capacity - mp->bfree);
 	ull = used + (__uint64_t)mp->bavail;
 	atom->d = (100.0 * (double)used) / (double)ull;
 	break;
     case MOUNTS_BLOCKSIZE:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
-	    return PM_ERR_AGAIN;
+	    return PMDA_FETCH_NOVALUES;
 	atom->ul = mp->bsize;
 	break;
     case MOUNTS_AVAIL:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
-	    return PM_ERR_AGAIN;
+	    return PMDA_FETCH_NOVALUES;
 	atom->ull = (__uint64_t)mp->bavail * mp->bsize / 1024;
 	break;
     case MOUNTS_AVAILFILES:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
-	    return PM_ERR_AGAIN;
+	    return PMDA_FETCH_NOVALUES;
 	atom->ull = mp->favail;
 	break;
     case MOUNTS_READONLY:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
-	    return PM_ERR_AGAIN;
+	    return PMDA_FETCH_NOVALUES;
 	atom->ul = (mp->flags & MOUNTS_FLAG_RO) ? 1 : 0;
 	break;
     default:
 	return PM_ERR_PMID;
     }
-    return 0;
+    return PMDA_FETCH_STATIC;
 }
 
 /*
@@ -460,7 +460,7 @@ mounts_init(pmdaInterface *dp)
 	int sep = pmPathSeparator();
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "mounts" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_2, "mounts DSO", mypath);
+	pmdaDSO(dp, PMDA_INTERFACE_7, "mounts DSO", mypath);
     } else {
 	pmSetProcessIdentity(username);
     }
@@ -468,7 +468,7 @@ mounts_init(pmdaInterface *dp)
     if (dp->status != 0)
         return;
 
-    dp->version.two.fetch = mounts_fetch;
+    dp->version.seven.fetch = mounts_fetch;
     pmdaSetFetchCallBack(dp, mounts_fetchCallBack);
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), 
@@ -508,7 +508,7 @@ main(int argc, char **argv)
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "mounts" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&desc, PMDA_INTERFACE_2, pmGetProgname(), MOUNTS,
+    pmdaDaemon(&desc, PMDA_INTERFACE_7, pmGetProgname(), MOUNTS,
 		"mounts.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &desc);

@@ -68,6 +68,7 @@ sample.secret.foo.bar.four
 sample.secret.foo.bar.grunt.five
 sample.secret.foo.bar.grunt.snort.six
 sample.secret.foo.bar.grunt.snort.huff.puff.seven
+sample.ghosts.visible
 sample.long.one
 sample.long.ten
 sample.long.hundred
@@ -176,4 +177,5 @@ sample.negative.discrete.m_32
 sample.negative.discrete.m_64
 sample.negative.discrete.m_float
 sample.negative.discrete.m_double
+sample.controller.mirage
 pmlc> 

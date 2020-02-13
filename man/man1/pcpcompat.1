@@ -1,0 +1,124 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2019 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PCPCOMPAT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3PCPCompat\f1,
+\f3pcp-collectl\f1,
+\f3pmwebd\f1 \- backward-compatibility in the Performance Co-Pilot (PCP)
+.SH INTRODUCTION
+The Performance Co-Pilot (PCP) is a toolkit designed for monitoring
+and managing system-level performance.
+These services are distributed and scalable
+to accommodate the most complex system configurations and performance
+problems.
+.PP
+In order to achieve these goals effectively, protocol and on-disk
+compatibility is provided between different versions of PCP.
+It is feasible (and indeed encouraged) to use current PCP tools to
+interrogate any remote, down-rev or up-rev
+.BR pmcd (1)
+and also to replay any historical PCP archive (the PCP testsuite
+includes PCP archives created over 20 years ago!).
+.PP
+From time to time the PCP developers deprecate and remove PCP utilities,
+replacing them with new versions of utilities providing comparable features.
+This page describes replacement utilities for historical PCP tools.
+.SH PCP-COLLECTL
+The
+.B pcp-collectl
+utility has been superceded by
+.BR pmrep (1)
+from PCP v5 onward.
+.PP
+The equivalent of
+.B pcp-collectl
+subsystem reporting is achieved as follows:
+.TP
+.B pmrep :collectl-sc
+Processor subsystem view.
+.TP
+.B pmrep :collectl-sm
+Memory subsystem view.
+.TP
+.B pmrep :collectl-sd
+Aggregate disks view.
+.TP
+.B pmrep :collectl-sD
+Per-disk-device view.
+.TP
+.B pmrep :collectl-dm-sD
+Device mapper view.
+.TP
+.B pmrep :collectl-sn
+Network subsystem view.
+.SH PCP-WEBAPPS
+The standalone web applications packaged with older PCP versions
+have been superceded by
+.BR grafana-server (1)
+with the
+.B grafana-pcp
+plugin
+.BR https://github.com/performancecopilot/grafana-pcp .
+.PP
+This plugin provides an implementation of the Vector application,
+as well as data sources for
+.BR pmdabpftrace "(1) ("\c
+.BR bpftrace (8)
+scripts) and
+.BR pmseries (1)
+(fast, scalable Redis-based time series analysis).
+.SH PMWEBD
+The
+.B pmwebd
+daemon has been superceded by
+.BR pmproxy (1)
+from PCP v5 onward.
+.PP
+By default,
+.B pmproxy
+will now listen on both its original port (44322) and the PCP
+web API port (44323) when the time series support is built.
+.PP
+.B pmproxy
+provides a compatible implementation of the live
+.BR PMWEBAPI (3)
+interfaces used traditionally by the Vector web application
+(see the ``PCP-WEBAPPS'' section).
+It also provides extensions to the original
+.B pmwebd
+REST APIs (such as derived metrics, namespace lookups and instance
+domain profiles), support for the HTTPS protocol, and fast, scalable
+time series querying using the
+.BR pmseries (1)
+REST API and
+.BR redis-server (1).
+.PP
+The partial Graphite API emulation provided by
+.B pmwebd
+has not been re-implemented \- applications wishing to use similar
+services could use the scalable time series REST APIs described on
+.BR PMWEBAPI (3).
+.SH SEE ALSO
+.BR pcp (1),
+.BR pmcd (1),
+.BR pmrep (1),
+.BR pmproxy (1),
+.BR pmseries (1),
+.BR pmdabpftrace (1),
+.BR redis-server (1),
+.BR grafana-server (1)
+and
+.BR PMWEBAPI (3).

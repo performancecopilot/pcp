@@ -1,0 +1,183 @@
+QA output created by 1700
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 7 metrics and 6 values
+
+=== start bpftrace script ===
+{
+    "script_id": "SCRIPT_ID"
+    "username": "USERNAME"
+    "persistent": true,
+    "created_at": "CREATED_AT"
+    "last_accessed_at": "LAST_ACCESSED_AT"
+    "code": "// name: testscript\ntracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }",
+    "metadata": {
+        "name": "testscript",
+        "include": null,
+        "table_retain_lines": null,
+        "custom_output_block": false
+    },
+    "variables": {
+        "@": {
+            "single": true,
+            "semantics": 1,
+            "datatype": 3,
+            "metrictype": null
+        },
+        "@scalar": {
+            "single": true,
+            "semantics": 3,
+            "datatype": 3,
+            "metrictype": null
+        }
+    },
+    "state": {
+        "status": "starting",
+        "pid": "PID"
+        "exit_code": 0,
+        "error": "",
+        "probes": 0,
+        "data_bytes": DATA_BYTES
+    }
+}
+=== check metadata metrics ===
+found metric bpftrace.scripts.testscript.data.root matching "value .*"
+
+bpftrace.scripts.testscript.status PMID: 151.100.0 [status of bpftrace script]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+status of bpftrace script
+    value "started"
+
+bpftrace.scripts.testscript.pid PMID: 151.100.1 [pid of bpftrace process]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+pid of bpftrace process
+    value OK
+
+bpftrace.scripts.testscript.exit_code PMID: 151.100.2 [exit code of bpftrace process]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+exit code of bpftrace process
+    value 0
+
+bpftrace.scripts.testscript.error PMID: 151.100.3 [errors of the bpftrace script]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+errors of the bpftrace script
+    value ""
+
+bpftrace.scripts.testscript.probes PMID: 151.100.4 [number of attached probes]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+number of attached probes
+    value OK
+
+bpftrace.scripts.testscript.code PMID: 151.100.5 [bpftrace script]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+bpftrace script
+    value "// name: testscript
+tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
+
+bpftrace.scripts.testscript.data_bytes PMID: 151.100.6 [count of bytes read from bpftrace script]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help:
+count of bytes read from bpftrace script
+    value OK
+=== check data metrics ===
+
+bpftrace.scripts.testscript.data.root PMID: 151.100.10 [@ variable of bpftrace script]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help:
+@ variable of bpftrace script
+    value OK
+
+bpftrace.scripts.testscript.data.scalar PMID: 151.100.11 [@scalar variable of bpftrace script]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+@scalar variable of bpftrace script
+    value 2
+=== check general bpftrace metrics ===
+
+bpftrace.info.tracepoints PMID: 151.1.2 [list all available tracepoints]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+list all available tracepoints
+    value OK
+
+bpftrace.info.scripts PMID: 151.1.0 [list all registered bpftrace scripts]
+    Data Type: string  InDom: 151.0 0x25c00000
+    Semantics: instant  Units: none
+Help:
+list all registered bpftrace scripts
+    inst [0 or "testscript"] value "// name: testscript
+tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
+=== scripts as JSON ===
+
+bpftrace.info.scripts_json PMID: 151.1.1 [expose all scripts in JSON format]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+expose all scripts in JSON format
+    value OK
+[
+    {
+        "script_id": "SCRIPT_ID"
+        "username": "USERNAME"
+        "persistent": true,
+        "created_at": "CREATED_AT"
+        "last_accessed_at": "LAST_ACCESSED_AT"
+        "code": "// name: testscript\ntracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }",
+        "metadata": {
+            "name": "testscript",
+            "include": null,
+            "table_retain_lines": null,
+            "custom_output_block": false
+        },
+        "variables": {
+            "@": {
+                "single": true,
+                "semantics": 1,
+                "datatype": 3,
+                "metrictype": null
+            },
+            "@scalar": {
+                "single": true,
+                "semantics": 3,
+                "datatype": 3,
+                "metrictype": null
+            }
+        },
+        "state": {
+            "status": "started",
+            "pid": "PID"
+            "exit_code": 0,
+            "error": "",
+            "probes": 2,
+            "data_bytes": DATA_BYTES
+        }
+    }
+]
+
+=== remove bpftrace agent ===
+Culling the Performance Metrics Name Space ...
+bpftrace ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bpftrace metrics have gone away ... OK
+manager: shutdown pmdabpftrace process manager

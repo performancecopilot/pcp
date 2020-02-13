@@ -6985,6 +6985,18 @@ lines]
 Start configfile: CONFIG
 PCP Archive Log Rewrite Specifications Summary
 
+Help Text: One Line pmID (2.0.20)
+DELETE
+
+Help Text: full pmID (2.0.20)
+DELETE
+
+Help Text: One Line pmID (2.0.16)
+DELETE
+
+Help Text: full pmID (2.0.16)
+DELETE
+
 Help Text: One Line pmInDom (2.3)
 DELETE
 
@@ -7008,14 +7020,7 @@ The number of connections open to client programs retrieving information
 from PMCD.
 PMID: 2.0.7 [PMCD version]
 PMID: 2.0.16 [running PCP services on the local host]
-PMID: 2.0.16
-A space-separated string representing all running PCP services with PID
-files in $PCP_RUN_DIR (such as pmcd itself, pmproxy and a few others).
 PMID: 2.0.20 [build version for installed PCP package]
-PMID: 2.0.20
-Minor part of the PCP build version numbering.  For example on Linux
-with RPM packaging, if the PCP RPM version is pcp-2.5.99-20070323 then
-pmcd.build returns the string "20070323".
 PMID: 2.3.1 [host from which active pmlogger is fetching metrics]
 PMID: 2.3.1
 The fully qualified domain name of the host from which a pmlogger

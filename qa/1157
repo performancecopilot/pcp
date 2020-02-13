@@ -12,6 +12,29 @@ echo "QA output created by $seq"
 
 _pmdabcc_check
 _bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
+case "`uname -srm`"
+in
+    Linux\ 5.2.*)
+    		_notrun "Bad Linux 5.2 kernel headers will cause BPF to fail"
+		;;
+esac
+
+if [ -f /etc/lsb-release ]
+then
+    . /etc/lsb-release
+    if [ "$DISTRIB_ID" = Ubuntu ]
+    then
+	# This test fails for Ubuntu 19.10 because the linux headers used
+	# by the BPF compiler appear to be knackered.
+	#
+	case "$DISTRIB_RELEASE"
+	in
+	    19.10)
+		_notrun "bcc does not work for this test on Ubuntu $DISTRIB_RELEASE"
+		;;
+	esac
+    fi
+fi
 
 # sch_netem is part of optional kernel-modules-extra on Fedora
 $sudo modprobe sch_netem
@@ -48,6 +71,7 @@ trap "_revert_network_troubles; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 cat <<EOF | _pmdabcc_install
+# Installed by PCP QA test $seq on `date`
 [pmda]
 modules = tcpretrans
 prefix = bcc.

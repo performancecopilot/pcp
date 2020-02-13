@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily generation of system activity reports
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+
+[Install]
+WantedBy=timers.target
+RequiredBy=pmlogger_daily_report.service

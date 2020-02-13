@@ -31,39 +31,40 @@ smart_device_info_fetch(int item, struct device_info *device_info, pmAtomValue *
                 
 		case HEALTH:
 			atom->cp = device_info->health;
-			return 1;
+			return PMDA_FETCH_STATIC;
 
 		case MODEL_FAMILY: /* Note: There is not always a model family value */
 			if (strlen(device_info->model_family) == 0)
-				return 0;
+				return PMDA_FETCH_NOVALUES;
 
 			atom->cp = device_info->model_family;
-			return 1;
+			return PMDA_FETCH_STATIC;
 
 		case DEVICE_MODEL:
 			atom->cp = device_info->device_model;
-			return 1;
+			return PMDA_FETCH_STATIC;
 
 		case SERIAL_NUMBER:
 			atom->cp = device_info->serial_number;
-			return 1;
+			return PMDA_FETCH_STATIC;
 
 		case CAPACITY_BYTES:
 			atom->ull = device_info->capacity_bytes;
-			return 1;
+			return PMDA_FETCH_STATIC;
 
 		case SECTOR_SIZE:
 			atom->cp = device_info->sector_size;
-			return 1;
+			return PMDA_FETCH_STATIC;
 
 		case ROTATION_RATE:
 			atom->cp = device_info->rotation_rate;
-			return 1;		
+			return PMDA_FETCH_STATIC;		
 
 		default:
 			return PM_ERR_PMID;
 	}
-	return 0;
+	/* NOTREACHED */
+	return PMDA_FETCH_NOVALUES;
 }
 
 int

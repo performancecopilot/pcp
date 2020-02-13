@@ -15,6 +15,10 @@ echo "QA output created by $seq"
 
 trap "rm -rf $tmp $tmp.*; exit" 0 1 2 3 15
 
+# don't need to regenerate config.default with pmlogconf
+#
+export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+
 # real QA test starts here
 
 echo "this tests access control for pmlogger and exercises pmlc"
@@ -116,12 +120,22 @@ cleanup()
     $sudo $signal -a -s TERM pmlogger
     _await_logger false
     echo "Restarting pmcd and friends..."
-    _service pcp restart \
+    _service pcp restart 2>&1 \
     | _filter_pcp_start \
     | sed -e '/pmlogger not running/d'
     _restore_auto_restart pmcd
     _restore_auto_restart pmlogger
     _wait_for_pmcd
+    echo "+++ after restart primary pmlogger pid = `_get_primary_logger_pid`" >>$here/$seq.full
+    case `hostname -s`
+    in
+	vm10|vm32)
+	    # on these VMs we consistently don't get pmlogger started in the
+	    # default 20 seconds, so be patient ...
+	    #
+	    sleep 30
+	    ;;
+    esac
     _wait_for_pmlogger
     rm -rf $tmp $tmp.*
 }
@@ -151,15 +165,13 @@ echo "Running the access tests"
 eval `./getpmcdhosts -L -n2 -v 'pcp>=3' | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 if [ -z "$other1" ]
 then
-    echo "Cannot find first remote host running pmcd v2.x" >$seq.notrun
-    status=1
-    exit
+    _notrun "Cannot find first remote host running pmcd v2.x"
+    # NOTREACHED
 fi
 if [ -z "$other2" ]
 then
-    echo "Cannot find second remote host running pmcd v2.x" >$seq.notrun
-    status=1
-    exit
+    _notrun "Cannot find second remote host running pmcd v2.x"
+    # NOTREACHED
 fi
 echo "other1=$other1" >>$here/$seq.full
 echo "other2=$other2" >>$here/$seq.full
@@ -487,3 +499,5 @@ then
 fi
 
 wait
+
+echo "+++ at the end primary pmlogger pid = `_get_primary_logger_pid`" >>$here/$seq.full

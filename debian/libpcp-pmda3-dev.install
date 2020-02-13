@@ -57,6 +57,8 @@ usr/share/man/man3/pmdaEventReleaseArray.3.gz
 usr/share/man/man3/pmdaEventReleaseHighResArray.3.gz
 usr/share/man/man3/pmdaEventResetArray.3.gz
 usr/share/man/man3/pmdaEventResetHighResArray.3.gz
+usr/share/man/man3/pmdaExtGetData.3.gz
+usr/share/man/man3/pmdaExtSetData.3.gz
 usr/share/man/man3/pmdaExtSetFlags.3.gz
 usr/share/man/man3/pmdafetch.3.gz
 usr/share/man/man3/pmdaFetch.3.gz
@@ -100,6 +102,7 @@ usr/share/man/man3/pmdasenderror.3.gz
 usr/share/man/man3/pmdaSendError.3.gz
 usr/share/man/man3/pmdaSetCheckCallBack.3.gz
 usr/share/man/man3/pmdaSetCommFlags.3.gz
+usr/share/man/man3/pmdaSetData.3.gz
 usr/share/man/man3/pmdaSetDoneCallBack.3.gz
 usr/share/man/man3/pmdaSetEndContextCallBack.3.gz
 usr/share/man/man3/pmdaSetFetchCallBack.3.gz

@@ -1,28 +1,29 @@
 /*
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2019 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
 #include "pmapi.h"
 #include "libpcp.h"
 #include "pmproxy.h"
+#include "pmwebapi.h"
 
-#define MAXPENDING	5	/* maximum number of pending connections */
-#define FDNAMELEN	40	/* maximum length of a fd description */
+#define MAXPENDING	128	/* maximum number of pending connections */
 #define STRINGIFY(s)    #s
 #define TO_STRING(s)    STRINGIFY(s)
 
-int		timeToDie;		/* for SIGINT handling */
-static void	*server;		/* opaque server information */
+static void	*info;			/* opaque server information */
+static pmproxy	*server;		/* proxy server implementation */
+struct dict	*config;		/* configuration file settings */
 
 static char	*logfile = "pmproxy.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
@@ -30,14 +31,8 @@ static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*username;
 static char	*certdb;		/* certificate DB path (NSS) */
 static char	*dbpassfile;		/* certificate DB password file */
-static char     *cert_nickname;         /* Alternate nickname for server certificate */
+static char     *cert_nickname;         /* alternate nickname for server certificate */
 static char	sockpath[MAXPATHLEN];	/* local unix domain socket path */
-
-#ifdef HAVE_SA_SIGINFO
-static pid_t    killer_pid;
-static uid_t    killer_uid;
-#endif
-static int      killer_sig;
 
 static void
 DontStart(void)
@@ -70,16 +65,22 @@ static pmLongOptions longopts[] = {
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Service options"),
     { "", 0, 'A', 0, "disable service advertisement" },
+    { "deprecated", 0, 'd', 0, "backward-compatibility mode; no REST APIs" },
     { "foreground", 0, 'f', 0, "run in the foreground" },
+    { "timeseries", 0, 't', 0, "automatic, scalable timeseries; REST APIs" },
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     PMAPI_OPTIONS_HEADER("Configuration options"),
-    { "certdb", 1, 'C', "PATH", "path to NSS certificate database" },
-    { "passfile", 1, 'P', "PATH", "password file for certificate database access" },
-    { "", 1, 'L', "BYTES", "maximum size for PDUs from clients [default 65536]" },
+    { "config", 1, 'c', "PATH", "path to configuration file (implies --timeseries)"},
+    { "certdb", 1, 'C', "PATH", "path to NSS certificate database (implies --deprecated)" },
+    { "passfile", 1, 'P', "PATH", "password file for certificate database access (implies --deprecated)" },
+    { "certname", 1, 'M', "NAME", "certificate name to use (implies --deprecated)" },
+    { "", 0, 'L', 0, "maximum size for PDUs from clients [default 65536]" },
     PMAPI_OPTIONS_HEADER("Connection options"),
     { "interface", 1, 'i', "ADDR", "accept connections on this IP address" },
-    { "port", 1, 'p', "N", "accept connections on this port" },
+    { "port", 1, 'p', "PORT", "accept connections on this port" },
     { "socket", 1, 's', "PATH", "Unix domain socket file [default $PCP_RUN_DIR/pmproxy.socket]" },
+    { "redisport", 1, 'r', "PORT", "Connect to Redis instance on this TCP/IP port (implies --timeseries)" },
+    { "redishost", 1, 'h', "HOST", "Connect to Redis instance on this host name (implies --timeseries)" },
     PMAPI_OPTIONS_HEADER("Diagnostic options"),
     { "log", 1, 'l', "PATH", "redirect diagnostics and trace output" },
     { "", 1, 'x', "PATH", "fatal messages at startup sent to file [default /dev/tty]" },
@@ -87,26 +88,40 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "A:C:D:fi:l:L:M:p:P:s:U:x:?",
+    .short_options = "Ac:C:dD:fh:i:l:L:M:p:P:r:s:tU:x:?",
     .long_options = longopts,
 };
 
-static void
-ParseOptions(int argc, char *argv[], int *nports)
+static int
+ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 {
     int		c;
     int		sts;
     int		usage = 0;
+    int		timeseries = 1;
+    int		redis_port = 6379;
+    char	*redis_host = NULL;
+    const char	*inifile = NULL;
+    sds		option;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
-	case 'A':   /* disable pmproxy service advertising */
+	case 'A':	/* disable pmproxy service advertising */
 	    __pmServerClearFeature(PM_SERVER_FEATURE_DISCOVERY);
+	    break;
+
+	case 'c':	/* path to .ini configuration file */
+	    inifile = opts.optarg;
+	    timeseries = 1;
 	    break;
 
 	case 'C':	/* path to NSS certificate database */
 	    certdb = opts.optarg;
+	    break;
+
+	case 'd':	/* run in deprecated (libpcp, select) mode */
+	    timeseries = 0;
 	    break;
 
 	case 'D':	/* debug options */
@@ -121,21 +136,26 @@ ParseOptions(int argc, char *argv[], int *nports)
 	    run_daemon = 0;
 	    break;
 
+	case 'h':	/* Redis host name */
+	    redis_host = opts.optarg;
+	    timeseries = 1;
+	    break;
+
 	case 'i':
 	    /* one (of possibly several) interfaces for client requests */
 	    __pmServerAddInterface(opts.optarg);
 	    break;
 
-	case 'l':
-	    /* log file name */
+	case 'l':	/* log file name */
 	    logfile = opts.optarg;
 	    break;
 
-        case 'M':   /* nickname for the server cert. Use to query the nssdb */
+        case 'M':	/* nickname for server cert, use to query the nssdb */
             cert_nickname = opts.optarg;
+	    timeseries = 0;
             break;
 
-	case 'L': /* Maximum size for PDUs from clients */
+	case 'L':	/* maximum size for PDUs from clients */
 	    sts = (int)strtol(opts.optarg, NULL, 0);
 	    if (sts <= 0) {
 		pmprintf("%s: -L requires a positive value\n", pmGetProgname());
@@ -157,18 +177,32 @@ ParseOptions(int argc, char *argv[], int *nports)
 
 	case 'P':	/* password file for certificate database access */
 	    dbpassfile = opts.optarg;
+	    timeseries = 0;
 	    break;
 
 	case 'Q':	/* require clients to provide a trusted cert */
 	    __pmServerSetFeature(PM_SERVER_FEATURE_CERT_REQD);
 	    break;
 
-	case 's':	   /* path to local unix domain socket */
+	case 'r':	/* Redis port number */
+	    redis_port = (int)strtol(opts.optarg, NULL, 0);
+	    if (redis_port <= 0) {
+		pmprintf("%s: -r requires a positive value\n", pmGetProgname());
+		opts.errors++;
+	    }
+	    timeseries = 1;
+	    break;
+
+	case 's':	/* path to local unix domain socket */
 	    pmsprintf(sockpath, sizeof(sockpath), "%s", opts.optarg);
 	    break;
 
 	case 'S':	/* only allow authenticated clients */
 	    __pmServerSetFeature(PM_SERVER_FEATURE_CREDS_REQD);
+	    break;
+
+	case 't':	/* run in timeseries mode (libuv, REST APIs) */
+	    timeseries = 1;
 	    break;
 
 	case 'U':	/* run as user username */
@@ -189,128 +223,74 @@ ParseOptions(int argc, char *argv[], int *nports)
 	}
     }
 
-    if (usage || opts.errors || opts.optind < argc) {
+    /*
+     * Parse the configuration file, extracting a dictionary of key/value
+     * pairs.  Each key is "section.name" and values are always strings.
+     * If no config given, default is /etc/pcp/pmproxy.conf (in addition,
+     * local user path settings in $HOME/.pcp/pmproxy.conf are merged).
+     */
+    if ((config = pmIniFileSetup(inifile)) == NULL) {
+	pmprintf("%s: cannot setup from configuration file %s\n",
+			pmGetProgname(), inifile? inifile : "pmproxy.conf");
+	opts.errors++;
+    } else {
+	/* Extract pmproxy configuration information needed immediately */
+	if ((option = pmIniFileLookup(config, "pmproxy", "maxpending")))
+	    *maxpending = atoi(option);
+
+	/*
+	 * Push command line options into the configuration, and ensure
+	 * we have some default for attemping Redis server connections.
+	 */
+	if ((option = pmIniFileLookup(config, "pmseries", "servers")) == NULL ||
+	    (redis_host != NULL || redis_port != 6379)) {
+	    option = sdscatfmt(sdsempty(), "%s:%u",
+		    redis_host? redis_host : "localhost", redis_port);
+	    pmIniFileUpdate(config, "pmseries", "servers", option);
+	}
+    }
+
+#if !defined(HAVE_LIBUV)
+    if (timeseries) {
+	timeseries = 0;
+	pmprintf("%s: disabled time series, requires libuv support (missing)\n",
+			pmGetProgname());
+	pmflush();
+    }
+    server = &libpcp_pmproxy;
+#else
+    server = timeseries ? &libuv_pmproxy: &libpcp_pmproxy;
+#endif
+
+    if (opts.optind < argc)
+	opts.errors++;
+    if (opts.flags & PM_OPTFLAG_EXIT)
+	usage++;
+
+    if (usage || opts.errors) {
 	pmUsageMessage(&opts);
 	if (usage)
 	    exit(0);
 	DontStart();
     }
+
+    return timeseries;
 }
 
 /* Called to shutdown pmproxy in an orderly manner */
 void
 Shutdown(void)
 {
-    ShutdownPorts(server);
+    server->shutdown(info);
     __pmSecureServerShutdown();
     pmNotifyErr(LOG_INFO, "pmproxy Shutdown\n");
     fflush(stderr);
 }
 
-void
-SignalShutdown(void)
-{
-#ifdef HAVE_SA_SIGINFO
-#if DESPERATE
-    char	buf[256];
-#endif
-    if (killer_pid != 0) {
-	pmNotifyErr(LOG_INFO, "pmproxy caught %s from pid=%" FMT_PID " uid=%d\n",
-	    killer_sig == SIGINT ? "SIGINT" : "SIGTERM", killer_pid, killer_uid);
-#if DESPERATE
-	pmNotifyErr(LOG_INFO, "Try to find process in ps output ...\n");
-	pmsprintf(buf, sizeof(buf), "sh -c \". \\$PCP_DIR/etc/pcp.env; ( \\$PCP_PS_PROG \\$PCP_PS_ALL_FLAGS | \\$PCP_AWK_PROG 'NR==1 {print} \\$2==%" FMT_PID " {print}' )\"", killer_pid);
-	system(buf);
-#endif
-    }
-    else {
-	pmNotifyErr(LOG_INFO, "pmproxy caught %s from unknown process\n",
-			killer_sig == SIGINT ? "SIGINT" : "SIGTERM");
-    }
-#else
-    pmNotifyErr(LOG_INFO, "pmproxy caught %s\n",
-		killer_sig == SIGINT ? "SIGINT" : "SIGTERM");
-#endif
-    Shutdown();
-    exit(0);
-}
-
-#ifdef HAVE_SA_SIGINFO
-static void
-SigIntProc(int sig, siginfo_t *sip, void *x)
-{
-    killer_sig = sig;
-    if (sip != NULL) {
-	killer_pid = sip->si_pid;
-	killer_uid = sip->si_uid;
-    }
-    timeToDie = 1;
-}
-#elif IS_MINGW
-static void
-SigIntProc(int sig)
-{
-    SignalShutdown();
-}
-#else
-static void
-SigIntProc(int sig)
-{
-    killer_sig = sig;
-    signal(SIGINT, SigIntProc);
-    signal(SIGTERM, SigIntProc);
-    timeToDie = 1;
-}
-#endif
-
-static void
-SigBad(int sig)
-{
-    if (pmDebugOptions.desperate) {
-	pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
-	fprintf(stderr, "\nDumping to core ...\n");
-	__pmDumpStack(stderr);
-	fflush(stderr);
-    }
-    _exit(sig);
-}
-
-#if 0
-/*
- * Hostname extracted and cached for later use during protocol negotiations
- */
-static void
-GetProxyHostname(void)
-{
-    __pmHostEnt	*hep;
-    char        host[MAXHOSTNAMELEN];
-
-    if (gethostname(host, MAXHOSTNAMELEN) < 0) {
-        pmNotifyErr(LOG_ERR, "%s: gethostname failure\n", pmGetProgname());
-        DontStart();
-    }
-    host[MAXHOSTNAMELEN-1] = '\0';
-
-    hep = __pmGetAddrInfo(host);
-    if (hep == NULL) {
-        pmNotifyErr(LOG_ERR, "%s: __pmGetAddrInfo failure\n", pmGetProgname());
-        DontStart();
-    } else {
-        hostname = __pmHostEntGetName(hep);
-        if (!hostname) {	/* no reverse DNS lookup for local hostname */
-            hostname = strdup(host);
-            if (!hostname)	/* out of memory, we're having a bad day!?! */
-                pmNoMem("PMPROXY.hostname", strlen(host), PM_FATAL_ERR);
-        }
-        __pmHostEntFree(hep);
-    }
-}
-#endif
-
 void *
 GetServerInfo(void)
 {
-    return server;	/* deprecated access mode for server information */
+    return info;	/* deprecated access mode for server information */
 }
 
 #define ENV_WARN_PORT		1
@@ -325,10 +305,8 @@ main(int argc, char *argv[])
     int		localhost = 0;
     int		maxpending = MAXPENDING;
     int		env_warn = 0;
+    int		timeseries;
     char	*envstr;
-#ifdef HAVE_SA_SIGINFO
-    static struct sigaction act;
-#endif
 
     umask(022);
     pmGetUsername(&username);
@@ -348,7 +326,7 @@ main(int argc, char *argv[])
 	maxpending = atoi(envstr);
 	env_warn |= ENV_WARN_MAXPENDING;
     }
-    ParseOptions(argc, argv, &nport);
+    timeseries = ParseOptions(argc, argv, &nport, &maxpending);
 
     pmOpenLog(pmGetProgname(), logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */
@@ -360,8 +338,11 @@ main(int argc, char *argv[])
 
     if (localhost)
 	__pmServerAddInterface("INADDR_LOOPBACK");
-    if (nport == 0)
-        nport = __pmServerAddPorts(TO_STRING(PROXY_PORT));
+    if (nport == 0) {
+	nport = __pmServerAddPorts(TO_STRING(PROXY_PORT));
+	if (timeseries)
+	    nport = __pmServerAddPorts(TO_STRING(WEBAPI_PORT));
+    }
 
     /* Advertise the service on the network if that is supported */
     __pmServerSetServiceSpec(PM_SERVER_PROXY_SPEC);
@@ -369,21 +350,8 @@ main(int argc, char *argv[])
     if (run_daemon)
 	__pmServerStart(argc, argv, 1);
 
-#ifdef HAVE_SA_SIGINFO
-    act.sa_sigaction = SigIntProc;
-    act.sa_flags = SA_SIGINFO;
-    sigaction(SIGINT, &act, NULL);
-    sigaction(SIGTERM, &act, NULL);
-#else
-    __pmSetSignalHandler(SIGINT, SigIntProc);
-    __pmSetSignalHandler(SIGTERM, SigIntProc);
-#endif
-    __pmSetSignalHandler(SIGHUP, SIG_IGN);
-    __pmSetSignalHandler(SIGBUS, SigBad);
-    __pmSetSignalHandler(SIGSEGV, SigBad);
-
     /* Open non-blocking request ports for client connections */
-    if ((server = OpenRequestPorts(sockpath, maxpending)) == NULL)
+    if ((info = server->openports(sockpath, sizeof(sockpath), maxpending)) == NULL)
 	DontStart();
 
     if (env_warn & ENV_WARN_PORT)
@@ -403,7 +371,8 @@ main(int argc, char *argv[])
 	    DontStart();
     }
 
-    if (__pmSecureServerCertificateSetup(certdb, dbpassfile, cert_nickname) < 0)
+    if (!timeseries &&
+        __pmSecureServerCertificateSetup(certdb, dbpassfile, cert_nickname) < 0)
 	DontStart();
 
     fprintf(stderr, "pmproxy: PID = %" FMT_PID, (pid_t)getpid());
@@ -411,11 +380,11 @@ main(int argc, char *argv[])
 #ifdef HAVE_GETUID
     fprintf(stderr, ", user = %s (%d)\n", username, getuid());
 #endif
-    DumpRequestPorts(stderr, server);
+    server->dumpports(stderr, info);
     fflush(stderr);
 
     /* Loop processing client connections and server responses */
-    MainLoop(server);
+    server->loop(info);
     Shutdown();
     exit(0);
 }

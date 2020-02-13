@@ -7,7 +7,6 @@ HOST-SUMMARY-LINE
 -------------------------- analysis date: 2015/09/25 --------------------------
 
 11:03:19  cpu  %usr %nice %sys %irq %softirq  %steal %guest  %wait %idle  _cpu_
-11:03:19  ......................... logging restarted .........................
 
 11:03:21  cpu  %usr %nice %sys %irq %softirq  %steal %guest  %wait %idle  _cpu_
 11:03:21  all     4     0    1    0        0       0      0      2   392
@@ -32,9 +31,6 @@ HOST-SUMMARY-LINE
 
 -------------------------- analysis date: 2015/09/25 --------------------------
 
-11:03:19  disk           busy read/s KB/read  writ/s KB/writ avque avserv _dsk_
-11:03:19  ......................... logging restarted .........................
-
 11:03:21  disk           busy read/s KB/read  writ/s KB/writ avque avserv _dsk_
 11:03:21  sda              0%    0.2    18.1     0.2    14.6  14.9   6.23 ms
 11:03:22  
@@ -45,9 +41,6 @@ HOST-SUMMARY-LINE
 HOST-SUMMARY-LINE
 
 -------------------------- analysis date: 2015/09/25 --------------------------
-
-11:03:19  interf busy ipack/s opack/s iKbyte/s oKbyte/s imbps ombps maxmbps_if_
-11:03:19  ......................... logging restarted .........................
 
 11:03:21  interf busy ipack/s opack/s iKbyte/s oKbyte/s imbps ombps maxmbps_if_
 11:03:21  p2p1      ? 391124.0 275266.0   142586   101417  1168   830       0  
@@ -66,9 +59,6 @@ HOST-SUMMARY-LINE
 
 -------------------------- analysis date: 2015/09/25 --------------------------
 
-11:03:19  memtotal memfree buffers cached dirty slabmem  swptotal swpfree _mem_
-11:03:19  ......................... logging restarted .........................
-
 11:03:21  memtotal memfree buffers cached dirty slabmem  swptotal swpfree _mem_
 11:03:21     3849M    196M    275M  1553M    0M    357M    13661M  13652M
 11:03:22     3849M    195M    275M  1553M    0M    358M    13661M  13652M
@@ -79,9 +69,6 @@ HOST-SUMMARY-LINE
 HOST-SUMMARY-LINE
 
 -------------------------- analysis date: 2015/09/25 --------------------------
-
-11:03:19    pid command  cpu% |   pid command  cpu% |   pid command  cpu%_top3_
-11:03:19  ......................... logging restarted .........................
 
 11:03:21    pid command  cpu% |   pid command  cpu% |   pid command  cpu%_top3_
 11:03:21   7014 firefox    3% |   877 Xorg       1% |   556 java       0%
@@ -94,9 +81,6 @@ HOST-SUMMARY-LINE
 
 -------------------------- analysis date: 2015/09/25 --------------------------
 
-11:03:19    pid command  mem% |   pid command  mem% |   pid command  mem%_top3_
-11:03:19  ......................... logging restarted .........................
-
 11:03:21    pid command  mem% |   pid command  mem% |   pid command  mem%_top3_
 11:03:21   7014 firefox   14% |  6354 gnome-sh  10% |   556 java       5%
 11:03:22   7014 firefox   14% |  6354 gnome-sh  10% |   556 java       5%
@@ -104,6 +88,13 @@ HOST-SUMMARY-LINE
 
 == Checking sample count and interval
 OK
+
+HOST-SUMMARY-LINE
+
+-------------------------- analysis date: 2015/09/25 --------------------------
+
+11:03:21  memtotal memfree buffers cached dirty slabmem  swptotal swpfree _mem_
+11:03:21     3849M    196M    275M  1553M    0M    357M    13661M  13652M
 
 == Check handling of missing values
 pcp-atopsar: no per-processor values available

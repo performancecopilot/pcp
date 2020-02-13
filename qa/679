@@ -184,7 +184,7 @@ if [ -f $PCP_LOG_DIR/pmlogger/.NeedRewrite ]
 then
     echo "Arrg, .NeedRewrite still there ..."
     ls -l $PCP_LOG_DIR/pmlogger/.NeedRewrite
-    sudo rm -f $PCP_LOG_DIR/pmlogger/.NeedRewrite
+    $sudo rm -f $PCP_LOG_DIR/pmlogger/.NeedRewrite
 else
     echo ".NeedRewrite removed as expected"
 fi

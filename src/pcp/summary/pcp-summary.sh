@@ -1,6 +1,6 @@
 #! /bin/sh
 # 
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2015,2018 Red Hat.
 # Copyright (c) 1997,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -33,6 +33,17 @@ done
 # metrics
 metrics="pmcd.numagents pmcd.numclients pmcd.version pmcd.build pmcd.timezone pmcd.hostname pmcd.services pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
 pmiemetrics="pmcd.pmie.actions pmcd.pmie.eval.true pmcd.pmie.eval.false pmcd.pmie.eval.unknown pmcd.pmie.eval.expected"
+
+# process count with 'primary' (pid 0) instance removed
+_process()
+{
+    $PCP_AWK_PROG '
+BEGIN		{ count = 0 }
+$1 == "0"	{ next }
+$1 == "1"	{ next }
+		{ count++ }
+END		{ print count }'
+}
 
 _plural()
 {
@@ -310,12 +321,7 @@ then
     # need \n\n here to force line breaks when piped into fmt later
     #
     numloggers=`join $tmp/log_host $tmp/log_archive | sort \
-	| sed -e 's/"//g' | tee $tmp/log | $PCP_AWK_PROG '
-BEGIN		{ count = 0 }
-$1 == "0"	{ next }
-$1 == "1"	{ next }
-		{ count++ }
-END		{ print count }'`
+	| sed -e 's/"//g' | tee $tmp/log | _process`
 
     $PCP_AWK_PROG < $tmp/log > $tmp/loggers '
 BEGIN		{ primary=0 }
@@ -340,10 +346,10 @@ then
     sort $tmp/ie_numrules -o $tmp/ie_numrules
     if [ $Pflag = "true" ]; then
 	numpmies=`join $tmp/ie_host $tmp/ie_config | join - $tmp/ie_numrules \
-	    | sort -n | sed -e 's/"//g' | tee $tmp/pmie | wc -l | tr -d ' '`
+	    | sort -n | sed -e 's/"//g' | tee $tmp/pmie | _process`
     else
 	numpmies=`join $tmp/ie_host $tmp/ie_log \
-	    | sort -n | sed -e 's/"//g' | tee $tmp/pmie | wc -l | tr -d ' '`
+	    | sort -n | sed -e 's/"//g' | tee $tmp/pmie | _process`
     fi
 
     if [ $Pflag = "true" -a -f $tmp/ie_actions -a -f $tmp/ie_true -a \
@@ -361,7 +367,25 @@ then
 	mv $tmp/tmp $tmp/pmie
     fi
 
-    $PCP_AWK_PROG -v Pflag=$Pflag < $tmp/pmie '{
+    $PCP_AWK_PROG -v Pflag=$Pflag < $tmp/pmie '
+BEGIN		{ primary=0 }
+$1 == "0"	{ primary=$3; next }
+$3 == primary	{
+	if (Pflag == "true") {
+	    printf "primary engine: %s (%u rules)\n\n",$3,$4
+	    printf "evaluations true=%u false=%u unknown=%u (actions=%u)\n\n",$5,$6,$7,$8
+	    printf "expected evaluation rate=%.2f rules/sec\n\n",$9
+	} else {
+	    printf "primary engine: %s\n\n",$3
+	}
+    }' > $tmp/pmies
+
+    $PCP_AWK_PROG -v Pflag=$Pflag < $tmp/pmie '
+BEGIN		{ primary=0 }
+$1 == "0"	{ primary=$3; next }
+$1 == "1"	{ next }
+$3 == primary	{ next }
+    {
 	if (Pflag == "true") {
 	    printf "%s: %s (%u rules)\n\n",$2,$3,$4
 	    printf "evaluations true=%u false=%u unknown=%u (actions=%u)\n\n",$5,$6,$7,$8
@@ -369,7 +393,7 @@ then
 	} else {
 	    printf "%s: %s\n\n",$2,$3
 	}
-    }' > $tmp/pmies
+    }' >> $tmp/pmies
 else
     numpmies=0
 fi

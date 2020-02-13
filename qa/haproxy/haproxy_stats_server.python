@@ -79,9 +79,15 @@ while True:
     try:
         data = conn.recv(4096)
         if b'show info' in data:
-            conn.sendall(bytes(info, 'UTF-8'))
+            try:
+                conn.sendall(bytes(info, 'UTF-8'))
+            except:
+                conn.sendall(bytes(info))
         if b'show stat' in data:
-            conn.sendall(bytes(stat, 'UTF-8'))
+            try:
+                conn.sendall(bytes(stat, 'UTF-8'))
+            except:
+                conn.sendall(bytes(stat))
     finally:
         conn.close()
 stats.close()

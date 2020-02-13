@@ -1,7 +1,7 @@
 /*
  * PMCD privileged co-process (root) PMDA.
  *
- * Copyright (c) 2014-2017 Red Hat.
+ * Copyright (c) 2014-2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 #include "root.h"
 #include "lxc.h"
 #include "docker.h"
+#include "podman.h"
 #include "domain.h"
 
 #ifndef S_IRWXU
@@ -48,16 +49,6 @@ static pmdaIndom root_indomtab[NUM_INDOMS];
 #define INDOM(x) (root_indomtab[x].it_indom)
 #define INDOMTAB_SZ (sizeof(root_indomtab)/sizeof(root_indomtab[0]))
 
-
-json_metric_desc json_metrics[] = {
-    { "State/Pid", 0, 1, {0}, ""},
-    { "Name", 0, 1, {0}, ""},
-    { "State/Running", CONTAINER_FLAG_RUNNING, 1, {0}, ""},
-    { "State/Paused", CONTAINER_FLAG_PAUSED, 1, {0}, ""},
-    { "State/Restarting", CONTAINER_FLAG_RESTARTING, 1, {0}, ""},
-};
-
-
 static pmdaMetric root_metrictab[] = {
     { NULL, { PMDA_PMID(0, CONTAINERS_ENGINE), PM_TYPE_STRING,
 	CONTAINERS_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) } },
@@ -78,6 +69,14 @@ static pmdaMetric root_metrictab[] = {
 
 static container_engine_t engines[] = {
 #ifdef IS_LINUX
+    {
+	.name		= "podman",
+	.setup		= podman_setup,
+	.indom_changed	= podman_indom_changed,
+	.insts_refresh	= podman_insts_refresh,
+	.value_refresh	= podman_value_refresh,
+	.name_matching	= podman_name_matching,
+    },
     {
 	.name		= "docker",
 	.setup		= docker_setup,
@@ -773,6 +772,7 @@ root_main(pmdaInterface *dp)
 	readable_fds = connected_fds;
 	maxfd = root_maximum_fd + 1;
 
+	root_agent_wait(&sts);
 	setoserror(0);
 	sts = __pmSelectRead(maxfd, &readable_fds, NULL);
 	if (sts > 0) {

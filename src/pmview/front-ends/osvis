@@ -386,7 +386,7 @@ cpucolors="$cpucolors )"
 
 if [ -z "$titleArg" ]
 then
-    titleArg="SGI PCP : High-Level Activity for Host $host"
+    titleArg="PCP: High-Level Activity for Host $host"
 fi
 
 cat << end-of-file >> $tmp.conf

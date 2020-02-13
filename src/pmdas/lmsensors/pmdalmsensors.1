@@ -1,16 +1,16 @@
-.\" 
+.\"
 .\" Copyright (c) 2014, 2018 Red Hat.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .TH "PMDALMSENSORS" "1" "PCP" "Performance Co-Pilot" ""
 .SH "NAME"
 \f3pmdalmsensors.python\f1 \- Linux hardware monitoring performance metrics domain agent (PMDA)
@@ -22,47 +22,58 @@
 is a Performance Metrics Domain Agent (PMDA) which extracts
 performance metrics describing the state of hardware using
 the lm\-sensors software on compatible motherboards.
-.PP 
+.PP
 The
 .B lmsensors
 PMDA exports metrics that measure fan speeds and core temperatures.
-.PP 
 .SH "INSTALLATION"
 If you want access to the names, help text and values for the lmsensors
 performance metrics, do the following as root:
-.PP 
+.PP
 .ft CW
-.nf 
+.nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/lmsensors
 # ./Install
 .in
-.fi 
+.fi
 .ft 1
-.PP 
+.PP
 If you want to undo the installation, do the following as root:
-.PP 
+.PP
 .ft CW
-.nf 
+.nf
 .in +0.5i
 # cd $PCP_PMDAS_DIR/lmsensors
 # ./Remove
 .in
-.fi 
+.fi
 .ft 1
-.PP 
-pmdalmsensors.python is launched by
-.BR pmcd (1)
-The Install and Remove scripts notify
-.BR pmcd (1)
-when the agent is installed or removed.
-pmdalmsensors.python is usually not executed directly. For debugging
-purposes, 'debug' in the script can be set to 1 or 2.  When then
-running the script from command line, debug output is printed
-to STDOUT. This should just be used when running the script manually
-from the command line. To use the script from
-.BR pmcd (1)
-, the script should contain 'debug = 0'.
+.PP
+pmdalmsensors.python is usually launched by pmcd (1), and not
+executed directly. Direct execution is mostly used for debugging
+purposes.
+
+The Install and Remove scripts notify pmcd (1) when the agent
+is installed or removed.
+.SH "OPTIONS"
+.PP
+pmdalmsensors.python supports the following options.
+.TP
+\fB\-i\fR, \fB\-\-inject\fR
+inject data from file instead of using sensors
+.TP
+\fB\-d\fR, \fB\-\-debug\fR
+debug level: 0 (default), 1 or 2
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show a help message
+
+To use options while pmdalmsensors.python is run from PMCD,
+you might want to use 'args' in the 'Install' stript, for
+example
+
+args="\-i /path/static_sensors_output.txt"
 .SH "FILES"
 .PD 0
 .TP 10
@@ -79,7 +90,7 @@ installation script for the
 agent
 .TP 10
 .B $PCP_PMDAS_DIR/lmsensors/Remove
-undo installation script for the 
+undo installation script for the
 .B pmdalmsensors
 agent
 .PD
@@ -97,9 +108,10 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
-.SH "SEE ALSO"
+.SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
-.BR pcp.conf (5)
+.BR pcp.conf (5),
+.BR pcp.env (5)
 and
-.BR pcp.env (5).
+.BR sensors (1).

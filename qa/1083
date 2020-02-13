@@ -21,10 +21,12 @@ _cleanup()
     cd $here
     _service pmcd stop >>$here/$seq.full 2>&1
     $restore_pcpqa_systemd && export PCPQA_SYSTEMD=$save_pcpqa_systemd
-    _service pcp restart | _filter_pcp_start
-    _restore_auto_restart
+    _restore_auto_restart pmcd
+    _service pmcd restart 2>&1 | _filter_pcp_start
     _wait_for_pmcd
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p]mcd|[P]ID' >>$here/$seq.full
+    _restore_auto_restart pmlogger
+    _service pmlogger restart 2>&1 | _filter_pcp_start
     _wait_for_pmlogger
     $sudo rm -rf $tmp $tmp.*
 }
@@ -43,14 +45,16 @@ then
 fi
 unset PCPQA_SYSTEMD
 
-_stop_auto_restart
+_stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 
 # get to a known starting point as far as systemd is concerned
 #
-ls -ld $tmp >>$here/$seq.full 2>&1
+date >>$here/$seq.full 2>&1
 _service pmcd restart >>$here/$seq.full 2>&1
-ls -ld $tmp >>$here/$seq.full 2>&1
+date >>$here/$seq.full 2>&1
 _wait_for_pmcd
+date >>$here/$seq.full 2>&1
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p]mcd|[P]ID' >>$here/$seq.full
 
 # real QA test starts here

@@ -48,10 +48,10 @@ _filter()
 	# OpenBSD-style fmt
         # -w width
 	cmd="fmt -w 76"
-    elif fmt --help 2>&1 | grep '.-m ' >/dev/null
+    elif fmt --help 2>&1 | grep '.-[mg] ' >/dev/null
     then
 	# NetBSD's version of fmt is different (may apply to other variants) ...
-	cmd="fmt -g 76 -m 77"
+	cmd="fmt -g 74 -m 75"
     else
 	echo "Warning: no clue how to set max line length for fmt(1)"
 	cmd="fmt"
@@ -78,7 +78,7 @@ END				{ if ( eatlines ) {
 				  }
 				}
 				{ print }' \
-    | sed -f $tmp/sed \
+    | sed -f $tmp.sed \
     | sed \
 	-e "s;$tmp;TMP;g" \
 	-e "s/`hostname`/HOST/g" \
@@ -91,6 +91,16 @@ END				{ if ( eatlines ) {
 /-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
 		{ print }' \
     | _filter_cron_scripts
+}
+
+_fixperms()
+{
+    # pmlogger_daily runs as the user "pcp" ... fix ownership
+    #
+    $sudo touch $tmp.log
+    find $tmp.log $tmp/* -type f | xargs $sudo chown $PCP_USER:$PCP_GROUP
+    find $tmp/* -type d | xargs -r $sudo chown $PCP_USER:$PCP_GROUP
+    $sudo chown $PCP_USER:$PCP_GROUP $tmp
 }
 
 _cleanup()
@@ -117,7 +127,7 @@ unset verbose
 verbose_text=''
 for loop in 1 2
 do
-    echo >$tmp/sed
+    echo >$tmp.sed
     for day in 0 1 2 3 4 5
     do
 	fmt=%Y%m%d
@@ -136,65 +146,68 @@ do
 	yesterday=`pmdate -1d ${hour}H ${min2}M $fmt`
 	stampa=`echo $namea | sed -e 's/\.//g'`
 	stampb=`echo $nameb | sed -e 's/\.//g'`
-	echo "s/$namea/NOW-$day.00.02/g" >>$tmp/sed
-	echo "s/$nameb/NOW-$day.00.04/g" >>$tmp/sed
+	echo "s/$namea/NOW-$day.00.02/g" >>$tmp.sed
+	echo "s/$nameb/NOW-$day.00.04/g" >>$tmp.sed
 
 	for ext in 0 index meta
 	do
-	    cp archives/arch_a.$ext $tmp/$namea.$ext
-	    touch -t $stampa $tmp/$namea.$ext
-	    cp archives/arch_b.$ext $tmp/$nameb.$ext
-	    touch -t $stampb $tmp/$nameb.$ext
+	    $sudo cp archives/arch_a.$ext $tmp/$namea.$ext
+	    $sudo touch -t $stampa $tmp/$namea.$ext
+	    $sudo cp archives/arch_b.$ext $tmp/$nameb.$ext
+	    $sudo touch -t $stampb $tmp/$nameb.$ext
 	done
     done
-    echo "s/NOW-0/TODAY/g" >>$tmp/sed
-    echo "s/NOW-1/YESTERDAY/g" >>$tmp/sed
-    echo "s/`pmdate %Y%m%d`/TODAY/g" >>$tmp/sed
-    echo "s/$yesterday/YESTERDAY/g" >>$tmp/sed
+    echo "s/NOW-0/TODAY/g" >>$tmp.sed
+    echo "s/NOW-1/YESTERDAY/g" >>$tmp.sed
+    echo "s/`pmdate %Y%m%d`/TODAY/g" >>$tmp.sed
+    echo "s/$yesterday/YESTERDAY/g" >>$tmp.sed
 
-    echo >$tmp/control '$version=1.1
+    echo >$tmp.control '$version=1.1
 LOCALHOSTNAME	n   n	'"$tmp"'	./config'
 
-    cat $tmp/sed >>$seq.full
+    cat $tmp.sed >>$seq.full
     echo >>$seq.full
 
     echo
     echo "=== [$verbose_text] regular show ==="
     echo "=== [$verbose_text] regular show ===" >>$seq.full
-    $sudo $PCP_BINADM_DIR/pmlogger_daily -o -x forever -c $tmp/control -k 3 $verbose -l $tmp.log
+    _fixperms
+    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -o -x forever -c $tmp.control -k 3 $verbose -l $tmp.log
 
     $sudo cat $tmp.log | _filter
     ls -lt $tmp >>$seq.full
-    ls $tmp | sed -f $tmp/sed | tee -a $seq.full | LC_COLLATE=POSIX sort
+    ls $tmp | sed -f $tmp.sed | tee -a $seq.full | LC_COLLATE=POSIX sort
 
     echo
     echo "=== [$verbose_text] nothing to do but cull some more ==="
     echo "=== [$verbose_text] nothing to do but cull some more ===" >>$seq.full
     for ext in 0 index meta
     do
-	mv $tmp/$yesterday.$ext $tmp/save.$ext
+	$sudo mv $tmp/$yesterday.$ext $tmp/save.$ext
     done
-    $sudo $PCP_BINADM_DIR/pmlogger_daily -o -x forever -c $tmp/control -k 2 $verbose -l $tmp.log
+    _fixperms
+    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -o -x forever -c $tmp.control -k 2 $verbose -l $tmp.log
     $sudo cat $tmp.log | _filter
     ls -lt $tmp >>$seq.full
-    ls $tmp | sed -f $tmp/sed | tee -a $seq.full | LC_COLLATE=POSIX sort
+    ls $tmp | sed -f $tmp.sed | tee -a $seq.full | LC_COLLATE=POSIX sort
 
     echo
     echo "=== [$verbose_text] error, output already exists ==="
     echo "=== [$verbose_text] error, output already exists ===" >>$seq.full
     for ext in 0 index meta
     do
-	cp archives/arch_a.$ext $tmp/$yesterday.17.18.$ext
-	mv $tmp/save.$ext $tmp/$yesterday.$ext
+	$sudo cp archives/arch_a.$ext $tmp/$yesterday.17.18.$ext
+	$sudo mv $tmp/save.$ext $tmp/$yesterday.$ext
     done
-    $sudo $PCP_BINADM_DIR/pmlogger_daily -o -x forever -c $tmp/control -k 2 $verbose -l $tmp.log
+    _fixperms
+    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -o -x forever -c $tmp.control -k 2 $verbose -l $tmp.log
     $sudo cat $tmp.log | _filter
     ls -lt $tmp >>$seq.full
-    ls $tmp | sed -f $tmp/sed | tee -a $seq.full | LC_COLLATE=POSIX sort
+    ls $tmp | sed -f $tmp.sed | tee -a $seq.full | LC_COLLATE=POSIX sort
 
     verbose=-V
     verbose_text='verbose'
-    rm -f $tmp/*
+    $sudo rm -f $tmp/*
 done
 
 # all done

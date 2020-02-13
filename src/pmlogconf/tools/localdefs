@@ -4,7 +4,10 @@ FILES = \
 	atop-summary \
 	atop-httpstats \
 	atop-nfsclient \
+	atop-perfevent \
 	atop-hotproc \
+	atop-gpustats \
+	atop-infiniband \
 	collectl \
 	collectl-summary \
 	collectl-interrupts \

@@ -1,23 +1,21 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMGENMAP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmgenmap\f1 \- generate C code to simplify handling of performance metrics
-.\" literals use .B or \f3
-.\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3pmgenmap\f1
 [\f2infile\f1]
@@ -94,15 +92,16 @@ must conform to the
 macro naming rules, and each
 .CW metricname
 is expected to be a valid performance metrics name (see
-.BR pmns (5)
+.BR PMNS (5)
 for more details).
 .PP
 The input may include
 .BR sh -style
 comment lines, i.e. with a `\f3#\f1' as the first non-blank character of a
 line, and these are translated on output to either single line or multi-line C
-comments in the K&R style.  For example, the input:
-
+comments in the K&R style.
+For example, the input:
+.sp
 .PP
 .ft CW
 .nf
@@ -121,8 +120,8 @@ foo {
 .in
 .fi
 .ft 1
+.sp
 .PP
-
 Produces the output:
 .PP
 .ft CW
@@ -151,7 +150,7 @@ char *foo[] = {
 .in
 .fi
 .ft 1
-.SH EXAMPLE
+.SH EXAMPLES
 For brevity we have removed the error handling code, and assumed the chosen
 metrics do not have multiple values.
 .PP
@@ -222,7 +221,7 @@ Subsystem (PMCS) as follows:
     pmLookupName(numpmid, mystats, pmidlist);
     pmFetch(numpmid, pmidlist, &resp);
 
-    printf("%d CPUs: %d usr   %d sys   %d   idle\n", 
+    printf("%d CPUs: %d usr   %d sys   %d   idle\n",
            resp->vset[NCPU]->vlist[0].value.lval,
            resp->vset[USER]->vlist[0].value.lval,
            resp->vset[SYS]->vlist[0].value.lval,
@@ -233,7 +232,8 @@ Subsystem (PMCS) as follows:
 .PP
 Some calls to ensure portability have been removed from the code above for the
 sake of clarity \- the example above should not be used as a template for
-programming.  In particular, the raw values of the metrics were used when
+programming.
+In particular, the raw values of the metrics were used when
 .BR pmLookupDesc (3)
 should have been called to determine the semantics of each metric.
 .PP
@@ -243,25 +243,16 @@ which may be used as a basis for program development are included in the
 PCP demos, e.g.
 .IR $PCP_DEMOS_DIR/pmclient .
 .SH FILES
-.PD 0
-.TP 10
-.BI $PCP_VAR_DIR/pmns/ *
+.TP 5
+.I $PCP_VAR_DIR/pmns/*
 default PMNS specification files
-.PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR cpp (1),
 .BR PMAPI (3),
@@ -271,4 +262,4 @@ as described in
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and
-.BR pmns (5).
+.BR PMNS (5).

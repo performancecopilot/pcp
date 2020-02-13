@@ -1,0 +1,918 @@
+QA output created by 1543
+
+*****   GET /pmapi/context   *****
+
+== Check default context creation ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+== Check hostname parameter ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+== Check hostspec parameter ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+== Pinging active context via URL ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+Context ping success
+== Check polltimeout parameters ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+== Pinging now-expired context via URL ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+Context successfully expired
+== Pinging now-expired context via parameter ==
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostname": "HOSTNAME"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    }
+}
+Context successfully expired
+
+*****   GET /pmapi/metric   *****
+
+== metric name ==
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+== metric prefix ==
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.one",
+            "series": "SERIES"
+            "pmid": "29.0.10",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "1 as a 32-bit integer",
+            "text-help": "1 as a 32-bit integer"
+        },
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        },
+        {
+            "name": "sample.long.hundred",
+            "series": "SERIES"
+            "pmid": "29.0.12",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "100 as a 32-bit integer",
+            "text-help": "100 as a 32-bit integer"
+        },
+        {
+            "name": "sample.long.million",
+            "series": "SERIES"
+            "pmid": "29.0.13",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "1000000 as a 32-bit integer",
+            "text-help": "1000000 as a 32-bit integer"
+        },
+        {
+            "name": "sample.long.write_me",
+            "series": "SERIES"
+            "pmid": "29.0.14",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "a 32-bit integer that can be modified",
+            "text-help": "a 32-bit integer that can be modified"
+        },
+        {
+            "name": "sample.long.bin",
+            "series": "SERIES"
+            "pmid": "29.0.103",
+            "indom": "29.2",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "like sample.bin but type 32",
+            "text-help": "like sample.bin but type 32"
+        },
+        {
+            "name": "sample.long.bin_ctr",
+            "series": "SERIES"
+            "pmid": "29.0.104",
+            "indom": "29.2",
+            "type": "32",
+            "sem": "counter",
+            "units": "Kbyte",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE",
+            "text-help": "like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE"
+        }
+    ]
+}
+== bad metric name ==
+{
+    "context": "CONTEXT"
+    "message": "bad.metric traversal failed - Unknown metric name",
+    "success": false
+}
+
+*****   GET /pmapi/fetch   *****
+
+== fetch by name ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.10",
+            "name": "sample.long.one",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 1
+                }
+            ]
+        }
+    ]
+}
+== fetch by names ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.10",
+            "name": "sample.long.one",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 1
+                }
+            ]
+        }
+    ]
+}
+== fetch by pmid ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.10",
+            "name": "sample.long.one",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 1
+                }
+            ]
+        }
+    ]
+}
+== fetch by pmids ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.10",
+            "name": "sample.long.one",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 1
+                }
+            ]
+        },
+        {
+            "pmid": "29.0.11",
+            "name": "sample.long.ten",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 10
+                }
+            ]
+        }
+    ]
+}
+== bad name fetch ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [    ]
+}
+== bad pmid fetch ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [    ]
+}
+== some good some bad names fetch ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.10",
+            "name": "sample.long.one",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 1
+                }
+            ]
+        }
+    ]
+}
+== some good some bad pmids fetch ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.11",
+            "name": "sample.long.ten",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 10
+                }
+            ]
+        }
+    ]
+}
+== fetch string by name ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.31",
+            "name": "sample.string.hullo",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": "hullo world!"
+                }
+            ]
+        }
+    ]
+}
+
+*****   GET /pmapi/indom   *****
+
+== instances by name ==
+{
+    "context": "CONTEXT"
+    "indom": "29.2",
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    },
+    "text-oneline": "Instance domain \u0022bin\u0022 for sample PMDA",
+    "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\u000A\u0022bin-100\u0022 .. \u0022bin-900\u0022",
+    "instances": [
+        {
+            "instance": 900,
+            "name": "bin-900",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 100,
+            "name": "bin-100",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 800,
+            "name": "bin-800",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 400,
+            "name": "bin-400",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 500,
+            "name": "bin-500",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 300,
+            "name": "bin-300",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 200,
+            "name": "bin-200",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 600,
+            "name": "bin-600",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 700,
+            "name": "bin-700",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        }
+    ]
+}
+== instances by indom ==
+{
+    "context": "CONTEXT"
+    "indom": "29.2",
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    },
+    "text-oneline": "Instance domain \u0022bin\u0022 for sample PMDA",
+    "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\u000A\u0022bin-100\u0022 .. \u0022bin-900\u0022",
+    "instances": [
+        {
+            "instance": 900,
+            "name": "bin-900",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 100,
+            "name": "bin-100",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 800,
+            "name": "bin-800",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 400,
+            "name": "bin-400",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 500,
+            "name": "bin-500",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 300,
+            "name": "bin-300",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 200,
+            "name": "bin-200",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 600,
+            "name": "bin-600",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 700,
+            "name": "bin-700",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        }
+    ]
+}
+== bad indom name parameter ==
+{
+    "context": "CONTEXT"
+    "message": "no.such.metric - failed to lookup metric",
+    "success": false
+}
+== bad indom parameter ==
+{
+    "context": "CONTEXT"
+    "indom": "0.0",
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    },
+    "instances": [    ]
+}
+== no indom parameters ==
+<html>
+<head><title>400 Bad Request</title></head>
+<body>
+<h1>400 Bad Request</h1>
+<p><b>webapi servlet</b>: failed to process URL</p><hr>
+<p><small><i>pmproxy/VERSION</i></small></p>
+</body>
+</html>
+== individual instances ==
+{
+    "context": "CONTEXT"
+    "indom": "29.2",
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+    },
+    "text-oneline": "Instance domain \u0022bin\u0022 for sample PMDA",
+    "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\u000A\u0022bin-100\u0022 .. \u0022bin-900\u0022",
+    "instances": [
+        {
+            "instance": 100,
+            "name": "bin-100",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        },
+        {
+            "instance": 200,
+            "name": "bin-200",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+            }
+        }
+    ]
+}
+
+*****   GET /pmapi/children   *****
+
+== PMNS children of a nonleaf node ==
+{
+    "context": "CONTEXT"
+    "name": "sample.dynamic",
+    "leaf": [
+        "counter",
+        "discrete",
+        "instant"
+    ],
+    "nonleaf": [
+        "meta"
+    ]
+}
+== PMNS children of a leaf node ==
+{
+    "context": "CONTEXT"
+    "name": "sample.long.one",
+    "leaf": [    ],
+    "nonleaf": [    ]
+}
+== PMNS children of non-existent node ==
+{
+    "context": "CONTEXT"
+    "message": "child traversal failed - Unknown metric name",
+    "success": false
+}
+
+*****   GET /pmapi/profile   *****
+
+== add all sample.colour instances ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== del instances by name ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== check restricted context profile ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.5",
+            "name": "sample.colour",
+            "instances": [
+                {
+                    "instance": 2,
+                    "value": VALUE
+                }
+            ]
+        }
+    ]
+}
+== add all instances ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== check unrestricted context profile ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.5",
+            "name": "sample.colour",
+            "instances": [
+                {
+                    "instance": 2,
+                    "value": VALUE
+                },
+                {
+                    "instance": 0,
+                    "value": VALUE
+                },
+                {
+                    "instance": 1,
+                    "value": VALUE
+                }
+            ]
+        }
+    ]
+}
+== add specific instance ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== del all instances ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== add instances by name ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== del specific instance ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+
+*****   GET /pmapi/store   *****
+
+== store value by name ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== check stored value by name ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.14",
+            "name": "sample.long.write_me",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 42
+                }
+            ]
+        }
+    ]
+}
+== store value by pmid ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== check stored value by pmid ==
+{
+    "context": "CONTEXT"
+    "timestamp": TIME,
+    "values": [
+        {
+            "pmid": "29.0.14",
+            "name": "sample.long.write_me",
+            "instances": [
+                {
+                    "instance": null,
+                    "value": 2
+                }
+            ]
+        }
+    ]
+}
+== instance store by name and iname ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== instance store by name and instance ID ==
+{
+    "context": "CONTEXT"
+    "success": true
+}
+== store to invalid metric name ==
+{
+    "context": "CONTEXT"
+    "message": "no.such.metric - failed to lookup metric",
+    "success": false
+}
+
+*****   GET /metrics   *****
+
+== scrape one metric ==
+# PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# HELP sample_long_one 1 as a 32-bit integer
+# TYPE sample_long_one gauge
+sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1
+== scrape two metrics ==
+# PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# HELP sample_long_one 1 as a 32-bit integer
+# TYPE sample_long_one gauge
+sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1
+# PCP5 sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
+# HELP sample_long_ten 10 as a 32-bit integer
+# TYPE sample_long_ten gauge
+sample_long_ten{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 10
+== scrape bad metric name ==
+{
+    "context": "CONTEXT"
+    "message": "'no.such.metric' - Unknown metric name",
+    "success": false
+}
+== scrape one metric tree ==
+# PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# HELP sample_long_one 1 as a 32-bit integer
+# TYPE sample_long_one gauge
+sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1
+# PCP5 sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
+# HELP sample_long_ten 10 as a 32-bit integer
+# TYPE sample_long_ten gauge
+sample_long_ten{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 10
+# PCP5 sample.long.hundred 29.0.12 32 PM_INDOM_NULL instant none
+# HELP sample_long_hundred 100 as a 32-bit integer
+# TYPE sample_long_hundred gauge
+sample_long_hundred{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 100
+# PCP5 sample.long.million 29.0.13 32 PM_INDOM_NULL instant none
+# HELP sample_long_million 1000000 as a 32-bit integer
+# TYPE sample_long_million gauge
+sample_long_million{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1000000
+# PCP5 sample.long.write_me 29.0.14 32 PM_INDOM_NULL instant none
+# HELP sample_long_write_me a 32-bit integer that can be modified
+# TYPE sample_long_write_me gauge
+sample_long_write_me{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",changed="true"} 2
+# PCP5 sample.long.bin 29.0.103 32 29.2 instant none
+# HELP sample_long_bin like sample.bin but type 32
+# TYPE sample_long_bin gauge
+sample_long_bin{instname="bin-100",instid="100",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="100"} 100
+sample_long_bin{instname="bin-200",instid="200",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="200"} 200
+sample_long_bin{instname="bin-300",instid="300",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="300"} 300
+sample_long_bin{instname="bin-400",instid="400",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="400"} 400
+sample_long_bin{instname="bin-500",instid="500",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="500"} 500
+sample_long_bin{instname="bin-600",instid="600",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="600"} 600
+sample_long_bin{instname="bin-700",instid="700",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="700"} 700
+sample_long_bin{instname="bin-800",instid="800",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="800"} 800
+sample_long_bin{instname="bin-900",instid="900",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="900"} 900
+# PCP5 sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
+# HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
+# TYPE sample_long_bin_ctr counter
+sample_long_bin_ctr{instname="bin-100",instid="100",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="100"} 100
+sample_long_bin_ctr{instname="bin-200",instid="200",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="200"} 200
+sample_long_bin_ctr{instname="bin-300",instid="300",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="300"} 300
+sample_long_bin_ctr{instname="bin-400",instid="400",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="400"} 400
+sample_long_bin_ctr{instname="bin-500",instid="500",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="500"} 500
+sample_long_bin_ctr{instname="bin-600",instid="600",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="600"} 600
+sample_long_bin_ctr{instname="bin-700",instid="700",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="700"} 700
+sample_long_bin_ctr{instname="bin-800",instid="800",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="800"} 800
+sample_long_bin_ctr{instname="bin-900",instid="900",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME",bin="900"} 900
+== scrape metric instances ==
+# PCP5 sample.colour 29.0.5 32 29.1 instant none
+# HELP sample_colour Metrics with a "saw-tooth" trend over time
+# TYPE sample_colour gauge
+sample_colour{instname="red",instid="0",model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 143
+sample_colour{instname="green",instid="1",model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 244
+sample_colour{instname="blue",instid="2",model="RGB",hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 345
+== scrape all metrics ==
+done full scrape
+== check pmproxy is running ==
+pmproxy check passed
+
+*****   GET and POST /pmapi/derive   *****
+
+== derive by GET ==
+{
+    "success": true
+}
+== derive by POST ==
+{
+    "success": true
+}
+== missing derive expr parameter ==
+{
+    "message": "invalid derive parameters",
+    "success": false
+}
+== missing derive name parameter ==
+{
+    "message": "failed to parse derived metric \u0022hinv.ncpu*42\u0022 on line 0 - incomplete expression\u000A",
+    "success": false
+}
+
+*****   Generic errors - no handler, bad URLs   *****
+
+== no servlet ==
+<html>
+<head><title>400 Bad Request</title></head>
+<body>
+<h1>400 Bad Request</h1>
+<p><b>unknown servlet</b>: no handler for URL</p><hr>
+<p><small><i>pmproxy/VERSION</i></small></p>
+</body>
+</html>
+== no command ==
+<html>
+<head><title>400 Bad Request</title></head>
+<body>
+<h1>400 Bad Request</h1>
+<p><b>unknown servlet</b>: no handler for URL</p><hr>
+<p><small><i>pmproxy/VERSION</i></small></p>
+</body>
+</html>
+== bad command ==
+<html>
+<head><title>400 Bad Request</title></head>
+<body>
+<h1>400 Bad Request</h1>
+<p><b>unknown servlet</b>: no handler for URL</p><hr>
+<p><small><i>pmproxy/VERSION</i></small></p>
+</body>
+</html>
+== bad servlet ==
+<html>
+<head><title>400 Bad Request</title></head>
+<body>
+<h1>400 Bad Request</h1>
+<p><b>unknown servlet</b>: no handler for URL</p><hr>
+<p><small><i>pmproxy/VERSION</i></small></p>
+</body>
+</html>

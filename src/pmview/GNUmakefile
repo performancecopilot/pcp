@@ -24,7 +24,9 @@ HEADERS = $(CLASSES) modobj.h
 GENERATED = gram.cpp lex.cpp 
 LFILES = lex.l
 YFILES = gram.y
-LDIRT = $(COMMAND) $(WRAPPER) $(XMLFILE) $(GENERATED) gram.h y.tab.? images
+LDIRT = $(COMMAND) $(WRAPPER) $(XMLFILE) $(GENERATED) gram.h gram.c images
+
+MAN_PAGES = $(COMMAND).1 $(COMMAND).5
 
 SUBDIRS = front-ends
 
@@ -43,11 +45,11 @@ build-me:: $(SUBDIRS)
 lex.cpp:	lex.l
 	$(LEX) -t lex.l > $@
 
-gram.h y.tab.c:	gram.y
-	$(YACC) -d gram.y && cp y.tab.h gram.h
+gram.c gram.h:	gram.y
+	$(YACC) -d -b `basename $< .y` $< && mv gram.tab.h gram.h && mv gram.tab.c gram.c
 
-gram.cpp:	y.tab.c
-	cp y.tab.c $@
+gram.cpp:	gram.c
+	cp gram.c $@
 
 lex.o:	gram.h
 
@@ -105,3 +107,6 @@ images: $(ICNFILE)
 
 $(ICNFILE):
 	$(LN_S) $(TOPDIR)/images/$(ICNFILE) $(ICNFILE)
+
+check :: $(MAN_PAGES)
+	$(MANLINT) $^

@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
+ * 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but
+ * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
 #ifndef SERIES_LOAD_H
 #define SERIES_LOAD_H
@@ -17,9 +17,15 @@
 #include "pmapi.h"
 #include "pmwebapi.h"
 
+#ifdef HAVE_LIBUV
+#include <uv.h>
+#else
+typedef void *uv_timer_t;
+#endif
+
 typedef struct seriesname {
-    sds			sds;		/* external sds for this series */
-    long long		mapid;		/* internal string identifiers */
+    sds			sds;		/* external name for the series */
+    unsigned char	id[20];		/* SHA1 of external series name */
     unsigned char	hash[20];	/* SHA1 of intrinsic metadata */
 } seriesname_t;
 
@@ -27,25 +33,41 @@ typedef struct context {
     seriesname_t	name;		/* source archive or hostspec */
     sds			host;		/* hostname from archive/host */
     sds			origin;		/* host where series loaded in */
-    long long		hostid;		/* hostname source identifier */
+    sds			username;	/* authentication information */
+    sds			password;	/* authentication information */
+    sds			realm;		/* authentication information */
+    unsigned char	hostid[20];	/* SHA1 of host identifier */
     double		location[2];	/* latitude and longitude */
-    unsigned int	type	: 7;
-    unsigned int	cached	: 1;
-    int			context;	/* PMAPI context */
-    int			nmetrics;
-    const char		**metrics;	/* metric specification strings */
-    pmLabelSet		*labels;
+    unsigned int	type	: 7;	/* PMAPI context type */
+    unsigned int	setup	: 1;	/* context established */
+    unsigned int	cached	: 1;	/* context/source in cache */
+    unsigned int	garbage	: 1;	/* context pending removal */
+    unsigned int	updated : 1;	/* context labels are updated */
+    unsigned int	padding : 21;	/* zero-filled struct padding */
+    unsigned int	timeout;	/* context timeout in milliseconds */
+    uv_timer_t		timer;
+    int			context;	/* PMAPI context handle */
+    int			randomid;	/* random number identifier */
+    struct dict		*pmids;		/* metric pmID to metric struct */
+    struct dict		*metrics;	/* metric names to metric struct */
+    struct dict		*indoms;	/* indom number to indom struct */
+    struct dict		*domains;	/* domain number to domain struct */
+    struct dict		*clusters;	/* domain+cluster to cluster struct */
+    sds			labels;		/* context labelset as string */
+    pmLabelSet		*labelset;	/* labelset at context level */
+    void		*privdata;
 } context_t;
 
 typedef struct domain {
     unsigned int	domain;
+    unsigned int	updated;	/* domain labels are updated */
     context_t		*context;
-    pmLabelSet		*labels;
+    pmLabelSet		*labelset;
 } domain_t;
 
 typedef struct labellist {
-    long long		nameid;
-    long long		valueid;
+    unsigned char	nameid[20];
+    unsigned char	valueid[20];
     sds			name;
     sds			value;
     unsigned int	flags;
@@ -57,21 +79,32 @@ typedef struct labellist {
 typedef struct instance {
     seriesname_t	name;		/* instance naming information */
     unsigned int	inst;		/* internal instance identifier */
-    pmLabelSet		*labels;	/* instance labels or NULL */
+    unsigned int	cached : 1;	/* metadata is already cached */
+    unsigned int	updated : 1;	/* instance labels are updated */
+    unsigned int	padding : 30;
+    sds			labels;		/* fully merged inst labelset */
+    pmLabelSet		*labelset;	/* labels at inst level or NULL */
     labellist_t		*labellist;	/* label name/value mapping set */
 } instance_t;
 
 typedef struct indom {
     pmInDom		indom;
     domain_t		*domain;
-    pmLabelSet		*labels;
+    unsigned int	cached : 1;	/* metadata written into cache */
+    unsigned int	updated : 1;	/* instance labels are updated */
+    unsigned int	padding : 30;	/* zero-fill structure padding */
+    sds			helptext;	/* indom help text (optional) */
+    sds			oneline;	/* indom oneline text (optional) */
+    sds			labels;		/* fully merged indom labelset */
+    pmLabelSet		*labelset;	/* labels at indom level or NULL */
     struct dict		*insts;		/* map identifiers to instances */
 } indom_t;
 
 typedef struct cluster {
     unsigned int	cluster;
+    unsigned int	updated;	/* cluster labels are updated */
     domain_t		*domain;
-    pmLabelSet		*labels;
+    pmLabelSet		*labelset;
 } cluster_t;
 
 typedef struct value {
@@ -90,13 +123,16 @@ typedef struct metric {
     pmDesc		desc;
     cluster_t		*cluster;
     indom_t		*indom;
-    pmLabelSet		*labels;	/* metric item labels or NULL */
+    sds			helptext;	/* metric help text (optional) */
+    sds			oneline;	/* oneline help text (optional) */
+    sds			labels;		/* fully merged metric labelset */
+    pmLabelSet		*labelset;	/* metric item labels or NULL */
     labellist_t		*labellist;	/* label name/value mapping set */
     seriesname_t	*names;		/* metric names and mappings */
     unsigned int	numnames : 16;	/* count of metric PMNS entries */
     unsigned int	padding : 14;	/* zero-fill structure padding */
     unsigned int	updated : 1;	/* last sample returned success */
-    unsigned int	cached : 1;	/* metadata is already cached */
+    unsigned int	cached : 1;	/* metadata written into cache */
     int			error;		/* a PMAPI negative error code */
     union {
 	pmAtomValue	atom;		/* singleton value (PM_IN_NULL) */
@@ -112,7 +148,5 @@ extern void doneSeriesLoadBaton(struct seriesLoadBaton *, const char *);
 
 extern context_t *seriesLoadBatonContext(struct seriesLoadBaton *);
 extern void seriesLoadBatonFetch(struct seriesLoadBaton *);
-
-extern void *findID(struct dict *, void *);
 
 #endif	/* SERIES_LOAD_H */

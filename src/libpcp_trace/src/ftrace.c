@@ -120,11 +120,11 @@ pmtraceerrstr_(int *code, char *msg, int msg_len)
 
     tmp = pmtraceerrstr(*code);
     len = (int)strlen(tmp);
-    len = (len < msg_len ? len : msg_len);
+    len = (len < msg_len) ? len : msg_len;
 
-    strncpy(msg, tmp, len);
+    strncpy(msg, tmp, msg_len);
     for (; len < msg_len; len++)	/* blank fill */
-	msg[len-1] = ' ';
+	msg[len] = ' ';
 }
 
 int

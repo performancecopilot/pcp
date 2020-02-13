@@ -1,0 +1,10 @@
+QA output created by 1301
+Creating test metrics
+Done
+
+Fetching test metrics
+
+pmproxy.test.simple.counter
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+    value 42

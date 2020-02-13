@@ -1,7 +1,6 @@
 /*
- * Copyright (c) Red Hat 2014,2016.
+ * Copyright (c) Red Hat 2014,2016,2020.
  * Copyright (c) International Business Machines Corp., 2002
- * This code contributed by Mike Mason <mmlnx@us.ibm.com>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +21,6 @@ refresh_proc_uptime(proc_uptime_t *proc_uptime)
 {
     char buf[MAXPATHLEN];
     int fd, n;
-    float uptime = 0.0, idletime = 0.0;
 
     memset(proc_uptime, 0, sizeof(proc_uptime_t));
     pmsprintf(buf, sizeof(buf), "%s/proc/uptime", linux_statspath);
@@ -37,8 +35,6 @@ refresh_proc_uptime(proc_uptime_t *proc_uptime)
 	n--;
     buf[n] = '\0';
 
-    sscanf((const char *)buf, "%f %f", &uptime, &idletime);
-    proc_uptime->uptime = (unsigned long) uptime;
-    proc_uptime->idletime = (unsigned long) idletime;
+    sscanf(buf, "%lf %lf", &proc_uptime->uptime, &proc_uptime->idletime);
     return 0;
 }

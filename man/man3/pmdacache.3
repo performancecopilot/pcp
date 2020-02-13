@@ -3,17 +3,17 @@
 .\"
 .\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDACACHE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -107,7 +107,7 @@ or
 may be used to change the state of an instance
 .IP \- 2m
 an optional opaque pointer to data that is associated with the instance,
-but maintained by the PMDA 
+but maintained by the PMDA
 .IP \- 2m
 an optional opaque key that is used as a ``hint'' to
 .B pmdaCacheStoreKey
@@ -299,7 +299,7 @@ state of the cache entry),
 (if not NULL)
 will be set to the external instance name and the associate additional data
 area as provided when the instance was last activated via
-.B pmdaCacheStore 
+.B pmdaCacheStore
 or
 .BR pmdaCacheStoreKey .
 .PP
@@ -402,7 +402,7 @@ state of the cache entry),
 will be set to the external instance name, the internal instance
 identifier and the associate additional data
 area as provided when the instance was last activated via
-.B pmdaCacheStore 
+.B pmdaCacheStore
 or
 .BR pmdaCacheStoreKey .
 .PP
@@ -425,7 +425,7 @@ are timestamped
 at the time of the next cache save operation
 .I after
 the entry has been added or marked
-.B active 
+.B active
 (refer to PMDA_CACHE_SAVE and PMDA_CACHE_SYNC below).
 On success
 .B pmdaCachePurge
@@ -574,7 +574,7 @@ entry in the cache to be marked
 .BR inactive .
 .TP
 PMDA_CACHE_CULL
-Remove 
+Remove
 .B every
 entry from the cache.
 .TP

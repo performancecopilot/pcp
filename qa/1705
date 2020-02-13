@@ -1,0 +1,75 @@
+#!/bin/sh
+# PCP QA Test No. 1705
+# Exercise the bpftrace PMDA - error conditions
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bpftrace
+
+_pmdabpftrace_check
+
+status=1       # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_prepare_pmda bpftrace
+trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+cat <<EOF | _pmdabpftrace_install
+# Installed by PCP QA test $seq on `date`
+[authentication]
+enabled = false
+[bpftrace]
+max_throughput = 65536
+EOF
+
+echo "=== bpftrace script without variabes ==="
+./src/store_and_fetch bpftrace.control.register "// name: test1
+tracepoint:raw_syscalls:sys_enter { }" | grep -o '"error": "no bpftrace variables or printf statements found, please include at least one variable or printf statement in your script"'
+echo
+
+echo "=== invalid probe ==="
+pmstore bpftrace.control.register "// name: test2
+does_not_exist { @c = count(); }"
+_pmdabpftrace_wait_for_value bpftrace.scripts.test2.status 'value "error"'
+pminfo -f bpftrace.scripts.test2.error
+pminfo -f bpftrace.scripts.test2.exit_code
+echo
+
+echo "=== syntax error ==="
+pmstore bpftrace.control.register "// name: test3
+does_not_exist { @c = count(; }"
+_pmdabpftrace_wait_for_value bpftrace.scripts.test3.status 'value "error"'
+pminfo -f bpftrace.scripts.test3.error
+pminfo -f bpftrace.scripts.test3.exit_code
+echo
+
+echo "=== too many attached tracepoints ==="
+pmstore bpftrace.control.register "// name: test4
+kprobe:* { @c = count(); }"
+_pmdabpftrace_wait_for_value bpftrace.scripts.test4.status 'value "error"'
+pminfo -f bpftrace.scripts.test4.error | sed -e 's/ [1-9][0-9]* / PROBES /g'
+pminfo -f bpftrace.scripts.test4.exit_code
+echo
+
+echo "=== too much output ==="
+pmstore bpftrace.control.register '// name: test5
+profile:hz:9999 { printf("test"); }'
+_pmdabpftrace_wait_for_value bpftrace.scripts.test5.status 'value "error"'
+pminfo -f bpftrace.scripts.test5.error | sed -e 's/ [1-9][0-9]* / LIMIT /g'
+echo
+
+echo "=== duplicate script name ==="
+pmstore bpftrace.control.register "// name: test6
+tracepoint:raw_syscalls:sys_enter { @x = count() }"
+./src/store_and_fetch bpftrace.control.register "// name: test6
+tracepoint:raw_syscalls:sys_enter { @x = count() }" | grep -o '"error": "Script name .* is already in use by another script."'
+echo
+
+
+_pmdabpftrace_remove
+status=0
+exit

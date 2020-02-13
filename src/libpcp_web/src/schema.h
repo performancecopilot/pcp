@@ -1,22 +1,25 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2020 Red Hat.
+ * 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but
+ * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
 #ifndef SERIES_SCHEMA_H
 #define SERIES_SCHEMA_H
 
+#include <pmapi.h>
+#include <mmv_stats.h>
 #include "load.h"
 #include "redis.h"
 #include "private.h"
+#include "discover.h"
 #include "slots.h"
 #include "query.h"
 
@@ -26,6 +29,8 @@
 #define CLUSTER_LEN	(sizeof(CLUSTER)-1)
 #define EVALSHA		"EVALSHA"
 #define EVALSHA_LEN	(sizeof(EVALSHA)-1)
+#define EXPIRE		"EXPIRE"
+#define EXPIRE_LEN	(sizeof(EXPIRE)-1)
 #define GEOADD		"GEOADD"
 #define GEOADD_LEN	(sizeof(GEOADD)-1)
 #define GETS		"GET"
@@ -42,6 +47,14 @@
 #define HMSET_LEN	(sizeof(HMSET)-1)
 #define HSCAN		"HSCAN"
 #define HSCAN_LEN	(sizeof(HSCAN)-1)
+#define HSET		"HSET"
+#define HSET_LEN	(sizeof(HSET)-1)
+#define HVALS		"HVALS"
+#define HVALS_LEN	(sizeof(HVALS)-1)
+#define INFO		"INFO"
+#define INFO_LEN	(sizeof(INFO)-1)
+#define PING		"PING"
+#define PING_LEN	(sizeof(PING)-1)
 #define PUBLISH		"PUBLISH"
 #define PUBLISH_LEN	(sizeof(PUBLISH)-1)
 #define SADD		"SADD"
@@ -54,6 +67,8 @@
 #define XADD_LEN	(sizeof(XADD)-1)
 #define XRANGE		"XRANGE"
 #define XRANGE_LEN	(sizeof(XRANGE)-1)
+#define XREVRANGE	"XREVRANGE"
+#define XREVRANGE_LEN	(sizeof(XREVRANGE)-1)
 
 /* create a Redis protocol command (e.g. XADD, SMEMBER) */
 static inline sds
@@ -130,16 +145,26 @@ typedef struct seriesLoadBaton {
     void		*userdata;
     timing_t		timing;
 
-    dict		*clusters;
-    dict		*domains;
-    dict		*indoms;
-    dict		*pmids;
-
+    unsigned int	nmetrics;	/* number of metric names passed */
+    const char		**metrics;	/* metric specification strings */
     dict		*errors;	/* PMIDs where errors observed */
     dict		*wanted;	/* PMIDs from query whitelist */
 
     int			error;
     void		*arg;
 } seriesLoadBaton;
+
+/*
+ * Module internal (private) data structures and accessors
+ */
+typedef struct seriesModuleData {
+    mmv_registry_t	*metrics;
+    struct dict		*config;
+    uv_loop_t		*events;
+    redisSlots		*slots;
+    unsigned int	shareslots;
+} seriesModuleData;
+
+extern seriesModuleData *getSeriesModuleData(pmSeriesModule *);
 
 #endif	/* SERIES_SCHEMA_H */

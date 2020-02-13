@@ -24,34 +24,34 @@ Verified: OK
 => Complex labels, maps as values, single element
 Verify Core mergelabels
 Low ->  {} {"map":{"priority":"one"}}  <- High
-Result: {"map":{"priority":"one"}}
+Result: {"map.priority":"one"}
 Verified: OK
 
 Verify Python mergelabels
 Low ->  {} {"map":{"priority":"one"}}  <- High
-Result: {"map":{"priority":"one"}}
+Result: {"map.priority":"one"}
 Verified: OK
 
 => Complex labels, maps as values, multiple elements
 Verify Core mergelabels
 Low ->  {} {"map":{"priority":"one","ratio":2.5}}  <- High
-Result: {"map":{"priority":"one","ratio":2.5}}
+Result: {"map.priority":"one","map.ratio":2.5}
 Verified: OK
 
 Verify Python mergelabels
 Low ->  {} {"map":{"priority":"one","ratio":2.5}}  <- High
-Result: {"map":{"priority":"one","ratio":2.5}}
+Result: {"map.priority":"one","map.ratio":2.5}
 Verified: OK
 
 => Complex labels, multiple maps as values, multiple element
 Verify Core mergelabels
-Low ->  {"map"} {"map":{"priority":"one","ratio":2.5},"map2":{"foo":"bar"}}  <- High
-Result: {"map":{"priority":"one","ratio":2.5},"map2":{"foo":"bar"}}
+Low ->  {"map":null} {"map":{"priority":"one","ratio":2.5},"map2":{"foo":"bar"}}  <- High
+Result: {"map":null,"map.priority":"one","map.ratio":2.5,"map2.foo":"bar"}
 Verified: OK
 
 Verify Python mergelabels
-Low ->  {"map"} {"map":{"priority":"one","ratio":2.5},"map2":{"foo":"bar"}}  <- High
-Result: {"map":{"priority":"one","ratio":2.5},"map2":{"foo":"bar"}}
+Low ->  {"map":null} {"map":{"priority":"one","ratio":2.5},"map2":{"foo":"bar"}}  <- High
+Result: {"map":null,"map.priority":"one","map.ratio":2.5,"map2.foo":"bar"}
 Verified: OK
 
 => Complex labels, arrays as values, single element
@@ -89,12 +89,12 @@ Verified: OK
 
 => Complex labels2, multiple arrays as values, multiple elements
 Verify Core mergelabels
-Low ->  {"datacenter":"torquay","environment":"production"} {"services":["indexer","database"]} {"none":none,"some":[1,2,3],"more":{"all":false,"none":true}}  <- High
-Result: {"datacenter":"torquay","environment":"production","more":{"all":false,"none":true},"none":none,"services":["indexer","database"],"some":[1,2,3]}
+Low ->  {"datacenter":"torquay","environment":"production"} {"services":["indexer","database"]} {"none":null,"some":[1,2,3],"more":{"all":false,"none":true}}  <- High
+Result: {"datacenter":"torquay","environment":"production","more.all":false,"more.none":true,"none":null,"services":["indexer","database"],"some":[1,2,3]}
 Verified: OK
 
 Verify Python mergelabels
-Low ->  {"datacenter":"torquay","environment":"production"} {"services":["indexer","database"]} {"none":none,"some":[1,2,3],"more":{"all":false,"none":true}}  <- High
-Result: {"datacenter":"torquay","environment":"production","more":{"all":false,"none":true},"none":none,"services":["indexer","database"],"some":[1,2,3]}
+Low ->  {"datacenter":"torquay","environment":"production"} {"services":["indexer","database"]} {"none":null,"some":[1,2,3],"more":{"all":false,"none":true}}  <- High
+Result: {"datacenter":"torquay","environment":"production","more.all":false,"more.none":true,"none":null,"services":["indexer","database"],"some":[1,2,3]}
 Verified: OK
 

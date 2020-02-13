@@ -1,0 +1,100 @@
+#!/usr/bin/env pmpython
+# -*- coding: utf-8 -*-
+# pylint: disable=invalid-name
+""" Generate a test archive for testing dis/appearing instances """
+
+from pcp import pmapi, pmi
+
+# Our metrics for testing
+metrics = ["disk.dev.read", "disk.dev.write"]
+
+# Instances
+insts = ["sda", "sdb", "sdc", "sdd"]
+
+# Get a context
+pmfg = pmapi.fetchgroup()
+ctx = pmfg.get_context()
+
+# Initialize the archive
+arch = pmi.pmiLogImport("dyninsts2")
+arch.pmiSetHostname("localhost")
+arch.pmiSetTimezone("UTC")
+for metric in metrics:
+    pmids = ctx.pmLookupName(metric)
+    descs = ctx.pmLookupDescs(pmids)
+    arch.pmiAddMetric(metric,
+                      pmids[0],
+                      descs[0].contents.type,
+                      descs[0].contents.indom,
+                      descs[0].contents.sem,
+                      descs[0].contents.units)
+inst = -1
+for name in insts:
+    inst += 1
+    pmids = ctx.pmLookupName("disk.dev.read")
+    descs = ctx.pmLookupDescs(pmids)
+    indom = descs[0].contents.indom
+    arch.pmiAddInstance(indom, name, inst)
+
+# Timestamp
+start = 0
+batch = -1
+
+# List of instances now 0,1,3
+for _ in range(2):
+    batch += 1
+    for name in insts:
+        if name in ('sda', 'sdb'):
+            arch.pmiPutValue("disk.dev.read", name, "%d" % batch)
+        if name in ('sdd'):
+            arch.pmiPutValue("disk.dev.write", name, "%d" % batch)
+    arch.pmiWrite(start + batch, 0)
+
+# List of instances now 0,1,3
+for _ in range(2):
+    batch += 1
+    for name in insts:
+        if name in ('sda'):
+            arch.pmiPutValue("disk.dev.read", name, "%d" % batch)
+        if name in ('sdb', 'sdd'):
+            arch.pmiPutValue("disk.dev.write", name, "%d" % batch)
+    arch.pmiWrite(start + batch, 0)
+
+# All instances available
+for _ in range(2):
+    batch += 1
+    for name in insts:
+        arch.pmiPutValue("disk.dev.read", name, "%d" % batch)
+        arch.pmiPutValue("disk.dev.write", name, "%d" % batch)
+    arch.pmiWrite(start + batch, 0)
+
+# List of instances now 0,1,3
+for _ in range(2):
+    batch += 1
+    for name in insts:
+        if name in ('sda'):
+            arch.pmiPutValue("disk.dev.read", name, "%d" % batch)
+        if name in ('sdb', 'sdd'):
+            arch.pmiPutValue("disk.dev.write", name, "%d" % batch)
+    arch.pmiWrite(start + batch, 0)
+
+# List of instances now 0,1,3
+for _ in range(2):
+    batch += 1
+    for name in insts:
+        if name in ('sda', 'sdb'):
+            arch.pmiPutValue("disk.dev.read", name, "%d" % batch)
+        if name in ('sdd'):
+            arch.pmiPutValue("disk.dev.write", name, "%d" % batch)
+    arch.pmiWrite(start + batch, 0)
+
+# All instances available
+for _ in range(2):
+    batch += 1
+    for name in insts:
+        arch.pmiPutValue("disk.dev.read", name, "%d" % batch)
+        arch.pmiPutValue("disk.dev.write", name, "%d" % batch)
+    arch.pmiWrite(start + batch, 0)
+
+# Done
+arch.pmiEnd()

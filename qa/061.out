@@ -23,6 +23,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -88,6 +90,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -148,6 +152,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -211,6 +217,9 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -279,6 +288,9 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -344,6 +356,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -409,6 +423,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -469,6 +485,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -529,6 +547,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -594,6 +614,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -654,6 +676,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -719,6 +743,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -779,6 +805,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -842,6 +870,9 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -905,6 +936,9 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -965,6 +999,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1030,6 +1066,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1090,6 +1128,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1150,6 +1190,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1215,6 +1257,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1275,6 +1319,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1340,6 +1386,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1400,6 +1448,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1460,6 +1510,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1525,6 +1577,8 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress

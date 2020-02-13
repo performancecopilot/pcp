@@ -29,12 +29,12 @@ start_metric(pmID pmid)
     metricspec_t	*mp;
     int			sts;
 
-    if (pmDebugOptions.appl0 && pmDebugOptions.appl1)
+    if (pmDebugOptions.appl4)
 	fprintf(stderr, "start_metric(%s)", pmIDStr(pmid));
 
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
 	if (pmid == mp->old_desc.pmid) {
-	    if (pmDebugOptions.appl0 && pmDebugOptions.appl1)
+	    if (pmDebugOptions.appl4)
 		fprintf(stderr, " -> %s\n", mp->old_name);
 	    break;
 	}
@@ -77,7 +77,7 @@ start_metric(pmID pmid)
 	mp->new_desc = mp->old_desc;
 	mp->flags = 0;
 	mp->ip = NULL;
-	if (pmDebugOptions.appl0 && pmDebugOptions.appl1)
+	if (pmDebugOptions.appl4)
 	    fprintf(stderr, " -> %s [new entry]\n", mp->old_name);
     }
 

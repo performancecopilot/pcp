@@ -32,7 +32,7 @@ QedTimeButton::QedTimeButton(QWidget *parent) : QToolButton(parent)
     my.stepBackwardArchiveIcon = QIcon(":/images/stepback_archive.png");
     my.fastForwardArchiveIcon = QIcon(":/images/fastfwd_archive.png");
     my.fastBackwardArchiveIcon = QIcon(":/images/fastback_archive.png");
-    console->post(QedApp::DebugUi, "Time button resources loaded");
+    console->post("QedTimeButton::QedTimeButton: Time button resources loaded");
 }
 
 void QedTimeButton::setButtonState(QedTimeButton::State state)

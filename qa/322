@@ -184,7 +184,7 @@ _cleanup()
 	need_clean=false
     fi
     rm -f $tmp.*
-    sudo rm -rf /tmp/\$$ /tmp/\$$.*
+    $sudo rm -rf /tmp/\$$ /tmp/\$$.*
 }
 
 need_clean=true
@@ -216,8 +216,8 @@ echo "=== pmlogger host type: $type ==="
 host=`./getpmcdhosts -L -n 1 $type`
 if [ -z "$host" ]
 then
-    echo "./getpmcdhosts failed to find a suitable host" >$seq.notrun
-    exit
+    _notrun "./getpmcdhosts failed to find a suitable host"
+    # NOTREACHED
 else
     echo "$type => $host" >>$seq.full
     _speak_to_me $host

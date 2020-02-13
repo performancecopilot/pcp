@@ -13,6 +13,7 @@ echo "QA output created by $seq"
 _pmdabcc_check
 which zpool >/dev/null 2>&1 || _notrun "zpool tool not installed"
 modinfo zfs >/dev/null 2>&1 || _notrun "zfs kernel module not present"
+$sudo modprobe zfs >/dev/null 2>&1 || _notrun "failed to load zfs kernel module"
 
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
 zfs_pool=pcp-qa-tank-$seq
@@ -38,18 +39,19 @@ _mount_zfs()
 
 _unmount_zfs()
 {
-    $sudo zpool destroy $zfs_pool
+    $sudo zpool destroy -f $zfs_pool > /dev/null 2>&1 || :
 }
 
 _prepare_pmda bcc
-trap "_unmount_zfs; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+trap "_unmount_zfs; _pmdabcc_cleanup; _unmount_zfs; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
-# mount zfs before installing the PMDA, as mounting
-# zfs may trigger loading the zfs kernel module
+# clean up any possible leftovers and get ready for a new test
+_unmount_zfs
 _mount_zfs
 
 cat <<EOF | _pmdabcc_install
+# Installed by PCP QA test $seq on `date`
 [pmda]
 modules = zfsdist
 prefix = bcc.

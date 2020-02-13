@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015,2017-2018 Red Hat.
+ * Copyright (C) 2013-2015,2017-2019 Red Hat.
  *
  * This file is part of the "pcp" module, the python interfaces for the
  * Performance Co-Pilot toolkit.
@@ -61,6 +61,8 @@ static PyObject *instance_func;
 static PyObject *store_cb_func;
 static PyObject *fetch_cb_func;
 static PyObject *label_cb_func;
+static PyObject *attribute_cb_func;
+static PyObject *endcontext_cb_func;
 static PyObject *refresh_all_func;
 static PyObject *refresh_metrics_func;
 
@@ -77,6 +79,16 @@ typedef int Py_ssize_t;
 
 static void pmns_refresh(void);
 static void pmda_refresh_metrics(void);
+
+static void
+refresh_if_needed(void)
+{
+    if (need_refresh) {
+        pmns_refresh();
+        pmda_refresh_metrics();
+        need_refresh = 0;
+    }
+}
 
 static void
 maybe_refresh_all(void)
@@ -97,11 +109,7 @@ maybe_refresh_all(void)
 	    Py_DECREF(result);
     }
 
-    if (need_refresh) {
-	pmns_refresh();
-	pmda_refresh_metrics();
-	need_refresh = 0;
-    }
+    refresh_if_needed();
 }
 
 static void
@@ -448,6 +456,11 @@ refresh(int numpmid, pmID *pmidlist)
 	    sts |= refresh_cluster(clusters[j]);
     }
     free(clusters);
+
+    // if the refresh() method of the PMDA sets the need_refresh flag
+    // (e.g. because the instances got changed), update the metrics and
+    // indom buffers
+    refresh_if_needed();
     return sts;
 }
 
@@ -566,7 +579,7 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     Py_DECREF(arglist);
     if (result == NULL)
 	return callback_error("fetch_callback");
-    else if (PyTuple_Check(result)) {
+    else if (result == Py_None || PyTuple_Check(result)) {
 	/* non-tuple returned from fetch callback, e.g. None - no values */
 	Py_DECREF(result);
 	return PMDA_FETCH_NOVALUES;
@@ -751,6 +764,8 @@ store(pmResult *result, pmdaExt *pmda)
     if (store_cb_func == NULL)
 	return PM_ERR_PERMISSION;
 
+    pmdaStore(result, pmda);
+
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
 	pmid = (__pmID_int *)&vsp->pmid;
@@ -799,9 +814,9 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
     if (value == NULL)
 	return PM_ERR_TEXT;
 #if PY_MAJOR_VERSION >= 3
-    *buffer = PyUnicode_AsUTF8(value);
+    *buffer = (char *)PyUnicode_AsUTF8(value);
 #else
-    *buffer = PyString_AsString(value);
+    *buffer = (char *)PyString_AsString(value);
 #endif
     /* "value" is a borrowed reference, do not decrement */
     return 0;
@@ -810,18 +825,48 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
 int
 attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 {
-    if (pmDebugOptions.auth) {
-	char buffer[256];
+    PyObject *arglist, *result;
+    int	sts;
 
-	if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
-	    pmNotifyErr(LOG_ERR, "Bad Attribute: ctx=%d, attr=%d\n", ctx, attr);
-	} else {
-	    buffer[sizeof(buffer)-1] = '\0';
-	    pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
-	}
-    }
-    /* handle connection attributes - need per-connection state code */
+    if ((sts = pmdaAttribute(ctx, attr, value, length, pmda)) < 0)
+        return sts;
+
+    if (attribute_cb_func == NULL)
+        return 0;
+
+    arglist = Py_BuildValue("(iis#)", ctx, attr, value, length-1); // length includes NULL byte
+    if (arglist == NULL)
+        return -ENOMEM;
+
+    result = PyEval_CallObject(attribute_cb_func, arglist);
+    Py_DECREF(arglist);
+    if (result == NULL)
+        return callback_error("attribute");
+
+    Py_DECREF(result);
     return 0;
+}
+
+void
+endContextCallBack(int ctx)
+{
+    PyObject *arglist, *result;
+
+    if (endcontext_cb_func == NULL)
+        return;
+
+    arglist = Py_BuildValue("(i)", ctx);
+    if (arglist == NULL)
+        return;
+
+    result = PyEval_CallObject(endcontext_cb_func, arglist);
+    Py_DECREF(arglist);
+    if (result == NULL) {
+        callback_error("endcontext");
+        return;
+    }
+
+    Py_DECREF(result);
 }
 
 /*
@@ -862,6 +907,7 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 	helptext_file = p = strdup(help);	/* permanent reference */
 	pmdaDaemon(&dispatch, PMDA_INTERFACE_7, name, domain, logfile, p);
     }
+
     dispatch.version.seven.fetch = fetch;
     dispatch.version.seven.store = store;
     dispatch.version.seven.instance = instance;
@@ -873,6 +919,7 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
     dispatch.version.seven.label = label;
     pmdaSetLabelCallBack(&dispatch, label_callback);
     pmdaSetFetchCallBack(&dispatch, fetch_callback);
+    pmdaSetEndContextCallBack(&dispatch, endContextCallBack);
 
     if (!pmda_generating_pmns() && !pmda_generating_domain())
 	pmdaOpenLog(&dispatch);
@@ -963,6 +1010,7 @@ update_indom_metric_buffers(void)
     /* Copy the indoms. */
     for (i = 0; !error && i < nindoms; i++) {
 	item = PyList_GetItem(indom_list, i);
+#if defined(ENABLE_PYTHON3)
 	/* Newer buffer interface */
 	if (item && PyObject_CheckBuffer(item)) {
 	    /* Attempt to extract buffer information from it. */
@@ -975,8 +1023,9 @@ update_indom_metric_buffers(void)
 	    ptr = buffer.buf;
 	    len = buffer.len;
 	}
+#else
 	/* Older buffer interface */
-	else if (item && PyObject_CheckReadBuffer(item)) {
+	if (item && PyObject_CheckReadBuffer(item)) {
 	    /* Attempt to extract information from the item. */
 	    if (PyObject_AsReadBuffer(item, &ptr, &len) == -1) {
 		PyErr_SetString(PyExc_TypeError,
@@ -986,6 +1035,7 @@ update_indom_metric_buffers(void)
 	    }
 	    buffer.buf = NULL;
 	}
+#endif
 	else {
  	    PyErr_SetString(PyExc_TypeError, "Unable to retrieve indom");
 	    error = 1;
@@ -1011,6 +1061,7 @@ update_indom_metric_buffers(void)
     /* Copy the metrics. */
     for (i = 0; !error && i < nmetrics; i++) {
 	item = PyList_GetItem(metric_list, i);
+#if defined(ENABLE_PYTHON3)
 	/* Newer buffer interface */
 	if (item && PyObject_CheckBuffer(item)) {
 	    /* Attempt to extract buffer information from it. */
@@ -1024,8 +1075,9 @@ update_indom_metric_buffers(void)
 	    ptr = buffer.buf;
 	    len = buffer.len;
 	}
+#else
 	/* Older buffer interface */
-	else if (item && PyObject_CheckReadBuffer(item)) {
+	if (item && PyObject_CheckReadBuffer(item)) {
 	    /* Attempt to extract information from the item. */
 	    if (PyObject_AsReadBuffer(item, &ptr, &len) == -1) {
 		PyErr_SetString(PyExc_TypeError,
@@ -1035,6 +1087,7 @@ update_indom_metric_buffers(void)
 	    }
 	    buffer.buf = NULL;
 	}
+#endif
 	else {
 	    PyErr_SetString(PyExc_TypeError, "Unable to retrieve metric");
 	    error = 1;
@@ -1205,6 +1258,20 @@ pmda_log(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+pmda_dbg(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *message;
+    char *keyword_list[] = {"message", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"s:pmda_dbg", keyword_list, &message))
+	return NULL;
+    pmNotifyErr(LOG_DEBUG, "%s", message);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 pmda_err(PyObject *self, PyObject *args, PyObject *keywords)
 {
     char *message;
@@ -1245,6 +1312,21 @@ pmid_build(PyObject *self, PyObject *args, PyObject *keywords)
 			&domain, &cluster, &item))
 	return NULL;
     result = pmID_build(domain, cluster, item);
+    return Py_BuildValue("i", result);
+}
+
+static PyObject *
+pmid_cluster(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int result;
+    int pmid;
+    char *keyword_list[] = {"pmid", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"i:pmid_cluster", keyword_list,
+			&pmid))
+	return NULL;
+    result = pmID_cluster(pmid);
     return Py_BuildValue("i", result);
 }
 
@@ -1330,6 +1412,20 @@ pmda_uptime(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+pmda_set_comm_flags(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int flags;
+    char *keyword_list[] = {"flags", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+        "i:pmda_set_comm_flags", keyword_list, &flags))
+        return NULL;
+
+    pmdaSetCommFlags(&dispatch, flags);
+    return Py_None;
+}
+
+static PyObject *
 set_notify_change(PyObject *self, PyObject *args)
 {
     const int flags = PMDA_EXT_LABEL_CHANGE | PMDA_EXT_NAMES_CHANGE;
@@ -1407,6 +1503,18 @@ set_label_callback(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+set_attribute_callback(PyObject *self, PyObject *args)
+{
+    return set_callback(self, args, "O:set_attribute_callback", &attribute_cb_func);
+}
+
+static PyObject *
+set_endcontext_callback(PyObject *self, PyObject *args)
+{
+    return set_callback(self, args, "O:set_endcontext_callback", &endcontext_cb_func);
+}
+
+static PyObject *
 set_refresh_all(PyObject *self, PyObject *args)
 {
     return set_callback(self, args, "O:set_refresh_all", &refresh_all_func);
@@ -1424,6 +1532,8 @@ static PyMethodDef methods[] = {
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmid_build", .ml_meth = (PyCFunction)pmid_build,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmid_cluster", .ml_meth = (PyCFunction)pmid_cluster,
+	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_indom", .ml_meth = (PyCFunction)pmda_indom,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "indom_build", .ml_meth = (PyCFunction)indom_build,
@@ -1432,6 +1542,8 @@ static PyMethodDef methods[] = {
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_uptime", .ml_meth = (PyCFunction)pmda_uptime,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmda_set_comm_flags", .ml_meth = (PyCFunction)pmda_set_comm_flags,
+	.ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "init_dispatch", .ml_meth = (PyCFunction)init_dispatch,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_dispatch", .ml_meth = (PyCFunction)pmda_dispatch,
@@ -1474,12 +1586,18 @@ static PyMethodDef methods[] = {
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_label_callback", .ml_meth = (PyCFunction)set_label_callback,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "set_attribute_callback", .ml_meth = (PyCFunction)set_attribute_callback,
+	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "set_endcontext_callback", .ml_meth = (PyCFunction)set_endcontext_callback,
+	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_refresh_metrics",
       .ml_meth = (PyCFunction)set_refresh_metrics,
       .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_refresh_all", .ml_meth = (PyCFunction)set_refresh_all,
 	.ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmda_log", .ml_meth = (PyCFunction)pmda_log,
+	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmda_dbg", .ml_meth = (PyCFunction)pmda_dbg,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_err", .ml_meth = (PyCFunction)pmda_err,
 	.ml_flags = METH_VARARGS|METH_KEYWORDS },
@@ -1535,6 +1653,17 @@ MOD_INIT(cpmda)
     pmda_dict_add(dict, "PMDA_CACHE_SYNC", PMDA_CACHE_SYNC);
     pmda_dict_add(dict, "PMDA_CACHE_DUMP", PMDA_CACHE_DUMP);
     pmda_dict_add(dict, "PMDA_CACHE_DUMP_ALL", PMDA_CACHE_DUMP_ALL);
+
+    /* pmda.h - communication flags */
+    pmda_dict_add(dict, "PMDA_FLAG_AUTHORIZE", PMDA_FLAG_AUTHORIZE);
+    pmda_dict_add(dict, "PMDA_FLAG_CONTAINER", PMDA_FLAG_CONTAINER);
+
+    /* pmda.h - context attributes */
+    pmda_dict_add(dict, "PMDA_ATTR_USERNAME", PMDA_ATTR_USERNAME);
+    pmda_dict_add(dict, "PMDA_ATTR_USERID", PMDA_ATTR_USERID);
+    pmda_dict_add(dict, "PMDA_ATTR_GROUPID", PMDA_ATTR_GROUPID);
+    pmda_dict_add(dict, "PMDA_ATTR_PROCESSID", PMDA_ATTR_PROCESSID);
+    pmda_dict_add(dict, "PMDA_ATTR_CONTAINER", PMDA_ATTR_CONTAINER);
 
     return MOD_SUCCESS_VAL(module);
 }

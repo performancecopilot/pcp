@@ -23,8 +23,8 @@ LOCALHOST=`hostname`
 
 case $PCP_PLATFORM
 in
-    linux|solaris)
-	# same syslog options for Linux and OpenSolaris
+    linux|solaris|freebsd|netbsd|openbsd)
+	# same syslog options for Linux and OpenSolaris and *BSD
 	SYSLOG_OPT='"-p daemon.info"'
 	;;
     darwin)
@@ -191,9 +191,9 @@ if $have_journalctl
 then
     # be careful ... --boot not supported in all versions, -l not
     # supported in all versions
-    $sudo journalctl -b --full | tail -100 >$tmp.syslog
+    $sudo journalctl -b --full | tail -200 >$tmp.syslog
 else
-    $sudo tail -100 $SYSLOG >$tmp.syslog
+    $sudo tail -200 $SYSLOG >$tmp.syslog
 fi
 sed <$tmp.syslog -n \
     -e 's/PCP QA '"$seq"'/PCP QA xxx/' \
@@ -212,7 +212,7 @@ then
 else
     echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq.full
 fi
-echo "`wc -l <$tmp.syslog | sed -e 's/ //g'` lines ... expect 100" >>$seq.full
+echo "`wc -l <$tmp.syslog | sed -e 's/ //g'` lines ... expect 200" >>$seq.full
 cat $tmp.syslog >>$seq.full
 
 # success, all done

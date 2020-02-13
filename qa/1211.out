@@ -1,9 +1,30 @@
 QA output created by 1211
-Clearing local cache ...
-OK
+Start test Redis server ...
+PING
+PONG
 
 Verify basic load from proc archive
 pmseries: [Info] processed 5 archive records from PATH/archives/proc
+
+Error handling - load from bad path
+pmseries: [Error] cannot open archive "/no/such/archive": No such file or directory
+
+Verify pminfo and pmseries source and series match
+=> pminfo
+
+kernel.all.load PMID: 60.2.0
+    Data Type: float  InDom: 60.2 0xf000002
+    Semantics: instant  Units: none
+    Source: 2cd6a38f9339f2dd1f0b4775bda89a9e7244def
+    Series: fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f
+=> pmseries
+
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
+    PMID: 60.2.0
+    Data Type: float  InDom: 60.2 0xf000002
+    Semantics: instant  Units: none
+    Source: 2cd6a38f9339f2dd1f0b4775bda89a9e7244def6
+    Metric: kernel.all.load
 
 List all metric names ...
 disk.all.avactive
@@ -214,11 +235,34 @@ proc.schedstat.cpu_time
 proc.schedstat.pcount
 proc.schedstat.run_delay
 
+List some metric names ...
+hinv.cpu.bogomips
+hinv.cpu.cache
+hinv.cpu.clock
+hinv.cpu.model
+hinv.cpu.stepping
+hinv.cpu.vendor
+hinv.machine
+hinv.map.cpu_node
+hinv.map.cpu_num
+hinv.map.scsi
+hinv.ncpu
+hinv.ndisk
+hinv.nfilesys
+hinv.pagesize
+hinv.physmem
+
 List all label names ...
+hostname
+
+List some label names ...
 hostname
 
 List all context names ...
 PATH/archives/proc
+bozo-laptop
+
+List some context names ...
 bozo-laptop
 
 List all instance names ...
@@ -241,113 +285,242 @@ sda5
 sda6
 sr0
 
+List some instance names ...
+sda
+sda1
+sda2
+sda3
+sda4
+sda5
+sda6
+
 Perform simple name-based query ...
-4caedbc68271a4f8bec1224fabb8eaf8931e3199
+d51624d12da45900bfee2fd73f1e23f3ccabb784
 
 Perform simple label-based query ...
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
 
 Perform simple instance-based query ...
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
 
 Perform globbing name-based query (1) ...
-4caedbc68271a4f8bec1224fabb8eaf8931e3199
+d51624d12da45900bfee2fd73f1e23f3ccabb784
 
 Perform globbing name-based query (2) ...
-4caedbc68271a4f8bec1224fabb8eaf8931e3199
+d51624d12da45900bfee2fd73f1e23f3ccabb784
 
 Perform globbing name-based query (3) ...
-1fac9a52e3fed046b39e3859b31bc69b0855c2b2
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+32a1af87ff6b7a7777a44536d2a425c27d5e77f2
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
+
+Perform globbing name-based query (4) ...
+2db1da4d276d81c42c578c2829e99188ae7cc898
+ca134b5dbe631cf5bfb3fa72d9e9f697e38f97d5
+ccf157fc1740b6459681bfca477fb6ea6864d32c
 
 Perform globbing instance-based query (1) ...
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
 
 Perform globbing instance-based query (2) ... no result
 (expect no result)
 
 Perform globbing instance-based query (3) ...
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
+
+Perform regex instance-based query (1) ...
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
+
+Perform regex instance-based query (2) ... no result
+(expect no result)
 
 Descriptor lookup for a given SeriesID ...
 
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
     PMID: 60.2.0
     Data Type: float  InDom: 60.2 0xf000002
     Semantics: instant  Units: none
 
 Full InDom only for a given SeriesID ...
 
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
      InDom: 60.2 = 251658242 = 0xf000002
 
 Full PMID only for a given SeriesID ...
 
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
     PMID: 60.2.0 = 251660288 = 0xf000800
 
 All three lookups for a given SeriesID ...
 
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
     PMID: 60.2.0 = 251660288 = 0xf000800
     Data Type: float  InDom: 60.2 = 251658242 = 0xf000002
     Semantics: instant  Units: none
 
 SourceID lookup for a given SeriesID ...
-
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
-       Source: a56cc44ff424ee7f4267592939737c24dfe3a7d4
+    Context: PATH/archives/proc, bozo-laptop
 
 Instances lookup for a given SeriesID ...
 
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
-    inst [1 or "1 minute"] series 60baf9d7923b28c24e97cc6b8787fcb99f30d21a
-    inst [5 or "5 minute"] series d64252e163ab964cca996db54fe8a6d1beeb0bb9
-    inst [15 or "15 minute"] series e46449a843afaa0f79eadc9aeec15c501e19603b
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
+    inst [1 or "1 minute"] series 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    inst [5 or "5 minute"] series ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    inst [15 or "15 minute"] series 9d418095c9f971ff4fd44d6828ead27f9d021dc3
 
 Labels lookup for a given SeriesID ...
 
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
     inst [1 or "1 minute"] labels {"hostname":"bozo-laptop"}
     inst [5 or "5 minute"] labels {"hostname":"bozo-laptop"}
     inst [15 or "15 minute"] labels {"hostname":"bozo-laptop"}
 
 All lookups for a given SeriesID ...
 
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
     PMID: 60.2.0
     Data Type: float  InDom: 60.2 0xf000002
     Semantics: instant  Units: none
-    Source: a56cc44ff424ee7f4267592939737c24dfe3a7d4
+    Source: 2cd6a38f9339f2dd1f0b4775bda89a9e7244def6
     Metric: kernel.all.load
-    inst [1 or "1 minute"] series 60baf9d7923b28c24e97cc6b8787fcb99f30d21a
-    inst [5 or "5 minute"] series d64252e163ab964cca996db54fe8a6d1beeb0bb9
-    inst [15 or "15 minute"] series e46449a843afaa0f79eadc9aeec15c501e19603b
+    inst [1 or "1 minute"] series 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    inst [5 or "5 minute"] series ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    inst [15 or "15 minute"] series 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+    inst [1 or "1 minute"] labels {"hostname":"bozo-laptop"}
+    inst [5 or "5 minute"] labels {"hostname":"bozo-laptop"}
+    inst [15 or "15 minute"] labels {"hostname":"bozo-laptop"}
+
+Labels lookup for two given SeriesIDs ...
+
+d51624d12da45900bfee2fd73f1e23f3ccabb784
+    labels {"hostname":"bozo-laptop"}
+
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
     inst [1 or "1 minute"] labels {"hostname":"bozo-laptop"}
     inst [5 or "5 minute"] labels {"hostname":"bozo-laptop"}
     inst [15 or "15 minute"] labels {"hostname":"bozo-laptop"}
 
 Values fetch for a single-valued query ...
 
-4caedbc68271a4f8bec1224fabb8eaf8931e3199
-    [1317633022959.959241041] 172598244
-    [1317633023300.300459700] 172598364
-    [1317633023802.802929198] 172598481
-    [1317633024305.305844695] 172598559
+d51624d12da45900bfee2fd73f1e23f3ccabb784
+    [Mon Oct  3 09:10:24.305845000 2011] 172598559
+    [Mon Oct  3 09:10:23.802930000 2011] 172598481
+    [Mon Oct  3 09:10:23.300460000 2011] 172598364
+    [Mon Oct  3 09:10:22.959242000 2011] 172598244
+
+Values fetch with a one-second interval ...
+
+d51624d12da45900bfee2fd73f1e23f3ccabb784
+    [Mon Oct  3 09:10:22.959242000 2011] 172598244
+    [Mon Oct  3 09:10:23.802930000 2011] 172598481
+    [Mon Oct  3 09:10:24.305845000 2011] 172598559
+
+Values fetch with a two-second interval ...
+
+d51624d12da45900bfee2fd73f1e23f3ccabb784
+    [Mon Oct  3 09:10:22.959242000 2011] 172598244
+    [Mon Oct  3 09:10:23.802930000 2011] 172598481
+    [Mon Oct  3 09:10:24.305845000 2011] 172598559
 
 Values fetch for a multi-valued query ...
 
-3d372f871a4dd73028a7a4f0b05cb927c462b7b8
-    [1317633022959.959241041] 0.000000e+00 60baf9d7923b28c24e97cc6b8787fcb99f30d21a
-    [1317633022959.959241041] 2.000000e-02 d64252e163ab964cca996db54fe8a6d1beeb0bb9
-    [1317633022959.959241041] 5.000000e-02 e46449a843afaa0f79eadc9aeec15c501e19603b
-    [1317633023300.300459700] 0.000000e+00 60baf9d7923b28c24e97cc6b8787fcb99f30d21a
-    [1317633023300.300459700] 2.000000e-02 d64252e163ab964cca996db54fe8a6d1beeb0bb9
-    [1317633023300.300459700] 5.000000e-02 e46449a843afaa0f79eadc9aeec15c501e19603b
-    [1317633023802.802929198] 0.000000e+00 60baf9d7923b28c24e97cc6b8787fcb99f30d21a
-    [1317633023802.802929198] 2.000000e-02 d64252e163ab964cca996db54fe8a6d1beeb0bb9
-    [1317633023802.802929198] 5.000000e-02 e46449a843afaa0f79eadc9aeec15c501e19603b
-    [1317633024305.305844695] 0.000000e+00 60baf9d7923b28c24e97cc6b8787fcb99f30d21a
-    [1317633024305.305844695] 2.000000e-02 d64252e163ab964cca996db54fe8a6d1beeb0bb9
-    [1317633024305.305844695] 5.000000e-02 e46449a843afaa0f79eadc9aeec15c501e19603b
+fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:24.305845000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:24.305845000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+    [Mon Oct  3 09:10:23.802930000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:23.802930000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:23.802930000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+    [Mon Oct  3 09:10:23.300460000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:23.300460000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:23.300460000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+    [Mon Oct  3 09:10:22.959242000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:22.959242000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:22.959242000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
 
+Multi-series lookups from a multi-series query ...
+2db1da4d276d81c42c578c2829e99188ae7cc898
+ca134b5dbe631cf5bfb3fa72d9e9f697e38f97d5
+ccf157fc1740b6459681bfca477fb6ea6864d32c
+
+2db1da4d276d81c42c578c2829e99188ae7cc898
+    PMID: 60.10.3
+    Data Type: 32-bit unsigned int  InDom: 60.10 0xf00000a
+    Semantics: counter  Units: count
+    Source: 2cd6a38f9339f2dd1f0b4775bda89a9e7244def6
+    Metric: disk.partitions.blkread
+    inst [0 or "sda1"] series fc9b70c6335e1012f5a29ed6728f3293f0cb2959
+    inst [1 or "sda2"] series 16757e6a0970fe0f60cfa94ea1afab80a9197a04
+    inst [2 or "sda3"] series cb09d166010ce7908e900b50fd2cf05464bd1674
+    inst [3 or "sda4"] series 63a09bd6be8cf8a0a2dd75561f2834e2c87eefd8
+    inst [4 or "sda5"] series b02a7e6b3e670a158110c0a86ed86351bf901370
+    inst [5 or "sda6"] series da06484f07f07b4342a97f3129c893f6c537b969
+    inst [6 or "sr0"] series e90d9b1b2048fd387c6dd531b70e4fb60b7d0d27
+    inst [0 or "sda1"] labels {"hostname":"bozo-laptop"}
+    inst [1 or "sda2"] labels {"hostname":"bozo-laptop"}
+    inst [2 or "sda3"] labels {"hostname":"bozo-laptop"}
+    inst [3 or "sda4"] labels {"hostname":"bozo-laptop"}
+    inst [4 or "sda5"] labels {"hostname":"bozo-laptop"}
+    inst [5 or "sda6"] labels {"hostname":"bozo-laptop"}
+    inst [6 or "sr0"] labels {"hostname":"bozo-laptop"}
+
+ca134b5dbe631cf5bfb3fa72d9e9f697e38f97d5
+    PMID: 60.10.4
+    Data Type: 32-bit unsigned int  InDom: 60.10 0xf00000a
+    Semantics: counter  Units: count
+    Source: 2cd6a38f9339f2dd1f0b4775bda89a9e7244def6
+    Metric: disk.partitions.blkwrite
+    inst [0 or "sda1"] series fc9b70c6335e1012f5a29ed6728f3293f0cb2959
+    inst [1 or "sda2"] series 16757e6a0970fe0f60cfa94ea1afab80a9197a04
+    inst [2 or "sda3"] series cb09d166010ce7908e900b50fd2cf05464bd1674
+    inst [3 or "sda4"] series 63a09bd6be8cf8a0a2dd75561f2834e2c87eefd8
+    inst [4 or "sda5"] series b02a7e6b3e670a158110c0a86ed86351bf901370
+    inst [5 or "sda6"] series da06484f07f07b4342a97f3129c893f6c537b969
+    inst [6 or "sr0"] series e90d9b1b2048fd387c6dd531b70e4fb60b7d0d27
+    inst [0 or "sda1"] labels {"hostname":"bozo-laptop"}
+    inst [1 or "sda2"] labels {"hostname":"bozo-laptop"}
+    inst [2 or "sda3"] labels {"hostname":"bozo-laptop"}
+    inst [3 or "sda4"] labels {"hostname":"bozo-laptop"}
+    inst [4 or "sda5"] labels {"hostname":"bozo-laptop"}
+    inst [5 or "sda6"] labels {"hostname":"bozo-laptop"}
+    inst [6 or "sr0"] labels {"hostname":"bozo-laptop"}
+
+ccf157fc1740b6459681bfca477fb6ea6864d32c
+    PMID: 60.10.5
+    Data Type: 32-bit unsigned int  InDom: 60.10 0xf00000a
+    Semantics: counter  Units: count
+    Source: 2cd6a38f9339f2dd1f0b4775bda89a9e7244def6
+    Metric: disk.partitions.blktotal
+    inst [0 or "sda1"] series fc9b70c6335e1012f5a29ed6728f3293f0cb2959
+    inst [1 or "sda2"] series 16757e6a0970fe0f60cfa94ea1afab80a9197a04
+    inst [2 or "sda3"] series cb09d166010ce7908e900b50fd2cf05464bd1674
+    inst [3 or "sda4"] series 63a09bd6be8cf8a0a2dd75561f2834e2c87eefd8
+    inst [4 or "sda5"] series b02a7e6b3e670a158110c0a86ed86351bf901370
+    inst [5 or "sda6"] series da06484f07f07b4342a97f3129c893f6c537b969
+    inst [6 or "sr0"] series e90d9b1b2048fd387c6dd531b70e4fb60b7d0d27
+    inst [0 or "sda1"] labels {"hostname":"bozo-laptop"}
+    inst [1 or "sda2"] labels {"hostname":"bozo-laptop"}
+    inst [2 or "sda3"] labels {"hostname":"bozo-laptop"}
+    inst [3 or "sda4"] labels {"hostname":"bozo-laptop"}
+    inst [4 or "sda5"] labels {"hostname":"bozo-laptop"}
+    inst [5 or "sda6"] labels {"hostname":"bozo-laptop"}
+    inst [6 or "sr0"] labels {"hostname":"bozo-laptop"}
+Perform simple source-based query ...
+
+Error handling - descriptor for bad series identifier
+pmseries: [Error] no descriptor for series identifier no.such.identifier
+
+no.such.identifier
+
+Error handling - metric name for bad series identifier
+
+no.such.identifier
+
+Error handling - instance names for bad series identifier
+
+no.such.identifier
+
+Error handling - label names for bad series identifier
+
+no.such.identifier
+
+Error handling - query with no matching instance name

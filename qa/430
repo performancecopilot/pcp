@@ -35,6 +35,10 @@ signal="$sudo $PCP_BINADM_DIR/pmsignal"
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+_stop_auto_restart pmlogger
+_service pmlogger stop | _filter_pcp_stop
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|[p]mlogger' >>$here/$seq.full
+
 _filter()
 {
     sed \
@@ -70,15 +74,25 @@ _cleanup()
 
     _stop_loggers
 
-    cd # get out of tmp directory so we can delete it
+    # get out of tmp directory so we can delete it
+    cd
     $sudo rm -rf $tmp $tmp.*
 
     $sudo $PCP_BINADM_DIR/pmlogger_check
+    _service pmlogger restart >/dev/null 2>&1
+    _restore_auto_restart pmlogger
+    _wait_for_pmlogger
 }
 
 _setup()
 {
-    _stop_loggers
+    pids=`_get_pids_by_name -a pmlogger`
+    for pid in $pids
+    do
+	$signal -s TERM $pid >/dev/null 2>&1
+	_wait_pmlogger_end $pid
+    done
+
     cd
     $sudo rm -rf $logdir $logdir2
     mkdir $logdir $logdir2
@@ -224,6 +238,11 @@ $host2	        n   n   $logdir.5 -c $logdir/config
 $host2	        n   n   $logdir.6 -c $logdir/config
 EOF
 
+# pmlogger_check runs as the user "pcp" ... fix ownership of output file
+#
+touch $tmp.log
+$sudo chown $PCP_USER:$PCP_GROUP $tmp.log
+
 # which tests to try out
 test_set="1 2 3 4 5"
 
@@ -231,7 +250,11 @@ for i in $test_set
 do
     echo >>$here/$seq.full
     echo "=== test $i ===" >>$here/$seq.full
+    echo "--- before _setup() ---" >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|[p]mlogger' >>$here/$seq.full
     _setup
+    echo "--- after _setup() ---" >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|[p]mlogger' >>$here/$seq.full
     
     # create the control file from master
     _extract_control $i > $logdir/control
@@ -245,7 +268,7 @@ do
 
     echo "log mandatory on once pmcd.control.debug" >$logdir/config
     echo "--- pmlogger_check ---" >> $here/$seq.full
-    $sudo $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control -l $tmp.log
+    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control -l $tmp.log
     $sudo cat $tmp.log | tee -a $here/$seq.full | _filter
 done
 
@@ -302,11 +325,14 @@ $2 == '"$pid"' { print; exit(0) }'
     cat $PCP_TMP_DIR/pmlogger/$pid >>$here/$seq.full
     $signal -s TERM $pid
     echo "Check ..." | tee -a $here/$seq.full
-    $sudo $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control -l $tmp.log
-    $sudo cat $tmp.log \
-    | tee -a $here/$seq.full \
-    | sed -e '/^... try /d' \
-    | _filter
+    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control -l $tmp.log
+    if [ -f $tmp.log ]
+    then
+	$sudo cat $tmp.log \
+	| tee -a $here/$seq.full \
+	| sed -e '/^... try /d' \
+	| _filter
+    fi
 
 done
 

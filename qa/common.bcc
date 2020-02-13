@@ -2,6 +2,7 @@
 # Common shell routines for testing pmdabcc
 #
 # Copyright (c) 2018 Andreas Gerstmayr.
+# Copyright (c) 2019 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -55,7 +56,7 @@ _pmdabcc_install()
     cat $tmp.config >> $here/$seq.full
 
     [ -f $PCP_PMDAS_DIR/bcc/bcc.conf ] && \
-    $sudo cp $PCP_PMDAS_DIR/bcc/bcc.conf $tmp.backup
+    $sudo cp $PCP_PMDAS_DIR/bcc/bcc.conf $PCP_PMDAS_DIR/bcc/bcc.conf.$seq
     $sudo cp $tmp.config $PCP_PMDAS_DIR/bcc/bcc.conf
 
     echo
@@ -68,13 +69,73 @@ _pmdabcc_install()
 
 _pmdabcc_wait_for_metric()
 {
-    # Wait for the PMDA to compile the bcc modules and become ready, 30s max
-    for i in `seq 1 30`; do grep -q 'Ready to process requests' $PCP_LOG_DIR/pmcd/bcc.log && break; sleep 1; done
+    # Wait for the PMDA to compile the bcc modules and become ready, 60s max
+    _canwait=60
+    i=0
+    while [ $i -lt $_canwait ]
+    do
+	grep -q 'Failed to compile BPF text' $PCP_LOG_DIR/pmcd/bcc.log
+	if [ $? -eq 0 ]; then
+	    echo BPF compilation error, test failed
+	    exit
+	fi
+
+	grep -q 'Ready to process requests' $PCP_LOG_DIR/pmcd/bcc.log && break
+	sleep 1
+	i=`expr $i + 1`
+    done
     sed -n '/Error:/,$p' $PCP_LOG_DIR/pmcd/bcc.log
-    if [ $i -ge 30 ]; then
-        echo PMDA was not ready in 30 seconds, test failed
+    if [ $i -eq $_canwait ]; then
+        echo PMDA was not ready in $_canwait seconds, test failed
         exit
     fi
+    echo "=== _pmdabcc_wait_for_metric: after $i secs, metrics should be available ===" >>$here/$seq.full
+    # "should" be available, but now wait up to 20 seconds for values
+    # to be seen ...
+    #
+    _canwait=20
+    i=1
+    while [ $i -le $_canwait ]
+    do
+	touch $tmp.ok
+	pmprobe bcc \
+	| while read metric numval foo
+	do
+	    if [ "$numval" -eq -12389 ]
+	    then
+		# PM_ERR_AGAIN ... this is expected (apparently)
+		#
+		:
+	    elif [ "$numval" -lt 0 ]
+	    then
+		rm -f $tmp.ok
+		if [ $i -eq $_canwait ]
+		then
+		    # still bad on last iteration ... report
+		    #
+		    echo "_pmdabcc_wait_for_metric: Botch: bcc PMDA ready but metric $metric returns numval $numval (`pmerr $numval`)"
+		fi
+	    fi
+	done
+	if [ -f $tmp.ok ]
+	then
+	    # goodness
+	    #
+	    echo "=== _pmdabcc_wait_for_metric: after another $i secs, values are available ===" >>$here/$seq.full
+	    pminfo -f bcc >>$here/$seq.full
+	    return 0
+	fi
+	sleep 1
+	i=`expr $i + 1`
+    done
+
+    # badness ...
+    #
+    pminfo -f bcc
+    echo "Here's the PMDA log ..."
+    cat $PCP_LOG_DIR/pmcd/bcc.log
+
+    return 0
 }
 
 _pmdabcc_wait_for_value()
@@ -102,9 +163,9 @@ _pmdabcc_remove()
 _pmdabcc_cleanup()
 {
     cat $PCP_LOG_DIR/pmcd/bcc.log >> $here/$seq.full
-    if [ -f $tmp.backup ]; then
-        $sudo cp $tmp.backup $PCP_PMDAS_DIR/bcc/bcc.conf
-        $sudo rm $tmp.backup
+    if [ -f $PCP_PMDAS_DIR/bcc/bcc.conf.$seq ]; then
+        $sudo cp $PCP_PMDAS_DIR/bcc/bcc.conf.$seq $PCP_PMDAS_DIR/bcc/bcc.conf
+        $sudo rm $PCP_PMDAS_DIR/bcc/bcc.conf.$seq
     else
         $sudo rm -f $PCP_PMDAS_DIR/bcc/bcc.conf
     fi
@@ -125,22 +186,44 @@ _java_check()
             ;;
     esac
 
-    eval java_version=`java -version 2>&1 | grep version | awk '{ print $3 }'`
-    java_version=`echo "$java_version" | sed -e 's,_.*,,'`
-    java_major=`echo "$java_version" | sed -e 's,1.,,' -e 's,\..*,,'`
+    java_version=`java -version 2>&1 | awk '/version/ { print $3 }'`
+    java_version=`echo $java_version | tr -d '"' | sed -e 's,_.*,,'`
+    java_major=`echo $java_version   | sed -e 's,\..*,,g'`
 
     jvm_path=""
     for path in \
 	/etc/alternatives/jre/lib/server \
 	/etc/alternatives/jre/lib/$java_machine/server \
+	/usr/lib/jvm/java-${java_major}-openjdk-${java_machine}/lib/server \
 	/usr/lib/jvm/java-${java_version}-openjdk/jre/lib/${java_machine}/server \
 	/usr/lib/jvm/java-${java_major}-openjdk-${java_machine}/jre/lib/${java_machine}/server
     do
-        # echo "$path/libjvm.$DSO_SUFFIX"
         [ -f "$path/libjvm.$DSO_SUFFIX" ] && jvm_path="$path/libjvm.$DSO_SUFFIX"
     done
 
     [ -z "$jvm_path" ] && _notrun "libjvm.$DSO_SUFFIX not found"
+
+    for tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
+    do
+        which $tplistcmd >/dev/null 2>&1 && \
+            probes=$($tplistcmd -l $jvm_path 2>/dev/null | grep thread__start)
+        [ -n "$probes" ] && return 0
+    done
+    _notrun "No Java USDT probes available"
+}
+
+_python_probe_check()
+{
+    $python -c 'import time;time.sleep(5)' > /dev/null 2>&1 &
+    pypid=$!
+    probes=
+    for tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
+    do
+        which $tplistcmd >/dev/null 2>&1 && \
+            probes=$($tplistcmd -p $pypid 2>/dev/null | grep function__entry)
+        [ -n "$probes" ] && return 0
+    done
+    _notrun "No Python USDT probes available"
 }
 
 _mount_filesystem()
@@ -172,7 +255,7 @@ _value_filter_any()
 
 _value_filter_nonzero()
 {
-    awk '/value [1-9]\d*/ {print "OK"; exit}'
+    awk '/value [1-9][0-9]*/ {print "OK"; exit}'
 }
 
 _value_filter_exact()
@@ -180,11 +263,10 @@ _value_filter_exact()
     grep "value $1" > /dev/null && echo OK
 }
 
-# Marko's triage ...
 # openSUSE 15.0 bcc-0.5.0-lp150.9.2 is carrying a patch to backport bcc
 # upstream commit c0ca99a2 but not a subsequent fix made in upstream
 # commit d1a83c1b so bcc on openSUSE 15.0 is broken on this regard.
-#
+# Problem persists in version libbcc0-0.5.0-lp151.11.5.x86_64.
 _bcc_check_ArgString()
 {
     if [ -f /etc/os-release ]
@@ -193,13 +275,13 @@ _bcc_check_ArgString()
 	then
 	    case "`rpm -q libbcc0`"
 	    in
-		bcc-0.5.0-lp150.9.2)
+		libbcc0-0.5.0-lp15[01]*)
 		    # BAD
-		    return 0
+		    return 1
 	    esac
 	fi
     fi
     
     # OK
-    return 1
+    return 0
 }

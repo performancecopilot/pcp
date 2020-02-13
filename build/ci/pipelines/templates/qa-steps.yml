@@ -1,0 +1,63 @@
+steps:
+  - checkout: self
+    fetchDepth: 1
+
+  - script: |
+      set -eu
+      # parallel in Ubuntu bionic is from 2016, which has a bug regarding the results dir
+      # (creates too many nested dirs when using the --max-args argument)
+      wget -q -O parallel.tar.bz2 http://ftp.gnu.org/gnu/parallel/parallel-20200122.tar.bz2
+      tar -xf parallel.tar.bz2 && (cd parallel-* && ./configure && make && sudo make install)
+
+      ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -q -P ""
+      az login --service-principal -u "${AZ_CLIENT_ID}" -p "${AZ_CLIENT_SECRET}" --tenant "${AZ_TENANT}"
+
+      if [ "${SNAPSHOT}" != "no" ]; then
+          . ./VERSION.pcp
+          PACKAGE_BUILD="0.${BUILD_ID}.$(date +'%Y%m%d').$(git rev-parse --short HEAD)"
+          PCP_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+          PCP_BUILD_VERSION=${PCP_VERSION}-${PACKAGE_BUILD}
+          sed -i "s/PACKAGE_BUILD=.*/PACKAGE_BUILD=${PACKAGE_BUILD}/" VERSION.pcp
+          sed -i "1 s/pcp (.*)/pcp (${PCP_BUILD_VERSION})/" debian/changelog
+      fi
+    env:
+      AZ_CLIENT_ID: $(AZ_CLIENT_ID)
+      AZ_CLIENT_SECRET: $(AZ_CLIENT_SECRET)
+      AZ_TENANT: $(AZ_TENANT)
+      BUILD_ID: $(Build.BuildId)
+      SNAPSHOT: $(snapshot)
+    displayName: Setup
+
+  - script: ./build/ci/scripts/start_vmss.sh "$(ci_host)" "$(vm_count)"
+    displayName: Start VMs
+
+  - script: ./build/ci/scripts/start_build.sh "$(ci_host)"
+    displayName: Build
+
+  - script: ./build/ci/scripts/start_install.sh "$(ci_host)" "$(pwd)/artifacts"
+    displayName: Install
+
+  - publish: ./artifacts
+    displayName: Publish build artifacts
+    artifact: build_$(ci_host)
+
+  - script: ./build/ci/scripts/start_tests.sh "$(ci_host)" "$(tests)" "$(pwd)/tests"
+    displayName: Test
+
+  - publish: ./tests
+    displayName: Publish test artifacts
+    condition: succeededOrFailed()
+    artifact: tests_$(ci_host)
+
+  - task: PublishTestResults@2
+    displayName: Publish test results
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: tests/tests.xml
+      testRunTitle: $(ci_host)
+      failTaskOnFailedTests: true
+
+  - script: ./build/ci/scripts/stop_vmss.sh "$(ci_host)"
+    displayName: Stop VMs
+    condition: always()

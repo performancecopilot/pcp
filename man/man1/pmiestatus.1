@@ -18,36 +18,34 @@
 \f3pmiestatus\f1 \- display information from pmie stats file
 .SH SYNOPSIS
 \f3pmiestatus\f1
-\f2statsfile\f1 [\f2...\f1]
+\f2statsfile\f1
+[\f2...\f1]
 .SH DESCRIPTION
 .B pmiestatus
-displays information used to identify a running \f3pmie\f1 process.
-It is mostly used by \f3pmie_check\f1 and \f3pmie_daily\f1 when they hunt
-for instances of \f3pmie\f1 to check against the control file.
+displays information used to identify a running
+.BR pmie (1)
+process.
+It is mostly used by
+.BR pmie_check (1)
+and
+.BR pmie_daily (1)
+when they hunt for instances of \f3pmie\f1
+to check against the control file.
 .SH FILES
-.PD 0
-.TP 10
-.BI $PCP_TMP_DIR/pmie/ *
+.TP 5
+.I $PCP_TMP_DIR/pmie/*
 pmie stats files
-.PD
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
 .SH SEE ALSO
 .BR pmie (1),
 .BR pmie_check (1),
 .BR pmie_daily (1),
-.BR pcp.conf (5),
+.BR pcp.conf (5)
 and
 .BR pcp.env (5).

@@ -1,0 +1,104 @@
+QA output created by 699
+=== output archive exists, case ===
+--- check archives before ---
+
+sample.seconds
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+
+sample.seconds
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+--- pmlogrewrite, expect failure ---
+__pmLogNewFile: "TMP.out.index" already exists, not over-written
+pmlogrewrite: Error: __pmLogCreate(TMP.out): File exists
+--- check archives after ---
+
+sample.seconds
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+
+sample.seconds
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+
+=== removed output archive .meta file ===
+--- pmlogrewrite, expect failure ---
+__pmLogNewFile: "TMP.out.index" already exists, not over-written
+pmlogrewrite: Error: __pmLogCreate(TMP.out): File exists
+--- check archives after ---
+
+sample.seconds
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+pminfo: Cannot open archive "TMP.out": Missing PCP archive log file
+TMP.out.meta: absent
+TMP.out.index: no change
+TMP.out.0: no change
+TMP.out.1: no change
+TMP.out.2: no change
+
+=== removed output archive .index file ===
+--- pmlogrewrite, expect failure ---
+__pmLogNewFile: "TMP.out.0" already exists, not over-written
+pmlogrewrite: Error: __pmLogCreate(TMP.out): File exists
+--- check archives after ---
+
+sample.seconds
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+pminfo: Cannot open archive "TMP.out": Missing PCP archive log file
+TMP.out.meta: absent
+TMP.out.index: absent
+TMP.out.0: no change
+TMP.out.1: no change
+TMP.out.2: no change
+
+=== removed output archive .0 file ===
+--- pmlogrewrite, expect failure ---
+__pmLogNewFile: "TMP.out.1" already exists, not over-written
+pmlogrewrite: __pmLogNewFile(TMP.out,1) Error: File exists
+--- check archives after ---
+
+sample.seconds
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+pminfo: Cannot open archive "TMP.out": Missing PCP archive log file
+TMP.out.meta: absent
+TMP.out.index: absent
+TMP.out.0: absent
+TMP.out.1: no change
+TMP.out.2: no change
+
+=== removed output archive .1 file ===
+--- pmlogrewrite, expect failure ---
+__pmLogNewFile: "TMP.out.2" already exists, not over-written
+pmlogrewrite: __pmLogNewFile(TMP.out,2) Error: File exists
+--- check archives after ---
+
+sample.seconds
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+pminfo: Cannot open archive "TMP.out": Missing PCP archive log file
+TMP.out.meta: absent
+TMP.out.index: absent
+TMP.out.0: absent
+TMP.out.1: absent
+TMP.out.2: no change
+
+=== removed output archive .2 file ===
+--- pmlogrewrite, expect failure ---
+--- check archives after ---
+
+sample.seconds
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+
+sample.seconds
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+TMP.out.meta: different
+TMP.out.index: different
+TMP.out.0: different
+TMP.out.1: different
+TMP.out.2: different

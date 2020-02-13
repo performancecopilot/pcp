@@ -1,22 +1,19 @@
 QA output created by 457
 Possible configuration files to choose from:
-[1] PCP_VAR_DIR/config/logger/logger.conf
+[1] $PCP_VAR_DIR/config/logger/logger.conf
 [2] Specify your own configuration file.
 [3] None of the above (abandon configuration file selection).
 Which configuration file do you want to use ? [1] 
 Contents of the selected configuration file:
---------------- start PCP_VAR_DIR/config/logger/logger.conf ---------------
-
+--------------- start $PCP_VAR_DIR/config/logger/logger.conf ---------------
 # from PCP QA 457
 reg	n	TMPFILE.reg
-fifo	n	TMPFILE.fifo
+fifo	n	HERE/457.fifo
 none	n	TMPFILE.none
 empty	n	TMPFILE.empty
 dir	n	TMPFILE.dir
-pipe	n	TMPFILE.pipe|
-
---------------- end PCP_VAR_DIR/config/logger/logger.conf ---------------
-
+pipe	n	HERE/457.pipe|
+--------------- end $PCP_VAR_DIR/config/logger/logger.conf ---------------
 Use this configuration file? [y] Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
@@ -79,7 +76,7 @@ logger.perfile.fifo.numclients
     value 1
 
 logger.perfile.fifo.path
-    value "TMPFILE.fifo"
+    value "HERE/457.fifo"
 
 logger.perfile.fifo.size
     value 0
@@ -100,7 +97,7 @@ logger.perfile.fifo.numclients
     value 1
 
 logger.perfile.fifo.path
-    value "TMPFILE.fifo"
+    value "HERE/457.fifo"
 
 logger.perfile.fifo.size
     value 0
@@ -121,7 +118,7 @@ logger.perfile.fifo.numclients
     value 1
 
 logger.perfile.fifo.path
-    value "TMPFILE.fifo"
+    value "HERE/457.fifo"
 
 logger.perfile.fifo.size
     value 0
@@ -299,7 +296,7 @@ logger.perfile.pipe.numclients
     value 1
 
 logger.perfile.pipe.path
-    value "TMPFILE.pipe|"
+    value "HERE/457.pipe|"
 
 logger.perfile.pipe.size
     value 0
@@ -320,7 +317,7 @@ logger.perfile.pipe.numclients
     value 1
 
 logger.perfile.pipe.path
-    value "TMPFILE.pipe|"
+    value "HERE/457.pipe|"
 
 logger.perfile.pipe.size
     value 0

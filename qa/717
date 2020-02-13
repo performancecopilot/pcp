@@ -33,7 +33,7 @@ _cleanup()
 	echo sec,min,hour > $tmp.conf && $sudo mv $tmp.conf simple.conf
 
 	_restore_config $PCP_PMCDCONF_PATH
-	_service pcp restart | _filter_pcp_start
+	_service pcp restart 2>&1 | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger

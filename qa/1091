@@ -44,7 +44,7 @@ End-of-File
 #
 metrics=`pminfo -Dpmns disk.dev 2>$tmp.err \
          | egrep 'read|write|total' \
-	 | egrep -v 'rawactive|_merge|_time' \
+	 | egrep -v 'rawactive|_merge|_time|blk' \
 	 | LC_COLLATE=POSIX sort`
 # real QA test starts here
 echo "PM_CONTEXT_LOCAL, default PMNS ..."

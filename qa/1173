@@ -11,23 +11,8 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
-_pmdabcc_require_kernel_version 4 7
-
-have_probes()
-{
-    python -c 'import time;time.sleep(5)' > /dev/null 2>&1 &
-    pypid=$!
-    probes=
-    for tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
-    do
-        which $tplistcmd >/dev/null 2>&1 && \
-            probes=$($tplistcmd -p $pypid 2>/dev/null | grep function__entry)
-        [[ -n "$probes" ]] && return 0
-    done
-    return 1
-}
-
-have_probes || _notrun "No Python USDT probes available"
+_pmdabcc_require_kernel_version 4 18
+_python_probe_check
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
@@ -39,6 +24,7 @@ _stop_auto_restart pmcd
 
 # real QA test starts here
 cat <<EOF | _pmdabcc_install
+# Installed by PCP QA test $seq on `date`
 [pmda]
 modules = ucalls
 prefix = bcc.

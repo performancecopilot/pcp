@@ -1,17 +1,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMDAINSTANCE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -45,17 +45,17 @@ The
 structure is constructed by
 .B pmdaInstance
 and will contain one or more instance names and/or identifiers as specified by
-the 
+the
 .I inst
 and
 .I name
 arguments.
 .PP
-If 
+If
 .I inst
-has the value 
+has the value
 .B PM_IN_NULL
-and 
+and
 .I name
 is a null string,
 .I result
@@ -63,7 +63,7 @@ will contain all the instances names and identifiers in the instance domain.
 .PP
 If
 .I inst
-is 
+is
 .B PM_IN_NULL
 but
 .I name
@@ -73,21 +73,21 @@ then
 .I result
 will contain the instance identifier for instance
 .IR name .
-Note that if 
-.I name 
+Note that if
+.I name
 contains no spaces, partial matching up to the first space in the
-instance name is performed, i.e. 
+instance name is performed, i.e.
 .RB `` 1 ''
-will match instance name 
+will match instance name
 .RB `` 1
 .BR minute ''.
-If 
+If
 .I name
 contains an embedded space, then no partial matching is performed and
 .I name
 should match one of the instance names exactly.
 .PP
-If 
+If
 .I name
 is a null string but
 .I inst
@@ -213,7 +213,7 @@ the
 .I result
 structure is deallocated.  If the instance domain
 .I indom
-is not supported by the PMDA, 
+is not supported by the PMDA,
 .B pmdaInstance
 will return
 .BR PM_ERR_INDOM .
@@ -222,25 +222,25 @@ If the
 .I inst
 or
 .I name
-does not correspond to any instances in the 
+does not correspond to any instances in the
 .I indom
-domain, 
+domain,
 .B pmdaInstance
 will return
 .BR PM_ERR_INST .
 .SH CAVEAT
-The PMDA must be using 
-.B PMDA_INTERFACE_2 
-or later, as specified in the call to 
+The PMDA must be using
+.B PMDA_INTERFACE_2
+or later, as specified in the call to
 .BR pmdaDSO (3)
-or 
+or
 .BR pmdaDaemon (3).
 If labeling of multi-dimensional instance names is performed,
 the PMDA must use
 .B PMDA_INTERFACE_7
 or later.
 .PP
-Because of optional partial matching up to the first space in the instance 
+Because of optional partial matching up to the first space in the instance
 name, the
 .B PMDA
 developer should ensure that if instance names are allowed to have

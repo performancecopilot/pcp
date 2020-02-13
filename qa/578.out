@@ -1,9 +1,7 @@
 QA output created by 578
-Waiting for pmcd to terminate ...
 === Building simple agent ===
 PMDA built
 Help generated
-Starting pmcd ... 
 === Testing a Client ===
 === Started client ===
 === Info: After Install, openfds has increased or stayed about the same as expected ===
@@ -40,6 +38,3 @@ simple was removed
 === Info: After Remove, openfds has stayed about the same as expected ===
 === Resetting pmcd.conf back to original state ===
 === Restart PMCD ===
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
-Starting pmlogger ... 

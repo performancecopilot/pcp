@@ -1,11 +1,8 @@
 QA output created by 066
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
-Starting pmlogger ... 
 first config:
-# need the pmcd PMDA so that "init" restart can start pmlogger
+# Need the pmcd PMDA so that "init" restart can start pmlogger
 # the OS PMDA has to be there so that the default logging config works
-# created by QA 066
+# Installed by PCP QA test 066 on DATE
 #
 [platform PMDA]
 pmcd	2	dso	pmcd_init	pmda_pmcd.$DSO_SUFFIX
@@ -17,9 +14,9 @@ disallow *: all;
 
 
 second config:
-# need the pmcd PMDA so that "init" restart can start pmlogger
+# Need the pmcd PMDA so that "init" restart can start pmlogger
 # the OS PMDA has to be there so that the default logging config works
-# created by QA 066
+# Installed by PCP QA test 066 on DATE
 #
 [platform PMDA]
 pmcd	2	dso	pmcd_init	pmda_pmcd.$DSO_SUFFIX
@@ -82,7 +79,4 @@ y y 0 0 MYIPADDR MYHOSTMASK 0 localhost
  n  n     0     0 ::                                      ::                                        8 :*
 
 [DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
-Waiting for pmcd to terminate ...
 Restarting pmcd
-Starting pmcd ... 
-Starting pmlogger ... 

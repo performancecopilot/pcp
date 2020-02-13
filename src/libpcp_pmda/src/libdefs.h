@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2016,2018 Red Hat.
+ * Copyright (c) 2013,2016,2018,2019 Red Hat.
  * Copyright (c) 1999-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -32,10 +32,11 @@ struct dynamic;
 typedef struct {
     pmdaInterface	*dispatch;	/* back pointer to our pmdaInterface */
     pmResult		*res;		/* high-water allocation for */
-    int			maxnpmids;	/* pmResult for each PMDA */
     __pmHashCtl		hashpmids;	/* hashed metrictab lookups */
+    int			maxnpmids;	/* pmResult for each PMDA */
     int			ndynamics;	/* number of dynamics entries, below */
     struct dynamic	*dynamics;	/* dynamic metric manipulation table */
+    void		*privdata;	/* private (user) data for this PMDA */
 } e_ext_t;
 
 /*

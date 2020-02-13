@@ -61,12 +61,12 @@ sub zimbra_array_lookup
 }
 
 use vars qw( @fd_values @imap_time_values @imap_count_values @soap_time_values 
-	     @soap_count_values @mailbox_values @mtaqueue_values @proc_values
-	     @threads_values @probe_values );
+	     @soap_count_values @mailboxd_values @mtaqueue_values @proc_values
+	     @threads_values @probe_values @mailboxd_map @soap_map );
 use vars qw( $fd_timestamp $imap_timestamp $soap_timestamp
-	     $mailbox_timestamp $mtaqueue_timestamp $proc_timestamp
+	     $mailboxd_timestamp $mtaqueue_timestamp $proc_timestamp
 	     $threads_timestamp $probe_timestamp );
-$fd_timestamp = $imap_timestamp = $soap_timestamp = $mailbox_timestamp =
+$fd_timestamp = $imap_timestamp = $soap_timestamp = $mailboxd_timestamp =
 	     $mtaqueue_timestamp = $proc_timestamp = $threads_timestamp =
 	     $probe_timestamp = 0;
 
@@ -74,7 +74,7 @@ sub zimbra_fd_parser
 {
     ( undef, $_ ) = @_;
 
-    # $pmda->log("zimbra_fd_parser got line: $_");
+    #debug# $pmda->log("fd_parser got line: $_");
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
 	chomp;
 	$fd_timestamp = $1;
@@ -86,7 +86,7 @@ sub zimbra_imap_parser
 {
     ( undef, $_ ) = @_;
 
-    # $pmda->log("zimbra_imap_parser got line: $_");
+    #debug# $pmda->log("imap_parser got line: $_");
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d),||) {
 	chomp;
 	my $timestamp = $1;
@@ -106,11 +106,66 @@ sub zimbra_imap_parser
     }
 }
 
+sub zimbra_soap_mapper
+{
+    my $t;
+    my $m;
+    open my $file, '<', $stats . 'soap.csv';
+    $_ = <$file>; 
+    close $file;
+    #debug# $pmda->log("soap_mapper got line: $_");
+    chomp;
+    my @values = split /,/;
+    # regexps to match CSV column headings ... these need to be in the
+    # same (dense) order as the item fields of the PMIDs for cluster 3
+    #
+    my @metrics = (
+    'exec_count',			# pmid(2,0)
+    'exec_((time)|(ms_avg))',		# pmid(2,1)
+    'command'				# in CSV, not used in PMDA
+    );
+
+    for ($t = 1; $t <= $#values; $t++) {
+	$soap_map[$t-1] = -1;
+	for ($m = 0; $m <= $#metrics; $m++) {
+	    if ($metrics[$m] eq '') {
+		next;
+	    }
+	    if ($values[$t] =~ /^$metrics[$m]$/) {
+		#debug# $pmda->log("soap table col $t ($values[$t]) -> metric ident $m ($metrics[$m])");
+		$soap_map[$t-1] = $m;
+		$values[$t] = "";
+		last;
+	    }
+	}
+    }
+
+    for ($m = 0; $m <= $#metrics; $m++) {
+	if ($metrics[$m] eq '') {
+	    next;
+	}
+	for ($t = 1; $t <= $#values; $t++) {
+	    if ($soap_map[$t-1] == $m) {
+		last;
+	    }
+	}
+	if ($t > $#values) {
+	    $pmda->log("soap_mapper: column $metrics[$m] missing from CSV");
+	}
+    }
+
+    for ($t = 1; $t <= $#values; $t++) {
+	if ($values[$t] ne "") {
+	    $pmda->log("soap_mapper: extra column $values[$t] in CSV, no matching metric");
+	}
+    }
+}
+
 sub zimbra_soap_parser
 {
     ( undef, $_ ) = @_;
 
-    # $pmda->log("zimbra_soap_parser got line: $_");
+    #debug# $pmda->log("soap_parser got line: $_");
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d),||) {
 	chomp;
 	my $timestamp = $1;
@@ -125,20 +180,151 @@ sub zimbra_soap_parser
 	}
 
 	my $index = zimbra_array_lookup(\@soap_indom, $values[0]);
-	$soap_count_values[$index] = $values[1];
-	$soap_time_values[$index] = $values[2];
+	#debug# $pmda->log("soap_parser instance name $values[0] -> id $index");
+	for (my $t = 1; $t <= $#values; $t++) {
+	    #debug# $pmda->log("soap $t th field ($values[$t])-> metric ident $soap_map[$t]");
+	    if ($soap_map[$t] == 0) {
+		# zimbra.soap.count
+		#
+		$soap_count_values[$index] = $values[$t];
+	    }
+	    if ($soap_map[$t] == 1) {
+		# zimbra.soap.avgtime
+		#
+		$soap_time_values[$index] = $values[$t];
+	    }
+	}
     }
 }
 
-sub zimbra_mailbox_parser
+sub zimbra_mailboxd_mapper
+{
+    my $t;
+    my $m;
+    open my $file, '<', $stats . 'mailboxd.csv';
+    $_ = <$file>; 
+    close $file;
+    #debug# $pmda->log("mailboxd_mapper got line: $_");
+    chomp;
+    my @values = split /,/;
+    # regexps to match CSV column headings ... these need to be in the
+    # same (dense) order as the item fields of the PMIDs for cluster 3
+    #
+    my @metrics = (
+    'lmtp_rcvd_msgs',						# pmid(3,0)
+    'lmtp_rcvd_bytes',						# pmid(3,1)
+    'lmtp_rcvd_rcpt',						# pmid(3,2)
+    'lmtp_dlvd_msgs',						# pmid(3,3)
+    'lmtp_dlvd_bytes',						# pmid(3,4)
+    'db_conn_count',						# pmid(3,5)
+    'db_conn_((time)|(ms_avg))',				# pmid(3,6)
+    'ldap_dc_count',						# pmid(3,7)
+    'ldap_dc_((time)|(ms_avg))',				# pmid(3,8)
+    'mbox_add_msg_count',					# pmid(3,9)
+    'mbox_add_msg_((time)|(ms_avg))',				# pmid(3,10)
+    'mbox_get_count',						# pmid(3,11)
+    'mbox_get_((time)|(ms_avg))',				# pmid(3,12)
+    'mbox_cache',						# pmid(3,13)
+    'mbox_msg_cache',						# pmid(3,14)
+    'mbox_item_cache',						# pmid(3,15)
+    'soap_count',						# pmid(3,16)
+    'soap_((time)|(ms_avg))',					# pmid(3,17)
+    'imap_count',						# pmid(3,18)
+    'imap_((time)|(ms_avg))',					# pmid(3,19)
+    'pop_count',						# pmid(3,20)
+    'pop_((time)|(ms_avg))',					# pmid(3,21)
+    'idx_wrt_avg',						# pmid(3,22)
+    'idx_wrt_opened',						# pmid(3,23)
+    'idx_wrt_opened_cache_hit',					# pmid(3,24)
+    'calcache_hit',						# pmid(3,25)
+    'calcache_mem_hit',						# pmid(3,26)
+    'calcache_lru_size',					# pmid(3,27)
+    'idx_bytes_written',					# pmid(3,28)
+    'idx_bytes_written_avg',					# pmid(3,29)
+    'idx_bytes_read',						# pmid(3,30)
+    'idx_bytes_read_avg',					# pmid(3,31)
+    'bis_read',							# pmid(3,32)
+    'bis_seek_rate',						# pmid(3,33)
+    'db_pool_size',						# pmid(3,34)
+    'innodb_bp_hit_rate',					# pmid(3,35)
+    'pop_conn',							# pmid(3,36)
+    'pop_ssl_conn',						# pmid(3,37)
+    'imap_conn',						# pmid(3,38)
+    'imap_ssl_conn',						# pmid(3,39)
+    'soap_sessions',						# pmid(3,40)
+    '',								# unused(3,41)
+    '',								# unused(3,42)
+    '',								# unused(3,43)
+    '',								# unused(3,44)
+    'gc_minor_count',						# pmid(3,45)
+    'gc_minor_((time)|(ms))',					# pmid(3,46)
+    'gc_major_count',						# pmid(3,47)
+    'gc_major_((time)|(ms))',					# pmid(3,48)
+    '((mempool)|(mpool))_code_cache_used',			# pmid(3,49)
+    '((mempool)|(mpool))_code_cache_free',			# pmid(3,50)
+    '((mempool)|(mpool_par))_eden_space_used',			# pmid(3,51)
+    '((mempool)|(mpool_par))_eden_space_free',			# pmid(3,52)
+    '((mempool)|(mpool_par))_survivor_space_used',		# pmid(3,53)
+    '((mempool)|(mpool_par))_survivor_space_free',		# pmid(3,54)
+    '(mempool_old_gen_space_used)|(mpool_cms_old_gen_used)',	# pmid(3,55)
+    '(mempool_old_gen_space_free)|(mpool_cms_old_gen_free)',	# pmid(3,56)
+    '((mempool)|(mpool))_perm_gen_space_used',			# pmid(3,57)
+    '((mempool)|(mpool))_perm_gen_space_free',			# pmid(3,58)
+    'heap_used',						# pmid(3,59)
+    'heap_free'							# pmid(3,60)
+    );
+
+    for ($t = 1; $t <= $#values; $t++) {
+	$mailboxd_map[$t-1] = -1;
+	for ($m = 0; $m <= $#metrics; $m++) {
+	    if ($metrics[$m] eq '') {
+		next;
+	    }
+	    if ($values[$t] =~ /^$metrics[$m]$/) {
+		#debug# $pmda->log("mailboxd table col $t ($values[$t]) -> metric ident $m ($metrics[$m])");
+		$mailboxd_map[$t-1] = $m;
+		$values[$t] = "";
+		last;
+	    }
+	}
+    }
+
+    for ($m = 0; $m <= $#metrics; $m++) {
+	if ($metrics[$m] eq '') {
+	    next;
+	}
+	for ($t = 1; $t <= $#values; $t++) {
+	    if ($mailboxd_map[$t-1] == $m) {
+		last;
+	    }
+	}
+	if ($t > $#values) {
+	    $pmda->log("mailboxd_mapper: column $metrics[$m] missing from CSV");
+	}
+    }
+
+    for ($t = 1; $t <= $#values; $t++) {
+	if ($values[$t] ne "") {
+	    $pmda->log("mailboxd_mapper: extra column $values[$t] in CSV, no matching metric");
+	}
+    }
+}
+
+sub zimbra_mailboxd_parser
 {
     ( undef, $_ ) = @_;
 
-    # $pmda->log("zimbra_mailbox_parser got line: $_");
+    #debug# $pmda->log("mailboxd_parser got line: $_");
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d),||) {
 	chomp;
-	$mailbox_timestamp = $1;
-	@mailbox_values = split /,/;
+	$mailboxd_timestamp = $1;
+	my @values = split /,/;
+	for (my $t = 0; $t <= $#values; $t++) {
+	    #debug# $pmda->log("mailboxd $t th field -> metric ident $mailboxd_map[$t]");
+	    if ($mailboxd_map[$t] != -1) {
+		$mailboxd_values[$mailboxd_map[$t]] = $values[$t];
+	    }
+	}
     }
 }
 
@@ -146,7 +332,7 @@ sub zimbra_mtaqueue_parser
 {
     ( undef, $_ ) = @_;
 
-    # $pmda->log("zimbra_mtaqueue_parser got line: $_");
+    #debug# $pmda->log("mtaqueue_parser got line: $_");
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
 	chomp;
 	$mtaqueue_timestamp = $1;
@@ -158,15 +344,16 @@ sub zimbra_proc_parser
 {
     ( undef, $_ ) = @_;
 
-    # $pmda->log("zimbra_proc_parser got line: $_");
+    #debug# $pmda->log("proc_parser got line: $_");
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
 	chomp;
 	$proc_timestamp = $1;
 	@proc_values = ();
+	$proc_values[56] = 0;	# guard
 	my @values = split /,/;
 	splice(@values, 0, 5);	# ditch "system" values
 
-	# 7 values for mailbox,mysql,convertd,ldap,postfix,amavis,clam
+	# 7 values for mailbox,mysql,convertd,ldap,postfix,amavis,clam,zmstat
 	# seems sometimes not all are installed/available/whatever, so
 	# take care to handle that case.
 
@@ -177,7 +364,7 @@ sub zimbra_proc_parser
 		$chunk[0] =~ s/\s//g;
 	    }
 	    if (!defined($chunk[0])) {
-		$pmda->log("zimbra_proc_parser unexpected input: $_");
+		$pmda->log("proc_parser unexpected input: $_");
 	    }
 	    elsif ($chunk[0] eq 'mailbox')	{ $offset = 0; }
 	    elsif ($chunk[0] eq 'mysql')	{ $offset = 7; }
@@ -186,8 +373,9 @@ sub zimbra_proc_parser
 	    elsif ($chunk[0] eq 'postfix')	{ $offset = 28; }
 	    elsif ($chunk[0] eq 'amavis')	{ $offset = 35; }
 	    elsif ($chunk[0] eq 'clam')		{ $offset = 42; }
+	    elsif ($chunk[0] eq 'zmstat')	{ $offset = 49; }
 	    else {
-		$pmda->log("zimbra_proc_parser unexpected data: $chunk[0]");
+		$pmda->log("proc_parser unexpected data: $chunk[0]");
 	    }
 	    shift @chunk;	# remove the chunk name - then add values
 	    splice(@proc_values, $offset, 7, @chunk);	# to correct spot
@@ -195,7 +383,7 @@ sub zimbra_proc_parser
     }
     else {
 	# This includes the initial header line, so just debug:
-	# $pmda->log("zimbra_proc_parser could not parse line: $_");
+	#debug# $pmda->log("proc_parser could not parse line: $_");
     }
 }
 
@@ -203,7 +391,7 @@ sub zimbra_threads_parser
 {
     ( undef, $_ ) = @_;
 
-    # $pmda->log("zimbra_threads_parser got line: $_");
+    #debug# $pmda->log("threads_parser got line: $_");
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d),||) {
 	chomp;
 	$threads_timestamp = $1;
@@ -215,11 +403,17 @@ sub zimbra_probe_callback
 {
     ( undef, $_ ) = @_;
 
-    # $pmda->log("zimbra_probe_callback got line: $_");
+    #debug# $pmda->log("probe_callback got line: $_");
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d)$||) {
 	$probe_timestamp = $1;
     } else {
 	my ($service, $status) = split;
+	#debug# if (defined($status) {
+        #debug#    $pmda->log("probe_callback: service=$service status=$status");
+	#debug# }
+	#debug# else {
+	#debug#    $pmda->log("probe_callback: service=$service and no status");
+	#debug# }
 
 	return unless defined($status);
 
@@ -243,65 +437,69 @@ sub zimbra_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
 
-    #$pmda->log("zimbra_fetch_callback for PMID: $cluster.$item ($inst)");
+    #debug# $pmda->log("fetch_callback for PMID: $cluster.$item ($inst)");
+
     if ($inst != PM_IN_NULL && $cluster != 1 && $cluster != 2) {
 	return (PM_ERR_INST, 0);
     }
 
     if ($cluster == 0) {			# fd.csv
-	if ($item >= 0 && $item <= 0) {
-	    return (PM_ERR_AGAIN, 0) unless defined($fd_values[$item]);
+	if ($item >= 0 && $item <= 1) {
+	    return (PMDA_FETCH_NOVALUES, 0) unless defined($fd_values[$item]);
 	    return ($fd_values[$item], 1);
 	}
     }
     elsif ($cluster == 1 && $item == 0) {	# imap.csv
 	if ($inst >= 0 && $inst <= $#imap_indom) {
-	    return (PM_ERR_AGAIN, 0) unless defined($imap_count_values[$inst]);
+	    return (PMDA_FETCH_NOVALUES, 0) unless defined($imap_count_values[$inst]);
 	    return ($imap_count_values[$inst], 1);
 	}
     }
     elsif ($cluster == 1 && $item == 1) {	# imap.csv
 	if ($inst >= 0 && $inst < $#imap_indom) {
-	    return (PM_ERR_AGAIN, 0) unless defined($imap_time_values[$inst]);
+	    return (PMDA_FETCH_NOVALUES, 0) unless defined($imap_time_values[$inst]);
 	    return ($imap_time_values[$inst], 1);
 	}
     }
     elsif ($cluster == 2 && $item == 0) {	# soap.csv
 	if ($inst >= 0 && $inst < $#soap_indom) {
-	    return (PM_ERR_AGAIN, 0) unless defined($soap_count_values[$inst]);
+	    return (PMDA_FETCH_NOVALUES, 0) unless defined($soap_count_values[$inst]);
 	    return ($soap_count_values[$inst], 1);
 	}
     }
     elsif ($cluster == 2 && $item == 1) {	# soap.csv
 	if ($inst >= 0 && $inst < $#soap_indom) {
-	    return (PM_ERR_AGAIN, 0) unless defined($soap_time_values[$inst]);
+	    return (PMDA_FETCH_NOVALUES, 0) unless defined($soap_time_values[$inst]);
 	    return ($soap_time_values[$inst], 1);
 	}
     }
     elsif ($cluster == 3) {			# mailboxd.csv
 	if ($item >= 0 && $item <= 60) {
-	    return (PM_ERR_AGAIN, 0) unless defined($mailbox_values[$item]);
-	    if ($mailbox_values[$item] eq '') {
-		$mailbox_values[$item] = 0;
+	    #debug# if (!defined($mailboxd_values[$item])) {
+	    #debug#     $pmda->log("mailboxd_values[$item] not defined");
+	    #debug# }
+	    return (PMDA_FETCH_NOVALUES, 0) unless defined($mailboxd_values[$item]);
+	    if ($mailboxd_values[$item] eq '') {
+		$mailboxd_values[$item] = 0;
 	    }
-	    return ($mailbox_values[$item], 1);
+	    return ($mailboxd_values[$item], 1);
 	}
     }
     elsif ($cluster == 4) {			# mtaqueue.csv
 	if ($item >= 0 && $item <= 1) {
-	    return (PM_ERR_AGAIN, 0) unless defined($mtaqueue_values[$item]);
+	    return (PMDA_FETCH_NOVALUES, 0) unless defined($mtaqueue_values[$item]);
 	    return ($mtaqueue_values[$item], 1);
 	}
     }
     elsif ($cluster == 5) {			# proc.csv
-	if ($item >= 0 && $item <= 48) {
-	    return (PM_ERR_AGAIN, 0) unless defined($proc_values[$item]);
+	if ($item >= 0 && $item <= 55) {
+	    return (PMDA_FETCH_NOVALUES, 0) unless defined($proc_values[$item]);
 	    return ($proc_values[$item], 1);
 	}
     }
     elsif ($cluster == 6) {			# threads.csv
 	if ($item >= 0 && $item <= 13) {
-	    return (PM_ERR_AGAIN, 0) unless defined($threads_values[$item]);
+	    return (PMDA_FETCH_NOVALUES, 0) unless defined($threads_values[$item]);
 	    return ($threads_values[$item], 1);
 	}
     }
@@ -309,7 +507,7 @@ sub zimbra_fetch_callback
 	return ($fd_timestamp, 1) unless ($item != 0);
 	return ($imap_timestamp, 1) unless ($item != 1);
 	return ($soap_timestamp, 1) unless ($item != 2);
-	return ($mailbox_timestamp, 1) unless ($item != 3);
+	return ($mailboxd_timestamp, 1) unless ($item != 3);
 	return ($mtaqueue_timestamp, 1) unless ($item != 4);
 	return ($proc_timestamp, 1) unless ($item != 5);
 	return ($threads_timestamp, 1) unless ($item != 6);
@@ -317,7 +515,7 @@ sub zimbra_fetch_callback
     }
     elsif ($cluster == 8) {			# status probe
 	if ($item >= 0 && $item <= 11) {
-	    return (PM_ERR_APPVERSION, 0) unless defined($probe_values[$item]);
+	    return (0, 1) unless defined($probe_values[$item]);
 	    return ($probe_values[$item], 1);
 	}
     }
@@ -328,6 +526,10 @@ sub zimbra_fetch_callback
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.fd_count',
 	'/opt/zimbra/zmstat/fd.csv', 'Open file descriptors');
+
+$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd_fd_count',
+	'/opt/zimbra/zmstat/fd.csv', 'Open file descriptors for mailboxd');
 
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, $imap_domain, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.imap.count',
@@ -367,7 +569,7 @@ $pmda->add_metric(pmda_pmid(3,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Database connection count');
 $pmda->add_metric(pmda_pmid(3,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.db_conn.time',
-	'/opt/zimbra/zmstat/mailboxd.csv', 'Database connection time');
+	'/opt/zimbra/zmstat/mailboxd.csv', 'Average database connection time');
 $pmda->add_metric(pmda_pmid(3,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.ldap.dc_count',
 	'/opt/zimbra/zmstat/mailboxd.csv', '');
@@ -725,6 +927,34 @@ $pmda->add_metric(pmda_pmid(5,48), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.proc.clam.count',
 	'/opt/zimbra/zmstat/proc.csv', 'Total number of anti-virus processes');
 
+$pmda->add_metric(pmda_pmid(5,49), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.proc.zmstat.cputime',
+	'/opt/zimbra/zmstat/proc.csv',
+	'Total time as a percentage spent executing the anti-virus process');
+$pmda->add_metric(pmda_pmid(5,50), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.proc.zmstat.utime',
+	'/opt/zimbra/zmstat/proc.csv',
+	'Total user time as a percentage spent executing the anti-virus process');
+$pmda->add_metric(pmda_pmid(5,51), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.proc.zmstat.stime',
+	'/opt/zimbra/zmstat/proc.csv',
+	'Total systime as a percentage spent executing the anti-virus process');
+$pmda->add_metric(pmda_pmid(5,52), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.zmstat.total',
+	'/opt/zimbra/zmstat/proc.csv',
+	'Total virtual memory footprint of the anti-virus processes');
+$pmda->add_metric(pmda_pmid(5,53), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.zmstat.rss',
+	'/opt/zimbra/zmstat/proc.csv',
+	'Resident set size of the zmstat processes');
+$pmda->add_metric(pmda_pmid(5,54), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.zmstat.shared',
+	'/opt/zimbra/zmstat/proc.csv',
+	'Shared memory space used by the anti-virus processes');
+$pmda->add_metric(pmda_pmid(5,55), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.proc.zmstat.count',
+	'/opt/zimbra/zmstat/proc.csv', 'Total number of anti-virus processes');
+
 $pmda->add_metric(pmda_pmid(6,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.threads.btpool',
 	'/opt/zimbra/zmstat/threads.csv', '');
@@ -795,56 +1025,73 @@ $pmda->add_metric(pmda_pmid(7,7), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
 
 $pmda->add_metric(pmda_pmid(8,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.status.antivirus',
-	'Status for Zimbra antivirus service - 0=stopped, 1=running', '');
+	'Status for Zimbra antivirus service - 0=not running, 1=running', '');
 $pmda->add_metric(pmda_pmid(8,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.status.antispam',
-	'Status for Zimbra antispam service - 0=stopped, 1=running', '');
+	'Status for Zimbra antispam service - 0=not running, 1=running', '');
 $pmda->add_metric(pmda_pmid(8,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.status.archiving',
-	'Status for Zimbra archiving service - 0=stopped, 1=running', '');
+	'Status for Zimbra archiving service - 0=not running, 1=running', '');
 $pmda->add_metric(pmda_pmid(8,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.status.convertd',
-	'Status for Zimbra convertd service - 0=stopped, 1=running', '');
+	'Status for Zimbra convertd service - 0=not running, 1=running', '');
 $pmda->add_metric(pmda_pmid(8,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.status.mta',
-	'Status for Zimbra MTA service - 0=stopped, 1=running', '');
+	'Status for Zimbra MTA service - 0=not running, 1=running', '');
 $pmda->add_metric(pmda_pmid(8,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.status.mailbox',
-	'Status for Zimbra mailbox service - 0=stopped, 1=running', '');
+	'Status for Zimbra mailbox service - 0=not running, 1=running', '');
 $pmda->add_metric(pmda_pmid(8,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.status.logger',
-	'Status for Zimbra logger service - 0=stopped, 1=running', '');
+	'Status for Zimbra logger service - 0=not running, 1=running', '');
 $pmda->add_metric(pmda_pmid(8,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.status.snmp',
-	'Status for Zimbra SNMP service - 0=stopped, 1=running', '');
+	'Status for Zimbra SNMP service - 0=not running, 1=running', '');
 $pmda->add_metric(pmda_pmid(8,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.status.ldap',
-	'Status for Zimbra LDAP service - 0=stopped, 1=running', '');
+	'Status for Zimbra LDAP service - 0=not running, 1=running', '');
 $pmda->add_metric(pmda_pmid(8,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.status.spell',
-	'Status for Zimbra spell service - 0=stopped, 1=running', '');
+	'Status for Zimbra spell service - 0=not running, 1=running', '');
 $pmda->add_metric(pmda_pmid(8,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.status.imapproxy',
-	'Status for Zimbra imapproxy service - 0=stopped, 1=running', '');
+	'Status for Zimbra imapproxy service - 0=not running, 1=running', '');
 $pmda->add_metric(pmda_pmid(8,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.status.stats',
-	'Status for Zimbra stats service - 0=stopped, 1=running', '');
+	'Status for Zimbra stats service - 0=not running, 1=running', '');
 
 $pmda->add_indom($imap_domain, \@imap_indom, 'IMAP operations',
 		'Internet Message Access Protocol operations');
 $pmda->add_indom($soap_domain, \@soap_indom, 'SOAP operation',
 		'Simple Object Access Protocol operations');
 
-$pmda->add_tail($stats . 'fd.csv', \&zimbra_fd_parser, 0);
-$pmda->add_tail($stats . 'imap.csv', \&zimbra_imap_parser, 0);
-$pmda->add_tail($stats . 'mailboxd.csv', \&zimbra_mailbox_parser, 0);
-$pmda->add_tail($stats . 'mtaqueue.csv', \&zimbra_mtaqueue_parser, 0);
-$pmda->add_tail($stats . 'proc.csv', \&zimbra_proc_parser, 0);
-$pmda->add_tail($stats . 'soap.csv', \&zimbra_soap_parser, 0);
-$pmda->add_tail($stats . 'threads.csv', \&zimbra_threads_parser, 0);
+if ( -e $stats . 'fd.csv' ) {
+    $pmda->add_tail($stats . 'fd.csv', \&zimbra_fd_parser, 0);
+}
+if ( -e $stats . 'imap.csv' ) {
+    $pmda->add_tail($stats . 'imap.csv', \&zimbra_imap_parser, 0);
+}
+if ( -e $stats . 'mailboxd.csv' ) {
+    $pmda->add_tail($stats . 'mailboxd.csv', \&zimbra_mailboxd_parser, 0);
+    zimbra_mailboxd_mapper;
+}
+if ( -e $stats . 'mtaqueue.csv' ) {
+    $pmda->add_tail($stats . 'mtaqueue.csv', \&zimbra_mtaqueue_parser, 0);
+}
+if ( -e $stats . 'proc.csv' ) {
+    $pmda->add_tail($stats . 'proc.csv', \&zimbra_proc_parser, 0);
+}
+if ( -e $stats . 'soap.csv' ) {
+    $pmda->add_tail($stats . 'soap.csv', \&zimbra_soap_parser, 0);
+    zimbra_soap_mapper;
+}
+if ( -e $stats . 'threads.csv' ) {
+    $pmda->add_tail($stats . 'threads.csv', \&zimbra_threads_parser, 0);
+}
 
 $pmda->add_pipe($probe, \&zimbra_probe_callback, 0);
 
 $pmda->set_fetch_callback(\&zimbra_fetch_callback);
+
 $pmda->set_user('pcp');
 $pmda->run;

@@ -17,8 +17,8 @@ import re
 import ctypes as ct
 from os import kill, listdir, path
 from collections import OrderedDict
-
 from bcc.table import log2_index_max
+from bcc import __version__, BPF
 
 from cpmapi import PM_ERR_BADSTORE
 
@@ -314,14 +314,17 @@ class PCPBCCBase(object):
     def bcc_version():
         """ Check BCC version """
         try:
-            from bcc import __version__
             return __version__.split("-")[0]
         except Exception: # pylint: disable=broad-except
-            from bcc import BPF
             if 'perf_buffer_poll' in dir(BPF):
                 return "0.6.0"
             else:
                 return "0.5.0"
+
+    @staticmethod
+    def bcc_version_tuple():
+        """ Returns BCC version as an int tuple (for comparisons) """
+        return tuple(map(int, PCPBCCBase.bcc_version().split('.')))
 
     def perf_buffer_poller(self):
         """ BPF poller """
@@ -365,7 +368,10 @@ class PCPBCCBase(object):
         Compat: bcc < 0.6.0
         source: https://github.com/iovisor/bcc/blame/master/src/python/bcc/__init__.py
         """
-        return self.get_syscall_prefix() + name
+        if hasattr(self.bpf, 'get_syscall_fnname'):
+            return self.bpf.get_syscall_fnname(name)
+        else:
+            return self.get_syscall_prefix() + name
 
     def get_kprobe_functions(self, event_re):
         """

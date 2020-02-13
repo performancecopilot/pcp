@@ -161,7 +161,7 @@ _split()
     $PCP_AWK_PROG <$tmp/ctl '
 BEGIN						{ out = "'"$tmp/head"'" }
 /DO NOT UPDATE THE FILE ABOVE/			{ seen = 1 }
-seen == 0 && /^\#\? [^:]*:[ynx]:/		{ print >"'"$tmp/tag"'"
+seen == 0 && /^#\? [^:]*:[ynx]:/		{ print >"'"$tmp/tag"'"
 						  out = "'"$tmp/tail"'"
 						  seen = 1
 						  next
@@ -180,8 +180,8 @@ _update()
     $PCP_AWK_PROG <$tmp/in >$tmp/ctl '
 /DO NOT UPDATE THE FILE ABOVE/	{ tail = 1 }
 tail == 1			{ print; next }
-/^\#\+ [^:]*:[ynx]:/		{ sub(/\+/, "?", $1); print; skip = 1; next }
-skip == 1 && /^\#----/		{ skip = 0; next }
+/^#\+ [^:]*:[ynx]:/		{ sub(/\+/, "?", $1); print; skip = 1; next }
+skip == 1 && /^#----/		{ skip = 0; next }
 skip == 1			{ next }
 				{ print }'
 

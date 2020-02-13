@@ -1,7 +1,7 @@
 /*
  * Device Mapper PMDA - VDO (Virtual Data Optimizer) Stats
  *
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018-2019 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,46 +42,54 @@ vdo_fetch_oneline(const char *path, const char *name)
     return NULL;
 }
 
-static char *
-vdo_fetch_string(const char *file, const char *name)
+static int
+vdo_fetch_string(const char *file, const char *name, char **v)
 {
-    return vdo_fetch_oneline(file, name);
+    if ((*v = vdo_fetch_oneline(file, name)) == NULL)
+	return PM_ERR_APPVERSION;
+    return PMDA_FETCH_STATIC;
 }
 
-static __uint64_t
-vdo_fetch_ull(const char *file, const char *name)
+static int
+vdo_fetch_ull(const char *file, const char *name, __uint64_t *v)
 {
     char *value = vdo_fetch_oneline(file, name);
     char *endnum = NULL;
-    __uint64_t v = strtoull(value, &endnum, 10);
 
+    if (!value)
+	return PM_ERR_APPVERSION;
+    *v = strtoull(value, &endnum, 10);
     if (!endnum || *endnum != '\0')
-	return 0;
-    return v;
+	return PM_ERR_VALUE;
+    return PMDA_FETCH_STATIC;
 }
 
-static __uint32_t
-vdo_fetch_ul(const char *file, const char *name)
+static int
+vdo_fetch_ul(const char *file, const char *name, __uint32_t *v)
 {
     char *value = vdo_fetch_oneline(file, name);
     char *endnum = NULL;
-    __uint32_t v = strtoul(value, &endnum, 10);
 
+    if (!value)
+	return PM_ERR_APPVERSION;
+    *v = strtoul(value, &endnum, 10);
     if (!endnum || *endnum != '\0')
-	return 0;
-    return v;
+	return PM_ERR_VALUE;
+    return PMDA_FETCH_STATIC;
 }
 
-static float
-vdo_fetch_float(const char *file, const char *name)
+static int
+vdo_fetch_float(const char *file, const char *name, float *v)
 {
     char *value = vdo_fetch_oneline(file, name);
     char *endnum = NULL;
-    float v = strtof(value, &endnum);
 
+    if (!value)
+	return PM_ERR_APPVERSION;
+    *v = strtof(value, &endnum);
     if (!endnum || *endnum != '\0')
-	return 0;
-    return v;
+	return PM_ERR_VALUE;
+    return PMDA_FETCH_STATIC;
 }
 
 /*
@@ -91,81 +99,112 @@ int
 dm_vdodev_fetch(pmdaMetric *metric, const char *name, pmAtomValue *atom)
 {
     char *file = (char *)metric->m_user;
+    int sts;
 
     if (file) {
 	unsigned int	type = metric->m_desc.type;
 
 	switch (type) {
 	case PM_TYPE_STRING:
-	    atom->cp = vdo_fetch_string(file, name);
-	    return 1;
+	    return vdo_fetch_string(file, name, &atom->cp);
 	case PM_TYPE_FLOAT:
-	    atom->f = vdo_fetch_float(file, name);
-	    return 1;
+	    return vdo_fetch_float(file, name, &atom->f);
 	case PM_TYPE_U64:
-	    atom->ull = vdo_fetch_ull(file, name);
-	    return 1;
+	    return vdo_fetch_ull(file, name, &atom->ull);
 	case PM_TYPE_U32:
-	    atom->ul = vdo_fetch_ul(file, name);
-	    return 1;
+	    return vdo_fetch_ul(file, name, &atom->ul);
 	default:
 	    break;
 	}
-	fprintf(stderr, "Bad VDO type=%u f=%s dev=%s\n", type, file, name);
+	if (pmDebugOptions.libpmda)
+	    fprintf(stderr, "Bad VDO type=%u f=%s dev=%s\n", type, file, name);
     } else {	/* derived metrics */
-	unsigned int	item = pmID_item(metric->m_desc.pmid);
-	double		calc;
+	__uint64_t v1, v2, v3;
+	double calc;
 
-	switch (item) {
+	switch (pmID_item(metric->m_desc.pmid)) {
 	case VDODEV_JOURNAL_BLOCKS_BATCHING:
-	    atom->ull = vdo_fetch_ull("journal_blocks_started", name) -
-			vdo_fetch_ull("journal_blocks_written", name);
-	    return 1;
+	    if ((sts = vdo_fetch_ull("journal_blocks_started", name, &v1)) < 0)
+		return sts;
+	    if ((sts = vdo_fetch_ull("journal_blocks_written", name, &v2)) < 0)
+		return sts;
+	    atom->ull = v1 - v2;
+	    return sts;
 	case VDODEV_JOURNAL_BLOCKS_WRITING:
-	    atom->ull = vdo_fetch_ull("journal_blocks_written", name) -
-			vdo_fetch_ull("journal_blocks_committed", name);
-	    return 1;
+	    if ((sts = vdo_fetch_ull("journal_blocks_written", name, &v1)) < 0)
+		return sts;
+	    if ((sts = vdo_fetch_ull("journal_blocks_committed", name, &v2)) < 0)
+		return sts;
+	    atom->ull = v1 - v2;
+	    return sts;
 	case VDODEV_JOURNAL_ENTRIES_BATCHING:
-	    atom->ull = vdo_fetch_ull("journal_entries_started", name) -
-			vdo_fetch_ull("journal_entries_written", name);
-	    return 1;
+	    if ((sts = vdo_fetch_ull("journal_entries_started", name, &v1)) < 0)
+		return sts;
+	    if ((sts = vdo_fetch_ull("journal_entries_written", name, &v2)) < 0)
+		return sts;
+	    atom->ull = v1 - v2;
+	    return PMDA_FETCH_STATIC;
 	case VDODEV_JOURNAL_ENTRIES_WRITING:
-	    atom->ull = vdo_fetch_ull("journal_entries_written", name) -
-			vdo_fetch_ull("journal_entries_committed", name);
-	    return 1;
+	    if ((sts = vdo_fetch_ull("journal_entries_written", name, &v1)) < 0)
+		return sts;
+	    if ((sts = vdo_fetch_ull("journal_entries_committed", name, &v2)) < 0)
+		return sts;
+	    atom->ull = v1 - v2;
+	    return sts;
 	case VDODEV_CAPACITY:
-	    atom->ull = vdo_fetch_ull("physical_blocks", name) *
-			vdo_fetch_ull("block_size", name) / 1024;
-	    return 1;
+	    if ((sts = vdo_fetch_ull("physical_blocks", name, &v1)) < 0)
+		return sts;
+	    if ((sts = vdo_fetch_ull("block_size", name, &v2)) < 0)
+		return sts;
+	    atom->ull = v1 * v2 / 1024;
+	    return sts;
 	case VDODEV_USED:
-	    atom->ull = (vdo_fetch_ull("data_blocks_used", name) +
-			 vdo_fetch_ull("overhead_blocks_used", name)) *
-			 vdo_fetch_ull("block_size", name) / 1024;
-	    return 1;
+	    if ((sts = vdo_fetch_ull("data_blocks_used", name, &v1)) < 0)
+		return sts;
+	    if ((sts = vdo_fetch_ull("overhead_blocks_used", name, &v2)) < 0)
+		return sts;
+	    if ((sts = vdo_fetch_ull("block_size", name, &v3)) < 0)
+		return sts;
+	    atom->ull = (v1 + v2) * v3 / 1024;
+	    return sts;
 	case VDODEV_AVAILABLE:
-	    atom->ull = (vdo_fetch_ull("physical_blocks", name) -
-			 vdo_fetch_ull("data_blocks_used", name) -
-			 vdo_fetch_ull("overhead_blocks_used", name)) *
-			 vdo_fetch_ull("block_size", name) / 1024;
-	    return 1;
+	    if ((sts = vdo_fetch_ull("physical_blocks", name, &v1)) < 0)
+		return sts;
+	    if ((sts = vdo_fetch_ull("data_blocks_used", name, &v2)) < 0)
+		return sts;
+	    if ((sts = vdo_fetch_ull("overhead_blocks_used", name, &v3)) < 0)
+		return sts;
+	    v1 = v1 - v2 - v3;
+	    if ((sts = vdo_fetch_ull("block_size", name, &v2)) < 0)
+		return sts;
+	    atom->ull = v1 * v2 / 1024;
+	    return sts;
 	case VDODEV_USED_PERCENTAGE:
-	    atom->ull = vdo_fetch_ull("physical_blocks", name);
-	    calc = (double)(vdo_fetch_ull("data_blocks_used", name) +
-			    vdo_fetch_ull("overhead_blocks_used", name));
-	    atom->f = 100.0 * (calc / (double)atom->ull);
-	    return 1;
+	    if ((sts = vdo_fetch_ull("physical_blocks", name, &v1)) < 0)
+		return sts;
+	    if ((sts = vdo_fetch_ull("data_blocks_used", name, &v2)) < 0)
+		return sts;
+	    if ((sts = vdo_fetch_ull("overhead_blocks_used", name, &v3)) < 0)
+		return sts;
+	    calc = (double)(v2 + v3);
+	    atom->f = 100.0 * (calc / (double)v1);
+	    return sts;
 	case VDODEV_SAVINGS_PERCENTAGE:
-	    atom->ull = vdo_fetch_ull("logical_blocks_used", name);
-	    calc = (double)(atom->ull -
-			    vdo_fetch_ull("data_blocks_used", name));
-	    atom->f = 100.0 * (calc / (double)atom->ull);
-	    return 1;
+	    if ((sts = vdo_fetch_ull("logical_blocks_used", name, &v1)) < 0)
+		return sts;
+	    if ((sts = vdo_fetch_ull("data_blocks_used", name, &v2)) < 0)
+		return sts;
+	    calc = (double)(v1 - v2);
+	    atom->f = 100.0 * (calc / (double)v1);
+	    return sts;
 	default:
 	    break;
 	}
-	fprintf(stderr, "Bad metric item=%u dev=%s\n", item, name);
+	if (pmDebugOptions.libpmda)
+	    fprintf(stderr, "Bad metric item=%u dev=%s\n",
+			    pmID_item(metric->m_desc.pmid), name);
     }
-    return 0;
+    return PMDA_FETCH_NOVALUES;
 }
 
 /*

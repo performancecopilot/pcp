@@ -5,6 +5,10 @@ hostmetrics {
 	hinv.map.dmname		MAP_DMNAME
 	hinv.map.mdname		MAP_MDNAME
 
+	nvidia.numcards		NRGPUS
+	nvidia.cardname		MAP_GPUNAME
+	nvidia.busid		MAP_GPUBUSID
+
 	hinv.pagesize		HOST_PAGESIZE
 	kernel.all.hz		HOST_HERTZ
 	kernel.all.pid_max	HOST_PID_MAX

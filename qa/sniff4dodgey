@@ -125,7 +125,7 @@ do
 pmrep|pmlogger_daily_report:pmrep:pmrep python
 _prepare_pmda bcc:bcc PMDA:pmda.bcc python
 pmdajson.python:json PMDA:pmda.json python
-_pmdaprometheus_install:prometheus PMDA:pmda.prometheus python
+_pmdaopenmetrics_install:openmetrics PMDA:pmda.openmetrics python
 PCP_PMDAS_DIR/unbound:unbound PMDA:pmda.unbound python
 pmdalio.python:lio PMDA:pmda.lio python
 pmdasimple.python:simple PMDA (python version):pmda.simple python

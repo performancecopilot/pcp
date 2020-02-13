@@ -2,17 +2,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PCP.CONF 5 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -24,7 +24,7 @@
 .SH DESCRIPTION
 When using Performance Co-Pilot (PCP) tools and utilities
 and when calling PCP library functions, a standard set of
-environment variables are defined in 
+environment variables are defined in
 .IR /etc/pcp.conf .
 These variables are generally used to specify the location of
 various PCP pieces in the file system and may be loaded into
@@ -36,7 +36,7 @@ library function.
 If a variable is already defined in the environment,
 the values in
 .I pcp.conf
-do 
+do
 .B not
 override those values, i.e. the values in
 .I pcp.conf
@@ -70,7 +70,7 @@ the general syntax is
 .IP 2. 4
 lines that begin with
 .B #
-and all blank lines are ignored. 
+and all blank lines are ignored.
 .IP 3. 4
 all variables must be prefixed with
 .BR PCP_ .
@@ -80,7 +80,7 @@ be silently ignored.
 there should be no space between the variable name and the literal
 .B =
 and no space between the
-.B = 
+.B =
 and the variable value (unless the value actually starts with a space).
 This is required because the
 .I pcp.conf

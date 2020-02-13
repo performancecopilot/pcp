@@ -18,7 +18,6 @@ quit
 Goodbye
 
 === OK case ===
-Waiting for pmcd to terminate ...
 Log for pmlogger on HOST started DATE
 
 Config parsed
@@ -43,5 +42,3 @@ MILLION samples:
     30.0.13 (sampledso.long.million): value 1000000
     30.0.13 (sampledso.long.million): value 1000000
     30.0.13 (sampledso.long.million): value 1000000
-Starting pmcd ... 
-Starting pmlogger ... 

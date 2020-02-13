@@ -1,0 +1,14 @@
+# for vagrant, these are the packages we don't want to install
+avahi-tools
+cpan(Spreadsheet::ReadSXC)
+cpan(Text::CSV_XS)
+docker.io
+libspreadsheet-readsxc-perl
+libuv1-dev
+libuv-dev
+mariadb-client-core
+mysql-client-core
+python3-bpfcc
+python3-openpyxl
+python3-prometheus-client
+python-prometheus-client

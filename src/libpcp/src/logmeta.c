@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 Red Hat.
+ * Copyright (c) 2013-2018, 2020 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -490,7 +490,7 @@ check_dup_labels(const __pmArchCtl *acp)
 }
 
 static int
-addtext(__pmArchCtl *acp, unsigned int ident, unsigned int type, char *buffer)
+addtext(__pmArchCtl *acp, unsigned int ident, unsigned int type, const char *buffer)
 {
     __pmLogCtl		*lcp = acp->ac_log;
     __pmHashNode	*hp;
@@ -553,6 +553,92 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":15", PM_FAULT_ALLOC);
     return sts;
 }
 
+int
+__pmLogAddDesc(__pmArchCtl *acp, const pmDesc *newdp)
+{
+    __pmHashNode	*hp;
+    __pmLogCtl		*lcp = acp->ac_log;
+    pmDesc		*dp, *olddp;
+
+    if ((hp = __pmHashSearch((int)newdp->pmid, &lcp->l_hashpmid)) != NULL) {
+	/* PMID is already in the hash table - check for conflicts. */
+	olddp = (pmDesc *)hp->data;
+	if (newdp->type != olddp->type)
+	    return PM_ERR_LOGCHANGETYPE;
+	if (newdp->sem != olddp->sem)
+	    return PM_ERR_LOGCHANGESEM;
+	if (newdp->indom != olddp->indom)
+	    return PM_ERR_LOGCHANGEINDOM;
+	if (newdp->units.dimSpace != olddp->units.dimSpace ||
+	    newdp->units.dimTime != olddp->units.dimTime ||
+	    newdp->units.dimCount != olddp->units.dimCount ||
+	    newdp->units.scaleSpace != olddp->units.scaleSpace ||
+	    newdp->units.scaleTime != olddp->units.scaleTime ||
+	    newdp->units.scaleCount != olddp->units.scaleCount)
+	    return PM_ERR_LOGCHANGEUNITS;
+
+	/* PMID is already known and checks out - we're done here. */
+	return 0;
+    }
+
+    /* Add a copy of the descriptor into the PMID:desc hash table. */
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
+    if ((dp = (pmDesc *)malloc(sizeof(pmDesc))) == NULL)
+	return -oserror();
+    *dp = *newdp;
+
+    return __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->l_hashpmid);
+}
+
+int
+__pmLogAddPMNSNode(__pmArchCtl *acp, pmID pmid, const char *name)
+{
+    __pmLogCtl		*lcp = acp->ac_log;
+    int			sts;
+
+    /*
+     * If we see a duplicate name with a different PMID, its a
+     * recoverable error.
+     * We wont be able to see all of the data in the log, but
+     * its better to provide access to some rather than none,
+     * esp. when only one or two metric IDs may be corrupted
+     * in this way (which we may not be interested in anyway).
+     */
+    sts = __pmAddPMNSNode(lcp->l_pmns, pmid, name);
+    if (sts == PM_ERR_PMID)
+	sts = 0;
+    return sts;
+}
+
+int
+__pmLogAddInDom(__pmArchCtl *acp, const pmTimespec *when, const pmInResult *in,
+		int *tbuf, int allinbuf)
+{
+    pmTimeval		tv;
+
+    tv.tv_sec = when->tv_sec;
+    tv.tv_usec = when->tv_nsec / 1000;
+    return addindom(acp->ac_log, in->indom, &tv,
+		    in->numinst, in->instlist, in->namelist, tbuf, allinbuf);
+}
+
+int
+__pmLogAddLabelSets(__pmArchCtl *acp, const pmTimespec *when, unsigned int type,
+		unsigned int ident, int nsets, pmLabelSet *labelsets)
+{
+    pmTimeval		tv;
+
+    tv.tv_sec = when->tv_sec;
+    tv.tv_usec = when->tv_nsec / 1000;
+    return addlabel(acp, type, ident, nsets, labelsets, &tv);
+}
+
+int
+__pmLogAddText(__pmArchCtl *acp, unsigned int ident, unsigned int type, const char *buffer)
+{
+    return addtext(acp, ident, type, buffer);
+}
+
 /*
  * Load _all_ of the hashed pmDesc and __pmLogInDom structures from the metadata
  * log file -- used at the initialization (NewContext) of an archive.
@@ -563,11 +649,8 @@ int
 __pmLogLoadMeta(__pmArchCtl *acp)
 {
     __pmLogCtl		*lcp = acp->ac_log;
-    __pmHashNode	*hp;
     int			rlen;
     int			check;
-    pmDesc		*dp;
-    pmDesc		*olddp;
     int			sts = 0;
     __pmLogHdr		h;
     __pmFILE		*f = lcp->l_mdfp;
@@ -615,13 +698,10 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 	}
 	rlen = h.len - (int)sizeof(__pmLogHdr) - (int)sizeof(int);
 	if (h.type == TYPE_DESC) {
+	    pmDesc		desc;
+
 	    numpmid++;
-PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
-	    if ((dp = (pmDesc *)malloc(sizeof(pmDesc))) == NULL) {
-		sts = -oserror();
-		goto end;
-	    }
-	    if ((n = (int)__pmFread(dp, 1, sizeof(pmDesc), f)) != sizeof(pmDesc)) {
+	    if ((n = (int)__pmFread(&desc, 1, sizeof(pmDesc), f)) != sizeof(pmDesc)) {
 		if (pmDebugOptions.logmeta) {
 		    fprintf(stderr, "__pmLogLoadMeta: pmDesc read -> %d: expected: %d\n",
 			    n, (int)sizeof(pmDesc));
@@ -632,67 +712,25 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		}
 		else
 		    sts = PM_ERR_LOGREC;
-		free(dp);
 		goto end;
-	    }
-	    else {
-		/* swab desc */
-		dp->type = ntohl(dp->type);
-		dp->sem = ntohl(dp->sem);
-		dp->indom = __ntohpmInDom(dp->indom);
-		dp->units = __ntohpmUnits(dp->units);
-		dp->pmid = __ntohpmID(dp->pmid);
 	    }
 
-	    /* Add it to the hash pmid hash table. */
-	    if ((hp = __pmHashSearch((int)dp->pmid, &lcp->l_hashpmid)) != NULL) {
-		/*
-		 * This pmid is already in the hash table. Check for conflicts.
-		 */
-		olddp = (pmDesc *)hp->data;
-		if (dp->type != olddp->type) {
-		    sts = PM_ERR_LOGCHANGETYPE;
-		    free(dp);
-		    goto end;
-		}
-		if (dp->sem != olddp->sem) {
-		    sts = PM_ERR_LOGCHANGESEM;
-		    free(dp);
-		    goto end;
-		}
-		if (dp->indom != olddp->indom) {
-		    sts = PM_ERR_LOGCHANGEINDOM;
-		    free(dp);
-		    goto end;
-		}
-		if (dp->units.dimSpace != olddp->units.dimSpace ||
-		    dp->units.dimTime != olddp->units.dimTime ||
-		    dp->units.dimCount != olddp->units.dimCount ||
-		    dp->units.scaleSpace != olddp->units.scaleSpace ||
-		    dp->units.scaleTime != olddp->units.scaleTime ||
-		    dp->units.scaleCount != olddp->units.scaleCount) {
-		    sts = PM_ERR_LOGCHANGEUNITS;
-		    free(dp);
-		    goto end;
-		}
-                /*
-                 * This pmid is already known, and matches.  We can free the newly
-                 * read copy and use the one in the hash table. 
-                 */
-                free(dp);
-                dp = olddp;
-	    }
-	    else if ((sts = __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->l_hashpmid)) < 0) {
-		free(dp);
+	    /* swab desc */
+	    desc.type = ntohl(desc.type);
+	    desc.sem = ntohl(desc.sem);
+	    desc.indom = __ntohpmInDom(desc.indom);
+	    desc.units = __ntohpmUnits(desc.units);
+	    desc.pmid = __ntohpmID(desc.pmid);
+
+	    if ((sts = __pmLogAddDesc(acp, &desc)) < 0)
 		goto end;
-	    }
 
 	    /* read in the names & store in PMNS tree ... */
 	    if ((n = (int)__pmFread(&numnames, 1, sizeof(numnames), f)) != 
 		sizeof(numnames)) {
 		if (pmDebugOptions.logmeta) {
-		    fprintf(stderr, "__pmLogLoadMeta: numnames read -> %d: expected: %d\n",
-			    n, (int)sizeof(numnames));
+		    fprintf(stderr, "%s: numnames read -> %d: expected: %d\n",
+			    "__pmLogLoadMeta", n, (int)sizeof(numnames));
 		}
 		if (__pmFerror(f)) {
 		    __pmClearerr(f);
@@ -711,8 +749,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		if ((n = (int)__pmFread(&len, 1, sizeof(len), f)) != 
 		    sizeof(len)) {
 		    if (pmDebugOptions.logmeta) {
-			fprintf(stderr, "__pmLogLoadMeta: len name[%d] read -> %d: expected: %d\n",
-				i, n, (int)sizeof(len));
+			fprintf(stderr, "%s: len name[%d] read -> %d: expected: %d\n",
+				"__pmLogLoadMeta", i, n, (int)sizeof(len));
 		    }
 		    if (__pmFerror(f)) {
 			__pmClearerr(f);
@@ -729,8 +767,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 
 		if ((n = (int)__pmFread(name, 1, len, f)) != len) {
 		    if (pmDebugOptions.logmeta) {
-			fprintf(stderr, "__pmLogLoadMeta: name[%d] read -> %d: expected: %d\n",
-				i, n, len);
+			fprintf(stderr, "%s: name[%d] read -> %d: expected: %d\n",
+				"__pmLogLoadMeta", i, n, len);
 		    }
 		    if (__pmFerror(f)) {
 			__pmClearerr(f);
@@ -743,36 +781,23 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		name[len] = '\0';
 		if (pmDebugOptions.logmeta) {
 		    char	strbuf[20];
-		    fprintf(stderr, "__pmLogLoadMeta: PMID: %s name: %s\n",
-			    pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)), name);
+		    fprintf(stderr, "%s: PMID: %s name: %s\n",
+			    "__pmLogLoadMeta",
+			    pmIDStr_r(desc.pmid, strbuf, sizeof(strbuf)), name);
 		}
-		/* Add the new PMNS node */
-		if ((sts = __pmAddPMNSNode(lcp->l_pmns, dp->pmid, name)) < 0) {
-		    /*
-		     * If we see a duplicate name with a different PMID, its a
-		     * recoverable error.
-		     * We wont be able to see all of the data in the log, but
-		     * its better to provide access to some rather than none,
-		     * esp. when only one or two metric IDs may be corrupted
-		     * in this way (which we may not be interested in anyway).
-		     */
-		    if (sts != PM_ERR_PMID)
-			goto end;
-		} 
+
+		/* Add the new PMNS node into this context */
+		if ((sts = __pmLogAddPMNSNode(acp, desc.pmid, name)) < 0)
+		    goto end;
 	    }/*for*/
 	}
 	else if (h.type == TYPE_INDOM) {
-	    int			*tbuf;
-	    pmInDom		indom;
-	    pmTimeval		*when;
-	    int			numinst;
-	    int			*instlist;
-	    char		**namelist;
+	    pmTimeval		*tv;
+	    pmTimespec		when;
+	    pmInResult		in;
 	    char		*namebase;
-	    int			*stridx;
-	    int			i;
-	    int			k;
-	    int			allinbuf = 0;
+	    int			*tbuf, *stridx;
+	    int			i, k, allinbuf = 0;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	    if ((tbuf = (int *)malloc(rlen)) == NULL) {
@@ -781,8 +806,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	    }
 	    if ((n = (int)__pmFread(tbuf, 1, rlen, f)) != rlen) {
 		if (pmDebugOptions.logmeta) {
-		    fprintf(stderr, "__pmLogLoadMeta: indom read -> %d: expected: %d\n",
-			    n, rlen);
+		    fprintf(stderr, "%s: indom read -> %d: expected: %d\n",
+			    "__pmLogLoadMeta", n, rlen);
 		}
 		if (__pmFerror(f)) {
 		    __pmClearerr(f);
@@ -795,44 +820,44 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	    }
 
 	    k = 0;
-	    when = (pmTimeval *)&tbuf[k];
-	    when->tv_sec = ntohl(when->tv_sec);
-	    when->tv_usec = ntohl(when->tv_usec);
-	    k += sizeof(*when)/sizeof(int);
-	    indom = __ntohpmInDom((unsigned int)tbuf[k++]);
-	    numinst = ntohl(tbuf[k++]);
-	    if (numinst > 0) {
-		instlist = &tbuf[k];
-		k += numinst;
+	    tv = (pmTimeval *)&tbuf[k];
+	    when.tv_sec = ntohl(tv->tv_sec);
+	    when.tv_nsec = ntohl(tv->tv_usec) * 1000;
+	    k += sizeof(*tv)/sizeof(int);
+	    in.indom = __ntohpmInDom((unsigned int)tbuf[k++]);
+	    in.numinst = ntohl(tbuf[k++]);
+	    if (in.numinst > 0) {
+		in.instlist = &tbuf[k];
+		k += in.numinst;
 		stridx = &tbuf[k];
 #if defined(HAVE_32BIT_PTR)
-		namelist = (char **)stridx;
+		in.namelist = (char **)stridx;
 		allinbuf = 1; /* allocation is all in tbuf */
 #else
 		allinbuf = 0; /* allocation for namelist + tbuf */
 		/* need to allocate to hold the pointers */
 PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
-		namelist = (char **)malloc(numinst*sizeof(char*));
-		if (namelist == NULL) {
+		in.namelist = (char **)malloc(in.numinst * sizeof(char*));
+		if (in.namelist == NULL) {
 		    sts = -oserror();
 		    free(tbuf);
 		    goto end;
 		}
 #endif
-		k += numinst;
+		k += in.numinst;
 		namebase = (char *)&tbuf[k];
-	        for (i = 0; i < numinst; i++) {
-		    instlist[i] = ntohl(instlist[i]);
-	            namelist[i] = &namebase[ntohl(stridx[i])];
+	        for (i = 0; i < in.numinst; i++) {
+		    in.instlist[i] = ntohl(in.instlist[i]);
+	            in.namelist[i] = &namebase[ntohl(stridx[i])];
 		}
-		if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0)
+		if ((sts = __pmLogAddInDom(acp, &when, &in, tbuf, allinbuf)) < 0)
 		    goto end;
 		/* If this indom was a duplicate, then we need to free tbuf and
 		   namelist, as appropriate. */
 		if (sts == PMLOGPUTINDOM_DUP) {
 		    free(tbuf);
-		    if (namelist != NULL && !allinbuf)
-			free(namelist);
+		    if (in.namelist != NULL && !allinbuf)
+			free(in.namelist);
 		}
 	    }
 	    else {
@@ -860,8 +885,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 	    }
 	    if ((n = (int)__pmFread(tbuf, 1, rlen, f)) != rlen) {
 		if (pmDebugOptions.logmeta) {
-		    fprintf(stderr, "__pmLogLoadMeta: label read -> %d: expected: %d\n",
-			    n, rlen);
+		    fprintf(stderr, "%s: label read -> %d: expected: %d\n",
+			    "__pmLogLoadMeta", n, rlen);
 		}
 		if (__pmFerror(f)) {
 		    __pmClearerr(f);
@@ -908,7 +933,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 
 		if (jsonlen < 0 || jsonlen > PM_MAXLABELJSONLEN) {
 		    if (pmDebugOptions.logmeta)
-			fprintf(stderr, "__pmLogLoadMeta: corrupted json in labelset. jsonlen=%d\n", jsonlen);
+			fprintf(stderr, "%s: corrupted json in labelset. jsonlen=%d\n",
+					"__pmLogLoadMeta", jsonlen);
 		    sts = PM_ERR_LOGREC;
 		    free(labelsets);
 		    free(tbuf);
@@ -935,7 +961,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 		    if (nlabels > PM_MAXLABELS || k + nlabels * sizeof(pmLabel) > rlen) {
 			/* corrupt archive metadata detected. GH #475 */
 			if (pmDebugOptions.logmeta)
-			    fprintf(stderr, "__pmLogLoadMeta: corrupted labelset. nlabels=%d\n", nlabels);
+			    fprintf(stderr, "%s: corrupted labelset. nlabels=%d\n",
+					    "__pmLogLoadMeta", nlabels);
 			sts = PM_ERR_LOGREC;
 			free(labelsets);
 			free(tbuf);
@@ -975,8 +1002,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 	    }
 	    if ((n = (int)__pmFread(tbuf, 1, rlen, f)) != rlen) {
 		if (pmDebugOptions.logmeta) {
-		    fprintf(stderr, "__pmLogLoadMeta: text read -> %d: expected: %d\n",
-			    n, rlen);
+		    fprintf(stderr, "%s: text read -> %d: expected: %d\n",
+				    "__pmLogLoadMeta", n, rlen);
 		}
 		if (__pmFerror(f)) {
 		    __pmClearerr(f);
@@ -1005,8 +1032,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 		ident = __ntohpmID(*((unsigned int *)&tbuf[k]));
 	    else {
 		if (pmDebugOptions.logmeta) {
-		    fprintf(stderr, "__pmLogLoadMeta: bad text ident -> %x\n",
-			    type);
+		    fprintf(stderr, "%s: bad text ident -> %x\n",
+				    "__pmLogLoadMeta", type);
 		}
 		free(tbuf);
 		continue;
@@ -1024,8 +1051,9 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 	check = ntohl(check);
 	if (n != sizeof(check) || h.len != check) {
 	    if (pmDebugOptions.logmeta) {
-		fprintf(stderr, "__pmLogLoadMeta: trailer read -> %d or len=%d: expected %d @ offset=%d\n",
-		    n, check, h.len, (int)(__pmFtell(f) - sizeof(check)));
+		fprintf(stderr, "%s: trailer read -> %d or len=%d: "
+				"expected %d @ offset=%d\n", "__pmLogLoadMeta",
+			n, check, h.len, (int)(__pmFtell(f) - sizeof(check)));
 	    }
 	    if (__pmFerror(f)) {
 		__pmClearerr(f);
@@ -1046,7 +1074,7 @@ end:
     if (sts == 0) {
 	if (numpmid == 0) {
 	    if (pmDebugOptions.logmeta) {
-		fprintf(stderr, "__pmLogLoadMeta: no metrics found?\n");
+		fprintf(stderr, "%s: no metrics found?\n", "__pmLogLoadMeta");
 	    }
 	    sts = PM_ERR_LOGREC;
 	}

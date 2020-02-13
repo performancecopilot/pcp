@@ -1,0 +1,43 @@
+QA output created by 1704
+
+=== bpftrace agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpftrace metrics have appeared ... 7 metrics and 6 values
+
+=== start bpftrace script ===
+bpftrace.control.register old value="{}" new value="// name: testscript
+tracepoint:syscalls:sys_enter_kill /args->pid == PID/ { @signals[args->sig] = count(); }"
+=== check metrics ===
+found metric bpftrace.scripts.testscript.probes matching "value 2"
+
+bpftrace.scripts.testscript.data.signals PMID: 151.100.10 [@signals variable of bpftrace script]
+    Data Type: 64-bit unsigned int  InDom: 151.100010 0x25c186aa
+    Semantics: counter  Units: none
+Help:
+@signals variable of bpftrace script
+No value(s) available!
+
+bpftrace.scripts.testscript.data.signals PMID: 151.100.10 [@signals variable of bpftrace script]
+    Data Type: 64-bit unsigned int  InDom: 151.100010 0x25c186aa
+    Semantics: counter  Units: none
+Help:
+@signals variable of bpftrace script
+    inst [0 or "17"] value 1
+
+bpftrace.scripts.testscript.data.signals PMID: 151.100.10 [@signals variable of bpftrace script]
+    Data Type: 64-bit unsigned int  InDom: 151.100010 0x25c186aa
+    Semantics: counter  Units: none
+Help:
+@signals variable of bpftrace script
+    inst [1 or "15"] value 1
+    inst [0 or "17"] value 1
+
+=== remove bpftrace agent ===
+Culling the Performance Metrics Name Space ...
+bpftrace ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bpftrace metrics have gone away ... OK

@@ -1,30 +1,57 @@
 /*
- * Copyright (c) 2018 Red Hat.
- * 
+ * Copyright (c) 2018-2019 Red Hat.
+ *
  * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
 #ifndef PROXY_SERVER_H
 #define PROXY_SERVER_H
 
 #include <uv.h>
+#include "uv_callback.h"
+
+#ifdef HAVE_OPENSSL
+#include <openssl/ssl.h>
+#endif
+
 #include "pmapi.h"
+#include "mmv_stats.h"
 #include "pmwebapi.h"
 #include "pmproxy.h"
 #include "libpcp.h"
 #include "slots.h"
+#include "http.h"
 #include "pcp.h"
+
+typedef enum proxy_registry {
+    METRICS_NOTUSED	= 0,	/* special "next available" MMV cluster */
+    METRICS_SERVER,
+    METRICS_REDIS,
+    METRICS_HTTP,
+    METRICS_PCP,
+    METRICS_DISCOVER,
+    METRICS_SERIES,
+    METRICS_WEBGROUP,
+    NUM_REGISTRY
+} proxy_registry;
+
+typedef enum server_metric {
+    SERVER_PID,
+    NUM_SERVER_METRIC
+} server_metric;
 
 typedef struct stream_write_baton {
     uv_write_t		writer;
     uv_buf_t		buffer[2];
+    unsigned int	nbuffers;
+    uv_write_cb		callback;
 } stream_write_baton;
 
 typedef enum stream_family {
@@ -40,7 +67,8 @@ typedef struct stream {
     } u;
     stream_family	family;
     unsigned int	active: 1;
-    unsigned int	zero : 15;
+    unsigned int	secure: 1;
+    unsigned int	zero : 14;
     unsigned int	port : 16;
     const char		*address;
 } stream;
@@ -49,12 +77,27 @@ typedef enum stream_protocol {
     STREAM_UNKNOWN	= 0,
     STREAM_SECURE	= 0x1,
     STREAM_REDIS	= 0x2,
+    STREAM_HTTP		= 0x4,
     STREAM_PCP		= 0x8,
 } stream_protocol;
 
 typedef struct redis_client {
     redisReader		*reader;	/* RESP request handling state */
 } redis_client;
+
+typedef struct http_client {
+    http_parser		parser;		/* HTTP request parsing state */
+    struct servlet	*servlet;	/* servicing current request */
+    struct dict		*parameters;	/* URL parameters dictionary */
+    struct dict		*headers;	/* request header dictionary */
+    sds			username;	/* HTTP Basic Auth user name */
+    sds			password;	/* HTTP Basic Auth passphrase */
+    sds			realm;		/* optional Basic Auth realm */
+    void		*privdata;	/* private HTTP parsing state */
+    void		*data;		/* opaque servlet information */
+    unsigned int	type : 16;	/* HTTP response content type */
+    unsigned int	flags : 16;	/* request status flags field */
+} http_client;
 
 typedef struct pcp_client {
     pcp_proxy_state	state;
@@ -67,16 +110,38 @@ typedef struct pcp_client {
     uv_tcp_t		socket;
 } pcp_client;
 
+#ifdef HAVE_OPENSSL
+typedef struct secure_client {
+    SSL			*ssl;
+    BIO			*read;
+    BIO			*write;
+    struct {
+	struct client	*next;
+	struct client	**prev;
+	unsigned int	queued;
+	size_t		writes_count;
+	uv_buf_t	*writes_buffer;
+    } pending;
+} secure_client;
+#endif
+
 typedef struct client {
     struct stream	stream;
     stream_protocol	protocol;
+    unsigned int	refcount;
+    unsigned int	opened;
+    uv_mutex_t		mutex;
+#ifdef HAVE_OPENSSL
+    secure_client	secure;
+#endif
     union {
 	redis_client	redis;
+	http_client	http;
 	pcp_client	pcp;
     } u;
     struct proxy	*proxy;
     struct client	*next;
-    struct client	*prev;
+    struct client	**prev;
     sds			buffer;
 } client;
 
@@ -86,29 +151,85 @@ typedef struct server {
 } server;
 
 typedef struct proxy {
-    uv_loop_t		*events;
-    struct client	*head;		/* doubly linked list of clients */
-    struct client	*tail;
+    struct client	*first;		/* doubly linked list of clients */
     struct server	*servers;	/* array of tcp/pipe socket servers */
-    int			nservers;	/* count of entries in server array */
-    int			redisetup;	/* is Redis slots information setup */
-    sds			redishost;	/* initial Redis host specification */
-    redisSlots		*slots;
+    unsigned int	nservers;	/* count of entries in server array */
+    unsigned int	redisetup;	/* is Redis slots information setup */
+    struct client	*pending_writes;
+#ifdef HAVE_OPENSSL
+    SSL_CTX		*ssl;
+#endif
+    redisSlots		*slots;		/* mapping of Redis keys to servers */
+    struct servlet	*servlets;	/* linked list of http URL handlers */
+    mmv_registry_t	*metrics[NUM_REGISTRY];	/* performance metrics */
+    struct dict		*config;	/* configuration dictionary */
+    uv_loop_t		*events;	/* global, async event loop */
+    uv_callback_t	write_callbacks;
 } proxy;
 
 extern void proxylog(pmLogLevel, sds, void *);
-extern void setup_redis_proxy(struct proxy *);
+extern mmv_registry_t *proxymetrics(struct proxy *, enum proxy_registry);
+extern void proxymetrics_close(struct proxy *, enum proxy_registry);
 
-extern void on_client_close(uv_handle_t *);
+extern void on_proxy_flush(uv_handle_t *);
+extern void on_client_write(uv_write_t *, int);
 extern void on_buffer_alloc(uv_handle_t *, size_t, uv_buf_t *);
+
 extern void client_write(struct client *, sds, sds);
+extern int client_is_closed(struct client *);
+extern void client_close(struct client *);
+extern void client_get(struct client *);
+extern void client_put(struct client *);
+
+extern void on_protocol_read(uv_stream_t *, ssize_t, const uv_buf_t *);
+
+#ifdef HAVE_OPENSSL
+extern void secure_client_write(struct client *, stream_write_baton *);
+extern void on_secure_client_read(struct proxy *, struct client *,
+				ssize_t, const uv_buf_t *);
+extern void on_secure_client_write(struct client *);
+extern void on_secure_client_close(struct client *);
+#else
+#define secure_client_write(c,w)	do { (void)(c); } while (0)
+#define on_secure_client_read(p,c,s,b)	do { (void)(p); } while (0)
+#define on_secure_client_write(c)	do { (void)(c); } while (0)
+#define on_secure_client_close(c)	do { (void)(c); } while (0)
+#endif
 
 extern void on_redis_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
+extern void on_redis_client_write(struct client *);
 extern void on_redis_client_close(struct client *);
+
+extern void on_http_client_read(struct proxy *, struct client *,
+				ssize_t, const uv_buf_t *);
+extern void on_http_client_write(struct client *);
+extern void on_http_client_close(struct client *);
 
 extern void on_pcp_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
+extern void on_pcp_client_write(struct client *);
 extern void on_pcp_client_close(struct client *);
+
+#ifdef HAVE_OPENSSL
+extern void flush_secure_module(struct proxy *);
+extern void setup_secure_module(struct proxy *);
+extern void close_secure_module(struct proxy *);
+#else
+#define flush_secure_module(p)	do { (void)(p); } while (0)
+#define setup_secure_module(p)	do { (void)(p); } while (0)
+#define close_secure_module(p)	do { (void)(p); } while (0)
+#endif
+
+extern void setup_redis_module(struct proxy *);
+extern void close_redis_module(struct proxy *);
+
+extern void setup_http_module(struct proxy *);
+extern void close_http_module(struct proxy *);
+
+extern void setup_pcp_module(struct proxy *);
+extern void close_pcp_module(struct proxy *);
+
+extern void setup_modules(struct proxy *);
 
 #endif	/* PROXY_SERVER_H */

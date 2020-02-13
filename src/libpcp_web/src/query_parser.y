@@ -2,7 +2,7 @@
 /*
  * query_parser.y - yacc/bison grammar for the PCP time series language
  *
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2019 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,6 +30,7 @@ typedef struct PARSER {
     char	*yy_tokbuf;
     int 	yy_tokbuflen;
     meta_t	yy_meta;
+    sds		yy_base;
     node_t	*yy_np;
     series_t	yy_series;
 } PARSER;
@@ -73,7 +74,16 @@ static const char unexpected_str[]       = "Unexpected";
 static const char initial_str[]  = "Unexpected initial";
 %}
 
-%pure-parser
+/*
+ * seems like the %define variant is more bisonesque, while the
+ * %pure-parser maybe a yaccism that bison silently accepts ...
+ * using the %define makes "deprecated directive" warnings go
+ * away on some platforms - kenj Oct 2019
+ * old yacc declaration was
+ * %pure-parser
+ */
+%define api.pure
+
 %parse-param { PARSER *lp }
 %lex-param { PARSER *lp }
 
@@ -575,12 +585,12 @@ newinterval(PARSER *lp, const char *string)
     int		sts;
 
     if ((sts = pmParseInterval(string, &tp->delta, &error)) < 0) {
-	fprintf(stderr, "pmParseInterval delta: %s\n", error);
-	lp->yy_errstr = sdsnew(error);
 	lp->yy_error = sts;
+	lp->yy_errstr = sdscatfmt(sdsempty(),
+		"Cannot parse time delta with pmParseInterval:\n%s", error);
 	free(error);
     } else {
-	tp->deltas = sdsnew(string);
+	tp->window.delta = sdsnew(string);
     }
 }
 
@@ -593,9 +603,9 @@ parsetime(PARSER *lp, struct timeval *result, const char *string)
     int		sts;
 
     if ((sts = __pmParseTime(string, &start, &end, result, &error)) < 0) {
-	fprintf(stderr, "__pmParseTime: %s\n", error);
-	lp->yy_errstr = sdsnew(error);
 	lp->yy_error = sts;
+	lp->yy_errstr = sdscatfmt(sdsempty(),
+		"Cannot parse time with __pmParseTime:\n%s", error);
 	free(error);
     }
 }
@@ -607,7 +617,7 @@ newstarttime(PARSER *lp, const char *string)
 
     parsetime(lp, &tp->start, string);
     if (!lp->yy_error)
-	tp->starts = sdsnew(string);
+	tp->window.start = sdsnew(string);
 #if 0
     if (!lp->yy_error)
 fprintf(stderr, "START: %.64g\n", pmtimevalToReal(result));
@@ -623,7 +633,7 @@ newendtime(PARSER *lp, const char *string)
 
     parsetime(lp, &tp->end, string);
     if (!lp->yy_error)
-	tp->ends = sdsnew(string);
+	tp->window.end = sdsnew(string);
 #if 0
     if (!lp->yy_error)
 fprintf(stderr, "END: %.64g\n", pmtimevalToReal(result));
@@ -640,8 +650,9 @@ newrange(PARSER *lp, const char *string)
     int		sts;
 
     if ((sts = pmParseInterval(string, &tp->start, &error)) < 0) {
-	fprintf(stderr, "pmParseInterval range: %s\n", error);
-	lp->yy_errstr = sdsnew(error);
+	lp->yy_error = sts;
+	lp->yy_errstr = sdscatfmt(sdsempty(),
+		"Cannot parse range with pmParseInterval:\n%s", error);
 	lp->yy_error = sts;
 	free(error);
     } else {
@@ -650,7 +661,7 @@ newrange(PARSER *lp, const char *string)
 	tsub(&offset, &tp->start);
 	tp->start = offset;
 	tp->end.tv_sec = INT_MAX;
-	tp->ranges = sdsnew(string);
+	tp->window.range = sdsnew(string);
     }
 }
 
@@ -661,7 +672,7 @@ newaligntime(PARSER *lp, const char *string)
 
     parsetime(lp, &tp->align, string);
     if (!lp->yy_error)
-	tp->aligns = sdsnew(string);
+	tp->window.align = sdsnew(string);
 #if 0
     if (!lp->yy_error)
 fprintf(stderr, "ALIGN: %.64g\n", pmtimevalToReal(result));
@@ -674,18 +685,17 @@ static void
 newtimezone(PARSER *lp, const char *string)
 {
     timing_t	*tp = &lp->yy_series.time;
-    const char	*error;
     char	e[PM_MAXERRMSGLEN];
     int		sts;
 
     if ((sts = pmNewZone(string)) < 0) {
-	error = pmErrStr_r(sts, e, sizeof(e));
-	fprintf(stderr, "pmNewZone: %s\n", error);
-	lp->yy_errstr = sdsnew(error);
 	lp->yy_error = sts;
+	lp->yy_errstr = sdscatfmt(sdsempty(),
+		"Cannot parse timezone with pmNewZone:\n\"%s\" - %s",
+		string, pmErrStr_r(sts, e, sizeof(e)));
     } else {
 	tp->zone = sts;
-	tp->zones = sdsnew(string);
+	tp->window.zone = sdsnew(string);
     }
 }
 
@@ -696,12 +706,12 @@ newsamples(PARSER *lp, const char *string)
     int		sts;
 
     if ((sts = atoi(string)) < 0) {
-	fprintf(stderr, "Invalid sample count requested: %s\n", string);
-	lp->yy_errstr = sdsnew("Invalid sample count requested");
 	lp->yy_error = -EINVAL;
+	lp->yy_errstr = sdscatfmt(sdsempty(),
+		"Invalid sample count requested - \"%s\"", string);
     } else {
 	tp->count = sts;
-	tp->counts = sdsnew(string);
+	tp->window.count = sdsnew(string);
     }
 }
 
@@ -712,12 +722,12 @@ newoffset(PARSER *lp, const char *string)
     int		sts;
 
     if ((sts = atoi(string)) < 0) {
-	fprintf(stderr, "Invalid sample offset requested: %s\n", string);
-	lp->yy_errstr = sdsnew("Invalid sample offset requested");
 	lp->yy_error = -EINVAL;
+	lp->yy_errstr = sdscatfmt(sdsempty(),
+		"Invalid sample offset requested - \"%s\"", string);
     } else {
 	tp->offset = sts;
-	tp->offsets = sdsnew(string);
+	tp->window.offset = sdsnew(string);
     }
 }
 
@@ -736,11 +746,42 @@ newoffset(PARSER *lp, const char *string)
 //    }
 //}
 
+/* Construct error message buffer for syntactic error */
+static char *
+parseError(const char *spec, const char *point, const char *msg)
+{
+    size_t	need = 2 * strlen(spec) + strlen(msg) + 8;
+    const char	*p;
+    char	*q, *result;
+
+    if ((result = malloc(need)) == NULL)
+	return NULL;
+    q = result;
+
+    for (p = spec; *p != '\0'; p++)
+	*q++ = *p;
+    *q++ = '\n';
+    for (p = spec; p != point; p++)
+	*q++ = isgraph((int)*p) ? ' ' : *p;
+    snprintf(q, need - (q - result), "^ -- ");
+    q += 5;
+    for (p = msg; *p != '\0'; p++)
+	*q++ = *p;
+    *q++ = '\n';
+    *q = '\0';
+    return result;
+}
+
 static int
 series_error(PARSER *lp, const char *s)
 {
+    char	*msg;
+
+    msg = parseError(lp->yy_base, lp->yy_lexicon, s ? s : "syntax error");
+    lp->yy_errstr = sdscatfmt(sdsempty(), "cannot parse given string\n\n%s", msg);
+    free(msg);
+
     lp->yy_series.expr = NULL;
-    lp->yy_errstr = sdsnew(s ? s : "Cannot parse query string");
     lp->yy_error = -EINVAL;
     return 0;
 }
@@ -804,9 +845,12 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 	if (p == NULL) {
 	    lp->yy_tokbuflen = 128;
 	    if ((p = (char *)malloc(lp->yy_tokbuflen)) == NULL) {
-		pmNoMem("pmSeries: alloc token buffer",
-				lp->yy_tokbuflen, PM_FATAL_ERR);
-		/*NOTREACHED*/
+		lp->yy_errstr = sdscatfmt(sdsempty(),
+				"cannot allocate token buffer (length=%lld)",
+				(long long)lp->yy_tokbuflen);
+		lp->yy_error = -ENOMEM;
+		ret = L_ERROR;
+		break;
 	    }
 	    lp->yy_tokbuf = p;
 	}
@@ -814,9 +858,12 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 	    len = p - lp->yy_tokbuf;
 	    lp->yy_tokbuflen *= 2;
 	    if (!(p = (char *)realloc(lp->yy_tokbuf, lp->yy_tokbuflen))) {
-		pmNoMem("pmSeries: realloc token buffer",
-				lp->yy_tokbuflen, PM_FATAL_ERR);
-		/*NOTREACHED*/
+		lp->yy_errstr = sdscatfmt(sdsempty(),
+				"cannot reallocate token buffer (length=%lld)",
+				(long long)lp->yy_tokbuflen);
+		lp->yy_error = -ENOMEM;
+		ret = L_ERROR;
+		break;
 	    }
 	    lp->yy_tokbuf = p;
 	    p = &lp->yy_tokbuf[len];
@@ -927,7 +974,8 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 
 		    default:
 			*p = '\0';
-			lp->yy_errstr = "Illegal character";
+			lp->yy_errstr = sdsnew("Illegal character");
+			lp->yy_error = -EINVAL;
 			ret = L_ERROR;
 			break;
 		}
@@ -949,12 +997,14 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		    p[-1] = '\0';
 		    check = strtoull(lp->yy_tokbuf, &endptr, 10);
 		    if (*endptr != '\0' || check > 0xffffffffUL) {
-			lp->yy_errstr = "Constant value too large";
+			lp->yy_errstr = sdsnew("Constant value too large");
+			lp->yy_error = -EINVAL;
 			ret = L_ERROR;
 			break;
 		    }
 		    if ((lvalp->s = sdsnew(lp->yy_tokbuf)) == NULL) {
-			lp->yy_errstr = "dup() for INTEGER failed";
+			lp->yy_errstr = sdsnew("dup() for INTEGER failed");
+			lp->yy_error = -ENOMEM;
 			ret = L_ERROR;
 			break;
 		    }
@@ -967,7 +1017,8 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		    unget(lp, c);
 		    p[-1] = '\0';
 		    if ((lvalp->s = sdsnew(lp->yy_tokbuf)) == NULL) {
-			lp->yy_errstr = "dup() for RANGE failed";
+			lp->yy_errstr = sdsnew("dup() for RANGE failed");
+			lp->yy_error = -ENOMEM;
 			ret = L_ERROR;
 			break;
 		    }
@@ -980,7 +1031,8 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		    unget(lp, c);
 		    p[-1] = '\0';
 		    if ((lvalp->s = sdsnew(lp->yy_tokbuf)) == NULL) {
-			lp->yy_errstr = "dup() for DOUBLE failed";
+			lp->yy_errstr = sdsnew("dup() for DOUBLE failed");
+			lp->yy_error = -ENOMEM;
 			ret = L_ERROR;
 			break;
 		    }
@@ -1062,6 +1114,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		}
 		if ((lvalp->s = sdsnew(lp->yy_tokbuf)) == NULL) {
 		    lp->yy_errstr = sdsnew("dup() for NAME failed");
+		    lp->yy_error = -ENOMEM;
 		    ret = L_ERROR;
 		    break;
 		}
@@ -1075,6 +1128,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		p[-1] = '\0';
 		if ((lvalp->s = sdsnew(&lp->yy_tokbuf[1])) == NULL) {
 		    lp->yy_errstr = sdsnew("dup() for STRING failed");
+		    lp->yy_error = -ENOMEM;
 		    ret = L_ERROR;
 		    break;
 		}
@@ -1117,6 +1171,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		    unget(lp, c);
 		    p[-1] = '\0';
 		    lp->yy_errstr = sdsnew("Illegal character");
+		    lp->yy_error = -EINVAL;
 		    ret = L_ERROR;
 		    break;
 		}
@@ -1154,6 +1209,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		    unget(lp, c);
 		    p[-1] = '\0';
 		    lp->yy_errstr = sdsnew("Illegal character");
+		    lp->yy_error = -EINVAL;
 		    ret = L_ERROR;
 		    break;
 		}
@@ -1168,6 +1224,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		    unget(lp, c);
 		    p[-1] = '\0';
 		    lp->yy_errstr = sdsnew("Illegal character");
+		    lp->yy_error = -EINVAL;
 		    ret = L_ERROR;
 		    break;
 		}
@@ -1182,6 +1239,7 @@ series_lex(YYSTYPE *lvalp, PARSER *lp)
 		    unget(lp, c);
 		    p[-1] = '\0';
 		    lp->yy_errstr = sdsnew("Illegal character");
+		    lp->yy_error = -EINVAL;
 		    ret = L_ERROR;
 		    break;
 		}
@@ -1250,11 +1308,13 @@ series_dumpexpr(node_t *np, int level)
 int
 pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *arg)
 {
-    PARSER	yp = { .yy_input = (char *)query };
+    PARSER	yp = { .yy_base = query, .yy_input = (char *)query };
     series_t	*sp = &yp.yy_series;
 
-    if (yyparse(&yp))
+    if (yyparse(&yp)) {
+	moduleinfo(&settings->module, PMLOG_ERROR, yp.yy_errstr, arg);
 	return yp.yy_error;
+    }
 
     if (pmDebugOptions.series)
 	series_dumpexpr(sp->expr, 0);
@@ -1265,11 +1325,13 @@ pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *
 int
 pmSeriesLoad(pmSeriesSettings *settings, sds source, pmSeriesFlags flags, void *arg)
 {
-    PARSER	yp = { .yy_input = (char *)source };
+    PARSER	yp = { .yy_base = source, .yy_input = (char *)source };
     series_t	*sp = &yp.yy_series;
 
-    if (yyparse(&yp))
+    if (yyparse(&yp)) {
+	moduleinfo(&settings->module, PMLOG_ERROR, yp.yy_errstr, arg);
 	return yp.yy_error;
+    }
 
     if (pmDebugOptions.series)
 	series_dumpexpr(sp->expr, 0);

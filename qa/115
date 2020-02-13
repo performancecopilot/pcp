@@ -38,7 +38,15 @@ _cleanup()
     done
     $sudo rm -f $tmp.*
     _restore_auto_restart pmcd
-    _restore_auto_restart pmie
+    if $pmie_was_running
+    then
+	_restore_auto_restart pmie
+	_service pmie start >>$here/$seq.full 2>&1
+    else
+	_service pmie stop >>$here/$seq.full 2>&1
+	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$here/$seq.full 2>&1
+	_wait_pmie_end
+    fi
 }
 
 status=1	# failure is the default!
@@ -48,7 +56,6 @@ needclean=false
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
-_stop_auto_restart pmie
 
 lhost=`hostname | sed -e 's/\..*//'`
 host=`_get_fqdn`
@@ -65,6 +72,19 @@ echo "remote=$remote" >>$here/$seq.full
 #
 # mkdir: error lines ... not consistency in format, so cull 'em
 # ditto for cd errors reported from pmie_check
+#
+# and these ones (w/out systemctl) ...
+# $PCP_RC_DIR/pmie:
+# Error: PCP inference engine control file $PCP_PMIECONTROL_PATH
+# is missing!  Cannot start any Performance Co-Pilot inference engine(s).
+# failed (status=1)
+#
+# and if systemctl in the mix, then the error cases produce chatter
+# like:
+# Job for pmie.service failed because the service did not take the steps required by its unit configuration.
+# See "systemctl status pmie.service" and "journalctl -xe" for details.
+# or
+# Job for pmie.service failed because of unavailable resources or another system error.
 #
 _filter()
 {
@@ -86,7 +106,12 @@ _filter()
 	-e '/\/pmie_check:.*cd:/d' \
 	-e 's/[ 	]*$//' \
 	-e 's/^[ 	]*//' \
-	-e 's/\.\.failed/failed (status=1)/' \
+	-e '/\$PCP_RC_DIR\/pmie:/d' \
+	-e '/^Error: PCP inference engine control file/d' \
+	-e '/^is missing! /d' \
+	-e '/^failed /d' \
+	-e '/^Job for pmie.service failed because /d' \
+	-e '/^See "systemctl  *status pmie.service" and/d' \
     # end
 }
 
@@ -105,13 +130,13 @@ _count_pmies()
 
     for process in $plist
     do
-	ps -p $process >/dev/null 2>&1
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $process >/dev/null 2>&1
 	if [ $? = 1 ]
 	then
 	    echo "urk, $PCP_TMP_DIR/pmie/$process has no running pmie instance"
 	else
 	    count=`expr $count + 1`
-	    ps -f -p $process >>$here/$seq.full
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $process >>$here/$seq.full
 	    if `which pstree >/dev/null 2>&1`
 	    then
 		pstree $process >>$here/$seq.full
@@ -124,7 +149,7 @@ _count_pmies()
 
 # create a basic pmcd config file
 cat >$tmp.pmcd.conf << EOF
-# from QA $seq
+# Installed by PCP QA test $seq on `date`
 pmcd	2	dso	pmcd_init	pmda_pmcd.so
 EOF
 
@@ -148,6 +173,15 @@ $remote         n n $tmp.log2 -c $tmp.conf
 LOCALHOSTNAME   y n $tmp.log0 -c $tmp.conf
 EOF
 
+pmie_was_running=false
+if [ -f $PCP_RUN_DIR/pmie.pid ]
+then
+    pmie_was_running=true
+    echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$here/$seq.full
+    _stop_auto_restart pmie
+    _service pmie stop >>$here/$seq.full 2>&1
+fi
+
 # real QA test starts here
 _save_config $PCP_PMIECONTROL_PATH
 _save_config $PCP_PMCDCONF_PATH
@@ -155,7 +189,7 @@ needclean=true
 $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH 
 
 $sudo $signal -a -s TERM pmie >/dev/null 2>&1
-sleep 1
+_wait_pmie_end
 _change_config pmcd on
 _change_config pmie off
 $sudo rm -f $PCP_TMP_DIR/pmie/*
@@ -166,6 +200,7 @@ echo
 
 echo === check default install operation === | tee -a $here/$seq.full
 _service pmie restart 2>&1 | _filter_pmie_start
+_wait_for_pmie
 _count_pmies
 # chkconfig no longer controls start-ability, expect non-zero
 echo "pmie count after chkconfig pmie off: $?"
@@ -343,12 +378,7 @@ rm -f $tmp.bad.$case.log
 echo
 $sudo rm -rf $tmp.nogo
 
-_service pmie stop 2>&1 \
-| _filter_pmie_start \
-| sed \
-    -e '/PMIE not running/d' \
-    -e '/pmie not running/d' \
-# end
+$sudo $signal -a -s TERM pmie >/dev/null 2>&1
 _change_config pmie off
 
 status=0
