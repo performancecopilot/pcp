@@ -21,12 +21,14 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
-    _pmdaopenmetrics_restore_config >>$here/$seq.full
     cd $here
+    _pmdaopenmetrics_cleanup
     $sudo rm -rf $tmp $tmp.*
 }
 
+_prepare_pmda openmetrics
 trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
 
 _pmdaopenmetrics_save_config
 

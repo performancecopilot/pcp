@@ -36,18 +36,14 @@ _cleanup()
 	pid=""
     fi
 
-    echo "=== openmetrics PMDA log ===" >>$here/$seq.full
-    if [ -f $PCP_LOG_DIR/pmcd/openmetrics.log ]
-    then
-	cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$here/$seq.full
-    else
-	echo "Error: PMDA log file is missing" >>$here/$seq.full
-    fi
     cd $here
+    _pmdaopenmetrics_cleanup
     $sudo rm -rf $tmp $tmp.*
 }
 
-trap "_cleanup; _pmdaopenmetrics_restore_config >>$here/$seq.full; exit \$status" 0 1 2 3 15
+_prepare_pmda openmetrics
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
 
 _pmdaopenmetrics_save_config
 _pmdaopenmetrics_install

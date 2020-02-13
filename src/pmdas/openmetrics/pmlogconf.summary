@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	OpenMetrics instrumented applications summary information
+probe	openmetrics.control.calls exists ? include : exclude
+	openmetrics
