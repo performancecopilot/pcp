@@ -39,7 +39,6 @@ from pcp import pmapi
 TRUNC = "xxx"
 VERSION = 1
 CURR_INSTS = False
-BASE_INSTS = 64
 
 class pmConfig(object):
     """ Config reader and validator """
@@ -525,7 +524,7 @@ class pmConfig(object):
             sys.stderr.write("Error while parsing options: %s.\n" % err)
             sys.exit(1)
 
-    def validate_metrics(self, curr_insts=CURR_INSTS, max_insts=BASE_INSTS):
+    def validate_metrics(self, curr_insts=CURR_INSTS, max_insts=0):
         """ Validate the metricset """
         # Check the metrics against PMNS, resolve non-leaf metrics
 
@@ -652,9 +651,10 @@ class pmConfig(object):
                     self.util.metrics[metric][1] = self.util.instances
             if self.insts[i][0][0] == pmapi.c_api.PM_IN_NULL:
                 self.util.metrics[metric][1] = []
-            # Dynamically resize fetchgroup value arrays
-            if not max_insts or max_insts < len(self.insts[i][0]):
-                max_insts = len(self.insts[i][0])
+            # Dynamically set fetchgroup max instances
+            # if not specified explicitly by the caller
+            if not max_insts:
+                max_insts = len(self.insts[i][0]) + 1024
 
             # Rawness
             if hasattr(self.util, 'type_prefer') and not self.util.metrics[metric][3]:
@@ -903,7 +903,7 @@ class pmConfig(object):
         self.util.pmfg.clear()
         self.util.pmfg_ts = None
 
-    def update_metrics(self, curr_insts=CURR_INSTS, max_insts=BASE_INSTS):
+    def update_metrics(self, curr_insts=CURR_INSTS, max_insts=0):
         """ Update metricset """
         self.clear_metrics()
         self.util.pmfg_ts = self.util.pmfg.extend_timestamp()
