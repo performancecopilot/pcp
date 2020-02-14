@@ -58,7 +58,7 @@ measure: "speed"
 model: "RGB"
 registry_label: "string"
 role: "testing"
-transient: false, true
+transient: false
 units: "metres per second"
 unitsystem: "SI"
 userid: UID

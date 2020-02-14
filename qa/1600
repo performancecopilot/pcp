@@ -87,6 +87,7 @@ _filter_label_values()
 	-e "s/^hostname: \"${hostname}\"/hostname: \"HOSTNAME\"/g" \
 	-e "s/^groupid: $groupid/groupid: GID/g" \
 	-e "s/^userid: $userid/userid: UID/g" \
+	-e "s/transient: false, true/transient: false/g" \
 	-e "s/changed: false, true/changed: false/g" \
 	-e "/metric_label: null/d" \
     #end
