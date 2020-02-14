@@ -681,7 +681,7 @@ _pcp () {
       "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files' \
       "(-h --host $exargs)"{-h+,--host=}'[specify Redis host]:host:_hosts' \
       "(-p --port $exargs)"{-p+,--port=}'[specify Redis port]:port:' \
-      "(-L --load $exargs)"{-L,--load}'[load metadata and data into Redis]' \
+      "(-L --load $exargs)"{-L,--load}'[load metadata and data into Redis]:path:_files' \
       "(-q --query $exargs)"{-q,--query}'[perform timeseries query]' \
       "(-a --all $exargs)"{-a,--all}'[report all metadata, same as -dilms]' \
       "(-d --desc $exargs)"{-d,--desc}'[report metric descriptions]' \
