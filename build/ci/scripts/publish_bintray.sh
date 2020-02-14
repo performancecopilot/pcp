@@ -20,7 +20,7 @@ done
 echo "Signing version bintray.com/${BINTRAY_SUBJECT}/${BINTRAY_REPOSITORY}/${BINTRAY_PACKAGE}/${PCP_VERSION}"
 curl --silent --show-error --fail --user "${BINTRAY_USER}:${BINTRAY_APIKEY}" \
   -X POST -H "X-GPG-PASSPHRASE: ${BINTRAY_GPG_PASSPHRASE}" \
-  "https://api.bintray.com/gpg/${BINTRAY_SUBJECT}/${BINTRAY_REPOSITORY}/${BINTRAY_PACKAGE}/versions/${PCP_VERSION};publish=1"
+  "https://api.bintray.com/gpg/${BINTRAY_SUBJECT}/${BINTRAY_REPOSITORY}/${BINTRAY_PACKAGE}/versions/${PCP_VERSION}"
 echo && echo
 
 echo "Signing metadata of bintray.com/${BINTRAY_SUBJECT}/${BINTRAY_REPOSITORY}"

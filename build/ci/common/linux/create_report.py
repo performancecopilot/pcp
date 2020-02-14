@@ -30,7 +30,6 @@ def read_test_durations():
 
 def create_testcases(test_output_file, test_durations):
     testcases = []
-    testcase = None
     for line in test_output_file:
         # [xx%] will be displayed if there are more than 9 tests
         #  Xs ... will be displayed if test was already run
@@ -66,9 +65,9 @@ def create_testcases(test_output_file, test_durations):
             system_err = ET.SubElement(testcase, "system-err")
             system_err.text = read_logfile(test_no + ".full")
             testcases.append(testcase)
-        elif testcase is not None:
+        elif testcases:
             # if this line doesn't match any regex, it's probably output from the previous test
-            last_failure = testcase.find("failure")
+            last_failure = testcases[-1].find("failure")
             if last_failure is not None:
                 last_failure.text += line
     return testcases

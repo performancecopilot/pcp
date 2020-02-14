@@ -15,7 +15,7 @@ tests=$(grep -E "${tests}" ../../qa/group | grep -oP '^[0-9]+(?= )' || true)
 
 status=0
 mkdir -p "${tests_dir}"
-parallel --jobs 1 --max-args 30 --eta --joblog "${tests_job_file}" --results "${tests_results_dir}/{}/" \
+parallel --jobs 1 --max-args 30 --timeout 30m --eta --joblog "${tests_job_file}" --results "${tests_results_dir}/{}/" \
   -S "${AZ_VMSS_HOSTS_SSH}" /usr/local/ci/test.sh ::: "${tests}" > /dev/null || status=$?
 
 echo
