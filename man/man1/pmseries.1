@@ -388,6 +388,15 @@ This query must specify a source archive path, but can also restrict
 the import to specific timeseries (using metric names, labels, etc)
 and to a specific time window using the time specification component
 of the query language.
+.PP
+As a convenience, if the argument to load is a valid file path as
+determined by
+.BR access (2),
+then a short-hand form can be used:
+.PP
+.SAMPLE
+$ pmseries --load $PCP_LOG_DIR/pmlogger/acme.0
+.ESAMPLE
 .SH OPTIONS
 The available command line options, in addition to timeseries
 metadata and sources options described above, are:
@@ -498,6 +507,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pminfo (1),
 .BR pmproxy (1),
 .BR redis-server (1),
+.BR access (2),
 .BR PMAPI (3),
 .BR PMWEBAPI (3),
 .BR pmLookupDesc (3),

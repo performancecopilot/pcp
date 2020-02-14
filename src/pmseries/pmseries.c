@@ -1055,6 +1055,28 @@ pmseries_execute(series_data *dp)
     return dp->status;
 }
 
+/*
+ * Attempt to detect whether command line is of the form
+ * pmseries --load <path>  or  pmseries --load <expr>
+ * using an access(2) based heuristic.  If we decide its
+ * a path, convert it to an expression (as a convenience
+ * for the user).
+ */
+sds
+heuristic_archive_query(sds query)
+{
+    sds		expr;
+
+    if (query[0] == '{')
+	return query;
+    if (query[0] == pmPathSeparator() || access(query, F_OK) == 0) {
+	expr = sdscatfmt(sdsempty(), "{source.path: \"%S\"}", query);
+	sdsfree(query);
+	query = expr;
+    }
+    return query;
+}
+
 static int
 pmseries_overrides(int opt, pmOptions *opts)
 {
@@ -1316,6 +1338,9 @@ main(int argc, char *argv[])
 	query = sdsempty();
     else
 	query = sdsjoin(&argv[opts.optind], argc - opts.optind, (char *)split);
+
+    if (flags & PMSERIES_OPT_LOAD)
+	query = heuristic_archive_query(query);
 
     dp = series_data_init(flags, query);
     dp->loop = uv_default_loop();
