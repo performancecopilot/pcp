@@ -1911,8 +1911,21 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 			pmNoMem("__dmpostfetch: copy value", need, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
+		    if (pmDebugOptions.alloc) {
+			char	strbuf[20];
+			fprintf(stderr, "__dmpostfetch: pmValueBlock alloc: " PRINTF_P_PFX "%p newrp: " PRINTF_P_PFX "%p pmid: %s valfmt: %d\n",
+			    vp, newrp, pmIDStr_r(rp->vset[j]->pmid, strbuf, sizeof(strbuf)), rp->vset[j]->valfmt);
+		    }
 		    memcpy((void *)vp, (void *)rp->vset[j]->vlist[i].value.pval, need);
 		    newrp->vset[j]->vlist[i].value.pval = vp;
+		    if (rp->vset[j]->valfmt == PM_VAL_SPTR) {
+			/*
+			 * memcpy() means this is no longer static buffer,
+			 * change valfmt so pmFreeResult() is a happy
+			 * camper and there's no memory leak
+			 */
+			newrp->vset[j]->valfmt = PM_VAL_DPTR;
+		    }
 		}
 		else {
 		    /* punt on rp->vset[j]->valfmt == PM_VAL_INSITU */
