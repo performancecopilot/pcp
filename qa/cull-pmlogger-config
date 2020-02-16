@@ -20,11 +20,11 @@ config=$PCP_VAR_DIR/config/pmlogger/config.default
 #+ zeroconf/atop-proc:y:10 seconds:
 #
 awk <$config >$tmp.tmp '
-/^# Auto-generated /	{ next }
-/^#\+ zeroconf\//	{ skip = 1; print; next }
-/^#\+ /			{ skip = 0 }
+/^\# Auto-generated /	{ next }
+/^\#\+ zeroconf\//	{ skip = 1; print; next }
+/^\#\+ /		{ skip = 0 }
 /DO NOT UPDATE THE FILE ABOVE THIS LINE/	{ skip = 0 }
-/^#/			{ print; next }
+/^\#/			{ print; next }
 skip == 1		{ next }
 			{ print }'
 
