@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
+_bcc_debian_unstable && _notrun "bcc may be broken for Debian unstable"
 which zpool >/dev/null 2>&1 || _notrun "zpool tool not installed"
 modinfo zfs >/dev/null 2>&1 || _notrun "zfs kernel module not present"
 $sudo modprobe zfs >/dev/null 2>&1 || _notrun "failed to load zfs kernel module"
@@ -25,7 +26,7 @@ $sudo rm -rf $tmp.* $seq.full
 
 _value_filter()
 {
-    awk '/value [1-9]\d*/ {print "OK"; exit}'
+    awk '/value [1-9][0-9]*/ {print "OK"; exit}'
 }
 
 _mount_zfs()

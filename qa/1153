@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
+_bcc_debian_unstable && _notrun "bcc may be broken for Debian unstable"
 which mkfs.xfs >/dev/null 2>&1 || _notrun "mkfs.xfs not installed"
 
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
