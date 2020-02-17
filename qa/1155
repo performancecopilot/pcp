@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
+_bcc_debian_unstable && _notrun "bcc may be broken for Debian unstable"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 [ "$(pmpython src/bcc_version_check.python)" = "0.6.1" ] \
   && _notrun "Broken BCC version detected"

@@ -38,21 +38,26 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter_json()
 {
     tee -a $seq.full > $tmp.unfiltered
-    pmjson < $tmp.unfiltered > $tmp.filtered
-    status=$?
-        if [ $status -eq 0 ]; then
-        cat $tmp.filtered | \
-        sed \
-            -e '/"machineid": .*/d' \
-            -e 's,"series": .*,"series": "SERIES",g' \
-            -e 's,"context": .*,"context": "CONTEXT",g' \
-            -e 's,"hostname": .*,"hostname": "HOSTNAME",g' \
-            -e 's,"domainname": .*,"domainname": "DOMAINNAME",g' \
-        #end
+    if [ -s $tmp.unfiltered ]
+    then
+	pmjson < $tmp.unfiltered > $tmp.filtered
+	status=$?
+	    if [ $status -eq 0 ]; then
+	    cat $tmp.filtered | \
+	    sed \
+		-e '/"machineid": .*/d' \
+		-e 's,"series": .*,"series": "SERIES",g' \
+		-e 's,"context": .*,"context": "CONTEXT",g' \
+		-e 's,"hostname": .*,"hostname": "HOSTNAME",g' \
+		-e 's,"domainname": .*,"domainname": "DOMAINNAME",g' \
+	    #end
+	else
+	    echo "Invalid JSON: $status"
+	    cat $tmp.unfiltered
+	    rm -f $tmp.context
+	fi
     else
-        echo "Invalid JSON: $status"
-        cat $tmp.unfiltered
-        rm -f $tmp.context
+	echo "Botch: no output from curl"
     fi
 }
 
@@ -94,16 +99,33 @@ $_valgrind_clean_assert pmproxy -f -l- --timeseries \
 	>$tmp.valout 2>$tmp.valerr &
 pid=$!
 
+echo "valgrind pid: $pid" >>$seq.full
+echo "pmproxy port: $port" >>$seq.full
+
 # valgrind takes awhile to fire up
-pmsleep 4.5
+i=0
+while [ $i -lt 40 ]
+do
+    $PCP_BINADM_DIR/telnet-probe -c localhost $port && break
+    sleep 1
+    i=`expr $i + 1`
+done
+if $PCP_BINADM_DIR/telnet-probe -c localhost $port
+then
+    echo "Startup took $i secs" >>$seq.full
+else
+    echo "Arrgh: valgrind failed start pmproxy and get port $port ready after 30 secs"
+    exit
+fi
 
 date >>$seq.full
 echo "=== checking TLS operation ===" | tee -a $seq.full
 # (-k) allows us to use self-signed (insecure) certificates, so for testing only
 # (-v) provides very detailed TLS connection information, for debugging only
-curl -k --get --silent \
+curl -k --get 2>$tmp.err \
 	"https://localhost:$port/pmapi/metric?name=sample.long.ten" \
 	| _filter_json
+cat $tmp.err >>$seq.full
 date >>$seq.full
 
 echo "=== check pmproxy is running ==="

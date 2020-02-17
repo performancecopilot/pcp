@@ -48,8 +48,24 @@ export PCP_TMP_DIR=$tmp.pmproxy
 $_valgrind_clean_assert pmproxy -f -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!
 
+echo "valgrind pid: $pid" >>$seq.full
+echo "pmproxy port: $port" >>$seq.full
+
 # valgrind takes awhile to fire up
-pmsleep 4.5
+i=0
+while [ $i -lt 40 ]
+do
+    $PCP_BINADM_DIR/telnet-probe -c localhost $port && break
+    sleep 1
+    i=`expr $i + 1`
+done
+if $PCP_BINADM_DIR/telnet-probe -c localhost $port
+then
+    echo "Startup took $i secs" >>$seq.full
+else
+    echo "Arrgh: valgrind failed start pmproxy and get port $port ready after 30 secs"
+    exit
+fi
 
 date >>$seq.full
 echo "=== pmproxy load test ===" | tee -a $seq.full
