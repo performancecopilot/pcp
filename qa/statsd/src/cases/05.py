@@ -45,13 +45,10 @@ payloads = [
     "0.00001"
 ]
 
-basis_parser_config = os.path.join("configs", "single", "parser_type", "0", "pmdastatsd.ini")
-ragel_parser_config = os.path.join("configs", "single", "parser_type", "1", "pmdastatsd.ini")
+basis_parser_config = utils.configs["parser_type"][0]
+ragel_parser_config = utils.configs["parser_type"][1]
 
-duration_aggregation_basic_config = os.path.join("configs", "single", "duration_aggregation_type", "0", "pmdastatsd.ini")
-duration_aggregation_hdr_histogram_config = os.path.join("configs", "single", "duration_aggregation_type", "1", "pmdastatsd.ini")
-
-testconfigs = [basis_parser_config, ragel_parser_config, duration_aggregation_basic_config, duration_aggregation_hdr_histogram_config]
+testconfigs = [basis_parser_config, ragel_parser_config]
 
 def run_test():
     for testconfig in testconfigs:

@@ -21,8 +21,8 @@ port_a = 8125
 port_b = 8126
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-port_a_config = os.path.join("configs", "single", "port", "0", "pmdastatsd.ini")
-port_b_config = os.path.join("configs", "single", "port", "1", "pmdastatsd.ini")
+port_a_config = utils.configs["port"][0]
+port_b_config = utils.configs["port"][1]
 
 def run_test():
     utils.print_test_section_separator()

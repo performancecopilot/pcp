@@ -20,7 +20,7 @@ ip = "0.0.0.0"
 port = 8125
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-basic_duration_aggregation = os.path.join("configs", "single", "duration_aggregation_type", "0", "pmdastatsd.ini")
+basic_duration_aggregation = utils.configs["duration_aggregation_type"][0]
 
 def run_test():
     utils.print_test_section_separator()

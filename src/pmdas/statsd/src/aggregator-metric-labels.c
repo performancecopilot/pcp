@@ -320,7 +320,7 @@ print_labels(struct agent_config* config, FILE* f, labels* l) {
         print_label_meta(config, f, item->meta);
         fprintf(f, "-> pair count = %d\n", item->pair_count);
         if (item->type != METRIC_TYPE_NONE) {
-            fprintf(f, "->\n");
+            fprintf(f, "-> ");
             switch (item->type) {
                 case METRIC_TYPE_COUNTER:
                     print_counter_metric_value(config, f, item->value);
@@ -332,7 +332,7 @@ print_labels(struct agent_config* config, FILE* f, labels* l) {
                     print_duration_metric_value(config, f, item->value);
                     break;
                 case METRIC_TYPE_NONE:
-                    // not an actualy metric error case
+                    // not an actual metric error case
                     break;
             }
         }

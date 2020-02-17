@@ -12,7 +12,20 @@ Check statsd metrics have gone away ... OK
 ======================
 02.py
 ----------------------
-Setting config file... configs/complex/0/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+~~~
 statsd.pmda.settings.duration_aggregation_type
     value "HDR histogram"
 
@@ -34,261 +47,18 @@ statsd.pmda.settings.max_unprocessed_packets
 statsd.pmda.settings.max_udp_packet_size
     value 1472
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ----------------------
-Setting config file... configs/complex/1/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "HDR histogram"
-
-statsd.pmda.settings.parser_type
-    value "Basic"
-
-statsd.pmda.settings.port
-    value 8125
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 0
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 1472
-Restoring config file...
-----------------------
-Setting config file... configs/single/port/0/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "HDR histogram"
-
-statsd.pmda.settings.parser_type
-    value "Basic"
-
-statsd.pmda.settings.port
-    value 8125
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 0
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 1472
-Restoring config file...
-----------------------
-Setting config file... configs/single/port/1/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "HDR histogram"
-
-statsd.pmda.settings.parser_type
-    value "Basic"
-
-statsd.pmda.settings.port
-    value 8126
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 0
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 1472
-Restoring config file...
-----------------------
-Setting config file... configs/single/verbose/0/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "HDR histogram"
-
-statsd.pmda.settings.parser_type
-    value "Basic"
-
-statsd.pmda.settings.port
-    value 8125
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 0
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 1472
-Restoring config file...
-----------------------
-Setting config file... configs/single/verbose/2/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "HDR histogram"
-
-statsd.pmda.settings.parser_type
-    value "Basic"
-
-statsd.pmda.settings.port
-    value 8125
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 2
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 1472
-Restoring config file...
-----------------------
-Setting config file... configs/single/verbose/1/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "HDR histogram"
-
-statsd.pmda.settings.parser_type
-    value "Basic"
-
-statsd.pmda.settings.port
-    value 8125
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 1
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 1472
-Restoring config file...
-----------------------
-Setting config file... configs/single/duration_aggregation_type/0/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "Basic"
-
-statsd.pmda.settings.parser_type
-    value "Basic"
-
-statsd.pmda.settings.port
-    value 8125
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 0
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 1472
-Restoring config file...
-----------------------
-Setting config file... configs/single/duration_aggregation_type/1/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "HDR histogram"
-
-statsd.pmda.settings.parser_type
-    value "Basic"
-
-statsd.pmda.settings.port
-    value 8125
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 0
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 1472
-Restoring config file...
-----------------------
-Setting config file... configs/single/parser_type/0/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "HDR histogram"
-
-statsd.pmda.settings.parser_type
-    value "Basic"
-
-statsd.pmda.settings.port
-    value 8125
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 0
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 1472
-Restoring config file...
-----------------------
-Setting config file... configs/single/parser_type/1/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "HDR histogram"
-
-statsd.pmda.settings.parser_type
-    value "Ragel"
-
-statsd.pmda.settings.port
-    value 8125
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 0
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 1472
-Restoring config file...
-----------------------
-Setting config file... configs/single/max_unprocessed_packets/0/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "HDR histogram"
-
-statsd.pmda.settings.parser_type
-    value "Basic"
-
-statsd.pmda.settings.port
-    value 8125
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 0
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 1472
-Restoring config file...
-----------------------
-Setting config file... configs/single/max_unprocessed_packets/1/pmdastatsd.ini
 statsd.pmda.settings.duration_aggregation_type
     value "HDR histogram"
 
@@ -310,8 +80,25 @@ statsd.pmda.settings.max_unprocessed_packets
 statsd.pmda.settings.max_udp_packet_size
     value 1472
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ----------------------
-Setting config file... configs/single/max_udp_packet_size/0/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+debug_output_filename = debug
+
+~~~
 statsd.pmda.settings.duration_aggregation_type
     value "HDR histogram"
 
@@ -333,77 +120,25 @@ statsd.pmda.settings.max_unprocessed_packets
 statsd.pmda.settings.max_udp_packet_size
     value 1472
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ----------------------
-Setting config file... configs/single/max_udp_packet_size/2/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "HDR histogram"
+Setting config:
+~~~
 
-statsd.pmda.settings.parser_type
-    value "Basic"
+[global]
+debug_output_filename = debug_test
 
-statsd.pmda.settings.port
-    value 8125
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 0
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 10
-Restoring config file...
-----------------------
-Setting config file... configs/single/max_udp_packet_size/1/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "HDR histogram"
-
-statsd.pmda.settings.parser_type
-    value "Basic"
-
-statsd.pmda.settings.port
-    value 8125
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 0
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 2944
-Restoring config file...
-----------------------
-Setting config file... configs/single/debug_output_filename/0/pmdastatsd.ini
-statsd.pmda.settings.duration_aggregation_type
-    value "HDR histogram"
-
-statsd.pmda.settings.parser_type
-    value "Basic"
-
-statsd.pmda.settings.port
-    value 8125
-
-statsd.pmda.settings.debug_output_filename
-    value "debug"
-
-statsd.pmda.settings.verbose
-    value 0
-
-statsd.pmda.settings.max_unprocessed_packets
-    value 2048
-
-statsd.pmda.settings.max_udp_packet_size
-    value 1472
-Restoring config file...
-----------------------
-Setting config file... configs/single/debug_output_filename/1/pmdastatsd.ini
+~~~
 statsd.pmda.settings.duration_aggregation_type
     value "HDR histogram"
 
@@ -425,6 +160,497 @@ statsd.pmda.settings.max_unprocessed_packets
 statsd.pmda.settings.max_udp_packet_size
     value 1472
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+duration_aggregation_type = 0
+
+~~~
+statsd.pmda.settings.duration_aggregation_type
+    value "Basic"
+
+statsd.pmda.settings.parser_type
+    value "Basic"
+
+statsd.pmda.settings.port
+    value 8125
+
+statsd.pmda.settings.debug_output_filename
+    value "debug"
+
+statsd.pmda.settings.verbose
+    value 0
+
+statsd.pmda.settings.max_unprocessed_packets
+    value 2048
+
+statsd.pmda.settings.max_udp_packet_size
+    value 1472
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+duration_aggregation_type = 1
+
+~~~
+statsd.pmda.settings.duration_aggregation_type
+    value "HDR histogram"
+
+statsd.pmda.settings.parser_type
+    value "Basic"
+
+statsd.pmda.settings.port
+    value 8125
+
+statsd.pmda.settings.debug_output_filename
+    value "debug"
+
+statsd.pmda.settings.verbose
+    value 0
+
+statsd.pmda.settings.max_unprocessed_packets
+    value 2048
+
+statsd.pmda.settings.max_udp_packet_size
+    value 1472
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+max_udp_packet_size = 1472
+
+~~~
+statsd.pmda.settings.duration_aggregation_type
+    value "HDR histogram"
+
+statsd.pmda.settings.parser_type
+    value "Basic"
+
+statsd.pmda.settings.port
+    value 8125
+
+statsd.pmda.settings.debug_output_filename
+    value "debug"
+
+statsd.pmda.settings.verbose
+    value 0
+
+statsd.pmda.settings.max_unprocessed_packets
+    value 2048
+
+statsd.pmda.settings.max_udp_packet_size
+    value 1472
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+max_udp_packet_size = 2944
+
+~~~
+statsd.pmda.settings.duration_aggregation_type
+    value "HDR histogram"
+
+statsd.pmda.settings.parser_type
+    value "Basic"
+
+statsd.pmda.settings.port
+    value 8125
+
+statsd.pmda.settings.debug_output_filename
+    value "debug"
+
+statsd.pmda.settings.verbose
+    value 0
+
+statsd.pmda.settings.max_unprocessed_packets
+    value 2048
+
+statsd.pmda.settings.max_udp_packet_size
+    value 2944
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+max_udp_packet_size = 10
+
+~~~
+statsd.pmda.settings.duration_aggregation_type
+    value "HDR histogram"
+
+statsd.pmda.settings.parser_type
+    value "Basic"
+
+statsd.pmda.settings.port
+    value 8125
+
+statsd.pmda.settings.debug_output_filename
+    value "debug"
+
+statsd.pmda.settings.verbose
+    value 0
+
+statsd.pmda.settings.max_unprocessed_packets
+    value 2048
+
+statsd.pmda.settings.max_udp_packet_size
+    value 10
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+max_unprocessed_packets = 2048
+
+~~~
+statsd.pmda.settings.duration_aggregation_type
+    value "HDR histogram"
+
+statsd.pmda.settings.parser_type
+    value "Basic"
+
+statsd.pmda.settings.port
+    value 8125
+
+statsd.pmda.settings.debug_output_filename
+    value "debug"
+
+statsd.pmda.settings.verbose
+    value 0
+
+statsd.pmda.settings.max_unprocessed_packets
+    value 2048
+
+statsd.pmda.settings.max_udp_packet_size
+    value 1472
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+max_unprocessed_packets = 1024
+
+~~~
+statsd.pmda.settings.duration_aggregation_type
+    value "HDR histogram"
+
+statsd.pmda.settings.parser_type
+    value "Basic"
+
+statsd.pmda.settings.port
+    value 8125
+
+statsd.pmda.settings.debug_output_filename
+    value "debug"
+
+statsd.pmda.settings.verbose
+    value 0
+
+statsd.pmda.settings.max_unprocessed_packets
+    value 1024
+
+statsd.pmda.settings.max_udp_packet_size
+    value 1472
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+parser_type = 0
+
+~~~
+statsd.pmda.settings.duration_aggregation_type
+    value "HDR histogram"
+
+statsd.pmda.settings.parser_type
+    value "Basic"
+
+statsd.pmda.settings.port
+    value 8125
+
+statsd.pmda.settings.debug_output_filename
+    value "debug"
+
+statsd.pmda.settings.verbose
+    value 0
+
+statsd.pmda.settings.max_unprocessed_packets
+    value 2048
+
+statsd.pmda.settings.max_udp_packet_size
+    value 1472
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+parser_type = 1
+
+~~~
+statsd.pmda.settings.duration_aggregation_type
+    value "HDR histogram"
+
+statsd.pmda.settings.parser_type
+    value "Ragel"
+
+statsd.pmda.settings.port
+    value 8125
+
+statsd.pmda.settings.debug_output_filename
+    value "debug"
+
+statsd.pmda.settings.verbose
+    value 0
+
+statsd.pmda.settings.max_unprocessed_packets
+    value 2048
+
+statsd.pmda.settings.max_udp_packet_size
+    value 1472
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+verbose = 0
+
+~~~
+statsd.pmda.settings.duration_aggregation_type
+    value "HDR histogram"
+
+statsd.pmda.settings.parser_type
+    value "Basic"
+
+statsd.pmda.settings.port
+    value 8125
+
+statsd.pmda.settings.debug_output_filename
+    value "debug"
+
+statsd.pmda.settings.verbose
+    value 0
+
+statsd.pmda.settings.max_unprocessed_packets
+    value 2048
+
+statsd.pmda.settings.max_udp_packet_size
+    value 1472
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+verbose = 1
+
+~~~
+statsd.pmda.settings.duration_aggregation_type
+    value "HDR histogram"
+
+statsd.pmda.settings.parser_type
+    value "Basic"
+
+statsd.pmda.settings.port
+    value 8125
+
+statsd.pmda.settings.debug_output_filename
+    value "debug"
+
+statsd.pmda.settings.verbose
+    value 1
+
+statsd.pmda.settings.max_unprocessed_packets
+    value 2048
+
+statsd.pmda.settings.max_udp_packet_size
+    value 1472
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+verbose = 2
+
+~~~
+statsd.pmda.settings.duration_aggregation_type
+    value "HDR histogram"
+
+statsd.pmda.settings.parser_type
+    value "Basic"
+
+statsd.pmda.settings.port
+    value 8125
+
+statsd.pmda.settings.debug_output_filename
+    value "debug"
+
+statsd.pmda.settings.verbose
+    value 2
+
+statsd.pmda.settings.max_unprocessed_packets
+    value 2048
+
+statsd.pmda.settings.max_udp_packet_size
+    value 1472
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ======================
 03.py
 ----------------------
@@ -446,10 +672,27 @@ statsd.pmda.metrics_tracked
     inst [2 or "duration"] value 0
     inst [3 or "total"] value 0
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ======================
 04.py
 ----------------------
-Setting config file... configs/single/parser_type/0/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+parser_type = 0
+
+~~~
 statsd.pmda.received
     value 75
 statsd.pmda.parsed
@@ -466,8 +709,25 @@ statsd.pmda.metrics_tracked
     inst [2 or "duration"] value 2
     inst [3 or "total"] value 10
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ----------------------
-Setting config file... configs/single/parser_type/1/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+parser_type = 1
+
+~~~
 statsd.pmda.received
     value 75
 statsd.pmda.parsed
@@ -484,8 +744,25 @@ statsd.pmda.metrics_tracked
     inst [2 or "duration"] value 2
     inst [3 or "total"] value 10
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ----------------------
-Setting config file... configs/single/duration_aggregation_type/0/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+duration_aggregation_type = 0
+
+~~~
 statsd.pmda.received
     value 75
 statsd.pmda.parsed
@@ -502,8 +779,25 @@ statsd.pmda.metrics_tracked
     inst [2 or "duration"] value 2
     inst [3 or "total"] value 10
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ----------------------
-Setting config file... configs/single/duration_aggregation_type/1/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+duration_aggregation_type = 1
+
+~~~
 statsd.pmda.received
     value 75
 statsd.pmda.parsed
@@ -520,16 +814,33 @@ statsd.pmda.metrics_tracked
     inst [2 or "duration"] value 2
     inst [3 or "total"] value 10
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ======================
 05.py
 ----------------------
-Setting config file... configs/single/parser_type/0/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+parser_type = 0
+
+~~~
 statsd.pmda.dropped
     value 0
 statsd.test_counter
     inst [0 or "/"] value 22222.11111
 statsd.test_counter2
-    inst [0 or "/"] value 1.79769313486e+308
+    inst [0 or "/"] value 1.797693134862316e+308
 statsd.pmda.dropped
     value 4
 statsd.test_counter2
@@ -537,14 +848,31 @@ statsd.test_counter2
 statsd.pmda.dropped
     value 4
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ----------------------
-Setting config file... configs/single/parser_type/1/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+parser_type = 1
+
+~~~
 statsd.pmda.dropped
     value 0
 statsd.test_counter
     inst [0 or "/"] value 22222.11111
 statsd.test_counter2
-    inst [0 or "/"] value 1.79769313486e+308
+    inst [0 or "/"] value 1.797693134862316e+308
 statsd.pmda.dropped
     value 4
 statsd.test_counter2
@@ -552,40 +880,27 @@ statsd.test_counter2
 statsd.pmda.dropped
     value 4
 Restoring config file...
-----------------------
-Setting config file... configs/single/duration_aggregation_type/0/pmdastatsd.ini
-statsd.pmda.dropped
-    value 0
-statsd.test_counter
-    inst [0 or "/"] value 22222.11111
-statsd.test_counter2
-    inst [0 or "/"] value 1.79769313486e+308
-statsd.pmda.dropped
-    value 4
-statsd.test_counter2
-    inst [0 or "/"] value inf
-statsd.pmda.dropped
-    value 4
-Restoring config file...
-----------------------
-Setting config file... configs/single/duration_aggregation_type/1/pmdastatsd.ini
-statsd.pmda.dropped
-    value 0
-statsd.test_counter
-    inst [0 or "/"] value 22222.11111
-statsd.test_counter2
-    inst [0 or "/"] value 1.79769313486e+308
-statsd.pmda.dropped
-    value 4
-statsd.test_counter2
-    inst [0 or "/"] value inf
-statsd.pmda.dropped
-    value 4
-Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ======================
 06.py
 ----------------------
-Setting config file... configs/single/parser_type/0/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+parser_type = 0
+
+~~~
 statsd.pmda.dropped
     value 3
 statsd.test_gauge
@@ -593,7 +908,7 @@ statsd.test_gauge
 statsd.pmda.dropped
     value 3
 statsd.test_gauge2
-    inst [0 or "/"] value 1.79769313486e+308
+    inst [0 or "/"] value 1.797693134862316e+308
 statsd.pmda.dropped
     value 3
 statsd.test_gauge2
@@ -601,14 +916,31 @@ statsd.test_gauge2
 statsd.pmda.dropped
     value 3
 statsd.test_gauge3
-    inst [0 or "/"] value -1.79769313486e+308
+    inst [0 or "/"] value -1.797693134862316e+308
 statsd.pmda.dropped
     value 3
 statsd.test_gauge3
     inst [0 or "/"] value -inf
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ----------------------
-Setting config file... configs/single/parser_type/0/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+parser_type = 0
+
+~~~
 statsd.pmda.dropped
     value 3
 statsd.test_gauge
@@ -616,7 +948,7 @@ statsd.test_gauge
 statsd.pmda.dropped
     value 3
 statsd.test_gauge2
-    inst [0 or "/"] value 1.79769313486e+308
+    inst [0 or "/"] value 1.797693134862316e+308
 statsd.pmda.dropped
     value 3
 statsd.test_gauge2
@@ -624,62 +956,33 @@ statsd.test_gauge2
 statsd.pmda.dropped
     value 3
 statsd.test_gauge3
-    inst [0 or "/"] value -1.79769313486e+308
+    inst [0 or "/"] value -1.797693134862316e+308
 statsd.pmda.dropped
     value 3
 statsd.test_gauge3
     inst [0 or "/"] value -inf
 Restoring config file...
-----------------------
-Setting config file... configs/single/parser_type/0/pmdastatsd.ini
-statsd.pmda.dropped
-    value 3
-statsd.test_gauge
-    inst [0 or "/"] value 21110.88889
-statsd.pmda.dropped
-    value 3
-statsd.test_gauge2
-    inst [0 or "/"] value 1.79769313486e+308
-statsd.pmda.dropped
-    value 3
-statsd.test_gauge2
-    inst [0 or "/"] value inf
-statsd.pmda.dropped
-    value 3
-statsd.test_gauge3
-    inst [0 or "/"] value -1.79769313486e+308
-statsd.pmda.dropped
-    value 3
-statsd.test_gauge3
-    inst [0 or "/"] value -inf
-Restoring config file...
-----------------------
-Setting config file... configs/single/parser_type/0/pmdastatsd.ini
-statsd.pmda.dropped
-    value 3
-statsd.test_gauge
-    inst [0 or "/"] value 21110.88889
-statsd.pmda.dropped
-    value 3
-statsd.test_gauge2
-    inst [0 or "/"] value 1.79769313486e+308
-statsd.pmda.dropped
-    value 3
-statsd.test_gauge2
-    inst [0 or "/"] value inf
-statsd.pmda.dropped
-    value 3
-statsd.test_gauge3
-    inst [0 or "/"] value -1.79769313486e+308
-statsd.pmda.dropped
-    value 3
-statsd.test_gauge3
-    inst [0 or "/"] value -inf
-Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ======================
 07.py
 ----------------------
-Setting config file... configs/single/duration_aggregation_type/0/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+duration_aggregation_type = 0
+
+~~~
 statsd.test_duration
     inst [0 or "/min"] value 1
     inst [1 or "/max"] value 100
@@ -691,344 +994,389 @@ statsd.test_duration
     inst [7 or "/count"] value 100
     inst [8 or "/std_deviation"] value 28.86607004772212
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ======================
 08.py
 ----------------------
-Setting config file... configs/single/duration_aggregation_type/0/pmdastatsd.ini
-('/', '0')
-('/A=10', '6')
-('/A=A', '4')
-('/A=A::B=B::C=C', '5')
-('/tagA=A::tagB=B::tagC=C', '3')
-('/tagX=X', '1')
-('/tagX=X::tagY=Y', '2')
-('/average', '50.5')
-('/average::label=X', '101')
-('/count', '100')
-('/count::label=X', '100')
-('/max', '100')
-('/max::label=X', '200')
-('/median', '50')
-('/median::label=X', '100')
-('/min', '1')
-('/min::label=X', '2')
-('/percentile90', '90')
-('/percentile90::label=X', '180')
-('/percentile95', '95')
-('/percentile95::label=X', '190')
-('/percentile99', '99')
-('/percentile99::label=X', '198')
-('/std_deviation', '28.86607004772212')
-('/std_deviation::label=X', '57.73214009544424')
+Setting config:
+~~~
+
+[global]
+duration_aggregation_type = 0
+
+~~~
+/ 0
+/A=10 6
+/A=A 4
+/A=A::B=B::C=C 5
+/tagA=A::tagB=B::tagC=C 3
+/tagX=X 1
+/tagX=X::tagY=Y 2
+/average 50.5
+/average::label=X 101
+/count 100
+/count::label=X 100
+/max 100
+/max::label=X 200
+/median 50
+/median::label=X 100
+/min 1
+/min::label=X 2
+/percentile90 90
+/percentile90::label=X 180
+/percentile95 95
+/percentile95::label=X 190
+/percentile99 99
+/percentile99::label=X 198
+/std_deviation 28.86607004772212
+/std_deviation::label=X 57.73214009544424
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ======================
 09.py
 ----------------------
-Setting config file... configs/single/duration_aggregation_type/1/pmdastatsd.ini
-('/average', 'OK')
-('/count', 'OK')
-('/max', 'OK')
-('/median', 'OK')
-('/min', 'OK')
-('/percentile90', 'OK')
-('/percentile95', 'OK')
-('/percentile99', 'OK')
-('/std_deviation', 'OK')
+Setting config:
+~~~
+
+[global]
+duration_aggregation_type = 1
+
+~~~
+/average OK
+/count OK
+/max OK
+/median OK
+/min OK
+/percentile90 OK
+/percentile95 OK
+/percentile99 OK
+/std_deviation OK
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ======================
 10.py
 ----------------------
 OK. +4 metrics, none lost.
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ======================
 11.py
 ----------------------
-Setting config file... configs/single/port/0/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+port = 8125
+
+~~~
 Testing port 8125
 statsd.test_port_a
     inst [0 or "/"] value 1
 Restoring config file...
-Setting config file... configs/single/port/1/pmdastatsd.ini
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+Setting config:
+~~~
+
+[global]
+port = 8126
+
+~~~
 Testing port 8126
 statsd.test_port_b
     inst [0 or "/"] value 1
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ======================
 12.py
 ----------------------
-Setting config file... configs/single/verbose/0/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+verbose = 0
+
+~~~
 Restoring config file...
-Setting config file... configs/single/verbose/1/pmdastatsd.ini
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+Setting config:
+~~~
+
+[global]
+verbose = 1
+
+~~~
 Restoring config file...
-Setting config file... configs/single/verbose/2/pmdastatsd.ini
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+Setting config:
+~~~
+
+[global]
+verbose = 2
+
+~~~
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 Verbosity specificity is OK. (lvl 0 < lvl 1 < lvl 2)
 ======================
 13.py
-----------------------
-Setting config file... configs/single/debug_output_filename/0/pmdastatsd.ini
------------------
-name = test_labels2
-type = counter
-pcp_name = statsd.test_labels2
-pmid = PM_ID_NULL
----
-#1 Label: 
--> desc = {"tagX":"X","tagY":"Y"}
--> instance segment = tagX=X::tagY=Y
--> pair count = 2
-->
-value = 2.000000
----
-#2 Label: 
--> desc = {"tagA":"A","tagB":"B","tagC":"C"}
--> instance segment = tagA=A::tagB=B::tagC=C
--> pair count = 3
-->
-value = 3.000000
----
-#3 Label: 
--> desc = {"A":"A"}
--> instance segment = A=A
--> pair count = 1
-->
-value = 4.000000
----
-#4 Label: 
--> desc = {"A":"A","B":"B","C":"C"}
--> instance segment = A=A::B=B::C=C
--> pair count = 3
-->
-value = 5.000000
----
-#5 Label: 
--> desc = {"tagX":"X"}
--> instance segment = tagX=X
--> pair count = 1
-->
-value = 1.000000
----
-#6 Label: 
--> desc = {"A":"10"}
--> instance segment = A=10
--> pair count = 2
-->
-value = 6.000000
----
-
------------------
-name = test_labels
-type = counter
-value = 0.000000
-pcp_name = statsd.test_labels
-pmid = PM_ID_NULL
----
-#1 Label: 
--> desc = {"A":"A"}
--> instance segment = A=A
--> pair count = 1
-->
-value = 4.000000
----
-#2 Label: 
--> desc = {"tagA":"A","tagB":"B","tagC":"C"}
--> instance segment = tagA=A::tagB=B::tagC=C
--> pair count = 3
-->
-value = 3.000000
----
-#3 Label: 
--> desc = {"tagX":"X"}
--> instance segment = tagX=X
--> pair count = 1
-->
-value = 1.000000
----
-#4 Label: 
--> desc = {"tagX":"X","tagY":"Y"}
--> instance segment = tagX=X::tagY=Y
--> pair count = 2
-->
-value = 2.000000
----
-#5 Label: 
--> desc = {"A":"A","B":"B","C":"C"}
--> instance segment = A=A::B=B::C=C
--> pair count = 3
-->
-value = 5.000000
----
-
------------------
-Total number of records: 2 
-----------------
-PMDA STATS: 
-received: 13 
-parsed: 12 
-thrown away: 1 
-aggregated: 12 
-time spent parsing: <filtered>
-time spent aggregating: <filtered>
-metrics tracked: counters: 0, gauges: 0, durations: 0 
------------------
-
-Restoring config file...
-Setting config file... configs/single/debug_output_filename/1/pmdastatsd.ini
------------------
-name = test_labels2
-type = counter
-pcp_name = statsd.test_labels2
-pmid = PM_ID_NULL
----
-#1 Label: 
--> desc = {"tagX":"X","tagY":"Y"}
--> instance segment = tagX=X::tagY=Y
--> pair count = 2
-->
-value = 2.000000
----
-#2 Label: 
--> desc = {"tagA":"A","tagB":"B","tagC":"C"}
--> instance segment = tagA=A::tagB=B::tagC=C
--> pair count = 3
-->
-value = 3.000000
----
-#3 Label: 
--> desc = {"A":"A"}
--> instance segment = A=A
--> pair count = 1
-->
-value = 4.000000
----
-#4 Label: 
--> desc = {"A":"A","B":"B","C":"C"}
--> instance segment = A=A::B=B::C=C
--> pair count = 3
-->
-value = 5.000000
----
-#5 Label: 
--> desc = {"tagX":"X"}
--> instance segment = tagX=X
--> pair count = 1
-->
-value = 1.000000
----
-#6 Label: 
--> desc = {"A":"10"}
--> instance segment = A=10
--> pair count = 2
-->
-value = 6.000000
----
-
------------------
-name = test_labels
-type = counter
-value = 0.000000
-pcp_name = statsd.test_labels
-pmid = PM_ID_NULL
----
-#1 Label: 
--> desc = {"A":"A"}
--> instance segment = A=A
--> pair count = 1
-->
-value = 4.000000
----
-#2 Label: 
--> desc = {"tagA":"A","tagB":"B","tagC":"C"}
--> instance segment = tagA=A::tagB=B::tagC=C
--> pair count = 3
-->
-value = 3.000000
----
-#3 Label: 
--> desc = {"tagX":"X"}
--> instance segment = tagX=X
--> pair count = 1
-->
-value = 1.000000
----
-#4 Label: 
--> desc = {"tagX":"X","tagY":"Y"}
--> instance segment = tagX=X::tagY=Y
--> pair count = 2
-->
-value = 2.000000
----
-#5 Label: 
--> desc = {"A":"A","B":"B","C":"C"}
--> instance segment = A=A::B=B::C=C
--> pair count = 3
-->
-value = 5.000000
----
-
------------------
-Total number of records: 2 
-----------------
-PMDA STATS: 
-received: 13 
-parsed: 12 
-thrown away: 1 
-aggregated: 12 
-time spent parsing: <filtered>
-time spent aggregating: <filtered>
-metrics tracked: counters: 0, gauges: 0, durations: 0 
------------------
-
-Restoring config file...
 ======================
 14.py
 ----------------------
-Setting config file... configs/single/max_udp_packet_size/0/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+max_udp_packet_size = 1472
+
+~~~
 statsd.pmda.metrics_tracked
     inst [0 or "counter"] value 0
     inst [1 or "gauge"] value 1
     inst [2 or "duration"] value 1
     inst [3 or "total"] value 2
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ----------------------
-Setting config file... configs/single/max_udp_packet_size/1/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+max_udp_packet_size = 2944
+
+~~~
 statsd.pmda.metrics_tracked
     inst [0 or "counter"] value 1
     inst [1 or "gauge"] value 1
     inst [2 or "duration"] value 1
     inst [3 or "total"] value 3
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ----------------------
-Setting config file... configs/single/max_udp_packet_size/2/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+max_udp_packet_size = 10
+
+~~~
 statsd.pmda.metrics_tracked
     inst [0 or "counter"] value 0
     inst [1 or "gauge"] value 1
     inst [2 or "duration"] value 0
     inst [3 or "total"] value 1
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ======================
 15.py
 ----------------------
-Setting config file... configs/single/parser_type/0/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+parser_type = 0
+
+~~~
 
  LEAK SUMMARY:
     definitely lost: 0 bytes in 0 blocks
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ----------------------
-Setting config file... configs/single/parser_type/1/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+parser_type = 1
+
+~~~
 
  LEAK SUMMARY:
     definitely lost: 0 bytes in 0 blocks
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ----------------------
-Setting config file... configs/single/duration_aggregation_type/0/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+duration_aggregation_type = 0
+
+~~~
 
  LEAK SUMMARY:
     definitely lost: 0 bytes in 0 blocks
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
 ----------------------
-Setting config file... configs/single/duration_aggregation_type/1/pmdastatsd.ini
+Setting config:
+~~~
+
+[global]
+duration_aggregation_type = 1
+
+~~~
 
  LEAK SUMMARY:
     definitely lost: 0 bytes in 0 blocks
 Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+

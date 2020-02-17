@@ -21,13 +21,12 @@ ip = "0.0.0.0"
 port = 8125
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-path_prefix = os.path.join("configs", "single", "max_udp_packet_size")
 # 1472
-maxudp_1 = os.path.join(path_prefix, "0", "pmdastatsd.ini")
+maxudp_1 = utils.configs["max_udp_packet_size"][0]
 # 2944
-maxudp_2 = os.path.join(path_prefix, "1", "pmdastatsd.ini")
+maxudp_2 = utils.configs["max_udp_packet_size"][1]
 # 10
-maxudp_3 = os.path.join(path_prefix, "2", "pmdastatsd.ini")
+maxudp_3 = utils.configs["max_udp_packet_size"][2]
 
 payloads = [
     "test_payload_" + ("x" * 1472) + ":0|c",

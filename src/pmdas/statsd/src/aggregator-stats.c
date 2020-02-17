@@ -172,7 +172,7 @@ write_stats_to_file(struct agent_config* config, struct pmda_stats_container* st
         stats->stats->metrics_recorded->gauge,
         stats->stats->metrics_recorded->duration
     );
-    fprintf(f, "-----------------\n");
+    fprintf(f, "----------------\n");
     fclose(f);
     VERBOSE_LOG(0, "Wrote stats to debug file.");
     pthread_mutex_unlock(&stats->mutex);

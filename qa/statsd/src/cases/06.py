@@ -44,13 +44,10 @@ payloads = [
     "-0.00001"
 ]
 
-basis_parser_config = os.path.join("configs", "single", "parser_type", "0", "pmdastatsd.ini")
-ragel_parser_config = os.path.join("configs", "single", "parser_type", "1", "pmdastatsd.ini")
+basis_parser_config = utils.configs["parser_type"][0]
+ragel_parser_config = utils.configs["parser_type"][1]
 
-duration_aggregation_basic_config = os.path.join("configs", "single", "duration_aggregation_type", "0", "pmdastatsd.ini")
-duration_aggregation_hdr_histogram_config = os.path.join("configs", "single", "duration_aggregation_type", "1", "pmdastatsd.ini")
-
-testconfigs = [basis_parser_config, ragel_parser_config, duration_aggregation_basic_config, duration_aggregation_hdr_histogram_config]
+testconfigs = [basis_parser_config, ragel_parser_config]
 
 def run_test():
     for testconfig in testconfigs:
@@ -67,7 +64,6 @@ def run_test():
         sock.sendto("test_gauge2:+{}|g".format(overflow_payload).encode("utf-8"), (ip, port))
         utils.print_metric("statsd.pmda.dropped")
         utils.print_metric("statsd.test_gauge2")
-        # TODO: check if this is truly the desired behavior
         underflow_payload = sys.float_info.max * -1.0
         sock.sendto("test_gauge3:{}|g".format(underflow_payload).encode("utf-8"), (ip, port))
         utils.print_metric("statsd.pmda.dropped")

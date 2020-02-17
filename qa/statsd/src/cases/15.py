@@ -135,11 +135,11 @@ command_to_execute = [
 ]
 # delay between commands <1 was returning "bad metric name"
 composed_command = '; sleep 0.1; '.join(command_to_execute)
-basic_parser_config = os.path.join("configs", "single", "parser_type", "0", "pmdastatsd.ini")
-ragel_parser_config = os.path.join("configs", "single", "parser_type", "1", "pmdastatsd.ini")
+basic_parser_config = utils.configs["parser_type"][0]
+ragel_parser_config = utils.configs["parser_type"][1]
 
-duration_aggregation_basic_config = os.path.join("configs", "single", "duration_aggregation_type", "0", "pmdastatsd.ini")
-duration_aggregation_hdr_histogram_config = os.path.join("configs", "single", "duration_aggregation_type", "1", "pmdastatsd.ini")
+duration_aggregation_basic_config = utils.configs["duration_aggregation_type"][0]
+duration_aggregation_hdr_histogram_config = utils.configs["duration_aggregation_type"][1]
 
 testconfigs = [basic_parser_config, ragel_parser_config, duration_aggregation_basic_config, duration_aggregation_hdr_histogram_config]
 
@@ -159,7 +159,7 @@ def run_test():
            sock.sendto(payload.encode("utf-8"), (ip, port))
         time.sleep(5)
         # wait to make sure the agent handles the payloads AND dbpmda gets delayed echo statements
-        time.sleep(5)
+        time.sleep(8)
         # trigger cleanup in agent by sending SIGINT
         utils.send_INT_to_pid(pmdastatsd_pid)
         # again, wait for cleanup

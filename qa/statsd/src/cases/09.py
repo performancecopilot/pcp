@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # Exercises hdr histogram aggregation on duration metrics
+# Since agent works with UDP datagrams, we have to take into account the fact that not all payloads will get processed and will get lost.
+# Following test assumes that at least 10% of datagrams gets processed and measued values are within 35% +/- of expected values
 
 import sys
 import socket
@@ -20,9 +22,10 @@ ip = "0.0.0.0"
 port = 8125
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-expected_min = 0
+expected_min = 0 
 expected_max = 20000000
-expected_count = 10000000
+expected_count_max = 10000000 # since we use UDP not all datagrams are expected to be processed
+expected_count_min = 10000000 * 0.1 # assume that at least 10 % of all send datagrams gets processed
 expected_average = 10000000
 expected_median = 10000000
 expected_percentile90 = 18000000
@@ -30,8 +33,7 @@ expected_percentile95 = 19000000
 expected_percentile99 = 19800000
 expected_stddev = 5773500.278068
 
-# so that we can guarantee same duration values which may vary when histogram aggregation is used - this is not the point of this test
-hdr_duration_aggregation = os.path.join("configs", "single", "duration_aggregation_type", "1", "pmdastatsd.ini")
+hdr_duration_aggregation = utils.configs["duration_aggregation_type"][1]
 
 def run_test():
     utils.print_test_section_separator()
@@ -47,8 +49,7 @@ def run_test():
             if utils.check_is_in_bounds(expected_average, number_value):
                 status = True
         elif k == "/count":
-            # TODO: Ask Nathan, if this is OK
-            if utils.check_is_in_bounds(expected_count, number_value, 0.5):
+            if utils.check_is_in_range(expected_count_max, expected_count_min, number_value):
                 status = True
         elif k == "/max":
             if utils.check_is_in_bounds(expected_max, number_value):

@@ -31,7 +31,7 @@ payloads = [
 ]
 
 # so that we can guarantee same duration values which may vary when histogram aggregation is used - this is not the point of this test
-basic_duration_aggregation = os.path.join("configs", "single", "duration_aggregation_type", "0", "pmdastatsd.ini")
+basic_duration_aggregation = utils.configs["duration_aggregation_type"][0]
 
 def run_test():
     utils.print_test_section_separator()

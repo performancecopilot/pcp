@@ -106,9 +106,9 @@ payloads = [
 for i in range(0, 200):
     payloads.append(":20|c")
 
-verbosity_lvl_0 = os.path.join("configs", "single", "verbose", "0", "pmdastatsd.ini")
-verbosity_lvl_1 = os.path.join("configs", "single", "verbose", "1", "pmdastatsd.ini")
-verbosity_lvl_2 = os.path.join("configs", "single", "verbose", "2", "pmdastatsd.ini")
+verbosity_lvl_0 = utils.configs["verbose"][0]
+verbosity_lvl_1 = utils.configs["verbose"][1]
+verbosity_lvl_2 = utils.configs["verbose"][2]
 
 def get_number_of_lines_in_file(path):
     f = open(path, "r")

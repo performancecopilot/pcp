@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1599
-# Run each of the statsd PMDA ruby tests.
+# Run each of the statsd PMDA python tests.
 #
 # Copyright (c) 2019 Red Hat.
 #
@@ -9,15 +9,11 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
 
 test -e $PCP_PMDAS_DIR/statsd/pmdastatsd || _notrun "statsd PMDA not installed"
 
-which python >/dev/null 2>&1 || _notrun "python not installed"
-
-which valgrind >/dev/null 2>&1 || _notrun "valgrind not installed"
+_check_valgrind
 
 _cleanup()
 {
@@ -38,7 +34,7 @@ cd $here/statsd/src
 scripts=`find cases -name *.py | LC_COLLATE=POSIX sort`
 for script in $scripts
 do
-    python $script $here/statsd/output
+    $python $script $here/statsd/output
 done
 cd $here
 

@@ -1,9 +1,9 @@
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTDIR = $(PCP_VAR_DIR)/testsuite/statsd
+TESTDIR = $(PCP_VAR_DIR)/testsuite/statsd/src
 
-SUBDIRS = src
+SUBDIRS = cases utils
 
 ifeq "$(PMDA_STATSD)" "true"
 default setup default_pcp: $(SUBDIRS)

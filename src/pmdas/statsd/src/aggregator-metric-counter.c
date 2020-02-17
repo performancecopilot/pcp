@@ -93,7 +93,7 @@ print_counter_metric_value(struct agent_config* config, FILE* f, void* value) {
 void
 print_counter_metric(struct agent_config* config, FILE* f, struct metric* item) {
     (void)config;
-    fprintf(f, "-----------------\n");
+    fprintf(f, "----------------\n");
     fprintf(f, "name = %s\n", item->name);
     fprintf(f, "type = counter\n");
     print_counter_metric_value(config, f, item->value);
