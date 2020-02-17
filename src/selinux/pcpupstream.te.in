@@ -37,6 +37,7 @@ require {
         type modules_object_t; # pcp.lio, pcp.bcc
         type mdadm_exec_t;
         type named_exec_t;
+        type ndc_exec_t;
         type proc_mdstat_t;
         @PCP_NUMAD_CONTEXT@
         type glusterd_log_t;
@@ -189,6 +190,7 @@ allow pcp_pmcd_t mdadm_exec_t:file { execute execute_no_trans open read };
 
 #type=AVC msg=audit(XXX.71): avc:  denied  { execute } for  pid=YYYY comm="pmdaX" name="unbound-control" dev="vda1" ino=7050199 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:named_exec_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t named_exec_t:file execute;
+allow pcp_pmcd_t ndc_exec_t:file execute;
 
 #type=AVC msg=audit(XXX.27): avc:  denied  { getattr open read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:proc_mdstat_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t proc_mdstat_t:file { getattr open read };
