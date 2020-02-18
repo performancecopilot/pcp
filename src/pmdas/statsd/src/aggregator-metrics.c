@@ -250,7 +250,7 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
         count++;
     }
     dictReleaseIterator(iterator);
-    fprintf(f, "-----------------\n");
+    fprintf(f, "----------------\n");
     fprintf(f, "Total number of records: %lu \n", count);
     fclose(f);    
     pthread_mutex_unlock(&container->mutex);

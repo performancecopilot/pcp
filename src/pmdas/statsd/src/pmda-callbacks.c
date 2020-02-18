@@ -149,7 +149,7 @@ map_labels_to_instances(struct metric* item, struct pmda_data_extension* data, s
     if (has_root_value) {
         root_offset = 1;
     }
-    size_t labels_count = dictSize(item->children); // this is never 0
+    size_t labels_count = dictSize(item->children);
     if (item->type == METRIC_TYPE_DURATION) {
         // because duration has 9 instances per metric/metric_label record
         indom_i_inst_cnt = (labels_count + root_offset) * 9;

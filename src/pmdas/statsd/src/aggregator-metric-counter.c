@@ -35,7 +35,7 @@ create_counter_value(struct agent_config* config, struct statsd_datagram* datagr
         default:
             new_value = datagram->value;
     }
-    if (new_value < 0 || new_value >= DBL_MAX) {
+    if (new_value < 0) {
         return 0;
     }
     *out = (double*) malloc(sizeof(double));
@@ -66,11 +66,6 @@ update_counter_value(struct agent_config* config, struct statsd_datagram* datagr
     if (new_value < 0) {
         return 0;
     }
-    // check for overflow
-    if (new_value > DBL_MAX - *(double*)value) {
-        VERBOSE_LOG(2, "Caught double overflow.");
-        return 0;
-    }
     *(double*)(value) += new_value;
     return 1;
 }
@@ -98,7 +93,7 @@ print_counter_metric_value(struct agent_config* config, FILE* f, void* value) {
 void
 print_counter_metric(struct agent_config* config, FILE* f, struct metric* item) {
     (void)config;
-    fprintf(f, "-----------------\n");
+    fprintf(f, "----------------\n");
     fprintf(f, "name = %s\n", item->name);
     fprintf(f, "type = counter\n");
     print_counter_metric_value(config, f, item->value);

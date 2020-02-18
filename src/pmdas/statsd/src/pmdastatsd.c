@@ -77,6 +77,7 @@ create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
     data->pcp_instance_domains[1].it_indom = STATSD_METRIC_DEFAULT_DURATION_INDOM;
     data->pcp_instance_domains[1].it_numinst = 9;
     data->pcp_instance_domains[1].it_set = statsd_metric_default_duration_indom;
+    
     SET_INST_NAME(statsd_metric_default_duration_indom, "/min", 0);
     SET_INST_NAME(statsd_metric_default_duration_indom, "/max", 1);
     SET_INST_NAME(statsd_metric_default_duration_indom, "/median", 2);
@@ -176,9 +177,34 @@ free_shared_data(struct agent_config* config, struct pmda_data_extension* data) 
             free(data->pcp_metrics[i].m_user);
         }
     }
-    free(data->pcp_metrics);
-    // clear PCP instance domains
-    for (i = 0; i < data->pcp_instance_domain_count; i++) {
+    free(data->pcp_metrics);    
+    // clear not-hardcoded PCP instance domains
+    for (i = 3; i < data->pcp_instance_domain_count; i++) {
+        int j;
+        // other instance domains may share certain instance names with 3 above, so be careful not to double free
+        pmdaIndom domain = data->pcp_instance_domains[i];
+        // if metric of type GAUGE/COUNTER shared instance names from STATSD_METRIC_DEFAULT_INDOM, its first instance name is '/'
+        if (domain.it_set[0].i_name[1] == '\0') {
+            for (j = 1; j < data->pcp_instance_domains[i].it_numinst; j++) {
+                free(data->pcp_instance_domains[i].it_set[j].i_name);
+            }
+        }
+        // if metric of type DURATION shared instance names from STATSD_METRIC_DEFAULT_DURATION_INDOM, its first instance name is '/min'
+        else if (strcmp(domain.it_set[0].i_name, "/min") == 0) {
+            for (j = 9; j < data->pcp_instance_domains[i].it_numinst; j++) {
+                free(data->pcp_instance_domains[i].it_set[j].i_name);
+            }
+        }
+        // else metric instance domain has no shared values
+        else {
+            for (j = 0; j < data->pcp_instance_domains[i].it_numinst; j++) {
+                free(data->pcp_instance_domains[i].it_set[j].i_name);
+            }
+        }
+        free(data->pcp_instance_domains[i].it_set);
+    }
+    // clear hardcoded PCP instance domains
+    for (i = 0; i < 3; i++) {
         int j;
         for (j = 0; j < data->pcp_instance_domains[i].it_numinst; j++) {
             free(data->pcp_instance_domains[i].it_set[j].i_name);
@@ -380,6 +406,7 @@ main(int argc, char** argv)
     read_agent_config(&config, &dispatch, config_file_path, argc, argv);
     init_loggers(&config);
     pmdaOpenLog(&dispatch);
+    pmNotifyErr(LOG_INFO, "Config loaded from %s.", config_file_path);
     print_agent_config(&config);
     if (config.show_version) {
         pmNotifyErr(LOG_INFO, "Version: %d", VERSION);

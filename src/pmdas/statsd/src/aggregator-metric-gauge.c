@@ -67,23 +67,9 @@ update_gauge_value(struct agent_config* config, struct statsd_datagram* datagram
     }
     if (datagram->explicit_sign == SIGN_NONE) {
         *(double*)(value) = increment;
-        return 1;
-    }
-    if (datagram->explicit_sign == SIGN_PLUS) {
-        // prevent overflow
-        if (old > 0 && increment > DBL_MAX - old) {
-            VERBOSE_LOG(2, "Caught double overflow.");
-            return 0;
-        }
-    }
-    if (datagram->explicit_sign == SIGN_MINUS) {
-        // prevent underflow
-        if (old < 0 && increment < DBL_MIN + old) {
-            VERBOSE_LOG(2, "Caught double underflow.");
-            return 0;
-        }
-    }
-    *(double*)(value) += increment;
+    } else {
+        *(double*)(value) += increment;
+    }    
     return 1;
 }
 
@@ -110,7 +96,7 @@ print_gauge_metric_value(struct agent_config* config, FILE* f, void* value) {
 void
 print_gauge_metric(struct agent_config* config, FILE* f, struct metric* item) {
     (void)config;
-    fprintf(f, "-----------------\n");
+    fprintf(f, "----------------\n");
     fprintf(f, "name = %s\n", item->name);
     fprintf(f, "type = gauge\n");
     print_gauge_metric_value(config, f, item->value);
