@@ -17,6 +17,24 @@ _check_series
 _check_valgrind
 openssl help 2>/dev/null || _notrun "No openssl binary found"
 
+if [ -f /etc/lsb-release ]
+then
+    . /etc/lsb-release
+    if [ "$DISTRIB_ID" = Ubuntu ]
+    then
+	# This test fails for Ubuntu 19.10 with a myriad of errors involving
+	# the use of uninitialized values.  The code paths very but typically
+	# involve libuv -> libssl ->  libcrypto
+	#
+	case "$DISTRIB_RELEASE"
+	in
+	    19.10)
+		_notrun "problems with libuv, libssl, libcrypto and valgrind on Ubuntu $DISTRIB_RELEASE"
+		;;
+	esac
+    fi
+fi
+
 _cleanup()
 {
     cd $here
