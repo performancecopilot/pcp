@@ -1231,6 +1231,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for PowerDNS
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl-Time-HiRes
 
 %description pmda-pdns
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
