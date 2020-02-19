@@ -1891,6 +1891,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for S.M.A.R.T values
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
+Requires: smartmontools
 %description pmda-smart
 This package contains the PCP Performance Metric Domain Agent (PMDA) for
 collecting metrics of disk S.M.A.R.T values making use of data from the
