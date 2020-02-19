@@ -33,7 +33,7 @@
     "ssh_timeout": "20m"
   }],
   "provisioners": [
-    { "type": "file", "source": "common/redhat/build.sh", "destination": "/tmp/" },
+    { "type": "file", "source": "hosts/fedora31/build.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/redhat/install.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/linux/test.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/linux/create_report.py", "destination": "/tmp/" },
