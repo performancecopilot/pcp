@@ -126,13 +126,6 @@ def pmdastatsd_remove():
 	results = subprocess.check_output(command, shell=True).decode().strip()
 	return results
 
-def backup_config():
-	"""checkes if config file exists, if so, rename it as backup"""
-	config_path = os.path.join(pmdastatsd_dir, pmdastatsd_config_filename)
-	backup_config_path = os.path.join(pmdastatsd_dir, pmdastatsd_config_backup_filename)
-	if os.path.exists(config_path):
-		os.rename(config_path, backup_config_path)
-
 def restore_config():
 	"""restores old config to original name"""
 	print("Restoring config file...");
@@ -141,7 +134,6 @@ def restore_config():
 def set_config(config, verbose = True):
 	"""sets config file in pmdastatsd dir, old config is renamed"""
 	if os.path.exists(os.path.join(pmdastatsd_dir, pmdastatsd_config_filename)):
-		backup_config()
 		if verbose:
 			print("Setting config:")
 			print("~~~")

@@ -34,7 +34,7 @@ cd $here/statsd/src
 scripts=`find cases -name *.py | LC_COLLATE=POSIX sort`
 for script in $scripts
 do
-    $python $script $here/statsd/output
+    $sudo $python $script $here/statsd/output
 done
 cd $here
 
