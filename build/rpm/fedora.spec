@@ -963,6 +963,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for Redis
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl-autodie
 
 %description pmda-redis
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
