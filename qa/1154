@@ -11,7 +11,6 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
-_pmdabcc_require__version__
 _bcc_debian_unstable && _notrun "bcc may be broken for Debian unstable"
 which zpool >/dev/null 2>&1 || _notrun "zpool tool not installed"
 modinfo zfs >/dev/null 2>&1 || _notrun "zfs kernel module not present"

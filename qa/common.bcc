@@ -21,22 +21,7 @@ _pmdabcc_check()
     # (added in version 0.5.0)
     # TODO: update once __version__ attribute is available
     $python -c "from bcc import DEBUG_BPF_REGISTER_STATE" >/dev/null 2>&1
-    [ $? -eq 0 ] || _notrun "python bcc module 0.5.0+ with DEBUG_BPF_REGISTER_STATE is required"
-
-    [ -f $PCP_PMDAS_DIR/bcc/pmdabcc.python ] || _notrun "bcc PMDA not installed"
-}
-
-# Some bcc PMDA modules load pcpbcc.python which in turn loads __version__
-# from the Python BCC library.  Older versions of the Python BCC
-# library do not contain the __version__ symbol.
-#
-# Should be run after _pmdabcc_check(), so don't need to replicate preliminary
-# tests from there.
-#
-_pmdabcc_require__version__()
-{
-    $python -c "from bcc import __version__" >/dev/null 2>&1
-    [ $? -eq 0 ] || _notrun "python bcc module 0.5.0+ with __version__ is required"
+    [ $? -eq 0 ] || _notrun "python bcc module 0.5.0+ is required"
 
     [ -f $PCP_PMDAS_DIR/bcc/pmdabcc.python ] || _notrun "bcc PMDA not installed"
 }

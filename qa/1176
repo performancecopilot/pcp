@@ -11,7 +11,6 @@ echo "QA output created by $seq"
 . ./common.bcc
 
 _pmdabcc_check
-_pmdabcc_require__version__
 _bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
 _bcc_debian_unstable && _notrun "bcc may be broken for Debian unstable"
 
