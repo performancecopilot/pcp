@@ -3,7 +3,7 @@
 cd "$(dirname "$0")/.."
 . scripts/env.sh
 . scripts/env.vmss.sh
-artifacts_dir="$2/"
+artifacts_dir="${2:-/tmp/pcp-artifacts}/"
 
 echo Host IPs: "${AZ_VMSS_IPS}"
 echo Builder IPs: "${AZ_VMSS_BUILDER_IP}"

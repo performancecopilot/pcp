@@ -46,7 +46,7 @@ steps:
 
   - publish: ./tests
     displayName: Publish test artifacts
-    condition: succeededOrFailed()
+    condition: always()
     artifact: tests_$(ci_host)
 
   - task: PublishTestResults@2
