@@ -1628,6 +1628,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for hardware sensors
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
+Requires: lm_sensors
 %if !%{disable_python3}
 Requires: python3-pcp
 %else
