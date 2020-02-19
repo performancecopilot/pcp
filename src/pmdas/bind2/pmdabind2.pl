@@ -25,9 +25,7 @@ use PCP::PMDA;
 use Time::HiRes            qw{gettimeofday alarm};
 use LWP::UserAgent;
 use XML::LibXML;
-use List::MoreUtils        qw{uniq};
 use File::Spec::Functions  qw{catfile};
-use File::Basename         qw{basename};
 use File::Slurp            qw{read_file};
 use Data::Dumper;
 
