@@ -1076,6 +1076,8 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for a GPS Daemon
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl-Time-HiRes
+Requires: perl-JSON
 
 %description pmda-gpsd
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
