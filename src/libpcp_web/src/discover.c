@@ -1291,6 +1291,12 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		return;
 	    }
 
+	    /*
+	     * We have a valid pmapi context. Initialize context state
+	     * and invoke registered source callbacks.
+	     */
+	    pmDiscoverNewSource(p, sts);
+
 	    if ((sts = pmGetArchiveEnd(&tvp)) < 0) {
 		/* Less likely, but could still be too early (as above) */
 		infofmt(msg, "pmGetArchiveEnd failed for %s: %s\n",
@@ -1300,12 +1306,6 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		p->ctx = -1;
 		return;
 	    }
-
-	    /*
-	     * We have a valid pmapi context with good archive end timestamp.
-	     * Initialize context state and invoke registered source callbacks.
-	     */
-	    pmDiscoverNewSource(p, sts);
 
 	    /* seek to end of archive for logvol data - see also TODO in process_logvol() */
 	    pmSetMode(PM_MODE_FORW, &tvp, 1);
