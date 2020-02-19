@@ -428,7 +428,7 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
 
     if (lockcnt == 0 && count > 0) {
 	/* log-rolling has started */
-    	fprintf(stderr, "%s discovery callback ignored: log-rolling is now in progress\n", stamp());
+    	fprintf(stderr, "%s discovery callback: log-rolling in progress\n", stamp());
 	lockcnt = count;
 	return;
     }
@@ -1278,13 +1278,27 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 
 	    /* create the PMAPI context (once off) */
 	    if ((sts = pmNewContext(p->context.type, p->context.name)) < 0) {
-		infofmt(msg, "pmNewContext failed for %s: %s\n",
-			p->context.name, pmErrStr(sts));
-		moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
+		/*
+		 * Likely an early callback on a new (still empty) archive.
+		 * If so, just ignore the callback and don't log any scary
+		 * looking messages. We'll get another CB soon.
+		 */
+		if (sts != PM_ERR_NODATA || pmDebugOptions.desperate) {
+		    infofmt(msg, "pmNewContext failed for %s: %s\n",
+			    p->context.name, pmErrStr(sts));
+		    moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
+		}
 		return;
 	    }
+
+	    /*
+	     * We have a valid pmapi context. Initialize context state
+	     * and invoke registered source callbacks.
+	     */
 	    pmDiscoverNewSource(p, sts);
+
 	    if ((sts = pmGetArchiveEnd(&tvp)) < 0) {
+		/* Less likely, but could still be too early (as above) */
 		infofmt(msg, "pmGetArchiveEnd failed for %s: %s\n",
 				p->context.name, pmErrStr(sts));
 		moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
@@ -1292,12 +1306,13 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		p->ctx = -1;
 		return;
 	    }
-	    /* seek to end of archive for logvol data - see TODO in process_logvol() */
+
+	    /* seek to end of archive for logvol data - see also TODO in process_logvol() */
 	    pmSetMode(PM_MODE_FORW, &tvp, 1);
 
 	    /*
 	     * For archive meta files, p->fd is the direct file descriptor
-	     * and we pre-scan existing metadata. Note: we do NOT scan
+	     * and we pre-scan all existing metadata. Note: we do NOT scan
 	     * pre-existing logvol data (see pmSetMode above)
 	     */
 	    metaname = sdsnew(p->context.name);

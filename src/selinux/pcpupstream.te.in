@@ -72,6 +72,7 @@ require {
 	class capability net_raw; # pmda.netcheck
 	class sock_file { getattr write }; #RHBZ1633211, RHBZ1449671
 	class tcp_socket { name_bind name_connect };
+	class udp_socket { name_bind name_connect };
 	class shm { unix_read associate getattr read };
 	class filesystem mount;
 	class blk_file { ioctl open read };
@@ -135,7 +136,10 @@ allow pcp_pmcd_t self:capability { sys_chroot kill sys_resource ipc_lock chown }
 
 #type=AVC msg=audit(YYY.13): avc:  denied  { name_bind } for  pid=7079 comm="pmdasimple" src=5650 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
 #type=AVC msg=audit(YYY.14): avc:  denied  { name_connect } for  pid=29238 comm="pmcd" dest=5650 scontex =system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
-@PCP_UNRESERVED_PORT_RULE@
+@PCP_UNRESERVED_PORT_RULE_TCP@
+
+#type=AVC msg=audit(YYY.93): avc: denied { name_bind } for pid=2279401 comm="pmdastatsd" src=8126 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=udp_socket permissive=0
+@PCP_UNRESERVED_PORT_RULE_UDP@
 
 #type=AVC msg=audit(YYY.15): avc:  denied  { name_connect } for  pid=13816 comm="python3" dest=9090 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:websm_port_t:s0 tclass=tcp_socket permissive=0
 allow pcp_pmcd_t websm_port_t:tcp_socket name_connect; # pmda.openmetrics

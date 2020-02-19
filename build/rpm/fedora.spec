@@ -949,6 +949,8 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 Requires: perl(LWP::UserAgent)
 Requires: perl(XML::LibXML)
 Requires: perl(File::Slurp)
+Requires: perl-autodie
+Requires: perl-Time-HighRes
 
 %description pmda-bind2
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -963,6 +965,8 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for Redis
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl-autodie
+Requires: perl-Time-HiRes
 
 %description pmda-redis
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1009,6 +1013,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for Database response times and Availablility
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl-DBI
 
 %description pmda-dbping
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1041,6 +1046,7 @@ Summary: Performance Co-Pilot (PCP) metrics for 389 Directory Server Loggers
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Requires: perl-Date-Manip
+Requires: 389-ds-base
 
 %description pmda-ds389log
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1070,6 +1076,8 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for a GPS Daemon
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl-Time-HiRes
+Requires: perl-JSON
 
 %description pmda-gpsd
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1230,6 +1238,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for PowerDNS
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl-Time-HiRes
 
 %description pmda-pdns
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1628,6 +1637,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for hardware sensors
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
+Requires: lm_sensors
 %if !%{disable_python3}
 Requires: python3-pcp
 %else
@@ -1889,6 +1899,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for S.M.A.R.T values
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
+Requires: smartmontools
 %description pmda-smart
 This package contains the PCP Performance Metric Domain Agent (PMDA) for
 collecting metrics of disk S.M.A.R.T values making use of data from the
