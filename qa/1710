@@ -1,8 +1,16 @@
 #!/bin/sh
-# PCP QA Test No. 1599
-# Exercises installation and removal of pmdastatsd
+# PCP QA Test No. 1710
+# Exercises pmdastatsd -
+# updates of non-config hardcoded metrics:
+# - statsd.pmda.received (before: 0, after: 75)
+# - statsd.pmda.parsed (before: 0, after: 45)
+# - statsd.pmda.aggregated (before: 0, after: 35)
+# - statsd.pmda.dropped (before: 0, after: 40)
+# - statsd.pmda.time_spent_parsing (before: 0, after: non-zero)
+# - statsd.pmda.time_spent_aggregating (before: 0, after: non-zero)
+# - statsd.pmda.metrics_tracked, with its counter, gauge, duration and total instances (before: 0, 0, 0, 0; after: 4, 4, 2, 10)
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2020 Red Hat.
 #
 
 seq=`basename $0`
@@ -31,7 +39,7 @@ trap "_cleanup_pmda statsd; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 cd $here/statsd/src
-$sudo $python cases/01.py
+$sudo $python cases/04.py
 cd $here
 status=0
 exit

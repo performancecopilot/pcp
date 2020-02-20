@@ -1,8 +1,11 @@
 #!/bin/sh
-# PCP QA Test No. 1599
-# Exercises installation and removal of pmdastatsd
+# PCP QA Test No. 1715
+# Exercises pmdastatsd
+# - hdr histogram aggregation on duration metrics
+# Since agent works with UDP datagrams, we have to take into account the fact that not all payloads will get processed and will get lost.
+# Following test assumes that at least 10% of datagrams gets processed and measued values are within 35% +/- of expected values
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2020 Red Hat.
 #
 
 seq=`basename $0`
@@ -31,7 +34,7 @@ trap "_cleanup_pmda statsd; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 cd $here/statsd/src
-$sudo $python cases/01.py
+$sudo $python cases/09.py
 cd $here
 status=0
 exit

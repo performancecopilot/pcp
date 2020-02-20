@@ -1,0 +1,67 @@
+QA output created by 1711
+======================
+05.py
+----------------------
+Setting config:
+~~~
+
+[global]
+parser_type = 0
+
+~~~
+statsd.pmda.dropped
+    value 0
+statsd.test_counter
+    inst [0 or "/"] value 22222.11111
+statsd.test_counter2
+    inst [0 or "/"] value 1.797693134862316e+308
+statsd.pmda.dropped
+    value 4
+statsd.test_counter2
+    inst [0 or "/"] value inf
+statsd.pmda.dropped
+    value 4
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+parser_type = 1
+
+~~~
+statsd.pmda.dropped
+    value 0
+statsd.test_counter
+    inst [0 or "/"] value 22222.11111
+statsd.test_counter2
+    inst [0 or "/"] value 1.797693134862316e+308
+statsd.pmda.dropped
+    value 4
+statsd.test_counter2
+    inst [0 or "/"] value inf
+statsd.pmda.dropped
+    value 4
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+

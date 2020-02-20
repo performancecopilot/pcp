@@ -1,8 +1,9 @@
 #!/bin/sh
-# PCP QA Test No. 1599
-# Exercises installation and removal of pmdastatsd
+# PCP QA Test No. 1718
+# Exercises pmdastatsd - ability of the agent to log its workings in various verbosity levels
+# - doesnt check the actual log output, just that length of verbose lvl X is higher than the length of of verbose lvl X-1
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2020 Red Hat.
 #
 
 seq=`basename $0`
@@ -31,7 +32,7 @@ trap "_cleanup_pmda statsd; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 cd $here/statsd/src
-$sudo $python cases/01.py
+$sudo $python cases/12.py
 cd $here
 status=0
 exit

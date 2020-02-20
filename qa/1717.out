@@ -1,0 +1,48 @@
+QA output created by 1717
+======================
+11.py
+----------------------
+Setting config:
+~~~
+
+[global]
+port = 8125
+
+~~~
+Testing port 8125
+statsd.test_port_a
+    inst [0 or "/"] value 1
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+Setting config:
+~~~
+
+[global]
+port = 8126
+
+~~~
+Testing port 8126
+statsd.test_port_b
+    inst [0 or "/"] value 1
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+

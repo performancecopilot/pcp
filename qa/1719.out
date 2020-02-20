@@ -1,0 +1,78 @@
+QA output created by 1719
+======================
+14.py
+----------------------
+Setting config:
+~~~
+
+[global]
+max_udp_packet_size = 1472
+
+~~~
+statsd.pmda.metrics_tracked
+    inst [0 or "counter"] value 0
+    inst [1 or "gauge"] value 1
+    inst [2 or "duration"] value 1
+    inst [3 or "total"] value 2
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+max_udp_packet_size = 2944
+
+~~~
+statsd.pmda.metrics_tracked
+    inst [0 or "counter"] value 1
+    inst [1 or "gauge"] value 1
+    inst [2 or "duration"] value 1
+    inst [3 or "total"] value 3
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+----------------------
+Setting config:
+~~~
+
+[global]
+max_udp_packet_size = 10
+
+~~~
+statsd.pmda.metrics_tracked
+    inst [0 or "counter"] value 0
+    inst [1 or "gauge"] value 1
+    inst [2 or "duration"] value 0
+    inst [3 or "total"] value 1
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+

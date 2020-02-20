@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Exercises ability of the agent to log its workings in various verbosity levels
-# - doesnt check the actually log output, just that length of verbose lvl X is higher than the length of of verbose lvl X-1
+# - doesnt check the actual log output, just that length of verbose lvl X is higher than the length of of verbose lvl X-1
 
 import sys
 import socket

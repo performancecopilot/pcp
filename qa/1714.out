@@ -1,0 +1,48 @@
+QA output created by 1714
+======================
+08.py
+----------------------
+Setting config:
+~~~
+
+[global]
+duration_aggregation_type = 0
+
+~~~
+/ 0
+/A=10 6
+/A=A 4
+/A=A::B=B::C=C 5
+/tagA=A::tagB=B::tagC=C 3
+/tagX=X 1
+/tagX=X::tagY=Y 2
+/average 50.5
+/average::label=X 101
+/count 100
+/count::label=X 100
+/max 100
+/max::label=X 200
+/median 50
+/median::label=X 100
+/min 1
+/min::label=X 2
+/percentile90 90
+/percentile90::label=X 180
+/percentile95 95
+/percentile95::label=X 190
+/percentile99 99
+/percentile99::label=X 198
+/std_deviation 28.86607004772212
+/std_deviation::label=X 57.73214009544424
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
