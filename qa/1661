@@ -15,17 +15,36 @@ echo "QA output created by $seq"
 
 [ $PCP_PLATFORM = linux ] || _notrun "Test only runs on Linux"
 which pmproxy >/dev/null 2>&1 || _notrun "No pmproxy binary installed"
+_check_series
 
 _cleanup()
 {
+    echo;echo === cleaning up
+    $sudo rm -rf $dir
+
+    echo;echo === see $seq.full for logs 
+    echo "+++ pmproxy.log +++" >>$seq.full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq.full
+    echo "+++ pmproxy.log.prev +++" >>$seq.full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log.prev >>$seq.full
+    echo "+++ pmlogger.log +++" >>$seq.full
+    cat $tmp.pmlogger.log >>$seq.full
+
     _restore_config $PCP_ETC_DIR/pcp/pmlogger
     _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
     echo;echo === restarting pmproxy
-    _service pmproxy restart 2>&1 | _filter_pcp_start
+    _service pmproxy restart 2>&1 | _filter_pcp_start | _filter_pmproxy
     _wait_for_pmproxy
     $sudo rm -rf $tmp.*
+}
+
+_filter_pmproxy()
+{
+    sed \
+	-e '/pmproxy: disabled time series, requires libuv support (missing)/d' \
+    # end
 }
 
 status=1	# failure is the default!
@@ -40,23 +59,37 @@ _restore_pmlogger_control
 
 echo;echo === restarting pmproxy service to ensure sane starting condition 
 _service pmlogger stop 2>&1 | _filter_pcp_stop
-_service pmproxy restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+_service pmproxy restart 2>&1 | _filter_pcp_stop | _filter_pcp_start | _filter_pmproxy
 _wait_for_pmproxy
 
 pmproxy_pid=`_get_pids_by_name -a pmproxy`
 [ -z "$pmproxy_pid" ] && echo === pmproxy not running && status=1 && exit 1
+date >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy' >>$seq.full
+echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
 
 echo;echo === creating archive in new archive directory 
 dir=$PCP_LOG_DIR/pmlogger/qa1661
 $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown $dir 775 $PCP_USER:$PCP_GROUP"
+# make sure no archive files left here from a previous run of this test
+$sudo rm -f $dir/testarchive.*
 $sudo sh -c "pmlogger -s 20 -t 1 -c config.default -l$tmp.pmlogger.log $dir/testarchive"
 
 echo;echo === checking pmproxy file descriptors for deleted files, should be none 
 $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
 
 echo;echo === compressing the new archives, which also deletes the originals 
-$sudo xz $dir/testarchive.{0,meta}
-$sudo chown -R $PCP_USER $dir
+for suff in 0 meta
+do
+    if [ -f $dir/testarchive.$suff ]
+    then
+	$sudo xz $dir/testarchive.$suff
+    else
+	echo "Error: $dir/testarchive.$suff missing!"
+	ls -l $dir
+    fi
+    $sudo chown -R $PCP_USER $dir
+done
 
 echo;echo === restarting pmlogger # primary only
 _service pmlogger restart 2>&1 | _filter_pcp_start
@@ -68,11 +101,37 @@ pmsleep 5
 echo;echo === checking pmproxy file descriptors for deleted files, should be none 
 $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
 
-echo;echo === cleaning up
-$sudo rm -rf $dir
+echo;echo === checking pmproxy correctly switches logvol when pmlogger bumps to a new logvol
+curlogvol=`$sudo ls -l /proc/$pmproxy_pid/fd/ | awk -F. '/pmlogger.*.[0-9]$/ {print $NF; exit}'`
+echo "curlogvol=$curlogvol" >>$seq.full
+if [ -z "$curlogvol" ]
+then
+    echo "Arrgh ... curlogvol not found from ..."
+    $sudo ls -l /proc/$pmproxy_pid/fd/
+    echo "pmproxy_pid=$pmproxy_pid"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy'
+    exit
+fi
+$sudo killall -HUP pmlogger && sleep 2
+newlogvol=`$sudo ls -l /proc/$pmproxy_pid/fd/ | awk -F. '/pmlogger.*.[0-9]$/ {print $NF; exit}'`
+echo "newlogvol=$newlogvol" >>$seq.full
+if [ -z "$newlogvol" ]
+then
+    echo "Arrgh ... newlogvol not found from ..."
+    $sudo ls -l /proc/$pmproxy_pid/fd/
+    echo "pmproxy_pid=$pmproxy_pid"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy'
+    exit
+fi
+if [ `expr $curlogvol + 1` -ne $newlogvol ]; then echo FAILED curlogvol=$curlogvol newlogvol=$newlogvol
+else echo passed
+fi
 
-echo;echo === see $seq.full for pmproxy logs 
-cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq.full
+echo;echo === checking pmproxy survives pmlogger restart
+_service pmlogger restart 2>&1 | _filter_pcp_start
+_wait_for_pmlogger
+$sudo [ ! -d /proc/$pmproxy_pid/fd/ ] && echo FAIL && status=1 && exit
+echo passed
 
 # success, all done
 status=0

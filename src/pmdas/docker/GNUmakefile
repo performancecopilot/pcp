@@ -62,3 +62,6 @@ $(OBJECTS): domain.h
 docker.o: $(VERSION_SCRIPT)
 
 docker.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

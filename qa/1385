@@ -35,13 +35,6 @@ _cleanup()
 	pid=""
     fi
 
-    echo "=== openmetrics PMDA log ===" >>$here/$seq.full
-    if [ -f $PCP_LOG_DIR/pmcd/openmetrics.log ]
-    then
-	cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$here/$seq.full
-    else
-	echo "Error: PMDA log file is missing" >>$here/$seq.full
-    fi
     echo "=== endpoint log ===" >>$here/$seq.full
     if [ -f $tmp.endpoint ]
     then
@@ -51,12 +44,13 @@ _cleanup()
     fi
 
     cd $here
+    _pmdaopenmetrics_cleanup
     $sudo rm -rf $tmp $tmp.*
-
-    return 0
 }
 
-trap "_cleanup; _pmdaopenmetrics_restore_config >>$here/$seq.full; exit \$status" 0 1 2 3 15
+_prepare_pmda openmetrics
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
 
 _pmdaopenmetrics_save_config
 _pmdaopenmetrics_install
@@ -88,7 +82,6 @@ else
     cat $tmp.out
 fi
 cat $tmp.info $tmp.err
-#sleep 120
 if pminfo -b 10000000 -fd `pminfo openmetrics | fgrep -v .control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
    then
     echo "Fetch and desc openmetrics metrics: success"
@@ -105,7 +98,7 @@ do
     pminfo -b 10000000 -tf `pminfo openmetrics.source$i | LC_COLLATE=POSIX sort`
     pminfo -b 10000000 -tf `pminfo openmetrics.source$i | LC_COLLATE=POSIX sort`
     pminfo -b 10000000 -tf `pminfo openmetrics.source$i | LC_COLLATE=POSIX sort`
-    sleep 0.5
+    pmsleep 0.0005
 done
 
 _pmdaopenmetrics_remove

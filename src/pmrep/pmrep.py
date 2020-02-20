@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2020 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -37,8 +37,9 @@ import os
 # PCP Python PMAPI
 from pcp import pmapi, pmi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_LOCAL
-from cpmapi import PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
+from cpmapi import PM_INDOM_NULL, PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
 from cpmapi import PM_SEM_DISCRETE, PM_TYPE_STRING
+from cpmapi import PM_TEXT_PMID, PM_TEXT_INDOM, PM_TEXT_ONELINE, PM_TEXT_HELP
 from cpmi import PMI_ERR_DUPINSTNAME
 
 if sys.version_info[0] >= 3:
@@ -83,7 +84,7 @@ class PMReporter(object):
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
                      'live_filter', 'rank', 'invert_filter', 'predicate', 'names_change',
                      'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
-                     'omit_flat')
+                     'omit_flat', 'include_texts')
 
         # The order of preference for options (as present):
         # 1 - command line options
@@ -119,6 +120,7 @@ class PMReporter(object):
         self.predicate = None
         self.sort_metric = None
         self.omit_flat = 0
+        self.include_texts = 0
         self.colxrow = None
         self.width = 0
         self.width_force = None
@@ -225,6 +227,7 @@ class PMReporter(object):
         opts.pmSetLongOption("predicate", 1, "N", "METRIC", "set predicate filter reference metric")
         opts.pmSetLongOption("sort-metric", 1, "6", "METRIC", "set sort reference metric for colxrow output")
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics")
+        opts.pmSetLongOption("include-texts", 0, "", "", "include metric help texts in archive output")
         opts.pmSetLongOption("colxrow", 1, "X", "STR", "swap stdout columns and rows using STR as header label")
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
         opts.pmSetLongOption("width-force", 1, "W", "N", "forced column width")
@@ -258,6 +261,8 @@ class PMReporter(object):
         """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
+        elif opt == 'include-texts':
+            self.include_texts = 1
         elif opt == 'K':
             if not self.speclocal or not self.speclocal.startswith(";"):
                 self.speclocal = ";" + optarg
@@ -460,7 +465,7 @@ class PMReporter(object):
 
                 i = list(self.metrics.keys()).index(sort_metric)
 
-                if self.pmconfig.insts[i][0][0] == pmapi.c_api.PM_IN_NULL:
+                if self.pmconfig.insts[i][0][0] == PM_IN_NULL:
                     sys.stderr.write("Sort reference metric must have instances.\n")
                     sys.exit(1)
 
@@ -849,11 +854,12 @@ class PMReporter(object):
             for j, n in self.get_results_iter(i, metric, results):
                 name = metric
                 if not self.dynamic_header:
-                    if self.pmconfig.insts[i][0][0] != PM_IN_NULL and self.pmconfig.insts[i][1][j]:
-                        name += "-" + self.pmconfig.insts[i][1][j]
-                    # Mark metrics with instance domain but without instances
-                    if self.pmconfig.descs[i].contents.indom != PM_IN_NULL and self.pmconfig.insts[i][1][0] is None:
+                    if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
+                        # Always mark metrics with instance domain
                         name += "-"
+                        if self.pmconfig.insts[i][1][j]:
+                            # Append instance name when present
+                            name += self.pmconfig.insts[i][1][j]
                 else:
                     if self.pmconfig.insts[i][0][0] != PM_IN_NULL:
                         name += "-" + n[1]
@@ -928,6 +934,28 @@ class PMReporter(object):
                                   self.pmconfig.descs[i].contents.indom,
                                   self.pmconfig.descs[i].contents.sem,
                                   self.pmconfig.descs[i].contents.units)
+            if self.include_texts:
+                if self.pmconfig.texts[i][0]:
+                    self.pmi.pmiPutText(PM_TEXT_PMID,
+                                        PM_TEXT_ONELINE,
+                                        self.pmconfig.pmids[i],
+                                        self.pmconfig.texts[i][0])
+                if self.pmconfig.texts[i][1]:
+                    self.pmi.pmiPutText(PM_TEXT_PMID,
+                                        PM_TEXT_HELP,
+                                        self.pmconfig.pmids[i],
+                                        self.pmconfig.texts[i][1])
+                if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
+                    if self.pmconfig.texts[i][2]:
+                        self.pmi.pmiPutText(PM_TEXT_INDOM,
+                                            PM_TEXT_ONELINE,
+                                            self.pmconfig.descs[i].contents.indom,
+                                            self.pmconfig.texts[i][2])
+                    if self.pmconfig.texts[i][3]:
+                        self.pmi.pmiPutText(PM_TEXT_INDOM,
+                                            PM_TEXT_HELP,
+                                            self.pmconfig.descs[i].contents.indom,
+                                            self.pmconfig.texts[i][3])
 
         if self.pmi is None:
             # Create a new archive
@@ -1347,7 +1375,7 @@ class PMReporter(object):
         for i, metric in enumerate(results):
             if self.pmconfig.descs[i].contents.type == PM_TYPE_STRING:
                 continue
-            rank = abs(self.rank) if self.pmconfig.descs[i].contents.indom != PM_IN_NULL else 1
+            rank = abs(self.rank) if self.pmconfig.insts[i][0][0] != PM_IN_NULL else 1
             c, r, t = (0, [], [])
             for j in sorted(results[metric] + self.all_ranked[metric], key=lambda x: x[2], reverse=revs):
                 if j[0] not in t and c < rank:

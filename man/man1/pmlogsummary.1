@@ -257,7 +257,6 @@ to the time at which the maxima and/or minima occurred.
 If the extent of the data being checked is less than 24 hours,
 a more precise format is used (time is displayed with millisecond
 precision, but without the date).
-.PP
 .SH NOTES
 The average for an individual metric is calculated as follows:
 .PP
@@ -278,9 +277,7 @@ that metric was logged.
 .PP
 Counter metrics whose measurements do not span 90% of the set of archives will be
 printed with the metric name prefixed by an asterisk (*).
-.PP
-.SH EXAMPLE
-.sp
+.SH EXAMPLES
 .nf
 $ pmlogsummary \-aN \-p 1 \-B 3 surf network.interface.out.bytes
 Log Label (Log Format Version 1)

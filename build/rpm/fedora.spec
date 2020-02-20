@@ -14,6 +14,12 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %global __python2 python
 %endif
 
+%if 0%{?rhel} >= 7 || 0%{?fedora} >= 17
+%global _hostname_executable /usr/bin/hostname
+%else
+%global _hostname_executable /bin/hostname
+%endif
+
 %if 0%{?fedora} || 0%{?rhel} > 5
 %global disable_selinux 0
 %else
@@ -75,23 +81,23 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %global perl_interpreter perl
 %endif
 
-# support for pmdabcc
+# support for pmdabcc, check bcc.spec for supported architectures of bcc
 %if 0%{?fedora} >= 25 || 0%{?rhel} > 6
-%ifarch s390 s390x armv7hl aarch64 i686
-%global disable_bcc 1
-%else
+%ifarch x86_64 %{power64} aarch64 s390x
 %global disable_bcc 0
+%else
+%global disable_bcc 1
 %endif
 %else
 %global disable_bcc 1
 %endif
 
-# support for pmdabpftrace
+# support for pmdabpftrace, check bpftrace.spec for supported architectures of bpftrace
 %if 0%{?fedora} >= 30 || 0%{?rhel} > 7
-%ifarch s390 s390x armv7hl aarch64 i686
-%global disable_bpftrace 1
-%else
+%ifarch x86_64 %{power64} aarch64 s390x
 %global disable_bpftrace 0
+%else
+%global disable_bpftrace 1
 %endif
 %else
 %global disable_bpftrace 1
@@ -106,6 +112,17 @@ Source0: %{bintray}/pcp/source/pcp-%{version}.src.tar.gz
 %endif
 %else
 %global disable_json 1
+%endif
+
+# No mssql ODBC driver on non-x86 platforms
+%ifarch x86_64
+%if !%{disable_python2} || !%{disable_python3}
+%global disable_mssql 0
+%else
+%global disable_mssql 1
+%endif
+%else
+%global disable_mssql 1
 %endif
 
 # support for pmdanutcracker (perl deps missing on rhel)
@@ -229,7 +246,7 @@ BuildRequires: perl-generators
 BuildRequires: perl-devel perl(strict)
 BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
 BuildRequires: perl(LWP::UserAgent) perl(Time::HiRes) perl(Digest::MD5)
-BuildRequires: man /bin/hostname
+BuildRequires: man %{_hostname_executable}
 %if !%{disable_systemd}
 BuildRequires: systemd-devel
 %endif
@@ -243,7 +260,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 %endif
 
-Requires: bash xz gawk sed grep findutils which /bin/hostname
+Requires: bash xz gawk sed grep findutils which %{_hostname_executable}
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
 Requires: pcp-selinux = %{version}-%{release}
@@ -482,7 +499,10 @@ Requires: pcp-pmda-bpftrace
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
-Requires: pcp-pmda-lmsensors pcp-pmda-mssql pcp-pmda-netcheck
+Requires: pcp-pmda-lmsensors pcp-pmda-netcheck
+%endif
+%if !%{disable_mssql}
+Requires: pcp-pmda-mssql 
 %endif
 %if !%{disable_snmp}
 Requires: pcp-pmda-snmp
@@ -929,6 +949,8 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 Requires: perl(LWP::UserAgent)
 Requires: perl(XML::LibXML)
 Requires: perl(File::Slurp)
+Requires: perl-autodie
+Requires: perl-Time-HighRes
 
 %description pmda-bind2
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -943,6 +965,8 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for Redis
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl-autodie
+Requires: perl-Time-HiRes
 
 %description pmda-redis
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -989,6 +1013,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for Database response times and Availablility
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl-DBI
 
 %description pmda-dbping
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1021,6 +1046,7 @@ Summary: Performance Co-Pilot (PCP) metrics for 389 Directory Server Loggers
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Requires: perl-Date-Manip
+Requires: 389-ds-base
 
 %description pmda-ds389log
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1050,6 +1076,8 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for a GPS Daemon
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl-Time-HiRes
+Requires: perl-JSON
 
 %description pmda-gpsd
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1210,6 +1238,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for PowerDNS
 URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl-Time-HiRes
 
 %description pmda-pdns
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1608,6 +1637,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for hardware sensors
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
+Requires: lm_sensors
 %if !%{disable_python3}
 Requires: python3-pcp
 %else
@@ -1619,24 +1649,6 @@ Obsoletes: pcp-pmda-lmsensors-debuginfo < 4.2.0
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Linux hardware monitoring sensors.
 # end pcp-pmda-lmsensors
-
-#
-# pcp-pmda-mssql
-#
-%package pmda-mssql
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) metrics for Microsoft SQL Server
-URL: https://pcp.io
-Requires: pcp-libs = %{version}-%{release}
-%if !%{disable_python3}
-Requires: python3-pcp
-%else
-Requires: %{__python2}-pcp
-%endif
-%description pmda-mssql
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics from Microsoft SQL Server.
-# end pcp-pmda-mssql
 
 #
 # pcp-pmda-netcheck
@@ -1656,6 +1668,26 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
 
+%endif
+
+%if !%{disable_mssql}
+#
+# pcp-pmda-mssql
+#
+%package pmda-mssql
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for Microsoft SQL Server
+URL: https://pcp.io
+Requires: pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: %{__python2}-pcp
+%endif
+%description pmda-mssql
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from Microsoft SQL Server.
+# end pcp-pmda-mssql
 %endif
 
 %if !%{disable_json}
@@ -1867,6 +1899,7 @@ License: GPLv2+
 Summary: Performance Co-Pilot (PCP) metrics for S.M.A.R.T values
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
+Requires: smartmontools
 %description pmda-smart
 This package contains the PCP Performance Metric Domain Agent (PMDA) for
 collecting metrics of disk S.M.A.R.T values making use of data from the
@@ -2109,6 +2142,11 @@ rm -f $RPM_BUILD_ROOT/%{_includedir}/pcp/platformsz.h
 # remove pmdainfiniband on platforms lacking IB devel packages.
 rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib
 rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
+%endif
+
+%if %{disable_mssql}
+# remove pmdamssql on platforms lacking MSODBC driver packages.
+rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/mssql
 %endif
 
 %if %{disable_selinux}
@@ -2507,8 +2545,10 @@ fi
 %preun pmda-lmsensors
 %{pmda_remove "$1" "lmsensors"}
 
+%if !%{disable_mssql}
 %preun pmda-mssql
 %{pmda_remove "$1" "mssql"}
+%endif
 
 %preun pmda-netcheck
 %{pmda_remove "$1" "netcheck"}
@@ -3101,9 +3141,6 @@ cd
 %files pmda-lmsensors
 %{_pmdasdir}/lmsensors
 
-%files pmda-mssql
-%{_pmdasdir}/mssql
-
 %files pmda-netcheck
 %{_pmdasdir}/netcheck
 
@@ -3112,6 +3149,11 @@ cd
 %files export-zabbix-agent
 %{_libdir}/zabbix
 %{_sysconfdir}/zabbix/zabbix_agentd.d/zbxpcp.conf
+
+%if !%{disable_mssql}
+%files pmda-mssql
+%{_pmdasdir}/mssql
+%endif
 
 %if !%{disable_json}
 %files pmda-json
@@ -3221,7 +3263,11 @@ cd
 %endif
 
 %changelog
-* Fri Feb 28 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
+* Thu Feb 27 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
+- Avoid python ctypes bitfield struct on-stack (BZ 1800685)
+- Add dstat support for DM/MD/part devices (BZ 1794273)
+- Fix compilation with gcc version 10 (BZ 1793495)
+- Fix dstat sub-sample averaging (BZ 1780039)
 - Update to latest PCP sources.
 
 * Wed Dec 11 2019 Nathan Scott <nathans@redhat.com> - 5.0.2-1

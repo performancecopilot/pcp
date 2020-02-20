@@ -137,7 +137,7 @@ public:
 
 private:
     void resetCurrentValue()
-	{ my.currentValue = 0.0; my.stringValue = QString::null; my.eventRecords.clear(); }
+	{ my.currentValue = 0.0; my.stringValue = QString(); my.eventRecords.clear(); }
 
     struct {
 	int instance;

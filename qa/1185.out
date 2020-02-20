@@ -1,0 +1,30 @@
+QA output created by 1185
+== pmrep archive reporting and creation with help texts
+Recording 2 metrics:
+1 samples(s) with 1.0 sec interval ~ 0 sec duration.
+== print help texts from the created archive
+
+sample.bin PMID: 29.0.6 [Several constant instances]
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+Help:
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sample.bucket,
+sample.part_bin, sample.bogus_bin, sample.scramble.bin
+sample.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sample.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sample.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sample.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sample.string.bin.
+
+sample.seconds PMID: 29.0.2 [Elapsed time (seconds)]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+Help:
+The elapsed time since the PMDA started, in seconds, i.e. as returned
+by time(2).
+== done

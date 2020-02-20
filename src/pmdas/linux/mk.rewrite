@@ -30,22 +30,24 @@ cat <<End-of-File >linux_kernel_ulong.conf
 # using the KERNEL_ULONG type which might be U32
 # or could be U64.
 #
-# disk.dev group
+# Order here matches metadata definition order in pmda.c to help
+# make it easier to spot differences.
 #
+
 metric disk.dev.read { type -> $KERNEL_ULONG }
 metric disk.dev.write { type -> $KERNEL_ULONG }
-metric disk.dev.total { type -> $KERNEL_ULONG }
 metric disk.dev.blkread { type -> $KERNEL_ULONG }
 metric disk.dev.blkwrite { type -> $KERNEL_ULONG }
-metric disk.dev.blktotal { type -> $KERNEL_ULONG }
-metric disk.dev.read_bytes { type -> $KERNEL_ULONG }
-metric disk.dev.write_bytes { type -> $KERNEL_ULONG }
-metric disk.dev.total_bytes { type -> $KERNEL_ULONG }
 metric disk.dev.read_merge { type -> $KERNEL_ULONG }
 metric disk.dev.write_merge { type -> $KERNEL_ULONG }
-
-# disk.partitions group
-#
+metric kernel.all.sysfork { type -> $KERNEL_ULONG }
+metric kernel.all.running { type -> $KERNEL_ULONG }
+metric kernel.all.blocked { type -> $KERNEL_ULONG }
+metric mem.buddyinfo.pages { type -> $KERNEL_ULONG }
+metric nfs.server.threads.requests { type -> $KERNEL_ULONG }
+metric nfs.server.threads.enqueued { type -> $KERNEL_ULONG }
+metric nfs.server.threads.processed { type -> $KERNEL_ULONG }
+metric nfs.server.threads.timedout { type -> $KERNEL_ULONG }
 metric disk.partitions.read { type -> $KERNEL_ULONG }
 metric disk.partitions.write { type -> $KERNEL_ULONG }
 metric disk.partitions.total { type -> $KERNEL_ULONG }
@@ -55,21 +57,43 @@ metric disk.partitions.blktotal { type -> $KERNEL_ULONG }
 metric disk.partitions.read_bytes { type -> $KERNEL_ULONG }
 metric disk.partitions.write_bytes { type -> $KERNEL_ULONG }
 metric disk.partitions.total_bytes { type -> $KERNEL_ULONG }
-
-# disk.dm group
-#
+metric disk.partitions.read_merge { type -> $KERNEL_ULONG }
+metric disk.partitions.write_merge { type -> $KERNEL_ULONG }
+metric disk.dev.read_bytes { type -> $KERNEL_ULONG }
+metric disk.dev.write_bytes { type -> $KERNEL_ULONG }
+metric disk.dev.total_bytes { type -> $KERNEL_ULONG }
+metric disk.all.read_bytes { type -> $KERNEL_ULONG }
+metric disk.all.write_bytes { type -> $KERNEL_ULONG }
+metric disk.all.total_bytes { type -> $KERNEL_ULONG }
+metric mem.ksm.full_scans { type -> $KERNEL_ULONG }
+metric mem.ksm.merge_across_nodes { type -> $KERNEL_ULONG }
+metric mem.ksm.pages_shared { type -> $KERNEL_ULONG }
+metric mem.ksm.pages_sharing { type -> $KERNEL_ULONG }
+metric mem.ksm.pages_to_scan { type -> $KERNEL_ULONG }
+metric mem.ksm.pages_unshared { type -> $KERNEL_ULONG }
+metric mem.ksm.pages_volatile { type -> $KERNEL_ULONG }
+metric mem.ksm.run_state { type -> $KERNEL_ULONG }
+metric mem.ksm.sleep_time { type -> $KERNEL_ULONG }
 metric disk.dm.read { type -> $KERNEL_ULONG }
 metric disk.dm.write { type -> $KERNEL_ULONG }
 metric disk.dm.blkread { type -> $KERNEL_ULONG }
 metric disk.dm.blkwrite { type -> $KERNEL_ULONG }
 metric disk.dm.read_merge { type -> $KERNEL_ULONG }
 metric disk.dm.write_merge { type -> $KERNEL_ULONG }
+metric disk.md.read { type -> $KERNEL_ULONG }
+metric disk.md.write { type -> $KERNEL_ULONG }
+metric disk.md.blkread { type -> $KERNEL_ULONG }
+metric disk.md.blkwrite { type -> $KERNEL_ULONG }
+metric disk.md.read_merge { type -> $KERNEL_ULONG }
+metric disk.md.write_merge { type -> $KERNEL_ULONG }
 
-# miscellaneous group
+# these ones were KERNEL_ULONG at a point of time in the past, but the
+# current PMDA exports them as U64
 #
-metric kernel.all.sysfork { type -> $KERNEL_ULONG }
+metric disk.dev.total { type -> U64 }
+metric disk.dev.blktotal { type -> U64 }
 
-# and this one was KERNEL_ULONG but that was incorrect
+# and this one was KERNEL_ULONG in this file, but that was incorrect
 #
 metric disk.dm.total { type -> U64 }
 End-of-File
@@ -115,6 +139,11 @@ metric network.interface.inet_addr { sem -> discrete }
 metric network.interface.ipv6_addr { sem -> discrete }
 metric network.interface.ipv6_scope { sem -> discrete }
 metric network.interface.hw_addr { sem -> discrete }
+
+# kernel.all.uptime and kernel.all.idletime changed to double:
+#
+metric kernel.all.uptime { type -> DOUBLE }
+metric kernel.all.idletime { type -> DOUBLE }
 
 End-of-File
 

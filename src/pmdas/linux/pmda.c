@@ -1,7 +1,7 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2012-2019 Red Hat.
+ * Copyright (c) 2012-2020 Red Hat.
  * Copyright (c) 2016-2017 Fujitsu.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
@@ -780,17 +780,16 @@ static pmdaMetric metrictab[] = {
 
 /*
  * /proc/uptime cluster
- * Uptime modified and idletime added by Mike Mason <mmlnx@us.ibm.com>
  */
 
 /* kernel.all.uptime */
     { NULL,
-      { PMDA_PMID(CLUSTER_UPTIME,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_UPTIME,0), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
 
 /* kernel.all.idletime */
     { NULL,
-      { PMDA_PMID(CLUSTER_UPTIME,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_UPTIME,1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
 
 /*
@@ -6503,20 +6502,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_UPTIME:  /* uptime */
 	switch (item) {
-	case 0:
-	    /*
-	     * kernel.all.uptime (in seconds)
-	     * contributed by "gilly" <gilly@exanet.com>
-	     * modified by Mike Mason" <mmlnx@us.ibm.com>
-	     */
-	    atom->ul = proc_uptime.uptime;
+	case 0: /* kernel.all.uptime (in seconds) */
+	    atom->d = proc_uptime.uptime;
 	    break;
 	case 1:
-	    /*
-	     * kernel.all.idletime (in seconds)
-	     * contributed by "Mike Mason" <mmlnx@us.ibm.com>
-	     */
-	    atom->ul = proc_uptime.idletime;
+	    /* kernel.all.idletime (in seconds) */
+	    atom->d = proc_uptime.idletime;
 	    break;
 	default:
 	    return PM_ERR_PMID;

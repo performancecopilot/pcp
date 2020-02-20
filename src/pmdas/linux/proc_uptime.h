@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020, Red Hat.
  * Copyright (c) International Business Machines Corp., 2002
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -12,13 +13,9 @@
  * for more details.
  */
 
-/*
- * This code contributed by Mike Mason <mmlnx@us.ibm.com>
- */
-
 typedef struct {
-	unsigned long uptime;
-	unsigned long idletime;
+	double	uptime;
+	double	idletime;
 } proc_uptime_t;
 
 extern int refresh_proc_uptime(proc_uptime_t *);

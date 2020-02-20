@@ -33,7 +33,6 @@ and the users home directory (\c
 .I $PCP_ETC_DIR/pcp/dstat
 and
 .IR $HOME/.pcp/dstat ).
-.PP
 .SH FILE FORMAT
 The configuration files have an ini-style syntax consisting of
 sections (plugins) and options within sections.
@@ -56,7 +55,6 @@ There are some options which apply to the plugin as a whole,
 and anything else is considered to be a column definition.
 Column definitions map directly to individual PCP metrics.
 .SS The [plugin] options
-.RE
 .PP
 label (string)
 .RS 4
@@ -220,7 +218,6 @@ The following example defines a virtual filesystem plugin, with two
 columns, defined using three PCP metrics \- \fBvfs.files.count\fP,
 \fBvfs.inodes.count\fP and \fBvfs.inodes.free\fP.
 The inodes metrics are combined using the derived metric notation.
-.PP
 .sp 1
 .RS 4
 .nf

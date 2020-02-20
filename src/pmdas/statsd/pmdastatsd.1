@@ -73,10 +73,9 @@ Default:
 .TP
 .B \-v, \-\-verbose
 Verbosity level.
-Prints info about agent execution into logfile. Valid values are 0-2. 0 = Default value, shows config information, read socket state, and 
+Prints info about agent execution into logfile. Valid values are 0-2. 0 = Default value, shows config information, read socket state, and
 first 100 dropped messages. 1 = Shows PMNS and related information. 2 = Most detailed verbosity level, also shows dropped messages above 100.
 All levels include those belows.
-.TP
 .TP
 .B \-o, \-\-debug\-output\-filename=<value>
 You can send USR1 signal that 'asks' agent to output basic information about all
@@ -90,20 +89,20 @@ Default:
 .I 0
 .TP
 .B \-p, \-\-parser\-type=<value>
-Flag specifying which parser to use for incoming packets, Basic =
+Flag specifying which parser to use for incoming packets; Basic =
 .IR 0 ,
 Ragel =
-.I 1
-\[char46] Default:
+.IR 1.
+Default:
 .I 0
 .TP
 .B \-a, \-\-duration\-aggregation\-type=<value>
-Flag specifying which aggregation scheme to use for duration metrics,
+Flag specifying which aggregation scheme to use for duration metrics;
 basic histogram =
 .IR 0 ,
 HDR histogram =
-.I 1
-\[char46] Default:
+.IR 1 .
+Default:
 .I 1
 .TP
 .B \-z, \-max\-unprocessed\-packets=<value>
@@ -112,7 +111,7 @@ There are 2 queues: one for packets that are waiting to be parsed and
 one for parsed packets before they are aggregated.
 Default:
 .I 2048
-.TP 0
+.PP
 The agent also looks for a
 .I pmdastatsd.ini
 file in the
@@ -123,21 +122,21 @@ names as follows:
 .RS 5
 .P
 .B max_udp_packet_size=<value>
-.P
+.br
 .B port=<value>
-.P
+.br
 .B verbose=<value>
-.P
+.br
 .B debug=<value>
-.P
+.br
 .B debug_output_filename=<value>
-.P
+.br
 .B version=<value>
-.P
+.br
 .B parser_type=<value>
-.P
+.br
 .B duration_aggregation_type=<value>
-.P
+.br
 .B max_unprocessed_packets=<value>
 .RE
 .P
@@ -213,9 +212,9 @@ Constraints for each of the above variables are:
 .RS 4
 .P
 .B <metricname> = [a-z][a-zA-Z0-9_.]*
-.P
+.br
 .B <value>      = described further in each metric type subsection
-.P
+.br
 .B <type>       = One of the following: "c", "g" or "ms"
 .RE
 .P
@@ -243,22 +242,24 @@ After aggregating following messages:
 .RS 4
 .P
 .B metric:20|c
-
+.br
 .B metric:10|c
-
+.br
 .B metric:3.3|c
 .RE
 .P
 Value available to PCP will be:
+.PP
 .RS 4
+.ft CW
+.nf
+# pminfo \-\-fetch statsd.metric
 .P
-
-.B pminfo \-\-fetch statsd.metric
-
-.B \-> inst [0 or '/'] value 33.3
+    inst [0 or '/'] value 33.3
+.fi
+.ft 1
 .RE
 .SS 2 Gauge metric
-.P
 Stores metrics as modifiable values, with an option to either set,
 increment or decrement values.
 .RS 4
@@ -292,18 +293,22 @@ After aggregating following messages:
 .RS 4
 .P
 .B metric:20|g
-
+.br
 .B metric:+10|g
-
+.br
 .B metric:-3.3|g
 .RE
 .P
 Value available to PCP will be:
+.PP
 .RS 4
+.ft CW
+.nf
+# pminfo \-\-fetch statsd.metric
 .P
-.B pminfo \-\-fetch statsd.metric
-
-.B \-> inst [0 or '/'] value 26.7
+    inst [0 or '/'] value 26.7
+.fi
+.ft 1
 .RE
 .SS 3 Duration metric
 .P
@@ -325,32 +330,28 @@ After aggregating following messages:
 .RS 4
 .P
 .B metric:10|ms
-
+.br
 .B metric:20|ms
 .RE
 .P
 Values available to PCP will be:
+.PP
 .RS 4
+.ft CW
+.nf
+# pminfo \-\-fetch statsd.metric
 .P
-.B pminfo \-\-fetch statsd.metric
-
-.B \-> inst[0 or '/min'] value 10
-
-.B \-> inst[1 or '/max'] value 20
-
-.B \-> inst[2 or '/median'] value 10
-
-.B \-> inst[3 or '/average'] value 15
-
-.B \-> inst[4 or '/percentile90'] value 20
-
-.B \-> inst[5 or '/percentile95'] value 20
-
-.B \-> inst[6 or '/percentile99'] value 20
-
-.B \-> inst[7 or '/count'] value 2
-
-.B \-> inst[8 or '/std_deviation'] value 5
+    inst[0 or '/min'] value 10
+    inst[1 or '/max'] value 20
+    inst[2 or '/median'] value 10
+    inst[3 or '/average'] value 15
+    inst[4 or '/percentile90'] value 20
+    inst[5 or '/percentile95'] value 20
+    inst[6 or '/percentile99'] value 20
+    inst[7 or '/count'] value 2
+    inst[8 or '/std_deviation'] value 5
+.fi
+.ft 1
 .RE
 .P
 .B Note:
@@ -388,16 +389,14 @@ is a
 .IR key ,
 .BI W
 is a
-.I value
-\[char46]
+.IR value .
 .P
 Both
 .I key
 and
 .I value
-of such pair are
-.BI [a\-ZA\-Z0\-9_.]{1,}
-\[char46]
+of such a pair are
+.BR "[a\-ZA\-Z0\-9_.]{1,}" .
 .P
 Both formats are interchangeable and you may combine them together.
 When
@@ -428,16 +427,17 @@ Single label:
 .B metric,tagX=X:5|c
 .RE
 .P
-Such payload would map to PCP as follows (non-related labels were ommited):
+Such a payload would map to PCP as follows (non-related labels were ommited):
+.PP
 .RS 4
+.ft CW
+.nf
+# pminfo \-\-fetch \-\-labels statsd.metric
 .P
-.B pminfo \-\-fetch \-\-labels statsd.metric
-
-.B \->
-
-.B inst [0 or '/tagX=X'] value 5
-
-.B inst [0 or '/tagX=X'] labels {'tagX':'X'}
+    inst [0 or '/tagX=X'] value 5
+    inst [0 or '/tagX=X'] labels {'tagX':'X'}
+.fi
+.ft 1
 .RE
 .P
 As shown earlier you may also send payload with multiple labels.
@@ -449,53 +449,54 @@ Example:
 .RE
 .P
 This resolves to:
+.PP
 .RS 4
+.ft CW
+.nf
+# pminfo \-\-fetch \-\-labels statsd.metric
 .P
-.B pminfo \-\-fetch \-\-labels statsd.metric
-
-.B \->
-
-.B inst [0 or '/tagX=X::tagW=W'] value 5
-
-.B inst [0 or '/tagX=X::tagW=W'] labels {'tagX':'X','tagW':'W'}
+    inst [0 or '/tagX=X::tagW=W'] value 5
+    inst [0 or '/tagX=X::tagW=W'] labels {'tagX':'X','tagW':'W'}
+.fi
+.ft 1
 .RE
 .P
 .B Note:
 .P
 Be mindful of the fact that duration metric type already maps to
 instances even without any labels.
-Sending labeled value to a such metric creates another 9 (as there
+Sending labeled value to such a metric creates another 9 (as there
 are that many hardcoded) instances.
 .P
 Example:
 .RS 4
 .P
 .B metric:200|ms
-
+.br
 .B metric:100|ms
-
+.br
 .B metric,target=cpu2:10|ms
-
+.br
 .B metric,target=cpu2:100|ms
-
+.br
 .B metric,target=cpu2:1000|ms
 .RE
 .P
 Creates 18 instances.
 Duration data type and label name compose instance name in following manner:
+.PP
 .RS 4
+.ft CW
+.nf
+# pminfo \-\-fetch \-\-labels statsd.metric
 .P
-.B pminfo \-\-fetch \-\-labels statsd.metric
-
-.B ...
-
-.B inst [10 or '/max::target=cpu0'] value 1000
-
-.B inst [10 or '/max::target=cpu0'] labels {'target':'cpu0'}
-
-.B ...
+    ...
+    inst [10 or '/max::target=cpu0'] value 1000
+    inst [10 or '/max::target=cpu0'] labels {'target':'cpu0'}
+    ...
+.fi
+.ft 1
 .RE
-.P
 .SS 5 Hardcoded stats
 Agent also exports metrics about itself:
 .TP 5

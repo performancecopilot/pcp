@@ -30,9 +30,9 @@ QmcSource::QmcSource(int type, QString &source, int flags)
     if (localHost.length() == 0)
 	localHost = getLocalHost();
 
-    my.attrs = QString::null;
-    my.context_hostname = QString::null;
-    my.context_container = QString::null;
+    my.attrs = QString();
+    my.context_hostname = QString();
+    my.context_container = QString();
 
     this->retryConnect(type, source);
 }
@@ -40,7 +40,7 @@ QmcSource::QmcSource(int type, QString &source, int flags)
 QString
 QmcSource::hostLabel(void) const
 {
-    if (my.context_container != QString::null) {
+    if (my.context_container != QString()) {
 	QString label;
 	label.append(my.host);
 	label.append(":");
@@ -51,7 +51,7 @@ QmcSource::hostLabel(void) const
 	}
 	return label;
     }
-    if (my.context_hostname != QString::null)
+    if (my.context_hostname != QString())
 	return my.context_hostname;
     // fallback to the name extracted from the hostspec string
     return my.host;
@@ -86,7 +86,7 @@ QmcSource::retryConnect(int type, QString &source)
 	    my.attrs.remove(0, offset+1);
 	    my.host.truncate(offset);
 	    name = my.attrs.section(QString("container="), -1);
-	    if (name != QString::null && (offset = name.indexOf(',')) > 0)
+	    if (name != QString() && (offset = name.indexOf(',')) > 0)
 		name.truncate(offset);
 	    my.context_container = name;
 	}

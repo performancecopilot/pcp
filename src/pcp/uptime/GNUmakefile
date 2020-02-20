@@ -36,5 +36,8 @@ default_pcp : default
 
 install_pcp : install
 
-check:: $(SCRIPT)
+check :: $(SCRIPT)
 	$(PYLINT) $^
+
+check :: $(MAN_PAGES)
+	$(MANLINT) $^

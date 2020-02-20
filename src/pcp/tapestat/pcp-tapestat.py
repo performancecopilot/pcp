@@ -1,5 +1,5 @@
 #!/usr/bin/env pmpython
-# Copyright (C) 2014-2016 Red Hat.
+# Copyright (C) 2014-2016,2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -11,14 +11,15 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# pylint: disable=C0103,R0914,R0902
+# pylint: disable=bad-whitespace,protected-access,redefined-outer-name
+# pylint: disable=too-many-nested-blocks,too-many-boolean-expressions
 """ Display tape I/O statistics """
 
 import re
 import sys
 import signal
 from pcp import pmapi, pmcc
-from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE, PM_SPACE_KBYTE, PM_MODE_FORW
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_MODE_FORW
 
 # use default SIGPIPE handler to avoid broken pipe exceptions
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -43,10 +44,10 @@ signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 
 TAPESTAT_METRICS = [ 'tape.dev.in_flight', 'tape.dev.io_ns',
-                 'tape.dev.other_cnt', 'tape.dev.read_byte_cnt',
-                 'tape.dev.read_cnt', 'tape.dev.read_ns',
-                 'tape.dev.resid_cnt', 'tape.dev.write_byte_cnt',
-                 'tape.dev.write_cnt', 'tape.dev.write_ns']
+                     'tape.dev.other_cnt', 'tape.dev.read_byte_cnt',
+                     'tape.dev.read_cnt', 'tape.dev.read_ns',
+                     'tape.dev.resid_cnt', 'tape.dev.write_byte_cnt',
+                     'tape.dev.write_cnt', 'tape.dev.write_ns']
 
 
 def aggregate(method, aggr_value, value):
@@ -61,7 +62,7 @@ def aggregate(method, aggr_value, value):
         if aggr_value < value:
             aggr_value = value
     else:
-       raise pmapi.pmUsageErr
+        raise pmapi.pmUsageErr
     return aggr_value
 
 class TapestatReport(pmcc.MetricGroupPrinter):
@@ -70,7 +71,7 @@ class TapestatReport(pmcc.MetricGroupPrinter):
         s = group.timestamp.tv_sec - group.prevTimestamp.tv_sec
         u = group.timestamp.tv_usec - group.prevTimestamp.tv_usec
         # u may be negative here, calculation is still correct.
-        return (s + u / 1000000.0)
+        return s + u / 1000000.0
     def instlist(self, group, name):
         return dict(map(lambda x: (x[1], x[2]), group[name].netValues)).keys()
 
@@ -86,18 +87,18 @@ class TapestatReport(pmcc.MetricGroupPrinter):
 
         aggr = TapestatOptions.Gflag
         if aggr and aggr not in ('sum', 'avg', 'min', 'max'):
-           print("Error, -G aggregation method must be one of 'sum', 'avg', 'min' or 'max'")
-           raise pmapi.pmUsageErr
+            print("Error, -G aggregation method must be one of 'sum', 'avg', 'min' or 'max'")
+            raise pmapi.pmUsageErr
 
         precision = TapestatOptions.Pflag
         if precision < 0 or precision > 10 :
-           print("Precision value must be between 0 and 10")
-           raise pmapi.pmUsageErr
+            print("Precision value must be between 0 and 10")
+            raise pmapi.pmUsageErr
 
         subtree = 'tape.dev'
         group = manager["tapestat"]
 
-        if group[subtree + '.read_cnt'].netPrevValues == None:
+        if group[subtree + '.read_cnt'].netPrevValues is None:
             # need two fetches to report rate converted counter metrics
             #print "found none, returning"
             return
@@ -115,7 +116,7 @@ class TapestatReport(pmcc.MetricGroupPrinter):
         p_rkb = self.prevVals(group, subtree + '.read_byte_cnt')
         c_wkb = self.curVals(group, subtree + '.write_byte_cnt')
         p_wkb = self.prevVals(group, subtree + '.write_byte_cnt')
- 
+
         # calculate the percentage waits
         c_rpw = self.curVals(group, subtree + '.read_ns')
         p_rpw = self.prevVals(group, subtree + '.read_ns')
@@ -129,32 +130,30 @@ class TapestatReport(pmcc.MetricGroupPrinter):
         p_other = self.prevVals(group, subtree + '.other_cnt')
         c_other = self.curVals(group, subtree + '.other_cnt')
 
-
-
         if precision == 1:
-           utilspace=precision+5
-           avgrqszspace=precision+7
-           awaitspace=precision+6
-           rrqmspace=precision+5
-           wrqmspace=precision+5
-           headfmtavgspace=precision+7
-           headfmtquspace=precision+7
+            utilspace=precision+5
+            avgrqszspace=precision+7
+            awaitspace=precision+6
+            rrqmspace=precision+5
+            wrqmspace=precision+5
+            headfmtavgspace=precision+7
+            headfmtquspace=precision+7
         elif precision == 0:
-           utilspace=precision+5
-           avgrqszspace=precision+8
-           awaitspace=precision+7
-           rrqmspace=precision+6
-           wrqmspace=precision+6
-           headfmtavgspace=avgrqszspace
-           headfmtquspace=precision+8
+            utilspace=precision+5
+            avgrqszspace=precision+8
+            awaitspace=precision+7
+            rrqmspace=precision+6
+            wrqmspace=precision+6
+            headfmtavgspace=avgrqszspace
+            headfmtquspace=precision+8
         else:
-           utilspace=precision+5
-           avgrqszspace=precision+6
-           awaitspace=precision+5
-           rrqmspace=precision+5
-           wrqmspace=precision+5
-           headfmtavgspace=avgrqszspace
-           headfmtquspace=precision+6
+            utilspace=precision+5
+            avgrqszspace=precision+6
+            awaitspace=precision+5
+            rrqmspace=precision+5
+            wrqmspace=precision+5
+            headfmtavgspace=avgrqszspace
+            headfmtquspace=precision+6
 
         if "t" in TapestatOptions.xflag:
             headfmt = "%-24s %-12s  %*s %*s %*s %*s %*s %*s %*s %*s %*s"
@@ -163,11 +162,10 @@ class TapestatReport(pmcc.MetricGroupPrinter):
             headfmt = "%-12s %*s %*s %*s %*s %*s %*s %*s %*s %*s"
             valfmt = "%-12s %*.*f %*.*f %*d %*d %*.*f %*.*f %*.*f %*.*f %*.*f"
 
-
         tmpspace = precision+5
- 
+
         if precision == 0 :
-          tmpspace = tmpspace  +1
+            tmpspace = tmpspace  +1
 
         if "h" not in TapestatOptions.xflag:
             self.Hcount += 1
@@ -175,21 +173,31 @@ class TapestatReport(pmcc.MetricGroupPrinter):
                 self.Hcount = 1
             if self.Hcount == 1:
                 if "t" in TapestatOptions.xflag:
-                    heading = ('# Timestamp', 'Device',tmpspace - 1, 'r/s',tmpspace, 'w/s',tmpspace, 'kb_r/s',tmpspace, 'kb_w/s', tmpspace, 'r_pct',tmpspace,'w_pct',tmpspace, 'o_pct',tmpspace,'Rs/s',tmpspace,'o_cnt')
+                    heading = ('# Timestamp', 'Device', tmpspace - 1,
+                               'r/s', tmpspace, 'w/s', tmpspace,
+                               'kb_r/s', tmpspace, 'kb_w/s', tmpspace,
+                               'r_pct', tmpspace, 'w_pct', tmpspace,
+                               'o_pct', tmpspace, 'Rs/s', tmpspace, 'o_cnt')
                 else:
-                    heading = ('# Device',tmpspace, 'r/s',tmpspace, 'w/s',tmpspace, 'kb_r/s',tmpspace, 'kb_w/s', tmpspace, 'r_pct',tmpspace,'w_pct',tmpspace, 'o_pct',tmpspace,'Rs/s',tmpspace,'o_cnt')
+                    heading = ('# Device', tmpspace, 'r/s', tmpspace,
+                               'w/s', tmpspace, 'kb_r/s', tmpspace,
+                               'kb_w/s', tmpspace, 'r_pct', tmpspace,
+                               'w_pct', tmpspace, 'o_pct', tmpspace,
+                               'Rs/s', tmpspace, 'o_cnt')
                 print(headfmt % heading)
 
         if p_r == {} or p_w == {} or p_rkb == {} or p_wkb == {} or \
-           p_rpw == {} or p_wpw == {} or p_opw == {} or \
-           p_resid == {} or p_other == {}:
+            p_rpw == {} or p_wpw == {} or p_opw == {} or \
+            p_resid == {} or p_other == {}:
             # no values for some metric (e.g. near start of archive)
             if "t" in TapestatOptions.xflag:
-                print(headfmt % (timestamp, 'NODATA',rrqmspace -1, '?',wrqmspace, '?',precision+5, '?',precision+5, '?',precision+5,\
-               '?',precision+5, '?',headfmtavgspace -1 , '?',headfmtquspace -1, '?', precision+5, '?'))
+                print(headfmt % (timestamp, 'NODATA', rrqmspace - 1,
+                                 '?', wrqmspace, '?', precision + 5,
+                                 '?', precision + 5, '?', precision + 5,
+                                 '?', precision + 5, '?', headfmtavgspace - 1,
+                                 '?', headfmtquspace - 1, '?', precision + 5,
+                                 '?'))
             return
-    
-            #don't we need an else here to print ?'s for non timestamp flag too ?
 
         try:
             if TapestatOptions.Gflag:
@@ -203,34 +211,37 @@ class TapestatReport(pmcc.MetricGroupPrinter):
                 w = (c_w[inst] - p_w[inst]) / dt
                 rkb = (c_rkb[inst] - p_rkb[inst]) / dt / 1000.0 # bytes to kb
                 wkb = (c_wkb[inst] - p_wkb[inst]) / dt / 1000.0
-               
-                
+
                 #calculate and convert from nano seconds
                 rpw = 100 * (c_rpw[inst] - p_rpw[inst])/ 10.0**9 / dt
                 wpw = 100 * (c_wpw[inst] - p_wpw[inst]) / 10.0**9 / dt
-   
-                actual_rpw = rpw 
-                actual_wpw = wpw 
+
+                actual_rpw = rpw
+                actual_wpw = wpw
 
                 opw = 100 * (c_opw[inst] - p_opw[inst]) / 10.0**9 / dt
-                actual_opw = opw 
- 
+                actual_opw = opw
+
                 resid_cnt = (c_resid[inst] - p_resid[inst]) / dt / 1000.0
- 
-                #The  number of I/Os, expressed as the number per second averaged over the interval, that were included as "other" is o_cnt
+
+                #The  number of I/Os, expressed as the number per second averaged
+                #over the interval, that were included as "other" is o_cnt
                 o_cnt = (c_other[inst] - p_other[inst]) / dt / 1000.0
 
 
                 device = inst   # prepare name for printing
-                badcounters = r < 0 or w < 0 or rkb < 0 or wkb < 0 or rpw < 0 or wpw < 0 or opw < 0 or resid_cnt < 0 or o_cnt < 0
+                badcounters = (r < 0 or w < 0 or rkb < 0 or wkb < 0 or rpw < 0 or
+                               wpw < 0 or opw < 0 or resid_cnt < 0 or o_cnt < 0)
 
                 if "t" in TapestatOptions.xflag:
                     if badcounters:
-                        print(headfmt % (timestamp, device,rrqmspace, '?',wrqmspace, '?',precision+5, '?',precision+4, '?',precision+6,\
-                        '?',precision+6, '?',headfmtavgspace, '?',headfmtquspace, '?', precision+5, '?'))
-
+                        print(headfmt % (timestamp, device, rrqmspace,
+                                         '?', wrqmspace, '?', precision + 5,
+                                         '?', precision + 4, '?', precision + 6,
+                                         '?', precision + 6, '?', headfmtavgspace,
+                                         '?', headfmtquspace, '?', precision+5, '?'))
                     else:
-                        if TapestatOptions.Rflag and re.search(regex,device) == None:
+                        if TapestatOptions.Rflag and re.search(regex,device) is None:
                             continue
 
                         if TapestatOptions.Gflag:
@@ -241,15 +252,25 @@ class TapestatReport(pmcc.MetricGroupPrinter):
                                 continue
 
                         if not TapestatOptions.Gflag:
-                            print(valfmt % (timestamp, device,tmpspace,precision,r,tmpspace, precision, w,tmpspace,rkb,tmpspace, wkb, tmpspace,precision,actual_rpw,tmpspace,precision,actual_wpw, tmpspace,precision,actual_opw,tmpspace,precision,resid_cnt,tmpspace,precision,o_cnt))
+                            print(valfmt % (timestamp, device, tmpspace,
+                                            precision, r, tmpspace,
+                                            precision, w, tmpspace,
+                                            rkb, tmpspace, wkb, tmpspace,
+                                            precision, actual_rpw, tmpspace,
+                                            precision, actual_wpw, tmpspace,
+                                            precision, actual_opw, tmpspace,
+                                            precision, resid_cnt, tmpspace,
+                                            precision, o_cnt))
                 else:
                     if badcounters:
-                        print(headfmt % (device,rrqmspace, '?',wrqmspace, '?',precision+5, '?',precision+4, '?',precision+6,\
-                        '?',precision+6, '?',headfmtavgspace, '?',headfmtquspace, '?', precision+5, '?',awaitspace, '?',\
-                        awaitspace, '?',utilspace, '?'))
-
+                        print(headfmt % (device, rrqmspace, '?', wrqmspace, '?',
+                                         precision + 5, '?', precision + 4, '?',
+                                         precision + 6, '?', precision + 6, '?',
+                                         headfmtavgspace, '?', headfmtquspace,
+                                         '?', precision + 5, '?', awaitspace,
+                                         '?', awaitspace, '?', utilspace, '?'))
                     else:
-                        if TapestatOptions.Rflag and re.search(regex,device) == None:
+                        if TapestatOptions.Rflag and re.search(regex,device) is None:
                             continue
 
                         if TapestatOptions.Gflag:
@@ -260,8 +281,14 @@ class TapestatReport(pmcc.MetricGroupPrinter):
                                 continue
 
                         if not TapestatOptions.Gflag:
-#                           print(valfmt % (device,tmpspace, precision, aggr_r,tmpspace,precision, aggr_w,tmpspace, aggr_rkb,tmpspace, aggr_wkb, tmpspace,precision,actual_rpw,tmpspace,precision,actual_wpw))
-                            print(valfmt % (device,tmpspace,precision,r,tmpspace, precision, w,tmpspace,rkb,tmpspace, wkb, tmpspace,precision,actual_rpw,tmpspace,precision,actual_wpw, tmpspace,precision,actual_opw,tmpspace,precision,resid_cnt,tmpspace,precision,o_cnt))
+                            print(valfmt % (device, tmpspace, precision, r,
+                                            tmpspace, precision, w, tmpspace,
+                                            rkb, tmpspace, wkb, tmpspace,
+                                            precision, actual_rpw, tmpspace,
+                                            precision, actual_wpw, tmpspace,
+                                            precision, actual_opw, tmpspace,
+                                            precision, resid_cnt, tmpspace,
+                                            precision, o_cnt))
 
                 if TapestatOptions.Gflag and not badcounters:
                     aggr_r = aggregate(aggr, aggr_r, r)
@@ -291,9 +318,23 @@ class TapestatReport(pmcc.MetricGroupPrinter):
                 # report aggregate values - the 'device' here is reported as the regex used for the aggregation
                 device = '%s(%s)' % (aggr, regex)
                 if "t" in TapestatOptions.xflag:
-                    print(valfmt % (timestamp, device,tmpspace, precision, aggr_r,tmpspace,precision, aggr_w,tmpspace, aggr_rkb,tmpspace, aggr_wkb, tmpspace,precision,aggr_actual_rpw,tmpspace,precision,aggr_actual_wpw,tmpspace,precision,aggr_actual_opw , tmpspace,precision,aggr_resid_cnt,tmpspace,precision,aggr_o_cnt))
+                    print(valfmt % (timestamp, device, tmpspace, precision,
+                                    aggr_r, tmpspace, precision, aggr_w,
+                                    tmpspace, aggr_rkb, tmpspace, aggr_wkb,
+                                    tmpspace, precision, aggr_actual_rpw,
+                                    tmpspace, precision, aggr_actual_wpw,
+                                    tmpspace, precision, aggr_actual_opw,
+                                    tmpspace, precision, aggr_resid_cnt,
+                                    tmpspace, precision, aggr_o_cnt))
                 else:
-                    print(valfmt % (device,tmpspace, precision, aggr_r,tmpspace,precision, aggr_w,tmpspace, aggr_rkb,tmpspace, aggr_wkb, tmpspace,precision,aggr_actual_rpw,tmpspace,precision,aggr_actual_wpw,tmpspace,precision,aggr_actual_opw , tmpspace,precision,aggr_resid_cnt,tmpspace,precision,aggr_o_cnt))
+                    print(valfmt % (device, tmpspace, precision, aggr_r,
+                                    tmpspace, precision, aggr_w, tmpspace,
+                                    aggr_rkb, tmpspace, aggr_wkb, tmpspace,
+                                    precision, aggr_actual_rpw, tmpspace,
+                                    precision, aggr_actual_wpw, tmpspace,
+                                    precision, aggr_actual_opw, tmpspace,
+                                    precision, aggr_resid_cnt, tmpspace,
+                                    precision, aggr_o_cnt))
 
         except KeyError:
             # instance missing from previous sample
@@ -338,11 +379,15 @@ class TapestatOptions(pmapi.pmOptions):
         self.pmSetLongOptionAlign()
         self.pmSetLongOptionArchive()
         self.pmSetLongOptionDebug()
-        self.pmSetLongOption("aggregate", 1, "G", "method", "aggregate values for devices matching -R regex using 'method' (sum, avg, min or max)")
+        self.pmSetLongOption("aggregate", 1, "G", "method",
+                             "aggregate values for devices matching -R regex" +
+                             " using 'method' (sum, avg, min or max)")
         self.pmSetLongOptionHost()
         self.pmSetLongOptionOrigin()
         self.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator")
-        self.pmSetLongOption("regex", 1, "R", "pattern", "only report for devices names matching pattern, e.g. 'sd[a-zA-Z]+'. See also -G.")
+        self.pmSetLongOption("regex", 1, "R", "pattern",
+                             "only report for devices names matching pattern,"
+                             " e.g. 'sd[a-zA-Z]+'. See also -G.")
         self.pmSetLongOptionStart()
         self.pmSetLongOptionSamples()
         self.pmSetLongOptionFinish()
@@ -354,9 +399,9 @@ class TapestatOptions(pmapi.pmOptions):
         self.pmSetLongOptionHelp()
         self.pmSetLongOptionHeader("Extended options")
         self.pmSetLongOption("", 1, 'x', "LIST", "comma separated extended options: [[t],[h],[noidle]]")
-        self.pmSetLongOptionText("\t\tt\tprecede every line with a timestamp in ctime format");
-        self.pmSetLongOptionText("\t\th\tsuppress headings");
-        self.pmSetLongOptionText("\t\tnoidle\tdo not display idle devices");
+        self.pmSetLongOptionText("\t\tt\tprecede every line with a timestamp in ctime format")
+        self.pmSetLongOptionText("\t\th\tsuppress headings")
+        self.pmSetLongOptionText("\t\tnoidle\tdo not display idle devices")
 
 if __name__ == '__main__':
     try:
@@ -369,7 +414,7 @@ if __name__ == '__main__':
             # -u turns off interpolation
             manager.pmSetMode(PM_MODE_FORW, manager._options.pmGetOptionOrigin(), 0)
         missing = manager.checkMissingMetrics(TAPESTAT_METRICS)
-        if missing != None:
+        if missing is not None:
             sys.stderr.write('Error: not all required metrics are available\nMissing: %s\n' % (missing))
             sys.exit(1)
         manager["tapestat"] = TAPESTAT_METRICS
@@ -384,6 +429,3 @@ if __name__ == '__main__':
         sys.exit(1)
     except KeyboardInterrupt:
         pass
-
-
-

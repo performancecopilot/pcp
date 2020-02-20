@@ -327,7 +327,15 @@ receivePDUs(pmdaInterface *dispatch)
 
     for (;;) {
 
-	FD_SET(fileno(stdin), &rfds);
+	/*
+	 * avoid gcc warning: array subscript is above array bounds
+	 * on NetBSD
+	 */
+	if (fileno(stdin) >= 0)
+	    FD_SET(fileno(stdin), &rfds);
+	else {
+	    logmessage(LOG_CRIT, "receivePDUs: fileno(stdin) = %d!\n",  fileno(stdin));
+	}
 	pmtimevalNow(&timeout);
 	timeout.tv_usec = 0;
 	interval = (time_t)wl_refreshDelay - (timeout.tv_sec % (time_t)wl_refreshDelay);

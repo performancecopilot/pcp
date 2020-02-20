@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2019 Red Hat.
+ * Copyright (C) 2012-2020 Red Hat.
  * Copyright (C) 2009-2012 Michael T. Werner
  *
  * This file is part of the "pcp" module, the python interfaces for the
@@ -944,6 +944,36 @@ pmnsDecodeCallback(const char *name, void *closure)
 }
 
 /*
+ * Convince python interpreter that the pmUnits structure is the
+ * moral equivalent of an (unsigned) integer, for passing across
+ * ctypes interfaces 'by-value'.
+ */
+static PyObject *
+pmUnits_int(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    pmUnits units = {0};
+    unsigned int dimSpace = 0, dimTime = 0, dimCount = 0;
+    unsigned int scaleSpace = 0, scaleTime = 0, scaleCount = 0;
+    char *keyword_list[] = {"dimSpace", "dimTime", "dimCount",
+			    "scaleSpace", "scaleTime", "scaleCount", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+		"IIIIII:pmSetContextOptions", keyword_list,
+		&dimSpace, &dimTime, &dimCount,
+		&scaleSpace, &scaleTime, &scaleCount))
+	return NULL;
+
+    units.dimSpace = dimSpace;
+    units.dimTime = dimTime;
+    units.dimCount = dimCount;
+    units.scaleSpace = scaleSpace;
+    units.scaleTime = scaleTime;
+    units.scaleCount = scaleCount;
+
+    return Py_BuildValue("i", *(unsigned int *)&units);
+}
+
+/*
  * This pmTraversePMNS_r wrapper is specifically so that python3
  * installs can pass out correctly decoded python strings rather
  * than byte arrays.
@@ -1446,6 +1476,9 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmnsTraverse",
 	.ml_meth = (PyCFunction) pmnsTraverse,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmUnits_int",
+	.ml_meth = (PyCFunction) pmUnits_int,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { NULL }
 };

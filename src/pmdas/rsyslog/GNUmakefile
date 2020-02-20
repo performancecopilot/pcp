@@ -40,3 +40,6 @@ install_pcp : install
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PERLRULE)
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

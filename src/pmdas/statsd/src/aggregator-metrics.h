@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +26,7 @@
 typedef dict metrics;
 typedef dict labels;
 
-enum DURATION_INSTANCE {
+typedef enum DURATION_INSTANCE {
     DURATION_MIN,
     DURATION_MAX,
     DURATION_MEDIAN,
@@ -37,12 +38,12 @@ enum DURATION_INSTANCE {
     DURATION_STANDARD_DEVIATION
 } DURATION_INSTANCE;
 
-struct pmdaInstid_map {
+typedef struct pmdaInstid_map {
     char** labels;
     size_t length;
 } pmdaInstid_map;
 
-struct metric_metadata {
+typedef struct metric_metadata {
     char* pcp_name; // name within pcp pmns
     struct pmdaInstid_map* pcp_instance_map; 
     double sampling; // not used for anything as of right now
@@ -53,11 +54,11 @@ struct metric_metadata {
     int pcp_instance_change_requested; // flag signaling to pcp that change to instance is requested
 } metric_metadata;
 
-struct metric_label_metadata {
+typedef struct metric_label_metadata {
     char* instance_label_segment_str;
 } metric_label_metadata;
 
-struct metric_label {
+typedef struct metric_label {
     char* labels;
     int pair_count;
     struct metric_label_metadata* meta;
@@ -65,7 +66,7 @@ struct metric_label {
     void* value;
 } metric_label;
 
-struct metric {
+typedef struct metric {
     char* name;
     int pernament;
     struct metric_metadata* meta;
@@ -77,7 +78,7 @@ struct metric {
 /**
  * Collection of metadata of some duration collection 
  */
-struct duration_values_meta {
+typedef struct duration_values_meta {
     double min;
     double max;
     double median;
@@ -89,14 +90,14 @@ struct duration_values_meta {
     double std_deviation;
 } duration_values_meta;
 
-struct pmda_metrics_container {
+typedef struct pmda_metrics_container {
     metrics* metrics;
     struct pmda_metrics_dict_privdata* metrics_privdata;
     size_t generation;
     pthread_mutex_t mutex;
 } pmda_metrics_container;
 
-struct pmda_metrics_dict_privdata {
+typedef struct pmda_metrics_dict_privdata {
     struct agent_config* config;
     struct pmda_metrics_container* container;
 } pmda_metrics_dict_privdata;
@@ -104,14 +105,14 @@ struct pmda_metrics_dict_privdata {
 /**
  * Creates new pmda_metrics_container structure, initializes all stats to 0
  */
-struct pmda_metrics_container*
+extern struct pmda_metrics_container*
 init_pmda_metrics(struct agent_config* config);
 
 /**
  * Creates STATSD metric hashtable key for use in hashtable related functions (find_metric_by_name, check_metric_name_available)
  * @return new key
  */
-char*
+extern char*
 create_metric_dict_key(char* key);
 
 /**
@@ -129,7 +130,7 @@ process_metric(struct agent_config* config, struct pmda_metrics_container* conta
  * @arg config - Agent config
  * @arg metric - Metric to be freed
  */
-void
+extern void
 free_metric(struct agent_config* config, struct metric* item);
 
 /**
@@ -139,7 +140,7 @@ free_metric(struct agent_config* config, struct metric* item);
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
-void
+extern void
 write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container* container);
 
 /**
@@ -151,7 +152,7 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
-int
+extern int
 find_metric_by_name(struct pmda_metrics_container* container, char* key, struct metric** out);
 
 /**
@@ -161,7 +162,7 @@ find_metric_by_name(struct pmda_metrics_container* container, char* key, struct 
  * @arg out - Placeholder metric
  * @return 1 on success
  */
-int
+extern int
 create_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out);
 
 /**
@@ -171,7 +172,7 @@ create_metric(struct agent_config* config, struct statsd_datagram* datagram, str
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
-void
+extern void
 add_metric(struct pmda_metrics_container* container, char* key, struct metric* item);
 
 /**
@@ -181,7 +182,7 @@ add_metric(struct pmda_metrics_container* container, char* key, struct metric* i
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
-void
+extern void
 remove_metric(struct pmda_metrics_container* container, char* key);
 
 /**
@@ -195,7 +196,7 @@ remove_metric(struct pmda_metrics_container* container, char* key);
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
-int
+extern int
 update_metric_value(
     struct agent_config* config,
     struct pmda_metrics_container* container,
@@ -210,7 +211,7 @@ update_metric_value(
  * @arg key - Key of metric
  * @return 1 on success else 0
  */
-int
+extern int
 check_metric_name_available(struct pmda_metrics_container* container, char* key);
 
 /**
@@ -218,7 +219,7 @@ check_metric_name_available(struct pmda_metrics_container* container, char* key)
  * @arg datagram - Datagram from which to build metadata
  * @return metric metadata
  */
-struct metric_metadata*
+extern struct metric_metadata*
 create_metric_meta(struct statsd_datagram* datagram);
 
 /**
@@ -227,7 +228,7 @@ create_metric_meta(struct statsd_datagram* datagram);
  * by metric_label* labels field
  * @arg meta - Metadata to be freed
  */
-void
+extern void
 free_metric_metadata(struct metric_metadata* meta);
 
 /**
@@ -235,7 +236,7 @@ free_metric_metadata(struct metric_metadata* meta);
  * @arg f - Opened file handle, doesn't close it after finishing
  * @arg meta - Metric metadata
  */
-void
+extern void
 print_metric_meta(FILE* f, struct metric_metadata* meta);
 
 /**
@@ -245,7 +246,7 @@ print_metric_meta(FILE* f, struct metric_metadata* meta);
  * 
  * Synchronized by mutex on pmda_metrics_container struct
  */
-void
+extern void
 mark_metric_as_pernament(struct pmda_metrics_container* container, struct metric* item);
 
 #endif

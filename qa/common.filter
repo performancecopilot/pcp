@@ -376,6 +376,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[142 or "lio"]/d' \
 	-e '/inst \[144 or "openmetrics"]/d' \
 	-e '/inst \[149 or "bcc"]/d' \
+        -e '/inst \[152 or "netcheck"]/d' \
 	-e '/inst \[250 or "trivial"]/d' \
     # end
 }
@@ -526,6 +527,32 @@ _filter_cron_scripts()
 	-e 's/cron\.pmsnap/pmsnap/g'
 }
 
+# from time to time, a specific distro can produce babble during PCP
+# startup ... rather than wasting effort to find where this comes from,
+# just filter it away here.
+# Examples:
+# S on a line by itself after the "Starting pmcd ..." line
+#     - bozo-vm, Debian bullseye/sid, Jan 2020
+# W on a line by itself after the "Updating the PMCD control file, ..." line
+#     - bozo-vm, Debian bullseye/sid, Jan 2020
+#
+_filter_pcp_start_distro()
+{
+    if [ -f /etc/debian_version ]
+    then
+	if grep 'bullseye/sid' /etc/debian_version >/dev/null
+	then
+	    sed -e '/^[SW]$/d'
+	    return
+	fi
+    fi
+
+    # if a filter has been chosen, it must return afterwards, so here
+    # we need a noop fiter ...
+    #
+    cat
+}
+
 # besides rewriting platform-specific paths, we need to ensure that
 # any chatter from the pcp/pmcd/pmlogger start scripts is removed ...
 # this may come from the PCP scripts or the infrastructure that runs
@@ -581,6 +608,7 @@ s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
 s///
 /^$/d
 }' \
+    | _filter_pcp_start_distro \
     | _filter_init_distro
 }
 

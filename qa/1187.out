@@ -150,6 +150,16 @@ Filesystem
 === std err
 === done
 
+Filesystem alias
+=== std out
+----system---- async --filesystem- ---file-locks--
+     time     | #aio|files  inodes|pos lck rea wri
+25-07 16:08:19|   0 |19424    184k| 48 4.0  18  34
+25-07 16:08:20|   0 |19408    184k| 48 4.0  18  34
+25-07 16:08:21|   0 |19456    184k| 48 4.0  18  34
+=== std err
+=== done
+
 Duplicate arguments
 === std out
 ----system---- -dsk/total-

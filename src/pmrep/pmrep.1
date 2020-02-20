@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2020 Marko Myllynen <myllynen@redhat.com>
 .\" Copyright (c) 2016-2018 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -36,6 +36,7 @@
 [\fB\-F\fP \fIoutfile\fP]
 [\fB\-h\fP \fIhost\fP]
 [\fB\-i\fP \fIinstances\fP]
+[\fB\-\-include\-texts\fP]
 [\fB\-J\fP \fIrank\fP]
 [\fB\-K\fP \fIspec\fP]
 [\fB\-l\fP \fIdelimiter\fP]
@@ -550,6 +551,10 @@ With this option all incompatible metrics are silently omitted
 from reporting.
 This may be especially useful when requesting
 non-leaf nodes of the PMNS tree for reporting.
+.TP
+\fB\-\-include\-texts\fR
+When writing a PCP archive,
+include PCP metric help texts in the created archive.
 .TP
 \fB\-j\fR, \fB\-\-live\-filter\fR
 Perform instance live filtering.

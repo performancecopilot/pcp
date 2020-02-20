@@ -3,20 +3,25 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 
-export CI_HOST="$1"
+CI_HOST="$1"
+
+. ../../VERSION.pcp
+PCP_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+PCP_BUILD_VERSION=${PCP_VERSION}-${PACKAGE_BUILD}
+
+# export env vars required by packer
 export AZ_RESOURCE_GROUP="PCP_Builds"
 export AZ_LOCATION="eastus"
-export AZ_VM_SIZE="Standard_F2s_v2"
-export AZ_IMAGE="image-${CI_HOST}"
-export AZ_PLAN_INFO=""
-[ ! -z ${BUILD_ID+x} ] && export AZ_VMSS="build-${BUILD_ID}-${CI_HOST}"
 export AZ_STORAGE_ACCOUNT="pcpstore"
-export AZ_STORAGE_URL="https://pcpstore.blob.core.windows.net"
 export AZ_STORAGE_CONTAINER="vhd-images"
+export AZ_VM_SIZE="Standard_B2s"
+export AZ_IMAGE="image-${CI_HOST}"
+AZ_VMSS="build-${PCP_BUILD_VERSION}-${CI_HOST}"
+AZ_PLAN_INFO=""
 
-bintray_subject="pcp"
-bintray_package="pcp"
-bintray_params=""
+BINTRAY_SUBJECT="pcp"
+BINTRAY_PACKAGE="pcp"
+BINTRAY_PARAMS=""
 
 if [ -e "hosts/${CI_HOST}/env.sh" ]; then
     . "hosts/${CI_HOST}/env.sh"

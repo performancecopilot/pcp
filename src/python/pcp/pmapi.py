@@ -1,6 +1,6 @@
 """ Wrapper module for LIBPCP - the core Performace Co-Pilot API
 #
-# Copyright (C) 2012-2019 Red Hat
+# Copyright (C) 2012-2020 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -134,10 +134,9 @@ else:
 
 def pyFileToCFile(fileObj):
     if sys.version >= '3':
-        from os import fdopen
         ctypes.pythonapi.PyObject_AsFileDescriptor.restype = ctypes.c_int
         ctypes.pythonapi.PyObject_AsFileDescriptor.argtypes = [ctypes.py_object]
-        return fdopen(ctypes.pythonapi.PyObject_AsFileDescriptor(fileObj), "r", closefd=False)
+        return os.fdopen(ctypes.pythonapi.PyObject_AsFileDescriptor(fileObj), "r", closefd=False)
     else:
         ctypes.pythonapi.PyFile_AsFile.restype = ctypes.c_void_p
         ctypes.pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
@@ -385,6 +384,10 @@ class pmUnits(Structure):
         self.scaleTime = scaleT
         self.scaleCount = scaleC
         self.pad = 0
+
+    def __int__(self):
+        return c_api.pmUnits_int(self.dimSpace, self.dimTime, self.dimCount,
+                                 self.scaleSpace, self.scaleTime, self.scaleCount)
 
     def __str__(self):
         unitstr = ctypes.create_string_buffer(64)
@@ -1677,7 +1680,7 @@ class pmContext(object):
     # PMAPI Instance Domain Services
 
     def pmGetInDom(self, pmdescp=None, indom=None):
-        """PMAPI - Lookup the list of instances from an instance domain PMDESCP or indo
+        """PMAPI - Lookup the list of instances from an instance domain PMDESCP or indom
         ([instance1, instance2...] [name1, name2...]) pmGetInDom(pmDesc pmdesc)
         """
         if pmdescp is None and indom is None:
@@ -2112,9 +2115,10 @@ class pmContext(object):
         if lset:
             ret.update({c_api.PM_LABEL_DOMAIN: lset})
 
-        lset = self.pmGetInDomLabels(desc.indom)
-        if lset:
-            ret.update({c_api.PM_LABEL_INDOM: lset})
+        if desc.indom != c_api.PM_INDOM_NULL:
+            lset = self.pmGetInDomLabels(desc.indom)
+            if lset:
+                ret.update({c_api.PM_LABEL_INDOM: lset})
 
         lset = self.pmGetClusterLabels(pmid)
         if lset:
@@ -2142,7 +2146,7 @@ class pmContext(object):
         for i in range(status):
             lset = result_p[i]
             if lset.json is not None:
-                instlabelsD.update({lset.inst: json.loads(lset.json)})
+                instlabelsD.update({lset.inst: json.loads(lset.json.decode())})
 
         return instlabelsD
 

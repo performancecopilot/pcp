@@ -1,4 +1,4 @@
-pcp-5.0.3 (28 February 2020)
+pcp-5.0.3 (27 February 2020)
     - Work in progress: https://github.com/performancecopilot/pcp/projects/1
 
 pcp-5.0.2 (11 December 2019)
@@ -999,7 +999,7 @@ pcp-4.1.0 (15 June 2018)
 	- docs: add release and coverity links to README.md
 	- man/html/portability-and-qa.html: First real version
 	- docs: add the CII best practices badge to README.md
-	- docs: switch HACKING to markdown, add a security section
+	- docs: switch CONTRIBUTING to markdown, add a security section
 	- man/html/portability-and-qa.html: portability issues related to QA
 	- docs: initial version of the pcp-dstat(1) manual page
 	- docs: switch http to https for various pcp.io references
@@ -2618,7 +2618,7 @@ pcp-3.9.2 (15 April 2014)
       pmdate, pmdbg, pmerr, pmhostname, pmieconf, collectl2pcp,
       pmlc, pmmgr, pmproxy, pmwebd.
     - Makepkgs changes to support source tarball builds via git
-    - HACKING file added, describing PCP development methodology
+    - CONTRIBUTING file added, describing PCP development methodology
 
 pcp-3.9.1 (19 March 2014)
     - libpcp: extended date parsing with GNU getdate(3) strings

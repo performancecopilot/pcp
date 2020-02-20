@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2017,2020 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -764,6 +764,22 @@ __pmLogClose(__pmArchCtl *acp)
 }
 
 int
+__pmLogAddVolume(__pmArchCtl *acp, unsigned int vol)
+{
+    __pmLogCtl	*lcp = acp->ac_log;
+
+    if (lcp->l_minvol == -1) {
+	lcp->l_minvol = vol;
+	lcp->l_maxvol = vol;
+    } else if (vol < lcp->l_minvol) {
+	lcp->l_minvol = vol;
+    } else if (vol > lcp->l_maxvol) {
+	lcp->l_maxvol = vol;
+    }
+    return 0;
+}
+
+int
 __pmLogLoadLabel(__pmArchCtl *acp, const char *name)
 {
     __pmLogCtl	*lcp = acp->ac_log;
@@ -876,21 +892,14 @@ __pmLogLoadLabel(__pmArchCtl *acp, const char *name)
 		}
 	    }
 	    else {
-		char	*q;
-		int	vol;
-		vol = (int)strtol(tp, &q, 10);
+		char		*q;
+		unsigned int	vol;
+
+		vol = (unsigned int)strtoul(tp, &q, 10);
 		if (*q == '\0') {
 		    exists = 1;
-		    if (lcp->l_minvol == -1) {
-			lcp->l_minvol = vol;
-			lcp->l_maxvol = vol;
-		    }
-		    else {
-			if (vol < lcp->l_minvol)
-			    lcp->l_minvol = vol;
-			if (vol > lcp->l_maxvol)
-			    lcp->l_maxvol = vol;
-		    }
+		    if ((sts = __pmLogAddVolume(acp, vol)) < 0)
+			goto cleanup;
 		}
 	    }
 	}
@@ -2282,7 +2291,7 @@ __pmLogSetTime(__pmContext *ctxp)
 	int		match = 0;
 	int		vol;
 	int		numti = lcp->l_numti;
-	__pmFILE		*f;
+	__pmFILE	*f;
 	__pmLogTI	*tip = lcp->l_ti;
 	double		t_lo;
 	struct stat	sbuf;

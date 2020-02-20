@@ -15,21 +15,23 @@
 
 # Last updated for: haproxy 1.8.0
 
-# pylint: disable=superfluous-parens, bad-whitespace
 # pylint: disable=invalid-name, line-too-long, no-self-use
 # pylint: disable=too-many-instance-attributes, too-many-locals
-# pylint: disable=broad-except, too-many-branches
+# pylint: disable=bad-whitespace, broad-except, too-many-branches
 # pylint: disable=too-many-return-statements, bad-continuation
 
 """ PCP HAProxy Performance Metrics Domain Agent """
 
+import sys
+import socket
 try:
     import ConfigParser
 except ImportError:
     import configparser as ConfigParser
-
-import sys
-import socket
+try:
+    import urllib.request as httprequest
+except Exception:
+    import urllib2 as httprequest
 
 from ctypes import c_int
 
@@ -284,10 +286,6 @@ class HAProxyPMDA(PMDA):
 
     def setup_urllib(self, url, auth, pasw):
         """ Setup urllib """
-        try:
-            import urllib.request as httprequest
-        except Exception:
-            import urllib2 as httprequest
         passman = httprequest.HTTPPasswordMgrWithDefaultRealm()
         passman.add_password(None, url, auth, pasw)
         authhandler = httprequest.HTTPBasicAuthHandler(passman)

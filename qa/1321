@@ -17,16 +17,16 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 _cleanup()
 {
     $sudo $PCP_BINADM_DIR/pmsignal -s TERM $pmlogger_pid >/dev/null 2>&1
+    $sudo rm -fr $tmp.datadir
+
     _wait_pmlogger_end $pmlogger_pid
-    echo "=== openmetrics PMDA log ===" >>$here/$seq.full
-    if [ -f $PCP_LOG_DIR/pmcd/openmetrics.log ]
-    then
-	cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$here/$seq.full
-    else
-	echo "Error: PMDA log file is missing" >>$here/$seq.full
-    fi
+    _pmdaopenmetrics_cleanup
     rm -rf $tmp.*
 }
+
+_prepare_pmda openmetrics
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
 
 _createURL()
 {
@@ -48,8 +48,6 @@ _createURL()
     # echo;echo == curl URL returns
     # curl -G -s `cat $_url` || exit 1
 }
-
-trap "_cleanup; _pmdaopenmetrics_restore_config >>$here/$seq.full; exit \$status" 0 1 2 3 15
 
 _pmdaopenmetrics_save_config
 _pmdaopenmetrics_install

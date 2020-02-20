@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019 Red Hat.
+ * Copyright (c) 2018-2020 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -18,7 +18,9 @@
 #include "libpcp.h"
 #include "mmv_stats.h"
 #include "slots.h"
-
+#ifdef HAVE_REGEX_H
+#include <regex.h>
+#endif
 #ifdef HAVE_LIBUV
 #include <uv.h>
 #else
@@ -84,8 +86,8 @@ typedef struct pmDiscover {
     int				fd;		/* meta file descriptor */
 #ifdef HAVE_LIBUV
     uv_fs_event_t		*event_handle;	/* uv fs_notify event handle */ 
-    uv_stat_t			statbuf;	/* stat buffer from event CB */
 #endif
+    struct stat			statbuf;	/* stat buffer */
     void			*baton;		/* private internal lib data */
     void			*data;		/* opaque user data pointer */
 } pmDiscover;
@@ -115,6 +117,10 @@ typedef struct discoverModuleData {
     struct dict			*config;	/* configuration dict */
     uv_loop_t			*events;	/* event library loop */
     redisSlots			*slots;		/* server slots data */
+    regex_t			exclude_names;	/* metric names to exclude */
+    struct dict			*pmids;		/* dict of excluded PMIDs */
+    unsigned int		exclude_indoms;	/* exclude instance domains */
+    struct dict			*indoms;	/* dict of excluded InDoms */
     void			*data;		/* user-supplied pointer */
 } discoverModuleData;
 

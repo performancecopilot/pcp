@@ -198,7 +198,7 @@ class BCCPMDA(PMDA):
             os.chdir(pmdadir)
         os.chdir(cwd)
 
-        import pmdautil
+        import pmdautil # pylint: disable=import-outside-toplevel
         self.proc_helper = pmdautil.ProcMon(self.log, self.err)
         for module in self.modules:
             self.log(module)

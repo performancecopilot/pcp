@@ -24,7 +24,7 @@
 /**
  * Represents basic duration aggregation unit
  */
-struct exact_duration_collection {
+typedef struct exact_duration_collection {
     double** values;
     size_t length;
 } exact_duration_collection;
@@ -34,7 +34,7 @@ struct exact_duration_collection {
  * @arg value - initial value
  * @return hdr_histogram
  */
-void
+extern void
 create_exact_duration_value(long long unsigned int value, void** out);
 
 /**
@@ -42,7 +42,7 @@ create_exact_duration_value(long long unsigned int value, void** out);
  * @arg collection - Collection to which value should be added
  * @arg value - New value
  */
-void
+extern void
 update_exact_duration_value(double value, struct exact_duration_collection* collection);
  
 /**
@@ -60,7 +60,7 @@ remove_exact_duration_item(struct exact_duration_collection* collection, double 
  * @arg instance - What information to extract
  * @return duration instance value
  */
-double
+extern double
 get_exact_duration_instance(struct exact_duration_collection* collection, enum DURATION_INSTANCE instance);
 
 /**
@@ -68,7 +68,7 @@ get_exact_duration_instance(struct exact_duration_collection* collection, enum D
  * @arg f - Opened file handle, doesn't close it when finished
  * @arg collection - Target collection
  */
-void
+extern void
 print_exact_duration_value(FILE* f, struct exact_duration_collection* collection);
 
 /**
@@ -76,7 +76,7 @@ print_exact_duration_value(FILE* f, struct exact_duration_collection* collection
  * @arg config
  * @arg value - value to be freed
  */
-void
+extern void
 free_exact_duration_value(struct agent_config* config, void* value);
 
 #endif

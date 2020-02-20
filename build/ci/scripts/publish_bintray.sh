@@ -3,36 +3,34 @@
 cd "$(dirname "$0")/.."
 . scripts/env.sh
 artifacts="$2/*"
-bintray_repository="${bintray_distribution}"
-
-. ../../VERSION.pcp
-version=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+BINTRAY_REPOSITORY="${BINTRAY_DISTRIBUTION}"
+[ "${SNAPSHOT}" != "no" ] && BINTRAY_REPOSITORY="${BINTRAY_REPOSITORY}-nightly"
 
 for file_path in ${artifacts}
 do
-  file=$(basename "${file_path}")
+    file=$(basename "${file_path}")
 
-  echo "Uploading ${file} to bintray.com/${bintray_subject}/${bintray_repository}/${bintray_package}/${version}"
-  curl --silent --show-error --fail --upload-file "${file_path}" --user ${BINTRAY_USER}:${BINTRAY_APIKEY} \
-    -X PUT -H "X-GPG-PASSPHRASE: ${BINTRAY_GPG_PASSPHRASE}" \
-    "https://api.bintray.com/content/${bintray_subject}/${bintray_repository}/${bintray_package}/${version}/${file};${bintray_params}"
-  echo && echo
+    echo "Uploading ${file} to bintray.com/${BINTRAY_SUBJECT}/${BINTRAY_REPOSITORY}/${BINTRAY_PACKAGE}/${PCP_VERSION}"
+    curl --silent --show-error --fail --upload-file "${file_path}" --user "${BINTRAY_USER}:${BINTRAY_APIKEY}" \
+      -X PUT -H "X-GPG-PASSPHRASE: ${BINTRAY_GPG_PASSPHRASE}" \
+      "https://api.bintray.com/content/${BINTRAY_SUBJECT}/${BINTRAY_REPOSITORY}/${BINTRAY_PACKAGE}/${PCP_VERSION}/${file};${BINTRAY_PARAMS}"
+    echo && echo
 done
 
-echo "Signing version bintray.com/${bintray_subject}/${bintray_repository}/${bintray_package}/${version}"
-curl --silent --show-error --fail --user ${BINTRAY_USER}:${BINTRAY_APIKEY} \
+echo "Signing version bintray.com/${BINTRAY_SUBJECT}/${BINTRAY_REPOSITORY}/${BINTRAY_PACKAGE}/${PCP_VERSION}"
+curl --silent --show-error --fail --user "${BINTRAY_USER}:${BINTRAY_APIKEY}" \
   -X POST -H "X-GPG-PASSPHRASE: ${BINTRAY_GPG_PASSPHRASE}" \
-  "https://api.bintray.com/gpg/${bintray_subject}/${bintray_repository}/${bintray_package}/versions/${version};publish=1"
+  "https://api.bintray.com/gpg/${BINTRAY_SUBJECT}/${BINTRAY_REPOSITORY}/${BINTRAY_PACKAGE}/versions/${PCP_VERSION}"
 echo && echo
 
-echo "Signing metadata of bintray.com/${bintray_subject}/${bintray_repository}"
-curl --silent --show-error --fail --user ${BINTRAY_USER}:${BINTRAY_APIKEY} \
+echo "Signing metadata of bintray.com/${BINTRAY_SUBJECT}/${BINTRAY_REPOSITORY}"
+curl --silent --show-error --fail --user "${BINTRAY_USER}:${BINTRAY_APIKEY}" \
   -X POST -H "X-GPG-PASSPHRASE: ${BINTRAY_GPG_PASSPHRASE}" \
-  "https://api.bintray.com/calc_metadata/${bintray_subject}/${bintray_repository}"
+  "https://api.bintray.com/calc_metadata/${BINTRAY_SUBJECT}/${BINTRAY_REPOSITORY}"
 echo && echo
 
-echo "Publish all files of version bintray.com/${bintray_subject}/${bintray_repository}/${bintray_package}/${version}"
-curl --silent --show-error --fail --user ${BINTRAY_USER}:${BINTRAY_APIKEY} \
+echo "Publish all files of version bintray.com/${BINTRAY_SUBJECT}/${BINTRAY_REPOSITORY}/${BINTRAY_PACKAGE}/${PCP_VERSION}"
+curl --silent --show-error --fail --user "${BINTRAY_USER}:${BINTRAY_APIKEY}" \
   -X POST -H "X-GPG-PASSPHRASE: ${BINTRAY_GPG_PASSPHRASE}" \
-  "https://api.bintray.com/content/${bintray_subject}/${bintray_repository}/${bintray_package}/${version}/publish"
+  "https://api.bintray.com/content/${BINTRAY_SUBJECT}/${BINTRAY_REPOSITORY}/${BINTRAY_PACKAGE}/${PCP_VERSION}/publish"
 echo

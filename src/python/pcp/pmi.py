@@ -1,6 +1,6 @@
 """Wrapper module for libpcp_import - Performace Co-Pilot Log Import API
 #
-# Copyright (C) 2012-2019 Red Hat.
+# Copyright (C) 2012-2020 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -99,7 +99,7 @@ LIBPCP_IMPORT.pmiSetTimezone.argtypes = [c_char_p]
 
 LIBPCP_IMPORT.pmiAddMetric.restype = c_int
 LIBPCP_IMPORT.pmiAddMetric.argtypes = [
-        c_char_p, pmID, c_int, pmInDom, c_int, pmUnits]
+        c_char_p, pmID, c_int, pmInDom, c_int, c_uint]
 
 LIBPCP_IMPORT.pmiAddInstance.restype = c_int
 LIBPCP_IMPORT.pmiAddInstance.argtypes = [pmInDom, c_char_p, c_int]

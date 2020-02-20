@@ -35,8 +35,10 @@ require {
         type sysctl_fs_t; #RHBZ1505888
         type sysfs_t; #RHBZ1545245
         type modules_object_t; # pcp.lio, pcp.bcc
+        type setfiles_exec_t;
         type mdadm_exec_t;
         type named_exec_t;
+        type ndc_exec_t;
         type proc_mdstat_t;
         @PCP_NUMAD_CONTEXT@
         type glusterd_log_t;
@@ -47,6 +49,7 @@ require {
         type ldconfig_exec_t;
         type sysctl_net_t;
         type proc_net_t; #RHBZ1517656
+        type fixed_disk_device_t;
         type fsadm_exec_t;
 	type kernel_t;
 	type kmsg_device_t;
@@ -70,6 +73,7 @@ require {
 	class capability net_raw; # pmda.netcheck
 	class sock_file { getattr write }; #RHBZ1633211, RHBZ1449671
 	class tcp_socket { name_bind name_connect };
+	class udp_socket { name_bind name_connect };
 	class shm { unix_read associate getattr read };
 	class filesystem mount;
 	class blk_file { ioctl open read };
@@ -133,7 +137,10 @@ allow pcp_pmcd_t self:capability { sys_chroot kill sys_resource ipc_lock chown }
 
 #type=AVC msg=audit(YYY.13): avc:  denied  { name_bind } for  pid=7079 comm="pmdasimple" src=5650 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
 #type=AVC msg=audit(YYY.14): avc:  denied  { name_connect } for  pid=29238 comm="pmcd" dest=5650 scontex =system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
-@PCP_UNRESERVED_PORT_RULE@
+@PCP_UNRESERVED_PORT_RULE_TCP@
+
+#type=AVC msg=audit(YYY.93): avc: denied { name_bind } for pid=2279401 comm="pmdastatsd" src=8126 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=udp_socket permissive=0
+@PCP_UNRESERVED_PORT_RULE_UDP@
 
 #type=AVC msg=audit(YYY.15): avc:  denied  { name_connect } for  pid=13816 comm="python3" dest=9090 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:websm_port_t:s0 tclass=tcp_socket permissive=0
 allow pcp_pmcd_t websm_port_t:tcp_socket name_connect; # pmda.openmetrics
@@ -188,6 +195,7 @@ allow pcp_pmcd_t mdadm_exec_t:file { execute execute_no_trans open read };
 
 #type=AVC msg=audit(XXX.71): avc:  denied  { execute } for  pid=YYYY comm="pmdaX" name="unbound-control" dev="vda1" ino=7050199 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:named_exec_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t named_exec_t:file execute;
+allow pcp_pmcd_t ndc_exec_t:file execute;
 
 #type=AVC msg=audit(XXX.27): avc:  denied  { getattr open read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:proc_mdstat_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t proc_mdstat_t:file { getattr open read };
@@ -231,12 +239,9 @@ allow pcp_pmcd_t su_exec_t:file { execute };
 #type=AVC msg=audit(XXX.44): avc:  denied  { open write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:kmsg_device_t:s0 tclass=chr_file permissive=0
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 
-#type=AVC msg=audit(XXX.45): avc:  denied  { kill } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:pcp_pmlogger_t:s0 tclass=capability permissive=0
-allow pcp_pmlogger_t self:capability kill;
-
 # type=AVC msg=audit(YYY.43): avc:  denied  { sys_ptrace } for  pid=21962 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:pcp_pmlogger_t:s0 tclass=capability
-# src/pmlogger/pmnewlog.sh
-allow pcp_pmlogger_t self:capability { sys_ptrace fowner fsetid };
+#type=AVC msg=audit(XXX.45): avc:  denied  { kill } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:pcp_pmlogger_t:s0 tclass=capability permissive=0
+allow pcp_pmlogger_t self:capability { sys_ptrace fowner fsetid kill };
 
 ## type=AVC msg=audit(YYY.44) : avc:  denied  { signal } for  pid=28414 comm=pmsignal scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process
 allow pcp_pmlogger_t unconfined_t:process signal;
@@ -246,6 +251,9 @@ allow pcp_pmlogger_t unconfined_t:process signal;
 
 #type=AVC msg=audit(XXX.68): avc: denied { setattr unlink } for pid=29153 comm="mv" name="pmlogger_check.log" dev="dm-0" ino=926794 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=file permissive=0
 allow pcp_pmlogger_t user_tmp_t:file { setattr unlink };
+
+#type=AVC msg=audit(XXX.72): avc:  denied  { execute } for  pid=9634 comm="pmlogger_daily" name="setfiles" dev="dm-0" ino=34500334 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:setfiles_exec_t:s0 tclass=file permissive=0
+allow pcp_pmlogger_t setfiles_exec_t:file execute;
 
 #============= pcp_pmie_t ==============
 #type=AVC msg=audit(XXX.49): avc:  denied  { execute execute_no_trans getattr open read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
@@ -320,8 +328,10 @@ allow pcp_pmmgr_t self:capability dac_override;
 #type=AVC msg=audit(YYY.79): avc:  denied  { getattr } for  pid=4770 comm="sh" path="/usr/sbin/smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
 #type=AVC msg=audit(YYY.80): avc:  denied  { map } for  pid=8678 comm="smartctl" path="/usr/sbin/smartctl" dev="dm-1" ino=2249815 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
 #type=AVC msg=audit(YYY.81): avc:  denied  { sys_rawio } for  pid=8678 comm="smartctl" capability=17  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
+#type=AVC msg=audit(YYY.92): avc:  denied  { read } for pid=26828 comm="smartctl" name="sda" dev="devtmpfs" ino=9158 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fixed_disk_device_t:s0 tclass=blk_file permissive=0
 
 allow pcp_pmcd_t fsadm_exec_t:file { execute execute_no_trans getattr open read @PCP_FSADM_EXEC_MAP@ };
+allow pcp_pmcd_t fixed_disk_device_t:blk_file { open read ioctl };
 
 #============= pmda-nvidia ==============
 #type=AVC msg=audit(YYY.83): avc: denied { map } for pid=7034 comm="pmdanvidia" path="/usr/lib64/libnvidia-ml.so" dev="dm-2" ino=16267329 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0

@@ -18,6 +18,8 @@
 #include "parse_events.h"
 #include "perfinterface.h"
 
+char dev_dir[PATH_MAX];   /* Optional path prefix for the PMU devices */
+
 static void cleanup_property(struct property *prop)
 {
     if (!prop)

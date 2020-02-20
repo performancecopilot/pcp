@@ -34,6 +34,10 @@ LLDLIBS    = $(PCP_PMDALIB)
 DFILES	   = help
 LDIRT      = $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
 
+MAN_SECTION	= 1
+MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
+MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
+
 default:	build-me
 
 include $(BUILDRULES)
@@ -51,6 +55,7 @@ install: default
 	$(INSTALL) -m 644 domain.h help help.dir help.pag root root_kvm kvm.conf $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 root_kvm $(PCP_VAR_DIR)/pmns/root_kvm
+	@$(INSTALL_MAN)
 else
 build-me:
 install:
@@ -71,3 +76,6 @@ $(VERSION_SCRIPT):
 
 $(OBJECTS): domain.h
 kvmstat.o: kvmstat.h $(VERSION_SCRIPT)
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

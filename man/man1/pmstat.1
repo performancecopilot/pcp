@@ -36,6 +36,16 @@
 [\f3\-T\f1 \f2endtime\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 .SH DESCRIPTION
+.de SAMPLE
+.RS 2n
+.nf
+.nh
+..
+.de ESAMPLE
+.hy
+.fi
+.RE
+..
 .B pmstat
 provides a one line summary of system performance every
 .I interval
@@ -317,7 +327,6 @@ The output from
 .B pmstat
 is directed to standard output, and the columns
 in the report are interpreted as follows:
-.PP
 .TP 10
 .B loadavg
 The

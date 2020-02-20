@@ -49,7 +49,7 @@ sub pdns_fetch
                 if ("$kv" eq '') {
                     last;
                 }
-    
+
                 my ($k, $v) = split(/=/, $kv);
                 $vals{$k} = $v;
             }

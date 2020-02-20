@@ -5,8 +5,6 @@ jobs:
       - checkout: self
         fetchDepth: 1
 
-      - script: ./build/ci/pipelines/templates/gen_matrix.py
-        env:
-          HOSTS: $(hosts)
+      - script: ./build/ci/pipelines/templates/gen_matrix.py "$(hosts)"
         name: matrix_step
         displayName: Prepare Job Matrix

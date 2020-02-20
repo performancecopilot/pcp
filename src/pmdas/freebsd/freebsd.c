@@ -119,25 +119,25 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CL_SYSCTL,17), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0,0,0,0,0,0) } },
     { (void *)"swap.pagesin",
-      { PMDA_PMID(CL_SYSCTL,18), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      { PMDA_PMID(CL_SYSCTL,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
     { (void *)"swap.pagesout",
-      { PMDA_PMID(CL_SYSCTL,19), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      { PMDA_PMID(CL_SYSCTL,19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
     { (void *)"swap.in",
-      { PMDA_PMID(CL_SYSCTL,20), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      { PMDA_PMID(CL_SYSCTL,20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-    { (void *)"swap.in",
-      { PMDA_PMID(CL_SYSCTL,21), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    { (void *)"swap.out",
+      { PMDA_PMID(CL_SYSCTL,21), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
     { (void *)"kernel.all.pswitch",
-      { PMDA_PMID(CL_SYSCTL,22), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      { PMDA_PMID(CL_SYSCTL,22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
     { (void *)"kernel.all.syscall",
-      { PMDA_PMID(CL_SYSCTL,23), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      { PMDA_PMID(CL_SYSCTL,23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
     { (void *)"kernel.all.intr",
-      { PMDA_PMID(CL_SYSCTL,24), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      { PMDA_PMID(CL_SYSCTL,24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
     { (void *)"swap.length",
       { PMDA_PMID(CL_SYSCTL,25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
@@ -460,13 +460,6 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch (item) {
 	    /* 32-bit integer values */
 	    case 0:		/* hinv.ncpu */
-	    case 18:		/* swap.pagesin */
-	    case 19:		/* swap.pagesout */
-	    case 20:		/* swap.in */
-	    case 21:		/* swap.out */
-	    case 22:		/* kernel.all.pswitch */
-	    case 23:		/* kernel.all.syscall */
-	    case 24:		/* kernel.all.intr */
 		sts = do_sysctl(mp, sizeof(atom->ul));
 		if (sts > 0) {
 		    atom->ul = *((__uint32_t *)mp->m_data);
@@ -481,6 +474,33 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		if (sts > 0) {
 		    atom->ull = *((__uint64_t *)mp->m_data);
 		    sts = 1;
+		}
+		break;
+
+	    /* may be 32-bit or 64-bit values, promoted to 64-bit at PMAPI */
+	    case 18:		/* swap.pagesin */
+	    case 19:		/* swap.pagesout */
+	    case 20:		/* swap.in */
+	    case 21:		/* swap.out */
+	    case 22:		/* kernel.all.pswitch */
+	    case 23:		/* kernel.all.syscall */
+	    case 24:		/* kernel.all.intr */
+		sts = do_sysctl(mp, 0);
+		if (sts > 0) {
+		    switch (sts) {
+			case 4:
+			    atom->ull = *((__uint32_t *)mp->m_data);
+			    sts = 1;
+			    break;
+			case 8:
+			    atom->ull = *((__uint64_t *)mp->m_data);
+			    sts = 1;
+			    break;
+			default:
+			    fprintf(stderr, "Error: %s: sysctl(%s) -> %d (not 4 or 8)\n",
+				mp->m_pcpname, mp->m_name, sts);
+			    sts = PM_ERR_TYPE;
+		    }
 		}
 		break;
 

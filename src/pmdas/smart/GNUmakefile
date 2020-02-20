@@ -67,3 +67,6 @@ domain.h: ../../pmns/stdpmid
 
 pmda.o:			pmdasmart.h
 pmda.o smart_stats.o:	smart_stats.h
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

@@ -193,7 +193,6 @@ matching.
 Numeric label values can be subject to the less than ("<"),
 greater than (">"), less than or equal ("<="), greater than
 or equal (">="), equal ("==") and not equal ("!=") operators.
-.PP
 .SS Logical operators
 Multiple metadata qualifiers can be combined with the logical
 operators for AND ("&&") and OR ("||") as in many programming
@@ -235,7 +234,7 @@ The
 .I value
 provided should be either a numeric or string value that will
 be parsed by
-.BR pmParseTimeInterval (3),
+.BR pmParseInterval (3),
 such as \fB5\fR (seconds) or \fB2min\fR (minutes).
 .SS Time window
 Start and end times, and alignments, affecting the returned
@@ -389,6 +388,15 @@ This query must specify a source archive path, but can also restrict
 the import to specific timeseries (using metric names, labels, etc)
 and to a specific time window using the time specification component
 of the query language.
+.PP
+As a convenience, if the argument to load is a valid file path as
+determined by
+.BR access (2),
+then a short-hand form can be used:
+.PP
+.SAMPLE
+$ pmseries --load $PCP_LOG_DIR/pmlogger/acme.0
+.ESAMPLE
 .SH OPTIONS
 The available command line options, in addition to timeseries
 metadata and sources options described above, are:
@@ -484,7 +492,6 @@ eb713a9cf472f775aa59ae90c43cd7f960f7870f
     inst [5 or "5 minute"] labels {"agent":"linux","hostname":"toium"}
     inst [15 or "15 minute"] labels {"agent":"linux","hostname":"toium"}
 .ESAMPLE
-.PP
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
@@ -500,6 +507,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pminfo (1),
 .BR pmproxy (1),
 .BR redis-server (1),
+.BR access (2),
 .BR PMAPI (3),
 .BR PMWEBAPI (3),
 .BR pmLookupDesc (3),
@@ -508,7 +516,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pmLookupName (3),
 .BR pmNewContextZone (3),
 .BR pmNewZone (3),
-.BR pmParseTimeInterval (3),
+.BR pmParseInterval (3),
 .BR pmParseTimeWindow (3),
 .BR pcp.conf (5),
 .BR environ (7),

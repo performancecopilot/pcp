@@ -12,21 +12,23 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-
+# pylint: disable=bad-whitespace,line-too-long
+# pylint: disable=redefined-outer-name,unnecessary-lambda
+#
 from pcp import pmapi
 from pcp import pmcc
 import sys
 import time
 MPSTAT_METRICS = ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.uname.sysname',
-                'kernel.uname.machine', 'hinv.map.cpu_num', 'hinv.ncpu', 'hinv.cpu.online',
-                'kernel.all.cpu.user',
-                'kernel.all.cpu.nice', 'kernel.all.cpu.sys', 'kernel.all.cpu.wait.total',
-                'kernel.all.cpu.irq.hard', 'kernel.all.cpu.irq.soft', 'kernel.all.cpu.steal',
-                'kernel.all.cpu.guest', 'kernel.all.cpu.guest_nice', 'kernel.all.cpu.idle',
-                'kernel.percpu.cpu.user', 'kernel.percpu.cpu.nice', 'kernel.percpu.cpu.sys',
-                'kernel.percpu.cpu.wait.total', 'kernel.percpu.cpu.irq.hard', 'kernel.percpu.cpu.irq.soft',
-                'kernel.percpu.cpu.steal', 'kernel.percpu.cpu.guest','kernel.percpu.cpu.guest_nice',
-                'kernel.percpu.cpu.idle', 'kernel.all.intr', 'kernel.percpu.intr']
+                  'kernel.uname.machine', 'hinv.map.cpu_num', 'hinv.ncpu', 'hinv.cpu.online',
+                  'kernel.all.cpu.user',
+                  'kernel.all.cpu.nice', 'kernel.all.cpu.sys', 'kernel.all.cpu.wait.total',
+                  'kernel.all.cpu.irq.hard', 'kernel.all.cpu.irq.soft', 'kernel.all.cpu.steal',
+                  'kernel.all.cpu.guest', 'kernel.all.cpu.guest_nice', 'kernel.all.cpu.idle',
+                  'kernel.percpu.cpu.user', 'kernel.percpu.cpu.nice', 'kernel.percpu.cpu.sys',
+                  'kernel.percpu.cpu.wait.total', 'kernel.percpu.cpu.irq.hard', 'kernel.percpu.cpu.irq.soft',
+                  'kernel.percpu.cpu.steal', 'kernel.percpu.cpu.guest','kernel.percpu.cpu.guest_nice',
+                  'kernel.percpu.cpu.idle', 'kernel.all.intr', 'kernel.percpu.intr']
 interrupts_list = []
 soft_interrupts_list = []
 
@@ -394,15 +396,9 @@ class CpuFilter:
         if self.mpstat_options.cpu_list == 'ALL':
             return True
         elif self.mpstat_options.cpu_list == 'ON':
-            if cpu.cpu_online() == 1:
-                return True
-            else:
-                return False
+            return cpu.cpu_online() == 1
         elif self.mpstat_options.cpu_list is not None:
-            if cpu.cpu_number() in self.mpstat_options.cpu_list:
-                return True
-            else:
-                return False
+            return cpu.cpu_number() in self.mpstat_options.cpu_list
         else:
             return True
 
@@ -419,19 +415,25 @@ class CpuUtilReporter:
             self.header_print = False
         if self.mpstat_options.cpu_list == "ALL" or self.mpstat_options.cpu_list == "ON":
             self.header_print = True
-        if type(self.mpstat_options.cpu_list) != type([]):
+        if not isinstance(self.mpstat_options.cpu_list, list):
             cpu_util = cpu_utils.get_totalcpu_util()
-            self.printer("%-10s\t%-3s\t%-5s\t%-6s\t%-5s\t%-8s\t%-5s\t%-6s\t%-7s\t%-7s\t%-6s\t%-6s"%(timestamp,"all",
-            cpu_util.user_time(), cpu_util.nice_time(), cpu_util.sys_time(), cpu_util.iowait_time(),
-            cpu_util.irq_hard(), cpu_util.irq_soft(), cpu_util.steal(), cpu_util.guest_time(),
-            cpu_util.guest_nice(), cpu_util.idle_time()))
-        if self.mpstat_options.cpu_filter == True:
+            self.printer("%-10s\t%-3s\t%-5s\t%-6s\t%-5s\t%-8s\t%-5s\t%-6s\t%-7s\t%-7s\t%-6s\t%-6s" %
+                         (timestamp, "all", cpu_util.user_time(),
+                          cpu_util.nice_time(), cpu_util.sys_time(),
+                          cpu_util.iowait_time(), cpu_util.irq_hard(),
+                          cpu_util.irq_soft(), cpu_util.steal(),
+                          cpu_util.guest_time(), cpu_util.guest_nice(),
+                          cpu_util.idle_time()))
+        if self.mpstat_options.cpu_filter:
             cpu_util_list = self.cpu_filter.filter_cpus(cpu_utils.get_percpu_util())
             for cpu_util in cpu_util_list:
-                self.printer("%-10s\t%-3s\t%-5s\t%-6s\t%-5s\t%-8s\t%-5s\t%-6s\t%-7s\t%-7s\t%-6s\t%-6s"%(timestamp,
-                 cpu_util.cpu_number(), cpu_util.user_time(), cpu_util.nice_time(), cpu_util.sys_time(),
-                 cpu_util.iowait_time(), cpu_util.irq_hard(), cpu_util.irq_soft(), cpu_util.steal(),
-                 cpu_util.guest_time(), cpu_util.guest_nice(), cpu_util.idle_time()))
+                self.printer("%-10s\t%-3s\t%-5s\t%-6s\t%-5s\t%-8s\t%-5s\t%-6s\t%-7s\t%-7s\t%-6s\t%-6s" %
+                             (timestamp, cpu_util.cpu_number(),
+                              cpu_util.user_time(), cpu_util.nice_time(),
+                              cpu_util.sys_time(), cpu_util.iowait_time(),
+                              cpu_util.irq_hard(), cpu_util.irq_soft(),
+                              cpu_util.steal(), cpu_util.guest_time(),
+                              cpu_util.guest_nice(), cpu_util.idle_time()))
 
 class TotalInterruptUsageReporter:
     def __init__(self, cpu_filter, printer, mpstat_options):
@@ -447,10 +449,10 @@ class TotalInterruptUsageReporter:
             self.print_header = False
         if self.mpstat_options.cpu_list == "ALL" or self.mpstat_options.cpu_list == "ON" or self.mpstat_options.interrupt_type == "ALL":
             self.print_header = True
-        if type(self.mpstat_options.cpu_list) != type([]):
+        if not isinstance(self.mpstat_options.cpu_list, list):
             self.printer("%-10s\t%-5s\t%-5s"%(timestamp,'all',self.total_interrupt_usage.total_interrupt_per_delta_time()))
 
-        if self.mpstat_options.cpu_filter == True:
+        if self.mpstat_options.cpu_filter:
             percpu_total_interrupt_list = self.cpu_filter.filter_cpus(self.total_interrupt_usage.total_interrupt_percpu_per_delta_time())
             for total_cpu_interrupt in percpu_total_interrupt_list:
                 self.printer("%-10s\t%-5s\t%-5s"%(timestamp, total_cpu_interrupt.cpu_number(), total_cpu_interrupt.value()))
@@ -513,20 +515,20 @@ class MpstatOptions(pmapi.pmOptions):
             MpstatOptions.interrupts_filter = True
             MpstatOptions.interrupt_type = optarg
         elif opt == 'P':
-            if optarg == 'ALL' or optarg == 'ON':
+            if optarg in ['ALL', 'ON']:
                 MpstatOptions.cpu_filter = True
                 MpstatOptions.cpu_list = optarg
             else:
                 MpstatOptions.cpu_filter = True
                 try:
                     MpstatOptions.cpu_list = list(map(lambda x:int(x),optarg.split(',')))
-                except ValueError as e:
-                    print ("Invalid CPU List: use comma separated cpu nos without whitespaces")
+                except ValueError:
+                    print("Invalid CPU List: use comma separated cpu nos without whitespaces")
                     sys.exit(1)
 
     def override(self, opt):
         """ Override standard PCP options to match mpstat(1) """
-        if (opt == 'A'):
+        if opt == 'A':
             return 1
         return 0
 
@@ -573,23 +575,22 @@ class MpstatReport(pmcc.MetricGroupPrinter):
     def timeStampDelta(self, group):
         s = group.timestamp.tv_sec - group.prevTimestamp.tv_sec
         u = group.timestamp.tv_usec - group.prevTimestamp.tv_usec
-        return (s + u / 1000000.0)
+        return s + u / 1000000.0
 
     def print_machine_info(self,group, context):
         timestamp = context.pmLocaltime(group.timestamp.tv_sec)
-        '''
-        Please check strftime(3) for different formatting options.
-        Also check TZ and LC_TIME environment variables for more information
-        on how to override the default formatting of the date display in the header
-        '''
+        # Please check strftime(3) for different formatting options.
+        # Also check TZ and LC_TIME environment variables for more information
+        # on how to override the default formatting of the date display in the header
         time_string = time.strftime("%x", timestamp.struct_time())
+
         header_string = ''
         header_string += group['kernel.uname.sysname'].netValues[0][2] + '  '
         header_string += group['kernel.uname.release'].netValues[0][2] + '  '
         header_string += '(' + group['kernel.uname.nodename'].netValues[0][2] + ')  '
         header_string += time_string + '  '
         header_string += group['kernel.uname.machine'].netValues[0][2] + '  '
-        no_cpu =self.get_ncpu(group)
+        no_cpu = self.get_ncpu(group)
         print("%s  (%s CPU)" % (header_string,no_cpu))
 
     def get_ncpu(self,group):
@@ -597,7 +598,7 @@ class MpstatReport(pmcc.MetricGroupPrinter):
 
     def report(self,manager):
         group = manager['mpstat']
-        if group['kernel.all.cpu.user'].netPrevValues == None:
+        if group['kernel.all.cpu.user'].netPrevValues is None:
             # need two fetches to report rate converted counter metrics
             return
 
@@ -644,7 +645,7 @@ if __name__ == '__main__':
         MPSTAT_METRICS += interrupts_list
         MPSTAT_METRICS += soft_interrupts_list
         missing = manager.checkMissingMetrics(MPSTAT_METRICS)
-        if missing != None:
+        if missing is not None:
             sys.stderr.write('Error: not all required metrics are available\nMissing: %s\n' % (missing))
             sys.exit(1)
         manager['mpstat'] = MPSTAT_METRICS

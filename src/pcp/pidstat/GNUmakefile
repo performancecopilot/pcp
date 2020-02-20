@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2020 Red Hat.
 # Copyright (c) 2016 Sitaram Shelke.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -35,9 +36,14 @@ install: default
 	$(INSTALL) -m 755 $(SCRIPT) $(PCP_BINADM_DIR)/$(TARGET)
 	@$(INSTALL_MAN)
 
-check:: $(SCRIPT)
-	#$(PYLINT) $^
+check:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+
+check:: $(SCRIPT)
+	$(PYLINT) $^
+
+check :: $(MAN_PAGES)
+	$(MANLINT) $^
 else
 build-me:
 install:

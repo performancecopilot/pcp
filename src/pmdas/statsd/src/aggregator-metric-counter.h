@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +24,7 @@
  * Creates counter value in given dest
  * @arg
  */
-int
+extern int
 create_counter_value(struct agent_config* config, struct statsd_datagram* datagram, void** out);
 
 /**
@@ -33,7 +34,7 @@ create_counter_value(struct agent_config* config, struct statsd_datagram* datagr
  * @arg datagram - Data to update item
  * @return 1 on success, 0 on fail
  */
-int
+extern int
 update_counter_value(struct agent_config* config, struct statsd_datagram* datagram, void* value);
 
 /**
@@ -42,7 +43,7 @@ update_counter_value(struct agent_config* config, struct statsd_datagram* datagr
  * @arg f - Opened file handle
  * @arg value
  */
-void
+extern void
 print_counter_metric_value(struct agent_config* config, FILE* f, void* value);
 
 /**
@@ -51,7 +52,7 @@ print_counter_metric_value(struct agent_config* config, FILE* f, void* value);
  * @arg f - Opened file handle
  * @arg item - Metric to print out
  */
-void
+extern void
 print_counter_metric(struct agent_config* config, FILE* f, struct metric* item);
 
 /**
@@ -59,7 +60,7 @@ print_counter_metric(struct agent_config* config, FILE* f, struct metric* item);
  * @arg config
  * @arg value - Metric value to be freed
  */
-void
+extern void
 free_counter_value(struct agent_config* config, void* value);
 
 #endif

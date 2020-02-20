@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -22,7 +23,7 @@
 #include "parsers.h"
 #include "network-listener.h"
 
-struct aggregator_args
+typedef struct aggregator_args
 {
     struct agent_config* config;
     chan_t* parser_to_aggregator;
@@ -34,20 +35,20 @@ struct aggregator_args
  * Thread startpoint - passes down given datagram to aggregator to record value it contains (should be used for a single new thread)
  * @arg args - aggregator_args
  */
-void*
+extern void*
 aggregator_exec(void* args);
 
 /**
  * Outputs debug info
  */
-void
+extern void
 aggregator_debug_output();
 
 /**
  * Frees pointer to aggregator message
  * @arg message - Message to be freed
  */
-void
+extern void
 free_parser_to_aggregator_message(struct parser_to_aggregator_message* message);
 
 /**
@@ -59,7 +60,7 @@ free_parser_to_aggregator_message(struct parser_to_aggregator_message* message);
  * @arg stats_sink - Channel for sending stats about PMDA itself
  * @return aggregator_args
  */
-struct aggregator_args*
+extern struct aggregator_args*
 create_aggregator_args(
     struct agent_config* config,
     chan_t* parser_to_aggregator,

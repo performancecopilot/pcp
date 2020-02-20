@@ -83,7 +83,7 @@ redis-cli $options ping
 echo
 
 # import some well-known test data into Redis
-pmseries $options --load "{source.path: \"$here/archives/proc\"}" | _filter_source
+pmseries $options --load "$here/archives/proc" | _filter_source
 
 # start pmproxy 
 proxyport=`_find_free_port`

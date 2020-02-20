@@ -41,7 +41,9 @@ build-me: check_domain
 install install_pcp: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 pmda$(IAM).pl $(MODULES) $(PMDADIR)
+	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
+	$(INSTALL) -m 755 -d $(PMDADIR)/PCP
+	$(INSTALL) -m 644 $(MODULES) $(PMDADIR)/PCP
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -56,3 +58,6 @@ ifeq "$(PMDA_ACTIVEMQ)" "true"
 test:
 	for test in $(TESTS); do perl $$test || exit 1; done
 endif
+
+check :: $(MAN_PAGES)
+	$(MANLINT) $^

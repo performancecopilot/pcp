@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2018-2019 Red Hat.
+.\" Copyright (c) 2018-2020 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -20,6 +20,9 @@
 \f3pcp\f1 [\f2pcp\ options\f1] \f3dstat\f1 [\f3\-acdfghilmnpqrstvVy?\f1]
 [\f3\-C\f1 \f2cpus\f1]
 [\f3\-D\f1 \f2disks\f1]
+[\f3\-L\f1 \f2DM devices\f1]
+[\f3\-M\f1 \f2MD devices\f1]
+[\f3\-P\f1 \f2partitions\f1]
 [\f3\-I\f1 \f2interrupts\f1]
 [\f3\-N\f1 \f2interfaces\f1]
 [\f3\-o\f1 \f2output-file\f1]
@@ -138,7 +141,7 @@ enable any plugin by name
 equals \fB\-cdngy\fR (default plugin set)
 .TP
 \fB\-c\fR, \fB\-\-cpu\fR
-enable CPU stats (system, user, idle, wait),
+enable CPU stats (system, user, idle, wait);
 for more CPU related stats also see
 \fB\-\-cpu\-adv\fR
 and
@@ -150,13 +153,40 @@ include CPU0, CPU3 and total (when using \fB\-c\fR/\fB\-\-cpu\fR); use
 to show all CPUs
 .TP
 \fB\-d\fR, \fB\-\-disk\fR
-enable disk stats (read, write),
+enable disk stats (read, write);
 for more disk related stats look into the other
 \fB\-\-disk\fR
 plugins
 .TP
 \fB\-D\fR \fItotal,hda\fR
-include \fItotal\fR and \fIhda\fR (when using \fB\-d\fR/\fB\-\-disk\fR)
+include \fItotal\fR and \fIhda\fR (when using \fB\-d\fR/\fB\-\-disk\fR or \fB\-\-disk-tps\fR plugin)
+.TP
+\fB\-\-dm\fR, \fB\-\-device-mapper\fR
+enable device mapper stats (read, write);
+for more device-mapper related stats look into the other
+\fB\-\-dm\fR
+plugins
+.TP
+\fB\-\-L\fR \fItotal,root,home\fR
+include \fItotal\fR, \fIroot\fR and \fIhome\fR (when using \fB\-\-dm\fR/\fB\-\-device-mapper\fR or \fB\-\-dm-tps\fR plugin)
+.TP
+\fB\-\-md\fR, \fB\-\-multi-device\fR
+enable multi-device driver stats (read, write);
+for more multi-device driver related stats look into the other
+\fB\-\-md\fR
+plugins
+.TP
+\fB\-\-M\fR \fItotal,md-0\fR
+include \fItotal\fR and \fImd-0\fR (when using \fB\-\-md\fR/\fB\-\-multi-device\fR or \fB\-\-md-tps\fR plugin)
+.TP
+\fB\-\-part\fR, \fB\-\-partition\fR
+enable disk partition stats (read, write);
+for more partition related stats look into the other
+\fB\-\-part\fR
+plugins
+.TP
+\fB\-\-P\fR \fItotal,sda2\fR
+include \fItotal\fR and \fIsda2\fR (when using \fB\-\-part\fR/\fB\-\-partition\fR or \fB\-\-part-tps\fR plugin)
 .TP
 \fB\-g\fR, \fB\-\-page\fR
 enable page stats (page in, page out)
@@ -385,7 +415,6 @@ write CSV (Comma-Separated Value) format output to a \fIfile\fR.
 .TP
 \fB\-p\fR \fIfile\fR, \fB\-\-pidfile\fR=\fIfile\fR
 write the process identifier to a given \fIfile\fR.
-.a PP
 .SH OPTIONAL METRICS PLUGINS
 Some
 .B pcp-dstat

@@ -1,6 +1,6 @@
 .TH PMVIEW 5 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmview\f1 \- configuration file format for performance 
+\f3pmview\f1 \- configuration file format for performance
 .SH DESCRIPTION
 This man page describes version 2.1 of the
 .B pmview
@@ -9,14 +9,14 @@ configuration file format.
 The configuration format supports metrics from multiple hosts or archives.  A
 configuration file can specify metrics without a source, with different hosts
 and different archives.  However, a configuration file that contains archives
-may only have one archive for any one host.  When in ``replay'' mode, any 
+may only have one archive for any one host.  When in ``replay'' mode, any
 metrics with host specific sources require an archive to be specified for that
 host on the command line or as a source to a previous metric.  The archive must
 be the same archive (based on a string comparison of the archive names) of any
 archives specified in the configuration file for the same host.
 .PP
 The time controls will list all hosts that are specified on the command line
-and the configuration file in the timezone listing (see 
+and the configuration file in the timezone listing (see
 .BR pmtime (1)).
 .PP
 The configuration file format is based on a two-dimensional grid which
@@ -55,7 +55,7 @@ The syntax for specifying values in the configuration file is consistent for
 all commands, namely:
 .TP 4n
 .I color
-A color must be either a 
+A color must be either a
 .BR X (1)
 color name, a
 .BR X (1)
@@ -79,7 +79,7 @@ An integer.
 .TP 4n
 .I metric
 A metric consists of an optional source (host or archive), the metric name,
-an optional instance list immediately after name, followed by the maximum (or 
+an optional instance list immediately after name, followed by the maximum (or
 normalization value).  A colon (``:'') is used to separate a host name from the
 metric, and a forward slash (``/'') to separate an archive name from the
 metric.  Instances are enclosed in square brackets and comma separated.  Each
@@ -107,8 +107,8 @@ leading zeros will be skipped before comparing the first word again.  This
 permits process ids used in the
 .I proc
 metrics to be easily matched, without specifying the entire instance name.  For
-example, to visualize the user and system time of 
-.I init 
+example, to visualize the user and system time of
+.I init
 use the metric specification
 
 .in 1.5i
@@ -164,7 +164,7 @@ Abbreviations like \f2se\f1 and \f2SE\f1 are also accepted.  The default
 alignment is \f2center\f1.
 .IP
 The size of an object may not be known as the number of instances for some
-metrics will vary between hosts and 
+metrics will vary between hosts and
 PMDA
 configurations.  Therefore, the position of the object can be used to specify
 the likely size of the object, so that the position of the surrounding objects
@@ -215,7 +215,7 @@ and
 blocks.  Default is 80.
 .TP 4n
 \f3_baseColor\f1 \f2color\f1
-The color of 
+The color of
 .BR _bar ,
 .B _grid
 and
@@ -231,12 +231,12 @@ and
 base planes.  Default is 2.
 .TP 4n
 \f3_gapWidth\f1 \f2int\f1
-The gap between blocks in a 
+The gap between blocks in a
 .B _bar
 object in the X-axis.  The default is 8.
 .TP 4n
 \f3_gapDepth\f1 \f2int\f1
-The gap between blocks in a 
+The gap between blocks in a
 .B _bar
 object in the Z-axis.  The default is 8.
 .TP 4n
@@ -261,7 +261,7 @@ The margin around a
 object.  The default is 5.
 .TP 4n
 \f3_labelColor\f1 \f2color\f1
-The color of 
+The color of
 .B _label
 and
 .B _bar
@@ -295,10 +295,10 @@ any objects, only at the top of the configuration file.  The default is 1.0.
 .PP
 To simplify the specification of colors, a
 .B _colorList
-and a 
+and a
 .B _colorScale
 may be used to define colors for an object which has metrics
-associated with it, i.e. 
+associated with it, i.e.
 .BR _bar ,
 .B _stack
 or
@@ -313,7 +313,7 @@ Associate the
 with the color list
 .IR name .
 The assignment of colors to blocks depends on the type of an
-object.  For example, the color list called 
+object.  For example, the color list called
 .I foo
 has the same color three times:
 
@@ -341,7 +341,7 @@ each
 .IR real .
 Therefore, each
 .I real
-must be larger than the previous 
+must be larger than the previous
 .IR real ,
 and should be in the range 0.0 to 1.0.  This scale gradually changes from blue
 to red:
@@ -349,9 +349,9 @@ to red:
 .RS 4
 .ft CW
 .nf
-_colorScale coldToHot blue ( rgbi:0.5/0.0/1.0 0.3 
-                             purple 0.6 
-                             rgbi:1.0/0.0/0.5 0.8 
+_colorScale coldToHot blue ( rgbi:0.5/0.0/1.0 0.3
+                             purple 0.6
+                             rgbi:1.0/0.0/0.5 0.8
                              red 0.95)
 .fi
 .ft R
@@ -359,12 +359,12 @@ _colorScale coldToHot blue ( rgbi:0.5/0.0/1.0 0.3
 .PP
 There are several different object types which could be found in a
 .B pmview
-scene: 
+scene:
 .BR _bar ,
 .BR _stack ,
 .BR _pipe ,
 .BR _grid ,
-.BR _link , 
+.BR _link ,
 and
 .BR _label .
 There is also
@@ -378,7 +378,7 @@ and
 .B _pipe
 objects are modulated by metric values, a
 .B _label
-is fixed text, 
+is fixed text,
 .B _link
 and
 .B _xing
@@ -386,7 +386,8 @@ are interconnects and a
 .B _grid
 is a container of objects, including other
 .B _grid
-objects, which controls the layout of the scene.  A 
+objects, which controls the layout of the scene.
+A
 .B _grid
 object is only required if there are two or more objects in the scene.
 .PP
@@ -395,7 +396,7 @@ object is only required if there are two or more objects in the scene.
 and
 .B _stack
 objects may have base planes which provide a point of reference for the blocks
-as they change height.  A label can be applied to the base plane 
+as they change height.  A label can be applied to the base plane
 .B _grid
 object if it is
 .B _shown
@@ -433,14 +434,14 @@ color in the
 .I color-list
 is assigned to each metric.  Therefore, multiple instances of the one metric
 will have the same color.  The
-.I options 
+.I options
 that may be passed to a
 .B _bar
 object are:
 .RS 4n
 .TP 4n
 .I pos
-The position of the 
+The position of the
 .B _bar
 object within the current
 .B _grid
@@ -480,7 +481,7 @@ some views may generate many small charts which cannot be drawn entirely within
 the screen.  Another problem is it may be more appropriate to generate charts
 with the same instance in each chart, rather then the same metric.  The group
 specifiers control the algorithm used so that a separate chart will be drawn
-for each 
+for each
 .B _metrics
 specification
 .RB ( _groupbymetric ),
@@ -508,12 +509,12 @@ _bar _hide _cylinder ( ... )
 .in
 
 The metrics, colors and labels are specified within the brackets in any order.
-Only the 
+Only the
 .I metric-list
 is mandatory.
 .TP 4n
 .I metric-list
-A 
+A
 .B _bar
 metric list contains a list of metric names, normalization values and an
 optional label for the metric:
@@ -528,16 +529,18 @@ optional label for the metric:
 
 .TP 4n
 .I color-list
-A 
+A
 .B _bar
 color list may be a named color list that was defined earlier, or an unnamed
-color list.  A 
+color list.
+A
 .B _colorScale
 list should be used when using
 .B _colormod
 or
-.B _colorymod 
-modulation.  Therefore, the syntax for color lists within a 
+.B _colorymod
+modulation.
+Therefore, the syntax for color lists within a
 .B _bar
 object are any of:
 
@@ -587,12 +590,12 @@ The default is
 .RE
 .TP 4n
 \f3_grid\f1 [\f2pos\f1] [\f3_show\f1|\f3_hide\f1] \f3(\f1 \f2objects\f1 \f3)\f1
-A 
+A
 .B _grid
 object is a container for objects, including other
 .B _grid
 objects.
-The rows and columns of a 
+The rows and columns of a
 .B _grid
 object are resized to the largest object in the row or column.  If an object
 spans multiple rows and/or columns, those rows and columns may be partly
@@ -605,17 +608,17 @@ error message and the later object will be ignored.
 
 The options to a
 .B _grid
-object control the position 
+object control the position
 .RI ( pos )
-of the 
+of the
 .B _grid
-object in the parent 
+object in the parent
 .BR _grid ,
 and indicate whether to
 .B _show
 or
 .B _hide
-the 
+the
 .B _grid
 base plane.  By default, the base plane is hidden.
 
@@ -625,20 +628,19 @@ object, however they only apply to the objects within the
 .BR _grid ,
 not the
 .B _grid
-itself.  For a parameter to be applied to a 
+itself.  For a parameter to be applied to a
 .B _grid
 object, it must be specified before the
 .B _grid
 object declaration.
 
-.RE
 .TP 4n
 .I "\f3_label\f1 [\f2options\f1] \f2string\f1"
 A
 .B _label
 object draws the contexts of
 .I string
-at the location, orientation and size specified in the 
+at the location, orientation and size specified in the
 .IR options :
 .RS 4n
 .TP 4n
@@ -647,11 +649,11 @@ The position of the
 .B _label
 object
 in the current
-.B _grid 
+.B _grid
 object.
 .TP 4n
 \f3_left\f1|\f3_right\f1|\f3_up\f1|\f3_down\f1
-The orientation of the 
+The orientation of the
 .IR string .
 The direction indicates the direction the label is read.  Therefore,
 .B _right
@@ -662,7 +664,6 @@ The font size.  The default is
 .BR _medium .
 .RE
 
-.RE
 .TP 4n
 \f3_link\f1 \f2pos\f1 [\f2string\f1]
 A
@@ -680,15 +681,15 @@ The properties of the object are defined by the options:
 sets both the position of the
 .B _link
 on the grid and its shape.
-.B _link 
-starts in the column and row on the 
-.B _grid 
+.B _link
+starts in the column and row on the
+.B _grid
 specified by first two numbers in the
 .I pos
 and spans the number of columns and rows set by the second two
 numbers. The
 .I alignment
-value is used to decide the orientation of the link (links are always 
+value is used to decide the orientation of the link (links are always
 aligned at the center):
 .I east
 and
@@ -703,7 +704,7 @@ links are straight and going from far end of the grid to near end,
 .I southeast
 and
 .I southwest
-links are L-shaped and connect the corresponding points of the compass, 
+links are L-shaped and connect the corresponding points of the compass,
 i.e. a
 .I northeast
 link takes on the general shape of the Latin letter ``L''.
@@ -715,8 +716,6 @@ which will be displayed in the text window when the pointer is over the
 link.
 .RE
 
-
-.RE
 .TP 4n
 \f3_pipe\f1 \f2pos\f1 \f3(\f1 [\f2metric-list\f1] [\f2color-list\f1] [\f2tag\f1] \f3)\f1
 A
@@ -734,7 +733,7 @@ The colors in the
 are assigned in turn to each cylinder in the
 .BR _pipe .
 The length of the
-.B _pipe 
+.B _pipe
 is defined by the
 .IR _pipeLength .
 
@@ -750,7 +749,8 @@ and its orientation with
 field used to define at which end of the pipe to stack the colored
 cylinders. The cylinders are stacked at the corresponding point of the
 compass and the pipe's direction is from the point of the compass
-towards the center of the compass. Only 
+towards the center of the compass.
+Only
 .IR east ,
 .IR west ,
 .IR north ,
@@ -809,13 +809,12 @@ when the pointer is over that end of the pipe.
 .ft R
 .RE
 
-.RE
 .TP 4n
 \f3_stack\f1 [\f2options\f1] \f3(\f1 [\f2metric-list\f1] [\f2color-list\f1] [\f2label\f1] \f3)\f1
 A
 .B _stack
 object represents a set of blocks placed vertically on top of each other.  The
-number of blocks is dependent on the number of metric instances in the 
+number of blocks is dependent on the number of metric instances in the
 .IR metric-list .
 The colors in the
 .I color-list
@@ -825,13 +824,13 @@ By default, the height of the
 .B _stack
 will be the sum of the height of each block.  The
 .I options
-that may be passed to a 
+that may be passed to a
 .B _stack
 object are:
 .RS 4n
 .TP 4n
 .I pos
-The position of the 
+The position of the
 .B _stack
 object within the current
 .B _grid
@@ -845,7 +844,7 @@ Is the base plane visible? Default is
 Force the height of the stack to always be the maximum height.  This is achieved
 by normalizing the height of each block
 .RB ( _utilmod ),
-or by adding a grey block to the top of the stack 
+or by adding a grey block to the top of the stack
 .RB ( _fillmod ).
 .TP 4n
 \f3_cube\f1|\f3_cylinder\f1
@@ -941,7 +940,6 @@ corner of the
 .B _xing
 and proceeding clockwise, such that respective stubs are used to join
 the point of the compass with the center on the cell (see example).
-.RE
 .SH EXAMPLE
 This simple example illustrates the use of parameters and different object
 types:
@@ -1014,7 +1012,7 @@ _grid _hide (
 	_link 0 2 west "West link"
 
 	# Add xing
-	_xing 1 0 3 3 west east east west 
+	_xing 1 0 3 3 west east east west
 
 	# Add a link and a pipe with eastern orientation
 	_pipe 4 0 east (

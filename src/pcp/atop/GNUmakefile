@@ -105,3 +105,6 @@ atop.o atopsar.o various.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
 check::	$(CFILES) $(HFILES)
 	$(CLINT) $^
+
+check::	$(MAN_PAGES)
+	$(MANLINT) $^

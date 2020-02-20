@@ -20,6 +20,10 @@
 %{
 #include "configparser.h"
 
+int context_newpmc;
+int context_derived;        /* A flag to check the current pmc */
+int context_dynamic;        /* check the current dynamic pmc */
+
 static int is_derived(char *name)
 {
     char *str = NULL;

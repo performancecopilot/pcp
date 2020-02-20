@@ -50,6 +50,19 @@ _usage()
     exit 1
 }
 
+case `id -un`
+in
+    kenj)
+	if which hub >/dev/null
+	then
+	    :
+	else
+	    echo "Arrgh: hub(1) is missing.  Suggest reinstall from https://github.com/github/hub"
+	    exit 1
+	fi
+	;;
+esac
+
 dryrun=false
 GIT=git
 RM=rm
@@ -223,6 +236,7 @@ then
 		elif [ -n "$ans" ]
 		then
 		    echo "$ans" >$tmp.pr
+		    echo >>$tmp.pr
 		    cat /tmp/msg >>$tmp.pr
 		    break
 		else

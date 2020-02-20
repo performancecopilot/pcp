@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -26,13 +27,13 @@
 #define STATSD_METRIC_DEFAULT_DURATION_INDOM 1
 #define STATSD_METRIC_DEFAULT_INDOM 2
 
-struct pmda_metric_helper {
+extern struct pmda_metric_helper {
     struct pmda_data_extension* data;
     const char* key;
     struct metric* item;
 } pmda_metric_helper;
 
-struct pmda_data_extension {
+extern struct pmda_data_extension {
     struct agent_config* config;
     struct pmda_metrics_container* metrics_storage;
     struct pmda_stats_container* stats_storage;

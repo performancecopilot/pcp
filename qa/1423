@@ -43,10 +43,15 @@ pcp2spark="$python `which pcp2spark`"
 
 echo "=== pcp2spark archive replay session ===" | tee -a $here/$seq.full
 $pcp2spark -a $here/archives/rep -I "" >$tmp.p2s.out 2>$tmp.p2s.err &
-sleep 2
+# the 2 sleeps below are something of a hack ... if pcp2spark does
+# not get going, then we risk the nc being killed before the socket
+# has been drained, which leaves pcp2spark hung and the QA test
+# never finishes
+#
+sleep 3
 nc localhost $port >$tmp.nc.out 2>$tmp.nc.err &
 pid=$!
-sleep 1
+sleep 2
 $signal $pid 2>/dev/null
 wait
 # some nc(1) variants chatter a bit, filter out lines like

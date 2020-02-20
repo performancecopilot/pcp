@@ -27,15 +27,15 @@ TIMESERIES
 == verify metric labels
 
 TIMESERIES
-    inst [100 or "bin-100"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
-    inst [200 or "bin-200"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
-    inst [300 or "bin-300"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
-    inst [400 or "bin-400"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
-    inst [500 or "bin-500"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
-    inst [600 or "bin-600"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
-    inst [700 or "bin-700"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
-    inst [800 or "bin-800"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
-    inst [900 or "bin-900"] labels {"agent":"sample","hostname":"HOST","role":"testing"}
+    inst [100 or "bin-100"] labels {"agent":"sample","bin":100,"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","latitude":-25.28496,"longitude":152.87886,"machineid":"MACHINE","role":"testing","userid":UID}
+    inst [200 or "bin-200"] labels {"agent":"sample","bin":200,"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","latitude":-25.28496,"longitude":152.87886,"machineid":"MACHINE","role":"testing","userid":UID}
+    inst [300 or "bin-300"] labels {"agent":"sample","bin":300,"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","latitude":-25.28496,"longitude":152.87886,"machineid":"MACHINE","role":"testing","userid":UID}
+    inst [400 or "bin-400"] labels {"agent":"sample","bin":400,"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","latitude":-25.28496,"longitude":152.87886,"machineid":"MACHINE","role":"testing","userid":UID}
+    inst [500 or "bin-500"] labels {"agent":"sample","bin":500,"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","latitude":-25.28496,"longitude":152.87886,"machineid":"MACHINE","role":"testing","userid":UID}
+    inst [600 or "bin-600"] labels {"agent":"sample","bin":600,"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","latitude":-25.28496,"longitude":152.87886,"machineid":"MACHINE","role":"testing","userid":UID}
+    inst [700 or "bin-700"] labels {"agent":"sample","bin":700,"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","latitude":-25.28496,"longitude":152.87886,"machineid":"MACHINE","role":"testing","userid":UID}
+    inst [800 or "bin-800"] labels {"agent":"sample","bin":800,"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","latitude":-25.28496,"longitude":152.87886,"machineid":"MACHINE","role":"testing","userid":UID}
+    inst [900 or "bin-900"] labels {"agent":"sample","bin":900,"domainname":"DOMAIN","groupid":GID,"hostname":"HOST","latitude":-25.28496,"longitude":152.87886,"machineid":"MACHINE","role":"testing","userid":UID}
 == verify metric values
 
 TIMESERIES
@@ -43,15 +43,24 @@ TIMESERIES
     [TIMESTAMP] VALUE
 == verify label names and values
 agent: "mmv", "sample", "pmcd"
+bin: 100, 200, 300, 400, 500, 600, 700, 800, 900
 changed: false
 clan: "mcdonell"
 cluster: "zero"
+domainname: "DOMAIN"
+groupid: GID
 hostname: "HOSTNAME"
 indom_label: 42.001
+latitude: -25.28496
+longitude: 152.87886
+machineid: "MACHINE"
 measure: "speed"
 model: "RGB"
+registry_label: "string"
 role: "testing"
+transient: false
 units: "metres per second"
 unitsystem: "SI"
+userid: UID
 == verify archive removal
 == all done

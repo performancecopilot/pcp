@@ -10,14 +10,23 @@ Distribution: @package_distribution@
 BuildRequires: procps bison flex
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
+
 %if 0%{?rhel} > 7
 %global __requires_exclude ^perl-LDAP$
 %endif
+
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %global __python2 python2
 %else
 %global __python2 python
 %endif
+
+%if 0%{?rhel} >= 7 || 0%{?fedora} >= 17
+%global _hostname_executable /usr/bin/hostname
+%else
+%global _hostname_executable /bin/hostname
+%endif
+
 %if 0%{?sles_version} == 11
 # rpmbuild is in the rpm (not rpm-build) package for SLES11
 %else
@@ -60,7 +69,7 @@ BuildRequires: qt4-devel >= 4.4
 %endif
 %endif
 %if "%{_vendor}" == "redhat"
-BuildRequires: man /bin/hostname
+BuildRequires: man %{_hostname_executable}
 %if "@enable_systemd@" == "false"
 BuildRequires: initscripts
 %endif
@@ -99,7 +108,7 @@ Provides: pcp-webapi
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash xz gawk sed grep coreutils findutils
 %if "%{_vendor}" == "redhat"
-Requires: /bin/hostname
+Requires: %{_hostname_executable}
 %endif
 # which(1) comes from different places
 %if 0%{?suse_version} >= 1100

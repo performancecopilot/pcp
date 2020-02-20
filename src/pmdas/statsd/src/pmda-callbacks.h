@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +24,7 @@
  * @arg desc - Performance Metric Descriptor
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
-int
+extern int
 statsd_desc(pmID pm_id, pmDesc* desc, pmdaExt* pmda);
 
 /**
@@ -33,7 +34,7 @@ statsd_desc(pmID pm_id, pmDesc* desc, pmdaExt* pmda);
  * @arg buffer - 
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
-int
+extern int
 statsd_text(int ident, int type, char** buffer, pmdaExt* pmda);
 
 /**
@@ -44,7 +45,7 @@ statsd_text(int ident, int type, char** buffer, pmdaExt* pmda);
  * @arg result - Result to populate
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
-int
+extern int
 statsd_instance(pmInDom in_dom, int inst, char* name, pmInResult** result, pmdaExt* pmda);
 
 /**
@@ -54,7 +55,7 @@ statsd_instance(pmInDom in_dom, int inst, char* name, pmInResult** result, pmdaE
  * @arg resp - Result to populate
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
-int
+extern int
 statsd_fetch(int num_pm_id, pmID pm_id_list[], pmResult** resp, pmdaExt* pmda);
 
 /**
@@ -63,7 +64,7 @@ statsd_fetch(int num_pm_id, pmID pm_id_list[], pmResult** resp, pmdaExt* pmda);
  * @arg pm_id - Instance domain
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
-int
+extern int
 statsd_pmid(const char* name, pmID* pm_id, pmdaExt* pmda);
 
 /**
@@ -72,7 +73,7 @@ statsd_pmid(const char* name, pmID* pm_id, pmdaExt* pmda);
  * @arg nameset -
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
-int
+extern int
 statsd_name(pmID pm_id, char*** nameset, pmdaExt* pmda);
 
 /**
@@ -83,7 +84,7 @@ statsd_name(pmID pm_id, char*** nameset, pmdaExt* pmda);
  * @arg status -
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
-int
+extern int
 statsd_children(const char* name, int traverse, char*** children, int** status, pmdaExt* pmda);
 
 /**
@@ -102,7 +103,7 @@ statsd_label(int ident, int type, pmLabelSet** lp, pmdaExt* pmda);
  * @arg inst -
  * @arg lp - Provides name and value indexes in JSON string
  */
-int
+extern int
 statsd_label_callback(pmInDom in_dom, unsigned int inst, pmLabelSet** lp);
 
 /**
@@ -112,7 +113,7 @@ statsd_label_callback(pmInDom in_dom, unsigned int inst, pmLabelSet** lp);
  * @arg atom - atom that should be populated with request response
  * @return value less then 0 signalizes error, equal to 0 means that metric is not available, greater then 0 is success
  */
-int
+extern int
 statsd_fetch_callback(pmdaMetric* mdesc, unsigned int inst, pmAtomValue* atom);
 
 #endif

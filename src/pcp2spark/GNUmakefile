@@ -42,3 +42,6 @@ install_pcp: install
 
 check:: $(TARGET).py
 	$(PYLINT) $^
+
+check :: $(MAN_PAGES)
+	$(MANLINT) $^

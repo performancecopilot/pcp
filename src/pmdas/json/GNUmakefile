@@ -67,3 +67,6 @@ config.json:	config.json.in
 # check-build only, binary not installed (but source is)
 $(LTARGET):	acme_json.c
 	$(CCF) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

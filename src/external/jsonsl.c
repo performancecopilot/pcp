@@ -826,7 +826,7 @@ populate_component(char *in,
         /* Lone wildcard */
         ret = JSONSL_PATH_WILDCARD;
         goto GT_RET;
-    } else if (isdigit(*in)) {
+    } else if (isdigit((int)(*in))) {
         /* ASCII Numeric */
         char *endptr;
         component->idx = strtoul(in, &endptr, 10);
@@ -852,7 +852,7 @@ populate_component(char *in,
             *errp = JSONSL_ERROR_PERCENT_BADHEX;
             return JSONSL_PATH_INVALID;
         }
-        if (! (isxdigit(*(c+1)) && isxdigit(*(c+2))) ) {
+        if (! (isxdigit((int)(*(c+1))) && isxdigit((int)(*(c+2)))) ) {
             *errp = JSONSL_ERROR_PERCENT_BADHEX;
             return JSONSL_PATH_INVALID;
         }

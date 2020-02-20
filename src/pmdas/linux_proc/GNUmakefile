@@ -117,3 +117,6 @@ cgroups.o contexts.o pmda.o proc_dynamic.o proc_pid.o proc_runq.o:	$(TOPDIR)/src
 
 check::	$(CFILES) $(HFILES)
 	$(CLINT) $^
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^

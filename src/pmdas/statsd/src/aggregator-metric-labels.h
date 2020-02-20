@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +27,7 @@
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
-int
+extern int
 process_labeled_datagram(
     struct agent_config* config,
     struct pmda_metrics_container* container,
@@ -44,7 +45,7 @@ process_labeled_datagram(
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
-int
+extern int
 find_label_by_name(
     struct pmda_metrics_container* container,
     struct metric* item,
@@ -60,7 +61,7 @@ find_label_by_name(
  * @arg out - Placholder metric label
  * @return 1 on success, 0 on fail
  */
-int
+extern int
 create_label(
     struct agent_config* config,
     struct metric* item,
@@ -77,7 +78,7 @@ create_label(
  * 
  * Synchronized by mutex on pmda_metrics_container
  */
-void
+extern void
 add_label(struct pmda_metrics_container* container, struct metric* item, char* key, struct metric_label* label);
 
 /**
@@ -94,14 +95,14 @@ print_labels(struct agent_config* config, FILE* f, labels* l);
  * @arg config - Contains info about aggregation used
  * @arg metadata - Metadata to be freed
  */
-void
+extern void
 free_metric_label(struct agent_config* config, struct metric_label* label);
 
 /**
  * Frees metric label metadata
  * @arg metadata - Metadata to be freed
  */
-void
+extern void
 free_metric_label_metadata(struct metric_label_metadata* meta);
 
 #endif

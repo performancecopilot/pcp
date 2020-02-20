@@ -1,1 +1,1 @@
-bintray_distribution="f31"
+BINTRAY_DISTRIBUTION="f31"

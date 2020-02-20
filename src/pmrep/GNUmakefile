@@ -38,5 +38,8 @@ default_pcp: default
 
 install_pcp: install
 
-check:: $(SCRIPT)
+check :: $(SCRIPT)
 	$(PYLINT) $^
+
+check :: pmrep.1 pmrep.conf.5
+	$(MANLINT) $^

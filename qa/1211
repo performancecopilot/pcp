@@ -35,7 +35,6 @@ _filter_source()
 {
     sed \
 	-e "s,$here,PATH,g" \
-	-e "s,$hostname,QAHOST,g" \
     #end
 }
 

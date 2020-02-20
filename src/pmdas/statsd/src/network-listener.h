@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -19,12 +20,12 @@
 
 #include "config-reader.h"
 
-struct unprocessed_statsd_datagram
+typedef struct unprocessed_statsd_datagram
 {
     char* value;
 } unprocessed_statsd_datagram;
 
-struct network_listener_args
+typedef struct network_listener_args
 {
     struct agent_config* config;
     chan_t* network_listener_to_parser;
@@ -35,14 +36,14 @@ struct network_listener_args
  * for UDP/TCP containing StatsD payload and then sends it over to parser thread for parsing
  * @arg args - network_listener_args
  */
-void*
+extern void*
 network_listener_exec(void* args);
 
 /**
  * Free unprocessed datagram
  * @arg datagram
  */
-void
+extern void
 free_unprocessed_datagram(struct unprocessed_statsd_datagram* datagram);
 
 /**
@@ -51,7 +52,7 @@ free_unprocessed_datagram(struct unprocessed_statsd_datagram* datagram);
  * @arg network_listener_to_parser - Network listener -> Parser
  * @return network_listener_args
  */
-struct network_listener_args*
+extern struct network_listener_args*
 create_listener_args(struct agent_config* config, chan_t* network_listener_to_parser);
 
 #endif

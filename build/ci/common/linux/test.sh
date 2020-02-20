@@ -1,13 +1,12 @@
-#!/bin/sh -u
+#!/bin/bash -eu
+set -o pipefail
+
+logfile="$(mktemp)"
 
 # NOTE: sudo -i is required to set the $HOME env variable to /var/lib/pcp/testsuite, which is required for some QA tests
-
 cd /var/lib/pcp/testsuite
-sudo -i -u pcpqa ./check $1 2>&1
-status=$?
+status=0
+sudo -i -u pcpqa ./check "$@" 2>&1 | tee "${logfile}" || status=$?
 
-if [ $status -ne 0 ]; then
-    tail -n+1 $1.out.bad $1.full 1>&2
-fi
-
+/usr/local/ci/create_report.py "${logfile}" 1>&2
 exit $status

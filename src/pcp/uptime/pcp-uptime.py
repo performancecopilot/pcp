@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2014-2016,2018 Red Hat.
+# Copyright (C) 2014-2016,2018,2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@
 
 import sys
 from pcp import pmapi
-from cpmapi import PM_TYPE_U32, PM_TYPE_FLOAT
+from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_FLOAT
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_MODE_FORW, PM_ERR_VALUE
 
 def print_timestamp(stamp):
@@ -96,8 +96,8 @@ class Uptime(object):
         atom = self.context.pmExtractValue(
                         result.contents.get_valfmt(0),
                         result.contents.get_vlist(0, 0),
-                        descs[0].contents.type, PM_TYPE_U32)
-        uptime += print_uptime(atom.ul)
+                        descs[0].contents.type, PM_TYPE_U64)
+        uptime += print_uptime(atom.ull)
 
         atom = self.context.pmExtractValue(
                         result.contents.get_valfmt(1),

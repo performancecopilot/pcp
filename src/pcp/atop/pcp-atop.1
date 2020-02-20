@@ -29,7 +29,7 @@ Writing and reading PCP archive folios:
 [\f3\-a\f1] [\f3\-S\f1] [\f2interval\f1 [\f2samples\f1]]
 .br
 .B pcp\ atop
-\f3\-r\f1 [\f2folio\f1] [\f3\-AcCdDfFgGmMnNopRsuvxy1\f1] [\f3\-b\f1 \f2hh:mm\f1] [\f3\-e\f1 \f2hh:mm\f1] [\f3\-L\f1 \f2linelen\f1] [\f3\-P\f1\f2label\f1[,\f2label\f1]...]
+\f3\-r\f1 \f2folio\f1 [\f3\-AcCdDfFgGmMnNopRsuvxy1\f1] [\f3\-b\f1 \f2hh:mm\f1] [\f3\-e\f1 \f2hh:mm\f1] [\f3\-L\f1 \f2linelen\f1] [\f3\-P\f1\f2label\f1[,\f2label\f1]...] [\f2interval\f1 [\f2samples\f1]]
 .SH DESCRIPTION
 The program
 .B pcp-atop
@@ -142,7 +142,6 @@ Currently
 .B pcp-atop
 uses the following default values to calculate a weighted percentage
 per resource:
-.PP
 .TP 5
 .B \ Processor
 A busy percentage of 90% or higher is considered `critical'.
@@ -214,7 +213,6 @@ output.
 In general, lower case keys can be used to show other information for
 the active processes and upper case keys can be used to influence the
 sort order of the active process/thread list.
-.PP
 .TP 5
 .B g
 Show generic output (default).
@@ -238,7 +236,6 @@ The last columns contain the state, the occupation percentage for the
 chosen resource (default: cpu) and the process name.
 
 When more than 80 positions are available, other information is added.
-.PP
 .TP 5
 .B m
 Show memory related output.
@@ -254,7 +251,6 @@ When more than 80 positions are available, other information is added.
 
 For memory consumption, always all processes are shown (also the processes
 that were not active during the interval).
-.PP
 .TP 5
 .B d
 Show disk-related output.
@@ -264,7 +260,6 @@ fields are shown:
 process-id, amount of data read from disk, amount of data written to disk,
 amount of data that was written but has been withdrawn again (WCANCL),
 disk occupation percentage and process name.
-.PP
 .TP 5
 .B s
 Show scheduling characteristics.
@@ -281,7 +276,6 @@ status, exit code, state, the occupation percentage for the chosen
 resource and the process name.
 
 When more than 80 positions are available, other information is added.
-.PP
 .TP 5
 .B v
 Show various process characteristics.
@@ -293,7 +287,6 @@ start date and time, status (e.g. exit code if the process has finished),
 state, the occupation percentage for the chosen resource and the process name.
 
 When more than 80 positions are available, other information is added.
-.PP
 .TP 5
 .B c
 Show the command line of the process.
@@ -301,7 +294,6 @@ Show the command line of the process.
 Per process the following fields are shown: process-id,
 the occupation percentage for the chosen resource and the
 command line including arguments.
-.PP
 .TP 5
 .B e
 Show GPU utilization.
@@ -322,7 +314,6 @@ the memory busy percentage are not available on process level.
 In that case, the GPU percentage on process level reflects the
 GPU memory occupation instead of the GPU busy percentage (which
 is preferred).
-.PP
 .TP 5
 .B o
 Show the user-defined line of the process.
@@ -334,7 +325,6 @@ can be specified with the description of a user-defined output-line.
 Refer to the man-page of
 .BR pcp-atoprc (5)
 for a detailed description.
-.PP
 .TP 5
 .B y
 Show the individual threads within a process (toggle).
@@ -348,7 +338,6 @@ Depending on the option 'a' (all or active toggle), all threads are shown
 or only the threads that were active during the last interval.
 .br
 Whether this key is active or not can be seen in the header line.
-.PP
 .TP 5
 .B u
 Show the process activity accumulated per user.
@@ -366,7 +355,6 @@ the number of received and sent network packets are shown.
 .br
 The last columns contain the accumulated occupation percentage for the
 chosen resource (default: cpu) and the user name.
-.PP
 .TP 5
 .B p
 Show the process activity accumulated per program (i.e. process name).
@@ -384,7 +372,6 @@ the accumulated read and write throughput on disk is shown.
 .br
 The last columns contain the accumulated occupation percentage for the
 chosen resource (default: cpu) and the program name.
-.PP
 .TP 5
 .B j
 Show the process activity accumulated per Docker container.
@@ -402,12 +389,10 @@ the accumulated read and write throughput on disk is shown.
 .br
 The last columns contain the accumulated occupation percentage for the
 chosen resource (default: cpu) and the Docker container id (CID).
-.PP
 .TP 5
 .B C
 Sort the current list in the order of cpu consumption (default).
 The one-but-last column changes to ``CPU''.
-.PP
 .TP 5
 .B E
 Sort the current list in the order of GPU utilization
@@ -417,25 +402,21 @@ when the
 daemon runs under root privileges) or the order of
 GPU memory occupation).
 The one-but-last column changes to ``GPU''.
-.PP
 .TP 5
 .B M
 Sort the current list in the order of resident memory consumption.
 The one-but-last column changes to ``MEM''.
 In case of sorting on memory,
 the full process list will be shown (not only the active processes).
-.PP
 .TP 5
 .B D
 Sort the current list in the order of disk accesses issued.
 The one-but-last column changes to ``DSK''.
-.PP
 .TP 5
 .B N
 Sort the current list in the order of network bandwidth (received
 and transmitted).
 The one-but-last column changes to ``NET''.
-.PP
 .TP 5
 .B A
 Sort the current list automatically in the order of the most busy
@@ -454,28 +435,23 @@ A sorting-order for disk is only possible when "storage accounting" is active.
 .\" is loaded.
 .PP
 Miscellaneous interactive commands:
-.PP
 .TP 5
 .B ?
 Request for help information (also the key 'h' can be pressed).
-.PP
 .TP 5
 .B V
 Request for version information (version number and date).
-.PP
 .TP 5
 .B R
 Gather and calculate the proportional set size of processes (toggle).
 Gathering of all values that are needed to calculate the PSIZE of a process
 is a relatively time-consuming task, so this key should only be active when
 analyzing the resident memory consumption of processes.
-.PP
 .TP 5
 .B x
 Suppress colors to highlight critical resources (toggle).
 .br
 Whether this key is active or not can be seen in the header line.
-.PP
 .TP 5
 .B z
 The pause key can be used to freeze the current situation in order to
@@ -487,7 +463,6 @@ information about the current list of processes.
 Whenever the pause key is pressed again,
 .B pcp-atop
 will continue with the next sample.
-.PP
 .TP 5
 .B i
 Modify the interval timer (default: 10 seconds).
@@ -495,7 +470,6 @@ If an interval timer of 0 is
 entered, the interval timer is switched off.
 In that case a new sample can
 only be triggered manually by pressing the key 't'.
-.PP
 .TP 5
 .B t
 Trigger a new sample manually.
@@ -510,17 +484,14 @@ seconds this transaction will last.
 
 When viewing the contents of an archive folio, this key can be used to
 show the next sample from the folio.
-.PP
 .TP 5
 .B T
 When viewing the contents of an archive folio, this key can be used to
 show the previous sample from the folio.
-.PP
 .TP 5
 .B b
 When viewing the contents of an archive folio, this key can be used to
 move to a certain timestamp within the file (either forward or backward).
-.PP
 .TP 5
 .B r
 Reset all counters to zero to see the system and process activity since
@@ -528,7 +499,6 @@ boot again.
 
 When viewing the contents of an archive, this key can be used to rewind
 to the beginning of the file again.
-.PP
 .TP 5
 .B U
 Specify a search string for specific user names as a regular expression.
@@ -539,7 +509,6 @@ If the Enter-key is pressed without specifying a name, (active)
 processes of all users will be shown again.
 .br
 Whether this key is active or not can be seen in the header line.
-.PP
 .TP 5
 .B I
 Specify a list with one or more PIDs to be selected.
@@ -550,7 +519,6 @@ If the Enter-key is pressed without specifying a PID, all (active)
 processes will be shown again.
 .br
 Whether this key is active or not can be seen in the header line.
-.PP
 .TP 5
 .B P
 Specify a search string for specific process names as a regular expression.
@@ -561,7 +529,6 @@ If the Enter-key is pressed without specifying a name, all (active)
 processes will be shown again.
 .br
 Whether this key is active or not can be seen in the header line.
-.PP
 .TP 5
 .B /
 Specify a specific command line search string as a regular expression.
@@ -572,7 +539,6 @@ If the Enter-key is pressed without specifying a string, all (active)
 processes will be shown again.
 .br
 Whether this key is active or not can be seen in the header line.
-.PP
 .TP 5
 .B J
 Specify a Docker container id of 12 (hexadecimal) characters.
@@ -583,7 +549,6 @@ If the Enter-key is pressed without specifying a container id,
 all (active) processes will be shown again.
 .br
 Whether this key is active or not can be seen in the header line.
-.PP
 .TP 5
 .B S
 Specify search strings for specific logical volume names,
@@ -595,7 +560,6 @@ If the Enter-key is pressed without specifying a search string, all (active)
 system resources of that type will be shown again.
 .br
 Whether this key is active or not can be seen in the header line.
-.PP
 .TP 5
 .B a
 The `all/active' key can be used to toggle between only showing/accumulating
@@ -603,7 +567,6 @@ the processes that were active during the last interval (default) or
 showing/accumulating all processes.
 .br
 Whether this key is active or not can be seen in the header line.
-.PP
 .TP 5
 .B G
 By default,
@@ -614,7 +577,6 @@ With this key (toggle),
 showing/accumulating the processes that are exited can be suppressed.
 .br
 Whether this key is active or not can be seen in the header line.
-.PP
 .TP 5
 .B f
 Show a fixed (maximum) number of header lines for system resources (toggle).
@@ -626,7 +588,6 @@ With this key you can force
 to show lines of inactive resources as well.
 .br
 Whether this key is active or not can be seen in the header line.
-.PP
 .TP 5
 .B F
 Suppress sorting of system resources (toggle).
@@ -634,14 +595,12 @@ By default system resources (CPUs, logical volumes, disks,
 network interfaces) are sorted on utilization.
 .br
 Whether this key is active or not can be seen in the header line.
-.PP
 .TP 5
 .B 1
 Show relevant counters as an average per second (in the format `..../s')
 instead of as a total during the interval (toggle).
 .br
 Whether this key is active or not can be seen in the header line.
-.PP
 .TP 5
 .B l
 Limit the number of system level lines for the counters per-cpu,
@@ -660,39 +619,32 @@ the maximum number of per-cpu lines is set to 0,
 the maximum number of disk lines to 5 and
 the maximum number of interface lines to 3.
 These values can be modified again in interactive mode.
-.PP
 .TP 5
 .B k
 Send a signal to an active process (a.k.a. kill a process).
-.PP
 .TP 5
 .B q
 Quit the program.
-.PP
 .TP 5
 .B PgDn
 Show the next page of the process/thread list.
 .br
 With the arrow-down key the list can be scrolled downwards with single lines.
-.PP
 .TP 5
 .B ^F
 Show the next page of the process/thread list (forward).
 .br
 With the arrow-down key the list can be scrolled downwards with single lines.
-.PP
 .TP 5
 .B PgUp
 Show the previous page of the process/thread list.
 .br
 With the arrow-up key the list can be scrolled upwards with single lines.
-.PP
 .TP 5
 .B ^B
 Show the previous page of the process/thread list (backward).
 .br
 With the arrow-up key the list can be scrolled upwards with single lines.
-.PP
 .TP 5
 .B ^L
 Redraw the screen.
@@ -787,7 +739,6 @@ For other values, a kind of exponent notation is used (value 123456789
 shown in a column of 5 positions gives 123e6).
 .SH OUTPUT DESCRIPTION \- SYSTEM LEVEL
 The system level information consists of the following output lines:
-.PP
 .TP 5
 .B PRC
 Process and thread level totals.
@@ -806,7 +757,6 @@ column may indicate that process accounting could not be activated
 .br
 If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
-.PP
 .TP 5
 .B CPU
 CPU utilization.
@@ -886,7 +836,6 @@ capacity of the CPU has been used in user mode.
 
 If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
-.PP
 .TP 5
 .B CPL
 CPU load information.
@@ -901,7 +850,6 @@ of serviced interrupts (`intr') and the number of available CPUs are shown.
 
 If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
-.PP
 .TP 5
 .B GPU
 GPU utilization (Nvidia).
@@ -926,7 +874,6 @@ If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
 .br
 The number of lines showing the GPUs can be limited.
-.PP
 .TP 5
 .B MEM
 Memory occupation.
@@ -948,7 +895,6 @@ and the amount of huge page memory that is really in use (`hpuse`).
 
 If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
-.PP
 .TP 5
 .B SWP
 Swap occupation and overcommit info.
@@ -964,7 +910,6 @@ private memory space for processes.
 The kernel only verifies whether the
 committed space exceeds the limit if strict overcommit handling is
 configured (vm.overcommit_memory is 2).
-.PP
 .TP 5
 .B PAG
 Paging frequency.
@@ -976,7 +921,6 @@ times that the kernel tries to reclaim pages due to an urgent need (`stall').
 Also the number of memory pages the system read from swap space (`swin')
 and the number of memory pages the system wrote to swap space (`swout')
 are shown.
-.PP
 .TP 5
 .B PSI
 Pressure Stall Information.
@@ -988,7 +932,6 @@ average pressure percentage over the last 10, 60 and 300 seconds
 The categories are: CPU for 'some' (`cs'),
 memory for 'some' (`ms'), memory for 'full' (`mf'),
 I/O for 'some' (`is'), and I/O for 'full' (`if').
-.PP
 .TP 5
 .B LVM/MDD/DSK
 Logical volume/multiple device/disk utilization.
@@ -1014,7 +957,6 @@ DSK) with the 'l' key or statically (see separate man-page of
 .BR pcp-atoprc (5)).
 By specifying the value 0 for a particular class, no lines will be
 shown any more for that class.
-.PP
 .TP 5
 .B NFM
 Network Filesystem (NFS) mount at the client side.
@@ -1030,7 +972,6 @@ the number of bytes read via direct I/O (`dread'),
 the number of bytes written via direct I/O (`dwrit'),
 the number of bytes read via memory mapped I/O pages (`mread'), and
 the number of bytes written via memory mapped I/O pages (`mwrit').
-.PP
 .TP 5
 .B NFC
 Network Filesystem (NFS) client side counters.
@@ -1040,7 +981,6 @@ This line contains the number of RPC calls issues by local processes
 write RPC calls (`rpwrite') issued to the NFS server,
 the number of RPC calls being retransmitted (`retxmit')
 and the number of authorization refreshes (`autref').
-.PP
 .TP 5
 .B NFS
 Network Filesystem (NFS) server side counters.
@@ -1059,7 +999,6 @@ the number of uncached requests (`rcnoca').
 Furthermore some error counters indicating the number of requests
 with a bad format (`badfmt') or a bad authorization (`badaut'), and a
 counter indicating the number of bad clients (`badcln').
-.PP
 .TP 5
 .B NET
 Network utilization (TCP/IP).
@@ -1128,7 +1067,6 @@ If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
 .br
 The number of lines showing the network interfaces can be limited.
-.PP
 .TP 5
 .B IFB
 Infiniband utilization.
@@ -1165,15 +1103,12 @@ the process itself was in sleep state).
 Per process the following fields may be shown (in alphabetical order),
 depending on the current output mode as described in the section
 INTERACTIVE COMMANDS and depending on the current width of your window:
-.PP
 .TP 9
 .B AVGRSZ
 The average size of one read-action on disk.
-.PP
 .TP 9
 .B AVGWSZ
 The average size of one write-action on disk.
-.PP
 .TP 9
 .B CID
 Container ID (Docker) of 12 hexadecimal digits, referring to the container
@@ -1181,7 +1116,6 @@ in which the process/thread is running.
 If a process has been started and finished during the last
 interval, a `?' is shown because the container ID is not part of
 the standard process accounting record.
-.PP
 .TP 9
 .B CMD
 The name of the process.
@@ -1191,7 +1125,6 @@ interval.
 .br
 Behind the abbreviation `CMD' in the header line, the current page number and
 the total number of pages of the process/thread list are shown.
-.PP
 .TP 9
 .B COMMAND-LINE
 The full command line of the process (including arguments). If the length of
@@ -1200,24 +1133,20 @@ keys \-> and <\- can be used for horizontal scroll.
 .br
 Behind the verb `COMMAND-LINE' in the header line, the current page number
 and the total number of pages of the process/thread list are shown.
-.PP
 .TP 9
 .B CPU
 The occupation percentage of this process related to the available capacity
 for this resource on system level.
-.PP
 .TP 9
 .B CPUNR
 The identification of the CPU the (main) thread is running on
 or has recently been running on.
-.PP
 .TP 9
 .B CTID
 Container ID (OpenVZ).
 If a process has been started and finished during the last
 interval, a `?' is shown because the container ID is not part of
 the standard process accounting record.
-.PP
 .TP 9
 .B DSK
 The occupation percentage of this process related to the total load that
@@ -1226,42 +1155,33 @@ by all processes during the last interval).
 .br
 This information is shown when per process "storage accounting" is active
 in the kernel.
-.PP
 .TP 9
 .B EGID
 Effective group-id under which this process executes.
-.PP
 .TP 9
 .B ENDATE
 Date that the process has been finished.
 If the process is still running, this field shows `active'.
-.PP
 .TP 9
 .B ENTIME
 Time that the process has been finished.
 If the process is still running, this field shows `active'.
-.PP
 .TP 9
 .B ENVID
 Virtual environment identified (OpenVZ only).
-.PP
 .TP 9
 .B EUID
 Effective user-id under which this process executes.
-.PP
 .TP 9
 .B EXC
 The exit code of a terminated process (second position of column `ST' is E)
 or the fatal signal number (second position of column `ST' is S or C).
-.PP
 .TP 9
 .B FSGID
 Filesystem group-id under which this process executes.
-.PP
 .TP 9
 .B FSUID
 Filesystem user-id under which this process executes.
-.PP
 .TP 9
 .B GPU
 When the
@@ -1273,7 +1193,6 @@ When the
 .B pmdanvidia
 daemon runs with root privileges, the GPU percentage
 reflects the GPU busy percentage.
-.PP
 .TP 9
 .B GPUBUSY
 Busy percentage on all GPUs (one GPU is 100%).
@@ -1281,28 +1200,23 @@ Busy percentage on all GPUs (one GPU is 100%).
 When the
 .B pmdanvidia
 daemon does not run with root privileges, this value is not available.
-.PP
 .TP 9
 .B GPUNUMS
 Comma-separated list of GPUs used by the process
 during the interval.
 When the comma-separated list exceeds
 the width of the column, a hexadecimal value is shown.
-.PP
 .TP 9
 .B MAJFLT
 The number of page faults issued by this process that have been solved
 by creating/loading the requested memory page.
-.PP
 .TP 9
 .B MEM
 The occupation percentage of this process related to the available capacity
 for this resource on system level.
-.PP
 .TP 9
 .B MEMAVG
 Average memory occupation during the interval on all used GPUs.
-.PP
 .TP 9
 .B MEMBUSY
 Busy percentage of memory on all GPUs (one GPU is 100%), i.e.
@@ -1311,16 +1225,13 @@ the time needed for read and write accesses on memory.
 When the
 .B pmdanvidia
 daemon does not run with root privileges, this value is not available.
-.PP
 .TP 9
 .B MEMNOW
 Memory occupation at the moment of the sample on all used GPUs.
-.PP
 .TP 9
 .B MINFLT
 The number of page faults issued by this process that have been solved
 by reclaiming the requested memory page from the free list of pages.
-.\" .PP
 .\" .TP 9
 .\" .B NET
 .\" The occupation percentage of this process related to the total load that
@@ -1328,32 +1239,26 @@ by reclaiming the requested memory page from the free list of pages.
 .\" of all processes during the last interval).
 .\" .br
 .\" This information will only be shown when kernel module `netatop' is loaded.
-.PP
 .TP 9
 .B NICE
 The more or less static priority that can be given to a process on a
 scale from \-20 (high priority) to +19 (low priority).
-.PP
 .TP 9
 .B NPROCS
 The number of active and terminated processes accumulated for this user
 or program.
-.PP
 .TP 9
 .B PID
 Process-id.
-.PP
 .TP 9
 .B POLI
 The policies 'norm' (normal, which is SCHED_OTHER), 'btch' (batch)
 and 'idle' refer to timesharing processes.
 The policies 'fifo' (SCHED_FIFO) and 'rr' (round robin, which is SCHED_RR)
 refer to realtime processes.
-.PP
 .TP 9
 .B PPID
 Parent process-id.
-.PP
 .TP 9
 .B PRI
 The process' priority ranges from 0 (highest priority) to 139 (lowest
@@ -1362,7 +1267,6 @@ Priority 0 to 99 are used for realtime processes (fixed
 priority independent of their behavior) and priority 100 to 139 for
 timesharing processes (variable priority depending on their recent
 CPU consumption and the nice value).
-.PP
 .TP 9
 .B PSIZE
 The proportional memory size of this process (or user).
@@ -1387,7 +1291,6 @@ relatively time-consuming task, the 'R' key (or '\-R' flag) should
 be active.
 Gathering these values also requires superuser privileges
 (otherwise '?K' is shown in the output).
-.PP
 .TP 9
 .B RDDSK
 When the kernel maintains standard io statistics (>= 2.6.20):
@@ -1399,11 +1302,9 @@ Unfortunately, the kernel aggregates the
 data tranfer of a process to the data transfer of its parent process when
 terminating, so you might see transfers for (parent) processes like
 cron, bash or init, that are not really issued by them.
-.PP
 .TP 9
 .B RGID
 The real group-id under which the process executes.
-.PP
 .TP 9
 .B RGROW
 The amount of resident memory that the process has grown during the last
@@ -1415,25 +1316,21 @@ is paged out due to lack of memory or when the process frees dynamically
 allocated memory.
 For a process which started during the last interval, the resident growth
 reflects the total resident size of the process at that moment.
-.PP
 .TP 9
 .B RSIZE
 The total resident memory usage consumed by this process (or user).
 Notice that the RSIZE of a process includes all resident memory used
 by that process, even if certain memory parts are shared with other processes
 (see also the explanation of PSIZE).
-.PP
 .TP 9
 .B RTPR
 Realtime priority according the POSIX standard.
 Value can be 0 for a timesharing process (policy 'norm', 'btch' or 'idle')
 or ranges from 1 (lowest) till 99 (highest) for a realtime process
 (policy 'rr' or 'fifo').
-.PP
 .TP 9
 .B RUID
 The real user-id under which the process executes.
-.PP
 .TP 9
 .B S
 The current state of the (main) thread: `R' for running
@@ -1443,11 +1340,9 @@ The current state of the (main) thread: `R' for running
 with its parent process), `T' for stopped (suspended or traced), `W' for
 swapping, and `E' (exit) for processes which have finished during the last
 interval.
-.PP
 .TP 9
 .B SGID
 The saved group-id of the process.
-.PP
 .TP 9
 .B ST
 The status of a process.
@@ -1475,35 +1370,28 @@ The value
 means that the process has been terminated unvoluntarily
 by a signal, producing a core dump in its current directory;
 the signal number is displayed in the column `EXC'.
-.PP
 .TP 9
 .B STDATE
 The start date of the process.
-.PP
 .TP 9
 .B STTIME
 The start time of the process.
-.PP
 .TP 9
 .B SUID
 The saved user-id of the process.
-.PP
 .TP 9
 .B SWAPSZ
 The swap space consumed by this process (or user).
-.PP
 .TP 9
 .B SYSCPU
 CPU time consumption of this process in system mode (kernel mode), usually
 due to system call handling.
-.PP
 .TP 9
 .B THR
 Total number of threads within this process.
 All related threads are contained in a thread group, represented by
 .B pcp-atop
 as one line or as a separate line when the 'y' key (or \-y flag) is active.
-.PP
 .TP 9
 .B TID
 Thread-id.
@@ -1511,31 +1399,25 @@ All threads within a process run with the same PID but with a
 different TID.
 This value is shown for individual threads in
 multi-threaded processes (when using the key 'y').
-.PP
 .TP 9
 .B TRUN
 Number of threads within this process that are in the state 'running' (R).
-.PP
 .TP 9
 .B TSLPI
 Number of threads within this process that are in the
 state 'interruptible sleeping' (S).
-.PP
 .TP 9
 .B TSLPU
 Number of threads within this process that are in the
 state 'uninterruptible sleeping' (D).
-.PP
 .TP 9
 .B USRCPU
 CPU time consumption of this process in user mode, due to processing the
 own program text.
-.PP
 .TP 9
 .B VDATA
 The virtual memory size of the private data used by this process
 (including heap and shared library data).
-.PP
 .TP 9
 .B VGROW
 The amount of virtual memory that the process has grown during the last
@@ -1546,31 +1428,25 @@ Note that a virtual growth can also
 be negative by e.g. issueing a free() or detaching a shared memory segment.
 For a process which started during the last interval, the virtual growth
 reflects the total virtual size of the process at that moment.
-.PP
 .TP 9
 .B VPID
 Virtual process-id (within an OpenVZ container).
 If a process has been started and finished during the last
 interval, a `?' is shown because the virtual process-id is not part of
 the standard process accounting record.
-.PP
 .TP 9
 .B VSIZE
 The total virtual memory usage consumed by this process (or user).
-.PP
 .TP 9
 .B VSLIBS
 The virtual memory size of the (shared) text of all shared libraries used
 by this process.
-.PP
 .TP 9
 .B VSTACK
 The virtual memory size of the (private) stack used by this process
-.PP
 .TP 9
 .B VSTEXT
 The virtual memory size of the (shared) text of the executable program.
-.PP
 .TP 9
 .B WRDSK
 When the kernel maintains standard io statistics (>= 2.6.20):
@@ -1586,7 +1462,6 @@ Unfortunately, the kernel aggregates the
 data tranfer of a process to the data transfer of its parent process when
 terminating, so you might see transfers for (parent) processes like
 cron, bash or init, that are not really issued by them.
-.PP
 .TP 9
 .B WCANCL
 When the kernel maintains standard io statistics (>= 2.6.20):
@@ -1640,7 +1515,6 @@ The first part of each output-line consists of the following six fields:
 (number of seconds elapsed for this interval).
 .PP
 The subsequent fields of each output-line depend on the label:
-.PP
 .TP 9
 .B CPU
 Subsequent fields:
@@ -1946,20 +1820,17 @@ a final sample will be forced after which
 will terminate.
 .SH EXAMPLES
 To monitor the current system load interactively with an interval of 5 seconds:
-.PP
 .TP 12
 .B \  pcp\ atop 5
 .PP
 To monitor the system load and write it to a file (in plain ASCII)
 with an interval of one minute during half an hour with active
 processes sorted on memory consumption:
-.PP
 .TP 12
 .B \  pcp\ atop \-M 60 30 > /log/pcp-atop.mem
 .PP
 Store information about the system and process activity in a PCP archive
 folio with an interval of ten minutes during an hour:
-.PP
 .TP 12
 .B \  pcp\ atop \-w /tmp/pcp-atop 600 6
 .PP
@@ -1984,7 +1855,6 @@ View the contents of the standard logfile of 2014, June 7 from
 02:00 PM onwards interactively:
 .PP
 .B \  pcp\ atop -r 20140607 -b 14:00
-.PP
 .SH NOTES
 .B pcp-atop
 is based on the source code of the
@@ -2013,12 +1883,10 @@ and
 .BR pmdaperfevent (1)
 for further details on activating these metrics.
 .SH FILES
-.PP
 .TP 5
 .B /etc/atoprc
 Configuration file containing system-wide default values.
 See related man-page.
-.PP
 .TP 5
 .B ~/.atoprc
 Configuration file containing personal default values.

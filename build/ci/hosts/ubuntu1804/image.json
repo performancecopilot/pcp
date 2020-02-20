@@ -41,14 +41,12 @@
     { "type": "file", "source": "common/debian/build.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/debian/install.sh", "destination": "/tmp/" },
     { "type": "file", "source": "common/linux/test.sh", "destination": "/tmp/" },
-    { "type": "shell", "inline": ["sudo mkdir /usr/local/ci && sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /usr/local/ci"]},
+    { "type": "file", "source": "common/linux/create_report.py", "destination": "/tmp/" },
+    { "type": "shell", "inline": ["sudo mkdir /usr/local/ci && sudo mv /tmp/build.sh /tmp/install.sh /tmp/test.sh /tmp/create_report.py /usr/local/ci"]},
+    { "type": "file", "source": "../../qa", "destination": "./" },
     {
       "type": "shell",
-      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
-      "environment_vars": [
-        "GIT_REPO={{user `git_repo`}}",
-        "GIT_COMMIT={{user `git_commit`}}"
-      ],
+      "execute_command": "sudo {{ .Vars }} '{{ .Path }}'",
       "scripts": [
         "hosts/ubuntu1804/setup_bcc_upstream.sh",
         "common/debian/provision.sh",
