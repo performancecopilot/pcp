@@ -3,8 +3,8 @@
 cd "$(dirname "$0")/.."
 . scripts/env.sh
 . scripts/env.vmss.sh
-tests="$2"
-tests_dir="$3"
+tests="${2:-sanity}"
+tests_dir="${3:-/tmp/pcp-test-logs}"
 tests_job_file="${tests_dir}/jobs.txt"
 tests_junit_file="${tests_dir}/tests.xml"
 tests_results_dir="${tests_dir}/test-results"
@@ -15,8 +15,11 @@ tests=$(grep -E "${tests}" ../../qa/group | grep -oP '^[0-9]+(?= )' || true)
 
 status=0
 mkdir -p "${tests_dir}"
-parallel --jobs 1 --max-args 30 --timeout 30m --eta --joblog "${tests_job_file}" --results "${tests_results_dir}/{}/" \
-  -S "${AZ_VMSS_HOSTS_SSH}" /usr/local/ci/test.sh ::: "${tests}" > /dev/null || status=$?
+parallel -S "${AZ_VMSS_HOSTS_SSH}" \
+  --jobs 1 --max-args 30 --timeout 30m \
+  --tag --line-buffer --eta \
+  --joblog "${tests_job_file}" --results "${tests_results_dir}/{}/" \
+  /usr/local/ci/test.sh ::: "${tests}" || status=$?
 
 echo
 echo Generate JUnit output
