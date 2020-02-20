@@ -214,7 +214,8 @@ $VERBOSE && echo REPORTDIR=$REPORTDIR
 
 # Create output directory - if this fails due to permissions we exit later
 #
-[ -d "$REPORTDIR" ] || mkdir -p "$REPORTDIR" 2>/dev/null
+[ -d "$REPORTDIR" ] \
+    || { mkdir -p "$REPORTDIR" 2>/dev/null; chmod 0775 "$REPORTDIR" 2>/dev/null; }
 
 # Default output file is the day of month for yesterday in REPORTDIR
 #
