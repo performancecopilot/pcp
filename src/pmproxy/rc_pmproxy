@@ -32,6 +32,14 @@
 # Short-Description: Control pmproxy (the pmcd proxy daemon for PCP)
 # Description:       Configure and control pmproxy (the pmcd proxy daemon for the Performance Co-Pilot)
 ### END INIT INFO
+#
+# For FreeBSD
+# PROVIDE: pmproxy
+# REQUIRE: NETWORKING FILESYSTEMS pmcd
+# KEYWORD: shutdown
+# And add the following lines to /etc/rc.conf to run pmcd:
+# pmproxy_enable="YES"
+#
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/rc-proc.sh
@@ -149,7 +157,7 @@ _shutdown()
 
 _usage()
 {
-    echo "Usage: $pmprog [-v] {start|restart|condrestart|stop|status|reload|force-reload}"
+    echo "Usage: $pmprog [-v] {start|faststart|restart|condrestart|stop|status|reload|force-reload}"
 }
 
 while getopts v c
@@ -205,7 +213,7 @@ $RC_RESET
 # considered a success.
 case "$1" in
 
-  'start'|'restart'|'condrestart'|'reload'|'force-reload')
+  start|faststart|restart|condrestart|reload|force-reload)
 	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmproxy
 	then
 	    status=0
@@ -280,12 +288,12 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 	status=0
         ;;
 
-  'stop')
+  stop)
 	_shutdown
 	status=0
         ;;
 
-  'status')
+  status)
 	# NOTE: $RC_CHECKPROC returns LSB compliant status values.
 	$ECHO $PCP_ECHO_N "Checking for pmproxy:" "$PCP_ECHO_C"
         if [ -r /etc/rc.status ]
