@@ -1,8 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 1599
-# Exercises installation and removal of pmdastatsd
+# PCP QA Test No. 1708
+# Exercises pmdastatsd - setting all configuration options via ini files (NOT the settings themselves) and fetching them via pminfo
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2020 Red Hat.
 #
 
 seq=`basename $0`
@@ -31,7 +31,7 @@ trap "_cleanup_pmda statsd; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 cd $here/statsd/src
-$sudo $python cases/01.py
+$sudo $python cases/02.py
 cd $here
 status=0
 exit

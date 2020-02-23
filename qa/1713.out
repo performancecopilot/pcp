@@ -1,0 +1,33 @@
+QA output created by 1713
+======================
+07.py
+----------------------
+Setting config:
+~~~
+
+[global]
+duration_aggregation_type = 0
+
+~~~
+statsd.test_duration
+    inst [0 or "/min"] value 1
+    inst [1 or "/max"] value 100
+    inst [2 or "/median"] value 50
+    inst [3 or "/average"] value 50.5
+    inst [4 or "/percentile90"] value 90
+    inst [5 or "/percentile95"] value 95
+    inst [6 or "/percentile99"] value 99
+    inst [7 or "/count"] value 100
+    inst [8 or "/std_deviation"] value 28.86607004772212
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
