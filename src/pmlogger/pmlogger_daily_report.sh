@@ -53,7 +53,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 echo > $tmp/usage
 cat >> $tmp/usage <<EOF
 Options:
-  -a=FILE		  input archive file basename or directory path (default yesterdays $PCP_LOG_DIR/pmlogger/<hostname>/YYYYMMDD)
+  -a=FILE		  input archive file basename or directory path (default yesterdays $PCP_ARCHIVE_DIR/<hostname>/YYYYMMDD)
   -f=FILE		  output filename (default "sarXX" in directory specified with -o, for XX yesterdays day of the month)
   -h=HOSTNAME		  hostname, affects the default input archive file path (default local hostname)
   -l=FILE,--logfile=FILE  send important diagnostic messages to FILE
@@ -204,7 +204,7 @@ exec 1>"$PROGLOG" 2>&1
 # and rely on multi-archive mode because this script might
 # take a long time to run as a result.
 #
-[ -z "$ARCHIVEPATH" ] && ARCHIVEPATH=$PCP_LOG_DIR/pmlogger/$HOSTNAME/`pmdate -1d %Y%m%d`
+[ -z "$ARCHIVEPATH" ] && ARCHIVEPATH=$PCP_ARCHIVE_DIR/$HOSTNAME/`pmdate -1d %Y%m%d`
 $VERBOSE && echo ARCHIVEPATH=$ARCHIVEPATH
 
 # Default output directory

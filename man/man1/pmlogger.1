@@ -950,7 +950,7 @@ assorted configuration files suitable for creating logs that may
 be subsequently replayed with the PCP visualization and monitoring
 tools
 .TP
-.I $PCP_LOG_DIR/pmlogger/<hostname>
+.I $PCP_ARCHIVE_DIR/<hostname>
 Default directory for PCP archive files for performance
 metric values collected from the host
 .IR <hostname> .
@@ -963,7 +963,7 @@ Only settings of the form "PMLOGGER_VARIABLE=value" will be honoured.
 .TP
 .I \&./pmlogger.log
 (or
-.I $PCP_LOG_DIR/pmlogger/<hostname>/pmlogger.log
+.I $PCP_ARCHIVE_DIR/<hostname>/pmlogger.log
 when started automatically by either
 .B $PCP_RC_DIR/pmlogger
 or one of the

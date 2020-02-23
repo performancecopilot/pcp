@@ -1,18 +1,18 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2016,2018 Red Hat.
+# Copyright (c) 2013-2016,2018,2020 Red Hat.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 # Administrative script to check pmlogger processes are alive, and restart
 # them as required.
 #
@@ -518,7 +518,10 @@ _parse_control()
 	return
     fi
 
-    sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" $controlfile | \
+    sed \
+	-e "s;PCP_ARCHIVE_DIR;$PCP_ARCHIVE_DIR;g" \
+	-e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
+	$controlfile | \
     while read host primary socks dir args
     do
 	# start in one place for each iteration (beware relative paths)

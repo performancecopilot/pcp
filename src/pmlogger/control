@@ -41,7 +41,7 @@ $version=1.1
 
 # === LOGGER CONTROL SPECIFICATIONS ===
 #
-#Host		P?  S?	directory				args
+#Host		P?  S?	directory			args
 
 #
 # Note: - LOCALHOSTNAME will be expanded to local: in the first column,
@@ -54,10 +54,10 @@ $version=1.1
 #
 
 # local non-primary logger
-#LOCALHOSTNAME	n   n	PCP_LOG_DIR/pmlogger/mysummary		-r -T24h10m -c config.Summary
+#LOCALHOSTNAME	n   n	PCP_ARCHIVE_DIR/mysummary	-r -T24h10m -c config.Summary
 
 # remote host
-#remote		n   n	PCP_LOG_DIR/pmlogger/remote		-r -T24h10m -c config.remote
+#remote		n   n	PCP_ARCHIVE_DIR/remote		-r -T24h10m -c config.remote
 
 # thru the firewall via socks
-#distant	n   y	PCP_LOG_DIR/pmlogger/distant		-r -T24h10m -c config.distant
+#distant	n   y	PCP_ARCHIVE_DIR/distant		-r -T24h10m -c config.distant

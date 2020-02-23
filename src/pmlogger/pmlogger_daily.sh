@@ -360,9 +360,10 @@ then
     if [ ! -f $tmp/ok ]
     then
 	# special start up logic when pmlogger_daily.stamp does not exist
-	# ... punt on archive files being below $PCP_LOG_DIR/pmlogger
+	# ... by convention, archive files are stored in per-host directories
+	# below $PCP_ARCHIVE_DIR
 	#
-	find $PCP_LOG_DIR/pmlogger -name "`pmdate -1d %Y%m%d`.index" >$tmp/tmp
+	find "$PCP_ARCHIVE_DIR" -name "`pmdate -1d %Y%m%d`.index" >$tmp/tmp
 	if [ -s $tmp/tmp ]
 	then
 	    $SHOWME && echo "-p start up already run heuristic match, do nothing"
@@ -758,7 +759,10 @@ _parse_control()
 	return
     fi
 
-    sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" $controlfile | \
+    sed \
+	-e "s;PCP_ARCHIVE_DIR;$PCP_ARCHIVE_DIR;g" \
+	-e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
+	$controlfile | \
     while read host primary socks dir args
     do
 	# start in one place for each iteration (beware relative paths)
@@ -1472,7 +1476,7 @@ p
 	    else
 		mtime=$TRACE
 	    fi
-	    find $PCP_LOG_DIR/pmlogger -type f -mtime +$mtime \
+	    find "$PCP_ARCHIVE_DIR" -type f -mtime +$mtime \
 	    | sed -n -e '/pmlogger\/daily\..*\.trace/p' \
 	    | sort >$tmp/list
 	    if [ -s $tmp/list ]
