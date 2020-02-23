@@ -2336,8 +2336,8 @@ httpline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 static void
 topchead(int osvers, int osrel, int ossub)
 {
-	printf("  pid command  cpu%% |   pid command  cpu%% | "
-	       "  pid command  cpu%%_top3_");
+	printf("    pid command  cpu%% |     pid command  cpu%% | "
+	       "    pid command  cpu%%_top3_");
 }
 
 static int
@@ -2370,21 +2370,21 @@ topcline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 		availcpu = 1;	/* avoid divide-by-zero */
 
 	if (nactproc >= 1 && (ps[0])->cpu.stime + (ps[0])->cpu.utime > 0)
-	    printf("%5d %-8.8s %3.0lf%% | ",
+	    printf("%7d %-8.8s %3.0lf%% | ",
 	      (ps[0])->gen.pid, (ps[0])->gen.name,
 	      (double)((ps[0])->cpu.stime + (ps[0])->cpu.utime)*100.0/availcpu);
         else
 	    printf("%19s | ", " ");
 
 	if (nactproc >= 2 && (ps[1])->cpu.stime + (ps[1])->cpu.utime > 0)
-	    printf("%5d %-8.8s %3.0lf%% | ",
+	    printf("%7d %-8.8s %3.0lf%% | ",
 	      (ps[1])->gen.pid, (ps[1])->gen.name,
 	      (double)((ps[1])->cpu.stime + (ps[1])->cpu.utime)*100.0/availcpu);
         else
 	    printf("%19s | ", " ");
 
 	if (nactproc >= 3 && (ps[2])->cpu.stime + (ps[2])->cpu.utime > 0)
-	    printf("%5d %-8.8s %3.0lf%%\n",
+	    printf("%7d %-8.8s %3.0lf%%\n",
 	      (ps[2])->gen.pid, (ps[2])->gen.name,
 	      (double)((ps[2])->cpu.stime + (ps[2])->cpu.utime)*100.0/availcpu);
         else
@@ -2400,8 +2400,8 @@ topcline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 static void
 topmhead(int osvers, int osrel, int ossub)
 {
-	printf("  pid command  mem%% |   pid command  mem%% | "
-	       "  pid command  mem%%_top3_");
+	printf("    pid command  mem%% |     pid command  mem%% | "
+	       "    pid command  mem%%_top3_");
 }
 
 static int
@@ -2426,21 +2426,21 @@ topmline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 	availmem  = ss->mem.physmem;
 
         if (nactproc >= 1)
-	    printf("%5d %-8.8s %3.0lf%% | ",
+	    printf("%7d %-8.8s %3.0lf%% | ",
 	      (ps[0])->gen.pid, (ps[0])->gen.name,
 	      (double)(ps[0])->mem.rmem * 100.0 / availmem);
         else
 	    printf("%19s | ", " ");
 
         if (nactproc >= 2)
-	    printf("%5d %-8.8s %3.0lf%% | ",
+	    printf("%7d %-8.8s %3.0lf%% | ",
 	      (ps[1])->gen.pid, (ps[1])->gen.name,
 	      (double)(ps[1])->mem.rmem * 100.0 / availmem);
         else
 	    printf("%19s | ", " ");
 
         if (nactproc >= 3)
-	    printf("%5d %-8.8s %3.0lf%%\n",
+	    printf("%7d %-8.8s %3.0lf%%\n",
 	      (ps[2])->gen.pid, (ps[2])->gen.name,
 	      (double)(ps[2])->mem.rmem * 100.0 / availmem);
         else
@@ -2456,8 +2456,8 @@ topmline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 static void
 topdhead(int osvers, int osrel, int ossub)
 {
-	printf("  pid command  dsk%% |   pid command  dsk%% | "
-	       "  pid command  dsk%%_top3_");
+	printf("    pid command  dsk%% |     pid command  dsk%% | "
+	       "    pid command  dsk%%_top3_");
 }
 
 static int
@@ -2498,21 +2498,21 @@ topdline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 	qsort(ps, nactproc, sizeof(struct tstat *), compdsk);
 
         if (nactproc >= 1 && (ps[0])->dsk.rio + (ps[0])->dsk.wio > 0)
-	    printf("%5d %-8.8s %3.0lf%% | ",
+	    printf("%7d %-8.8s %3.0lf%% | ",
 	      (ps[0])->gen.pid, (ps[0])->gen.name,
 	      (double)((ps[0])->dsk.rio+(ps[0])->dsk.wio) *100.0/availdsk);
         else
 	    printf("%19s | ", " ");
 
         if (nactproc >= 2 && (ps[1])->dsk.rio + (ps[1])->dsk.wio > 0)
-	    printf("%5d %-8.8s %3.0lf%% | ",
+	    printf("%7d %-8.8s %3.0lf%% | ",
 	      (ps[1])->gen.pid, (ps[1])->gen.name,
 	      (double)((ps[1])->dsk.rio+(ps[1])->dsk.wio) *100.0/availdsk);
         else
 	    printf("%19s | ", " ");
 
         if (nactproc >= 3 && (ps[2])->dsk.rio + (ps[2])->dsk.wio > 0)
-	    printf("%5d %-8.8s %3.0lf%%\n",
+	    printf("%7d %-8.8s %3.0lf%%\n",
 	      (ps[2])->gen.pid, (ps[2])->gen.name,
 	      (double)((ps[2])->dsk.rio+(ps[2])->dsk.wio) *100.0/availdsk);
         else
@@ -2528,8 +2528,8 @@ topdline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 static void
 topnhead(int osvers, int osrel, int ossub)
 {
-	printf("  pid command  net%% |   pid command  net%% | "
-	       "  pid command  net%%_top3_");
+	printf("    pid command  net%% |     pid command  net%% | "
+	       "    pid command  net%%_top3_");
 }
 
 static int
@@ -2577,7 +2577,7 @@ topnline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 		           (ps[0])->net.udpssz + (ps[0])->net.udprsz;
 
 		if (totbytes > 0)
-			printf("%5d %-8.8s %3.0lf%% | ",
+			printf("%7d %-8.8s %3.0lf%% | ",
 				(ps[0])->gen.pid, (ps[0])->gen.name,
 				(double)totbytes * 100.0 / availnet);
         	else
@@ -2592,7 +2592,7 @@ topnline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 		           (ps[1])->net.udpssz + (ps[1])->net.udprsz;
 
 		if (totbytes > 0)
-			printf("%5d %-8.8s %3.0lf%% | ",
+			printf("%7d %-8.8s %3.0lf%% | ",
 				(ps[1])->gen.pid, (ps[1])->gen.name,
 				(double)totbytes * 100.0 / availnet);
         	else
@@ -2607,7 +2607,7 @@ topnline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 		           (ps[2])->net.udpssz + (ps[2])->net.udprsz;
 
 		if (totbytes > 0)
-			printf("%5d %-8.8s %3.0lf%%\n",
+			printf("%7d %-8.8s %3.0lf%%\n",
 				(ps[2])->gen.pid, (ps[2])->gen.name,
 				(double)totbytes * 100.0 / availnet);
         	else
