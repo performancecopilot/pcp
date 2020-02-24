@@ -456,7 +456,9 @@ refresh_interrupt_values(void)
     while (fgets(iobuf, iobufsz, fp) != NULL) {
 	iobuf[iobufsz - 1] = '\0';
 	/* next we parse each interrupt line row (starting with a digit) */
-	sts = extract_interrupt_lines(iobuf, ncolumns, i++);
+	sts = extract_interrupt_lines(iobuf, ncolumns, i);
+	if (sts > 0)
+	    i++;
 	if (sts > 1)
 	    resized++;
 	if (sts)
@@ -466,7 +468,9 @@ refresh_interrupt_values(void)
 	if (extract_interrupt_misses(iobuf))
 	    continue;
 	/* parse other per-CPU interrupt counter rows (starts non-digit) */
-	sts = extract_interrupt_other(iobuf, ncolumns, j++);
+	sts = extract_interrupt_other(iobuf, ncolumns, j);
+	if (sts > 0)
+	    j++;
 	if (sts > 1)
 	    resized++;
 	if (!sts)
