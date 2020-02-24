@@ -1684,6 +1684,7 @@ BAD
 1455 pmlogrewrite labels pmdumplog local
 1457 pmproxy local
 1480 pmda.lmsensors local
+1490:reserved python local labels
 1495 pmlogrewrite labels pmdumplog local
 1511 pmcd local
 1543 pmproxy local
