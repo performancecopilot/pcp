@@ -1,5 +1,113 @@
 pcp-5.0.3 (27 February 2020)
-    - Work in progress: https://github.com/performancecopilot/pcp/projects/1
+    - Client tools and utilities:
+	iostat2pcp: fix parsing after output change in latest iostat version
+	pmseries: add --load option file name heuristics
+	zsh completion: complete paths for pmseries --load option
+	pcp2xml: adjust escaping rules
+	pcp2xlsx: properly output local context (-L) source
+	pcp-atop: fix double free found by make check
+	pcp-atop: add defensive pointer checks when iterating current tasks
+	pcp-atop: fix upper limit of output pid to 7-digits
+	pcp-dstat: perform sub-sample averaging over the delay window
+	pcp-dstat: drop use of list clear() as its unavailable in python2
+	pcp-dstat: fix a typo in command line alias of --fs with --filesystem
+	pcp-dstat: add options for md, dm and disk partition reporting
+	pcp-dstat: add mysql and innodb plugin configuration file
+	pcp-pidstat: refinements to out-of-order archived metric checks
+	pmieconf: fix use-after-free on a path error message
+	pmrep: add support for writing archives with help texts
+	pmrep: cleanup discreate value handling in archive writing
+	pmrep/pcp2xxx: avoid issues with intermittent/vanishing instances
+	pmrep/pcp2xxx: handle corner case of initially missing instances
+    - Server-side utilities and log management scripts:
+	pmlogger: provide single configurable location for archive discovery
+	pmproxy: do not install log discovery callbacks when not needed
+    - PMDA additions, enhancements and bug fixes:
+	pmdammv: prevent internal checks from artificially limiting indoms
+	pmdabcc: add klockstat module
+	pmdabpftrace: detect stacks in multidimensional eBPF maps
+	pmdabpftrace: emphasize disabled authentication warning
+	pmdaopenmetrics: provide a default configuration for grafana metrics
+	pmdaopenmetrics: record metrics if the pmda is configured
+	pmdafreebsd: some metrics upgraded to 64-bit in recent FreeBSD releases
+	pmdastatsd: make metric value double type handling more consistent
+	pmdalinux: fix interrupts file parser for s390x /proc/interrupts layout
+	pmdalinux: convert uptime and idletime metrics to double precision
+	pmdalinux: fix another batch of KERNEL_ULONG errors
+	pmdaactivemq: module name and path resolution fixes for latest perl
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+	python api: avoid null references in pmGetInDomDict()
+	python api: fix pmParseUnitsStr for Python2
+	python api: allow pmUnits to be converted to an int
+	python api: decode byte array to string as arg to json.loads
+	pmconfig.py: increase max_insts for pmfg (fetchgroup class bound)
+	libpcp_web: correct logic for copy discovered source hostname/labels
+	libpcp_web: fix memory leak when discovery enabled without redis-server
+	libpcp_web: fix SDS_NOINIT declaration for -fno-common
+	libpcp_web: rework discover to track archives, handle new logvols
+	libpcp_web: improve handling of metric 'cached' field
+	libpcp: add interfaces for dynamic context changes
+	libpcp_web: silence pmNewContext failed messages in archive discovery
+	libpcp_web: fix discovery traversal segfault
+	libpcp_web: fix discovery logvol switching, reduce CPU overheads
+	libpcp_web: handle dynamic metadata changes in log discovery
+	libpcp_web: hold context lock around log metadata updates in discovery
+	libpcp_web: provide a metric discovery exclusion mechanism
+	libpcp_web: survive daily log-roll in discovery archive tracking
+	libpcp_web: fix portability issues with struct stat fields
+	libpcp_web: discovery, assign new context before calling pmGetArchiveEnd
+	libpcp_import: add logvol switching for importing large datasets
+    - Misc build, infrastructure and packaging updates:
+	build: drop python2 sub-packages for .deb package builds
+	build: tweak the way python variable is set in configure.ac
+	build: set path to hostname depending on usrmerge
+	build: fix pcp.spec.in guard for /usr/bin/hostname
+	build: fix isspace() et al across multiple files
+	build: fix compilation with gcc10 across multiple files
+	build: add static checking for man pages, for CI
+	build: pylint enabled for all remaining python utilities
+	build: update rpm spec with lm_sensors package dep for pcp-pmda-lmsensors
+	build: update rpm spec with perl-autodie package dep for pcp-pmda-redis
+	build: update rpm spec with smartmontools package dep for pcp-pmda-smart
+	build: update rpm spec with perl-Time-HiRes package dep for pcp-pmda-pdns
+	build: update rpm spec with perl-Time-HiRes package dep for pcp-pmda-redis
+	build: update rpm spec with perl-Time-HiRes/autodie package deps for pcp-pmda-bind2
+	build: update rpm spec with perl-DBI package dep for pcp-pmda-dbping
+	build: update rpm spec with 389-ds-base package dep for pcp-pmda-ds389log
+	build: update rpm spec with perl-JSON/TimeHiRes package deps for pcp-pmda-gpsd
+	ci: automated release on bintray
+	ci: restructure provisioning scripts
+	ci: install libuv-devel from EPEL on rhel7
+	ci: don't publish test results for cancelled builds
+	ci: fix test runs for ubuntu distros, update f31 image generation
+	ci: batch tests to reduce overhead
+	ci: update output of GNU parallel, default arguments for scripts
+	ci: fix shellcheck hints
+	ci: snapshot builds, publish to bintray [distro]-nightly repository
+	ci: change VM size, update computer name, incr timeout, start redis
+	ci: use XML api for creating JUnit test report to avoid escaping issues
+	ci: run Makepkgs with --check option
+	qt code: convert deprecated QString::null to QString()
+	python api: resolve pylint issue in pmconfig 'help' (redefined-builtin)
+	pmdamssql: make rpm build conditional on platform support
+    - Security Enhanced Linux:
+	selinux: add pmcd_t fixed_disk_device read capability for smart PMDA
+	selinux: assorted minor policy fixups for different platforms
+	selinux: add policy for named pmda executing /usr/sbin/rndc on el7
+	selinux: add policy needed for pmdastatd to access statsd UDP port
+	selinux: allow pcp_pmlogger_t access to execute setfiles on el7 ppc64le
+    - Documentation and QA infrastructure:
+	man: numerous fixes to man pages from static checking
+	doc: rename CONTRIBUTING file as per de-facto standards
+	qa: numerous unicode strings updates for older vs newer python versions
+	qa: numerous fixes for OpenSuse 15.1, esp. bpf related
+	qa: try to avoid test 054 causing a "hang" in QA Farm
+	qa: provide a sample-labels archive for testing labels
+	qa: pmdastatsd QA converted from ruby to python
+	qa: fix 1661 to work with multiple pmlogger/farm and add _check_series check
+	qa: fix for pmlogger_daily_report causing PCP testsuite to fail
+	qa: split up statsd test 1599 into smaller test cases
+	qa: _notrun tweaks for bcc PMDA QA tests
 
 pcp-5.0.2 (11 December 2019)
     - Server-side utilities and log management scripts:
