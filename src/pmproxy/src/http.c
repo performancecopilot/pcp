@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Red Hat.
+ * Copyright (c) 2019-2020 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -81,7 +81,7 @@ int
 http_decode(const char *url, size_t urllen, sds buf)
 {
     const char		*end = url + urllen;
-    char		*out;
+    char		*out, escape[4] = {0};
     int			c;
 
     for (out = buf; url < end; out++) {
@@ -94,7 +94,11 @@ http_decode(const char *url, size_t urllen, sds buf)
 	    if (url + 3 > end)
 	        return -EINVAL;
 	    url++;	/* move past percent character */
-	    if (!ishex(*url++) || !ishex(*url++) || !sscanf(url - 2, "%2x", &c))
+	    if (!ishex(*url++) || !ishex(*url++))
+		return -EINVAL;
+	    escape[0] = *(url - 2);
+	    escape[1] = *(url - 1);
+	    if (sscanf(escape, "%2x", &c) != 1)
 		return -EINVAL;
 	}
 	if (out - buf > sdslen(buf))
@@ -553,7 +557,8 @@ servlet_lookup(struct client *client, const char *offset, size_t length)
     struct servlet	*servlet;
     sds			url;
 
-    url = http_url_decode(offset, length, &client->u.http.parameters);
+    if (!(url = http_url_decode(offset, length, &client->u.http.parameters)))
+	return NULL;
     for (servlet = proxy->servlets; servlet != NULL; servlet = servlet->next) {
 	if (servlet->on_url(client, url, client->u.http.parameters) != 0)
 	    break;

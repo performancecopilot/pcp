@@ -101,6 +101,13 @@ curl --get --silent "http://localhost:$port/pmapi/fetch?names=$metrics&$params" 
 grep "^curl" $tmp.tmp
 cat $tmp.tmp >>$seq.full
 
+date >>$seq.full
+echo "=== checking url escaping operation ===" | tee -a $seq.full
+metrics="%2Csample.long.one%2Csample.double.one%2C%2C"	# %2C == ','
+curl --get --silent "http://localhost:$port/pmapi/fetch?names=$metrics&$params" >$tmp.tmp 2>&1
+grep "^curl" $tmp.tmp
+cat $tmp.tmp >>$seq.full
+
 echo "=== check pmproxy is running ==="
 pminfo -v -h localhost@localhost:$port hinv.ncpu
 if [ $? -eq 0 ]; then
