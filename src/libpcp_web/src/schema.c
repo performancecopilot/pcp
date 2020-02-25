@@ -1847,7 +1847,7 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
     unsigned int	domain, serial;
     pmInDom		indom;
     sds			option, *ids;
-    int			i, sts, nids, count = 0;
+    int			i, sts, nids;
 
     if (data == NULL)
 	return -ENOMEM;
