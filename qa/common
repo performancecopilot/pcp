@@ -214,7 +214,7 @@ _havelogger()
 		cat >>$tmp.tmp <<'End-of-File'
 
 # added by PCP QA
-LOCALHOSTNAME	y   n	PCP_LOG_DIR/pmlogger/LOCALHOSTNAME	-c config.default
+LOCALHOSTNAME	y   n	PCP_ARCHIVE_DIR/LOCALHOSTNAME	-c config.default
 End-of-File
 		$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH.d/local
 	    fi

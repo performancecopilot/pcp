@@ -676,7 +676,7 @@ _wait_for_pmlogger()
 	    _pid="-P"
 	    _sudo="$sudo -u pcp"
 	    dir_hostname=`hostname || echo localhost`
-	    _logfile="$PCP_LOG_DIR/pmlogger/$dir_hostname/pmlogger.log" 
+	    _logfile="$PCP_ARCHIVE_DIR/$dir_hostname/pmlogger.log" 
             _iam="primary"
 	    ;;
 	2)
@@ -1123,7 +1123,7 @@ _restore_pmlogger_control()
 {
     for _file in `find $PCP_ETC_DIR/pcp/pmlogger -type f`
     do
-	$PCP_AWK_PROG '/^\$/ || /^#/ || (/PCP_LOG_DIR/ && $2 == "y") {print}' \
+	$PCP_AWK_PROG '/^\$/ || /^#/ || (/PCP_ARCHIVE_DIR/ && $2 == "y") {print}' \
 		$_file >$tmp.new
 	$sudo mv $tmp.new $_file
     done
@@ -2395,7 +2395,7 @@ _disable_loggers()
 # The goal here is to have a controlled primary logger that does
 # not make requests to pmcd!
 \$version=1.1
-LOCALHOSTNAME y n PCP_LOG_DIR/pmlogger/LOCALHOSTNAME -c /dev/null
+LOCALHOSTNAME y n PCP_ARCHIVE_DIR/LOCALHOSTNAME -c /dev/null
 End-of-File
     $sudo cp $tmp._tmp $PCP_PMLOGGERCONTROL_PATH
 }
