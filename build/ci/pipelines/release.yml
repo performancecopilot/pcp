@@ -12,6 +12,7 @@ jobs:
     displayName: "Release:"
     strategy:
       matrix: $[ dependencies.prepare.outputs['matrix_step.matrix'] ]
+    timeoutInMinutes: 360
     steps:
       - template: templates/qa-steps.yml
 
