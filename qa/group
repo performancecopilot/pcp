@@ -359,7 +359,7 @@ oldversion
 bash
 zsh
 
-# pmcollectl and collectl2pcp and pcp-collectl
+# collectl2pcp
 collectl
 
 # pmlogsize
@@ -1684,6 +1684,7 @@ BAD
 1455 pmlogrewrite labels pmdumplog local
 1457 pmproxy local
 1480 pmda.lmsensors local
+1490:reserved python local labels
 1495 pmlogrewrite labels pmdumplog local
 1511 pmcd local
 1543 pmproxy local
@@ -1715,4 +1716,17 @@ BAD
 1705 pmda.bpftrace local python
 1706 pmda.bpftrace local python
 1707 pmda.bpftrace local python
+1708 pmda.statsd local
+1709 pmda.statsd local
+1710 pmda.statsd local
+1711 pmda.statsd local
+1712 pmda.statsd local
+1713 pmda.statsd local
+1714 pmda.statsd local
+1715 pmda.statsd local
+1716 pmda.statsd local
+1717 pmda.statsd local
+1718 pmda.statsd local
+1719 pmda.statsd local
+1720 pmda.statsd local
 4751 libpcp threads valgrind local pcp

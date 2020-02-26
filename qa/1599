@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1599
-# Run each of the statsd PMDA python tests.
+# Exercises installation and removal of pmdastatsd
 #
 # Copyright (c) 2019 Red Hat.
 #
@@ -31,12 +31,7 @@ trap "_cleanup_pmda statsd; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 cd $here/statsd/src
-scripts=`find cases -name *.py | LC_COLLATE=POSIX sort`
-for script in $scripts
-do
-    $sudo $python $script $here/statsd/output
-done
+$sudo $python cases/01.py
 cd $here
-
 status=0
 exit

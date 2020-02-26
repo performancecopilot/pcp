@@ -3349,6 +3349,9 @@ pcp_log_dir=`eval echo $pcp_log_dir`
 pcp_log_dir=`eval echo $pcp_log_dir`
 AC_SUBST(pcp_log_dir)
 
+pcp_archive_dir=$pcp_log_dir/pmlogger
+AC_SUBST(pcp_archive_dir)
+
 pcp_sa_dir=$pcp_log_dir/sa
 AC_SUBST(pcp_sa_dir)
 

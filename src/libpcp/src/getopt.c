@@ -375,31 +375,22 @@ addArchive(pmOptions *opts, char *arg)
 void
 __pmAddOptArchivePath(pmOptions *opts)
 {
-    const char	fallback[] = "/var/log/pcp";
-    const char	*paths[] = { "pmlogger", "pmmgr" };
-    const char	*logdir = pmGetOptionalConfig("PCP_LOG_DIR");
+    const char	fallback[] = "/var/log/pcp/pmlogger";
+    const char	*logdir = pmGetOptionalConfig("PCP_ARCHIVE_DIR");
     char	hostname[MAXHOSTNAMELEN];
     char	sep = pmPathSeparator();
     char	dir[MAXPATHLEN];
-    int		i, found = 0;
 
     if (!logdir)
 	logdir = fallback;
     if (gethostname(hostname, sizeof(hostname)) < 0)
 	pmsprintf(hostname, sizeof(hostname), "localhost");
 
-    for (i = 0; i < sizeof(paths)/sizeof(paths[0]); i++) {
-	pmsprintf(dir, sizeof(dir), "%s%c%s%c%s",
-			logdir, sep, paths[i], sep, hostname);
-	if (access(dir, F_OK) == 0) {
-	    addArchive(opts, dir);
-	    found = 1;
-	    break;
-	}
-    }
-    if (!found) {
-	pmsprintf(dir, sizeof(dir), "%s%c%s%c%s",
-			logdir, sep, paths[0], sep, hostname);
+    pmsprintf(dir, sizeof(dir), "%s%c%s", logdir, sep, hostname);
+    if (access(dir, F_OK) == 0) {
+	addArchive(opts, dir);
+    } else {
+	pmsprintf(dir, sizeof(dir), "%s%c%s", logdir, sep, hostname);
 	addArchive(opts, dir);
     }
 }

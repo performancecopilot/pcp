@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # Exercises agent's memory handling with Valgrind
-# TODO: complete the test
 
 import sys
 import socket
@@ -13,11 +12,6 @@ import subprocess
 
 from subprocess import PIPE, Popen
 from threading  import Thread
-
-try:
-    from queue import Queue, Empty
-except ImportError:
-    from Queue import Queue, Empty  # python 2.x
 
 ON_POSIX = 'posix' in sys.builtin_module_names
 

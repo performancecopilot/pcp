@@ -23,16 +23,21 @@ else
     ln $seq.out.nonipv6 $seq.out || exit 1
 fi
 
+_filter_info()
+{
+    sed -e '/PMNS file "DEFAULT" is unchanged/d'
+}
+
 _filter_err()
 {
     _filter_pmcd_log \
+    | _filter_info \
     | sed \
 	-e 's/ __pmBind: / bind: /g' \
 	-e 's/may already be running/is already running/g' \
 	-e '/Log for pmcd/,/INADDR_ANY/c\
 ... boring stuff deleted' \
 	-e '/ok FD 44321 ipv6 INADDR_ANY/d' \
-	-e '/PMNS file "DEFAULT" is unchanged/d' \
 	-e '/OpenRequestSocket.*unix.*bind: Address already in use/{
 N
 d
@@ -100,7 +105,7 @@ do
 done
 if [ -f pmcd.log ]
 then
-    cp pmcd.log pmcd.log.$$
+    _filter_info < pmcd.log > pmcd.log1.$$
 else
     echo "No pmcd.log, pmcd failed to start?"
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mcd'
@@ -126,12 +131,15 @@ echo "Checking for startup errors ..."
 # Make sure that there are no changes to the pmcd log file
 #
 echo "Checking that the original pmcd log hasn't changed ..."
-if diff pmcd.log pmcd.log.$$
+_filter_info < pmcd.log > pmcd.log2.$$
+if diff pmcd.log2.$$ pmcd.log1.$$
 then
     status=0
 else
-    echo "+++ log file for first pmcd +++" >>$here/$seq.full
-    cat pmcd.log >>$here/$seq.full
+    echo "+++ log file for first pmcd (1) +++" >>$here/$seq.full
+    cat pmcd.log2.$$ >>$here/$seq.full
+    echo "+++ log file for first pmcd (2) +++" >>$here/$seq.full
+    cat pmcd.log1.$$ >>$here/$seq.full
     echo "+++ log file for second pmcd +++" >>$here/$seq.full
     cat $tmp.log >>$here/$seq.full
 fi

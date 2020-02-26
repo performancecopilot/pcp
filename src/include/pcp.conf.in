@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015,2019 Red Hat.
+# Copyright (c) 2013-2015,2019-2020 Red Hat.
 # Copyright (c) 2000-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -124,10 +124,14 @@ PCP_PMDAS_DIR=@pcp_pmdas_dir@
 # Standard path: /var/run/pcp
 PCP_RUN_DIR=@pcp_run_dir@
 
-# directory for PCP logs
+# directory for PCP daemon log files
 # Standard path: /var/log/pcp
 # Subdirectories: pmcd pmlogger pmie
 PCP_LOG_DIR=@pcp_log_dir@
+
+# parent directory of PCP archive directories
+# Standard path: /var/log/pcp/pmlogger
+PCP_ARCHIVE_DIR=@pcp_archive_dir@
 
 # directory for daily PCP activity reports
 # Standard path: /var/log/pcp/sa
@@ -199,9 +203,6 @@ PCP_VERSION=@PACKAGE_VERSION@
 
 # confirmation dialog
 PCP_XCONFIRM_PROG=@ac_xconfirm_prog@
-
-# mpi
-PCP_MPI_DIRS=@pcp_mpi_dirs@
 
 # default account for running daemons (preferably unprivileged)
 # Standard user: "pcp" and group: "pcp"

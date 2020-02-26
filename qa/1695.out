@@ -2,6 +2,7 @@ QA output created by 1695
 === checking metric scrape operation ===
 === checking one client making multiple requests ===
 === checking metric fetch operation ===
+=== checking url escaping operation ===
 === check pmproxy is running ===
 pmproxy check passed
 === valgrind stdout ===

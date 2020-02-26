@@ -51,15 +51,6 @@ do
     case "$1"
     in
 
-	collectl)	# executable might be collectl2pcp or pmcollectl or
-			# pcp collectl
-	    ( grep -v '^#' $seq \
-	      | egrep "(^([ 	]*collectl2pcp|pmcollectl|(pcp collectl))([ '\"]|$))|([ /'\"\`_=](collectl2pcp|pmcollectl|(pcp collectl))([ '\"\`_]|$))" >$tmp.debug \
-	    ) && echo $seq >>$tmp.tmp
-	    $debug && [ -s $tmp.debug ] && echo $seq: && cat $tmp.debug
-	    report_group="pmcollectl et al"
-	    ;;
-
 	folio)		# executable might be pmafm or mkaf
 	    ( grep -v '^#' $seq \
 	      | egrep -q "(^[ 	]*(pmafm|mkaf)([ '\"]|$))|([ /'\"\`_=](pmafm|mkaf)([ '\"\`_]|$))" \

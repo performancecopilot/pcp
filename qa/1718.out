@@ -1,0 +1,62 @@
+QA output created by 1718
+======================
+12.py
+----------------------
+Setting config:
+~~~
+
+[global]
+verbose = 0
+
+~~~
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+Setting config:
+~~~
+
+[global]
+verbose = 1
+
+~~~
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+Setting config:
+~~~
+
+[global]
+verbose = 2
+
+~~~
+Restoring config file...
+
+[global]
+max_udp_packet_size = 1472
+port = 8125
+max_unprocessed_packets = 1024
+parser_type = 0
+verbose = 0
+debug = 0
+debug_output_filename = debug
+duration_aggregation_type = 1
+
+Verbosity specificity is OK. (lvl 0 < lvl 1 < lvl 2)

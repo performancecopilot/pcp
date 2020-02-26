@@ -20,7 +20,7 @@ $version=1.1
 
 # === LOGGER CONTROL SPECIFICATIONS ===
 #
-#Host		P?  S?	directory				args
+#Host		P?  S?	directory			args
 
 # local primary logger
-LOCALHOSTNAME	y   n	PCP_LOG_DIR/pmlogger/LOCALHOSTNAME	-r -T24h10m -c config.default -v 100Mb
+LOCALHOSTNAME	y   n	PCP_ARCHIVE_DIR/LOCALHOSTNAME	-r -T24h10m -c config.default -v 100Mb

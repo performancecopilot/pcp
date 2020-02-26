@@ -2249,8 +2249,8 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nfsclient' > pmda_nfsclient_f
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lmsensors' > pmda_lmsensors_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mssql' > pmda_mssql_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/netcheck' > pmda_netcheck_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmcollectl|pmiostat|pmrep|dstat' \
-      -e 'pcp-atop|pcp-collectl|pcp-dmcache|pcp-dstat|pcp-free|pcp-ipcs' \
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmiostat|pmrep|dstat|pcp2csv' \
+      -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-ipcs' \
       -e 'pcp-iostat|pcp-lvmcache|pcp-mpstat|pcp-numastat|pcp-pidstat' \
       -e 'pcp-shping|pcp-tapestat|pcp-uptime|pcp-verify' |\
 egrep -v 'testsuite|selinux|pmlogconf|pmieconf' > system_tools_files

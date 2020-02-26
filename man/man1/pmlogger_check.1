@@ -591,7 +591,7 @@ A useful convention is that primary logger archives for the local host
 with hostname
 .I myhost
 are maintained in the directory
-.BI $PCP_LOG_DIR/pmlogger/ myhost
+.BI $PCP_ARCHIVE_DIR/ myhost
 (this is where the default
 .B pmlogger
 start-up script in
@@ -599,7 +599,7 @@ start-up script in
 will create the archives), while archives for the remote host
 .I mumble
 are maintained in
-.BI $PCP_LOG_DIR/pmlogger/ mumble\fR.
+.BI $PCP_ARCHIVE_DIR/ mumble\fR.
 .IP 10.
 The directory field may contain embedded shell syntax that will be
 evaluated by
@@ -653,9 +653,9 @@ and
 .nf
 .ft CW
 $version=1.1
-bozo   y  n  $PCP_LOG_DIR/pmlogger/bozo   \-c config.default
+bozo   y  n  $PCP_ARCHIVE_DIR/bozo   \-c config.default
 wobbly n  n  "/store/wobbly/$(date +%Y)"  \-c ./wobbly.config
-boing  n  n  $PCP_LOG_DIR/pmlogger/boing  \-c ./pmlogger.config
+boing  n  n  $PCP_ARCHIVE_DIR/boing  \-c ./pmlogger.config
 .ft 1
 .fi
 .PP
@@ -715,11 +715,11 @@ configuration file location for the local primary logger, typically
 generated automatically by
 .BR pmlogconf (1).
 .TP
-.I $PCP_LOG_DIR/pmlogger/<hostname>
+.I $PCP_ARCHIVE_DIR/<hostname>
 default location for archives of performance information collected from the host
 .I hostname
 .TP
-.I $PCP_LOG_DIR/pmlogger/<hostname>/lock
+.I $PCP_ARCHIVE_DIR/<hostname>/lock
 transient lock file to guarantee mutual exclusion during
 .B pmlogger
 administration for the host
@@ -730,7 +730,7 @@ nor
 .B pmlogger_check
 are running
 .TP
-.I $PCP_LOG_DIR/pmlogger/<hostname>/Latest
+.I $PCP_ARCHIVE_DIR/<hostname>/Latest
 PCP archive folio created by
 .BR mkaf (1)
 for the most recently launched archive containing performance metrics from
@@ -754,7 +754,7 @@ if the previous execution of
 produced any output it is saved here.
 The normal case is no output in which case the file does not exist.
 .TP
-.I $PCP_LOG_DIR/pmlogger/<hostname>/SaveLogs
+.I $PCP_ARCHIVE_DIR/<hostname>/SaveLogs
 if this directory exists,
 then the log file from the
 .B \-l
@@ -778,7 +778,7 @@ instances for
 have been launched in the interim.
 Because the cron-driven PCP archive management scripts run under
 the uid of the user ``pcp'',
-.BI $PCP_LOG_DIR/pmlogger/ hostname /SaveLogs
+.BI $PCP_ARCHIVE_DIR/ hostname /SaveLogs
 typically needs to be owned by the user ``pcp''.
 .TP
 .I $PCP_LOG_DIR/pmlogger/.NeedRewrite

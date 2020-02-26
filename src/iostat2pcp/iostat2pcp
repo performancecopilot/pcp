@@ -2,6 +2,7 @@
 # Device            r/s     w/s     rkB/s     wkB/s   rrqm/s   wrqm/s  %rrqm  %wrqm r_await w_await aqu-sz rareq-sz wareq-sz  svctm  %util
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2020 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -46,9 +47,11 @@ my %options;		# for command line arguments
 my $sample = -1;
 my $interval = undef;
 my $in_dev = 0;		# in Device: group
-my $dev_style;		# "d" for standard -d Device: data,
+my $dev_style;		# "d0" for original -d Device: data,
+			# "d1" for -d Device: data with discard columns
 			# "x0" for -x Device: data starting with rrqm/s
-			# "x1" for -x Device data starting with r/s
+			# "x1" for -x Device: data starting with r/s
+			# "x2" for -x Device: data starting with r/s and with discard columns
 			# Note -x and -d are mutually exclusive to iostat
 my $in_cpu = 0;		# in avg-cpu: group
 my $stamp;		# timestamp from -t output lines
@@ -296,7 +299,7 @@ sub sample_done()
 		print STDERR "[$line] $_\n";
 		die "Device: no first handle for instance \"" . $instance . "\", check Handles in dump above";
 	    }
-	    if ($dev_style eq "d") {
+	    if ($dev_style eq "d0" || $dev_style eq "d1") {
 		put(0);			# total
 		put(0);			# read_bytes
 		put(0);			# write_bytes
@@ -593,11 +596,18 @@ while (<INFILE>) {
 		# Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
 		# Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
 		# Device:            tps    MB_read/s    MB_wrtn/s    MB_read    MB_wrtn
+		# Device             tps   Blk_read/s   Blk_wrtn/s   Blk_dscd/s    Blk_read    Blk_wrtn    Blk_dscd
+		# Device             tps    kB_read/s    kB_wrtn/s    kB_dscd/s    kB_read    kB_wrtn    kB_dscd
+		# Device             tps    MB_read/s    MB_wrtn/s    MB_dscd/s    MB_read    MB_wrtn    MB_dscd
 		# Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util
 		# Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
 		# Device            r/s     w/s     rkB/s     wkB/s   rrqm/s   wrqm/s  %rrqm  %wrqm r_await w_await aqu-sz rareq-sz wareq-sz  svctm  %util
 		if (/tps/) {
-		    $dev_style = "d";	# -d option
+		    if (/_dscd/) {
+			$dev_style = "d1";	# -d option with discard
+		    } else {
+			$dev_style = "d0";	# original -d option
+		    }
 		    if (/Blk_read/) { $dev_thru_scale = 0.5; }
 		    elsif (/kB_read/) { $dev_thru_scale = 1; }
 		    elsif (/MB_read/) { $dev_thru_scale = 1024; }
@@ -612,6 +622,9 @@ while (<INFILE>) {
 		elsif (/Device: *rrqm\/s/) {
 		    $dev_style = "x0";	# assume old-style -x option
 		}
+		elsif (/^Device *r\/s.*d\/s/) {
+		    $dev_style = "x2";	# assume new-style -x option with discard
+		}
 		elsif (/^Device *r\/s/) {
 		    $dev_style = "x1";	# assume new-style -x option
 		}
@@ -619,7 +632,7 @@ while (<INFILE>) {
 		    print STDERR "[$line] $_\n";
 		    die "Device: cannot decode header style (not -d and not -x)";
 		}
-		if ($dev_style eq "x0" || $dev_style eq "x1") {
+		if ($dev_style eq "x0" || $dev_style eq "x1" || $dev_style eq "x2") {
 		    $dev_thru_scale = 0.5;	# assume 512-byte sectors
 		    def_multi("disk.dev.read_merge", $dev_indom);
 		    def_multi("disk.dev.write_merge", $dev_indom);
@@ -637,16 +650,16 @@ while (<INFILE>) {
 	}
 	next;
     }
-    elsif ($sample >= 0 && $in_dev && $dev_style eq "d" && $header == 0
-           && $stamp_style == 0 && !defined($interval)) {
+    elsif ($sample >= 0 && $in_dev && ($dev_style eq "d0" || $dev_style eq "d1")
+	   && $header == 0 && $stamp_style == 0 && !defined($interval)) {
 	# if basic Device: stats, can compute sample interval from ratio of 
 	# totals to rate for reads or writes ... need to avoid divide zero
 	# counts ... must do on the second sample interval and may fail if
 	# no -d or -z and no activity
 	my @part = split(/\s+/, $_);
-	if ($#part != 5) {
+	if ($#part != 5 && $#part != 7) {
 	    print STDERR "[$line] $_\n";
-	    die "Device: number of values? expected 6, found " . ($#part+1) . "\n";
+	    die "Device: number of values? expected 6 or 8, found " . ($#part+1) . "\n";
 	}
 	if ($part[4] != 0) {
 	    $interval = int(0.5 + $part[4]/$part[2]);
@@ -707,10 +720,17 @@ while (<INFILE>) {
 		$line++;
 		@part = split(/\s+/, $_);
 	    }
-	    if ($dev_style eq "d") {
+	    if ($dev_style eq "d0") {
 		if ($#part != 5) {
 		    print STDERR "[$line] $_\n";
 		    die "Device: number of values? expected 6, found " . ($#part+1) . "\n";
+		}
+		$instance = $part[0];
+	    }
+	    elsif ($dev_style eq "d1") {
+		if ($#part != 7) {
+		    print STDERR "[$line] $_\n";
+		    die "Device: number of values? expected 8, found " . ($#part+1) . "\n";
 		}
 		$instance = $part[0];
 	    }
@@ -721,10 +741,17 @@ while (<INFILE>) {
 		}
 		$instance = $part[0];
 	    }
-	    else {
+	    elsif ($dev_style eq "x1") {
 		if ($#part != 15) {
 		    print STDERR "[$line] $_\n";
 		    die "Device: (new -x format) number of values? expected 12 or 14 or 16, found " . ($#part+1) . "\n";
+		}
+		$instance = $part[0];
+	    }
+	    else { # $dev_style eq "x2"
+		if ($#part != 22) {
+		    print STDERR "[$line] $_\n";
+		    die "Device: (new -x format) number of values? expected 23, found " . ($#part+1) . "\n";
 		}
 		$instance = $part[0];
 	    }
@@ -734,7 +761,7 @@ while (<INFILE>) {
 	    else {
 		# first time we've seen this instance, set up indom and handles
 		#
-		if ($dev_style eq "d") {
+		if ($dev_style eq "d0" || $dev_style eq "d1") {
 		    def_metric_inst("disk.dev.total", $dev_indom, $instance);
 		    $dev_first_handle{$instance} = $#handle;
 		    def_metric_inst("disk.dev.read_bytes", $dev_indom, $instance);
@@ -749,7 +776,8 @@ while (<INFILE>) {
 		    def_metric_inst("disk.dev.read_bytes", $dev_indom, $instance);
 		    def_metric_inst("disk.dev.write_bytes", $dev_indom, $instance);
 		    def_metric_inst("disk.dev.avactive", $dev_indom, $instance);
-		    if (($dev_style eq "x0" && $#part == 13) || ($dev_style eq "x1")) {
+		    if (($dev_style eq "x0" && $#part == 13) ||
+			($dev_style eq "x1" || $dev_style eq "x2")) {
 			def_metric_inst("disk.dev.read_rawactive", $dev_indom, $instance);
 			def_metric_inst("disk.dev.write_rawactive", $dev_indom, $instance);
 		    }
@@ -757,7 +785,7 @@ while (<INFILE>) {
 		# populate dev_seen for each instance
 		$dev_seen{$instance} = 0;
 	    }
-	    if ($dev_style eq "d") {
+	    if ($dev_style eq "d0" || $dev_style eq "d1") {
 		# disk.dev.total
 		# disk.dev.read_bytes
 		# disk.dev.write_bytes

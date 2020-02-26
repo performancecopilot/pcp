@@ -13,7 +13,10 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ -d $PCP_LOG_DIR/pmlogger ]
+if [ -d "$PCP_ARCHIVE_DIR" ]
+then
+    LOGGING_DIR=$PCP_ARCHIVE_DIR
+elif [ -d $PCP_LOG_DIR/pmlogger ]
 then
     LOGGING_DIR=$PCP_LOG_DIR/pmlogger
 else
@@ -37,8 +40,7 @@ _filter()
 	-e "s/local:/LOCALHOST/g" \
 	-e 's/^Reconfigured: .*pmlogconf.//g' \
 	-e 's;/private/;/;g' \
-	-e "s;$LOGGING_DIR;\$PCP_LOG_DIR;" \
-	-e "s;$PCP_LOG_DIR;\$PCP_LOG_DIR;" \
+	-e "s;$LOGGING_DIR;\$PCP_ARCHIVE_DIR;" \
 	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \
 	-e 's/\.* done/. done/' \
 	-e 's/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]/CHECK/' \

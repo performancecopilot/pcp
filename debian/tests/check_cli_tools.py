@@ -30,11 +30,8 @@ class TestCliTools(unittest.TestCase):
     def test_pmval(self):
         subprocess.check_call(['pmval', 'proc.nprocs', '-s', '1'])
 
-    def test_pmcollectl(self):
-        subprocess.check_call(['pmcollectl', '-c', '1'])
-
     def test_pmiostat(self):
-        subprocess.check_call(['pmiostat', '-s', '2'])
+        subprocess.check_call(['pcp', 'iostat', '-s', '2'])
 
 if __name__ == "__main__":
     import sys

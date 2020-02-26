@@ -1841,16 +1841,13 @@ int
 pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
 {
     discoverModuleData	*data = getDiscoverModuleData(module);
-    const char		fallback[] = "/var/log/pcp";
-    const char		*paths[] = { "pmlogger", "pmmgr" };
-    const char		*logdir = pmGetOptionalConfig("PCP_LOG_DIR");
+    const char		fallback[] = "/var/log/pcp/pmlogger";
+    const char		*logdir = pmGetOptionalConfig("PCP_ARCHIVE_DIR");
     struct dict		*config;
     unsigned int	domain, serial;
     pmInDom		indom;
-    char		path[MAXPATHLEN];
-    char		sep = pmPathSeparator();
     sds			option, *ids;
-    int			i, sts, nids, count = 0;
+    int			i, sts, nids;
 
     if (data == NULL)
 	return -ENOMEM;
@@ -1894,17 +1891,12 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
     if (!logdir)
 	logdir = fallback;
 
-    for (i = 0; i < sizeof(paths)/sizeof(paths[0]); i++) {
-	pmsprintf(path, sizeof(path), "%s%c%s", logdir, sep, paths[i]);
-	if (access(path, F_OK) != 0)
-	    continue;
-	if ((sts = pmDiscoverRegister(path, module, cbs, arg)) < 0)
-	    continue;
-	data->handle = sts;
-	count++;
-	break;
+    if (access(logdir, F_OK) == 0) {
+	sts = pmDiscoverRegister(logdir, module, cbs, arg);
+	if ((data->handle = sts) >= 0)
+	    return 0;
     }
-    return count ? 0 : -ESRCH;
+    return -ESRCH;
 }
 
 void
