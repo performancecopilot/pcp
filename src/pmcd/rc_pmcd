@@ -44,7 +44,9 @@
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
-echo "$1: `date`" >>$PCP_LOG_DIR/pmcd/rc.log
+# for chasing arguments we're passed from init/systemd/...
+#
+#debug# echo "$*: `date`" >>$PCP_LOG_DIR/rc_pmcd.log
 
 PMCD=$PCP_BINADM_DIR/pmcd
 PMCDOPTS=$PCP_PMCDOPTIONS_PATH

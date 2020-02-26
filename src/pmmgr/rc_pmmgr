@@ -44,6 +44,10 @@
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
+# for chasing arguments we're passed from init/systemd/...
+#
+#debug# echo "$*: `date`" >>$PCP_LOG_DIR/rc_pmmgr.log
+
 PMMGR=$PCP_BINADM_DIR/pmmgr
 PMMGROPTS=$PCP_PMMGROPTIONS_PATH
 RUNDIR=$PCP_LOG_DIR/pmmgr
