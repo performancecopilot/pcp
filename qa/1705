@@ -34,7 +34,7 @@ echo
 echo "=== invalid probe ==="
 pmstore bpftrace.control.register "// name: test2
 does_not_exist { @c = count(); }"
-_pmdabpftrace_wait_for_value bpftrace.scripts.test2.status 'value "error"'
+_pmdabpftrace_wait_for_value bpftrace.scripts.test2.status '"error"'
 # bpftrace v0.9.4+ includes the location of the error, but this QA should also work with bpftrace < v0.9.4
 pminfo -f bpftrace.scripts.test2.error | grep -o "Invalid provider: 'does_not_exist'"
 pminfo -f bpftrace.scripts.test2.exit_code
@@ -43,7 +43,7 @@ echo
 echo "=== syntax error ==="
 pmstore bpftrace.control.register "// name: test3
 tracepoint:raw_syscalls:sys_enter { @c = count(; }"
-_pmdabpftrace_wait_for_value bpftrace.scripts.test3.status 'value "error"'
+_pmdabpftrace_wait_for_value bpftrace.scripts.test3.status '"error"'
 pminfo -f bpftrace.scripts.test3.error
 pminfo -f bpftrace.scripts.test3.exit_code
 echo
@@ -51,7 +51,7 @@ echo
 echo "=== too many attached tracepoints ==="
 pmstore bpftrace.control.register "// name: test4
 kprobe:* { @c = count(); }"
-_pmdabpftrace_wait_for_value bpftrace.scripts.test4.status 'value "error"'
+_pmdabpftrace_wait_for_value bpftrace.scripts.test4.status '"error"'
 pminfo -f bpftrace.scripts.test4.error | sed -e 's/ [1-9][0-9]* / PROBES /g'
 pminfo -f bpftrace.scripts.test4.exit_code
 echo
@@ -59,7 +59,7 @@ echo
 echo "=== too much output ==="
 pmstore bpftrace.control.register '// name: test5
 profile:hz:9999 { printf("test"); }'
-_pmdabpftrace_wait_for_value bpftrace.scripts.test5.status 'value "error"'
+_pmdabpftrace_wait_for_value bpftrace.scripts.test5.status '"error"'
 pminfo -f bpftrace.scripts.test5.error | sed -e 's/ [1-9][0-9]* / LIMIT /g'
 echo
 

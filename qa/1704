@@ -30,10 +30,9 @@ sleep_pid=$!
 echo "=== start bpftrace script ==="
 pmstore bpftrace.control.register "// name: testscript
 tracepoint:syscalls:sys_enter_kill /args->pid == $sleep_pid/ { @signals[args->sig] = count(); }" | sed -e "s/$sleep_pid/PID/"
+_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.probes 2
 
 echo "=== check metrics ==="
-_pmdabpftrace_wait_for_value bpftrace.scripts.testscript.probes "value 2"
-
 pminfo -dfmtT bpftrace.scripts.testscript.data.signals
 
 kill -CHLD $sleep_pid

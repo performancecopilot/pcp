@@ -14,7 +14,7 @@ Check bpftrace metrics have appeared ... 7 metrics and 6 values
     "persistent": true,
     "created_at": "CREATED_AT"
     "last_accessed_at": "LAST_ACCESSED_AT"
-    "code": "// name: testscript\ntracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }",
+    "code": "// name: testscript\ntracepoint:syscalls:sys_enter_openat { @ = count(); @scalar = 2; }",
     "metadata": {
         "name": "testscript",
         "include": null,
@@ -44,8 +44,10 @@ Check bpftrace metrics have appeared ... 7 metrics and 6 values
         "data_bytes": DATA_BYTES
     }
 }
+found metric bpftrace.scripts.testscript.probes with matching value 2
+=== generating openat() syscall activity ===
+wait 2 seconds to capture syscall activity...
 === check metadata metrics ===
-found metric bpftrace.scripts.testscript.data.root matching "value .*"
 
 bpftrace.scripts.testscript.status PMID: 151.100.0 [status of bpftrace script]
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
@@ -88,7 +90,7 @@ bpftrace.scripts.testscript.code PMID: 151.100.5 [bpftrace script]
 Help:
 bpftrace script
     value "// name: testscript
-tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
+tracepoint:syscalls:sys_enter_openat { @ = count(); @scalar = 2; }"
 
 bpftrace.scripts.testscript.data_bytes PMID: 151.100.6 [count of bytes read from bpftrace script]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -126,7 +128,7 @@ bpftrace.info.scripts PMID: 151.1.0 [list all registered bpftrace scripts]
 Help:
 list all registered bpftrace scripts
     inst [0 or "testscript"] value "// name: testscript
-tracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }"
+tracepoint:syscalls:sys_enter_openat { @ = count(); @scalar = 2; }"
 === scripts as JSON ===
 
 bpftrace.info.scripts_json PMID: 151.1.1 [expose all scripts in JSON format]
@@ -142,7 +144,7 @@ expose all scripts in JSON format
         "persistent": true,
         "created_at": "CREATED_AT"
         "last_accessed_at": "LAST_ACCESSED_AT"
-        "code": "// name: testscript\ntracepoint:raw_syscalls:sys_enter { @ = count(); @scalar = 2; }",
+        "code": "// name: testscript\ntracepoint:syscalls:sys_enter_openat { @ = count(); @scalar = 2; }",
         "metadata": {
             "name": "testscript",
             "include": null,
