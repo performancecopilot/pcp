@@ -14,22 +14,20 @@ Check bpftrace metrics have appeared ... 7 metrics and 6 values
 bpftrace.control.register old value="{}" new value="// name: test2
 does_not_exist { @c = count(); }"
 found metric bpftrace.scripts.test2.status matching "value "error""
-
-bpftrace.scripts.test2.error
-    value "Invalid provider: 'does_not_exist'"
+Invalid provider: 'does_not_exist'
 
 bpftrace.scripts.test2.exit_code
     value 1
 
 === syntax error ===
 bpftrace.control.register old value="{}" new value="// name: test3
-does_not_exist { @c = count(; }"
+tracepoint:raw_syscalls:sys_enter { @c = count(; }"
 found metric bpftrace.scripts.test3.status matching "value "error""
 
 bpftrace.scripts.test3.error
-    value "stdin:2:23-30: ERROR: syntax error, unexpected ;
-does_not_exist { @c = count(; }
-                      ~~~~~~~"
+    value "stdin:2:42-49: ERROR: syntax error, unexpected ;
+tracepoint:raw_syscalls:sys_enter { @c = count(; }
+                                         ~~~~~~~"
 
 bpftrace.scripts.test3.exit_code
     value 1
