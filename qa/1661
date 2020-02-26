@@ -47,38 +47,50 @@ _filter_pmproxy()
     # end
 }
 
+_full_log()
+{
+    echo; echo $@ | tee -a $here/$seq.full
+}
+
+_log_volume()
+{
+    $sudo ls -l /proc/$pmproxy_pid/fd/ | \
+	$PCP_AWK_PROG -F. '/pmlogger.'$LOCALHOST'.*.[0-9]$/ {print $NF; exit}'
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.*
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+LOCALHOST=`hostname`
 
 # only want the primary logger running
 _save_config $PCP_ETC_DIR/pcp/pmlogger
 _restore_pmlogger_control
-
-echo;echo === restarting pmproxy service to ensure sane starting condition 
 _service pmlogger stop 2>&1 | _filter_pcp_stop
+
+_full_log === restarting pmproxy service to ensure sane starting condition 
 _service pmproxy restart 2>&1 | _filter_pcp_stop | _filter_pcp_start | _filter_pmproxy
 _wait_for_pmproxy
 
 pmproxy_pid=`_get_pids_by_name -a pmproxy`
-[ -z "$pmproxy_pid" ] && echo === pmproxy not running && status=1 && exit 1
+[ -z "$pmproxy_pid" ] && echo === pmproxy not running && exit
 date >>$seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy' >>$seq.full
 echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
 
-echo;echo === creating archive in new archive directory 
-dir=$PCP_LOG_DIR/pmlogger/qa1661
+_full_log === creating archive in new archive directory 
+dir=$PCP_ARCHIVE_DIR/qa1661
 $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown $dir 775 $PCP_USER:$PCP_GROUP"
 # make sure no archive files left here from a previous run of this test
 $sudo rm -f $dir/testarchive.*
 $sudo sh -c "pmlogger -s 20 -t 1 -c config.default -l$tmp.pmlogger.log $dir/testarchive"
 
-echo;echo === checking pmproxy file descriptors for deleted files, should be none 
+_full_log === checking pmproxy file descriptors for deleted files, should be none 
 $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
 
-echo;echo === compressing the new archives, which also deletes the originals 
+_full_log === compressing the new archives, which also deletes the originals 
 for suff in 0 meta
 do
     if [ -f $dir/testarchive.$suff ]
@@ -91,18 +103,18 @@ do
     $sudo chown -R $PCP_USER $dir
 done
 
-echo;echo === restarting pmlogger # primary only
+_full_log === restarting pmlogger # primary only
 _service pmlogger restart 2>&1 | _filter_pcp_start
 _wait_for_pmlogger
 
-echo;echo === wait for pmproxy to process filesystem events
+_full_log === wait for pmproxy to process filesystem events
 pmsleep 5
 
-echo;echo === checking pmproxy file descriptors for deleted files, should be none 
+_full_log === checking pmproxy file descriptors for deleted files, should be none 
 $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
 
-echo;echo === checking pmproxy correctly switches logvol when pmlogger bumps to a new logvol
-curlogvol=`$sudo ls -l /proc/$pmproxy_pid/fd/ | awk -F. '/pmlogger.*.[0-9]$/ {print $NF; exit}'`
+_full_log === checking pmproxy correctly switches logvol when pmlogger bumps to a new logvol
+curlogvol=`_log_volume`
 echo "curlogvol=$curlogvol" >>$seq.full
 if [ -z "$curlogvol" ]
 then
@@ -112,8 +124,8 @@ then
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy'
     exit
 fi
-$sudo killall -HUP pmlogger && sleep 2
-newlogvol=`$sudo ls -l /proc/$pmproxy_pid/fd/ | awk -F. '/pmlogger.*.[0-9]$/ {print $NF; exit}'`
+echo 'new volume' | $sudo pmlc -P >> $here/$seq.full 2>&1
+newlogvol=`_log_volume`
 echo "newlogvol=$newlogvol" >>$seq.full
 if [ -z "$newlogvol" ]
 then
@@ -123,14 +135,17 @@ then
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy'
     exit
 fi
-if [ `expr $curlogvol + 1` -ne $newlogvol ]; then echo FAILED curlogvol=$curlogvol newlogvol=$newlogvol
-else echo passed
+if [ `expr $curlogvol + 1` -ne $newlogvol ]
+then
+    echo FAILED curlogvol=$curlogvol newlogvol=$newlogvol
+else
+    echo passed
 fi
 
-echo;echo === checking pmproxy survives pmlogger restart
+_full_log === checking pmproxy survives pmlogger restart
 _service pmlogger restart 2>&1 | _filter_pcp_start
 _wait_for_pmlogger
-$sudo [ ! -d /proc/$pmproxy_pid/fd/ ] && echo FAIL && status=1 && exit
+$sudo [ ! -d /proc/$pmproxy_pid/fd/ ] && echo FAIL && exit
 echo passed
 
 # success, all done
