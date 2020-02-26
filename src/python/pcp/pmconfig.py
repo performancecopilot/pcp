@@ -667,7 +667,7 @@ class pmConfig(object):
             # we force raw output with its archive mode.
             if (hasattr(self.util, 'type') and self.util.type == 1) or \
                self.util.metrics[metric][3] == 'raw' or \
-               self.util.output == 'archive':
+               (hasattr(self.util, 'output') and self.util.output == 'archive'):
                 self.util.metrics[metric][3] = 1
 
             # Dimension test helpers
