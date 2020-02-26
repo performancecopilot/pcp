@@ -2256,7 +2256,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 
 # all base pcp package files except those split out into sub-packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E -v 'pmiostat|zabbix|zbxpcp|dstat|pmrep' |\
+  grep -E -v 'pmiostat|zabbix|zbxpcp|dstat|pmrep|pcp2csv' |\
   grep -E -v 'pcp2spark|pcp2graphite|pcp2influxdb|pcp2zabbix' |\
   grep -E -v 'pcp2elasticsearch|pcp2json|pcp2xlsx|pcp2xml' |\
   grep -E -v 'pmdbg|pmclient|pmerr|genpmda' |\
@@ -2264,7 +2264,7 @@ sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 ls -1 $RPM_BUILD_ROOT/%{_bashcompdir} |\
   grep -E -v 'pcp2spark|pcp2graphite|pcp2influxdb|pcp2zabbix' |\
   grep -E -v 'pcp2elasticsearch|pcp2json|pcp2xlsx|pcp2xml' |\
-  grep -E -v 'pmrep|pmdumptext' |\
+  grep -E -v 'pcp2csv|pmrep|pmdumptext' |\
 sed -e 's#^#'%{_bashcompdir}'\/#' >base_bashcomp.list
 
 # Separate the pcp-system-tools package files.
