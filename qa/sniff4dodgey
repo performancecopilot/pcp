@@ -135,7 +135,6 @@ PCP_PMDAS_DIR/haproxy:haproxy PMDA:pmda.haproxy python
 pmdazswap.python:zswap PMDA:pmda.zswap python
 pmdalibvirt:libvirt PMDA:pmda.libvirt python
 pmdamic.python:mic PMDA:pmda.mic python
-([^/]pcp[_ -]collectl)|(pcp .* collectl)|[^/]pmcollectl:pcp-collectl:pcp python
 ([^/]pcp[_ -]iostat)|(pcp .* iostat)|[^/]pmiostat:pcp-iostat:pcp python
 ([^/]pcp[_ -]uptime)|(pcp .* uptime):pcp-uptime:pcp python
 ([^/]pcp[_ -]numastat)|(pcp .* numastat):pcp-numastat:pcp python

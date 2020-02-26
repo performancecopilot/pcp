@@ -359,7 +359,7 @@ oldversion
 bash
 zsh
 
-# pmcollectl and collectl2pcp and pcp-collectl
+# collectl2pcp
 collectl
 
 # pmlogsize
