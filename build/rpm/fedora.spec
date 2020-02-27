@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.0.3
+Version: 5.1.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -3263,6 +3263,9 @@ cd
 %endif
 
 %changelog
+* Web Apr 15 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.1.0-1
+- Update to latest PCP sources.
+
 * Thu Feb 27 2020 Mark Goodwin <mgoodwin@redhat.com> - 5.0.3-1
 - Avoid python ctypes bitfield struct on-stack (BZ 1800685)
 - Add dstat support for DM/MD/part devices (BZ 1794273)
