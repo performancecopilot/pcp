@@ -416,7 +416,8 @@ class PCP2XML(object):
             self.writer.write('<pcp>\n')
             host = self.context.pmGetContextHostName()
             self.writer.write('  <host nodename="%s">\n' % host)
-            self.writer.write('    <source>%s</source>\n' % self.source)
+            source = self.source if self.source else "local context"
+            self.writer.write('    <source>%s</source>\n' % source)
             timez = self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
             self.writer.write('    <timezone>%s</timezone>\n' % timez)
             self.writer.write('    <metrics>\n')

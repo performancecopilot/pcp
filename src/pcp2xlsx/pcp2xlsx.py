@@ -451,8 +451,7 @@ class PCP2XLSX(object):
             col = COLUMNA
             for i, metric in enumerate(self.metrics):
                 unit = self.metrics[metric][2][0]
-                ins = 1 if self.pmconfig.descs[i].contents.indom == PM_INDOM_NULL else len(self.pmconfig.insts[i][0])
-                for _ in range(ins):
+                for _ in range(len(self.pmconfig.insts[i][0])):
                     col += 1
                     write_cell(col, self.row, unit, True)
             self.row += 1

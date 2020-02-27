@@ -26,7 +26,7 @@ echo Generate JUnit output
 cat << EOF > "${tests_junit_file}"
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="tests" hostname="${AZ_VMSS}">
+  <testsuite name="tests" hostname="${CI_HOST}">
     $(cat "${tests_results_dir}"/*/stderr)
   </testsuite>
 </testsuites>

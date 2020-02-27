@@ -1,3 +1,6 @@
+pcp-5.1.0 (15 April 2020)
+    - Work-in-progress: https://github.com/performancecopilot/pcp/projects/1
+
 pcp-5.0.3 (27 February 2020)
     - Client tools and utilities:
 	iostat2pcp: fix parsing after output change in latest iostat version

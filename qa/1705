@@ -35,13 +35,14 @@ echo "=== invalid probe ==="
 pmstore bpftrace.control.register "// name: test2
 does_not_exist { @c = count(); }"
 _pmdabpftrace_wait_for_value bpftrace.scripts.test2.status 'value "error"'
-pminfo -f bpftrace.scripts.test2.error
+# bpftrace v0.9.4+ includes the location of the error, but this QA should also work with bpftrace < v0.9.4
+pminfo -f bpftrace.scripts.test2.error | grep -o "Invalid provider: 'does_not_exist'"
 pminfo -f bpftrace.scripts.test2.exit_code
 echo
 
 echo "=== syntax error ==="
 pmstore bpftrace.control.register "// name: test3
-does_not_exist { @c = count(; }"
+tracepoint:raw_syscalls:sys_enter { @c = count(; }"
 _pmdabpftrace_wait_for_value bpftrace.scripts.test3.status 'value "error"'
 pminfo -f bpftrace.scripts.test3.error
 pminfo -f bpftrace.scripts.test3.exit_code
