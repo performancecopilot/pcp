@@ -30,9 +30,21 @@
 # Short-Description: Control pmie (performance inference engine for PCP)
 # Description:       Configure and control pmie (the performance inference engine for the Performance Co-Pilot)
 ### END INIT INFO
+#
+# For FreeBSD
+# PROVIDE: pmie
+# REQUIRE: NETWORKING FILESYSTEMS pmcd
+# KEYWORD: shutdown
+# And add the following lines to /etc/rc.conf to run pmcd:
+# pmie_enable="YES"
+#
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/rc-proc.sh
+
+# for chasing arguments we're passed from init/systemd/...
+#
+#debug# echo "$*: `date`" >>$PCP_LOG_DIR/rc_pmie.log
 
 PMIECTRL=$PCP_PMIECONTROL_PATH
 rcprog=$PCP_DIR/etc/init.d/pmie
@@ -244,7 +256,7 @@ else                            # For a quiet startup and shutdown
 fi
 
 case "$1" in
-  'start'|'restart'|'condrestart'|'reload'|'force-reload')
+  start|faststart|restart|condrestart|reload|force-reload)
 	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmie
 	then
 	    status=0
@@ -276,12 +288,12 @@ case "$1" in
 	status=0
         ;;
 
-  'stop')
+  stop)
 	_shutdown verbose
 	status=0
         ;;
 
-  'status')
+  status)
         # NOTE: $RC_CHECKPROC returns LSB compliant status values.
 	$ECHO $PCP_ECHO_N "Checking for pmie:" "$PCP_ECHO_C"
         if [ -r /etc/rc.status ]

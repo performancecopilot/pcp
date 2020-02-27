@@ -43,6 +43,10 @@
 
 . $PCP_DIR/etc/pcp.env
 
+# for chasing arguments we're passed from init/systemd/...
+#
+#debug# echo "$*: `date`" >>$PCP_LOG_DIR/rc_pcp.log
+
 tmp=`mktemp -d $PCP_DIR/var/tmp/pcp.XXXXXXXXX` || exit 1
 status=0
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
