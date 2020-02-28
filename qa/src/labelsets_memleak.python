@@ -1,0 +1,15 @@
+#!/usr/bin/env pmpython
+
+from pcp import pmapi
+from cpmapi import PM_CONTEXT_LOCAL, PM_CONTEXT_HOST
+ctx = pmapi.pmContext(PM_CONTEXT_HOST, "localhost")
+pmid = ctx.pmLookupName("sample.bin")[0]
+desc = ctx.pmLookupDesc(pmid)
+indom = desc.contents.indom
+
+for i in range(1, 1000):
+    print("pmLookupLabels %s" % ctx.pmLookupLabels(pmid))
+    print("pmGetInstancesLabels %s" % ctx.pmGetInstancesLabels(indom))
+    print("pmGetItemLabels %s" % ctx.pmGetItemLabels(pmid))
+    print("pmGetClusterLabels %s" % ctx.pmGetClusterLabels(pmid))
+    print("pmGetContextLabels %s" % ctx.pmGetContextLabels())

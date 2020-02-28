@@ -2086,15 +2086,14 @@ class pmContext(object):
 
     def pmlabelset_to_dict(self, lset, flags=0xff):
         """ return a dict of a pmLabelSet, i.e. {name: value, ...}
-            if flags is not 0xff, filter on labels with matching flags
+            flags arg is currently ignored
         """
-        if lset is None or lset.jsonlen == 0 or lset.json is None:
-            return {}
-        if flags == 0xff:
+        ret = {}
+        if lset is not None and lset.jsonlen > 0 and lset.json is not None:
             # no filtering, return a dict of all labels in the set
-            return json.loads(lset.json.decode())
-        # TODO slow track: walk the labels array and filter on flags
-        return {}
+            ret = json.loads(lset.json.decode())
+        return ret
+
 
     def pmLookupLabels(self, pmid):
         """PMAPI - Get all labels for a single metric, excluding instance
@@ -2147,6 +2146,8 @@ class pmContext(object):
             lset = result_p[i]
             if lset.json is not None:
                 instlabelsD.update({lset.inst: json.loads(lset.json.decode())})
+        if status > 0:
+            LIBPCP.pmFreeLabelSets(result_p, status)
 
         return instlabelsD
 
@@ -2163,7 +2164,9 @@ class pmContext(object):
             raise pmErr(status)
         if status == 0:
             return {}
-        return self.pmlabelset_to_dict(result_p[0])
+        ret = self.pmlabelset_to_dict(result_p[0])
+        self.pmFreeLabelSets(result_p, 1)
+        return ret
 
     def pmGetClusterLabels(self, pmid):
         """PMAPI - Get labels of a given metric cluster
@@ -2178,7 +2181,9 @@ class pmContext(object):
             raise pmErr(status)
         if status == 0:
             return {}
-        return self.pmlabelset_to_dict(result_p[0])
+        ret = self.pmlabelset_to_dict(result_p[0])
+        self.pmFreeLabelSets(result_p, 1)
+        return ret
 
     def pmGetInDomLabels(self, indom):
         """PMAPI - Get labels of a given instance domain
@@ -2193,7 +2198,9 @@ class pmContext(object):
             raise pmErr(status)
         if status == 0:
             return {}
-        return self.pmlabelset_to_dict(result_p[0])
+        ret = self.pmlabelset_to_dict(result_p[0])
+        self.pmFreeLabelSets(result_p, 1)
+        return ret
 
     def pmGetDomainLabels(self, domain):
         """PMAPI - Get labels of a given performance domain
@@ -2208,7 +2215,9 @@ class pmContext(object):
             raise pmErr(status)
         if status == 0:
             return {}
-        return self.pmlabelset_to_dict(result_p[0])
+        ret = self.pmlabelset_to_dict(result_p[0])
+        self.pmFreeLabelSets(result_p, 1)
+        return ret
 
     def pmGetContextLabels(self):
         """PMAPI - Get labels of the current context
@@ -2223,7 +2232,9 @@ class pmContext(object):
             raise pmErr(status)
         if status == 0:
             return {}
-        return self.pmlabelset_to_dict(result_p[0])
+        ret = self.pmlabelset_to_dict(result_p[0])
+        self.pmFreeLabelSets(result_p, 1)
+        return ret
 
     ##
     # PMAPI Ancilliary Support Services
@@ -2284,17 +2295,14 @@ class pmContext(object):
 
 
     @staticmethod
-    def pmFreeLabelSets(labelSets):
-        """PMAPI - Free the pmLabelSets memory
+    def pmFreeLabelSets(labelSets, nsets=1):
+        """PMAPI - Free the pmLabelSets memory. The labelsets argument is
+           an array of nsets pmLabelSet structures.
         """
-        # if type(labelSets) is not type([]):
-            # labelSetsL = [labelSets]
-        # else:
-            # labelSetsL = labelSets
-        # for i in range(len(labelSetsL)):
-            # arg = cast(byref(labelSetsL[i]), POINTER(pmLabelSet))
-            # TODO: this aborts with invalid pointer. Not sure why yet
-            # LIBPCP.pmFreeLabelSets(arg, 1)
+        for i in range(nsets):
+            arg = cast(byref(labelSets[i]), POINTER(pmLabelSet))
+            if arg:
+                LIBPCP.pmFreeLabelSets(arg, 1)
 
     @staticmethod
     def pmGetConfig(variable):
