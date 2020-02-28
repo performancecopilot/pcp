@@ -927,7 +927,6 @@ class PMReporter(object):
 
         def record_metric_info(metric, i):
             """ Helper to record metric info """
-            self.recorded[metric] = []
             self.pmi.pmiAddMetric(metric,
                                   self.pmconfig.pmids[i],
                                   self.pmconfig.descs[i].contents.type,
@@ -966,6 +965,7 @@ class PMReporter(object):
                 self.pmi.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
             self.pmi.pmiSetTimezone(self.context.get_current_tz(self.opts))
             for i, metric in enumerate(self.metrics):
+                self.recorded[metric] = []
                 record_metric_info(metric, i)
 
         # Add current values
@@ -976,6 +976,7 @@ class PMReporter(object):
         results = self.pmconfig.get_ranked_results(valid_only=False)
         for i, metric in enumerate(results):
             if metric not in self.recorded:
+                self.recorded[metric] = []
                 record_metric_info(metric, i)
             for inst, name, value in results[metric]:
                 if inst != PM_IN_NULL and inst not in self.recorded[metric]:
