@@ -1,7 +1,7 @@
 /*
  * Linux /proc/partitions metrics cluster
  *
- * Copyright (c) 2016 Red Hat.
+ * Copyright (c) 2016,2020 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -24,17 +24,23 @@ typedef struct {
     char		*udevnamebuf; /* from udev if we have it, else NULL */
     char		*dmname;      /* symlink from /dev/mapper, else NULL */
     char		*mdname;      /* symlink from /dev/md, else NULL */
-    unsigned long	rd_ios;
-    unsigned long	rd_merges;
+    unsigned long long	rd_ios;
+    unsigned long long	rd_merges;
     unsigned long long	rd_sectors;
     unsigned int	rd_ticks;
-    unsigned long	wr_ios;
-    unsigned long	wr_merges;
+    unsigned long long	wr_ios;
+    unsigned long long	wr_merges;
     unsigned long long	wr_sectors;
     unsigned int	wr_ticks;
     unsigned int	ios_in_flight;
     unsigned int	io_ticks;
     unsigned int	aveq;
+    unsigned long long	ds_ios;
+    unsigned long long	ds_merges;
+    unsigned long long	ds_sectors;
+    unsigned int	ds_ticks;
+    unsigned long long	fl_ios;
+    unsigned int	fl_ticks;
 } partitions_entry_t;
 
 extern int refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom, pmInDom dm_indom, pmInDom md_indom, int, int);

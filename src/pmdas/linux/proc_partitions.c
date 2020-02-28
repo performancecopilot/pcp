@@ -1,7 +1,7 @@
 /*
  * Linux Partitions (disk and disk partition IO stats) Cluster
  *
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2018,2020 Red Hat.
  * Copyright (c) 2015 Intel, Inc.  All Rights Reserved.
  * Copyright (c) 2008,2012 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
@@ -442,24 +442,37 @@ refresh_diskstats(FILE *fp, pmInDom disk_indom, pmInDom part_indom,
 	/* 2.6 style /proc/diskstats */
 	name[0] = '\0';
 	/* Linux source: block/genhd.c::diskstats_show(1) */
-	n = sscanf(buf, "%u %u %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
+	n = sscanf(buf, "%u %u %s %llu %llu %llu %u %llu %llu %llu %u "
+			"%u %u %u %llu %llu %llu %u %llu %u",
 		&p->major, &p->minor, name,
 		&p->rd_ios, &p->rd_merges, &p->rd_sectors, &p->rd_ticks,
 		&p->wr_ios, &p->wr_merges, &p->wr_sectors, &p->wr_ticks,
-		&p->ios_in_flight, &p->io_ticks, &p->aveq);
-	if (n != 14) {
+		&p->ios_in_flight, &p->io_ticks, &p->aveq,
+		&p->ds_ios, &p->ds_merges, &p->ds_sectors, &p->ds_ticks,
+		&p->fl_ios, &p->fl_ticks);
+	if (n < 14) {
 	    /*
 	     * From 2.6.25 onward, the full set of statistics is
 	     * available again for both partitions and disks.
 	     */
 	    _pm_have_kernel_2_6_partition_stats = 1;
 	    p->rd_merges = p->wr_merges = p->wr_ticks =
-			p->ios_in_flight = p->io_ticks = p->aveq = 0;
+			p->ios_in_flight = p->io_ticks = p->aveq =
+			p->ds_ios = p->ds_merges = p->ds_sectors =
+			p->ds_ticks = p->fl_ios = p->fl_ticks = 0;
 	    /* Linux source: block/genhd.c::diskstats_show(2) */
 	    sscanf(buf, "%u %u %s %u %u %u %u\n",
 		    &p->major, &p->minor, name,
 		    (unsigned int *)&p->rd_ios, (unsigned int *)&p->rd_sectors,
 		    (unsigned int *)&p->wr_ios, (unsigned int *)&p->wr_sectors);
+	}
+	if (n < 18) {
+	    /* Discard statistics are not present */
+	    p->ds_ios = p->ds_merges = p->ds_sectors = p->ds_ticks = 0;
+	}
+	if (n < 20) {
+	    /* Flush statistics are not present */
+	    p->fl_ios = p->fl_ticks = 0;
 	}
     }
     return indom_changes;
@@ -491,7 +504,8 @@ refresh_partitions(FILE *fp, pmInDom disk_indom, pmInDom part_indom,
 
 	/* 2.4 format /proc/partitions (distro patched) */
 	name[0] = '\0';
-	sscanf(buf, "%u %u %llu %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
+	sscanf(buf,
+		"%u %u %llu %s %llu %llu %llu %u %llu %llu %llu %u %u %u %u",
 		&p->major, &p->minor, &p->nr_blocks, name,
 		&p->rd_ios, &p->rd_merges, &p->rd_sectors,
 		&p->rd_ticks, &p->wr_ios, &p->wr_merges,
@@ -589,6 +603,14 @@ static pmID disk_metric_table[] = {
     /* disk.dev.write_rawactive	*/   PMDA_PMID(CLUSTER_STAT,73),
     /* disk.dev.total_rawactive	*/   PMDA_PMID(CLUSTER_STAT,79),
     /* disk.dev.capacity */	     PMDA_PMID(CLUSTER_STAT,87),
+    /* disk.dev.discard */	     PMDA_PMID(CLUSTER_STAT,88),
+    /* disk.dev.blkdiscard */	     PMDA_PMID(CLUSTER_STAT,89),
+    /* disk.dev.discard_bytes */     PMDA_PMID(CLUSTER_STAT,90),
+    /* disk.dev.discard_merge */     PMDA_PMID(CLUSTER_STAT,91),
+    /* disk.dev.discard_rawactive */ PMDA_PMID(CLUSTER_STAT,92),
+    /* disk.dev.flush */	     PMDA_PMID(CLUSTER_STAT,93),
+    /* disk.dev.blkflush */	     PMDA_PMID(CLUSTER_STAT,94),
+    /* disk.dev.flush_rawactive */   PMDA_PMID(CLUSTER_STAT,95),
 
     /* disk.all.read */		     PMDA_PMID(CLUSTER_STAT,24),
     /* disk.all.write */	     PMDA_PMID(CLUSTER_STAT,25),
@@ -606,6 +628,14 @@ static pmID disk_metric_table[] = {
     /* disk.all.read_rawactive */    PMDA_PMID(CLUSTER_STAT,74),
     /* disk.all.write_rawactive	*/   PMDA_PMID(CLUSTER_STAT,75),
     /* disk.all.total_rawactive	*/   PMDA_PMID(CLUSTER_STAT,80),
+    /* disk.all.discard */	     PMDA_PMID(CLUSTER_STAT,96),
+    /* disk.all.blkdiscard */	     PMDA_PMID(CLUSTER_STAT,97),
+    /* disk.all.discard_bytes */     PMDA_PMID(CLUSTER_STAT,98),
+    /* disk.all.discard_merge */     PMDA_PMID(CLUSTER_STAT,99),
+    /* disk.all.discard_rawactive */ PMDA_PMID(CLUSTER_STAT,100),
+    /* disk.all.flush */	     PMDA_PMID(CLUSTER_STAT,101),
+    /* disk.all.blkflush */	     PMDA_PMID(CLUSTER_STAT,102),
+    /* disk.all.flush_rawactive */   PMDA_PMID(CLUSTER_STAT,103),
 
     /* disk.partitions.read */	     PMDA_PMID(CLUSTER_PARTITIONS,0),
     /* disk.partitions.write */	     PMDA_PMID(CLUSTER_PARTITIONS,1),
@@ -624,6 +654,14 @@ static pmID disk_metric_table[] = {
     /* disk.partitions.write_rawactive */ PMDA_PMID(CLUSTER_PARTITIONS,14),
     /* disk.partitions.total_rawactive */ PMDA_PMID(CLUSTER_PARTITIONS,15),
     /* disk.partitions.capacity */   PMDA_PMID(CLUSTER_PARTITIONS,16),
+    /* disk.partitions.discard */    PMDA_PMID(CLUSTER_PARTITIONS,17),
+    /* disk.partitions.blkdiscard */ PMDA_PMID(CLUSTER_PARTITIONS,18),
+    /* disk.partitions.discard_bytes */   PMDA_PMID(CLUSTER_PARTITIONS,19),
+    /* disk.partitions.discard_merge */   PMDA_PMID(CLUSTER_PARTITIONS,20),
+    /* disk.partitions.discard_rawactive */ PMDA_PMID(CLUSTER_PARTITIONS,21),
+    /* disk.partitions.flush */      PMDA_PMID(CLUSTER_PARTITIONS,22),
+    /* disk.partitions.blkflush */   PMDA_PMID(CLUSTER_PARTITIONS,23),
+    /* disk.partitions.flush_rawactive */ PMDA_PMID(CLUSTER_PARTITIONS,24),
 
     /* disk.dm.read */               PMDA_PMID(CLUSTER_DM,0),
     /* disk.dm.write */		     PMDA_PMID(CLUSTER_DM,1),
@@ -643,6 +681,14 @@ static pmID disk_metric_table[] = {
     /* disk.dm.write_rawactive */    PMDA_PMID(CLUSTER_DM,15),
     /* disk.dm.total_rawactive */    PMDA_PMID(CLUSTER_DM,16),
     /* disk.dm.capacity */	     PMDA_PMID(CLUSTER_DM,17),
+    /* disk.dm.discard */	     PMDA_PMID(CLUSTER_DM,18),
+    /* disk.dm.blkdiscard */	     PMDA_PMID(CLUSTER_DM,19),
+    /* disk.dm.discard_bytes */      PMDA_PMID(CLUSTER_DM,20),
+    /* disk.dm.discard_merge */      PMDA_PMID(CLUSTER_DM,21),
+    /* disk.dm.discard_rawactive */  PMDA_PMID(CLUSTER_DM,22),
+    /* disk.dm.flush */	             PMDA_PMID(CLUSTER_DM,23),
+    /* disk.dm.blkflush */	     PMDA_PMID(CLUSTER_DM,24),
+    /* disk.dm.flush_rawactive */    PMDA_PMID(CLUSTER_DM,25),
 
     /* disk.md.read */               PMDA_PMID(CLUSTER_MD,0),
     /* disk.md.write */		     PMDA_PMID(CLUSTER_MD,1),
@@ -662,6 +708,14 @@ static pmID disk_metric_table[] = {
     /* disk.md.write_rawactive */    PMDA_PMID(CLUSTER_MD,15),
     /* disk.md.total_rawactive */    PMDA_PMID(CLUSTER_MD,16),
     /* disk.md.capacity */	     PMDA_PMID(CLUSTER_MD,17),
+    /* disk.md.discard */	     PMDA_PMID(CLUSTER_MD,18),
+    /* disk.md.blkdiscard */	     PMDA_PMID(CLUSTER_MD,19),
+    /* disk.md.discard_bytes */      PMDA_PMID(CLUSTER_MD,20),
+    /* disk.md.discard_merge */      PMDA_PMID(CLUSTER_MD,21),
+    /* disk.md.discard_rawactive */  PMDA_PMID(CLUSTER_MD,22),
+    /* disk.md.flush */	             PMDA_PMID(CLUSTER_MD,23),
+    /* disk.md.blkflush */	     PMDA_PMID(CLUSTER_MD,24),
+    /* disk.md.flush_rawactive */    PMDA_PMID(CLUSTER_MD,25),
 };
 
 int
@@ -874,6 +928,41 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0;
 	    atom->ull = p->nr_blocks;
 	    break;
+	case 88: /* disk.dev.discard */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    _pm_assign_ulong(atom, p->ds_ios);
+	    break;
+	case 89: /* disk.dev.blkdiscard */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    _pm_assign_ulong(atom, p->ds_sectors);
+	    break;
+	case 90: /* disk.dev.discard_bytes */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    atom->ul = p->ds_sectors / 2;
+	    break;
+	case 91: /* disk.dev.discard_merge */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    _pm_assign_ulong(atom, p->ds_merges);
+	    break;
+	case 92: /* disk.dev.discard_rawactive already ms from /proc/diskstats */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    atom->ul = p->ds_ticks;
+	    break;
+	case 93: /* disk.dev.flush */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    _pm_assign_ulong(atom, p->fl_ios);
+	    break;
+	case 94: /* disk.dev.flush_rawactive already ms from /proc/diskstats */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    atom->ul = p->fl_ticks;
+	    break;
 	default:
 	    /* disk.all.* is a singular instance domain */
 	    atom->ull = 0;
@@ -930,6 +1019,27 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    break;
 		case 80: /* disk.all.total_rawactive ... already msec from /proc/diskstats */
 		    atom->ull += p->rd_ticks + p->wr_ticks;
+		    break;
+		case 96: /* disk.all.discard */
+		    atom->ull += p->ds_ios;
+		    break;
+		case 97: /* disk.all.blkdiscard */
+		    atom->ull += p->ds_sectors;
+		    break;
+		case 98: /* disk.all.discard_bytes */
+		    atom->ul += p->ds_sectors / 2;
+		    break;
+		case 99: /* disk.all.discard_merge */
+		    atom->ull += p->ds_merges;
+		    break;
+		case 100: /* disk.all.discard_rawactive ... already msec from /proc/diskstats */
+		    atom->ull += p->ds_ticks;
+		    break;
+		case 101: /* disk.all.flush */
+		    atom->ull += p->fl_ios;
+		    break;
+		case 102: /* disk.all.flush_rawactive ... already msec from /proc/diskstats */
+		    atom->ull += p->fl_ticks;
 		    break;
 		default:
 		    return PM_ERR_PMID;
@@ -1018,6 +1128,27 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    return 0;
 		atom->ull = p->nr_blocks;
 		break;
+	    case 17: /* disk.partitions.discard */
+		_pm_assign_ulong(atom, p->ds_ios);
+		break;
+	    case 18: /* disk.partitions.blkdiscard */
+		_pm_assign_ulong(atom, p->ds_sectors);
+		break;
+	    case 19: /* disk.partitions.discard_bytes */
+		atom->ul = p->ds_sectors / 2;
+		break;
+	    case 20: /* disk.partitions.discard_merge */
+		_pm_assign_ulong(atom, p->ds_merges);
+		break;
+	    case 21: /* disk.partitions.discard_rawactive */
+		atom->ul = p->ds_ticks;
+		break;
+	    case 22: /* disk.partitions.flush */
+		_pm_assign_ulong(atom, p->fl_ios);
+		break;
+	    case 23: /* disk.partitions.flush_rawactive */
+		atom->ul = p->fl_ticks;
+		break;
 	    default:
 		return PM_ERR_PMID;
 	}
@@ -1083,6 +1214,27 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (!p->nr_blocks)
 		return 0;
 	    atom->ull = p->nr_blocks;
+	    break;
+	case 18: /* disk.{dm,md}.discard */
+	    _pm_assign_ulong(atom, p->ds_ios);
+	    break;
+	case 19: /* disk.{dm,md}.blkdiscard */
+	    _pm_assign_ulong(atom, p->ds_sectors);
+	    break;
+	case 20: /* disk.{dm,md}.discard_bytes */
+	    atom->ul = p->ds_sectors / 2;
+	    break;
+	case 21: /* disk.{dm,md}.discard_merge */
+	    _pm_assign_ulong(atom, p->ds_merges);
+	    break;
+	case 22: /* disk.{dm,md}.discard_rawactive */
+	    atom->ul = p->ds_ticks;
+	    break;
+	case 23: /* disk.{dm,md}.flush */
+	    _pm_assign_ulong(atom, p->fl_ios);
+	    break;
+	case 24: /* disk.{dm,md}.flush_rawactive */
+	    atom->ul = p->fl_ticks;
 	    break;
 	default:
 	    return PM_ERR_PMID;
