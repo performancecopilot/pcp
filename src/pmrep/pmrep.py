@@ -440,6 +440,9 @@ class PMReporter(object):
             self.predicate = None
 
         # Adjust header selection
+        if self.output == OUTPUT_ARCHIVE:
+            self.dynamic_header = 0
+            self.fixed_header = 0
         if self.colxrow is None or self.output != OUTPUT_STDOUT:
             self.fixed_header = 0
         if self.dynamic_header:
