@@ -861,7 +861,7 @@ class PMReporter(object):
                             # Append instance name when present
                             name += self.pmconfig.insts[i][1][j]
                 else:
-                    if self.pmconfig.insts[i][0][0] != PM_IN_NULL:
+                    if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
                         name += "-" + n[1]
                 if self.delimiter:
                     name = name.replace(self.delimiter, " ")
@@ -899,7 +899,7 @@ class PMReporter(object):
                     continue
                 add_header_items(metric, None)
                 continue
-            prnti = 1 if self.pmconfig.insts[i][0][0] != PM_IN_NULL else prnti
+            prnti = 1 if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL else prnti
             if results:
                 for _, name, _ in results[metric]:
                     name = name if prnti and name else self.delimiter
@@ -1375,7 +1375,7 @@ class PMReporter(object):
         for i, metric in enumerate(results):
             if self.pmconfig.descs[i].contents.type == PM_TYPE_STRING:
                 continue
-            rank = abs(self.rank) if self.pmconfig.insts[i][0][0] != PM_IN_NULL else 1
+            rank = abs(self.rank) if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL else 1
             c, r, t = (0, [], [])
             for j in sorted(results[metric] + self.all_ranked[metric], key=lambda x: x[2], reverse=revs):
                 if j[0] not in t and c < rank:
