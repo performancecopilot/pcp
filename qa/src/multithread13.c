@@ -306,15 +306,15 @@ main(int argc, char **argv)
     if (verbose)
 	printf("%s: Running with %d threads ...\n", pmGetProgname(), nthread);
 
-    tid = (pthread_t *)malloc(nthread*sizeof(tid[0]));
+    tid = (pthread_t *)calloc(nthread, sizeof(tid[0]));
     if (tid == NULL) {
-	fprintf(stderr, "%s: tid[%d] malloc failed!\n", pmGetProgname(), nthread);
+	fprintf(stderr, "%s: tid[%d] calloc failed!\n", pmGetProgname(), nthread);
 	exit(EXIT_FAILURE);
     }
 
-    ctx = (int *)malloc(nthread*sizeof(ctx[0]));
+    ctx = (int *)calloc(nthread, sizeof(ctx[0]));
     if (ctx == NULL) {
-	fprintf(stderr, "%s: ctx[%d] malloc failed!\n", pmGetProgname(), nthread);
+	fprintf(stderr, "%s: ctx[%d] calloc failed!\n", pmGetProgname(), nthread);
 	exit(EXIT_FAILURE);
     }
 
