@@ -950,7 +950,7 @@ Requires: perl(LWP::UserAgent)
 Requires: perl(XML::LibXML)
 Requires: perl(File::Slurp)
 Requires: perl-autodie
-Requires: perl-Time-HighRes
+Requires: perl-Time-HiRes
 
 %description pmda-bind2
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
