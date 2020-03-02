@@ -110,6 +110,17 @@ MOD_INIT(cpmi)
     pmi_edict_add(dict, edict, "PMI_ERR_NODATA", PMI_ERR_NODATA);
     pmi_edict_add(dict, edict, "PMI_ERR_BADMETRICNAME", PMI_ERR_BADMETRICNAME);
     pmi_edict_add(dict, edict, "PMI_ERR_BADTIMESTAMP", PMI_ERR_BADTIMESTAMP);
+    pmi_edict_add(dict, edict, "PMI_ERR_BADTEXTTYPE", PMI_ERR_BADTEXTTYPE);
+    pmi_edict_add(dict, edict, "PMI_ERR_BADTEXTCLASS", PMI_ERR_BADTEXTCLASS);
+    pmi_edict_add(dict, edict, "PMI_ERR_BADTEXTID", PMI_ERR_BADTEXTID);
+    pmi_edict_add(dict, edict, "PMI_ERR_EMPTYTEXTCONTENT", PMI_ERR_EMPTYTEXTCONTENT);
+    pmi_edict_add(dict, edict, "PMI_ERR_DUPTEXT", PMI_ERR_DUPTEXT);
+    pmi_edict_add(dict, edict, "PMI_ERR_BADLABELTYPE", PMI_ERR_BADLABELTYPE);
+    pmi_edict_add(dict, edict, "PMI_ERR_BADLABELID", PMI_ERR_BADLABELID);
+    pmi_edict_add(dict, edict, "PMI_ERR_BADLABELINSTANCE", PMI_ERR_BADLABELINSTANCE);
+    pmi_edict_add(dict, edict, "PMI_ERR_EMPTYLABELNAME", PMI_ERR_EMPTYLABELNAME);
+    pmi_edict_add(dict, edict, "PMI_ERR_EMPTYLABELVALUE", PMI_ERR_EMPTYLABELVALUE);
+    pmi_edict_add(dict, edict, "PMI_ERR_ADDLABELERROR", PMI_ERR_ADDLABELERROR);
 
     return MOD_SUCCESS_VAL(module);
 }
