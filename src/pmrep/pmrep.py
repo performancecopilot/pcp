@@ -40,7 +40,7 @@ from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_LOCAL
 from cpmapi import PM_INDOM_NULL, PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
 from cpmapi import PM_SEM_DISCRETE, PM_TYPE_STRING
 from cpmapi import PM_TEXT_PMID, PM_TEXT_INDOM, PM_TEXT_ONELINE, PM_TEXT_HELP
-from cpmi import PMI_ERR_DUPINSTNAME
+from cpmi import PMI_ERR_DUPINSTNAME, PMI_ERR_DUPTEXT
 
 if sys.version_info[0] >= 3:
     long = int # pylint: disable=redefined-builtin
@@ -948,16 +948,21 @@ class PMReporter(object):
                                         self.pmconfig.pmids[i],
                                         self.pmconfig.texts[i][1])
                 if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
-                    if self.pmconfig.texts[i][2]:
-                        self.pmi.pmiPutText(PM_TEXT_INDOM,
-                                            PM_TEXT_ONELINE,
-                                            self.pmconfig.descs[i].contents.indom,
-                                            self.pmconfig.texts[i][2])
-                    if self.pmconfig.texts[i][3]:
-                        self.pmi.pmiPutText(PM_TEXT_INDOM,
-                                            PM_TEXT_HELP,
-                                            self.pmconfig.descs[i].contents.indom,
-                                            self.pmconfig.texts[i][3])
+                    try:
+                        if self.pmconfig.texts[i][2]:
+                            self.pmi.pmiPutText(PM_TEXT_INDOM,
+                                                PM_TEXT_ONELINE,
+                                                self.pmconfig.descs[i].contents.indom,
+                                                self.pmconfig.texts[i][2])
+                        if self.pmconfig.texts[i][3]:
+                            self.pmi.pmiPutText(PM_TEXT_INDOM,
+                                                PM_TEXT_HELP,
+                                                self.pmconfig.descs[i].contents.indom,
+                                                self.pmconfig.texts[i][3])
+                    except pmi.pmiErr as error:
+                        if error.errno() == PMI_ERR_DUPTEXT:
+                            # ignore duplicate indom help text exceptions
+                            pass
 
         if self.pmi is None:
             # Create a new archive
