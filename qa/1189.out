@@ -1,0 +1,74 @@
+QA output created by 1189
+empty input test ...
+
+predicate: mtime -0 ...
+Excluded	Included
+00:00:00.ago
+00:00:02.ago
+00:01:00.ago
+00:02:30.ago
+01:00:00.ago
+03:00:00.ago
+
+predicate: mtime -1:12 ...
+Excluded	Included
+		00:00:00.ago
+		00:00:02.ago
+		00:01:00.ago
+		00:02:30.ago
+		01:00:00.ago
+03:00:00.ago
+
+predicate: mtime -0:2 ...
+Excluded	Included
+		00:00:00.ago
+		00:00:02.ago
+		00:01:00.ago
+00:02:30.ago
+01:00:00.ago
+03:00:00.ago
+
+predicate: mtime -0:0:3 ...
+Excluded	Included
+		00:00:00.ago
+		00:00:02.ago
+00:01:00.ago
+00:02:30.ago
+01:00:00.ago
+03:00:00.ago
+
+predicate: mtime +0 ...
+Excluded	Included
+		00:00:00.ago
+		00:00:02.ago
+		00:01:00.ago
+		00:02:30.ago
+		01:00:00.ago
+		03:00:00.ago
+
+predicate: mtime +1:12 ...
+Excluded	Included
+00:00:00.ago
+00:00:02.ago
+00:01:00.ago
+00:02:30.ago
+01:00:00.ago
+		03:00:00.ago
+
+predicate: mtime +0:2 ...
+Excluded	Included
+00:00:00.ago
+00:00:02.ago
+00:01:00.ago
+		00:02:30.ago
+		01:00:00.ago
+		03:00:00.ago
+
+predicate: mtime +0:0:3 ...
+Excluded	Included
+00:00:00.ago
+00:00:02.ago
+		00:01:00.ago
+		00:02:30.ago
+		01:00:00.ago
+		03:00:00.ago
