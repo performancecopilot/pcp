@@ -27,6 +27,7 @@ PMLOGGERENVS="$PCP_SYSCONFIG_DIR/pmlogger"
 unset PCP_STDERR
 
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+chown ${PCP_USER}:${PCP_GROUP} ${tmp}
 status=0
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`
@@ -669,7 +670,7 @@ then
     echo "+ ... assume pid is 12345"
     new_pid=12345
 else
-    eval $envs '${sock_me}$PMLOGGER $args$archive &'
+    eval $envs '${sock_me}$PMLOGGER $args$archive &' >/dev/null
     new_pid=$!
 fi
 
