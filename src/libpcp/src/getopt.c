@@ -1,7 +1,7 @@
 /*
  * Common argument parsing for all PMAPI client tools.
  *
- * Copyright (c) 2014-2018 Red Hat.
+ * Copyright (c) 2014-2018,2020 Red Hat.
  * Copyright (C) 1987-2014 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -757,7 +757,8 @@ __pmSetSampleCount(pmOptions *opts, char *arg)
 
     opts->samples = (int)strtol(arg, &endnum, 10);
     if (*endnum != '\0' || opts->samples < 0) {
-	pmprintf("%s: -s requires numeric argument\n", pmGetProgname());
+	pmprintf("%s: -s requires a positive numeric argument\n",
+		pmGetProgname());
 	opts->errors++;
     }
 }
