@@ -388,6 +388,24 @@ then
 fi
 }
 
+%global install_file() %{expand:
+if [ -w "%1" ]
+then
+    (cd "%1" && touch "%2" && chmod 644 "%2")
+else
+    echo "WARNING: Cannot write to %1, skipping %2 creation." >&2
+fi
+}
+
+%global rebuild_pmns() %{expand:
+if [ -w "%1" ]
+then
+    (cd "%1" && ./Rebuild -s && rm -f "%2")
+else
+    echo "WARNING: Cannot write to %1, skipping namespace rebuild." >&2
+fi
+}
+
 %global selinux_handle_policy() %{expand:
 if [ %1 -ge 1 ]
 then
@@ -2661,7 +2679,7 @@ PCP_PMCDCONF_PATH=%{_confdir}/pmcd/pmcd.conf
 for PMDA in dm nfsclient ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
     then
-	touch "$PCP_PMDAS_DIR/$PMDA/.NeedInstall"
+	%{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
     fi
 done
 # increase default pmlogger recording frequency
@@ -2704,8 +2722,7 @@ chown -R pcp:pcp %{_logsdir}/pmlogger 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/sa 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmie 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
-touch "$PCP_PMNS_DIR/.NeedRebuild"
-chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
+%{install_file "$PCP_PMNS_DIR" .NeedRebuild}
 %if !%{disable_systemd}
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service
@@ -2724,9 +2741,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
     /sbin/chkconfig --add pmproxy >/dev/null 2>&1
     /sbin/service pmproxy condrestart
 %endif
-
-cd "$PCP_PMNS_DIR" && ./Rebuild -s && rm -f .NeedRebuild
-cd
+%{rebuild_pmns "$PCP_PMNS_DIR" .NeedRebuild}
 
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %ldconfig_scriptlets libs
