@@ -24,11 +24,7 @@ percent during the last sample interval.  Only applies to
 multi-processor systems with less than max_cpu_count processors -
 for single-processor systems refer to the cpu.util rule, and for
 multi-processor systems with more than max_cpu_count processors
-refer to the cpu.many_util rule.
-For Origin 200 and Origin 2000 systems, use the command
-  $ pminfo -f hinv.map.cpu
-to discover the abbreviated PCP names of the installed CPUs and
-their corresponding full names in the /hw file system.";
+refer to the cpu.many_util rule.";
 
 string	rule
 	default	= "High per CPU processor utilization"

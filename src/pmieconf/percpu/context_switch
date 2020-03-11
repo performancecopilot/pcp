@@ -19,12 +19,7 @@ rule	per_cpu.context_switch
 exceeded $threshold$ over the past sample interval.
 
 This rule only applies to multi-processor systems, for
-single-processor systems refer to the cpu.context_switch rule.
-
-For Origin 200 and Origin 2000 systems, use the command
-    $ pminfo -f hinv.map.cpu
-to discover the abbreviated PCP names of the installed CPUs and
-their corresponding full names in the /hw file system.";
+single-processor systems refer to the cpu.context_switch rule.";
 
 string	rule
 	default	= "High per CPU context switch rate"
