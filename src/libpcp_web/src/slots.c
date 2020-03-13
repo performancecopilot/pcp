@@ -391,7 +391,7 @@ redisSlotsRedirect(redisSlots *slots, redisReply *reply,
 		redisAsyncCallBack *callback, void *arg)
 {
     redisAsyncContext	*context;
-    const char		*slot, *p = reply->str;
+    const char		*slot, *p;
     sds			hostspec, msg;
     int			moved = 0, asked = 0, len, sts = -1;
 
@@ -399,6 +399,7 @@ redisSlotsRedirect(redisSlots *slots, redisReply *reply,
 	goto complete;
 
     /* Redirection and resharding - resubmit cmd/cb/arg to new server */
+    p = reply->str;
     if (strncmp(p, "MOVED ", sizeof("MOVED")) == 0)
 	moved = sizeof("MOVED");
     else if (strncmp(p, "ASK ", sizeof("ASK")) == 0)
