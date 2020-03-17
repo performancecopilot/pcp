@@ -1,0 +1,50 @@
+#!/bin/sh
+# PCP QA Test No. 1566
+#
+# Test service notifications API, see  __pmServerNotifyServiceManagerReady(3)
+#
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# [ -n "$PCP_SYSTEMDUNIT_DIR" ] || _notrun "PCP_SYSTEMUNIT_DIR not set, no systemd"
+
+_filter_log()
+{
+    sed -e 's/started .*$/started DATE/' \
+	-e 's/^\[.*\]/[DATE]/' \
+        -e 's/([0-9]*)/(PID)/'
+}
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+mkdir -p $tmp
+
+command=$here/src/test_service_notify
+
+echo;echo === test for service manager notices on non-systemd platform
+echo 'Note the warning about "NOTIFY_SOCKET not set" is expected due to -Dservices'
+$sudo src/test_service_notify -Dservices -f -l $tmp/test_service_notify.log & >/dev/null 2>&1
+pid=$!; sleep 1; $sudo kill -TERM $pid; sleep 1
+_filter_log < $tmp/test_service_notify.log; rm -f $tmp/test_service_notify.log
+
+# TODO additional systemd tests coming (using a test-systemd.unit)
+
+# success, all done
+status=0
+exit
