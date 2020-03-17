@@ -695,3 +695,9 @@ PCP_3.27 {
     __pmLogCompressedSuffix;
     __pmLogBaseNameVol;
 } PCP_3.26;
+
+PCP_3.28 {
+  global:
+    __pmServerNotifyServiceManagerReady;
+    __pmServerNotifyServiceManagerStopping;
+} PCP_3.27;

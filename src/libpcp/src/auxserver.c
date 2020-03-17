@@ -19,6 +19,9 @@
 #if defined(HAVE_GETPEERUCRED)
 #include <ucred.h>
 #endif
+#ifdef HAVE_SYSTEMD
+#include <systemd/sd-daemon.h>
+#endif
 
 #define STRINGIFY(s)	#s
 #define TO_STRING(s)	STRINGIFY(s)
@@ -1146,3 +1149,62 @@ __pmServerStart(int argc, char **argv, int flags)
     /* don't chdir("/") -- we may still need to call pmOpenLog() */
 }
 #endif
+
+#ifdef HAVE_SYSTEMD
+/*
+ * Notify service manager of status. On platforms using systemd,
+ * ${NOTIFY_SOCKET} will be set in the environment for daemon service
+ * units using type=notify. See sd_notify(3) for applicable messages.
+ */
+static int
+__pmServerNotifySystemd(const char *msg)
+{
+    const char *notify_socket;
+    int sts = 0;
+
+    if ((notify_socket = getenv("NOTIFY_SOCKET")) != NULL) {
+    	sts = sd_notify(0, msg);
+	if (pmDebugOptions.services) {
+	    fprintf(stderr, "__pmServerNotifySystemd: NOTIFY_SOCKET=\"%s\" msg=\"%s\" sts=%d\n",
+	    	notify_socket, msg, sts);
+	}
+    }
+    else {
+	/* we were not launched by systemd */
+	if (pmDebugOptions.services)
+	    pmNotifyErr(LOG_WARNING, "__pmServerNotifySystemd: NOTIFY_SOCKET not set, not launched by systemd");
+	sts = PM_ERR_GENERIC;
+    }
+    /* negative return indicates error */
+    return sts;
+}
+#endif
+
+int
+__pmServerNotifyServiceManagerReady(pid_t pid)
+{
+#ifdef HAVE_SYSTEMD
+    char msg[64];
+
+    snprintf(msg, sizeof(msg), "READY=1\nMAINPID=%lu", pid);
+    return __pmServerNotifySystemd((const char *)msg);
+#else
+    /* no systemd - not fatal but log a debug message */
+    if (pmDebugOptions.services)
+	pmNotifyErr(LOG_WARNING, "__pmServerNotifyServiceManagerReady: no service manager on this platform");
+    return PM_ERR_NYI;
+#endif
+}
+
+int
+__pmServerNotifyServiceManagerStopping(pid_t pid)
+{
+#ifdef HAVE_SYSTEMD
+    return __pmServerNotifySystemd("STOPPING=1");
+#else
+    /* no systemd - not fatal but log a debug message */
+    if (pmDebugOptions.services)
+	pmNotifyErr(LOG_WARNING, "__pmServerNotifyServiceManagerStopping: no service manager on this platform");
+    return PM_ERR_NYI;
+#endif
+}
