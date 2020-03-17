@@ -4,7 +4,8 @@ Documentation=man:pmproxy(8)
 After=network-online.target pmcd.service
 
 [Service]
-Type=forking
+Type=notify
+NotifyAccess=all
 Restart=always
 ExecStart=@PCP_RC_DIR@/pmproxy start
 ExecStop=@PCP_RC_DIR@/pmproxy stop
