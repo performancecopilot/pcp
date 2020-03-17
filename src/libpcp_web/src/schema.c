@@ -22,6 +22,7 @@
 #define STRINGIFY(s)	#s
 #define TO_STRING(s)	STRINGIFY(s)
 #define SCHEMA_VERSION	2
+#define REDIS_SERVER_VERSION 5
 
 extern sds		cursorcount;
 static sds		maxstreamlen;
@@ -1288,6 +1289,67 @@ redis_update_version(redisSlotsBaton *baton)
     redisSlotsRequest(baton->slots, SETS, key, cmd, redis_update_version_callback, baton);
 }
 
+static void 
+redis_load_server_version_callback(
+    redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    redisSlotsBaton * baton = (redisSlotsBaton *) arg;
+    unsigned int server_version = 0;
+    int sts;
+    sds msg;
+
+    seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_load_server_version_callback");
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+                cmd, redis_load_server_version_callback, arg);
+    if(sts > 0)
+    return; 
+
+    if(!reply) {
+        /* This situation should not happen, since we can always get server info from redis*/
+        infofmt(msg, "no redis version reply");
+        batoninfo(baton, PMLOG_ERROR, msg);
+    } else if(reply->type == REDIS_REPLY_STRING){
+        int l = 0, r=0;
+        while(reply->str[l] != '\0'){
+            if ( strncmp("redis_v", reply->str+l, sizeof("redis_v")-1 ) == 0 ){ 
+                l += sizeof("redis_version:")-1; 
+                r = l;
+                while(reply->str[r]!='.' && reply->str[r]!='\0') ++r; /* avoid endless loop */
+                reply->str[r] = '\0';
+                break;
+            }
+            ++l;
+        }
+        server_version = (unsigned int)atoi(reply->str+l);
+        if (server_version < REDIS_SERVER_VERSION) {
+            infofmt(msg, "unsupported redis server (got v%u, expected v%u or above)",
+                server_version, REDIS_SERVER_VERSION);
+            batoninfo(baton, PMLOG_ERROR, msg);
+        }
+    } else if (reply->type == REDIS_REPLY_ERROR) {
+        if (sts < 0) {
+            infofmt(msg, "redis server version check error: %s", reply->str);
+            batoninfo(baton, PMLOG_REQUEST, msg);
+        }
+    } else {
+        /* This situation should not happen */
+        infofmt(msg, "unexpected redis server version reply type (%s)", redis_reply_type(reply));
+        batoninfo(baton, PMLOG_ERROR, msg);
+    }
+    doneRedisSlotsBaton(baton);
+}
+
+static void
+redis_load_server_version(redisSlotsBaton *baton)
+{
+    sds			cmd, key;
+    key = sdsnew("SERVER");
+    cmd = redis_command(2);
+    cmd = redis_param_str(cmd, INFO, INFO_LEN);
+    cmd = redis_param_sds(cmd, key);
+    redisSlotsRequest(baton->slots, INFO, key, cmd, redis_load_server_version_callback, baton);
+}
+
 static void
 redis_load_version_callback(
 	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
@@ -1330,7 +1392,9 @@ redis_load_version_callback(
     /* set the version when none found (first time through) */
     if (version != SCHEMA_VERSION && baton->version != -1)
 	redis_update_version(arg);
-    else
+    else if (baton->flags & SLOTS_VERSION) {
+    redis_load_server_version(baton);
+    } else
 	doneRedisSlotsBaton(baton);
 }
 
