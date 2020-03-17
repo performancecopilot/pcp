@@ -1693,6 +1693,7 @@ BAD
 1545 pcp2xml python pcp2xxx local
 1546 pmrep python local
 1547 pmrep python local
+1566:reserved logutil libpcp local
 1573 pmproxy libpcp_web pmlogger local
 1588 python iostat local
 1598 pmda.statsd local
