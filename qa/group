@@ -1593,7 +1593,7 @@ BAD
 1207 pcp dstat python local
 1211 pmseries local kernel
 1212 pmseries local
-1214:reserved pmproxy pmseries libpcp_web local
+1214 pmproxy pmseries libpcp_web local
 1217 pmrep python local
 1218 pmda.root local
 1219 pcp local

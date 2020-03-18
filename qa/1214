@@ -1,0 +1,48 @@
+#!/bin/sh
+# PCP QA Test No. 1214
+# https://github.com/performancecopilot/pcp/issues/859
+#
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+_check_series
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+echo;echo == testing pmseries query to redis directly
+nseries=`pmseries -p 6379 hinv.ncpu | wc -l`
+[ -z "$nseries" -o "$nseries" -le 0 ] && echo pmseries -p 6379 hinv.ncpu FAILED && status=1
+
+echo;echo == testing pmseries query to redis via pmproxy
+proxy_pid=`cat $PCP_RUN_DIR/pmproxy.pid`
+nseries=`pmseries -p 44322 hinv.ncpu | wc -l`
+sleep 1
+new_proxy_pid=`cat $PCP_RUN_DIR/pmproxy.pid`
+[ -z "$nseries" -o "$nseries" -le 0 ] && echo pmseries -p 44322 hinv.ncpu FAILED && status=2
+[ "$proxy_pid" -ne "$new_proxy_pid" ] && echo FAILED, pmproxy restarted && status=3
+
+if [ $status -ne 0 ]; then
+    echo FAILED, look in $seq.full for failed assertion in pmproxy.log
+    echo === pmproxy log ===  >> $seq.full; cat $PCP_LOG_DIR/pmproxy/pmproxy.log.prev >> $seq.full 2>&1
+    [ $status -eq 1 ] && $_valgrind_clean_assert pmseries -p 6379 hinv.ncpu >> $seq.full 2>&1
+    [ $status -ge 2 ] && $_valgrind_clean_assert pmseries -p 44322 hinv.ncpu >> $seq.full 2>&1
+fi
+
+exit
