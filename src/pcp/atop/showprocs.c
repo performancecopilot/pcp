@@ -999,7 +999,11 @@ procprt_STDATE_ae(struct tstat *curstat, int avgval, int nsecs)
 {
         static char buf[11];
 
-        convdate(curstat->gen.btime, buf, sizeof buf);
+        if (system_boottime)
+                convdate(system_boottime + curstat->gen.btime / 1000, buf, sizeof buf);
+        else
+                strcpy(buf, "----/--/--");
+
         return buf;
 }
 
@@ -1011,7 +1015,11 @@ procprt_STTIME_ae(struct tstat *curstat, int avgval, int nsecs)
 {
         static char buf[9];
 
-        convtime(curstat->gen.btime, buf, sizeof buf);
+        if (system_boottime)
+                convtime(system_boottime + curstat->gen.btime / 1000, buf, sizeof buf);
+        else
+                strcpy(buf, "--:--:--");
+
         return buf;
 }
 
@@ -1033,7 +1041,10 @@ procprt_ENDATE_e(struct tstat *curstat, int avgval, int nsecs)
 {
         static char buf[11];
 
-        convdate(curstat->gen.btime + curstat->gen.elaps, buf, sizeof buf);
+        if (system_boottime)
+                convdate(system_boottime + curstat->gen.btime / 1000 + curstat->gen.elaps, buf, sizeof buf);
+        else
+                strcpy(buf, "----/--/--");
 
         return buf;
 }
@@ -1056,7 +1067,10 @@ procprt_ENTIME_e(struct tstat *curstat, int avgval, int nsecs)
 {
         static char buf[9];
 
-        convtime(curstat->gen.btime + curstat->gen.elaps, buf, sizeof buf);
+        if (system_boottime)
+                convtime(system_boottime + curstat->gen.btime / 1000 + curstat->gen.elaps, buf, sizeof buf);
+        else
+                strcpy(buf, "--:--:--");
 
         return buf;
 }

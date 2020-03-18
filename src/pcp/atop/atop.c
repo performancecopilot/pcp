@@ -164,6 +164,7 @@ char		**argvp;
 int		fetchmode;
 int		fetchstep;
 
+long long	system_boottime;
 
 struct visualize vis = {generic_samp, generic_error,
 			generic_end,  generic_usage,
@@ -587,7 +588,8 @@ engine(void)
 			if ((*vis.next)() < 0)
 				cleanstop(1);
 			goto reset;
-               }
+		}
+		system_boottime = cursstat->cpu.btime;
 
 		/*
 		** take a snapshot of the current task-level statistics 

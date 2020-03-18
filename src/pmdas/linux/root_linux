@@ -93,6 +93,7 @@ kernel.all {
     sysfork		60:0:14
     running		60:0:15
     blocked		60:0:16
+    boottime		60:0:17
     hz			60:0:48
     uptime		60:26:0
     idletime		60:26:1
