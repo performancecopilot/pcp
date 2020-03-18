@@ -1186,7 +1186,7 @@ __pmServerNotifyServiceManagerReady(pid_t pid)
 #ifdef HAVE_SYSTEMD
     char msg[64];
 
-    snprintf(msg, sizeof(msg), "READY=1\nMAINPID=%lu", pid);
+    snprintf(msg, sizeof(msg), "READY=1\nMAINPID=%" FMT_PID, pid);
     return __pmServerNotifySystemd((const char *)msg);
 #else
     /* no systemd - not fatal but log a debug message */
