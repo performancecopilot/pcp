@@ -22,6 +22,7 @@
 #define STRINGIFY(s)	#s
 #define TO_STRING(s)	STRINGIFY(s)
 #define SCHEMA_VERSION	2
+#define SERVER_VERSION	5
 
 extern sds		cursorcount;
 static sds		maxstreamlen;
@@ -1289,7 +1290,7 @@ redis_update_version(redisSlotsBaton *baton)
 }
 
 static void
-redis_load_version_callback(
+redis_load_schema_version_callback(
 	redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
 {
     redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
@@ -1297,9 +1298,9 @@ redis_load_version_callback(
     int			sts;
     sds			msg;
 
-    seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_load_version_callback");
+    seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_load_schema_version_callback");
     sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
-				cmd, redis_load_version_callback, arg);
+				cmd, redis_load_schema_version_callback, arg);
     if (sts > 0)
 	return;	/* short-circuit as command was re-submitted */
 
@@ -1335,7 +1336,7 @@ redis_load_version_callback(
 }
 
 static void
-redis_load_version(redisSlotsBaton *baton)
+redis_load_schema_version(redisSlotsBaton *baton)
 {
     sds			cmd, key;
 
@@ -1343,7 +1344,73 @@ redis_load_version(redisSlotsBaton *baton)
     cmd = redis_command(2);
     cmd = redis_param_str(cmd, GETS, GETS_LEN);
     cmd = redis_param_sds(cmd, key);
-    redisSlotsRequest(baton->slots, GETS, key, cmd, redis_load_version_callback, baton);
+    redisSlotsRequest(baton->slots, GETS, key, cmd, redis_load_schema_version_callback, baton);
+}
+
+static void
+redis_load_version_callback(
+redisAsyncContext *c, redisReply *reply, const sds cmd, void *arg)
+{
+    redisSlotsBaton	*baton = (redisSlotsBaton *)arg;
+    unsigned int	server_version = 0;
+    int			sts;
+    sds			msg;
+
+    seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_load_version_callback");
+    sts = redisSlotsRedirect(baton->slots, reply, baton->info, baton->userdata,
+				cmd, redis_load_version_callback, arg);
+    if (sts > 0)
+	return;
+	
+    if (!reply) {
+	/* This situation should not happen, since we can always get server info from redis*/
+	infofmt(msg, "no redis version reply");
+	batoninfo(baton, PMLOG_ERROR, msg);
+    } else if (reply->type == REDIS_REPLY_STRING) {
+	int		l = 0;
+	char		*endnum;
+	while (l < reply->len) {
+	    if (strncmp("redis_version:", reply->str+l, sizeof("redis_version:")-1) == 0) {
+		l += sizeof("redis_version:")-1;
+	    	server_version = (unsigned int)strtol(reply->str+l, &endnum, 10);
+	    	if (*endnum != '.' || server_version < 0) {
+		    infofmt(msg, "redis server version parse error");
+		    batoninfo(baton, PMLOG_ERROR, msg);
+	    	} else if (server_version < SERVER_VERSION) {
+		    infofmt(msg, "unsupported redis server (got v%u, expected v%u or above)", 
+				server_version, SERVER_VERSION);
+	    	    batoninfo(baton, PMLOG_ERROR, msg);
+	    	}
+	    	break;
+	    }
+	    ++l;
+	}
+    } else if (reply->type == REDIS_REPLY_ERROR) {
+	if (sts < 0) {
+	    infofmt(msg, "redis server version check error: %s", reply->str);
+	    batoninfo(baton, PMLOG_REQUEST, msg);
+        }
+    } else {
+	infofmt(msg, "unexpected redis server version reply type (%s)", redis_reply_type(reply));
+	batoninfo(baton, PMLOG_ERROR, msg);
+    }
+
+    if (baton->flags & SLOTS_VERSION)
+	/* Verify pmseries schema version if previously requested */
+	redis_load_schema_version(baton);
+    else
+	doneRedisSlotsBaton(baton);
+}
+
+static void
+redis_load_version(redisSlotsBaton *baton)
+{
+    sds			cmd;
+
+    cmd = redis_command(2);
+    cmd = redis_param_str(cmd, INFO, INFO_LEN);
+    cmd = redis_param_str(cmd, "SERVER", sizeof("SERVER")-1);
+    redisSlotsRequest(baton->slots, INFO, NULL, cmd, redis_load_version_callback, baton);
 }
 
 static int
@@ -1423,7 +1490,7 @@ redis_load_keymap_callback(
 	batoninfo(baton, PMLOG_ERROR, msg);
     }
 
-    /* Verify pmseries schema version if previously requested */
+    /* Verify pmseries schema version and redis server version if previously requested */
     if (baton->flags & SLOTS_VERSION)
 	redis_load_version(baton);
     else
@@ -1574,7 +1641,7 @@ redis_load_slots_callback(
 	/* Prepare mapping of commands to key positions if needed */
 	redis_load_keymap(baton);
     else if (baton->flags & SLOTS_VERSION)
-	/* Verify pmseries schema version if previously requested */
+	/* Verify pmseries schema version and redis server version if previously requested */
 	redis_load_version(baton);
     else
 	doneRedisSlotsBaton(baton);
