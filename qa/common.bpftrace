@@ -62,14 +62,16 @@ _pmdabpftrace_wait_for_value()
     value_regex=${2:-".*"}
     for i in `seq 1 20`
     do
-        pminfo -f $1 2>/dev/null | grep -q "value $value_regex" && echo "found metric $1 with matching value $value_regex" && break
+        if pminfo -f $1 2>/dev/null | grep -q "value $value_regex"; then
+            echo "found metric $1 with matching value $value_regex"
+            return
+        fi
         sleep 0.5
     done
-    if [ $i -ge 20 ]; then
-        echo "Timeout (10s) while waiting for metric $1 to match \"$value_regex\", output:"
-        pminfo -f $1
-        exit
-    fi
+
+    echo "Timeout (10s) while waiting for metric $1 to match value $value_regex, script data:"
+    pminfo -f $(echo "$1" | sed -r 's/bpftrace\.scripts\.([^.]+)\..*/bpftrace.scripts.\1/')
+    exit 1
 }
 
 _pmdabpftrace_generate_openat_syscall_activity()
