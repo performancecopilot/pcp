@@ -20,7 +20,8 @@ _filter_log()
 {
     sed -e 's/started .*$/started DATE/' \
 	-e 's/^\[.*\]/[DATE]/' \
-        -e 's/([0-9]*)/(PID)/'
+        -e 's/([0-9]*)/(PID)/' \
+	-e 's/on .* started/on HOST started/'
 }
 
 _cleanup()
