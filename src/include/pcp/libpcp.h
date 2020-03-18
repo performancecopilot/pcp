@@ -1238,6 +1238,10 @@ PCP_CALL extern void __pmServerCloseRequestPorts(void);
 PCP_CALL extern void __pmServerDumpRequestPorts(FILE *);
 PCP_CALL extern char *__pmServerRequestPortString(int, char *, size_t);
 
+/* service manager notifications */
+PCP_CALL extern int __pmServerNotifyServiceManagerReady(pid_t);
+PCP_CALL extern int __pmServerNotifyServiceManagerStopping(pid_t);
+
 /* Service broadcasting, for servers. */
 typedef struct __pmServerPresence __pmServerPresence;
 PCP_CALL extern __pmServerPresence *__pmServerAdvertisePresence(const char *, int);
