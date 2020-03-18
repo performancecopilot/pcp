@@ -985,6 +985,7 @@ URL: https://pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Requires: perl-autodie
 Requires: perl-Time-HiRes
+Requires: perl-Data-Dumper
 
 %description pmda-redis
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
